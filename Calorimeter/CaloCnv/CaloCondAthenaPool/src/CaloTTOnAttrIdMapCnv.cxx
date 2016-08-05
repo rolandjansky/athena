@@ -37,7 +37,7 @@ StatusCode CaloTTOnAttrIdMapCnv::initialize()
 
    // Get the messaging service, print where you are
    MsgStream log(msgSvc(), "CaloTTOnAttrIdMapCnv");
-   log << MSG::INFO << "initialize()" << endreq;
+   log << MSG::INFO << "initialize()" << endmsg;
 
    return StatusCode::SUCCESS;
 }
@@ -50,11 +50,11 @@ StatusCode CaloTTOnAttrIdMapCnv::transToPers(CaloTTOnAttrIdMap* obj, CaloTTOnAtt
    persObj = (obj->getP()) ;
 
    if(persObj == 0 ) {
-	log<<MSG::ERROR<<" no persistent object from TTOnAttrIdMap " <<endreq;
+	log<<MSG::ERROR<<" no persistent object from TTOnAttrIdMap " <<endmsg;
 	return StatusCode::FAILURE;
    }
 
-   log<<MSG::DEBUG<<"  CaloTTOnAttrId size =  "<< persObj->m_v.size() <<endreq;
+   log<<MSG::DEBUG<<"  CaloTTOnAttrId size =  "<< persObj->m_v.size() <<endmsg;
    std::cout <<"  CaloTTOnAttrId_P pointer " << persObj  <<std::endl;
 
    return StatusCode::SUCCESS;
@@ -64,7 +64,7 @@ StatusCode CaloTTOnAttrIdMapCnv::persToTrans(CaloTTOnAttrIdMap*& transObj, CaloT
 
   MsgStream log(msgSvc(),"CaloTTOnAttrIdMapCnv")  ;
 
-  log<<MSG::DEBUG<<"  CaloOnAttrId size =  "<< obj->m_v.size() <<endreq;
+  log<<MSG::DEBUG<<"  CaloOnAttrId size =  "<< obj->m_v.size() <<endmsg;
 
   transObj=new CaloTTOnAttrIdMap();
   transObj->set( *obj ) ;
