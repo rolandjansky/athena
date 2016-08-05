@@ -102,7 +102,7 @@ StatusCode LArHVCablingTool::initialize ()
   // ==========
   StatusCode status = detStore()->retrieve(m_caloHelper, "CaloCell_ID");
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "Could not get Calo_ID helper !" << endreq;
+    msg(MSG::FATAL) << "Could not get Calo_ID helper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
@@ -114,7 +114,7 @@ StatusCode LArHVCablingTool::initialize ()
   // ==========
   status = detStore()->retrieve(m_emHelper, "LArEM_ID");
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArEM_ID helper !" << endreq;
+    msg(MSG::FATAL) << "Could not get LArEM_ID helper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
@@ -125,7 +125,7 @@ StatusCode LArHVCablingTool::initialize ()
   // =========
   status = detStore()->retrieve(m_hecHelper, "LArHEC_ID");
   if (status.isFailure())  {
-    msg(MSG::FATAL) << "Could not get LArHEC_ID helper !" << endreq;
+    msg(MSG::FATAL) << "Could not get LArHEC_ID helper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
@@ -136,7 +136,7 @@ StatusCode LArHVCablingTool::initialize ()
   // =========
   status = detStore()->retrieve(m_fcalHelper, "LArFCAL_ID");
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArFCAL_ID helper !" << endreq;
+    msg(MSG::FATAL) << "Could not get LArFCAL_ID helper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
@@ -148,7 +148,7 @@ StatusCode LArHVCablingTool::initialize ()
   // ===========
   status = detStore()->retrieve(m_hvlineHelper, "LArHVLineID");
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArHVLineID helper !" << endreq;
+    msg(MSG::FATAL) << "Could not get LArHVLineID helper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
@@ -160,7 +160,7 @@ StatusCode LArHVCablingTool::initialize ()
   // ==============
   status = detStore()->retrieve(m_electrodeHelper, "LArElectrodeID");
   if (status.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArElectrodeID helper !" << endreq;
+    msg(MSG::FATAL) << "Could not get LArElectrodeID helper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
@@ -170,7 +170,7 @@ StatusCode LArHVCablingTool::initialize ()
   
   status = detStore()->regFcn(&LArHVCablingTool::iovCallback,this,m_attrList,m_mappingFolder,true);
   if (status.isFailure()) {
-    msg(MSG::ERROR) << "Failed to register callback on folder " << m_mappingFolder << endreq;
+    msg(MSG::ERROR) << "Failed to register callback on folder " << m_mappingFolder << endmsg;
   }
   else
     ATH_MSG_DEBUG("Successfully registered callback on folder " << m_mappingFolder);
@@ -201,7 +201,7 @@ const HWIdentifier LArHVCablingTool::getLArHVLineID(HWIdentifier& electrodeId)
   //-----------------------------
   if(!m_initHVMap)
     {// if no map then fill it first
-      msg(MSG::INFO) << "[getLArHVLineID] no mapping defined..--> fillHVMap().." << endreq;
+      msg(MSG::INFO) << "[getLArHVLineID] no mapping defined..--> fillHVMap().." << endmsg;
       fillHVMap();
       m_initHVMap = true;
     }
@@ -226,7 +226,7 @@ const HWIdentifier LArHVCablingTool::getLArHVLineID(HWIdentifier& electrodeId)
 			<< "." << hvet << "." << hvga << "." << elec << "]" 
 			<< " corresponding hvlineID=[" 
 			<< part << "." << canl << "." << cann << "." << hvli << "]... OK "
-			<< endreq;
+			<< endmsg;
       }//end if debug
     return hvlineId;
   } 
@@ -247,7 +247,7 @@ const HWIdentifier LArHVCablingTool::getLArHVLineID(HWIdentifier& electrodeId)
     msg(MSG::WARNING) << "[getLArHVLineID] NO MAP for ElectrodeId=["
 	<< dete << "." << side << "." << modu << "." << hvph 
 	<< "." << hvet << "." << hvga << "." << elec << "] returning [" 
-	<< part << "." << canl << "." << cann << "." << hvli << "]... OK " << endreq;
+	<< part << "." << canl << "." << cann << "." << hvli << "]... OK " << endmsg;
     return (invalidId);
 
     //return m_hvmapHelper->getLArHVLineID( electrodeId ) ; 
@@ -273,10 +273,10 @@ int LArHVCablingTool::fillHVMap()
   std::istringstream infile;
 
   if (!detStore()->contains<AthenaAttributeList>(m_mappingFolder)) {
-    msg(MSG::ERROR) << " Cannot find /LAR/IdentifierOfl/HVLineToElectrodeMap from database, Use ASCII file indeed !!!" << endreq;
+    msg(MSG::ERROR) << " Cannot find /LAR/IdentifierOfl/HVLineToElectrodeMap from database, Use ASCII file indeed !!!" << endmsg;
     std::string tablename=PathResolver::find_file ("HVLineToElectrode.data", "DATAPATH");
     if (tablename == "") {
-      msg(MSG::WARNING) << "[fillHVMap] Could not locate HVLineToElectrode.data file" <<  endreq;
+      msg(MSG::WARNING) << "[fillHVMap] Could not locate HVLineToElectrode.data file" <<  endmsg;
       return(-1) ;
      }
      else{
@@ -303,11 +303,11 @@ int LArHVCablingTool::fillHVMap()
     //StatusCode sc=detStore()->retrieve(attrList,m_mappingFolder);
     //if (sc.isFailure()) {
     if (!m_attrList.isValid()) {
-      msg(MSG::ERROR) << "Failed to retrieve AttributeList with key " << m_mappingFolder << " from DetectorStore" << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve AttributeList with key " << m_mappingFolder << " from DetectorStore" << endmsg;
       return -1;
     }
 
-    msg(MSG::INFO) <<  " Found AttrList from " << m_mappingFolder << endreq;
+    msg(MSG::INFO) <<  " Found AttrList from " << m_mappingFolder << endmsg;
     std::ostringstream attrStr1;
     coral::AttributeList::const_iterator itr=m_attrList->begin();
     itr->toOutputStream(attrStr1);
@@ -322,7 +322,7 @@ int LArHVCablingTool::fillHVMap()
   }
 
   if(!infile) {
-    msg(MSG::WARNING) << "[fillHVMap] Could not load HVLineToElectrode.data file" <<  endreq;
+    msg(MSG::WARNING) << "[fillHVMap] Could not load HVLineToElectrode.data file" <<  endmsg;
     return(-1) ;
   }
   else{
@@ -411,7 +411,7 @@ int LArHVCablingTool::fillHVMap()
 	}
       }
       else{
-	//msg(MSG::INFO) << "[fillHVMap] max < min STOP !!!" << endreq;
+	//msg(MSG::INFO) << "[fillHVMap] max < min STOP !!!" << endmsg;
 	HWIdentifier electrodeId = m_electrodeHelper->ElectrodeId(detect,side,mod,hvphi,hveta,hvgap,min);
 	electrodeIdvec.push_back(electrodeId);
 
@@ -454,7 +454,7 @@ const std::vector<HWIdentifier>& LArHVCablingTool::getLArElectrodeIDvec(HWIdenti
   //-----------------------------
   if(!m_initHVMap)
     {// if no map then fill it first
-      msg(MSG::INFO) << "[getLArHVLineID] no mapping defined..--> fillHVMap().." << endreq;
+      msg(MSG::INFO) << "[getLArHVLineID] no mapping defined..--> fillHVMap().." << endmsg;
       fillHVMap();
       m_initHVMap = true;
     }
@@ -472,7 +472,7 @@ const std::vector<HWIdentifier>& LArHVCablingTool::getLArElectrodeIDvec(HWIdenti
     int cann = m_hvlineHelper->can_node(hvlineId);
     int hvli = m_hvlineHelper->hv_line(hvlineId);
     msg(MSG::WARNING) << "LArHVCablingSvc: getLArElectrodeIDvec didnot find electrode to hvline [" 
-	<< part << "." << canl << "." << cann << "." << hvli << "]" << endreq;
+	<< part << "." << canl << "." << cann << "." << hvli << "]" << endmsg;
     static std::vector<HWIdentifier> invalid;
     return(invalid);
   }
@@ -588,7 +588,7 @@ void LArHVCablingTool::getHVLineInCell( const Identifier& offId, std::vector<HWI
   //-----------------------------
   if(!m_initHVMap)
     {// if no map then fill it first
-      msg(MSG::INFO) << "[getHVLineInCell] no mapping defined..--> fillHVMap().." << endreq;
+      msg(MSG::INFO) << "[getHVLineInCell] no mapping defined..--> fillHVMap().." << endmsg;
       fillHVMap();
       m_initHVMap = true;
     }
@@ -695,7 +695,7 @@ void LArHVCablingTool::getHVLineInCell( const Identifier& offId, std::vector<HWI
 			  << " corresponding hvlineID=[" 
 			  << part1 << "." << canl1 << "." 
 			  << cann1 << "." << hvli1 << "] "  
-			  << endreq;
+			  << endmsg;
 	}
 	if( hvlineIdVec.size() == 0 ){
 	  ATH_MSG_DEBUG("[getHVLineInCell] -> first fill of vector..." );
@@ -750,7 +750,7 @@ void LArHVCablingTool::getHVLineInCell( const Identifier& offId, std::vector<HWI
 	    << iGap   << " elec_min="
 	    << elecmin <<" elec_max=" 
 	    << elecmax << "]" 
-	    << endreq;
+	    << endmsg;
       }
     } // Loop over gaps
   }// Loop over electrodes in cell
@@ -1075,7 +1075,7 @@ int LArHVCablingTool::getCellModule( const Identifier &offId )
     }
   }
   else{
-    msg(MSG::WARNING) << " -->> Invalid MODULE returned " << endreq;
+    msg(MSG::WARNING) << " -->> Invalid MODULE returned " << endmsg;
   }
   ATH_MSG_DEBUG("Closing getCellModule " );
   return ModuleID;
@@ -1162,7 +1162,7 @@ int LArHVCablingTool::getCellEtaSector( const Identifier &offId )
 	  hvEta=7;
 	}
 	else {
-	  msg(MSG::WARNING) << "==> Invalid HV Eta-Sector for sampling=" << sampling << " Region=" << region << " I(eta)="<< ieta << endreq;
+	  msg(MSG::WARNING) << "==> Invalid HV Eta-Sector for sampling=" << sampling << " Region=" << region << " I(eta)="<< ieta << endmsg;
 	}
       } 
     else if( sampling == 2 ){
@@ -1198,7 +1198,7 @@ int LArHVCablingTool::getCellEtaSector( const Identifier &offId )
 	  
 	}
       else{
-	msg(MSG::WARNING) << "==> Invalid HV Eta-Sector for sampling=" << sampling << " Region=" << region << " I(eta)="<< ieta << endreq; 
+	msg(MSG::WARNING) << "==> Invalid HV Eta-Sector for sampling=" << sampling << " Region=" << region << " I(eta)="<< ieta << endmsg; 
       }
     }
     else if( sampling == 3 ){
@@ -1229,10 +1229,10 @@ int LArHVCablingTool::getCellEtaSector( const Identifier &offId )
 	}
       }
       else if( region == 1){
-	msg(MSG::WARNING) << "==> Invalid HV Eta-Sector for sampling=" << sampling << " Region=" << region << " I(eta)="<< ieta << endreq; 
+	msg(MSG::WARNING) << "==> Invalid HV Eta-Sector for sampling=" << sampling << " Region=" << region << " I(eta)="<< ieta << endmsg; 
       }
       else{
-	msg(MSG::WARNING) << "==> Invalid HV Eta-Sector for sampling=" << sampling << " Region=" << region << " I(eta)="<< ieta << endreq; 
+	msg(MSG::WARNING) << "==> Invalid HV Eta-Sector for sampling=" << sampling << " Region=" << region << " I(eta)="<< ieta << endmsg; 
       }
     }
     
@@ -1256,12 +1256,12 @@ int LArHVCablingTool::getCellEtaSector( const Identifier &offId )
 	  }
 	}
 	else{
-	  msg(MSG::WARNING) << "Not in EMBPS..i(eta)=" << ieta << endreq;
+	  msg(MSG::WARNING) << "Not in EMBPS..i(eta)=" << ieta << endmsg;
  	}
       }
     }
     else {
-      msg(MSG::WARNING) << "Not in Barrel ..." << endreq;
+      msg(MSG::WARNING) << "Not in Barrel ..." << endmsg;
     }
   }
   else if( abs(l_bec) == 2 || abs(l_bec) == 3){ 
@@ -1437,11 +1437,11 @@ int LArHVCablingTool::getCellEtaSector( const Identifier &offId )
     }
     else{
       msg(MSG::WARNING) 
-	  << "[getCellEtaSector] invalid FCAL input cell.." << endreq;
+	  << "[getCellEtaSector] invalid FCAL input cell.." << endmsg;
     }
   }
   else{
-    msg(MSG::WARNING) << "[getCellModule] Detector unknown ! " << endreq;
+    msg(MSG::WARNING) << "[getCellModule] Detector unknown ! " << endmsg;
   }
   // Output 
   ATH_MSG_DEBUG("Closing getCellEtaSector ...." );
@@ -2249,7 +2249,7 @@ std::pair<int,int> LArHVCablingTool::getCellElectrodeMinMax( const Identifier &o
   else{
     msg(MSG::WARNING) 
 	<< "[getCellElectrodeMinMax] Detector unknown .." 
-	<< endreq; 
+	<< endmsg; 
   }
   ATH_MSG_DEBUG("[getCellElectrodeMinMax] Exiting..." );
   std::pair<int, int> electrodeMinMax( ElecMin, ElecMax); 
