@@ -110,7 +110,7 @@ CaloCondUtils::getDbCaloGain(int caloGain)
   //=== invalid gain
   {
     MsgStream log(Athena::getMessageSvc(), "CaloCondUtils::getDbCaloGain");
-    log << MSG::WARNING << "invalid gain found... probably corrupted data /badly decoded ?   returns DbCaloGain 0" << endreq; 
+    log << MSG::WARNING << "invalid gain found... probably corrupted data /badly decoded ?   returns DbCaloGain 0" << endmsg; 
     return 0;
   }
   //throw CaloCond::InvalidCaloGain("CaloCondUtils::getDbCaloGain()", caloGain);
