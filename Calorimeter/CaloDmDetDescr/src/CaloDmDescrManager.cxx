@@ -88,21 +88,21 @@ int CaloDmDescrManager::initialize()
   StatusCode sc = svcLoc->service("DetectorStore", m_detStore);
   if ( sc.isFailure() ) {
     log << MSG::ERROR
-        << "Unable to get pointer to StoreGate Service" << endreq;
+        << "Unable to get pointer to StoreGate Service" << endmsg;
     return 1;
   }
 
   sc = m_detStore->retrieve(m_caloDM_ID);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve caloDM_ID helper from DetectorStore" << endreq;
+        << "Unable to retrieve caloDM_ID helper from DetectorStore" << endmsg;
     return 1;
   }
 
   sc = m_detStore->retrieve(m_id_helper);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endreq;
+        << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endmsg;
     return 1;
   }
 
@@ -111,7 +111,7 @@ int CaloDmDescrManager::initialize()
   sc = load_regions(m_DmRegionFileName);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to load DM regions from '" << m_DmRegionFileName << "' file."<< endreq;
+        << "Unable to load DM regions from '" << m_DmRegionFileName << "' file."<< endmsg;
     return 1;
   }
 
@@ -363,17 +363,17 @@ StatusCode CaloDmDescrManager::load_regions(std::string DmRegionFileName)
   if(m_DmRegionVector.size()) {
     log << MSG::WARNING << "CaloDmDescrManager::build_element_list() -> Warning! Non empty list."
         << " m_DmRegionVector.size(): " << m_DmRegionVector.size()
-        << endreq;
+        << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Find the full path to filename:
   std::string file = PathResolver::find_file (DmRegionFileName, "DATAPATH");
-  log << MSG::INFO << "Reading file  " << file << endreq;
+  log << MSG::INFO << "Reading file  " << file << endmsg;
 
   std::ifstream fin(file.c_str());
   if(!fin){
-    log << MSG::ERROR << "Can't open file " << file << endreq;
+    log << MSG::ERROR << "Can't open file " << file << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -491,7 +491,7 @@ StatusCode CaloDmDescrManager::load_regions(std::string DmRegionFileName)
   } // while over lines in file
   fin.close();
 
-  log << MSG::INFO << "Loaded " << m_DmRegionVector.size()  << " LAr+Tile dead material regions from " << file << endreq;
+  log << MSG::INFO << "Loaded " << m_DmRegionVector.size()  << " LAr+Tile dead material regions from " << file << endmsg;
 
 //  std::vector<CaloDmRegion *>::const_iterator it = reg_begin();
 //  int i_reg = 0;
