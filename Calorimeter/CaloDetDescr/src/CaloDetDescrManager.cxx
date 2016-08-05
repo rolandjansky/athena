@@ -1574,7 +1574,7 @@ const CaloDetDescrManager* CaloDetDescrManager::instance()
 	}
       } 
       else {
-	log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
+	log << MSG::ERROR << "Could not locate DetectorStore" << endmsg;
       }
     }
     else
@@ -1623,7 +1623,7 @@ const CaloSuperCellDetDescrManager* CaloSuperCellDetDescrManager::instance()
 	}
       } 
       else {
-	log << MSG::ERROR << "Could not locate DetectorStore" << endreq;
+	log << MSG::ERROR << "Could not locate DetectorStore" << endmsg;
       }
     }
     else
