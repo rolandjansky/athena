@@ -83,7 +83,7 @@ StatusCode LArTimeVetoAlg::execute()
       if (!eventInfo->setErrorState(EventInfo::LAr,EventInfo::Error)) {
 	msg(MSG::WARNING) << " cannot set error state for LAr " << endreq;
       }
-      if (vetoWord & 0xFFFF) {
+      if (vetoWord & 0x1FFFF) {
 	ATH_MSG_DEBUG("Event flagged as Noise Burst!");
 	if (!eventInfo->setEventFlagBit(EventInfo::LAr,LArEventBitInfo::NOISEBURSTVETO)) {
 	  msg(MSG::WARNING) << " cannot set flag bit for LAr " << endreq;

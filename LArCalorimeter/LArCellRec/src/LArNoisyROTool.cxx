@@ -141,7 +141,7 @@ std::unique_ptr<LArNoisyROSummary> LArNoisyROTool::process(const CaloCellContain
     if ( m_ignore_masked_cells && std::abs(cell->e()) < 0.1 ) continue; //Fixme: use provenance
 
     Identifier id = cell->ID();
-    if (m_ignore_front_innerwheel_cells && m_calo_id->is_em_endcap_inner(id) && m_calo_id->sampling(id) == 2) continue; // Front inner wheel cells are ignored
+    if (m_ignore_front_innerwheel_cells && m_calo_id->is_em_endcap_inner(id) && m_calo_id->sampling(id) == 1) continue; // Front inner wheel cells are ignored
 
     // saturated Qfactor ? Tight cuts.
     if ( cell->quality()>=m_SaturatedCellQualityCut && 
