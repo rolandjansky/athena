@@ -15,6 +15,7 @@ use TrigConfxAOD	TrigConfxAOD-*		Trigger/TrigConfiguration
 use GaudiInterface	GaudiInterface-*	External
 use AthenaBaseComps	AthenaBaseComps-*	Control
 use xAODTrigger		xAODTrigger-*		Event/xAOD
+use xAODTrigMuon	xAODTrigMuon-*		Event/xAOD
 
 end_private
 

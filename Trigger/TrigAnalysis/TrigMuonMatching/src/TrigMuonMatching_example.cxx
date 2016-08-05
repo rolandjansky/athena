@@ -3,7 +3,9 @@
 */
 
 #include "xAODMuon/MuonContainer.h"
+#include "xAODMuon/MuonAuxContainer.h"
 #include "TrigMuonMatching_example.h"
+
 
 #include <cmath>
 
@@ -41,15 +43,24 @@ namespace Trig {
     for(const auto* mu: *muons){
       Bool_t ismu26_imedium = false;
       Bool_t ismu50 = false;
+      Bool_t isL2SA = false;
+      Bool_t isL2CB = false;
+      Bool_t isL1 = false;
       ismu26_imedium = m_matchTool->match(mu,"HLT_mu26_imedium");
       ismu50 = m_matchTool->match(mu,"HLT_mu50");
+      isL2SA = m_matchTool->matchL2SA(mu, "L1_MU20", "HLT_mu26_imedium");
+      isL2CB = m_matchTool->matchL2CB(mu, "HLT_mu26_imedium");
+      isL1 = m_matchTool->matchL1(mu,"L1_MU20");
       if(ismu26_imedium)std::cout << "HLT_mu26_imedium matched." << std::endl;
+      if(ismu50)std::cout << "HLT_mu50 matched." << std::endl;
+      if(isL2SA) std::cout << "L2 SA matched" << std::endl;
+      if(isL2CB) std::cout << "L2 CB matched" << std::endl;
+      if(isL1) std::cout << "L1_MU20 matched" << std::endl;
+      
       Double_t dR = m_matchTool->minDelR(mu,"HLT_mu26_imedium");
       std::cout << "DeltaR(mu26_imedium) " << dR << std::endl;
       Double_t dRL1 = m_matchTool->minDelRL1(mu,"L1_MU20");
       std::cout << "DeltaR(L1_MU20) " << dRL1 << std::endl;
-      
-      if(ismu50)std::cout << "HLT_mu50 matched." << std::endl;
 
       xAOD::Muon* newMuon = new xAOD::Muon;
       goodMuon->push_back(newMuon);
@@ -59,18 +70,14 @@ namespace Trig {
     const xAOD::MuonContainer* SelectedMuons = 0;
     ATH_CHECK(evtStore()->retrieve(SelectedMuons,"GoodMuon"));
     ATH_MSG_INFO( "Number of selected muons: " << SelectedMuons->size() );
-    Int_t index = 0;
-    const xAOD::Muon *mu1 = 0;
-    const xAOD::Muon *mu2 = 0;
     if(SelectedMuons->size()==2){
-      for(const auto* muon : *SelectedMuons){
-	if(index == 0) mu1 = muon;
-	if(index == 1) mu2 = muon;
-	index = index + 1;
+      const xAOD::Muon *mu1 = (*SelectedMuons)[0];
+      const xAOD::Muon *mu2 = (*SelectedMuons)[1];
+      if (mu1 && mu2) {
+        std::pair<Bool_t,Bool_t> result1, result2;
+        m_matchTool->matchDimuon(mu1, mu2, "HLT_2mu14", result1, result2);
+        if(result1.first && result2.first)std::cout << "HLT_2mu14 matched" << std::endl;
       }
-      std::pair<Bool_t,Bool_t> result1, result2;
-      m_matchTool->matchDimuon(mu1, mu2, "HLT_2mu14", result1, result2);
-      if(result1.first && result2.first)std::cout << "HLT_2mu14 matched" << std::endl;
     }
     
     return StatusCode::SUCCESS;
