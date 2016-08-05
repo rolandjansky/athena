@@ -39,6 +39,14 @@ from TrigInDetConf.TrackingAlgCfgble import TrigFastTrackFinder
 
 from InDetTrigRecExample.InDetTrigFlags import InDetTrigFlags
 
+def vertexXAODCnvNeeded():
+  # temporary check whether the release have a new version of TrigVxPrimary capable of producing 
+  # xAOD::Vertex natively
+
+  from InDetTrigPriVxFinder.InDetTrigPriVxFinderConf import InDet__TrigVxPrimary
+  a = InDet__TrigVxPrimary("dummy")
+  return not hasattr(a, "BeamCondSvc")     
+
 
 class TrigInDetSequenceBase:
   """
@@ -141,7 +149,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
       #raise Exception
 
-    log.info('%s ' % algseq)  
+    log.debug('%s ' % algseq)  
 
     self.__sequence__.append(algseq)
     pass
@@ -171,7 +179,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
 
     fullseq = list()
 
-    log.info("TrigInDetSequence  sigName=%s seqFlav=%s sig=%s sequenceType=%s" % (signatureName, sequenceFlavour, signature, sequenceType))
+    log.debug("TrigInDetSequence  sigName=%s seqFlav=%s sig=%s sequenceType=%s" % (signatureName, sequenceFlavour, signature, sequenceType))
 
     dataprep = [
       ("PixelClustering", "PixelClustering_IDTrig"),
@@ -211,8 +219,9 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                 ("InDetTrigTrackingxAODCnv",cnvname),
                 ]
       if sequenceFlavour=="2step" and self.__signature__=="bjet":
-        algos += [("TrigVxPrimary",""),
-                  ("InDetTrigVertexxAODCnv","")]
+        algos += [("TrigVxPrimary","")]
+        if vertexXAODCnvNeeded(): 
+           algos += [("InDetTrigVertexxAODCnv","")]
 
       fullseq.append(algos)
  
@@ -232,7 +241,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                  ("InDetTrigPRD_MultiTruthMaker",""), 
                  ("TRTTrackExtAlg",""),
                  ("TrigExtProcessor",""),
-                 ("InDetTrigTrackSlimmer",""),
+                 #("InDetTrigTrackSlimmer",""),
                  ("InDetTrigTrackingxAODCnv",""),
                  ("InDetTrigDetailedTrackTruthMaker",""),
                  #("TrigVxPrimary",""),
@@ -241,8 +250,10 @@ class TrigInDetSequence(TrigInDetSequenceBase):
                  #("InDetTrigVertexxAODCnv","")
                  ]
         if self.__signature__ != "bjet":
-          algos += [("TrigVxPrimary",""),
-                    ("InDetTrigVertexxAODCnv","")]
+          algos += [("TrigVxPrimary","")]
+          if vertexXAODCnvNeeded(): 
+            algos += [("InDetTrigVertexxAODCnv","")]
+
         fullseq.append(algos)
 
       
@@ -264,7 +275,7 @@ class TrigInDetSequence(TrigInDetSequenceBase):
     else:
       pass
 
-    log.info("Full sequence has %d items" % len(fullseq) )
+    log.debug("Full sequence has %d items" % len(fullseq) )
     #print fullseq
     #log.info("generate python now")
 
