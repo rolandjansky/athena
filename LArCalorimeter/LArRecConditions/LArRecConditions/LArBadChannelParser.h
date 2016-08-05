@@ -84,7 +84,7 @@ inline std::vector< std::pair<std::vector<int>, std::vector<T> > > LArBadChannel
 
   if(!fileStatusGood())
   {
-    (*m_log) << MSG::ERROR << "LArBadChannelParser - Could not open file: " << m_filename << endreq;
+    (*m_log) << MSG::ERROR << "LArBadChannelParser - Could not open file: " << m_filename << endmsg;
     return result;	//empty result
   }
 
@@ -101,7 +101,7 @@ inline std::vector< std::pair<std::vector<int>, std::vector<T> > > LArBadChannel
     {
       if(input.size() != 0) // complain only for non-empty lines
         {(*m_log) << MSG::WARNING << "LArBadChannelParser REJECTED line " << m_linenumber \
-          << " -\t not enough parameters given: " << input.size() << endreq;}
+          << " -\t not enough parameters given: " << input.size() << endmsg;}
       continue;
     }
 
@@ -122,13 +122,13 @@ inline std::vector< std::pair<std::vector<int>, std::vector<T> > > LArBadChannel
     }
 
     if(stop < input.end())
-      (*m_log) << MSG::WARNING << "LArBadChannelParser IGNORED unexpected input on line " << m_linenumber << "." << endreq;
+      (*m_log) << MSG::WARNING << "LArBadChannelParser IGNORED unexpected input on line " << m_linenumber << "." << endmsg;
 
     result.push_back(parsedData);
-    (*m_log) << MSG::VERBOSE << "LArBadChannelParser ACCEPTED line " << m_linenumber << " -\t " << line << endreq;
+    (*m_log) << MSG::VERBOSE << "LArBadChannelParser ACCEPTED line " << m_linenumber << " -\t " << line << endmsg;
   }
 
-  (*m_log) << MSG::DEBUG << "LArBadChannelParser - Parsed " << m_linenumber << " lines in file '" << m_filename << "'." << endreq;
+  (*m_log) << MSG::DEBUG << "LArBadChannelParser - Parsed " << m_linenumber << " lines in file '" << m_filename << "'." << endmsg;
   return result;
 }
 
@@ -152,7 +152,7 @@ inline bool LArBadChannelParser::convertStrings(std::vector<T>& result,
     else
     {
       (*m_log) << MSG::WARNING << "LArBadChannelParser REJECTED line " << m_linenumber \
-        << " -\t failed to extract status." << endreq;
+        << " -\t failed to extract status." << endmsg;
       return false;
     }
   }

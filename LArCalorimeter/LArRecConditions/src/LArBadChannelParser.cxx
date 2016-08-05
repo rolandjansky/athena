@@ -86,7 +86,7 @@ std::vector<int> LArBadChannelParser::getIdFields(const std::vector<std::string>
       (*m_log) << MSG::WARNING << "LArBadChannelParser REJECTED line " << m_linenumber \
         << " -\t word " << i + 1 << " must be a non-negative integer " \
         << (canBeWildcard ? "or " : "and not " ) \
-        << "a wildcard: " << words[i] << endreq;
+        << "a wildcard: " << words[i] << endmsg;
       result.clear();
       return result;	// return empty vector on error
     }
