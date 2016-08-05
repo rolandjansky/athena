@@ -52,11 +52,11 @@ CaloIdMgrDetDescrCnv::initialize()
 {
     // First call parent init
     StatusCode sc = DetDescrConverter::initialize();
-    MsgStream log(messageService(), "CaloIdMgrDetDescrCnv");
-    log << MSG::DEBUG << "in initialize" << endreq;
+    MsgStream log(msgSvc(), "CaloIdMgrDetDescrCnv");
+    log << MSG::DEBUG << "in initialize" << endmsg;
 
     if (sc.isFailure()) {
-        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
+        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
 	return sc;
     }
 
@@ -68,8 +68,8 @@ CaloIdMgrDetDescrCnv::initialize()
 StatusCode
 CaloIdMgrDetDescrCnv::finalize()
 {
-    MsgStream log(messageService(), "CaloIdMgrDetDescrCnv");
-    log << MSG::DEBUG << "in finalize" << endreq;
+    MsgStream log(msgSvc(), "CaloIdMgrDetDescrCnv");
+    log << MSG::DEBUG << "in finalize" << endmsg;
 
     return StatusCode::SUCCESS;
 }
@@ -89,7 +89,7 @@ StatusCode set_helper (StoreGateSvc* detStore,
   const T* id = 0;
   CHECK_WITH_CONTEXT( detStore->retrieve (id, sgkey), "CaloIdMgrDetDescrCnv" );
   mgr->set_helper (id);
-  log << MSG::DEBUG << "Found Calo ID helper " << sgkey << endreq;
+  log << MSG::DEBUG << "Found Calo ID helper " << sgkey << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -99,27 +99,27 @@ StatusCode set_helper (StoreGateSvc* detStore,
 StatusCode
 CaloIdMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 {
-    MsgStream log(messageService(), "CaloIdMgrDetDescrCnv");
+    MsgStream log(msgSvc(), "CaloIdMgrDetDescrCnv");
     log << MSG::INFO
 	<< "in createObj: creating a CaloDescrManager object in the detector store"
-	<< endreq;
+	<< endmsg;
 
     // Create a new CaloIdManager
 
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
-	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
+	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
 	return StatusCode::FAILURE;
     }
 
     // Get the StoreGate key of this container.
     std::string mgrKey  = *( ddAddr->par() );
     if ("" == mgrKey) {
-	log << MSG::DEBUG << "No Manager key " << endreq;
+	log << MSG::DEBUG << "No Manager key " << endmsg;
     }
     else {
-	log << MSG::DEBUG << "Manager key is " << mgrKey << endreq;
+	log << MSG::DEBUG << "Manager key is " << mgrKey << endmsg;
     }
 
     // Create the manager
@@ -167,14 +167,14 @@ CaloIdMgrDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 #undef SET_HELPER
 
 
-    log << MSG::INFO << " Finished " << endreq;
+    log << MSG::INFO << " Finished " << endmsg;
 
     // Initialize the calo mgr
     //  We protect here in case this has been initialized elsewhere
     if (!caloIdMgr->isInitialized()) {
 
       log << MSG::INFO << "Initializing CaloIdMgr from values in CaloIdMgrDetDescrCnv "
-	  << endreq;
+	  << endmsg;
 
       // Initialize the manager ...
 

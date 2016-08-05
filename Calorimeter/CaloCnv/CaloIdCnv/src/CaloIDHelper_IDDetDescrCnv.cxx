@@ -39,23 +39,23 @@ StatusCode CaloIDHelper_IDDetDescrCnv::createObj (IOpaqueAddress* pAddr,
   CHECK( service ("ClassIDSvc", clidsvc) );
   CHECK( clidsvc->getTypeNameOfID (objType(), type_name) );
 
-  MsgStream log(messageService(), "CaloIDHelper_IDDetDescrCnv");
+  MsgStream log(msgSvc(), "CaloIDHelper_IDDetDescrCnv");
   log << MSG::INFO << "in createObj: creating a " << type_name
-      << " helper object in the detector store" << endreq;
+      << " helper object in the detector store" << endmsg;
 
   // Get the SG key.
   DetDescrAddress* ddAddr;
   ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
   if(!ddAddr) {
-    log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
+    log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
     return StatusCode::FAILURE;
   }
   std::string helperKey  = *( ddAddr->par() );
   if ("" == helperKey) {
-    log << MSG::DEBUG << "No Helper key " << endreq;
+    log << MSG::DEBUG << "No Helper key " << endmsg;
   }
   else {
-    log << MSG::DEBUG << "Helper key is " << helperKey << endreq;
+    log << MSG::DEBUG << "Helper key is " << helperKey << endmsg;
   }
     
   // get DetectorStore service
@@ -71,13 +71,13 @@ StatusCode CaloIDHelper_IDDetDescrCnv::createObj (IOpaqueAddress* pAddr,
   CHECK( createHelper (helperKey, idhelper, pObj) );
 
   // Initialize the helper.
-  idhelper->setMessageSvc (messageService());
+  idhelper->setMessageSvc (msgSvc());
   if (idDictMgr->initializeHelper(*idhelper)) {
-    log << MSG::ERROR << "Unable to initialize " << type_name << endreq;
+    log << MSG::ERROR << "Unable to initialize " << type_name << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
-    log << MSG::DEBUG << " Initialized " << type_name << endreq;
+    log << MSG::DEBUG << " Initialized " << type_name << endmsg;
   }
 
   return StatusCode::SUCCESS; 
