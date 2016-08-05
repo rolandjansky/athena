@@ -33,14 +33,14 @@ StatusCode LArCablingBase::finalize ()
 
 
 bool LArCablingBase::readOnlOffMap() {
-  msg(MSG::DEBUG) << "Start reading Online/Offline mapping" << endreq;
+  msg(MSG::DEBUG) << "Start reading Online/Offline mapping" << endmsg;
   m_onOffValid=false;
   m_onlHashToOffline.clear();
   m_oflHashToOnline.clear();
 
   StatusCode sc=detStore()->retrieve(m_attrOnOff,m_onOffIdKey);
   if (sc.isFailure()) {
-    msg() << MSG::ERROR << "Failed to read AthenaAttributeList with key " << m_onOffIdKey << endreq;
+    msg() << MSG::ERROR << "Failed to read AthenaAttributeList with key " << m_onOffIdKey << endmsg;
     return false;
   }
   const coral::Blob& blobOnOff=(*m_attrOnOff)["OnlineHashToOfflineId"].data<coral::Blob>();
@@ -50,7 +50,7 @@ bool LArCablingBase::readOnlOffMap() {
 
   if (nChan!=m_onlineId->channelHashMax()) {
     msg() << MSG::WARNING << "Number of channels read from DB (" << nChan << ") does not match online hash max (" 
-	     <<m_onlineId->channelHashMax() << ")" << endreq;
+	     <<m_onlineId->channelHashMax() << ")" << endmsg;
     nChan=std::min(nChan,(unsigned)m_onlineId->channelHashMax());
   }
 
@@ -71,9 +71,9 @@ bool LArCablingBase::readOnlOffMap() {
     }
   }//end loop over channels
 
-  msg() << MSG::INFO << "Done reading online/offline identifier mapping" << endreq; 
+  msg() << MSG::INFO << "Done reading online/offline identifier mapping" << endmsg; 
   msg() << MSG::INFO << "Found " << nChan << " online identifier and " << nConnected << " offline identifier. " 
-	<< nChan-nConnected << " disconnected channels." << endreq;
+	<< nChan-nConnected << " disconnected channels." << endmsg;
   m_onOffValid=true;
   return true;
   
