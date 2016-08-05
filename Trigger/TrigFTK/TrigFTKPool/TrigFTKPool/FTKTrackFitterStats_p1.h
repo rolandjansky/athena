@@ -12,6 +12,8 @@ private:
   unsigned int m_ncombs; // number of combinations
   unsigned int m_nfits; // number of fitted combinations
   unsigned int m_nfits_maj; // number of fitted combinations in majority roads
+  unsigned int m_nfits_maj_pix; // number of fitted combinations in majority roads for pix missing
+  unsigned int m_nfits_maj_SCT; // number of fitted combinations in majority roads for SCT missing
   unsigned int m_nfits_rec; // number of full fits attempted to recover
   unsigned int m_nfits_addrec; // additional fits performed because the recovery
   unsigned int m_nfits_bad; // # fits with a bad chi^2
