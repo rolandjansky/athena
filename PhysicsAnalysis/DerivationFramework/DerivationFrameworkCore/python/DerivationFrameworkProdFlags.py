@@ -728,6 +728,19 @@ class WriteDAOD_TAUP3Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TAUP3Stream)
 listAODtoDPD.append(WriteDAOD_TAUP3Stream.StreamName)
 
+class WriteDAOD_TAUP4Stream(JobProperty):
+    """TAUP4 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_TAUP4'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkTau/TAUP4.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_TAUP4Stream)
+listAODtoDPD.append(WriteDAOD_TAUP4Stream.StreamName)
+
 
 #################################
 # Defined by the SUSY group
@@ -1153,6 +1166,19 @@ class WriteDAOD_EXOT17Stream(JobProperty):
     pass
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT17Stream)
 listAODtoDPD.append(WriteDAOD_EXOT17Stream.StreamName)
+
+class WriteDAOD_EXOT18Stream(JobProperty):
+    """EXOT18 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT18'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT18.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT18Stream)
+listAODtoDPD.append(WriteDAOD_EXOT18Stream.StreamName)
 
 
 #################################
