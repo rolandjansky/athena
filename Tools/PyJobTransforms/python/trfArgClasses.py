@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 761740 2016-07-13 19:40:39Z mavogel $
+# @version $Id: trfArgClasses.py 764775 2016-07-27 18:09:38Z graemes $
 
 import argparse
 import bz2
@@ -2106,6 +2106,12 @@ class argSubstepSteering(argSubstep):
     @property
     def value(self):
         return self._value
+    
+    # This argument gets dumped in a special way, using an alias directly
+    # instead of the expanded value
+    @property
+    def dumpvalue(self):
+        return self._dumpvalue
 
     @property
     def prodsysDescription(self):
@@ -2118,9 +2124,10 @@ class argSubstepSteering(argSubstep):
     #  This is then cast into a dictionary of tuples {substep: [('in/out', '+/-', DATATYPE), ...], ...}
     @value.setter
     def value(self, value):
-        msg.debug('Attempting to set argSubstepSteering from {0!s} (type {1}'.format(value, type(value)))
+        msg.debug('Attempting to set argSubstepSteering from {0!s} (type {1})'.format(value, type(value)))
         if value is None:
             self._value = {}
+            self._dumpvalue = [""]
         elif isinstance(value, dict):
             # OK, this should be the direct setable dictionary - but do a check of that
             for k, v in value.iteritems():
@@ -2132,9 +2139,15 @@ class argSubstepSteering(argSubstep):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                                   'Failed to convert dict {0!s} to argSubstepSteering'.format(value))                    
             self._value = value
+            # Note we are a little careful here to never reset the dumpvalue - this is 
+            # because when processing the _list_ of steering arguments down to a single
+            # multi-valued argument we re-call value() with an expanded diectionary and
+            # one can nievely reset dumpvalue by mistake
+            self._dumpvalue = getattr(self, "_dumpvalue", value)
         elif isinstance(value, (str, list, tuple)):
             if isinstance(value, str):
                 value = [value,]
+            self._dumpvalue = getattr(self, "_dumpvalue", value)
             # Now we have a list of strings to parse
             self._value = {}
             for item in value:

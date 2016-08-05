@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 759229 2016-07-01 19:59:29Z mavogel $
+# @version $Id: trfExe.py 766703 2016-08-05 12:43:10Z mavogel $
 
 import copy
 import json
@@ -719,7 +719,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 759229 2016-07-01 19:59:29Z mavogel $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 766703 2016-08-05 12:43:10Z mavogel $')
         else:
             self._jobOptionsTemplate = None
 
@@ -799,7 +799,7 @@ class athenaExecutor(scriptExecutor):
             # which also avoids issues with zero sized files
             if expectedEvents < self._athenaMP:
                 msg.info("Disabling AthenaMP as number of input events to process is too low ({0} events for {1} workers)".format(expectedEvents, self._athenaMP))
-                self.conf._disableMP = True
+                self._disableMP = True
                 self._athenaMP = 0
             
         # And if this is (still) athenaMP, then set some options for workers and output file report

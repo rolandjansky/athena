@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 758160 2016-06-28 13:47:19Z lerrenst $
+#  @version $Id: trfReports.py 763940 2016-07-24 13:46:01Z uworlika $
 #
 
-__version__ = '$Revision: 758160 $'
+__version__ = '$Revision: 763940 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '2.0.3'
+    _reportVersion = '2.0.4'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
