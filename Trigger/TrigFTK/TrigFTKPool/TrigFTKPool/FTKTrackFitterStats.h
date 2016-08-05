@@ -18,6 +18,8 @@ private:
   unsigned int m_nfits_rej; // # of fits rejected because the HW
   unsigned int m_nfits_badmaj; // # fits with a bad chi^2
   unsigned int m_nfits_rejmaj; // # of fits rejected because the HW
+  unsigned int m_nconn; // number of connections
+  unsigned int m_nextrapolatedTracks;
 
 public:
   FTKTrackFitterStats();
@@ -33,6 +35,8 @@ public:
   void setNFitsHWRejected(int v) { m_nfits_rej = v; }
   void setNFitsBadMajority(int v) { m_nfits_badmaj = v; }
   void setNFitsHWRejectedMajority(int v) { m_nfits_rejmaj = v; }
+  void setNConn(int v) {m_nconn = v;}
+  void setNExtrapolatedTracks(int v) {m_nextrapolatedTracks = v;}
 
   void addNCombs(int v) { m_ncombs += v; }
   void addNFits(int v) { m_nfits += v; }
@@ -45,6 +49,8 @@ public:
   void addNFitsHWRejected(int v) { m_nfits_rej += v; }
   void addNFitsBadMajority(int v) { m_nfits_badmaj += v; }
   void addNFitsHWRejectedMajority(int v) { m_nfits_rejmaj += v; }
+  void addNConnections(int v) {m_nconn += v;}
+  void addNExtrapolatedTracks(int v) {m_nextrapolatedTracks += v;}
 
   unsigned int getNCombs() const { return m_ncombs; }
   unsigned int getNFits() const { return m_nfits; }
@@ -57,10 +63,11 @@ public:
   unsigned int getNFitsHWRejected() const { return m_nfits_rej; }
   unsigned int getNFitsBadMajority() const { return m_nfits_badmaj; }
   unsigned int getNFitsHWRejectedMajority() const { return m_nfits_rejmaj; }
-
+  unsigned int getNConn() const { return m_nconn;}
+  unsigned int getNExtrapolatedTracks() {return m_nextrapolatedTracks;}
 };
 
 #include "CLIDSvc/CLASS_DEF.h"
-CLASS_DEF(FTKTrackFitterStats,764785,2)
+CLASS_DEF(FTKTrackFitterStats,764785,3)
 
 #endif // FTKTRACKFITTERSTATS_H
