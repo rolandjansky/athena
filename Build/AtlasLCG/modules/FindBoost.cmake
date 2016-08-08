@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindBoost.cmake 742646 2016-04-25 13:55:23Z krasznaa $
+# $Id: FindBoost.cmake 763307 2016-07-20 16:15:56Z alibrari $
 #
 # This file is here to intercept find_package(Boost) calls, and
 # massage the paths produced by the system module, to make them relocatable.
@@ -92,6 +92,22 @@ if( Boost_FOUND AND NOT GAUDI_ATLAS )
    endforeach()
 
 endif()
+
+# Add the appropriate thread library to the library list.
+# As many ATLAS packages depend on Boost code that internally
+# depends on pthread.
+find_package( Threads )
+if( CMAKE_THREAD_LIBS_INIT )
+   list( APPEND Boost_LIBRARIES ${CMAKE_THREAD_LIBS_INIT} )
+endif()
+
+# Adding additional link options for Boost libraries cf ATLINFR-1150
+lcg_os_id( _os _isValid )
+if( _isValid AND "${_os}" STREQUAL "centos7" )
+   list( APPEND Boost_LIBRARIES "-Wl,--copy-dt-needed-entries" )
+endif()
+unset( _os )
+unset( _isValid )
 
 # Set up the RPM dependency:
 lcg_need_rpm( Boost )

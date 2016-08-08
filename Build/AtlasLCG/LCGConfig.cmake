@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: LCGConfig.cmake 755442 2016-06-16 15:08:07Z krasznaa $
+# $Id: LCGConfig.cmake 766881 2016-08-08 09:21:38Z krasznaa $
 #
 # File implementing the code that gets called when a project imports
 # LCG using something like:
@@ -177,7 +177,7 @@ function( lcg_setup_packages lcgFile lcgReleaseDir )
    endif()
 
    # Read in the contents of the file:
-   file( STRINGS ${lcgFile} _fileContents LIMIT_INPUT 20000
+   file( STRINGS ${lcgFile} _fileContents LIMIT_INPUT 5000000
       REGEX ".*;.*;.*;.*;.*" )
 
    # Loop over each line of the configuration file:
