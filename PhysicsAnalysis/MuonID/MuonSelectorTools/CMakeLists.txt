@@ -11,12 +11,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODMuon
                           GaudiKernel
                           PhysicsAnalysis/AnalysisCommon/PATCore
-                          PRIVATE
+                          AtlasROOT
+			  Tools/PathResolver
+			  PRIVATE
                           Control/AthenaBaseComps
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODTracking 
-			  Tools/PathResolver )
+                          Event/xAOD/xAODTracking )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -27,8 +28,8 @@ atlas_add_library( MuonSelectorToolsLib
                    Root/*.cxx
                    PUBLIC_HEADERS MuonSelectorTools
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AsgTools xAODMuon GaudiKernel PATCoreLib
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODCore xAODEventInfo xAODTracking PathResolver )
+                   LINK_LIBRARIES AsgTools xAODMuon GaudiKernel PATCoreLib PathResolver
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps xAODCore xAODEventInfo xAODTracking )
 
 atlas_add_component( MuonSelectorTools
                      src/components/*.cxx

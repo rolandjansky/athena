@@ -1,5 +1,5 @@
 package MuonSelectorTools 
-author Stefano Zambito <stefano.zambito@cern.ch>
+author Stefano Zambito <stefano.zambito@cern.ch> 
 
 public
 use  AtlasPolicy                AtlasPolicy-*
