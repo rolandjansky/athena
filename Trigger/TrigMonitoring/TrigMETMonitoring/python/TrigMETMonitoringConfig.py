@@ -64,8 +64,8 @@ met_alt_algorithms = [
         "cell",
         "pueta",
         "pufit",
-        "feb",
-        "fex",
+        #"feb",
+        #"fex",
 ]
 
 
