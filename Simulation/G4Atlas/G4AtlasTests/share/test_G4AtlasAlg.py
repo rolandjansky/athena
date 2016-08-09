@@ -24,7 +24,7 @@ athenaCommonFlags.EvtMax = 500
 
 ## Set global conditions tag
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.ConditionsTag = "OFLCOND-SDR-BS7T-05-03"
+jobproperties.Global.ConditionsTag = "OFLCOND-RUN12-SDR-19"
 
 ## Simulation flags
 from G4AtlasApps.SimFlags import simFlags

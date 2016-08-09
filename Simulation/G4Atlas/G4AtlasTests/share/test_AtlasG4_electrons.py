@@ -28,8 +28,8 @@ athenaCommonFlags.EvtMax = EvtMax
 
 ## Set global conditions tag
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag = "OFLCOND-MC12-SIM-00"
-#globalflags.DetDescrVersion = 'ATLAS-GEO-18-01-03'
+globalflags.ConditionsTag = "OFLCOND-RUN12-SDR-19"
+#globalflags.DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
 
 ## Simulation flags
 athenaCommonFlags.PoolEvgenInput.set_Off()
@@ -37,7 +37,7 @@ athenaCommonFlags.SkipEvents.set_Off()
 from G4AtlasApps.SimFlags import simFlags
 simFlags.load_atlas_flags()
 simFlags.SimLayout.set_On()
-simFlags.SimLayout='ATLAS-GEO-20-00-01_VALIDATION'
+simFlags.SimLayout='ATLAS-R2-2015-03-01-00_VALIDATION'
 
 ## Enable the EtaPhi, VertexSpread and VertexRange checks
 simFlags.EventFilter.set_On()

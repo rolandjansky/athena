@@ -12,7 +12,7 @@
 
 #include "TH1D.h"
 #include "TH2D.h"
-
+#include <math.h> 
 
 
 MuonHitTestToolBase::MuonHitTestToolBase(const std::string& type, const std::string& name, const IInterface* parent)
@@ -100,6 +100,8 @@ StatusCode  MuonHitTestToolBase::executeFillHistos(const Amg::Vector3D & u) {
       return StatusCode::SUCCESS;
 }
 
+
+
 StatusCode MuonHitTestToolBase::initialize() {
 
   CHECK(detStore()->retrieve(m_pMuonMgr));
@@ -153,7 +155,7 @@ StatusCode MuonHitTestToolBase::initialize() {
 
   _TH2D(m_detBarrel,(m_detname+"_det_barrel").c_str(),200,-11000.,11000.,200,-11000.,11000.);
   _TH2D(m_longView,(m_detname+"_long_view").c_str(),200,-24000.,24000.,200,0.,14000.);
-
+  
   return StatusCode::SUCCESS;
 
 }
