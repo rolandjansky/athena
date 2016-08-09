@@ -156,6 +156,8 @@
 
             <keepFilePattern>HLT-plots-PrmVtx/STAR.p*</keepFilePattern>
           
+            <keepFilePattern>HLTL2-plots-beamspot/STAR.p*</keepFilePattern>
+
             <keepFilePattern>costMonitoring*/STAR</keepFilePattern>
             <keepFilePattern>costMonitoring*/csv/STAR</keepFilePattern>
 

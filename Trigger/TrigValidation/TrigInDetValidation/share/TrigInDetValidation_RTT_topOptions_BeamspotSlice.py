@@ -46,6 +46,7 @@ if 'runMergedChain' in dir() and runMergedChain==True:
 rID=False
 if 'doIDNewTracking' in dir() and doIDNewTracking==True:
   rID = True
+
 rFTK=False
 if 'doFTK' in dir() and doFTK==True:
   from TriggerJobOpts.TriggerFlags import TriggerFlags
