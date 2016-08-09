@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PrintHelpers.cxx 696794 2015-09-25 09:35:39Z krasznaa $
+// $Id: PrintHelpers.cxx 750677 2016-05-30 10:24:50Z krasznaa $
 
 // System include(s):
 #include <iostream>
@@ -71,8 +71,12 @@ std::ostream& operator<< ( std::ostream& out, const SG::AuxElement& obj ) {
       out << "\", \tvalue: ";
 
 /// Helper macro to make the code slightly shorter
-#define PRINTER( TYPE )                                   \
-   out << obj.auxdata< TYPE >( reg.getName( auxid ) )
+#define PRINTER( TYPE )                                           \
+      do {                                                        \
+         if( obj.isAvailable< TYPE >( reg.getName( auxid ) ) ) {  \
+            out << obj.auxdata< TYPE >( reg.getName( auxid ) );   \
+         }                                                        \
+      } while( 0 )
 
       // The type of the variable:
       const std::type_info* ti = reg.getType( auxid );
