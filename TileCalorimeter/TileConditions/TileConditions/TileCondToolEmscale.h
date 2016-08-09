@@ -221,6 +221,16 @@ class TileCondToolEmscale: public AthAlgTool {
      @param channel Tile channel */
     float getCesRefLas(unsigned int drawerIdx, unsigned int channel) const;
 
+    /** @brief Returns the PMT gain reference as measured by the laser system.
+     @details Continous PMT gain measurements with the laser system enable to correct for PMT
+     gain drifts between cesium calibration runs. Corrections are applied relative to the PMT
+     gain measured by the laser system directly after the last cesium equalization.
+     @returns The PMT gain reference at the last cesium scan.
+     @param drawerIdx Drawer index
+     @param channel Tile channel
+     @param adc Gain */
+    float getCesRefLas(unsigned int drawerIdx, unsigned int channel, unsigned int adc) const;
+
     /** @brief Returns the reference PMT HV set in last cesium calibration.
      @returns The PMT HV applied as result of last cesium calibration
      @param drawerIdx Drawer index
