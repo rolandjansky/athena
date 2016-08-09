@@ -1,19 +1,19 @@
-package MuonSelectorTools
-
-author Karsten Koeneke <karsten.koeneke@cern.ch>
+package MuonSelectorTools 
+author Stefano Zambito <stefano.zambito@cern.ch> 
 
 public
-use  AtlasPolicy                AtlasPolicy-*                   
+use  AtlasPolicy                AtlasPolicy-*
 use  AsgTools                   AsgTools-*                      Control/AthToolSupport
 use  GaudiInterface             GaudiInterface-*                External
 use  PATCore                    PATCore-*                       PhysicsAnalysis/AnalysisCommon
 use  xAODMuon                   xAODMuon-*                      Event/xAOD
+use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+use  AtlasROOT                  AtlasROOT-*                     External
+use  PathResolver               PathResolver-*                  Tools
 private
 use  AthenaBaseComps            AthenaBaseComps-*               Control
-use  AtlasROOT                  AtlasROOT-*                     External
-use  xAODCore			xAODCore-*			Event/xAOD
+use  xAODCore                   xAODCore-*                      Event/xAOD
 use  xAODTracking               xAODTracking-*                  Event/xAOD
-use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
 end_private
 
 # Change to a dual_use library because the lcgdict pattern doesn't work with a pure component library 

@@ -1,6 +1,5 @@
 <lcgdict>
    <class name="CP::MuonSelectionTool" />
-   <class name="CP::MuonLegacySelectionTool" />
    <exclusion>
      <class name="SG::IConstAuxStore"/>
      <class name="DataLink<SG::IConstAuxStore>"/>

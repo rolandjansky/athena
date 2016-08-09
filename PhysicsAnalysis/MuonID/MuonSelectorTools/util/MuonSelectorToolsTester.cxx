@@ -33,6 +33,10 @@
 #include "MuonSelectorTools/errorcheck.h"
 #include "MuonSelectorTools/MuonSelectionTool.h"
 
+// Needed for Smart Slimming
+#include "xAODCore/tools/IOStats.h"
+#include "xAODCore/tools/ReadStats.h"
+
 /// Example of how to run the MuonSelectorTools package to obtain information from muons
 
 int main( int argc, char* argv[] ) {
@@ -72,14 +76,14 @@ int main( int argc, char* argv[] ) {
       }
    }
 
-
-   CP::MuonSelectionTool m_muonSelection("MuonSelection");
+   CP::MuonSelectionTool m_muonSelection( "MuonSelection" );
 
    m_muonSelection.msg().setLevel( MSG::INFO );
    m_muonSelection.setProperty( "MaxEta", 2.7 );
    m_muonSelection.setProperty( "MuQuality", 3);
    //m_muonSelection.setProperty( "Author", 12 );
    //m_muonSelection.initialize();
+   m_muonSelection.setProperty( "TurnOffMomCorr", true );
    CHECK (m_muonSelection.initialize().isSuccess());
 
    int allMuons = 0;
@@ -135,13 +139,13 @@ int main( int argc, char* argv[] ) {
 
 	uint8_t PixHits = 0, PixDead = 0, SCTHits = 0, SCTDead = 0, PixHoles = 0, SCTHoles = 0, TRTHits = 0, TRTOut = 0;
 	uint8_t nprecisionLayers = 0, nprecisionHoleLayers = 0;
-	float momSigBal = 0;
-	float CaloLRLikelihood = 0;
-	int CaloMuonIDTag = 0;
+	//float momSigBal = 0;
+	//float CaloLRLikelihood = 0;
+	//int CaloMuonIDTag = 0;
 
 	float abseta = std::abs((*mu_itr)->eta());
-	bool passesTool = false;
-	bool passesxAOD = false;
+	//bool passesTool = false;
+	//bool passesxAOD = false;
 
 
 	Info( APP_NAME, "Muon pT:             %g ", std::abs((*mu_itr)->pt())/1000.);
@@ -185,7 +189,7 @@ int main( int argc, char* argv[] ) {
 	//std::cout << passesxAOD << " "  << passesTool << std::endl;
 	if(abseta < 2.5 && passesIDRequirements && (*mu_itr)->quality() <= xAOD::Muon::Medium){
 	  //std:: cout << "Passes the selection (eta, IDCuts and quality) from the xAOD " << std::endl;
-	  passesCutsxAOD++; passesxAOD = true;
+	  passesCutsxAOD++; //passesxAOD = true;
 	}
 	
 	if(my_quality <= xAOD::Muon::VeryLoose)
@@ -202,7 +206,8 @@ int main( int argc, char* argv[] ) {
 	if(m_muonSelection.accept(**mu_itr)){
 	  //std::cout << "FAILED ACCEPT FUNCTION " << std::endl;
 	  //std:: cout << "Passes the selection (eta, IDCuts and quality) from the SelectorTool " << std::endl;
-	  passesCutsTool++; passesTool = true;}
+	  passesCutsTool++; //passesTool = true;
+	}
 	
 	//std::cout << passesxAOD << " "  << passesTool << std::endl;
 	
@@ -363,6 +368,8 @@ int main( int argc, char* argv[] ) {
 
    Info(APP_NAME, "Good muons xAOD %i and SelectorTool %i " , passesCutsxAOD, passesCutsTool);
 
+   // Needed for Smart Slimming
+   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
   
    // Return gracefully:
    return 0;

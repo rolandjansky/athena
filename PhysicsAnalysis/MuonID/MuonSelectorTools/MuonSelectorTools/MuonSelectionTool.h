@@ -11,6 +11,9 @@
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
 #include "PATCore/IAsgSelectionTool.h"
+#include "TFile.h"
+#include "TH2D.h"
+#include "TSystem.h" // Replace with PathResolver   
 
 // Local include(s):
 #include "MuonSelectorTools/IMuonSelectionTool.h"
@@ -76,19 +79,28 @@ namespace CP {
       void setQuality( xAOD::Muon& mu ) const;
 
       /// Returns true if the muon passes the standard MCP ID cuts. To set the value on the muon, instead call setPassesIDCuts(xAOD::Muon&) const
-      bool                    passedIDCuts(const xAOD::Muon&) const;
-      
+      bool passedIDCuts(const xAOD::Muon&) const;
+ 
+      /// Returns true if the muon passes a standardized loose preselection.
+      bool passedMuonCuts(const xAOD::Muon&) const;
+
       /// Returns true if the track particle passes the standard MCP ID cuts.
-      bool                     passedIDCuts(const xAOD::TrackParticle&) const;
+      bool passedIDCuts(const xAOD::TrackParticle&) const;
      
       /// Returns true if the muon passes the standard MCP High Pt cuts. To set the value on the muon, instead call setPassesHighPtCuts(xAOD::Muon&) const
-      bool                    passedHighPtCuts(const xAOD::Muon&) const;
+      bool passedHighPtCuts(const xAOD::Muon&) const;
+
+      /// Returns true if a CB muon fails some loose quaility requirements designed to remove pathological tracks
+      bool isBadMuon(const xAOD::Muon&) const;
 
       /// Returns the quality of the muon. To set the value on the muon, instead call setQuality(xAOD::Muon&) const
-      xAOD::Muon::Quality     getQuality(const xAOD::Muon& mu ) const;
+      xAOD::Muon::Quality     getQuality( const xAOD::Muon& mu ) const;
 
      /// Returns true if the muon passed additional calo-tag quality cuts
-     bool               passedCaloTagQuality (const xAOD::Muon& mu) const;
+     bool passedCaloTagQuality (const xAOD::Muon& mu) const;
+
+     /// Returns true if the muon passed the tight working point cuts    
+     bool passTight(const xAOD::Muon& mu, float rho, float oneOverPSig) const;
       /// @}
 
 
@@ -101,11 +113,32 @@ namespace CP {
      double m_maxEta;
      /// xAOD::Muon::Quality m_quality;
      int  m_quality;
+     bool m_isSimulation;
      
-     bool m_toroidOff;
-
      /// Object used to store the last decision
      mutable Root::TAccept m_accept;
+     
+     bool m_toroidOff;
+     bool m_developMode;
+     bool m_TrtCutOff;
+     bool m_SctCutOff;
+     bool m_PixCutOff;
+     bool m_SiHolesCutOff;
+     bool m_TurnOffMomCorr;
+
+     /// Checks for each histogram  
+     StatusCode getHist( TFile* file, const char* histName, TH2D*& hist );
+     // 
+     std::string m_tightWP_rootFile;
+     TH2D* m_tightWP_lowPt_rhoCuts;
+     TH2D* m_tightWP_lowPt_qOverPCuts;
+     TH2D* m_tightWP_mediumPt_rhoCuts;
+     TH2D* m_tightWP_highPt_rhoCuts;
+
+     // subfolder to load from the calibration db
+     std::string m_calibration_version;
+     // possible override for the calibration version
+     std::string m_custom_dir;
 
    }; // class MuonSelectionTool
 
