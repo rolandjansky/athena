@@ -59,6 +59,14 @@ atlas_add_test( TileCondToolOfcCool_test
                 SOURCES test/TileCondToolOfcCool_test.cxx
                 LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES} )
 
+atlas_add_test( TileCondToolTMDB_test
+                SOURCES test/TileCondToolTMDB_test.cxx
+                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES} )
+
+atlas_add_test( TileCondToolDspThreshold_test
+                SOURCES test/TileCondToolDspThreshold_test.cxx
+                LINK_LIBRARIES TileConditionsLib TileCalibBlobObjs AthenaBaseComps TestTools GaudiKernel ${CORAL_LIBRARIES} )
+
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
