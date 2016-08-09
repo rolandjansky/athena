@@ -597,7 +597,24 @@ namespace Muon {
     
     auto maximaSortingLambda = []( const MuonHough::MuonPhiLayerHough::Maximum* m1, const MuonHough::MuonPhiLayerHough::Maximum* m2 ) { 
                                    if( m1->max == m2->max ){
-                                     if( m1->hits.size() == m2->hits.size() ) return m1->pos < m2->pos;
+                                     if( m1->hits.size() == m2->hits.size() ) {
+                                       if( m1->pos == m2->pos ) {
+                                         std::set<unsigned int> nbrlaym1;
+                                         std::set<unsigned int> nbrlaym2;
+                                         for( unsigned int k=0; k < m1->hits.size(); ++k ){
+                                            nbrlaym1.insert((m1->hits)[k]->layer);
+                                            nbrlaym2.insert((m2->hits)[k]->layer);
+                                         }
+                                         if( nbrlaym1.size() == nbrlaym2.size() ){
+                                           if( std::abs(m1->binposmax - m1->binposmin) == std::abs(m2->binposmax - m2->binposmin) ) {
+                                             return (m1->sector)%2 > (m2->sector)%2;
+                                           }
+                                           return std::abs(m1->binposmax - m1->binposmin) < std::abs(m2->binposmax - m2->binposmin);
+                                         }
+                                         return nbrlaym1.size() < nbrlaym2.size();
+                                       }
+                                       return m1->pos < m2->pos;
+                                     }
                                      return m1->hits.size() < m2->hits.size();  // least hits -> most collimated maximum
                                    }
                                    return m1->max > m2->max; 
@@ -627,8 +644,29 @@ namespace Muon {
         // refind maximum
         MuonHough::MuonPhiLayerHough localHough(60, -TMath::Pi(), TMath::Pi(), ( (*pit)->hough ? (*pit)->hough->m_region : MuonStationIndex::DetectorRegionUnknown ) );
         std::vector<MuonHough::PhiHit*> hits = phiMaximum.hits;
+        /* too ambiguous producing irreproducibilities because of sorting by pointer value
         std::stable_sort(hits.begin(),hits.end(),[]( const MuonHough::PhiHit* h1,
                                                      const MuonHough::PhiHit* h2 ){ return h1->layer < h2->layer; } );
+        */
+
+        std::stable_sort(hits.begin(),hits.end(),[]( const MuonHough::PhiHit* h1,
+                                                     const MuonHough::PhiHit* h2 ){
+                                                      if( h1->layer == h2->layer ) {
+                                                        if( h1->w == h2->w ) {
+                                                          if( h1->r == h2->r ) {
+                                                            if( std::abs(h1->phimax - h1->phimin) == std::abs(h2->phimax - h2->phimin) ){
+                                                              if( h1->phimin == h2->phimin ) return h1->phimax < h2->phimax;
+                                                              return h1->phimin < h2->phimin;
+                                                            }
+                                                            return std::abs(h1->phimax - h1->phimin) < std::abs(h2->phimax - h2->phimin);
+                                                          }
+                                                          return h1->r < h2->r;
+                                                        }
+                                                        return h1->w > h2->w;
+                                                      }
+                                                      return h1->layer < h2->layer;
+                                                     } );
+
         ATH_MSG_VERBOSE("  updating phi maximum " << phiMaximum.pos  << " bin " << phiMaximum.binpos 
                         << " val " << phiMaximum.max << " number of hits " << hits.size() );
         if( msgLvl(MSG::VERBOSE) ) localHough.setDebug(true);
