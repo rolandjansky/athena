@@ -66,9 +66,9 @@ TileRawChannelToTTL1::TileRawChannelToTTL1(std::string name, ISvcLocator* pSvcLo
   , m_tileHWID(0)
   , m_tileInfo(0)
   , m_TT_ID(0)
-  , phase(0)
-  , nSamp(0)
-  , iTrig(0)
+  , m_phase(0)
+  , m_nSamp(0)
+  , m_iTrig(0)
   , m_tileBadChanTool("TileBadChanTool")
   , m_tileToolEmscale("TileCondToolEmscale")
 {
@@ -105,13 +105,13 @@ StatusCode TileRawChannelToTTL1::initialize() {
 
 
   // Here get already TTL1 Shapes, so as not to perform this on every execute:
-  nSamp = m_tileInfo->NdigitSamples(); // number of time slices for each chan
-  iTrig = m_tileInfo->ItrigSample();   // index of the triggering time slice
-  m_TTL1Shape.resize(nSamp, 0.);
+  m_nSamp = m_tileInfo->NdigitSamples(); // number of time slices for each chan
+  m_iTrig = m_tileInfo->ItrigSample();   // index of the triggering time slice
+  m_TTL1Shape.resize(m_nSamp, 0.);
   if (m_constantTTL1shape) {
-    phase = 0.0;
-    m_tileInfo->ttl1Shape(nSamp, iTrig, phase, m_TTL1Shape);
-    for (int jsamp = 0; jsamp < nSamp; ++jsamp) {
+    m_phase = 0.0;
+    m_tileInfo->ttl1Shape(m_nSamp, m_iTrig, m_phase, m_TTL1Shape);
+    for (int jsamp = 0; jsamp < m_nSamp; ++jsamp) {
       ATH_MSG_DEBUG( "jsamp=" << jsamp << " ttl1shape=" << m_TTL1Shape[jsamp] );
     }
   }
@@ -140,8 +140,8 @@ StatusCode TileRawChannelToTTL1::execute() {
   // declare TTL1 parameters to be obtained from TileInfo
   float ttL1Calib, ttL1NoiseSigma, ttL1Ped, ttL1Thresh;
 
-  ATH_MSG_DEBUG( "nSamp=" << nSamp
-                << ", iTrig=" << iTrig
+  ATH_MSG_DEBUG( "nSamp=" << m_nSamp
+                << ", iTrig=" << m_iTrig
                 << ", tileNoise=" << ((tileNoise) ? "true" : "false")
                 << ", tileThresh=" << ((tileThresh) ? "true" : "false") );
 
@@ -175,7 +175,7 @@ StatusCode TileRawChannelToTTL1::execute() {
   int minieta, maxieta, posneg;
 
   /* Create array for the nSamp time-samples of a single tower. */
-  std::vector<float> ttL1samples(nSamp);
+  std::vector<float> ttL1samples(m_nSamp);
 
   /*......................................................*/
   // Step 5: Begin loop over all collections (collection = electronic drawer). 
@@ -377,19 +377,19 @@ StatusCode TileRawChannelToTTL1::execute() {
           // Get phase of the TTL1 tower. default=0,
           // meaning L1Cal Trigger samples TTL1 pulse right at the peak.
           // ieta: barrel=0-8, ext.barrel=9-14
-          phase = m_tileInfo->ttl1Phase(posneg, ieta, iphi);
+          m_phase = m_tileInfo->ttl1Phase(posneg, ieta, iphi);
           /* Include shaping fuction, pedestal, and noise. */
-          m_tileInfo->ttl1Shape(nSamp, iTrig, phase, m_TTL1Shape);
+          m_tileInfo->ttl1Shape(m_nSamp, m_iTrig, m_phase, m_TTL1Shape);
         }
         if (tileNoise)
-          CLHEP::RandGauss::shootArray(nSamp, Rndm);
-        for (int jsamp = 0; jsamp < nSamp; ++jsamp) {
+          CLHEP::RandGauss::shootArray(m_nSamp, Rndm);
+        for (int jsamp = 0; jsamp < m_nSamp; ++jsamp) {
           ttL1samples[jsamp] = ttAmp[ieta] * m_TTL1Shape[jsamp] + ttL1Ped;
           if (tileNoise)
             ttL1samples[jsamp] += ttL1NoiseSigma * Rndm[jsamp];
         }  // end loop over samples
         if (tileThresh) {
-          if (ttL1samples[iTrig] - ttL1Ped < ttL1Thresh)
+          if (ttL1samples[m_iTrig] - ttL1Ped < ttL1Thresh)
             Good = false;
         }
       } // end first "Good" section.
@@ -402,7 +402,7 @@ StatusCode TileRawChannelToTTL1::execute() {
                       << ", rawChannelTrue=" << ttRawChannel[ieta]
                       << ", Good=" << Good
                       << ", amp0=" << ttAmp[ieta]
-                      << ", digitIn=" << ttL1samples[iTrig] );
+                      << ", digitIn=" << ttL1samples[m_iTrig] );
 
         /*
          The following lines are commented out.

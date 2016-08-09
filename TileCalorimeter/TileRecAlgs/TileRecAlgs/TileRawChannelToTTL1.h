@@ -65,9 +65,9 @@ class TileRawChannelToTTL1: public AthAlgorithm {
     const CaloLVL1_ID* m_TT_ID;
 
     std::vector<double> m_TTL1Shape;
-    double phase;
-    int nSamp;
-    int iTrig;
+    double m_phase;
+    int m_nSamp;
+    int m_iTrig;
 
     bool m_maskBadChannels;      //!< if true=> bad channels are masked
 

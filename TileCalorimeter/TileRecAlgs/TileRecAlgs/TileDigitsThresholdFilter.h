@@ -3,23 +3,16 @@
 */
 
 //****************************************************************************
-// Filename : TileDigitsFilter.h
-// Author   : Alexander Solodkov
-// Created  : June 2008
+// Filename : TileDigitsThresholdFilter.h
 //
 // DESCRIPTION
 // 
 // Copy TileDigits from input container to output container
-// keeping only channels with (max-min) sample above threshold
 //
 // Properties (JobOption Parameters):
 //
 //    InputDigitsContainer      string   Name of container with TileDigits to read
 //    OutputDigitsContainer     string   Name of container with TileDigits to write
-//    InputRawChannelContainer  string   Name of container with TileRawChannels to read
-//    OutputRawChannelContainer string   Name of container with TileRawChannels to write
-//    HighGainThereshold        integer  thereshold on max-min sample in low gain
-//    LowGainThereshold         integer  thereshold on max-min sample in high gain
 //
 //
 // BUGS:
@@ -29,28 +22,30 @@
 //  
 //****************************************************************************
 
-#ifndef TILERECALGS_TILEDIGITSFILTER_H
-#define TILERECALGS_TILEDIGITSFILTER_H
+#ifndef TILERECALGS_TILEDIGITSTHRESHOLDFILTER_H
+#define TILERECALGS_TILEDIGITSTHRESHOLDFILTER_H
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 
 class TileHWID;
+class ITileCondToolDspThreshold;
+
 
 #include <string>
 #include <vector>
 
 /** 
- @class TileDigitsFilter
+ @class TileDigitsThresholdFilter
  @brief This algorithm copies TileDigits from input container to output container
- keeping only channels with (max-min) sample above threshold
  */
-class TileDigitsFilter: public AthAlgorithm {
+class TileDigitsThresholdFilter: public AthAlgorithm {
   public:
     // Constructor
-    TileDigitsFilter(std::string name, ISvcLocator* pSvcLocator);
+    TileDigitsThresholdFilter(std::string name, ISvcLocator* pSvcLocator);
 
     //Destructor 
-    virtual ~TileDigitsFilter();
+    virtual ~TileDigitsThresholdFilter();
 
     //Gaudi Hooks
     StatusCode initialize(); //!< initialize method
@@ -58,14 +53,13 @@ class TileDigitsFilter: public AthAlgorithm {
     StatusCode finalize();   //!< finalize method
 
   private:
+
+    const TileHWID*    m_tileHWID;
+    ToolHandle<ITileCondToolDspThreshold> m_tileDspThreshold;
+
     std::string m_inputContainer;  //!< Name of the input TileDigitsContainer
     std::string m_outputContainer; //!< Name of the output TileDigitsContainer
-    std::string m_inRchContainer; //!< Name of the input TileRawChannelContainer
-    std::string m_outRchContainer; //!< Name of the output TileRawChannelContainer
 
-    const TileHWID* m_tileHWID;
-
-    int m_threshold[2];  //!< Threshold value for low and high gain
 };
 
-#endif // TILERECALGS_TILEDIGITSFILTER_H
+#endif // TILERECALGS_TILEDIGITSTHRESHOLDFILTER_H
