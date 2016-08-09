@@ -168,7 +168,7 @@ TileInfo::initialize()
   MSG::Level logLevel = log.level();
   bool debug = (logLevel <= MSG::DEBUG);
 
-  if(debug) log<<MSG::DEBUG<<"In TileInfo::initialize..."<<endreq;
+  if(debug) log<<MSG::DEBUG<<"In TileInfo::initialize..."<<endmsg;
 
   // Declare our CLID.
   IClassIDSvc* clidsvc = 0;
@@ -181,14 +181,14 @@ TileInfo::initialize()
   StatusCode sc = m_tileCablingSvc.retrieve();
   if(sc.isFailure()){
     log << MSG::ERROR
-        << "Unable to retrieve " << m_tileCablingSvc << endreq;
+        << "Unable to retrieve " << m_tileCablingSvc << endmsg;
     return StatusCode::FAILURE;
   }
   //=== cache pointers to cabling helpers
   m_cabling  = m_tileCablingSvc->cablingService();
   if(!m_cabling){
     log << MSG::ERROR
-        << "Pointer to TileCablingService is zero: " << m_cabling << endreq;
+        << "Pointer to TileCablingService is zero: " << m_cabling << endmsg;
     return StatusCode::FAILURE;
     
   }
@@ -200,7 +200,7 @@ TileInfo::initialize()
   sc = m_tileIdTrans.retrieve();
   if(sc.isFailure()){
     log << MSG::ERROR
-        << "Unable to retrieve " << m_tileIdTrans << endreq;
+        << "Unable to retrieve " << m_tileIdTrans << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -208,7 +208,7 @@ TileInfo::initialize()
   sc = m_tileToolEmscale.retrieve();
   if(sc.isFailure()){
     log << MSG::ERROR
-        << "Unable to retrieve " << m_tileToolEmscale << endreq;
+        << "Unable to retrieve " << m_tileToolEmscale << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -216,7 +216,7 @@ TileInfo::initialize()
   sc = m_tileToolNoiseSample.retrieve();
   if(sc.isFailure()){
     log << MSG::ERROR
-        << "Unable to retrieve " << m_tileToolNoiseSample << endreq;
+        << "Unable to retrieve " << m_tileToolNoiseSample << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -224,7 +224,7 @@ TileInfo::initialize()
   sc = m_tileToolTiming.retrieve();
   if(sc.isFailure()){
     log << MSG::ERROR
-        << "Unable to retrieve " << m_tileToolTiming << endreq;
+        << "Unable to retrieve " << m_tileToolTiming << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -244,7 +244,7 @@ TileInfo::initialize()
   if (m_OptFilterCorrelation)
     m_OptFilterCorrelation->loadCorrelation(log);
 
-  if(debug) log << MSG::DEBUG << " TileInfo initialization completed. " << endreq;  
+  if(debug) log << MSG::DEBUG << " TileInfo initialization completed. " << endmsg;  
   return StatusCode::SUCCESS;
 }
 
@@ -499,17 +499,17 @@ void TileInfo::ttl1Shape(const int nsamp, const int itrig, const double phase,st
 #ifndef NDEBUG
     MsgStream log(msgSvc(),"TileInfo");
     if (log.level() <= MSG::DEBUG){
-      log << MSG::DEBUG << " Shaping profile at beam crossings:   nsamp = " << nsamp << ", itrig = " << itrig << endreq;
+      log << MSG::DEBUG << " Shaping profile at beam crossings:   nsamp = " << nsamp << ", itrig = " << itrig << endmsg;
       int jc = 0;
       for (int i=0; i<nsamp; i++) {
 	if(jc==0) log << MSG::DEBUG << "      bin = " << i << "   Shape factor =";
 	log << MSG::DEBUG << std::setw(8) << std::setprecision(4) << ttl1shape[i] << "  ";
 	if(++jc==5) {
-	  log << MSG::DEBUG << endreq;
+	  log << MSG::DEBUG << endmsg;
 	  jc=0;
 	}
       }
-      log << MSG::DEBUG << endreq; 
+      log << MSG::DEBUG << endmsg; 
     }
 #endif
 }

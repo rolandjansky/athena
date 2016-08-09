@@ -295,6 +295,26 @@ if conddb.GetInstance() == 'CONDBR2':
 
     #--- status
     tileCoolMgr.addSource('oflStatAdc', '/TILE/OFL02/STATUS/ADC', oflConnStr, "", "", 'OfflineOnly')
+
+
+    #--- TMDB
+    tileCoolMgr.addSource('onlTmdbThresholdPhy', '/TILE/ONL01/TMDB/THRESHOLD/PHY', defConnStr, "", '/TILE/ONL01/TMDB/THRESHOLD/PHY', 'SplitMC')
+    tileCoolMgr.addSource('onlTmdbThresholdLas', '/TILE/ONL01/TMDB/THRESHOLD/LAS', defConnStr, "", '/TILE/ONL01/TMDB/THRESHOLD/LAS', 'SplitMC')
+    tileCoolMgr.addSource('onlTmdbThresholdCis', '/TILE/ONL01/TMDB/THRESHOLD/CIS', defConnStr, "", '/TILE/ONL01/TMDB/THRESHOLD/CIS', 'SplitMC')
+
+    tileCoolMgr.addSource('onlTmdbDelayPhy', '/TILE/ONL01/TMDB/DELAY/PHY', defConnStr, "", '/TILE/ONL01/TMDB/DELAY/PHY', 'SplitMC')
+    tileCoolMgr.addSource('onlTmdbDelayLas', '/TILE/ONL01/TMDB/DELAY/LAS', defConnStr, "", '/TILE/ONL01/TMDB/DELAY/LAS', 'SplitMC')
+    tileCoolMgr.addSource('onlTmdbDelayCis', '/TILE/ONL01/TMDB/DELAY/CIS', defConnStr, "", '/TILE/ONL01/TMDB/DELAY/CIS', 'SplitMC')
+
+    tileCoolMgr.addSource('onlTmdbTmfPhy', '/TILE/ONL01/TMDB/TMF/PHY', defConnStr, "", '/TILE/ONL01/TMDB/TMF/PHY', 'SplitMC')
+    tileCoolMgr.addSource('onlTmdbTmfLas', '/TILE/ONL01/TMDB/TMF/LAS', defConnStr, "", '/TILE/ONL01/TMDB/TMF/LAS', 'SplitMC')
+    tileCoolMgr.addSource('onlTmdbTmfCis', '/TILE/ONL01/TMDB/TMF/CIS', defConnStr, "", '/TILE/ONL01/TMDB/TMF/CIS', 'SplitMC')
+
+    tileCoolMgr.addSource('onlTmdbCalibPhy', '/TILE/ONL01/TMDB/CALIB/PHY', defConnStr, "", '/TILE/ONL01/TMDB/CALIB/PHY', 'SplitMC')
+
+    #--- noise
+    tileCoolMgr.addSource('oflDspThreshold', '/TILE/ONL01/DSP/THRESHOLD', defConnStr, "", '/TILE/OFL02/DSP/THRESHOLD', 'SplitOnline')
+
     
 else:
 

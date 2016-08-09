@@ -27,12 +27,12 @@ TileOptFilterWeights::~TileOptFilterWeights()
 
 void TileOptFilterWeights::loadCorrelation(MsgStream &log)
 {
-  log<<MSG::DEBUG<<"TileOptFilterWeights::loadCorrelation"<<endreq;
+  log<<MSG::DEBUG<<"TileOptFilterWeights::loadCorrelation"<<endmsg;
  
   m_correlation = new TileOptFilterCorrelationStruct;
   memset(m_correlation,0,sizeof(TileOptFilterCorrelationStruct));
 
-  log<<MSG::DEBUG<<"new object m_correlation="<<m_correlation<<endreq;
+  log<<MSG::DEBUG<<"new object m_correlation="<<m_correlation<<endmsg;
   m_correlation->m_DeltaCorr=m_DeltaConf;
 
   std::string file_corr;
@@ -52,10 +52,10 @@ void TileOptFilterWeights::loadCorrelation(MsgStream &log)
   if (!file_corr_stream.is_open()) log<< MSG::WARNING 
                                       <<"CorrelationSumm_"<<m_noiseCorrSuffix<<".dat or "
                                       <<"CorrelationSumm_"<<m_deltaCorrSuffix<<".dat not found"
-                                      <<endreq;
+                                      <<endmsg;
   else
     {
-      log<< MSG::WARNING <<file_corr<<" found"<<endreq;
+      log<< MSG::WARNING <<file_corr<<" found"<<endmsg;
       if(!m_DeltaConf)
 	{
 	  while(!(file_corr_stream.eof()))
@@ -84,7 +84,7 @@ void TileOptFilterWeights::loadCorrelation(MsgStream &log)
 		     <<" frag="<<MSG::hex<<frag
 		     <<" channel="<<MSG::dec<<channel
 		     <<" gain="<<gain
-		     <<" N="<<N<<endreq;
+		     <<" N="<<N<<endmsg;
 		  
 		  file_corr_stream>>corr[0]>>corr[1]>>corr[2]
                                   >>corr[3]>>corr[4]>>corr[5]
@@ -93,7 +93,7 @@ void TileOptFilterWeights::loadCorrelation(MsgStream &log)
 		  for (int i=0; i<7; i++)
 		    if (corr[i]>1 || corr[i]<-1)
 		      {
-			log<<MSG::WARNING<<"I don understand corr["<<i<<"]="<<corr[i]<<endreq;
+			log<<MSG::WARNING<<"I don understand corr["<<i<<"]="<<corr[i]<<endmsg;
 			m_correlation->corr_noise[ros][drawer][channel][gain][i]=.0;
 		      }
 		    else      
@@ -106,7 +106,7 @@ void TileOptFilterWeights::loadCorrelation(MsgStream &log)
 		     <<" 4:"<<m_correlation->corr_noise[ros][drawer][channel][gain][4]
 		     <<" 5:"<<m_correlation->corr_noise[ros][drawer][channel][gain][5]
 		     <<" 6:"<<m_correlation->corr_noise[ros][drawer][channel][gain][6]
-		     <<endreq;
+		     <<endmsg;
 		  
 		  ck_ros=ros;
 		  ck_drawer=drawer;
@@ -124,7 +124,7 @@ void TileOptFilterWeights::loadCorrelation(MsgStream &log)
 	  for (int i=0; i<7; i++)
 	    if (corr[i]>1 || corr[i]<-1)
 	      {
-		log<<MSG::WARNING<<"I don understand corr["<<i<<"]="<<corr[i]<<endreq;
+		log<<MSG::WARNING<<"I don understand corr["<<i<<"]="<<corr[i]<<endmsg;
 		m_correlation->corr_delta[i]=.0;
 	      }
 	    else      
@@ -137,7 +137,7 @@ void TileOptFilterWeights::loadCorrelation(MsgStream &log)
 	     <<" 4:"<<m_correlation->corr_delta[4]
 	     <<" 5:"<<m_correlation->corr_delta[5]
 	     <<" 6:"<<m_correlation->corr_delta[6]
-	     <<endreq;
+	     <<endmsg;
 	  
 	}
     }
@@ -146,7 +146,7 @@ void TileOptFilterWeights::loadCorrelation(MsgStream &log)
 
 void TileOptFilterWeights::loadWeights(MsgStream &log)
 {
-  log<<MSG::DEBUG<<"TileOptFilterWeights::loadWeights"<<endreq;
+  log<<MSG::DEBUG<<"TileOptFilterWeights::loadWeights"<<endmsg;
 
   m_weights = new TileOptFilterWeightsStruct;
   memset(m_weights,0,sizeof(TileOptFilterWeightsStruct));
@@ -219,36 +219,36 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 
   if (!m_DeltaConf)
     {
-      if (!ai_lo_phys->is_open()) log << MSG::WARNING<<"ai_lo_"+m_noisePhysicsSuffix+".dat not found"<<endreq;
-      if (!bi_lo_phys->is_open()) log << MSG::WARNING<<"bi_lo_"+m_noisePhysicsSuffix+".dat not found"<<endreq;
-      if (!ci_lo_phys->is_open()) log << MSG::WARNING<<"ci_lo_"+m_noisePhysicsSuffix+".dat not found"<<endreq;
-      if (!ai_hi_phys->is_open()) log << MSG::WARNING<<"ai_hi_"+m_noisePhysicsSuffix+".dat not found"<<endreq;
-      if (!bi_hi_phys->is_open()) log << MSG::WARNING<<"bi_hi_"+m_noisePhysicsSuffix+".dat not found"<<endreq;
-      if (!ci_hi_phys->is_open()) log << MSG::WARNING<<"ci_hi_"+m_noisePhysicsSuffix+".dat not found"<<endreq;
+      if (!ai_lo_phys->is_open()) log << MSG::WARNING<<"ai_lo_"+m_noisePhysicsSuffix+".dat not found"<<endmsg;
+      if (!bi_lo_phys->is_open()) log << MSG::WARNING<<"bi_lo_"+m_noisePhysicsSuffix+".dat not found"<<endmsg;
+      if (!ci_lo_phys->is_open()) log << MSG::WARNING<<"ci_lo_"+m_noisePhysicsSuffix+".dat not found"<<endmsg;
+      if (!ai_hi_phys->is_open()) log << MSG::WARNING<<"ai_hi_"+m_noisePhysicsSuffix+".dat not found"<<endmsg;
+      if (!bi_hi_phys->is_open()) log << MSG::WARNING<<"bi_hi_"+m_noisePhysicsSuffix+".dat not found"<<endmsg;
+      if (!ci_hi_phys->is_open()) log << MSG::WARNING<<"ci_hi_"+m_noisePhysicsSuffix+".dat not found"<<endmsg;
 
-      if (!ai_lo_cis->is_open()) log << MSG::WARNING<<"ai_lo_"+m_noiseCISSuffix+".dat not found"<<endreq;
-      if (!bi_lo_cis->is_open()) log << MSG::WARNING<<"bi_lo_"+m_noiseCISSuffix+".dat not found"<<endreq;
-      if (!ci_lo_cis->is_open()) log << MSG::WARNING<<"ci_lo_"+m_noiseCISSuffix+".dat not found"<<endreq;
-      if (!ai_hi_cis->is_open()) log << MSG::WARNING<<"ai_hi_"+m_noiseCISSuffix+".dat not found"<<endreq;
-      if (!bi_hi_cis->is_open()) log << MSG::WARNING<<"bi_hi_"+m_noiseCISSuffix+".dat not found"<<endreq;
-      if (!ci_hi_cis->is_open()) log << MSG::WARNING<<"ci_hi_"+m_noiseCISSuffix+".dat not found"<<endreq;
+      if (!ai_lo_cis->is_open()) log << MSG::WARNING<<"ai_lo_"+m_noiseCISSuffix+".dat not found"<<endmsg;
+      if (!bi_lo_cis->is_open()) log << MSG::WARNING<<"bi_lo_"+m_noiseCISSuffix+".dat not found"<<endmsg;
+      if (!ci_lo_cis->is_open()) log << MSG::WARNING<<"ci_lo_"+m_noiseCISSuffix+".dat not found"<<endmsg;
+      if (!ai_hi_cis->is_open()) log << MSG::WARNING<<"ai_hi_"+m_noiseCISSuffix+".dat not found"<<endmsg;
+      if (!bi_hi_cis->is_open()) log << MSG::WARNING<<"bi_hi_"+m_noiseCISSuffix+".dat not found"<<endmsg;
+      if (!ci_hi_cis->is_open()) log << MSG::WARNING<<"ci_hi_"+m_noiseCISSuffix+".dat not found"<<endmsg;
 
     }
   else
     {      
-      if (!ai_lo_phys->is_open()) log << MSG::WARNING<<"ai_lo_"+m_deltaPhysicsSuffix+".dat not found"<<endreq;
-      if (!bi_lo_phys->is_open()) log << MSG::WARNING<<"bi_lo_"+m_deltaPhysicsSuffix+".dat not found"<<endreq;
-      if (!ci_lo_phys->is_open()) log << MSG::WARNING<<"ci_lo_"+m_deltaPhysicsSuffix+".dat not found"<<endreq;
-      if (!ai_hi_phys->is_open()) log << MSG::WARNING<<"ai_hi_"+m_deltaPhysicsSuffix+".dat not found"<<endreq;
-      if (!bi_hi_phys->is_open()) log << MSG::WARNING<<"bi_hi_"+m_deltaPhysicsSuffix+".dat not found"<<endreq;
-      if (!ci_hi_phys->is_open()) log << MSG::WARNING<<"ci_hi_"+m_deltaPhysicsSuffix+".dat not found"<<endreq;
+      if (!ai_lo_phys->is_open()) log << MSG::WARNING<<"ai_lo_"+m_deltaPhysicsSuffix+".dat not found"<<endmsg;
+      if (!bi_lo_phys->is_open()) log << MSG::WARNING<<"bi_lo_"+m_deltaPhysicsSuffix+".dat not found"<<endmsg;
+      if (!ci_lo_phys->is_open()) log << MSG::WARNING<<"ci_lo_"+m_deltaPhysicsSuffix+".dat not found"<<endmsg;
+      if (!ai_hi_phys->is_open()) log << MSG::WARNING<<"ai_hi_"+m_deltaPhysicsSuffix+".dat not found"<<endmsg;
+      if (!bi_hi_phys->is_open()) log << MSG::WARNING<<"bi_hi_"+m_deltaPhysicsSuffix+".dat not found"<<endmsg;
+      if (!ci_hi_phys->is_open()) log << MSG::WARNING<<"ci_hi_"+m_deltaPhysicsSuffix+".dat not found"<<endmsg;
 
-      if (!ai_lo_cis->is_open()) log << MSG::WARNING<<"ai_lo_"+m_deltaCISSuffix+".dat not found"<<endreq;
-      if (!bi_lo_cis->is_open()) log << MSG::WARNING<<"bi_lo_"+m_deltaCISSuffix+".dat not found"<<endreq;
-      if (!ci_lo_cis->is_open()) log << MSG::WARNING<<"ci_lo_"+m_deltaCISSuffix+".dat not found"<<endreq;
-      if (!ai_hi_cis->is_open()) log << MSG::WARNING<<"ai_hi_"+m_deltaCISSuffix+".dat not found"<<endreq;
-      if (!bi_hi_cis->is_open()) log << MSG::WARNING<<"bi_hi_"+m_deltaCISSuffix+".dat not found"<<endreq;
-      if (!ci_hi_cis->is_open()) log << MSG::WARNING<<"ci_hi_"+m_deltaCISSuffix+".dat not found"<<endreq;
+      if (!ai_lo_cis->is_open()) log << MSG::WARNING<<"ai_lo_"+m_deltaCISSuffix+".dat not found"<<endmsg;
+      if (!bi_lo_cis->is_open()) log << MSG::WARNING<<"bi_lo_"+m_deltaCISSuffix+".dat not found"<<endmsg;
+      if (!ci_lo_cis->is_open()) log << MSG::WARNING<<"ci_lo_"+m_deltaCISSuffix+".dat not found"<<endmsg;
+      if (!ai_hi_cis->is_open()) log << MSG::WARNING<<"ai_hi_"+m_deltaCISSuffix+".dat not found"<<endmsg;
+      if (!bi_hi_cis->is_open()) log << MSG::WARNING<<"bi_hi_"+m_deltaCISSuffix+".dat not found"<<endmsg;
+      if (!ci_hi_cis->is_open()) log << MSG::WARNING<<"ci_hi_"+m_deltaCISSuffix+".dat not found"<<endmsg;
     }
 
 
@@ -260,7 +260,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
   log << MSG::INFO<<"Files opening "<<ai_lo_phys->is_open()<<bi_lo_phys->is_open()<<ci_lo_phys->is_open()<<
     ai_hi_phys->is_open()<<bi_hi_phys->is_open()<<ci_hi_phys->is_open()<<
     ai_lo_cis->is_open()<<bi_lo_cis->is_open()<<ci_lo_cis->is_open()<<
-    ai_hi_cis->is_open()<<bi_hi_cis->is_open()<<ci_hi_cis->is_open()<<endreq;
+    ai_hi_cis->is_open()<<bi_hi_cis->is_open()<<ci_hi_cis->is_open()<<endmsg;
 
   //int ros, drawer, frag, channel, N;
   //int m_frag[4][64];
@@ -268,33 +268,33 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
   
   if (!m_DeltaConf)
     {     
-      if (!openfiles ) log << MSG::FATAL<<"Error opening files!!!!"<<endreq;
+      if (!openfiles ) log << MSG::FATAL<<"Error opening files!!!!"<<endmsg;
       else
 	{ 
-	  //if (!openfiles ) log << MSG::ERROR<<"Non-delta weights unavailable"<<endreq;
-	  // 	  log << MSG::DEBUG<<" Weights files opened"<<endreq;
+	  //if (!openfiles ) log << MSG::ERROR<<"Non-delta weights unavailable"<<endmsg;
+	  // 	  log << MSG::DEBUG<<" Weights files opened"<<endmsg;
 	  // 	  while(!(ai_lo_phys->eof()||bi_lo_phys->eof()||ai_hi_phys->eof()||bi_hi_phys->eof()||
 	  // 		  ai_lo_cis->eof()||bi_lo_cis->eof()||ai_hi_cis->eof()||bi_hi_cis->eof()))
 	  // 	    {
 	  
-	  // 	      log<<MSG::INFO<<ai_lo_phys<<"   ai_lo_"<<m_noisePhysicsSuffix<<endreq;
+	  // 	      log<<MSG::INFO<<ai_lo_phys<<"   ai_lo_"<<m_noisePhysicsSuffix<<endmsg;
 	  
 	  //  	      *ai_lo_phys>>kk>>ros
 	  //  			 >>kk>>drawer
 	  //  			 >>kk>>std::hex>>frag
 	  //  			 >>kk>>std::dec>>channel
 	  //  			 >>kk>>N;
-	  //  	      log<<MSG::DEBUG<<"ros="<<ros<<" drawer="<<drawer<<" frag="<<MSG::hex<<frag<<" channel="<<MSG::dec<<channel<<" N="<<N<<endreq;
+	  //  	      log<<MSG::DEBUG<<"ros="<<ros<<" drawer="<<drawer<<" frag="<<MSG::hex<<frag<<" channel="<<MSG::dec<<channel<<" N="<<N<<endmsg;
 	  
 	  // 	      m_frag[ros][drawer]=frag;
 	  
 	  // 	      for (i=-100;i<101;i++)
 	  // 		{
 	  // 		  *ai_lo_phys>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6]>>tmp_w[7]>>tmp_w[8];
-	  // 		  log<<MSG::INFO<<"ai_lo_"<<m_noisePhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+	  // 		  log<<MSG::INFO<<"ai_lo_"<<m_noisePhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 	  // 		  if (pha!=i)	
 	  // 		    {
-	  // 		      log<<MSG::ERROR<<"I don't understand ai_lo_"<<m_noisePhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+	  // 		      log<<MSG::ERROR<<"I don't understand ai_lo_"<<m_noisePhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 	  // 		      //i=40;
 	  // 		    }
 	  // 		  else for (j=0;j<9;j++) m_weights->a_phys[ros][drawer][channel][0][j][pha+100]=tmp_w[j];	
@@ -311,7 +311,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	  // 		  *bi_lo_phys>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6]>>tmp_w[7]>>tmp_w[8];
 	  // 		  if (pha!=i)	
 	  // 		    {
-	  // 		      log<<MSG::ERROR<<"I don't understand bi_lo_"<<m_noisePhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+	  // 		      log<<MSG::ERROR<<"I don't understand bi_lo_"<<m_noisePhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 	  // 		      //i=40;
 	  // 		    }
 	  // 		  else for (j=0;j<9;j++) m_weights->b_phys[ros][drawer][channel][0][j][pha+100]=tmp_w[j];	
@@ -328,7 +328,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	  // 		  *ai_hi_phys>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6]>>tmp_w[7]>>tmp_w[8];
 	  // 		  if (pha!=i)	
 	  // 		    {
-	  // 		      log<<MSG::ERROR<<"I don't understand ai_hi_"<<m_noisePhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+	  // 		      log<<MSG::ERROR<<"I don't understand ai_hi_"<<m_noisePhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 	  // 		      //i=40;
 	  // 		    }
 	  // 		  else for (j=0;j<9;j++) m_weights->a_phys[ros][drawer][channel][1][j][pha+100]=tmp_w[j];	
@@ -345,7 +345,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	  // 		  *bi_hi_phys>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6]>>tmp_w[7]>>tmp_w[8];
 	  // 		  if (pha!=i)	
 	  // 		    {
-	  // 		      log<<MSG::ERROR<<"I don't understand bi_hi_"<<m_noisePhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+	  // 		      log<<MSG::ERROR<<"I don't understand bi_hi_"<<m_noisePhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 	  // 		      //i=40;
 	  // 		    }
 	  // 		  else for (j=0;j<9;j++) m_weights->b_phys[ros][drawer][channel][1][j][pha+100]=tmp_w[j];	
@@ -363,7 +363,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	  // 		  *ai_lo_cis>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6];
 	  // 		  if (pha!=i)	
 	  // 		    {
-	  // 		      log<<MSG::ERROR<<"I don't understand ai_lo_"<<m_noiseCISSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+	  // 		      log<<MSG::ERROR<<"I don't understand ai_lo_"<<m_noiseCISSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 	  // 		      //i=40;
 	  // 		    }
 	  // 		  else for (j=0;j<7;j++) m_weights->a_cis[ros][drawer][channel][0][j][pha+100]=tmp_w[j];	
@@ -380,7 +380,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	  // 		  *bi_lo_cis>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6];
 	  // 		  if (pha!=i)	
 	  // 		    {
-	  // 		      log<<MSG::ERROR<<"I don't understand bi_lo_"<<m_noiseCISSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+	  // 		      log<<MSG::ERROR<<"I don't understand bi_lo_"<<m_noiseCISSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 	  // 		      //i=40;
 	  // 		    }
 	  // 		  else for (j=0;j<7;j++) m_weights->b_cis[ros][drawer][channel][0][j][pha+100]=tmp_w[j];	
@@ -397,7 +397,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	  // 		  *ai_hi_cis>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6];
 	  // 		  if (pha!=i)	
 	  // 		    {
-	  // 		      log<<MSG::ERROR<<"I don't understand ai_hi_"<<m_noiseCISSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+	  // 		      log<<MSG::ERROR<<"I don't understand ai_hi_"<<m_noiseCISSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 	  // 		      //i=40;
 	  // 		    }
 	  // 		  else for (j=0;j<7;j++) m_weights->a_cis[ros][drawer][channel][1][j][pha+100]=tmp_w[j];	
@@ -414,7 +414,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	  // 		  *bi_hi_cis>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6];
 	  // 		  if (pha!=i)	
 	  // 		    {
-	  // 		      log<<MSG::ERROR<<"I don't understand bi_hi_"<<m_noiseCISSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+	  // 		      log<<MSG::ERROR<<"I don't understand bi_hi_"<<m_noiseCISSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 	  // 		      //i=40;
 	  // 		    }
 	  // 		  else for (j=0;j<7;j++) m_weights->b_cis[ros][drawer][channel][1][j][pha+100]=tmp_w[j];	
@@ -424,10 +424,10 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
     }    
   else
     {
-      if (!openfiles ) log << MSG::FATAL<<"Error opening files!!!!"<<endreq;
+      if (!openfiles ) log << MSG::FATAL<<"Error opening files!!!!"<<endmsg;
       else
 	{
-	  log << MSG::DEBUG<<" Weights files opened"<<endreq;
+	  log << MSG::DEBUG<<" Weights files opened"<<endmsg;
 	  for (i=-100;i<101;i++)
 	    {
 	      // double tmp_w[m_NSamples_Phys];
@@ -439,7 +439,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	      
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand ai_lo_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand ai_lo_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<m_NSamples_Phys;j++) m_weights->a_phys_simp[0][j][pha+100]=tmp_w[j];
 
@@ -451,7 +451,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	      
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand bi_lo_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand bi_lo_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<m_NSamples_Phys;j++) m_weights->b_phys_simp[0][j][pha+100]=tmp_w[j];
 
@@ -462,7 +462,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	      
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand ci_lo_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand ci_lo_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<m_NSamples_Phys;j++) m_weights->c_phys_simp[0][j][pha+100]=tmp_w[j];
 
@@ -475,7 +475,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	      
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand ai_hi_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand ai_hi_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<m_NSamples_Phys;j++) m_weights->a_phys_simp[1][j][pha+100]=tmp_w[j];
 
@@ -487,7 +487,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	      
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand bi_lo_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand bi_lo_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<m_NSamples_Phys;j++) m_weights->b_phys_simp[1][j][pha+100]=tmp_w[j];
 
@@ -498,7 +498,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	      
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand ci_hi_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand ci_hi_"<<m_deltaPhysicsSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<m_NSamples_Phys;j++) m_weights->c_phys_simp[1][j][pha+100]=tmp_w[j];
 
@@ -507,42 +507,42 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	      *ai_lo_cis>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6];
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand ai_lo_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand ai_lo_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<7;j++) m_weights->a_cis_simp[0][j][pha+100]=tmp_w[j];
 	      
 	      *bi_lo_cis>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6];
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand bi_lo_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand bi_lo_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<7;j++) m_weights->b_cis_simp[0][j][pha+100]=tmp_w[j];
    
 	      *ci_lo_cis>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6];
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand ci_lo_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand ci_lo_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<7;j++) m_weights->b_cis_simp[0][j][pha+100]=tmp_w[j];
 
 	      *ai_hi_cis>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6];
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand ai_hi_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand ai_hi_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<7;j++) m_weights->a_cis_simp[1][j][pha+100]=tmp_w[j];
 
 	      *bi_hi_cis>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6];
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand bi_hi_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand bi_hi_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<7;j++) m_weights->b_cis_simp[1][j][pha+100]=tmp_w[j];
 
 	      *ci_hi_cis>>pha>>tmp_w[0]>>tmp_w[1]>>tmp_w[2]>>tmp_w[3]>>tmp_w[4]>>tmp_w[5]>>tmp_w[6];
 	      if (pha!=i)	
 		{
-		  log<<MSG::ERROR<<"I don't understand ci_hi_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endreq;
+		  log<<MSG::ERROR<<"I don't understand ci_hi_"<<m_deltaCISSuffix<<" i="<<i<<" pha="<<pha<<endmsg;
 		}
 	      else for (int j=0;j<7;j++) m_weights->c_cis_simp[1][j][pha+100]=tmp_w[j];
 	    }
@@ -557,7 +557,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
       //       frag=m_frag[ros][drawer];
       //       channel=4;
       //       log << MSG::DEBUG<<"OptFilter Weights a_lo_"<<m_noisePhysicsSuffix<<std::endl
-      // 	  <<" ros="<<ros<<" drawer="<<drawer<<MSG::hex<<" frag="<<frag<<MSG::dec<<" channel="<<channel<<endreq;
+      // 	  <<" ros="<<ros<<" drawer="<<drawer<<MSG::hex<<" frag="<<frag<<MSG::dec<<" channel="<<channel<<endmsg;
       
       //       for (pha=-100;pha<101;pha++)
       // 	log << MSG::DEBUG<<std::setw(3)
@@ -570,11 +570,11 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
       // 	    <<m_weights->a_phys[ros][drawer][channel][0][5][pha+100]<<std::setprecision(6)<<std::setw(10)
       // 	    <<m_weights->a_phys[ros][drawer][channel][0][6][pha+100]<<std::setprecision(6)<<std::setw(10)
       // 	    <<m_weights->a_phys[ros][drawer][channel][0][7][pha+100]<<std::setprecision(6)<<std::setw(10)
-      // 	    <<m_weights->a_phys[ros][drawer][channel][0][8][pha+100]<<endreq;
+      // 	    <<m_weights->a_phys[ros][drawer][channel][0][8][pha+100]<<endmsg;
     }
   else
     {
-      log << MSG::DEBUG<<"OptFilter Weights a_lo_"<<m_deltaPhysicsSuffix<<endreq;
+      log << MSG::DEBUG<<"OptFilter Weights a_lo_"<<m_deltaPhysicsSuffix<<endmsg;
       for (pha=-100;pha<101;pha++)
 	log << MSG::DEBUG<<std::setw(3)
 	    <<pha<<std::setprecision(6)<<std::setw(10)
@@ -586,7 +586,7 @@ void TileOptFilterWeights::loadWeights(MsgStream &log)
 	    <<m_weights->a_phys_simp[0][5][pha+100]<<std::setprecision(6)<<std::setw(10)
 	    <<m_weights->a_phys_simp[0][6][pha+100]<<std::setprecision(6)<<std::setw(10)
 	    <<m_weights->a_phys_simp[0][7][pha+100]<<std::setprecision(6)<<std::setw(10)
-	    <<m_weights->a_phys_simp[0][8][pha+100]<<endreq;
+	    <<m_weights->a_phys_simp[0][8][pha+100]<<endmsg;
     }
   
   delete ai_lo_phys;
