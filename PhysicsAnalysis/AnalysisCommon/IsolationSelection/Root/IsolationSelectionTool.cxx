@@ -27,6 +27,7 @@ namespace CP
     m_objAccept("IsolationSelectionToolObjTAccept"),
     m_iparWPs(0),
     m_iparAccept(0),
+    m_Interp(nullptr),
     m_TwikiLoc("https://twiki.cern.ch/twiki/bin/view/AtlasProtected/IsolationSelectionTool#List_of_current_official_working")
   {
     declareProperty("CalibFileName", m_calibFileName = "IsolationSelection/v2/MC15_Z_Jpsi_cutMap.root", "The config file to use");
