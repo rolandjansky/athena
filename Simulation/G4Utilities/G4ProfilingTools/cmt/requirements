@@ -10,6 +10,8 @@ use AtlasBoost          AtlasBoost-*            External
 use AtlasROOT           AtlasROOT-*             External
 use G4AtlasTools        G4AtlasTools-*          Simulation/G4Atlas
 use Geant4              Geant4-*                External
+use CxxUtils            CxxUtils-*              Control
+use G4AtlasInterfaces   G4AtlasInterfaces-*     Simulation/G4Atlas
 end_private
 
 apply_tag ROOTBasicLibs
