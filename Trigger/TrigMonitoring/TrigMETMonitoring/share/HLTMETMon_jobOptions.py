@@ -12,7 +12,11 @@ import sys
 ##############
 #InputFiles = ['/hep300/data-shared/MET/271595/files/data15_13TeV.00271595.physics_Main.merge.AOD.f611_m1463._lb0331._0001.1']
 
-InputFiles = ['/hep300/data/khamano/data16/data16_13TeV.00298967.physics_Main.merge.AOD.f696_m1588/data16_13TeV.00298967.physics_Main.merge.AOD.f696_m1588._lb0157._0006.1']
+#InputFiles = ['/hep300/data/khamano/data16/data16_13TeV.00298967.physics_Main.merge.AOD.f696_m1588/data16_13TeV.00298967.physics_Main.merge.AOD.f696_m1588._lb0157._0006.1']
+
+#InputFiles = ['/hep300/data/khamano/data16/data16_13TeV.00298967.physics_EnhancedBias.merge.AOD.r8138_p2645/AOD.08788661._000026.pool.root.1','/hep300/data/khamano/data16/data16_13TeV.00298967.physics_EnhancedBias.merge.AOD.r8138_p2645/AOD.08788661._000309.pool.root.1','/hep300/data/khamano/data16/data16_13TeV.00298967.physics_EnhancedBias.merge.AOD.r8138_p2645/AOD.08788661._000352.pool.root.1','/hep300/data/khamano/data16/data16_13TeV.00298967.physics_EnhancedBias.merge.AOD.r8138_p2645/AOD.08788661._000447.pool.root.1','/hep300/data/khamano/data16/data16_13TeV.00298967.physics_EnhancedBias.merge.AOD.r8138_p2645/AOD.08788661._000476.pool.root.1']
+
+InputFiles = ['/hep300/data/khamano/data16/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646._lb0127._0004.1','/hep300/data/khamano/data16/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646._lb0405._0003.1','/hep300/data/khamano/data16/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646._lb0573._0002.1','/hep300/data/khamano/data16/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646._lb0947._0002.1','/hep300/data/khamano/data16/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646/data16_13TeV.00305543.physics_Main.merge.AOD.f729_m1646._lb0989._0001.1']
 
 
 # xs trigger
@@ -165,4 +169,5 @@ print HLTmetMonMan
 # Events to run over
 ##########################
 theApp.EvtMax = -1
+#theApp.EvtMax = 10
 
