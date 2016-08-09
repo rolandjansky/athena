@@ -572,6 +572,7 @@ SubDetHitStatistics DetailedMuonPatternTruthBuilder::countPRDsOnTruth(const Trut
     for(iter i = range.first; i != range.second; ++i) {
       if(chIndices.find(m_idHelperTool->chamberIndex(i->second)) != chIndices.end()) {
         SubDetHitStatistics::SubDetType subdet = findSubDetType(i->second);
+	if(subdet==SubDetHitStatistics::NUM_SUBDETECTORS) continue;
         prds.subDetHits[subdet].insert(i->second);
       }
     }
