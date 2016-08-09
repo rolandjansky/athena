@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Utils.cxx 666126 2015-05-11 09:48:00Z mnowak $
+// $Id: Utils.cxx 672864 2015-06-05 16:55:45Z ssnyder $
 
 // System include(s):
 #include <cmath>
@@ -25,8 +25,8 @@ namespace {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 666126 $
-   /// $Date: 2015-05-11 11:48:00 +0200 (Mon, 11 May 2015) $
+   /// $Revision: 672864 $
+   /// $Date: 2015-06-05 18:55:45 +0200 (Fri, 05 Jun 2015) $
    ///
    struct TimeStruct {
       int miliseconds; ///< Elapsed milisecods
@@ -54,7 +54,7 @@ namespace {
          0, 0, 0, 0 };
 
       // If the elapsed time was less than a second, finish here:
-      secs -= ( result.miliseconds / 1000.0 );
+      secs -= ( result.miliseconds * 1e-3 );
       if( std::abs( secs ) < 0.5 ) return result;
 
       // Calculate the number of seconds passed, and finish if the
@@ -67,20 +67,20 @@ namespace {
       // Calculate the number of minutes passed, and finish if the
       // amount of time passed was less than an hour:
       result.minutes =
-         static_cast< ::Int_t >( std::fmod( secs, 3600.0 ) / 60.0 );
+         static_cast< ::Int_t >( std::fmod( secs, 3600.0 ) * (1./60.) );
       secs -= result.minutes * 60.0;
       if( std::abs( secs ) < 0.5 ) return result;
 
       // Calculate the number of hours passed, and finish if the
       // amount of time passed was less than a day:
       result.hours =
-         static_cast< ::Int_t >( std::fmod( secs, 86400.0 ) / 3600.0 );
+         static_cast< ::Int_t >( std::fmod( secs, 86400.0 ) * (1./3600.) );
       secs -= result.hours * 3600.0;
       if( std::abs( secs ) < 0.5 ) return result;
 
       // Calculate the number of days passed. The function should
       // not expect to have to express a larger order of magnitude...
-      result.days = static_cast< ::Int_t >( secs / 86400.0 );
+      result.days = static_cast< ::Int_t >( secs * (1./86400.));
 
       return result;
    }

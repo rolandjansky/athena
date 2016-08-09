@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ReadStats.cxx 634033 2014-12-05 14:46:38Z krasznaa $
+// $Id: ReadStats.cxx 642099 2015-01-27 16:43:18Z krasznaa $
 
 // System include(s):
 #include <cstring>
@@ -67,8 +67,8 @@ namespace {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 634033 $
-   /// $Date: 2014-12-05 15:46:38 +0100 (Fri, 05 Dec 2014) $
+   /// $Revision: 642099 $
+   /// $Date: 2015-01-27 17:43:18 +0100 (Tue, 27 Jan 2015) $
    ///
    class SelectByEntries :
       public std::unary_function< const xAOD::BranchStats&, bool > {
@@ -121,8 +121,8 @@ namespace {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 634033 $
-   /// $Date: 2014-12-05 15:46:38 +0100 (Fri, 05 Dec 2014) $
+   /// $Revision: 642099 $
+   /// $Date: 2015-01-27 17:43:18 +0100 (Tue, 27 Jan 2015) $
    ///
    class SelectByBytes :
       public std::unary_function< const xAOD::BranchStats&, bool > {
@@ -1324,7 +1324,13 @@ namespace xAOD {
    /// a way that can be copy-pasted directly into the ItemList of a derivation
    /// job. (Or into the C++ code of some analysis code.)
    ///
-   void ReadStats::printSmartSlimmingBranchList() const {
+   /// @param autoIncludeLinks Since removing links from objects can cause
+   ///                         problems for slow-merging in Athena, one can
+   ///                         request all ElementLink variables to be added to
+   ///                         the variable list, irrespective whether they're
+   ///                         needed or not.
+   ///
+   void ReadStats::printSmartSlimmingBranchList( bool autoIncludeLinks ) const {
 
       /// Object used to collect the information
       std::map< ::TString, ::TString > items;
@@ -1343,11 +1349,29 @@ namespace xAOD {
       Map_t::const_iterator br_itr = m_branches.begin();
       Map_t::const_iterator br_end = m_branches.end();
       for( ; br_itr != br_end; ++br_itr ) {
+         // First check if any variables got accessed. It has an effect on what
+         // to do with the ElementLink types.
+         bool containerAccessed = false;
          Vector_t::const_iterator itr = br_itr->second.begin();
          Vector_t::const_iterator end = br_itr->second.end();
          for( ; itr != end; ++itr ) {
-            // Skip non-existent, or non-accessed variables:
-            if( ( ! *itr ) || ( ! ( *itr )->readEntries() ) ) continue;
+            if( ( *itr ) && ( *itr )->readEntries() ) {
+               containerAccessed = true;
+               break;
+            }
+         }
+         // If none were accessed, abandon this container:
+         if( ! containerAccessed ) continue;
+         // Now collect all the variables:
+         for( ; itr != end; ++itr ) {
+            // Check if it's an ElementLink type:
+            const bool linkType =
+               ( ( *itr ) &&
+                 ::TString( ( *itr )->GetTitle() ).Contains( "ElementLink" ) );
+            // Skip non-existent, non-accessed, and not requested link
+            // variables:
+            if( ( ( ! *itr ) || ( ! ( *itr )->readEntries() ) ) &&
+                ( ! ( autoIncludeLinks && linkType ) ) ) continue;
             // Extract the name of the container and the variable from the
             // branch's name:
             const ::TString brname = ( *itr )->GetName();
@@ -1372,6 +1396,9 @@ namespace xAOD {
 
       // Print the collected information:
       Info( "printSmartSlimmingBranchList", "ItemList to use:" );
+      if( autoIncludeLinks ) {
+         Info( "printSmartSlimmingBranchList", "(All link variables added)" );
+      }
       std::map< ::TString, ::TString >::const_iterator itr = items.begin();
       std::map< ::TString, ::TString >::const_iterator end = items.end();
       for( ; itr != end; ++itr ) {
