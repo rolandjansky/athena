@@ -42,4 +42,15 @@ if rec.doAlfa() and rec.doESD():
     include("ALFA_CLinkAlg/ALFA_CLinkAlg_joboption.py")        
 
 if rec.doAFP() and rec.doESD():
-    include("AFP_LocReco/AFP_LocReco_joboption.py")
+  # Real-data reconstruction:
+  if DetFlags.readRDOBS.AFP_on():
+    from AFP_ByteStream2RawCnv.AFP_ByteStream2RawCnvConf import AFP_RawDataProvider
+    topSequence+=AFP_RawDataProvider()
+    
+    from AFP_Raw2Digi.AFP_Raw2DigiConf import AFP_Raw2Digi
+    
+    topSequence+=AFP_Raw2Digi()
+    pass
+
+  # tracks reconstruction
+  include("AFP_LocReco/AFP_LocReco_joboption.py")
