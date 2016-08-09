@@ -4,7 +4,7 @@
 # the first one is the denominator for all efficiencies
 met_triggers_l1 = [
         "L1_XE50", 
-        "L1_XS30", 
+        #"L1_XS30", 
         #"L1_XE60",
         #"L1_XE70",
 ]
@@ -13,10 +13,14 @@ met_triggers_l1 = [
 # 
 met_triggers_hlt = [
         ##      "HLT_mu30",
-        "HLT_xe70_tc_lcw",    
-        "HLT_xe80_tc_lcw_L1XE50",    
-        "HLT_xe100_tc_lcw",    
-        "HLT_xs30",    
+        "HLT_xe90_mht_L1XE50",
+        "HLT_xe100_mht_L1XE50",
+        "HLT_xe110_mht_L1XE50",
+        "HLT_xe120_mht_L1XE50",
+        #"HLT_xs30",    
+        #"HLT_xe70_tc_lcw",    
+        #"HLT_xe80_tc_lcw_L1XE50",    
+        #"HLT_xe100_tc_lcw",    
         #"HLT_xe80_tc_lcw",
         #"HLT_xe80_tc_em",
         #"HLT_xe80_pueta",

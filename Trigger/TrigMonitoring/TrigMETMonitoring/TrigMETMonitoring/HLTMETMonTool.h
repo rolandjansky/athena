@@ -49,6 +49,7 @@ private:
   void addHLTStatusHistogram();
   void addL1vsHLTHistograms();
   void addHLTvsOffHistograms();
+  void addL1vsOffHistograms();
   
   StatusCode fillMETHist();
   
