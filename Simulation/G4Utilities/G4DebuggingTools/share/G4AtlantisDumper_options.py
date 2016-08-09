@@ -1,5 +1,4 @@
-## Add G4AtlantisDumper to the UserActions
-
-from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-UAStore.addAction('G4AtlantisDumper',[ 'BeginOfEvent', 'EndOfEvent', 'Step'])
+from G4AtlasApps.SimFlags import simFlags
+# new MT actions. Note that this will only work with one thread.
+simFlags.OptionalUserActionList.addAction('G4UA::G4AtlantisDumperTool',[ 'BeginOfEvent', 'EndOfEvent', 'Step'])
 
