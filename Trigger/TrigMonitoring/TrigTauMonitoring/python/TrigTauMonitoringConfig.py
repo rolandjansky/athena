@@ -228,7 +228,7 @@ def TrigTauMonitoringTool():
 				  Ztt_tau		 = ztt_tau,
 				  EffOffTauPtCut	 = 20000.,  #MeV
 				  TurnOnCurves           = True,
-				  TurnOnCurvesDenom	 = "RecoID", # combined string with combination of "Truth", "Reco", "ID" and "Presel". For Truth doTruth=True!
+				  TurnOnCurvesDenom	 = "Reco", # combined string with combination of "Truth", "Reco" and "Presel". For Truth doTruth=True!
 				  doTruth		 = False,
 				  doRealZtautauEff       = True,
 				  dodijetFakeTausEff     = True,
@@ -252,7 +252,8 @@ def TrigTauMonitoringTool():
 				  AbsEtaMax	= -1.,
 				  AbsEtaMin	= -1.,
 				  AbsPhiMax	= -1.,
-				  AbsPhiMin	= -1.);
+				  AbsPhiMin	= -1.,
+				  BDTMedium	= True);
 
 	#from AthenaCommon.AppMgr import ToolSvc
 	ToolSvc += HLTTauMon;

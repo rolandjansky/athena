@@ -386,7 +386,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	      //                divide("hTrueL1NTrackNum","hTrueTauNTrackDenom","hTrueL1NTrackEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
 	      //                divide("hTrueL1NVtxNum","hTrueTauNVtxDenom","hTrueL1NVtxEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
 	      //                divide("hTrueL1MuNum","hTrueTauMuDenom","hTrueL1MuEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
-	      divide2("hTrueL1EtaVsPhiNum","hTrueTauEtaVsPhiDenom","hTrueL1EtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
+	      //divide2("hTrueL1EtaVsPhiNum","hTrueTauEtaVsPhiDenom","hTrueL1EtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
 	      //                divide("hTrueHLTPtNum","hTrueTauPtDenom","hTrueHLTPtEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
 	      //                divide("hTrueHLTPt1PNum","hTrueTauPt1PDenom","hTrueHLTPt1PEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
 	      //                divide("hTrueHLTPt3PNum","hTrueTauPt3PDenom","hTrueHLTPt3PEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
@@ -395,7 +395,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	      //                divide("hTrueHLTNTrackNum","hTrueTauNTrackDenom","hTrueHLTNTrackEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
 	      //                divide("hTrueHLTNVtxNum","hTrueTauNVtxDenom","hTrueHLTNVtxEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
 	      //                divide("hTrueHLTMuNum","hTrueTauMuDenom","hTrueHLTMuEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
-	      divide2("hTrueHLTEtaVsPhiNum","hTrueTauEtaVsPhiDenom","hTrueHLTEtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
+	      //divide2("hTrueHLTEtaVsPhiNum","hTrueTauEtaVsPhiDenom","hTrueHLTEtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TruthEfficiency");
                 //Truth+Reco
 	      //                divide("hTruthRecoL1PtNum","hTruthRecoTauPtDenom","hTruthRecoL1PtEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
 	      //                divide("hTruthRecoL1Pt1PNum","hTruthRecoTauPt1PDenom","hTruthRecoL1Pt1PEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
@@ -405,7 +405,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	      //                divide("hTruthRecoL1NTrackNum","hTruthRecoTauNTrackDenom","hTruthRecoL1NTrackEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
 	      //                divide("hTruthRecoL1NVtxNum","hTruthRecoTauNVtxDenom","hTruthRecoL1NVtxEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
 	      //                divide("hTruthRecoL1MuNum","hTruthRecoTauMuDenom","hTruthRecoL1MuEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
-	      divide2("hTruthRecoL1EtaVsPhiNum","hTruthRecoTauEtaVsPhiDenom","hTruthRecoL1EtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
+	      //divide2("hTruthRecoL1EtaVsPhiNum","hTruthRecoTauEtaVsPhiDenom","hTruthRecoL1EtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
 	      //                divide("hTruthRecoHLTPtNum","hTruthRecoTauPtDenom","hTruthRecoHLTPtEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
 	      //                divide("hTruthRecoHLTPt1PNum","hTruthRecoTauPt1PDenom","hTruthRecoHLTPt1PEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
 	      //                divide("hTruthRecoHLTPt3PNum","hTruthRecoTauPt3PDenom","hTruthRecoHLTPt3PEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
@@ -414,7 +414,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	      //                divide("hTruthRecoHLTNTrackNum","hTruthRecoTauNTrackDenom","hTruthRecoHLTNTrackEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
 	      //                divide("hTruthRecoHLTNVtxNum","hTruthRecoTauNVtxDenom","hTruthRecoHLTNVtxEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
 	      //                divide("hTruthRecoHLTMuNum","hTruthRecoTauMuDenom","hTruthRecoHLTMuEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
-	      divide2("hTruthRecoHLTEtaVsPhiNum","hTruthRecoTauEtaVsPhiDenom","hTruthRecoHLTEtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
+	      //divide2("hTruthRecoHLTEtaVsPhiNum","hTruthRecoTauEtaVsPhiDenom","hTruthRecoHLTEtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/Truth+RecoEfficiency");
                 
                 //Combined trig eff
                 /*divide("hCombL1TauPtNum","hCombTauPtDenom","hCombL1TauPtEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/TauComboEfficiency");
@@ -445,7 +445,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	      //                divide("hRecoL1NTrackNum","hRecoTauNTrackDenom","hRecoL1NTrackEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
 	      //                divide("hRecoL1NVtxNum","hRecoTauNVtxDenom","hRecoL1NVtxEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
 	      //                divide("hRecoL1MuNum","hRecoTauMuDenom","hRecoL1MuEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
-	                      divide2("hRecoL1EtaVsPhiNum","hRecoTauEtaVsPhiDenom","hRecoL1EtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
+	      //                divide2("hRecoL1EtaVsPhiNum","hRecoTauEtaVsPhiDenom","hRecoL1EtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
 	      //                divide("hRecoHLTPtNum","hRecoTauPtDenom","hRecoHLTPtEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
 	      //                divide("hRecoHLTPt1PNum","hRecoTauPt1PDenom","hRecoHLTPt1PEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
 	      //                divide("hRecoHLTPt3PNum","hRecoTauPt3PDenom","hRecoHLTPt3PEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
@@ -454,7 +454,7 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
 	      //                divide("hRecoHLTNTrackNum","hRecoTauNTrackDenom","hRecoHLTNTrackEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
 	      //                divide("hRecoHLTNVtxNum","hRecoTauNVtxDenom","hRecoHLTNVtxEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
 	      //                divide("hRecoHLTMuNum","hRecoTauMuDenom","hRecoHLTMuEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
-	                      divide2("hRecoHLTEtaVsPhiNum","hRecoTauEtaVsPhiDenom","hRecoHLTEtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
+	      //                divide2("hRecoHLTEtaVsPhiNum","hRecoTauEtaVsPhiDenom","hRecoHLTEtaVsPhiEfficiency","HLT/TauMon/Expert/"+m_trigItems[i]+"/TurnOnCurves/RecoEfficiency");
                 
             }
  
@@ -553,6 +553,12 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
                 divide("hRecoHLT25MuNum_2","hRecoTau25MuDenom_2","hRecoHLT25MuEfficiency_2","HLT/TauMon/Expert/HLTefficiency");
                 
 */
+		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+		//plotUnderOverFlow(hist("hHLTdRDenom"));
+    		//plotUnderOverFlow(hist("hHLTdRNum_tsf"));
+    		//plotUnderOverFlow(hist("hHLTdRNum_notsf"));
+    		//plotUnderOverFlow(hist("hHLTdRNum_jet"));
+
 	}
 
 	if(m_doTopoValidation){

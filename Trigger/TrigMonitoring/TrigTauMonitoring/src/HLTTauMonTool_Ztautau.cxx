@@ -223,18 +223,23 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
   float off_met   = -9e9;
   //float off_sumet = -9e9;
   //float off_phi   = -9e9;
+  
   if (m_off_met_cont && m_off_met_cont->size())
     {
       m_off_met = (*m_off_met_cont)["FinalClus"];
-      
-      off_ex = ((*m_off_met_cont)["FinalClus"]->mpx());
-      off_ey = ((*m_off_met_cont)["FinalClus"]->mpy());
-      off_met = sqrt(off_ex*off_ex+off_ey+off_ey);
-      MET_TLV.SetPxPyPzE(off_ex,off_ey,0,off_met);
+      if(m_off_met){ 
+       off_ex = (m_off_met->mpx());
+       off_ey = (m_off_met->mpy());
+      }
+    }
+ 
+  if(off_ex!=0. || off_ey!=0.) off_met = sqrt(off_ex*off_ex+off_ey+off_ey);
+  if(off_met==-9e9 || off_met==0.) return StatusCode::SUCCESS; 
       //off_sumet = ((*m_off_met_cont)["FinalClus"]->sumet());
       //off_phi = atan2(off_ey, off_ex);
-      ATH_MSG_DEBUG("m_off_met:" << m_off_met );
-    }
+     
+  MET_TLV.SetPxPyPzE(off_ex,off_ey,0.,off_met);
+  ATH_MSG_DEBUG("m_off_met:" << m_off_met );
      
   float  ltau_charge  = -99.0;
   double ltau_vismass = -99.0;
@@ -253,7 +258,7 @@ StatusCode HLTTauMonTool::RealZTauTauEfficiency()
       ltau_deta    = deltaEta(Tau_TLV.Eta(), Muon_TLV.Eta());
       //ltau_dR      = Tau_TLV.DeltaR(Muon_TLV);
     }
-  
+ 
   //Event Selection
   if(ltau_charge == 0.     &&  
      mt < 60000.           && 
