@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ReadStats.h 634033 2014-12-05 14:46:38Z krasznaa $
+// $Id: ReadStats.h 642099 2015-01-27 16:43:18Z krasznaa $
 #ifndef XAODCORE_TOOLS_READSTATS_H
 #define XAODCORE_TOOLS_READSTATS_H
 
@@ -37,8 +37,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 634033 $
-   /// $Date: 2014-12-05 15:46:38 +0100 (Fri, 05 Dec 2014) $
+   /// $Revision: 642099 $
+   /// $Date: 2015-01-27 17:43:18 +0100 (Tue, 27 Jan 2015) $
    ///
    class BranchStats : public ::TNamed {
 
@@ -117,8 +117,8 @@ namespace xAOD {
    ///
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    ///
-   /// $Revision: 634033 $
-   /// $Date: 2014-12-05 15:46:38 +0100 (Fri, 05 Dec 2014) $
+   /// $Revision: 642099 $
+   /// $Date: 2015-01-27 17:43:18 +0100 (Tue, 27 Jan 2015) $
    ///
    class ReadStats : public ::TNamed {
 
@@ -284,8 +284,8 @@ namespace xAOD {
       /// Print information about the collected statistics
       void Print( ::Option_t* option = "" ) const;
 
-      ///
-      void printSmartSlimmingBranchList() const;
+      /// Print the accessed variables, formatted for smart slimming
+      void printSmartSlimmingBranchList( bool autoIncludeLinks = false ) const;
 
       /// Function incrementing the processed event counter
       void nextEvent();

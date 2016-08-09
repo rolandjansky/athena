@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TDVCollectionProxy.cxx 666126 2015-05-11 09:48:00Z mnowak $
+// $Id: TDVCollectionProxy.cxx 660500 2015-04-14 14:04:12Z krasznaa $
 
 // System include(s):
 #include <cassert>

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCoreRflxDict.h 613030 2014-08-22 10:43:15Z krasznaa $
+// $Id: xAODCoreRflxDict.h 750677 2016-05-30 10:24:50Z krasznaa $
 #ifndef XAODCORE_XAODCORERFLXDICT_H
 #define XAODCORE_XAODCORERFLXDICT_H
 
@@ -27,6 +27,7 @@ extern "C" {
 #include "xAODCore/ShallowAuxContainer.h"
 #include "xAODCore/ShallowAuxInfo.h"
 #include "xAODCore/tools/TDVCollectionProxy.h"
+#include "xAODCore/tools/PrintHelpers.h"
 
 namespace {
    struct GCCXML_DUMMY_INSTANTIATION_XAODCORE1 {
