@@ -12,7 +12,7 @@ use AtlasPolicy AtlasPolicy-*
                                    
 use AtlasTriggerRunTime            AtlasTriggerRunTime-*
 
-apply_pattern declare_runtime extras="../test/TrigInDetValidation_TestConfiguration.xml ../share/TrigInDetValidation_RTT_*.py" 
+apply_pattern declare_runtime extras="../test/TrigInDetValidation_TestConfiguration.xml ../share/TrigInDetValidation_RTT_*.py ../TIDAbuild" 
 
 macro TrigInDetValidation_TestConfiguration "../test/TrigInDetValidation_TestConfiguration.xml"
 

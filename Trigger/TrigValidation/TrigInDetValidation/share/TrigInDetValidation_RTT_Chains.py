@@ -101,13 +101,13 @@ def muonChains(runMergedChain, doIDNewTracking, doFTK):
         idTrigChainlist.append(['mu6_FTKRefit_idperf',   'L1_MU6', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
         idTrigChainlist.append(['mu24_FTKRefit_idperf',  'L1_MU20', [], ['Muon'], ['RATE:SingleMuon','BW:Muon'],   1])
       tidaAnalysischains.append('HLT_mu24_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK')
-      tidaAnalysischains.append('HLT_mu24_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig')
+      tidaAnalysischains.append('HLT_mu24_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig')
       tidaAnalysischains.append('HLT_mu6_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK')
-      tidaAnalysischains.append('HLT_mu6_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig')
+      tidaAnalysischains.append('HLT_mu6_FTK_idperf:InDetTrigTrackingxAODCnv_Muon_FTK_IDTrig')
       tidaAnalysischains.append('HLT_mu24_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_FTKRefit')
-      tidaAnalysischains.append('HLT_mu24_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig')
+      tidaAnalysischains.append('HLT_mu24_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig')
       tidaAnalysischains.append('HLT_mu6_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_FTKRefit')
-      tidaAnalysischains.append('HLT_mu6_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_IDTrig')
+      tidaAnalysischains.append('HLT_mu6_FTKRefit_idperf:InDetTrigTrackingxAODCnv_Muon_FTKRefit_IDTrig')
     else:
       idTrigChainlist.append('mu22_IDTrkNoCut_tight_IDT')
       tidaAnalysischains.append('EF_mu22_IDTrkNoCut_tight_IDT:TrigFastTrackFinder_Muon')
@@ -159,9 +159,9 @@ def tauChains(runMergedChain, doIDNewTracking, doFTK):
       tidaAnalysischains.append('HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_TauIso_FTF:roi=forID3')
       tidaAnalysischains.append('HLT_tau25_idperf_tracktwo:key=InDetTrigTrackingxAODCnv_Tau_IDTrig:roi=forID3')
       tidaAnalysischains.append('HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK')
-      tidaAnalysischains.append('HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_IDTrig')
+      tidaAnalysischains.append('HLT_tau25_idperf_FTK:InDetTrigTrackingxAODCnv_Tau_FTK_IDTrig')
       tidaAnalysischains.append('HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit')
-      tidaAnalysischains.append('HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_IDTrig')
+      tidaAnalysischains.append('HLT_tau25_idperf_FTKRefit:InDetTrigTrackingxAODCnv_Tau_FTKRefit_IDTrig')
 
     else:
       idTrigChainlist.append('tau29_IDTrkNoCut_IDT')
@@ -191,13 +191,13 @@ def bjetChains(runMergedChain, doIDNewTracking, doFTK):
       "EF_b55_NoCut_j55_a4tchad:InDetTrigParticleCreation_Bjet_EFID"
       ] 
   else :
-    idTrigChainlist.append( ['j55_bperf',        'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
-##    idTrigChainlist.append( ['j55_EFID_bperf',   'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
-    idTrigChainlist.append( ['j55_bperf_split',  'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
+    idTrigChainlist.append( ['j55_bperf',        'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+##    idTrigChainlist.append( ['j55_EFID_bperf',   'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+    idTrigChainlist.append( ['j55_bperf_split',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
     if (doFTK):
-      idTrigChainlist.append( ['j55_bperf_split_FTKVtx',  'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
-      idTrigChainlist.append( ['j55_bperf_split_FTK',  'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)
-      idTrigChainlist.append( ['j55_bperf_split_FTKRefit',  'L1_J20', [], ['Jet'], ['RATE:MultiJet', 'BW:Jets'], 1],)      
+      idTrigChainlist.append( ['j55_bperf_split_FTKVtx',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+      idTrigChainlist.append( ['j55_bperf_split_FTK',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)
+      idTrigChainlist.append( ['j55_bperf_split_FTKRefit',  'L1_J20', [], ['Jet'], ['RATE:SingleBJet', 'BW:BJet'], 1],)      
     tidaAnalysischains += [
       'HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig',
       'HLT_j55_bperf:key=InDetTrigTrackingxAODCnv_Bjet_FTF:roi=forID',
@@ -217,18 +217,23 @@ def bjetChains(runMergedChain, doIDNewTracking, doFTK):
       ]
   return (idTrigChainlist, tidaAnalysischains)
 
-def beamspotChains(runMergedChain, doIDNewTracking):
+def beamspotChains(runMergedChain, doIDNewTracking, doFTK):
   idTrigChainlist = []
   tidaAnalysischains = ["Truth"]
 
   if doIDNewTracking:
     tidaAnalysischains += ["Offline"]
 
-  idTrigChainlist.append(['beamspot_allTE_L2StarB',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+##  idTrigChainlist.append(['beamspot_allTE_L2StarB',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
   idTrigChainlist.append(['beamspot_allTE_trkfast',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+  if doFTK:
+    idTrigChainlist.append(['beamspot_allTE_FTK',           'L1_4J15',    [], ['Main'], ['RATE:BeamSpot',  'BW:BeamSpot'], 1])
+  
   tidaAnalysischains += [
     'HLT_beamspot_allTE_L2StarB:TrigL2SiTrackFinder_BeamSpotB',
     'HLT_beamspot_allTE_trkfast:TrigFastTrackFinder_BeamSpot_IDTrig',
+    'HLT_beamspot_allTE_trkfast:InDetTrigTrackingxAODCnv_BeamSpot_FTF',
+    'HLT_beamspot_allTE_FTK:InDetTrigTrackingxAODCnv_BeamSpot_FTK',
     ]
   return (idTrigChainlist, tidaAnalysischains)
 

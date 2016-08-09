@@ -91,7 +91,10 @@ from RecExConfig.RecAlgsFlags import recAlgs
 # recAlgs.doTrigger.set_Value_and_Lock(True)
 
 
-
+### JK Do reidual monitoring for FTK tracks
+from InDetTrigRecExample.InDetTrigSliceSettings import InDetTrigSliceSettings as InDetSettings
+InDetSettings[('doResMon','FTK')]=True
+InDetSettings[('doResMon','FTKRefit')]=True
 
 
 flags = {}
@@ -157,7 +160,7 @@ if 'use_new_tm' in dir() and use_new_tm:
   if 'triggerMenuVersion' in dir():
     TriggerFlags.triggerMenuSetup = triggerMenuVersion
   else:
-    TriggerFlags.triggerMenuSetup = 'Physics_pp_v5'
+    TriggerFlags.triggerMenuSetup = 'Physics_pp_v6'
   TriggerFlags.doHLT=True
   from TriggerMenu.menu.GenerateMenu import GenerateMenu
 else:
@@ -231,7 +234,7 @@ topSequence = AlgSequence()
 from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 tdt = Trig__TrigDecisionTool("TrigDecisionTool")
 ToolSvc += tdt
-tdt.OutputLevel = INFO
+# tdt.OutputLevel = INFO
 
 ##### Histogram File Part #################
 
@@ -250,7 +253,7 @@ svcMgr += BeamCondSvc(name="InDetBeamSpotOnline")
 
 from TrigInDetAnalysisExample.TrigInDetAnalysisExampleConf import TrigTestMonToolAC
 TestMonTool = TrigTestMonToolAC( name="TestMonToolAC")
-TestMonTool.OutputLevel = INFO
+# TestMonTool.OutputLevel = INFO
 try:
   TestMonTool.EnableLumi = False
 except:
@@ -279,6 +282,12 @@ if('PdgId' in dir()):
      print "select truth pdgid : ", TestMonTool.SelectTruthPdgId	
 
 #
+
+#TestMonTool.KeepAllEvents=True
+#print TestMonTool
+#print HLTMonManager.AthenaMonTools
+
+
 if 'tidaAnalysischains' in dir():
      TestMonTool.ntupleChainNames += tidaAnalysischains
 else:
