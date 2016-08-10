@@ -43,7 +43,7 @@ protected:
 
 template<class TransientClass>
 LArSingleFloatSubset_p1* LArSingleFloatConverter<TransientClass>::createPersistent (LArConditionsSubset<LArSingleFloatP>* transObj) {
-    MsgStream log(this->messageService(), "LArSingleFloatConverter" );
+    MsgStream log(this->msgSvc(), "LArSingleFloatConverter" );
     LArSingleFloatSubset_p1* persObj = m_TPconverter.createPersistent( transObj, log );
     return persObj;
 }
@@ -52,7 +52,7 @@ template<class TransientClass>
 LArConditionsSubset<LArSingleFloatP>* LArSingleFloatConverter<TransientClass>::createTransientSingleFloat () {
   static pool::Guid p1_guid("85C3E380-4F5C-4F2B-81F0-D7C08A446800");
   if(this->compareClassGuid(p1_guid) ) {
-    MsgStream log(this->messageService(), "LArSingleFloatCompleteCnv" );
+    MsgStream log(this->msgSvc(), "LArSingleFloatCompleteCnv" );
     LArSingleFloatSubset_p1* p;
     LArConditionsSubset<LArSingleFloatP>* t;
     if(this->poolToObject(this->m_i_poolToken,p).isFailure() ) { // Token is passed via pointer member

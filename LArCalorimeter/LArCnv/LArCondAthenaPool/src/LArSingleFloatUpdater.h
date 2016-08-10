@@ -27,7 +27,7 @@ class LArSingleFloatUpdater {
     unsigned int nCorrs      = old->m_correctionVec.size();
 
     //log << MSG::DEBUG << "LArMphysOverMcalCompleteCnv::createTransient old 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endreq; 
+    //    << nFebs << " " << nCorrs << endmsg; 
 
     // Copy conditions
 
@@ -44,7 +44,7 @@ class LArSingleFloatUpdater {
 	  newObj->m_subset[i].second[j].m_data=getPayload(old->m_subset[i].second[j]);
     }// end loop over Febs
 
-    //log << MSG::DEBUG << "LArMphysOverMcalCompleteCnv::createTransient old 2 " << old << endreq; 
+    //log << MSG::DEBUG << "LArMphysOverMcalCompleteCnv::createTransient old 2 " << old << endmsg; 
 
     // Copy corrections
     newObj->m_correctionVec.resize(nCorrs);

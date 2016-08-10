@@ -17,10 +17,10 @@ static LArOFCSubsetCnv_p1   TPconverter;
 LArOFCSubset_p1*
 LArOFCMCCnv::createPersistent (LArOFCTransType* transObj)
 {
-    MsgStream log(messageService(), "LArOFCMCCnv" ); 
-    //log << MSG::DEBUG << "LArOFCMC write" << endreq;
+    MsgStream log(msgSvc(), "LArOFCMCCnv" ); 
+    //log << MSG::DEBUG << "LArOFCMC write" << endmsg;
     LArOFCPersType* persObj = TPconverter.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endreq;
+    //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
 
@@ -32,20 +32,20 @@ LArOFCMCCnv::createTransient () {
     if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< LArOFCSubset_p1 > col_vect( poolReadObject< LArOFCSubset_p1 >() );
-        MsgStream log(messageService(), "LArOFCMCCnv" ); 
-        //log << MSG::INFO << "Reading LArOFCSubset_p1" << endreq; 
+        MsgStream log(msgSvc(), "LArOFCMCCnv" ); 
+        //log << MSG::INFO << "Reading LArOFCSubset_p1" << endmsg; 
         return TPconverter.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation
 
-        MsgStream log(messageService(), "LArOFCMCCnv" ); 
-        log << MSG::INFO << "Reading LArOFCSubset (original)" << endreq; 
+        MsgStream log(msgSvc(), "LArOFCMCCnv" ); 
+        log << MSG::INFO << "Reading LArOFCSubset (original)" << endmsg; 
 
         std::auto_ptr< LArConditionsSubset<LArOFCP> > subset ( poolReadObject< LArConditionsSubset<LArOFCP> >() );
         // Here we must convert from LArOFCP to LArOFCP1
         
-        log << MSG::INFO << "subset ptr " << subset.get() << endreq; 
+        log << MSG::INFO << "subset ptr " << subset.get() << endmsg; 
 
         return (createTransient(subset.get()));
 
@@ -57,8 +57,8 @@ LArConditionsSubset<LArOFCP1>*
 LArOFCMCCnv::createTransient(LArConditionsSubset<LArOFCP>* orig)
 {
 
-    MsgStream log(messageService(), "LArOFCMCCnv" ); 
-    log << MSG::INFO << "LArOFCMCCnv::createTransient orig " << orig << endreq; 
+    MsgStream log(msgSvc(), "LArOFCMCCnv" ); 
+    log << MSG::INFO << "LArOFCMCCnv::createTransient orig " << orig << endmsg; 
 
     LArConditionsSubset<LArOFCP1>* result = new LArConditionsSubset<LArOFCP1>();
     

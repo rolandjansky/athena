@@ -16,10 +16,10 @@ static LArOFCSubsetCnv_p1   TPconverter;
 LArOFCSubset_p1*
 LArOFCCompleteCnv::createPersistent (LArOFCTransType* transObj)
 {
-    MsgStream log(messageService(), "LArOFCCompleteCnv" ); 
-    //log << MSG::DEBUG << "LArOFCComplete write" << endreq;
+    MsgStream log(msgSvc(), "LArOFCCompleteCnv" ); 
+    //log << MSG::DEBUG << "LArOFCComplete write" << endmsg;
     LArOFCPersType* persObj = TPconverter.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endreq;
+    //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
 
@@ -31,20 +31,20 @@ LArOFCCompleteCnv::createTransient () {
     if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< LArOFCSubset_p1 > col_vect( poolReadObject< LArOFCSubset_p1 >() );
-        MsgStream log(messageService(), "LArOFCCompleteCnv" ); 
-        //log << MSG::INFO << "Reading LArOFCSubset_p1" << endreq; 
+        MsgStream log(msgSvc(), "LArOFCCompleteCnv" ); 
+        //log << MSG::INFO << "Reading LArOFCSubset_p1" << endmsg; 
         return TPconverter.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation
 
-        MsgStream log(messageService(), "LArOFCCompleteCnv" ); 
-        log << MSG::DEBUG << "Reading LArOFCSubset (original)" << endreq; 
+        MsgStream log(msgSvc(), "LArOFCCompleteCnv" ); 
+        log << MSG::DEBUG << "Reading LArOFCSubset (original)" << endmsg; 
 
         std::auto_ptr< LArConditionsSubset<LArOFCP> > subset ( poolReadObject< LArConditionsSubset<LArOFCP> >() );
         // Here we must convert from LArOFCP to LArOFCP1
         
-        log << MSG::DEBUG << "subset ptr " << subset.get() << endreq; 
+        log << MSG::DEBUG << "subset ptr " << subset.get() << endmsg; 
 
         return (createTransient(subset.get()));
 
@@ -56,8 +56,8 @@ LArConditionsSubset<LArOFCP1>*
 LArOFCCompleteCnv::createTransient(LArConditionsSubset<LArOFCP>* orig)
 {
 
-    MsgStream log(messageService(), "LArOFCCompleteCnv" ); 
-    log << MSG::DEBUG << "LArOFCCompleteCnv::createTransient orig " << orig << endreq; 
+    MsgStream log(msgSvc(), "LArOFCCompleteCnv" ); 
+    log << MSG::DEBUG << "LArOFCCompleteCnv::createTransient orig " << orig << endmsg; 
 
     LArConditionsSubset<LArOFCP1>* result = new LArConditionsSubset<LArOFCP1>();
     
@@ -78,7 +78,7 @@ LArOFCCopy::copyOldtoNew(const LArConditionsSubset<LArOFCP>* oldOFC,
     unsigned int nCorrs      = oldOFC->m_correctionVec.size();
 
     //log << MSG::DEBUG << "LArOFCCompleteCnv::createTransient oldOFC 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endreq; 
+    //    << nFebs << " " << nCorrs << endmsg; 
 
     // Copy conditions
 
@@ -100,7 +100,7 @@ LArOFCCopy::copyOldtoNew(const LArConditionsSubset<LArOFCP>* oldOFC,
         }
     }
 
-    //log << MSG::DEBUG << "LArOFCCompleteCnv::createTransient oldOFC 2 " << oldOFC << endreq; 
+    //log << MSG::DEBUG << "LArOFCCompleteCnv::createTransient oldOFC 2 " << oldOFC << endmsg; 
 
     // Copy corrections
     newOFC->m_correctionVec.resize(nCorrs);

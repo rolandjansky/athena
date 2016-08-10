@@ -17,10 +17,10 @@ static LArAutoCorrSubsetCnv_p1   TPconverter;
 LArAutoCorrSubset_p1*
 LArAutoCorrMCCnv::createPersistent (LArAutoCorrTransType* transObj)
 {
-    MsgStream log(messageService(), "LArAutoCorrMCCnv" ); 
-    //log << MSG::DEBUG << "LArAutoCorrMC write" << endreq;
+    MsgStream log(msgSvc(), "LArAutoCorrMCCnv" ); 
+    //log << MSG::DEBUG << "LArAutoCorrMC write" << endmsg;
     LArAutoCorrPersType* persObj = TPconverter.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endreq;
+    //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
 
@@ -32,20 +32,20 @@ LArAutoCorrMCCnv::createTransient ()
     if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< LArAutoCorrSubset_p1 > col_vect( poolReadObject< LArAutoCorrSubset_p1 >() );
-        MsgStream log(messageService(), "LArAutoCorrMCCnv" ); 
-        //log << MSG::INFO << "Reading LArAutoCorrSubset_p1" << endreq; 
+        MsgStream log(msgSvc(), "LArAutoCorrMCCnv" ); 
+        //log << MSG::INFO << "Reading LArAutoCorrSubset_p1" << endmsg; 
         return TPconverter.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation
 
-        MsgStream log(messageService(), "LArAutoCorrMCCnv" ); 
-        log << MSG::INFO << "Reading LArAutoCorrSubset (original)" << endreq; 
+        MsgStream log(msgSvc(), "LArAutoCorrMCCnv" ); 
+        log << MSG::INFO << "Reading LArAutoCorrSubset (original)" << endmsg; 
 
         std::auto_ptr< LArConditionsSubset<LArAutoCorrP> > subset ( poolReadObject< LArConditionsSubset<LArAutoCorrP> >() );
         // Here we must convert from LArAutoCorrP to LArAutoCorrP1
         
-        log << MSG::INFO << "subset ptr " << subset.get() << endreq; 
+        log << MSG::INFO << "subset ptr " << subset.get() << endmsg; 
 
         return (createTransient(subset.get()));
 
@@ -57,8 +57,8 @@ LArConditionsSubset<LArAutoCorrP1>*
 LArAutoCorrMCCnv::createTransient(LArConditionsSubset<LArAutoCorrP>* orig)
 {
 
-    MsgStream log(messageService(), "LArAutoCorrMCCnv" ); 
-    log << MSG::INFO << "LArAutoCorrMCCnv::createTransient orig " << orig << endreq; 
+    MsgStream log(msgSvc(), "LArAutoCorrMCCnv" ); 
+    log << MSG::INFO << "LArAutoCorrMCCnv::createTransient orig " << orig << endmsg; 
 
     LArConditionsSubset<LArAutoCorrP1>* result = new LArConditionsSubset<LArAutoCorrP1>();
     

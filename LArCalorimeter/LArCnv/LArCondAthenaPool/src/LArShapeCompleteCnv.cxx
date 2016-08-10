@@ -35,10 +35,10 @@ float toFloat (double x)
 LArShapeSubset_p2*
 LArShapeCompleteCnv::createPersistent (LArShapeTransType2* transObj)
 {
-  MsgStream log(messageService(), "LArShapeCompleteCnv" ); 
-    //log << MSG::DEBUG << "LArShapeComplete write" << endreq;
+  MsgStream log(msgSvc(), "LArShapeCompleteCnv" ); 
+    //log << MSG::DEBUG << "LArShapeComplete write" << endmsg;
     LArShapePersType2* persObj = TPconverter2.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endreq;
+    //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
 
@@ -49,26 +49,26 @@ LArShapeCompleteCnv::createTransient ()
   static pool::Guid   p1_guid("95B61750-4C45-412D-B4D4-9758E9DB40D1");
   static pool::Guid   p0_guid("055CF2F5-08D0-4EAA-B154-8CE5B1A599E7");
 
-  MsgStream log(messageService(), "LArShapeCompleteCnv" ); 
+  MsgStream log(msgSvc(), "LArShapeCompleteCnv" ); 
   if( compareClassGuid(p2_guid) ) {  
     std::auto_ptr< LArShapeSubset_p2 > col_vect( poolReadObject< LArShapeSubset_p2 >() );  
-    log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endreq; 
+    log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 
     return TPconverter2.createTransient( col_vect.get(), log );
   } 
   else if( compareClassGuid(p1_guid) ) {  
-    log << MSG::ERROR << "Sorry if you really want to read LArShapeSubset_p1 you will need to provide a legacy converter" << endreq;
+    log << MSG::ERROR << "Sorry if you really want to read LArShapeSubset_p1 you will need to provide a legacy converter" << endmsg;
     // using auto_ptr ensures deletion of the persistent object
     //std::auto_ptr< LArShapeSubset_p1 > col_vect( poolReadObject< LArShapeSubset_p1 >() );
-    //log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endreq; 
+    //log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 
     //return TPconverter1.createTransient( col_vect.get(), log );
   }
   else if( compareClassGuid(p0_guid) ) {
-    log << MSG::ERROR << "Sorry if you really want to read the very old LArShapeSubset you will need to provide a legacy converter" << endreq;
+    log << MSG::ERROR << "Sorry if you really want to read the very old LArShapeSubset you will need to provide a legacy converter" << endmsg;
     // subset from before TP separation
-    //log << MSG::DEBUG << "Reading LArShapeSubset (original)" << endreq; 
+    //log << MSG::DEBUG << "Reading LArShapeSubset (original)" << endmsg; 
     //std::auto_ptr< LArConditionsSubset<LArShapeP> > subset ( poolReadObject< LArConditionsSubset<LArShapeP> >() );
     // Here we must convert from LArShapeP to LArShapeP1
-    //log << MSG::VERBOSE << "subset ptr " << subset.get() << endreq; 
+    //log << MSG::VERBOSE << "subset ptr " << subset.get() << endmsg; 
     //return (createTransient(subset.get()));
   } 
   throw std::runtime_error("Unsupported persistent version of LArShapeCompleteCnv");
@@ -78,8 +78,8 @@ LArConditionsSubset<LArShapeP1>*
 LArShapeCompleteCnv::createTransient(LArConditionsSubset<LArShapeP>* orig)
 {
 
-  //MsgStream log(messageService(), "LArShapeCompleteCnv" ); 
-  //log << MSG::DEBUG << "LArShapeCompleteCnv::createTransient orig " << orig << endreq; 
+  //MsgStream log(msgSvc(), "LArShapeCompleteCnv" ); 
+  //log << MSG::DEBUG << "LArShapeCompleteCnv::createTransient orig " << orig << endmsg; 
 
     LArConditionsSubset<LArShapeP1>* result = new LArConditionsSubset<LArShapeP1>();
     
@@ -100,7 +100,7 @@ LArShapeCopy::copyOldtoNew(const LArConditionsSubset<LArShapeP>* oldShape,
     unsigned int nCorrs      = oldShape->m_correctionVec.size();
 
     //log << MSG::DEBUG << "LArShapeCompleteCnv::createTransient oldShape 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endreq; 
+    //    << nFebs << " " << nCorrs << endmsg; 
 
     // Copy conditions
 
@@ -133,7 +133,7 @@ LArShapeCopy::copyOldtoNew(const LArConditionsSubset<LArShapeP>* oldShape,
         }
     }
 
-    //log << MSG::DEBUG << "LArShapeCompleteCnv::createTransient oldShape 2 " << oldShape << endreq; 
+    //log << MSG::DEBUG << "LArShapeCompleteCnv::createTransient oldShape 2 " << oldShape << endmsg; 
 
     // Copy corrections
     newShape->m_correctionVec.resize(nCorrs);

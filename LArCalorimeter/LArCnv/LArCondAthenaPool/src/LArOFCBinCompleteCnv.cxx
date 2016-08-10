@@ -11,10 +11,10 @@
 #include "LArOFCBinCompleteCnv.h"
 
 LArOFCBinPersType* LArOFCBinCompleteCnv::createPersistent (LArOFCBinTransType* transObj) {
-    MsgStream log(messageService(), "LArOFCBinCompleteCnv" ); 
-    //log << MSG::DEBUG << "LArOFCBinComplete write" << endreq;
+    MsgStream log(msgSvc(), "LArOFCBinCompleteCnv" ); 
+    //log << MSG::DEBUG << "LArOFCBinComplete write" << endmsg;
     LArOFCBinPersType* persObj = m_TPconverter.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endreq;
+    //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
 
@@ -23,8 +23,8 @@ LArOFCBinTransType* LArOFCBinCompleteCnv::createTransient () {
   if( compareClassGuid(p1_guid) ) {
     // using auto_ptr ensures deletion of the persistent object
     std::auto_ptr<LArOFCBinPersType> col_vect( poolReadObject<LArOFCBinPersType>() );
-    MsgStream log(messageService(), "LArOFCBinCompleteCnv" ); 
-    //log << MSG::INFO << "Reading LArOFCBinSubset_p1" << endreq; 
+    MsgStream log(msgSvc(), "LArOFCBinCompleteCnv" ); 
+    //log << MSG::INFO << "Reading LArOFCBinSubset_p1" << endmsg; 
     return m_TPconverter.createTransient( col_vect.get(), log );
   }
   throw std::runtime_error("Unsupported persistent version of LArOFCBinComplete");
