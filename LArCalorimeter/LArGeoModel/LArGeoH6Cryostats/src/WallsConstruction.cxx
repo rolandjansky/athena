@@ -80,7 +80,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
     throw std::runtime_error("WallsConstruction: cannot initialze message service");
   }
 
-  (*m_msg) << MSG::INFO << "WallsConstruction - creating the walls in front of the cryostat " << endreq;
+  (*m_msg) << MSG::INFO << "WallsConstruction - creating the walls in front of the cryostat " << endmsg;
 
 
   StoreGateSvc *detStore;
@@ -178,7 +178,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   //----- First the IronWall
 
-  (*m_msg) << "Create Iron Wall " << endreq;
+  (*m_msg) << "Create Iron Wall " << endmsg;
   
   const double IronX =  1499.*CLHEP::mm;
   const double IronY =  1999.*CLHEP::mm;
@@ -212,7 +212,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   //----- Now the LeadWall
 
-  (*m_msg) << "Create Lead Wall " << endreq;
+  (*m_msg) << "Create Lead Wall " << endmsg;
   
   const double LeadX =  1499.*CLHEP::mm;
   const double LeadY =  1999.*CLHEP::mm;
@@ -245,7 +245,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   //----- Now the ScintWall
 
-  (*m_msg) << "Create Scint Wall " << endreq;
+  (*m_msg) << "Create Scint Wall " << endmsg;
   
   const double ScintX =  1499.*CLHEP::mm;
   const double ScintY =  1999.*CLHEP::mm;
@@ -279,7 +279,7 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
 
   //----- Finally the iron plates
 
-  //(*m_msg) << "Create Iron Plate " << endreq;
+  //(*m_msg) << "Create Iron Plate " << endmsg;
   
   const double IronPlateX =   50.*CLHEP::mm;
   const double IronPlateY =  150.*CLHEP::mm;
@@ -294,11 +294,11 @@ GeoVPhysVol* LArGeo::WallsConstruction::GetEnvelope()
   
   if (nPlate>0) {
     // Print out a warning here, because extra matrial is in place only for a few special runs
-    (*m_msg) << MSG::WARNING << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "  << endreq;
-    (*m_msg) << MSG::WARNING << " EXTRA MATERIAL IN THE BEAM: " << nPlate << " plates "  << endreq;
-    if (PlatePlace== 1) (*m_msg) << MSG::WARNING << " between cryostat and Iron Wall " << endreq;
-    //if (PlatePlace==-1) (*m_msg) << MSG::WARNING << " between Lead Wall and Table " << endreq;
-    (*m_msg) << MSG::WARNING << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "  << endreq;
+    (*m_msg) << MSG::WARNING << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "  << endmsg;
+    (*m_msg) << MSG::WARNING << " EXTRA MATERIAL IN THE BEAM: " << nPlate << " plates "  << endmsg;
+    if (PlatePlace== 1) (*m_msg) << MSG::WARNING << " between cryostat and Iron Wall " << endmsg;
+    //if (PlatePlace==-1) (*m_msg) << MSG::WARNING << " between Lead Wall and Table " << endmsg;
+    (*m_msg) << MSG::WARNING << " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! "  << endmsg;
 
     std::vector<double> v_PlateZ;
     for (int iz=0; iz<(nPlate); iz++)  v_PlateZ.push_back(IronPlatePosZ + double(iz)*(2*IronPlateZ+0.5)); 

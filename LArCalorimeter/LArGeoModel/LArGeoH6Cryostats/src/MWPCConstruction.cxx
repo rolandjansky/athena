@@ -86,7 +86,7 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
     throw std::runtime_error("MWPCConstruction: cannot initialze message service");
   }
 
-  (*m_msg) << MSG::INFO << "MWPCConstruction - creating an MWPC with wire step " << m_wireStep << "mm !  " << endreq;
+  (*m_msg) << MSG::INFO << "MWPCConstruction - creating an MWPC with wire step " << m_wireStep << "mm !  " << endmsg;
 
 
 
@@ -132,8 +132,8 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
 
 //   // Test to see whether we can get the ArIso from the database  
 //   GeoMaterial *ArIso2  = materialManager->getMaterial("LArTB::Argon70Isobutane30");
-//   if (!ArIso2) (*m_msg) << MSG::INFO  << "Found no Argon70Isobutane30 in database" << endreq;
-//   if (ArIso2)  (*m_msg) << MSG::INFO  << "Did find LArTB::Argon70Isobutane30 in database!" << endreq;
+//   if (!ArIso2) (*m_msg) << MSG::INFO  << "Found no Argon70Isobutane30 in database" << endmsg;
+//   if (ArIso2)  (*m_msg) << MSG::INFO  << "Did find LArTB::Argon70Isobutane30 in database!" << endmsg;
 
   GeoMaterial *Air  = materialManager->getMaterial("std::Air");
   if (!Air) throw std::runtime_error("Error in MWPCConstruction, std::Air is not found.");
@@ -168,7 +168,7 @@ GeoVPhysVol* LArGeo::MWPCConstruction::GetEnvelope()
 
   //------ Now create a MWPC
  
-  (*m_msg)  << " Create MWPC5 " << endreq;
+  (*m_msg)  << " Create MWPC5 " << endmsg;
 
   std::string baseName = "LAr::TB";
   std::string MWPCName = baseName + "::MWPC";

@@ -82,7 +82,7 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
     throw std::runtime_error("BPCConstruction: cannot initialze message service");
   }
 
-  (*m_msg) << MSG::INFO << "BPCConstruction - creating an BPC oldType: " << m_oldType << " !  " << endreq;
+  (*m_msg) << MSG::INFO << "BPCConstruction - creating an BPC oldType: " << m_oldType << " !  " << endmsg;
 
 
 
@@ -201,7 +201,7 @@ GeoVPhysVol* LArGeo::BPCConstruction::GetEnvelope()
 
   //------ Now create a BPC
  
-  (*m_msg)  << MSG::INFO <<" Create BPC " << endreq;
+  (*m_msg)  << MSG::INFO <<" Create BPC " << endmsg;
 
   std::string BPCName;
   if(m_oldType) BPCName = "LAr::TB::BPCOLD"; else BPCName = "LAr::TB::BPC";
