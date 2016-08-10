@@ -93,11 +93,11 @@ GeoFullPhysVol* LArGeo::HECWheelConstruction::GetEnvelope()
 
   MsgStream log(Athena::getMessageSvc(),"HECWheelConstruction " );
 
-  log << MSG::DEBUG << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-  log << MSG::DEBUG << "+                                                             +" << endreq;
-  log << MSG::DEBUG << "+         Start of HECWheel GeoModel definition               +" << endreq;
-  log << MSG::DEBUG << "+                                                             +" << endreq;
-  log << MSG::DEBUG << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
+  log << MSG::DEBUG << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endmsg;
+  log << MSG::DEBUG << "+                                                             +" << endmsg;
+  log << MSG::DEBUG << "+         Start of HECWheel GeoModel definition               +" << endmsg;
+  log << MSG::DEBUG << "+                                                             +" << endmsg;
+  log << MSG::DEBUG << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endmsg;
 
 
   StoreGateSvc *detStore;
@@ -141,19 +141,19 @@ GeoFullPhysVol* LArGeo::HECWheelConstruction::GetEnvelope()
 
   IRDBRecordset_ptr hadronicEndcap   = pAccessSvc->getRecordsetPtr("HadronicEndcap",detectorKey, detectorNode); 
   if(hadronicEndcap->size()>0)
-    log << MSG::DEBUG << "Using numbers from HadronicEndcap tag:  " << hadronicEndcap->tagName() << endreq;
+    log << MSG::DEBUG << "Using numbers from HadronicEndcap tag:  " << hadronicEndcap->tagName() << endmsg;
   else
     throw std::runtime_error("Error in HECConstruction:  hadronicEendcap not found");
 
   IRDBRecordset_ptr hecLongitudinalBlock = pAccessSvc->getRecordsetPtr("HecLongitudinalBlock",detectorKey, detectorNode); 
   if(hecLongitudinalBlock->size()>0) 
-    log << MSG::DEBUG << "Using numbers from HecLongitudinalBlock tag:  " << hecLongitudinalBlock->tagName() << endreq;
+    log << MSG::DEBUG << "Using numbers from HecLongitudinalBlock tag:  " << hecLongitudinalBlock->tagName() << endmsg;
   else
     throw std::runtime_error("Error in HECConstruction:  hecLongitudinalBlock not found");
 
   IRDBRecordset_ptr coldContraction  = pAccessSvc->getRecordsetPtr("ColdContraction",detectorKey, detectorNode); 
   if(coldContraction->size()>0)
-    log << MSG::DEBUG << "Numbers from ColdContraction db (not used yet) tag:  " << coldContraction->tagName() << endreq;
+    log << MSG::DEBUG << "Numbers from ColdContraction db (not used yet) tag:  " << coldContraction->tagName() << endmsg;
   else
     throw std::runtime_error("Error in HECConstruction:  ColdContraction not found");
 

@@ -87,7 +87,7 @@ GeoPhysVol* LArGeo::HECClampConstruction::GetClampingBar(bool rail,bool left)
   ISvcLocator *svcLocator = Gaudi::svcLocator();
 
   MsgStream log(Athena::getMessageSvc(),"HECClampConstruction " );
-  log << MSG::DEBUG << " In HECClampConstruction " << endreq;
+  log << MSG::DEBUG << " In HECClampConstruction " << endmsg;
   
 
   StoreGateSvc *detStore;
