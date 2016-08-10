@@ -1726,7 +1726,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
         }
         const xAOD::TrackParticle * ptl1 = **trkIt1;
         if (!ptl1) {
-            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
+            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endmsg;
             continue;
         }
 
@@ -1769,7 +1769,7 @@ void HLTXAODBphysMonTool::fillTrigBphysHists(const xAOD::TrigBphys *bphysItem, c
             
             const xAOD::TrackParticle * ptl2 = **trkIt2;
             if (!ptl2) {
-                msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
+                msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endmsg;
             }
 
             if (ptl2) {
