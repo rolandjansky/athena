@@ -316,7 +316,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     MsgStream log(m_msgSvc, "LArOnlineID_Base" );
     std::string strg = "initialize_from_dictionary";
     if(m_msgSvc) {
-        log << MSG::INFO << strg << endreq;
+        log << MSG::INFO << strg << endmsg;
     }
     else {
         std::cout << strg << std::endl;
@@ -324,11 +324,11 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   
     // Check whether this helper should be reinitialized
     if (!reinitialize(dict_mgr)) {
-        if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+        if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
         return (0);
     }
     else {
-        log << MSG::DEBUG << "(Re)initialize" << endreq;
+        log << MSG::DEBUG << "(Re)initialize" << endmsg;
     }
 
     // init base object
@@ -338,7 +338,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
         strg = " initialize_from_dictionary - cannot access LArCalorimeter dictionary ";
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << "LArOnlineID_Base::" << strg << std::endl;
@@ -367,7 +367,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
         strm << atlasDict->m_name;
         strg= " Could not get value for label 'LArCalorimeter' of field 'subdet' in dictionary "+strm.str();
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << "LArOnlineID_Base:" << strg << std::endl;
@@ -382,7 +382,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
         strm <<  m_dict->m_name;      
         strg = "Could not get value for label 'LArOnline' of field 'part' in dictionary "+strm.str(); 
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << strg << std::endl;
@@ -397,7 +397,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
         strm <<  m_dict->m_name;      
         strg = "Could not get value for label 'LArOnlineCalib' of field 'part' in dictionary "+strm.str();
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << strg << std::endl;
@@ -426,10 +426,10 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     std::string strg2= " feedthrough slot range -> " + (std::string)m_full_feb_range;  
     std::string strg3= " channel range -> " + (std::string)m_full_laronline_range;
     if(m_msgSvc) {
-        log << MSG::DEBUG << strg0 << endreq;
-        log << MSG::DEBUG << strg1 << endreq;
-        log << MSG::DEBUG << strg2 << endreq;
-        log << MSG::DEBUG << strg3 << endreq;
+        log << MSG::DEBUG << strg0 << endmsg;
+        log << MSG::DEBUG << strg1 << endmsg;
+        log << MSG::DEBUG << strg2 << endmsg;
+        log << MSG::DEBUG << strg3 << endmsg;
     }
     else {
         std::cout << strg0 << std::endl;
@@ -444,7 +444,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     strm << dictionaryVersion();
     strg="[initialize_from_dictionary] version= " + strm.str();      
     if(m_msgSvc) {
-        log << MSG::DEBUG << strg << endreq;
+        log << MSG::DEBUG << strg << endmsg;
     }
     else {
         std::cout << "LArOnlineID_Base: " << strg << std::endl;      
@@ -501,9 +501,9 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             strg1= " "+strm1.str();
             strg2= " "+strm2.str();
             if(m_msgSvc) {
-                log << MSG::DEBUG << strg << endreq;
-                log << MSG::DEBUG << strg1 << endreq;
-                log << MSG::DEBUG << strg2 << endreq;
+                log << MSG::DEBUG << strg << endmsg;
+                log << MSG::DEBUG << strg1 << endmsg;
+                log << MSG::DEBUG << strg2 << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -529,9 +529,9 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             strg1= " , "+strm1.str();
             strg2= " , "+strm2.str();
             if(m_msgSvc) {
-                log << MSG::ERROR << strg << endreq;
-                log << MSG::ERROR << strg1 << endreq;
-                log << MSG::ERROR << strg2 << endreq;
+                log << MSG::ERROR << strg << endmsg;
+                log << MSG::ERROR << strg1 << endmsg;
+                log << MSG::ERROR << strg2 << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -636,7 +636,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             strm3 << min_hash;
             strg = "Min > " + strm.str() + " " + strm1.str() + " " + strm2.str() + " " + strm3.str();
             if(m_msgSvc) {
-                log << MSG::DEBUG << strg << endreq;
+                log << MSG::DEBUG << strg << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -660,7 +660,7 @@ int  LArOnlineID_Base::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             strg = " *****  Error feb ranges, id, hash, i = " + 
                 strm.str() + " , " + strm1.str() + " , "+strm2.str();
             if(m_msgSvc) {
-                log << MSG::ERROR << strg << endreq;
+                log << MSG::ERROR << strg << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -872,7 +872,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
     {
     if(m_msgSvc) {
       log << MSG::ERROR << "initLevelsFromDict - dictionary NOT initialized "
-          << endreq;
+          << endmsg;
     }
     else {
       std::cout << "LArEM_ID::initLevelsFromDict - dictionary NOT initialized "
@@ -904,7 +904,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
       strg = "initLevelsFromDict - unable to find laronline region ";
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg << endreq;
+          log << MSG::ERROR << strg << endmsg;
         }
       else
         {
@@ -923,7 +923,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
       strg= "initLevelsFromDict - unable to find 'subdet' field ";
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg << endreq;
+          log << MSG::ERROR << strg << endmsg;
         }
       else
         {
@@ -943,7 +943,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
       strg= "initLevelsFromDict - unable to find 'part' field ";
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg << endreq;
+          log << MSG::ERROR << strg << endmsg;
         }
       else
         {
@@ -963,7 +963,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
       strg= "initLevelsFromDict - unable to find 'barrel-endcap' field ";
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg << endreq;
+          log << MSG::ERROR << strg << endmsg;
         }
       else
         {
@@ -983,7 +983,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
       strg=  "initLevelsFromDict - unable to find 'barrel-endcap' field ";
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg << endreq;
+          log << MSG::ERROR << strg << endmsg;
         }
       else
         {
@@ -1008,7 +1008,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
       strg =  "initLevelsFromDict - unable to find 'feedthrough' field ";
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg << endreq;
+          log << MSG::ERROR << strg << endmsg;
         }
       else
         {
@@ -1034,7 +1034,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
       strg =  "initLevelsFromDict - unable to find 'slot' field ";
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg << endreq;
+          log << MSG::ERROR << strg << endmsg;
         }
       else
         {
@@ -1060,7 +1060,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
       strg =  "initLevelsFromDict - unable to find 'channel_in_slot' field ";
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg << endreq;
+          log << MSG::ERROR << strg << endmsg;
         }
       else
         {
@@ -1081,7 +1081,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
       strg =  "initLevelsFromDict - unable to find 'slar' field ";
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg << endreq;
+          log << MSG::ERROR << strg << endmsg;
         }
       else
         {
@@ -1096,7 +1096,7 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
   IdDictGroup* group = m_dict->find_group(group_name);
   if ( !group ) {
         log << MSG::ERROR << "initLevelsFromDict - cannot find "
-                << group_name << endreq;
+                << group_name << endmsg;
   } else {
         m_laronlineRegion_index = group->regions()[0]->m_index;
   }
@@ -1114,16 +1114,16 @@ int LArOnlineID_Base::initLevelsFromDict(const std::string& group_name)
    m_slar_impl           = region.m_implementation[m_slar_index];
 
   if(m_msgSvc) {
-    log << MSG::DEBUG << "decode index and bit fields for each level: " << endreq;
-    log << MSG::DEBUG << "lar     " << m_lar_impl.show_to_string() << endreq;
-    log << MSG::DEBUG << "online  " << m_laronline_impl.show_to_string() << endreq;
-    log << MSG::DEBUG << "bec     " << m_bec_impl.show_to_string() << endreq;
-    log << MSG::DEBUG << "side    " << m_side_impl.show_to_string() << endreq;
-    log << MSG::DEBUG << "ft      " << m_feedthrough_impl.show_to_string() << endreq;
-    log << MSG::DEBUG << "slot    " << m_slot_impl.show_to_string() << endreq;
-    log << MSG::DEBUG << "channel " << m_channel_in_slot_impl.show_to_string() << endreq;
+    log << MSG::DEBUG << "decode index and bit fields for each level: " << endmsg;
+    log << MSG::DEBUG << "lar     " << m_lar_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << "online  " << m_laronline_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << "bec     " << m_bec_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << "side    " << m_side_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << "ft      " << m_feedthrough_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << "slot    " << m_slot_impl.show_to_string() << endmsg;
+    log << MSG::DEBUG << "channel " << m_channel_in_slot_impl.show_to_string() << endmsg;
     if ( m_this_is_slar )
-      log << MSG::DEBUG << "is-slar " << m_slar_impl.show_to_string() << endreq;
+      log << MSG::DEBUG << "is-slar " << m_slar_impl.show_to_string() << endmsg;
   }
   else {
     std::cout << "decode index and bit fields for each level: " << std::endl;
@@ -1182,9 +1182,9 @@ int LArOnlineID_Base::init_hashes(void)
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {
-                  log  << MSG::ERROR << strg1 << endreq;
-                  //log  << MSG::ERROR << strg2 << endreq;
-                  log  << MSG::ERROR << strg3 << endreq;
+                  log  << MSG::ERROR << strg1 << endmsg;
+                  //log  << MSG::ERROR << strg2 << endmsg;
+                  log  << MSG::ERROR << strg3 << endmsg;
                 }
               else
                 {
@@ -1205,9 +1205,9 @@ int LArOnlineID_Base::init_hashes(void)
       strg3 = " hash max "+strm2.str();
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg1 << endreq;
-          log << MSG::ERROR << strg2 << endreq;
-          log << MSG::ERROR << strg3 << endreq;
+          log << MSG::ERROR << strg1 << endmsg;
+          log << MSG::ERROR << strg2 << endmsg;
+          log << MSG::ERROR << strg3 << endmsg;
         }
       else
         {
@@ -1248,9 +1248,9 @@ int LArOnlineID_Base::init_hashes(void)
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {
-                  log  << MSG::ERROR << strg1 << endreq;
-                  //log  << MSG::ERROR << strg2 << endreq;
-                  log  << MSG::ERROR << strg3 << endreq;
+                  log  << MSG::ERROR << strg1 << endmsg;
+                  //log  << MSG::ERROR << strg2 << endmsg;
+                  log  << MSG::ERROR << strg3 << endmsg;
                 }
               else
                 {
@@ -1271,9 +1271,9 @@ int LArOnlineID_Base::init_hashes(void)
       strg3 = " hash max= "+strm2.str();
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg1 << endreq;
-          log << MSG::ERROR << strg2 << endreq;
-          log << MSG::ERROR << strg3 << endreq;
+          log << MSG::ERROR << strg1 << endmsg;
+          log << MSG::ERROR << strg2 << endmsg;
+          log << MSG::ERROR << strg3 << endmsg;
         }
       else
         {
@@ -1318,9 +1318,9 @@ int LArOnlineID_Base::init_hashes(void)
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {
-                  log  << MSG::ERROR << strg1 << endreq;
-                  //log  << MSG::ERROR << strg2 << endreq;
-                  log  << MSG::ERROR << strg3 << endreq;
+                  log  << MSG::ERROR << strg1 << endmsg;
+                  //log  << MSG::ERROR << strg2 << endmsg;
+                  log  << MSG::ERROR << strg3 << endmsg;
                 }
               else
                 {
@@ -1341,9 +1341,9 @@ int LArOnlineID_Base::init_hashes(void)
       strg3 = " hash max "+strm2.str();
       if(m_msgSvc)
         {
-          log << MSG::ERROR << strg1 << endreq;
-          log << MSG::ERROR << strg2 << endreq;
-          log << MSG::ERROR << strg3 << endreq;
+          log << MSG::ERROR << strg1 << endmsg;
+          log << MSG::ERROR << strg2 << endmsg;
+          log << MSG::ERROR << strg3 << endmsg;
         }
       else
         {

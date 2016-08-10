@@ -41,8 +41,8 @@ HWIdentifier LArReadoutModuleService::createReadoutModuleID(int l_atlas_tb, int 
       MsgStream msg(Athena::getMessageSvc(), " LArReadoutModuleService");
       msg << MSG::ERROR << " createReadoutModuleID called with parameters: "  
 	  << l_atlas_tb << ", " << l_barrel_ec << ", " << l_pos_neg << ", " << l_em_hec_fcal 
-	  << ", " << l_rosId << ", " << l_rodFragId << ", " << l_rodCrate << ", " << l_rodSlot << endreq;
-      msg << MSG::ERROR << errorReport << endreq;
+	  << ", " << l_rosId << ", " << l_rodFragId << ", " << l_rodCrate << ", " << l_rodSlot << endmsg;
+      msg << MSG::ERROR << errorReport << endmsg;
       return HWIdentifier(); //Return (invalid) default instance
     }
     

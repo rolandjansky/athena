@@ -51,7 +51,7 @@ int  LArElectrodeID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   MsgStream log(m_msgSvc, "LArElectrodeID" );
   std::string strg = " => initialize_from_dictionary()";
   if(m_msgSvc) {
-    log << MSG::INFO << strg << endreq;
+    log << MSG::INFO << strg << endmsg;
   }
   else {
     std::cout << strg << std::endl;
@@ -62,13 +62,13 @@ int  LArElectrodeID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   if (!reinitialize(dict_mgr)) {
     if(m_msgSvc)log << MSG::DEBUG 
 		    << "Request to reinitialize not satisfied - tags have not changed" 
-		    << endreq;
+		    << endmsg;
     return (0);
   }
   else {
-    log << MSG::DEBUG << "(Re)initialize" << endreq;
+    log << MSG::DEBUG << "(Re)initialize" << endmsg;
   }
-  log << MSG::DEBUG << " => Initialization of dict_mgr done ! " << m_dict << endreq;
+  log << MSG::DEBUG << " => Initialization of dict_mgr done ! " << m_dict << endmsg;
 
   // init base object
   // ----------------
@@ -78,15 +78,15 @@ int  LArElectrodeID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   else{
     log << MSG::DEBUG << " => initialize_from_dictionary(dict_mgr) =" 
 	<< AtlasDetectorID::initialize_from_dictionary(dict_mgr) 
-	<< endreq;
+	<< endmsg;
   }
   m_dict = dict_mgr.find_dictionary ("LArElectrode"); 
   log << MSG::DEBUG << " => defined m_dict from find_dictionary(LArElectrode) = " 
-      << m_dict << endreq;
+      << m_dict << endmsg;
   if(!m_dict) {
     strg = " initialize_from_dictionary - cannot access LArElectrode dictionary ";
     if(m_msgSvc) {
-      log << MSG::ERROR << strg << endreq;
+      log << MSG::ERROR << strg << endmsg;
     }
     else {
       std::cout << "LArElectrodeID::" << strg << std::endl;
@@ -97,12 +97,12 @@ int  LArElectrodeID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   // Register version of the dictionary used
   // ---------------------------------------
   if (register_dict_tag(dict_mgr, "LArElectrode")) return(1);
-  log << MSG::DEBUG << "Register_dict_tag of LArElectrode is OK" << endreq;
+  log << MSG::DEBUG << "Register_dict_tag of LArElectrode is OK" << endmsg;
 
   // initialize dictionary version
   // -----------------------------
   AtlasDetectorID::setDictVersion(dict_mgr, "LArElectrode");
-  log << MSG::DEBUG << "setDictVersion of LArElectrode is OK" << endreq;
+  log << MSG::DEBUG << "setDictVersion of LArElectrode is OK" << endmsg;
 
 
   // Initialize the field indices
@@ -117,14 +117,14 @@ int  LArElectrodeID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     strm << atlasDict->m_name;
     strg= " Could not get value for label 'LArElectrode' of field 'subdet' in dictionary "+strm.str();
     if(m_msgSvc){
-      log << MSG::ERROR << strg << endreq;
+      log << MSG::ERROR << strg << endmsg;
     }
     else{
       std::cout << "LArElectrodeID:" << strg << std::endl;
     }
     return (1);
   }
-  log << MSG::DEBUG << "[init_from_dictionary] > larField value = "<< larField << endreq; 
+  log << MSG::DEBUG << "[init_from_dictionary] > larField value = "<< larField << endmsg; 
 
 
   /* Find values for the field Detector */
@@ -134,7 +134,7 @@ int  LArElectrodeID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     strm <<  m_dict->m_name;      
     strg = "WARNING : Could not get value for label 'configuration' in dictionary "+strm.str();
     if(m_msgSvc) {
-      log << MSG::INFO << strg << endreq;
+      log << MSG::INFO << strg << endmsg;
     }
     else{
       std::cout << strg << std::endl;
@@ -142,7 +142,7 @@ int  LArElectrodeID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     return (0);
   }
   log << MSG::DEBUG << "[init_from_dictionary] > configurationValue = "
-      << configurationValue << endreq; 
+      << configurationValue << endmsg; 
 
   // Set up Expanded identifier for electrode range prefix
   // =========================================================
@@ -155,7 +155,7 @@ int  LArElectrodeID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   m_full_larelectrode_range=m_dict->build_multirange(reg_id, prefix);
   m_full_electrode_range = m_dict->build_multirange(reg_id, prefix, "electrode");
   log << MSG::DEBUG << "[initialize_from_dictionary] >  Electrode range -> "  
-      << (std::string)m_full_electrode_range << endreq;
+      << (std::string)m_full_electrode_range << endmsg;
   
   // Setup the hash tables
   // =========================================================
@@ -195,15 +195,15 @@ int LArElectrodeID::initLevelsFromDict(void)
 //=============================================================================
 {
   MsgStream log(m_msgSvc, "LArElectrodeID" );
-  log << MSG::DEBUG  << "[initLevelsFromDict] Entering routine... " << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] Entering routine... " << endmsg;
 
   if(!m_dict) {
     log << MSG::INFO  << "LArElectrodeID::initLevelsFromDict - dictionary NOT initialized "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
 
-  log << MSG::DEBUG  << "[initLevelsFromDict] m_dict OK ... " << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] m_dict OK ... " << endmsg;
 
   // Find out which identifier field corresponds to each level.
   // ========================================================================
@@ -216,7 +216,7 @@ int LArElectrodeID::initLevelsFromDict(void)
   m_hveta_index          = 999;
   m_hvgap_index          = 999;
   m_electrode_index      = 999;
-  log << MSG::DEBUG  << "[initLevelsFromDict] data member initialization OK ... "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] data member initialization OK ... "  << endmsg;
   
   // Search with region name
   IdDictRegion* reg = m_dict->find_region("EM-BARREL-ALL");
@@ -224,10 +224,10 @@ int LArElectrodeID::initLevelsFromDict(void)
       m_larElectrodeRegion_index = reg->m_index;}
   else {
     log << MSG::INFO  << "WARNING : [initLevelsFromDict] - unable to find 'EM-BARREL-ALL' region"  
-	      << endreq;
+	      << endmsg;
     return (0);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] region 'EM-BARREL-ALL' found OK ... "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] region 'EM-BARREL-ALL' found OK ... "  << endmsg;
 
   // Find LArElectrode field 
   // ========================================================================
@@ -236,11 +236,11 @@ int LArElectrodeID::initLevelsFromDict(void)
     m_atlas_index = field->m_index ;}
   else {
     log << MSG::INFO  
-	<< "LArElectrodeID::initLevelsFromDict - unable to find 'subdet' field " << endreq ;
+	<< "LArElectrodeID::initLevelsFromDict - unable to find 'subdet' field " << endmsg ;
     return (1);
   }
   log << MSG::DEBUG 
-      << "[initLevelsFromDict] field 'LArElectrode' found OK "  << endreq;
+      << "[initLevelsFromDict] field 'LArElectrode' found OK "  << endmsg;
 
   // Find Configuration field 
   // ========================================================================
@@ -249,11 +249,11 @@ int LArElectrodeID::initLevelsFromDict(void)
     m_configuration_index = field->m_index ;}
   else {
     log << MSG::INFO  
-	<< "LArHVLineID::initLevelsFromDict - unable to find 'configuration' field " << endreq ;
+	<< "LArHVLineID::initLevelsFromDict - unable to find 'configuration' field " << endmsg ;
     return (1);
   }
   log << MSG::DEBUG 
-      << "[initLevelsFromDict] field config=Atlas found OK "  << endreq;
+      << "[initLevelsFromDict] field config=Atlas found OK "  << endmsg;
 
   // Find Detector field 
   // ========================================================================
@@ -262,11 +262,11 @@ int LArElectrodeID::initLevelsFromDict(void)
     m_detector_index = field->m_index ;}
   else {
     log << MSG::INFO  
-	<< "LArElectrodeID::initLevelsFromDict - unable to find 'detector' field " << endreq ;
+	<< "LArElectrodeID::initLevelsFromDict - unable to find 'detector' field " << endmsg ;
     return (1);
   }
   log << MSG::DEBUG 
-      << "[initLevelsFromDict] field 'detector' found OK "  << endreq;
+      << "[initLevelsFromDict] field 'detector' found OK "  << endmsg;
 
 
   // Look for Field 'zside'
@@ -276,10 +276,10 @@ int LArElectrodeID::initLevelsFromDict(void)
     m_zside_index = field->m_index ;}
   else {
     log << MSG::INFO  <<  "LArElectrodeID::initLevelsFromDict - unable to find 'zside' field "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] field 'zside' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] field 'zside' found OK "  << endmsg;
 
 
   // Look for Fields 'module'
@@ -290,10 +290,10 @@ int LArElectrodeID::initLevelsFromDict(void)
   }
   else {
     log << MSG::INFO  <<  "LArElectrodeID::initLevelsFromDict - unable to find 'module' field "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] field 'module' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] field 'module' found OK "  << endmsg;
 
   // Look for Fields 'hvphi'
   // ========================================================================
@@ -302,10 +302,10 @@ int LArElectrodeID::initLevelsFromDict(void)
     m_hvphi_index = field->m_index ;
   }
   else {
-    log << MSG::INFO  <<  "initLevelsFromDict - unable to find 'hvphi' field "<< endreq ;
+    log << MSG::INFO  <<  "initLevelsFromDict - unable to find 'hvphi' field "<< endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] field 'hvphi' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] field 'hvphi' found OK "  << endmsg;
 
   // Look for Fields 'hveta'
   // ========================================================================
@@ -315,10 +315,10 @@ int LArElectrodeID::initLevelsFromDict(void)
   }
   else {
     log << MSG::INFO  <<  "[initLevelsFromDict] - unable to find 'hveta' field "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] field 'hveta' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] field 'hveta' found OK "  << endmsg;
 
   // Look for Fields 'hvgap'
   // ========================================================================
@@ -328,10 +328,10 @@ int LArElectrodeID::initLevelsFromDict(void)
   }
   else {
     log << MSG::INFO  <<  "[initLevelsFromDict] - unable to find 'hvgap' field "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] field 'hvgap' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] field 'hvgap' found OK "  << endmsg;
 
   
   // Look for Fields 'electrode'
@@ -342,25 +342,25 @@ int LArElectrodeID::initLevelsFromDict(void)
   }
   else {
     log << MSG::INFO  <<  "[initLevelsFromDict] - unable to find 'electrode' field "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] field 'electrode' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] field 'electrode' found OK "  << endmsg;
 
 
   // Set the field implementation
   // ========================================================================
 
   const IdDictRegion& region = *m_dict->m_regions[m_larElectrodeRegion_index];
-  log << MSG::DEBUG  << "[initLevelsFromDict] Found levels: " << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > Atlas     : " << m_atlas_index  << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > Configurat: " << m_configuration_index  << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > detector  : " << m_detector_index  << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > zside     : " << m_zside_index     << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > hvphi     : " << m_hvphi_index     << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > hveta     : " << m_hveta_index     << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > hvgap     : " << m_hvgap_index     << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > electrode : " << m_electrode_index << endreq ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] Found levels: " << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > Atlas     : " << m_atlas_index  << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > Configurat: " << m_configuration_index  << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > detector  : " << m_detector_index  << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > zside     : " << m_zside_index     << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > hvphi     : " << m_hvphi_index     << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > hveta     : " << m_hveta_index     << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > hvgap     : " << m_hvgap_index     << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > electrode : " << m_electrode_index << endmsg ;
   m_atlas_impl      = region.m_implementation[m_atlas_index]; 
   m_configuration_impl= region.m_implementation[m_configuration_index]; 
   m_detector_impl   = region.m_implementation[m_detector_index]; 
@@ -371,16 +371,16 @@ int LArElectrodeID::initLevelsFromDict(void)
   m_hvgap_impl      = region.m_implementation[m_hvgap_index];  
   m_electrode_impl  = region.m_implementation[m_electrode_index]; 
   
-  log << MSG::DEBUG  << "[initLevelsFromDict] Decode index and bit fields for each level: " << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > Atlas       "  << m_atlas_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > larConfig  "  << m_configuration_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > detector    "  << m_detector_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > z-side      "  << m_zside_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > module      "  << m_module_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > hvphi       "  << m_hvphi_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > hveta       "  << m_hveta_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > hvgap       "  << m_hvgap_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > hv line     "  << m_electrode_impl.show_to_string()  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] Decode index and bit fields for each level: " << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > Atlas       "  << m_atlas_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > larConfig  "  << m_configuration_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > detector    "  << m_detector_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > z-side      "  << m_zside_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > module      "  << m_module_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > hvphi       "  << m_hvphi_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > hveta       "  << m_hveta_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > hvgap       "  << m_hvgap_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > hv line     "  << m_electrode_impl.show_to_string()  << endmsg;
 
 
   return(0) ;
@@ -428,8 +428,8 @@ int  LArElectrodeID::init_hashes(void)
 	strm3 << show_to_string(elec_id);
 	strg3 = " expanded Id= "+strm3.str();
 	if(m_msgSvc){
-	  log  << MSG::ERROR << strg1 << endreq;
-	  log  << MSG::ERROR << strg3 << endreq;
+	  log  << MSG::ERROR << strg1 << endmsg;
+	  log  << MSG::ERROR << strg3 << endmsg;
 	}
       }
       nids++;
@@ -443,9 +443,9 @@ int  LArElectrodeID::init_hashes(void)
     strg3 = " hash max "+strm2.str();
     if(m_msgSvc)
       {
-	log << MSG::ERROR << strg1 << endreq;
-	log << MSG::ERROR << strg2 << endreq;
-	log << MSG::ERROR << strg3 << endreq;
+	log << MSG::ERROR << strg1 << endmsg;
+	log << MSG::ERROR << strg2 << endmsg;
+	log << MSG::ERROR << strg3 << endmsg;
       }
     else
       {
@@ -463,7 +463,7 @@ int  LArElectrodeID::init_hashes(void)
     m_electrode_vec[nids] = (*first) ;
     nids++;
   }
-  log << MSG::DEBUG << "[init_hashes()] > Electrode_size= " << m_electrode_vec.size() << endreq;
+  log << MSG::DEBUG << "[init_hashes()] > Electrode_size= " << m_electrode_vec.size() << endmsg;
   return (0);                   
 }
 
