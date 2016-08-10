@@ -126,6 +126,10 @@ StatusCode LArNoisyROMon::bookHistograms()
     MonGroup GroupEMECFracBin(this, "/LAr/NoisyRO/EMEC", run, ATTRIB_MANAGED,"", "perBinEffPerCent" );
     bookPartitionHistos(m_EMECA,"EMECA",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
     bookPartitionHistos(m_EMECC,"EMECC",GroupEMEC,GroupEMECFrac,GroupEMECFracBin);
+
+
+  
+
     
     // Book general histograms
     hTitle = "Number of noisy FEB "+m_NoisyFEBDefStr+ " per event";

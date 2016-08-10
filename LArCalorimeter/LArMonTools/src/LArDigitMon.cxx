@@ -503,7 +503,7 @@ LArDigitMon::fillHistograms()
     }
     
     /**Second monitoring of the saturating cells.*/
-    if ((*maxSam)>=m_ADCsatureCut)FillSaturation(ThisPartition);
+    if ((*maxSam)>=m_ADCsatureCut && (gain==0 || gain==1))FillSaturation(ThisPartition);
     
     /**Third monitoring cells containing one sample==0.*/
     if((*minSam)==0)FillNullHisto(ThisPartition);
@@ -619,7 +619,7 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
 
   std::string  hName = "tSaturation_";
   hName =hName+PartitionName;
-  std::string hTitle=titlesat+PartitionName; 
+  std::string hTitle=titlesat+" Med/High Gain - "+PartitionName; 
   sub.m_SatDigit = TH2I_LW::create(hName.c_str(), hTitle.c_str(),slot,slot_low,slot_up,FEB,FEB_low,FEB_up);
   hName = "Saturation_";
   hName =hName+PartitionName;
@@ -652,7 +652,7 @@ void LArDigitMon::BookPartitions(partition& sub, const std::string& PartitionNam
   
   hName = "SaturationChan_";
   hName =hName+PartitionName;
-  hTitle=titlesatchan+PartitionName+" - All Gain - All Stream";
+  hTitle=titlesatchan+PartitionName+" - Med/High Gain - All Stream";
   sub.m_SatDigitChan = TH2F_LW::create(hName.c_str(), hTitle.c_str(),crates,crates_low,crates_up,chan,chan_low,chan_up);
   ExpertGroupEff.regHist(sub.m_SatDigitChan).ignore();
   m_strHelper->definePartitionSummProp2(sub.m_SatDigitChan).ignore();  

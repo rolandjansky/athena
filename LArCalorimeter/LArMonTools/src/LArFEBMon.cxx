@@ -41,6 +41,8 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "LArTrigStreamMatching.h"
 
+const unsigned nFEBnominal=1524;
+
 // ********************************************************************
 LArFEBMon::LArFEBMon(const std::string& type, 
 			       const std::string& name,
@@ -81,7 +83,7 @@ LArFEBMon::LArFEBMon(const std::string& type,
 
   m_eventsCounter = 0;
   
-  for (int i = 0;i < 1524; i++) {
+  for (int i = 0;i < nFEBnominal; i++) {
     m_febInError[i] = NULL;
     m_bfebIE[i]     = false;
   }
@@ -379,6 +381,7 @@ StatusCode LArFEBMon::fillHistograms() {
   m_eventTime_ns=thisEvent->timeStampNSOffset();
     
   unsigned lumi_block = thisEvent->lumiBlock();
+  bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) ? true : false;
   
   //msg(MSG::INFO) << "LArFEBMon Lumi block: "<<lumi_block<<endreq;
 
@@ -576,28 +579,28 @@ StatusCode LArFEBMon::fillHistograms() {
       // Fill the errors in partition histograms
       switch (partitionNb_dE){
 	case 0:
-	  fillErrorsSummary(m_barrelCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_barrelCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 1:
-	  fillErrorsSummary(m_barrelASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_barrelASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 2:
-	  fillErrorsSummary(m_emecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_emecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 3:
-	  fillErrorsSummary(m_emecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_emecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;	
 	case 4:
-	  fillErrorsSummary(m_hecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_hecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 5:
-	  fillErrorsSummary(m_hecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_hecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 6:
-	  fillErrorsSummary(m_fcalCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_fcalCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 7:	    
-	  fillErrorsSummary(m_fcalASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_fcalASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
       }
       if (m_currentFebStatus && m_febInErrorTree.size()<33){
@@ -702,17 +705,19 @@ StatusCode LArFEBMon::fillHistograms() {
     if (m_rejectedLBProfile->GetEntries() != lumi_block)
       m_rejectedLBProfile->Reset();
   }
-    
-  if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)){
-    m_rejectedYieldLB->Fill(lumi_block,100);
+  if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal) || nbOfFeb < nFEBnominal){
+    if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)) m_rejectedYieldLB->Fill(lumi_block,100); else m_rejectedYieldLB->Fill(lumi_block,50);
+
     if (!(thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)))
       m_rejectedYieldLBout->Fill(lumi_block,100);
     else
       m_rejectedYieldLBout->Fill(lumi_block,0);
-    if (m_isOnline) m_rejectedLBProfile->Fill(0.5,100);
+
+    if (m_isOnline) {
+       if (lar_inerror) m_rejectedLBProfile->Fill(0.5,100); else m_rejectedLBProfile->Fill(0.5,50);
+    }
     m_CorruptTree->Fill();
-  }
-  else{
+  } else{
     m_rejectedYieldLB->Fill(lumi_block,0);
     m_rejectedYieldLBout->Fill(lumi_block,0);
     if (m_isOnline) m_rejectedLBProfile->Fill(0.5,0);
@@ -774,7 +779,7 @@ StatusCode LArFEBMon::fillHistograms() {
 
 
 // ********************************************************************
-void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block)
+void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block, bool lar_inerror)
 {  
   if (summ.maskedFEB->GetBinContent(slot,ft+1) != 0) return;
   
@@ -876,8 +881,12 @@ void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,i
 
   if (m_currentFebStatus){
     (summ.LArAllErrors)->Fill(slot,ft);
-    m_eventRejected = true;
-    if (m_isOnline) (summ.m_rejectedLBProfilePart)->Fill(0.5,100);
+    if (lar_inerror) {// LArinError
+       m_eventRejected = true;
+       if (m_isOnline) (summ.m_rejectedLBProfilePart)->Fill(0.5,100);
+    } else {
+       if (m_isOnline)  (summ.m_rejectedLBProfilePart)->Fill(0.5,50);
+    }
   } else {
     if (m_isOnline)  (summ.m_rejectedLBProfilePart)->Fill(0.5,0);
   }
