@@ -43,14 +43,14 @@ void LArMaterialManager::buildMaterials()
 {
   MsgStream msg(m_msgSvc, "LArMaterialManager");
 #ifdef DEBUGGEO
-  msg << "**** in Material Manager " << endreq;
+  msg << "**** in Material Manager " << endmsg;
 #endif
 
   GeoMaterial *Copper  = m_storedManager->getMaterial("std::Copper");
   if (!Copper) throw std::runtime_error("Error in LArMaterialManager, std::Copper is not found.");
 #ifdef DEBUGGEO
   msg << "Copper radiation length " << Copper->getRadLength() << " "
-            << Copper->getDensity()/(CLHEP::g/CLHEP::cm3) << endreq;
+            << Copper->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
 #endif
 
 
@@ -61,7 +61,7 @@ void LArMaterialManager::buildMaterials()
   if (!Lead) throw std::runtime_error("Error in LArMaterialManager, std::Lead is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "Lead radiation length " << Lead->getRadLength() << " "
-             << Lead->getDensity()/(CLHEP::g/CLHEP::cm3) << endreq;
+             << Lead->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
 #endif
 
 
@@ -70,7 +70,7 @@ void LArMaterialManager::buildMaterials()
 
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "LAr radiation length " << LAr->getRadLength() << " "
-            << LAr->getDensity()/(CLHEP::g/CLHEP::cm3) << endreq;
+            << LAr->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
 #endif
 
   GeoMaterial *Air  = m_storedManager->getMaterial("std::Air");
@@ -80,9 +80,9 @@ void LArMaterialManager::buildMaterials()
   if (!Kapton) throw std::runtime_error("Error in LArMaterialManager, std::Kapton is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "Kapton radiation length " << Kapton->getRadLength() <<  " "
-            << Kapton->getDensity()/(CLHEP::g/CLHEP::cm3) << endreq;
+            << Kapton->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
   for (size_t i = 0; i< Kapton->getNumElements();i++) {
-    msg << MSG::INFO << int (Kapton->getFraction(i)*100) << "% \t"  << Kapton->getElement(i)->getName() << endreq;
+    msg << MSG::INFO << int (Kapton->getFraction(i)*100) << "% \t"  << Kapton->getElement(i)->getName() << endmsg;
     }
 
 
@@ -92,9 +92,9 @@ void LArMaterialManager::buildMaterials()
   if (!Glue) throw std::runtime_error("Error in LArMaterialManager, LAr::Glue is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "Glue   radiation length " << Glue->getRadLength() << " "
-            << Glue->getDensity()/(CLHEP::g/CLHEP::cm3) << endreq;
+            << Glue->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
   for (size_t i = 0; i< Glue->getNumElements();i++) {
-    msg << MSG::INFO << int (Glue->getFraction(i)*100) << "% \t"  << Glue->getElement(i)->getName() << endreq;
+    msg << MSG::INFO << int (Glue->getFraction(i)*100) << "% \t"  << Glue->getElement(i)->getName() << endmsg;
     }
 
 #endif
@@ -103,9 +103,9 @@ void LArMaterialManager::buildMaterials()
   if (!G10) throw std::runtime_error("Error in LArMaterialManager, LAr::G10 is not found.");
 #ifdef DEBUGGEO
   msg << MSG::INFO<< "G10    radiation length " << G10->getRadLength() << " "
-            << G10->getDensity()/(CLHEP::g/CLHEP::cm3) << endreq;
+            << G10->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
   for (size_t i = 0; i< G10->getNumElements();i++) {
-    msg << MSG::INFO << int (G10->getFraction(i)*100) << "% \t"  << G10->getElement(i)->getName() << endreq;
+    msg << MSG::INFO << int (G10->getFraction(i)*100) << "% \t"  << G10->getElement(i)->getName() << endmsg;
     }
 
 #endif
@@ -140,11 +140,11 @@ void LArMaterialManager::buildMaterials()
     Fracgl = (Tggl*Glue->getDensity())/Totalmass;
     double density = Totalmass/Totalthick/(contract*contract*contract);
 
-    msg << MSG::DEBUG <<"---- THIN absorber characteristics: ----" << endreq;
-    msg << MSG::DEBUG <<"  Fraction pb,fe,gl: "<<Fracpb<<","<<Fracfe<<"," <<Fracgl<< endreq;
-    msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ," <<Totalthick<< endreq;
-    msg << MSG::DEBUG<<" Contraction " << contract << endreq;
-    msg << MSG::DEBUG <<"  Thinabs Density =  "<< density*(CLHEP::cm3/CLHEP::g) << endreq;
+    msg << MSG::DEBUG <<"---- THIN absorber characteristics: ----" << endmsg;
+    msg << MSG::DEBUG <<"  Fraction pb,fe,gl: "<<Fracpb<<","<<Fracfe<<"," <<Fracgl<< endmsg;
+    msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ," <<Totalthick<< endmsg;
+    msg << MSG::DEBUG<<" Contraction " << contract << endmsg;
+    msg << MSG::DEBUG <<"  Thinabs Density =  "<< density*(CLHEP::cm3/CLHEP::g) << endmsg;
 
     GeoMaterial* Thin_abs = new GeoMaterial("Thinabs",density);
     Thin_abs->add(Lead,Fracpb);
@@ -153,7 +153,7 @@ void LArMaterialManager::buildMaterials()
     m_storedManager->addMaterial("LAr", Thin_abs);
 
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "ThinAbs radiation length " << Thin_abs->getRadLength() << endreq;
+  msg << MSG::INFO<< "ThinAbs radiation length " << Thin_abs->getRadLength() << endmsg;
 #endif
 
     // then thick absorbers
@@ -169,10 +169,10 @@ void LArMaterialManager::buildMaterials()
     Fracgl = (Thgl*Glue->getDensity())/Totalmass;
     density = Totalmass/Totalthick/(contract*contract*contract);
 
-    msg << MSG::DEBUG <<"---- THICK absorber characteristics: ----" << endreq;
-    msg << MSG::DEBUG <<"  Fraction pb,fe,gl: "<<Fracpb<<","<<Fracfe<<","<<Fracgl << endreq;
-    msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick << endreq;
-    msg << MSG::DEBUG <<"  Thickabs Density =  " << density*(CLHEP::cm3/CLHEP::g) << endreq;
+    msg << MSG::DEBUG <<"---- THICK absorber characteristics: ----" << endmsg;
+    msg << MSG::DEBUG <<"  Fraction pb,fe,gl: "<<Fracpb<<","<<Fracfe<<","<<Fracgl << endmsg;
+    msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick << endmsg;
+    msg << MSG::DEBUG <<"  Thickabs Density =  " << density*(CLHEP::cm3/CLHEP::g) << endmsg;
 
     GeoMaterial* Thick_abs = new GeoMaterial("Thickabs",density);
     Thick_abs->add(Lead,Fracpb);
@@ -180,7 +180,7 @@ void LArMaterialManager::buildMaterials()
     Thick_abs->add(Glue,Fracgl);
     m_storedManager->addMaterial("LAr",Thick_abs);
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "ThickAbs radiation length " << Thick_abs->getRadLength() << endreq;
+  msg << MSG::INFO<< "ThickAbs radiation length " << Thick_abs->getRadLength() << endmsg;
 #endif
 
     // electrode =mixture Kapton+Cu
@@ -196,17 +196,17 @@ void LArMaterialManager::buildMaterials()
     double contract_e=1./1.003625; // From Fares (J.T.)
     density = (Totalmasse/Totalthicke)/(contract_e*contract_e*contract_e);
 
-    msg << MSG::DEBUG <<"---- Electrode characteristics: ----" << endreq;
-    msg << MSG::DEBUG <<"  Fraction Cu, Kapton: " << FracCu << ","<< FracKap << endreq;
-    msg << MSG::DEBUG <<"  Total mass, Thickness:"<<Totalmasse<<" ,"<<Totalthicke<< endreq;
-    msg << MSG::DEBUG <<"  Electrode Density =  " << density*(CLHEP::cm3/CLHEP::g) << endreq;
+    msg << MSG::DEBUG <<"---- Electrode characteristics: ----" << endmsg;
+    msg << MSG::DEBUG <<"  Fraction Cu, Kapton: " << FracCu << ","<< FracKap << endmsg;
+    msg << MSG::DEBUG <<"  Total mass, Thickness:"<<Totalmasse<<" ,"<<Totalthicke<< endmsg;
+    msg << MSG::DEBUG <<"  Electrode Density =  " << density*(CLHEP::cm3/CLHEP::g) << endmsg;
 
     GeoMaterial* Kapton_Cu = new GeoMaterial("KaptonC",density);
     Kapton_Cu->add(Copper,FracCu);
     Kapton_Cu->add(Kapton,FracKap);
     m_storedManager->addMaterial("LAr",Kapton_Cu);
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "Electrode radiation length " << Kapton_Cu->getRadLength() << endreq;
+  msg << MSG::INFO<< "Electrode radiation length " << Kapton_Cu->getRadLength() << endmsg;
 #endif
 
     //  material for Cables/electronics (mixture of Kapton and copper)
@@ -224,7 +224,7 @@ void LArMaterialManager::buildMaterials()
     Cable_elect->add(Kapton, fractionmass=frmassKap*CLHEP::perCent);
     m_storedManager->addMaterial("LAr", Cable_elect);
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "Cable radiation length " << Cable_elect->getRadLength() << endreq;
+  msg << MSG::INFO<< "Cable radiation length " << Cable_elect->getRadLength() << endmsg;
 #endif
 
     // material for motherboard
@@ -236,19 +236,19 @@ void LArMaterialManager::buildMaterials()
     double FracMBCu = (ThMBcu*Copper->getDensity())/TotalmassMBe;
     double FracMBG10 = (ThMBG10*G10->getDensity())/TotalmassMBe;
     density = TotalmassMBe/TotalthickMBe;
-    msg << MSG::DEBUG <<"---- Mother Board characteristics: ----" << endreq;
+    msg << MSG::DEBUG <<"---- Mother Board characteristics: ----" << endmsg;
     msg << MSG::DEBUG <<"  Fraction Cu, G10: " << FracMBCu << ","
-	             << FracMBG10 << endreq;
+	             << FracMBG10 << endmsg;
     msg << MSG::DEBUG <<"  Total mass, Thickness:"
-	             << TotalmassMBe <<" ," <<TotalthickMBe<< endreq;
-    msg << MSG::DEBUG <<"  M_board Density =  "<<density*(CLHEP::cm3/CLHEP::g) << endreq;
+	             << TotalmassMBe <<" ," <<TotalthickMBe<< endmsg;
+    msg << MSG::DEBUG <<"  M_board Density =  "<<density*(CLHEP::cm3/CLHEP::g) << endmsg;
     GeoMaterial*  Moth_elect = new GeoMaterial("MBoards",density);
     // ****GU:   use fraction per masses of G10 and Cu
     Moth_elect->add(G10,FracMBG10);
     Moth_elect->add(Copper,FracMBCu);
     m_storedManager->addMaterial("LAr", Moth_elect);
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "MotherBoard radiation length " << Moth_elect->getRadLength() << endreq;
+  msg << MSG::INFO<< "MotherBoard radiation length " << Moth_elect->getRadLength() << endmsg;
 #endif
 
 //==GU  28 July 2005
@@ -270,10 +270,10 @@ void LArMaterialManager::buildMaterials()
     Gten_bar->add(SiO2,0.62);   // should be replaced by number from database
     m_storedManager->addMaterial("LAr",Gten_bar);
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "fracionSi,fracionO2 " << fractionSi << " " << fractionO << endreq;
-  msg << MSG::INFO<< "SiO2 density " << SiO2->getDensity()/(CLHEP::g/CLHEP::cm3) << endreq;
-  msg << MSG::INFO<< "SiO2   radiation length " << SiO2->getRadLength() << endreq;
-  msg << MSG::INFO<< "G10bar radiation length " << Gten_bar->getRadLength() << endreq;
+  msg << MSG::INFO<< "fracionSi,fracionO2 " << fractionSi << " " << fractionO << endmsg;
+  msg << MSG::INFO<< "SiO2 density " << SiO2->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
+  msg << MSG::INFO<< "SiO2   radiation length " << SiO2->getRadLength() << endmsg;
+  msg << MSG::INFO<< "G10bar radiation length " << Gten_bar->getRadLength() << endmsg;
 #endif
 
 // material for the effective M_PIn+summing board effect
@@ -292,7 +292,7 @@ void LArMaterialManager::buildMaterials()
     Summing_board->add(Copper,fracSBCu);
     m_storedManager->addMaterial("LAr",Summing_board);
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "SBoard radiation length " << Summing_board->getRadLength() << endreq;
+  msg << MSG::INFO<< "SBoard radiation length " << Summing_board->getRadLength() << endmsg;
 #endif
 
 //==end GU
@@ -318,7 +318,7 @@ void LArMaterialManager::buildMaterials()
     m_storedManager->addMaterial("LAr", Vacuum );
 #ifdef DEBUGGEO
     msg << MSG::INFO<< "Vacuum radiation length " << Vacuum->getRadLength() << " "
-                    << Vacuum->getDensity()/(CLHEP::g/CLHEP::cm3) << endreq;
+                    << Vacuum->getDensity()/(CLHEP::g/CLHEP::cm3) << endmsg;
 #endif
 
 
@@ -351,17 +351,17 @@ void LArMaterialManager::buildMaterials()
     Fracfe = (Tgfe*Iron->getDensity())/Totalmass;
     Fracgl = (Tggl*Glue->getDensity())/Totalmass;
     double density = Totalmass/Totalthick/(contract*contract*contract);
-    msg << MSG::DEBUG <<"---- EMEC THIN absorber characteristics: ----" << endreq;
-    msg << MSG::DEBUG <<"  Thickness pb,fe,gl,[mm]="<<Tgpb<<" "<<Tgfe<<" "<<Tggl << endreq;
-    msg << MSG::DEBUG <<"  Fraction  pb,fe,gl     ="<<Fracpb<<","<<Fracfe<<"," <<Fracgl << endreq;
-    msg << MSG::DEBUG <<"  Total mass, Thickness  ="<<Totalmass<<" ," <<Totalthick << endreq;
-    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(CLHEP::cm3/CLHEP::g) << endreq;
+    msg << MSG::DEBUG <<"---- EMEC THIN absorber characteristics: ----" << endmsg;
+    msg << MSG::DEBUG <<"  Thickness pb,fe,gl,[mm]="<<Tgpb<<" "<<Tgfe<<" "<<Tggl << endmsg;
+    msg << MSG::DEBUG <<"  Fraction  pb,fe,gl     ="<<Fracpb<<","<<Fracfe<<"," <<Fracgl << endmsg;
+    msg << MSG::DEBUG <<"  Total mass, Thickness  ="<<Totalmass<<" ," <<Totalthick << endmsg;
+    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(CLHEP::cm3/CLHEP::g) << endmsg;
 
-    msg << MSG::DEBUG << "---- EMEC THIN absorber characteristics: ----" << endreq;
-    msg << MSG::DEBUG <<"  Thickness pb,fe,gl,[mm]="<<Tgpb<<" "<<Tgfe<<" "<<Tggl  << endreq;
-    msg << MSG::DEBUG <<"  Fraction  pb,fe,gl     ="<<Fracpb<<","<<Fracfe<<"," <<Fracgl  << endreq;
-    msg << MSG::DEBUG <<"  Total mass, Thickness  ="<<Totalmass<<" ," <<Totalthick  << endreq;
-    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(CLHEP::cm3/CLHEP::g)  << endreq;
+    msg << MSG::DEBUG << "---- EMEC THIN absorber characteristics: ----" << endmsg;
+    msg << MSG::DEBUG <<"  Thickness pb,fe,gl,[mm]="<<Tgpb<<" "<<Tgfe<<" "<<Tggl  << endmsg;
+    msg << MSG::DEBUG <<"  Fraction  pb,fe,gl     ="<<Fracpb<<","<<Fracfe<<"," <<Fracgl  << endmsg;
+    msg << MSG::DEBUG <<"  Total mass, Thickness  ="<<Totalmass<<" ," <<Totalthick  << endmsg;
+    msg << MSG::DEBUG <<"  Thinabs Density        ="<< density*(CLHEP::cm3/CLHEP::g)  << endmsg;
 
 
     GeoMaterial* Thin_abs = new GeoMaterial("EMEC_Thinabs",density);
@@ -371,7 +371,7 @@ void LArMaterialManager::buildMaterials()
     m_storedManager->addMaterial("LAr", Thin_abs);
 
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "EMEC thinAbs radiation length " << Thin_abs->getRadLength() << endreq;
+  msg << MSG::INFO<< "EMEC thinAbs radiation length " << Thin_abs->getRadLength() << endmsg;
 #endif
 
     //
@@ -394,11 +394,11 @@ void LArMaterialManager::buildMaterials()
     Fracgl = (Thgl*Glue->getDensity())/Totalmass;
     density = Totalmass/Totalthick/(contract*contract*contract);
 
-    msg << MSG::DEBUG <<"---- EMEC THICK absorber characteristics: ----"<<endreq;
-    msg << MSG::DEBUG <<"  Thickness pb,fe,gl[mm]="<<Thpb<<" "<<Thfe<<" "<<Thgl<<endreq;
-    msg << MSG::DEBUG <<"  Fraction  pb,fe,gl:    "<<Fracpb<<","<<Fracfe<<","<<Fracgl<<endreq;
-    msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick<<endreq;
-    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(CLHEP::cm3/CLHEP::g) <<endreq;
+    msg << MSG::DEBUG <<"---- EMEC THICK absorber characteristics: ----"<<endmsg;
+    msg << MSG::DEBUG <<"  Thickness pb,fe,gl[mm]="<<Thpb<<" "<<Thfe<<" "<<Thgl<<endmsg;
+    msg << MSG::DEBUG <<"  Fraction  pb,fe,gl:    "<<Fracpb<<","<<Fracfe<<","<<Fracgl<<endmsg;
+    msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick<<endmsg;
+    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(CLHEP::cm3/CLHEP::g) <<endmsg;
 
     GeoMaterial* Thick_abs = new GeoMaterial("EMEC_Thickabs",density);
     Thick_abs->add(Lead,Fracpb);
@@ -406,7 +406,7 @@ void LArMaterialManager::buildMaterials()
     Thick_abs->add(Glue,Fracgl);
     m_storedManager->addMaterial("LAr",Thick_abs);
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "EMEC thickAbs radiation length " << Thick_abs->getRadLength() << endreq;
+  msg << MSG::INFO<< "EMEC thickAbs radiation length " << Thick_abs->getRadLength() << endmsg;
 #endif
 
 	//
@@ -422,11 +422,11 @@ void LArMaterialManager::buildMaterials()
     Fracgl = (Thgl*Glue->getDensity())/Totalmass;
     density = Totalmass/Totalthick/(contract*contract*contract);
 
-    msg << MSG::DEBUG <<"---- EMEC absorber shell characteristics: ----"<<endreq;
-    msg << MSG::DEBUG <<"  Thickness fe,gl[mm]="<<Thfe<<" "<<Thgl<<endreq;
-    msg << MSG::DEBUG <<"  Fraction  fe,gl:    "<<Fracfe<<","<<Fracgl<<endreq;
-    msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick<<endreq;
-    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(CLHEP::cm3/CLHEP::g) <<endreq;
+    msg << MSG::DEBUG <<"---- EMEC absorber shell characteristics: ----"<<endmsg;
+    msg << MSG::DEBUG <<"  Thickness fe,gl[mm]="<<Thfe<<" "<<Thgl<<endmsg;
+    msg << MSG::DEBUG <<"  Fraction  fe,gl:    "<<Fracfe<<","<<Fracgl<<endmsg;
+    msg << MSG::DEBUG <<"  Total mass, Thickness: "<<Totalmass<<" ,"<<Totalthick<<endmsg;
+    msg << MSG::DEBUG <<"  Thickabs Density =     "<<density*(CLHEP::cm3/CLHEP::g) <<endmsg;
 
     GeoMaterial* EMEC_shell = new GeoMaterial("EMEC_shell",density);
     EMEC_shell->add(Iron,Fracfe);
@@ -471,7 +471,7 @@ void LArMaterialManager::buildMaterials()
     m_storedManager->addMaterial("LAr", G10FeOuter);
 
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "EMEC G10FeOuter radiation length " << G10FeOuter->getRadLength() << endreq;
+  msg << MSG::INFO<< "EMEC G10FeOuter radiation length " << G10FeOuter->getRadLength() << endmsg;
 #endif
 
     //
@@ -501,7 +501,7 @@ void LArMaterialManager::buildMaterials()
     G10FeInner->add(Glue,Fracgl);
     m_storedManager->addMaterial("LAr",G10FeInner);
 #ifdef DEBUGGEO
-  msg << MSG::INFO<< "EMEC G10FeInner radiation length " << G10FeInner->getRadLength() << endreq;
+  msg << MSG::INFO<< "EMEC G10FeInner radiation length " << G10FeInner->getRadLength() << endmsg;
 #endif
 
   }
