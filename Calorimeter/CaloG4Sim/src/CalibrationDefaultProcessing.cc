@@ -27,106 +27,70 @@
 #include "G4Step.hh"
 
 
-namespace CaloG4 {
+#include "GaudiKernel/Bootstrap.h"
+#include "GaudiKernel/ISvcLocator.h"
 
-  // Register this class with the UserAction class managers.
-  CalibrationDefaultProcessing::CalibrationDefaultProcessing(const std::string& type, const std::string& name, const IInterface* parent) : 
-    UserActionBase(type,name,parent),m_defaultSD(0), m_SDname("Default::Dead::Uninstrumented::Calibration::Region")
-      
-  {
+namespace G4UA {
 
-    declareProperty("SDName",m_SDname);
+  namespace CaloG4 {
 
-  }
+    CalibrationDefaultProcessing::CalibrationDefaultProcessing(const Config& config):AthMessaging(Gaudi::svcLocator()->service< IMessageSvc >( "MessageSvc" ),"CalibrationDefaultProcessing"),m_config(config), m_defaultSD(0){;
+    }
 
+    void CalibrationDefaultProcessing::beginOfEvent(const G4Event*){
 
-  CalibrationDefaultProcessing::~CalibrationDefaultProcessing() {;}
+      // retrieve the SD from G4SDManager
+      // done here instead of in initialize to leave more flexibility to the rest of the G4 init
 
+      //G4SDManager* SDman = G4SDManager::GetSDMpointer();
 
-  void CalibrationDefaultProcessing::BeginOfEvent(const G4Event*){
+      m_defaultSD = G4SDManager::GetSDMpointer()-> FindSensitiveDetector(m_config.SDName);
 
-    // retrieve the SD from G4SDManager
-    // done here instead of in initialize to leave more flexibility to the rest of the G4 init
+      if(!m_defaultSD) ATH_MSG_ERROR("No valid SD name specified. The job will continue, but you should check your configuration");
+    }
 
-     G4SDManager* SDman = G4SDManager::GetSDMpointer();
-
-     m_defaultSD = G4SDManager::GetSDMpointer()-> FindSensitiveDetector(m_SDname);
-
-     if(!m_defaultSD) ATH_MSG_ERROR("No valid SD name specified. The job will continue, but you should check your configuration");
-
-  }
-
-  void CalibrationDefaultProcessing::Step(const G4Step* a_step)
-  {
-
-    
-    // Do we have a sensitive detector?
-    if ( m_defaultSD != 0 )
-      {
-	// We only want to perform the default processing if no other
-	// calibration processing has occurred for this step.
-
-	if ( ! CaloG4::SimulationEnergies::StepWasProcessed() )
-	  {
-	    // We haven't performed any calibration processing for this
-	    // step (probably there is no sensitive detector for the
-	    // volume).  Use the default sensitive detector to process
-	    // this step.  Note that we have to "cast away" const-ness for
-	    // the G4Step*, due to how G4VSensitiveDetector::Hit() is
-	    // defined.
-	    m_defaultSD->Hit( const_cast<G4Step*>(a_step) );
-	  }
-
-	// In any case, clear the flag for the next step.
-	CaloG4::SimulationEnergies::ResetStepProcessed();
-      }
-    else
-      {
-	static G4bool warningPrinted = false;
-	if ( ! warningPrinted )
-	  {
-	    warningPrinted = true;
-	    G4cout << "CaloG4::CalibrationDefaultProcessing::SteppingAction - "
-		   << G4endl
-		   << "   A default calibration sensitive detector was not defined."
-		   << G4endl
-		   << "   Not all calibration energies will be recorded."
-		   << G4endl;
-	  }
-      }
-  }
-
-//  void CalibrationDefaultProcessing::SetDefaultSD( G4VSensitiveDetector* a_sd )
-//  {
-//    if ( m_defaultSD != 0 )
-//      {
-//	G4cout << "CaloG4::CalibrationDefaultProcessing::SetDefaultSD - "
-//	       << G4endl
-//	       << "   The default calibration sensitive detector '"
-//	       << m_defaultSD->GetName()
-//	       << "'" << G4endl
-//	       << "   is being replace by sensitive detector '"
-//	       << a_sd->GetName()
-//	       << "'" << G4endl;
-//      }
-//
-//    m_defaultSD = a_sd;
-//  }
-//
-//
+    void CalibrationDefaultProcessing::processStep(const G4Step* a_step){
 
 
-  StatusCode CalibrationDefaultProcessing::queryInterface(const InterfaceID& riid, void** ppvInterface) 
-{
-  if ( IUserAction::interfaceID().versionMatch(riid) ) {
-    *ppvInterface = dynamic_cast<IUserAction*>(this);
-    addRef();
-  } else {
-    // Interface is not directly available : try out a base class
-    return UserActionBase::queryInterface(riid, ppvInterface);
-  }
-  return StatusCode::SUCCESS;
-}
+      // Do we have a sensitive detector?
+      if ( m_defaultSD != 0 )
+        {
+          // We only want to perform the default processing if no other
+          // calibration processing has occurred for this step.
+
+          if ( ! ::CaloG4::SimulationEnergies::StepWasProcessed() )
+            {
+              // We haven't performed any calibration processing for this
+              // step (probably there is no sensitive detector for the
+              // volume).  Use the default sensitive detector to process
+              // this step.  Note that we have to "cast away" const-ness for
+              // the G4Step*, due to how G4VSensitiveDetector::Hit() is
+              // defined.
+              m_defaultSD->Hit( const_cast<G4Step*>(a_step) );
+            }
+
+          // In any case, clear the flag for the next step.
+          ::CaloG4::SimulationEnergies::ResetStepProcessed();
+        }
+
+      else
+        {
+          static G4bool warningPrinted = false;
+          if ( ! warningPrinted )
+            {
+              warningPrinted = true;
+              G4cout << "CaloG4::CalibrationDefaultProcessing::SteppingAction - "
+                     << G4endl
+                     << "   A default calibration sensitive detector was not defined."
+                     << G4endl
+                     << "   Not all calibration energies will be recorded."
+                     << G4endl;
+            }
+        }
+    }
 
 
-} // namespace CaloG4
+  } // namespace CaloG4
+
+
+} // namespace G4UA
