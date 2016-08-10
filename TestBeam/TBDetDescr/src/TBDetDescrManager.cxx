@@ -151,13 +151,13 @@ void TBDetDescrManager::print(MsgStream &log) const
   log << MSG::DEBUG
       << "Total number of TBElements in TBDetDescrManager = "
       << m_elements
-      << endreq;
+      << endmsg;
   
   for ( ; itr!=end; ++itr) {
     if (itr->id() != TBElementID::Unknown) {
       log << MSG::DEBUG 
           << (std::string) (*itr)
-          << endreq;
+          << endmsg;
     }
   }
 }
