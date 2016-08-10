@@ -82,11 +82,11 @@ GeoFullPhysVol* LArGeo::HECModuleConstruction::GetEnvelope()
 
   MsgStream log(Athena::getMessageSvc(),"HECModuleConstruction " );
 
-  log << MSG::DEBUG << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
-  log << MSG::DEBUG << "+                                                             +" << endreq;
-  log << MSG::DEBUG << "+         Start of HECModule GeoModel definition              +" << endreq;
-  log << MSG::DEBUG << "+                                                             +" << endreq;
-  log << MSG::DEBUG << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endreq;
+  log << MSG::DEBUG << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endmsg;
+  log << MSG::DEBUG << "+                                                             +" << endmsg;
+  log << MSG::DEBUG << "+         Start of HECModule GeoModel definition              +" << endmsg;
+  log << MSG::DEBUG << "+                                                             +" << endmsg;
+  log << MSG::DEBUG << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endmsg;
 
 
   StoreGateSvc *detStore;
@@ -136,13 +136,13 @@ GeoFullPhysVol* LArGeo::HECModuleConstruction::GetEnvelope()
 
   IRDBRecordset_ptr hadronicEndcap   = pAccessSvc->getRecordsetPtr("HadronicEndcap",detectorKey, detectorNode); 
   if(hadronicEndcap->size()>0) 
-    log << MSG::DEBUG << "Using numbers from HadronicEndcap tag:  " << hadronicEndcap->tagName() << endreq;
+    log << MSG::DEBUG << "Using numbers from HadronicEndcap tag:  " << hadronicEndcap->tagName() << endmsg;
   else
     throw std::runtime_error("Error in HECConstruction:  hadronicEendcap not found");
 
   IRDBRecordset_ptr hecLongitudinalBlock = pAccessSvc->getRecordsetPtr("HecLongitudinalBlock",detectorKey, detectorNode); 
   if(hecLongitudinalBlock->size()>0) 
-    log << MSG::DEBUG << "Using numbers from HecLongitudinalBlock tag:  " << hecLongitudinalBlock->tagName() << endreq;
+    log << MSG::DEBUG << "Using numbers from HecLongitudinalBlock tag:  " << hecLongitudinalBlock->tagName() << endmsg;
   else
     throw std::runtime_error("Error in HECConstruction:  hecLongitudinalBlock not found");
 
