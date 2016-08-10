@@ -40,11 +40,11 @@ TileHWIDDetDescrCnv::initialize()
 {
     // First call parent init
     StatusCode sc = DetDescrConverter::initialize();
-    MsgStream log(messageService(), "TileHWIDDetDescrCnv");
-    log << MSG::DEBUG << "in initialize" << endreq;
+    MsgStream log(msgSvc(), "TileHWIDDetDescrCnv");
+    log << MSG::DEBUG << "in initialize" << endmsg;
 
     if (sc.isFailure()) {
-        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
+        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
 	return sc;
     }
 
@@ -56,8 +56,8 @@ TileHWIDDetDescrCnv::initialize()
 StatusCode 
 TileHWIDDetDescrCnv::finalize()
 {
-    MsgStream log(messageService(), "TileHWIDDetDescrCnv");
-    log << MSG::DEBUG << "in finalize" << endreq;
+    MsgStream log(msgSvc(), "TileHWIDDetDescrCnv");
+    log << MSG::DEBUG << "in finalize" << endmsg;
 
     return StatusCode::SUCCESS; 
 }
@@ -68,25 +68,25 @@ StatusCode
 TileHWIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
     //StatusCode sc = StatusCode::SUCCESS;
-    MsgStream log(messageService(), "TileHWIDDetDescrCnv");
-    log << MSG::INFO << "in createObj: creating a TileHWID helper object in the detector store" << endreq;
+    MsgStream log(msgSvc(), "TileHWIDDetDescrCnv");
+    log << MSG::INFO << "in createObj: creating a TileHWID helper object in the detector store" << endmsg;
 
     // Create a new TileHWID
 
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
-	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
+	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
 	return StatusCode::FAILURE;
     }
 
     // Get the StoreGate key of this container.
     std::string helperKey  = *( ddAddr->par() );
     if ("" == helperKey) {
-	log << MSG::DEBUG << "No Helper key " << endreq;
+	log << MSG::DEBUG << "No Helper key " << endmsg;
     }
     else {
-	log << MSG::DEBUG << "Helper key is " << helperKey << endreq;
+	log << MSG::DEBUG << "Helper key is " << helperKey << endmsg;
     }
     
 
@@ -94,7 +94,7 @@ TileHWIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     StoreGateSvc * detStore;
     StatusCode status = serviceLocator()->service("DetectorStore", detStore);
     if (status.isFailure()) {
-	log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+	log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
 	return StatusCode::FAILURE;
     } else {}
  
@@ -102,11 +102,11 @@ TileHWIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     const IdDictManager* idDictMgr;
     status = detStore->retrieve(idDictMgr, "IdDict");
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get IdDictManager !" << endreq;
+	log << MSG::FATAL << "Could not get IdDictManager !" << endmsg;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Found the IdDictManager. " << endreq;
+	log << MSG::DEBUG << " Found the IdDictManager. " << endmsg;
     }
 
 
@@ -114,14 +114,14 @@ TileHWIDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     TileHWID* tilehw_id = new TileHWID;
 
     // pass a pointer to IMessageSvc to the helper
-    tilehw_id->setMessageSvc(messageService());
+    tilehw_id->setMessageSvc(msgSvc());
 
     if (idDictMgr->initializeHelper(*tilehw_id)) {
-	log << MSG::ERROR << "Unable to initialize TileHWID" << endreq;
+	log << MSG::ERROR << "Unable to initialize TileHWID" << endmsg;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Initialized TileHWID. " << endreq;
+	log << MSG::DEBUG << " Initialized TileHWID. " << endmsg;
     }
 
     // Pass a pointer to the container to the Persistency service by reference.
