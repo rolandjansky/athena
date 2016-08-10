@@ -1,13 +1,11 @@
-
-from G4HitFilter.G4HitFilterConfig import addG4HitFilterTool
 from AthenaCommon.CfgGetter import getPublicTool
-
-
-#hitf = getPublicTool('G4HitFilter',tryDefaultConfigurable=True)
+from G4AtlasApps.SimFlags import simFlags
+# configuration for MT actions
+from G4HitFilter.G4HitFilterConfig import addG4HitFilterTool
 hitf = getPublicTool('G4UA::G4HitFilterTool',tryDefaultConfigurable=True)
+addG4HitFilterTool(hitf)
 
 hitf.VolumeNames=[
-    
     "BCMHits",
     "BLMHits",
     "CSC_Hits",
@@ -27,8 +25,3 @@ hitf.VolumeNames=[
     "TRTUncompressedHits",
     "TileHitVec"
     ]
-
-addG4HitFilterTool(hitf)
-
-#UAStore.addAction(hitf,['EndOfEvent'])
-
