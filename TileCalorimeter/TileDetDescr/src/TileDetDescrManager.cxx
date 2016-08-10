@@ -134,7 +134,7 @@ void TileDetDescrManager::print() const
 
 void TileDetDescrManager::create_elements(MsgStream *log)
 {
-  (*log) << MSG::INFO <<" TileDetDescrManager: entering create_elements() " << endreq;
+  (*log) << MSG::INFO <<" TileDetDescrManager: entering create_elements() " << endmsg;
 
   // resize vectors :
   m_tile_module_vec.resize( (int) m_tile_id->module_hash_max(),0);
@@ -166,7 +166,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
     int etasign = descr->sign_eta();
     if (side != etasign) {
       (*log) << MSG::ERROR  << "side and eta sign in TileDetDescriptor[" << n_regions 
-             << "] do not match" << endreq;
+             << "] do not match" << endmsg;
     }
     ++n_regions;
     
@@ -358,7 +358,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
         (*log) << MSG::ERROR  << "can't build module ID from ("
                << section << ","
                << side << ","
-               << module << ")" << endreq;
+               << module << ")" << endmsg;
         continue;
       }
       
@@ -389,7 +389,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
 //                     << section << "," << side << "," << module << ","
 //                     << tower << "," << sample << ") ("
 //                     << eta*etasign << "," << phi  << "," << rcenter << ") ("
-//                     << deta << "," << dphi << "," << dr << ") " << (int)idhash << endreq;
+//                     << deta << "," << dphi << "," << dr << ") " << (int)idhash << endmsg;
 
               TileDetectorElement* elt = new TileDetectorElement(
                 idhash, TileHWID::NOT_VALID_HASH, TileHWID::NOT_VALID_HASH, modDescr);
@@ -842,7 +842,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
             } catch ( TileID_Exception ) {
               (*log) << MSG::ERROR << "can't build cell ID from ("
                      << section << "," << side << "," << module << ","
-                     << tower << "," << sample << ")" << endreq;
+                     << tower << "," << sample << ")" << endmsg;
             }
             eta += deta;
           }
@@ -856,7 +856,7 @@ void TileDetDescrManager::create_elements(MsgStream *log)
          << n_cells << " cells and " 
          << n_modules << " half-modules were created for " 
          << n_regions << " Tile Regions" 
-         << endreq;
+         << endmsg;
 }
 
 
