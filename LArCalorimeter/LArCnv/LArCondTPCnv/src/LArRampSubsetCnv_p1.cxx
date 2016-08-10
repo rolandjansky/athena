@@ -71,7 +71,7 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
                     log << MSG::ERROR 
                         << "LArRampSubsetCnv_p1::persToTrans - ramp index too large: ramp/size " 
                         << rampIndex << " " << persObj->m_vRamp.size() << " " 
-                        << endreq;
+                        << endmsg;
                     return;
                 }
 
@@ -115,7 +115,7 @@ LArRampSubsetCnv_p1::persToTrans(const LArRampPersType* persObj,
             log << MSG::ERROR 
                 << "LArRampSubsetCnv_p1::persToTrans - ramp index too large: ramp/size " 
                 << rampIndex << " " << persObj->m_vRamp.size() << " " 
-                << endreq;
+                << endmsg;
             return;
         }
         transObj->m_correctionVec[i].first = persObj->m_subset.m_corrChannels[i];
@@ -191,7 +191,7 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
         if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
             log << MSG::ERROR 
                 << "LArRampSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
-                << endreq;
+                << endmsg;
             return;
         }
         if (nfebChans) ++nsubsetsNotEmpty; // count number of non-empty subsets
@@ -278,7 +278,7 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
                     if (j < chansOffset || (j - chansOffset) > 31) {
                         log << MSG::ERROR 
                             << "LArRampSubsetCnv_p1::transToPers - incorrect channel indexing: j, chansOffset: " << j << " " << chansOffset
-                            << endreq;
+                            << endmsg;
                     }
                     chansSet |= (1 << (j - chansOffset));
                 }
@@ -305,7 +305,7 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
                 }
 		if (tooSmall)
 		  log << MSG::ERROR << "Feb 0x" << std::hex << febid << std::dec << " channel " << j <<": Ramp object too small. Expected a polynom of degree "
-		      << nRamps << ". Padded with 0.0" << endreq; 
+		      << nRamps << ". Padded with 0.0" << endmsg; 
             }
 
 //             static unsigned int nch = 0;
@@ -335,7 +335,7 @@ LArRampSubsetCnv_p1::transToPers(const LArRampTransType* transObj,
         }
 	if (tooSmall)
 	  log << MSG::ERROR << "Correction index "<< i <<"(channel 0x" << std::hex << transObj->m_correctionVec[i].first << std::dec <<  
-	    "): Ramp object too small. Expected a polynom of degree " << nRamps << ". Padded with 0.0" <<  endreq;
+	    "): Ramp object too small. Expected a polynom of degree " << nRamps << ". Padded with 0.0" <<  endmsg;
     }
 
     // Copy the rest

@@ -51,7 +51,7 @@ LArMphysOverMcalSubsetCnv_p1::transToPers(const LArMpMcTransType*,
 				    LArMpMcPersType*, 
 				    MsgStream &log) {
 
-  log << MSG::ERROR << "LArMphysOverMcalSubsetCnv_p1::transToPers is obsolete" << endreq;
+  log << MSG::ERROR << "LArMphysOverMcalSubsetCnv_p1::transToPers is obsolete" << endmsg;
   return;
 }
  

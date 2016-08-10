@@ -61,7 +61,7 @@ LArDSPThresholdsSubsetCnv_p1::transToPers(const DSPThresholdsTransType* transObj
     if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
       log << MSG::ERROR 
 	  << "LArDSPThresholdsSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
-	  << endreq;
+	  << endmsg;
       return;
     }
     if (nfebChans) ++nsubsetsNotEmpty; // count number of non-empty subsets

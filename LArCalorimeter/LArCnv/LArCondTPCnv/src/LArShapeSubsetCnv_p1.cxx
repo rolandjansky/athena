@@ -75,7 +75,7 @@ LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj,
                         << "LArShapeSubsetCnv_p1::persToTrans - shape index too large: shape/size, shapeder/size " 
                         << shapeIndex << " " << persObj->m_vShape.size() << " " 
                         << shapederIndex << " " << persObj->m_vShapeDer.size() 
-                        << endreq;
+                        << endmsg;
                     return;
                 }
 
@@ -129,7 +129,7 @@ LArShapeSubsetCnv_p1::persToTrans(const LArShapePersType1* persObj,
                 << "LArShapeSubsetCnv_p1::persToTrans - shape index too large: shape/size, shapeder/size " 
                 << shapeIndex << " " << persObj->m_vShape.size() << " " 
                 << shapederIndex << " " << persObj->m_vShapeDer.size() 
-                << endreq;
+                << endmsg;
             return;
         }
         transObj->m_correctionVec[i].first = persObj->m_subset.m_corrChannels[i];
@@ -212,7 +212,7 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
         if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
             log << MSG::ERROR 
                 << "LArShapeSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
-                << endreq;
+                << endmsg;
             return;
         }
         if (nfebChans) ++nsubsetsNotEmpty; // count number of non-empty subsets
@@ -249,7 +249,7 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
     if (nShapes == 0 && nShapeDers == 0) {
         log << MSG::ERROR 
             << "LArShapeSubsetCnv_p1::transToPers - cannot get number of shapes and shape derivatives" 
-            << endreq;
+            << endmsg;
         return;
     }
     
@@ -310,7 +310,7 @@ LArShapeSubsetCnv_p1::transToPers(const LArShapeTransType1* transObj,
                     if (j < chansOffset || (j - chansOffset) > 31) {
                         log << MSG::ERROR 
                             << "LArShapeSubsetCnv_p1::transToPers - incorrect channel indexing: j, chansOffset: " << j << " " << chansOffset
-                            << endreq;
+                            << endmsg;
                     }
                     chansSet |= (1 << (j - chansOffset));
                 }

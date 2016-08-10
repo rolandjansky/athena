@@ -13,10 +13,10 @@
 void
 LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,  LArPWTransType* transObj, MsgStream & log){
 	
-	log<<MSG::DEBUG<<"LArPhysWaveSubsetCNV_p1  begin persToTrans"<<endreq;
+	log<<MSG::DEBUG<<"LArPhysWaveSubsetCNV_p1  begin persToTrans"<<endmsg;
 		  
 	unsigned int ncorrs	 = persObj->m_subset.m_corrChannels.size();	log<<MSG::DEBUG<<"Total corrections:"<<ncorrs;
-	unsigned int nfebids = persObj->m_subset.m_febIds.size();		log<<MSG::DEBUG<<"\t\tTotal febs:"<<nfebids<<endreq;
+	unsigned int nfebids = persObj->m_subset.m_febIds.size();		log<<MSG::DEBUG<<"\t\tTotal febs:"<<nfebids<<endmsg;
 	transObj->m_subset.resize(nfebids);
 
 	unsigned int waveIndex	= 0;
@@ -44,7 +44,7 @@ LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,  LArPWTransTy
 			ifebWithData++;
       	}
       
-		log<<MSG::DEBUG<<"\t\tsparse?  "<< hasSparseData <<endreq;
+		log<<MSG::DEBUG<<"\t\tsparse?  "<< hasSparseData <<endmsg;
   
 		for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
 			
@@ -91,14 +91,14 @@ LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,  LArPWTransTy
 	} // loop on FEBs
 	
 	
-    log<<MSG::DEBUG << "Corrections reading, ncorr=" << ncorrs << " waveIndex=" <<  waveIndex << " size=" << persObj->m_vAmplitudes.size() << endreq;
+    log<<MSG::DEBUG << "Corrections reading, ncorr=" << ncorrs << " waveIndex=" <<  waveIndex << " size=" << persObj->m_vAmplitudes.size() << endmsg;
     transObj->m_correctionVec.resize(ncorrs);
 
     for (unsigned int i = 0; i < ncorrs; ++i){    // Loop over corrections
       
         if (chIndex    >= persObj->m_dt.size()) {	// check indexes
             log << MSG::ERROR << "LArPhysWaveSubsetCnv_p1::persToTrans - PhysWave index too large: WaveIndex/sizeInFile " 
-                << chIndex << " " << persObj->m_dt.size()<<" "<< endreq;
+                << chIndex << " " << persObj->m_dt.size()<<" "<< endmsg;
             return;
         }
 		
@@ -115,7 +115,7 @@ LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,  LArPWTransTy
 		std::vector<int> 	tri;
 		for (unsigned int k = 0; k < persObj->m_samples; ++k){
 			if (waveIndex>=persObj->m_vAmplitudes.size()) 
-				log << MSG::ERROR << "Persistent LArPhysWave object is inconsistent. i=" << i << " WaveIndes=" << waveIndex << " size=" << persObj->m_vAmplitudes.size() << "samples=" << persObj->m_samples <<endreq;
+				log << MSG::ERROR << "Persistent LArPhysWave object is inconsistent. i=" << i << " WaveIndes=" << waveIndex << " size=" << persObj->m_vAmplitudes.size() << "samples=" << persObj->m_samples <<endmsg;
 			val.push_back(persObj->m_vAmplitudes[waveIndex]);
 			err.push_back(persObj->m_vErrors[waveIndex]);
 			tri.push_back(persObj->m_vTriggers[waveIndex]);
@@ -135,7 +135,7 @@ LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,  LArPWTransTy
     transObj->m_gain          = persObj->m_subset.m_gain; 
     transObj->m_channel       = persObj->m_subset.m_channel;
     transObj->m_groupingType  = persObj->m_subset.m_groupingType;
-    log<< MSG::DEBUG <<"PhysWave  successfully read."<<endreq;
+    log<< MSG::DEBUG <<"PhysWave  successfully read."<<endmsg;
 }
 
 
@@ -145,11 +145,11 @@ LArPhysWaveSubsetCnv_p1::persToTrans(const LArPWPersType* persObj,  LArPWTransTy
 void
 LArPhysWaveSubsetCnv_p1::transToPers(const LArPWTransType* transObj,  LArPWPersType* persObj, MsgStream & log){
     
-  log<<MSG::DEBUG<<"LArPhysWaveSubsetCNV_p1  begin transToPers"<<endreq;
+  log<<MSG::DEBUG<<"LArPhysWaveSubsetCNV_p1  begin transToPers"<<endmsg;
 	
   // Copy conditions
   unsigned int nfebs	      = transObj->m_subset.size();			log<<MSG::DEBUG<<"total febs:"<<nfebs;
-  unsigned int ncorrs	      = transObj->m_correctionVec.size();	log<<MSG::DEBUG<<"\t\ttotal corrections: "<<ncorrs<<endreq;
+  unsigned int ncorrs	      = transObj->m_correctionVec.size();	log<<MSG::DEBUG<<"\t\ttotal corrections: "<<ncorrs<<endmsg;
 
   unsigned int nsubsetsNotEmpty = 0;
   unsigned int nchans           = 0;
@@ -163,7 +163,7 @@ LArPhysWaveSubsetCnv_p1::transToPers(const LArPWTransType* transObj,  LArPWPersT
 		log<<MSG::DEBUG<<"feb index: "<<i<<" has "<<nfebChans<<" channels. ";
 
 		if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
-			log << MSG::ERROR << "LArPhysWaveSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans<< endreq;
+			log << MSG::ERROR << "LArPhysWaveSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans<< endmsg;
 			return;
 		}
 		
@@ -177,7 +177,7 @@ LArPhysWaveSubsetCnv_p1::transToPers(const LArPWTransType* transObj,  LArPWPersT
             if (!isSparse && PW.isEmpty()) {
             	isSparse = true;
                 febsWithSparseData.push_back(transObj->m_subset[i].first);// save febids for sparse subsets
-				log<<MSG::DEBUG<<"\t\tfebID: "<<transObj->m_subset[i].first<<" is sparse"<<endreq;
+				log<<MSG::DEBUG<<"\t\tfebID: "<<transObj->m_subset[i].first<<" is sparse"<<endmsg;
             }
 			
 	    if (!PW.isEmpty()){
@@ -189,7 +189,7 @@ LArPhysWaveSubsetCnv_p1::transToPers(const LArPWTransType* transObj,  LArPWPersT
 	      else
 		if (persObj->m_samples!=PW.getSize()) {
 		  log << MSG::ERROR << "Waves of unequal length found in same conditions channel. Truncating to the shorter of " 
-		      << persObj->m_samples << " and " << PW.getSize() << endreq;
+		      << persObj->m_samples << " and " << PW.getSize() << endmsg;
 		  persObj->m_samples=std::min(persObj->m_samples,(unsigned)PW.getSize());
 		}
             } //else if !PS.isEmpty
@@ -244,7 +244,7 @@ LArPhysWaveSubsetCnv_p1::transToPers(const LArPWTransType* transObj,  LArPWPersT
 				if (!transObj->m_subset[i].second[j].isEmpty()) { // channel exists
                     
                     if (j < chansOffset || (j - chansOffset) > 31) // store the channel number in bit map
-                        log << MSG::ERROR << "LArCWSubsetCnv_p1::tTP - incorrect ch. ind: j, chansOffset: " << j << " " << chansOffset << endreq;
+                        log << MSG::ERROR << "LArCWSubsetCnv_p1::tTP - incorrect ch. ind: j, chansOffset: " << j << " " << chansOffset << endmsg;
                     
                     chansSet |= (1 << (j - chansOffset)); //store the channel number in the bit map
 					
@@ -285,7 +285,7 @@ LArPhysWaveSubsetCnv_p1::transToPers(const LArPWTransType* transObj,  LArPWPersT
 	
 	// Copy corrections
     for (unsigned int i = 0; i < ncorrs; ++i){
-      	//  	log<<MSG::DEBUG<<"WRITING CORRECTION : "<<i<<endreq;
+      	//  	log<<MSG::DEBUG<<"WRITING CORRECTION : "<<i<<endmsg;
       	// Save channel id in febid vector
       	persObj->m_subset.m_corrChannels.push_back(transObj->m_correctionVec[i].first);
       	
@@ -308,7 +308,7 @@ LArPhysWaveSubsetCnv_p1::transToPers(const LArPWTransType* transObj,  LArPWPersT
     persObj->m_subset.m_gain          = transObj->m_gain; 
     persObj->m_subset.m_channel       = transObj->m_channel;
     persObj->m_subset.m_groupingType  = transObj->m_groupingType;
-    log<< MSG::DEBUG <<"PhysWave successfully written down."<<endreq;
+    log<< MSG::DEBUG <<"PhysWave successfully written down."<<endmsg;
 	
 }
 

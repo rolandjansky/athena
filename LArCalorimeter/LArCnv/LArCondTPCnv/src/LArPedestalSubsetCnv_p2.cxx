@@ -51,7 +51,7 @@ LArPedestalSubsetCnv_p2::persToTrans(const LArPedestalSubset_p2* persObj,
 	if (pedestalIndex    >= persObj->m_vPedestal.size()) {
 	  log << MSG::ERROR 
 	      << "LArPedestalSubsetCnv_p2::persToTrans - pedestal index too large: pedestal/size " 
-	      << pedestalIndex << " " << persObj->m_vPedestal.size() << endreq;
+	      << pedestalIndex << " " << persObj->m_vPedestal.size() << endmsg;
 	  return;
 	}
 
@@ -92,7 +92,7 @@ LArPedestalSubsetCnv_p2::transToPers(const LArPedestalTransType* transObj,
         if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
             log << MSG::ERROR 
                 << "LArPedestalSubsetCnv_p2::transToPers - found incorrect number of channels per feb: " << nfebChans
-                << endreq;
+                << endmsg;
             return;
         }
         if (nfebChans) ++nsubsetsNotEmpty; // count number of non-empty subsets
