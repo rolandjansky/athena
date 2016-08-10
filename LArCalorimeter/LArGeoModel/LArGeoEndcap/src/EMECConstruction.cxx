@@ -97,7 +97,7 @@ LArGeo::EMECConstruction::EMECConstruction(bool is_tb, bool has_inner, bool has_
 	         << "m_isTB: " << m_isTB << std::endl
              << "m_hasInnerWheel: " << m_hasInnerWheel << std::endl
              << "m_hasOuterWheel: " << m_hasOuterWheel
-			 << endreq;
+			 << endmsg;
 */
 }
 

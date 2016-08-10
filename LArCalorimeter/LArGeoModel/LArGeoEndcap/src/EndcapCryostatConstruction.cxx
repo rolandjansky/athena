@@ -994,7 +994,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
       StatusCode status = detStore->retrieve(tileTBID);
 
       if(status.isFailure() || tileTBID==0 )
-	log << MSG::ERROR << "Unable to initialize TileTBID" << endreq;
+	log << MSG::ERROR << "Unable to initialize TileTBID" << endmsg;
       else {
 	// This recordset is need for calculating global Z positions of scintillators
 	IRDBRecordset_ptr larPosition = m_pAccessSvc->getRecordsetPtr("LArPosition",detectorKey, detectorNode);
@@ -1073,7 +1073,7 @@ GeoFullPhysVol* LArGeo::EndcapCryostatConstruction::createEnvelope(bool bPos)
 
 	// Record the manager into DS
 	if(detStore->record(mbtsManager,"MBTS")!=StatusCode::SUCCESS)
-	  log << MSG::ERROR << "Unable to record MBTS Detector Manager into DS" << endreq;
+	  log << MSG::ERROR << "Unable to record MBTS Detector Manager into DS" << endmsg;
       } // TileTB Initialize
     } // if(bPos)
   }
