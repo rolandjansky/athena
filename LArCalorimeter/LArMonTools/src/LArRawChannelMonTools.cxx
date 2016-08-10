@@ -280,16 +280,9 @@ vector<double> LArMonTools::sparse_bins_vector( Container const &bins,
 		
   }
 	
-	
-  for ( vector<double>::iterator itr = result.begin(); itr != result.end(); itr++ ) {
-		
-    if ( *itr == min ) {
-      
-      itr = result.erase( itr ) - 1;
-      
-    }
-		
-  }
+
+  vector<double>::iterator itr = std::remove(result.begin(), result.end(), min);
+  result.resize (itr - result.begin());
 	
   return result;
 
