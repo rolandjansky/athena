@@ -583,7 +583,7 @@ int  TileHWID::get_id     (const IdentifierHash& hash_id, HWIdentifier& id, cons
       } else {
 	MsgStream log(m_msgSvc, "TileHWID" );
 	log << MSG::ERROR << "get_id: hwadc hash_id out of range " << hash_id
-            << " => " << m_adc_vec.size() << endreq;
+            << " => " << m_adc_vec.size() << endmsg;
       }
     } else if ( m_CHANNEL_INDEX == end ) {
       if (hash_id < (unsigned int)(m_channel_vec.end() - m_channel_vec.begin())) {
@@ -592,7 +592,7 @@ int  TileHWID::get_id     (const IdentifierHash& hash_id, HWIdentifier& id, cons
       } else {
 	MsgStream log(m_msgSvc, "TileHWID" );
 	log << MSG::ERROR << "get_id: channel hash_id is out of range "
-            << hash_id << " => " << m_channel_vec.size() << endreq;
+            << hash_id << " => " << m_channel_vec.size() << endmsg;
       }
     } else if ( m_DRAWER_INDEX == end ) {
       if (hash_id < (unsigned int)(m_drawer_vec.end() - m_drawer_vec.begin())) {
@@ -601,7 +601,7 @@ int  TileHWID::get_id     (const IdentifierHash& hash_id, HWIdentifier& id, cons
       } else {
         MsgStream log(m_msgSvc, "TileHWID" );
 	log << MSG::ERROR << "get_id: drawer hash_id is out of range " << hash_id
-            << " => " << m_drawer_vec.size() << endreq;
+            << " => " << m_drawer_vec.size() << endmsg;
       }
     } else if ( m_ROS_INDEX == end ) {
       if (hash_id < (unsigned int)(m_ros_vec.end() - m_ros_vec.begin())) {
@@ -610,7 +610,7 @@ int  TileHWID::get_id     (const IdentifierHash& hash_id, HWIdentifier& id, cons
       } else {
 	MsgStream log(m_msgSvc, "TileHWID" );
 	log << MSG::ERROR << "get_id: ROS hash_id is out of range " << hash_id
-            << " => " << m_ros_vec.size() << endreq;
+            << " => " << m_ros_vec.size() << endmsg;
       }
     }
   }
@@ -678,18 +678,18 @@ IdentifierHash  TileHWID::get_channel_hash(const HWIdentifier& id) const
 int  TileHWID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 {
   MsgStream log(m_msgSvc, "TileHWID" );
-  log << MSG::INFO << "initialize_from_dictionary " << endreq;
+  log << MSG::INFO << "initialize_from_dictionary " << endmsg;
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+    log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
     return (0);
   }
   else {
-    log << MSG::DEBUG << "(Re)initialize" << endreq;
+    log << MSG::DEBUG << "(Re)initialize" << endmsg;
   }
 
-  log << MSG::DEBUG << "calling base initialize_from_dictionary" << endreq;
+  log << MSG::DEBUG << "calling base initialize_from_dictionary" << endmsg;
 
   // init base object
   if(AtlasDetectorID::initialize_from_dictionary(dict_mgr)) return (1);
@@ -699,7 +699,7 @@ int  TileHWID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
   m_dict = dict_mgr.find_dictionary ("TileCalorimeter"); 
   if(!m_dict) {
-    log << MSG::ERROR << "cannot access TileCalorimeter dictionary" << endreq;
+    log << MSG::ERROR << "cannot access TileCalorimeter dictionary" << endmsg;
     return 1;
   }
   
@@ -713,7 +713,7 @@ int  TileHWID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   if (atlasDict->get_label_value("subdet", "TileCalorimeter", tileField)) {
     log << MSG::ERROR << "Could not get value for label 'TileCalorimeter' of field 'subdet' in dictionary " 
         << atlasDict->m_name
-        << endreq;
+        << endmsg;
     return (1);
   }
 
@@ -722,14 +722,14 @@ int  TileHWID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   if (m_dict->get_label_value("section", "Online", tilehwField)) {
     log << MSG::ERROR << "Could not get value for label 'Online' of field 'section' in dictionary " 
         << m_dict->m_name
-        << endreq;
+        << endmsg;
     return (1);
   }
 
   /*
   log << MSG::DEBUG << "initialize_from_dict - found field values: TileHW " 
       << TileHWField
-      << endreq;
+      << endmsg;
   */
 
   // Set up id for region and range prefix
@@ -743,11 +743,11 @@ int  TileHWID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   m_full_drawer_range = m_dict->build_multirange(reg_id, prefix, "drawer");
   m_full_ros_range    = m_dict->build_multirange(reg_id, prefix, "ros");
 
-  log << MSG::DEBUG << "initialize_from_dict : "                                 << endreq;
-  log << MSG::DEBUG << " ros range -> "     << (std::string)m_full_ros_range     << endreq;
-  log << MSG::DEBUG << " drawer range -> "  << (std::string)m_full_drawer_range  << endreq;
-  log << MSG::DEBUG << " channel range -> " << (std::string)m_full_channel_range << endreq;
-  log << MSG::DEBUG << " adc range -> "     << (std::string)m_full_adc_range     << endreq;
+  log << MSG::DEBUG << "initialize_from_dict : "                                 << endmsg;
+  log << MSG::DEBUG << " ros range -> "     << (std::string)m_full_ros_range     << endmsg;
+  log << MSG::DEBUG << " drawer range -> "  << (std::string)m_full_drawer_range  << endmsg;
+  log << MSG::DEBUG << " channel range -> " << (std::string)m_full_channel_range << endmsg;
+  log << MSG::DEBUG << " adc range -> "     << (std::string)m_full_adc_range     << endmsg;
 
   // Setup the hash tables
   if(init_hashes()) return (1);
@@ -783,7 +783,7 @@ int TileHWID::initLevelsFromDict(void)
 
   if(!m_dict) {
     log << MSG::ERROR << "initLevelsFromDict - dictionary NOT initialized "
-        << endreq ;
+        << endmsg ;
     return (1);
   }
 
@@ -801,7 +801,7 @@ int TileHWID::initLevelsFromDict(void)
   if (m_dict->find_region(expId,m_tile_region_index)){
     log << MSG::ERROR << "initLevelsFromDict - unable to find tile region index: expId, reg "  
         << (std::string)expId << " " << m_tile_region_index
-        << endreq;
+        << endmsg;
     return (1);
   }
 
@@ -812,7 +812,7 @@ int TileHWID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'subdet' field "
-        << endreq ;
+        << endmsg ;
     return (1);
   }
 
@@ -822,7 +822,7 @@ int TileHWID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'section' field "
-        << endreq ;
+        << endmsg ;
     return (1);
   }
 
@@ -832,7 +832,7 @@ int TileHWID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'ros' field "
-        << endreq ;
+        << endmsg ;
     return (1);
   }
 
@@ -842,7 +842,7 @@ int TileHWID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'drawer' field "
-        << endreq ;
+        << endmsg ;
     return (1);
   }
 
@@ -852,7 +852,7 @@ int TileHWID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'channel' field "
-        << endreq ;
+        << endmsg ;
     return (1);
   }
 
@@ -862,7 +862,7 @@ int TileHWID::initLevelsFromDict(void)
   }
   else {
     log << MSG::ERROR <<  "initLevelsFromDict - unable to find 'gain' field "
-        << endreq ;
+        << endmsg ;
     return (1);
   }
 
@@ -880,13 +880,13 @@ int TileHWID::initLevelsFromDict(void)
   m_system_impl.pack  (tile_field_value(),m_base_tile_ros);
   m_section_impl.pack (TileHWID::TILE_ONLINE,m_base_tile_ros);
 
-  log << MSG::DEBUG << "initLevelsFromDict decode index and bit fields for each level: "              << endreq ;
-  log << MSG::DEBUG << " system   [" << m_SYSTEM_INDEX   << "]  " << m_system_impl.show_to_string()   << endreq ;
-  log << MSG::DEBUG << " section  [" << m_SECTION_INDEX  << "]  " << m_section_impl.show_to_string()  << endreq ;
-  log << MSG::DEBUG << " ros      [" << m_ROS_INDEX      << "]  " << m_ros_impl.show_to_string()      << endreq ;
-  log << MSG::DEBUG << " drawer   [" << m_DRAWER_INDEX   << "]  " << m_drawer_impl.show_to_string()   << endreq ;
-  log << MSG::DEBUG << " channel  [" << m_CHANNEL_INDEX  << "]  " << m_channel_impl.show_to_string()  << endreq ;
-  log << MSG::DEBUG << " adc      [" << m_ADC_INDEX      << "]  " << m_adc_impl.show_to_string()      << endreq ;
+  log << MSG::DEBUG << "initLevelsFromDict decode index and bit fields for each level: "              << endmsg ;
+  log << MSG::DEBUG << " system   [" << m_SYSTEM_INDEX   << "]  " << m_system_impl.show_to_string()   << endmsg ;
+  log << MSG::DEBUG << " section  [" << m_SECTION_INDEX  << "]  " << m_section_impl.show_to_string()  << endmsg ;
+  log << MSG::DEBUG << " ros      [" << m_ROS_INDEX      << "]  " << m_ros_impl.show_to_string()      << endmsg ;
+  log << MSG::DEBUG << " drawer   [" << m_DRAWER_INDEX   << "]  " << m_drawer_impl.show_to_string()   << endmsg ;
+  log << MSG::DEBUG << " channel  [" << m_CHANNEL_INDEX  << "]  " << m_channel_impl.show_to_string()  << endmsg ;
+  log << MSG::DEBUG << " adc      [" << m_ADC_INDEX      << "]  " << m_adc_impl.show_to_string()      << endmsg ;
 
   return(0) ;
 }
@@ -909,7 +909,7 @@ int TileHWID::init_hashes(void)
 	log << MSG::ERROR << "init_hashes "
             << " Error: duplicated id for ros id. nids= " << nids
             << " compact Id  " << show_to_string(id)
-            << endreq;
+            << endmsg;
       }
       nids++;
     }
@@ -932,7 +932,7 @@ int TileHWID::init_hashes(void)
 	log << MSG::ERROR << "init_hashes "
             << " Error: duplicated id for drawer id. nids= " << nids
             << " compact Id  " << show_to_string(id)
-            << endreq;
+            << endmsg;
       }
       nids++;
     }
@@ -956,7 +956,7 @@ int TileHWID::init_hashes(void)
 	log << MSG::ERROR << "init_hashes "
             << " Error: duplicated id for channel id. nids= " << nids
             << " compact Id  " << show_to_string(id)
-            << endreq;
+            << endmsg;
       }
       nids++;
     }
@@ -981,7 +981,7 @@ int TileHWID::init_hashes(void)
 	log << MSG::ERROR << "init_hashes "
             << " Error: duplicated id for adc id. nids= " << nids
             << " compact Id  " << show_to_string(id)
-            << endreq;
+            << endmsg;
       }
       nids++;
     }
@@ -1011,7 +1011,7 @@ int TileHWID::fill_vec  (std::set<HWIdentifier> & ids,
     log << MSG::ERROR << "fill_vec "
         << " Error: set size NOT EQUAL to hash max. size " << ids.size()
         << " hash max " << hash_max
-        << endreq;
+        << endmsg;
 
     return (1);
   }
