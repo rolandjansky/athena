@@ -15,10 +15,10 @@ static LArDSPThresholdsSubsetCnv_p1   TPconverter;
 
 LArDSPThresholdsSubset_p1*
 LArDSPThresholdsCompleteCnv::createPersistent (LArDSPThrTransType* transObj) {
-    MsgStream log(messageService(), "LArDSPThresholdsCompleteCnv" ); 
-    //log << MSG::DEBUG << "LArDSPThresholdsComplete write" << endreq;
+    MsgStream log(msgSvc(), "LArDSPThresholdsCompleteCnv" ); 
+    //log << MSG::DEBUG << "LArDSPThresholdsComplete write" << endmsg;
     LArDSPThrPersType* persObj = TPconverter.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endreq;
+    //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
 
@@ -28,8 +28,8 @@ LArDSPThresholdsCompleteCnv::createTransient () {
     if( compareClassGuid(p0_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< LArDSPThresholdsSubset_p1 > col_vect( poolReadObject< LArDSPThresholdsSubset_p1 >() );
-        MsgStream log(messageService(), "LArDSPThresholdsCompleteCnv" ); 
-        //log << MSG::INFO << "Reading LArDSPThresholdsSubset_p1" << endreq; 
+        MsgStream log(msgSvc(), "LArDSPThresholdsCompleteCnv" ); 
+        //log << MSG::INFO << "Reading LArDSPThresholdsSubset_p1" << endmsg; 
         return TPconverter.createTransient( col_vect.get(), log );
     }
     throw std::runtime_error("Unsupported persistent version of LArDSPThresholdsCompleteCnv");

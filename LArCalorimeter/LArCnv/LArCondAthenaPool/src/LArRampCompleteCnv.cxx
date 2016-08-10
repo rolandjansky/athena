@@ -16,10 +16,10 @@ static LArRampSubsetCnv_p1   TPconverter;
 LArRampSubset_p1*
 LArRampCompleteCnv::createPersistent (LArRampTransType* transObj)
 {
-    MsgStream log(messageService(), "LArRampCompleteCnv" ); 
-    //log << MSG::DEBUG << "LArRampComplete write" << endreq;
+    MsgStream log(msgSvc(), "LArRampCompleteCnv" ); 
+    //log << MSG::DEBUG << "LArRampComplete write" << endmsg;
     LArRampPersType* persObj = TPconverter.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endreq;
+    //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
 
@@ -31,20 +31,20 @@ LArRampCompleteCnv::createTransient ()
     if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< LArRampSubset_p1 > col_vect( poolReadObject< LArRampSubset_p1 >() );
-        MsgStream log(messageService(), "LArRampCompleteCnv" ); 
-        //log << MSG::INFO << "Reading LArRampSubset_p1" << endreq; 
+        MsgStream log(msgSvc(), "LArRampCompleteCnv" ); 
+        //log << MSG::INFO << "Reading LArRampSubset_p1" << endmsg; 
         return TPconverter.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation
 
-        MsgStream log(messageService(), "LArRampCompleteCnv" ); 
-        log << MSG::DEBUG << "Reading LArRampSubset (original)" << endreq; 
+        MsgStream log(msgSvc(), "LArRampCompleteCnv" ); 
+        log << MSG::DEBUG << "Reading LArRampSubset (original)" << endmsg; 
 
         std::auto_ptr< LArConditionsSubset<LArRampP> > subset ( poolReadObject< LArConditionsSubset<LArRampP> >() );
         // Here we must convert from LArRampP to LArRampP1
         
-        log << MSG::DEBUG << "subset ptr " << subset.get() << endreq; 
+        log << MSG::DEBUG << "subset ptr " << subset.get() << endmsg; 
 
         return (createTransient(subset.get()));
 
@@ -56,8 +56,8 @@ LArConditionsSubset<LArRampP1>*
 LArRampCompleteCnv::createTransient(LArConditionsSubset<LArRampP>* orig)
 {
 
-    MsgStream log(messageService(), "LArRampCompleteCnv" ); 
-    log << MSG::DEBUG << "LArRampCompleteCnv::createTransient orig " << orig << endreq; 
+    MsgStream log(msgSvc(), "LArRampCompleteCnv" ); 
+    log << MSG::DEBUG << "LArRampCompleteCnv::createTransient orig " << orig << endmsg; 
 
     LArConditionsSubset<LArRampP1>* result = new LArConditionsSubset<LArRampP1>();
     
@@ -78,7 +78,7 @@ LArRampCopy::copyOldtoNew(const LArConditionsSubset<LArRampP>* oldRamp,
     unsigned int nCorrs      = oldRamp->m_correctionVec.size();
 
     //log << MSG::DEBUG << "LArRampCompleteCnv::createTransient oldRamp 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endreq; 
+    //    << nFebs << " " << nCorrs << endmsg; 
 
     // Copy conditions
 
@@ -103,7 +103,7 @@ LArRampCopy::copyOldtoNew(const LArConditionsSubset<LArRampP>* oldRamp,
         }
     }
 
-    //log << MSG::DEBUG << "LArRampCompleteCnv::createTransient oldRamp 2 " << oldRamp << endreq; 
+    //log << MSG::DEBUG << "LArRampCompleteCnv::createTransient oldRamp 2 " << oldRamp << endmsg; 
 
     // Copy corrections
     newRamp->m_correctionVec.resize(nCorrs);

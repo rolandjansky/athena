@@ -38,10 +38,10 @@ float toFloat (double x)
 LArShapeSubset_p1*
 LArShape32MCCnv::createPersistent (LArShapeTransType* transObj)
 {
-  MsgStream log(messageService(), "LArShape32MCCnv" ); 
-    //log << MSG::DEBUG << "LArShape32MC write" << endreq;
+  MsgStream log(msgSvc(), "LArShape32MCCnv" ); 
+    //log << MSG::DEBUG << "LArShape32MC write" << endmsg;
     LArShapePersType* persObj = TPconverter.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endreq;
+    //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
 
@@ -50,22 +50,22 @@ LArShape32MCCnv::createTransient ()
 {
     static pool::Guid   p1_guid("95B61750-4C45-412D-B4D4-9758E9DB40D1");
     static pool::Guid   p0_guid("055CF2F5-08D0-4EAA-B154-8CE5B1A599E7");
-    MsgStream log(messageService(), "LArShape32MCCnv" ); 
+    MsgStream log(msgSvc(), "LArShape32MCCnv" ); 
     if( compareClassGuid(p1_guid) ) {  
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< LArShapeSubset_p1 > col_vect( poolReadObject< LArShapeSubset_p1 >() );
         //
-        log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endreq; 
+        log << MSG::DEBUG << "Reading LArShapeSubset_p1" << endmsg; 
         return TPconverter.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation
-        log << MSG::DEBUG << "Reading LArShapeSubset (original)" << endreq; 
+        log << MSG::DEBUG << "Reading LArShapeSubset (original)" << endmsg; 
 
         std::auto_ptr< LArConditionsSubset<LArShapeP> > subset ( poolReadObject< LArConditionsSubset<LArShapeP> >() );
         // Here we must convert from LArShapeP to LArShapeP1
         
-        log << MSG::VERBOSE << "subset ptr " << subset.get() << endreq; 
+        log << MSG::VERBOSE << "subset ptr " << subset.get() << endmsg; 
 
         return (createTransient(subset.get()));
 
@@ -77,8 +77,8 @@ LArConditionsSubset<LArShapeP1>*
 LArShape32MCCnv::createTransient(LArConditionsSubset<LArShapeP>* orig)
 {
 
-  //MsgStream log(messageService(), "LArShapeMCCnv" ); 
-  //log << MSG::DEBUG << "LArShapeMCCnv::createTransient orig " << orig << endreq; 
+  //MsgStream log(msgSvc(), "LArShapeMCCnv" ); 
+  //log << MSG::DEBUG << "LArShapeMCCnv::createTransient orig " << orig << endmsg; 
 
     LArConditionsSubset<LArShapeP1>* result = new LArConditionsSubset<LArShapeP1>();
     

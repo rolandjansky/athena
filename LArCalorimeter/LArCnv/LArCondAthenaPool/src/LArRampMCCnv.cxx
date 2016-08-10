@@ -17,10 +17,10 @@ static LArRampSubsetCnv_p1   TPconverter;
 LArRampSubset_p1*
 LArRampMCCnv::createPersistent (LArRampTransType* transObj)
 {
-    MsgStream log(messageService(), "LArRampMCCnv" ); 
-    //log << MSG::DEBUG << "LArRampMC write" << endreq;
+    MsgStream log(msgSvc(), "LArRampMCCnv" ); 
+    //log << MSG::DEBUG << "LArRampMC write" << endmsg;
     LArRampPersType* persObj = TPconverter.createPersistent( transObj, log );
-    //log << MSG::DEBUG << "Success" << endreq;
+    //log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
 
@@ -32,20 +32,20 @@ LArRampMCCnv::createTransient ()
     if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< LArRampSubset_p1 > col_vect( poolReadObject< LArRampSubset_p1 >() );
-        MsgStream log(messageService(), "LArRampMCCnv" ); 
-        //log << MSG::INFO << "Reading LArRampSubset_p1" << endreq; 
+        MsgStream log(msgSvc(), "LArRampMCCnv" ); 
+        //log << MSG::INFO << "Reading LArRampSubset_p1" << endmsg; 
         return TPconverter.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation
 
-        MsgStream log(messageService(), "LArRampMCCnv" ); 
-        log << MSG::INFO << "Reading LArRampSubset (original)" << endreq; 
+        MsgStream log(msgSvc(), "LArRampMCCnv" ); 
+        log << MSG::INFO << "Reading LArRampSubset (original)" << endmsg; 
 
         std::auto_ptr< LArConditionsSubset<LArRampP> > subset ( poolReadObject< LArConditionsSubset<LArRampP> >() );
         // Here we must convert from LArRampP to LArRampP1
         
-        log << MSG::INFO << "subset ptr " << subset.get() << endreq; 
+        log << MSG::INFO << "subset ptr " << subset.get() << endmsg; 
 
         return (createTransient(subset.get()));
 
@@ -57,8 +57,8 @@ LArConditionsSubset<LArRampP1>*
 LArRampMCCnv::createTransient(LArConditionsSubset<LArRampP>* orig)
 {
 
-    MsgStream log(messageService(), "LArRampMCCnv" ); 
-    log << MSG::INFO << "LArRampMCCnv::createTransient orig " << orig << endreq; 
+    MsgStream log(msgSvc(), "LArRampMCCnv" ); 
+    log << MSG::INFO << "LArRampMCCnv::createTransient orig " << orig << endmsg; 
 
     LArConditionsSubset<LArRampP1>* result = new LArConditionsSubset<LArRampP1>();
     

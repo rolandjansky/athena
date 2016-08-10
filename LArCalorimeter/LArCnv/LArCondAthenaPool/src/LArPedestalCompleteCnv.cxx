@@ -18,8 +18,8 @@ static LArPedestalSubsetCnv_p2   TPconverter2;
 LArPedestalSubset_p2*
 LArPedestalCompleteCnv::createPersistent (LArPedTransType* transObj)
 {
-    MsgStream log(messageService(), "LArPedestalCompleteCnv" ); 
-    //log << MSG::DEBUG << "LArPedestalComplete write" << endreq;
+    MsgStream log(msgSvc(), "LArPedestalCompleteCnv" ); 
+    //log << MSG::DEBUG << "LArPedestalComplete write" << endmsg;
     return TPconverter2.createPersistent( transObj, log );
 }
 
@@ -33,27 +33,27 @@ LArPedestalCompleteCnv::createTransient ()
     if (compareClassGuid(p2_guid)) {
       // using auto_ptr ensures deletion of the persistent object
       std::auto_ptr< LArPedestalSubset_p2 > col_vect( poolReadObject< LArPedestalSubset_p2 >() );
-      MsgStream log(messageService(), "LArPedestalCompleteCnv" ); 
-      //log << MSG::INFO << "Reading LArPedestalSubset_p1" << endreq; 
+      MsgStream log(msgSvc(), "LArPedestalCompleteCnv" ); 
+      //log << MSG::INFO << "Reading LArPedestalSubset_p1" << endmsg; 
       return TPconverter2.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p1_guid) ) {
         // using auto_ptr ensures deletion of the persistent object
         std::auto_ptr< LArPedestalSubset_p1 > col_vect( poolReadObject< LArPedestalSubset_p1 >() );
-        MsgStream log(messageService(), "LArPedestalCompleteCnv" ); 
-        //log << MSG::INFO << "Reading LArPedestalSubset_p1" << endreq; 
+        MsgStream log(msgSvc(), "LArPedestalCompleteCnv" ); 
+        //log << MSG::INFO << "Reading LArPedestalSubset_p1" << endmsg; 
         return TPconverter1.createTransient( col_vect.get(), log );
     }
     else if( compareClassGuid(p0_guid) ) {
         // subset from before TP separation
 
-        MsgStream log(messageService(), "LArPedestalCompleteCnv" ); 
-        log << MSG::DEBUG << "Reading LArPedestalSubset (original)" << endreq; 
+        MsgStream log(msgSvc(), "LArPedestalCompleteCnv" ); 
+        log << MSG::DEBUG << "Reading LArPedestalSubset (original)" << endmsg; 
 
         std::auto_ptr< LArConditionsSubset<LArPedestalP> > subset ( poolReadObject< LArConditionsSubset<LArPedestalP> >() );
         // Here we must convert from LArPedestalP to LArPedestalP1
         
-        log << MSG::DEBUG << "subset ptr " << subset.get() << endreq; 
+        log << MSG::DEBUG << "subset ptr " << subset.get() << endmsg; 
 
         return (createTransient(subset.get()));
 
@@ -65,8 +65,8 @@ LArConditionsSubset<LArPedestalP1>*
 LArPedestalCompleteCnv::createTransient(LArConditionsSubset<LArPedestalP>* orig)
 {
 
-    MsgStream log(messageService(), "LArPedestalCompleteCnv" ); 
-    log << MSG::DEBUG << "LArPedestalCompleteCnv::createTransient orig " << orig << endreq; 
+    MsgStream log(msgSvc(), "LArPedestalCompleteCnv" ); 
+    log << MSG::DEBUG << "LArPedestalCompleteCnv::createTransient orig " << orig << endmsg; 
 
     LArConditionsSubset<LArPedestalP1>* result = new LArConditionsSubset<LArPedestalP1>();
     
@@ -88,7 +88,7 @@ LArPedestalCopy::copyOldtoNew(const LArConditionsSubset<LArPedestalP>* oldPedest
     unsigned int nCorrs      = oldPedestal->m_correctionVec.size();
 
     //log << MSG::DEBUG << "LArPedestalCompleteCnv::createTransient oldPedestal 1, nFebs, nCorrs " 
-    //    << nFebs << " " << nCorrs << endreq; 
+    //    << nFebs << " " << nCorrs << endmsg; 
 
     // Copy conditions
 

@@ -21,8 +21,8 @@ LArDAC2uACompleteCnv::createTransient ()
     return p;
   else if( compareClassGuid(p0_guid) ) {
     // subset from before TP separation    
-    MsgStream log(messageService(), "LArDAC2uACompleteCnv" ); 
-    log << MSG::DEBUG << "Reading LArDAC2uASubset (original)" << endreq;     
+    MsgStream log(msgSvc(), "LArDAC2uACompleteCnv" ); 
+    log << MSG::DEBUG << "Reading LArDAC2uASubset (original)" << endmsg;     
     std::auto_ptr< LArConditionsSubset<LArDAC2uAP> > subset ( poolReadObject< LArConditionsSubset<LArDAC2uAP> >() );
     return (createTransient(subset.get()));
     
@@ -33,8 +33,8 @@ LArDAC2uACompleteCnv::createTransient ()
 LArConditionsSubset<LArSingleFloatP>* 
 LArDAC2uACompleteCnv::createTransient(LArConditionsSubset<LArDAC2uAP>* orig)
 {
-    MsgStream log(messageService(), "LArDAC2uACompleteCnv" ); 
-    log << MSG::DEBUG << "LArDAC2uACompleteCnv::createTransient orig " << orig << endreq; 
+    MsgStream log(msgSvc(), "LArDAC2uACompleteCnv" ); 
+    log << MSG::DEBUG << "LArDAC2uACompleteCnv::createTransient orig " << orig << endmsg; 
 
     LArConditionsSubset<LArSingleFloatP>* result = new LArConditionsSubset<LArSingleFloatP>();
     
