@@ -14,10 +14,10 @@
 void
 LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCWTransType* transObj, MsgStream & log){
   
-  	log<<MSG::DEBUG<<"LArCaliWaveSubsetCNV_p2  begin persToTrans"<<endreq;
+  	log<<MSG::DEBUG<<"LArCaliWaveSubsetCNV_p2  begin persToTrans"<<endmsg;
 		  
     unsigned int nfebids = persObj->m_subset.m_febIds.size();			log<<MSG::DEBUG<<"Total febs:"<<nfebids;
-    unsigned int ncorrs	 = persObj->m_subset.m_corrChannels.size();		log<<MSG::DEBUG<<"\tCorrections:"<<ncorrs<<endreq;
+    unsigned int ncorrs	 = persObj->m_subset.m_corrChannels.size();		log<<MSG::DEBUG<<"\tCorrections:"<<ncorrs<<endmsg;
 
     transObj->m_subset.resize(nfebids);
   
@@ -44,7 +44,7 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
 			ifebWithData++;
 		}
       
-		log<<MSG::DEBUG<<"\tFeb sparse? "<< hasSparseData <<endreq;
+		log<<MSG::DEBUG<<"\tFeb sparse? "<< hasSparseData <<endmsg;
   
 		for (unsigned int j = 0; j < NCHANNELPERFEB; ++j){
 			bool copyChannel = true;
@@ -95,7 +95,7 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
 		} // loop on FEBs
 	
 	
-    log<<MSG::DEBUG << "Correction reading, ncorr:" << ncorrs << "\twaveIndex=" <<  waveIndex << "\tsize:" << persObj->m_vAmplitudes.size()<<endreq;
+    log<<MSG::DEBUG << "Correction reading, ncorr:" << ncorrs << "\twaveIndex=" <<  waveIndex << "\tsize:" << persObj->m_vAmplitudes.size()<<endmsg;
     transObj->m_correctionVec.resize(ncorrs);
    
     for (unsigned int i = 0; i < ncorrs; ++i){ // Loop over corrections
@@ -103,7 +103,7 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
         if (chIndex    >= persObj->m_dt.size()) {// check indexes
             log << MSG::ERROR 
                 << "LArCaliWaveSubsetCnv_p2::persToTrans - CaliWave index too large: WaveIndex/sizeInFile " 
-                << chIndex << " " << persObj->m_dt.size() << " " << endreq;
+                << chIndex << " " << persObj->m_dt.size() << " " << endmsg;
             return;
         }
 		
@@ -126,7 +126,7 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
 		  	
 				if (waveIndex>=persObj->m_vAmplitudes.size()) 
 			  	  log << MSG::ERROR << "Persistent LArCaliWave object is inconsistent. i=" << i << " WaveIndes=" 
-				  << waveIndex << " size=" << persObj->m_vAmplitudes.size() << "samples=" << persObj->m_samples <<endreq;
+				  << waveIndex << " size=" << persObj->m_vAmplitudes.size() << "samples=" << persObj->m_samples <<endmsg;
 			
 		 	 	val.push_back(persObj->m_vAmplitudes[waveIndex]);
 		  		err.push_back(persObj->m_vErrors[waveIndex]);
@@ -149,7 +149,7 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
     transObj->m_gain          = persObj->m_subset.m_gain; 
     transObj->m_channel       = persObj->m_subset.m_channel;
     transObj->m_groupingType  = persObj->m_subset.m_groupingType;
-    log<< MSG::DEBUG <<"CaliWave ver p2 successfully read in."<<endreq;
+    log<< MSG::DEBUG <<"CaliWave ver p2 successfully read in."<<endmsg;
 }
 
 
@@ -160,10 +160,10 @@ LArCaliWaveSubsetCnv_p2::persToTrans(const LArCaliWaveSubset_p2* persObj,  LArCW
 void
 LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWaveSubset_p2* persObj, MsgStream & log){
     
-	log<<MSG::DEBUG<<" LArCaliWaveSubsetCNV_p2  begin Writing"<<endreq;
+	log<<MSG::DEBUG<<" LArCaliWaveSubsetCNV_p2  begin Writing"<<endmsg;
 	
 	unsigned int nfebs  		= transObj->m_subset.size();		  log<<MSG::DEBUG<<"total febs:"<<nfebs;
-	unsigned int ncorrs 		= transObj->m_correctionVec.size();   log<<MSG::DEBUG<<"\tCorrections: "<<ncorrs<<endreq;
+	unsigned int ncorrs 		= transObj->m_correctionVec.size();   log<<MSG::DEBUG<<"\tCorrections: "<<ncorrs<<endmsg;
 
 	unsigned int nsubsetsNotEmpty = 0;
 	unsigned int nchans 		  = 0;
@@ -177,7 +177,7 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
 		log<<MSG::DEBUG<<"feb index: "<<i<<" has "<<nfebChans<<" channels. ";
 
 		if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
-			log << MSG::ERROR << "LArCaliWaveSubsetCnv_p2::transToPers - found incorrect number of channels per feb: " << nfebChans<< endreq;
+			log << MSG::ERROR << "LArCaliWaveSubsetCnv_p2::transToPers - found incorrect number of channels per feb: " << nfebChans<< endmsg;
 			return;
 		}
 		
@@ -250,7 +250,7 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
 				if (transObj->m_subset[i].second[j].size() > 0) { // channel exists
                     
                     if (j < chansOffset || (j - chansOffset) > 31) // store the channel number in bit map
-                        log << MSG::ERROR << "LArCWSubsetCnv_p2::tTP - incorrect ch. ind: j, chansOffset: " << j << " " << chansOffset << endreq;
+                        log << MSG::ERROR << "LArCWSubsetCnv_p2::tTP - incorrect ch. ind: j, chansOffset: " << j << " " << chansOffset << endmsg;
                     
                     chansSet |= (1 << (j - chansOffset)); //store the channel number in the bit map
 					
@@ -326,6 +326,6 @@ LArCaliWaveSubsetCnv_p2::transToPers(const LArCWTransType* transObj,  LArCaliWav
     persObj->m_subset.m_gain          = transObj->m_gain; 
     persObj->m_subset.m_channel       = transObj->m_channel;
     persObj->m_subset.m_groupingType  = transObj->m_groupingType;
-    log<< MSG::DEBUG <<" Cali Wave p2 successfully written down."<<endreq;
+    log<< MSG::DEBUG <<" Cali Wave p2 successfully written down."<<endmsg;
 }
 

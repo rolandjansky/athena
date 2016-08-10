@@ -75,7 +75,7 @@ LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj,
                         << "LArPedestalSubsetCnv_p1::persToTrans - pedestal index too large: pedestal/size, pedestalrms/size " 
                         << pedestalIndex << " " << persObj->m_vPedestal.size() << " " 
                         << pedestalrmsIndex << " " << persObj->m_vPedestalRMS.size() 
-                        << endreq;
+                        << endmsg;
                     return;
                 }
 
@@ -107,7 +107,7 @@ LArPedestalSubsetCnv_p1::persToTrans(const LArPedestalPersType* persObj,
                 << "LArPedestalSubsetCnv_p1::persToTrans - pedestal index too large: pedestal/size, pedestalrms/size " 
                 << pedestalIndex << " " << persObj->m_vPedestal.size() << " " 
                 << pedestalrmsIndex << " " << persObj->m_vPedestalRMS.size() 
-                << endreq;
+                << endmsg;
             return;
         }
         transObj->m_correctionVec[i].first = persObj->m_subset.m_corrChannels[i];
@@ -141,7 +141,7 @@ LArPedestalSubsetCnv_p1::transToPers(const LArPedestalTransType* /*transObj*/,
 				     MsgStream &log) 
 {
     
-  log << MSG::ERROR << "LArPedestalSubset_p1 is obsolete and can't be written out any more." << endreq;
+  log << MSG::ERROR << "LArPedestalSubset_p1 is obsolete and can't be written out any more." << endmsg;
   return;
 }
  

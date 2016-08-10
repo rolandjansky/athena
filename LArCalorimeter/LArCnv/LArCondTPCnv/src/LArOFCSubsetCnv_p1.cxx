@@ -79,7 +79,7 @@ LArOFCSubsetCnv_p1::persToTrans(const LArOFCPersType* persObj,
                         << persObj->m_vOFC_b.size() << " " << timeIndex << " "
                         << persObj->m_timeOffset.size() << " " 
                         << persObj->m_timeBinWidth.size()
-                        << endreq;
+                        << endmsg;
                     return;
                 }
 
@@ -123,7 +123,7 @@ LArOFCSubsetCnv_p1::persToTrans(const LArOFCPersType* persObj,
                 << persObj->m_vOFC_b.size() << " " << timeIndex << " "
                 << persObj->m_timeOffset.size() << " " 
                 << persObj->m_timeBinWidth.size()
-            << endreq;
+            << endmsg;
             return;
         }
 
@@ -210,7 +210,7 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
         if (nfebChans != 0 && nfebChans != NCHANNELPERFEB) {
             log << MSG::ERROR 
                 << "LArOFCSubsetCnv_p1::transToPers - found incorrect number of channels per feb: " << nfebChans
-                << endreq;
+                << endmsg;
             return;
         }
         if (nfebChans) ++nsubsetsNotEmpty; // count number of non-empty subsets
@@ -304,7 +304,7 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
                     if (j < chansOffset || (j - chansOffset) > 31) {
                         log << MSG::ERROR 
                             << "LArOFCSubsetCnv_p1::transToPers - incorrect channel indexing: j, chansOffset: " << j << " " << chansOffset
-                            << endreq;
+                            << endmsg;
                     }
                     chansSet |= (1 << (j - chansOffset));
                 }
@@ -343,7 +343,7 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
                 persObj->m_timeBinWidth.push_back(transObj->m_subset[i].second[j].timeBinWidth());
 		if (tooSmall)
 		  log << MSG::ERROR << "Feb 0x" << std::hex << febid << std::dec << " channel " << j <<": OFC object too small. Expected " 
-		      << nPhases << " phases and " << nSamples << " samples. Padded with 0.0" << endreq;
+		      << nPhases << " phases and " << nSamples << " samples. Padded with 0.0" << endmsg;
 
             }// end if saveOFC
 
@@ -384,7 +384,7 @@ LArOFCSubsetCnv_p1::transToPers(const LArOFCTransType* transObj,
         persObj->m_timeBinWidth.push_back(transObj->m_correctionVec[i].second.timeBinWidth());
 	if (tooSmall)
 	  log << MSG::ERROR << "Correction index "<< i <<"(channel 0x" << std::hex << transObj->m_correctionVec[i].first << std::dec <<  
-	    "): OFC object too small. Expected " << nPhases << " phases and " << nSamples << " samples. Padded with 0.0" << endreq;
+	    "): OFC object too small. Expected " << nPhases << " phases and " << nSamples << " samples. Padded with 0.0" << endmsg;
     }
 
     // Copy the rest
