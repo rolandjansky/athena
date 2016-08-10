@@ -33,7 +33,7 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
     MsgStream log(m_msgSvc, "LArOnline_SuperCellID" );
     std::string strg = "initialize_from_dictionary";
     if(m_msgSvc) {
-        log << MSG::INFO << strg << endreq;
+        log << MSG::INFO << strg << endmsg;
     }
     else {
         std::cout << strg << std::endl;
@@ -41,11 +41,11 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
   
     // Check whether this helper should be reinitialized
     if (!reinitialize(dict_mgr)) {
-        if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+        if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
         return (0);
     }
     else {
-        log << MSG::DEBUG << "(Re)initialize" << endreq;
+        log << MSG::DEBUG << "(Re)initialize" << endmsg;
     }
 
     // init base object
@@ -55,7 +55,7 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
 
         strg = " initialize_from_dictionary - cannot access LArCalorimeter dictionary ";
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << "LArOnline_SuperCellID::" << strg << std::endl;
@@ -84,7 +84,7 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
         strm << atlasDict->m_name;
         strg= " Could not get value for label 'LArCalorimeter' of field 'subdet' in dictionary "+strm.str();
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << "LArOnline_SuperCellID:" << strg << std::endl;
@@ -99,7 +99,7 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
         strm <<  m_dict->m_name;      
         strg = "Could not get value for label 'LArOnline' of field 'part' in dictionary "+strm.str(); 
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << strg << std::endl;
@@ -114,7 +114,7 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
         strm <<  m_dict->m_name;      
         strg = "Could not get value for label 'LArOnlineCalib' of field 'part' in dictionary "+strm.str();
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << strg << std::endl;
@@ -145,10 +145,10 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
     std::string strg2= " feedthrough slot range -> " + (std::string)m_full_feb_range;  
     std::string strg3= " channel range -> " + (std::string)m_full_laronline_range;
     if(m_msgSvc) {
-        log << MSG::DEBUG << strg0 << endreq;
-        log << MSG::DEBUG << strg1 << endreq;
-        log << MSG::DEBUG << strg2 << endreq;
-        log << MSG::DEBUG << strg3 << endreq;
+        log << MSG::DEBUG << strg0 << endmsg;
+        log << MSG::DEBUG << strg1 << endmsg;
+        log << MSG::DEBUG << strg2 << endmsg;
+        log << MSG::DEBUG << strg3 << endmsg;
     }
     else {
         std::cout << strg0 << std::endl;
@@ -162,7 +162,7 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
     strm << dictionaryVersion();
     strg="[initialize_from_dictionary] version= " + strm.str();      
     if(m_msgSvc) {
-        log << MSG::DEBUG << strg << endreq;
+        log << MSG::DEBUG << strg << endmsg;
     }
     else {
         std::cout << "LArOnline_SuperCellID: " << strg << std::endl;      
@@ -219,9 +219,9 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
             strg1= " "+strm1.str();
             strg2= " "+strm2.str();
             if(m_msgSvc) {
-                log << MSG::DEBUG << strg << endreq;
-                log << MSG::DEBUG << strg1 << endreq;
-                log << MSG::DEBUG << strg2 << endreq;
+                log << MSG::DEBUG << strg << endmsg;
+                log << MSG::DEBUG << strg1 << endmsg;
+                log << MSG::DEBUG << strg2 << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -247,9 +247,9 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
             strg1= " , "+strm1.str();
             strg2= " , "+strm2.str();
             if(m_msgSvc) {
-                log << MSG::ERROR << strg << endreq;
-                log << MSG::ERROR << strg1 << endreq;
-                log << MSG::ERROR << strg2 << endreq;
+                log << MSG::ERROR << strg << endmsg;
+                log << MSG::ERROR << strg1 << endmsg;
+                log << MSG::ERROR << strg2 << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -370,7 +370,7 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
             strm3 << min_hash;
             strg = "Min > " + strm.str() + " " + strm1.str() + " " + strm2.str() + " " + strm3.str();
             if(m_msgSvc) {
-                log << MSG::DEBUG << strg << endreq;
+                log << MSG::DEBUG << strg << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -394,7 +394,7 @@ int  LArOnline_SuperCellID::initialize_from_dictionary (const IdDictMgr& dict_mg
             strg = " *****  Error feb ranges, id, hash, i = " + 
                 strm.str() + " , " + strm1.str() + " , "+strm2.str();
             if(m_msgSvc) {
-                log << MSG::ERROR << strg << endreq;
+                log << MSG::ERROR << strg << endmsg;
             }
             else {
                 std::cout << strg << std::endl;

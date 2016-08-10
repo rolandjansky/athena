@@ -35,7 +35,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     MsgStream log(m_msgSvc, "LArOnlineID" );
     std::string strg = "initialize_from_dictionary";
     if(m_msgSvc) {
-        log << MSG::INFO << strg << endreq;
+        log << MSG::INFO << strg << endmsg;
     }
     else {
         std::cout << strg << std::endl;
@@ -43,11 +43,11 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   
     // Check whether this helper should be reinitialized
     if (!reinitialize(dict_mgr)) {
-        if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+        if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
         return (0);
     }
     else {
-        log << MSG::DEBUG << "(Re)initialize" << endreq;
+        log << MSG::DEBUG << "(Re)initialize" << endmsg;
     }
 
     // init base object
@@ -57,7 +57,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
         strg = " initialize_from_dictionary - cannot access LArCalorimeter dictionary ";
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << "LArOnlineID::" << strg << std::endl;
@@ -85,7 +85,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
         strm << atlasDict->m_name;
         strg= " Could not get value for label 'LArCalorimeter' of field 'subdet' in dictionary "+strm.str();
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << "LArOnlineID:" << strg << std::endl;
@@ -100,7 +100,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
         strm <<  m_dict->m_name;      
         strg = "Could not get value for label 'LArOnline' of field 'part' in dictionary "+strm.str(); 
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << strg << std::endl;
@@ -115,7 +115,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
         strm <<  m_dict->m_name;      
         strg = "Could not get value for label 'LArOnlineCalib' of field 'part' in dictionary "+strm.str();
         if(m_msgSvc) {
-            log << MSG::ERROR << strg << endreq;
+            log << MSG::ERROR << strg << endmsg;
         }
         else {
             std::cout << strg << std::endl;
@@ -144,10 +144,10 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     std::string strg2= " feedthrough slot range -> " + (std::string)m_full_feb_range;  
     std::string strg3= " channel range -> " + (std::string)m_full_laronline_range;
     if(m_msgSvc) {
-        log << MSG::DEBUG << strg0 << endreq;
-        log << MSG::DEBUG << strg1 << endreq;
-        log << MSG::DEBUG << strg2 << endreq;
-        log << MSG::DEBUG << strg3 << endreq;
+        log << MSG::DEBUG << strg0 << endmsg;
+        log << MSG::DEBUG << strg1 << endmsg;
+        log << MSG::DEBUG << strg2 << endmsg;
+        log << MSG::DEBUG << strg3 << endmsg;
     }
     else {
         std::cout << strg0 << std::endl;
@@ -164,9 +164,9 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     strg2= "=> Calib module range -> " + (std::string)m_full_calib_module_range;  
     strg3= "=> Calib channel range -> " + (std::string)m_full_calib_laronline_range;
     if(m_msgSvc) {
-        log << MSG::DEBUG << strg0 << endreq;
-        log << MSG::DEBUG << strg2 << endreq;
-        log << MSG::DEBUG << strg3 << endreq;
+        log << MSG::DEBUG << strg0 << endmsg;
+        log << MSG::DEBUG << strg2 << endmsg;
+        log << MSG::DEBUG << strg3 << endmsg;
     }
     else {
         std::cout << strg0 << std::endl;
@@ -180,7 +180,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     strm << dictionaryVersion();
     strg="[initialize_from_dictionary] version= " + strm.str();      
     if(m_msgSvc) {
-        log << MSG::DEBUG << strg << endreq;
+        log << MSG::DEBUG << strg << endmsg;
     }
     else {
         std::cout << "LArOnlineID: " << strg << std::endl;      
@@ -194,12 +194,12 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
         if(init_calib_hashes()) return (1);
     }
     if( dictionaryVersion() == "H6TestBeam" ) {
-        log << MSG::DEBUG << "[initialze_from_dictionary] ...call init_H6hashes.." << endreq;
+        log << MSG::DEBUG << "[initialze_from_dictionary] ...call init_H6hashes.." << endmsg;
         if(init_H6Hashes()) return (1);
         if(init_calib_hashes()) return (1);
     }
-    log << MSG::DEBUG << "initialize_from_dictionary -> calibModuleHash= " << m_calibModuleHashMax << endreq; 
-    log << MSG::DEBUG << "initialize_from_dictionary -> calibChannelHash= " << m_calibChannelHashMax << endreq; 
+    log << MSG::DEBUG << "initialize_from_dictionary -> calibModuleHash= " << m_calibModuleHashMax << endmsg; 
+    log << MSG::DEBUG << "initialize_from_dictionary -> calibChannelHash= " << m_calibChannelHashMax << endmsg; 
 
   
     // Setup for hash calculation for channels (febs is further below)
@@ -250,9 +250,9 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             strg1= " "+strm1.str();
             strg2= " "+strm2.str();
             if(m_msgSvc) {
-                log << MSG::DEBUG << strg << endreq;
-                log << MSG::DEBUG << strg1 << endreq;
-                log << MSG::DEBUG << strg2 << endreq;
+                log << MSG::DEBUG << strg << endmsg;
+                log << MSG::DEBUG << strg1 << endmsg;
+                log << MSG::DEBUG << strg2 << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -278,9 +278,9 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             strg1= " , "+strm1.str();
             strg2= " , "+strm2.str();
             if(m_msgSvc) {
-                log << MSG::ERROR << strg << endreq;
-                log << MSG::ERROR << strg1 << endreq;
-                log << MSG::ERROR << strg2 << endreq;
+                log << MSG::ERROR << strg << endmsg;
+                log << MSG::ERROR << strg1 << endmsg;
+                log << MSG::ERROR << strg2 << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -385,7 +385,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             strm3 << min_hash;
             strg = "Min > " + strm.str() + " " + strm1.str() + " " + strm2.str() + " " + strm3.str();
             if(m_msgSvc) {
-                log << MSG::DEBUG << strg << endreq;
+                log << MSG::DEBUG << strg << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -409,7 +409,7 @@ int  LArOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
             strg = " *****  Error feb ranges, id, hash, i = " + 
                 strm.str() + " , " + strm1.str() + " , "+strm2.str();
             if(m_msgSvc) {
-                log << MSG::ERROR << strg << endreq;
+                log << MSG::ERROR << strg << endmsg;
             }
             else {
                 std::cout << strg << std::endl;
@@ -436,7 +436,7 @@ int LArOnlineID::init_H8Hashes(void)
   /* Channel hash */
   unsigned int nids=0;
   std::set<HWIdentifier> ids;
-  log << MSG::DEBUG << "[init_H8hashes] > ChannelId : m_full_laronline_range.size() = " << m_full_laronline_range.size() << endreq;
+  log << MSG::DEBUG << "[init_H8hashes] > ChannelId : m_full_laronline_range.size() = " << m_full_laronline_range.size() << endmsg;
   for (unsigned int i = 0; i < m_full_laronline_range.size(); ++i) 
     {
       const Range& range = m_full_laronline_range[i];
@@ -458,9 +458,9 @@ int LArOnlineID::init_H8Hashes(void)
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {
-                  log  << MSG::ERROR << strg1 << endreq;
-                  //log  << MSG::ERROR << strg2 << endreq;
-                  log  << MSG::ERROR << strg3 << endreq;
+                  log  << MSG::ERROR << strg1 << endmsg;
+                  //log  << MSG::ERROR << strg2 << endmsg;
+                  log  << MSG::ERROR << strg3 << endmsg;
                 }
               else
                 {
@@ -490,7 +490,7 @@ int LArOnlineID::init_H8Hashes(void)
   /*==========*/
   nids = 0;
   ids.clear();
-  log << MSG::DEBUG << "[init_H8hashes] > FebId : m_full_feb_range.size() = " << m_full_feb_range.size() << endreq;
+  log << MSG::DEBUG << "[init_H8hashes] > FebId : m_full_feb_range.size() = " << m_full_feb_range.size() << endmsg;
   for (unsigned int i = 0; i < m_full_feb_range.size(); ++i) 
     {
       const Range& range = m_full_feb_range[i];
@@ -511,9 +511,9 @@ int LArOnlineID::init_H8Hashes(void)
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {
-                  log  << MSG::ERROR << strg1 << endreq;
-                  //log  << MSG::ERROR << strg2 << endreq;
-                  log  << MSG::ERROR << strg3 << endreq;
+                  log  << MSG::ERROR << strg1 << endmsg;
+                  //log  << MSG::ERROR << strg2 << endmsg;
+                  log  << MSG::ERROR << strg3 << endmsg;
                 }
               else
                 {
@@ -542,7 +542,7 @@ int LArOnlineID::init_H8Hashes(void)
   /*=================*/
   nids = 0;
   ids.clear();
-  log << MSG::DEBUG << "[init_H8hashes] FeedthroughId: m_feedthrough_range.size() = " << m_full_feedthrough_range.size() << endreq;
+  log << MSG::DEBUG << "[init_H8hashes] FeedthroughId: m_feedthrough_range.size() = " << m_full_feedthrough_range.size() << endmsg;
   for (unsigned int i = 0; i < m_full_feedthrough_range.size(); ++i) 
     {
       const Range& range = m_full_feedthrough_range[i];
@@ -558,7 +558,7 @@ int LArOnlineID::init_H8Hashes(void)
           int test_pn  = pos_neg( feedthroughId);
           int test_ft = feedthrough( feedthroughId);
           log << MSG::VERBOSE << "[init_H8hashes] in loop : [bec,pn,ft]= [" << test_bec 
-              << "," << test_pn << "," << test_ft << "]"<< endreq;
+              << "," << test_pn << "," << test_ft << "]"<< endmsg;
           if(!(ids.insert(feedthroughId)).second)
             {
               strm1 << nids;
@@ -567,9 +567,9 @@ int LArOnlineID::init_H8Hashes(void)
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {
-                  log  << MSG::ERROR << strg1 << endreq;
-                  //log  << MSG::ERROR << strg2 << endreq;
-                  log  << MSG::ERROR << strg3 << endreq;
+                  log  << MSG::ERROR << strg1 << endmsg;
+                  //log  << MSG::ERROR << strg2 << endmsg;
+                  log  << MSG::ERROR << strg3 << endmsg;
                 }
               else
                 {
@@ -593,7 +593,7 @@ int LArOnlineID::init_H8Hashes(void)
         }
     }
   m_feedthroughHashMax = m_feedthrough_vec.size();
-  log << MSG::DEBUG << "[init_H8hashes] final m_feedthroughHashMax = " << m_feedthroughHashMax << endreq;
+  log << MSG::DEBUG << "[init_H8hashes] final m_feedthroughHashMax = " << m_feedthroughHashMax << endmsg;
 
   return (0);
 }
@@ -614,7 +614,7 @@ int LArOnlineID::init_H6Hashes(void)
   unsigned int nids=0;
   std::set<HWIdentifier> ids;
   log << MSG::DEBUG << "[init_H6hashes] : ChannelId : m_full_laronline_range.size() = " 
-      << m_full_laronline_range.size() << endreq;
+      << m_full_laronline_range.size() << endmsg;
   for (unsigned int i = 0; i < m_full_laronline_range.size(); ++i) 
     {
       const Range& range = m_full_laronline_range[i];
@@ -636,9 +636,9 @@ int LArOnlineID::init_H6Hashes(void)
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {
-                  log  << MSG::ERROR << strg1 << endreq;
-                  //log  << MSG::ERROR << strg2 << endreq;
-                  log  << MSG::ERROR << strg3 << endreq;
+                  log  << MSG::ERROR << strg1 << endmsg;
+                  //log  << MSG::ERROR << strg2 << endmsg;
+                  log  << MSG::ERROR << strg3 << endmsg;
                 }
               else
                 {
@@ -673,7 +673,7 @@ int LArOnlineID::init_H6Hashes(void)
   /*==========*/
   nids = 0;
   ids.clear();
-  log << MSG::DEBUG << "[init_H6hashes] > FebId : m_full_feb_range.size() = " << m_full_feb_range.size() << endreq;
+  log << MSG::DEBUG << "[init_H6hashes] > FebId : m_full_feb_range.size() = " << m_full_feb_range.size() << endmsg;
   for (unsigned int i = 0; i < m_full_feb_range.size(); ++i) 
     {
       const Range& range = m_full_feb_range[i];
@@ -694,9 +694,9 @@ int LArOnlineID::init_H6Hashes(void)
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {
-                  log  << MSG::ERROR << strg1 << endreq;
-                  //log  << MSG::ERROR << strg2 << endreq;
-                  log  << MSG::ERROR << strg3 << endreq;
+                  log  << MSG::ERROR << strg1 << endmsg;
+                  //log  << MSG::ERROR << strg2 << endmsg;
+                  log  << MSG::ERROR << strg3 << endmsg;
                 }
               else
                 {
@@ -727,7 +727,7 @@ int LArOnlineID::init_H6Hashes(void)
   nids = 0;
   ids.clear();
   // AL-->
-  log << MSG::DEBUG << "[init_H6hashes] FeedthroughId: m_feedthrough_range.size() = " << m_full_feedthrough_range.size() << endreq;
+  log << MSG::DEBUG << "[init_H6hashes] FeedthroughId: m_feedthrough_range.size() = " << m_full_feedthrough_range.size() << endmsg;
   for (unsigned int i = 0; i < m_full_feedthrough_range.size(); ++i) 
     {
       const Range& range = m_full_feedthrough_range[i];
@@ -742,12 +742,12 @@ int LArOnlineID::init_H6Hashes(void)
           log << MSG::DEBUG << "[init_H6hashes] m_bec_index= " << m_bec_index 
               << "m_side_index= " << m_bec_index 
               << "m_feedthrough_index= " << m_bec_index 
-              << "m_slot_index= " << m_bec_index << endreq;
+              << "m_slot_index= " << m_bec_index << endmsg;
           int test_bec = barrel_ec( feedthroughId);
           int test_pn  = pos_neg( feedthroughId);
           int test_ft = feedthrough( feedthroughId);
           log << MSG::DEBUG << "[init_H6hashes] in loop : [bec,pn,ft]= [" << test_bec 
-              << "," << test_pn << "," << test_ft << "]"<< endreq;
+              << "," << test_pn << "," << test_ft << "]"<< endmsg;
           if(!(ids.insert(feedthroughId)).second)
             {
               strm1 << nids;
@@ -756,9 +756,9 @@ int LArOnlineID::init_H6Hashes(void)
               strg3 = " expanded Id= "+strm3.str();
               if(m_msgSvc)
                 {
-                  log  << MSG::ERROR << strg1 << endreq;
-                  //log  << MSG::ERROR << strg2 << endreq;
-                  log  << MSG::ERROR << strg3 << endreq;
+                  log  << MSG::ERROR << strg1 << endmsg;
+                  //log  << MSG::ERROR << strg2 << endmsg;
+                  log  << MSG::ERROR << strg3 << endmsg;
                 }
               else
                 {
@@ -777,13 +777,13 @@ int LArOnlineID::init_H6Hashes(void)
     {
       if( is_H6FT( *first ))
         {
-          log << MSG::DEBUG << "[init_H6hashes] filling m_feedthrough_vec IS-H6 !!"<< endreq;
+          log << MSG::DEBUG << "[init_H6hashes] filling m_feedthrough_vec IS-H6 !!"<< endmsg;
           m_feedthrough_vec.push_back(*first);
           nidtb++;
         }
     }
   m_feedthroughHashMax = m_feedthrough_vec.size();
-  log << MSG::DEBUG << "[init_H6hashes] final m_feedthroughHashMax = " << m_feedthroughHashMax << endreq;
+  log << MSG::DEBUG << "[init_H6hashes] final m_feedthroughHashMax = " << m_feedthroughHashMax << endmsg;
 
   return (0);
 }
