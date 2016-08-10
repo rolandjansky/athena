@@ -277,45 +277,54 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
    } else if (m_useTRT && m_trtId->is_trt(id) ) {
 
      
-      bool isArgonStraw = false;
-      if (!m_TRTStrawSummarySvc.empty()) {
-         if (m_TRTStrawSummarySvc->getStatusHT(id) == TRTCond::StrawStatus::Argon ||
-	     m_TRTStrawSummarySvc->getStatusHT(id) == TRTCond::StrawStatus::Dead ) {
-            isArgonStraw = true;
-         }
-      }
-      if (!isArgonStraw) information[Trk::numberOfTRTXenonHits ]++;
+     bool isArgonStraw   = false;
+     bool isKryptonStraw = false;
+     if (!m_TRTStrawSummarySvc.empty()) {
+       int statusHT = m_TRTStrawSummarySvc->getStatusHT(id);
+       if ( statusHT == TRTCond::StrawStatus::Argon ||
+            statusHT == TRTCond::StrawStatus::Dead  ||
+            statusHT == TRTCond::StrawStatus::EmulateArgon ) {
+         isArgonStraw = true;
+       }
+       if ( statusHT == TRTCond::StrawStatus::Krypton ||
+            statusHT == TRTCond::StrawStatus::EmulateKrypton ) {
+         isKryptonStraw = true;
+       }
+     }
+     if ( !isArgonStraw && !isKryptonStraw ) {
+       information[Trk::numberOfTRTXenonHits]++;
+     }
 
      
-      if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
-         information[Trk::numberOfTRTOutliers]++;
+     if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
+       information[Trk::numberOfTRTOutliers]++;
 
-         const InDet::TRT_DriftCircleOnTrack* trtDriftCircle 
-            = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
-         if ( !trtDriftCircle ) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endreq;
-         } else {
-            if ( trtDriftCircle->highLevel()==true && !isArgonStraw) information[Trk::numberOfTRTHighThresholdOutliers]++;
+       const InDet::TRT_DriftCircleOnTrack* trtDriftCircle 
+         = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
+       if ( !trtDriftCircle ) {
+         if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endreq;
+       } else {
+         if ( trtDriftCircle->highLevel()==true && !isArgonStraw && !isKryptonStraw ) information[Trk::numberOfTRTHighThresholdOutliers]++;
+       }
+
+     } else {
+
+       information[Trk::numberOfTRTHits]++;
+       double error2=rot->localCovariance()(0,0);
+       if (error2>1) information[Trk::numberOfTRTTubeHits]++;
+
+       const InDet::TRT_DriftCircleOnTrack* trtDriftCircle 
+         = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
+       if ( !trtDriftCircle ) {
+         if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endreq;
+       } else {
+         if ( trtDriftCircle->highLevel()==true ) {
+           if ( !isArgonStraw && !isKryptonStraw ) information[Trk::numberOfTRTHighThresholdHits]++;
+           assert (Trk::numberOfTRTHighThresholdHitsTotal<information.size());
+           information[Trk::numberOfTRTHighThresholdHitsTotal]++;
          }
-
-      } else {
-
-         information[Trk::numberOfTRTHits]++;
-         double error2=rot->localCovariance()(0,0);
-         if (error2>1) information[Trk::numberOfTRTTubeHits]++;
-
-         const InDet::TRT_DriftCircleOnTrack* trtDriftCircle 
-            = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
-         if ( !trtDriftCircle ) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endreq;
-         } else {
-           if ( trtDriftCircle->highLevel()==true ) {
-             if (!isArgonStraw) information[Trk::numberOfTRTHighThresholdHits]++;
-             assert (Trk::numberOfTRTHighThresholdHitsTotal<information.size());
-             information[Trk::numberOfTRTHighThresholdHitsTotal]++;
-           }
-         }
-      }
+       }
+     }
    }
 
    if (m_doSharedHitsTRT) {
