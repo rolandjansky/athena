@@ -74,11 +74,11 @@ GeoFullPhysVol* LArGeo::TBBarrelCryostatConstruction::GetEnvelope()
 
   MsgStream log(msgSvc, "LAr::DetectorFactory"); 
 
-  log <<MSG::INFO <<  "++++++++++++++++++++++++++++++++++++++++++++++++++++i++" <<  endreq;
-  log <<MSG::INFO <<  "+                                                     +" <<  endreq;
-  log <<MSG::INFO <<  "+   HELLO from LArGeo::TBBarrelCryostatConstruction   +" << endreq;
-  log <<MSG::INFO <<  "+                                                     +" <<  endreq;
-  log <<MSG::INFO <<  "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" <<  endreq;
+  log <<MSG::INFO <<  "++++++++++++++++++++++++++++++++++++++++++++++++++++i++" <<  endmsg;
+  log <<MSG::INFO <<  "+                                                     +" <<  endmsg;
+  log <<MSG::INFO <<  "+   HELLO from LArGeo::TBBarrelCryostatConstruction   +" << endmsg;
+  log <<MSG::INFO <<  "+                                                     +" <<  endmsg;
+  log <<MSG::INFO <<  "+++++++++++++++++++++++++++++++++++++++++++++++++++++++" <<  endmsg;
 
 
   StoreGateSvc *detStore;
