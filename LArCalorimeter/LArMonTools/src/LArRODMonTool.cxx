@@ -33,9 +33,13 @@
 #include "LArRawEvent/LArFebHeader.h" 
 #include "LArMonTools/LArOnlineIDStrHelper.h"
 
+#include "CaloDetDescr/CaloDetDescrManager.h"
+#include "CaloDetDescr/CaloDetDescrElement.h"
 
 #include "AthenaKernel/errorcheck.h"
 
+const int max_dump=100;
+int ndump=0;
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(6,0,0) 
 #   define CAN_REBIN(hist)  hist->SetCanExtend(TH1::kAllAxes)
@@ -53,7 +57,9 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
     m_eventsCounter(0),
     m_histos(N_PARTITIONS),
     m_errcounters(N_PARTITIONS),
-    m_adc2mevtool("LArADC2MeVTool"),
+    m_adc2mevtool("LArADC2MeVToolDefault"),
+    m_calo_noise_tool("CaloNoiseTool/CaloNoiseToolDefault"),
+    m_cable_service_tool ( "LArCablingService" ),
     m_BC(0),
     m_dumpDigits(false)
 
@@ -108,6 +114,11 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
   declareProperty("PrecisionQRange3",m_precision_Q_3 = 1);
   declareProperty("PrecisionQRangeMax",m_precision_Q_max = 1);
   
+  declareProperty("OnlineHistorySize",m_history_size = 20);
+  declareProperty("OnlineHistoryGranularity",m_history_granularity = 5);
+
+  declareProperty("NoiseTool",m_calo_noise_tool);
+
   declareProperty("TimeOFCUnitOnline",m_unit_online = 1);
   declareProperty("TimeOFCUnitOffline",m_unit_offline = 1);
 
@@ -150,6 +161,9 @@ LArRODMonTool::LArRODMonTool(const std::string& type,
   m_hEErrors_LB_stream = NULL;
   m_hTErrors_LB_stream = NULL;
   m_hQErrors_LB_stream = NULL;
+
+  m_last_lb = -1;
+  m_curr_lb = -1;
 }
 
 /*---------------------------------------------------------*/
@@ -170,7 +184,8 @@ LArRODMonTool::initialize() {
 
   m_dumpDigits=(m_doDspTestDump || m_doCellsDump || (m_adc_th != 0));
 
-  if (m_doDspTestDump) {
+//  For Eon/Eoff dump
+//  if (m_doDspTestDump) {
     sc = detStore()->regHandle(m_dd_ofc,m_keyOFC);
     if (sc!=StatusCode::SUCCESS) {
       msg(MSG::FATAL) << "Cannot register DataHandle for OFC object with key " << m_keyOFC << endreq; 
@@ -183,20 +198,42 @@ LArRODMonTool::initialize() {
       return sc;
     }
 
+    sc = detStore()->regHandle(m_dd_HVScaleCorr,"LArHVScaleCorr");
+    if (sc!=StatusCode::SUCCESS) {
+      msg(MSG::FATAL) << "Cannot register DataHandle for HVScaleCorr object with key LArHVScaleCorr" << endreq; 
+      return sc;
+    }
     // ADC2MeV Tool
     sc = m_adc2mevtool.retrieve();
     if (sc.isFailure()) {
       msg(MSG::ERROR) << "Unable to find tool for LArADC2MeV" << endreq;
       return StatusCode::FAILURE;
     }
-  }
-  if (m_skipNullPed || m_doDspTestDump) {
+
+    sc = m_calo_noise_tool.retrieve();
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Unable to find calo noise tool" << endreq;
+      return StatusCode::FAILURE;
+    }
+    sc = m_cable_service_tool.retrieve();
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Unable to find cabling service tool" << endreq;
+      return StatusCode::FAILURE;
+    }
+    sc = detStore()->retrieve(m_calo_description_mgr);
+    if (sc.isFailure()) {
+      msg(MSG::ERROR) << "Unable to find CeloDetDescrManager " << endreq;
+      return StatusCode::FAILURE;
+    }
+//  }
+//  For Eon/Eoff dump
+//  if (m_skipNullPed || m_doDspTestDump) {
     sc=detStore()->retrieve(m_larpedestal,m_larpedestalkey);
     if (sc.isFailure()) {
       msg(MSG::ERROR) << "Cannot register DataHandle for Pedestal object with key " << m_larpedestalkey << endreq;
       return StatusCode::FAILURE;
     }
-  }
+//  }
   if (m_skipKnownProblematicChannels) { 
     sc=m_badChannelMask.retrieve();
     if (sc.isFailure()) {
@@ -244,6 +281,13 @@ LArRODMonTool::initialize() {
 
   ManagedMonitorToolBase::initialize().ignore();
 
+  m_hsize = m_history_size/m_history_granularity;
+  if(m_history_granularity <= 0 || m_history_size < 1 || m_hsize < 1) {
+   ATH_MSG_ERROR("Wrong history size or granularity "<<m_history_granularity << " " <<m_history_size<<" "<<m_hsize);
+   return StatusCode::FAILURE;
+  }
+  ATH_MSG_INFO("Resetting history size: "<<m_hsize);
+  m_hdone=new bool[m_hsize];
   return StatusCode::SUCCESS;
 }
 
@@ -322,6 +366,14 @@ LArRODMonTool::bookHistograms()
       sc = sc && strHelper.definePartitionSummProp(hg.m_hOut_E_FT_vs_SLOT);   
       CHECK(hg.m_monGroup->regHist(hg.m_hOut_E_FT_vs_SLOT));
 
+      if(m_IsOnline) { // book shadow histograms for subtracting
+        hg.m_hOut_E_FT_vs_SLOT_shadow=new TH2F*[m_hsize];
+        hName += "_shadow";
+        for(int i=0; i<m_hsize; ++i) {
+          hg.m_hOut_E_FT_vs_SLOT_shadow[i] = new TH2F(hName.c_str(), hTitle.c_str(),15,0.5,15.5,32,-0.5,31.5);
+        }
+      }
+
       hName = "Out_T_FT_vs_SLOT_" + Part;
       hTitle = "# of cells with T_{offline} - T_{online} > numerical precision ";
       hTitle = hTitle + Part;
@@ -331,6 +383,14 @@ LArRODMonTool::bookHistograms()
       sc = sc && strHelper.definePartitionSummProp(hg.m_hOut_T_FT_vs_SLOT);   
       CHECK(hg.m_monGroup->regHist(hg.m_hOut_T_FT_vs_SLOT)); 
 
+      if(m_IsOnline) { // book shadow histograms for subtracting
+        hg.m_hOut_T_FT_vs_SLOT_shadow=new TH2F*[m_hsize];
+        hName += "_shadow";
+        for(int i=0; i<m_hsize; ++i) {
+          hg.m_hOut_T_FT_vs_SLOT_shadow[i] = new TH2F(hName.c_str(), hTitle.c_str(),15,0.5,15.5,32,-0.5,31.5);
+        }
+      }
+
       hName = "Out_Q_FT_vs_SLOT_" + Part;
       hTitle = "# of cells with Q_{offline} - Q_{online} / #sqrt{Q_{offline}} > numerical precision ";
       hTitle = hTitle + Part;
@@ -339,6 +399,14 @@ LArRODMonTool::bookHistograms()
       hg.m_hOut_Q_FT_vs_SLOT->GetYaxis()->SetTitle("FT");
       sc = sc && strHelper.definePartitionSummProp(hg.m_hOut_Q_FT_vs_SLOT);
       CHECK(hg.m_monGroup->regHist(hg.m_hOut_Q_FT_vs_SLOT)); 
+
+      if(m_IsOnline) { // book shadow histograms for subtracting
+        hg.m_hOut_Q_FT_vs_SLOT_shadow=new TH2F*[m_hsize];
+        hName += "_shadow";
+        for(int i=0; i<m_hsize; ++i) {
+          hg.m_hOut_Q_FT_vs_SLOT_shadow[i] = new TH2F(hName.c_str(), hTitle.c_str(),15,0.5,15.5,32,-0.5,31.5);
+        }
+      }
 
       hName = "Eon_VS_Eoff_" + Part;
       hTitle = "E_{online} VS E_{offline}-" + Part;
@@ -601,7 +669,8 @@ StatusCode LArRODMonTool::fillHistograms() {
     return StatusCode::FAILURE;
   }
 
-  unsigned LumiBlock=thisEventInfo->lumiBlock();   
+  m_curr_lb=thisEventInfo->lumiBlock();   
+  if(m_last_lb < 0) m_last_lb = m_curr_lb;
   bool isEventFlaggedByLArNoisyROAlg = false; // keep default as false
   bool isEventFlaggedByLArNoisyROAlgInTimeW = false; // keep deault as false
 
@@ -679,7 +748,8 @@ StatusCode LArRODMonTool::fillHistograms() {
   }
 
   const LArDigitContainer* pLArDigitContainer=NULL;
-  if (m_dumpDigits) {
+//  For Eon/Eoff dump
+//  if (m_dumpDigits) {
     sc = evtStore()->retrieve(pLArDigitContainer, m_LArDigitContainerKey);
     if (sc.isFailure()) {
       msg(MSG::WARNING) << "Can't retrieve LArDigitContainer with key " << m_LArDigitContainerKey <<". Turn off digit dump." <<  endreq;
@@ -688,7 +758,7 @@ StatusCode LArRODMonTool::fillHistograms() {
       m_doDspTestDump=false;
       m_doCellsDump=false;
     }
-  }
+//  }
   if (m_doCheckSum || m_doRodStatus) {
     FebStatus_Check();
     ATH_MSG_DEBUG("Found " << m_ignoreFEBs.size() << " FEBs with checksum errors or statatus errors. Will ignore these FEBs.");
@@ -747,7 +817,8 @@ StatusCode LArRODMonTool::fillHistograms() {
     }
 
     const LArDigit* dig=NULL;
-    if (m_dumpDigits) {
+//  For Eon/Eoff dump
+//    if (m_dumpDigits) {
       unsigned index=rcDigIt-rawColl_fromDigits->begin();
       const unsigned digContSize=pLArDigitContainer->size();
       for(;index<digContSize && pLArDigitContainer->at(index)->hardwareID()!=idDig;++index);
@@ -761,7 +832,7 @@ StatusCode LArRODMonTool::fillHistograms() {
       else{
 	dig=pLArDigitContainer->at(index);
       }
-    }
+//  }
     short minSamples = 4095;
     short maxSamples = 0;
     if (dig){
@@ -778,8 +849,27 @@ StatusCode LArRODMonTool::fillHistograms() {
     }      
 
   }//end loop over rawColl_fromDigits
-  msg(MSG::DEBUG) << "Endof rawChannels loop" << endreq;
+  msg(MSG::DEBUG) << "End of rawChannels loop" << endreq;
 
+  if(m_IsOnline && m_last_lb < m_curr_lb && (m_curr_lb - m_last_lb) % m_history_granularity == m_history_granularity -1 ) { // if new LB subtract the old for Out_[E,Q,T]_FT_vs_SLOT 
+    msg(MSG::INFO) << " Last LB: "<<m_last_lb<<" curr. LB: "<<m_curr_lb<<" subtracting histos"<<endreq;
+    // subtract all previously not done bins....
+    int hbin = (m_curr_lb % m_history_size) / m_history_granularity;
+    for(int i=0; i<=hbin; ++i) {
+      if(!m_hdone[i]) {
+        msg(MSG::INFO) << " Going to subtract and reset the: "<< i << " bin of shadow histo"<<endreq;
+        for(unsigned l=0; l<m_histos.size(); ++l) {// go through all histo groups
+           m_histos[l].m_hOut_E_FT_vs_SLOT->Add(m_histos[l].m_hOut_E_FT_vs_SLOT_shadow[i], -1.);
+           m_histos[l].m_hOut_E_FT_vs_SLOT_shadow[i]->Reset();
+           m_histos[l].m_hOut_Q_FT_vs_SLOT->Add(m_histos[l].m_hOut_Q_FT_vs_SLOT_shadow[i], -1.);
+           m_histos[l].m_hOut_Q_FT_vs_SLOT_shadow[i]->Reset();
+           m_histos[l].m_hOut_T_FT_vs_SLOT->Add(m_histos[l].m_hOut_T_FT_vs_SLOT_shadow[i], -1.);
+           m_histos[l].m_hOut_T_FT_vs_SLOT_shadow[i]->Reset();
+        }// histos.size
+        m_hdone[i]=true;
+      }
+    }// hbin
+  }
 
   for (unsigned i=0;i<m_LArOnlineIDHelper->febHashMax();++i) {
     const HWIdentifier febid=m_LArOnlineIDHelper->feb_Id(i);
@@ -833,19 +923,24 @@ StatusCode LArRODMonTool::fillHistograms() {
       allErrsPartT+=m_errcounters[p].errors_T[g];
       allErrsPartQ+=m_errcounters[p].errors_Q[g];
     }
-    m_hEErrors_LB_part->Fill((float)LumiBlock,(float)p,(float)allErrsPartE);
-    m_hTErrors_LB_part->Fill((float)LumiBlock,(float)p,(float)allErrsPartT);
-    m_hQErrors_LB_part->Fill((float)LumiBlock,(float)p,(float)allErrsPartQ);
+    m_hEErrors_LB_part->Fill((float)m_curr_lb,(float)p,(float)allErrsPartE);
+    m_hTErrors_LB_part->Fill((float)m_curr_lb,(float)p,(float)allErrsPartT);
+    m_hQErrors_LB_part->Fill((float)m_curr_lb,(float)p,(float)allErrsPartQ);
   }
 
   for(int str = 0; str < nStreams + 1; str++) {
     if (hasStream[str] == 1) {
-      m_hEErrors_LB_stream->Fill((float)LumiBlock,(float)str,(float)allErr_E);
-      m_hTErrors_LB_stream->Fill((float)LumiBlock,(float)str,(float)allErr_T);
-      m_hQErrors_LB_stream->Fill((float)LumiBlock,(float)str,(float)allErr_Q);
+      m_hEErrors_LB_stream->Fill((float)m_curr_lb,(float)str,(float)allErr_E);
+      m_hTErrors_LB_stream->Fill((float)m_curr_lb,(float)str,(float)allErr_T);
+      m_hQErrors_LB_stream->Fill((float)m_curr_lb,(float)str,(float)allErr_Q);
     }
   }
   
+  if (m_IsOnline && m_curr_lb - m_last_lb >= m_history_size) {
+      m_last_lb = m_curr_lb;
+      for(int i=0; i<m_hsize; ++i) m_hdone[i]=false;
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -1096,9 +1191,78 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
       hg.m_hEon_VS_Eoff->RebinAxis(maxE2,hg.m_hEon_VS_Eoff->GetYaxis());
     }
     hg.m_hEon_VS_Eoff->Fill(rcDig.energy(),en_fB);
-    if (fabs(DiffE) > DECut) {
+    // For Eon/Eoff  or Qon/Qoff dump
+    const float hvscale = m_dd_HVScaleCorr->HVScaleCorr(chid);
+    //if ( ((fabs(DiffE) > DECut && hvscale == 1.) || (keepQ && (fabs(DiffQ) > DQCut)))  && dig) {
+    if ( ((fabs(DiffE) > DECut) || (keepQ && (fabs(DiffQ) > DQCut)))  && dig) {
+    // absolute cut on energy 1.MeV
+    //if ( ((fabs(DiffE) > 1.) || (keepQ && (fabs(DiffQ) > DQCut)))  && dig) {
       ++ec.errors_E[q_gain];
       hg.m_hOut_E_FT_vs_SLOT->Fill(slot_fD,feedthrough_fD);
+      if(m_IsOnline) {
+        hg.m_hOut_E_FT_vs_SLOT_shadow[(m_curr_lb % m_history_size) / m_history_granularity ]->Fill(slot_fD,feedthrough_fD);
+      }
+      //adding dumper
+      if(ndump<max_dump) {
+         const int channel=m_LArOnlineIDHelper->channel(chid);
+         const HWIdentifier febid=m_LArOnlineIDHelper->feb_Id(chid);
+         msg(MSG::INFO) << "Channel: " << channel << " of FEB " << febid << endreq;
+         //if(fabs(DiffE) > DECut && hvscale == 1.) { // only for channels without HV corrections
+         if(fabs(DiffE) > DECut ) { 
+         // absolute cut on energy 1.MeV
+         //if(fabs(DiffE) > 1.) {
+             msg(MSG::INFO) << "DSP Energy Error : " << m_LArOnlineIDHelper->channel_name(chid) << endreq;
+             msg(MSG::INFO)	<< "   Eonl = " << en_fB << " , Eoff = " << rcDig.energy()
+	     		        << " , Eoff - Eonl = " << rcDig.energy() - en_fB << endreq;
+             msg(MSG::INFO)	<< "   Qonl = " << q_fB << " , Qoff = " << rcDig.quality()
+	     		        << " (Qoff - Qnl)/sqrt(Qoff) = " << (rcDig.quality() - q_fB)/TMath::Sqrt(rcDig.quality())  << endreq;
+         }
+         if(keepQ && (fabs(DiffQ) > DQCut)) {
+             msg(MSG::INFO) << "DSP Quality Error : " << m_LArOnlineIDHelper->channel_name(chid) << endreq;
+             msg(MSG::INFO)	<< "   Qonl = " << q_fB << " , Qoff = " << rcDig.quality()
+	     		        << " (Qoff - Qnl)/sqrt(Qoff) = " << (rcDig.quality() - q_fB)/TMath::Sqrt(rcDig.quality())  << endreq;
+             msg(MSG::INFO)	<< "   Eonl = " << en_fB << " , Eoff = " << rcDig.energy()
+	     		        << " , Eoff - Eonl = " << rcDig.energy() - en_fB << endreq;
+         }
+         msg(MSG::INFO) << " Tauonl = " << rcBS.time() << " , Tauoff = " << rcDig.time() << endreq;
+         const std::vector<short>& samples=dig->samples();
+         msg(MSG::INFO) << "Digits : ";
+         for (unsigned int k = 0; k<samples.size(); k++) {msg(MSG::INFO) << samples.at(k) << " ";}
+         msg(MSG::INFO) << endreq;
+         ILArOFC::OFCRef_t this_OFC_a_test = m_dd_ofc->OFC_a(chid,rcDig.gain());
+         msg(MSG::INFO) << "OFCa : ";
+         for (unsigned int k = 0; k<this_OFC_a_test.size(); ++k) {msg(MSG::INFO) << this_OFC_a_test.at(k) << " ";}
+         msg(MSG::INFO) << endreq;
+         ILArOFC::OFCRef_t this_OFC_b_test = m_dd_ofc->OFC_b(chid,rcDig.gain());
+         msg(MSG::INFO) << "OFCb : ";
+         for (unsigned int k = 0; k<this_OFC_b_test.size(); ++k) {msg(MSG::INFO) << this_OFC_b_test.at(k) << " ";}
+         msg(MSG::INFO) << endreq;
+         ILArShape::ShapeRef_t this_Shape_test = m_dd_shape->Shape(chid,rcDig.gain());
+         msg(MSG::INFO) << "Shape : ";
+         for (unsigned int k = 0; k<this_Shape_test.size(); ++k) {msg(MSG::INFO) << this_Shape_test.at(k) << " ";}
+         msg(MSG::INFO) << endreq;
+         ILArShape::ShapeRef_t this_ShapeDer_test = m_dd_shape->ShapeDer(chid,rcDig.gain());
+         msg(MSG::INFO) << "ShapeDer : ";
+         for (unsigned int k = 0; k<this_ShapeDer_test.size(); ++k) {msg(MSG::INFO) << this_ShapeDer_test.at(k) << " ";}
+         msg(MSG::INFO) << endreq;
+         const std::vector<float>& ramp=m_adc2mevtool->ADC2MEV(chid,rcDig.gain());
+         const float escale = ramp[1];
+         float ramp0 = ramp[0];
+         if (q_gain == 0) ramp0 = 0.; // no ramp intercepts in HG
+         const float ped = m_larpedestal->pedestal(chid,rcDig.gain());
+         msg(MSG::INFO) << "Escale: "<<escale<<" intercept: "<<ramp0<<" pedestal: "<<ped<<" gain: "<<rcDig.gain() <<endreq;
+         const Identifier cellid=m_cable_service_tool->cnvToIdentifier(chid);
+         CaloDetDescrElement* cellDDE = m_calo_description_mgr->get_element(cellid); 
+         const float noise=m_calo_noise_tool->totalNoiseRMS(cellDDE,rcDig.gain(),20.);
+         msg(MSG::INFO) << "Noise for mu=20: "<<noise<<endreq;
+         msg(MSG::INFO) << "HVScaleCorr: "<<hvscale<<endreq;
+         double emon=0.;
+         for (unsigned k=0; k<samples.size(); ++k) emon += (samples.at(k)-ped)*this_OFC_a_test.at(k);
+         emon *= escale;
+         emon += ramp0;
+         msg(MSG::INFO) << "intercept + Escale*Sum[(sample-ped)*OFCa] "<<emon<<endreq;
+       ++ndump;
+      }
     }
   }// end energy histograms
 
@@ -1131,6 +1295,9 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
     if (fabs(DiffT) > DTCut) {
       ++(ec.errors_T[q_gain]);
       hg.m_hOut_T_FT_vs_SLOT->Fill(slot_fD,feedthrough_fD);
+      if(m_IsOnline) {
+        hg.m_hOut_T_FT_vs_SLOT_shadow[(m_curr_lb % m_history_size) / m_history_granularity]->Fill(slot_fD,feedthrough_fD);
+      }
     }
   } //end time histos
   
@@ -1164,6 +1331,9 @@ StatusCode LArRODMonTool::compareChannels(const HWIdentifier chid,const LArRawCh
     if (fabs(DiffQ) > DQCut) {
       ++(ec.errors_Q[q_gain]);
       hg.m_hOut_Q_FT_vs_SLOT->Fill(slot_fD,feedthrough_fD);
+      if(m_IsOnline) {
+        hg.m_hOut_Q_FT_vs_SLOT_shadow[(m_curr_lb % m_history_size) / m_history_granularity]->Fill(slot_fD,feedthrough_fD);
+      }
     }
   }
 
