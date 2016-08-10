@@ -60,7 +60,7 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
   if(svcLocator->service("MessageSvc", msgSvc, true)==StatusCode::FAILURE) 
     throw std::runtime_error("Error in EndcapDMConstruction, cannot access MessageSvc");
   MsgStream log(msgSvc, "EndcapDMConstruction");
-  log << MSG::INFO << "Start building EC electronics geometry" << endreq;
+  log << MSG::INFO << "Start building EC electronics geometry" << endmsg;
 
   StoreGateSvc* detStore(0);
   if(svcLocator->service("DetectorStore", detStore, false)==StatusCode::FAILURE) 
@@ -81,7 +81,7 @@ void LArGeo::EndcapDMConstruction::create(GeoFullPhysVol* envelope)
 
   IRDBRecordset_ptr LArEndcapCrate = rdbAccess->getRecordsetPtr("LArEndcapCrate",keyLAr.tag(),keyLAr.node());
   if(LArEndcapCrate->size()==0) {
-    log << MSG::INFO << "Skip building EC electronics. Database flag not set" << endreq;
+    log << MSG::INFO << "Skip building EC electronics. Database flag not set" << endmsg;
     return;
   }
   IRDBRecordset_ptr LArEndcapCratePhiPos = rdbAccess->getRecordsetPtr("LArEndcapCratePhiPos",keyLAr.tag(),keyLAr.node());

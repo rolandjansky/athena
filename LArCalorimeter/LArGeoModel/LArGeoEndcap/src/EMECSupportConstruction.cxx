@@ -210,7 +210,7 @@ static void printWarning(const std::ostringstream &message)
 			throw std::runtime_error("EMECSupportConstruction: cannot initialze message service");
 		}
 		MsgStream msg(msgSvc, "EMECSupportConstruction");
-		msg << MSG::WARNING << message.str() << endreq;
+		msg << MSG::WARNING << message.str() << endmsg;
 }
 
 #include<map>
