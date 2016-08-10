@@ -811,8 +811,8 @@ const std::vector<const Trk::TrackingVolume*>* Tile::TileVolumeBuilder::tracking
 
 void Tile::TileVolumeBuilder::printCheckResult(MsgStream& log, const Trk::TrackingVolume* vol) const
 {
-  if (vol) log << "... ok" << endreq;
-  else     log << "... missing" << endreq;
+  if (vol) log << "... ok" << endmsg;
+  else     log << "... missing" << endmsg;
 }
 
 
