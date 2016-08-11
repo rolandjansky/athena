@@ -12,13 +12,13 @@
 #include <map>
 
 typedef struct _AFP_BPMCOOLPARAMS {
-	float fBpmMRRX, fBpmMRRY; //BPMR.6R1.B1 (231.535 m from IP)
-	float fBpmMRLX, fBpmMRLY; //BPMR.6L1.B2 (225.245 m from IP)
-	float fBpmSARX, fBpmSARY; //BPMSA.7R1.B1 (on ALFA station A7R1 237.7505 m from IP)
-	float fBpmSALX, fBpmSALY; //BPMSA.7L1.B2 (on ALFA station A7L1 237.7505 m from IP)
+    float fBpmMRRX, fBpmMRRY; //BPMR.6R1.B1 (231.535 m from IP)
+    float fBpmMRLX, fBpmMRLY; //BPMR.6L1.B2 (225.245 m from IP)
+    float fBpmSARX, fBpmSARY; //BPMSA.7R1.B1 (on ALFA station A7R1 237.7505 m from IP)
+    float fBpmSALX, fBpmSALY; //BPMSA.7L1.B2 (on ALFA station A7L1 237.7505 m from IP)
 
-	float fBpmWBRX, fBpmWBRY; //BPMWB.4R1.B1 (151.0945 m from IP)
-	float fBpmYALX, fBpmYALY; //BPMYA.4L1.B2 (172.227 m from the IP)
+    float fBpmWBRX, fBpmWBRY; //BPMWB.4R1.B1 (151.0945 m from IP)
+    float fBpmYALX, fBpmYALY; //BPMYA.4L1.B2 (172.227 m from the IP)
 } AFP_BPMCOOLPARAMS, *PAFP_BPMCOOLPARAMS;
 
 
@@ -26,69 +26,68 @@ class StoreGateSvc;
 class AFP_GeoModelFactory : public GeoVDetectorFactory
 {
 
- public:
-  AFP_GeoModelFactory(StoreGateSvc *pDetStore, AFP_Geometry* pGeometry);
-  ~AFP_GeoModelFactory();
-  
-  // Creation of geometry:
-  virtual void create(GeoPhysVol *world);
-  
-  // Access to the results:
-  virtual const AFP_GeoModelManager * getDetectorManager() const;
-  void UpdatePositions(PAFP_BPMCOOLPARAMS pBpmParams);
-  
- private:
+public:
+    AFP_GeoModelFactory(StoreGateSvc *pDetStore, AFP_Geometry* pGeometry);
+    ~AFP_GeoModelFactory();
 
-  std::map<std::string,const GeoMaterial*> m_MapMaterials;
+    // Creation of geometry:
+    virtual void create(GeoPhysVol *world);
 
-  void DefineMaterials();
-
-  // Illegal operations:
-  const AFP_GeoModelFactory & operator=(const AFP_GeoModelFactory &right);
-  AFP_GeoModelFactory(const AFP_GeoModelFactory &right);
-  
-  // The manager:
-  AFP_GeoModelManager       *detectorManager;
-  StoreGateSvc             *detectorStore;
+    // Access to the results:
+    virtual const AFP_GeoModelManager * getDetectorManager() const;
+    void UpdatePositions(PAFP_BPMCOOLPARAMS pBpmParams);
 
 private:
-	//common auxiliary map of solid shapes
-	std::map<std::string,const GeoShape*> m_MapShape;
-	AFP_CONFIGURATION m_CfgParams;
-	AFP_Geometry* m_pGeometry;
 
-	//Hamburg pipe part
-	GeoShape* GetSolidShortHamburgPipe();
-	GeoShape* GetSolidLongHamburgPipe();
-	void AddShortHamburgPipe(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
-	void AddLongHamburgPipe(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
-	void AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
+    std::map<std::string,const GeoMaterial*> m_MapMaterials;
 
-	//Thin plate for window angle study
-	GeoShape* GetSolidShortWindowPlates();
-	GeoShape* GetSolidLongWindowPlates();
-	void AddShortWindowPlates(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
-	void AddLongWindowPlates(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
+    void DefineMaterials();
 
-	//Si detector part
-	GeoShape* CreateSolidSIDPlate();
-	GeoShape* CreateSolidSIDSupport();
-	GeoShape* CreateSolidSIDCooling();
-	GeoShape* CreateSolidSIDVacuumLayer();
-	void AddSiDetector(GeoPhysVol* pPhysMotherVol, const char* pszStationName);
+    // Illegal operations:
+    const AFP_GeoModelFactory & operator=(const AFP_GeoModelFactory &right);
+    AFP_GeoModelFactory(const AFP_GeoModelFactory &right);
 
-	//Timing detector part
-	AFP_INTQUARTICDIMENSIONS m_QuarticDimensions[QUARTICCNT];
+    // The manager:
+    AFP_GeoModelManager       *detectorManager;
+    StoreGateSvc             *detectorStore;
 
-	GeoOpticalSurface* m_pOpticalSurface;
-	void InitializeTDParameters();
-	GeoShape* CreateSolidTDCover(const int nQuarticID,GeoShape** ppMainElement);
-	std::map<int,GeoShape*>* CreateSolidTDQuartics(const int nQuarticID);
-	std::map<int,GeoShape*>* CreateSolidTDQuarticVacBorders(const int nQuarticID);
-	std::map<int,GeoShape*>* CreateSolidTDSensors(const int nQuarticID);
-	StatusCode AddTimingDetector(const int nQuarticID, GeoOpticalPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
-	void AddLBarTimingDetector(const int nQuarticID, GeoOpticalPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
+private:
+    //common auxiliary map of solid shapes
+    std::map<std::string,const GeoShape*> m_MapShape;
+    AFP_CONFIGURATION m_CfgParams;
+    AFP_Geometry* m_pGeometry;
 
+    //Hamburg pipe part
+    GeoShape* GetSolidShortHamburgPipe();
+    GeoShape* GetSolidLongHamburgPipe();
+    void AddShortHamburgPipe(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
+    void AddLongHamburgPipe(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
+    void AddRomanPot(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
+
+    //Thin plate for window angle study
+    GeoShape* GetSolidShortWindowPlates();
+    GeoShape* GetSolidLongWindowPlates();
+    void AddShortWindowPlates(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
+    void AddLongWindowPlates(GeoPhysVol* pPhysMotherVol, const char* pszStationName, HepGeom::Transform3D& TransInMotherVolume);
+
+    //Si detector part
+    GeoShape* CreateSolidSIDPlate();
+    GeoShape* CreateSolidSIDSupport();
+    GeoShape* CreateSolidSIDCooling();
+    GeoShape* CreateSolidSIDVacuumLayer();
+    void AddSiDetector(GeoPhysVol* pPhysMotherVol, const char* pszStationName);
+
+    //TOF part
+    GeoOpticalSurface* m_pOpticalSurface;
+    GeoOpticalSurface* m_pReflectionOptSurface;
+    void InitializeTDParameters();
+    StatusCode AddTimingDetector(const char* pszStationName, GeoOpticalPhysVol* pPhysMotherVol, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
+    void AddLQBarSegment(const char* pszStationName, const int nQuarticID, const int nLQBarID,AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
+    void AddSepRadLBar(const char* pszStationName, const int nQuarticID, const int nQLBarID,AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& TransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
+    HepGeom::Vector3D<double> GetBarShift(AFP_LQBARDIMENSIONS& LQBarDims, eLQBarType eSpecType=ELBT_UNDEFINED);
+    void AddHorizontalArm(const char* pszStationName, const int nQuarticID, const int nLQBarID, AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D& PartialTransInMotherVolume, GeoBorderSurfaceContainer* bsContainer);
+    void AddSensor(const char* pszStationName, const int nQuarticID, const int nLQBarID, AFP_LQBARDIMENSIONS& LQBarDims, GeoOpticalPhysVol* pPhysMotherVolume, HepGeom::Transform3D &TransInMotherVolume);
+    void GetLQBarDimensions(const int nRowID, const int nColID, PAFP_LQBARDIMENSIONS pLQBarDims);
 };
 
 // Class AFP_GeoModelFactory
