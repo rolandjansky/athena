@@ -16,7 +16,7 @@ void RecoTimingObjCnv_p1::persToTrans( const RecoTimingObj_p1* pers,
 				       MsgStream& msg ) 
 {
   if (msg.level() <= MSG::DEBUG)
-    msg << MSG::DEBUG << "Loading RecoTimingObj from persistent state.[start]"  << endreq;
+    msg << MSG::DEBUG << "Loading RecoTimingObj from persistent state.[start]"  << endmsg;
   trans->m_readFromFile=true;
   trans->m_isTimings=pers->m_isTimings;
 
@@ -25,7 +25,7 @@ void RecoTimingObjCnv_p1::persToTrans( const RecoTimingObj_p1* pers,
   for( unsigned int i(0); i<pers->timings.size(); ++i )
     trans->push_back( pers->timings[i] );
   if (msg.level() <= MSG::DEBUG)
-    msg << MSG::DEBUG << "Loading RecoTimingObj from persistent state.[end]"  << endreq;
+    msg << MSG::DEBUG << "Loading RecoTimingObj from persistent state.[end]"  << endmsg;
   return;
 }
 
@@ -34,7 +34,7 @@ void RecoTimingObjCnv_p1::transToPers( const RecoTimingObj* trans,
 				       MsgStream& msg ) 
 {
   if (msg.level() <= MSG::DEBUG)
-    msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[start]"    << endreq;
+    msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[start]"    << endmsg;
   if ( trans->m_readFromFile )
     pers->timings.reserve(trans->size());
   else
@@ -50,7 +50,7 @@ void RecoTimingObjCnv_p1::transToPers( const RecoTimingObj* trans,
     {
       pers->timings.push_back( (*trans)[i] );
       if (msg.level() <= MSG::DEBUG)
-	msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[" << i << "] : " << (*trans)[i] << endreq;
+	msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[" << i << "] : " << (*trans)[i] << endmsg;
     }
   if ( ! trans->m_readFromFile && trans->size() > 0 )
     {
@@ -97,9 +97,9 @@ void RecoTimingObjCnv_p1::transToPers( const RecoTimingObj* trans,
 	  pers->timings.push_back( f2 );
 	}
       if (msg.level() <= MSG::DEBUG)
-	msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[end] : " << f0 << endreq;
+	msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[end] : " << f0 << endmsg;
     }
   if (msg.level() <= MSG::DEBUG)
-    msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[end]"    << endreq;
+    msg << MSG::DEBUG << "Creating persistent state of RecoTimingObj.[end]"    << endmsg;
   return;
 }
