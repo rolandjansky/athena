@@ -29,18 +29,18 @@ namespace Trk {
     m_fitInfo(Trk::MvfFitInfo(0,0,0)),
     m_initialized(true){}
   
-  MVFVxCandidate::MVFVxCandidate(Trk::RecVertex* constraintVertex,
-				 Trk::Vertex* seedVertex,
-				 Trk::Vertex* linearizationVertex,
+  MVFVxCandidate::MVFVxCandidate(xAOD::Vertex* constraintVertex,
+				 Amg::Vector3D* seedVertex,
+				 Amg::Vector3D* linearizationVertex,
 				 const Trk::RecVertex& recVertex,
 				 std::vector<Trk::VxTrackAtVertex*>& vxTrackAtVertex):
     VxCandidate(recVertex,vxTrackAtVertex),
     m_fitInfo(Trk::MvfFitInfo(constraintVertex,seedVertex,linearizationVertex)),
     m_initialized(true){}
 
-  MVFVxCandidate::MVFVxCandidate(Trk::RecVertex* constraintVertex,
-				 Trk::Vertex* seedVertex,
-				 Trk::Vertex* linearizationVertex):
+  MVFVxCandidate::MVFVxCandidate(xAOD::Vertex* constraintVertex,
+				 Amg::Vector3D* seedVertex,
+				 Amg::Vector3D* linearizationVertex):
     VxCandidate(),
     m_fitInfo(Trk::MvfFitInfo(constraintVertex,seedVertex,linearizationVertex)),
     m_initialized(false){}
@@ -67,7 +67,7 @@ namespace Trk {
   {}
   
   MsgStream& MVFVxCandidate::dump(MsgStream& sl) const {
-    sl << "Printing Trk::MVFVxCandidate:" << endreq;
+    sl << "Printing Trk::MVFVxCandidate:" << endmsg;
     // for now just print base class
     VxCandidate::dump(sl);
     return sl;

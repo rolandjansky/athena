@@ -3,7 +3,6 @@
 */
 
 #include "VxMultiVertex/MvfFitInfo.h"
-#include "VxVertex/RecVertex.h"
 
 namespace Trk
 {
@@ -12,25 +11,27 @@ namespace Trk
  MvfFitInfo::MvfFitInfo():m_constraintVertex(0), m_seedVertex(0), m_linearizationVertex(0)
  {}
  
- MvfFitInfo::MvfFitInfo(Trk::RecVertex* constraintVertex,
-                        Trk::Vertex* seedVertex,
-                        Trk::Vertex* linearizationVertex):
+ MvfFitInfo::MvfFitInfo(xAOD::Vertex* constraintVertex,
+                        Amg::Vector3D* seedVertex,
+                        Amg::Vector3D* linearizationVertex):
 			m_constraintVertex(constraintVertex),
                         m_seedVertex(seedVertex),
                         m_linearizationVertex(linearizationVertex)
- {}
+ {
+   // TODO: makePrivateStore() on constraintVertex here if not done so already?
+ }
      
  MvfFitInfo::~MvfFitInfo()
  { 
-  if (m_constraintVertex!=0) delete m_constraintVertex; m_constraintVertex=0;
-  if (m_seedVertex!=0) delete m_seedVertex; m_seedVertex=0;
-  if (m_linearizationVertex!=0) delete m_linearizationVertex; m_linearizationVertex=0;
+  delete m_constraintVertex;
+  delete m_seedVertex;
+  delete m_linearizationVertex;
  }//end of destructor
  
   MvfFitInfo::MvfFitInfo(const MvfFitInfo& rhs):
-   m_constraintVertex(rhs.m_constraintVertex ? new Trk::RecVertex(*rhs.m_constraintVertex) : 0),
-   m_seedVertex(rhs.m_seedVertex ? new Trk::Vertex(*rhs.m_seedVertex) : 0),
-   m_linearizationVertex(rhs.m_linearizationVertex ? new Trk::Vertex(*rhs.m_linearizationVertex) : 0)
+   m_constraintVertex(rhs.m_constraintVertex ? new xAOD::Vertex(*rhs.m_constraintVertex) : 0),
+   m_seedVertex(rhs.m_seedVertex ? new Amg::Vector3D(*rhs.m_seedVertex) : 0),
+   m_linearizationVertex(rhs.m_linearizationVertex ? new Amg::Vector3D(*rhs.m_linearizationVertex) : 0)
    {}
   
   MvfFitInfo &  MvfFitInfo::operator= (const MvfFitInfo & rhs)
@@ -38,24 +39,24 @@ namespace Trk
    if (this!=&rhs)
    {
     delete m_constraintVertex;
-    m_constraintVertex = rhs.m_constraintVertex ? new RecVertex(*rhs.m_constraintVertex) : 0;
+    m_constraintVertex = rhs.m_constraintVertex ? new xAOD::Vertex(*rhs.m_constraintVertex) : 0;
     delete m_seedVertex;
-    m_seedVertex = rhs.m_seedVertex? new Vertex(*rhs.m_seedVertex) : 0;
+    m_seedVertex = rhs.m_seedVertex? new Amg::Vector3D(*rhs.m_seedVertex) : 0;
     delete m_linearizationVertex;
-    m_linearizationVertex = rhs.m_linearizationVertex ? new Vertex(*rhs.m_linearizationVertex) : 0;
+    m_linearizationVertex = rhs.m_linearizationVertex ? new Amg::Vector3D(*rhs.m_linearizationVertex) : 0;
    }
    return *this;
-  } 
+  }
  
  
- void MvfFitInfo::setSeedVertex(Trk::Vertex* seedVertex)
+ void MvfFitInfo::setSeedVertex(Amg::Vector3D* seedVertex)
  {
    if (m_seedVertex!=0) delete m_seedVertex;
    m_seedVertex=seedVertex;
  }
  
  
- void MvfFitInfo::setLinearizationVertex(Trk::Vertex* linearizationVertex)
+ void MvfFitInfo::setLinearizationVertex(Amg::Vector3D* linearizationVertex)
  {
     if (m_linearizationVertex!=0) delete m_linearizationVertex;
     m_linearizationVertex=linearizationVertex;
