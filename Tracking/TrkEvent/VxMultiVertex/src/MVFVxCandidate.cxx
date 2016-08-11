@@ -67,7 +67,7 @@ namespace Trk {
   {}
   
   MsgStream& MVFVxCandidate::dump(MsgStream& sl) const {
-    sl << "Printing Trk::MVFVxCandidate:" << endreq;
+    sl << "Printing Trk::MVFVxCandidate:" << endmsg;
     // for now just print base class
     VxCandidate::dump(sl);
     return sl;
