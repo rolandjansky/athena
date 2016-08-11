@@ -16,8 +16,8 @@ TBLArDigitContainerCnv::TBLArDigitContainerCnv(ISvcLocator* svcLoc) :
 
 
 TBLArDigitContainerPERS* TBLArDigitContainerCnv::createPersistent(TBLArDigitContainer* trans) {
-    MsgStream log(messageService(), "TBLArDigitContainerCnv");
-    log << MSG::DEBUG << "Writing TBLArDigitContainer_p2" << endreq;
+    MsgStream log(msgSvc(), "TBLArDigitContainerCnv");
+    log << MSG::DEBUG << "Writing TBLArDigitContainer_p2" << endmsg;
     TBLArDigitContainerPERS* pers=new TBLArDigitContainerPERS();
     m_converter.transToPers(trans,pers,log); 
     return pers;
@@ -26,16 +26,16 @@ TBLArDigitContainerPERS* TBLArDigitContainerCnv::createPersistent(TBLArDigitCont
 
 
 TBLArDigitContainer* TBLArDigitContainerCnv::createTransient() {
-   MsgStream log(messageService(), "TBLArDigitContainerCnv" );
+   MsgStream log(msgSvc(), "TBLArDigitContainerCnv" );
    TBLArDigitContainer* trans=new TBLArDigitContainer();
    if (compareClassGuid(p0_guid)) {
      log << MSG::DEBUG << "Read version p0 of TBLArDigitContainer. GUID=" 
-         << m_classID.toString() << endreq;
+         << m_classID.toString() << endmsg;
      return poolReadObject<TBLArDigitContainer>();
    }
    else if (compareClassGuid(p1_guid)) {
      log << MSG::DEBUG << "Reading TBLArDigitContainer_p1. GUID=" 
-         << m_classID.toString() << endreq;
+         << m_classID.toString() << endmsg;
      TBLArDigitContainer_p1* pers=poolReadObject<TBLArDigitContainer_p1>();
      m_converter.persToTrans(pers,trans, log);
      delete pers;
@@ -43,7 +43,7 @@ TBLArDigitContainer* TBLArDigitContainerCnv::createTransient() {
    }
    else {
      log << MSG::ERROR << "Unsupported persistent version of TBLArDigitContainer. GUID="
-     << m_classID.toString() << endreq;
+     << m_classID.toString() << endmsg;
      throw std::runtime_error("Unsupported persistent version of Data Collection");
    }
    return trans;

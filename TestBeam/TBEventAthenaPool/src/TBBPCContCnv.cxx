@@ -5,14 +5,14 @@
 #include "TBBPCContCnv.h"
 
 TBBPCCont_PERS* TBBPCContCnv::createPersistent(TBBPCCont* transCont) {
-    MsgStream log(messageService(), "TBBPCContConverter" );
+    MsgStream log(msgSvc(), "TBBPCContConverter" );
     TBBPCCont_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
-    log << MSG::DEBUG << "Success" << endreq;
+    log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
     
 TBBPCCont* TBBPCContCnv::createTransient() {
-   MsgStream log(messageService(), "TBBPCContConverter" );
+   MsgStream log(msgSvc(), "TBBPCContConverter" );
    static pool::Guid   p1_guid("89A09260-F284-4694-8687-3C6C72989A96");  // GUID of the persistent object
    static pool::Guid   p0_guid("05E6C927-F43C-4C2A-B654-C671BF8FDB67");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {

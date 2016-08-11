@@ -29,7 +29,7 @@ StatusCode TBIdentifiedParticleCnv::initialize()
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBIdentifiedParticleCnv");
-  log << MSG::INFO << "initialize()" << endreq;
+  log << MSG::INFO << "initialize()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -40,21 +40,21 @@ StatusCode TBIdentifiedParticleCnv::PoolToDataObject(DataObject*& pObj, const To
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
-  MsgStream log(messageService(), "TBIdentifiedParticleCnv::PoolToDataObject" );
+  MsgStream log(msgSvc(), "TBIdentifiedParticleCnv::PoolToDataObject" );
    
   StatusCode sc = TBIdentifiedParticleCnvBase::PoolToDataObject(pObj, token);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Unable to get object from pool" << endreq;
+    log << MSG::FATAL << "Unable to get object from pool" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    log << MSG::DEBUG << " Found DataObject " << endreq;
+    log << MSG::DEBUG << " Found DataObject " << endmsg;
   }
     
   // Convert DataObject pointer to TBIdentifiedParticle*
   TBIdentifiedParticle* obj=0;
   SG::fromStorable(pObj, obj );
   if(!obj) {
-    log << MSG::ERROR << "  failed to cast to TBIdentifiedParticle " << endreq ; 
+    log << MSG::ERROR << "  failed to cast to TBIdentifiedParticle " << endmsg ; 
     return StatusCode::FAILURE; 
   }
 
@@ -63,7 +63,7 @@ StatusCode TBIdentifiedParticleCnv::PoolToDataObject(DataObject*& pObj, const To
 
 StatusCode TBIdentifiedParticleCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
 {
-  MsgStream log(messageService(),"TBIdentifiedParticleCnv::DataObjectToPool" );
+  MsgStream log(msgSvc(),"TBIdentifiedParticleCnv::DataObjectToPool" );
   
   return TBIdentifiedParticleCnvBase::DataObjectToPool( pObj, tname) ;
 }

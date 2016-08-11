@@ -29,7 +29,7 @@ StatusCode TBTailCatcherRawCnv::initialize()
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBTailCatcherRawCnv");
-  log << MSG::INFO << "initialize()" << endreq;
+  log << MSG::INFO << "initialize()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -40,21 +40,21 @@ StatusCode TBTailCatcherRawCnv::PoolToDataObject(DataObject*& pObj, const Token*
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
-  MsgStream log(messageService(), "TBTailCatcherRawCnv::PoolToDataObject" );
+  MsgStream log(msgSvc(), "TBTailCatcherRawCnv::PoolToDataObject" );
    
   StatusCode sc = TBTailCatcherRawCnvBase::PoolToDataObject(pObj, token);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Unable to get object from pool" << endreq;
+    log << MSG::FATAL << "Unable to get object from pool" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    log << MSG::DEBUG << " Found DataObject " << endreq;
+    log << MSG::DEBUG << " Found DataObject " << endmsg;
   }
     
   // Convert DataObject pointer to TBTailCatcherRaw*
   TBTailCatcherRaw* obj=0;
   SG::fromStorable(pObj, obj );
   if(!obj) {
-    log << MSG::ERROR << "  failed to cast to TBTailCatcherRaw " << endreq ; 
+    log << MSG::ERROR << "  failed to cast to TBTailCatcherRaw " << endmsg ; 
     return StatusCode::FAILURE; 
   }
 
@@ -63,7 +63,7 @@ StatusCode TBTailCatcherRawCnv::PoolToDataObject(DataObject*& pObj, const Token*
 
 StatusCode TBTailCatcherRawCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
 {
-  MsgStream log(messageService(),"TBTailCatcherRawCnv::DataObjectToPool" );
+  MsgStream log(msgSvc(),"TBTailCatcherRawCnv::DataObjectToPool" );
   
   return TBTailCatcherRawCnvBase::DataObjectToPool( pObj, tname) ;
 }

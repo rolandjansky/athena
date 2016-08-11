@@ -29,7 +29,7 @@ StatusCode TBHitContCnv::initialize()
 
   // Get the messaging service, print where you are
   MsgStream log(msgSvc(), "TBHitContCnv");
-  log << MSG::INFO << "initialize()" << endreq;
+  log << MSG::INFO << "initialize()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -40,21 +40,21 @@ StatusCode TBHitContCnv::PoolToDataObject(DataObject*& pObj, const Token* token)
   // First call base class converter to get DataObject from
   // pool. Then modify as appropriate
 
-  MsgStream log(messageService(), "TBHitContCnv::PoolToDataObject" );
+  MsgStream log(msgSvc(), "TBHitContCnv::PoolToDataObject" );
    
   StatusCode sc = TBHitContCnvBase::PoolToDataObject(pObj, token);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Unable to get object from pool" << endreq;
+    log << MSG::FATAL << "Unable to get object from pool" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    log << MSG::DEBUG << " Found DataObject " << endreq;
+    log << MSG::DEBUG << " Found DataObject " << endmsg;
   }
     
   // Convert DataObject pointer to TBHitCont*
   TBHitCont* obj=0;
   SG::fromStorable(pObj, obj );
   if(!obj) {
-    log << MSG::ERROR << "  failed to cast to TBHitCont " << endreq ; 
+    log << MSG::ERROR << "  failed to cast to TBHitCont " << endmsg ; 
     return StatusCode::FAILURE; 
   }
 
@@ -63,7 +63,7 @@ StatusCode TBHitContCnv::PoolToDataObject(DataObject*& pObj, const Token* token)
 
 StatusCode TBHitContCnv::DataObjectToPool(DataObject* pObj, const std::string &tname) 
 {
-  MsgStream log(messageService(),"TBHitContCnv::DataObjectToPool" );
+  MsgStream log(msgSvc(),"TBHitContCnv::DataObjectToPool" );
   
   return TBHitContCnvBase::DataObjectToPool( pObj, tname) ;
 }
