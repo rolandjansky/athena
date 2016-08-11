@@ -24,7 +24,7 @@ eflowObjectContainerCnv::createPersistent( eflowObjectContainer* transCont )
   eflowObjectContainerCnv_p5 cnv;
   eflowObjectContainer_p5 *persObj = cnv.createPersistent( transCont, eflowStream );
 
-  if (eflowStream.level() <= MSG::DEBUG) eflowStream << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  if (eflowStream.level() <= MSG::DEBUG) eflowStream << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 
