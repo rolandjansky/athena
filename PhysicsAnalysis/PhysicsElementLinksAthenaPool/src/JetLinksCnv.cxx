@@ -6,6 +6,6 @@
 
 JetLinksCnv::JetLinksCnv(ISvcLocator* svcloc):ParticleLinksCnv<JetCollection>(svcloc){
     MsgStream msg( this->msgSvc(), typeid(this).name() );
-  msg << MSG::DEBUG << " constructor" << endreq;
+  msg << MSG::DEBUG << " constructor" << endmsg;
 }
 
