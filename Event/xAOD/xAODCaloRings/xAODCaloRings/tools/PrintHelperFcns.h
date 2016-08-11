@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: PrintHelperFcns.h 667903 2015-05-18 18:59:15Z wsfreund $
+// $Id: PrintHelperFcns.h 767576 2016-08-11 13:53:42Z ssnyder $
 #ifndef XAODCALORINGS_TOOLS_PRINTHELPERFCNS_H
 #define XAODCALORINGS_TOOLS_PRINTHELPERFCNS_H
 
@@ -16,7 +16,7 @@
 #define ATH_MSG_LVL_DISP_VAR( lvl, var)                                        \
   do {                                                                         \
     if ( msgLvl(lvl) ) {                                                       \
-      msg(lvl) << #var << " : " << var << endreq;                              \
+      msg(lvl) << #var << " : " << var << endmsg;                              \
     }                                                                          \
   } while (0)
 
