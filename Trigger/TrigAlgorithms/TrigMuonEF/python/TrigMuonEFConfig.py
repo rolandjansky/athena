@@ -356,8 +356,33 @@ def TMEF_MuonCreatorTool(name="TMEF_MuonCreatorTool",**kwargs):
     kwargs.setdefault('MakeTrackAtMSLink',True)
     kwargs.setdefault("CaloMaterialProvider", "TMEF_TrkMaterialProviderTool")
     kwargs.setdefault("FillTimingInformation",False)
-    kwargs.setdefault("FillMuonTruthLinks",False)
+    kwargs.setdefault("MuonSelectionTool", "")
     return CfgMgr.MuonCombined__MuonCreatorTool(name,**kwargs)
+
+def TMEF_MuonCandidateTrackBuilderTool(name="TMEF_MuonCandidateTrackBuilderTool",**kwargs):
+    kwargs.setdefault('MuonTrackBuilder', 'TMEF_CombinedMuonTrackBuilder')
+    return CfgMgr.Muon__MuonCandidateTrackBuilderTool(name,**kwargs)
+
+def TMEF_MuonPRDSelectionTool(name="TMEF_MuonPRDSelectionTool",**kwargs):
+    kwargs.setdefault('MuonRecoValidationTool','')
+    return CfgMgr.Muon__MuonPRDSelectionTool(name,**kwargs)
+
+def TMEF_MuonClusterSegmentFinderTool(name="TMEF_MuonClusterSegmentFinderTool",**kwargs):
+    kwargs.setdefault('MuonPRDSelectionTool', 'TMEF_MuonPRDSelectionTool')
+    return CfgMgr.Muon__MuonClusterSegmentFinder(name,**kwargs)
+
+def TMEF_MuonLayerSegmentFinderTool(name="TMEF_MuonLayerSegmentFinderTool",**kwargs):
+    kwargs.setdefault('MuonRecoValidationTool','')
+    kwargs.setdefault('MuonPRDSelectionTool','TMEF_MuonPRDSelectionTool')
+    kwargs.setdefault('MuonClusterSegmentFinderTool','TMEF_MuonClusterSegmentFinderTool')
+    return CfgMgr.Muon__MuonLayerSegmentFinderTool(name,**kwargs)
+
+def TMEF_MuonInsideOutRecoTool(name="TMEF_MuonInsideOutRecoTool",**kwargs):
+    kwargs.setdefault('MuonTrackBuilder','TMEF_CombinedMuonTrackBuilder')
+    kwargs.setdefault('MuonCandidateTrackBuilderTool','TMEF_MuonCandidateTrackBuilderTool')
+    kwargs.setdefault('MuonRecoValidationTool','')
+    kwargs.setdefault('MuonLayerSegmentFinderTool', 'TMEF_MuonLayerSegmentFinderTool')
+    return CfgMgr.MuonCombined__MuonInsideOutRecoTool(name,**kwargs )
 
 # TrigMuonEF classes
 class TrigMuonEFTrackBuilderConfig ():

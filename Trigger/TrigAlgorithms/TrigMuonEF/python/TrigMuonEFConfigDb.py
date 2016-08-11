@@ -38,6 +38,12 @@ addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCreatorTool","TMEF_MuonCreatorTool
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCandidateTool","TMEF_MuonCandidateTool")
 addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_TrkMaterialProviderTool", "TMEF_TrkMaterialProviderTool")
 
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonCandidateTrackBuilderTool", "TMEF_MuonCandidateTrackBuilderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonInsideOutRecoTool", "TMEF_MuonInsideOutRecoTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonPRDSelectionTool", "TMEF_MuonPRDSelectionTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonLayerSegmentFinderTool", "TMEF_MuonLayerSegmentFinderTool")
+addTool("TrigMuonEF.TrigMuonEFConfig.TMEF_MuonClusterSegmentFinderTool", "TMEF_MuonClusterSegmentFinderTool")
+
 addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFTrackIsolationConfig", "TrigMuonEFTrackIsolation")
 
 addAlgorithm("TrigMuonEF.TrigMuonEFConfig.TrigMuonEFFSRoiMakerConfig","TrigMuonEFFSRoiMaker")
