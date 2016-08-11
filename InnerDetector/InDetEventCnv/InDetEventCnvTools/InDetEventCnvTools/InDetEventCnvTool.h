@@ -65,13 +65,13 @@ class InDetEventCnvTool :  virtual public Trk::ITrkEventCnvTool, public AthAlgTo
   private:
 
   /** use the passed identifier to recreate the pixel cluster link on the passed RIO_OnTrack*/
-  virtual Trk::PrepRawData* pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash);
+  virtual const Trk::PrepRawData* pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash);
   
   /** use the passed identifier to recreate the SCT cluster link on the passed RIO_OnTrack*/
-  virtual Trk::PrepRawData* sctClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
+  virtual const Trk::PrepRawData* sctClusterLink( const Identifier& id,  const IdentifierHash& idHash  );
   
   /** use the passed identifier to recreate the TRT Drift circle link on the passed RIO_OnTrack*/
-  virtual Trk::PrepRawData* trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash );
+  virtual const Trk::PrepRawData* trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash );
   
   std::string  m_pixMgrLocation;                    //!< Location of sct Manager
   const InDetDD::PixelDetectorManager*  m_pixMgr;   //!< SCT   Detector Manager

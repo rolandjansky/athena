@@ -284,7 +284,7 @@ InDet::InDetEventCnvTool::getDetectorElement(const Identifier& id)
   return detEl;
 }
 
-Trk::PrepRawData* 
+const Trk::PrepRawData* 
     InDet::InDetEventCnvTool::pixelClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
 {
   using namespace Trk;
@@ -292,8 +292,8 @@ Trk::PrepRawData*
   // retrieve Pixel cluster container
   
   // obviously this can be optimised! EJWM
-  const PixelClusterContainer* m_pixClusCont;
-  StatusCode sc = evtStore()->retrieve(m_pixClusCont, m_pixClusContName);
+  const PixelClusterContainer* pixClusCont;
+  StatusCode sc = evtStore()->retrieve(pixClusCont, m_pixClusContName);
   if (sc.isFailure()){
       ATH_MSG_ERROR("Pixel Cluster container not found at "<<m_pixClusContName);
       return 0;
@@ -302,9 +302,9 @@ Trk::PrepRawData*
       ATH_MSG_DEBUG("Pixel Cluster container found" );
   }
   
-  PixelClusterContainer::const_iterator it = m_pixClusCont->indexFind(idHash);
+  PixelClusterContainer::const_iterator it = pixClusCont->indexFind(idHash);
   // if we find PRD, then recreate link
-  if (it!=m_pixClusCont->end()) 
+  if (it!=pixClusCont->end()) 
   {
     //loop though collection to find matching PRD.
     PixelClusterCollection::const_iterator collIt = (*it)->begin();
@@ -318,7 +318,7 @@ Trk::PrepRawData*
   return 0;
 }
 
-Trk::PrepRawData* 
+const Trk::PrepRawData* 
     InDet::InDetEventCnvTool::sctClusterLink( const Identifier& id,  const IdentifierHash& idHash  )
 {
   using namespace Trk;
@@ -326,8 +326,8 @@ Trk::PrepRawData*
   // retrieve Pixel cluster container
   
   // obviously this can be optimised! EJWM
-  const SCT_ClusterContainer* m_sctClusCont;
-  StatusCode sc = evtStore()->retrieve(m_sctClusCont, m_sctClusContName);
+  const SCT_ClusterContainer* sctClusCont;
+  StatusCode sc = evtStore()->retrieve(sctClusCont, m_sctClusContName);
   if (sc.isFailure()){
     ATH_MSG_ERROR("SCT Cluster Container not found at "<< m_sctClusContName);
     return 0;
@@ -336,9 +336,9 @@ Trk::PrepRawData*
     ATH_MSG_DEBUG("SCT Cluster Container found" );
   }
   
-  SCT_ClusterContainer::const_iterator it = m_sctClusCont->indexFind(idHash);
+  SCT_ClusterContainer::const_iterator it = sctClusCont->indexFind(idHash);
   // if we find PRD, then recreate link
-  if (it!=m_sctClusCont->end()) 
+  if (it!=sctClusCont->end()) 
   {
     //loop though collection to find matching PRD.
     SCT_ClusterCollection::const_iterator collIt = (*it)->begin();
@@ -352,7 +352,7 @@ Trk::PrepRawData*
   return 0;
 }
 
-Trk::PrepRawData* 
+const Trk::PrepRawData* 
     InDet::InDetEventCnvTool::trtDriftCircleLink( const Identifier& id,  const IdentifierHash& idHash  )
 {
   using namespace Trk;
@@ -360,8 +360,8 @@ Trk::PrepRawData*
   // retrieve Pixel cluster container
   
   // obviously this can be optimised! EJWM
-  const TRT_DriftCircleContainer* m_trtDriftCircleCont;
-  StatusCode sc = evtStore()->retrieve(m_trtDriftCircleCont, m_trtDriftCircleContName);
+  const TRT_DriftCircleContainer* trtDriftCircleCont;
+  StatusCode sc = evtStore()->retrieve(trtDriftCircleCont, m_trtDriftCircleContName);
   if (sc.isFailure()){
     ATH_MSG_ERROR("TRT DriftCircle Container not found at "<<m_trtDriftCircleContName);
     return 0;
@@ -370,9 +370,9 @@ Trk::PrepRawData*
     ATH_MSG_DEBUG("TRT DriftCircle Container found" );
   }
   
-  TRT_DriftCircleContainer::const_iterator it = m_trtDriftCircleCont->indexFind(idHash);
+  TRT_DriftCircleContainer::const_iterator it = trtDriftCircleCont->indexFind(idHash);
   // if we find PRD, then recreate link
-  if (it!=m_trtDriftCircleCont->end()) 
+  if (it!=trtDriftCircleCont->end()) 
   {
     //loop though collection to find matching PRD.
     TRT_DriftCircleCollection::const_iterator collIt = (*it)->begin();
