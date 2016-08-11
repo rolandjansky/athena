@@ -817,9 +817,7 @@ def getTauTrackClassifier():
     import PyUtils.RootUtils as ru
     ROOT = ru.import_root()
     import cppyy
-    cppyy.loadDictionary('xAODTauDict')
-
-    ROOT.xAOD.TauJet_v3 #needed to see TauJetParameters
+    cppyy.loadDictionary('xAODTau_cDict')
 
     # =========================================================================
     _BDT_TTCT_ITFT_0 = TrackMVABDT(name = _name + "_0",
