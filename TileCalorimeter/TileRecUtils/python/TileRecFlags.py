@@ -113,6 +113,15 @@ class TileRawChannelContainer(JobProperty):
     StoredValue  = 'TileRawChannelCnt'
 
 #
+class TileDigitsContainer(JobProperty):
+    """ name of the container which will be used by TileRawChannelMaker
+    """
+    statusOn     = True
+    allowedTypes = ['str']
+    StoredValue  = 'TileDigitsCnt'
+
+
+#
 class TileRunType(JobProperty):
     """ declare type of all events in a run (0=unknown, 1=physics, 2=laser, 4=ped, 8=cis)
     """
@@ -215,6 +224,24 @@ class simulateTrips(JobProperty):
     allowedTypes = ['bool']
     StoredValue  = False    
 
+
+class zeroAmplitudeWithoutDigits(JobProperty):
+    """ zero amplitude in Tile raw channel container from DSP reconstructed with OF1 method
+        if amplitude is above threshold but there are no corresponding digits 
+        available in Tile digits container
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
+
+class correctPedestalDifference(JobProperty):
+    """ correct amplitude in Tile raw channel container from DSP reconstructed with OF1 method
+        if there is online pedestal difference 
+    """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True    
+
                     
 # Defines the container for the performance monitoring flags  
 class TileRecFlags(JobPropertyContainer):
@@ -240,6 +267,7 @@ list_jobproperties = [
     doTileMF,
     doTileOptATLAS,
     TileRawChannelContainer,
+    TileDigitsContainer,
     TileRunType,
     noiseFilter,
     calibrateEnergy,
@@ -253,7 +281,9 @@ list_jobproperties = [
     BestPhaseFromCOOL,
     readDigits,
     doTileOverflowFit,
-    simulateTrips
+    simulateTrips,
+    zeroAmplitudeWithoutDigits,
+    correctPedestalDifference
     ]
 
 for i in list_jobproperties:

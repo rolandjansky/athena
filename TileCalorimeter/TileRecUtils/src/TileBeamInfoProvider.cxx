@@ -513,7 +513,7 @@ void TileBeamInfoProvider::handle(const Incident& inc) {
   if (msgLvl(MSG::VERBOSE)) {
     msg(MSG::VERBOSE) << "BCID = " << m_BCID << endmsg;
     msg(MSG::VERBOSE) << "digi size = " << m_digiSize << endmsg;
-    msg(MSG::VERBOSE) << "zero-suppressed digi container = " << m_incompleteDigits << endreq;
+    msg(MSG::VERBOSE) << "zero-suppressed digi container = " << m_incompleteDigits << endmsg;
 
     if (m_trigType < 0)
       msg(MSG::VERBOSE) << "trig type = " << m_trigType << " (Level-1 type) " << endmsg;

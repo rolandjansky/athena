@@ -594,8 +594,19 @@ double TileRawChannelBuilder::correctAmp(double phase, bool of2) {
    */
 
   // estimation from Vakhtang for rel 14.4.0
-  double k = (phase < 0.0 ? 0.0009400 : 0.0010160);
+  /*double k = (phase < 0.0 ? 0.0009400 : 0.0010160);
   corr = (1.0 + k * phase * phase);
+  */
+
+   // Parabolic correction from Tigran
+   double a1,a2,b,c;
+   a1 = phase < 0.0 ? 0.000940774 : 0.00102111;
+   a2 = phase < 0.0 ? 0.000759051 : 0.000689625;
+   b = phase < 0.0 ? -2.0 * 7.0 * (a1 - a2) : 2.0 * 12.5 * (a1 - a2);
+   c = phase < 0.0 ? 1.0 - 7.0 * 7.0 * (a1-a2) :  1.0 - 12.5 * 12.5 * (a1-a2);
+   if (phase < 12.5 && phase > -7.0) corr = a1 * phase * phase + 1.0;
+   else corr = phase * ( a2  * phase + b) + c;
+
 
  } else {
   /*double a,b,c;
@@ -607,8 +618,19 @@ double TileRawChannelBuilder::correctAmp(double phase, bool of2) {
   corr = a + phase * ( b + c * phase);
   */
 
-  double k = (phase < 0.0 ? 0.0005241 : 0.0006167);
+  /*double k = (phase < 0.0 ? 0.0005241 : 0.0006167);
   corr = (1.0 + k * phase * phase);
+  */
+
+  // 4th degree polynomial correction from Tigran
+  double k1 = (phase < 0.0 ? -0.0000326707:0.000380336);
+  double k2 = (phase < 0.0 ? -0.000560962:-0.000670487);
+  double k3 = (phase < 0.0 ? -0.00000807869:0.00000501773);
+  double k4 = (phase < 0.0 ? -0.000000145008:0.0000000584647);
+
+  corr = 1.0 / (1.0 + (k1 + (k2  + (k3 + k4 *phase)*phase)*phase)*phase);
+
+
  }
 
   return corr;
