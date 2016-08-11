@@ -155,7 +155,7 @@ void TrigMuonEFCaloIsolation::fillCaloIsolation(const xAOD::MuonContainer *muons
  */
 HLT::ErrorCode TrigMuonEFCaloIsolation::hltExecute(const HLT::TriggerElement *inputTE, HLT::TriggerElement *TEout) {
 
-    ATH_MSG_INFO(": Executing TrigMuonEFCaloIsolation::execHLTAlgorithm()");
+    ATH_MSG_DEBUG(": Executing TrigMuonEFCaloIsolation::execHLTAlgorithm()");
 
     /// extract EF muons
     const xAOD::MuonContainer *muonContainer(0);
