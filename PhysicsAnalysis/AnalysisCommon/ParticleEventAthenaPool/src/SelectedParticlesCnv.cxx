@@ -19,18 +19,18 @@ SelectedParticles_PERS*
 SelectedParticlesCnv::createPersistent(SelectedParticles* transCont)
 {
     MsgStream msg( this->msgSvc(), typeid(this).name() );
-  msg << MSG::DEBUG << "::createPersistent called" << endreq;
+  msg << MSG::DEBUG << "::createPersistent called" << endmsg;
   SelectedParticlesCnv_p1 cnv;
   SelectedParticles_PERS *persObj = cnv.createPersistent(transCont, msg);
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 
 SelectedParticles* SelectedParticlesCnv::createTransient() 
 {
    MsgStream msg( this->msgSvc(), "SelectedParticlesConverter" );
-  msg << MSG::DEBUG << "::createTansient called" << endreq;
+  msg << MSG::DEBUG << "::createTansient called" << endmsg;
 
    SelectedParticles *transObj = 0;
 
@@ -44,7 +44,7 @@ SelectedParticles* SelectedParticlesCnv::createTransient()
        std::auto_ptr<SelectedParticles_PERS> persObj(poolReadObject<SelectedParticles_PERS>());
        SelectedParticlesCnv_p1 cnv;
        transObj = cnv.createTransient( persObj.get(), msg );
-       msg << MSG::DEBUG << "::createTransient [Success]" << endreq;
+       msg << MSG::DEBUG << "::createTransient [Success]" << endmsg;
    } else {
        throw std::runtime_error("Unsupported persistent version of SelectedParticlesy");
    }
