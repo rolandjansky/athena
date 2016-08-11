@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: LargeD0_jobOptions.py 722981 2016-02-09 22:16:14Z sche $
+# $Id: LargeD0_jobOptions.py 760042 2016-07-06 15:33:22Z sche $
 
 # Set up the reading of the input xAOD:
 
@@ -9,15 +9,20 @@
 #"ESD.05297574._000081.pool.root.1" new ttbar dataset (this one should enable residuals)
 
 import getpass
-#FNAME = "/afs/cern.ch/work/s/sche/public/MC/xAOD/InDetRecAOD_1500.root"
-#FNAME = "/afs/cern.ch/work/h/hotono/public/user.kmotohas.mc15_13TeV.402716.PythiaRhad_AUET2BCTEQ6L1_gen_gluino_p1_1200_qq_1070_1ns.retracking_00_StreamAOD/user.kmotohas.7424105.StreamAOD._000006.pool.root"
-#FNAME = "/afs/cern.ch/work/h/hotono/public/user.sfujiyam.mc15_13TeV.406000.g1500_w750_b670_Zqq_1ns_pileup.full_signal_retracking.AOD.e192442_s19243_r2015101_r20722_StreamAOD/user.sfujiyam.7368141.StreamAOD._000015.pool.root"
-#FNAME = "/afs/cern.ch/work/s/sche/public/20.7.2/InnerDetector/InDetExample/InDetRecExample/run/InDetRecAOD_new.root"
-#FNAME = "/afs/cern.ch/work/h/hotono/public/user.kmotohas.data15_13TeV.00267599.physics_MinBias.recon.ESD.r6945.retracking_00_StreamAOD/user.kmotohas.7416502.StreamAOD._002423.pool.root"
+#FNAME = "AOD.pool.root.1"
+FNAME = ["/n/atlas05/userdata/sche/MC15/xAOD/zprimemumu/emu_RecExCommon/r6/user.sche.LRT.r6.mc15_13TeV.301913.Pythia8EvtGen_A14NNPDF23LO_LLzprimemumu_m250t500.recon.ESD.e4821_s2698_r6939_AOD/user.sche.8294387.AOD._000001.pool.root",
+         "/n/atlas05/userdata/sche/MC15/xAOD/zprimemumu/emu_RecExCommon/r6/user.sche.LRT.r6.mc15_13TeV.301913.Pythia8EvtGen_A14NNPDF23LO_LLzprimemumu_m250t500.recon.ESD.e4821_s2698_r6939_AOD/user.sche.8294387.AOD._000002.pool.root",
+         "/n/atlas05/userdata/sche/MC15/xAOD/zprimemumu/emu_RecExCommon/r6/user.sche.LRT.r6.mc15_13TeV.301913.Pythia8EvtGen_A14NNPDF23LO_LLzprimemumu_m250t500.recon.ESD.e4821_s2698_r6939_AOD/user.sche.8294387.AOD._000003.pool.root",
+         "/n/atlas05/userdata/sche/MC15/xAOD/zprimemumu/emu_RecExCommon/r6/user.sche.LRT.r6.mc15_13TeV.301913.Pythia8EvtGen_A14NNPDF23LO_LLzprimemumu_m250t500.recon.ESD.e4821_s2698_r6939_AOD/user.sche.8294387.AOD._000004.pool.root",
+         "/n/atlas05/userdata/sche/MC15/xAOD/zprimemumu/emu_RecExCommon/r6/user.sche.LRT.r6.mc15_13TeV.301913.Pythia8EvtGen_A14NNPDF23LO_LLzprimemumu_m250t500.recon.ESD.e4821_s2698_r6939_AOD/user.sche.8294387.AOD._000005.pool.root"
+         ]
 
-FNAME = "/afs/cern.ch/work/s/sfujiyam/public/MC15.406000.g1500_w750_b670_Zqq_1ns_retracking.xAOD.root"
-#FNAME = "/n/atlas05/userdata/sche/MC15/Retracked/pile-up-only/InDetRecAOD_new.root"
-#FNAME = "/n/atlas05/userdata/sche/MC15/Retracked/shono/MC15.406000.g1500_w750_b670_Zqq_1ns_retracking.xAOD.root"
+# -- Glob, if necessary ('*' is FNAME)
+if '*' in FNAME:
+  import glob
+  FNAME = glob.glob(FNAME)
+  print FNAME
+  pass
 
 include( "AthenaPython/iread_file.py" )
 
@@ -29,7 +34,8 @@ topSequence = AlgSequence()
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
 ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/inDetPhysValMonitoringPlotDefinitions.hdef"
+ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/LargeD0PlotDefinitions.xml"
+ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
 decorators = InDetPhysValDecoratorAlg()
@@ -50,14 +56,44 @@ topSequence += monMan
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import TrackTruthSelectionTool
 truthSelection = TrackTruthSelectionTool()
 truthSelection.requireDecayBeforePixel = False
+truthSelection.minPt = 1000.
+truthSelection.maxBarcode = -1
 ToolSvc += truthSelection
+
+# @asogaard
+from InDetPhysValMonitoring.InDetPhysValMonitoringConf import TrackSelectionTool
+trackSelection = TrackSelectionTool()
+print trackSelection
+#trackSelection.maxZImpact = -1
+#trackSelection.minZImpact = -1
+#trackSelection.maxPrimaryImpact = -1
+#trackSelection.minPrimaryImpact = -1
+#trackSelection.maxEta       = -1
+#trackSelection.minEta       = -1
+#trackSelection.minSiNotShared = -1 # < Rejects Large-D0 tracks
+#trackSelection.maxShared      = -1 # < Rejects Large-D0 tracks
+#trackSelection.maxBLayerSplitHits   = -1
+#trackSelection.minPixelHits   = -1
+#trackSelection.maxPixelHoles  = -1
+#trackSelection.maxPixelOutliers  = -1
+#trackSelection.maxHoles       = -1
+#trackSelection.maxSCTHits       = -1
+#trackSelection.minSCTHits     = 9
+#trackSelection.maxSctHoles    = -1
+#trackSelection.maxDoubleHoles = -1
+#trackSelection.maxTRTOutliers       = -1
+#trackSelection.maxTRTHighThresholdHits = -1
+#trackSelection.minTRTHighThresholdHits = -1
+#trackSelection.maxTRTHighThresholdOutliers = -1
+ToolSvc += trackSelection
         
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValLargeD0Tool
 tool2 = InDetPhysValLargeD0Tool()
 tool2.TruthSelectionTool = truthSelection
 # Specify Long-lived particle for efficiency plot
 # Available options: Zprime, Wino, Gluino, or empty ("") for no selection 
-tool2.LongLivedParticle = ""
+#tool2.LongLivedParticle = "" # @asogaard
+#tool2.SignalIds = [32]
 
 ToolSvc += tool2
 
@@ -75,10 +111,9 @@ from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
 svcMgr.THistSvc.Output += ["output DATAFILE='output.root' OPT='RECREATE'"]
 
-
 # Do some additional tweaking:
 from AthenaCommon.AppMgr import theApp
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
-theApp.EvtMax = 100
+theApp.EvtMax = 10
 #theApp.EvtMax = -1

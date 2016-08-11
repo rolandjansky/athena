@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="yes" ?>
+<!DOCTYPE  hdef [
+<!ENTITY nparticle_xhi "2000">
+<!ENTITY ETAMAX "2.5">
+]>
+<hdef  xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="inc.xml"/>
+  <h id="nparticles" type="TH1F">
+      &quot;Number of Truth Particles&quot; 200 0 &nparticle_xhi; &quot;Num. truth particles&quot;  &quot;Entries&quot;
+  </h>
+  <h id="002_Al_N_01" type="TH1F" title="[SRoe] Number of Selected Tracks">
+      <x title="Num. tracks" n="200" lo="0" hi="1000"/>
+      <y title="Entries"/>
+  </h>
+  <h id="track_fakerate_vs_eta" type="TProfile" title="Fraction of tracks with &lt;50% truth match probability">
+      <x title="#eta" n="20" lo="-&ETAMAX;" hi="&ETAMAX;"/>
+      <y title="Fake Rate" lo="0" hi="1"/>
+  </h>
+  
+  <h id="testProfile" type="TProfile">
+      &quot;Test of TProfile&quot; 20 -50 50 0 200 &quot;#eta&quot;  &quot;testEntries&quot; 
+  </h>
+  
+  <h id="test2D" type="TH2F" title="A test 2D histogram definition">
+      <x title="xAxis" n="30" lo="-&ETAMAX;" hi="&ETAMAX;"/>
+      <y title="yAxis" n="20" lo="0.0" hi="20"/>
+  </h>
+  <h id="test" type="TH1F" title="Test Case: Visible E_{T} (GeV)">
+    <x title="Visible E_{T} (GeV)" n="100" lo="0" hi="100"/>
+    <y title="Num. entries"/>
+  </h>
+  <h id="testEfficiency" type="TEfficiency" title="Eff. Test Case: Visible E_{T} (GeV)">
+    <x title="x variable" n="75" lo="0" hi="75"/>
+    <y title="Efficiency"/>
+  </h>
+</hdef>

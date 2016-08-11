@@ -1,0 +1,7 @@
+<?xml version="1.0" standalone="yes" ?>
+<hdef>
+  <h id="xinclude" type="TH1F" title="Included!">
+    <x title="I have been included" n="100" lo="0" hi="100"/>
+    <y title="Num. entries"/>
+  </h>
+</hdef>

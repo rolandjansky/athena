@@ -3,17 +3,18 @@
 # $Id: PhysVal_jobOptions.py 714189 2015-12-11 17:33:02Z sroe $
 
 # Set up the reading of the input xAOD:
-
-#"AOD.05522648._000044.pool.root.1" K-short dataset
-#"ESD.05108991._000060.pool.root.1" original ttbar dataset 
-#"ESD.05297574._000081.pool.root.1" new ttbar dataset (this one should enable residuals)
-#import getpass
-#FNAME="root://eosatlas//eos/atlas/atlascerngroupdisk/det-slhc/users/oda/xAODexample/mc12_14TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.AOD.e1323_ATLAS-P2-ITK-01-00-00_19.2.3.1_20.1.3.2.pool.root"
-
-FNAME="AOD.pool.root"
 import AthenaPoolCnvSvc.ReadAthenaPool
+
+# read single file
+FNAME="AOD.pool.root"
+# uncomment this for testing: step 1.2, mu=200 file:
+# FNAME="root://eosatlas//eos/atlas/user/l/lmijovic/shared_atlas/upgrade/inputs/mc15_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.recon.AOD.e1133_s2900_s2904_r7914/AOD.08762005._000011.pool.root.1"
 svcMgr.EventSelector.InputCollections = [ FNAME ] 
-#include( "AthenaPython/iread_file.py" )
+
+# read multiple files:
+#import glob
+#INFILES=glob.glob('indir/*pool.root*')
+#svcMgr.EventSelector.InputCollections = INFILES
 
 # Set global flags
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
@@ -88,9 +89,8 @@ topSequence = AlgSequence()
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import HistogramDefinitionSvc
 ToolSvc = ServiceMgr.ToolSvc
 ServiceMgr+=HistogramDefinitionSvc()
-#ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/inDetPhysValMonitoringPlotDefinitions.hdef"
-ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/ITKHistDef.hdef"
-
+ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/ITKHistDef.xml"
+ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
 decorators = InDetPhysValDecoratorAlg()
@@ -116,7 +116,7 @@ InDetTrackSelectorTool = InDet__InDetTrackSelectionTool("InDetTrackSelectorTool"
 InDetTrackSelectorTool.minPt            = 900           # Mev
 InDetTrackSelectorTool.maxD0            = 1             # mm
 InDetTrackSelectorTool.maxZ0            = 150           # mm
-InDetTrackSelectorTool.minNSiHits       = 11            # Pixel + SCT
+InDetTrackSelectorTool.minNSiHits       = 9            # Pixel + SCT
 InDetTrackSelectorTool.maxNPixelHoles   = 2             # Pixel only
 #eta dependant hit cut below
 #InDetTrackSelectorTool.vecEtaCutoffsForSiHitsCut = [0,1.0,1.2,1.8,2.2]
@@ -129,7 +129,8 @@ print "Set Up InDetTrackSelectorTool"
 #-------------------------------------------------------------
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import TrackTruthSelectionTool
 TrackTruthSelectionTool = TrackTruthSelectionTool("TrackTruthSelectionTool")
-TrackTruthSelectionTool.maxEta     = 5.0
+# todo: manually adapt this acc. to the fiducial acceptance of your detector
+TrackTruthSelectionTool.maxEta     = 4.0
 TrackTruthSelectionTool.maxPt      = -1
 TrackTruthSelectionTool.minPt      = 900 # default 400 MeV
 TrackTruthSelectionTool.maxBarcode = 200e3
@@ -165,7 +166,7 @@ svcMgr.THistSvc.Output += ["MyPhysVal DATAFILE='MyPhysVal.root' OPT='RECREATE'"]
 from AthenaCommon.AppMgr import theApp
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
-theApp.EvtMax = 50
+#theApp.EvtMax = 50
 
 # dump configuration
 from AthenaCommon.ConfigurationShelve import saveToAscii
