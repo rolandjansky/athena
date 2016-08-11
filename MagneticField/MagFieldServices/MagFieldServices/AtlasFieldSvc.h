@@ -69,8 +69,8 @@ namespace MagField {
       /** get B field value at given position */
       /** xyz[3] is in mm, bxyz[3] is in kT */
       /** if deriv[9] is given, field derivatives are returned in kT/mm */
-      virtual void getField(const double *xyz, double *bxyz, double *deriv = 0) const;
-      virtual void getFieldZR(const double *xyz, double *bxyz, double *deriv = 0) const;
+      virtual void getField(const double *xyz, double *bxyz, double *deriv = 0) const override final;
+      virtual void getFieldZR(const double *xyz, double *bxyz, double *deriv = 0) const override final;
 
     private:
       /** Retrieve, initialize and return a thread-local storage object */
