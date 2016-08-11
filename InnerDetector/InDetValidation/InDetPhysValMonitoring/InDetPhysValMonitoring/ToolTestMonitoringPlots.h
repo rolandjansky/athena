@@ -24,7 +24,7 @@ class InDetTestPlot;
 
 
 /**
- * Tool to book and fill test histograms in monitoring framework
+ * @brief Tool to book and fill test histograms in monitoring framework
  */
 class ToolTestMonitoringPlots:public ManagedMonitorToolBase{
 public:
@@ -43,10 +43,6 @@ public:
 private:
 	///prevent default construction
 	ToolTestMonitoringPlots();
-	///TrackParticle container's name
-	//std::string m_trkParticleName;
-	///TruthParticle container's name
-	//std::string m_truthParticleName;
 
 	///histograms
 	std::unique_ptr< InDetTestPlot > m_monPlots;

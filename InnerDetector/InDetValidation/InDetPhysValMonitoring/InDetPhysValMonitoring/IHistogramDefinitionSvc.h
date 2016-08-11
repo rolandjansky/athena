@@ -22,7 +22,7 @@ public:
 	///reimplemented from IInterface
 	static const InterfaceID & interfaceID();
 
-	enum Formats{INCODE,TEXT_PLAIN,NFORMATS};
+	enum Formats{UNKNOWN,TEXT_XML,TEXT_PLAIN,NFORMATS};
 	virtual ~IHistogramDefinitionSvc(){}
 	typedef std::pair<float, float> axesLimits_t ;
 	virtual SingleHistogramDefinition definition(const std::string &name, const std::string & dirName="") const =0;

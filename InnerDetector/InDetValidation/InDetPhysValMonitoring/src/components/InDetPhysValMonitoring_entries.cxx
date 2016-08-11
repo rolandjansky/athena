@@ -7,6 +7,7 @@
 #include "../TruthClassDecoratorTool.h"
 #include "InDetPhysValMonitoring/InDetPhysValDecoratorAlg.h"
 #include "../TrackTruthSelectionTool.h"
+#include "../TrackSelectionTool.h"
 #include "InDetPhysValMonitoring/HistogramDefinitionSvc.h"
 #include "InDetPhysValMonitoring/AlgTestHistoDefSvc.h"
 #include "InDetPhysValMonitoring/ToolTestMonitoringPlots.h"
@@ -24,6 +25,7 @@ DECLARE_TOOL_FACTORY(InDetPhysHitDecoratorTool)
 DECLARE_TOOL_FACTORY(ParameterErrDecoratorTool)
 DECLARE_TOOL_FACTORY(TruthClassDecoratorTool)
 DECLARE_TOOL_FACTORY(TrackTruthSelectionTool)
+DECLARE_TOOL_FACTORY(TrackSelectionTool)
 DECLARE_TOOL_FACTORY( DummyTrackSlimmingTool)
 
 DECLARE_FACTORY_ENTRIES(InDetPhysValMonitoring){
@@ -36,6 +38,7 @@ DECLARE_FACTORY_ENTRIES(InDetPhysValMonitoring){
     DECLARE_TOOL(ParameterErrDecoratorTool)
     DECLARE_TOOL(TruthClassDecoratorTool)
     DECLARE_TOOL(TrackTruthSelectionTool)
+    DECLARE_TOOL(TrackSelectionTool)
     DECLARE_TOOL( DummyTrackSlimmingTool)
     DECLARE_ALGORITHM( InDetPhysValDecoratorAlg )
     DECLARE_ALGORITHM( AlgTestHistoDefSvc )

@@ -9,8 +9,8 @@
  * header file for class of same name
  * @author shaun roe
  * @date 27 March 2014
-**/
-//STL includes
+ **/
+// STL includes
 #include <string>
 #include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
 #include "AthenaBaseComps/AthAlgTool.h"
@@ -23,40 +23,46 @@ class SCT_ID;
 class TRT_ID;
 
 namespace Trk {
-class IUpdator;
-class ITrackHoleSearchTool;
-class IResidualPullCalculator;
+  class IUpdator;
+  class ITrackHoleSearchTool;
+  class IResidualPullCalculator;
 }
-	
 
 
-//class to decorate xAOD::TruthParticles with additional information required by validation
-class InDetPhysHitDecoratorTool:virtual public IInDetPhysValDecoratorTool, public AthAlgTool{
+
+// class to decorate xAOD::TruthParticles with additional information required by validation
+class InDetPhysHitDecoratorTool: virtual public IInDetPhysValDecoratorTool, public AthAlgTool {
 public:
-   enum Subdetector{INVALID_DETECTOR=-1, BLAYER, PIXEL, SCT, TRT, DBM, N_SUBDETECTORS};
-   enum Region{INVALID_REGION=-1, BARREL, ENDCAP};
-	 InDetPhysHitDecoratorTool(const std::string& type,const std::string& name,const IInterface* parent);
-	 virtual ~InDetPhysHitDecoratorTool ();
-	 virtual StatusCode initialize();
-	 virtual StatusCode finalize  ();
-	 virtual bool decorateTrack(const xAOD::TrackParticle & particle, const std::string& prefix);
- private:
-   ToolHandle<Trk::ITrackHoleSearchTool>	m_holeSearchTool;
-   ToolHandle<Trk::IUpdator>	m_updatorHandle; //!< Tool handle of updator for unbiased states
-   ToolHandle<Trk::IResidualPullCalculator>  m_residualPullCalculator;   //!< The residual and pull calculator tool handle
-   const double m_ptThreshold;
-   bool m_isUnbiased;
-   bool m_doUpgrade;
-   //the following help identify a surface in the detector
-   const AtlasDetectorID*                m_idHelper;
-   const PixelID*                        m_pixelID;
-   const SCT_ID*                         m_sctID;
-   const TRT_ID*                         m_trtID;
-   
-   //private member functions
-   bool decideDetectorRegion(const Identifier & id, Subdetector & det, Region & r, int & layer);
-	 const Trk::TrackParameters* 
-	   getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement );
+  enum Subdetector {
+    INVALID_DETECTOR=-1, IBL, PIXEL, SCT, TRT, DBM, N_SUBDETECTORS
+  };
+  enum Region {
+    INVALID_REGION=-1, BARREL, ENDCAP
+  };
+  InDetPhysHitDecoratorTool(const std::string &type, const std::string &name, const IInterface *parent);
+  virtual
+  ~InDetPhysHitDecoratorTool ();
+  virtual StatusCode initialize();
+  virtual StatusCode finalize();
+  virtual bool decorateTrack(const xAOD::TrackParticle &particle, const std::string &prefix);
+private:
+  ToolHandle<Trk::ITrackHoleSearchTool>    m_holeSearchTool;
+  ToolHandle<Trk::IUpdator>    m_updatorHandle; // !< Tool handle of updator for unbiased states
+  ToolHandle<Trk::IResidualPullCalculator>  m_residualPullCalculator;   // !< The residual and pull calculator tool
+                                                                        // handle
+  const double m_ptThreshold;
+  bool m_isUnbiased;
+  bool m_doUpgrade;
+  // the following help identify a surface in the detector
+  const AtlasDetectorID *m_idHelper;
+  const PixelID *m_pixelID;
+  const SCT_ID *m_sctID;
+  const TRT_ID *m_trtID;
+
+  // private member functions
+  bool decideDetectorRegion(const Identifier &id, Subdetector &det, Region &r, int &layer);
+  const Trk::TrackParameters *
+  getUnbiasedTrackParameters(const Trk::TrackParameters *trkParameters, const Trk::MeasurementBase *measurement);
 };
 
 #endif
