@@ -33,10 +33,10 @@
 StatusCode MuonContainerCnv::initialize()
 {
 
-  MsgStream log(messageService(), "MuonContainerCnv");
+  MsgStream log(msgSvc(), "MuonContainerCnv");
   StatusCode sc = T_AthenaPoolCustomCnv<Analysis::MuonContainer,MuonContainer_PERS>::initialize();
   if (!sc.isSuccess()) {
-     log << MSG::ERROR << "Can not initialize Converter base class." << endreq;
+     log << MSG::ERROR << "Can not initialize Converter base class." << endmsg;
      return(sc);
   }
 
@@ -44,7 +44,7 @@ StatusCode MuonContainerCnv::initialize()
   if ( !m_storeGate.retrieve().isSuccess() ) {
      log << MSG::ERROR
 	 << "Unable to retrieve pointer to StoreGateSvc"
-	 << endreq;
+	 << endmsg;
      return StatusCode::FAILURE;
   }
 
@@ -64,7 +64,7 @@ MuonContainerCnv::createPersistent( Analysis::MuonContainer* transCont )
   MuonContainerCnv_p6 cnv;
   MuonContainer_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 
@@ -107,7 +107,7 @@ Analysis::MuonContainer* MuonContainerCnv::createTransient()
     if ( !m_storeGate->contains<MuonCaloEnergyContainer>( m_muonCaloEnergyContainerName ) ) {
        MuonCaloEnergyContainer * cont = new MuonCaloEnergyContainer();
        if ( m_storeGate->record( cont, m_muonCaloEnergyContainerName ).isFailure() ) {
-          msg << MSG::WARNING << "Not able to recod MuonCaloEnergyContainer in StoreGate " << endreq;
+          msg << MSG::WARNING << "Not able to recod MuonCaloEnergyContainer in StoreGate " << endmsg;
        }
     }
  
@@ -119,7 +119,7 @@ Analysis::MuonContainer* MuonContainerCnv::createTransient()
     if ( !m_storeGate->contains<MuonCaloEnergyContainer>( m_muonCaloEnergyContainerName ) ) {
        MuonCaloEnergyContainer * cont = new MuonCaloEnergyContainer();
        if ( m_storeGate->record( cont, m_muonCaloEnergyContainerName ).isFailure() ) {
-          msg << MSG::WARNING << "Not able to recod MuonCaloEnergyContainer in StoreGate " << endreq;
+          msg << MSG::WARNING << "Not able to recod MuonCaloEnergyContainer in StoreGate " << endmsg;
        }
     }
 

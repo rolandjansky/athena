@@ -30,7 +30,7 @@ MuonCaloEnergyContainerCnv::createPersistent( MuonCaloEnergyContainer* transCont
   MuonCaloEnergyContainerCnv_p1 cnv;
   MuonCaloEnergyContainer_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 

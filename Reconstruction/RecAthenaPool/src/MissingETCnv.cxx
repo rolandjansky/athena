@@ -27,7 +27,7 @@ MissingETCnv::createPersistent( MissingET* transCont )
   MissingETCnv_p3 cnv;
   MissingET_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 
