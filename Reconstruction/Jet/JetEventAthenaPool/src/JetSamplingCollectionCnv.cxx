@@ -43,7 +43,7 @@ JetSamplingCollectionCnv::createPersistent( JetSamplingCollection* transCont )
   JetSamplingCollectionCnv_p2 cnv;
   JetSamplingCollection_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 
