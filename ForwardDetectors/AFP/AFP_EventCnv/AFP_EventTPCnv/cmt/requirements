@@ -8,6 +8,7 @@ use AthenaPoolCnvSvc     AthenaPoolCnvSvc-*     Database/AthenaPOOL
 
 use AFP_SimEv           AFP_SimEv-*           ForwardDetectors/AFP
 use AFP_DigiEv          AFP_DigiEv-*          ForwardDetectors/AFP
+use AFP_RawEv           AFP_RawEv-*           ForwardDetectors/AFP
 use AFP_LocRecoEv       AFP_LocRecoEv-*       ForwardDetectors/AFP/AFP_RecoEv
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 
