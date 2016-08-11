@@ -13,89 +13,94 @@
 #include "AFP_Geometry/AFP_constants.h"
 #include "GeoModelKernel/GeoTransform.h"
 
-typedef struct _AFP_TDQUARTICCONFIGURATION {
-	int nRowsCnt;
-	int nColsCnt;
-	double fQuarticLength;
-	double fSlope;
-	double fCoverThickness;
-	double fCoverDistanceToFloor;
-	std::vector<double> vecBarXDim;
-	std::vector<double> vecBarZDim;
-	std::vector<double> vecXGaps;
-	std::vector<double> vecZGaps;
-} AFP_TDQUARTICCONFIGURATION, *PAFP_TDQUARTICCONFIGURATION;
+enum eLQBarType { ELBT_UNDEFINED=0, ELBT_REGULAR=1, ELBT_METALELBOW=2, ELBT_AIRGUIDE=3, ELBT_HYBRID=4, ELBT_HYBRIDMETALELBOW=5, ELBT_ONEARM=6, ELBT_ONEARMAIRGUIDE=7, ELBT_MIKELBAR=8 };
+enum eSkinReflectivityMode { ESRM_SINGLE=1, ESRM_SPECTRAL1=2 };
+enum eMaterial { EM_VACUUM=0, EM_QUARTZ=1 };
 
-typedef struct _AFP_INTQUARTICDIMENSIONS {
-#ifdef USE_TDLBARS
-	std::vector<double> arrLBarZDim;
-	std::vector<double> arrLBarZGap;
+typedef struct _AFP_LQBARDIMENSIONS {
+    eLQBarType eType;
+    double fAlpha;
+    double fLBarZDim;
+    int nNumOfSensors;
+    double fOffsetFromBeam;
+    double fSkinReflectivity;
+    eSkinReflectivityMode eSReflecMode;
 
-	std::vector<double> arrVertBarXDim;
-	std::vector<double> arrVertBarYDim;
-	std::vector<double> arrVertBarXGap;
+    double fVertBarXDim;
+    double fVertBarYDim;
+    bool bApplyBottomCut;
+    double fRadiatorLength; //extra air guide params
+    bool bIs45degElbow; //extra air guide params
 
-	std::vector<double> arrHorzBarXDim;
-	std::vector<double> arrHorzBarYDim;
-	std::vector<double> arrHorzBarYGap;
-#else
-	std::vector<double> arrTDQuarticXDim;
-	std::vector<double> arrTDQuarticGapXDim;
-	std::vector<double> arrTDQuarticYDim;
-	std::vector<double> arrTDQuarticZDim;
-	std::vector<double> arrTDQuarticGapZDim;
-#endif
-} AFP_INTQUARTICDIMENSIONS, *PAFP_INTQUARTICDIMENSIONS;
+    double fHorzBarXDim;
+    double fHorzBarYDim;
+    double fHorzBarExtYOffset;
+    double fHorzBarTaperAngle;
+    bool bSepHorzBarInTaper;
+    double fHorzBarXTaperOffset;
+    eMaterial eTaperMaterial;
+
+    void SetDefault();
+} AFP_LQBARDIMENSIONS, *PAFP_LQBARDIMENSIONS;
 
 typedef struct _AFP_TDCONFIGURATION {
-	bool bAddCover;
-	AFP_TDQUARTICCONFIGURATION QuarticConf[QUARTICCNT];
+    int nRowsCnt;
+    int nColsCnt;
+    double fSlope;
+    double fVertXGap;
+    double fVertZGap;
+    double fHorzYGap;
+    std::vector<double> vecBarXDim;
 
-	std::map<std::string, HepGeom::Transform3D> mapTransInStation;
+    AFP_LQBARDIMENSIONS MainLQBarDims;
 
-	void clear();
+    double fXFloorDistance;
+    double fYPosInRPot;
+    double fZPosInRPot;
+
+    void clear();
 } AFP_TDCONFIGURATION, *PAFP_TDCONFIGURATION;
 
+
 typedef struct _AFP_SIDCONFIGURATION {
-	double fSlope;
-	double fLayerCount;
-	double fLayerSpacing;
-	double fDistanceFromPocket;
-	bool bAddVacuumSensors;
+    double fSlope;
+    double fLayerCount;
+    double fLayerSpacing;
+    double fXFloorDistance;
+    double fZDistanceInRPot;
+    bool bAddVacuumSensors;
+	double fSupportThickness;
 
-	std::map<std::string, std::vector<double> > mapXStaggering;
-	std::map<std::string, std::vector<double> > mapYStaggering;
-	std::map<std::string, HepGeom::Transform3D> mapTransInStation;
+    std::map<std::string, std::vector<double> > mapXStaggering;
+    std::map<std::string, std::vector<double> > mapYStaggering;
+    std::map<std::string, HepGeom::Transform3D> mapTransInStation;
 
-	void clear();
+    void clear();
 } AFP_SIDCONFIGURATION, *PAFP_SIDCONFIGURATION;
 
 typedef struct _AFP_HBPCONFIGURATION {
-		double windowPlateThickness, windowPlateAngle;
-		bool windowPlatesInsteadOfHB;
-                bool setMaterialToBeryllium;
-	void clear();
+    double windowPlateThickness, windowPlateAngle;
+    bool windowPlatesInsteadOfHB;
+    bool setMaterialToBeryllium;
+    void clear();
 } AFP_HBPCONFIGURATION, *PAFP_HBPCONFIGURATION;
 
 typedef struct _AFP_CONFIGURATION {
-	bool bVP1Mode;
+    AFP_SIDCONFIGURATION sidcfg;
+    AFP_TDCONFIGURATION tdcfg;
+    AFP_HBPCONFIGURATION hbpcfg;
 
-	AFP_SIDCONFIGURATION sidcfg;
-	AFP_TDCONFIGURATION tdcfg;
-	AFP_HBPCONFIGURATION hbpcfg;
+    std::vector<double> vecRPotFloorDistance;
+    std::vector<double> vecRPotYPos;
+    std::vector<double> vecStatNominalZPos;
 
-	double fShortHBFloorXPos;
-	double fLongHBFloorXPos;
-	double fShortHBZPos;
-	double fLongHBZPos;
-	double fShortHBYPos;
-	double fLongHBYPos;
-
-	bool bIsSHBRPotMode; //use Roman Pot instead of Short HBP
-	bool bAddSecondQuartic;
-	double fQuarticYPosInTube[QUARTICCNT];
-	double fQuarticZPosInTube[QUARTICCNT];
-	void clear();
+    void clear();
 } AFP_CONFIGURATION, *PAFP_CONFIGURATION;
+
+typedef struct _AFP_RAWPROPERTYPARAMS
+{
+
+
+} AFP_RAWPROPERTYPARAMS, *PAFP_RAWPROPERTYPARAMS;
 
 #endif // AFP_CONFIGPARAMS_H

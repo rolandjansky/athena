@@ -7,94 +7,92 @@
 //-------------------------------------------------------------------------------------------------------------
 void AFP_CONFIGURATION::clear()
 {
-	bVP1Mode=false;
+    sidcfg.clear();
+    tdcfg.clear();
+    hbpcfg.clear();
 
-	sidcfg.clear();
-	tdcfg.clear();
-	hbpcfg.clear();
+    vecRPotFloorDistance.resize(4);
+    vecRPotYPos.resize(4);
+    fill_n(vecRPotFloorDistance.begin(),vecRPotFloorDistance.size(),RPFLOORDISTANCE);
+    fill_n(vecRPotYPos.begin(),vecRPotYPos.size(),STATIONSHIFTINYAXIS);
 
-	fShortHBFloorXPos=SHORTHBFLOORXPOS;
-	fShortHBYPos=STATIONSHIFTINYAXIS;
-	fShortHBZPos=SHORTHBPZPOS;
-
-	fLongHBFloorXPos=LONGHBFLOORXPOS;
-	fLongHBYPos=STATIONSHIFTINYAXIS;
-	fLongHBZPos=LONGHBPZPOS;
-
-	bIsSHBRPotMode=false;
-	bAddSecondQuartic=true;
-	for(int i=0;i<QUARTICCNT;i++){
-		fQuarticYPosInTube[i]=QUARTICYPOSINLHB;
-	}
-
-	fQuarticZPosInTube[0]=QUARTIC1ZPOSINLHB;
-	fQuarticZPosInTube[1]=QUARTIC2ZPOSINLHB;
+    vecStatNominalZPos.resize(4);
+    vecStatNominalZPos[0]=OUTERSTATZDISTANCE;
+    vecStatNominalZPos[1]=INNERSTATZDISTANCE;
+    vecStatNominalZPos[2]=-INNERSTATZDISTANCE;
+    vecStatNominalZPos[3]=-OUTERSTATZDISTANCE;
 }
 
 //-------------------------------------------------------------------------------------------------------------
 void AFP_HBPCONFIGURATION::clear()
 {
-		windowPlateThickness = 0.3;
-		windowPlateAngle = 90.0;
-		windowPlatesInsteadOfHB = false;
-                setMaterialToBeryllium = false;
+    windowPlateThickness = 0.3;
+    windowPlateAngle = 90.0;
+    windowPlatesInsteadOfHB = false;
+    setMaterialToBeryllium = false;
 }
 
 //-------------------------------------------------------------------------------------------------------------
 void AFP_SIDCONFIGURATION::clear()
 {
-	fSlope=NOMINALSIDSLOPE;
-	fLayerCount=SIDCNT;
-	fLayerSpacing=NOMINALSIDSPACING;
-	fDistanceFromPocket=NOMINALSIDPOCKETDISTANCE;
-	bAddVacuumSensors=false;
+    fSlope=SID_NOMINALSLOPE;
+    fLayerCount=SIDCNT;
+    fLayerSpacing=SID_NOMINALSPACING;
+    fXFloorDistance=SID_DISTANCETOFLOOR;
+    fZDistanceInRPot=SID_ZDISTANCEINRPOT;
+    bAddVacuumSensors=false;
+	fSupportThickness=SID_PLATETHICKNESS;
 
-	mapXStaggering.clear();
-	mapYStaggering.clear();
-	mapTransInStation.clear();
+    mapXStaggering.clear();
+    mapYStaggering.clear();
+    mapTransInStation.clear();
 }
 
 //-------------------------------------------------------------------------------------------------------------
+void AFP_LQBARDIMENSIONS::SetDefault()
+{
+    nNumOfSensors=1;
+    eType=ELBT_METALELBOW;
+    fAlpha=48.0*CLHEP::deg;
+    fLBarZDim=5.0*CLHEP::mm;
+
+    fVertBarXDim=2.0*CLHEP::mm;
+    fVertBarYDim=50.3*CLHEP::mm;
+    fHorzBarXDim=71.0*CLHEP::mm-fVertBarXDim;
+    fHorzBarYDim=5.0*CLHEP::mm;
+
+    eSReflecMode=ESRM_SINGLE;
+    fSkinReflectivity=0.90;
+    fOffsetFromBeam=0.0*CLHEP::mm;
+    fRadiatorLength=20.0*CLHEP::mm;
+
+    bIs45degElbow=true;
+    bApplyBottomCut=true;
+
+    bSepHorzBarInTaper=false;
+    fHorzBarExtYOffset=0.0*CLHEP::mm;
+    fHorzBarTaperAngle=0.0*CLHEP::deg;
+    fHorzBarXTaperOffset=0.0*CLHEP::mm;
+    eTaperMaterial=EM_QUARTZ;
+}
+
 void AFP_TDCONFIGURATION::clear()
 {
-#ifdef USE_TDLBARS
-#else
-	bAddCover=false;
+    nRowsCnt=TD_TRAINSCNT;
+    nColsCnt=TD_COLUMNSCNT;
+    fSlope=TD_NOMINALSLOPE;
+    fVertXGap=TD_VERTXGAP;
+    fVertZGap=TD_VERTZGAP;
+    fHorzYGap=TD_HORZYGAP;
 
-	for(int i=0;i<QUARTICCNT;i++){
-		QuarticConf[i].nRowsCnt=TDQUARTICROWSCNT;
-		QuarticConf[i].nColsCnt=TDQUARTICCOLSCNT;
-		QuarticConf[i].fQuarticLength=TDQUARTICLENGTH;
-		QuarticConf[i].fSlope=NOMINALTDSLOPE;
-		QuarticConf[i].fCoverThickness=bAddCover? TDCOVERTHICKNESS:(0.0*CLHEP::mm);
-	}
+    vecBarXDim.resize(nRowsCnt);
+    fill_n(vecBarXDim.begin(),vecBarXDim.size(),4.0*CLHEP::mm);
+    vecBarXDim[0]=2.0*CLHEP::mm;
 
-	//Quartic 1
-	QuarticConf[0].fCoverDistanceToFloor=NOMINALTDPOCKETDISTANCE;
-	QuarticConf[0].vecBarXDim.resize(QuarticConf[0].nRowsCnt);
-	QuarticConf[0].vecBarXDim[0]=1.0*CLHEP::mm; QuarticConf[0].vecBarXDim[1]=3.0*CLHEP::mm;
-	QuarticConf[0].vecBarXDim[2]=3.0*CLHEP::mm; QuarticConf[0].vecBarXDim[3]=3.0*CLHEP::mm;
-	QuarticConf[0].vecXGaps.resize(QuarticConf[0].nRowsCnt-1);
-	QuarticConf[0].vecXGaps[0]=2.0*CLHEP::mm; QuarticConf[0].vecXGaps[1]=3.0*CLHEP::mm; QuarticConf[0].vecXGaps[2]=3.0*CLHEP::mm;
+    MainLQBarDims.SetDefault();
+    MainLQBarDims.fVertBarXDim=vecBarXDim[0];
 
-	QuarticConf[0].vecBarZDim.resize(QuarticConf[0].nColsCnt);
-	fill_n(QuarticConf[0].vecBarZDim.begin(),QuarticConf[0].vecBarZDim.size(),6.0*CLHEP::mm);
-	QuarticConf[0].vecZGaps.resize(QuarticConf[0].nColsCnt-1);
-	fill_n(QuarticConf[0].vecZGaps.begin(),QuarticConf[0].vecZGaps.size(),0.0*CLHEP::mm);
-
-	//Quartic 2
-	QuarticConf[1].fCoverDistanceToFloor=NOMINALTDPOCKETDISTANCE+QuarticConf[0].vecBarXDim[0];
-	QuarticConf[1].vecBarXDim.resize(QuarticConf[1].nRowsCnt);
-	QuarticConf[1].vecBarXDim[0]=2.0*CLHEP::mm; QuarticConf[1].vecBarXDim[1]=3.0*CLHEP::mm;
-	QuarticConf[1].vecBarXDim[2]=3.0*CLHEP::mm; QuarticConf[1].vecBarXDim[3]=3.0*CLHEP::mm;
-	QuarticConf[1].vecXGaps.resize(QuarticConf[1].nRowsCnt-1);
-	QuarticConf[1].vecXGaps[0]=3.0*CLHEP::mm; QuarticConf[1].vecXGaps[1]=3.0*CLHEP::mm; QuarticConf[1].vecXGaps[2]=3.0*CLHEP::mm;
-
-	QuarticConf[1].vecBarZDim.resize(QuarticConf[1].nColsCnt);
-	fill_n(QuarticConf[1].vecBarZDim.begin(),QuarticConf[1].vecBarZDim.size(),6.0*CLHEP::mm);
-	QuarticConf[1].vecZGaps.resize(QuarticConf[1].nColsCnt-1);
-	fill_n(QuarticConf[1].vecZGaps.begin(),QuarticConf[1].vecZGaps.size(),0.0*CLHEP::mm);
-#endif
-
-	mapTransInStation.clear();
+    fXFloorDistance=TD_DISTANCETOFLOOR;
+    fYPosInRPot=0.0*CLHEP::mm;
+    fZPosInRPot=TD_ZDISTANCEINRPOT;
 }
