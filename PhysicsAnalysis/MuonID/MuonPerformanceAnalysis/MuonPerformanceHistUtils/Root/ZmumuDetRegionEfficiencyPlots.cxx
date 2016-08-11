@@ -20,9 +20,9 @@ ZmumuDetRegionEfficiencyPlots::ZmumuDetRegionEfficiencyPlots(PlotBase* pParent, 
 
 void ZmumuDetRegionEfficiencyPlots::initializePlots()
 {
-  detregions  = Book1D("DetRegions" ," DetRegions; Detector region; Entries ",(int)(EtaPhiBinning::nBINREGIONS),(int)(EtaPhiBinning::binUNKNOWN)-0.5, (int)(EtaPhiBinning::nBINREGIONS)-0.5);
-  detregions_A  = Book1D("DetRegions_Aside" ," DetRegions; Detector region; Entries ",(int)(EtaPhiBinning::nBINREGIONS),(int)(EtaPhiBinning::binUNKNOWN)-0.5, (int)(EtaPhiBinning::nBINREGIONS)-0.5);
-  detregions_C  = Book1D("DetRegions_Cside" ,"DetRegions; Detector region; Entries ",(int)(EtaPhiBinning::nBINREGIONS),(int)(EtaPhiBinning::binUNKNOWN)-0.5, (int)(EtaPhiBinning::nBINREGIONS)-0.5);
+  detregions  = Book1D("DetRegions" ," DetRegions; Detector region; Entries ",(int)(DetRegionBinning::nBINREGIONS),(int)(DetRegionBinning::binUNKNOWN)-0.5, (int)(DetRegionBinning::nBINREGIONS)-0.5);
+  detregions_A  = Book1D("DetRegions_Aside" ," DetRegions; Detector region; Entries ",(int)(DetRegionBinning::nBINREGIONS),(int)(DetRegionBinning::binUNKNOWN)-0.5, (int)(DetRegionBinning::nBINREGIONS)-0.5);
+  detregions_C  = Book1D("DetRegions_Cside" ,"DetRegions; Detector region; Entries ",(int)(DetRegionBinning::nBINREGIONS),(int)(DetRegionBinning::binUNKNOWN)-0.5, (int)(DetRegionBinning::nBINREGIONS)-0.5);
   
   for (int k = 1; k < detregions->GetNbinsX()+1;++k){
     std::string label = m_etaphi.GetRegionLabel(detregions->GetXaxis()->GetBinCenter(k));
