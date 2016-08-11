@@ -1,0 +1,16 @@
+package TrkViewsCnv
+
+author John Baines   <John.Baines@stfc.ac.uk>
+
+use AtlasPolicy          AtlasPolicy-*
+use AthenaPoolUtilities  AthenaPoolUtilities-*   Database/AthenaPOOL
+
+private
+# use statements for data packages
+use TrkViews      TrkViews-*       Tracking/TrkEvent
+end_private
+
+apply_pattern poolcnv \
+      files="-s=${TrkViews_root}/TrkViews \
+		TrackViewVector.h"
+
