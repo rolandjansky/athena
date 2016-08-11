@@ -20,6 +20,8 @@ use AFP_Geometry		AFP_Geometry-*			ForwardDetectors/AFP
 #use AFP_RawEv			AFP_RawEv-*			ForwardDetectors/AFP
 use AFP_LocRecoEv		AFP_LocRecoEv-*			ForwardDetectors/AFP/AFP_RecoEv
 use AFP_DigiEv			AFP_DigiEv-*			ForwardDetectors/AFP
+use  AFP_EventTPCnv             AFP_EventTPCnv-*                ForwardDetectors/AFP/AFP_EventCnv
+use  xAODForward                xAODForward-*                   Event/xAOD
 
 library AFP_LocReco *.cxx components/*.cxx
 
@@ -35,9 +37,8 @@ apply_pattern declare_runtime files="-s=../share/mapping *.txt *.dat *.py"
 apply_pattern declare_joboptions files="*.py"
 
 private
-
 #use PathResolver		PathResolver-*			Tools
-
+use  AthLinks                   AthLinks-*                      Control
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
 
