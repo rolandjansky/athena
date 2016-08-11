@@ -17,4 +17,3 @@ branches EventShapeAthenaPool src
 
 apply_pattern poolcnv typesWithNamespace=$(eventShapeAthenaPool_poolCnvTypes) \
    files="-s=${EventShapeEvent_root}/EventShapeEvent EventShapeStore.h"
-

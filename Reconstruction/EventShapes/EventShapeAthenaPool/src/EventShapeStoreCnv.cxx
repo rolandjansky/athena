@@ -9,8 +9,8 @@
 
 EventShapeStore_PERS* EventShapeStoreCnv::createPersistent(EventShapeStore* transObj)
 {
-  MsgStream report( messageService(), "EventShapeStoreConverter" );
-  report << MSG::INFO << "Writing EventShapeStore_p1" << endreq; 
+  MsgStream report( msgSvc(), "EventShapeStoreConverter" );
+  report << MSG::INFO << "Writing EventShapeStore_p1" << endmsg; 
   EventShapeStoreCnv_p1   TPconverter;
   EventShapeStore_PERS *persObj = TPconverter.createPersistent( transObj, report );
   
@@ -25,8 +25,8 @@ EventShapeStore* EventShapeStoreCnv::createTransient()
       EventShapeStoreCnv_p1   TPconverter;
       // using auto_ptr ensures deletion of the persistent object
       std::auto_ptr<EventShapeStore_p1> shapestore( poolReadObject< EventShapeStore_p1 >() );
-      MsgStream report( messageService(), "EventShapeStoreCnv" );
-      report << MSG::INFO << "Reading EventShapeStore_p1" << endreq; 
+      MsgStream report( msgSvc(), "EventShapeStoreCnv" );
+      report << MSG::INFO << "Reading EventShapeStore_p1" << endmsg; 
       return TPconverter.createTransient( shapestore.get(), report );
     }
   throw std::runtime_error("Unsupported persistent version of EventShapeStore");
