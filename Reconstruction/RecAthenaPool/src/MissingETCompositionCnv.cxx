@@ -10,8 +10,8 @@
 
 MissingETComposition_PERS* MissingETCompositionCnv::createPersistent(MissingETComposition* transObj)
 {
-  MsgStream report( messageService(), "MissingETCompositionConverter" );
-  // report << MSG::INFO << "Writing MissingETComposition_p2" << endreq; 
+  MsgStream report( msgSvc(), "MissingETCompositionConverter" );
+  // report << MSG::INFO << "Writing MissingETComposition_p2" << endmsg; 
   if ( ! bool(m_TPconverter_p2) )
     m_TPconverter_p2 = new MissingETCompositionCnv_p2();
   MissingETComposition_PERS *persObj = m_TPconverter_p2->createPersistent( transObj, report );
@@ -28,15 +28,15 @@ MissingETComposition* MissingETCompositionCnv::createTransient()
 	      m_TPconverter_p2 = new MissingETCompositionCnv_p2();
       // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr<MissingETComposition_p2> shapestore( poolReadObject< MissingETComposition_p2 >() );
-      MsgStream report( messageService(), "MissingETCompositionCnv" );
-      // report << MSG::INFO << "Reading MissingETComposition_p1" << endreq; 
+      MsgStream report( msgSvc(), "MissingETCompositionCnv" );
+      // report << MSG::INFO << "Reading MissingETComposition_p1" << endmsg; 
       return m_TPconverter_p2->createTransient( shapestore.get(), report );
     }
     else if( compareClassGuid(p1_guid) ) {
   	    MissingETCompositionCnv_p1 TPconverter_p1;
         std::unique_ptr<MissingETComposition_p1> shapestore( poolReadObject< MissingETComposition_p1 >() );
-        MsgStream report( messageService(), "MissingETCompositionCnv" );
-        // report << MSG::INFO << "Reading MissingETComposition_p1" << endreq; 
+        MsgStream report( msgSvc(), "MissingETCompositionCnv" );
+        // report << MSG::INFO << "Reading MissingETComposition_p1" << endmsg; 
         return TPconverter_p1.createTransient( shapestore.get(), report );
     }
   throw std::runtime_error("Unsupported persistent version of MissingETComposition");
