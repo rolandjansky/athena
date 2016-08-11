@@ -5,14 +5,14 @@
 #include "TBADCRawContCnv.h"
 
 TBADCRawCont_PERS* TBADCRawContCnv::createPersistent(TBADCRawCont* transCont) {
-    MsgStream log(messageService(), "TBADCRawContConverter" );
+    MsgStream log(msgSvc(), "TBADCRawContConverter" );
     TBADCRawCont_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
-    log << MSG::DEBUG << "Success" << endreq;
+    log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
     
 TBADCRawCont* TBADCRawContCnv::createTransient() {
-   MsgStream log(messageService(), "TBADCRawContConverter" );
+   MsgStream log(msgSvc(), "TBADCRawContConverter" );
    static pool::Guid   p1_guid("4D0407FD-A534-4595-B5BD-4A8DB797A094");  // GUID of the persistent object
    static pool::Guid   p0_guid("5D407302-FD4E-42BC-A6E5-F5C9ECCDCBF1");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {

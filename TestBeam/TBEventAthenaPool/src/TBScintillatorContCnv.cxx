@@ -5,14 +5,14 @@
 #include "TBScintillatorContCnv.h"
 
 TBScintillatorCont_PERS* TBScintillatorContCnv::createPersistent(TBScintillatorCont* transCont) {
-    MsgStream log(messageService(), "TBScintillatorContConverter" );
+    MsgStream log(msgSvc(), "TBScintillatorContConverter" );
     TBScintillatorCont_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
-    log << MSG::DEBUG << "Success" << endreq;
+    log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
     
 TBScintillatorCont* TBScintillatorContCnv::createTransient() {
-   MsgStream log(messageService(), "TBScintillatorContConverter" );
+   MsgStream log(msgSvc(), "TBScintillatorContConverter" );
    static pool::Guid   p1_guid("5887098D-DBFE-4634-92AB-CC9968CCB09A");  // GUID of the persistent object
    static pool::Guid   p0_guid("AE688514-B192-426D-A971-5CD072593272");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {

@@ -5,14 +5,14 @@
 #include "TBTriggerPatternUnitCnv.h"
 
 TBTriggerPatternUnit_PERS* TBTriggerPatternUnitCnv::createPersistent(TBTriggerPatternUnit* transCont) {
-    MsgStream log(messageService(), "TBTriggerPatternUnitConverter" );
+    MsgStream log(msgSvc(), "TBTriggerPatternUnitConverter" );
     TBTriggerPatternUnit_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
-    log << MSG::DEBUG << "Success" << endreq;
+    log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
     
 TBTriggerPatternUnit* TBTriggerPatternUnitCnv::createTransient() {
-   MsgStream log(messageService(), "TBTriggerPatternUnitConverter" );
+   MsgStream log(msgSvc(), "TBTriggerPatternUnitConverter" );
    static pool::Guid   p1_guid("7630C108-3B5F-4ED3-97C8-F3148AF1B84F");  // GUID of the persistent object
    static pool::Guid   p0_guid("0B82A5B3-0808-4B78-B47B-BFE9388EEEEB");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {

@@ -5,14 +5,14 @@
 #include "TBTrackInfoCnv.h"
 
 TBTrackInfo_PERS* TBTrackInfoCnv::createPersistent(TBTrackInfo* transCont) {
-    MsgStream log(messageService(), "TBTrackInfoConverter" );
+    MsgStream log(msgSvc(), "TBTrackInfoConverter" );
     TBTrackInfo_PERS *persObj = m_TPConverter.createPersistent( transCont, log );
-    log << MSG::DEBUG << "Success" << endreq;
+    log << MSG::DEBUG << "Success" << endmsg;
     return persObj; 
 }
     
 TBTrackInfo* TBTrackInfoCnv::createTransient() {
-   MsgStream log(messageService(), "TBTrackInfoConverter" );
+   MsgStream log(msgSvc(), "TBTrackInfoConverter" );
    static pool::Guid   p1_guid("A49F674F-25AD-496B-BEBE-DE1EBEAFE990");  // GUID of the persistent object
    static pool::Guid   p0_guid("5780AB02-D5D1-4537-B682-56CA95927BFB");  // GUID of the transient object
    if( compareClassGuid(p1_guid) ) {
