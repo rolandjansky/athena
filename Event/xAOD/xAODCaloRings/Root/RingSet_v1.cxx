@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: RingSet_v1.cxx 708163 2015-11-16 16:03:55Z ssnyder $ 
+// $Id: RingSet_v1.cxx 767576 2016-08-11 13:53:42Z ssnyder $ 
 #include "xAODCaloRings/versions/RingSet_v1.h"
 #include "xAODCaloRings/tools/PrintHelperFcns.h"
 
@@ -92,7 +92,7 @@ void RingSet_v1::copyTo(std::vector<float> &vec) const {
 void RingSet_v1::print( MsgStream &stream, MSG::Level level ) const {
   const std::vector<float> &ringsE = constAccRingsE( *this );
   if( stream.level() <= level ) {
-    stream << ringsE << endreq;
+    stream << ringsE << endmsg;
   }
 }
 

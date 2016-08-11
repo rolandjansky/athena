@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRings_v1.cxx 708163 2015-11-16 16:03:55Z ssnyder $ 
+// $Id: CaloRings_v1.cxx 767576 2016-08-11 13:53:42Z ssnyder $ 
 
 // standard library includes:
 #include <stdexcept>
@@ -312,7 +312,7 @@ CaloRings_v1& CaloRings_v1::operator=(const CaloRings_v1& cl_rings )
 void CaloRings_v1::print(MsgStream &stream, MSG::Level level ) const 
 {
   if( stream.level() <= level ) {
-    stream << level << "CaloRings are : " << endreq;
+    stream << level << "CaloRings are : " << endmsg;
     for (unsigned rsIdx = 0; rsIdx < this->nRingSets(); ++rsIdx) {
       stream << level << "Ringset #" << rsIdx << " : ";
       const RingSet_v1* rs = this->at(rsIdx);

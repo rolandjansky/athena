@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: CaloRings_v1.h 708163 2015-11-16 16:03:55Z ssnyder $
+// $Id: CaloRings_v1.h 708162 2015-11-16 16:03:49Z ssnyder $
 #ifndef XAODCALORINGS_VERSIONS_CALORINGS_V1_H
 #define XAODCALORINGS_VERSIONS_CALORINGS_V1_H
 
@@ -54,8 +54,8 @@ namespace xAOD {
  * 
  * This package was based on xAODEgamma implementation.
  *
- * $Revision: 708163 $
- * $Date: 2015-11-16 17:03:55 +0100 (Mon, 16 Nov 2015) $
+ * $Revision: 708162 $
+ * $Date: 2015-11-16 17:03:49 +0100 (Mon, 16 Nov 2015) $
  **/
 class CaloRings_v1 : public SG::AuxElement {
 
