@@ -54,7 +54,7 @@ JetCollectionCnv_p5::persToTrans( const JetCollection_p5* pers,
                                   MsgStream& msg ) 
 {
   msg << MSG::DEBUG << "Loading JetCollection from persistent state..."
-      << endreq;
+      << endmsg;
 
   // make sure to first read the JetKeyDescriptor
   DataLinkCnv_p1<DataLink<JetKeyDescriptor> > JetKeyStoreCnv;
@@ -81,7 +81,7 @@ JetCollectionCnv_p5::persToTrans( const JetCollection_p5* pers,
   else 
     trans->m_keyDescInstance.m_Stores  = JetKeyDescriptorInstance::instance()->m_Stores;
 
-  msg <<  MSG::DEBUG << "attached JetKeyDescriptor to its instance" << endreq;
+  msg <<  MSG::DEBUG << "attached JetKeyDescriptor to its instance" << endmsg;
   
   /// Individual items
 
@@ -101,7 +101,7 @@ JetCollectionCnv_p5::persToTrans( const JetCollection_p5* pers,
   }
 
   msg << MSG::DEBUG << "Loading JetCollection from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -111,7 +111,7 @@ JetCollectionCnv_p5::transToPers( const JetCollection* trans,
                                   MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection..."
-//       << endreq;
+//       << endmsg;
 
   pers->m_ordered   = static_cast<short>(trans->m_ordered);
   // not used any more ... //pers->m_roiAuthor = trans->m_ROIauthor;
@@ -130,7 +130,7 @@ JetCollectionCnv_p5::transToPers( const JetCollection* trans,
   JetKeyStoreCnv.transToPers( &trans->m_keyStore, &pers->m_keyStore, msg );
   
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
