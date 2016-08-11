@@ -269,11 +269,17 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
     }
 
     // Get L1Topo output bit names from the LVL1 menu thresholds
-    std::map<unsigned int, std::string> topoCounterToName;
+    
+    // KW COMMENTING OUT
+    // LABELS ARE CROWDED AND ILLEGIBLE
+    // ALPHANUMERIC LABELS BREAK TIER-0 MERGING (ATR-13604)
+
+    /*std::map<unsigned int, std::string> topoCounterToName;
     const std::vector<TrigConf::TriggerThreshold*>& thrVec = 
       m_configSvc->thresholdConfig()->
       getThresholdVector(TrigConf::L1DataDef::TOPO);
     ATH_MSG_INFO("L1Topo bits found in the LVL1 menu = " << thrVec.size());
+    
     if (thrVec.size()>0) {
       for (auto thr : thrVec) {
 	if (thr) {
@@ -289,17 +295,17 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
       for (unsigned int binIndex=0; binIndex<128; ++binIndex){ 
 	auto it = topoCounterToName.find(binIndex);
 	std::string label;
-	if (it != topoCounterToName.end()){
+	if (it != topoCounterToName.end()){ // KW commenting out (labels are crowded & illegible)
 	  label=it->second;
 	}
 	else {
 	  label=std::to_string(binIndex);
-    // cout << (binIndex%32+1);
+          cout << (binIndex%32+1);
 	}
 	m_h_l1topo_2d_ItemsBC[binIndex/32]->GetXaxis()->
 	  SetBinLabel(binIndex%32+1,label.c_str());
       }
-    }
+    }*/
 
     m_histTool->unsetMonGroup();
     m_histBooked = true;

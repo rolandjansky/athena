@@ -51,7 +51,7 @@ if l1caloRawMon:
             svcMgr += ByteStreamAddressProviderSvc()
         svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "CTP_RDO/CTP_RDO" ]
         svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "ROIB::RoIBResult/RoIBResult" ]
-        svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "L1TopoRDOCollection/L1TopoRDOCollection" ]
+        svcMgr.ByteStreamAddressProviderSvc.TypeNames += [ "L1TopoRDOCollection/L1TopoRDOCollection" ] 
 
     if isData and isCalo and (Online or rec.triggerStream() == "express"
                                      or rec.triggerStream() == "JetTauEtmiss"):
@@ -106,20 +106,19 @@ if l1caloRawMon:
         ToolSvc += L1CaloPMTScoresMonTool
         L1Man.AthenaMonTools += [ L1CaloPMTScoresMonTool ]
 
-    #if isData and DQMonFlags.doCTPMon():
+    if isData and DQMonFlags.doCTPMon():
 
         ####################### L1Calo->CTP ################################
-     #   from IOVDbSvc.CondDB import conddb
-     #   conddb.addFolderWithTag("TRIGGER", "/TRIGGER/LVL1/CTPCoreInputMapping", "HEAD")
+        from IOVDbSvc.CondDB import conddb
+        #conddb.addFolderWithTag("TRIGGER", "/TRIGGER/LVL1/CTPCoreInputMapping", "HEAD") #KW comment out because breaking Reco_tf
 
-     #   from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloCTPMon
-     #   L1CaloCTPMonTool = L1CaloCTPMon(
-     #       name = "L1CaloCTPMonTool",
-     #       #OutputLevel = DEBUG,
-     #       #OutputLevel = VERBOSE,
-     #       )
-     #   ToolSvc += L1CaloCTPMonTool
-     #   L1Man.AthenaMonTools += [ L1CaloCTPMonTool ]
+        from TrigT1Monitoring.TrigT1MonitoringConf import LVL1__L1CaloCTPMon
+        L1CaloCTPMonTool = LVL1__L1CaloCTPMon(
+            name = "L1CaloCTPMonTool",
+            #OutputLevel = DEBUG,
+        )
+        ToolSvc += L1CaloCTPMonTool
+        L1Man.AthenaMonTools += [ L1CaloCTPMonTool ]
 
     ####################### L1Calo->Level-2 ################################
     #from TrigT1Monitoring.TrigT1MonitoringConf import L1CaloLevel2Mon
@@ -146,3 +145,5 @@ if l1caloRawMon:
     L1Man.Environment         = DQMonFlags.monManEnvironment()
     L1Man.ManualDataTypeSetup = DQMonFlags.monManManualDataTypeSetup()
     L1Man.DataType            = DQMonFlags.monManDataType()
+
+print svcMgr.MessageSvc
