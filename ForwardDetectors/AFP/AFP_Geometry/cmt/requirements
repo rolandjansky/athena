@@ -19,8 +19,8 @@ apply_pattern installed_library
 apply_pattern declare_runtime files="-s=*.txt *.dat *.py"
 
 private
-#macro cppdebugflags '$(cppdebugflags_s)'
-#macro_remove componentshr_linkopts "-Wl,-s"
+macro cppdebugflags '$(cppdebugflags_s)'
+macro_remove componentshr_linkopts "-Wl,-s"
 end_private
 
 private

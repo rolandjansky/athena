@@ -21,7 +21,7 @@
 #include <vector>
 #include <string>
 
-enum eStationElement { ESE_HBP, ESE_SID, ESE_TD1, ESE_TD2 };
+enum eStationElement { ESE_RPOT, ESE_SID, ESE_TOF};
 enum eSIDTransformType { ESTT_SUPPORT, ESTT_PLATE, ESTT_SENSOR, ESTT_VACUUMSENSOR, ESTT_SENSORLOCAL, ESTT_SENSORGLOBAL };
 enum eAFPStation { EAS_UNKNOWN=-1, EAS_AFP00=0, EAS_AFP01=1, EAS_AFP02=2, EAS_AFP03=3 };
 
