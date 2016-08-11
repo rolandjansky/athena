@@ -10,8 +10,8 @@
 
 JetMomentMap_PERS* JetMomentMapCnv::createPersistent(JetMomentMap* transObj)
 {
-  MsgStream report( messageService(), "JetMomentMapConverter" );
-  report << MSG::DEBUG << "Writing JetMomentMap_p6" << endreq; 
+  MsgStream report( msgSvc(), "JetMomentMapConverter" );
+  report << MSG::DEBUG << "Writing JetMomentMap_p6" << endmsg; 
   JetMomentMapCnv_p6   TPconverter;
   JetMomentMap_PERS *persObj = TPconverter.createPersistent( transObj, report );
 
@@ -29,16 +29,16 @@ JetMomentMap* JetMomentMapCnv::createTransient()
       JetMomentMapCnv_p1   TPconverter;
       // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr<JetMomentMap_p1> jet_momentdescr( poolReadObject< JetMomentMap_p1 >() );
-      MsgStream report( messageService(), "JetMomentMapCnv" );
-      report << MSG::DEBUG << "Reading JetMomentMap_p6" << endreq; 
+      MsgStream report( msgSvc(), "JetMomentMapCnv" );
+      report << MSG::DEBUG << "Reading JetMomentMap_p6" << endmsg; 
       return TPconverter.createTransient( jet_momentdescr.get(), report );
     }else if( compareClassGuid(p6_guid) )
     {
       JetMomentMapCnv_p6   TPconverter;
       // using unique_ptr ensures deletion of the persistent object
       std::unique_ptr<JetMomentMap_p6> jet_momentdescr( poolReadObject< JetMomentMap_p6 >() );
-      MsgStream report( messageService(), "JetMomentMapCnv" );
-      report << MSG::DEBUG << "Reading JetMomentMap_p6" << endreq; 
+      MsgStream report( msgSvc(), "JetMomentMapCnv" );
+      report << MSG::DEBUG << "Reading JetMomentMap_p6" << endmsg; 
       return TPconverter.createTransient( jet_momentdescr.get(), report );
     }
 

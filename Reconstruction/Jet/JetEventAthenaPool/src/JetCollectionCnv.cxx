@@ -48,7 +48,7 @@ JetCollectionCnv::createPersistent( JetCollection* transCont )
 {
 
   MsgStream msg( msgSvc(), "JetCollectionCnv" );
-  msg << MSG::DEBUG << " in createPersistent" << endreq;
+  msg << MSG::DEBUG << " in createPersistent" << endmsg;
   return m_TPConverter.createPersistent (transCont, m_log);
 }
 
@@ -63,7 +63,7 @@ JetCollection* JetCollectionCnv::createTransient()
 
   JetCollection *transObj = 0;
 
-  msg << MSG::DEBUG << "  JetCollectionCnv::createTransient() "<< endreq;
+  msg << MSG::DEBUG << "  JetCollectionCnv::createTransient() "<< endmsg;
 
   static pool::Guid tr_guid("2FB4D25D-E217-4B8A-B865-180DE73B20E0");
   static pool::Guid pj_guid("E97C0C61-0B3E-401C-B853-A3302168283E");
@@ -75,12 +75,12 @@ JetCollection* JetCollectionCnv::createTransient()
   static pool::Guid tlp6_guid("77DFEE77-16A5-45DD-91FB-FDEEF2B65F7D");
 
   if ( compareClassGuid(tlp6_guid) ) {
-    msg << MSG::DEBUG << "  JetCollectionCnv:  calling tlp6 converter" <<endreq;
+    msg << MSG::DEBUG << "  JetCollectionCnv:  calling tlp6 converter" <<endmsg;
     poolReadObject<JetCollection_tlp6> (m_TPConverter);
     return m_TPConverter.createTransient(m_log);
 
   } else  if ( compareClassGuid(tlp5_guid) ) {
-    msg << MSG::DEBUG << "  JetCollectionCnv:  calling tlp5 converter" <<endreq;
+    msg << MSG::DEBUG << "  JetCollectionCnv:  calling tlp5 converter" <<endmsg;
     poolReadObject<JetCollection_tlp5> (m_tlp5_cnv);
     return transObj = m_tlp5_cnv.createTransient(m_log);
 
@@ -90,7 +90,7 @@ JetCollection* JetCollectionCnv::createTransient()
     // as we want to read out specifically JetColleciton_tlp2, not just
     // the lastest guy.
 
-    msg << MSG::DEBUG << "  JetCollectionCnv:  calling tlp2 converter" <<endreq;
+    msg << MSG::DEBUG << "  JetCollectionCnv:  calling tlp2 converter" <<endmsg;
     poolReadObject<JetCollection_tlp2> (m_tlp2_cnv);
     return m_tlp2_cnv.createTransient(m_log);
 
@@ -121,7 +121,7 @@ JetCollection* JetCollectionCnv::createTransient()
     transObj = m_p3_cnv.createTransient( persObj.get(), msg );
     
   } else if ( compareClassGuid(pj_guid) ) {
-    msg << MSG::DEBUG << " creating pj_guid "<< endreq;
+    msg << MSG::DEBUG << " creating pj_guid "<< endmsg;
     // using unique_ptr ensures deletion of the persistent object
     std::unique_ptr<ParticleJetContainer_p1> persObj( poolReadObject<ParticleJetContainer_p1>() );
     transObj = m_pjp1_cnv.createTransient( persObj.get(), msg );
@@ -154,7 +154,7 @@ StatusCode JetCollectionCnv::initialize (void)
   if (converter != 0) {
     registerExtendingCnv (converter);
   } else {
-    m_log << MSG::FATAL << "Could not load the jet tag info converters for readback!" << endreq;
+    m_log << MSG::FATAL << "Could not load the jet tag info converters for readback!" << endmsg;
     return StatusCode::FAILURE;
   } 
 
