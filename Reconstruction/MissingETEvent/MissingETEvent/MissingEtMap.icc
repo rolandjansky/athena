@@ -308,7 +308,7 @@ void MissingEtMap<KEYOBJECT,REFSTORE>::dump(MsgStream& report,
 	 << "MissingEtMap[\042" << this->getMapType() << "\042] <" 
 	 << mapName << "> has "
 	 << mapSize << " entries (may be pre-allocated only!)."
-	 << endreq;
+	 << endmsg;
   const_iterator fMap = this->begin();
   const_iterator lMap = this->end();
   unsigned int nPtrs(0);
@@ -349,7 +349,7 @@ void MissingEtMap<KEYOBJECT,REFSTORE>::dump(MsgStream& report,
 	     << xRefs << " asscociations per pointer "
 	     << "(total associations: "
 	     << nRefs << ")"
-	     << endreq;
+	     << endmsg;
       if ( nRefs > 0 )
 	{
 	  std::vector<double> xHist; xHist.resize(nHist.size(),0.);
@@ -359,19 +359,19 @@ void MissingEtMap<KEYOBJECT,REFSTORE>::dump(MsgStream& report,
 		(double)(int(((double)nHist[i] /(double)nPtrs)*10000.))/100.;
 	    }
 	  report << msgLvl << "MissingEtMap <" << mapName << "> has "
-		 << "pointers with: " << endreq;
+		 << "pointers with: " << endmsg;
 	  for ( size_t i=0; i<nHist.size()-1;i++ )
 	    {
 	      report << msgLvl << "        " << i << " associations: "
 		     << std::setw(5) << xHist[i] << "% (total "
 		     << nHist[i]
-		     << ")" << endreq;
+		     << ")" << endmsg;
 	    }
 	  report << msgLvl <<  "      >=" << nHist.size()-1 
 		 << " associations: "
 		 << std::setw(5) << xHist[nHist.size()-1] << "% (total "
 		 << nHist[nHist.size()-1]
-		 << ")" << endreq;
+		 << ")" << endmsg;
 	}
       
     }
