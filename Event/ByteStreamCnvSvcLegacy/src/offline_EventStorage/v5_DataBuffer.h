@@ -9,7 +9,7 @@
 #define OFFLINE_EVENTSTORAGE_V5_DATABUFFER_H
 
 #include <string>
-#include <v5_ESCompression.h>
+#include "v5_ESCompression.h"
 
 namespace offline_EventStorage_v5 {
   
@@ -30,7 +30,7 @@ namespace offline_EventStorage_v5 {
 
   private:
     class implementation;
-    implementation * rep;
+    implementation * m_rep;
     
     DataBuffer(const DataBuffer& aBuf);
     DataBuffer& operator= (const offline_EventStorage_v5::DataBuffer & aBuf);

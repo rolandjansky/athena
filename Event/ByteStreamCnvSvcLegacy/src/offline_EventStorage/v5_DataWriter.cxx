@@ -174,7 +174,7 @@ initDW(const string writingPath,
   m_cFileOpen=false;
   m_openFailed = false;
   
-  mp_callBack = NULL;
+  m_callBack = NULL;
 
   m_fmdStrings = fmdStrings;
 
@@ -471,9 +471,9 @@ DWError DataWriter::closeFile()
   if(fileExists(nameFile(FINISHED)) && m_cFileOpen) 
     {
       ERS_DEBUG(2,"Finished file "<<nameFile(FINISHED));
-      if(mp_callBack != NULL) {
+      if(m_callBack != NULL) {
 	ERS_DEBUG(3,"Execute callback from DataWriter.");
-	mp_callBack->FileWasClosed(
+	m_callBack->FileWasClosed(
 				   m_filenamecallback->getCurrentFileName(),
 				   nameFile(FINISHED),
 				   m_streamType,
@@ -597,9 +597,9 @@ void DataWriter::openNextFile()
   m_cFileOpen = m_cFile.good();
   m_openFailed = !m_cFile.good();
   
-  if((mp_callBack != NULL) && m_cFileOpen) {
+  if((m_callBack != NULL) && m_cFileOpen) {
     ERS_DEBUG(3,"Execute callback from DataWriter.");
-    mp_callBack->FileWasOpened(
+    m_callBack->FileWasOpened(
 			       m_filenamecallback->getCurrentFileName(),
 			       nameFile(UNFINISHED),
 			       m_streamType,
@@ -730,9 +730,9 @@ void DataWriter::file_record(const offline_EventStorage_v5::freeMetaDataStrings&
 }
 
 void DataWriter::registerCallBack(DataWriterCallBack *pUserCBclass) {
-  mp_callBack = pUserCBclass;
-  if(mp_callBack != NULL) {
-    mp_callBack->FileWasOpened(
+  m_callBack = pUserCBclass;
+  if(m_callBack != NULL) {
+    m_callBack->FileWasOpened(
 			       m_filenamecallback->getCurrentFileName(),
 			       nameFile(UNFINISHED),
 			       m_streamType,

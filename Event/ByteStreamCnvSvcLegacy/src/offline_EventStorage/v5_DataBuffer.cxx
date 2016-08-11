@@ -59,24 +59,24 @@ private:
 };
 
 offline_EventStorage_v5::DataBuffer::DataBuffer():
-  rep(new implementation())
+  m_rep(new implementation())
 {}
 
 offline_EventStorage_v5::DataBuffer::DataBuffer(const uint32_t& size):
-  rep(new implementation(size))
+  m_rep(new implementation(size))
 {}
 
 offline_EventStorage_v5::DataBuffer::~DataBuffer()
-{ delete rep; }
+{ delete m_rep; }
      
 void offline_EventStorage_v5::DataBuffer::realloc(const uint32_t& newsize)
-{ return rep->realloc(newsize); }
+{ return m_rep->realloc(newsize); }
 
 void offline_EventStorage_v5::DataBuffer::grow(const uint32_t& newsize)
-{ return rep->grow(newsize); }
+{ return m_rep->grow(newsize); }
 
 void* offline_EventStorage_v5::DataBuffer::handle()
-{ return rep->handle(); }
+{ return m_rep->handle(); }
     
 uint32_t offline_EventStorage_v5::DataBuffer::buffersize() const
-{ return rep->buffersize(); }
+{ return m_rep->buffersize(); }
