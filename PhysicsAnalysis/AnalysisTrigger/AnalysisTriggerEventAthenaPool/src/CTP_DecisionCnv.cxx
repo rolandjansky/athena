@@ -20,7 +20,7 @@ static CTP_DecisionCnv_p1 TPConverter_p1;
 
 CTP_Decision_PERS* CTP_DecisionCnv::createPersistent( CTP_Decision* transObj ) {
 
-  MsgStream log( this->messageService(), "CTP_DecisionCnv" );
+  MsgStream log( this->msgSvc(), "CTP_DecisionCnv" );
   CTP_Decision_PERS* persObj = TPConverter.createPersistent( transObj, log );
   return persObj;
 
@@ -35,13 +35,13 @@ CTP_Decision* CTP_DecisionCnv::createTransient() {
   if( this->compareClassGuid( p2_guid ) ) {
 
     std::auto_ptr< CTP_Decision_p2 > pers_ref( this->poolReadObject< CTP_Decision_p2 >() );
-    MsgStream log( this->messageService(), "CTP_DecisionCnv" );
+    MsgStream log( this->msgSvc(), "CTP_DecisionCnv" );
     return TPConverter.createTransient( pers_ref.get(), log );
 
   } else if( this->compareClassGuid( p1_guid ) ) {
 
     std::auto_ptr< CTP_Decision_p1 > pers_ref( this->poolReadObject< CTP_Decision_p1 >() );
-    MsgStream log( this->messageService(), "CTP_DecisionCnv" );
+    MsgStream log( this->msgSvc(), "CTP_DecisionCnv" );
     return TPConverter_p1.createTransient( pers_ref.get(), log );
 
   } else if( this->compareClassGuid( p0_guid ) ) {

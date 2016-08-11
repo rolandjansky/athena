@@ -13,7 +13,7 @@ static LVL1_ROICnv_p1 TPConverter;
 
 LVL1_ROI_PERS* LVL1_ROICnv::createPersistent( LVL1_ROI* transObj ) {
 
-  MsgStream log( this->messageService(), "LVL1_ROICnv" );
+  MsgStream log( this->msgSvc(), "LVL1_ROICnv" );
   LVL1_ROI_PERS* persObj = TPConverter.createPersistent( transObj, log );
   return persObj;
 
@@ -27,7 +27,7 @@ LVL1_ROI* LVL1_ROICnv::createTransient() {
   if( this->compareClassGuid( p1_guid ) ) {
 
     std::auto_ptr< LVL1_ROI_p1 > pers_ref( this->poolReadObject< LVL1_ROI_p1 >() );
-    MsgStream log( this->messageService(), "LVL1_ROICnv" );
+    MsgStream log( this->msgSvc(), "LVL1_ROICnv" );
     return TPConverter.createTransient( pers_ref.get(), log );
 
   } else if( this->compareClassGuid( p0_guid ) ) {
