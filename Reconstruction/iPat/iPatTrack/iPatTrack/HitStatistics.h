@@ -156,7 +156,7 @@ HitStatistics::bits (const char *p, unsigned int maxbit, unsigned int from, unsi
 {
     return (from > maxbit ? 0 :
             (((unsigned int) *(p+from/CHAR_BIT) >> (CHAR_BIT-from%CHAR_BIT-n))
-             & ~(~0 << n)));
+             & ~(~0u << n)));
 }
 
 //<<<<<< INLINE PUBLIC MEMBER FUNCTIONS                                        >>>>>>
