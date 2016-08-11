@@ -88,6 +88,7 @@ class TrigT1CaloLWHistogramTool;
 
    /** Histos */   
    // Data transmission checks
+
    TH1F_LW* m_h_l1topo_1d_CMXTobs;
    TH1F_LW* m_h_l1topo_1d_Simulation;
    TH1F_LW* m_h_l1topo_1d_JetTobs_EnergyLg;
@@ -95,15 +96,10 @@ class TrigT1CaloLWHistogramTool;
    TH2F_LW* m_h_l1topo_2d_JetTobs_Hitmap_match;
    TH1F_LW* m_h_l1topo_1d_Errors;
    TH1F_LW* m_h_l1topo_1d_DAQTobs;
-   TH1F_LW* m_h_l1topo_1d_DAQJetTobs_no0;
    TH1F_LW* m_h_l1topo_1d_DAQJetTobs;
-   TH1F_LW* m_h_l1topo_1d_DAQTauTobs_no0;
    TH1F_LW* m_h_l1topo_1d_DAQTauTobs;
-   TH1F_LW* m_h_l1topo_1d_DAQEMTobs_no0;
    TH1F_LW* m_h_l1topo_1d_DAQEMTobs;
-   TH1F_LW* m_h_l1topo_1d_DAQMuonTobs_no0;
    TH1F_LW* m_h_l1topo_1d_DAQMuonTobs;
-   TH1F_LW* m_h_l1topo_1d_DAQEnergyTobs;
    TH1F_LW* m_h_l1topo_1d_DAQTriggerBits;
    TH1F_LW* m_h_l1topo_1d_DAQMismatchTriggerBits;
    TH1F_LW* m_h_l1topo_1d_DAQOverflowBits;
