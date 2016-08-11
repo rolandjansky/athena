@@ -382,7 +382,7 @@ if DQMonFlags.doStreamAwareMon:
       HLTMonFlags.doJet=False
       HLTMonFlags.doCalo=False
       HLTMonFlags.doMuon=False
-      DQMonFlags.doPixelMon=False
+      DQMonFlags.doPixelMon=True
       DQMonFlags.doMuonRawMon=False
       DQMonFlags.doMuonTrackMon=False
       DQMonFlags.doMuonAlignMon=False
