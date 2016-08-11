@@ -552,7 +552,7 @@ void AssocFilter<OBJ, ASSO>::setFilter( const IFilterCuts * ifilter )
       MsgStream log( Athena::getMessageSvc(), "AssocFilter" );
       log << MSG::ERROR
 	  << "Can't dynamic_cast " << ifilter << " to an AssocFilter"
-	  << endreq;
+	  << endmsg;
     }
   } //> ifilter is a valid pointer
   return;
