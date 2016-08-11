@@ -46,7 +46,7 @@ CompositeParticleContainerCnv::createPersistent( CompositeParticleContainer* tra
   CompositeParticleContainerCnv_p1 cnv;
   CompositeParticleContainer_PERS *persObj = cnv.createPersistent( transCont, msg );
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 

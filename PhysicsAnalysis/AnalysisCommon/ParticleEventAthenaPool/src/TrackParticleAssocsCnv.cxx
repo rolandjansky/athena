@@ -51,7 +51,7 @@ TrackParticleAssocsCnv::createPersistent( TrackParticleAssocs* transCont )
 
   TrackParticleAssocs_PERS *persObj = m_tpConverter_p1.createPersistent( transCont, log );
   
-  log << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  log << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return persObj; 
 }
 
