@@ -14,7 +14,7 @@ athenaCommonFlags.EvtMax = 10
 
 ## Global conditions tag
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.ConditionsTag = "OFLCOND-SIM-BS7T-00"
+globalflags.ConditionsTag = "OFLCOND-RUN12-SDR-19"
 
 ## Simulation flags
 from G4AtlasApps.SimFlags import simFlags
@@ -66,6 +66,5 @@ job.job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("HECHitsTestTool", c
 job.job.G4TestAlg.SimTestTools += [CfgGetter.getPrivateTool("FCALHitsTestTool", checkType=True)]
 # include("G4UserActions/RadLengthIntegrator_options.py")
 # include("G4UserActions/IntLengthIntegrator_options.py")
-# G4Command = AtlasG4Eng.G4Eng.gbl.G4Commands()
-# G4Command.tracking.verbose(1)
+#simFlags.G4Commands += ['/tracking/verbose 1']
 # AtlasG4Eng.G4Eng._ctrl.load("Stau")

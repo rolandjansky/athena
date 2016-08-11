@@ -28,7 +28,6 @@ public:
   TH2 *m_hits_xy, *m_hits_zr;
   TH2 *m_hits_edep_zr;
   TH1 *m_hits_edep_z, *m_hits_edep_r;
-  TH1 *m_hits_etot_eta, *m_hits_etot_phi;
   TH1 *m_hits_log_barcode;
   TH1 *m_hits_step_length, *m_hits_log_step_length;
 };

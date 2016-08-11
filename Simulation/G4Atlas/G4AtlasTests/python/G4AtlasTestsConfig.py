@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from AthenaCommon import CfgMgr
+from AthenaCommon import CfgMgr,Logging
 from AthenaCommon.AppMgr import ToolSvc
 
 def PixelHitsTestTool(name="PixelHitsTestTool", **kwargs):
@@ -53,6 +53,12 @@ def RPCHitsTestTool(name="RPCHitsTestTool", **kwargs):
 def TGCHitsTestTool(name="TGCHitsTestTool", **kwargs):
     kwargs.setdefault("DetectorName", "TGC")
     return CfgMgr.TGCHitsTestTool(name, **kwargs)
+def MMHitsTestTool(name="MMHitsTestTool", **kwargs):
+    kwargs.setdefault("DetectorName", "MM")
+    return CfgMgr.MMHitsTestTool(name, **kwargs)
+def sTGCHitsTestTool(name="sTGCHitsTestTool", **kwargs):
+    kwargs.setdefault("DetectorName", "sTGC")
+    return CfgMgr.sTGCHitsTestTool(name, **kwargs)    
 def ALFA_SimHitsTestTool(name="ALFA_SimHitsTestTool", **kwargs):
     return CfgMgr.ALFA_SimHitsTestTool(name, **kwargs)
 def ZDCHitsTestTool(name="ZDCHitsTestTool", **kwargs):
@@ -84,8 +90,14 @@ def TileCellCaloCalibHitsTestTool(name="TileCellCaloCalibHitsTestTool", **kwargs
 def TruthTestTool(name="TruthTestTool", **kwargs):
     kwargs.setdefault("McEventKey", "TruthEvent")
     return CfgMgr.TruthTestTool(name, **kwargs)
+def PileupTruthTestTool(name="PileupTruthTestTool", **kwargs):
+    kwargs.setdefault("McEventKey", "TruthEvent_PU")
+    return CfgMgr.TruthTestTool(name, **kwargs)
 def EvgenTruthTestTool(name="EvgenTruthTestTool", **kwargs):
     kwargs.setdefault("McEventKey", "GEN_EVENT")
+    return CfgMgr.TruthTestTool(name, **kwargs)
+def PileupEvgenTruthTestTool(name="PileupEvgenTruthTestTool", **kwargs):
+    kwargs.setdefault("McEventKey", "GEN_EVENT_PU")
     return CfgMgr.TruthTestTool(name, **kwargs)
 def CaloEntryLayerTestTool(name="CaloEntry", **kwargs):
     kwargs.setdefault("CollectionName", "CaloEntry")
@@ -96,9 +108,17 @@ def MuonEntryLayerTestTool(name="MuonEntry", **kwargs):
 def MuonExitLayerTestTool(name="MuonExit", **kwargs):
     kwargs.setdefault("CollectionName", "MuonExit")
     return CfgMgr.LayerTestTool(name, **kwargs)
-def SteppingValidation(name="SteppingValidation",**kwargs):
-    return CfgMgr.SteppingValidation(name, **kwargs)
 def LucidHitsTestTool(name="LucidHitsTestTool",**kwargs):
     return CfgMgr.LucidHitsTestTool(name, **kwargs)
 
 
+def getSteppingValidationTool(name="G4UA::SteppingValidationTool",**kwargs):
+    from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps
+    if concurrencyProps.ConcurrencyFlags.NumThreads() >1:
+        log=Logging.logging.getLogger(name)
+        log.fatal('Attempt to run '+name+' with more than one thread, which is not supported')
+        #from AthenaCommon.AppMgr import theApp
+        #theApp.exit(1)
+        return False
+    from G4AtlasTests.G4AtlasTestsConf import G4UA__SteppingValidationTool
+    return G4UA__SteppingValidationTool(name, **kwargs)

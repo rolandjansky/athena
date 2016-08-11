@@ -28,7 +28,7 @@ simFlags.SimLayout.set_On() # use the default value
 
 ## Set global conditions tag
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.ConditionsTag = "OFLCOND-SDR-BS7T-05-03"
+jobproperties.Global.ConditionsTag = "OFLCOND-RUN12-SDR-19"
 
 ## Use single particle generator
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags

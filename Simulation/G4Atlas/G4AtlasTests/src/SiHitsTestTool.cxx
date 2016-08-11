@@ -21,7 +21,6 @@ SiHitsTestTool::SiHitsTestTool(const std::string& type, const std::string& name,
     m_hits_xy(0), m_hits_zr(0),
     m_hits_edep_zr(0),
     m_hits_edep_z(0), m_hits_edep_r(0),
-    m_hits_etot_eta(0), m_hits_etot_phi(0),
     m_hits_log_barcode(0),
     m_hits_step_length(0),
     m_hits_log_step_length(0)
@@ -76,11 +75,6 @@ StatusCode SiHitsTestTool::initialize()
   _SET_TITLE(m_hits_edep_z, "energy weighted indet hit distribution (barrel only)","z [mm]","dE/dz [MeV/mm]");
   _TH1D_WEIGHTED(m_hits_edep_r,(detName+"_edep_r").c_str(),100,0.,1200.);
   _SET_TITLE(m_hits_edep_r, "energy weighted indet hit distribution (endcap only)","r [mm]","dE/dr [MeV/mm]");
-
-  _TPROFILE(m_hits_etot_eta,(detName+"_etot_eta").c_str(),25,-5.,5.);
-  _SET_TITLE(m_hits_etot_eta, "tot energy deposited per Event vs generator truth","eta","1/N dE/deta [MeV]");
-  _TPROFILE(m_hits_etot_phi,(detName+"_etot_phi").c_str(),25,-M_PI,M_PI);
-  _SET_TITLE(m_hits_etot_phi, "tot energy deposited per Event vs generator truth","phi","1/N dE/dphi [MeV]");
 
   _TH1D(m_hits_log_barcode,(detName+"_log_barcode").c_str(),50,0.,16.);
   _SET_TITLE(m_hits_log_barcode, "log(barcode)","log(barcode)","dN/dlog(barcode)");
@@ -140,11 +134,6 @@ StatusCode SiHitsTestTool::processEvent() {
           Side Number            1
        */
 
-    }
-    const HepMC::GenParticle *primary = getPrimary();
-    if (primary) {
-      m_hits_etot_eta->Fill(primary->momentum().eta(),etot);
-      m_hits_etot_phi->Fill(primary->momentum().phi(),etot);
     }
   }
 

@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloSimEvent
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Control/StoreGate
                           DetectorDescription/GeoModel/GeoAdaptors
                           DetectorDescription/GeoPrimitives
@@ -29,6 +30,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonIdHelpers
                           MuonSpectrometer/MuonSimEvent
                           PhysicsAnalysis/TruthParticleID/McParticleEvent
+                          Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/G4Atlas/G4AtlasTools
                           Simulation/G4Sim/MCTruth
                           Simulation/G4Sim/TrackRecord

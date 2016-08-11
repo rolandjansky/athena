@@ -90,14 +90,35 @@ protected:
     CHECK(tHistSvc()->getHist(m_path+name,var));	       \
   }
 
+#define _TH1D_NOCHECK(var,name,nbin,xmin,xmax)			       \
+  if (!tHistSvc()->exists(m_path+name)) {		       \
+    var = new TH1D(name,name,nbin,xmin,xmax);		       \
+    var->StatOverflows();				       \
+    if(registerHistogram(m_path+name,var).isFailure())        \
+  std::cout<<"Cannot register histogram "<<name<<std::endl;    \
+  } else {						       \
+    if(tHistSvc()->getHist(m_path+name,var).isFailure())       \
+      std::cout<<"Cannot get histogram "<<name<<std::endl;     \
+  }
+
 #define _TH1D_WEIGHTED(var,name,nbin,xmin,xmax)	\
   _TH1D(var,name,nbin,xmin,xmax);		\
   var->Sumw2();
 
+#define _TH2D_NOCHECK(var,name,nbinx,xmin,xmax,nbiny,ymin,ymax)	       \
+  if (!tHistSvc()->exists(m_path+name)) {		       \
+    var = new TH2D(name,name,nbinx,xmin,xmax,nbiny,ymin,ymax); \
+    if(registerHistogram(m_path+name,var).isFailure())	       \
+      std::cout<<"Cannot register histogram "<<name<<std::endl;\
+  } else {						       \
+    if(tHistSvc()->getHist(m_path+name,var).isFailure())       \
+      std::cout<<"Cannot get histogram "<<name<<std::endl;     \
+  }
+
 #define _TH2D(var,name,nbinx,xmin,xmax,nbiny,ymin,ymax)	       \
   if (!tHistSvc()->exists(m_path+name)) {		       \
     var = new TH2D(name,name,nbinx,xmin,xmax,nbiny,ymin,ymax); \
-    CHECK(registerHistogram(m_path+name,var));		       \
+    CHECK(registerHistogram(m_path+name,var));	               \
   } else {						       \
     CHECK(tHistSvc()->getHist(m_path+name,var));	       \
   }

@@ -17,12 +17,14 @@
 #include "RPCHitsTestTool.h"
 #include "CSCHitsTestTool.h"
 #include "TGCHitsTestTool.h"
+#include "MMHitsTestTool.h"
+#include "sTGCHitsTestTool.h"
 #include "ALFA_SimHitsTestTool.h"
 #include "ZDCHitsTestTool.h"
 #include "TruthTestTool.h"
 #include "LayerTestTool.h"
 #include "CaloCalibrationHitsTestTool.h"
-#include "SteppingValidation.h"
+#include "SteppingValidationTool.h"
 #include "LucidHitsTestTool.h"
 #include "CalibHitValidate.h"
 
@@ -38,6 +40,8 @@ DECLARE_FACTORY_ENTRIES(G4AtlasTests)
   DECLARE_ALGTOOL( HECHitsTestTool )
   DECLARE_ALGTOOL( TileHitsTestTool )
   DECLARE_ALGTOOL( MDTHitsTestTool )
+  DECLARE_ALGTOOL( MMHitsTestTool )
+  DECLARE_ALGTOOL( sTGCHitsTestTool )
   DECLARE_ALGTOOL( RPCHitsTestTool )
   DECLARE_ALGTOOL( CSCHitsTestTool )
   DECLARE_ALGTOOL( TGCHitsTestTool )
@@ -45,7 +49,7 @@ DECLARE_FACTORY_ENTRIES(G4AtlasTests)
   DECLARE_ALGTOOL( ZDCHitsTestTool )
   DECLARE_ALGTOOL( CaloCalibrationHitsTestTool )
   DECLARE_ALGTOOL( LayerTestTool )
-  DECLARE_ALGTOOL( SteppingValidation )
+  DECLARE_ALGTOOL( G4UA::SteppingValidationTool )
   DECLARE_ALGTOOL( LucidHitsTestTool )
   DECLARE_ALGORITHM( G4TestAlg )
   DECLARE_ALGORITHM( CalibHitValidate )
@@ -64,11 +68,13 @@ DECLARE_TOOL_FACTORY( MDTHitsTestTool )
 DECLARE_TOOL_FACTORY( RPCHitsTestTool )
 DECLARE_TOOL_FACTORY( CSCHitsTestTool )
 DECLARE_TOOL_FACTORY( TGCHitsTestTool )
+DECLARE_TOOL_FACTORY( MMHitsTestTool )
+DECLARE_TOOL_FACTORY( sTGCHitsTestTool )
 DECLARE_TOOL_FACTORY( ALFA_SimHitsTestTool )
 DECLARE_TOOL_FACTORY( ZDCHitsTestTool )
 DECLARE_TOOL_FACTORY( CaloCalibrationHitsTestTool )
 DECLARE_TOOL_FACTORY( LayerTestTool )
-DECLARE_TOOL_FACTORY( SteppingValidation )
+DECLARE_TOOL_FACTORY( G4UA::SteppingValidationTool )
 DECLARE_ALGORITHM_FACTORY( G4TestAlg )
 DECLARE_ALGORITHM_FACTORY( CalibHitValidate )
 DECLARE_TOOL_FACTORY( LucidHitsTestTool )
