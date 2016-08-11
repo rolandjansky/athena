@@ -46,7 +46,7 @@ namespace Analysis {
     double pu = info.tagLikelihood()[1];
     double ww = log(pb/pu);
     out << " - Tag type " << info.infoType() 
-	<< " : P(b)= " << pb << " P(u)= " << pu << " W= " << ww << endreq;
+	<< " : P(b)= " << pb << " P(u)= " << pu << " W= " << ww << endmsg;
     return out;
   }
 
