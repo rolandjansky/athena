@@ -55,7 +55,7 @@ namespace Analysis {
     out << " - Tag type " << info.infoType() 
 	<< "2nd/3rd highest ip2d significance: "   << info.d0sig_2nd()     << " / "  << info.d0sig_3rd() 
 	<< "2nd/3rd highest |ip2d significance|: " << info.d0sig_abs_2nd() << " / "  << info.d0sig_abs_3rd() 
-	<< endreq; 
+	<< endmsg; 
     return out;
   }
 

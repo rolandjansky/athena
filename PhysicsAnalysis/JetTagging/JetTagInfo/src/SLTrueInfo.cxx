@@ -41,7 +41,7 @@ MsgStream& operator<<( MsgStream& out, const SLTrueInfo& info) {
       << " pt = " << info.momentum().perp()
       << " pdgMother = " << info.pdgIdMother()
       << " From B = " << info.FromB() << " From D = " << info.FromD() << " From Gauge/Higgs = " << info.FromGH()
-      << endreq; 
+      << endmsg; 
   return out;
 }
   

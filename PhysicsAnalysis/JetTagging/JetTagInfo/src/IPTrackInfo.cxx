@@ -100,7 +100,7 @@ MsgStream& operator<<( MsgStream& out, const IPTrackInfo& info) {
           << " weight3D= " << info.trackWeight3D() 
           << " probJP= " << info.trackProbJP() 
           << " probJPneg= " << info.trackProbJPneg() 
-          << endreq; 
+          << endmsg; 
       return out;
 }
 

@@ -47,7 +47,7 @@ namespace Analysis {
   MsgStream& operator<<( MsgStream& out, const JetProbInfoBase& info) {
     double pb = info.tagLikelihood()[0];
     out << " - Tag type " << info.infoType() 
-	<< " : Prob= " << pb << " based on " << info.nbTracks() << " tracks." << endreq;
+	<< " : Prob= " << pb << " based on " << info.nbTracks() << " tracks." << endmsg;
     return out;
   }
 

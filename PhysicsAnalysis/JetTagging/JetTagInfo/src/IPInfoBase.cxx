@@ -50,7 +50,7 @@ namespace Analysis {
     double ww = log(pb/pu);
     out << " - Tag type " << info.infoType() 
 	<< " : P(b)= " << pb << " P(u)= " << pu << " W= " << ww 
-	<< " based on " << info.nbTracks() << " tracks." << endreq;
+	<< " based on " << info.nbTracks() << " tracks." << endmsg;
     return out;
   }
 

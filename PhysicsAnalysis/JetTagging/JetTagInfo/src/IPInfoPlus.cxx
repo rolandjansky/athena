@@ -54,9 +54,9 @@ namespace Analysis {
   MsgStream& operator<<( MsgStream& out, const IPInfoPlus& info) {
     int ntrk = info.numTrackInfo();
     out << " - Tag type " << info.infoType() 
-	<< " based on " << ntrk << " tracks:" << endreq;
+	<< " based on " << ntrk << " tracks:" << endmsg;
     for(int i=0;i<ntrk;i++) {
-      out << " -> " << i << info.getTrackInfo(i) << endreq;
+      out << " -> " << i << info.getTrackInfo(i) << endmsg;
     }
     return out;
   }

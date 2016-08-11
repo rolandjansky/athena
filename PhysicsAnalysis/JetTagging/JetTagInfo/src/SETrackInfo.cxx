@@ -98,7 +98,7 @@ MsgStream& operator<<( MsgStream& out, const SETrackInfo& info) {
       << " d0wrtPV= " << info.d0Value() 
       << " original 1/pt,phi,cotTh = "<<ipt<<" "<<phi<<" "<<cth
       << " pTrel= " << info.pTrel()
-      << endreq; 
+      << endmsg; 
   return out;
 }
   
