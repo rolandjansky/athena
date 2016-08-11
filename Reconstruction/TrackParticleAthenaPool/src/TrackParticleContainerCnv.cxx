@@ -35,7 +35,7 @@ StatusCode TrackParticleContainerCnv::initialize()
   StatusCode sc = TrackParticleContainerCnvBase::initialize();
   if( sc.isFailure() ) 
   {
-    m_log << MSG::FATAL << "Could not initialize TrackParticleContainerCnvBase" << endreq;
+    m_log << MSG::FATAL << "Could not initialize TrackParticleContainerCnvBase" << endmsg;
     return sc;
   }
   
@@ -43,7 +43,7 @@ StatusCode TrackParticleContainerCnv::initialize()
 // Set up the message stream
 //-------------------------------------------------------------------------
   m_log.setLevel( m_msgSvc->outputLevel() );
-  m_log << MSG::INFO << "TrackParticleContainerCnv::initialize()" << endreq;
+  m_log << MSG::INFO << "TrackParticleContainerCnv::initialize()" << endmsg;
 
   return StatusCode::SUCCESS;
   
@@ -76,24 +76,24 @@ Rec::TrackParticleContainer * TrackParticleContainerCnv::createTransient()
   if( compareClassGuid( p3_guid ) ) {
     // std::cout<<"TrackParticleContainerCnv::createTransient p3_guid"<<std::endl;
     
-    //m_log << MSG::INFO << __FILE__<<", line "<<__LINE__<<": reading _p2" << endreq;
+    //m_log << MSG::INFO << __FILE__<<", line "<<__LINE__<<": reading _p2" << endmsg;
     poolReadObject< Rec::TrackParticleContainer_tlp3 >(m_TPConverter_tlp3);
     p_collection = m_TPConverter_tlp3.createTransient(m_log);
   } 
   else if( compareClassGuid( p2_guid ) ) {
     // std::cout<<"TrackParticleContainerCnv::createTransient p2_guid"<<std::endl;
     
-    //m_log << MSG::INFO << __FILE__<<", line "<<__LINE__<<": reading _p2" << endreq;
+    //m_log << MSG::INFO << __FILE__<<", line "<<__LINE__<<": reading _p2" << endmsg;
     poolReadObject< Rec::TrackParticleContainer_tlp2 >(m_TPConverter_tlp2);
     p_collection = m_TPConverter_tlp2.createTransient(m_log);
   } 
   else if( compareClassGuid( p1_guid ) ) {
-    //m_log << MSG::INFO << __FILE__<<", line "<<__LINE__<<": reading _p1" << endreq;
+    //m_log << MSG::INFO << __FILE__<<", line "<<__LINE__<<": reading _p1" << endmsg;
    poolReadObject< Rec::TrackParticleContainer_tlp1 >(m_TPConverter_tlp1);
    p_collection = m_TPConverter_tlp1.createTransient(m_log);
   }
   else if( compareClassGuid( p0_guid ) ) {
-    //m_log << MSG::INFO << __FILE__<<", line "<<__LINE__<<": reading _p0" << endreq;
+    //m_log << MSG::INFO << __FILE__<<", line "<<__LINE__<<": reading _p0" << endmsg;
    p_collection = poolReadObject< Rec::TrackParticleContainer >();
   }
   else {
