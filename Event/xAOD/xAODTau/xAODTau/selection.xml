@@ -1,4 +1,4 @@
-<!-- $Id: selection.xml 747258 2016-05-15 02:57:19Z griffith $ -->
+<!-- $Id: selection.xml 767396 2016-08-11 02:39:30Z griffith $ -->
 <lcgdict>
 
   <!-- TauJet_v1 dictionaries: -->
@@ -123,10 +123,6 @@
   <class name="std::vector<std::vector<ElementLink<xAOD::DiTauJetContainer_v1> > >" />
 
 
-  <!--Add the DiTauJetParameter enums -->
-  <enum pattern="xAOD::DiTauJetParameters::*"/>
-  <variable pattern="xAOD::DiTauJetParameters::*"/>
-
   <!-- TauTrack_v1 dictionaries: -->
   <class name="xAOD::TauTrack_v1" >
    <field name="m_p4" transient="true" />
@@ -154,11 +150,6 @@
   <!--Add Helper Functions -->
   <function pattern="xAOD::TauHelpers::*" />
   
-
-  <!--Add the TauJetParameter enums -->
-  <enum pattern="xAOD::TauJetParameters::*"/>
-  <variable pattern="xAOD::TauJetParameters::*"/>
-
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->
   <exclusion>

@@ -1,0 +1,12 @@
+<!-- $Id: selection.xml 747258 2016-05-15 02:57:19Z griffith $ -->
+<lcgdict>
+
+  <!--Add the TauJetParameter enums -->
+  <enum pattern="xAOD::TauJetParameters::*"/>
+  <variable pattern="xAOD::TauJetParameters::*"/>
+
+  <!--Add the DiTauJetParameter enums -->
+  <enum pattern="xAOD::DiTauJetParameters::*"/>
+  <variable pattern="xAOD::DiTauJetParameters::*"/>
+
+</lcgdict>

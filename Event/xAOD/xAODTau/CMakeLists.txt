@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 750177 2016-05-27 08:12:45Z krasznaa $
+# $Id: CMakeLists.txt 767396 2016-08-11 02:39:30Z griffith $
 ################################################################################
 # Package: xAODTau
 ################################################################################
@@ -35,6 +35,12 @@ atlas_add_dictionary( xAODTauDict
    xAODTau/selection.xml
    LINK_LIBRARIES xAODTau
    EXTRA_FILES Root/dict/*.cxx )
+
+atlas_add_dictionary( xAODTau_cDict
+   xAODTau/xAODTau_cDict.h
+   xAODTau/selection_c.xml
+   LINK_LIBRARIES xAODTau )
+
 
 # Test(s) in the package:
 atlas_add_test( xAODTau_TauJet_test
