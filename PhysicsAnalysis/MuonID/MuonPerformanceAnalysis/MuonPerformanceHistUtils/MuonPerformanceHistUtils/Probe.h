@@ -42,9 +42,17 @@ class Probe {
   // set probe closest match dr
   void dr_match(float in){ m_dr_match = in;}
 
-  float sfweight(){ return m_sf_weight;}
-  void sfweight(float w ){ m_sf_weight = w;}
+  float sf_trig(){ return m_sf_trig;}
+  void sf_trig(float w ){ m_sf_trig = w;}
 
+  float sf_isol(){ return m_sf_isol;}
+  void sf_isol(float w ){ m_sf_isol = w;}
+
+  float sf_reco(){ return m_sf_reco;}
+  void sf_reco(float w ){ m_sf_reco = w;}
+
+  float sfweight(){ return m_sf_isol * m_sf_reco * m_sf_trig;}
+  
   // trigger stuff
   void        SetCurrentTrigger(std::string TrigName) { m_CurrentTrigger = TrigName;}
   std::string GetCurrentTrigger()		      { return m_CurrentTrigger;}   
@@ -69,6 +77,9 @@ class Probe {
   const xAOD::IParticle& m_tagTrack;
   const xAOD::IParticle& m_probeTrack;
   
+  float m_sf_reco;     // for closure tests
+  float m_sf_isol;     // for closure tests
+  float m_sf_trig;     // for closure tests
   float m_sf_weight;     // for closure tests
   float m_dr_match;      // dR distance to closest match
 

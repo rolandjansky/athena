@@ -93,6 +93,11 @@ void MuonResonancePlots::BookPlots(){
   Binning2D(h_Zm_2ndPhi        ,"h_Zm_2ndPhi");                      //Mmumu vs. phi of subleading muon
   Binning2D(h_Zm_1stEta        ,"h_Zm_1stEta");                      //Mmumu vs. eta of leading muon 
   Binning2D(h_Zm_2ndEta        ,"h_Zm_2ndEta");                      //Mmumu vs. eta of subleading muon
+
+  Binning2D(h_Zm_Eta,"h_Zm_Eta");          //Mmumu vs. eta - both muons in the same eta bin 
+
+  Binning2D(h_Zm_1stEta01,"h_Zm_1stEta01");
+
   Binning2D(h_Zm_1stPt         ,"h_Zm_1stPt");                       //Mmumu vs. pt of leading muon 
   Binning2D(h_Zm_2ndPt         ,"h_Zm_2ndPt");                       //Mmumu vs. pt of subleading muon 
   Binning2D(h_Zm_mu_avPt       ,"h_Zm_mu_avPt");                     //Mmumu vs. average pt of muons
@@ -194,7 +199,23 @@ void MuonResonancePlots::fill(const xAOD::Muon& mu1st, const xAOD::Muon& mu2nd, 
   Fill2D( h_Zm_2ndPhi,  l2.Phi(), V.M()/fGeV, w);
   Fill2D( h_Zm_1stEta,  l1.Eta(), V.M()/fGeV, w);
   Fill2D( h_Zm_2ndEta,  l2.Eta(), V.M()/fGeV, w);
+
+// BOTH MUONS IN SAME ETABIN: 20 BINS OF 0.25 FROM -2.5 TO 2.5
+  for (int ie=0; ie<20; ie++){
+    float xe = -2.5+0.25*ie;
+    if ((l1.Eta()>xe && l1.Eta()<(xe+0.25)) && (l2.Eta()>xe && l2.Eta()<(xe+0.25))){
+      Fill2D( h_Zm_Eta,  l2.Eta(), V.M()/fGeV, w);
+    }
+  }
+
+// MASS VS ETA OF PT LEADING IN SMALL ETABIN, FROM -2.5 TO 2.5, STEP OF 0.1, 50 BINS
+
+  Fill2D( h_Zm_1stEta01,   l1.Eta(),  V.M()/fGeV, w);
+
+// MASS VS PT LEADING IN LARGE ETABIN [-2.5, -2.0, -1.0, 0.0, 1.0, 2.0, 2.5]
+
   Fill2D( h_Zm_1stPt,   l1.Pt()/fGeV,  V.M()/fGeV, w);
+
   Fill2D( h_Zm_2ndPt,   l2.Pt()/fGeV,  V.M()/fGeV, w);
   Fill2D( h_Zm_mu_avPt, (l1.Pt()+l2.Pt())*0.5/fGeV, V.M()/fGeV, w);
   Fill2D( h_Zm_Pexp,    p_star(l1, l2),             V.M()/fGeV, w);
@@ -333,7 +354,7 @@ float MuonResonancePlots::getChiSquared(const xAOD::Muon& mu, int type){
   if(type==-1 && mu.primaryTrackParticle()) return mu.primaryTrackParticle()->chiSquared()/mu.primaryTrackParticle()->numberDoF();
   if(type==0)  return cb_->chiSquared()/cb_->numberDoF();
   if(type==1)  return id_->chiSquared()/id_->numberDoF();
-  if(type==2)  return me_->chiSquared()/id_->numberDoF();
+  if(type==2)  return me_->chiSquared()/me_->numberDoF();
   else return 0;
 }
 
