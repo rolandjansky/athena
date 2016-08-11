@@ -16,7 +16,7 @@ EventShapeStoreCnv_p2::transToPers(const EventShapeStore* transObj,
 				   EventShapeStore_p2* persObj,
 				   MsgStream &reporter )
 {
-  reporter << MSG::DEBUG << "EventShapeStoreCnv_p2 toPers()" << endreq;
+  reporter << MSG::DEBUG << "EventShapeStoreCnv_p2 toPers()" << endmsg;
   
   persObj->m_mvalM.resize(transObj->m_store.size());
   // for ( EventShapeStore::store_Citer it = transObj->m_store.begin();
@@ -35,7 +35,7 @@ EventShapeStoreCnv_p2::persToTrans(const EventShapeStore_p2* persObj,
 				   EventShapeStore* transObj,
 				   MsgStream &reporter )
 {
-  reporter << MSG::DEBUG << "EventShapeStoreCnv toTrans()" << endreq;
+  reporter << MSG::DEBUG << "EventShapeStoreCnv toTrans()" << endmsg;
   
   // make coverity happy
   // if ( ! bool(transObj) )
@@ -43,7 +43,7 @@ EventShapeStoreCnv_p2::persToTrans(const EventShapeStore_p2* persObj,
   transObj->m_store.clear();
   
   // if ( persObj->m_mtypV.size() != persObj->m_mvalV.size() )
-  // reporter << MSG::WARNING << "EventShapeStore_p2 different sizes !!" << endreq;
+  // reporter << MSG::WARNING << "EventShapeStore_p2 different sizes !!" << endmsg;
   std::vector<double> tmp;
   
   for ( unsigned int i = 0; i < persObj->m_mtypV.size(); ++i )	// loop through every ES type for type and value vectors

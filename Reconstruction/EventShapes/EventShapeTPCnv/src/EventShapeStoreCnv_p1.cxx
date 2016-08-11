@@ -16,7 +16,7 @@ EventShapeStoreCnv_p1::transToPers(const EventShapeStore* transObj,
 				   EventShapeStore_p1* persObj,
 				   MsgStream &reporter )
 {
-  reporter << MSG::DEBUG << "EventShapeStoreCnv_p1 toPers()" << endreq;
+  reporter << MSG::DEBUG << "EventShapeStoreCnv_p1 toPers()" << endmsg;
   
   for ( EventShapeStore::store_Citer it = transObj->m_store.begin();
 	it != transObj->m_store.end(); ++it )
@@ -31,7 +31,7 @@ EventShapeStoreCnv_p1::persToTrans(const EventShapeStore_p1* persObj,
 				   EventShapeStore* transObj,
 				   MsgStream &reporter )
 {
-  reporter << MSG::DEBUG << "EventShapeStoreCnv toTrans()" << endreq;
+  reporter << MSG::DEBUG << "EventShapeStoreCnv toTrans()" << endmsg;
   
   // make coverity happy
   // if ( ! bool(transObj) )
@@ -39,7 +39,7 @@ EventShapeStoreCnv_p1::persToTrans(const EventShapeStore_p1* persObj,
   transObj->m_store.clear();
   
   if ( persObj->m_mtypV.size() != persObj->m_mvalV.size() )
-    reporter << MSG::WARNING << "EventShapeStore_p1 different sizes !!" << endreq;
+    reporter << MSG::WARNING << "EventShapeStore_p1 different sizes !!" << endmsg;
   for ( unsigned int i = 0; i < persObj->m_mtypV.size(); ++i )
     transObj->insert(EventShapes::EventShapeType(persObj->m_mtypV.at(i)),
 		     persObj->m_mvalV.at(i));
