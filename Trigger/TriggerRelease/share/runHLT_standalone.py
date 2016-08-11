@@ -73,6 +73,9 @@ menuMap={
          #2016 menus:       menu name                   L1 xml file
          'PhysicsV6':       ('Physics_pp_v6',           'TriggerMenuXML/LVL1config_Physics_pp_v6.xml'),
          'MCV6':            ('MC_pp_v6',                'TriggerMenuXML/LVL1config_MC_pp_v6.xml'),
+         'HIV4':            ('Physics_HI_v4',           'TriggerMenuXML/LVL1config_Physics_HI_v4.xml'),
+         'MCHIV4':          ('MC_HI_v4',                'TriggerMenuXML/LVL1config_Physics_HI_v4.xml'),
+
          #2015 menus:       menu name                   L1 xml file
          'PhysicsV5':       ('Physics_pp_v5',           'TriggerMenuXML/LVL1config_Physics_pp_v5.xml'),
          'MCV5':            ('MC_pp_v5',                'TriggerMenuXML/LVL1config_MC_pp_v5.xml'),
