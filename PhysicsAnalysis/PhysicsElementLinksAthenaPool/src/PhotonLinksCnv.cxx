@@ -6,7 +6,7 @@
 
 PhotonLinksCnv::PhotonLinksCnv(ISvcLocator* svcloc):ParticleLinksCnv<PhotonContainer>(svcloc){
     MsgStream msg( this->msgSvc(), typeid(this).name() );
-  msg << MSG::DEBUG << " constructor" << endreq;
+  msg << MSG::DEBUG << " constructor" << endmsg;
 
 }
 

@@ -6,7 +6,7 @@
 
 ElectronLinksCnv::ElectronLinksCnv(ISvcLocator* svcloc):ParticleLinksCnv<ElectronContainer>(svcloc){
     MsgStream msg( this->msgSvc(), typeid(this).name() );
-  msg << MSG::DEBUG << " constructor" << endreq;
+  msg << MSG::DEBUG << " constructor" << endmsg;
 
 }
 
