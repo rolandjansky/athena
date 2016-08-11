@@ -17,7 +17,7 @@ LVL1_ROICnv_p1::LVL1_ROICnv_p1()
 
 void LVL1_ROICnv_p1::persToTrans( const LVL1_ROI_p1* persObj, LVL1_ROI* transObj, MsgStream &log ) {
 
-  log << MSG::DEBUG << "Converting LVL1_ROI from persistent state..." << endreq;
+  log << MSG::DEBUG << "Converting LVL1_ROI from persistent state..." << endmsg;
 
   transObj->clear();
 
@@ -95,7 +95,7 @@ void LVL1_ROICnv_p1::persToTrans( const LVL1_ROI_p1* persObj, LVL1_ROI* transObj
     transObj->addEnergySumROI( roi );
   }
 
-  log << MSG::DEBUG << "Converting LVL1_ROI from persistent state [OK]" << endreq;
+  log << MSG::DEBUG << "Converting LVL1_ROI from persistent state [OK]" << endmsg;
 
   return;
 
@@ -103,7 +103,7 @@ void LVL1_ROICnv_p1::persToTrans( const LVL1_ROI_p1* persObj, LVL1_ROI* transObj
 
 void LVL1_ROICnv_p1::transToPers( const LVL1_ROI* transObj, LVL1_ROI_p1* persObj, MsgStream &log ) {
 
-  log << MSG::DEBUG << "Creating persistent state of LVL1_ROI..." << endreq;
+  log << MSG::DEBUG << "Creating persistent state of LVL1_ROI..." << endmsg;
 
   //
   // Translate the muon RoIs:
@@ -186,7 +186,7 @@ void LVL1_ROICnv_p1::transToPers( const LVL1_ROI* transObj, LVL1_ROI_p1* persObj
     persObj->m_energysumROIs.push_back( roi );
   }
 
-  log << MSG::DEBUG << "Creating persistent state of LVL1_ROI [OK]" << endreq;
+  log << MSG::DEBUG << "Creating persistent state of LVL1_ROI [OK]" << endmsg;
 
   return;
 
