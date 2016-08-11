@@ -54,7 +54,7 @@ struct JetStoreHelper
       {
 	report << MSG::WARNING
 	       << "cannot retrieve StoreGate service"
-	       << endreq;
+	       << endmsg;
 	return false;
       }
         // 
@@ -64,7 +64,7 @@ struct JetStoreHelper
 	report << MSG::WARNING 
 	       << "cannot retrieve store type \042"
 	       << tStr << "\042 with key <"
-	       << key << ">" << endreq;
+	       << key << ">" << endmsg;
 	return false;
       }
     //
