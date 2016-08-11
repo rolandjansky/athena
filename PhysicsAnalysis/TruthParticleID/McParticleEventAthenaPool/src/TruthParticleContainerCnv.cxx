@@ -83,7 +83,7 @@ TruthParticleContainerCnv::createPersistent(TruthParticleContainer* trans)
   TruthParticleContainerCnv_p6 cnv( m_cnvTool );
   TruthParticleContainer_PERS *pers = cnv.createPersistent(trans, log);
 
-  log << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  log << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return pers; 
 }
 
