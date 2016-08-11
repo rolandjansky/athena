@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DSConfigSvc.cxx 731942 2016-03-23 16:19:00Z stelzer $
+// $Id: DSConfigSvc.cxx 742408 2016-04-23 18:55:57Z stelzer $
 
 #include "GaudiKernel/IIncidentSvc.h"
 #include "GaudiKernel/Incident.h"
@@ -17,6 +17,8 @@
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 // Trigger configuration include(s):
+#include "TrigConfBase/TrigDBConnectionConfig.h"
+
 #include "L1TopoConfig/L1TopoMenu.h"
 #include "TrigConfL1Data/HelperFunctions.h"
 #include "TrigConfL1Data/CTPConfig.h"
@@ -242,6 +244,16 @@ TrigConf::DSConfigSvc::update( IOVSVC_CALLBACK_ARGS_K( keys ) ) {
       updated_SMK = ( old_masterkey != m_masterKey );
       if( updated_SMK ) {
          ATH_MSG_INFO( "  Changed from " << old_masterkey << " to " << m_masterKey );
+      }
+      if( (m_configSrc.find("TRIGGERDBREPR") == 0) || 
+          (m_configSrc.find("TRIGGERDBMC") == 0) || 
+          (m_configSrc.find("TRIGGERDBATN") == 0) ) {
+          /* this is for reprocessing or MC runs
+           * in this case we connect to the specified TriggerDB
+           * 
+           * For data we use what is specified through job options (TRIGGERDB or TRIGGERDB_RUN1)
+           */
+          m_dbconfig->m_server = m_configSrc;
       }
    }
 
@@ -653,11 +665,12 @@ TrigConf::DSConfigSvc::loadMenuFromDB( uint32_t smk, uint32_t l1psk, uint32_t hl
    CHECK(initStorageMgr());
 
    if( fromDB() ) {
-
-      ATH_MSG_INFO( "Load configuration from TriggerDB with smk " << smk
-                    << ", l1psk " << l1psk
-                    << ", hltpsk " << hltpsk
-                    << ", bgsk " << bgsk );
+       
+       ATH_MSG_INFO( "Load configuration from TriggerDB " << m_dbconfig->m_server
+                     << " with smk " << smk
+                     << ", l1psk " << l1psk
+                     << ", hltpsk " << hltpsk
+                     << ", bgsk " << bgsk );
 
       DBLoader::setEnv(DBLoader::CTPOnl);
 

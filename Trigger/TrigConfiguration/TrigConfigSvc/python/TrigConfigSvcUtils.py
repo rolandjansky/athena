@@ -472,8 +472,6 @@ def getMenuNameFromDB(connection, hltprescalekey):
     # temporarily here, but should use the function from TMP
     m = re.match( "(.*)_default_prescale", hltpsName)
     menuName = m.group(1) if m else hltpsName
-    # from TriggerMenuPython.TriggerPythonConfig import TriggerPythonConfig
-    # menuName = TriggerPythonConfig.getMenuNameFromHltpsName(hltpsName)
 
     log.info("Interpreting menu name from HLT prescale key %i: %s" % (hltprescalekey,menuName))
 

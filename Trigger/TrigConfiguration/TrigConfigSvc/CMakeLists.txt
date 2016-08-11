@@ -49,7 +49,6 @@ atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/*.py )
 atlas_install_scripts( share/checkTrigger.py share/checkTriggerConfig.py )
 atlas_install_xmls( data/*.dtd data/*.xml )
-atlas_install_xmls( data/*.dtd data/*.xml )
 
 # Aliases:
 atlas_add_alias( checkTrigger "checkTrigger.py" )
