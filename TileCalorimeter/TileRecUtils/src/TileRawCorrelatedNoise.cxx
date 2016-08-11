@@ -176,7 +176,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
         FILE* mean_file = MeanFile[Ros - 1][Drawer];
         //if(fgets(buff, sizeof(buff), mean_file) != NULL) {
         //  if (lDebug)
-        //    log << MSG::DEBUG << "Vector is being loaded: "<< buff << endreq;
+        //    log << MSG::DEBUG << "Vector is being loaded: "<< buff << endmsg;
         //}
         // load tokens to be searched for in a string
         char* word;
@@ -259,7 +259,7 @@ StatusCode TileRawCorrelatedNoise::initialize() {
       FILE* rms_file = Sample3RMSFile[Ros - 1][Drawer];
       //if(fgets(buff, sizeof(buff), rms_file) != NULL) {
       //  if (lDebug)
-      //    log << MSG::DEBUG << "Vector is being loaded: "<< buff << endreq;
+      //    log << MSG::DEBUG << "Vector is being loaded: "<< buff << endmsg;
       //}
       // load tokens to be searched for in a string
       char* word;
