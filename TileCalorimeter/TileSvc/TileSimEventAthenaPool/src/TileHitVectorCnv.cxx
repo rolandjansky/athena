@@ -8,7 +8,7 @@
 
 
 TileHitVector_PERS* TileHitVectorCnv::createPersistent(TileHitVector* transCont) {
-    MsgStream mlog(messageService(), "TileHitVectorConverter" );
+    MsgStream mlog(msgSvc(), "TileHitVectorConverter" );
     TileHitVectorCnv_p1   converter;
     TileHitVector_PERS *persObj = converter.createPersistent( transCont, mlog );
     return persObj;
@@ -17,7 +17,7 @@ TileHitVector_PERS* TileHitVectorCnv::createPersistent(TileHitVector* transCont)
 
 TileHitVector* TileHitVectorCnv::createTransient() {
 
-    MsgStream mlog(messageService(), "TileHitVectorConverter" );
+    MsgStream mlog(msgSvc(), "TileHitVectorConverter" );
     TileHitVectorCnv_p1   converter_p1;
 
     TileHitVector* trans_cont(0);
