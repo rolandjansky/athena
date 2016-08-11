@@ -48,6 +48,7 @@ JPsiTPEventCutFlowPlots::JPsiTPEventCutFlowPlots(PlotBase* pParent, std::string 
     probe_cf_steps.push_back("ProbeIsolation");
     probe_cf_steps.push_back("ProbeInvMass");
     probe_cf_steps.push_back("ProbeDeltaPhi");
+    probe_cf_steps.push_back("ProbeDeltaEta");
     tp_probe_selection = AddCutFlow("ProbeSelection",probe_cf_steps);
     for (auto step: probe_cf_steps) {
         tp_probe_selection->Fill(step.c_str(), 0);          //  fill once to avoid merging issues

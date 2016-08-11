@@ -38,6 +38,8 @@ class MuonResonancePlots: public PlotBase {
     h_Zm_2ndPhi(NULL),
     h_Zm_1stEta(NULL),
     h_Zm_2ndEta(NULL),
+    h_Zm_1stEta01(NULL),
+    h_Zm_Eta(NULL),
     h_Zm_1stPt(NULL),
     h_Zm_2ndPt(NULL),
     h_Zm_mu_avPt(NULL),
@@ -78,7 +80,7 @@ class MuonResonancePlots: public PlotBase {
   {;}
 
   TString selitool;
-  const double M_pdg[3] = {91187.6, 3096.6, 9460.3};
+  const double M_pdg[3] = {91187.6, 3096.9, 9460.3};
   const double Pi = TMath::Pi();
 
   void useGeV(bool u){if (u) fGeV=1000.0; else fGeV=1.0;}
@@ -126,6 +128,11 @@ class MuonResonancePlots: public PlotBase {
   TH2* h_Zm_2ndPhi;
   TH2* h_Zm_1stEta;
   TH2* h_Zm_2ndEta;
+
+  TH2* h_Zm_1stEta01;
+
+  TH2* h_Zm_Eta;
+
   TH2* h_Zm_1stPt;
   TH2* h_Zm_2ndPt;
   TH2* h_Zm_mu_avPt;  

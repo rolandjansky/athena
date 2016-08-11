@@ -19,7 +19,7 @@ MuonTPCutFlowBase::MuonTPCutFlowBase(PlotBase* pParent, std::string sDir)
 void MuonTPCutFlowBase::fill(std::string bin , double w){
     auto tofill = m_hist_for_binlabel.find(bin);
     if (tofill != m_hist_for_binlabel.end()){
-        for (auto hist: tofill->second){
+        for (auto & hist: tofill->second){
             hist->Fill(bin.c_str(),w);
         }
     }
