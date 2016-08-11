@@ -334,7 +334,7 @@ public:
 
   int64_t            m_latestPosition; // offset of the latest written event
 
-  EventStorage::DataWriterCallBack *mp_callBack; // pointer to call-back, for reporting file names
+  EventStorage::DataWriterCallBack *m_callBack; // pointer to call-back, for reporting file names
 
   freeMetaDataStrings m_fmdStrings; // optional vector of strings, not written out if empty  
 
