@@ -46,7 +46,7 @@ TruthEtIsolationsContainerCnv::createPersistent(TruthEtIsolationsContainer* tran
   TruthEtIsolationsContainerCnv_p1 cnv;
   TruthEtIsolationsContainer_PERS *pers = cnv.createPersistent(trans, msg);
 
-  msg << MSG::DEBUG << "::createPersistent [Success]" << endreq;
+  msg << MSG::DEBUG << "::createPersistent [Success]" << endmsg;
   return pers; 
 }
 
