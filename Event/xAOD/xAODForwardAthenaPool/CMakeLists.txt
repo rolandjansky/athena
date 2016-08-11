@@ -16,8 +16,21 @@ atlas_depends_on_subdirs( PRIVATE
 # Component(s) in the package:
 atlas_add_poolcnv_library( xAODForwardAthenaPoolPoolCnv
                            src/*.cxx
-                           FILES xAODForward/ALFADataContainer.h xAODForward/ALFADataAuxContainer.h xAODForward/ZdcModuleContainer.h xAODForward/ZdcModuleAuxContainer.h xAODForward/MBTSModuleContainer.h xAODForward/MBTSModuleAuxContainer.h xAODForward/ForwardEventInfoContainer.h xAODForward/ForwardEventInfoAuxContainer.h
-                           TYPES_WITH_NAMESPACE xAOD::ALFADataContainer xAOD::ALFADataAuxContainer xAOD::ZdcModuleContainer xAOD::ZdcModuleAuxContainer xAOD::MBTSModuleContainer xAOD::MBTSModuleAuxContainer xAOD::ForwardEventInfoContainer xAOD::ForwardEventInfoAuxContainer
+                           FILES xAODForward/ALFADataContainer.h
+			   xAODForward/ALFADataAuxContainer.h
+			   xAODForward/AFPDataContainer.h
+			   xAODForward/AFPDataAuxContainer.h
+   			   xAODForward/AFPSiHitContainer.h
+			   xAODForward/AFPSiHitAuxContainer.h
+   			   xAODForward/AFPTrackContainer.h
+			   xAODForward/AFPTrackAuxContainer.h
+			   xAODForward/ZdcModuleContainer.h
+			   xAODForward/ZdcModuleAuxContainer.h
+			   xAODForward/MBTSModuleContainer.h
+			   xAODForward/MBTSModuleAuxContainer.h
+			   xAODForward/ForwardEventInfoContainer.h
+			   xAODForward/ForwardEventInfoAuxContainer.h
+                           TYPES_WITH_NAMESPACE xAOD::ALFADataContainer xAOD::ALFADataAuxContainer xAOD::AFPDataContainer xAOD::AFPDataAuxContainer xAOD::AFPSiHitContainer xAOD::AFPSiHitAuxContainer xAOD::AFPTrackContainer xAOD::AFPTrackAuxContainer xAOD::ZdcModuleContainer xAOD::ZdcModuleAuxContainer xAOD::MBTSModuleContainer xAOD::MBTSModuleAuxContainer xAOD::ForwardEventInfoContainer xAOD::ForwardEventInfoAuxContainer
                            CNV_PFX xAOD
                            LINK_LIBRARIES AthContainers AthenaKernel AthenaPoolCnvSvcLib AthenaPoolUtilities xAODForward )
 
