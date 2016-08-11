@@ -54,7 +54,7 @@ void JetCnv_p5::persToTrans( const Jet_p5* pers,
                              Jet* trans, 
                              MsgStream& msg ) 
 {
-  if(msg.level() == MSG::DEBUG ) msg << MSG::DEBUG << "Loading Jet from persistent state... "  << endreq;
+  if(msg.level() == MSG::DEBUG ) msg << MSG::DEBUG << "Loading Jet from persistent state... "  << endmsg;
   
   navCnv.persToTrans( &pers->m_nav,      
 		      &trans->navigableBase(), msg );
@@ -106,7 +106,7 @@ void JetCnv_p5::persToTrans( const Jet_p5* pers,
   
     msg << MSG::DEBUG << "Reading jets  " << trans->jetAuthor() << "  pers_e = "<<e 
       //<< " reco status " << std::hex << trans->m_recoStatus << std::dec 
-	<< "  sig state = "<< trans->signalState()  << endreq; 
+	<< "  sig state = "<< trans->signalState()  << endmsg; 
   }
 
   
@@ -139,8 +139,8 @@ void JetCnv_p5::persToTrans( const Jet_p5* pers,
   if(msg.level() == MSG::DEBUG ) {
     msg << MSG::DEBUG << "   --> signal state saved : ";
     if ( pers->m_rawSignal.size() >= 1 ){      
-      msg << MSG::DEBUG << " raw_e =" << trans->getRawE() << "  constscale_e=" << trans->getCScaleE() << "  final_e="<<trans->e() << endreq;
-    } else msg << MSG::DEBUG<< " None " << endreq;
+      msg << MSG::DEBUG << " raw_e =" << trans->getRawE() << "  constscale_e=" << trans->getCScaleE() << "  final_e="<<trans->e() << endmsg;
+    } else msg << MSG::DEBUG<< " None " << endmsg;
   }
 
 
@@ -167,7 +167,7 @@ void JetCnv_p5::persToTrans( const Jet_p5* pers,
     trans->setSignalState(P4SignalState::JETFINAL);
   }
   if(msg.level() == MSG::DEBUG ) msg << MSG::DEBUG << "   --> raw constituent : "<< (trans->constituentSignalState() == P4SignalState::UNCALIBRATED)   
-				     << "  new constscale_e ="<< trans->getCScaleE() << endreq; 
+				     << "  new constscale_e ="<< trans->getCScaleE() << endmsg; 
 
 
 
@@ -175,7 +175,7 @@ void JetCnv_p5::persToTrans( const Jet_p5* pers,
    std::vector<std::string> momentNames = keydesc->getKeys(JetKeyConstants::ShapeCat);
    if( (pers)->m_shapeStore.size() >0 ){
      if( momentNames.size() < (pers)->m_shapeStore.size() ) { if( ! pers->m_usedForTrigger ) {
-         msg << MSG::WARNING << " JetCnv_p5 can't convert moments ! num max keys = "<< momentNames.size() << " persistant jet has n= "<< (pers)->m_shapeStore.size() <<endreq; }
+         msg << MSG::WARNING << " JetCnv_p5 can't convert moments ! num max keys = "<< momentNames.size() << " persistant jet has n= "<< (pers)->m_shapeStore.size() <<endmsg; }
      }
      else {
        for(size_t i=0;i<(pers)->m_shapeStore.size();i++){
@@ -252,7 +252,7 @@ void JetCnv_p5::persToTrans( const Jet_p5* pers,
   }
   
   if(msg.level() == MSG::DEBUG )   msg << MSG::DEBUG << "Loaded Jet from persistent state [OK]. Final e=" << trans->e()
-				       << endreq;
+				       << endmsg;
   return;
 }
 
@@ -291,7 +291,7 @@ void JetCnv_p5::transToPers( const Jet*  trans,
   if(msg.level() == MSG::DEBUG ) { 
   
     msg << MSG::DEBUG << "Writing jets  " << trans->jetAuthor() << "  trans_e = "<< trans->e()
-        << "  skipping constituent : "<< s_write0constit  << endreq; 
+        << "  skipping constituent : "<< s_write0constit  << endmsg; 
   }
   
 
@@ -361,7 +361,7 @@ void JetCnv_p5::transToPers( const Jet*  trans,
   }
 
   if(msg.level() == MSG::DEBUG ){
-    msg << MSG::DEBUG << "Created persistent state of Jet [OK]" << endreq;
+    msg << MSG::DEBUG << "Created persistent state of Jet [OK]" << endmsg;
   }
   return;
 }

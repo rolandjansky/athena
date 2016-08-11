@@ -66,14 +66,14 @@ void JetCnv_p4::persToTrans( const Jet_p4* pers,
                              MsgStream& msg ) 
 {
   msg << MSG::DEBUG << "Loading Jet from persistent state...  e = "<< pers->m_momentum.m_ene
-      << endreq;
+      << endmsg;
 
   navCnv.persToTrans( &pers->m_nav,      
 		      &trans->navigableBase(), msg );
   momCnv.persToTrans( &pers->m_momentum, &trans->momentumBase(),  msg );
   pbsCnv.persToTrans( &pers->m_partBase, &trans->particleBase(), msg);
   
-  msg << MSG::DEBUG << "    after momCnv e=" << trans->e() <<endreq; 
+  msg << MSG::DEBUG << "    after momCnv e=" << trans->e() <<endmsg; 
 
   trans->m_jetAuthor = pers->m_author;
 
@@ -88,7 +88,7 @@ void JetCnv_p4::persToTrans( const Jet_p4* pers,
    std::vector<std::string> momentNames = keydesc->getKeys(JetKeyConstants::ShapeCat);
    if( (pers)->m_shapeStore.size() >0 ){
      if( momentNames.size() < (pers)->m_shapeStore.size() ) {}
-       //       if( ! pers->m_usedForTrigger ) { msg << MSG::WARNING << " JetCnv_p4 can't convert moments ! num max keys = "<< momentNames.size() << " persistant jet has n="<< (pers)->m_shapeStore.size() <<endreq; }
+       //       if( ! pers->m_usedForTrigger ) { msg << MSG::WARNING << " JetCnv_p4 can't convert moments ! num max keys = "<< momentNames.size() << " persistant jet has n="<< (pers)->m_shapeStore.size() <<endmsg; }
      else {
        for(size_t i=0;i<(pers)->m_shapeStore.size();i++){
          trans->setMoment(momentNames[i], (pers)->m_shapeStore[i], true);
@@ -208,7 +208,7 @@ void JetCnv_p4::persToTrans( const Jet_p4* pers,
    
 
    msg << MSG::DEBUG << "Loaded Jet from persistent state [OK]"
-       << endreq;
+       << endmsg;
    return;
 }
 
@@ -272,6 +272,6 @@ void JetCnv_p4::transToPers( const Jet* trans,
 
 
    msg << MSG::DEBUG << "Created persistent state of Jet [OK]  e="<< pers->m_momentum.m_ene
-      << endreq;
+      << endmsg;
   return;
 }

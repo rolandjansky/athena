@@ -111,17 +111,17 @@ class SignalStateCnv {
       double delta3(0);
       int factor;
       
-      msg << MSG::VERBOSE << "called JetSignalStateCnv::compress() for :" << endreq;
+      msg << MSG::VERBOSE << "called JetSignalStateCnv::compress() for :" << endmsg;
       msg << MSG::VERBOSE << " raw momentum ( px | py | pz | m ) : ( "
 	  << momRaw.m_px << " | " 
 	  << momRaw.m_py << " | " 
 	  << momRaw.m_pz << " | " 
-	  << momRaw.m_m << " )" << endreq;
+	  << momRaw.m_m << " )" << endmsg;
       msg << MSG::VERBOSE << " cal momentum ( px | py | pz | m ) : ( "
 	  << momCal.m_px << " | " 
 	  << momCal.m_py << " | " 
 	  << momCal.m_pz << " | " 
-	  << momCal.m_m << " )" << endreq;
+	  << momCal.m_m << " )" << endmsg;
 
       bool forceNoCompression=false;
       
@@ -136,7 +136,7 @@ class SignalStateCnv {
       if ( forceNoCompression )
 	{
 	  msg << MSG::DEBUG << "M or PT of calibrated or raw signal state of jet zero !"
-	      << " Switching off compression for this jet !!!" << endreq;
+	      << " Switching off compression for this jet !!!" << endmsg;
 	  level = NO_COMPRESSION;
 	}
       
@@ -350,10 +350,10 @@ class SignalStateCnv {
 	  m.f = momRaw.m_py;  ps.push_back(m.s[0]);  ps.push_back(m.s[1]);
 	  m.f = momRaw.m_pz;  ps.push_back(m.s[0]);  ps.push_back(m.s[1]);
 	  m.f = momRaw.m_m;   ps.push_back(m.s[0]);  ps.push_back(m.s[1]);
-	  msg << MSG::VERBOSE << " compress x : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endreq;
-	  msg << MSG::VERBOSE << " compress y : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endreq;
-	  msg << MSG::VERBOSE << " compress z : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endreq;
-	  msg << MSG::VERBOSE << " compress m : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endreq;
+	  msg << MSG::VERBOSE << " compress x : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endmsg;
+	  msg << MSG::VERBOSE << " compress y : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endmsg;
+	  msg << MSG::VERBOSE << " compress z : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endmsg;
+	  msg << MSG::VERBOSE << " compress m : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endmsg;
 	  break;
 	}
       if ( msg.level() <= MSG::VERBOSE )
@@ -361,11 +361,11 @@ class SignalStateCnv {
 	  msg << MSG::VERBOSE << " compress # ps : " << ps.size() << " : ";
 	  for ( JetConverterTypes::signalState_pers_t::const_iterator it=ps.begin(); it != ps.end(); ++it )
 	    msg << std::hex << *it << " ";
-	  msg << std::dec << endreq;
-	  msg << MSG::VERBOSE << " compress x : " << momRaw.m_px << endreq;
-	  msg << MSG::VERBOSE << " compress y : " << momRaw.m_py << endreq;
-	  msg << MSG::VERBOSE << " compress z : " << momRaw.m_pz << endreq;
-	  msg << MSG::VERBOSE << " compress m : " << momRaw.m_m  << endreq;
+	  msg << std::dec << endmsg;
+	  msg << MSG::VERBOSE << " compress x : " << momRaw.m_px << endmsg;
+	  msg << MSG::VERBOSE << " compress y : " << momRaw.m_py << endmsg;
+	  msg << MSG::VERBOSE << " compress z : " << momRaw.m_pz << endmsg;
+	  msg << MSG::VERBOSE << " compress m : " << momRaw.m_m  << endmsg;
 	  
 	  int d0(0);
 	  int d1(0);
@@ -380,13 +380,13 @@ class SignalStateCnv {
 	    };
 	  
 	  msg << MSG::DEBUG << " compress M   : " << delta0 << " = "
-	      << mantissa[0] << " *2^ " << exponent[0]-d0 << endreq;
+	      << mantissa[0] << " *2^ " << exponent[0]-d0 << endmsg;
 	  msg << MSG::DEBUG << " compress phi : " << delta1 << " = "
-	      << mantissa[1] << " *2^ " << exponent[1]-d1 << endreq;
+	      << mantissa[1] << " *2^ " << exponent[1]-d1 << endmsg;
 	  msg << MSG::DEBUG << " compress eta : " << delta2 << " = "
-	      << mantissa[2] << " *2^ " << exponent[2]-d1 << endreq;
+	      << mantissa[2] << " *2^ " << exponent[2]-d1 << endmsg;
 	  msg << MSG::DEBUG << " compress pT  : " << delta3 << " = "
-	      << mantissa[3] << " *2^ " << exponent[3]-d1 << endreq;
+	      << mantissa[3] << " *2^ " << exponent[3]-d1 << endmsg;
 	}
       return ps;
     };
@@ -461,10 +461,10 @@ class SignalStateCnv {
 	  m.s[0] = ps[2]; m.s[1] = ps[3]; momRaw.m_py = m.f;
 	  m.s[0] = ps[4]; m.s[1] = ps[5]; momRaw.m_pz = m.f;
 	  m.s[0] = ps[6]; m.s[1] = ps[7]; momRaw.m_m = m.f;
-	  msg << MSG::VERBOSE << " RS x : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endreq;
-	  msg << MSG::VERBOSE << " RS y : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endreq;
-	  msg << MSG::VERBOSE << " RS z : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endreq;
-	  msg << MSG::VERBOSE << " RS m : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endreq;
+	  msg << MSG::VERBOSE << " RS x : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endmsg;
+	  msg << MSG::VERBOSE << " RS y : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endmsg;
+	  msg << MSG::VERBOSE << " RS z : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endmsg;
+	  msg << MSG::VERBOSE << " RS m : " << m.f << " = " << m.s[0] << " = " << m.s[1] << endmsg;
 	  break;
 	};
       
@@ -478,14 +478,14 @@ class SignalStateCnv {
 	  //std::cout<< " decompressing "<< delta0 <<"  "<< delta1 << "  "<< delta2 <<"  "<< delta3 << "  "<< std::endl;
 
 	  if( ( delta0==-1) || (delta3==-1)){
-	    msg << MSG::WARNING << "A jet was badly decompressed. Returning null to avoid fpe in SignalStateCnv::decompress "<<endreq;
+	    msg << MSG::WARNING << "A jet was badly decompressed. Returning null to avoid fpe in SignalStateCnv::decompress "<<endmsg;
 	    return momRaw;
 	  }
 	  
-	  msg << MSG::VERBOSE << " RS 0 : " << delta0 << " = " << mantissa[0] << " = " << exponent[0] << endreq;
-	  msg << MSG::VERBOSE << " RS 1 : " << delta1 << " = " << mantissa[1] << " = " << exponent[1] << endreq;
-	  msg << MSG::VERBOSE << " RS 2 : " << delta2 << " = " << mantissa[2] << " = " << exponent[2] << endreq;
-	  msg << MSG::VERBOSE << " RS 3 : " << delta3 << " = " << mantissa[3] << " = " << exponent[3] << endreq;
+	  msg << MSG::VERBOSE << " RS 0 : " << delta0 << " = " << mantissa[0] << " = " << exponent[0] << endmsg;
+	  msg << MSG::VERBOSE << " RS 1 : " << delta1 << " = " << mantissa[1] << " = " << exponent[1] << endmsg;
+	  msg << MSG::VERBOSE << " RS 2 : " << delta2 << " = " << mantissa[2] << " = " << exponent[2] << endmsg;
+	  msg << MSG::VERBOSE << " RS 3 : " << delta3 << " = " << mantissa[3] << " = " << exponent[3] << endmsg;
 	  
 	  double angleC = atan2( momCal.m_py, momCal.m_px );
 	  double p_traC = sqrt( momCal.m_px * momCal.m_px + momCal.m_py * momCal.m_py );
@@ -501,11 +501,11 @@ class SignalStateCnv {
       msg << MSG::VERBOSE << " RS # ps : " << ps.size() << " : ";
       for ( JetConverterTypes::signalState_pers_t::const_iterator it=ps.begin(); it != ps.end(); ++it )
 	msg << std::hex << *it << " ";
-      msg << std::dec << endreq;
-      msg << MSG::VERBOSE << " RS x : " << momRaw.m_px << endreq;
-      msg << MSG::VERBOSE << " RS y : " << momRaw.m_py << endreq;
-      msg << MSG::VERBOSE << " RS z : " << momRaw.m_pz << endreq;
-      msg << MSG::VERBOSE << " RS m : " << momRaw.m_m  << endreq;
+      msg << std::dec << endmsg;
+      msg << MSG::VERBOSE << " RS x : " << momRaw.m_px << endmsg;
+      msg << MSG::VERBOSE << " RS y : " << momRaw.m_py << endmsg;
+      msg << MSG::VERBOSE << " RS z : " << momRaw.m_pz << endmsg;
+      msg << MSG::VERBOSE << " RS m : " << momRaw.m_m  << endmsg;
       
       return momRaw;
     };

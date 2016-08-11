@@ -12,7 +12,7 @@ JetMomentMapCnv_p6::transToPers(const JetMomentMap* transObj,
 				JetMomentMap_p6* persObj,
 				MsgStream &reporter )
 {
-  reporter << MSG::DEBUG << "JetMomentMapConverterBase toPers() Template _p6" << endreq;
+  reporter << MSG::DEBUG << "JetMomentMapConverterBase toPers() Template _p6" << endmsg;
   
   persObj->m_momentNum.clear();
   size_t njet = transObj->m_store.size();
@@ -38,7 +38,7 @@ JetMomentMapCnv_p6::transToPers(const JetMomentMap* transObj,
 
     size_t momNum = moments.size();
     if ( momNum >= JetMomentMap_p6::s_maxNumMoment ){  
-      reporter << MSG::ERROR << " Attempt to save  "<< momNum <<" jet moments failed. Limiting this number to "<< JetMomentMap_p6::s_maxNumMoment-1<< endreq;
+      reporter << MSG::ERROR << " Attempt to save  "<< momNum <<" jet moments failed. Limiting this number to "<< JetMomentMap_p6::s_maxNumMoment-1<< endmsg;
       momNum = JetMomentMap_p6::s_maxNumMoment -1;
     }
     persObj->m_momentNum[i] = momNum;
@@ -51,7 +51,7 @@ JetMomentMapCnv_p6::transToPers(const JetMomentMap* transObj,
     i++;
 
   }
-  reporter << MSG::DEBUG << "JetMomentMapConverterBase toPers() Template _p6 Ending" << endreq;
+  reporter << MSG::DEBUG << "JetMomentMapConverterBase toPers() Template _p6 Ending" << endmsg;
   
 }
 
@@ -60,7 +60,7 @@ JetMomentMapCnv_p6::persToTrans(const JetMomentMap_p6* persObj,
 				JetMomentMap* transObj,
 				MsgStream &reporter )
 {
-  reporter << MSG::DEBUG << "JetMomentMapConverterBase toTrans() Template _p6" << endreq;
+  reporter << MSG::DEBUG << "JetMomentMapConverterBase toTrans() Template _p6" << endmsg;
 
   transObj->clear();
   size_t njet = persObj->m_momentNum.size() ;

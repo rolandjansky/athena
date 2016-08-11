@@ -10,20 +10,20 @@ void JetKeyDescriptorCnv_p1::persToTrans( const JetKeyDescriptor_p1* persObj,
                             MsgStream& msg )
   
 {
-  msg << MSG::DEBUG << "JetKeyDescriptorCnv persToTrans Begin " << endreq;
+  msg << MSG::DEBUG << "JetKeyDescriptorCnv persToTrans Begin " << endmsg;
   
-  msg << MSG::DEBUG << " Size : " << (persObj->m_catStore).size() << endreq;
+  msg << MSG::DEBUG << " Size : " << (persObj->m_catStore).size() << endmsg;
   if(msg.level() <= MSG::VERBOSE  ){
     for ( std::vector<std::string>::const_iterator it = (persObj->m_catStore).begin();
 	  it != (persObj->m_catStore).end(); it++ )
       {
-	msg << MSG::VERBOSE << "  " << *it << endreq;
+	msg << MSG::VERBOSE << "  " << *it << endmsg;
       }
   }
   if( (persObj->m_keyStoreLength).size() != (persObj->m_catStore).size() )
     {
       msg << MSG::ERROR << "Length of KeyStore and CategoryStore do not match !"
-          << endreq;
+          << endmsg;
       return;
     }
 
@@ -40,7 +40,7 @@ void JetKeyDescriptorCnv_p1::persToTrans( const JetKeyDescriptor_p1* persObj,
     {
       if(msg.level() <= MSG::VERBOSE  ) msg << MSG::VERBOSE << "   "
 					    << (persObj->m_keyStoreLength)[n] << "  "
-					    << (persObj->m_catStore)[n] << endreq;
+					    << (persObj->m_catStore)[n] << endmsg;
       //	  (persObj->m_keyStore).resize((persObj->m_keyStoreLength)[n]);
       for( unsigned int m = 0; m < (persObj->m_keyStoreLength)[n]; m++ )
         {
@@ -51,11 +51,11 @@ void JetKeyDescriptorCnv_p1::persToTrans( const JetKeyDescriptor_p1* persObj,
 						<< (persObj->m_keyStore)[index]
 						<< " stored at index "
 						<< index2
-						<< endreq;
+						<< endmsg;
           index++;
         }
     }
-  msg << MSG::DEBUG << "JetKeyDescriptorCnv persToTrans End" << endreq;
+  msg << MSG::DEBUG << "JetKeyDescriptorCnv persToTrans End" << endmsg;
 }
 
 
@@ -65,16 +65,16 @@ void JetKeyDescriptorCnv_p1::transToPers( const JetKeyDescriptor* transObj,
                                           MsgStream& msg )
 
 {
-  msg << MSG::DEBUG << "JetKeyDescriptorCnv transToPers Begin " << endreq;
+  msg << MSG::DEBUG << "JetKeyDescriptorCnv transToPers Begin " << endmsg;
   
   persObj->m_keyStoreLength.resize((transObj->m_catStore).size(),0);
   msg << MSG::DEBUG << " Size : " << (transObj->m_catStore).size()
-      << endreq;
+      << endmsg;
   
   for ( JetKeyDescriptor::catlist_t::const_iterator it = (transObj->m_catStore).begin();
         it != (transObj->m_catStore).end(); it++ )
     {
-      if(msg.level() <= MSG::VERBOSE  ) msg << MSG::VERBOSE << "  " << *it << endreq;
+      if(msg.level() <= MSG::VERBOSE  ) msg << MSG::VERBOSE << "  " << *it << endmsg;
       persObj->m_catStore.push_back(*it);
     }
   
@@ -85,13 +85,13 @@ void JetKeyDescriptorCnv_p1::transToPers( const JetKeyDescriptor* transObj,
       for ( JetKeyDescriptor::keystore_t::const_iterator ito = (*iti).begin();
             ito != (*iti).end(); ito++ )
         {
-          if(msg.level() <= MSG::VERBOSE  ) msg << MSG::VERBOSE << "   " << *ito << " : " << n << endreq;
+          if(msg.level() <= MSG::VERBOSE  ) msg << MSG::VERBOSE << "   " << *ito << " : " << n << endmsg;
           persObj->m_keyStore.push_back(*ito);
           persObj->m_keyStoreLength[n]++;
         }
       n++;
     }
-  msg << MSG::DEBUG << "JetKeyDescriptorCnv transToPers End" << endreq;
+  msg << MSG::DEBUG << "JetKeyDescriptorCnv transToPers End" << endmsg;
 }
 
 

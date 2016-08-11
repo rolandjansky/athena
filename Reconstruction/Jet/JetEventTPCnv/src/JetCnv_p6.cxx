@@ -68,7 +68,7 @@ void JetCnv_p6::persToTrans( const Jet_p6* pers,
                              Jet* trans, 
                              MsgStream& msg ) 
 {
-  if(msg.level() == MSG::DEBUG ) msg << MSG::DEBUG << "JetCnv_p6 Loading Jet from persistent state... "  << endreq;
+  if(msg.level() == MSG::DEBUG ) msg << MSG::DEBUG << "JetCnv_p6 Loading Jet from persistent state... "  << endmsg;
   
   navCnv.persToTrans( &pers->m_nav,      
 		      &trans->navigableBase(), msg );
@@ -185,7 +185,7 @@ void JetCnv_p6::persToTrans( const Jet_p6* pers,
   trans->setFastjetPtr(NULL);
   
   if(msg.level() == MSG::DEBUG )   msg << MSG::DEBUG << "Loaded Jet from persistent state [OK]. Final e=" << trans->e()
-				       << endreq;
+				       << endmsg;
   return;
 }
 
@@ -199,7 +199,7 @@ void JetCnv_p6::transToPers( const Jet* trans,
                              Jet_p6* pers, 
                              MsgStream& msg ) 
 {
-  if(msg.level() == MSG::DEBUG ) msg << MSG::DEBUG << "JetCnv_p6 writing Jet to persistent state... " << trans->jetAuthor() <<"  id="<<trans->id() << endreq;
+  if(msg.level() == MSG::DEBUG ) msg << MSG::DEBUG << "JetCnv_p6 writing Jet to persistent state... " << trans->jetAuthor() <<"  id="<<trans->id() << endmsg;
 
   // ALWAYS persistified FINAL state.
   trans->setSignalState(P4SignalState::JETFINAL);
@@ -278,7 +278,7 @@ void JetCnv_p6::transToPers( const Jet* trans,
   }
 
   if(msg.level() == MSG::DEBUG ){
-    msg << MSG::DEBUG << "Created persistent state of Jet [OK]" << endreq;
+    msg << MSG::DEBUG << "Created persistent state of Jet [OK]" << endmsg;
   }
   return;
 }

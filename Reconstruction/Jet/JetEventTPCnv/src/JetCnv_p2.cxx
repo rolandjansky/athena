@@ -52,7 +52,7 @@ void JetCnv_p2::persToTrans( const Jet_p2* pers,
                              MsgStream& msg ) 
 {
   msg << MSG::DEBUG << "Loading Jet from persistent state..."
-      << endreq;
+      << endmsg;
 
    navCnv.persToTrans( &pers->m_nav,      
 		       &trans->navigableBase(), msg );
@@ -73,7 +73,7 @@ void JetCnv_p2::persToTrans( const Jet_p2* pers,
 
    JetKeyDescriptorInstance * keydesc = JetKeyDescriptorInstance::instance();
    std::vector<std::string> momentNames = keydesc->getKeys(JetKeyConstants::ShapeCat);
-   if( momentNames.size() != (pers)->m_shapeStore.size() ) msg << MSG::ERROR << " JEtCnv_p2 can't convert moments ! expected moment n= "<< momentNames.size() << " persistatn has "<< (pers)->m_shapeStore.size() <<endreq;
+   if( momentNames.size() != (pers)->m_shapeStore.size() ) msg << MSG::ERROR << " JEtCnv_p2 can't convert moments ! expected moment n= "<< momentNames.size() << " persistatn has "<< (pers)->m_shapeStore.size() <<endmsg;
    else for(size_t i=0;i<momentNames.size();i++){
        trans->setMoment(momentNames[i], (pers)->m_shapeStore[i], true);
      }
@@ -117,7 +117,7 @@ void JetCnv_p2::persToTrans( const Jet_p2* pers,
   trans->particleBase() = jtmp.particleBase();
 
    msg << MSG::DEBUG << "Loaded Jet from persistent state [OK]"
-       << endreq;
+       << endmsg;
    return;
 }
 
@@ -126,7 +126,7 @@ void JetCnv_p2::transToPers( const Jet* /*trans*/,
                              MsgStream& msg ) 
 {
   msg << MSG::ERROR << " Don't write Jet_p2 anymore"
-      << endreq;
+      << endmsg;
 
   // pers->m_ownPointers = false;
 
@@ -150,6 +150,6 @@ void JetCnv_p2::transToPers( const Jet* /*trans*/,
   //   pers->m_associations.clear();
   
   // msg << MSG::DEBUG << "Created persistent state of Jet [OK]"
-  //     << endreq;
+  //     << endmsg;
   // return;
 }

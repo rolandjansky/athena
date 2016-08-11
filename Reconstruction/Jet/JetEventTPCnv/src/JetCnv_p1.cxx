@@ -51,7 +51,7 @@ void JetCnv_p1::persToTrans( const Jet_p1* pers,
                              MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading Jet from persistent state..."
-//       << endreq;
+//       << endmsg;
   navCnv.persToTrans( &pers->m_nav,      
 		      &trans->navigableBase(), 
 		      msg );
@@ -59,7 +59,7 @@ void JetCnv_p1::persToTrans( const Jet_p1* pers,
 
   trans->setSignalState(P4SignalState::JETFINAL);
 //   msg << MSG::DEBUG << "Loaded Jet from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
   // Jet comes from a DataPool.
   // So we need to be sure to re-initialize everything in the Jet.
@@ -88,13 +88,13 @@ void JetCnv_p1::transToPers( const Jet* /*trans*/,
                              MsgStream& /*msg*/ ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of Jet..."
-//       << endreq;
+//       << endmsg;
 
   // navCnv.transToPers( &trans->navigableBase(), 
   //       	      &pers->m_nav,      msg );
   // momCnv.transToPers( &trans->momentumBase(),  &pers->m_momentum, msg );
 
 //   msg << MSG::DEBUG << "Created persistent state of Jet [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }

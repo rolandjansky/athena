@@ -16,7 +16,7 @@ JetMomentMapCnv_p1::transToPers(const JetMomentMap* ,
 				JetMomentMap_p1* ,
 				MsgStream &reporter )
 {
-  reporter << MSG::WARNING << "JetMomentMapConverterBase toPers() Template _p1: deprecated ! This should not be used." << endreq;
+  reporter << MSG::WARNING << "JetMomentMapConverterBase toPers() Template _p1: deprecated ! This should not be used." << endmsg;
   
 }
 
@@ -25,7 +25,7 @@ JetMomentMapCnv_p1::persToTrans(const JetMomentMap_p1* ,
 				JetMomentMap* ,
 				MsgStream &reporter )
 {
-  reporter << MSG::WARNING << "JetMomentMapConverterBase toTrans() Template _p1 : unusable yet" << endreq;
+  reporter << MSG::WARNING << "JetMomentMapConverterBase toTrans() Template _p1 : unusable yet" << endmsg;
   
   // ElementLinkVectorCnv_p1<ElementLinkVector<JetCollection> > m_ELVCnv;
   // m_ELVCnv.persToTrans(&persObj->m_jetsV, &transObj->m_jets, reporter);
@@ -43,7 +43,7 @@ JetMomentMapCnv_p1::persToTrans(const JetMomentMap_p1* ,
   //         store.insert( (JetMoment::MomentType)persObj->m_mtypV.at(loop).at(iloop), mom );
   //         reporter << MSG::WARNING << "Jet " << loop << " "
   //       	   << persObj->m_mtypV.at(loop).at(iloop) << " "
-  //       	   << persObj->m_mvalV.at(loop).at(iloop) << endreq;
+  //       	   << persObj->m_mvalV.at(loop).at(iloop) << endmsg;
   //       }
   //     transObj->m_moms.push_back(store);
   //   }

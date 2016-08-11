@@ -56,7 +56,7 @@ JetCollectionCnv_p2::persToTrans( const JetCollection_p2* pers,
                                   MsgStream& msg ) 
 {
   msg << MSG::DEBUG << "Loading JetCollection from persistent state..."
-      << endreq;
+      << endmsg;
   
   // make sure to first read the JetKeyDescriptor
   DataLinkCnv_p1<DataLink<JetKeyDescriptor> > JetKeyStoreCnv;
@@ -86,10 +86,10 @@ JetCollectionCnv_p2::persToTrans( const JetCollection_p2* pers,
     trans->m_keyDescInstance.m_Stores  = JetKeyDescriptorInstance::instance()->m_Stores;
 
   //(trans->m_keyStore)->printOut(msg);
-  msg <<  MSG::DEBUG << "Rolf : " << &(*trans->m_keyStore) << endreq;
+  msg <<  MSG::DEBUG << "Rolf : " << &(*trans->m_keyStore) << endmsg;
   // attach the map to the instance 
   (trans->m_keyStore)->access();
-  msg <<  MSG::DEBUG << "attached JetKeyDescriptor to its instance" << endreq;
+  msg <<  MSG::DEBUG << "attached JetKeyDescriptor to its instance" << endmsg;
 
   // elements are managed by DataPool
   trans->clear(SG::VIEW_ELEMENTS);
@@ -123,13 +123,13 @@ JetCollectionCnv_p2::persToTrans( const JetCollection_p2* pers,
   strm >> RoIWord; 
   if( strm.good() )
     {
-      msg <<  MSG::DEBUG << "Note: This jet collection uses RoIWords!" << endreq;
+      msg <<  MSG::DEBUG << "Note: This jet collection uses RoIWords!" << endmsg;
       for( JetCollection::iterator itr = trans->begin(); itr != trans->end(); ++itr )
 	(*itr)->set_RoIword( RoIWord );
     }
   
   msg << MSG::DEBUG << "Loading JetCollection from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -139,7 +139,7 @@ JetCollectionCnv_p2::transToPers( const JetCollection* trans,
                                   MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection..."
-//       << endreq;
+//       << endmsg;
 
   pers->m_ordered   = static_cast<short>(trans->m_ordered);
   //pers->m_roiAuthor = trans->m_ROIauthor;
@@ -160,7 +160,7 @@ JetCollectionCnv_p2::transToPers( const JetCollection* trans,
   JetKeyStoreCnv.transToPers( &trans->m_keyStore, &pers->m_keyStore, msg );
   
 //   msg << MSG::DEBUG << "Creating persistent state of JetCollection [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 

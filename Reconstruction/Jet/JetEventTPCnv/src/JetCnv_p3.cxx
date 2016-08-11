@@ -54,13 +54,13 @@ void JetCnv_p3::persToTrans( const Jet_p3* pers,
                              MsgStream& msg ) 
 {
   msg << MSG::DEBUG << "Loading Jet from persistent state...  e = "<< pers->m_momentum.m_ene
-      << endreq;
+      << endmsg;
 
   navCnv.persToTrans( &pers->m_nav,      
 		      &trans->navigableBase(), msg );
   momCnv.persToTrans( &pers->m_momentum, &trans->momentumBase(),  msg );
   
-  msg << MSG::DEBUG << "    after momCnv e=" << trans->e() <<endreq; 
+  msg << MSG::DEBUG << "    after momCnv e=" << trans->e() <<endmsg; 
 
   trans->m_jetAuthor = pers->m_author;
 
@@ -71,7 +71,7 @@ void JetCnv_p3::persToTrans( const Jet_p3* pers,
 
    JetKeyDescriptorInstance * keydesc = JetKeyDescriptorInstance::instance();
    std::vector<std::string> momentNames = keydesc->getKeys(JetKeyConstants::ShapeCat);
-   if( momentNames.size() != (pers)->m_shapeStore.size() ) msg << MSG::ERROR << " JEtCnv_p2 can't convert moments ! expected moment n= "<< momentNames.size() << " persistatn has "<< (pers)->m_shapeStore.size() <<endreq;
+   if( momentNames.size() != (pers)->m_shapeStore.size() ) msg << MSG::ERROR << " JEtCnv_p2 can't convert moments ! expected moment n= "<< momentNames.size() << " persistatn has "<< (pers)->m_shapeStore.size() <<endmsg;
    else for(size_t i=0;i<momentNames.size();i++){
        trans->setMoment(momentNames[i], (pers)->m_shapeStore[i], true);
      }
@@ -118,7 +118,7 @@ void JetCnv_p3::persToTrans( const Jet_p3* pers,
   trans->particleBase() = jtmp.particleBase();
 
    msg << MSG::DEBUG << "Loaded Jet from persistent state [OK]"
-       << endreq;
+       << endmsg;
    return;
 }
 
@@ -127,7 +127,7 @@ void JetCnv_p3::transToPers( const Jet* trans,
                              MsgStream& msg ) 
 {
   msg << MSG::DEBUG << "Creating persistent state of Jet... e="<< trans->e() << "  "<< trans->momentumBase().e()
-      << endreq;
+      << endmsg;
 
   pers->m_ownPointers = false;
 
@@ -162,6 +162,6 @@ void JetCnv_p3::transToPers( const Jet* trans,
 
 
    msg << MSG::DEBUG << "Created persistent state of Jet [OK]  e="<< pers->m_momentum.m_ene
-      << endreq;
+      << endmsg;
   return;
 }
