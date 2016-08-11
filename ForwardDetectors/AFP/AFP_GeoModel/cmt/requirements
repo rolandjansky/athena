@@ -22,7 +22,7 @@ apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_runtime
 
 #private
-#macro cppdebugflags '$(cppdebugflags_s)'
-#macro_remove componentshr_linkopts "-Wl,-s"
+macro cppdebugflags '$(cppdebugflags_s)'
+macro_remove componentshr_linkopts "-Wl,-s"
 #end_private
 
