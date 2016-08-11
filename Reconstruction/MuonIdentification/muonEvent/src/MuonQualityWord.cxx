@@ -52,7 +52,7 @@ MsgStream& operator << ( MsgStream& sl, const MuonQualityWord& qword)
       else sl << " 0" ;
     }
   }
-  sl << endreq;
+  sl << endmsg;
   return sl; 
 }
 
