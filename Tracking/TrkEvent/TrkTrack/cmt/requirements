@@ -6,6 +6,7 @@ manager Edward Moyse <Edward.Moyse@cern.ch>
 use AtlasPolicy         AtlasPolicy-*
 use CLIDSvc             CLIDSvc-*            Control
 use DataModel           DataModel-*          Control
+use Identifier          Identifier-*         DetectorDescription
 use TrkEventPrimitives  TrkEventPrimitives-* Tracking/TrkEvent
 use TrkParameters       TrkParameters-*      Tracking/TrkEvent
 use TrkNeutralParameters TrkNeutralParameters-*      Tracking/TrkEvent
@@ -19,7 +20,6 @@ apply_pattern installed_library
 private
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 use GaudiInterface      GaudiInterface-*     External
-use Identifier          Identifier-*         DetectorDescription
 use TrkTrackSummary     TrkTrackSummary-*    Tracking/TrkEvent
 use  TrkSurfaces                TrkSurfaces-*                   Tracking/TrkDetDescr
 
