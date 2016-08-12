@@ -183,7 +183,7 @@ StatusCode TrigL2MuonSA::RpcDataPreparator::prepareData(const TrigRoiDescriptor*
   unsigned short int PADId;
   unsigned int padIdHash;
   if ( !m_rpcCablingSvc->give_PAD_address( side, sector, roiNumber, logic_sector, PADId, padIdHash) ) {
-    msg() << MSG::WARNING << "Roi Number: " << roiNumber << " not compatible with side, sector: " << side 
+    msg() << MSG::ERROR << "Roi Number: " << roiNumber << " not compatible with side, sector: " << side 
 	  <<  " " << sector << endreq;
     // set the bool flag to send the event to the debug stream
     m_isFakeRoi = true;
