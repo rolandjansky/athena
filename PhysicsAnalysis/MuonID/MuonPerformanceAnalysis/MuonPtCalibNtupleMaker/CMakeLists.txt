@@ -11,7 +11,10 @@ atlas_depends_on_subdirs( PUBLIC
                           DataQuality/GoodRunsLists
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODMuon
+                          Event/xAOD/xAODTracking
                           PhysicsAnalysis/MuonID/MuonSelectorTools
+                          Trigger/TrigAnalysis/TrigDecisionTool
+                          Trigger/TrigAnalysis/TrigMuonMatching
                           PRIVATE
                           GaudiKernel )
 
@@ -24,7 +27,7 @@ atlas_add_component( MuonPtCalibNtupleMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GoodRunsListsLib xAODEventInfo xAODMuon MuonSelectorToolsLib GaudiKernel )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GoodRunsListsLib xAODEventInfo xAODMuon xAODTracking MuonSelectorToolsLib TrigDecisionToolLib TrigMuonMatchingLib GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( MuonPtCalibNtupleMaker )
