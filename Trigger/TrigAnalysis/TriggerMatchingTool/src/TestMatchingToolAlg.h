@@ -9,6 +9,8 @@
 
 #include "TriggerMatchingTool/IMatchingTool.h"
 
+#include <map>
+
 class TestMatchingToolAlg: public ::AthAnalysisAlgorithm { 
  public: 
   TestMatchingToolAlg( const std::string& name, ISvcLocator* pSvcLocator ) : AthAnalysisAlgorithm( name, pSvcLocator ) {}
@@ -16,10 +18,13 @@ class TestMatchingToolAlg: public ::AthAnalysisAlgorithm {
 
   virtual StatusCode  initialize();
   virtual StatusCode  execute();
+  virtual StatusCode  finalize();
 
  private: 
 
   ToolHandle<Trig::IMatchingTool> m_tmt;
+  
+  std::map<std::string,int> m_matches;
 
 }; 
 
