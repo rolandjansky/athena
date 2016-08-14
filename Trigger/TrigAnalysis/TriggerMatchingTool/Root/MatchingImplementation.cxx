@@ -40,15 +40,15 @@ bool MatchingImplementation::matchDistanceMatrix(const std::vector<std::vector<d
 
   auto MSG_MATRIX = MSG::DEBUG;
   if(msgLvl(MSG_MATRIX)){
-    msg() << MSG_MATRIX << "===========" << endreq;
+    msg() << MSG_MATRIX << "===========" << endmsg;
     for(auto& row : matrix){
       msg() << MSG_MATRIX << "|";
       for(auto distance : row){ 
 	msg() << MSG_MATRIX << distance << " , ";
       }
-      msg() << MSG_MATRIX << "|" << endreq;
+      msg() << MSG_MATRIX << "|" << endmsg;
     }
-    msg() << MSG_MATRIX << "===========" << endreq;
+    msg() << MSG_MATRIX << "===========" << endmsg;
   }
   
   
