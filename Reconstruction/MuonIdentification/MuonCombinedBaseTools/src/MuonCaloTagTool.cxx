@@ -199,7 +199,7 @@ namespace MuonCombined {
 	  // no decay in flight
 	  pdgId = (*truthLink)->pdgId();
 	} else {
-	  ATH_MSG_WARNING(" TruthParticleContainer NOT retrieved ");
+	  ATH_MSG_DEBUG("No TruthLink available.");
 	}
       }
 
