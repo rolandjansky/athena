@@ -493,7 +493,7 @@ TgcLv1RawDataValAlg::procHistograms(){
       for(int ac=0;ac<2;ac++){
         for(int pt=0;pt<6;pt++) {
           tgclv1turnon_ES[ac][pt]  ->Divide( tgclv1turnonnum_ES[ac][pt], tgclv1turnondenom_ES[ac][pt], 1, 1, "B" );
-          tgclv1turnontg_ES[ac][pt]->BayesDivide( tgclv1turnonnum_ES[ac][pt], tgclv1turnondenom_ES[ac][pt] );
+         if(tgclv1turnondenom_ES[ac][pt]->Integral()>0.) tgclv1turnontg_ES[ac][pt]->BayesDivide( tgclv1turnonnum_ES[ac][pt], tgclv1turnondenom_ES[ac][pt] );
         }//pt
 
         tgclv1_plateau_eff_counting_ES[ac]   ->Divide( tgclv1_plateau_eff_counting_num_ES[ac], tgclv1_plateau_eff_counting_denom_ES[ac], 1,1,"B" );
@@ -613,7 +613,7 @@ TgcLv1RawDataValAlg::procHistograms(){
             for(int pcn=0;pcn<3;pcn++){// pcn
               //tgclv1turnon[ac][ipt][mu]->Sumw2();
               tgclv1turnon[ac][ipt][pna][mu]->Divide(tgclv1turnonnum[ac][ipt][pna][mu], tgclv1turnondenom[ac][ipt][pna][mu], 1, 1, "B");
-              tgclv1turnontg[ac][ipt][pna][mu]->BayesDivide(tgclv1turnonnum[ac][ipt][pna][mu], tgclv1turnondenom[ac][ipt][pna][mu]);
+              if(tgclv1turnondenom[ac][ipt][pna][mu]->Integral()>0.)tgclv1turnontg[ac][ipt][pna][mu]->BayesDivide(tgclv1turnonnum[ac][ipt][pna][mu], tgclv1turnondenom[ac][ipt][pna][mu]);
 
               //tgclv1effetavsphi[ac][ipt][mu]->Sumw2();
               tgclv1effetavsphi[ac][ipt][pna][mu][pcn]->Divide(tgclv1effetavsphinum[ac][ipt][pna][mu][pcn], tgclv1effetavsphidenom[ac][ipt][pna][mu], 1, 1, "B");
@@ -627,7 +627,7 @@ TgcLv1RawDataValAlg::procHistograms(){
       for(int ipt=0;ipt<6;ipt++){// pt
         //tgclv1turnon_ES[ac][pt][mu]->Sumw2();
         tgclv1turnon_ES[ac][ipt]->Divide( tgclv1turnonnum_ES[ac][ipt], tgclv1turnondenom_ES[ac][ipt], 1, 1, "B" );
-        tgclv1turnontg_ES[ac][ipt]->BayesDivide( tgclv1turnonnum_ES[ac][ipt], tgclv1turnondenom_ES[ac][ipt] );
+        if((tgclv1turnondenom_ES[ac][ipt]->Integral())>0.)tgclv1turnontg_ES[ac][ipt]->BayesDivide( tgclv1turnonnum_ES[ac][ipt], tgclv1turnondenom_ES[ac][ipt] );
       }// pt
 
       tgclv1_plateau_eff_counting_ES[ac]->Divide( tgclv1_plateau_eff_counting_num_ES[ac], tgclv1_plateau_eff_counting_denom_ES[ac], 1,1,"B" );
