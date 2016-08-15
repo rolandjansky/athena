@@ -177,7 +177,7 @@ namespace MuonCombined {
     bool m_fillTimingInformationOnMuon;
 
     /// copy truth links from primary track particle (or put dummy link if this is missing)
-    bool m_fillMuonTruthLinks;
+    //bool m_fillMuonTruthLinks;
     
     // helpers, managers, tools
     ToolHandle<Muon::MuonIdHelperTool>            m_idHelper;

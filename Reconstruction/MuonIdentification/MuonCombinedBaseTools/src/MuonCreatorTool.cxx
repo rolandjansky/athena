@@ -69,7 +69,7 @@
 
 #include "TrackSegmentAssociationTool.h"
 
-#include "xAODTruth/TruthEventContainer.h"
+//#include "xAODTruth/TruthEventContainer.h"
 
 
 namespace MuonCombined {
@@ -126,7 +126,7 @@ namespace MuonCombined {
     declareProperty("CaloMaterialProvider", m_caloMaterialProvider);
     declareProperty("FillTimingInformation", m_fillTimingInformation = true );
     declareProperty("FillTimingInformationOnMuon", m_fillTimingInformationOnMuon = false );
-    declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
+    //declareProperty("FillMuonTruthLinks", m_fillMuonTruthLinks = true );
      
   }
 
@@ -885,18 +885,43 @@ namespace MuonCombined {
       */
       //Now we just add the original extrapolated track itself
       //but not for SA muons, for consistency they will still have extrapolatedTrackParticle
-      if(outputData.msOnlyExtrapolatedTrackParticleContainer && muon.muonType()!=xAOD::Muon::MuonStandAlone){
-	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
-											 *outputData.msOnlyExtrapolatedTrackParticleContainer,
-											 outputData.msOnlyExtrapolatedTrackCollection );
+      if(muon.muonType()!=xAOD::Muon::MuonStandAlone){
+	if(updatedExtrapolatedTrack){ //add ME track and MS-only extrapolated track
+	  if(outputData.msOnlyExtrapolatedTrackParticleContainer){ //add un-refitted extrapolated track as MS-only extrapolated track
+	    ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
+											     *outputData.msOnlyExtrapolatedTrackParticleContainer,
+											     outputData.msOnlyExtrapolatedTrackCollection );
+	    
+	    if( link.isValid() ) {
+	      ATH_MSG_DEBUG("Adding MS-only extrapolated track: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
+	      //link.toPersistent();
+	      muon.setTrackParticleLink(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle, link );
+	    }
+	    else ATH_MSG_WARNING("failed to create MS-only extrapolated track particle");
+	  }
+	  //now add refitted track as ME track
+	  ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(updatedExtrapolatedTrack),
+											   *outputData.extrapolatedTrackParticleContainer,
+											   outputData.extrapolatedTrackCollection );
+	  if( link.isValid() ) {
+	    ATH_MSG_DEBUG("Adding standalone fit (refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
+	    //link.toPersistent();
+	    muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+	  }
+	}
+	else{ //no refitted track, so add original un-refitted extrapolated track as ME track
+	  ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
+											   *outputData.extrapolatedTrackParticleContainer,
+											   outputData.extrapolatedTrackCollection );
 
-	if( link.isValid() ) {
-	  ATH_MSG_DEBUG("Adding MS-only extrapolated track: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
-	  //link.toPersistent();
-	  muon.setTrackParticleLink(xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle, link );
+	  if( link.isValid() ) {
+	    ATH_MSG_DEBUG("Adding standalone fit (un-refitted): pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
+	    //link.toPersistent();
+	    muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+	  }
 	}
       }
-      else if(muon.muonType()==xAOD::Muon::MuonStandAlone){
+      else{ //SA tracks only get un-refitted track as ME track
 	// create element link from the track, const_cast for now until we sort out the constness of the MuonCandidates
 	ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
 											 *outputData.extrapolatedTrackParticleContainer,
@@ -907,22 +932,7 @@ namespace MuonCombined {
 	  //link.toPersistent();
 	  muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
 	}
-      }
-    }
-    if( updatedExtrapolatedTrack ){ //since we save the original extrapolated track separately, no need to create this if no updated extrapolated track
-      //I don't think this is a leak any more, since we keep this track now
-      //delete extrapolatedTrack; // delete to avoid leak
-      extrapolatedTrack = updatedExtrapolatedTrack;
-
-      // create element link from the track, const_cast for now until we sort out the constness of the MuonCandidates
-      ElementLink<xAOD::TrackParticleContainer> link = createTrackParticleElementLink( std::unique_ptr<const Trk::Track>(extrapolatedTrack),
-										       *outputData.extrapolatedTrackParticleContainer,
-										       outputData.extrapolatedTrackCollection );
-    
-      if( link.isValid() ) {
-	ATH_MSG_DEBUG("Adding standalone fit: pt " << (*link)->pt() << " eta " << (*link)->eta() << " phi " << (*link)->phi() );
-	//link.toPersistent();
-	muon.setTrackParticleLink(xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle, link );
+	else ATH_MSG_WARNING("failed to create ME track particle for SA muon");
       }
     }
   }
@@ -1181,7 +1191,7 @@ namespace MuonCombined {
           muon.primaryTrackParticleLink().dataID()<<"] is zero. Setting charge=0.0. The eta/phi of the muon is: "<<muon.eta()<<"/"<<muon.phi());
         muon.setCharge(0.0);
       } 
-      
+      /*
       if (m_fillMuonTruthLinks){
         // Add truth information
         // Check if primary has a truth link (if not, we need to do something different.)
@@ -1199,6 +1209,7 @@ namespace MuonCombined {
           muon.auxdata<int>("truthOrigin") = -99999;
         }
       }
+      */
     }else{
       ATH_MSG_ERROR("No primary track particle set, deleting muon");
       return false;
@@ -1245,6 +1256,8 @@ namespace MuonCombined {
     }
  
     if( !m_selectorTool.empty() ){
+      muon.auxdata<float>("MuonSpectrometerPt")=muon.pt();
+      muon.auxdata<float>("InnerDetectorPt")=muon.pt();
       // set id cuts
       m_selectorTool->setPassesIDCuts(muon);
       ATH_MSG_VERBOSE("Setting passesIDCuts " << muon.passesIDCuts() );
