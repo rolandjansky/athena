@@ -79,6 +79,9 @@ muonCombinedRecFlags.doCaloTrkMuId = True
 muonRecFlags.doCreateClusters = False 
 muonRecFlags.prdToxAOD = False
 
+muonRecFlags.doTGCClusterSegmentFinding = False
+muonRecFlags.doRPCClusterSegmentFinding = False
+
 muonStandaloneFlags.printSummary = True
 muonRecFlags.doTrackPerformance = True
 muonRecFlags.TrackPerfSummaryLevel = 2
