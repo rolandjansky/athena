@@ -152,7 +152,7 @@ StatusCode DiTauBuilder::execute() {
 
         // seed cuts
         if (fabs(seed->pt()) < m_minPt) continue;
-        if (fabs(seed->eta() > m_maxEta)) continue;
+        if (fabs(seed->eta()) > m_maxEta) continue;
 
         // cuts passed
         rDiTauData.seed = seed;

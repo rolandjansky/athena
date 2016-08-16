@@ -55,7 +55,7 @@ ElMuFinder::~ElMuFinder() {
 //-------------------------------------------------------------------------
 
 StatusCode ElMuFinder::initialize() {
-    CP::MuonSelectionTool m_muSelectionTool("MuonSelection_forDiTau");
+  CP::MuonSelectionTool m_muSelectionTool("MuonSelection_forDiTau");
     m_muSelectionTool.setProperty("MaxEta", 2.7);
     m_muSelectionTool.setProperty("MuQuality", 2);
     if (m_muSelectionTool.initialize().isFailure()) {
@@ -137,8 +137,10 @@ StatusCode ElMuFinder::execute(DiTauCandidateData * data) {
     for (const auto& mu : *pMuCont) {
         ATH_MSG_DEBUG("muon pt:" << mu->pt() << " eta:" << mu->eta() << " ");
         // if (m_muSelectionTool.accept(*mu))
-        if (m_muSelectionTool.getQuality(*mu) >= m_muQual && std::abs(mu->eta()) >= m_muMaxEta)
-            continue;
+	xAOD::Muon::Quality muonQuality = mu->quality();
+	if (muonQuality >= m_muQual && std::abs(mu->eta()) >= m_muMaxEta) continue;
+        //if (m_muSelectionTool->getQuality(*mu) >= m_muQual && std::abs(mu->eta()) >= m_muMaxEta)
+	//continue;
 
         // electron inside seed jet area?
         dR = Tau1P3PKineUtils::deltaR(data->seed->eta(), data->seed->phi(), mu->eta(), mu->phi());

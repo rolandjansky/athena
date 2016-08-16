@@ -37,6 +37,13 @@ class diTauRecJetSeedPt(JobProperty):
     statusOn=True
     allowedTypes=['float']
     StoredValue=300000
+
+class doVtxFinding(JobProperty):
+    """ force Vertex Finding on, needed in non standard production
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
     
 
 
@@ -48,6 +55,15 @@ class doRunDiTauDiscriminant(JobProperty):
     StoredValue=True
 
 
+class doCellFinding(JobProperty):
+    """ switch of cell handling
+    """
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=True
+
+
+
 # Defines a sub-container for the algorithm switches
 class DiTauRecFlags(JobPropertyContainer):
     """ tau information """
@@ -56,7 +72,7 @@ class DiTauRecFlags(JobPropertyContainer):
 jobproperties.add_Container(DiTauRecFlags)
 
 # I want always the following flags in the Rec container  
-_list_tau=[Enabled,doDiTauRec,diTauRecJetSeedPt,doRunDiTauDiscriminant]
+_list_tau=[Enabled,doDiTauRec,diTauRecJetSeedPt,doVtxFinding,doRunDiTauDiscriminant,doCellFinding,]
 for j in _list_tau: 
     jobproperties.DiTauRecFlags.add_JobProperty(j)
 del _list_tau
