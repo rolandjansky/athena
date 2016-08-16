@@ -10,11 +10,14 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Control/AthenaBaseComps
+                          Control/StoreGate
+                          Control/CxxUtils
                           DetectorDescription/AtlasDetDescr
                           InnerDetector/InDetSimEvent
                           LArCalorimeter/LArSimEvent
                           TileCalorimeter/TileSimEvent
                           MuonSpectrometer/MuonSimEvent
+                          Generators/GeneratorObjects
                           Simulation/ISF/ISF_Core/ISF_Event
                           Simulation/ISF/ISF_Core/ISF_Interfaces
                           Tools/PmbCxxUtils
@@ -31,7 +34,7 @@ atlas_add_component( ISF_Algorithms
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps AtlasDetDescr ISF_Event ISF_Interfaces PmbCxxUtils InDetSimEvent LArSimEvent TileSimEvent MuonSimEvent )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} GaudiKernel AthenaBaseComps StoreGate CxxUtils AtlasDetDescr GeneratorObjects ISF_Event ISF_Interfaces PmbCxxUtils InDetSimEvent LArSimEvent TileSimEvent MuonSimEvent )
 
 atlas_add_test( CollectionMerger_test
                 SOURCES test/CollectionMerger_test.cxx src/*.cxx

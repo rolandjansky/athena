@@ -21,14 +21,15 @@
 #include "GaudiKernel/Property.h"
 // Boost
 #include <boost/lexical_cast.hpp>
-// Benchmarking
+// ATLAS cxx utils
+#include "CxxUtils/make_unique.h"
 #include "PmbCxxUtils/CustomBenchmark.h"
 // ROOT includes
 #include "TTree.h"
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegionHelper.h"
-
-#include <pthread.h>
+// McEventCollection
+#include "GeneratorObjects/McEventCollection.h"
 
 ///////////////////////////////////////////////////////////////////
 // Public methods:
@@ -38,6 +39,11 @@
 ////////////////
 ISF::SimKernel::SimKernel( const std::string& name, ISvcLocator* pSvcLocator ) :
   ::AthAlgorithm( name, pSvcLocator ),
+  m_inputHardScatterEvgen(),
+  m_inputPileupEvgen(),
+  m_outputHardScatterTruth(),
+  m_outputPileupTruth(),
+  m_inputConverter("",name),
   m_particleBroker("ISF_ParticleBroker", name),
   m_truthRecordSvc("ISF_TruthRecordSvc", name),
   m_simHitSvc("ISF_SimHitSvc", name),
@@ -55,6 +61,22 @@ ISF::SimKernel::SimKernel( const std::string& name, ISvcLocator* pSvcLocator ) :
   m_numParticles(0),
   m_maxParticleVectorSize(10240)
 {
+    declareProperty("InputHardScatterCollection",
+                    m_inputHardScatterEvgen,
+                    "Input Hard Scatter EVGEN collection.");
+    declareProperty("InputPileupCollection",
+                     m_inputPileupEvgen,
+                    "Input Pileup EVGEN collection.");
+    declareProperty("OutputHardScatterTruthCollection",
+                    m_outputHardScatterTruth,
+                    "Output Hard Scatter Truth collection.");
+    declareProperty("OutputPileupTruthCollection",
+                     m_outputPileupTruth,
+                    "Output Pileup Truth collection.");
+    declareProperty("InputConverter",
+                    m_inputConverter,
+                    "Input McEventCollection->ISFParticleContainer conversion service.");
+
     // the general services and tools needed
     declareProperty("ParticleBroker"             , m_particleBroker                  );
     declareProperty("TruthRecordService"         , m_truthRecordSvc                  );
@@ -99,6 +121,7 @@ StatusCode ISF::SimKernel::initialize()
     // record current memory usage
     m_memMon->recordCurrent("at beginning of SimKernel initialize()");
   }
+
 
   // setup CPU Benchmarks
   if (m_doCPUMon) {
@@ -325,9 +348,20 @@ StatusCode ISF::SimKernel::execute()
     m_memMon->recordCurrent("before 1st event");
   }
 
+  // read and convert input
+  //  a. hard-scatter
+  ISFParticleContainer simParticles{}; // particles for ISF simulation
+  ATH_CHECK( prepareInput(m_inputHardScatterEvgen, m_outputHardScatterTruth, simParticles) );
+  //  b. pileup
+  if (!m_inputPileupEvgen.key().empty()) {
+    bool isPileup = true;
+    ATH_CHECK( prepareInput(m_inputPileupEvgen, m_outputPileupTruth, simParticles, isPileup) );
+  }
+
   // -----------------------------------------------------------------------------------------------
   // Step 1: Initialize the particle stack and the TruthManager, ABORT if failure
-  if ( (m_particleBroker->initializeEvent()).isFailure() ){
+  StatusCode sc = m_particleBroker->initializeEvent( std::move(simParticles) );
+  if ( sc.isFailure() ){
       ATH_MSG_FATAL( "Failed to initialize Particle Broker. Abort." );
       return StatusCode::FAILURE;
   }
@@ -478,6 +512,27 @@ StatusCode ISF::SimKernel::execute()
     else if ( m_numISFEvents==10)  m_memMon->recordCurrent("after  10th event");
     else if ( m_numISFEvents==100) m_memMon->recordCurrent("after 100th event");
   }
+
+  return StatusCode::SUCCESS;
+}
+
+
+/** Convert input generator particles to ISFParticles and copy input
+    generator truth collection into output simulation truth collection */
+StatusCode ISF::SimKernel::prepareInput(SG::ReadHandle<McEventCollection>& inputTruth,
+                                        SG::WriteHandle<McEventCollection>& outputTruth,
+                                        ISFParticleContainer& simParticles,
+                                        bool isPileup) const {
+
+  if (!inputTruth.isValid()) {
+    ATH_MSG_FATAL("Unable to read input GenEvent collection '" << inputTruth.key() << "'");
+    return StatusCode::FAILURE;
+  }
+
+  // create copy
+  outputTruth = CxxUtils::make_unique<McEventCollection>(*inputTruth);
+
+  ATH_CHECK( m_inputConverter->convert(*outputTruth, simParticles, isPileup) );
 
   return StatusCode::SUCCESS;
 }
