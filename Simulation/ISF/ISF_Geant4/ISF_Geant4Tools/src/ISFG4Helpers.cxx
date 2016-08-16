@@ -45,18 +45,6 @@ iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
                                                    const ISF::ISFParticle& parent,
                                                    ISF::TruthBinding* truth)
 {
-  const ISF::DetRegionSvcIDPair regionSimSvcPair( parent.nextGeoID(), parent.nextSimID() );
-  return ISFG4Helpers::convertG4TrackToISFParticle( aTrack,
-                                                    regionSimSvcPair,
-                                                    truth );
-}
-
-/** convert the given G4Track into an ISFParticle */
-ISF::ISFParticle*
-iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
-                                                   const ISF::DetRegionSvcIDPair& regionSimSvcPair,
-                                                   ISF::TruthBinding* truth)
-{
   const G4ThreeVector& g4pos = aTrack.GetPosition();
   const double         gTime = aTrack.GetGlobalTime();
   const Amg::Vector3D  position(g4pos.x(),g4pos.y(),g4pos.z());
@@ -78,7 +66,7 @@ iGeant4::ISFG4Helpers::convertG4TrackToISFParticle(const G4Track& aTrack,
                                                 charge,
                                                 pdgID,
                                                 gTime,
-                                                regionSimSvcPair,
+                                                parent,
                                                 barcode,
                                                 truth
                                                );

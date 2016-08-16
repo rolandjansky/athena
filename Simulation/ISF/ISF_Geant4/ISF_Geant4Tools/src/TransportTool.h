@@ -15,7 +15,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 
-#include "BarcodeInterfaces/Barcode.h"
+#include "BarcodeEvent/Barcode.h"
 
 #include "ISF_Geant4Interfaces/ITransportTool.h"
 #include "ISF_Geant4Tools/IG4RunManagerHelper.h"
@@ -128,6 +128,9 @@ namespace iGeant4
                                            //simulation
 
     G4VSolid *m_worldSolid;                // the Geant4 world volume solid
+
+    /// Commands to send to the G4 UI
+    std::vector<std::string> m_g4commands;
   };
 
 

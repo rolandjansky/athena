@@ -102,7 +102,7 @@ void iGeant4::ISFTrajectory::AppendStep(const G4Step* aStep)
     AtlasDetDescr::AtlasRegion geoID = baseIsp->nextGeoID();
 
     auto* eventInfo = ISFG4Helpers::getEventInformation();
-    iGeant4::Geant4TruthIncident truth(aStep, geoID, numSecondaries, m_sHelper, eventInfo);
+    iGeant4::Geant4TruthIncident truth(aStep, *baseIsp, geoID, numSecondaries, m_sHelper, eventInfo);
 
     if (m_truthRecordSvcQuick) {
       m_truthRecordSvcQuick->registerTruthIncident(truth);

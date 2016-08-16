@@ -53,13 +53,24 @@ iGeant4::PhysicsValidationUserAction::PhysicsValidationUserAction(const std::str
     m_thistSvc("THistSvc",name),
     //m_validationStream("ISFMaterial"),
     m_validationStream("ISFG4SimKernel"),
+    // branches
+    m_wzOaTr(0), m_thIn(0), m_phIn(0), m_dIn(0),
+    m_thEnd(0), m_phEnd(0), m_dEnd(0),
+    m_X0(0), m_L0(0), m_wZ(0), m_dt(0),
+    // more branches
+    m_interactions(nullptr),
+    m_process(0), m_pdg_mother(0), m_gen_mother(0), m_nChild(0),
+    m_vtx_dist(0), m_vtx_theta(0), m_vtx_phi(0), m_vtx_e_diff(0),
+    m_vtx_p_diff(0), m_vtx_plong_diff(0), m_vtx_pperp_diff(0),
+    m_p_mother(0), m_radLength(0),
     //Values taken from G4DetectorEnvelopes/EnvelopeGeometryManager.h
     m_idR(1150.-1.e-5), m_idZ(3490.),
     m_caloRmean(0.5*(40.+4250.)),  m_caloZmean(0.5*(3490.+6740.)),
     m_muonRmean(0.5*(60.+30000.)), m_muonZmean(0.5*(6740.+30000.)),
     m_cavernRmean(300000.0),  m_cavernZmean(300000.0),
     m_volumeOffset(1),
-    m_minHistoryDepth(0)
+    m_minHistoryDepth(0),
+    m_currentTrack(0)
 {
 
   ATH_MSG_DEBUG("create PhysicsValidationUserAction name: "<<name);
@@ -354,7 +365,9 @@ void iGeant4::PhysicsValidationUserAction::Step(const G4Step* aStep)
     if (process->GetProcessSubType()==3 ) m_radloss+=eloss;
 
     EventInformation* eventInfo = static_cast<EventInformation*> (G4EventManager::GetEventManager()->GetConstCurrentEvent()->GetUserInformation());
-    iGeant4::Geant4TruthIncident truth( aStep, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper, eventInfo);
+    VTrackInformation * trackInfo = static_cast<VTrackInformation*>(track->GetUserInformation());
+    const auto baseISP = const_cast<ISF::ISFParticle*>( trackInfo->GetBaseISFParticle() );
+    iGeant4::Geant4TruthIncident truth( aStep, *baseISP, geoID, m_sHelper.NrOfNewSecondaries(), m_sHelper, eventInfo);
     unsigned int nSec = truth.numberOfChildren();
     if (nSec>0 || track->GetTrackStatus()!=fAlive ) {      // save interaction info
       //std::cout <<"interaction:"<< process->GetProcessSubType() <<":"<<nSec<< std::endl;

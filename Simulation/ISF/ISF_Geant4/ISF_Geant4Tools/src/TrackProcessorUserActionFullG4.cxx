@@ -144,12 +144,13 @@ void iGeant4::TrackProcessorUserActionFullG4::ISFSteppingAction(const G4Step* aS
 
       AtlasDetDescr::AtlasRegion nextGeoID = nextGeoId(aStep);
 
-      const ISF::DetRegionSvcIDPair detRegionSimSvcPair(nextGeoID, ISF::fUndefinedSimID );
-
       ISF::ISFParticle *tmpISP = ::iGeant4::ISFG4Helpers::convertG4TrackToISFParticle( *aTrack,
-                                                                            detRegionSimSvcPair,
+                                                                            *curISP,
                                                                             nullptr // truthBinding
                                                                             );
+      tmpISP->setNextGeoID(nextGeoID);
+      tmpISP->setNextSimID(ISF::fUndefinedSimID);
+
       auto generationZeroBarcode = tHelp.GetBarcode();
       tmpISP->setBarcode(generationZeroBarcode);
 
@@ -456,12 +457,13 @@ namespace G4UA{
 
           AtlasDetDescr::AtlasRegion nextGeoID = nextGeoId(aStep);
 
-          const ISF::DetRegionSvcIDPair detRegionSimSvcPair(nextGeoID, ISF::fUndefinedSimID );
-
           ISF::ISFParticle *tmpISP = ::iGeant4::ISFG4Helpers::convertG4TrackToISFParticle( *aTrack,
-                                                                                detRegionSimSvcPair,
+                                                                                *curISP,
                                                                                 nullptr // truthBinding
                                                                                 );
+          tmpISP->setNextGeoID(nextGeoID);
+          tmpISP->setNextSimID(ISF::fUndefinedSimID);
+
           auto generationZeroBarcode = tHelp.GetBarcode();
           tmpISP->setBarcode(generationZeroBarcode);
 

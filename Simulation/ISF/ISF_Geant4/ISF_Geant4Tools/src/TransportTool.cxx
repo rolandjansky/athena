@@ -86,6 +86,9 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   // Multi-threading specific settings
   declareProperty("MultiThreading", m_useMT=false);
 
+  // Commands to send to the G4UI
+  declareProperty("G4Commands", m_g4commands);
+
   // get G4AtlasRunManager
   ATH_MSG_DEBUG("initialize G4AtlasRunManager");
 
@@ -210,6 +213,11 @@ StatusCode iGeant4::G4TransportTool::initialize()
   }
   else if (m_rndmGen=="geant4" || m_rndmGen.empty()) {
     ATH_MSG_INFO("Random nr. generator is set to Geant4");
+  }
+
+  // Send UI commands
+  for (auto g4command : m_g4commands){
+    ui->ApplyCommand( g4command );
   }
 
   ATH_MSG_DEBUG("initalize");
@@ -541,14 +549,10 @@ G4PrimaryParticle* iGeant4::G4TransportTool::getPrimaryParticle(const ISF::ISFPa
       // Set the lifetime appropriately - this is slow but rigorous, and we
       //  don't want to end up with something like vertex time that we have
       //  to validate for every generator on earth...
-      G4LorentzVector lv0 ( genpart->production_vertex()->position().x(),
-                            genpart->production_vertex()->position().y(),
-                            genpart->production_vertex()->position().z(),
-                            genpart->production_vertex()->position().t() );
-      G4LorentzVector lv1 ( genpart->end_vertex()->position().x(),
-                            genpart->end_vertex()->position().y(),
-                            genpart->end_vertex()->position().z(),
-                            genpart->end_vertex()->position().t() );
+      const auto& prodVtx = genpart->production_vertex()->position();
+      const auto& endVtx = genpart->end_vertex()->position();
+      const G4LorentzVector lv0( prodVtx.x(), prodVtx.y(), prodVtx.z(), prodVtx.t() );
+      const G4LorentzVector lv1( endVtx.x(), endVtx.y(), endVtx.z(), endVtx.t() );
       particle->SetProperTime( (lv1-lv0).mag()/CLHEP::c_light );
     } // particle had an end vertex
   } // Truth was detected

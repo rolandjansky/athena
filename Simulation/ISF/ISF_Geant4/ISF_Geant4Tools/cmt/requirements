@@ -15,6 +15,7 @@ use AtlasDetDescr         AtlasDetDescr-*         DetectorDescription
 use GeoPrimitives         GeoPrimitives-*         DetectorDescription
 use AtlasHepMC            AtlasHepMC-*            External
 use AtlasROOT             AtlasROOT-*             External
+use BarcodeEvent          BarcodeEvent-*          Simulation/Barcode
 use BarcodeInterfaces     BarcodeInterfaces-*     Simulation/Barcode
 use G4AtlasTools          G4AtlasTools-*          Simulation/G4Atlas
 use GeneratorObjects      GeneratorObjects-*      Generators
