@@ -13,6 +13,8 @@
 #include <string>
 
 // FrameWork includes
+#include "StoreGate/ReadHandle.h"
+#include "StoreGate/WriteHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ITHistSvc.h"
@@ -21,9 +23,13 @@
 // ISF includes
 #include "ISF_Event/SimSvcID.h"
 #include "ISF_Interfaces/ISimulationSelector.h"
+#include "ISF_Interfaces/IInputConverter.h"
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegion.h"
+
+// McEventCollection
+#include "GeneratorObjects/McEventCollection.h"
 
 // forward declarations
 namespace PMonUtils {
@@ -70,7 +76,7 @@ namespace ISF {
   class SimKernel : public AthAlgorithm {
 
   public:
-    //** Constructor with parameters */
+    /** Constructor with parameters */
     SimKernel( const std::string& name, ISvcLocator* pSvcLocator );
 
     /** Destructor */
@@ -85,6 +91,21 @@ namespace ISF {
 
   private:
     StatusCode initSimSvcs( SimSelectorToolArray &simSelectorTools);
+
+    /** Convert input generator particles to ISFParticles and copy input
+        generator truth collection into output simulation truth collection */
+    StatusCode prepareInput(SG::ReadHandle<McEventCollection>& inputTruth,
+                            SG::WriteHandle<McEventCollection>& outputTruth,
+                            ISFParticleContainer& simParticles,
+                            bool isPileup=false) const;
+
+
+    /** Input/output truth collections and input conversion */
+    SG::ReadHandle<McEventCollection>    m_inputHardScatterEvgen; //!< input hard scatter collection
+    SG::ReadHandle<McEventCollection>    m_inputPileupEvgen;      //!< input pileup collection
+    SG::WriteHandle<McEventCollection>   m_outputHardScatterTruth;//!< output hard scatter truth collection
+    SG::WriteHandle<McEventCollection>   m_outputPileupTruth;     //!< output pileup truth collection
+    ServiceHandle<IInputConverter>       m_inputConverter;        //!< input->ISFParticle converter
 
     /** Central particle broker service */
     ServiceHandle<IParticleBroker>       m_particleBroker;
