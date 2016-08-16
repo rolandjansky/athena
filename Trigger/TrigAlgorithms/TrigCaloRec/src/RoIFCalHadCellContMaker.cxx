@@ -90,7 +90,8 @@ StatusCode RoIFCalHadCellContMaker::finalize(){
 StatusCode RoIFCalHadCellContMaker::execute(CaloCellContainer &pCaloCellContainer, 
 					    const IRoiDescriptor& roi ) { 
   // reset error
-  m_error = (EFFCALHAD<<28);
+  //m_error = (EFFCALHAD<<28);
+  m_error = 0;
 
   if (m_timersvc) {
     (m_timer.at(0))->start();
@@ -111,7 +112,7 @@ StatusCode RoIFCalHadCellContMaker::execute(CaloCellContainer &pCaloCellContaine
        //return StatusCode::FAILURE;       
      }
      if (m_data->report_error()) {
-       m_error=m_data->report_error() + (EFFCALHAD<<28);
+       m_error|=m_data->report_error();// + (EFFCALHAD<<28);
        if (m_timersvc) (m_timer.at(2))->pause();
        //continue;
      }

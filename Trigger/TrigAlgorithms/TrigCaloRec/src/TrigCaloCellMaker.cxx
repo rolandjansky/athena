@@ -297,8 +297,6 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   m_PhiL2 = roiDescriptor->phi();
   m_EtaL2 = roiDescriptor->eta();
   
-  
-  
 #ifndef NDEBUG
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << " REGTEST: RoI id " << *roiDescriptor << roiDescriptor->eta() << endreq;
@@ -340,6 +338,7 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   
   if (timerSvc()) m_timer[1]->start();
 
+  unsigned idet=0;
   for (; itrtcr!=endtcr; ++itrtcr) {
     
     //if (timerSvc()) m_timer[2+index]->start();
@@ -357,8 +356,9 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
       return HLT::TOOL_FAILURE;
     } else {  
       uint32_t in_error = (*itrtcr)->report_error();
-      unsigned int idet = (in_error>>28);
+      if ( m_fullScanEnabled ) idet = IAlgToolEFCalo::EFFULLCALO;
       if (0x0FFFFFFF & in_error) ++m_conversionError[idet];
+      idet++;
       error|=(in_error&0x0FFFFFFF);
 #     ifndef NDEBUG
       if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executed TCR tool " << (*itrtcr).name() << endreq;
@@ -379,6 +379,7 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   if (pCaloCellContainer->size() < 1) return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
 
   // Check conversion status
+  pTrigCaloQuality->setPersistencyFlag(false);
   pTrigCaloQuality->setPersistencyFlag(isPersistent);
   pTrigCaloQuality->setError(error);
   if (store()->record(pTrigCaloQuality, cellCollKey).isFailure()) {

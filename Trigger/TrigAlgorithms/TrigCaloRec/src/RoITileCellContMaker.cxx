@@ -80,7 +80,8 @@ StatusCode RoITileCellContMaker::finalize(){
 StatusCode RoITileCellContMaker::execute(CaloCellContainer &pCaloCellContainer,
 					 const IRoiDescriptor& roi ) { 
   // reset error
-  m_error=(EFTILE<<28);
+  //m_error=(EFTILE<<28);
+  m_error=0;
 
   if (m_timersvc) {
     (m_timer.at(0))->start();
@@ -103,7 +104,7 @@ StatusCode RoITileCellContMaker::execute(CaloCellContainer &pCaloCellContainer,
        //return StatusCode::FAILURE;
      }
      if (m_data->report_error()) {
-       m_error=m_data->report_error()+(EFTILE<<28);
+       m_error=m_data->report_error(); //+(EFTILE<<28);
        if (m_timersvc) (m_timer.at(2))->pause();
        //continue;
      }

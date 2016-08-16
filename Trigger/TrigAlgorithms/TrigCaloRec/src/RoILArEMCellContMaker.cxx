@@ -85,7 +85,8 @@ StatusCode RoILArEMCellContMaker::finalize(){
 StatusCode RoILArEMCellContMaker::execute(CaloCellContainer &pCaloCellContainer, 
 					  const IRoiDescriptor& roi ) { 
     // reset error  
-    m_error=(EFTTEM<<28);
+    //m_error=(EFTTEM<<28);
+    m_error=0;
 
     if (m_timersvc) {
       (m_timer.at(0))->start();
@@ -106,7 +107,7 @@ StatusCode RoILArEMCellContMaker::execute(CaloCellContainer &pCaloCellContainer,
 	//return StatusCode::FAILURE;
       }
       if (m_data->report_error()) {
-	m_error=m_data->report_error() + (EFTTEM<<28);
+	m_error=m_data->report_error(); // + (EFTTEM<<28);
 	if (m_timersvc) (m_timer.at(2))->pause();
 	//continue;
       } 
