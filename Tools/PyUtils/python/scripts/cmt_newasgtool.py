@@ -9,7 +9,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 753292 $"
+__version__ = "$Revision: 756300 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new AsgTool"
 
@@ -161,6 +161,10 @@ class I%(klass)s : public virtual asg::IAsgTool {
 #include "AsgTools/AnaToolHandle.h"
 #include "%(pkg)s/I%(klass)s.h"
 
+//next line needed for using the concrete tool in this unit test
+//external users cannot do this
+#include "../Root/%(namespace_klass)s.cxx"
+
 using namespace asg::msgUserCode;
 
 int main() {
@@ -177,6 +181,9 @@ int main() {
 
    //myTool->isSelected(....); put test code here
 
+   //next line is how to gain access to concrete instance of the tool ... only ok for unit tests
+   //%(namespace2)s%(klass)s* tool = dynamic_cast<%(namespace2)s%(klass)s*>(&*myTool);
+
    return 0; //zero = success
 }
 """
@@ -189,6 +196,11 @@ int main() {
 #include "AsgTools/UnitTest.h"
 #include <gtest/gtest.h>
 
+//next line needed for using the concrete tool in this unit test                                                      
+//external users cannot do this                                                                                       
+#include "../Root/%(namespace_klass)s.cxx" 
+
+
 using namespace asg::msgUserCode;
 
 //first arg: name of fixture (if applicable), second arg: name of the test (special prefixes have special meanings)
@@ -200,6 +212,11 @@ TEST (%(klass)sTest, basicTest) {
    ASSERT_SUCCESS (myTool.initialize());
 
 //   ASSERT_TRUE( myTool->isSelected( ...goodObject.. ) );
+
+   //next line is how to gain access to concrete instance of the tool ... only ok for unit tests                      
+   //%(namespace2)s%(klass)s* tool = dynamic_cast<%(namespace2)s%(klass)s*>(&*myTool);                                
+                             
+
 
 }
 
@@ -283,20 +300,23 @@ def main(args):
          myfile.write("library %s *.cxx ../Root/*.cxx components/*.cxx\n" % (full_pkg_name))
          myfile.write("apply_pattern component_library\n")
     
-    if not foundBaseComps or len(libraryLines)>0:
+    if not foundBaseComps or len(libraryLines)>0 or not hasxAODBase or not hasAtlasROOT:
         
         #must add a use statement to the requirements file 
         #put inside public blocks
         lineCount=0
         inPrivate=False
         if not foundBaseComps: print ":::  INFO Adding AsgTools to requirements file"
+        if not hasAtlasROOT: print ":::  INFO Adding AtlasROOT to requirements file"
+        if not hasxAODBase: print ":::  INFO Adding xAODBase to requirements file"
         for line in fileinput.input('cmt/requirements', inplace=1):
             lineCount+=1
-            if not foundBaseComps and lineCount==lastUse+1:
+            if (not foundBaseComps or not hasAtlasROOT or not hasxAODBase) and lineCount==lastUse+1:
                 if inPrivate: print "end_private"
-                print ""
-                print "use AsgTools AsgTools-* Control/AthToolSupport"
-                print ""
+                if not foundBaseComps:
+                  print ""
+                  print "use AsgTools AsgTools-* Control/AthToolSupport"
+                  print ""
                 if not hasAtlasROOT:
                   print "#uncomment the next line to use ROOT libraries in your package"
                   print "#use AtlasROOT AtlasROOT-* External"
