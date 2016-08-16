@@ -48,28 +48,28 @@ namespace xAOD {
     class AccessorWrapper : public Named {
     public:
       typedef typename SG::AuxElement::Accessor< TYPE > AccessorType;
-      AccessorWrapper(const std::string & n) : Named(n), a(n) {}
+      AccessorWrapper(const std::string & n) : Named(n), m_a(n) {}
       
-      void setAttribute(AuxElement& p, const TYPE& v){
-        a(p) = v;
+      void setAttribute(SG::AuxElement& p, const TYPE& v){
+        m_a(p) = v;
       }
       
-      void getAttribute(const AuxElement& p,  TYPE& v){
-        v = a(p);
+      void getAttribute(const SG::AuxElement& p,  TYPE& v){
+        v = m_a(p);
       }
 
-      const TYPE & getAttribute(const AuxElement& p){
-        return a(p);
+      const TYPE & getAttribute(const SG::AuxElement& p){
+        return m_a(p);
       }
       
-      bool isAvailable(const AuxElement& p){ return a.isAvailable(p);}
+      bool isAvailable(const SG::AuxElement& p){ return m_a.isAvailable(p);}
 
       // forward calls to internal accessor. useful for performance critical code.
-      const TYPE& operator()(const AuxElement& p)  { return a(p);}
-      TYPE& operator()(AuxElement& p)  { return a(p);}
+      const TYPE& operator()(const SG::AuxElement& p)  { return m_a(p);}
+      TYPE& operator()(SG::AuxElement& p)  { return m_a(p);}
 
     protected:
-      AccessorType a;
+      AccessorType m_a;
     };
 
     /// Double accessor specialization : internally stored as float
@@ -77,26 +77,26 @@ namespace xAOD {
     class AccessorWrapper<double> : public Named {
     public:
       typedef SG::AuxElement::Accessor< float > AccessorType;
-      AccessorWrapper(const std::string & n) : Named(n) , a(n) {}
+      AccessorWrapper(const std::string & n) : Named(n) , m_a(n) {}
       
-      void setAttribute(AuxElement& p, const double& v){
-        a(p) = v;
+      void setAttribute(SG::AuxElement& p, const double& v){
+        m_a(p) = v;
       }
       
-      void getAttribute(const AuxElement& p,  double& v){
-        v = a(p);
+      void getAttribute(const SG::AuxElement& p,  double& v){
+        v = m_a(p);
       }
 
       // can't return a reference, since the internal is a float.
-      double  getAttribute(const AuxElement& p){
-        return  a(p);
+      double  getAttribute(const SG::AuxElement& p){
+        return  m_a(p);
       }
 
       
-      bool isAvailable(const AuxElement& p){ return a.isAvailable(p);}
+      bool isAvailable(const SG::AuxElement& p){ return m_a.isAvailable(p);}
 
     protected:
-      AccessorType a;
+      AccessorType m_a;
     };
 
 
@@ -105,28 +105,28 @@ namespace xAOD {
     class AccessorWrapper< std::vector<double> > : public Named{
     public:
       typedef SG::AuxElement::Accessor< std::vector<float>  > AccessorType;
-      AccessorWrapper(const std::string & n) : Named(n), a(n) {}
+      AccessorWrapper(const std::string & n) : Named(n), m_a(n) {}
       
-      void setAttribute(AuxElement& p, const std::vector<double>& v){
-        a(p).assign( v.begin() , v.end() );
+      void setAttribute(SG::AuxElement& p, const std::vector<double>& v){
+        m_a(p).assign( v.begin() , v.end() );
       }
       
-      void getAttribute(const AuxElement& p,  std::vector<double>& v){
-        const std::vector<float> & vecF = a(p);
+      void getAttribute(const SG::AuxElement& p,  std::vector<double>& v){
+        const std::vector<float> & vecF = m_a(p);
         v.assign( vecF.begin() , vecF.end() );
       }
 
       // can't return a reference, since the internal is a float.
-      std::vector<double>  getAttribute(const AuxElement& p){
+      std::vector<double>  getAttribute(const SG::AuxElement& p){
         std::vector<double> v; getAttribute(p,v);
         return v;
       }
 
       
-      bool isAvailable(const AuxElement& p){ return a.isAvailable(p);}
+      bool isAvailable(const SG::AuxElement& p){ return m_a.isAvailable(p);}
 
     protected:
-      AccessorType a;
+      AccessorType m_a;
     };
 
 
@@ -136,15 +136,15 @@ namespace xAOD {
     /// A base class holding accessors for 4 floats of a 4-vector
     class FourMomAccessor : public Named {
     public:
-      FourMomAccessor(const std::string& name, const std::string& n0, const std::string& n1, const std::string& n2, const std::string& n3) :Named(name) , p0(n0), p1(n1), p2(n2), p3(n3) {}
+      FourMomAccessor(const std::string& name, const std::string& n0, const std::string& n1, const std::string& n2, const std::string& n3) :Named(name) , m_p0(n0), m_p1(n1), m_p2(n2), m_p3(n3) {}
       
-      bool isAvailable(const AuxElement& e) const {return p0.isAvailable(e);}
+      bool isAvailable(const SG::AuxElement& e) const {return m_p0.isAvailable(e);}
       
     protected:
-      SG::AuxElement::Accessor< float > p0;
-      SG::AuxElement::Accessor< float > p1;
-      SG::AuxElement::Accessor< float > p2;
-      SG::AuxElement::Accessor< float > p3;            
+      SG::AuxElement::Accessor< float > m_p0;
+      SG::AuxElement::Accessor< float > m_p1;
+      SG::AuxElement::Accessor< float > m_p2;
+      SG::AuxElement::Accessor< float > m_p3;            
     };
 
 
@@ -156,36 +156,36 @@ namespace xAOD {
       AccessorWrapper() :  FourMomAccessor("_unnamed_","pt", "eta","phi", "m") {}
       AccessorWrapper(const std::string &name) : FourMomAccessor(name, name+"_pt", name+"_eta",name+"_phi", name+"_m") {}
       
-      const float & pt(const AuxElement& p){ return p0(p);}
-      const float & eta(const AuxElement& p){ return p1(p);}
-      const float & phi(const AuxElement& p){ return p2(p);}
-      const float & m(const AuxElement& p){ return p3(p);}
+      const float & pt(const SG::AuxElement& p){ return m_p0(p);}
+      const float & eta(const SG::AuxElement& p){ return m_p1(p);}
+      const float & phi(const SG::AuxElement& p){ return m_p2(p);}
+      const float & m(const SG::AuxElement& p){ return m_p3(p);}
 
-      void setAttribute(AuxElement& p, const JetFourMom_t& v){
-        p0(p) = v.Pt();
-        p1(p) = v.Eta();
-        p2(p) = v.Phi();
-        p3(p) = v.M();
+      void setAttribute(SG::AuxElement& p, const JetFourMom_t& v){
+        m_p0(p) = v.Pt();
+        m_p1(p) = v.Eta();
+        m_p2(p) = v.Phi();
+        m_p3(p) = v.M();
       }
       
-      void getAttribute(const AuxElement& p,  JetFourMom_t& v){
-        v.SetPt(  p0(p) );
-        v.SetEta(  p1(p) );
-        v.SetPhi(  p2(p) );
-        v.SetM(  p3(p) );
+      void getAttribute(const SG::AuxElement& p,  JetFourMom_t& v){
+        v.SetPt(  m_p0(p) );
+        v.SetEta(  m_p1(p) );
+        v.SetPhi(  m_p2(p) );
+        v.SetM(  m_p3(p) );
       }           
 
-      JetFourMom_t getAttribute(const AuxElement &p){
+      JetFourMom_t getAttribute(const SG::AuxElement &p){
         JetFourMom_t v; getAttribute(p,v);
         return v;
       }
 
       // other convenience function
-      void setPtEtaPhiM(AuxElement& p, float pt, float eta, float phi, float m ){
-        p0(p) = pt ;
-        p1(p) = eta ;
-        p2(p) = phi ;
-        p3(p) = m ;
+      void setPtEtaPhiM(SG::AuxElement& p, float pt, float eta, float phi, float m ){
+        m_p0(p) = pt ;
+        m_p1(p) = eta ;
+        m_p2(p) = phi ;
+        m_p3(p) = m ;
       }
 
 
@@ -199,21 +199,21 @@ namespace xAOD {
     class AccessorWrapper<IParticle::FourMom_t> : public FourMomAccessor {
     public:
       AccessorWrapper(const std::string &name) : FourMomAccessor(name, name+"_px", name+"_py",name+"_pz", name+"_e") {}
-      void setAttribute(AuxElement& p, const IParticle::FourMom_t& v){
-        p0(p) = v.Px();
-        p1(p) = v.Py();
-        p2(p) = v.Pz();
-        p3(p) = v.E();
+      void setAttribute(SG::AuxElement& p, const IParticle::FourMom_t& v){
+        m_p0(p) = v.Px();
+        m_p1(p) = v.Py();
+        m_p2(p) = v.Pz();
+        m_p3(p) = v.E();
       }
       
-      void getAttribute(const AuxElement& p,  IParticle::FourMom_t& v){
-        v.SetPx( p0(p) );
-        v.SetPy( p1(p) );
-        v.SetPz( p2(p) );
-        v.SetE( p3(p) );
+      void getAttribute(const SG::AuxElement& p,  IParticle::FourMom_t& v){
+        v.SetPx( m_p0(p) );
+        v.SetPy( m_p1(p) );
+        v.SetPz( m_p2(p) );
+        v.SetE( m_p3(p) );
       }           
 
-      IParticle::FourMom_t getAttribute(const AuxElement &p){
+      IParticle::FourMom_t getAttribute(const SG::AuxElement &p){
         IParticle::FourMom_t v; getAttribute(p,v);
         return v;
       }
@@ -282,31 +282,31 @@ namespace xAOD {
       typedef typename InternalType::LinkType LinkType;
       typedef typename InternalType::AccessorType AccessorType;
 
-      ObjectAccessorWrapper(const std::string & n) : Named(n), a(n) {}
+      ObjectAccessorWrapper(const std::string & n) : Named(n), m_a(n) {}
 
-      void setAttribute(AuxElement& p, const TYPE* o){
-        LinkType &el = a(p);
+      void setAttribute(SG::AuxElement& p, const TYPE* o){
+        LinkType &el = m_a(p);
         el.toIndexedElement( *( dynamic_cast< const ContainerType* >( o->container() ) ), o->index() );  
         el.toPersistent();
       }
       
 
-      const TYPE * getAttribute(const AuxElement& p){
-        return InternalType::fromEL(  a(p) );
+      const TYPE * getAttribute(const SG::AuxElement& p){
+        return InternalType::fromEL(  m_a(p) );
       }
 
-      void getAttribute(const AuxElement& p, const TYPE *& att){
-        att= InternalType::fromEL(  a(p) );
+      void getAttribute(const SG::AuxElement& p, const TYPE *& att){
+        att= InternalType::fromEL(  m_a(p) );
       }
       
-      bool isAvailable(const AuxElement& p){ return a.isAvailable(p);}
+      bool isAvailable(const SG::AuxElement& p){ return m_a.isAvailable(p);}
       
       // // forward calls to internal accessor. useful for performance critical code.
-      const TYPE* operator()(const AuxElement& p)  { return getAttribute(p); }
-      // TYPE& operator()(AuxElement& p)  { LinkType &el=a(p); return *el;}
+      const TYPE* operator()(const SG::AuxElement& p)  { return getAttribute(p); }
+      // TYPE& operator()(SG::AuxElement& p)  { LinkType &el=m_a(p); return *el;}
 
     protected:
-      AccessorType a;      
+      AccessorType m_a;      
     };
 
     ///////////////////////////////////////
@@ -326,7 +326,7 @@ namespace xAOD {
       typedef typename InternalType::LinkType LinkType;
       typedef typename InternalType::AccessorType AccessorType;
 
-      ObjectAccessorWrapper(const std::string & n) : Named(n), a(n) {}
+      ObjectAccessorWrapper(const std::string & n) : Named(n), m_a(n) {}
 
       
       void vector2vectorEL(const std::vector<const TYPE*> & vec, std::vector< LinkType > & elv) {
@@ -339,32 +339,32 @@ namespace xAOD {
         }
       }
       
-      void setAttribute(AuxElement& p, const std::vector<const TYPE*> &vec){
-        std::vector<LinkType> &elv = a(p); elv.clear();elv.reserve(vec.size());
+      void setAttribute(SG::AuxElement& p, const std::vector<const TYPE*> &vec){
+        std::vector<LinkType> &elv = m_a(p); elv.clear();elv.reserve(vec.size());
         this->vector2vectorEL(vec, elv);
       }
       
-      void getAttribute(const AuxElement& p,  std::vector<const TYPE*>& v){
-        const std::vector<LinkType> &elv = a(p); 
+      void getAttribute(const SG::AuxElement& p,  std::vector<const TYPE*>& v){
+        const std::vector<LinkType> &elv = m_a(p); 
         v.resize(elv.size());
         for(size_t i=0;i<elv.size(); i++) {v[i] = InternalType::fromEL(elv[i]) ; }
       }
 
-      std::vector<const TYPE *> getAttribute(const AuxElement& p){
-        const std::vector<LinkType> &elv = a(p); 
+      std::vector<const TYPE *> getAttribute(const SG::AuxElement& p){
+        const std::vector<LinkType> &elv = m_a(p); 
         std::vector<const TYPE*>  ipvec(elv.size() );
         for(size_t i=0;i<elv.size(); i++) ipvec[i] = InternalType::fromEL(elv[i]) ;
         return ipvec;
       }
       
-      bool isAvailable(const AuxElement& p){ return a.isAvailable(p);}
+      bool isAvailable(const SG::AuxElement& p){ return m_a.isAvailable(p);}
       
       // // forward calls to internal accessor. useful for performance critical code.
-      // const TYPE* operator()(const AuxElement& p)  { const LinkType &el = a(p) ;return *el;}
-      // TYPE& operator()(AuxElement& p)  { LinkType &el=a(p); return *el;}
+      // const TYPE* operator()(const AuxElement& p)  { const LinkType &el = m_a(p) ;return *el;}
+      // TYPE& operator()(AuxElement& p)  { LinkType &el=m_a(p); return *el;}
 
     protected:
-      AccessorType a;
+      AccessorType m_a;
     };
 
 
