@@ -89,6 +89,7 @@ MuonPhysValMonitoringTool::MuonPhysValMonitoringTool( const std::string& type,
   declareProperty( "FwdTrackContainerName", m_fwdtracksName);
   declareProperty( "MuonTrackContainerName", m_muonTracksName );
   declareProperty( "MuonExtrapolatedTrackContainerName", m_muonExtrapolatedTracksName);
+  declareProperty( "MuonOnlyExtrapolatedTrackContainerName", m_muonMSOnlyExtrapolatedTracksName);
   declareProperty( "MuonSegmentContainerName", m_muonSegmentsName);
   declareProperty( "MuonTruthSegmentContainerName", m_muonSegmentsTruthName = "MuonTruthSegments" );
   
@@ -244,6 +245,7 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
       if (!m_isData) m_oUnmatchedRecoMuonTrackPlots = new Muon::RecoMuonTrackPlotOrganizer(0, "Muons/UnmatchedRecoMuonTracks/");
     }
     if (m_muonExtrapolatedTracksName!="") m_muonMETrackValidationPlots.push_back(new MuonTrackValidationPlots(0, categoryPath, "METrackParticles", m_isData));
+    if (m_muonMSOnlyExtrapolatedTracksName!="") m_muonMSOnlyMETrackValidationPlots.push_back(new MuonTrackValidationPlots(0, categoryPath, "MSOnlyMETrackParticles", m_isData));
 
     if (m_tracksName!="") {
       m_muonIDTrackValidationPlots.push_back(new MuonTrackValidationPlots(0, categoryPath, "IDTrackParticles", m_isData));
@@ -270,6 +272,7 @@ StatusCode MuonPhysValMonitoringTool::bookHistograms()
   for (const auto plots : m_muonIDForwardTrackValidationPlots)   bookValidationPlots(*plots).ignore();
   for (const auto plots : m_muonMSTrackValidationPlots)          bookValidationPlots(*plots).ignore();
   for (const auto plots : m_muonMETrackValidationPlots)          bookValidationPlots(*plots).ignore();
+  for (const auto plots : m_muonMSOnlyMETrackValidationPlots)    bookValidationPlots(*plots).ignore();
   if (!m_isData) {
     bookValidationPlots(*m_oUnmatchedRecoMuonPlots).ignore();
     bookValidationPlots(*m_oUnmatchedTruthMuonPlots).ignore();
@@ -512,6 +515,13 @@ StatusCode MuonPhysValMonitoringTool::fillHistograms()
     if (!MuonExtrapolatedTracks) return StatusCode::FAILURE;
     ATH_MSG_DEBUG("handling " << MuonExtrapolatedTracks->size() << " " << m_muonExtrapolatedTracksName);
     for(const auto tp : *MuonExtrapolatedTracks) handleMuonTrack(tp,xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle);
+  }
+
+  if (m_muonMSOnlyExtrapolatedTracksName!="") {
+    auto MSOnlyMuonExtrapolatedTracks = getContainer<xAOD::TrackParticleContainer>( m_muonMSOnlyExtrapolatedTracksName );
+    if (!MSOnlyMuonExtrapolatedTracks) return StatusCode::FAILURE;
+    ATH_MSG_DEBUG("handling " << MSOnlyMuonExtrapolatedTracks->size() << " " << m_muonMSOnlyExtrapolatedTracksName);
+    for(const auto tp : *MSOnlyMuonExtrapolatedTracks) handleMuonTrack(tp,xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle);
   }
 
   if (m_muonSegmentsName!="") {
@@ -981,7 +991,7 @@ void MuonPhysValMonitoringTool::handleMuon(const xAOD::Muon* mu)
   ///////////////////////////////////////////////////////
   //SELECT MUON MEDIUM QUALITY FOR TRIGGER VALIDATION
   xAOD::Muon::Quality my_quality=m_muonSelectionTool->getQuality(*mu_c);
-  if (my_quality<=xAOD::Muon::Medium && m_isoTool->accept( *mu_c )) m_vRecoMuons.push_back(mu_c);
+  if (my_quality<=xAOD::Muon::Medium && m_isoTool->accept( *mu_c )) m_vRecoMuons.push_back(mu);
   ///////////////////////////////////////////////////////
   
   if (std::find(std::begin(m_vMatchedMuons), std::end(m_vMatchedMuons), mu) != std::end(m_vMatchedMuons)) {
@@ -1076,6 +1086,8 @@ void MuonPhysValMonitoringTool::handleMuonTrack(const xAOD::TrackParticle* tp, x
     }
     else if (type==xAOD::Muon::MuonSpectrometerTrackParticle) m_muonMSTrackValidationPlots[ALL]->fill(*tp);
     else if (type==xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) m_muonMETrackValidationPlots[ALL]->fill(*tp);
+    else if (type==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle) m_muonMSOnlyMETrackValidationPlots[ALL]->fill(*tp);
+    
     return;	
   }
 
@@ -1107,6 +1119,9 @@ void MuonPhysValMonitoringTool::handleMuonTrack(const xAOD::TrackParticle* tp, x
 	else if (type==xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) {
 	  m_muonMETrackValidationPlots[i]->fill(*tp);
 	}
+	else if (type==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle) {
+	  m_muonMSOnlyMETrackValidationPlots[i]->fill(*tp);
+	}
 	break;
       }
     }
@@ -1137,7 +1152,9 @@ void MuonPhysValMonitoringTool::handleMuonTrack(const xAOD::TrackParticle* tp, x
 	else if (type==xAOD::Muon::ExtrapolatedMuonSpectrometerTrackParticle) {
 	  m_muonMETrackValidationPlots[i]->fill(*truthLink, tp);
 	}
-	
+	else if (type==xAOD::Muon::MSOnlyExtrapolatedMuonSpectrometerTrackParticle) {
+	  m_muonMSOnlyMETrackValidationPlots[i]->fill(*truthLink, tp);
+	}
       }
     }
     
@@ -1346,6 +1363,7 @@ StatusCode MuonPhysValMonitoringTool::procHistograms()
 
   for (const auto plots: m_muonMSTrackValidationPlots) plots->finalize();
   for (const auto plots: m_muonMETrackValidationPlots) plots->finalize();
+  for (const auto plots: m_muonMSOnlyMETrackValidationPlots) plots->finalize();
   for (const auto plots: m_muonIDTrackValidationPlots) plots->finalize();
   for (const auto plots: m_muonIDSelectedTrackValidationPlots) plots->finalize();
   for (const auto plots: m_muonIDForwardTrackValidationPlots) plots->finalize();

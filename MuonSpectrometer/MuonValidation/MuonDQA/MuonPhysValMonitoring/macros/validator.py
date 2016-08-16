@@ -141,13 +141,13 @@ class Validator(object):
     leg.SetBorderSize(0)
     leg.SetTextFont(43)
     leg.SetTextSizePixels(32)
-    leg.AddEntry(refHist, "ref", 'lf')
+    leg.AddEntry(refHist, "ref", 'lp')
     leg.AddEntry(testHist, "test",'lp')
   
     refHist.SetLineColor(17)
-    refHist.SetFillColor(30)
+    #refHist.SetFillColor(30)
 
-    if self.DoNormalization and not "_Eff_" in refHist.GetName():
+    if self.DoNormalization and not "_Eff_" in refHist.GetName() and not "_eff" in refHist.GetName():
       i1 = 1.*refHist.Integral()
       i2 = 1.*testHist.Integral()
       if i1>i2:
@@ -170,11 +170,18 @@ class Validator(object):
     refHist.SetMarkerSize(0)
     refHist.SetLineColor(ROOT.kRed)
     #refHist.GetYaxis().SetRangeUser(0.00001,refHist.GetMaximum()*5) ##@@@
-    refHist.Draw("ehist")
-    testHist.Draw("sameE")
 
+    #testHist.Rebin(2)
+    #refHist.Rebin(2);
 
-    
+    if refHist.GetMaximum()>testHist.GetMaximum():
+      refHist.DrawCopy("e")
+      testHist.DrawCopy("ehistsame")
+      refHist.DrawCopy("ehistsame")
+    else:
+      testHist.DrawCopy("ehist")
+      refHist.DrawCopy("ehistsame")
+      
     leg.Draw()
     padRatio.cd()
     ratioHist = testHist.Clone()
