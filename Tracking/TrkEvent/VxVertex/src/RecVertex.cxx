@@ -64,7 +64,7 @@ namespace Trk {
     sl << "Trk::RecVertex: " << std::endl;
     Vertex::dump(sl);
     sl << Amg::toString(m_positionCovariance) << std::endl;
-    sl << m_fitQuality << endreq;
+    sl << m_fitQuality << endmsg;
     return sl;
   }
 

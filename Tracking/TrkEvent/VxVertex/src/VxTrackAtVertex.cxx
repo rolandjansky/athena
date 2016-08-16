@@ -313,13 +313,13 @@ namespace Trk {
   }
      
   MsgStream& VxTrackAtVertex::dump(MsgStream& sl) const {
-    sl << "Printing VxTrackAtVertex:" << endreq;
+    sl << "Printing VxTrackAtVertex:" << endmsg;
     const Trk::TrackParameters * inPerigee = this->initialPerigee();
-    if(inPerigee) sl << "Original Perigee: " << *(inPerigee) << endreq;
-    else sl<<"This VxTrackAtVertex was not created using initial perigee"<<endreq;
-    if (this->perigeeAtVertex() != 0) sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << endreq;
-    else sl << "Refitted Perigee was not stored in pool file." << endreq;
-    sl << m_fitQuality << "\tWeight: " << m_trkWeight << endreq;
+    if(inPerigee) sl << "Original Perigee: " << *(inPerigee) << endmsg;
+    else sl<<"This VxTrackAtVertex was not created using initial perigee"<<endmsg;
+    if (this->perigeeAtVertex() != 0) sl << "Refitted Perigee: " << *(this->perigeeAtVertex()) << endmsg;
+    else sl << "Refitted Perigee was not stored in pool file." << endmsg;
+    sl << m_fitQuality << "\tWeight: " << m_trkWeight << endmsg;
     return sl;
   }
 

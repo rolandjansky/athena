@@ -121,14 +121,14 @@ namespace Trk {
   }
 
   MsgStream& LinearizedTrack::dump(MsgStream& sl) const {
-    sl << "Printing Trk::LinearizedTrack" << endreq;
-    sl << "  Expected Position at POCA: "   << m_ExpectedPositionAtPOCA << endreq;
-    sl << "  Expected Momentum at POCA: "   << m_ExpectedMomentumAtPOCA << endreq;
-    sl << "  Expected parameters at POCA: " << m_ExpectedParametersAtPOCA << endreq;
-    sl << "  Expected covariance at POCA: " << m_ExpectedCovarianceAtPOCA << endreq;
-    sl << "  Position jacobian: "           << m_PositionJacobian << endreq;
-    sl << "  Momentum jacobian: "           << m_MomentumJacobian << endreq;
-    sl << "  Constant term: " << m_ConstantTerm << endreq;
+    sl << "Printing Trk::LinearizedTrack" << endmsg;
+    sl << "  Expected Position at POCA: "   << m_ExpectedPositionAtPOCA << endmsg;
+    sl << "  Expected Momentum at POCA: "   << m_ExpectedMomentumAtPOCA << endmsg;
+    sl << "  Expected parameters at POCA: " << m_ExpectedParametersAtPOCA << endmsg;
+    sl << "  Expected covariance at POCA: " << m_ExpectedCovarianceAtPOCA << endmsg;
+    sl << "  Position jacobian: "           << m_PositionJacobian << endmsg;
+    sl << "  Momentum jacobian: "           << m_MomentumJacobian << endmsg;
+    sl << "  Constant term: " << m_ConstantTerm << endmsg;
     return sl;
   }
 
