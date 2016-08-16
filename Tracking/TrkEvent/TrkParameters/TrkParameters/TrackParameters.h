@@ -13,6 +13,7 @@
 #include "TrkParametersBase/ParametersT.h"
 #include "TrkParametersBase/CurvilinearParametersT.h"
 #include "TrkParametersBase/Charged.h"
+#include "TrkParametersBase/CurvilinearParametersT.h"
 #include "TrkSurfaces/ConeSurface.h"
 #include "TrkSurfaces/CylinderSurface.h"
 #include "TrkSurfaces/DiscSurface.h"
@@ -23,7 +24,7 @@
 namespace Trk {
 
     typedef ParametersBase<5, Charged>                       TrackParameters;
-    typedef CurvilinearParametersT<5, Charged, PlaneSurface> CurvilinearParameters;
+    typedef CurvilinearParametersT<5, Charged, PlaneSurface>   CurvilinearParameters;
     typedef ParametersT<5, Charged, ConeSurface>             AtaCone;
     typedef ParametersT<5, Charged, CylinderSurface>         AtaCylinder;
     typedef ParametersT<5, Charged, DiscSurface>             AtaDisc;
