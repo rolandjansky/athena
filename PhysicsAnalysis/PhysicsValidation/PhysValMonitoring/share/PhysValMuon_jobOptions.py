@@ -17,6 +17,7 @@ tool1.TrackContainerName = 'InDetTrackParticles'
 #tool1.FwdTrackContainerName='InDetForwardTrackParticles'
 tool1.MuonTrackContainerName = 'MuonSpectrometerTrackParticles'
 tool1.MuonExtrapolatedTrackContainerName = 'ExtrapolatedMuonTrackParticles'
+tool1.MuonOnlyExtrapolatedTrackContainerName = 'MSOnlyExtrapolatedMuonTrackParticles'
 tool1.MuonSegmentContainerName = 'MuonSegments'
 
 #tool1.MuonTruthParticleContainerName = 'MuonTruthParticle' # uncomment for release 19
@@ -48,7 +49,7 @@ tool1.SelectL1MuonItems = [
 tool1.SelectMuonWorkingPoints = [ 1 ]
 
 #Select Muon Authors... (empty: all authors, 1: combined, 2: STACO, 4: MuTagIMO, 5: Standalone, 6: MuGirl, 8: CaloTag)
-tool1.SelectMuonAuthors = [ 1, 2, 4 ,5, 6, 8 ]
+tool1.SelectMuonAuthors = [ 1, 2, 4 ,5, 6, 8, 9 ]
 
 #Select Muon Categories... (origin of muons, empty: all categories, 0: ALL, 1: PROMPT, 2: IN-FLIGHT, 3: NON-ISOLATED, 4: REST)
 #tool1.SelectMuonCategories = [ 0, 1, 2, 3, 4 ] # all possible categories
