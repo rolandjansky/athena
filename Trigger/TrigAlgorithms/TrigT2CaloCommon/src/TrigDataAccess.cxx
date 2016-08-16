@@ -671,6 +671,7 @@ StatusCode TrigDataAccess::LoadCollections (
                         // resets collection
                         reset_TileCol(m_col);
                   }
+                  m_robFrags.clear();
                   Begin = m_col->begin();
                   End = m_col->end();
 		} else  {// End of if small size
@@ -733,6 +734,7 @@ StatusCode TrigDataAccess::LoadMBTS (
                         // resets collection
                         reset_TileCol(m_col);
                   }
+                  m_robFrags.clear();
                   continue;
 		  //return StatusCode::SUCCESS;
                 } // End of if small size
@@ -1005,6 +1007,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
                         // resets collection
                         reset_TileCol(m_col);
                   }
+                  m_robFrags.clear();
                   Begin = m_col->begin();
                   End = m_col->end();
 		  //return StatusCode::SUCCESS;
@@ -1303,6 +1306,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
 			// resets collection 
 			reset_TileCol(m_col);
 		  }
+                  m_robFrags.clear();
 		  continue;
                 } // End of if small size
                 if ( !m_tilecell->cached(m_rIdstile[i]))
