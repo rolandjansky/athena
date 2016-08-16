@@ -17,7 +17,6 @@
 #ifndef TRIGT2CALO_T2GEOMETRY
 #define TRIGT2CALO_T2GEOMETRY
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "TrigT2CaloCommon/T2GeometryTool.h"
 #include "TrigT2CaloCommon/IT2GeometryTool.h"
 #include <iostream>
 #include <math.h>
@@ -319,11 +318,14 @@ inline int T2GeometryTool::EtaPhiRange(const int nCaloType,const int nCaloSamp,
     const double& energyEta,const double& energyPhi){
 
   // test for invalid calorimeter type
-  if (nCaloType < 0 || nCaloType > 1)
+  if (nCaloType < 0 || nCaloType > 1) {
     ATH_MSG_ERROR("Invalid CaloType");
-  if (nCaloSamp < 0 || nCaloSamp > 3 ||
-            (nCaloSamp == 3 && nCaloType == 1))
+    return 0;
+  }
+  if (nCaloSamp < 0 || nCaloSamp > 3 || (nCaloSamp == 3 && nCaloType == 1)) {
     ATH_MSG_ERROR("Invalid CaloSamp");
+    return 0;
+  }
   int layer = nCaloType*4+nCaloSamp;
 
   if( nCaloType == 0)
@@ -379,12 +381,15 @@ inline bool T2GeometryTool::CellInNorCluster( const int nCaloType,
        const int nCaloSamp, const double& etaCell, const double& phiCell){
 
   // test for invalid calorimeter type
-  if (nCaloType < 0 || nCaloType > 1)
+  if (nCaloType < 0 || nCaloType > 1) {
     ATH_MSG_ERROR("Invalid CaloType");
-  if (nCaloSamp < 0 || nCaloSamp > 3 ||
-      (nCaloSamp == 3 && nCaloType == 1))
+    return false;
+  }
+  if (nCaloSamp < 0 || nCaloSamp > 3 || (nCaloSamp == 3 && nCaloType == 1)) {
     ATH_MSG_ERROR("Invalid CaloSamp");
-
+    return false;
+  }
+  
   int layer = nCaloType*4+nCaloSamp;
 
         int IetaPass=0;
@@ -408,11 +413,14 @@ inline bool T2GeometryTool::CellInNorCluster( const int nCaloType,
 inline bool T2GeometryTool::CellInNarCluster( const int nCaloType,
        const int nCaloSamp, const double& etaCell, const double& phiCell){
   // test for invalid calorimeter type
-  if (nCaloType < 0 || nCaloType > 1)
+  if (nCaloType < 0 || nCaloType > 1) {
     ATH_MSG_ERROR("Invalid CaloType");
-  if (nCaloSamp < 0 || nCaloSamp > 3 ||
-      (nCaloSamp == 3 && nCaloType == 1))
+    return false;
+  }
+  if (nCaloSamp < 0 || nCaloSamp > 3 || (nCaloSamp == 3 && nCaloType == 1)) {
     ATH_MSG_ERROR("Invalid CaloSamp");
+    return false;
+  }
   int layer = nCaloType*4+nCaloSamp;
 
         int IetaPass=0;
@@ -436,11 +444,14 @@ inline bool T2GeometryTool::CellInNarCluster( const int nCaloType,
 inline bool T2GeometryTool::CellInWidCluster( const int nCaloType,
        const int nCaloSamp, const double& etaCell, const double& phiCell){
   // test for invalid calorimeter type
-  if (nCaloType < 0 || nCaloType > 1)
+  if (nCaloType < 0 || nCaloType > 1) {
     ATH_MSG_ERROR("Invalid CaloType");
-  if (nCaloSamp < 0 || nCaloSamp > 3 ||
-            (nCaloSamp == 3 && nCaloType == 1))
+    return false;
+  }
+  if (nCaloSamp < 0 || nCaloSamp > 3 || (nCaloSamp == 3 && nCaloType == 1)) {
     ATH_MSG_ERROR("Invalid CaloSamp");
+    return false;
+  }
   int layer = nCaloType*4+nCaloSamp;
 
 

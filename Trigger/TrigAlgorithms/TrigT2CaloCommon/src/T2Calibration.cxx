@@ -8,7 +8,7 @@
 #include <iostream>
 #endif
 
-T2Calibration::T2Calibration(){
+T2Calibration::T2Calibration(): m_factor(0) {
 }
 
 T2Calibration::~T2Calibration(){

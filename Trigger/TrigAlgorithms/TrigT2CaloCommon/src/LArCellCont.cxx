@@ -22,7 +22,7 @@
 #include <iostream>
 //#include <time.h>
 
-LArCellCont::LArCellCont() : m_corrBCIDref( m_corrBCIDref_example ), m_caloLumiBCIDTool(0), m_lumi_block(0), m_larCablingSvc(0), m_BCIDcache(false)
+LArCellCont::LArCellCont() : m_event(0), m_masker(NULL), m_badChanTool(NULL), m_corrBCIDref( m_corrBCIDref_example ), m_caloLumiBCIDTool(0), m_lumi_block(0), m_bcid(5000), m_larCablingSvc(0), m_BCIDcache(false)
 {}
 
 StatusCode
