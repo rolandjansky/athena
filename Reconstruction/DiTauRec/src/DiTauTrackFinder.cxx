@@ -137,7 +137,7 @@ StatusCode DiTauTrackFinder::execute(DiTauCandidateData * data) {
         ATH_MSG_DEBUG("number of tracks in subjet: "<< nTracks);
         if (nTracks == 0) {
             ATH_MSG_DEBUG("number of tracks is zero. Drop subjet");
-            vSubjets.erase(subjet_itr);
+            subjet_itr = vSubjets.erase(subjet_itr); //point subjet_itr to the next element/end of the vector
         }
         else {
             ++subjet_itr;
