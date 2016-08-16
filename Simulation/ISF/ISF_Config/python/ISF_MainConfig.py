@@ -181,12 +181,15 @@ def getInput_geantinos(name="ISF_Input_geantinos", **kwargs):
 
 ############## Simulator: GenericSimulator ###############
 def getKernel_GenericSimulator(name="ISF_Kernel_GenericSimulator", **kwargs):
-    kwargs.setdefault("ParticleBroker"          , "ISF_ParticleBrokerSvc"              ) #ISF_Flags.ParticleBroker.get_Value() )
-    kwargs.setdefault("TruthRecordService"      , ISF_Flags.TruthService.get_Value()   )
-    kwargs.setdefault("SimHitService"           , "ISF_SimHitService"                  )
-    kwargs.setdefault("MemoryMonitoringTool"    , "ISF_MemoryMonitor"                  )
-    kwargs.setdefault("DoCPUMonitoring"         , ISF_Flags.DoTimeMonitoring()         )
-    kwargs.setdefault("DoMemoryMonitoring"      , ISF_Flags.DoMemoryMonitoring()       )
+    kwargs.setdefault("InputHardScatterCollection", "BeamTruthEvent")
+    kwargs.setdefault("OutputHardScatterTruthCollection", "TruthEvent")
+    kwargs.setdefault("InputConverter", "ISF_InputConverter")
+    kwargs.setdefault("ParticleBroker", "ISF_ParticleBrokerSvc")
+    kwargs.setdefault("TruthRecordService", ISF_Flags.TruthService.get_Value())
+    kwargs.setdefault("SimHitService", "ISF_SimHitService")
+    kwargs.setdefault("MemoryMonitoringTool", "ISF_MemoryMonitor")
+    kwargs.setdefault("DoCPUMonitoring", ISF_Flags.DoTimeMonitoring())
+    kwargs.setdefault("DoMemoryMonitoring", ISF_Flags.DoMemoryMonitoring())
 
 
     from ISF_Algorithms.ISF_AlgorithmsConf import ISF__SimKernel
@@ -237,8 +240,8 @@ def getKernel_FullG4_LongLived(name="ISF_Kernel_FullG4_LongLived", **kwargs):
     kwargs.setdefault("IDSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
     kwargs.setdefault("CaloSimulationSelectors"     , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
     kwargs.setdefault("MSSimulationSelectors"       , [ 'ISF_DefaultLongLivedGeant4Selector' ] )
-    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector' ]  )
-    kwargs.setdefault("ParticleBroker"              ,   'ISF_LongLivedParticleBrokerSvc'       )
+    kwargs.setdefault("CavernSimulationSelectors"   , [ 'ISF_DefaultParticleKillerSelector'  ] )
+    kwargs.setdefault("InputConverter"              ,   'ISF_LongLivedInputConverter'          )
     return getKernel_GenericG4Only(name, **kwargs)
 
 ############## Simulator: FullG4_IDOnly ###############
@@ -344,6 +347,9 @@ def getKernel_Fatras_newExtrapolation_IDOnly(name="ISF_Kernel_Fatras_newExtrapol
 
 ############## Simulator: ATLFASTIIF fast pileup ###############
 def getKernel_ATLFASTIIF_PileUp(name="ISF_Kernel_ATLFASTIIF_PileUp", **kwargs):
+    kwargs.setdefault("InputPileupCollection", "GEN_EVENT_PU")
+    kwargs.setdefault("OutputPileupTruthCollection", "TruthEvent_PU")
+
     kwargs.setdefault("SimHitService"              , "ISF_PileupSimHitService"                  )
     kwargs.setdefault("BeamPipeSimulationSelectors", [ 'ISF_DefaultParticleKillerSelector' ]    )
     kwargs.setdefault("IDSimulationSelectors"      , [ #'ISF_FatrasRandomSelector',
@@ -356,7 +362,6 @@ def getKernel_ATLFASTIIF_PileUp(name="ISF_Kernel_ATLFASTIIF_PileUp", **kwargs):
                                                        'ISF_DefaultFastCaloSimSelector' ]       )
     kwargs.setdefault("MSSimulationSelectors"      , [ 'ISF_DefaultFatrasSelector' ]            )
     kwargs.setdefault("CavernSimulationSelectors"  , [ 'ISF_DefaultParticleKillerSelector' ]    )
-
     # set the simFlags accordingly
     from G4AtlasApps.SimFlags import simFlags
     simFlags.SimulationFlavour = "ATLFASTIIF_PileUp"
