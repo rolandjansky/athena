@@ -26,12 +26,12 @@ TrigSpacePointConversionTool::TrigSpacePointConversionTool(const std::string& t,
   declareInterface< ITrigSpacePointConversionTool >( this );
 
   declareProperty( "RegionSelectorService",  m_regionSelectorName = "RegSelSvc" );
-  declareProperty( "PixelSP_ContainerName",  m_pixelSpContName = "PixelTrigSpacePoints" );
-  declareProperty( "SCT_SP_ContainerName",   m_sctSpContName = "SCT_TrigSpacePoints" );
   declareProperty( "DoPhiFiltering",         m_filter_phi = true );
   declareProperty( "UseBeamTilt",            m_useBeamTilt = true );
   declareProperty( "UseNewLayerScheme",      m_useNewScheme = false );
   declareProperty( "layerNumberTool",        m_layerNumberTool);
+  declareProperty( "PixelSP_ContainerName",  m_pixelSpacePointsContainerKey = std::string("PixelTrigSpacePoints"));
+  declareProperty( "SCT_SP_ContainerName",   m_sctSpacePointsContainerKey = "SCT_TrigSpacePoints" );
 }
 
 StatusCode TrigSpacePointConversionTool::initialize() {
@@ -76,6 +76,9 @@ StatusCode TrigSpacePointConversionTool::initialize() {
     return sc;
   }
 
+  ATH_CHECK(m_pixelSpacePointsContainerKey.initialize());
+  ATH_CHECK(m_sctSpacePointsContainerKey.initialize());
+
   ATH_MSG_INFO("TrigSpacePointConversionTool initialized ");
 
   return sc;
@@ -92,11 +95,12 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
 							std::vector<TrigSiSpacePointBase>& output, int& nPix, int& nSct) {
 
   output.clear();
-  nPix = 0;
-  nSct = 0;
+  
 
-  StatusCode sc = retrieveSpacePointsContainers();
-  if(sc.isFailure()) return sc;
+  SG::ReadHandle<SpacePointContainer> pixelSpacePointsContainer(m_pixelSpacePointsContainerKey);
+  ATH_CHECK(pixelSpacePointsContainer.isValid());
+  SG::ReadHandle<SpacePointContainer> sctSpacePointsContainer(m_sctSpacePointsContainerKey);
+  ATH_CHECK(sctSpacePointsContainer.isValid());
 
   std::vector<IdentifierHash> listOfPixIds;
   std::vector<IdentifierHash> listOfSctIds;
@@ -117,13 +121,16 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
   FTF::RoI_Filter filter(output, lc, &internalRoI, m_filter_phi);
   FTF::SpacePointSelector<FTF::RoI_Filter> selector(filter);
   
+  nPix = 0;
+  nSct = 0;
+
   if(m_useNewScheme) {
-    nPix=selector.select(m_pixelSpacePointsContainer,listOfPixIds, m_layerNumberTool->pixelLayers());
-    nSct=selector.select(m_sctSpacePointsContainer,listOfSctIds, m_layerNumberTool->sctLayers());
+    nPix=selector.select(*pixelSpacePointsContainer,listOfPixIds, m_layerNumberTool->pixelLayers());
+    nSct=selector.select(*sctSpacePointsContainer,listOfSctIds, m_layerNumberTool->sctLayers());
   }
   else {
-    nPix=selector.select(m_pixelSpacePointsContainer,listOfPixIds);
-    nSct=selector.select(m_sctSpacePointsContainer,listOfSctIds);
+    nPix=selector.select(*pixelSpacePointsContainer,listOfPixIds);
+    nSct=selector.select(*sctSpacePointsContainer,listOfSctIds);
   }
   if(!m_useBeamTilt) shiftSpacePoints(output);
   else transformSpacePoints(output);
@@ -131,21 +138,6 @@ StatusCode TrigSpacePointConversionTool::getSpacePoints(const IRoiDescriptor& in
   return StatusCode::SUCCESS;
 }
 
-
-StatusCode TrigSpacePointConversionTool::retrieveSpacePointsContainers() {
-
-  StatusCode sc=evtStore()->retrieve(m_pixelSpacePointsContainer,m_pixelSpContName);
-  if(sc.isFailure()) {
-    ATH_MSG_WARNING("Pixel SP container " <<m_pixelSpContName <<" not found"); 
-    return sc;
-  }
-  sc=evtStore()->retrieve(m_sctSpacePointsContainer,m_sctSpContName);
-  if(sc.isFailure()) {
-    ATH_MSG_WARNING("SCT SP container " <<m_sctSpContName <<" not found"); 
-    return sc;
-  }
-  return sc;
-}
 
 void TrigSpacePointConversionTool::shiftSpacePoints(std::vector<TrigSiSpacePointBase>& output) {
   
