@@ -15,9 +15,9 @@ static TrigTrtHitCountsCollectionCnv_p2   TPConverter;
 //createPersistent 
 TrigTrtHitCountsCollection_PERS * TrigTrtHitCountsCollectionCnv::createPersistent( TrigTrtHitCountsCollection *transObj)
 {
-  MsgStream mlog(messageService(), "TrigTrtHitCountsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigTrtHitCountsCollectionConverter" );
 
-  mlog << MSG::DEBUG << "TrigTrtHitCountsCollectionCnv::createPersistent" << endreq;
+  mlog << MSG::DEBUG << "TrigTrtHitCountsCollectionCnv::createPersistent" << endmsg;
 
   TrigTrtHitCountsCollection_PERS* persObj = TPConverter.createPersistent( transObj, mlog );
  
@@ -28,9 +28,9 @@ TrigTrtHitCountsCollection_PERS * TrigTrtHitCountsCollectionCnv::createPersisten
 //createTransient
 TrigTrtHitCountsCollection* TrigTrtHitCountsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigTrtHitCountsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigTrtHitCountsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigTrtHitCountsCollectionCnv::createTransient" << endreq;
+  mlog << MSG::DEBUG << "TrigTrtHitCountsCollectionCnv::createTransient" << endmsg;
 
   static pool::Guid p2_guid( "47CBB4D9-381C-423E-A560-A7B5C325A5DD" );
   static pool::Guid tlp1_guid( "A0763CCA-553C-4365-8091-04CA2036FD97" );

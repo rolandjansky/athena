@@ -29,8 +29,8 @@ TrigTauClusterCnv::~TrigTauClusterCnv()
 //create persistent
 TrigTauCluster_PERS* TrigTauClusterCnv::createPersistent(TrigTauCluster* transCont) 
 {
-  MsgStream mlog(messageService(), "TrigTauClusterConverter" );
-  mlog << MSG::DEBUG << "TrigTauClusterCnv::createPersistent" << endreq;
+  MsgStream mlog(msgSvc(), "TrigTauClusterConverter" );
+  mlog << MSG::DEBUG << "TrigTauClusterCnv::createPersistent" << endmsg;
 
   TrigTauCluster_PERS *persObj = m_impl->m_TPConverter2.createPersistent( transCont, mlog );
 
@@ -41,8 +41,8 @@ TrigTauCluster_PERS* TrigTauClusterCnv::createPersistent(TrigTauCluster* transCo
 //create transient
 TrigTauCluster* TrigTauClusterCnv::createTransient() 
 {
-  MsgStream mlog(messageService(), "TrigTauClusterConverter" );
-  mlog << MSG::DEBUG << "TrigTauClusterCnv::createTransient " << endreq;
+  MsgStream mlog(msgSvc(), "TrigTauClusterConverter" );
+  mlog << MSG::DEBUG << "TrigTauClusterCnv::createTransient " << endmsg;
 
   static pool::Guid tlp2_guid("CEDD0095-1134-4CEC-91CC-61028B214F6C");
   static pool::Guid tlp1_guid("60C9B591-CE4B-473C-9CB9-8C4F99271D76");
@@ -52,21 +52,21 @@ TrigTauCluster* TrigTauClusterCnv::createTransient()
 
   if( compareClassGuid(tlp2_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigTauClusterCnv::reading tlp2 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigTauClusterCnv::reading tlp2 persistent object" << endmsg;
     std::auto_ptr< TrigTauCluster_tlp2 >   col_vect( this->poolReadObject< TrigTauCluster_tlp2 >() );
     trans_cont = m_impl->m_TPConverter2.createTransient( col_vect.get(), mlog );
 
   }
   else if( compareClassGuid(tlp1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigTauClusterCnv::reading tlp1 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigTauClusterCnv::reading tlp1 persistent object" << endmsg;
     std::auto_ptr< TrigTauCluster_tlp1 >   col_vect( this->poolReadObject< TrigTauCluster_tlp1 >() );
     trans_cont = m_impl->m_TPConverter1.createTransient( col_vect.get(), mlog );
 
   }
   else if( compareClassGuid(p0_guid) ) {
 
-    mlog << MSG::DEBUG << "TrigTauClusterCnv::reading p0 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigTauClusterCnv::reading p0 persistent object" << endmsg;
     // old version from before TP separation, just return it
     trans_cont = this->poolReadObject<TrigTauCluster>();
 

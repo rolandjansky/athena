@@ -29,9 +29,9 @@ TrigEFBjetContainerCnv::~TrigEFBjetContainerCnv()
 //* createPersistent *//
 TrigEFBjetContainer_PERS * TrigEFBjetContainerCnv::createPersistent( TrigEFBjetContainer *transObj) {
 
-  MsgStream mlog(messageService(), "TrigEFBjetContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigEFBjetContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigEFBjetContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigEFBjetContainerCnv::createPersistent called" << endmsg;
 
   TrigEFBjetContainer_PERS * p_EFBjetCont = m_impl->m_TPConverter_tlp2.createPersistent( transObj, m_impl->m_log );
  
@@ -42,9 +42,9 @@ TrigEFBjetContainer_PERS * TrigEFBjetContainerCnv::createPersistent( TrigEFBjetC
 //* createTransient *//
 TrigEFBjetContainer * TrigEFBjetContainerCnv::createTransient() {
 
-  MsgStream mlog(messageService(), "TrigEFBjetContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigEFBjetContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigEFBjetContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigEFBjetContainerCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp2_guid( "91EA22B6-9273-4206-AEB5-FE23A269C5AA" );
   static pool::Guid tlp1_guid( "F933A067-5788-4AD6-B696-C8B0E988EF2D" );

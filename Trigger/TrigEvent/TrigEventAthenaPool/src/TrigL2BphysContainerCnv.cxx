@@ -34,7 +34,7 @@ TrigL2BphysContainer_PERS * TrigL2BphysContainerCnv::createPersistent( TrigL2Bph
 {
   m_impl->m_log << MSG::DEBUG
                 << "TrigL2BphysContainerCnv::createPersistent called"
-                << endreq;
+                << endmsg;
 
   TrigL2BphysContainer_PERS * p_L2BphysCont =
     m_impl->m_TPConverter.createPersistent( transObj, m_impl->m_log );
@@ -48,7 +48,7 @@ TrigL2BphysContainer_PERS * TrigL2BphysContainerCnv::createPersistent( TrigL2Bph
 TrigL2BphysContainer * TrigL2BphysContainerCnv::createTransient()
 {
   m_impl->m_log << MSG::DEBUG
-                << "TrigL2BphysContainerCnv::createTransient called" << endreq;
+                << "TrigL2BphysContainerCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp2_guid( "2E35788D-BE17-4FE1-9DB5-709E05880CEC" );
   static pool::Guid tlp1_guid( "E8AA6B0A-B057-4058-B5A9-AC0B719626AF" );
@@ -60,7 +60,7 @@ TrigL2BphysContainer * TrigL2BphysContainerCnv::createTransient()
     
     poolReadObject< TrigL2BphysContainer_PERS >(m_impl->m_TPConverter);
     p_collection = m_impl->m_TPConverter.createTransient( m_impl->m_log );
-    m_impl->m_log << MSG::DEBUG<< "TrigL2BphysContainerCnv_tlp2" << endreq;
+    m_impl->m_log << MSG::DEBUG<< "TrigL2BphysContainerCnv_tlp2" << endmsg;
   } else if( compareClassGuid( tlp1_guid ) ) {
     TrigL2BphysContainerCnv_tlp1  tlp1_Converter;
     poolReadObject< TrigL2BphysContainer_tlp1 >(tlp1_Converter);

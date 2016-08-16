@@ -14,9 +14,9 @@ static TrigSpacePointCountsCollectionCnv_p4   TPConverter;
 //createPersistent 
 TrigSpacePointCountsCollection_PERS * TrigSpacePointCountsCollectionCnv::createPersistent( TrigSpacePointCountsCollection *transObj)
 {
-  MsgStream mlog(messageService(), "TrigSpacePointCountsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigSpacePointCountsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigSpacePointCountsCollectionCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigSpacePointCountsCollectionCnv::createPersistent called" << endmsg;
   
   TrigSpacePointCountsCollection_PERS * p_cont = TPConverter.createPersistent( transObj, mlog );
   
@@ -28,9 +28,9 @@ TrigSpacePointCountsCollection_PERS * TrigSpacePointCountsCollectionCnv::createP
 //createTransient
 TrigSpacePointCountsCollection * TrigSpacePointCountsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigSpacePointCountsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigSpacePointCountsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigSpacePointCountsCollectionCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigSpacePointCountsCollectionCnv::createTransient called" << endmsg;
   
   static pool::Guid p4_guid( "ACEDF654-09D7-49F6-9054-8E2CEE767367" );
   static pool::Guid tlp1_guid( "55733D7E-0054-4785-ADA8-3EA70D7477F2" );

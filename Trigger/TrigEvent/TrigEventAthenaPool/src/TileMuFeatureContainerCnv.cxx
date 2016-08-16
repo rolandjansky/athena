@@ -14,9 +14,9 @@ static TileMuFeatureContainerCnv_p2     TPconverter;
 //createPersistent
 TileMuFeatureContainer_PERS * TileMuFeatureContainerCnv::createPersistent( TileMuFeatureContainer *transObj)
 {
-  MsgStream mlog(messageService(), "TileMuFeatureContainerConverter" );
+  MsgStream mlog(msgSvc(), "TileMuFeatureContainerConverter" );
 
-  mlog << MSG::DEBUG << "TileMuFeatureContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TileMuFeatureContainerCnv::createPersistent called" << endmsg;
 
   TileMuFeatureContainer_PERS * p_cont = TPconverter.createPersistent( transObj, mlog );
 
@@ -27,9 +27,9 @@ TileMuFeatureContainer_PERS * TileMuFeatureContainerCnv::createPersistent( TileM
 //createTransient
 TileMuFeatureContainer * TileMuFeatureContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TileMuFeatureContainerConverter" );
+  MsgStream mlog(msgSvc(), "TileMuFeatureContainerConverter" );
   
-  mlog << MSG::DEBUG << "TileMuFeatureContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TileMuFeatureContainerCnv::createTransient called" << endmsg;
   
   static pool::Guid p2_guid( "D7B3C086-B471-47EE-B8EC-E58DC4CD2AD9" );
   static pool::Guid tlp1_guid( "4684172D-3590-4464-BCA6-477725ADD755" );

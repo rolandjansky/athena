@@ -12,9 +12,9 @@ static TrigTauContainerCnv_p3   TPConverter;
 //createPersistent 
 TrigTauContainer_PERS * TrigTauContainerCnv::createPersistent( TrigTauContainer *transObj)
 {
-  MsgStream mlog(messageService(), "TrigTauContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigTauContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigTauContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigTauContainerCnv::createPersistent called" << endmsg;
 
   TrigTauContainer_PERS * p_TauCont = TPConverter.createPersistent( transObj, mlog );
  
@@ -25,9 +25,9 @@ TrigTauContainer_PERS * TrigTauContainerCnv::createPersistent( TrigTauContainer 
 //createTransient
 TrigTauContainer * TrigTauContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigTauContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigTauContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigTauContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigTauContainerCnv::createTransient called" << endmsg;
 
   static pool::Guid p3_guid( "32FE95F3-F85E-481E-9DD6-7BBA08ABDBD7" );
   static pool::Guid tlp1_guid( "1551CECC-52C7-4B5B-876C-27005A8DCCC8" );

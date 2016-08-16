@@ -13,9 +13,9 @@ static TrigRNNOutputContainerCnv_p2     TPConverter;
 //createPersistent 
 TrigRNNOutputContainer_PERS * TrigRNNOutputContainerCnv::createPersistent( TrigRNNOutputContainer *transObj)
 {
-  MsgStream mlog(messageService(), "TrigRNNOutputContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigRNNOutputContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigRNNOutputContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigRNNOutputContainerCnv::createPersistent called" << endmsg;
 
   TrigRNNOutputContainer_PERS * p_Cont = TPConverter.createPersistent( transObj, mlog );
  
@@ -27,9 +27,9 @@ TrigRNNOutputContainer_PERS * TrigRNNOutputContainerCnv::createPersistent( TrigR
 //createTransient
 TrigRNNOutputContainer * TrigRNNOutputContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigRNNOutputContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigRNNOutputContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigRNNOutputContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigRNNOutputContainerCnv::createTransient called" << endmsg;
 
   static pool::Guid tr_guid("FED72B55-6275-DE11-8F1B-000423DD5A1A");
   static pool::Guid tlp1_guid("86A89E9D-F776-DE11-B65D-000423DD5A1A");

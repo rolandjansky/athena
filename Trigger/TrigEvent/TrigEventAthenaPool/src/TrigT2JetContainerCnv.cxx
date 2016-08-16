@@ -17,9 +17,9 @@ static TrigT2JetContainerCnv_p3     TPConverter;
 TrigT2JetContainer_PERS * TrigT2JetContainerCnv::createPersistent( TrigT2JetContainer *transObj)
 {
 
-  MsgStream mlog(messageService(), "TrigT2JetContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigT2JetContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigT2JetContainerCnv::createPersistent" << endreq;
+  mlog << MSG::DEBUG << "TrigT2JetContainerCnv::createPersistent" << endmsg;
 
   TrigT2JetContainer_PERS* p_T2JetCont = TPConverter.createPersistent( transObj, mlog );
  
@@ -32,9 +32,9 @@ TrigT2JetContainer_PERS * TrigT2JetContainerCnv::createPersistent( TrigT2JetCont
 TrigT2JetContainer * TrigT2JetContainerCnv::createTransient()
 {
   
-  MsgStream mlog(messageService(), "TrigT2JetContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigT2JetContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigT2JetContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigT2JetContainerCnv::createTransient called" << endmsg;
 
   static pool::Guid tlp1_guid( "3B670168-C5AA-48A1-9813-C94530980EBF" );
   static pool::Guid p3_guid( "6215BEE2-45E7-4681-9089-9BD470CDAF4D" );

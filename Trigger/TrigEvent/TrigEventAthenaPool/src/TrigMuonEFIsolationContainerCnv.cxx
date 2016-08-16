@@ -22,8 +22,8 @@ TrigMuonEFIsolationContainerCnv::TrigMuonEFIsolationContainerCnv(ISvcLocator* sv
 
 /// create persistent
 TrigMuonEFIsolationContainer_PERS* TrigMuonEFIsolationContainerCnv::createPersistent(TrigMuonEFIsolationContainer* transCont) {
-  MsgStream mlog(messageService(), "TrigMuonEFIsolationContainerConverter" );
-  mlog << MSG::DEBUG << "TrigMuonEFIsolationContainerCnv::createPersistent" << endreq;
+  MsgStream mlog(msgSvc(), "TrigMuonEFIsolationContainerConverter" );
+  mlog << MSG::DEBUG << "TrigMuonEFIsolationContainerCnv::createPersistent" << endmsg;
   
   TrigMuonEFIsolationContainer_PERS *persObj = TPconverter_p2.createPersistent(transCont, mlog);
 
@@ -33,8 +33,8 @@ TrigMuonEFIsolationContainer_PERS* TrigMuonEFIsolationContainerCnv::createPersis
 /// create transient
 TrigMuonEFIsolationContainer* TrigMuonEFIsolationContainerCnv::createTransient() {
 
-  MsgStream mlog(messageService(), "TrigMuonEFIsolationContainerConverter" );
-  mlog << MSG::DEBUG << "TrigMuonEFIsolationContainerCnv::createTransient" << endreq;
+  MsgStream mlog(msgSvc(), "TrigMuonEFIsolationContainerConverter" );
+  mlog << MSG::DEBUG << "TrigMuonEFIsolationContainerCnv::createTransient" << endmsg;
 
   static pool::Guid p1_guid("5C3ECE20-F26F-4811-BA76-B2DC567858BC");
   static pool::Guid p2_guid("B24570F4-BB65-4D5C-A8E2-C44E36E7B0B5");

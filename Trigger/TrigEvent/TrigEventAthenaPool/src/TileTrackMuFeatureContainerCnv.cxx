@@ -14,9 +14,9 @@ static TileTrackMuFeatureContainerCnv_p3     TPconverter;
 //createPersistent 
 TileTrackMuFeatureContainer_PERS * TileTrackMuFeatureContainerCnv::createPersistent( TileTrackMuFeatureContainer *transObj)
 {
-  MsgStream mlog(messageService(), "TileTrackMuFeatureContainerConverter" );
+  MsgStream mlog(msgSvc(), "TileTrackMuFeatureContainerConverter" );
   
-  mlog << MSG::DEBUG << "TileTrackMuFeatureContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TileTrackMuFeatureContainerCnv::createPersistent called" << endmsg;
 
   TileTrackMuFeatureContainer_PERS * p_cont = TPconverter.createPersistent( transObj, mlog );
 
@@ -28,9 +28,9 @@ TileTrackMuFeatureContainer_PERS * TileTrackMuFeatureContainerCnv::createPersist
 //createTransient
 TileTrackMuFeatureContainer * TileTrackMuFeatureContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TileTrackMuFeatureContainerConverter" );
+  MsgStream mlog(msgSvc(), "TileTrackMuFeatureContainerConverter" );
   
-  mlog << MSG::DEBUG << "TileTrackMuFeatureContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TileTrackMuFeatureContainerCnv::createTransient called" << endmsg;
 
   static pool::Guid p3_guid( "25018D00-1D18-4B4C-9C07-37993260EADB");  
   static pool::Guid tlp1_guid( "983ED5FE-D0A2-43AE-90A9-268C8B61E8B3");

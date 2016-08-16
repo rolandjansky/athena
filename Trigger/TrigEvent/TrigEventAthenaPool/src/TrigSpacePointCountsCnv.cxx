@@ -17,9 +17,9 @@ TrigSpacePointCountsCnv::~TrigSpacePointCountsCnv(){}
 
 
 TrigSpacePointCounts_PERS* TrigSpacePointCountsCnv::createPersistent(TrigSpacePointCounts* transObj) {
-  MsgStream mlog(messageService(), "TrigSpacePointCountsConverter" );
+  MsgStream mlog(msgSvc(), "TrigSpacePointCountsConverter" );
 
-  mlog << MSG::DEBUG << "TrigSpacePointCountsCnv::createPersistent" << endreq;
+  mlog << MSG::DEBUG << "TrigSpacePointCountsCnv::createPersistent" << endmsg;
 
   TrigSpacePointCountsCnv_p3 converter;
    
@@ -30,9 +30,9 @@ TrigSpacePointCounts_PERS* TrigSpacePointCountsCnv::createPersistent(TrigSpacePo
 
 
 TrigSpacePointCounts* TrigSpacePointCountsCnv::createTransient() {
-  MsgStream mlog(messageService(), "TrigSpacePointCountsConverter" );
+  MsgStream mlog(msgSvc(), "TrigSpacePointCountsConverter" );
 
-  mlog << MSG::DEBUG << "TrigSpacePointCountsCnv::createTransient " << endreq;
+  mlog << MSG::DEBUG << "TrigSpacePointCountsCnv::createTransient " << endmsg;
 
   static pool::Guid p3_guid("43E61EDF-2902-4F64-8A89-F625DB7DA7CC");
   static pool::Guid p2_guid("3A6CFBCF-E2AE-4E3D-A965-091718A5CB9F");

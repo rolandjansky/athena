@@ -14,9 +14,9 @@ TrigMissingETCnv::~TrigMissingETCnv(){}
 
 
 TrigMissingET_PERS* TrigMissingETCnv::createPersistent(TrigMissingET* transObj) {
-  MsgStream mlog(messageService(), "TrigMissingETConverter" );
+  MsgStream mlog(msgSvc(), "TrigMissingETConverter" );
 
-  mlog << MSG::DEBUG << "TrigMissingETCnv::createPersistent" << endreq;
+  mlog << MSG::DEBUG << "TrigMissingETCnv::createPersistent" << endmsg;
 
 //   TrigMissingETCnv_p1   converter;
   TrigMissingETCnv_p2   converter;
@@ -28,9 +28,9 @@ TrigMissingET_PERS* TrigMissingETCnv::createPersistent(TrigMissingET* transObj) 
 
 
 TrigMissingET* TrigMissingETCnv::createTransient() {
-  MsgStream mlog(messageService(), "TrigMissingETConverter" );
+  MsgStream mlog(msgSvc(), "TrigMissingETConverter" );
 
-  mlog << MSG::DEBUG << "TrigMissingETCnv::createTransient " << endreq;
+  mlog << MSG::DEBUG << "TrigMissingETCnv::createTransient " << endmsg;
 
   static pool::Guid p2_guid("9972F10B-2B6A-42A7-AF71-D8FB60F07C6D");
   static pool::Guid p1_guid("A65F0499-A789-4D66-9930-E8651FE91F8A");

@@ -16,9 +16,9 @@ static MuonFeatureContainerCnv_p3     TPconverter;
 //createPersistent 
 MuonFeatureContainer_PERS * MuonFeatureContainerCnv::createPersistent( MuonFeatureContainer *transObj)
 {
-  MsgStream mlog(messageService(), "MuonFeatureContainerConverter" );
+  MsgStream mlog(msgSvc(), "MuonFeatureContainerConverter" );
   
-  mlog << MSG::DEBUG << "MuonFeatureContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "MuonFeatureContainerCnv::createPersistent called" << endmsg;
   
   MuonFeatureContainer_PERS * p_cont = TPconverter.createPersistent( transObj, mlog );
   
@@ -30,9 +30,9 @@ MuonFeatureContainer_PERS * MuonFeatureContainerCnv::createPersistent( MuonFeatu
 //createTransient
 MuonFeatureContainer * MuonFeatureContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "MuonFeatureContainerConverter" );
+  MsgStream mlog(msgSvc(), "MuonFeatureContainerConverter" );
   
-  mlog << MSG::DEBUG << "MuonFeatureContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "MuonFeatureContainerCnv::createTransient called" << endmsg;
   
   static pool::Guid p3_guid( "5B571BCD-FE49-4C56-A357-1B535FE65829" );
   static pool::Guid tlp2_guid( "2F4ABBC8-EA77-487B-820F-76179BB3828C" );
