@@ -53,7 +53,7 @@ namespace Trk {
        << m_position[0] << ", "
        << m_position[1] << ", "
        << m_position[2] << ") mm."
-       << endreq;
+       << endmsg;
     return sl;
   }
 

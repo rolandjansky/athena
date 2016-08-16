@@ -111,9 +111,9 @@ namespace Trk {
   }
 
   MsgStream& VxCandidate::dump(MsgStream& sl) const {
-    sl << "Printing Trk::VxCandidate of type: " << m_vertexType << endreq;
-    sl << m_recVertex << endreq;
-    sl << "Tracks used in the vertex fit: " << m_vxTrackAtVertex.size() << endreq;
+    sl << "Printing Trk::VxCandidate of type: " << m_vertexType << endmsg;
+    sl << m_recVertex << endmsg;
+    sl << "Tracks used in the vertex fit: " << m_vxTrackAtVertex.size() << endmsg;
     for (unsigned i = 0 ; i < m_vxTrackAtVertex.size() ; i++)
     {
       sl << "Track " << i+1 << " " << *(m_vxTrackAtVertex[i]);
