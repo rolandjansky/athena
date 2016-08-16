@@ -26,8 +26,8 @@ class LUCID_Digit {
   inline unsigned short getTDC   () const { return m_tdc;    }
   inline bool           isHit    () const { return m_isHit;  }
   
-  inline bool isSideA() { return (m_tubeID <  20); }
-  inline bool isSideC() { return (m_tubeID >= 20); }
+  inline bool isSideA() const { return (m_tubeID <  20); }
+  inline bool isSideC() const { return (m_tubeID >= 20); }
   
  private: 
   
