@@ -15,9 +15,9 @@ static TrigMuonEFContainerCnv_p2   TPConverter;
 //createPersistent 
 TrigMuonEFContainer_PERS * TrigMuonEFContainerCnv::createPersistent( TrigMuonEFContainer *transObj)
 {
-  MsgStream mlog(messageService(), "TrigMuonEFContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigMuonEFContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigMuonEFContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigMuonEFContainerCnv::createPersistent called" << endmsg;
 
   TrigMuonEFContainer_PERS * p_muEFcont = TPConverter.createPersistent( transObj, mlog ); 
 
@@ -29,9 +29,9 @@ TrigMuonEFContainer_PERS * TrigMuonEFContainerCnv::createPersistent( TrigMuonEFC
 //createTransient
 TrigMuonEFContainer * TrigMuonEFContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigMuonEFContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigMuonEFContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigMuonEFContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigMuonEFContainerCnv::createTransient called" << endmsg;
   
   static pool::Guid p2_guid( "3BB5C107-2975-4F9E-AACC-9FD948C3D2A8" );
   static pool::Guid p1_guid( "567E65A0-23E8-469F-94F7-A03F6E9C1C2E" );

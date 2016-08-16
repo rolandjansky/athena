@@ -19,9 +19,9 @@ TrigVertexCountsCollectionCnv::~TrigVertexCountsCollectionCnv()
 //createPersistent 
 TrigVertexCountsCollection_PERS * TrigVertexCountsCollectionCnv::createPersistent( TrigVertexCountsCollection *transObj)
 {
-  MsgStream mlog(messageService(), "TrigVertexCountsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigVertexCountsCollectionConverter" );
 
-  mlog << MSG::DEBUG << "TrigVertexCountsCollectionCnv::createPersistent" << endreq;
+  mlog << MSG::DEBUG << "TrigVertexCountsCollectionCnv::createPersistent" << endmsg;
 
   TrigVertexCountsCollection_PERS* persObj = m_TPConverter->createPersistent( transObj, mlog );
  
@@ -33,9 +33,9 @@ TrigVertexCountsCollection_PERS * TrigVertexCountsCollectionCnv::createPersisten
 //createTransient
 TrigVertexCountsCollection* TrigVertexCountsCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigVertexCountsCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigVertexCountsCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigVertexCountsCollectionCnv::createTransient" << endreq;
+  mlog << MSG::DEBUG << "TrigVertexCountsCollectionCnv::createTransient" << endmsg;
 
   static pool::Guid tlp1_guid( "2A1D4A4E-D566-4C71-B051-D5D79A856753" );
   static pool::Guid p1_guid( "232B47D0-65CA-4883-AC51-0D76EAEA3194" );

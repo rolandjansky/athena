@@ -12,9 +12,9 @@ static TrigTauTracksInfoCollectionCnv_p2   TPConverter;
 //createPersistent 
 TrigTauTracksInfoCollection_PERS * TrigTauTracksInfoCollectionCnv::createPersistent( TrigTauTracksInfoCollection *transObj)
 {
-  MsgStream mlog(messageService(), "TrigTauTracksInfoCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigTauTracksInfoCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigTauTracksInfoCollectionCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigTauTracksInfoCollectionCnv::createPersistent called" << endmsg;
   
   TrigTauTracksInfoCollection_PERS * p_cont = TPConverter.createPersistent( transObj, mlog );
   
@@ -26,9 +26,9 @@ TrigTauTracksInfoCollection_PERS * TrigTauTracksInfoCollectionCnv::createPersist
 //createTransient
 TrigTauTracksInfoCollection * TrigTauTracksInfoCollectionCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigTauTracksInfoCollectionConverter" );
+  MsgStream mlog(msgSvc(), "TrigTauTracksInfoCollectionConverter" );
   
-  mlog << MSG::DEBUG << "TrigTauTracksInfoCollectionCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigTauTracksInfoCollectionCnv::createTransient called" << endmsg;
   
   static pool::Guid p2_guid( "1AF8C4E5-4862-4625-B9B6-D9B53E716B17" );
   static pool::Guid p1_guid( "8A208FA7-C52F-4CD3-AE20-EF1C99FC92A6" );

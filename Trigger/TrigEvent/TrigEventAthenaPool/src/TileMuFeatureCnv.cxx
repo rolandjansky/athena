@@ -17,9 +17,9 @@ TileMuFeatureCnv::~TileMuFeatureCnv(){}
 
 //createPersistent
 TileMuFeature_PERS* TileMuFeatureCnv::createPersistent(TileMuFeature* transObj) {
-    MsgStream mlog(messageService(), "TileMuFeatureConverter" );
+    MsgStream mlog(msgSvc(), "TileMuFeatureConverter" );
 
-    mlog << MSG::DEBUG << "TileMuFeatureCnv::createPersistent" << endreq;
+    mlog << MSG::DEBUG << "TileMuFeatureCnv::createPersistent" << endmsg;
 
     TileMuFeatureCnv_p1   converter;
     TileMuFeature_PERS *persObj = converter.createPersistent( transObj, mlog );
@@ -28,9 +28,9 @@ TileMuFeature_PERS* TileMuFeatureCnv::createPersistent(TileMuFeature* transObj) 
 
 //createTransient
 TileMuFeature* TileMuFeatureCnv::createTransient() {
-    MsgStream mlog(messageService(), "TileMuFeatureConverter" );
+    MsgStream mlog(msgSvc(), "TileMuFeatureConverter" );
 
-    mlog << MSG::DEBUG << "TileMuFeatureCnv::createTransient " << endreq;
+    mlog << MSG::DEBUG << "TileMuFeatureCnv::createTransient " << endmsg;
   
     static pool::Guid p1_guid("F853E605-AFD5-44F9-98BC-4D777CBCBEE4");
         // from "TrigEvent/TrigMuonEventTPCnv/TrigMuonEventTPCnv/selection.xml"

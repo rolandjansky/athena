@@ -14,9 +14,9 @@ static TrigEMClusterContainerCnv_p3   TPConverter_p3;
 //createPersistent 
 TrigEMClusterContainer_PERS * TrigEMClusterContainerCnv::createPersistent( TrigEMClusterContainer *transObj)
 {
-  MsgStream mlog(messageService(), "TrigEMClusterContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigEMClusterContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigEMClusterContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigEMClusterContainerCnv::createPersistent called" << endmsg;
 
   TrigEMClusterContainer_PERS * p_EMClusterCont = TPConverter.createPersistent( transObj, mlog );
  
@@ -27,9 +27,9 @@ TrigEMClusterContainer_PERS * TrigEMClusterContainerCnv::createPersistent( TrigE
 //createTransient
 TrigEMClusterContainer * TrigEMClusterContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigEMClusterContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigEMClusterContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigEMClusterContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigEMClusterContainerCnv::createTransient called" << endmsg;
 
   static pool::Guid p3_guid( "0BF627E6-52A0-4F10-9FFD-A513DF2DBC31" );
   static pool::Guid p4_guid( "7B430CA8-5D16-4E26-B0A4-461F983610EB" );

@@ -9,7 +9,7 @@
 //---------------------------------------------------------------------------------------------
 TrigMonEventCnv::TrigMonEventCnv(ISvcLocator* svcloc) :
   T_AthenaPoolCustomCnv<TrigMonEvent, TrigMonEvent_PERS>(svcloc),
-  m_log(new MsgStream(messageService(), "TrigMonEventCnv")),
+  m_log(new MsgStream(msgSvc(), "TrigMonEventCnv")),
   m_TPConverter (new TrigMonEventCnv_p1)
 {
 }
@@ -25,7 +25,7 @@ TrigMonEventCnv::~TrigMonEventCnv()
 //create persistent
 TrigMonEvent_PERS* TrigMonEventCnv::createPersistent(TrigMonEvent* transObj) 
 {
-  (*m_log) << MSG::DEBUG << "TrigMonEventCnv::createPersistent" << endreq;
+  (*m_log) << MSG::DEBUG << "TrigMonEventCnv::createPersistent" << endmsg;
 
   TrigMonEvent_PERS *persObj = m_TPConverter->createPersistent(transObj, *m_log);
   return persObj;
@@ -35,14 +35,14 @@ TrigMonEvent_PERS* TrigMonEventCnv::createPersistent(TrigMonEvent* transObj)
 //createTransient
 TrigMonEvent* TrigMonEventCnv::createTransient() 
 {
-  (*m_log) << MSG::DEBUG << "TrigMonEventCnv::createTransient " << endreq;
+  (*m_log) << MSG::DEBUG << "TrigMonEventCnv::createTransient " << endmsg;
   
   static pool::Guid p1_guid("AECD5837-E8DA-4FF3-8601-44B4C17355ED");  
   TrigMonEvent *trans_obj(0);
   
   if( compareClassGuid(p1_guid) ) {
     
-    (*m_log) << MSG::DEBUG << "TrigMonEventCnv::reading p1 persistent object" << endreq;
+    (*m_log) << MSG::DEBUG << "TrigMonEventCnv::reading p1 persistent object" << endmsg;
     std::auto_ptr< TrigMonEvent_p1 >   col_vect( this->poolReadObject< TrigMonEvent_p1 >());
     trans_obj = m_TPConverter->createTransient( col_vect.get(), *m_log);
   } 

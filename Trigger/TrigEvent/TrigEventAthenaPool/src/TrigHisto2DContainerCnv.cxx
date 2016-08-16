@@ -20,9 +20,9 @@ TrigHisto2DContainerCnv::~TrigHisto2DContainerCnv()
 //createPersistent 
 TrigHisto2DContainer_PERS * TrigHisto2DContainerCnv::createPersistent( TrigHisto2DContainer *transObj)
 {
-  MsgStream mlog(messageService(), "TrigHisto2DContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigHisto2DContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigHisto2DContainerCnv::createPersistent" << endreq;
+  mlog << MSG::DEBUG << "TrigHisto2DContainerCnv::createPersistent" << endmsg;
 
   TrigHisto2DContainer_PERS* persObj = m_TPConverter->createPersistent( transObj, mlog );
  
@@ -34,9 +34,9 @@ TrigHisto2DContainer_PERS * TrigHisto2DContainerCnv::createPersistent( TrigHisto
 //createTransient
 TrigHisto2DContainer* TrigHisto2DContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigHisto2DContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigHisto2DContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigHisto2DContainerCnv::createTransient" << endreq;
+  mlog << MSG::DEBUG << "TrigHisto2DContainerCnv::createTransient" << endmsg;
 
   static pool::Guid tlp1_guid( "59C6A169-C537-4DEC-984D-41CE2544F96E" );
   static pool::Guid p1_guid( "C9FE79CB-6875-4E35-A1E3-23DFA6F94DFE" );

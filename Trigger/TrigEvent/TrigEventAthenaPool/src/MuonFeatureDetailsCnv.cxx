@@ -10,9 +10,9 @@ MuonFeatureDetailsCnv::~MuonFeatureDetailsCnv(){}
 
 //createPersistent
 MuonFeatureDetails_PERS* MuonFeatureDetailsCnv::createPersistent(MuonFeatureDetails* transObj) {
-    MsgStream mlog(messageService(), "MuonFeatureDetailsConverter" );
+    MsgStream mlog(msgSvc(), "MuonFeatureDetailsConverter" );
 
-    mlog << MSG::DEBUG << "MuonFeatureDetailsCnv::createPersistent" << endreq;
+    mlog << MSG::DEBUG << "MuonFeatureDetailsCnv::createPersistent" << endmsg;
 
     MuonFeatureDetailsCnv_p1   converter;
     MuonFeatureDetails_PERS *persObj = converter.createPersistent( transObj, mlog );
@@ -22,9 +22,9 @@ MuonFeatureDetails_PERS* MuonFeatureDetailsCnv::createPersistent(MuonFeatureDeta
 
 //createTransient
 MuonFeatureDetails* MuonFeatureDetailsCnv::createTransient() {
-    MsgStream mlog(messageService(), "MuonFeatureDetailsConverter" );
+    MsgStream mlog(msgSvc(), "MuonFeatureDetailsConverter" );
 
-    mlog << MSG::DEBUG << "MuonFeatureDetailsCnv::createTransient " << endreq;
+    mlog << MSG::DEBUG << "MuonFeatureDetailsCnv::createTransient " << endmsg;
 
     static pool::Guid p1_guid("E841B555-766B-48EF-96F8-F4BE39EE8BCB");
 

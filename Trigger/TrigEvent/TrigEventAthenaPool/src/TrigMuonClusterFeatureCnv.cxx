@@ -15,9 +15,9 @@ static TrigMuonClusterFeatureCnv_tlp1 TPConverter;
 TrigMuonClusterFeature_PERS *
 TrigMuonClusterFeatureCnv::createPersistent( TrigMuonClusterFeature *transObj)
 {
-  MsgStream mlog(messageService(), "TrigMuonClusterFeatureConverter" );
+  MsgStream mlog(msgSvc(), "TrigMuonClusterFeatureConverter" );
   
-  mlog << MSG::DEBUG << "TrigMuonClusterFeatureCnv::createPersistent" << endreq;
+  mlog << MSG::DEBUG << "TrigMuonClusterFeatureCnv::createPersistent" << endmsg;
 
   TrigMuonClusterFeature_PERS *persObj = TPConverter.createPersistent( transObj, mlog );
   
@@ -29,9 +29,9 @@ TrigMuonClusterFeatureCnv::createPersistent( TrigMuonClusterFeature *transObj)
 //-----------------------------------------------------------------------------
 TrigMuonClusterFeature *TrigMuonClusterFeatureCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigMuonClusterFeatureConverter" );
+  MsgStream mlog(msgSvc(), "TrigMuonClusterFeatureConverter" );
   
-  mlog << MSG::DEBUG << "TrigMuonClusterFeatureCnv::createTransient " << endreq;
+  mlog << MSG::DEBUG << "TrigMuonClusterFeatureCnv::createTransient " << endmsg;
   
   static pool::Guid p1_guid("AE4D5D57-689D-40CB-83B3-CB047884952F");
   static pool::Guid p0_guid("A7B1865B-55D0-49D2-9778-5E0797FB06FE");

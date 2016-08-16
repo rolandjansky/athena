@@ -18,8 +18,8 @@ TrigTauTracksInfoCnv::~TrigTauTracksInfoCnv()
 //create persistent
 TrigTauTracksInfo_PERS* TrigTauTracksInfoCnv::createPersistent(TrigTauTracksInfo* transCont) 
 {
-  MsgStream mlog(messageService(), "TrigTauTracksInfoConverter" );
-  mlog << MSG::DEBUG << "TrigTauTracksInfoCnv::createPersistent" << endreq;
+  MsgStream mlog(msgSvc(), "TrigTauTracksInfoConverter" );
+  mlog << MSG::DEBUG << "TrigTauTracksInfoCnv::createPersistent" << endmsg;
 
   TrigTauTracksInfo_PERS *persObj = m_TPConverter->createPersistent( transCont, mlog );
 
@@ -29,8 +29,8 @@ TrigTauTracksInfo_PERS* TrigTauTracksInfoCnv::createPersistent(TrigTauTracksInfo
 //create transient
 TrigTauTracksInfo* TrigTauTracksInfoCnv::createTransient() 
 {
-  MsgStream mlog(messageService(), "TrigTauTracksInfoConverter" );
-  mlog << MSG::DEBUG << "TrigTauTracksInfoCnv::createTransient " << endreq;
+  MsgStream mlog(msgSvc(), "TrigTauTracksInfoConverter" );
+  mlog << MSG::DEBUG << "TrigTauTracksInfoCnv::createTransient " << endmsg;
   
   static pool::Guid tlp1_guid("ABF3C91C-A007-440E-8AEE-753FAA453352");
   static pool::Guid p0_guid("630E4944-7EDE-4938-B189-020DBC0436AE");
@@ -39,14 +39,14 @@ TrigTauTracksInfo* TrigTauTracksInfoCnv::createTransient()
   
   if( compareClassGuid(tlp1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigTauTracksInfoCnv::reading tlp1 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigTauTracksInfoCnv::reading tlp1 persistent object" << endmsg;
     std::auto_ptr< TrigTauTracksInfo_tlp1 >   col_vect( this->poolReadObject< TrigTauTracksInfo_tlp1 >() );
     trans_cont = m_TPConverter->createTransient( col_vect.get(), mlog );
     
   }
   else if( compareClassGuid(p0_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigTauTracksInfoCnv::reading p0 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigTauTracksInfoCnv::reading p0 persistent object" << endmsg;
     // old version from before TP separation, just return it
     trans_cont = this->poolReadObject<TrigTauTracksInfo>();
     

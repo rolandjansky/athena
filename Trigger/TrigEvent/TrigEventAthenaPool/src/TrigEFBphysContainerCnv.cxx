@@ -28,9 +28,9 @@ TrigEFBphysContainerCnv::~TrigEFBphysContainerCnv()
 //createPersistent
 TrigEFBphysContainer_PERS * TrigEFBphysContainerCnv::createPersistent( TrigEFBphysContainer *transObj)
 {
-  MsgStream mlog(messageService(), "TrigEFBphysContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigEFBphysContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigEFBphysContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigEFBphysContainerCnv::createPersistent called" << endmsg;
 
   TrigEFBphysContainer_PERS * p_EFBphysCont = m_impl->m_TPConverter.createPersistent( transObj, m_impl->m_log );
  
@@ -42,9 +42,9 @@ TrigEFBphysContainer_PERS * TrigEFBphysContainerCnv::createPersistent( TrigEFBph
 //createTransient
 TrigEFBphysContainer * TrigEFBphysContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigEFBphysContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigEFBphysContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigEFBphysContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigEFBphysContainerCnv::createTransient called" << endmsg;
   
   static pool::Guid tlp2_guid( "D93906C2-4F81-44A7-98BE-71302891FE44" );
   static pool::Guid tlp1_guid( "5F5B068F-32DB-4CC9-BA9E-C74C076AAAA1" );

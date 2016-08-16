@@ -28,8 +28,8 @@ TrigTauCnv::~TrigTauCnv()
 //create persistent
 TrigTau_PERS* TrigTauCnv::createPersistent(TrigTau* transCont) 
 {
-  MsgStream mlog(messageService(), "TrigTauConverter" );
-  mlog << MSG::DEBUG << "TrigTauCnv::createPersistent" << endreq;
+  MsgStream mlog(msgSvc(), "TrigTauConverter" );
+  mlog << MSG::DEBUG << "TrigTauCnv::createPersistent" << endmsg;
 
   TrigTau_PERS *persObj = m_impl->m_TPConverter_p2.createPersistent( transCont, mlog );
 
@@ -39,8 +39,8 @@ TrigTau_PERS* TrigTauCnv::createPersistent(TrigTau* transCont)
 //create transient
 TrigTau* TrigTauCnv::createTransient() 
 {
-  MsgStream mlog(messageService(), "TrigTauConverter" );
-  mlog << MSG::DEBUG << "TrigTauCnv::createTransient " << endreq;
+  MsgStream mlog(msgSvc(), "TrigTauConverter" );
+  mlog << MSG::DEBUG << "TrigTauCnv::createTransient " << endmsg;
   
   static pool::Guid tlp1_guid("82AE3333-5398-4590-A51A-616832332D9B");
   static pool::Guid p0_guid("F95B5B76-13D3-4EB4-94BB-1383B8571ADD");
@@ -51,27 +51,27 @@ TrigTau* TrigTauCnv::createTransient()
   
   if( compareClassGuid(tlp1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigTauCnv::reading tlp1 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigTauCnv::reading tlp1 persistent object" << endmsg;
     std::auto_ptr< TrigTau_tlp1 >   col_vect( this->poolReadObject< TrigTau_tlp1 >() );
     trans_cont = m_impl->m_TPConverter_p1.createTransient( col_vect.get(), mlog );
     
   }
   else if( compareClassGuid(p0_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigTauCnv::reading p0 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigTauCnv::reading p0 persistent object" << endmsg;
     // old version from before TP separation, just return it
     trans_cont = this->poolReadObject<TrigTau>();
     
   }else if( compareClassGuid(tlp2_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigTauCnv::reading tlp2 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigTauCnv::reading tlp2 persistent object" << endmsg;
     std::auto_ptr< TrigTau_tlp2 >   col_vect( this->poolReadObject< TrigTau_tlp2 >() );
     trans_cont = m_impl->m_TPConverter_p2.createTransient( col_vect.get(), mlog );
     
   }
   else if( compareClassGuid(p2_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigTauCnv::reading p2 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigTauCnv::reading p2 persistent object" << endmsg;
     // old version from before TP separation, just return it
     trans_cont = this->poolReadObject<TrigTau>();
     

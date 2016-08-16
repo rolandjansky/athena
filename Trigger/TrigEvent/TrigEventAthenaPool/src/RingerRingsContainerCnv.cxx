@@ -11,9 +11,9 @@ static RingerRingsContainerCnv_p2 TPConverter;
  
 // createPersistent
 RingerRingsContainer_PERS *RingerRingsContainerCnv::createPersistent(RingerRingsContainer *transObj) {
-  MsgStream mlog(messageService(), "RingerRingsContainerConverter");
+  MsgStream mlog(msgSvc(), "RingerRingsContainerConverter");
 
-  mlog << MSG::DEBUG << "RingerRingsContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "RingerRingsContainerCnv::createPersistent called" << endmsg;
 
   RingerRingsContainer_PERS *p_RingerRingsCont = TPConverter.createPersistent(transObj, mlog);
  
@@ -24,9 +24,9 @@ RingerRingsContainer_PERS *RingerRingsContainerCnv::createPersistent(RingerRings
 // createTransient
 RingerRingsContainer *RingerRingsContainerCnv::createTransient() {
 
-  MsgStream mlog(messageService(), "RingerRingsContainerConverter");
+  MsgStream mlog(msgSvc(), "RingerRingsContainerConverter");
   
-  mlog << MSG::DEBUG << "RingerRingsContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "RingerRingsContainerCnv::createTransient called" << endmsg;
 
   static pool::Guid p2_guid("30D29B68-6D41-429E-AC16-930ACF71280D");
   static pool::Guid tlp1_guid("B5587828-50D8-4DAA-97F3-5E41A7F3E3FE");

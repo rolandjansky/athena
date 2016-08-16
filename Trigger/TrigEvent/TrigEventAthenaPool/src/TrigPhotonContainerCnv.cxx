@@ -18,9 +18,9 @@ static TrigPhotonContainerCnv_p3     TPConverter;
 //createPersistent 
 TrigPhotonContainer_PERS * TrigPhotonContainerCnv::createPersistent( TrigPhotonContainer *transObj)
 {
-  MsgStream mlog(messageService(), "TrigPhotonContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigPhotonContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigPhotonContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigPhotonContainerCnv::createPersistent called" << endmsg;
 
   TrigPhotonContainer_PERS * p_PhotonCont = TPConverter.createPersistent( transObj, mlog );
  
@@ -32,9 +32,9 @@ TrigPhotonContainer_PERS * TrigPhotonContainerCnv::createPersistent( TrigPhotonC
 //createTransient
 TrigPhotonContainer * TrigPhotonContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigPhotonContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigPhotonContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigPhotonContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigPhotonContainerCnv::createTransient called" << endmsg;
 
   static pool::Guid p3_guid( "40192614-E7C5-4BAF-825F-CB9F3E023315" );
   static pool::Guid tlp2_guid( "96487DD7-9CF7-4351-BF33-011E6CA515F0" );

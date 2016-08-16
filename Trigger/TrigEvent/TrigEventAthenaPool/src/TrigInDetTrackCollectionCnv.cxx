@@ -32,8 +32,8 @@ TrigInDetTrackCollectionCnv::~TrigInDetTrackCollectionCnv()
 
 //create persistent
 TrigInDetTrackCollection_PERS* TrigInDetTrackCollectionCnv::createPersistent(TrigInDetTrackCollection* transObj) {
-    MsgStream mlog(messageService(), "TrigInDetTrackCollectionConverter" );
-    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::createPersistent" << endreq;
+    MsgStream mlog(msgSvc(), "TrigInDetTrackCollectionConverter" );
+    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::createPersistent" << endmsg;
 
     TrigInDetTrackCollection_PERS* persObj = m_tlp_Converter->createPersistent( transObj, mlog );
 
@@ -43,8 +43,8 @@ TrigInDetTrackCollection_PERS* TrigInDetTrackCollectionCnv::createPersistent(Tri
 //create transient
 TrigInDetTrackCollection* TrigInDetTrackCollectionCnv::createTransient() {
   
-  MsgStream mlog(messageService(), "TrigInDetTrackCollectionConverter" );
-  mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::createTransient " << endreq;
+  MsgStream mlog(msgSvc(), "TrigInDetTrackCollectionConverter" );
+  mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::createTransient " << endmsg;
 
   static pool::Guid tlp4_guid("E1B8EE19-4F7B-4EF2-8FDC-45AA871BD628");
   static pool::Guid tlp3_guid("196F811B-382D-47A9-8551-D2038343BFFA");
@@ -55,25 +55,25 @@ TrigInDetTrackCollection* TrigInDetTrackCollectionCnv::createTransient() {
   TrigInDetTrackCollection  *transObj = 0;
   if( compareClassGuid(tlp4_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp4 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp4 persistent object" << endmsg;
     TrigInDetTrackCollectionCnv_tlp4 tlp4_Converter;
     poolReadObject< TrigInDetTrackCollection_tlp4 >( tlp4_Converter );
     transObj = tlp4_Converter.createTransient( mlog );
   } else  if( compareClassGuid(tlp3_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp3 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp3 persistent object" << endmsg;
     TrigInDetTrackCollectionCnv_tlp3 tlp3_Converter;
     poolReadObject< TrigInDetTrackCollection_tlp3 >( tlp3_Converter );
     transObj = tlp3_Converter.createTransient( mlog );
   } else if( compareClassGuid(tlp2_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp2 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp2 persistent object" << endmsg;
     TrigInDetTrackCollectionCnv_tlp2 tlp2_Converter;
     poolReadObject< TrigInDetTrackCollection_tlp2 >( tlp2_Converter );
     transObj = tlp2_Converter.createTransient( mlog );
   } else if( compareClassGuid(tlp1_guid) ) {
       
-    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp1 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading tlp1 persistent object" << endmsg;
     TrigInDetTrackCollectionCnv_tlp1 tlp1_Converter;
     poolReadObject< TrigInDetTrackCollection_tlp1 >( tlp1_Converter );
     transObj = tlp1_Converter.createTransient( mlog );
@@ -82,7 +82,7 @@ TrigInDetTrackCollection* TrigInDetTrackCollectionCnv::createTransient() {
   
   else if( compareClassGuid(p0_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading p0 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigInDetTrackCollectionCnv::reading p0 persistent object" << endmsg;
     // old version from before TP separation, just return it
     transObj = this->poolReadObject<TrigInDetTrackCollection>();
   }  

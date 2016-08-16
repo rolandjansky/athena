@@ -23,8 +23,8 @@ TrigCompositeCnv::~TrigCompositeCnv()
 
 TrigComposite_PERS* TrigCompositeCnv::createPersistent(TrigComposite* transCont) 
 {
-  MsgStream mlog(messageService(), "TrigCompositeConverter" );
-  mlog << MSG::DEBUG << "TrigCompositeCnv::createPersistent" << endreq;
+  MsgStream mlog(msgSvc(), "TrigCompositeConverter" );
+  mlog << MSG::DEBUG << "TrigCompositeCnv::createPersistent" << endmsg;
 
   TrigComposite_PERS *persObj = m_impl->m_TPConverter.createPersistent( transCont, mlog );
   
@@ -34,8 +34,8 @@ TrigComposite_PERS* TrigCompositeCnv::createPersistent(TrigComposite* transCont)
 
 TrigComposite* TrigCompositeCnv::createTransient() 
 {
-  MsgStream mlog(messageService(), "TrigCompositeConverter" );
-  mlog << MSG::DEBUG << "TrigCompositeCnv::createTransient " << endreq;
+  MsgStream mlog(msgSvc(), "TrigCompositeConverter" );
+  mlog << MSG::DEBUG << "TrigCompositeCnv::createTransient " << endmsg;
   
   static pool::Guid p1_guid("53F70884-38EE-4D08-9F03-FA8BED725B63");
   
@@ -43,7 +43,7 @@ TrigComposite* TrigCompositeCnv::createTransient()
   
   if( compareClassGuid(p1_guid) ) {
     
-    mlog << MSG::DEBUG << "TrigCompositeCnv::reading p1 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigCompositeCnv::reading p1 persistent object" << endmsg;
     std::auto_ptr< TrigComposite_p1 >   col_vect( this->poolReadObject< TrigComposite_p1 >() );
     trans_cont = m_impl->m_TPConverter.createTransient( col_vect.get(), mlog );
 

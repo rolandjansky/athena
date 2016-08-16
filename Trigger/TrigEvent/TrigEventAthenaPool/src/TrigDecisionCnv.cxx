@@ -23,7 +23,7 @@ TrigDecisionCnv::~TrigDecisionCnv () {}
 
 TrigDecision_PERS* TrigDecisionCnv::createPersistent(TrigDec::TrigDecision* transCont)
 {
-  MsgStream log(messageService(), "TrigDecisionConverter" );
+  MsgStream log(msgSvc(), "TrigDecisionConverter" );
 
   //  TrigDec::TrigDecisionCnv_p1  converter;
   TrigDec::TrigDecisionCnv_p5  converter;
@@ -35,7 +35,7 @@ TrigDecision_PERS* TrigDecisionCnv::createPersistent(TrigDec::TrigDecision* tran
 
 TrigDec::TrigDecision* TrigDecisionCnv::createTransient()
 {
-  MsgStream log(messageService(), "TrigDecisionConverter" );
+  MsgStream log(msgSvc(), "TrigDecisionConverter" );
 
   static pool::Guid p1_guid("83D7E08D-CF8C-47A0-963F-5618A9509334");
   static pool::Guid p2_guid("6BE81E51-B42B-4783-957D-84E7F383E9D5");

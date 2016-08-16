@@ -10,8 +10,8 @@ TrigTrtHitCountsCnv::TrigTrtHitCountsCnv(ISvcLocator* svcloc): TrigTrtHitCountsC
 TrigTrtHitCountsCnv::~TrigTrtHitCountsCnv(){}
 
 TrigTrtHitCounts_PERS* TrigTrtHitCountsCnv::createPersistent(TrigTrtHitCounts* transObj)  {
-  MsgStream mlog(messageService(), "TrigTrtHitCountsConverter" );
-  mlog << MSG::DEBUG << "TrigTrtHitCountsCnv::createPersistent" << endreq;
+  MsgStream mlog(msgSvc(), "TrigTrtHitCountsConverter" );
+  mlog << MSG::DEBUG << "TrigTrtHitCountsCnv::createPersistent" << endmsg;
   
   TrigTrtHitCountsCnv_p1  converter;
   TrigTrtHitCounts_PERS *persObj = converter.createPersistent( transObj, mlog );
@@ -20,15 +20,15 @@ TrigTrtHitCounts_PERS* TrigTrtHitCountsCnv::createPersistent(TrigTrtHitCounts* t
 }
 
 TrigTrtHitCounts* TrigTrtHitCountsCnv::createTransient() {
-  MsgStream mlog(messageService(), "TrigTrtHitCountsConverter" );
-  mlog << MSG::DEBUG << "TrigTrtHitCountsCnv::createTransient " << endreq;
+  MsgStream mlog(msgSvc(), "TrigTrtHitCountsConverter" );
+  mlog << MSG::DEBUG << "TrigTrtHitCountsCnv::createTransient " << endmsg;
   
   static pool::Guid p1_guid("FB33CC3C-74B8-43DF-ABDA-E56BEA1D9D61");
   
   TrigTrtHitCounts *transObj = 0;
 
   if( compareClassGuid(p1_guid) ) {   
-    mlog << MSG::DEBUG << "TrigTrtHitCountsCnv::reading p1 persistent object" << endreq;
+    mlog << MSG::DEBUG << "TrigTrtHitCountsCnv::reading p1 persistent object" << endmsg;
     std::auto_ptr< TrigTrtHitCounts_p1 > pers_ptr( poolReadObject< TrigTrtHitCounts_p1 >() );
     TrigTrtHitCountsCnv_p1 converter;
     transObj = converter.createTransient(pers_ptr.get(), mlog);

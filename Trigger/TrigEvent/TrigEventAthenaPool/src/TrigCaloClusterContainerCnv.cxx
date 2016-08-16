@@ -10,9 +10,9 @@ static TrigCaloClusterContainerCnv_p3   TPConverter;
 //createPersistent 
 TrigCaloClusterContainer_PERS * TrigCaloClusterContainerCnv::createPersistent( TrigCaloClusterContainer *transObj)
 {
-  MsgStream mlog(messageService(), "TrigCaloClusterContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigCaloClusterContainerConverter" );
 
-  mlog << MSG::DEBUG << "TrigCaloClusterContainerCnv::createPersistent called" << endreq;
+  mlog << MSG::DEBUG << "TrigCaloClusterContainerCnv::createPersistent called" << endmsg;
 
   TrigCaloClusterContainer_PERS * p_CaloClusterCont = TPConverter.createPersistent( transObj, mlog );
  
@@ -23,9 +23,9 @@ TrigCaloClusterContainer_PERS * TrigCaloClusterContainerCnv::createPersistent( T
 //createTransient
 TrigCaloClusterContainer * TrigCaloClusterContainerCnv::createTransient()
 {
-  MsgStream mlog(messageService(), "TrigCaloClusterContainerConverter" );
+  MsgStream mlog(msgSvc(), "TrigCaloClusterContainerConverter" );
   
-  mlog << MSG::DEBUG << "TrigCaloClusterContainerCnv::createTransient called" << endreq;
+  mlog << MSG::DEBUG << "TrigCaloClusterContainerCnv::createTransient called" << endmsg;
 
   static pool::Guid p3_guid( "98A28943-662A-4141-82C3-537447264DA3" );
 

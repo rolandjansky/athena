@@ -16,8 +16,8 @@ static TrigElectronContainerCnv_p3    TPConverter;
 //create persistent
 TrigElectronContainer_PERS* TrigElectronContainerCnv::createPersistent(TrigElectronContainer* transCont) 
 {
-    MsgStream mlog(messageService(), "TrigElectronContainerConverter" );
-    mlog << MSG::DEBUG << "TrigElectronContainerCnv::createPersistent" << endreq;
+    MsgStream mlog(msgSvc(), "TrigElectronContainerConverter" );
+    mlog << MSG::DEBUG << "TrigElectronContainerCnv::createPersistent" << endmsg;
 
     TrigElectronContainer_PERS *persObj = TPConverter.createPersistent( transCont, mlog );
 
@@ -27,8 +27,8 @@ TrigElectronContainer_PERS* TrigElectronContainerCnv::createPersistent(TrigElect
 //create transient
 TrigElectronContainer* TrigElectronContainerCnv::createTransient() 
 {
-    MsgStream mlog(messageService(), "TrigElectronContainerConverter" );
-    mlog << MSG::DEBUG << "TrigElectronContainerCnv::createTransient" << endreq;
+    MsgStream mlog(msgSvc(), "TrigElectronContainerConverter" );
+    mlog << MSG::DEBUG << "TrigElectronContainerCnv::createTransient" << endmsg;
 
     static pool::Guid p3_guid("F2E0066A-3BC5-44F2-A18C-57C63481988D");
     static pool::Guid tlp2_guid("2EDB14B9-0B61-4014-90C2-20AEB7AAFEBE");
