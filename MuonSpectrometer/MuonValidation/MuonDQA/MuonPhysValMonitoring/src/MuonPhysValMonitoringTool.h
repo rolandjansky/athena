@@ -129,6 +129,7 @@ class MuonPhysValMonitoringTool
   std::string m_muonsTruthName;
   std::string m_muonTracksName;
   std::string m_muonExtrapolatedTracksName;
+  std::string m_muonMSOnlyExtrapolatedTracksName;
   std::string m_muonSegmentsName;
   std::string m_muonSegmentsTruthName;
   std::string m_muonL1TrigName;
@@ -178,6 +179,7 @@ class MuonPhysValMonitoringTool
   std::vector<TriggerMuonValidationPlots*> m_TriggerMuonValidationPlots;
   std::vector<MuonTrackValidationPlots*> m_muonMSTrackValidationPlots;
   std::vector<MuonTrackValidationPlots*> m_muonMETrackValidationPlots;
+  std::vector<MuonTrackValidationPlots*> m_muonMSOnlyMETrackValidationPlots;
   std::vector<MuonTrackValidationPlots*> m_muonIDTrackValidationPlots;
   std::vector<MuonTrackValidationPlots*> m_muonIDSelectedTrackValidationPlots;
   std::vector<MuonTrackValidationPlots*> m_muonIDForwardTrackValidationPlots;

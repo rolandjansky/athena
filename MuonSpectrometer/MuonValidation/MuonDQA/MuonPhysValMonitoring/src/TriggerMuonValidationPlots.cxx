@@ -5,8 +5,7 @@
 #include "TriggerMuonValidationPlots.h"
 #include "MuonHistUtils/MuonEnumDefs.h"
 TriggerMuonValidationPlots::TriggerMuonValidationPlots(PlotBase* pParent, std::string sDir,std::vector<unsigned int> authors, bool isData, bool doTrigMuonL1Validation, bool doTrigMuonL2Validation, bool doTrigMuonEFValidation, std::vector<std::vector<std::string>> ChainSeed, std::vector<std::string> L1MuonItems):
-  PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_isData(isData), m_doTrigMuonL1Validation(doTrigMuonL1Validation), m_doTrigMuonL2Validation(doTrigMuonL2Validation), m_doTrigMuonEFValidation(doTrigMuonEFValidation), m_ChainSeed(ChainSeed), m_L1MuonItems(L1MuonItems)
-
+  PlotBase(pParent, sDir),  m_selectedAuthors(authors), m_oL1TriggerMuonPlots(NULL), m_isData(isData), m_doTrigMuonL1Validation(doTrigMuonL1Validation), m_doTrigMuonL2Validation(doTrigMuonL2Validation), m_doTrigMuonEFValidation(doTrigMuonEFValidation), m_ChainSeed(ChainSeed), m_L1MuonItems(L1MuonItems)
 {
   for (unsigned int i=0; i<m_ChainSeed.size(); i++){
     m_chains.push_back(m_ChainSeed[i][0]);
