@@ -67,13 +67,13 @@ include("TrigInDetValidation/TrigInDetValidation_RTT_Common.py")
 
 
 
-if 'doFTK' in dir() and doFTK==True:
+#if 'doFTK' in dir() and doFTK==True:
 ##  ServiceMgr.TrigFTK_DataProviderSvc.OutputLevel=DEBUG
-  ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotX= -0.0497705
-  ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotY=1.06299
-  ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotZ = 0.0
-  ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotTiltX= 0.0 # -1.51489e-05
-  ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotTiltY= 0.0 # -4.83891e-05
+#  ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotX= -0.0497705
+#  ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotY=1.06299
+#  ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotZ = 0.0
+#  ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotTiltX= 0.0 # -1.51489e-05
+#  ServiceMgr.TrigFTK_DataProviderSvc.TrainingBeamspotTiltY= 0.0 # -4.83891e-05
 ##  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon.OutputLevel=DEBUG
 ##  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon_IDTrig.FTK_Mode=True
 ##  topSequence.TrigSteer_HLT.TrigFastTrackFinder_Muon_IDTrig.FTK_Refit=False

@@ -84,6 +84,7 @@
 #     include   "TrigInDetValidation_FTK_mu_ttbar.xml"
 #     include   "TrigInDetValidation_FTK_tau_tautau.xml"
 #     include   "TrigInDetValidation_FTK_bjet_ttbar.xml"
+#     include   "TrigInDetValidation_FTK_beamspot_ttbar.xml"
 
       </jobList>
 
@@ -155,6 +156,8 @@
 
             <keepFilePattern>HLT-plots-PrmVtx/STAR.p*</keepFilePattern>
           
+            <keepFilePattern>HLTL2-plots-beamspot/STAR.p*</keepFilePattern>
+
             <keepFilePattern>costMonitoring*/STAR</keepFilePattern>
             <keepFilePattern>costMonitoring*/csv/STAR</keepFilePattern>
 
