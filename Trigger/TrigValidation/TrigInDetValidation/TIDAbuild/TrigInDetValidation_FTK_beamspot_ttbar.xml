@@ -1,13 +1,13 @@
-         <athena trendId='all_pu46' userJobId='TrigInDetValidation_beamspot_ttbar_pu46'>
-            <doc>BeamSpot slice, ttbar events, pu46, run2 chains</doc>
-            <displayName>BeamSpot slice, ttbar, pu46, run2 chains</displayName>
-	    <commandLineFlags>EventMax=1000;runMergedChain=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
+         <athena trendId='all_pu46' userJobId='TrigInDetValidation_FTK_beamspot_ttbar'>
+            <doc>BeamSpot slice, ttbar events, FTK, pu46, run2 chains</doc>
+            <displayName>BeamSpot slice, ttbar, FTK, pu46, run2 chains</displayName>
+	    <commandLineFlags>EventMax=1000;runMergedChain=True;doFTK=True;rec.doFloatingPointException.set_Value_and_Lock(False)</commandLineFlags>
             <options>TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BeamspotSlice</options>
             <package>Trigger/TrigValidation/TrigInDetValidation</package>
             <group>TrigInDetValidation</group>
             <queue>long</queue>
 
-#          include "samples/TrigInDetValidation_ttbar_sample1.xml"
+#          include "samples/TrigInDetValidation_FTK_ttbar_sample2.xml"
 	   
             <action position="01">
                 <modulename>RttLibraryTools</modulename>
@@ -18,7 +18,7 @@
                 </arg>
                 <arg>
                     <argname>exeParamString</argname>
-                    <argvalue>TIDAdata11-rtt.dat  -f data-all.root -b Test_bin.dat  </argvalue>
+                    <argvalue>TIDAdata11-rtt.dat  -f data-beamspot-FTK.root -b Test_bin.dat  </argvalue>
                 </arg>
             </action>
 
@@ -31,7 +31,7 @@
               </arg>
               <arg> 
                 <argname>exeParamString</argname>
-                <argvalue>data-all.root data-beamspot_ttbar_pu46-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF -d HLTL2-plots-beamspot  </argvalue>
+                <argvalue>data-beamspot-FTK.root data-FTK_beamspot_ttbar-reference.root HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTF  HLT_beamspot_allTE_trkfast_InDetTrigTrackingxAODCnv_BeamSpot_FTK -d HLTL2-plots-beamspot  </argvalue>
               </arg>
             </action>
 
@@ -52,8 +52,8 @@
             </testToRemove>
 
 
-            <auxFilePattern>data-beamspot_ttbar_pu46-reference.root</auxFilePattern>
-            <auxFilePattern>expert-monitoring-beamspot_ttbar_pu46-ref.root</auxFilePattern>
+            <auxFilePattern>data-FTK_beamspot_ttbar-reference.root</auxFilePattern>
+            <auxFilePattern>expert-monitoring-FTK_beamspot_ttbar-ref.root</auxFilePattern>
 #           include "TrigInDetValidation_aux.xml"
 
    
