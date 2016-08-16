@@ -632,6 +632,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
               }
          }
      }
+
      for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
               histTitle = m_stationNames[station] + "_f_SB_" + m_trigConditions[trgCond];
@@ -646,6 +647,22 @@ StatusCode TrigALFAROBMonitor::beginRun() {
               }
          }
      }
+
+     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
+         for (uint32_t station = 0; station < 8; station++) {
+              histTitle = m_stationNames[station] + "_current_" + m_trigConditions[trgCond];
+              m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
+                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
+              if (m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station]) {
+                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/current/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
+                        m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station]).isFailure() ) {
+                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
+                                   << (m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station])->GetName());
+                 } 
+              }
+         }
+     }
+
      for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
               histTitle = m_stationNames[station] + "_1_" + m_trigConditions[trgCond];
@@ -660,6 +677,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
               }
          }
      }
+
      for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
               histTitle = m_stationNames[station] + "_10_" + m_trigConditions[trgCond];
@@ -674,20 +692,7 @@ StatusCode TrigALFAROBMonitor::beginRun() {
               }
          }
      }
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-              histTitle = m_stationNames[station] + "_10_SB_" + m_trigConditions[trgCond];
-              m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station] = new TH2F (histTitle.c_str(), (histTitle).c_str(),
-                                                                                    260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station]) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset10LB_SB/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station]).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " 
-                                   << (m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station])->GetName());
-                 }
-              }
-         }
-     }
+
      for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
               histTitle = m_stationNames[station] + "_60_" + m_trigConditions[trgCond];
@@ -740,13 +745,13 @@ StatusCode TrigALFAROBMonitor::beginRun() {
      }
      for (uint32_t iStation = 0; iStation < 4; iStation++) {
        for (uint32_t iSide=0; iSide<2; iSide++) {
-         histTitle = "RP_" + std::to_string(iStation+1) + "_" + std::to_string(iSide) + " distance";
-         m_hist_DistStation[iStation][iSide] = new TH1F (histTitle.c_str(), (histTitle).c_str(), 401.,-20.05,20.05);
-         if (m_hist_DistStation[iStation][iSide]) {
-             if( m_rootHistSvc->regHist(m_pathHisto + "OD/"+ m_stationNames[iStation] + "/" + (m_hist_DistStation[iStation][iSide])->GetName(),                   
-                     m_hist_DistStation[iStation][iSide]).isFailure() ) {
+         histTitle = "Distance_" + std::to_string(2*iStation+1) + "_" + std::to_string(2*iStation+2) + "_side_" + std::to_string(iSide);
+         m_hist_DistStation[2*iStation][iSide] = new TH1F (histTitle.c_str(), (histTitle).c_str(), 401.,-20.05,20.05);
+         if (m_hist_DistStation[2*iStation][iSide]) {
+             if( m_rootHistSvc->regHist(m_pathHisto + "OD/"+ m_stationNames[2*iStation] + "/" + (m_hist_DistStation[2*iStation][iSide])->GetName(),                   
+                     m_hist_DistStation[2*iStation][iSide]).isFailure() ) {
                      ATH_MSG_WARNING("Can not register ALFA PMT monitoring histogram: "  
-                                 << (m_hist_DistStation[iStation][iSide])->GetName());
+                                 << (m_hist_DistStation[2*iStation][iSide])->GetName());
              }
          }
   
@@ -1205,18 +1210,9 @@ void TrigALFAROBMonitor::reset1LBhistos(int lbNumber) {
      ATH_MSG_INFO ("reset 1LB histos: " << m_LB);
      for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
-              std::string histTitle = m_stationNames[station] + "_LB_" + ost_LB.str() + "_"+ m_trigConditions[trgCond];
-              TH2F* aHisto = new TH2F (histTitle.c_str(), (histTitle).c_str(), 260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (aHisto) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset1LB/LB_" + ost_LB.str() + "/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        aHisto).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " << aHisto->GetName());
-                 } else {
-                       ATH_MSG_INFO ("copying histogram "<<(m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station])->GetName()<< " to "<<aHisto->GetName());
-                       aHisto->Add(m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station]);
-                       (m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station])->Reset();
-                 } 
-              }
+              (m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station])->Reset();
+              (m_hist_ALFA_trig_validated_tracks_1LB[trgCond][station])->Add(m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station]);
+              (m_hist_ALFA_trig_validated_tracks_1LB_current[trgCond][station])->Reset();
          }
      }
 }
@@ -1226,37 +1222,10 @@ void TrigALFAROBMonitor::reset10LBhistos(int lbNumber) {
      std::ostringstream ost_LB;
 
      ost_LB << lbNumber-10 << "-"<<lbNumber;
-     ATH_MSG_INFO ("reset 10LB histos: " << m_LB);
+     ATH_MSG_INFO ("reset 10LB histos: " << ost_LB);
      for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
-              std::string histTitle = m_stationNames[station] + "_LB_" + ost_LB.str() + "_"+ m_trigConditions[trgCond];
-              TH2F* aHisto = new TH2F (histTitle.c_str(), (histTitle).c_str(), 260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (aHisto) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset10LB/LB_" + ost_LB.str() + "/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        aHisto).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " << aHisto->GetName());
-                 } else {
-                       ATH_MSG_INFO ("copying histogram "<<(m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station])->GetName()<< " to "<<aHisto->GetName());
-                       aHisto->Add(m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station]);
-                       (m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station])->Reset();
-                 } 
-              }
-         }
-     }
-     for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
-         for (uint32_t station = 0; station < 8; station++) {
-              std::string histTitle = m_stationNames[station] + "_SB_LB_" + ost_LB.str() + "_"+ m_trigConditions[trgCond];
-              TH2F* aHisto = new TH2F (histTitle.c_str(), (histTitle).c_str(), 260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (aHisto) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset10LB_SB/LB_" + ost_LB.str() + "/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        aHisto).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " << aHisto->GetName());
-                 } else {
-                       ATH_MSG_INFO ("copying histogram "<<(m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station])->GetName()<< " to "<<aHisto->GetName());
-                       aHisto->Add(m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station]);
-                       (m_hist_ALFA_trig_validated_tracks_10LB_SB[trgCond][station])->Reset();
-                 } 
-              }
+             (m_hist_ALFA_trig_validated_tracks_10LB[trgCond][station])->Reset();
          }
      }
 }
@@ -1266,21 +1235,10 @@ void TrigALFAROBMonitor::reset60LBhistos(int lbNumber) {
      std::ostringstream ost_LB;
 
      ost_LB << lbNumber-60 << "-"<<lbNumber;
-     ATH_MSG_INFO ("reset 60LB histos: " << m_LB);
+     ATH_MSG_INFO ("reset 60LB histos: " << ost_LB);
      for (uint32_t trgCond = 0; trgCond < 12; trgCond++) {
          for (uint32_t station = 0; station < 8; station++) {
-              std::string histTitle = m_stationNames[station] + "_LB_" + ost_LB.str() + "_"+ m_trigConditions[trgCond];
-              TH2F* aHisto = new TH2F (histTitle.c_str(), (histTitle).c_str(), 260,-23,23,175,m_y_min[station%2],m_y_max[station%2]); 
-              if (aHisto) {
-                 if( m_rootHistSvc->regHist(m_pathHisto + "tracking/reset60LB/LB_" + ost_LB.str() + "/" + m_trigConditions[trgCond] + "/" + m_stationNames[station] , 
-                        aHisto).isFailure() ) {
-                       ATH_MSG_WARNING("Can not register ALFA tracking histogram: " << aHisto->GetName());
-                 } else {
-                       ATH_MSG_INFO ("copying histogram "<<(m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station])->GetName()<< " to "<<aHisto->GetName());
-                       aHisto->Add(m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station]);
-                       (m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station])->Reset();
-                 } 
-              }
+            (m_hist_ALFA_trig_validated_tracks_60LB[trgCond][station])->Reset();
          }
      }
 }
@@ -1430,12 +1388,11 @@ void TrigALFAROBMonitor::findALFATracks( LVL1CTP::Lvl1Result &resultL1 ) {
                                        int offset = (it->first)%32;
                                        if (itemsBP.at(word) & 1<<offset) {
                                              m_hist_ALFA_trig_validated_tracks[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
-                                             m_hist_ALFA_trig_validated_tracks_1LB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
+                                             m_hist_ALFA_trig_validated_tracks_1LB_current[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
                                              m_hist_ALFA_trig_validated_tracks_10LB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
                                              m_hist_ALFA_trig_validated_tracks_60LB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
                                              if (m_SBflag) {
                                                 m_hist_ALFA_trig_validated_tracks_SB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
-                                                m_hist_ALFA_trig_validated_tracks_10LB_SB[it->second][iDet]->Fill(x_Rec[iDet],y_Rec[iDet]);
                                              }
                                              //ATH_MSG_INFO ("found track in det: "<<iDet<<" item: "<<it->first<<" in word: "<<word<<" offset: "<<offset);
                     			}
@@ -1707,7 +1664,7 @@ void TrigALFAROBMonitor::findODTracks( ) {
             }
             //if (FoundTrack[0] && FoundTrack[1]){
             if( (m_ODtracks[iStation*2][iSide] < 0) && (m_ODtracks[iStation*2+1][iSide] < 0) ) {
-                 m_hist_DistStation[iStation][iSide]->Fill(-m_ODtracks[iStation*2][iSide] - m_ODtracks[iStation*2+1][iSide] + alfa_edge[iStation*2] + alfa_edge[iStation*2+1]);
+                 m_hist_DistStation[2*iStation][iSide]->Fill(-m_ODtracks[iStation*2][iSide] - m_ODtracks[iStation*2+1][iSide] + alfa_edge[iStation*2] + alfa_edge[iStation*2+1]);
             }
 
         }//end of iSide-loop

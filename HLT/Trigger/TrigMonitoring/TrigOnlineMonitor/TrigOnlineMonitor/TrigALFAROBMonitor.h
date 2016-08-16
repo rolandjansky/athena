@@ -91,10 +91,10 @@ private:
   BooleanProperty                  m_doALFATracking;
   TH2F*                            m_hist_ALFA_trig_validated_tracks[12][8]= {{0}}; //12 trigger condition &  8 alfa stations
   TH2F*                            m_hist_ALFA_trig_validated_tracks_1LB[12][8]= {{0}}; //reset after each LB
+  TH2F*                            m_hist_ALFA_trig_validated_tracks_1LB_current[12][8]= {{0}}; //reset after 60 LB
   TH2F*                            m_hist_ALFA_trig_validated_tracks_10LB[12][8]= {{0}}; //reset after 10 LBs
   TH2F*                            m_hist_ALFA_trig_validated_tracks_60LB[12][8]= {{0}}; //reset after 60 LB
   TH2F*                            m_hist_ALFA_trig_validated_tracks_SB[12][8]= {{0}}; //reset after 60 LB
-  TH2F*                            m_hist_ALFA_trig_validated_tracks_10LB_SB[12][8]= {{0}}; //reset after 60 LB
   BooleanProperty                  m_doPMFMonitoring;
   TH2F*                            m_hist_pmfMonitoring[8]={0};
   BooleanProperty                  m_doDataGoodMonitoring;
@@ -103,7 +103,7 @@ private:
   TH2F*                            m_hist_goodDataLB18;
   BooleanProperty                  m_doODDistance;
   TH1F*                            m_hist_PosDetector[8][2];
-  TH1F*                            m_hist_DistStation[4][2];
+  TH1F*                            m_hist_DistStation[8][2];
 
   bool                             m_FiberHitsODNeg[8][3][30], m_FiberHitsODPos[8][3][30];
 
