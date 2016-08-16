@@ -667,8 +667,14 @@ StatusCode TrigDataAccess::LoadCollections (
 				    << std::hex << m_tile[0] << std::dec << endreq;
 		  // Data seems corrupted
 		  m_error|=0x20000000;
-		  return StatusCode::SUCCESS;
-		} // End of if small size
+                  if ( !m_tilecell->cached(m_rIds[i])){
+                        // resets collection
+                        reset_TileCol(m_col);
+                  }
+                  m_robFrags.clear();
+                  Begin = m_col->begin();
+                  End = m_col->end();
+		} else  {// End of if small size
 		if ( !m_tilecell->cached(m_rIds[i]))
 		m_tiledecoder->fillCollectionHLT(m_robFrags[0],*m_col);
 		m_tiledecoder->mergeD0cellsHLT(*m_col);
@@ -677,6 +683,7 @@ StatusCode TrigDataAccess::LoadCollections (
                 Begin = m_col->begin();
                 End = m_col->end();
                 m_robFrags.clear();
+		}
 		}
 	//} // End of for through RobFrags
 
@@ -723,7 +730,13 @@ StatusCode TrigDataAccess::LoadMBTS (
                 if (roddatasize < 3) {
                   ATH_MSG_WARNING( "Error reading bytestream MBTS"<<
                                    "event: Empty ROD block (less than 3 words)" );
-		  return StatusCode::SUCCESS;
+                  if ( !m_tilecell->cached((*ids)[i])){
+                        // resets collection
+                        reset_TileCol(m_col);
+                  }
+                  m_robFrags.clear();
+                  continue;
+		  //return StatusCode::SUCCESS;
                 } // End of if small size
 		if ( !m_tilecell->cached((*ids)[i]))
                 m_tiledecoder->fillCollectionHLT(m_robFrags[0],*m_col);
@@ -990,8 +1003,15 @@ StatusCode TrigDataAccess::LoadFullCollections (
                                    << std::hex << m_tile[0] << std::dec );
 		  // Data seems corrupted
 		  m_error|=0x20000000;
-		  return StatusCode::SUCCESS;
-                } // End of if small size
+                  if ( !m_tilecell->cached(m_rIdstile[i])){
+                        // resets collection
+                        reset_TileCol(m_col);
+                  }
+                  m_robFrags.clear();
+                  Begin = m_col->begin();
+                  End = m_col->end();
+		  //return StatusCode::SUCCESS;
+                } else {// End of if small size
 		if ( !m_tilecell->cached(m_rIdstile[i]))
                 m_tiledecoder->fillCollectionHLT(m_robFrags[0],*m_col);
                 m_tiledecoder->mergeD0cellsHLT(*m_col);
@@ -1000,6 +1020,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 Begin = m_col->begin();
                 End = m_col->end();
                 m_robFrags.clear();
+		}
                 }
         //} // End of for through RobFrags
 
@@ -1281,7 +1302,12 @@ StatusCode TrigDataAccess::LoadFullCollections (
                                    << std::hex << m_tile[0] << std::dec );
 		  // Data seems corrupted 
 		  m_error|=0x20000000;
-		  return StatusCode::SUCCESS;
+		  if ( !m_tilecell->cached(m_rIdstile[i])){
+			// resets collection 
+			reset_TileCol(m_col);
+		  }
+                  m_robFrags.clear();
+		  continue;
                 } // End of if small size
                 if ( !m_tilecell->cached(m_rIdstile[i]))
                 m_tiledecoder->fillCollectionHLT(m_robFrags[0],*m_col);
@@ -1289,7 +1315,7 @@ StatusCode TrigDataAccess::LoadFullCollections (
                 // Accumulates superior byte from ROD Decoder
                 m_error|=m_tiledecoder->report_error();
                 m_robFrags.clear();
-                }
+                } 
         } 
 
 
