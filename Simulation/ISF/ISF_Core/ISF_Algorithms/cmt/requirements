@@ -19,6 +19,7 @@ use AtlasDetDescr        AtlasDetDescr-*         DetectorDescription
 use AtlasROOT            AtlasROOT-*             External
 use ISF_Event            ISF_Event-*             Simulation/ISF/ISF_Core
 use ISF_Interfaces       ISF_Interfaces-*        Simulation/ISF/ISF_Core
+use CxxUtils             CxxUtils-*              Control
 use PmbCxxUtils          PmbCxxUtils-*           Tools
 use InDetSimEvent        InDetSimEvent-*         InnerDetector
 use LArSimEvent          LArSimEvent-*           LArCalorimeter
@@ -27,6 +28,7 @@ use MuonSimEvent         MuonSimEvent-*          MuonSpectrometer
 use CxxUtils             CxxUtils-*              Control
 use StoreGate            StoreGate-*             Control
 use AtlasGoogleTest      AtlasGoogleTest-*       External
+use GeneratorObjects     GeneratorObjects-*      Generators
 
 public
 library ISF_Algorithms *.cxx components/*.cxx
@@ -40,7 +42,7 @@ use TestTools            TestTools-*             AtlasTest
 apply_pattern UnitTest_run unit_test=CollectionMerger extra_sources=../src/CollectionMerger.cxx
 
 
-# activate the following lines to compile this package with debug symbols
+# enable the following lines to compile this package with debug symbols
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
