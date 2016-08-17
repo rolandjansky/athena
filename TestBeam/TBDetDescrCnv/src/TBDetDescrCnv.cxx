@@ -8,7 +8,6 @@
  Copyright (C) 2004 by ATLAS Collaboration
  ***************************************************************************/
 
-//<<<<<< INCLUDES                                                       >>>>>>
 
 #include "TBDetDescrCnv/TBDetDescrCnv.h"
 
@@ -32,27 +31,17 @@
 
 #include <string>
 
-//<<<<<< PRIVATE DEFINES                                                >>>>>>
-//<<<<<< PRIVATE CONSTANTS                                              >>>>>>
-//<<<<<< PRIVATE TYPES                                                  >>>>>>
-//<<<<<< PRIVATE VARIABLE DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC VARIABLE DEFINITIONS                                    >>>>>>
-//<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
-//<<<<<< PRIVATE FUNCTION DEFINITIONS                                   >>>>>>
-//<<<<<< PUBLIC FUNCTION DEFINITIONS                                    >>>>>>
-//<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
-
 StatusCode
 TBDetDescrCnv::initialize()
 {
     // First call parent init
     StatusCode sc = DetDescrConverter::initialize();
 
-    MsgStream log(messageService(), "TBDetDescrCnv");
-    log << MSG::INFO << "in initialize" << endreq;
+    MsgStream log(msgSvc(), "TBDetDescrCnv");
+    log << MSG::INFO << "in initialize" << endmsg;
 
     if (sc.isFailure()) {
-        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
+        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
         return sc;
     }
 
@@ -64,8 +53,8 @@ TBDetDescrCnv::initialize()
 StatusCode
 TBDetDescrCnv::finalize()
 {
-    MsgStream log(messageService(), "TBDetDescrCnv");
-    log << MSG::INFO << "in finalize" << endreq;
+    MsgStream log(msgSvc(), "TBDetDescrCnv");
+    log << MSG::INFO << "in finalize" << endmsg;
 
     return StatusCode::SUCCESS;
 }
@@ -76,27 +65,27 @@ StatusCode
 TBDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
 {
   //StatusCode sc = StatusCode::SUCCESS;
-  MsgStream log(messageService(), "TBDetDescrCnv");
+  MsgStream log(msgSvc(), "TBDetDescrCnv");
   log << MSG::INFO
       << "in createObj: creating a TBDetDescrManager object in the detector store"
-      << endreq;
+      << endmsg;
 
   // Create a new TBDetDescrManager
 
   DetDescrAddress* ddAddr;
   ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
   if(!ddAddr) {
-    log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
+    log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Get the StoreGate key of this container.
   std::string mgrKey  = *( ddAddr->par() );
   if ("" == mgrKey) {
-    log << MSG::DEBUG << "No Manager key " << endreq;
+    log << MSG::DEBUG << "No Manager key " << endmsg;
   }
   else {
-    log << MSG::DEBUG << "Manager key is " << mgrKey << endreq;
+    log << MSG::DEBUG << "Manager key is " << mgrKey << endmsg;
   }
 
   // Create the manager
@@ -137,12 +126,12 @@ TBDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
         TBmgr->setElement(TBElement(id,name,positionEigen,rotationEigen));
         log << MSG::DEBUG
             << (std::string)TBmgr->getElement(id)
-            << endreq;
+            << endmsg;
 
       } else {
         log << MSG::DEBUG
             << "TBElement '" << name << "' not found among G4 volumes"
-            << endreq;
+            << endmsg;
       }
     }
   }
@@ -176,8 +165,8 @@ TBDetDescrCnv::TBDetDescrCnv(ISvcLocator* svcloc)
     :
     DetDescrConverter(ClassID_traits<TBDetDescrManager>::ID(), svcloc)
 {
-  MsgStream log(messageService(), "TBDetDescrCnv");
+  MsgStream log(msgSvc(), "TBDetDescrCnv");
   log << MSG::DEBUG
       << "in TBDetDescrCnv::TBDetDescrCnv "
-      << endreq;
+      << endmsg;
 }
