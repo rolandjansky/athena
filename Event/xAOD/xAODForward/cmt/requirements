@@ -1,4 +1,5 @@
 package xAODForward
+# $Id: requirements 766963 2016-08-08 20:07:09Z ggach $
 
 author Libor Nozka <libor.nozka@cern.ch>
 author Peter Steinberg <peter.steinberg@bnl.gov>
@@ -10,7 +11,8 @@ public
 use AtlasPolicy             AtlasPolicy-*
 
 use AthContainers           AthContainers-*           Control
-
+use AthLinks                AthLinks-*                Control
+# use xAODBase		    xAODBase-*                Event/xAOD
 use xAODCore                xAODCore-*                Event/xAOD
 use xAODTrigL1Calo	    xAODTrigL1Calo-*	      Event/xAOD
 
@@ -18,8 +20,6 @@ library xAODForward ../Root/*.cxx
 apply_pattern installed_library
 
 private
-
-use AthLinks                AthLinks-*                Control
 use AtlasReflex             AtlasReflex-*             External
 use AtlasROOT               AtlasROOT-*               External
 

@@ -13,3 +13,7 @@
 #include "xAODForward/MBTSModuleContainer.h"
 #include "xAODForward/AFPDataAuxContainer.h"
 
+#include "xAODForward/AFPSiHitContainer.h"
+#include "xAODForward/AFPSiHitAuxContainer.h"
+#include "xAODForward/AFPTrackContainer.h"
+#include "xAODForward/AFPTrackAuxContainer.h"
