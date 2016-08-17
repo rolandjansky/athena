@@ -5,9 +5,6 @@
 	<class name="std::vector<L1CaloPedestal*>" />
 	<class name="L1CaloPedestal" />
 
-	<class name="L1CaloPprLutContainer" id="2751F38C-212B-4277-AC27-8B20E8D0DE10" >
-	</class>
-
 	<class name="L1CaloEnergyScanResultsContainer" id="0584D299-E798-4263-8E9D-F1523B7FDDE7" />
 	<class name="L1CaloEnergyScanResultsContainer::const_iterator" />
 	<class name="std::pair<const unsigned int,L1CaloEnergyScanResults>" />
@@ -40,4 +37,28 @@
 
 	<class name="std::map<unsigned int, L1CaloPprDisabledChannel>" />
 	<class name="std::map<unsigned int, L1CaloPprDisabledChannel>::const_iterator" />
+
+	<class name="L1CaloPprChanCalib" />
+	<class name="L1CaloPprChanCalibContainer::const_iterator" />
+	<class name="L1CaloPprChanCalibContainer" id="AEBB9DC5-958B-4303-92BD-F997D53DC7C8" />
+
+	<class name="L1CaloPprChanCalibV1Container" id="9B84E4F4-9924-4838-868F-C332D01D5B1E" />
+	<class name="L1CaloPprChanCalibV1Container::const_iterator" />
+	<class name="L1CaloPprChanCalibV1" />
+
+	<class name="L1CaloPprChanDefaultsContainer" id="D3DE8752-1D9E-463A-9068-060BD94F3DB9" />
+	<class name="L1CaloPprChanDefaultsContainer::const_iterator" />
+	<class name="L1CaloPprChanDefaults" />
+
+	<class name="L1CaloPprChanDefaultsV1" />
+	<class name="L1CaloPprChanDefaultsV1Container::const_iterator" />
+	<class name="L1CaloPprChanDefaultsV1Container" id="4417FBEF-1E92-4F95-A92E-45E357FB8C81" />
+
+	<class name="L1CaloPpmDeadChannelsContainer" id="4C5F22E1-62E1-46AC-B4B6-7782E5C6FAE0" />
+	<class name="L1CaloPpmDeadChannelsContainer::const_iterator" />
+	<class name="L1CaloPpmDeadChannels" />
+
+	<class name="L1CaloDisabledTowersContainer" id="C3641506-70A4-4F96-844C-6B7B74F8A48C" />
+	<class name="L1CaloDisabledTowersContainer::const_iterator" />
+	<class name="L1CaloDisabledTowers" />
 </lcgdict>
