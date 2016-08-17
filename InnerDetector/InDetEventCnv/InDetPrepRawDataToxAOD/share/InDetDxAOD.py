@@ -418,6 +418,8 @@ if dumpTruthInfo:
     IDTRKVALIDStream.AddItem("xAOD::TruthVertexAuxContainer#*")
     IDTRKVALIDStream.AddItem("xAOD::TruthEventContainer#*")
     IDTRKVALIDStream.AddItem("xAOD::TruthEventAuxContainer#*")
+    IDTRKVALIDStream.AddItem("xAOD::TruthPileupEventContainer#*")
+    IDTRKVALIDStream.AddItem("xAOD::TruthPileupEventAuxContainer#*")
     # add pseudo tracking in xAOD
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleContainer#InDetPseudoTrackParticles")
     IDTRKVALIDStream.AddItem("xAOD::TrackParticleAuxContainer#InDetPseudoTrackParticlesAux."+excludedAuxData)
