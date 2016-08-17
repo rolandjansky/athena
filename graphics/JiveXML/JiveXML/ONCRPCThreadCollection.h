@@ -45,9 +45,9 @@ namespace JiveXML{
       
     private:
       //mutex to assure no conflicts when adding/removing threads
-      pthread_mutex_t mutex;
+      pthread_mutex_t m_mutex;
       //Semaphore to assure we add all threads
-      sem_t  semaphore;
+      sem_t  m_semaphore;
   };
 
 }

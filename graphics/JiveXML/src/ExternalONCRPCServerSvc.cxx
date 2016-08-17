@@ -16,8 +16,7 @@ namespace JiveXML {
    */
   ExternalONCRPCServerSvc::ExternalONCRPCServerSvc( const std::string& name, ISvcLocator* sl) :
     base_class ( name, sl ),
-    m_client(NULL),
-    log(msgSvc(),name)
+    m_client(NULL)
   {
       //declare properties
       declareProperty("Hostname",m_hostName="localhost","The name of the host the external server is running on [ default: \"localhost\" ]");
@@ -28,7 +27,7 @@ namespace JiveXML {
    * Destructor 
    */
   ExternalONCRPCServerSvc::~ExternalONCRPCServerSvc(){
-      log << MSG::VERBOSE << "Destructor() " << endreq;
+    ATH_MSG_VERBOSE( "Destructor() "  );
   }
 
   /**
@@ -36,14 +35,14 @@ namespace JiveXML {
    * - create server
    */
   StatusCode ExternalONCRPCServerSvc::initialize() {
-    log << MSG::VERBOSE << "Initialize()" << endreq; 
+    ATH_MSG_VERBOSE( "Initialize()"  );
     
     //Initialize Service base
     if (Service::initialize().isFailure()) return StatusCode::FAILURE;
     
      //Initialize message stream level
-    log.setLevel(outputLevel());
-    log << MSG::VERBOSE << "Output level is set to " << (int)log.level() << endreq;
+    msg().setLevel(outputLevel());
+    ATH_MSG_VERBOSE( "Output level is set to " << (int)msg().level()  );
 
     /**
      * Try preemtivly creating a client right here - but ignore the result
@@ -60,7 +59,7 @@ namespace JiveXML {
    */
   StatusCode ExternalONCRPCServerSvc::GetClient(){
 
-    log << MSG::VERBOSE << "GetClient()" << endreq;
+    ATH_MSG_VERBOSE( "GetClient()"  );
 
     //Try to create client if not there yet
 #ifndef __APPLE__
@@ -71,7 +70,7 @@ namespace JiveXML {
 #endif    
     //Fail if we still don't have a client
     if (!m_client){
-      log << MSG::WARNING << "Unable to create client for server on host " << m_hostName << " using TCP/IP " << endreq;
+      ATH_MSG_WARNING( "Unable to create client for server on host " << m_hostName << " using TCP/IP "  );
       return StatusCode::FAILURE;
     }
 
@@ -81,7 +80,7 @@ namespace JiveXML {
 
     //And check for the result
     if (ret != RPC_SUCCESS){
-      log << MSG::WARNING << "Failed calling the server on host " << m_hostName << " : " << clnt_sperrno(ret) << endreq;
+      ATH_MSG_WARNING( "Failed calling the server on host " << m_hostName << " : " << clnt_sperrno(ret)  );
       //Also destroy the client in this case - otherwise we might be stranded
       //with an invalid client object
       ReleaseClient().ignore();
@@ -90,7 +89,7 @@ namespace JiveXML {
     } 
 
     //Be verbose on success
-    log << MSG::VERBOSE << "Successfully connected to server on host " << m_hostName << endreq;
+    ATH_MSG_VERBOSE( "Successfully connected to server on host " << m_hostName  );
 
     return StatusCode::SUCCESS;
   }
@@ -129,7 +128,7 @@ namespace JiveXML {
    */
   StatusCode ExternalONCRPCServerSvc::finalize() {
 
-    log << MSG::VERBOSE << "Finalize()" << endreq; 
+    ATH_MSG_VERBOSE( "Finalize()"  );
 
     /**
      * Release the client
@@ -145,11 +144,11 @@ namespace JiveXML {
    */
   StatusCode ExternalONCRPCServerSvc::UpdateEventForStream( const EventStreamID evtStreamID, const std::string & eventStr) {
  
-    log << MSG::VERBOSE << "UpdateEventForStream()" << endreq;
+    ATH_MSG_VERBOSE( "UpdateEventForStream()"  );
 
     //Check that the event stream id is valid
     if (!evtStreamID.isValid()){
-      log << MSG::ERROR << "Invalid event stream identifier - cannot add event" << endreq;
+      ATH_MSG_ERROR( "Invalid event stream identifier - cannot add event"  );
       return StatusCode::FAILURE;
     }
 
@@ -163,17 +162,17 @@ namespace JiveXML {
     event.NBytes = strlen(eventStr.c_str())+1;
     event.EventData = strdup(eventStr.c_str());
 
-    log << MSG::VERBOSE << "Created event structure for event " << event.EventNumber 
-                        << " from run " << event.RunNumber 
-                        << " to be put in stream " << event.StreamName 
-                        << " with " << event.NBytes << " bytes" << endreq;
+    ATH_MSG_VERBOSE( "Created event structure for event " << event.EventNumber 
+                     << " from run " << event.RunNumber 
+                     << " to be put in stream " << event.StreamName 
+                     << " with " << event.NBytes << " bytes"  );
 
     //Try to get a client
     if (GetClient().isFailure()) {
-      log << MSG::WARNING << "Failed obtaining a client for sever on host " << m_hostName << endreq;
-      log << MSG::WARNING << " while updating stream " << evtStreamID.StreamName()
-                          << " with event " << evtStreamID.EventNumber() 
-                          << " from run " << evtStreamID.RunNumber() << endreq;
+      ATH_MSG_WARNING( "Failed obtaining a client for sever on host " << m_hostName  );
+      ATH_MSG_WARNING( " while updating stream " << evtStreamID.StreamName()
+                       << " with event " << evtStreamID.EventNumber() 
+                       << " from run " << evtStreamID.RunNumber()  );
       return StatusCode::FAILURE;
     }
 
@@ -184,27 +183,27 @@ namespace JiveXML {
 
     //And check for the result
     if (ret != RPC_SUCCESS){
-      log << MSG::WARNING << "Failed calling the server on host " << m_hostName << " : " << clnt_sperrno(ret) << endreq; 
-      log << MSG::WARNING << " while updating stream " << evtStreamID.StreamName()
-                          << " with event " << evtStreamID.EventNumber() 
-                          << " from run " << evtStreamID.RunNumber() << endreq;
+      ATH_MSG_WARNING( "Failed calling the server on host " << m_hostName << " : " << clnt_sperrno(ret)  );
+      ATH_MSG_WARNING( " while updating stream " << evtStreamID.StreamName()
+                       << " with event " << evtStreamID.EventNumber() 
+                       << " from run " << evtStreamID.RunNumber()  );
       return StatusCode::FAILURE;
     } 
 
     //Check if the server managed to update the event from return value
     if (!isSuccess){
-      log << MSG::WARNING << "Server on host " << m_hostName << " returned failure " << endreq; 
-      log << MSG::WARNING << " while updating stream " << evtStreamID.StreamName()
-                          << " with event " << evtStreamID.EventNumber() 
-                          << " from run " << evtStreamID.RunNumber() << endreq;
+      ATH_MSG_WARNING( "Server on host " << m_hostName << " returned failure "  );
+      ATH_MSG_WARNING( " while updating stream " << evtStreamID.StreamName()
+                       << " with event " << evtStreamID.EventNumber() 
+                       << " from run " << evtStreamID.RunNumber()  );
       return StatusCode::FAILURE;
     } 
 
     //Be verbose on success
-    log << MSG::DEBUG << "Server on host " << m_hostName << " returned success "<< endreq;
-    log << MSG::DEBUG << " while updating stream " << evtStreamID.StreamName()
-                        << " with event " << evtStreamID.EventNumber() 
-                        << " from run " << evtStreamID.RunNumber() << endreq;
+    ATH_MSG_DEBUG( "Server on host " << m_hostName << " returned success " );
+    ATH_MSG_DEBUG( " while updating stream " << evtStreamID.StreamName()
+                   << " with event " << evtStreamID.EventNumber() 
+                   << " from run " << evtStreamID.RunNumber()  );
 
     //Finally free the memory allocated for the event structure
     xdr_free((xdrproc_t)xdr_event,(caddr_t)&event);

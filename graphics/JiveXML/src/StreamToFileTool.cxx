@@ -54,7 +54,7 @@ namespace JiveXML {
      StatusCode sc = NewFile(EventNumber,RunNumber,outFile);
      if (sc.isFailure()){
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not open file for event " 
-           << EventNumber << " from run " << RunNumber << endreq;
+           << EventNumber << " from run " << RunNumber << endmsg;
        return sc;
      }
 
@@ -64,7 +64,7 @@ namespace JiveXML {
      /// Check wether we could write the event
      if (!outFile->good()){
        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not write event " 
-           << EventNumber << " from run " << RunNumber << endreq;
+           << EventNumber << " from run " << RunNumber << endmsg;
        return StatusCode::FAILURE;
      }
      
@@ -105,7 +105,7 @@ namespace JiveXML {
 
       // check if it worked
       if ( !(outputFile->good()) ){
-        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to create output file with name " << filename << endreq;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to create output file with name " << filename << endmsg;
         return StatusCode::FAILURE;
       }
 
@@ -122,7 +122,7 @@ namespace JiveXML {
     
     //See if it worked
     if (!outputFile->good()){
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to close file" << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to close file" << endmsg;
     }
 
     //In any case delete object
