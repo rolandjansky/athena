@@ -23,8 +23,6 @@
 //#include "TrkEventPrimitives/Vector.h"
 #include "TrkExUtils/IntersectionSolution.h"
 #include "TrkExUtils/RungeKuttaUtils.h"
-//#include "TrkEventPrimitives/CurvilinearUVT.h"
-//#include "TrkEventPrimitives/JacobianCurvilinearToLocal.h"
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkExInterfaces/ITimedMatEffUpdator.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -768,9 +766,6 @@ const Trk::TrackParameters*
   // Bfield mode
   mft.magneticFieldMode()==2 ? m_solenoid     = true : m_solenoid     = false;  
   
-  // double mom = inputTrackParameters.parameters()[Trk::qOverP] != 0 ? 1./inputTrackParameters.parameters()[Trk::qOverP] : 0.;
-  // ATH_MSG_DEBUG(" propagateRungeKutta : " << m_solenoid << " tol " << m_tolerance << " momC " << m_momentumCutOff 
-  // 		<< " mom " <<  mom );
   //Check inputvalues
   if (m_tolerance <= 0.) return 0;
   if (m_momentumCutOff < 0.) return 0;
@@ -940,9 +935,6 @@ const Trk::TrackParameters*
       covarianceContribution( trackParameters, path, onTargetSurf, measurementCovariance);
   delete onTargetSurf;                   // the covariance matrix can be just added instead of recreating ?
 
-  //Create new error matrix
-  //Trk::ErrorMatrix* errorMatrix = new Trk::ErrorMatrix( measurementCovariance);
-
   if (trackParameters != &inputTrackParameters) delete trackParameters;
   return targetSurface.createTrackParameters(localp[0],localp[1],localp[2],localp[3],localp[4],measurementCovariance); 
 }
@@ -1014,21 +1006,11 @@ const Trk::TrackParameters*
     m_combinedThickness=0.;
   }
 
-/*
-  if (errorPropagation && m_includeBgradients) { //m_magneticFieldTool is only used to fetch the B-field gradients needed by the error propagation
-    m_magneticFieldTool = dynamic_cast<const Trk::IMagneticFieldTool*>(magneticFieldProperties.magneticFieldTool());
-  }
-*/
-
   Trk::RungeKuttaUtils rungeKuttaUtils;
-  //double P[45]; // Track parameters and jacobian; use curvilinear representation
-  if (!rungeKuttaUtils.transformLocalToGlobal( false, *trackParameters, P)) {
+  //double P[45]; // Track parameters and jacobian
+  if (!rungeKuttaUtils.transformLocalToGlobal( errorPropagation, *trackParameters, P)) {
     if (trackParameters != &inputTrackParameters) delete trackParameters;
     return 0;
-  } else if (errorPropagation) {
-    const AmgVector(5) &Vp = trackParameters->parameters();
-    double Tp[5] = {Vp[0], Vp[1], Vp[2], Vp[3], Vp[4]};
-    rungeKuttaUtils.transformCurvilinearToGlobal(Tp,P);
   }
 
   double path = 0.;
@@ -1042,8 +1024,6 @@ const Trk::TrackParameters*
   // Common transformation for all surfaces (angles and momentum)
   double localp[5];
   double Jacobian[21];
-  //std::vector<DestSurf>::iterator surfIter = targetSurfaces.begin();
-  //std::vector<DestSurf>::iterator surfBeg  = targetSurfaces.begin();
   while ( validStep ) { 
     // propagation to next surface
     validStep = propagateWithJacobian( errorPropagation, targetSurfaces, P, propagationDirection, solutions, path, totalPath);
@@ -1094,8 +1074,8 @@ const Trk::TrackParameters*
     while ( iSol != solutions.end() ) {  
       if ( targetSurfaces[*iSol].first->isOnSurface(gp,targetSurfaces[*iSol].second ,0.001,0.001) ) {
 	if (!solution) {
+	  rungeKuttaUtils.transformGlobalToLocal(P, localp);
           if (returnCurv || targetSurfaces[*iSol].first->type()==Trk::Surface::Cone) {
-	    rungeKuttaUtils.transformGlobalToLocal(P, localp);
 	    rungeKuttaUtils.transformGlobalToCurvilinear(errorPropagation,P,localp,Jacobian); 
           } else rungeKuttaUtils.transformGlobalToLocal(targetSurfaces[*iSol].first,errorPropagation,P,localp,Jacobian);
 	  solution = true;
@@ -1135,12 +1115,11 @@ const Trk::TrackParameters*
   AmgSymMatrix(5)* measurementCovariance = rungeKuttaUtils.newCovarianceMatrix(
     Jacobian, *trackParameters->covariance());
 
-
   //Calculate multiple scattering and straggling covariance contribution.
   if (m_matPropOK && (m_multipleScattering || m_straggling) && fabs(totalPath)>0.) {
-    if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  
+    if (returnCurv || targetSurfaces[solutions[0]].first->type()==Trk::Surface::Cone)  {
       covarianceContribution( trackParameters, totalPath, fabs( 1./P[6]), measurementCovariance);
-    else {
+    } else {
       covarianceContribution( trackParameters, totalPath, onTargetSurf, measurementCovariance);
     }
   }
@@ -2262,38 +2241,20 @@ void Trk::STEP_Propagator::covarianceContribution( const Trk::TrackParameters*  
 						   const Trk::TrackParameters*  targetParms,
 						   AmgSymMatrix(5)*       measurementCovariance) const
 {
-  if (m_material->zOverAtimesRho()==0) return; 
-  if (m_material->x0()==0 || m_material->averageZ()==0) return; 
-
   // kinematics
-  //double mom = trackParameters->parameters().mag();
-  double finalMomentum = targetParms->parameters().mag();
-  //double particleMass = s_particleMasses.mass[m_particle]; //Get particle mass from ParticleHypothesis
-  //double totalMomentumLoss = finalMomentum - mom;
+  double finalMomentum = targetParms->momentum().mag();
 
   // first update to make sure all material counted
   updateMaterialEffects(finalMomentum, sin(trackParameters->momentum().theta()), path );
-
-  //Set up curvilinear system in the direction of the initial momentum
-  //Trk::CurvilinearUVT curvilinearUVT( trackParameters->momentum().normalized());
-
+  
   Trk::RungeKuttaUtils rungeKuttaUtils;
   double Jac[21];
   rungeKuttaUtils.jacobianTransformCurvilinearToLocal(*targetParms,Jac);
-
-  //Calculate tranformation contributions when going from the curvilinear to the local system at the target surface
-  //takes into accout change of path/eloss for tilted target plane
-  //commented till recalculated for all surface types
-  // double E = sqrt( finalMomentum*finalMomentum + particleMass*particleMass);
-  // double dLambdads = -trackParameters->charge()*(totalMomentumLoss/fabs(path))*E/std::pow(finalMomentum, 3);
-  // jacobianCurvToLocal(4,0) = -(curvilinearUVT.curvU().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
-  // jacobianCurvToLocal(4,1) = -(curvilinearUVT.curvV().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
 
   //Transform multiple scattering and straggling covariance from curvilinear to local system
   AmgSymMatrix(5)* localMSCov = rungeKuttaUtils.newCovarianceMatrix(
       Jac, m_combinedCovariance+m_covariance );
 
-  //Add measurement errors and multiple scattering + straggling covariance
   *measurementCovariance += *localMSCov;
 
   delete localMSCov; 
