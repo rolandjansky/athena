@@ -13,9 +13,7 @@
 #include "TileConditions/TileCondToolOfc.h"
 #include "TileConditions/TileCondToolTiming.h"
 #include "TileConditions/TileCondToolEmscale.h"
-#include "TileConditions/TileCablingService.h"
-
-#include "CaloIdentifier/TileID.h"
+#include "TileConditions/TileCondToolDspThreshold.h"
 
 // Atlas includes
 #include "AthenaKernel/errorcheck.h"
@@ -33,11 +31,11 @@ TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
     const std::string& name, const IInterface* parent)
     : AthAlgTool(type, name, parent)
     , m_tileHWID(0)
-    , m_tileID(0)
     , m_tileToolNoiseSample("TileCondToolNoiseSample")
     , m_tileCondToolOfc("TileCondToolOfcCool/TileCondToolOfcCoolOF1")
     , m_tileToolTiming("TileCondToolTiming/TileCondToolOnlineTiming")
     , m_tileToolEms("TileCondToolEmscale")
+    , m_tileDspThreshold("TileCondToolDspThreshold")
 {
   declareInterface<ITileRawChannelTool>(this);
   declareInterface<TileRawChannelOF1Corrector>(this);
@@ -46,12 +44,11 @@ TileRawChannelOF1Corrector::TileRawChannelOF1Corrector(const std::string& type,
   declareProperty("TileCondToolOfc", m_tileCondToolOfc);
   declareProperty("TileCondToolTiming", m_tileToolTiming);
   declareProperty("TileCondToolEmscale", m_tileToolEms);
+  declareProperty("TileCondToolDspThreshold", m_tileDspThreshold);
 
   declareProperty("TileDigitsContainer", m_digitsContainerName = "TileDigitsCnt");
   declareProperty("ZeroAmplitudeWithoutDigits", m_zeroAmplitudeWithoutDigits = true);
-  declareProperty("NegativeAmplitudeThresholdToZero", m_negativeAmplitudeThreshold = -10);
-  declareProperty("PositiveAmplitudeThresholdToZero", m_positiveAmplitudeThreshold = 10);
-
+  declareProperty("CorrectPedestalDifference", m_correctPedestalDifference = true);
 }
 
 //========================================================
@@ -60,8 +57,6 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 
   ATH_MSG_INFO("Initializing...");
   
-  //=== TileCondToolEmscale
-  if (m_zeroAmplitudeWithoutDigits) CHECK( m_tileToolEms.retrieve() );
 
   const IGeoModelSvc* geoModel = 0;
   CHECK( service("GeoModelSvc", geoModel) );
@@ -86,16 +81,26 @@ StatusCode TileRawChannelOF1Corrector::initialize() {
 StatusCode TileRawChannelOF1Corrector::geoInit(IOVSVC_CALLBACK_ARGS) {
   
   CHECK( detStore()->retrieve(m_tileHWID) );
-  CHECK( detStore()->retrieve(m_tileID) );
 
-  //=== get TileCondToolOfc
-  CHECK( m_tileCondToolOfc.retrieve() );
 
-  //=== get TileCondToolNoiseSample
-  CHECK( m_tileToolNoiseSample.retrieve() );
+  if (m_correctPedestalDifference) {
+    //=== get TileCondToolOfc
+    CHECK( m_tileCondToolOfc.retrieve() );
 
-  //=== get TileToolTiming
-  CHECK( m_tileToolTiming.retrieve() );
+    //=== get TileCondToolNoiseSample
+    CHECK( m_tileToolNoiseSample.retrieve() );
+
+    //=== get TileToolTiming
+    CHECK( m_tileToolTiming.retrieve() );
+  }
+
+  //=== TileCondToolEmscale
+  if (m_zeroAmplitudeWithoutDigits) {
+    CHECK( m_tileToolEms.retrieve() );
+
+    //=== get TileToolTiming
+    CHECK( m_tileDspThreshold.retrieve() );
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -151,50 +156,44 @@ StatusCode TileRawChannelOF1Corrector::process(const TileRawChannelContainer* ra
         int channel = m_tileHWID->channel(adcId);
         int gain = m_tileHWID->adc(adcId);
 
-        float onlinePedestalDifference = m_tileToolNoiseSample->getOnlinePedestalDifference(drawerIdx, channel, gain, rawChannelUnit);
-        float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
-        const TileOfcWeightsStruct* weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, false);
-        float weightsSum(0.0);
-        for (int i = 0; i < weights->n_samples; ++i) weightsSum += weights->w_a[i];
-        float energyCorrection = onlinePedestalDifference * weightsSum;
-        ATH_MSG_VERBOSE( TileCalibUtils::getDrawerString(ros, drawer) 
-                         << " ch" << channel << (gain ? " HG: " : " LG: ")
-                         << "online pedestal difference: " << onlinePedestalDifference
-                         << "; OFC weights (a) sum: " << weightsSum
-                         << " => energy correction: " << energyCorrection);
+        if (m_correctPedestalDifference) {
 
-        rawChannel->setAmplitude(rawChannel->amplitude() + energyCorrection);
+          float onlinePedestalDifference = m_tileToolNoiseSample->getOnlinePedestalDifference(drawerIdx, channel, gain, rawChannelUnit);
+          float phase = -m_tileToolTiming->getSignalPhase(drawerIdx, channel, gain);
+          const TileOfcWeightsStruct* weights = m_tileCondToolOfc->getOfcWeights(drawerIdx, channel, gain, phase, false);
+          float weightsSum(0.0);
+          for (int i = 0; i < weights->n_samples; ++i) weightsSum += weights->w_a[i];
+          float energyCorrection = onlinePedestalDifference * weightsSum;
+          ATH_MSG_VERBOSE( TileCalibUtils::getDrawerString(ros, drawer) 
+                           << " ch" << channel << (gain ? " HG: " : " LG: ")
+                           << "online pedestal difference: " << onlinePedestalDifference
+                           << "; OFC weights (a) sum: " << weightsSum
+                           << " => energy correction: " << energyCorrection);
+          
+          rawChannel->setAmplitude(rawChannel->amplitude() + energyCorrection);
 
-        if (checkDigits) {
+        }
+
+        if (checkDigits && noDigits[channel]) {
+
           float amplitude = m_tileToolEms->undoOnlCalib(drawerIdx, channel, gain, rawChannel->amplitude(), rawChannelUnit);
-          if ((amplitude < m_negativeAmplitudeThreshold
-               || amplitude > m_positiveAmplitudeThreshold)
-              && noDigits[channel]) {
-
-            int index;
-            int pmt;
-            static const TileCablingService* s_cabling = TileCablingService::getInstance();
-            Identifier cell_id = s_cabling->h2s_cell_id_index(ros, drawer, channel, index, pmt);
-            
-            if (!cell_id.is_valid()) continue;
-            if (rawChannel->amplitude() < 0.0 ) {
-
-              int sample = m_tileID->sample(cell_id);              
-              bool single_PMT = ((index < -1) // MBTS and E4'
-                                 || (sample == TileID::SAMP_E) 
-                                 || (m_tileID->section(cell_id) == TileID::GAPDET 
-                                     && sample == TileID::SAMP_C
-                                     && !s_cabling->C10_connected(drawer)));
-              if (single_PMT) continue;
-            }
+          float minimuAmplitudeThreshold(-99999.0);
+          float maximumAmplitudeThreshold(99999.0);
+          m_tileDspThreshold->getAmplitudeThresholds(drawerIdx, channel, gain, minimuAmplitudeThreshold, maximumAmplitudeThreshold);
+          if (amplitude < minimuAmplitudeThreshold
+               || amplitude > maximumAmplitudeThreshold) 
+            {
 
             ATH_MSG_VERBOSE( TileCalibUtils::getDrawerString(ros, drawer) 
                              << " ch" << channel << (gain ? " HG:" : " LG:")
-                             << " amplitude: " << amplitude
-                             << " [ADC] without digits => set apmlitude/time/quality: 0.0/0.0/15.0");
+                             << " amplitude: " << amplitude << " [ADC]"
+                             << " outside range: " << minimuAmplitudeThreshold << ".." << maximumAmplitudeThreshold
+                             << " without digits => set apmlitude/time/quality: 0.0/0.0/15.0");
 
             rawChannel->insert(0.0F, 0.0F, 15.0F);
+
           }
+
         }
 
       }
