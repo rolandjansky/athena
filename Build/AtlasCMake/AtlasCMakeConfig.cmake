@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasCMakeConfig.cmake 746543 2016-05-12 11:31:22Z krasznaa $
+# $Id: AtlasCMakeConfig.cmake 756309 2016-06-20 15:39:40Z krasznaa $
 #
 # This file is used to make it possible to pull in the code of this package into
 # a top level CMake file using:
@@ -21,7 +21,7 @@
 
 # Print a status message that the file was found:
 if( NOT AtlasCMake_FIND_QUIETLY )
-   message( STATUS "AtlasCMake found with version: $Revision: 746543 $" )
+   message( STATUS "AtlasCMake found with version: $Revision: 756309 $" )
 endif()
 
 # Get the current directory:
@@ -43,7 +43,10 @@ set( ATLAS_DONT_PREPEND_PROJECT_MODULES TRUE
    CACHE BOOL "Prevent built projects from prepending to CMAKE_MODULE_PATH" )
 
 # Install the helper script(s) from the package:
-install( PROGRAMS ${_thisdir}/scripts/acmake.py DESTINATION bin )
+install( PROGRAMS ${_thisdir}/scripts/acmake.py
+   ${_thisdir}/scripts/cmakeNightlyInstall.sh
+   ${_thisdir}/scripts/cmakeReleaseInstall.sh
+   DESTINATION bin )
 install( DIRECTORY ${_thisdir}/cmt2cmake DESTINATION .
    USE_SOURCE_PERMISSIONS
    PATTERN ".*" EXCLUDE

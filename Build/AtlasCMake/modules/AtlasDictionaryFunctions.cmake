@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasDictionaryFunctions.cmake 744739 2016-05-04 08:23:56Z krasznaa $
+# $Id: AtlasDictionaryFunctions.cmake 767403 2016-08-11 07:16:59Z krasznaa $
 #
 # This file collects the ATLAS CMake helper functions that set up the build and
 # installation of ROOT dictionaries in an offline or analysis build.
@@ -93,8 +93,9 @@ function( atlas_add_dictionary libName libHeader libSelection )
    mark_as_advanced( _mergeFilesCmd _mergeSelectionsCmd )
 
    # If the user asked for additional DataLink<T> types to generate dictionaries
-   # for, set these up now:
-   foreach( type ${ARG_DATA_LINKS} )
+   # for, set these up now. Note that types listed as navigables, are also used
+   # here.
+   foreach( type ${ARG_DATA_LINKS} ${ARG_NAVIGABLES} )
       # Sanitise the type name:
       string( REPLACE ":" "_" typeSanitised ${type} )
       string( REPLACE "<" "_" typeSanitised ${typeSanitised} )
@@ -115,8 +116,9 @@ function( atlas_add_dictionary libName libHeader libSelection )
    endforeach()
 
    # If the user asked for additional ElementLink<T> types to generate
-   # dictionaries for, set these up now:
-   foreach( type ${ARG_ELEMENT_LINKS} )
+   # dictionaries for, set these up now. Note that types listed as navigables,
+   # are also used here.
+   foreach( type ${ARG_ELEMENT_LINKS} ${ARG_NAVIGABLES} )
       # Sanitise the type name:
       string( REPLACE ":" "_" typeSanitised ${type} )
       string( REPLACE "<" "_" typeSanitised ${typeSanitised} )
