@@ -18,6 +18,8 @@
 #include "eformat/SourceIdentifier.h"
 
 using eformat::helper::SourceIdentifier;
+using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+
 
 //================ Constructor =================================================
 

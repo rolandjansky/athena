@@ -55,7 +55,7 @@ void Muon::TgcROD_Encoder::fillROD(std::vector<uint32_t>& v)
   std::vector<uint32_t>::const_iterator it_e = t_vData.end();
   uint32_t iWord=0;
   if(debug) {
-    log << MSG::DEBUG << "************** dumping the words ************" << endreq;
+    log << MSG::DEBUG << "************** dumping the words ************" << endmsg;
   }
   for(; it!=it_e; ++it) {
     v.push_back(*it);
@@ -63,7 +63,7 @@ void Muon::TgcROD_Encoder::fillROD(std::vector<uint32_t>& v)
       log << MSG::DEBUG << "word " 
 	  << MSG::dec << std::setw(3) << iWord << " = " 
 	  << MSG::hex << std::setw(8) << *it 
-	  << endreq;
+	  << endmsg;
     }
     ++iWord;
   }

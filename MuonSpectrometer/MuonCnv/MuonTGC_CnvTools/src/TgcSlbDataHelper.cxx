@@ -99,7 +99,7 @@ void Muon::TgcSlbDataHelper::convertToHits(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertToHits :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit =false;
 	}
@@ -113,7 +113,7 @@ void Muon::TgcSlbDataHelper::convertToHits(uint16_t subDetectorId,
 		   << " sbLoc:" << slb->getSbLoc() 
 		   << " slbId:" << slb->getSlbId()
 		   << " bit#:" << ibit 
-		   << endreq;
+		   << endmsg;
 	}
       } //endif
     } // loop ibit
@@ -162,7 +162,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type ="  << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -179,7 +179,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " sub: " << i
 		   << " pos:" << pos[i] 
 		   << " delta:" << delta[i]
-		   << endreq;
+		   << endmsg;
 	}
       } // loop block (i)        
       break;
@@ -204,7 +204,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -221,7 +221,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " sub: " << i
 		   << " pos:" << pos[i] 
 		   << " delta:" << delta[i]
-		   << endreq;
+		   << endmsg;
 	}
       } // loop block (i) 
       break;
@@ -245,7 +245,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -260,7 +260,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " slbId:" << slb->getSlbId()
 		   << " sub: " << i
 		   << " pos:" << pos[i] 
-		   << endreq;
+		   << endmsg;
 	}
       }	// loop block  
       break;
@@ -290,7 +290,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -306,7 +306,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " seg: " << seg
 		   << " sub: " << subc
 		   << " pos:" << pos[i] 
-		   << endreq;
+		   << endmsg;
 	}
       }	// loop block (i)  
       break;
@@ -341,7 +341,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -358,7 +358,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " seg: " << rCh->segment()
 		   << " sub: " << rCh->subMatrix()
 		   << " pos:" << rCh->position() 
-		   << endreq;
+		   << endmsg;
 	}
       }	
       
@@ -411,7 +411,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -426,7 +426,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " slbId:" << slb->getSlbId()
 		   << " roi:" << roi[i] 
 		   << " pt:" << threshold[i]
-		   << endreq;
+		   << endmsg;
 	}
       } // loop candidate (i)
 
@@ -476,7 +476,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	      (*m_log) << MSG::DEBUG 
 		       << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		       << " slb type =" << slb->getType()
-		       << endreq;
+		       << endmsg;
 	    }
 	    isFirstHit = false;
 	  }
@@ -494,7 +494,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		     << " index:" << index[i]
 		     << " hitId:" << hitId[i] 
 		     << " delta:" << deltaHPT[i]
-		     << endreq;
+		     << endmsg;
           }
           continue; // skip making TgcRawData
         }
@@ -518,7 +518,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	  if(m_debug) {
 	    (*m_log) << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -540,7 +540,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " index:" << index[i]
 		   << " hitId:" << hitId[i] 
 		   << " delta:" << deltaHPT[i]
-		   << endreq;
+		   << endmsg;
 	}
       }
 
@@ -898,7 +898,7 @@ void Muon::TgcSlbDataHelper::getHPT_F(const bool * bitArray,
 				      uint16_t pos[],
 				      int16_t delta[]) const
 {
-  uint32_t dR;
+  int16_t dR;
   bool sign;
   size_t ibit;
   int width;
@@ -933,7 +933,7 @@ void Muon::TgcSlbDataHelper::getHPT_F(const bool * bitArray,
         delta[icand] = 0;
       } else {
         hit[icand] = true;
-        delta[icand] = -1 * dR;
+        delta[icand] = -dR;
       } 
     }
  
@@ -982,7 +982,7 @@ void Muon::TgcSlbDataHelper::getHPT_F(const bool * bitArray,
         delta[icand] = 0;
       } else {
         hit[icand] = true;
-        delta[icand] = -1 * dR;
+        delta[icand] = -dR;
       } 
     }
     
@@ -1008,7 +1008,7 @@ void Muon::TgcSlbDataHelper::getHPT_F(const bool * bitArray,
   // chip 0 for strip : bit 119 ..104
   //  1st hit :119-113, 2nd hit :111-105 
   //   dPhi<0:2>, Sign, H/L, Pos, ID<0> 
-  uint32_t dPhi;
+  int16_t dPhi;
   ichip = 0; // chip#0 for strip
   ibit = 120;
   for(size_t idx = 0; idx <2; ++idx) {
@@ -1034,7 +1034,7 @@ void Muon::TgcSlbDataHelper::getHPT_F(const bool * bitArray,
         delta[icand] = 0;
       } else {
         hit[icand] = true;
-        delta[icand] = -1 * dPhi;
+        delta[icand] = -dPhi;
       } 
     }
     
@@ -1073,7 +1073,7 @@ void Muon::TgcSlbDataHelper::getHPT_E(const bool * bitArray,
 				       uint16_t pos[],
 				       int16_t delta[]) const
 {
-  uint32_t dR;
+  int16_t dR;
   bool sign;
   size_t ibit;
   int width;
@@ -1109,7 +1109,7 @@ void Muon::TgcSlbDataHelper::getHPT_E(const bool * bitArray,
       delta[icand] = 0;
     } else {
       hit[icand] = true;
-      delta[icand] = -1 * dR;
+      delta[icand] = -dR;
     } 
   }
 
@@ -1159,7 +1159,7 @@ void Muon::TgcSlbDataHelper::getHPT_E(const bool * bitArray,
 	  delta[icand] = 0;
 	} else {
 	  hit[icand] = true;
-	  delta[icand] = -1 * dR;
+	  delta[icand] = -dR;
 	} 
       }
 
@@ -1188,7 +1188,7 @@ void Muon::TgcSlbDataHelper::getHPT_E(const bool * bitArray,
   // chip 1 :  1st hit : 63-56, 2nd hit :55-48 
   //   dPhi<0:2>, Sign, H/L, Pos, ID<0>, ID<2> 
 
-  uint32_t dPhi;
+  int16_t dPhi;
   ibit = 88; // chip0 start position 
   for(size_t ichip=0; ichip<=1; ++ichip) {
     if(ichip==1) ibit = 64; // chip1 start position 
@@ -1216,7 +1216,7 @@ void Muon::TgcSlbDataHelper::getHPT_E(const bool * bitArray,
 	  delta[icand] = 0;
 	} else {
 	  hit[icand] = true;
-	  delta[icand] = -1 * dPhi;
+	  delta[icand] = -dPhi;
 	} 
       }
     

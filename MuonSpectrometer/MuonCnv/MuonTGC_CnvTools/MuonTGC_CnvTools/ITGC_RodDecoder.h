@@ -13,7 +13,7 @@
 
 class TgcRdoContainer;
 
-using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
+//using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 namespace Muon
 {
@@ -35,7 +35,7 @@ namespace Muon
 	}
 
       /** Convert ROBFragments to RDOs */
-      virtual StatusCode fillCollection(const ROBFragment& robFrag, TgcRdoContainer& rdoIdc) = 0;
+      virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdoContainer& rdoIdc) = 0;
 
     };
 
