@@ -144,6 +144,11 @@ StatusCode DerivationFramework::isolationDecorator::addBranches() const
       if(dec_trkFlag(*particle)!=m_selFlagValue) continue;
      }
 
+    /// check if decorated already
+    static SG::AuxElement::Decorator< bool > dec_isoDecoDone(m_prefix+"IsoDecoDone");
+    if(dec_isoDecoDone.isAvailable(*particle) && dec_isoDecoDone(*particle)) continue;
+    dec_isoDecoDone(*particle) = true;
+
     /// track isolation
     xAOD::TrackIsolation resultTrack;
     if (m_trackIsolationTool->trackIsolation(resultTrack, *particle, m_ptconeTypes, m_trkCorrList)){

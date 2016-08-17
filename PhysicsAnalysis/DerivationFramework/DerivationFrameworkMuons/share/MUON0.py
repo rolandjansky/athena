@@ -55,10 +55,22 @@ MUON0ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name        
                                                                     MuonKey                 = "Muons",
                                                                     SelectionString         = thinning_expression2,
                                                                     ConeSize                = 0.4,
-                                                                    ApplyAnd                = True,
+                                                                    ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON0ThinningTool2
 MUON0_thinning_tools.append(MUON0ThinningTool2)
+
+### also for forward tracks
+# from DerivationFrameworkInDet.DerivationFrameworkInDetConf import DerivationFramework__MuonTrackParticleThinning
+# MUON0ThinningTool2f = DerivationFramework__MuonTrackParticleThinning(name                    = "MUON0ThinningTool2f",
+#                                                                     ThinningService         = "MUON0ThinningSvc",
+#                                                                     MuonKey                 = "Muons",
+#                                                                     SelectionString         = thinning_expression2,
+#                                                                     ConeSize                = 0.4,
+#                                                                     ApplyAnd                = False,
+#                                                                     InDetTrackParticlesKey  = "InDetForwardTrackParticles")
+# ToolSvc += MUON0ThinningTool2f
+# MUON0_thinning_tools.append(MUON0ThinningTool2f)
 
 ## keep tracks pt>2GeV
 # thinning_expression3 = "InDetTrackParticles.pt > 2*GeV"

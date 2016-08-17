@@ -19,6 +19,7 @@ def getMUON0TriggerContainers():
 'xAOD::MuonContainer#HLT_xAOD__MuonContainer_MuonEFInfo':'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_MuonEFInfoAux.',
 'xAOD::MuonContainer#HLT_xAOD__MuonContainer_MuTagIMO_EF':'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_MuTagIMO_EFAux.',
 'xAOD::MuonContainer#HLT_xAOD__MuonContainer_eMuonEFInfo':'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_eMuonEFInfoAux.',
+'xAOD::MuonContainer#HLT_xAOD__MuonContainer_MuonEFInfo_FullScan':'xAOD::MuonAuxContainer#HLT_xAOD__MuonContainer_MuonEFInfo_FullScanAux.',
 'xAOD::MuonRoIContainer#HLT_xAOD__MuonRoIContainer_L1TopoMuon':'xAOD::MuonRoIAuxContainer#HLT_xAOD__MuonRoIContainer_L1TopoMuonAux.',
 'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticles':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_MuonEFInfo_CombTrackParticlesAux.',
 'xAOD::TrackParticleContainer#HLT_xAOD__TrackParticleContainer_MuonEFInfo_ExtrapTrackParticles':'xAOD::TrackParticleAuxContainer#HLT_xAOD__TrackParticleContainer_MuonEFInfo_ExtrapTrackParticlesAux.',
@@ -43,11 +44,11 @@ class MuonsDxAODStreamConfigurer:
     MUON0OnlyItems += ['xAOD::TrigNavigation#*','xAOD::TrigNavigationAuxInfo#*'] ## be careful, they could go to smart slimming...
 
     ### samrt slimming containers
-    comSmSlList = []
-    smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4LCTopoJets'], 'MUON2':['AntiKt4LCTopoJets'], 'MUON3':[]}
+    comSmSlList = ["Muons", "PrimaryVertices", "InDetTrackParticles"]
+    smSlContainer = {'MUON0':[], 'MUON1':['AntiKt4LCTopoJets','AntiKt4EMTopoJets'], 'MUON2':['AntiKt4LCTopoJets','AntiKt4EMTopoJets'], 'MUON3':[]}
 
     ### all varaible containers
-    commonAllVarList = ["Muons", "PrimaryVertices", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles"]
+    commonAllVarList = ["Muons", "PrimaryVertices", "InDetTrackParticles", "MuonSegments", "MuonTruthParticles", "CombinedMuonTrackParticles", "ExtrapolatedMuonTrackParticles", "MuonSpectrometerTrackParticles", "InDetForwardTrackParticles"]
     MUON0OnlyAllVar = ['Staus','ExtrapolatedStauTrackParticles','CombinedStauTrackParticles','SlowMuons'] # slow muons
     MUON1OnlyAllVar = ['CaloCalTopoClusters', 'MuonClusterCollection']
 
@@ -66,6 +67,15 @@ class MuonsDxAODStreamConfigurer:
 
     checkContainers = {'MUON0':getMUON0TriggerContainers(), 'MUON1':getMUON0TriggerContainers(), 'MUON2':getMUON0TriggerContainers(), 'MUON3':getMUON0TriggerContainers()}
 
+    ### Extra variables
+    eventShapeVars = ['TopoClusterIsoCentralEventShape.DensitySigma.Density.DensityArea',
+                      'TopoClusterIsoForwardEventShape.DensitySigma.Density.DensityArea',
+                      'NeutralParticleFlowIsoCentralEventShape.DensitySigma.Density.DensityArea',
+                      'NeutralParticleFlowIsoForwardEventShape.DensitySigma.Density.DensityArea']
+
+    extraVariables = {'MUON1':eventShapeVars, 'MUON2':eventShapeVars}
+
+
     ### get final lists
     for s in Items: Items[s]+=commonItems
     for s in allVarContainer: allVarContainer[s]+=commonAllVarList
@@ -80,7 +90,7 @@ class MuonsDxAODStreamConfigurer:
         useSmartSlimmingIfSupported(self.checkContainers.get(configKey, []),self.allVarContainer[configKey], self.Items[configKey], SlHelper.NamesAndTypes)
         SlHelper.AllVariables = self.allVarContainer[configKey]
 #         SlHelper.StaticContent = self.Items[configKey]
-#         SlHelper.ExtraVariables = self.extraVariables.get(configKey, [])
+        SlHelper.ExtraVariables = self.extraVariables.get(configKey, [])
         SlHelper.IncludeMuonTriggerContent = self.UseTriggerContent.get(configKey, True)
         SlHelper.AppendContentToStream(stream)
 

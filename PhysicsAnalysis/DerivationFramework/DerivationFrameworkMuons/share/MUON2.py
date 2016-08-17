@@ -9,6 +9,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 # from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
+from MuonPerformanceAlgs.CommonMuonTPConfig import GetIDTrackCaloDepositsDecorator
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -28,6 +29,7 @@ andTriggers = andTriggers_run2
 brPrefix = 'MUON2'
 from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__dimuonTaggingTool
 MUON2AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON2AugmentTool1",
+                                                           IDTrackCaloDepoDecoTool = GetIDTrackCaloDepositsDecorator(),
                                                            OrTrigs = orTriggers,
                                                            AndTrigs = andTriggers,
                                                            Mu1PtMin = 4*Units.GeV,
@@ -95,6 +97,18 @@ MUON2ThinningTool2 = DerivationFramework__MuonTrackParticleThinning(name        
                                                                     ApplyAnd                = False,
                                                                     InDetTrackParticlesKey  = "InDetTrackParticles")
 ToolSvc += MUON2ThinningTool2
+
+#====================================================================
+# JetTagNonPromptLepton decorations
+#====================================================================
+if not hasattr(DerivationFrameworkJob,"MUONSequence"):
+    MUONSeq = CfgMgr.AthSequencer("MUONSequence")
+    DerivationFrameworkJob += MUONSeq
+
+    if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
+        import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
+        MUONSeq += Config.DecoratePromptLepton("Muons", "AntiKt4PV0TrackJets")
+
 #====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================

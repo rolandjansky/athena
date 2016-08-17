@@ -10,6 +10,8 @@ from DerivationFrameworkMuons.MuonsCommon import *
 # from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
 
+from MuonPerformanceAlgs.CommonMuonTPConfig import GetIDTrackCaloDepositsDecorator
+
 #====================================================================
 # AUGMENTATION TOOLS
 #====================================================================
@@ -21,6 +23,8 @@ import AthenaCommon.SystemOfUnits as Units
 brPrefix = 'MUON1'
 from DerivationFrameworkMuons.DerivationFrameworkMuonsConf import DerivationFramework__dimuonTaggingTool
 MUON1AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON1AugmentTool1",
+#                                                            MuonTPExtrapoTool = CommonMuonTPConfig.
+                                                           IDTrackCaloDepoDecoTool = GetIDTrackCaloDepositsDecorator(),
                                                            Mu1PtMin = 24*Units.GeV,
                                                            Mu1AbsEtaMax = 2.5,
                                                            Mu1Types = [0],
@@ -113,6 +117,17 @@ print MUON1ThinningTool4
 MUON1ThinningTools.append(MUON1ThinningTool4)
 
 #====================================================================
+# JetTagNonPromptLepton decorations
+#====================================================================
+if not hasattr(DerivationFrameworkJob,"MUONSequence"):
+    MUONSeq = CfgMgr.AthSequencer("MUONSequence")
+    DerivationFrameworkJob += MUONSeq
+
+    if not hasattr(MUONSeq,"Muons_decoratePromptLepton"):
+        import JetTagNonPromptLepton.JetTagNonPromptLeptonConfig as Config
+        MUONSeq += Config.DecoratePromptLepton("Muons", "AntiKt4PV0TrackJets")
+
+#====================================================================
 # CREATE THE DERIVATION KERNEL ALGORITHM AND PASS THE ABOVE TOOLS 
 #====================================================================
 from DerivationFrameworkCore.DerivationFrameworkCoreConf import DerivationFramework__DerivationKernel
@@ -122,6 +137,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("MUON1Ker
                                                                        SkimmingTools = [MUON1SkimmingTool1],
                                                                        ThinningTools = MUON1ThinningTools
                                                                        )
+
 #====================================================================
 # SET UP STREAM   
 #====================================================================
