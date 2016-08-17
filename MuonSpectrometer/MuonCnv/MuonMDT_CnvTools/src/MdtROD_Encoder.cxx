@@ -84,7 +84,7 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
   
   //mrod_wcnt += rodReadOut->makeHeaderSize();
   
-  typedef std::vector<MdtAmtHit*>        hit_vector;
+  typedef std::vector<const MdtAmtHit*>        hit_vector;
   typedef std::map<uint16_t, hit_vector> tdc_map;
   typedef std::map<uint16_t, uint32_t>   masked_map;
 
@@ -113,7 +113,7 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
     maskedMap.clear();
     MdtCsm::const_iterator it_amt = csm->begin();
     for ( ; it_amt != csm->end() ; ++it_amt) {
-      MdtAmtHit * amt = (*it_amt);
+      const MdtAmtHit * amt = (*it_amt);
       uint16_t tdcNum = amt->tdcId();
 
       if (!amt->isMasked()) {
@@ -189,11 +189,11 @@ void MdtROD_Encoder::fillROD(std::vector<uint32_t>& v)
   
   // Status words not fully defined yet ... wait
   
-  //  log << MSG::DEBUG << "************** Encoder dumping the words ************" << endreq;
+  //  log << MSG::DEBUG << "************** Encoder dumping the words ************" << endmsg;
   //if (v.size() > 0) {
-  //  log << MSG::DEBUG << "The size of the ROD-Write is: " << v.size() << endreq;
+  //  log << MSG::DEBUG << "The size of the ROD-Write is: " << v.size() << endmsg;
   //  for (unsigned int i=0 ; i<v.size() ; ++i) {
-  //    log << MSG::DEBUG << "word " << i << " = " << MSG::hex << v[i] << MSG::dec << endreq;
+  //    log << MSG::DEBUG << "word " << i << " = " << MSG::hex << v[i] << MSG::dec << endmsg;
   //  }
   //}
   

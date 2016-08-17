@@ -137,10 +137,10 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
   
   //   // Get ROBDataProviderSvc
   //   if (m_robDataProvider.retrieve().isFailure()) {
-  //      *m_log << MSG::FATAL << "Failed to retrieve serive " << m_robDataProvider << endreq;
+  //      *m_log << MSG::FATAL << "Failed to retrieve serive " << m_robDataProvider << endmsg;
   //     return StatusCode::FAILURE;
   //   } else
-  //      *m_log << MSG::INFO << "Retrieved service " << m_robDataProvider << endreq;
+  //      *m_log << MSG::INFO << "Retrieved service " << m_robDataProvider << endmsg;
   
   // Get MdtRawDataProviderTool
   if (m_rawDataProviderTool.retrieve().isFailure()) {
@@ -184,7 +184,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
     for(int i=0; i<2; i++){
       for(int j=0; j<3; j++){
 	for(int k=0; k<36; k++){
-	  twin_chamber[i][j][k] = 1000*i + 100*j + k;
+	  m_twin_chamber[i][j][k] = 1000*i + 100*j + k;
 	}
       }
     }
@@ -193,7 +193,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::initialize()
     for(int i=0; i<2; i++){
       for(int j=0; j<3; j++){
 	for(int k=0; k<36; k++){
-	  secondaryHit_twin_chamber[i][j][k] = 10000*(i+1) + 100*j + k;
+	  m_secondaryHit_twin_chamber[i][j][k] = 10000*(i+1) + 100*j + k;
 	}
       }
     }
@@ -326,7 +326,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( const std::vector<uint32_t>& robI
       if( m_useAllBOLTwin && isBOL ) {
 	hasTwin = true;
       }
-      else if(isBOL && fabs(m_mdtHelper->stationEta(elementId)) == 4 
+      else if(isBOL && std::abs(m_mdtHelper->stationEta(elementId)) == 4 
 	      && m_mdtHelper->stationPhi(elementId) == 7){
 	hasTwin = true;
       }
@@ -539,7 +539,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
 	    // 		      << "   eta(4) = " <<  m_mdtHelper->stationEta(elementId)
 	    // 		      << "   phi(7) = " << m_mdtHelper->stationPhi(elementId)
 	    // 		      << std::endl;
-	    if( chIndex == MuonStationIndex::BOL && fabs(m_mdtHelper->stationEta(elementId)) == 4 
+	    if( chIndex == MuonStationIndex::BOL && std::abs(m_mdtHelper->stationEta(elementId)) == 4 
 	       && m_mdtHelper->stationPhi(elementId) == 7){
 	      BOL4X13 = true;
 	    }
@@ -620,7 +620,7 @@ StatusCode Muon::MdtRdoToPrepDataTool::decode( std::vector<IdentifierHash>& idVe
 	// 		  << "   eta(4) = " <<  m_mdtHelper->stationEta(elementId)
 	// 		  << "   phi(7) = " << m_mdtHelper->stationPhi(elementId)
 	// 		  << std::endl;
-	if(chIndex == MuonStationIndex::BOL && fabs(m_mdtHelper->stationEta(elementId)) == 4 
+	if(chIndex == MuonStationIndex::BOL && std::abs(m_mdtHelper->stationEta(elementId)) == 4 
            && m_mdtHelper->stationPhi(elementId) == 7){ 
           BOL4X13 = true;
         }
@@ -1122,22 +1122,22 @@ StatusCode Muon::MdtRdoToPrepDataTool::processCsmTwin(const MdtCsm *rdoColl, std
     
 
       // fill the digitColl map
-      if( mdtDigitColl[ twin_chamber[multilayer-1][layer-1][twinPair-1] ].first == 0){
-        mdtDigitColl[ twin_chamber[multilayer-1][layer-1][twinPair-1] ].first = newDigit;
+      if( mdtDigitColl[ m_twin_chamber[multilayer-1][layer-1][twinPair-1] ].first == 0){
+        mdtDigitColl[ m_twin_chamber[multilayer-1][layer-1][twinPair-1] ].first = newDigit;
       }
-      else if( mdtDigitColl[ twin_chamber[multilayer-1][layer-1][twinPair-1] ].second == 0){
-        mdtDigitColl[ twin_chamber[multilayer-1][layer-1][twinPair-1] ].second = newDigit;
+      else if( mdtDigitColl[ m_twin_chamber[multilayer-1][layer-1][twinPair-1] ].second == 0){
+        mdtDigitColl[ m_twin_chamber[multilayer-1][layer-1][twinPair-1] ].second = newDigit;
       }
       // if a secondary hit appears in a tube add it to mdtDigitColl, unless m_discardSecondaryHitTwin flag is true
       else{
         ATH_MSG_VERBOSE(" TWIN TUBES: found a secondary(not twin) hit in a twin tube");
  
         if(!m_discardSecondaryHitTwin){
-          if( mdtDigitColl[ secondaryHit_twin_chamber[multilayer-1][layer-1][twinPair-1] ].first == 0){
-        mdtDigitColl[ secondaryHit_twin_chamber[multilayer-1][layer-1][twinPair-1] ].first = newDigit;
+          if( mdtDigitColl[ m_secondaryHit_twin_chamber[multilayer-1][layer-1][twinPair-1] ].first == 0){
+        mdtDigitColl[ m_secondaryHit_twin_chamber[multilayer-1][layer-1][twinPair-1] ].first = newDigit;
           }
-          else if( mdtDigitColl[ secondaryHit_twin_chamber[multilayer-1][layer-1][twinPair-1] ].second == 0){
-	mdtDigitColl[ secondaryHit_twin_chamber[multilayer-1][layer-1][twinPair-1] ].second = newDigit;
+          else if( mdtDigitColl[ m_secondaryHit_twin_chamber[multilayer-1][layer-1][twinPair-1] ].second == 0){
+	mdtDigitColl[ m_secondaryHit_twin_chamber[multilayer-1][layer-1][twinPair-1] ].second = newDigit;
 	  }
           else{ ATH_MSG_VERBOSE(" TWIN TUBES: found a tertiary hit in a twin tube in one RdoCollection for "
 				<< m_mdtHelper->stationNameString(m_mdtHelper->stationName(channelId))

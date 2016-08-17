@@ -11,12 +11,12 @@
 
 #include <cassert>
 
-const uint32_t MdtRODReadOut::RODstart = 0xee1234ee;
-const uint32_t MdtRODReadOut::RODheadersize = 0x8;
-const uint32_t MdtRODReadOut::RODversion  = 0;      // ??
+const uint32_t MdtRODReadOut::s_RODstart = 0xee1234ee;
+const uint32_t MdtRODReadOut::s_RODheadersize = 0x8;
+const uint32_t MdtRODReadOut::s_RODversion  = 0;      // ??
 
 MdtRODReadOut::MdtRODReadOut() :
-  m_dataWord(0),
+  //m_dataWord(0),
   m_subdetId(0),
   m_mrodId(0),
   m_lvl1Id(0),
@@ -40,17 +40,17 @@ void MdtRODReadOut::decodeHeader(const std::vector<uint32_t>& p)
 
   setZero();
 
-  if (p[0] != RODstart) 
+  if (p[0] != s_RODstart) 
     {
 #ifndef NDEBUG
-      log << MSG::ERROR << "ROD Start of header marker not found" << endreq;
+      log << MSG::ERROR << "ROD Start of header marker not found" << endmsg;
 #endif
       assert(0);
     }
-  if (p[1] != RODheadersize) 
+  if (p[1] != s_RODheadersize) 
     {
 #ifndef NDEBUG
-      log << MSG::ERROR << "ROD header size doesn't match " << RODheadersize << endreq;
+      log << MSG::ERROR << "ROD header size doesn't match " << s_RODheadersize << endmsg;
 #endif
       assert(0);
     }

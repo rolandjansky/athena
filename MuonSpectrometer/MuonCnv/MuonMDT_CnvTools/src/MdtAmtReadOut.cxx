@@ -26,7 +26,7 @@ void MdtAmtReadOut::decodeWord(uint32_t dataWord)
   setZero();
   m_dataWord = dataWord;
   m_word = dataWord;
-  m_wordHeader = (dataWord>>headerPos)&headerBits;
+  m_wordHeader = (dataWord>>s_headerPos)&s_headerBits;
 
   if (is_TSM())         // TDC single measurement
     {
@@ -97,14 +97,14 @@ void MdtAmtReadOut::setZero()
 uint32_t MdtAmtReadOut::makeBOT(uint16_t tdcId, uint16_t ecnt, uint16_t bcid)
 { 
   uint16_t inputData[4];
-  uint16_t inputPos[4] = {headerPos, 24, 12, 0};
+  uint16_t inputPos[4] = {s_headerPos, 24, 12, 0};
   uint16_t nData = 4;
 
   if (tdcId < 16) {
-    inputData[0]=BOTvalue1;
+    inputData[0]=s_BOTvalue1;
   }
   else {
-    inputData[0]=BOTvalue2;
+    inputData[0]=s_BOTvalue2;
     tdcId -= 16;
   }
 
@@ -118,8 +118,8 @@ uint32_t MdtAmtReadOut::makeBOT(uint16_t tdcId, uint16_t ecnt, uint16_t bcid)
 // End of TDC
 uint32_t MdtAmtReadOut::makeEOT(uint16_t jt, uint16_t ecnt, uint16_t wcnt)
 { 
-  uint16_t inputData[5] = {EOTvalue,   0, jt, ecnt, wcnt};
-  uint16_t inputPos[5]  = {headerPos, 26, 24, 12, 0};
+  uint16_t inputData[5] = {s_EOTvalue,   0, jt, ecnt, wcnt};
+  uint16_t inputPos[5]  = {s_headerPos, 26, 24, 12, 0};
   uint16_t nData = 5;
 
   return setBits(nData,inputData,inputPos);
@@ -134,7 +134,7 @@ uint32_t MdtAmtReadOut::makeTSM(uint16_t jt, uint16_t channel, bool leading,
   if (leading) lead = 0;
   if (errflag) err  = 1;
 
-  uint16_t inputData[8] = {TSMvalue ,  
+  uint16_t inputData[8] = {(uint16_t)s_TSMvalue ,  
                            0, 
 			   static_cast<uint16_t> (jt      & 0x2), 
 			   static_cast<uint16_t> (channel & 0x1f), 
@@ -142,7 +142,7 @@ uint32_t MdtAmtReadOut::makeTSM(uint16_t jt, uint16_t channel, bool leading,
 			   static_cast<uint16_t> (err     & 0x1), 
 			   static_cast<uint16_t> (coarse  & 0xfff), 
 			   static_cast<uint16_t> (fine    & 0x1f)};
-  uint16_t inputPos[8]  = {headerPos, 26, 24,      19,   18,  17,      5,    0};
+  uint16_t inputPos[8]  = {s_headerPos, 26, 24,      19,   18,  17,      5,    0};
   uint16_t nData = 8;
 
   return setBits(nData,inputData,inputPos);
@@ -152,14 +152,14 @@ uint32_t MdtAmtReadOut::makeTSM(uint16_t jt, uint16_t channel, bool leading,
 uint32_t MdtAmtReadOut::makeTCM(uint16_t jt, uint16_t channel, uint16_t width,
 		   uint16_t coarse, uint16_t fine)
 {
-  uint16_t inputData[7] = {TCMvalue ,  
+  uint16_t inputData[7] = {(uint16_t)s_TCMvalue ,  
                            0, 
 			   static_cast<uint16_t> (jt      & 0x2), 
 			   static_cast<uint16_t> (channel & 0x1f), 
 			   static_cast<uint16_t> (width   & 0xff), 
 			   static_cast<uint16_t> (coarse  & 0x3f), 
 			   static_cast<uint16_t> (fine    & 0x1f) };
-  uint16_t inputPos[7]  = {headerPos, 26, 24,      19,    11,      5,    0};
+  uint16_t inputPos[7]  = {s_headerPos, 26, 24,      19,    11,      5,    0};
   uint16_t nData = 7;
 
   return setBits(nData,inputData,inputPos);
@@ -171,8 +171,8 @@ uint32_t MdtAmtReadOut::makeTMC(uint16_t jt, uint32_t masked)
   uint16_t masked_low  = masked & 0xffff;
   uint16_t masked_high = masked & 0xff0000;
 
-  uint16_t inputData[5] = {TMCvalue ,  0, jt, masked_high, masked_low};
-  uint16_t inputPos[5]  = {headerPos, 26, 24, 16,  0};
+  uint16_t inputData[5] = {s_TMCvalue ,  0, jt, masked_high, masked_low};
+  uint16_t inputPos[5]  = {s_headerPos, 26, 24, 16,  0};
   uint16_t nData = 5;
 
   return setBits(nData,inputData,inputPos);  

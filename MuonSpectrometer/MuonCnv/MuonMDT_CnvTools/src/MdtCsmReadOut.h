@@ -36,21 +36,21 @@ class MdtCsmReadOut : public MdtReadOut
 
   // Word header Position and values
   // The word header occupies the 8 highest bits of each CSM word 
-  static const uint16_t headerPos  = 24;
-  static const uint16_t headerBits = 0xff;
+  static const uint16_t s_headerPos  = 24;
+  static const uint16_t s_headerBits = 0xff;
   
   // Beginning of buffer
-  static const uint16_t BOBvalue = 0x80;
+  static const uint16_t s_BOBvalue = 0x80;
   // Link Word Count: first word of a CSM link block
-  static const uint16_t LWCvalue   = 0x81;
+  static const uint16_t s_LWCvalue   = 0x81;
   // Beginning of Link: signals which CSM link is giving its data
-  static const uint16_t BOLvalue   = 0x18;
+  static const uint16_t s_BOLvalue   = 0x18;
   // TDC Link Present
-  static const uint16_t TLPvalue   = 0x89;
+  static const uint16_t s_TLPvalue   = 0x89;
   // Trailer Word Count: last word of a CSM link block
-  static const uint16_t TWCvalue   = 0x8a;
+  static const uint16_t s_TWCvalue   = 0x8a;
   // End of Block (end of data from the CSMs)
-  static const uint16_t EOBvalue   = 0xf0;
+  static const uint16_t s_EOBvalue   = 0xf0;
   
  public:
   MdtCsmReadOut();
@@ -58,12 +58,12 @@ class MdtCsmReadOut : public MdtReadOut
 
   void decodeWord(uint32_t dataWord);
 
-  bool is_BOB() {return m_wordHeader == BOBvalue;};  
-  bool is_LWC() {return m_wordHeader == LWCvalue;};  
-  bool is_BOL() {return m_wordHeader == BOLvalue;};
-  bool is_TLP() {return m_wordHeader == TLPvalue;};
-  bool is_TWC() {return m_wordHeader == TWCvalue;}; 
-  bool is_EOB() {return m_wordHeader == EOBvalue;}; 
+  bool is_BOB() {return m_wordHeader == s_BOBvalue;};  
+  bool is_LWC() {return m_wordHeader == s_LWCvalue;};  
+  bool is_BOL() {return m_wordHeader == s_BOLvalue;};
+  bool is_TLP() {return m_wordHeader == s_TLPvalue;};
+  bool is_TWC() {return m_wordHeader == s_TWCvalue;}; 
+  bool is_EOB() {return m_wordHeader == s_EOBvalue;}; 
 
   // Methods to access the decoded information
   uint32_t lvl1Id() {return m_lvl1Id;}

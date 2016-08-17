@@ -55,10 +55,10 @@ class MDT_RawDataProviderTool : virtual public IMuonRawDataProviderTool, virtual
   virtual StatusCode convert(const std::vector<uint32_t>& robIds);//!< for a particular vector of ROBId's
   private:
  
-  MdtCsmContainer*                  m_rdoContainer; //!< MDT RDO container. Will be created by this tool.
+  //MdtCsmContainer*                  m_rdoContainer; //!< MDT RDO container. Will be created by this tool.
   //bool                              m_debug; //!< If true, output debug info.
   std::set<uint32_t>                m_robIdSet;
-  unsigned int                      m_lastLvl1ID;
+  //unsigned int                      m_lastLvl1ID;
   ToolHandle<MdtROD_Decoder>        m_decoder; 
   std::string                       m_rdoContainerKey;
   const MuonGM::MuonDetectorManager* m_muonMgr;    

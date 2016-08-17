@@ -18,7 +18,7 @@ class MdtRODReadOut : public MdtReadOut
 
  private:
 
-  uint32_t m_dataWord;
+  //uint32_t m_dataWord;
   // Data members
   uint16_t m_subdetId;   // Sub-detector Id 
   uint16_t m_mrodId;     // MROD Id
@@ -27,9 +27,9 @@ class MdtRODReadOut : public MdtReadOut
   uint16_t m_triggerTypeId; // Trigger type Id
 
   // Data words in the ROD header
-  static const uint32_t RODstart;
-  static const uint32_t RODheadersize;
-  static const uint32_t RODversion;      // ??
+  static const uint32_t s_RODstart;
+  static const uint32_t s_RODheadersize;
+  static const uint32_t s_RODversion;      // ??
 
  public:
   MdtRODReadOut();
@@ -40,9 +40,9 @@ class MdtRODReadOut : public MdtReadOut
   uint32_t* encodeFooter();
   
   // Header words
-  uint32_t makeHeaderMarker() {return RODstart;}
-  uint32_t makeHeaderSize() {return RODheadersize;}
-  uint32_t makeFormatVersion() {return RODversion;}
+  uint32_t makeHeaderMarker() {return s_RODstart;}
+  uint32_t makeHeaderSize() {return s_RODheadersize;}
+  uint32_t makeFormatVersion() {return s_RODversion;}
   uint32_t makeRODId(uint16_t subdet, uint16_t mrod);
 
 
