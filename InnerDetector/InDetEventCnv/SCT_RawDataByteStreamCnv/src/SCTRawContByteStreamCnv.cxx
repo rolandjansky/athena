@@ -18,10 +18,10 @@
 /// constructor
 
 SCTRawContByteStreamCnv::SCTRawContByteStreamCnv(ISvcLocator* svcloc) :
-    Converter(ByteStream_StorageType, classID(),svcloc),
-    m_tool                 ("SCTRawContByteStreamTool"),                  // init tool handles
-    m_byteStreamEventAccess("ByteStreamCnvSvc","SCTRawContByteStreamCnv"),
-    m_log                   (msgSvc(), "SCTRawContByteStreamCnv")
+  Converter(ByteStream_StorageType, classID(),svcloc),
+  m_tool                 ("SCTRawContByteStreamTool"),                  // init tool handles
+  m_byteStreamEventAccess("ByteStreamCnvSvc","SCTRawContByteStreamCnv"),
+  m_log                   (msgSvc(), "SCTRawContByteStreamCnv")
 {}
  
 /// ------------------------------------------------------
@@ -36,26 +36,26 @@ SCTRawContByteStreamCnv::~SCTRawContByteStreamCnv( )
 StatusCode
 SCTRawContByteStreamCnv::initialize()
 {
-   StatusCode sc = Converter::initialize(); 
-   if(StatusCode::SUCCESS!=sc) return sc; 
+  StatusCode sc = Converter::initialize(); 
+  if(StatusCode::SUCCESS!=sc) return sc; 
 
-   m_log << MSG::DEBUG<< " initialize " <<endreq; 
+  m_log << MSG::DEBUG<< " initialize " <<endreq; 
 
-   /** Retrieve ByteStreamCnvSvc */
-   if (m_byteStreamEventAccess.retrieve().isFailure()) {
-     m_log << MSG::FATAL << "Failed to retrieve service " << m_byteStreamEventAccess << endreq;
-     return StatusCode::FAILURE;
-   } else 
-     m_log << MSG::INFO << "Retrieved service " << m_byteStreamEventAccess << endreq;
+  /** Retrieve ByteStreamCnvSvc */
+  if (m_byteStreamEventAccess.retrieve().isFailure()) {
+    m_log << MSG::FATAL << "Failed to retrieve service " << m_byteStreamEventAccess << endreq;
+    return StatusCode::FAILURE;
+  } else 
+    m_log << MSG::INFO << "Retrieved service " << m_byteStreamEventAccess << endreq;
 
-   /** Retrieve byte stream AlgTool */
-   if (m_tool.retrieve().isFailure()) {
-     m_log << MSG::FATAL << "Failed to retrieve tool " << m_tool << endreq;
-     return StatusCode::FAILURE;
-   } else 
-     m_log << MSG::INFO << "Retrieved tool " << m_tool << endreq;
+  /** Retrieve byte stream AlgTool */
+  if (m_tool.retrieve().isFailure()) {
+    m_log << MSG::FATAL << "Failed to retrieve tool " << m_tool << endreq;
+    return StatusCode::FAILURE;
+  } else 
+    m_log << MSG::INFO << "Retrieved tool " << m_tool << endreq;
    
-   return StatusCode::SUCCESS; 
+  return StatusCode::SUCCESS; 
    
 }
 

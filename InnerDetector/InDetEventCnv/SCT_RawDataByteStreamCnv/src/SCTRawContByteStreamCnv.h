@@ -54,12 +54,12 @@ class SCTRawContByteStreamCnv: public Converter {
   
   /** create Obj is not used ! */
   virtual StatusCode createObj(IOpaqueAddress*, DataObject*&)
-    { return StatusCode::FAILURE;}
+  { return StatusCode::FAILURE;}
 
   /** this creates the RawEvent fragments for the SCT */
   virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
 
-private: 
+ private: 
   /** for BS infrastructure */
   ToolHandle<ISCTRawContByteStreamTool>  m_tool;                  
   ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess; 

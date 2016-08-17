@@ -31,10 +31,10 @@ namespace InDetDD {
  *  created:  Oct 25, 2002, by Hong Ma 
  *  requirements:   typedef for CONTAINER class method 
  *   StatusCode convert(CONTAINER* cont, RawEvent* re, MsgStream& log ); 
-  */
+ */
 
 class SCTRawContByteStreamTool: virtual public ISCTRawContByteStreamTool, virtual public AthAlgTool {
-public:
+ public:
 
   // RawData type
   typedef SCT_RDORawData          RDO ;
@@ -59,7 +59,7 @@ public:
   //! New convert method which makes use of the encoder class (as done for other detectors)
   StatusCode convert(SCT_RDO_Container* cont, RawEventWrite* re, MsgStream& log); 
   
-private: 
+ private: 
   
   ToolHandle<ISCT_RodEncoder> m_encoder;
   ServiceHandle<ISCT_CablingSvc> m_cabling;
