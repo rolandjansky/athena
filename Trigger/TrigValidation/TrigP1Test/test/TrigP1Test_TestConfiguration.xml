@@ -312,7 +312,7 @@
         <!-- CheckKeysV6 needs HLT_physicsV6_rerun -->
         <TEST name="CheckKeysV6" type="script" suite="TP1menu">
             <options_atn>trigtest.pl --cleardir  --test CheckKeysV6 --rundir CheckKeysV6 --conf TrigP1Test.conf</options_atn>
-            <timelimit>59</timelimit>     
+            <timelimit>90</timelimit>     
             <mailto>joerg.stelzer@cern.ch</mailto> 
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
