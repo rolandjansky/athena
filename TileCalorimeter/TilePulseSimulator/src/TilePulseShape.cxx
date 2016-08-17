@@ -15,7 +15,7 @@
 #include "GaudiKernel/MsgStream.h"
 
 //_________________________________________________________________________
-TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name)
+TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, const std::string& name)
   : TObject()
   , m_pulseShape(0)
   , m_deformedShape(0)
@@ -26,7 +26,7 @@ TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name)
 }
 
 //_________________________________________________________________________
-TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name, TString fileName)
+TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, const std::string& name, const TString& fileName)
   : TObject()
   , m_pulseShape(0)
   , m_deformedShape(0)
@@ -38,7 +38,7 @@ TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name, TString fi
 } 
 
 //________________________________________________________________________
-TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, std::string name, std::vector<double> shapevec)
+TilePulseShape::TilePulseShape(IMessageSvc* msgSvc, const std::string& name, const std::vector<double>& shapevec)
   : TObject()
   , m_pulseShape(0)
   , m_deformedShape(0)
@@ -60,21 +60,21 @@ TilePulseShape::~TilePulseShape()
 }
 
 //_________________________________________________________________________
-void TilePulseShape::loadPulseShape(TString fileName)
+void TilePulseShape::loadPulseShape(const TString& fileName)
 {
   resetDeformation();
   if(m_pulseShape) delete m_pulseShape;
   m_pulseShape = new TGraph(fileName.Data());
   if(m_pulseShape->IsZombie()) {
-    (*m_log) << MSG::WARNING << "TilePulseShape: ERROR, could not load pulseshape from file: " << fileName << endreq;
+    (*m_log) << MSG::WARNING << "TilePulseShape: ERROR, could not load pulseshape from file: " << fileName << endmsg;
     exit(1);
    } else (*m_log) << MSG::INFO << "Loaded pulseshape from file: " 
-	 << fileName << endreq;
+	 << fileName << endmsg;
   resetDeformation();
 }
 
 //_________________________________________________________________________
-void TilePulseShape::setPulseShape(std::vector<double> shapevec)
+void TilePulseShape::setPulseShape(const std::vector<double>& shapevec)
 {
   resetDeformation();
   if(m_pulseShape) delete m_pulseShape;
@@ -94,7 +94,7 @@ double TilePulseShape::eval(double x, bool useSpline)
 
   //=== make sure pulseshape is available
   if(!m_deformedShape){
-    (*m_log) << MSG::WARNING << "TilePulseShape:: ERROR: No pulseshape loaded!" << endreq;
+    (*m_log) << MSG::WARNING << "TilePulseShape:: ERROR: No pulseshape loaded!" << endmsg;
     return 0.;
   }
 
@@ -108,13 +108,13 @@ double TilePulseShape::eval(double x, bool useSpline)
     //=== left out of bounds, return leftmost value
 //    y = (_deformedShape->GetY())[0]; 
     y = 0;
-    (*m_log) << MSG::DEBUG << "Left out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endreq;
+    (*m_log) << MSG::DEBUG << "Left out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endmsg;
   }
   else if(idx>=n-1){
     //=== right out of bounds, return rightmost value
 //    y = (_deformedShape->GetY())[n-1]; 
     y = 0;
-    (*m_log) << MSG::DEBUG << "Right out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endreq;
+    (*m_log) << MSG::DEBUG << "Right out of bounds. Replacing y = " << (m_deformedShape->GetY())[0] << " with y = 0. (idx = " << idx << ", x = " << x << ")" << endmsg;
   }
   else{
     //=== linear interpolation
@@ -152,7 +152,7 @@ int TilePulseShape::scalePulse(double leftSF, double rightSF)
 
   resetDeformation();
   if(!m_pulseShape) {
-    (*m_log) << MSG::WARNING << "Attempted pulse shape scaling before loading pulse shape" << endreq;
+    (*m_log) << MSG::WARNING << "Attempted pulse shape scaling before loading pulse shape" << endmsg;
     return 1;
    } else {
     m_deformedShape = (TGraph*) m_pulseShape->Clone();
