@@ -19,7 +19,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigAnalysis/TrigMuonMatching
                           PRIVATE
+			  PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonTPTools
                           Control/AthenaKernel
+			  Control/AthenaBaseComps
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth )

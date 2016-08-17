@@ -9,6 +9,7 @@ from DerivationFrameworkCore.DerivationFrameworkMaster import *
 from DerivationFrameworkMuons.MuonsCommon import *
 # from DerivationFrameworkJetEtMiss.METCommon import *
 import AthenaCommon.SystemOfUnits as Units
+from MuonPerformanceAlgs.CommonMuonTPConfig import GetIDTrackCaloDepositsDecorator
 
 #====================================================================
 # AUGMENTATION TOOLS
@@ -34,6 +35,7 @@ andTriggers1_run2 = [] # No trigger in 8TeV data
 
 andTriggers1 = andTriggers1_run2
 MUON3AugmentTool1 = DerivationFramework__dimuonTaggingTool(name = "MUON3AugmentTool1",
+                                                           IDTrackCaloDepoDecoTool = GetIDTrackCaloDepositsDecorator(),
                                                            OrTrigs = orTriggers1,
                                                            AndTrigs = andTriggers1,
                                                            Mu1PtMin = 5.*Units.GeV,
