@@ -20,7 +20,7 @@
 /// contructor 
 
 SCTRawContByteStreamTool::SCTRawContByteStreamTool
-  ( const std::string& type, const std::string& name,const IInterface* parent )
+( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
      m_encoder   ("SCT_RodEncoder"),
      m_cabling   ("SCT_CablingSvc",name),
