@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindGaudi.cmake 755055 2016-06-15 15:07:02Z krasznaa $
+# $Id: FindGaudi.cmake 767061 2016-08-09 13:20:02Z krasznaa $
 #
 # CMake script attempting to find a Gaudi installation that we can build
 # the offline code against. Without making any use of the CMake code
@@ -44,8 +44,8 @@ set( GAUDI_PYTHON_PATH ${GAUDI_INSTALLAREA}/python )
 # Additional environment settings:
 set( GAUDI_ENVIRONMENT
    SET GAUDI_ROOT ${GAUDI_ROOT}
-   APPEND JOBOPTSEARCHPATH ${GAUDI_INSTALLAREA}/jobOptions
-   APPEND DATAPATH ${GAUDI_INSTALLAREA}/share )
+   PREPEND JOBOPTSEARCHPATH ${GAUDI_INSTALLAREA}/jobOptions
+   PREPEND DATAPATH ${GAUDI_INSTALLAREA}/share )
 
 # Handle the usual parameters given to find_package(...) calls:
 include( FindPackageHandleStandardArgs )
@@ -131,7 +131,21 @@ elseif( NOT "$ENV{GAUDI_VERSION}" STREQUAL "" )
    set( version $ENV{GAUDI_VERSION} )
 elseif( PROJECT_VERSION )
    # This should kick in when building a release with NICOS:
-   set( version ${PROJECT_VERSION} )
+   string (REGEX MATCHALL "[0-9]+" _versionComponents "${PROJECT_VERSION}")
+   list (LENGTH _versionComponents _len)
+   if (${_len} GREATER 3)
+      if (${_len} GREATER 4)
+          LIST(REMOVE_AT _versionComponents 4)
+      endif()
+      LIST(REMOVE_AT _versionComponents 3)
+      string (REPLACE ";" "." _TMP_STR "${_versionComponents}")
+      set ( version "${_TMP_STR}" )
+      unset( _TMP_STR )
+   else()
+      set( version ${PROJECT_VERSION} )
+   endif()
+   unset( _versionComponents )
+   unset( _len )
 else()
    set( version "${CMAKE_PROJECT_VERSION}" )
 endif()

@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasFunctions.cmake 753396 2016-06-07 15:36:05Z krasznaa $
+# $Id: AtlasFunctions.cmake 760944 2016-07-11 09:03:46Z krasznaa $
 #
 # This is the main file that needs to be included in order to get access to the
 # ATLAS CMake functions.
@@ -89,6 +89,11 @@ function( atlas_project name version )
    # such.
    set( CMAKE_NO_SYSTEM_FROM_IMPORTED ON )
    set( CMAKE_NO_SYSTEM_FROM_IMPORTED ON PARENT_SCOPE )
+
+   # Do not consider header files that are outside of the project's source
+   # and binary directory in the dependency tree of the source files.
+   set( CMAKE_DEPENDS_IN_PROJECT_ONLY ON )
+   set( CMAKE_DEPENDS_IN_PROJECT_ONLY ON PARENT_SCOPE )
 
    # Decide about the languages used in the project:
    set( _languages CXX C )
