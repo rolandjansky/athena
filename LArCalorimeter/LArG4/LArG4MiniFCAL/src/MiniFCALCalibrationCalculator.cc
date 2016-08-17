@@ -27,10 +27,10 @@ namespace LArG4 {
       StatusCode status = svcLocator->service("DetectorStore", detStore);
       MsgStream log(Athena::getMessageSvc(),"MiniFCALCalculator" );
       if(status != StatusCode::SUCCESS ) {
-         log << MSG::ERROR << "No DetStore available !!" << endreq;
+         log << MSG::ERROR << "No DetStore available !!" << endmsg;
       }
 
-      log << MSG::INFO << "Use the MiniFCALCalibrationCalculator for the MiniFCAL" << endreq;
+      log << MSG::INFO << "Use the MiniFCALCalibrationCalculator for the MiniFCAL" << endmsg;
 
       // Make sure there are no uninitialized variables.
       m_identifier = LArG4Identifier();
