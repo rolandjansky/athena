@@ -18,9 +18,12 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/Units.h"
 
 #include "globals.hh"
 #include <cmath>
+
+namespace Units = Athena::Units;
 
 #undef DEBUG_HITS
 
@@ -60,7 +63,7 @@ MiniFCALCalculator::MiniFCALCalculator()
    }
 
    MsgStream log(Athena::getMessageSvc(),"MiniFCALCalculator" );
-   log << MSG::INFO << "Use the MiniFCALCalculator for the MiniFCAL" << endreq;
+   log << MSG::INFO << "Use the MiniFCALCalculator for the MiniFCAL" << endmsg;
 
    m_OOTcut = globalOptions->OutOfTimeCut();
 
@@ -85,7 +88,7 @@ G4bool MiniFCALCalculator::Process(const G4Step* a_step, std::vector<LArHitData>
   G4ThreeVector point          = 0.5* (  a_step->GetPreStepPoint()->GetPosition()
 				       + a_step->GetPostStepPoint()->GetPosition() );
 
-  hdata[0].time = timeOfFlight/CLHEP::ns - point.mag()/CLHEP::c_light/CLHEP::ns;
+  hdata[0].time = timeOfFlight/Units::ns - point.mag()/Units::c_light/Units::ns;
 
   if (hdata[0].time > m_OOTcut)
     m_isInTime = false;
