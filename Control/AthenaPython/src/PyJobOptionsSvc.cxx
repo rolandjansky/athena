@@ -152,7 +152,7 @@ PyJobOptionsSvc::setMyProperties (const std::string& client,
       ATH_MSG_ERROR ("Unable to set the property '" 
 		     << (*iprop)->name() << "'"
 		     << " of '" << client << "'."
-		     << endreq
+		     << endmsg
 		     << "Check option and algorithm names, type and bounds.");
       allgood = false;
     }
