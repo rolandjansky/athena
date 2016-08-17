@@ -154,8 +154,8 @@ namespace Muon
         bool   m_twinCorrectSlewing;
         bool   m_discardSecondaryHitTwin;
         //  const MdtCalibrationDbSvc* m_dbSvc;
-        int twin_chamber[2][3][36];
-        int secondaryHit_twin_chamber[2][3][36];
+        int m_twin_chamber[2][3][36];
+        int m_secondaryHit_twin_chamber[2][3][36];
         // - TWIN TUBE
     }; 
 } // end of namespace

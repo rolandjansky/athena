@@ -18,8 +18,8 @@ Muon::MDT_RawDataProviderTool::MDT_RawDataProviderTool(const std::string& t,
 						       const IInterface*  p )
   :
   AthAlgTool(t,n,p),
-  m_rdoContainer(0),
-  m_lastLvl1ID(0),
+  //m_rdoContainer(0),
+  //m_lastLvl1ID(0),
   m_decoder("MdtROD_Decoder"),
   m_rdoContainerKey("MDTCSM"),
   m_muonMgr(0),
@@ -146,7 +146,7 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
     } 
   else has_bytestream = true;
   //{
-  //    m_log << MSG::FATAL << "Cannot get the job configuration" << endreq;
+  //    m_log << MSG::FATAL << "Cannot get the job configuration" << endmsg;
   //    return StatusCode::FAILURE;
   //}
   
@@ -155,18 +155,18 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
   m_activeStore->setStore( &*evtStore() ); 
   if( has_bytestream || m_rdoContainerKey != "MDTCSM" )
     {   
-      MdtCsmContainer* m_container = 
+      MdtCsmContainer* container = 
 	Muon::MuonRdoContainerAccess::retrieveMdtCsm(m_rdoContainerKey);
       
       // create and register the container only once
-      if(m_container==0)
+      if(container==0)
 	{
           try 
 	    {
               if(m_muonMgr->mdtIdHelper()->stationNameIndex("BME") != -1)
-                m_container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->detectorElement_hash_max());
+                container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->detectorElement_hash_max());
               else
-                m_container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->module_hash_max());
+                container = new MdtCsmContainer(m_muonMgr->mdtIdHelper()->module_hash_max());
 	    } 
           catch(std::bad_alloc) 
 	    {
@@ -175,7 +175,7 @@ StatusCode Muon::MDT_RawDataProviderTool::initialize()
 	    }
 	  
           // record the container for being used by the convert method
-          if( Muon::MuonRdoContainerAccess::record(m_container,
+          if( Muon::MuonRdoContainerAccess::record(container,
                                                    m_rdoContainerKey,
                                                    serviceLocator(),
                                                    msg(),

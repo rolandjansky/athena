@@ -44,31 +44,31 @@ class MdtAmtReadOut : public MdtReadOut {
 
   // Word header Position and values
   // The word header occupies the 4 highest bits of each TDC data word 
-  static const uint16_t headerPos  = 28;
-  static const uint16_t headerBits = 0xf;
+  static const uint16_t s_headerPos  = 28;
+  static const uint16_t s_headerBits = 0xf;
 
   // Beginning of TDC: two possible header values 
   // for channels 00-15 and 16-17 respectively
-  static const uint16_t BOTvalue1  = 0xa;
-  static const uint16_t BOTvalue2  = 0xb;
+  static const uint16_t s_BOTvalue1  = 0xa;
+  static const uint16_t s_BOTvalue2  = 0xb;
   
   // End of TDC
-  static const uint16_t EOTvalue   = 0xc;
+  static const uint16_t s_EOTvalue   = 0xc;
   
   // TDC single measurement
-  static const uint16_t TMCvalue   = 0x2;
+  static const uint16_t s_TMCvalue   = 0x2;
   
   // TDC single measurement
-  static const uint16_t TSMvalue   = 0x3;
+  static const uint16_t s_TSMvalue   = 0x3;
   
   // TDC combined measurement
-  static const uint16_t TCMvalue   = 0x4;
+  static const uint16_t s_TCMvalue   = 0x4;
   
   // TDC error status
-  static const uint16_t TESvalue   = 0x6;
+  static const uint16_t s_TESvalue   = 0x6;
 
   // add the CSM trailer word count for operation with TDC trailer suppression
-  static const uint16_t TWCvalue   = 0x8;
+  static const uint16_t s_TWCvalue   = 0x8;
 
  public:
   
@@ -82,20 +82,20 @@ class MdtAmtReadOut : public MdtReadOut {
 
   // Methods to identify the word type
   // Beginning of TDC
-  bool is_BOT() {return ((m_wordHeader == BOTvalue1) || (m_wordHeader == BOTvalue2));};
+  bool is_BOT() {return ((m_wordHeader == s_BOTvalue1) || (m_wordHeader == s_BOTvalue2));};
   // End of TDC
-  bool is_EOT() {return (m_wordHeader == EOTvalue);};
+  bool is_EOT() {return (m_wordHeader == s_EOTvalue);};
   // TDC masked channels
-  bool is_TMC() {return (m_wordHeader == TMCvalue);};
+  bool is_TMC() {return (m_wordHeader == s_TMCvalue);};
   // TDC single measurement
-  bool is_TSM() {return (m_wordHeader == TSMvalue);};
+  bool is_TSM() {return (m_wordHeader == s_TSMvalue);};
   // TDC combined measurement
-  bool is_TCM() {return (m_wordHeader == TCMvalue);}; 
+  bool is_TCM() {return (m_wordHeader == s_TCMvalue);}; 
   // TDC error status
-  bool is_TES() {return (m_wordHeader == TESvalue);};
+  bool is_TES() {return (m_wordHeader == s_TESvalue);};
   
   // trailer word count (actually a CSM word)
-  bool is_TWC() {return (m_wordHeader == TWCvalue);};
+  bool is_TWC() {return (m_wordHeader == s_TWCvalue);};
 
   // Methods to retrieve the decoded word content
   uint16_t tdcId() {return m_tdcId;}

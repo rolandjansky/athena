@@ -117,7 +117,7 @@ StatusCode Muon::MdtCsmContByteStreamTool::convert(CONTAINER* cont, RawEventWrit
   m_fea.fill(re,log); 
   
   ATH_MSG_DEBUG(" RawEvent size in 32 bit word " << re->size_word());
-  //    log <<MSG::DEBUG<<" RawEvent header  " << re->header() << endreq;
+  //    log <<MSG::DEBUG<<" RawEvent header  " << re->header() << endmsg;
   
   return StatusCode::SUCCESS; 
   

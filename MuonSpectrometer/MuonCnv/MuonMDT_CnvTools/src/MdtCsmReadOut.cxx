@@ -34,7 +34,7 @@ void MdtCsmReadOut::decodeWord(uint32_t dataWord)
 
   m_dataWord   = dataWord;
   m_word       = dataWord;
-  m_wordHeader = (dataWord>>headerPos) & headerBits;
+  m_wordHeader = (dataWord>>s_headerPos) & s_headerBits;
 
   if (is_BOB())
     {
@@ -66,8 +66,8 @@ void MdtCsmReadOut::decodeWord(uint32_t dataWord)
 uint32_t MdtCsmReadOut::makeBOB(uint32_t lvl1Id)
 {
   uint16_t nData = 2;
-  uint32_t inputData[2] = {BOBvalue, lvl1Id};
-  uint16_t inputPos[2] = {headerPos,      0};
+  uint32_t inputData[2] = {s_BOBvalue, lvl1Id};
+  uint16_t inputPos[2] = {s_headerPos,      0};
   
   return setBits(nData, inputData, inputPos);
 }
@@ -75,8 +75,8 @@ uint32_t MdtCsmReadOut::makeBOB(uint32_t lvl1Id)
 uint32_t MdtCsmReadOut::makeLWC(uint32_t clwc)
 {
   uint16_t nData = 3;
-  uint32_t inputData[3] = {LWCvalue,  0, clwc};
-  uint16_t inputPos[3] = {headerPos, 20,   0};
+  uint32_t inputData[3] = {s_LWCvalue,  0, clwc};
+  uint16_t inputPos[3] = {s_headerPos, 20,   0};
   
   return setBits(nData, inputData, inputPos);
 }
@@ -86,8 +86,8 @@ uint32_t MdtCsmReadOut::makeBOL(uint16_t mrodId, uint16_t csmId)
   uint16_t nData = 5;
   // Error and Zero-suppression bits are by now set to 0 (no error)
   // and 1 (Zero-suppression activated)
-  uint32_t inputData[5] = {BOLvalue, 0, 1, mrodId, csmId};
-  uint16_t inputPos[5] = {headerPos,20,16,      4,     0};
+  uint32_t inputData[5] = {s_BOLvalue, 0, 1, mrodId, csmId};
+  uint16_t inputPos[5] = {s_headerPos,20,16,      4,     0};
 
   return setBits(nData, inputData, inputPos);
 }
@@ -95,8 +95,8 @@ uint32_t MdtCsmReadOut::makeBOL(uint16_t mrodId, uint16_t csmId)
 uint32_t MdtCsmReadOut::makeTLP(uint32_t flags)
 {
   uint16_t nData = 4;
-  uint32_t inputData[4] = {TLPvalue,  0,  0, flags};
-  uint16_t inputPos[4] = {headerPos, 20, 18,     0};
+  uint32_t inputData[4] = {s_TLPvalue,  0,  0, flags};
+  uint16_t inputPos[4] = {s_headerPos, 20, 18,     0};
 
   return setBits(nData, inputData, inputPos);  
 }
@@ -104,8 +104,8 @@ uint32_t MdtCsmReadOut::makeTLP(uint32_t flags)
 uint32_t MdtCsmReadOut::makeTWC(uint16_t ecnt, uint16_t ctwc)
 {
   uint16_t nData = 3;
-  uint16_t inputData[3] = {TWCvalue, ecnt, ctwc};
-  uint16_t inputPos[3] = {headerPos,   12,    0};
+  uint16_t inputData[3] = {s_TWCvalue, ecnt, ctwc};
+  uint16_t inputPos[3] = {s_headerPos,   12,    0};
 
   return setBits(nData, inputData, inputPos);    
 }
@@ -113,8 +113,8 @@ uint32_t MdtCsmReadOut::makeTWC(uint16_t ecnt, uint16_t ctwc)
 uint32_t MdtCsmReadOut::makeEOB(uint32_t wcnt)
 {
   uint16_t nData = 2;
-  uint32_t inputData[2] = {EOBvalue, wcnt};
-  uint16_t inputPos[2] = {headerPos,    0};
+  uint32_t inputData[2] = {s_EOBvalue, wcnt};
+  uint16_t inputPos[2] = {s_headerPos,    0};
 
   return setBits(nData, inputData, inputPos);      
 }
