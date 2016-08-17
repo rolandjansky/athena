@@ -23,8 +23,6 @@
 //#include "TrkEventPrimitives/Vector.h"
 #include "TrkExUtils/IntersectionSolution.h"
 #include "TrkExUtils/RungeKuttaUtils.h"
-#include "TrkEventPrimitives/CurvilinearUVT.h"
-#include "TrkEventPrimitives/JacobianCurvilinearToLocal.h"
 #include "TrkExUtils/TransportJacobian.h"
 #include "TrkExInterfaces/ITimedMatEffUpdator.h"
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
@@ -2249,8 +2247,6 @@ void Trk::STEP_Propagator::covarianceContribution( const Trk::TrackParameters*  
   // first update to make sure all material counted
   updateMaterialEffects(finalMomentum, sin(trackParameters->momentum().theta()), path );
   
-  //Set up curvilinear system 
-  /* variant A
   Trk::RungeKuttaUtils rungeKuttaUtils;
   double Jac[21];
   rungeKuttaUtils.jacobianTransformCurvilinearToLocal(*targetParms,Jac);
@@ -2258,38 +2254,10 @@ void Trk::STEP_Propagator::covarianceContribution( const Trk::TrackParameters*  
   //Transform multiple scattering and straggling covariance from curvilinear to local system
   AmgSymMatrix(5)* localMSCov = rungeKuttaUtils.newCovarianceMatrix(
       Jac, m_combinedCovariance+m_covariance );
+
   *measurementCovariance += *localMSCov;
+
   delete localMSCov; 
-  */
-  // variant B
-  double mom = trackParameters->momentum().mag();
-  double particleMass = s_particleMasses.mass[m_particle]; //Get particle mass from ParticleHypothesis
-  double totalMomentumLoss = finalMomentum - mom;
-
-  //Set up curvilinear system in the direction of the momentum
-  Trk::CurvilinearUVT curvilinearUVT( targetParms->momentum().normalized());
-
-  //Set up local system at the target surface
-  const Amg::Transform3D&  surfaceRotation = targetParms->associatedSurface().transform();
-  Amg::Vector3D localX( surfaceRotation(0,0), surfaceRotation(1,0), surfaceRotation(2,0) );
-  Amg::Vector3D localY( surfaceRotation(0,1), surfaceRotation(1,1), surfaceRotation(2,1) );
-  Amg::Vector3D localZ( surfaceRotation(0,2), surfaceRotation(1,2), surfaceRotation(2,2) );
-
-  //Calculate jacobian for transformation from curvilinear to local system at the target surface
-  Trk::JacobianCurvilinearToLocal jacobianCurvToLocal( curvilinearUVT, localX, localY, localZ);
-
-  //Calculate tranformation contributions when going from the curvilinear to the local system at the target surface
-  double E = sqrt( finalMomentum*finalMomentum + particleMass*particleMass);
-  double dLambdads = -targetParms->charge()*(totalMomentumLoss/fabs(path))*E/std::pow(finalMomentum, 3);
-
-  jacobianCurvToLocal(4,1) = -(curvilinearUVT.curvU().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
-  jacobianCurvToLocal(4,2) = -(curvilinearUVT.curvV().dot(localZ))/(curvilinearUVT.curvT().dot(localZ))*dLambdads;
-
-  //Transform multiple scattering and straggling covariance from curvilinear to local system
-  AmgSymMatrix(5) localMSCovariance = (m_combinedCovariance+m_covariance).similarity( jacobianCurvToLocal);
-
-  //Add measurement errors and multiple scattering + straggling covariance
-  *measurementCovariance += localMSCovariance;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////
