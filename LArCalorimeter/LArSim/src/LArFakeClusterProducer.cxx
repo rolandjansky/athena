@@ -9,10 +9,6 @@
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"
 
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/IDataProviderSvc.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 #include "StoreGate/DataHandle.h"
@@ -45,26 +41,10 @@ LArFakeClusterProducer::LArFakeClusterProducer(const std::string& name, ISvcLoca
 
 StatusCode LArFakeClusterProducer::hitConstruction(){
   
-  MsgStream log( messageService(), name() );
-   
   LArHit * hit ; // Use this Abstract Base Class as much as possible for handling hits 
 
-  StoreGateSvc* detStore;
-
-  StatusCode sc = service("DetectorStore", detStore);
-  if (sc.isFailure()){
-    log << MSG::ERROR << "cannot access DetectorStore" << endreq;
-    return StatusCode::FAILURE;
-  }
-
   const DataHandle<CaloIdManager> caloIdMgr;
-  sc = detStore->retrieve(caloIdMgr);
-  if (sc.isFailure()) {
-    log << MSG::ERROR
-        << "Unable to retrieve CaloIdManager from DetectoreStore"
-        << endreq; 
-    return StatusCode::FAILURE;
-  }   
+  ATH_CHECK( detStore()->retrieve(caloIdMgr) );
 
   const LArEM_ID* id_generator=caloIdMgr->getEM_ID();
   
@@ -91,8 +71,8 @@ StatusCode LArFakeClusterProducer::hitConstruction(){
       ps_id = id_generator->channel_id( 1, 0 , 0 , ieta+k , 0 ) ; 
       hit = this->newLArHit(ps_id , frontE * profile , 0. ) ; 
       if( hit == 0 ){   
-       log<<MSG::FATAL<<"Unable to create a new LArHit for cell : " << id_generator->show_to_string(ps_id) <<endreq ;
-       return StatusCode::FAILURE;
+        ATH_MSG_FATAL("Unable to create a new LArHit for cell : " << id_generator->show_to_string(ps_id)  );
+        return StatusCode::FAILURE;
       }  
       hit_container->push_back( hit ) ; 
      }
@@ -116,7 +96,7 @@ StatusCode LArFakeClusterProducer::hitConstruction(){
        strip_id = id_generator->channel_id( 1, 1 , 0 , (ieta * 8 + 4)+k , 0 ) ;    
        hit = this->newLArHit(strip_id , stripE * profile , 0. ) ; 
        if( hit == 0 ){   // EMB front strips in 7 cells in eta 
-         log<<MSG::FATAL<<"Unable to create a new LArHit for cell : " << id_generator->show_to_string(strip_id) <<endreq ;
+         ATH_MSG_FATAL("Unable to create a new LArHit for cell : " << id_generator->show_to_string(strip_id)  );
          return StatusCode::FAILURE;
        }
        hit_container->push_back( hit ) ; 
@@ -129,7 +109,7 @@ StatusCode LArFakeClusterProducer::hitConstruction(){
        middle_id = id_generator->channel_id( 1, 2 , 0 , ieta + k  , p ) ;
        hit = this->newLArHit(middle_id , middleE * profilep , 0. ) ; 
        if( hit == 0 ){   
-         log<<MSG::FATAL<<"Unable to create a new LArHit for cell : " << id_generator->show_to_string(middle_id) <<endreq ;
+         ATH_MSG_FATAL("Unable to create a new LArHit for cell : " << id_generator->show_to_string(middle_id)  );
          return StatusCode::FAILURE;
        }        
        hit_container->push_back( hit ) ;
@@ -144,7 +124,7 @@ StatusCode LArFakeClusterProducer::hitConstruction(){
         back_id = id_generator->channel_id( 1, 3 , 0 , (ieta / 2) + k , p ) ;     
         hit = this->newLArHit(back_id , backE * profilep , 0. ) ; 
         if( hit == 0 ){   
-          log<<MSG::FATAL<<"Unable to create a new LArHit for cell : " << id_generator->show_to_string(back_id) <<endreq ;
+          ATH_MSG_FATAL("Unable to create a new LArHit for cell : " << id_generator->show_to_string(back_id)  );
           return StatusCode::FAILURE;
         }  
         hit_container->push_back( hit ) ; 
@@ -154,8 +134,8 @@ StatusCode LArFakeClusterProducer::hitConstruction(){
      
     }catch(LArID_Exception & except) {
   
-     log<<MSG::FATAL<<"Unable to create a new Identifier " << endreq ;
-     log<<MSG::FATAL<< (std::string) except << endreq ;
+     ATH_MSG_FATAL("Unable to create a new Identifier "  );
+     ATH_MSG_FATAL( (std::string) except  );
      return StatusCode::FAILURE ;
   
     } 
