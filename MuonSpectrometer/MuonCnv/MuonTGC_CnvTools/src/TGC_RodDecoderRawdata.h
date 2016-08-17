@@ -43,11 +43,11 @@ namespace Muon
       /** Standard AlgTool method */
       virtual StatusCode finalize();
       /** Convert ROBFragment to RDO */
-      virtual StatusCode fillCollection(const ROBFragment& robFrag, TgcRdoContainer& rdoIdc);
+      virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdoContainer& rdoIdc);
 
     private:
       /** Retrieve header of ROBFragment */
-      TgcRdo* getCollection(const ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const;
+      TgcRdo* getCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment& robFrag, TgcRdoContainer& rdoIdc) const;
       /** Convert data contents of ROBFragment to RDO 
        *  The same byteStream2Rdo method in TGC_RodDecoderReadout is used for checking conversion validation */
       void byteStream2Rdo(OFFLINE_FRAGMENTS_NAMESPACE::PointerType bs, TgcRdo& rdo, uint32_t source_id);

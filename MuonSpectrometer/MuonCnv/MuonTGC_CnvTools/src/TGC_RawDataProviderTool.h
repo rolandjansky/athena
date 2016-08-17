@@ -67,7 +67,7 @@ namespace Muon
 	  TgcRdo is an RDO container. 
 	  TgcRdoContiner is an container of RDO containers.  
        */
-      TgcRdoContainer*                    m_rdoContainer;
+      //TgcRdoContainer*                    m_rdoContainer;
       /** RDO container key */
       std::string                         m_rdoContainerKey;
       /** Active Store Service */ 

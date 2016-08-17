@@ -99,7 +99,7 @@ void Muon::TgcSlbDataHelper::convertToHits(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertToHits :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit =false;
 	}
@@ -113,7 +113,7 @@ void Muon::TgcSlbDataHelper::convertToHits(uint16_t subDetectorId,
 		   << " sbLoc:" << slb->getSbLoc() 
 		   << " slbId:" << slb->getSlbId()
 		   << " bit#:" << ibit 
-		   << endreq;
+		   << endmsg;
 	}
       } //endif
     } // loop ibit
@@ -162,7 +162,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type ="  << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -179,7 +179,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " sub: " << i
 		   << " pos:" << pos[i] 
 		   << " delta:" << delta[i]
-		   << endreq;
+		   << endmsg;
 	}
       } // loop block (i)        
       break;
@@ -204,7 +204,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -221,7 +221,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " sub: " << i
 		   << " pos:" << pos[i] 
 		   << " delta:" << delta[i]
-		   << endreq;
+		   << endmsg;
 	}
       } // loop block (i) 
       break;
@@ -245,7 +245,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -260,7 +260,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " slbId:" << slb->getSlbId()
 		   << " sub: " << i
 		   << " pos:" << pos[i] 
-		   << endreq;
+		   << endmsg;
 	}
       }	// loop block  
       break;
@@ -290,7 +290,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -306,7 +306,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " seg: " << seg
 		   << " sub: " << subc
 		   << " pos:" << pos[i] 
-		   << endreq;
+		   << endmsg;
 	}
       }	// loop block (i)  
       break;
@@ -341,7 +341,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -358,7 +358,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " seg: " << rCh->segment()
 		   << " sub: " << rCh->subMatrix()
 		   << " pos:" << rCh->position() 
-		   << endreq;
+		   << endmsg;
 	}
       }	
       
@@ -411,7 +411,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	    (*m_log) << MSG::DEBUG 
 		     << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -426,7 +426,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " slbId:" << slb->getSlbId()
 		   << " roi:" << roi[i] 
 		   << " pt:" << threshold[i]
-		   << endreq;
+		   << endmsg;
 	}
       } // loop candidate (i)
 
@@ -476,7 +476,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	      (*m_log) << MSG::DEBUG 
 		       << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		       << " slb type =" << slb->getType()
-		       << endreq;
+		       << endmsg;
 	    }
 	    isFirstHit = false;
 	  }
@@ -494,7 +494,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		     << " index:" << index[i]
 		     << " hitId:" << hitId[i] 
 		     << " delta:" << deltaHPT[i]
-		     << endreq;
+		     << endmsg;
           }
           continue; // skip making TgcRawData
         }
@@ -518,7 +518,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 	  if(m_debug) {
 	    (*m_log) << "Tgc TgcSlbDataHelper::convertCoincidence :"
 		     << " slb type =" << slb->getType()
-		     << endreq;
+		     << endmsg;
 	  }
 	  isFirstHit = false;
 	}
@@ -540,7 +540,7 @@ void Muon::TgcSlbDataHelper::convertToCoincidences(uint16_t subDetectorId,
 		   << " index:" << index[i]
 		   << " hitId:" << hitId[i] 
 		   << " delta:" << deltaHPT[i]
-		   << endreq;
+		   << endmsg;
 	}
       }
 

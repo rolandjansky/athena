@@ -205,7 +205,7 @@ inline int fragmentCount(uint32_t data, int id)
       StatusCode sc = svcLocator->service("MessageSvc", msgSvc);
       if(!sc.isFailure()) {
 	MsgStream log(msgSvc, "Muon TgcByteStreamData fragmentCount");
-	log << MSG::ERROR << "Requested count of frament " << id << ", data is for fragment " << counter.id << endreq;
+	log << MSG::ERROR << "Requested count of frament " << id << ", data is for fragment " << counter.id << endmsg;
       }
       return 0;
     }

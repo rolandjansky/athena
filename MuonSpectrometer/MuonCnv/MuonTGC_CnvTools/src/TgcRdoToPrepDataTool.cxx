@@ -777,7 +777,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::decodeHits(const TgcRdo::const_iterator& 
 	  << " slb=" << (*itD)->slbId()
 	  << " bitpos=" << (*itD)->bitpos() 
 	  << " orFlag=" << orFlag 
-	  << endreq;
+	  << endmsg;
       }
       continue;
     }
@@ -3446,7 +3446,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::getCabling() {
   const ITGCcablingServerSvc* TgcCabGet = 0;
   StatusCode sc = service("TGCcablingServerSvc", TgcCabGet, true);
   if(!sc.isSuccess()) {
-    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endreq;
+    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get TGCcablingServerSvc !" << endmsg;
     return sc;
   }
   
@@ -3457,7 +3457,7 @@ StatusCode Muon::TgcRdoToPrepDataTool::getCabling() {
   
   sc = TgcCabGet->giveCabling(m_tgcCabling);
   if(!sc.isSuccess()) {
-    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endreq;
+    msg(sc.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get ITGCcablingSvc from Server!" << endmsg;
     m_tgcCabling = 0;
     return sc;
   } else {
