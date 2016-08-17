@@ -21,6 +21,7 @@ apply_pattern declare_joboptions files="*.txt *.py"
 private
 
 use AtlasReflex  AtlasReflex-* External -no_auto_imports
+use CxxUtils     CxxUtils-*    Control
 apply_pattern lcgdict dict=TrigT1CaloCalibConditions selectionfile=selection.xml headerfiles="../TrigT1CaloCalibConditions/TrigT1CaloCalibConditionsDict.h"
 
 end_private
