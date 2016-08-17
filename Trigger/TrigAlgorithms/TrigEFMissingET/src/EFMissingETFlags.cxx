@@ -346,33 +346,33 @@ StatusCode EFMissingETFlags::execute(xAOD::TrigMissingET *met ,
     float sumBadEt =   sumOfSigns * c0 + c1 *  metComp->m_sumBadEt;
 
     // flag component if |MET/SumET| is too large 
-    if (elem==38 && i<24 && sumEt>0 && fabsf(MET/sumEt)>m_CompMaxMEtSumEtRatio[i]) {
+    if (elem==42 && i<24 && sumEt>0 && fabsf(MET/sumEt)>m_CompMaxMEtSumEtRatio[i]) {
       metComp->m_status |= m_maskCompBigMEtSEtRatio;
     }
 
     // flag component if its energy is too large (positive or negative)
-    if (elem==38 && i<24 && (sumE<m_MinCompE[i] || sumE>m_MaxCompE[i])) {
+    if (elem==42 && i<24 && (sumE<m_MinCompE[i] || sumE>m_MaxCompE[i])) {
       metComp->m_status |= m_maskBadCompEnergy;
     }
 
     // flag component if cell energy is outside the allowed boundaries
-    if (elem==38 && i<24 && (metComp->m_minE<m_MinCellE[i] || metComp->m_maxE>m_MaxCellE[i])){
+    if (elem==42 && i<24 && (metComp->m_minE<m_MinCellE[i] || metComp->m_maxE>m_MaxCellE[i])){
       metComp->m_status |= m_maskBadCellEnergy;
     }
 
     // flag component if cell time is outside the allowed boundaries
-    if (elem==38 && i<24 &&
+    if (elem==42 && i<24 &&
        (metComp->m_minTime<m_MinCellTime[i] || metComp->m_maxTime>m_MaxCellTime[i])){
       metComp->m_status |= m_maskBadCellTime;
     }
 
     // flag component if cell quality is poor
-    if (elem==38 && i<24 && metComp->m_maxQlty>m_WorstCellQlty[i]){
+    if (elem==42 && i<24 && metComp->m_maxQlty>m_WorstCellQlty[i]){
       metComp->m_status |= m_maskBadCellQuality;
     }
 
     //flag component if noiy energy ratio is too large
-    if (elem==38 && i<24 && sumEt>1e-3 && sumBadEt>1e-3 && (sumBadEt/sumEt)>m_CompMaxNoisyEnergyRatio[i]){
+    if (elem==42 && i<24 && sumEt>1e-3 && sumBadEt>1e-3 && (sumBadEt/sumEt)>m_CompMaxNoisyEnergyRatio[i]){
        metComp->m_status |= m_maskNoisyEnergyRatio;
     }
 
