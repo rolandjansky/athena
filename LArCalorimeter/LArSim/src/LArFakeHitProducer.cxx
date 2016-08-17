@@ -25,10 +25,7 @@ LArFakeHitProducer::LArFakeHitProducer(const std::string& name, ISvcLocator* pSv
 //Initialize method
 StatusCode LArFakeHitProducer::hitConstruction(){
 
-    MsgStream log( this->messageService(), this->name() ); 
-    StatusCode sc = StatusCode::SUCCESS ;   
-
-    log<<MSG::DEBUG<<"LArFakeHitProducer "<< this->name()<<"hitConstrution"<<endreq ;
+    ATH_MSG_DEBUG("LArFakeHitProducer "<< this->name()<<"hitConstrution" );
 
     LArHitContainer* cont = hitContainer(); 
     for (int i=1;i<100;++i)
@@ -40,10 +37,10 @@ StatusCode LArFakeHitProducer::hitConstruction(){
 	cont->push_back(h);         
     } 
 
-    log<<MSG::DEBUG<<" Filled the container, size = "<< cont->size()<<endreq ;
+    ATH_MSG_DEBUG(" Filled the container, size = "<< cont->size() );
 
 
-    StoreGate::instance().record(cont,"LArHitFake"); 
-    return sc;
+    ATH_CHECK( StoreGate::instance().record(cont,"LArHitFake") );
+    return StatusCode::SUCCESS;
 }
 
