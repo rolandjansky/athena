@@ -312,7 +312,7 @@
         <!-- CheckKeysV6 needs HLT_physicsV6_rerun -->
         <TEST name="CheckKeysV6" type="script" suite="TP1menu">
             <options_atn>trigtest.pl --cleardir  --test CheckKeysV6 --rundir CheckKeysV6 --conf TrigP1Test.conf</options_atn>
-            <timelimit>59</timelimit>     
+            <timelimit>90</timelimit>     
             <mailto>joerg.stelzer@cern.ch</mailto> 
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -336,7 +336,7 @@
         
         <TEST name="UploadMenuKeys_rerunLvL1" type="script" suite="TP1menuRL1">
             <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys_rerunLvL1 --rundir UploadMenuKeys_rerunLvL1 --conf TrigP1Test.conf</options_atn>
-            <timelimit>35</timelimit>
+            <timelimit>59</timelimit>
             <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
@@ -348,7 +348,7 @@
         
         <TEST name="HLT_physicsV6_rerunLvL1_menu_rerundb" type="script" suite="TP1menuRL1">
             <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_rerunLvL1_menu_rerundb --rundir HLT_physicsV6_rerunLvL1_menu_rerundb --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
+            <timelimit>59</timelimit>
             <platform>opt</platform>
             <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
@@ -588,7 +588,7 @@
                 </doc>
                 <jobTransformJobName>athenaHLT_LatestRun_MCV6</jobTransformJobName>
                 <jobTransformCmd>
-                    trigp1test_athenaHLT.py --nfiles=1 --dir='/eos/atlas/atlastier0/rucio/data16_13TeV/physics_Main/' --modifiers="testMCV6=True;fpeAuditor=True"
+                    trigp1test_athenaHLT.py --nfiles=1 --dir='/eos/atlas/atlastier0/rucio/data16_13TeV/physics_Main/' --modifiers="testMCV6=True;fpeAuditor=True;from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties ; pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True"
                 </jobTransformCmd>
                 <group>AtlasHLTChainTest</group>
                 <queue>long</queue>
