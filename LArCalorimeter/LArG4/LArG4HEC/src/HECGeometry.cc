@@ -26,11 +26,16 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "StoreGate/StoreGate.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/Units.h"
 
 #include "globals.hh"
 #include <string>
 #include <cmath>
 #include <stdexcept>
+
+
+namespace Units = Athena::Units;
+
 
 #undef DEBUG_HEC
 
@@ -52,19 +57,19 @@ bool   HECGeometry::m_depthHist = false;
 bool   HECGeometry::m_withMother = false;
 bool   HECGeometry::m_inMother = false;
 int    HECGeometry::m_g4historyDepth = 0;
-double HECGeometry::depthSize[7];
-double HECGeometry::depthSum[7];
-double HECGeometry::minval[7][2][10];
-double HECGeometry::maxval[7][2][10];
-double HECGeometry::firstAbsThickness[2];
-double HECGeometry::wheel1;
-double HECGeometry::wheel2;
-double HECGeometry::betweenWheels;
-double HECGeometry::hecLength;
-double HECGeometry::startHec2;
-double HECGeometry::rOuter;
-double HECGeometry::rInner1;
-double HECGeometry::rInner2;
+double HECGeometry::s_depthSize[7];
+double HECGeometry::s_depthSum[7];
+double HECGeometry::s_minval[7][2][10];
+double HECGeometry::s_maxval[7][2][10];
+double HECGeometry::s_firstAbsThickness[2];
+double HECGeometry::s_wheel1;
+double HECGeometry::s_wheel2;
+double HECGeometry::s_betweenWheels;
+double HECGeometry::s_hecLength;
+double HECGeometry::s_startHec2;
+double HECGeometry::s_rOuter;
+double HECGeometry::s_rInner1;
+double HECGeometry::s_rInner2;
 
 
 HECGeometry* HECGeometry::m_instance = 0;
@@ -81,13 +86,13 @@ HECGeometry* HECGeometry::GetInstance()
   
   
   MsgStream log(Athena::getMessageSvc(),"LArG4HEC::HECGeometry" );
-  log << MSG::DEBUG << "HECGeometry - Constructor" << endreq;
+  log << MSG::DEBUG << "HECGeometry - Constructor" << endmsg;
     
-  hecManager=NULL;
+  m_hecManager=NULL;
   
-  if (!hecManager){
+  if (!m_hecManager){
     StoreGateSvc* detStore = StoreGate::pointer("DetectorStore");
-    if (detStore->retrieve(hecManager)!=StatusCode::SUCCESS){
+    if (detStore->retrieve(m_hecManager)!=StatusCode::SUCCESS){
       throw std::runtime_error("HEC::HECGeometry Can't find HECDetectorManager!");
     }
   }
@@ -98,12 +103,12 @@ HECGeometry* HECGeometry::GetInstance()
   // eta identifier ready for any given depth. 
 
   for (int iblock=0; iblock<7; iblock++)  {
-    depthSum[iblock] = 0.;
-    depthSize[iblock] = 0.;
+    s_depthSum[iblock] = 0.;
+    s_depthSize[iblock] = 0.;
     for (int ireg=0; ireg<2; ireg++)     {
       for (int etaseg=0; etaseg<10; etaseg++)  {
-	minval[iblock][ireg][etaseg] = 0.; 
-	maxval[iblock][ireg][etaseg] = 0.;
+	s_minval[iblock][ireg][etaseg] = 0.; 
+	s_maxval[iblock][ireg][etaseg] = 0.;
       }
     }
   }
@@ -111,12 +116,12 @@ HECGeometry* HECGeometry::GetInstance()
   double depthsum_tally = 0.;
   for (int depthIndex=0; depthIndex<7; depthIndex++)
     {
-      depthSize[depthIndex] = hecManager->getBlock(depthIndex)->getDepth();
-      depthsum_tally += depthSize[depthIndex];
+      s_depthSize[depthIndex] = m_hecManager->getBlock(depthIndex)->getDepth();
+      depthsum_tally += s_depthSize[depthIndex];
       if (depthIndex==3) depthsum_tally += 40.5; // YIKES! hard-coded number...!
-      depthSum[depthIndex] = depthsum_tally  ;
+      s_depthSum[depthIndex] = depthsum_tally  ;
 
-      const HECLongBlock *block = hecManager->getBlock(depthIndex);
+      const HECLongBlock *block = m_hecManager->getBlock(depthIndex);
       
       int isegInner = 0;
       int isegOuter = block->getNumRadialSegments();
@@ -137,29 +142,29 @@ HECGeometry* HECGeometry::GetInstance()
 	  if (ieta < 0) { iregion=0; ieta=9; } 
 	  
 	  const HECRadialSegment *hecRad = block->getRadialSegment(iseg);
-	  minval[depthIndex][iregion][ieta]= hecRad->getMinVal();
-	  maxval[depthIndex][iregion][ieta]= hecRad->getMaxVal();
+	  s_minval[depthIndex][iregion][ieta]= hecRad->getMinVal();
+	  s_maxval[depthIndex][iregion][ieta]= hecRad->getMaxVal();
 	  // This is a most terrible hack to correct numbers in the database...:
-	  double rInner = hecManager->getBlock(depthIndex)->getInnerRadius();
-	  double rOuter = hecManager->getBlock(depthIndex)->getOuterRadius();
-	  if (hecRad->getMaxVal()==2027.)                    maxval[depthIndex][iregion][ieta]=rOuter;
-	  if (hecRad->getMinVal()==375. && depthIndex==0)    minval[depthIndex][iregion][ieta]=rInner;
-	  else if (hecRad->getMinVal()==478 && depthIndex>0) minval[depthIndex][iregion][ieta]=rInner;
+	  double rInner = m_hecManager->getBlock(depthIndex)->getInnerRadius();
+	  double s_rOuter = m_hecManager->getBlock(depthIndex)->getOuterRadius();
+	  if (hecRad->getMaxVal()==2027.)                    s_maxval[depthIndex][iregion][ieta]=s_rOuter;
+	  if (hecRad->getMinVal()==375. && depthIndex==0)    s_minval[depthIndex][iregion][ieta]=rInner;
+	  else if (hecRad->getMinVal()==478 && depthIndex>0) s_minval[depthIndex][iregion][ieta]=rInner;
 	}
     }
 
 
   // And some essential numbers we'll need over and over again:
-  firstAbsThickness[0] = hecManager->getBlock(0)->getFrontPlateThickness() ; 
-  firstAbsThickness[1] = hecManager->getBlock(3)->getFrontPlateThickness() ; 
-  wheel1 = depthSize[0]+depthSize[1]+depthSize[2];              // 816.5;
-  wheel2 = depthSize[3]+depthSize[4]+depthSize[5]+depthSize[6]; // 961.0;
-  betweenWheels = 40.5; // HACK!! -- can't find this through LArReadoutGeometry...
-  startHec2 = wheel1 + betweenWheels + firstAbsThickness[1];
-  hecLength = wheel1 + betweenWheels + wheel2;  
-  rOuter  = hecManager->getBlock(0)->getOuterRadius();
-  rInner1 = hecManager->getBlock(0)->getInnerRadius();
-  rInner2 = hecManager->getBlock(1)->getInnerRadius();
+  s_firstAbsThickness[0] = m_hecManager->getBlock(0)->getFrontPlateThickness() ; 
+  s_firstAbsThickness[1] = m_hecManager->getBlock(3)->getFrontPlateThickness() ; 
+  s_wheel1 = s_depthSize[0]+s_depthSize[1]+s_depthSize[2];              // 816.5;
+  s_wheel2 = s_depthSize[3]+s_depthSize[4]+s_depthSize[5]+s_depthSize[6]; // 961.0;
+  s_betweenWheels = 40.5; // HACK!! -- can't find this through LArReadoutGeometry...
+  s_startHec2 = s_wheel1 + s_betweenWheels + s_firstAbsThickness[1];
+  s_hecLength = s_wheel1 + s_betweenWheels + s_wheel2;  
+  s_rOuter  = m_hecManager->getBlock(0)->getOuterRadius();
+  s_rInner1 = m_hecManager->getBlock(0)->getInnerRadius();
+  s_rInner2 = m_hecManager->getBlock(1)->getInnerRadius();
 
 }
 
@@ -172,14 +177,14 @@ HECGeometry* HECGeometry::GetInstance()
 
     {
    
-      if (!hecManager){
+      if (!m_hecManager){
 	StoreGateSvc* detStore = StoreGate::pointer("DetectorStore");
-	if (detStore->retrieve(hecManager)!=StatusCode::SUCCESS){
+	if (detStore->retrieve(m_hecManager)!=StatusCode::SUCCESS){
 	  throw std::runtime_error("HEC::HECGeometry Can't find HECDetectorManager!");
 	}
       }
 
-      if (!hecManager){
+      if (!m_hecManager){
 	throw std::runtime_error("HEC::HECGeometry Can't find HECDetectorManager!");
       }
          
@@ -205,17 +210,17 @@ HECGeometry* HECGeometry::GetInstance()
 	      if ((theTouchable->GetHistory()->GetVolume(myVol)->GetName())== "LArMgr::LAr::HEC::LiquidArgon")
 		{ m_g4historyDepth=myVol; 
 		  m_depthHist=true;  
-		  log << MSG::INFO << " G4Depth of HEC::LiquidArgon " << m_g4historyDepth << endreq;
+		  log << MSG::INFO << " G4Depth of HEC::LiquidArgon " << m_g4historyDepth << endmsg;
 		  if ((theTouchable->GetHistory()->GetVolume(m_g4historyDepth-1)->GetName())== "LArMgr::LAr::HEC::Mother")
-		    {m_withMother=true;    log << MSG::INFO << "The HEC Wheel is embedded in a HEC Mother" << endreq; }
-		  else {m_withMother=false;    log << MSG::INFO << "The HEC Wheel is independent (no Mother)" << endreq; }
+		    {m_withMother=true;    log << MSG::INFO << "The HEC Wheel is embedded in a HEC Mother" << endmsg; }
+		  else {m_withMother=false;    log << MSG::INFO << "The HEC Wheel is independent (no Mother)" << endmsg; }
 		  break;}	
 	      else if ((theTouchable->GetHistory()->GetVolume(myVol)->GetName())== "LArMgr::LAr::HEC::Mother")
 		{ m_g4historyDepth=myVol+1;  
 		  m_depthHist=true;  
 		  m_withMother=true;
 		  log << MSG::INFO << " G4Depth of HEC::LiquidArgon " << m_g4historyDepth  
-		      << "  The HEC Wheel is embedded in a HEC Mother" << endreq; 
+		      << "  The HEC Wheel is embedded in a HEC Mother" << endmsg; 
 		  break;}	
 	    }
 	}
@@ -269,7 +274,7 @@ HECGeometry* HECGeometry::GetInstance()
 	  const G4AffineTransform moduleTransform= theTouchable->GetHistory()->GetTransform(modVol);
 	  
 	  G4ThreeVector modulePosition = moduleTransform.TransformPoint(pre_step_point->GetPosition());	  
-          double moduleY               = (sqrt)(modulePosition.y()/CLHEP::mm*modulePosition.y()/CLHEP::mm) ;
+          double moduleY               = (sqrt)(modulePosition.y()/Units::mm*modulePosition.y()/Units::mm) ;
 
 	  if (subgap) {
 
@@ -279,11 +284,11 @@ HECGeometry* HECGeometry::GetInstance()
 	    const G4AffineTransform sliceTransform=theTouchable->GetHistory()->GetTransform(sliceVol);
 	    G4ThreeVector slicePosition = sliceTransform.TransformPoint(pre_step_point->GetPosition());	  
 	    G4VSolid      *sliceSolid   = theTouchable->GetHistory()->GetVolume(sliceVol)->GetLogicalVolume()->GetSolid();
-	    double sliceZ               = slicePosition.z()/CLHEP::mm ;
+	    double sliceZ               = slicePosition.z()/Units::mm ;
 	    
 	    G4Tubs *tubs = dynamic_cast<G4Tubs *> (sliceSolid);
 	    if (tubs) {
-	      double dz = tubs->GetDz()/CLHEP::mm;
+	      double dz = tubs->GetDz()/Units::mm;
 	      if (sliceZ > 0) {
 		if (fabs(sliceZ)>dz/2.0) {
 		  (*subgap) = 0;
@@ -317,10 +322,10 @@ HECGeometry* HECGeometry::GetInstance()
 
 	  //---REGION, ETA ---
 	  int ieta = -1;
-	  int iregion = ( moduleY>= maxval[depthIndex][1][0] ) ? 0 : 1 ;
+	  int iregion = ( moduleY>= s_maxval[depthIndex][1][0] ) ? 0 : 1 ;
 	  for (int ie=0; ie<10; ie++)	{
-	    if ( moduleY > minval[depthIndex][iregion][ie] &&
-		 moduleY<= maxval[depthIndex][iregion][ie] )
+	    if ( moduleY > s_minval[depthIndex][iregion][ie] &&
+		 moduleY<= s_maxval[depthIndex][iregion][ie] )
 	      {
 		ieta = ie;  
 		break; 
@@ -333,9 +338,9 @@ HECGeometry* HECGeometry::GetInstance()
 	  if (ieta<0){ 
 	    int ietaMin[7] = {3,2,2,2,2,3,3};
 	    int ietaMax[7] = {0,0,1,1,2,2,3};
-	    if      (moduleY>=rOuter)                        ieta = ietaMax[depthIndex]; 
-	    else if ((depthIndex==0 && moduleY<rInner1 ) ||
-		     (depthIndex>0  && moduleY<rInner2 ))    ieta = ietaMin[depthIndex];
+	    if      (moduleY>=s_rOuter)                        ieta = ietaMax[depthIndex]; 
+	    else if ((depthIndex==0 && moduleY<s_rInner1 ) ||
+		     (depthIndex>0  && moduleY<s_rInner2 ))    ieta = ietaMin[depthIndex];
 	  }
 
 
@@ -423,7 +428,7 @@ HECGeometry* HECGeometry::GetInstance()
 	  // For z, r and PHI , use either mother or wheel coordinates:
 	  // For ETA:
 	  // Get the ideal HEC eta for the inter-moduel crack:
-	  // hecManager->getFocalToRef() = 4270 ...that's the start of the ideal HEC envelope
+	  // m_hecManager->getFocalToRef() = 4270 ...that's the start of the ideal HEC envelope
 	  // (no database access to this:  4277 ...is the start of the actual ideal HEC
 	  // in any case; this number is only used to get some ideal eta assignment.
 	  // it is NOT geometry- or alignmnet-dependent!
@@ -451,7 +456,7 @@ HECGeometry* HECGeometry::GetInstance()
 			((wheelPosition.getPhi() > 0.0) ? (M_PI-wheelPosition.getPhi()) : (-M_PI-wheelPosition.getPhi()))
 			: wheelPosition.getPhi());
 	    // See whether we are in Front or Rear wheel:
-	    zed      = (hecCopy<1) ? (zed    ) : (zed+wheel1+betweenWheels); 
+	    zed      = (hecCopy<1) ? (zed    ) : (zed+s_wheel1+s_betweenWheels); 
 	    idealZ   = zed + 4277.; 
 	    idealEta = -log ( tan( atan(radius/idealZ) / 2.));
 
@@ -460,7 +465,7 @@ HECGeometry* HECGeometry::GetInstance()
 	  // --- PHI ---
 	  // For phi need to consider opposite sense for the negative z-side (that's the same for mother/wheel):
 	  phi           = (phi<0) ? (phi+2.*M_PI) : phi;          
-          int iphi      = int(32*phi/(M_PI));
+          int iphi      = int(phi*(32/M_PI));
 
 #ifdef DEBUG_DEAD
 	  std::cout<<"Dead global phi: "<<globalPosition.getPhi()
@@ -484,7 +489,7 @@ HECGeometry* HECGeometry::GetInstance()
 
 	  
           //--- outside or behind HEC:
-	  if ( radius >= rOuter ) {
+	  if ( radius >= s_rOuter ) {
             if(idealEta < 1.7) { 
 	      ieta = int((idealEta - 1.0)/0.1);
 	      type=1  ; sampling=2;  region=5; 
@@ -495,17 +500,17 @@ HECGeometry* HECGeometry::GetInstance()
 	    }
           }
 	  //--- behind HEC:
-	  else if ( zed >= hecLength ) {  
+	  else if ( zed >= s_hecLength ) {  
 	    ieta = int((idealEta - 1.7)/0.1); 
 	    type=1  ; sampling=3; region=0;   
 	  }
           //--- in front of HEC:
-	  else if ( zed <= firstAbsThickness[0] && radius >rInner1  ) {
+	  else if ( zed <= s_firstAbsThickness[0] && radius >s_rInner1  ) {
 	    ieta = int((idealEta - 1.5)/0.1);
 	    type=1  ; sampling=2;  region=3;    
 	  }
           //--- in bewteen the two HECs:
-	  else if ( zed >= wheel1 &&  zed <=startHec2 && radius<rOuter && radius >rInner2 ) {
+	  else if ( zed >= s_wheel1 &&  zed <=s_startHec2 && radius<s_rOuter && radius >s_rInner2 ) {
 	    ieta = int((idealEta - 1.5)/0.1); 
 	    type=1  ; sampling=2;  region=4; 
 	  }
@@ -516,7 +521,7 @@ HECGeometry* HECGeometry::GetInstance()
 	      
 	      int iDepth =-1;
 	      for (int depthIndex=0; depthIndex<7; depthIndex++) {
-		if (zed <= depthSum[depthIndex]) { iDepth = depthIndex; break; } 
+		if (zed <= s_depthSum[depthIndex]) { iDepth = depthIndex; break; } 
 	      }
               if(iDepth < 0) { // this should not happen (previous tests on zed should guarantee, but to make Coverity happy
                  iDepth = 6;
@@ -525,11 +530,11 @@ HECGeometry* HECGeometry::GetInstance()
 	      // for inner HEC region or HEC/FCAL region:
 	      sampling = (iDepth==0 ? 0 : (iDepth<3 ? 1 : (iDepth<5 ? 2 : 3))); 
 	      iphi = int(32*phi/(2.*M_PI));  
-	      region = (( radius>= maxval[iDepth][1][0] ) ? 2 : 3 );
+	      region = (( radius>= s_maxval[iDepth][1][0] ) ? 2 : 3 );
 	      if      (region==3) ieta = int((idealEta-2.5)/0.2) ; 
 	      else                ieta = int((idealEta-1.5)/0.2) ; 
-	      if      (iDepth>0  && radius <= rInner2 ) { region = 4 ; ieta=0; iphi = int(32*phi/(M_PI));} // between HEC and FCAL
-	      else if (iDepth==0 && radius <= rInner1 ) { region = 4 ; ieta=0; iphi = int(32*phi/(M_PI));} // between HEC and FCAL
+	      if      (iDepth>0  && radius <= s_rInner2 ) { region = 4 ; ieta=0; iphi = int(phi*(32/M_PI));} // between HEC and FCAL
+	      else if (iDepth==0 && radius <= s_rInner1 ) { region = 4 ; ieta=0; iphi = int(phi*(32/M_PI));} // between HEC and FCAL
 
 	    }
 

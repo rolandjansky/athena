@@ -43,27 +43,27 @@ namespace LArG4 {
     private:
       static HECGeometry *m_instance;
       
-      const HECDetectorManager *hecManager;
+      const HECDetectorManager *m_hecManager;
 
       static bool m_depthHist;
       static bool m_withMother;
       static bool m_inMother;
 
       static int  m_g4historyDepth;
-      static double depthSize[7];
-      static double depthSum[7];
-      static double minval[7][2][10];
-      static double maxval[7][2][10];
+      static double s_depthSize[7];
+      static double s_depthSum[7];
+      static double s_minval[7][2][10];
+      static double s_maxval[7][2][10];
 
-      static double firstAbsThickness[2];
-      static double wheel1;
-      static double wheel2;
-      static double betweenWheels;
-      static double hecLength;
-      static double startHec2;
-      static double rOuter;
-      static double rInner1;
-      static double rInner2;
+      static double s_firstAbsThickness[2];
+      static double s_wheel1;
+      static double s_wheel2;
+      static double s_betweenWheels;
+      static double s_hecLength;
+      static double s_startHec2;
+      static double s_rOuter;
+      static double s_rInner1;
+      static double s_rInner2;
 
     };
 

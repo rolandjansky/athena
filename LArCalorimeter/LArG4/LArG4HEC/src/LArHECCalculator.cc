@@ -27,7 +27,10 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/Units.h"
 // Standard implementation of a singleton pattern.
+
+namespace Units = Athena::Units;
 
 LArHECCalculator* LArHECCalculator::m_instance = 0;
 
@@ -122,7 +125,7 @@ G4bool LArHECCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& 
   G4ThreeVector endPoint   = post_step_point->GetPosition();
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
 					 
-  hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+  hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
   if (hdata[0].time > m_OOTcut)
     m_isInTime = false;
   else

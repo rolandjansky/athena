@@ -21,9 +21,12 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/Units.h"
 
 #include "globals.hh"
 #include <cmath>
+
+namespace Units = Athena::Units;
 
 #undef DEBUG_HITS
 
@@ -69,7 +72,7 @@ LArHECLocalCalculator::LArHECLocalCalculator()
    if(status.isFailure()) m_msgSvc = 0;
    if(m_msgSvc) {
      MsgStream log(m_msgSvc,"LArHECLocalCalculator");
-     log << MSG::INFO << "Constructing Calculator " << endreq;
+     log << MSG::INFO << "Constructing Calculator " << endmsg;
    }
 
    m_OOTcut = globalOptions->OutOfTimeCut();
@@ -107,7 +110,7 @@ G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double
   hdata[0].energy = a_step->GetTotalEnergyDeposit();
 
   // apply BirksLaw if we want to:
-  G4double stepLengthCm = a_step->GetStepLength() / CLHEP::cm;
+  G4double stepLengthCm = a_step->GetStepLength() / Units::cm;
   if(hdata[0].energy <= 0. || stepLengthCm <= 0.)  return false;
   if(m_birksLaw)  hdata[0].energy = (*m_birksLaw)(hdata[0].energy, stepLengthCm, 10.0 /*KeV/cm*/);
 
@@ -121,7 +124,7 @@ G4bool LArHECLocalCalculator::Process(const G4Step* a_step, int depthadd, double
   G4ThreeVector endPoint   = post_step_point->GetPosition();
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
 					 
-  hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+  hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
   if (hdata[0].time > m_OOTcut)
     m_isInTime = false;
   else
