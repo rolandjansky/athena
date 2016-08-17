@@ -8,6 +8,7 @@
 #include <JiveXML/IMessage.h>
 #include <JiveXML/IEventServer.h>
 #include <JiveXML/IEventReceiver.h>
+#include "GaudiKernel/IService.h"
 
 namespace JiveXML {
 
@@ -15,11 +16,15 @@ namespace JiveXML {
   /**
    * Pure abstract interface for all full server implementations
    */
-  class IServer: virtual public IEventServer,
+  class IServer: virtual public IService,
+                 virtual public IEventServer,
                  virtual public IEventReceiver,
-                 virtual public IMessage {
+                 virtual public IMessage
+  {
 
     public:
+      DeclareInterfaceID(IServer,1,0);
+
       //Need virtual destructor
       virtual ~IServer(){}
 

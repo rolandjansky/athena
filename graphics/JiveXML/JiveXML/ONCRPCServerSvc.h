@@ -5,7 +5,7 @@
 #ifndef JIVEXML_ONCRPCSERVERSVC_H
 #define JIVEXML_ONCRPCSERVERSVC_H
 
-#include "GaudiKernel/Service.h"
+#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
 #include "JiveXML/EventStream.h"
@@ -38,7 +38,7 @@ namespace JiveXML {
    * forbid you to start several servers with the same ONCRPCSERVERPROG.
    */
 
-  class ONCRPCServerSvc : public extends1<Service, IServerSvc>, 
+  class ONCRPCServerSvc : public extends1<AthService, IServerSvc>, 
                           virtual public IServer {
    public:
     
@@ -70,7 +70,7 @@ namespace JiveXML {
      * This function is exposed to allow using athena messaging service from
      * other threads
      */
-    void Message( const MSG::Level level, const std::string msg ) const ;
+    void Message( const MSG::Level level, const std::string mesg ) const ;
     /** Get the logging level **/
     MSG::Level LogLevel() const ;
 
@@ -102,10 +102,6 @@ namespace JiveXML {
     //Once this flag is set to false, the thread will stop after handling its
     //last request
     bool m_runServerThread;
-
-    //Messaging service
-    mutable MsgStream log;
-
   };
  
 } //namespace
