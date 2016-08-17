@@ -52,12 +52,16 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   , m_TileCellTimBal{}
   , m_TileCellStatFromDB{{}}
   , m_TileCellStatOnFly{}
+  , m_TileCellStatOnFlyLastLumiblocks{}
   , m_TileCellDetailNegOccMap{}
   , m_TileBadCell(0)
   , m_TileMaskCellonFlyLumi{}
   , m_TileMaskChannonFlyLumi{}
   , m_TileMaskChannfromDBLumi{}
   , m_nLumiblocks(3000)
+  , m_nLastLumiblocks(-7)
+  , m_fillMaskedOnFly4LastLumiblocks(false)
+  , m_nEventsLastLumiblocks(0U)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
@@ -76,6 +80,7 @@ TileCellMonTool::TileCellMonTool(const std::string & type, const std::string & n
   declareProperty("FillDigitizerTimeVsLBHistograms", m_fillDigitizerTimeLBHistograms = true);
   declareProperty("FillDigitizerEnergyVsLBHistograms", m_fillDigitizerEnergyLBHistograms = true);
   declareProperty("NumberOfLumiblocks", m_nLumiblocks = 3000);
+  declareProperty("NumberOfLastLumiblocks4MaskedChannelsOnFly", m_nLastLumiblocks = -7);
 
   m_path = "/Tile/Cell";
 
@@ -128,7 +133,10 @@ StatusCode TileCellMonTool:: initialize() {
 
   memset(m_nEventsProcessed, 0, sizeof(m_nEventsProcessed));
 
-  
+  if (m_doOnline && m_nLastLumiblocks > 0) {
+    m_fillMaskedOnFly4LastLumiblocks = true;
+    for (int i = 0; i < m_nLastLumiblocks; ++i) m_nEventsLastLumiblocksShadow.push_back(0U);
+  }
 
   return TileFatherMonTool::initialize();
 }
@@ -613,7 +621,13 @@ void  TileCellMonTool::cleanHistVec() {
       m_TileDigiTimeLB[part][mod].clear();
       m_TileDigiEnergyLB[part][mod].clear();
     }
+
+    for (TH2F* histogram : m_TileCellStatOnFlyLastLumiblocksShadow[part]) delete histogram;
+    m_TileCellStatOnFlyLastLumiblocksShadow[part].clear();
   }
+
+  m_nEventsLastLumiblocks = 0U;
+  for (unsigned int& nEvents : m_nEventsLastLumiblocksShadow) nEvents = 0U;
 
 }
 /*---------------------------------------------------------*/
@@ -715,6 +729,35 @@ StatusCode TileCellMonTool::fillHistograms() {
       }
     }
   }
+
+
+  //Variables for lumiblock based plots
+  int32_t current_lumiblock = getLumiBlock();
+  if(m_old_lumiblock == -1) {
+    m_old_lumiblock = current_lumiblock;
+    for(int32_t parts = 0; parts < 4; parts++) { //initialize old lumiblock tracker array
+      for(int32_t mods = 0; mods < 64; mods++) {
+        for(int32_t vecInds = 0; vecInds < 4; vecInds++){
+          m_OldLumiArray1[parts][mods][vecInds] = current_lumiblock;
+          m_OldLumiArray2[parts][mods][vecInds] = current_lumiblock;
+        }
+      }
+    }
+  }
+  
+
+  if (m_fillMaskedOnFly4LastLumiblocks && m_old_lumiblock < current_lumiblock) {
+    for (unsigned int partition = 0; partition < NumPart; ++partition) {
+      for (int32_t lb = m_old_lumiblock + 1; lb <= current_lumiblock; ++lb) {
+        m_TileCellStatOnFlyLastLumiblocks[partition]->Add(m_TileCellStatOnFlyLastLumiblocksShadow[partition][lb % m_nLastLumiblocks], -1.0);
+        m_TileCellStatOnFlyLastLumiblocksShadow[partition][lb % m_nLastLumiblocks]->Reset();
+        m_nEventsLastLumiblocks -= m_nEventsLastLumiblocksShadow[lb % m_nLastLumiblocks];
+        m_nEventsLastLumiblocksShadow[lb % m_nLastLumiblocks] = 0U;
+      }
+    }
+    m_old_lumiblock = current_lumiblock;
+  }
+
 
   // Pointer to a Tile cell container
   const CaloCellContainer* cell_container;
@@ -833,19 +876,6 @@ StatusCode TileCellMonTool::fillHistograms() {
       double t2 = tile_cell->time2();
       double tdiff = (single_PMT) ? 0.0 : 2.*tile_cell->timeDiff(); // attention! factor of 2 is needed here
 
-      //Variables for lumiblock based plots
-      int32_t current_lumiblock = getLumiBlock();
-      if(m_old_lumiblock == -1) {
-        m_old_lumiblock = current_lumiblock;
-        for(int32_t parts = 0; parts < 4; parts++) { //initialize old lumiblock tracker array
-          for(int32_t mods = 0; mods < 64; mods++) {
-            for(int32_t vecInds = 0; vecInds < 4; vecInds++){
-              m_OldLumiArray1[parts][mods][vecInds] = current_lumiblock;
-              m_OldLumiArray2[parts][mods][vecInds] = current_lumiblock;
-            }
-          }
-        }
-      }
 
       if (msgLvl(MSG::VERBOSE)) {
           //tile_cell->print();
@@ -915,6 +945,10 @@ StatusCode TileCellMonTool::fillHistograms() {
           if (m_TileCellStatFromDB[partition][gn1]->GetBinContent(drw + 1, ch1 + 1) == 0) {
             ++badonfly[partition];
             m_TileCellStatOnFly[partition]->Fill(drawer, ch1);
+            if (m_fillMaskedOnFly4LastLumiblocks) {
+              m_TileCellStatOnFlyLastLumiblocks[partition]->Fill(drawer, ch1);
+              m_TileCellStatOnFlyLastLumiblocksShadow[partition][current_lumiblock % m_nLastLumiblocks]->Fill(drawer, ch1);
+            }
           }
         }
     
@@ -922,6 +956,10 @@ StatusCode TileCellMonTool::fillHistograms() {
           if (m_TileCellStatFromDB[partition2][gn2]->GetBinContent(drw + 1, ch2 + 1) == 0) {
             ++badonfly[partition2];
             m_TileCellStatOnFly[partition2]->Fill(drawer, ch2);
+            if (m_fillMaskedOnFly4LastLumiblocks) {
+              m_TileCellStatOnFlyLastLumiblocks[partition2]->Fill(drawer, ch2);
+              m_TileCellStatOnFlyLastLumiblocksShadow[partition2][current_lumiblock % m_nLastLumiblocks]->Fill(drawer, ch2);
+            }
           }
         }
     
@@ -1329,10 +1367,12 @@ StatusCode TileCellMonTool::fillHistograms() {
   //Fill synchronization plots
   calculateSynch();
 
-  // Set number of events as entries
-  for (int partition = 0; partition < NumPart; ++partition) {
-    m_TileCellStatOnFly[partition]->SetEntries(m_nEvents);
-    m_TileCellDetailNegOccMap[partition]->SetEntries(m_nEvents);
+  if (m_fillMaskedOnFly4LastLumiblocks) {
+    ++m_nEventsLastLumiblocks;
+    m_nEventsLastLumiblocksShadow[current_lumiblock % m_nLastLumiblocks] += 1U;
+    for (unsigned int partition = 0; partition < NumPart; ++partition) {
+      m_TileCellStatOnFlyLastLumiblocks[partition]->SetEntries(m_nEventsLastLumiblocks);
+    }
   }
 
   for (unsigned int i = 0; i < m_eventTrigs.size(); ++i) {
@@ -1353,6 +1393,14 @@ StatusCode TileCellMonTool::fillHistograms() {
       m_TileCellDetailOccMapHiGainOvThr[partition][vecInd]->SetEntries(nEventsPerTrig);
       m_TileCellDetailOccMapLowGainOvThr[partition][vecInd]->SetEntries(nEventsPerTrig);
     }
+  }
+
+
+  // Set number of events as entries
+  for (int partition = 0; partition < NumPart; ++partition) {
+    int nEvents = m_nEventsProcessed[AnyTrig];
+    m_TileCellStatOnFly[partition]->SetEntries(nEvents);
+    m_TileCellDetailNegOccMap[partition]->SetEntries(nEvents);
   }
 
 
@@ -1530,9 +1578,24 @@ void TileCellMonTool::FirstEvInit() {
     SetBinLabel(m_TileCellStatOnFly[p]->GetYaxis(), m_cellchLabel[p]);
     SetBinLabel(m_TileCellStatOnFly[p]->GetXaxis(), m_moduleLabel[p]);
 
+    if (m_fillMaskedOnFly4LastLumiblocks) {
+      m_TileCellStatOnFlyLastLumiblocks[p] = book2F("", "tileCellStatOnFlyLastLumiblocks_" + m_PartNames[p]
+                                                    , "Run " + runNumStr + " Partition " + m_PartNames[p] 
+                                                    + ": Channels masked on the fly last " + std::to_string(m_nLastLumiblocks) 
+                                                    + " lumiblocks (entries = events)"
+                                                    , 64, 0.5, 64.5, 48, -0.5, 47.5);
+      SetBinLabel(m_TileCellStatOnFlyLastLumiblocks[p]->GetYaxis(), m_cellchLabel[p]);
+      SetBinLabel(m_TileCellStatOnFlyLastLumiblocks[p]->GetXaxis(), m_moduleLabel[p]);
+
+      for (int i = 0; i < m_nLastLumiblocks; ++i) {
+        m_TileCellStatOnFlyLastLumiblocksShadow[p].push_back(new TH2F(*m_TileCellStatOnFlyLastLumiblocks[p]));    
+      }
+    }
+
+
     m_TileCellDetailNegOccMap[p] = book2F("", "tileCellDetailNegOccMap_" + m_PartNames[p]
                                           , "Run " + runNumStr + " Partition " + m_PartNames[p] 
-                                                   + ": Occupancy Map Below Negative Threshold " + sene.str() + " GeV (entries = events)"
+                                          + ": Occupancy Map Below Negative Threshold " + sene.str() + " GeV (entries = events)"
                                           , 64, 0.5, 64.5, 48, -0.5, 47.5);
     SetBinLabel(m_TileCellDetailNegOccMap[p]->GetYaxis(), m_cellchLabel[p]);
     SetBinLabel(m_TileCellDetailNegOccMap[p]->GetXaxis(), m_moduleLabel[p]);

@@ -455,8 +455,7 @@ StatusCode TileClusterMonTool::fillHistograms() {
 
           Identifier id = cell->ID();
           
-          if (m_is_collision 
-              || cell->badcell() 
+          if (cell->badcell() 
               || cell->energy() < m_cellEnergyThresholdForTiming
               || usedCells.find(id) != usedCells.end() ) continue;
           
