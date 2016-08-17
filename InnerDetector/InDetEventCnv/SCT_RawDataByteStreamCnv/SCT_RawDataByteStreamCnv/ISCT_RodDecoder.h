@@ -3,7 +3,7 @@
 */
 
 /**
-*      @file header for SCT_RodDecoder Class
+ *      @file header for SCT_RodDecoder Class
  *      AlgTool class to decode ROB bytestream data into RDO
  *      @author: Kondo.Gnanvo@cern.ch, Maria.Jose.Costa@cern.ch
  *      @current developer: Kondo Gnanvo, QMUL (London), august 2005
@@ -30,7 +30,7 @@ class IdentifierHash;
 //using OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment;
 
 class ISCT_RodDecoder : virtual public IAlgTool {
-public: 
+ public: 
 
   /** destructor  */
   virtual ~ISCT_RodDecoder(){}; 
@@ -39,8 +39,8 @@ public:
   static const InterfaceID& interfaceID() ;
 
   /** @brief Decode the rob data fragment and fill the collection SCT_RDO_Collection 
-    *  with the RDO built by the makeRDO(..) method
-    **/
+   *  with the RDO built by the makeRDO(..) method
+   **/
   virtual StatusCode fillCollection(const OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment*,SCT_RDO_Container*,std::vector<IdentifierHash>* vec=0) = 0;
 };
 

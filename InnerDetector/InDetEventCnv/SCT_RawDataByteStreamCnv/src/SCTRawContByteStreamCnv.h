@@ -5,22 +5,21 @@
 #ifndef SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTCNV_H
 #define SCT_RAWDATABYTESTREAMCNV_SCTRAWCONTRAWEVENTCNV_H
 
+// Gaudi
 #include "GaudiKernel/Converter.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/MsgStream.h"
-#include "InDetRawData/InDetRawDataCLASS_DEF.h"
 
-
-class DataObject;
-class ISCTRawContByteStreamTool ; 
-class IByteStreamEventAccess   ;
-
-
+// C++ Standard Library
 #include <string>
 
-/** Abstract factory to create the converter */
-template <class TYPE> class CnvFactory;
+// Athena
+#include "InDetRawData/InDetRawDataCLASS_DEF.h"
+
+class DataObject;
+class IByteStreamEventAccess;
+class ISCTRawContByteStreamTool;
 
 /** Externals */ 
 extern long ByteStream_StorageType;
@@ -55,12 +54,12 @@ class SCTRawContByteStreamCnv: public Converter {
   
   /** create Obj is not used ! */
   virtual StatusCode createObj(IOpaqueAddress*, DataObject*&)
-    { return StatusCode::FAILURE;}
+  { return StatusCode::FAILURE;}
 
   /** this creates the RawEvent fragments for the SCT */
   virtual StatusCode createRep(DataObject* pObj, IOpaqueAddress*& pAddr);
 
-private: 
+ private: 
   /** for BS infrastructure */
   ToolHandle<ISCTRawContByteStreamTool>  m_tool;                  
   ServiceHandle<IByteStreamEventAccess> m_byteStreamEventAccess; 

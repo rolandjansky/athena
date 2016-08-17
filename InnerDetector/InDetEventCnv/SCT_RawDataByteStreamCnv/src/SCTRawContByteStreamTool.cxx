@@ -5,19 +5,22 @@
 /** header file */
 #include "SCTRawContByteStreamTool.h"
 
-#include "ByteStreamData/RawEvent.h" 
+#include "eformat/SourceIdentifier.h"
 
+#include "ByteStreamData/RawEvent.h" 
+#include "ByteStreamCnvSvcBase/SrcIdMap.h" 
+
+///InDet
+#include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
+#include "SCT_Cabling/ISCT_CablingSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
-
-#include "eformat/SourceIdentifier.h"
 
 /// ------------------------------------------------------------------------
 /// contructor 
 
 SCTRawContByteStreamTool::SCTRawContByteStreamTool
-  ( const std::string& type, const std::string& name,const IInterface* parent )
+( const std::string& type, const std::string& name,const IInterface* parent )
   :  AthAlgTool(type,name,parent),
      m_encoder   ("SCT_RodEncoder"),
      m_cabling   ("SCT_CablingSvc",name),

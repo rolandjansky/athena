@@ -3,17 +3,13 @@
 */
 
 #include "SCTRawDataProviderTool.h"
-#include "GaudiKernel/ToolFactory.h"
 #include "GaudiKernel/IToolSvc.h"
-#include "InDetRawData/SCT_RDORawData.h"
 #include "InDetRawData/SCT_RDO_Container.h"
 #include "ByteStreamData/RawEvent.h" 
-#include "InDetRawData/InDetTimeCollection.h"
-#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
-#include "SCT_RawDataByteStreamCnv/ISCT_RodEncoder.h"
 #include "SCT_ConditionsServices/ISCT_ByteStreamErrorsSvc.h"
 #include "xAODEventInfo/EventInfo.h"
 #include "EventInfo/EventInfo.h"
+#include "SCT_RawDataByteStreamCnv/ISCT_RodDecoder.h"
 
 //using xAOD::EventInfo;
 
@@ -44,20 +40,20 @@ SCTRawDataProviderTool::~SCTRawDataProviderTool()
 StatusCode SCTRawDataProviderTool::initialize()
 {
 
-   StatusCode sc = AlgTool::initialize(); 
-   if (sc.isFailure()) {
-     msg(MSG::FATAL) << "Failed to init baseclass" << endreq;
-     return StatusCode::FAILURE;
-   }
+  StatusCode sc = AlgTool::initialize(); 
+  if (sc.isFailure()) {
+    msg(MSG::FATAL) << "Failed to init baseclass" << endreq;
+    return StatusCode::FAILURE;
+  }
    
-   /** Retrieve decoder */
-   if (m_decoder.retrieve().isFailure()) {
-     msg(MSG::FATAL) << "Failed to retrieve tool " << m_decoder << endreq;
-     return StatusCode::FAILURE;
-   } else 
-     msg(MSG::DEBUG) << "Retrieved tool " << m_decoder << endreq;
+  /** Retrieve decoder */
+  if (m_decoder.retrieve().isFailure()) {
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_decoder << endreq;
+    return StatusCode::FAILURE;
+  } else 
+    msg(MSG::DEBUG) << "Retrieved tool " << m_decoder << endreq;
 
-   /** Get ByteStreamErrorsSvc  */
+  /** Get ByteStreamErrorsSvc  */
   if (m_bsErrSvc.retrieve().isFailure()) {
     msg(MSG::FATAL) << "Failed to retrieve service " << m_bsErrSvc << endreq;
     return StatusCode::FAILURE;
@@ -79,8 +75,8 @@ StatusCode SCTRawDataProviderTool::initialize()
 
 StatusCode SCTRawDataProviderTool::finalize()
 {
-   StatusCode sc = AlgTool::finalize(); 
-   return sc;
+  StatusCode sc = AlgTool::finalize(); 
+  return sc;
 }
 
 /// -------------------------------------------------------
@@ -116,13 +112,13 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
     } else {
       sc = m_decoder->fillCollection( &**rob_it, rdoIdc);
       if ( sc==StatusCode::FAILURE ) {
-		if ( DecodeErrCount < 100 ) {
-	  		msg(MSG::ERROR) << "Problem with SCT ByteStream Decoding!" << endreq;
-	  		DecodeErrCount++;
-		} else if ( 100 == DecodeErrCount ) {
-	  	msg(MSG::ERROR) << "Too many Problem with SCT Decoding messages, turning message off.  "<< endreq;
-	  	DecodeErrCount++;
-		}
+	if ( DecodeErrCount < 100 ) {
+	  msg(MSG::ERROR) << "Problem with SCT ByteStream Decoding!" << endreq;
+	  DecodeErrCount++;
+	} else if ( 100 == DecodeErrCount ) {
+	  msg(MSG::ERROR) << "Too many Problem with SCT Decoding messages, turning message off.  "<< endreq;
+	  DecodeErrCount++;
+	}
       }
     }
   }  
