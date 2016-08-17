@@ -350,12 +350,12 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
       if (msgLvl(MSG::VERBOSE)){
         HWIdentifier adc_id = m_tileHWID->adc_id(drawer_id, TMDBchan, TileID::LOWGAIN);
 
-        msg(MSG::VERBOSE) << "(B.01) Correct pmt being transported in XXchan[]: "<<TMDBchan<<" "<<TILEchan<< "=?"
-                          << m_tileHWID->channel(m_cablingService->s2h_channel_id(pmt_id))
-                          << " For reference get TMDB adc_id: " << m_tileHWID->to_string(adc_id) << endreq;
-        msg(MSG::VERBOSE) << "(B.02) New hit in ROS/DRAWER/PMT "<<ros<<"/"<<drawer<<"/"<<TMDBchan<<" ("<<TILEchan<<")"
-                          << " pmt_id "<< m_tileID->to_string(pmt_id,-1)
-                          << " adc_id "<< m_tileHWID->to_string(adc_id) << endreq;
+        ATH_MSG_VERBOSE( "(B.01) Correct pmt being transported in XXchan[]: "<<TMDBchan<<" "<<TILEchan<< "=?"
+                         << m_tileHWID->channel(m_cablingService->s2h_channel_id(pmt_id))
+                         << " For reference get TMDB adc_id: " << m_tileHWID->to_string(adc_id)  );
+        ATH_MSG_VERBOSE( "(B.02) New hit in ROS/DRAWER/PMT "<<ros<<"/"<<drawer<<"/"<<TMDBchan<<" ("<<TILEchan<<")"
+                         << " pmt_id "<< m_tileID->to_string(pmt_id,-1)
+                         << " adc_id "<< m_tileHWID->to_string(adc_id)  );
       }
       
       // Scintillator Energy -> Cell Energy (uses sampling fraction)
@@ -587,18 +587,18 @@ StatusCode TilePulseForTileMuonReceiver::execute() {
       TileRawChannel* MuRcvRawChannel = m_MuRcvBuildTool->rawChannel(MuonReceiverDigits);
       MuonReceiverRawChannelContainer->push_back(MuRcvRawChannel);
       if (msgLvl(MSG::DEBUG)){
-        msg(MSG::DEBUG) << " Channel " << m_tileHWID->to_string(adc_id,-1) 
-                        << " Digitized pulse [ADC] "<< digitsBuffer[0]
-                        << "/" << digitsBuffer[1]
-                        << "/" << digitsBuffer[2]
-                        << "/" << digitsBuffer[3]
-                        << "/" << digitsBuffer[4]
-                        << "/" << digitsBuffer[5]
-                        << "/" << digitsBuffer[6] << endreq;
-        msg(MSG::DEBUG) << " Raw channel reconstruction Ch: "<< m_tileHWID->to_string(adc_id,-1)
-                        <<" E [ADC]: "<< MuRcvRawChannel->amplitude()
-                        <<" Time [ns]: "<< MuRcvRawChannel->time()
-                        <<" Qf: "<< MuRcvRawChannel->quality() << endreq;
+        ATH_MSG_DEBUG( " Channel " << m_tileHWID->to_string(adc_id,-1) 
+                       << " Digitized pulse [ADC] "<< digitsBuffer[0]
+                       << "/" << digitsBuffer[1]
+                       << "/" << digitsBuffer[2]
+                       << "/" << digitsBuffer[3]
+                       << "/" << digitsBuffer[4]
+                       << "/" << digitsBuffer[5]
+                       << "/" << digitsBuffer[6]  );
+        ATH_MSG_DEBUG( " Raw channel reconstruction Ch: "<< m_tileHWID->to_string(adc_id,-1)
+                       <<" E [ADC]: "<< MuRcvRawChannel->amplitude()
+                       <<" Time [ns]: "<< MuRcvRawChannel->time()
+                       <<" Qf: "<< MuRcvRawChannel->quality()  );
       }
     }
   } // END loop over all HIT collections in container
