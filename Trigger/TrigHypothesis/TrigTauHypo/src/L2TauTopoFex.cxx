@@ -54,7 +54,7 @@ HLT::ErrorCode L2TauTopoFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass )
 	pass = false;
 	m_dR = -1.;	
 
-  	ATH_MSG_DEBUG("Running TrigL2DielectronMassFex::acceptInputs");
+  	ATH_MSG_DEBUG("Running L2TauTopoFex::acceptInputs");
 
   	if ( inputTE.size() != 2 ) {
     		ATH_MSG_ERROR( "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured");

@@ -50,8 +50,8 @@ class TrigTauHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         elif myName.find("ditau") > -1:
             cuts=['Input','good vtx/trk', 'match', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
-        elif myName.find("tsf") > -1:
-            cuts=['Input','', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+        elif myName.find("tsf") > -1 or myName.find("dR") > -1:
+            cuts=['Input','dR', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
         elif myName.find("mVis") > -1:
             cuts=['Input','mVis', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
@@ -304,7 +304,7 @@ class L2TauTopoHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
         super(L2TauTopoHypoOnlineMonitoring, self).__init__(name)
         self.defineTarget("Online")
         
-        self.Histograms += [defineHistogram('DROfAccepted',type='TH1F',title='dR Passed', xbins=50, xmin=0.,xmax=10.)]
+        self.Histograms += [defineHistogram('DROfAccepted',type='TH1F',title='dR Passed', xbins=50, xmin=0.,xmax=4.)]
 
 class L2TauTopoHypoValidationMonitoring(L2TauTopoHypoOnlineMonitoring):
     def __init__ (self, name):

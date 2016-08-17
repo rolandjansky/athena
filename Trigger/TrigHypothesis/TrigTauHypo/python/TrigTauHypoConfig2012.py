@@ -72,6 +72,18 @@ class L2TauTopoHypo (L2TauTopoHypoBase):
     def __init__(self, name = "L2TauTopoHypo", var = [], val = []):
         super(L2TauTopoHypo, self).__init__(name)
 
+## EFTauTopo
+class EFTauTopoHypoBase (EFTauTopoHypo):
+    __slots__ = []
+    def __init__(self, name):
+        super(EFTauTopoHypoBase, self).__init__(name)
+        setL2TauTopoMonTools(self)
+
+class EFTauTopoHypo (EFTauTopoHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFTauTopoHypo", var = [], val = []):
+        super(EFTauTopoHypo, self).__init__(name)
+        setVarCut(self, var, val)
 
 ## HLTVertexPreSelHypo
 class HLTVertexPreSelHypoBase (HLTVertexPreSelHypo):
