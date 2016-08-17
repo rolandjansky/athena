@@ -299,9 +299,9 @@ Aud::setPyAttr( PyObject* o )
     msg << MSG::INFO
         << "could not dyncast component [" << name() << "] to a python "
         << "object of type [" << this->typeName() << "] (probably a missing "
-        << "dictionary)" << endreq
+        << "dictionary)" << endmsg
         << "fallback to [PyAthena::Aud]..."
-        << endreq;
+        << endmsg;
   }
   if ( !pyobj ) {
     PyErr_Clear();
@@ -309,7 +309,7 @@ Aud::setPyAttr( PyObject* o )
     msg << MSG::WARNING << "Could not dyncast component ["
         << name() << "] to a pyobject of type [" 
         << this->typeName() << "]"
-        << endreq;
+        << endmsg;
   } else {
     if ( -1 == PyObject_SetAttrString(o, "_cppHandle", pyobj) ) {
       PyErr_Clear();
@@ -317,13 +317,13 @@ Aud::setPyAttr( PyObject* o )
       msg << MSG::WARNING 
           << "Could not attach C++ handle [" << name() << "] to its python "
           << "cousin !"
-          << endreq;
+          << endmsg;
       if ( -1 == PyObject_SetAttrString(o, "_cppHandle", Py_None) ) {
         PyErr_Clear();
         msg << MSG::WARNING
             << "could not attach a dummy C++ handle [" << name() << "] to its "
             << "python cousin !"
-            << endreq;
+            << endmsg;
       }
     } else {
       return true;

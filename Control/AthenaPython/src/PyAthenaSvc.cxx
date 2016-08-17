@@ -195,7 +195,7 @@ Svc::setPyAttr( PyObject* o )
     ATH_MSG_INFO
       ("could not dyncast component [" << name() << "] to a python "
        << "object of type [" << this->typeName() << "] (probably a missing "
-       << "dictionary)" << endreq
+       << "dictionary)" << endmsg
        << "fallback to [PyAthena::Svc]...");
   }
   if ( !pyobj ) {

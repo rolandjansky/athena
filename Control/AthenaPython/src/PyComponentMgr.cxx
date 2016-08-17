@@ -148,7 +148,7 @@ PyComponentMgr::initialize()
   if ( !rootFixes || !PyModule_Check( rootFixes ) ) {
     PyErr_Clear();
     ATH_MSG_WARNING("Could not import [" << pyRootFixes << "] !!"
-                    << endreq
+                    << endmsg
                     << "Some problem may appear wit some C++->python binded classes (YMMV)");
   }
   Py_XDECREF(rootFixes);
