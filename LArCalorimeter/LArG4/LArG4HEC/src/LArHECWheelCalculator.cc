@@ -29,9 +29,12 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/getMessageSvc.h"
+#include "AthenaKernel/Units.h"
 
 #include "globals.hh"
 #include <cmath>
+
+namespace Units = Athena::Units;
 
 #undef DEBUG_HITS
 
@@ -79,7 +82,7 @@ LArHECWheelCalculator::LArHECWheelCalculator()
    }
 
    MsgStream log(Athena::getMessageSvc(),"LArHECWheelCalculator" );
-   log << MSG::INFO << "Use the LArHECWheelCalculator for the HEC" << endreq;
+   log << MSG::INFO << "Use the LArHECWheelCalculator for the HEC" << endmsg;
 
    m_OOTcut = globalOptions->OutOfTimeCut();
 
@@ -116,7 +119,7 @@ G4bool LArHECWheelCalculator::Process(const G4Step* a_step, std::vector<LArHitDa
   
 
   // apply BirksLaw if we want to:
-  G4double stepLengthCm = a_step->GetStepLength() / CLHEP::cm;
+  G4double stepLengthCm = a_step->GetStepLength() / Units::cm;
   if(hdata[0].energy <= 0. || stepLengthCm <= 0.)  return false;
   if(m_birksLaw)  hdata[0].energy = (*m_birksLaw)(hdata[0].energy, stepLengthCm, 10.0 /*KeV/cm*/);
 
@@ -126,7 +129,7 @@ G4bool LArHECWheelCalculator::Process(const G4Step* a_step, std::vector<LArHitDa
   G4ThreeVector point          = 0.5* (  a_step->GetPreStepPoint()->GetPosition()
 				       + a_step->GetPostStepPoint()->GetPosition() );
 
-  hdata[0].time = timeOfFlight/CLHEP::ns - point.mag()/CLHEP::c_light/CLHEP::ns;
+  hdata[0].time = timeOfFlight/Units::ns - point.mag()/Units::c_light/Units::ns;
 
   if (hdata[0].time > m_OOTcut)
     m_isInTime = false;

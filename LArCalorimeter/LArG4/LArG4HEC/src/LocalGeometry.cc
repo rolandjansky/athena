@@ -23,9 +23,14 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/Units.h"
 #include "globals.hh"
 #include <cmath>
 #include <stdexcept>
+
+
+namespace Units = Athena::Units;
+
 
 #undef DEBUG_HEC
 #undef DEBUG_HEC_OLD_DIAGNOSTIC
@@ -162,7 +167,7 @@ double deadZone(double locx, double locy, double /*rot*/=0)
       }
 
       if(m_log) {
-         *m_log << MSG::INFO << "Constructing local HEC geometry helper " << endreq;
+         *m_log << MSG::INFO << "Constructing local HEC geometry helper " << endmsg;
          *m_log << MSG::DEBUG<< " detectorKey: "<<detectorKey<<" detectorNode: "<<detectorNode<<std::endl;
       }
 
@@ -309,11 +314,11 @@ double deadZone(double locx, double locy, double /*rot*/=0)
   
          double locy, locx;
          if(m_isX) {
-	    locy = fabs(pinLocal.x()/CLHEP::mm);
-	    locx = pinLocal.y()/CLHEP::mm;
+	    locy = fabs(pinLocal.x()/Units::mm);
+	    locx = pinLocal.y()/Units::mm;
 	 } else {
-	    locy = fabs(pinLocal.y()/CLHEP::mm);
-	    locx = pinLocal.x()/CLHEP::mm;
+	    locy = fabs(pinLocal.y()/Units::mm);
+	    locx = pinLocal.x()/Units::mm;
 	 }
          // Add shift is needed (absorber)
          locy += locyadd;
@@ -390,7 +395,7 @@ double deadZone(double locx, double locy, double /*rot*/=0)
 
       } else {  // Calculate dead ID
 
-//        if(m_log) *m_log << MSG::DEBUG << "Local geometry DM Id " << endreq;
+//        if(m_log) *m_log << MSG::DEBUG << "Local geometry DM Id " << endmsg;
 
          LArG4Identifier result = LArG4Identifier();
 
@@ -401,26 +406,26 @@ double deadZone(double locx, double locy, double /*rot*/=0)
         // Copy number
         G4int copyN = theTouchable->GetVolume(0)->GetCopyNo();
         double locy, locx, locz, abslocz;
-	locz = pinLocal.z()/CLHEP::mm;
+	locz = pinLocal.z()/Units::mm;
 	abslocz = fabs(locz);
         if(m_isX) {
-	    locy = fabs(pinLocal.x()/CLHEP::mm);
-	    locx = pinLocal.y()/CLHEP::mm;
+	    locy = fabs(pinLocal.x()/Units::mm);
+	    locx = pinLocal.y()/Units::mm;
 	} else {
-	    locy = fabs(pinLocal.y()/CLHEP::mm);
-	    locx = pinLocal.x()/CLHEP::mm;
+	    locy = fabs(pinLocal.y()/Units::mm);
+	    locx = pinLocal.x()/Units::mm;
 	}
 
 	if(copyN == 16969) { // Mother volume (should not be)
-	   if(m_log) *m_log << MSG::WARNING << "Wrong Local geometry DM volume: HEC mother, default ID used" <<endreq;
+	   if(m_log) *m_log << MSG::WARNING << "Wrong Local geometry DM volume: HEC mother, default ID used" <<endmsg;
 	   G4double phi = p.phi();
 	   if (phi < 0) phi += 2*M_PI;
-	   phiBin = int(32*phi/(2*M_PI));
+	   phiBin = int(phi*(32/(2*M_PI)));
 	   G4double eta = fabs( p.pseudoRapidity() );
 	   etaBin =  int(eta/0.1);
 	} else if (copyN <= 32) { // HEC::Module
-//	   double locz = fabs(pinLocal.z()/CLHEP::mm);
-//	   double locy = fabs(pinLocal.y()/CLHEP::mm);
+//	   double locz = fabs(pinLocal.z()/Units::mm);
+//	   double locy = fabs(pinLocal.y()/Units::mm);
 	   if(zSide<0) {
 	      if(copyN-1<16) copyModule = abs(copyN - 1 - 15); else copyModule = 47 - (copyN - 1);
 	   } else {
@@ -458,8 +463,8 @@ double deadZone(double locx, double locy, double /*rot*/=0)
 //	      etaBin = 13 - binSearchAll(locy, 0);
 	      etaBin = 16 - binSearchAll(locy, 3, true);
 	   } else {
-//	   sampling = localSampling(pinLocal.z()/CLHEP::mm);
-  	      double distance = deadZone(fabs(pinLocal.x()/CLHEP::mm),locy);
+//	   sampling = localSampling(pinLocal.z()/Units::mm);
+  	      double distance = deadZone(fabs(pinLocal.x()/Units::mm),locy);
 	      if(distance > deadzone) { // We should return the inactive Id !!!!
 #ifdef DEBUG_HEC_OLD_DIAGNOSTIC
 	         std::cout<<"inactive Id"<<std::endl;
@@ -561,8 +566,8 @@ double deadZone(double locx, double locy, double /*rot*/=0)
 	   type = 1;
            sampling = 2;
            region = 3;
-//	   etaBin = 13 - binSearchAll(fabs(pinLocal.y()/CLHEP::mm), 0);
-//	   etaBin = 16 - binSearchAll(fabs(pinLocal.y()/CLHEP::mm), 0, true);
+//	   etaBin = 13 - binSearchAll(fabs(pinLocal.y()/Units::mm), 0);
+//	   etaBin = 16 - binSearchAll(fabs(pinLocal.y()/Units::mm), 0, true);
 	   etaBin = 16 - binSearchAll(locy, 0, true);
 	   if( etaBin < 0 ) etaBin = 0;
 	} else if (copyN==51 ) { // First Absorber  - interwheel gap
@@ -582,8 +587,8 @@ double deadZone(double locx, double locy, double /*rot*/=0)
 	   type = 1;
            sampling = 2;
            region = 4;
-//	   etaBin = 13 - binSearchAll(fabs(pinLocal.y()/CLHEP::mm), 0);
-//	   etaBin = 16 - binSearchAll(fabs(pinLocal.y()/CLHEP::mm), 3, true);
+//	   etaBin = 13 - binSearchAll(fabs(pinLocal.y()/Units::mm), 0);
+//	   etaBin = 16 - binSearchAll(fabs(pinLocal.y()/Units::mm), 3, true);
 	   etaBin = 16 - binSearchAll(locy, 3, true);
 	} else if (copyN>=100  && copyN<= 106 ) { //Depth
 	   copyModule = theTouchable->GetVolume(1)->GetCopyNo() - 1;
@@ -598,7 +603,7 @@ double deadZone(double locx, double locy, double /*rot*/=0)
            } else {
                    if(zSide * pinLocal.x() > 0) ++phiBin;
            }
-	   double locy = fabs(pinLocal.y()/CLHEP::mm);
+	   double locy = fabs(pinLocal.y()/Units::mm);
 	   */
 	   if(copyN==100 && locz < -depthSize[0]/2. + firstAbsorber[0]) { // in front of HEC
 	      type = 1;
