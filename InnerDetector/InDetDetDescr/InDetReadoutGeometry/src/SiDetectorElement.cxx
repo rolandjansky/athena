@@ -703,16 +703,23 @@ double SiDetectorElement::sinStereoLocal(const HepGeom::Point3D<double> &globalP
 }
 
 // Special method for SCT to retrieve the two ends of a "strip"
-std::pair<Amg::Vector3D, Amg::Vector3D> SiDetectorElement::endsOfStrip(const Amg::Vector2D &position) const {
+  std::pair<Amg::Vector3D, Amg::Vector3D> SiDetectorElement::endsOfStrip(const Amg::Vector2D &position) const {
+    
+  if(m_design->shape()==InDetDD::Annulus){
     double signPhi = hitPhiDirection();
     double signEta = hitEtaDirection();
     const SiLocalPosition pos(signEta * position[Trk::distEta], signPhi * position[Trk::distPhi]);
     const std::pair<SiLocalPosition, SiLocalPosition> localEnds = m_design->endsOfStrip(position);
     Amg::Vector3D recoEndFirst(signPhi * localEnds.first.xPhi(), signEta * localEnds.first.xEta(), 0.0);
     Amg::Vector3D recoEndSecond(signPhi * localEnds.second.xPhi(), signEta * localEnds.second.xEta(), 0.0);
-
     return std::pair<Amg::Vector3D, Amg::Vector3D >(globalPosition(recoEndFirst), globalPosition(recoEndSecond));
-}
+  }
+  else{									
+    const std::pair<Amg::Vector2D,Amg::Vector2D> localEnds = m_design->endsOfStrip(position);
+    return std::pair<Amg::Vector3D,Amg::Vector3D >(globalPosition(localEnds.first),globalPosition(localEnds.second));  
+  }
+    
+  }
 
 const Trk::Surface &SiDetectorElement::surface() const {
     if (!m_surface) {

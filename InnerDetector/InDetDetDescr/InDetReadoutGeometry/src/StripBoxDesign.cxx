@@ -160,7 +160,7 @@ std::pair<SiLocalPosition, SiLocalPosition> StripBoxDesign::endsOfStrip(SiLocalP
 
 
 int strip, row;
-closestStripRowOfPosition(pos,m_pitch, m_nStrips, m_nRows, m_length, strip, row);
+ closestStripRowOfPosition(pos,m_pitch,m_length,m_nStrips,m_nRows, strip, row);
 
 double etaStart = (row - m_nRows / 2.) * m_length;
 double etaEnd = etaStart + m_length;
