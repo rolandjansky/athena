@@ -76,7 +76,7 @@ class TileRawChannelNoiseMonTool: public TileFatherMonTool {
     Bool_t m_do2GFit;
     Bool_t m_doFit;
     std::string m_rawChannelContainerName;
-
+    std::string m_rawChannelContainerDspName;
     // histograms
     std::vector<TH1F*> m_tileChannelEne[5][64]; // a 2D array of 5x64 partitions X modules, each containing a vector of channels
 
