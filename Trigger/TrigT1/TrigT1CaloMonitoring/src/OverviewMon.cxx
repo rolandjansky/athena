@@ -15,9 +15,9 @@
 #include <ctime>
 #include <sstream>
 
+#include "TAxis.h"
 #include "TH1F.h"
 #include "TH2F.h"
-#include "TAxis.h"
 #include "TList.h"
 
 #include "LWHists/TH1F_LW.h"
@@ -28,8 +28,8 @@
 #include "SGTools/StlVectorClids.h"
 
 #include "AthenaMonitoring/AthenaMonManager.h"
-#include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "EventInfo/EventInfo.h"
 
 #include "TrigT1CaloMonitoringTools/ITrigT1CaloMonErrorTool.h"
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
@@ -45,20 +45,19 @@ namespace LVL1 {
 //}
 
 /*---------------------------------------------------------*/
-OverviewMon::OverviewMon(const std::string& type, const std::string& name,
-                         const IInterface* parent)
+OverviewMon::OverviewMon(const std::string &type, const std::string &name,
+                         const IInterface *parent)
     : ManagedMonitorToolBase(type, name, parent),
       m_errorTool("LVL1::TrigT1CaloMonErrorTool/TrigT1CaloMonErrorTool"),
       m_histTool("LVL1::TrigT1CaloLWHistogramTool/TrigT1CaloLWHistogramTool"),
-      m_lumiNo(0),
-      m_lumipos(0),
-      m_h_l1calo_2d_GlobalOverview(0),
+      m_lumiNo(0), m_lumipos(0), m_h_l1calo_2d_GlobalOverview(0),
       m_h_l1calo_2d_CurrentEventOverview(0),
-      m_h_l1calo_2d_GlobalOverviewRecent(0),
-      m_h_l1calo_1d_ErrorsByLumiblock(0),
-      m_h_l1calo_1d_ErrorsByTime(0),
-      m_h_l1calo_1d_RejectedEvents(0),
-      m_h_l1calo_1d_NumberOfEvents(0)
+      m_h_l1calo_2d_GlobalOverviewRecent(0), m_h_l1calo_1d_ErrorsByLumiblock(0),
+      m_h_l1calo_1d_ErrorsByTime(0), m_h_l1calo_1d_RejectedEvents(0),
+      m_h_l1calo_1d_NumberOfEvents(0),
+      m_registred_h_l1calo_1d_ErrorsByLumiblock(false),
+      m_registred_h_l1calo_1d_ErrorsByTime(false),
+      m_registred_h_l1calo_1d_RejectedEvents(false)
 
 /*---------------------------------------------------------*/
 {
@@ -104,22 +103,23 @@ StatusCode OverviewMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   StatusCode sc;
 
   sc = ManagedMonitorToolBase::initialize();
-  if (sc.isFailure()) return sc;
+  if (sc.isFailure())
+    return sc;
 
   sc = m_errorTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endmsg;
     return sc;
   }
   sc = m_histTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -144,7 +144,7 @@ StatusCode OverviewMon::finalize()
 StatusCode OverviewMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "bookHistogramsRecurrent entered" << endreq;
+  msg(MSG::DEBUG) << "bookHistogramsRecurrent entered" << endmsg;
 
   if (m_environment == AthenaMonManager::online) {
     // book histograms that are only made in the online environment...
@@ -154,8 +154,8 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if (newEventsBlock || newLumiBlock) {
-  }
+  //if (newEventsBlock || newLumiBlock) {
+  //}
 
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
 
@@ -163,7 +163,7 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
     // Get lumiblock number
 
     m_lumiNo = 0;
-    const EventInfo* evtInfo = 0;
+    const EventInfo *evtInfo = 0;
     StatusCode sc = evtStore()->retrieve(evtInfo);
     if (sc.isSuccess()) {
       m_lumiNo = evtInfo->event_ID()->lumi_block();
@@ -184,8 +184,8 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
 
     m_histTool->unsetMonGroup();
 
-    if (!m_h_l1calo_2d_CurrentEventOverview) {  // temporary plot for current
-                                                // event
+    if (!m_h_l1calo_2d_CurrentEventOverview) { // temporary plot for current
+                                               // event
       m_h_l1calo_2d_CurrentEventOverview =
           bookOverview("l1calo_2d_CurrentEventOverview",
                        "L1Calo Current Event Error Overview");
@@ -210,7 +210,7 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
         for (int i = 0; i < m_recentLumi; ++i) {
           std::ostringstream cnum;
           cnum << i;
-          TH2F* hist =
+          TH2F *hist =
               bookOverview("l1calo_2d_GlobalOverviewBlock" + cnum.str(),
                            "L1Calo Global Error Overview Block " + cnum.str());
           m_v_l1calo_2d_GlobalOverviewBlock.push_back(hist);
@@ -230,14 +230,16 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
 
     m_lumipos = -1;
     for (int i = 0; i < m_recentLumi; ++i) {
-      if (m_luminumbers[i] == m_lumiNo) m_lumipos = i;
+      if (m_luminumbers[i] == m_lumiNo)
+        m_lumipos = i;
     }
     if (m_lumipos == -1) {
       double entries =
           m_v_l1calo_2d_GlobalOverviewBlock[m_recentLumi - 1]->GetEntries();
-      if (entries > 0.) m_h_l1calo_2d_GlobalOverviewRecent->Reset();
+      if (entries > 0.)
+        m_h_l1calo_2d_GlobalOverviewRecent->Reset();
       m_v_l1calo_2d_GlobalOverviewBlock[m_recentLumi - 1]->Reset();
-      TH2F* tmpHist = m_v_l1calo_2d_GlobalOverviewBlock[m_recentLumi - 1];
+      TH2F *tmpHist = m_v_l1calo_2d_GlobalOverviewBlock[m_recentLumi - 1];
       for (int i = m_recentLumi - 2; i >= 0; --i) {
         if (entries > 0. &&
             m_v_l1calo_2d_GlobalOverviewBlock[i]->GetEntries() > 0.) {
@@ -253,7 +255,7 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
       m_luminumbers[m_lumipos] = m_lumiNo;
     }
 
-  }  // end if ((newLumiBlock && ...
+  } // end if ((newLumiBlock && ...
 
   if (newRun || newLumiBlock) {
     // Errors by lumiblock/time plots
@@ -271,12 +273,11 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
             "l1calo_1d_ErrorsByLumiblock",
             "Events with Errors by Lumiblock;Lumi Block;Number of Events", 1,
             m_lumiNo, m_lumiNo + 1);
-        if (online) {  // Would be merge problems offline
-          m_h_l1calo_1d_ErrorsByTime =
-              m_histTool->bookTH1F("l1calo_1d_ErrorsByTime",
-                                   "Time of First Event in Lumiblock with "
-                                   "Error;Lumi Block;Time (h.mmss)",
-                                   1, m_lumiNo, m_lumiNo + 1);
+        if (online) { // Would be merge problems offline
+          m_h_l1calo_1d_ErrorsByTime = m_histTool->bookTH1F(
+              "l1calo_1d_ErrorsByTime", "Time of First Event in Lumiblock with "
+                                        "Error;Lumi Block;Time (h.mmss)",
+              1, m_lumiNo, m_lumiNo + 1);
         } else {
           m_h_l1calo_1d_ErrorsByTime = m_histTool->bookTH1F(
               "l1calo_1d_ErrorsByTime",
@@ -296,26 +297,29 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
                  m_lumiNo >=
                      m_h_l1calo_1d_ErrorsByLumiblock->GetXaxis()->GetXmax()) {
         m_histTool->unsetMonGroup();
-        TH1F* tmphist = m_histTool->bookTH1F(
+        TH1F *tmphist = m_histTool->bookTH1F(
             "l1calo_1d_Tmp", "Errors by Lumiblock", 1, m_lumiNo, m_lumiNo + 1);
         tmphist->Fill(m_lumiNo);
-        TList* list = new TList;
+        TList *list = new TList;
         list->Add(tmphist);
         // All this rigmarole is to get Merge() to behave as we want,
         // especially online.
-        TH1F* hist = m_h_l1calo_1d_ErrorsByLumiblock;
+        TH1F *hist = m_h_l1calo_1d_ErrorsByLumiblock;
         for (int i = 0; i < 3; ++i) {
-          if (!hist) continue;
+          if (!hist)
+            continue;
           double entries = hist->GetEntries();
           bool earlier = (m_lumiNo < hist->GetXaxis()->GetXmin());
           double content = 0.;
           if (earlier) {
             int lastBin = hist->GetXaxis()->GetNbins();
             content = hist->GetBinContent(lastBin);
-            if (content == 0.) hist->SetBinContent(lastBin, 1.);
+            if (content == 0.)
+              hist->SetBinContent(lastBin, 1.);
           } else {
             content = hist->GetBinContent(1);
-            if (content == 0.) hist->SetBinContent(1, 1.);
+            if (content == 0.)
+              hist->SetBinContent(1, 1.);
           }
           if (hist->Merge(list) != -1) {
             int bin = hist->GetXaxis()->FindBin(m_lumiNo);
@@ -359,7 +363,7 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
 
   m_histTool->unsetMonGroup();
 
-  msg(MSG::DEBUG) << "Leaving bookHistogramsRecurrent" << endreq;
+  msg(MSG::DEBUG) << "Leaving bookHistogramsRecurrent" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -369,10 +373,12 @@ StatusCode OverviewMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endreq;
+  if (debug)
+    msg(MSG::DEBUG) << "fillHistograms entered" << endmsg;
 
   if (!m_h_l1calo_2d_GlobalOverview) {
-    if (debug) msg(MSG::DEBUG) << "Histograms not booked" << endreq;
+    if (debug)
+      msg(MSG::DEBUG) << "Histograms not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -410,18 +416,19 @@ StatusCode OverviewMon::fillHistograms()
   m_h_l1calo_2d_CurrentEventOverview->Reset();
 
   // PPM Error data
-  const ErrorVector* errTES = 0;
+  const ErrorVector *errTES = 0;
   if (evtStore()->contains<ErrorVector>(m_ppmErrorLocation)) {
     sc = evtStore()->retrieve(errTES, m_ppmErrorLocation);
   } else
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No PPM error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No PPM error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates; ++crate) {
       const int err = (*errTES)[crate];
-      if (err == 0) continue;
+      if (err == 0)
+        continue;
       if ((err >> DataStatus) & 0x1) {
         m_h_l1calo_2d_CurrentEventOverview->Fill(PPMDataStatus, crate);
       }
@@ -442,11 +449,12 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No PPMSpare error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No PPMSpare error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates; ++crate) {
       const int err = (*errTES)[crate];
-      if (err == 0) continue;
+      if (err == 0)
+        continue;
       if ((err >> DataStatus) & 0x1) {
         m_h_l1calo_2d_CurrentEventOverview->Fill(PPMDataStatus, crate);
       }
@@ -467,11 +475,12 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No CPM error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No CPM error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < cpmCrates; ++crate) {
       const int err = (*errTES)[crate];
-      if (err == 0) continue;
+      if (err == 0)
+        continue;
       const int cr = crate + ppmCrates;
       if ((err >> CPMStatus) & 0x1)
         m_h_l1calo_2d_CurrentEventOverview->Fill(SubStatus, cr);
@@ -496,11 +505,12 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No JEM error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No JEM error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < jemCrates; ++crate) {
       const int err = (*errTES)[crate];
-      if (err == 0) continue;
+      if (err == 0)
+        continue;
       const int cr = crate + ppmCrates + cpmCrates;
       if ((err >> JEMStatus) & 0x1)
         m_h_l1calo_2d_CurrentEventOverview->Fill(SubStatus, cr);
@@ -519,11 +529,12 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No JEM CMX error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No JEM CMX error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < jemCrates; ++crate) {
       const int err = (*errTES)[crate];
-      if (err == 0) continue;
+      if (err == 0)
+        continue;
       const int cr = crate + ppmCrates + cpmCrates;
       if (((err >> JEMCMXJetStatus) & 0x1) ||
           ((err >> JEMCMXEnergyStatus) & 0x1)) {
@@ -545,11 +556,12 @@ StatusCode OverviewMon::fillHistograms()
   if (sc.isFailure() || !errTES ||
       errTES->size() != size_t(ppmCrates + cpmCrates + jemCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No ROD error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No ROD error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates + cpmCrates + jemCrates; ++crate) {
       const int err = (*errTES)[crate];
-      if (err == 0) continue;
+      if (err == 0)
+        continue;
       // if (err & 0x7f) m_h_l1calo_2d_CurrentEventOverview->Fill(RODStatus,
       // crate);
       if (err & 0x3f)
@@ -571,11 +583,12 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No PPM mismatch vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No PPM mismatch vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates; ++crate) {
       const int err = (*errTES)[crate];
-      if (err == 0) continue;
+      if (err == 0)
+        continue;
       if (((err >> LUTMismatch) & 0x1))
         m_h_l1calo_2d_CurrentEventOverview->Fill(Simulation, crate);
     }
@@ -589,11 +602,12 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No CPM mismatch vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No CPM mismatch vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < cpmCrates; ++crate) {
       const int err = (*errTES)[crate];
-      if (err == 0) continue;
+      if (err == 0)
+        continue;
       const int cr = crate + ppmCrates;
       if (((err >> EMTowerMismatch) & 0x1) || ((err >> HadTowerMismatch) & 0x1))
         m_h_l1calo_2d_CurrentEventOverview->Fill(Transmission, cr);
@@ -604,7 +618,8 @@ StatusCode OverviewMon::fillHistograms()
           ((err >> RemoteSumMismatch) & 0x1))
         m_h_l1calo_2d_CurrentEventOverview->Fill(CMXTransmission, cr);
       if (((err >> LocalSumMismatch) & 0x1) ||
-          ((err >> TotalSumMismatch) & 0x1) || ((err >> TopoMismatch) & 0x1))
+          ((err >> TotalSumMismatch) &
+           0x1) /*|| ((err >> TopoMismatch) & 0x1)*/)
         m_h_l1calo_2d_CurrentEventOverview->Fill(CMXSimulation, cr);
     }
   }
@@ -617,11 +632,12 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No JEM mismatch vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No JEM mismatch vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < jemCrates; ++crate) {
       const int err = (*errTES)[crate];
-      if (err == 0) continue;
+      if (err == 0)
+        continue;
       const int cr = crate + ppmCrates + cpmCrates;
       if (((err >> EMElementMismatch) & 0x1) ||
           ((err >> HadElementMismatch) & 0x1) ||
@@ -637,7 +653,7 @@ StatusCode OverviewMon::fillHistograms()
           ((err >> TotalJetMismatch) & 0x1) ||
           ((err >> LocalEnergyMismatch) & 0x1) ||
           ((err >> TotalEnergyMismatch) & 0x1) ||
-          ((err >> CMXJetTopoMismatch) & 0x1) ||
+          /*((err >> CMXJetTopoMismatch) & 0x1) ||*/
           ((err >> SumEtMismatch) & 0x1) ||
           ((err >> MissingEtMismatch) & 0x1) ||
           ((err >> MissingEtSigMismatch) & 0x1))
@@ -667,14 +683,15 @@ StatusCode OverviewMon::fillHistograms()
       m_h_l1calo_1d_ErrorsByLumiblock->Fill(m_lumiNo);
     }
     if (m_lumiNo && m_h_l1calo_1d_ErrorsByTime) {
-      const EventInfo* evtInfo = 0;
+      const EventInfo *evtInfo = 0;
       StatusCode sc = evtStore()->retrieve(evtInfo);
       if (sc.isSuccess()) {
         time_t timeStamp = evtInfo->event_ID()->time_stamp();
-        std::tm* local = localtime(&timeStamp);
+        std::tm *local = localtime(&timeStamp);
         int itime =
             local->tm_hour * 10000 + local->tm_min * 100 + local->tm_sec;
-        if (itime == 0) itime = 1;
+        if (itime == 0)
+          itime = 1;
         double time = itime / 10000.;
         if (online) {
           int bin = m_h_l1calo_1d_ErrorsByTime->GetXaxis()->FindBin(m_lumiNo);
@@ -697,7 +714,8 @@ StatusCode OverviewMon::fillHistograms()
     }
   }
 
-  if (debug) msg(MSG::DEBUG) << "Leaving fillHistograms" << endreq;
+  if (debug)
+    msg(MSG::DEBUG) << "Leaving fillHistograms" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -706,10 +724,10 @@ StatusCode OverviewMon::fillHistograms()
 StatusCode OverviewMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "procHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
-  if (endOfEventsBlock || endOfLumiBlock) {
-  }
+  //if (endOfEventsBlock || endOfLumiBlock) {
+  //}
 
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
   if (endOfRun && !online) {
@@ -731,13 +749,13 @@ StatusCode OverviewMon::procHistograms()
 }
 
 /*---------------------------------------------------------*/
-TH2F* OverviewMon::bookOverview(const std::string& name,
-                                const std::string& title)
+TH2F *OverviewMon::bookOverview(const std::string &name,
+                                const std::string &title)
 /*---------------------------------------------------------*/
 {
-  TH2F* hist = m_histTool->bookTH2F(name, title, NumberOfGlobalErrors, 0,
+  TH2F *hist = m_histTool->bookTH2F(name, title, NumberOfGlobalErrors, 0,
                                     NumberOfGlobalErrors, 14, 0, 14);
-  TAxis* axis = hist->GetXaxis();
+  TAxis *axis = hist->GetXaxis();
   axis->SetBinLabel(1 + PPMDataStatus, "PPMDataStatus");
   axis->SetBinLabel(1 + PPMDataError, "PPMDataError");
   axis->SetBinLabel(1 + SubStatus, "SubStatus");
@@ -757,8 +775,10 @@ TH2F* OverviewMon::bookOverview(const std::string& name,
   axis = hist->GetYaxis();
   for (int crate = 0; crate < 14; ++crate) {
     int cr = crate;
-    if (cr >= 12) cr -= 12;
-    if (cr >= 8) cr -= 8;
+    if (cr >= 12)
+      cr -= 12;
+    if (cr >= 8)
+      cr -= 8;
     std::string type = (crate < 8) ? "PP " : (crate < 12) ? "CP " : "JEP ";
     std::ostringstream cnum;
     cnum << type << cr;
@@ -768,4 +788,4 @@ TH2F* OverviewMon::bookOverview(const std::string& name,
   return hist;
 }
 
-}  // end namespace
+} // end namespace

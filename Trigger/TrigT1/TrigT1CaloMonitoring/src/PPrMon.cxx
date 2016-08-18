@@ -62,6 +62,7 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
     m_h_ppm_had_1d_tt_adc_MaxTimeslice(0),
     m_h_ppm_em_1d_tt_adc_MaxTimeslice(0),
     m_h_ppm_2d_tt_adc_BcidBits(0),
+    m_h_ppm_1d_tt_adc_HLCase(0),
     m_h_ppm_em_2d_etaPhi_tt_adc_ProfileHitMap(0),
     m_h_ppm_had_2d_etaPhi_tt_adc_ProfileHitMap(0),
     m_h_ppm_em_2d_etaPhi_tt_adc_MaxTimeslice(0),
@@ -90,6 +91,10 @@ PPrMon::PPrMon(const std::string & type, const std::string & name,
     m_h_ppm_had_1d_tt_lutjep_Phi(0),
     m_h_ppm_1d_tt_lutjep_LutPerBCN(0),
     m_h_ppm_1d_ErrorSummary(0),
+    m_h_ppm_em_1d_pedOverflow_Eta(0),
+    m_h_ppm_em_1d_pedUnderflow_Eta(0),
+    m_h_ppm_had_1d_pedOverflow_Eta(0),
+    m_h_ppm_had_1d_pedUnderflow_Eta(0),
     m_h_ppm_2d_Status03(0),
     m_h_ppm_2d_Status47(0),
     m_h_ppm_2d_ErrorField03(0),
@@ -150,7 +155,7 @@ StatusCode PPrMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   CHECK(ManagedMonitorToolBase::initialize());
   CHECK(m_errorTool.retrieve());
@@ -164,7 +169,7 @@ StatusCode PPrMon::initialize()
 StatusCode PPrMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in PPrMon::bookHistograms" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in PPrMon::bookHistograms" << endmsg;
 
   if ( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -240,21 +245,29 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     //------------------------Bits of BCID Logic Words Vs PeakADC -----------------------
 
     m_h_ppm_2d_tt_adc_BcidBits = m_histTool->book2F("ppm_2d_tt_adc_BcidBits",
-                                   "PPM: Bits of BCID Logic Word Vs. PeakADC", 13, 0., 13., 1024, 0., 1024.);
+                                   "PPM: Bits of BCID Logic Word Vs. PeakADC", 7, 0., 7., 1024, 0., 1024.);
     LWHist::LWHistAxis* axis = m_h_ppm_2d_tt_adc_BcidBits->GetXaxis();
     axis->SetBinLabel(1, "none (40MHz)");
-    axis->SetBinLabel(2, "extBC only");
-    axis->SetBinLabel(3, "satBC only");
-    axis->SetBinLabel(4, "extBC & satBC");
-    axis->SetBinLabel(5, "peakF only");
-    axis->SetBinLabel(6, "extBC & peakF");
-    axis->SetBinLabel(7, "satBC & peakF");
-    axis->SetBinLabel(8, "all (40MHz)");
-    axis->SetBinLabel(9, "sat80low");
-    axis->SetBinLabel(10, "sat80high");
-    axis->SetBinLabel(11, "sat80BC only");
-    axis->SetBinLabel(12, "sat80BC & extBC");
-    axis->SetBinLabel(13, "sat80BC & peakF");
+    axis->SetBinLabel(2, "satBC only");
+    axis->SetBinLabel(3, "peakF only");
+    axis->SetBinLabel(4, "satBC & peakF");
+    axis->SetBinLabel(5, "sat80BC & peakF");
+    axis->SetBinLabel(6, "sat80BC & sat40BC");
+    axis->SetBinLabel(7, "sat80BC only");
+ 
+    //------------------------ High/low threshold pass cases - Sat80-------------------------
+
+    m_h_ppm_1d_tt_adc_HLCase = m_histTool->book1F("ppm_1d_tt_adc_HLCase","PPM: Sat80 thresholds passed by ADC[n-2.5] / ADC[n-1.5]", 8,0.,8.);
+    LWHist::LWHistAxis* Axis = m_h_ppm_1d_tt_adc_HLCase->GetXaxis();
+		Axis->SetBinLabel(1, "no saturated ADC");    
+		Axis->SetBinLabel(2, "none/none");
+    Axis->SetBinLabel(3, "none/low");
+    Axis->SetBinLabel(4, "none/high");
+    Axis->SetBinLabel(5, "low/low");
+    Axis->SetBinLabel(6, "low/high");
+    Axis->SetBinLabel(7, "high/high");
+    Axis->SetBinLabel(8, "else");
+
 
     //------------------------Average Maximum Timeslice-----------------------
 
@@ -295,11 +308,11 @@ StatusCode PPrMon::bookHistogramsRecurrent()
         buffer_name << std::setw(2) << std::setfill('0') << thresh;
         TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(
                           "ppm_em_2d_etaPhi_tt_lutcp_Threshold" + buffer_name.str(),
-                          "#eta - #phi Map of EM LUT-CP > " + buffer.str());
+                          "#eta - #phi Map of EM LUT-CP > " + buffer.str() + " GeV/2");
         m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
         hist = m_histTool->bookPPMHadEtaVsPhi(
                  "ppm_had_2d_etaPhi_tt_lutcp_Threshold" + buffer_name.str(),
-                 "#eta - #phi Map of HAD LUT-CP > " + buffer.str());
+                 "#eta - #phi Map of HAD LUT-CP > " + buffer.str() + " GeV/2");
         m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
       }
       m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.clear();
@@ -312,11 +325,11 @@ StatusCode PPrMon::bookHistogramsRecurrent()
         buffer_name << std::setw(2) << std::setfill('0') << thresh;
         TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(
                           "ppm_em_2d_etaPhi_tt_lutjep_Threshold" + buffer_name.str(),
-                          "#eta - #phi Map of EM LUT-JEP > " + buffer.str());
+                          "#eta - #phi Map of EM LUT-JEP > " + buffer.str() + " GeV");
         m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
         hist = m_histTool->bookPPMHadEtaVsPhi(
                  "ppm_had_2d_etaPhi_tt_lutjep_Threshold" + buffer_name.str(),
-                 "#eta - #phi Map of HAD LUT-JEP > " + buffer.str());
+                 "#eta - #phi Map of HAD LUT-JEP > " + buffer.str() + " GeV");
         m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
       }
       for (int block = 0; block <= m_TT_HitMap_LumiBlocks; ++block) {
@@ -332,10 +345,10 @@ StatusCode PPrMon::bookHistogramsRecurrent()
           buffer.str("");
           if (block == 0) buffer << m_TT_HitMap_ThreshVec[thresh] << ", Current Lumi-block";
           else            buffer << m_TT_HitMap_ThreshVec[thresh] << ", Lumi-block -" << block;
-          std::string title = "#eta - #phi Map of EM LUT-CP > " + buffer.str();
+          std::string title = "#eta - #phi Map of EM LUT-CP > " + buffer.str() + " GeV/2";
           TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(name, title);
           m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
-          title = "#eta - #phi Map of HAD LUT-CP > " + buffer.str();
+          title = "#eta - #phi Map of HAD LUT-CP > " + buffer.str() + " GeV/2";
           buffer_name.str("");
           buffer_name << std::setw(2) << std::setfill('0') << thresh << "Lumi" << block;
           name = "ppm_had_2d_etaPhi_tt_lutcp_Thresh" + buffer_name.str();
@@ -356,10 +369,10 @@ StatusCode PPrMon::bookHistogramsRecurrent()
           buffer.str("");
           if (block == 0) buffer << m_TT_HitMap_ThreshVec[thresh] << ", Current Lumi-block";
           else            buffer << m_TT_HitMap_ThreshVec[thresh] << ", Lumi-block -" << block;
-          std::string title = "#eta - #phi Map of EM LUT-JEP > " + buffer.str();
+          std::string title = "#eta - #phi Map of EM LUT-JEP > " + buffer.str() + " GeV";
           TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(name, title);
           m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
-          title = "#eta - #phi Map of HAD LUT-JEP > " + buffer.str();
+          title = "#eta - #phi Map of HAD LUT-JEP > " + buffer.str() + " GeV/2";
           buffer_name.str("");
           buffer_name << std::setw(2) << std::setfill('0') << thresh << "Lumi" << block;
           name = "ppm_had_2d_etaPhi_tt_lutjep_Thresh" + buffer_name.str();
@@ -372,23 +385,23 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     m_histTool->setMonGroup(&TT_LutCpHitMaps);
 
     m_h_ppm_em_2d_etaPhi_tt_lutcp_AverageEt = m_histTool->bookProfilePPMEmEtaVsPhi(
-          "ppm_em_2d_etaPhi_tt_lutcp_AverageEt", "EM Average LUT-CP Et for Et > 5");
+          "ppm_em_2d_etaPhi_tt_lutcp_AverageEt", "EM Average LUT-CP Et for Et > 5 GeV/2");
     m_h_ppm_had_2d_etaPhi_tt_lutcp_AverageEt = m_histTool->bookProfilePPMHadEtaVsPhi(
-          "ppm_had_2d_etaPhi_tt_lutcp_AverageEt", "HAD Average LUT-CP Et for Et > 5");
+          "ppm_had_2d_etaPhi_tt_lutcp_AverageEt", "HAD Average LUT-CP Et for Et > 5 GeV/2");
 
     m_histTool->setMonGroup(&TT_LutJepHitMaps);
 
     m_h_ppm_em_2d_etaPhi_tt_lutjep_AverageEt = m_histTool->bookProfilePPMEmEtaVsPhi(
-          "ppm_em_2d_etaPhi_tt_lutjep_AverageEt", "EM Average LUT-JEP Et for Et > 5");
+          "ppm_em_2d_etaPhi_tt_lutjep_AverageEt", "EM Average LUT-JEP Et for Et > 5 GeV");
     m_h_ppm_had_2d_etaPhi_tt_lutjep_AverageEt = m_histTool->bookProfilePPMHadEtaVsPhi(
-          "ppm_had_2d_etaPhi_tt_lutjep_AverageEt", "HAD Average LUT-JEP Et for Et > 5");
+          "ppm_had_2d_etaPhi_tt_lutjep_AverageEt", "HAD Average LUT-JEP Et for Et > 5 GeV");
 
     //--------------- distribution of LUT-CP peak per detector region -----------
 
     m_histTool->setMonGroup(&TT_LutCpPeakDist);
 
     m_h_ppm_em_1d_tt_lutcp_Et = m_histTool->book1F("ppm_em_1d_tt_lutcp_Et",
-                                "EM LUT-CP: Distribution of Peak;em LUT Peak",
+                                "EM LUT-CP: Distribution of Peak;em LUT Peak [GeV/2]",
                                 m_MaxEnergyRange - 1, 1, m_MaxEnergyRange);
     m_h_ppm_em_1d_tt_lutcp_Eta = m_histTool->bookPPMEmEta("ppm_em_1d_tt_lutcp_Eta",
                                  "EM LUT-CP: Distribution of Peak per #eta");
@@ -396,7 +409,7 @@ StatusCode PPrMon::bookHistogramsRecurrent()
                                  "EM LUT-CP: Distribution of Peak per #phi;phi", 64, 0., 2.*M_PI);
 
     m_h_ppm_had_1d_tt_lutcp_Et = m_histTool->book1F("ppm_had_1d_tt_lutcp_Et",
-                                 "HAD LUT-CP: Distribution of Peak;had LUT Peak",
+                                 "HAD LUT-CP: Distribution of Peak;had LUT Peak [Gev/2]",
                                  m_MaxEnergyRange - 1, 1, m_MaxEnergyRange);
     m_h_ppm_had_1d_tt_lutcp_Eta = m_histTool->bookPPMHadEta("ppm_had_1d_tt_lutcp_Eta",
                                   "HAD LUT-CP: Distribution of Peak per #eta");
@@ -404,7 +417,7 @@ StatusCode PPrMon::bookHistogramsRecurrent()
                                   "HAD LUT-CP: Distribution of Peak per #phi;phi", 64, 0., 2.*M_PI);
 
     m_h_ppm_1d_tt_lutcp_LutPerBCN = m_histTool->book1F("ppm_1d_tt_lutcp_LutPerBCN",
-                                    "Num of LUT-CP > 5 per BC;Bunch Crossing;Num. of LUT above limit",
+                                    "Num of LUT-CP > 5 GeV/2 per BC;Bunch Crossing;Num. of LUT above limit",
                                     0xdec, 0, 0xdec);
 
     //--------------- distribution of LUT-JEP peak per detector region -----------
@@ -428,7 +441,7 @@ StatusCode PPrMon::bookHistogramsRecurrent()
                                    "HAD LUT-JEP: Distribution of Peak per #phi;phi", 64, 0., 2.*M_PI);
 
     m_h_ppm_1d_tt_lutjep_LutPerBCN = m_histTool->book1F("ppm_1d_tt_lutjep_LutPerBCN",
-                                     "Num of LUT-JEP > 5 per BC;Bunch Crossing;Num. of LUT above limit",
+                                     "Num of LUT-JEP > 5 GeV per BC;Bunch Crossing;Num. of LUT above limit",
                                      0xdec, 0, 0xdec);
 
     //-------------------------Summary of Errors------------------------------
@@ -438,6 +451,17 @@ StatusCode PPrMon::bookHistogramsRecurrent()
     m_h_ppm_1d_ErrorSummary = m_histTool->book1F("ppm_1d_ErrorSummary",
                               "Summary of SubStatus Errors", 8, 0., 8.);
     m_histTool->subStatus(m_h_ppm_1d_ErrorSummary);
+
+    //----------------Over-/Underflow of Pedestal Correction------------------
+
+    m_h_ppm_em_1d_pedOverflow_Eta = m_histTool->bookPPMEmEta("m_h_ppm_em_1d_pedOverflow_Eta",
+                                 "EM : Overflow of pedestal correction");
+    m_h_ppm_em_1d_pedUnderflow_Eta = m_histTool->bookPPMEmEta("m_h_ppm_em_1d_pedUnderflow_Eta",
+                                 "EM : Underflow of pedestal correction");
+    m_h_ppm_had_1d_pedOverflow_Eta = m_histTool->bookPPMHadEta("m_h_ppm_had_1d_pedOverflow_Eta",
+                                   "HAD : Overflow of pedestal correction");
+    m_h_ppm_had_1d_pedUnderflow_Eta = m_histTool->bookPPMHadEta("m_h_ppm_had_1d_pedUnderflow_Eta",
+                                   "HAD : Underflow of pedestal correction");
 
     //---------------------------- SubStatus Word errors ---------------------
 
@@ -573,11 +597,11 @@ StatusCode PPrMon::bookHistogramsRecurrent()
         buffer_name << std::setw(2) << std::setfill('0') << thresh;
         TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(
                           "ppm_em_2d_etaPhi_tt_lutcp_Threshold" + buffer_name.str(),
-                          "#eta - #phi Map of EM LUT-CP > " + buffer.str());
+                          "#eta - #phi Map of EM LUT-CP > " + buffer.str() + " GeV/2");
         m_v_ppm_em_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
         hist = m_histTool->bookPPMHadEtaVsPhi(
                  "ppm_had_2d_etaPhi_tt_lutcp_Threshold" + buffer_name.str(),
-                 "#eta - #phi Map of Had LUT-CP > " + buffer.str());
+                 "#eta - #phi Map of Had LUT-CP > " + buffer.str() + " GeV/2");
         m_v_ppm_had_2d_etaPhi_tt_lutcp_Threshold.push_back(hist);
       }
     }
@@ -636,11 +660,11 @@ StatusCode PPrMon::bookHistogramsRecurrent()
         buffer_name << std::setw(2) << std::setfill('0') << thresh;
         TH2F_LW* hist = m_histTool->bookPPMEmEtaVsPhi(
                           "ppm_em_2d_etaPhi_tt_lutjep_Threshold" + buffer_name.str(),
-                          "#eta - #phi Map of EM LUT-JEP > " + buffer.str());
+                          "#eta - #phi Map of EM LUT-JEP > " + buffer.str() + " GeV");
         m_v_ppm_em_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
         hist = m_histTool->bookPPMHadEtaVsPhi(
                  "ppm_had_2d_etaPhi_tt_lutjep_Threshold" + buffer_name.str(),
-                 "#eta - #phi Map of Had LUT-JEP > " + buffer.str());
+                 "#eta - #phi Map of Had LUT-JEP > " + buffer.str() + " GeV");
         m_v_ppm_had_2d_etaPhi_tt_lutjep_Threshold.push_back(hist);
       }
     }
@@ -658,17 +682,17 @@ StatusCode PPrMon::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endreq;
+  if (debug) msg(MSG::DEBUG) << "in fillHistograms()" << endmsg;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
 
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -682,7 +706,7 @@ StatusCode PPrMon::fillHistograms()
 
   if (sc.isFailure() || !TriggerTowerTES) {
     if (debug) msg(MSG::DEBUG) << "No TriggerTower found in TES at "
-                                 << m_xAODTriggerTowerContainerName << endreq ;
+                                 << m_xAODTriggerTowerContainerName << endmsg ;
     return StatusCode::SUCCESS;
   }
 
@@ -691,7 +715,7 @@ StatusCode PPrMon::fillHistograms()
   const EventInfo* evInfo = 0;
   sc = evtStore()->retrieve(evInfo);
   if (sc.isFailure() || !evInfo) {
-    if (debug) msg(MSG::DEBUG) << "No EventInfo found" << endreq;
+    if (debug) msg(MSG::DEBUG) << "No EventInfo found" << endmsg;
   } else {
     const EventID* evID = evInfo->event_ID();
     if (evID)
@@ -794,7 +818,7 @@ StatusCode PPrMon::fillHistograms()
       const std::vector<short unsigned int>& ADC((*TriggerTowerIterator)->adc());
 
       double max = recTime(ADC, m_EMFADCCut);
-//       log << MSG::INFO << "TimeSlice of Maximum "<< max<< endreq ;  // Doesn't work anymore with xAOD, or never worked?
+//       log << MSG::INFO << "TimeSlice of Maximum "<< max<< endmsg ;  // Doesn't work anymore with xAOD, or never worked?
       if (max >= 0.) {
         m_histTool->fillPPMEmEtaVsPhi(m_h_ppm_em_2d_etaPhi_tt_adc_MaxTimeslice, eta, phi,
                                       max + 1.);
@@ -803,26 +827,36 @@ StatusCode PPrMon::fillHistograms()
 
       //----------------------- Bits of BCID Logic Word ------------------------
 
+        // (Sasha Mazurov) We need to check sat80Vec range since currently
+        // this vector is empty in MC
+
       if (cpET > 0 && tslice < ((*TriggerTowerIterator)->adc()).size()) {
         const int ADC = ((*TriggerTowerIterator)->adc())[tslice];
         short unsigned int Peak = (*TriggerTowerIterator)->peak();
         uint8_t bcidWord = (*TriggerTowerIterator)->bcidVec()[Peak];
-        m_h_ppm_2d_tt_adc_BcidBits->Fill(bcidWord, ADC);
+
+	if( bcidWord == char(0) || bcidWord == char(1) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(0, ADC);} //none(40 MHZ)
+	else if( bcidWord == char(2) || bcidWord == char(3) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(1, ADC);} //satBConly
+	else if( bcidWord == char(4) || bcidWord == char(5) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(2, ADC);} //PFonly
+	else if( bcidWord == char(6) || bcidWord == char(7) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(3, ADC);} //satBC & PF
+	if( bcidWord == char(5) || bcidWord == char(7) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(4, ADC);} //sat80BC & PF
+	if( bcidWord == char(3) || bcidWord == char(7) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(5, ADC);} //sat80BC & sat40BC
+	if( bcidWord == char(1) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(6, ADC);} //sat80BC (only)
+      
+      }
+
+
+      //------------------------ High/low threshold pass cases ---------------------
+
+      short unsigned int Peak = (*TriggerTowerIterator)->peak();
+ 
+      if (cpET > 0 && tslice < ((*TriggerTowerIterator)->adc()).size() && Peak < (*TriggerTowerIterator)->sat80Vec().size()) {
+        uint8_t sat80Word = (*TriggerTowerIterator)->sat80Vec()[Peak];
         
-        // (Sasha Mazurov) We need to check sat80Vec range since currently
-        // this vector is empty in MC
-        if ((*TriggerTowerIterator)->sat80Vec().size() > Peak ) { 
-          uint8_t sat80Word = (*TriggerTowerIterator)->sat80Vec()[Peak];
-          std::bitset<3> sat80Bitset(sat80Word);
-          for (unsigned int i=0;i<sat80Bitset.size();i++) {
-            if (sat80Bitset.test(i)) {
-              if (i < 2) {m_h_ppm_2d_tt_adc_BcidBits->Fill(i+8, ADC);}
-              else if ( bcidWord == char(0) || bcidWord == char(2) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(10, ADC);} //sat80BC & sat40BC or only sat80BC algorithms
-              else if ( bcidWord == char(1) || bcidWord == char(3) || bcidWord == char(5) || bcidWord == char(7) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(11, ADC);} //sat80BC & extBC
-              else if ( bcidWord == char(4) || bcidWord == char(5) || bcidWord == char(6) || bcidWord == char(7) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(12, ADC);} //sat80BC & peakF
-            }
-          }
+	for(unsigned int i=0;i<8;i++){
+          if(sat80Word==char(i)){m_h_ppm_1d_tt_adc_HLCase->Fill(i);}
         }
+
       }
 
       //------------------------ Signal shape profile --------------------------
@@ -918,6 +952,20 @@ StatusCode PPrMon::fillHistograms()
       }
       // number of triggered slice
       m_h_ppm_em_1d_tt_adc_TriggeredSlice->Fill((*TriggerTowerIterator)->adcPeak(), 1);
+
+			//-------------------- Pedestal Correction Over-/Underflow ---------------------
+
+      Peak = (*TriggerTowerIterator)->peak();
+      const double eta = (*TriggerTowerIterator)->eta();
+
+      if((*TriggerTowerIterator)->correction()[Peak] > 510){
+	m_h_ppm_em_1d_pedOverflow_Eta->Fill(eta, 1);
+      }
+
+      if((*TriggerTowerIterator)->correction()[Peak] < -511){
+	m_h_ppm_em_1d_pedUnderflow_Eta->Fill(eta, 1);
+      }
+
     }
 
     //================== FOR HADRONIC LAYER ======================================
@@ -993,7 +1041,7 @@ StatusCode PPrMon::fillHistograms()
 
       const std::vector<short unsigned int>& ADC((*TriggerTowerIterator)->adc());
       double max = recTime(ADC, m_HADFADCCut);
-      //log << MSG::INFO << "TimeSlice of Maximum "<< max<< endreq ;
+      //log << MSG::INFO << "TimeSlice of Maximum "<< max<< endmsg ;
       if (max >= 0.) {
         m_histTool->fillPPMHadEtaVsPhi(m_h_ppm_had_2d_etaPhi_tt_adc_MaxTimeslice, eta, phi,
                                        max + 1.);
@@ -1002,26 +1050,35 @@ StatusCode PPrMon::fillHistograms()
 
       //----------------------- Bits of BCID Logic Word ------------------------
 
+      // (Sasha Mazurov) We need to check sat80Vec range since currently
+      // this vector is empty in MC
+
       if (cpET > 0 && tslice < ((*TriggerTowerIterator)->adc()).size()) {
         const int ADC = ((*TriggerTowerIterator)->adc())[tslice];
         short unsigned int Peak = (*TriggerTowerIterator)->peak();
         uint8_t bcidWord = (*TriggerTowerIterator)->bcidVec()[Peak];
-        m_h_ppm_2d_tt_adc_BcidBits->Fill(bcidWord, ADC);
+
+	if( bcidWord == char(0) || bcidWord == char(1) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(0, ADC);} //none(40 MHZ)
+	else if( bcidWord == char(2) || bcidWord == char(3) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(1, ADC);} //satBConly
+	else if( bcidWord == char(4) || bcidWord == char(5) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(2, ADC);} //PFonly
+	else if( bcidWord == char(6) || bcidWord == char(7) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(3, ADC);} //satBC & PF
+	if( bcidWord == char(5) || bcidWord == char(7) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(4, ADC);} //sat80BC & PF
+	if( bcidWord == char(3) || bcidWord == char(7) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(5, ADC);} //sat80BC & sat40BC
+	if( bcidWord == char(1) ){m_h_ppm_2d_tt_adc_BcidBits->Fill(6, ADC);} //sat80BC (only)
+
+      }
+
+      //------------------------ High/low threshold pass cases ---------------------
+
+      short unsigned int Peak = (*TriggerTowerIterator)->peak();
+ 
+      if (cpET > 0 && tslice < ((*TriggerTowerIterator)->adc()).size() && Peak < (*TriggerTowerIterator)->sat80Vec().size()) {
+        uint8_t sat80Word = (*TriggerTowerIterator)->sat80Vec()[Peak];
         
-        // (Sasha Mazurov) We need to check sat80Vec range since currently
-        // this vector is empty in MC
-        if ((*TriggerTowerIterator)->sat80Vec().size() > Peak ) {
-          uint8_t sat80Word = (*TriggerTowerIterator)->sat80Vec()[Peak];
-          std::bitset<3> sat80Bitset(sat80Word);
-          for (unsigned int i=0;i<sat80Bitset.size();i++) {
-            if (sat80Bitset.test(i)) {
-              if (i < 2) {m_h_ppm_2d_tt_adc_BcidBits->Fill(i+8, ADC);}
-              else if ( bcidWord == char(0) || bcidWord == char(2) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(10, ADC);} //sat80BC & sat40BC or only sat80BC algorithms
-              else if ( bcidWord == char(1) || bcidWord == char(3) || bcidWord == char(5) || bcidWord == char(7) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(11, ADC);} //sat80BC & extBC
-              else if ( bcidWord == char(4) || bcidWord == char(5) || bcidWord == char(6) || bcidWord == char(7) ) {m_h_ppm_2d_tt_adc_BcidBits->Fill(12, ADC);} //sat80BC & peakF
-            }
-          }
+	for(unsigned int i=0;i<8;i++){
+          if(sat80Word==char(i)){m_h_ppm_1d_tt_adc_HLCase->Fill(i);}
         }
+
       }
 
       //------------------------ Signal shape profile --------------------------
@@ -1113,6 +1170,20 @@ StatusCode PPrMon::fillHistograms()
       }
       // number of triggered slice
       m_h_ppm_had_1d_tt_adc_TriggeredSlice->Fill((*TriggerTowerIterator)->adcPeak(), 1);
+
+			//-------------------- Pedestal Correction Over-/Underflow ---------------------
+
+      Peak = (*TriggerTowerIterator)->peak();
+      const double eta = (*TriggerTowerIterator)->eta();
+
+      if((*TriggerTowerIterator)->correction()[Peak] > 510){
+	m_h_ppm_had_1d_pedOverflow_Eta->Fill(eta, 1);
+      }
+
+      if((*TriggerTowerIterator)->correction()[Peak] < -511){
+	m_h_ppm_had_1d_pedUnderflow_Eta->Fill(eta, 1);
+      }
+
     }
   }
 
@@ -1121,7 +1192,7 @@ StatusCode PPrMon::fillHistograms()
   sc = evtStore()->record(save, "L1CaloPPMErrorVector");
   if (sc != StatusCode::SUCCESS) {
     msg(MSG::ERROR) << "Error recording PPM error vector in TES "
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
