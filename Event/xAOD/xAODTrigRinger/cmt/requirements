@@ -26,3 +26,5 @@ use AtlasROOT               AtlasROOT-*               External
 apply_pattern lcgdict dict=xAODTrigRinger selectionfile=selection.xml \
                       headerfiles="../xAODTrigRinger/xAODTrigRingerDict.h" \
                       extralibfiles=../Root/dict/*.cxx
+
+apply_pattern do_genCLIDDB library=xAODTrigRinger
