@@ -70,6 +70,18 @@ void PixelMonProfiles::SetMaxValue(float max)
    C->SetMaximum( max ); 
 }
 
+void PixelMonProfiles::Reset()
+{
+   IBL->Reset();
+   IBL2D->Reset();
+   IBL3D->Reset();
+   B0->Reset();
+   B1->Reset();
+   B2->Reset();
+   A->Reset();
+   C->Reset();
+}
+
 void PixelMonProfiles::Fill(Identifier &id, const PixelID* pixID, float Index, bool doIBL)
 {
    int bec = pixID->barrel_ec(id);
