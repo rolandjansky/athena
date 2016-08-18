@@ -72,7 +72,7 @@ namespace InDet
 
     const TrackCollection*       m_tracks;
 
-    bool m_doSharedHits;
+    bool                         m_doIBLresidual;
 
     //Monitoring
     std::string                  m_slice_name;

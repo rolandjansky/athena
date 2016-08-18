@@ -39,6 +39,7 @@ namespace InDet
       m_particleCreatorTool("Trk::ParticleCreatorTool"),
       m_residualCalc("Trk::ResidualPullCalculator"),
       m_tracks(0),
+      m_doIBLresidual(true),
       m_slice_name(""),
       m_mon_doSliceSpecific(true),
       m_mon_counter(0),
@@ -47,6 +48,7 @@ namespace InDet
   {
     declareProperty("ParticleCreatorTool", m_particleCreatorTool);
     declareProperty("ResidualPullCalculator", m_residualCalc);
+    declareProperty("doIBLresidual", m_doIBLresidual);
 
     //+++ DQM (SA): monitoring
     declareProperty("MonSliceSpecific", m_mon_doSliceSpecific);
@@ -179,8 +181,7 @@ namespace InDet
 
     int outputLevel = msgLvl();
 
-    if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "execHLTAlgorithm()" << endreq;
+    ATH_MSG_DEBUG("execHLTAlgorithm()");
 
 
     //----------------------------------------------------------------------
@@ -202,8 +203,8 @@ namespace InDet
     ResetMon();
 
     //
-    float tmp_eta_roi = -999;  // Uggly solution, should not need to fill a !!!
-    float tmp_phi_roi = -999;  // vector with the same value for each track !!!
+    float tmp_eta_roi = -999;  
+    float tmp_phi_roi = -999;  
     const TrigRoiDescriptor* roi;
     if ( HLT::OK == getFeature(outputTE, roi) && roi ) {
       tmp_eta_roi = roi->eta();
@@ -216,28 +217,24 @@ namespace InDet
       runAlg = false;
       statCode = HLT::NAV_ERROR;
     }
-
+    
     if(!m_tracks){
-      if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endreq;
+      ATH_MSG_DEBUG(" Input track collection was not attached. Algorithm not executed!");
       runAlg = false;
       statCode = HLT::OK;
     } else {
-      if(outputLevel <= MSG::VERBOSE)
-	msg() << MSG::VERBOSE << " Input track collection has size " << m_tracks->size() << endreq;
+      ATH_MSG_VERBOSE(" Input track collection has size " << m_tracks->size());
       if ( m_tracks->size() == 0 ) {
-	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
+	ATH_MSG_DEBUG(" Input track collection has 0 size. Algorithm not executed!");
 	runAlg = false;
 	statCode=HLT::OK;
       }
     }
-
-
+    
+    
     //convert tracks
-
+    
     xAOD::TrackParticleContainer* tpCont = new xAOD::TrackParticleContainer();
-    //    xAOD::TrackParticleAuxContainer* tpAuxCont = new xAOD::TrackParticleAuxContainer();
     xAOD::TrackParticleAuxContainer tpAuxCont; // = new xAOD::TrackParticleAuxContainer();      //this guy should allow reset
     tpCont->setStore( &tpAuxCont );
 
@@ -245,7 +242,7 @@ namespace InDet
       for(unsigned int idtr=0; idtr< m_tracks->size(); ++idtr) {
         const ElementLink<TrackCollection> trackLink(*m_tracks, idtr);
 
-	fillIBLResidual(m_tracks->at(idtr));
+	if (m_doIBLresidual) fillIBLResidual(m_tracks->at(idtr));
 
         xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont);
 
@@ -276,40 +273,32 @@ namespace InDet
         }
       }
     }
+ 
 
-    if(outputLevel <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "REGTEST container size = " << tpCont->size() << endreq;
-    }
-
-
+    ATH_MSG_DEBUG("REGTEST container size = " << tpCont->size());
+    
     if ( HLT::OK !=  attachFeature(outputTE, tpCont, name()) ) {
       msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
       return HLT::NAV_ERROR;
     }
     else {
-      if(outputLevel <= MSG::DEBUG){
-	msg() << MSG::DEBUG << "Stored xAOD::TrackParticle container " << endreq;
-      }
+      ATH_MSG_DEBUG("Stored xAOD::TrackParticle container ");
     }
 
 
-    for (xAOD::TrackParticleContainer::iterator itr = tpCont->begin();
-     itr != tpCont->end(); ++itr)  {
+    for (xAOD::TrackParticleContainer::iterator itr = tpCont->begin(); itr != tpCont->end(); ++itr)  {
       FillMonPerTrack(*itr, tmp_eta_roi, tmp_phi_roi);
-     }
+    }
 
     if (runAlg){
       //+++ DQM (SA): per RoI quantities
       FillMonPerRoi(roi, tmp_eta_roi, tmp_phi_roi);
       ++m_mon_counter;
-
+      
       return HLT::OK;
     } else {
       return statCode;
     }
-
-
-
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -421,15 +410,17 @@ namespace InDet
 		    ATH_MSG_DEBUG("Found pixel barrel");
 		    if(m_pixelId->layer_disk(id) == 0) 
 		      {
-			if (msgLvl(MSG::DEBUG)) 
-			  {
-			    msg(MSG::DEBUG) << "Found Innermost Pixel Layer  " << id.get_compact() << endreq;       
-			  }
+			ATH_MSG_DEBUG("Found Innermost Pixel Layer  " << id.get_compact());
 			
 			const Trk::ResidualPull* pull = m_residualCalc->residualPull(measurement,(*it)->trackParameters(),Trk::ResidualPull::Unbiased);
 			m_dqm_ibl_z.push_back(zmod);
-			m_dqm_ibl_res_x.push_back(pull->residual()[Trk::locX]);
-			m_dqm_ibl_res_y.push_back(pull->residual()[Trk::locY]);
+			if (pull){
+			  m_dqm_ibl_res_x.push_back(pull->residual()[Trk::locX]);
+			  m_dqm_ibl_res_y.push_back(pull->residual()[Trk::locY]);
+        delete pull;
+			} else {
+			  msg(MSG::WARNING) << "Could not calculate the pulls" << endreq;
+			}
 		      }
 		  }
 	      }
