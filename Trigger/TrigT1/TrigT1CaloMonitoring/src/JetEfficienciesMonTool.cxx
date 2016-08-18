@@ -73,7 +73,6 @@ JetEfficienciesMonTool::JetEfficienciesMonTool(const std::string & type,
 	  m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
 	  m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
 	  m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
-	  m_trigger("Trig::TrigDecisionTool/TrigDecisionTool"),
 	  // m_looseJetSelector("JetCleaningTool/JetCleaningLooseTool"),
 	  // m_mediumJetSelector("JetCleaningTool/JetCleaningMediumTool"),
 	  // m_tightJetSelector("JetCleaningTool/JetCleaningTightTool"),
@@ -134,7 +133,6 @@ JetEfficienciesMonTool::JetEfficienciesMonTool(const std::string & type,
 	declareProperty("HistogramTool", m_histTool);
 	declareProperty("TriggerTowerTool", m_ttTool);
 	declareProperty("LArTowerEnergyTool", m_larEnergy);
-	declareProperty("TrigDecisionTool", m_trigger);
 
 	declareProperty("JetCleaningLooseTool", m_looseJetSelector);
 	declareProperty("JetCleaningMediumTool", m_mediumJetSelector);
@@ -198,7 +196,7 @@ JetEfficienciesMonTool::~JetEfficienciesMonTool()
 StatusCode JetEfficienciesMonTool::initialize()
 /*---------------------------------------------------------*/
 {
-	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
 
 	StatusCode sc;
 
@@ -208,51 +206,43 @@ StatusCode JetEfficienciesMonTool::initialize()
 
 	sc = m_errorTool.retrieve();
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endreq;
+		msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endmsg;
 		return sc;
 	}
 
 	sc = m_histTool.retrieve();
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloHistogramTool" << endreq;
+		msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloHistogramTool" << endmsg;
 		return sc;
 	}
 
 	sc = m_ttTool.retrieve();
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Cannot retrieve L1TriggerTowerTool" << endreq;
+		msg(MSG::ERROR) << "Cannot retrieve L1TriggerTowerTool" << endmsg;
 		return sc;
 	}
 
 	sc = m_larEnergy.retrieve();
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Cannot retrieve L1CaloLArTowerEnergy" << endreq;
-		return sc;
-	}
-
-	// Load in trigger tools
-	// This tool gives you access to the physics trigger menu decisions for each event.
-	sc = m_trigger.retrieve();
-	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Can't get handle on TrigDecisionTool" << endreq;
+		msg(MSG::ERROR) << "Cannot retrieve L1CaloLArTowerEnergy" << endmsg;
 		return sc;
 	}
 
 	sc = m_looseJetSelector.retrieve();
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Can't get handle on JetCleaningTool/JetCleaningToolLoose" << endreq;
+		msg(MSG::ERROR) << "Can't get handle on JetCleaningTool/JetCleaningToolLoose" << endmsg;
 		return sc;
 	}
 
 	sc = m_mediumJetSelector.retrieve();
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Can't get handle on JetCleaningTool/JetCleaningToolMedium" << endreq;
+		msg(MSG::ERROR) << "Can't get handle on JetCleaningTool/JetCleaningToolMedium" << endmsg;
 		return sc;
 	}
 
 	sc = m_tightJetSelector.retrieve();
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Can't get handle on JetCleaningTool/JetCleaningTooTight" << endreq;
+		msg(MSG::ERROR) << "Can't get handle on JetCleaningTool/JetCleaningTooTight" << endmsg;
 		return sc;
 	}
 
@@ -260,13 +250,13 @@ StatusCode JetEfficienciesMonTool::initialize()
 	// retrieve CaloLVL1_ID, TileID, from det store
 	sc = detStore()->retrieve(m_TT_ID);
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Unable to retrieve CaloLVL1_ID helper from DetectorStore" << endreq;
+		msg(MSG::ERROR) << "Unable to retrieve CaloLVL1_ID helper from DetectorStore" << endmsg;
 		return sc;
 	}
 
 	sc = detStore()->retrieve(m_tileID);
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Unable to retrieve TileID helper from DetectorStore" << endreq;
+		msg(MSG::ERROR) << "Unable to retrieve TileID helper from DetectorStore" << endmsg;
 		return sc;
 	}
 
@@ -277,7 +267,7 @@ StatusCode JetEfficienciesMonTool::initialize()
 	msg(MSG::INFO) << "TriggerStrings:";
 	for (; iter != iterE; ++iter)
 		msg(MSG::INFO) << " " << *iter;
-	msg(MSG::INFO) << endreq;
+	msg(MSG::INFO) << endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -286,7 +276,7 @@ StatusCode JetEfficienciesMonTool::initialize()
 StatusCode JetEfficienciesMonTool::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-	msg(MSG::DEBUG) << "bookHistograms entered" << endreq;
+	msg(MSG::DEBUG) << "bookHistograms entered" << endmsg;
 
 	if (m_environment == AthenaMonManager::online) {
 		// book histograms that are only made in the online environment...
@@ -296,8 +286,8 @@ StatusCode JetEfficienciesMonTool::bookHistogramsRecurrent()
 		// book histograms that are only relevant for cosmics data...
 	}
 
-	if (newLumiBlock) {
-	}
+	//if (newLumiBlock) {
+	//}
 
 	if (newRun) {
 
@@ -359,7 +349,7 @@ StatusCode JetEfficienciesMonTool::bookHistogramsRecurrent()
 			fjetL1n[i] = fjetL1t[i] + " || " + jetL1t[m_linkedHistos[i]];
 		}
 		if (count != FJET_ROI_BITS) {
-			msg(MSG::WARNING) << "Jet ForwardJet mismatch" << endreq;
+			msg(MSG::WARNING) << "Jet ForwardJet mismatch" << endmsg;
 		}
 
 		m_histTool->setMonGroup(&monJetDead);
@@ -540,7 +530,7 @@ StatusCode JetEfficienciesMonTool::bookHistogramsRecurrent()
 		m_numJetObjTotal = 0;
 	}
 
-	msg(MSG::DEBUG) << "Leaving bookHistograms" << endreq;
+	msg(MSG::DEBUG) << "Leaving bookHistograms" << endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -550,12 +540,12 @@ StatusCode JetEfficienciesMonTool::fillHistograms()
 /*---------------------------------------------------------*/
 {
 	const bool debug = msgLvl(MSG::DEBUG);
-	if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endreq;
+	if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endmsg;
 
 	// Skip events believed to be corrupt
 
 	if (m_errorTool->corrupt()) {
-		if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
+		if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
 		return StatusCode::SUCCESS;
 	}
 
@@ -566,7 +556,7 @@ StatusCode JetEfficienciesMonTool::fillHistograms()
 		m_firstEvent = false;
 		sc = this->triggerTowerAnalysis();
 		if (sc.isFailure()) {
-			msg(MSG::WARNING) << "Problem analysing Trigger Towers" << endreq;
+			msg(MSG::WARNING) << "Problem analysing Trigger Towers" << endmsg;
 			return sc;
 		}
 	}
@@ -576,16 +566,17 @@ StatusCode JetEfficienciesMonTool::fillHistograms()
 	if (m_useTrigger) {
 		typedef std::vector<std::string>::iterator Itr_s;
 		for (Itr_s i = m_triggerStrings.begin(); i != m_triggerStrings.end(); ++i) {
-			if (m_trigger->isPassed(*i)) {
+			if (m_trigDecTool->isPassed(*i)) {
 				useEvent = true;
-				if (debug) msg(MSG::DEBUG) << "First requested trigger that fired is : " << (*i) << " with prescale " << m_trigger->getPrescale(*i);
+                                Trig::TrigDecisionTool* trigdec = dynamic_cast<Trig::TrigDecisionTool*> (&*m_trigDecTool);
+				if (debug) msg(MSG::DEBUG) << "First requested trigger that fired is : " << (*i) << " with prescale " << trigdec->getPrescale(*i);
 				break;
 			}
 		}
 
 		sc = this->triggerChainAnalysis();
 		if (sc.isFailure()) {
-			if (debug) msg(MSG::DEBUG) << "Problem checking Trigger Chains" << endreq;
+			if (debug) msg(MSG::DEBUG) << "Problem checking Trigger Chains" << endmsg;
 			return sc;
 		}
 	}
@@ -598,7 +589,7 @@ StatusCode JetEfficienciesMonTool::fillHistograms()
 		m_eventInfo = 0;
 		sc = evtStore()->retrieve(m_eventInfo);
 		if (sc.isFailure()) {
-			msg(MSG::WARNING) << "Failed to load EventInfo" << endreq;
+			msg(MSG::WARNING) << "Failed to load EventInfo" << endmsg;
 			return sc;
 		}
 		if ( m_removeNoiseBursts ) {
@@ -617,16 +608,16 @@ StatusCode JetEfficienciesMonTool::fillHistograms()
 
 		sc = this->loadContainers();
 		if (sc.isFailure()) {
-			msg(MSG::WARNING) << "Problem loading Athena Containers" << endreq;
+			msg(MSG::WARNING) << "Problem loading Athena Containers" << endmsg;
 			return sc;
 		}
 
-		if (debug) msg(MSG::DEBUG) << "Run number " << m_eventInfo->event_ID()->run_number() << " : Lumi Block " << m_eventInfo->event_ID()->lumi_block() << " : Event " << m_eventInfo->event_ID()->event_number() << endreq;
+		if (debug) msg(MSG::DEBUG) << "Run number " << m_eventInfo->event_ID()->run_number() << " : Lumi Block " << m_eventInfo->event_ID()->lumi_block() << " : Event " << m_eventInfo->event_ID()->event_number() << endmsg;
 
 		// Look at vertex requirements
 		unsigned int nPriVtx = this->nPrimaryVertex();
 		if (nPriVtx < 1) {
-			if (debug) msg(MSG::DEBUG) << "Event " << m_eventInfo->event_ID()->event_number() << " fails vertex requirements " << endreq;
+			if (debug) msg(MSG::DEBUG) << "Event " << m_eventInfo->event_ID()->event_number() << " fails vertex requirements " << endmsg;
 			return StatusCode::SUCCESS;
 		}
 
@@ -637,15 +628,15 @@ StatusCode JetEfficienciesMonTool::fillHistograms()
 		m_numOffJetsTriggered = 0;
 		sc = this->analyseOfflineJets();
 		if (sc.isFailure()) {
-			msg(MSG::WARNING) << "analyseJets Failed " << endreq;
+			msg(MSG::WARNING) << "analyseJets Failed " << endmsg;
 			return sc;
 		}
-		if (debug) msg(MSG::DEBUG) << "Number of Offline Jets = " << m_numOffJetsInContainer << " Passing Cuts = " << m_numOffJetsPassCuts << " Triggered = " << m_numOffJetsTriggered << endreq;
+		if (debug) msg(MSG::DEBUG) << "Number of Offline Jets = " << m_numOffJetsInContainer << " Passing Cuts = " << m_numOffJetsPassCuts << " Triggered = " << m_numOffJetsTriggered << endmsg;
 
 	}
 
 	if (debug)
-		msg(MSG::DEBUG) << "Leaving fillHistograms" << endreq;
+		msg(MSG::DEBUG) << "Leaving fillHistograms" << endmsg;
 
 	return StatusCode::SUCCESS;
 
@@ -655,14 +646,14 @@ StatusCode JetEfficienciesMonTool::fillHistograms()
 StatusCode JetEfficienciesMonTool::procHistograms()
 /*---------------------------------------------------------*/
 {
-	msg(MSG::DEBUG) << "procHistograms entered" << endreq;
+	msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
-	if (endOfLumiBlock) {
-	}
+	//if (endOfLumiBlock) {
+	//}
 
 	if (endOfRun) {
-		msg(MSG::DEBUG) << "Number of offline jets = " << m_numOffJets << endreq;
-		msg(MSG::DEBUG) << "Number of events = " << m_numEvents << endreq;
+		msg(MSG::DEBUG) << "Number of offline jets = " << m_numOffJets << endmsg;
+		msg(MSG::DEBUG) << "Number of events = " << m_numEvents << endmsg;
 
 		m_histTool->efficienciesForMerge(m_h_JetEmScale_Et,
 		                                 m_h_JetEmScale_Et_triggered,
@@ -1122,14 +1113,14 @@ StatusCode JetEfficienciesMonTool::triggerTowerAnalysis() {
 	m_dbPpmDeadChannels = 0;
 	StatusCode sc = detStore()->retrieve(m_dbPpmDeadChannels, m_dbPpmDeadChannelsFolder);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load DB PPM Dead Channels" << endreq;
+		msg(MSG::WARNING) << "Failed to load DB PPM Dead Channels" << endmsg;
 		return sc;
 	}
 
 	m_triggerTowers = 0;
 	sc = evtStore()->retrieve(m_triggerTowers, m_triggerTowersLocation);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load Trigger Towers" << endreq;
+		msg(MSG::WARNING) << "Failed to load Trigger Towers" << endmsg;
 		return sc;
 	}
 
@@ -1193,7 +1184,8 @@ StatusCode JetEfficienciesMonTool::triggerChainAnalysis() {
 
 	// Get the list of all triggers but do this only once in the event loop
 	if (m_configuredChains.size() == 0) {
-		m_configuredChains = m_trigger->getListOfTriggers();
+                Trig::TrigDecisionTool* trigdec = dynamic_cast<Trig::TrigDecisionTool*> (&*m_trigDecTool);
+		m_configuredChains = trigdec->getListOfTriggers();
 		m_wantedTriggers.resize(m_configuredChains.size());
 		int i = 0;
 		std::vector<std::string>::const_iterator itE = m_configuredChains.end();
@@ -1255,7 +1247,7 @@ StatusCode JetEfficienciesMonTool::triggerChainAnalysis() {
 		}
 	}
 
-	//msg(MSG::DEBUG) << "Trigger Analysis: New Event" << endreq;
+	//msg(MSG::DEBUG) << "Trigger Analysis: New Event" << endmsg;
 
 	int trigSet = 0;
 	int i = 0;
@@ -1265,7 +1257,7 @@ StatusCode JetEfficienciesMonTool::triggerChainAnalysis() {
 
 		//Check that the trigger was passed
 		const int trigMap = m_wantedTriggers[i];
-		if (((trigMap ^ trigSet)&trigMap) && m_trigger->isPassed(*it)) {
+		if (((trigMap ^ trigSet)&trigMap) && m_trigDecTool->isPassed(*it)) {
 			trigSet |= trigMap;
 		}
 	}
@@ -1322,21 +1314,21 @@ StatusCode JetEfficienciesMonTool::loadContainers() {
 	m_primaryVertex = 0;
 	sc = evtStore()->retrieve(m_primaryVertex, m_primaryVertexLocation);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load Primary Vertices" << endreq;
+		msg(MSG::WARNING) << "Failed to load Primary Vertices" << endmsg;
 		return sc;
 	}
 
 	m_lvl1RoIs = 0;
 	sc = evtStore()->retrieve(m_lvl1RoIs, m_lvl1RoIsLocation);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load LVL1 RoIs" << endreq;
+		msg(MSG::WARNING) << "Failed to load LVL1 RoIs" << endmsg;
 		return sc;
 	}
 
 	m_offlineJets = 0;
 	sc = evtStore()->retrieve(m_offlineJets, m_offlineJetsLocation);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load Offline Jets" << endreq;
+		msg(MSG::WARNING) << "Failed to load Offline Jets" << endmsg;
 		return sc;
 	}
 
@@ -1355,7 +1347,7 @@ StatusCode JetEfficienciesMonTool::mapTileQuality() {
 	const CaloCellContainer* cellcoll = 0;
 	StatusCode sc = evtStore()->retrieve(cellcoll, m_caloCellContainerLocation) ;
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Unable to retrieve Cell container: " << m_caloCellContainerLocation << endreq;
+		msg(MSG::WARNING) << "Unable to retrieve Cell container: " << m_caloCellContainerLocation << endmsg;
 		return sc;
 	}
 

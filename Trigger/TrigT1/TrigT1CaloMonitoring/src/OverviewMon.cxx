@@ -103,7 +103,7 @@ StatusCode OverviewMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   StatusCode sc;
 
@@ -113,13 +113,13 @@ StatusCode OverviewMon::initialize()
 
   sc = m_errorTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endmsg;
     return sc;
   }
   sc = m_histTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -144,7 +144,7 @@ StatusCode OverviewMon::finalize()
 StatusCode OverviewMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "bookHistogramsRecurrent entered" << endreq;
+  msg(MSG::DEBUG) << "bookHistogramsRecurrent entered" << endmsg;
 
   if (m_environment == AthenaMonManager::online) {
     // book histograms that are only made in the online environment...
@@ -154,8 +154,8 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if (newEventsBlock || newLumiBlock) {
-  }
+  //if (newEventsBlock || newLumiBlock) {
+  //}
 
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
 
@@ -363,7 +363,7 @@ StatusCode OverviewMon::bookHistogramsRecurrent()
 
   m_histTool->unsetMonGroup();
 
-  msg(MSG::DEBUG) << "Leaving bookHistogramsRecurrent" << endreq;
+  msg(MSG::DEBUG) << "Leaving bookHistogramsRecurrent" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -374,11 +374,11 @@ StatusCode OverviewMon::fillHistograms()
 {
   const bool debug = msgLvl(MSG::DEBUG);
   if (debug)
-    msg(MSG::DEBUG) << "fillHistograms entered" << endreq;
+    msg(MSG::DEBUG) << "fillHistograms entered" << endmsg;
 
   if (!m_h_l1calo_2d_GlobalOverview) {
     if (debug)
-      msg(MSG::DEBUG) << "Histograms not booked" << endreq;
+      msg(MSG::DEBUG) << "Histograms not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -423,7 +423,7 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No PPM error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No PPM error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -449,7 +449,7 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No PPMSpare error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No PPMSpare error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -475,7 +475,7 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No CPM error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No CPM error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < cpmCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -505,7 +505,7 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No JEM error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No JEM error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < jemCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -529,7 +529,7 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No JEM CMX error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No JEM CMX error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < jemCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -556,7 +556,7 @@ StatusCode OverviewMon::fillHistograms()
   if (sc.isFailure() || !errTES ||
       errTES->size() != size_t(ppmCrates + cpmCrates + jemCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No ROD error vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No ROD error vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates + cpmCrates + jemCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -583,7 +583,7 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No PPM mismatch vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No PPM mismatch vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -602,7 +602,7 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No CPM mismatch vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No CPM mismatch vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < cpmCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -632,7 +632,7 @@ StatusCode OverviewMon::fillHistograms()
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug)
-      msg(MSG::DEBUG) << "No JEM mismatch vector of expected size" << endreq;
+      msg(MSG::DEBUG) << "No JEM mismatch vector of expected size" << endmsg;
   } else {
     for (int crate = 0; crate < jemCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -715,7 +715,7 @@ StatusCode OverviewMon::fillHistograms()
   }
 
   if (debug)
-    msg(MSG::DEBUG) << "Leaving fillHistograms" << endreq;
+    msg(MSG::DEBUG) << "Leaving fillHistograms" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -724,10 +724,10 @@ StatusCode OverviewMon::fillHistograms()
 StatusCode OverviewMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "procHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
-  if (endOfEventsBlock || endOfLumiBlock) {
-  }
+  //if (endOfEventsBlock || endOfLumiBlock) {
+  //}
 
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
   if (endOfRun && !online) {

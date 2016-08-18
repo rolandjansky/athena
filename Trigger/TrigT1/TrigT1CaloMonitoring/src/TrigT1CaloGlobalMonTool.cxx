@@ -80,7 +80,7 @@ StatusCode TrigT1CaloGlobalMonTool::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   StatusCode sc;
 
@@ -90,13 +90,13 @@ StatusCode TrigT1CaloGlobalMonTool::initialize()
   sc = m_errorTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
   sc = m_histTool.retrieve();
   if( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -121,7 +121,7 @@ StatusCode TrigT1CaloGlobalMonTool::finalize()
 StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "bookHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "bookHistograms entered" << endmsg;
 
   if( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -321,7 +321,7 @@ StatusCode TrigT1CaloGlobalMonTool::bookHistogramsRecurrent()
 
   m_histTool->unsetMonGroup();
 
-  msg(MSG::DEBUG) << "Leaving bookHistograms" << endreq;
+  msg(MSG::DEBUG) << "Leaving bookHistograms" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -331,10 +331,10 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endreq;
+  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endmsg;
 
   if (!m_h_l1calo_2d_GlobalOverview) {
-    if (debug) msg(MSG::DEBUG) << "Histograms not booked" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Histograms not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -373,7 +373,7 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug) msg(MSG::DEBUG) << "No PPM error vector of expected size"
-                               << endreq;
+                               << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -397,7 +397,7 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug) msg(MSG::DEBUG) << "No PPMSpare error vector of expected size"
-                               << endreq;
+                               << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -421,7 +421,7 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
     if (debug) msg(MSG::DEBUG) << "No CPM error vector of expected size"
-                               << endreq;
+                               << endmsg;
   } else {
     for (int crate = 0; crate < cpmCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -445,7 +445,7 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug) msg(MSG::DEBUG) << "No JEM error vector of expected size"
-                               << endreq;
+                               << endmsg;
   } else {
     for (int crate = 0; crate < jemCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -467,7 +467,7 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug) msg(MSG::DEBUG) << "No JEM CMM error vector of expected size"
-                               << endreq;
+                               << endmsg;
   } else {
     for (int crate = 0; crate < jemCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -493,7 +493,7 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
   if (sc.isFailure() || !errTES || 
                 errTES->size() != size_t(ppmCrates + cpmCrates + jemCrates)) {
     if (debug) msg(MSG::DEBUG) << "No ROD error vector of expected size"
-                               << endreq;
+                               << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates+cpmCrates+jemCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -514,7 +514,7 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(ppmCrates)) {
     if (debug) msg(MSG::DEBUG) << "No PPM mismatch vector of expected size"
-                               << endreq;
+                               << endmsg;
   } else {
     for (int crate = 0; crate < ppmCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -530,7 +530,7 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(cpmCrates)) {
     if (debug) msg(MSG::DEBUG) << "No CPM mismatch vector of expected size"
-                               << endreq;
+                               << endmsg;
   } else {
     for (int crate = 0; crate < cpmCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -554,7 +554,7 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
   } else sc = StatusCode::FAILURE;
   if (sc.isFailure() || !errTES || errTES->size() != size_t(jemCrates)) {
     if (debug) msg(MSG::DEBUG) << "No JEM mismatch vector of expected size"
-                               << endreq;
+                               << endmsg;
   } else {
     for (int crate = 0; crate < jemCrates; ++crate) {
       const int err = (*errTES)[crate];
@@ -626,7 +626,7 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
     }
   }
 
-  if (debug) msg(MSG::DEBUG) << "Leaving fillHistograms" << endreq;
+  if (debug) msg(MSG::DEBUG) << "Leaving fillHistograms" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -636,10 +636,10 @@ StatusCode TrigT1CaloGlobalMonTool::fillHistograms()
 StatusCode TrigT1CaloGlobalMonTool::procHistograms()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "procHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
-  if (endOfLumiBlock) {
-  }
+  //if (endOfLumiBlock) {
+  //}
 
   bool online = (m_onlineTest || m_environment == AthenaMonManager::online);
   if (endOfRun && !online) {

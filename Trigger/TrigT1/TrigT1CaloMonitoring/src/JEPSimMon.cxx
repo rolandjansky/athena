@@ -193,7 +193,7 @@ StatusCode JEPSimMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
   m_debug = msgLvl(MSG::DEBUG);
 
   StatusCode sc;
@@ -203,38 +203,38 @@ StatusCode JEPSimMon::initialize()
 
   sc = m_jetElementTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool L1JetElementTools" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool L1JetElementTools" << endmsg;
     return sc;
   }
 
   sc = m_jetTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool L1JetTools" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool L1JetTools" << endmsg;
     return sc;
   }
 
   sc = m_jetCmxTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool L1JetCMXTools" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool L1JetCMXTools" << endmsg;
     return sc;
   }
 
   sc = m_energyCmxTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool L1EnergyCMXTools" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool L1EnergyCMXTools" << endmsg;
     return sc;
   }
 
   sc = m_errorTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endmsg;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -245,7 +245,7 @@ StatusCode JEPSimMon::initialize()
 StatusCode JEPSimMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "bookHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "bookHistograms entered" << endmsg;
 
   if (m_environment == AthenaMonManager::online) {
     // book histograms that are only made in the online environment...
@@ -255,8 +255,8 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if (newEventsBlock || newLumiBlock) {
-  }
+  //if (newEventsBlock || newLumiBlock) {
+  //}
 
   if (newRun) {
     MgmtAttr_t attr = ATTRIB_UNMANAGED;
@@ -622,7 +622,7 @@ StatusCode JEPSimMon::bookHistogramsRecurrent()
 
   }  // end if (newRun ...
 
-  msg(MSG::DEBUG) << "Leaving bookHistograms" << endreq;
+  msg(MSG::DEBUG) << "Leaving bookHistograms" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -650,7 +650,7 @@ StatusCode JEPSimMon::fillHistograms()
   const xAOD::TriggerTowerContainer* triggerTowerTES = 0;
   sc = evtStore()->retrieve(triggerTowerTES, m_triggerTowerLocation);
   if (sc.isFailure() || !triggerTowerTES) {
-    msg(MSG::DEBUG) << "No Trigger Tower container found" << endreq;
+    msg(MSG::DEBUG) << "No Trigger Tower container found" << endmsg;
   }
 
   // Retrieve Core and Overlap Jet Elements from SG
@@ -658,17 +658,17 @@ StatusCode JEPSimMon::fillHistograms()
   const xAOD::JetElementContainer* jetElementOvTES = 0;
   sc = evtStore()->retrieve(jetElementTES, m_jetElementLocation);
   if (sc.isFailure() || !jetElementTES) {
-    msg(MSG::DEBUG) << "No Core Jet Element container found" << endreq;
+    msg(MSG::DEBUG) << "No Core Jet Element container found" << endmsg;
   }
   sc = evtStore()->retrieve(jetElementOvTES, m_jetElementLocationOverlap);
   if (sc.isFailure() || !jetElementOvTES) {
-    msg(MSG::DEBUG) << "No Overlap Jet Element container found" << endreq;
+    msg(MSG::DEBUG) << "No Overlap Jet Element container found" << endmsg;
   }
   // Retrieve JEM RoIs from SG
   const xAOD::JEMTobRoIContainer* jemRoiTES = 0;
   sc = evtStore()->retrieve(jemRoiTES, m_jemRoiLocation);
   if (sc.isFailure() || !jemRoiTES || jemRoiTES->empty()) {
-    msg(MSG::DEBUG) << "No DAQ JEM RoIs container found" << endreq;
+    msg(MSG::DEBUG) << "No DAQ JEM RoIs container found" << endmsg;
   }
 
   // Retrieve ROD Headers from SG
@@ -676,19 +676,19 @@ StatusCode JEPSimMon::fillHistograms()
   m_limitedRoi = 0;
   sc = evtStore()->retrieve(m_rodTES, m_rodHeaderLocation);
   if (sc.isFailure() || !m_rodTES) {
-    msg(MSG::DEBUG) << "No ROD Header container found" << endreq;
+    msg(MSG::DEBUG) << "No ROD Header container found" << endmsg;
   }
   // Retrieve CMX-Jet TOBs from SG
   const xAOD::CMXJetTobContainer* cmxJetTobTES = 0;
   sc = evtStore()->retrieve(cmxJetTobTES, m_cmxJetTobLocation);
   if (sc.isFailure() || !cmxJetTobTES) {
-    msg(MSG::DEBUG) << "No CMX-Jet TOB container found" << endreq;
+    msg(MSG::DEBUG) << "No CMX-Jet TOB container found" << endmsg;
   }
   // Retrieve CMX-Jet Hits from SG
   const xAOD::CMXJetHitsContainer* cmxJetHitsTES = 0;
   sc = evtStore()->retrieve(cmxJetHitsTES, m_cmxJetHitsLocation);
   if (sc.isFailure() || !cmxJetHitsTES) {
-    msg(MSG::DEBUG) << "No CMX-Jet Hits container found" << endreq;
+    msg(MSG::DEBUG) << "No CMX-Jet Hits container found" << endmsg;
   }
 
   // Retrieve CMX RoIs from SG
@@ -696,7 +696,7 @@ StatusCode JEPSimMon::fillHistograms()
   const xAOD::CMXRoI* cmxRoiTES = 0;
   sc = evtStore()->retrieve(cmxRoiTEScontainer, m_cmxRoiLocation);
   if (sc.isFailure() || !cmxRoiTEScontainer || !cmxRoiTEScontainer->size()) {
-    msg(MSG::DEBUG) << "No DAQ CMX RoIs found" << endreq;
+    msg(MSG::DEBUG) << "No DAQ CMX RoIs found" << endmsg;
   }
   cmxRoiTES = *cmxRoiTEScontainer->begin();
 
@@ -704,14 +704,14 @@ StatusCode JEPSimMon::fillHistograms()
   const xAOD::JEMEtSumsContainer* jemEtSumsTES = 0;
   sc = evtStore()->retrieve(jemEtSumsTES, m_jemEtSumsLocation);
   if (sc.isFailure() || !jemEtSumsTES) {
-    msg(MSG::DEBUG) << "No JEM Et Sums container found" << endreq;
+    msg(MSG::DEBUG) << "No JEM Et Sums container found" << endmsg;
   }
 
   // Retrieve CMX Et Sums from SG
   const xAOD::CMXEtSumsContainer* cmxEtSumsTES = 0;
   sc = evtStore()->retrieve(cmxEtSumsTES, m_cmxEtSumsLocation);
   if (sc.isFailure() || !cmxEtSumsTES) {
-    msg(MSG::DEBUG) << "No CMX-Energy Et Sums container found" << endreq;
+    msg(MSG::DEBUG) << "No CMX-Energy Et Sums container found" << endmsg;
   }
 
   // Maps to simplify comparisons
@@ -1000,10 +1000,10 @@ StatusCode JEPSimMon::fillHistograms()
 StatusCode JEPSimMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "procHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
-  if (endOfEventsBlock || endOfLumiBlock || endOfRun) {
-  }
+  //if (endOfEventsBlock || endOfLumiBlock || endOfRun) {
+  //}
 
   return StatusCode::SUCCESS;
 }
@@ -1014,7 +1014,7 @@ bool JEPSimMon::compare(const JetElementMap& jeSimMap,
                         const JetElementMap& jeMap, ErrorVector& errors,
                         bool overlap) {
   if (m_debug) {
-    msg(MSG::DEBUG) << "Compare Simulated JetElements with data" << endreq;
+    msg(MSG::DEBUG) << "Compare Simulated JetElements with data" << endmsg;
   }
 
   bool mismatch = false;
@@ -1139,7 +1139,7 @@ bool JEPSimMon::compare(const JetElementMap& jeSimMap,
 
 void JEPSimMon::compare(const JEMTobRoIMap& roiSimMap,
                         const JEMTobRoIMap& roiMap, ErrorVector& errors) {
-  if (m_debug) msg(MSG::DEBUG) << "Compare Simulated RoIs with data" << endreq;
+  if (m_debug) msg(MSG::DEBUG) << "Compare Simulated RoIs with data" << endmsg;
 
   LVL1::JEPRoIDecoder decoder;
   JEMTobRoIMap::const_iterator simMapIter = roiSimMap.begin();
@@ -1289,7 +1289,7 @@ void JEPSimMon::compare(const JEMTobRoIMap& roiSimMap,
 void JEPSimMon::compare(const CmxJetTobMap& simMap, const CmxJetTobMap& datMap,
                         ErrorVector& errorsJEM, ErrorVector& errorsCMX) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Compare simulated CMX TOBs with data" << endreq;
+    msg(MSG::DEBUG) << "Compare simulated CMX TOBs with data" << endmsg;
 
   LVL1::JEPRoIDecoder decoder;
   CmxJetTobMap::const_iterator simMapIter = simMap.begin();
@@ -1427,7 +1427,7 @@ void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
                         int selection) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Compare Simulated CMX Hit Sums and Data CMX Hit Sums"
-                    << endreq;
+                    << endmsg;
   }
 
   const bool local = (selection == xAOD::CMXJetHits::Sources::LOCAL_MAIN);
@@ -1770,7 +1770,7 @@ void JEPSimMon::compare(const CmxJetHitsMap& cmxSimMap,
 void JEPSimMon::compare(const JemEtSumsMap& jemSimMap,
                         const JemEtSumsMap& jemMap, ErrorVector& errors) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Compare simulated JEM Et Sums with data" << endreq;
+    msg(MSG::DEBUG) << "Compare simulated JEM Et Sums with data" << endmsg;
 
   JemEtSumsMap::const_iterator simMapIter = jemSimMap.begin();
   JemEtSumsMap::const_iterator simMapIterEnd = jemSimMap.end();
@@ -1892,7 +1892,7 @@ void JEPSimMon::compare(const JemEtSumsMap& jemSimMap,
 
 void JEPSimMon::compare(const JemEtSumsMap& jemMap, const CmxEtSumsMap& cmxMap,
                         ErrorVector& errorsJEM, ErrorVector& errorsCMX) {
-  if (m_debug) msg(MSG::DEBUG) << "Compare JEM EtSums and CMX EtSums" << endreq;
+  if (m_debug) msg(MSG::DEBUG) << "Compare JEM EtSums and CMX EtSums" << endmsg;
 
   JemEtSumsMap::const_iterator jemMapIter = jemMap.begin();
   JemEtSumsMap::const_iterator jemMapIterEnd = jemMap.end();
@@ -2019,7 +2019,7 @@ void JEPSimMon::compare(const CmxEtSumsMap& cmxSimMap,
                         int selection) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Compare Simulated CMX EtSums and Data CMX EtSums"
-                    << endreq;
+                    << endmsg;
   }
 
   const bool local = (selection == xAOD::CMXEtSums::Sources::LOCAL_STANDARD);
@@ -2399,7 +2399,7 @@ void JEPSimMon::compare(const CmxEtSumsMap& cmxMap, const xAOD::CMXRoI* cmxRoi,
                         ErrorVector& errors) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Compare Et Maps and Energy Totals with RoIs from data"
-                    << endreq;
+                    << endmsg;
   }
 
   int sumEtMap = 0;
@@ -2477,14 +2477,14 @@ void JEPSimMon::compare(const CmxEtSumsMap& cmxMap, const xAOD::CMXRoI* cmxRoi,
     etRoi = (cmxRoi->et() | ((cmxRoi->etError() & 0x1) << 15));
     exRoi = (cmxRoi->ex() | ((cmxRoi->exError() & 0x1) << 15));
     eyRoi = (cmxRoi->ey() | ((cmxRoi->eyError() & 0x1) << 15));
-    sumEtRoiM = cmxRoi->sumEtHits(LVL1::CMXRoI::MASKED);
-    missEtRoiM = cmxRoi->missingEtHits(LVL1::CMXRoI::MASKED);
+    sumEtRoiM = cmxRoi->sumEtHits(xAOD::CMXRoI::MASKED);
+    missEtRoiM = cmxRoi->missingEtHits(xAOD::CMXRoI::MASKED);
     etRoiM =
-        (cmxRoi->et(LVL1::CMXRoI::MASKED) | ((cmxRoi->etError() & 0x1) << 15));
+        (cmxRoi->et(xAOD::CMXRoI::MASKED) | ((cmxRoi->etError() & 0x1) << 15));
     exRoiM =
-        (cmxRoi->ex(LVL1::CMXRoI::MASKED) | ((cmxRoi->exError() & 0x1) << 15));
+        (cmxRoi->ex(xAOD::CMXRoI::MASKED) | ((cmxRoi->exError() & 0x1) << 15));
     eyRoiM =
-        (cmxRoi->ey(LVL1::CMXRoI::MASKED) | ((cmxRoi->eyError() & 0x1) << 15));
+        (cmxRoi->ey(xAOD::CMXRoI::MASKED) | ((cmxRoi->eyError() & 0x1) << 15));
   }
   if (sumEtMap || sumEtRoi || missEtMap || missEtRoi || missEtSigMap ||
       missEtSigRoi || et || etRoi || ex || exRoi || ey || eyRoi || sumEtMapM ||
@@ -2884,7 +2884,7 @@ void JEPSimMon::setupMap(const xAOD::CMXEtSumsContainer* coll,
 void JEPSimMon::simulate(const xAOD::TriggerTowerContainer* towers,
                          xAOD::JetElementContainer* elements) {
   if (m_debug) {
-    msg(MSG::DEBUG) << "Simulate Jet Elements from Trigger Towers" << endreq;
+    msg(MSG::DEBUG) << "Simulate Jet Elements from Trigger Towers" << endmsg;
   }
 
   // Make zero-suppressed collection to speed up simulation
@@ -2989,7 +2989,7 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
 void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
                          xAOD::JEMTobRoIContainer* rois) {
   if (m_debug) {
-    msg(MSG::DEBUG) << "Simulate JEM RoIs from Jet Elements" << endreq;
+    msg(MSG::DEBUG) << "Simulate JEM RoIs from Jet Elements" << endmsg;
   }
 
   InternalRoiCollection* intRois = new InternalRoiCollection;
@@ -3005,14 +3005,14 @@ void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
 void JEPSimMon::simulate(const xAOD::JEMTobRoIContainer* rois,
                          xAOD::CMXJetTobContainer* tobs) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Simulate CMX-Jet TOBs from JEM RoIs" << endreq;
+    msg(MSG::DEBUG) << "Simulate CMX-Jet TOBs from JEM RoIs" << endmsg;
   m_jetCmxTool->formCMXJetTob(rois, tobs);
 }
 
 void JEPSimMon::simulate(const xAOD::CMXJetTobContainer* tobs,
                          xAOD::CMXJetHitsContainer* hits, int selection) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Simulate CMX-Jet Hit sums from CMX-Jet TOBs" << endreq;
+    msg(MSG::DEBUG) << "Simulate CMX-Jet Hit sums from CMX-Jet TOBs" << endmsg;
 
   if (selection == xAOD::CMXJetHits::Sources::LOCAL_MAIN) {
     m_jetCmxTool->formCMXJetHitsCrate(tobs, hits);
@@ -3025,7 +3025,7 @@ void JEPSimMon::simulate(const xAOD::CMXJetHitsContainer* hitsIn,
                          xAOD::CMXJetHitsContainer* hitsOut) {
   if (m_debug)
     msg(MSG::DEBUG) << "Simulate CMX Total Hit sums from Remote/Local"
-                    << endreq;
+                    << endmsg;
 
   m_jetCmxTool->formCMXJetHitsSystem(hitsIn, hitsOut);
 }
@@ -3033,7 +3033,7 @@ void JEPSimMon::simulate(const xAOD::CMXJetHitsContainer* hitsIn,
 void JEPSimMon::simulate(const xAOD::JetElementContainer* elements,
                          xAOD::JEMEtSumsContainer* sums) {
   if (m_debug)
-    msg(MSG::DEBUG) << "Simulate JEM EtSums from JetElements" << endreq;
+    msg(MSG::DEBUG) << "Simulate JEM EtSums from JetElements" << endmsg;
 
   m_energyCmxTool->formJEMEtSums(elements, sums);
 }
@@ -3042,7 +3042,7 @@ void JEPSimMon::simulate(const xAOD::CMXEtSumsContainer* sumsIn,
                          xAOD::CMXEtSumsContainer* sumsOut, int selection) {
   if (m_debug) {
     msg(MSG::DEBUG) << "Simulate CMX-Energy Total sums from CMX-Energy Sums"
-                    << endreq;
+                    << endmsg;
   }
 
   if (selection == xAOD::CMXEtSums::Sources::LOCAL_STANDARD) {

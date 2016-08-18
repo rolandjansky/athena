@@ -174,7 +174,7 @@ StatusCode CPSimMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   m_debug = msgLvl(MSG::DEBUG);
 
@@ -186,19 +186,19 @@ StatusCode CPSimMon::initialize()
 
   sc = m_emTauTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool L1EmTauTools" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool L1EmTauTools" << endmsg;
     return sc;
   }
 
   sc = m_cpCmxTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool L1CPCMXTools" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool L1CPCMXTools" << endmsg;
     return sc;
   }
 
   sc = m_cpmTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to locate Tool L1CPMTools" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Tool L1CPMTools" << endmsg;
     return sc;
   }
 
@@ -211,7 +211,7 @@ StatusCode CPSimMon::initialize()
   sc = m_histTool.retrieve();
   if (sc.isFailure()) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -226,7 +226,7 @@ StatusCode CPSimMon::finalize()
 }
 
 StatusCode CPSimMon::bookHistogramsRecurrent() {
-  msg(MSG::DEBUG) << "bookHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "bookHistograms entered" << endmsg;
 
   if (m_environment == AthenaMonManager::online) {
     // book histograms that are only made in the online environment...
@@ -236,8 +236,8 @@ StatusCode CPSimMon::bookHistogramsRecurrent() {
     // book histograms that are only relevant for cosmics data...
   }
 
-  if (newEventsBlock || newLumiBlock) {
-  }
+  //if (newEventsBlock || newLumiBlock) {
+  //}
 
   if (newRun) {
 
@@ -615,7 +615,7 @@ StatusCode CPSimMon::bookHistogramsRecurrent() {
 
   } // end if (isNewRun ...
 
-  msg(MSG::DEBUG) << "Leaving bookHistograms" << endreq;
+  msg(MSG::DEBUG) << "Leaving bookHistograms" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -650,7 +650,7 @@ StatusCode CPSimMon::fillHistograms()
   const xAOD::TriggerTowerContainer *triggerTowerTES = 0;
   sc = evtStore()->retrieve(triggerTowerTES, m_triggerTowerLocation);
   if (sc.isFailure() || !triggerTowerTES) {
-    msg(MSG::DEBUG) << "No Trigger Tower container found" << endreq;
+    msg(MSG::DEBUG) << "No Trigger Tower container found" << endmsg;
   }
 
   // Retrieve Core and Overlap CPM Towers from SG
@@ -658,7 +658,7 @@ StatusCode CPSimMon::fillHistograms()
   const xAOD::CPMTowerContainer *cpmTowerOvTES = 0;
   sc = evtStore()->retrieve(cpmTowerTES, m_cpmTowerLocation);
   if (sc.isFailure() || !cpmTowerTES) {
-    msg(MSG::DEBUG) << "No Core CPM Tower container found" << endreq;
+    msg(MSG::DEBUG) << "No Core CPM Tower container found" << endmsg;
   }
   if (evtStore()->contains<xAOD::CPMTowerContainer>(
           m_cpmTowerLocationOverlap)) {
@@ -666,7 +666,7 @@ StatusCode CPSimMon::fillHistograms()
   } else
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !cpmTowerOvTES) {
-    msg(MSG::DEBUG) << "No Overlap CPM Tower container found" << endreq;
+    msg(MSG::DEBUG) << "No Overlap CPM Tower container found" << endmsg;
   }
   m_overlapPresent = cpmTowerOvTES != 0;
 
@@ -674,7 +674,7 @@ StatusCode CPSimMon::fillHistograms()
   const xAOD::CPMTobRoIContainer *cpmRoiTES = 0;
   sc = evtStore()->retrieve(cpmRoiTES, m_cpmTobRoiLocation);
   if (sc.isFailure() || !cpmRoiTES) {
-    msg(MSG::DEBUG) << "No DAQ CPM TOB RoIs container found" << endreq;
+    msg(MSG::DEBUG) << "No DAQ CPM TOB RoIs container found" << endmsg;
   }
 
   // Retrieve ROD Headers from SG
@@ -685,21 +685,21 @@ StatusCode CPSimMon::fillHistograms()
   } else
     sc = StatusCode::FAILURE;
   if (sc.isFailure() || !m_rodTES) {
-    msg(MSG::DEBUG) << "No ROD Header container found" << endreq;
+    msg(MSG::DEBUG) << "No ROD Header container found" << endmsg;
   }
 
   // Retrieve CMX-CP TOBs from SG
   const xAOD::CMXCPTobContainer *cmxCpTobTES = 0;
   sc = evtStore()->retrieve(cmxCpTobTES, m_cmxCpTobLocation);
   if (sc.isFailure() || !cmxCpTobTES) {
-    msg(MSG::DEBUG) << "No CMX-CP TOB container found" << endreq;
+    msg(MSG::DEBUG) << "No CMX-CP TOB container found" << endmsg;
   }
 
   // Retrieve CMX-CP Hits from SG
   const xAOD::CMXCPHitsContainer *cmxCpHitsTES = 0;
   sc = evtStore()->retrieve(cmxCpHitsTES, m_cmxCpHitsLocation);
   if (sc.isFailure() || !cmxCpHitsTES) {
-    msg(MSG::DEBUG) << "No CMX-CP Hits container found" << endreq;
+    msg(MSG::DEBUG) << "No CMX-CP Hits container found" << endmsg;
   }
 
   // Maps to simplify comparisons
@@ -894,10 +894,10 @@ StatusCode CPSimMon::fillHistograms()
 }
 
 StatusCode CPSimMon::procHistograms() {
-  msg(MSG::DEBUG) << "procHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
-  if (endOfLumiBlock || endOfRun) {
-  }
+  //if (endOfLumiBlock || endOfRun) {
+  //}
 
   return StatusCode::SUCCESS;
 }
@@ -908,7 +908,7 @@ bool CPSimMon::compareEm(const TriggerTowerMapEm &ttMap,
                          const CpmTowerMap &cpMap, ErrorVector &errors,
                          bool overlap) {
   if (m_debug) {
-    msg(MSG::DEBUG) << "Compare Trigger Towers and CPM Towers" << endreq;
+    msg(MSG::DEBUG) << "Compare Trigger Towers and CPM Towers" << endmsg;
   }
 
   bool mismatch = false;
@@ -1038,7 +1038,7 @@ bool CPSimMon::compareEm(const TriggerTowerMapEm &ttMap,
       if (m_debug) {
         msg(MSG::DEBUG) << " EMTowerMismatch key/eta/phi/crate/cpm/tt/cp: "
                         << key << "/" << eta << "/" << phi << "/" << crate
-                        << "/" << cpm << "/" << ttEm << "/" << cpEm << endreq;
+                        << "/" << cpm << "/" << ttEm << "/" << cpEm << endmsg;
       }
     }
     if (hist1)
@@ -1054,7 +1054,7 @@ bool CPSimMon::compareHad(const TriggerTowerMapHad &ttMap,
                           const CpmTowerMap &cpMap, ErrorVector &errors,
                           bool overlap) {
   if (m_debug) {
-    msg(MSG::DEBUG) << "Compare Trigger Towers and CPM Towers" << endreq;
+    msg(MSG::DEBUG) << "Compare Trigger Towers and CPM Towers" << endmsg;
   }
 
   bool mismatch = false;
@@ -1185,7 +1185,7 @@ bool CPSimMon::compareHad(const TriggerTowerMapHad &ttMap,
       if (m_debug) {
         msg(MSG::DEBUG) << " HadTowerMismatch key/eta/phi/crate/cpm/tt/cp: "
                         << key << "/" << eta << "/" << phi << "/" << crate
-                        << "/" << cpm << "/" << ttHad << "/" << cpHad << endreq;
+                        << "/" << cpm << "/" << ttHad << "/" << cpHad << endmsg;
       }
     }
     if (hist1)
@@ -1535,7 +1535,7 @@ void CPSimMon::compare(const CmxCpHitsMap &cmxSimMap,
                        const CmxCpHitsMap &cmxMap, ErrorVector &errors,
                        int selection) {
   msg(MSG::DEBUG) << "Compare Simulated CMX Hit Sums and Data CMX Hit Sums"
-                  << endreq;
+                  << endmsg;
 
   const bool local = (selection == xAOD::CMXCPHits::LOCAL);
   const bool remote = (selection == xAOD::CMXCPHits::REMOTE_0);
