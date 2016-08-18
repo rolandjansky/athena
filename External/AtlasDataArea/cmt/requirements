@@ -4,7 +4,7 @@ author ATLAS Software Librarian <ATLAS-Software.Librarian@cern.ch>
 
 use ExternalPolicy ExternalPolicy-00-* External
 
-macro AtlasDataArea_native_version "v19"
+macro AtlasDataArea_native_version "v20"
 
 set ATLASTESTDATA  "${SITEROOT}/atlas/offline/ReleaseData/${AtlasDataArea_native_version}/testfile" \
     BNL            "${SITEROOT}/offline/ReleaseData/${AtlasDataArea_native_version}/testfile" \
@@ -21,3 +21,4 @@ macro AtlasDataArea_platform "" PACK noarch
 path_remove DATAPATH "/offline/ReleaseData"
 path_append DATAPATH "${ATLASCALDATA}"
 path_append DATAPATH "${ATLASTESTDATA}"
+
