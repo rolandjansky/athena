@@ -31,6 +31,7 @@
 #include "PixelMonitoring/DBMMon2DMaps.h"
 #include "PixelMonitoring/PixelMon2DMaps.h"
 #include "PixelMonitoring/PixelMonProfiles.h"
+#include "LWHists/TH2F_LW.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH1I_LW.h"
 #include "LWHists/TProfile_LW.h"
@@ -136,7 +137,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    declareProperty("doSpacePoint",    m_doSpacePoint = false);
    declareProperty("doCluster",       m_doCluster    = false);
    declareProperty("doTrack",         m_doTrack      = false);
-   declareProperty("doHoleSearch",    m_doHoleSearch   = false);
+   declareProperty("doHoleSearch",    m_doHoleSearch = false);
    declareProperty("doStatus",        m_doStatus     = false);
    declareProperty("doDCS",           m_doDCS        = false);
 
@@ -234,25 +235,16 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_track_chi2_bcl1_highpt = 0;
    m_track_chi2_bcl0_highpt = 0;
    m_track_chi2_bclgt1_highpt = 0;
-   //m_track_clusToT = 0;
-   //m_track_qOverP = 0;  
-   //m_track_qOverP_inv = 0;  
-   //m_track_pt = 0;  
-   //m_track_d0 = 0;      
-   //m_track_z0 = 0;     
-   //m_track_phi0 = 0;    
-   //m_track_theta = 0;   
-   //m_track_eta = 0;    
    //m_tracks_per_lumi = 0;
    //m_trackRate_per_lumi = 0;
    //m_tracksPerEvt_per_lumi = 0;
    //m_tracksPerEvtPerMu_per_lumi = 0;
-   //m_track_dedx = 0;
-   //m_track_mass_dedx = 0;
    
    //m_cluster_occupancy_FE_B0 = 0;
    m_cluster_occupancy_FE_B0_mon = 0;
    m_cluster_occupancy_FE_L0_B11_S2_C6 = 0;
+   m_cluster_totmean_L0_B11_S2_C6 = 0;
+   m_hit_totmean_L0_B11_S2_C6 = 0;
    
    m_LorentzAngle_IBL = 0;
    m_LorentzAngle_IBL2D = 0;
@@ -296,6 +288,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    //m_cluster_LVL1A_highToT = 0;
    m_clusterSize_eta = 0;
    m_cluster_occupancy = 0;
+   m_clustermap_mon = 0;
+   m_clustermap_tmp = 0;
    //m_clusocc_DBM = 0;
    m_clusocc_sizenot1 = 0; 
    m_cluseff_mod = 0;
@@ -330,6 +324,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_clustersOnOffTrack_per_lumi = 0;
    m_Status_modules = 0;
    m_status = 0;
+   m_status_mon = 0;
    m_dqStatus = 0;
    //m_error1 = 0;            
    //m_errorTypes = 0;        
@@ -339,51 +334,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_error_time2 = 0;       
    m_error_time3 = 0;       
    m_errors = 0;
-   //m_OpticalErrors = 0;
-   //m_SEU_Errors = 0;
-   //m_TimeoutErrors = 0;
-   //m_SyncErrorsIBL = 0; 
-   //m_SyncErrors = 0; 
-   //m_SyncCategory = 0; 
-   //m_TruncationCategory = 0; 
-   //m_OpticalCategory = 0; 
-   //m_SEUCategory = 0; 
-   //m_TimeoutCategory = 0; 
-   //m_TruncationErrors = 0;
-   //m_sync_mod_BCID1_per_LB = 0;
-   //m_sync_mod_BCID1_int_LB = 0;
-   //m_sync_mod_BCID2_per_LB = 0;
-   //m_sync_mod_BCID2_int_LB = 0;
-   //m_sync_mod_LVL1ID_per_LB = 0;
-   //m_sync_mod_LVL1ID_int_LB = 0;
-   //m_sync_rod_BCID_per_LB = 0;
-   //m_sync_rod_BCID_int_LB = 0;
-   //m_sync_rod_LVL1ID_per_LB = 0;
-   //m_sync_rod_LVL1ID_int_LB = 0;
-   //m_trunc_mod_EOC_per_LB = 0;
-   //m_trunc_mod_EOC_int_LB = 0;
-   //m_trunc_mod_hitOF_per_LB = 0;
-   //m_trunc_mod_hitOF_int_LB = 0;
-   //m_trunc_mod_EoEOF_per_LB = 0;
-   //m_trunc_mod_EoEOF_int_LB = 0;
-   //m_trunc_rod_HTlim_per_LB = 0;
-   //m_trunc_rod_HTlim_int_LB = 0;
-   //m_trunc_rod_FIFOOF_per_LB = 0;
-   //m_trunc_rod_FIFOOF_int_LB = 0;
-   //m_optical_error_per_LB = 0;
-   //m_optical_error_int_LB = 0;
-   //m_seu_hit_parity_per_LB = 0;
-   //m_seu_hit_parity_int_LB = 0;
-   //m_seu_reg_parity_per_LB = 0;
-   //m_seu_reg_parity_int_LB = 0;
-   //m_seu_hamming_per_LB = 0;
-   //m_seu_hamming_int_LB = 0;
-   //m_timeout_per_LB = 0;
-   //m_timeout_int_LB = 0;
-   //m_FEwarning_per_LB = 0;
-   //m_FEwarning_int_LB = 0;
-   //m_sync_mod_corr_LVL1ID_BCID2_per_LB = 0;
-   //m_sync_rod_corr_LVL1ID_BCID_per_LB = 0;
+
    m_num_spacepoints = 0;
    m_num_spacepoints_low = 0;
    m_spHit_x = 0;
@@ -411,6 +362,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_lowToTHitsFraction_13 = 0;
 
    m_hiteff_incl_L0_B11_S2_C6 = 0;
+   m_holeRatio_incl_L0_B11_S2_C6 = 0;
 
    m_pixelid =0;
    pixelmgr =0;
@@ -436,26 +388,22 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_nGood_B1=0;
    m_nGood_B2=0;
 
+   m_disabledModules_per_lumi_PIX = 0;
+   m_SyncErrors_per_lumi_PIX = 0;
+
    for( int i=0; i<PixLayer::COUNT; i++){
-      //m_nlargeevt_per_lumi_mod[i] = 0;
+      m_hit_ToTMean_mod[i] = 0;
       m_ToT_etaphi_mod[i] = 0;
       m_occupancy_summary_mod[i] = 0;
       m_occupancy_summary_low_mod[i] = 0;
       m_nhits_mod[i] = 0;
-      //m_totalhits_per_bcid_mod[i] = 0;
       m_diff_ROD_vs_Module_BCID_mod[i] = 0;
       m_Lvl1ID_diff_mod_ATLAS_mod[i] = 0;
       //m_Lvl1A_mod[i] = 0;
       m_Lvl1A_10min_mod[i] = 0;
       m_hit_ToT_tmp_mod[i] = 0;
       m_hit_ToT_Mon_mod[i] = 0;
-      //m_avgocc_per_lumi_mod[i] = 0;
-      //m_avgocc_wSyncMod_per_lumi_mod[i] = 0;
-      //m_avgocc_per_bcid_mod[i] = 0;
-      //m_maxocc_per_lumi_mod[i] = 0;
-      //m_maxocc_per_bcid_mod[i] = 0;
       m_hits_per_lumi_mod[i] = 0;
-      //m_avgocc_LBvsBCID_mod[i] = 0;
       m_clusters_per_lumi_mod[i] = 0;
       //m_clusters_col_width_per_lumi_mod[i] = 0;
       //m_clusters_row_width_per_lumi_mod[i] = 0;
@@ -469,12 +417,12 @@ PixelMainMon::PixelMainMon(const std::string & type,
       //m_clusQ_vs_eta_mod[i] = 0;
       m_clussize_vs_eta_mod[i] = 0;
       m_bad_mod_errors_mod[i] = 0;
-      m_errors_etaid_mod[i] = 0;
+      //m_errors_etaid_mod[i] = 0;
       m_hit_ToT_LB_mod[i] = 0;
       m_clusToT_vs_eta_mod[i] = 0;
       m_ToT_vs_clussize_mod[i] = 0;
       //m_Q_vs_clussize_mod[i] = 0;
-      m_nlowToT_vs_clussize_mod[i] = 0;
+      //m_nlowToT_vs_clussize_mod[i] = 0;
       m_1cluster_ToT_mod[i] = 0;
       m_2cluster_ToT_mod[i] = 0;
       m_3cluster_ToT_mod[i] = 0;
@@ -494,7 +442,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
       /// Hit occupancy
       m_avgocc_per_lumi_mod[i] = 0;
       m_avgocc_per_bcid_mod[i] = 0;
-      m_avgocc_LBvsBCID_mod[i] = 0;
+      //m_avgocc_LBvsBCID_mod[i] = 0;
       m_avgocc_wSyncMod_per_lumi_mod[i] = 0;
       m_maxocc_per_lumi_mod[i] = 0;
       m_maxocc_per_bcid_mod[i] = 0;
@@ -815,52 +763,52 @@ StatusCode PixelMainMon::initialize()
     }
   }
 
-    m_name2etaIndex["A_M4_A8_2"] = 9;
-    m_name2etaIndex["A_M4_A8_1"] = 8;
-    m_name2etaIndex["A_M4_A7_2"] = 7;
-    m_name2etaIndex["A_M4_A7_1"] = 6;
-    m_name2etaIndex["A_M3_A6"] = 5;
-    m_name2etaIndex["A_M3_A5"] = 4;
-    m_name2etaIndex["A_M2_A4"] = 3;
-    m_name2etaIndex["A_M2_A3"] = 2;
-    m_name2etaIndex["A_M1_A2"] = 1;
-    m_name2etaIndex["A_M1_A1"] = 0;
-    m_name2etaIndex["C_M1_C1"] = -1;
-    m_name2etaIndex["C_M1_C2"] = -2;
-    m_name2etaIndex["C_M2_C3"] = -3;
-    m_name2etaIndex["C_M2_C4"] = -4;
-    m_name2etaIndex["C_M3_C5"] = -5;
-    m_name2etaIndex["C_M3_C6"] = -6;
-    m_name2etaIndex["C_M4_C7_1"] = -7;
-    m_name2etaIndex["C_M4_C7_2"] = -8;
-    m_name2etaIndex["C_M4_C8_1"] = -9;
-    m_name2etaIndex["C_M4_C8_2"] = -10;
+  m_name2etaIndex["A_M4_A8_2"] = 9;
+  m_name2etaIndex["A_M4_A8_1"] = 8;
+  m_name2etaIndex["A_M4_A7_2"] = 7;
+  m_name2etaIndex["A_M4_A7_1"] = 6;
+  m_name2etaIndex["A_M3_A6"] = 5;
+  m_name2etaIndex["A_M3_A5"] = 4;
+  m_name2etaIndex["A_M2_A4"] = 3;
+  m_name2etaIndex["A_M2_A3"] = 2;
+  m_name2etaIndex["A_M1_A2"] = 1;
+  m_name2etaIndex["A_M1_A1"] = 0;
+  m_name2etaIndex["C_M1_C1"] = -1;
+  m_name2etaIndex["C_M1_C2"] = -2;
+  m_name2etaIndex["C_M2_C3"] = -3;
+  m_name2etaIndex["C_M2_C4"] = -4;
+  m_name2etaIndex["C_M3_C5"] = -5;
+  m_name2etaIndex["C_M3_C6"] = -6;
+  m_name2etaIndex["C_M4_C7_1"] = -7;
+  m_name2etaIndex["C_M4_C7_2"] = -8;
+  m_name2etaIndex["C_M4_C8_1"] = -9;
+  m_name2etaIndex["C_M4_C8_2"] = -10;
 
-    m_name2moduleGroup["C_M4"] = 0;
-    m_name2moduleGroup["C_M3"] = 1;
-    m_name2moduleGroup["C_M2"] = 2;
-    m_name2moduleGroup["C_M1"] = 3;
-    m_name2moduleGroup["A_M1"] = 4;
-    m_name2moduleGroup["A_M2"] = 5;
-    m_name2moduleGroup["A_M3"] = 6;
-    m_name2moduleGroup["A_M4"] = 7;
+  m_name2moduleGroup["C_M4"] = 0;
+  m_name2moduleGroup["C_M3"] = 1;
+  m_name2moduleGroup["C_M2"] = 2;
+  m_name2moduleGroup["C_M1"] = 3;
+  m_name2moduleGroup["A_M1"] = 4;
+  m_name2moduleGroup["A_M2"] = 5;
+  m_name2moduleGroup["A_M3"] = 6;
+  m_name2moduleGroup["A_M4"] = 7;
 
-    m_fsmState2enum["READY"] = 0.;
-    m_fsmState2enum["ON"] = 1.;
-    m_fsmState2enum["STANDBY"] = 2.;
-    m_fsmState2enum["LV_ON"] = 3.;
-    m_fsmState2enum["TRANSITION"] = 4.;
-    m_fsmState2enum["UNDEFINED"] = 5.;
-    m_fsmState2enum["LOCKED_OUT"] = 6.;
-    m_fsmState2enum["DISABLED"] = 7.;
-    m_fsmState2enum["OFF"] = 8.;
-    m_fsmState2enum["DEAD"] = 9.;
+  m_fsmState2enum["READY"] = 0.;
+  m_fsmState2enum["ON"] = 1.;
+  m_fsmState2enum["STANDBY"] = 2.;
+  m_fsmState2enum["LV_ON"] = 3.;
+  m_fsmState2enum["TRANSITION"] = 4.;
+  m_fsmState2enum["UNDEFINED"] = 5.;
+  m_fsmState2enum["LOCKED_OUT"] = 6.;
+  m_fsmState2enum["DISABLED"] = 7.;
+  m_fsmState2enum["OFF"] = 8.;
+  m_fsmState2enum["DEAD"] = 9.;
 
-    m_fsmStatus2enum["OK"] = 0.;
-    m_fsmStatus2enum["WARNING"] = 1.;
-    m_fsmStatus2enum["ERROR"] = 2.;
-    m_fsmStatus2enum["UNINITIALIZED"] = 3.;
-    m_fsmStatus2enum["DEAD"] = 4.;
+  m_fsmStatus2enum["OK"] = 0.;
+  m_fsmStatus2enum["WARNING"] = 1.;
+  m_fsmStatus2enum["ERROR"] = 2.;
+  m_fsmStatus2enum["UNINITIALIZED"] = 3.;
+  m_fsmStatus2enum["DEAD"] = 4.;
 
    return StatusCode::SUCCESS;
 }
@@ -919,110 +867,126 @@ StatusCode PixelMainMon::bookHistograms()
      m_doTrack      = false;
    }
 
-   //Book histograms
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "[PixelMonitoring] flags in bookHisto" << endreq;
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doESD       " << m_doESD            << endreq;
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doRDO       " << m_doRDO            << endreq;
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doRODError  " << m_doRODError       << endreq;
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doSpacePoint" << m_doSpacePoint     << endreq;
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doCluster   " << m_doCluster        << endreq;
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doStatus    " << m_doStatus         << endreq;
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doDCS       " << m_doDCS            << endreq;
+   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_doTrack     " << m_doTrack          << endreq;
 
-   //if(newLumiBlock) {}
+
+   ///
+   /// Book histograms
+   ///
 
    if(m_doLumiBlock){
-     
-     if(m_doRDO) 
-       {                                                    
-	 sc=BookHitsLumiBlockMon();
-	 if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endreq; 
-	 if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking RDO for lowStat" << endreq;  
-       }
-     if(m_doRODError) 
-       {
+      if(m_doRDO){                                                    
+	      sc=BookHitsLumiBlockMon();
+	      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endreq; 
+	      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking RDO for lowStat" << endreq;  
+      }
+      if(m_doRODError){
          sc=BookRODErrorLumiBlockMon();
          if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endreq; 
          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking ROD Error for lowStat" << endreq;  
-       }
-     if(m_doCluster)
-       {
+      }
+      if(m_doCluster){
          sc=BookClustersLumiBlockMon();
          if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endreq; 
          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Cluster for lowStat" << endreq;  
-       }
-     if(m_doStatus)
-       {
+      }
+      if(m_doStatus){
          sc=BookStatusLumiBlockMon();
          if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endreq; 
          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status for lowStat" << endreq;  
-       }
-      //if(m_doTrack){
-      //  sc=BookTrackLumiBlockMon();
-      //  if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book lowStat histograms" << endreq; 
-      //  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status for lowStat" << endreq;  
-      //}
+      }
    }
 
-   //if(newRun) {
-      ///
-      ///
-      ///
-      std::string path = "Pixel/Errors";
-      if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnTrack");
-      if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnPixelTrack");
-      MonGroup errorHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
-      sc = errorHistos.regHist(m_storegate_errors = new TH2S("storegate_errors",  ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 6,0.5,6.5,5,0.5,5.5));
-      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+   if( m_doRDO ){  // only RAWtoESD
+   ///
+   /// Mu vs LB (BCID)
+   ///
+     std::string path_hits = "Pixel/Hits";
+     if(m_doOnTrack)      path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnTrack");
+     if(m_doOnPixelTrack) path_hits.replace(path_hits.begin(), path_hits.end(), "Pixel/HitsOnPixelTrack");
+     MonGroup hitsHistos(   this, path_hits.c_str(),  run, ATTRIB_MANAGED ); //declare a group of histograms
+     sc = hitsHistos.regHist(m_mu_vs_bcid = TProfile_LW::create("Interactions_vs_bcid", "<Interactions> vs BCID;BCID;<#Interactions/event>"    , m_bcidRange,-0.5,-0.5+(1.0*m_bcidRange)));
+     sc = hitsHistos.regHist(m_mu_vs_lumi = TProfile_LW::create("Interactions_vs_lumi", "<Interactions> vs LB;lumi block;<#Interactions/event>", m_lbRange,-0.5,-0.5+(1.0*m_lbRange)));
+     sc = hitsHistos.regHist(m_events_per_lumi = TH1F_LW::create("Events_per_lumi", "nEvents vs LB;lumi block;#events", m_lbRange,-0.5,-0.5+(1.0*m_lbRange)));
+   ///
+   /// Storegate errors
+   ///
+   std::string path = "Pixel/Errors";
+   if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnTrack");
+   if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/ErrorsOnPixelTrack");
+   MonGroup errorHistos( this, path.c_str(), run, ATTRIB_MANAGED ); //declare a group of histograms
+   sc = errorHistos.regHist(m_storegate_errors = TH2F_LW::create("storegate_errors",  ("Storegate Errors" + m_histTitleExt + ";Container Name;Error Type").c_str(), 6,0.5,6.5,5,0.5,5.5));
+   if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
    
-      ///
-      ///Set lables and style for error histogram
-      ///
-      m_storegate_errors->SetOption("colz");
-      const char *xlabel[6] = { "RDOs", "SpacePoints", "Clusters", "Tracks", "RODErrors", "DCS" };
-      for (int i=0; i<6; i++)  m_storegate_errors->GetXaxis()->SetBinLabel( i+1, xlabel[i] );  // bin 0 is underflow
-      const char *ylabel[5] = { "Not flagged", "Container not found", "Can't retrieve container", "Container empty", "Data is bad"};
-      for (int i=0; i<5; i++) m_storegate_errors->GetYaxis()->SetBinLabel( i+1, ylabel[i] );  // bin 0 is underflow
-      
-      ///
-      /// Initialize histograms
-      ///
-      if(m_doTrack)
-      {
-         sc=BookTrackMon();
-         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
-         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Track" << endreq;  
-      }
-      if(m_doRDO)
-      {                                                    
-         sc=BookHitsMon();
-         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
-         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking RDO" << endreq;  
-      }
-      if(m_doRODError) 
-      {
-         sc=BookRODErrorMon();
-         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
-         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking ROD Error" << endreq;  
-      }
-      if(m_doSpacePoint)
-      {
-         sc=BookSpacePointMon();
-         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
-         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking SP" << endreq;  
-      }
-      if(m_doCluster)
-      {
-         sc=BookClustersMon();
-         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
-         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Cluster" << endreq;  
-      }
-      if(m_doStatus)
-      {
-         sc=BookStatusMon();
-         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
-         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status" << endreq;  
-      }
-      if(m_doDCS)
-      {
-         sc=BookPixelDCSMon();
-         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
-         if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking DCS" << endreq;  
-      }
+   ///
+   ///Set lables and style for error histogram
+   ///
+   m_storegate_errors->SetOption("colz");
+   const char *xlabel[6] = { "RDOs", "SpacePoints", "Clusters", "Tracks", "RODErrors", "DCS" };
+   for (int i=0; i<6; i++){
+      if(m_storegate_errors) m_storegate_errors->GetXaxis()->SetBinLabel( i+1, xlabel[i] );  // bin 0 is underflow
+   }
+   const char *ylabel[5] = { "Not flagged", "Container not found", "Can't retrieve container", "Container empty", "Data is bad"};
+   for (int i=0; i<5; i++){
+      if(m_storegate_errors) m_storegate_errors->GetYaxis()->SetBinLabel( i+1, ylabel[i] );  // bin 0 is underflow
+   }
+   }
+   
+   ///
+   /// Initialize histograms
+   ///
+   if(m_doTrack)
+   {
+      sc=BookTrackMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Track" << endreq;  
+   }
+   if(m_doRDO)
+   {                                                    
+      sc=BookHitsMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking RDO" << endreq;  
+   }
+   if(m_doRODError) 
+   {
+      sc=BookRODErrorMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking ROD Error" << endreq;  
+   }
+   if(m_doSpacePoint)
+   {
+      sc=BookSpacePointMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking SP" << endreq;  
+   }
+   if(m_doCluster)
+   {
+      sc=BookClustersMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Cluster" << endreq;  
+   }
+   if(m_doStatus)
+   {
+      sc=BookStatusMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking Status" << endreq;  
+   }
+   if(m_doDCS)
+   {
+      sc=BookPixelDCSMon();
+      if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not book histograms" << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Done booking DCS" << endreq;  
+   }
 
-      return StatusCode::SUCCESS;
+   return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -1062,8 +1026,8 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
          m_doRefresh5min = false;
       }
 
-      if(m_mu_vs_bcid) m_mu_vs_bcid->Fill( m_currentBCID, thisEventInfo->actualInteractionsPerCrossing() );
    }
+
 
    PixelID::const_id_iterator idIt    = m_pixelid->wafer_begin();
    PixelID::const_id_iterator idItEnd = m_pixelid->wafer_end();
@@ -1108,7 +1072,19 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
    ////////////////////////////////////////////////////////////////
    //fill methods go here
    ////////////////////////////////////////////////////////////////
+
+   ///
+   /// Event Info
+   ///
+   if( m_doRDO ){  // only RAWtoESD
+     if(m_mu_vs_bcid) m_mu_vs_bcid->Fill( m_currentBCID, thisEventInfo->actualInteractionsPerCrossing() );
+     if(m_mu_vs_lumi) m_mu_vs_lumi->Fill( m_manager->lumiBlockNumber(), thisEventInfo->actualInteractionsPerCrossing());
+     if(m_events_per_lumi) m_events_per_lumi->Fill(m_manager->lumiBlockNumber());
+   }
    
+   ///
+   /// Pixel Info
+   ///
    if(m_doStatus) { //fill status histograms first, to check number of disabled modules
       sc=FillStatusMon();   
       if(sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
@@ -1119,7 +1095,7 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       sc=FillRODErrorMon();
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
    }else{
-      m_storegate_errors->Fill(5.,1.);
+      if(m_storegate_errors) m_storegate_errors->Fill(5.,1.);
    }
 
    /// Track
@@ -1127,17 +1103,17 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       if(evtStore()->contains< TrackCollection >(m_TracksName)){
         sc=FillTrackMon();
         if(sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
-      }else m_storegate_errors->Fill(4.,2.);
+      }else if(m_storegate_errors) m_storegate_errors->Fill(4.,2.);
    }else{
-      m_storegate_errors->Fill(4.,1.);
+      if(m_storegate_errors) m_storegate_errors->Fill(4.,1.);
    }
 
    /// Hits
    if(m_doRDO){
       if(evtStore()->contains<PixelRDO_Container>(m_Pixel_RDOName) ) sc=FillHitsMon();
-      else m_storegate_errors->Fill(1.,2.); 
+      else if(m_storegate_errors) m_storegate_errors->Fill(1.,2.); 
    }else{
-      m_storegate_errors->Fill(1.,1.); 
+      if(m_storegate_errors) m_storegate_errors->Fill(1.,1.); 
    }
 
    /// Cluster
@@ -1145,9 +1121,9 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       if(evtStore()->contains<InDet::PixelClusterContainer>(m_Pixel_SiClustersName)){
         sc=FillClustersMon();
         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
-      }else m_storegate_errors->Fill(3.,2.);
+      }else if(m_storegate_errors) m_storegate_errors->Fill(3.,2.);
    }else{
-      m_storegate_errors->Fill(3.,1.);
+      if(m_storegate_errors) m_storegate_errors->Fill(3.,1.);
    }
 
    /// Space Point
@@ -1156,9 +1132,9 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       if(evtStore()->contains<SpacePointContainer>(m_Pixel_SpacePointsName)){
         sc=FillSpacePointMon();
         if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
-      }else m_storegate_errors->Fill(2.,2.);
+      }else if(m_storegate_errors) m_storegate_errors->Fill(2.,2.);
    }else{
-      m_storegate_errors->Fill(2.,1.);
+      if(m_storegate_errors) m_storegate_errors->Fill(2.,1.);
    }
 
 
@@ -1167,7 +1143,7 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       sc=FillPixelDCSMon();
       if (sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq;
    }else{
-      m_storegate_errors->Fill(6.,1.);
+      if(m_storegate_errors)m_storegate_errors->Fill(6.,1.);
    }
 
 
