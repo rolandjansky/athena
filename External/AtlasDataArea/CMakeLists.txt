@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 744792 2016-05-04 12:26:17Z krasznaa $
+# $Id: CMakeLists.txt 768579 2016-08-18 09:20:20Z alibrari $
 
 # Declare the name of the package:
 atlas_subdir( AtlasDataArea )
@@ -25,7 +25,7 @@ if( NOT ATLAS_RELEASEDATA )
 endif()
 
 # The current release data version:
-set( AtlasDataArea_native_version "v19" )
+set( AtlasDataArea_native_version "v20" )
 
 # Set up a dependency on the separately built RPM file holding this
 # data:
