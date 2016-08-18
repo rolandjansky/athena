@@ -83,7 +83,7 @@ AllowedTopos_jet = ['muvtx',
                     'invm700',
                     'invm800',
                     'invm1000']
-AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','60mVis10000']
+AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','60mVis10000','03dR30']
 AllowedTopos_comb = ['taumass', 'dr05', 'dz02']
 
 #AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
@@ -105,7 +105,7 @@ JetChainParts = {
     'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490','280eta320', '320eta490'],
     'gscThreshold' : ['gsc400','gsc380','gsc360','gsc110'],
     'trigType'     : ['j'],
-    'extra'        : ['noL1','test1','test2','test3','delayed'],
+    'extra'        : ['noL1','test1','test2','test3','delayed','AND'],
     'cleaning'     : ['cleanL','cleanT','cleanLLP',
                       'cleanLA','cleanTA','cleanLLPA', 'noCleaning'
                       ],

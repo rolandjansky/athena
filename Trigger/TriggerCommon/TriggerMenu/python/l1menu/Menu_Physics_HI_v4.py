@@ -31,7 +31,8 @@ def defineMenu():
         #-------------------------
         
         # 16 x EM
-        'EM7', 'EM8', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM13VH', 'EM14', 'EM15', 'EM15HI', 'EM16', 'EM18', 'EM20', 'EM20VH', 'EM20VHI', 'EM22',
+        #'EM7', 'EM8', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM13VH', 'EM14', 'EM15', 'EM15HI', 'EM16', 'EM18', 'EM20', 'EM20VH', 'EM20VHI', 'EM22',
+        'EM3','EM4','EM5','EM7', 'EM8', 'EM8I', 'EM10', 'EM10VH', 'EM12', 'EM13VH', 'EM14', 'EM15', 'EM15HI', 'EM16', 'EM20VH', 'EM20VHI',
         
         # 1 x ZB
         'ZB_J75', # Will double check if 'ZB_EM15' should be used for Run-2.
@@ -74,7 +75,7 @@ def defineMenu():
         # 24 x 1-bit thresholds
         
         # 8 x TE
-        'TE5', 'TE20', 'TE50', 'TE100', 'TE200', 'TE10000', 'TE12000', 'TE14000',
+        'TE5', 'TE10', 'TE20', 'TE50', 'TE60', 'TE70', 'TE100', 'TE200', 
         
         # 8 x XE
         'XE35', 'XE40', 'XE45', 'XE50', 'XE55', 'XE60', 'XE70', 'XE80',
@@ -168,17 +169,21 @@ def defineMenu():
         ]
 
     Lvl1Flags.items = [
+                       'L1_EM3',
+                       'L1_EM4',
+                       'L1_EM5',
                        'L1_EM7',
 		       'L1_EM8',
                        'L1_EM10',
                        'L1_EM12',
                        'L1_EM14',
                        'L1_EM16',
-                       'L1_EM18',
-		       'L1_EM20',
-	               'L1_EM22',
-                       'L1_2EM10',
-                       #'L1_2EM5',
+                       #'L1_EM18',
+		       #'L1_EM20',
+	               #'L1_EM22',
+                       #'L1_2EM10',
+                       'L1_2EM3',
+                       'L1_2EM5',
 		       'L1_2EM7',
                        # tau beam items
                        #'L1_TAU8',
@@ -252,13 +257,13 @@ def defineMenu():
                        #MET
                        #total energy
                        'L1_TE5',
+                       'L1_TE10',
                        'L1_TE20',
                        'L1_TE50',
+                       'L1_TE60',
+                       'L1_TE70',
                        'L1_TE100',
                        'L1_TE200', 
-                       'L1_TE10000',
-                       'L1_TE12000',
-		       'L1_TE14000',
                        'L1_TE5_NZ',
 		       'L1_TE5_VTE200',
 		       # restricted TE
@@ -493,8 +498,8 @@ def defineMenu():
                        ]
 
     Lvl1Flags.CtpIdMap = {
-	'L1_EM18' : 0,
-        'L1_EM22' : 1,
+	'L1_EM3' : 0,
+        'L1_EM5' : 1,
         'L1_EM7' : 2,
         'L1_EM10' : 3,
         'L1_EM12' : 4,
@@ -503,8 +508,8 @@ def defineMenu():
         'L1_RD0_UNPAIRED_NONISO' : 7,
         'L1_BCM_AC_CA_UNPAIRED_NONISO': 8,
         'L1_FJ10_UNPAIRED_NONISO' :  9,
-        'L1_2EM10' : 10,
-        #'L1_2EM5' : 11,
+        'L1_2EM3' : 10,
+        'L1_2EM5' : 11,
         'L1_MU0_VTE20' : 12,
         'L1_NIM_S8C2B21'            : 13,#DIRNIM
         'L1_NIM_S8C2B22'            : 14,#DIRNIM
@@ -566,7 +571,7 @@ def defineMenu():
         'L1_BCM_AC_CA_BGRP0' : 81,
         'L1_MBTSC1' : 82,
         'L1_J10_UNPAIRED' : 83,
-        'L1_EM20' : 84,
+        'L1_EM4' : 84,
         'L1_EM16' : 85,
         'L1_MBTSC0' : 86,
         'L1_J30_UNPAIRED' : 87,
@@ -613,17 +618,17 @@ def defineMenu():
         'L1_J30_FIRSTEMPTY' : 130,
         'L1_MBTSA2' : 131,
         'L1_TE5' : 132,
-        'L1_TE14000' : 133,
+        'L1_TE10' : 133,
         'L1_TE20' : 134,
-        'L1_TE50' : 138,
-        'L1_TE100' : 136,
-        'L1_TE200' : 135,
+        'L1_TE70' : 138,
+        'L1_TE60' : 136,
+        'L1_TE50' : 135,
         'L1_MBTSA3' : 137,
         
         'L1_2J5' : 139,
         'L1_2J10' : 140,
-        'L1_TE12000' : 141,
-	'L1_TE10000' : 142,
+        'L1_TE100' : 141,
+	'L1_TE200' : 142,
         'L1_2MU6_EMPTY' : 143,
         'L1_2MU6_FIRSTEMPTY' : 144,
         'L1_ZDC_MBTS_1' : 145,
