@@ -114,15 +114,16 @@ StatusCode JetRecTool::initialize() {
   m_shallowCopy &= m_incoll != m_outcoll; // m_shallowCopy is false for update mode
 
   // Retrieve or create pseudojet retrieval tool.
-  // if ( m_hpjr.empty() ) {
-  //   m_ppjr = new JetPseudojetRetriever(name()+"_retriever");
-  // } else {
   if ( !m_hpjr.empty() ) {
     if ( m_hpjr.retrieve().isSuccess() ) {
       m_ppjr = &*m_hpjr;
     } else {
+#ifdef ROOTCORE
+      m_ppjr = new JetPseudojetRetriever(name()+"_retriever");
+#else
       m_ppjr = nullptr;
-      ATH_MSG_ERROR("Unable to retrive requested pseudojet retriever: " << m_hpjr.name());
+      ATH_MSG_ERROR("Unable to retrieve requested pseudojet retriever: " << m_hpjr.name());
+#endif 
     }
   }
   ATH_MSG_INFO("Jet reconstruction mode: " << mode);
@@ -248,6 +249,8 @@ StatusCode JetRecTool::initialize() {
   m_modclock.Reset();
   m_conclock.Reset();
   m_nevt = 0;
+
+  ATH_MSG_INFO("Timing detail: " << m_timer);
   return rstat;
 }
 
@@ -410,16 +413,22 @@ const JetContainer* JetRecTool::build() const {
   const JetContainer* pjetsin = 0;
   if ( m_groom || m_copy ) {
     m_inpclock.Start(false);
-    if ( m_incoll.size() && evtStore()->contains<JetContainer>(m_incoll)) {
-      pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
-    }
-    if ( pjetsin==0 && !m_intool.empty() ) {
-      ATH_MSG_DEBUG("Excuting input tool.");
-      if ( m_intool->execute() ) {
-        ATH_MSG_WARNING("Input tool execution failed.");
+
+    if(!m_trigger) { // reco case : get input from evt store
+      if ( m_incoll.size() && evtStore()->contains<JetContainer>(m_incoll)) {
+        pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
       }
-      pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
+      if ( pjetsin==0 && !m_intool.empty() ) {
+        ATH_MSG_DEBUG("Excuting input tool.");
+        if ( m_intool->execute() ) {
+          ATH_MSG_WARNING("Input tool execution failed.");
+        }
+        pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
+      }
+    } else { // trigger case : assume setInputJetContainer was called, use m_trigInputJetsForGrooming
+      pjetsin = m_trigInputJetsForGrooming;
     }
+
     if ( pjetsin == 0 ) {
       ATH_MSG_ERROR("Unable to retrieve input jet container: " << m_incoll);
       m_totclock.Stop();
@@ -687,3 +696,7 @@ int JetRecTool::outputContainerNames(std::vector<std::string>& connames) {
 }
 
 //**********************************************************************
+ 
+ void JetRecTool::setInputJetContainer(const xAOD::JetContainer* cont) {
+   m_trigInputJetsForGrooming = cont; 
+ }

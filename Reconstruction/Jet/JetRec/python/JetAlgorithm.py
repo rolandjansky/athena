@@ -94,28 +94,44 @@ def addJetRecoToAlgSequence(job =None, useTruth =None, eventShapeTools =None,
                jtm.JetConstitSeq_EMOrigin,
                ]
     
-  rtools += jtm.jetrecs
-  from JetRec.JetRecConf import JetToolRunner
-  jtm += JetToolRunner("jetrun",
-           EventShapeTools=evstools,
-           Tools=rtools,
-           Timer=jetFlags.timeJetToolRunner()
-         )
-  jetrun = jtm.jetrun
-
   # Add the algorithm. It runs the jetrec tools.
   from JetRec.JetRecConf import JetAlgorithm
 
   if jetFlags.separateJetAlgs():
+
+    from JetRec.JetRecConf import JetToolRunner
+    jtm += JetToolRunner("jetrun",
+                         EventShapeTools=evstools,
+                         Tools=rtools,
+                         Timer=jetFlags.timeJetToolRunner()
+                         )
+    jetrun = jtm.jetrun
+
     job += JetAlgorithm("jetalg")
     jetalg = job.jetalg
     jetalg.Tools = [jtm.jetrun]
-    for t in rtools:
+
+    for t in jtm.jetrecs:
+      # from JetRec.JetRecConf import JetToolRunner
+      # jetrun_rec = JetToolRunner("jetrun"+t.name(),
+      #                            EventShapeTools=[],
+      #                            Tools=[t],
+      #                            Timer=jetFlags.timeJetToolRunner()
+      #                            )
+      # jtm += jetrun_rec
       jalg = JetAlgorithm("jetalg"+t.name())
       jalg.Tools = [t]
       job+= jalg
 
   else:
+    from JetRec.JetRecConf import JetToolRunner
+    jtm += JetToolRunner("jetrun",
+                         EventShapeTools=evstools,
+                         Tools=rtools+jtm.jetrecs,
+                         Timer=jetFlags.timeJetToolRunner()
+                         )
+    jetrun = jtm.jetrun
+
     job += JetAlgorithm("jetalg")
     jetalg = job.jetalg
     jetalg.Tools = [jtm.jetrun]

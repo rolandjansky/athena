@@ -30,6 +30,7 @@ from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrac
 from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
 
 from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
+#from PFlowUtils.PFlowUtilsConf import CP__WeightPFOTool as WeightPFOTool
 from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
@@ -248,7 +249,7 @@ jtm += PseudoJetGetter(
 jtm += PseudoJetGetter(
   "emoriginget",
   InputContainer = jtm.JetConstitSeq_EMOrigin.OutputContainer,
-  Label = "LCTopo",
+  Label = "EMTopo",
   OutputContainer = jtm.JetConstitSeq_EMOrigin.OutputContainer+"PseudoJet",
   SkipNegativeEnergy = True,
   GhostScale = 0.0
@@ -308,6 +309,9 @@ jtm += MuonSegmentPseudoJetGetter(
 # Retriever for pflow objects.
 jtm += RetrievePFOTool("pflowretriever")
 
+# Weight tool for charged pflow objects.
+#jtm += WeightPFOTool("pflowweighter")
+
 useVertices = True
 if False == jetFlags.useVertices:
   useVertices = False
@@ -327,6 +331,7 @@ jtm += PFlowPseudoJetGetter(
   Label = "EMPFlow",
   OutputContainer = "PseudoJetEMPFlow",
   RetrievePFOTool = jtm.pflowretriever,
+  #WeightPFOTool = jtm.pflowweighter,
   InputIsEM = True,
   CalibratePFO = False,
   SkipNegativeEnergy = True,
@@ -341,6 +346,7 @@ jtm += PFlowPseudoJetGetter(
   Label = "EMCPFlow",
   OutputContainer = "PseudoJetEMCPFlow",
   RetrievePFOTool = jtm.pflowretriever,
+  #WeightPFOTool = jtm.pflowweighter,
   InputIsEM = True,
   CalibratePFO = True,
   SkipNegativeEnergy = True,
@@ -355,6 +361,7 @@ jtm += PFlowPseudoJetGetter(
   Label = "LCPFlow",
   OutputContainer = "PseudoJetLCPFlow",
   RetrievePFOTool = jtm.pflowretriever,
+  #WeightPFOTool = jtm.pflowweighter,
   InputIsEM = False,
   CalibratePFO = False,
   SkipNegativeEnergy = True,
@@ -374,14 +381,14 @@ jtm += PseudoJetGetter(
 )
 
 # AntiKt3 track jets.
-jtm += PseudoJetGetter(
-  "gakt3trackget", # give a unique name
-  InputContainer = jetFlags.containerNamePrefix() + "AntiKt3PV0TrackJets", # SG key
-  Label = "GhostAntiKt3TrackJet",   # this is the name you'll use to retrieve associated ghosts
-  OutputContainer = "PseudoJetGhostAntiKt3TrackJet",
-  SkipNegativeEnergy = True,
-  GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
-)
+# jtm += PseudoJetGetter(
+#   "gakt3trackget", # give a unique name
+#   InputContainer = jetFlags.containerNamePrefix() + "AntiKt3PV0TrackJets", # SG key
+#   Label = "GhostAntiKt3TrackJet",   # this is the name you'll use to retrieve associated ghosts
+#   OutputContainer = "PseudoJetGhostAntiKt3TrackJet",
+#   SkipNegativeEnergy = True,
+#   GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+# )
 
 # AntiKt4 track jets.
 jtm += PseudoJetGetter(

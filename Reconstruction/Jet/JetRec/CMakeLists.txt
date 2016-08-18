@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740775 2016-04-16 13:07:43Z krasznaa $
+# $Id: CMakeLists.txt 766928 2016-08-08 15:01:33Z khoo $
 ################################################################################
 # Package: JetRec
 ################################################################################
@@ -50,3 +50,11 @@ atlas_add_component( JetRec
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/JetRec_jobOptions.py share/myjets.py )
+
+atlas_add_dictionary( JetRecDict
+                      JetRec/JetRecDict.h
+                      JetRec/selection.xml
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthLinks AsgTools
+                      xAODCaloEvent xAODJet xAODMuon EventShapeInterface JetEDM
+                      JetInterface JetRecLib )
