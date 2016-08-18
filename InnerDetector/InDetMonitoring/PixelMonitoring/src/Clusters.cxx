@@ -25,6 +25,7 @@
 #include "LWHists/TH2I_LW.h"
 #include "TProfile.h"
 #include "LWHists/TProfile_LW.h"
+#include "LWHists/TProfile2D_LW.h"
 #include <sstream>
 
 //#include "InDetRawData/InDetRawDataContainer.h"
@@ -73,7 +74,7 @@ StatusCode PixelMainMon::BookClustersMon(void)
    int nbins_tot = 300;  double min_tot = -0.5; double max_tot = min_tot + (1.0*nbins_tot);
    int nbins_ibl_tot = 150;  double min_ibl_tot = -0.5; double max_ibl_tot = min_tot + (1.0*nbins_tot);
    int nbins_Q = 70;     double min_Q = -0.5; double max_Q = min_Q + (3000.0*nbins_Q);
-   int nbins_nevt = 50;  double min_nevt = -0.5; double max_nevt = min_nevt + (1.0*nbins_nevt);
+   //int nbins_nevt = 50;  double min_nevt = -0.5; double max_nevt = min_nevt + (1.0*nbins_nevt);
    int nbins_lvl1 = 14;  double min_lvl1 = -1.5; double max_lvl1 = min_lvl1 + (1.0*nbins_lvl1);
    std::string atext_LB = ";lumi block"; 
    std::string atext_BCID = ";BCID"; 
@@ -262,9 +263,6 @@ StatusCode PixelMainMon::BookClustersMon(void)
          htitles = makeHisttitle(("Cluster Charge vs groupsize, "+modlabel[i]), (atext_tot+atext_npix), false);
          //sc= clusterExpert.regHist(m_Q_vs_clussize_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_Q, min_Q, max_Q, nbins_npix, min_npix, max_npix));
 
-         hname = makeHistname(("nlowToT_vs_clussize_"+modlabel[i]), false);
-         htitles = makeHisttitle(("# Low ToT Hits vs groupsize, "+modlabel[i]), (atext_npix+atext_nevt), false);
-         sc= clusterExpert.regHist(m_nlowToT_vs_clussize_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_npix, min_npix, max_npix, nbins_nevt, min_nevt, max_nevt));
       }
    }
    for(int i=0; i<PixLayerIBL2D3DDBM::COUNT; i++){
@@ -335,25 +333,30 @@ StatusCode PixelMainMon::BookClustersMon(void)
    if(m_do2DMaps)
    {
       tmp = "Cluster_Occupancy"; tmp2 = "Cluster occupancy";
-      //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
       m_cluster_occupancy = new PixelMon2DMaps(tmp.c_str(), (tmp2 + m_histTitleExt).c_str());
       sc = m_cluster_occupancy->regHist(clusterShift);
 
       tmp = "Cluster_LVL1A_Mod"; tmp2 = "Average cluster Level 1 Accept";
-      //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
       m_cluster_LVL1A_mod = new PixelMonProfiles(tmp.c_str(), (tmp2 + m_histTitleExt).c_str());
       sc = m_cluster_LVL1A_mod->regHist(timeShift);
 
       tmp = "Clus_Occ_SizeCut"; tmp2 = "Size>1 Cluster occupancy";
-      //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
       m_clusocc_sizenot1 = new PixelMon2DMaps(tmp.c_str(), (tmp2 + m_histTitleExt).c_str()); 
       sc = m_clusocc_sizenot1->regHist(clusterShift); 
 
       tmp = "Clus_LVL1A_SizeCut"; tmp2 = "Average Size>1 Cluster Level 1 Accept";
-      //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
       m_clus_LVL1A_sizenot1 = new PixelMonProfiles(tmp.c_str(), (tmp2 + m_histTitleExt).c_str());
       sc = m_clus_LVL1A_sizenot1->regHist(timeShift); 
 
+      if(m_doOnline){
+        tmp = "ClusterMap_Mon"; tmp2 = "Cluster map for monitoring";
+        m_clustermap_mon = new PixelMon2DMaps(tmp.c_str(), (tmp2 + m_histTitleExt).c_str());
+        sc = m_clustermap_mon->regHist(clusterShift);
+
+        tmp = "ClusterMap_tmp"; tmp2 = "Cluster map for monitoring";
+        m_clustermap_tmp = new PixelMon2DMaps(tmp.c_str(), (tmp2 + m_histTitleExt).c_str());
+        sc = m_clustermap_tmp->regHist(clusterShift);
+      }
       if(!m_doOnline){
          tmp = "Cluster_Size_Map"; tmp2 = "Average cluster size map";
          //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
@@ -370,10 +373,10 @@ StatusCode PixelMainMon::BookClustersMon(void)
 	      m_clusToT_map = new PixelMonProfiles(tmp.c_str(), (tmp2 + m_histTitleExt).c_str());
 	      sc = m_clusToT_map->regHist(clusterExpert);
 
-         hname = makeHistname("Cluster_lowToTHitsFraction7_Map", true);
-         tmp2 = "Average fraction of low tot (<7) hits in one cluster";
-	      m_lowToTHitsFraction_7 = new PixelMon2DProfilesLW(hname.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL, false);
-	      sc = m_lowToTHitsFraction_7->regHist(clusterExpert, m_doIBL, false);
+         //hname = makeHistname("Cluster_lowToTHitsFraction7_Map", true);
+         //tmp2 = "Average fraction of low tot (<7) hits in one cluster";
+	      //m_lowToTHitsFraction_7 = new PixelMon2DProfilesLW(hname.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL, false);
+	      //sc = m_lowToTHitsFraction_7->regHist(clusterExpert, m_doIBL, false);
 
          hname = makeHistname("Cluster_lowToTHitsFraction9_Map", true);
          tmp2 = "Average fraction of low tot (<9) hits in one cluster";
@@ -385,22 +388,27 @@ StatusCode PixelMainMon::BookClustersMon(void)
 	      m_lowToTHitsFraction_11= new PixelMon2DProfilesLW(hname.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL, false);
 	      sc = m_lowToTHitsFraction_11->regHist(clusterExpert, m_doIBL, false);
 
-         hname = makeHistname("Cluster_lowToTHitsFraction13_Map", true);
-         tmp2 = "Average fraction of low tot (<13) hits in one cluster";
-	      m_lowToTHitsFraction_13 = new PixelMon2DProfilesLW(hname.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL, false);
-	      sc = m_lowToTHitsFraction_13->regHist(clusterExpert, m_doIBL, false);
+         //hname = makeHistname("Cluster_lowToTHitsFraction13_Map", true);
+         //tmp2 = "Average fraction of low tot (<13) hits in one cluster";
+	      //m_lowToTHitsFraction_13 = new PixelMon2DProfilesLW(hname.c_str(), (tmp2 + m_histTitleExt).c_str(), m_doIBL, false);
+	      //sc = m_lowToTHitsFraction_13->regHist(clusterExpert, m_doIBL, false);
 
-         //hname = makeHistname("Cluster_Occ_FEMap", true);
-         //tmp2 = "Cluster Occ.";
-         //sc = clusterExpert.regHist(m_cluster_occupancy_FE_B0 = TH2F_LW::create((hname+"_B0").c_str(), (tmp2 + ", B0 " + ";eta index of FE;phi index of FE").c_str(), 13*8, -48.5, -48.5+(13*8), 22*2, -0.5, -0.5+(22*2)));
          hname = makeHistname("Cluster_Occupancy_FEMap_mon", true);
          tmp2 = "Cluster Occ.";
          sc = clusterExpert.regHist(m_cluster_occupancy_FE_B0_mon = TH2F_LW::create((hname+"_B0").c_str(), (tmp2 + ", B0 " + ";eta index of FE;phi index of FE").c_str(), 13*8, -48.5, -48.5+(13*8), 22*2, -0.5, -0.5+(22*2)));
 
+         ///
+         /// Study for Quick Status
+         ///
          hname = makeHistname("Cluster_Occupamcy_L0_B11_S2_C6", true);
          tmp2 = "Cluster Occupancy., L0_B11_S2_C6;lumi block;FE ID (8*(pix_phi/164) + (eta_pix/18);# clusters";
          sc = clusterExpert.regHist(m_cluster_occupancy_FE_L0_B11_S2_C6 = TH2F_LW::create((hname+"_L0_B11_S2_C6").c_str(), tmp2.c_str(), nbins_LB, min_LB, max_LB, 16, -0.5, -0.5+16));
          m_cluster_occupancy_FE_L0_B11_S2_C6->SetOption("colz");
+
+         hname = makeHistname("Cluster_ToTMean_L0_B11_S2_C6", true);
+         tmp2 = "Cluster ToT Mean, L0_B11_S2_C6;lumi block;FE ID (8*(pix_phi/164) + (eta_pix/18);Mean Cluster ToT";
+         sc = clusterExpert.regHist(m_cluster_totmean_L0_B11_S2_C6 = TProfile2D_LW::create((hname+"_L0_B11_S2_C6").c_str(), tmp2.c_str(), nbins_LB, min_LB, max_LB, 16, -0.5, -0.5+16));
+         m_cluster_totmean_L0_B11_S2_C6->SetOption("colz");
 
          ///
          /// For FE map (temporary)
@@ -539,7 +547,7 @@ StatusCode PixelMainMon::FillClustersMon(void)
    if (sc.isFailure()  || !m_Pixel_clcontainer)
    {
       if(msgLvl(MSG::INFO)) msg(MSG::INFO)  <<"Pixel Cluster container for Pixels not found"<< endreq;
-      m_storegate_errors->Fill(3.,3.);  
+      if(m_storegate_errors) m_storegate_errors->Fill(3.,3.);  
       return StatusCode::SUCCESS;
    } else {
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  <<"Pixel Cluster container for Pixels found" <<endreq;
@@ -588,7 +596,7 @@ StatusCode PixelMainMon::FillClustersMon(void)
       
       if (!ClusterCollection) 
       {
-         m_storegate_errors->Fill(3.,5.);  //first entry (1). is for RDO, second (4) is for data problem
+         if(m_storegate_errors) m_storegate_errors->Fill(3.,5.);  //first entry (1). is for RDO, second (4) is for data problem
          continue;
       }
       for(p_clus=ClusterCollection->begin(); p_clus!=ClusterCollection->end(); ++p_clus)
@@ -639,7 +647,7 @@ StatusCode PixelMainMon::FillClustersMon(void)
          //be sure to check each histo exists before filling it
          //////////////////////////////////////////////////////
          
-
+         //if( m_currentBCID != ) continue;
          ///
          /// Fill LVL1 Accepted
          ///
@@ -724,6 +732,7 @@ StatusCode PixelMainMon::FillClustersMon(void)
          ///
          if(m_cluster_occupancy) m_cluster_occupancy->Fill(clusID,m_pixelid,m_doIBL);
 	      if(cluster.rdoList().size()>1 && m_clusocc_sizenot1) m_clusocc_sizenot1->Fill(clusID,m_pixelid,m_doIBL); 
+	      if(m_doOnline && m_clustermap_tmp) m_clustermap_tmp->Fill(clusID, m_pixelid, m_doIBL);
 
          /// 2D Map
 	      if(m_clussize_map) m_clussize_map->Fill(clusID,m_pixelid,cluster.rdoList().size(),m_doIBL);
@@ -784,9 +793,10 @@ StatusCode PixelMainMon::FillClustersMon(void)
             //std::cout << m_pixelid->eta_module(clusID) << " " << m_pixelid->phi_module(clusID) << " " << (8.0*m_pixelid->eta_module(clusID))+(1.0*feeta) << "  " << (2.0*m_pixelid->phi_module(clusID))+(1.0*fephi) << std::endl;
             //if(m_cluster_occupancy_FE_B0) m_cluster_occupancy_FE_B0->Fill( (8.0*m_pixelid->eta_module(clusID))+(1.0*feeta), (2.0*m_pixelid->phi_module(clusID))+(1.0*fephi));
             if(m_pixelid->phi_module(clusID) == 0 && m_pixelid->eta_module(clusID) == -6 && m_cluster_occupancy_FE_L0_B11_S2_C6) m_cluster_occupancy_FE_L0_B11_S2_C6->Fill( lumiblock, (8.0*fephi)+feeta );
+            if(m_pixelid->phi_module(clusID) == 0 && m_pixelid->eta_module(clusID) == -6 && m_cluster_totmean_L0_B11_S2_C6) m_cluster_totmean_L0_B11_S2_C6->Fill( lumiblock, (8.0*fephi)+feeta, cluster.totalToT() );
             if(m_doOnline){
               if(m_cluster_occupancy_FE_B0_mon) m_cluster_occupancy_FE_B0_mon->Fill( (8.0*m_pixelid->eta_module(clusID))+(1.0*feeta), (2.0*m_pixelid->phi_module(clusID))+(1.0*fephi));
-              //if(m_doRefresh5min && m_cluster_occupancy_FE_B0_mon) m_cluster_occupancy_FE_B0_mon->Reset();
+              if(m_doRefresh5min && m_cluster_occupancy_FE_B0_mon) m_cluster_occupancy_FE_B0_mon->Reset();
             }
          }
 
@@ -805,7 +815,11 @@ StatusCode PixelMainMon::FillClustersMon(void)
    {
       FillSummaryHistos(m_cluster_occupancy,m_ecA_cluster_occupancy_summary,m_ecC_cluster_occupancy_summary,m_bar_layI_cluster_occupancy_summary,m_bar_lay0_cluster_occupancy_summary,m_bar_lay1_cluster_occupancy_summary,m_bar_lay2_cluster_occupancy_summary);
       FillSummaryHistos(m_cluster_occupancy,m_ecA_cluster_occupancy_summary_low,m_ecC_cluster_occupancy_summary_low,m_bar_layI_cluster_occupancy_summary_low,m_bar_lay0_cluster_occupancy_summary_low,m_bar_lay1_cluster_occupancy_summary_low,m_bar_lay2_cluster_occupancy_summary_low);
-   }                              
+     if(m_doRefresh) {
+       if(m_clustermap_mon && m_clustermap_tmp) m_clustermap_mon->Fill2DMon(m_clustermap_tmp);
+     }
+   }      
+
 
    if(m_clusters_per_lumi)m_clusters_per_lumi->Fill(m_manager->lumiBlockNumber(), nclusters); 
    //if(m_clusters_per_lumi_PIX)m_clusters_per_lumi_PIX->Fill(m_manager->lumiBlockNumber(),nclusters-nclusters_IBL); 
@@ -867,7 +881,7 @@ StatusCode PixelMainMon::FillClustersMon(void)
       }
    }
    ////////////////////End fill after event block///////////
-   if(nclusters==0) m_storegate_errors->Fill(3.,4.);//first entry for RDO, second for size = 0
+   if(nclusters==0 && m_storegate_errors) m_storegate_errors->Fill(3.,4.);//first entry for RDO, second for size = 0
 
    return StatusCode::SUCCESS;
 }

@@ -47,6 +47,10 @@ StatusCode PixelMainMon::BookStatusMon(void)
    sc = m_status->regHist(statusHistos);
    m_status->SetMaxValue( 2.0 );
 
+   m_status_mon = new PixelMonProfiles("Map_Of_Modules_Status_Mon", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive) for monitoring" + m_histTitleExt).c_str());
+   sc = m_status_mon->regHist(statusHistos);
+   m_status_mon->SetMaxValue( 2.0 );
+
    if(m_doModules)
    {
      m_Status_modules = new PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(),2,0,2,m_doIBL);
@@ -81,6 +85,11 @@ StatusCode PixelMainMon::BookStatusMon(void)
       tmp2 = makeHisttitle(("Number of disabled & bad modules per event per LB, "+modlabel[i]), (atext_LB+atext_nmod), false);
       sc = statusHistos.regHist(m_baddisabledModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
    }
+
+   tmp = makeHistname("DisabledModules_per_lumi_PIX", false);
+   tmp2 = makeHisttitle("Number of disabled modules per event per LB for Pixel barrel", (atext_LB+atext_nmod), false);
+   sc = statusHistos.regHist(m_disabledModules_per_lumi_PIX = TProfile_LW::create(tmp.c_str(), (tmp2+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
+
 
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
    return StatusCode::SUCCESS;
@@ -134,6 +143,7 @@ StatusCode PixelMainMon::FillStatusMon(void)
       else {Index=1;}
 
       if(m_status) m_status->Fill(WaferID,m_pixelid,Index,m_doIBL);
+      //if(m_status_mon) m_status_mon->Fill(WaferID,m_pixelid,Index,m_doIBL);
 
       if(m_doLumiBlock){
 	      if(m_status_LB) m_status_LB->Fill(WaferID,m_pixelid,Index,m_doIBL);
@@ -186,6 +196,7 @@ StatusCode PixelMainMon::FillStatusMon(void)
      if(m_disabledModules_per_lumi_mod[i]) m_disabledModules_per_lumi_mod[i]->Fill( m_manager->lumiBlockNumber(), nDisabled_mod[i] );
      if(m_baddisabledModules_per_lumi_mod[i]) m_baddisabledModules_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),nDisabled_mod[i]+nBad_mod[i]); 
    }
+   if(m_disabledModules_per_lumi_PIX) m_disabledModules_per_lumi_PIX->Fill( m_manager->lumiBlockNumber(), nDisabled_mod[PixLayerIBL2D3D::kB0] + nDisabled_mod[PixLayerIBL2D3D::kB1] + nDisabled_mod[PixLayerIBL2D3D::kB2]);
 
    if (nDisabled > (1744+280*m_doIBL)*0.50) {
      m_majorityDisabled = true;
@@ -193,6 +204,8 @@ StatusCode PixelMainMon::FillStatusMon(void)
    else {
      m_majorityDisabled = false;
    }
+
+   //if(m_doRefresh && m_status_mon) m_status_mon->Reset();
 
    return StatusCode::SUCCESS;
 
