@@ -96,7 +96,7 @@ StatusCode RODMonV1:: initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   StatusCode sc;
 
@@ -106,14 +106,14 @@ StatusCode RODMonV1:: initialize()
   sc = m_errorTool.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramToolV1"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -124,7 +124,7 @@ StatusCode RODMonV1:: initialize()
 StatusCode RODMonV1::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "bookHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "bookHistograms entered" << endmsg;
 
   bool online = m_onlineTest;
   if ( m_environment == AthenaMonManager::online ) {
@@ -136,7 +136,7 @@ StatusCode RODMonV1::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if ( newLumiBlock ) { }
+  //if ( newLumiBlock ) { }
 
   if ( newRun ) {
 
@@ -390,7 +390,7 @@ StatusCode RODMonV1::bookHistogramsRecurrent()
 
   } // end if (newRun ...
 
-  msg(MSG::DEBUG) << "Leaving bookHistograms" << endreq;
+  msg(MSG::DEBUG) << "Leaving bookHistograms" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -400,10 +400,10 @@ StatusCode RODMonV1::fillHistograms()
 /*---------------------------------------------------------*/
 {
   const bool debug = msgLvl(MSG::DEBUG);
-  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endreq;
+  if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endmsg;
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -434,7 +434,7 @@ StatusCode RODMonV1::fillHistograms()
     if ( sc.isFailure()  ||  !errVecTES ) {
       if (debug) {
         msg(MSG::DEBUG) << "No ROB Status and Unpacking Error vector found"
-                        << endreq;
+                        << endmsg;
       }
     }
 
@@ -529,7 +529,7 @@ StatusCode RODMonV1::fillHistograms()
     } else sc = StatusCode::FAILURE;
     if ( sc.isFailure()  ||  !rodTES ) {
       if (debug) msg(MSG::DEBUG) << "No DAQ ROD Header container found"
-                                   << endreq;
+                                   << endmsg;
     }
 
     //Retrieve CP RoIB ROD Headers from SG
@@ -539,7 +539,7 @@ StatusCode RODMonV1::fillHistograms()
     } else sc = StatusCode::FAILURE;
     if ( sc.isFailure()  ||  !cpRoibTES ) {
       if (debug) msg(MSG::DEBUG) << "No CP RoIB ROD Header container found"
-                                   << endreq;
+                                   << endmsg;
     }
 
     //Retrieve JEP RoIB ROD Headers from SG
@@ -549,7 +549,7 @@ StatusCode RODMonV1::fillHistograms()
     } else sc = StatusCode::FAILURE;
     if ( sc.isFailure()  ||  !jepRoibTES ) {
       if (debug) msg(MSG::DEBUG) << "No JEP RoIB ROD Header container found"
-                                   << endreq;
+                                   << endmsg;
     }
 
     //=============================================
@@ -783,12 +783,12 @@ StatusCode RODMonV1::fillHistograms()
     std::vector<int>* save = new std::vector<int>(crateErr);
     sc = evtStore()->record(save, "L1CaloRODErrorVector");
     if (sc != StatusCode::SUCCESS) {
-      msg(MSG::ERROR) << "Error recording ROD error vector in TES " << endreq;
+      msg(MSG::ERROR) << "Error recording ROD error vector in TES " << endmsg;
       return sc;
     }
   }
 
-  if (debug) msg(MSG::DEBUG) << "Leaving fillHistograms" << endreq;
+  if (debug) msg(MSG::DEBUG) << "Leaving fillHistograms" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -798,10 +798,10 @@ StatusCode RODMonV1::fillHistograms()
 StatusCode RODMonV1::procHistograms()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "procHistograms entered" << endreq;
+  msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
-  if (endOfLumiBlock || endOfRun) {
-  }
+  //if (endOfLumiBlock || endOfRun) {
+  //}
 
   return StatusCode::SUCCESS;
 }
