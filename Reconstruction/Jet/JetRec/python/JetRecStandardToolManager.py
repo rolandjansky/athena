@@ -145,7 +145,7 @@ if jetFlags.useTruth():
 if jetFlags.useTracks():
   trackjetgetters = []
   trackjetgetters += [jtm.gakt2trackget]
-  trackjetgetters += [jtm.gakt3trackget]
+#  trackjetgetters += [jtm.gakt3trackget]
   trackjetgetters += [jtm.gakt4trackget]
   emgetters += trackjetgetters
   lcgetters += trackjetgetters
@@ -174,16 +174,6 @@ if jetFlags.useTruth():
 # Modifiers for ungroomed jets from all input types.
 common_ungroomed_modifiers = [
   jtm.width,
-  jtm.jetisol,
-  jtm.ktdr,
-  jtm.nsubjettiness,
-  jtm.ktsplitter,
-  jtm.angularity,
-  jtm.dipolarity,
-  jtm.planarflow,
-  jtm.ktmassdrop,
-  jtm.encorr,
-  jtm.comshapes
 ]
 
 # Add parton truth labels and truth jet modifiers.
@@ -223,7 +213,19 @@ if jetFlags.useTruth():
     topo_ungroomed_modifiers += [jtm.jetdrlabeler]
 
 # Modifiers for groomed jets.
-groomed_modifiers = [ jtm.jetsorter ]
+groomed_modifiers = [ jtm.jetsorter,
+                      jtm.jetisol,
+                      jtm.ktdr,
+                      jtm.nsubjettiness,
+                      jtm.ktsplitter,
+                      jtm.angularity,
+                      jtm.dipolarity,
+                      jtm.planarflow,
+                      jtm.ktmassdrop,
+                      jtm.encorr,
+                      jtm.comshapes
+                      ]
+
 
 # Modifiers for groomed topo jets.
 topo_groomed_modifiers = list(groomed_modifiers)

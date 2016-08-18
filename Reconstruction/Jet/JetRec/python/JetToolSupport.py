@@ -57,8 +57,6 @@ class JetToolManager:
   gettersMap = {}
   # Map of modifier lists
   modifiersMap = {}
-  # Timer for JetRecTool
-  timer = jetFlags.timeJetRecTool()
 
   vertexContainer = "PrimaryVertices"
   trackContainer = "InDetTrackParticles"
@@ -195,8 +193,9 @@ class JetToolManager:
         sinp = getters[0].Label
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
-        cname = output.replace(sinp, "Truth").replace("EMTopo", "Truth") # attempt replacing "EMTopo" just in case.
+        cname = output.replace(sinp, "Truth")
         if cname == output:
+            print sinp, cname, output
             raise TypeError
         # Check that the building of the association tool has been scheduled.
         if not cname in self.jetcons:
@@ -207,13 +206,14 @@ class JetToolManager:
           from JetMomentTools.JetMomentToolsConf import JetPtAssociationTool
           self += JetPtAssociationTool(tname, InputContainer=cname, AssociationName="GhostTruth")
         outmods += [self.tools[tname]]
-      # trackassoc - Does truth jet association replacing the input name with "Track"
+      # trackassoc - Does track jet association replacing the input name with "Track"
       elif mod == "trackassoc":
         sinp = getters[0].Label
         salg = finder.JetAlgorithm
         srad = str(int(10*finder.JetRadius))
-        cname = output.replace(sinp, "Track").replace("EMTopo", "Track") # attempt replacing "EMTopo" just in case.
+        cname = output.replace(sinp, "PV0Track")
         if cname == output:
+            print sinp, cname, output
             raise TypeError
         # Check that the building of the association tool has been scheduled.
         if not cname in self.jetcons:
@@ -249,6 +249,8 @@ class JetToolManager:
         print btagger
         self.add(btagger)
         outmods += [btagger]
+      elif mod == "largeR":
+        outmods += jtm.modifiersMap["largeR"]
       else:
         raise TypeError
     # Check calibration.
@@ -381,7 +383,7 @@ class JetToolManager:
       jetrec.JetConsumers = consumers
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     jetrec.WarnIfDuplicate = warnIfDuplicate
     jetrec.Overwrite = overwrite
 
@@ -421,7 +423,7 @@ class JetToolManager:
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -455,7 +457,7 @@ class JetToolManager:
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     if pseudojetRetriever in self.tools:
       jetrec.JetPseudojetRetriever = self.tools[pseudojetRetriever]
     else:
@@ -494,7 +496,7 @@ class JetToolManager:
     jetrec.OutputContainer = output
     jetrec.JetModifiers = self.getModifiers(modifiersin)
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -554,7 +556,7 @@ class JetToolManager:
     if consumers != None:
       jetrec.JetConsumers = consumers
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     self += jetrec
     if isTrigger:
       self.trigjetrecs += [jetrec]
@@ -584,7 +586,7 @@ class JetToolManager:
     jetrec.JetModifiers = self.buildModifiers(modifiersin, finder, getters, None, output, calibOpt)
     self.ptminFilter = ptminSave
     jetrec.Trigger = isTrigger or useTriggerStore
-    jetrec.Timer = self.timer
+    jetrec.Timer = jetFlags.timeJetRecTool()
     jetrec.ShallowCopy = shallow
     self += jetrec
     self.jetrecs += [jetrec]
