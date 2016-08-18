@@ -65,6 +65,10 @@ use PixelConditionsServices PixelConditionsServices-* InnerDetector/InDetConditi
 use  PixelGeoModel             PixelGeoModel-*          InnerDetector/InDetDetDescr
 use  PathResolver               PathResolver-*                  Tools
 use  EventInfo                  EventInfo-*                     Event
+use  GeoPrimitives                      GeoPrimitives-*                 DetectorDescription
+use  TrkSurfaces                        TrkSurfaces-*                   Tracking/TrkDetDescr
+use  TrkDigInterfaces                   TrkDigInterfaces-*              Tracking/TrkDigitization
+use  TrkDigEvent                        TrkDigEvent-*                   Tracking/TrkDigitization
 
 public
 use  AthenaBaseComps          AthenaBaseComps-*       Control

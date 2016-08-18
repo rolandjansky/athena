@@ -21,6 +21,9 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
 
+#include "TrkDigEvent/DigitizationModule.h"
+#include "TrkDigInterfaces/IModuleStepper.h"
+
 class PixelID;
 class SiChargedDiodeCollection;
 class InDetSimDataCollection;
@@ -35,6 +38,7 @@ namespace CLHEP {
 namespace InDetDD{
   class SiDetectorElement;
   class SiDetectorManager;
+  class SiCellId;
 }
 
 static const InterfaceID IID_ILightPixelDigitizationTool ("PixelLightDigitizationTool",1,0);
@@ -73,7 +77,9 @@ public:
    void addSDO(SiChargedDiodeCollection *collection);
    void setManager(const InDetDD::SiDetectorManager *p_manager) {m_detManager = p_manager;}
    void store(const AtlasDetectorID *p_helper) {m_atlasID = p_helper;}
-
+   
+   Trk::DigitizationModule * buildDetectorModule(const InDetDD::SiDetectorElement* ) const;
+   
 private:
    
    virtual StatusCode createOutputContainers();
@@ -117,6 +123,9 @@ private:
   unsigned int    m_eventCounter;     /**< current event counter */
 
   std::string     m_inputObjectName;
+
+  ToolHandle<Trk::IModuleStepper>       m_digitizationStepper;
+
 
 };
 

@@ -47,6 +47,19 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+
+// Trk includes
+#include "TrkDigEvent/RectangularSegmentation.h"
+#include "TrkDigEvent/TrapezoidSegmentation.h"
+#include "TrkDigEvent/DigitizationCell.h"
+#include "TrkSurfaces/PlaneSurface.h"
+#include "TrkSurfaces/RectangleBounds.h"
+#include "TrkSurfaces/TrapezoidBounds.h"
+
+// Amg includes
+#include "GeoPrimitives/GeoPrimitivesToStringConverter.h"
+#include "GeoPrimitives/GeoPrimitivesHelpers.h"
+
 //
 #include <limits>
 #include <cstdint>
@@ -69,7 +82,9 @@ PixelLightDigitizationTool::PixelLightDigitizationTool(const std::string &type,
   m_detManager(NULL),
   m_mergeSvc("PileUpMergeSvc",name),
   m_TimeSvc("TimeSvc",name),
-  m_eventCounter(0)
+  m_eventCounter(0),
+  m_inputObjectName("PixelHits"),
+  m_digitizationStepper("Trk::PlanarModuleStepper" )
 {
   
   declareInterface<PixelLightDigitizationTool>(this);
@@ -78,13 +93,15 @@ PixelLightDigitizationTool::PixelLightDigitizationTool(const std::string &type,
   declareProperty("InputObjectName",         m_inputObjectName="",        "Input Object name" );
   declareProperty("TimeSvc",                 m_TimeSvc,                   "Time Svc");
 
-  m_inputObjectName = "PixelHits";
+  //  m_inputObjectName = "PixelHits";
   
   //
   // Get parameter values from jobOptions file
   declareProperty("ManagerName",        m_managerName,          "Pixel manager name");
   declareProperty("RDOCollName",        m_rdoCollName,          "RDO collection name");
   declareProperty("SDOCollName",        m_sdoCollName,          "SDO collection name");
+
+  declareProperty("DigitizationStepper"            , m_digitizationStepper);
 
 }
 
@@ -431,41 +448,89 @@ bool PixelLightDigitizationTool::digitizeElement(SiChargedDiodeCollection* charg
 
   // Loop over the hits and created charged diodes:
   while (i != e) {
-  
+    
     TimedHitPtr<SiHit> phit(*i++);
-
+    
     //skip hits which are more than 10us away
     if(fabs(phit->meanTime() ) < 10000. *CLHEP::ns ) { 
-      ATH_MSG_DEBUG("HASH = " << m_detID->wafer_hash(m_detID->wafer_id(phit->getBarrelEndcap(),phit->getLayerDisk(),phit->getPhiModule(),phit->getEtaModule())));
-      ATH_MSG_DEBUG ( "calling process() for all methods" );
-      // --> Adding here the charge??
-      //if  (m_SurfaceChargesTool->process(phit,*chargedDiodes,*sielement)==StatusCode::FAILURE) return false;
-           
-      const CLHEP::Hep3Vector pos=phit->localStartPosition();
-      const CLHEP::Hep3Vector cs=phit->localEndPosition();
-   
-      double xEta=pos[SiHit::xEta];
-      double xPhi=pos[SiHit::xPhi];
+      ATH_MSG_DEBUG("hash  = " << m_detID->wafer_hash(m_detID->wafer_id(phit->getBarrelEndcap(),phit->getLayerDisk(),phit->getPhiModule(),phit->getEtaModule())));
       
-      double xEtaf = cs[SiHit::xEta];
-      double xPhif = cs[SiHit::xPhi];
+      // getting entry and exit of the SiHit
+      HepGeom::Point3D<double> localStartPosition = sielement->hitLocalToLocal3D(phit->localStartPosition());
+      HepGeom::Point3D<double> localEndPosition   = sielement->hitLocalToLocal3D(phit->localEndPosition());
       
-      double cEta=0.5*(xEtaf+xEta);
-      double cPhi=0.5*(xPhif+xPhi);
-      
-      // Get the charge position in Reconstruction local coordinates.
-      SiLocalPosition chargePos = sielement->hitLocalToLocal(cEta, cPhi);
-      SiSurfaceCharge scharge(chargePos,SiCharge(phit->energyLoss(),hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId())));
+      Amg::Vector3D entryPoint(localStartPosition.x(),localStartPosition.y(),localStartPosition.z());
+      Amg::Vector3D exitPoint(localEndPosition.x(),localEndPosition.y(),localEndPosition.z());
 
-      SiCellId diode = sielement->cellIdOfPosition(scharge.position());
-      SiCharge charge = scharge.charge();
- 
-      if (diode.isValid()) chargedDiodes->add(diode,charge);
-           
-      ATH_MSG_DEBUG ( "charges filled!" );
+      Trk::DigitizationModule * m_digitizationModule = buildDetectorModule(sielement);
+      if(!m_digitizationModule){
+	ATH_MSG_FATAL( " could not get build detector module "); 
+	return StatusCode::FAILURE;
+      } 
+      // Getting the steps in the sensor
+      std::vector<Trk::DigitizationStep> digitizationSteps = m_digitizationStepper->cellSteps(*m_digitizationModule,entryPoint,exitPoint);
+      delete m_digitizationModule;
+            
+      // measuring the total path --> used to reweight
+      double totalPath = 0.;
+      for (auto& dStep : digitizationSteps) totalPath += dStep.stepLength;
+      
+      for (auto& dStep : digitizationSteps){
+	// position on the diode map
+	SiCellId diode(dStep.stepCell.first,dStep.stepCell.second);
+	
+	// weighted energy (using the path in the cell and the total path)
+	double energy = phit->energyLoss()*dStep.stepLength/totalPath;
+	SiCharge charge(energy,hitTime(phit),SiCharge::track,HepMcParticleLink(phit->trackNumber(),phit.eventId()));
+	
+	if (diode.isValid()) chargedDiodes->add(diode,charge);
+
+	ATH_MSG_DEBUG ( "charges filled!" );
+      }
     }
   }	
   return true;
+}
+
+Trk::DigitizationModule* PixelLightDigitizationTool::buildDetectorModule(const InDetDD::SiDetectorElement* hitSiDetElement ) const {
+  
+  const InDetDD::PixelModuleDesign* design(dynamic_cast<const InDetDD::PixelModuleDesign*>(&hitSiDetElement->design()));
+  
+  if (!design) {
+    ATH_MSG_DEBUG ( "Could not get design"<< design) ;
+    return nullptr;
+  }
+  
+    //Read from the SiDetectorElement information to build the digitization module 
+    const double halfThickness = hitSiDetElement->thickness() * 0.5;
+    const double halfWidth = design->width() * 0.5;
+    const double halfLenght = design->length() * 0.5;
+    int binsX = design->rows();
+    int binsY = design->columns();
+    int numberOfChip = design->numberOfCircuits();
+
+    ATH_MSG_VERBOSE("Retrieving infos: halfThickness = " << halfThickness << " --- halfWidth = " << halfWidth << " --- halfLenght = " << halfLenght );
+    ATH_MSG_VERBOSE("Retrieving infos: binsX = " << binsX << " --- binsY = " << binsY << " --- numberOfChip = " << numberOfChip);
+    
+    int readoutDirection = design->readoutSide();
+    float lorentzAngle = 0.; 
+    
+    // rectangle bounds 
+    ATH_MSG_VERBOSE("Starting.");
+    std::shared_ptr<const Trk::RectangleBounds> rectangleBounds(new Trk::RectangleBounds(halfWidth,halfLenght));    
+    ATH_MSG_VERBOSE("Initialized rectangle Bounds");
+    // create the segmentation
+    std::shared_ptr<const Trk::Segmentation> rectangleSegmentation(new Trk::RectangularSegmentation(rectangleBounds,(size_t)binsX,(size_t)binsY));
+    // build the module
+    ATH_MSG_VERBOSE("Initialized rectangleSegmentation");
+    Trk::DigitizationModule * m_digitizationModule = new Trk::DigitizationModule(rectangleSegmentation, 
+										 halfThickness,
+										 readoutDirection,
+										 lorentzAngle);
+    ATH_MSG_VERBOSE("Building Rectangle Segmentation with dimensions (halfX, halfY) = (" << halfWidth << ", " << halfLenght << ")");
+    
+    // success return
+    return m_digitizationModule;   
 }
 
 //
@@ -588,8 +653,9 @@ PixelLightDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
     //
     if (!( SiHelper::isMaskOut((*i_chargedDiode).second) || SiHelper::isDisabled((*i_chargedDiode).second) )) {
       
-      int nToT   = (*i_chargedDiode).second.charge(); //charge instead of ToT
-      
+      int nToT   = round((*i_chargedDiode).second.charge()*1000); //charge instead of ToT
+      nToT       = (nToT > 255) ? 255 : nToT; //charge instead of ToT
+
       int flag   = (*i_chargedDiode).second.flag();
       int bunch  = (flag >>  8) & 0xff;
       //
