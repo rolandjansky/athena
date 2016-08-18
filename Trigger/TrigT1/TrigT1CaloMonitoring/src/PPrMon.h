@@ -221,6 +221,9 @@ private:
 
   /// Bits of BCID Logic Words Vs PeakADC
   TH2F_LW* m_h_ppm_2d_tt_adc_BcidBits;
+  
+  // High/low threshold pass cases
+  TH1F_LW* m_h_ppm_1d_tt_adc_HLCase;
 
   // ADC profile hitmaps
   TProfile2D_LW* m_h_ppm_em_2d_etaPhi_tt_adc_ProfileHitMap;     ///< eta-phi Profile Map of EM FADC > cut for triggered timeslice
@@ -254,7 +257,7 @@ private:
   TH1F_LW* m_h_ppm_had_1d_tt_lutcp_Phi;                ///< HAD LUT-CP: Distribution of Peak per phi
 
   TH1F_LW* m_h_ppm_1d_tt_lutcp_LutPerBCN;              ///< Num of LUT-CP > 5 per BC
-
+	
   //distribution of LUT-JEP peak per detector region
   TH1F_LW* m_h_ppm_em_1d_tt_lutjep_Et;                  ///< EM LUT-JEP: Distribution of Peak
   TH1F_LW* m_h_ppm_em_1d_tt_lutjep_Eta;                 ///< EM LUT-JEP: Distribution of Peak per eta
@@ -268,6 +271,10 @@ private:
 
   // error
   TH1F_LW* m_h_ppm_1d_ErrorSummary;                  ///< Summary of SubStatus Errors
+  TH1F_LW* m_h_ppm_em_1d_pedOverflow_Eta;            ///< EM: Overflow of pedestal correction per eta
+  TH1F_LW* m_h_ppm_em_1d_pedUnderflow_Eta;           ///< EM: Underflow of pedestal correction per eta
+  TH1F_LW* m_h_ppm_had_1d_pedOverflow_Eta;           ///< HAD: Overflow of pedestal correction per eta
+  TH1F_LW* m_h_ppm_had_1d_pedUnderflow_Eta;          ///< HAD: Underflow of pedestal correction per eta
   TH2F_LW* m_h_ppm_2d_Status03;                      ///< Errors from TT SubStatus Word (crates 0-3)
   TH2F_LW* m_h_ppm_2d_Status47;                      ///< Errors from TT SubStatus Word (crates 4-7)
   TH2F_LW* m_h_ppm_2d_ErrorField03;                  ///< Errors from ASIC error field (crates 0-3)
