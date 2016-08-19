@@ -31,14 +31,10 @@ if DetFlags.digitize.pixel_on():
             for alg in job:
                 if hasattr(alg, 'PileUpTools'):
                     pixeldigi = alg.PileUpTools[ "PixelLightDigitizationTool" ]
-                    pixeldigi.OutputLevel=VERBOSE
-                    print "NOEMI 1"
                     break
                 pass
     else:
         pixeldigi = getPublicTool("PixelLightDigitizationTool")
-        pixeldigi.OutputLevel=VERBOSE
-        print "NOEMI 2"
     if None == pixeldigi:
         raise AttributeError("PixelDigitization(Tool) not found.")
 
