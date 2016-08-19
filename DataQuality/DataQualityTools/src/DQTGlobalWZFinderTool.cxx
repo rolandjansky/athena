@@ -420,6 +420,7 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
      // Electron Cut Flow
      Int_t El_N = 0;
+     ATH_MSG_DEBUG("Start electron selection");
 
      //TLorentzVector* tlv_e = new TLorentzvector();
      for (xAOD::ElectronContainer::const_iterator itr=elecTES->begin(); itr != elecTES->end(); ++itr) {
@@ -427,12 +428,21 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
         bool passSel = false;
         if (!((*itr)->passSelection(passSel, "LHLoose"))) ATH_MSG_WARNING("Electron ID WP Not Defined");
 	auto elTrk = (*itr)->trackParticle();
+	if (!elTrk) {
+	  ATH_MSG_WARNING("Electron with no track particle " << thisEventInfo->runNumber() << " " << thisEventInfo->eventNumber());
+	  continue;
+	}
 	float d0sig;
 	try {
 	  d0sig = xAOD::TrackingHelpers::d0significance(elTrk, thisEventInfo->beamPosSigmaX(), thisEventInfo->beamPosSigmaY(), thisEventInfo->beamPosSigmaXY());
 	} catch (...) {
-	  ATH_MSG_DEBUG("Invalid beamspot");
-	  d0sig = xAOD::TrackingHelpers::d0significance(elTrk);
+	  ATH_MSG_DEBUG("Invalid beamspot - electron");
+	   try {
+	     d0sig = xAOD::TrackingHelpers::d0significance(elTrk);
+	   } catch (...) {
+	     ATH_MSG_WARNING("Ridiculous exception thrown - electron");
+	     continue;
+	   }
 	}
 	/*
 	ATH_MSG_INFO("Electron accept: " << passSel);
@@ -470,29 +480,39 @@ StatusCode DQTGlobalWZFinderTool::fillHistograms()
 
      Int_t MuZ_N = 0;
      Int_t MuJPsi_N = 0;
+     ATH_MSG_DEBUG("Start muon selection");
 
      xAOD::MuonContainer::const_iterator muonItr;
      for (muonItr=muons->begin(); muonItr != muons->end(); ++muonItr) {
          Float_t minptCutJPsi(1.0*CLHEP::GeV);
 	 auto muTrk = (*muonItr)->primaryTrackParticle();
 	 float d0sig;
+	 if (!muTrk) {
+	   ATH_MSG_WARNING("No muon track! " << thisEventInfo->runNumber() << " " << thisEventInfo->eventNumber());
+	   continue;
+	 }
 	 try {
 	   d0sig = xAOD::TrackingHelpers::d0significance(muTrk, thisEventInfo->beamPosSigmaX(), thisEventInfo->beamPosSigmaY(), thisEventInfo->beamPosSigmaXY());
 	 } catch (...) {
-	   ATH_MSG_DEBUG("Invalid beamspot");
-	   d0sig = xAOD::TrackingHelpers::d0significance(muTrk);
+	   ATH_MSG_DEBUG("Invalid beamspot - muon");
+	   try {
+	     d0sig = xAOD::TrackingHelpers::d0significance(muTrk);
+	   } catch (...) {
+	     ATH_MSG_WARNING("Ridiculous exception thrown - muon");
+	     continue;
+	   }
 	 }
 	 
-	 /*
-	 ATH_MSG_INFO("Muon accept: " << m_muonSelectionTool->accept(**muonItr));
-	 ATH_MSG_INFO("Muon pt: " << (*muonItr)->pt() << " " << m_muonPtCut*GeV);
-	 ATH_MSG_INFO("Muon iso: " << m_isolationSelectionTool->accept(**muonItr));
-	 ATH_MSG_INFO("Muon d0sig: " << d0sig);
-	 ATH_MSG_INFO("Muon Good vtx: " << pVtx);
+	 
+	 ATH_MSG_DEBUG("Muon accept: " << m_muonSelectionTool->accept(**muonItr));
+	 ATH_MSG_DEBUG("Muon pt: " << (*muonItr)->pt() << " " << m_muonPtCut*GeV);
+	 ATH_MSG_DEBUG("Muon iso: " << m_isolationSelectionTool->accept(**muonItr));
+	 ATH_MSG_DEBUG("Muon d0sig: " << d0sig);
+	 ATH_MSG_DEBUG("Muon Good vtx: " << pVtx);
 	 if (pVtx) 
-	   ATH_MSG_INFO("Muon z0sinth: " << fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) << " " << 0.5*mm);
-	 ATH_MSG_INFO("Muon isBad: " << isBad);
-	 */
+	   ATH_MSG_DEBUG("Muon z0sinth: " << fabs((muTrk->z0()+muTrk->vz()-pVtx->z())*std::sin(muTrk->theta())) << " " << 0.5*mm);
+	 ATH_MSG_DEBUG("Muon isBad: " << isBad);
+	 
          if ( m_muonSelectionTool->accept(**muonItr) &&
               ((*muonItr)->pt() > m_muonPtCut*GeV) &&
 	      m_isolationSelectionTool->accept(**muonItr) &&

@@ -107,6 +107,17 @@ StatusCode DQTLumiMonTool::bookHistograms( ){ // avoid compilation warnings
 	|| registerHist(m_path, m_nClustersB0_vs_aveMu = new TProfile("nClustersB0_vs_aveMu", "Number of pixel clusters per event, barrel layer 0;#mu;NclustersB0/event", 250, 0, 25)).isFailure()
 	|| registerHist(m_path, m_nClustersB1_vs_aveMu = new TProfile("nClustersB1_vs_aveMu", "Number of pixel clusters per event, barrel layer 1;#mu;NclustersB1/event", 250, 0, 25)).isFailure()
 	|| registerHist(m_path, m_nClustersB2_vs_aveMu = new TProfile("nClustersB2_vs_aveMu", "Number of pixel clusters per event, barrel layer 2;#mu;NclustersB2/event", 250, 0, 25)).isFailure()
+	//Luminosity Histograms
+	|| registerHist(m_path, m_nAvgLumi_vs_LB = new TProfile("m_nAvgLumi_vs_LB", "Average Lumi vs LB", 1000, 0, 10000)).isFailure()
+        || registerHist(m_path, m_nAvgIntPerXing_vs_LB = new TProfile("m_nAvgIntPerXing_vs_LB", "Average Mu  vs LB", 1000, 0, 10000)).isFailure()
+        || registerHist(m_path, m_lumiperBCID_vs_LB = new TProfile("m_lumiperBCID_vs_LB", "Instant Luminosity vs LB", 1000, 0, 10000)).isFailure()
+        || registerHist(m_path, m_lbintperxing_vs_LB = new TProfile("m_lbintperxing_vs_LB", "Instaneous interactions vs LB", 1000, 0, 10000)).isFailure()
+        || registerHist(m_path, m_duration_vs_LB = new TProfile("m_duration_vs_LB", "Lumi Block time in sec vs LB", 1000, 0, 10000)).isFailure()
+        || registerHist(m_path, m_avglivefrac_vs_LB = new TProfile("m_avglivefrac_vs_LB", "Average live fraction lumi over all BCIDs vs LB", 1000, 0, 10000)).isFailure()
+        || registerHist(m_path, m_fracperBCID_vs_LB = new TProfile("m_fracperBCID_vs_LB", "Current BCID lumi vs LB", 1000, 0, 10000)).isFailure()
+        || registerHist(m_path, m_lumiweight_VS_LB = new TProfile("m_lumiweight_VS_LB", "Current BCID lumi vs LB", 1000, 0, 10000)).isFailure()
+
+
 	);
   }
   
@@ -133,7 +144,30 @@ StatusCode DQTLumiMonTool::fillHistograms(){
 
   unsigned LB = thisEventInfo->lumiBlock();
   double aveMu = thisEventInfo->averageInteractionsPerCrossing();
+
+  //Read from Lumi API's                                                                                                                                                                    
+  double lbavglumi_h = lbAverageLuminosity();
+  double avgintperxing = lbAverageInteractionsPerCrossing();
+  double lumiperBCID = lbLuminosityPerBCID();
+  double lbintperxing_h = lbInteractionsPerCrossing();
+
+  double duration_h = lbDuration();
+  double avglivefrac_h = lbAverageLivefraction();
+  double fracperBCID_h = livefractionPerBCID();
+  double lumiweight_h = lbLumiWeight();
+
   m_aveMu_vs_LB->Fill(LB, aveMu);
+
+  m_nAvgLumi_vs_LB->Fill(LB,lbavglumi_h);
+  m_nAvgIntPerXing_vs_LB->Fill(LB,avgintperxing);
+  m_avglivefrac_vs_LB->Fill(LB,avglivefrac_h);
+  m_duration_vs_LB->Fill(LB,duration_h);
+  m_lbintperxing_vs_LB->Fill(LB,lbintperxing_h);
+  m_lumiperBCID_vs_LB->Fill(LB,lumiperBCID);
+  m_fracperBCID_vs_LB->Fill(LB,fracperBCID_h);
+  m_lumiweight_VS_LB->Fill(LB,lumiweight_h);
+
+
 
   // Get vertex related info
   const xAOD::VertexContainer* vertices(0);

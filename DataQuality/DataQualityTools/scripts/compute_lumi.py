@@ -11,8 +11,8 @@ BINWIDTH=5
 
 ZPURITYFACTOR=0.9935
 ZXSEC=1.929
-ZATIMESC=0.2578
-#ZATIMESC=0.29632
+#ZATIMESC=0.2578
+ZATIMESC=0.29632
 
 ROOT.gStyle.SetOptStat(0)
 
@@ -45,12 +45,15 @@ from DQUtils.iov_arrangement import inverse_lblb
 lblb = fetch_iovs("LBLB", runs=int(runname[4:]))
 lbtime = inverse_lblb(lblb)
 #print list(lbtime)
-iovs = fetch_iovs('COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LumiAccounting', lbtime.first.since, lbtime.last.until, tag='OflLumiAcct-13TeV-003')
-#print list(iovs)
-for iov in iovs:
+iovs_acct = fetch_iovs('COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/LumiAccounting', lbtime.first.since, lbtime.last.until, tag='OflLumiAcct-13TeV-004')
+#iovs_lum = fetch_iovs('COOLOFL_TRIGGER::/TRIGGER/OFLLUMI/OflPrefLumi', lblb.first.since, lblb.last.until, tag='OflLumi-13TeV-003')
+#print list(iovs_lum)
+
+for iov in iovs_acct:
     if not lbmin < iov.LumiBlock < lbmax:
         continue
     livetime.Fill(iov.LumiBlock, iov.LiveFraction)
+    #print iov.InstLumi, iovs_lum[iov.LumiBlock-1].LBAvInstLumi
     official_lum_zero.Fill(iov.LumiBlock, iov.InstLumi/1e3)
     official_lum.Fill(iov.LumiBlock, iov.InstLumi*iov.LBTime*iov.LiveFraction)
 

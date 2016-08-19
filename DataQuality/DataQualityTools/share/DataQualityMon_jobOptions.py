@@ -251,7 +251,7 @@ ManagedAthenaGlobalMon.AthenaMonTools += [ DQTDataFlowMon ]
 #print ManagedAthenaGlobalMon;
 
 #if isBeam==True and (DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'online' or DQMonFlags.monManEnvironment == 'tier0' or DQMonFlags.monManEnvironment == 'tier0Raw' ) and rec.doInDet():
-if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet() and rec.doTrigger():
+if isBeam==True and (DQMonFlags.monManEnvironment != 'tier0Raw') and rec.doInDet() and DQMonFlags.useTrigger():
 
     topSequence += AthenaMonManager( "GlobalMonPhysicsManager" )
     ManagedAthenaGlobalPhysMon = topSequence.GlobalMonPhysicsManager
