@@ -7,6 +7,9 @@
 #include "L1TopoEvent/MetTOBArray.h"
 #include "L1TopoEvent/GenericTOB.h"
 #include <algorithm>
+#include <cmath>
+
+using std::sqrt;
 
 REGISTER_ALG_TCS(METSortingAlg)
 

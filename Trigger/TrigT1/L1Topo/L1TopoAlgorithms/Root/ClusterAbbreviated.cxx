@@ -36,8 +36,8 @@ TCS::ClusterAbbreviated::sort(const InputTOBArray & input, TOBArray & output) {
       // isolation cut
       if((*cl)->isolation() < parameter("MinIsolation").value()) continue;
       // eta cut
-      if (parType_t(fabs((*cl)-> eta())) < parameter("MinEta").value()) continue; 
-      if (parType_t(fabs((*cl)-> eta())) > parameter("MaxEta").value()) continue;  
+      if (parType_t(std::abs((*cl)-> eta())) < parameter("MinEta").value()) continue; 
+      if (parType_t(std::abs((*cl)-> eta())) > parameter("MaxEta").value()) continue;  
       
       output.push_back( gtob );
    }

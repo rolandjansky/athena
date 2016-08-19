@@ -93,8 +93,8 @@ TCS::MinDeltaPhiIncl2::initialize() {
    TRG_MSG_INFO("nummber output : " << numberOutputBits());
 
    // create strings for histogram names
-   vector<ostringstream> MyAcceptHist(numberOutputBits());
-   vector<ostringstream> MyRejectHist(numberOutputBits());
+   std::vector<std::ostringstream> MyAcceptHist(numberOutputBits());
+   std::vector<std::ostringstream> MyRejectHist(numberOutputBits());
    
    for (unsigned int i=0;i< numberOutputBits();i++) {
      MyAcceptHist[i] << "Accept" << p_DeltaPhiMin[i]  << "MinDPhi2"; 

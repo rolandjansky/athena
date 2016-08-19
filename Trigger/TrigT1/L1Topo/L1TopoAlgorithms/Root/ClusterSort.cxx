@@ -52,8 +52,8 @@ TCS::ClusterSort::sort(const InputTOBArray & input, TOBArray & output) {
    for(ClusterTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
       const GenericTOB gtob(**cl);
 
-      if (parType_t(fabs((*cl)-> eta())) < m_minEta) continue; 
-      if (parType_t(fabs((*cl)-> eta())) > m_maxEta) continue;
+      if (parType_t(std::abs((*cl)-> eta())) < m_minEta) continue; 
+      if (parType_t(std::abs((*cl)-> eta())) > m_maxEta) continue;
       // isolation cut
       if (m_iso != 0 ) {
 	unsigned int isobit(0x1 << (m_iso-1));

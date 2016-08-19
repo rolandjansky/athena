@@ -53,8 +53,8 @@ TCS::JetSelect::sort(const InputTOBArray & input, TOBArray & output) {
    for(JetTOBArray::const_iterator cl = jets.begin(); cl!= jets.end(); ++cl ) {
      unsigned int Et = m_jsize==2?parType_t((*cl)->Et1()):parType_t((*cl)->Et2()); 
      if( Et <= m_et ) continue; // ET cut
-     if (parType_t(fabs((*cl)-> eta())) < m_minEta ) continue; 
-     if (parType_t(fabs((*cl)-> eta())) > m_maxEta) continue;      	
+     if (parType_t(std::abs((*cl)-> eta())) < m_minEta ) continue; 
+     if (parType_t(std::abs((*cl)-> eta())) > m_maxEta) continue;      	
 
      output.push_back( GenericTOB(**cl, m_jetsize) );
    }
