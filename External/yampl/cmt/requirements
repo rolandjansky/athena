@@ -20,3 +20,4 @@ path_remove PATH "${yampl_bin}"
 path_prepend PATH "${yampl_bin}"
 
 macro yampl_export_paths "${yampl_home}"
+
