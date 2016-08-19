@@ -251,6 +251,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1K
                                                                        AugmentationTools = augmentationTools,
                                                                        SkimmingTools = skimmingTools,
                                                                        ThinningTools = thinningTools,
+                                                                       RunSkimmingFirst = True,
                                                                        OutputLevel =INFO)
 
 #====================================================================
@@ -288,7 +289,7 @@ IDTIDE1Stream.AddItem("xAOD::TrigDecisionAuxInfo#*")
 IDTIDE1Stream.AddItem("xAOD::TrigNavigation#*")
 IDTIDE1Stream.AddItem("xAOD::TrigNavigationAuxInfo#*")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleContainer#InDetTrackParticles")
-IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.")
+IDTIDE1Stream.AddItem("xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux.-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TrackParticleClusterAssociationAuxContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TrackStateValidationContainer#*")
@@ -296,7 +297,7 @@ IDTIDE1Stream.AddItem("xAOD::TrackStateValidationAuxContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TrackMeasurementValidationContainer#*")
 IDTIDE1Stream.AddItem("xAOD::TrackMeasurementValidationAuxContainer#*")
 IDTIDE1Stream.AddItem("xAOD::VertexContainer#PrimaryVertices")
-IDTIDE1Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.")
+IDTIDE1Stream.AddItem("xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex")
 IDTIDE1Stream.AddItem("xAOD::ElectronContainer#Electrons")
 IDTIDE1Stream.AddItem("xAOD::ElectronAuxContainer#ElectronsAux.")
 IDTIDE1Stream.AddItem("xAOD::PhotonContainer#Photons")
@@ -321,6 +322,6 @@ if IsMonteCarlo:
   IDTIDE1Stream.AddItem("xAOD::TruthParticleContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthParticleAuxContainer#TruthParticlesAux.-caloExtension")
   IDTIDE1Stream.AddItem("xAOD::TruthVertexContainer#*")
-  IDTIDE1Stream.AddItem("xAOD::TruthVertexAuxContainer#*")
+  IDTIDE1Stream.AddItem("xAOD::TruthVertexAuxContainer#*-vxTrackAtVertex")
   IDTIDE1Stream.AddItem("xAOD::TruthEventContainer#*")
   IDTIDE1Stream.AddItem("xAOD::TruthEventAuxContainer#*")
