@@ -239,6 +239,29 @@
 	<queue>atlasrttperf</queue>
       </jobTransform>
 
+      <jobTransform userJobId="rawtoall_tier0_reco_data16_main">
+	<doc>Reco_tf runs on 13TeV collision data from the mainxf stream</doc>
+	<jobTransformJobName>rawtoall_tier0_reco_data16_main</jobTransformJobName>
+	<jobTransformCmd>
+	  export TRF_ECHO=1; xrdcp root://eosatlas//eos/atlas/user/a/atlaspmb/data16_13TeV/data16_13TeV.00305777.physics_Main.daq.RAW._lb0290._SFO-6._0002.data data16_13TeV.00305777.physics_Main.daq.RAW._lb0290._SFO-6._0002.data ;  Reco_tf.py --autoConfiguration 'everything' --conditionsTag  'CONDBR2-BLKPA-2016-16' --maxEvents -1 --geometryVersion  'ATLAS-R2-2015-04-00-00' --inputBSFile  'data16_13TeV.00305777.physics_Main.daq.RAW._lb0290._SFO-6._0002.data' --outputHISTFile  'myHIST.pool.root' --outputDESDM_SLTTMUFile  'myDESDM_SLTTMU.pool.root' --outputDRAW_RPVLLFile  'myDRAW_RPVLL.pool.root' --outputDESDM_MCPFile  'myDESDM_MCP.pool.root' --outputDRAW_ZMUMUFile  'myDRAW_ZMUMU.pool.root' --outputDESDM_EGAMMAFile  'myDESDM_EGAMMA.pool.root' --outputDESDM_CALJETFile  'myDESDM_CALJET.pool.root' --outputDRAW_TAUMUHFile  'myDRAW_TAUMUH.pool.root' --outputAODFile  'myAOD.pool.root' --outputDESDM_PHOJETFile  'myDESDM_PHOJET.pool.root' --outputDESDM_TILEMUFile  'myDESDM_TILEMU.pool.root' --outputDRAW_EGZFile  'myDRAW_EGZ.pool.root' --outputDESDM_EXOTHIPFile  'myDESDM_EXOTHIP.pool.root' --outputDESDM_SGLELFile  'myDESDM_SGLEL.pool.root' --athenaopts=' --pmon=sdmonfp' --ignoreErrors 'True' --steering doRAWtoALL  | tee  __log.txt; 
+	  echo $? &gt;  __exitcode ; 
+	  touch __done ;
+	  grep  -i "Reco_tf" jobReport.txt  | head -n1 | awk -F\" '{print $2}' &gt; __command.sh;
+	  for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	  checkxAOD.py myAOD.pool.root &gt; myAOD.pool.root.checkfile.txt ;  
+	  export userJobId="rawtoall_tier0_reco_data16_main"; 
+	  export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	  export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	  gzip *txt; 
+	  mkdir -p                       ${OutputDestination} ; 
+	  rsync -avz ntuple*             ${OutputDestination}/. ; 
+	  rsync -avz __*                 ${OutputDestination}/. ; 
+	  rsync -avz *.checkfile.txt.gz  ${OutputDestination}/. ; 
+	</jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
 
 
       <jobTransform userJobId="mp_rawtoall_monitoring_reco_data15_main">
