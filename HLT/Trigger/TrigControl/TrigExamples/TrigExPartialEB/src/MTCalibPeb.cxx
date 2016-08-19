@@ -44,19 +44,11 @@ StatusCode MTCalibPeb::initialize(){
   // Part 1: Get the messaging service, print where you are
   ATH_MSG_INFO("initialize()");
 
-#ifdef ATLAS_GAUDI_V21
   SmartIF<IService> tmp_msgSvc(msgSvc());
   if(tmp_msgSvc.isValid()) {
     ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
         << tmp_msgSvc->name());
   }
-#else
-  Service* tmp_msgSvc = dynamic_cast<Service*> (msgSvc());
-  if(tmp_msgSvc != 0) {
-    ATH_MSG_INFO(" Algorithm = " << name() << " is connected to Message Service = "
-        << tmp_msgSvc->name());
-  }
-#endif
 
   // Print out the property values
   ATH_MSG_INFO(" HLT Instance                       = " << m_hltInstance);
@@ -149,11 +141,7 @@ StatusCode MTCalibPeb::initialize(){
 
   // Setup the HLT ROB Data Provider Service when configured
   if ( &*m_robDataProviderSvc ) {
-#ifdef ATLAS_GAUDI_V21
     m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-#else
-    m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( IID_ITrigROBDataProviderSvc, &*m_robDataProviderSvc );
-#endif
     if (m_hltROBDataProviderSvc.isValid()) {
       ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
 		 );
@@ -416,9 +404,7 @@ StatusCode MTCalibPeb::finalize() {
   // Part 1: Get the messaging service, print where you are
    ATH_MSG_INFO("finalize()");
    
-#ifdef ATLAS_GAUDI_V21
    m_hltROBDataProviderSvc.reset();
-#endif
 
    return StatusCode::SUCCESS;
 }
