@@ -70,6 +70,15 @@ class DQTLumiMonTool: public DataQualityFatherMonTool{
   TProfile* m_nClustersB0_vs_aveMu;
   TProfile* m_nClustersB1_vs_aveMu;
   TProfile* m_nClustersB2_vs_aveMu;
+
+  TProfile* m_nAvgLumi_vs_LB;
+  TProfile* m_nAvgIntPerXing_vs_LB;
+  TProfile* m_lumiperBCID_vs_LB;
+  TProfile* m_lbintperxing_vs_LB;
+  TProfile* m_duration_vs_LB;
+  TProfile* m_avglivefrac_vs_LB;
+  TProfile* m_fracperBCID_vs_LB;
+  TProfile* m_lumiweight_VS_LB;
 };
 
 #endif

@@ -52,11 +52,12 @@ DQTCosmicMuon::~DQTCosmicMuon()
 
 DQTCosmicMuon& DQTCosmicMuon::operator = (const DQTCosmicMuon &input)
 {
-  m_eta = input.m_eta;
-  m_phi = input.m_phi;
-  m_x0  = input.m_x0 ;
-  m_y0  = input.m_y0 ;
-
+  if (this != &input) {
+    m_eta = input.m_eta;
+    m_phi = input.m_phi;
+    m_x0  = input.m_x0 ;
+    m_y0  = input.m_y0 ;
+  }
   return *this;
 
 }//end of assignment operator
