@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 724488 2016-02-17 10:45:05Z krasznaa $
+# $Id: CMakeLists.txt 768963 2016-08-19 18:06:46Z smh $
 #
 # Package building YAMPL for the offline project.
 #
@@ -15,7 +15,7 @@ endif()
 ExternalProject_Add( yampl
    PREFIX ${CMAKE_BINARY_DIR}
    GIT_REPOSITORY https://github.com/vitillo/yampl.git
-   GIT_TAG 5f9052a
+   GIT_TAG 4a91d89
    BUILD_IN_SOURCE 1
    CONFIGURE_COMMAND ./configure
    --prefix=${CMAKE_CURRENT_BINARY_DIR}/build
