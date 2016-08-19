@@ -611,18 +611,21 @@ namespace xAOD {
   }
 
   const CaloCluster* PFO_v1::cluster(unsigned int index) const {
-
+    
     const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
     if (!p_acc) return false;
     else if (!p_acc->isAvailable(*this)) {return false;}
     else {
       const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
       if(index<=theLinks.size()) {
-        const IParticle *theParticle = *theLinks[index];
-
-	if (NULL == theParticle) return NULL;
-	else if (Type::CaloCluster == theParticle->type()) return static_cast<const CaloCluster*>(theParticle);
-        else return NULL;
+	ElementLink<IParticleContainer> theLink = theLinks[index];
+	if (theLink.isValid()){
+	  const IParticle *theParticle = *theLink;
+	  if (NULL == theParticle) return NULL;
+	  else if (Type::CaloCluster == theParticle->type()) return static_cast<const CaloCluster*>(theParticle);
+	  else return NULL;
+	}
+	else return NULL;
       }
       else return NULL;
     }
@@ -637,11 +640,14 @@ namespace xAOD {
     else {
       const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
       if(index<=theLinks.size()) {
-        const IParticle *theParticle = *theLinks[index];
-
-	if (NULL == theParticle) return NULL;
-	else if (Type::TrackParticle == theParticle->type()) return static_cast<const TrackParticle*>(theParticle);
-        else return NULL;
+	ElementLink<IParticleContainer> theLink = theLinks[index];
+	if (theLink.isValid()){
+	  const IParticle *theParticle = *theLinks[index];
+	  if (NULL == theParticle) return NULL;
+	  else if (Type::TrackParticle == theParticle->type()) return static_cast<const TrackParticle*>(theParticle);
+	  else return NULL;
+	}
+	else return NULL;
       }
       else return NULL;
     }
