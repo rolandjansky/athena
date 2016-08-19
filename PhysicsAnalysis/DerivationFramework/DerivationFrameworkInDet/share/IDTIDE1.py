@@ -251,6 +251,7 @@ DerivationFrameworkJob += CfgMgr.DerivationFramework__DerivationKernel("IDTIDE1K
                                                                        AugmentationTools = augmentationTools,
                                                                        SkimmingTools = skimmingTools,
                                                                        ThinningTools = thinningTools,
+                                                                       RunSkimmingFirst = True,
                                                                        OutputLevel =INFO)
 
 #====================================================================
