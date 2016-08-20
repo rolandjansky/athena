@@ -337,7 +337,11 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
     xAOD::JetConstituentVector constituents = jet.getConstituents();
     int nconstituents = constituents.size();
     float trackSumMass;
-    if( !jet.getAttribute<float>("TrackSumMass",trackSumMass) ) {
+    std::string TrackSumMassStr = "TrackSumMass";
+    if(m_jetAlgo=="AntiKt4EMTopo" || m_jetAlgo=="AntiKt4LCTopo") TrackSumMassStr = "DFCommonJets_TrackSumMass";
+    std::string TrackSumPtStr = "TrackSumPt";
+    if(m_jetAlgo=="AntiKt4EMTopo" || m_jetAlgo=="AntiKt4LCTopo") TrackSumPtStr = "DFCommonJets_TrackSumPt";
+    if( !jet.getAttribute<float>(TrackSumMassStr,trackSumMass) ) {
       if(!m_combination){
         //ATH_MSG_WARNING("Failed to retrieve TrackSumMass! Track Assisted Mass Correction will NOT be applied\n\n");
         if(m_warning_counter_mTACorr==0) ATH_MSG_WARNING("Failed to retrieve TrackSumMass! Track Assisted Mass Correction will NOT be applied\n\n");
@@ -349,7 +353,7 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       }
     }
     float trackSumPt;
-    if( !jet.getAttribute<float>("TrackSumPt",trackSumPt) ) {
+    if( !jet.getAttribute<float>(TrackSumPtStr,trackSumPt) ) {
       if(!m_combination){
         //ATH_MSG_WARNING("Failed to retrieve TrackSumPt! Track Assisted Mass Correction will NOT be applied\n\n");
         if(m_warning_counter_mTACorr==0) ATH_MSG_WARNING("Failed to retrieve TrackSumPt! Track Assisted Mass Correction will NOT be applied\n\n");
