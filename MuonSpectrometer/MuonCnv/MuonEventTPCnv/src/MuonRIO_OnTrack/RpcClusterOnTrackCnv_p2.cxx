@@ -8,12 +8,7 @@
 //
 //-----------------------------------------------------------------------------
 
-#define private public
-#define protected public
 #include "MuonRIO_OnTrack/RpcClusterOnTrack.h"
-#undef private
-#undef protected
-
 #include "MuonEventTPCnv/MuonRIO_OnTrack/RpcClusterOnTrackCnv_p2.h"
 
 
@@ -21,10 +16,19 @@ void RpcClusterOnTrackCnv_p2::
 persToTrans( const Muon::RpcClusterOnTrack_p2 *persObj,
 	     Muon::RpcClusterOnTrack *transObj, MsgStream &log )
 {
-   fillTransFromPStore( &m_RIOCnv, persObj->m_RIO,  transObj, log );
-   m_elCnv.persToTrans(&persObj->m_prdLink,&transObj->m_rio,log);  
-   transObj->m_positionAlongStrip = persObj->m_positionAlongStrip;
+  ElementLinkToIDC_RPC_Container rio;
+  m_elCnv.persToTrans(&persObj->m_prdLink,&rio,log);  
+
+  *transObj = Muon::RpcClusterOnTrack (rio,
+                                       Trk::LocalParameters(),
+                                       Amg::MatrixX(),
+                                       Identifier(),
+                                       nullptr, // detEL
+                                       persObj->m_positionAlongStrip,
+                                       0 // time
+                                       );
    
+  fillTransFromPStore( &m_RIOCnv, persObj->m_RIO,  transObj, log );
 }
 
 

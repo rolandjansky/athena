@@ -2,15 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#define private public
-#define protected public
 #include "MuonDigitContainer/sTgcDigit.h"
 #include "MuonDigitContainer/sTgcDigitContainer.h"
 #include "MuonEventTPCnv/MuonDigitContainer/STGC_Digit_p1.h"
 #include "MuonEventTPCnv/MuonDigitContainer/MuonDigitContainer_p1.h"
-#undef private
-#undef protected
-
 #include "MuonIdHelpers/sTgcIdHelper.h"
 #include "MuonReadoutGeometry/MuonDetectorManager.h"
 #include "MuonEventTPCnv/MuonDigitContainer/STGC_DigitContainerCnv_p1.h"
@@ -37,7 +32,7 @@ StatusCode Muon::STGC_DigitContainerCnv_p1::initialize(MsgStream &log) {
   // get StoreGate service
   StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "StoreGate service not found !" << endreq;
+    log << MSG::FATAL << "StoreGate service not found !" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -45,28 +40,28 @@ StatusCode Muon::STGC_DigitContainerCnv_p1::initialize(MsgStream &log) {
   StoreGateSvc *detStore;
   sc = svcLocator->service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+    log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
   }
 
   // Get the helper from the detector store
   sc = detStore->retrieve(m_sTgcId);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get sTgc IdHelper !" << endreq;
+    log << MSG::FATAL << "Could not get sTgc IdHelper !" << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the sTgc IdHelper." << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found the sTgc IdHelper." << endmsg;
   }
 
   sc = detStore->retrieve(m_muonDetMgr);
   if (sc.isFailure()) {
-    log << MSG::FATAL << "Could not get DetectorDescription manager" << endreq;
+    log << MSG::FATAL << "Could not get DetectorDescription manager" << endmsg;
     return sc;
   }
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
   return StatusCode::SUCCESS;
 }
 /*******************************************************************************/
@@ -74,7 +69,7 @@ void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* tran
 {
   if(log.level() <= MSG::DEBUG && !m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize STGC_DigitContainerCnv_p1 " << endreq;
+      log << MSG::FATAL << "Could not initialize STGC_DigitContainerCnv_p1 " << endmsg;
     } 
   }
   // The transient model has a container holding collections and the
@@ -119,12 +114,12 @@ void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* tran
   persCont->m_digitDeltaId.resize(numOfDigits);
   
   if (log.level() <= MSG::DEBUG) 
-    log << MSG::DEBUG<< " Preparing " << persCont->m_collectionId.size() << "collections and "<<numOfDigits<<" digits in total." <<endreq;
+    log << MSG::DEBUG<< " Preparing " << persCont->m_collectionId.size() << "collections and "<<numOfDigits<<" digits in total." <<endmsg;
   // std::cout<<"Preparing " << persCont->m_collections.size() << " collections" << std::endl;
   for (it_Coll = transCont->begin(); it_Coll != it_CollEnd; ++pcollIndex, it_Coll++)  {  
     const sTgcDigitCollection& collection = (**it_Coll);
     if (log.level() <= MSG::DEBUG) 
-      log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collection.identifierHash()<<endreq;
+      log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collection.identifierHash()<<endmsg;
     // Add in new collection
     // Muon::MuonDIGIT_Collection_p2& pcollection = persCont->m_collections[pcollIndex]; //get ref to collection we're going to fill
 
@@ -143,15 +138,15 @@ void Muon::STGC_DigitContainerCnv_p1::transToPers(const sTgcDigitContainer* tran
       const sTgcDigit* chan = collection[i]; // channel being converted
       STGC_Digit_p1*   pchan = &(persCont->m_digits[pchanIndex]); // persistent version to fill
       chanCnv.transToPers(chan, pchan, log); // convert from sTgcDigit to STGC_Digit_p1
-      unsigned int clusIdCompact = chan->m_muonId.get_identifier32().get_compact();
+      unsigned int clusIdCompact = chan->identify().get_identifier32().get_compact();
       unsigned int collIdCompact = collection.identify().get_identifier32().get_compact();
       unsigned int diff = clusIdCompact - collIdCompact;
-      if (diff>std::numeric_limits<uint16_t>::max()) log << MSG::ERROR<<"Diff of "<<diff<<" is greater than max size of diff permitted!!! ("<<std::numeric_limits<uint16_t>::max()<<")"<<endreq;
+      if (diff>std::numeric_limits<uint16_t>::max()) log << MSG::ERROR<<"Diff of "<<diff<<" is greater than max size of diff permitted!!! ("<<std::numeric_limits<uint16_t>::max()<<")"<<endmsg;
       persCont->m_digitDeltaId[pchanIndex]=diff; //store delta identifiers, rather than full identifiers
     }
   }
   if (log.level() <= MSG::DEBUG) 
-    log << MSG::DEBUG<< " ***  Writing STGC_DigitContainer ***" <<endreq;
+    log << MSG::DEBUG<< " ***  Writing STGC_DigitContainer ***" <<endmsg;
 }
 /*******************************************************************************/
 void  Muon::STGC_DigitContainerCnv_p1::persToTrans(const Muon::STGC_DigitContainer_p1* persCont, sTgcDigitContainer* transCont, MsgStream &log) 
@@ -177,11 +172,11 @@ void  Muon::STGC_DigitContainerCnv_p1::persToTrans(const Muon::STGC_DigitContain
   unsigned int pchanIndex(0); // position within persCont->m_digits. Incremented inside innermost loop 
   unsigned int pCollEnd = persCont->m_size.size();
   if (log.level() <= MSG::DEBUG) 
-    log << MSG::DEBUG<< " Reading " << pCollEnd << "Collections" <<endreq;
+    log << MSG::DEBUG<< " Reading " << pCollEnd << "Collections" <<endmsg;
   for (unsigned int pcollIndex = 0; pcollIndex < pCollEnd; ++pcollIndex) {
     // const Muon::MuonPRD_Collection_p2& pcoll = persCont->m_collections[pcollIndex];        
     IdentifierHash collIDHash(persCont->m_collectionHashId[pcollIndex] );
-    log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collIDHash<<endreq;
+    log << MSG::DEBUG<<"Coll hash for "<<pcollIndex<<": "<<collIDHash<<endmsg;
     
     coll = new sTgcDigitCollection(Identifier(persCont->m_collectionId[pcollIndex]),collIDHash);
 
@@ -195,15 +190,15 @@ void  Muon::STGC_DigitContainerCnv_p1::persToTrans(const Muon::STGC_DigitContain
       sTgcDigit* chan = new sTgcDigit;
 
       chanCnv.persToTrans(pchan, chan, log);// FIXME! remove.
-      log << MSG::DEBUG<<"Trans id:"<<std::hex<<chan->m_muonId.get_identifier32().get_compact()<<"\t pers Id:"<<pchan->m_muonId<<std::dec<<endreq;
-      // std::cout <<"Trans id:"<<chan->m_muonId<<"\t pers Id:"<<pchan->m_id<<std::endl;
+      log << MSG::DEBUG<<"Trans id:"<<std::hex<<chan->identify().get_identifier32().get_compact()<<"\t pers Id:"<<pchan->m_muonId<<std::dec<<endmsg;
+      // std::cout <<"Trans id:"<<chan->identify()<<"\t pers Id:"<<pchan->m_id<<std::endl;
       
-      if ( m_sTgcId->valid(chan->m_muonId)!=true ) {
+      if ( m_sTgcId->valid(chan->identify())!=true ) {
 	// have invalid PRD
-        log << MSG::WARNING  << "sTgc PRD has invalid Identifier of "<< m_sTgcId->show_to_string(chan->m_muonId)
-	    <<" - are you sure you have the correct geometry loaded, and NSW enabled?" << endreq;
+        log << MSG::WARNING  << "sTgc PRD has invalid Identifier of "<< m_sTgcId->show_to_string(chan->identify())
+	    <<" - are you sure you have the correct geometry loaded, and NSW enabled?" << endmsg;
       } 
-      log << MSG::DEBUG<<"chan identify(): "<<chan->identify()<<endreq;      
+      log << MSG::DEBUG<<"chan identify(): "<<chan->identify()<<endmsg;      
       coll->push_back(chan);    
     }
 
@@ -214,19 +209,19 @@ void  Muon::STGC_DigitContainerCnv_p1::persToTrans(const Muon::STGC_DigitContain
     }
     if (log.level() <= MSG::DEBUG) {
       log << MSG::DEBUG << "AthenaPoolTPCnvIDCont::persToTrans, collection, hash_id/coll id = " << (int) collIDHash << " / " << 
-        coll->identify().get_compact() << ", added to Identifiable container." << endreq;
+        coll->identify().get_compact() << ", added to Identifiable container." << endmsg;
     }
   }
 
   if (log.level() <= MSG::DEBUG) 
-    log << MSG::DEBUG<< " ***  Reading STGC_DigitContainer ***" << endreq;
+    log << MSG::DEBUG<< " ***  Reading STGC_DigitContainer ***" << endmsg;
 }
 /*******************************************************************************/
 sTgcDigitContainer* Muon::STGC_DigitContainerCnv_p1::createTransient(const Muon::STGC_DigitContainer_p1* persObj, MsgStream& log) 
 {
   if(!m_isInitialized) {
     if (this->initialize(log) != StatusCode::SUCCESS) {
-      log << MSG::FATAL << "Could not initialize STGC_DigitContainerCnv_p1 " << endreq;
+      log << MSG::FATAL << "Could not initialize STGC_DigitContainerCnv_p1 " << endmsg;
       return 0;
     } 
   }

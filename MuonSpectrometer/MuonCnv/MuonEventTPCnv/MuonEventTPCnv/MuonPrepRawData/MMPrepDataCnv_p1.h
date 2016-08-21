@@ -23,6 +23,11 @@ class MMPrepDataCnv_p1
     public:
   MMPrepDataCnv_p1() {}
 
+  Muon::MMPrepData
+  createMMPrepData ( const Muon::MMPrepData_p1 *persObj,
+                     const MuonGM::MMReadoutElement* detEl,
+                     MsgStream & log );
+
   void persToTrans( const Muon::MMPrepData_p1 *persObj,
                     Muon::MMPrepData    *transObj,
                     MsgStream                &log );

@@ -25,7 +25,7 @@ public:
     // container cnvs do conversions
     friend class TgcCoinDataContainerCnv_p1;
     
-private:
+    //private:
   
     /** Identifier of this collection*/
     unsigned int m_id;
