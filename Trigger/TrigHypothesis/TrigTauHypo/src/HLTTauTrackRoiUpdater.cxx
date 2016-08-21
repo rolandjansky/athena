@@ -33,11 +33,12 @@ HLTTauTrackRoiUpdater::~HLTTauTrackRoiUpdater()
 HLT::ErrorCode HLTTauTrackRoiUpdater::hltInitialize()
 {
 
-  msg() << MSG::DEBUG << "in initialize()" << endreq;
-  msg() << MSG::DEBUG << " REGTEST: HLTTauTrackRoiUpdater parameters " << endreq;
-  msg() << MSG::DEBUG << " REGTEST: Input Track Collection " << m_InputTrackColl << endreq;
-  msg() << MSG::DEBUG << " REGTEST: z0HalfWidth            " << m_z0HalfWidth << endreq;
-
+  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << " REGTEST: HLTTauTrackRoiUpdater parameters 	" 	<< endreq;
+  msg() << MSG::INFO << " REGTEST: Input Track Collection 		" 	<< m_InputTrackColl << endreq;
+  msg() << MSG::INFO << " REGTEST: z0HalfWidth            		" 	<< m_z0HalfWidth << endreq;
+  msg() << MSG::INFO << " REGTEST: nHitPix            			" 	<< m_nHitPix << endreq;
+  msg() << MSG::INFO << " REGTEST: nSiHoles            		" 	<< m_nSiHoles << endreq;
   return HLT::OK;
 
 }

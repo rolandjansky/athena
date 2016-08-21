@@ -9,7 +9,7 @@
 # get defaults
 from TrigTauHypo.TrigTauHypoBase import *
 from TrigTauHypo.TrigTauHypoMonitoring \
-     import setHLTVertexPreselMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
+     import setL2TauTopoMonTools, setHLTVertexPreselMonTools, setPhotonTauMonTools, setTauEFDiKaonMonTools, setTauEFMVMonTools, setTauT2CoreMonTools, setTauT2IsoMonTools, setHadCalibEFMonTools
 
 ## T2IDCoreTau TEST
 class T2IDCoreTauHypo_tau29_medium_2stTest (T2IDCoreTauHypo):
@@ -60,6 +60,31 @@ class EFTauMVHypo_highpt (EFTauMVHypoBase):
         self.Highpt    = True
         setVarCut(self, var, val)
 
+## L2TauTopo
+class L2TauTopoHypoBase (L2TauTopoHypo):
+    __slots__ = []
+    def __init__(self, name):
+        super(L2TauTopoHypoBase, self).__init__(name)
+        setL2TauTopoMonTools(self)
+
+class L2TauTopoHypo (L2TauTopoHypoBase):
+    __slots__ = []
+    def __init__(self, name = "L2TauTopoHypo", var = [], val = []):
+        super(L2TauTopoHypo, self).__init__(name)
+
+## EFTauTopo
+class EFTauTopoHypoBase (EFTauTopoHypo):
+    __slots__ = []
+    def __init__(self, name):
+        super(EFTauTopoHypoBase, self).__init__(name)
+        setL2TauTopoMonTools(self)
+
+class EFTauTopoHypo (EFTauTopoHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFTauTopoHypo", var = [], val = []):
+        super(EFTauTopoHypo, self).__init__(name)
+        setVarCut(self, var, val)
+
 ## HLTVertexPreSelHypo
 class HLTVertexPreSelHypoBase (HLTVertexPreSelHypo):
     __slots__ = []
@@ -86,6 +111,18 @@ class EFTauDiKaonHypo (EFTauDiKaonHypoBase):
         super(EFTauDiKaonHypo, self).__init__(name)     
         setVarCut(self, var, val)
 
+## EFPhotonTau
+class EFPhotonTauHypoBase (EFPhotonTauHypo):
+    __slots__ = []
+    def __init__(self, name):
+        super(EFPhotonTauHypoBase, self).__init__(name)
+        setPhotonTauMonTools(self)
+
+class EFPhotonTauHypo (EFPhotonTauHypoBase):
+    __slots__ = []
+    def __init__(self, name = "EFPhotonTauHypo", var = [], val = []):
+        super(EFPhotonTauHypo, self).__init__(name)
+        setVarCut(self, var, val)
 
 ## EFHadCalib: from mdacunha
 class EFHadCalibHypoBase (EFHadCalibHypo):

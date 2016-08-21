@@ -9,7 +9,7 @@
 #include <vector>
 
 /**
- *	@brief EF hypo for topo start from chains
+ *	@brief EF hypo for chains with HLT dr cut
 	@date 30th March 2016
 	@author Daniele Zanzi  (daniele.zanzi@cern.ch)
  */
@@ -27,8 +27,11 @@ class EFTauTopoHypo : public HLT::HypoAlgo
 	HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, bool& pass);
 
  private:
-
-
+	float m_monDR;
+	float m_dR;
+	float m_dRmax;
+	float m_dRmin;
+	int m_cutCounter;
 };
 #endif
 

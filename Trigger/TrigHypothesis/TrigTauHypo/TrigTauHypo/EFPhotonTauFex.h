@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef EFTAUTOPOFEX_H
-#define EFTAUTOPOFEX_H
+#ifndef EFPHOTONTAUFEX_H
+#define EFPHOTONTAUFEX_H
 
 #include "xAODTrigger/TrigComposite.h"
 #include "xAODTrigger/TrigCompositeContainer.h"
@@ -11,16 +11,16 @@
 #include "TrigInterfaces/ComboAlgo.h"
 
 /**
- *	@brief Fex for EF dR cut
-	@date 17th August 2016
+ *	@brief Fex for photon+tau chains
+	@date 21th July 2016
 	@author Daniele Zanzi  (daniele.zanzi@cern.ch)
  */
-class EFTauTopoFex : public HLT::ComboAlgo
+class EFPhotonTauFex : public HLT::ComboAlgo
 {
 	public:
 
-		EFTauTopoFex(const std::string& name, ISvcLocator* pSvcLocator);
-		~EFTauTopoFex();
+		EFPhotonTauFex(const std::string& name, ISvcLocator* pSvcLocator);
+		~EFPhotonTauFex();
 
 		//Athena Hooks
 		HLT::ErrorCode hltInitialize();
@@ -30,7 +30,7 @@ class EFTauTopoFex : public HLT::ComboAlgo
 
 	private:
 		xAOD::TrigCompositeContainer *m_cont;
-		std::vector<float> m_dR;
+		std::vector<float> m_mvis;
 
 };
 #endif
