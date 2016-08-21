@@ -248,7 +248,12 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     
     // cut on core and wide tracks:
     m_nTrack = (*tauIt)->nTracks();
+    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+    m_nWideTrack = (*tauIt)->nWideTracks();
+    #else
     m_nWideTrack = (*tauIt)->nTracksIsolation();
+    #endif
+
     if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: Track size "<< m_nTrack <<endreq;	
     if( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " REGTEST: Wide Track size "<< m_nWideTrack <<endreq;
  
@@ -280,7 +285,11 @@ HLT::ErrorCode EFTauDiKaonHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
       try 
       {
-        trk = (*tauIt)->track(i)->track();
+        #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+        trk = (*tauIt)->track(i);
+	#else
+	trk = (*tauIt)->track(i)->track();
+	#endif
       }
       catch(std::exception e)
       {

@@ -206,7 +206,12 @@ float HLTVertexPreSelHypo::findLeadingTrackZ0(size_t numberOfTracks, const xAOD:
 	const xAOD::TrackParticle* leadingTrack(NULL);
 	for(size_t i = 0; i < numberOfTracks; i++)
 	{
-		const xAOD::TrackParticle* currentTrack = tauJet->track(i)->track();
+		const xAOD::TrackParticle* currentTrack = 0;
+		#ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+		currentTrack = tauJet->track(i);
+		#else
+		currentTrack = tauJet->track(i)->track();
+		#endif
 		ATH_MSG_DEBUG("Track " << (i + 1) << "  | pT: " << currentTrack->pt());
 		if(fabs(currentTrack->pt()) > highestpT)
 		{

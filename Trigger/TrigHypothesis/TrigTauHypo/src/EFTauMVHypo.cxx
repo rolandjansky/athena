@@ -54,6 +54,7 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
   declareMonitoredVariable("NTrack",m_mon_nTrackAccepted=0);
   declareMonitoredVariable("NWideTrack",m_mon_nWideTrackAccepted=0);
   declareMonitoredVariable("EtCalib",m_mon_ptAccepted=-10.);
+  declareMonitoredVariable("NInputTaus",m_inputTaus=-1.);
 
   m_numTrack = -100;
   m_numWideTrack = -100;
@@ -233,7 +234,8 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
   const xAOD::TauJetContainer *TauContainer = vectorTauContainers.back();
   
   msg() << MSG::DEBUG << " REGTEST: number of tau in container "<< TauContainer->size() << endreq;
-  
+  m_inputTaus = TauContainer->size(); 
+ 
   for(xAOD::TauJetContainer::const_iterator tauIt = TauContainer->begin();
       tauIt != TauContainer->end(); tauIt++){ 
     
@@ -252,7 +254,12 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
     m_mon_ptAccepted = EFet;
 
     m_numTrack = (*tauIt)->nTracks();
+    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+    m_numWideTrack = (*tauIt)->nWideTracks();
+    #else
     m_numWideTrack = (*tauIt)->nTracksIsolation();
+    #endif
+
     
     if( msgLvl() <= MSG::DEBUG ){
       msg() << MSG::DEBUG << " REGTEST: Track size "<<m_numTrack <<endreq;	
@@ -261,20 +268,22 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 
     // turn off track selection at highpt
     bool applyTrkSel(true);
+    bool applyMaxTrkSel(true);
     if(m_highpt && (EFet > m_highpttrkthr*1e-3) ) applyTrkSel = false;
+    if(m_highpt && (EFet > m_highptjetthr*1e-3) ) applyMaxTrkSel = false;
 
-    if(!(m_numTrack <= m_numTrackMax)) continue;
-    if(applyTrkSel) if( !( m_numTrack >= m_numTrackMin ) )  continue;
-    if(applyTrkSel) if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
+    if(applyMaxTrkSel) if( !(m_numTrack <= m_numTrackMax) ) continue;
+    if(applyTrkSel)    if( !(m_numTrack >= m_numTrackMin) ) continue;
+    if(applyTrkSel)    if( !(m_numWideTrack <= m_numWideTrackMax)  ) continue;
    
     m_cutCounter++;
     m_mon_nTrackAccepted = m_numTrack;
     m_mon_nWideTrackAccepted = m_numWideTrack;  
 
- 
+    auto local_level = m_level;
     //loosen and turn off ID cut at highpt
-    if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) m_level = 1; //works only for BDT, not llh
-    if(m_highpt && (EFet > m_highptjetthr*1e-3) ) m_level = -1111;
+    if(m_highpt && (EFet > m_highptidthr*1e-3) && m_level>1) local_level = 1; //works only for BDT, not llh
+    if(m_highpt && (EFet > m_highptjetthr*1e-3) ) local_level = -1111;
  
     if(m_method == 1 || m_method == 0)
       {
@@ -282,7 +291,7 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 	std::string prong;
 	m_numTrack==1 ?  prong = "1P" : prong = "3P";
 	
-	if(m_level == -1111){ //noCut, accept this TE
+	if(local_level == -1111){ //noCut, accept this TE
 	  pass = true;
 	  m_cutCounter++;
 	  continue;
@@ -317,18 +326,18 @@ HLT::ErrorCode EFTauMVHypo::hltExecute(const HLT::TriggerElement* outputTE, bool
 	
 	msg() << MSG::DEBUG<<" REGTEST: BDTScore "<<m_BDTScore<<endreq;
 	
-	if(m_level == -1111)
+	if(local_level == -1111)
 	  { //noCut, accept this TE
 	    pass = true;
 	    m_cutCounter++;
 	    continue;
 	  }
 	
-	if (m_level == 1 && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigLoose) == 0)
+	if (local_level == 1 && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigLoose) == 0)
 	  continue;
-	else if (m_level == 2 && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigMedium) == 0)
+	else if (local_level == 2 && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigMedium) == 0)
 	  continue;
-	else if (m_level ==3  && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigTight) == 0)
+	else if (local_level == 3  && (*tauIt)->isTau(xAOD::TauJetParameters::JetBDTSigTight) == 0)
 	  continue;
 	
 	m_cutCounter++;

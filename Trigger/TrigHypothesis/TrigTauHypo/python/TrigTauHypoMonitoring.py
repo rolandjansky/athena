@@ -50,6 +50,12 @@ class TrigTauHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
         elif myName.find("ditau") > -1:
             cuts=['Input','good vtx/trk', 'match', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
+        elif myName.find("tsf") > -1 or myName.find("dR") > -1:
+            cuts=['Input','dR', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+
+        elif myName.find("mVis") > -1:
+            cuts=['Input','mVis', '', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
+
         elif myName.find("HLTCaloTauHypo") > -1:
             cuts=['Input', 'E_{T} calib', 'Calo Cuts', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ']
 
@@ -293,6 +299,18 @@ def setTauT2IsoMonTools( algoObject ):
 
 #########   Additional EF specific histograms
 
+class L2TauTopoHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(L2TauTopoHypoOnlineMonitoring, self).__init__(name)
+        self.defineTarget("Online")
+        
+        self.Histograms += [defineHistogram('DROfAccepted',type='TH1F',title='dR Passed', xbins=50, xmin=0.,xmax=4.)]
+
+class L2TauTopoHypoValidationMonitoring(L2TauTopoHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(L2TauTopoHypoValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
+
 class EFTauInvHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
     def __init__ (self, name):
         super(EFTauInvHypoOnlineMonitoring, self).__init__(name)
@@ -311,11 +329,25 @@ class EFTauMVHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
         self.Histograms += [defineHistogram('EtCalib',type='TH1F',title='Tau Pt Passed', xbins=50, xmin=0.,xmax=100.)]
         self.Histograms += [defineHistogram('NTrack',type='TH1F',title='Tau nTrack Passed', xbins=10, xmin=-0.5,xmax=9.5)]
         self.Histograms += [defineHistogram('NWideTrack',type='TH1F',title='Tau nWideTrack Passed', xbins=10, xmin=-0.5,xmax=9.5)]
+        self.Histograms += [defineHistogram('NInputTaus',type='TH1F',title='# Input Taus', xbins=20, xmin=-0.5,xmax=19.5)]
 
 class EFTauMVHypoValidationMonitoring(EFTauMVHypoOnlineMonitoring):
     def __init__ (self, name):
         super(EFTauMVHypoValidationMonitoring, self).__init__(name)
         self.defineTarget("Validation")
+
+class EFPhotonTauHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(EFPhotonTauHypoOnlineMonitoring, self).__init__(name)
+        self.defineTarget("Online")
+
+        self.Histograms += [defineHistogram('MvisOfAccepted',type='TH1F',title='mVis Passed', xbins=50, xmin=0.,xmax=150.)]
+
+class EFPhotonTauHypoValidationMonitoring(EFPhotonTauHypoOnlineMonitoring):
+    def __init__ (self, name):
+        super(EFPhotonTauHypoValidationMonitoring, self).__init__(name)
+        self.defineTarget("Validation")
+
 
 class EFTauDiKaonHypoOnlineMonitoring(TrigTauHypoOnlineMonitoring):
     def __init__ (self, name):
@@ -366,6 +398,20 @@ def setTauEFMonTools( algoObject ):
      
     algoObject.AthenaMonTools = [ time, onlTool, valTool ]
 
+def setL2TauTopoMonTools( algoObject ):
+    algoName=algoObject.getName()
+
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig(algoName+"Time")
+    time.TimerHistLimits = [0,3]
+
+    nameVal = algoName+"_Val"
+    nameOnl = algoName+"_Onl"
+    valTool = L2TauTopoHypoValidationMonitoring(nameVal)
+    onlTool = L2TauTopoHypoOnlineMonitoring(nameOnl)
+
+    algoObject.AthenaMonTools = [ time, onlTool, valTool]
+
 def setTauEFMVMonTools( algoObject ):
     algoName=algoObject.getName()
 
@@ -379,6 +425,21 @@ def setTauEFMVMonTools( algoObject ):
     onlTool = EFTauMVHypoOnlineMonitoring(nameOnl)
 
     algoObject.AthenaMonTools = [ time, onlTool, valTool]
+
+def setPhotonTauMonTools( algoObject ):
+    algoName=algoObject.getName()
+
+    from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+    time = TrigTimeHistToolConfig(algoName+"Time")
+    time.TimerHistLimits = [0,3]
+
+    nameVal = algoName+"_Val"
+    nameOnl = algoName+"_Onl"
+    valTool = EFPhotonTauHypoValidationMonitoring(nameVal)
+    onlTool = EFPhotonTauHypoOnlineMonitoring(nameOnl)
+
+    algoObject.AthenaMonTools = [ time, onlTool, valTool]
+
 
 def setTauEFDiKaonMonTools( algoObject ):
     algoName=algoObject.getName()

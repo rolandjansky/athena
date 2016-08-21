@@ -6,6 +6,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
+#include "TrigSteeringEvent/PhiHelper.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 #include "AthContainers/DataVector.h"
@@ -21,15 +22,24 @@ L2TauTopoFex::~L2TauTopoFex(){}
 
 HLT::ErrorCode L2TauTopoFex::hltInitialize()
 {
-	ATH_MSG_DEBUG("L2TauTopoFex Initialize");
+	msg() << MSG::INFO << "in initialize()" << endreq;
 	return HLT::OK;
 }
 
-HLT::ErrorCode L2TauTopoFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerElement* outputTE)
+HLT::ErrorCode L2TauTopoFex::hltExecute(HLT::TEConstVec& /*inputTE*/, HLT::TriggerElement* outputTE)
 {
-	(void)inputTE;
-	(void)outputTE;
 	ATH_MSG_DEBUG("L2TauTopoFex Execute");
+	
+	m_cont=new xAOD::TrigCompositeContainer();
+  	xAOD::TrigCompositeAuxContainer contaux;
+	m_cont->setStore(&contaux);
+	xAOD::TrigComposite *comp=new xAOD::TrigComposite();
+	m_cont->push_back(comp);
+	comp->setName("L2TAUTSF_dR");
+    	comp->setDetail("dR",m_dR);
+	attachFeature(outputTE,m_cont,"L2TAUTSFInfo"); 
+
+	ATH_MSG_DEBUG("L2TAUTSFInfo attached feature");
 	return HLT::OK;
 }
 
@@ -42,12 +52,31 @@ HLT::ErrorCode L2TauTopoFex::hltFinalize()
 HLT::ErrorCode L2TauTopoFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass )
 {
 	pass = false;
-        (void)inputTE;
+	m_dR = -1.;	
 
+  	ATH_MSG_DEBUG("Running L2TauTopoFex::acceptInputs");
 
+  	if ( inputTE.size() != 2 ) {
+    		ATH_MSG_ERROR( "Got diferent than 2 number of input TEs: " <<  inputTE.size() << " job badly configured");
+    		return HLT::BAD_JOB_SETUP;
+  	}
 
+	const HLT::TriggerElement* te1 = inputTE[0];
+  	const HLT::TriggerElement* te2 = inputTE[1];
 
+	const TrigRoiDescriptor* roiDescriptor1 = 0;
+        const TrigRoiDescriptor* roiDescriptor2 = 0;
 
+      	if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK ){ 
+          	ATH_MSG_WARNING("No RoIDescriptors for this Trigger Elements! ");
+		return HLT::MISSING_FEATURE;
+	} else 
+          	ATH_MSG_DEBUG("Trying to combine 2 RoIs: " << *roiDescriptor1 << " & " << *roiDescriptor2);
+
+	float dEta = fabs(roiDescriptor1->eta() - roiDescriptor2->eta());
+        float dPhi = fabs(HLT::wrapPhi(roiDescriptor1->phi()-roiDescriptor2->phi()));
+
+	m_dR = sqrt(dEta*dEta+dPhi*dPhi); // compute dR
 
 	pass = true;
 	return HLT::OK;
