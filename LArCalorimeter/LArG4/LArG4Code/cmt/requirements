@@ -7,20 +7,22 @@ author Mikhail Leltchouk <lelchuk@nevis.columbia.edu>
 # packages in LArG4.
 
 public
-use AtlasPolicy     AtlasPolicy-*
-use LArGeoCode      LArGeoCode-*     	LArCalorimeter/LArGeoModel
-use AtlasCLHEP      AtlasCLHEP-*        External
-use CaloG4Sim       CaloG4Sim-*      	Calorimeter
-use CaloSimEvent    CaloSimEvent-*      Calorimeter
-use G4AtlasTools    G4AtlasTools-*      Simulation/G4Atlas
-use Geant4          Geant4-*            External
-use LArSimEvent     LArSimEvent-*       LArCalorimeter
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*        External
+use LArGeoCode          LArGeoCode-*     	LArCalorimeter/LArGeoModel
+use AtlasCLHEP          AtlasCLHEP-*            External
+use CaloG4Sim           CaloG4Sim-*      	Calorimeter
+use CaloSimEvent        CaloSimEvent-*          Calorimeter
+use G4AtlasTools        G4AtlasTools-*          Simulation/G4Atlas
+use Geant4              Geant4-*                External
+use LArSimEvent         LArSimEvent-*           LArCalorimeter
+use StoreGate           StoreGate-*      	Control
 
 private
-use AthenaKernel    AthenaKernel-*      Control
-use CaloIdentifier  CaloIdentifier-* 	Calorimeter
-use MCTruth         MCTruth-*           Simulation/G4Sim
-use StoreGate       StoreGate-*      	Control
+use AthenaKernel        AthenaKernel-*          Control
+use CxxUtils            CxxUtils-*              Control
+use CaloIdentifier      CaloIdentifier-* 	Calorimeter
+use MCTruth             MCTruth-*               Simulation/G4Sim
 end_private
 
 # Add the compiler macro definitions for cmake (transparent to CMT)
