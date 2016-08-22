@@ -96,7 +96,7 @@ void RpcPadContainer::push_back(RpcCoinMatrix* /*cm*/) {
   //   pad->push_back(cm); 
   //  } else
   //  {
-  //    log << MSG::ERROR <<" RpcPadContainer: Pad does not exist "<<endreq;
+  //    log << MSG::ERROR <<" RpcPadContainer: Pad does not exist "<<endmsg;
   //  } 
   //  return ; 
 }

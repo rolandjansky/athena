@@ -29,7 +29,7 @@ MdtCsmIdHash::MdtCsmIdHash( )
 
   MsgStream log(msgSvc, "MuonDigitContainer" );
 
-  log << MSG::DEBUG << " MdtCsmIdHash Constructor "<<endreq; 
+  log << MSG::DEBUG << " MdtCsmIdHash Constructor "<<endmsg; 
 
   const MdtIdHelper* mdtHelper=0;
   StoreGateSvc* detStore=0;
@@ -38,9 +38,9 @@ MdtCsmIdHash::MdtCsmIdHash( )
   if (sc.isSuccess()) {
     sc = detStore->retrieve( mdtHelper, "MDTIDHELPER" );
     if (sc.isFailure())
-      log << MSG::ERROR << " Cannot retrieve MdtIdHelper " << endreq;
+      log << MSG::ERROR << " Cannot retrieve MdtIdHelper " << endmsg;
   } else 
-    log << MSG::ERROR << " MdtIdHelper not found in DetectorStore " << endreq;
+    log << MSG::ERROR << " MdtIdHelper not found in DetectorStore " << endmsg;
   //too bad, we bail out (PC)
   if (!sc.isSuccess()) throw GaudiException("can not get MdtIdHelper", 
 					    "MdtCsmIdHash::MdtCsmIdHash()", sc);
@@ -59,10 +59,10 @@ MdtCsmIdHash::MdtCsmIdHash( )
     if (!mdtHelper->get_id(hash,id,&context)) {
       m_lookup[id]=(int) hash;
       m_int2id.push_back(id); 
-    } else log << MSG::ERROR << "MDT hash constructor failed!" << endreq;
+    } else log << MSG::ERROR << "MDT hash constructor failed!" << endmsg;
   } 
 
-  log << MSG::DEBUG << "Number of valid MDT Element IDs " << used << endreq; 
+  log << MSG::DEBUG << "Number of valid MDT Element IDs " << used << endmsg; 
   m_size = (int) used; 
 }
 

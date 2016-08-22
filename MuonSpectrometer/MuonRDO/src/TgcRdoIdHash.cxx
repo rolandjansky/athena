@@ -31,7 +31,7 @@ TgcRdoIdHash::TgcRdoIdHash()
           << (!sc.isSuccess() ? "service(\"TGCcablingServerSvc\", tgcCabGet, true) is failed" : "")
           << (!tgcCabGet ? "TGCcablingServerSvc pointer is NULL" : "")
           << (tgcCabGet && !tgcCabGet->isConfigured() ? "TGCcablingServerSvc is NOT configured yet" : "")
-          << endreq;
+          << endmsg;
       return;
     }
     
