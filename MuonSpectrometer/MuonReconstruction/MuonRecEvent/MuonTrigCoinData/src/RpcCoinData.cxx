@@ -132,7 +132,7 @@ MsgStream& RpcCoinData::dump( MsgStream&    stream) const
   stream<<"parentSectorId       = "<<this->parentSectorId()<<", ";
   stream<<"lowPtCm              = "<<this->isLowPtCoin()<<", ";
   stream<<"lowPtInputToHighPtCm = "<<this->isLowPtInputToHighPtCm()<<", ";
-  stream<<"}"<<endreq;
+  stream<<"}"<<endmsg;
   
   return stream;
 }
