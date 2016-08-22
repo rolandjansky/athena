@@ -11,15 +11,15 @@
 void
 TgcRdoCnv_p1::transToPers(const TgcRdo* /*transColl*/, TgcRdo_p1* /*persColl*/, MsgStream &log) 
 {
-    log << MSG::ERROR << "TgcRdoCnv_p1::transToPers should not be called. _p2 exists!" << endreq;
+    log << MSG::ERROR << "TgcRdoCnv_p1::transToPers should not be called. _p2 exists!" << endmsg;
 }
 
 void
 TgcRdoCnv_p1::persToTrans(const TgcRdo_p1* persColl, TgcRdo* transColl, MsgStream &log) 
 {
     if (log.level() <= MSG::DEBUG)
-        log << MSG::DEBUG  << " ***  Reading TgcRdo P1" << endreq;
-//    log << MSG::INFO  << " ***  Reading TgcRdo P1" << endreq;
+        log << MSG::DEBUG  << " ***  Reading TgcRdo P1" << endmsg;
+//    log << MSG::INFO  << " ***  Reading TgcRdo P1" << endmsg;
 
     // Invoke vector converter from the base template
     TgcRdoCnv_p1_basetype::persToTrans(persColl, transColl, log);

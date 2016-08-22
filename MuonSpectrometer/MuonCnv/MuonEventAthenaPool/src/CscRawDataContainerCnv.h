@@ -27,8 +27,8 @@ inline
 CscRawDataContainer*
 CscRawDataContainerCnv::createTransient()
 {
-   MsgStream log(messageService(), "CscRawDataContainerCnv" );
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered createTransient() "<< endreq;
+   MsgStream log(msgSvc(), "CscRawDataContainerCnv" );
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered createTransient() "<< endmsg;
 
    // the use of auto pointers ensures that the persistent object is deleted
    // using the correct persistent type pointer

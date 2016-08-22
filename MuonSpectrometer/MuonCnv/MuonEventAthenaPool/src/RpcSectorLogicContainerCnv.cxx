@@ -10,9 +10,9 @@
 static RpcSectorLogicContainerCnv_p1   TPconverter_p1;
 
 RpcSectorLogicContainer_p1* RpcSectorLogicContainerCnv::createPersistent(RpcSectorLogicContainer* transObj) {
-    MsgStream log(messageService(), "MuonRpcSectorLogicContainerConverter" );
+    MsgStream log(msgSvc(), "MuonRpcSectorLogicContainerConverter" );
     RpcSectorLogicContainer_p1 *persObj = TPconverter_p1.createPersistent( transObj, log );
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcSectorLogicContainer write Success" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcSectorLogicContainer write Success" << endmsg;
     return persObj;
 }
    
@@ -21,8 +21,8 @@ RpcSectorLogicContainer* RpcSectorLogicContainerCnv::createTransient() {
     if( compareClassGuid(p1_guid) ) {
         // using unique_ptr ensures deletion of the persistent object
         std::unique_ptr< RpcSectorLogicContainer_p1 > col_vect( poolReadObject< RpcSectorLogicContainer_p1 >() );
-        MsgStream log(messageService(), "RpcSectorLogicContainerCnv_p1" );
-        //log << MSG::DEBUG << "Reading RpcSectorLogicContainer_p1" << endreq;
+        MsgStream log(msgSvc(), "RpcSectorLogicContainerCnv_p1" );
+        //log << MSG::DEBUG << "Reading RpcSectorLogicContainer_p1" << endmsg;
         return TPconverter_p1.createTransient( col_vect.get(), log );
     } 
     throw std::runtime_error("Unsupported persistent version of RpcSectorLogicContainer");

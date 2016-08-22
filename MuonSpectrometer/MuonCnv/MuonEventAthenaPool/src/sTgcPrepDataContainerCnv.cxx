@@ -33,30 +33,30 @@ StatusCode sTgcPrepDataContainerCnv::initialize() {
     if( !sTgcPrepDataContainerCnvBase::initialize().isSuccess() )
        return StatusCode::FAILURE;
     
-    messageService()->setOutputLevel( "sTgcPrepDataContainerCnv", MSG::DEBUG );
+    msgSvc()->setOutputLevel( "sTgcPrepDataContainerCnv", MSG::DEBUG );
 
    // Get the messaging service, print where you are
-    MsgStream log(messageService(), "sTgcPrepDataContainerCnv");
-    if (log.level() <= MSG::INFO) log << MSG::INFO << "sTgcPrepDataContainerCnv::initialize()" << endreq;
+    MsgStream log(msgSvc(), "sTgcPrepDataContainerCnv");
+    if (log.level() <= MSG::INFO) log << MSG::INFO << "sTgcPrepDataContainerCnv::initialize()" << endmsg;
 
     return StatusCode::SUCCESS;
 }
 
 sTgcPrepDataContainer_PERS*    sTgcPrepDataContainerCnv::createPersistent (Muon::sTgcPrepDataContainer* transCont) {
-    MsgStream log(messageService(), "sTgcPrepDataContainerCnv" );
-    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endreq;
+    MsgStream log(msgSvc(), "sTgcPrepDataContainerCnv" );
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
     sTgcPrepDataContainer_PERS *pers= m_converter_p1.createPersistent( transCont, log );
     // COMPRESS sTgcPrepDataContainer_PERS *pers= m_converter_p1.createPersistent( transCont, log );
     return pers;
 }
 
 Muon::sTgcPrepDataContainer* sTgcPrepDataContainerCnv::createTransient() {
-    MsgStream log(messageService(), "sTgcPrepDataContainerCnv" );
+    MsgStream log(msgSvc(), "sTgcPrepDataContainerCnv" );
     static pool::Guid   p1_guid("7AB87DDE-8D7C-11E2-AA7C-001517648C14"); 
-    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endreq;
+    if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     Muon::sTgcPrepDataContainer* p_collection(0);
     if( compareClassGuid(p1_guid) ) {
-        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endreq;
+        if (log.level() <= MSG::DEBUG) log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endmsg;
         std::unique_ptr< Muon::sTgcPrepDataContainer_p1 >  p_coll( poolReadObject< Muon::sTgcPrepDataContainer_p1 >() );
         p_collection = m_converter_p1.createTransient( p_coll.get(), log );
     } else {
