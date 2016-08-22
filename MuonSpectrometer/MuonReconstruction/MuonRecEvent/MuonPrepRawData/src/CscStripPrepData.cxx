@@ -91,7 +91,7 @@ namespace Muon
 
   MsgStream& CscStripPrepData::dump( MsgStream&    stream) const
   {
-    stream << MSG::INFO << "CscStripPrepData {" <<endreq;
+    stream << MSG::INFO << "CscStripPrepData {" <<endmsg;
 
     std::stringstream s;
     s << std::setiosflags(std::ios::fixed);

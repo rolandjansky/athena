@@ -74,7 +74,7 @@ namespace Muon
     
     MuonCluster::dump(stream);
  
-    stream<<"}"<<endreq;
+    stream<<"}"<<endmsg;
 
     return stream;
   }
