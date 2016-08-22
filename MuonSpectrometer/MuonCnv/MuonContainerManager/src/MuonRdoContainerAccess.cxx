@@ -29,7 +29,7 @@ Muon::MuonRdoContainerAccess::record(RpcPadContainer* cont, std::string key,
 	                               new MuonRdoContainerManager(svcloc, storeGate);
         } catch (...) {
 	    log << MSG::FATAL << "Cannot instanciate MuonRdoContainerManager"
-	        << endreq;
+	        << endmsg;
             return StatusCode::FAILURE;
 	}
     }
@@ -38,7 +38,7 @@ Muon::MuonRdoContainerAccess::record(RpcPadContainer* cont, std::string key,
     
     if (storeGate && instance->m_evtstore!=storeGate){
         // EJWM. This seems pretty inelegant. Why bother caching the sg pointer this can happen (e.g. with overlay)
-        log << MSG::VERBOSE<<"Changing cached store from "<<instance->m_evtstore->name()<<" to "<<storeGate->name()<<endreq;
+        log << MSG::VERBOSE<<"Changing cached store from "<<instance->m_evtstore->name()<<" to "<<storeGate->name()<<endmsg;
         instance->m_evtstore=storeGate;
     }
     
@@ -56,7 +56,7 @@ Muon::MuonRdoContainerAccess::record(RpcPadContainer* cont, std::string key,
     cont->addRef();
     if (instance->m_evtstore->record(cont, key).isFailure()) 
     {
-        log << MSG::FATAL << "Unable to record RPC PAD Container." << endreq;
+        log << MSG::FATAL << "Unable to record RPC PAD Container." << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -65,7 +65,7 @@ Muon::MuonRdoContainerAccess::record(RpcPadContainer* cont, std::string key,
     instance->m_pad_container.first  = cont;
     instance->m_pad_container.second = key;
     
-    log << MSG::DEBUG << "Container " << key << " recorded." << endreq;
+    log << MSG::DEBUG << "Container " << key << " recorded." << endmsg;
     
     return StatusCode::SUCCESS;
 }
@@ -82,7 +82,7 @@ Muon::MuonRdoContainerAccess::record(RpcSectorLogicContainer* cont, std::string 
 	                               new MuonRdoContainerManager(svcloc, storeGate);
         } catch (...) {
 	    log << MSG::FATAL << "Cannot instanciate MuonRdoContainerManager"
-	        << endreq;
+	        << endmsg;
             return StatusCode::FAILURE;
 	}
     }
@@ -91,7 +91,7 @@ Muon::MuonRdoContainerAccess::record(RpcSectorLogicContainer* cont, std::string 
 
     if (storeGate && instance->m_evtstore!=storeGate){
         // EJWM. This seems pretty inelegant. Why bother caching the sg pointer this can happen (e.g. with overlay)
-        log << MSG::VERBOSE<<"Changing cached store from "<<instance->m_evtstore->name()<<" to "<<storeGate->name()<<endreq;
+        log << MSG::VERBOSE<<"Changing cached store from "<<instance->m_evtstore->name()<<" to "<<storeGate->name()<<endmsg;
         instance->m_evtstore=storeGate;
     }
 
@@ -109,7 +109,7 @@ Muon::MuonRdoContainerAccess::record(RpcSectorLogicContainer* cont, std::string 
     //cont->addRef();
     if (instance->m_evtstore->record(cont, key).isFailure()) 
     {
-        log << MSG::FATAL << "Unable to record Sector Logic Container." << endreq;
+        log << MSG::FATAL << "Unable to record Sector Logic Container." << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -118,7 +118,7 @@ Muon::MuonRdoContainerAccess::record(RpcSectorLogicContainer* cont, std::string 
     instance->m_sec_container.first  = cont;
     instance->m_sec_container.second = key;
     
-    log << MSG::DEBUG << "Container " << key << " recorded." << endreq;
+    log << MSG::DEBUG << "Container " << key << " recorded." << endmsg;
     
     return StatusCode::SUCCESS;
 }
@@ -135,7 +135,7 @@ Muon::MuonRdoContainerAccess::record(MdtCsmContainer* cont,std::string key,
 	                               new MuonRdoContainerManager(svcloc, storeGate);
         } catch (...) {
 	    log << MSG::FATAL << "Cannot instanciate MuonRdoContainerManager"
-	        << endreq;
+	        << endmsg;
             return StatusCode::FAILURE;
 	}
     }
@@ -144,7 +144,7 @@ Muon::MuonRdoContainerAccess::record(MdtCsmContainer* cont,std::string key,
 
     if (storeGate && instance->m_evtstore!=storeGate){
         // EJWM. This seems pretty inelegant. Why bother caching the sg pointer this can happen (e.g. with overlay)
-        log << MSG::VERBOSE<<"Changing cached store from "<<instance->m_evtstore->name()<<" to "<<storeGate->name()<<endreq;
+        log << MSG::VERBOSE<<"Changing cached store from "<<instance->m_evtstore->name()<<" to "<<storeGate->name()<<endmsg;
         instance->m_evtstore=storeGate;
     }
 
@@ -162,7 +162,7 @@ Muon::MuonRdoContainerAccess::record(MdtCsmContainer* cont,std::string key,
     cont->addRef();
     if (instance->m_evtstore->record(cont, key).isFailure()) 
     {
-        log << MSG::FATAL << "Unable to record MDT CSM Container." << endreq;
+        log << MSG::FATAL << "Unable to record MDT CSM Container." << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -171,7 +171,7 @@ Muon::MuonRdoContainerAccess::record(MdtCsmContainer* cont,std::string key,
     instance->m_csm_container.first  = cont;
     instance->m_csm_container.second = key;
     
-    log << MSG::DEBUG << "Container " << key << " recorded." << endreq;
+    log << MSG::DEBUG << "Container " << key << " recorded." << endmsg;
     
     return StatusCode::SUCCESS;
 }
@@ -188,7 +188,7 @@ Muon::MuonRdoContainerAccess::record(TgcRdoContainer* cont, std::string key,
 	                               new MuonRdoContainerManager(svcloc, storeGate);
         } catch (...) {
 	    log << MSG::FATAL << "Cannot instanciate MuonRdoContainerManager"
-	        << endreq;
+	        << endmsg;
             return StatusCode::FAILURE;
 	}
     }
@@ -197,7 +197,7 @@ Muon::MuonRdoContainerAccess::record(TgcRdoContainer* cont, std::string key,
 
     if (storeGate && instance->m_evtstore!=storeGate){
         // EJWM. This seems pretty inelegant. Why bother caching the sg pointer this can happen (e.g. with overlay)
-        log << MSG::VERBOSE<<"Changing cached store from "<<instance->m_evtstore->name()<<" to "<<storeGate->name()<<endreq;
+        log << MSG::VERBOSE<<"Changing cached store from "<<instance->m_evtstore->name()<<" to "<<storeGate->name()<<endmsg;
         instance->m_evtstore=storeGate;
     }
 
@@ -215,7 +215,7 @@ Muon::MuonRdoContainerAccess::record(TgcRdoContainer* cont, std::string key,
     cont->addRef();
     if (instance->m_evtstore->record(cont, key).isFailure()) 
     {
-        log << MSG::FATAL << "Unable to record TGC RDO Container." << endreq;
+        log << MSG::FATAL << "Unable to record TGC RDO Container." << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -224,7 +224,7 @@ Muon::MuonRdoContainerAccess::record(TgcRdoContainer* cont, std::string key,
     instance->m_tgc_container.first  = cont;
     instance->m_tgc_container.second = key;
     
-    log << MSG::DEBUG << "Container " << key << " recorded." << endreq;
+    log << MSG::DEBUG << "Container " << key << " recorded." << endmsg;
     
     return StatusCode::SUCCESS;
 
@@ -242,7 +242,7 @@ Muon::MuonRdoContainerAccess::record(CscRawDataContainer* cont, std::string key,
 	                               new MuonRdoContainerManager(svcloc, storeGate);
         } catch (...) {
 	    log << MSG::FATAL << "Cannot instanciate MuonRdoContainerManager"
-	        << endreq;
+	        << endmsg;
             return StatusCode::FAILURE;
 	}
     }
@@ -251,7 +251,7 @@ Muon::MuonRdoContainerAccess::record(CscRawDataContainer* cont, std::string key,
 
     if (storeGate && instance->m_evtstore!=storeGate){
         // EJWM. This seems pretty inelegant. Why bother caching the sg pointer this can happen (e.g. with overlay)
-        log << MSG::VERBOSE<<"Changing cached store from "<<instance->m_evtstore->name()<<" to "<<storeGate->name()<<endreq;
+        log << MSG::VERBOSE<<"Changing cached store from "<<instance->m_evtstore->name()<<" to "<<storeGate->name()<<endmsg;
         instance->m_evtstore=storeGate;
     }
     instance->m_activeStore->setStore( instance->m_evtstore );
@@ -268,7 +268,7 @@ Muon::MuonRdoContainerAccess::record(CscRawDataContainer* cont, std::string key,
     cont->addRef();
     if (instance->m_evtstore->record(cont, key).isFailure()) 
     {
-        log << MSG::FATAL << "Unable to record CSC RAW DATA Container." << endreq;
+        log << MSG::FATAL << "Unable to record CSC RAW DATA Container." << endmsg;
         return StatusCode::FAILURE;
     }
     
@@ -277,7 +277,7 @@ Muon::MuonRdoContainerAccess::record(CscRawDataContainer* cont, std::string key,
     instance->m_csc_container.first  = cont;
     instance->m_csc_container.second = key;
     
-    log << MSG::DEBUG << "Container " << key << " recorded." << endreq;
+    log << MSG::DEBUG << "Container " << key << " recorded." << endmsg;
     
     return StatusCode::SUCCESS;
 
