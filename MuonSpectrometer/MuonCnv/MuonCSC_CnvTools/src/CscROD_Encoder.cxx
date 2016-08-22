@@ -31,7 +31,7 @@ CscROD_Encoder::~CscROD_Encoder() {}
 StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
 {
     
-  mLog << MSG::DEBUG << " in CscROD_Encoder " << endreq;
+  mLog << MSG::DEBUG << " in CscROD_Encoder " << endmsg;
 
   // ROD readout structure : encoder/decoder
   CscRODReadOut rodReadOut;
@@ -54,10 +54,10 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
    else if ( spuID>4 && spuID <=9 ) rpuID = 11;
    else { 
      mLog << MSG::ERROR << "CscROD_Encoder : RPU ID out of range for Initial Layout:: SPU ID = " 
-	  << spuID << endreq; 
+	  << spuID << endmsg; 
      return StatusCode::FAILURE;
    }
-   mLog << MSG::DEBUG << "CscROD_Encoder : SPU ID is " << spuID << " for RPU ID= " << rpuID << endreq;
+   mLog << MSG::DEBUG << "CscROD_Encoder : SPU ID is " << spuID << " for RPU ID= " << rpuID << endmsg;
    mapRPU[rpuID].push_back(rawData);
  }
 
@@ -67,7 +67,7 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
  const std::vector<uint16_t> rpus = m_cscRdo->rpuID();
  if ( rpus.size() == 1 ) {
    uint16_t rId = rpus[0];
-   mLog << MSG::DEBUG << "CscROD_Encoder : Only one RPU with data in this ROD - RPU ID = " << rId << endreq;
+   mLog << MSG::DEBUG << "CscROD_Encoder : Only one RPU with data in this ROD - RPU ID = " << rId << endmsg;
    uint16_t emptyRPU = 5;
    if ( rId == emptyRPU) emptyRPU = 11;
    mapRPU.insert ( std::make_pair(emptyRPU, emptyVect) );
@@ -82,14 +82,14 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
  std::map<uint16_t,rpu>::iterator rpuBegin = mapRPU.begin(); 
  std::map<uint16_t,rpu>::iterator rpuEnd   = mapRPU.end();
 
- mLog << MSG::DEBUG << "Number of RPU in this ROD = " << mapRPU.size() << endreq;
+ mLog << MSG::DEBUG << "Number of RPU in this ROD = " << mapRPU.size() << endmsg;
   
  unsigned int rpuIndex = 0;
  for (; rpuBegin != rpuEnd; rpuBegin++) {
 
    /** this RPU identifier */
    uint16_t rpuID = (*rpuBegin).first;
-   mLog << MSG::DEBUG << "CscROD_Encoder : RPU id " << rpuID << endreq;
+   mLog << MSG::DEBUG << "CscROD_Encoder : RPU id " << rpuID << endmsg;
 
    /** RPU size from simulation - assume no ghost words: 
        +1 for the RPU header word itsef */
@@ -108,15 +108,15 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
    uint32_t sampleDataWords = 0;
    for (; it != it_end; ++it) {
      uint16_t spuID = (*it)->rpuID();
-     mLog << MSG::DEBUG << "CscROD_Encoder : The SPU ID " << spuID << endreq;
+     mLog << MSG::DEBUG << "CscROD_Encoder : The SPU ID " << spuID << endmsg;
      unsigned int i = 0x800; 
      if ( spuID < 4 ) i=spuID;
      else if ( spuID > 4 && spuID < 9 ) i=spuID-5;
      else if ( spuID==4 || spuID==9 ) i=4;
      if (i>4) {
-       mLog << MSG::ERROR << "CscROD_Encoder : SPU ID out of range - " << spuID << " Stop and fix it " << endreq;
+       mLog << MSG::ERROR << "CscROD_Encoder : SPU ID out of range - " << spuID << " Stop and fix it " << endmsg;
      } else {
-       mLog << MSG::DEBUG << "CscROD_Encoder : SPU ID and Index = " << spuID << " " << i << endreq;
+       mLog << MSG::DEBUG << "CscROD_Encoder : SPU ID and Index = " << spuID << " " << i << endmsg;
        uint16_t size = ((*it)->samples()).size();
        uint16_t unitSize = size/2 + size%2;
        spuSize[i] += 1;
@@ -124,7 +124,7 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
        sampleDataWords += unitSize;
      }
    }
-   mLog << MSG::DEBUG << "CscROD_Encoder : Total Sample size = " << sampleDataWords << endreq;
+   mLog << MSG::DEBUG << "CscROD_Encoder : Total Sample size = " << sampleDataWords << endmsg;
 
    /** the RPU size = 1 word for the RPU header
        1 word for the SCA channel
@@ -132,7 +132,7 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
    uint16_t rpuSize = numberOfDataWords+4;
 
    mLog << MSG::DEBUG << "CscRDO_Encoder : RPU ID and size (in words) = " << rpuID 
-	<< " " << rpuSize << endreq;
+	<< " " << rpuSize << endmsg;
 
    /** assume normal data type in simulation */
    std::vector<uint8_t> dataType = m_cscRdo->dataType();
@@ -142,7 +142,7 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
    else if ( typeSize == 1) type = dataType[0];
    else type = 0x0;
  
-   mLog << MSG::DEBUG << "CscROD_Encoder : data type = " << type << endreq;
+   mLog << MSG::DEBUG << "CscROD_Encoder : data type = " << type << endmsg;
 
    /** RPU header marker - it contains the size of the RPU, 
        the data type and the RPU ID */
@@ -153,7 +153,7 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
    /** RPU header */
    v.push_back ( rpuHeader ); 
 
-   mLog << MSG::DEBUG << "CscROD_Encoder : this rpuHeader = " << MSG::hex << rpuHeader << MSG::dec << endreq;
+   mLog << MSG::DEBUG << "CscROD_Encoder : this rpuHeader = " << MSG::hex << rpuHeader << MSG::dec << endmsg;
 
    /** SCA address - assume 0 in simulation */
    v.push_back( m_cscRdo->scaAddress() );
@@ -163,14 +163,14 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
    for (unsigned int i=0; i<4; ++i) {
      precisionClusterWord = precisionClusterWord | ( spuSize[i] << (24-i*8) );
      mLog << MSG::DEBUG << "CscROD_Encoder : SPU ID = " << (i+1) 
-     << " cluster Counts " << spuSize[i] << endreq;
+     << " cluster Counts " << spuSize[i] << endmsg;
    }
    v.push_back( precisionClusterWord );
 
    mLog << MSG::DEBUG << "CscROD_Encoder : Non-precision " 
-        << " cluster Counts " << spuSize[4] << endreq;
+        << " cluster Counts " << spuSize[4] << endmsg;
 
-   mLog << MSG::DEBUG << "CscROD_Encoder:: number of Cluster Data Words " << numberOfDataWords << endreq;
+   mLog << MSG::DEBUG << "CscROD_Encoder:: number of Cluster Data Words " << numberOfDataWords << endmsg;
   
    /** build the second cluster information word */
    uint32_t secondClusterWord = (0xFFFF & numberOfDataWords) |
@@ -213,12 +213,12 @@ StatusCode CscROD_Encoder::fillROD(std::vector<uint32_t>& v, MsgStream& mLog)
        v.push_back(v32[i]);
      }
      check += n;
-     mLog << MSG::DEBUG << "CscROD_Encoder : The with and the 32-bit sample words " << width << " " << n << endreq;
+     mLog << MSG::DEBUG << "CscROD_Encoder : The with and the 32-bit sample words " << width << " " << n << endmsg;
    }
 
    rpuIndex++;
  
-   mLog << MSG::DEBUG << "CScROD_Encoder : Check and number of data words " << check << " " << numberOfDataWords << endreq;
+   mLog << MSG::DEBUG << "CScROD_Encoder : Check and number of data words " << check << " " << numberOfDataWords << endmsg;
  
  }
 
