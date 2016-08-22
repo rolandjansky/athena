@@ -26,34 +26,34 @@ TGCSimHitCollectionCnv::~TGCSimHitCollectionCnv() {
 }
 
 TGCSimHitCollection_PERS*    TGCSimHitCollectionCnv::createPersistent (TGCSimHitCollection* transCont) {
-    MsgStream log(messageService(), "TGCSimHitCollectionCnv" );
-    log<<MSG::DEBUG<<"createPersistent(): main converter"<<endreq;
+    MsgStream log(msgSvc(), "TGCSimHitCollectionCnv" );
+    log<<MSG::DEBUG<<"createPersistent(): main converter"<<endmsg;
     TGCSimHitCollection_PERS *pixdc_p= m_TPConverter_p3.createPersistent( transCont, log );
     return pixdc_p;
 }
 
 TGCSimHitCollection* TGCSimHitCollectionCnv::createTransient() {
-    MsgStream log(messageService(), "TGCSimHitCollectionCnv" );
+    MsgStream log(msgSvc(), "TGCSimHitCollectionCnv" );
     static pool::Guid   p0_guid("D7C91818-4730-4717-A650-107F52C0221E"); // before t/p split
     static pool::Guid   p1_guid("BD569381-2489-4402-BBD3-91EE8C009F26"); 
     static pool::Guid   p2_guid("710241EE-D5F7-4CB6-A1D7-6E80D040E637"); 
     static pool::Guid   p3_guid("BACD19A8-4737-4857-A22D-B9DF833A0A80"); 
-    log<<MSG::DEBUG<<"createTransient(): main converter"<<endreq;
+    log<<MSG::DEBUG<<"createTransient(): main converter"<<endmsg;
     TGCSimHitCollection* p_collection(0);
     if(compareClassGuid(p3_guid) ) {
-        log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endreq;
+        log<<MSG::DEBUG<<"createTransient(): T/P version 3 detected"<<endmsg;
         std::auto_ptr< TGCSimHitCollection_PERS >   col_vect( this->poolReadObject< TGCSimHitCollection_PERS >() );
         p_collection = m_TPConverter_p3.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------
     else if( compareClassGuid(p2_guid) ) {
-        log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endreq;
+        log<<MSG::DEBUG<<"createTransient(): T/P version 2 detected"<<endmsg;
         std::auto_ptr< Muon::TGCSimHitCollection_p2 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p2 >() );
         p_collection = m_TPConverter_p2.createTransient( col_vect.get(), log );
     }
   //----------------------------------------------------------------
     else if( compareClassGuid(p1_guid) ) {
-        log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endreq;
+        log<<MSG::DEBUG<<"createTransient(): T/P version 1 detected"<<endmsg;
         std::auto_ptr< Muon::TGCSimHitCollection_p1 >   col_vect( this->poolReadObject< Muon::TGCSimHitCollection_p1 >() );
         p_collection = m_TPConverter_p1.createTransient( col_vect.get(), log );
     }
