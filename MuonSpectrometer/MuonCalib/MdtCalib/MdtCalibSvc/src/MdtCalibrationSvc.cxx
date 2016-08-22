@@ -223,7 +223,7 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
     if( inputData.trackDirection )         msg(MSG::VERBOSE) << "  TrackDirection";
     if( inputData.nominalWireSurface )     msg(MSG::VERBOSE) << "  Nom. WireSurface";
     if( inputData.wireSurface )            msg(MSG::VERBOSE) << "  Sagged Wiresurface";
-    msg(MSG::VERBOSE) << endreq;
+    msg(MSG::VERBOSE) << endmsg;
     msg(MSG::VERBOSE) << "Settings: window " << settings.timeWindowLowerBound() << "  " << settings.timeWindowUpperBound();
     if( settings.doTof )     msg(MSG::VERBOSE) << " Tof";
     if( settings.doProp )    msg(MSG::VERBOSE) << " Prop";
@@ -232,7 +232,7 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
     if( settings.doWireSag ) msg(MSG::VERBOSE) << " WireSag";
     if( settings.doSlew )    msg(MSG::VERBOSE) << " Slew";
     if( settings.doBkg )     msg(MSG::VERBOSE) << " Bkg";
-    msg(MSG::VERBOSE) << endreq;
+    msg(MSG::VERBOSE) << endmsg;
   }
 
   const Identifier &id = hit.identify();
@@ -285,16 +285,16 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
     } else {
       msg(MSG::WARNING) << "failed to access tubedata for "
 			<< ml << " " << layer << " " << tube
-			<< " using defaults.. " << endreq;
+			<< " using defaults.. " << endmsg;
       if ( geo ) 
 	msg(MSG::WARNING) << "detel " << geo->getMultilayer()
 			  << " lay " << geo->getNLayers() 
-			  << " tubes " << geo->getNtubesperlayer() << endreq;
+			  << " tubes " << geo->getNtubesperlayer() << endmsg;
       t0 =  800.;
     }
   } else {
     msg(MSG::WARNING) << "MdtTubeCalibContainer not found for "
-		      << m_imp->m_mdtIdHelper->print_to_string( id ) << endreq;
+		      << m_imp->m_mdtIdHelper->print_to_string( id ) << endmsg;
     ATH_MSG_WARNING( "Tube cannot be calibrated!!!" );
     return false;
   }
@@ -397,10 +397,10 @@ bool MdtCalibrationSvc::driftRadiusFromTime( MdtCalibHit &hit,
   ATH_MSG_VERBOSE( "driftRadiusFromTime for tube " << m_imp->m_mdtIdHelper->print_to_string(id) 
 		 << (calibOk ? " OK" : "FAILED") );
   ATH_MSG_VERBOSE( " raw drift time " << hit.tdcCount() * tdcBinSize()
-		 << " TriggerOffset " << inputData.triggerOffset << endreq
+		 << " TriggerOffset " << inputData.triggerOffset << endmsg
 		 << "Tof " << inputData.tof << " Propagation Delay "
 		 << hit.propagationTime() << " T0 " << hit.tubeT0() 
-		 << " invProp " << inversePropSpeed << endreq
+		 << " invProp " << inversePropSpeed << endmsg
 		 << "Drift time after corrections " << driftTime
 		 << " time cor " << corTime 
 		 << " Drift radius " << hit.driftRadius()
@@ -680,7 +680,7 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit &hit,
   // apply corrections
   if ( corrections ){
     
-    if (m_verbose) *m_log << MSG::VERBOSE << "There are correction functions." << endreq;
+    if (m_verbose) *m_log << MSG::VERBOSE << "There are correction functions." << endmsg;
     
     // slewing corrections
     if ( settings.doSlew && corrections->slewing() ){
@@ -706,7 +706,7 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit &hit,
         double Bper = B_loc.dot(dir.unit());
         hit.setBFieldPerp(Bper);
         hit.setBFieldPara(Bpar); 
-        if( m_verbose ) *m_log << MSG::VERBOSE << "doing b-field correction" << endreq;
+        if( m_verbose ) *m_log << MSG::VERBOSE << "doing b-field correction" << endmsg;
         if(hit.bFieldPara() != MdtCalibHit::kNoValue && hit.bFieldPerp() != MdtCalibHit::kNoValue) {
 	  hit.setLorentzTime(corrections->bField()->correction( hit.driftTime(), hit.bFieldPara(),  hit.bFieldPerp() ));
 	} else {
@@ -749,41 +749,41 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit &hit,
     // First some debug output
     if (m_verbose) {
       if ( settings.doWireSag ){
-	*m_log << MSG::VERBOSE << "settings.doWireSag == TRUE" << endreq;
+	*m_log << MSG::VERBOSE << "settings.doWireSag == TRUE" << endmsg;
       } else {
-	*m_log << MSG::VERBOSE << "settings.doWireSag == FALSE" << endreq;
+	*m_log << MSG::VERBOSE << "settings.doWireSag == FALSE" << endmsg;
       }
       if ( corrections->wireSag() ){
-	*m_log << MSG::VERBOSE << "corrections->wireSag() == TRUE" << endreq;
+	*m_log << MSG::VERBOSE << "corrections->wireSag() == TRUE" << endmsg;
       } else {
-	*m_log << MSG::VERBOSE << "corrections->wireSag() == FALSE" << endreq;
+	*m_log << MSG::VERBOSE << "corrections->wireSag() == FALSE" << endmsg;
       }
     }
     // Wire sag corrections
     if ( settings.doWireSag && corrections->wireSag() ){
       
       if (m_verbose) {
-	*m_log << MSG::VERBOSE << "Performing Rt Corrections due to Wire Sag." << endreq;
+	*m_log << MSG::VERBOSE << "Performing Rt Corrections due to Wire Sag." << endmsg;
 	
 	if (inputData.pointOfClosestApproach) {
-	  *m_log << MSG::VERBOSE << "Have a point of closest approach." << endreq;
+	  *m_log << MSG::VERBOSE << "Have a point of closest approach." << endmsg;
 	} else {
-	  *m_log << MSG::VERBOSE << "No point of closest approach!" << endreq;
+	  *m_log << MSG::VERBOSE << "No point of closest approach!" << endmsg;
 	}
 	if (inputData.trackDirection) {
-	  *m_log << MSG::VERBOSE << "Have a track direction." << endreq;
+	  *m_log << MSG::VERBOSE << "Have a track direction." << endmsg;
 	} else {
-	  *m_log << MSG::VERBOSE << "No track direction!" << endreq;
+	  *m_log << MSG::VERBOSE << "No track direction!" << endmsg;
 	}
 	if (inputData.nominalWireSurface) {
-	  *m_log << MSG::VERBOSE << "Have a nominal wire surface." << endreq;
+	  *m_log << MSG::VERBOSE << "Have a nominal wire surface." << endmsg;
 	} else {
-	  *m_log << MSG::VERBOSE << "No nominal wire surface!" << endreq;
+	  *m_log << MSG::VERBOSE << "No nominal wire surface!" << endmsg;
 	}
 	if (inputData.wireSurface) {
-	  *m_log << MSG::VERBOSE << "Have a sagged wire surface." << endreq;
+	  *m_log << MSG::VERBOSE << "Have a sagged wire surface." << endmsg;
 	} else {
-	  *m_log << MSG::VERBOSE << "No sagged wire surface!" << endreq;
+	  *m_log << MSG::VERBOSE << "No sagged wire surface!" << endmsg;
 	}
       }
       
@@ -798,15 +798,15 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit &hit,
         if( !pointOfClosestApproach ) *m_log << " no pointOfClosestApproach ";
         if( !trackDirection )         *m_log << " no trackDirection ";
         if( !nominalWireSurface )     *m_log << " no nominalWireSurface ";
-        *m_log << endreq;
+        *m_log << endmsg;
       } else {
 
 	if (m_verbose) {
-	  *m_log << MSG::VERBOSE << "All Necessary Wire Sag data available: " << endreq;
+	  *m_log << MSG::VERBOSE << "All Necessary Wire Sag data available: " << endmsg;
 	  *m_log << MSG::VERBOSE << "  pCA = ("
 		 << pointOfClosestApproach->x() << ", "
 		 << pointOfClosestApproach->y() << ", "
-		 << pointOfClosestApproach->z() << ")" << endreq;
+		 << pointOfClosestApproach->z() << ")" << endmsg;
 	}
 
         // store pointer to sagged surface as we get ownership if we recalculate it
@@ -820,7 +820,7 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit &hit,
             // used for wire sag treatment
             const Amg::Vector2D *tempLocOnWire = nominalSurf->Trk::Surface::globalToLocal(*pointOfClosestApproach,1000.);
             if ( !tempLocOnWire ){
-              *m_log << MSG::WARNING << "globalToLocal failed! " << endreq;
+              *m_log << MSG::WARNING << "globalToLocal failed! " << endmsg;
             } else {
               // sagged surface
               wireSurface = nominalSurf->correctedSurface(*tempLocOnWire);
@@ -830,14 +830,14 @@ double MdtCalibrationSvc::Imp::applyCorrections(MdtCalibHit &hit,
           } else {
             *m_log << MSG::WARNING
 		   << "Nominal wire surface not a SaggedLineSurface,"
-		   << " cannot perform wire sag correction" << endreq;
+		   << " cannot perform wire sag correction" << endmsg;
           }
         }
 
         if ( !wireSurface ){
           *m_log << MSG::WARNING
 		 << " cannot perform wire sag correction: no sagged wire surface "
-		 << endreq;
+		 << endmsg;
         } else {
 
           // get to transformation matrix from global into the tube frame

@@ -117,12 +117,12 @@ StatusCode MdtCalibrationDbSvc::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
     for (itr=keys.begin(); itr!=keys.end(); ++itr) {
       msg(MSG::DEBUG) << *itr << " I="<<I<<" ";
     }
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
   }
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     msg(MSG::INFO) << *itr << " I="<<I<<" ";
   }
-  msg(MSG::INFO) << endreq;
+  msg(MSG::INFO) << endmsg;
 
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     if(*itr==m_tubeDataLocation) {
