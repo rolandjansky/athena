@@ -191,6 +191,7 @@ private:
   TProfile * m_Eff_Total;
   TProfile * m_Eff_TotalBCID;
   TProfile * m_Eff_hashCodeHisto;
+  TH1F* m_effdistribution;
 
   TProfile2D * m_effHashLumiB;
 
