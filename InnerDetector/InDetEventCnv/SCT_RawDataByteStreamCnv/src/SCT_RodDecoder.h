@@ -120,6 +120,7 @@ public:
   unsigned int m_RODClockErrorNumber;
   unsigned int m_truncatedRODNumber;
   unsigned int m_numMissingLinkHeader;
+  unsigned int m_numUnknownOfflineId;
   
   InDetBSErrContainer* m_bsErrCont;
   std::string m_bsErrContainerName;
