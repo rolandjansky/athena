@@ -39,9 +39,6 @@ namespace trigcount {
      @param prescale prescale value for the trigger
      */
     TriggerCount(const std::string &name="",float prescale=1.0,float passthrough=0.);
-    /// Copy constructor
-    TriggerCount(const TriggerCount &src);
-    TriggerCount& operator=(const TriggerCount&) & = default;
     /** Increments the raw and actual counts for this trigger.
      Every call of this method will increment the raw counts for this
      trigger. The actual count will only be increased if the argument
@@ -103,11 +100,6 @@ namespace trigcount {
   
   inline TriggerCount::TriggerCount(const std::string &name,float prescale,float passthrough) : 
     m_name(name), m_count(0), m_raw(0), m_prescale(prescale), m_passthrough(passthrough), m_lower("") {
-  }
-  
-  inline TriggerCount::TriggerCount(const TriggerCount &src) : 
-    m_name(src.m_name), m_count(src.m_count), m_raw(0), m_prescale(src.m_prescale), 
-    m_passthrough(src.m_passthrough), m_lower(src.m_lower) {
   }
   
   inline void TriggerCount::addEvent(bool actual) {
