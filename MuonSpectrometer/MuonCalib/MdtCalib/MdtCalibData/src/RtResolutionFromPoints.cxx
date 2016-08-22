@@ -88,7 +88,7 @@ RtResolutionChebyshev RtResolutionFromPoints::getRtResolutionChebyshev(
 // PERFORM A CHEBYSHEV FIT TO THE SAMPLE POINTS //
 //////////////////////////////////////////////////
   if (fitter.fit_parameters(my_points, 1, sample_points.size(), &chebyshev)) {
-    log<<MSG::WARNING<< "Could not determine Chebyshev coefficients."<<endreq;
+    log<<MSG::WARNING<< "Could not determine Chebyshev coefficients."<<endmsg;
   }
   for (unsigned int k=0; k<order+1; k++) {
     res_param[k+2] = fitter.coefficients()[k];
