@@ -18,6 +18,7 @@
 #include "TrkToolInterfaces/IAmbiTrackSelectionTool.h"
 #include "InDetPrepRawData/PixelGangedClusterAmbiguities.h"
 #include "TrkValInterfaces/ITrkObserverTool.h"
+#include "TrkAmbiguityProcessor/dRMap.h"
 
 
 //need to include the following, since its a typedef and can't be forward declared.
@@ -55,6 +56,7 @@ namespace Trk {
   class ITrackScoringTool;
   class IPRD_AssociationTool;
   class ITruthToTrack;
+  class IExtrapolator;
 
   class DenseEnvironmentsAmbiguityProcessorTool : public AthAlgTool, 
                                                   virtual public IIncidentListener, 
@@ -117,7 +119,9 @@ namespace Trk {
 
       /** print out tracks and their scores for debugging*/
       void dumpTracks(const TrackCollection& tracks);
-      
+
+      /** stores the minimal dist(trk,trk) for covariance correction*/
+      void storeTrkDistanceMapdR(const TrackCollection& tracks, TrackCollection &refit_tracks_out );
       
       /**  Find SiS Tracks that share hits in the track score map*/
       void overlapppingTracks();
@@ -147,6 +151,9 @@ namespace Trk {
 
       /** by default refit tracks from PRD */
       bool m_refitPrds;
+      
+      /** rescale pixel PRD covariances */
+      bool m_applydRcorrection;
 
       /** suppress Hole Search */ 
       bool m_suppressHoleSearch;
@@ -174,7 +181,11 @@ namespace Trk {
       /** refitting tool - used to refit tracks once shared hits are removed. 
           Refitting tool used is configured via jobOptions.*/
       ToolHandle<ITrackFitter> m_fitterTool;
-        
+
+      /** extrapolator tool - used to refit tracks once shared hits are removed. 
+          Extrapolator tool used is configured via jobOptions.*/
+      ToolHandle<IExtrapolator> m_extrapolatorTool;
+
       /** selection tool - here the decision which hits remain on a track and
           which are removed are made */
       ToolHandle<IAmbiTrackSelectionTool> m_selectionTool;
@@ -195,7 +206,7 @@ namespace Trk {
       /**Tracks that will be passed out of AmbiProcessor. 
          Recreated anew each time process() is called*/ 
       TrackCollection* m_finalTracks;
-
+      
       /**NN split sprob cut for 2 particle clusters */      
       float m_sharedProbCut;
 
@@ -211,7 +222,7 @@ namespace Trk {
       m_Naccepted,m_NsubTrack,m_NnoSubTrack,m_NacceptedBrem,
       m_NbremFits,m_Nfits,m_NrecoveryBremFits,m_NgoodFits,m_NfailedFits;
       /** internal monitoring: categories for counting different types of extension results*/
-      enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3};
+      enum StatIndex {iAll = 0, iBarrel = 1, iTransi = 2, iEndcap = 3, iForwrd = 4};
       std::vector<float>  m_etabounds;           //!< eta intervals for internal monitoring
 
       /** helper for monitoring and validation: does success/failure counting */
@@ -221,6 +232,8 @@ namespace Trk {
       
       mutable InDet::PixelGangedClusterAmbiguities*       m_splitClusterMap;      //!< the actual split map         
       std::string                                         m_splitClusterMapName; //!< split cluster ambiguity map
+      mutable InDet::DRMap*                               m_dRMap;      //!< the actual dR map         
+      std::string                                         m_dRMapName;  //!< dR map
 
 
 //==================================================================================================
