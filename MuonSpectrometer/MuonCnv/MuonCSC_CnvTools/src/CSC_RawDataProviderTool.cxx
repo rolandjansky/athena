@@ -55,7 +55,7 @@ Muon::CSC_RawDataProviderTool::~CSC_RawDataProviderTool()
 StatusCode Muon::CSC_RawDataProviderTool::initialize()
 {
   
-  m_log.setLevel(outputLevel());
+  m_log.setLevel(msgLevel());
   
   if ( service("ActiveStoreSvc", m_activeStore).isFailure() ) {
     ATH_MSG_FATAL ( "Could not get active store service" );
