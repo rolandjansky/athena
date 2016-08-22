@@ -11,7 +11,7 @@ static RpcByteStreamErrorContainerCnv_p1   TPconverter_p1;
 
 RpcByteStreamErrorContainer_PERS* RpcByteStreamErrorContainerCnv::createPersistent(Muon::RpcByteStreamErrorContainer* transObj) {
   using namespace Muon;
-  MsgStream log(messageService(), "RpcByteStreamErrorContainer converter");
+  MsgStream log(msgSvc(), "RpcByteStreamErrorContainer converter");
   RpcByteStreamErrorContainer_PERS *persObj = TPconverter_p1.createPersistent( transObj, log );
   return persObj;
 }
@@ -22,7 +22,7 @@ Muon::RpcByteStreamErrorContainer* RpcByteStreamErrorContainerCnv::createTransie
   if( compareClassGuid(p1_guid) ) {
     // using auto_ptr ensures deletion of the persistent object
     std::auto_ptr< RpcByteStreamErrorContainer_p1 > col_vect( poolReadObject< RpcByteStreamErrorContainer_p1 >() );
-    MsgStream log(messageService(), "RpcByteStreamErrorContainer_p1" );
+    MsgStream log(msgSvc(), "RpcByteStreamErrorContainer_p1" );
     return TPconverter_p1.createTransient( col_vect.get(), log );
   } 
   throw std::runtime_error("Unsupported persistent version of RpcByteStreamErrorContainer");
