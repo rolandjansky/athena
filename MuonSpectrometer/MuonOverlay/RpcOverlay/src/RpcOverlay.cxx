@@ -50,7 +50,7 @@ RpcOverlay::RpcOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
 //================================================================
 StatusCode RpcOverlay::overlayInitialize()
 {
-  msg( MSG::INFO ) << "RpcOverlay initialized" << endreq;
+  msg( MSG::INFO ) << "RpcOverlay initialized" << endmsg;
 
   if (m_storeGateTemp.retrieve().isFailure()) {
      ATH_MSG_FATAL("RpcOverlay::initialize(): TempStore for signal not found !");
@@ -66,33 +66,33 @@ StatusCode RpcOverlay::overlayInitialize()
   StoreGateSvc* detStore=0;
   StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    msg( MSG::FATAL ) << "DetectorStore service not found !" << endreq;
+    msg( MSG::FATAL ) << "DetectorStore service not found !" << endmsg;
     return StatusCode::FAILURE;
   }
 
   /** access to the CSC Identifier helper */
   sc = detStore->retrieve(m_rpcHelper, "RPCIDHELPER");
   if (sc.isFailure()) {
-    msg( MSG::FATAL ) << "Could not get RpcIdHelper !" << endreq;
+    msg( MSG::FATAL ) << "Could not get RpcIdHelper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
-    msg( MSG::DEBUG ) << " Found the RpcIdHelper. " << endreq;
+    msg( MSG::DEBUG ) << " Found the RpcIdHelper. " << endmsg;
   }
 
   if (m_digTool.retrieve().isFailure()) {
     msg( MSG::FATAL ) << "Could not retrieve RPC Digitization Tool!"
-        << endreq;
+        << endmsg;
     return StatusCode::FAILURE;
   }
-  msg( MSG::DEBUG ) << "Retrieved RPC Digitization Tool." << endreq;
+  msg( MSG::DEBUG ) << "Retrieved RPC Digitization Tool." << endmsg;
   
   if (m_rdoTool.retrieve().isFailure()) {
     msg( MSG::FATAL ) << "Could not retrieve RPC RDO -> Digit Tool!"
-                      << endreq;
+                      << endmsg;
     return StatusCode::FAILURE;
   }
-  msg( MSG::DEBUG ) << "Retrieved RPC RDO -> Digit Tool." << endreq;
+  msg( MSG::DEBUG ) << "Retrieved RPC RDO -> Digit Tool." << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -100,27 +100,27 @@ StatusCode RpcOverlay::overlayInitialize()
 //================================================================
 StatusCode RpcOverlay::overlayFinalize() 
 {
-  msg( MSG::INFO ) << "RpcOverlay finalized" << endreq;
+  msg( MSG::INFO ) << "RpcOverlay finalized" << endmsg;
   return StatusCode::SUCCESS;
 }
 
 //================================================================
 StatusCode RpcOverlay::overlayExecute() {
-  msg( MSG::DEBUG ) << "RpcOverlay::execute() begin"<< endreq;
+  msg( MSG::DEBUG ) << "RpcOverlay::execute() begin"<< endmsg;
 
   //----------------------------------------------------------------
 
   /** In the real data stream, run RDO -> Digit converter to make Digit
       this will be used in the overlay job */
   if ( m_rdoTool->digitize().isFailure() ) {
-     msg( MSG::ERROR ) << "On the fly RPC RDO -> Digit failed " << endreq;
+     msg( MSG::ERROR ) << "On the fly RPC RDO -> Digit failed " << endmsg;
      return StatusCode::FAILURE;
   }
 
   /** in the simulation stream, run digitization of the fly
       and make Digit - this will be used as input to the overlay job */
   if ( m_digTool->digitize().isFailure() ) {
-     msg( MSG::ERROR ) << "On the fly RPC digitization failed " << endreq;
+     msg( MSG::ERROR ) << "On the fly RPC digitization failed " << endmsg;
      return StatusCode::FAILURE;
   }
 
@@ -130,29 +130,29 @@ StatusCode RpcOverlay::overlayExecute() {
 
   std::auto_ptr<RpcDigitContainer> rpc(m_storeGateData->retrievePrivateCopy<RpcDigitContainer>(m_mainInputRPC_Name));
   if ( !rpc.get() ) {
-     msg( MSG::ERROR ) << "Could not get data RPC container " << m_mainInputRPC_Name << endreq;
+     msg( MSG::ERROR ) << "Could not get data RPC container " << m_mainInputRPC_Name << endmsg;
      return StatusCode::FAILURE;
   }
 
-  msg( MSG::VERBOSE ) << "Retrieving MC input RPC container" << endreq;
+  msg( MSG::VERBOSE ) << "Retrieving MC input RPC container" << endmsg;
   std::auto_ptr<RpcDigitContainer> ovl_input_RPC(m_storeGateMC->retrievePrivateCopy<RpcDigitContainer>(m_overlayInputRPC_Name));
   if(!ovl_input_RPC.get()) {
-    msg( MSG::ERROR ) << "Could not get overlay RPC container " << m_overlayInputRPC_Name << endreq;
+    msg( MSG::ERROR ) << "Could not get overlay RPC container " << m_overlayInputRPC_Name << endmsg;
     return StatusCode::FAILURE;
   }
-  //log << MSG::DEBUG << "RPC MC     = " << this->shortPrint(ovl_input_RPC) << endreq;
+  //log << MSG::DEBUG << "RPC MC     = " << this->shortPrint(ovl_input_RPC) << endmsg;
 
   RpcDigitContainer *rpc_temp_bkg = copyMuonDigitContainer<RpcDigitContainer,RpcDigit>(rpc.get());
 
   if ( m_storeGateTempBkg->record(rpc_temp_bkg, m_mainInputRPC_Name).isFailure() ) {
-     msg( MSG::WARNING ) << "Failed to record background RpcDigitContainer to temporary background store " << endreq;
+     msg( MSG::WARNING ) << "Failed to record background RpcDigitContainer to temporary background store " << endmsg;
   }
 
   this->overlayContainer(rpc, ovl_input_RPC);
-  //log << MSG::DEBUG << "RPC Result = " << this->shortPrint(cdata) << endreq;
+  //log << MSG::DEBUG << "RPC Result = " << this->shortPrint(cdata) << endmsg;
 
   if ( m_storeGateOutput->record(rpc, m_mainInputRPC_Name).isFailure() )
-    msg( MSG::WARNING ) << "Failed to record RPC overlay container to output store " << endreq;
+    msg( MSG::WARNING ) << "Failed to record RPC overlay container to output store " << endmsg;
 
   //----------------
   // This kludge is a work around for problems created by another kludge:
@@ -163,7 +163,7 @@ StatusCode RpcOverlay::overlayExecute() {
   rpc.release();
 
   //----------------------------------------------------------------
-  msg( MSG::DEBUG ) <<"Processing MC truth data"<<endreq;
+  msg( MSG::DEBUG ) <<"Processing MC truth data"<<endmsg;
 
   // Main stream is normally real data without any MC info.
   // In tests we may use a MC generated file instead of real data.
@@ -177,7 +177,7 @@ StatusCode RpcOverlay::overlayExecute() {
      this->copyObjects<MuonSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
 
   //----------------------------------------------------------------
-  msg( MSG::DEBUG ) << "RpcOverlay::execute() end"<< endreq;
+  msg( MSG::DEBUG ) << "RpcOverlay::execute() end"<< endmsg;
 
   return StatusCode::SUCCESS;
 }
