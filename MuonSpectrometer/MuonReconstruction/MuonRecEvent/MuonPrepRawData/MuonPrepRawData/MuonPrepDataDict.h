@@ -20,12 +20,14 @@
 #include "MuonPrepRawData/TgcPrepDataContainer.h"
 #include "MuonPrepRawData/sTgcPrepDataContainer.h"
 #include "MuonPrepRawData/MMPrepDataContainer.h"
+#include "AthLinks/ElementLink.h"
 
 #define EXPAND_DLV(T, suffix) \
   ::DataLinkVector< Muon::MuonPrepDataCollection< T > > m_dummy_dlv_ ## suffix ; \
   ::DataLinkVector< Muon::MuonPrepDataCollection< T > >::DataHolder m_dummy_holder_ ## suffix ; \
   ::DataLinkVector< Muon::MuonPrepDataCollection< T > >::Entry m_dummy_entry_ ## suffix ; \
-  ::DataLinkVector< Muon::MuonPrepDataCollection< T > >::iterator m_dummy_iter_ ## suffix
+  ::DataLinkVector< Muon::MuonPrepDataCollection< T > >::iterator m_dummy_iter_ ## suffix; \
+  ::ElementLink< T ## Container> m_dummy_el_ ## suffix
 
 namespace MuonPrepRawData_dict {
   using namespace Muon; 

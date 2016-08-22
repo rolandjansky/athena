@@ -33,6 +33,8 @@ namespace MuonGM {
 namespace Muon
 {
 
+  class MdtPrepDataContainerCnv_p1;
+
 /** @brief Class to represent measurements from the Monitored Drift Tubes*/    
 class MdtPrepData :   public Trk::PrepRawData
 {
@@ -43,11 +45,14 @@ class MdtPrepData :   public Trk::PrepRawData
 public:
 
     friend class ::MdtPrepDataContainerCnv;
+    friend class Muon::MdtPrepDataContainerCnv_p1;
 
 
     MdtPrepData();
     MdtPrepData(const MdtPrepData &);
+    MdtPrepData(MdtPrepData &&);
     MdtPrepData &operator=(const MdtPrepData &);
+    MdtPrepData &operator=(MdtPrepData &&);
 
     /** Constructor with parameters: this class owns the pointers passed (except the MuonDetectorElement)
     @param id Identifier of the tube which generated DriftCircle, 
@@ -64,6 +69,18 @@ public:
         const IdentifierHash &collectionHash,
         const Amg::Vector2D& driftRadius,
         const Amg::MatrixX* errDriftRadius,
+        const MuonGM::MdtReadoutElement* detEl,
+        const int tdc,
+        const int adc,
+        const MdtDriftCircleStatus status
+    );
+
+    MdtPrepData(
+        const Identifier &id,
+        const IdentifierHash &collectionHash,
+        const Amg::Vector2D& driftRadius,
+        std::unique_ptr<const Amg::MatrixX> errDriftRadius,
+        std::vector<Identifier>&& rdoList,
         const MuonGM::MdtReadoutElement* detEl,
         const int tdc,
         const int adc,

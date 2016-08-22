@@ -30,6 +30,8 @@ class CscStripPrepDataContainerCnv;
 namespace Muon
 {
 
+  class CscStripPrepDataContainerCnv_p1;
+
   /**@brief Class representing the raw data of one CSC strip (for clusters look at Muon::CscPrepData).
      @author niels van Eldik <niels.van.eldik@cern.ch>
   */
@@ -43,6 +45,7 @@ namespace Muon
   public:
 
     friend class ::CscStripPrepDataContainerCnv;
+    friend class Muon::CscStripPrepDataContainerCnv_p1;
   
     CscStripPrepData();
     CscStripPrepData(const CscStripPrepData &);
@@ -65,7 +68,7 @@ namespace Muon
                       const Amg::Vector2D& locpos,
                       const Amg::MatrixX* locErrMat,
                       const MuonGM::CscReadoutElement* detEl,
-                      std::vector<float> sampleCharges,
+                      const std::vector<float>& sampleCharges,
                       float timeOfFirstSample,
                       unsigned short samplingRate       
                       );
