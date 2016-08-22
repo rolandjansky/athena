@@ -89,14 +89,14 @@ StatusCode RPCTriggerDbTool::initialize()
   m_verbose = m_log.level() <= MSG::VERBOSE;
   
   if( m_debug )  m_log  << MSG::INFO << "Initializing - folders names are: eta " << m_etaTableFolder 
-			<< " / phi "<< m_phiTableFolder << endreq;
+			<< " / phi "<< m_phiTableFolder << endmsg;
   
   
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-    if( m_debug )  m_log << MSG::DEBUG  << "Retrieved DetectorStore" << endreq;
+    if( m_debug )  m_log << MSG::DEBUG  << "Retrieved DetectorStore" << endmsg;
   }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
     return sc;
   }
   
@@ -107,7 +107,7 @@ StatusCode RPCTriggerDbTool::initialize()
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
     {
-      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
+      m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
       return StatusCode::FAILURE;
     }
   
@@ -118,7 +118,7 @@ StatusCode RPCTriggerDbTool::initialize()
   // initialize the chrono service
   sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
+    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
     return sc;
   }
 
@@ -139,11 +139,11 @@ StatusCode RPCTriggerDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
   m_verbose = m_log.level() <= MSG::VERBOSE;
   
     
-  if( m_verbose ) m_log << MSG::VERBOSE <<"LoadParameters "<<endreq;
+  if( m_verbose ) m_log << MSG::VERBOSE <<"LoadParameters "<<endmsg;
   
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    m_log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endreq;
+    m_log << MSG::INFO <<"LoadParameters "<< *itr << " I="<<I<<" "<<endmsg;
     if(*itr== m_etaTableFolder) {
         StatusCode sc = loadRPCEtaTable(I,keys);
         if (sc.isFailure())
@@ -174,28 +174,28 @@ StatusCode RPCTriggerDbTool::loadRPCEtaTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
   m_verbose = m_log.level() <= MSG::VERBOSE;
 
   StatusCode sc=StatusCode::SUCCESS;
-  if( m_debug ) m_log << MSG::INFO << "loadRPCEtaTable --- Load Map from DB" << endreq;
+  if( m_debug ) m_log << MSG::INFO << "loadRPCEtaTable --- Load Map from DB" << endmsg;
   
   const CondAttrListCollection * atrc;
-  if( m_debug )  m_log << MSG::INFO << "Try to read from folder <" << m_etaTableFolder << ">" << endreq;
+  if( m_debug )  m_log << MSG::INFO << "Try to read from folder <" << m_etaTableFolder << ">" << endmsg;
   
   sc=m_detStore->retrieve(atrc,m_etaTableFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR 
 	  << "could not retreive the CondAttrListCollection from DB folder " 
-	  << m_etaTableFolder << endreq;
+	  << m_etaTableFolder << endmsg;
     return sc;
   }
   
   else
-    if( m_debug ) m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+    if( m_debug ) m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
   
   
   CondAttrListCollection::const_iterator itr;
   int ic=0;
   for (itr = atrc->begin(); itr != atrc->end(); ++itr) {
     ic++;
-    if( m_verbose ) m_log << MSG::VERBOSE << "Loop over CondAttrListCollection ic = "<<ic<<endreq;
+    if( m_verbose ) m_log << MSG::VERBOSE << "Loop over CondAttrListCollection ic = "<<ic<<endmsg;
     const coral::AttributeList& atr=itr->second;
     
     // store the table columns in private members 
@@ -211,12 +211,12 @@ StatusCode RPCTriggerDbTool::loadRPCEtaTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
     m_etaInfo = *(static_cast<const std::string*>((atr["Additional_Info"]).addressOfData()));    
     m_vecetaInfo.push_back(m_etaInfo);
     if(m_onlyDebug){
-      std::string m_fileName =  m_etaCM_File.c_str();
+      std::string fileName =  m_etaCM_File.c_str();
       std::ofstream file;
-      file.open(m_fileName.c_str(),std::ios::app);
+      file.open(fileName.c_str(),std::ios::app);
       std::cout << "Opening file" << std::endl;
       if (!file.is_open()) {
-	std::cout << "Failed to open file named " << m_fileName << std::endl;
+	std::cout << "Failed to open file named " << fileName << std::endl;
 	return StatusCode::FAILURE;
       }
       
@@ -228,21 +228,21 @@ StatusCode RPCTriggerDbTool::loadRPCEtaTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
 
   itrdb=m_vecetaCM_File.begin();
   while(itrdb<m_vecetaCM_File.end()){
-    if( m_verbose ) m_log << MSG::VERBOSE << "column eta CM_File is \n" << (*itrdb) << endreq;
+    if( m_verbose ) m_log << MSG::VERBOSE << "column eta CM_File is \n" << (*itrdb) << endmsg;
     itrdb++;
     /*
-      log << MSG::VERBOSE << "column eta CM_File is \n" << m_etaCM_File << endreq;
-      log << MSG::VERBOSE << "column eta Th0 is \n" << m_etaTh0 << endreq;
-      log << MSG::VERBOSE << "column eta Th1 is \n" << m_etaTh1 << endreq;
-      log << MSG::VERBOSE << "column eta Th2 is \n" << m_etaTh2 << endreq;
-      log << MSG::VERBOSE << "column eta Sequence_Th is \n" << m_etaSequence_Th << endreq;
-      log << MSG::VERBOSE << "column eta Additional_Info is \n" << m_etaInfo << endreq;
+      log << MSG::VERBOSE << "column eta CM_File is \n" << m_etaCM_File << endmsg;
+      log << MSG::VERBOSE << "column eta Th0 is \n" << m_etaTh0 << endmsg;
+      log << MSG::VERBOSE << "column eta Th1 is \n" << m_etaTh1 << endmsg;
+      log << MSG::VERBOSE << "column eta Th2 is \n" << m_etaTh2 << endmsg;
+      log << MSG::VERBOSE << "column eta Sequence_Th is \n" << m_etaSequence_Th << endmsg;
+      log << MSG::VERBOSE << "column eta Additional_Info is \n" << m_etaInfo << endmsg;
       
-      log <<"End of Sequence load"<<endreq;
+      log <<"End of Sequence load"<<endmsg;
     */
   }
   if( m_debug ) m_log << MSG::INFO<<"After Reading folder, Configuration string size is "
-		      <<m_etaCM_File.size()<<endreq;
+		      <<m_etaCM_File.size()<<endmsg;
   
   return StatusCode::SUCCESS;
   
@@ -259,23 +259,23 @@ StatusCode RPCTriggerDbTool::loadRPCPhiTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
 
 
   StatusCode sc=StatusCode::SUCCESS;
-  if( m_debug ) m_log << MSG::INFO << "loadRPCPhiTable --- Load info from DB" << endreq;
+  if( m_debug ) m_log << MSG::INFO << "loadRPCPhiTable --- Load info from DB" << endmsg;
   
   const CondAttrListCollection * atrc;
-  if( m_debug ) m_log << MSG::INFO << "Try to read from folder <"<<m_phiTableFolder<<">"<<endreq;
+  if( m_debug ) m_log << MSG::INFO << "Try to read from folder <"<<m_phiTableFolder<<">"<<endmsg;
   
   sc=m_detStore->retrieve(atrc,m_phiTableFolder);
   if(sc.isFailure())  {
     m_log << MSG::ERROR 
 	  << "could not retreive the CondAttrListCollection from DB folder " 
-	  << m_phiTableFolder << endreq;
+	  << m_phiTableFolder << endmsg;
     return sc;
   }
   
   else
     if( m_debug ) m_log<<MSG::INFO 
 		       <<" CondAttrListCollection from DB folder have been obtained with size "
-		       << atrc->size() <<endreq;
+		       << atrc->size() <<endmsg;
   
  
   CondAttrListCollection::const_iterator itr;
@@ -292,12 +292,12 @@ StatusCode RPCTriggerDbTool::loadRPCPhiTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
     m_phiInfo = *(static_cast<const std::string*>((atr["Additional_Info"]).addressOfData()));    
     m_vecphiInfo.push_back(m_phiInfo);   
     if(m_onlyDebug){
-      std::string m_fileName_phi =  m_phiCM_File.c_str();
+      std::string fileName_phi =  m_phiCM_File.c_str();
       std::ofstream file_phi;
-      file_phi.open(m_fileName_phi.c_str(),std::ios::app);
+      file_phi.open(fileName_phi.c_str(),std::ios::app);
       std::cout << "Opening file" << std::endl;
       if (!file_phi.is_open()) {
-	std::cout << "Failed to open file named " << m_fileName_phi << std::endl;
+	std::cout << "Failed to open file named " << fileName_phi << std::endl;
 	return StatusCode::FAILURE;
       }
       
@@ -305,15 +305,15 @@ StatusCode RPCTriggerDbTool::loadRPCPhiTable(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys
       file_phi.close();
     }  
   if( m_verbose ) {
-      m_log << MSG::VERBOSE << "column phi CM_File is \n" << m_phiCM_File << endreq;
-      m_log << MSG::VERBOSE << "column phi Th0 is \n" << m_phiTh0 << endreq;
-      m_log << MSG::VERBOSE << "column phi Additional_Info is \n" << m_phiInfo << endreq;
+      m_log << MSG::VERBOSE << "column phi CM_File is \n" << m_phiCM_File << endmsg;
+      m_log << MSG::VERBOSE << "column phi Th0 is \n" << m_phiTh0 << endmsg;
+      m_log << MSG::VERBOSE << "column phi Additional_Info is \n" << m_phiInfo << endmsg;
       
-      m_log <<MSG::VERBOSE << "End of Sequence load"<<endreq;
+      m_log <<MSG::VERBOSE << "End of Sequence load"<<endmsg;
     }
   }
   if( m_debug ) m_log<< MSG::INFO<<"After Reading folder, Correction string size is "
-		       << m_phiCM_File.size()<<endreq;
+		       << m_phiCM_File.size()<<endmsg;
   
   return StatusCode::SUCCESS;
   
