@@ -46,7 +46,7 @@ namespace Overlay {
       parent->msg(MSG::INFO)<<"Overlay::mergeChannelData<MdtDigit>(): "
 			    <<"MDT specific code is called for "
 			    <<typeid(MdtDigit).name()
-			    <<endreq;
+			    <<endmsg;
     }
     
     // ----------------------------------------------------------------
@@ -99,13 +99,13 @@ MdtOverlay::MdtOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   declareProperty("MDTSDO", m_sdo="MDT_SDO");
   declareProperty("CopyObject", m_copyObjects=false);
   declareProperty("CleanOverlayData", m_clean_overlay_data=false);//clean out the overlay data before doing overlay, so you only get MC hits in the output overlay
-
+  declareProperty("CleanOverlaySignal", m_clean_overlay_signal=false);//clean out the signal MC before doing overlay
 }
 
 //================================================================
 StatusCode MdtOverlay::overlayInitialize()
 {
-  msg(MSG::INFO) << "MdtOverlay initialized" << endreq;
+  msg(MSG::INFO) << "MdtOverlay initialized" << endmsg;
 
   if (m_storeGateTemp.retrieve().isFailure()) {
      ATH_MSG_FATAL("MdtOverlay::initialize(): TempStore for signal not found !");
@@ -121,33 +121,33 @@ StatusCode MdtOverlay::overlayInitialize()
   StoreGateSvc* detStore=0;
   StatusCode sc = serviceLocator()->service("DetectorStore", detStore);
   if (sc.isFailure()) {
-    msg( MSG::FATAL ) << "DetectorStore service not found !" << endreq;
+    msg( MSG::FATAL ) << "DetectorStore service not found !" << endmsg;
     return StatusCode::FAILURE;
   }
 
   /** access to the CSC Identifier helper */
   sc = detStore->retrieve(m_mdtHelper, "MDTIDHELPER");
   if (sc.isFailure()) {
-    msg( MSG::FATAL ) << "Could not get MdtIdHelper !" << endreq;
+    msg( MSG::FATAL ) << "Could not get MdtIdHelper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
-    msg( MSG::DEBUG ) << " Found the MdtIdHelper. " << endreq;
+    msg( MSG::DEBUG ) << " Found the MdtIdHelper. " << endmsg;
   }
 
   if (m_digTool.retrieve().isFailure()) {
     msg( MSG::FATAL ) << "Could not retrieve MDT Digitization Tool!"
-                      << endreq;
+                      << endmsg;
     return StatusCode::FAILURE;
   }
-  msg( MSG::DEBUG ) << "Retrieved MDT Digitization Tool." << endreq;
+  msg( MSG::DEBUG ) << "Retrieved MDT Digitization Tool." << endmsg;
   
   if (m_rdoTool.retrieve().isFailure()) {
     msg( MSG::FATAL ) << "Could not retrieve MDT RDO -> Digit Tool!"
-                      << endreq;
+                      << endmsg;
     return StatusCode::FAILURE;
   }
-  msg( MSG::DEBUG ) << "Retrieved MDT RDO -> Digit Tool." << endreq;
+  msg( MSG::DEBUG ) << "Retrieved MDT RDO -> Digit Tool." << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -155,28 +155,28 @@ StatusCode MdtOverlay::overlayInitialize()
 //================================================================
 StatusCode MdtOverlay::overlayFinalize() 
 {
-  msg( MSG::INFO ) << "MdtOverlay finalized" << endreq;
+  msg( MSG::INFO ) << "MdtOverlay finalized" << endmsg;
   return StatusCode::SUCCESS;
 }
 
 //================================================================
 StatusCode MdtOverlay::overlayExecute() {
-  msg( MSG::DEBUG ) << "MdtOverlay::execute() begin"<< endreq;
+  msg( MSG::DEBUG ) << "MdtOverlay::execute() begin"<< endmsg;
 
   //----------------------------------------------------------------
-  msg( MSG::VERBOSE ) << "Retrieving data input MDT container" << endreq;
+  msg( MSG::VERBOSE ) << "Retrieving data input MDT container" << endmsg;
 
   /** In the real data stream, run RDO -> Digit converter to make Digit
       this will be used in the overlay job */
   if ( m_rdoTool->digitize().isFailure() ) {
-     msg( MSG::ERROR ) << "On the fly MDT RDO -> Digit failed " << endreq;
+     msg( MSG::ERROR ) << "On the fly MDT RDO -> Digit failed " << endmsg;
      return StatusCode::FAILURE;
   }
 
   /** in the simulation stream, run digitization of the fly
       and make Digit - this will be used as input to the overlay job */
   if ( m_digTool->digitize().isFailure() ) {
-     msg( MSG::ERROR ) << "On the fly MDT digitization failed " << endreq;
+     msg( MSG::ERROR ) << "On the fly MDT digitization failed " << endmsg;
      return StatusCode::FAILURE;
   }
 
@@ -186,35 +186,42 @@ StatusCode MdtOverlay::overlayExecute() {
 
   std::auto_ptr<MdtDigitContainer> mdt(m_storeGateData->retrievePrivateCopy<MdtDigitContainer>(m_mainInputMDT_Name));
   if ( !mdt.get() ) {
-     msg( MSG::ERROR ) << "Could not get data MDT container " << m_mainInputMDT_Name << endreq;
+     msg( MSG::ERROR ) << "Could not get data MDT container " << m_mainInputMDT_Name << endmsg;
      return StatusCode::FAILURE;
   }
   //MdtDigitContainer * cdata = const_cast<MdtDigitContainer*>(mdt);
 
-  msg( MSG::VERBOSE ) << "Retrieving MC  input MDT container" << endreq;
+  msg( MSG::VERBOSE ) << "Retrieving MC  input MDT container" << endmsg;
   std::auto_ptr<MdtDigitContainer> ovl_input_MDT(m_storeGateMC->retrievePrivateCopy<MdtDigitContainer>(m_overlayInputMDT_Name));
   if(!ovl_input_MDT.get() ) {
-    msg( MSG::ERROR ) << "Could not get overlay MDT container " << m_overlayInputMDT_Name << endreq;
+    msg( MSG::ERROR ) << "Could not get overlay MDT container " << m_overlayInputMDT_Name << endmsg;
     return StatusCode::FAILURE;
   }
 
   MdtDigitContainer *mdt_temp_bkg = copyMuonDigitContainer<MdtDigitContainer,MdtDigit>(mdt.get());
 
   if ( m_storeGateTempBkg->record(mdt_temp_bkg, m_mainInputMDT_Name).isFailure() ) {
-     msg( MSG::WARNING ) << "Failed to record background MdtDigitContainer to temporary background store " << endreq;
+     msg( MSG::WARNING ) << "Failed to record background MdtDigitContainer to temporary background store " << endmsg;
   }
 
-  msg( MSG::INFO ) << "Before cleanup: mdt data has digit_size "<<mdt->digit_size()<<endreq;
+  msg( MSG::INFO ) << "Before cleanup: mdt data has digit_size "<<mdt->digit_size()<<endmsg;
   if (m_clean_overlay_data) {
     mdt->cleanup();//ACH
-    msg( MSG::INFO ) << " After cleanup: mdt data has digit_size "<<mdt->digit_size()<<endreq;
+    msg( MSG::INFO ) << " After cleanup: mdt data has digit_size "<<mdt->digit_size()<<endmsg;
+  }
+
+
+  msg( MSG::INFO ) << "Before cleanup: mdt signal data has digit_size "<<ovl_input_MDT->digit_size()<<endmsg;
+  if (m_clean_overlay_signal) {
+    ovl_input_MDT->cleanup();//ACH
+    msg( MSG::INFO ) << " After cleanup: mdt signal data has digit_size "<<ovl_input_MDT->digit_size()<<endmsg;
   }
 
   //Do the actual overlay
   this->overlayContainer(mdt, ovl_input_MDT);
 
   if ( m_storeGateOutput->record(mdt, m_mainInputMDT_Name).isFailure() ) {
-     msg( MSG::WARNING ) << "Failed to record MDT overlay container to output store " << endreq;
+     msg( MSG::WARNING ) << "Failed to record MDT overlay container to output store " << endmsg;
   }
 
   //----------------
@@ -226,7 +233,7 @@ StatusCode MdtOverlay::overlayExecute() {
   mdt.release();
 
   //----------------------------------------------------------------
-  msg( MSG::DEBUG ) <<"Processing MC truth data"<<endreq;
+  msg( MSG::DEBUG ) <<"Processing MC truth data"<<endmsg;
 
   // Main stream is normally real data without any MC info.
   // In tests we may use a MC generated file instead of real data.
@@ -242,7 +249,7 @@ StatusCode MdtOverlay::overlayExecute() {
      this->copyMuonObjects<MuonSimDataCollection>(&*m_storeGateOutput, &*m_storeGateMC, m_sdo);
 
   //----------------------------------------------------------------
-  msg( MSG::DEBUG ) << "MdtOverlay::execute() end"<< endreq;
+  msg( MSG::DEBUG ) << "MdtOverlay::execute() end"<< endmsg;
 
   return StatusCode::SUCCESS;
 }
