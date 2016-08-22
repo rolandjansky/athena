@@ -50,8 +50,8 @@ return ClassID_traits<RpcPadContainer>::ID() ;
 
 
 StatusCode RpcPadContByteStreamCnv::initialize() {
-      MsgStream log(messageService(), "RpcPadContByteStreamCnv");
-      log << MSG::DEBUG<< " initialize " <<endreq; 
+      MsgStream log(msgSvc(), "RpcPadContByteStreamCnv");
+      log << MSG::DEBUG<< " initialize " <<endmsg; 
 
     // initialize base class
       StatusCode sc = Converter::initialize(); 
@@ -61,20 +61,20 @@ StatusCode RpcPadContByteStreamCnv::initialize() {
     // get ByteStreamEventAccess interface
       if (m_byteStreamEventAccess.retrieve().isFailure())
       {
-          log << MSG::ERROR << " Can't get ByteStreamEventAccess interface" << endreq;
+          log << MSG::ERROR << " Can't get ByteStreamEventAccess interface" << endmsg;
           return StatusCode::FAILURE;
       }
 
     // retrieve Tool
       if(m_tool.retrieve().isFailure())
       {
-          log << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
+          log << MSG::ERROR << " Can't get ByteStreamTool " << endmsg;
           return StatusCode::FAILURE;
       }
 
       if(m_storeGate.retrieve().isFailure())
       {
-          log << MSG::ERROR << " Can't get StoreGateSvc" << endreq;
+          log << MSG::ERROR << " Can't get StoreGateSvc" << endmsg;
           return StatusCode::FAILURE;
       }
 
@@ -85,14 +85,14 @@ StatusCode
 RpcPadContByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAddr) {
    // convert Rpc pads in the container into ByteStream
 
-   MsgStream log(messageService(), "RpcPadContByteStreamCnv");
+   MsgStream log(msgSvc(), "RpcPadContByteStreamCnv");
 
    RawEventWrite* re = m_byteStreamEventAccess->getRawEvent();  
 
    RpcPadContainer* cont=NULL ; 
    StoreGateSvc::fromStorable(pObj, cont ); 
    if(!cont) {
-     log << MSG::ERROR << " Can not cast to RpcPadContainer " << endreq ; 
+     log << MSG::ERROR << " Can not cast to RpcPadContainer " << endmsg ; 
      return StatusCode::FAILURE;    
    } 
 
