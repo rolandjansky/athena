@@ -9,13 +9,12 @@ from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo.set_Value_and_Lock('atlas')
 #globalflags.Luminosity.set_Value_and_Lock('zero')
-globalflags.DataSource.set_Value_and_Lock('data')
 globalflags.InputFormat.set_Value_and_Lock('pool')
+globalflags.DataSource.set_Value_and_Lock('data')
 #globalflags.DatabaseInstance.set_Value_and_Lock('CONDBR2')
 # Not sure that this is correct
 # In LArCAF, BSRDOInput was used but here; ESDInput does not work...
 athenaCommonFlags.FilesInput.set_Value_and_Lock(runArgs.inputESDFile)
-#athenaCommonFlags.PoolESDInput.set_Value_and_Lock(runArgs.inputESDFile)
 
 from RecExConfig.RecFlags import rec
 from RecExConfig.RecAlgsFlags import recAlgs
@@ -138,6 +137,10 @@ triggerGetter = TriggerGetter()
 from CaloTools.CaloNoiseToolDefault import CaloNoiseToolDefault
 theCaloNoiseTool = CaloNoiseToolDefault()
 ToolSvc+=theCaloNoiseTool
+from LArBadChannelTool.LArBadChannelToolConf import LArBadChanTool
+theLArBadChannelTool=LArBadChanTool()
+ToolSvc+=theLArBadChannelTool
+
 # --- BunchCrossing Tool configuration ---
 from TrigBunchCrossingTool.BunchCrossingTool import BunchCrossingTool
 theBCTool = BunchCrossingTool()

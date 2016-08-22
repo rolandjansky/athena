@@ -41,6 +41,7 @@
 #include "LArRecEvent/LArEventBitInfo.h"
 #include "LArRawEvent/LArDigit.h"
 #include "LArRawEvent/LArDigitContainer.h"
+#include "LArRawEvent/LArRawChannelContainer.h"
 #include "LArRecEvent/LArNoisyROSummary.h"
 #include "LArRecEvent/LArCollisionTime.h"
  
@@ -100,6 +101,20 @@
 using namespace std;
 using xAOD::EventInfo;
 
+int nlarcell=0;
+int n_noisy_cell_part[8] = {0,0,0,0,0,0,0,0};
+int n_cell_part[8] = {0,0,0,0,0,0,0,0};
+std::vector<short> m_ft_noisy, m_slot_noisy, m_channel_noisy;
+std::vector<bool> m_isbarrel, m_isendcap, m_isfcal, m_ishec;
+std::vector<short> m_layer; 
+std::vector<int> m_partition,m_noisycellHVphi,m_noisycellHVeta;
+std::vector<float> m_energycell, m_qfactorcell, m_signifcell;
+std::vector<float> m_phicell, m_etacell;
+std::vector<bool> m_isbadcell;
+std::vector<IdentifierHash>  m_IdHash;
+std::vector<int> m_cellpartlayerindex;
+std::vector<Identifier> m_cellIdentifier;
+
 //////////////////////////////////////////////////////////////////////////////////////
 /// Constructor
 
@@ -113,6 +128,7 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
     m_LArHVCablingTool("LArHVCablingTool"),
     m_calo_noise_tool("CaloNoiseTool/CaloNoiseToolDefault"),
     m_bc_tool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool"),
+    m_badchan_tool("LArBadChanTool"),
     m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
     m_LArOnlineIDHelper(0),
     m_LArHVLineIDHelper(0),
@@ -202,7 +218,7 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
     m_nt_phicell(0),
     m_nt_etacell(0),
     m_nt_signifcell(0),
-    m_nt_noisycellpercent(0),
+    //m_nt_noisycellpercent(0),
     m_nt_ft_noisy(0),
     m_nt_slot_noisy(0),
     m_nt_channel_noisy(0),
@@ -243,6 +259,7 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
    declareProperty( "ICaloNoiseTool", m_calo_noise_tool );
    declareProperty( "BCTool", m_bc_tool );
    //   declareProperty( "SCTClusteringTool",m_sctclustering_tool);
+   declareProperty( "ILArBadChanTool", m_badchan_tool );
    
    //event cuts
    declareProperty("SigmaCut", m_sigmacut = 3.0);
@@ -251,6 +268,7 @@ LArNoiseBursts::LArNoiseBursts(const std::string& name,
    // Keep cell properties
    declareProperty("KeepOnlyCellID",          m_keepOnlyCellID = false);
 
+   m_calodetdescrmgr = CaloDetDescrManager::instance(); 
  }
 
 /////////////////////////////////////////////////////////////////////////////////////
@@ -358,7 +376,7 @@ StatusCode LArNoiseBursts::initialize() {
 
   // General properties of events
   m_tree->Branch("Run",&m_nt_run,"Run/I");// Event ID
-  m_tree->Branch("EventId",&m_nt_evtId,"EventId/I");// Event ID
+  m_tree->Branch("EventId",&m_nt_evtId,"EventId/l");// Event ID
   m_tree->Branch("EventTime",&m_nt_evtTime,"EventTime/I");// Event time
   m_tree->Branch("EventTime_ns",&m_nt_evtTime_ns,"EventTime_ns/I");// Event time in nanosecond
   m_tree->Branch("LumiBlock",&m_nt_lb,"LumiBlock/I"); // LB
@@ -433,7 +451,7 @@ StatusCode LArNoiseBursts::initialize() {
   m_tree->Branch("LArTime_nCellC",&m_nt_nCellC,"LArTime_nCellC/I"); // nb of cells used to compute endcap C time
 
   // Event properties related to yield of channels in 3 sigma tails 
-  m_tree->Branch("PerCentNoisyCell",&m_nt_noisycellpercent,"PerCentNoisyCell/F"); // Yield of channels in 3sigma tails in whole LAr
+  //m_tree->Branch("PerCentNoisyCell",&m_nt_noisycellpercent,"PerCentNoisyCell/F"); // Yield of channels in 3sigma tails in whole LAr
   m_tree->Branch("PerCentNoisyCellPartition",&m_nt_noisycellpart); // Yield in each partition:0:embc 1:emba 2:emecc 3:emeca 4:fcalc 5:fcala 6:hecc 7:heca
 
   // LArNoisyRO output
@@ -599,7 +617,7 @@ StatusCode LArNoiseBursts::clear() {
   m_nt_isbadcell.clear();
   m_nt_partition.clear();
   m_nt_layer.clear();
-  m_nt_noisycellpercent = -1;
+  //m_nt_noisycellpercent = -1;
   m_nt_ft_noisy.clear();
   m_nt_slot_noisy.clear();
   m_nt_channel_noisy.clear();
@@ -942,13 +960,15 @@ StatusCode LArNoiseBursts::doEventProperties(){
   //      << endreq;
 
   // Retrieve LArCollision Timing information
-  const LArCollisionTime *  larTime;
-  StatusCode sc =  evtStore()->retrieve(larTime,"LArCollisionTime");
-  if( sc.isFailure()){
-    ATH_MSG_WARNING  ( "Unable to retrieve LArCollisionTime event store" );
-    //return StatusCode::SUCCESS; // Check if failure shd be returned. VB
-  }else {
-    ATH_MSG_DEBUG  ( "LArCollisionTime successfully retrieved from event store" );
+  const LArCollisionTime *  larTime=0;
+  if (evtStore()->contains<LArCollisionTime>("LArCollisionTime")) {
+     StatusCode sc =  evtStore()->retrieve(larTime,"LArCollisionTime");
+     if( sc.isFailure()){
+       ATH_MSG_WARNING  ( "Unable to retrieve LArCollisionTime event store" );
+       //return StatusCode::SUCCESS; // Check if failure shd be returned. VB
+     }else {
+       ATH_MSG_DEBUG  ( "LArCollisionTime successfully retrieved from event store" );
+     }
   }
   
   if (larTime) {
@@ -973,30 +993,27 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
 
 
  // Retrieve LAr calocells container
-  const CaloCellContainer* caloTES;
-  StatusCode sc = evtStore()->retrieve( caloTES, "AllCalo");
-  if (sc.isFailure()) {
-    ATH_MSG_WARNING ( "CaloCell Container not found!" );
+ // or LArRawChannel container, whatsever available...
+  const CaloCellContainer* caloTES=0;
+  const LArRawChannelContainer* LArTES=0;
+  const LArRawChannelContainer* LArTES_dig=0;
+  if(evtStore()->contains<CaloCellContainer>("AllCalo")) {
+     ATH_CHECK(evtStore()->retrieve( caloTES, "AllCalo"));
+  } else if (evtStore()->contains<LArRawChannelContainer>("LArRawChannels") || evtStore()->contains<LArRawChannelContainer>("LArRawChannels_fB")) {
+         if (evtStore()->contains<LArRawChannelContainer>("LArRawChannels")) {
+            ATH_CHECK(evtStore()->retrieve( LArTES_dig, "LArRawChannels"));
+         }
+         if (evtStore()->contains<LArRawChannelContainer>("LArRawChannels_fB")) {
+            ATH_CHECK(evtStore()->retrieve( LArTES, "LArRawChannels_fB"));
+         }
+  } else {
+    ATH_MSG_WARNING ( "CaloCell or LArRawChannel Containers not found!" );
     return StatusCode::SUCCESS;
   }
 
   m_nb_sat = 0;
   n_noisycell =0;
-  int nlarcell = 0;
-  CaloCellContainer::const_iterator caloItr;
-  int n_noisy_cell_part[8] = {0,0,0,0,0,0,0,0};
-  int n_cell_part[8] = {0,0,0,0,0,0,0,0};
-  std::vector<short> m_ft_noisy, m_slot_noisy, m_channel_noisy;
-  std::vector<bool> m_isbarrel, m_isendcap, m_isfcal, m_ishec;
-  std::vector<short> m_layer; 
-  std::vector<int> m_partition,m_noisycellHVphi,m_noisycellHVeta;
-  std::vector<float> m_energycell, m_qfactorcell, m_signifcell;
-  std::vector<float> m_phicell, m_etacell;
-  std::vector<bool> m_isbadcell;
-  std::vector<IdentifierHash>  m_IdHash;
-  std::vector<int> m_cellpartlayerindex;
-  std::vector<Identifier> m_cellIdentifier;
-
+  nlarcell = 0;
   m_ft_noisy.clear();m_slot_noisy.clear();m_channel_noisy.clear();
   m_isbarrel.clear();m_isendcap.clear();m_isfcal.clear();m_ishec.clear();
   m_layer.clear();m_partition.clear();m_energycell.clear();m_qfactorcell.clear(); 
@@ -1004,157 +1021,84 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   m_IdHash.clear();m_noisycellHVeta.clear();m_noisycellHVphi.clear();
   m_cellpartlayerindex.clear();m_cellIdentifier.clear();
 
-  for(caloItr=caloTES->begin();caloItr!=caloTES->end();caloItr++){
-    const CaloDetDescrElement* caloDDE = (*caloItr)->caloDDE();
-    if (caloDDE->is_tile())continue;
-    HWIdentifier onlID;
-    try {onlID = m_LArCablingService->createSignalChannelID((*caloItr)->ID());}
-    catch(LArID_Exception& except) {
-      ATH_MSG_ERROR  ( "LArID_Exception " << m_LArEM_IDHelper->show_to_string((*caloItr)->ID()) << " " << (std::string) except );
-      ATH_MSG_ERROR  ( "LArID_Exception " << m_LArHEC_IDHelper->show_to_string((*caloItr)->ID()) );
-      ATH_MSG_ERROR  ( "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string((*caloItr)->ID()) );
-      continue;
-    }
-    bool connected = m_LArCablingService->isOnlineConnected(onlID);
-    if(!connected) continue;
-    const Identifier idd = m_LArCablingService->cnvToIdentifier(onlID);
-    nlarcell++;
-    IdentifierHash channelHash = m_LArOnlineIDHelper->channel_Hash(onlID);
-    int layer = caloDDE->getLayer();
-    //    CaloCell_ID::CaloSample sampling = (*caloItr)->caloDDE()->getSampling();
-    float eCalo = (*caloItr)->energy();
-    float qfactor = (*caloItr)->quality();
-    float phi = (*caloItr)->phi();
-    //float noise  = m_calo_noise_tool->getNoise( (*caloItr), ICaloNoiseTool::TOTALNOISE );
-    float noise  = m_calo_noise_tool->totalNoiseRMS( (*caloItr), (*caloItr)->gain());
-    //float noise  = m_calo_noise_tool->elecNoiseRMS( (*caloItr), (*caloItr)->gain(),-1);
-    float significance = eCalo / noise ;
-    float eta = (*caloItr)->eta();
-    bool badcell = (*caloItr)->badcell();
-    unsigned int partition = 0;
-    bool is_lar_em_barrel = caloDDE->is_lar_em_barrel();
-    if(is_lar_em_barrel){
-       if(eta<0){
-          partition = 0;
-        }else{
-          partition = 1;
-        }
-    }//barrel
-    bool is_lar_em_endcap = caloDDE->is_lar_em_endcap();
-    if(is_lar_em_endcap){
-        if(eta<0){
-          partition = 2;
-        }else{
-          partition = 3;
-	}
-    }//endcap
-    bool is_lar_fcal   = caloDDE->is_lar_fcal();
-    if(is_lar_fcal){
-        if(eta<0){
-          partition = 4;
-        }else{
-          partition = 5;
-	}
-    }//fcal
-    bool is_lar_hec    = caloDDE->is_lar_hec();
-    if(is_lar_hec){
-      if(eta<0){
-        partition = 6;
-      }else{
-        partition = 7;
-      }
-    }//hec
-    for(unsigned int k=0;k<8;k++){
-       if(partition==k){
-          n_cell_part[k]++;
+  float eCalo;
+  float qfactor;
+  CaloGain::CaloGain gain;
+
+  if(caloTES) {
+     CaloCellContainer::const_iterator caloItr;
+     for(caloItr=caloTES->begin();caloItr!=caloTES->end();caloItr++){
+       const CaloDetDescrElement* caloDDE = (*caloItr)->caloDDE();
+       if (caloDDE->is_tile())continue;
+       HWIdentifier onlID;
+       try {onlID = m_LArCablingService->createSignalChannelID((*caloItr)->ID());}
+       catch(LArID_Exception& except) {
+         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArEM_IDHelper->show_to_string((*caloItr)->ID()) << " " << (std::string) except );
+         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArHEC_IDHelper->show_to_string((*caloItr)->ID()) );
+         ATH_MSG_ERROR  ( "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string((*caloItr)->ID()) );
+         continue;
        }
-    }
-    if(qfactor <1000)                  {m_lowqfactor++;}
-    if(qfactor>=1000 && qfactor<10000) {m_medqfactor++;}
-    if(qfactor>=10000 && qfactor<65535){m_hiqfactor++;}
-    if(qfactor==65535){
-      ATH_MSG_DEBUG ("Satured cell at eta: "<<eta<<", phi: "<<phi<<", partition: "<<partition);
-       m_nb_sat = m_nb_sat +1;
-       m_nt_partition_sat.push_back(partition);
-       m_nt_energy_sat.push_back(eCalo);
-       m_nt_cellIdentifier_sat.push_back((m_LArCablingService->cnvToIdentifier(onlID)).get_identifier32().get_compact());
-       if(!m_keepOnlyCellID){
-         m_nt_barrelec_sat.push_back(m_LArOnlineIDHelper->barrel_ec(onlID));
-         m_nt_posneg_sat.push_back(m_LArOnlineIDHelper->pos_neg(onlID));
-         m_nt_ft_sat.push_back(m_LArOnlineIDHelper->feedthrough(onlID));
-         m_nt_slot_sat.push_back(m_LArOnlineIDHelper->slot(onlID));
-         m_nt_channel_sat.push_back(m_LArOnlineIDHelper->channel(onlID));
-         m_nt_phicell_sat.push_back(phi);
-         m_nt_etacell_sat.push_back(eta);
-         m_nt_layer_sat.push_back(layer);
-         m_nt_isbadcell_sat.push_back(badcell);
-       }
-    }
-    // Store all cells in positive and negative 3 sigma tails...
-    if(significance > m_sigmacut || qfactor > 4000){
-      m_ft_noisy.push_back(m_LArOnlineIDHelper->feedthrough(onlID));
-      m_slot_noisy.push_back(m_LArOnlineIDHelper->slot(onlID));
-      m_channel_noisy.push_back(m_LArOnlineIDHelper->channel(onlID));
-
-      /*
-      m_isbarrel.push_back(is_lar_em_barrel);
-      m_isendcap.push_back(is_lar_em_endcap);
-      m_isfcal.push_back(is_lar_fcal);
-      m_ishec.push_back(is_lar_hec);
-      */
-
-      m_layer.push_back(layer);
-      m_energycell.push_back(eCalo);
-      m_qfactorcell.push_back(qfactor);
-      m_phicell.push_back(phi);
-      m_etacell.push_back(eta);
-      m_signifcell.push_back(significance);
-      m_isbadcell.push_back(badcell);
-      m_partition.push_back(partition);
-      m_IdHash.push_back(channelHash);
-      m_cellIdentifier.push_back(m_LArCablingService->cnvToIdentifier(onlID));
-    // ...but count only cells in positive 3 sigma tails!
-      if (significance > m_sigmacut){
-	n_noisycell++;
-	for(unsigned int k=0;k<8;k++){
-	  if(partition==k){
-	    n_noisy_cell_part[k]++;
-	  }
-	}
-      }
-      int caloindex = GetPartitionLayerIndex(idd);
-      m_cellpartlayerindex.push_back(caloindex);
-      //store HV information
-      /*std::vector<int> * hvid = new std::vector<int>;
-      hvid.clear();
-      //hvid = GetHVLines(idd);
-      std::vector<std::pair<LArHVCellID, int> > hv_vector;
-      hv_vector.clear();
-      m_LArHVCablingTool->getLArHVCellID(idd,hv_vector);
-      if(hv_vector.size()>0){
-        for(unsigned int i=0;i<hv_vector.size();i++){
-	  int nominal_HV =  m_LArHVCablingTool->getNominalHV(hv_vector[i].first);//fill the branch but produces lots of warnings. 
-	  int maximal_HV =  m_LArHVCablingTool->getMaximalHV(hv_vector[i].first);//fill the branch but produces lots of warnings.
-	    m_nt_nominalhv.push_back(nominal_HV);
-            m_nt_maximalhv.push_back(maximal_HV);
-	}
-	}*/
-      m_noisycellHVphi.push_back(m_LArElectrodeIDHelper->hv_phi(onlID));
-      m_noisycellHVeta.push_back(m_LArElectrodeIDHelper->hv_eta(onlID));
-      
-    }   
-
-  }//loop over cells
+       bool connected = m_LArCablingService->isOnlineConnected(onlID);
+       if(!connected) continue;
+       eCalo = (*caloItr)->energy();
+       qfactor = (*caloItr)->quality();
+       gain = (*caloItr)->gain();
+       //if(qfactor > 0. || (*caloItr)->ID() == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG((*caloItr)->ID()<<" : "<<eCalo<<" "<<qfactor<<" "<<gain<<" prov.: "<<(*caloItr)->provenance());
+       ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain));
+     }//loop over cells
+     ATH_MSG_DEBUG("Done cells "<<nlarcell);
+  } else {
+     std::vector<HWIdentifier> chdone; 
+     if (LArTES_dig) {
+       LArRawChannelContainer::const_iterator caloItr;
+       for(caloItr=LArTES_dig->begin();caloItr!=LArTES_dig->end();caloItr++){
+         HWIdentifier onlID=caloItr->identify();
+         bool connected = m_LArCablingService->isOnlineConnected(onlID);
+         if(!connected) continue;
+         eCalo = caloItr->energy();
+         qfactor = caloItr->quality();
+         gain = caloItr->gain();
+         //if(qfactor>0 || m_LArCablingService->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000) ) ATH_MSG_DEBUG(m_LArCablingService->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
+         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain));
+         chdone.push_back(onlID);
+       }//loop over raw channels
+     }  
+     ATH_MSG_DEBUG("Done raw chan. from digi "<<nlarcell);
+     // dirty hack, if we are already complete:
+     if (nlarcell < 182468 && LArTES) { // add those raw channels, which were not from dig.
+       LArRawChannelContainer::const_iterator caloItr;
+       for(caloItr=LArTES->begin();caloItr!=LArTES->end();caloItr++){
+         HWIdentifier onlID=caloItr->identify();
+         if(std::find(chdone.begin(), chdone.end(), onlID) != chdone.end()) continue;
+         bool connected = m_LArCablingService->isOnlineConnected(onlID);
+         if(!connected) continue;
+         eCalo = caloItr->energy();
+         qfactor = caloItr->quality();
+         gain = caloItr->gain();
+         //if(qfactor>0 || m_LArCablingService->cnvToIdentifier((*caloItr).identify()) == Identifier((IDENTIFIER_TYPE)0x33c9500000000000)  ) ATH_MSG_DEBUG(m_LArCablingService->cnvToIdentifier((*caloItr).identify())<<" : "<<eCalo<<" "<<qfactor<<" "<<gain);
+         ATH_CHECK(fillCell(onlID, eCalo, qfactor, gain));
+       }//loop over raw channels
+     }  
+     ATH_MSG_DEBUG("Done raw chan. "<<nlarcell);
+  } // if raw chanels
   
   m_nt_larcellsize = nlarcell;
-  m_nt_cellsize    = caloTES->size();
-  ATH_MSG_DEBUG ("lar cell size = "<<int(nlarcell));
-  ATH_MSG_DEBUG ("all cell size = "<<int(caloTES->size()));
+  if(caloTES) {
+    m_nt_cellsize    = caloTES->size();
+  } else {
+     m_nt_cellsize = LArTES->size();
+  }
+  ATH_MSG_INFO ("lar cell size = "<<int(nlarcell));
+  if(caloTES) ATH_MSG_INFO ("all cell size = "<<int(caloTES->size()));
+  else {
+     if(LArTES_dig) ATH_MSG_INFO ("all LArRawCh. from digi size = "<<int(LArTES_dig->size()));
+     if(LArTES) ATH_MSG_INFO ("all LArRawCh. size = "<<int(LArTES->size()));
+  }
 
-  if (nlarcell > 0)
-    m_nt_noisycellpercent = 100.0*double(n_noisycell)/double(nlarcell);
-  else
-    m_nt_noisycellpercent = 0;
+  //if (nlarcell > 0)
+  //  m_nt_noisycellpercent = 100.0*double(n_noisycell)/double(nlarcell);
+  //else
+  //  m_nt_noisycellpercent = 0;
  
   bool checknoise = false;
   //ratio of noisy cells per partition
@@ -1167,9 +1111,12 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
     }   
   }
 
-  const LArDigitContainer* LArDigitCont;
-  sc = evtStore()->retrieve(LArDigitCont, "LArDigitContainer_Thinned");
-  if (sc.isFailure()) {
+  const LArDigitContainer* LArDigitCont=0;
+  if (evtStore()->contains<LArDigitContainer>("FREE")) ATH_CHECK(evtStore()->retrieve( LArDigitCont, "FREE"));
+  if(!LArDigitCont) {
+     if (evtStore()->contains<LArDigitContainer>("LArDigitContainer_Thinned")) ATH_CHECK(evtStore()->retrieve( LArDigitCont, "LArDigitContainer_Thinned"));
+  }
+  if (!LArDigitCont) {
     ATH_MSG_WARNING ( "LArDigitContainer Container not found!" );
     return StatusCode::SUCCESS;
   }    
@@ -1254,6 +1201,136 @@ StatusCode LArNoiseBursts::doLArNoiseBursts(){
   
 }
 
+StatusCode LArNoiseBursts::fillCell(HWIdentifier onlID, float eCalo, float qfactor, CaloGain::CaloGain gain){
+    const Identifier idd = m_LArCablingService->cnvToIdentifier(onlID);
+    nlarcell++;
+    IdentifierHash channelHash = m_LArOnlineIDHelper->channel_Hash(onlID);
+    CaloDetDescrElement *caloDDE = m_calodetdescrmgr->get_element(idd);
+    int layer = caloDDE->getLayer();
+    //    CaloCell_ID::CaloSample sampling = (*caloItr)->caloDDE()->getSampling();
+    float phi = caloDDE->phi();
+    //float noise  = m_calo_noise_tool->getNoise( (*caloItr), ICaloNoiseTool::TOTALNOISE );
+    float noise  = m_calo_noise_tool->totalNoiseRMS( caloDDE, gain);
+    //float noise  = m_calo_noise_tool->elecNoiseRMS( (*caloItr), (*caloItr)->gain(),-1);
+    //float noise  = m_calo_noise_tool->elecNoiseRMS( caloDDE, gain, -1);
+    float significance = eCalo / noise ;
+    float eta = caloDDE->eta();
+    bool badcell = ! (m_badchan_tool->status(onlID)).good();
+    unsigned int partition = 0;
+    bool is_lar_em_barrel = caloDDE->is_lar_em_barrel();
+    if(is_lar_em_barrel){
+       if(eta<0){
+          partition = 0;
+        }else{
+          partition = 1;
+        }
+    }//barrel
+    bool is_lar_em_endcap = caloDDE->is_lar_em_endcap();
+    if(is_lar_em_endcap){
+        if(eta<0){
+          partition = 2;
+        }else{
+          partition = 3;
+	}
+    }//endcap
+    bool is_lar_fcal   = caloDDE->is_lar_fcal();
+    if(is_lar_fcal){
+        if(eta<0){
+          partition = 4;
+        }else{
+          partition = 5;
+	}
+    }//fcal
+    bool is_lar_hec    = caloDDE->is_lar_hec();
+    if(is_lar_hec){
+      if(eta<0){
+        partition = 6;
+      }else{
+        partition = 7;
+      }
+    }//hec
+    for(unsigned int k=0;k<8;k++){
+       if(partition==k){
+          n_cell_part[k]++;
+       }
+    }
+    if(qfactor <1000)                  {m_lowqfactor++;}
+    if(qfactor>=1000 && qfactor<10000) {m_medqfactor++;}
+    if(qfactor>=10000 && qfactor<65535){m_hiqfactor++;}
+    if(qfactor==65535){
+      ATH_MSG_DEBUG ("Satured cell at eta: "<<eta<<", phi: "<<phi<<", energy: "<<eCalo<<", partition: "<<partition);
+       m_nb_sat = m_nb_sat +1;
+       m_nt_partition_sat.push_back(partition);
+       m_nt_energy_sat.push_back(eCalo);
+       m_nt_cellIdentifier_sat.push_back((m_LArCablingService->cnvToIdentifier(onlID)).get_identifier32().get_compact());
+       if(!m_keepOnlyCellID){
+         m_nt_barrelec_sat.push_back(m_LArOnlineIDHelper->barrel_ec(onlID));
+         m_nt_posneg_sat.push_back(m_LArOnlineIDHelper->pos_neg(onlID));
+         m_nt_ft_sat.push_back(m_LArOnlineIDHelper->feedthrough(onlID));
+         m_nt_slot_sat.push_back(m_LArOnlineIDHelper->slot(onlID));
+         m_nt_channel_sat.push_back(m_LArOnlineIDHelper->channel(onlID));
+         m_nt_phicell_sat.push_back(phi);
+         m_nt_etacell_sat.push_back(eta);
+         m_nt_layer_sat.push_back(layer);
+         m_nt_isbadcell_sat.push_back(badcell);
+       }
+    }
+    // Store all cells in positive and negative 3 sigma tails...
+    if(significance > m_sigmacut || qfactor > 4000){
+      m_ft_noisy.push_back(m_LArOnlineIDHelper->feedthrough(onlID));
+      m_slot_noisy.push_back(m_LArOnlineIDHelper->slot(onlID));
+      m_channel_noisy.push_back(m_LArOnlineIDHelper->channel(onlID));
+
+      /*
+      m_isbarrel.push_back(is_lar_em_barrel);
+      m_isendcap.push_back(is_lar_em_endcap);
+      m_isfcal.push_back(is_lar_fcal);
+      m_ishec.push_back(is_lar_hec);
+      */
+
+      m_layer.push_back(layer);
+      m_energycell.push_back(eCalo);
+      m_qfactorcell.push_back(qfactor);
+      m_phicell.push_back(phi);
+      m_etacell.push_back(eta);
+      m_signifcell.push_back(significance);
+      m_isbadcell.push_back(badcell);
+      m_partition.push_back(partition);
+      m_IdHash.push_back(channelHash);
+      m_cellIdentifier.push_back(m_LArCablingService->cnvToIdentifier(onlID));
+    // ...but count only cells in positive 3 sigma tails!
+      if (significance > m_sigmacut){
+	n_noisycell++;
+        ATH_MSG_DEBUG ("Noisy cell: "<<n_noisycell<<" "<<m_LArCablingService->cnvToIdentifier(onlID)<<" q: "<<qfactor<<" sign.: "<<significance<<" noise: "<<noise);
+	for(unsigned int k=0;k<8;k++){
+	  if(partition==k){
+	    n_noisy_cell_part[k]++;
+	  }
+	}
+      }
+      int caloindex = GetPartitionLayerIndex(idd);
+      m_cellpartlayerindex.push_back(caloindex);
+      //store HV information
+      /*std::vector<int> * hvid = new std::vector<int>;
+      hvid.clear();
+      //hvid = GetHVLines(idd);
+      std::vector<std::pair<LArHVCellID, int> > hv_vector;
+      hv_vector.clear();
+      m_LArHVCablingTool->getLArHVCellID(idd,hv_vector);
+      if(hv_vector.size()>0){
+        for(unsigned int i=0;i<hv_vector.size();i++){
+	  int nominal_HV =  m_LArHVCablingTool->getNominalHV(hv_vector[i].first);//fill the branch but produces lots of warnings. 
+	  int maximal_HV =  m_LArHVCablingTool->getMaximalHV(hv_vector[i].first);//fill the branch but produces lots of warnings.
+	    m_nt_nominalhv.push_back(nominal_HV);
+            m_nt_maximalhv.push_back(maximal_HV);
+	}
+	}*/
+      m_noisycellHVphi.push_back(m_LArElectrodeIDHelper->hv_phi(onlID));
+      m_noisycellHVeta.push_back(m_LArElectrodeIDHelper->hv_eta(onlID));
+      
+    }   
+    return StatusCode::SUCCESS;
+}    
 //////////////////////////////////////////////////////////////////////////////////////
 ///////////////////          doPhysicsObjects        ////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////////////
