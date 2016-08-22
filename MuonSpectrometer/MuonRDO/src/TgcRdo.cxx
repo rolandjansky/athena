@@ -71,7 +71,7 @@ uint16_t TgcRdo::calculateOnlineId (uint16_t subDetectorId, uint16_t rodId)
 	  << (!sc.isSuccess() ? "service(\"TGCcablingServerSvc\", tgcCabGet, true) is failed" : "") 
 	  << (!tgcCabGet ? "TGCcablingServerSvc pointer is NULL" : "") 
 	  << (tgcCabGet && !tgcCabGet->isConfigured() ? "TGCcablingServerSvc is NOT configured yet" : "") 
-	  << endreq;
+	  << endmsg;
       return 9999;
     }
 
