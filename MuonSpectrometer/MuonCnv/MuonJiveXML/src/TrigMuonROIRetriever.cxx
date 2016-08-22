@@ -30,13 +30,13 @@ namespace JiveXML {
   StatusCode TrigMuonROIRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
 
 
     const LVL1_ROI * roi;
     
     if ( evtStore()->retrieve(roi,m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No MuonROI (LVL1_ROI) found." << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No MuonROI (LVL1_ROI) found." << endmsg;
       return StatusCode::SUCCESS;
     } 
 
@@ -85,7 +85,7 @@ namespace JiveXML {
     myDataMap["thrValue"] = thrValue;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);
