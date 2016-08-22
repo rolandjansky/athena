@@ -16,4 +16,22 @@
     <field name="m_last"   transient="true" />
     <field name="m_vect"   transient="true" />
   </class>
+
+  <class name="Muon::MuonCoinDataContainer<Muon::MuonCoinDataCollection<Muon::RpcCoinData> >" />
+  <class name="Muon::MuonCoinDataCollection<Muon::RpcCoinData>" />
+  <class name="DataVector<Muon::MuonCoinDataCollection<Muon::RpcCoinData> >" id="F81C4564-B1C5-4053-A6F6-E0ED77907BE5"/>
+  <class name="std::vector<Muon::MuonCoinDataCollection<Muon::RpcCoinData>*>" />
+  <class name="Muon::RpcCoinData" > 
+    <field name="m_detElOut" transient="true" />
+    <field name="m_globalposIn" transient="true" />
+    <field name="m_globalposOut" transient="true" />
+  </class>
+  <class name="DataVector<Muon::RpcCoinData>" />
+  <class name="IdentifiableContainer<Muon::MuonCoinDataCollection<Muon::RpcCoinData>>" />
+
+  <class name="std::vector<Muon::RpcCoinData*>" />
+  <class name="DataLinkVector<Muon::MuonCoinDataCollection<Muon::RpcCoinData> >" >
+    <field name="m_last"   transient="true" />
+    <field name="m_vect"   transient="true" />
+  </class>
 </lcgdict>

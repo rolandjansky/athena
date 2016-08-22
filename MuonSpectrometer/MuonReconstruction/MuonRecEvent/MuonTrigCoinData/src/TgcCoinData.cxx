@@ -34,7 +34,13 @@ namespace Muon
 			    const double widthOut,
 			    const int delta,
 			    const int sub,
-                            const int inner) :
+                            const int inner,
+                            const int roi,
+                            const int pt,
+                            const int trackletIdStrip,
+                            const Amg::MatrixX* errMat,
+                            const bool isPositiveDeltaR,
+                            const bool veto) :
     m_channelIdIn(channelIdIn),
     m_channelIdOut(channelIdOut),
     m_collectionIdHash(collectionIdHash),
@@ -48,19 +54,19 @@ namespace Muon
     m_isForward(isForward),
     m_isStrip(isStrip),
     m_trackletId(trackletId),
-    m_trackletIdStrip(0),
+    m_trackletIdStrip(trackletIdStrip),
     m_posIn(posIn),
     m_posOut(posOut),
-    m_errMat(0),
+    m_errMat(errMat),
     m_widthIn(widthIn),
     m_widthOut(widthOut),
     m_delta(delta),
-    m_roi(0),
-    m_pt(0),
-    m_veto(false),
+    m_roi(roi),
+    m_pt(pt),
+    m_veto(veto),
     m_sub(sub),
     m_inner(inner),
-    m_isPositiveDeltaR(false),
+    m_isPositiveDeltaR(isPositiveDeltaR),
     m_globalposIn(0),
     m_globalposOut(0)
 { }
@@ -275,7 +281,7 @@ TgcCoinData& TgcCoinData::operator=(const TgcCoinData& RIO)
 // << operator
 MsgStream& operator << ( MsgStream& sl, const TgcCoinData& coin)
 {
-  sl<<"### TgcCoinData Object ###"<<endreq;
+  sl<<"### TgcCoinData Object ###"<<endmsg;
   sl<<"DataType = "<<coin.type()
     <<", isAside = "<<coin.isAside()
     <<", phi = "<<coin.phi()
@@ -299,7 +305,7 @@ MsgStream& operator << ( MsgStream& sl, const TgcCoinData& coin)
     <<", veto = "<<coin.veto()
     <<", sub = "<<coin.sub()
     <<", isPositiveDeltaR = "<<coin.isPositiveDeltaR()
-    <<endreq;
+    <<endmsg;
     return sl;
 }
 

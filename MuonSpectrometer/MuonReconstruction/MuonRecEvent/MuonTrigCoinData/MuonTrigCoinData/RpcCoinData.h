@@ -34,7 +34,9 @@ class RpcCoinData : public RpcPrepData
     /** Public, Copy, operator=, constructor*/
     RpcCoinData();
     RpcCoinData(const RpcCoinData &);
+    RpcCoinData(RpcCoinData &&);
     RpcCoinData &operator=(const RpcCoinData &);
+    RpcCoinData &operator=(RpcCoinData &&);
 
     /** @brief Dumps information about the RpcCoinData*/
     virtual MsgStream&    dump( MsgStream&    stream) const;
@@ -82,6 +84,7 @@ class RpcCoinData : public RpcPrepData
       bool isLowPtCoin() const;
       bool isHighPtCoin() const;
       bool isLowPtInputToHighPtCm() const;
+      bool lowPtCm() const;
 
   private:
 
@@ -111,6 +114,7 @@ class RpcCoinData : public RpcPrepData
   inline unsigned short RpcCoinData::parentCmId() const {return m_parentCmId;}
   inline unsigned short RpcCoinData::parentPadId() const {return m_parentPadId;}
   inline unsigned short RpcCoinData::parentSectorId() const {return m_parentSectorId;}
+  inline bool RpcCoinData::lowPtCm() const {return m_lowPtCm;}
 
 }
   
