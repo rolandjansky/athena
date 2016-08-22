@@ -119,15 +119,15 @@ class EnergyCalculator : public LArVCalculator
 
   private:
 
-	G4bool (EnergyCalculator::*Process_type) (const G4Step*, std::vector<LArHitData>&);
-	G4bool (EnergyCalculator::*FindIdentifier_type) (
+	G4bool (EnergyCalculator::*m_Process_type) (const G4Step*, std::vector<LArHitData>&);
+	G4bool (EnergyCalculator::*m_FindIdentifier_type) (
                                                           const G4Step *,
                                                           std::vector<LArHitData>&,
                                                           G4ThreeVector &,
                                                           G4ThreeVector &);
-	G4double (EnergyCalculator::*GetHV_Value_type) (const G4ThreeVector &p) const;
-	G4double (EnergyCalculator::*GetGapSize_type) (const G4ThreeVector &p) const;
-	G4double (EnergyCalculator::*distance_to_the_nearest_electrode_type) (const G4ThreeVector &p) const;
+	G4double (EnergyCalculator::*m_GetHV_Value_type) (const G4ThreeVector &p) const;
+	G4double (EnergyCalculator::*m_GetGapSize_type) (const G4ThreeVector &p) const;
+	G4double (EnergyCalculator::*m_distance_to_the_nearest_electrode_type) (const G4ThreeVector &p) const;
 
 	G4bool Process_Default(const G4Step*, std::vector<LArHitData>&);
 	G4bool Process_Barrett(const G4Step*, std::vector<LArHitData>&);
@@ -150,33 +150,33 @@ class EnergyCalculator : public LArVCalculator
 	static void SetConst_OuterBarrett(void);
 	static void SetConst_InnerBarrett(void);
 	G4bool GetVolumeIndex(const G4Step *) const;
-	static       G4bool   SetConstOuterBarrett;
-	static       G4bool   SetConstInnerBarrett;
- 	static const G4double LongBarThickness;//       =   20. *mm;
-	static const G4double ColdCorrection;//         =1.0036256;
-	static const G4double StripWidth;//             =3.*mm/ColdCorrection;
-	static const G4double KapGap;//                 =1.*mm/ColdCorrection;
-	static const G4double EdgeWidth;//              =1.*mm;
-	static const G4double DistOfEndofCuFromBack;//  =22.77*mm/ColdCorrection;
-	static const G4double DistOfStartofCuFromBack;//=31.*mm; // frontface of the barrette
-	static const G4double ZmaxOfSignal;// DistOfStartofCuFromBack - DistOfEndofCuFromBack + EdgeWidth;
-	static       G4double RefzDist; // = dElecFocaltoWRP+dWRPtoFrontFace+WheelThickness+  // used as const after initialization
+	static       G4bool   s_SetConstOuterBarrett;
+	static       G4bool   s_SetConstInnerBarrett;
+ 	static const G4double s_LongBarThickness;//       =   20. *mm;
+	static const G4double s_ColdCorrection;//         =1.0036256;
+	static const G4double s_StripWidth;//             =3.*mm/ColdCorrection;
+	static const G4double s_KapGap;//                 =1.*mm/ColdCorrection;
+	static const G4double s_EdgeWidth;//              =1.*mm;
+	static const G4double s_DistOfEndofCuFromBack;//  =22.77*mm/ColdCorrection;
+	static const G4double s_DistOfStartofCuFromBack;//=31.*mm; // frontface of the barrette
+	static const G4double s_ZmaxOfSignal;// DistOfStartofCuFromBack - DistOfEndofCuFromBack + EdgeWidth;
+	static       G4double s_RefzDist; // = dElecFocaltoWRP+dWRPtoFrontFace+WheelThickness+  // used as const after initialization
 	                                // +dWRPtoFrontFace+ LongBarThickness
 	                                // -DistOfEndofCuFromBack
-	static const G4double S3_Etalim[21];
-	static const G4double Rmeas_outer[50];
-	static const G4double Zmeas_outer[2];
-	static       G4double S3_Rlim[21];
-	static       G4double rlim[50];
-	static       G4double zlim[4];
-	static G4int ModuleNumber,PhiDivNumber;
-	static G4double PhiStartOfPhiDiv;
+	static const G4double s_S3_Etalim[21];
+	static const G4double s_Rmeas_outer[50];
+	static const G4double s_Zmeas_outer[2];
+	static       G4double s_S3_Rlim[21];
+	static       G4double s_rlim[50];
+	static       G4double s_zlim[4];
+	static G4int s_ModuleNumber,s_PhiDivNumber;
+	static G4double s_PhiStartOfPhiDiv;
 
 // **************************************************************************
 
 	EnergyCorrection_t m_correction_type;
 	
-	G4double (EnergyCalculator::*ecorr_method) (G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const
+	G4double (EnergyCalculator::*m_ecorr_method) (G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const
 	G4double dummy_correction_method(G4double e, const G4ThreeVector&, const G4ThreeVector&) // need to make const
 	{ return e; }
 	G4double GapAdjustment_old(G4double, const G4ThreeVector&, const G4ThreeVector&); // need to make const
@@ -196,20 +196,21 @@ class EnergyCalculator : public LArVCalculator
 
 
 //variables specific for wheel geometry
-	G4int PhiGapNumber, PhiHalfGapNumber;
-	G4double WaveLength, FanEleThicknessOld,FanEleFoldRadiusOld;
-	G4int HalfWaveNumber, SignofZinHalfWave, SignofSlopeofHalfWave;
-	G4double SinPhiGap, CosPhiGap, ZinHalfWave;
-	G4double FanAbsThickness, FanEleThickness, HalfEleThickness;
-	G4double ElectrodeFanHalfThickness;
+	G4int m_PhiGapNumber, m_PhiHalfGapNumber;
+	G4double m_WaveLength, m_FanEleThicknessOld,m_FanEleFoldRadiusOld;
+	G4int m_HalfWaveNumber, m_SignofZinHalfWave, m_SignofSlopeofHalfWave;
+	G4double m_SinPhiGap, m_CosPhiGap, m_ZinHalfWave;
+	G4double m_FanAbsThickness, m_FanEleThickness, m_HalfEleThickness;
+	G4double m_ElectrodeFanHalfThickness;
 
 //variables specific for Efield calculation
 
-  static       G4bool   FieldMapsRead;
-  static       G4String FieldMapVersion;
+  static       G4bool   s_FieldMapsRead;
+  static       G4String s_FieldMapVersion;
 
-  static const G4double GridSize;
-  static const G4double AverageGap;
+  static const G4double s_GridSize;
+  static const G4double s_AverageGap;
+  static const G4double s_inv_AverageGap;
 
   struct Fold_Efield_Map{
                   G4bool    FieldMapPrepared;
@@ -233,42 +234,42 @@ class EnergyCalculator : public LArVCalculator
                            Fold_Efield_Map Fold1;
                            G4double  GridShift;};
 
-  static Wheel_Efield_Map ChCollInner,ChCollOuter;
-  Wheel_Efield_Map* ChCollWheelType;
-  Fold_Efield_Map*  ChCollFoldType;
-  G4int PointFoldMapArea;
+  static Wheel_Efield_Map s_ChCollInner,s_ChCollOuter;
+  Wheel_Efield_Map* m_ChCollWheelType;
+  Fold_Efield_Map*  m_ChCollFoldType;
+  G4int m_PointFoldMapArea;
 
   void CreateArrays(Wheel_Efield_Map &, G4int);
   inline G4int Index(Fold_Efield_Map* foldmap, G4int i, G4int j, G4int k ) const
     {return foldmap->pLayer[i]+j*foldmap->NofPointsinLayer[i]+k;};
   void SetFoldArea(G4double);
 
-  G4double Ylimits[4];
+  G4double m_Ylimits[4];
 
 //HV for current calculation
 
-  static       G4bool   HVMapRead;
-  static       G4String HVMapVersion;
-  static const G4double AverageHV;
-  static const G4double AverageEfield;
-  static const G4double AverageCurrent;
-  static const G4String HVEMECMapFileName;  //{"HVEMECMap.dat"};
+  static       G4bool   s_HVMapRead;
+  static       G4String s_HVMapVersion;
+  static const G4double s_AverageHV;
+  static const G4double s_AverageEfield;
+  static const G4double s_AverageCurrent;
+  static const G4String s_HVEMECMapFileName;  //{"HVEMECMap.dat"};
 
-  static const G4int NofAtlasSide     = 2;
-  static const G4int NofEtaSection    = 9;
-  static const G4int NofElectrodeSide = 2;
-  static const G4int NofElectrodesOut = 768;
-  static const G4double HV_Etalim[NofEtaSection+1]; // = {1.375,1.5,1.6,1.8,2.,2.1,2.3,2.5,2.8,3.2};
-  static G4int HV_Start_phi[NofAtlasSide][NofEtaSection][NofElectrodeSide];
-  static G4double HV_Values[NofAtlasSide][NofEtaSection][NofElectrodeSide][NofElectrodesOut];
+  static const G4int s_NofAtlasSide     = 2;
+  static const G4int s_NofEtaSection    = 9;
+  static const G4int s_NofElectrodeSide = 2;
+  static const G4int s_NofElectrodesOut = 768;
+  static const G4double s_HV_Etalim[s_NofEtaSection+1]; // = {1.375,1.5,1.6,1.8,2.,2.1,2.3,2.5,2.8,3.2};
+  static G4int s_HV_Start_phi[s_NofAtlasSide][s_NofEtaSection][s_NofElectrodeSide];
+  static G4double s_HV_Values[s_NofAtlasSide][s_NofEtaSection][s_NofElectrodeSide][s_NofElectrodesOut];
 
-  static const G4double LArTemperature_ECC0;//={88.15}; //K
-  static const G4double LArTemperature_ECC1;//={88.37};
-  static const G4double LArTemperature_ECC5;//={87.97};
-  static const G4double LArTemperature_av ;// ={88.16};
+  static const G4double s_LArTemperature_ECC0;//={88.15}; //K
+  static const G4double s_LArTemperature_ECC1;//={88.37};
+  static const G4double s_LArTemperature_ECC5;//={87.97};
+  static const G4double s_LArTemperature_av ;// ={88.16};
 
-  G4int NofPhiSections;
-  G4int NumberOfElectrodesInPhiSection;
+  G4int m_NofPhiSections;
+  G4int m_NumberOfElectrodesInPhiSection;
 
   void GetHVMap(const G4String);
   G4double GetHV_Value(const G4ThreeVector& p) const;
@@ -293,7 +294,7 @@ class EnergyCalculator : public LArVCalculator
 
 // variables for phigap number comparison
 
-  G4int calculatorPhiGap,chcollPhiGap;
+  G4int m_calculatorPhiGap,m_chcollPhiGap;
 
 // functions specific for geometry
 
@@ -319,12 +320,12 @@ class EnergyCalculator : public LArVCalculator
   G4double GetWeightfromFieldMap(G4int,G4double,G4double);
   G4double HalfLArGapSizeOld(G4double) const;
 
-  static       G4double CHC_Esr;
-  static const G4int    CHCMaxPrint=00;
-  static       G4int    CHCIprint;
-  static       G4double CHCEbad;
-  static       G4double CHCEtotal;
-  static       G4double CHCStotal;
+  static       G4double s_CHC_Esr;
+  static const G4int    s_CHCMaxPrint=00;
+  static       G4int    s_CHCIprint;
+  static       G4double s_CHCEbad;
+  static       G4double s_CHCEtotal;
+  static       G4double s_CHCStotal;
 
   private:
 //  inline void vector_to_msg(G4ThreeVector &v) const;
@@ -338,7 +339,7 @@ class EnergyCalculator : public LArVCalculator
 	//  public:
 	G4double distance_to_the_nearest_electrode(const G4ThreeVector &p) const;
 
-	LArG4BirksLaw *birksLaw;
+	LArG4BirksLaw *m_birksLaw;
 	LArWheelCalculator *m_lwc;
 	const LArWheelCalculator * lwc() const { return m_lwc; }
 

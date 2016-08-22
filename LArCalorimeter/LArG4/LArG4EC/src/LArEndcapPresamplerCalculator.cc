@@ -35,9 +35,14 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "globals.hh"
+#include "AthenaKernel/Units.h"
 // 03-Jan-2002 WGS: For 'copysign'.
 #include <cmath>
 #include <climits>
+
+
+namespace Units = Athena::Units;
+
 
 // Standard implementation of a singleton pattern.
 
@@ -49,7 +54,7 @@ LArEndcapPresamplerCalculator* LArEndcapPresamplerCalculator::GetCalculator()
 
 
 LArEndcapPresamplerCalculator::LArEndcapPresamplerCalculator() :
-  birksLaw(NULL)
+  m_birksLaw(NULL)
 {
   // Constructor initializes the geometry.
 
@@ -91,13 +96,13 @@ StoreGate interface");
   if(emecOptions->EMECBirksLaw()){
           const double Birks_LAr_density = 1.396;
           const double Birks_k = emecOptions->EMECBirksk();
-          birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
+          m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
   }
 
 
-   if(birksLaw) {
+   if(m_birksLaw) {
      std::cout << " LArEndcapPresamplerCalculator: Birks' law ON " << std::endl;
-     std::cout << " LArEndcapPresamplerCalculator:   parameter k    " << birksLaw->k() << std::endl;
+     std::cout << " LArEndcapPresamplerCalculator:   parameter k    " << m_birksLaw->k() << std::endl;
    }
    else
      std::cout << " LArEndcapPresamplerCalculator: Birks' law OFF" << std::endl;
@@ -109,7 +114,7 @@ StoreGate interface");
 
 
 LArEndcapPresamplerCalculator::~LArEndcapPresamplerCalculator() {
-  if (birksLaw) delete birksLaw;
+  if (m_birksLaw) delete m_birksLaw;
 }
 
 G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<LArHitData>& hdata)
@@ -124,10 +129,10 @@ G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<
   // with the hit and it should be ignored.
 
   double energy = a_step->GetTotalEnergyDeposit();
-  if (birksLaw) {
-       G4double wholeStepLengthCm = a_step->GetStepLength() / CLHEP::cm;
+  if (m_birksLaw) {
+       G4double wholeStepLengthCm = a_step->GetStepLength() / Units::cm;
        G4double efield = 10.;  // 10 kV/cm simple approximation of electric field
-       energy = (*birksLaw)(energy, wholeStepLengthCm,efield);
+       energy = (*m_birksLaw)(energy, wholeStepLengthCm,efield);
   }
 
 
@@ -144,7 +149,7 @@ G4bool LArEndcapPresamplerCalculator::Process(const G4Step* a_step, std::vector<
   G4ThreeVector p = (startPoint + endPoint) * 0.5;
 
   // Determine if the hit was in-time.
-  hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+  hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
   if (hdata[0].time > m_OOTcut)
     m_isInTime = false;
   else

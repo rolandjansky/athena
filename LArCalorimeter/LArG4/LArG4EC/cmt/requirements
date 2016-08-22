@@ -21,6 +21,7 @@ apply_pattern installed_library
 
 #=======================================================
 private
+use AthenaKernel        AthenaKernel-*  Control
 use AtlasCLHEP      AtlasCLHEP-*        External
 use GaudiInterface  GaudiInterface-*    External
 use GeoModelInterfaces GeoModelInterfaces-*   DetectorDescription/GeoModel

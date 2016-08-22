@@ -73,75 +73,77 @@
 
 #include "LArG4EC/EMECSupportCalibrationCalculator.h"
 #include "LArG4EC/EnergyCalculator.h"
+#include "AthenaKernel/Units.h"
 
 #define MSG_VECTOR(v) "(" << v.x() << ", " << v.y() << ", " << v.z() << ")"
 
 using namespace LArG4::EC;
+namespace Units = Athena::Units;
 
 // ****************************************************************************
-EnergyCalculator::Wheel_Efield_Map EnergyCalculator::ChCollInner;
-EnergyCalculator::Wheel_Efield_Map EnergyCalculator::ChCollOuter;
+EnergyCalculator::Wheel_Efield_Map EnergyCalculator::s_ChCollInner;
+EnergyCalculator::Wheel_Efield_Map EnergyCalculator::s_ChCollOuter;
 
-const G4double            EnergyCalculator::GridSize        =0.1; //[mm]
-const G4double            EnergyCalculator::AverageGap      = 1.3*CLHEP::mm;
-      G4bool              EnergyCalculator::FieldMapsRead   =false;
-      G4String            EnergyCalculator::FieldMapVersion = "";
+const G4double            EnergyCalculator::s_GridSize        =0.1; //[mm]
+const G4double            EnergyCalculator::s_AverageGap      = 1.3*CLHEP::mm;
+      G4bool              EnergyCalculator::s_FieldMapsRead   =false;
+      G4String            EnergyCalculator::s_FieldMapVersion = "";
 // ****************************************************************************
-const G4String EnergyCalculator::HVEMECMapFileName="/afs/cern.ch/atlas/offline/data/lar/emec/efield/HVEMECMap.dat";
-      G4bool   EnergyCalculator::HVMapRead=false;
-      G4String EnergyCalculator::HVMapVersion="unknown";
-const G4double EnergyCalculator::HV_Etalim[NofEtaSection+1]=
+const G4String EnergyCalculator::s_HVEMECMapFileName="/afs/cern.ch/atlas/offline/data/lar/emec/efield/HVEMECMap.dat";
+      G4bool   EnergyCalculator::s_HVMapRead=false;
+      G4String EnergyCalculator::s_HVMapVersion="unknown";
+const G4double EnergyCalculator::s_HV_Etalim[s_NofEtaSection+1]=
                                     {1.375,1.5,1.6,1.8,2.,2.1,2.3,2.5,2.8,3.2};
-const G4double EnergyCalculator::LArTemperature_ECC0=88.15; //K
-const G4double EnergyCalculator::LArTemperature_ECC1=88.37;
-const G4double EnergyCalculator::LArTemperature_ECC5=87.97;
-const G4double EnergyCalculator::LArTemperature_av  =88.16;
-      G4int    EnergyCalculator::HV_Start_phi[NofAtlasSide][NofEtaSection][NofElectrodeSide];
-      G4double EnergyCalculator::HV_Values[NofAtlasSide][NofEtaSection][NofElectrodeSide][NofElectrodesOut];
-const G4double EnergyCalculator::AverageHV=1250.;//[V]
-const G4double EnergyCalculator::AverageEfield=0.01*AverageHV/AverageGap;//[kv/cm]
-const G4double EnergyCalculator::AverageCurrent=1./AverageGap*IonReco(AverageEfield)
-                                        *DriftVelo(LArTemperature_av,AverageEfield);
+const G4double EnergyCalculator::s_LArTemperature_ECC0=88.15; //K
+const G4double EnergyCalculator::s_LArTemperature_ECC1=88.37;
+const G4double EnergyCalculator::s_LArTemperature_ECC5=87.97;
+const G4double EnergyCalculator::s_LArTemperature_av  =88.16;
+      G4int    EnergyCalculator::s_HV_Start_phi[s_NofAtlasSide][s_NofEtaSection][s_NofElectrodeSide];
+      G4double EnergyCalculator::s_HV_Values[s_NofAtlasSide][s_NofEtaSection][s_NofElectrodeSide][s_NofElectrodesOut];
+const G4double EnergyCalculator::s_AverageHV=1250.;//[V]
+const G4double EnergyCalculator::s_AverageEfield=0.01*s_AverageHV/s_AverageGap;//[kv/cm]
+const G4double EnergyCalculator::s_AverageCurrent=1./s_AverageGap*IonReco(s_AverageEfield)
+                                        *DriftVelo(s_LArTemperature_av,s_AverageEfield);
 // ****************************************************************************
-      G4double EnergyCalculator::CHC_Esr  =0.2*CLHEP::mm; //[mm]
-      G4int    EnergyCalculator::CHCIprint=0;
-      G4double EnergyCalculator::CHCEbad  =0.;
-      G4double EnergyCalculator::CHCEtotal=0.;
-      G4double EnergyCalculator::CHCStotal=0.;
+      G4double EnergyCalculator::s_CHC_Esr  =0.2*CLHEP::mm; //[mm]
+      G4int    EnergyCalculator::s_CHCIprint=0;
+      G4double EnergyCalculator::s_CHCEbad  =0.;
+      G4double EnergyCalculator::s_CHCEtotal=0.;
+      G4double EnergyCalculator::s_CHCStotal=0.;
 // ****************************************************************************
 
-const G4double EnergyCalculator::ColdCorrection         =  1.0036256;
-const G4double EnergyCalculator::LongBarThickness       = 20.*CLHEP::mm;
-const G4double EnergyCalculator::StripWidth             =  3.*CLHEP::mm/ColdCorrection;
-const G4double EnergyCalculator::KapGap                 =  1.*CLHEP::mm/ColdCorrection;
-const G4double EnergyCalculator::EdgeWidth              =  1.*CLHEP::mm;
-const G4double EnergyCalculator::DistOfEndofCuFromBack  = 22.77*CLHEP::mm/ColdCorrection;
-const G4double EnergyCalculator::DistOfStartofCuFromBack= 31.*CLHEP::mm; // frontface of the barrette
-const G4double EnergyCalculator::ZmaxOfSignal           = DistOfStartofCuFromBack
-                                                                - DistOfEndofCuFromBack + EdgeWidth;
-G4double EnergyCalculator::RefzDist           = 0.;
-G4bool EnergyCalculator::SetConstOuterBarrett = false;
-G4bool EnergyCalculator::SetConstInnerBarrett = false;
+const G4double EnergyCalculator::s_ColdCorrection         =  1.0036256;
+const G4double EnergyCalculator::s_LongBarThickness       = 20.*CLHEP::mm;
+const G4double EnergyCalculator::s_StripWidth             =  3.*CLHEP::mm/s_ColdCorrection;
+const G4double EnergyCalculator::s_KapGap                 =  1.*CLHEP::mm/s_ColdCorrection;
+const G4double EnergyCalculator::s_EdgeWidth              =  1.*CLHEP::mm;
+const G4double EnergyCalculator::s_DistOfEndofCuFromBack  = 22.77*CLHEP::mm/s_ColdCorrection;
+const G4double EnergyCalculator::s_DistOfStartofCuFromBack= 31.*CLHEP::mm; // frontface of the barrette
+const G4double EnergyCalculator::s_ZmaxOfSignal           = s_DistOfStartofCuFromBack
+                                                                - s_DistOfEndofCuFromBack + s_EdgeWidth;
+G4double EnergyCalculator::s_RefzDist           = 0.;
+G4bool EnergyCalculator::s_SetConstOuterBarrett = false;
+G4bool EnergyCalculator::s_SetConstInnerBarrett = false;
 
-const G4double EnergyCalculator::S3_Etalim[21]={
+const G4double EnergyCalculator::s_S3_Etalim[21]={
    1.50, 1.55, 1.60, 1.65, 1.70, 1.75, 1.80, 1.85, 1.90, 1.95,
    2.00, 2.05, 2.10, 2.15, 2.20, 2.25, 2.30, 2.35, 2.40, 2.45, 2.5
 };
-const G4double EnergyCalculator::Rmeas_outer[50]={
+const G4double EnergyCalculator::s_Rmeas_outer[50]={
   11.59, 25.22, 57.28, 71.30, 85.90, 98.94, 103.09, 116.68, 130.42, 146.27,
  147.19, 11.59, 15.,   56.91, 44.37, 15.13,  14.93,  45.87,  35.03,  15.40,
   14.04, 39.67, 26.83, 15.64, 14.90, 30.26,  14.70,  29.09,  43.12,  34.51,
   25.08, 11.88, 14.39, 19.54, 17.80, 12.70,  15.31,  13.96,  11.79, -99.,
   23.57, 34.64, 55.32, 65.39, 76.34, 10.83,  94.84,  98.00, -99.,   -99.
 };
-const G4double EnergyCalculator::Zmeas_outer[2]={3.81, 7.81};
+const G4double EnergyCalculator::s_Zmeas_outer[2]={3.81, 7.81};
 
-      G4double EnergyCalculator::S3_Rlim[21];
-      G4double EnergyCalculator::rlim[50];
-      G4double EnergyCalculator::zlim[4];
-      G4int    EnergyCalculator::ModuleNumber;
-      G4int    EnergyCalculator::PhiDivNumber;
-      G4double EnergyCalculator::PhiStartOfPhiDiv;
+      G4double EnergyCalculator::s_S3_Rlim[21];
+      G4double EnergyCalculator::s_rlim[50];
+      G4double EnergyCalculator::s_zlim[4];
+      G4int    EnergyCalculator::s_ModuleNumber;
+      G4int    EnergyCalculator::s_PhiDivNumber;
+      G4double EnergyCalculator::s_PhiStartOfPhiDiv;
 
 LArG4::VCalibrationCalculator* EnergyCalculator::m_supportCalculator=0;
 
@@ -197,7 +199,7 @@ G4bool EnergyCalculator::Process(const G4Step* step, std::vector<LArHitData>& hd
 
   // make sure hdata is reset
   hdata.resize(1); 
-  return (this->*Process_type)(step, hdata);
+  return (this->*m_Process_type)(step, hdata);
 }
 // ****************************************************************************
 
@@ -210,14 +212,14 @@ G4bool EnergyCalculator::FindIdentifier(
 	){
 // ****************************************************************************
 
-  return (this->*FindIdentifier_type) (step,hdata,startPointLocal,endPointLocal);
+  return (this->*m_FindIdentifier_type) (step,hdata,startPointLocal,endPointLocal);
 }
 // ****************************************************************************
 
 EnergyCalculator::~EnergyCalculator() {
-  if(birksLaw) {
-	delete birksLaw;
-	birksLaw = 0;
+  if(m_birksLaw) {
+	delete m_birksLaw;
+	m_birksLaw = 0;
   }
   delete m_lwc;
   m_lwc = 0;
@@ -233,15 +235,15 @@ G4bool EnergyCalculator::Process_Default(const G4Step* step, std::vector<LArHitD
 	}
 
 	G4double E = step->GetTotalEnergyDeposit();
-	if (birksLaw) {
+	if (m_birksLaw) {
 		const G4ThreeVector midpoint = (startPointinLocal + endPointinLocal) * 0.5;
 		const G4double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
-	 	const G4double gap = (this->*GetGapSize_type)(midpoint);
-		const G4double efield = 0.01 * (this->*GetHV_Value_type)(midpoint) / gap; // estimate Efield[KV/cm]
-		E = (*birksLaw)(E, wholeStepLengthCm,efield);
+	 	const G4double gap = (this->*m_GetGapSize_type)(midpoint);
+		const G4double efield = 0.01 * (this->*m_GetHV_Value_type)(midpoint) / gap; // estimate Efield[KV/cm]
+		E = (*m_birksLaw)(E, wholeStepLengthCm,efield);
 	}
 
-	hdata[0].energy = (this->*ecorr_method)(E, startPointinLocal, endPointinLocal);
+	hdata[0].energy = (this->*m_ecorr_method)(E, startPointinLocal, endPointinLocal);
 	return true;
 }
 
@@ -272,15 +274,15 @@ G4bool EnergyCalculator::Process_Barrett(const G4Step* step, std::vector<LArHitD
 
 	// compute signal in 'normal' calculator mode, if cellid is found
 	G4double E = step->GetTotalEnergyDeposit();
-	if (birksLaw){
+	if (m_birksLaw){
 		const G4ThreeVector midpoint = (startPointinLocal + endPointinLocal) * 0.5;
 		const G4double wholeStepLengthCm = step->GetStepLength() / CLHEP::cm;
-	 	const G4double gap = (this->*GetGapSize_type)(midpoint);
-		const G4double efield = 0.01 * (this->*GetHV_Value_type)(midpoint) / gap; // estimate Efield[KV/cm]
-		E = (*birksLaw)(E, wholeStepLengthCm,efield);
+	 	const G4double gap = (this->*m_GetGapSize_type)(midpoint);
+		const G4double efield = 0.01 * (this->*m_GetHV_Value_type)(midpoint) / gap; // estimate Efield[KV/cm]
+		E = (*m_birksLaw)(E, wholeStepLengthCm,efield);
 	}
 
-	hdata[0].energy = (this->*ecorr_method)(E, startPointinLocal, endPointinLocal);
+	hdata[0].energy = (this->*m_ecorr_method)(E, startPointinLocal, endPointinLocal);
 	return true;
 }
 // ****************************************************************************
@@ -290,22 +292,22 @@ EnergyCalculator::EnergyCalculator(
 	G4int zside
 	) : 
      m_correction_type(corr),
-	    PhiGapNumber(0),
-	    PhiHalfGapNumber(0),
-	    HalfWaveNumber(0),
-	    SignofZinHalfWave(0),
-	    SignofSlopeofHalfWave(0),
-	    SinPhiGap(0),
-	    CosPhiGap(0),
-	    ZinHalfWave(0),
-	    HalfEleThickness(0),
-	    ChCollWheelType(0),
-	    ChCollFoldType(0),
-	    PointFoldMapArea(0),
-	    calculatorPhiGap(0),
-	    chcollPhiGap(0),
-    birksLaw(0),
-    m_lwc(new LArWheelCalculator(solidtype, zside) ),
+	    m_PhiGapNumber(0),
+	    m_PhiHalfGapNumber(0),
+	    m_HalfWaveNumber(0),
+	    m_SignofZinHalfWave(0),
+            m_SignofSlopeofHalfWave(0),
+	    m_SinPhiGap(0),
+	    m_CosPhiGap(0),
+	    m_ZinHalfWave(0),
+	    m_HalfEleThickness(0),
+	    m_ChCollWheelType(0),
+	    m_ChCollFoldType(0),
+	    m_PointFoldMapArea(0),
+	    m_calculatorPhiGap(0),
+	    m_chcollPhiGap(0),
+     m_birksLaw(0),
+     m_lwc(new LArWheelCalculator(solidtype, zside) ),
 	m_DB_HV(false)
 // ****************************************************************************
 {
@@ -317,19 +319,19 @@ EnergyCalculator::EnergyCalculator(
 	} else {
 		throw std::runtime_error("EnergyCalculator constructor: cannot initialze message service");
 	}
-	(*m_msg) << MSG::DEBUG << "constructor started" << endreq;
+	(*m_msg) << MSG::DEBUG << "constructor started" << endmsg;
 
 	if(lwc()->GetisElectrode()){
 		(*m_msg) << MSG::FATAL
 		         << "energy caclculator must be of 'absorber' type,"
 		         << " while 'electrode' type is requested."
-		         << endreq;
+		         << endmsg;
 		throw std::runtime_error("wrong type for EnergyCalculator");
 	}
 
-	RefzDist = lwc()->GetElecFocaltoWRP() +
+	s_RefzDist = lwc()->GetElecFocaltoWRP() +
 	           lwc()->GetdWRPtoFrontFace() + lwc()->GetWheelThickness() +
-	           lwc()->GetdWRPtoFrontFace() + LongBarThickness - DistOfEndofCuFromBack;
+	           lwc()->GetdWRPtoFrontFace() + s_LongBarThickness - s_DistOfEndofCuFromBack;
 
 	StoreGateSvc* detStore;
 	LArG4EMECOptions   *emecOptions;
@@ -349,7 +351,7 @@ EnergyCalculator::EnergyCalculator(
 	  throw std::runtime_error("EnergyCalculator: cannot initialize StoreGate interface");
 	}
 
-	(*m_msg) << MSG::DEBUG << "StoreGate interface is ready" << endreq;
+	(*m_msg) << MSG::DEBUG << "StoreGate interface is ready" << endmsg;
 
 	//m_identifier = LArG4Identifier();
 	m_compartment = 0;
@@ -362,7 +364,7 @@ EnergyCalculator::EnergyCalculator(
 	if(emecOptions->EMECBirksLaw()){
 		const double Birks_LAr_density = 1.396;
 		const double Birks_k = emecOptions->EMECBirksk();
-		birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
+		m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
 	}
 
 	m_DB_HV = emecOptions->EMECHVEnable();
@@ -426,14 +428,14 @@ EnergyCalculator::EnergyCalculator(
 	  //       cout<<"i,zsep23= "<<i<<" "<<zsep23[i]<<endl;
 	}
 
-	ElectrodeFanHalfThickness = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::InnerElectrodWheel);
-	FanEleThickness = ElectrodeFanHalfThickness * 2.;
-	FanEleThicknessOld = 0.300*CLHEP::mm;
-	FanEleFoldRadiusOld = 3.*CLHEP::mm;
-	FanAbsThickness = lwc()->GetFanHalfThickness() * 2.;
-	WaveLength = lwc()->GetActiveLength() / lwc()->GetNumberOfWaves();
+	m_ElectrodeFanHalfThickness = LArWheelCalculator::GetFanHalfThickness(LArWheelCalculator::InnerElectrodWheel);
+	m_FanEleThickness = m_ElectrodeFanHalfThickness * 2.;
+	m_FanEleThicknessOld = 0.300*CLHEP::mm;
+	m_FanEleFoldRadiusOld = 3.*CLHEP::mm;
+	m_FanAbsThickness = lwc()->GetFanHalfThickness() * 2.;
+	m_WaveLength = lwc()->GetActiveLength() / lwc()->GetNumberOfWaves();
 
-	assert(fabs((*emecGeometry)[0]->getDouble("GAP0")*CLHEP::cm - AverageGap) < 0.000001);
+	assert(fabs((*emecGeometry)[0]->getDouble("GAP0")*CLHEP::cm - s_AverageGap) < 0.000001);
 
 //Barrette treatment
      if(lwc()->GetisBarrette()){
@@ -446,7 +448,7 @@ EnergyCalculator::EnergyCalculator(
 		           << "EnergyCalculator: "
 				   << "Barrett section is not (yet) prepared for "
 				   << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
-				   << endreq;
+				   << endmsg;
 	      G4ExceptionDescription description;
 	      description << G4String("Process_Barrett: ") + "Barrett section is not (yet) prepared for solidtype=" +
 		LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type());
@@ -457,7 +459,7 @@ EnergyCalculator::EnergyCalculator(
 		        	   << "EnergyCalculator: "
 				   << "Unknown solidtype:"
 				   << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
-				   << endreq;
+				   << endmsg;
 	      G4ExceptionDescription description;
 	      description << G4String("Process_Barrett: ") + "Unknown  solidtype=" +
 		          LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type());
@@ -465,21 +467,21 @@ EnergyCalculator::EnergyCalculator(
 	   }
 	  }
 
-	  Process_type        = &EnergyCalculator::Process_Barrett;
-      FindIdentifier_type = &EnergyCalculator::FindIdentifier_Barrett;
-      GetHV_Value_type    = &EnergyCalculator::GetHV_Value_Barrett;
-      GetGapSize_type     = &EnergyCalculator::GetGapSize_Barrett;
-      distance_to_the_nearest_electrode_type =
+	  m_Process_type        = &EnergyCalculator::Process_Barrett;
+      m_FindIdentifier_type = &EnergyCalculator::FindIdentifier_Barrett;
+      m_GetHV_Value_type    = &EnergyCalculator::GetHV_Value_Barrett;
+      m_GetGapSize_type     = &EnergyCalculator::GetGapSize_Barrett;
+      m_distance_to_the_nearest_electrode_type =
               &EnergyCalculator::distance_to_the_nearest_electrode_Barrett;
 
 	  if(lwc()->GetisBarretteCalib()) m_supportCalculator= new LArG4::EMECSupportCalibrationCalculator();
 
 	} else {
-	  Process_type        = &EnergyCalculator::Process_Default;
-      FindIdentifier_type = &EnergyCalculator::FindIdentifier_Default;
-      GetHV_Value_type    = &EnergyCalculator::GetHV_Value_Default;
-      GetGapSize_type     = &EnergyCalculator::GetGapSize_Default;
-      distance_to_the_nearest_electrode_type =
+	  m_Process_type        = &EnergyCalculator::Process_Default;
+      m_FindIdentifier_type = &EnergyCalculator::FindIdentifier_Default;
+      m_GetHV_Value_type    = &EnergyCalculator::GetHV_Value_Default;
+      m_GetGapSize_type     = &EnergyCalculator::GetGapSize_Default;
+      m_distance_to_the_nearest_electrode_type =
              &EnergyCalculator::distance_to_the_nearest_electrode_Default;
 	}
 
@@ -506,7 +508,7 @@ EnergyCalculator::EnergyCalculator(
 		default:
 			(*m_msg) << MSG::FATAL
 			       << "got from StoreGate ECORRTYPE = " << ecorr
-				   << ", don't know such correction" << endreq;
+				   << ", don't know such correction" << endmsg;
 			throw std::runtime_error("EnergyCalculator: \
 Bad ECORRTYPE");
 		}
@@ -514,39 +516,39 @@ Bad ECORRTYPE");
 
 	switch(m_correction_type){
 	case EMEC_ECOR_GADJ:
-		ecorr_method = &EnergyCalculator::GapAdjustment;
+		m_ecorr_method = &EnergyCalculator::GapAdjustment;
 		break;
 	case EMEC_ECOR_CHCL:
-		ecorr_method = &EnergyCalculator::CalculateChargeCollection;
+		m_ecorr_method = &EnergyCalculator::CalculateChargeCollection;
 		break;
 	case EMEC_ECOR_GADJ_OLD:
-		ecorr_method = &EnergyCalculator::GapAdjustment_old;
+		m_ecorr_method = &EnergyCalculator::GapAdjustment_old;
 		break;
 	case EMEC_ECOR_GADJ_E:
-		ecorr_method = &EnergyCalculator::GapAdjustment_E;
+		m_ecorr_method = &EnergyCalculator::GapAdjustment_E;
 		break;
 	case EMEC_ECOR_GADJ_S:
-		ecorr_method = &EnergyCalculator::GapAdjustment_s;
+		m_ecorr_method = &EnergyCalculator::GapAdjustment_s;
 		break;
 	case EMEC_ECOR_GADJ_SE:
-		ecorr_method = &EnergyCalculator::GapAdjustment__sE;
+		m_ecorr_method = &EnergyCalculator::GapAdjustment__sE;
 		break;
 	case EMEC_ECOR_OFF:
-		ecorr_method = &EnergyCalculator::dummy_correction_method;
+		m_ecorr_method = &EnergyCalculator::dummy_correction_method;
 		break;
 	case EMEC_ECOR_CHCL1:
 		if(lwc()->GetisBarrette()){
-			ecorr_method = &EnergyCalculator::CalculateChargeCollection;
+			m_ecorr_method = &EnergyCalculator::CalculateChargeCollection;
 			(*m_msg) << MSG::INFO << "CHCOLL energy correction is user for Barettes"
-			         << " instead of CHCOLL1" << endreq;
+			         << " instead of CHCOLL1" << endmsg;
 		} else {
-			ecorr_method = &EnergyCalculator::CalculateChargeCollection1;
+			m_ecorr_method = &EnergyCalculator::CalculateChargeCollection1;
 		}
 		break;
 	default:
 		(*m_msg) << MSG::FATAL
 		       << "EnergyCalculator: unknown correction type "
-			   << m_correction_type << endreq;
+			   << m_correction_type << endmsg;
 		G4Exception("EnergyCalculator", "UnknownCorrectionType", FatalException, 
 			    "Process_Barrett: unknown correction type");
 	}
@@ -555,33 +557,33 @@ Bad ECORRTYPE");
 	m_GApower = emecOptions->EMECGapPower();
 
 // pick up surface_suppression_range
-	CHC_Esr = emecOptions->EMECEsr();
+	s_CHC_Esr = emecOptions->EMECEsr();
 
 //read HV values of power supplies
 
-        HVMapVersion = emecOptions->EMECHVMap();
-        if(HVMapVersion == "v00" || HVMapVersion == "v01") NofPhiSections=32;
+        s_HVMapVersion = emecOptions->EMECHVMap();
+        if(s_HVMapVersion == "v00" || s_HVMapVersion == "v01") m_NofPhiSections=32;
         else{
-             NofPhiSections=lwc()->GetNumberOfFans();
-             for(G4int i=0;i<NofAtlasSide;++i){
-	       for(G4int j=0;j<NofEtaSection;++j){
-		 for(G4int k=0;k<NofElectrodeSide;++k){
-		   HV_Start_phi[i][j][k]=0;
+             m_NofPhiSections=lwc()->GetNumberOfFans();
+             for(G4int i=0;i<s_NofAtlasSide;++i){
+	       for(G4int j=0;j<s_NofEtaSection;++j){
+		 for(G4int k=0;k<s_NofElectrodeSide;++k){
+		   s_HV_Start_phi[i][j][k]=0;
 		 }
                }
              }
 	}
- 	NumberOfElectrodesInPhiSection = lwc()->GetNumberOfFans() / NofPhiSections;
+ 	m_NumberOfElectrodesInPhiSection = lwc()->GetNumberOfFans() / m_NofPhiSections;
 
-	Ylimits[0]=Ylimits[1]=Ylimits[2]=Ylimits[3]=0;
+	m_Ylimits[0]=m_Ylimits[1]=m_Ylimits[2]=m_Ylimits[3]=0;
 
-	if(HVMapRead == false){
+	if(s_HVMapRead == false){
 	  (*m_msg) << MSG::DEBUG
-		 << "EnergyCalculator: getting EMECHVMap version = "
-		 << emecOptions->EMECHVMap() << " from StoreGate"
-		 << endreq;
+                   << "EnergyCalculator: getting EMECHVMap version = "
+                   << emecOptions->EMECHVMap() << " from StoreGate"
+                   << endmsg;
 	  G4String HVMapPath  		= "LArG4EC";
-	  G4String HVMapFileName  	= "HVEMECMap_"+ HVMapVersion + ".dat";
+	  G4String HVMapFileName  	= "HVEMECMap_"+ s_HVMapVersion + ".dat";
 	  G4String HVpartialPath = HVMapPath + "/" + HVMapFileName;
 	  G4String HVMapLocation = PathResolver::find_file(HVpartialPath, "ATLASCALDATA");
 	  GetHVMap(HVMapLocation.c_str());
@@ -589,134 +591,134 @@ Bad ECORRTYPE");
 
 	if(m_DB_HV) get_HV_map_from_DB();
 
-// if charge collection is required
-   if(m_correction_type == EMEC_ECOR_CHCL ||  m_correction_type ==  EMEC_ECOR_CHCL1){
-      if(!lwc()->GetisElectrode()){
-// get fieldmap from file
+        // if charge collection is required
+        if(m_correction_type == EMEC_ECOR_CHCL ||  m_correction_type ==  EMEC_ECOR_CHCL1){
+          if(!lwc()->GetisElectrode()){
+            // get fieldmap from file
 
-	if(FieldMapsRead == false){
-	  ChCollInner.FieldMapPrepared=false;
-	  ChCollOuter.FieldMapPrepared=false;
-// Determine which version of the file by examining the user option.
-	  G4String suffix = emecOptions->EMECChMap();
-	  if(suffix.empty()) FieldMapVersion = "v00";
-	  else FieldMapVersion = suffix;
+            if(s_FieldMapsRead == false){
+              s_ChCollInner.FieldMapPrepared=false;
+              s_ChCollOuter.FieldMapPrepared=false;
+              // Determine which version of the file by examining the user option.
+              G4String suffix = emecOptions->EMECChMap();
+              if(suffix.empty()) s_FieldMapVersion = "v00";
+              else s_FieldMapVersion = suffix;
 
-	  (*m_msg) << MSG::DEBUG
-		 << "EnergyCalculator: field map version = "
-		 << FieldMapVersion
-                 << endreq;
+              (*m_msg) << MSG::DEBUG
+                       << "EnergyCalculator: field map version = "
+                       << s_FieldMapVersion
+                       << endmsg;
 
-	  IniGeomforFieldMaps();
+              IniGeomforFieldMaps();
 
-// Now we have to get the full path to the file.  In
-// stand-alone, we use AFS.  In Athena, we use
-// PathResolver.
-	   G4String FieldMapFileName      = "ec.fieldz" + suffix;
-	   G4String FieldMapPath          = "LArG4EC";
-	   G4String partialPath        = FieldMapPath + "/" + FieldMapFileName;
-	   G4String FieldMapLocation   = PathResolver::find_file(partialPath, "ATLASCALDATA");
+              // Now we have to get the full path to the file.  In
+              // stand-alone, we use AFS.  In Athena, we use
+              // PathResolver.
+              G4String FieldMapFileName      = "ec.fieldz" + suffix;
+              G4String FieldMapPath          = "LArG4EC";
+              G4String partialPath        = FieldMapPath + "/" + FieldMapFileName;
+              G4String FieldMapLocation   = PathResolver::find_file(partialPath, "ATLASCALDATA");
 
-	   GetFieldMaps(FieldMapLocation.c_str());
-           FieldMapsRead=true;
+              GetFieldMaps(FieldMapLocation.c_str());
+              s_FieldMapsRead=true;
 
-	} // finish to read the fieldmap
+            } // finish to read the fieldmap
 
-// prepare the fieldmaps for further calculation
+            // prepare the fieldmaps for further calculation
 
-	if(FieldMapVersion != "v00"){
-	  FanEleThicknessOld  = FanEleThickness;
-	  FanEleFoldRadiusOld = lwc()->GetFanFoldRadius();
-	}
+            if(s_FieldMapVersion != "v00"){
+              m_FanEleThicknessOld  = m_FanEleThickness;
+              m_FanEleFoldRadiusOld = lwc()->GetFanFoldRadius();
+            }
 
-	if(lwc()->GetisInner()) ChCollWheelType=&ChCollInner;
-	else        ChCollWheelType=&ChCollOuter;
+            if(lwc()->GetisInner()) m_ChCollWheelType=&s_ChCollInner;
+            else        m_ChCollWheelType=&s_ChCollOuter;
 	
-	if(ChCollWheelType->FieldMapPrepared == false){
-	   PrepareFieldMap();
-	   ChCollWheelType->FieldMapPrepared = true;
-	}
-      }
-      else{ //  electrode type
-	(*m_msg) << MSG::FATAL
-	       << "EnergyCalculator: "
-	       << "Charge Collection cannot be prepared for "
-	       << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
-	       << endreq;
-	G4ExceptionDescription description;
-	description << G4String("Process_Barrett: ") +
-	  "Charge Collection cannot be prepared for solidtype=" +
-	  LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type());
-	G4Exception("EnergyCalculator", "IncorrectSolidType", FatalException, description);
-      }
-   }  // end if chcoll required
-   (*m_msg) << MSG::DEBUG
-	  << "EnergyCalculator parameters: " << std::endl
-	  << "correction type " << m_correction_type << std::endl
-	  << "GA power = " << m_GApower << std::endl
-	  << "energy suppression range = " << CHC_Esr / CLHEP::mm << " [mm]"
-	  << "\n"
-      << "default method for computation of folding angle (param) - compiled in"
-	  << endreq;
-// Aug 2007 AMS, lost Aug 2008, restored May 2009
+            if(m_ChCollWheelType->FieldMapPrepared == false){
+              PrepareFieldMap();
+              m_ChCollWheelType->FieldMapPrepared = true;
+            }
+          }
+          else{ //  electrode type
+            (*m_msg) << MSG::FATAL
+                     << "EnergyCalculator: "
+                     << "Charge Collection cannot be prepared for "
+                     << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
+                     << endmsg;
+            G4ExceptionDescription description;
+            description << G4String("Process_Barrett: ") +
+              "Charge Collection cannot be prepared for solidtype=" +
+              LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type());
+            G4Exception("EnergyCalculator", "IncorrectSolidType", FatalException, description);
+          }
+        }  // end if chcoll required
+        (*m_msg) << MSG::DEBUG
+                 << "EnergyCalculator parameters: " << std::endl
+                 << "correction type " << m_correction_type << std::endl
+                 << "GA power = " << m_GApower << std::endl
+                 << "energy suppression range = " << s_CHC_Esr / Units::mm << " [mm]"
+                 << "\n"
+                 << "default method for computation of folding angle (param) - compiled in"
+                 << endmsg;
+        // Aug 2007 AMS, lost Aug 2008, restored May 2009
 	m_electrode_calculator = 0;
 	if(m_correction_type == EMEC_ECOR_CHCL1 && !lwc()->GetisBarrette()){
-		LArWheelCalculator::LArWheelCalculator_t t = LArWheelCalculator::OuterElectrodWheel;
-		if(lwc()->GetisModule()){
+          LArWheelCalculator::LArWheelCalculator_t t = LArWheelCalculator::OuterElectrodWheel;
+          if(lwc()->GetisModule()){
 		  
-			if(lwc()->GetisInner()) t = LArWheelCalculator::InnerElectrodModule;
-			else t = LArWheelCalculator::OuterElectrodModule;
+            if(lwc()->GetisInner()) t = LArWheelCalculator::InnerElectrodModule;
+            else t = LArWheelCalculator::OuterElectrodModule;
 			
-		} else if(lwc()->GetisInner()) t = LArWheelCalculator::InnerElectrodWheel;
+          } else if(lwc()->GetisInner()) t = LArWheelCalculator::InnerElectrodWheel;
 		
-		m_electrode_calculator = new LArWheelCalculator(t, lwc()->GetAtlasZside());
-		if(m_electrode_calculator == 0){
-			(*m_msg) << MSG::FATAL
-			         << "cannot create helper electrode calculator"
-				 << endreq;
-			G4Exception("EnergyCalculator", "NoElectrodeCalculator", FatalException, 
-				    "Process_Barrett: cannot create helper electrode calculator");
-		}
-		(*m_msg) << MSG::DEBUG
-		       << "helper electrode calculator created ("
-			   << LArWheelCalculator::LArWheelCalculatorTypeString(t) << ")"
-			   << endreq;
+          m_electrode_calculator = new LArWheelCalculator(t, lwc()->GetAtlasZside());
+          if(m_electrode_calculator == 0){
+            (*m_msg) << MSG::FATAL
+                     << "cannot create helper electrode calculator"
+                     << endmsg;
+            G4Exception("EnergyCalculator", "NoElectrodeCalculator", FatalException, 
+                        "Process_Barrett: cannot create helper electrode calculator");
+          }
+          (*m_msg) << MSG::DEBUG
+                   << "helper electrode calculator created ("
+                   << LArWheelCalculator::LArWheelCalculatorTypeString(t) << ")"
+                   << endmsg;
 	}
 } // end of EnergyCalculator::EnergyCalculator
 
 G4double EnergyCalculator::CalculateChargeCollection1(
-	G4double a_energy, const G4ThreeVector &p1, const G4ThreeVector &p2)  // need to make const
+                                                      G4double a_energy, const G4ThreeVector &p1, const G4ThreeVector &p2)  // need to make const
 {
-	if(!lwc()->GetisBarrette()){   // should be wheel
-		G4double current1 = GetCurrent1(p1, p2, a_energy);  // need to make const
+  if(!lwc()->GetisBarrette()){   // should be wheel
+    G4double current1 = GetCurrent1(p1, p2, a_energy);  // need to make const
 
-		CHCEtotal += a_energy;
-		CHCStotal += current1;
+    s_CHCEtotal += a_energy;
+    s_CHCStotal += current1;
 
-		if(m_msg->level()==MSG::DEBUG)
-		  (*m_msg) << MSG::DEBUG
-			   << " chcoll1: edep, current= " << a_energy << " " << current1
-			   << " CHCEtotal= " << CHCEtotal << " CHCStotal= " << CHCStotal
-			   << " CHCIprint= " << CHCIprint << " CHCEbad= " << CHCEbad
-			   << " ebad/etotal= " << CHCEbad / CHCEtotal
-			   << endreq;
-		return current1;
-	}
-	return a_energy;
+    if(m_msg->level()==MSG::DEBUG)
+      (*m_msg) << MSG::DEBUG
+               << " chcoll1: edep, current= " << a_energy << " " << current1
+               << " CHCEtotal= " << s_CHCEtotal << " CHCStotal= " << s_CHCStotal
+               << " CHCIprint= " << s_CHCIprint << " CHCEbad= " << s_CHCEbad
+               << " ebad/etotal= " << s_CHCEbad / s_CHCEtotal
+               << endmsg;
+    return current1;
+  }
+  return a_energy;
 }
 
 
 
 // ****************************************************************************
 G4double EnergyCalculator::GapAdjustment_old(G4double a_energy,
-						const G4ThreeVector& p1, const G4ThreeVector &p2) // need to make const
+                                             const G4ThreeVector& p1, const G4ThreeVector &p2) // need to make const
 // ****************************************************************************
 {
   //  std::cout<<"*** GapAdjustment_old is called, a_energy="<<a_energy
   //	   <<std::endl;
 
-	const G4ThreeVector p = (p1 + p2) * .5;
-	return(a_energy / pow( ((this->*GetGapSize_type)(p)) / AverageGap, 1.3));
+  const G4ThreeVector p = (p1 + p2) * .5;
+  return(a_energy / pow( ((this->*m_GetGapSize_type)(p)) / s_AverageGap, 1.3));
 }
 
 // ****************************************************************************
@@ -725,58 +727,58 @@ G4double EnergyCalculator::GapAdjustment(G4double      a_energy,
                                          const G4ThreeVector& a_endPoint) // need to make const
 // ****************************************************************************
 {
-	static const G4double substpsize = 0.1*CLHEP::mm;
+  static const G4double substpsize = 0.1*CLHEP::mm;
   //  std::cout<<"*** GapAdjustment is called, a_energy="<<a_energy
   //	   <<std::endl;
 
-	const G4ThreeVector step( a_endPoint - a_startPoint );
-	const G4int	        nofstep= int(step.mag()/substpsize)+1;
-	const G4double		s_energy= a_energy/nofstep;
-	G4double	  corr_energy= 0;
-	G4ThreeVector vstep;
+  const G4ThreeVector step( a_endPoint - a_startPoint );
+  const G4int	        nofstep= int(step.mag()/substpsize)+1;
+  const G4double		s_energy= a_energy/nofstep;
+  G4double	  corr_energy= 0;
+  G4ThreeVector vstep;
 
-	for(G4int i = 0; i < nofstep; ++ i){ // loop for substeps
-		const G4double ds = (i + 0.5) / nofstep;
-	 	vstep = a_startPoint * (1. - ds) + a_endPoint * ds;
-		const G4double gap = (this->*GetGapSize_type)(vstep);
-		corr_energy += s_energy / pow((gap / AverageGap), m_GApower);
-	}
-	return corr_energy;
+  for(G4int i = 0; i < nofstep; ++ i){ // loop for substeps
+    const G4double ds = (i + 0.5) / nofstep;
+    vstep = a_startPoint * (1. - ds) + a_endPoint * ds;
+    const G4double gap = (this->*m_GetGapSize_type)(vstep);
+    corr_energy += s_energy * pow((gap / s_AverageGap), m_GApower);
+  }
+  return corr_energy;
 }
 
 // ****************************************************************************
 G4double EnergyCalculator::GapAdjustment_E(G4double a_energy,
-                                                  const G4ThreeVector& a_startPoint,
-                                                  const G4ThreeVector& a_endPoint) // need to make const
+                                           const G4ThreeVector& a_startPoint,
+                                           const G4ThreeVector& a_endPoint) // need to make const
 // ****************************************************************************
 {
-	static const G4double substpsize = 0.1*CLHEP::mm;
+  static const G4double substpsize = 0.1*CLHEP::mm;
   //std::cout<<"*** GapAdjustment_E is called, a_energy="<<a_energy
   //	   <<std::endl;
 
-	const G4ThreeVector step( a_endPoint - a_startPoint );
-	const G4int nofstep = G4int(step.mag()/substpsize) + 1;
-	const G4double s_energy = a_energy / nofstep / AverageCurrent;
-	G4double corr_energy = 0;
-	G4ThreeVector vstep;
+  const G4ThreeVector step( a_endPoint - a_startPoint );
+  const G4int nofstep = G4int(step.mag()/substpsize) + 1;
+  const G4double s_energy = a_energy / nofstep / s_AverageCurrent;
+  G4double corr_energy = 0;
+  G4ThreeVector vstep;
 
-	for(G4int i = 0; i < nofstep; i ++){
-		const G4double ds = (i + 0.5) / nofstep;
-		vstep = a_startPoint * (1. - ds) + a_endPoint * ds;
-		const G4double gap = (this->*GetGapSize_type)(vstep);
-		const G4double HV_value = (this->*GetHV_Value_type)(vstep);
-		const G4double efield = (HV_value * CLHEP::volt) / (gap * CLHEP::mm) / (CLHEP::kilovolt / CLHEP::cm); // estimate Efield[KV/cm]
-		corr_energy += s_energy / /* gap * gap / */ (gap - CHC_Esr)
-		             * IonReco(efield) * DriftVelo(LArTemperature_av, efield);
-	}
-	return corr_energy;
+  for(G4int i = 0; i < nofstep; i ++){
+    const G4double ds = (i + 0.5) / nofstep;
+    vstep = a_startPoint * (1. - ds) + a_endPoint * ds;
+    const G4double gap = (this->*m_GetGapSize_type)(vstep);
+    const G4double HV_value = (this->*m_GetHV_Value_type)(vstep);
+    const G4double efield = (HV_value * CLHEP::volt) / (gap * CLHEP::mm) / (CLHEP::kilovolt / CLHEP::cm); // estimate Efield[KV/cm]
+    corr_energy += s_energy / /* gap * gap / */ (gap - s_CHC_Esr)
+      * IonReco(efield) * DriftVelo(s_LArTemperature_av, efield);
+  }
+  return corr_energy;
 }
 
 // ****************************************************************************
 G4double EnergyCalculator::CalculateChargeCollection(
-	G4double a_energy,
-	const G4ThreeVector &a_startPoint,
-	const G4ThreeVector &a_endPoint) // need to make const
+                                                     G4double a_energy,
+                                                     const G4ThreeVector &a_startPoint,
+                                                     const G4ThreeVector &a_endPoint) // need to make const
 // ****************************************************************************
 {
   // std::cout<<"*** CalculateChargeCollection is called, a_energy="<<a_energy
@@ -792,10 +794,10 @@ G4double EnergyCalculator::CalculateChargeCollection(
 	     << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
 	     << " isBarrette = " << lwc()->GetisBarrette()
 	     << " isBarretteCalib = " << lwc()->GetisBarretteCalib()
-	     << endreq;
+	     << endmsg;
 
-//	calculatorPhiGap =
-//		lwc()->PhiGapNumberForWheel(LArWheelCalculator::GetPhiGap(a_startPoint));
+  //	m_calculatorPhiGap =
+  //		lwc()->PhiGapNumberForWheel(LArWheelCalculator::GetPhiGap(a_startPoint));
 
   G4double pStart[3],pEnd[3];
   for(G4int i = 0; i <= 2; ++ i){
@@ -806,9 +808,9 @@ G4double EnergyCalculator::CalculateChargeCollection(
   if(!lwc()->GetisBarrette()){   // should be wheel
 
     assert(pStart[2] >= -0.0001 &&
-	     pEnd[2] >= -0.0001 &&
+           pEnd[2] >= -0.0001 &&
 	   pStart[2] <= lwc()->GetWheelThickness()+0.0001   &&
-	     pEnd[2] <= lwc()->GetWheelThickness()+0.0001);
+           pEnd[2] <= lwc()->GetWheelThickness()+0.0001);
 
     if(pStart[2]<0.) pStart[2]=0.0001;
     if(  pEnd[2]<0.)   pEnd[2]=0.0001;
@@ -827,156 +829,156 @@ G4double EnergyCalculator::CalculateChargeCollection(
 
   const G4double current = GetCurrent(pStart, pEnd, a_energy);
 
-  CHCEtotal=CHCEtotal+a_energy;
-  CHCStotal=CHCStotal+current;
+  s_CHCEtotal=s_CHCEtotal+a_energy;
+  s_CHCStotal=s_CHCStotal+current;
 
   if(m_msg->level()==MSG::DEBUG)
     (*m_msg) << MSG::DEBUG
-//  std::cout
+      //  std::cout
 	     <<" isBarrett="<<lwc()->GetisBarrette()<<" isInner="<<lwc()->GetisInner()
 	     <<" chcoll: edep, current= "<<a_energy<<" "<<current
-	     <<" CHCEtotal= "<<CHCEtotal<<" CHCStotal= "<<CHCStotal
-	     <<" CHCIprint= "<<CHCIprint<<" CHCEbad= "<<CHCEbad
-	     <<" ebad/etotal= "<<CHCEbad/CHCEtotal
-	     <<endreq;
-//  <<std::endl;
+	     <<" CHCEtotal= "<<s_CHCEtotal<<" CHCStotal= "<<s_CHCStotal
+	     <<" CHCIprint= "<<s_CHCIprint<<" CHCEbad= "<<s_CHCEbad
+	     <<" ebad/etotal= "<<s_CHCEbad/s_CHCEtotal
+	     <<endmsg;
+  //  <<std::endl;
 
   return current;
 }
 
 // ****************************************************************************
 void EnergyCalculator::GetHVMap(const G4String fname){
-// ****************************************************************************
+  // ****************************************************************************
 
-	(*m_msg) << MSG::INFO
-	       << "HVEMECMap is to be read from file: " << fname << endreq;
+  (*m_msg) << MSG::INFO
+           << "HVEMECMap is to be read from file: " << fname << endmsg;
 
-	FILE *lun = fopen(fname, "r");
-	if(lun == 0){
-		(*m_msg) << MSG::ERROR
-		       << "GetHVMap - file '" << fname << "' not found!"
-			   << std::endl
-			   << " Trying to read HVEMECMap from local file:"
-			   << "HVEMECMap.dat"
-			   << endreq;
-		lun = fopen("HVEMECMap.dat", "r");
-	}
-	if(lun == 0){
-		(*m_msg) << MSG::FATAL
-			 << "GetHVMap - file "<< "./HVEMECMap.dat not found!"
-			 << "Cannot obtain HV map." << endreq;
-		G4Exception("EnergyCalculator", "NoHVMap", FatalException, 
-			    "GetHVMap: could not read map file");
-	}
+  FILE *lun = fopen(fname, "r");
+  if(lun == 0){
+    (*m_msg) << MSG::ERROR
+             << "GetHVMap - file '" << fname << "' not found!"
+             << std::endl
+             << " Trying to read HVEMECMap from local file:"
+             << "HVEMECMap.dat"
+             << endmsg;
+    lun = fopen("HVEMECMap.dat", "r");
+  }
+  if(lun == 0){
+    (*m_msg) << MSG::FATAL
+             << "GetHVMap - file "<< "./HVEMECMap.dat not found!"
+             << "Cannot obtain HV map." << endmsg;
+    G4Exception("EnergyCalculator", "NoHVMap", FatalException, 
+                "GetHVMap: could not read map file");
+  }
 
-        char ch[80], ch1[80];
+  char ch[80], ch1[80];
 
-        for(G4int i=0;i<80;i++){ch1[i]=' ';}
+  for(G4int i=0;i<80;i++){ch1[i]=' ';}
 
-	fgets(ch,80,lun);
-	(*m_msg) << MSG::INFO << "actual HVMapVersion = " << ch
-	       << endreq;
-        ch1[0]=ch[9];
-        ch1[1]=ch[10];
-	if(HVMapVersion == "v02" || HVMapVersion == "v99"){
-	  ch1[0]=ch[10];
-          ch1[1]=ch[11];
-        }
-        G4int  iv=atoi(ch1);
-        G4bool ok=false;
-        if(HVMapVersion == "v00" && iv == 0) ok=true;
-        if(HVMapVersion == "v01" && iv == 1) ok=true;
-        if(HVMapVersion == "v02" && iv == 2) ok=true;
-        if(HVMapVersion == "v99" && iv == 99) ok=true;  // this is a test file
+  fgets(ch,80,lun);
+  (*m_msg) << MSG::INFO << "actual s_HVMapVersion = " << ch
+           << endmsg;
+  ch1[0]=ch[9];
+  ch1[1]=ch[10];
+  if(s_HVMapVersion == "v02" || s_HVMapVersion == "v99"){
+    ch1[0]=ch[10];
+    ch1[1]=ch[11];
+  }
+  G4int  iv=atoi(ch1);
+  G4bool ok=false;
+  if(s_HVMapVersion == "v00" && iv == 0) ok=true;
+  if(s_HVMapVersion == "v01" && iv == 1) ok=true;
+  if(s_HVMapVersion == "v02" && iv == 2) ok=true;
+  if(s_HVMapVersion == "v99" && iv == 99) ok=true;  // this is a test file
 
-        if(!ok){
-          (*m_msg) << MSG::FATAL
-		   << "GetHVMap - file does not contain the map requested"<< endreq;
-	  G4Exception("EnergyCalculator", "IncorrectVMap", FatalException, 
-		      "GetHVMap: incorrect map file");
-	}
+  if(!ok){
+    (*m_msg) << MSG::FATAL
+             << "GetHVMap - file does not contain the map requested"<< endmsg;
+    G4Exception("EnergyCalculator", "IncorrectVMap", FatalException, 
+                "GetHVMap: incorrect map file");
+  }
 
-	if(HVMapVersion == "v00" || HVMapVersion == "v01" ){
+  if(s_HVMapVersion == "v00" || s_HVMapVersion == "v01" ){
 
-	G4String AtlasSide, EtaSection, ElectrodeSide;
-	for(G4int i = 0; i < NofAtlasSide; ++ i){
-                if (fscanf(lun, "%79s", ch) < 1) {
-                  (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
-                           << endreq;
-                }
-		AtlasSide = ch;
-		(*m_msg) << MSG::DEBUG << "AtlasSide = " << AtlasSide << endreq;
-		for(G4int j = 0; j < NofEtaSection; ++ j){
-			for(G4int k = 0; k < NofElectrodeSide; ++ k){
-                                if (fscanf(lun, "%79s%79s", ch, ch1) < 2) {
-                                  (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
-                                           << endreq;
-                                }
-				EtaSection   =ch;
-				ElectrodeSide=ch1;
-				(*m_msg) << MSG::DEBUG << "EtaSection = " << EtaSection
-				       << " ElectrodeSide = " << ElectrodeSide
-				       << endreq;
+    G4String AtlasSide, EtaSection, ElectrodeSide;
+    for(G4int i = 0; i < s_NofAtlasSide; ++ i){
+      if (fscanf(lun, "%79s", ch) < 1) {
+        (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
+                 << endmsg;
+      }
+      AtlasSide = ch;
+      (*m_msg) << MSG::DEBUG << "AtlasSide = " << AtlasSide << endmsg;
+      for(G4int j = 0; j < s_NofEtaSection; ++ j){
+        for(G4int k = 0; k < s_NofElectrodeSide; ++ k){
+          if (fscanf(lun, "%79s%79s", ch, ch1) < 2) {
+            (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
+                     << endmsg;
+          }
+          EtaSection   =ch;
+          ElectrodeSide=ch1;
+          (*m_msg) << MSG::DEBUG << "EtaSection = " << EtaSection
+                   << " ElectrodeSide = " << ElectrodeSide
+                   << endmsg;
 
-				if (fscanf(lun, "%i", &HV_Start_phi[i][j][k]) < 1) {
-                                  (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
-                                           << endreq;
-                                }
-				(*m_msg) << MSG::DEBUG << "i, j, k = " << i << ", " << j << ", " << k
-				       << " " <<" HV_Start_phi = " << HV_Start_phi[i][j][k]
-				       << endreq;
+          if (fscanf(lun, "%i", &s_HV_Start_phi[i][j][k]) < 1) {
+            (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
+                     << endmsg;
+          }
+          (*m_msg) << MSG::DEBUG << "i, j, k = " << i << ", " << j << ", " << k
+                   << " " <<" HV_Start_phi = " << s_HV_Start_phi[i][j][k]
+				       << endmsg;
 
-				for(G4int l = 0; l < NofPhiSections; ++ l){
-                                        if (fscanf(lun, "%lg", &HV_Values[i][j][k][l]) < 1) {
+				for(G4int l = 0; l < m_NofPhiSections; ++ l){
+                                        if (fscanf(lun, "%lg", &s_HV_Values[i][j][k][l]) < 1) {
                                           (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
-                                                   << endreq;
+                                                   << endmsg;
                                         }
 					if(l == 0){
-						(*m_msg) << MSG::DEBUG << " HV_Values = " << HV_Values[i][j][k][l]
-						       << endreq;
+						(*m_msg) << MSG::DEBUG << " s_HV_Values = " << s_HV_Values[i][j][k][l]
+						       << endmsg;
 					}
 				}
 			}
 		}
 	}
-	(*m_msg) << MSG::DEBUG << endreq;
+	(*m_msg) << MSG::DEBUG << endmsg;
 	}
 
-       if(HVMapVersion == "v02" || HVMapVersion == "v99") {
+       if(s_HVMapVersion == "v02" || s_HVMapVersion == "v99") {
 
        G4int iprmx,i,j,k,l,electrodenumber;
        char s[200];
 
        iprmx=3;
        //iprmx=3*256;
-       for(i=0;i<NofAtlasSide;++i){       //loop for Atlas side
+       for(i=0;i<s_NofAtlasSide;++i){       //loop for Atlas side
          for(j=0;j<3;++j){                // read header lines
            fgets(s,200,lun);
            printf("%s",s);
 	 }
-          for(j=0; j<NofElectrodesOut; ++j){        //loop for electrodes
+          for(j=0; j<s_NofElectrodesOut; ++j){        //loop for electrodes
              if (fscanf(lun,"%i",&electrodenumber) < 1) {
                (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
-                        << endreq;
+                        << endmsg;
              }
-             if(j<iprmx || j==NofElectrodesOut-1)  printf("%3i",electrodenumber);
+             if(j<iprmx || j==s_NofElectrodesOut-1)  printf("%3i",electrodenumber);
              if(j==iprmx) printf("...\n");
-             for(k=0;k<NofEtaSection;++k){          //loop for etasection
-                for(l=0;l<NofElectrodeSide;++l){    //loop for side
-                    if (fscanf(lun,"%lg", &HV_Values[i][k][l][j]) < 1) {
+             for(k=0;k<s_NofEtaSection;++k){          //loop for etasection
+                for(l=0;l<s_NofElectrodeSide;++l){    //loop for side
+                    if (fscanf(lun,"%lg", &s_HV_Values[i][k][l][j]) < 1) {
                       (*m_msg) << MSG::ERROR << "GetHVMap: Error reading map file"
-                               << endreq;
+                               << endmsg;
                     }
-                    if(j<iprmx || j==NofElectrodesOut-1) printf("%8.2f",HV_Values[i][k][l][j]);
+                    if(j<iprmx || j==s_NofElectrodesOut-1) printf("%8.2f",s_HV_Values[i][k][l][j]);
 		}
 	     }
-             if(j<iprmx || j==NofElectrodesOut-1) printf("\n");
+             if(j<iprmx || j==s_NofElectrodesOut-1) printf("\n");
 	  }
           fgets(s,200,lun);
        }
        }
        fclose(lun);
-       HVMapRead = true;
+       s_HVMapRead = true;
 }
 
 void EnergyCalculator::get_HV_map_from_DB(void)
@@ -988,7 +990,7 @@ void EnergyCalculator::get_HV_map_from_DB(void)
 	if(status.isFailure()){
 		(*m_msg) << MSG::WARNING
 		         << "unable to get Detector Store! Use default HV values"
-			     << endreq;
+			     << endmsg;
 		return;
 	}
 
@@ -998,7 +1000,7 @@ void EnergyCalculator::get_HV_map_from_DB(void)
 		const EMECHVManager* hvManager =
 			manager->getEMECHVManager(lwc()->GetisInner()? EMECHVModule::INNER: EMECHVModule::OUTER);
 		(*m_msg) << MSG::INFO << "got HV Manager for "
-		         << (lwc()->GetisInner()? "inner": "outer") << " wheel" << endreq;
+		         << (lwc()->GetisInner()? "inner": "outer") << " wheel" << endmsg;
 		const EMECHVDescriptor* dsc = hvManager->getDescriptor();
 		unsigned int counter = 0;
       // loop over HV modules
@@ -1037,20 +1039,20 @@ void EnergyCalculator::get_HV_map_from_DB(void)
 									   << "Side, Eta, Elec, Gap, hv "
 									   << jSide << " " << jEta << " "
 									   << jElec << " " << iGap << " "
-									   << HV_Values[jSide][jEta][iGap][jElec]
-									   << " -> " << hv << endreq;
-								if(fabs((HV_Values[jSide][jEta][iGap][jElec] - hv)/HV_Values[jSide][jEta][iGap][jElec]) > 0.05){
+									   << s_HV_Values[jSide][jEta][iGap][jElec]
+									   << " -> " << hv << endmsg;
+								if(fabs((s_HV_Values[jSide][jEta][iGap][jElec] - hv)/s_HV_Values[jSide][jEta][iGap][jElec]) > 0.05){
 									(*m_msg) << MSG::INFO
 											<< "eta: " << dsc->getEtaBinning().binCenter(iEta) * (jSide == 0? 1: -1) << " "
 											<< "phi: " << dsc->getPhiBinning().binCenter(iPhi) << " "
 											<< "ele phi: " << electrode->getPhi()
 											<< " side " << iGap
 											<< " change HV from "
-											<< HV_Values[jSide][jEta][iGap][jElec]
-											<< " to " << hv << endreq;
+											<< s_HV_Values[jSide][jEta][iGap][jElec]
+											<< " to " << hv << endmsg;
 								}
 								if(hv > -999.){
-									HV_Values[jSide][jEta][iGap][jElec] = hv;
+									s_HV_Values[jSide][jEta][iGap][jElec] = hv;
 									++ counter;
 								}
 							}
@@ -1060,9 +1062,9 @@ void EnergyCalculator::get_HV_map_from_DB(void)
 			}
 		}
 		(*m_msg) << MSG::INFO << counter
-		         << " HV values updated from DB" << endreq;
+		         << " HV values updated from DB" << endmsg;
 	} else {
-		(*m_msg) << MSG::WARNING << "Unable to find HV Manager" << endreq;
+		(*m_msg) << MSG::WARNING << "Unable to find HV Manager" << endmsg;
 	}
 }
 // ****************************************************************************
@@ -1079,29 +1081,29 @@ G4double EnergyCalculator::GetHV_Value(const G4ThreeVector& p) const
 	const G4ThreeVector pforeta(p.x(), p.y(), p.z() + lwc()->GetElecFocaltoWRP() + lwc()->GetdWRPtoFrontFace());
 	const G4double mideta = pforeta.pseudoRapidity();
 	G4int etasection = -1;
-	for(G4int i = 1; i <= NofEtaSection; ++ i){
-	  if(mideta <= HV_Etalim[i]){
+	for(G4int i = 1; i <= s_NofEtaSection; ++ i){
+	  if(mideta <= s_HV_Etalim[i]){
 	    etasection = i - 1;
 	    break;
 	  }
 	}
-	if(!(etasection>=0 && etasection <=NofEtaSection-1)) throw std::runtime_error("Index out of range");	
+	if(!(etasection>=0 && etasection <=s_NofEtaSection-1)) throw std::runtime_error("Index out of range");	
 
-	//assert(etasection >= 0 && etasection <= NofEtaSection - 1);
+	//assert(etasection >= 0 && etasection <= s_NofEtaSection - 1);
 
 	const std::pair<G4int, G4int> gap = lwc()->GetPhiGapAndSide(p);
 	G4int electrodeside = 0;  //left side of electrode(small phi)
 	if(gap.second > 0) electrodeside = 1;
 
 	const G4int electrodenumber = lwc()->PhiGapNumberForWheel(gap.first);
-	const G4int firstelectrode  = HV_Start_phi[atlasside][etasection][electrodeside];
+	const G4int firstelectrode  = s_HV_Start_phi[atlasside][etasection][electrodeside];
 	G4int electrodeindex  = electrodenumber-firstelectrode;
 	if(electrodeindex < 0) electrodeindex += lwc()->GetNumberOfFans();
 
-	const G4int phisection      = electrodeindex / NumberOfElectrodesInPhiSection;
-	assert(phisection>=0 && phisection<=NofPhiSections-1);
+	const G4int phisection      = electrodeindex / m_NumberOfElectrodesInPhiSection;
+	assert(phisection>=0 && phisection<=m_NofPhiSections-1);
 
-	G4double HV_value= HV_Values[atlasside][etasection][electrodeside][phisection];
+	G4double HV_value= s_HV_Values[atlasside][etasection][electrodeside][phisection];
 
 	if(m_msg->level()==MSG::DEBUG)
 //	std::cout
@@ -1111,13 +1113,13 @@ G4double EnergyCalculator::GetHV_Value(const G4ThreeVector& p) const
 		   <<" fi="<<phisection<<" xyz="<<p.x()<<" "<<p.y()<<" "<<p.z()
 		   <<" igap.first="<<lwc()->PhiGapNumberForWheel(gap.first)
 		   <<" gap.second="<<gap.second
-		   <<endreq;
+		   <<endmsg;
 
 	return HV_value;
 }
 
 /*
-In this type of correction energy deposited close than CHC_Esr to an electrod
+In this type of correction energy deposited close than s_CHC_Esr to an electrod
 is suppressed.
 */
 // ****************************************************************************
@@ -1136,16 +1138,15 @@ G4double EnergyCalculator::GapAdjustment_s(G4double      a_energy,
 	const G4double	  s_energy= a_energy/nofstep;
 	G4double	  corr_energy= 0.;
 	G4ThreeVector vstep, tmp;
-
 	for(G4int i = 0; i < nofstep; ++ i){ // loop for substeps
-		const G4double ds = (i + 0.5) / nofstep;
+                const G4double ds = (i + 0.5) / nofstep;
 		vstep = a_startPoint * (1. - ds) + a_endPoint * ds;
 		tmp = vstep;
-		const G4double dte = (this->*distance_to_the_nearest_electrode_type)(tmp);
-		if(fabs(dte) < CHC_Esr) continue;
-		const G4double gap = (this->*GetGapSize_type)(vstep);
-		corr_energy += s_energy / pow((gap / AverageGap), m_GApower)
-		               * gap / (gap - CHC_Esr);
+		const G4double dte = (this->*m_distance_to_the_nearest_electrode_type)(tmp);
+		if(fabs(dte) < s_CHC_Esr) continue;
+		const G4double gap = (this->*m_GetGapSize_type)(vstep);
+		corr_energy += s_energy / pow((gap / s_AverageGap), m_GApower)
+		               * gap / (gap - s_CHC_Esr);
 	}
 	return corr_energy;
 }
@@ -1166,16 +1167,16 @@ G4double EnergyCalculator::GapAdjustment__sE(G4double a_energy,
 	G4ThreeVector vstep, tmp;
 	
 	for(G4int i = 0; i < nofstep; i ++){
-		const G4double ds = (i + 0.5) / nofstep;
+                const G4double ds = (i + 0.5) / nofstep;
 		vstep = a_startPoint * (1. - ds) + a_endPoint * ds;
 		tmp = vstep;
-		const G4double dte = (this->*distance_to_the_nearest_electrode_type)(tmp);
-		if(fabs(dte) < CHC_Esr) continue;
-		const G4double gap = (this->*GetGapSize_type)(vstep);
-		const G4double efield = 0.01 * (this->*GetHV_Value_type)(vstep) / gap; // estimate Efield[KV/cm]
-		corr_energy += s_energy / AverageCurrent / gap *
-		               IonReco(efield) * DriftVelo(LArTemperature_av, efield)
-		               * gap / (gap - CHC_Esr);
+		const G4double dte = (this->*m_distance_to_the_nearest_electrode_type)(tmp);
+		if(fabs(dte) < s_CHC_Esr) continue;
+		const G4double gap = (this->*m_GetGapSize_type)(vstep);
+		const G4double efield = 0.01 * (this->*m_GetHV_Value_type)(vstep) / gap; // estimate Efield[KV/cm]
+		corr_energy += s_energy / s_AverageCurrent / gap *
+		               IonReco(efield) * DriftVelo(s_LArTemperature_av, efield)
+		               * gap / (gap - s_CHC_Esr);
 	}
 	return corr_energy;
 }
@@ -1260,7 +1261,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 		if(ipad > 6 || ipad < 0){
 			(*m_msg) << MSG::WARNING
 			       << "FindIdentifier: invalid hit, eta = "
-			       << eta << ", ipad=" << ipad << endreq;
+			       << eta << ", ipad=" << ipad << endmsg;
                         validhit=false;
                         if (ipad<0) ipad=0;
                         if (ipad>6) ipad=6;
@@ -1273,7 +1274,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 		if(ipad > 43){
 			(*m_msg) << MSG::WARNING
 			       << "FindIdentifier: invalid hit, eta = "
-			       << eta << ", ipad = " << ipad << endreq;
+			       << eta << ", ipad = " << ipad << endmsg;
                         validhit=false;
                         ipad=43;
 		}
@@ -1635,14 +1636,14 @@ G4bool EnergyCalculator::FindIdentifier_Default(
      (*m_msg) << MSG::WARNING
 	    << "FindIdentifier: invalid hit, etaBin = "
 	    << etaBin << " > geometry[" << c << "].maxEta="
-	    << geometry[c].maxEta << endreq;
+	    << geometry[c].maxEta << endmsg;
      etaBin=geometry[c].maxEta;
      validhit=false;
    }
    if(etaBin < 0){
      (*m_msg) << MSG::WARNING
 	    << "FindIdentifier: invalid hit, etaBin < 0"
-	    << endreq;
+	    << endmsg;
      etaBin=0;
      validhit=false;
    }
@@ -1658,7 +1659,7 @@ G4bool EnergyCalculator::FindIdentifier_Default(
 
    G4double timeOfFlight = (pre_step_point->GetGlobalTime() +
 			    post_step_point->GetGlobalTime()) * 0.5;
-   hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+   hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
    if (hdata[0].time > m_OOTcut) m_isInTime = false;
    else m_isInTime = true;
 
@@ -1688,7 +1689,7 @@ G4double EnergyCalculator::distance_to_the_nearest_electrode(const G4ThreeVector
 	p1.rotateZ(-angle / 2);
 	if(delta > 0) fan_number --;
 	G4double d3 = lwc()->DistanceToTheNeutralFibre(p1, lwc()->adjust_fan_number(fan_number));
-	return(fabs(d3) - ElectrodeFanHalfThickness);
+	return(fabs(d3) - m_ElectrodeFanHalfThickness);
 }
 
 // No account for edge effects in this function in case of module,
@@ -1721,18 +1722,18 @@ double EnergyCalculator::GetGapSize(const G4ThreeVector& p) const
 	const G4double d3 = lwc()->DistanceToTheNeutralFibre(p1, lwc()->adjust_fan_number(fan_number));
 	if(d3 * d2 < 0.){
 		return(fabs(d2)
-		       - lwc()->GetFanHalfThickness() + fabs(d3) - ElectrodeFanHalfThickness);
+		       - lwc()->GetFanHalfThickness() + fabs(d3) - m_ElectrodeFanHalfThickness);
 	} else {
 		return(fabs(d1)
-		       - lwc()->GetFanHalfThickness() + fabs(d3) - ElectrodeFanHalfThickness);
+		       - lwc()->GetFanHalfThickness() + fabs(d3) - m_ElectrodeFanHalfThickness);
 	}
 }
 
 // ****************************************************************************
 void EnergyCalculator::SetConst_InnerBarrett(void){
 // ****************************************************************************
-  if(SetConstInnerBarrett) return;
-     SetConstInnerBarrett=true;
+  if(s_SetConstInnerBarrett) return;
+     s_SetConstInnerBarrett=true;
 
   std::cout <<" ===>>> ERROR!!  SetConst_InnerBarrett is called!!!" <<std::endl;
   exit(99);
@@ -1742,86 +1743,86 @@ void EnergyCalculator::SetConst_InnerBarrett(void){
 void EnergyCalculator::SetConst_OuterBarrett(void){
 // ****************************************************************************
 
-  if(SetConstOuterBarrett) return;
-     SetConstOuterBarrett=true;
+  if(s_SetConstOuterBarrett) return;
+     s_SetConstOuterBarrett=true;
 
   for(G4int i=0;i<=20;++i){
-	  const G4double teta = 2.*atan( exp(-S3_Etalim[i]));
-	  S3_Rlim[i] = RefzDist*tan(teta);
+	  const G4double teta = 2.*atan( exp(-s_S3_Etalim[i]));
+	  s_S3_Rlim[i] = s_RefzDist*tan(teta);
   }
 
-  rlim[0] = S3_Rlim[3] + KapGap    +  Rmeas_outer[0] /*11.59 */  / ColdCorrection;
-  rlim[1] = S3_Rlim[3] + KapGap    +  Rmeas_outer[1] /*25.22 */  / ColdCorrection;
-  rlim[2] = S3_Rlim[3] + KapGap    +  Rmeas_outer[2] /*57.28 */  / ColdCorrection;
-  rlim[3] = S3_Rlim[3] + KapGap    +  Rmeas_outer[3] /*71.30 */  / ColdCorrection;
-  rlim[4] = S3_Rlim[3] + KapGap    +  Rmeas_outer[4] /*85.90 */  / ColdCorrection;
-  rlim[5] = S3_Rlim[3] + KapGap    +  Rmeas_outer[5] /*98.94 */  / ColdCorrection;
-  rlim[6] = S3_Rlim[3] + KapGap    +  Rmeas_outer[6] /*103.09 */ / ColdCorrection;
-  rlim[7] = S3_Rlim[3] + KapGap    +  Rmeas_outer[7] /*116.68 */ / ColdCorrection;
-  rlim[8] = S3_Rlim[3] + KapGap    +  Rmeas_outer[8] /*130.42 */ / ColdCorrection;
-  rlim[9] = S3_Rlim[3] + KapGap/2. +  Rmeas_outer[9] /*146.27 */ / ColdCorrection + EdgeWidth;
-  rlim[10]= rlim[8]                +  Rmeas_outer[10]/*147.19 */ / ColdCorrection;
+  const G4double inv_ColdCorrection = 1. / s_ColdCorrection;
+  s_rlim[0] = s_S3_Rlim[3] + s_KapGap    +  s_Rmeas_outer[0] /*11.59 */  * inv_ColdCorrection;
+  s_rlim[1] = s_S3_Rlim[3] + s_KapGap    +  s_Rmeas_outer[1] /*25.22 */  * inv_ColdCorrection;
+  s_rlim[2] = s_S3_Rlim[3] + s_KapGap    +  s_Rmeas_outer[2] /*57.28 */  * inv_ColdCorrection;
+  s_rlim[3] = s_S3_Rlim[3] + s_KapGap    +  s_Rmeas_outer[3] /*71.30 */  * inv_ColdCorrection;
+  s_rlim[4] = s_S3_Rlim[3] + s_KapGap    +  s_Rmeas_outer[4] /*85.90 */  * inv_ColdCorrection;
+  s_rlim[5] = s_S3_Rlim[3] + s_KapGap    +  s_Rmeas_outer[5] /*98.94 */  * inv_ColdCorrection;
+  s_rlim[6] = s_S3_Rlim[3] + s_KapGap    +  s_Rmeas_outer[6] /*103.09 */ * inv_ColdCorrection;
+  s_rlim[7] = s_S3_Rlim[3] + s_KapGap    +  s_Rmeas_outer[7] /*116.68 */ * inv_ColdCorrection;
+  s_rlim[8] = s_S3_Rlim[3] + s_KapGap    +  s_Rmeas_outer[8] /*130.42 */ * inv_ColdCorrection;
+  s_rlim[9] = s_S3_Rlim[3] + s_KapGap/2. +  s_Rmeas_outer[9] /*146.27 */ * inv_ColdCorrection + s_EdgeWidth;
+  s_rlim[10]= s_rlim[8]                +  s_Rmeas_outer[10]/*147.19 */ * inv_ColdCorrection;
 
-  rlim[11]= S3_Rlim[3] + KapGap    +  Rmeas_outer[11]/*11.59 */ / ColdCorrection; //eta=1.65
-  rlim[12]= S3_Rlim[3] - KapGap    -  Rmeas_outer[12]/*15.   */ / ColdCorrection;
+  s_rlim[11]= s_S3_Rlim[3] + s_KapGap    +  s_Rmeas_outer[11]/*11.59 */ * inv_ColdCorrection; //eta=1.65
+  s_rlim[12]= s_S3_Rlim[3] - s_KapGap    -  s_Rmeas_outer[12]/*15.   */ * inv_ColdCorrection;
 
-  rlim[13]= S3_Rlim[4] + KapGap    +  Rmeas_outer[13]/*56.91 */ / ColdCorrection; //eta=1.7
-  rlim[14]= S3_Rlim[4] - KapGap    -  Rmeas_outer[14]/*44.37 */ / ColdCorrection;
+  s_rlim[13]= s_S3_Rlim[4] + s_KapGap    +  s_Rmeas_outer[13]/*56.91 */ * inv_ColdCorrection; //eta=1.7
+  s_rlim[14]= s_S3_Rlim[4] - s_KapGap    -  s_Rmeas_outer[14]/*44.37 */ * inv_ColdCorrection;
 
-  rlim[15]= S3_Rlim[5] + KapGap    +  Rmeas_outer[15]/*15.13 */ / ColdCorrection; //eta=1.75
-  rlim[16]= S3_Rlim[5] - KapGap    -  Rmeas_outer[16]/*14.93 */ / ColdCorrection;
+  s_rlim[15]= s_S3_Rlim[5] + s_KapGap    +  s_Rmeas_outer[15]/*15.13 */ * inv_ColdCorrection; //eta=1.75
+  s_rlim[16]= s_S3_Rlim[5] - s_KapGap    -  s_Rmeas_outer[16]/*14.93 */ * inv_ColdCorrection;
 
-  rlim[17]= S3_Rlim[6] + KapGap    +  Rmeas_outer[17]/*45.87 */ / ColdCorrection; //eta=1.80
-  rlim[18]= S3_Rlim[6] - KapGap    -  Rmeas_outer[18]/*35.03 */ / ColdCorrection;
+  s_rlim[17]= s_S3_Rlim[6] + s_KapGap    +  s_Rmeas_outer[17]/*45.87 */ * inv_ColdCorrection; //eta=1.80
+  s_rlim[18]= s_S3_Rlim[6] - s_KapGap    -  s_Rmeas_outer[18]/*35.03 */ * inv_ColdCorrection;
 
-  rlim[19]= S3_Rlim[7] + KapGap    +  Rmeas_outer[19]/*15.40 */ / ColdCorrection; //eta=1.85
-  rlim[20]= S3_Rlim[7] - KapGap    -  Rmeas_outer[20]/*14.04 */ / ColdCorrection;
+  s_rlim[19]= s_S3_Rlim[7] + s_KapGap    +  s_Rmeas_outer[19]/*15.40 */ * inv_ColdCorrection; //eta=1.85
+  s_rlim[20]= s_S3_Rlim[7] - s_KapGap    -  s_Rmeas_outer[20]/*14.04 */ * inv_ColdCorrection;
 
-  rlim[21]= S3_Rlim[8] + KapGap    +  Rmeas_outer[21]/*39.67 */ / ColdCorrection; //eta=1.90
-  rlim[22]= S3_Rlim[8] - KapGap    -  Rmeas_outer[22]/*26.83 */ / ColdCorrection;
+  s_rlim[21]= s_S3_Rlim[8] + s_KapGap    +  s_Rmeas_outer[21]/*39.67 */ * inv_ColdCorrection; //eta=1.90
+  s_rlim[22]= s_S3_Rlim[8] - s_KapGap    -  s_Rmeas_outer[22]/*26.83 */ * inv_ColdCorrection;
 
-  rlim[23]= S3_Rlim[9] + KapGap    +  Rmeas_outer[23]/*15.64 */ / ColdCorrection; //eta=1.95
-  rlim[24]= S3_Rlim[9] - KapGap    -  Rmeas_outer[24]/*14.90 */ / ColdCorrection;
+  s_rlim[23]= s_S3_Rlim[9] + s_KapGap    +  s_Rmeas_outer[23]/*15.64 */ * inv_ColdCorrection; //eta=1.95
+  s_rlim[24]= s_S3_Rlim[9] - s_KapGap    -  s_Rmeas_outer[24]/*14.90 */ * inv_ColdCorrection;
 
-  rlim[25]= S3_Rlim[10] + KapGap   +  Rmeas_outer[25]/*30.26 */ / ColdCorrection; //eta=2.00
-  rlim[26]= S3_Rlim[10] - KapGap   -  Rmeas_outer[26]/*14.70 */ / ColdCorrection;
+  s_rlim[25]= s_S3_Rlim[10] + s_KapGap   +  s_Rmeas_outer[25]/*30.26 */ * inv_ColdCorrection; //eta=2.00
+  s_rlim[26]= s_S3_Rlim[10] - s_KapGap   -  s_Rmeas_outer[26]/*14.70 */ * inv_ColdCorrection;
 
-  rlim[27]= S3_Rlim[10] - KapGap   -  Rmeas_outer[27]/*29.09 */ / ColdCorrection; //eta=2.05
-  rlim[28]= S3_Rlim[10] - KapGap   -  Rmeas_outer[28]/*43.12 */ / ColdCorrection; //SHAPE CHANGE!!ZZ
+  s_rlim[27]= s_S3_Rlim[10] - s_KapGap   -  s_Rmeas_outer[27]/*29.09 */ * inv_ColdCorrection; //eta=2.05
+  s_rlim[28]= s_S3_Rlim[10] - s_KapGap   -  s_Rmeas_outer[28]/*43.12 */ * inv_ColdCorrection; //SHAPE CHANGE!!ZZ
 
-  rlim[29]= S3_Rlim[12] + KapGap   +  Rmeas_outer[29]/*34.51 */ / ColdCorrection; //eta=2.10
-  rlim[30]= S3_Rlim[12] - KapGap   -  Rmeas_outer[30]/*25.08 */ / ColdCorrection;
+  s_rlim[29]= s_S3_Rlim[12] + s_KapGap   +  s_Rmeas_outer[29]/*34.51 */ * inv_ColdCorrection; //eta=2.10
+  s_rlim[30]= s_S3_Rlim[12] - s_KapGap   -  s_Rmeas_outer[30]/*25.08 */ * inv_ColdCorrection;
 
-  rlim[31]= S3_Rlim[13] + KapGap   +  Rmeas_outer[31]/*11.88 */ / ColdCorrection; //eta=2.15
-  rlim[32]= S3_Rlim[13] - KapGap   -  Rmeas_outer[32]/*14.39 */ / ColdCorrection;
+  s_rlim[31]= s_S3_Rlim[13] + s_KapGap   +  s_Rmeas_outer[31]/*11.88 */ * inv_ColdCorrection; //eta=2.15
+  s_rlim[32]= s_S3_Rlim[13] - s_KapGap   -  s_Rmeas_outer[32]/*14.39 */ * inv_ColdCorrection;
 
-  rlim[33]= S3_Rlim[14] + KapGap   +  Rmeas_outer[33]/*19.54 */ / ColdCorrection; //eta=2.20
-  rlim[34]= S3_Rlim[14] - KapGap   -  Rmeas_outer[34]/*17.80 */ / ColdCorrection; // !!ZZ
+  s_rlim[33]= s_S3_Rlim[14] + s_KapGap   +  s_Rmeas_outer[33]/*19.54 */ * inv_ColdCorrection; //eta=2.20
+  s_rlim[34]= s_S3_Rlim[14] - s_KapGap   -  s_Rmeas_outer[34]/*17.80 */ * inv_ColdCorrection; // !!ZZ
 
-  rlim[35]= S3_Rlim[15] + KapGap   +  Rmeas_outer[35]/*12.70 */ / ColdCorrection; //eta=2.25
-  rlim[36]= S3_Rlim[15] - KapGap   -  Rmeas_outer[36]/*15.31 */ / ColdCorrection;
+  s_rlim[35]= s_S3_Rlim[15] + s_KapGap   +  s_Rmeas_outer[35]/*12.70 */ * inv_ColdCorrection; //eta=2.25
+  s_rlim[36]= s_S3_Rlim[15] - s_KapGap   -  s_Rmeas_outer[36]/*15.31 */ * inv_ColdCorrection;
 
-  rlim[37]= S3_Rlim[16] + KapGap   +  Rmeas_outer[37]/*13.96 */ / ColdCorrection; //eta=2.30
-  rlim[38]= S3_Rlim[16] - KapGap   -  Rmeas_outer[38]/*11.79 */ / ColdCorrection; // !!ZZ!!
+  s_rlim[37]= s_S3_Rlim[16] + s_KapGap   +  s_Rmeas_outer[37]/*13.96 */ * inv_ColdCorrection; //eta=2.30
+  s_rlim[38]= s_S3_Rlim[16] - s_KapGap   -  s_Rmeas_outer[38]/*11.79 */ * inv_ColdCorrection; // !!ZZ!!
 
-  rlim[40]= S3_Rlim[16] - KapGap   -  Rmeas_outer[40]/*23.57 */ / ColdCorrection;
-  rlim[41]= S3_Rlim[16] - KapGap   -  Rmeas_outer[41]/*34.64 */ / ColdCorrection;
-  rlim[42]= S3_Rlim[16] - KapGap   -  Rmeas_outer[42]/*55.32 */ / ColdCorrection;
-  rlim[43]= S3_Rlim[16] - KapGap   -  Rmeas_outer[43]/*65.39 */ / ColdCorrection;
-  rlim[44]= S3_Rlim[16] - KapGap   -  Rmeas_outer[44]/*76.34 */ / ColdCorrection;
-  rlim[45]= rlim[44]               -  Rmeas_outer[45]/*10.83 */ / ColdCorrection;
-  rlim[46]= S3_Rlim[16] - KapGap/2.-  Rmeas_outer[46]/*94.84 */ / ColdCorrection - EdgeWidth;
-  rlim[47]= S3_Rlim[16] - KapGap/2.-  Rmeas_outer[47]/*98.00 */ / ColdCorrection - EdgeWidth;
+  s_rlim[40]= s_S3_Rlim[16] - s_KapGap   -  s_Rmeas_outer[40]/*23.57 */ * inv_ColdCorrection;
+  s_rlim[41]= s_S3_Rlim[16] - s_KapGap   -  s_Rmeas_outer[41]/*34.64 */ * inv_ColdCorrection;
+  s_rlim[42]= s_S3_Rlim[16] - s_KapGap   -  s_Rmeas_outer[42]/*55.32 */ * inv_ColdCorrection;
+  s_rlim[43]= s_S3_Rlim[16] - s_KapGap   -  s_Rmeas_outer[43]/*65.39 */ * inv_ColdCorrection;
+  s_rlim[44]= s_S3_Rlim[16] - s_KapGap   -  s_Rmeas_outer[44]/*76.34 */ * inv_ColdCorrection;
+  s_rlim[45]= s_rlim[44]               -  s_Rmeas_outer[45]/*10.83 */ * inv_ColdCorrection;
+  s_rlim[46]= s_S3_Rlim[16] - s_KapGap/2.-  s_Rmeas_outer[46]/*94.84 */ * inv_ColdCorrection - s_EdgeWidth;
+  s_rlim[47]= s_S3_Rlim[16] - s_KapGap/2.-  s_Rmeas_outer[47]/*98.00 */ * inv_ColdCorrection - s_EdgeWidth;
 
-
-  zlim[0] = - EdgeWidth    +  Zmeas_outer[0]/*3.81*/ / ColdCorrection; //rel. to the end_of_HV_Cu
-  zlim[1] = - KapGap/2.    +  Zmeas_outer[1]/*7.81*/ / ColdCorrection;
-  zlim[2] =  StripWidth + 1./2. * KapGap;
-  zlim[3] =2*StripWidth + 3./2. * KapGap;
+  s_zlim[0] = - s_EdgeWidth    +  s_Zmeas_outer[0]/*3.81*/ * inv_ColdCorrection; //rel. to the end_of_HV_Cu
+  s_zlim[1] = - s_KapGap/2.    +  s_Zmeas_outer[1]/*7.81*/ * inv_ColdCorrection;
+  s_zlim[2] =  s_StripWidth + 1./2. * s_KapGap;
+  s_zlim[3] =2*s_StripWidth + 3./2. * s_KapGap;
 
   for (G4int i=0; i<=3; ++i){
-    zlim[i]= (ZmaxOfSignal-EdgeWidth) - zlim[i]; //rel to start of the Barrette
-    if(zlim[i] < 0.) zlim[i]=0.;
+    s_zlim[i]= (s_ZmaxOfSignal-s_EdgeWidth) - s_zlim[i]; //rel to start of the Barrette
+    if(s_zlim[i] < 0.) s_zlim[i]=0.;
   }
 
   return;
@@ -1840,16 +1841,16 @@ G4bool EnergyCalculator::GetCompartment_Barrett(
    b_compartment=-99;
    etabin=-99;
 
-   if(r_inb > rlim[10] || r_inb < rlim[47] )
+   if(r_inb > s_rlim[10] || r_inb < s_rlim[47] )
                             {validhit=false; goto label99;}
-   if(z_inb > ZmaxOfSignal ){validhit=false; goto label99;}
+   if(z_inb > s_ZmaxOfSignal ){validhit=false; goto label99;}
 
-   if(r_inb > rlim[0]) {  // Upper corner
+   if(r_inb > s_rlim[0]) {  // Upper corner
 
-   if(r_inb > rlim[9])      {
-      if(z_inb > zlim[0])   {validhit=false; goto label99;}
+   if(r_inb > s_rlim[9])      {
+      if(z_inb > s_zlim[0])   {validhit=false; goto label99;}
 label1:
-      if(z_inb > zlim[1])   {
+      if(z_inb > s_zlim[1])   {
                                b_compartment = 8;
                                etabin        = 4;
                                goto label99;
@@ -1859,21 +1860,21 @@ label2:
                                etabin        = 0;
                                goto label99;
    }
-   if(r_inb > rlim[8])  goto label1;
-   if(r_inb > rlim[7])  goto label2;
-   if(r_inb > rlim[6])      {
+   if(r_inb > s_rlim[8])  goto label1;
+   if(r_inb > s_rlim[7])  goto label2;
+   if(r_inb > s_rlim[6])      {
                                b_compartment = 8;
                                etabin        = 5;
                                goto label99;
    }
-   if(r_inb > rlim[5])      {
+   if(r_inb > s_rlim[5])      {
 label3:
                                b_compartment = 8;
                                etabin        = 6;
                                goto label99;
    }
-   if(r_inb > rlim[4])      {
-     if(z_inb >  zlim[1])   goto label3;
+   if(r_inb > s_rlim[4])      {
+     if(z_inb >  s_zlim[1])   goto label3;
 
 label4:
                                b_compartment = 9;
@@ -1881,45 +1882,45 @@ label4:
                                goto label99;
    }
 
-   if(r_inb > rlim[3])  goto label4;
+   if(r_inb > s_rlim[3])  goto label4;
 
-   if(r_inb > rlim[2])      {
+   if(r_inb > s_rlim[2])      {
                                b_compartment = 8;
                                etabin        = 7;
                                goto label99;
    }
 
-   if(r_inb > rlim[1])      {
+   if(r_inb > s_rlim[1])      {
                                b_compartment = 8;
                                etabin        = 8;
                                goto label99;
    }
-   if(r_inb > rlim[0])      {
+   if(r_inb > s_rlim[0])      {
                                b_compartment = 9;
                                etabin        = 2;
                                goto label99;
    }
    }
 
-   if(r_inb < rlim[38]){    // lower corner
+   if(r_inb < s_rlim[38]){    // lower corner
 
-     if( r_inb > rlim[40] ) {
+     if( r_inb > s_rlim[40] ) {
                                b_compartment = 9;
                                etabin        = 16;
                                goto label99;
      }
 
-     if( r_inb > rlim[41] ) {
+     if( r_inb > s_rlim[41] ) {
 label5:
                                b_compartment = 8;
                                etabin        = 37;
                                goto label99;
      }
 
-     if( r_inb > rlim[42] ) {
+     if( r_inb > s_rlim[42] ) {
 
        d=DistanceToEtaLine( pforcell,2.35);
-       if(fabs(d) < StripWidth+KapGap) {
+       if(fabs(d) < s_StripWidth+s_KapGap) {
 	 if( d < 0.) {
 
 label6:
@@ -1928,7 +1929,7 @@ label6:
 	                       goto label99;
 	 }
 label7:
-         if( z_inb < zlim[3] ) goto label5;
+         if( z_inb < s_zlim[3] ) goto label5;
          goto label6;
        }
 
@@ -1939,21 +1940,21 @@ label7:
                                goto label99;
      }
 
-     if( r_inb > rlim[43] ) {
+     if( r_inb > s_rlim[43] ) {
                                b_compartment = 8;
                                etabin        = 39;
                                goto label99;
      }
 
-     if( r_inb > rlim[44] ) {
+     if( r_inb > s_rlim[44] ) {
 label8:
                                b_compartment = 8;
                                etabin        = 40;
                                goto label99;
      }
 
-     if( r_inb > rlim[45] ) {
-       if( z_inb < zlim[3] ) goto label8;
+     if( r_inb > s_rlim[45] ) {
+       if( z_inb < s_zlim[3] ) goto label8;
 
 label9:
                                b_compartment = 9;
@@ -1961,20 +1962,20 @@ label9:
                                goto label99;
      }
 
-     if( r_inb > rlim[46] ) goto label9;
+     if( r_inb > s_rlim[46] ) goto label9;
 
-     if( z_inb < ZmaxOfSignal/(rlim[46]-rlim[47])*(r_inb-rlim[47])) goto label9;
+     if( z_inb < s_ZmaxOfSignal/(s_rlim[46]-s_rlim[47])*(r_inb-s_rlim[47])) goto label9;
 
      validhit=false;
      goto label99;
    }
 
-// medium r region:   rlim[0] > r > rlim[38];
+// medium r region:   s_rlim[0] > r > s_rlim[38];
 //   from middle of cellno 2 to middle of cellno. 16
 //
 
    for( i=3; i<=17; ++i){         // eta= 1.65 - 2.35
-     if( eta_inb < S3_Etalim[i] ) {
+     if( eta_inb < s_S3_Etalim[i] ) {
        i0=i;
        break;
      }
@@ -1982,23 +1983,23 @@ label9:
 
      i=i0;
 
-     eta1    = S3_Etalim[i-1];
-     eta2    = S3_Etalim[i];
-     rlim1   = rlim[2*i+5 - 1];
-     rlim2   = rlim[2*i+5];
-     zlim1   = zlim[2];
-     zlim2   = zlim[3];
+     eta1    = s_S3_Etalim[i-1];
+     eta2    = s_S3_Etalim[i];
+     rlim1   = s_rlim[2*i+5 - 1];
+     rlim2   = s_rlim[2*i+5];
+     zlim1   = s_zlim[2];
+     zlim2   = s_zlim[3];
 
      if( i == 15 || i == 17) {
-        zlim1   = zlim[3];
-        zlim2   = zlim[2];
+        zlim1   = s_zlim[3];
+        zlim2   = s_zlim[2];
      }
 
      switch(i){
 
      case 3:
 
-       if( fabs( DistanceToEtaLine(pforcell, eta2) ) <  StripWidth+KapGap
+       if( fabs( DistanceToEtaLine(pforcell, eta2) ) <  s_StripWidth+s_KapGap
           || z_inb > zlim1 ){
 
                                        b_compartment = 8;
@@ -2023,13 +2024,13 @@ label9:
        d1=fabs( DistanceToEtaLine( pforcell, eta1) );
        d2=fabs( DistanceToEtaLine( pforcell, eta2) );
 
-       if( d1 < StripWidth+KapGap ){
+       if( d1 < s_StripWidth+s_KapGap ){
 label11:
                                        b_compartment = 8;
                                        etabin        = 2*i+2;
                                        break;
        }
-       if( d2 < StripWidth+KapGap ){
+       if( d2 < s_StripWidth+s_KapGap ){
 label12:
                                        b_compartment = 8;
                                        etabin        = 2*i+3;
@@ -2049,12 +2050,12 @@ label12:
 //========================================================
      case 11:
 
-       rlim3 = rlim[28];
+       rlim3 = s_rlim[28];
 
        d1=fabs( DistanceToEtaLine( pforcell, eta1) );
        d2=fabs( DistanceToEtaLine( pforcell, eta2) );
 
-       if( d1 < StripWidth+KapGap ){
+       if( d1 < s_StripWidth+s_KapGap ){
 label13:
                                        b_compartment = 8;
                                        etabin        = 2*i+2;
@@ -2069,7 +2070,7 @@ label14:
                                        break;
        }
 
-       if( d2 < StripWidth+KapGap ){
+       if( d2 < s_StripWidth+s_KapGap ){
 	 if( z_inb > zlim1 ) {
 label15:
                                        b_compartment = 8;
@@ -2093,12 +2094,12 @@ label16:
        d1=fabs( DistanceToEtaLine( pforcell, eta1) );
        d2=fabs( DistanceToEtaLine( pforcell, eta2) );
 
-       if( d1 < StripWidth+KapGap ){
+       if( d1 < s_StripWidth+s_KapGap ){
                                        b_compartment = 8;
                                        etabin        = 2*i+2;
                                        break;
        }
-       if( d2 < StripWidth+KapGap ){
+       if( d2 < s_StripWidth+s_KapGap ){
 label17:
                                        b_compartment = 8;
                                        etabin        = 2*i+3;
@@ -2120,13 +2121,13 @@ label17:
        d1=fabs( DistanceToEtaLine( pforcell, eta1) );
        d2=fabs( DistanceToEtaLine( pforcell, eta2) );
 
-       if( d1 < StripWidth+KapGap ){
+       if( d1 < s_StripWidth+s_KapGap ){
 label18:
                                        b_compartment = 8;
                                        etabin        = 2*i+2;
                                        break;
        }
-       if( d2 < StripWidth+KapGap ){
+       if( d2 < s_StripWidth+s_KapGap ){
 label19:
                                        b_compartment = 8;
                                        etabin        = 2*i+3;
@@ -2144,7 +2145,7 @@ label19:
 
        d1=fabs( DistanceToEtaLine( pforcell, eta1) );
 
-       if( d1 < StripWidth+KapGap || z_inb > zlim1  ){
+       if( d1 < s_StripWidth+s_KapGap || z_inb > zlim1  ){
                                        b_compartment = 8;
                                        etabin        = 2*i+2;
                                        break;
@@ -2165,8 +2166,8 @@ label99:
 // ****************************************************************************
 G4bool EnergyCalculator::GetVolumeIndex(const G4Step *step) const{
 // ****************************************************************************
-  ModuleNumber = -999;
-  PhiDivNumber = -999;
+  s_ModuleNumber = -999;
+  s_PhiDivNumber = -999;
 
   const G4StepPoint*  pre_step_point = step->GetPreStepPoint();
   const G4int         ndepth = pre_step_point->GetTouchable()->GetHistoryDepth();
@@ -2174,17 +2175,17 @@ G4bool EnergyCalculator::GetVolumeIndex(const G4Step *step) const{
   for(G4int i=0;i<=ndepth;++i){
    G4String ivolname=pre_step_point->GetTouchable()->GetVolume(i)->GetName();
     if( ivolname.find("BackOuterBarrette::Module") != std::string::npos ){
-      ModuleNumber = pre_step_point->GetTouchable()->GetVolume(i)->GetCopyNo();
+      s_ModuleNumber = pre_step_point->GetTouchable()->GetVolume(i)->GetCopyNo();
     }
     if( ivolname.find("BackOuterBarrette::Module::Phidiv") != std::string::npos ){
-      PhiDivNumber = pre_step_point->GetTouchable()->GetVolume(i)->GetCopyNo();
+      s_PhiDivNumber = pre_step_point->GetTouchable()->GetVolume(i)->GetCopyNo();
     }
   }
 
   if(!lwc()->GetisModule()){
-    if(ModuleNumber < 0 || PhiDivNumber < 0) {return false;}
+    if(s_ModuleNumber < 0 || s_PhiDivNumber < 0) {return false;}
   }
-  else if(PhiDivNumber < 0 ) {return false;}
+  else if(s_PhiDivNumber < 0 ) {return false;}
 
   return true;
 }
@@ -2204,7 +2205,7 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 		(*m_msg) << MSG::FATAL
 		<< " ERROR ::FindIdentifier_Barrett, not yet prepared for solidtype="
 		<< LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
-		<< endreq;
+		<< endmsg;
 	}
 
     G4bool validhit=true;
@@ -2228,15 +2229,15 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
     // G4ThreeVector  pinLocal = 0.5 * (startPointLocal + endPointLocal);
 	const G4ThreeVector  pinLocal = startPointLocal;
 
-// get Module and Phidiv number (result is put into static VolumeNumber and PhiDivNumber)
+// get Module and Phidiv number (result is put into static VolumeNumber and s_PhiDivNumber)
 
 	validhit=GetVolumeIndex(step);
 	if(!validhit){
           //std::cout
 	  (*m_msg) << MSG::FATAL
 		 <<" ERROR ::FindIdentifier_Barrett:Module, Phidiv is not found"
-		 <<" ModuleNumber= "<<ModuleNumber<<" PhiDivNumber= "<<PhiDivNumber
-		 <<endreq;
+		 <<" ModuleNumber= "<<s_ModuleNumber<<" PhiDivNumber= "<<s_PhiDivNumber
+		 <<endmsg;
 	  //	 <<std::endl;
 	}
 
@@ -2251,9 +2252,9 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
     const G4double eta_inb=pforcell.pseudoRapidity();    //eta in the system where electrodes were designed
 
 	if(lwc()->type() ==  LArWheelCalculator::OuterAbsorberWheel){ // for wheel calculation
-        PhiStartOfPhiDiv = lwc()->GetFanStepOnPhi()/2. + ModuleNumber * CLHEP::twopi/8.
-	                                   + PhiDivNumber * lwc()->GetFanStepOnPhi();
-        phi_inb = PhiStartOfPhiDiv + pinLocal.phi();  //in ::BackOuterBarrettes
+        s_PhiStartOfPhiDiv = lwc()->GetFanStepOnPhi()/2. + s_ModuleNumber * CLHEP::twopi/8.
+	                                   + s_PhiDivNumber * lwc()->GetFanStepOnPhi();
+        phi_inb = s_PhiStartOfPhiDiv + pinLocal.phi();  //in ::BackOuterBarrettes
 	    if(phi_inb < 0.)      phi_inb = phi_inb + CLHEP::twopi;
 	    if(phi_inb > CLHEP::twopi) phi_inb = phi_inb - CLHEP::twopi;
 	    phi_inb =  CLHEP::twopi - phi_inb;        // phi in ::EmecMother system;
@@ -2261,9 +2262,9 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 	else if(lwc()->type() ==  LArWheelCalculator::OuterAbsorberModule){ // for TB modul calculation
 
   	    G4double PhiStart = M_PI_2 - M_PI/8.; //this is from EMECSupportConstruction
-	    PhiStartOfPhiDiv = PhiStart + lwc()->GetFanStepOnPhi()/2 + PhiDivNumber * lwc()->GetFanStepOnPhi();
+	    s_PhiStartOfPhiDiv = PhiStart + lwc()->GetFanStepOnPhi()/2 + s_PhiDivNumber * lwc()->GetFanStepOnPhi();
 
-	    phi_inb = PhiStartOfPhiDiv + pinLocal.phi(); //in BackOuterBarrettes;
+	    phi_inb = s_PhiStartOfPhiDiv + pinLocal.phi(); //in BackOuterBarrettes;
 	    phi_inb =  M_PI - phi_inb;        // phi in ::EmecMother system;
     }
 
@@ -2299,7 +2300,7 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 	  if(lwc()->GetisModule() && atlasside < 0 ) {
 		(*m_msg) << MSG::FATAL
 		  <<"EnergyCalculator: TB modul should be at pos z"
-		  <<endreq;
+		  <<endmsg;
 	  }
 
 // In future version we may use constant m_AtlasZside set by constructor,
@@ -2359,7 +2360,7 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
         if(phiBin<0) {
 	  (*m_msg) << MSG::WARNING
 		 << "FindIdentifier_Barrett: invalid hit, phiBin < 0"
-		 << endreq;
+		 << endmsg;
 	  phiBin=0;
 	  validhit=false;
         }
@@ -2367,14 +2368,14 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 	  (*m_msg) << MSG::WARNING
 		 << "FindIdentifier_Barrett: invalid hit, phiBin = " << phiBin
 		 << " > geometry[" << c << "].maxPhi="<< geometry[c].maxPhi
-		 << endreq;
+		 << endmsg;
 	  phiBin=geometry[c].maxPhi;
 	  validhit=false;
         }
         if(etaBin < 0){
 	  (*m_msg) << MSG::WARNING
 		 << "FindIdentifier_Barrett: invalid hit, etaBin < 0"
-		 << endreq;
+		 << endmsg;
 	  etaBin=0;
 	  validhit=false;
         }
@@ -2382,7 +2383,7 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
 	  (*m_msg) << MSG::WARNING
 		 << "FindIdentifier_Barrett: invalid hit, etaBin = "
 		 << etaBin << " > geometry[" << c << "].maxEta="
-		 << geometry[c].maxEta << endreq;
+		 << geometry[c].maxEta << endmsg;
 	  etaBin=geometry[c].maxEta;
 	  validhit=false;
         }
@@ -2399,7 +2400,7 @@ G4bool EnergyCalculator::FindIdentifier_Barrett(
         G4double timeOfFlight = 0.5 *
 	  ( pre_step_point->GetGlobalTime() +
 	    post_step_point->GetGlobalTime()    );
-        hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+        hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
         if (hdata[0].time > m_OOTcut) m_isInTime = false;
         else m_isInTime = true;
 
@@ -2422,7 +2423,7 @@ G4bool EnergyCalculator::FindDMIdentifier_Barrett(const G4Step* step, std::vecto
 G4int EnergyCalculator::GetPhiGap_Barrett(const G4ThreeVector& p) const {
 // ****************************************************************************
   G4double phi=p.phi();           // in Module::Phidiv
-  phi = PhiStartOfPhiDiv + phi;   // in Barrette
+  phi = s_PhiStartOfPhiDiv + phi;   // in Barrette
   if(phi < 0. )       phi=phi+CLHEP::twopi;
   if(phi >= CLHEP::twopi ) phi=phi-CLHEP::twopi;
 
@@ -2436,8 +2437,8 @@ G4int EnergyCalculator::GetPhiGap_Barrett(const G4ThreeVector& p) const {
 G4double EnergyCalculator::GetGapSize_Barrett(const G4ThreeVector& p) const {
 // ****************************************************************************
   const G4double r=p.perp();
-  const G4double ta1=1./ sqrt(4.*r/FanAbsThickness*r/FanAbsThickness - 1.);
-  const G4double ta2=1./ sqrt(4.*r/FanEleThickness*r/FanEleThickness - 1.);
+  const G4double ta1=1./ sqrt(4.*r/m_FanAbsThickness*r/m_FanAbsThickness - 1.);
+  const G4double ta2=1./ sqrt(4.*r/m_FanEleThickness*r/m_FanEleThickness - 1.);
   const G4double phieff= lwc()->GetFanStepOnPhi()*0.5-atan(ta1)-atan(ta2);
   return (r*phieff);
 }
@@ -2446,7 +2447,7 @@ G4double EnergyCalculator::distance_to_the_nearest_electrode_Barrett(
                                                              const G4ThreeVector &p) const {
 // ****************************************************************************
   G4double phi=p.phi();           // in Module::Phidiv
-  phi = PhiStartOfPhiDiv + phi;   // in Barrette
+  phi = s_PhiStartOfPhiDiv + phi;   // in Barrette
   if(phi < 0. ) phi=phi+CLHEP::twopi;
   if(phi >= CLHEP::twopi ) phi=phi-CLHEP::twopi;
 
@@ -2463,7 +2464,7 @@ G4double EnergyCalculator::distance_to_the_nearest_electrode_Barrett(
     elephi=igap*lwc()->GetFanStepOnPhi();
 	dphi=phi-elephi;
   }
-  G4double dist=r*sin(fabs(dphi))-FanEleThickness*0.5;
+  G4double dist=r*sin(fabs(dphi))-m_FanEleThickness*0.5;
 
   return fabs(dist);
 }
@@ -2525,7 +2526,7 @@ G4double EnergyCalculator::GetHV_Value_Barrett(const G4ThreeVector& p) const {
 // get electrode number and side
 
   G4double phi=p.phi();           // in Module::Phidiv
-  phi = PhiStartOfPhiDiv + phi;   // in Barrette
+  phi = s_PhiStartOfPhiDiv + phi;   // in Barrette
   if(phi < 0. )       phi=phi+CLHEP::twopi;
   if(phi >= CLHEP::twopi ) phi=phi-CLHEP::twopi;
 
@@ -2546,16 +2547,16 @@ G4double EnergyCalculator::GetHV_Value_Barrett(const G4ThreeVector& p) const {
 
 // prepare indices for different versions of HV Map
 
-  G4int firstelectrode  = HV_Start_phi[atlasside][etasection][electrodeside];
+  G4int firstelectrode  = s_HV_Start_phi[atlasside][etasection][electrodeside];
   G4int electrodeindex  = electrodenumber-firstelectrode;
   if(electrodeindex < 0) electrodeindex += lwc()->GetNumberOfFans();
-  G4int phisection      = electrodeindex / NumberOfElectrodesInPhiSection;
+  G4int phisection      = electrodeindex / m_NumberOfElectrodesInPhiSection;
 
-  assert(phisection>=0 && phisection<=NofPhiSections-1);
+  assert(phisection>=0 && phisection<=m_NofPhiSections-1);
 
 // pick up HV value from the array
 
-  G4double HV_value= HV_Values[atlasside][etasection][electrodeside][phisection];
+  G4double HV_value= s_HV_Values[atlasside][etasection][electrodeside][phisection];
 
   return HV_value;
 }
