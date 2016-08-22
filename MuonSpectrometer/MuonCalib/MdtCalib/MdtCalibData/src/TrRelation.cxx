@@ -104,7 +104,7 @@ double TrRelation::tFromR(const double &r, bool &out_of_bound_flag) const {
   }
   MsgStream log(Athena::getMessageSvc(), "TrRelation");
   
-  log<< MSG::ERROR << "Class TrRelation, method tFromR: ERROR!"<<endreq;
+  log<< MSG::ERROR << "Class TrRelation, method tFromR: ERROR!"<<endmsg;
   return 0.0;
 }  //end TrRelation::tFromR
 

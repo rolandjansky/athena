@@ -27,7 +27,7 @@ void WireSagCorFunc::init(const CalibFunc::ParVec& params) {
   MsgStream log(Athena::getMessageSvc(), "WireSagCorFunc");
   m_params = params;
   if (m_params.size() != 0) {
-    log << MSG::ERROR << "Wrong number of parameters: " << m_params.size() << endreq;
+    log << MSG::ERROR << "Wrong number of parameters: " << m_params.size() << endmsg;
   }
 }
 

@@ -27,13 +27,13 @@ void RtSpline::_init() {
   MsgStream log(Athena::getMessageSvc(), "RtSpline");
 //check for minimum number of parameters
   if (nPar() < 6) {
-    log<<MSG::ERROR<<"Not enough parameters!"<<endreq;
-    log<<MSG::ERROR<<"Minimum number of parameters is 6!"<<endreq;
+    log<<MSG::ERROR<<"Not enough parameters!"<<endmsg;
+    log<<MSG::ERROR<<"Minimum number of parameters is 6!"<<endmsg;
     throw 1;
   }
 //check if the number of parameters is even
   if ((nPar() % 2) != 0) {
-    log<<MSG::ERROR<<"RtSpline::_init(): Odd number of parameters!"<<endreq;
+    log<<MSG::ERROR<<"RtSpline::_init(): Odd number of parameters!"<<endmsg;
     throw 2;
   }
 //create spline
