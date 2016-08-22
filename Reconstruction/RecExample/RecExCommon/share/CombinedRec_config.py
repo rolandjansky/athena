@@ -73,18 +73,6 @@ if rec.doESD() and (rec.doMuonCombined() or rec.doEgamma()):
     except Exception:
         treatException("Could not set up isolation. Switched off !")
 
-if rec.doESD() and rec.doEgamma():
-    try:
-        from egammaRec.egammaLocker import egammaLocker
-        topSequence +=egammaLocker(name= "egLocker",
-                                   doTruth=rec.doTruth(),
-                                   doFinalizeClusters =jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
-                                   doEgammaForwardSeeded=jobproperties.egammaRecFlags.doEgammaForwardSeeded(),
-                                   doEgammaCaloSeeded=jobproperties.egammaRecFlags.doEgammaCaloSeeded(),
-                                   outputClusterKey=egammaKeys.outputClusterKey(),
-                                   egammakeys=egammaKeysDict.outputs.items())
-    except:
-        treatException("Could not set up egammaLocker. Switched off !")
 
 #AODFix_postMuonCombinedRec()
 #
