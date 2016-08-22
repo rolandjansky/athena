@@ -108,43 +108,43 @@ MuonGMCheckCorners::initialize()
 {
     StatusCode status = StatusCode::SUCCESS;
 
-    MsgStream ini_log(messageService(), name());
-    ini_log <<MSG::DEBUG<<" starting up"<<endreq;
+    MsgStream ini_log(msgSvc(), name());
+    ini_log <<MSG::DEBUG<<" starting up"<<endmsg;
     // Locate the StoreGateSvc and initialize our local ptr
     status = serviceLocator()->service("StoreGateSvc", p_EventStore);
     if (!status.isSuccess() || 0 == p_EventStore) {
-        ini_log << MSG::ERROR << " Could not find StoreGateSvc" << endreq;
+        ini_log << MSG::ERROR << " Could not find StoreGateSvc" << endmsg;
         return status;
     }
-    else ini_log << MSG::DEBUG << " StoreGateSvc found" << endreq;
+    else ini_log << MSG::DEBUG << " StoreGateSvc found" << endmsg;
 
       // Locate the ActiveStoreSvc and initialize our local ptr
     status = serviceLocator()->service("ActiveStoreSvc", p_ActiveStore);
     if (!status.isSuccess() || 0 == p_ActiveStore) {
-        ini_log << MSG::ERROR << " Could not find ActiveStoreSvc" << endreq;
+        ini_log << MSG::ERROR << " Could not find ActiveStoreSvc" << endmsg;
         return status;
     }
-    else ini_log << MSG::DEBUG << " ActiveStoreSvc found" << endreq;
+    else ini_log << MSG::DEBUG << " ActiveStoreSvc found" << endmsg;
     
     StoreGateSvc* detStore=0;
     status = serviceLocator()->service("DetectorStore", detStore);
     if ( status.isSuccess() ) {
         status = detStore->retrieve( p_MuonMgr );
         if ( status.isFailure() ) {
-            ini_log << MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endreq;
+            ini_log << MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endmsg;
         }
         else
         {
-            ini_log << MSG::DEBUG << " MuonDetectorManager  is retriven " << endreq;
+            ini_log << MSG::DEBUG << " MuonDetectorManager  is retriven " << endmsg;
             p_CscIdHelper = p_MuonMgr->cscIdHelper();
             p_RpcIdHelper = p_MuonMgr->rpcIdHelper();
             p_TgcIdHelper = p_MuonMgr->tgcIdHelper();
             p_MdtIdHelper = p_MuonMgr->mdtIdHelper();
-            ini_log << MSG::DEBUG << " Id Helpers are obtained from MuonDetectorManager " << endreq;
+            ini_log << MSG::DEBUG << " Id Helpers are obtained from MuonDetectorManager " << endmsg;
         }
     }
     else {
-        ini_log << MSG::ERROR << " DetectorStore not accessible" << endreq;
+        ini_log << MSG::ERROR << " DetectorStore not accessible" << endmsg;
     }
     if (status == StatusCode::SUCCESS) {
         if (m_check_csc) checkreadoutcscgeo();
@@ -166,7 +166,7 @@ MuonGMCheckCorners::initialize()
     if ( !nt )    {    // Check if already booked
       nt = ntupleSvc()->book ("/NTUPLES/FILE1/10", CLID_ColumnWiseTuple, "Coords");
       if ( nt )    {
-        ini_log << MSG::DEBUG << "booked ntuple " << endreq;
+        ini_log << MSG::DEBUG << "booked ntuple " << endmsg;
 
         status = nt->addItem ("ChamberPhi", m_statPhi);
 	status = nt->addItem ("Multilayer", m_statML);
@@ -175,7 +175,7 @@ MuonGMCheckCorners::initialize()
 	status = nt->addItem ("y", m_y);
 	status = nt->addItem ("z", m_z);
       }
-    } else {ini_log << MSG::INFO <<"Failed to book ntuple"<< endreq;}
+    } else {ini_log << MSG::INFO <<"Failed to book ntuple"<< endmsg;}
     }
     return  status;
 }
@@ -185,14 +185,14 @@ StatusCode
 MuonGMCheckCorners::execute()
 {
     StatusCode status = StatusCode::SUCCESS;
-    // MsgStream exe_log(messageService(), name());
-    // // exe_log << MSG::INFO << "m_statPhi" << m_statPhi << endreq;
-    // exe_log << MSG::DEBUG << "Executing" << endreq;
+    // MsgStream exe_log(msgSvc(), name());
+    // // exe_log << MSG::INFO << "m_statPhi" << m_statPhi << endmsg;
+    // exe_log << MSG::DEBUG << "Executing" << endmsg;
 
     //  std::string gVersion = p_MuonMgr->geometryVersion();
     //  std::string fileName = "mdt_current_"+gVersion;
     //  std::ofstream fout(fileName.c_str());
-    //  exe_log << MSG::INFO << " ***** Writing file "<< fileName << endreq;
+    //  exe_log << MSG::INFO << " ***** Writing file "<< fileName << endmsg;
     //  fout << setiosflags(std::ios::fixed) << std::setprecision(4)<<std::endl;
 
     //  int n=0; 
@@ -897,8 +897,8 @@ MuonGMCheckCorners::finalize()
     StatusCode status = StatusCode::SUCCESS;
     
     
-    MsgStream fin_log(messageService(), name());
-    fin_log << MSG::DEBUG << "Finalizing" << endreq;
+    MsgStream fin_log(msgSvc(), name());
+    fin_log << MSG::DEBUG << "Finalizing" << endmsg;
     
      
     return status;
