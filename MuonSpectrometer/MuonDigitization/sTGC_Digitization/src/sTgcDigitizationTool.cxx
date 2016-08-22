@@ -112,10 +112,18 @@ sTgcDigitizationTool::sTgcDigitizationTool(const std::string& type, const std::s
     m_outputSDO_CollectionName("sTGC_SDO"),
     m_doToFCorrection(0),
     m_doChannelTypes(3),
+    m_readoutThreshold(0),
+    m_neighborOnThreshold(0),
+    m_saturation(0),
     m_deadtimeStrip(50.),
     m_deadtimePad(5.),
+    m_timeWindowOffsetPad(0),
+    m_timeWindowOffsetStrip(0),
     m_timeWindowPad(30.),
-    m_timeWindowStrip(30.)
+    m_timeWindowStrip(30.),
+    m_bunchCrossingTime(0),
+    m_timeJitterElectronicsStrip(0),
+    m_timeJitterElectronicsPad(0)
 
     //m_file(0),
     //m_SimHitOrg(0),
@@ -166,7 +174,7 @@ StatusCode sTgcDigitizationTool::initialize() {
 
   status = service("ActiveStoreSvc", m_activeStore);
   if(!status.isSuccess()) { 
-    msg(status.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get active store service" << endreq; 
+    msg(status.isFailure() ? MSG::FATAL : MSG::ERROR) << "Could not get active store service" << endmsg; 
     return status;
   }
 
@@ -203,7 +211,7 @@ StatusCode sTgcDigitizationTool::initialize() {
   
   // initialize class to execute digitization 
   m_digitizer = new sTgcDigitMaker(m_hitIdHelper, m_mdManager);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
   if(!m_rndmSvc.retrieve().isSuccess()) {
     ATH_MSG_FATAL(" Could not initialize Random Number Service");
     return StatusCode::FAILURE;
@@ -551,7 +559,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
  
       const MuonGM::sTgcReadoutElement* detEL = m_mdManager->getsTgcReadoutElement(layid);
       if( !detEL ){
-        msg(MSG::WARNING) << "Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid)  << endreq;
+        msg(MSG::WARNING) << "Failed to retrieve detector element for: isSmall " << isSmall << " eta " << m_idHelper->stationEta(layid) << " phi " << m_idHelper->stationPhi(layid) << " ml " << m_idHelper->multilayer(layid)  << endmsg;
 	continue;
       }
 
@@ -576,13 +584,13 @@ StatusCode sTgcDigitizationTool::doDigitization() {
       if (std::abs(std::abs(LOCAL_Z.x())-1.)<1e-5 && std::abs(LOCAL_Z.y())<1e-5 && std::abs(LOCAL_Z.z())<1e-5)      scale = -LPOS.x() / LOCDIRE.x();
       else if (std::abs(LOCAL_Z.x())<1e-5 && std::abs(std::abs(LOCAL_Z.y())-1.)<1e-5 && std::abs(LOCAL_Z.z())<1e-5) scale = -LPOS.y() / LOCDIRE.y();
       else if (std::abs(LOCAL_Z.x())<1e-5 && std::abs(LOCAL_Z.y())<1e-5 && std::abs(std::abs(LOCAL_Z.z())-1.)<1e-5) scale = -LPOS.z() / LOCDIRE.z();
-      else msg(MSG::ERROR) << " Wrong scale! " << endreq;
+      else msg(MSG::ERROR) << " Wrong scale! " << endmsg;
 
       Amg::Vector3D HITONSURFACE_WIRE = LPOS + scale * LOCDIRE;
       Amg::Vector3D G_HITONSURFACE_WIRE = SURF_WIRE.transform() * HITONSURFACE_WIRE;
 
-      //msg(MSG::VERBOSE) << "project to wire surface : "<< "global position : " << G_HITONSURFACE_WIRE.x() <<"  "<< G_HITONSURFACE_WIRE.y() <<"  "<< G_HITONSURFACE_WIRE.z() << endreq; 
-      //msg(MSG::VERBOSE) << "project to wire  surface : "<< "local position : " << HITONSURFACE_WIRE.x() <<"  "<< HITONSURFACE_WIRE.y() <<"  "<< HITONSURFACE_WIRE.z() << endreq; 
+      //msg(MSG::VERBOSE) << "project to wire surface : "<< "global position : " << G_HITONSURFACE_WIRE.x() <<"  "<< G_HITONSURFACE_WIRE.y() <<"  "<< G_HITONSURFACE_WIRE.z() << endmsg; 
+      //msg(MSG::VERBOSE) << "project to wire  surface : "<< "local position : " << HITONSURFACE_WIRE.x() <<"  "<< HITONSURFACE_WIRE.y() <<"  "<< HITONSURFACE_WIRE.z() << endmsg; 
 
 
       // check the strip id this hit is pointing to
@@ -594,14 +602,14 @@ StatusCode sTgcDigitizationTool::doDigitization() {
       Identifier STRIP_ID = m_idHelper->channelID(m_idHelper->parentID(layid), multiPlet, gasGap, 1, 1, true);// find the a strip id
       bool insideBounds = SURF_STRIP.insideBounds(POSONSURF_STRIP);
       if(!insideBounds) { 
-        if(MSG::DEBUG) msg(MSG::DEBUG) << "Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(STRIP_ID) << "; local position x = "<< POSONSURF_STRIP.x() << "  y = "<<POSONSURF_STRIP.y() <<endreq; 
+        if(MSG::DEBUG) msg(MSG::DEBUG) << "Outside of the strip surface boundary : " <<  m_idHelper->print_to_string(STRIP_ID) << "; local position x = "<< POSONSURF_STRIP.x() << "  y = "<<POSONSURF_STRIP.y() <<endmsg; 
         continue;
       }
       
       int stripNumber = detEL->stripNumber(POSONSURF_STRIP, STRIP_ID);
       if( stripNumber == -1 ){
-        msg(MSG::ERROR) <<"Failed to obtain strip number " << m_idHelper->print_to_string(STRIP_ID) << endreq;
-        msg(MSG::ERROR) <<" pos " << POSONSURF_STRIP << endreq;
+        msg(MSG::ERROR) <<"Failed to obtain strip number " << m_idHelper->print_to_string(STRIP_ID) << endmsg;
+        msg(MSG::ERROR) <<" pos " << POSONSURF_STRIP << endmsg;
         //stripNumber = 1;
       }
       bool isValid = 0;
@@ -626,7 +634,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
     for(it_mergedSimHit it_SimHit = merged_SimHit.begin(); it_SimHit!=merged_SimHit.end(); it_SimHit++ ) {
       double depositEnergy = it_SimHit->second.first.first; 
       if(depositEnergy<0) {
-        msg(MSG::ERROR) << "Invalid depositEnergy value " << depositEnergy <<endreq;
+        msg(MSG::ERROR) << "Invalid depositEnergy value " << depositEnergy <<endmsg;
         continue;
       }
       const GenericMuonSimHit temp_hit = *((it_SimHit->second).second);
@@ -725,7 +733,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
     for(tempDigitCollectionType::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
 
       Identifier newDigitId = it_REID->first;
-      //msg(MSG::VERBOSE) << "   Digit Id= " << m_idHelper->show_to_string(newDigitId) << endreq;
+      //msg(MSG::VERBOSE) << "   Digit Id= " << m_idHelper->show_to_string(newDigitId) << endmsg;
 
       sort(it_REID->second.second.begin(), it_REID->second.second.end(), sort_EarlyToLate);
 
@@ -780,7 +788,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
 	//		  << " charge = "          << it_digit->second.charge 
 	//		  << " channelType = "     << it_digit->second.channelType
 	//		  << " keep this digit = " << it_digit->second.keep
-	//		  << endreq;
+	//		  << endmsg;
         // 
       } // end of loop all signals(at different time) of the same ReadoutElementID
 
@@ -792,7 +800,7 @@ StatusCode sTgcDigitizationTool::doDigitization() {
   for(tempDigitContainerType::iterator it_coll = tempDigitContainer.begin(); it_coll != tempDigitContainer.end(); ++it_coll){
     
     IdentifierHash coll = it_coll->first;
-    msg(MSG::VERBOSE) << "coll = "<< coll << endreq;  
+    msg(MSG::VERBOSE) << "coll = "<< coll << endmsg;  
     digitCollection = new sTgcDigitCollection(it_coll->second.begin()->first, coll);
 
     for(tempDigitCollectionType::iterator it_REID = it_coll->second.begin(); it_REID != it_coll->second.end(); ++it_REID){
