@@ -59,21 +59,21 @@ namespace MuonCalib {
 
   StatusCode CscReadWriteCoolStr::initialize()
   {
-    m_log << MSG::DEBUG << "CscReadWriteCoolStr::initialize() called" << endreq;
+    m_log << MSG::DEBUG << "CscReadWriteCoolStr::initialize() called" << endmsg;
 
     if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-      m_log << MSG::FATAL << "Detector store not found" << endreq;
+      m_log << MSG::FATAL << "Detector store not found" << endmsg;
       return StatusCode::FAILURE;
     }
     if (StatusCode::SUCCESS!=m_cscCoolStrSvc.retrieve()) {
-      m_log << MSG::FATAL << "Cannot get CscCoolStrSvc" << endreq;
+      m_log << MSG::FATAL << "Cannot get CscCoolStrSvc" << endmsg;
       return StatusCode::FAILURE;
     }
     
     StatusCode sc = p_detstore->retrieve(m_cscId,"CSCIDHELPER");
     if(sc.isFailure())
     {
-      m_log << MSG::FATAL << "Cannot retrieve CscIdHelper from detector store" << endreq;
+      m_log << MSG::FATAL << "Cannot retrieve CscIdHelper from detector store" << endmsg;
       return sc;
     }
 
@@ -85,7 +85,7 @@ namespace MuonCalib {
   }
 
   StatusCode CscReadWriteCoolStr::finalize() {
-    m_log << MSG::INFO << "Finalizing CscReadWriteCoolStr." << endreq;
+    m_log << MSG::INFO << "Finalizing CscReadWriteCoolStr." << endmsg;
     static int numFinal =0;
     if(numFinal>0)
       return StatusCode::SUCCESS;
@@ -97,7 +97,7 @@ namespace MuonCalib {
     }
     if(m_read)
     {
-      m_log <<MSG::DEBUG<< "Creating file" << endreq;
+      m_log <<MSG::DEBUG<< "Creating file" << endmsg;
       return makeFile();
     }
     return StatusCode::SUCCESS;
@@ -106,7 +106,7 @@ namespace MuonCalib {
   StatusCode CscReadWriteCoolStr::readFiles() {
 
     StatusCode sc = StatusCode::SUCCESS;
-    m_log <<MSG::INFO << "About to insert files" << endreq;
+    m_log <<MSG::INFO << "About to insert files" << endmsg;
     vector<string>::const_iterator fItr = m_ifiles.begin();
     vector<string>::const_iterator fEnd = m_ifiles.end();
     for(;fItr != fEnd; fItr++)
@@ -118,17 +118,17 @@ namespace MuonCalib {
         if(!procInputStream(/*dynamic_cast<istream*>(ifile)*/ifile).isSuccess())
         {
           sc = StatusCode::RECOVERABLE;
-          m_log << MSG::ERROR << "Failed processing " << *fItr << endreq;
+          m_log << MSG::ERROR << "Failed processing " << *fItr << endmsg;
         }
       }
       else
       {
         sc = StatusCode::RECOVERABLE;
-        m_log << MSG::ERROR << "Failed opening " << *fItr << endreq;
+        m_log << MSG::ERROR << "Failed opening " << *fItr << endmsg;
       }
     }
 
-    m_log <<MSG::INFO << "Finished reading files" << endreq;
+    m_log <<MSG::INFO << "Finished reading files" << endmsg;
 
     return sc;
   }
@@ -161,7 +161,7 @@ namespace MuonCalib {
 
         //Prevent infinite loop
         if (i== 1000000 || !input.good()) {
-          m_log << MSG::FATAL << "Never reached end of header. Went through " << i << "words."<< endreq;
+          m_log << MSG::FATAL << "Never reached end of header. Went through " << i << "words."<< endmsg;
           return StatusCode::FAILURE;
         }
       }
@@ -179,7 +179,7 @@ namespace MuonCalib {
           break;
         else if ( tag != "<NEW_PAR>"){
           m_log << MSG::ERROR << "Don't recognize tag " << tag << " in this context. " 
-            << endreq;
+            << endmsg;
           return StatusCode::RECOVERABLE;
         }
         string nextWord;
@@ -187,21 +187,21 @@ namespace MuonCalib {
         if(nextWord == "<BITS>") {
           input >> nBits;
           if(nBits > 64){
-            m_log << MSG::ERROR << " bad nBits " << nBits << endreq;
+            m_log << MSG::ERROR << " bad nBits " << nBits << endmsg;
             return StatusCode::RECOVERABLE;
           }
           input >> shiftBits;
           string end_bits;
           input >> end_bits;
           m_log << MSG::DEBUG << "We've got nbits: " << nBits
-            << " and a shift of  " << shiftBits << endreq;
+            << " and a shift of  " << shiftBits << endmsg;
           if(end_bits != "<END_BITS>"){
-            m_log << MSG::ERROR << "Expected <END_BITS> tag after nBits and shiftBits info" << endreq;
+            m_log << MSG::ERROR << "Expected <END_BITS> tag after nBits and shiftBits info" << endmsg;
           }
           input >> nextWord;
         }
         else
-          m_log << MSG::DEBUG << "No bit settings for this parameter" << endreq;
+          m_log << MSG::DEBUG << "No bit settings for this parameter" << endmsg;
 
         string parName = nextWord;
 
@@ -216,7 +216,7 @@ namespace MuonCalib {
         if(!catSc.isSuccess() || !dataTypeSc.isSuccess() || !sizeSc.isSuccess())
         {
           m_log << MSG::ERROR << "Failed at retrieving info for " << parName  
-            <<". Check job options to ensure you're adding it." << endreq;
+            <<". Check job options to ensure you're adding it." << endmsg;
 	  //          failedAny = true;
           continue;
         }
@@ -233,7 +233,7 @@ namespace MuonCalib {
         else if(dataType == "bool")
           CHECK( procParameter3<bool>(input, parName, cat, nBits, shiftBits) );
         else
-          m_log << MSG::ERROR << "Don't recognize dataType " << dataType << " when reading input file " << endreq;
+          m_log << MSG::ERROR << "Don't recognize dataType " << dataType << " when reading input file " << endmsg;
       }//end parameter loop
 
     }
@@ -243,7 +243,7 @@ namespace MuonCalib {
 
       //fileversion 04-01 allows for ASM2 based material
       if(fileVersion == "04-00" || fileVersion == "04-01"){
-        m_log << MSG::DEBUG << "Reading file version 4" << endreq;
+        m_log << MSG::DEBUG << "Reading file version 4" << endmsg;
         //Version 04-00 attempts to be more xml like, although it is still a bit of a poor man's
         //xml. Items must be in a particular order, and there must be spaces between tags and 
         //their content
@@ -260,16 +260,16 @@ namespace MuonCalib {
 
           //Prevent infinite loop
           if (i== 1000000 || !input.good()) {
-            m_log << MSG::FATAL << "Never reached end of header. Went through " << i << "words."<< endreq;
+            m_log << MSG::FATAL << "Never reached end of header. Went through " << i << "words."<< endmsg;
             return StatusCode::FAILURE;
           }
         }
 
-        m_log << MSG::DEBUG << "About to loop after finding " << junk << endreq;
+        m_log << MSG::DEBUG << "About to loop after finding " << junk << endmsg;
 
         //Loop over each parameter, then over each value stored in that parameter
         while(input.good()) {
-          m_log << MSG::DEBUG << " loop" <<endreq;
+          m_log << MSG::DEBUG << " loop" <<endmsg;
           int nBits = 0;
           int shiftBits  = 0;
 
@@ -281,7 +281,7 @@ namespace MuonCalib {
             break;
           else if ( tag != "<PARAMETER>"){
             m_log << MSG::ERROR << "Don't recognize tag " << tag << " in this context. " 
-              << endreq;
+              << endmsg;
             return StatusCode::RECOVERABLE;
           }
 
@@ -290,7 +290,7 @@ namespace MuonCalib {
           string parName = nextWord;
           if(parName == "<BITS>" || parName == "<DATA>"){
             m_log << MSG::ERROR << "First entry insidet a parameter must be parameter name, not " 
-              << parName << endreq;
+              << parName << endmsg;
             return StatusCode::RECOVERABLE;
           }
 
@@ -302,14 +302,14 @@ namespace MuonCalib {
             string end_bits;
             input >> end_bits;
             m_log << MSG::DEBUG << "We've got nbits: " << nBits
-              << " and a shift of  " << shiftBits << endreq;
+              << " and a shift of  " << shiftBits << endmsg;
             if(end_bits != "</BITS>"){
-              m_log << MSG::ERROR << "Expected </BITS> tag after nBits and shiftBits info" << endreq;
+              m_log << MSG::ERROR << "Expected </BITS> tag after nBits and shiftBits info" << endmsg;
             }
             input >> nextWord;
           }
           else
-            m_log << MSG::DEBUG << "No bit settings for this parameter" << endreq;
+            m_log << MSG::DEBUG << "No bit settings for this parameter" << endmsg;
 
           if(nextWord == "<DATA>"){
 
@@ -324,14 +324,14 @@ namespace MuonCalib {
             if(!catSc.isSuccess() || !dataTypeSc.isSuccess() || !sizeSc.isSuccess())
             {
               m_log << MSG::ERROR << "Failed at retrieving info for " << parName  
-                <<". Check job options to ensure you're adding it." << endreq;
+                <<". Check job options to ensure you're adding it." << endmsg;
 	      //        failedAny = true;
               continue;
             }
 
             //Process parameter. Need to know datatype for proper string to data conversion.
             //Add parameters to 
-            m_log << MSG::INFO << "Processing data for parameter " << parName << endreq;
+            m_log << MSG::INFO << "Processing data for parameter " << parName << endmsg;
 
             if(dataType == "uint32_t")
               CHECK( procParameter4<uint32_t>(input, parName, cat, nBits, shiftBits));
@@ -342,16 +342,16 @@ namespace MuonCalib {
             else if(dataType == "bool")
               CHECK( procParameter4<bool>(input, parName, cat, nBits, shiftBits));
             else
-              m_log << MSG::ERROR << "Don't recognize dataType " << dataType << " when reading input file " << endreq;
+              m_log << MSG::ERROR << "Don't recognize dataType " << dataType << " when reading input file " << endmsg;
             input >> nextWord;
           }
           else {
-            m_log << MSG::ERROR << "No data found for parameter " << parName << endreq;
+            m_log << MSG::ERROR << "No data found for parameter " << parName << endmsg;
             return StatusCode::RECOVERABLE;
           }
           if(nextWord != "</PARAMETER>"){
             m_log << MSG::WARNING << "Expected parameter info to end with token " 
-              << "</PARAMETER>" << ". Instead have " << nextWord << endreq;
+              << "</PARAMETER>" << ". Instead have " << nextWord << endmsg;
           }
         }//end parameter loop
 
@@ -359,8 +359,8 @@ namespace MuonCalib {
     }//end version test
 
     if(!recognizedVersion){
-      m_log << MSG::FATAL << "Didn't recognize input format version. If 04-00 make sure you've put <HEADER> (all caps) at front of file!" << endreq;
-      m_log << MSG::FATAL << "Read file version as " << fileVersion << endreq;
+      m_log << MSG::FATAL << "Didn't recognize input format version. If 04-00 make sure you've put <HEADER> (all caps) at front of file!" << endmsg;
+      m_log << MSG::FATAL << "Read file version as " << fileVersion << endmsg;
       return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS; 
@@ -369,12 +369,12 @@ namespace MuonCalib {
 
   StatusCode CscReadWriteCoolStr::writeToCool() {
     //Send to be added to database
-    m_log << MSG::INFO << "About to merge and submit data to cool" << endreq;
+    m_log << MSG::INFO << "About to merge and submit data to cool" << endmsg;
     return m_cscCoolStrSvc->mergeAndSubmitCondDataContainer(m_condDataContainer);
   }
 
   StatusCode CscReadWriteCoolStr::makeFile() {
-    m_log << MSG::INFO << "Writing data from database to file " << m_ofile << endreq;
+    m_log << MSG::INFO << "Writing data from database to file " << m_ofile << endmsg;
 
     ofstream outFile(m_ofile.c_str());
     
@@ -394,12 +394,12 @@ namespace MuonCalib {
     vector<string>::const_iterator parNameEnd = m_outParameters.end();
     for(;parNameItr != parNameEnd; parNameItr++) {
 
-      m_log << MSG::DEBUG << "Storing " << *parNameItr << endreq;
+      m_log << MSG::DEBUG << "Storing " << *parNameItr << endmsg;
 
       unsigned int numIndx = 0;
       if(!m_cscCoolStrSvc->getParNumHashes(*parNameItr,numIndx).isSuccess()) {
         m_log << MSG::ERROR << "Failed getting num hashes for " 
-          << *parNameItr << endreq;
+          << *parNameItr << endmsg;
         return StatusCode::RECOVERABLE;
       }
 
@@ -409,25 +409,25 @@ namespace MuonCalib {
       string cat;
       if(!m_cscCoolStrSvc->getParCat(*parNameItr,cat).isSuccess() ){
         m_log << MSG::ERROR << "Failed getting category for " << *parNameItr
-          << endreq;
+          << endmsg;
       }
 
       m_log << MSG::DEBUG << "Category is " << cat << " and maximum index is " <<numIndx-1 
-        << endreq;
+        << endmsg;
 
       if(m_forceChanCat)
       {
-        m_log << MSG::WARNING << *parNameItr << " of category " << cat << " is being forced to be read as category CHANNEL"<< endreq;
+        m_log << MSG::WARNING << *parNameItr << " of category " << cat << " is being forced to be read as category CHANNEL"<< endmsg;
         cat = "CHANNEL";
       }
 
       if(!m_cscCoolStrSvc->getParDataType(*parNameItr, dataType)){
         m_log <<MSG::ERROR << "Failed getting data type for " << *parNameItr
-          << endreq;
+          << endmsg;
         return StatusCode::RECOVERABLE;
       }
 
-      m_log << MSG::INFO << "datatype is " << dataType << endreq;
+      m_log << MSG::INFO << "datatype is " << dataType << endmsg;
       if(m_outFileType == "04-00" || m_outFileType == "04-01"){
         outFile << "<PARAMETER>\n" << *parNameItr << "\n<DATA>\n";
         if(cat == "CHANNEL"){
@@ -436,7 +436,7 @@ namespace MuonCalib {
             //make sure the database has this value in a way that won't
             //cause any errors
             if(!m_cscCoolStrSvc->checkIndex(*parNameItr, indxItr)) {
-              m_log << MSG::VERBOSE << "nothing at index " << indxItr << endreq;
+              m_log << MSG::VERBOSE << "nothing at index " << indxItr << endmsg;
               continue;
             }
 
@@ -454,7 +454,7 @@ namespace MuonCalib {
 
             std::string data =  RetrieveDataAsString( *parNameItr, indxItr, dataType);
             if(data == "" ){
-              m_log << MSG::ERROR << "Failed to retrieve data!" << endreq;
+              m_log << MSG::ERROR << "Failed to retrieve data!" << endmsg;
               return StatusCode::RECOVERABLE;
             }
 
@@ -504,7 +504,7 @@ namespace MuonCalib {
 
         }
         else{
-          m_log << MSG::FATAL << "CSC COOL parameter category \"" << cat << "\" is not supported" << endreq;
+          m_log << MSG::FATAL << "CSC COOL parameter category \"" << cat << "\" is not supported" << endmsg;
           return StatusCode::FAILURE;
         }
         outFile << "</DATA>\n</PARAMETER>\n";
@@ -516,7 +516,7 @@ namespace MuonCalib {
           //make sure the database has this value in a way that won't
           //cause any errors
           if(!m_cscCoolStrSvc->checkIndex(*parNameItr, indxItr)) {
-            m_log << MSG::VERBOSE << "nothing at index " << indxItr << endreq;
+            m_log << MSG::VERBOSE << "nothing at index " << indxItr << endmsg;
             continue;
           }
 
@@ -524,7 +524,7 @@ namespace MuonCalib {
           if(m_outFileType == "03-00"|| m_outFileType== "03-01") {
             if(!m_cscCoolStrSvc->indexToStringId(indxItr,cat,stringId)) {
               m_log << MSG::ERROR << "Failed getting string Id from indxItr " 
-                << indxItr << " for parameter " << *parNameItr << endreq;
+                << indxItr << " for parameter " << *parNameItr << endmsg;
               return StatusCode::RECOVERABLE;
             }
           }
@@ -543,13 +543,13 @@ namespace MuonCalib {
 
 
 
-          m_log << MSG::DEBUG << "index "  << indxItr << " converted to string " << stringId << endreq;
+          m_log << MSG::DEBUG << "index "  << indxItr << " converted to string " << stringId << endmsg;
 
           outFile << stringId << " ";
 
           std::string data =  RetrieveDataAsString( *parNameItr, indxItr, dataType) ;
           if(data == ""){
-            m_log << MSG::ERROR << "Failed to to retrieve data!" << endreq;
+            m_log << MSG::ERROR << "Failed to to retrieve data!" << endmsg;
             return StatusCode::RECOVERABLE;
           }
           outFile << data;
@@ -571,11 +571,11 @@ namespace MuonCalib {
     bitset<32> newBits(refDatum);
     bitset<32> inputBits(inputDatum);
 
-    m_log << MSG::DEBUG << "Merging bits from input " <<  hex << inputDatum << " (with offset of " << bitShift << ") and reference " << hex << refDatum << dec << endreq;
+    m_log << MSG::DEBUG << "Merging bits from input " <<  hex << inputDatum << " (with offset of " << bitShift << ") and reference " << hex << refDatum << dec << endmsg;
 
     if(bitShift + nBits > 32) {
       m_log << MSG::ERROR << "Requesting a bit beyond 32 during bit merging. Probably a bug."
-        << endreq;
+        << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -585,20 +585,20 @@ namespace MuonCalib {
     }
 
     newDatum = newBits.to_ulong();
-    m_log << MSG::DEBUG << "Merged version is " << newDatum << endreq;
+    m_log << MSG::DEBUG << "Merged version is " << newDatum << endmsg;
     return StatusCode::SUCCESS;
   }
 
   StatusCode CscReadWriteCoolStr::mergeBits(const int & , const int & , const int & , 
       const int &, const int &){
-    m_log << MSG::ERROR << "Tried to merge bits of an int" << endreq;
+    m_log << MSG::ERROR << "Tried to merge bits of an int" << endmsg;
 
     return StatusCode::FAILURE;
   }
 
   StatusCode CscReadWriteCoolStr::mergeBits(const float & , const float & , const float & , 
       const int &, const int &) {
-    m_log << MSG::ERROR << "Tried to merge bits of a float" << endreq;
+    m_log << MSG::ERROR << "Tried to merge bits of a float" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -609,7 +609,7 @@ namespace MuonCalib {
       uint32_t datum;
       if(!m_cscCoolStrSvc->getParameter(datum,coolKey,hash)){
         m_log << MSG::ERROR << "Failed to retrieve data for key " << coolKey
-          << " data type " << dataType << endreq;
+          << " data type " << dataType << endmsg;
       }
       stream << datum;
     }
@@ -618,7 +618,7 @@ namespace MuonCalib {
       int datum;
       if(!m_cscCoolStrSvc->getParameter(datum,coolKey,hash)){
         m_log << MSG::ERROR << "Failed to retrieve data for key " << coolKey
-          << " data type " << dataType << endreq;
+          << " data type " << dataType << endmsg;
       }
       else 
         stream << datum;
@@ -629,7 +629,7 @@ namespace MuonCalib {
       float datum;
       if(!m_cscCoolStrSvc->getParameter(datum,coolKey,hash)){
         m_log << MSG::ERROR << "Failed to retrieve data for key " << coolKey
-          << " data type " << dataType << endreq;
+          << " data type " << dataType << endmsg;
       }
       else
         stream << datum;
@@ -640,14 +640,14 @@ namespace MuonCalib {
       bool datum;
       if(!m_cscCoolStrSvc->getParameter(datum,coolKey,hash)){
         m_log << MSG::ERROR << "Failed to retrieve data for key " << coolKey
-          << " data type " << dataType << endreq;
+          << " data type " << dataType << endmsg;
       }
       else
         stream << datum;
     }
     else
     {
-      m_log << MSG::ERROR << "don't know datatype " << dataType << endreq;
+      m_log << MSG::ERROR << "don't know datatype " << dataType << endmsg;
     }
     return stream.str();
 

@@ -61,14 +61,14 @@ TriggerCool::~TriggerCool() {}
 
 StatusCode TriggerCool::initialize()
 {
-  m_log << MSG::INFO << "TriggerCool::initialize() called" << endreq;
+  m_log << MSG::INFO << "TriggerCool::initialize() called" << endmsg;
 
   if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endreq;
+    m_log << MSG::FATAL << "Detector store not found" << endmsg;
     return StatusCode::FAILURE;
   }
   if (StatusCode::SUCCESS!=service("MuonCalib::TriggerCoolSvc",p_coolsvc)) {
-    m_log << MSG::ERROR << "Cannot get TriggerCoolSvc" << endreq;
+    m_log << MSG::ERROR << "Cannot get TriggerCoolSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -83,10 +83,10 @@ StatusCode TriggerCool::execute() {
     if(!m_writeDonePhi){
 
       m_writeDonePhi=true;
-      m_log << MSG::DEBUG << "writing to DB Phi"<<endreq;
+      m_log << MSG::DEBUG << "writing to DB Phi"<<endmsg;
 
-      if(p_coolsvc->writeToDBPhi(m_phiFolder,m_fileName_CM_Phi, m_fileName_Th0_Phi,m_chan_Phi,m_infoPhi)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in writing to DB Phi"<<endreq;
-      m_log << MSG::DEBUG << "***********************************************************"<<endreq;
+      if(p_coolsvc->writeToDBPhi(m_phiFolder,m_fileName_CM_Phi, m_fileName_Th0_Phi,m_chan_Phi,m_infoPhi)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in writing to DB Phi"<<endmsg;
+      m_log << MSG::DEBUG << "***********************************************************"<<endmsg;
     }
   }
 
@@ -97,7 +97,7 @@ StatusCode TriggerCool::execute() {
 
       m_writeDoneEta=true;
 
-      if(p_coolsvc->writeToDBEta(m_etaFolder,m_fileName_CM, m_fileName_Th0, m_chan_Eta, m_sequence, m_infoEta )!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in writing to DB Eta"<<endreq;
+      if(p_coolsvc->writeToDBEta(m_etaFolder,m_fileName_CM, m_fileName_Th0, m_chan_Eta, m_sequence, m_infoEta )!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in writing to DB Eta"<<endmsg;
 
     }
   }
@@ -107,9 +107,9 @@ StatusCode TriggerCool::execute() {
   if (m_read) {
    
     m_readDone=true;
-    if(p_coolsvc->getData(m_phiFolder, m_chan_Phi)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in reading to DB PHI +++++++++++++++"<<endreq;
+    if(p_coolsvc->getData(m_phiFolder, m_chan_Phi)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in reading to DB PHI +++++++++++++++"<<endmsg;
  
-    m_log << MSG::DEBUG << "reading to DB PHI +++++++++++++++"<<endreq;
+    m_log << MSG::DEBUG << "reading to DB PHI +++++++++++++++"<<endmsg;
     // readData();
     return StatusCode::SUCCESS;
   }
