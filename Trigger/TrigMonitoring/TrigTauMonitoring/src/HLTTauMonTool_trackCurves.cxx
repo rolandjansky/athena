@@ -2,89 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 //  @file HLTTauMonTool_trackCurves.cxx
 //  created by Milena Bajic <milena.bajic@cern.ch>
 
-
-
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
-#include "AthenaMonitoring/ManagedMonitorToolTest.h"
-#include "AnalysisUtils/AnalysisMisc.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/TriggerInfo.h"
-#include "TrigSteeringEvent/HLTResult.h"
-#include "EventInfo/EventInfo.h"
-#include <EventInfo/EventID.h>
-#include "xAODEventInfo/EventInfo.h"
-
-#include "TrigDecisionTool/FeatureContainer.h"
-#include "TrigDecisionTool/Feature.h"
-//#include "TrigSteeringEvent/TrigOperationalInfo.h"
-//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
-//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
-
-#include "TrigConfL1Data/PrescaleSet.h"
-
-#include "TrigTauEmulation/Level1EmulationTool.h"
-#include "TrigTauEmulation/HltEmulationTool.h"
-
-#include "xAODTau/TauJet.h"
-#include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
-#include "xAODTau/TauDefs.h"
-
-#include "xAODTrigger/EmTauRoI.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
-
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthVertex.h"
-#include "xAODTruth/TruthVertexContainer.h"
-
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
-
-#include "xAODMissingET/MissingET.h"
-#include "xAODMissingET/MissingETContainer.h"
-
-#include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
-
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/ElectronContainer.h"
-
-#include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
-
-#include "VxVertex/VxContainer.h"
-
-#include "TROOT.h"
-#include "TH1I.h"
-#include "TH1F.h"
-#include "TH2I.h"
-#include "TH2F.h"
-#include "TEfficiency.h"
 #include "TProfile.h"
-
-#include <vector>
-#include <iostream>
-#include <fstream>
-//#define _USE_MATH_DEFINES
-#include <math.h>
-
-
-#include "TrigHLTMonitoring/IHLTMonTool.h"
-
 #include "HLTTauMonTool.h"
 
 using namespace std;
@@ -149,11 +71,20 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem){
 	}
 
 	hist2("hreco_vs_pres_coreTracks")->Fill((*recoItr)->nTracks(), matchedTau->nTracks());
-	hist2("hreco_vs_pres_isoTracks")->Fill( (*recoItr)->nTracksIsolation(), 
-						(*recoItr)->nTracksIsolation() );
-        
+        #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+	hist2("hreco_vs_pres_isoTracks")->Fill( (*recoItr)->nWideTracks(), 
+						(*recoItr)->nWideTracks() );
+        #else
+        hist2("hreco_vs_pres_isoTracks")->Fill( (*recoItr)->nTracksIsolation(),
+                                                (*recoItr)->nTracksIsolation() );
+	#endif
         for (unsigned int recoTrack = 0; recoTrack < (*recoItr)->nTracks(); ++recoTrack){
-            const xAOD::TrackParticle* recotau_trk = (*recoItr)->track(recoTrack)->track();
+            const xAOD::TrackParticle* recotau_trk = 0;
+            #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+            recotau_trk = (*recoItr)->track(recoTrack);
+            #else
+            recotau_trk = (*recoItr)->track(recoTrack)->track();
+            #endif
             float recotau_trk_pt = recotau_trk->pt()/1000.;
             float recotau_trk_eta = recotau_trk->eta();
             float recotau_trk_phi = recotau_trk->phi();
@@ -173,7 +104,12 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem){
             const xAOD::TrackParticle* pstau_trk_clos = 0;        
 
             for (unsigned int i = 0; i < matchedTau->nTracks(); ++i){
-                const xAOD::TrackParticle* pstau_trk = matchedTau->track(i)->track();
+                const xAOD::TrackParticle* pstau_trk = 0;
+                #ifndef XAODTAU_VERSIONS_TAUJET_V3_H
+                pstau_trk = matchedTau->track(i);
+                #else
+                pstau_trk = matchedTau->track(i)->track();
+                #endif
                 double dRtracks = deltaR (pstau_trk->eta(), recotau_trk_eta, pstau_trk->phi(), recotau_trk_phi);
                 if (dRtracks < dRtracksmin) {
                     dRtracksmin = dRtracks;
