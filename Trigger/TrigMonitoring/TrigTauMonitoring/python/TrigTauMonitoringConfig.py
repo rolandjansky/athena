@@ -59,16 +59,15 @@ def TrigTauMonitoringTool():
                   'tau35_loose1_tracktwo_tau25_loose1_tracktwo',   # seeded by L1_TAU20IM_2TAU12IM_J25_2J20_3J12
                   #'tau35_medium1_tracktwo_tau25_medium1_tracktwo',
                   'tau35_tight1_tracktwo_tau25_tight1_tracktwo',
-                  'tau35_loose1_tracktwo_tau25_loose1_tracktwo_L1TAU20IM_2TAU12IM',
-                  'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',
+                  'tau35_loose1_tracktwo_tau25_loose1_tracktwo_L1TAU20IM_2TAU12IM', 
                   'tau35_tight1_tracktwo_tau25_tight1_tracktwo_L1TAU20IM_2TAU12IM',
                   
                   #'tau35_perf_ptonly_tau25_perf_ptonly_L1TAU20IM_2TAU12IM',
                   #'tau35_medium1_tracktwo_L1TAU20_tau25_medium1_tracktwo_L1TAU12_L1TAU20_2TAU12',
                   #'tau35_perf_tracktwo_L1TAU20_tau25_perf_tracktwo_L1TAU12_L1TAU20_2TAU12',
                   
-                  'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25',
-                  'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I',
+                  
+             
                   'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20ITAU12I-J25',
                   'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1BOX-TAU20ITAU12I',
                   
@@ -158,15 +157,17 @@ def TrigTauMonitoringTool():
 	]
 
 	tau_topo_chains = [
-		'L1DR-TAU20ITAU12I-J25',
-		'L1DR-TAU20ITAU12I',
-		'L1_TAU20ITAU12I-J25'
+		'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1TAU20IM_2TAU12IM',
+		'tau35_medium1_tracktwo_tau25_medium1_tracktwo',
+		'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I',
+		'tau35_medium1_tracktwo_tau25_medium1_tracktwo_L1DR-TAU20ITAU12I-J25',
+		'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30',
+                'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I',
+                'tau35_medium1_tracktwo_tau25_medium1_tracktwo_03dR30_L1DR-TAU20ITAU12I-J25',
 	]
 	
 	tau_topo_support_chains = [
-		'L1_TAU20IM_2TAU12IM_J25_2J20_3J12',
-		'L1_TAU20IM_2TAU12IM',
-		'L1_TAU20IM_2TAU12IM_J25_2J20_3J12'
+
 	]
 
 #	tau_track_test = [

@@ -53,19 +53,19 @@ class HLTTauMonTool : public IHLTMonTool {
   virtual ~HLTTauMonTool();
   
   StatusCode init();
-#ifdef ManagedMonitorToolBase_Uses_API_201401
+//#ifdef ManagedMonitorToolBase_Uses_API_201401
   StatusCode book();
-#else
-  StatusCode book(bool newEventsBlock, bool newLumiBlock, bool newRun);
-#endif
+//#else
+//  StatusCode book(bool newEventsBlock, bool newLumiBlock, bool newRun);
+//#endif
   StatusCode fill();
 
 
-#ifdef ManagedMonitorToolBase_Uses_API_201401
+//#ifdef ManagedMonitorToolBase_Uses_API_201401
   StatusCode proc();
-#else
-  StatusCode proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun);
-#endif
+//#else
+//  StatusCode proc(bool endOfEventsBlock, bool endOfLumiBlock, bool endOfRun);
+//#endif
 
   /// Method fills the histograms for one tau trigger item.
   StatusCode fillHistogramsForItem(const std::string & trigItem);
@@ -159,11 +159,13 @@ class HLTTauMonTool : public IHLTMonTool {
   bool m_dijetFakeTausEff;
   bool m_doTrackCurves;
   bool m_doTopoValidation;
+  bool m_bootstrap;
+
   std::vector<TLorentzVector> m_true_taus;
   std::vector<int> m_true_taus_nprong;
   std::vector<const xAOD::TauJet *> m_taus;
   const xAOD::TauJetContainer* m_tauCont;
-  bool m_bootstrap;
+
   unsigned int m_L1TriggerCondition;
   unsigned int m_HLTTriggerCondition;
   std::string m_L1StringCondition; 

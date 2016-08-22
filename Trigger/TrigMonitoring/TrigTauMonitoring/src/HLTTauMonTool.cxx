@@ -216,21 +216,21 @@ StatusCode HLTTauMonTool::init() {
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
-#ifdef ManagedMonitorToolBase_Uses_API_201401
+//#ifdef ManagedMonitorToolBase_Uses_API_201401
 StatusCode HLTTauMonTool::book()
-#else
-StatusCode HLTTauMonTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun)
-#endif
+//#else
+//StatusCode HLTTauMonTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun)
+//#endif
 {
     
     for(unsigned int i=0;i<m_trigItems.size(); ++i) addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/"+m_trigItems[i],run));
     
     ATH_MSG_DEBUG("initialize being called");
     
-    if (newRun){ 
+    if (newRunFlag()){ 
       for(unsigned int i=0;i<m_trigItems.size(); ++i) bookHistogramsForItem(m_trigItems[i]);
       bookHistogramsAllItem();
-    } else if ( newEventsBlock || newLumiBlock ) {
+    } else if ( newEventsBlockFlag() || newLumiBlockFlag() ) {
         return StatusCode::SUCCESS;
     }
     return StatusCode::SUCCESS;
@@ -244,10 +244,10 @@ StatusCode HLTTauMonTool::fill() {
 
 
     // skip HLTResult truncated events
-    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
-        ATH_MSG_WARNING("HLTResult truncated, skip event");
-        return StatusCode::SUCCESS;
-    }
+//    if(getTDT()->ExperimentalAndExpertMethods()->isHLTTruncated()){
+//        ATH_MSG_WARNING("HLTResult truncated, skip event");
+//        return StatusCode::SUCCESS;
+//    }
  
 //    if(!m_trigItemsAll.size()){ 
 //      ATH_MSG_DEBUG("Retrieving HLT tau chains");
@@ -366,6 +366,56 @@ StatusCode HLTTauMonTool::fill() {
 	}
 
     }
+
+     for(unsigned int i=0;i<m_topo_chains.size(); ++i){
+        setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i));
+        std::string chain = "HLT_"+m_topo_chains.at(i);
+        if(getTDT()->isPassed(chain)){
+        
+                Trig::FeatureContainer f = ( getTDT()->features(chain,m_HLTTriggerCondition) );
+                Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
+                if(comb->size()!=2){
+                        ATH_MSG_DEBUG("Number of combinations for chain " << chain << " is "<< comb->size());
+                        
+                }
+                std::vector<float> m_eta, m_phi, m_pt;
+                for(;comb!=combEnd;++comb){
+                        const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
+                        std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator CI = vec_HLTtau.begin(), CI_e = vec_HLTtau.end();
+                        if(CI==CI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << chain);
+                        ATH_MSG_DEBUG("Item "<< chain << ": " << vec_HLTtau.size() << " " << CI->label() << " containers");
+                        for(; CI != CI_e; ++CI){
+                                if(CI->cptr()){
+                                        if(CI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< chain << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
+                                        ATH_MSG_DEBUG("item "<< chain << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
+                                        xAOD::TauJetContainer::const_iterator tauItr = CI->cptr()->begin();
+                                        xAOD::TauJetContainer::const_iterator tauEnd = CI->cptr()->end();
+                                        for(; tauItr != tauEnd; ++tauItr){
+                                                m_eta.push_back((*tauItr)->eta()); m_phi.push_back((*tauItr)->phi()); m_pt.push_back((*tauItr)->pt());
+                                        }
+                                }
+                        }
+                }
+                if(m_eta.size()!=2){
+                        ATH_MSG_DEBUG("Number of taus for chain " << chain << " is "<< m_eta.size());
+                        
+                }
+                float min_dR(999.);
+                for(unsigned int t1=0;t1<m_eta.size();t1++)
+                        for(unsigned int t2=t1+1;t2<m_eta.size();t2++){
+                                float m_dR = deltaR(m_eta.at(t1),m_eta.at(t2),m_phi.at(t1),m_phi.at(t2));
+                                if(m_dR<min_dR && m_dR!=0.) min_dR=m_dR;
+                }
+                if(min_dR<0.1){
+                        ATH_MSG_DEBUG(" tau pair with dR="<<min_dR);
+                        for(unsigned int t1=0;t1<m_eta.size();t1++) ATH_MSG_DEBUG(" tau "<<t1<<": eta "<<m_eta.at(t1)<<", phi "<<m_phi.at(t1)<<", pt "<<m_pt.at(t1));
+                }
+                hist("hHLTdR")->Fill(min_dR);
+        }
+     }
+
+
+
 
     if(m_doTopoValidation){
 	if(m_topo_chains.size()!=m_topo_support_chains.size()) ATH_MSG_WARNING("List of topo and support chains are different. Skipping!");
@@ -730,148 +780,17 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 				float m_dR = deltaR(m_eta.at(t1),m_eta.at(t2),m_phi.at(t1),m_phi.at(t2));
 				if(m_dR<min_dR  && m_dR!=0.) min_dR=m_dR;
 		}
-		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");	
-		hist("hHLTdRDenom")->Fill(min_dR);
-		int tsf(0),notsf(0),jet(0);
-		if(getTDT()->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_tautsf_L1DR-TAU20ITAU12I")) tsf=1;
-		if(getTDT()->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_notautsf_L1DR-TAU20ITAU12I")) notsf=1;
-		if(getTDT()->isPassed("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo")) jet=1;
-	        profile("TProfRecoL1_dREfficiency_tsf")->Fill(min_dR,tsf);
-                profile("TProfRecoL1_dREfficiency_notsf")->Fill(min_dR,notsf);
-                profile("TProfRecoL1_dREfficiency_jet")->Fill(min_dR,jet);	
-	}
-        if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_tautsf_L1DR-TAU20ITAU12I" && getTDT()->isPassed(trig_item_EF)){
 
-                Trig::FeatureContainer f = ( getTDT()->features(trig_item_EF,m_HLTTriggerCondition) );
-                Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
-                if(comb->size()!=2){
-                        ATH_MSG_DEBUG("Number of combinations for chain " << trig_item_EF<< " is "<< comb->size());
-                        //return StatusCode::FAILURE;
-                }
-                std::vector<float> m_eta, m_phi, m_pt;
-                for(;comb!=combEnd;++comb){
-                        const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
-                        std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator CI = vec_HLTtau.begin(), CI_e = vec_HLTtau.end();
-                        if(CI==CI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF);
-                        ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << CI->label() << " containers");
-                        for(; CI != CI_e; ++CI){
-                                if(CI->cptr()){
-                                        if(CI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-                                        ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-                                        xAOD::TauJetContainer::const_iterator tauItr = CI->cptr()->begin();
-                                        xAOD::TauJetContainer::const_iterator tauEnd = CI->cptr()->end();
-                                        for(; tauItr != tauEnd; ++tauItr){
-                                                m_eta.push_back((*tauItr)->eta()); m_phi.push_back((*tauItr)->phi()); m_pt.push_back((*tauItr)->pt());
-                                        }
-                                }
-                        }
-                }
-		if(m_eta.size()!=2){
-                        ATH_MSG_DEBUG("Number of taus for chain " << trig_item_EF<< " is "<< m_eta.size());
-                        //return StatusCode::FAILURE;
-                }
-                float min_dR(999.);
-                for(unsigned int t1=0;t1<m_eta.size();t1++)
-                        for(unsigned int t2=t1+1;t2<m_eta.size();t2++){
-                                float m_dR = deltaR(m_eta.at(t1),m_eta.at(t2),m_phi.at(t1),m_phi.at(t2));
-                                if(m_dR<min_dR && m_dR!=0.) min_dR=m_dR;
-                }
-		if(min_dR<0.1){ 
-			ATH_MSG_DEBUG(" tau pair with dR="<<min_dR);
-			for(unsigned int t1=0;t1<m_eta.size();t1++) ATH_MSG_DEBUG(" tau "<<t1<<": eta "<<m_eta.at(t1)<<", phi "<<m_phi.at(t1)<<", pt "<<m_pt.at(t1));
-		}
-		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-                hist("hHLTdRNum_tsf")->Fill(min_dR);
-        }
-        if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo_notautsf_L1DR-TAU20ITAU12I" && getTDT()->isPassed(trig_item_EF)){
+    		for(unsigned int i=0;i<m_topo_chains.size(); ++i){
+        		setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i));
+			int pass(0);
+		        std::string chain = "HLT_"+m_topo_chains.at(i);	
+                        if(getTDT()->isPassed(chain)) pass = 1;
+			profile("TProfRecoL1_dREfficiency")->Fill(min_dR,pass);
+    		}
 
-                Trig::FeatureContainer f = ( getTDT()->features(trig_item_EF,m_HLTTriggerCondition) );
-                Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
-                if(comb->size()!=2){
-                        ATH_MSG_DEBUG("Number of combinations for chain " << trig_item_EF<< " is "<< comb->size());
-                        //return StatusCode::FAILURE;
-                }
-                std::vector<float> m_eta, m_phi, m_pt;
-                for(;comb!=combEnd;++comb){
-                        const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
-                        std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator CI = vec_HLTtau.begin(), CI_e = vec_HLTtau.end();
-                        if(CI==CI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF);
-                        ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << CI->label() << " containers");
-                        for(; CI != CI_e; ++CI){
-                                if(CI->cptr()){
-                                        if(CI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-                                        ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-                                        xAOD::TauJetContainer::const_iterator tauItr = CI->cptr()->begin();
-                                        xAOD::TauJetContainer::const_iterator tauEnd = CI->cptr()->end();
-                                        for(; tauItr != tauEnd; ++tauItr){
-                                                m_eta.push_back((*tauItr)->eta()); m_phi.push_back((*tauItr)->phi()); m_pt.push_back((*tauItr)->pt());
-                                        }
-                                }
-                        }
-                }
-                if(m_eta.size()!=2){
-                        ATH_MSG_DEBUG("Number of taus for chain " << trig_item_EF<< " is "<< m_eta.size());
-                        //return StatusCode::FAILURE;
-                }
-                float min_dR(999.);
-                for(unsigned int t1=0;t1<m_eta.size();t1++)
-                        for(unsigned int t2=t1+1;t2<m_eta.size();t2++){
-                                float m_dR = deltaR(m_eta.at(t1),m_eta.at(t2),m_phi.at(t1),m_phi.at(t2));
-                                if(m_dR<min_dR && m_dR!=0.) min_dR=m_dR;
-                }
-                if(min_dR<0.1){
-                        ATH_MSG_DEBUG(" tau pair with dR="<<min_dR);
-                        for(unsigned int t1=0;t1<m_eta.size();t1++) ATH_MSG_DEBUG(" tau "<<t1<<": eta "<<m_eta.at(t1)<<", phi "<<m_phi.at(t1)<<", pt "<<m_pt.at(t1));
-                }
-                setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-                hist("hHLTdRNum_notsf")->Fill(min_dR);
-
-        }
-        if(trig_item_EF=="HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo" && getTDT()->isPassed(trig_item_EF)){
-
-                Trig::FeatureContainer f = ( getTDT()->features(trig_item_EF,m_HLTTriggerCondition) );
-                Trig::FeatureContainer::combination_const_iterator comb(f.getCombinations().begin()), combEnd(f.getCombinations().end());
-                if(comb->size()!=2){
-                        ATH_MSG_DEBUG("Number of combinations for chain " << trig_item_EF<< " is "<< comb->size());
-                        //return StatusCode::FAILURE;
-                }
-                std::vector<float> m_eta, m_phi, m_pt;
-                for(;comb!=combEnd;++comb){
-                        const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
-                        std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator CI = vec_HLTtau.begin(), CI_e = vec_HLTtau.end();
-                        if(CI==CI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF);
-                        ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << CI->label() << " containers");
-                        for(; CI != CI_e; ++CI){
-                                if(CI->cptr()){
-                                        if(CI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-                                        ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-                                        xAOD::TauJetContainer::const_iterator tauItr = CI->cptr()->begin();
-                                        xAOD::TauJetContainer::const_iterator tauEnd = CI->cptr()->end();
-                                        for(; tauItr != tauEnd; ++tauItr){
-                                                m_eta.push_back((*tauItr)->eta()); m_phi.push_back((*tauItr)->phi()); m_pt.push_back((*tauItr)->pt());
-                                        }
-                                }
-                        }
-                }
-                if(m_eta.size()!=2){
-                        ATH_MSG_DEBUG("Number of taus for chain " << trig_item_EF<< " is "<< m_eta.size());
-                        //return StatusCode::FAILURE;
-                }
-                float min_dR(999.);
-                for(unsigned int t1=0;t1<m_eta.size();t1++)
-                        for(unsigned int t2=t1+1;t2<m_eta.size();t2++){
-                                float m_dR = deltaR(m_eta.at(t1),m_eta.at(t2),m_phi.at(t1),m_phi.at(t2));
-                                if(m_dR<min_dR && m_dR!=0.) min_dR=m_dR;
-                }
-                if(min_dR<0.1){
-                        ATH_MSG_DEBUG(" tau pair with dR="<<min_dR);
-                        for(unsigned int t1=0;t1<m_eta.size();t1++) ATH_MSG_DEBUG(" tau "<<t1<<": eta "<<m_eta.at(t1)<<", phi "<<m_phi.at(t1)<<", pt "<<m_pt.at(t1));
-                }
-                setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
-                hist("hHLTdRNum_jet")->Fill(min_dR);
-        } //end l1topo tests
-    }
-
+     }
+   }
     
     if( m_turnOnCurves) {
       if(m_truth){ 
@@ -985,9 +904,13 @@ StatusCode HLTTauMonTool::fillPreselTau(const xAOD::TauJet *aEFTau){
     hist2("hEFEtaVsPhi")->Fill(aEFTau->eta(),aEFTau->phi());
     hist2("hEtVsEta")->Fill(aEFTau->eta(),aEFTau->pt()/CLHEP::GeV);
     hist2("hEtVsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/CLHEP::GeV);
-    
+   
+    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
     hist("hFTFnWideTrack")->Fill(aEFTau->nWideTracks());
-
+    #else
+    hist("hFTFnWideTrack")->Fill(aEFTau->nTracksIsolation());
+    #endif
+ 
     return StatusCode::SUCCESS;
 
 }
@@ -1058,7 +981,13 @@ StatusCode HLTTauMonTool::fillEFTau(const xAOD::TauJet *aEFTau, const std::strin
       hist2("hEFNUMvsmu")->Fill(num_vxt,mu);
       hist("hEFPhi")->Fill(aEFTau->phi());
       hist("hEFnTrack")->Fill(EFnTrack);
+    
+      #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
       hist("hEFnWideTrack")->Fill(aEFTau->nWideTracks());
+      #else
+      hist("hEFnWideTrack")->Fill(aEFTau->nTracksIsolation());
+      #endif
+
       hist2("hEFEtaVsPhi")->Fill(aEFTau->eta(),aEFTau->phi());
       hist2("hEFEtVsPhi")->Fill(aEFTau->phi(),aEFTau->pt()/CLHEP::GeV);
       hist2("hEFEtVsEta")->Fill(aEFTau->eta(),aEFTau->pt()/CLHEP::GeV);
@@ -1357,9 +1286,18 @@ StatusCode HLTTauMonTool::fillPreselTauVsOffline(const xAOD::TauJet *aEFTau){
         return StatusCode::SUCCESS;
     }
 
-    int EFnTrack = aEFTau->nTracks(); 
+    int EFnTrack = aEFTau->nTracks();
+    int EFnWideTrack(0),OffnWideTrack(0);
+    #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
+    EFnWideTrack = aEFTau->nWideTracks();
+    OffnWideTrack = aOfflineTau->nWideTracks();
+    #else
+    EFnWideTrack = aEFTau->nTracksIsolation();
+    OffnWideTrack = aOfflineTau->nTracksIsolation();
+    #endif
+ 
     hist2("hPreselvsOffnTrks")->Fill(aOfflineTau->nTracks(), EFnTrack);
-    hist2("hPreselvsOffnWideTrks")->Fill(aOfflineTau->nWideTracks(), aEFTau->nWideTracks());
+    hist2("hPreselvsOffnWideTrks")->Fill(OffnWideTrack, EFnWideTrack);
     FillRelDiffHist(hist("hEFEtRatio"), aOfflineTau->pt(), aEFTau->pt(), 0, 1);
     FillRelDiffHist(hist("hEtaRatio"), aOfflineTau->eta(), aEFTau->eta(), 0, 2);
     hist("hPhiRatio")->Fill( deltaPhi(aOfflineTau->phi(), aEFTau->phi()));
@@ -1493,7 +1431,12 @@ StatusCode HLTTauMonTool::fillEFTauVsOffline(const xAOD::TauJet *aEFTau, const s
       setCurrentMonGroup("HLT/TauMon/Expert/"+trigItem+"/EFVsOffline");
       //Basic Vars
       hist2("hEFvsOffnTrks")->Fill(aOfflineTau->nTracks(), aEFTau->nTracks());
-      hist2("hEFvsOffnWideTrks")->Fill(aOfflineTau->nWideTracks(), aEFTau->nWideTracks());
+      #ifndef XAODTAU_VERSIONS_TAUJET_V3_H    
+      hist2("hEFvsOffnWideTrks")->Fill(aOfflineTau->nWideTracks(), aEFTau->nWideTracks()); 
+      #else
+      hist2("hEFvsOffnWideTrks")->Fill(aOfflineTau->nTracksIsolation(), aEFTau->nTracksIsolation());
+      #endif
+
       FillRelDiffHist(hist("hptRatio"), aOfflineTau->pt(), aEFTau->pt(), 0, 1);
       FillRelDiffProfile<float>(profile("hEtRatiovspt"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->pt()/1000., 0, 1);
       FillRelDiffProfile<float>(profile("hEtRatiovseta"), aOfflineTau->pt(), aEFTau->pt(), aOfflineTau->eta(), 0, 1);
@@ -1721,9 +1664,12 @@ float HLTTauMonTool::PrescaleRetrieval(const std::string & trigItem, const std::
 	// trying to get the prescale value
 	
 	std::string l1_chain(LowerChain(trig_item_EF));
-	int L1_PSCut = (int) getTDT()->getPrescale(l1_chain);
-	float L1_PS = TrigConf::PrescaleSet::getPrescaleFromCut(L1_PSCut);
-	float HLT_PS = getTDT()->getPrescale(trig_item_EF) / (float)L1_PSCut; // Remove the L1 cut from this
+//	int L1_PSCut = (int) getTDT()->getPrescale(l1_chain);
+//	float L1_PS = TrigConf::PrescaleSet::getPrescaleFromCut(L1_PSCut);
+	float L1_PS = getTDT()->getPrescale(l1_chain);
+//	float HLT_PS = getTDT()->getPrescale(trig_item_EF) / (float)L1_PSCut; // Remove the L1 cut from this
+	float HLT_PS = getTDT()->getPrescale(trig_item_EF);
+
 	float Total_PS = L1_PS * HLT_PS;
 	ATH_MSG_DEBUG(trig_item_EF << ": L1 PS "<< L1_PS << ", HLT PS " << HLT_PS << ", Total PS " << Total_PS);
 //	if(getTDT()->isPassedBits(trig_item_EF) & TrigDefs::EF_prescaled) ATH_MSG_WARNING(trig_item_EF << " is prescaled!!");
@@ -2130,7 +2076,12 @@ StatusCode HLTTauMonTool::TauEfficiency(const std::string & trigItem, const std:
 		for(hltItr=hlt_cont->begin(); hltItr!=hlt_cont_end; ++hltItr){
 			TLorentzVector hltTLV = (*hltItr)->p4();
 			int ntrack_TAU = (*hltItr)->nTracks();
-			int nWideTrack_TAU = (*hltItr)->nWideTracks();	
+			int nWideTrack_TAU(0);	
+                        #ifndef XAODTAU_VERSIONS_TAUJET_V3_H 
+    			nWideTrack_TAU = (*hltItr)->nWideTracks();
+    			#else
+    			nWideTrack_TAU = (*hltItr)->nTracksIsolation();
+    			#endif 
 			if( !L1TauMatching(trigItem, hltTLV, 0.3) ) continue;
 			if(ntrack_TAU>3) continue;		
 			if(trigItem.find("perf")==std::string::npos) if(ntrack_TAU==0 || nWideTrack_TAU>1) continue;

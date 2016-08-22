@@ -2,100 +2,21 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
-#include "AthenaMonitoring/ManagedMonitorToolTest.h"
-#include "AnalysisUtils/AnalysisMisc.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/TriggerInfo.h"
-#include "TrigSteeringEvent/HLTResult.h"
-#include "EventInfo/EventInfo.h"
-#include <EventInfo/EventID.h>
-#include "xAODEventInfo/EventInfo.h"
-
-#include "TrigDecisionTool/FeatureContainer.h"
-#include "TrigDecisionTool/Feature.h"
-//#include "TrigSteeringEvent/TrigOperationalInfo.h"
-//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
-//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
-
-#include "TrigConfL1Data/PrescaleSet.h"
-
-#include "TrigTauEmulation/Level1EmulationTool.h"
-#include "TrigTauEmulation/HltEmulationTool.h"
-
-#include "xAODTau/TauJet.h"
-#include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
-#include "xAODTau/TauDefs.h"
-
-#include "xAODTrigger/EmTauRoI.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
-
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthVertex.h"
-#include "xAODTruth/TruthVertexContainer.h"
-
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
-
-#include "xAODMissingET/MissingET.h"
-#include "xAODMissingET/MissingETContainer.h"
-
-#include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
-
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/ElectronContainer.h"
-
-#include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
-
-#include "VxVertex/VxContainer.h"
-
-#include "TROOT.h"
-#include "TH1I.h"
-#include "TH1F.h"
-#include "TH2I.h"
-#include "TH2F.h"
-#include "TEfficiency.h"
 #include "TProfile.h"
-
-#include <vector>
-#include <iostream>
-#include <fstream>
-//#define _USE_MATH_DEFINES
-#include <math.h>
-#include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "HLTTauMonTool.h"
 
-
 using namespace std;
-using namespace AnalysisUtils;
-
-const float PI=2.0*acos(0.);
-const float TWOPI=2.0*PI;
 
 ///////////////////////////////////////////////////////////////////
-#ifdef ManagedMonitorToolBase_Uses_API_201401
+//#ifdef ManagedMonitorToolBase_Uses_API_201401
 StatusCode HLTTauMonTool::proc()
-#else
-StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, bool  endOfRun)
-#endif
+//#else
+//StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, bool  endOfRun)
+//#endif
 {
     
-    if(endOfEventsBlock || endOfLumiBlock) {}//Get rid of compilation warnings
-    if(endOfRun)
+    if(endOfEventsBlockFlag() || endOfLumiBlockFlag()) {}//Get rid of compilation warnings
+    if(endOfRunFlag())
     {
 /*        if(m_RealZtautauEff)
         {
@@ -554,12 +475,19 @@ StatusCode  HLTTauMonTool::proc(bool endOfEventsBlock, bool  endOfLumiBlock, boo
                 
 */
 		setCurrentMonGroup("HLT/TauMon/Expert/HLTefficiency");
+
+                
 		//plotUnderOverFlow(hist("hHLTdRDenom"));
     		//plotUnderOverFlow(hist("hHLTdRNum_tsf"));
     		//plotUnderOverFlow(hist("hHLTdRNum_notsf"));
     		//plotUnderOverFlow(hist("hHLTdRNum_jet"));
 
 	}
+
+    	for(unsigned int i=0;i<m_topo_chains.size(); ++i){ 
+        	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i));  
+		plotUnderOverFlow(hist("hHLTdR"));  
+    	}
 
 	if(m_doTopoValidation){
 		for(unsigned int topo=0;topo<m_topo_chains.size();topo++){
