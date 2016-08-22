@@ -13,7 +13,7 @@
 void RpcByteStreamErrorContainerCnv_p1::
 persToTrans( const Muon::RpcByteStreamErrorContainer_p1 *persObj, Muon::RpcByteStreamErrorContainer *transObj,MsgStream & log ) 
 {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcByteStreamErrorContainerCnv_p1::persToTrans" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcByteStreamErrorContainerCnv_p1::persToTrans" << endmsg;
     transObj->clear();
     DataVector<std::pair<IdentifierHash, int> >::const_iterator it=persObj->m_errorVector.begin(), itEnd=persObj->m_errorVector.end();
     for (;it!=itEnd;++it) {
@@ -24,7 +24,7 @@ persToTrans( const Muon::RpcByteStreamErrorContainer_p1 *persObj, Muon::RpcByteS
 void RpcByteStreamErrorContainerCnv_p1::
 transToPers( const Muon::RpcByteStreamErrorContainer *transObj, Muon::RpcByteStreamErrorContainer_p1 *persObj, MsgStream & log )
 {
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcByteStreamErrorContainerCnv_p1::transToPers" << endreq;
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcByteStreamErrorContainerCnv_p1::transToPers" << endmsg;
     const DataVector<std::pair<IdentifierHash, int> >& errs =
       transObj->getAllErrors();
     persObj->m_errorVector.reserve( errs.size() );
