@@ -56,11 +56,11 @@
 #include "MuonDigToolInterfaces/IMuonDigitizationTool.h"
 #include "MM_Digitization/StripsResponse.h"
 #include "MM_Digitization/ElectronicsResponse.h"
-
+#include "MM_Digitization/MMStripVmmMappingTool.h"
+   
 #include "xAODEventInfo/EventInfo.h"   // SubEventIterator
 #include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
 
-   
 #include <string>
 #include <sstream>
 #include <vector>
@@ -69,8 +69,7 @@
 namespace MuonGM{
   class MuonDetectorManager;
   class MMReadoutElement;
-  //class MuonChannelDesign;
-    struct MuonChannelDesign;
+  class MuonChannelDesign;
 }
 namespace CLHEP{
   class HepRandomEngine;
@@ -110,10 +109,16 @@ public:
   StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
   
   /** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
+#ifdef ATHENA_20_20
   StatusCode  processBunchXing(int bunchXing,
- 			       SubEventIterator bSubEvents,
- 			       SubEventIterator eSubEvents) override final; 
- 
+                               PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+                               PileUpEventInfo::SubEvent::const_iterator eSubEvents) override final;
+#else
+  StatusCode  processBunchXing(int bunchXing,
+                               SubEventIterator bSubEvents,
+                               SubEventIterator eSubEvents) override final;
+#endif  
+
   /** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access SubEvents */
   StatusCode mergeEvent() override final;
 
@@ -121,11 +126,10 @@ public:
 
   /** alternative interface which uses the PileUpMergeSvc to obtain 
       all the required SubEvents. */ 
-  virtual StatusCode processAllSubEvents() override final; 
+  virtual StatusCode processAllSubEvents(); 
  		 
   /** Just calls processAllSubEvents - leaving for back-compatibility 
       (IMuonDigitizationTool) */ 
-
   StatusCode digitize() override;
 
   /** Finalize */
@@ -141,12 +145,14 @@ public:
 
   void set (const double bunchTime);
 
+
+
 private:
 
   ServiceHandle<StoreGateSvc> m_sgSvc;
   ActiveStoreSvc*             m_activeStore;
 
-  ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc; // 27/05/2015 T.Saito
+  ServiceHandle<MagField::IMagFieldSvc>            m_magFieldSvc;
   
   /** Record MmDigitContainer and MuonSimDataCollection */
   StatusCode recordDigitAndSdoContainers();
@@ -186,7 +192,8 @@ private:
   void  fillMaps(const GenericMuonSimHit * mmHit, const Identifier digitId, const double driftR);
   int   digitizeTime(double time) const;
   bool outsideWindow(double time) const; // default +-50...
- 
+
+  MmElectronicsToolInput CombinedStripResponseAllhits(const std::vector< MmElectronicsToolInput > & v_StripdigitOutput);
   //TIMING SCHEME
   bool   m_useTimeWindow;
   double m_inv_c_light;
@@ -212,13 +219,15 @@ private:
   StripsResponse *m_StripsResponse;
   float m_qThreshold, m_diffusSigma, m_LogitundinalDiffusSigma, m_driftGap, m_driftVelocity, m_crossTalk1, m_crossTalk2;
   float m_qThresholdForTrigger;
-  std::string m_gasFileName; // 27/05/2015 T.Saito
+  std::string m_gasFileName;
 
   // ElectronicsResponse stuff...
   ElectronicsResponse *m_ElectronicsResponse;
   float m_alpha;// power of responce function 
   float m_RC ;// time constant of responce function
   float m_electronicsThreshold; // threshold "Voltage" for histoBNL
+  float m_stripdeadtime; // dead-time for strip
+  float m_ARTdeadtime; // dead-time for ART
   TFile *m_file;
   TTree *m_ntuple;
   TH1I *m_AngleDistr, *m_AbsAngleDistr, *m_ClusterLength2D, *m_ClusterLength, *m_gasGap,  *m_gasGapDir ;
@@ -226,7 +235,7 @@ private:
   int m_n_Station_side, m_n_Station_eta, m_n_Station_phi, m_n_Station_multilayer, m_n_Station_layer, m_n_hitStripID, m_n_StrRespTrg_ID, m_n_strip_multiplicity, m_n_strip_multiplicity_2;
   int exitcode, m_n_hitPDGId;
   double m_n_hitOnSurface_x, m_n_hitOnSurface_y, m_n_hitDistToChannel, m_n_hitIncomingAngle,m_n_StrRespTrg_Time, m_n_hitIncomingAngleRads, m_n_hitKineticEnergy, m_n_hitDepositEnergy;
-  float  tofCorrection, bunchTime, globalHitTime;
+  float  tofCorrection, bunchTime, globalHitTime, eventTime;
   std::vector<int> m_n_StrRespID;
   std::vector<float> m_n_StrRespCharge, m_n_StrRespTime;
 

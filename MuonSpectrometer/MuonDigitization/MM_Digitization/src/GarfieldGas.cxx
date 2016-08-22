@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// ----------------------------------------------
+// GarfieldGas
+// ----------------------------------------------
 
 #include "MM_Digitization/GarfieldGas.h"
 
@@ -1464,6 +1467,7 @@ bool GarfieldGas::LoadGasFile(const std::string filename) {
 	done = true;
 	break;
       }     
+      (void)token; // to suppress unused warning
       token = strtok(NULL, " :,%=\t"); 
     }
   }    
