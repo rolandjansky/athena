@@ -24,9 +24,9 @@ void MuonOverlayBase::copyMuonObjects(StoreGateSvc* to, StoreGateSvc *from, std:
   const std::string templateClassName = typeid(TypeToBeCopied).name();
 
   std::auto_ptr<TypeToBeCopied> ap(from->retrievePrivateCopy<TypeToBeCopied>(key));
-  msg(MSG::DEBUG)<<"copyMuonObjects<"<<templateClassName<<">(): Working on p="<<ap.get()<<", key="<<key<<endreq;
+  msg(MSG::DEBUG)<<"copyMuonObjects<"<<templateClassName<<">(): Working on p="<<ap.get()<<", key="<<key<<endmsg;
   if(!to->record(ap, key).isSuccess()) {
-    msg(MSG::WARNING) <<"copyMuonObjects<"<<templateClassName<<">(): problem recording object p="<<ap.get()<<", key="<<key<<endreq;
+    msg(MSG::WARNING) <<"copyMuonObjects<"<<templateClassName<<">(): problem recording object p="<<ap.get()<<", key="<<key<<endmsg;
   }
 }
 
