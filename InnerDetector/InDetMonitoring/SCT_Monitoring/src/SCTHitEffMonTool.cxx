@@ -163,6 +163,7 @@ SCTHitEffMonTool::SCTHitEffMonTool(const string& type,const string& name, const 
   m_Eff_Total(nullptr),
   m_Eff_TotalBCID(nullptr),
   m_Eff_hashCodeHisto(nullptr),
+  m_effdistribution(nullptr),
   m_effHashLumiB(nullptr),
   m_mNHitHisto(nullptr),
   m_barrelNHitHisto(nullptr),
@@ -373,27 +374,30 @@ StatusCode SCTHitEffMonTool::bookHistograms()
       VERBOSE ("Module " << m_sctId->wafer_hash(chip->first) << ", chip " << chip->second);
 
     std::array < MonGroup, N_REGIONS + 1 > histGroupE = {MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
-      MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
-      MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
-      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
+							 MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
+							 MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
+							 MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
 
     std::array < MonGroup, N_REGIONS > histGroupL = {MonGroup(this, m_path + histogramPathRe[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
-      MonGroup(this, m_path + histogramPathRe[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
-      MonGroup(this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED)};//23.01.2015
+						     MonGroup(this, m_path + histogramPathRe[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
+						     MonGroup(this, m_path + histogramPathRe[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED)};//23.01.2015
 
     std::array < MonGroup, N_REGIONS + 1 > histGroupShift = {MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
-      MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
-      MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
-      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
-
+							     MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
+							     MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
+							     MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
+    
     CHECK (bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SCT Total Efficiency", N_REGIONS, 0, N_REGIONS));
     for (Int_t i(0) ; i != 3 ; ++i) m_Eff_Total->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
     CHECK (bookEffHisto(m_Eff_TotalBCID, histGroupE[GENERAL_INDEX], "SctTotalEffBCID", "SCT Total Efficiency for First BCID", N_REGIONS, 0, N_REGIONS));
     for (Int_t i(0) ; i != 3 ; ++i) m_Eff_TotalBCID->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
     CHECK (bookEffHisto(m_Eff_hashCodeHisto, histGroupE[GENERAL_INDEX], "effHashCode", "Efficiency vs module Hash code", n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5));
     m_Eff_hashCodeHisto->GetXaxis()->SetTitle("Module Hash Code");
-    m_Eff_hashCodeHisto->GetYaxis()->SetTitle("Efficiency");//15.12.2014
-
+    m_Eff_hashCodeHisto->GetYaxis()->SetTitle("Efficiency");
+    CHECK (bookEffHisto(m_effdistribution, histGroupE[GENERAL_INDEX], "SctEffDistribution", "SCT Efficiency Distribution", 500, 0, 1));
+    m_effdistribution->GetXaxis()->SetTitle("Efficiency");
+    m_effdistribution->GetYaxis()->SetTitle("Links");
+    
     if (m_detailed) {
       CHECK (bookEffHisto(m_SCTNHitHisto, histGroupE[BARREL_INDEX], "SCTNHit", "Number of total SCT hits", 30, -0.5, 29.5));
       CHECK (bookEffHisto(m_barrelNHitHisto, histGroupE[BARREL_INDEX], "barrelNHit", "Number of hits in B", 30, -0.5, 29.5));
@@ -402,7 +406,7 @@ StatusCode SCTHitEffMonTool::bookHistograms()
       CHECK (bookEffHisto(m_trtNHitHisto, histGroupE[BARREL_INDEX], "trtNHit", "Number of TRT hits", 140, -0.5, 139.5));
       CHECK (bookEffHisto(m_pixelNHitHisto, histGroupE[BARREL_INDEX], "pixelNHit", "Number of pixel hits", 30, -0.5, 29.5));
       CHECK (bookEffHisto(m_hashCodeHisto, histGroupE[BARREL_INDEX], "hashCode", "module Hash code", n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5));
-
+      
       CHECK (bookEffHisto(m_d0TkHisto, histGroupE[GENERAL], "D0Tk", "Track D0", 50, -500., 500.));
       CHECK (bookEffHisto(m_z0TkHisto, histGroupE[GENERAL], "Z0Tk", "Track Z0", 500, -500., 500.));
       CHECK (bookEffHisto(m_PtTkHisto, histGroupE[GENERAL], "PtTk","log10 Track Pt", 40, 2., 6.));
@@ -415,7 +419,7 @@ StatusCode SCTHitEffMonTool::bookHistograms()
     if (m_superDetailed) {
       CHECK (bookEffHisto(m_LumiBlock, histGroupE[GENERAL], "LumiBlocks", "Luminosity blocks", 3000, 1, 3001));
       CHECK (bookEffHisto(m_effHashLumiB, histGroupE[GENERAL], "effHashCodeLumiBlock", "Modules efficiencies vs. lumi. block", 
-            n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5, 1500, 1, 1501));
+			  n_mod[GENERAL_INDEX] * 2, -0.5, n_mod[GENERAL_INDEX] * 2 - 0.5, 1500, 1, 1501));
       m_badModMap = new TGraphErrors();
       m_badModMap->SetName("MapOfDisabledModules");
       CHECK (histGroupE[GENERAL].regGraph(m_badModMap));
@@ -445,23 +449,23 @@ StatusCode SCTHitEffMonTool::bookHistograms()
         for(Long_t j(0) ; j != 2 ; ++j){
           // book inefficiency histogram
           CHECK (bookEffHisto(m_ineffMap[detIndex][j], histGroupE[isub],
-                ineffMapName[isub] + i + "_" + j, "Hit inefficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub],
-                n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
-                n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
+			      ineffMapName[isub] + i + "_" + j, "Hit inefficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub],
+			      n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
+			      n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
           m_ineffMap[detIndex][j]->GetXaxis()->SetTitle("Index in the direction of #eta");
           m_ineffMap[detIndex][j]->GetYaxis()->SetTitle("Index in the direction of #phi");
           //
 
           CHECK (bookEffHisto(m_effMap[detIndex][j], histGroupE[isub], 
-                mapName[isub] + i + "_" + j, "Hit efficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub], 
-                n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5, 
-                n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
+			      mapName[isub] + i + "_" + j, "Hit efficiency of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub], 
+			      n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5, 
+			      n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
           m_effMap[detIndex][j]->GetXaxis()->SetTitle("Index in the direction of #eta");
           m_effMap[detIndex][j]->GetYaxis()->SetTitle("Index in the direction of #phi");
 
           CHECK (bookEffHisto(m_effLumiBlock[detIndex][j], histGroupL[isub], 
-                effLumiName[isub] + i + "_" + j, "Efficiency vs LumiBlock of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub], 
-                150,1,3001));//23.01.2015
+			      effLumiName[isub] + i + "_" + j, "Efficiency vs LumiBlock of" + layerName[isub] + i + " / side " + j + " in " + subDetName[isub], 
+			      150,1,3001));//23.01.2015
           m_effLumiBlock[detIndex][j]->GetXaxis()->SetTitle("Luminosity Block");
           m_effLumiBlock[detIndex][j]->GetYaxis()->SetTitle("Efficiency");
         }
@@ -469,24 +473,24 @@ StatusCode SCTHitEffMonTool::bookHistograms()
         if (m_superDetailed) {
 
           CHECK (bookEffHisto(m_accMap[detIndex], histGroupE[isub], 
-                "nDisabledChips_" + subDetNameShort[isub] + "_" + i, "Map of the acceptance for" + layerName[isub] + i + " in " + subDetName[isub], 
-                n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5, 
-                n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
+			      "nDisabledChips_" + subDetNameShort[isub] + "_" + i, "Map of the acceptance for" + layerName[isub] + i + " in " + subDetName[isub], 
+			      n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5, 
+			      n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
           TString resid("xlResidual_");
           CHECK (bookEffHisto(m_xlResidualHisto[isub][i], histGroupE[isub], resid + i, resid + i, 
-                100, -30.5, 30.5, 100, -60., 60.));
+			      100, -30.5, 30.5, 100, -60., 60.));
           CHECK (bookEffHisto(m_xlResidualE0Histo[isub][i], histGroupE[isub], resid + "eta0_" + i, resid + "eta0_" + i, 
-                100, -30.5, 30.5, 100, -60., 60.));
+			      100, -30.5, 30.5, 100, -60., 60.));
           CHECK (bookEffHisto(m_xlResidualE1Histo[isub][i], histGroupE[isub], resid + "eta1_" + i, resid + "eta1_" + i, 
-                100, -30.5, 30.5, 100, -60., 60.));
+			      100, -30.5, 30.5, 100, -60., 60.));
           CHECK (bookEffHisto(m_xlResidualUnasHisto[isub][i], histGroupE[isub], resid + "unas_" + i, resid + "unas_" + i, 
-                100, -30.5, 30.5, 100, -60., 60.));
+			      100, -30.5, 30.5, 100, -60., 60.));
           CHECK (bookEffHisto(m_layerResidualHistos[isub][2 * i], histGroupE[isub], TString("residlayer") + i, TString("residlayer") + i, 
-                n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
-                n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
+			      n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
+			      n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
           CHECK (bookEffHisto(m_layerResidualHistos[isub][2 * i + 1] , histGroupE[isub], TString("residlayer") + i + ".5", TString("residlayer") + i + ".5",
-                n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
-                n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
+			      n_etabins[isub], f_etabin[isub] - .5, l_etabin[isub] + .5,
+			      n_phibins[isub], f_phibin[isub] - .5, l_phibin[isub] + .5));
         }
       }
 
@@ -571,11 +575,11 @@ StatusCode SCTHitEffMonTool::bookHistograms()
       if (m_superDetailed) {
         //CHECK (bookEffHisto(m_Eff_LumiBlockHisto[isub], histGroupE[isub],"effLumiBlock", "Efficiency v Luminosity block",1000,1,1001));20.01.2015
         CHECK (bookEffHisto(m_inEffStrip[isub], histGroupE[isub], 
-              "StripInEfficiency" + subDetNameShort[isub], "Strips inefficiencies in " + subDetName[isub], 
-              n_mod[isub] * 2, f_mod[isub] * 2 - 0.5, (f_mod[isub] + n_mod[isub]) *2 - 0.5, N_STRIPS, FIRST_STRIP - 0.5, LAST_STRIP + 0.5));
+			    "StripInEfficiency" + subDetNameShort[isub], "Strips inefficiencies in " + subDetName[isub], 
+			    n_mod[isub] * 2, f_mod[isub] * 2 - 0.5, (f_mod[isub] + n_mod[isub]) *2 - 0.5, N_STRIPS, FIRST_STRIP - 0.5, LAST_STRIP + 0.5));
         CHECK (bookEffHisto(m_inEffChip[isub], histGroupE[isub], 
-              "ChipInEfficiency" + subDetNameShort[isub], "Chips ineficiencies in " + subDetName[isub],
-              n_mod[isub] * 2, f_mod[isub] * 2 - 0.5, (f_mod[isub] + n_mod[isub]) * 2 - 0.5, N_CHIPS, FIRST_CHIP - 0.5, LAST_CHIP + 0.5));
+			    "ChipInEfficiency" + subDetNameShort[isub], "Chips ineficiencies in " + subDetName[isub],
+			    n_mod[isub] * 2, f_mod[isub] * 2 - 0.5, (f_mod[isub] + n_mod[isub]) * 2 - 0.5, N_CHIPS, FIRST_CHIP - 0.5, LAST_CHIP + 0.5));
         CHECK (bookEffHisto(m_badModPerSide[isub], histGroupE[isub], "badModPerSide", "Number of bad module per side", 2 * n_layers[isub], 0., n_layers[isub]));
         CHECK (bookEffHisto(m_holesPerTrackHisto[isub], histGroupE[isub], "holesPerTrack", "Number of holes per track", 2 * n_layers[isub], 0, n_layers[isub]));
         CHECK (bookEffHisto(m_holesDistPerTrackHisto[isub], histGroupE[isub], "holesDistPerTrack", "Number of holes per track", 2 * n_layers[isub], 0, n_layers[isub]));
@@ -586,7 +590,7 @@ StatusCode SCTHitEffMonTool::bookHistograms()
         CHECK (bookEffHisto(m_TwoSidesResidualsIneff[isub], histGroupE[isub],"TwoSidesResidualsIneff","Two Sides Residuals (Inefficient/Unas)",120,-30.,30.,120,-30.,30.));
         CHECK (bookEffHisto(m_chi2ResidualHisto[isub], histGroupE[isub],"chi2Residual","Chi2 v Residual",200,-10.,10.,120,0.,10.));
         CHECK (bookEffHisto(m_Eff_summaryIncBadMod[isub], histGroupE[isub], "summaryIncBadMod" + subDetNameShort[isub], "Efficiency vs. layer including bad sensors", 
-              2*n_layers[isub], 0., n_layers[isub]));
+			    2*n_layers[isub], 0., n_layers[isub]));
       }
     }
   }
@@ -623,7 +627,7 @@ StatusCode SCTHitEffMonTool::bookHistogramsRecurrent()                          
       MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
       MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
 
-    CHECK (bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SctTotalEff", N_REGIONS, 0, N_REGIONS));
+    CHECK (bookEffHisto(m_Eff_Total, histGroupE[GENERAL_INDEX], "SctTotalEff", "SCT Total Efficiency", N_REGIONS, 0, N_REGIONS));
     for (Int_t i(0) ; i != 3 ; ++i) m_Eff_Total->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
     CHECK (bookEffHisto(m_Eff_TotalBCID, histGroupE[GENERAL_INDEX], "SctTotalEffBCID", "SCT Total Efficiency for First BCID", N_REGIONS, 0, N_REGIONS));
     for (Int_t i(0) ; i != 3 ; ++i) m_Eff_TotalBCID->GetXaxis()->SetBinLabel(i+1, subDetName[i]);
@@ -1455,12 +1459,12 @@ StatusCode SCTHitEffMonTool::procHistograms(){                                  
       m_badChipMap->GetXaxis()->SetRangeUser(-3, 3);
       m_badChipMap->GetYaxis()->SetRangeUser(-3.4, 3.4);
     }
-
+    
     std::array < MonGroup, N_REGIONS + 1 > histGroupE = {MonGroup(this, m_path + histogramPath[ENDCAP_C_INDEX], run, ATTRIB_UNMANAGED), 
-      MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
-      MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
-      MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
-
+							 MonGroup(this, m_path + histogramPath[BARREL_INDEX], run, ATTRIB_UNMANAGED), 
+							 MonGroup(this, m_path + histogramPath[ENDCAP_A_INDEX], run, ATTRIB_UNMANAGED),
+							 MonGroup(this, m_path + histogramPath[GENERAL_INDEX], run, ATTRIB_UNMANAGED)};
+    
     for (Int_t isub(0) ; isub != N_REGIONS ; ++isub){
       for (Long_t i(0) ; i != n_layers[isub] ; ++i){
         etabins[isub][i].push_back(MaxEta[isub][i]);
@@ -1504,6 +1508,21 @@ StatusCode SCTHitEffMonTool::procHistograms(){                                  
       //      m_accPhysMap[histnumber]->Fill(position.pseudoRapidity(), position.phi(), (1. - bMod->second) * N_CHIPS * 2);
       const Amg::Vector3D position = element->center(); 
       m_accPhysMap[histnumber]->Fill(amgPseudoRapidity(position), position.phi(), (1. - bMod->second) * N_CHIPS * 2);
+    }
+  }
+  
+  m_effdistribution->Reset();
+  for (Int_t isub(0) ; isub != N_REGIONS ; ++isub) {
+    for (Long_t i(0) ; i != n_layers[isub] ; ++i){
+      const int detIndex(becIdxLayer2Index(isub,i));
+      for(Long_t j(0) ; j != 2 ; ++j){
+	for(int xbin=1;xbin<m_effMap[detIndex][j]->GetNbinsX()+1;xbin++){
+	  for(int ybin=1;ybin<m_effMap[detIndex][j]->GetNbinsY()+1;ybin++){
+	    if(m_effMap[detIndex][j]->GetBinEntries(m_effMap[detIndex][j]->GetBin(xbin,ybin))==0) continue;
+	    m_effdistribution->Fill(m_effMap[detIndex][j]->GetBinContent(xbin,ybin));
+	  }
+	}
+      }
     }
   }
   return StatusCode::SUCCESS;
