@@ -24,14 +24,14 @@ StatusCode MuonDetectorStatusTest::initialize()
   // initialize the chrono service
   StatusCode sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    *m_log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
+    *m_log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
     return sc;
   }
 
   // initialize the  service
   sc = service("MuonDetectorStatusDbSvc",m_muonDetectorStatusDbSvc);
   if (sc != StatusCode::SUCCESS) {
-    *m_log << MSG::ERROR << "Could not find the muonDetectorStatusDbSvc" << endreq;
+    *m_log << MSG::ERROR << "Could not find the muonDetectorStatusDbSvc" << endmsg;
     return sc;
   }
 

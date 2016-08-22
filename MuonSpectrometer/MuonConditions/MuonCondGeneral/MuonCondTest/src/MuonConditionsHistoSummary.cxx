@@ -31,7 +31,7 @@ MuonConditionsHistoSummary::MuonConditionsHistoSummary(
 
 MuonConditionsHistoSummary::~MuonConditionsHistoSummary()
 {
-  msg(MSG::INFO) << "Calling destructor" << endreq;
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
@@ -39,29 +39,29 @@ StatusCode
 MuonConditionsHistoSummary::initialize(){
  
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling initialize" << endreq;
+  msg(MSG::INFO)<< "Calling initialize" << endmsg;
   sc = m_pSummarySvc.retrieve();
 
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR)<<"Could not retrieve the summary service"<<endreq;
+    msg(MSG::ERROR)<<"Could not retrieve the summary service"<<endmsg;
   }
   sc = m_rSummarySvc.retrieve();
 
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR)<<"Could not retrieve the summary service"<<endreq;
+    msg(MSG::ERROR)<<"Could not retrieve the summary service"<<endmsg;
   }
 
   sc = m_tSummarySvc.retrieve();
 
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR)<<"Could not retrieve the summary service"<<endreq;
+    msg(MSG::ERROR)<<"Could not retrieve the summary service"<<endmsg;
   }
 sc = service("THistSvc", m_thistSvc);
     if(StatusCode::SUCCESS not_eq sc)
     {
        msg(MSG::ERROR)
              << "Unable to retrieve pointer to THistSvc"
-             << endreq;
+             << endmsg;
         return sc;
     }
 
@@ -95,7 +95,7 @@ sc = m_thistSvc->regTree("/file1/t_stripid", m_t_stripid);
 
 
   if(StatusCode::SUCCESS not_eq sc) {
-      msg(MSG::ERROR)<< "Could not register m_h_MdtDeadChambers "<< endreq;
+      msg(MSG::ERROR)<< "Could not register m_h_MdtDeadChambers "<< endmsg;
     return sc;
   }
 
@@ -108,13 +108,13 @@ MuonConditionsHistoSummary::execute(){
   StatusCode sc(StatusCode::SUCCESS);
 
 
-  msg(MSG::INFO)<< "Calling execute" << endreq;
-  msg(MSG::INFO)<<"Dummy call for the MDT STATUS"<<endreq;  
-  msg(MSG::INFO)<<"THE CHAMBER SWITCHED OFF ARE: "<<endreq;
+  msg(MSG::INFO)<< "Calling execute" << endmsg;
+  msg(MSG::INFO)<<"Dummy call for the MDT STATUS"<<endmsg;  
+  msg(MSG::INFO)<<"THE CHAMBER SWITCHED OFF ARE: "<<endmsg;
    
  
   
-  if(m_pSummarySvc->deadStations().size()==m_pSummarySvc->deadStationsId().size()){msg(MSG::INFO) << "id normalcomparionssuccessful"  <<endreq;
+  if(m_pSummarySvc->deadStations().size()==m_pSummarySvc->deadStationsId().size()){msg(MSG::INFO) << "id normalcomparionssuccessful"  <<endmsg;
  
   for(unsigned int k=0;k<m_pSummarySvc->deadStations().size();k++){
      
@@ -124,14 +124,14 @@ MuonConditionsHistoSummary::execute(){
   
   } 
   }
-    if(m_pSummarySvc->deadMultiLayers().size()==m_pSummarySvc->deadMultiLayersId().size()){msg(MSG::INFO) << "id normalcomparionssuccessful"  <<endreq;
+    if(m_pSummarySvc->deadMultiLayers().size()==m_pSummarySvc->deadMultiLayersId().size()){msg(MSG::INFO) << "id normalcomparionssuccessful"  <<endmsg;
   for(unsigned int k=0;k<m_pSummarySvc->deadMultiLayers().size();k++){
      deadmultilayer= (m_pSummarySvc->deadMultiLayers()[k]);
     deadmultilayer_id=(m_pSummarySvc->deadMultiLayersId()[k]).get_compact();           
     m_t_deadmultilayer->Fill();
   } 
   }
-     if(m_pSummarySvc->deadTubes().size()==m_pSummarySvc->deadTubesId().size()){msg(MSG::INFO) << "id normalcomparionssuccessful"  <<endreq;
+     if(m_pSummarySvc->deadTubes().size()==m_pSummarySvc->deadTubesId().size()){msg(MSG::INFO) << "id normalcomparionssuccessful"  <<endmsg;
   for(unsigned int k=0;k<m_pSummarySvc->deadTubes().size();k++){
      
      deadtube= (m_pSummarySvc->deadTubes()[k]);
@@ -146,8 +146,8 @@ MuonConditionsHistoSummary::execute(){
   
 
 
-  msg(MSG::INFO)<<"Dummy call for the RPC STATUS"<<endreq;
-  msg(MSG::INFO)<<"THE Panels efficiencies ARE: "<<endreq;
+  msg(MSG::INFO)<<"Dummy call for the RPC STATUS"<<endmsg;
+  msg(MSG::INFO)<<"THE Panels efficiencies ARE: "<<endmsg;
  
  
   for(unsigned int k=0;k<m_rSummarySvc->EffPanelId().size();k++){
@@ -163,10 +163,10 @@ std::cout<< "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4" << std::endl;
 
 /*
  int size_tgc =m_tSummarySvc->deadStationsId().size();
-  msg(MSG::INFO) << "writing from Algo SERVICE Identifier\n" <<size_tgc <<endreq;
+  msg(MSG::INFO) << "writing from Algo SERVICE Identifier\n" <<size_tgc <<endmsg;
   for(unsigned int k=0;k<size_tgc;k++){
     Identifier Id = (m_tSummarySvc->deadStationsId()[k]);
-    msg(MSG::INFO) << "writing from Algo SERVICE CHAMBER \n" << Id<<endreq;
+    msg(MSG::INFO) << "writing from Algo SERVICE CHAMBER \n" << Id<<endmsg;
   }
 std::cout<< "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4" << std::endl;
 */
@@ -178,6 +178,6 @@ std::cout<< "$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$4" << std::endl;
 StatusCode
 MuonConditionsHistoSummary::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling finalize" << endreq;
+  msg(MSG::INFO)<< "Calling finalize" << endmsg;
   return sc;
 }
