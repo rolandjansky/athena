@@ -26,14 +26,14 @@ MDTSimHitCollectionCnv::~MDTSimHitCollectionCnv() {
 }
 
 MDTSimHitCollection_PERS*    MDTSimHitCollectionCnv::createPersistent (MDTSimHitCollection* transCont) {
-    MsgStream log(messageService(), "MDTSimHitCollectionCnv" );
+    MsgStream log(msgSvc(), "MDTSimHitCollectionCnv" );
     ATH_MSG_DEBUG("createPersistent(): main converter");
     MDTSimHitCollection_PERS *pixdc_p= m_TPConverter_p2.createPersistent( transCont, log );
     return pixdc_p;
 }
 
 MDTSimHitCollection* MDTSimHitCollectionCnv::createTransient() {
-    MsgStream log(messageService(), "MDTSimHitCollectionCnv" );
+    MsgStream log(msgSvc(), "MDTSimHitCollectionCnv" );
     static pool::Guid   p0_guid("D76D06CC-C15F-43E6-BBC3-480DE5DA065D"); // before t/p split
     static pool::Guid   p1_guid("EA781971-65C5-4B30-9D22-EEFB764BA0B3"); 
     static pool::Guid   p2_guid("92880B97-75BB-4C5D-8183-577338059FCC"); 
