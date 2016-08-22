@@ -186,7 +186,6 @@ apply_pattern make_pkgbuild \
  file=pkgbuild_paramiko.py
 macro_append make_pkgbuild_paramiko_dependencies " make_pkgbuild_pycrypto "
 
-
 apply_pattern make_pkgbuild \
  name=beaker \
  file=pkgbuild_beaker.py
@@ -225,3 +224,4 @@ private
 ## for ATN tests
 use TestPolicy TestPolicy-* 
 end_private
+
