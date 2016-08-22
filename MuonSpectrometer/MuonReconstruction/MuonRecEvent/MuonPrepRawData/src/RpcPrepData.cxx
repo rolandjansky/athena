@@ -129,7 +129,7 @@ RpcPrepData::dump( MsgStream&    stream) const
     stream <<"time = "<<this->time()<<", ";
     stream<<"triggerInfo = "<<this->triggerInfo()<<", ";
     stream<<"ambiguityFlag = "<<this->ambiguityFlag()<<", ";
-    stream<<"}"<<endreq;
+    stream<<"}"<<endmsg;
 
     return stream;
   }

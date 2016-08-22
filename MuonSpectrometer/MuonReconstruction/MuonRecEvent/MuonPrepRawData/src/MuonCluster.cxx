@@ -94,7 +94,7 @@ namespace Muon
     } else {
       stream<<"NULL!), "<<std::endl;
     }
-    stream<<"} End MuonCluster"<<endreq;
+    stream<<"} End MuonCluster"<<endmsg;
     return stream;
   }
 
