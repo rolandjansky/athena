@@ -58,6 +58,8 @@ void MM_Electron::avalancheElectron(float gain, TRandom3* rndm) {
   charge = gain*PolyaFunction->GetRandom();
   
 }
+
+void MM_Electron::setTime(float Time) {time = Time;}
 void MM_Electron::setCharge(float Charge) {charge = Charge;}
 
 float MM_Electron::getCharge() const { return charge; }

@@ -25,13 +25,15 @@ Class to store input needed for the MM_Digitization tools:
 class MmDigitToolInput {
  public:
  
- MmDigitToolInput(int stripIdLocal, double posx, double incomingAngle, const Amg::Vector3D& field, int stripMaxId)   // 27/05/2015 T.Saito
-   //  MmDigitToolInput(int stripIdLocal, double posx, double incomingAngle, double field, int stripMaxId)
+ MmDigitToolInput(int stripIdLocal, double posx, double incomingAngle, const Amg::Vector3D& field, int stripMaxId, int gasgap, float eventTime) 
+
    :  m_stripIDLocal(stripIdLocal),
       m_xpos(posx),
       m_incomingAngle(incomingAngle),
       m_field(field),
-      m_stripMaxId(stripMaxId)
+      m_stripMaxId(stripMaxId),
+      m_gasgap(gasgap),
+      m_eventTime(eventTime)
   { }
     
       
@@ -42,7 +44,9 @@ class MmDigitToolInput {
       double incomingAngle()       const { return m_incomingAngle; }
       const Amg::Vector3D& magneticField()       const { return m_field; }// kT unit, local cordinate
       int    stripMaxID()          const { return m_stripMaxId; }
+      int    gasgap()              const { return m_gasgap; }
       Identifier getHitID()        const { return m_hitID; }
+      float  eventTime()           const { return m_eventTime; }
        
  private:
       int    m_stripIDLocal;
@@ -50,7 +54,9 @@ class MmDigitToolInput {
       double m_incomingAngle;
       Amg::Vector3D m_field;
       int    m_stripMaxId;
+      int    m_gasgap;
       Identifier m_hitID;
+      float m_eventTime;
 };
 /*******************************************************************************/ 	 
 #endif  

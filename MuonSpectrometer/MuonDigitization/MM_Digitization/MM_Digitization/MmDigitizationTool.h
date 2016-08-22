@@ -58,6 +58,9 @@
 #include "MM_Digitization/ElectronicsResponse.h"
 #include "MM_Digitization/MMStripVmmMappingTool.h"
    
+#include "xAODEventInfo/EventInfo.h"   // SubEventIterator
+#include "xAODEventInfo/EventAuxInfo.h"// SubEventIterator
+
 #include <string>
 #include <sstream>
 #include <vector>
@@ -100,18 +103,24 @@ public:
   MmDigitizationTool(const std::string& type, const std::string& name, const IInterface* parent);
 
   /** Initialize */
-  virtual StatusCode initialize();
+  virtual StatusCode initialize() override final;
 
   /** When being run from PileUpToolsAlgs, this method is called at the start of the subevts loop. Not able to access SubEvents */
-  StatusCode prepareEvent(const unsigned int /*nInputEvents*/);
+  StatusCode prepareEvent(const unsigned int /*nInputEvents*/) override final;
   
   /** When being run from PileUpToolsAlgs, this method is called for each active bunch-crossing to process current SubEvents bunchXing is in ns */
+#ifdef ATHENA_20_20
   StatusCode  processBunchXing(int bunchXing,
- 			       PileUpEventInfo::SubEvent::const_iterator bSubEvents,
- 			       PileUpEventInfo::SubEvent::const_iterator eSubEvents); 
- 
+                               PileUpEventInfo::SubEvent::const_iterator bSubEvents,
+                               PileUpEventInfo::SubEvent::const_iterator eSubEvents) override final;
+#else
+  StatusCode  processBunchXing(int bunchXing,
+                               SubEventIterator bSubEvents,
+                               SubEventIterator eSubEvents) override final;
+#endif  
+
   /** When being run from PileUpToolsAlgs, this method is called at the end of the subevts loop. Not (necessarily) able to access SubEvents */
-  StatusCode mergeEvent();
+  StatusCode mergeEvent() override final;
 
   /** When being run from MM_Digitizer, this method is called during the event loop */
 
@@ -121,11 +130,10 @@ public:
  		 
   /** Just calls processAllSubEvents - leaving for back-compatibility 
       (IMuonDigitizationTool) */ 
-
-  StatusCode digitize();
+  StatusCode digitize() override;
 
   /** Finalize */
-  StatusCode finalize();
+  StatusCode finalize() override final;
 
   /** accessors */
   ServiceHandle<IAtRndmGenSvc> getRndmSvc() const { return m_rndmSvc; }    // Random number service
@@ -227,7 +235,7 @@ private:
   int m_n_Station_side, m_n_Station_eta, m_n_Station_phi, m_n_Station_multilayer, m_n_Station_layer, m_n_hitStripID, m_n_StrRespTrg_ID, m_n_strip_multiplicity, m_n_strip_multiplicity_2;
   int exitcode, m_n_hitPDGId;
   double m_n_hitOnSurface_x, m_n_hitOnSurface_y, m_n_hitDistToChannel, m_n_hitIncomingAngle,m_n_StrRespTrg_Time, m_n_hitIncomingAngleRads, m_n_hitKineticEnergy, m_n_hitDepositEnergy;
-  float  tofCorrection, bunchTime, globalHitTime;
+  float  tofCorrection, bunchTime, globalHitTime, eventTime;
   std::vector<int> m_n_StrRespID;
   std::vector<float> m_n_StrRespCharge, m_n_StrRespTime;
 

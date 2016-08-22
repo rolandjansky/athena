@@ -22,7 +22,6 @@ class MM_Electron {
   
   float time;
   float charge;      
-  
 
  public:
 
@@ -38,6 +37,7 @@ class MM_Electron {
   void setOffsetPosition(float x, float y);
   void propagateElectron(float driftVelx, float driftVely, float driftVel);
   void avalancheElectron(float gain, TRandom3* rndm);
+  void setTime(float Time);
   void setCharge(float Charge);
 
   float getCharge() const;
