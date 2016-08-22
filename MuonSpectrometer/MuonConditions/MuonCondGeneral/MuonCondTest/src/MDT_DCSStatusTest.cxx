@@ -23,14 +23,14 @@ StatusCode MDT_DCSStatusTest::initialize()
   // initialize the chrono service
   StatusCode sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    *m_log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
+    *m_log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
     return sc;
   }
 
   // initialize the  service
   sc = service("MDT_DCSConditionsSvc",m_mdt_DCSConditionsSvc);
   if (sc != StatusCode::SUCCESS) {
-    *m_log << MSG::ERROR << "Could not find the MDT_DCSConditionsSvc "<< endreq;
+    *m_log << MSG::ERROR << "Could not find the MDT_DCSConditionsSvc "<< endmsg;
     return sc;
   }
 

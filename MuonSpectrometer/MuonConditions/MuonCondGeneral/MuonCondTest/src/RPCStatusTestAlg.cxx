@@ -23,7 +23,7 @@ RPCStatusTestAlg::RPCStatusTestAlg(
 
 RPCStatusTestAlg::~RPCStatusTestAlg()
 {
-  msg(MSG::INFO) << "Calling destructor" << endreq;
+  msg(MSG::INFO) << "Calling destructor" << endmsg;
 }
 
 //Initialize
@@ -31,10 +31,10 @@ StatusCode
 RPCStatusTestAlg::initialize(){
  
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling initialize" << endreq;
+  msg(MSG::INFO)<< "Calling initialize" << endmsg;
   sc = m_pSummarySvc.retrieve();
   if (StatusCode::SUCCESS not_eq sc) {
-    msg(MSG::ERROR)<<"Could not retrieve the summary service"<<endreq;
+    msg(MSG::ERROR)<<"Could not retrieve the summary service"<<endmsg;
   }
   return sc;
 }
@@ -44,15 +44,15 @@ StatusCode
 RPCStatusTestAlg::execute(){
 
 
-  msg(MSG::INFO)<< "Calling execute" << endreq;
-  msg(MSG::INFO)<<"Dummy call for the RPC STATUS"<<endreq;
-  msg(MSG::INFO)<<"THE Panels efficiencies ARE: "<<endreq;
+  msg(MSG::INFO)<< "Calling execute" << endmsg;
+  msg(MSG::INFO)<<"Dummy call for the RPC STATUS"<<endmsg;
+  msg(MSG::INFO)<<"THE Panels efficiencies ARE: "<<endmsg;
   m_pSummarySvc->EffPanelId();
   unsigned int size =m_pSummarySvc->EffPanelId().size();
-  msg(MSG::VERBOSE) << "writing from Algo SERVICE \n" <<size <<endreq;
+  msg(MSG::VERBOSE) << "writing from Algo SERVICE \n" <<size <<endmsg;
   for(unsigned int k=0;k<size;k++){
     Identifier panel = (m_pSummarySvc->EffPanelId()[k]);
-    msg(MSG::VERBOSE) << "writing from Algo SERVICE Panel \n" << panel <<endreq;
+    msg(MSG::VERBOSE) << "writing from Algo SERVICE Panel \n" << panel <<endmsg;
   } 
   
  
@@ -67,6 +67,6 @@ RPCStatusTestAlg::execute(){
 StatusCode
 RPCStatusTestAlg::finalize(){
   StatusCode sc(StatusCode::SUCCESS);
-  msg(MSG::INFO)<< "Calling finalize" << endreq;
+  msg(MSG::INFO)<< "Calling finalize" << endmsg;
   return sc;
 }
