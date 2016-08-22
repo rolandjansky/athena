@@ -257,7 +257,7 @@ StatusCode MdtCalibDbCoolStrTool::LoadCalibration(IOVSVC_CALLBACK_ARGS_P(I,keys)
     for (itr=keys.begin(); itr!=keys.end(); ++itr) {
       msg() << MSG::DEBUG << *itr << " I="<<I<<" ";
     }
-    msg() << MSG::DEBUG << endreq;
+    msg() << MSG::DEBUG << endmsg;
   }
 
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
@@ -461,15 +461,15 @@ StatusCode MdtCalibDbCoolStrTool::loadTube(IOVSVC_CALLBACK_ARGS) {
 // use 1238547719 to get the IOVRange from DB (
 //    IOVRange range;
 //    sc = m_IOVSvc->getRange(1238547719, m_tubeFolder, range);
-//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange failed" << endreq;}
-//    if( m_debug ) *m_log << MSG::DEBUG <<"CondAttrListCollection IOVRange "<<range<<endreq;
+//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange failed" << endmsg;}
+//    if( m_debug ) *m_log << MSG::DEBUG <<"CondAttrListCollection IOVRange "<<range<<endmsg;
 
 //    IOVRange range2;
 //    sc = m_IOVSvc->setRange(1221928754, m_tubeDataLocation, range);
-//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::setRange failed" << endreq;}
+//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::setRange failed" << endmsg;}
 //    sc = m_IOVSvc->getRange(1221928754, m_tubeDataLocation, range2);
-//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange2 failed" << endreq;}
-//    if( m_debug ) *m_log << MSG::DEBUG <<"MdtTubeCalibContainerCollection new IOVRange "<<range2<<endreq;
+//    if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange2 failed" << endmsg;}
+//    if( m_debug ) *m_log << MSG::DEBUG <<"MdtTubeCalibContainerCollection new IOVRange "<<range2<<endmsg;
 
   // finally record MdtTubeCalibContainerCollection
   sc = detStore()->record( m_tubeData, m_tubeDataLocation );
@@ -870,15 +870,15 @@ StatusCode MdtCalibDbCoolStrTool::loadRt(IOVSVC_CALLBACK_ARGS) {
 
 //   IOVRange range;
    // sc = m_IOVSvc->getRange(1238547719, m_rtFolder, range);
-   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange failed" << endreq;}
-   // if( m_debug ) *m_log << MSG::DEBUG <<"CondAttrListCollection IOVRange "<<range<<endreq;
+   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange failed" << endmsg;}
+   // if( m_debug ) *m_log << MSG::DEBUG <<"CondAttrListCollection IOVRange "<<range<<endmsg;
                                                                                 
    // IOVRange range2;
    // sc = m_IOVSvc->setRange(1270996316, m_rtDataLocation, range);
-   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::setRange failed" << endreq;}
+   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::setRange failed" << endmsg;}
    // sc = m_IOVSvc->getRange(1270996316, m_rtDataLocation, range2);
-   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange2 failed" << endreq;}
-   // if( m_debug ) *m_log << MSG::DEBUG <<"MdtRtRelationCollection new IOVRange "<<range2<<endreq;
+   // if (sc.isFailure()){*m_log << MSG::WARNING << "IIOVSvc::getRange2 failed" << endmsg;}
+   // if( m_debug ) *m_log << MSG::DEBUG <<"MdtRtRelationCollection new IOVRange "<<range2<<endmsg;
                                                                                 
    // finally record MdtRtRelationCollection in StoreGate
   sc = detStore()->record( m_rtData, m_rtDataLocation );
