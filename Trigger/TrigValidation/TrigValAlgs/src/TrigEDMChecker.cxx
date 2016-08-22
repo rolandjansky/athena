@@ -13,6 +13,8 @@
 #include "AnalysisTriggerEvent/EnergySum_ROI.h"
 #include "AnalysisTriggerEvent/Jet_ROI.h"
 
+#include "xAODTrigger/TrigPassBitsContainer.h"
+#include "xAODTrigger/TrigPassBits.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODJet/JetConstituentVector.h"
 #include "xAODTrigMissingET/TrigMissingETAuxContainer.h"
@@ -110,6 +112,7 @@ TrigEDMChecker::TrigEDMChecker(const std::string& name, ISvcLocator* pSvcLocator
 	/** switches to control the analysis through job options */
 
 	declareProperty("doDumpAll", m_doDumpAll = true);
+        declareProperty("doDumpTrigPassBits", m_doDumpTrigPassBits = false);
 	declareProperty("doDumpLVL1_ROI", m_doDumpLVL1_ROI = false);
 	declareProperty("doDumpTrigMissingET", m_doDumpTrigMissingET = false);
 	declareProperty("doDumpxAODTrigMissingET", m_doDumpxAODTrigMissingET = false);
@@ -580,12 +583,49 @@ StatusCode TrigEDMChecker::execute() {
 		}
 
 	}
+	if (m_doDumpTrigPassBits){
+		StatusCode sc = dumpTrigPassBits();
+		if (sc.isFailure()) {
+			mLog << MSG::ERROR << "The method dumpTrigPassBits() failed" << endreq;
+		}
+
+	}
 
 	return StatusCode::SUCCESS;
 
 }
 
 //////////////////////////////////////////////////////////////////////////////////
+StatusCode TrigEDMChecker::dumpTrigPassBits(){
+    const std::string name="HLT_xAOD__TrigPassBitsContainer_passbits";
+    const xAOD::TrigPassBitsContainer *xbitscont=nullptr;
+    StatusCode sc = evtStore()->retrieve(xbitscont,name);
+    if (sc.isFailure() ){
+        ATH_MSG_INFO("Cannot retrieve TrigPassBits");
+    }
+    else {
+        ATH_MSG_INFO("Size of PassBits container : " << xbitscont->size());
+        for(const auto &bits:*xbitscont){
+            if(bits==nullptr){
+                ATH_MSG_INFO("TrigPassBits point nullptr ");
+                continue;
+            }
+            ATH_MSG_DEBUG("Analyzing bits for " << bits->containerClid() << " of size " << bits->size() << " with bit size " << bits->passBits().size());
+        }
+        xAOD::TrigPassBitsContainer::const_iterator itr  = xbitscont->begin();
+        xAOD::TrigPassBitsContainer::const_iterator itrE = xbitscont->end();
+
+        for (int j=0; itr != itrE; ++itr, ++j ) {
+            const xAOD::TrigPassBits * bits = (*itr);
+            if(bits==nullptr){
+                ATH_MSG_INFO("TrigPassBits point nullptr ");
+                continue;
+            }
+            ATH_MSG_DEBUG("Analyzing bits for " << bits->containerClid() << " of size " << bits->size() << " with bit size " << bits->passBits().size());
+        }
+    }
+    return StatusCode::SUCCESS;
+}
 
 void TrigEDMChecker::dumpTrigSpacePointCounts(MsgStream &mLog)
 {

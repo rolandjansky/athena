@@ -10,7 +10,8 @@
 #include "TrigValAlgs/TrigEDMAuxChecker.h"
 #include <algorithm>
 TrigEDMAuxChecker::TrigEDMAuxChecker(const std::string& name, ISvcLocator* pSvcLocator)
-  : AthAlgorithm(name, pSvcLocator)
+  : AthAlgorithm(name, pSvcLocator),
+    m_count(0)
 {
     declareProperty("AuxContainerList",m_auxList);
 }
