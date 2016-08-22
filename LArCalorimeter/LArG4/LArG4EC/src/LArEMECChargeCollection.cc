@@ -44,7 +44,7 @@
 //        Modification of the code to read either the Old or New map          *
 //         was done.                                                          *
 //        The desired version (New or Old) of the fieldmap should be set      *
-//        to FieldMapVersion variable of the LArEMECEnergyCorrrection.cc      *
+//        to s_FieldMapVersion variable of the LArEMECEnergyCorrrection.cc      *
 //        The file name which contains the map should also be set             *
 //        to FieldMapFileName variable of the LArEMECEnergyCorrrection.cc     *
 //                                                                            *
@@ -140,261 +140,261 @@ void EnergyCalculator::IniGeomforFieldMaps(void){
 //	 std::cout
 	(*m_msg) << MSG::INFO
 	       << "***IniGeomforFieldMaps() called for FieldMapVersion = "
-	       << FieldMapVersion
-	       << endreq;
+	       << s_FieldMapVersion
+	       << endmsg;
 //		  <<std::endl;
 
-       if(FieldMapVersion == "v00" || FieldMapVersion == "v01" ||
-          FieldMapVersion == "v02"){
+       if(s_FieldMapVersion == "v00" || s_FieldMapVersion == "v01" ||
+          s_FieldMapVersion == "v02"){
 
-	 ChCollInner.Fold1.FieldMapPrepared=true;
-	 ChCollOuter.Fold1.FieldMapPrepared=true;
+	 s_ChCollInner.Fold1.FieldMapPrepared=true;
+	 s_ChCollOuter.Fold1.FieldMapPrepared=true;
 
-	 ChCollInner.Fold0.FieldMapPrepared=false;
-	 ChCollOuter.Fold0.FieldMapPrepared=false;
+	 s_ChCollInner.Fold0.FieldMapPrepared=false;
+	 s_ChCollOuter.Fold0.FieldMapPrepared=false;
 
-       if(FieldMapVersion == "v00") {
+       if(s_FieldMapVersion == "v00") {
 
 	 G4int nlayer=6; // number of radial layers
 	 std::cout<<" ***IniGeomforFieldMaps calls CreateArrays"
 		  <<std::endl;
-      	 CreateArrays(ChCollInner,nlayer);
-      	 CreateArrays(ChCollOuter,nlayer);
+      	 CreateArrays(s_ChCollInner,nlayer);
+      	 CreateArrays(s_ChCollOuter,nlayer);
 
-         ChCollInner.RadiusOfLayers[0]=300.;//[mm]
-         ChCollInner.RadiusOfLayers[1]=400.;
-         ChCollInner.RadiusOfLayers[2]=500.;
-         ChCollInner.RadiusOfLayers[3]=600.;
-         ChCollInner.RadiusOfLayers[4]=700.;
-         ChCollInner.RadiusOfLayers[5]=800.;
+         s_ChCollInner.RadiusOfLayers[0]=300.;//[mm]
+         s_ChCollInner.RadiusOfLayers[1]=400.;
+         s_ChCollInner.RadiusOfLayers[2]=500.;
+         s_ChCollInner.RadiusOfLayers[3]=600.;
+         s_ChCollInner.RadiusOfLayers[4]=700.;
+         s_ChCollInner.RadiusOfLayers[5]=800.;
 
-         ChCollOuter.RadiusOfLayers[0]= 600.; //[mm]
-         ChCollOuter.RadiusOfLayers[1]= 900.;
-         ChCollOuter.RadiusOfLayers[2]=1200.;
-         ChCollOuter.RadiusOfLayers[3]=1500.;
-         ChCollOuter.RadiusOfLayers[4]=1800.;
-         ChCollOuter.RadiusOfLayers[5]=2100.;
+         s_ChCollOuter.RadiusOfLayers[0]= 600.; //[mm]
+         s_ChCollOuter.RadiusOfLayers[1]= 900.;
+         s_ChCollOuter.RadiusOfLayers[2]=1200.;
+         s_ChCollOuter.RadiusOfLayers[3]=1500.;
+         s_ChCollOuter.RadiusOfLayers[4]=1800.;
+         s_ChCollOuter.RadiusOfLayers[5]=2100.;
 
-         ChCollInner.FoldinAngleOfLayers[0]= 112.7;//[degree]
-         ChCollInner.FoldinAngleOfLayers[1]=  92.2;
-         ChCollInner.FoldinAngleOfLayers[2]=  78.7;
-         ChCollInner.FoldinAngleOfLayers[3]=  68.8;
-         ChCollInner.FoldinAngleOfLayers[4]=  61.3;
-         ChCollInner.FoldinAngleOfLayers[5]=  55.2;
+         s_ChCollInner.FoldinAngleOfLayers[0]= 112.7;//[degree]
+         s_ChCollInner.FoldinAngleOfLayers[1]=  92.2;
+         s_ChCollInner.FoldinAngleOfLayers[2]=  78.7;
+         s_ChCollInner.FoldinAngleOfLayers[3]=  68.8;
+         s_ChCollInner.FoldinAngleOfLayers[4]=  61.3;
+         s_ChCollInner.FoldinAngleOfLayers[5]=  55.2;
 
-         ChCollInner.HalfLArGapSizeOfLayers[0]= 1.44; //[mm]
-         ChCollInner.HalfLArGapSizeOfLayers[1]= 1.94;
-         ChCollInner.HalfLArGapSizeOfLayers[2]= 2.29;
-         ChCollInner.HalfLArGapSizeOfLayers[3]= 2.56;
-         ChCollInner.HalfLArGapSizeOfLayers[4]= 2.78;
-         ChCollInner.HalfLArGapSizeOfLayers[5]= 2.96;
+         s_ChCollInner.HalfLArGapSizeOfLayers[0]= 1.44; //[mm]
+         s_ChCollInner.HalfLArGapSizeOfLayers[1]= 1.94;
+         s_ChCollInner.HalfLArGapSizeOfLayers[2]= 2.29;
+         s_ChCollInner.HalfLArGapSizeOfLayers[3]= 2.56;
+         s_ChCollInner.HalfLArGapSizeOfLayers[4]= 2.78;
+         s_ChCollInner.HalfLArGapSizeOfLayers[5]= 2.96;
 
-         ChCollOuter.FoldinAngleOfLayers[0]=129.;//[degree]
-         ChCollOuter.FoldinAngleOfLayers[1]=101.4;
-         ChCollOuter.FoldinAngleOfLayers[2]= 84.8;
-         ChCollOuter.FoldinAngleOfLayers[3]= 73.2;
-         ChCollOuter.FoldinAngleOfLayers[4]= 64.5;
-         ChCollOuter.FoldinAngleOfLayers[5]= 57.7;
+         s_ChCollOuter.FoldinAngleOfLayers[0]=129.;//[degree]
+         s_ChCollOuter.FoldinAngleOfLayers[1]=101.4;
+         s_ChCollOuter.FoldinAngleOfLayers[2]= 84.8;
+         s_ChCollOuter.FoldinAngleOfLayers[3]= 73.2;
+         s_ChCollOuter.FoldinAngleOfLayers[4]= 64.5;
+         s_ChCollOuter.FoldinAngleOfLayers[5]= 57.7;
 
-         ChCollOuter.HalfLArGapSizeOfLayers[0]=0.87; //[mm]
-         ChCollOuter.HalfLArGapSizeOfLayers[1]=1.5;
-         ChCollOuter.HalfLArGapSizeOfLayers[2]=1.96;
-         ChCollOuter.HalfLArGapSizeOfLayers[3]=2.31;
-         ChCollOuter.HalfLArGapSizeOfLayers[4]=2.58;
-         ChCollOuter.HalfLArGapSizeOfLayers[5]=2.79;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[0]=0.87; //[mm]
+         s_ChCollOuter.HalfLArGapSizeOfLayers[1]=1.5;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[2]=1.96;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[3]=2.31;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[4]=2.58;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[5]=2.79;
        }
 
-       if(FieldMapVersion == "v01") {
+       if(s_FieldMapVersion == "v01") {
 
 	 G4int nlayer=6;
-      	 CreateArrays(ChCollInner,nlayer);
-      	 CreateArrays(ChCollOuter,nlayer);
+      	 CreateArrays(s_ChCollInner,nlayer);
+      	 CreateArrays(s_ChCollOuter,nlayer);
 
-         ChCollInner.RadiusOfLayers[0]=300.;//[mm]
-         ChCollInner.RadiusOfLayers[1]=400.;
-         ChCollInner.RadiusOfLayers[2]=500.;
-         ChCollInner.RadiusOfLayers[3]=600.;
-         ChCollInner.RadiusOfLayers[4]=700.;
-         ChCollInner.RadiusOfLayers[5]=800.;
+         s_ChCollInner.RadiusOfLayers[0]=300.;//[mm]
+         s_ChCollInner.RadiusOfLayers[1]=400.;
+         s_ChCollInner.RadiusOfLayers[2]=500.;
+         s_ChCollInner.RadiusOfLayers[3]=600.;
+         s_ChCollInner.RadiusOfLayers[4]=700.;
+         s_ChCollInner.RadiusOfLayers[5]=800.;
 
-         ChCollOuter.RadiusOfLayers[0]= 600.; //[mm]
-         ChCollOuter.RadiusOfLayers[1]= 900.;
-         ChCollOuter.RadiusOfLayers[2]=1200.;
-         ChCollOuter.RadiusOfLayers[3]=1500.;
-         ChCollOuter.RadiusOfLayers[4]=1800.;
-         ChCollOuter.RadiusOfLayers[5]=2100.;
+         s_ChCollOuter.RadiusOfLayers[0]= 600.; //[mm]
+         s_ChCollOuter.RadiusOfLayers[1]= 900.;
+         s_ChCollOuter.RadiusOfLayers[2]=1200.;
+         s_ChCollOuter.RadiusOfLayers[3]=1500.;
+         s_ChCollOuter.RadiusOfLayers[4]=1800.;
+         s_ChCollOuter.RadiusOfLayers[5]=2100.;
 
-         ChCollInner.FoldinAngleOfLayers[0]= 112.742024;  //[degree]
-         ChCollInner.FoldinAngleOfLayers[1]=  92.2379512;
-         ChCollInner.FoldinAngleOfLayers[2]=  78.6993545;
-         ChCollInner.FoldinAngleOfLayers[3]=  68.8423119;
-         ChCollInner.FoldinAngleOfLayers[4]=  61.2714745;
-         ChCollInner.FoldinAngleOfLayers[5]=  55.2462062;
+         s_ChCollInner.FoldinAngleOfLayers[0]= 112.742024;  //[degree]
+         s_ChCollInner.FoldinAngleOfLayers[1]=  92.2379512;
+         s_ChCollInner.FoldinAngleOfLayers[2]=  78.6993545;
+         s_ChCollInner.FoldinAngleOfLayers[3]=  68.8423119;
+         s_ChCollInner.FoldinAngleOfLayers[4]=  61.2714745;
+         s_ChCollInner.FoldinAngleOfLayers[5]=  55.2462062;
 
-         ChCollInner.HalfLArGapSizeOfLayers[0]= 1.47806735;  //[mm]
-         ChCollInner.HalfLArGapSizeOfLayers[1]= 1.95080191;
-         ChCollInner.HalfLArGapSizeOfLayers[2]= 2.30318731;
-         ChCollInner.HalfLArGapSizeOfLayers[3]= 2.57486515;
-         ChCollInner.HalfLArGapSizeOfLayers[4]= 2.79014569;
-         ChCollInner.HalfLArGapSizeOfLayers[5]= 2.96463479;
+         s_ChCollInner.HalfLArGapSizeOfLayers[0]= 1.47806735;  //[mm]
+         s_ChCollInner.HalfLArGapSizeOfLayers[1]= 1.95080191;
+         s_ChCollInner.HalfLArGapSizeOfLayers[2]= 2.30318731;
+         s_ChCollInner.HalfLArGapSizeOfLayers[3]= 2.57486515;
+         s_ChCollInner.HalfLArGapSizeOfLayers[4]= 2.79014569;
+         s_ChCollInner.HalfLArGapSizeOfLayers[5]= 2.96463479;
 
-         ChCollOuter.FoldinAngleOfLayers[0]= 129.00197;  //[degree]
-         ChCollOuter.FoldinAngleOfLayers[1]= 101.408128;
-         ChCollOuter.FoldinAngleOfLayers[2]=  84.7966382;
-         ChCollOuter.FoldinAngleOfLayers[3]=  73.1643989;
-         ChCollOuter.FoldinAngleOfLayers[4]=  64.4458572;
-         ChCollOuter.FoldinAngleOfLayers[5]=  57.6301588;
+         s_ChCollOuter.FoldinAngleOfLayers[0]= 129.00197;  //[degree]
+         s_ChCollOuter.FoldinAngleOfLayers[1]= 101.408128;
+         s_ChCollOuter.FoldinAngleOfLayers[2]=  84.7966382;
+         s_ChCollOuter.FoldinAngleOfLayers[3]=  73.1643989;
+         s_ChCollOuter.FoldinAngleOfLayers[4]=  64.4458572;
+         s_ChCollOuter.FoldinAngleOfLayers[5]=  57.6301588;
 
-         ChCollOuter.HalfLArGapSizeOfLayers[0]= 0.877808149;  //[mm]
-         ChCollOuter.HalfLArGapSizeOfLayers[1]= 1.5116158;
-         ChCollOuter.HalfLArGapSizeOfLayers[2]= 1.97238634;
-         ChCollOuter.HalfLArGapSizeOfLayers[3]= 2.31937997;
-         ChCollOuter.HalfLArGapSizeOfLayers[4]= 2.58864056;
-         ChCollOuter.HalfLArGapSizeOfLayers[5]= 2.80290925;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[0]= 0.877808149;  //[mm]
+         s_ChCollOuter.HalfLArGapSizeOfLayers[1]= 1.5116158;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[2]= 1.97238634;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[3]= 2.31937997;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[4]= 2.58864056;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[5]= 2.80290925;
        }
 
-       if(FieldMapVersion == "v02") {
+       if(s_FieldMapVersion == "v02") {
 
 	 G4int nilayer=6;  // number of layers for inner/outer wheel
 	 G4int nolayer=11;
-      	 CreateArrays(ChCollInner,nilayer);
-      	 CreateArrays(ChCollOuter,nolayer);
+      	 CreateArrays(s_ChCollInner,nilayer);
+      	 CreateArrays(s_ChCollOuter,nolayer);
 
-         ChCollInner.RadiusOfLayers[0]=300.;//[mm]
-         ChCollInner.RadiusOfLayers[1]=400.;
-         ChCollInner.RadiusOfLayers[2]=500.;
-         ChCollInner.RadiusOfLayers[3]=600.;
-         ChCollInner.RadiusOfLayers[4]=700.;
-         ChCollInner.RadiusOfLayers[5]=800.;
+         s_ChCollInner.RadiusOfLayers[0]=300.;//[mm]
+         s_ChCollInner.RadiusOfLayers[1]=400.;
+         s_ChCollInner.RadiusOfLayers[2]=500.;
+         s_ChCollInner.RadiusOfLayers[3]=600.;
+         s_ChCollInner.RadiusOfLayers[4]=700.;
+         s_ChCollInner.RadiusOfLayers[5]=800.;
 
-         ChCollOuter.RadiusOfLayers[0] = 600.; //[mm]
-         ChCollOuter.RadiusOfLayers[1] = 900.;
-         ChCollOuter.RadiusOfLayers[2] =1200.;
-         ChCollOuter.RadiusOfLayers[3] =1250.;
-         ChCollOuter.RadiusOfLayers[4] =1300.;
-         ChCollOuter.RadiusOfLayers[5] =1350.;
-         ChCollOuter.RadiusOfLayers[6] =1400.;
-         ChCollOuter.RadiusOfLayers[7] =1450.;
-         ChCollOuter.RadiusOfLayers[8] =1500.;
-         ChCollOuter.RadiusOfLayers[9] =1800.;
-         ChCollOuter.RadiusOfLayers[10]=2100.;
+         s_ChCollOuter.RadiusOfLayers[0] = 600.; //[mm]
+         s_ChCollOuter.RadiusOfLayers[1] = 900.;
+         s_ChCollOuter.RadiusOfLayers[2] =1200.;
+         s_ChCollOuter.RadiusOfLayers[3] =1250.;
+         s_ChCollOuter.RadiusOfLayers[4] =1300.;
+         s_ChCollOuter.RadiusOfLayers[5] =1350.;
+         s_ChCollOuter.RadiusOfLayers[6] =1400.;
+         s_ChCollOuter.RadiusOfLayers[7] =1450.;
+         s_ChCollOuter.RadiusOfLayers[8] =1500.;
+         s_ChCollOuter.RadiusOfLayers[9] =1800.;
+         s_ChCollOuter.RadiusOfLayers[10]=2100.;
 
-         ChCollInner.FoldinAngleOfLayers[0]= 112.742024;  //[degree]
-         ChCollInner.FoldinAngleOfLayers[1]=  92.2379512;
-         ChCollInner.FoldinAngleOfLayers[2]=  78.6993545;
-         ChCollInner.FoldinAngleOfLayers[3]=  68.8423119;
-         ChCollInner.FoldinAngleOfLayers[4]=  61.2714745;
-         ChCollInner.FoldinAngleOfLayers[5]=  55.2462062;
+         s_ChCollInner.FoldinAngleOfLayers[0]= 112.742024;  //[degree]
+         s_ChCollInner.FoldinAngleOfLayers[1]=  92.2379512;
+         s_ChCollInner.FoldinAngleOfLayers[2]=  78.6993545;
+         s_ChCollInner.FoldinAngleOfLayers[3]=  68.8423119;
+         s_ChCollInner.FoldinAngleOfLayers[4]=  61.2714745;
+         s_ChCollInner.FoldinAngleOfLayers[5]=  55.2462062;
 
-         ChCollInner.HalfLArGapSizeOfLayers[0]= 1.47806735;  //[mm]
-         ChCollInner.HalfLArGapSizeOfLayers[1]= 1.95080191;
-         ChCollInner.HalfLArGapSizeOfLayers[2]= 2.30318731;
-         ChCollInner.HalfLArGapSizeOfLayers[3]= 2.57486515;
-         ChCollInner.HalfLArGapSizeOfLayers[4]= 2.79014569;
-         ChCollInner.HalfLArGapSizeOfLayers[5]= 2.96463479;
+         s_ChCollInner.HalfLArGapSizeOfLayers[0]= 1.47806735;  //[mm]
+         s_ChCollInner.HalfLArGapSizeOfLayers[1]= 1.95080191;
+         s_ChCollInner.HalfLArGapSizeOfLayers[2]= 2.30318731;
+         s_ChCollInner.HalfLArGapSizeOfLayers[3]= 2.57486515;
+         s_ChCollInner.HalfLArGapSizeOfLayers[4]= 2.79014569;
+         s_ChCollInner.HalfLArGapSizeOfLayers[5]= 2.96463479;
 
-         ChCollOuter.FoldinAngleOfLayers[0]= 129.00197;  //[degree]
-         ChCollOuter.FoldinAngleOfLayers[1]= 101.408128;
-         ChCollOuter.FoldinAngleOfLayers[2]=  84.7966382;
-         ChCollOuter.FoldinAngleOfLayers[3]=  82.5893317;
-         ChCollOuter.FoldinAngleOfLayers[4]=  80.5022136;
-         ChCollOuter.FoldinAngleOfLayers[5]=  78.524804;
-         ChCollOuter.FoldinAngleOfLayers[6]=  76.6479315;
-         ChCollOuter.FoldinAngleOfLayers[7]=  74.8635164;
-         ChCollOuter.FoldinAngleOfLayers[8]=  73.1643989;
-         ChCollOuter.FoldinAngleOfLayers[9]=  64.4458572;
-         ChCollOuter.FoldinAngleOfLayers[10]= 57.6301588;
+         s_ChCollOuter.FoldinAngleOfLayers[0]= 129.00197;  //[degree]
+         s_ChCollOuter.FoldinAngleOfLayers[1]= 101.408128;
+         s_ChCollOuter.FoldinAngleOfLayers[2]=  84.7966382;
+         s_ChCollOuter.FoldinAngleOfLayers[3]=  82.5893317;
+         s_ChCollOuter.FoldinAngleOfLayers[4]=  80.5022136;
+         s_ChCollOuter.FoldinAngleOfLayers[5]=  78.524804;
+         s_ChCollOuter.FoldinAngleOfLayers[6]=  76.6479315;
+         s_ChCollOuter.FoldinAngleOfLayers[7]=  74.8635164;
+         s_ChCollOuter.FoldinAngleOfLayers[8]=  73.1643989;
+         s_ChCollOuter.FoldinAngleOfLayers[9]=  64.4458572;
+         s_ChCollOuter.FoldinAngleOfLayers[10]= 57.6301588;
 
-         ChCollOuter.HalfLArGapSizeOfLayers[0]= 0.877808149;  //[mm]
-         ChCollOuter.HalfLArGapSizeOfLayers[1]= 1.5116158;
-         ChCollOuter.HalfLArGapSizeOfLayers[2]= 1.97238634;
-         ChCollOuter.HalfLArGapSizeOfLayers[3]= 2.03692756;
-         ChCollOuter.HalfLArGapSizeOfLayers[4]= 2.09855584;
-         ChCollOuter.HalfLArGapSizeOfLayers[5]= 2.15745335;
-         ChCollOuter.HalfLArGapSizeOfLayers[6]= 2.21378826;
-         ChCollOuter.HalfLArGapSizeOfLayers[7]= 2.26771591;
-         ChCollOuter.HalfLArGapSizeOfLayers[8]= 2.31937997;
-         ChCollOuter.HalfLArGapSizeOfLayers[9]= 2.58864056;
-         ChCollOuter.HalfLArGapSizeOfLayers[10]=2.80290925;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[0]= 0.877808149;  //[mm]
+         s_ChCollOuter.HalfLArGapSizeOfLayers[1]= 1.5116158;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[2]= 1.97238634;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[3]= 2.03692756;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[4]= 2.09855584;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[5]= 2.15745335;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[6]= 2.21378826;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[7]= 2.26771591;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[8]= 2.31937997;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[9]= 2.58864056;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[10]=2.80290925;
        }
        }
-       else if(FieldMapVersion == "v03"){
+       else if(s_FieldMapVersion == "v03"){
 
-	 ChCollInner.Fold1.FieldMapPrepared=true;
-	 ChCollOuter.Fold1.FieldMapPrepared=true;
+	 s_ChCollInner.Fold1.FieldMapPrepared=true;
+	 s_ChCollOuter.Fold1.FieldMapPrepared=true;
 
-	 ChCollInner.Fold0.FieldMapPrepared=true;
-	 ChCollOuter.Fold0.FieldMapPrepared=true;
+	 s_ChCollInner.Fold0.FieldMapPrepared=true;
+	 s_ChCollOuter.Fold0.FieldMapPrepared=true;
 
 	 G4int nilayer=6; //number of radial layers; should be the same for
 	 G4int nolayer=16;// all fold type
-      	 CreateArrays(ChCollInner,nilayer);
-      	 CreateArrays(ChCollOuter,nolayer);
+      	 CreateArrays(s_ChCollInner,nilayer);
+      	 CreateArrays(s_ChCollOuter,nolayer);
 
 	 for(G4int i=0;i<nilayer;++i){
-	   ChCollInner.RadiusOfLayers[i]=300.+i*100.;
+	   s_ChCollInner.RadiusOfLayers[i]=300.+i*100.;
 	 }
-         ChCollInner.FoldinAngleOfLayers[0]= 112.7420;  //[degree]
-         ChCollInner.FoldinAngleOfLayers[1]=  92.238;
-         ChCollInner.FoldinAngleOfLayers[2]=  78.6994;
-         ChCollInner.FoldinAngleOfLayers[3]=  68.8423;
-         ChCollInner.FoldinAngleOfLayers[4]=  61.2715;
-         ChCollInner.FoldinAngleOfLayers[5]=  55.2462;
+         s_ChCollInner.FoldinAngleOfLayers[0]= 112.7420;  //[degree]
+         s_ChCollInner.FoldinAngleOfLayers[1]=  92.238;
+         s_ChCollInner.FoldinAngleOfLayers[2]=  78.6994;
+         s_ChCollInner.FoldinAngleOfLayers[3]=  68.8423;
+         s_ChCollInner.FoldinAngleOfLayers[4]=  61.2715;
+         s_ChCollInner.FoldinAngleOfLayers[5]=  55.2462;
 
-         ChCollInner.HalfLArGapSizeOfLayers[0]= 1.5326;  //[mm]
-         ChCollInner.HalfLArGapSizeOfLayers[1]= 2.0053;
-         ChCollInner.HalfLArGapSizeOfLayers[2]= 2.3577;
-         ChCollInner.HalfLArGapSizeOfLayers[3]= 2.6294;
-         ChCollInner.HalfLArGapSizeOfLayers[4]= 2.8446;
-         ChCollInner.HalfLArGapSizeOfLayers[5]= 3.0191;
+         s_ChCollInner.HalfLArGapSizeOfLayers[0]= 1.5326;  //[mm]
+         s_ChCollInner.HalfLArGapSizeOfLayers[1]= 2.0053;
+         s_ChCollInner.HalfLArGapSizeOfLayers[2]= 2.3577;
+         s_ChCollInner.HalfLArGapSizeOfLayers[3]= 2.6294;
+         s_ChCollInner.HalfLArGapSizeOfLayers[4]= 2.8446;
+         s_ChCollInner.HalfLArGapSizeOfLayers[5]= 3.0191;
 
 	 for(G4int i=0;i<nolayer;++i){
-	   ChCollOuter.RadiusOfLayers[i]=600.+i*100.;
+	   s_ChCollOuter.RadiusOfLayers[i]=600.+i*100.;
 	 }
 
-         ChCollOuter.FoldinAngleOfLayers[0]= 129.002;  //[degree]
-         ChCollOuter.FoldinAngleOfLayers[1]= 117.7235;
-         ChCollOuter.FoldinAngleOfLayers[2]= 108.8045;
-         ChCollOuter.FoldinAngleOfLayers[3]= 101.4081;
-         ChCollOuter.FoldinAngleOfLayers[4]=  95.1012;
-         ChCollOuter.FoldinAngleOfLayers[5]=  89.6220;
-         ChCollOuter.FoldinAngleOfLayers[6]=  84.7966;
-         ChCollOuter.FoldinAngleOfLayers[7]=  80.5022;
-         ChCollOuter.FoldinAngleOfLayers[8]=  76.6479;
-         ChCollOuter.FoldinAngleOfLayers[9]=  73.1644;
-         ChCollOuter.FoldinAngleOfLayers[10]= 69.9972;
-         ChCollOuter.FoldinAngleOfLayers[11]= 67.1028;
-         ChCollOuter.FoldinAngleOfLayers[12]= 64.4459;
-         ChCollOuter.FoldinAngleOfLayers[13]= 61.9970;
-         ChCollOuter.FoldinAngleOfLayers[14]= 59.7320;
-         ChCollOuter.FoldinAngleOfLayers[15]= 57.6302;
+         s_ChCollOuter.FoldinAngleOfLayers[0]= 129.002;  //[degree]
+         s_ChCollOuter.FoldinAngleOfLayers[1]= 117.7235;
+         s_ChCollOuter.FoldinAngleOfLayers[2]= 108.8045;
+         s_ChCollOuter.FoldinAngleOfLayers[3]= 101.4081;
+         s_ChCollOuter.FoldinAngleOfLayers[4]=  95.1012;
+         s_ChCollOuter.FoldinAngleOfLayers[5]=  89.6220;
+         s_ChCollOuter.FoldinAngleOfLayers[6]=  84.7966;
+         s_ChCollOuter.FoldinAngleOfLayers[7]=  80.5022;
+         s_ChCollOuter.FoldinAngleOfLayers[8]=  76.6479;
+         s_ChCollOuter.FoldinAngleOfLayers[9]=  73.1644;
+         s_ChCollOuter.FoldinAngleOfLayers[10]= 69.9972;
+         s_ChCollOuter.FoldinAngleOfLayers[11]= 67.1028;
+         s_ChCollOuter.FoldinAngleOfLayers[12]= 64.4459;
+         s_ChCollOuter.FoldinAngleOfLayers[13]= 61.9970;
+         s_ChCollOuter.FoldinAngleOfLayers[14]= 59.7320;
+         s_ChCollOuter.FoldinAngleOfLayers[15]= 57.6302;
 
-         ChCollOuter.HalfLArGapSizeOfLayers[0]= 0.9367;  //[mm]
-         ChCollOuter.HalfLArGapSizeOfLayers[1]= 1.1723;
-         ChCollOuter.HalfLArGapSizeOfLayers[2]= 1.3824;
-         ChCollOuter.HalfLArGapSizeOfLayers[3]= 1.5705;
-         ChCollOuter.HalfLArGapSizeOfLayers[4]= 1.7398;
-         ChCollOuter.HalfLArGapSizeOfLayers[5]= 1.8927;
-         ChCollOuter.HalfLArGapSizeOfLayers[6]= 2.0313;
-         ChCollOuter.HalfLArGapSizeOfLayers[7]= 2.1575;
-         ChCollOuter.HalfLArGapSizeOfLayers[8]= 2.2727;
-         ChCollOuter.HalfLArGapSizeOfLayers[9]= 2.3783;
-         ChCollOuter.HalfLArGapSizeOfLayers[10]=2.4754;
-         ChCollOuter.HalfLArGapSizeOfLayers[11]=2.5648;
-         ChCollOuter.HalfLArGapSizeOfLayers[12]=2.6476;
-         ChCollOuter.HalfLArGapSizeOfLayers[13]=2.7242;
-         ChCollOuter.HalfLArGapSizeOfLayers[14]=2.7955;
-         ChCollOuter.HalfLArGapSizeOfLayers[15]=2.8618;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[0]= 0.9367;  //[mm]
+         s_ChCollOuter.HalfLArGapSizeOfLayers[1]= 1.1723;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[2]= 1.3824;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[3]= 1.5705;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[4]= 1.7398;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[5]= 1.8927;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[6]= 2.0313;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[7]= 2.1575;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[8]= 2.2727;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[9]= 2.3783;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[10]=2.4754;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[11]=2.5648;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[12]=2.6476;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[13]=2.7242;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[14]=2.7955;
+         s_ChCollOuter.HalfLArGapSizeOfLayers[15]=2.8618;
 
        }
        else{
 	 (*m_msg) << MSG::FATAL
 		<< "IniGeomforFieldMaps -  FieldMapVersion = '"
-		<< FieldMapVersion << "' not found!" << endreq;
+		<< s_FieldMapVersion << "' not found!" << endmsg;
        }
 
-       ChCollInner.GridShift=0.050;
-       ChCollOuter.GridShift=0.0667;
+       s_ChCollInner.GridShift=0.050;
+       s_ChCollOuter.GridShift=0.0667;
 }
 
 // ***********************************************************
@@ -405,43 +405,43 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
   char fieldmapversion[10];
 
   (*m_msg) << MSG::INFO
-	 << "GetFieldMaps from file = " << fname << endreq;
+	 << "GetFieldMaps from file = " << fname << endmsg;
 
    FILE *lun = fopen(fname, "r");
 
    if(lun == 0){
       (*m_msg) << MSG::FATAL
 	     << "GetFieldMaps - file '" << fname << "' not found!"
-	     << endreq;
+	     << endmsg;
       throw std::runtime_error("LArEMECChargeCollection: File not found!");
    }
 
-   if(FieldMapVersion != "v00"){
+   if(s_FieldMapVersion != "v00"){
            if (fscanf(lun, "%9s", fieldmapversion) < 1) {
              (*m_msg) << MSG::ERROR
-                      << "GetFieldMaps Error reading field map" << endreq;
+                      << "GetFieldMaps Error reading field map" << endmsg;
            }
 	   (*m_msg) << MSG::INFO
 		  << "This file contains fieldmap of version '" << fieldmapversion
 		  << "'"
-                  << endreq;
+                  << endmsg;
    }
 
 // Check which fold should have a map
 
-    if     (ChCollInner.Fold1.FieldMapPrepared &&
-            ChCollOuter.Fold1.FieldMapPrepared &&
-            ChCollInner.Fold0.FieldMapPrepared &&
-            ChCollOuter.Fold0.FieldMapPrepared)     foldtypemx=2;
-    else if(ChCollInner.Fold1.FieldMapPrepared &&
-            ChCollOuter.Fold1.FieldMapPrepared &&
-           !ChCollInner.Fold0.FieldMapPrepared &&
-           !ChCollOuter.Fold0.FieldMapPrepared)     foldtypemx=1;
+    if     (s_ChCollInner.Fold1.FieldMapPrepared &&
+            s_ChCollOuter.Fold1.FieldMapPrepared &&
+            s_ChCollInner.Fold0.FieldMapPrepared &&
+            s_ChCollOuter.Fold0.FieldMapPrepared)     foldtypemx=2;
+    else if(s_ChCollInner.Fold1.FieldMapPrepared &&
+            s_ChCollOuter.Fold1.FieldMapPrepared &&
+           !s_ChCollInner.Fold0.FieldMapPrepared &&
+           !s_ChCollOuter.Fold0.FieldMapPrepared)     foldtypemx=1;
     else{
 
       (*m_msg) << MSG::FATAL
 	     <<" ***GetFieldMaps file format is incompatible"
-	     <<endreq;
+	     <<endmsg;
     }
 
 // occupy store for the FieldMaps
@@ -449,44 +449,44 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
     for(foldtype  = 0; foldtype  < foldtypemx; ++ foldtype){
      for(wheeltype = 0; wheeltype < 2;          ++ wheeltype){
 
-       if(wheeltype == 0)  ChCollWheelType = &ChCollInner;
-       if(wheeltype == 1)  ChCollWheelType = &ChCollOuter;
-       if(foldtype  == 0 ) ChCollFoldType  = &(ChCollWheelType->Fold1);
-       if(foldtype  == 1 ) ChCollFoldType  = &(ChCollWheelType->Fold0);
+       if(wheeltype == 0)  m_ChCollWheelType = &s_ChCollInner;
+       if(wheeltype == 1)  m_ChCollWheelType = &s_ChCollOuter;
+       if(foldtype  == 0 ) m_ChCollFoldType  = &(m_ChCollWheelType->Fold1);
+       if(foldtype  == 1 ) m_ChCollFoldType  = &(m_ChCollWheelType->Fold0);
 
-       nlayer = ChCollWheelType->NumberOfRadialLayer; // should be the same for Fold0 and Fold1
+       nlayer = m_ChCollWheelType->NumberOfRadialLayer; // should be the same for Fold0 and Fold1
 
 	 for(i=0; i<nlayer; ++i){
-             if (fscanf(lun, "%lg%lg%lg%lg", &ChCollFoldType->MinZofLayer[i],
-                                             &ChCollFoldType->MaxZofLayer[i],
-                                             &ChCollFoldType->MinYofLayer[i],
-                                             &ChCollFoldType->MaxYofLayer[i]) < 4)
+             if (fscanf(lun, "%lg%lg%lg%lg", &m_ChCollFoldType->MinZofLayer[i],
+                                             &m_ChCollFoldType->MaxZofLayer[i],
+                                             &m_ChCollFoldType->MinYofLayer[i],
+                                             &m_ChCollFoldType->MaxYofLayer[i]) < 4)
              {
                (*m_msg) << MSG::ERROR
-                        << "GetFieldMaps Error reading field map" << endreq;
+                        << "GetFieldMaps Error reading field map" << endmsg;
              }
-	     if (fscanf(lun, "%i%i",         &ChCollFoldType->NofColofLayer[i],
-                                             &ChCollFoldType->NofRowofLayer[i]) < 2)
+	     if (fscanf(lun, "%i%i",         &m_ChCollFoldType->NofColofLayer[i],
+                                             &m_ChCollFoldType->NofRowofLayer[i]) < 2)
              {
                (*m_msg) << MSG::ERROR
-                        << "GetFieldMaps Error reading field map" << endreq;
+                        << "GetFieldMaps Error reading field map" << endmsg;
              }
 
-	     ChCollFoldType->NofColofLayer[i] ++;
-	     ChCollFoldType->NofRowofLayer[i] ++;
-	     npoints = ChCollFoldType->NofColofLayer[i]*ChCollFoldType->NofRowofLayer[i];
+	     m_ChCollFoldType->NofColofLayer[i] ++;
+	     m_ChCollFoldType->NofRowofLayer[i] ++;
+	     npoints = m_ChCollFoldType->NofColofLayer[i]*m_ChCollFoldType->NofRowofLayer[i];
 	     if(npoints>0 && npoints < std::numeric_limits<int>::max()){
-	     ChCollFoldType->NofPointsinLayer[i]=npoints;
-	     if(i==0) ChCollFoldType->pLayer[i]=0;
-	     else{    ChCollFoldType->pLayer[i]=ChCollFoldType->pLayer[i-1]+
-			             3*ChCollFoldType->NofPointsinLayer[i-1];
+	     m_ChCollFoldType->NofPointsinLayer[i]=npoints;
+	     if(i==0) m_ChCollFoldType->pLayer[i]=0;
+	     else{    m_ChCollFoldType->pLayer[i]=m_ChCollFoldType->pLayer[i-1]+
+			             3*m_ChCollFoldType->NofPointsinLayer[i-1];
 	     }
 	     
 	     for(j=0;j<npoints;++j){
 	       G4double zdummy,ydummy,wdummy;
 	       if (fscanf(lun, "%lg%lg%lg", &zdummy,&ydummy,&wdummy) < 3) {
                  (*m_msg) << MSG::ERROR
-                          << "GetFieldMaps Error reading field map" << endreq;
+                          << "GetFieldMaps Error reading field map" << endmsg;
                }
 	     } // end for points
 	     }
@@ -494,40 +494,40 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
 	     (*m_msg) << MSG::INFO
 	            <<" foldtype="<<foldtype<< " wheeltype="<<wheeltype
 		    <<" ilayer = " << i << " zmin, max = "
-		    << ChCollFoldType->MinZofLayer[i] << " "
-		    << ChCollFoldType->MaxZofLayer[i] << " "
+		    << m_ChCollFoldType->MinZofLayer[i] << " "
+		    << m_ChCollFoldType->MaxZofLayer[i] << " "
 		    << " ymin, max = "
-		    << ChCollFoldType->MinYofLayer[i] << " "
-		    << ChCollFoldType->MaxYofLayer[i] << " "
-		    << " ncol = " << ChCollFoldType->NofColofLayer[i]
-		    << " nrow = " << ChCollFoldType->NofRowofLayer[i]
+		    << m_ChCollFoldType->MinYofLayer[i] << " "
+		    << m_ChCollFoldType->MaxYofLayer[i] << " "
+		    << " ncol = " << m_ChCollFoldType->NofColofLayer[i]
+		    << " nrow = " << m_ChCollFoldType->NofRowofLayer[i]
 		    << " npoints = " << npoints
-		    <<endreq;
+		    <<endmsg;
 //		    << std::endl;
 
 	   } // end for layers
 	 
-	 G4int length=ChCollFoldType->pLayer[nlayer-1]+3*ChCollFoldType->NofPointsinLayer[nlayer-1];
-	 ChCollFoldType->FieldMap = new G4double [length];
+	 G4int length=m_ChCollFoldType->pLayer[nlayer-1]+3*m_ChCollFoldType->NofPointsinLayer[nlayer-1];
+	 m_ChCollFoldType->FieldMap = new G4double [length];
 
 	 //	 std::cout<<" ***GetFieldMaps : length of FieldMap="<<length
 	 //	  <<std::endl;
 
-	 if(ChCollFoldType->FieldMap == 0 ) {
+	 if(m_ChCollFoldType->FieldMap == 0 ) {
 
 	   (*m_msg) << MSG::FATAL
 		  <<" ***GetFieldMaps: FATAL  FieldMap array cannot be created"
-		  <<endreq;
+		  <<endmsg;
 	 }
 
       }  // end for wheels
     }   //end for foldtypes
 
     rewind(lun);
-    if(FieldMapVersion != "v00") {
+    if(s_FieldMapVersion != "v00") {
       if (fscanf(lun, "%9s", fieldmapversion) < 1) {
         (*m_msg) << MSG::ERROR
-                 << "GetFieldMaps Error reading field map" << endreq;
+                 << "GetFieldMaps Error reading field map" << endmsg;
       }
     }
 
@@ -536,12 +536,12 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
     for(foldtype  = 0; foldtype  < foldtypemx; ++ foldtype){
      for(wheeltype = 0; wheeltype < 2;          ++ wheeltype){
 
-       if(wheeltype == 0)  ChCollWheelType = &ChCollInner;
-       if(wheeltype == 1)  ChCollWheelType = &ChCollOuter;
-       if(foldtype  == 0 ) ChCollFoldType  = &(ChCollWheelType->Fold1);
-       if(foldtype  == 1 ) ChCollFoldType  = &(ChCollWheelType->Fold0);
+       if(wheeltype == 0)  m_ChCollWheelType = &s_ChCollInner;
+       if(wheeltype == 1)  m_ChCollWheelType = &s_ChCollOuter;
+       if(foldtype  == 0 ) m_ChCollFoldType  = &(m_ChCollWheelType->Fold1);
+       if(foldtype  == 1 ) m_ChCollFoldType  = &(m_ChCollWheelType->Fold0);
 
-       nlayer = ChCollWheelType->NumberOfRadialLayer; // should be the same for Fold0 and Fold1
+       nlayer = m_ChCollWheelType->NumberOfRadialLayer; // should be the same for Fold0 and Fold1
 
        for(i=0; i<nlayer; ++i){
 
@@ -549,28 +549,28 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
 	   G4int    dummy5,dummy6;
 	   if (fscanf(lun, "%lg%lg%lg%lg", &dummy1, &dummy2, &dummy3, &dummy4) < 4) {
              (*m_msg) << MSG::ERROR
-                      << "GetFieldMaps Error reading field map" << endreq;
+                      << "GetFieldMaps Error reading field map" << endmsg;
            }
 	   if (fscanf(lun, "%i%i",         &dummy5, &dummy6) < 2) {
              (*m_msg) << MSG::ERROR
-                      << "GetFieldMaps Error reading field map" << endreq;
+                      << "GetFieldMaps Error reading field map" << endmsg;
            }
 
-           npoints = ChCollFoldType->NofPointsinLayer[i];
+           npoints = m_ChCollFoldType->NofPointsinLayer[i];
 	   if(npoints>0){
 	   for(j = 0; j < npoints; ++ j){
-	     if (fscanf(lun, "%lg%lg%lg", &ChCollFoldType->FieldMap[Index(ChCollFoldType,i,0,j)],
-                        &ChCollFoldType->FieldMap[Index(ChCollFoldType,i,1,j)],
-                        &ChCollFoldType->FieldMap[Index(ChCollFoldType,i,2,j)]) < 3)
+	     if (fscanf(lun, "%lg%lg%lg", &m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,0,j)],
+                        &m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,1,j)],
+                        &m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,2,j)]) < 3)
              {
                (*m_msg) << MSG::ERROR
-                        << "GetFieldMaps Error reading field map" << endreq;
+                        << "GetFieldMaps Error reading field map" << endmsg;
              }
 
 /*	     if(j<10) G4cout<<" z,y,weight="
-			    <<ChCollFoldType->FieldMap[Index(ChCollFoldType,i,0,j)]<<" "
-			    <<ChCollFoldType->FieldMap[Index(ChCollFoldType,i,1,j)]<<" "
-			    <<ChCollFoldType->FieldMap[Index(ChCollFoldType,i,2,j)]
+			    <<m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,0,j)]<<" "
+			    <<m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,1,j)]<<" "
+			    <<m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,2,j)]
 			    <<G4endl; */
 
 	   } // end of loop(j) on points
@@ -578,9 +578,9 @@ void EnergyCalculator::GetFieldMaps(const G4String fname){
        }    // end of loop(i) on layers
      }	   // end of loop on wheeltype
     }    // end of loop for foldtypes
-    //     (*m_msg) << endreq;
+    //     (*m_msg) << endmsg;
     fclose(lun);
-    FieldMapsRead = true;
+    s_FieldMapsRead = true;
 }
 
 // **********************************************************
@@ -606,37 +606,37 @@ void EnergyCalculator::PrepareFieldMap(void){
   (*m_msg) << MSG::INFO
 	 << "PrepareFieldMap for solidtype = "
 	 << LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())
-	 << endreq;
+	 << endmsg;
 
-  nlayer = ChCollWheelType->NumberOfRadialLayer; // should be the same for Fold0 and Fold1
+  nlayer = m_ChCollWheelType->NumberOfRadialLayer; // should be the same for Fold0 and Fold1
    foldtypemx=1;
-   if( ChCollWheelType->Fold1.FieldMapPrepared &&
-       ChCollWheelType->Fold0.FieldMapPrepared) foldtypemx=2;
+   if( m_ChCollWheelType->Fold1.FieldMapPrepared &&
+       m_ChCollWheelType->Fold0.FieldMapPrepared) foldtypemx=2;
 
    for(foldtype  = 0; foldtype  < foldtypemx; ++ foldtype){
 
-     if(foldtype  == 0 ) ChCollFoldType  = &(ChCollWheelType->Fold1);  //normal fold
-     if(foldtype  == 1 ) ChCollFoldType  = &(ChCollWheelType->Fold0); //very first fold
+     if(foldtype  == 0 ) m_ChCollFoldType  = &(m_ChCollWheelType->Fold1);  //normal fold
+     if(foldtype  == 1 ) m_ChCollFoldType  = &(m_ChCollWheelType->Fold0); //very first fold
 
       for(i=0; i<nlayer; ++i){
 
 	if(foldtype == 0) {  //normal fold
-          minz=ChCollFoldType->MinZofLayer[i];
+          minz=m_ChCollFoldType->MinZofLayer[i];
           maxz=lwc()->GetQuarterWaveLength();
-          ncol=G4int( (maxz-minz)/GridSize+1.1 );
-          ChCollFoldType->NofColofLayer[i]=ncol;
-          ChCollFoldType->MaxZofLayer[i]=lwc()->GetQuarterWaveLength();
+          ncol=G4int( (maxz-minz)/s_GridSize+1.1 );
+          m_ChCollFoldType->NofColofLayer[i]=ncol;
+          m_ChCollFoldType->MaxZofLayer[i]=lwc()->GetQuarterWaveLength();
 	}
 
         ipnt=-1;  // new counter for numbering the selected points
         nredef=0; //counter to know how many weights are redefined to be 1 (only for V00)
-	npoints=ChCollFoldType->NofPointsinLayer[i];
+	npoints=m_ChCollFoldType->NofPointsinLayer[i];
 	if(npoints>0){
         for(j=0;j<npoints;++j){
 
-	  z=ChCollFoldType->FieldMap[Index(ChCollFoldType,i,0,j)];
-	  y=ChCollFoldType->FieldMap[Index(ChCollFoldType,i,1,j)];
-	  w=ChCollFoldType->FieldMap[Index(ChCollFoldType,i,2,j)];
+	  z=m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,0,j)];
+	  y=m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,1,j)];
+	  w=m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,2,j)];
 	  wx=w;
 
 	  ipold=ipnt;
@@ -649,14 +649,14 @@ void EnergyCalculator::PrepareFieldMap(void){
 	    if(z<maxz){  // only grid points within quarterwavelength is to be included
 	      ++ipnt;
 	      if(w<0.00001){  // check weight in the file
-		  if(FieldMapVersion != "v00") wx=0.; // new map
+		  if(s_FieldMapVersion != "v00") wx=0.; // new map
                   else{                               // old map
-		    SetHalfWave(lwc()->GetStraightStartSection()+WaveLength+z);
-		    PointFoldMapArea=1;
+		    SetHalfWave(lwc()->GetStraightStartSection()+m_WaveLength+z);
+		    m_PointFoldMapArea=1;
 		    SetYlimitsofPhigapinFieldMap(i);
-     		    if((y>=Ylimits[0] && y<=Ylimits[1]) ||
-		       (y>=Ylimits[2] && y<=Ylimits[3])){  //point in LAr
-	              wx=1.;     // Dice computes the Ylimits at (z+GridShift) value,
+     		    if((y>=m_Ylimits[0] && y<=m_Ylimits[1]) ||
+		       (y>=m_Ylimits[2] && y<=m_Ylimits[3])){  //point in LAr
+	              wx=1.;     // Dice computes the m_Ylimits at (z+GridShift) value,
 	              ++nredef;  // I don't know why...By neglecting GridShift nredef
 	                         // is much less.
 		    }
@@ -667,23 +667,23 @@ void EnergyCalculator::PrepareFieldMap(void){
 
 	  if(ipold != ipnt){
 
-	    ChCollFoldType->FieldMap[Index(ChCollFoldType,i,0,ipnt)]=z;
-	    ChCollFoldType->FieldMap[Index(ChCollFoldType,i,1,ipnt)]=y;
-	    ChCollFoldType->FieldMap[Index(ChCollFoldType,i,2,ipnt)]=wx;
+	    m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,0,ipnt)]=z;
+	    m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,1,ipnt)]=y;
+	    m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,2,ipnt)]=wx;
 
 /*	    if(ipnt<10)
 	      G4cout<<" ilayer="<<i<<" ipnt="<<ipnt<<" weights="
-		    <<ChCollFoldType->FieldMap[Index(ChCollFoldType,i,2,ipnt)]
+		    <<m_ChCollFoldType->FieldMap[Index(m_ChCollFoldType,i,2,ipnt)]
 		    <<G4endl;*/
 	  }
 
         }  // end j loop for points
 	}
-	if(ipnt+1 != ChCollFoldType->NofColofLayer[i]*ChCollFoldType->NofRowofLayer[i] ){
+	if(ipnt+1 != m_ChCollFoldType->NofColofLayer[i]*m_ChCollFoldType->NofRowofLayer[i] ){
 	     (*m_msg) << MSG::FATAL
 		    <<" ERROR: ipnt+1="<<ipnt+1<<" npoints="<<
-	       ChCollFoldType->NofColofLayer[i]*ChCollFoldType->NofRowofLayer[i]
-		    <<endreq;
+	       m_ChCollFoldType->NofColofLayer[i]*m_ChCollFoldType->NofRowofLayer[i]
+		    <<endmsg;
 	}
      } //end i loop for layers
    } //end for foldtype
@@ -698,32 +698,32 @@ G4double EnergyCalculator::GetHV_Value_ChColl_Wheel(
     const G4ThreeVector pforeta= G4ThreeVector(p.x(),p.y(),p.z()+lwc()->GetElecFocaltoWRP()+lwc()->GetdWRPtoFrontFace());
     const G4double eta=pforeta.pseudoRapidity();
     G4int etasection=-1;
-    for(G4int i=1;i<=NofEtaSection;++i){
-      if(eta<=HV_Etalim[i]) {etasection=i-1;break;}
+    for(G4int i=1;i<=s_NofEtaSection;++i){
+      if(eta<=s_HV_Etalim[i]) {etasection=i-1;break;}
     }
 
-    if(!(etasection>=0 && etasection <=NofEtaSection-1)) throw std::runtime_error("Index out of range");
-    //assert(etasection>=0 && etasection <=NofEtaSection-1);
+    if(!(etasection>=0 && etasection <=s_NofEtaSection-1)) throw std::runtime_error("Index out of range");
+    //assert(etasection>=0 && etasection <=s_NofEtaSection-1);
                                /*(right side of e large phi)*/ /*left side of electrode(small phi)*/
     const G4int electrodeside = (phihalfgap%2 == 0 ) ?   1   :   0  ;  
 
-    const G4int firstelectrode=HV_Start_phi[atlasside][etasection][electrodeside];
+    const G4int firstelectrode=s_HV_Start_phi[atlasside][etasection][electrodeside];
 
     if(!( firstelectrode>=0 && firstelectrode<= lwc()->GetNumberOfFans()-1)){
-		(*m_msg) << MSG::FATAL <<" GetCurrent:Electrode number is out of range" << endreq;
+		(*m_msg) << MSG::FATAL <<" GetCurrent:Electrode number is out of range" << endmsg;
 		G4Exception("EnergyCalculator", "ElectrodeOutOfRange", FatalException, "GetCurrent: Electrode number is out of range");
     }
     G4int electrodeindex=(phigap-1)-firstelectrode;
     if(electrodeindex<0) electrodeindex=electrodeindex+lwc()->GetNumberOfFans();
-    const G4int nofelectrodesinphisection=lwc()->GetNumberOfFans()/NofPhiSections;//24(8) for outer(inner) wheel
+    const G4int nofelectrodesinphisection=lwc()->GetNumberOfFans()/m_NofPhiSections;//24(8) for outer(inner) wheel
     const G4int phisection=electrodeindex/nofelectrodesinphisection;
 
-    if(!(phisection>=0 && phisection<=NofPhiSections-1)){
-		(*m_msg) << MSG::FATAL <<" GetCurrent::Electrode number is out of range" << endreq;
+    if(!(phisection>=0 && phisection<=m_NofPhiSections-1)){
+		(*m_msg) << MSG::FATAL <<" GetCurrent::Electrode number is out of range" << endmsg;
 		G4Exception("EnergyCalculator", "ElectrodeOutOfRange", FatalException,"GetCurrent: Electrode number is out of range");
     }
 
-    G4double HV_value= HV_Values[atlasside][etasection][electrodeside][phisection];
+    G4double HV_value= s_HV_Values[atlasside][etasection][electrodeside][phisection];
 
     return HV_value;
 }
@@ -741,7 +741,7 @@ void EnergyCalculator::TransFromBarrtoWheel(G4double vb[], G4double v[]){
   v[2]=lwc()->GetWheelThickness()+lwc()->GetdWRPtoFrontFace()*0.5-vb[2];
   const G4double rb   = pb.perp();
   const G4double phib = pb.phi();                     // local phi coord. of a point in the PhiDiv
-  G4double phi_inb = PhiStartOfPhiDiv + phib;  //PhiStartOfPhiDiv defined in FindIdentifier!!
+  G4double phi_inb = s_PhiStartOfPhiDiv + phib;  //s_PhiStartOfPhiDiv defined in FindIdentifier!!
                                              // it is the phi pos. of the PhiDiv in the Barrette system
                                            //phi_inb is the point's phi coord. in the BArrette volume
                                           // it can be bigger than 2pi!
@@ -756,7 +756,7 @@ void EnergyCalculator::TransFromBarrtoWheel(G4double vb[], G4double v[]){
                                      // positioned with an extra rotation into the Mother
 
     (*m_msg) << MSG::FATAL <<" ERROR: TransFromBarrtoWheel: type("<<LArWheelCalculator::LArWheelCalculatorTypeString(lwc()->type())<<") is unknown"
-	   <<endreq;
+	   <<endmsg;
   }
 
   v[0]=rb*cos(phi_inb);
@@ -776,7 +776,7 @@ G4double EnergyCalculator::GetCurrent(
   G4double /*efield,efieldnormalized,*/tol,shift;
   G4double yshift_on_map,yshift_on_wheel,cylgapcorr;
 
-  G4int i,j/*,yup*/,irlayer,igap1,igap2,ihalfgap1,ihalfgap2,nofstep,gapup,gaperr;
+  G4int i,j/*,yup*/,irlayer,igap1,igap2,ihalfgap1,ihalfgap2,gapup,gaperr;
 
   yratio=0.,yonlowerlayer=0.; yonupperlayer=0.; //to avoid compiler warning
 
@@ -800,18 +800,18 @@ G4double EnergyCalculator::GetCurrent(
 
   SetHalfWave(v2[2]); //check whether start and endpoints are in the same gap
   GetPhiGap(v2);
-  igap2    = PhiGapNumber;
-  ihalfgap2= PhiHalfGapNumber;
+  igap2    = m_PhiGapNumber;
+  ihalfgap2= m_PhiHalfGapNumber;
 
   SetHalfWave(v1[2]);
   GetPhiGap(v1);
   SetFoldArea(v1[2]);
-  igap1    = PhiGapNumber;  // from 1 to NumberOfFans
-  ihalfgap1= PhiHalfGapNumber;
+  igap1    = m_PhiGapNumber;  // from 1 to NumberOfFans
+  ihalfgap1= m_PhiHalfGapNumber;
 
   if( (igap1 != igap2) || (ihalfgap1 != ihalfgap2) )  gaperr = -1;
 
-  chcollPhiGap=igap1-1;
+  m_chcollPhiGap=igap1-1;
 
 // define electrode side on the field map;
 // start point is used, because G4 does not garantee that the middlepoint is in the LAr gap
@@ -821,31 +821,32 @@ G4double EnergyCalculator::GetCurrent(
   r=sqrt(r*r-vmap[1]*vmap[1]);
 
   shift = lwc()->GetStraightStartSection();
-  if(PointFoldMapArea != 0) shift += WaveLength;
+  if(m_PointFoldMapArea != 0) shift += m_WaveLength;
   SetHalfWave(shift+vmap[2]);
   SetYlimitsofPhigapinWheel(r,r); // get the y limits of LAr gap
 
-  Ymid=0.5*(Ylimits[1]+Ylimits[2]);
+  Ymid=0.5*(m_Ylimits[1]+m_Ylimits[2]);
   if(vmap[1]>Ymid) gapup=+1;          //step is above electrode
   else gapup=-1;                      //step is below electrode
                                        //this should be true for the full step
 
-  if( vmap[1] > Ylimits[3]+tol || vmap[1] < Ylimits[0]-tol ||
-     (vmap[1] < Ylimits[2]-tol && vmap[1] > Ylimits[1]+tol)  ) gaperr=gaperr-10;
+  if( vmap[1] > m_Ylimits[3]+tol || vmap[1] < m_Ylimits[0]-tol ||
+     (vmap[1] < m_Ylimits[2]-tol && vmap[1] > m_Ylimits[1]+tol)  ) gaperr=gaperr-10;
 
 //loop for substeps
 
   steplength=sqrt((v1[0]-v2[0])*(v1[0]-v2[0])+(v1[1]-v2[1])*(v1[1]-v2[1])+
                   (v1[2]-v2[2])*(v1[2]-v2[2]));
-  nofstep=int(steplength/GridSize)+1;  // step is divided to substeps
+  const G4int nofstep=int(steplength/s_GridSize)+1;  // step is divided to substeps
   current=0.;                          //current to be returned
 
+  const G4double inv_nofstep = 1. / static_cast<double>(nofstep);
   for(i=0;i<nofstep;++i){
 
      G4double supcorr =1.;
 
 // compute substep point
-     ds=(i+0.5)/nofstep;
+     ds=(i+0.5)*inv_nofstep;
      for(j=0;j<3;++j){
        vstep[j]=v1[j]*(1.-ds)+v2[j]*ds;    // get the middle point of substep
        hvpoint[j]=vstep[j];                // hvpoint is always in local coord. Wheel or PhiDiv)
@@ -864,12 +865,12 @@ G4double EnergyCalculator::GetCurrent(
                 G4ThreeVector(hvpoint[0],hvpoint[1],hvpoint[2]),igap1,ihalfgap1);
 
      G4ThreeVector tmp = G4ThreeVector( hvpoint[0],hvpoint[1],hvpoint[2]);
-     G4double dte = (this->*distance_to_the_nearest_electrode_type)(tmp);
+     G4double dte = (this->*m_distance_to_the_nearest_electrode_type)(tmp);
 
-     if(fabs(dte) < CHC_Esr) continue; //skip point if too close to the electrode
+     if(fabs(dte) < s_CHC_Esr) continue; //skip point if too close to the electrode
 
-     G4double agap=(this->*GetGapSize_type)(tmp);    //correction to electrode suppression not to
-     G4double x= agap/(agap-CHC_Esr);     // change av. signal in the gap
+     G4double agap=(this->*m_GetGapSize_type)(tmp);    //correction to electrode suppression not to
+     G4double x= agap/(agap-s_CHC_Esr);     // change av. signal in the gap
      if(x >=0.) supcorr=x;
 
      SetFoldArea(vstep[2]);                 // set fold type
@@ -880,22 +881,22 @@ G4double EnergyCalculator::GetCurrent(
      rvstep   =sqrt(vstep[0]*vstep[0]+vstep[1]*vstep[1]);
      rforalpha=sqrt(rvstep*rvstep-vmap[1]*vmap[1]); // radius in the electrode system
      gap=HalfLArGapSize(rforalpha,rforalpha);       // gapsize in the straight section
-     yshift_on_map  = rforalpha*M_PI/lwc()->GetNumberOfFans()-(FanAbsThickness+FanEleThickness)/2.;
-     yshift_on_wheel=    rvstep*M_PI/lwc()->GetNumberOfFans()-(FanAbsThickness+FanEleThickness)/2.;
+     yshift_on_map  = rforalpha*M_PI/lwc()->GetNumberOfFans()-(m_FanAbsThickness+m_FanEleThickness)/2.;
+     yshift_on_wheel=    rvstep*M_PI/lwc()->GetNumberOfFans()-(m_FanAbsThickness+m_FanEleThickness)/2.;
      cylgapcorr=yshift_on_wheel/yshift_on_map; // scale difference between plane and cylindrical surface
      /*
-     std::cout<< " GetCurrent0**Nabs="<<lwc()->GetNumberOfFans()<<" absthick="<<FanAbsThickness
-	      <<" elethick="<<FanEleThickness
+     std::cout<< " GetCurrent0**Nabs="<<lwc()->GetNumberOfFans()<<" absthick="<<m_FanAbsThickness
+	      <<" elethick="<<m_FanEleThickness
 	      <<" cylgapcorr-1="<<cylgapcorr-1
-	      <<" ZinHalfWave="<<ZinHalfWave<<" HalfWaveNumber="<<HalfWaveNumber
+	      <<" ZinHalfWave="<<m_ZinHalfWave<<" HalfWaveNumber="<<m_HalfWaveNumber
 	      <<std::endl;
      */
 //search for radial layers the substep is in between;
 
      irlayer=0;
-     G4int numberofradiallayers=ChCollWheelType->NumberOfRadialLayer;
+     G4int numberofradiallayers=m_ChCollWheelType->NumberOfRadialLayer;
      for(j=0;j<numberofradiallayers;++j){
-       if(rforalpha<ChCollWheelType->RadiusOfLayers[j]) {
+       if(rforalpha<m_ChCollWheelType->RadiusOfLayers[j]) {
 	 irlayer=j-1;
 	 break;}
      }
@@ -903,9 +904,9 @@ G4double EnergyCalculator::GetCurrent(
 
 // check whether interpolation is needed
 
-     if(!ChCollFoldType->FieldMapPrepared ||                // fieldmap is not available for this fold
-	(vmap[2]<ChCollFoldType->MinZofLayer[irlayer]   &&  // or out of z range of both maps
-	 vmap[2]<ChCollFoldType->MinZofLayer[irlayer+1]) ){
+     if(!m_ChCollFoldType->FieldMapPrepared ||                // fieldmap is not available for this fold
+	(vmap[2]<m_ChCollFoldType->MinZofLayer[irlayer]   &&  // or out of z range of both maps
+	 vmap[2]<m_ChCollFoldType->MinZofLayer[irlayer+1]) ){
 
        cur=1.;  // interpolation not needed
      }
@@ -913,26 +914,26 @@ G4double EnergyCalculator::GetCurrent(
 
 // compute radial interpolation parameter
 
-       dr=(rforalpha-ChCollWheelType->RadiusOfLayers[irlayer])
-       /(ChCollWheelType->RadiusOfLayers[irlayer+1]-
-         ChCollWheelType->RadiusOfLayers[irlayer]);
+       dr=(rforalpha-m_ChCollWheelType->RadiusOfLayers[irlayer])
+       /(m_ChCollWheelType->RadiusOfLayers[irlayer+1]-
+         m_ChCollWheelType->RadiusOfLayers[irlayer]);
 
-// get  Ylimits  limiting the LAr gap along the y axis;
+// get  m_Ylimits  limiting the LAr gap along the y axis;
 
        shift = lwc()->GetStraightStartSection();
-       if(PointFoldMapArea != 0) shift += WaveLength;
+       if(m_PointFoldMapArea != 0) shift += m_WaveLength;
        SetHalfWave(shift+vmap[2]);
        SetYlimitsofPhigapinWheel(rforalpha,rforalpha);
 
 //check geom. err condition if point is outside of LAr gap
        if( gaperr > -100  &&
-	   ( vmap[1] > Ylimits[3]+tol || vmap[1] < Ylimits[0]-tol ||
-            (vmap[1] < Ylimits[2]-tol && vmap[1] > Ylimits[1]+tol) )) gaperr=gaperr-100;
+	   ( vmap[1] > m_Ylimits[3]+tol || vmap[1] < m_Ylimits[0]-tol ||
+            (vmap[1] < m_Ylimits[2]-tol && vmap[1] > m_Ylimits[1]+tol) )) gaperr=gaperr-100;
 
 // get relative y coordinate
 
-       if      (gapup==-1) yratio=(vmap[1]- Ylimits[0])/(Ylimits[1]- Ylimits[0]);
-       else if (gapup==+1) yratio=(vmap[1]- Ylimits[2])/(Ylimits[3]- Ylimits[2]);
+       if      (gapup==-1) yratio=(vmap[1]- m_Ylimits[0])/(m_Ylimits[1]- m_Ylimits[0]);
+       else if (gapup==+1) yratio=(vmap[1]- m_Ylimits[2])/(m_Ylimits[3]- m_Ylimits[2]);
 
        yratiox=yratio;
        if(yratiox<=0.)      yratio=0.00001;  // pull the point into the gap if it wouldn't be there;
@@ -944,16 +945,16 @@ G4double EnergyCalculator::GetCurrent(
        SetYlimitsofPhigapinFieldMap(irlayer);    //on the lower layer
 
        if    (gapup==-1)
-	 yonlowerlayer=Ylimits[0]*(1.-yratio)+Ylimits[1]*yratio;
+	 yonlowerlayer=m_Ylimits[0]*(1.-yratio)+m_Ylimits[1]*yratio;
        else if(gapup==1)
-	 yonlowerlayer=Ylimits[2]*(1.-yratio)+Ylimits[3]*yratio;
+	 yonlowerlayer=m_Ylimits[2]*(1.-yratio)+m_Ylimits[3]*yratio;
 
        SetYlimitsofPhigapinFieldMap(irlayer+1);  //on the upper layer
 
        if(gapup==-1)
-	 yonupperlayer=Ylimits[0]*(1.-yratio)+Ylimits[1]*yratio;
+	 yonupperlayer=m_Ylimits[0]*(1.-yratio)+m_Ylimits[1]*yratio;
        else if(gapup==1)
-	 yonupperlayer=Ylimits[2]*(1.-yratio)+Ylimits[3]*yratio;
+	 yonupperlayer=m_Ylimits[2]*(1.-yratio)+m_Ylimits[3]*yratio;
 
 // get weights from the maps of lower and upper layer
 
@@ -979,8 +980,8 @@ G4double EnergyCalculator::GetCurrent(
 
      G4double efield=0.01*cur*HV_value/gap/cylgapcorr; // [kV/cm], bec.HV[V],gap[mm]
      
-     double dc = (edep/nofstep)/AverageCurrent*
-       cur/gap/cylgapcorr*IonReco(efield)*DriftVelo(LArTemperature_av,efield)*
+     double dc = (edep*inv_nofstep)/s_AverageCurrent*
+       cur/gap/cylgapcorr*IonReco(efield)*DriftVelo(s_LArTemperature_av,efield)*
        supcorr;
      
      current += dc;
@@ -991,13 +992,13 @@ G4double EnergyCalculator::GetCurrent(
     current=0.;
   }
   if(gaperr != 0 ) {
-    CHCEbad=CHCEbad+edep;
-    if(CHCIprint < CHCMaxPrint ){
-      CHCIprint=CHCIprint+1;
+    s_CHCEbad=s_CHCEbad+edep;
+    if(s_CHCIprint < s_CHCMaxPrint ){
+      s_CHCIprint=s_CHCIprint+1;
       (*m_msg) << MSG::WARNING
 	       <<"GetCurrent has strange step,gaperr="<<gaperr<<" correction still computed"
-	       <<" bad edep ratio="<<CHCEbad/CHCEtotal
-	       << endreq;
+	       <<" bad edep ratio="<<s_CHCEbad/s_CHCEtotal
+	       << endmsg;
     }
   }
 
@@ -1029,8 +1030,8 @@ G4double EnergyCalculator::GetWeightfromFieldMap(
     i=ilayer;
 
     //check whether the point is in the area of validity of the table
-    if(z<ChCollFoldType->MinZofLayer[i]-eps || z>ChCollFoldType->MaxZofLayer[i]+eps ||
-       y<ChCollFoldType->MinYofLayer[i]-eps || y>ChCollFoldType->MaxYofLayer[i]+eps ){
+    if(z<m_ChCollFoldType->MinZofLayer[i]-eps || z>m_ChCollFoldType->MaxZofLayer[i]+eps ||
+       y<m_ChCollFoldType->MinYofLayer[i]-eps || y>m_ChCollFoldType->MaxYofLayer[i]+eps ){
       return weight;
     }
 
@@ -1052,93 +1053,93 @@ G4double EnergyCalculator::GetWeightfromFieldMap(
     // interpolated weight =1 is returned.
 
 
-    icol=int((z-ChCollFoldType->MinZofLayer[i])/GridSize)+1; //column number of left corners
+    icol=int((z-m_ChCollFoldType->MinZofLayer[i])/s_GridSize)+1; //column number of left corners
 
-    if(icol>ChCollFoldType->NofColofLayer[i]) icol=ChCollFoldType->NofColofLayer[i];
+    if(icol>m_ChCollFoldType->NofColofLayer[i]) icol=m_ChCollFoldType->NofColofLayer[i];
 
-    irow=int((y-ChCollFoldType->MinYofLayer[i])/GridSize)+1; //row number of lower corners
-    if(irow>ChCollFoldType->NofRowofLayer[i]) irow=ChCollFoldType->NofRowofLayer[i];
+    irow=int((y-m_ChCollFoldType->MinYofLayer[i])/s_GridSize)+1; //row number of lower corners
+    if(irow>m_ChCollFoldType->NofRowofLayer[i]) irow=m_ChCollFoldType->NofRowofLayer[i];
 
     assert(icol>0 && irow>0);
 
-    ip11=(icol-1)*ChCollFoldType->NofRowofLayer[i]+irow-1; //index of points in the FieldMap
+    ip11=(icol-1)*m_ChCollFoldType->NofRowofLayer[i]+irow-1; //index of points in the FieldMap
     ip21=ip11+1;                                             //   (21)----(22)
-    ip12= icol   *ChCollFoldType->NofRowofLayer[i]+irow-1;  //   (11)----(12)
+    ip12= icol   *m_ChCollFoldType->NofRowofLayer[i]+irow-1;  //   (11)----(12)
     ip22=ip12+1;
 
-    G4int i2ip11=Index(ChCollFoldType,i,2,ip11);
-    G4int i2ip12=Index(ChCollFoldType,i,2,ip12);
-    G4int i2ip21=Index(ChCollFoldType,i,2,ip21);
-    G4int i2ip22=Index(ChCollFoldType,i,2,ip22);
-    G4int i0ip11=Index(ChCollFoldType,i,0,ip11);
-    //G4int i0ip12=Index(ChCollFoldType,i,0,ip12);
-    //G4int i0ip21=Index(ChCollFoldType,i,0,ip21);
-    //G4int i0ip22=Index(ChCollFoldType,i,0,ip22);
-    G4int i1ip11=Index(ChCollFoldType,i,1,ip11);
-    //G4int i1ip12=Index(ChCollFoldType,i,1,ip12);
-    //G4int i1ip21=Index(ChCollFoldType,i,1,ip21);
-    //G4int i1ip22=Index(ChCollFoldType,i,1,ip22);
+    G4int i2ip11=Index(m_ChCollFoldType,i,2,ip11);
+    G4int i2ip12=Index(m_ChCollFoldType,i,2,ip12);
+    G4int i2ip21=Index(m_ChCollFoldType,i,2,ip21);
+    G4int i2ip22=Index(m_ChCollFoldType,i,2,ip22);
+    G4int i0ip11=Index(m_ChCollFoldType,i,0,ip11);
+    //G4int i0ip12=Index(m_ChCollFoldType,i,0,ip12);
+    //G4int i0ip21=Index(m_ChCollFoldType,i,0,ip21);
+    //G4int i0ip22=Index(m_ChCollFoldType,i,0,ip22);
+    G4int i1ip11=Index(m_ChCollFoldType,i,1,ip11);
+    //G4int i1ip12=Index(m_ChCollFoldType,i,1,ip12);
+    //G4int i1ip21=Index(m_ChCollFoldType,i,1,ip21);
+    //G4int i1ip22=Index(m_ChCollFoldType,i,1,ip22);
 
 
-    if(icol<ChCollFoldType->NofColofLayer[i] && irow<ChCollFoldType->NofRowofLayer[i]){
-      w11=ChCollFoldType->FieldMap[i2ip11]; //[i][2][ip11];
-      w12=ChCollFoldType->FieldMap[i2ip12]; //[i][2][ip12];
-      w21=ChCollFoldType->FieldMap[i2ip21]; //[i][2][ip21];
-      w22=ChCollFoldType->FieldMap[i2ip22]; //[i][2][ip22];
-      z11=ChCollFoldType->FieldMap[i0ip11]; //[i][0][ip11];
-      //z12=ChCollFoldType->FieldMap[i0ip12]; //[i][0][ip12];
-      //z21=ChCollFoldType->FieldMap[i0ip21]; //[i][0][ip21];
-      //z22=ChCollFoldType->FieldMap[i0ip22]; //[i][0][ip22];
-      y11=ChCollFoldType->FieldMap[i1ip11]; //[i][1][ip11];
-      //y12=ChCollFoldType->FieldMap[i1ip12]; //[i][1][ip12];
-      //y21=ChCollFoldType->FieldMap[i1ip21]; //[i][1][ip21];
-      //y22=ChCollFoldType->FieldMap[i1ip22]; //[i][1][ip22];
+    if(icol<m_ChCollFoldType->NofColofLayer[i] && irow<m_ChCollFoldType->NofRowofLayer[i]){
+      w11=m_ChCollFoldType->FieldMap[i2ip11]; //[i][2][ip11];
+      w12=m_ChCollFoldType->FieldMap[i2ip12]; //[i][2][ip12];
+      w21=m_ChCollFoldType->FieldMap[i2ip21]; //[i][2][ip21];
+      w22=m_ChCollFoldType->FieldMap[i2ip22]; //[i][2][ip22];
+      z11=m_ChCollFoldType->FieldMap[i0ip11]; //[i][0][ip11];
+      //z12=m_ChCollFoldType->FieldMap[i0ip12]; //[i][0][ip12];
+      //z21=m_ChCollFoldType->FieldMap[i0ip21]; //[i][0][ip21];
+      //z22=m_ChCollFoldType->FieldMap[i0ip22]; //[i][0][ip22];
+      y11=m_ChCollFoldType->FieldMap[i1ip11]; //[i][1][ip11];
+      //y12=m_ChCollFoldType->FieldMap[i1ip12]; //[i][1][ip12];
+      //y21=m_ChCollFoldType->FieldMap[i1ip21]; //[i][1][ip21];
+      //y22=m_ChCollFoldType->FieldMap[i1ip22]; //[i][1][ip22];
     }
-    else if(icol==ChCollFoldType->NofColofLayer[i] && irow<ChCollFoldType->NofRowofLayer[i]){
-      w11=ChCollFoldType->FieldMap[i2ip11]; //[i][2][ip11];
+    else if(icol==m_ChCollFoldType->NofColofLayer[i] && irow<m_ChCollFoldType->NofRowofLayer[i]){
+      w11=m_ChCollFoldType->FieldMap[i2ip11]; //[i][2][ip11];
       w12=0.;
-      w21=ChCollFoldType->FieldMap[i2ip21]; //[i][2][ip21];
+      w21=m_ChCollFoldType->FieldMap[i2ip21]; //[i][2][ip21];
       w22=0.;
-      z11=ChCollFoldType->FieldMap[i0ip11]; //[i][0][ip11];
-      //z12=z11+GridSize;
-      //z21=ChCollFoldType->FieldMap[i0ip21]; //[i][0][ip21];
-      //z22=z11+GridSize;
-      y11=ChCollFoldType->FieldMap[i1ip11]; //[i][1][ip11];
+      z11=m_ChCollFoldType->FieldMap[i0ip11]; //[i][0][ip11];
+      //z12=z11+s_GridSize;
+      //z21=m_ChCollFoldType->FieldMap[i0ip21]; //[i][0][ip21];
+      //z22=z11+s_GridSize;
+      y11=m_ChCollFoldType->FieldMap[i1ip11]; //[i][1][ip11];
       //y12=y11;
-      //y21=ChCollFoldType->FieldMap[i1ip21]; //[i][1][ip21];
-      //y22=y11+GridSize;
+      //y21=m_ChCollFoldType->FieldMap[i1ip21]; //[i][1][ip21];
+      //y22=y11+s_GridSize;
     }
-    else if(icol<ChCollFoldType->NofColofLayer[i] && irow==ChCollFoldType->NofRowofLayer[i]){
-      w11=ChCollFoldType->FieldMap[i2ip11]; //[i][2][ip11];
-      w12=ChCollFoldType->FieldMap[i2ip12]; //[i][2][ip12];
+    else if(icol<m_ChCollFoldType->NofColofLayer[i] && irow==m_ChCollFoldType->NofRowofLayer[i]){
+      w11=m_ChCollFoldType->FieldMap[i2ip11]; //[i][2][ip11];
+      w12=m_ChCollFoldType->FieldMap[i2ip12]; //[i][2][ip12];
       w21=0.;
       w22=0.;
-      z11=ChCollFoldType->FieldMap[i0ip11]; //[i][0][ip11];
-      //z12=ChCollFoldType->FieldMap[i0ip12]; //[i][0][ip12];
+      z11=m_ChCollFoldType->FieldMap[i0ip11]; //[i][0][ip11];
+      //z12=m_ChCollFoldType->FieldMap[i0ip12]; //[i][0][ip12];
       //z21=z11;
-      //z22=z11+GridSize;
-      y11=ChCollFoldType->FieldMap[i1ip11]; //[i][1][ip11];
-      //y12=ChCollFoldType->FieldMap[i1ip12]; //[i][1][ip12];
-      //y21=y11+GridSize;
-      //y22=y11+GridSize;
+      //z22=z11+s_GridSize;
+      y11=m_ChCollFoldType->FieldMap[i1ip11]; //[i][1][ip11];
+      //y12=m_ChCollFoldType->FieldMap[i1ip12]; //[i][1][ip12];
+      //y21=y11+s_GridSize;
+      //y22=y11+s_GridSize;
     }
-    else if(icol==ChCollFoldType->NofColofLayer[i] && irow==ChCollFoldType->NofRowofLayer[i]){
-      w11=ChCollFoldType->FieldMap[i2ip11]; //[i][2][ip11];
+    else if(icol==m_ChCollFoldType->NofColofLayer[i] && irow==m_ChCollFoldType->NofRowofLayer[i]){
+      w11=m_ChCollFoldType->FieldMap[i2ip11]; //[i][2][ip11];
       w12=0.;
       w21=0.;
       w22=0.;
-      z11=ChCollFoldType->FieldMap[i0ip11]; //[i][0][ip11];
-      //z12=z11+GridSize;
+      z11=m_ChCollFoldType->FieldMap[i0ip11]; //[i][0][ip11];
+      //z12=z11+s_GridSize;
       //z21=z11;
-      //z22=z11+GridSize;
-      y11=ChCollFoldType->FieldMap[i1ip11]; //[i][1][ip11];
+      //z22=z11+s_GridSize;
+      y11=m_ChCollFoldType->FieldMap[i1ip11]; //[i][1][ip11];
       //y12=y11;
-      //y21=y11+GridSize;
-      //y22=y11+GridSize;
+      //y21=y11+s_GridSize;
+      //y22=y11+s_GridSize;
     }
 
-    dz=(z-z11)/GridSize;
-    dy=(y-y11)/GridSize;
+    dz=(z-z11)/s_GridSize;
+    dy=(y-y11)/s_GridSize;
 
     if(dz<0.) dz=0.;
     if(dz>1.) dz=1.;
@@ -1168,12 +1169,12 @@ void EnergyCalculator::SetFoldArea(G4double zinwheel){
 // ***********************************************************
   if(zinwheel > lwc()->GetStraightStartSection()+lwc()->GetQuarterWaveLength()*0.5 &&
      zinwheel < lwc()->GetWheelThickness()-lwc()->GetStraightStartSection()-lwc()->GetQuarterWaveLength()*0.5){
-    PointFoldMapArea=1;
-    ChCollFoldType=&(ChCollWheelType->Fold1);
+    m_PointFoldMapArea=1;
+    m_ChCollFoldType=&(m_ChCollWheelType->Fold1);
   }
   else{
-    PointFoldMapArea=0;
-    ChCollFoldType=&(ChCollWheelType->Fold0);
+    m_PointFoldMapArea=0;
+    m_ChCollFoldType=&(m_ChCollWheelType->Fold0);
   }
 }
 // ***********************************************************
@@ -1184,12 +1185,12 @@ void EnergyCalculator::SetHalfWave(G4double zinwheel){
 
   G4double z;
   z=zinwheel - lwc()->GetStraightStartSection();
-  HalfWaveNumber  =int((z+lwc()->GetQuarterWaveLength())/lwc()->GetHalfWaveLength());
-  ZinHalfWave=z-HalfWaveNumber*lwc()->GetHalfWaveLength();
-  SignofZinHalfWave=+1;
-  if(ZinHalfWave<0.) SignofZinHalfWave=-1;
-  SignofSlopeofHalfWave=-1;
-  if(HalfWaveNumber %2 == 0) SignofSlopeofHalfWave=+1;
+  m_HalfWaveNumber  =int((z+lwc()->GetQuarterWaveLength())/lwc()->GetHalfWaveLength());
+  m_ZinHalfWave=z-m_HalfWaveNumber*lwc()->GetHalfWaveLength();
+  m_SignofZinHalfWave=+1;
+  if(m_ZinHalfWave<0.) m_SignofZinHalfWave=-1;
+  m_SignofSlopeofHalfWave=-1;
+  if(m_HalfWaveNumber %2 == 0) m_SignofSlopeofHalfWave=+1;
 
 }
 
@@ -1204,21 +1205,21 @@ void EnergyCalculator::TransformWheeltoFieldMap(
   //  --  0th and last fold in the range -13mm < z < QuarterWaveLength/2.
   // SetHalfWave() and GetPhiGap() should be called previously;
 
-  PointinFieldMap[0]=PointinWheel[0]*  CosPhiGap +PointinWheel[1]*SinPhiGap;
-  PointinFieldMap[1]=PointinWheel[0]*(-SinPhiGap)+PointinWheel[1]*CosPhiGap;
+  PointinFieldMap[0]=PointinWheel[0]*  m_CosPhiGap +PointinWheel[1]*m_SinPhiGap;
+  PointinFieldMap[1]=PointinWheel[0]*(-m_SinPhiGap)+PointinWheel[1]*m_CosPhiGap;
 
-  if(PointFoldMapArea == 0){
-    if(HalfWaveNumber == 0 )             /*0th fold*/
-      PointinFieldMap[2]= ZinHalfWave;
+  if(m_PointFoldMapArea == 0){
+    if(m_HalfWaveNumber == 0 )             /*0th fold*/
+      PointinFieldMap[2]= m_ZinHalfWave;
     else{                                /*last fold*/
     PointinFieldMap[1]=-PointinFieldMap[1];
-    PointinFieldMap[2]= -ZinHalfWave;
+    PointinFieldMap[2]= -m_ZinHalfWave;
     }
   }
   else{    // normal folds
-    PointinFieldMap[1]=SignofZinHalfWave*SignofSlopeofHalfWave
+    PointinFieldMap[1]=m_SignofZinHalfWave*m_SignofSlopeofHalfWave
                        *PointinFieldMap[1];
-    PointinFieldMap[2]=fabs(ZinHalfWave);
+    PointinFieldMap[2]=fabs(m_ZinHalfWave);
   }
 }
 
@@ -1232,14 +1233,14 @@ void EnergyCalculator::SetYlimitsofPhigapinFieldMap(G4int ilayer){
 
   G4double /*y[4],*/alpha/*,s*/,halfgap;//,eleshift,absshift;
 
-  alpha=ChCollWheelType->FoldinAngleOfLayers[ilayer] / CLHEP::rad * CLHEP::deg;
+  alpha=m_ChCollWheelType->FoldinAngleOfLayers[ilayer] * (CLHEP::deg / CLHEP::rad);
   //s=sin(alpha/2.);
-  halfgap=ChCollWheelType->RadiusOfLayers[ilayer]*CLHEP::pi/lwc()->GetNumberOfFans(); //half of y distance
+  halfgap=m_ChCollWheelType->RadiusOfLayers[ilayer]*CLHEP::pi/lwc()->GetNumberOfFans(); //half of y distance
 
-  Ylimits[3]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-FanAbsThickness)+halfgap;
-  Ylimits[2]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+FanEleThickness);
-  Ylimits[1]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-FanEleThickness);
-  Ylimits[0]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+FanAbsThickness)-halfgap;
+  m_Ylimits[3]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-m_FanAbsThickness)+halfgap;
+  m_Ylimits[2]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+m_FanEleThickness);
+  m_Ylimits[1]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-m_FanEleThickness);
+  m_Ylimits[0]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+m_FanAbsThickness)-halfgap;
 }
 
 // ******************************************************************
@@ -1259,10 +1260,10 @@ void EnergyCalculator::SetYlimitsofPhigapinWheel(
   //s=sin(alpha*0.5);
   halfgap=rforpoint*CLHEP::pi/lwc()->GetNumberOfFans(); //half of y distance between 2 abs.
 
-  Ylimits[3]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-FanAbsThickness)+halfgap;
-  Ylimits[2]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+FanEleThickness);
-  Ylimits[1]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-FanEleThickness);
-  Ylimits[0]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+FanAbsThickness)-halfgap;
+  m_Ylimits[3]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-m_FanAbsThickness)+halfgap;
+  m_Ylimits[2]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+m_FanEleThickness);
+  m_Ylimits[1]=YofSurface(alpha,lwc()->GetFanFoldRadius(),-m_FanEleThickness);
+  m_Ylimits[0]=YofSurface(alpha,lwc()->GetFanFoldRadius(),+m_FanAbsThickness)-halfgap;
 }
 
 
@@ -1316,11 +1317,11 @@ void EnergyCalculator::GetPhiGap(G4double SpacePoint[]){  // need to make const
   phihalfgap=int(2.*dphi/lwc()->GetFanStepOnPhi())+1;
   assert(phihalfgap>=1 && phihalfgap<=2*lwc()->GetNumberOfFans());
 
-  PhiGapNumber=phigap;
-  PhiHalfGapNumber=phihalfgap;
+  m_PhiGapNumber=phigap;
+  m_PhiHalfGapNumber=phihalfgap;
   phi=(phigap-1)*lwc()->GetFanStepOnPhi();
-  CosPhiGap=cos(phi);
-  SinPhiGap=sin(phi);
+  m_CosPhiGap=cos(phi);
+  m_SinPhiGap=sin(phi);
 }
 // ***********************************************************************************
 G4double EnergyCalculator::YofSurface(G4double alpha,G4double rho,G4double thickness) const {
@@ -1334,7 +1335,7 @@ G4double EnergyCalculator::YofSurface(G4double alpha,G4double rho,G4double thick
 //  origin of the system is fixed  at the node of the halfwave
 //  inp:
 //    halfwave parameters: should be set previously by SetHalfWave();
-//    ZinHalfWave :z coord of a point where YofSurf is to be computed
+//    m_ZinHalfWave :z coord of a point where YofSurf is to be computed
 //    alpha :folding angle[rad]
 //    rho   : curvature radius of the fold
 //    thickness: >0 --> compute y of the  upper surface
@@ -1349,43 +1350,43 @@ G4double EnergyCalculator::YofSurface(G4double alpha,G4double rho,G4double thick
   const G4double tb=(1.-s)/c;   //tan(beta); beta=0.5*(90-alpha/2);
   const G4double th=thickness/2.;
   
-  if(HalfWaveNumber==0){                  //0.th 'halfwave'
+  if(m_HalfWaveNumber==0){                  //0.th 'halfwave'
 
     const G4double zminoffirstfold   = -rho*tb;
     const G4double zmaxoffirstfold   = -rho*tb+(rho-th)*tb*(1.+s);
     const G4double zminofsecondfold  =  lwc()->GetQuarterWaveLength()-(rho+th)*c;
     
-    if(ZinHalfWave<=zminoffirstfold) return th;
-    if(ZinHalfWave<=zmaxoffirstfold) return rho-sqrt( pow((rho-th),2)-pow((ZinHalfWave+rho*tb),2) );
-    if(ZinHalfWave<=zminofsecondfold)return ZinHalfWave/t+th/s;
-    return (lwc()->GetQuarterWaveLength()*c-rho)/s + sqrt( pow((rho+th),2)-pow((ZinHalfWave-lwc()->GetQuarterWaveLength()),2));
+    if(m_ZinHalfWave<=zminoffirstfold) return th;
+    if(m_ZinHalfWave<=zmaxoffirstfold) return rho-sqrt( pow((rho-th),2)-pow((m_ZinHalfWave+rho*tb),2) );
+    if(m_ZinHalfWave<=zminofsecondfold)return m_ZinHalfWave/t+th/s;
+    return (lwc()->GetQuarterWaveLength()*c-rho)/s + sqrt( pow((rho+th),2)-pow((m_ZinHalfWave-lwc()->GetQuarterWaveLength()),2));
     
   } // end of first fold
   
-  else if(HalfWaveNumber==lwc()->GetNumberOfHalfWaves()){ //last 'halfwave'
+  else if(m_HalfWaveNumber==lwc()->GetNumberOfHalfWaves()){ //last 'halfwave'
     
     const G4double zmaxoflastfold=rho*tb;
     const G4double zminoflastfold=rho*tb-(rho+th)*tb*(1.+s);
     const G4double zmaxofpreviousfold=-lwc()->GetQuarterWaveLength()+(rho-th)*c;
     
-    if(ZinHalfWave>=zmaxoflastfold)     return th;
-    if(ZinHalfWave>=zminoflastfold)     return -rho+sqrt( pow((rho+th),2)-pow((ZinHalfWave-rho*tb),2) );
-    if(ZinHalfWave>=zmaxofpreviousfold) return ZinHalfWave/t+th/s;
-    return -(lwc()->GetQuarterWaveLength()*c-rho)/s-sqrt( pow((rho-th),2)-pow((ZinHalfWave+lwc()->GetQuarterWaveLength()),2) );
+    if(m_ZinHalfWave>=zmaxoflastfold)     return th;
+    if(m_ZinHalfWave>=zminoflastfold)     return -rho+sqrt( pow((rho+th),2)-pow((m_ZinHalfWave-rho*tb),2) );
+    if(m_ZinHalfWave>=zmaxofpreviousfold) return m_ZinHalfWave/t+th/s;
+    return -(lwc()->GetQuarterWaveLength()*c-rho)/s-sqrt( pow((rho-th),2)-pow((m_ZinHalfWave+lwc()->GetQuarterWaveLength()),2) );
     
   } // end of last fold
   
-  else if(HalfWaveNumber>0 && HalfWaveNumber<lwc()->GetNumberOfHalfWaves()){
+  else if(m_HalfWaveNumber>0 && m_HalfWaveNumber<lwc()->GetNumberOfHalfWaves()){
     
-    const G4double sn=SignofZinHalfWave*SignofSlopeofHalfWave; 
-    const G4double z2= -lwc()->GetQuarterWaveLength()+(rho-SignofSlopeofHalfWave*th)*c;
-    const G4double z3=  lwc()->GetQuarterWaveLength()-(rho+SignofSlopeofHalfWave*th)*c;
+    const G4double sn=m_SignofZinHalfWave*m_SignofSlopeofHalfWave; 
+    const G4double z2= -lwc()->GetQuarterWaveLength()+(rho-m_SignofSlopeofHalfWave*th)*c;
+    const G4double z3=  lwc()->GetQuarterWaveLength()-(rho+m_SignofSlopeofHalfWave*th)*c;
 
-    if(ZinHalfWave<=z2 || z3<=ZinHalfWave) 
+    if(m_ZinHalfWave<=z2 || z3<=m_ZinHalfWave) 
       return sn*(lwc()->GetQuarterWaveLength()*c-rho)/s+
-	     sn*sqrt( pow((rho+sn*th),2)-pow((ZinHalfWave-SignofZinHalfWave*lwc()->GetQuarterWaveLength()),2) );
+	     sn*sqrt( pow((rho+sn*th),2)-pow((m_ZinHalfWave-m_SignofZinHalfWave*lwc()->GetQuarterWaveLength()),2) );
     
-    if(z2<=ZinHalfWave && ZinHalfWave<=z3) return SignofSlopeofHalfWave*ZinHalfWave/t+th/s;
+    if(z2<=m_ZinHalfWave && m_ZinHalfWave<=z3) return m_SignofSlopeofHalfWave*m_ZinHalfWave/t+th/s;
      
     //   std::cout<<"*** ERROR1 in YofSURF!!!!"<<std::endl;
     return 0.;    
@@ -1417,7 +1418,7 @@ G4double  EnergyCalculator::HalfLArGapSizeOld(G4double radius) const {
 // ***************************************************************
   const G4double alpha=FoldingAngle(radius);
   const G4double s=sin(alpha *0.5);
-  const G4double halfgap=CLHEP::pi*radius/lwc()->GetNumberOfFans()*s-(FanAbsThickness+FanEleThicknessOld)*0.5;
+  const G4double halfgap=CLHEP::pi*radius/lwc()->GetNumberOfFans()*s-(m_FanAbsThickness+m_FanEleThicknessOld)*0.5;
   return halfgap;
 }
 // ***************************************************************
@@ -1425,7 +1426,7 @@ G4double  EnergyCalculator::HalfLArGapSize(G4double rforpoint,G4double rforalpha
 // ***************************************************************
   const G4double alpha=FoldingAngle(rforalpha);
   const G4double s=sin(alpha/2.);
-  const G4double halfgap=CLHEP::pi*rforpoint/lwc()->GetNumberOfFans()*s-(FanAbsThickness+FanEleThickness)/2.;
+  const G4double halfgap=CLHEP::pi*rforpoint/lwc()->GetNumberOfFans()*s-(m_FanAbsThickness+m_FanEleThickness)/2.;
   return halfgap;
 }
 

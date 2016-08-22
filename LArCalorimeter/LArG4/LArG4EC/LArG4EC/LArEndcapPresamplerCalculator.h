@@ -9,8 +9,8 @@
 // For more information about what a "calculator" class does, see the
 // documentation: LArG4/doc/LArG4.ps.
 
-#ifndef __LArEndcapPresamplerCalculator_H__
-#define __LArEndcapPresamplerCalculator_H__
+#ifndef LARG4EC_LARENDCAPPRESAMPLERCALCULATOR_H
+#define LARG4EC_LARENDCAPPRESAMPLERCALCULATOR_H
 
 #include "globals.hh"
 #include "G4ThreeVector.hh"
@@ -84,7 +84,7 @@ private:
   // Store the out-of-time cut from the description:
   G4float m_OOTcut;
 
-  LArG4BirksLaw *birksLaw;
+  LArG4BirksLaw *m_birksLaw;
 
   // The results of the Process calculation:
   //LArG4Identifier m_identifier;

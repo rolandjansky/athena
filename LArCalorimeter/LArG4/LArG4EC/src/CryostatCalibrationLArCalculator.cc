@@ -39,10 +39,15 @@
 #include "G4VPhysicalVolume.hh"
 #include "G4ThreeVector.hh"
 #include "globals.hh"
+#include "AthenaKernel/Units.h"
 
 #include <map>
 #include <cmath>
 #include <climits>
+
+
+namespace Units = Athena::Units;
+
 
 namespace LArG4 {
 
@@ -200,20 +205,20 @@ namespace LArG4 {
 	  static const double zBehindTile = 6100. + zShift - 50.*CLHEP::mm;	
 
         // FCAL related parameters
-        static const double m_zShift = 40.0;
-        static const double m_startZFCal1 = 4668.5 + m_zShift;
-        static const double m_startZFCal2 = 5128.3 + m_zShift;
-        static const double m_startZFCal3 = 5602.8 + m_zShift;
-        static const double m_endZFCal3 = m_startZFCal3 + 442.3;
-        static const double m_z1BeforeFCal = 4225.5 + m_zShift; // 368.95 + 53.6
-        static const double m_z2BeforeFCal = 4557.5 + m_zShift; // 
+        static const double zShiftFCal = 40.0;
+        static const double startZFCal1 = 4668.5 + zShiftFCal;
+        static const double startZFCal2 = 5128.3 + zShiftFCal;
+        static const double startZFCal3 = 5602.8 + zShiftFCal;
+        static const double endZFCal3 = startZFCal3 + 442.3;
+        static const double z1BeforeFCal = 4225.5 + zShiftFCal; // 368.95 + 53.6
+        static const double z2BeforeFCal = 4557.5 + zShiftFCal; // 
 
         // g.p. 10/09/2008 parameters to find gap boundaries between HEC wheels
-        static double m_endZHEC1Wheel = INT_MIN;
-        static double m_startZHEC2Wheel = INT_MIN;
-        if( m_endZHEC1Wheel < 0) {
-          m_endZHEC1Wheel =   HECzStart + zShift + m_parameters->GetValue("LArHECdepthZ",0) + m_parameters->GetValue("LArHECdepthZ",1) + m_parameters->GetValue("LArHECdepthZ",2) - 10.0;
-          m_startZHEC2Wheel = HECzStart + zShift + m_parameters->GetValue("LArHECdepthZ",0) + m_parameters->GetValue("LArHECdepthZ",1) + m_parameters->GetValue("LArHECdepthZ",2) + m_parameters->GetValue("LArHECfirstAbsorber",3) + m_parameters->GetValue("LArHECbetweenWheel")+10.0;
+        static double endZHEC1Wheel = INT_MIN;
+        static double startZHEC2Wheel = INT_MIN;
+        if( endZHEC1Wheel < 0) {
+          endZHEC1Wheel =   HECzStart + zShift + m_parameters->GetValue("LArHECdepthZ",0) + m_parameters->GetValue("LArHECdepthZ",1) + m_parameters->GetValue("LArHECdepthZ",2) - 10.0;
+          startZHEC2Wheel = HECzStart + zShift + m_parameters->GetValue("LArHECdepthZ",0) + m_parameters->GetValue("LArHECdepthZ",1) + m_parameters->GetValue("LArHECdepthZ",2) + m_parameters->GetValue("LArHECfirstAbsorber",3) + m_parameters->GetValue("LArHECbetweenWheel")+10.0;
           // 5123.5 5209
         }
 ///* ---------------------------------------------------------------------- */
@@ -234,13 +239,13 @@ namespace LArG4 {
 //<< " zInFrontOfHEC:" <<  zInFrontOfHEC  << std::endl 
 //<< " zInFrontOfFCAL:" <<  zInFrontOfFCAL  << std::endl 
 //<< " zBehindTile:" <<  zBehindTile  << std::endl 
-//<< " m_zShift:" <<  m_zShift  << std::endl 
-//<< " m_startZFCal1:" <<  m_startZFCal1  << std::endl 
-//<< " m_startZFCal2:" <<  m_startZFCal2  << std::endl 
-//<< " m_startZFCal3:" <<  m_startZFCal3  << std::endl 
-//<< " m_endZFCal3:" <<  m_endZFCal3  << std::endl 
-//<< " m_z1BeforeFCal:" <<  m_z1BeforeFCal  << std::endl 
-//<< " m_z2BeforeFCal:" <<  m_z2BeforeFCal  << std::endl 
+//<< " zShiftFCal:" <<  zShiftFCal  << std::endl 
+//<< " startZFCal1:" <<  startZFCal1  << std::endl 
+//<< " startZFCal2:" <<  startZFCal2  << std::endl 
+//<< " startZFCal3:" <<  startZFCal3  << std::endl 
+//<< " endZFCal3:" <<  endZFCal3  << std::endl 
+//<< " z1BeforeFCal:" <<  z1BeforeFCal  << std::endl 
+//<< " z2BeforeFCal:" <<  z2BeforeFCal  << std::endl 
 //<< std::endl;
 //}
 ///* ---------------------------------------------------------------------- */
@@ -300,12 +305,12 @@ namespace LArG4 {
             sampling = 2;
             region = 3;
             etaBin = (int) ( (eta-1.5) * oneOverDeta );
-          } else if ( eta >= 2.9 && eta < 5. && absZ < m_startZFCal1 ) {
-            if(fabs(p.z()) < m_z1BeforeFCal) {
+          } else if ( eta >= 2.9 && eta < 5. && absZ < startZFCal1 ) {
+            if(fabs(p.z()) < z1BeforeFCal) {
               sampling = 1;
               region = 7;
               etaBin = (int) ( (eta-3.2) * oneOverDeta );
-            } else if (fabs(p.z()) < m_z2BeforeFCal){
+            } else if (fabs(p.z()) < z2BeforeFCal){
               type = 2;
               sampling = 0;
               region = 5;
@@ -323,23 +328,23 @@ namespace LArG4 {
             region = 4;
             etaBin = (int) ( eta * oneOverDeta );
           // G.P. to treat material between HEC and FCAL
-          } else if ( eta > 2.9 && eta < 3.3 && absZ > m_startZFCal1 && absZ < m_endZFCal3) {
-            if ( fabs(p.z()) < m_startZFCal1 ) {
+          } else if ( eta > 2.9 && eta < 3.3 && absZ > startZFCal1 && absZ < endZFCal3) {
+            if ( fabs(p.z()) < startZFCal1 ) {
               type = 2;
               sampling = 1; 
               region = 5;
               etaBin = (int) ( (eta-3.0) * oneOverDeta );
-            } else if ( fabs(p.z()) < m_startZFCal2 ) {
+            } else if ( fabs(p.z()) < startZFCal2 ) {
               type = 2;
               sampling = 1;
               region = 4;
               etaBin = 0;
-            } else if ( fabs(p.z()) < m_startZFCal3 ) {
+            } else if ( fabs(p.z()) < startZFCal3 ) {
               type = 2;
               sampling = 2;
               region = 4;
               etaBin = 0;
-            } else if ( fabs(p.z()) < m_endZFCal3 ) { //
+            } else if ( fabs(p.z()) < endZFCal3 ) { //
               type = 2;
               sampling = 3;
               region = 4;
@@ -365,7 +370,7 @@ namespace LArG4 {
             etaBin = 0;
             phiBin = 0;
           // g.p. 10/09/2008 crack between two HEC wheels (after broke up the HEC into two wheels in GeoModel by M.Fincke)
-          } else if ( fabs(p.z()) > m_endZHEC1Wheel && fabs(p.z()) < m_startZHEC2Wheel ) {
+          } else if ( fabs(p.z()) > endZHEC1Wheel && fabs(p.z()) < startZHEC2Wheel ) {
             type = 1;
             sampling = 2;
             region = 4;
@@ -401,12 +406,12 @@ namespace LArG4 {
 			    << " (error " << messageCount << " of " << messageMax << " max displayed)"
 			    << std::endl
 			    << "   G4Step in LAr at unexpected place: (x,y,z) [mm] = ("
-			    << p.x()/CLHEP::mm << ","
-			    << p.y()/CLHEP::mm << "," 
-			    << p.z()/CLHEP::mm
+			    << p.x()/Units::mm << ","
+			    << p.y()/Units::mm << "," 
+			    << p.z()/Units::mm
 			    << "); eta=" << eta
 			    << ", phi=" << phi << std::endl
-                            << ", rho=" << sqrt(pow(p.x()/CLHEP::mm,2)+pow(p.y()/CLHEP::mm,2))
+                            << ", rho=" << sqrt(pow(p.x()/Units::mm,2)+pow(p.y()/Units::mm,2))
 			    << "   using default calculator"
 			    << std::endl;
 		}

@@ -57,7 +57,7 @@ namespace LArG4 {
     }
 
     PresamplerGeometry::PresamplerGeometry():
-      c(new Clockwork())
+      m_c(new Clockwork())
     {
       
       StatusCode status;
@@ -96,19 +96,19 @@ namespace LArG4 {
       pAccessSvc->disconnect();
       
       
-      c->rMinEndcap=(*presamplerPosition)[0]->getDouble("RMIN")*CLHEP::cm;
-      c->rMaxEndcap=(*presamplerPosition)[0]->getDouble("RMAX")*CLHEP::cm;
-      c->halfThickness=(*presamplerPosition)[0]->getDouble("TCK")*CLHEP::cm/2;;
-      c->zEndcapFrontFace=(*presamplerPosition)[0]->getDouble("ZPOS")*CLHEP::cm-c->halfThickness;
-      c->zEndcapBackFace =(*presamplerPosition)[0]->getDouble("ZPOS")*CLHEP::cm+c->halfThickness;
+      m_c->rMinEndcap=(*presamplerPosition)[0]->getDouble("RMIN")*CLHEP::cm;
+      m_c->rMaxEndcap=(*presamplerPosition)[0]->getDouble("RMAX")*CLHEP::cm;
+      m_c->halfThickness=(*presamplerPosition)[0]->getDouble("TCK")*CLHEP::cm/2;;
+      m_c->zEndcapFrontFace=(*presamplerPosition)[0]->getDouble("ZPOS")*CLHEP::cm-m_c->halfThickness;
+      m_c->zEndcapBackFace =(*presamplerPosition)[0]->getDouble("ZPOS")*CLHEP::cm+m_c->halfThickness;
       
-      c->zPosInMother=30.5*CLHEP::mm;
+      m_c->zPosInMother=30.5*CLHEP::mm;
       
     }
     
     PresamplerGeometry::~PresamplerGeometry()
     {
-      delete c;
+      delete m_c;
     }
 
 
@@ -118,30 +118,30 @@ namespace LArG4 {
 	  switch (a_valueType) {
 		case rMinEndcapPresampler:
 		  //return 1231.74 * mm;
-		  return  c->rMinEndcap;
+		  return  m_c->rMinEndcap;
 		  break;
 		case rMaxEndcapPresampler:
 		  //return 1701.98 * mm;
-		  return  c->rMaxEndcap;
+		  return  m_c->rMaxEndcap;
 		  break;
 		  // At nominal (zShift=0) endcap position absolute z-coordinates:
 		  // of the faces of the EndcapPresampler
 		case zEndcapPresamplerFrontFace:
 		  //return 3622. * mm;
-		  return c->zEndcapFrontFace;
+		  return m_c->zEndcapFrontFace;
 		  break;
 		case zEndcapPresamplerBackFace:
 		  //return 3626. * mm;
-		  return c->zEndcapBackFace;
+		  return m_c->zEndcapBackFace;
 		  break;
 		case EndcapPresamplerHalfThickness:
 		  //return ( GetValue(zEndcapPresamplerBackFace) - GetValue(zEndcapPresamplerFrontFace) ) / 2.;
-		  return  c->halfThickness;
+		  return  m_c->halfThickness;
 		  break;
 		case EndcapPresamplerZpositionInMother:
 		  // between cold wall center and presampler center which is at
 		  // 3624 mm nominal (zShift=0) absolute position
-		  return c->zPosInMother;
+		  return m_c->zPosInMother;
 		  break;
 		default:
 		  G4cerr << "LArEndcapPresamplerCalculator::GetValue -- type '"

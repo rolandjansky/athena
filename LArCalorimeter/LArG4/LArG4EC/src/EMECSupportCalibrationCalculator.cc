@@ -31,6 +31,7 @@
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "StoreGate/StoreGateSvc.h"
+#include "AthenaKernel/Units.h"
 #include "globals.hh"
 
 #include "G4Step.hh"
@@ -42,6 +43,10 @@
 #include <map>
 #include <cmath>
 #include <climits>
+
+
+namespace Units = Athena::Units;
+
 
 namespace LArG4 {
 
@@ -239,9 +244,9 @@ namespace LArG4 {
         << "   G4Step in '" << name
         << "' copy=" << copy
         << " or  G4Step in LAr at : (x,y,z) [mm] = ("
-        << p.x()/CLHEP::mm << ","
-        << p.y()/CLHEP::mm << "," 
-        << p.z()/CLHEP::mm
+        << p.x()/Units::mm << ","
+        << p.y()/Units::mm << "," 
+        << p.z()/Units::mm
         << "); eta=" << eta
         << ", phi=" << phi << std::endl;
 #endif
@@ -463,9 +468,9 @@ namespace LArG4 {
             << "' copy="
             << copy
             << " or  G4Step in LAr at unexpected place: (x,y,z) [mm] = ("
-            << p.x()/CLHEP::mm << ","
-            << p.y()/CLHEP::mm << "," 
-            << p.z()/CLHEP::mm
+            << p.x()/Units::mm << ","
+            << p.y()/Units::mm << "," 
+            << p.z()/Units::mm
             << "); eta=" << eta
             << ", phi=" << phi << std::endl
             << ", using backup calculator"
