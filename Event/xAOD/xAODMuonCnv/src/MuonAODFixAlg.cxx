@@ -9,6 +9,7 @@
 
 // EDM include(s):
 #include "xAODMuon/MuonAuxContainer.h"
+#include "xAODTruth/TruthParticleContainer.h"
 
 // Local include(s):
 #include "MuonAODFixAlg.h"
@@ -86,6 +87,12 @@ namespace xAOD {
        return;
     }
     muon.setP4(tp->pt(), tp->eta(), tp->phi());
+    if (tp->isAvailable<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" )) {
+      ElementLink<xAOD::TruthParticleContainer>& theLink =  muon.auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" );
+      theLink =  tp->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink" );
+      muon.auxdata<int>("truthType") = tp->auxdata<int>("truthType");
+      muon.auxdata<int>("truthOrigin") = tp->auxdata<int>("truthOrigin");
+    }
   }
   
 }
