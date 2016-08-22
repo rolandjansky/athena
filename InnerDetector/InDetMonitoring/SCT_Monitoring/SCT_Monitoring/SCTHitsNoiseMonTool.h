@@ -107,7 +107,6 @@ private:
   VecProf2_t m_pnoiseoccupancymapHistoVectorECmRecent;
   VecProf2_t m_pnoiseoccupancymapHistoVectorECmTrigger;
   
-  // Modified JEGN
   H1D_t m_nSP;
   int *nSP_buf;
   int nSP_pos;
@@ -120,7 +119,6 @@ private:
   H1D_t m_nminHits;
   int *nminHits_buf;
   Identifier *nminModule_buf;
-  // END Modified
 
   //Histograms with hits per luminosity block
   H1_t m_numBarrelHitsPerLumiBlock;
@@ -136,14 +134,48 @@ private:
   H2_t rioMap;
   //@}
   //Histograms with NO distribution
-  H1_t m_barrelNOdistribution;
-  H1_t m_barrelNOdistributionTrigger;
-  H1_t m_ECmNOdistribution;
-  H1_t m_ECmNOdistributionTrigger;
-  H1_t m_ECpNOdistribution;
-  H1_t m_ECpNOdistributionTrigger;
-  H1_t m_SCTNOdistribution;
-  H1_t m_SCTNOdistributionTrigger;
+  H1_t m_BARNO;
+  H1_t m_BARNOTrigger;
+  H1_t m_ECmNO;
+  H1_t m_ECmNOTrigger;
+  H1_t m_ECpNO;
+  H1_t m_ECpNOTrigger;
+  H1_t m_SCTNO;
+  H1_t m_SCTNOTrigger;
+
+  //---- results required no triggers
+  // # of hits vs LBs
+  Prof_t m_NallHitsBAR_vsLB;
+  Prof_t m_NSPHitsBAR_vsLB;
+  Prof_t m_NallHitsECm_vsLB;
+  Prof_t m_NSPHitsECm_vsLB;
+  Prof_t m_NallHitsECp_vsLB;
+  Prof_t m_NSPHitsECp_vsLB;
+  // NO with hits subtracted by SP
+  Prof_t m_BARNO_vsLB;
+  Prof_t m_ECmNO_vsLB;
+  Prof_t m_ECpNO_vsLB;
+  Prof_t m_SCTNO_vsLB;
+  Prof_t m_NoisyModules100_vsLB;
+  Prof_t m_NoisyModules1000_vsLB;
+  Prof_t m_NoisyModules10000_vsLB;
+  
+  //---- results required trigger
+  // # of hits vs LBs
+  Prof_t m_NallHitsTriggerBAR_vsLB;
+  Prof_t m_NSPHitsTriggerBAR_vsLB;
+  Prof_t m_NallHitsTriggerECm_vsLB;
+  Prof_t m_NSPHitsTriggerECm_vsLB;
+  Prof_t m_NallHitsTriggerECp_vsLB;
+  Prof_t m_NSPHitsTriggerECp_vsLB;
+  // NO with hits subtracted by SP
+  Prof_t m_BARNOTrigger_vsLB;
+  Prof_t m_ECmNOTrigger_vsLB;
+  Prof_t m_ECpNOTrigger_vsLB;
+  Prof_t m_SCTNOTrigger_vsLB;
+  Prof_t m_NoisyModulesTrigger100_vsLB;
+  Prof_t m_NoisyModulesTrigger1000_vsLB;
+  Prof_t m_NoisyModulesTrigger10000_vsLB;
 
   //Online code- template vector
   VecH1_t m_pstripmapTemplateVector;
@@ -268,34 +300,7 @@ private:
  
   //@name Histograms related methods
   //@{
-
-  // hidetoshi 14.01.22
-  /*
-  // Book Hitmaps Histograms
-  StatusCode book1DHitHists(bool isNewRun);
-
-  StatusCode bookHitMaps(bool isNewRun);
-  StatusCode bookSPvsEventNumber(bool isNewRun);
-  StatusCode makeSPvsEventNumber();//int NumberOfEvents);
-  // Book noise map histograms
-  StatusCode bookNoiseMaps(bool isNewRun);
-  StatusCode bookNoiseDistributions(bool isNewRun);
-
-  // Book noise occupancy map histograms
-  StatusCode bookGeneralNoiseOccupancyMaps(bool isNewRun, const unsigned int systemIndex);
-
-  // Book Hits Histograms
-  StatusCode 
-    bookGeneralHits(bool isNewRun,bool isNewLumiBlock, const unsigned int systemIndex);
-
-  StatusCode bookClusterSize(bool isNewRun);
-  StatusCode bookGeneralCluSize(bool isNewRun, const unsigned int systemIndex);
-
-  // Book Correlation Histograms
-  StatusCode bookCorrelations(bool isNewRun);
-  */
-
-  // hidetoshi 14.01.22
+  
   // Book Hitmaps Histograms
   StatusCode book1DHitHists();
 
@@ -332,6 +337,33 @@ private:
   std::map<Identifier, double> m_occSumUnbiasedTrigger;
   std::map<Identifier, double> m_occSumUnbiasedRecent;
 
+  std::map<Identifier, double> m_occSumUnbiased_lb;
+  std::map<Identifier, double> m_occSumUnbiasedBAR_lb;
+  std::map<Identifier, double> m_occSumUnbiasedECp_lb;
+  std::map<Identifier, double> m_occSumUnbiasedECm_lb;
+  std::map<Identifier, double> m_occSumUnbiasedTrigger_lb;
+  std::map<Identifier, double> m_occSumUnbiasedTriggerBAR_lb;
+  std::map<Identifier, double> m_occSumUnbiasedTriggerECp_lb;
+  std::map<Identifier, double> m_occSumUnbiasedTriggerECm_lb;
+  
+  static const long NBINS_LBs = 2000;
+  int m_noisyM100[NBINS_LBs+1];
+  int m_noisyM1000[NBINS_LBs+1];
+  int m_noisyM10000[NBINS_LBs+1];
+  int m_occ_lb[NBINS_LBs+1];
+  int m_occBAR_lb[NBINS_LBs+1];
+  int m_occECp_lb[NBINS_LBs+1];
+  int m_occECm_lb[NBINS_LBs+1];
+  int m_events_lb;
+  int m_noisyMTrigger100[NBINS_LBs+1];
+  int m_noisyMTrigger1000[NBINS_LBs+1];
+  int m_noisyMTrigger10000[NBINS_LBs+1];
+  int m_occTrigger_lb[NBINS_LBs+1];
+  int m_occTriggerBAR_lb[NBINS_LBs+1];
+  int m_occTriggerECp_lb[NBINS_LBs+1];
+  int m_occTriggerECm_lb[NBINS_LBs+1];
+  int m_eventsTrigger_lb;
+  
   StatusCode initializeNoiseMaps();
 
   StatusCode resetNoiseMapHists();
