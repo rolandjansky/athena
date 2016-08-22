@@ -11,7 +11,7 @@
 void
 RpcCoinMatrixCnv_p1::transToPers(const RpcCoinMatrix* transColl, RpcCoinMatrix_p1* persColl, MsgStream &log) 
 {
-   if (log.level() <= MSG::DEBUG) log <<  MSG::DEBUG << " ***  Writing out RpcCoinMatrix" << endreq;
+   if (log.level() <= MSG::DEBUG) log <<  MSG::DEBUG << " ***  Writing out RpcCoinMatrix" << endmsg;
 
    persColl->m_id       = transColl->identify().get_identifier32().get_compact();
    persColl->m_onlineId         = transColl->onlineId();
@@ -26,7 +26,7 @@ RpcCoinMatrixCnv_p1::transToPers(const RpcCoinMatrix* transColl, RpcCoinMatrix_p
 void
 RpcCoinMatrixCnv_p1::persToTrans(const RpcCoinMatrix_p1* persColl, RpcCoinMatrix* transColl, MsgStream &log) 
 {
-   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading RpcCoinMatrix" << endreq;
+   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG  << " ***  Reading RpcCoinMatrix" << endmsg;
 
    *transColl = RpcCoinMatrix (Identifier(Identifier32(persColl->m_id)),
                                persColl->m_onlineId,

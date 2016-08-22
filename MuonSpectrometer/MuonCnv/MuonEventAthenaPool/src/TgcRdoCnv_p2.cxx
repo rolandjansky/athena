@@ -31,7 +31,7 @@ void
 TgcRdoCnv_p2::transToPers(const TgcRdo* transColl, TgcRdo_p2* persColl, MsgStream &log) 
 {
     if (log.level() <= MSG::DEBUG)
-        log <<  MSG::DEBUG << " ***  Writing out TgcRdo P2" << endreq;
+        log <<  MSG::DEBUG << " ***  Writing out TgcRdo P2" << endmsg;
 
     // Invoke vector converter from the base template
     TgcRdoCnv_p2_basetype::transToPers(transColl, persColl, log);
@@ -63,7 +63,7 @@ void
 TgcRdoCnv_p2::persToTrans(const TgcRdo_p2* persColl, TgcRdo* transColl, MsgStream &log)
 {
     if (log.level() <= MSG::DEBUG)
-        log << MSG::DEBUG  << " ***  Reading TgcRdo P2" << endreq;
+        log << MSG::DEBUG  << " ***  Reading TgcRdo P2" << endmsg;
 
     // Invoke vector converter from the base template
     TgcRdoCnv_p2_basetype::persToTrans(persColl, transColl, log);

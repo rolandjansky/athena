@@ -34,8 +34,8 @@
 void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* transCont,  RpcSectorLogicContainer_p1* persCont, MsgStream & log) 
 {
   unsigned int tCsize=transCont->size();
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcSectorLogicContainerCnv_p1::transToPers " << endreq;
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " RpcSectorLogicContainerCnv_p1 sizes: trans: " << tCsize << " " << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RpcSectorLogicContainerCnv_p1::transToPers " << endmsg;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " RpcSectorLogicContainerCnv_p1 sizes: trans: " << tCsize << " " << endmsg;
   //std::cout<<"m_sectorList[0]: "<<transCont->m_sectorList[0]<<", m_sectorList[1]"<<transCont->m_sectorList[1]<<std::endl;
   persCont->m_sectorList[0] = transCont->sectorList()[0];
   persCont->m_sectorList[1] = transCont->sectorList()[1];
@@ -108,7 +108,7 @@ void RpcSectorLogicContainerCnv_p1::transToPers(const RpcSectorLogicContainer* t
       << "RpcSectorLogicContainerCnv_p1 summary: vector size "
       << persCont->m_slVariables.size() << ", last index used "
       << slVariableIndex
-      << endreq;
+      << endmsg;
 }
 
 void  RpcSectorLogicContainerCnv_p1::persToTrans(const RpcSectorLogicContainer_p1* persCont, RpcSectorLogicContainer* transCont, MsgStream & /**log*/) 

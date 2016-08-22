@@ -29,8 +29,8 @@ inline
 RpcPadContainer*
 RpcPadContainerCnv::createTransient()
 {
-    MsgStream log(messageService(), "RpcPadContainerCnv" );
-    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered createTransient() "<< endreq;
+    MsgStream log(msgSvc(), "RpcPadContainerCnv" );
+    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** Entered createTransient() "<< endmsg;
 
     // the use of auto pointers ensures that the persistent object is deleted
     // using the correct persistent type pointer
@@ -40,20 +40,20 @@ RpcPadContainerCnv::createTransient()
     static pool::Guid	p1_guid("60A912DD-7920-4DCE-986E-6CD5644835BD");
     static pool::Guid	p0_guid("85B897F6-E15D-4215-9DAC-EA2828BCEEC9");
     if( compareClassGuid(p2_guid) ) {
-        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** createTransient - p2 " << endreq;
+        if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** createTransient - p2 " << endmsg;
 
         std::unique_ptr< RpcPadContainer_p2 > col_vect( poolReadObject< RpcPadContainer_p2 >() );
         trans_cont = m_TPconverter.createTransient( col_vect.get(), log );
     } else if( compareClassGuid(p1_guid) ) {
         if (log.level() <= MSG::DEBUG)log << MSG::DEBUG << " **** createTransient - p1 "
-            << endreq;
+            << endmsg;
 
         std::unique_ptr< RpcPadContainer_p1 > col_vect( poolReadObject< RpcPadContainer_p1 >() );
         RpcPadContainerCnv_p1 cnv;
         trans_cont = cnv.createTransient( col_vect.get(), log );
     } else if( compareClassGuid(p0_guid) ) {
         if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << " **** createTransient - p0 "
-            << endreq;
+            << endmsg;
 
         // old version from before TP separation
         std::unique_ptr< COLL_vector >	col_vect( this->poolReadObject< COLL_vector >() );

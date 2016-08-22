@@ -10,7 +10,7 @@
 void
 CscRawDataCollectionCnv_p2::persToTrans(const CscRawDataCollection_p2* persColl, CscRawDataCollection* transColl, MsgStream &log) 
 {
-   //log << MSG::DEBUG  << " ***  Reading CscRawDataCollection" << endreq;
+   //log << MSG::DEBUG  << " ***  Reading CscRawDataCollection" << endmsg;
 
    IdentifierHash idhash = transColl->identifyHash();
    transColl->setOnlineId (persColl->m_id);
@@ -34,7 +34,7 @@ CscRawDataCollectionCnv_p2::persToTrans(const CscRawDataCollection_p2* persColl,
    // for(CscRawDataCollection::const_iterator it=transColl->begin(); it != transColl->end(); ++it)  {
    //    std::ostringstream ostr;
    //    ostr << **it;
-   //    log <<  MSG::VERBOSE << "Retrieved " << ostr.str() << endreq;
+   //    log <<  MSG::VERBOSE << "Retrieved " << ostr.str() << endmsg;
    // }  
 }
 

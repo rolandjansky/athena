@@ -35,18 +35,18 @@ StatusCode MuonRdoContainerCnv<T>::initialize()
     }
 
   // Get the messaging service, print where you are
-  MsgStream log(this->messageService(), "MuonRdoContainerCnv");
-  log << MSG::INFO << "MuonRdoContainerCnv::initialize()" << endreq;
+  MsgStream log(this->msgSvc(), "MuonRdoContainerCnv");
+  log << MSG::INFO << "MuonRdoContainerCnv::initialize()" << endmsg;
     
   // get StoreGate service
   StatusCode sc=this->service("StoreGateSvc",m_storeGate);
   if (sc.isFailure())
     {
-      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      log << MSG::FATAL << "StoreGate service not found !" << endmsg;
       return StatusCode::FAILURE;
     }
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized" << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized" << endmsg;
   
   return StatusCode::SUCCESS;
 }
@@ -55,7 +55,7 @@ StatusCode MuonRdoContainerCnv<T>::initialize()
 template <class T>
 StatusCode MuonRdoContainerCnv<T>::transToPers(T* rdoC, DataVector<typename T::IDENTIFIABLE>*& persObj)
 {
-  MsgStream log(this->messageService(), "MuonRdoContainerCnv" );
+  MsgStream log(this->msgSvc(), "MuonRdoContainerCnv" );
 
   // Copy RDOs to vector 
   m_colV.clear();
@@ -71,7 +71,7 @@ StatusCode MuonRdoContainerCnv<T>::transToPers(T* rdoC, DataVector<typename T::I
       m_colV.push_back(col);
     }
 
-  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Write RDO vector, size " << iColl << endreq;
+  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Write RDO vector, size " << iColl << endmsg;
 
   persObj = &m_colV;
 
@@ -82,13 +82,13 @@ StatusCode MuonRdoContainerCnv<T>::transToPers(T* rdoC, DataVector<typename T::I
 template <class T>
 StatusCode MuonRdoContainerCnv<T>::persToTrans(T*& rdoC, DataVector<typename T::IDENTIFIABLE>* colV)
 {
-  MsgStream log(this->messageService(), "MuonRdoContainerCnv" );
+  MsgStream log(this->msgSvc(), "MuonRdoContainerCnv" );
    
   // create the IdentifiableContainer to contain the collections
   rdoC = new T;
 
   if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Read RDO vector, size " << colV->size()
-      << endreq;
+      << endmsg;
 
   // empty vector - just return
   if (colV->size() == 0)
@@ -111,14 +111,14 @@ StatusCode MuonRdoContainerCnv<T>::persToTrans(T*& rdoC, DataVector<typename T::
       if (sc.isFailure())
 	{
 	  log << MSG::FATAL << "RDOs could not be recorded in IDC"
-	      << endreq;
+	      << endmsg;
 	  //delete colV;
 	  return StatusCode::FAILURE;
 	}
       else
 	{
 	  if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "RDOs " << key_rdo << " recorded in IDC"
-	      << endreq;
+	      << endmsg;
 	}
     }
     
