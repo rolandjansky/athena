@@ -17,7 +17,7 @@
 
 void RPCSimHitCollectionCnv_p1::transToPers(const RPCSimHitCollection* transCont, Muon::RPCSimHitCollection_p1* persCont, MsgStream &log)
 {
-    log<<MSG::INFO<<"Processing "<<endreq;
+    log<<MSG::INFO<<"Processing "<<endmsg;
     // for reasons of efficiency, set size before hand
     unsigned int size=transCont->size();
     persCont->m_RPCid.reserve(size);
