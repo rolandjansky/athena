@@ -40,7 +40,7 @@ namespace JiveXML {
     StatusCode sc=detStore()->retrieve(m_rpcIdHelper);
     if (sc.isFailure())
       {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve RpcIdHelper!" << endreq;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve RpcIdHelper!" << endmsg;
         return StatusCode::FAILURE;
       }  
 
@@ -48,30 +48,30 @@ namespace JiveXML {
     const IRPCcablingServerSvc* RpcCabGet;
     sc = service("RPCcablingServerSvc", RpcCabGet);
     if (sc.isFailure()) {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get RPCcablingServerSvc !" << endreq;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get RPCcablingServerSvc !" << endmsg;
         return StatusCode::FAILURE;
     }
 
     sc = RpcCabGet->giveCabling(m_rpcCabling);
     if (sc.isFailure()) {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get RPCcablingSvc from the Server !" << endreq;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not get RPCcablingSvc from the Server !" << endmsg;
         return StatusCode::FAILURE;
     } 
     else {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << MSG::DEBUG << " Found the RPCcablingSvc. " << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << MSG::DEBUG << " Found the RPCcablingSvc. " << endmsg;
     }
 
     /// retrieve the RPC RDO decoder
     if (m_rpcDecoder.retrieve().isFailure()) {
-        msg(MSG::ERROR) << "Failed to retrieve " << m_rpcDecoder << endreq;
+        msg(MSG::ERROR) << "Failed to retrieve " << m_rpcDecoder << endmsg;
         return StatusCode::FAILURE;
     } else
-        msg(MSG::INFO) << "Retrieved Tool " << m_rpcDecoder << endreq;
+        msg(MSG::INFO) << "Retrieved Tool " << m_rpcDecoder << endmsg;
 
     // retrieve the muon detector manager
     sc = detStore()->retrieve(m_muonMgr);
     if (sc.isFailure()) {
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Can't retrieve the muon detector manager" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Can't retrieve the muon detector manager" << endmsg;
      return StatusCode::FAILURE;
     }
 
@@ -83,29 +83,29 @@ namespace JiveXML {
   StatusCode TrigRpcDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
 
     // retrieve the collection of RDO
     const RpcPadContainer* rdoContainer;
     if ( evtStore()->retrieve( rdoContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::RpcPadContainer '" << m_sgKey << "' was not retrieved." << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::RpcPadContainer '" << m_sgKey << "' was not retrieved." << endmsg;
       return StatusCode::SUCCESS;
     }
     else{
       if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "Muon::RpcPadContainer retrieved"  << endreq;
-        msg(MSG::DEBUG) << rdoContainer->size() << " RPC RDO collections." << endreq;
+        msg(MSG::DEBUG) << "Muon::RpcPadContainer retrieved"  << endmsg;
+        msg(MSG::DEBUG) << rdoContainer->size() << " RPC RDO collections." << endmsg;
       }
     }
 
     const DataHandle<RpcPad> firstRdoColl;
     const DataHandle<RpcPad> lastRdoColl;
     if ( evtStore()->retrieve(firstRdoColl,lastRdoColl).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "RpcPad collections not found" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "RpcPad collections not found" << endmsg;
       return StatusCode::SUCCESS;
     }
     else{
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "RpcPad collections retrieved" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "RpcPad collections retrieved" << endmsg;
     }
 
     int ndata=0;
@@ -134,7 +134,7 @@ namespace JiveXML {
       if ( itColl->size() == 0 ) continue;
 
       ipad++;
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ipad " << ipad << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ipad " << ipad << endmsg;
       //Get pad online id and sector id
       uint16_t padId         = itColl->onlineId(); 
       uint16_t sectorId  = itColl->sector()  ;
@@ -160,7 +160,7 @@ namespace JiveXML {
                                     " bcid "     <<  rpcChan->bcid()    <<
                                     " time "     <<  rpcChan->time()    <<
                                     " ijk  "     <<  rpcChan->ijk()     <<
-                                    " ch   "     <<  rpcChan->channel() << endreq; 
+                                    " ch   "     <<  rpcChan->channel() << endmsg; 
           //look for trigger hits       
           if(rpcChan->ijk()==6){
             //found trigger hit. Look for confirm hits
@@ -180,7 +180,7 @@ namespace JiveXML {
                   //std::vector<Identifier>::iterator itVec   = digitVec->begin();
                   //std::vector<Identifier>::iterator itVec_e = digitVec->end();
 
-                  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of digits: "   << digitVec->size()<< endreq;
+                  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of digits: "   << digitVec->size()<< endmsg;
 
                   // transform the pad sectorId according to the cabling convention
                   uint16_t side                   = (sectorId<32) ? 0 : 1;
@@ -189,7 +189,7 @@ namespace JiveXML {
                   std::list<Identifier>::const_iterator it_list;
                   for (it_list=stripList.begin() ; it_list != stripList.end() ; ++it_list) {
                     Identifier stripOfflineId = *it_list;
-                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cablingId " << m_rpcIdHelper->show_to_string(stripOfflineId)<< endreq;
+                    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cablingId " << m_rpcIdHelper->show_to_string(stripOfflineId)<< endmsg;
   
                     const MuonGM::RpcReadoutElement* element = m_muonMgr->getRpcReadoutElement(stripOfflineId);
                     char ChID[100];
@@ -222,7 +222,7 @@ namespace JiveXML {
                                           " bcid1 "     <<  rpcChan1->bcid()    <<
                                           " time1 "     <<  rpcChan1->time()    <<
                                           " ijk1  "     <<  rpcChan1->ijk()     <<
-                                          " ch1   "     <<  rpcChan1->channel() << endreq;
+                                          " ch1   "     <<  rpcChan1->channel() << endmsg;
                
                 //write confirm hits
                 std::vector<Identifier>* digitVec1 = m_rpcDecoder->getOfflineData(rpcChan1, sectorId, padId, cmaId, time1);
@@ -231,7 +231,7 @@ namespace JiveXML {
                 // std::vector<Identifier>::iterator itVec1   = digitVec1->begin();
                 // std::vector<Identifier>::iterator itVec_e1 = digitVec1->end();
 
-                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of digits: "   << digitVec1->size()<< endreq;
+                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of digits: "   << digitVec1->size()<< endmsg;
 
                  // transform the pad sectorId according to the cabling convention
                 uint16_t side                   = (sectorId<32) ? 0 : 1;
@@ -240,7 +240,7 @@ namespace JiveXML {
                 std::list<Identifier>::const_iterator it_list1;
                 for (it_list1=stripList1.begin() ; it_list1 != stripList1.end() ; ++it_list1) {
                   Identifier stripOfflineId1 = *it_list1;
-                  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cablingId1 " << m_rpcIdHelper->show_to_string(stripOfflineId1)<< endreq;
+                  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " cablingId1 " << m_rpcIdHelper->show_to_string(stripOfflineId1)<< endmsg;
   
                   const MuonGM::RpcReadoutElement* element1 = m_muonMgr->getRpcReadoutElement(stripOfflineId1);
 
@@ -283,7 +283,7 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);  

@@ -28,12 +28,12 @@ namespace JiveXML {
 
   StatusCode TgcPrepDataRetriever::initialize(){
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
 
     StatusCode sc=detStore()->retrieve(m_tgcIdHelper);
     if (sc.isFailure())
       {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << MSG::ERROR << "Could not retrieve TgcIdHelper!" << endreq;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << MSG::ERROR << "Could not retrieve TgcIdHelper!" << endmsg;
         return StatusCode::FAILURE;
       }
 
@@ -45,11 +45,11 @@ namespace JiveXML {
   StatusCode TgcPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
 
     const Muon::TgcPrepDataContainer *tgcContainer;
     if ( evtStore()->retrieve(tgcContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::TgcPrepDataContainer '" << m_sgKey << "' was not retrieved." << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::TgcPrepDataContainer '" << m_sgKey << "' was not retrieved." << endmsg;
       return StatusCode::SUCCESS;
     }
 
@@ -80,7 +80,7 @@ namespace JiveXML {
         Identifier id = data->identify();
 
         if (!element) {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No MuonGM::TgcReadoutElement for hit " << id << endreq;
+          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No MuonGM::TgcReadoutElement for hit " << id << endmsg;
           continue;
         }
 
@@ -127,7 +127,7 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
 
     ////forward data to formating tool
     //return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);
