@@ -54,7 +54,7 @@ private:
  
   float m_adcIntegrationWindow;
   const MdtIdHelper   * m_mdtHelper;
-  bool m_copySDO, m_clean_overlay_data;
+  bool m_copySDO, m_clean_overlay_data, m_clean_overlay_signal;
   ToolHandle<IMuonDigitizationTool> m_digTool;
   ToolHandle<IMuonDigitizationTool> m_rdoTool;
 };
