@@ -111,7 +111,7 @@ StatusCode RpcDigitToRpcRDO::initialize()
     // sc = serviceLocator()->service("RPCgeometrySvc", m_geometry);
     // if (sc != StatusCode::SUCCESS ) 
     // {
-    //     *m_log << MSG::ERROR << " Cannot get RPC geometry Service " << endreq;
+    //     *m_log << MSG::ERROR << " Cannot get RPC geometry Service " << endmsg;
     //     return sc ;
     // }
 
