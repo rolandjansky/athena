@@ -77,6 +77,7 @@ SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const std::string& type
   declareProperty("doRamo",  m_doRamo, "Ramo Potential for charge trapping effect"); // 
   declareProperty("SCTDistortionsTool", m_distortionsTool, "Tool to retrieve SCT distortions");
   declareProperty("SCT_RadDamageSummarySvc", m_radDamageSvc);
+  declareProperty("isOverlay", m_isOverlay=false);
 }
 
 // Destructor:
@@ -364,7 +365,9 @@ float SCT_SurfaceChargesGenerator::DriftTime(float zhit) const {
   float denominator = vdepl+vbias-(2.0*zhit*vdepl/sensorThickness);
   if (denominator<=0.0) {
     if(vbias>=vdepl) { //Should not happen
-      ATH_MSG_ERROR ( "DriftTime: negative argument X for log(X) "<<zhit ) ;
+      if(!m_isOverlay) {
+	ATH_MSG_ERROR ( "DriftTime: negative argument X for log(X) "<<zhit ) ;
+      }
       return -1.0 ;
     }
     else { // (vbias<vdepl) can happen with underdepleted sensors, lose charges in that volume

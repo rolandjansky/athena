@@ -75,6 +75,7 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
   declareProperty("doHistoTrap", m_doHistoTrap, "Allow filling of histos for charge trapping effect"); 
   declareProperty("doTrapping", m_doTrapping, "Simulation of charge trapping effect"); 
   declareProperty("Fluence", m_Fluence, "Fluence for charge trapping effect"); 
+  declareProperty("isOverlay", m_isOverlay=false);
 }
 
 // Destructor:
@@ -225,7 +226,9 @@ float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit) const {
   float denominator = vdepl+vbias-(2.0*zhit*vdepl/sensorThickness);
   if (denominator<=0.0) {
     if(vbias>=vdepl) { //Should not happen
-      ATH_MSG_ERROR ( "DriftTime: negative argument X for log(X) "<<zhit ) ;
+      if(!m_isOverlay) {
+	ATH_MSG_ERROR ( "DriftTime: negative argument X for log(X) "<<zhit ) ;
+      }
       return -1.0 ;
     }
     else { // (vbias<vdepl) can happen with underdepleted sensors, lose charges in that volume
