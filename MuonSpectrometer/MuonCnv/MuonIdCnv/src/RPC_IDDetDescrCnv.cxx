@@ -47,11 +47,11 @@ RPC_IDDetDescrCnv::initialize()
 {
     // First call parent init
     StatusCode sc = DetDescrConverter::initialize();
-    MsgStream log(messageService(), "RPC_IDDetDescrCnv");
-    log << MSG::DEBUG << "in initialize" << endreq;
+    MsgStream log(msgSvc(), "RPC_IDDetDescrCnv");
+    log << MSG::DEBUG << "in initialize" << endmsg;
 
     if (sc.isFailure()) {
-        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endreq;
+        log << MSG::ERROR << "DetDescrConverter::initialize failed" << endmsg;
 	return sc;
     }
     
@@ -67,7 +67,7 @@ RPC_IDDetDescrCnv::initialize()
 //      // - this is ONLY needed for the manager of each system
 //      sc = addToDetStore(classID(), "PidelID");
 //      if (sc.isFailure()) {
-//  	log << MSG::FATAL << "Unable to add proxy for RpcIdHelper to the Detector Store!" << endreq;
+//  	log << MSG::FATAL << "Unable to add proxy for RpcIdHelper to the Detector Store!" << endmsg;
 //  	return StatusCode::FAILURE;
 //      } else {}
 
@@ -79,8 +79,8 @@ RPC_IDDetDescrCnv::initialize()
 StatusCode 
 RPC_IDDetDescrCnv::finalize()
 {
-    MsgStream log(messageService(), "RPC_IDDetDescrCnv");
-    log << MSG::DEBUG << "in finalize" << endreq;
+    MsgStream log(msgSvc(), "RPC_IDDetDescrCnv");
+    log << MSG::DEBUG << "in finalize" << endmsg;
 
     return StatusCode::SUCCESS; 
 }
@@ -91,25 +91,25 @@ StatusCode
 RPC_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj) 
 {
     //StatusCode sc = StatusCode::SUCCESS;
-    MsgStream log(messageService(), "RPC_IDDetDescrCnv");
-    log << MSG::INFO << "in createObj: creating a RpcIdHelper object in the detector store" << endreq;
+    MsgStream log(msgSvc(), "RPC_IDDetDescrCnv");
+    log << MSG::INFO << "in createObj: creating a RpcIdHelper object in the detector store" << endmsg;
 
     // Create a new RpcIdHelper
 
     DetDescrAddress* ddAddr;
     ddAddr = dynamic_cast<DetDescrAddress*> (pAddr);
     if(!ddAddr) {
-	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endreq;
+	log << MSG::FATAL << "Could not cast to DetDescrAddress." << endmsg;
 	return StatusCode::FAILURE;
     }
 
     // Get the StoreGate key of this container.
     std::string helperKey  = *( ddAddr->par() );
     if ("" == helperKey) {
-	log << MSG::DEBUG << "No Helper key " << endreq;
+	log << MSG::DEBUG << "No Helper key " << endmsg;
     }
     else {
-	log << MSG::DEBUG << "Helper key is " << helperKey << endreq;
+	log << MSG::DEBUG << "Helper key is " << helperKey << endmsg;
     }
     
 
@@ -117,7 +117,7 @@ RPC_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     StoreGateSvc * detStore;
     StatusCode status = serviceLocator()->service("DetectorStore", detStore);
     if (status.isFailure()) {
-	log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+	log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
 	return StatusCode::FAILURE;
     } else {}
  
@@ -125,18 +125,18 @@ RPC_IDDetDescrCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pObj)
     const DataHandle<IdDictManager> idDictMgr;
     status = detStore->retrieve(idDictMgr, "IdDict");
     if (status.isFailure()) {
-	log << MSG::FATAL << "Could not get IdDictManager !" << endreq;
+	log << MSG::FATAL << "Could not get IdDictManager !" << endmsg;
 	return StatusCode::FAILURE;
     } 
     else {
-	log << MSG::DEBUG << " Found the IdDictManager. " << endreq;
+	log << MSG::DEBUG << " Found the IdDictManager. " << endmsg;
     }
 
 
     // create the helper
     RpcIdHelper* rpc_id = new RpcIdHelper;
     if (idDictMgr->initializeHelper(*rpc_id)) {
-	log << MSG::ERROR << "Unable to initialize RpcIdHelper from dictionary" << endreq;
+	log << MSG::ERROR << "Unable to initialize RpcIdHelper from dictionary" << endmsg;
 	return StatusCode::FAILURE;
     } 
 
