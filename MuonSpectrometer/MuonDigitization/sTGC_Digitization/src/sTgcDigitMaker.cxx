@@ -512,7 +512,7 @@ void sTgcDigitMaker::readFileOfTimeJitter()
         if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): ";
       if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << prob << " ";
     }
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endreq;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
     i++;
   }
   ifs.close();
