@@ -72,7 +72,7 @@ BaseObject::display_error(__osstream& display) const
     sc = svcLoc->service( "MessageSvc", msgSvc );
     if(sc.isSuccess()) {
         MsgStream log(msgSvc, name() );
-        log << MSG::ERROR << display.str() <<endreq; 
+        log << MSG::ERROR << display.str() <<endmsg; 
     }
 #endif
 }
@@ -89,7 +89,7 @@ BaseObject::display_debug(__osstream& display) const
     sc = svcLoc->service( "MessageSvc", msgSvc );
     if(sc.isSuccess()) {
         MsgStream log(msgSvc, name() );
-        log << MSG::DEBUG << display.str() <<endreq; 
+        log << MSG::DEBUG << display.str() <<endmsg; 
     }
 #endif
 }
@@ -106,7 +106,7 @@ BaseObject::display_warning(__osstream& display) const
     sc = svcLoc->service( "MessageSvc", msgSvc );
     if(sc.isSuccess()) {
         MsgStream log(msgSvc, name() );
-        log << MSG::WARNING << display.str() <<endreq; 
+        log << MSG::WARNING << display.str() <<endmsg; 
     }
 #endif
 }
@@ -123,7 +123,7 @@ BaseObject::display_info(__osstream& display) const
     sc = svcLoc->service( "MessageSvc", msgSvc );
     if(sc.isSuccess()) {
         MsgStream log(msgSvc, name() );
-        log << MSG::INFO << display.str() <<endreq; 
+        log << MSG::INFO << display.str() <<endmsg; 
     }
 #endif
 }
