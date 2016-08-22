@@ -41,14 +41,14 @@ RpcReadWriteCoolStr::~RpcReadWriteCoolStr() {}
 
 StatusCode RpcReadWriteCoolStr::initialize()
 {
-  m_log << MSG::INFO << "RpcReadWriteCoolStr::initialize() called" << endreq;
+  m_log << MSG::INFO << "RpcReadWriteCoolStr::initialize() called" << endmsg;
 
   if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endreq;
+    m_log << MSG::FATAL << "Detector store not found" << endmsg;
     return StatusCode::FAILURE;
   }
   if (StatusCode::SUCCESS!=service("RpcCoolStrSvc",p_coolsvc)) {
-    m_log << MSG::ERROR << "Cannot get RpcCoolStrSvc" << endreq;
+    m_log << MSG::ERROR << "Cannot get RpcCoolStrSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -60,7 +60,7 @@ StatusCode RpcReadWriteCoolStr::execute() {
 
   if(m_fileName==""){
 
-    m_log << MSG::ERROR << "You must specify a file name!"<<endreq;
+    m_log << MSG::ERROR << "You must specify a file name!"<<endmsg;
     return StatusCode::FAILURE;
 
   }
@@ -72,7 +72,7 @@ StatusCode RpcReadWriteCoolStr::execute() {
 
       m_writeDone=true;
 
-      if(p_coolsvc->putFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in writing to DB"<<endreq;
+      if(p_coolsvc->putFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in writing to DB"<<endmsg;
 
     }
   }
@@ -83,7 +83,7 @@ StatusCode RpcReadWriteCoolStr::execute() {
 
       m_readDone=true;
 
-      if(p_coolsvc->makeFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in reading from DB"<<endreq;;
+      if(p_coolsvc->makeFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in reading from DB"<<endmsg;;
 
     }
   }
@@ -93,7 +93,7 @@ StatusCode RpcReadWriteCoolStr::execute() {
     if(!m_writeDone){
 
       m_writeDone=true;
-      if(p_coolsvc->putOnlineFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in writing to DB"<<endreq;
+      if(p_coolsvc->putOnlineFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in writing to DB"<<endmsg;
 
     }
   }
@@ -104,7 +104,7 @@ StatusCode RpcReadWriteCoolStr::execute() {
 
       m_readDone=true;
 
-      if(p_coolsvc->makeOnlineFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in reading from DB"<<endreq;;
+      if(p_coolsvc->makeOnlineFile(m_fileName)!=StatusCode::SUCCESS) m_log << MSG::ERROR << "Problems in reading from DB"<<endmsg;;
 
     }
   }

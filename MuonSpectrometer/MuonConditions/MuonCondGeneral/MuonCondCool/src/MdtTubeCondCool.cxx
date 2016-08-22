@@ -55,14 +55,14 @@ MdtTubeCondCool::~MdtTubeCondCool() {}
 
 StatusCode MdtTubeCondCool::initialize()
 {
-  m_log << MSG::INFO << "MdtTubeCondCool::initialize() called" << endreq;
+  m_log << MSG::INFO << "MdtTubeCondCool::initialize() called" << endmsg;
 
   if (StatusCode::SUCCESS!=service("DetectorStore",p_detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endreq;
+    m_log << MSG::FATAL << "Detector store not found" << endmsg;
     return StatusCode::FAILURE;
   }
   if (StatusCode::SUCCESS!=service("MuonCalib::MdtCoolStrSvc",p_coolsvc)) {
-    m_log << MSG::ERROR << "Cannot get MdtCoolStrSvc" << endreq;
+    m_log << MSG::ERROR << "Cannot get MdtCoolStrSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -94,30 +94,30 @@ StatusCode MdtTubeCondCool::finalize() {
 
 void MdtTubeCondCool::writeTube() {
   m_log << MSG::INFO << "Write data from file " << par_wfile << " to folder "
-	<< par_folder << " at channel " << par_chan << endreq;
+	<< par_folder << " at channel " << par_chan << endmsg;
   if (par_deadTube){
-    m_log << MSG::ERROR << "dentro " << endreq;
+    m_log << MSG::ERROR << "dentro " << endmsg;
   if (StatusCode::SUCCESS!=p_coolsvc->putFileTube(par_folder,par_wfile,par_chan,
        par_tech))
-    m_log << MSG::ERROR << "putFile Tube failed" << endreq;
+    m_log << MSG::ERROR << "putFile Tube failed" << endmsg;
 }
 }
 void MdtTubeCondCool::readTube() {
   m_log << MSG::INFO << "Read data from folder " << par_folder << " channel "
-	<< par_chan << endreq;
+	<< par_chan << endmsg;
   std::string data;
   if (StatusCode::SUCCESS!=p_coolsvc->getString(par_folder,par_chan,data)) {
     m_log << MSG::INFO << "MdtCoolStrSvc getString fails for folder " << 
-      par_folder << " channel " << par_chan << endreq;
+      par_folder << " channel " << par_chan << endmsg;
   } else {
-    m_log << MSG::INFO << "Data read is " << data << endreq;
+    m_log << MSG::INFO << "Data read is " << data << endmsg;
   }
   // interpret as string stream
   std::istringstream istr(data.c_str());
   
   std::string a, b;
   istr >> a >> b;
-  m_log << "Read string1:" << a << " string2:" << b 	<< endreq;
+  m_log << "Read string1:" << a << " string2:" << b 	<< endmsg;
   
 
   char * layer; char *tubeid; char *mlayer;
@@ -157,7 +157,7 @@ void MdtTubeCondCool::readTube() {
       i++;
       m_log << MSG::INFO << "name = " << name
 	    << " mlayer = "<< mlayer << " layer =" << layer
-	    << "  tubeid=" << tubeid << endreq;
+	    << "  tubeid=" << tubeid << endmsg;
       pch = strtok (NULL, ","); 
     }
   
@@ -169,7 +169,7 @@ void MdtTubeCondCool::readTube() {
   if (par_extract && !m_done) {
     if (StatusCode::SUCCESS!=p_coolsvc->getFile(par_folder,par_chan,par_rfile))
       m_log << MSG::ERROR << "MdtCoolStrSvc getFile fails for folder " << 
-	par_folder << " channel " << par_chan << endreq;
+	par_folder << " channel " << par_chan << endmsg;
   }
 }
   

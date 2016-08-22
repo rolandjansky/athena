@@ -39,22 +39,22 @@ CscCoolTest::~CscCoolTest() {}
 
 StatusCode CscCoolTest::initialize()
 {
-  m_log << MSG::DEBUG << "CscCoolTest::initialize() called" << endreq;
+  m_log << MSG::DEBUG << "CscCoolTest::initialize() called" << endmsg;
 
   if (StatusCode::SUCCESS!=service("MuonCalib::CscCoolStrSvc",p_cscCoolStrSvc))
   {
-    m_log << MSG::FATAL << "Cannot get CscCoolStrSvc" << endreq;
+    m_log << MSG::FATAL << "Cannot get CscCoolStrSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   StoreGateSvc* detstore;
   if (StatusCode::SUCCESS!=service("DetectorStore",detstore)) {
-    m_log << MSG::FATAL << "Detector store not found" << endreq;
+    m_log << MSG::FATAL << "Detector store not found" << endmsg;
     return StatusCode::FAILURE;
   }
   StatusCode sc = detstore->retrieve(m_cscId,"CSCIDHELPER");
   if(sc.isFailure())
   {
-    m_log << MSG::FATAL << "Cannot retrieve CscIdHelper from detector store" << endreq;
+    m_log << MSG::FATAL << "Cannot retrieve CscIdHelper from detector store" << endmsg;
     return sc;
   }
 
@@ -63,7 +63,7 @@ StatusCode CscCoolTest::initialize()
 
 StatusCode CscCoolTest::execute()
 {
-  m_log << MSG::INFO << "Starting CscCoolTest execute" << endreq;
+  m_log << MSG::INFO << "Starting CscCoolTest execute" << endmsg;
 
   float  ped(0), pulseSlope(0.0), noise(0),rms(0),f001(0);
   //float gain, ped, runSlope, pulseSlope, peakt,width,sat1,sat2,noise,thold;
@@ -72,7 +72,7 @@ StatusCode CscCoolTest::execute()
   StatusCode sc;
 
   //Using the get parameter method of CscCoolStrSvc to retrieve the parameters.
-  m_log << MSG::INFO << "Retrieveing constants from strip with hash " <<  m_stripHash  << endreq;
+  m_log << MSG::INFO << "Retrieveing constants from strip with hash " <<  m_stripHash  << endmsg;
   sc = p_cscCoolStrSvc->getParameter(ped,"ped",m_stripHash);
   sc = p_cscCoolStrSvc->getParameter(noise,"noise",m_stripHash);
   sc = p_cscCoolStrSvc->getParameter(f001,"f001",m_stripHash);
@@ -91,7 +91,7 @@ StatusCode CscCoolTest::execute()
 
   if(!sc.isSuccess())
   {
-    m_log << MSG::FATAL << "couldn't retrieve parameter!" << endreq;
+    m_log << MSG::FATAL << "couldn't retrieve parameter!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -102,13 +102,13 @@ StatusCode CscCoolTest::execute()
     << "\n\trms\t"                  << rms
     << "\n\tf001\t"                 << f001
     << "\n\tstatus:\t"              << hex << static_cast<unsigned int>(status) << dec 
-    << endreq;
+    << endmsg;
 
   //Applying bit masks to bit-masked status
-  m_log << MSG:: INFO << "Status flags taken from bit-maksed status" << endreq;
+  m_log << MSG:: INFO << "Status flags taken from bit-maksed status" << endmsg;
 
-  m_log << MSG::INFO <<"noisy/stuck-bit channel: "                        << (status & 0x1) << endreq;
-  m_log << MSG::INFO <<"dead channel: "                       << ((status >> 1 )& 0x1 )<< endreq;
+  m_log << MSG::INFO <<"noisy/stuck-bit channel: "                        << (status & 0x1) << endmsg;
+  m_log << MSG::INFO <<"dead channel: "                       << ((status >> 1 )& 0x1 )<< endmsg;
 
 
 
@@ -131,7 +131,7 @@ StatusCode CscCoolTest::execute()
         sc = p_cscCoolStrSvc->getParameter(status,"status",idItr);
         if(!sc.isSuccess())
         {
-          m_log << MSG::FATAL << "couldn't retrieve status for stripHash " << stripId << endreq;
+          m_log << MSG::FATAL << "couldn't retrieve status for stripHash " << stripId << endmsg;
           return StatusCode::FAILURE;
         }
         if(status&0x1)
@@ -140,10 +140,10 @@ StatusCode CscCoolTest::execute()
           numDead++;
       }//end if chamber layer is expected chamber layer
     }//end loop over channels
-    m_log << MSG::INFO << "====Status Counts===" << endreq;
-    m_log << MSG::INFO << "Num Noisy Channels:\t" << numNoisy << endreq;
-    m_log << MSG::INFO << "Num Dead Channels:\t" << numDead << endreq;
-    m_log << MSG::INFO << "===================="<< endreq;
+    m_log << MSG::INFO << "====Status Counts===" << endmsg;
+    m_log << MSG::INFO << "Num Noisy Channels:\t" << numNoisy << endmsg;
+    m_log << MSG::INFO << "Num Dead Channels:\t" << numDead << endmsg;
+    m_log << MSG::INFO << "===================="<< endmsg;
   }//end if m_doStatusTest
 
   return StatusCode::SUCCESS;
