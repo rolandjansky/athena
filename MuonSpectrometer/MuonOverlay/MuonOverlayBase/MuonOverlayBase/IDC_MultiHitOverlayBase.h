@@ -75,10 +75,10 @@ public:
 
   /**
    *  Adds data from the second collection to the first merging where necessary.
-   *  After this call the "data" collection contains all information, and the "mc"
+   *  After this call the "mc" collection contains all information, and the "data"
    *  collection is empty.
    */
-  template<class Collection> void mergeCollections(Collection *data_coll, Collection *mc_coll);
+  template<class Collection> void mergeCollections(Collection *mc_coll, Collection *data_coll);
 
   /** things to copy to the output stream */
   template<class TypeToBeCopied> 
