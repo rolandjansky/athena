@@ -52,7 +52,7 @@ void BFieldCorFunc::init(const std::string &quality, const CalibFunc::ParVec &pa
 // CONSISTENCY CHECK //
 ///////////////////////
   if (m_param.size()!=2) {
-    log<<MSG::ERROR<< "Wrong number of parameters!"<<endreq;
+    log<<MSG::ERROR<< "Wrong number of parameters!"<<endmsg;
     m_Legendre=NULL;
     return;	
   }
@@ -100,7 +100,7 @@ void BFieldCorFunc::init(const std::string &quality, const CalibFunc::ParVec &pa
   m_r_max = rt->radius(m_t_max); // maximum radius
   if (m_r_max>17.0 || m_r_max <m_r_min) {
     log<<MSG::INFO<< "UNPHYSICAL MAXIMUM DRIFT RADIUS OF " << m_r_max
-       << ", WILL BE SET TO 17.0!"<<endreq;
+       << ", WILL BE SET TO 17.0!"<<endmsg;
     m_r_max = 17.0;
   }
   step = ((m_r_max-m_r_min)/static_cast<double>(nb_points-1));
@@ -121,7 +121,7 @@ void BFieldCorFunc::init(const std::string &quality, const CalibFunc::ParVec &pa
 	
 // perform the fit //
   if (fitter.fit_parameters(sample_points, 1, nb_points, &legendre)) {
-    log<<MSG::WARNING<<"Unable to fit the integral in the correction!"<<endreq;
+    log<<MSG::WARNING<<"Unable to fit the integral in the correction!"<<endmsg;
     m_Legendre=NULL;
     return;	
   }

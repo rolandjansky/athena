@@ -29,11 +29,11 @@ void RtResolutionChebyshev::_init(void) {
 
 // check for consistency //
   if (nPar()<3) {
-    log<<MSG::ERROR << "Not enough parameters!"<<endreq;
+    log<<MSG::ERROR << "Not enough parameters!"<<endmsg;
     exit(1);
   }
   if (parameters()[0]>=parameters()[1]) {
-    log<<MSG::ERROR << "Lower time boundary >= upper time boundary!"<<endreq;
+    log<<MSG::ERROR << "Lower time boundary >= upper time boundary!"<<endmsg;
     exit(1);
   }
 
