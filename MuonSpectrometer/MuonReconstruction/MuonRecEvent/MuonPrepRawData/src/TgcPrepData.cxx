@@ -96,7 +96,7 @@ MsgStream& TgcPrepData::dump( MsgStream&    stream) const
     
     MuonCluster::dump(stream);
 
-    stream<<"}  End TgcPrepData"<<endreq;
+    stream<<"}  End TgcPrepData"<<endmsg;
 
     return stream;
   }

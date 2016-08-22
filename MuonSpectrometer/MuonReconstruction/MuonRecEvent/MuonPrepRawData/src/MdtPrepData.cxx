@@ -147,7 +147,7 @@ MsgStream& MdtPrepData::dump( MsgStream&    stream) const
     stream <<"TDC = "<<this->tdc()<<", ";
     stream <<"ADC = "<<this->adc()<<", ";
     stream <<"status = "<<this->status()<<", ";
-    stream<<"} End MdtPrepData"<<endreq;
+    stream<<"} End MdtPrepData"<<endmsg;
 
     return stream;
   }
