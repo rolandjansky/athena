@@ -29,7 +29,7 @@ RpcByteStreamDecoder::~RpcByteStreamDecoder()
 
 StatusCode RpcByteStreamDecoder::decodeByteStream()
 {
-  if ( m_debug && m_log ) *m_log << MSG::DEBUG << "Start decoding" << endreq;
+  if ( m_debug && m_log ) *m_log << MSG::DEBUG << "Start decoding" << endmsg;
 
   PAD_Readout padReadout = m_bytestream->pad_readout();
 
@@ -44,7 +44,7 @@ StatusCode RpcByteStreamDecoder::decodeByteStream()
     }
 
   if ( m_debug && m_log ) *m_log << MSG::DEBUG << "Number of decoded Pads : " 
-                                 << m_rpcpads->size() << endreq;
+                                 << m_rpcpads->size() << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -53,7 +53,7 @@ StatusCode RpcByteStreamDecoder::decodeByteStream()
 RpcPad* RpcByteStreamDecoder::decodePad(PADreadout& pad)
 {
 
-  if ( m_debug && m_log ) *m_log << MSG::DEBUG << "Decoding a new RpcPad" << endreq;
+  if ( m_debug && m_log ) *m_log << MSG::DEBUG << "Decoding a new RpcPad" << endmsg;
 
   // Identifier elements
   int name = 0;
@@ -79,7 +79,7 @@ RpcPad* RpcByteStreamDecoder::decodePad(PADreadout& pad)
   
   if ( m_debug && m_log ) *m_log << MSG::DEBUG << "Pad: Side " << side 
                                  << " Sector logic" << logic_sector 
-                                 << " Id " << pad_id << endreq;
+                                 << " Id " << pad_id << endmsg;
   
   // Retrieve the identifier elements from the map
   const CablingRPCBase::RDOmap& pad_map = m_cabling->give_RDOs();
@@ -96,14 +96,14 @@ RpcPad* RpcByteStreamDecoder::decodePad(PADreadout& pad)
                                         check, &valid);
 
   if ( m_log && !valid ) {
-    *m_log << MSG::ERROR << "Invalid pad offline indices " << endreq;
-    *m_log << MSG::ERROR << "Name : "    << name << endreq;
+    *m_log << MSG::ERROR << "Invalid pad offline indices " << endmsg;
+    *m_log << MSG::ERROR << "Name : "    << name << endmsg;
     *m_log << MSG::ERROR << "Eta "       << eta       << "   Phi "   
-	   << phi << endreq;
+	   << phi << endmsg;
     *m_log << MSG::ERROR << "Doublet r " << doublet_r << "  Doublet_z " 
-	   << doublet_z << "  Doublet_phi " << doublet_phi << endreq;
+	   << doublet_z << "  Doublet_phi " << doublet_phi << endmsg;
     *m_log << MSG::ERROR << "Gas gap "   << gas_gap   << "   Measures_phi " 
-	   << measures_phi << "  Strip " << strip << endreq;
+	   << measures_phi << "  Strip " << strip << endmsg;
   }
 
   // Retrieve Pad status and error code from Pad header and footer
@@ -132,7 +132,7 @@ RpcPad* RpcByteStreamDecoder::decodePad(PADreadout& pad)
     }
   
   if ( m_debug && m_log ) *m_log << MSG::DEBUG << "Number of matrices in Pad : " 
-                                 << rpc_pad->size() << endreq; 
+                                 << rpc_pad->size() << endmsg; 
   
   return rpc_pad;
 }
@@ -142,7 +142,7 @@ RpcPad* RpcByteStreamDecoder::decodePad(PADreadout& pad)
 RpcCoinMatrix* RpcByteStreamDecoder::decodeMatrix(MatrixReadOut* matrix, Identifier& id)
 {
 
-  if ( m_debug && m_log ) *m_log << MSG::DEBUG << "Decoding a new RpcCoinMatrix" << endreq;
+  if ( m_debug && m_log ) *m_log << MSG::DEBUG << "Decoding a new RpcCoinMatrix" << endmsg;
 
   // Matrix Header and SubHeader      
   MatrixReadOutStructure matrix_header    = matrix->getHeader();
@@ -188,7 +188,7 @@ RpcCoinMatrix* RpcByteStreamDecoder::decodeMatrix(MatrixReadOut* matrix, Identif
     }
 
   if ( m_debug && m_log ) *m_log << MSG::DEBUG << "Number of Fired Channels in Matrix : " 
-                                 << coinMatrix->size() << endreq; 
+                                 << coinMatrix->size() << endmsg; 
   return coinMatrix;
 }
 
