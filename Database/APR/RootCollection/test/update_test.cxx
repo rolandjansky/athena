@@ -21,6 +21,7 @@
 
 #include <stdexcept>
 #include <cstdlib>
+#include <memory>
 #include "CoralBase/Attribute.h"
 
 #include "TInterpreter.h"
@@ -71,7 +72,7 @@ void
 TestDriver::write()
 {
    cout << "Creating CollectionService" << endl;
-   pool::ICollectionService *serviceHandle = new pool::CollectionService();
+   unique_ptr<CollectionService> serviceHandle(new CollectionService());
    cout << "Creating Collection Description" << endl;
    pool::CollectionDescription description( m_name, "RootCollection", m_connection );
    description.insertColumn( "attr1", "int" );
@@ -116,7 +117,7 @@ TestDriver::write()
    cout << "Closing the collection." << endl;
    collection->close();
    delete collection;
-
+   
    cout << "[OVAL] finished hopefully" << endl;
 }
 
@@ -126,7 +127,7 @@ void
 TestDriver::read()
 {
    cout << "Creationg CollectionService" << endl;
-   pool::ICollectionService *serviceHandle = new pool::CollectionService();
+   unique_ptr<CollectionService> serviceHandle(new CollectionService());
    
    cout << "Getting handle to existing collection for reading" << endl;
    bool        readOnly(true);
@@ -157,7 +158,7 @@ void
 TestDriver::update()
 {
    cout << "Creationg CollectionService" << endl;
-   pool::ICollectionService *serviceHandle( new pool::CollectionService() );
+   unique_ptr<CollectionService> serviceHandle(new CollectionService());
    
    cout << "Getting handle to existing collection for update" << endl;
    bool        readOnly(false);
@@ -203,7 +204,7 @@ TestDriver::query() {
    
     cout << endl << endl;
    cout << "Creationg CollectionService" << endl;
-   pool::ICollectionService *serviceHandle( new pool::CollectionService() );
+   unique_ptr<CollectionService> serviceHandle(new CollectionService());
    
    cout << "Getting handle to existing collection for reading" << endl;
    bool        readOnly(true);
