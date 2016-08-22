@@ -18,13 +18,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODPrimitives
                           GaudiKernel
                           Reconstruction/MuonIdentification/muonEvent
-                          Reconstruction/Particle )
+                          Reconstruction/Particle
+			  Event/xAOD/xAODTruth )
 
 # Component(s) in the package:
 atlas_add_component( xAODMuonCnv
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthLinks xAODMuon MuonSegment TrkSegment AthenaBaseComps AthenaKernel xAODPrimitives GaudiKernel muonEvent Particle )
+                     LINK_LIBRARIES AthLinks xAODMuon MuonSegment TrkSegment AthenaBaseComps AthenaKernel xAODPrimitives GaudiKernel muonEvent Particle xAODTruth)
 
 # Install files from the package:
 atlas_install_headers( xAODMuonCnv )
