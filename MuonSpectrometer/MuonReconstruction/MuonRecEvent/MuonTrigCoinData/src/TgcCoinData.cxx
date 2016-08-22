@@ -281,7 +281,7 @@ TgcCoinData& TgcCoinData::operator=(const TgcCoinData& RIO)
 // << operator
 MsgStream& operator << ( MsgStream& sl, const TgcCoinData& coin)
 {
-  sl<<"### TgcCoinData Object ###"<<endreq;
+  sl<<"### TgcCoinData Object ###"<<endmsg;
   sl<<"DataType = "<<coin.type()
     <<", isAside = "<<coin.isAside()
     <<", phi = "<<coin.phi()
@@ -305,7 +305,7 @@ MsgStream& operator << ( MsgStream& sl, const TgcCoinData& coin)
     <<", veto = "<<coin.veto()
     <<", sub = "<<coin.sub()
     <<", isPositiveDeltaR = "<<coin.isPositiveDeltaR()
-    <<endreq;
+    <<endmsg;
     return sl;
 }
 
