@@ -28,12 +28,12 @@ namespace JiveXML {
 
   StatusCode RpcPrepDataRetriever::initialize(){
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing retriever for " << dataTypeName() << endmsg; 
 
     StatusCode sc=detStore()->retrieve(m_rpcIdHelper);
     if (sc.isFailure())
       {
-        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve RpcIdHelper!" << endreq;
+        if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve RpcIdHelper!" << endmsg;
         return StatusCode::FAILURE;
       }
 
@@ -45,11 +45,11 @@ namespace JiveXML {
   StatusCode RpcPrepDataRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
 
     const Muon::RpcPrepDataContainer *rpcContainer;
     if ( evtStore()->retrieve(rpcContainer, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::RpcPrepDataContainer '" << m_sgKey << "' was not retrieved." << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon::RpcPrepDataContainer '" << m_sgKey << "' was not retrieved." << endmsg;
       return StatusCode::SUCCESS;
     }
 
@@ -80,7 +80,7 @@ namespace JiveXML {
         Identifier id = data->identify();
   
         if (!element) {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No MuonGM::RpcReadoutElement for hit " << id << endreq;
+          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No MuonGM::RpcReadoutElement for hit " << id << endmsg;
           continue;
         }
   
@@ -111,7 +111,7 @@ namespace JiveXML {
     myDataMap["barcode"] = barcode;
 
     //Be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< x.size() << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);
