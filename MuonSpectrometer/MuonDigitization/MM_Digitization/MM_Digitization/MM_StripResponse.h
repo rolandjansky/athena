@@ -47,7 +47,8 @@ class MM_StripResponse {
   MM_StripResponse();
   MM_StripResponse(std::vector<MM_IonizationCluster> IonizationClusters, float _timeResolution, float _stripPitch, int _stripID, int _maxstripID);
   void timeOrderElectrons();
-  void calculateTimeSeries();
+  void calculateTimeSeries(float thetaD, int gasgap);
+  //  void calculateTimeSeries();
   void simulateCrossTalk(float crossTalk1, float crossTalk2);      
   void calculateSummaries(float chargeThreshold);
   std::map<int, int> getTimeThreshold() const;

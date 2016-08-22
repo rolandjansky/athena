@@ -22,12 +22,15 @@ void MM_StripResponse::timeOrderElectrons() {
   
 }
 
-void MM_StripResponse::calculateTimeSeries() {
+void MM_StripResponse::calculateTimeSeries(float /*thetaD*/, int /*gasgap*/) {
   
   for (auto& Electron : Electrons) {
     int timeBin = (int) (Electron->getTime()/timeResolution);
     // stripID defines the initial strip where the muon entered the gas gap
-    int stripVal = Electron->getX() < 0 ? stripID + Electron->getX()/stripPitch - 1 : stripID + Electron->getX()/stripPitch;
+
+    int stripVal = Electron->getX() < 0 ? stripID + Electron->getX()/stripPitch : stripID + Electron->getX()/stripPitch;
+    //    int stripVal = Electron->getX() < 0 ? stripID + Electron->getX()/stripPitch - 1 : stripID + Electron->getX()/stripPitch;
+
     if (stripVal < 0 || stripVal > maxstripID) stripVal = -1;
     (stripCharges[timeBin])[stripVal] += Electron->getCharge();
           
