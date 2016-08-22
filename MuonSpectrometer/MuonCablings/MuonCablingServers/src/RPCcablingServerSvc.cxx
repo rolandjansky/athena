@@ -115,9 +115,9 @@ RPCcablingServerSvc::giveCabling(const IRPCcablingSvc*& cabling) const {
     //} else {
     //	sc = service("RPCcablingSimSvc",cabling,true);
     //	if ( sc != StatusCode::SUCCESS ) {
-    //	    MsgStream log(messageService(), name());
+    //	    MsgStream log(msgSvc(), name());
     //	    log << MSG::ERROR << "Cannot retrieve the instance of RPCcablingSim"
-    //	        << endreq; 
+    //	        << endmsg; 
     //       return sc; 
     //   }
     //}

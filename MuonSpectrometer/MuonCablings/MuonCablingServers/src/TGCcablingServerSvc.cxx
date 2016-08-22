@@ -112,7 +112,7 @@ TGCcablingServerSvc::giveCabling(const ITGCcablingSvc*& cabling) const {
 
 bool
 TGCcablingServerSvc::isAtlas() const {
-    MsgStream log(messageService(), name());
+    MsgStream log(msgSvc(), name());
     
     if (!this->isConfigured()) {
       ATH_MSG_ERROR("The tagsCompared callback has not yet happened! Taking default configuration ("<< (m_atlas ? "12-fold cabling." : "8-fold cabling")
