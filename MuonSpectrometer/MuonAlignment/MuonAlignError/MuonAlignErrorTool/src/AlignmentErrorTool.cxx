@@ -74,7 +74,7 @@ StatusCode AlignmentErrorTool::initialize() {
 
     StatusCode sc = m_pMuonAlignmentErrorDbSvc.retrieve();
     if (sc != StatusCode::SUCCESS) {
-      msg(MSG::ERROR)<<"Could not retrieve the MuonAlignmentErrorDbSvc, it won't be possible to access the muon alignment error database."<<endreq;
+      msg(MSG::ERROR)<<"Could not retrieve the MuonAlignmentErrorDbSvc, it won't be possible to access the muon alignment error database."<<endmsg;
     }
 
     // FIRST INITIALIZATION TO ENFORCE TOOL CORRECTLY CONFIGURED
