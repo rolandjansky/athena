@@ -1,5 +1,5 @@
 package xAODCoreAthenaPool
-# $Id: requirements 635273 2014-12-11 13:58:24Z krasznaa $
+# $Id: requirements 769660 2016-08-23 15:51:19Z krasznaa $
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
@@ -15,6 +15,7 @@ use AthenaKernel        AthenaKernel-*        Control
 use AthContainers       AthContainers-*       Control
 
 # POOL package(s):
+use  AthenaPoolCnvSvc           AthenaPoolCnvSvc-*              Database/AthenaPOOL
 use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 
 # EDM package(s):
@@ -31,3 +32,4 @@ apply_pattern poolcnv typesWithNamespace="xAOD::AuxInfoBase \
                              ShallowAuxContainer.h \
                              ShallowAuxInfo.h" \
                       cnv_pfx="xAOD"
+

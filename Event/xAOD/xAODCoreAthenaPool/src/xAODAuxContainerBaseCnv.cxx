@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODAuxContainerBaseCnv.cxx 635273 2014-12-11 13:58:24Z krasznaa $
+// $Id: xAODAuxContainerBaseCnv.cxx 660871 2015-04-16 08:20:17Z krasznaa $
 
 // System include(s):
 #include <stdexcept>
@@ -26,7 +26,11 @@ xAODAuxContainerBaseCnv::createPersistent( xAOD::AuxContainerBase* trans ) {
    IThinningSvc* thinSvc = IThinningSvc::instance();
 
    // Create the persistent object using the helper function from AthContainers:
-   return SG::copyThinned( *trans, thinSvc );
+   xAOD::AuxContainerBase* result = SG::copyThinned( *trans, thinSvc );
+   // Make sure that the variable selection gets copied:
+   result->m_selection = trans->m_selection;
+   // Return the new object:
+   return result;
 }
 
 xAOD::AuxContainerBase* xAODAuxContainerBaseCnv::createTransient() {
