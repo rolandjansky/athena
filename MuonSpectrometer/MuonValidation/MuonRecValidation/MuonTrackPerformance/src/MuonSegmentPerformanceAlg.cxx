@@ -165,7 +165,7 @@ StatusCode MuonSegmentPerformanceAlg::finalize()
   for( unsigned int j=0;j<m_nfound.size();++j ){
     printRatio(prefix_fake+m_hitCutString[j],0,Muon::MuonStationIndex::BEE,m_nfake[j]); 
   }
-  msg(MSG::INFO) << std::endl << endreq;
+  msg(MSG::INFO) << std::endl << endmsg;
 
   msg(MSG::INFO) << " Segment finding efficiencies endcaps " << std::endl;
   msg(MSG::INFO) << " Chambers        ";
@@ -178,7 +178,7 @@ StatusCode MuonSegmentPerformanceAlg::finalize()
   for( unsigned int j=0;j<m_nfound.size();++j ){
     printRatio(prefix_fake+m_hitCutString[j],Muon::MuonStationIndex::BEE,Muon::MuonStationIndex::ChIndexMax,m_nfake[j]); 
   }
-  msg(MSG::INFO) << endreq;
+  msg(MSG::INFO) << endmsg;
   return StatusCode::SUCCESS;
 }
 

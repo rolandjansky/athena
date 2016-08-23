@@ -57,21 +57,21 @@ StatusCode MuonTrackStatisticsTool::initialize()
 {
 	// MSGStream object to output messages from your sub tool
 	m_log = new MsgStream(msgSvc(), name());
-	*m_log<<MSG::INFO<< "!initialize!" << endreq; 
+	*m_log<<MSG::INFO<< "!initialize!" << endmsg; 
 	
 	// Locate the StoreGateSvc and initialize our local ptr
 	StatusCode sc = service("StoreGateSvc", p_SGevent);
 	if (!sc.isSuccess() || 0 == p_SGevent) 
     {
-		*m_log << MSG::ERROR << "MuonTrackStatisticsTool::initialize() :  Could not find StoreGateSvc" << endreq;
+		*m_log << MSG::ERROR << "MuonTrackStatisticsTool::initialize() :  Could not find StoreGateSvc" << endmsg;
 		return	sc;
     }
 	
 	sc = m_helperTool.retrieve();
 	if (sc.isSuccess()){
-		*m_log<<MSG::DEBUG << "Retrieved " << m_helperTool << endreq;
+		*m_log<<MSG::DEBUG << "Retrieved " << m_helperTool << endmsg;
 	}else{
-		*m_log<<MSG::FATAL<<"Could not get " << m_helperTool <<endreq; 
+		*m_log<<MSG::FATAL<<"Could not get " << m_helperTool <<endmsg; 
 		return sc;
 	}
 	
@@ -110,7 +110,7 @@ StatusCode MuonTrackStatisticsTool::updateTrackCounters() const{
 		
 		sc = MuonTrackStatisticsTool::updateTrackCounters(**counter_it);
 		if(sc.isFailure()){
-			*m_log << MSG::FATAL << "Could not update TrackCounters" << endreq;
+			*m_log << MSG::FATAL << "Could not update TrackCounters" << endmsg;
 			return sc;
 		}
     }
@@ -123,7 +123,7 @@ StatusCode MuonTrackStatisticsTool::updateTrackCounters() const{
 			
 			sc = MuonTrackStatisticsTool::updateTruthTrackCounters(**counterTruth_it);
 			if(sc.isFailure()){
-				*m_log << MSG::FATAL << "Could not update TruthTrackCounters" << endreq;
+				*m_log << MSG::FATAL << "Could not update TruthTrackCounters" << endmsg;
 				return sc;
 			}
 		}
@@ -136,7 +136,7 @@ StatusCode MuonTrackStatisticsTool::updateTrackCounters() const{
 StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters& counters) const{
 	
 	
-	*m_log<<MSG::INFO<<"!updateTruthTrackCounters on:"<<counters.trackLocation<<endreq;
+	*m_log<<MSG::INFO<<"!updateTruthTrackCounters on:"<<counters.trackLocation<<endmsg;
 	StatusCode sc = StatusCode::SUCCESS;
 	
 	//retrieve tracks
@@ -145,25 +145,25 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
 	
 	if (p_SGevent->contains<DetailedTrackTruthCollection>( counters.trackLocation)){
 		
-		*m_log << MSG::INFO << "Acessing DetailedTrackTruthCollection for Truth" <<  counters.trackLocation << endreq;
+		*m_log << MSG::INFO << "Acessing DetailedTrackTruthCollection for Truth" <<  counters.trackLocation << endmsg;
 		
 		if (counters.trackLocation != "") {
 			if (p_SGevent->retrieve (TruthMap , counters.trackLocation).isFailure()) {
-				*m_log << MSG::INFO << "DetailedTrackTruthCollection \"" << counters.trackLocation<<"\" not found."<< endreq;
+				*m_log << MSG::INFO << "DetailedTrackTruthCollection \"" << counters.trackLocation<<"\" not found."<< endmsg;
 				return StatusCode::SUCCESS;
 			}
 		}else {
-			*m_log << MSG::INFO << "No DetailedTrackTruthCollection key specified to go with this"<<"TrackCollection!"<< endreq;
+			*m_log << MSG::INFO << "No DetailedTrackTruthCollection key specified to go with this"<<"TrackCollection!"<< endmsg;
 			return StatusCode::SUCCESS;
 		}
 		
 		if (TruthMap) {
-			*m_log << MSG::INFO << "Retrieved " << TruthMap->size()<< " TrackTruth elements from storegate"<< endreq;
+			*m_log << MSG::INFO << "Retrieved " << TruthMap->size()<< " TrackTruth elements from storegate"<< endmsg;
 			
 			sc = MuonTrackStatisticsTool::updateTruthTrackCounters(counters, *TruthMap);
 		}
 	}else{
-		*m_log << MSG::INFO << " Track Collection "  <<  counters.trackLocation << "not available to be retrieved" << endreq; 
+		*m_log << MSG::INFO << " Track Collection "  <<  counters.trackLocation << "not available to be retrieved" << endmsg; 
 		++counters.nEvents;
 		
 	}
@@ -179,7 +179,7 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
 
 StatusCode MuonTrackStatisticsTool::updateTrackCounters(TrackCounters& counters) const{
 	
-	*m_log<<MSG::INFO<<"!updateTrackCounters on:"<<counters.trackLocation<<endreq;
+	*m_log<<MSG::INFO<<"!updateTrackCounters on:"<<counters.trackLocation<<endmsg;
 	StatusCode sc = StatusCode::SUCCESS;
 	
 	//retrieve tracks
@@ -188,16 +188,16 @@ StatusCode MuonTrackStatisticsTool::updateTrackCounters(TrackCounters& counters)
 	if (p_SGevent->contains<TrackCollection>( counters.trackLocation)){
 		sc = p_SGevent->retrieve(tracks,counters.trackLocation);
 		if (sc.isFailure() ) {
-			*m_log << MSG::FATAL << " Could not retrieve track collection " << counters.trackLocation << endreq;
+			*m_log << MSG::FATAL << " Could not retrieve track collection " << counters.trackLocation << endmsg;
 			
 		}else{
-			*m_log << MSG::INFO << " Number of retrieved tracks = "  << tracks->size() << endreq;  
+			*m_log << MSG::INFO << " Number of retrieved tracks = "  << tracks->size() << endmsg;  
 			sc = MuonTrackStatisticsTool::updateTrackCounters(counters, *tracks);
 			
 		}
 		
 	}else{
-		*m_log << MSG::INFO << " Track Collection "  <<  counters.trackLocation << "not available to be retrieved" << endreq; 
+		*m_log << MSG::INFO << " Track Collection "  <<  counters.trackLocation << "not available to be retrieved" << endmsg; 
 		++counters.nEvents;
 		
 	}
@@ -210,7 +210,7 @@ StatusCode MuonTrackStatisticsTool::updateTrackCounters(TrackCounters& counters)
 
 StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters& counters,  const DetailedTrackTruthCollection& TruthMap) const{
 	
-	*m_log << MSG::INFO << "MuonTrackStatisticsTool calling updateTruthTrackCounters: " << counters.trackLocation<<endreq;
+	*m_log << MSG::INFO << "MuonTrackStatisticsTool calling updateTruthTrackCounters: " << counters.trackLocation<<endmsg;
 	
 	++counters.nEvents;
 	
@@ -261,15 +261,15 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
 		counters.nCSChits[2]+=(*it).second.statsTruth()[SubDetHitStatistics::CSC];
 		
 		
-		*m_log << MSG::INFO << myindex << ".) " << "Index: "  <<  (*it).first.index() << "		" << (*it).second << " (Pixel, SCT, TRT, MDT, RPC, TGC, CSC) " << endreq;
-		*m_log << MSG::INFO << "	GenParticle info:" <<endreq;
+		*m_log << MSG::INFO << myindex << ".) " << "Index: "  <<  (*it).first.index() << "		" << (*it).second << " (Pixel, SCT, TRT, MDT, RPC, TGC, CSC) " << endmsg;
+		*m_log << MSG::INFO << "	GenParticle info:" <<endmsg;
 		for( unsigned int i=0; i< (*it).second.trajectory().size(); i++) {
 			*m_log << MSG::INFO << "		Particle "<<i;
 			if( !(*it).second.trajectory().at(i).cptr() ) {
-				*m_log << MSG::INFO << " has a null pointer: "<< (*it).second.trajectory().at(i).cptr() << endreq;
+				*m_log << MSG::INFO << " has a null pointer: "<< (*it).second.trajectory().at(i).cptr() << endmsg;
 			}else{
-				*m_log << MSG::INFO << endreq<< "			- pdg_id: "<< (*it).second.trajectory().at(i).cptr()->pdg_id() << endreq;
-				*m_log << MSG::INFO << "			- status: "<< (*it).second.trajectory().at(i).cptr()->status() << endreq;
+				*m_log << MSG::INFO << endmsg<< "			- pdg_id: "<< (*it).second.trajectory().at(i).cptr()->pdg_id() << endmsg;
+				*m_log << MSG::INFO << "			- status: "<< (*it).second.trajectory().at(i).cptr()->status() << endmsg;
 				counters.nTracks++;
 			}
 			
@@ -285,7 +285,7 @@ StatusCode MuonTrackStatisticsTool::updateTruthTrackCounters(TruthTrackCounters&
 
 StatusCode MuonTrackStatisticsTool::updateTrackCounters(TrackCounters& counters,  const TrackCollection& tracks) const{
 	
-	*m_log << MSG::INFO << "MuonTrackStatisticsTool calling updateTrackCounters: " << counters.trackLocation<<endreq;
+	*m_log << MSG::INFO << "MuonTrackStatisticsTool calling updateTrackCounters: " << counters.trackLocation<<endmsg;
 	
 	++counters.nEvents;
 	
@@ -331,13 +331,13 @@ void MuonTrackStatisticsTool::addTrackCounters(std::string trkLoc) const
 	TString temp_string(trkLoc);
 	
 	if( temp_string.Contains("Truth") && m_doTruth) {
-		*m_log << MSG::INFO << "MuonTrackStatisticsTool calling addTrackCounters for truth: " << trkLoc << endreq;
+		*m_log << MSG::INFO << "MuonTrackStatisticsTool calling addTrackCounters for truth: " << trkLoc << endmsg;
 		TruthTrackCounters * counters;
 		counters = new TruthTrackCounters (trkLoc);
 		m_allTruthCounters.push_back(counters);
 	}else if( !temp_string.Contains("Truth")) {
 		
-		*m_log << MSG::INFO << "MuonTrackStatisticsTool calling addTrackCounters for reco: " << trkLoc << endreq;
+		*m_log << MSG::INFO << "MuonTrackStatisticsTool calling addTrackCounters for reco: " << trkLoc << endmsg;
 		TrackCounters * counters;
 		counters = new TrackCounters (trkLoc);
 		m_allCounters.push_back(counters);
@@ -400,7 +400,7 @@ std::string MuonTrackStatisticsTool::printTrackCounters() const
 				TString TruthCollectionName = (*truthcounter_it)->trackLocation;
 				if (TruthCollectionName.Contains((*counter_it)->trackLocation)){
 					TruthTrackCounter = (*truthcounter_it)->nTracks;
-					*m_log << MSG::INFO << "MuonTrackStatisticsTool - Found matching TruthCollection for: " << (*counter_it)->trackLocation << endreq;
+					*m_log << MSG::INFO << "MuonTrackStatisticsTool - Found matching TruthCollection for: " << (*counter_it)->trackLocation << endmsg;
 				}
 			}
 			
@@ -416,7 +416,7 @@ std::string MuonTrackStatisticsTool::printTrackCounters() const
 		
 		
 		if (trksPerTrtrk < 0 && m_doTruth){ 
-			*m_log << MSG::WARNING << "MuonTrackStatisticsTool - Could not find matching TruthCollection for: " << (*counter_it)->trackLocation << endreq;
+			*m_log << MSG::WARNING << "MuonTrackStatisticsTool - Could not find matching TruthCollection for: " << (*counter_it)->trackLocation << endmsg;
 			sout.precision(4);
 			sout << std::endl;
 			sout << ">>>> MuonTrackStatisticsAlg Summary: Track Container = " << (*counter_it)->trackLocation  << std::endl;
@@ -542,14 +542,14 @@ MuonTrackStatisticsTool::storeTruthTracks(void)
 	 std::string key = "TruthEvent";
 	 StatusCode sc = p_SGevent->retrieve(mcCollection,key);
 	 if (sc.isFailure()) {
-	 *m_log << MSG::ERROR << "Could not find the McEventCollection" << endreq;
+	 *m_log << MSG::ERROR << "Could not find the McEventCollection" << endmsg;
 	 return;
 	 }
 	 
 	 const TrackRecordCollection* recordCollection = 0;
 	 std::string recordKey = "MuonEntryLayer";
 	 if (!(p_SGevent->retrieve(recordCollection, recordKey))) {
-	 *m_log << MSG::WARNING << "Could not find the TrackRecordCollection" << endreq;
+	 *m_log << MSG::WARNING << "Could not find the TrackRecordCollection" << endmsg;
 	 }
 	 
 	 m_nkine = 0;
