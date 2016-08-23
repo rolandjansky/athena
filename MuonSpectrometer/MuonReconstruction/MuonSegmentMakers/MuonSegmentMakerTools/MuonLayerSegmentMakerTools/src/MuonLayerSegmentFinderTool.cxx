@@ -66,7 +66,7 @@ namespace Muon {
     ATH_CHECK(m_csc4dSegmentFinder.retrieve());
     ATH_CHECK(m_clusterSegmentFinder.retrieve());
     ATH_CHECK(m_layerHoughTool.retrieve());
-    ATH_CHECK(m_recoValidationTool.retrieve());
+    if( !m_recoValidationTool.empty() ) ATH_CHECK(m_recoValidationTool.retrieve());
 
     return StatusCode::SUCCESS;
   }
@@ -98,7 +98,7 @@ namespace Muon {
   }
 
   void MuonLayerSegmentFinderTool::findMdtSegmentsFromHough( const MuonSystemExtension::Intersection& intersection,
-                                                             const MuonLayerPrepRawData& layerPrepRawData,
+                                                             const MuonLayerPrepRawData& /*layerPrepRawData*/,
                                                              std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
 
     unsigned int nprevSegments = segments.size(); // keep track of what is already there
@@ -287,7 +287,7 @@ namespace Muon {
     }
   }
 
-  void MuonLayerSegmentFinderTool::findClusterSegments( const MuonSystemExtension::Intersection& intersection,
+  void MuonLayerSegmentFinderTool::findClusterSegments( const MuonSystemExtension::Intersection& /*intersection*/,
                                                         const MuonLayerPrepRawData& layerPrepRawData,
                                                         std::vector< std::shared_ptr<const Muon::MuonSegment> >& segments ) const {
 
