@@ -65,9 +65,9 @@ In initialize():
 @code
  
   if( m_mdtSegmentMaker.retrieve().isSuccess() ){
-    log<<MSG::INFO << "Retrieved " << m_mdtSegmentMaker << endreq;
+    log<<MSG::INFO << "Retrieved " << m_mdtSegmentMaker << endmsg;
   }else{
-    log<<MSG::FATAL<<"Could not get " << m_mdtSegmentMaker <<endreq;
+    log<<MSG::FATAL<<"Could not get " << m_mdtSegmentMaker <<endmsg;
     return StatusCode::FAILURE;
   }    
 
