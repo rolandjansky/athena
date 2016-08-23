@@ -166,7 +166,7 @@ namespace Muon {
       }
       if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << std::endl;
     }
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << endreq;
+    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << endmsg;
 
     return true;
   }

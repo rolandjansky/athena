@@ -74,7 +74,7 @@ namespace Muon {
       if( !layerPrepRawData.cscs.empty() )  msg(MSG::DEBUG) << " CSCs "  << layerPrepRawData.cscs.size();
       if( !layerPrepRawData.stgcs.empty() ) msg(MSG::DEBUG) << " STGCs "  << layerPrepRawData.stgcs.size();
       if( !layerPrepRawData.mms.empty() )   msg(MSG::DEBUG) << " MMs "  << layerPrepRawData.mms.size();
-      msg(MSG::DEBUG) << endreq;
+      msg(MSG::DEBUG) << endmsg;
     }
     return success;
   }
