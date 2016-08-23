@@ -25,23 +25,23 @@ using namespace std;
 
 L1InfoHypo::L1InfoHypo(const std::string& name, ISvcLocator* svc) 
   : HLT::HypoAlgo(name, svc),
-    mlvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool",this)
+    m_lvl1Tool("HLT::Lvl1ResultAccessTool/Lvl1ResultAccessTool",this)
 {
-  declareProperty("AlwaysPass",mAlwaysPass=false);
-  declareProperty("InvertSelection",mInvertSelection=false);
+  declareProperty("AlwaysPass",m_alwaysPass=false);
+  declareProperty("InvertSelection",m_invertSelection=false);
 
-  declareProperty("L1ItemNames",mL1ItemNames);
-  declareProperty("InvertL1ItemNameSelection",mInvertL1ItemNameSelection=false);
-  declareProperty("UseBeforePrescaleBit",     mUseBeforePrescaleBit=false);
+  declareProperty("L1ItemNames",m_L1ItemNames);
+  declareProperty("InvertL1ItemNameSelection",m_invertL1ItemNameSelection=false);
+  declareProperty("UseBeforePrescaleBit",     m_useBeforePrescaleBit=false);
 
-  declareProperty("TriggerTypeBitMask"                       ,mTriggerTypeBitMask=0x80);
-  declareProperty("L1TriggerBitMask"                         ,mL1TriggerBitMask=0);
+  declareProperty("TriggerTypeBitMask"                       ,m_triggerTypeBitMask=0x80);
+  declareProperty("L1TriggerBitMask"                         ,m_L1TriggerBitMask=0);
 
-  declareProperty("TriggerTypeBit"                       ,mTriggerTypeBit=0x80);
-  declareProperty("L1TriggerBit"                         ,mL1TriggerBit=0);
-  declareProperty("InvertBitMaskSelection",mInvertBitMaskSelection=false);
+  declareProperty("TriggerTypeBit"                       ,m_triggerTypeBit=0x80);
+  declareProperty("L1TriggerBit"                         ,m_L1TriggerBit=0);
+  declareProperty("InvertBitMaskSelection",m_invertBitMaskSelection=false);
 
-  declareProperty("Lvl1ResultAccessToool",mlvl1Tool,"tool to access lvl1 result");
+  declareProperty("Lvl1ResultAccessToool",m_lvl1Tool,"tool to access lvl1 result");
 }
 
 L1InfoHypo::~L1InfoHypo() {
@@ -49,54 +49,54 @@ L1InfoHypo::~L1InfoHypo() {
 
 HLT::ErrorCode L1InfoHypo::hltInitialize() 
 {
-  msg() << MSG::DEBUG << "initialize()" << endreq;
+  msg() << MSG::DEBUG << "initialize()" << endmsg;
   
-  msg() << MSG::INFO << "Parameters for L1InfoHypo:" << name() << endreq;
-  msg() << MSG::INFO << "AlwaysPass                  : " << mAlwaysPass                    << endreq;
-  msg() << MSG::INFO << "InvertSelection             : " << mInvertSelection               << endreq;
-  msg() << MSG::INFO << "L1ItemNames                 : " << mL1ItemNames                   << endreq;
-  msg() << MSG::INFO << "InvertL1ItemNameSelection   : " << mInvertL1ItemNameSelection     << endreq;
-  msg() << MSG::INFO << "TriggerTypeBitMask          : " << mTriggerTypeBitMask            << endreq;
-  msg() << MSG::INFO << "L1TriggerBitMask            : " << mL1TriggerBitMask              << endreq;
-  msg() << MSG::INFO << "TriggerTypeBit              : " << mTriggerTypeBit                << endreq;
-  msg() << MSG::INFO << "L1TriggerBit                : " << mL1TriggerBit                  << endreq;
-  msg() << MSG::INFO << "InvertBitMasksSelection     : " << mInvertBitMaskSelection        << endreq;
+  msg() << MSG::INFO << "Parameters for L1InfoHypo:" << name() << endmsg;
+  msg() << MSG::INFO << "AlwaysPass                  : " << m_alwaysPass                    << endmsg;
+  msg() << MSG::INFO << "InvertSelection             : " << m_invertSelection               << endmsg;
+  msg() << MSG::INFO << "L1ItemNames                 : " << m_L1ItemNames                   << endmsg;
+  msg() << MSG::INFO << "InvertL1ItemNameSelection   : " << m_invertL1ItemNameSelection     << endmsg;
+  msg() << MSG::INFO << "TriggerTypeBitMask          : " << m_triggerTypeBitMask            << endmsg;
+  msg() << MSG::INFO << "L1TriggerBitMask            : " << m_L1TriggerBitMask              << endmsg;
+  msg() << MSG::INFO << "TriggerTypeBit              : " << m_triggerTypeBit                << endmsg;
+  msg() << MSG::INFO << "L1TriggerBit                : " << m_L1TriggerBit                  << endmsg;
+  msg() << MSG::INFO << "InvertBitMasksSelection     : " << m_invertBitMaskSelection        << endmsg;
 
 
-  if ( mlvl1Tool.retrieve().isFailure()) 
+  if ( m_lvl1Tool.retrieve().isFailure()) 
     {
-      msg() << MSG::FATAL << "Unable to retrieve lvl1 result access tool: " << mlvl1Tool << endreq;
+      msg() << MSG::FATAL << "Unable to retrieve lvl1 result access tool: " << m_lvl1Tool << endmsg;
       return HLT::FATAL;
     }
 
-  StatusCode sc = mlvl1Tool->updateConfig(true,true,true);
+  StatusCode sc = m_lvl1Tool->updateConfig(true,true,true);
   if ( sc.isFailure() ) 
     {
-      (msg()) << MSG::FATAL << "Unable to configure tool!" << endreq;
+      (msg()) << MSG::FATAL << "Unable to configure tool!" << endmsg;
       return HLT::FATAL;
     }
 
-  msg() << MSG::DEBUG << "initialize success" << endreq;
+  msg() << MSG::DEBUG << "initialize success" << endmsg;
 
   return HLT::OK;
 }
 
 HLT::ErrorCode L1InfoHypo::hltBeginRun() 
 {
-  msg() << MSG::DEBUG << "beginRun"<<  endreq;
+  msg() << MSG::DEBUG << "beginRun"<<  endmsg;
 
   return HLT::OK;
 }
 
 HLT::ErrorCode L1InfoHypo::hltEndRun() 
 {
-  msg() << MSG::DEBUG << "endRun"<<  endreq;
+  msg() << MSG::DEBUG << "endRun"<<  endmsg;
   return HLT::OK;
 }
 
 HLT::ErrorCode L1InfoHypo::hltFinalize() 
 {
-  msg() << MSG::DEBUG << "finalize()" << endreq;
+  msg() << MSG::DEBUG << "finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -108,22 +108,22 @@ HLT::ErrorCode L1InfoHypo::hltExecute(const HLT::TriggerElement* /*unused*/,bool
   bool ItemPass=false;
 
   int output_level = msgSvc()->outputLevel(name());
-  if (output_level <= MSG::VERBOSE) msg() << MSG::VERBOSE << "execL1InfoHypo"  << endreq;
+  if (output_level <= MSG::VERBOSE) msg() << MSG::VERBOSE << "execL1InfoHypo"  << endmsg;
   const EventInfo* constEventInfo(0);
 
-  if (mAlwaysPass) {Pass=true; return HLT::OK; };
+  if (m_alwaysPass) {Pass=true; return HLT::OK; };
 
   StatusCode sc =  evtStore()->retrieve(constEventInfo);
 
   if(sc.isFailure())
     {
       if(output_level <= MSG::FATAL)
-	msg() << MSG::FATAL << "Can't get EventInfo object"  << endreq;
+	msg() << MSG::FATAL << "Can't get EventInfo object"  << endmsg;
       return StatusCode::FAILURE;
     }
   else
     {
-      if (mL1ItemNames.size())
+      if (m_L1ItemNames.size())
 	{
 	  const ROIB::RoIBResult* result;
 	  sc = evtStore()->retrieve(result);
@@ -132,13 +132,13 @@ HLT::ErrorCode L1InfoHypo::hltExecute(const HLT::TriggerElement* /*unused*/,bool
 	    {
 	      msg() << MSG::WARNING
 		  << "Unable to retrieve RoIBResult from storeGate!"
-		  << endreq;
+		  << endmsg;
 	      return HLT::NO_LVL1_RESULT;
 	    }
-	  const std::vector<const LVL1CTP::Lvl1Item*>& items = mlvl1Tool->createL1Items(*result);
+	  const std::vector<const LVL1CTP::Lvl1Item*>& items = m_lvl1Tool->createL1Items(*result);
 	  for (std::vector<const LVL1CTP::Lvl1Item*>::const_iterator item = items.begin(); item != items.end(); ++item) 
 	    {
-	      if(mUseBeforePrescaleBit) {
+	      if(m_useBeforePrescaleBit) {
 		if(!(*item)->isPassedBeforePrescale())
 		  continue;
 	      }
@@ -148,36 +148,36 @@ HLT::ErrorCode L1InfoHypo::hltExecute(const HLT::TriggerElement* /*unused*/,bool
 	      }
 
 	      msg() << MSG::DEBUG << "Found active LVL1 item " << (*item)->name() << " ("
-		  << (*item)->hashId() << ")" << endreq;
-	      for (int unsigned i=0;i<mL1ItemNames.size();i++)
+		  << (*item)->hashId() << ")" << endmsg;
+	      for (int unsigned i=0;i<m_L1ItemNames.size();i++)
 		{
 		  msg() << MSG::DEBUG << "Comparing " << 
 		    (*item)->name() << " to [L1_]" <<
-		    mL1ItemNames[i] << " result: " << 
-		    ( ((*item)->name()==mL1ItemNames[i]) or ((*item)->name()=="L1_"+mL1ItemNames[i]) ) << endreq;
-		  ItemPass=ItemPass or ((*item)->name()==mL1ItemNames[i]) or ((*item)->name()=="L1_"+mL1ItemNames[i]);
+		    m_L1ItemNames[i] << " result: " << 
+		    ( ((*item)->name()==m_L1ItemNames[i]) or ((*item)->name()=="L1_"+m_L1ItemNames[i]) ) << endmsg;
+		  ItemPass=ItemPass or ((*item)->name()==m_L1ItemNames[i]) or ((*item)->name()=="L1_"+m_L1ItemNames[i]);
 		};
 	    }
 
-	  if (mInvertL1ItemNameSelection) ItemPass=(ItemPass)?0:1;
+	  if (m_invertL1ItemNameSelection) ItemPass=(ItemPass)?0:1;
 	}
       else
 	ItemPass=true;
 
-      TriggerInfo* tinfo = constEventInfo->trigger_info();
+      const TriggerInfo* tinfo = constEventInfo->trigger_info();
       TriggerInfo::number_type L1TriggerType=tinfo->level1TriggerType();
       TriggerInfo::number_type L1ID=tinfo->extendedLevel1ID();
       
       //printf("L1 Info: %x %x\n",L1TriggerType,L1ID);
-      msg() << MSG::DEBUG << "L1 Info: " << hex << L1TriggerType << " " << L1ID << endreq;
+      msg() << MSG::DEBUG << "L1 Info: " << hex << L1TriggerType << " " << L1ID << endmsg;
       bool PassBM=
-	((L1TriggerType & mTriggerTypeBitMask)==mTriggerTypeBit||(mTriggerTypeBitMask==0))&&
-	((L1ID          & mL1TriggerBitMask  )==mL1TriggerBit    ||(mL1TriggerBitMask  ==0));
-      if (mInvertBitMaskSelection) PassBM=(PassBM)?0:1;
+	((L1TriggerType & m_triggerTypeBitMask)==m_triggerTypeBit||(m_triggerTypeBitMask==0))&&
+	((L1ID          & m_L1TriggerBitMask  )==m_L1TriggerBit    ||(m_L1TriggerBitMask  ==0));
+      if (m_invertBitMaskSelection) PassBM=(PassBM)?0:1;
       Pass = Pass and PassBM and ItemPass;
     }
 
-  if (mInvertSelection) Pass=(Pass)?0:1;
+  if (m_invertSelection) Pass=(Pass)?0:1;
   
   return HLT::OK;
 }
