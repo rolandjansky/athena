@@ -145,7 +145,7 @@ class MDTPRDValAlg: public AthAlgorithm {
   bool                m_debug;
   bool                m_verbose;
   StoreGateSvc*       m_sgSvc;
-  bool isVerbose() {return (outputLevel() <= MSG::VERBOSE);}
+  bool isVerbose() {return (msgLevel() <= MSG::VERBOSE);}
 
   void addMcEventCollection( TruthMap& truthMap ) const;
   void addMuonRecord( TruthMap& truthMap, bool exit ) const; // add MuonEntry or MuonExit Record/Layer

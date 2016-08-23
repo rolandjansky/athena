@@ -8,9 +8,10 @@
 #include "MuonSimEvent/GenericMuonSimHitCollection.h"
 #include "MuonSimEvent/MM_SimIdToOfflineId.h"
 
-#include "MuonReadoutGeometry/NSWenumeration.h"
-#include "MuonReadoutGeometry/NSWgeometry.h"
 #include "MuonReadoutGeometry/MMReadoutElement.h"
+
+#include "MuonAGDDDescription/MMDetectorDescription.h"
+#include "MuonAGDDDescription/MMDetectorHelper.h"
 
 #include "TTree.h"
 
@@ -125,6 +126,12 @@ StatusCode MMSimHitVariables::fillVariables()
     int off_gas_gap      = m_MmIdHelper->gasGap(offId);
     int off_channel      = m_MmIdHelper->channel(offId);
 
+    // Get MM_READOUT from MMDetectorDescription
+    char side = off_stationEta < 0 ? 'C' : 'A';
+    char sector_l = stName.substr(2,1)=="L" ? 'L' : 'S';
+    MMDetectorHelper aHelper;
+    MMDetectorDescription* mm = aHelper.Get_MMDetector(sector_l, abs(off_stationEta), off_stationPhi, off_multiplet, side);
+    MMReadoutParameters roParam = mm->GetReadoutParameters();
 
     ATH_MSG_INFO(     "MicroMegas Offline id:  Station Name [" << stName << " ]"
                     << " Station Eta ["  << off_stationEta      << "]"
@@ -168,7 +175,7 @@ StatusCode MMSimHitVariables::fillVariables()
 
     // check where the readout plane is located and compute the local direction accordingly 
     Amg::Vector3D ldir(0., 0., 0.);
-    if (MM_READOUT[m_MmIdHelper->gasGap(offId)-1]==1)
+    if ((roParam.stereoAngel).at(m_MmIdHelper->gasGap(offId)-1)==1)
       ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), hit.globalDirection().z());
     else
       ldir = surf.transform().inverse().linear()*Amg::Vector3D(hit.globalDirection().x(), hit.globalDirection().y(), -hit.globalDirection().z());

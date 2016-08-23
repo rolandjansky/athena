@@ -172,7 +172,7 @@ StatusCode MDTPRDValAlg::initialize()
   m_log     = new MsgStream( msgSvc(), name());
   m_debug   = m_log->level() <= MSG::DEBUG;
   m_verbose = m_log->level() <= MSG::VERBOSE;
-  *m_log << MSG::INFO << " initializing MDTPRDValAlg " << endreq;
+  *m_log << MSG::INFO << " initializing MDTPRDValAlg " << endmsg;
  
   /**Locate the StoreGateSvc and initialize our local ptr
      intitialize transient event store
@@ -180,29 +180,29 @@ StatusCode MDTPRDValAlg::initialize()
   StatusCode sc = service("StoreGateSvc", m_sgSvc);
 
   if (!sc.isSuccess() || 0 == m_sgSvc) {
-    *m_log << MSG::ERROR << "MDTPRDValAlg: Could not find StoreGateSvc" << endreq;
+    *m_log << MSG::ERROR << "MDTPRDValAlg: Could not find StoreGateSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   else { 
-    *m_log << MSG::DEBUG << "Retrieved StoreGateSvc" << endreq;
+    *m_log << MSG::DEBUG << "Retrieved StoreGateSvc" << endmsg;
   } 
       
   StoreGateSvc* detStore;
   sc = serviceLocator()->service( "DetectorStore", detStore );
   if (sc.isFailure())   {
-    *m_log << MSG::ERROR << "Cannot locate the DetectorStore" << endreq; 
+    *m_log << MSG::ERROR << "Cannot locate the DetectorStore" << endmsg; 
     return sc;
   }
  
   sc = detStore->retrieve( m_pMuonMgr ); 
   if (sc.isFailure()){
-    *m_log << MSG::ERROR << "Cannot retrieve MuonDetectorManager" << endreq;
+    *m_log << MSG::ERROR << "Cannot retrieve MuonDetectorManager" << endmsg;
     return sc;
   }
 
   sc = detStore->retrieve(m_mdtIdHelper,"MDTIDHELPER");
   if (sc.isFailure()){
-    *m_log << MSG::ERROR << "Cannot retrieve m_mdtId" << endreq;
+    *m_log << MSG::ERROR << "Cannot retrieve m_mdtId" << endmsg;
     return sc;
   }  
 
@@ -223,18 +223,18 @@ StatusCode MDTPRDValAlg::initialize()
       ISvcLocator* svcLocator = Gaudi::svcLocator();
       sc = svcLocator->service("THistSvc", hSvc);
       if (sc.isFailure()) {
-	*m_log << MSG::WARNING << " could not get THistSvc " << endreq;
+	*m_log << MSG::WARNING << " could not get THistSvc " << endmsg;
 	return sc;
       }
       
       status=ToolRootHistSvc()->regTree(mdttreePath, mdttree);
 
       if(status.isFailure()) {
-	*m_log << MSG::DEBUG << "MDTPRDValAlg:: Unable to register TTreeTuple : " << mdttreePath << endreq;
+	*m_log << MSG::DEBUG << "MDTPRDValAlg:: Unable to register TTreeTuple : " << mdttreePath << endmsg;
 	return status;   
       }
       
-      *m_log << MSG::INFO << " Creating new ntuple " << mdttreePath << endreq;
+      *m_log << MSG::INFO << " Creating new ntuple " << mdttreePath << endmsg;
   
       //-----------------------------------------------//
       /**add items-variables to the validation AANTUPLE
@@ -327,22 +327,22 @@ StatusCode MDTPRDValAlg::initialize()
 
     sc = m_extrapolator.retrieve();
     if( sc.isSuccess() ){
-      *m_log<<MSG::INFO << "Retrieved " << m_extrapolator << endreq;
+      *m_log<<MSG::INFO << "Retrieved " << m_extrapolator << endmsg;
     }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_extrapolator <<endreq; 
+      *m_log<<MSG::FATAL<<"Could not get " << m_extrapolator <<endmsg; 
       return sc;
     }
     sc = m_rotCreator.retrieve();
     if( sc.isSuccess() ){
-      *m_log<<MSG::INFO << "Retrieved " << m_rotCreator << endreq;
+      *m_log<<MSG::INFO << "Retrieved " << m_rotCreator << endmsg;
     }else{
-      *m_log<<MSG::FATAL<<"Could not get " << m_rotCreator <<endreq; 
+      *m_log<<MSG::FATAL<<"Could not get " << m_rotCreator <<endmsg; 
       return sc;
     }
 
     event_counter=0;
   
-    *m_log << MSG::INFO << "MDTPRDValAlg:: Initialisation ended  " << endreq;
+    *m_log << MSG::INFO << "MDTPRDValAlg:: Initialisation ended  " << endmsg;
     return StatusCode::SUCCESS;
 
 }
@@ -359,7 +359,7 @@ StatusCode MDTPRDValAlg::execute()
      to all MdtPrepData objects in the event that belong to a muon in the event.
      
   */
-  if( m_debug ) *m_log << MSG::DEBUG << " MDTPRDValAlg:: execute " << endreq;  
+  if( m_debug ) *m_log << MSG::DEBUG << " MDTPRDValAlg:: execute " << endmsg;  
     
   TruthMap truthMap;
   MuonMdtHitMap muonMdtHitMap;
@@ -367,19 +367,19 @@ StatusCode MDTPRDValAlg::execute()
   // add MC event collection
   addMcEventCollection( truthMap );
 
-  *m_log << MSG::INFO << " addMcEventCollection truth particles found " << truthMap.size() << endreq;
+  *m_log << MSG::INFO << " addMcEventCollection truth particles found " << truthMap.size() << endmsg;
 
   // add muon entry record
   addMuonRecord( truthMap, false );
-  *m_log << MSG::INFO << " addMuonEntryRecord truth particles found " << truthMap.size() << endreq;
+  *m_log << MSG::INFO << " addMuonEntryRecord truth particles found " << truthMap.size() << endmsg;
   // add exit record
   addMuonRecord( truthMap, true );
-  *m_log << MSG::INFO << " addMuonExitRecord truth particles found " << truthMap.size() << endreq;
+  *m_log << MSG::INFO << " addMuonExitRecord truth particles found " << truthMap.size() << endmsg;
 
 
   // check whether we found truth particles
   if( truthMap.empty() ){
-    *m_log << MSG::WARNING << "No truth particles found, cannot perform test" << endreq;
+    *m_log << MSG::WARNING << "No truth particles found, cannot perform test" << endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -391,7 +391,7 @@ StatusCode MDTPRDValAlg::execute()
 
   // check whether we found truth hits
   if( muonMdtHitMap.empty() ){
-    if( m_debug ) *m_log << MSG::DEBUG << "No truth hits found, cannot perform test" << endreq;
+    if( m_debug ) *m_log << MSG::DEBUG << "No truth hits found, cannot perform test" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -407,7 +407,7 @@ StatusCode MDTPRDValAlg::execute()
  
 StatusCode MDTPRDValAlg::finalize()
 {
-  *m_log << MSG::INFO << " MDTPRDValAlg:: finalize " << endreq;
+  *m_log << MSG::INFO << " MDTPRDValAlg:: finalize " << endmsg;
 
   delete m_log;
 
@@ -421,7 +421,7 @@ ITHistSvc* MDTPRDValAlg::ToolRootHistSvc()
   StatusCode sc = service("THistSvc",m_rootsvc, true);
   if( sc.isFailure() ) 
     {
-      *m_log << MSG::WARNING << ">>> Unable to locate the MDTPRDValAlg Histogram service" << endreq;
+      *m_log << MSG::WARNING << ">>> Unable to locate the MDTPRDValAlg Histogram service" << endmsg;
     }
    
   return m_rootsvc;
@@ -435,22 +435,22 @@ void MDTPRDValAlg::addMcEventCollection( MDTPRDValAlg::TruthMap& truthMap ) cons
   /**Access MC truth information*/
   const DataHandle<McEventCollection> mcEvent;
   if(!m_sgSvc->contains<McEventCollection>(m_key)) {
-    if( m_debug ) *m_log << MSG::DEBUG << "MDTPRDValAlg: Could not find MCevent" << endreq;    
+    if( m_debug ) *m_log << MSG::DEBUG << "MDTPRDValAlg: Could not find MCevent" << endmsg;    
     return;
   }
   if(m_sgSvc->retrieve(mcEvent,m_key).isFailure()){
-      *m_log << MSG::WARNING << "MDTPRDValAlg: Could not retrieve MCevent" << endreq;
+      *m_log << MSG::WARNING << "MDTPRDValAlg: Could not retrieve MCevent" << endmsg;
       return;
   }else{
-    if( m_debug ) *m_log << MSG::DEBUG << "MDTPRDValAlg: Found MCEvent" << endreq;
+    if( m_debug ) *m_log << MSG::DEBUG << "MDTPRDValAlg: Found MCEvent" << endmsg;
   }
 
 
   DataVector<HepMC::GenEvent>::const_iterator e;
   if (mcEvent->size()!=1) {
-    *m_log << MSG::WARNING << " MC event size larger than one: exit algorithm " << endreq;
+    *m_log << MSG::WARNING << " MC event size larger than one: exit algorithm " << endmsg;
   }
-  if( m_verbose ) *m_log << MSG::VERBOSE << " looping over MC particles " << endreq;
+  if( m_verbose ) *m_log << MSG::VERBOSE << " looping over MC particles " << endmsg;
   for (e=mcEvent->begin();e!=mcEvent->end(); e++) {
     for (HepMC::GenEvent::particle_const_iterator p= (**e).particles_begin(); p!= (**e).particles_end(); p++) {
 
@@ -459,7 +459,7 @@ void MDTPRDValAlg::addMcEventCollection( MDTPRDValAlg::TruthMap& truthMap ) cons
       if( !(**p).production_vertex() ) continue;
 
       int barcode = (**p).barcode();
-      *m_log << MSG::VERBOSE << " pdg " << pdg << " barcode " <<  barcode << endreq;
+      *m_log << MSG::VERBOSE << " pdg " << pdg << " barcode " <<  barcode << endmsg;
       
       TruthInfo* info; 
 
@@ -471,15 +471,15 @@ void MDTPRDValAlg::addMcEventCollection( MDTPRDValAlg::TruthMap& truthMap ) cons
 	info->barcode = barcode;
 	info->pdg = pdg;
 	truthMap.insert( std::make_pair(barcode,info) );
-        *m_log << MSG::VERBOSE << "  truthMap.size()  " << truthMap.size() << endreq;
+        *m_log << MSG::VERBOSE << "  truthMap.size()  " << truthMap.size() << endmsg;
       } else{
 	info = pos->second;
 	if( info->pdg != pdg || info->barcode != barcode ){
-	  *m_log << MSG::WARNING << " TruthInfo inconsistent " << endreq;
+	  *m_log << MSG::WARNING << " TruthInfo inconsistent " << endmsg;
 	  continue;	
 	}
 	if( info->vertex ){
-	  *m_log << MSG::WARNING << " TruthInfo already has vertex?!?!? " << endreq;
+	  *m_log << MSG::WARNING << " TruthInfo already has vertex?!?!? " << endmsg;
 	  continue;
 	}
       }
@@ -500,12 +500,12 @@ void MDTPRDValAlg::addMcEventCollection( MDTPRDValAlg::TruthMap& truthMap ) cons
 
       if( m_debug ) *m_log << MSG::DEBUG << " New muon at vertex " << barcode << "  pos " << particle->position
 			   << " phi " << particle->momentum.phi() << " theta " << particle->momentum.theta()
-			   << " q*p " << particle->charge*particle->momentum.mag() << endreq;
+			   << " q*p " << particle->charge*particle->momentum.mag() << endmsg;
     }
   }
   if( m_debug ) {
-    if( truthMap.empty() ) *m_log << MSG::DEBUG << "MDTPRDValAlg: No Muons in MC event " << endreq;
-    else                   *m_log << MSG::DEBUG << "MDTPRDValAlg: Found Muons: " << truthMap.size() << " in MC event" << endreq;
+    if( truthMap.empty() ) *m_log << MSG::DEBUG << "MDTPRDValAlg: No Muons in MC event " << endmsg;
+    else                   *m_log << MSG::DEBUG << "MDTPRDValAlg: Found Muons: " << truthMap.size() << " in MC event" << endmsg;
   }    
 }
 
@@ -517,7 +517,7 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
   if(exit) location = "MuonExitLayer";
   if ( m_sgSvc->contains<TrackRecordCollection>(location) ) {
     if(m_sgSvc->retrieve(truthCollection,location ).isFailure()){
-      *m_log << MSG::WARNING << " Could not retrieve " << location << endreq;
+      *m_log << MSG::WARNING << " Could not retrieve " << location << endmsg;
     }
   }    
   
@@ -526,7 +526,7 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
     if(exit) location = "MuonExitLayerFilter";
     if( m_sgSvc->contains<TrackRecordCollection>(location) ){
       if(m_sgSvc->retrieve(truthCollection,location ).isFailure()){
-	*m_log << MSG::WARNING << " Could not retrieve " << location << endreq;
+	*m_log << MSG::WARNING << " Could not retrieve " << location << endmsg;
       }
     }
   }
@@ -536,17 +536,17 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
     if(exit) location = "MuonExitRecord";
     if( m_sgSvc->contains<TrackRecordCollection>(location) ){
       if(m_sgSvc->retrieve(truthCollection,location ).isFailure()){
-	*m_log << MSG::WARNING << " Could not retrieve " << location << endreq;
+	*m_log << MSG::WARNING << " Could not retrieve " << location << endmsg;
       }
     }
   }
 
   if( !truthCollection ){
-    *m_log << MSG::WARNING << "MDTPRDValAlg: Could not retrieve TrackRecordCollection " << endreq;
+    *m_log << MSG::WARNING << "MDTPRDValAlg: Could not retrieve TrackRecordCollection " << endmsg;
     return;
   }
       
-  if( m_debug ) *m_log << MSG::DEBUG << "retrieved TrackRecordCollection "  << truthCollection->size() << " at " << location << endreq;
+  if( m_debug ) *m_log << MSG::DEBUG << "retrieved TrackRecordCollection "  << truthCollection->size() << " at " << location << endmsg;
   TrackRecordConstIterator tr_it = truthCollection->begin();
   TrackRecordConstIterator tr_it_end = truthCollection->end();
   for(;tr_it!=tr_it_end; ++tr_it){
@@ -570,11 +570,11 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
     }else{
       info = pos->second;
       if( info->pdg != pdg || info->barcode != barcode ){
-	*m_log << MSG::WARNING << " TruthInfo inconsistent " << endreq;
+	*m_log << MSG::WARNING << " TruthInfo inconsistent " << endmsg;
 	continue;	
       }
       if( info->muonEntry && !exit){
-	*m_log << MSG::WARNING << " TruthInfo already has vertex?!?!? " << endreq;
+	*m_log << MSG::WARNING << " TruthInfo already has vertex?!?!? " << endmsg;
 	continue;
       }
     }
@@ -599,13 +599,13 @@ void MDTPRDValAlg::addMuonRecord( TruthMap& truthMap, bool exit ) const {
                          << " pergee pos " << particle->pars->position()
 			 << " phi " << particle->momentum.phi() << " theta " << particle->momentum.theta()
 			 << " q*p " << particle->charge*particle->momentum.mag() << " energy " << (*tr_it).GetEnergy() 
-                         << " mass " << mass << " volumeName " << (*tr_it).GetVolName() << endreq;
+                         << " mass " << mass << " volumeName " << (*tr_it).GetVolName() << endmsg;
       
   }
   
   if( m_debug ) {
-    if( truthMap.empty() ) *m_log << MSG::DEBUG << "MDTPRDValAlg: No Muons in TrackRecord event " << endreq;
-    else                   *m_log << MSG::DEBUG << "MDTPRDValAlg: Found Muons: " << truthMap.size() << " in Track Record" << endreq;
+    if( truthMap.empty() ) *m_log << MSG::DEBUG << "MDTPRDValAlg: No Muons in TrackRecord event " << endmsg;
+    else                   *m_log << MSG::DEBUG << "MDTPRDValAlg: Found Muons: " << truthMap.size() << " in Track Record" << endmsg;
   }
 } 
 
@@ -615,13 +615,13 @@ void MDTPRDValAlg::addSimHits( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
   
   std::string location = "MDT_Hits";
   if ( !m_sgSvc->contains<MDTSimHitCollection>(location) ) {
-    if( m_debug ) *m_log << MSG::DEBUG << " No SimHits found at " << location << endreq;
+    if( m_debug ) *m_log << MSG::DEBUG << " No SimHits found at " << location << endmsg;
     return;
   }
   
   const DataHandle<MDTSimHitCollection> p_collection;
   if (m_sgSvc->retrieve(p_collection,location).isFailure()) {
-    *m_log << MSG::WARNING << "No MDTSimHitCollection in StoreGate!" << endreq;
+    *m_log << MSG::WARNING << "No MDTSimHitCollection in StoreGate!" << endmsg;
     return;
   }
 
@@ -656,10 +656,10 @@ void MDTPRDValAlg::addSimHits( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
     */
     Identifier offid = m_mdtIdHelper->channelID(mdt_stname, mdt_steta, mdt_stphi,mdt_ml,mdt_tl,mdt_tube);
     if (offid == 0){
-      *m_log << MSG::WARNING << "MDT: Cannot build a valid Identifier; skip " << endreq;
+      *m_log << MSG::WARNING << "MDT: Cannot build a valid Identifier; skip " << endmsg;
       continue;
     }
-    if( m_verbose ) *m_log << MSG::VERBOSE << " SimHit: barcode " << barcode << "  " << m_mdtIdHelper->print_to_string(offid) << endreq;
+    if( m_verbose ) *m_log << MSG::VERBOSE << " SimHit: barcode " << barcode << "  " << m_mdtIdHelper->print_to_string(offid) << endmsg;
 
 
     MdtHitMap& mdtHitMap = muonMdtHitMap[barcode];
@@ -672,17 +672,17 @@ void MDTPRDValAlg::addSimHits( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
     }else{
       MdtHitData* mdtHitData = pos->second;
       if( mdtHitData->barcode != barcode ){
-	*m_log << MSG::WARNING << " MdtHitData barcode inconsistent " << endreq;
+	*m_log << MSG::WARNING << " MdtHitData barcode inconsistent " << endmsg;
 	continue;	
       }
       if( mdtHitData->simHit ){
-	*m_log << MSG::WARNING << " MdtHitData for barcode " << barcode << " already has sim hit " << endreq;
+	*m_log << MSG::WARNING << " MdtHitData for barcode " << barcode << " already has sim hit " << endmsg;
 	continue;
       }
       mdtHitData->simHit = simHit;
     }
   }
-  if( m_debug ) *m_log << MSG::DEBUG << " filled simhit into map " << muonMdtHitMap.size() << endreq;
+  if( m_debug ) *m_log << MSG::DEBUG << " filled simhit into map " << muonMdtHitMap.size() << endmsg;
 }
 
 
@@ -692,15 +692,15 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
   std::string  location = "MDT_SDO";
   const MuonSimDataCollection* sdoContainer = 0;
   if ( !m_sgSvc->contains<MuonSimDataCollection>(location) ) {
-    if( m_debug ) *m_log << MSG::DEBUG << " No SimData found at " << location << endreq;
+    if( m_debug ) *m_log << MSG::DEBUG << " No SimData found at " << location << endmsg;
     return;
   }
   
   if (m_sgSvc->retrieve(sdoContainer,location).isFailure()) {
-    *m_log << MSG::WARNING << "No MDT Sdo Container found" << endreq;
+    *m_log << MSG::WARNING << "No MDT Sdo Container found" << endmsg;
     return;
   }
-  if( m_debug ) *m_log << MSG::DEBUG << "MDT Sdo Container found " << sdoContainer->size() << endreq;
+  if( m_debug ) *m_log << MSG::DEBUG << "MDT Sdo Container found " << sdoContainer->size() << endmsg;
   
 
   MuonSimDataCollection::const_iterator sit = sdoContainer->begin();
@@ -711,15 +711,15 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
     const MuonSimData& simData = sit->second;
     
     if( simData.getdeposits().empty() ) {
-      *m_log << MSG::WARNING << "MDT Sdo without deposits " << m_mdtIdHelper->print_to_string(id) << endreq;
+      *m_log << MSG::WARNING << "MDT Sdo without deposits " << m_mdtIdHelper->print_to_string(id) << endmsg;
       continue;
     }
     int barcode = simData.getdeposits().front().first.barcode();
-    if( m_debug ) *m_log << MSG::DEBUG << " SDO barcode " << barcode << endreq;
+    if( m_debug ) *m_log << MSG::DEBUG << " SDO barcode " << barcode << endmsg;
    
     if(barcode==0) {
 //      barcode = 10001;
-      *m_log << MSG::WARNING << " barcode == 0 fixed to " << barcode << endreq; 
+      *m_log << MSG::WARNING << " barcode == 0 fixed to " << barcode << endmsg; 
     } 
  
     if( !truthMap.count(barcode) ) continue;
@@ -734,16 +734,16 @@ void MDTPRDValAlg::addSimData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap, MDTPR
     }else{
       MdtHitData* mdtHitData = pos->second;
       if( mdtHitData->barcode != barcode ){
-	*m_log << MSG::WARNING << " MdtHitData barcode inconsistent " << endreq;
+	*m_log << MSG::WARNING << " MdtHitData barcode inconsistent " << endmsg;
 	continue;	
       }
       if( mdtHitData->sdo ){
-	*m_log << MSG::WARNING << " MdtHitData for barcode " << barcode << " already has sim hit " << endreq;
+	*m_log << MSG::WARNING << " MdtHitData for barcode " << barcode << " already has sim hit " << endmsg;
 	continue;
       }
 
       if( m_verbose ) *m_log << MSG::VERBOSE << "New SDO: barcode  " << barcode << "  " 
-			     << m_mdtIdHelper->print_to_string(id) << endreq;
+			     << m_mdtIdHelper->print_to_string(id) << endmsg;
       mdtHitData->sdo = &simData;
     }
   }
@@ -756,16 +756,16 @@ void MDTPRDValAlg::addPrepData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap ) con
   const Muon::MdtPrepDataContainer* mdtPrds = 0;      
   std::string  location = "MDT_DriftCircles";
   if ( !m_sgSvc->contains<Muon::MdtPrepDataContainer>(location) ) {
-    if( m_debug ) *m_log << MSG::DEBUG << " No MdtPrepData found at " << location << endreq;
+    if( m_debug ) *m_log << MSG::DEBUG << " No MdtPrepData found at " << location << endmsg;
     return;
   }
   
   if( m_sgSvc->retrieve( mdtPrds,location ).isFailure() ) {
-    *m_log << MSG::WARNING << "MdtPrepDataContainer not found at " << location << endreq;
+    *m_log << MSG::WARNING << "MdtPrepDataContainer not found at " << location << endmsg;
     return;
   }
 
-  if( m_debug ) *m_log << MSG::DEBUG << "MdtPrepDataContainer found at " << location << endreq;
+  if( m_debug ) *m_log << MSG::DEBUG << "MdtPrepDataContainer found at " << location << endmsg;
       
   Muon::MdtPrepDataContainer::const_iterator p_mdt_it = mdtPrds->begin();
   Muon::MdtPrepDataContainer::const_iterator p_mdt_it_end = mdtPrds->end();
@@ -783,12 +783,12 @@ void MDTPRDValAlg::addPrepData( MDTPRDValAlg::MuonMdtHitMap& muonMdtHitMap ) con
       if( !mdtHitData ) continue;
 
       if( mdtHitData->prd ){
-	*m_log << MSG::WARNING << " MdtHitData already has prd " << endreq;
+	*m_log << MSG::WARNING << " MdtHitData already has prd " << endmsg;
 	continue;
       }
 
       if( m_verbose ) *m_log << MSG::VERBOSE << " Muon PRD: barcode " << mdtHitData->barcode 
-			     << "  " << m_mdtIdHelper->print_to_string(id) << endreq;
+			     << "  " << m_mdtIdHelper->print_to_string(id) << endmsg;
 
       mdtHitData->prd = &mdt;
     }
@@ -818,14 +818,14 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 		
 	
   if (m_sgSvc->retrieve(pevt).isFailure()) {
-    *m_log << MSG::WARNING << "Could not find event" << endreq;
+    *m_log << MSG::WARNING << "Could not find event" << endmsg;
     return;
   }else {
-    if( m_debug ) *m_log << MSG::DEBUG << "Found EventInfo in SG" << endreq;
+    if( m_debug ) *m_log << MSG::DEBUG << "Found EventInfo in SG" << endmsg;
   }	
 
   if(m_verbose) {
-    *m_log << MSG::VERBOSE <<"Processing EventInfo event #"<<pevt->eventNumber() << " run: " << pevt->runNumber() << endreq;
+    *m_log << MSG::VERBOSE <<"Processing EventInfo event #"<<pevt->eventNumber() << " run: " << pevt->runNumber() << endmsg;
   }
 
 
@@ -837,8 +837,8 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
   /**Enter MDT hits loop, initialize the hits counter*/
   counter_ValHitNumber =0 ;
   
-  if( m_debug ) *m_log << MSG::DEBUG << " Event number: " <<  evt << endreq;
-  if( m_debug ) *m_log << MSG::DEBUG << "Looping over muons: " << muonMdtHitMap.size() << endreq;
+  if( m_debug ) *m_log << MSG::DEBUG << " Event number: " <<  evt << endmsg;
+  if( m_debug ) *m_log << MSG::DEBUG << "Looping over muons: " << muonMdtHitMap.size() << endmsg;
       
   MuonMdtHitIt mit = muonMdtHitMap.begin();
   MuonMdtHitIt mit_end = muonMdtHitMap.end();
@@ -846,11 +846,11 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 
     int barcode = mit->first;
     
-    if( m_debug ) *m_log << MSG::DEBUG << "Muon with bar code: " << barcode << "  associated hits " << mit->second.size() << endreq;
+    if( m_debug ) *m_log << MSG::DEBUG << "Muon with bar code: " << barcode << "  associated hits " << mit->second.size() << endmsg;
 
     TruthIt tit = truthMap.find(barcode);
     if( tit == truthMap.end() ){
-      *m_log << MSG::WARNING << " barcode not found " << endreq;
+      *m_log << MSG::WARNING << " barcode not found " << endmsg;
       continue;
     }
     
@@ -863,34 +863,34 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
     if( !muon ){
       // if no entry record but vertex, use vertex
       if( m_useEntryLayer && vertex ){
-	*m_log << MSG::WARNING << " No MuonEntry parameters, using vertex parameters instead " << endreq;
+	*m_log << MSG::WARNING << " No MuonEntry parameters, using vertex parameters instead " << endmsg;
 	muon = vertex;
       }else if( !m_useEntryLayer && muonEntry ){
-	*m_log << MSG::WARNING << " No vertex parameters, using MuonEntry parameters instead " << endreq;
+	*m_log << MSG::WARNING << " No vertex parameters, using MuonEntry parameters instead " << endmsg;
 	muon = vertex;
       }else{
-	*m_log << MSG::WARNING << " No parameters cannot perform extrapolation " << endreq;
+	*m_log << MSG::WARNING << " No parameters cannot perform extrapolation " << endmsg;
 	continue;
       }
     }
     
     if( !muon || !muon->pars ) {
-      *m_log << MSG::WARNING << " No track parameters cannot perform extrapolation " << endreq;
+      *m_log << MSG::WARNING << " No track parameters cannot perform extrapolation " << endmsg;
       continue;
     }
 
     if( m_debug ) *m_log << MSG::DEBUG << " muon entry " << barcode << "  pos " << muon->position
 			 << " phi " << muon->momentum.phi() << " theta " << muon->momentum.theta()
-			 << " q*p " << muon->charge*muon->momentum.mag() << endreq;
+			 << " q*p " << muon->charge*muon->momentum.mag() << endmsg;
     if( m_debug && muonExit) *m_log << MSG::DEBUG << " muon Exit " << barcode << "  pos " << muonExit->position
 			 << " phi " << muonExit->momentum.phi() << " theta " << muonExit->momentum.theta()
-			 << " q*p " << muonExit->charge*muonExit->momentum.mag() << endreq;
+			 << " q*p " << muonExit->charge*muonExit->momentum.mag() << endmsg;
 
 
     
     const Trk::TrackParameters& muonPerigee = *muon->pars;
   
-    if( m_debug ) *m_log << MSG::DEBUG << "  muonPerigee position " << muonPerigee.position() << " momentum " << muonPerigee.momentum() << endreq; 
+    if( m_debug ) *m_log << MSG::DEBUG << "  muonPerigee position " << muonPerigee.position() << " momentum " << muonPerigee.momentum() << endmsg; 
     // loop over MdtHitData
     MdtHitIt hit = mit->second.begin();
     MdtHitIt hit_end = mit->second.end();
@@ -910,18 +910,18 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 
 
       if( !mdt ) {
-	*m_log << MSG::WARNING << " MdtHitData without MdtPrepData!!! " << endreq;
+	*m_log << MSG::WARNING << " MdtHitData without MdtPrepData!!! " << endmsg;
 	continue;
       }
 
       if( mdt->identify() != id ){
-	*m_log << MSG::WARNING << " Identifier of MdtHitData not consisted with Identifier of MdtPrepData!!! " << endreq;
+	*m_log << MSG::WARNING << " Identifier of MdtHitData not consisted with Identifier of MdtPrepData!!! " << endmsg;
 	continue;
       }
 
       const MuonGM::MdtReadoutElement* detEl = mdt->detectorElement() ;
       if( !detEl ) {
-	*m_log << MSG::WARNING << " no associated detectorElement!!! " << endreq;
+	*m_log << MSG::WARNING << " no associated detectorElement!!! " << endmsg;
 	continue;
       }
 
@@ -949,21 +949,21 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 // check geometry
             Amg::Vector3D lpos0(0.,0.,0.);
 	    sdoHitPos = detEl->localToGlobalCoords(lpos0, id );
-            if(m_debug) *m_log << MSG::DEBUG << " sdoHitPos 0 0 0 " << sdoHitPos << endreq;
+            if(m_debug) *m_log << MSG::DEBUG << " sdoHitPos 0 0 0 " << sdoHitPos << endmsg;
             Amg::Vector3D lpos1(100.,0.,0.);
 	    sdoHitPos = detEl->localToGlobalCoords(lpos1, id );
-            if(m_debug) *m_log << MSG::DEBUG << " sdoHitPos 100 0 0 " << sdoHitPos << endreq;
+            if(m_debug) *m_log << MSG::DEBUG << " sdoHitPos 100 0 0 " << sdoHitPos << endmsg;
             Amg::Vector3D lpos2(0.,100.,0.);
 	    sdoHitPos = detEl->localToGlobalCoords(lpos2, id );
-            if(m_debug) *m_log << MSG::DEBUG << " sdoHitPos 0 100 0 " << sdoHitPos << endreq;
+            if(m_debug) *m_log << MSG::DEBUG << " sdoHitPos 0 100 0 " << sdoHitPos << endmsg;
             Amg::Vector3D lpos3(0.,0.,100.);
 	    sdoHitPos = detEl->localToGlobalCoords(lpos3, id );
-            if(m_debug) *m_log << MSG::DEBUG << " sdoHitPos 0 0 100 " << sdoHitPos << endreq;
+            if(m_debug) *m_log << MSG::DEBUG << " sdoHitPos 0 0 100 " << sdoHitPos << endmsg;
           } 
 // position along wire  = locZ in DetEl frame ( != Tracking frame...)
           Amg::Vector3D lpos(0.,0.,sdoDistRO);
 	  sdoHitPos = detEl->localToGlobalCoords(lpos, id );
-          if(m_debug) *m_log << MSG::DEBUG << " sdoHitPos " << sdoHitPos << " phi " << sdoHitPos.phi() << endreq;
+          if(m_debug) *m_log << MSG::DEBUG << " sdoHitPos " << sdoHitPos << " phi " << sdoHitPos.phi() << endmsg;
 	}
 
 // simHit = sdoHit = Wire position in global coordinates 
@@ -977,18 +977,18 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       const Trk::TrackParameters* expar = m_extrapolator->extrapolateDirectly(muonPerigee,sagSurf,
 								  Trk::alongMomentum,false);
       if( !expar ){
-	*m_log << MSG::INFO << " extrapolation failed " << endreq;
+	*m_log << MSG::INFO << " extrapolation failed " << endmsg;
 	continue;
       }
-     if(m_debug) *m_log << MSG::DEBUG << " extrapolated position " << expar->position() << " local position X " << expar->parameters()[Trk::locX] << " local position Y " << expar->parameters()[Trk::locY] << " position phi " << expar->position().phi() << " global phi direction " << expar->parameters()[Trk::phi] << endreq;  
-     if(m_debug) *m_log << MSG::DEBUG << " SL surface position  " << sagSurf.center() << endreq;  
+     if(m_debug) *m_log << MSG::DEBUG << " extrapolated position " << expar->position() << " local position X " << expar->parameters()[Trk::locX] << " local position Y " << expar->parameters()[Trk::locY] << " position phi " << expar->position().phi() << " global phi direction " << expar->parameters()[Trk::phi] << endmsg;  
+     if(m_debug) *m_log << MSG::DEBUG << " SL surface position  " << sagSurf.center() << endmsg;  
      // calculate local position of extrapolated track parameter
      Amg::Vector2D lexpos, lsimpos;
      bool trf_ok=sagSurf.globalToLocal( expar->position(), expar->momentum(), lexpos);
      if(trf_ok) trf_ok=sagSurf.globalToLocal( expar->position(), expar->momentum() , lsimpos);
       
       if( !trf_ok ){
-	*m_log << MSG::INFO << " global to local failed " << endreq;
+	*m_log << MSG::INFO << " global to local failed " << endmsg;
 	delete expar;
 	continue;
       }
@@ -997,13 +997,13 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 //
       const Trk::TrackParameters* exparEloss = m_extrapolator->extrapolate(muonPerigee,sagSurf,Trk::alongMomentum,false);
       if( !exparEloss ){
-	*m_log << MSG::INFO << " extrapolation failed " << endreq;
+	*m_log << MSG::INFO << " extrapolation failed " << endmsg;
 	delete expar;
 	continue;
       }
       Amg::Vector2D lexposEloss(0., 0.);
       if( sagSurf.globalToLocal( exparEloss->position(), exparEloss->momentum() , lexposEloss) ){
-	*m_log << MSG::INFO << " global to local failed lexposEloss " << endreq;
+	*m_log << MSG::INFO << " global to local failed lexposEloss " << endmsg;
 	delete expar;
 	delete exparEloss;
 	continue;
@@ -1011,7 +1011,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 
       const Trk::StraightLineSurface* saggedSurface = sagSurf.correctedSurface(lexpos);
       if( !saggedSurface ){
-	*m_log << MSG::INFO << "  could to create sagged surface  " << endreq;
+	*m_log << MSG::INFO << "  could to create sagged surface  " << endmsg;
 	delete expar;
 	delete exparEloss;
 	continue;
@@ -1019,7 +1019,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       const Trk::TrackParameters* exparSag = m_extrapolator->extrapolateDirectly(muonPerigee,*saggedSurface,
 								     Trk::alongMomentum,false);
       if( !exparSag ){
-	*m_log << MSG::INFO << " extrapolation failed " << endreq;
+	*m_log << MSG::INFO << " extrapolation failed " << endmsg;
 	delete saggedSurface;
 	delete expar;
 	delete exparEloss;
@@ -1029,7 +1029,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       // calculate local position of extrapolated track parameter 
       Amg::Vector2D lexposSag(0., 0.);
       if( saggedSurface->globalToLocal( exparSag->position(), expar->momentum() ,  lexposSag)){
-	*m_log << MSG::INFO << " global to local failed " << endreq;
+	*m_log << MSG::INFO << " global to local failed " << endmsg;
 	delete saggedSurface;
 	delete expar;
 	delete exparEloss;
@@ -1043,7 +1043,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       if(sdo&&!simHit) hitPos = sdoHitPos; 
       const Muon::MdtDriftCircleOnTrack* rot = m_rotCreator->createRIO_OnTrack( *mdt, hitPos );
       if( !rot ){
-	*m_log << MSG::INFO << " rot creation failed " << endreq;
+	*m_log << MSG::INFO << " rot creation failed " << endmsg;
 	delete saggedSurface;
 	delete expar;
 	delete exparEloss;
@@ -1054,7 +1054,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       const Trk::TrackParameters* exparSagRot = m_extrapolator->extrapolateDirectly(muonPerigee,rot->associatedSurface(),
 									Trk::alongMomentum,false);
       if( !exparSagRot ){
-	*m_log << MSG::INFO << " extrapolation failed " << endreq;
+	*m_log << MSG::INFO << " extrapolation failed " << endmsg;
         delete rot;
 	delete saggedSurface;
 	delete expar;
@@ -1070,11 +1070,11 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
       }else{
 	trf_ok = rot->associatedSurface().globalToLocal( exparSagRot->position(), Amg::Vector3D(0., 0., 0.), lexposSagRot );
       }
-      if(m_debug) *m_log << MSG::DEBUG << " extrapolated position ito ROT " << exparSagRot->position() << endreq;  
-      if(m_debug) *m_log << MSG::DEBUG << " SL surface position ROT  " << slSurf->center() << endreq;  
+      if(m_debug) *m_log << MSG::DEBUG << " extrapolated position ito ROT " << exparSagRot->position() << endmsg;  
+      if(m_debug) *m_log << MSG::DEBUG << " SL surface position ROT  " << slSurf->center() << endmsg;  
 
       if( trf_ok ){
-	*m_log << MSG::INFO << " global to local failed " << endreq;
+	*m_log << MSG::INFO << " global to local failed " << endmsg;
         delete rot;
 	delete saggedSurface;
 	delete expar;
@@ -1265,7 +1265,7 @@ void MDTPRDValAlg::analyseHits( MuonMdtHitMap& muonMdtHitMap, TruthMap& truthMap
 		  << std::setw(15) << " res sim " << std::setw(15) << res_epz_sim << std::setw(15) << res_epsz_sim << std::setw(15) << res_eprz_sim 
 		  << std::setw(15) << res_simz_sim << std::setw(15) << res_sdoz_sim << std::endl
 		  << std::setw(15) << " res sdo " << std::setw(15) << res_epz_sdo << std::setw(15) << res_epsz_sdo << std::setw(15) << res_eprz_sdo 
-		  << std::setw(15) << res_simz_sdo << std::setw(15) << res_sdoz_sdo << endreq;
+		  << std::setw(15) << res_simz_sdo << std::setw(15) << res_sdoz_sdo << endmsg;
       }
 
       delete rot;

@@ -31,6 +31,7 @@ use MuonSimData            MuonSimData-*            MuonSpectrometer
 use MuonSimEvent           MuonSimEvent-*           MuonSpectrometer
 use MuonSimData            MuonSimData-*            MuonSpectrometer
 use MuonPrepRawData        MuonPrepRawData-*        MuonSpectrometer/MuonReconstruction/MuonRecEvent 
+use MuonAGDDDescription    MuonAGDDDescription-*    MuonSpectrometer/MuonDetDescr
 
 use TrackRecord            TrackRecord-*            Simulation/G4Sim
 
@@ -38,7 +39,6 @@ use TrkExInterfaces        TrkExInterfaces-*        Tracking/TrkExtrapolation
 use TrkParameters          TrkParameters-*          Tracking/TrkEvent
 use TrkSurfaces            TrkSurfaces-*            Tracking/TrkDetDescr
 use TrkGeometry            TrkGeometry-*            Tracking/TrkDetDescr
-
 
 public
 # build a component library
