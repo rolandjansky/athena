@@ -81,7 +81,7 @@ CscGeometryManagerTool::~CscGeometryManagerTool()
 //_______________________________________________________________________
 StatusCode CscGeometryManagerTool::initialize() 
 {
-  msg(MSG::DEBUG) << "initialize() of CscGeometryManagerTool" << endreq;  
+  msg(MSG::DEBUG) << "initialize() of CscGeometryManagerTool" << endmsg;  
 
   if (!CommonGeometryManagerTool::initialize().isSuccess()) {
     ATH_MSG_FATAL("CommonGeometryManagerTool not initialized");
@@ -94,7 +94,7 @@ StatusCode CscGeometryManagerTool::initialize()
 //________________________________________________________________________
 StatusCode CscGeometryManagerTool::finalize() 
 {  
-  msg(MSG::DEBUG) << "finalize() of CscGeometryManagerTool" << endreq;
+  msg(MSG::DEBUG) << "finalize() of CscGeometryManagerTool" << endmsg;
   
   if (!CommonGeometryManagerTool::finalize().isSuccess()) {
     ATH_MSG_FATAL("CommonGeometryManagerTool finalize not successful");

@@ -1616,7 +1616,7 @@ namespace Muon {
 	    muon = *part;
 	  }
 	  else{
-	    ATH_MSG_DEBUG("More than one generated muon found."  << endreq 
+	    ATH_MSG_DEBUG("More than one generated muon found."  << endmsg 
 			  << "Generated truth info will not be filled.");
 	    muon = 0;
 	    break;
@@ -1646,7 +1646,7 @@ namespace Muon {
 			     (*trackRecord)->GetEnergy());
 	m_truth_pt_msentrance = vec.perp();
       }else{
-	ATH_MSG_DEBUG("More than one entry in trackRecordCollection found."<< endreq 
+	ATH_MSG_DEBUG("More than one entry in trackRecordCollection found."<< endmsg 
 		      << "Truth info at MS entrance will not be filled.");
       }
     }

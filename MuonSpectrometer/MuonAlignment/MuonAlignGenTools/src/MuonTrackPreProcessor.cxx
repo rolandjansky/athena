@@ -507,7 +507,7 @@ namespace Muon {
     int itrack(0);
     for ( ;	it != it_end ; ++it,itrack++) {
 
-      ATH_MSG_DEBUG(endreq<<"track "<<itrack<<"/"<<tracks->size());
+      ATH_MSG_DEBUG("\ntrack "<<itrack<<"/"<<tracks->size());
 
       const Trk::Track* origTrack=*it;    
       const Trk::Track* track=0;
@@ -547,8 +547,8 @@ namespace Muon {
       m_nProcessed++;
       
       ATH_MSG_DEBUG("before removing hits: ");
-      ATH_MSG_DEBUG(m_printer->print(*origTrack)<<endreq<<
-		    m_printer->printStations(*origTrack)<<endreq<<
+      ATH_MSG_DEBUG(m_printer->print(*origTrack)<<"\n"<<
+		    m_printer->printStations(*origTrack)<<"\n"<<
 		    m_printer->printMeasurements(*origTrack));
 		    
       /*      
@@ -573,8 +573,8 @@ namespace Muon {
       // refit track
       const Trk::Track* oldTrack=track;
       ATH_MSG_DEBUG("before calling refitForAlignment: ");
-      ATH_MSG_DEBUG(m_printer->print(*oldTrack)<<endreq<<
-		    m_printer->printStations(*oldTrack)<<endreq<<
+      ATH_MSG_DEBUG(m_printer->print(*oldTrack)<<"\n"<<
+		    m_printer->printStations(*oldTrack)<<"\n"<<
 		    m_printer->printMeasurements(*oldTrack));
 
       ATH_MSG_DEBUG("calling refitForAlignment");
@@ -695,8 +695,8 @@ namespace Muon {
       }
       
       ATH_MSG_DEBUG("after refit and passing final selection: ");
-      ATH_MSG_DEBUG(m_printer->print(*alignTrack)<<endreq<<
-		    m_printer->printStations(*alignTrack)<<endreq<<
+      ATH_MSG_DEBUG(m_printer->print(*alignTrack)<<"\n"<<
+		    m_printer->printStations(*alignTrack)<<"\n"<<
 		    m_printer->printMeasurements(*alignTrack));
 
 
@@ -1405,8 +1405,8 @@ namespace Muon {
     //}
 
     ATH_MSG_DEBUG("created newTrack:");
-    ATH_MSG_DEBUG(m_printer->print(*newTrack)<<endreq<<
-		  m_printer->printStations(*newTrack)<<endreq);//<<
+    ATH_MSG_DEBUG(m_printer->print(*newTrack)<<"\n"<<
+		  m_printer->printStations(*newTrack)<<"\n");//<<
 
     return newTrack;    
   }
@@ -1546,7 +1546,7 @@ namespace Muon {
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos=TSOS->begin(); 
     for (; iTsos!=TSOS->end(); ++iTsos,itsos++) {
       
-      ATH_MSG_VERBOSE(endreq<<"TSOS: "<<itsos<<endreq<<**iTsos);
+      ATH_MSG_VERBOSE("\nTSOS: "<<itsos<<"\n"<<**iTsos);
       
       if (!(*iTsos)->type(Trk::TrackStateOnSurface::Scatterer) &&
 	  !(*iTsos)->type(Trk::TrackStateOnSurface::InertMaterial)) continue;
@@ -1575,8 +1575,8 @@ namespace Muon {
 
       const Trk::MaterialEffectsBase* meb = (**iTsos).materialEffectsOnTrack();
       if (!meb) { ATH_MSG_DEBUG("no meb"); continue; }
-      ATH_MSG_DEBUG("Surface: "<<endreq<<meb->associatedSurface());
-      ATH_MSG_DEBUG("Surface ID: "<<endreq<<meb->associatedSurface().associatedDetectorElementIdentifier());
+      ATH_MSG_DEBUG("Surface: \n" << meb->associatedSurface());
+      ATH_MSG_DEBUG("Surface ID:\n" << meb->associatedSurface().associatedDetectorElementIdentifier());
       
       const Trk::TrkDetElementBase* detelement=meb->associatedSurface().associatedDetectorElement();
       if (!detelement) { ATH_MSG_DEBUG("no detelement"); continue; }
@@ -2006,7 +2006,7 @@ namespace Muon {
 	 itTsos!=track->trackStateOnSurfaces()->end(); ++itTsos,itsos++) {
       
       // scattering residual(s) and/or energy loss first
-      ATH_MSG_DEBUG(endreq<<"tsos: "<<itsos);
+      ATH_MSG_DEBUG("\ntsos: "<<itsos);
       
       const Trk::TrackStateOnSurface*    tsos       = *itTsos;
       const Trk::TrackParameters *       tparp      = tsos->trackParameters();
