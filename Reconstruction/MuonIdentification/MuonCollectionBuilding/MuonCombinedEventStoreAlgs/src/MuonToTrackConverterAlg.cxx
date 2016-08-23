@@ -181,7 +181,7 @@ TrackCollection* MuonToTrackConverterAlg::convertToTrack( const std::vector<cons
 
 Trk::Track* MuonToTrackConverterAlg::createTaggedMuonTrack( const Analysis::Muon& muon ) const {
 
-  MsgStream log( messageService(), name() );
+  MsgStream log( msgSvc(), name() );
   const Rec::TrackParticle* idtp = muon.inDetTrackParticle();
   const Trk::Track* track = idtp ? idtp->originalTrack() : 0;
   if (!track) return 0;
@@ -241,7 +241,7 @@ Trk::Track* MuonToTrackConverterAlg::createTaggedMuonTrack( const Analysis::Muon
 
 void MuonToTrackConverterAlg::retrieveMuons( const std::vector<std::string>& keys, std::vector<const Analysis::Muon*>& muons ) const {
 
-  MsgStream log( messageService(), name() );
+  MsgStream log( msgSvc(), name() );
   // loop over keys
   std::vector<std::string>::const_iterator kit = keys.begin();
   std::vector<std::string>::const_iterator kit_end = keys.end();
