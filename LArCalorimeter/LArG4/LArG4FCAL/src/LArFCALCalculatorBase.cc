@@ -27,12 +27,14 @@
 #include "LArReadoutGeometry/FCALModule.h"
 #include "LArReadoutGeometry/FCALTile.h"
 #include "LArReadoutGeometry/FCALTube.h"
+#include "AthenaKernel/Units.h"
+namespace Units = Athena::Units;
 
 //
 // constructor
 //
 LArFCALCalculatorBase::LArFCALCalculatorBase()
-  : m_OOTcut(2.5*CLHEP::ns),m_posModule(NULL),m_negModule(NULL), m_FCalSampling(0), birksLaw(NULL)
+  : m_OOTcut(2.5*CLHEP::ns),m_posModule(NULL),m_negModule(NULL), m_FCalSampling(0), m_birksLaw(NULL)
 {
   //m_identifier = LArG4Identifier();
 
@@ -53,7 +55,7 @@ LArFCALCalculatorBase::LArFCALCalculatorBase()
     if (fcalOptions->FCALBirksLaw()) {
       const double Birks_LAr_density = 1.396;
       const double Birks_k = fcalOptions->FCALBirksk();
-      birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
+      m_birksLaw = new LArG4BirksLaw(Birks_LAr_density,Birks_k);
     }
     
     if (fcalOptions->FCALHVEnable()) {
@@ -75,7 +77,7 @@ LArFCALCalculatorBase::LArFCALCalculatorBase()
 //
 LArFCALCalculatorBase::~LArFCALCalculatorBase()
 { 
-  delete birksLaw;
+  delete m_birksLaw;
 }
 
 
@@ -93,8 +95,8 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
   // First, get the energy.
   hdata[0].energy = a_step->GetTotalEnergyDeposit();
 
-  G4double stepLengthCm = a_step->GetStepLength() / CLHEP::cm;
-  if(birksLaw)  hdata[0].energy = (*birksLaw)(hdata[0].energy, stepLengthCm, 10);
+  G4double stepLengthCm = a_step->GetStepLength() / Units::cm;
+  if(m_birksLaw)  hdata[0].energy = (*m_birksLaw)(hdata[0].energy, stepLengthCm, 10);
 
   // Find out how long it took the energy to get here.
   G4StepPoint* pre_step_point = a_step->GetPreStepPoint();
@@ -107,7 +109,7 @@ G4bool LArFCALCalculatorBase::Process(const G4Step* a_step, std::vector<LArHitDa
 
 
   // Determine if the hit was in-time.
-  hdata[0].time = timeOfFlight/CLHEP::ns - p.mag()/CLHEP::c_light/CLHEP::ns;
+  hdata[0].time = timeOfFlight/Units::ns - p.mag()/Units::c_light/Units::ns;
   if (hdata[0].time > m_OOTcut)
     m_isInTime = false;
   else
