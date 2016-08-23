@@ -111,7 +111,7 @@ double ParabolaCscClusterFitter::ParabolaCorrection(CscPlane &plane, double &raw
 
 ParabolaCscClusterFitter::
 ParabolaCscClusterFitter(string type, string aname, const IInterface* parent)
-: AthAlgTool(type, aname, parent) {
+: AthAlgTool(type, aname, parent), m_detMgr(nullptr), m_cscIdHelper(nullptr) {
   declareInterface<ICscClusterFitter>(this);
   m_max_width.push_back(5);  // CSS eta
   m_max_width.push_back(5);  // CSL eta
