@@ -21,6 +21,7 @@ namespace Muon {
     AthAlgTool (t, n, p),
     m_dcslFitProvider(""),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
+    m_segmentFinder(0),
     m_dcslFitter(0),
     m_fitter(0)
   {

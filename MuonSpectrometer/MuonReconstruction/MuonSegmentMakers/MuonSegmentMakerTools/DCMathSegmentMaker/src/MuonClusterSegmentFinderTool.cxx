@@ -20,17 +20,18 @@ namespace Muon {
 
   MuonClusterSegmentFinderTool::MuonClusterSegmentFinderTool (const std::string& type, const std::string& name,
 				      const IInterface* parent)
-    : 
+    :
     AthAlgTool(type, name, parent),
     m_slTrackFitter("Trk::GlobalChi2Fitter/MCTBSLFitter"),
     m_ambiTool("Trk::SimpleAmbiguityProcessorTool/MuonAmbiProcessor"),
     m_trackToSegmentTool("Muon::MuonTrackToSegmentTool/MuonTrackToSegmentTool"),
     m_idHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
-    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"), 
-    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner") {
+    m_helper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
+    m_trackCleaner("Muon::MuonTrackCleaner/MuonTrackCleaner"),
+    m_storeGate(0) {
 
-    declareInterface<IMuonClusterSegmentFinderTool>(this);    
+    declareInterface<IMuonClusterSegmentFinderTool>(this);
 
     declareProperty("SLFitter",            m_slTrackFitter);
     declareProperty("SegmentAmbiguityTool",m_ambiTool);
@@ -76,7 +77,7 @@ namespace Muon {
       return StatusCode::FAILURE;
     }       
     if (m_trackCleaner.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_trackCleaner << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_trackCleaner << endmsg;
       return StatusCode::FAILURE; 
     }
     ATH_MSG_DEBUG(" Max cut " << m_maxClustDist );
@@ -197,7 +198,7 @@ namespace Muon {
 	const DataVector<const Trk::MeasurementBase>* measu = (*it)->measurementsOnTrack();
 	if( measu ) msg(MSG::DEBUG) << m_printer->print( measu->stdcont() ) << std::endl;
       }
-      msg(MSG::DEBUG) << endreq;
+      msg(MSG::DEBUG) << endmsg;
     }
 
     if( segTrkColl->empty() ){
