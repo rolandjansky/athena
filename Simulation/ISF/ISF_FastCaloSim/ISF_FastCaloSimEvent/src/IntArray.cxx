@@ -10,8 +10,6 @@
 //======= IntArray =========
 //==========================
 
-using namespace std;
-
 IntArray::IntArray(int n)
 {
   m_array=new TArrayI(n);
@@ -22,10 +20,15 @@ IntArray::IntArray()
   m_array=new TArrayI();
 }
 
+IntArray::~IntArray() {
+
+   if( m_array ) {
+      delete m_array;
+   }
+}
 
 //=============================================
 //========== ROOT persistency stuff ===========
 //=============================================
 
 ClassImp(IntArray)
-

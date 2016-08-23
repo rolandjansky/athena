@@ -8,19 +8,17 @@
 #include "TArrayI.h"
 #include "TObject.h"
 
-class IntArray:public TObject,  public TArrayI
-{
-  public:
-  	
-    IntArray();
-    IntArray(int);
-    
-  private:
+class IntArray : public TObject, public TArrayI {
 
-	 TArrayI* m_array;
-		  
-  ClassDef(IntArray,0)
-  
+public:
+   IntArray();
+   IntArray( int );
+   ~IntArray();
+
+private:
+   TArrayI* m_array;
+
+   ClassDef( IntArray, 0 )
 };
 
 #endif
