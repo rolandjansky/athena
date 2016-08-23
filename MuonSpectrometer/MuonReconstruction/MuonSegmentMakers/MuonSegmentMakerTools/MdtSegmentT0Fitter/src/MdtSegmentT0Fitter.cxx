@@ -365,7 +365,7 @@ namespace TrkDriftCircleMath {
     ++m_npassedSelectionConsistency;
     for(unsigned int i=0;i<N;++i){
       if( selection[i] == 0 ) ++used;
-      //      if(m_trace) *m_log << MSG::DEBUG << " selection flag " <<  selection[i] << endreq;
+      //      if(m_trace) *m_log << MSG::DEBUG << " selection flag " <<  selection[i] << endmsg;
     }
     if(used < 2){
       if(m_trace) ATH_MSG_DEBUG( "TOO FEW HITS SELECTED"  );
@@ -542,7 +542,7 @@ namespace TrkDriftCircleMath {
             msg() << MSG::DEBUG <<" tLower "<<tl;
             msg() << MSG::DEBUG <<" tUpper "<<th;
           }
-          msg() << MSG::DEBUG << endreq;
+          msg() << MSG::DEBUG << endmsg;
         }
         t0seed += tee0;
         st0 += tee0*tee0;
@@ -750,7 +750,7 @@ namespace TrkDriftCircleMath {
     if(m_dumpToFile) {
       std::ofstream ff;
       ff.open("fitres.txt", std::ios::out | std::ios::app);
-//      ff << fitretval<<" 0 "<<chisq<<" "<<t_hi<<" "<<t_lo<<" "<<t0seed<<" "<<st0<<" "<<min_t0<<" "<<m_minuit->GetParameter(2)<<" "<<m_minuit->GetParError(2)<< endreq;
+//      ff << fitretval<<" 0 "<<chisq<<" "<<t_hi<<" "<<t_lo<<" "<<t0seed<<" "<<st0<<" "<<min_t0<<" "<<m_minuit->GetParameter(2)<<" "<<m_minuit->GetParError(2)<< endmsg;
 //			TMinut * tm = (TMinuit*) minuit->GetObjectFit();
       ff<<npari<<" "<<nparx<<" "<<fitretval<<" "<<chisq<< " "<< std::endl;
       ff.close();
@@ -836,7 +836,7 @@ namespace TrkDriftCircleMath {
         for(int it2=0; it2<3; it2++) {
           msg() << MSG::DEBUG <<covar[it1][it2]<<" ";
         }
-        msg() << MSG::DEBUG << endreq;
+        msg() << MSG::DEBUG << endmsg;
       }
     }
     
@@ -975,7 +975,7 @@ namespace TrkDriftCircleMath {
 //      bool oldrefit =  DCSLFitter::fit( m_result.line() , m_result.dcs(), selection );
 //      int iok = 0;
 //      if(oldrefit) iok = 1;
-//      if(m_trace)*m_log << MSG::DEBUG << " ALARM Minimize fix " << errFlag1 << " ALARM minimize release " << errFlag2 << " ALARM migrad fix 1 " << errFlag3 << " ALARM minimize all free " << errFlag4 << " ALARM migrad all free " << errFlag5 << endreq;
+//      if(m_trace)*m_log << MSG::DEBUG << " ALARM Minimize fix " << errFlag1 << " ALARM minimize release " << errFlag2 << " ALARM migrad fix 1 " << errFlag3 << " ALARM minimize all free " << errFlag4 << " ALARM migrad all free " << errFlag5 << endmsg;
 //      if(m_trace) std::cout << " ALARM Migrad and Minimize failed DCSL Fit Chi2 " << m_result.chi2() << " angle " << m_result.line().phi() << " y0 " << m_result.line().y0() << " nhits "<< selection.size() << " fitretval " << fitretval << " refit ok " << iok  << std::endl;
 //      return  oldrefit;
 //    } 
