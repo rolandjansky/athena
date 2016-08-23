@@ -5,7 +5,7 @@ author Anthony Morley <amorley@cern.ch>
 public
 use  AtlasPolicy                AtlasPolicy-*                   
 use  AthenaBaseComps            AthenaBaseComps-*               Control
-use  DataModel                  DataModel-*                     Control
+use  AthContainers              AthContainers-*                 Control
 use  TrkAlignEvent              TrkAlignEvent-*                 Tracking/TrkAlignment
 use  TrkAlignInterfaces         TrkAlignInterfaces-*            Tracking/TrkAlignment
 use  TrkAlignGenTools           TrkAlignGenTools-*              Tracking/TrkAlignment

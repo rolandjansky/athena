@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -123,7 +123,7 @@ namespace InDet {
 
     // retrieve AlignModuleTool
     if ( m_alignModuleTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endreq;
+      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -131,7 +131,7 @@ namespace InDet {
 
     // retrieve SCT helper
     if ( detStore()->retrieve(m_idHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve SCT Helper " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve SCT Helper " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -139,7 +139,7 @@ namespace InDet {
 
     // retrieve SCT detector manager
     if ( detStore()->retrieve(m_detManager, "SCT").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve SCT Detector Manager " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve SCT Detector Manager " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -147,9 +147,9 @@ namespace InDet {
 
     // dump module selection
     if(m_doModuleSelection && msgLvl(MSG::INFO)) {
-      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endreq;
+      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endmsg;
       for(unsigned int i=0;i<m_moduleSelection.size();i++)
-        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endreq;
+        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endmsg;
     }
 
     // check the allowed geometry levels
@@ -217,7 +217,7 @@ namespace InDet {
         ATH_MSG_INFO("Alignment level for SCT Barrel is "<<m_alignLevelBarrel);
         return true;
       default:
-        msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelBarrel<<" does not exist for SCT Barrel"<<endreq;
+        msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelBarrel<<" does not exist for SCT Barrel"<<endmsg;
         return false;
     }
   }
@@ -234,7 +234,7 @@ namespace InDet {
         ATH_MSG_INFO("Alignment level for SCT Endcaps is "<<m_alignLevelBarrel);
         return true;
       default:
-        msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelEndcaps<<" does not exist for SCT Endcaps"<<endreq;
+        msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelEndcaps<<" does not exist for SCT Endcaps"<<endmsg;
         return false;
     }
   }
@@ -381,9 +381,9 @@ namespace InDet {
         // add to the sct barrel structure
         if(msgLvl(MSG::DEBUG)) {
           if (m_idHelper->is_barrel(id))
-            msg(MSG::DEBUG)<<"... SCT barrel element"<<endreq;
+            msg(MSG::DEBUG)<<"... SCT barrel element"<<endmsg;
           else
-            msg(MSG::DEBUG)<<"... SCT endcap element"<<endreq;
+            msg(MSG::DEBUG)<<"... SCT endcap element"<<endmsg;
         }
         sct->addDetElement(Trk::AlignModule::SCT,element,transform);
 

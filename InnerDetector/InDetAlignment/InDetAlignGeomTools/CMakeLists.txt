@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 769450 2016-08-23 11:00:12Z krasznaa $
 ################################################################################
 # Package: InDetAlignGeomTools
 ################################################################################
@@ -6,33 +7,35 @@
 atlas_subdir( InDetAlignGeomTools )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/DataModel
-                          Tracking/TrkAlignment/TrkAlignEvent
-                          Tracking/TrkAlignment/TrkAlignGenTools
-                          Tracking/TrkAlignment/TrkAlignInterfaces
-                          PRIVATE
-                          Database/AthenaPOOL/RDBAccessSvc
-                          DetectorDescription/GeoModel/GeoModelInterfaces
-                          DetectorDescription/GeoModel/GeoModelUtilities
-                          GaudiKernel
-                          InnerDetector/InDetDetDescr/InDetIdentifier
-                          InnerDetector/InDetDetDescr/InDetReadoutGeometry
-                          Tracking/TrkEvent/TrkRIO_OnTrack )
+atlas_depends_on_subdirs(
+   PUBLIC
+   Control/AthenaBaseComps
+   Control/AthContainers
+   Tracking/TrkAlignment/TrkAlignEvent
+   Tracking/TrkAlignment/TrkAlignGenTools
+   Tracking/TrkAlignment/TrkAlignInterfaces
+   PRIVATE
+   Database/AthenaPOOL/RDBAccessSvc
+   DetectorDescription/GeoModel/GeoModelInterfaces
+   DetectorDescription/GeoModel/GeoModelUtilities
+   GaudiKernel
+   InnerDetector/InDetDetDescr/InDetIdentifier
+   InnerDetector/InDetDetDescr/InDetReadoutGeometry
+   Tracking/TrkEvent/TrkRIO_OnTrack )
 
 # External dependencies:
-find_package( Boost COMPONENTS filesystem thread system )
-find_package( CORAL COMPONENTS CoralBase CoralKernel RelationalAccess )
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Core Geom )
 
 # Component(s) in the package:
+atlas_add_library( InDetAlignGeomToolsLib
+   InDetAlignGeomTools/*.h
+   INTERFACE
+   PUBLIC_HEADERS InDetAlignGeomTools
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps AthContainers
+   TrkAlignEvent TrkAlignGenToolsLib )
+
 atlas_add_component( InDetAlignGeomTools
-                     src/*.cxx
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} AthenaBaseComps DataModel TrkAlignEvent TrkAlignGenToolsLib GeoModelUtilities GaudiKernel InDetIdentifier InDetReadoutGeometry TrkRIO_OnTrack )
-
-# Install files from the package:
-atlas_install_headers( InDetAlignGeomTools )
-
+   src/*.cxx src/components/*.cxx
+   LINK_LIBRARIES GeoModelUtilities GaudiKernel InDetIdentifier
+   InDetReadoutGeometry TrkRIO_OnTrack InDetAlignGeomToolsLib )
