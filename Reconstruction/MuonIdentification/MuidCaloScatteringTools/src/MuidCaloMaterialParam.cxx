@@ -44,6 +44,7 @@ MuidCaloMaterialParam::MuidCaloMaterialParam (const std::string&	type,
     :	AthAlgTool			(type, name, parent),
 	m_surfaceDisplayTool		("Trk::TrackingVolumeDisplayer/TrackingVolumeDisplayer"),
 	m_produceSurfacesDisplay	(false),
+	m_binSize                       (1),
 	m_numberBins			(277)
 {
     declareInterface<IMuidCaloMaterialParam>(this);
@@ -344,7 +345,7 @@ MuidCaloMaterialParam::defineCaloMaterial (void)
 	double etaBin = m_binSize*(static_cast<double>(i) + 0.5);
 	if (std::abs(eta[i] - etaBin) < 0.001*m_binSize) continue;
 	ATH_MSG_ERROR( " have " << m_numberBins << " eta bins of width " << m_binSize 
-			<< endreq << " for bin " << i << ": expected/found eta "
+			<< endmsg << " for bin " << i << ": expected/found eta "
 			<< etaBin << "/" << eta[i]
 			);
 	
@@ -436,7 +437,7 @@ MuidCaloMaterialParam::defineCaloMaterial (void)
 	const Trk::Surface* surfM = innerSurface(-eta[i]);
 	if (std::abs(surfM->center().z() + innerZ[i]) > 0.001)
 	{
-	    ATH_MSG_ERROR( " wrong surface " << i << " at eta " << eta[i] << endreq
+	    ATH_MSG_ERROR( " wrong surface " << i << " at eta " << eta[i] << endmsg
 			    << ": expected/found z " << -innerZ[i] << "/" << surfM->center().z()
 			    );
 	    return StatusCode::FAILURE;    
@@ -444,7 +445,7 @@ MuidCaloMaterialParam::defineCaloMaterial (void)
 	const Trk::Surface* surfP = innerSurface(eta[i]);
 	if (std::abs(surfP->center().z() - innerZ[i]) > 0.001)
 	{
-	    ATH_MSG_ERROR( " wrong surface " << i << " at eta " << eta[i] << endreq
+	    ATH_MSG_ERROR( " wrong surface " << i << " at eta " << eta[i] << endmsg
 			    << ": expected/found z " << innerZ[i] << "/" << surfP->center().z()
 			    );
 	    return StatusCode::FAILURE;    

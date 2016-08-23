@@ -40,13 +40,15 @@ namespace Rec
 {
 
 MuidCaloTrackStateOnSurface::MuidCaloTrackStateOnSurface (const std::string&	type,
-							  const std::string&	name, 
+							  const std::string&	name,
 							  const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
 	m_caloEnergyDeposit	("Rec::MuidCaloEnergyTool/MuidCaloEnergyTool"),
 	m_caloEnergyParam	("Rec::MuidCaloEnergyTool/MuidCaloEnergyToolParam"),
 	m_caloMaterialParam	("Rec::MuidCaloMaterialParam/MuidCaloMaterialParam"),
+	m_magFieldProperties    (0),
 	m_magFieldSvcHandle	("MagField::AtlasFieldSvc/AtlasFieldSvc", name),
+	m_magFieldSvc           (0),
 	m_propagator            ("Trk::IntersectorWrapper/IntersectorWrapper"),
 	m_minCaloRadius		(0.4*Gaudi::Units::meter),
 	m_minRemainingEnergy	(0.5*Gaudi::Units::GeV),
@@ -135,13 +137,13 @@ StatusCode
 MuidCaloTrackStateOnSurface::finalize()
 {
     ATH_MSG_INFO( "finalized with "
-		  << m_count << " muons asking for calo association, out of which: " << endreq
+		  << m_count << " muons asking for calo association, out of which: " << endmsg
 		  << "     " << m_countInnerFailure
-		  << " failed to find the inner calo scattering plane," << endreq
+		  << " failed to find the inner calo scattering plane," << endmsg
 		  << "     " << m_countOuterFailure
-		  << " failed to find the outer calo scattering plane," << endreq
+		  << " failed to find the outer calo scattering plane," << endmsg
 		  << "     while another " << m_countCompleteFailure
-		  << " completely failed to intersect the calorimeter."	<< endreq
+		  << " completely failed to intersect the calorimeter."	<< endmsg
 		  << "     " << m_countArbitrarySolution
 		  << " with oscillation resolved by taking an arbitrary solution");
     
