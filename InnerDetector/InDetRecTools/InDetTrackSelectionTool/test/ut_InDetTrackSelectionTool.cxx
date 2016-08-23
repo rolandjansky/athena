@@ -41,6 +41,7 @@ bool passLooseTau( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr )
 bool passMinBias( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passHILoose( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 bool passHITight( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
+bool passExpPix( const TrackParticle& trk, const xAOD::Vertex* vtx = nullptr );
 uint8_t getSum(const TrackParticle&, xAOD::SummaryType);
 void dumpTrack( const TrackParticle& );
 
@@ -84,9 +85,14 @@ int main( int argc, char* argv[] ) {
      const auto& cutLevel = cutLevelPair.first;
      string toolName = "TrackSel";
      toolName += cutLevel;
-     selTools[cutLevel] = tool_ptr(new InDetTrackSelectionTool(toolName, cutLevel) );
+     selTools[cutLevel] = tool_ptr( new InDetTrackSelectionTool(toolName, cutLevel) );
      CHECK( selTools[cutLevel]->initialize() );
    }
+   // handle the experimental one differently: add the map entry after initializing the others because it is not a selection level
+   cutFuncs["ExpPix"] = passExpPix;
+   selTools["ExpPix"] = tool_ptr( new InDetTrackSelectionTool("TrackSelExpPix") );
+   CHECK( selTools["ExpPix"]->setProperty( "useExperimentalInnermostLayersCut", 1 ) );
+   CHECK( selTools["ExpPix"]->initialize() );
 
    // Open the input file:
    Info( APP_NAME, "Opening file: %s", filename.data() );
@@ -95,8 +101,9 @@ int main( int argc, char* argv[] ) {
    CHECK( gotFile );
 
    // Create a TEvent object:
-   xAOD::TEvent event( static_cast<TFile*>(nullptr), xAOD::TEvent::kClassAccess );
-   ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(event.readFrom( ifile.get() )) );
+   // xAOD::TEvent event( static_cast<TFile*>(nullptr), xAOD::TEvent::kClassAccess );
+   // ASG_CHECK_SA( APP_NAME, static_cast<StatusCode>(event.readFrom( ifile.get() )) );
+   xAOD::TEvent event( ifile.get(), xAOD::TEvent::kAthenaAccess );
    Info( APP_NAME, "Number of events in the file: %llu", event.getEntries() );
 
    // Decide how many events to run over:
@@ -365,6 +372,24 @@ bool passHITight( const TrackParticle& trk, const xAOD::Vertex* vtx )
   return true;
 }
 
+// whether the track passes the experimental pixel cut
+bool passExpPix( const TrackParticle& trk, const xAOD::Vertex* )
+{
+  uint8_t nPixHoles = getSum(trk, xAOD::numberOfPixelHoles);
+  if (nPixHoles == 0) return true; // if there are no pixel holes, then the track passes regardless
+  if (nPixHoles > 1) return false; // if there is more than 1 hole, the track fails regardless
+
+  uint8_t nIBLHits = getSum(trk, xAOD::numberOfInnermostPixelLayerHits);
+  uint8_t expectBL = getSum(trk, xAOD::expectNextToInnermostPixelLayerHit);
+  uint8_t nBLHits = getSum(trk, xAOD::numberOfNextToInnermostPixelLayerHits);
+  
+  // make an exception is there is an IBL hit, and the hole is in the BLayer
+  if (nIBLHits >= 1) {
+    if (expectBL && nBLHits ==0) return true;
+  }
+
+  return false;
+}
 
 uint8_t getSum( const TrackParticle& trk, xAOD::SummaryType sumType )
 {

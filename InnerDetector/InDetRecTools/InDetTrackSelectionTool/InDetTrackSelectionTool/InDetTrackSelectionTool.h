@@ -159,6 +159,7 @@ namespace InDet {
     Int_t m_minNOverflowHitsdEdx = -1; //!< Minimum number of IBL overflow hits for dEdx
     Bool_t m_eProbHTonlyForXe = false; //!< Flag whether to only check eProbabilityHT if all TRT hits are Xenon hits
     Double_t m_minEProbabilityHT = -1.; //!< Minimum eProbabiltyHT
+    Int_t m_useExperimentalInnermostLayersCut = false; //!< use (NPixHoles == 0) but allow 1 hole if a BLayer hit is expected but not present
 #ifndef XAOD_ANALYSIS
     Int_t m_minNSiHitsMod = -1; //!< Minimum number of Si hits, with pixel hits counting twice
     Int_t m_minNSiHitsModTop = -1; //!< Min number of Si hits on top half (pixel counting twice)
