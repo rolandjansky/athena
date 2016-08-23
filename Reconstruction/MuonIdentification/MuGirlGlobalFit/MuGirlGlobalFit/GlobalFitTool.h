@@ -99,12 +99,12 @@ private:
     //             if (sc.isFailure())
     //             {
     //                 if (bError)
-    //                 m_log << MSG::ERROR << "Cannot retrieve " << pHandle << endreq;
+    //                 m_log << MSG::ERROR << "Cannot retrieve " << pHandle << endmsg;
     //                 else
-    //                 m_log << MSG::WARNING << "Cannot retrieve " << pHandle << endreq;
+    //                 m_log << MSG::WARNING << "Cannot retrieve " << pHandle << endmsg;
     //             }
     //             else
-    //             m_log << MSG::INFO << "Retrieved " << pHandle << endreq;
+    //             m_log << MSG::INFO << "Retrieved " << pHandle << endmsg;
     //             return sc;
     //         }
     NTuple::Item<float>  m_RefittedTrkPt;        /**< Reffited Track: pT */
