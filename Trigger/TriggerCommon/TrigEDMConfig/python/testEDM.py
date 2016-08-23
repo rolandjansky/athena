@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-from TrigEDMConfig.TriggerEDM import *
+from TriggerEDM import *
 from CLIDComps.clidGenerator import clidGenerator
 cgen = clidGenerator("", False)
 
@@ -15,6 +15,7 @@ def main():
   serializable_names_no_label = []
   TriggerList = TriggerL2List + TriggerEFList + TriggerResultsList + TriggerResultsRun1List + TriggerLvl1List + TriggerIDTruth + TriggerHLTList
   for TriggerSerializable in TriggerList:
+    #print TriggerSerializable 
     serializable_name = TriggerSerializable[0]
     serializable_name_no_label = re.sub(r"\#.*", "", serializable_name)
     if not '#' in serializable_name:
