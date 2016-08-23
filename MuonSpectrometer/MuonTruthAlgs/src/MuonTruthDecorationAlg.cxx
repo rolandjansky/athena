@@ -664,7 +664,7 @@ namespace Muon {
         }
       }
       if( nphiLayers > 0 ){
-        msg(MSG::VERBOSE) << endreq << " Phi chambers ";
+        msg(MSG::VERBOSE) << endmsg << " Phi chambers ";
         for( int index = 0; index < static_cast<int>(nphiHitsPerChamberLayer.size()) ; ++index ) {
           if( nphiHitsPerChamberLayer[index] > 0 ) msg(MSG::VERBOSE) << " " << Muon::MuonStationIndex::phiName(static_cast<Muon::MuonStationIndex::PhiIndex>(index))
             << " hits " << nphiHitsPerChamberLayer[index];
@@ -672,13 +672,13 @@ namespace Muon {
       }
 
       if( ntrigEtaLayers > 0 ){
-        msg(MSG::VERBOSE) << endreq << " Trigger Eta ";
+        msg(MSG::VERBOSE) << endmsg << " Trigger Eta ";
         for( int index = 0; index < static_cast<int>(ntrigEtaHitsPerChamberLayer.size()) ; ++index ) {
           if( ntrigEtaHitsPerChamberLayer[index] > 0 ) msg(MSG::VERBOSE) << " " << Muon::MuonStationIndex::phiName(static_cast<Muon::MuonStationIndex::PhiIndex>(index)) 
             << " hits " << ntrigEtaHitsPerChamberLayer[index];
         }
       }
-      msg(MSG::VERBOSE) << endreq;
+      msg(MSG::VERBOSE) << endmsg;
     }
   }
 
