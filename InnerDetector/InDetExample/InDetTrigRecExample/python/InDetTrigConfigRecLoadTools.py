@@ -740,7 +740,8 @@ if InDetTrigFlags.loadSummaryTool():
                                                     InDetHoleSearchTool    = InDetTrigHoleSearchTool,
                                                     doSharedHits           = False,
                                                     #this may be temporary #61512 (and used within egamma later)
-                                                    TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool, 
+                                                    #TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool, 
+                                                    TRT_ElectronPidTool    = None, 
                                                     )
   ToolSvc += InDetTrigTrackSummaryTool
   if (InDetTrigFlags.doPrintConfigurables()):
@@ -774,11 +775,12 @@ if InDetTrigFlags.loadSummaryTool():
                                                                 InDetSummaryHelperTool = InDetTrigTrackSummaryHelperToolSharedHits,
                                                                 doSharedHits           = InDetTrigFlags.doSharedHits(),
                                                                 InDetHoleSearchTool    = InDetTrigHoleSearchTool,
-                                                                TRT_ElectronPidTool    = InDetTrigTRT_ElectronPidTool)
+                                                                TRT_ElectronPidTool    = None)
 
     ToolSvc += InDetTrigTrackSummaryToolSharedHits
     if (InDetTrigFlags.doPrintConfigurables()):
       print      InDetTrigTrackSummaryToolSharedHits
+
 
   else:   
     InDetTrigTrackSummaryToolSharedHits        = InDetTrigTrackSummaryTool   
