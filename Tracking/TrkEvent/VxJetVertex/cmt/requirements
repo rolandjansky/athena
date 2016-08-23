@@ -21,7 +21,7 @@ apply_pattern installed_library
 
 private
 # persistency
-use DataModel           DataModel-*       Control
+use AthLinks      AthLinks-*      Control
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 apply_pattern lcgdict dict=VxJetVertex selectionfile=selection.xml headerfiles="../VxJetVertex/VxJetVertexDict.h"
 
