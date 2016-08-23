@@ -138,7 +138,7 @@ namespace Muon {
             trackPlots->fill(ntruth,nseg,nseg1,nseg2,nseg3,nhough);
 
             pos = track_candidate_map.find(i);
-            bool justOnCandidate = true;
+            // bool justOnCandidate = true;
             // loop over stages and fill plots 
             for( unsigned int si=0;si<trackPlots->candidateStages.size();++si ){
               StageSummaryPlots& plots = trackPlots->candidateStages[si];
@@ -155,7 +155,7 @@ namespace Muon {
               }
               plots.ncandidates->Fill(candidateCounts.first);
               plots.ncombinedCandidates->Fill(candidateCounts.second);
-              if( candidateCounts.first > 1 ) justOnCandidate = false;
+              // if( candidateCounts.first > 1 ) justOnCandidate = false;
             }
             if( nseg3 < 2 ) continue;
 
