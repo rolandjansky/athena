@@ -85,7 +85,7 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
   StatusCode sc = detStore()->retrieve(m_rpcId);
   if (sc.isFailure())
     {
-      msg (MSG::WARNING) << "Could not get RPC ID helper !" << endreq;
+      msg (MSG::WARNING) << "Could not get RPC ID helper !" << endmsg;
       muonOkay=false;
     }
 
@@ -97,27 +97,27 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
   sc = detStore()->retrieve(m_tgcId);
   if (sc.isFailure())
     {
-      msg (MSG::WARNING) << "Could not get TGC ID helper !" << endreq;
+      msg (MSG::WARNING) << "Could not get TGC ID helper !" << endmsg;
       muonOkay=false;
     }
 
   sc = detStore()->retrieve(m_cscId);
   if (sc.isFailure())
     {
-      msg (MSG::WARNING) << "Could not get CSC ID helper !" << endreq;
+      msg (MSG::WARNING) << "Could not get CSC ID helper !" << endmsg;
       muonOkay=false;
     }
 
   sc = detStore()->retrieve(m_mdtId);
   if (sc.isFailure())
     {
-      msg (MSG::WARNING) << "Could not get MDT ID helper !" << endreq;
+      msg (MSG::WARNING) << "Could not get MDT ID helper !" << endmsg;
       muonOkay=false;
     }
 
   if (!muonOkay) 
     {
-      msg (MSG::FATAL) << "Could not get ID Helper(s)!" << endreq;
+      msg (MSG::FATAL) << "Could not get ID Helper(s)!" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -154,26 +154,26 @@ StatusCode Muon::MuonTrackSummaryHelperTool::initialize()
   if (m_doHoles){
     sc = m_muonTgTool.retrieve();
     if (sc.isFailure()) {
-      msg (MSG::FATAL) << "Could not get MuonHolesOnTrackTool :"<< endreq;
+      msg (MSG::FATAL) << "Could not get MuonHolesOnTrackTool :"<< endmsg;
       return StatusCode::FAILURE;
       //m_doHoles=false;
     } else {
-      msg (MSG::VERBOSE) << "MuonHolesOnTrackTool "<< endreq;
+      msg (MSG::VERBOSE) << "MuonHolesOnTrackTool "<< endmsg;
     }   
   } else {
-    msg (MSG::VERBOSE) << "Hole search turned off, so MuonHolesOnTrackTool not loaded" << endreq;        
+    msg (MSG::VERBOSE) << "Hole search turned off, so MuonHolesOnTrackTool not loaded" << endmsg;        
   }
   //      }else{ 
-  //        msg << MSG::FATAL << "MuonTGRecTools library doesn't seem to be loaded." << endreq;
+  //        msg << MSG::FATAL << "MuonTGRecTools library doesn't seem to be loaded." << endmsg;
   //      	return StatusCode::FAILURE;
   //      }
   //      objMgr->release();
   //    }
   msg (MSG::INFO) << "Initialise successful in  MuonTrackSummaryHelperTool (Hole search turned ";
   if (m_doHoles) 
-    msg (MSG::INFO)<<"ON)"<<endreq;
+    msg (MSG::INFO)<<"ON)"<<endmsg;
   else
-    msg (MSG::INFO)<<"OFF)"<<endreq;
+    msg (MSG::INFO)<<"OFF)"<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -214,8 +214,8 @@ void Muon::MuonTrackSummaryHelperTool::analyse(
     else if( chType == 1 ) increment(information[numberOfCscEtaHits]);
     else                   increment(information[numberOfCscPhiHoles]);
   }else{
-    msg (MSG::ERROR) << "Unknown muon detector type " << endreq;
-    msg (MSG::ERROR) << "Dumping TrackStateOnSurface "<<*tsos << endreq;
+    msg (MSG::ERROR) << "Unknown muon detector type " << endmsg;
+    msg (MSG::ERROR) << "Dumping TrackStateOnSurface "<<*tsos << endmsg;
   }
   return;
 }
@@ -259,7 +259,7 @@ void Muon::MuonTrackSummaryHelperTool::searchForHoles (
   ATH_MSG_VERBOSE( "Entering searchForHoles");
 
   if (!m_doHoles) {
-    msg (MSG::WARNING) << "SearchForHoles turned off!" << endreq;
+    msg (MSG::WARNING) << "SearchForHoles turned off!" << endmsg;
     return;
   }
 
@@ -270,7 +270,7 @@ void Muon::MuonTrackSummaryHelperTool::searchForHoles (
   const DataVector<const Trk::TrackStateOnSurface>* holes = nonConstTool->getHolesOnTrack(track);
 
   if (holes==0) {
-    msg (MSG::WARNING) <<"Hole tool returns zero pointer! Aborting."<<endreq;
+    msg (MSG::WARNING) <<"Hole tool returns zero pointer! Aborting."<<endmsg;
     return;
   }
   // 
@@ -280,10 +280,10 @@ void Muon::MuonTrackSummaryHelperTool::searchForHoles (
     sc = m_detStore->retrieve(m_trackingGeometry, m_trackingGeometryName);
     if (sc.isFailure()) {
       msg (MSG::FATAL)<<"Could not find geometry "<< m_trackingGeometryName<<". Exiting."
-		      << endreq;
+		      << endmsg;
     } else {
       msg (MSG::INFO) << "  geometry Svc \""<<m_trackingGeometryName<<"\" booked "
-		      << endreq;
+		      << endmsg;
     }
   } 
 
@@ -314,11 +314,11 @@ void Muon::MuonTrackSummaryHelperTool::searchForHoles (
 	  }else if(m_mdtId->is_mdt(id)){  
 	    increment(information[Trk::numberOfMdtHoles]);
 	  }else{
-	    msg (MSG::ERROR) << "searchForHoles: Unknown muon detector type " << endreq;
-	    msg (MSG::ERROR) << "Dumping TrackStateOnSurface "<<*it << endreq;
+	    msg (MSG::ERROR) << "searchForHoles: Unknown muon detector type " << endmsg;
+	    msg (MSG::ERROR) << "Dumping TrackStateOnSurface "<<*it << endmsg;
 	  }
 	}else{
-	msg (MSG::WARNING) <<"No TrackParameter on TP returned from MuonMeasurementMgr::getHolesOnTrack"<<endreq;
+	msg (MSG::WARNING) <<"No TrackParameter on TP returned from MuonMeasurementMgr::getHolesOnTrack"<<endmsg;
       }
     }
 
