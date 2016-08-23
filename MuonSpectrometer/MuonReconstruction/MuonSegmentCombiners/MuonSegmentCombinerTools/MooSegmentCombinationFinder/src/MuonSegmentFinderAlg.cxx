@@ -229,7 +229,7 @@ StatusCode MuonSegmentFinderAlg::execute()
   }
 
   if( m_printSummary || msgLvl(MSG::DEBUG) ){
-    msg() << msg().level() << "Number of segments found " << resolvedSegments.size() << std::endl << m_printer->print(resolvedSegments) << endreq;
+    msg() << msg().level() << "Number of segments found " << resolvedSegments.size() << std::endl << m_printer->print(resolvedSegments) << endmsg;
   }
   
   //Add the segments to store gate
