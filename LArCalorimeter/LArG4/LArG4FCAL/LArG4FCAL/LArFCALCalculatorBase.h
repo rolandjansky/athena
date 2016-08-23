@@ -85,7 +85,7 @@ class LArFCALCalculatorBase : public LArVCalculator
   const FCALModule  *m_negModule; // for hv access here...
   // sampling
   G4int   m_FCalSampling;
-  LArG4BirksLaw *birksLaw;
+  LArG4BirksLaw *m_birksLaw;
 
   LArFCALCalculatorBase (const LArFCALCalculatorBase&);
   LArFCALCalculatorBase operator= (const LArFCALCalculatorBase&);

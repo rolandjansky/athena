@@ -240,17 +240,17 @@ namespace LArG4 {
 	     sampling = m_FCalSampling;
              region = 4;
 	     etaIndex = 0;
-	     phiIndex = G4int(32*phi/M_PI);
+	     phiIndex = G4int(phi*(32/M_PI));
         } else {
 	     region = 0;
 	     etaIndex = G4int((eta-1.7)/0.1);
-	     phiIndex = G4int(32*phi/M_PI);        
+	     phiIndex = G4int(phi*(32/M_PI));        
         }
 	}
 	else if ( eta < 8 ) {
 	  region = 1;
 	  etaIndex = G4int((eta-5)/0.2);
-	  phiIndex = G4int(32*phi/M_PI);
+	  phiIndex = G4int(phi*(32/M_PI));
 	}
 	else {
 	  region = 2;
