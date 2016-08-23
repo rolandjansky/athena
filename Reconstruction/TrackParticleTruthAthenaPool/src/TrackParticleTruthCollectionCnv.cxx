@@ -28,8 +28,8 @@ TrackParticleTruthCollectionCnv::TrackParticleTruthCollectionCnv(ISvcLocator* sv
 
 //================================================================
 TrackParticleTruthCollectionPERS* TrackParticleTruthCollectionCnv::createPersistent(TrackParticleTruthCollection* trans) {
-  MsgStream log(messageService(), "TrackParticleTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollection_p1"<<endreq;
+  MsgStream log(msgSvc(), "TrackParticleTruthCollectionCnv");
+  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollection_p1"<<endmsg;
   TrackParticleTruthCollectionPERS* pers=new TrackParticleTruthCollectionPERS();
   m_converter_p1.transToPers(trans,pers,log); 
   return pers;
@@ -37,24 +37,24 @@ TrackParticleTruthCollectionPERS* TrackParticleTruthCollectionCnv::createPersist
 
 //================================================================
 TrackParticleTruthCollection* TrackParticleTruthCollectionCnv::createTransient() {
-  MsgStream log(messageService(), "TrackParticleTruthCollectionCnv" );
+  MsgStream log(msgSvc(), "TrackParticleTruthCollectionCnv" );
   std::auto_ptr<TrackParticleTruthCollection> trans(new TrackParticleTruthCollection());
   
   if (compareClassGuid(s_p1_guid)) {
-    log<<MSG::DEBUG<<"Read TrackParticleTruthCollection_p1. GUID="<<m_classID.toString()<<endreq;
+    log<<MSG::DEBUG<<"Read TrackParticleTruthCollection_p1. GUID="<<m_classID.toString()<<endmsg;
     Rec::TrackParticleTruthCollection_p1* pers=poolReadObject<Rec::TrackParticleTruthCollection_p1>();
     m_converter_p1.persToTrans(pers, trans.get(), log);
     delete pers;
   }
   else if (compareClassGuid(s_p0_guid)) {
-    log<<MSG::DEBUG<<"Read version p0 of TrackParticleTruthCollection. GUID="<<m_classID.toString()<<endreq;
+    log<<MSG::DEBUG<<"Read version p0 of TrackParticleTruthCollection. GUID="<<m_classID.toString()<<endmsg;
     TrackParticleTruthVector *pers = poolReadObject<TrackParticleTruthVector>();
     m_converter_p0.persToTrans(pers, trans.get(), log);
     delete pers;
   }
   else {
     log<<MSG::ERROR<<"Unsupported persistent version of TrackParticleTruthCollection. GUID="
-       <<m_classID.toString()<<endreq;
+       <<m_classID.toString()<<endmsg;
     throw std::runtime_error("Unsupported persistent version of Data Collection");
   }
   

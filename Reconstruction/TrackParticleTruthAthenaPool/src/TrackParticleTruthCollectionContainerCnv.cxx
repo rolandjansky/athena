@@ -22,8 +22,8 @@ TrackParticleTruthCollectionContainerCnv::~TrackParticleTruthCollectionContainer
 }
 
 TrackParticleTruthCollectionContainerPERS* TrackParticleTruthCollectionContainerCnv::createPersistent(TrackParticleTruthCollectionContainer* trans) {
-  MsgStream log(messageService(), "TrackParticleTruthCollectionContainerCnv");
-  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollectionContainer_tlp1"<<endreq;
+  MsgStream log(msgSvc(), "TrackParticleTruthCollectionContainerCnv");
+  log<<MSG::DEBUG<<"Writing TrackParticleTruthCollectionContainer_tlp1"<<endmsg;
 
   TrackParticleTruthCollectionContainerPERS* p_cont =  m_converter_p1->createPersistent( trans, log );
   return p_cont;
@@ -35,7 +35,7 @@ TrackParticleTruthCollectionContainer* TrackParticleTruthCollectionContainerCnv:
   pool::Guid p1_guid("9F47124C-0033-4556-B14A-D7F28E4249EC");
 
 
-  MsgStream log(messageService(), "TrackParticleTruthCollectionContainerCnv" );
+  MsgStream log(msgSvc(), "TrackParticleTruthCollectionContainerCnv" );
   TrackParticleTruthCollectionContainer *p_collection = 0;
   if( compareClassGuid( p1_guid ) ){
       poolReadObject< TrackParticleTruthCollectionContainerPERS >(*m_converter_p1);
