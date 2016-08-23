@@ -1,6 +1,7 @@
 #still needs a lot of cleaning ... 
 
 from RecExConfig.RecFlags import rec
+from RecExConfig.RecAlgsFlags import recAlgs
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
 #if not acf.EvtMax.is_locked():
@@ -18,6 +19,7 @@ rec.doWriteESD=False
 rec.doWriteTAG=False
 rec.doAOD=True
 rec.doJetMissingETTag=True
+recAlgs.doMissingET=False
 rec.doMuonCombined=False
 rec.doTau=False
 rec.doBTagging=False
