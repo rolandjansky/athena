@@ -79,7 +79,7 @@ MuonCalibExtraTreeAlg::~MuonCalibExtraTreeAlg() {
 StatusCode MuonCalibExtraTreeAlg::initialize() {
   StatusCode sc = detStore()->retrieve( m_detMgr );
   if ( sc.isFailure() ) {
-    ATH_MSG_FATAL(" Cannot retrieve MuonDetDescrMgr " << endreq);
+    ATH_MSG_FATAL(" Cannot retrieve MuonDetDescrMgr " << endmsg);
     return StatusCode::FAILURE;
   } 
   m_muonIdHelper = m_detMgr->mdtIdHelper();

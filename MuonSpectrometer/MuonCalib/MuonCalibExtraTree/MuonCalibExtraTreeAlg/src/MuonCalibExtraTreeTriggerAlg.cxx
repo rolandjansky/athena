@@ -76,15 +76,15 @@ MuonCalibExtraTreeTriggerAlg::~MuonCalibExtraTreeTriggerAlg() {
 
 StatusCode MuonCalibExtraTreeTriggerAlg::initialize() {
   
-  MsgStream log(messageService(), name());
-  log << MSG::INFO << "Initialisation started     " << endreq;
+  MsgStream log(msgSvc(), name());
+  log << MSG::INFO << "Initialisation started     " << endmsg;
 
   // Set pointer on StoreGateSvc
   StatusCode sc = service("StoreGateSvc", p_StoreGateSvc);
   if (!sc.isSuccess() || 0 == p_StoreGateSvc) {
     log << MSG::ERROR
 	<< "MuonCalibExtraTreeTriggerAlg::initialize "
-	<< "Could not find StoreGateSvc" << endreq;
+	<< "Could not find StoreGateSvc" << endmsg;
     return( StatusCode::FAILURE );
   }
 
@@ -92,19 +92,19 @@ StatusCode MuonCalibExtraTreeTriggerAlg::initialize() {
   m_detStore = 0;
   sc = service( "DetectorStore", m_detStore );
   if (sc.isFailure()) {
-    log <<MSG::FATAL << "Could not get DetectorStore"<<endreq;
+    log <<MSG::FATAL << "Could not get DetectorStore"<<endmsg;
     return sc;
   }
 
   if( m_doMuCTPI ){
     sc = m_rpcRoiService.retrieve();
     if ( sc.isFailure() ) {
-      log << MSG::FATAL << "Unable to access RPCRecRoiSvc" << endreq;
+      log << MSG::FATAL << "Unable to access RPCRecRoiSvc" << endmsg;
       return sc;
     }
     sc = m_tgcRoiService.retrieve();
     if ( sc.isFailure() ) {
-      log << MSG::FATAL << "Unable to access TGCRecRoiSvc" << endreq;
+      log << MSG::FATAL << "Unable to access TGCRecRoiSvc" << endmsg;
       return sc;
     }
   }
@@ -113,29 +113,29 @@ StatusCode MuonCalibExtraTreeTriggerAlg::initialize() {
     m_tileID = 0;
     sc = m_detStore->retrieve(m_tileID);
     if ( sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve TileID helper from DetectorStore" << endreq;
+      log << MSG::ERROR << "Unable to retrieve TileID helper from DetectorStore" << endmsg;
     }
   }
 
-  log << MSG::INFO << "Initialization ended     " << endreq;
+  log << MSG::INFO << "Initialization ended     " << endmsg;
   return StatusCode::SUCCESS;
 }  //end MuonCalibExtraTreeTriggerAlg::initialize
 
 // Execute
 StatusCode MuonCalibExtraTreeTriggerAlg::execute(){
-  MsgStream log(messageService(), name());
+  MsgStream log(msgSvc(), name());
 
   if(!m_init) {
 
     TDirectory* dir = RootFileManager::getInstance()->getDirectory( m_ntupleName.c_str() );
     dir->cd();
       
-    log << MSG::DEBUG << "Try the GetObject call" << endreq;
+    log << MSG::DEBUG << "Try the GetObject call" << endmsg;
     dir->GetObject("Segments",m_tree);
       
-    log << MSG::DEBUG << "retrieved tree " << m_tree << endreq;
+    log << MSG::DEBUG << "retrieved tree " << m_tree << endmsg;
     
-    log << MSG::DEBUG << "created tree" << endreq;
+    log << MSG::DEBUG << "created tree" << endmsg;
     if(m_doMuCTPI) m_muCTPIBranch.createBranch(m_tree);
     if(m_doMBTS) m_mbtsBranch.createBranch(m_tree);
     if(m_doLVL1Calo) m_caloBranch.createBranch(m_tree);
@@ -144,7 +144,7 @@ StatusCode MuonCalibExtraTreeTriggerAlg::execute(){
     m_init = true;
   }
 
-  log << MSG::DEBUG << " execute()     " << endreq;
+  log << MSG::DEBUG << " execute()     " << endmsg;
 
   if( m_doMuCTPI ) addMuCTPI();
   if( m_doCTP )    addCTP();
@@ -170,20 +170,20 @@ void MuonCalibExtraTreeTriggerAlg::addCTP() {
   //=======================================================================
   // CTP Information
   //=======================================================================
-  MsgStream log(messageService(), name());
-  log << MSG::DEBUG << " adding CTP information " << endreq;
+  MsgStream log(msgSvc(), name());
+  log << MSG::DEBUG << " adding CTP information " << endmsg;
   if( !p_StoreGateSvc->contains< CTP_RDO >( m_ctpLocation ) ) {
-    log << MSG::DEBUG << " CTP information no available in StoreGate at " << m_ctpLocation << endreq;
+    log << MSG::DEBUG << " CTP information no available in StoreGate at " << m_ctpLocation << endmsg;
     return;
   }
 
   const CTP_RDO* theCTP_RDO = 0;
   if(p_StoreGateSvc->retrieve(theCTP_RDO, m_ctpLocation).isFailure()) {
-    log << MSG::WARNING << "Could not find \"CTP_RDO\" in StoreGate at " << m_ctpLocation << endreq;
+    log << MSG::WARNING << "Could not find \"CTP_RDO\" in StoreGate at " << m_ctpLocation << endmsg;
     return;
   }
   if( !theCTP_RDO ) {
-    log << MSG::WARNING << "Could not find \"CTP_RDO\" in StoreGate at " << m_ctpLocation << endreq;
+    log << MSG::WARNING << "Could not find \"CTP_RDO\" in StoreGate at " << m_ctpLocation << endmsg;
     return;
   }
     
@@ -194,22 +194,22 @@ void MuonCalibExtraTreeTriggerAlg::addCTP() {
 }
   
 void MuonCalibExtraTreeTriggerAlg::addMuCTPI() {
-  MsgStream log(messageService(), name());    
+  MsgStream log(msgSvc(), name());    
 
   m_muCTPIBranch.reset();
 
   // Get the MuCTPI RDO from StoreGate:
   if( !p_StoreGateSvc->contains< MuCTPI_RDO >(m_muCPTILocation) ) {
-    log << MSG::DEBUG << " MuCTPI information no available in StoreGate at " << m_muCPTILocation << endreq;
+    log << MSG::DEBUG << " MuCTPI information no available in StoreGate at " << m_muCPTILocation << endmsg;
     return;
   }
 
   const MuCTPI_RDO* muCTPI_RDO;
   if ( p_StoreGateSvc->retrieve( muCTPI_RDO, m_muCPTILocation ).isFailure() ) {
-    log << MSG::DEBUG << "Could not find MUCTPI_RDO at " << m_muCPTILocation << endreq;
+    log << MSG::DEBUG << "Could not find MUCTPI_RDO at " << m_muCPTILocation << endmsg;
     return;
   }
-  log << MSG::DEBUG << "Retrieved MUCTPI_RDO at " << m_muCPTILocation << endreq;
+  log << MSG::DEBUG << "Retrieved MUCTPI_RDO at " << m_muCPTILocation << endmsg;
 
   std::vector< uint32_t > dataWords = muCTPI_RDO->dataWord();
 
@@ -231,7 +231,7 @@ void MuonCalibExtraTreeTriggerAlg::addMuCTPI() {
 	<< " roi " << rec_roi.getRoINumber() 
 	<< " overlap " << rec_roi.getOverlap()
 	<< " eta " << rec_roi.eta() 
-	<< " phi " << rec_roi.phi() << endreq;
+	<< " phi " << rec_roi.phi() << endmsg;
     
     MuCTPI_DataWord_Decoder daqWordDecod = MuCTPI_DataWord_Decoder( daqWord );
     uint16_t   roiBCIDWord = daqWordDecod.getBCID();
@@ -242,21 +242,21 @@ void MuonCalibExtraTreeTriggerAlg::addMuCTPI() {
 }  //end MuonCalibExtraTreeTriggerAlg::addMuCTPI
 
 void MuonCalibExtraTreeTriggerAlg::addCalo() {
-  MsgStream log(messageService(), name());    
+  MsgStream log(msgSvc(), name());    
 
   m_caloBranch.reset();
 
   const CaloCellContainer* theCalocontainer;
   if( !p_StoreGateSvc->contains<CaloCellContainer>(m_caloLocation) ) {
-    log << MSG::DEBUG << " CaloCellContainer no available in StoreGate at " << m_caloLocation << endreq;
+    log << MSG::DEBUG << " CaloCellContainer no available in StoreGate at " << m_caloLocation << endmsg;
     return;
   }
 
   if(p_StoreGateSvc->retrieve(theCalocontainer,m_caloLocation).isFailure()) {
-    log<<MSG::WARNING<<" Cannot find CaloCell Container in TDS at " << m_caloLocation <<endreq;
+    log<<MSG::WARNING<<" Cannot find CaloCell Container in TDS at " << m_caloLocation <<endmsg;
     return;
   }  
-  log << MSG::VERBOSE << "Retrieval of CaloCell container succeeded at " << m_caloLocation << endreq;
+  log << MSG::VERBOSE << "Retrieval of CaloCell container succeeded at " << m_caloLocation << endmsg;
 
   if( m_detStore && m_tileID ) {
     double pi = 4*atan(1.);  
@@ -315,9 +315,9 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
 	  double et2 = etower0[k][m2];
 	  if (l2==1) et2 = etower1[k][m2];
 	  //	  {
-	  log << MSG::DEBUG<< " Store tower energies sample " << sample << " index1 " <<   index1 << " index2 " <<  index2 << " E " << e << endreq;
-	  log << MSG::DEBUG<< " k " << k << " m1 " << m1 << " l1 " << l1 << " E " << et1 << endreq;
-	  log << MSG::DEBUG<< " k " << k << " m2 " << m2 << " l2 " << l2 << " E " << et2 << endreq;
+	  log << MSG::DEBUG<< " Store tower energies sample " << sample << " index1 " <<   index1 << " index2 " <<  index2 << " E " << e << endmsg;
+	  log << MSG::DEBUG<< " k " << k << " m1 " << m1 << " l1 " << l1 << " E " << et1 << endmsg;
+	  log << MSG::DEBUG<< " k " << k << " m2 " << m2 << " l2 " << l2 << " E " << et2 << endmsg;
 	    //	  }
 	  // Keep Maximum energy and second Maximum: Cross check               
 	  if (et1 > et2) {
@@ -378,8 +378,8 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
 	  double et = etower0[k][m];
 	  if (l==1) et = etower1[k][m];
 	  //	  {
-	  log << MSG::DEBUG<< " Store tower energies sample " << sample << " index " <<   index << " E " << e << endreq;
-	  log << MSG::DEBUG<< " k " << k << " m " << m << " l " << l <<  " E " << et << endreq;
+	  log << MSG::DEBUG<< " Store tower energies sample " << sample << " index " <<   index << " E " << e << endmsg;
+	  log << MSG::DEBUG<< " k " << k << " m " << m << " l " << l <<  " E " << et << endmsg;
 	  //	  }
 	  // Store Energies
 	  indexToEnergy[index] += e;
@@ -421,11 +421,11 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
     std::map <double,int>::iterator ite = energyToIndex.begin();
     std::map <double,int>::iterator ite_end = energyToIndex.end();
     for (;ite!=ite_end;++ite) {
-      log << MSG::DEBUG<< " Energy " << fabs(ite->first) << " index " << ite->second << endreq; 
+      log << MSG::DEBUG<< " Energy " << fabs(ite->first) << " index " << ite->second << endmsg; 
       std::vector <const CaloCell* > cellVector = towerIndexToCells[ite->second];
       if (nstore > nmaxstore) continue;
       nstore++;
-      log << MSG::DEBUG<< " cells in tower " << cellVector.size() << endreq;
+      log << MSG::DEBUG<< " cells in tower " << cellVector.size() << endmsg;
       std::vector<const CaloCell*>::const_iterator itc = cellVector.begin();
       std::vector<const CaloCell*>::const_iterator itc_end = cellVector.end();
       double xpos = 0;   
@@ -440,12 +440,12 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
 	zpos += (*itc)->z()*ei;
 	time += (*itc)->time()*ei;
 	etot += ei;
-	log << MSG::DEBUG<< " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() << endreq;
+	log << MSG::DEBUG<< " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() << endmsg;
       }
       if (cellVector.size() >  0) {  
 	time = time/etot; 
 	Amg::Vector3D gpos(xpos/etot,ypos/etot,zpos/etot); 
-	log << MSG::DEBUG << " Store Calo info " << cellVector.size() << " positions " << gpos << " time " << time << " Etot " << etot << endreq;
+	log << MSG::DEBUG << " Store Calo info " << cellVector.size() << " positions " << gpos << " time " << time << " Etot " << etot << endmsg;
 	// We could also store 
 	//int index = ite->second;
 	MuonCalibCaloHit hit(cellVector.size(),gpos,time,etot); 
@@ -454,23 +454,23 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
     }
          
     if (indMax > 0) {
-      log << MSG::DEBUG<< " Cross check Highest Energy " << Emax <<  " index " << indMax << endreq;
+      log << MSG::DEBUG<< " Cross check Highest Energy " << Emax <<  " index " << indMax << endmsg;
       std::vector <const CaloCell* > cellVector = towerIndexToCells[indMax];
-      log << MSG::DEBUG<< " cells " << cellVector.size() << endreq;
+      log << MSG::DEBUG<< " cells " << cellVector.size() << endmsg;
       std::vector<const CaloCell*>::const_iterator itc = cellVector.begin();
       std::vector<const CaloCell*>::const_iterator itc_end = cellVector.end();
       for (;itc!=itc_end;++itc) {
-	log << MSG::DEBUG << " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() << endreq;
+	log << MSG::DEBUG << " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() << endmsg;
       }    
     } 
     if (indsMax > 0) {
-      log << MSG::DEBUG << " Cross check Second Highest Energy " << Esmax <<  " index " << indsMax << endreq;
+      log << MSG::DEBUG << " Cross check Second Highest Energy " << Esmax <<  " index " << indsMax << endmsg;
       std::vector <const CaloCell* > cellVector = towerIndexToCells[indsMax];
-      log << MSG::DEBUG<< " cells " << cellVector.size() << endreq;
+      log << MSG::DEBUG<< " cells " << cellVector.size() << endmsg;
       std::vector<const CaloCell*>::const_iterator itc = cellVector.begin();
       std::vector<const CaloCell*>::const_iterator itc_end = cellVector.end();
       for (;itc!=itc_end;++itc) {
-	log << MSG::DEBUG << " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() << endreq;
+	log << MSG::DEBUG << " x " << (*itc)->x() << " y " <<  (*itc)->y()<< " z " <<  (*itc)->z() << " time " <<  (*itc)->time() << " eta " << (*itc)->eta() << " phi " << (*itc)->phi() << " energy " <<  (*itc)->energy() << endmsg;
       }    
     } 
   } // endif TileID helper && detStore successful
@@ -478,21 +478,21 @@ void MuonCalibExtraTreeTriggerAlg::addCalo() {
 }  //end MuonCalibExtraTreeTriggerAlg::addCalo
 
 void MuonCalibExtraTreeTriggerAlg::addMBTS() {
-  MsgStream log(messageService(), name());    
+  MsgStream log(msgSvc(), name());    
 
   m_mbtsBranch.reset();
     
   if( !p_StoreGateSvc->contains<TileCellContainer>(m_mbtsLocation) ) {
-    log << MSG::DEBUG << " MBTS TileCellContainer no available in StoreGate at " << m_mbtsLocation << endreq;
+    log << MSG::DEBUG << " MBTS TileCellContainer no available in StoreGate at " << m_mbtsLocation << endmsg;
     return;
   }
 
   const TileCellContainer* theMBTScontainer;
   if(p_StoreGateSvc->retrieve(theMBTScontainer,m_mbtsLocation).isFailure()) {
-    log<<MSG::WARNING<<" Cannot find MBTS Container in TDS at " << m_mbtsLocation << endreq;
+    log<<MSG::WARNING<<" Cannot find MBTS Container in TDS at " << m_mbtsLocation << endmsg;
     return;
   }  
-  log << MSG::VERBOSE << "Retrieval of MBTS container succeeded at " << m_mbtsLocation << endreq;
+  log << MSG::VERBOSE << "Retrieval of MBTS container succeeded at " << m_mbtsLocation << endmsg;
          
   if( m_detStore && m_tileID ) {  
     double pi = 4*atan(1.); 
@@ -526,9 +526,9 @@ void MuonCalibExtraTreeTriggerAlg::addMBTS() {
 	  time[ic] = mbtsCell->time();
 	  module[ic] = counter;
 	  if (msgSvc()->outputLevel( name() )< MSG::DEBUG ) {
-	    log << MSG::VERBOSE << "Counter: " << counter << endreq;
-	    log << MSG::VERBOSE << "Energy= " << energy[ic] << " pCb" << endreq;
-	    log << MSG::VERBOSE << "Time= " << time[ic] << endreq ;
+	    log << MSG::VERBOSE << "Counter: " << counter << endmsg;
+	    log << MSG::VERBOSE << "Energy= " << energy[ic] << " pCb" << endmsg;
+	    log << MSG::VERBOSE << "Time= " << time[ic] << endmsg ;
 	  }
 	  //                         double quality = mbtsCell->quality();
 	  ic++;
@@ -552,15 +552,15 @@ void MuonCalibExtraTreeTriggerAlg::addMBTS() {
 } // end MuonCalibExtraTreeTriggerAlg::addMBTS
 
 void MuonCalibExtraTreeTriggerAlg::finishEvent(){
-  MsgStream log(messageService(), name());
-  log << MSG::DEBUG << "in finishEvent, filling tree " << m_tree << endreq;
+  MsgStream log(msgSvc(), name());
+  log << MSG::DEBUG << "in finishEvent, filling tree " << m_tree << endmsg;
   m_tree->Fill();
-  log << MSG::DEBUG << "tree Filled " << endreq;
+  log << MSG::DEBUG << "tree Filled " << endmsg;
   if(m_doCTP)  m_ctpBranch.reset();
   if(m_doMBTS) m_mbtsBranch.reset();
   if(m_doMuCTPI) m_muCTPIBranch.reset();
   if(m_doLVL1Calo) m_caloBranch.reset();
-  log << MSG::DEBUG << "finish event ready... " << endreq;
+  log << MSG::DEBUG << "finish event ready... " << endmsg;
 }  //end MuonCalibExtraTreeTriggerAlg::finishEvent
   
 }//end namespace MuonCalib
