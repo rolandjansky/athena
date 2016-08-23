@@ -123,13 +123,13 @@ StatusCode G4HitMerger::execute()
   //first get the list of McEventCollections
   //  StatusCode sc(StatusCode::FAILURE);
   //  if (! (sc = m_mergeSvc->retrieveSubEvtsData(truthCollKey, truthList)).isSuccess() ) {
-  //    msglog<<MSG::ERROR<< "execute: Can not find TimedTruthList with key "<< truthCollKey << endreq;
+  //    msglog<<MSG::ERROR<< "execute: Can not find TimedTruthList with key "<< truthCollKey << endmsg;
   //    return StatusCode::RECOVERABLE;;
   //  }
   //  int nInputMcEventColls(truthList.size());
   //  //and check it is not empty
   //  if (0 == nInputMcEventColls) {
-  //    msglog<<MSG::ERROR<< "execute: TimedTruthList with key " << truthCollKey<< " is empty" << endreq;
+  //    msglog<<MSG::ERROR<< "execute: TimedTruthList with key " << truthCollKey<< " is empty" << endmsg;
   //    return StatusCode::RECOVERABLE;
   //  }
   //
@@ -138,7 +138,7 @@ StatusCode G4HitMerger::execute()
   //  McEventCollection* pOvrlMcEvColl(new McEventCollection(*(lI->second)));
   //
   //  sc = evtStore()->record(pOvrlMcEvColl, truthCollKey);
-  //  if (!sc.isSuccess()) msglog<<MSG::ERROR<<"Could not write MCEventCollection!"<<endreq;
+  //  if (!sc.isSuccess()) msglog<<MSG::ERROR<<"Could not write MCEventCollection!"<<endmsg;
 
 
 
@@ -192,7 +192,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
       } // loop over subevent list
 
       // lock finished new container
@@ -294,7 +294,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
       } // loop over subevent list
 
       // lock finished new container
@@ -346,7 +346,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
       } // loop over subevent list
 
       // lock finished new container
@@ -396,7 +396,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
       } // loop over subevent list
 
       // lock finished new container
@@ -445,7 +445,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
       } // loop over subevent list
 
       // lock finished new container
@@ -495,7 +495,7 @@ StatusCode G4HitMerger::execute()
           new_collection->push_back(hit);
         } // loop over hits
         ++iFirstCont; ++subevent;
-        //msglog << MSG::INFO << "Subevent "<<subevent<<endreq;
+        //msglog << MSG::INFO << "Subevent "<<subevent<<endmsg;
       } // loop over subevent list
 
       // lock finished new container

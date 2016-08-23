@@ -93,21 +93,21 @@ public:
 
 private:
 
+  // Handle for BS input Svc
+  ServiceHandle<ByteStreamInputSvc> m_inputSvc;
+  
+  // Whether to use lbn map or not
+  bool m_uselbnmap;
+  std::string m_lbn_map_file;
+  std::string m_trigfile;
+  void initlbnmap();
+
   // Handle for BS output Svc
   std::vector< ServiceHandle<ByteStreamOutputSvc> > m_outputSvc;
   int m_NoutputSvc;
 
   int m_skipevents;
-
-  // Whether to use lbn map or not
-  int m_uselbnmap;
-  std::string m_lbn_map_file;
-  std::string m_trigfile;
-  void initlbnmap();
-
-  // Handle for BS input Svc
-  ServiceHandle<ByteStreamInputSvc> m_inputSvc;
-
+ 
 };
 
 

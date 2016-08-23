@@ -15,7 +15,7 @@
 
 #include "OverlayAlgBase/OverlayAlgBase.h"
 #include "GaudiKernel/ToolHandle.h"
-#include "xAODEventInfoCnv/IEventInfoCnvTool.h"
+#include "xAODCnvInterfaces/IEventInfoCnvTool.h"
 
 class CopyMcEventCollection : public OverlayAlgBase  {
 public:

@@ -42,14 +42,14 @@ StatusCode SaveInDetObjects::overlayFinalize()
 //================================================================
 StatusCode SaveInDetObjects::overlayExecute() {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "SaveInDetObjects::execute() begin"<< endreq;
+  log << MSG::DEBUG << "SaveInDetObjects::execute() begin"<< endmsg;
   
   copyInDetIDCobject<TRT_RDO_Container,TRT_LoLumRawData>(&*m_storeGateMC,&*m_storeGateTemp);
   if ( m_sctType) copyInDetIDCobject<SCT_RDO_Container,SCT3_RawData>(&*m_storeGateMC,&*m_storeGateTemp);
   else copyInDetIDCobject<SCT_RDO_Container,SCT1_RawData>(&*m_storeGateMC,&*m_storeGateTemp);
   copyInDetIDCobject<PixelRDO_Container,Pixel1RawData>(&*m_storeGateMC,&*m_storeGateTemp);
 
-  log << MSG::DEBUG << "SaveInDetObjects::execute() end"<< endreq;
+  log << MSG::DEBUG << "SaveInDetObjects::execute() end"<< endmsg;
   return StatusCode::SUCCESS;
 }
 
