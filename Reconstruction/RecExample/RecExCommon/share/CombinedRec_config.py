@@ -53,7 +53,7 @@ if rec.doESD() and recAlgs.doTrackParticleCellAssociation():
 # functionality : energy flow
 #                                                                                                 
 pdr.flag_domain('eflow')
-if recAlgs.doEFlow() and ( rec.readESD() or ( DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() ) )  :
+if recAlgs.doEFlow() and ( rec.readESD() or ( DetFlags.haveRIO.ID_on() and DetFlags.haveRIO.Calo_allOn() and  DetFlags.haveRIO.Muon_allOn()) )  :
     try:
         include( "eflowRec/eflowRec_jobOptions.py" )
     except Exception:
@@ -103,7 +103,7 @@ else:
 
 pdr.flag_domain('btagging')
 btaggingOK = False
-if jetOK and rec.doBTagging() and  DetFlags.ID_on():
+if jetOK and rec.doBTagging() and  DetFlags.ID_on() and DetFlags.Muon_on():
     try:
         from BTagging.BTaggingFlags import BTaggingFlags
         protectedInclude( "BTagging/BTagging_jobOptions.py")
@@ -129,7 +129,7 @@ AODFix_posttauRec()
 # functionality : Missing Et
 #
 pdr.flag_domain('jet')
-if recAlgs.doMissingET() and DetFlags.Calo_on() and DetFlags.ID_on():
+if recAlgs.doMissingET() and DetFlags.Calo_on() and DetFlags.ID_on() and DetFlags.Muon_on():
     try:
         include( "METReconstruction/METReconstruction_jobOptions.py" )
     except Exception:

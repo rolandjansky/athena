@@ -207,7 +207,10 @@ if rec.doPersistencyOptimization() and hasattr(svcMgr, 'AthenaPoolCnvSvc'):
 
 ###############
 # Verbose level (2=DEBUG, 3=INFO, 4=WAR NING, 5=ERR OR, 6=FATAL )
-ServiceMgr.MessageSvc.OutputLevel = rec.OutputLevel()
+# MN: check if a specific Reco output level was set in job properties,
+#  - don't overwrite blindly with the default
+if not rec.OutputLevel.isDefault():
+    ServiceMgr.MessageSvc.OutputLevel = rec.OutputLevel()
 #increase the number of letter reserved to the alg/tool name from 18 to 30
 ServiceMgr.MessageSvc.Format = "% F%50W%S%7W%R%T %0W%M" 
 #ServiceMgr.MessageSvc.defaultLimit = 9999999  # all messages
