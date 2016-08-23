@@ -63,35 +63,35 @@ GlobalFitTool::~GlobalFitTool()
 
 StatusCode GlobalFitTool::initialize()
 {
-    msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+    msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
     StatusCode sc = AthAlgTool::initialize();
     if (sc.isFailure()) return sc;
 
 
    if ( m_trackFitter.retrieve().isFailure() ) 
    {
-        msg(MSG::WARNING) << "Failed to retrieve trackFitter tool " << m_trackFitter << endreq;
+        msg(MSG::WARNING) << "Failed to retrieve trackFitter tool " << m_trackFitter << endmsg;
          return StatusCode::RECOVERABLE;
     } 
-    msg(MSG::INFO) << "Retrieved TrackFitter tool " << m_trackFitter << endreq;
+    msg(MSG::INFO) << "Retrieved TrackFitter tool " << m_trackFitter << endmsg;
    
     if ( m_MuonIdHelperTool.retrieve().isFailure() )
     {
-        msg(MSG::WARNING) << "Failed to retrieve tool " << m_MuonIdHelperTool << endreq;
+        msg(MSG::WARNING) << "Failed to retrieve tool " << m_MuonIdHelperTool << endmsg;
         return StatusCode::RECOVERABLE;
     }
-    msg(MSG::INFO) << "Retrieved tool " << m_MuonIdHelperTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_MuonIdHelperTool << endmsg;
 
     if ( m_compClusterCreator.retrieve().isFailure() )
     {
-        msg(MSG::WARNING) << "Failed to retrieve tool " << m_compClusterCreator << endreq;
+        msg(MSG::WARNING) << "Failed to retrieve tool " << m_compClusterCreator << endmsg;
         return StatusCode::RECOVERABLE;
     }
     if (m_pIntersector.retrieve().isFailure())
         return StatusCode::RECOVERABLE;
 
-    msg(MSG::INFO) << "Retrieved tool " << m_compClusterCreator << endreq;
-    msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_compClusterCreator << endmsg;
+    msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -99,9 +99,9 @@ StatusCode GlobalFitTool::initialize()
 
 StatusCode GlobalFitTool::finalize()
 {
-    msg(MSG::INFO) << "Finalizing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+    msg(MSG::INFO) << "Finalizing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
     float fracFailed = m_nrefits != 0 ? m_nfailedRefits/m_nrefits : 0.;
-    msg(MSG::INFO) << " Total refits " << m_nrefits << " failed fits " << m_nfailedRefits << " fraction " << fracFailed << endreq;
+    msg(MSG::INFO) << " Total refits " << m_nrefits << " failed fits " << m_nfailedRefits << " fraction " << fracFailed << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -111,8 +111,8 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
 {
 
  
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in GlobalFitTool::calculateTrackParameters" << endreq;
-    msg(MSG::DEBUG) << "in GlobalFitTool::calculateTrackParameters"<<endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in GlobalFitTool::calculateTrackParameters" << endmsg;
+    msg(MSG::DEBUG) << "in GlobalFitTool::calculateTrackParameters"<<endmsg;
     const Trk::TrackParameters* Track = NULL;
 
 
@@ -150,19 +150,19 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
           if (msgLvl(MSG::DEBUG))
               msg(MSG::DEBUG) <<"calculateTrackParamenters :: found MDT segment "
                               << " Global Position: " << pSegment->globalPosition() 
-                              << " Distance: " << pSegment->globalPosition().mag() << endreq;
+                              << " Distance: " << pSegment->globalPosition().mag() << endmsg;
           break;
        }
     }
     if (pSegment == NULL)
     {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in calculateTrackParameters:  NULL segment" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in calculateTrackParameters:  NULL segment" << endmsg;
       return NULL;
     }
     const Trk::TrackSurfaceIntersection *pSegIsect = new Trk::TrackSurfaceIntersection(pSegment->globalPosition(),pSegment->globalDirection().unit(),0.0);
     if (pSegIsect == NULL)
     {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in calculateTrackParameters:  NULL segment intersection" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in calculateTrackParameters:  NULL segment intersection" << endmsg;
           return NULL;
     }
 
@@ -177,7 +177,7 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
   
         if (pEntranceIsect == NULL)
         {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in calculateTrackParameters:  NULL cylinder isect "  << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in calculateTrackParameters:  NULL cylinder isect "  << endmsg;
            return NULL;
         }
         else 
@@ -188,7 +188,7 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
         pEntranceIsect = m_pIntersector->intersectDiscSurface(forwardDisc, pSegIsect, qoverp);
         if (pEntranceIsect == NULL )
         {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in calculateTrackParameters:  NULL fwdDisc isect "  << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in calculateTrackParameters:  NULL fwdDisc isect "  << endmsg;
             return NULL;
         }
         else 
@@ -199,7 +199,7 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
         pEntranceIsect = m_pIntersector->intersectDiscSurface(backwardDisc, pSegIsect, qoverp);
         if (pEntranceIsect == NULL )
         {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in calculateTrackParameters:  NULL bkwdDisc isect "  << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"in calculateTrackParameters:  NULL bkwdDisc isect "  << endmsg;
             return NULL;
         }
         else 
@@ -218,7 +218,7 @@ const Trk::Perigee* GlobalFitTool::calculateTrackParameters(const MuonSegmentLis
 Trk::MeasurementSet GlobalFitTool::prepareMeasurementSet(const MuonSegmentList & pMuonSegments,std::vector<const Muon::CompetingMuonClustersOnTrack*>& competingRIO )
 {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in GlobalFitTool::prepareMeasurementSet" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in GlobalFitTool::prepareMeasurementSet" << endmsg;
     std::string SegmentTechnology;
     double segmentProbability = 0;
     Trk::MeasurementSet measurementSet;
@@ -254,7 +254,7 @@ Trk::MeasurementSet GlobalFitTool::prepareMeasurementSet(const MuonSegmentList &
             << " N DOF: " << ndf
             << " Probability: " << segmentProbability
             << " Global Position: " << pSegment->globalPosition() 
-            << " Distance: " << pSegment->globalPosition().mag() << endreq;
+            << " Distance: " << pSegment->globalPosition().mag() << endmsg;
 
 
         if (SegmentTechnology == "MDT" && segmentProbability < m_probCut ) continue;
@@ -263,7 +263,7 @@ Trk::MeasurementSet GlobalFitTool::prepareMeasurementSet(const MuonSegmentList &
         {
             std::list<const Trk::PrepRawData*> prds;
             std::vector<unsigned int> usedHits;
-            if (msgLvl(MSG::DEBUG)) msg() << "Creating competing Rios" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg() << "Creating competing Rios" << endmsg;
             for (unsigned int i = 0; i < pSegment->numberOfContainedROTs(); i++)
             {
 	        counter++;
@@ -303,7 +303,7 @@ Trk::MeasurementSet GlobalFitTool::prepareMeasurementSet(const MuonSegmentList &
                 // measurementSet.push_back(pSegment->measurement(i));
 
                 // if (msgLvl(MSG::DEBUG))
-                    // msg() << "Global Position before sort: " << pSegment->measurement(i)->globalPosition() << " Magnitude: " << (pSegment->measurement(i)->globalPosition()).mag() << endreq;
+                    // msg() << "Global Position before sort: " << pSegment->measurement(i)->globalPosition() << " Magnitude: " << (pSegment->measurement(i)->globalPosition()).mag() << endmsg;
             // }
             if(SegmentTechnology == "MDT" ) m_pRefittedTrkNumMdtHits += pSegment->numberOfContainedROTs();
             for(unsigned int i = 0; i < pSegment->numberOfContainedROTs(); i++)
@@ -311,7 +311,7 @@ Trk::MeasurementSet GlobalFitTool::prepareMeasurementSet(const MuonSegmentList &
                 measurementSet.push_back(pSegment->rioOnTrack(i));
 
                 if (msgLvl(MSG::DEBUG))
-                    msg() << "Global Position before sort: " << pSegment->rioOnTrack(i)->globalPosition() << " Magnitude: " << (pSegment->rioOnTrack(i)->globalPosition()).mag() << endreq;
+                    msg() << "Global Position before sort: " << pSegment->rioOnTrack(i)->globalPosition() << " Magnitude: " << (pSegment->rioOnTrack(i)->globalPosition()).mag() << endmsg;
             }
         }
     nseg_ok++;
@@ -325,7 +325,7 @@ Trk::MeasurementSet GlobalFitTool::prepareMeasurementSet(const MuonSegmentList &
 const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments,double qoverp, BooleanProperty doNTuple=false)
 {
     std::vector<const Muon::CompetingMuonClustersOnTrack*> competingRIO;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Start GLOBALFIT for MF "<<endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Start GLOBALFIT for MF "<<endmsg;
 
     m_pRefittedTrkNumTrigHits = 0;
     m_pRefittedTrkNumMdtHits = 0;
@@ -338,12 +338,12 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
     {
         m_pRefittedTrkMeasurementSetSize =  measurementSet.size();
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Measurement set built. Size: " <<measurementSet.size()<< endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Measurement set built. Size: " <<measurementSet.size()<< endmsg;
         SortMeasurementSet (measurementSet);
 
   
        Trk::RunOutlierRemoval runOutlier = false;    
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Starting standalone FIT " << endreq;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Starting standalone FIT " << endmsg;
 
        const Trk::Perigee* trk1 = calculateTrackParameters(pMuonSegments,qoverp);
       
@@ -351,13 +351,13 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
      {
 
          if (msgLvl(MSG::DEBUG)) 
-             msg(MSG::DEBUG) << "Initial perigee is NULL "<<endreq;
+             msg(MSG::DEBUG) << "Initial perigee is NULL "<<endmsg;
          return NULL;
      }
      if (msgLvl(MSG::DEBUG)) 
            msg(MSG::DEBUG) << "Track parameters: z0 "<<trk1->parameters()[Trk::z0]<<" phi "
                            << trk1->parameters()[Trk::phi0]<<" eta "<<trk1->eta()
-                           << " qoverp "<< trk1->parameters()[Trk::qOverP]<<" pt "<<trk1->pT()<< endreq;
+                           << " qoverp "<< trk1->parameters()[Trk::qOverP]<<" pt "<<trk1->pT()<< endmsg;
 
 
 
@@ -366,11 +366,11 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
        if (RefittedTrack!=NULL)
        {  
           if (msgLvl(MSG::DEBUG)) 
-              msg(MSG::DEBUG) << "GlobalFitTool REFIT track pT "<<RefittedTrack->perigeeParameters()->pT() << endreq;
+              msg(MSG::DEBUG) << "GlobalFitTool REFIT track pT "<<RefittedTrack->perigeeParameters()->pT() << endmsg;
           if  (doNTuple) 
               if (fillNTuple(RefittedTrack).isFailure())
                   if (msgLvl(MSG::DEBUG)) 
-                      msg(MSG::DEBUG) << "GlobalFitTool Cannot fill Reffited Track in NTuple" << endreq;
+                      msg(MSG::DEBUG) << "GlobalFitTool Cannot fill Reffited Track in NTuple" << endmsg;
           measurementSet.clear();
           for (size_t i = 0; i < competingRIO.size(); i++)
               delete competingRIO[i];
@@ -380,7 +380,7 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
        }
        else
        {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) << "GlobalFitTool Failed to refit the track" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) << "GlobalFitTool Failed to refit the track" << endmsg;
           // delete RefittedTrack; -- RefittedTrack is NULL due to the if condition and should therefore not be deleted!
           measurementSet.clear();
           for (size_t i = 0; i < competingRIO.size(); i++)
@@ -391,7 +391,7 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
     }
     else
     {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) << "Measurement Set is NULL or IDTrack is NULL. Fit can't be done" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) << "Measurement Set is NULL or IDTrack is NULL. Fit can't be done" << endmsg;
         measurementSet.clear();
         for (size_t i = 0; i < competingRIO.size(); i++)
                 delete competingRIO[i];
@@ -405,7 +405,7 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
 const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments, const Trk::Perigee *trk1, BooleanProperty doNTuple=false)
 {
     std::vector<const Muon::CompetingMuonClustersOnTrack*> competingRIO;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Start GLOBALFIT for MuonEFTrack "<<endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<" Start GLOBALFIT for MuonEFTrack "<<endmsg;
 
     m_pRefittedTrkNumTrigHits = 0;
     m_pRefittedTrkNumMdtHits = 0;
@@ -418,24 +418,24 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
     {
        m_pRefittedTrkMeasurementSetSize =  measurementSet.size();
 
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Measurement set built. Size: " <<measurementSet.size()<< endreq;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Measurement set built. Size: " <<measurementSet.size()<< endmsg;
        SortMeasurementSet (measurementSet);
 
   
        Trk::RunOutlierRemoval runOutlier = false;    
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Starting standalone FIT " << endreq;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Starting standalone FIT " << endmsg;
 
        if (trk1 == NULL)  
        {
 
           if (msgLvl(MSG::DEBUG)) 
-             msg(MSG::DEBUG) << "Initial perigee is NULL after calculateTrackParameters, return NULL"<<endreq;
+             msg(MSG::DEBUG) << "Initial perigee is NULL after calculateTrackParameters, return NULL"<<endmsg;
           return NULL;
        }
        if (msgLvl(MSG::DEBUG)) 
            msg(MSG::DEBUG) << "Track parameters: z0 "<<trk1->parameters()[Trk::z0]<<" phi "
                            << trk1->parameters()[Trk::phi0]<<" eta "<<trk1->eta()
-                           << " qoverp "<< trk1->parameters()[Trk::qOverP]<<" pt "<<trk1->pT()<< endreq;
+                           << " qoverp "<< trk1->parameters()[Trk::qOverP]<<" pt "<<trk1->pT()<< endmsg;
 
 
 
@@ -444,11 +444,11 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
        if (RefittedTrack!=NULL)
        {  
           if (msgLvl(MSG::DEBUG)) 
-              msg(MSG::DEBUG) << "GlobalFitTool REFIT track pT "<<RefittedTrack->perigeeParameters()->pT() << endreq;
+              msg(MSG::DEBUG) << "GlobalFitTool REFIT track pT "<<RefittedTrack->perigeeParameters()->pT() << endmsg;
           if  (doNTuple) 
               if (fillNTuple(RefittedTrack).isFailure())
                   if (msgLvl(MSG::DEBUG)) 
-                      msg(MSG::DEBUG) << "GlobalFitTool Cannot fill Reffited Track in NTuple" << endreq;
+                      msg(MSG::DEBUG) << "GlobalFitTool Cannot fill Reffited Track in NTuple" << endmsg;
           measurementSet.clear();
           for (size_t i = 0; i < competingRIO.size(); i++)
               delete competingRIO[i];
@@ -458,7 +458,7 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
        }
        else
        {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) << "GlobalFitTool Failed to refit the track" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) << "GlobalFitTool Failed to refit the track" << endmsg;
           // delete RefittedTrack; -- RefittedTrack is NULL due to the if condition and should therefore not be deleted!
           measurementSet.clear();
           for (size_t i = 0; i < competingRIO.size(); i++)
@@ -469,7 +469,7 @@ const Trk::Track* GlobalFitTool::globalFit(const MuonSegmentList & pMuonSegments
     }
     else
     {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) << "Measurement Set is NULL or IDTrack is NULL. Fit can't be done" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::WARNING) << "Measurement Set is NULL or IDTrack is NULL. Fit can't be done" << endmsg;
         measurementSet.clear();
         for (size_t i = 0; i < competingRIO.size(); i++)
                 delete competingRIO[i];
@@ -492,19 +492,19 @@ const Trk::Track* GlobalFitTool::globalFit(const Trk::Track * IDTrack, const Muo
     {
         m_pRefittedTrkMeasurementSetSize =  measurementSet.size();
 
-        if (msgLvl(MSG::DEBUG)) msg() << "Measurement set built. Size: " <<measurementSet.size()<< endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << "Measurement set built. Size: " <<measurementSet.size()<< endmsg;
         SortMeasurementSet (measurementSet);
-        if (msgLvl(MSG::DEBUG)) msg() << "Measurement set sorted " << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << "Measurement set sorted " << endmsg;
         const Trk::Track* RefittedTrack= NULL;
 	if (m_pRefittedTrkMeasurementSetSize > 2)
 	  RefittedTrack=m_trackFitter->indetExtension(*IDTrack,measurementSet);
-        if (msgLvl(MSG::DEBUG)) msg() << "Global Fit done" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << "Global Fit done" << endmsg;
         if (RefittedTrack!=NULL)
         {
 
 
             if (doNTuple) if (fillNTuple(RefittedTrack).isFailure())
-                    msg(MSG::WARNING) << "GlobalFitTool Cannot fill Reffited Track in NTuple" << endreq;
+                    msg(MSG::WARNING) << "GlobalFitTool Cannot fill Reffited Track in NTuple" << endmsg;
             measurementSet.clear();
             for (size_t i = 0; i < competingRIO.size(); i++)
                 delete competingRIO[i];
@@ -514,7 +514,7 @@ const Trk::Track* GlobalFitTool::globalFit(const Trk::Track * IDTrack, const Muo
         }
         else
         {
-           if (msgLvl(MSG::DEBUG))  msg(MSG::WARNING) << "GlobalFitTool Failed to refit the track" << endreq;
+           if (msgLvl(MSG::DEBUG))  msg(MSG::WARNING) << "GlobalFitTool Failed to refit the track" << endmsg;
             // delete RefittedTrack; -- RefittedTrack is NULL due to the if condition and should therefore not be deleted!
             measurementSet.clear();
             for (size_t i = 0; i < competingRIO.size(); i++)
@@ -525,7 +525,7 @@ const Trk::Track* GlobalFitTool::globalFit(const Trk::Track * IDTrack, const Muo
     }
     else
     {
-        if (msgLvl(MSG::DEBUG)) msg() << "Measurement Set is NULL or IDTrack is NULL. Fit can't be done" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << "Measurement Set is NULL or IDTrack is NULL. Fit can't be done" << endmsg;
         measurementSet.clear();
         for (size_t i = 0; i < competingRIO.size(); i++)
             delete competingRIO[i];
@@ -550,7 +550,7 @@ const Trk::Track* GlobalFitTool::standAloneRefit(const Trk::Track& cbtrack)
 //===================================================================================================
 StatusCode GlobalFitTool::bookNTuple(NTuple::Tuple* pNtuple, const std::string type="")
 {
-    msg(MSG::INFO) << " Adding "+type+" Reffited Track to NTuple" << endreq;
+    msg(MSG::INFO) << " Adding "+type+" Reffited Track to NTuple" << endmsg;
 
     if (pNtuple->addItem("MUGIRL/"+type+"RefittedTrkPt"     , m_RefittedTrkPt).isFailure() ||
             pNtuple->addItem("MUGIRL/"+type+"RefittedTrkEta"   , m_RefittedTrkEta).isFailure() ||
@@ -575,7 +575,7 @@ StatusCode GlobalFitTool::bookNTuple(NTuple::Tuple* pNtuple, const std::string t
 	    pNtuple->addItem("MUGIRL/"+type+"RefittedTrkMeasurementsOnTrack", m_RefittedTrkMeasurementsOnTrack).isFailure() ||
 	    pNtuple->addItem("MUGIRL/"+type+"RefittedTrkOutliesOnTrack", m_RefittedTrkOutliersOnTrack).isFailure())
     {
-        msg(MSG::WARNING) << "Cannot addItem(MUGIRL/"+type+"_<Reffited Track Parameters>)" << endreq;
+        msg(MSG::WARNING) << "Cannot addItem(MUGIRL/"+type+"_<Reffited Track Parameters>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -584,7 +584,7 @@ StatusCode GlobalFitTool::bookNTuple(NTuple::Tuple* pNtuple, const std::string t
 
 StatusCode GlobalFitTool::fillNTuple(const Trk::Track* pRefittedTrack)
 {
-    if (msgLvl(MSG::DEBUG)) msg() << "Adding Refitted Track to NTuple" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Adding Refitted Track to NTuple" << endmsg;
     
     if (pRefittedTrack->measurementsOnTrack() != NULL)
         m_RefittedTrkMeasurementsOnTrack = pRefittedTrack->measurementsOnTrack()->size();
@@ -669,7 +669,7 @@ StatusCode GlobalFitTool::fillNTuple(const Trk::Track* pRefittedTrack)
         m_RefittedTrkCov44     = -100.0;
         m_RefittedTrkCov55     = -100.0;
     }
-    msg(MSG::DEBUG) << "GlobalFitTool REFIT track pT "<<m_RefittedTrkPt << endreq;
+    msg(MSG::DEBUG) << "GlobalFitTool REFIT track pT "<<m_RefittedTrkPt << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -763,7 +763,7 @@ void GlobalFitTool::SortMeasurementSet (Trk::MeasurementSet& inputMbs)
         for (Trk::MeasurementSet::const_iterator itSet = inputMbs.begin(); itSet != inputMbs.end(); ++itSet)
         {
             if (*itSet)
-                msg(MSG::DEBUG) << "Measurement Global Position after sort: " << (*itSet)->globalPosition() << " Magnitude: " << ((*itSet)->globalPosition()).mag() << endreq;
+                msg(MSG::DEBUG) << "Measurement Global Position after sort: " << (*itSet)->globalPosition() << " Magnitude: " << ((*itSet)->globalPosition()).mag() << endmsg;
         }
     }
 
@@ -799,7 +799,7 @@ void GlobalFitTool::SortSegments(const MuonSegmentList & pMuonSegments, MuonSegm
         for( MuonSegmentList::const_iterator itSet = pSortedSegments.begin(); itSet != pSortedSegments.end(); ++itSet)
         {
             if (*itSet)
-                msg(MSG::DEBUG) << "Segment Global Position after sort: " << (*itSet)->globalPosition() << " Magnitude: " << ((*itSet)->globalPosition()).mag() << endreq;
+                msg(MSG::DEBUG) << "Segment Global Position after sort: " << (*itSet)->globalPosition() << " Magnitude: " << ((*itSet)->globalPosition()).mag() << endmsg;
         }
     }
 }
