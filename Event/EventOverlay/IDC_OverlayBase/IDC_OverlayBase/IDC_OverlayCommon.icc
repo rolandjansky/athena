@@ -46,7 +46,7 @@ namespace Overlay {
   {
     typedef typename IDC_Container::base_value_type Collection;
 
-    if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainerNew<>() begin"<<endreq; }
+    if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainerNew<>() begin"<<endmsg; }
     
     // The  MC signal container should typically be smaller than
     // dataContainer, because the latter contains all the noise,
@@ -101,21 +101,21 @@ namespace Overlay {
 
 	if(c_data) {
 	  // Need to merge the collections
-	  if(parent->msgLvl(MSG::VERBOSE)) { parent->msg(MSG::VERBOSE)<<"Merging collections"<<endreq; }
+	  if(parent->msgLvl(MSG::VERBOSE)) { parent->msg(MSG::VERBOSE)<<"Merging collections"<<endmsg; }
 
           //parent->mergeCollections(c_mc, c_data);
 	  mergeCollectionsNew(c_mc, c_data, parent);
 	}
 	else {
 	  if(parent->msgLvl(MSG::VERBOSE)) {
-	    parent->msg(MSG::VERBOSE)<<"Transferring to dataContainer complete ovl collection, no merging"<<endreq;
+	    parent->msg(MSG::VERBOSE)<<"Transferring to dataContainer complete ovl collection, no merging"<<endmsg;
 	  }
 	}
 
 	if(dataContainer->addCollection(c_mc, hashId).isFailure()) {
 	  if(parent->msgLvl(MSG::WARNING)) {
 	    parent->msg(MSG::WARNING)<<"overlayContainerNew(): Problem in dataContainer->addCollection(hash) for ovl collection="
-				     <<c_mc<<endreq;
+				     <<c_mc<<endmsg;
 	  }
 	}
 
@@ -131,7 +131,7 @@ namespace Overlay {
   {
     typedef typename IDC_Container::base_value_type Collection;
 
-    if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainer<>() begin"<<endreq; }
+    if(parent->msgLvl(MSG::DEBUG)) { parent->msg(MSG::DEBUG)<<"overlayContainer<>() begin"<<endmsg; }
     
     // The  MC signal container should typically be smaller than
     // dataContainer, because the latter contains all the noise,
@@ -186,20 +186,20 @@ namespace Overlay {
 
 	if(c_data) {
 	  // Need to merge the collections
-	  if(parent->msgLvl(MSG::VERBOSE)) { parent->msg(MSG::VERBOSE)<<"Merging collections"<<endreq; }
+	  if(parent->msgLvl(MSG::VERBOSE)) { parent->msg(MSG::VERBOSE)<<"Merging collections"<<endmsg; }
 
           parent->mergeCollections(c_mc, c_data);
 	}
 	else {
 	  if(parent->msgLvl(MSG::VERBOSE)) {
-	    parent->msg(MSG::VERBOSE)<<"Transferring to dataContainer complete ovl collection, no merging"<<endreq;
+	    parent->msg(MSG::VERBOSE)<<"Transferring to dataContainer complete ovl collection, no merging"<<endmsg;
 	  }
 	}
 
 	if(dataContainer->addCollection(c_mc, hashId).isFailure()) {
 	  if(parent->msgLvl(MSG::WARNING)) {
 	    parent->msg(MSG::WARNING)<<"overlayContainer(): Problem in dataContainer->addCollection(hash) for ovl collection="
-				     <<c_mc<<endreq;
+				     <<c_mc<<endmsg;
 	  }
 	}
 
