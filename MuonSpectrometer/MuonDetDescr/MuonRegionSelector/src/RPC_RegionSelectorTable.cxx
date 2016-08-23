@@ -37,7 +37,7 @@
 RPC_RegionSelectorTable::RPC_RegionSelectorTable(const std::string& type, 
 						 const std::string& name,
 						 const IInterface*  parent)
-  :  AthAlgTool(type,name,parent),  m_regionLUT(NULL)
+  :  AthAlgTool(type,name,parent), m_regionLUT(NULL), m_rpcCabling(NULL)
 {
   declareInterface<IRegionIDLUT_Creator>(this);
   ATH_MSG_INFO("RPC_RegionSelectorTable::RPC_RegionSelectorTable()");

@@ -61,13 +61,13 @@ CSC_RegionSelectorTable::~CSC_RegionSelectorTable() {
 
 
 StatusCode CSC_RegionSelectorTable::initialize() { 
-  msg(MSG::INFO) << "initialize() CSC_RegionSelectorTable" << endreq;
+  msg(MSG::INFO) << "initialize() CSC_RegionSelectorTable" << endmsg;
   return createTable();
 }
 
 
 StatusCode CSC_RegionSelectorTable::finalize() { 
-  msg(MSG::INFO) << "finalize()" << endreq;
+  msg(MSG::INFO) << "finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
