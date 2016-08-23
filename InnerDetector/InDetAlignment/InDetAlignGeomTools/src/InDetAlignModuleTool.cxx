@@ -33,13 +33,13 @@ namespace InDet {
 
     // initialize AlignModuleTool
     if(AlignModuleTool::initialize().isFailure()) {
-      msg(MSG::FATAL)<<"Error initializing AlignModuleTool"<<endreq;
+      msg(MSG::FATAL)<<"Error initializing AlignModuleTool"<<endmsg;
       return StatusCode::FAILURE;
     }
 
     // Set up TRT ID helper 
     if (detStore()->retrieve(m_trtHelper, "TRT_ID").isFailure()) {
-      msg(MSG::FATAL)<<"Could not get TRT ID helper"<<endreq;
+      msg(MSG::FATAL)<<"Could not get TRT ID helper"<<endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -52,7 +52,7 @@ namespace InDet {
     ATH_MSG_DEBUG("Finalize of InDetAlignModuleTool");
 
     if(AlignModuleTool::finalize().isFailure()) {
-       msg(MSG::FATAL)<<"Error finalizing AlignModuleTool"<<endreq;
+       msg(MSG::FATAL)<<"Error finalizing AlignModuleTool"<<endmsg;
        return StatusCode::FAILURE;
     }
     return StatusCode::SUCCESS;

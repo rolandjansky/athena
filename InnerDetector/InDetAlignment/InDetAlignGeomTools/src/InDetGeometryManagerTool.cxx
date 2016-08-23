@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
@@ -109,7 +109,7 @@ namespace InDet {
 
     // retrieve AlignModuleTool
     if ( m_alignModuleTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endreq;
+      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -117,7 +117,7 @@ namespace InDet {
 
     // retrieve Pixel helper
     if ( detStore()->retrieve(m_pixHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve Pixel Helper " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve Pixel Helper " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -125,7 +125,7 @@ namespace InDet {
 
     // retrieve SCT helper
     if ( detStore()->retrieve(m_sctHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve SCT Helper " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve SCT Helper " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -133,7 +133,7 @@ namespace InDet {
 
     // retrieve silicon helper
     if ( detStore()->retrieve(m_siHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve Silicon Helper " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve Silicon Helper " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -141,7 +141,7 @@ namespace InDet {
       
     // retrieve TRT helper
     if ( detStore()->retrieve(m_trtHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve TRT Helper " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve TRT Helper " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -149,7 +149,7 @@ namespace InDet {
 
     // retrieve PIX detector manager
     if ( detStore()->retrieve(m_pixelDetManager, "Pixel").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve PIX Detector Manager " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve PIX Detector Manager " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -157,7 +157,7 @@ namespace InDet {
 
     // retrieve SCT detector manager
     if ( detStore()->retrieve(m_sctDetManager, "SCT").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve SCT Detector Manager " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve SCT Detector Manager " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -165,7 +165,7 @@ namespace InDet {
 
     // retrieve SCT detector manager
     if ( detStore()->retrieve(m_trtDetManager, "TRT").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve TRT Detector Manager " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve TRT Detector Manager " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -173,15 +173,15 @@ namespace InDet {
 
     // dump module selection
     if(m_doModuleSelection && msgLvl(MSG::INFO)) {
-      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endreq;
+      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endmsg;
       for(unsigned int i=0;i<m_moduleSelection.size();i++)
-        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endreq;
+        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endmsg;
     }
 
     // retrieve SiGeometryManagerTool
     if ( !m_siGeoManager.empty() ) {
       if ( m_siGeoManager.retrieve().isFailure() ) {
-        msg(MSG::FATAL)<<"Could not get " << m_siGeoManager << endreq;
+        msg(MSG::FATAL)<<"Could not get " << m_siGeoManager << endmsg;
         return StatusCode::FAILURE;
       }
       else
@@ -191,7 +191,7 @@ namespace InDet {
     // retrieve TRTGeometryManagerTool
     if ( !m_trtGeoManager.empty() ) {
       if ( m_trtGeoManager.retrieve().isFailure() ) {
-        msg(MSG::FATAL)<<"Could not get " << m_trtGeoManager << endreq;
+        msg(MSG::FATAL)<<"Could not get " << m_trtGeoManager << endmsg;
         return StatusCode::FAILURE;
       }
       else
@@ -199,13 +199,13 @@ namespace InDet {
     }
 
     if(!m_alignSi && !m_alignTRT && m_alignLevel!=0) {
-      msg(MSG::FATAL)<<"Alignment of both Silicon and TRT turned off. Aborting."<<endreq;
+      msg(MSG::FATAL)<<"Alignment of both Silicon and TRT turned off. Aborting."<<endmsg;
       return StatusCode::FAILURE;
     }
 
     // check allowed alignment level
     if(!checkAlignLevel()) {
-      msg(MSG::FATAL)<<"Wrong alignment level."<<endreq;
+      msg(MSG::FATAL)<<"Wrong alignment level."<<endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -234,8 +234,8 @@ namespace InDet {
         // for levels 1,2,3 we need the managers and we have to
         // set the levels in them
         if( (m_siGeoManager.empty() && m_alignSi) || (m_trtGeoManager.empty() && m_alignTRT) ) {
-          msg(MSG::ERROR)<<"SiliconGeometryManagerTool and/or TRTGeometryManagerTool not available"<<endreq;
-          msg(MSG::ERROR)<<"Can't set alignment geometry. "<<endreq;
+          msg(MSG::ERROR)<<"SiliconGeometryManagerTool and/or TRTGeometryManagerTool not available"<<endmsg;
+          msg(MSG::ERROR)<<"Can't set alignment geometry. "<<endmsg;
           return false;
         }
 
@@ -252,14 +252,14 @@ namespace InDet {
         // if level is not set here (=-1) we need the Silicon and TRT
         // managers but we trust their setup, we don't need to check it
         if( (m_siGeoManager.empty() && m_alignSi) || (m_trtGeoManager.empty() && m_alignTRT) ) {
-          msg(MSG::ERROR)<<"SiGeometryManagerTool and/or TRTGeometryManagerTool not available"<<endreq;
-          msg(MSG::ERROR)<<"Can't set alignment geometry. "<<endreq;
+          msg(MSG::ERROR)<<"SiGeometryManagerTool and/or TRTGeometryManagerTool not available"<<endmsg;
+          msg(MSG::ERROR)<<"Can't set alignment geometry. "<<endmsg;
           return false;
         }
         break;
 
       default:
-        msg(MSG::ERROR)<<"Unknown alignment level "<<m_alignLevel<<". Can't set alignment geometry."<<endreq;
+        msg(MSG::ERROR)<<"Unknown alignment level "<<m_alignLevel<<". Can't set alignment geometry."<<endmsg;
         return false;
 
     }
@@ -423,9 +423,9 @@ namespace InDet {
         // add to the pixel structure
         if(msgLvl(MSG::DEBUG)) {
           if (m_pixHelper->is_barrel(id))
-            msg(MSG::DEBUG)<<"... Pixel barrel element"<<endreq;
+            msg(MSG::DEBUG)<<"... Pixel barrel element"<<endmsg;
           else
-            msg(MSG::DEBUG)<<"... Pixel endcap element"<<endreq;
+            msg(MSG::DEBUG)<<"... Pixel endcap element"<<endmsg;
         }
         indet->addDetElement(Trk::AlignModule::Pixel,element,transform);
 
@@ -465,9 +465,9 @@ namespace InDet {
         // add to the sct barrel structure
         if(msgLvl(MSG::DEBUG)) {
           if (m_sctHelper->is_barrel(id))
-            msg(MSG::DEBUG)<<"... SCT barrel element"<<endreq;
+            msg(MSG::DEBUG)<<"... SCT barrel element"<<endmsg;
           else
-            msg(MSG::DEBUG)<<"... SCT endcap element"<<endreq;
+            msg(MSG::DEBUG)<<"... SCT endcap element"<<endmsg;
         }
         indet->addDetElement(Trk::AlignModule::SCT,element,transform);
 
@@ -507,9 +507,9 @@ namespace InDet {
         // add to the Inner Detector structure
         if(msgLvl(MSG::DEBUG)) {
           if (m_trtHelper->is_barrel(id))
-            msg(MSG::DEBUG)<<"... TRT barrel element"<<endreq;
+            msg(MSG::DEBUG)<<"... TRT barrel element"<<endmsg;
           else
-            msg(MSG::DEBUG)<<"... TRT endcap element"<<endreq;
+            msg(MSG::DEBUG)<<"... TRT endcap element"<<endmsg;
         }
         indet->addDetElement(Trk::AlignModule::TRT,element,transform);
 

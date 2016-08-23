@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "DataModel/DataVector.h"
+#include "AthContainers/DataVector.h"
 
 #include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
@@ -133,7 +133,7 @@ namespace InDet {
 
     // retrieve AlignModuleTool
     if ( m_alignModuleTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endreq;
+      msg(MSG::FATAL)<<"Could not get " << m_alignModuleTool << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -141,7 +141,7 @@ namespace InDet {
 
     // retrieve Pixel helper
     if ( detStore()->retrieve(m_idHelper).isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve Pixel Helper " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve Pixel Helper " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -149,7 +149,7 @@ namespace InDet {
 
     // retrieve PIX detector manager
     if ( detStore()->retrieve(m_detManager, "Pixel").isFailure() ) {
-      msg(MSG::FATAL) << " Cannot retrieve PIX Detector Manager " << endreq;
+      msg(MSG::FATAL) << " Cannot retrieve PIX Detector Manager " << endmsg;
       return StatusCode::FAILURE;
     }
     else
@@ -158,7 +158,7 @@ namespace InDet {
     // retrieve geomodel service
     StatusCode sc = m_geoModelSvc.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Cannot retrieve GeoModelSvc" << endreq;
+      msg(MSG::FATAL) << "Cannot retrieve GeoModelSvc" << endmsg;
       return (StatusCode::FAILURE); 
     }  
     else ATH_MSG_INFO("retrieved GeoModelSvc");
@@ -166,22 +166,22 @@ namespace InDet {
     // retrieve geometry DB access service
     sc = m_rdbAccessSvc.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Cannot retrieve RDBAccessSvc" << endreq;
+      msg(MSG::FATAL) << "Cannot retrieve RDBAccessSvc" << endmsg;
       return (StatusCode::FAILURE); 
     }  
     else ATH_MSG_INFO("retrieved RDBAccessSvc");
     
     if(!m_rdbAccessSvc->connect()) {
-      msg(MSG::FATAL) << "Unable to connect to the Geometry DB" << endreq;
+      msg(MSG::FATAL) << "Unable to connect to the Geometry DB" << endmsg;
       return StatusCode::FAILURE;
     }
     else ATH_MSG_INFO("connection to geometry DB successfull");  
 
     // dump module selection
     if(m_doModuleSelection && msgLvl(MSG::INFO)) {
-      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endreq;
+      msg(MSG::INFO)<<"Creating geometry for selected "<<m_moduleSelection.size()<<" modules:"<<endmsg;
       for(unsigned int i=0;i<m_moduleSelection.size();i++)
-        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endreq;
+        msg(MSG::INFO)<<"   "<<i<<".  "<<m_moduleSelection.at(i)<<endmsg;
     }
 
     // check the allowed geometry levels
@@ -252,8 +252,8 @@ namespace InDet {
         return true;
       case 15:
         if(m_detManager->numerology().numLayers() > 3){
-          msg(MSG::FATAL)<<"This level is not supported with the configured geometry"<<endreq;
-          msg(MSG::FATAL)<<"The pixel barrel has "<<m_detManager->numerology().numLayers()<<" layers; Only 3 layer geometries supported"<<endreq;
+          msg(MSG::FATAL)<<"This level is not supported with the configured geometry"<<endmsg;
+          msg(MSG::FATAL)<<"The pixel barrel has "<<m_detManager->numerology().numLayers()<<" layers; Only 3 layer geometries supported"<<endmsg;
           return false;
         }
         else {
@@ -262,8 +262,8 @@ namespace InDet {
         }
       case 22:
         if(m_detManager->numerology().numLayers() > 3){
-          msg(MSG::FATAL)<<"This level is not supported with the configured geometry"<<endreq;
-          msg(MSG::FATAL)<<"The pixel barrel has "<<m_detManager->numerology().numLayers()<<" layers; Only 3 layer geometries supported"<<endreq;
+          msg(MSG::FATAL)<<"This level is not supported with the configured geometry"<<endmsg;
+          msg(MSG::FATAL)<<"The pixel barrel has "<<m_detManager->numerology().numLayers()<<" layers; Only 3 layer geometries supported"<<endmsg;
           return false;
         }
         else {
@@ -271,7 +271,7 @@ namespace InDet {
           return true;
         }
       default:
-        msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelBarrel<<" does not exist for Pixel Barrel"<<endreq;
+        msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelBarrel<<" does not exist for Pixel Barrel"<<endmsg;
         return false;
     }
   }
@@ -285,7 +285,7 @@ namespace InDet {
         ATH_MSG_INFO("Alignment level for Pixel Endcaps is "<<m_alignLevelEndcaps);
         return true;
       default:
-        msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelEndcaps<<" does not exist for Pixel Endcaps"<<endreq;
+        msg(MSG::FATAL)<<"Alignment level "<<m_alignLevelEndcaps<<" does not exist for Pixel Endcaps"<<endmsg;
         return false;
     }
   }
@@ -2132,7 +2132,7 @@ namespace InDet {
     // Layer-2 bottom, from 23 to 48
     if (layer==0) {
       if (phi>21) {
-        msg(MSG::ERROR)<<"Layer 0 has only 22 phi modules: range 0-21, requested "<<phi<<endreq;
+        msg(MSG::ERROR)<<"Layer 0 has only 22 phi modules: range 0-21, requested "<<phi<<endmsg;
         return false;
       }
       if (phi>0 && phi<11)
@@ -2142,7 +2142,7 @@ namespace InDet {
     }
     else if (layer==1) {
       if(phi>37) {
-        msg(MSG::ERROR)<<"Layer 1 has only 38 phi modules: range 0-37, requested "<<phi<<endreq;
+        msg(MSG::ERROR)<<"Layer 1 has only 38 phi modules: range 0-37, requested "<<phi<<endmsg;
         return false;
       }
       else if (phi<20)
@@ -2152,7 +2152,7 @@ namespace InDet {
     }
     else if (layer==2) {
       if(phi>52) {
-        msg(MSG::ERROR)<<"Layer 2 has only 52 phi modules: range 0-51, requested "<<phi<<endreq;
+        msg(MSG::ERROR)<<"Layer 2 has only 52 phi modules: range 0-51, requested "<<phi<<endmsg;
         return false;
       }
       else if (phi<23 || phi>48)
@@ -2162,7 +2162,7 @@ namespace InDet {
     }
 
     // if we got here layer number is wrong
-    msg(MSG::ERROR)<<"Pixel barrel only 3 layers: range 0-2, requested "<<layer<<endreq;
+    msg(MSG::ERROR)<<"Pixel barrel only 3 layers: range 0-2, requested "<<layer<<endmsg;
     return false;
   }
 
