@@ -315,7 +315,7 @@ return (fabs(i.z()) < fabs(j.z()));}
         if(msgLvl(MSG::DEBUG)) {
           msg(MSG::DEBUG) << "bad segment fit:" ;
           if (segtrack->fitQuality()) msg(MSG::DEBUG) << "with chi^2/nDoF = " << segtrack->fitQuality()->chiSquared() << "/" << segtrack->fitQuality()->numberDoF() ;
-          msg(MSG::DEBUG) << endreq;
+          msg(MSG::DEBUG) << endmsg;
         }
         delete segtrack;
         segtrack = 0;
