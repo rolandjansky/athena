@@ -537,7 +537,7 @@ StatusCode sTgcFastDigitizer::execute() {
     for( ;hit!=hit_end;++hit ){
       msg(MSG::DEBUG) << " " << m_idHelperTool->toString(hit->first) << " ->  " << hit->second << std::endl;
     }
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
   }
   std::string key = "STGC_Measurements";
   ATH_MSG_DEBUG(" Done! Total number of sTgc chambers with PRDS: " << prdContainer->numberOfCollections() << " key " << key);
@@ -681,7 +681,7 @@ bool sTgcFastDigitizer::readFileOfTimeJitter()
 	msg(MSG::VERBOSE) << prob << " ";
       }
     }
-    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endreq;
+    if( msgLvl(MSG::VERBOSE) ) msg(MSG::VERBOSE) << endmsg;
     i++;
   }
   ifs.close();

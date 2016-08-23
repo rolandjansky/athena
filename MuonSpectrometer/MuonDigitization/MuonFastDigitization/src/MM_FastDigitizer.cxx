@@ -553,7 +553,7 @@ StatusCode MM_FastDigitizer::execute() {
     for( ;hit!=hit_end;++hit ){
       msg(MSG::DEBUG) << " " << m_idHelperTool->toString(hit->first) << " ->  " << hit->second << std::endl;
     }
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
   }
   return StatusCode::SUCCESS;
 }
