@@ -80,7 +80,7 @@ namespace Muon {
   IMuonHitSummaryTool::CompactSummary MuonHitSummaryTool::summary( const Trk::Track& track ) const {
 
     if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << m_printer->print(track) 
-      << std::endl << m_printer->printStations(track) << endreq;
+      << std::endl << m_printer->printStations(track) << endmsg;
 
     // check if the track already has a MuonTrackSummary, if so use it
     if ( track.trackSummary() && track.trackSummary()->muonTrackSummary() ) return summary(*track.trackSummary()->muonTrackSummary());
@@ -176,7 +176,7 @@ namespace Muon {
 
     calculateSummaryCounts(sum);
 
-    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << sum.dump() << endreq;
+    if( msgLvl(MSG::DEBUG) ) msg() << MSG::DEBUG << sum.dump() << endmsg;
 
     return sum;
 
