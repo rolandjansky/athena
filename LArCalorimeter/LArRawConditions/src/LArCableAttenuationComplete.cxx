@@ -4,7 +4,7 @@
 
 #include "LArRawConditions/LArCableAttenuationComplete.h" 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 
 LArCableAttenuationComplete::LArCableAttenuationComplete()  {}

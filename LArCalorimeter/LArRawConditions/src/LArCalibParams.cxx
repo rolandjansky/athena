@@ -25,12 +25,12 @@ StatusCode LArCalibParams::initialize()
   if (sc.isSuccess()) {
     sc=detStore->retrieve(m_onlineHelper, "LArOnlineID");
     if (sc.isFailure()) {
-      log << MSG::ERROR << "LArCalibParams: Can't get LArOnlineID" << endreq;
+      log << MSG::ERROR << "LArCalibParams: Can't get LArOnlineID" << endmsg;
       return (StatusCode::FAILURE);
     }
   }
   else {
-      log << MSG::ERROR << "LArCalibParams: Can't get DetectorStore" << endreq;
+      log << MSG::ERROR << "LArCalibParams: Can't get DetectorStore" << endmsg;
       return (StatusCode::FAILURE);
   }
   
@@ -120,7 +120,7 @@ unsigned LArCalibParams::CalibBoard::DAC(const unsigned event) const
   else  {
      MsgStream log(Athena::getMessageSvc(), "LArCalibParams::DAC");
      log << MSG::ERROR << "Event #" << event << ": DAC index out of range! (" 
-	 << iDAC << "max=" << m_DAC.size() << "). Return 0" << endreq;
+	 << iDAC << "max=" << m_DAC.size() << "). Return 0" << endmsg;
      return 0;
   }
 }
@@ -134,7 +134,7 @@ unsigned LArCalibParams::Delay(const unsigned event, const HWIdentifier calibLin
  else {
    if (!m_onlineHelper) {
      MsgStream log(Athena::getMessageSvc(), "LArCalibParams::Delay");
-     log << MSG::ERROR << "LArOnlineID not defined! Can't determine Delay value." << endreq;
+     log << MSG::ERROR << "LArOnlineID not defined! Can't determine Delay value." << endmsg;
      return 0; 
    }
    const HWIdentifier calibModuleID=m_onlineHelper->calib_module_Id(calibLineID);
@@ -153,7 +153,7 @@ unsigned LArCalibParams::DAC(const unsigned event, const HWIdentifier calibLineI
  else {
    if (!m_onlineHelper) {
      MsgStream log(Athena::getMessageSvc(), "LArCalibParams::DAC");
-     log << MSG::ERROR << "LArOnlineID not defined! Can't determine DAC value." << endreq;
+     log << MSG::ERROR << "LArOnlineID not defined! Can't determine DAC value." << endmsg;
      return 0; 
    }
    const HWIdentifier calibModuleID=m_onlineHelper->calib_module_Id(calibLineID);
@@ -170,7 +170,7 @@ bool LArCalibParams::isPulsed(const unsigned event, const HWIdentifier calibLine
 {if (calibLineID.get_compact()==0) return false; //Disconnected channel
  if (!m_onlineHelper) {
    MsgStream log(Athena::getMessageSvc(), "LArCalibParams::isPulsed");
-   log << MSG::ERROR << "LArOnlineID not defined! Can't determine isPulsed value." << endreq;
+   log << MSG::ERROR << "LArOnlineID not defined! Can't determine isPulsed value." << endmsg;
    return false; 
  }
  const int line=m_onlineHelper->channel(calibLineID);

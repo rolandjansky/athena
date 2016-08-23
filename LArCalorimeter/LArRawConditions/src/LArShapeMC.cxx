@@ -26,7 +26,7 @@ StatusCode LArShapeMC::initialize()
 
   if(m_larmcsym.retrieve().isFailure()){
       MsgStream log(Athena::getMessageSvc(), "LArRampMC");
-      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endreq; 
+      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endmsg; 
       return (StatusCode::FAILURE);
   }
 
@@ -50,7 +50,7 @@ void do_get_shape (const std::vector<float>& shape,
   if( shape.size() == 0 ){
     MsgStream logstr(Athena::getMessageSvc(), "LArShapeComplete");
     logstr << MSG::DEBUG << "Invalid ID 0x" << MSG::hex << CellID
-           << MSG::dec << endreq;
+           << MSG::dec << endmsg;
     return; 
   }
 
@@ -71,12 +71,12 @@ void do_get_shape (const std::vector<float>& shape,
     if ( tbin >= NOFCPhases) { /* invalid tbin: return empty vector */
      MsgStream logstr(Athena::getMessageSvc(), "LArShapeComplete");
      logstr << MSG::ERROR << " LArShapeComplete: Invalid tbin " << tbin
-           << " for cell 0x " << MSG::hex << CellID << MSG::dec << endreq;
+           << " for cell 0x " << MSG::hex << CellID << MSG::dec << endmsg;
     }
     else if ( shape.size() < MaxSamples ) {
      MsgStream logstr(Athena::getMessageSvc(), "LArShapeComplete");
      logstr << MSG::WARNING
-           << "stored vector is too small for TB mode" << endreq;
+           << "stored vector is too small for TB mode" << endmsg;
     }
     else {
      int min = 0, max = 5;
@@ -118,7 +118,7 @@ bool setup_cabling_service (const Identifier& CellID,
   StatusCode sc = svcLoc->service( "ToolSvc",toolSvc  );
   if(sc.isFailure()) {
     MsgStream logstr(Athena::getMessageSvc(), "LArShapeMC");
-    logstr << MSG::ERROR << "Could not retrieve ToolSvc " << endreq;
+    logstr << MSG::ERROR << "Could not retrieve ToolSvc " << endmsg;
     return false; 
   }
 
@@ -127,7 +127,7 @@ bool setup_cabling_service (const Identifier& CellID,
   if(sc.isFailure()){
     MsgStream logstr(Athena::getMessageSvc(), "LArShapeMC");
     logstr << MSG::ERROR << "Could not retrieve LArCablingService Tool "
-           << endreq;
+           << endmsg;
     return false; 
   }
 

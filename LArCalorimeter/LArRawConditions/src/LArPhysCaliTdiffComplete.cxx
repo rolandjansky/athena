@@ -6,7 +6,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -56,14 +56,14 @@ const float& LArPhysCaliTdiffComplete::Tdiff(const Identifier&  CellID, int gain
     sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArPhysCaliTdiffComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
       static float empty = ERRORCODE ; 
       return empty; 
     }
     OnId = cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArPhysCaliTdiffComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
     static float empty = ERRORCODE ; 
     return empty; 
   }

@@ -6,7 +6,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -57,7 +57,7 @@ const LArWFParams& LArWFParamsComplete::getParams(const Identifier&  CellID, int
     sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArOFCComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
       //static std::vector<float> empty; 
       return s_dummyParams; 
     }
@@ -65,7 +65,7 @@ const LArWFParams& LArWFParamsComplete::getParams(const Identifier&  CellID, int
     
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArWFParamsComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
     //static std::vector<float> empty; 
     return s_dummyParams ; 
   }

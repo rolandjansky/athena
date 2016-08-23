@@ -6,7 +6,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArTools/LArMCSymTool.h"
 
 #include "GaudiKernel/Bootstrap.h"
@@ -31,7 +31,7 @@ StatusCode LArShape32MC::initialize()
 {
   if(m_larmcsym.retrieve().isFailure()){
       MsgStream log(Athena::getMessageSvc(), "LArShape32MC");
-      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endreq; 
+      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endmsg; 
       return (StatusCode::FAILURE);
   }
 

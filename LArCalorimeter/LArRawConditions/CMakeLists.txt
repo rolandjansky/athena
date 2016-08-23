@@ -18,6 +18,8 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           LArCalorimeter/LArElecCalib
                           LArCalorimeter/LArIdentifier
+                          LArCalorimeter/LArCabling
+                          PRIVATE
                           LArCalorimeter/LArTools )
 
 # External dependencies:
@@ -28,20 +30,20 @@ atlas_add_library( LArRawConditions
                    src/*.cxx
                    PUBLIC_HEADERS LArRawConditions
                    PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES CaloIdentifier AthenaKernel DataModel SGTools AthenaPoolUtilities Identifier GaudiKernel LArIdentifier StoreGateLib SGtests LArToolsLib
+                   LINK_LIBRARIES CaloIdentifier AthenaKernel DataModel SGTools AthenaPoolUtilities Identifier GaudiKernel LArIdentifier StoreGateLib SGtests LArToolsLib LArCablingLib
                    PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} )
 
 atlas_add_dictionary( LArRawConditions1Dict
                       LArRawConditions/LArRawConditionsDict1.h
                       LArRawConditions/selection1.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel DataModel SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArToolsLib LArRawConditions )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel DataModel SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArToolsLib LArCablingLib LArRawConditions )
 
 atlas_add_dictionary( LArRawConditions2Dict
                       LArRawConditions/LArRawConditionsDict2.h
                       LArRawConditions/selection2.xml
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel DataModel SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArToolsLib LArRawConditions )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} CaloIdentifier AthenaKernel DataModel SGTools StoreGateLib SGtests AthenaPoolUtilities Identifier GaudiKernel LArIdentifier LArToolsLib LArCablingLib LArRawConditions )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

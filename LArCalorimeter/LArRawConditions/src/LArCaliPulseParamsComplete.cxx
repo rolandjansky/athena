@@ -7,7 +7,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ISvcLocator.h"
@@ -102,14 +102,14 @@ const float& LArCaliPulseParamsComplete::Tcal(const Identifier&  CellID, int gai
     sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArCaliPulseParamsComplete");
-      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endreq;
+      logstr << MSG::WARNING << "Could not retrieve LArCablingService Tool " << endmsg;
       static float empty = ERRORCODE ; 
       return empty; 
     }
     OnId = cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArCaliPulseParamsComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -128,14 +128,14 @@ const float& LArCaliPulseParamsComplete::Fstep(const Identifier&  CellID, int ga
     sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArCaliPulseParamsComplete");
-      logstr << MSG::WARNING << "LArCaliPulseParamsComplete: Could not retrieve LArCablingService Tool " << endreq;
+      logstr << MSG::WARNING << "LArCaliPulseParamsComplete: Could not retrieve LArCablingService Tool " << endmsg;
       static float empty = ERRORCODE ; 
       return empty; 
     }
     OnId = cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArCaliPulseParamsComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -154,14 +154,14 @@ const float& LArCaliPulseParamsComplete::Offset(const Identifier&  CellID, int g
     sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArCaliPulseParamsComplete");
-      logstr << MSG::WARNING << "LArCaliPulseParamsComplete: Could not retrieve LArCablingService Tool " << endreq;
+      logstr << MSG::WARNING << "LArCaliPulseParamsComplete: Could not retrieve LArCablingService Tool " << endmsg;
       static float empty = ERRORCODE ; 
       return empty; 
     }
     OnId = cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArCaliPulseParamsComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -180,14 +180,14 @@ const float& LArCaliPulseParamsComplete::dTimeCal(const Identifier&  CellID, int
     sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArCaliPulseParamsComplete");
-      logstr << MSG::WARNING << "LArCaliPulseParamsComplete: Could not retrieve LArCablingService Tool " << endreq;
+      logstr << MSG::WARNING << "LArCaliPulseParamsComplete: Could not retrieve LArCablingService Tool " << endmsg;
       static float empty = ERRORCODE ; 
       return empty; 
     }
     OnId = cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArCaliPulseParamsComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
     static float empty = ERRORCODE ; 
     return empty; 
   }
@@ -206,14 +206,14 @@ const short& LArCaliPulseParamsComplete::nCB(const Identifier&  CellID, int gain
     sc = toolSvc->retrieveTool("LArCablingService",cablingService);
     if(sc.isFailure()){
       MsgStream logstr(Athena::getMessageSvc(), "LArCaliPulseParamsComplete");
-      logstr << MSG::WARNING << "LArCaliPulseParamsComplete: Could not retrieve LArCablingService Tool " << endreq;
+      logstr << MSG::WARNING << "LArCaliPulseParamsComplete: Could not retrieve LArCablingService Tool " << endmsg;
       static short empty = -999 ; 
       return empty; 
     }
     OnId = cablingService->createSignalChannelID(CellID);  
   } else {
     MsgStream logstr(Athena::getMessageSvc(), "LArCaliPulseParamsComplete");
-    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endreq;
+    logstr << MSG::WARNING << "Could not retrieve ToolSvc " << endmsg;
     static short empty = -999 ; 
     return empty; 
   }

@@ -19,7 +19,7 @@
 // Services/helpers
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 
 #include <algorithm>
 #include <deque>
@@ -881,14 +881,14 @@ LArConditionsContainer<T>::completeCorrectionChannels() {
   typename MultChanCollection::const_iterator cit_e=MultChanCollection::end();
   for(;cit!=cit_e;++cit) {
     const unsigned gain=(*cit)->gain();
-    //msg << MSG::INFO << "Checking COOL channel " << (*it)->channel() << " Gain " << gain << endreq;;
+    //msg << MSG::INFO << "Checking COOL channel " << (*it)->channel() << " Gain " << gain << endmsg;;
     if ((*cit)->subsetBegin()!=(*cit)->subsetEnd()) { //not empty subset
       const HWIdentifier febId((*(*cit)->subsetBegin()).first);
       unsigned int index;
       unsigned int coolChannel;
       correctionIndexAndCoolChannel(febId, gain, index, coolChannel);
       if (m_channelToMultChanCollIndex.size() <= index && idsToInsert.find(coolChannel)==idsToInsert.end()) {
-	//msg << MSG::WARNING << "Correction channel " << coolChannel << " does not exit" << endreq;
+	//msg << MSG::WARNING << "Correction channel " << coolChannel << " does not exit" << endmsg;
 	idsToInsert[coolChannel]=std::make_pair(febId,gain);
       }
     }//end if non-empty subset
@@ -901,7 +901,7 @@ LArConditionsContainer<T>::completeCorrectionChannels() {
     const int coolChannel=it1->first;
     result.push_back(coolChannel);
       //(*m_log) << MSG::INFO << "Inserting channel " << chid.get_compact() << " gain " << gain
-      //     << " to create correction channel " << it1->first << endreq;
+      //     << " to create correction channel " << it1->first << endmsg;
 
      // index is size before new push_back 
     //index  =  chan_size(); 
