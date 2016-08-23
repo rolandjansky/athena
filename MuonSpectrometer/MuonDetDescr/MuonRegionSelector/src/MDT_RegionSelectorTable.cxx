@@ -60,7 +60,7 @@ MDT_RegionSelectorTable::~MDT_RegionSelectorTable() {
 
 
 StatusCode MDT_RegionSelectorTable::initialize() { 
-  msg(MSG::INFO) << "initialize() MDT_RegionSelectorTable" << endreq;
+  msg(MSG::INFO) << "initialize() MDT_RegionSelectorTable" << endmsg;
   if(m_mdtCabling.retrieve().isFailure()) {
     ATH_MSG_FATAL("MDTCablingSvc not found !");
     return StatusCode::FAILURE;
@@ -70,7 +70,7 @@ StatusCode MDT_RegionSelectorTable::initialize() {
 
 
 StatusCode MDT_RegionSelectorTable::finalize() { 
-  msg(MSG::INFO) << "finalize()" << endreq;
+  msg(MSG::INFO) << "finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
