@@ -25,6 +25,8 @@
 
 #include "InDetIdentifier/SCT_ID.h"
 
+//#include "InDetReadoutGeometry/SiDetectorElement.h"
+//#include "InDetReadoutGeometry/PixelDetectorManager.h"
 #include <iostream>
 #include <sstream>
 #include <typeinfo>
@@ -43,7 +45,7 @@ namespace Overlay {
       parent->msg(MSG::INFO)<<"Overlay::mergeChannelData(): "
                             <<"TRT specific code is called for "
                             <<typeid(TRT_RDORawData).name()
-                            <<endreq;
+                            <<endmsg;
     }
 
     // ----------------------------------------------------------------
@@ -64,7 +66,7 @@ namespace Overlay {
                               <<"TRT specific code for "
                               <<typeid(TRT_RDORawData).name()
                               <<" is not implemented"
-                              <<endreq;
+                              <<endmsg;
       }
     } // else - dyncasts
   } // mergeChannelData()
@@ -97,8 +99,8 @@ namespace Overlay {
 
   //================
 
-  template<> void mergeCollectionsNew(InDetRawDataCollection<SCT_RDORawData> *data_coll,
-                                      InDetRawDataCollection<SCT_RDORawData> *mc_coll,
+  template<> void mergeCollectionsNew(InDetRawDataCollection<SCT_RDORawData> *mc_coll,
+                                      InDetRawDataCollection<SCT_RDORawData> *data_coll,
                                       IDC_OverlayBase *tmp)
   {
     // We want to use the SCT_ID helper provided by InDetOverlay, thus the constraint
@@ -116,8 +118,8 @@ namespace Overlay {
       first_time = false;
       parent->msg(MSG::INFO)<<"InDetOverlay::mergeCollectionsNew(): "
                             <<" SCT specific code is called for "
-                            <<typeid(*data_coll).name()
-                            <<endreq;
+                            <<typeid(*mc_coll).name()
+                            <<endmsg;
     }
 
     // ----------------------------------------------------------------
@@ -140,32 +142,32 @@ namespace Overlay {
 
 
     // ----------------------------------------------------------------
-    if(data_coll->identify() != mc_coll->identify()) {
+    if(mc_coll->identify() != data_coll->identify()) {
       std::ostringstream os;
       os<<"mergeCollectionsNew<SCT_RDORawData>(): collection Id mismatch";
-      parent->msg(MSG::FATAL)<<os.str()<<endreq;
+      parent->msg(MSG::FATAL)<<os.str()<<endmsg;
       throw std::runtime_error(os.str());
     }
 
-    const Identifier idColl = parent->get_sct_id()->wafer_id(data_coll->identifyHash());
+    const Identifier idColl = parent->get_sct_id()->wafer_id(mc_coll->identifyHash());
 
     // Empty the input collections and move RDOs to local vectors.
-    InDetRawDataCollection<SCT_RDORawData> data(data_coll->identifyHash());
-    data.setIdentifier(idColl);
-    data_coll->swap(data);
-
     InDetRawDataCollection<SCT_RDORawData> mc(mc_coll->identifyHash());
     mc.setIdentifier(idColl);
     mc_coll->swap(mc);
 
+    InDetRawDataCollection<SCT_RDORawData> data(data_coll->identifyHash());
+    data.setIdentifier(idColl);
+    data_coll->swap(data);
+
     // Just an alias for the currently empty collection
-    InDetRawDataCollection<SCT_RDORawData> *output = data_coll;
+    InDetRawDataCollection<SCT_RDORawData> *output = mc_coll;
 
     // Expand encoded RDOs into individual hit strips.
     // Each strip number is linked to the original RDO.
     StripMap sm;
-    fillStripMap(&sm, data, "data", parent);
     fillStripMap(&sm, mc, "MC", parent);
+    fillStripMap(&sm, data, "data", parent);
 
     // collect all the hits
     StripMap::const_iterator p=sm.begin();
@@ -238,15 +240,20 @@ InDetOverlay::InDetOverlay(const std::string &name, ISvcLocator *pSvcLocator) :
   m_sct_id(0)
 {
 
+  //change via postExec indetovl.do_XXX=True
+
   declareProperty("do_TRT", m_do_TRT=true);
+  declareProperty("do_TRT_background", m_do_TRT_background=true);
   declareProperty("mainInputTRT_Name", m_mainInputTRT_Name="TRT_RDOs");
   declareProperty("overlayInputTRT_Name", m_overlayInputTRT_Name="TRT_RDOs");
 
   declareProperty("do_SCT", m_do_SCT=true);
+  declareProperty("do_SCT_background", m_do_SCT_background=true);
   declareProperty("mainInputSCT_Name", m_mainInputSCT_Name="SCT_RDOs");
   declareProperty("overlayInputSCT_Name", m_overlayInputSCT_Name="SCT_RDOs");
 
   declareProperty("do_Pixel", m_do_Pixel=true);
+  declareProperty("do_Pixel_background", m_do_Pixel_background=true);
   declareProperty("mainInputPixelName", m_mainInputPixel_Name="PixelRDOs");
   declareProperty("overlayInputPixelName", m_overlayInputPixel_Name="PixelRDOs");
 }
@@ -257,7 +264,7 @@ StatusCode InDetOverlay::overlayInitialize()
   ATH_MSG_INFO("InDetOverlay initialize()");
 
   if(!m_detStore->retrieve(m_sct_id,"SCT_ID").isSuccess() || !m_sct_id ) {
-    msg(MSG::FATAL) << "Cannot retrieve SCT ID helper"  << endreq;
+    msg(MSG::FATAL) << "Cannot retrieve SCT ID helper"  << endmsg;
     return StatusCode::FAILURE;
   }
   return StatusCode::SUCCESS;
@@ -290,7 +297,7 @@ StatusCode InDetOverlay::overlayExecute() {
       ATH_MSG_WARNING("Could not get MC TRT container \""<<m_overlayInputTRT_Name<<"\"");
     }
     ATH_MSG_DEBUG("TRT MC     = "<<shortPrint(cmc));
-
+    if (! m_do_TRT_background ){ cdata->cleanup(); }
     if(cdata.get() && cmc.get()) {
       overlayContainerNew(cdata, cmc);
       ATH_MSG_DEBUG("TRT Result = "<<shortPrint(cdata));
@@ -323,7 +330,7 @@ StatusCode InDetOverlay::overlayExecute() {
       ATH_MSG_WARNING("Could not get MC SCT container \""<<m_overlayInputSCT_Name<<"\"");
     }
     ATH_MSG_DEBUG("SCT MC     = "<<shortPrint(cmc, 50));
-
+    if (! m_do_SCT_background ){ cdata->cleanup(); }
     if(cdata.get() && cmc.get()) {
       overlayContainerNew(cdata, cmc);
       ATH_MSG_DEBUG("SCT Result = "<<shortPrint(cdata, 50));
@@ -357,6 +364,42 @@ StatusCode InDetOverlay::overlayExecute() {
     }
     ATH_MSG_DEBUG("Pixel MC     = "<<shortPrint(cmc));
 
+/*
+// Get geo model manager
+const InDetDD::PixelDetectorManager* geo;
+if ( detStore()->retrieve(geo, "Pixel").isFailure()) {
+   ATH_MSG_ERROR("Could not get Pixel GeoModel Manager!");
+   return StatusCode::RECOVERABLE;
+}
+//Loop over pixel RDO container
+PixelRDO_Container::const_iterator containerItr;
+for (containerItr=cmc->begin(); containerItr!=cmc->end(); ++containerItr) {
+  const DataVector<PixelRDORawData>* rdoCollection = *containerItr;
+  DataVector<PixelRDORawData>::const_iterator collectionItr;
+  double avgx=0; int nx=0;
+  for (collectionItr=rdoCollection->begin(); collectionItr!=rdoCollection->end(); ++collectionItr) {
+    PixelRDORawData *rdoData = *collectionItr;
+    const Identifier id = rdoData->identify();
+    const InDetDD::SiDetectorElement *element = geo->getDetectorElement(id);
+    if (!element->isInnermostPixelLayer()) {//only keep IBL
+      //rdoCollection->remove(collectionItr);
+      continue;
+    }
+    Amg::Vector2D localPos = element->localPositionOfCell(id);
+    Amg::Vector2D rawlocalPos = element->rawLocalPositionOfCell(id);
+    Amg::Vector3D globalPos = element->globalPosition(localPos);
+    Amg::Vector3D rawglobalPos = element->globalPosition(rawlocalPos);
+    //ATH_MSG_INFO("localPos: "<<localPos.x()<<" "<<localPos.y());
+    //ATH_MSG_INFO("rawlocalPos: "<<rawlocalPos.x()<<" "<<rawlocalPos.y());
+    //ATH_MSG_INFO("globalPos: "<<globalPos.x()<<" "<<globalPos.y()<<" "<<globalPos.z());
+    //ATH_MSG_INFO("rawglobalPos: "<<rawglobalPos.x()<<" "<<rawglobalPos.y()<<" "<<rawglobalPos.z());
+    avgx+=globalPos.x(); nx++;
+  }
+  if (nx>0){ATH_MSG_INFO("avgx ="<<avgx/(double)nx);}
+}
+*/
+
+    if (! m_do_Pixel_background ){ cdata->cleanup(); }
     if(cdata.get() && cmc.get()) {
       overlayContainerNew(cdata, cmc);
       ATH_MSG_DEBUG("Pixel Result = "<<shortPrint(cdata));
