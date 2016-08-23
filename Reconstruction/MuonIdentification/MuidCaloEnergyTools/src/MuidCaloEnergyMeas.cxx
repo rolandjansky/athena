@@ -34,11 +34,14 @@ namespace Rec
 {
 
 MuidCaloEnergyMeas::MuidCaloEnergyMeas (const std::string&	type,
-					const std::string&	name, 
+					const std::string&	name,
 					const IInterface*	parent)
     :	AthAlgTool		(type, name, parent),
 	m_caloNoiseTool		(""),
 	m_caloParamTool		(""),
+	m_tileID                (0),
+	m_emID                  (0),
+	m_hecID                 (0),
 	m_cellContainerLocation	(""),
 	m_sigmasAboveNoise	(4.),
 	m_sigmasAboveNoiseCore	(1.5),
@@ -194,14 +197,14 @@ MuidCaloEnergyMeas::energyMeasurement (double etaEM,
 		       << 100.*caloMeas->Tile_SamplingFraction()
 		       << " ISO :"			<< std::setw(8) << std::setprecision(3)
 		       << caloMeas->Tile_Isolation()/CLHEP::GeV
-		       << endreq
+		       << endmsg
 		       << " LArHEC energy (GeV):"	<< std::setw(8) << std::setprecision(3)
 		       << caloMeas->LArHEC_EnergyMeasured()/CLHEP::GeV
 		       << " Material percent:"		<< std::setw(4) << std::setprecision(0)
 		       << 100.*caloMeas->LArHEC_SamplingFraction()
 		       << " ISO :"			<< std::setw(8) << std::setprecision(3)
 		       << caloMeas->LArHEC_Isolation()/CLHEP::GeV
-		       << endreq
+		       << endmsg
 		       << " EM energy          :"	<< std::setw(8) << std::setprecision(3)
 		       << caloMeas->LArEM_EnergyMeasured()/CLHEP::GeV
 		       << " first compartment:"		<< std::setw(8) << std::setprecision(3)

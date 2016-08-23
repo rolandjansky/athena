@@ -24,11 +24,19 @@ namespace Rec
 //<<<<<< CLASS STRUCTURE INITIALIZATION                                 >>>>>>
  
 MuidCaloEnergyParam::MuidCaloEnergyParam (const std::string&type,
-					  const std::string&name, 
+					  const std::string&name,
 					  const IInterface*parent)
     :	AthAlgTool		(type, name, parent),
 	m_cosmics		(false),
-	m_smoothingFraction	(0.5)
+	m_smoothingFraction	(0.5),
+	m_binWidth(0.),
+	m_etaOffset(0.),
+	m_inverseWidth(0.),
+	m_etaBin1(0),
+	m_etaBin2(0),
+	m_etaWeight1(0.),
+	m_etaWeight2(0.),
+	m_etaGranularity(0.)
 {
     declareInterface<IMuidCaloEnergyParam>(this);
     declareProperty ("Cosmics",			m_cosmics);
