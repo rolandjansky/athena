@@ -28,7 +28,7 @@ namespace Muon {
     if( AthAlgTool::initialize().isFailure() ) return StatusCode::FAILURE;
 
     if (m_idHelper.retrieve().isFailure()){
-      msg(MSG::ERROR) <<"Could not get " << m_idHelper <<endreq; 
+      msg(MSG::ERROR) <<"Could not get " << m_idHelper <<endmsg; 
       return StatusCode::FAILURE;
     }
   
