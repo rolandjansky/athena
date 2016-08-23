@@ -343,7 +343,7 @@ Muon::MooSegmentCombinationFinder::findSegments( const std::vector<const MdtPrep
       finalSegmentCombinations = cleanedSegmentCombinations;
     }
 
-    if( m_doSummary || msgLvl(MSG::DEBUG) ) msg() << endreq;
+    if( m_doSummary || msgLvl(MSG::DEBUG) ) msg() << endmsg;
 
     // increase counters, assume that the tools is only called once per event
     ++m_nevents;
@@ -519,7 +519,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
 	  if( !m_segmentSelector->select( **sit, ignoreHoles, quality ) ){
 	    if( msgLvl(MSG::VERBOSE) ) {
 	      int q = m_segmentSelector->quality(**sit,ignoreHoles);
-	      msg(MSG::VERBOSE) << " bad segment " << m_edmPrinter->print(**sit) << " quality " << q << endreq;
+	      msg(MSG::VERBOSE) << " bad segment " << m_edmPrinter->print(**sit) << " quality " << q << endmsg;
 	    }
 	    ++nremovedBadSegments;
 	    continue;
@@ -538,7 +538,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
 	  if( !m_segmentSelector->select( **sit, ignoreHoles, quality ) ){
 	    if( msgLvl(MSG::VERBOSE) ) {
 	      int q = m_segmentSelector->quality(**sit,ignoreHoles);
-	      msg(MSG::VERBOSE) << " bad segment " << m_edmPrinter->print(**sit) << " quality " << q << endreq;
+	      msg(MSG::VERBOSE) << " bad segment " << m_edmPrinter->print(**sit) << " quality " << q << endmsg;
 	    }
 	    ++nremovedBadSegments;
 	    continue;
