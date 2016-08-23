@@ -11,6 +11,7 @@ use  AthenaBaseComps   AthenaBaseComps-*  Control
 
 # These should be private
 private
+use  AthenaKernel               AthenaKernel-*  Control
 use  StoreGate                  StoreGate-*     Control
 
 # This is the same boilerplate used for every executable in the universe:
