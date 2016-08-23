@@ -37,7 +37,7 @@ class ExtraRegionSelector : public AthAlgTool, virtual public CalibSegmentPrepar
   void prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments);
  private:
 //=========================private data=========================================
-  //if set to true, segments wich are not comletely in the selected calibration region will be dropped - job options
+  //if set to true, segments wich are not completely in the selected calibration region will be dropped - job options
   bool m_exclusive_segments;
   //if true select muonboy tracks, else moore
   bool m_muonboy;
@@ -49,7 +49,7 @@ class ExtraRegionSelector : public AthAlgTool, virtual public CalibSegmentPrepar
   float m_momentum_cut;
   //if set to true, an debug root file is created
   bool m_do_debug_file;
-  //! pointer to regino selectin service
+  //! pointer to region selection service
   RegionSelectionSvc *p_reg_sel_svc;
   //track author id;
   int m_track_author_id;

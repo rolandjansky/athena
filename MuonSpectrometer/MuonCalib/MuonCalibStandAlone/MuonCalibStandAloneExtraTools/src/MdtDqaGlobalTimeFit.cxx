@@ -92,9 +92,15 @@ namespace MuonCalib {
 // constructor
 
 MdtDqaGlobalTimeFit::MdtDqaGlobalTimeFit(int nbHitsMin, int nbHitsMax, float chi2cut, int BfieldON,  bool debug) :
-  m_mdtIdHelper(NULL), m_detMgr(NULL), m_id_tool(NULL), p_reg_sel_svc(NULL), m_histoManager(NULL), m_tfile(NULL),
-  m_tfile_debug(NULL), m_hit_ntuple(NULL), m_nb_hits(-1.), m_cal_region(NULL), m_rtRel(NULL), m_qfitter(NULL),
-  m_muFitter(NULL), m_GTFitter(NULL), m_nb_trigger(-1), m_nb_stations(-1), m_htoffset(NULL) {
+  m_mdtIdHelper(NULL), m_detMgr(NULL), m_id_tool(NULL), p_reg_sel_svc(NULL), m_histoManager(NULL),
+  //m_tfile(NULL),
+  //m_tfile_debug(NULL), m_hit_ntuple(NULL), m_nb_hits(-1.), m_cal_region(NULL),
+  m_rtRel(NULL),
+  //m_qfitter(NULL),
+  m_muFitter(NULL), m_GTFitter(NULL)
+  //m_nb_trigger(-1), m_nb_stations(-1),
+  //m_htoffset(NULL)
+{
   m_minNumHits = nbHitsMin;
   m_maxNumHits = nbHitsMax;
   m_chi2_cut = chi2cut;

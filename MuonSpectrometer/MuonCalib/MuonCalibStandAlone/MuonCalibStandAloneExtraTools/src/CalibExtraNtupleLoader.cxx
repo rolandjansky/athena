@@ -24,7 +24,6 @@
 
 namespace MuonCalib {
 
-
 ///////////////////////
 // CalibExtraNtupleLoader //
 ///////////////////////
@@ -45,8 +44,7 @@ CalibExtraNtupleLoader::CalibExtraNtupleLoader(const std::string &t, const std::
 // initialize //
 ////////////////
 StatusCode CalibExtraNtupleLoader::initialize(void) {
-  MsgStream log(msgSvc(), name());
-  log<< MSG::INFO << "Filelist is '"<<m_filelist<<"'" <<endreq;
+  ATH_MSG_INFO( "Filelist is '"<<m_filelist<<"'" );
   //convert Ntuple Type
   if(m_ntuple_type == "AUTO") {
     m_ntuple_type_num = 0;
@@ -55,7 +53,7 @@ StatusCode CalibExtraNtupleLoader::initialize(void) {
   } else if (m_ntuple_type == "REGION") {
     m_ntuple_type_num = 2;
   } else {
-    log<<MSG::FATAL<<"Invalid ntuple type. Must be AUTO/NORMAL/REGION!"<<endreq;
+    ATH_MSG_FATAL("Invalid ntuple type. Must be AUTO/NORMAL/REGION!");
     return StatusCode::FAILURE;
   }
 //read filelist an build chain
@@ -64,7 +62,7 @@ StatusCode CalibExtraNtupleLoader::initialize(void) {
   int count(0);
   std::ifstream fl(m_filelist.c_str());
   if(fl.fail())	{
-    log<< MSG::INFO << "Cannot open file '"<<m_filelist<<"' for reading!" <<endreq;
+    ATH_MSG_INFO("Cannot open file '"<<m_filelist<<"' for reading!");
     return  StatusCode::FAILURE;
   }
   while (!fl.eof()) {
@@ -86,20 +84,20 @@ StatusCode CalibExtraNtupleLoader::initialize(void) {
       if(p_reg_sel_svc == NULL)	{
 	StatusCode sc=service("RegionSelectionSvc", p_reg_sel_svc);
 	if(!sc.isSuccess()) {
-	  log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
+	  ATH_MSG_ERROR("Cannot retrieve RegionSelectionSvc!");
 	  return sc;
 	}	
       }
-      log<<MSG::INFO<< "Added "<<p_reg_sel_svc->AddRegionNtuples(sdummy.c_str(), m_chain)<<" regions from file "<<sdummy<<endreq;
+      ATH_MSG_INFO("Added "<<p_reg_sel_svc->AddRegionNtuples(sdummy.c_str(), m_chain)<<" regions from file "<<sdummy);
     } else {
       m_chain->Add(sdummy.c_str());
-      log<< MSG::INFO << "Added file '"<<sdummy<<"' to filelist!" <<endreq;
+      ATH_MSG_INFO("Added file '"<<sdummy<<"' to filelist!");
     }
     count++;
   }
   if(count==0){
-    log<< MSG::FATAL<< "No files in filelist!"<<endreq;
-    return  StatusCode::FAILURE;
+    ATH_MSG_FATAL("No files in filelist!");
+    return StatusCode::FAILURE;
   }
   m_reader = new NTReader_E(m_chain);
   return StatusCode::SUCCESS;	
@@ -109,16 +107,15 @@ StatusCode CalibExtraNtupleLoader::initialize(void) {
 // prepareSegments //
 /////////////////////
 void CalibExtraNtupleLoader::prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> & /*segments*/){
-  MsgStream log(msgSvc(), name());
   if(m_last>0 && m_last<=m_first) {
-    log<< MSG::INFO << "Enough events read!"<< endreq;
+    ATH_MSG_INFO("Enough events read!");
     event=NULL;
     return;
   }
-  const MuonCalibEvent_E &evt=m_reader->getEvent(m_first);	
+  const MuonCalibEvent_E &evt = m_reader->getEvent(m_first);	
   event = static_cast<const MuonCalibEvent *>(&evt);
-  if (event->rawHitCollection()==NULL){
-    log<< MSG::INFO << "End of file reached"<< endreq;
+  if( event->rawHitCollection() == NULL ) {
+    ATH_MSG_INFO("End of file reached");
     event=NULL;
     return;
   }

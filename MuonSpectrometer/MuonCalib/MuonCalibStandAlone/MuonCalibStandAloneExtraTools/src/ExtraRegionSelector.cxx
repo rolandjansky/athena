@@ -53,7 +53,7 @@ StatusCode ExtraRegionSelector::initialize(void) {
   MsgStream log(msgSvc(), name());
   StatusCode sc=service("RegionSelectionSvc", p_reg_sel_svc);
   if(!sc.isSuccess())	{
-    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
+    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endmsg;
   }
   if(m_muonboy) {
     m_track_author_id = m_evt_handler.muonboyIndices().track;
@@ -85,14 +85,14 @@ StatusCode ExtraRegionSelector::finalize(void) {
 void ExtraRegionSelector::prepareSegments(const MuonCalibEvent *&event, std::map<NtupleStationId, MuonCalibSegment *> &segments) {
   MsgStream log(msgSvc(), name());
   if(event==NULL) {
-    log << MSG::FATAL << "event=NULL"<<endreq;
+    log << MSG::FATAL << "event=NULL"<<endmsg;
     event=NULL;
     return;
   }
   const MuonCalibEvent *e(event);
   const MuonCalibEvent_E *e_event=dynamic_cast<const MuonCalibEvent_E *>(e);
   if(e_event==NULL) {
-    log << MSG::FATAL << "This tool works only with extra events!"<<endreq;
+    log << MSG::FATAL << "This tool works only with extra events!"<<endmsg;
     event=NULL;
     return;
   }

@@ -1,6 +1,5 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-
 from MuonCalibStandAloneExtraTools.MuonCalibStandAloneExtraToolsConfig import *
 print  "NoRecalibration=", NoRecalibration
 from CalibNtupleAnalysisAlg.CalibNtupleAnalysisConfig import *
@@ -11,26 +10,43 @@ print  "NoRecalibration=", NoRecalibration
 
 
 def GenTrackAuthorCodes(author, primary_only=False, combined_only=False, stand_alone_only=False):
-	track_types=range(0, 5)
+#  With this section commented out, code will not work on Run1 calib ntuples
+#  Maybe, can have both Run1 and Run2 tracks authors in list, need to check.
+#  Athena <=17, Run1 calib ntuples
+#	track_types=range(0, 5)
+#	if combined_only:
+#		track_types=[2,3]
+#	if stand_alone_only:
+#		track_types=[0]
+	
+#	ret=[]
+#	for tp in track_types:
+#		ret.append(tp + 100* author + 10)
+#	if not primary_only:
+#		for tp in track_types:
+#			ret.append(tp + 100* author)
+# Athena >= 20, Run2 ntuples
+#  Calibstream has track author 200 only
+#  Raw data (Reco_tf.py) has track authors 206 (standalone), 208 (combined)
+	track_types=range(0, 1)
 	if combined_only:
-		track_types=[2,3]
+		track_types=[8]
 	if stand_alone_only:
-		track_types=[0]
+		track_types=[0,6]
 	
 	ret=[]
 	for tp in track_types:
-		ret.append(tp + 100* author + 10)
-	if not primary_only:
-		for tp in track_types:
-			ret.append(tp + 100* author)
+		ret.append(tp + 200)
+#	if not primary_only:
+#		for tp in track_types:
+#			ret.append(tp + 100* author)
 	
 	return ret	
 
 class CalibExtraNtupleAnalysisConfig(CalibNtupleAnalysisConfig):
-
 	LoadExtraNtuple=True
 	SelectTrackSegments=True
-	TrackSecondCoordinate=False
+	TrackSecondCoordinate=True   #THIS IS OVERWRITTEN in skeleton.mdt_calib_ntuple_trf.py - need to modify that to run TrackSecondCoordinate
 	MomentumCut=-1.0
 	FastTrackMatch=True
 	SuperFastTrackMatch=False
@@ -67,8 +83,10 @@ class CalibExtraNtupleAnalysisConfig(CalibNtupleAnalysisConfig):
 			self.RpcTiming=MuonCalib__RpcTimingCorr()
 			self.sToolSvc += self.RpcTiming
 			self.CalibNtupleAnalysisAlg.CalibSegmentPreparationTools.append(self.RpcTiming)	
+        #correct segment second coordinate using tracks
 		if self.SelectTrackSegments and self.TrackSecondCoordinate and self.LoadExtraNtuple:
 			self.TrackSecondCoordinateTool = MuonCalib__TrackSecondCoordinateToSegment()
+			self.TrackSecondCoordinateTool.ControlHistograms=True
 			self.sToolSvc += self.TrackSecondCoordinateTool
 			self.CalibNtupleAnalysisAlg.CalibSegmentPreparationTools.append(self.TrackSecondCoordinateTool)
 	#recalculate 2nd coordinate:
@@ -90,9 +108,6 @@ class CalibExtraNtupleAnalysisConfig(CalibNtupleAnalysisConfig):
 	#create tool
 		self._create_calib_tool_extra()
 		
-		
-		
-
 #------------------------------------------------------------------------------
 	def _create_calib_tool_extra(self):
 		self._create_calib_tool()
@@ -101,18 +116,16 @@ class CalibExtraNtupleAnalysisConfig(CalibNtupleAnalysisConfig):
 		self.CalibrationTool=CreateCalibExtraTool(self.CalibrationAlgorithm)
 		if self.CalibrationTool:
 			self.sToolSvc += self.CalibrationTool
-		self.CalibNtupleAnalysisAlg.CalibrationTool = self.CalibrationTool	
-		
-			
+		self.CalibNtupleAnalysisAlg.CalibrationTool = self.CalibrationTool			
 	
 	def _track_region_selection(self):
 		if self.SuperFastTrackMatch:
 			self.RegionSelection = MuonCalib__ExtraRegionSelectorSuperFast()
-			if self.SegmentAuthor == 3:
+			if self.SegmentAuthor == 3:      #Muonboy, Athena <= 17 only
 				self.RegionSelection.TrackAutors=GenTrackAuthorCodes(1)
-			elif self.SegmentAuthor == 4:
+			elif self.SegmentAuthor == 4:    #Moore, Run1+Run2
 				self.RegionSelection.TrackAutors=GenTrackAuthorCodes(0)
-			elif self.SegmentAuthor == 5:
+			elif self.SegmentAuthor == 5:    #what is this?
 				self.RegionSelection.TrackAutors=GenTrackAuthorCodes(2)
 			
 		elif self.FastTrackMatch:
@@ -137,4 +150,3 @@ class CalibExtraNtupleAnalysisConfig(CalibNtupleAnalysisConfig):
 		self.CalibNtupleAnalysisAlg.CalibSegmentPreparationTools.append( self.RegionSelection )
 		RegionSelectionSvc.PrintList = True
 		self.sServiceMgr += self.RegionSelectionSvc
-		

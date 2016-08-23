@@ -153,23 +153,23 @@ class NtupleMdtDqaTool : public AthAlgTool, virtual public NtupleCalibrationTool
   
   // TRACK ANALYSIS
   bool m_doTracks;
-  bool m_quickTrack;
+  //bool m_quickTrack;
   int  m_TrkAuthor;
   
   //Dead Tube analysis
   int m_DeadElementsAlgorithm;
   
   // calibration region//
-  const NtupleStationId	*m_cal_region;	
+  //const NtupleStationId	*m_cal_region;	
   
   // line reconstruction //
   //QuasianalyticLineReconstruction *m_qfitter;    
   
   // counter/numbers //
-  int m_nb_trigger;  
-  int m_nb_multilayers;
-  int m_nb_layers;
-  int m_nb_tubes;
+  //int m_nb_trigger;  
+  //int m_nb_multilayers;
+  //int m_nb_layers;
+  //int m_nb_tubes;
 	
   // histograms //
   //TH1F *h_distance;

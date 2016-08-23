@@ -35,7 +35,7 @@
 
 class MdtIdHelper;
 
-class MdtChamber  {
+class MdtChamber {
 public:
   std::string m_region;
   std::string m_side;
