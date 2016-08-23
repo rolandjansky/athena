@@ -135,7 +135,7 @@ private:
  inline StatusCode MuonTGMeasAssocAlg::retrieveMeasurements() {
    // Get the messaging service, print where you are
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "MuonTGMeasAssocAlg::retrieveMeasurements()" << endreq;
+  log << MSG::DEBUG << "MuonTGMeasAssocAlg::retrieveMeasurements()" << endmsg;
   //
   //if (m_allHits) delete m_allHits;
   if (m_mdtHits) delete m_mdtHits;
@@ -149,7 +149,7 @@ private:
   if (m_tgcIn) m_tgcHits = createTgcHitCollectionLayers();  
   StatusCode sc = createStationHitCollection();
 
-  log << MSG::DEBUG << "MuonTGMeasAssocAlg::collected hits from " << m_allHits->size() << " stations"  << endreq;
+  log << MSG::DEBUG << "MuonTGMeasAssocAlg::collected hits from " << m_allHits->size() << " stations"  << endmsg;
   
   if (m_allHits->size()) return StatusCode::SUCCESS;
 
