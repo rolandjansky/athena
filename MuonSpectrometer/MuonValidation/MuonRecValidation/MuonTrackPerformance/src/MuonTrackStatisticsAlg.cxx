@@ -44,21 +44,21 @@ MuonTrackStatisticsAlg::MuonTrackStatisticsAlg(const std::string& name, ISvcLoca
 StatusCode MuonTrackStatisticsAlg::initialize()
 {
   // MSGStream object to output messages from your sub algorithm
-  m_log = new MsgStream(messageService(), name());
+  m_log = new MsgStream(msgSvc(), name());
  
   // Locate the StoreGateSvc and initialize our local ptr
   StatusCode sc = service("StoreGateSvc", p_SGevent);
   if (!sc.isSuccess() || 0 == p_SGevent) 
     {
-      *m_log << MSG::ERROR << "MuonTrackStatisticsAlg::initialize() :  Could not find StoreGateSvc" << endreq;
+      *m_log << MSG::ERROR << "MuonTrackStatisticsAlg::initialize() :  Could not find StoreGateSvc" << endmsg;
       return	sc;
     }
 
   sc = m_statisticsTool.retrieve();
   if (sc.isSuccess()){
-    *m_log<<MSG::INFO << "Retrieved " << m_statisticsTool << endreq;
+    *m_log<<MSG::INFO << "Retrieved " << m_statisticsTool << endmsg;
   }else{
-    *m_log<<MSG::ERROR<<"Could not get " << m_statisticsTool <<endreq; 
+    *m_log<<MSG::ERROR<<"Could not get " << m_statisticsTool <<endmsg; 
     return sc; 
   }
   
@@ -71,7 +71,7 @@ StatusCode MuonTrackStatisticsAlg::initialize()
 StatusCode MuonTrackStatisticsAlg::execute()
 {
   
-  *m_log << MSG::DEBUG << "MuonTrackStatisticsAlg in execute() ..." << endreq;
+  *m_log << MSG::DEBUG << "MuonTrackStatisticsAlg in execute() ..." << endmsg;
 
   StatusCode sc = m_statisticsTool->updateTrackCounters();
   sc.ignore();
@@ -89,7 +89,7 @@ StatusCode MuonTrackStatisticsAlg::finalize()
 
 {
 
-  *m_log << MSG::INFO << std::endl << m_statisticsTool->printTrackCounters() << endreq;
+  *m_log << MSG::INFO << std::endl << m_statisticsTool->printTrackCounters() << endmsg;
 
 
   //write to file
@@ -121,14 +121,14 @@ MuonTrackStatisticsAlg::storeTruthTracks(void)
     std::string key = "TruthEvent";
     StatusCode sc = p_SGevent->retrieve(mcCollection,key);
     if (sc.isFailure()) {
-    *m_log << MSG::ERROR << "Could not find the McEventCollection" << endreq;
+    *m_log << MSG::ERROR << "Could not find the McEventCollection" << endmsg;
     return;
     }
 
     const TrackRecordCollection* recordCollection = 0;
     std::string recordKey = "MuonEntryLayer";
     if (!(p_SGevent->retrieve(recordCollection, recordKey))) {
-    *m_log << MSG::WARNING << "Could not find the TrackRecordCollection" << endreq;
+    *m_log << MSG::WARNING << "Could not find the TrackRecordCollection" << endmsg;
     }
 
     m_nkine = 0;

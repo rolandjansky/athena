@@ -680,7 +680,7 @@ StatusCode MuonPerformanceAlg::finalize()
   }
 
   msg(MSG::INFO) << std::endl;
-  msg(MSG::INFO) << endreq;
+  msg(MSG::INFO) << endmsg;
 
   return StatusCode::SUCCESS;
 }
