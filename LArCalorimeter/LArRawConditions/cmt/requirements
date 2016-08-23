@@ -14,10 +14,14 @@ use AthenaPoolUtilities AthenaPoolUtilities-*     Database/AthenaPOOL
 
 use LArIdentifier       LArIdentifier-*           LArCalorimeter
 use LArElecCalib        LArElecCalib-*            LArCalorimeter
-use LArTools            LArTools-*                LArCalorimeter
+use LArCabling          LArCabling-*              LArCalorimeter
 
 use Identifier          Identifier-*              DetectorDescription
 use CaloIdentifier      CaloIdentifier-*          Calorimeter
+
+private
+use LArTools            LArTools-*                LArCalorimeter
+end_private
 
 
 library LArRawConditions *.cxx

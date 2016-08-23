@@ -67,17 +67,17 @@ void LArConditionsVsCalib<T>::setPdata(CB_Id calibBoard, const T_vector & payloa
   unsigned N = LArConditionsVsCalibDB<T>::nChannelsBoard ;
   MsgStream log(Athena::getMessageSvc(), "LArConditionsVsCalib<>");
   if ( payload_v.size() != N ) {
-    log << MSG::WARNING << "Number of provided channels is " << payload_v.size() << " != " << N << endreq ;
+    log << MSG::WARNING << "Number of provided channels is " << payload_v.size() << " != " << N << endmsg ;
     return ;
   }
   typename LArConditionsVsCalib<T>::Const_CB_It it = LArConditionsVsCalibDB<T>::find( calibBoard ) ;
   if ( it == LArConditionsVsCalibDB<T>::end() ) {
-    log << MSG::DEBUG << "Inserting new calib board " << calibBoard << endreq ;
+    log << MSG::DEBUG << "Inserting new calib board " << calibBoard << endmsg ;
     LArConditionsVsCalibDB<T>::insert (calibBoard) ;
     it = LArConditionsVsCalibDB<T>::find( calibBoard ) ;
   }
   if ( it == LArConditionsVsCalibDB<T>::end() ) {
-    log << MSG::WARNING << "Could not find/allocate calib board " << calibBoard << endreq ;
+    log << MSG::WARNING << "Could not find/allocate calib board " << calibBoard << endmsg ;
     return ;
   } 
   typename CB_It::value_type& vec =
@@ -90,7 +90,7 @@ void LArConditionsVsCalib<T>::setPdata(const HWIdentifier& ChID, const T& payloa
   MsgStream log(Athena::getMessageSvc(), "LArConditionsVsCalib<>");
   HWIdentifier calibLine = getCalibLine(ChID) ;
   if ( calibLine == 0 ) {
-    log << MSG::WARNING << "Could not get calib line for channel " << ChID.getString() << endreq ;
+    log << MSG::WARNING << "Could not get calib line for channel " << ChID.getString() << endmsg ;
     return ;
   }
   CB_Id    calibBoard = m_onlineHelper->calib_module_Id( calibLine ).get_identifier32().get_compact() ;
@@ -98,13 +98,13 @@ void LArConditionsVsCalib<T>::setPdata(const HWIdentifier& ChID, const T& payloa
   typename LArConditionsVsCalib<T>::Const_CB_It it = LArConditionsVsCalibDB<T>::find( calibBoard ) ;
   if ( it == LArConditionsVsCalibDB<T>::end() ) {
     log << MSG::DEBUG << "Inserting new calib board " << calibBoard 
-	<< " for channel " << ChID.getString() << endreq ;
+	<< " for channel " << ChID.getString() << endmsg ;
     LArConditionsVsCalibDB<T>::insert (calibBoard) ;
     it = LArConditionsVsCalibDB<T>::find( calibBoard ) ;
   }
   if ( it == LArConditionsVsCalibDB<T>::end() ) {
     log << MSG::WARNING << "Could not find/allocate calib board " << calibBoard 
-	<< " for channel " << ChID.getString() << endreq ;
+	<< " for channel " << ChID.getString() << endmsg ;
     return ;
   }
   typename CB_It::value_type& vec =
@@ -115,23 +115,23 @@ void LArConditionsVsCalib<T>::setPdata(const HWIdentifier& ChID, const T& payloa
 template < class T >
 const T& LArConditionsVsCalib<T>::get(const HWIdentifier& ChID) const {
   MsgStream log(Athena::getMessageSvc(), "LArConditionsVsCalib<>");
-  log << MSG::VERBOSE << "... get(HWIdentifier): trying to get calib line HWId" << endreq ;
+  log << MSG::VERBOSE << "... get(HWIdentifier): trying to get calib line HWId" << endmsg ;
   HWIdentifier calibLine = getCalibLine(ChID) ;
   if ( calibLine == 0 ) {
-    log << MSG::WARNING << "Could not find calib line for channel " << ChID.getString() << endreq ;
+    log << MSG::WARNING << "Could not find calib line for channel " << ChID.getString() << endmsg ;
     return (empty()) ;
   }
-  log << MSG::VERBOSE << "... get(HWIdentifier): trying to get calib board HWId" << endreq ;
+  log << MSG::VERBOSE << "... get(HWIdentifier): trying to get calib board HWId" << endmsg ;
   CB_Id    calibBoard = m_onlineHelper->calib_module_Id( calibLine ).get_identifier32().get_compact() ;
-  log << MSG::VERBOSE << "... get(HWIdentifier): trying to get calib channel" << endreq ;
+  log << MSG::VERBOSE << "... get(HWIdentifier): trying to get calib channel" << endmsg ;
   unsigned channel    = m_onlineHelper->channel( calibLine ) ;
-  log << MSG::VERBOSE << "... get(HWIdentifier): trying to get calib board iterator" << endreq ;
+  log << MSG::VERBOSE << "... get(HWIdentifier): trying to get calib board iterator" << endmsg ;
   typename LArConditionsVsCalib<T>::Const_CB_It it = LArConditionsVsCalibDB<T>::find( calibBoard ) ;
   if ( it ==LArConditionsVsCalibDB<T>::end() ) {
-    log << MSG::WARNING << "Could not find calib board for channel " << ChID.getString() << endreq ;
+    log << MSG::WARNING << "Could not find calib board for channel " << ChID.getString() << endmsg ;
     return (empty()) ;
   } 
-  log << MSG::VERBOSE << "... get(HWIdentifier): success!" << endreq ;
+  log << MSG::VERBOSE << "... get(HWIdentifier): success!" << endmsg ;
   return ( (*it).second ) [channel] ;
 }
 

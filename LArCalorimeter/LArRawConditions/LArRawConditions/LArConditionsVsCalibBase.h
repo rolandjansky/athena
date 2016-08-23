@@ -11,7 +11,7 @@
 #include "GaudiKernel/IMessageSvc.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/IService.h"

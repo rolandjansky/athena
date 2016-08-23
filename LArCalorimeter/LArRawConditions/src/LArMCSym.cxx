@@ -11,7 +11,7 @@
 #include "GaudiKernel/StatusCode.h"
 #include "StoreGate/StoreGateSvc.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArID.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloIdManager.h"

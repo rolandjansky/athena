@@ -18,7 +18,7 @@
 // Services/helpers
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 
 // Gaudi/Athena
 #include "GaudiKernel/Bootstrap.h"
@@ -56,10 +56,10 @@ StatusCode
 LArConditionsContainerBase::initializeBase()
 {
     MsgStream log(Athena::getMessageSvc(), "LArConditionsContainerBase");
-    log << MSG::DEBUG << "initializeBase "<< endreq;
+    log << MSG::DEBUG << "initializeBase "<< endmsg;
 
     if (m_isInitialized) {
-	log << MSG::DEBUG << "already initialized - returning "<< endreq;
+	log << MSG::DEBUG << "already initialized - returning "<< endmsg;
 	return (StatusCode::SUCCESS);
     }
  
@@ -68,41 +68,41 @@ LArConditionsContainerBase::initializeBase()
     StoreGateSvc* detStore;
     StatusCode sc = svcLoc->service("DetectorStore",detStore);
     if (sc.isFailure()) {
-	log << MSG::ERROR << "Cannot get DetectorStore!" << endreq;
+	log << MSG::ERROR << "Cannot get DetectorStore!" << endmsg;
 	return sc;
     }
     sc = detStore->retrieve(m_onlineHelper,"LArOnlineID");
     if (sc.isFailure()) {
-	log << MSG::ERROR << "Cannot get LArOnlineID!" << endreq;
+	log << MSG::ERROR << "Cannot get LArOnlineID!" << endmsg;
 	return sc;
     }
     sc = detStore->retrieve(m_offlineHelper,"CaloCell_ID");
     if (sc.isFailure()) {
-	log << MSG::ERROR << "Cannot get CaloCell_ID!" << endreq;
+	log << MSG::ERROR << "Cannot get CaloCell_ID!" << endmsg;
 	return sc;
     }
     IToolSvc* toolSvc;
     sc = svcLoc->service( "ToolSvc",toolSvc  );
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Cannot get ToolSvc!" << endreq;
+      log << MSG::ERROR << "Cannot get ToolSvc!" << endmsg;
       return sc;
     }
     sc = toolSvc->retrieveTool("LArCablingService",m_larCablingSvc);
      if (sc.isFailure()) {
-      log << MSG::ERROR << "Cannot get LArCablingSvc!" << endreq;
+      log << MSG::ERROR << "Cannot get LArCablingSvc!" << endmsg;
       return sc;
     }
 
     // initialize the groupint
     sc = initGrouping();
     if (sc.isFailure()) {
-	log << MSG::ERROR << "Cannot initialize the Grouping" << endreq;
+	log << MSG::ERROR << "Cannot initialize the Grouping" << endmsg;
 	return sc;
     }
 
     // Set initialized to true
     m_isInitialized = true;
-    log << MSG::DEBUG << "end initializeBase " << endreq;
+    log << MSG::DEBUG << "end initializeBase " << endmsg;
 
     return (StatusCode::SUCCESS);
 }
@@ -139,8 +139,8 @@ LArConditionsContainerBase::setGroupingType(const std::string& groupingStr, MsgS
     return StatusCode::SUCCESS;
   }
 
-  logStr << MSG::ERROR << "Unknown COOL Channel Grouping. Allowed values are: \n" << endreq;
-  logStr << MSG::ERROR << "'Single','SubDetector', 'ExtendedSubDetector','FeedThrough','ExtendedFeedThrough'" << endreq;
+  logStr << MSG::ERROR << "Unknown COOL Channel Grouping. Allowed values are: \n" << endmsg;
+  logStr << MSG::ERROR << "'Single','SubDetector', 'ExtendedSubDetector','FeedThrough','ExtendedFeedThrough'" << endmsg;
   return StatusCode::FAILURE;
 }
 
@@ -149,18 +149,18 @@ StatusCode
 LArConditionsContainerBase::initGrouping()
 {
     MsgStream log(Athena::getMessageSvc(), "LArConditionsContainerBase");
-    log << MSG::DEBUG << "initGrouping "<< endreq;
+    log << MSG::DEBUG << "initGrouping "<< endmsg;
 
     // We allow for different groupings
 
     if (Unknown == m_groupType) {
-	log << MSG::ERROR << "Unknown grouping "<< endreq;
+	log << MSG::ERROR << "Unknown grouping "<< endmsg;
 
 	// Not yet known
     }
     if (SingleGroup == m_groupType) {
 
-	log << MSG::DEBUG << "Single group "<< endreq;
+	log << MSG::DEBUG << "Single group "<< endmsg;
 
 	// Only one group - add all feb ids to channel 0
 	std::vector<HWIdentifier>::const_iterator febIt  = m_onlineHelper->feb_begin();
@@ -178,7 +178,7 @@ LArConditionsContainerBase::initGrouping()
     }
     else if (SubDetectorGrouping == m_groupType) {
 
-	log << MSG::DEBUG << "Subdetector  grouping "<< endreq;
+	log << MSG::DEBUG << "Subdetector  grouping "<< endmsg;
 
 	// Set up LArCondFEBIdChanMap for four groups: EM barrel, EMEM, HEC, FCal 
 	std::vector<HWIdentifier>::const_iterator febIt  = m_onlineHelper->feb_begin();
@@ -208,7 +208,7 @@ LArConditionsContainerBase::initGrouping()
 			<< MSG::hex << (febId) << MSG::dec 
 			<< " isCalib " << m_onlineHelper->isCalibration(*febIt)
 			<< "  " << m_onlineHelper->show_to_string(*febIt)
-			<< endreq;
+			<< endmsg;
 	    }
 	}
 	// add for LArCondFEBIdChanMap
@@ -226,35 +226,35 @@ LArConditionsContainerBase::initGrouping()
 // 	    for (unsigned int i = 0; i < emBarrel.size(); ++i) {
 // 		if (!m_febIdChanMap.getChannel(emBarrel[i], gain, coolChannel)) {
 // 		    log << MSG::DEBUG << "Unable to get cool channel for em barrel - i = "
-// 			<< i << endreq;
+// 			<< i << endmsg;
 // 		    return (StatusCode::FAILURE);
 // 		}
 // 	    }
 // 	    for (unsigned int i = 0; i < emEndcap.size(); ++i) {
 // 		if (!m_febIdChanMap.getChannel(emEndcap[i], gain, coolChannel)) {
 // 		    log << MSG::DEBUG << "Unable to get cool channel for em endcap - i = "
-// 			<< i << endreq;
+// 			<< i << endmsg;
 // 		    return (StatusCode::FAILURE);
 // 		}
 // 	    }
 // 	    for (unsigned int i = 0; i < hec.size(); ++i) {
 // 		if (!m_febIdChanMap.getChannel(hec[i], gain, coolChannel)) {
 // 		    log << MSG::DEBUG << "Unable to get cool channel for hec - i = "
-// 			<< i << endreq;
+// 			<< i << endmsg;
 // 		    return (StatusCode::FAILURE);
 // 		}
 // 	    }
 // 	    for (unsigned int i = 0; i < fcal.size(); ++i) {
 // 		if (!m_febIdChanMap.getChannel(fcal[i], gain, coolChannel)) {
 // 		    log << MSG::DEBUG << "Unable to get cool channel for fcal - i = "
-// 			<< i << endreq;
+// 			<< i << endmsg;
 // 		    return (StatusCode::FAILURE);
 // 		}
 // 	    }
 //      }
     }
     else if (ExtendedSubDetGrouping == m_groupType) {
-      	log << MSG::DEBUG << "Extended Subdetector  grouping "<< endreq;
+      	log << MSG::DEBUG << "Extended Subdetector  grouping "<< endmsg;
 
 	// Set up LArCondFEBIdChanMap for four groups: EM barrel, EM barrel PS ,EMEC EMEC PS, HEC, FCal 
 	std::vector<HWIdentifier>::const_iterator febIt  = m_onlineHelper->feb_begin();
@@ -272,7 +272,7 @@ LArConditionsContainerBase::initGrouping()
             // Sanity check
             if(iside <0 || iside > 1) {
 	      log << MSG::ERROR << "Wrong side id: "<< iside <<" from: "  
-		  << MSG::hex << *febIt << MSG::dec << endreq;
+		  << MSG::hex << *febIt << MSG::dec << endmsg;
 	      return (StatusCode::FAILURE);
 	    }
             unsigned int febId = (*febIt).get_identifier32().get_compact();
@@ -299,7 +299,7 @@ LArConditionsContainerBase::initGrouping()
 		  << MSG::hex << (febId) << MSG::dec 
 		  << " isCalib " << m_onlineHelper->isCalibration(*febIt)
 		  << "  " << m_onlineHelper->show_to_string(*febIt)
-		  << endreq;
+		  << endmsg;
 	    }
 	}
 	// add for LArCondFEBIdChanMap
@@ -318,7 +318,7 @@ LArConditionsContainerBase::initGrouping()
 
     }
     else if (FeedThroughGrouping == m_groupType) {
-        log << MSG::DEBUG << "FeedThrough  grouping "<< endreq;
+        log << MSG::DEBUG << "FeedThrough  grouping "<< endmsg;
 
         // Set up LArCondFEBIdChanMap for four groups: EM barrel, EMEM, HEC, FCal
         std::vector<HWIdentifier>::const_iterator febIt  = m_onlineHelper->feb_begin();
@@ -342,7 +342,7 @@ LArConditionsContainerBase::initGrouping()
                 log << MSG::ERROR << "Feedthru hash > channel map size: id, hash, size "
                     << MSG::hex << febId << MSG::dec << " "
                     << ftid << " " << ft.size()
-                    << endreq;
+                    << endmsg;
                 return (StatusCode::FAILURE);
             }
         }
@@ -357,7 +357,7 @@ LArConditionsContainerBase::initGrouping()
     }
     else if (ExtendedFTGrouping == m_groupType) {
 
-	log << MSG::DEBUG << "Extended FeedThrough  grouping (PS goes seperatly, EMEC in HEC as well)"<< endreq;
+	log << MSG::DEBUG << "Extended FeedThrough  grouping (PS goes seperatly, EMEC in HEC as well)"<< endmsg;
 
 	// Set up LArCondFEBIdChanMap for four groups: EM barrel, EMEM, HEC, FCal 
 	std::vector<HWIdentifier>::const_iterator febIt  = m_onlineHelper->feb_begin();
@@ -385,7 +385,7 @@ LArConditionsContainerBase::initGrouping()
 	      log << MSG::ERROR << "Feedthru hash > channel map size: id, hash, size " 
 		  << MSG::hex << febId << MSG::dec << " "
 		  << ftid << " " << ft.size() 
-		  << endreq;
+		  << endmsg;
 	      return (StatusCode::FAILURE);
 	    }
 
@@ -441,7 +441,7 @@ LArConditionsContainerBase::initGrouping()
 	    m_febIdChanMap.addFEBIdVector(iCoolChannel++, ftSpecial[i]);
 	}
     } else {
-      log << MSG::ERROR << "Unknown COOL Channel grouping " << m_groupType << endreq;
+      log << MSG::ERROR << "Unknown COOL Channel grouping " << m_groupType << endmsg;
       return StatusCode::FAILURE;
     }
     // Resize the vector mapping the COOL channel to the
@@ -450,23 +450,23 @@ LArConditionsContainerBase::initGrouping()
 
     log << MSG::DEBUG << "Number of channels per gain " 
 	<< m_febIdChanMap.channelsPerGain()
-	<< endreq;
+	<< endmsg;
 
     log << MSG::DEBUG << "Mininum gain value          "
 	<< m_febIdChanMap.minGain() 
-	<< endreq;
+	<< endmsg;
     
     log << MSG::DEBUG << "Number of gain values       "
 	<< m_febIdChanMap.nGains()
-	<< endreq;
+	<< endmsg;
 
     log << MSG::DEBUG << "Number of offset channels   "
 	<< m_febIdChanMap.nOffsetChannels() 
-	<< endreq;
+	<< endmsg;
 
     log << MSG::DEBUG << "Total number of channels    "
 	<< m_febIdChanMap.totalChannels()
-	<< endreq;
+	<< endmsg;
 
     return (StatusCode::SUCCESS);
     
@@ -531,7 +531,7 @@ LArConditionsContainerBase::correctionIndexAndCoolChannel (HWIdentifier id,
     coolChannel = 0;
     // First get cool channel number
     if (!m_onlineHelper) {
-        log << MSG::ERROR << "correctionIndex> Could not get online id helper!" << endreq;
+        log << MSG::ERROR << "correctionIndex> Could not get online id helper!" << endmsg;
         return;
     }
 
@@ -564,7 +564,7 @@ LArConditionsContainerBase::correctionIndexAndCoolChannel (HWIdentifier id,
     if (!coolChannel) {
         log << MSG::ERROR << "correctionIndex> coolChannel not found! Online ids: " 
             << "  " << m_onlineHelper->show_to_string(id)
-            << endreq;
+            << endmsg;
         return;
     }
 
@@ -576,7 +576,7 @@ LArConditionsContainerBase::correctionIndexAndCoolChannel (HWIdentifier id,
     if (coolChannel >= m_channelToMultChanCollIndex.size()) {
         log << MSG::ERROR << "correctionIndex> coolChannel larger than lookup table: chan, size " 
             << coolChannel << " " << m_channelToMultChanCollIndex.size()
-            << endreq;
+            << endmsg;
     }
     else {
         index = m_channelToMultChanCollIndex[coolChannel];

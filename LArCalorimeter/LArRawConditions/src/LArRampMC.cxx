@@ -16,7 +16,7 @@ StatusCode LArRampMC::initialize()
 {
   if(m_larmcsym.retrieve().isFailure()){
       MsgStream log(Athena::getMessageSvc(), "LArRampMC");
-      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endreq; 
+      log << MSG::WARNING << "Could not retrieve LArMCSymTool " << endmsg; 
       return (StatusCode::FAILURE);
   }
 
