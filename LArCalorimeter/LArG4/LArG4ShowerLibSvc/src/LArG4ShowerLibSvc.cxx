@@ -10,12 +10,19 @@
 #include "PathResolver/PathResolver.h"
 
 #include "AthenaKernel/IAtRndmGenSvc.h"
+#include "AthenaKernel/Units.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "CLHEP/Random/RandGauss.h"
+
+
 
 #include <sstream>
 #include "TFile.h"
 #include "TTree.h"
+
+
+namespace Units = Athena::Units;
+
 
 LArG4ShowerLibSvc::LArG4ShowerLibSvc(const std::string& name,ISvcLocator* svc)
   : AthService(name,svc),
@@ -227,8 +234,8 @@ LArG4ShowerLibSvc::getShower(const G4FastTrack& track, int detectorTag)
   G4ThreeVector DirectionShower = track.GetPrimaryTrack()->GetMomentumDirection();
 
   // time of the track (as in LArBarrelCalculator.cc)
-  G4double tof = track.GetPrimaryTrack()->GetGlobalTime() / CLHEP::ns;
-  G4double time = tof - ( track.GetPrimaryTrack()->GetPosition().mag()/CLHEP::c_light ) / CLHEP::ns; 
+  G4double tof = track.GetPrimaryTrack()->GetGlobalTime() / Units::ns;
+  G4double time = tof - ( track.GetPrimaryTrack()->GetPosition().mag()/Units::c_light ) / Units::ns; 
 
   std::vector<EnergySpot>::iterator hit;
 
