@@ -78,12 +78,43 @@ namespace Muon {
     , m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
       //, m_trackingVolumesSvc("TrackingVolumesSvc/TrackingVolumesSvc",name) //rdh problems with Eigen migration!
     , m_idHelper(0)   
+    , m_measTypeIdHelper(0)
     , m_particleNumber(2)
     , m_particleHypothesis(Trk::muon)
-    , m_resetScatteringAngles(0)
     , m_tree(0)
+    , m_runNumber(0)
+    , m_evtNumber(0)
+    , m_nresiduals(0)
     , m_residuals(new double[100])
     , m_respulls(new double[100])
+    , m_nInnerLayersHit(0)
+    , m_nMiddleLayersHit(0)
+    , m_nOuterLayersHit(0)
+    , m_nOtherLayersHit(0)
+    , m_nTubeLayersHitInner(0)
+    , m_nTubeLayersHitMiddle(0)
+    , m_nTubeLayersHitOuter(0)
+    , m_nTubeLayersHitOther(0)
+    , m_nChambersHit(0)
+    , m_nLargeChambersHit(0)
+    , m_nSmallChambersHit(0)
+    , m_driftSignsInnerLayer(0)
+    , m_driftSignsMiddleLayer(0)
+    , m_driftSignsOuterLayer(0)
+    , m_driftSignsOtherLayer(0)
+    , m_nInnerLayerOutliers(0)
+    , m_nMiddleLayerOutliers(0)
+    , m_nOuterLayerOutliers(0)
+    , m_nOtherLayerOutliers(0)
+    , m_nInnerLayerHoles(0)
+    , m_nMiddleLayerHoles(0)
+    , m_nOuterLayerHoles(0)
+    , m_nOtherLayerHoles(0)
+    , m_trackNDoF(0)
+    , m_trackChi2(0)
+    , m_trackPt(0)
+    , m_trackEta(0)
+    , m_qOverP(0)
     , m_IDres(new double[100]), m_IDerr(new double[100])
     , m_IDscatPhiRes(new double[100]), m_IDscatPhiErr(new double[100])
     , m_IDscatThetaRes(new double[100]), m_IDscatThetaErr(new double[100])
@@ -97,6 +128,8 @@ namespace Muon {
     , m_nChambers(0)
     , m_chamberId(new int[50])
     , m_resIndex(new int[50])
+    , m_beePosX(0)
+    , m_beePosY(0)
     , m_nProcessed(0)
     , m_nPassHitRemoval(0)
     , m_nPassTGCHitRemoval(0)
@@ -144,14 +177,14 @@ namespace Muon {
 
     declareProperty("RefitTracks",                 m_refitTracks = false );    
     declareProperty("ParticleNumber",              m_particleNumber);
-    declareProperty("RunOutlierRemoval",           m_runOutlierRemoval);
+    //declareProperty("RunOutlierRemoval",           m_runOutlierRemoval);
 
     declareProperty("ResetScatteringAngles",       m_resetScatteringAngles = false);
     declareProperty("RemoveScattererTSOS",         m_removeScattererTSOS = false);
 
-    declareProperty("DeclusterTGCHits",            m_declusterTGCHits = true);
-    declareProperty("RedoErrorScaling",            m_redoErrorScaling = false);
-    declareProperty("RemovePerigeeBeforeRefit",    m_removePerigeeBeforeRefit = false);
+    //declareProperty("DeclusterTGCHits",            m_declusterTGCHits = true);
+    //declareProperty("RedoErrorScaling",            m_redoErrorScaling = false);
+    //declareProperty("RemovePerigeeBeforeRefit",    m_removePerigeeBeforeRefit = false);
     declareProperty("pTCorrectTrack",              m_pTCorrectTrack = false);
 
 
@@ -159,7 +192,7 @@ namespace Muon {
     declareProperty("ApplySelectionCuts",          m_applySelectionCuts = true);
     declareProperty("RequireInnerLayerEndcapMdt",  m_requireInnerLayerEndcapMdt = false);
     declareProperty("RequireOuterLayerEndcapMdt",  m_requireOuterLayerEndcapMdt = false);
-    declareProperty("CutOnBarrel",                 m_cutOnBarrel = false);
+    //declareProperty("CutOnBarrel",                 m_cutOnBarrel = false);
     declareProperty("RequireOneHitPerTubeLayerEC", m_requireOneHitPerTubeLayerEC = false);
     declareProperty("RequireSmallLargeOverlap",    m_requireSmallLargeOverlap = false);
     declareProperty("RequireSectorOverlap",        m_requireSectorOverlap = false);
@@ -422,9 +455,9 @@ namespace Muon {
     
     delete m_measTypeIdHelper;
 
-    delete m_msVolume;
-    delete m_calVolume;
-    delete m_indetVolume;
+    //delete m_msVolume;
+    //delete m_calVolume;
+    //delete m_indetVolume;
     
     return StatusCode::SUCCESS;
   }
@@ -474,7 +507,7 @@ namespace Muon {
     int itrack(0);
     for ( ;	it != it_end ; ++it,itrack++) {
 
-      ATH_MSG_DEBUG(endreq<<"track "<<itrack<<"/"<<tracks->size());
+      ATH_MSG_DEBUG("\ntrack "<<itrack<<"/"<<tracks->size());
 
       const Trk::Track* origTrack=*it;    
       const Trk::Track* track=0;
@@ -514,8 +547,8 @@ namespace Muon {
       m_nProcessed++;
       
       ATH_MSG_DEBUG("before removing hits: ");
-      ATH_MSG_DEBUG(m_printer->print(*origTrack)<<endreq<<
-		    m_printer->printStations(*origTrack)<<endreq<<
+      ATH_MSG_DEBUG(m_printer->print(*origTrack)<<"\n"<<
+		    m_printer->printStations(*origTrack)<<"\n"<<
 		    m_printer->printMeasurements(*origTrack));
 		    
       /*      
@@ -540,8 +573,8 @@ namespace Muon {
       // refit track
       const Trk::Track* oldTrack=track;
       ATH_MSG_DEBUG("before calling refitForAlignment: ");
-      ATH_MSG_DEBUG(m_printer->print(*oldTrack)<<endreq<<
-		    m_printer->printStations(*oldTrack)<<endreq<<
+      ATH_MSG_DEBUG(m_printer->print(*oldTrack)<<"\n"<<
+		    m_printer->printStations(*oldTrack)<<"\n"<<
 		    m_printer->printMeasurements(*oldTrack));
 
       ATH_MSG_DEBUG("calling refitForAlignment");
@@ -662,8 +695,8 @@ namespace Muon {
       }
       
       ATH_MSG_DEBUG("after refit and passing final selection: ");
-      ATH_MSG_DEBUG(m_printer->print(*alignTrack)<<endreq<<
-		    m_printer->printStations(*alignTrack)<<endreq<<
+      ATH_MSG_DEBUG(m_printer->print(*alignTrack)<<"\n"<<
+		    m_printer->printStations(*alignTrack)<<"\n"<<
 		    m_printer->printMeasurements(*alignTrack));
 
 
@@ -1372,8 +1405,8 @@ namespace Muon {
     //}
 
     ATH_MSG_DEBUG("created newTrack:");
-    ATH_MSG_DEBUG(m_printer->print(*newTrack)<<endreq<<
-		  m_printer->printStations(*newTrack)<<endreq);//<<
+    ATH_MSG_DEBUG(m_printer->print(*newTrack)<<"\n"<<
+		  m_printer->printStations(*newTrack)<<"\n");//<<
 
     return newTrack;    
   }
@@ -1513,7 +1546,7 @@ namespace Muon {
     DataVector<const Trk::TrackStateOnSurface>::const_iterator iTsos=TSOS->begin(); 
     for (; iTsos!=TSOS->end(); ++iTsos,itsos++) {
       
-      ATH_MSG_VERBOSE(endreq<<"TSOS: "<<itsos<<endreq<<**iTsos);
+      ATH_MSG_VERBOSE("\nTSOS: "<<itsos<<"\n"<<**iTsos);
       
       if (!(*iTsos)->type(Trk::TrackStateOnSurface::Scatterer) &&
 	  !(*iTsos)->type(Trk::TrackStateOnSurface::InertMaterial)) continue;
@@ -1542,8 +1575,8 @@ namespace Muon {
 
       const Trk::MaterialEffectsBase* meb = (**iTsos).materialEffectsOnTrack();
       if (!meb) { ATH_MSG_DEBUG("no meb"); continue; }
-      ATH_MSG_DEBUG("Surface: "<<endreq<<meb->associatedSurface());
-      ATH_MSG_DEBUG("Surface ID: "<<endreq<<meb->associatedSurface().associatedDetectorElementIdentifier());
+      ATH_MSG_DEBUG("Surface: \n" << meb->associatedSurface());
+      ATH_MSG_DEBUG("Surface ID:\n" << meb->associatedSurface().associatedDetectorElementIdentifier());
       
       const Trk::TrkDetElementBase* detelement=meb->associatedSurface().associatedDetectorElement();
       if (!detelement) { ATH_MSG_DEBUG("no detelement"); continue; }
@@ -1973,7 +2006,7 @@ namespace Muon {
 	 itTsos!=track->trackStateOnSurfaces()->end(); ++itTsos,itsos++) {
       
       // scattering residual(s) and/or energy loss first
-      ATH_MSG_DEBUG(endreq<<"tsos: "<<itsos);
+      ATH_MSG_DEBUG("\ntsos: "<<itsos);
       
       const Trk::TrackStateOnSurface*    tsos       = *itTsos;
       const Trk::TrackParameters *       tparp      = tsos->trackParameters();

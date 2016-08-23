@@ -79,7 +79,6 @@ namespace Muon {
     , m_ntuple(0)
     , m_tree(0)
     , m_max_nchambers(10)
-    , m_nshifts(-1)
     , m_totaltrks(0)
     , m_totalhits(0)
     , m_max_hits(100)
@@ -93,10 +92,10 @@ namespace Muon {
     declareProperty("AlignModuleTool",        m_alignModuleTool);
     declareProperty("ResidualPullCalculator", m_pullCalculator);
     declareProperty("MuonIdHelperTool",            m_muonIdHelperTool);
-    declareProperty("MuonContainer",          m_muonContainer="");
+    //declareProperty("MuonContainer",          m_muonContainer="");
     declareProperty("SegmentCollectionName",    m_segmentcollName="MooreSegments");
-    declareProperty("BigNtuple",              m_bigNtuple=false);
-
+    //declareProperty("BigNtuple",              m_bigNtuple=false);
+    /*
     m_csc_eta_hit_residual= new double[m_csc_nMaxHits];
     m_csc_phi_hit_residual= new double[m_csc_nMaxHits];  
     m_csc_eta_hit_error= new double[m_csc_nMaxHits]; 
@@ -105,7 +104,7 @@ namespace Muon {
     m_csc_phi_hit_layer=new int[m_csc_nMaxHits];
     m_csc_eta_hit_sector=new int[m_csc_nMaxHits]; 
     m_csc_phi_hit_sector=new int[m_csc_nMaxHits];
-
+    */
 
     //  declareProperty("TrackSummaryTool",m_trackSumTool,
     //	  "tool to extract track info");
@@ -235,7 +234,7 @@ namespace Muon {
   MuonFillNtupleTool::~MuonFillNtupleTool()
   { 
     ATH_MSG_DEBUG("in destructor of MuonFillNtupleTool");
-
+    /*
     delete [] m_csc_eta_hit_residual;
     delete [] m_csc_phi_hit_residual;
     delete [] m_csc_eta_hit_error;
@@ -244,7 +243,7 @@ namespace Muon {
     delete []  m_csc_phi_hit_layer;
     delete []  m_csc_eta_hit_sector;
     delete []  m_csc_phi_hit_sector;
-
+    */
     delete [] m_chi2VAlignParamQuality;
 
     delete [] m_hit_statname;
@@ -411,14 +410,14 @@ namespace Muon {
       ATH_MSG_FATAL("Could not get " << m_pullCalculator);
       return StatusCode::FAILURE;
     }
-  
+    /*
     if (m_helperTool.retrieve().isSuccess())
       ATH_MSG_INFO("Retrieved " << m_helperTool);
     else{
       ATH_MSG_FATAL("Could not get " << m_helperTool); 
       return StatusCode::FAILURE;
     }
-  
+    */
     if (m_idTool.retrieve().isSuccess())
       ATH_MSG_INFO("Retrieved " << m_idTool);
     else{
@@ -1617,7 +1616,7 @@ namespace Muon {
 	    muon = *part;
 	  }
 	  else{
-	    ATH_MSG_DEBUG("More than one generated muon found."  << endreq 
+	    ATH_MSG_DEBUG("More than one generated muon found."  << endmsg 
 			  << "Generated truth info will not be filled.");
 	    muon = 0;
 	    break;
@@ -1647,7 +1646,7 @@ namespace Muon {
 			     (*trackRecord)->GetEnergy());
 	m_truth_pt_msentrance = vec.perp();
       }else{
-	ATH_MSG_DEBUG("More than one entry in trackRecordCollection found."<< endreq 
+	ATH_MSG_DEBUG("More than one entry in trackRecordCollection found."<< endmsg 
 		      << "Truth info at MS entrance will not be filled.");
       }
     }

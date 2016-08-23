@@ -81,7 +81,7 @@ TgcGeometryManagerTool::~TgcGeometryManagerTool()
 //_______________________________________________________________________
 StatusCode TgcGeometryManagerTool::initialize() 
 {
-  msg(MSG::DEBUG) << "initialize() of TgcGeometryManagerTool" << endreq;  
+  msg(MSG::DEBUG) << "initialize() of TgcGeometryManagerTool" << endmsg;  
 
   if (!CommonGeometryManagerTool::initialize().isSuccess()) {
     ATH_MSG_FATAL("CommonGeometryManagerTool not initialized");
@@ -94,7 +94,7 @@ StatusCode TgcGeometryManagerTool::initialize()
 //________________________________________________________________________
 StatusCode TgcGeometryManagerTool::finalize() 
 {  
-  msg(MSG::DEBUG) << "finalize() of TgcGeometryManagerTool" << endreq;
+  msg(MSG::DEBUG) << "finalize() of TgcGeometryManagerTool" << endmsg;
   
   if (!CommonGeometryManagerTool::finalize().isSuccess()) {
     ATH_MSG_FATAL("CommonGeometryManagerTool finalize not successful");
@@ -572,7 +572,7 @@ void TgcGeometryManagerTool::buildL23()
             Amg::Transform3D gf2af=mdtTransform.inverse();
             mod->setGlobalFrameToAlignFrameTransform(gf2af);
             
-            ATH_MSG_DEBUG("setting globalFrameToAlignFrame: "<<endreq
+            ATH_MSG_DEBUG("setting globalFrameToAlignFrame: "<<endmsg
                           <<     gf2af[0][0]<<" "<< gf2af[0][1]<<" "<< gf2af[0][2]
                           <<" "<<gf2af[1][0]<<" "<< gf2af[1][1]<<" "<< gf2af[1][2]
                           <<" "<<gf2af[2][0]<<" "<< gf2af[2][1]<<" "<< gf2af[2][2]<<" ");

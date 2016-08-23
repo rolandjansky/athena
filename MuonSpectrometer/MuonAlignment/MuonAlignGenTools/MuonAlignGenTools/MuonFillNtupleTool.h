@@ -82,7 +82,7 @@ namespace Muon {
 
     // ToolHandle<Muon::MuonTrackHistTool>   m_trackHistTool; //!< Pointer to MuonTrackHistTool
     ToolHandle<Trk::IResidualPullCalculator> m_pullCalculator; //!< Pointer to pull calculator
-    ToolHandle<Muon::MuonEDMHelperTool>   m_helperTool; //!< Pointer to EDM helper tool
+    //ToolHandle<Muon::MuonEDMHelperTool>   m_helperTool; //!< Pointer to EDM helper tool
     ToolHandle<MuonCalib::IIdToFixedIdTool> m_idTool;   //!< Pointer to IdToFixedIdTool
     ToolHandle<Trk::IAlignModuleTool> m_alignModuleTool; //!< Pointer to AlignModuleTool
 
@@ -103,99 +103,99 @@ namespace Muon {
     TTree* m_tree;
 
     // Reconstructed variables
-    int      m_runNumber;
-    int      m_evtNumber;
+    //int      m_runNumber;
+    //int      m_evtNumber;
     
-    int      m_nMuonOutliers;
-    int      m_nTgcOutliers;
+    //int      m_nMuonOutliers;
+    //int      m_nTgcOutliers;
 
     /** number of associated precision hits [MDT+CSC] (etah in ntuple)  */
-    int m_etah;
+    //int m_etah;
     /** number of trigger chamber hits measuring phi (phih in ntuple)  */
-    int m_phih;
+    //int m_phih;
     /** number of associated MDT hits [including tube hits] (mdth in ntuple)  */
-    int m_mdth;
+    //int m_mdth;
     /** number of associated CSC eta hits [precision coordinate] (cscetah in ntuple)  */
-    int m_cscetah;
+    //int m_cscetah;
     /** number of associated CSC phi hits [second coordinate] (cscphih in ntuple)  */
-    int m_cscphih;
+    //int m_cscphih;
     /** number of associated RPC eta hits [precision coordinate] (rpcetah in ntuple)  */
-    int m_rpcetah;
+    //int m_rpcetah;
     /** number of associated RPC phi hits [second coordinate] (rpcphih in ntuple)  */
-    int m_rpcphih;
+    //int m_rpcphih;
     /** number of associated TGC eta hits [precision coordinate] (tgcetah in ntuple)  */
-    int m_tgcetah;
+    //int m_tgcetah;
     /** number of associated TGC phi hits [second coordinate] (tgcphih in ntuple)  */
-    int m_tgcphih;
+    //int m_tgcphih;
     /** number of associated stations (stati in ntuple)  */
-    int m_stati;
+    //int m_stati;
     /** track fit status:  1=road, 2=merged_road, 3=road_wire, 4=road_time, 5=final_wire, 6=final_time, 7=final_track (star in ntuple)  */
-    int m_statr;
+    //int m_statr;
 
     /** x coord of track perigee (xvtxr in ntuple)  */
-    double m_xvtxr;
+    //double m_xvtxr;
     /** y coord of track perigee (yvtxr in ntuple)  */
-    double m_yvtxr;
+    //double m_yvtxr;
     /** z coord of track perigee (zvtxr in ntuple)  */
-    double m_zvtxr;
+    //double m_zvtxr;
     /** a0 perigee parameter of reconstructed track (a0r in ntuple)  */
-    double m_a0r;
+    //double m_a0r;
     /** z0 perigee parameter of reconstructed track (z0r in ntuple)  */
-    double m_z0r;
+    //double m_z0r;
     /** phi perigee parameter of reconstructed track (phir in ntuple)  */
-    double m_phir;
+    //double m_phir;
     /** cot(theta) perigee parameter of reconstructed track (cotthr in ntuple)  */
-    double m_cotthr;
+    //double m_cotthr;
     /** charge/pt perigee parameter of reconstructed track (ptir in ntuple)  */
-    double m_ptir;
+    //double m_ptir;
     /** eta of perigee of reconstructed track (etar in ntuple)  */
-    double m_etar;
+    //double m_etar;
     /** Chi2 per degree of freedom of the track fit (chi2 in ntuple)  */
-    double m_chi2;
+    //double m_chi2;
     /** Chi2 probability of the track fit (chi2pr in ntuple)  */
-    double m_chi2pr;
+    //double m_chi2pr;
     /** x coord of vertex w.r.t which track perigee parameters are given (origx in ntuple)  */
-    double m_vertexx;
+    //double m_vertexx;
     /** y coord of vertex w.r.t which track perigee parameters are given (origy in ntuple)  */
-    double m_vertexy;
+    //double m_vertexy;
     /** z coord of vertex w.r.t which track perigee parameters are given (origz in ntuple)  */
-    double m_vertexz;
+    //double m_vertexz;
 
     /** covariance matrix element [a0,a0] (covr11 in ntuple)  */
-    double m_covr11;
+    //double m_covr11;
     /** covariance matrix element [a0,z0] (covr12 in ntuple)  */
-    double m_covr12;
+    //double m_covr12;
     /** covariance matrix element [z0,z0] (covr22 in ntuple)  */
-    double m_covr22;
+    //double m_covr22;
     /** covariance matrix element [a0,phi] (covr13 in ntuple)  */
-    double m_covr13;
+    //double m_covr13;
     /** covariance matrix element [z0,phi] (covr23 in ntuple)  */
-    double m_covr23;
+    //double m_covr23;
     /** covariance matrix element [phi,phi] (covr33 in ntuple)  */
-    double m_covr33;
+    //double m_covr33;
     /** covariance matrix element [a0,cot(theta)] (covr14 in ntuple)  */
-    double m_covr14;
+    //double m_covr14;
     /** covariance matrix element [z0,cot(theta)] (covr24 in ntuple)  */
-    double m_covr24;
+    //double m_covr24;
     /** covariance matrix element [phi,cot(theta)] (covr34 in ntuple)  */
-    double m_covr34;
+    //double m_covr34;
     /** covariance matrix element [cot(theta),cot(theta)] (covr44 in ntuple)  */
-    double m_covr44;
+    //double m_covr44;
     /** covariance matrix element [a0,q/pt] (covr15 in ntuple)  */
-    double m_covr15;
+    //double m_covr15;
     /** covariance matrix element [z0,q/pt] (covr25 in ntuple)  */
-    double m_covr25;
+    //double m_covr25;
     /** covariance matrix element [phi,q/pt] (covr35 in ntuple)  */
-    double m_covr35;
+    //double m_covr35;
     /** covariance matrix element [cot(theta),q/pt] (covr45 in ntuple)  */
-    double m_covr45;
+    //double m_covr45;
     /** covariance matrix element [q/pt,q/pt] (covr55 in ntuple)  */
-    double m_covr55;
+    //double m_covr55;
   
    /** HIT INFORMATION */
 
     /** number of hits on track [including scattering centers] (nhits in ntuple) */
-    int m_nhits;
+    //int m_nhits;
 
     /** hit station name index [see MuonIdHelper] (statname in ntuple) */
     int*  m_hit_statname;
@@ -309,8 +309,8 @@ namespace Muon {
     */
 
     const int m_max_nchambers;
-    int       m_nchambers;
-    int       m_nshifts;
+    //int       m_nchambers;
+    //int       m_nshifts;
     long long int* m_chamberid;
     long long int* m_chamberstatname;
     double*   m_transx;
@@ -378,9 +378,9 @@ namespace Muon {
     /** TRUTH INFORMATION (only filled in case of single muon MC) */ 
     
     /** generated pt of the truth muon */
-    double m_truth_pt_gen;
+    //double m_truth_pt_gen;
     /** pt of the truth muon at the muon spectrometer entrance */
-    double m_truth_pt_msentrance;
+    //double m_truth_pt_msentrance;
 
     int m_totaltrks;
     int m_totalhits;
@@ -390,6 +390,7 @@ namespace Muon {
     StoreGateSvc* m_storeGate;
 
     double* m_chi2VAlignParamQuality; 
+    /*
     double m_trackChi2;       //!> track chi2
     double m_trackChi2Dof;    //!> track chi2 per degree of freedom
     double m_idTrackChi2;     //!> inner detector track chi2
@@ -411,9 +412,9 @@ namespace Muon {
     int    m_nMdtHits;        //!> number MDT hits
     int    m_nRpcPhiHits;     //!> number RPC phi hits
     int    m_nTgcPhiHits;     //!> number TGC phi hits
-
+    */
     //These are CSC specific variables
-
+    /*
     int  m_csc_nphihits;
     int  m_csc_netahits; 
     double m_csc_phi_avg_residual;
@@ -430,11 +431,11 @@ namespace Muon {
     int *m_csc_phi_hit_sector;
 
     double m_muon_track_sagitta;
+    */
 
-
-    std::string m_muonContainer;   //!> name of muon container
+    //std::string m_muonContainer;   //!> name of muon container
     
-    bool m_bigNtuple;         //!> make ntuple with all branches
+    //bool m_bigNtuple;         //!> make ntuple with all branches
   }; // end class
   
 } // end namespace

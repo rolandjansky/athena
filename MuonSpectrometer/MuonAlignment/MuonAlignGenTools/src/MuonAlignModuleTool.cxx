@@ -54,7 +54,7 @@ namespace Muon {
   //_______________________________________________________________________
   StatusCode MuonAlignModuleTool::initialize() 
   {
-    msg(MSG::DEBUG) << "initialize() of MuonAlignModuleTool" << endreq;  
+    msg(MSG::DEBUG) << "initialize() of MuonAlignModuleTool" << endmsg;  
   
     StatusCode sc = AlignModuleTool::initialize();
     if (sc.isFailure()) {
@@ -64,10 +64,10 @@ namespace Muon {
 
     sc=detStore()->retrieve(p_muonMgr);
     if (sc.isFailure()) {
-      msg(MSG::FATAL)<<"Cannot retrieve MuonDetectorManager"<<endreq;
+      msg(MSG::FATAL)<<"Cannot retrieve MuonDetectorManager"<<endmsg;
       return sc;
     }
-    else msg(MSG::DEBUG)<<"retrieved MuonDetectorManager"<<endreq;
+    else msg(MSG::DEBUG)<<"retrieved MuonDetectorManager"<<endmsg;
     
     return StatusCode::SUCCESS;
   }

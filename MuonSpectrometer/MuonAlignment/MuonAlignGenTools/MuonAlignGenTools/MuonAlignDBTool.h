@@ -137,7 +137,7 @@ namespace Muon {
     
     //Trk::AlignParList* m_detElementAlignPar;
 
-    bool m_storeL3Params;
+    //bool m_storeL3Params;
 
     // lookup tables to help go from ASZT to AlignPar and AlignModule
     mutable std::vector<Identifier>*                    m_detElemLookup_identifier;

@@ -118,28 +118,28 @@ namespace Muon {
     ToolHandle<Muon::MuonEDMPrinterTool>  m_printer;
 
     //ServiceHandle<ITrackingVolumesSvc> m_trackingVolumesSvc;
-    const Trk::Volume*                 m_msVolume;
-    const Trk::Volume*                 m_calVolume;
-    const Trk::Volume*                 m_indetVolume;
+    //const Trk::Volume*                 m_msVolume;
+    //const Trk::Volume*                 m_calVolume;
+    //const Trk::Volume*                 m_indetVolume;
 
     const AtlasDetectorID*   m_idHelper;
     Trk::MeasurementTypeID* m_measTypeIdHelper;
 
     bool m_refitTracks;                      //!> refit tracks with new fitter
-    bool m_runOutlierRemoval;                //!> run outlier removal in track refit
+    //bool m_runOutlierRemoval;                //!> run outlier removal in track refit
     int  m_particleNumber;
     Trk::ParticleHypothesis m_particleHypothesis; //!> particle hypothesis in track refit
 
     bool m_resetScatteringAngles;   //!> reset scattering angles before refit
     bool m_removeScattererTSOS;     //!> remove TSOS of type Scatterer
 
-    bool m_redoErrorScaling;        //!> uses recalibrateHitsOnTrack method of MuonSegmentTrackBuilder, which redoes ROT creation with error scaling (if ROT creator configured with error scaling)
+    //bool m_redoErrorScaling;        //!> uses recalibrateHitsOnTrack method of MuonSegmentTrackBuilder, which redoes ROT creation with error scaling (if ROT creator configured with error scaling)
 
-    bool m_removePerigeeBeforeRefit; //!> remove perigee from track before refit
+    //bool m_removePerigeeBeforeRefit; //!> remove perigee from track before refit
     bool m_pTCorrectTrack;           //!> correct pT for first TSOS on track
 
-    bool m_declusterTGCHits;        //!> break up TGC Competing RIOsOnTrack into RIO_OnTrack
-    bool m_cutOnBarrel;             //!> remove tracks that have barrel hits
+    //bool m_declusterTGCHits;        //!> break up TGC Competing RIOsOnTrack into RIO_OnTrack
+    //bool m_cutOnBarrel;             //!> remove tracks that have barrel hits
 
     bool m_applyStandardSelectionCuts;  //!> apply standard selection cuts
     bool m_applySelectionCuts;          //!> apply selection cuts
@@ -203,7 +203,7 @@ namespace Muon {
     double  m_trackPt;               
     double  m_trackEta;
     double  m_qOverP;
-    double  m_trackSagitta;
+    //double  m_trackSagitta;
     // residuals
 
     int     m_nIDres;

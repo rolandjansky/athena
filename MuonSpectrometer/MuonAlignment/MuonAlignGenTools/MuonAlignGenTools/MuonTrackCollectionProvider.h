@@ -72,8 +72,8 @@ namespace Muon {
 
     std::string m_inputIDTrackCol; //!< Name of input ID Trk::Track collection
  
-    int m_nRetrievalErrors;    //!< number of retrieval errors at the beginning of the job
-    int m_maxRetrievalErrors;  //!< maximum allowed number of retrieval errors at the beginning of the job (-1 for infinite)
+    //int m_nRetrievalErrors;    //!< number of retrieval errors at the beginning of the job
+    //int m_maxRetrievalErrors;  //!< maximum allowed number of retrieval errors at the beginning of the job (-1 for infinite)
     
     bool m_useStandaloneTracks; //!< flag to return standalone track (returns combined if false)
 

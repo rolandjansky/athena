@@ -947,8 +947,8 @@ namespace Muon {
 	  
 	  double qOverP=m_charge/(m_momentum*1000.);
 	  ATH_MSG_DEBUG("before calling prepareTrack: ");
-	  ATH_MSG_DEBUG(m_printer->print(*bestTrack)<<endreq<<
-			m_printer->printStations(*bestTrack)<<endreq<<
+	  ATH_MSG_DEBUG(m_printer->print(*bestTrack)<<endmsg<<
+			m_printer->printStations(*bestTrack)<<endmsg<<
 			m_printer->printMeasurements(*bestTrack));
 
 	  const Trk::Track* goodTrack=prepareTrack(*bestTrack,qOverP);
@@ -2161,7 +2161,7 @@ namespace Muon {
 
     /*
     ATH_MSG_VERBOSE(trackType<<" track, isFree: "
-		    <<segSurface.isFree()<<", segSurface: "<<endreq<<segSurface);
+		    <<segSurface.isFree()<<", segSurface: "<<endmsg<<segSurface);
   
     //ATH_MSG_DEBUG(trackType<< " track, normal cross normal: "<<segSurface.normal().cross(detSurf.normal()).mag());
     //ATH_MSG_DEBUG(trackType<<" track, angle: "
@@ -2296,8 +2296,8 @@ namespace Muon {
     
     //ATH_MSG_DEBUG("before redoing CROTs: ");
     ATH_MSG_DEBUG("before recalibrating hits: ");
-    ATH_MSG_DEBUG(m_printer->print(*newTrack)<<endreq<<
-		  m_printer->printStations(*newTrack)<<endreq<<
+    ATH_MSG_DEBUG(m_printer->print(*newTrack)<<endmsg<<
+		  m_printer->printStations(*newTrack)<<endmsg<<
 		  m_printer->printMeasurements(*newTrack));
   
     const Trk::Track* oldTrack=newTrack;
@@ -2312,8 +2312,8 @@ namespace Muon {
     
     //ATH_MSG_DEBUG("after redoing CROTs: ");
     ATH_MSG_DEBUG("after recalibrating hits: ");
-    ATH_MSG_DEBUG(m_printer->print(*newTrack)<<endreq<<
-		  m_printer->printStations(*newTrack)<<endreq<<
+    ATH_MSG_DEBUG(m_printer->print(*newTrack)<<endmsg<<
+		  m_printer->printStations(*newTrack)<<endmsg<<
 		  m_printer->printMeasurements(*newTrack));
     
     if (refitPT) {
@@ -2970,8 +2970,8 @@ namespace Muon {
       const Trk::Track* track=*trackIt;
 
       ATH_MSG_DEBUG("in findBestTrack: track "<<itrack<<"/"<<tracks->size());      
-      ATH_MSG_DEBUG(m_printer->print(*track)<<endreq<<
-		    m_printer->printStations(*track)<<endreq<<
+      ATH_MSG_DEBUG(m_printer->print(*track)<<endmsg<<
+		    m_printer->printStations(*track)<<endmsg<<
 		    m_printer->printMeasurements(*track));
       
       //double muonEta=track->perigeeParameters()->eta();
