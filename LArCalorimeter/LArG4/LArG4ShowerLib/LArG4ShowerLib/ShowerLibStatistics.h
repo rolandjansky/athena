@@ -19,15 +19,16 @@ namespace ShowerLib {
 
 class ShowerLibStatistics {
 public:
-	ShowerLibStatistics(const std::map<int,std::string> bincaptions, const std::map<int,int> binsizes);
+	ShowerLibStatistics(const std::map<int,std::string>& bincaptions,
+                            const std::map<int,int>& binsizes);
 	void recordShowerLibUse(int binkey);
 	const std::string statistics();
 private:
 
-	int counter;
-	std::map<int,int> calls;
-	std::map<int,std::string> binstrings;
-	std::map<int,int> binsizes;
+	int m_counter;
+	std::map<int,int> m_calls;
+	std::map<int,std::string> m_binstrings;
+	std::map<int,int> m_binsizes;
 
 };
 

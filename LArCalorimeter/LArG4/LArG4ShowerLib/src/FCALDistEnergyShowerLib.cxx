@@ -204,9 +204,9 @@ namespace ShowerLib {
 
 	  //std::cout << "Extracted particle parameters: " << eta << std::endl;
 
-	  library::const_iterator libit = libData.upper_bound(dist);
+	  library::const_iterator libit = m_libData.upper_bound(dist);
 
-	  if (libit == libData.begin()) {
+	  if (libit == m_libData.begin()) {
 		  //this is really weird
 		  std::cout << "Something is wrong with dist: x=" << x << " y=" << y << " dist=" << dist << std::endl;
 	  } else {
@@ -298,9 +298,9 @@ namespace ShowerLib {
 		  return 0;
 	  }
 
-	  library::const_iterator libit = libData.upper_bound(dist);
+	  library::const_iterator libit = m_libData.upper_bound(dist);
 
-	  if (libit == libData.begin()) {
+	  if (libit == m_libData.begin()) {
 		  //this is really weird
 		  std::cout << "Something is wrong with dist: x=" << x << " y=" << y << " dist=" << dist << std::endl;
 	  } else {
@@ -379,9 +379,9 @@ namespace ShowerLib {
 		  return 0;
 	  }
 
-	  library::const_iterator libit = libData.upper_bound(dist);
+	  library::const_iterator libit = m_libData.upper_bound(dist);
 
-	  if (libit == libData.begin()) {
+	  if (libit == m_libData.begin()) {
 		  //this is really weird
 		  std::cout << "Something is wrong with dist: x=" << x << " y=" << y << " dist=" << dist << std::endl;
 	  } else {
@@ -455,8 +455,8 @@ namespace ShowerLib {
 		  return false;
 	  }
 
-	  library::iterator libit = libData.upper_bound(dist);
-	  if (libit == libData.begin()) {
+	  library::iterator libit = m_libData.upper_bound(dist);
+	  if (libit == m_libData.begin()) {
 		  //this is really weird
 		  std::cout << "Something is wrong with dist: x=" << x << " y=" << y << " dist=" << dist << std::endl;
 	  } else {
@@ -468,7 +468,7 @@ namespace ShowerLib {
 
   bool FCALDistEnergyShowerLib::writeToROOT(TFile* dest)
   {
-	  if (libData.empty()) return false;
+	  if (m_libData.empty()) return false;
 	  TParameter<int> ver("version",LIB_VERSION);
 
       dest->WriteObject(&ver,"version");
@@ -523,7 +523,7 @@ namespace ShowerLib {
 		  source->GetEntry(entr++); //x - nshowers, y - min dist in the current dist bin
 		  int nsh = (int)(x+0.1); // +0.1 just in case - c++ has low round
 		  float curDist = y;
-		  distbin * curbin = &(libData[curDist]); //creating a new dist bin
+		  distbin * curbin = &(m_libData[curDist]); //creating a new dist bin
 		  for(int i = 0; i < nsh; i++) {
 			  //read shower header
 			  source->GetEntry(entr++); //x - nhits, y - r size, z - z size, e - gen energy
@@ -579,7 +579,7 @@ namespace ShowerLib {
 	  dest->Fill();
 	  
 	  library::const_iterator libit;
-	  for (libit = libData.begin(); libit != libData.end(); libit ++) {
+	  for (libit = m_libData.begin(); libit != m_libData.end(); libit ++) {
 		  x = (*libit).second.size();
 		  y = (*libit).first;
 		  z = 0;
@@ -622,7 +622,7 @@ namespace ShowerLib {
 	  std::vector<float>::const_iterator iter;
 
 	  for (iter = structure.begin(); iter != structure.end(); iter++) {
-		  libData[(*iter)];
+		  m_libData[(*iter)];
 	  }
 
 	  return true;
@@ -632,13 +632,13 @@ namespace ShowerLib {
   {
 	  std::map<int, std::string> names;
 	  std::map<int, int> sizes;
-	  for(library::const_iterator it = libData.begin(); it != libData.end(); ++it) {
+	  for(library::const_iterator it = m_libData.begin(); it != m_libData.end(); ++it) {
 	    sizes[calcKey(it->first)]=it->second.size();
 	    float distlow = it->first;
 	    float disthigh;
 	    library::const_iterator it_copy = it;
 	    ++it_copy;
-	    if (it_copy == libData.end()) {
+	    if (it_copy == m_libData.end()) {
 	      disthigh = 4.5;
 	    } else {
 	      disthigh = it_copy->first;
