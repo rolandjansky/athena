@@ -21,7 +21,7 @@ namespace MuonCalib {
   StatusCode DCSLFitterTool::initialize()
   {
     MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "initialize     " << endreq;
+    log << MSG::INFO << "initialize     " << endmsg;
 
     // create an instance of DCSLFitter
     m_implementation = new DCSLFitter();
@@ -32,7 +32,7 @@ namespace MuonCalib {
   StatusCode DCSLFitterTool::finalize()
   {
     MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "finalize     " << endreq;
+    log << MSG::INFO << "finalize     " << endmsg;
 
     // delete instance
     delete m_implementation;

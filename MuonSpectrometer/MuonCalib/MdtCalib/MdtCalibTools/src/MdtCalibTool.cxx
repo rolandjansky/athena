@@ -48,27 +48,27 @@ namespace MuonCalib {
 
     StatusCode sc = m_mdtCalibTool.retrieve();
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not find tool " << m_mdtCalibTool << endreq;
+      log << MSG::FATAL << "Could not find tool " << m_mdtCalibTool << endmsg;
       return sc;
     } else {
-      log << MSG::INFO << "Retrieved" << m_mdtCalibTool << endreq;
+      log << MSG::INFO << "Retrieved" << m_mdtCalibTool << endmsg;
     }
   
     sc = m_segmentSelectorTool.retrieve();
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not find tool " << m_segmentSelectorTool << endreq;
+      log << MSG::FATAL << "Could not find tool " << m_segmentSelectorTool << endmsg;
       return sc;
     } else {
-      log << MSG::INFO << "Retrieved" << m_segmentSelectorTool << endreq;
+      log << MSG::INFO << "Retrieved" << m_segmentSelectorTool << endmsg;
     }
     m_segmentSelector = m_segmentSelectorTool->getImp();
 
     sc = m_regionSelector.retrieve();
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not find tool " << m_regionSelector << endreq;
+      log << MSG::FATAL << "Could not find tool " << m_regionSelector << endmsg;
       return sc;
     } else {
-      log << MSG::INFO << "Retrieved" << m_regionSelector << endreq;
+      log << MSG::INFO << "Retrieved" << m_regionSelector << endmsg;
     }
 
 
@@ -76,7 +76,7 @@ namespace MuonCalib {
     StoreGateSvc* detStore = 0;
     sc = service("DetectorStore", detStore);
     if (sc.isFailure())   {
-      log << MSG::ERROR << "Can't locate the DetectorStore" << endreq; 
+      log << MSG::ERROR << "Can't locate the DetectorStore" << endmsg; 
       return sc;
     }
 
@@ -84,7 +84,7 @@ namespace MuonCalib {
     // initialize MuonGeoModel access
     sc = detStore->retrieve( detMgr );
     if (!sc.isSuccess()) {
-      log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endreq;
+      log << MSG::ERROR << "Can't retrieve MuonDetectorManager" << endmsg;
       return sc;
     }
    
@@ -93,7 +93,7 @@ namespace MuonCalib {
       m_mdtIdHelper = detMgr->mdtIdHelper();
     }  
   
-    log << MSG::INFO << "Initialization ended     " << endreq;
+    log << MSG::INFO << "Initialization ended     " << endmsg;
     return StatusCode::SUCCESS;
   
   }
@@ -102,7 +102,7 @@ namespace MuonCalib {
   StatusCode MdtCalibTool::finalize()
   {
     MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "finalize " << endreq;
+    log << MSG::INFO << "finalize " << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -113,7 +113,7 @@ namespace MuonCalib {
     bool segment_found;
     bool segment_rejected;
     MsgStream log(msgSvc(), name());
-    log << MSG::DEBUG << "handleEvent(events) with patSize " << event->numberOfPatterns() << endreq;
+    log << MSG::DEBUG << "handleEvent(events) with patSize " << event->numberOfPatterns() << endmsg;
 
     // loop over patterns
     MuonCalibEvent::MCPVecCit pat_it     = event->patternBegin();
@@ -121,7 +121,7 @@ namespace MuonCalib {
     for( ;pat_it!=pat_it_end; ++pat_it ){
       // loop over segments in pattern
 
-      log << MSG::DEBUG << "New pattern with segments " << (*pat_it)->muonSegments() << endreq;
+      log << MSG::DEBUG << "New pattern with segments " << (*pat_it)->muonSegments() << endmsg;
 
       MuonCalibPattern::MuonSegCit seg_it     = (*pat_it)->muonSegBegin();
       MuonCalibPattern::MuonSegCit seg_it_end = (*pat_it)->muonSegEnd();
@@ -129,7 +129,7 @@ namespace MuonCalib {
         MuonCalibSegment* seg = *seg_it;
 	// protect against null pointer
 	if ( seg == 0 ) {
-	  log << MSG::WARNING  << "Got Segment NULL pointer" << endreq;
+	  log << MSG::WARNING  << "Got Segment NULL pointer" << endmsg;
 	  continue;
 	}
 	// Only process segments with MDT hits
@@ -205,13 +205,13 @@ namespace MuonCalib {
     MsgStream log(msgSvc(), name());
 
     // loop over all regions
-    log << MSG::INFO << "Performing loop over regions: " << m_segmentsPerRegion.size() << endreq;
+    log << MSG::INFO << "Performing loop over regions: " << m_segmentsPerRegion.size() << endmsg;
 
     RegionEventMap::iterator it     = m_segmentsPerRegion.begin();
     RegionEventMap::iterator it_end = m_segmentsPerRegion.end();
     for( ; it!=it_end; ++it ){
       log << MSG::DEBUG << "Performing analysis for region " 
-	  << endreq;
+	  << endmsg;
  
       // create new calibration instance
       IMdtCalibration* calibImp = m_mdtCalibTool->getImp( it->first );
@@ -229,7 +229,7 @@ namespace MuonCalib {
       m_mdtCalibTool->writeToDb( result, it->first );
     }
 
-    log << MSG::INFO << "End of calibration started     " << endreq;
+    log << MSG::INFO << "End of calibration started     " << endmsg;
     return true;
   }
 
@@ -241,7 +241,7 @@ namespace MuonCalib {
     IRegionSelectorTool::RegionVec rvec = m_regionSelector->splitIntoRegions( seg );  
 
     log << MSG::VERBOSE << "RegionSelector produced " << rvec.size() 
-	<< " subregions for segment " << endreq;
+	<< " subregions for segment " << endmsg;
   
     // loop over different region 
     IRegionSelectorTool::RegionVec::iterator it = rvec.begin();
@@ -254,7 +254,7 @@ namespace MuonCalib {
       IRegionSelectorTool::RegionKey key = it->second;
 
       if( !m_segmentSelector->select(*sseg) ){
-	log << MSG::VERBOSE << " ssegment rejected by selector " << endreq;
+	log << MSG::VERBOSE << " ssegment rejected by selector " << endmsg;
 	// return; this prevents the second ML from being accepted!
         continue;
       }
@@ -262,7 +262,7 @@ namespace MuonCalib {
       // check if region should be calibrated
       if( m_regionSelector->useRegion( key ) ){
   
-	log << MSG::VERBOSE << "handleMuonSegment with region key " << key << endreq;
+	log << MSG::VERBOSE << "handleMuonSegment with region key " << key << endmsg;
 	
 	// pointer to current event loop
 	MdtCalibEventLoop* loop = getEventLoopForRegion( key );
@@ -279,7 +279,7 @@ namespace MuonCalib {
   IRegionSelectorTool::RegionKey MdtCalibTool::keyFromIdentifier( const IRegionSelectorTool::id_type& id ) const
   {
     MsgStream log(msgSvc(), name());
-    log << MSG::VERBOSE << " keyFromIdentifier " << endreq;
+    log << MSG::VERBOSE << " keyFromIdentifier " << endmsg;
 
     return m_regionSelector->getRegionKey(id);
   }
