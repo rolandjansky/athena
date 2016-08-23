@@ -33,27 +33,27 @@ StatusCode ExtrapolateMuonToIP::initialize()
 {
   
   if( AthAlgorithm::initialize().isFailure() ){
-    msg(MSG::ERROR) << "AthAlgorithm::ExtrapolateMuonToIP::initialize(), failed" << endreq;
+    msg(MSG::ERROR) << "AthAlgorithm::ExtrapolateMuonToIP::initialize(), failed" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "ExtrapolateMuonToIP::initialize()" << endreq;
+  msg(MSG::INFO) << "ExtrapolateMuonToIP::initialize()" << endmsg;
 
   if(!m_backExtrapolator.empty()){
     if(m_backExtrapolator.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve tool " << m_backExtrapolator << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve tool " << m_backExtrapolator << endmsg;
       return StatusCode::FAILURE;
     }else{
-      msg(MSG::DEBUG) << "Retrieved tool " << m_backExtrapolator << endreq;
+      msg(MSG::DEBUG) << "Retrieved tool " << m_backExtrapolator << endmsg;
     }
   }
 
   if( !m_printer.empty() ){
     if(m_printer.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve tool " << m_printer << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve tool " << m_printer << endmsg;
       return StatusCode::FAILURE;
     }else{
-      msg(MSG::DEBUG) << "Retrieved tool " << m_printer << endreq;
+      msg(MSG::DEBUG) << "Retrieved tool " << m_printer << endmsg;
     }  
   }
 
@@ -65,19 +65,19 @@ StatusCode ExtrapolateMuonToIP::execute()
 {
   // retrieve muon tracks
   const TrackCollection* muonTracks = 0;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Retrieving "<<m_muonTrackLocation<<endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Retrieving "<<m_muonTrackLocation<<endmsg;
   StatusCode sc = evtStore()->retrieve(muonTracks, m_muonTrackLocation);
   if (sc.isFailure()){
-    msg(MSG::INFO) << "Track collection named " << m_muonTrackLocation << " not found." << endreq;
+    msg(MSG::INFO) << "Track collection named " << m_muonTrackLocation << " not found." << endmsg;
     return StatusCode::SUCCESS;
   }else{ 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon Tracks found at " << m_muonTrackLocation << " size " << muonTracks->size() << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon Tracks found at " << m_muonTrackLocation << " size " << muonTracks->size() << endmsg; 
   }
 
   // use tool to perform back extrapolation
   TrackCollection* extrapolateTracks = m_backExtrapolator->extrapolate(*muonTracks);
   if( !extrapolateTracks) {
-    msg(MSG::WARNING) << "BackExtrapolator returned zero pointer, creating empty collection " << endreq;
+    msg(MSG::WARNING) << "BackExtrapolator returned zero pointer, creating empty collection " << endmsg;
     extrapolateTracks = new TrackCollection();
   }
 
@@ -99,10 +99,10 @@ if (evtStore()->contains<TrackCollection>(m_extrapolateMuonTrackLocation))
 
   sc = evtStore()->record(extrapolateTracks, m_extrapolateMuonTrackLocation);
   if (sc.isFailure()){
-    msg(MSG::WARNING) <<"Could not record Track collection named " << m_extrapolateMuonTrackLocation << endreq;
+    msg(MSG::WARNING) <<"Could not record Track collection named " << m_extrapolateMuonTrackLocation << endmsg;
     return StatusCode::SUCCESS;
   }else{ 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolated muons tracks recoreded at " << m_extrapolateMuonTrackLocation << " size " << extrapolateTracks->size() << endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolated muons tracks recoreded at " << m_extrapolateMuonTrackLocation << " size " << extrapolateTracks->size() << endmsg; 
   }
 
   // now create track particles
@@ -115,11 +115,11 @@ if (evtStore()->contains<TrackCollection>(m_extrapolateMuonTrackLocation))
 StatusCode ExtrapolateMuonToIP::finalize() 
 {
   if( AthAlgorithm::finalize().isFailure() ){
-    msg(MSG::ERROR) << "AthAlgorithm::ExtrapolateMuonToIP::finalize(), failed" << endreq;
+    msg(MSG::ERROR) << "AthAlgorithm::ExtrapolateMuonToIP::finalize(), failed" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "ExtrapolateMuonToIP::finalize()" << endreq;
+  msg(MSG::INFO) << "ExtrapolateMuonToIP::finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
