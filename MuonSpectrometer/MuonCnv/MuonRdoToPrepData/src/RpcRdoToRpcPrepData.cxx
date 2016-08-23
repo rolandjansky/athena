@@ -36,10 +36,10 @@ StatusCode RpcRdoToRpcPrepData::initialize(){
     
   // verify that our tool handle is pointing to an accessible tool
   if ( m_tool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve " << m_tool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve " << m_tool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved " << m_tool << endreq;
+    msg(MSG::INFO) << "Retrieved " << m_tool << endmsg;
   }
     
     return StatusCode::SUCCESS;
@@ -68,7 +68,7 @@ StatusCode RpcRdoToRpcPrepData::execute() {
     status = m_tool->decode(myVector, myVectorWithData);
     if (status.isFailure()) {
       msg(MSG::ERROR) << "Unable to decode RPC RDO into RPC PrepRawData" 
-		      << endreq;
+		      << endmsg;
         return status;
     }
 
@@ -79,7 +79,7 @@ StatusCode RpcRdoToRpcPrepData::execute() {
 //     status = m_tool->decode(myVector, myVectorWithData);
 //     if (status.isFailure()) {
 //        msg(MSG::ERROR) << "Unable to decode RPC RDO into RPC PrepRawData" 
-//             << endreq;
+//             << endmsg;
 //         return status;
 //     }
 //     if (m_print_prepData) m_tool->printPrepData();//printRpcPrepRawData();
