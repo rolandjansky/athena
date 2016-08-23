@@ -46,14 +46,14 @@ MuPatTrackBuilder::~MuPatTrackBuilder()
 StatusCode MuPatTrackBuilder::initialize()
 {
   if (m_trackMaker.retrieve().isFailure()){
-    msg(MSG::FATAL) <<"Could not get " << m_trackMaker <<endreq; 
+    msg(MSG::FATAL) <<"Could not get " << m_trackMaker <<endmsg; 
     return StatusCode::FAILURE;
   }
   if (m_helper.retrieve().isFailure()){
-    msg(MSG::FATAL) <<"Could not get " << m_helper <<endreq; 
+    msg(MSG::FATAL) <<"Could not get " << m_helper <<endmsg; 
     return StatusCode::FAILURE;
   }
-  if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved " << m_trackMaker << endreq;
+  if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved " << m_trackMaker << endmsg;
 
 /*  if (!m_convTool.empty()) {
     if (m_convTool.retrieve().isFailure()){
@@ -82,16 +82,16 @@ StatusCode MuPatTrackBuilder::execute()
 
   const DataHandle<Trk::SegmentCollection> segCol;
   if (evtStore()->retrieve(segCol,m_segmentLocation).isFailure() ) {
-    msg(MSG::WARNING) << "Could not find MuonSegmentCollection at " << m_segmentLocation <<endreq;
+    msg(MSG::WARNING) << "Could not find MuonSegmentCollection at " << m_segmentLocation <<endmsg;
     return StatusCode::RECOVERABLE;
   }
     
   if( !segCol ) {
-    msg(MSG::WARNING) << "Obtained zero pointer for MuonSegmentCollection at " << m_segmentLocation <<endreq;
+    msg(MSG::WARNING) << "Obtained zero pointer for MuonSegmentCollection at " << m_segmentLocation <<endmsg;
     return StatusCode::RECOVERABLE;
   }
       
-  if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved MuonSegmentCollection "  << segCol->size() << endreq;
+  if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Retrieved MuonSegmentCollection "  << segCol->size() << endmsg;
 
   MuonSegmentCollection msc;
   msc.reserve(segCol->size());
@@ -103,7 +103,7 @@ StatusCode MuPatTrackBuilder::execute()
 
   if (msc.size() != segCol->size()){
     msg(MSG::WARNING) << "Input segment collection (size " << segCol->size() << ") and translated MuonSegment collection (size "
-                      << msc.size() << ") are not the same size." << endreq;
+                      << msc.size() << ") are not the same size." << endmsg;
   }
 
   TrackCollection * newtracks = m_trackMaker->find(msc);
@@ -114,11 +114,11 @@ StatusCode MuPatTrackBuilder::execute()
     // Record the track collection for a track builder reporting params only in MS
     //
     if (evtStore()->record(newtracks,m_spectroTrackLocation,false).isFailure()){
-      msg(MSG::WARNING) << "New Track Container " << m_spectroTrackLocation << " could not be recorded in StoreGate !" << endreq;
+      msg(MSG::WARNING) << "New Track Container " << m_spectroTrackLocation << " could not be recorded in StoreGate !" << endmsg;
       delete newtracks;
       return StatusCode::RECOVERABLE;
     }
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "TrackCollection '" << m_spectroTrackLocation << "' recorded in storegate, ntracks: " << newtracks->size() << endreq;
+    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "TrackCollection '" << m_spectroTrackLocation << "' recorded in storegate, ntracks: " << newtracks->size() << endmsg;
 
     // how about particle making here???
 
@@ -126,7 +126,7 @@ StatusCode MuPatTrackBuilder::execute()
 
     // Record two track collections, with and without extrapolated parameters
     if (evtStore()->record(newtracks,m_spectroTrackLocation,false).isFailure()){
-      msg(MSG::WARNING) << "New Track Container " << m_spectroTrackLocation << " could not be recorded in StoreGate !" << endreq;
+      msg(MSG::WARNING) << "New Track Container " << m_spectroTrackLocation << " could not be recorded in StoreGate !" << endmsg;
       delete newtracks;
       return StatusCode::RECOVERABLE;
     }
@@ -159,11 +159,11 @@ StatusCode MuPatTrackBuilder::execute()
       }
     }
     if (evtStore()->record(BkTk_TrackCollection,m_extrapTrackLocation,false).isFailure()){
-      msg(MSG::WARNING) << "New Track Container " << m_extrapTrackLocation << " could not be recorded in StoreGate !" << endreq;
+      msg(MSG::WARNING) << "New Track Container " << m_extrapTrackLocation << " could not be recorded in StoreGate !" << endmsg;
       delete BkTk_TrackCollection;
       return StatusCode::RECOVERABLE;
     }
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "TrackCollection '" << m_extrapTrackLocation << "' recorded in storegate, ntracks: " << BkTk_TrackCollection->size() << endreq;
+    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "TrackCollection '" << m_extrapTrackLocation << "' recorded in storegate, ntracks: " << BkTk_TrackCollection->size() << endmsg;
 
     // Make track particles out of that and re-record
     if (!m_convTool.empty()) {

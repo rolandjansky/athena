@@ -28,10 +28,10 @@ MuonCombiTrackBuilder::~MuonCombiTrackBuilder()
 StatusCode MuonCombiTrackBuilder::initialize()
 {
   if (m_trackMaker.retrieve().isFailure()){
-    msg(MSG::FATAL) <<"Could not get " << m_trackMaker <<endreq; 
+    msg(MSG::FATAL) <<"Could not get " << m_trackMaker <<endmsg; 
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << "Retrieved " << m_trackMaker << endreq;
+  msg(MSG::INFO) << "Retrieved " << m_trackMaker << endmsg;
 
   return StatusCode::SUCCESS; 
 }
@@ -41,16 +41,16 @@ StatusCode MuonCombiTrackBuilder::execute()
   
   const DataHandle<MuonSegmentCombinationCollection> combiCol;
   if (evtStore()->retrieve(combiCol,m_segmentCombiLocation).isFailure() ) {
-    msg(MSG::WARNING) << " Could not find MuonSegmentCombinationCollection at " << m_segmentCombiLocation <<endreq;
+    msg(MSG::WARNING) << " Could not find MuonSegmentCombinationCollection at " << m_segmentCombiLocation <<endmsg;
     return StatusCode::RECOVERABLE;
   }
     
   if( !combiCol ) {
-    msg(MSG::WARNING) << " Obtained zero pointer for MuonSegmentCombinationCollection at " << m_segmentCombiLocation <<endreq;
+    msg(MSG::WARNING) << " Obtained zero pointer for MuonSegmentCombinationCollection at " << m_segmentCombiLocation <<endmsg;
     return StatusCode::RECOVERABLE;
   }
       
-  if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " Retrieved MuonSegmentCombinationCollection "  << combiCol->size() << endreq;
+  if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << " Retrieved MuonSegmentCombinationCollection "  << combiCol->size() << endmsg;
  
   TrackCollection* newtracks = m_trackMaker->find(*combiCol);
  
@@ -58,11 +58,11 @@ StatusCode MuonCombiTrackBuilder::execute()
   if( !newtracks ) newtracks = new TrackCollection();
 
   if (evtStore()->record(newtracks,m_trackLocation,false).isFailure()){
-    msg(MSG::WARNING) << "New Track Container could not be recorded in StoreGate !" << endreq;
+    msg(MSG::WARNING) << "New Track Container could not be recorded in StoreGate !" << endmsg;
     delete newtracks;
     return StatusCode::RECOVERABLE;
   }
-  if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Track Container '" << m_trackLocation << "' recorded in storegate, ntracks: " << newtracks->size() << endreq;
+  if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << "Track Container '" << m_trackLocation << "' recorded in storegate, ntracks: " << newtracks->size() << endmsg;
 
   return StatusCode::SUCCESS;
 } // execute
