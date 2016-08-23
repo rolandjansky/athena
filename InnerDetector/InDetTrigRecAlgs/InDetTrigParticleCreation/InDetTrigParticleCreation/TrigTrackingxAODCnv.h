@@ -124,6 +124,7 @@ namespace InDet
     std::vector<float>          m_dqm_ibl_z;         //IBL coordinate along z 
     std::vector<float>          m_dqm_ibl_res_x;
     std::vector<float>          m_dqm_ibl_res_y;
+    std::vector<float>          m_dqm_ibl_hit_expected_found;
 
   };
 
