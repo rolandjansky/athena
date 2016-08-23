@@ -234,7 +234,7 @@ void  RegionSelectionSvc :: print_list_of_selected_chambers() const
 		{
 		msg(MSG::INFO) <<" "<<it->regionId();
 		}
-	msg(MSG::INFO) << endreq;
+	msg(MSG::INFO) << endmsg;
 	}
 	
 
