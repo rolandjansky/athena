@@ -213,7 +213,7 @@ namespace Muon {
         if( currentPars->covariance() ) msg(MSG::VERBOSE) << " err " << Amg::error(*currentPars->covariance(),Trk::locX) << " " << Amg::error(*currentPars->covariance(),Trk::locY);
         msg(MSG::VERBOSE) << " destination: sector " << it->sector << "  " << MuonStationIndex::regionName(it->regionIndex)
                           << "  " << MuonStationIndex::layerName(it->layerIndex) 
-                          << " phi  " << surface.center().phi() << " r " << surface.center().perp() << " z " << surface.center().z() << endreq;
+                          << " phi  " << surface.center().phi() << " r " << surface.center().perp() << " z " << surface.center().z() << endmsg;
       }
       const Trk::TrackParameters* exPars = m_extrapolator->extrapolate(*currentPars,surface,Trk::alongMomentum,false,Trk::muon);
       if( !exPars ){
