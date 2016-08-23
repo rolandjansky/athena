@@ -92,7 +92,7 @@ TrackCollection* ExtrapolateMuonToIPTool::extrapolate(const TrackCollection& muo
   TrackCollection* extrapolateTracks = new TrackCollection();
   extrapolateTracks->reserve(muonTracks.size());
 
-  if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << " Extrapolated tracks: " << muonTracks.size() << endreq; 
+  if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << " Extrapolated tracks: " << muonTracks.size() << endmsg; 
 
   // loop over muon tracks and extrapolate them to the IP
   TrackCollection::const_iterator tit = muonTracks.begin();
@@ -101,11 +101,11 @@ TrackCollection* ExtrapolateMuonToIPTool::extrapolate(const TrackCollection& muo
     
     Trk::Track* extrapolateTrack = extrapolate(**tit);
     if( !extrapolateTrack ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<MSG::DEBUG <<"Extrapolation of muon to IP failed" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<MSG::DEBUG <<"Extrapolation of muon to IP failed" << endmsg;
       continue;
     }    
 
-    if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << " Extrapolated track " << m_printer->print(*extrapolateTrack) << endreq; 
+    if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << " Extrapolated track " << m_printer->print(*extrapolateTrack) << endmsg; 
 
     extrapolateTracks->push_back(extrapolateTrack);
   }
@@ -120,10 +120,10 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
   auto particleType = trackInfo.trackProperties(Trk::TrackInfo::StraightTrack) ? Trk::nonInteracting : Trk::muon; 
   const Trk::TrackParameters* closestPars = findMeasuredParametersClosestToIP(track);
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " extrapolating track " << m_printer->print(track) << " type " << particleType << std::endl
-                                          << m_printer->printStations(track) << endreq;
+                                          << m_printer->printStations(track) << endmsg;
 	
   if( !closestPars ){
-    msg(MSG::WARNING) <<MSG::WARNING <<"Failed to find closest parameters " <<endreq;       
+    msg(MSG::WARNING) <<MSG::WARNING <<"Failed to find closest parameters " <<endmsg;       
     ++m_failedClosestPars;
     return 0;
   }
@@ -133,10 +133,10 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
     const Trk::Perigee* perigee = track.perigeeParameters();
 	
     if( !perigee ){
-      msg(MSG::WARNING) << "Muon Track without perigee, skipping " << endreq;       
+      msg(MSG::WARNING) << "Muon Track without perigee, skipping " << endmsg;       
     }else{
-      msg(MSG::DEBUG) << " closest parameters " << m_printer->print(*closestPars) << endreq
-                      << " perigee            " << m_printer->print(*perigee) << endreq;
+      msg(MSG::DEBUG) << " closest parameters " << m_printer->print(*closestPars) << endmsg
+                      << " perigee            " << m_printer->print(*perigee) << endmsg;
     }
   }
 	 
@@ -145,8 +145,8 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
 	 
   if (msgLvl(MSG::DEBUG)) {
     msg(MSG::DEBUG) << " scalar product " << dirPosProduct << "  extrapolating ";
-    if( propDir == Trk::alongMomentum ) msg(MSG::DEBUG) << " along momentum" << endreq;
-    else                                msg(MSG::DEBUG) << " opposite momentum" << endreq;
+    if( propDir == Trk::alongMomentum ) msg(MSG::DEBUG) << " along momentum" << endmsg;
+    else                                msg(MSG::DEBUG) << " opposite momentum" << endmsg;
   }
   Trk::PerigeeSurface perigeeSurface(Amg::Vector3D(0.,0.,0.));
   // extrapolate back to IP
@@ -158,8 +158,8 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
     ipPars = m_extrapolator->extrapolate(*closestPars,perigeeSurface,propDir,false,particleType);
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << " retrying opposite momentum extrapolating ";
-      if( propDir == Trk::alongMomentum ) msg(MSG::DEBUG) << " along momentum" << endreq;
-      else                                msg(MSG::DEBUG) << " opposite momentum" << endreq;
+      if( propDir == Trk::alongMomentum ) msg(MSG::DEBUG) << " along momentum" << endmsg;
+      else                                msg(MSG::DEBUG) << " opposite momentum" << endmsg;
     }
     if( !ipPars){
       if( closestPars->momentum().mag() > 5000. ) ++m_failedExtrapolationLowMom;
@@ -177,7 +177,7 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
   }
 	
   if( !ipPerigee ){
-    msg(MSG::WARNING) <<"Failed to create perigee for extrapolate track, skipping " <<endreq;       
+    msg(MSG::WARNING) <<"Failed to create perigee for extrapolate track, skipping " <<endmsg;       
     ++m_failedPerigeeCreation;
     return 0;
   }
@@ -224,7 +224,7 @@ Trk::Track* ExtrapolateMuonToIPTool::extrapolate(const Trk::Track& track) const 
     trackStateOnSurfaces->push_back( new Trk::TrackStateOnSurface(0,ipPerigee,0,0,typePattern) );
   }
   if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " creating new track " << endreq;
+    msg(MSG::DEBUG) << " creating new track " << endmsg;
   }
 	
   Trk::TrackInfo info(track.info().trackFitter(),track.info().particleHypothesis());
@@ -270,7 +270,7 @@ const Trk::TrackParameters* ExtrapolateMuonToIPTool::findMeasuredParametersClose
   if( closestParsMeas ) {
     return closestParsMeas;
   }else{
-    msg(MSG::DEBUG) << " No measured closest parameters found, using none measured parameters" << endreq;
+    msg(MSG::DEBUG) << " No measured closest parameters found, using none measured parameters" << endmsg;
   }
   return closestPars;
 }
