@@ -48,7 +48,7 @@ StatusCode MuonTrackTagTestTool::initialize() {
 
   StatusCode sc=m_extrapolator.retrieve(); 
   if (sc==StatusCode::FAILURE){
-    msg(MSG::FATAL) << "Could not retrieve extrapolator tool" << endreq;
+    msg(MSG::FATAL) << "Could not retrieve extrapolator tool" << endmsg;
     return sc;
 
   }
@@ -56,13 +56,13 @@ StatusCode MuonTrackTagTestTool::initialize() {
   if(!m_trackingGeometrySvc.empty()){
     sc = m_trackingGeometrySvc.retrieve();
     if( sc.isFailure() ){
-      msg(MSG::ERROR) << " failed to retrieve geometry Svc " << m_trackingGeometrySvc << endreq;
+      msg(MSG::ERROR) << " failed to retrieve geometry Svc " << m_trackingGeometrySvc << endmsg;
       return StatusCode::FAILURE;
     }
-    msg(MSG::INFO) << "  geometry Svc " << m_trackingGeometrySvc << " retrieved " << endreq;
+    msg(MSG::INFO) << "  geometry Svc " << m_trackingGeometrySvc << " retrieved " << endmsg;
   }
  
-  msg(MSG::INFO) << "Initialized successfully" << endreq;
+  msg(MSG::INFO) << "Initialized successfully" << endmsg;
   
   return StatusCode::SUCCESS;
 }
@@ -70,7 +70,7 @@ StatusCode MuonTrackTagTestTool::initialize() {
 
 StatusCode MuonTrackTagTestTool::finalize() {
   
-  msg(MSG::INFO) << "Finalized successfully" << endreq;
+  msg(MSG::INFO) << "Finalized successfully" << endmsg;
   
   
   return StatusCode::SUCCESS;
@@ -82,14 +82,14 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
   if (!m_msEntrance) {
     m_trackingGeometry = m_trackingGeometrySvc->trackingGeometry();
     if (m_trackingGeometry) m_msEntrance = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
-    if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endreq;
+    if (!m_msEntrance) msg(MSG::ERROR) << "MS entrance not available" << endmsg;
   }
   if(idTrack.perigeeParameters()==0) {
-    msg(MSG::WARNING) << "Skipping track combination - no perigee parameters for ID track" << endreq;
+    msg(MSG::WARNING) << "Skipping track combination - no perigee parameters for ID track" << endmsg;
     return 1e15;
   }
   if(msTrack.perigeeParameters()==0) {
-    msg(MSG::WARNING) << "Skipping track combination - no perigee parameters for MS track" << endreq;
+    msg(MSG::WARNING) << "Skipping track combination - no perigee parameters for MS track" << endmsg;
     return 1e5;
   }
   // skip tracks from backtracking
@@ -109,7 +109,7 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
   }
   //std::cout << "noutl: " << noutl << std::endl;
   double eta=idTrack.perigeeParameters()->eta();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ntrt: " << ntrt << " ntrtoutl: " << noutl << " eta: " << eta << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ntrt: " << ntrt << " ntrtoutl: " << noutl << " eta: " << eta << endmsg;
   if (noutl>=15 || (ntrt==0 && std::abs(eta)>.1 && std::abs(eta)<1.9)) return 0;
 
   // skip tracks below 2.5 GeV
@@ -128,8 +128,8 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
 
   double phiID=(**idTrack.trackParameters()->rbegin()).parameters()[Trk::phi],     phiMS=muonpar->position().phi();
   double thetaID=(**idTrack.trackParameters()->rbegin()).parameters()[Trk::theta], thetaMS=muonpar->parameters()[Trk::theta];
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "phi ID: " << phiID << " phi MS: " << phiMS << " diff: " << phiID-phiMS << " pt ID: " << idTrack.perigeeParameters()->pT() << " pt ms: " << muonpar->pT() << endreq;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "theta ID: " << thetaID << " theta MS: " << thetaMS << " diff: " << thetaID-thetaMS << endreq; 
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "phi ID: " << phiID << " phi MS: " << phiMS << " diff: " << phiID-phiMS << " pt ID: " << idTrack.perigeeParameters()->pT() << " pt ms: " << muonpar->pT() << endmsg;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "theta ID: " << thetaID << " theta MS: " << thetaMS << " diff: " << thetaID-thetaMS << endmsg; 
   double phidiff=fabs(phiID-phiMS);
   if (fabs(phidiff-2*M_PI)<phidiff) phidiff=2*M_PI-phidiff;
   if (checkphiflip && fabs(phidiff-M_PI)<phidiff) phidiff=fabs(M_PI-phidiff);
@@ -147,7 +147,7 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
     lastmeasidpar = (*idTrack.trackParameters())[index]->covariance() ? (*idTrack.trackParameters())[index] : 0;
   }  
   if (!lastmeasidpar) {
-     msg(MSG::WARNING) << "ID track parameters don't have error matrix!" << endreq;
+     msg(MSG::WARNING) << "ID track parameters don't have error matrix!" << endmsg;
      return 0;     
   }
 
@@ -162,7 +162,7 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
   }
 
   if (!mspar) {
-     msg(MSG::WARNING) << "Could not find muon track parameters!" << endreq;
+     msg(MSG::WARNING) << "Could not find muon track parameters!" << endmsg;
      return 0;     
   }
 
@@ -171,7 +171,7 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
     ( m_extrapolator->extrapolateToVolume(*lastmeasidpar,*m_msEntrance,Trk::alongMomentum,Trk::muon) );
 
   if (!idextrapolatedpar && lastmeasidpar->parameters()[Trk::qOverP]!=0 && std::abs(1./lastmeasidpar->parameters()[Trk::qOverP])<5.*CLHEP::GeV) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolating with p=5 GeV" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolating with p=5 GeV" << endmsg;
     AmgVector(5) params=lastmeasidpar->parameters();
     double sign= (params[Trk::qOverP]>0) ? 1 : -1;
     double newqoverp=sign/(5.*CLHEP::GeV);
@@ -187,7 +187,7 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
   }
 
   if (!idextrapolatedpar || !idextrapolatedpar->covariance()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ID extrapolated par null or missing error matrix, par: " << idextrapolatedpar.get() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ID extrapolated par null or missing error matrix, par: " << idextrapolatedpar.get() << endmsg;
     return 0;
   }
   const Trk::TrackParameters *msparforextrapolator=mspar;
@@ -222,12 +222,12 @@ double MuonTrackTagTestTool::chi2(const Trk::Track& idTrack, const Trk::Track& m
     ( m_extrapolator->extrapolate(*msparforextrapolator,idextrapolatedpar->associatedSurface(),propdir,false,Trk::muon) );
     
   if (muonisstraight){
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon track is straight line" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Muon track is straight line" << endmsg;
   }
   //std::cout << "idpar: " << measidpar << " mspar: " << measmspar << std::endl;
 
   if ((!msextrapolatedpar && !muonisstraight)){
-    msg(MSG::DEBUG) << "extrapolation failed, id:" << idextrapolatedpar.get() << " ms: " << msextrapolatedpar.get() << endreq;
+    msg(MSG::DEBUG) << "extrapolation failed, id:" << idextrapolatedpar.get() << " ms: " << msextrapolatedpar.get() << endmsg;
 
     return 0;
   }
@@ -259,7 +259,7 @@ double MuonTrackTagTestTool::chi2(const Trk::TrackParameters& idextrapolatedpar,
   double thetaMS=msextrapolatedpar.parameters()[Trk::theta];
   //std::cout << "idpar: " << *idpar << " mspar: " << *mspar << std::endl;
   if (!idextrapolatedpar.covariance() || !msextrapolatedpar.covariance()) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "track parameters don't have error matrix! id: " << idextrapolatedpar.covariance() << " ms: " << msextrapolatedpar.covariance() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "track parameters don't have error matrix! id: " << idextrapolatedpar.covariance() << " ms: " << msextrapolatedpar.covariance() << endmsg;
     return 1e15;
   }
   const AmgSymMatrix(5) &idcovmat=*idextrapolatedpar.covariance();
@@ -286,7 +286,7 @@ double MuonTrackTagTestTool::chi2(const Trk::TrackParameters& idextrapolatedpar,
   double chi2=loc1diff*loc1diff/(idcovmat(0,0)+mscovmat(0,0))+loc2diff*loc2diff/(idcovmat(1,1)+mscovmat(1,1))+phidiff*phidiff/(idcovmat(2,2)+mscovmat(2,2))+thetadiff*thetadiff/(idcovmat(3,3)+mscovmat(3,3));
   chi2=std::abs(chi2);
   //if (goodmatch) std::cout << "chi2 " << chi2 << std::endl;
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " chi2: " << chi2 << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " chi2: " << chi2 << endmsg;
   return chi2;
 }
 
