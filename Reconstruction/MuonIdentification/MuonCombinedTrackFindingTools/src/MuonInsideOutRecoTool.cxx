@@ -51,6 +51,7 @@ namespace MuonCombined {
     declareProperty("MuonRecoValidationTool",m_recoValidationTool );    
     declareProperty("MuonTrackBuilder",           m_trackFitter );    
     declareProperty("TrackAmbiguityProcessor",m_trackAmbibuityResolver );    
+    declareProperty("IDTrackMinPt", m_idTrackMinPt = 2500.0 );
   }
 
   MuonInsideOutRecoTool::~MuonInsideOutRecoTool() { }
@@ -88,7 +89,7 @@ namespace MuonCombined {
   void MuonInsideOutRecoTool::handleCandidate( const InDetCandidate& indetCandidate ) const {
     
     const xAOD::TrackParticle& indetTrackParticle = indetCandidate.indetTrackParticle();
-    if( !indetTrackParticle.track() || indetTrackParticle.pt() < 4000. ) return;
+    if( !indetTrackParticle.track() || indetTrackParticle.pt() < m_idTrackMinPt ) return;
     
     
     // get intersections which precision layers in the muon system 
@@ -144,7 +145,7 @@ namespace MuonCombined {
           msg(MSG::DEBUG) << std::endl << m_printer->print(*seg);
         }
       }
-      msg(MSG::DEBUG) << endreq;
+      msg(MSG::DEBUG) << endmsg;
     }
 
     // find best candidate and exit if none found

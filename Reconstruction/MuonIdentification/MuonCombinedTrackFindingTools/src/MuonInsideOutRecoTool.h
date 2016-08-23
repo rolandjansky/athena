@@ -79,6 +79,8 @@ namespace MuonCombined {
     ToolHandle<Muon::IMuonRecoValidationTool>        m_recoValidationTool;
     ToolHandle<Rec::ICombinedMuonTrackBuilder>       m_trackFitter;
     ToolHandle<Trk::ITrackAmbiguityProcessorTool>    m_trackAmbibuityResolver;
+    /** id pt cut */
+    double m_idTrackMinPt;
     
   };
 }
