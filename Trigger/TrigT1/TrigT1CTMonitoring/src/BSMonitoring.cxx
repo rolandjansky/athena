@@ -148,9 +148,6 @@ initialize() {
     CHECK( m_tgcRoiSvc.retrieve() );
   }
 
-  //manually set the outputlevel to DEBUG
-  (this)->msg().setLevel(MSG::DEBUG);
-
   return StatusCode::SUCCESS;
 }
 
