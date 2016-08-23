@@ -372,89 +372,89 @@ MuidMatchMaker::finalize()
 
     ATH_MSG_INFO( "finalized with " << m_countBestMatch1 << " out of " << m_countSA
 		  << " MuonSpectrometer tracks having a 'bestMatch' combined fit. "
-		  << endreq
+		  << endmsg
 		  << "BestMatches:" << std::setiosflags(std::ios::fixed)
 		  << std::setw(6) << std::setprecision(1) << badFit << "% have a bad fit,"
 		  << std::setw(5) << std::setprecision(1) << badMatch << "% have a bad match and"
 		  << std::setw(5) << std::setprecision(1) << badBoth << "% have both bad."
-		  << endreq
+		  << endmsg
 		  << m_countUN
 		  << " MuonSpectrometer tracks have a unique combined fit."
-		  << endreq << "               "
+		  << endmsg << "               "
 		  << m_countAmbigID << " MuonSpectrometer tracks with InDet association ambiguity,"
-		  << endreq << "               "
+		  << endmsg << "               "
 		  << m_countAmbigMS << " InDet tracks with spectrometer association ambiguity,"
-		  << endreq << "               "
+		  << endmsg << "               "
 		  << m_countFailTightFit << " tight associations fail track fitting,"
-		  << endreq << "               "
+		  << endmsg << "               "
 		  << m_countFailInnerFit << " inner associations fail track fitting,"
-		  << endreq << "               "
+		  << endmsg << "               "
 		  << m_countFailOuterFit << " outer associations fail track fitting,"
-		  << endreq << "               "
+		  << endmsg << "               "
 		  << m_countFailLooseFit << " loose associations fail track fitting,"
-		  << endreq << "         while "
+		  << endmsg << "         while "
 		  << m_countNO << " MuonSpectrometer tracks with eta < 2.5 have no InDet association:"
-		  << endreq
+		  << endmsg
 		  << "               " << m_countFailTrackFit
 		  << " fail final track fit for best match "
-		  << endreq
+		  << endmsg
 		  << "               " << m_countFailChargeConflict
 		  << " fail loose match with charge conflict (and have MuidSA)"
-		  << endreq
+		  << endmsg
 		  << "               " << m_countFailEnergyGain
 		  << " fail loose match through excessive energy gain (and have MuidSA)"
-		  << endreq
+		  << endmsg
 		  << "               " << m_countFailEnergyLoss
 		  << " fail loose match through excessive energy loss (and have MuidSA)"
-		  << endreq
+		  << endmsg
 		  << "               " << m_countFailMomentumBalance
 		  << " fail loose momentum balance with invalid track (and have MuidSA)"
-		  << endreq
+		  << endmsg
 		  << "               " << m_countFailPositionMatch
 		  << " fail loose position match at calorimeter midpoint (and have MuidSA)"
-		  << endreq
+		  << endmsg
 		  << "               " << m_countFailMatchWindowSA
 		  << " fail have MuidSA but no match inside window"
-		  << endreq
+		  << endmsg
 		  << "               " << m_countFailMatchWindowMS
 		  << " fail MuidSA and have no match inside window"
-		  << endreq
+		  << endmsg
 		  << "  for " << std::setw(6) << m_countBestMatch1 << " (" << m_countBestMatch2 << ")"
 		  << " best matches with a successful combined fit: "
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countTightMatch1 << " (" << m_countTightMatch2 << ")"
 		  << " matches with a tight Indet/Spectrometer match (# from outwardsBuilder)"
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countInnerMatch1 << " (" << m_countInnerMatch2 << ")"
 		  << " matches with an inner Indet/Spectrometer match (# from outwardsBuilder)"
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countOuterMatch1 << " (" << m_countOuterMatch2 << ")"
 		  << " matches with an outer Indet/Spectrometer match (# from outwardsBuilder)"
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countSimpleMatch1 << " (" << m_countSimpleMatch2
 		  << ")"
 		  << " matches with a simple SA/Indet match (# from outwardsBuilder)"
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countGoodLoose1 << " (" << m_countGoodLoose2 << ")"
 		  << " good matches with a loose Indet/Spectrometer match (# from outwardsBuilder)"
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countBadLoose1 << " (" << m_countBadLoose2 << ")"
 		  << " bad matches with a loose Indet/Spectrometer match (# from outwardsBuilder)"
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countMSMatch1 << " (" << m_countMSMatch2 << ")"
 		  << " matches recovered from MuonSpectrometer tracks without Standalone fit"
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countBadMatch1 << " (" << m_countBadMatch2 << ")"
 		  << " bad inner Indet/Spectrometer matches (# from outwardsBuilder)"
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countPSignificance1
 		  << " (" << m_countPSignificance2 << ")"
 		  << " have momentumBalanceSignificance > 3 (# from outwardsBuilder)"
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countCSignificance1
 		  << " (" << m_countCSignificance2 << ")"
 		  << " pass above with scatteringCurvatureSignificance > 3 (# from outwardsBuilder)"
-		  << endreq
+		  << endmsg
 		  << "      " << std::setw(6) << m_countNSignificance1
 		  << " (" << m_countNSignificance2 << ")"
 		  << " pass above with scatteringNeighbourSignificance > 3 (# from outwardsBuilder)"
@@ -642,7 +642,7 @@ MuidMatchMaker::execute(const TrackCollection*	extrapolatedTracks,
 		 ++cand)
 	    {
 		ATH_MSG_VERBOSE( std::setiosflags(std::ios::fixed | std::ios::right)
-				 << "----------- MuidMatchMaker ----------" << endreq
+				 << "----------- MuidMatchMaker ----------" << endmsg
 				 << std::setw(4) << extrapNumber << " /"
 				 << std::setw(4) << (**cand).indetIndex() );
 
@@ -1717,7 +1717,7 @@ MuidMatchMaker::debugOutput (const MuidTrackContainer*	combinedMuons,
 	}
 	msg(MSG::DEBUG) << std::endl;
     }
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
 }
 
 void
@@ -2103,7 +2103,7 @@ MuidMatchMaker::indetCandidates (std::vector<IndetMatchCandidate*>&     candidat
                             << std::endl;
         }
     }
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
 }
     
 const Trk::Track*
