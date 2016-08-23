@@ -101,7 +101,7 @@ StatusCode RemoveTempBkgObjects::overlayExecute() {
   //std::cout << m_storeGateOutput->dump() << std::endl;
 
   checkBeforeRemove<EventInfo>(&*m_tempBkgStore);
-  log << MSG::DEBUG << "Removing Eventinfo" << endreq;
+  log << MSG::DEBUG << "Removing Eventinfo" << endmsg;
 
   // If the background is real data and the InDet and Beam objects are
   // not actually present in the temporary background store, which is
@@ -111,16 +111,16 @@ StatusCode RemoveTempBkgObjects::overlayExecute() {
      checkBeforeRemove<TRT_RDO_Container>(&*m_tempBkgStore);
      checkBeforeRemove<SCT_RDO_Container>(&*m_tempBkgStore);
      checkBeforeRemove<PixelRDO_Container>(&*m_tempBkgStore);
-     log << MSG::DEBUG << "Removing InDet objects" << endreq;
+     log << MSG::DEBUG << "Removing InDet objects" << endmsg;
 
      checkBeforeRemove<BCM_RDO_Container>(&*m_tempBkgStore);
-     log << MSG::DEBUG << "Removing Beam objects" << endreq;
+     log << MSG::DEBUG << "Removing Beam objects" << endmsg;
   }
 
   checkBeforeRemove<LArFebHeaderContainer>(&*m_tempBkgStore);
   checkBeforeRemove<LArHitFloatContainer>(&*m_tempBkgStore);
   checkBeforeRemove<LArDigitContainer>(&*m_tempBkgStore);
-  log << MSG::DEBUG << "Removing LAr objects" << endreq;
+  log << MSG::DEBUG << "Removing LAr objects" << endmsg;
 
   checkBeforeRemove<TileDigitsContainer>(&*m_tempBkgStore);
   checkBeforeRemove<TileRawChannelContainer>(&*m_tempBkgStore);
@@ -128,7 +128,7 @@ StatusCode RemoveTempBkgObjects::overlayExecute() {
   checkBeforeRemove<TileCellIDC>(&*m_tempBkgStore);
   checkBeforeRemove<TileBeamElemContainer>(&*m_tempBkgStore);
   checkBeforeRemove<TileLaserObject>(&*m_tempBkgStore);
-  log << MSG::DEBUG << "Removing Tile objects" << endreq;
+  log << MSG::DEBUG << "Removing Tile objects" << endmsg;
 
   checkBeforeRemove<CscDigitContainer>(&*m_tempBkgStore);
   checkBeforeRemove<MdtDigitContainer>(&*m_tempBkgStore);
@@ -145,7 +145,7 @@ StatusCode RemoveTempBkgObjects::overlayExecute() {
      checkBeforeRemove<RpcPadContainer>(&*m_tempBkgStore);
   }
   checkBeforeRemove<CscRawDataContainer>(&*m_tempBkgStore);
-  log << MSG::DEBUG << "Removing Muon objects" << endreq;
+  log << MSG::DEBUG << "Removing Muon objects" << endmsg;
 
   checkBeforeRemove<ROIB::RoIBResult>(&*m_tempBkgStore);
   checkBeforeRemove<ROIB::RecRoIBResult>(&*m_tempBkgStore);
@@ -166,7 +166,7 @@ StatusCode RemoveTempBkgObjects::overlayExecute() {
   checkBeforeRemove< DataVector<LVL1::CMMJetHits> >(&*m_tempBkgStore);
   checkBeforeRemove< DataVector<LVL1::CMMCPHits> >(&*m_tempBkgStore);
   checkBeforeRemove<LVL1::CMMRoI>(&*m_tempBkgStore);
-  log << MSG::DEBUG << "Removing Level1 objects" << endreq;
+  log << MSG::DEBUG << "Removing Level1 objects" << endmsg;
 
   //std::cout << "RemoveTempBkgObjects::execute() end"<< std::endl;
   //std::cout << m_storeGateMC->dump() << std::endl;

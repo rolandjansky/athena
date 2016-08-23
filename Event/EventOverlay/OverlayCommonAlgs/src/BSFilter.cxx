@@ -41,14 +41,14 @@ StatusCode BSFilter::initialize()
   if (m_filterfile!="" && m_trigbit<0){
     FILE *vfile = fopen(m_filterfile.c_str(),"r");
     if (vfile){
-      msg(MSG::INFO)<<"Opened filter file: "<<m_filterfile<<endreq;
+      msg(MSG::INFO)<<"Opened filter file: "<<m_filterfile<<endmsg;
       int vrun=0, vtrig=0, vnvtx=0; double vdt=0.0; int ne=0; uint64_t vevent=0;
       while (true){
         int r = fscanf(vfile, "%i %lu %i %i %lf\n", &vrun, &vevent, &vtrig, &vnvtx, &vdt);
         if (r>0){
-          msg(MSG::DEBUG) << "Read "<<r<<" filter values: "<<vrun<<"/"<<vevent<<" "<<vtrig<<","<<vnvtx<<","<<vdt<<endreq;
+          msg(MSG::DEBUG) << "Read "<<r<<" filter values: "<<vrun<<"/"<<vevent<<" "<<vtrig<<","<<vnvtx<<","<<vdt<<endmsg;
           if (filtermap[vrun][vevent].magic==777){
-            msg(MSG::WARNING)<<"Already filter info for run/event "<<vrun<<"/"<<vevent<<", magic="<<filtermap[vrun][vevent].magic<<endreq;
+            msg(MSG::WARNING)<<"Already filter info for run/event "<<vrun<<"/"<<vevent<<", magic="<<filtermap[vrun][vevent].magic<<endmsg;
           }
           filtermap[vrun][vevent].trig=vtrig;
           filtermap[vrun][vevent].nvtx=vnvtx;
@@ -57,15 +57,15 @@ StatusCode BSFilter::initialize()
           ++ne;
         }
         else{
-          msg(MSG::INFO) << "Got "<<r<<" from fscanf, stopping"<<endreq;
+          msg(MSG::INFO) << "Got "<<r<<" from fscanf, stopping"<<endmsg;
           break;
         }
       }
       fclose(vfile);
-      msg(MSG::INFO)<<"Read "<<ne<<" filter entries from file."<<endreq;
+      msg(MSG::INFO)<<"Read "<<ne<<" filter entries from file."<<endmsg;
     }
     else{
-      msg(MSG::ERROR)<<"Could not open filter file: "<<m_filterfile<<endreq;
+      msg(MSG::ERROR)<<"Could not open filter file: "<<m_filterfile<<endmsg;
     }
   }
 
@@ -74,10 +74,10 @@ StatusCode BSFilter::initialize()
   if (m_EventIdFile!=""){
     efile = fopen(m_EventIdFile.c_str(),"w");
     if (efile){
-      msg(MSG::INFO)<<"Opended EventIdFile: "<<m_EventIdFile<<endreq;
+      msg(MSG::INFO)<<"Opended EventIdFile: "<<m_EventIdFile<<endmsg;
     }
     else{
-      msg(MSG::ERROR)<<"Could not open EventIdFile output: "<<m_EventIdFile<<endreq;
+      msg(MSG::ERROR)<<"Could not open EventIdFile output: "<<m_EventIdFile<<endmsg;
     }
   }
 
@@ -187,10 +187,10 @@ StatusCode BSFilter::execute()
       if (!ffile){
 	ffile = fopen(m_filterfile.c_str(),"w");
 	if (ffile){
-	  msg(MSG::INFO)<<"Opended FilterFile output for Trigger info: "<<m_filterfile<<endreq;
+	  msg(MSG::INFO)<<"Opended FilterFile output for Trigger info: "<<m_filterfile<<endmsg;
 	}
 	else {
-	  msg(MSG::ERROR)<<"Could not open FilterFile output for Trigger info: "<<m_filterfile<<endreq;
+	  msg(MSG::ERROR)<<"Could not open FilterFile output for Trigger info: "<<m_filterfile<<endmsg;
 	}
       }
       if (ffile) fprintf(ffile,"run_nbr=%d, evt_nbr=%ld, time_stamp=%d, lbk_nbr=%d, noalg=%d, j40=%d, noalgps=%d, j40ps=%d\n",

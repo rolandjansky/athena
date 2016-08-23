@@ -39,7 +39,7 @@ StatusCode RemoveObjects::overlayFinalize()
 //================================================================
 StatusCode RemoveObjects::overlayExecute() {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "RemoveObjects::execute() begin"<< endreq;
+  log << MSG::DEBUG << "RemoveObjects::execute() begin"<< endmsg;
   
   if ( m_removeTileMC ) {
      removeAllObjectsOfType<TileDigitsContainer>(&*m_storeGateMC);
@@ -48,7 +48,7 @@ StatusCode RemoveObjects::overlayExecute() {
 
   if ( m_removeLArMC ) {
      removeAllObjectsOfType<LArDigitContainer>(&*m_storeGateMC);
-     //log << MSG::INFO << "LAr objects removed" << endreq;
+     //log << MSG::INFO << "LAr objects removed" << endmsg;
      //removeAllObjectsOfType<LArRawChannelContainer>(&*m_storeGateMC);
   }
 
@@ -56,7 +56,7 @@ StatusCode RemoveObjects::overlayExecute() {
      removeAllObjectsOfType<TriggerTowerCollection>(&*m_storeGateMC);
   }
 
-  log << MSG::DEBUG << "RemoveObjects::execute() end"<< endreq;
+  log << MSG::DEBUG << "RemoveObjects::execute() end"<< endmsg;
   return StatusCode::SUCCESS;
 }
 
