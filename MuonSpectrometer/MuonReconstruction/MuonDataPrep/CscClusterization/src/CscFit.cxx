@@ -107,7 +107,7 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
        func->GetParameters(&par[0]);
        fErr1 = func->GetParError(1);
        log << MSG::DEBUG << "One Gaussing Left Fit: " << "Avg = " << zl << " Mean = " 
-           << par[1] << " Error = " << fErr1 << " status = " << status << endreq;
+           << par[1] << " Error = " << fErr1 << " status = " << status << endmsg;
        if (status ==0) {  
           al = (double) par[0];
           zl = (double) par[1];
@@ -152,7 +152,7 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
        func->GetParameters(&par[0]);
        fErr1 = func->GetParError(1);
        log << MSG::DEBUG << "One Gaussing Right Fit: " << "Avg = " << zr << " Mean = " 
-           << par[1] << " Error = " << fErr1 << " status = " << status << endreq;
+           << par[1] << " Error = " << fErr1 << " status = " << status << endmsg;
        if (status == 0) {   
           ar = (double) par[0];
           zr = (double) par[1];
@@ -209,7 +209,7 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
        }  
        log << MSG::DEBUG << "One Gaussing Main Fit: " << "Avg = " << z0 << " Mean = " 
            << par[1] << " Error = " << fErr1 << " baseline = " << par[3] 
-           << " status = " << status << endreq;
+           << " status = " << status << endmsg;
     }
     delete func; 
     delete hist;
@@ -263,7 +263,7 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
            << " Mean2 = " << par[4] << " Error2 = " << func->GetParError(4)
            << " baseline = " << par[6]
            << " status = " << status 
-           << endreq;
+           << endmsg;
     }
     // dlr   = fabs(zcscr-zcscl);
     delete func; 
@@ -299,7 +299,7 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
     bool checkIt = (dx0 < dzcut) || (dx1 < dzcut) || (dx2 < dzcut);
 
     if ( mainFit && doubleGaussianFit && checkIt) {
-       log << MSG::DEBUG << "Double Gaussian Fit converged ..." << endreq;
+       log << MSG::DEBUG << "Double Gaussian Fit converged ..." << endmsg;
        ncl = std::min (NN,ncl+1);
        if ( dx0 < dx1 && dx0 < dx2) {
           *(zpos+ncl-1) = xp0;
@@ -312,14 +312,14 @@ void CscFit::cscfit(double* qstr, int& maxStrip, double& thr, double& da, int& n
        }
        *(sig+ncl-1) = wErr;
     } else if ( mainFit && (dx0 < dzcut)) {
-       log << MSG::DEBUG << "One Gaussian Fit converged ..." << endreq;
+       log << MSG::DEBUG << "One Gaussian Fit converged ..." << endmsg;
        ncl = std::min (NN,ncl+1);
        *(zpos+ncl-1) = xp0;
        *(sig+ncl-1) = wErr;
     } else { 
       if (ysum > 0) {
 	ncl = std::min (NN,ncl+1);
-	log << MSG::DEBUG << "Fit was not meaningful: using weighted average" << endreq;
+	log << MSG::DEBUG << "Fit was not meaningful: using weighted average" << endmsg;
 	*(zpos+ncl-1) = z0;
 	*(sig+ncl-1) = wErr;
       }

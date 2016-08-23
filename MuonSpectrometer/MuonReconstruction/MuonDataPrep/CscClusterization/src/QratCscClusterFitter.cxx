@@ -218,7 +218,7 @@ int qrat_atanh(const double a, const double b, double c, const double x0,
 QratCscClusterFitter::
 QratCscClusterFitter(string type, string aname, const IInterface* parent)
 : AthAlgTool(type, aname, parent)
-  , m_alignmentTool("CscAlignmentTool/CscAlignmentTool")
+  , m_detMgr(nullptr), m_cscIdHelper(nullptr), m_alignmentTool("CscAlignmentTool/CscAlignmentTool")
 {
   declareInterface<ICscClusterFitter>(this);
   m_max_width.push_back(5);  // CSS eta
