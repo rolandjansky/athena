@@ -160,7 +160,7 @@ NtupleMdtDqaTool::NtupleMdtDqaTool( const std::string &t, const std::string &n,
 StatusCode NtupleMdtDqaTool::initialize() {
 	
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initializing NtupleMdtDqaTool" << endreq;
+  log << MSG::INFO << "Initializing NtupleMdtDqaTool" << endmsg;
 
   //-----------------------------//
   //-- Get the StoreGate Stuff --//
@@ -169,19 +169,19 @@ StatusCode NtupleMdtDqaTool::initialize() {
   StoreGateSvc *detStore;
   StatusCode sc=service("DetectorStore", detStore);
   if(!sc.isSuccess()){
-    log << MSG::FATAL << "Cannot retrieve Store Gate!" << endreq;
+    log << MSG::FATAL << "Cannot retrieve Store Gate!" << endmsg;
     return sc;
   }
   
   sc = detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve MdtIdHelper" << endreq;
+    log << MSG::FATAL << "Can't retrieve MdtIdHelper" << endmsg;
     return sc;
   }
   
   sc = detStore->retrieve( m_detMgr );
   if (!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endreq;
+    log << MSG::FATAL << "Can't retrieve MuonDetectorManager" << endmsg;
     return sc;
   }
 
@@ -191,21 +191,21 @@ StatusCode NtupleMdtDqaTool::initialize() {
     
   sc = toolSvc()->retrieveTool(idToFixedIdToolType, idToFixedIdToolName, m_id_tool); 
   if(!sc.isSuccess()) {
-    log << MSG::FATAL << "Can't retrieve IdToFixedIdTool" << endreq;
+    log << MSG::FATAL << "Can't retrieve IdToFixedIdTool" << endmsg;
     return sc;
   }
 
   //get region selection service
   sc=service("RegionSelectionSvc", p_reg_sel_svc);
   if(!sc.isSuccess()) {
-    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endreq;
+    log << MSG::ERROR <<"Cannot retrieve RegionSelectionSvc!" <<endmsg;
     return sc;
   }
 
   //get pointer to Calibration input service 
   sc=service("MdtCalibInputSvc", p_calib_input_svc);
   if(!sc.isSuccess()) {
-    log << MSG::ERROR <<"Cannot retrieve MdtCalibInputSvc!" <<endreq;
+    log << MSG::ERROR <<"Cannot retrieve MdtCalibInputSvc!" <<endmsg;
     return sc;
   }
 
@@ -372,10 +372,10 @@ StatusCode NtupleMdtDqaTool::initialize() {
 StatusCode NtupleMdtDqaTool::finalize(void) {
 
     MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "Finalizing NtupleMdtDqaTool" << endreq;
+    log << MSG::INFO << "Finalizing NtupleMdtDqaTool" << endmsg;
 
      if (m_doFinalize) {
-        log << MSG::INFO << "Executing MdtDqaNtupleAnalysis::histogramAnalysis " << endreq;
+        log << MSG::INFO << "Executing MdtDqaNtupleAnalysis::histogramAnalysis " << endmsg;
         m_ntupleAna->histogramAnalysis(m_histoManager->rootFile());
      } 
 
@@ -414,9 +414,9 @@ StatusCode NtupleMdtDqaTool::analyseSegments(const std::vector<MuonCalibSegment 
 
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << "NtupleMdtDqaTool::analyseSegments ...it does nothing analysis moved elsewhere" 
-      << endreq;
+      << endmsg;
   // if (m_doFinalize && m_doEfficiency ) {
-  //    log << MSG::INFO << "Executing MdtDqaTubeEfficiency::analyseSegments" << endreq;
+  //    log << MSG::INFO << "Executing MdtDqaTubeEfficiency::analyseSegments" << endmsg;
   //    m_tubeEffi->analyseSegments(segments);
   // }
   return StatusCode::SUCCESS;

@@ -118,9 +118,9 @@ class MdtDqaTubeEfficiency {
   std::string m_chamberHardwareName;
 
   // ROOT file and analysis ntuples/trees //
-  TFile   *m_tfile;       // ROOT file
-  TFile   *m_tfile_debug; // ROOT file for debug purposes    
-  TNtuple *m_hit_ntuple;  // hit ntuple
+  //TFile   *m_tfile;       // ROOT file
+  //TFile   *m_tfile_debug; // ROOT file for debug purposes    
+  //TNtuple *m_hit_ntuple;  // hit ntuple
       
   std::string m_file_name; // root file name  
   float m_nsigma;          // efficiency at nsigma*resol(r)
@@ -132,13 +132,13 @@ class MdtDqaTubeEfficiency {
   bool m_useTimeCorrections;
 
   // calibration region//
-  const NtupleStationId	*m_cal_region;	
+  //const NtupleStationId	*m_cal_region;	
 	
   // line reconstruction //
   QuasianalyticLineReconstruction *m_qfitter;    
 
   // counter/numbers //
-  int m_nb_trigger;  
+  //int m_nb_trigger;  
   // int m_nb_multilayers;
   // int m_nb_layers;
   // int m_nb_tubes;
@@ -146,8 +146,8 @@ class MdtDqaTubeEfficiency {
   int m_nb_layers_tubes[1500][4] ;
 
   // histograms //
-  TH1F *m_h_distance;
-  TH1I *m_h_nb_hit_tubes;
+  //TH1F *m_h_distance;
+  //TH1I *m_h_nb_hit_tubes;
 	/*
         std::vector< std::vector< std::vector<TH1F*> > > h_efficiency;
 	std::vector< std::vector< std::vector<TH1F*> > > h_fakerate;
@@ -158,13 +158,13 @@ class MdtDqaTubeEfficiency {
         std::vector< std::vector<TH1F*> > h_tube_entries_efficiency;  
         std::vector< std::vector<TH1F*> > h_tube_entries_fakerate;
         */ 
-  TH1F *m_h_layer_efficiency;
-  TH1F *m_h_layer_fakerate;
+  //TH1F *m_h_layer_efficiency;
+  //TH1F *m_h_layer_fakerate;
   
-  TH1F *m_h_chamber_efficiency;
-  TH1F *m_h_chamber_fakerate;
+  //TH1F *m_h_chamber_efficiency;
+  //TH1F *m_h_chamber_fakerate;
 
-  TH1F *m_h_chi2;
+  //TH1F *m_h_chi2;
   
 };
 
