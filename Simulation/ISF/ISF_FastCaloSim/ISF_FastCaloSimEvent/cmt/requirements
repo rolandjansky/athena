@@ -5,8 +5,8 @@ use AtlasPolicy                AtlasPolicy-*
 use AtlasCLHEP                 AtlasCLHEP-*                    External
 use GaudiInterface             GaudiInterface-*                External
 use TileSimEvent               TileSimEvent-*                  TileCalorimeter
-use CLIDSvc                    CLIDSvc-*                       Control
-use DataModel                  DataModel-*                     Control
+use SGTools                    SGTools-*                       Control
+use AthContainers              AthContainers-*                 Control
 use AtlasROOT                  AtlasROOT-*                     External
 use CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
 
