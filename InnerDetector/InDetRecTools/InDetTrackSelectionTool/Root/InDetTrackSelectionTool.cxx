@@ -143,6 +143,7 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
   declareProperty("vecPtCutoffsForSctHitsCut", m_vecPtCutoffsForSctHitsCut,
 		  "Minimum pt cutoffs for each SCT hits");
   declareProperty("vecMinNSctHitsAbovePt", m_vecMinNSctHitsAbovePt, "Minimum SCT hits above each pt cutoff");
+  declareProperty("useExperimentalInnermostLayersCut", m_useExperimentalInnermostLayersCut, "Use the experimental cut on pixel holes");
 #ifndef XAOD_ANALYSIS
   declareProperty("minNSiHitsMod", m_minNSiHitsMod);
   declareProperty("minNSiHitsModTop", m_minNSiHitsModTop);
@@ -438,6 +439,14 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
 		  << " silicon hits above eta = " << m_minEtaForStrictNSiHitsCut );
     m_trackCuts["SiHits"].push_back(make_unique<MinNSiHitsAboveEta>(this, m_minNSiHitsAboveEtaCutoff,
     								    m_minEtaForStrictNSiHitsCut));
+  }
+  if (m_useExperimentalInnermostLayersCut) {
+    ATH_MSG_INFO( "  Zero pixel holes allowed, except one pix hole is allowed if there is a physical IBL hit and a BLayer hit is expected but there is no BLayer hit." );
+    auto pixHoles = make_unique< FuncSummaryValueCut<4> >
+      (this, std::array<xAOD::SummaryType, 4>({xAOD::numberOfPixelHoles, xAOD::numberOfInnermostPixelLayerHits, xAOD::expectNextToInnermostPixelLayerHit, xAOD::numberOfNextToInnermostPixelLayerHits}) );
+    pixHoles->setFunction( [=](const std::array<uint8_t, 4>& vals)
+			   {return (vals[0] == 0) || (vals[0] <= 1 && vals[1] >= 1 && vals[2] && vals[3] == 0);});
+    m_trackCuts["PixHits"].push_back(std::move(pixHoles));
   }
 #ifndef XAOD_ANALYSIS
   if (m_minNSiHitsMod > 0) {
