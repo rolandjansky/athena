@@ -431,7 +431,7 @@ TriggerChamberClusterOnTrackCreator::makeOverallParameters(
 	    msg(MSG::DEBUG) << *i << " ";
 	    if (pair%2) msg(MSG::DEBUG) << "(" << pair/2 << ")    ";
 	}
-	msg(MSG::DEBUG) << endreq;
+	msg(MSG::DEBUG) << endmsg;
     }
 }
 
