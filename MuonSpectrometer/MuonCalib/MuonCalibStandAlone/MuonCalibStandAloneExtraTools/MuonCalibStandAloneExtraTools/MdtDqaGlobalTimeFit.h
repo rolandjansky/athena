@@ -104,12 +104,12 @@ class MdtDqaGlobalTimeFit {
   std::string m_chamberHardwareName;
 
   // ROOT file and analysis ntuples/trees //
-  TFile   *m_tfile;       // ROOT file
-  TFile   *m_tfile_debug; // ROOT file for debug purposes    
-  TNtuple *m_hit_ntuple;  // hit ntuple
+  //TFile   *m_tfile;       // ROOT file
+  //TFile   *m_tfile_debug; // ROOT file for debug purposes    
+  //TNtuple *m_hit_ntuple;  // hit ntuple
       
   std::string m_file_name; //root file name  
-  float  m_nb_hits;        //minimum number of hits in segment
+  //float  m_nb_hits;        //minimum number of hits in segment
   int    m_minNumHits;     //minimum number of hits in segment
   int    m_maxNumHits;     //maximum number of hits in segment
   float  m_chi2_cut;       //track chi2 cut;
@@ -117,25 +117,25 @@ class MdtDqaGlobalTimeFit {
   bool   m_debug;          //write debugging rootfile
 
   // calibration region//
-  const NtupleStationId	*m_cal_region;	
+  //const NtupleStationId	*m_cal_region;	
 	
   // line reconstruction //
   IRtRelation *m_rtRel;
-  QuasianalyticLineReconstruction *m_qfitter;    
+  //QuasianalyticLineReconstruction *m_qfitter;    
   // NOT MAINTAINED ANYMORE    MuCCaFitter * m_muFitter;
   DCSLFitter *m_muFitter;
   GlobalTimeFitter *m_GTFitter;
 
   // counter/numbers //
-  int m_nb_trigger;  
+  //int m_nb_trigger;  
   // int m_nb_multilayers;
   // int m_nb_layers;
   // int m_nb_tubes;
-  int m_nb_stations;
-  int m_nb_layers_tubes[1500][4];
+  //int m_nb_stations;
+  //int m_nb_layers_tubes[1500][4];
 
   // histograms //
-  TH1F *m_htoffset;
+  //TH1F *m_htoffset;
 
   // TH1F *h_distance;
   //TH1I *h_nb_hit_tubes;

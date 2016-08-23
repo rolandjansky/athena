@@ -78,10 +78,16 @@ MdtDqaTubeEfficiency::MdtDqaTubeEfficiency(float nsigma, float chi2Cut,
                  bool defaultResol, float adcCut, bool GTFitON, 
                  bool useNewCalibConstants, bool useTimeCorrections) : 
   m_mdtIdHelper(NULL), m_detMgr(NULL), m_id_tool(NULL), p_reg_sel_svc(NULL), p_calib_input_svc(NULL),
-  m_histoManager(NULL), m_tfile(NULL), m_tfile_debug(NULL), m_hit_ntuple(NULL), m_cal_region(NULL),
-  m_qfitter(NULL), m_nb_trigger(-1), m_nb_stations(-1), m_h_distance(NULL), m_h_nb_hit_tubes(NULL),
-  m_h_layer_efficiency(NULL), m_h_layer_fakerate(NULL), m_h_chamber_efficiency(NULL),
-  m_h_chamber_fakerate(NULL), m_h_chi2(NULL) {
+  m_histoManager(NULL),
+  //m_tfile(NULL), m_tfile_debug(NULL), m_hit_ntuple(NULL),
+  //m_cal_region(NULL),
+  m_qfitter(NULL),
+  //m_nb_trigger(-1),
+  m_nb_stations(-1)
+  //m_h_distance(NULL), m_h_nb_hit_tubes(NULL),
+  //m_h_layer_efficiency(NULL), m_h_layer_fakerate(NULL), m_h_chamber_efficiency(NULL),
+  //m_h_chamber_fakerate(NULL), m_h_chi2(NULL)
+{
   m_nsigma = nsigma;
   m_chi2Cut = chi2Cut;
   m_defaultResol = defaultResol; 

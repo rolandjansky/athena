@@ -5,7 +5,6 @@
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 // 13.08.2008, AUTHORs: SILVESTRO DI LUISE -  MAURO IODICE
 //+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-using namespace std;
 
 #define PI 3.14159265
 
@@ -38,6 +37,8 @@ using namespace std;
 #include "MuonIdHelpers/MdtIdHelper.h"
 
 #include "TKey.h"
+
+using namespace std;
 
 namespace MuonCalib {
 
