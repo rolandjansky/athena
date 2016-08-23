@@ -41,7 +41,7 @@ using Muon::MuonSegmentCombination;
 using Muon::MuonClusterOnTrack;
 using Muon::MdtDriftCircleOnTrack;
 
-namespace {
+/*namespace {
   std::string station_name(int station) {
     if ( station == 1 ) return "CSS";
     if ( station == 2 ) return "CSL";
@@ -51,14 +51,14 @@ namespace {
     if ( measphi ) return "phi";
     return "r";
   }
-}
+}*/
 
 //******************************************************************************
 
 Csc4dSegmentMaker::
 Csc4dSegmentMaker(const std::string& type, const std::string& aname, const IInterface* parent)
 : AthAlgTool(type, aname, parent),
-  m_dumped(0), m_dump(false), m_pgm(0),
+  m_dumped(0), m_dump(false), m_pgm(0), m_phelper(0),
   m_segmentTool("CscSegmentUtilTool/CscSegmentUtilTool"),
   m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool")
 {

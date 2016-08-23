@@ -13,7 +13,7 @@ using Muon::CscPrepData;
 using Muon::CscPrepDataCollection;
 using Muon::CscPrepDataContainer;
 
-namespace {
+/*namespace {
 
   std::string station_name(int station) {
     if ( station == 1 ) return "CSS";
@@ -39,7 +39,7 @@ namespace {
     return ssout.str();
   }
   
-}
+}*/
 
 //******************************************************************************
 
