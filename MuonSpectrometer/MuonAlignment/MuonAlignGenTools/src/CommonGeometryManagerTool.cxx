@@ -88,40 +88,40 @@ CommonGeometryManagerTool::~CommonGeometryManagerTool()
 //_______________________________________________________________________
 StatusCode CommonGeometryManagerTool::initialize() 
 {
-  msg(MSG::DEBUG) << "initialize() of CommonGeometryManagerTool" << endreq;  
+  msg(MSG::DEBUG) << "initialize() of CommonGeometryManagerTool" << endmsg;  
   
   StatusCode sc=detStore()->retrieve(p_muonMgr);
   if (sc.isFailure()) {
-    msg(MSG::FATAL)<<"Cannot retrieve MuonDetectorManager"<<endreq;
+    msg(MSG::FATAL)<<"Cannot retrieve MuonDetectorManager"<<endmsg;
     return sc;
   }
-  else msg(MSG::DEBUG)<<"retrieved MuonDetectorManager"<<endreq;
+  else msg(MSG::DEBUG)<<"retrieved MuonDetectorManager"<<endmsg;
          
   if (m_idTool.retrieve().isSuccess())
-    msg(MSG::INFO) << "Retrieved " << m_idTool << endreq; 
+    msg(MSG::INFO) << "Retrieved " << m_idTool << endmsg; 
   else{
-    msg(MSG::FATAL)<<"Could not get " << m_idTool <<endreq; 
+    msg(MSG::FATAL)<<"Could not get " << m_idTool <<endmsg; 
     return StatusCode::FAILURE;
   }
 
   sc=service("RegionSelectionSvc", m_regionSvc);
   if(!sc.isSuccess())
     {
-    msg(MSG::FATAL) << "Could not get RegionSelectionSvc!" << endreq;
+    msg(MSG::FATAL) << "Could not get RegionSelectionSvc!" << endmsg;
     return sc;
   }
   
   if (m_doModuleSelection){
     msg(MSG::INFO) << "Region selection string: " 
-                   << m_regionSvc->GetRegionSelection() << endreq;
+                   << m_regionSvc->GetRegionSelection() << endmsg;
   }
 
   // Print moduleSelection
   if(m_doModuleSelection && m_moduleSelection.size()>0){
     msg(MSG::INFO) << "The following modules will be selected (nModules="
-		   << m_moduleSelection.size()  << "): " << endreq;
+		   << m_moduleSelection.size()  << "): " << endmsg;
     for(int i=0;i<(int)m_moduleSelection.size();i++){
-      msg(MSG::INFO) << "  module: " << m_moduleSelection[i] << endreq;
+      msg(MSG::INFO) << "  module: " << m_moduleSelection[i] << endmsg;
     }
   }
 
@@ -131,7 +131,7 @@ StatusCode CommonGeometryManagerTool::initialize()
 //________________________________________________________________________
 StatusCode CommonGeometryManagerTool::finalize() 
 {  
-  msg(MSG::DEBUG) << "finalize() of CommonGeometryManagerTool" << endreq;
+  msg(MSG::DEBUG) << "finalize() of CommonGeometryManagerTool" << endmsg;
  
   return StatusCode::SUCCESS;
 }

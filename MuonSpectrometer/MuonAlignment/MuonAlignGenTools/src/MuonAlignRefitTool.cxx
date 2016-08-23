@@ -545,8 +545,8 @@ namespace Muon {
                                                 track.fitQuality()->clone());
     
     ATH_MSG_DEBUG("created newTrack:");
-    ATH_MSG_DEBUG(m_printer->print(*newTrack)<<endreq<<
-		  m_printer->printStations(*newTrack)<<endreq);//<<
+    ATH_MSG_DEBUG(m_printer->print(*newTrack)<<endmsg<<
+		  m_printer->printStations(*newTrack)<<endmsg);//<<
 
     return newTrack;
   }
