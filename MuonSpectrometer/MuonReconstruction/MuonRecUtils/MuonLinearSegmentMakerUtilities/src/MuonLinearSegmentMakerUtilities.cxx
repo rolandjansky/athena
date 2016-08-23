@@ -25,44 +25,44 @@ namespace Muon
                                                               Trk::FitQuality* pFitQuality)
     {
         if (log.level() <= MSG::DEBUG)
-            log << MSG::DEBUG << "MuonLinearSegmentMakerUtilities::makeSegment" << endreq;
+            log << MSG::DEBUG << "MuonLinearSegmentMakerUtilities::makeSegment" << endmsg;
 
         const MuonGM::MuonReadoutElement* pReadoutElement =
             dynamic_cast<const MuonGM::MuonReadoutElement*>(pBaseRio->detectorElement());
         if (pReadoutElement == NULL)
         {
-            log << MSG::ERROR << "Cannot get a MuonReadoutElement from pBaseRio" << endreq;
+            log << MSG::ERROR << "Cannot get a MuonReadoutElement from pBaseRio" << endmsg;
             return NULL;
         }
         const Trk::Surface& surface = pReadoutElement->surface();
         if (log.level() <= MSG::DEBUG)
         {
             log << MSG::DEBUG << "Surface at pos: " << Amg::toString(surface.center())
-            << " dir: " << Amg::toString(surface.normal()) << endreq;
+            << " dir: " << Amg::toString(surface.normal()) << endmsg;
         }
         const Trk::PlaneSurface* pSurface = dynamic_cast<const Trk::PlaneSurface*>(&surface);
         if (pSurface == NULL)
         {
-            log << MSG::ERROR << "Cannot get a PlaneSurface from MuonReadoutElement" << endreq;
+            log << MSG::ERROR << "Cannot get a PlaneSurface from MuonReadoutElement" << endmsg;
             return NULL;
         }
         Amg::Vector2D pSegPos(0., 0.);
         
         if (!pSurface->globalToLocal(globalPosition, Amg::Vector3D(1., 1., 1.), pSegPos))
         {
-            log << MSG::ERROR << "Cannot get a LocalPosition from surface for " << Amg::toString(globalPosition) << endreq;
+            log << MSG::ERROR << "Cannot get a LocalPosition from surface for " << Amg::toString(globalPosition) << endmsg;
             return NULL;
         }
         if (log.level() <= MSG::DEBUG)
             log << MSG::DEBUG << "Segment local position is"
             << " x=" << pSegPos[Trk::locX]
-            << ",y=" << pSegPos[Trk::locY] << endreq;
+            << ",y=" << pSegPos[Trk::locY] << endmsg;
         Trk::LocalDirection  pSegDir;
         pSurface->globalToLocalDirection(globalDirection.unit(), pSegDir);
         if (log.level() <= MSG::DEBUG)
             log << MSG::DEBUG << "Segment local direction is"
             << " angleXZ=" << pSegDir.angleXZ()
-            << ",angleYZ=" << pSegDir.angleYZ() << endreq;
+            << ",angleYZ=" << pSegDir.angleYZ() << endmsg;
 	AmgMatrix(4,4) cov; cov.setZero();
         Muon::MuonSegment* pMuonSeg = new Muon::MuonSegment(pSegPos,
                                                             pSegDir,
@@ -72,7 +72,7 @@ namespace Muon
                                                             pFitQuality);
 
         if (log.level() <= MSG::DEBUG)
-            log << MSG::DEBUG << "MuonLinearSegmentMakerUtilities::makeSegment ended" << endreq;
+            log << MSG::DEBUG << "MuonLinearSegmentMakerUtilities::makeSegment ended" << endmsg;
 
         return pMuonSeg;
     }
