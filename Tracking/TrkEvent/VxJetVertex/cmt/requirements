@@ -13,13 +13,15 @@ use VxVertex            VxVertex-*           Tracking/TrkEvent
 use TrkTrackLink        TrkTrackLink-*       Tracking/TrkEvent
 use TrkParticleBase     TrkParticleBase-*    Tracking/TrkEvent
 use EventPrimitives	EventPrimitives-*    Event
+use xAODTracking        xAODTracking-*          Event/xAOD
 
 library VxJetVertex *.cxx
 apply_pattern installed_library
 
+
 private
 # persistency
-use DataModel           DataModel-*       Control
+use AthLinks      AthLinks-*      Control
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 apply_pattern lcgdict dict=VxJetVertex selectionfile=selection.xml headerfiles="../VxJetVertex/VxJetVertexDict.h"
 

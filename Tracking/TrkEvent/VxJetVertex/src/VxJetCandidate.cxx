@@ -27,6 +27,7 @@
 #include "TrkTrack/LinkToTrack.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
 
+#include "AthLinks/ElementLink.h"
 
 namespace Trk {
   
