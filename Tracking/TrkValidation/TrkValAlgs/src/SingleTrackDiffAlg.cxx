@@ -36,13 +36,13 @@ Trk::SingleTrackDiffAlg::SingleTrackDiffAlg(const std::string& name, ISvcLocator
 Trk::SingleTrackDiffAlg::~SingleTrackDiffAlg() {}
 
 StatusCode Trk::SingleTrackDiffAlg::initialize() {
-    msg(MSG::INFO) <<"SingleTrackDiffAlg initialize()" << endreq;
+    msg(MSG::INFO) <<"SingleTrackDiffAlg initialize()" << endmsg;
 
 
     // Get TrackDiff Tool
     StatusCode sc = m_trackDiffTool.retrieve();
     if (sc.isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve "<< m_trackDiffTool <<" (to compare tracks) "<< endreq;
+        msg(MSG::FATAL) << "Could not retrieve "<< m_trackDiffTool <<" (to compare tracks) "<< endmsg;
         return sc;
     }
 
@@ -50,7 +50,7 @@ StatusCode Trk::SingleTrackDiffAlg::initialize() {
 }
 
 StatusCode Trk::SingleTrackDiffAlg::execute() {
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)    << "SingleTrackDiffAlg execute() start" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE)    << "SingleTrackDiffAlg execute() start" << endmsg;
 
     StatusCode sc = StatusCode::SUCCESS;
 
@@ -60,42 +60,42 @@ StatusCode Trk::SingleTrackDiffAlg::execute() {
     if (m_referenceTrackCollection != "") {
         sc = evtStore()->retrieve(referenceTracks, m_referenceTrackCollection);
         if (sc.isFailure()) {
-            msg(MSG::ERROR) <<"Reference tracks not found:  " << m_referenceTrackCollection << endreq;
+            msg(MSG::ERROR) <<"Reference tracks not found:  " << m_referenceTrackCollection << endmsg;
             return StatusCode::FAILURE;
         } else {
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"Reference tracks found: " << m_referenceTrackCollection <<endreq;
+            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"Reference tracks found: " << m_referenceTrackCollection <<endmsg;
         }
     }else{
-        msg(MSG::ERROR) <<"No reference Track collection given!" <<endreq;
+        msg(MSG::ERROR) <<"No reference Track collection given!" <<endmsg;
         return StatusCode::FAILURE;
     }
     // get collection for comparison
     if (m_comparedTrackCollection != "") {
         sc = evtStore()->retrieve(comparedTracks, m_comparedTrackCollection);
         if (sc.isFailure()) {
-            msg(MSG::ERROR) <<"Tracks for comparison not found:  " << m_comparedTrackCollection << endreq;
+            msg(MSG::ERROR) <<"Tracks for comparison not found:  " << m_comparedTrackCollection << endmsg;
             return StatusCode::FAILURE;
         } else {
-            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"Tracks for comparison found: " << m_comparedTrackCollection <<endreq;
+            if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"Tracks for comparison found: " << m_comparedTrackCollection <<endmsg;
         }
     }else{
-        msg(MSG::ERROR) <<"No Track collection for comparison given!" <<endreq;
+        msg(MSG::ERROR) <<"No Track collection for comparison given!" <<endmsg;
         return StatusCode::FAILURE;
     }
     // just compare the first tracks of both collections
     TrackCollection::const_iterator refTrackIterator = referenceTracks->begin();
     TrackCollection::const_iterator compTrackIterator = comparedTracks->begin();
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << referenceTracks->size() <<" reference track(s) and " << comparedTracks->size() <<" comparison track(s)" <<endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << referenceTracks->size() <<" reference track(s) and " << comparedTracks->size() <<" comparison track(s)" <<endmsg;
     if ( refTrackIterator == referenceTracks->end() ) {
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"reference collection containes no tracks." <<endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"reference collection containes no tracks." <<endmsg;
         return StatusCode::SUCCESS;
     }
     if ( compTrackIterator == comparedTracks->end() ) {
-        msg(MSG::INFO) <<"collection for comparison containes no tracks in contrast to the reference collection" <<endreq;
+        msg(MSG::INFO) <<"collection for comparison containes no tracks in contrast to the reference collection" <<endmsg;
         return StatusCode::SUCCESS;
     }
     if (!(*refTrackIterator)) {
-        msg(MSG::WARNING) <<"reference track collection containes a NULL pointer" <<endreq;
+        msg(MSG::WARNING) <<"reference track collection containes a NULL pointer" <<endmsg;
         return StatusCode::SUCCESS;
     }
     // find track in compared collection which fits best to track in reference collection
@@ -106,7 +106,7 @@ StatusCode Trk::SingleTrackDiffAlg::execute() {
         double minChi2 = 1.e30;
         for (; compTrackIterator != comparedTracks->end(); compTrackIterator++) {
             if (!(*compTrackIterator)) {
-                msg(MSG::WARNING) <<"track collection for comparison containes a NULL pointer" <<endreq;
+                msg(MSG::WARNING) <<"track collection for comparison containes a NULL pointer" <<endmsg;
                 continue;
             }
             const Perigee* compPerigee = (*compTrackIterator)->perigeeParameters();
@@ -127,12 +127,12 @@ StatusCode Trk::SingleTrackDiffAlg::execute() {
                         compTrack = (*compTrackIterator);
                     }
                 }*/
-                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"pTRef: " << refPerigee->pT() << " pT: " << compPerigee->pT() <<" ThetaRef: " << refPerigee->parameters()[Trk::theta] << " Theta: " << compPerigee->parameters()[Trk::theta]<<" PhiRef: " << refPerigee->parameters()[Trk::phi0] << " Phi: " << compPerigee->parameters()[Trk::phi0]<<" chi2: " << chi2 <<endreq;
+                if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"pTRef: " << refPerigee->pT() << " pT: " << compPerigee->pT() <<" ThetaRef: " << refPerigee->parameters()[Trk::theta] << " Theta: " << compPerigee->parameters()[Trk::theta]<<" PhiRef: " << refPerigee->parameters()[Trk::phi0] << " Phi: " << compPerigee->parameters()[Trk::phi0]<<" chi2: " << chi2 <<endmsg;
 
             }
         }
-        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"minimum Delta pT: " << minDeltaqOverP <<endreq;
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"minimum chi2: " << minChi2 <<endreq;
+        //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"minimum Delta pT: " << minDeltaqOverP <<endmsg;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<"minimum chi2: " << minChi2 <<endmsg;
     }
     if (compTrack) {
         sc = m_trackDiffTool->diff( *(*refTrackIterator), *(compTrack) );
@@ -146,7 +146,7 @@ StatusCode Trk::SingleTrackDiffAlg::execute() {
 }
 
 StatusCode Trk::SingleTrackDiffAlg::finalize() {
-    msg(MSG::INFO)  << "SingleTrackDiffAlg finalize()" << endreq;
+    msg(MSG::INFO)  << "SingleTrackDiffAlg finalize()" << endmsg;
 
     return StatusCode::SUCCESS;
 }
