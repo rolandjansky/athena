@@ -112,7 +112,7 @@ Rec::MuidMaterialEffectsOnTrackProvider::extrapolationSurfacesAndEffects (
         energy.first=-3000;
         energy.second=500; // ???
 
-        // log << MSG::DEBUG << " returning " << matLayers->size() << " materialLayers " << endreq;
+        // log << MSG::DEBUG << " returning " << matLayers->size() << " materialLayers " << endmsg;
         ATH_MSG_DEBUG( "first x0: " << X0inner << " second x0: " << X0outer << " eloss: " << energy.first << " sigma: " << energy.second );
   
         Trk::MaterialProperties matprop(X0outer,1.,0.,0.,0.,0.);
