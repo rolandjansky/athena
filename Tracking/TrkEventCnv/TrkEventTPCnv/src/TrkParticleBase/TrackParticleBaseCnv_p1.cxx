@@ -83,7 +83,7 @@ void  TrackParticleBaseCnv_p1::transToPers(const Trk::TrackParticleBase * transO
   // // Leave test in for the moment.
   // // TODO - remove.
   // if (test!=transObj->m_trackInfo.m_patternRecognition){
-  //   log<<MSG::WARNING<<"TPBC Trackinfos don't match! "<<endreq;
+  //   log<<MSG::WARNING<<"TPBC Trackinfos don't match! "<<endmsg;
   //   std::cout<<"Trans:     "<<transObj->m_trackInfo.m_patternRecognition.to_string<char, std::char_traits<char>,std::allocator<char> >()<<std::endl;
   //   std::cout<<"Read back: "<<test.to_string<char, std::char_traits<char>,std::allocator<char> >()<<std::endl;
   //   std::cout<<"persObj->m_patternRecognition:    "<<std::hex<<persObj->m_patternRecognition<<std::endl;

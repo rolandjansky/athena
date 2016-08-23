@@ -8,7 +8,6 @@
 //
 //-----------------------------------------------------------------------------
 
-#include "TrkParameters/TrackParameters.h"
 #include "TrkEventTPCnv/TrkParameters/MeasuredAtaSurfaceCnv_p1.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 #include "TrackParametersCovarianceCnv.h"

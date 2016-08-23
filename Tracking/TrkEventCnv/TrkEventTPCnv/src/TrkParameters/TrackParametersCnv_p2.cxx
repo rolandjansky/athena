@@ -19,7 +19,6 @@
 #include "TrkSurfaces/DiscSurface.h"
 #include "TrkSurfaces/StraightLineSurface.h"
 #include "TrkSurfaces/ConeSurface.h"
-// #include "TrkTrackParameters/TrackParameters.h"
 #include "TrkParameters/TrackParameters.h"
 
 #include "TrkEventTPCnv/TrkParameters/TrackParametersCnv_p2.h"
@@ -75,7 +74,7 @@ Trk::TrackParameters* TrackParametersCnv_p2::createTransient( const Trk::TrackPa
       else if (type==Trk::Surface::Line)    {     transObj= new Trk::AtaStraightLine(parameters, static_cast<const Trk::StraightLineSurface*>(surface),cov); return transObj;}
     } else if (!m_nosurf) {
       // FIXME: next line changed to DEBUG to avoid filling the derivation job options with garbage. Underlying issue should be fixed.
-      log<<MSG::DEBUG<<"No surface of type="<<type<<" created - so these parameters cannot be made!"<<endreq;
+      log<<MSG::DEBUG<<"No surface of type="<<type<<" created - so these parameters cannot be made!"<<endmsg;
       delete cov;
       return 0;
     }
@@ -119,7 +118,7 @@ const Trk::Surface* TrackParametersCnv_p2::transSurface(const Trk :: TrackParame
     } 
       
     if (!surface){
-      log<<MSG::WARNING<<"Free surface of type="<<type<<" isn't currently supported in TrackParametersCnv_p2"<<endreq;
+      log<<MSG::WARNING<<"Free surface of type="<<type<<" isn't currently supported in TrackParametersCnv_p2"<<endmsg;
       return 0;
     }
   } else {
@@ -134,7 +133,7 @@ const Trk::Surface* TrackParametersCnv_p2::transSurface(const Trk :: TrackParame
       else {
         const Trk::Surface* detSurf = m_eventCnvTool->getSurface(id);
         if (!detSurf){
-          log<<MSG::WARNING<<"Surface of type="<<type<<" was not found by the eventCnvTool."<<endreq;
+          log<<MSG::WARNING<<"Surface of type="<<type<<" was not found by the eventCnvTool."<<endmsg;
         }
         surface = detSurf;
       }
@@ -157,14 +156,14 @@ void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transO
   } else {
     // normal track parameters - check if the type is 'permitted' to be written, if not, convert to curvilinear
     if (isPersistifiableType(transObj)) {
-      unsigned int nRows = transObj->m_parameters.rows();
+      unsigned int nRows = transObj->parameters().rows();
       persObj->m_parameters.resize( nRows); 
       for( unsigned int i = 0; i < nRows; i++ ){
-        persObj->m_parameters[i]   = (transObj->m_parameters)[i];      
+        persObj->m_parameters[i]   = transObj->parameters()[i];      
       }
       fillPersSurface(transObj, persObj, log);
     } else {
-      if (debug) log<<MSG::WARNING<<"Received parameters with non-supported surface. Will convert to curvilinear. TransObj="<<*transObj<<endreq;
+      if (debug) log<<MSG::WARNING<<"Received parameters with non-supported surface. Will convert to curvilinear. TransObj="<<*transObj<<endmsg;
       std::unique_ptr<AmgSymMatrix(5)> newcov;
       if (transObj->covariance())
         newcov = CxxUtils::make_unique<AmgSymMatrix(5)> (*transObj->covariance());
@@ -178,9 +177,9 @@ void TrackParametersCnv_p2::transToPers( const Trk :: TrackParameters    *transO
   }
   
   // Errormatrix
-  if (transObj->m_covariance){
+  if (transObj->covariance()){
     Trk::ErrorMatrix pMat;
-    EigenHelpers::eigenMatrixToVector(pMat.values, *transObj->m_covariance, "TrackParametersCnv_p2");
+    EigenHelpers::eigenMatrixToVector(pMat.values, *transObj->covariance(), "TrackParametersCnv_p2");
     persObj->m_errorMatrix = toPersistent( &m_emConverter, &pMat, log );
   }
 

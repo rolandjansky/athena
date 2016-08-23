@@ -41,7 +41,10 @@ persToTrans( const Trk::AtaSurface_p1 *persObj, ATA_SURFACE *transObj, MsgStream
 
    Trk::SurfaceUniquePtrT<const typename SURFACE_CNV::Trans_t> surf
      (static_cast<const typename SURFACE_CNV::Trans_t*>(temp));
-   *transObj = ATA_SURFACE (parms, std::move (surf));
+   if (surf)
+     *transObj = ATA_SURFACE (parms, *surf.get());
+   else
+     *transObj = ATA_SURFACE (parms, nullptr);
    if (waszero)
      TrkEventTPCnv::mungeZeroQOverP (*transObj);
 }

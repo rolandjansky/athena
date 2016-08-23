@@ -19,7 +19,6 @@
 
 #include "TrkParametersBase/ParametersBase.h"
 
-
 template <typename PARMS>
 class TrackParametersCovarianceCnv
 {

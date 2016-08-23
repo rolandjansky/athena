@@ -28,7 +28,8 @@ void PerigeeCnv_p1::persToTrans(    const Trk::Perigee_p1 *persObj,
 
   Trk::SurfaceUniquePtrT<const Trk::PerigeeSurface> surf
     (createTransFromPStore( &m_perigeeSurfaceCnv, persObj->m_assocSurface, log ));
-  *transObj = Trk::Perigee (parms, std::move(surf));
+  assert(surf);
+  *transObj = Trk::Perigee (parms, *surf.get());
   if (waszero)
     TrkEventTPCnv::mungeZeroQOverP (*transObj);
 }

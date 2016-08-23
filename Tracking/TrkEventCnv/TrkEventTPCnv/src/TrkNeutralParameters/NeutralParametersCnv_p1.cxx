@@ -17,8 +17,10 @@ void NeutralParametersCnv_p1::persToTrans( const Trk :: TrackParameters_p1 *pers
 					 MsgStream& )
 {
   unsigned int size=persObj->m_parameters.size();
-  assert (transObj->m_parameters.rows()==size);
-  for (unsigned int i=0; i<size; ++i) transObj->m_parameters[i]=persObj->m_parameters[i];
+  assert (transObj->dim==size);
+  AmgVector(Trk::TrackParameters::dim) pars;
+  for (unsigned int i=0; i<size; ++i) pars(i)=persObj->m_parameters[i];
+  transObj->updateParameters(pars);
 }
 
 

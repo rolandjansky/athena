@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrkParameters/TrackParameters.h"
 #include "TrkEventTPCnv/TrkParameters/MeasuredPerigeeCnv_p2.h"
 #include "TrkEventTPCnv/helpers/EigenHelpers.h"
 #include "TrackParametersCovarianceCnv.h"

@@ -60,6 +60,6 @@ void PseudoMeasurementOnTrackCnv_p1::transToPers( const Trk :: PseudoMeasurement
     }
   }
   else {
-  log<<MSG::WARNING<<"TrackParameter doesn't have a surface! Dumping: "<<*transObj<<endreq;
+  log<<MSG::WARNING<<"TrackParameter doesn't have a surface! Dumping: "<<*transObj<<endmsg;
   }
 }

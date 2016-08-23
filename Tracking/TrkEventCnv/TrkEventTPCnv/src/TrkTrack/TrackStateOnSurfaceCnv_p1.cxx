@@ -41,10 +41,10 @@ persToTrans( const Trk::TrackStateOnSurface_p1 *persObj, Trk::TrackStateOnSurfac
       const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
       if ( rot!=0 ) {
           
-          log<<MSG::WARNING<<"TrackStateOnSurfaceCnv_p1: Not sure how to set the surface yet, so this Parameter is useless for most purposes."<<endreq;
+          log<<MSG::WARNING<<"TrackStateOnSurfaceCnv_p1: Not sure how to set the surface yet, so this Parameter is useless for most purposes."<<endmsg;
           
       } else {
-          log<<MSG::WARNING<<"TrackStateOnSurfaceCnv_p1: TrackParam has no surface and no ROT available to help!"<<endreq;
+          log<<MSG::WARNING<<"TrackStateOnSurfaceCnv_p1: TrackParam has no surface and no ROT available to help!"<<endmsg;
       }
    }
 
