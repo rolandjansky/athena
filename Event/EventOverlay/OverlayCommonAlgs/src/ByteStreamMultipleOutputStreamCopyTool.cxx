@@ -85,7 +85,8 @@ ByteStreamMultipleOutputStreamCopyTool::ByteStreamMultipleOutputStreamCopyTool(
                                                                                const std::string& name,
                                                                                const IInterface* parent)
   : AthAlgTool(type, name, parent),
-    m_inputSvc("ByteStreamEventStorageInputSvc", name)
+    m_inputSvc("ByteStreamEventStorageInputSvc", name),
+    m_uselbnmap(false)
 {
   // Declare IAthenaOutputStreamTool interface
   declareInterface<IAthenaOutputStreamTool>(this);
@@ -173,11 +174,10 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::initialize() {
     CHECK( m_outputSvc[i].retrieve() );
   }
 
-  if (m_lbn_map_file!=std::string("") && m_lbn_map_file!=std::string("random") && m_lbn_map_file!=std::string("serial") ) m_uselbnmap=1;
-  else m_uselbnmap=0;
+  if (m_lbn_map_file!=std::string("") && m_lbn_map_file!=std::string("random") && m_lbn_map_file!=std::string("serial") ) m_uselbnmap=true;
   ATH_MSG_INFO( "lbn_map_file is "<<m_lbn_map_file<<" and uselbnmap is "<<m_uselbnmap );
 
-  if (m_uselbnmap>0) initlbnmap();
+  if (m_uselbnmap==true) initlbnmap();
 
   return(StatusCode::SUCCESS);
 }
@@ -341,7 +341,7 @@ StatusCode ByteStreamMultipleOutputStreamCopyTool::commitOutput() {
     return StatusCode::SUCCESS ;
   }
 
-  if (m_uselbnmap>0){
+  if (m_uselbnmap==true){
 
     //See if we want this event in any stream...
     lbninfo &l = runlbnmap[run][lbn];

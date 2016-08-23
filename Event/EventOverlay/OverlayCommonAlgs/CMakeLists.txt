@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PRIVATE
                           Event/xAOD/xAODEventInfo
-                          Event/xAOD/xAODEventInfoCnv
+                          Event/xAOD/xAODCnvInterfaces
                           Calorimeter/CaloSimEvent
                           Control/AthenaBaseComps
                           Control/AthenaKernel

@@ -56,7 +56,7 @@ StatusCode CopyObjects::overlayFinalize()
 StatusCode CopyObjects::overlayExecute() {
   MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << "CopyObjects::execute() begin"<< endreq;
+  log << MSG::DEBUG << "CopyObjects::execute() begin"<< endmsg;
 //  std::cout << m_storeGateMC->dump() << std::endl;
 //  std::cout << m_storeGateTemp->dump() << std::endl;
 //  std::cout << m_storeGateOutput->dump() << std::endl;
@@ -83,7 +83,7 @@ StatusCode CopyObjects::overlayExecute() {
      copyMuonSDOobject<CscSimDataCollection,CscSimData>(&*m_storeGateOutput, &*m_storeGateMC, "CSC_SDO");
   }
 
-  log << MSG::DEBUG << "CopyObjects::execute() end"<< endreq;
+  log << MSG::DEBUG << "CopyObjects::execute() end"<< endmsg;
 //  std::cout << m_storeGateMC->dump() << std::endl;
 //  std::cout << m_storeGateTemp->dump() << std::endl;
 //  std::cout << m_storeGateOutput->dump() << std::endl;

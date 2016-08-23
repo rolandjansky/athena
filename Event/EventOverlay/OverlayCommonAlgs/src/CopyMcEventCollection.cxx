@@ -60,7 +60,7 @@ StatusCode CopyMcEventCollection::overlayFinalize()
 //================================================================
 StatusCode CopyMcEventCollection::overlayExecute() {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "CopyMcEventCollection::execute() begin"<< endreq;
+  log << MSG::DEBUG << "CopyMcEventCollection::execute() begin"<< endmsg;
 
   if (m_realdata){
 
@@ -85,10 +85,10 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " errorstate core " << mcEvtInfo->errorState(EventInfo::Core)
 	<< " eventflags lar " << mcEvtInfo->eventFlags(EventInfo::LAr)
 	<< " errorstate lar " << mcEvtInfo->errorState(EventInfo::LAr)
-	<< " from store " << m_storeGateMC->name() << endreq;
+	<< " from store " << m_storeGateMC->name() << endmsg;
     
   } else {
-    log << MSG::WARNING << "Could not retrieve EventInfo from MC store "<< endreq;  
+    log << MSG::WARNING << "Could not retrieve EventInfo from MC store "<< endmsg;  
   }
   
   const EventInfo* dataEvtInfo = 0;
@@ -108,9 +108,9 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " errorstate core " << dataEvtInfo->errorState(EventInfo::Core)
 	<< " eventflags lar " << dataEvtInfo->eventFlags(EventInfo::LAr)
 	<< " errorstate lar " << dataEvtInfo->errorState(EventInfo::LAr)
-	<< " from store " << m_storeGateData->name() << endreq;    
+	<< " from store " << m_storeGateData->name() << endmsg;    
   } else {
-    log << MSG::WARNING << "Could not retrieve EventInfo from Data store "<< endreq;  
+    log << MSG::WARNING << "Could not retrieve EventInfo from Data store "<< endmsg;  
   }
 
   const EventInfo* data2EvtInfo = m_storeGateData2->tryConstRetrieve<EventInfo>();
@@ -130,9 +130,9 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " errorstate core " << data2EvtInfo->errorState(EventInfo::Core)
 	<< " eventflags lar " << data2EvtInfo->eventFlags(EventInfo::LAr)
 	<< " errorstate lar " << data2EvtInfo->errorState(EventInfo::LAr)
-	<< " from store " << m_storeGateData2->name() << endreq;    
+	<< " from store " << m_storeGateData2->name() << endmsg;    
   } else {
-    log << MSG::INFO << "Could not retrieve EventInfo from Data2 store "<< endreq;  
+    log << MSG::INFO << "Could not retrieve EventInfo from Data2 store "<< endmsg;  
   }
   
   const EventInfo* outEvtInfo = 0;
@@ -152,9 +152,9 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 	<< " errorstate core " << outEvtInfo->errorState(EventInfo::Core)
 	<< " eventflags lar " << outEvtInfo->eventFlags(EventInfo::LAr)
 	<< " errorstate lar " << outEvtInfo->errorState(EventInfo::LAr)
-	<< " from store " << m_storeGateOutput->name()	<< endreq;
+	<< " from store " << m_storeGateOutput->name()	<< endmsg;
   } else {
-    log << MSG::WARNING << "Could not retrieve EventInfo from Out store "<< endreq;  
+    log << MSG::WARNING << "Could not retrieve EventInfo from Out store "<< endmsg;  
   }
 
   //Stolen from Event/xAOD/xAODEventInfoCnv/src/EventInfoCnvAlg.cxx
@@ -179,39 +179,39 @@ StatusCode CopyMcEventCollection::overlayExecute() {
   if (m_checkeventnumbers){
   //Check consistency of output run/event with input runs/events
   if (outEvtInfo->event_ID()->event_number() != dataEvtInfo->event_ID()->event_number()){
-    log << MSG::ERROR << "Output event number doesn't match input data event number!" << endreq;
+    log << MSG::ERROR << "Output event number doesn't match input data event number!" << endmsg;
     return StatusCode::FAILURE;
   }
   if (outEvtInfo->event_ID()->event_number() != mcEvtInfo->event_ID()->event_number()){
-    log << MSG::WARNING << "Output event number doesn't match input MC event number!" << endreq;
+    log << MSG::WARNING << "Output event number doesn't match input MC event number!" << endmsg;
     //return StatusCode::FAILURE;
   }
   if (outEvtInfo->event_ID()->run_number() != dataEvtInfo->event_ID()->run_number()){
-    log << MSG::ERROR << "Output run number doesn't match input data run number!" << endreq;
+    log << MSG::ERROR << "Output run number doesn't match input data run number!" << endmsg;
     return StatusCode::FAILURE;
   }
   if (outEvtInfo->event_ID()->run_number() != mcEvtInfo->event_ID()->run_number()){
-    log << MSG::ERROR << "Output run number doesn't match input MC run number!" << endreq;
+    log << MSG::ERROR << "Output run number doesn't match input MC run number!" << endmsg;
     return StatusCode::FAILURE;
   }
   if (outEvtInfo->event_ID()->time_stamp() != dataEvtInfo->event_ID()->time_stamp()){
-    log << MSG::ERROR << "Output time stamp doesn't match input data time stamp!" << endreq;
+    log << MSG::ERROR << "Output time stamp doesn't match input data time stamp!" << endmsg;
     return StatusCode::FAILURE;
   }
   if (outEvtInfo->event_ID()->time_stamp() != mcEvtInfo->event_ID()->time_stamp()){
-    log << MSG::ERROR << "Output time stamp doesn't match input MC time stamp!" << endreq;
+    log << MSG::ERROR << "Output time stamp doesn't match input MC time stamp!" << endmsg;
     return StatusCode::FAILURE;
   }
   if (outEvtInfo->event_ID()->lumi_block() != dataEvtInfo->event_ID()->lumi_block()){
-    log << MSG::ERROR << "Output lbn doesn't match input data lbn!" << endreq;
+    log << MSG::ERROR << "Output lbn doesn't match input data lbn!" << endmsg;
     return StatusCode::FAILURE;
   }
   if (outEvtInfo->event_ID()->lumi_block() != mcEvtInfo->event_ID()->lumi_block()){
-    log << MSG::ERROR << "Output lbn doesn't match input MC lbn!" << endreq;
+    log << MSG::ERROR << "Output lbn doesn't match input MC lbn!" << endmsg;
     return StatusCode::FAILURE;
   } 
  if (outEvtInfo->event_ID()->bunch_crossing_id() != dataEvtInfo->event_ID()->bunch_crossing_id()){
-    log << MSG::ERROR << "Output bcid doesn't match input data bcid!" << endreq;
+    log << MSG::ERROR << "Output bcid doesn't match input data bcid!" << endmsg;
     return StatusCode::FAILURE;
   }
   }
@@ -225,7 +225,7 @@ StatusCode CopyMcEventCollection::overlayExecute() {
 
   //Doesn't seem to actually stop the event from being written out...
   // if (EventInfo::Error == mcEvtInfo->errorState(EventInfo::Core)){
-  //     log << MSG::WARNING << "Aborting event because EventInfo::Core Error in mcEvtInfo (LooperKiller from G4?)" << endreq;
+  //     log << MSG::WARNING << "Aborting event because EventInfo::Core Error in mcEvtInfo (LooperKiller from G4?)" << endmsg;
   //     setFilterPassed( false );
   //   }
   
@@ -244,10 +244,10 @@ StatusCode CopyMcEventCollection::overlayExecute() {
       << " errorstate core " << newEvtInfo->errorState(EventInfo::Core)
       << " eventflags lar " << newEvtInfo->eventFlags(EventInfo::LAr)
       << " errorstate lar " << newEvtInfo->errorState(EventInfo::LAr)
-      << " to store "<<m_storeGateOutput->name()<< endreq;
+      << " to store "<<m_storeGateOutput->name()<< endmsg;
   if (m_storeGateOutput->contains<EventInfo>(m_infoType) ){ removeAllObjectsOfType<EventInfo>(&*m_storeGateOutput); }
   if ( m_storeGateOutput->record( newEvtInfo, m_infoType ).isFailure() ) {
-    log << MSG::ERROR << "could not record EventInfo to output storeGate, key= " << m_infoType << endreq;
+    log << MSG::ERROR << "could not record EventInfo to output storeGate, key= " << m_infoType << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -264,7 +264,7 @@ StatusCode CopyMcEventCollection::overlayExecute() {
   if ( m_storeGateMC->retrieve(sigEvtColl, "TruthEvent").isFailure() ) {
      log << MSG::WARNING 
          << "Could not retrieve HepMC collection with key " 
-         << "TruthEvent" << endreq;
+         << "TruthEvent" << endmsg;
    }
    if ( sigEvtColl ) listOfMcEventCollection.push_back( sigEvtColl );
  
@@ -275,7 +275,7 @@ StatusCode CopyMcEventCollection::overlayExecute() {
   if ( m_storeGateData->retrieve(bacEvtColl, "TruthEvent").isFailure() ) {
      log << MSG::WARNING
          << "Could not retrieve HepMC collection with key "
-         << "TruthEvent" << endreq;
+         << "TruthEvent" << endmsg;
    }
    if ( bacEvtColl ) listOfMcEventCollection.push_back( bacEvtColl );
   }//!m_realdata
@@ -291,7 +291,7 @@ StatusCode CopyMcEventCollection::overlayExecute() {
    } 
 
    if ( m_storeGateOutput->record(newMcEvtColl, "TruthEvent").isFailure() ) {
-     log << MSG::ERROR << "Could not add new HepMC collection with key " << "TruthEvent" << endreq;
+     log << MSG::ERROR << "Could not add new HepMC collection with key " << "TruthEvent" << endmsg;
      return StatusCode::FAILURE;
    }
    
@@ -299,7 +299,7 @@ StatusCode CopyMcEventCollection::overlayExecute() {
   copyAllObjectsOfType<CaloCalibrationHitContainer>(&*m_storeGateOutput, &*m_storeGateMC);
   if (!m_realdata) {copyAllObjectsOfType<HijingEventParams>(&*m_storeGateOutput, &*m_storeGateData);}
 
-  log << MSG::DEBUG << "CopyMcEventCollection::execute() end"<< endreq;
+  log << MSG::DEBUG << "CopyMcEventCollection::execute() end"<< endmsg;
   return StatusCode::SUCCESS;
 }
 
