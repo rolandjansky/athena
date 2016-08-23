@@ -130,19 +130,19 @@ StatusCode MuonStationIntersectSvc::queryInterface(const InterfaceID& riid, void
 
 StatusCode MuonStationIntersectSvc::initialize()
 {
-  m_imp->m_log = new MsgStream(messageService(), name());
+  m_imp->m_log = new MsgStream(msgSvc(), name());
   m_imp->m_debug = m_imp->m_log->level() <= MSG::DEBUG;
   m_imp->m_verbose = m_imp->m_log->level() <= MSG::VERBOSE;
 
   if ( AthService::initialize().isFailure() ) {
-    *m_imp->m_log << MSG::ERROR << "Service::initialise() failed" << endreq;
+    *m_imp->m_log << MSG::ERROR << "Service::initialise() failed" << endmsg;
     return StatusCode::FAILURE;
   }
 
   StoreGateSvc* detStore=0;
   if ( serviceLocator()->service("DetectorStore", detStore).isSuccess() ) {
     if ( detStore->retrieve( m_imp->m_detMgr ).isFailure() ) {
-      *m_imp->m_log << MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endreq;
+      *m_imp->m_log << MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endmsg;
       return StatusCode::FAILURE;
     }
   }else{
@@ -152,25 +152,25 @@ StatusCode MuonStationIntersectSvc::initialize()
 //   // Set to be listener for end of event
   IIncidentSvc* incSvc;
   if (service("IncidentSvc",incSvc).isFailure()) {
-    *m_imp->m_log << MSG::ERROR << "Unable to get the IncidentSvc" << endreq;
+    *m_imp->m_log << MSG::ERROR << "Unable to get the IncidentSvc" << endmsg;
     return StatusCode::FAILURE;
   }
   long int pri=100;
   incSvc->addListener( this, "EndEvent", pri);
 
   if( m_imp->m_idHelper.retrieve().isFailure() ){
-    *m_imp->m_log << MSG::ERROR << "Failed to retrieve " << m_imp->m_idHelper << endreq;
+    *m_imp->m_log << MSG::ERROR << "Failed to retrieve " << m_imp->m_idHelper << endmsg;
     return StatusCode::FAILURE;
   }
 
   if( m_imp->m_mdtSummarySvc.retrieve().isFailure() ){
-    *m_imp->m_log << MSG::ERROR << "Failed to retrieve " << m_imp->m_mdtSummarySvc << endreq;
+    *m_imp->m_log << MSG::ERROR << "Failed to retrieve " << m_imp->m_mdtSummarySvc << endmsg;
     return StatusCode::FAILURE;
   }
 
 
   delete m_imp->m_log;
-  m_imp->m_log = new MsgStream(messageService(), name());
+  m_imp->m_log = new MsgStream(msgSvc(), name());
   m_imp->m_debug = m_imp->m_log->level() <= MSG::DEBUG;
   m_imp->m_verbose = m_imp->m_log->level() <= MSG::VERBOSE;
 
@@ -181,7 +181,7 @@ StatusCode MuonStationIntersectSvc::initialize()
 }
 
 StatusCode MuonStationIntersectSvc::finalize() {
-  if( m_imp->m_debug ) *m_imp->m_log << MSG::DEBUG << "Finalizing " << endreq;
+  if( m_imp->m_debug ) *m_imp->m_log << MSG::DEBUG << "Finalizing " << endmsg;
 
   // free memory of geometry
   m_imp->clearGeometry();
@@ -231,7 +231,7 @@ MuonStationIntersectSvc::tubesCrossedByTrack( const Identifier& id,
 
   if( m_imp->m_debug ){
     *m_imp->m_log << MSG::DEBUG << " Calculating holes for chamber " << m_imp->m_idHelper->toString(id)
-		  << " accounted stations " << stations.size() << endreq;
+		  << " accounted stations " << stations.size() << endmsg;
   }
 
   Muon::MuonStationIntersect::TubeIntersects tubeIntersects;
@@ -241,7 +241,7 @@ MuonStationIntersectSvc::tubesCrossedByTrack( const Identifier& id,
       const Muon::MdtIntersectGeometry* geo = dynamic_cast<const Muon::MdtIntersectGeometry*>(*it);
       if( geo ){
 	const TrkDriftCircleMath::MdtChamberGeometry* mdtChamberGeometry = geo->mdtChamberGeometry();
-	*m_imp->m_log << MSG::VERBOSE << " In chamber " << m_imp->m_idHelper->toString(geo->chamberId()) << " address " << geo << endreq;
+	*m_imp->m_log << MSG::VERBOSE << " In chamber " << m_imp->m_idHelper->toString(geo->chamberId()) << " address " << geo << endmsg;
 	if( mdtChamberGeometry ) mdtChamberGeometry->print();
       }
     }
@@ -309,7 +309,7 @@ const std::vector<int>& MuonStationIntersectSvc::Imp::binPlusneighbours( const I
     *m_log << MSG::VERBOSE << " returning hashes for id " << m_idHelper->toString(id) << " nhashes " << m_bins.size()
 	   << "   eta " << chEtaLeft  << "     " << stEta << "     " << chEtaRight << " bins ";
     for( unsigned int i=0;i<m_bins.size();++i ) *m_log << " " << m_bins[i];
-    *m_log << endreq;
+    *m_log << endmsg;
   }
 
   return m_bins;
@@ -341,11 +341,11 @@ void MuonStationIntersectSvc::Imp::initGeometry() const
     if( m_debug ) {
       *m_log << MSG::DEBUG << " initGeometry " << std::endl
 	     << " max station name index " << m_stNameMax << std::endl
-	     << " station phi " << stPhiMin << "  " << m_stPhiMax << endreq
+	     << " station phi " << stPhiMin << "  " << m_stPhiMax << endmsg
 	     << " station eta: barrel " << m_stEtaMinEB[1] << "  " << m_stEtaMaxEB[1] << std::endl
 	     << " station eta: endcap " << m_stEtaMinEB[0] << "  " << m_stEtaMaxEB[0] << std::endl
 	     << " station eta: range  " << m_stEtaMin << "  " << m_stEtaMax
-	     << " hash max " << hashmax << endreq;
+	     << " hash max " << hashmax << endmsg;
     }
 
   }
@@ -364,13 +364,13 @@ void MuonStationIntersectSvc::Imp::initGeometry() const
     // consistency checks
     if( (!mdtROEl && mdtDetEl) || (!mdtDetEl && mdtROEl ) ){
       *m_log << MSG::WARNING << "Incompletely geometry found for " << m_idHelper->toStringChamber(*it)
-	     << " DetEl " << mdtDetEl << " ReadoutEl " << mdtROEl << endreq;
+	     << " DetEl " << mdtDetEl << " ReadoutEl " << mdtROEl << endmsg;
     }
 
     int bin = toBin(*it);
     if( bin < 0 || bin >= (int)m_geometry.size() ){
       *m_log << MSG::WARNING << " index out of range " << bin
-	     << " for " << m_idHelper->toString(*it) << endreq;
+	     << " for " << m_idHelper->toString(*it) << endmsg;
       continue;
     }
 
@@ -378,21 +378,21 @@ void MuonStationIntersectSvc::Imp::initGeometry() const
 
       // sanity check
       if( mdtDetEl->identify() != *it ){
-	*m_log << MSG::ERROR << " MdtDetectorElement return by geomodel has different Id than input Id: " << endreq
-	       << " In     " << m_idHelper->toString(*it) << endreq
-	       << " DetEl  " << m_idHelper->toString(mdtDetEl->identify()) << endreq;
+	*m_log << MSG::ERROR << " MdtDetectorElement return by geomodel has different Id than input Id: " << endmsg
+	       << " In     " << m_idHelper->toString(*it) << endmsg
+	       << " DetEl  " << m_idHelper->toString(mdtDetEl->identify()) << endmsg;
       }
 
       // get reference to bin
       StationData& data = m_geometry[bin];
       if( data.first ) {
-	*m_log << MSG::WARNING << " problem initialising MdtDetectorElement vector, bin occupied " << bin << endreq;
+	*m_log << MSG::WARNING << " problem initialising MdtDetectorElement vector, bin occupied " << bin << endmsg;
       }else{
 
 	// set pointer to MdtDetectorElement
 	data.first = mdtDetEl;
 
-	if( m_verbose ) *m_log << MSG::VERBOSE << " Adding chamber " << m_idHelper->toString(mdtDetEl->identify()) << " bin " << bin << endreq;
+	if( m_verbose ) *m_log << MSG::VERBOSE << " Adding chamber " << m_idHelper->toString(mdtDetEl->identify()) << " bin " << bin << endmsg;
 
 	// init geometry if requested
 	if( m_initGeometry ) data.second = createMdtChamberGeometry( *it );
@@ -403,16 +403,16 @@ void MuonStationIntersectSvc::Imp::initGeometry() const
 	    const TrkDriftCircleMath::MdtChamberGeometry* mdtChamberGeometry = geo->mdtChamberGeometry();
 	    if( mdtChamberGeometry ) mdtChamberGeometry->print();
 	  }else{
-	    *m_log << MSG::WARNING << " dynamic_cast to MdtIntersectGeometry failed " << endreq;
+	    *m_log << MSG::WARNING << " dynamic_cast to MdtIntersectGeometry failed " << endmsg;
 	  }
 	}
       }
 
       // final sanity check, the first MdtReadoutElement for the MdtDetectorElement should be the same as the one from the Identifier
       if( mdtROEl != mdtDetEl->getMdtReadoutElement(1) && mdtROEl ){
-	*m_log << MSG::ERROR << " Detected inconsistency in MuonGeoModel. MdtReadoutElement pointer returned from MdtDetectorElement wrong " << endreq
-	       << " ReadoutEl     " << m_idHelper->toString(mdtROEl->identify()) << endreq
-	       << " DetEl         " << m_idHelper->toString(mdtDetEl->identify()) << endreq;
+	*m_log << MSG::ERROR << " Detected inconsistency in MuonGeoModel. MdtReadoutElement pointer returned from MdtDetectorElement wrong " << endmsg
+	       << " ReadoutEl     " << m_idHelper->toString(mdtROEl->identify()) << endmsg
+	       << " DetEl         " << m_idHelper->toString(mdtDetEl->identify()) << endmsg;
       }
     }
   }
@@ -431,11 +431,11 @@ void MuonStationIntersectSvc::Imp::clearGeometry() {
 }
 
 const Muon::MuonIntersectGeometry* MuonStationIntersectSvc::Imp::createMdtChamberGeometry( const Identifier& chid ) const{
-  if( m_verbose ) *m_log << MSG::VERBOSE << " Creating geometry for chamber " << m_idHelper->toStringChamber(chid) << endreq;
+  if( m_verbose ) *m_log << MSG::VERBOSE << " Creating geometry for chamber " << m_idHelper->toStringChamber(chid) << endmsg;
 
   // check if chamber is active using IMDTConditionsSvc
   if( !m_mdtSummarySvc->isGoodChamber(chid) ) {
-    if( m_debug ) *m_log << MSG::DEBUG << " Chamber flagged as dead by IMDTConditionsSvc " << m_idHelper->toStringChamber(chid) << endreq;
+    if( m_debug ) *m_log << MSG::DEBUG << " Chamber flagged as dead by IMDTConditionsSvc " << m_idHelper->toStringChamber(chid) << endmsg;
     return 0;
   }
 
@@ -444,7 +444,7 @@ const Muon::MuonIntersectGeometry* MuonStationIntersectSvc::Imp::createMdtChambe
 
 void MuonStationIntersectSvc::handle(const Incident& inc) {
   if( m_imp->m_debug ) *m_imp->m_log << MSG::DEBUG << "entering handle(), incidence type " << inc.type()
-				     << " from " << inc.source() << endreq;
+				     << " from " << inc.source() << endmsg;
 
   // Only clear cache for EndEvent incident
   if (inc.type() != "EndEvent") return;
