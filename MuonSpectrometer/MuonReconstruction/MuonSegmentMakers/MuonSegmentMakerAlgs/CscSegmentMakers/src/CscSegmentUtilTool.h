@@ -7,10 +7,14 @@
 
 // Utilities for building segments.
 #include <string>
+#include <vector>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h" // separately...
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
+#include "CscClusterization/ICscClusterUtilTool.h"
+//#include "CscClusterization/CalibCscStripFitter.h"
+//#include "CscClusterization/ICscStripFitter.h"
 
 namespace MuonGM {
   class MuonDetectorManager;
@@ -27,6 +31,7 @@ namespace Muon {
 }
 class ICscSegmentFinder;
 class ICscClusterFitter;
+class ICscStripFitter;
 
 class CscSegmentUtilTool : virtual public ICscSegmentUtilTool, public AthAlgTool {
 
@@ -112,9 +117,9 @@ private:  // data
  
   ToolHandle<ICscClusterFitter> m_pfitter_prec;
   ToolHandle<Muon::IMuonClusterOnTrackCreator> m_rotCreator;
-  bool m_add2hitSegments;
-
   ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
+  ToolHandle<ICscClusterUtilTool> m_clusterTool;
+  ToolHandle<ICscStripFitter>   m_stripFitter;
 
   StoreGateSvc* m_storeGateSvc;
 
@@ -150,14 +155,16 @@ private:  // data
                       double localPos, double localSlope) const;
 
     // Find 2 hit segments in a chamber.
-  void find_2dseg2hit(bool measphi, int station,  int eta, int phi, int lay0, int lay1,
+  void find_2dseg2hit(bool measphi, int station,  int eta, int phi, std::vector<int> layStat,
                       const ICscSegmentFinder::ChamberTrkClusters& clus, const Amg::Vector3D& lpos000,
                       ICscSegmentFinder::Segments& segs, 
-                      ICscSegmentFinder::Segments& segs3or4hit, 
                       double localPos, double localSlope) const;
 
   /** Adds 3-hit segments to 4-hit segments **/
   void add_2dsegments(ICscSegmentFinder::Segments &segs4, ICscSegmentFinder::Segments &segs3) const;
+
+  //Stores 2-hit segments (does overlap removal and then saves the remaining segments)
+  void add_2dseg2hits(ICscSegmentFinder::Segments &segs, ICscSegmentFinder::Segments &segs2, std::vector<int> layStat) const;
   
   // Check to see if 3-hit segment is unique.
   bool unique_hits(ICscSegmentFinder::TrkClusters& fitclus, ICscSegmentFinder::Segments& segs) const;
@@ -168,7 +175,7 @@ private:  // data
                       ICscSegmentFinder::Segments& etasegs, ICscSegmentFinder::Segments& phisegs,
                       const Amg::Vector3D& lpos000 ) const;
 
-  Muon::MuonSegment* make_4dMuonSegment(const Muon::MuonSegment& rsg, const Muon::MuonSegment& psg) const;
+  Muon::MuonSegment* make_4dMuonSegment(const Muon::MuonSegment& rsg, const Muon::MuonSegment& psg, bool use2LaySegs) const;
 
   /***** Find outlier cluster *****/
   /* It finds the biggest chisquare contributing cluster:
