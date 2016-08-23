@@ -79,14 +79,14 @@ private:  // data
   double m_qerr_fail;     // Charge error for a failed fit.
   double m_terr_fail;     // Time error for a failed fit.
   double m_qerrprop;      // Charge calibration error
-  double n;
-  double n2;
-  double zmax;
-  double bipolarNormalization;
-  double tsampling;  
+  double m_n;
+  double m_n2;
+  double m_zmax;
+  double m_bipolarNormalization;
+  double m_tsampling;  
 
-  mutable double powcachez;
-  mutable double powcachezn;
+  mutable double m_powcachez;
+  mutable double m_powcachezn;
 };
 
 #endif

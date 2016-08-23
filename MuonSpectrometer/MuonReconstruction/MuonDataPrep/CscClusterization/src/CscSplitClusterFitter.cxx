@@ -60,7 +60,7 @@ namespace {
 
 CscSplitClusterFitter::
 CscSplitClusterFitter(string type, string aname, const IInterface* parent)
-: AthAlgTool(type, aname, parent), 
+: AthAlgTool(type, aname, parent), m_detMgr(nullptr), m_cscIdHelper(nullptr),
   m_pfitter_def("SimpleCscClusterFitter/SimpleCscClusterFitter"),
   m_pfitter_prec("QratCscClusterFitter/QratCscClusterFitter")
 {

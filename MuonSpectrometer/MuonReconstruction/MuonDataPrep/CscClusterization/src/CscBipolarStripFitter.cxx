@@ -28,9 +28,9 @@ typedef ICscStripFitter::ChargeList ChargeList;
 
 CscBipolarStripFitter::
 CscBipolarStripFitter(string type, string aname, const IInterface* parent)
-: AthAlgTool(type, aname, parent),
-  m_pmuon_detmgr(0), m_phelper(0),
-  m_cscCalibTool("") {
+: AthAlgTool(type, aname, parent), m_pmuon_detmgr(0), m_phelper(0),
+  m_cscCalibTool(""), m_n(0), m_n2(0), m_zmax(0), m_bipolarNormalization(0),
+  m_tsampling(0), m_powcachez(0), m_powcachezn(0) {
 
   declareInterface<ICscStripFitter>(this);
   declareProperty("chargeError", m_qerr =5500.0);
@@ -73,16 +73,16 @@ StatusCode CscBipolarStripFitter::initialize() {
   m_phelper = m_pmuon_detmgr->cscIdHelper();
 
 
-  n  =m_cscCalibTool->getNumberOfIntegration();//12.;
-  n2 =m_cscCalibTool->getNumberOfIntegration2();//11.66;
-  powcachez = -9999.;
-  powcachezn= -9999.;
-  zmax= n+n2+2.-sqrt((n+2.+n2)*(n+2.+n2)-4.*n*(n2+1));
-  zmax*=0.5; 
-  //n+1 - sqrt(n+1.0);
-  bipolarNormalization =  FindPow(zmax)*(1-zmax/(n2+1))*exp(-zmax);
-  // FindPow(zmax)*(1-zmax/(n+1))*exp(-zmax);
-  tsampling = m_cscCalibTool->getSamplingTime()/2.;//   50/2 =   25.; 
+  m_n  =m_cscCalibTool->getNumberOfIntegration();//12.;
+  m_n2 =m_cscCalibTool->getNumberOfIntegration2();//11.66;
+  m_powcachez = -9999.;
+  m_powcachezn= -9999.;
+  m_zmax= m_n+m_n2+2.-sqrt((m_n+2.+m_n2)*(m_n+2.+m_n2)-4.*m_n*(m_n2+1));
+  m_zmax*=0.5; 
+  //m_n+1 - sqrt(m_n+1.0);
+  m_bipolarNormalization =  FindPow(m_zmax)*(1-m_zmax/(m_n2+1))*exp(-m_zmax);
+  // FindPow(m_zmax)*(1-m_zmax/(m_n+1))*exp(-m_zmax);
+  m_tsampling = m_cscCalibTool->getSamplingTime()/2.;//   50/2 =   25.; 
 
   
   return StatusCode::SUCCESS;
@@ -141,8 +141,8 @@ Result CscBipolarStripFitter::fit(const ChargeList& chgs, double period, Identif
   //  int ipar = 3;
   //  int par[3] = {true,true,false};
   //  double m_chi2;
-  double m_result[3];
-  //////  int FitStatus = TheFitter(m_x,noise,initValues,imeas,meas,ipar,par,&m_chi2,m_result);
+  double result[3];
+  //////  int FitStatus = TheFitter(m_x,noise,initValues,imeas,meas,ipar,par,&m_chi2,result);
 
   // Add an error proportional to the charge.
   double dqprop = m_qerrprop*res.charge;
@@ -152,7 +152,7 @@ Result CscBipolarStripFitter::fit(const ChargeList& chgs, double period, Identif
   ATH_MSG_DEBUG ( "  Charge: " << res.charge );
   ATH_MSG_DEBUG ( "  Charge err: " << res.dcharge );
   ATH_MSG_DEBUG ( "    Time: " << res.time );
-  ATH_MSG_DEBUG ( "   fit  : " << m_result[0] << " "<< m_result[1] << " "<< m_result[2] );
+  ATH_MSG_DEBUG ( "   fit  : " << result[0] << " "<< result[1] << " "<< result[2] );
   return res;
 }
 
@@ -197,22 +197,22 @@ double CscBipolarStripFitter::FindInitValues(double *x,double *initValues,int *m
 
   initValues[0] = amplitude;
   initValues[1] = peakingTime;
-  // - zmax*initValues[2]/tsampling;
+  // - m_zmax*initValues[2]/m_tsampling;
   return x[imax];
 }
 
 double 
 CscBipolarStripFitter::FindPow(double z) const
 {
-  if(fabs(powcachez-z)<1.e-4)
-    return powcachezn;
+  if(fabs(m_powcachez-z)<1.e-4)
+    return m_powcachezn;
   
   //double zpower = z*z*z;
   //zpower *= zpower;
   //zpower *= zpower; 
-  double zpower = exp(n*log(z));
-  powcachez = z;
-  powcachezn= zpower;
+  double zpower = exp(m_n*log(z));
+  m_powcachez = z;
+  m_powcachezn= zpower;
   return zpower;
 }
 
@@ -320,22 +320,22 @@ CscBipolarStripFitter::Derivative(double A[][3],double fp[][1], double p0[][1],i
   for(int i=0;i<imeas;i++)
     {
       int ii = meas[i];
-      double z = (ii-p0[1][0])*tsampling/p0[2][0];
+      double z = (ii-p0[1][0])*m_tsampling/p0[2][0];
       double repquant = 0.;
       double dFdzNormalized = 0.;
       if(z>0.)
 	{
-	  repquant = FindPow(z)*exp(-z)/bipolarNormalization;
-	  dFdzNormalized= repquant*(n/z+z/(n2+1)-(n+1.)/(n2+1.)-1.);//repquant*(n/z+z/(n+1)-2.);
+	  repquant = FindPow(z)*exp(-z)/m_bipolarNormalization;
+	  dFdzNormalized= repquant*(m_n/z+z/(m_n2+1)-(m_n+1.)/(m_n2+1.)-1.);//repquant*(m_n/z+z/(m_n+1)-2.);
 	}
 	      
-      A[ii][0] = repquant*(1.-z/(n2+1.));//repquant*(1.-z/(n+1.));
+      A[ii][0] = repquant*(1.-z/(m_n2+1.));//repquant*(1.-z/(m_n+1.));
       //A[ii][0] = bipolar(&z,parm);
       fp[ii][0] = norm * A[ii][0];
 	      
-      //double normOverZmax = norm/bipolarNormalization;
+      //double normOverZmax = norm/m_bipolarNormalization;
       double commonpart = norm* dFdzNormalized;//(z,parm);
-      A[ii][1] = commonpart * (-tsampling/p0[2][0]);
+      A[ii][1] = commonpart * (-m_tsampling/p0[2][0]);
       A[ii][2] = commonpart * (-z/p0[2][0]);
     }
   // end of derivative/zeroth order calculations
@@ -526,7 +526,7 @@ CscBipolarStripFitter::TheFitter(double*x,const double ex,double *initValues, in
       std::cout << "##### "<<p0[0][0]<< " "<<p0[1][0] << " "<<p0[2][0]<<std::endl;
       // if the parameters are not physical, keep them sensible
       //if peaking time less than -0.5
-      double peakingTime = p0[1][0] + zmax*p0[2][0]/tsampling;
+      double peakingTime = p0[1][0] + m_zmax*p0[2][0]/m_tsampling;
       if(peakingTime<-0.5 || peakingTime>3.)
         p0[1][0] = initValues[1];
 
@@ -615,7 +615,7 @@ CscBipolarStripFitter::TheFitter(double*x,const double ex,double *initValues, in
   
 
   result[0]=p0[0][0];
-  result[1]=zmax*p0[2][0]/tsampling+p0[1][0];
+  result[1]=m_zmax*p0[2][0]/m_tsampling+p0[1][0];
   result[2]=p0[2][0];
  
   if(counter==maxIter)
