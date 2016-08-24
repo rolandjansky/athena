@@ -140,6 +140,11 @@ InDet::InDetTrackSelectionTool::InDetTrackSelectionTool(const std::string& name,
   declareProperty("vecEtaCutoffsForSiHitsCut", m_vecEtaCutoffsForSiHitsCut,
 		  "Minimum eta cutoffs for each Silicon hit cut");
   declareProperty("vecMinNSiHitsAboveEta", m_vecMinNSiHitsAboveEta, "Minimum Silicon hits above each eta cutoff");
+  declareProperty("vecEtaCutoffsForPtCut", m_vecEtaCutoffsForPtCut,
+                  "Minimum eta cutoffs for each pT cut");
+  declareProperty("vecMinPtAboveEta", m_vecMinPtAboveEta, "Minimum transverse momentum above each eta cutoff");
+
+
   declareProperty("vecPtCutoffsForSctHitsCut", m_vecPtCutoffsForSctHitsCut,
 		  "Minimum pt cutoffs for each SCT hits");
   declareProperty("vecMinNSctHitsAbovePt", m_vecMinNSctHitsAbovePt, "Minimum SCT hits above each pt cutoff");
@@ -593,13 +598,31 @@ StatusCode InDet::InDetTrackSelectionTool::initialize() {
     for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
       ATH_MSG_INFO( "  for " << m_vecEtaCutoffsForSiHitsCut.at(i_cut)
 		    << " < eta < " << m_vecEtaCutoffsForSiHitsCut.at(i_cut+1)
-		    << " ,Silicon hits >= " << m_vecMinNSiHitsAboveEta.at(i_cut) );
+		    << " ,Silicon hits  >= " << m_vecMinNSiHitsAboveEta.at(i_cut) );
     }
     ATH_MSG_INFO( "  for eta > " << m_vecEtaCutoffsForSiHitsCut.at(cutSize-1)
 		    << " ,Silicon hits >= " << m_vecMinNSiHitsAboveEta.at(cutSize-1) );
     auto siHitCut = make_unique<EtaDependentSiliconHitsCut>
       (this, m_vecEtaCutoffsForSiHitsCut, m_vecMinNSiHitsAboveEta);
     m_trackCuts["SiHits"].push_back(std::move(siHitCut));
+  }
+
+  if (!m_vecEtaCutoffsForPtCut.empty() || !m_vecMinPtAboveEta.empty()) {
+    auto cutSize = m_vecEtaCutoffsForPtCut.size();
+    if (cutSize != m_vecMinPtAboveEta.size()) {
+      ATH_MSG_ERROR( "Eta cutoffs and pT cuts must be vectors of the same length." );
+      return StatusCode::FAILURE;
+    }
+    for (size_t i_cut=0; i_cut<cutSize-1; ++i_cut) {
+      ATH_MSG_INFO( "  for " << m_vecEtaCutoffsForPtCut.at(i_cut)
+                    << " < eta < " << m_vecEtaCutoffsForPtCut.at(i_cut+1)
+                    << " ,transverse momentum >= " << m_vecMinPtAboveEta.at(i_cut) );
+    }
+    ATH_MSG_INFO( "  for eta > " << m_vecEtaCutoffsForPtCut.at(cutSize-1)
+		  << " ,transverse momentum >= " << m_vecMinPtAboveEta.at(cutSize-1) );
+    auto ptCut = make_unique<EtaDependentPtCut>
+      (this, m_vecEtaCutoffsForPtCut, m_vecMinPtAboveEta);
+    m_trackCuts["Pt"].push_back(std::move(ptCut));
   }
 
 
@@ -963,7 +986,8 @@ void InDet::InDetTrackSelectionTool::setCutLevelPrivate(InDet::CutLevel level, B
 #endif
       m_vecEtaCutoffsForSiHitsCut.clear();
       m_vecMinNSiHitsAboveEta.clear();
-     
+      m_vecEtaCutoffsForPtCut.clear();
+      m_vecMinPtAboveEta.clear();
       m_vecPtCutoffsForSctHitsCut.clear();
       m_vecMinNSctHitsAbovePt.clear();
     }

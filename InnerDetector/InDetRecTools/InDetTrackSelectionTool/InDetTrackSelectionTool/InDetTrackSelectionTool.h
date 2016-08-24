@@ -167,6 +167,8 @@ namespace InDet {
 #endif
     std::vector< Double_t > m_vecEtaCutoffsForSiHitsCut; //!< Above each of these eta levels a new SCT hits + pix hits will be applied
     std::vector< Int_t > m_vecMinNSiHitsAboveEta; //!< the minimum Si hits above each eta level
+    std::vector< Double_t > m_vecEtaCutoffsForPtCut; //!< Above each of these eta levels a new pT cut will be applied                                                                           
+    std::vector< Double_t > m_vecMinPtAboveEta; //!< the minimum transverse momentum above each eta level
 
     std::vector< Double_t > m_vecPtCutoffsForSctHitsCut; //!< Above each of these pT levels a new SCT hits + dead sensors will be applied
     std::vector< Int_t > m_vecMinNSctHitsAbovePt; //!< the minimum SCT hits above each pt level
