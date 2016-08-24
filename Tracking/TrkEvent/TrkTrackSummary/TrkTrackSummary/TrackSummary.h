@@ -13,6 +13,8 @@ email                : edward.moyse@cern.ch
 #include <vector>
 #include <iostream>
 #include <bitset>
+#include <map>
+//#include <utility> //??
 
 class MsgStream;
 class TrackSummaryCnv_p1;
@@ -208,6 +210,20 @@ public:
         int nhitsuseddedx=-1,
 	int nhitsoverflowdedx=-1
     );
+    
+    //ITK Constructor
+    TrackSummary( 
+        const std::vector<int>& information,
+        const std::vector<float>& eProbability, 
+        std::bitset<numberOfDetectorTypes>& hitPattern, 
+        const std::map<std::string, int>& informationITk, 
+        const std::map<std::string, int>& dettypes, 
+        std::bitset<200>& hitPatternITk,
+        float dedx=-1,
+        int nhitsuseddedx=-1,
+	      int nhitsoverflowdedx=-1
+    );
+
 
     /** copy ctor*/
     TrackSummary( const TrackSummary& rhs );
@@ -220,6 +236,9 @@ public:
     Track, or (more likely) Trk::TrkTrackSummaryTool is not filling it yet)*/
     int get(const SummaryType& type) const;
 
+    int get(const std::string& type) const;
+    bool isITk() const;
+    bool isITkInclined() const;
     /** returns the probability information for the passed ProbabilityType. 
     @param type Use the provided enums to access it, i.e. by summary.getPID(eProbabilityComb)
     @return returns -1 if the enum is undefined (i.e. the information was not available in the 
@@ -295,7 +314,31 @@ private: // data members
 
     /** pointer to the MuonTrackSummary */
     const MuonTrackSummary* m_muonTrackSummary;
+
+
+    /** ITk information. */
+    std::map<std::string, int> m_ITkInformation; //Counters for ITk
+    std::map<std::string, int> m_ITkDetectorTypes; //Counters for ITk
+    bool m_isITkLayout; //tmp variable for internal memory?
+    bool m_isITkInclined; //tmp for Inclined Barrel 4.0
+    std::bitset<200> m_hitPatternITk; //HitPattern for ITk
 };
+
+inline bool Trk::TrackSummary::isITk() const
+{ 
+  return m_isITkLayout;
+}
+inline bool Trk::TrackSummary::isITkInclined() const
+{
+  return m_isITkInclined;
+}
+
+inline int Trk::TrackSummary::get(const std::string& type) const
+{
+  std::map<std::string, int>::const_iterator it = m_ITkInformation.find(type);
+  if ( it != m_ITkInformation.end() ) return it->second;
+  else { return -1; }
+}
 
 inline int Trk::TrackSummary::get(const Trk::SummaryType& type) const 
 {

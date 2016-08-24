@@ -42,6 +42,29 @@ Trk::TrackSummary::TrackSummary( const std::vector<int>& information, const std:
 #endif        
 }
 
+Trk::TrackSummary::TrackSummary( const std::vector<int>& information, const std::vector<float>& eProbability, std::bitset<numberOfDetectorTypes>& hitPattern, const std::map<std::string, int>& informationITk, const std::map<std::string, int>& dettypes, std::bitset<200>& hitPatternITk, float dedx, int nhitsdedx, int noverflowdedx)
+    :
+    m_information( information ),
+    m_ITkInformation( informationITk ),
+    m_ITkDetectorTypes( dettypes ),
+    m_eProbability( eProbability ),
+    m_dedx(dedx),
+    m_nhitsdedx(nhitsdedx),
+    m_idHitPattern( hitPattern.to_ulong() ),
+    m_nhitsoverflowdedx(noverflowdedx),
+    m_hitPatternITk( hitPatternITk ),m_indetTrackSummary(0),m_muonTrackSummary(0)
+{
+    m_isITkLayout = true; //tmp variable for internal memory?
+    if(m_ITkDetectorTypes.find("itkPixelIncl0Start") != m_ITkDetectorTypes.end()) {
+      m_isITkInclined = true; //tmp for Inclined Barrel 4.0
+    }
+    //std::cout << m_isITkLayout << " " << m_isITkInclined << std::endl;
+#ifndef NDEBUG
+  s_numberOfInstantiations++; // new TrackSummary, so increment total count
+#endif        
+}
+
+
 Trk::TrackSummary::TrackSummary( const TrackSummary& rhs )
     :
     m_information(rhs.m_information),
@@ -51,6 +74,7 @@ Trk::TrackSummary::TrackSummary( const TrackSummary& rhs )
     m_nhitsoverflowdedx(rhs.m_nhitsoverflowdedx),
     m_idHitPattern(rhs.m_idHitPattern)
 {
+ // m_ITkInformation = rhs.m_ITkInformation;
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new TrackSummary, so increment total count
 #endif        
@@ -60,6 +84,13 @@ Trk::TrackSummary::TrackSummary( const TrackSummary& rhs )
   if( rhs.m_muonTrackSummary ) {
     m_muonTrackSummary = new MuonTrackSummary(*rhs.m_muonTrackSummary);
   } else m_muonTrackSummary = 0;
+
+  if(rhs.m_isITkLayout){
+      m_ITkInformation = rhs.m_ITkInformation;
+      m_hitPatternITk = rhs.m_hitPatternITk;
+      m_isITkLayout = true;
+      m_isITkInclined = rhs.m_isITkInclined;
+  }
 }
 
 Trk::TrackSummary& Trk::TrackSummary::operator=(const TrackSummary& rhs) {
@@ -74,6 +105,13 @@ Trk::TrackSummary& Trk::TrackSummary::operator=(const TrackSummary& rhs) {
     m_indetTrackSummary = rhs.m_indetTrackSummary ? new InDetTrackSummary(*rhs.m_indetTrackSummary) : 0;
     delete m_muonTrackSummary;
     m_muonTrackSummary = rhs.m_muonTrackSummary ? new MuonTrackSummary(*rhs.m_muonTrackSummary) : 0;
+
+    if(rhs.m_isITkLayout){
+      m_ITkInformation = rhs.m_ITkInformation;
+      m_hitPatternITk = rhs.m_hitPatternITk;
+      m_isITkLayout = true;
+      m_isITkInclined = rhs.m_isITkInclined;
+    }
   }
   return *this;
 }
@@ -108,7 +146,17 @@ Trk::TrackSummary& Trk::TrackSummary::operator+=(const TrackSummary& ts)
         if (!m_muonTrackSummary)  m_muonTrackSummary  = ts.m_muonTrackSummary  ? new MuonTrackSummary(*ts.m_muonTrackSummary) : 0; 
         if (!m_indetTrackSummary) m_indetTrackSummary = ts.m_indetTrackSummary ? new InDetTrackSummary(*ts.m_indetTrackSummary) :0;
 	// FIXME - do we need to support adding of extension objects? How would this even work?
+        if(ts.m_isITkLayout){
+          std::map<std::string, int>::const_iterator it = ts.m_ITkInformation.begin(); //But should be ordered in the same way...
+          std::map<std::string, int>::const_iterator itEnd = ts.m_ITkInformation.end();
+          for(; it != itEnd; it++){
+            if(it->second < 0) continue;
+            if(m_ITkInformation[it->first] < 0) m_ITkInformation[it->first]++;
+            m_ITkInformation[it->first]+= it->second;
+          }
+        }
     }
+    
     return *this;
 }
 
@@ -185,7 +233,21 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
   out << " dE/dx from pixels               : " << trackSum.getPixeldEdx() << " MeV g^-1 cm^2" << "\n";
   out << " number of hits used for dE/dx   : " << trackSum.numberOfUsedHitsdEdx() << "\n";
   out << " number of overflow hits used for dE/dx   : " << trackSum.numberOfOverflowHitsdEdx() << "\n";
+ 
+  bool m_isITkLayout = trackSum.isITk();
+  if(m_isITkLayout){
+    out << "============================================" << "\n";
+    out << "ITk Information:"                             << "\n";
+    out << "============================================" << "\n";
+    out << "Number Of Pixel Hits:         " << trackSum.get(std::string("numberOfPixelHits")) << std::endl;
+    out << "Number Of Pixel Holes:        " << trackSum.get(std::string("numberOfPixelHoles")) << std::endl;
+    out << "Number Of Shared Pixel Hits:  " << trackSum.get(std::string("numberOfPixelShared")) << std::endl;
+    out << "============================================" << "\n";
+    out << "ITk Information:"                             << "\n";
+    out << "============================================" << "\n";
+  }
   //this is a bit nasty, but I don't have access to internal data members
+  if(!m_isITkLayout){
   out << " Hit pattern (see DetectorType enum for meaning) : ";
   for (int i=0; i<Trk::numberOfDetectorTypes; ++i) 
     {
@@ -202,6 +264,7 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
     if (0!=trackSum.muonTrackSummary()){
         out<<*(trackSum.muonTrackSummary());
     }
+  }
   return out;
 }
 }
