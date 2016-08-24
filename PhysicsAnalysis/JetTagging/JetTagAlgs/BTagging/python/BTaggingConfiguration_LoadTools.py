@@ -48,9 +48,7 @@ def Initiate(ConfInstance=None):
     print ConfInstance.BTagTag()+' - INFO - Setting up Run 1 configuration'
     BTaggingFlags.JetFitterNN=True
     BTaggingFlags.SV2    =True
-    BTaggingFlags.JetFitterCharm=False
     BTaggingFlags.JetVertexCharge=False
-    BTaggingFlags.MVb=False
   else:
     print ConfInstance.BTagTag()+' - INFO - Setting up Run 2 configuration'
 
@@ -410,9 +408,6 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
 #          if BTaggingFlags.TrackCountingFlip:
 #            addTool('TrackCountingFlip', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
-#          if BTaggingFlags.GbbNNTag:
-#            addTool('GbbNNTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-
   #MultivariateTagManager
   if (set(['DL1','MV2c00','MV2c10','MV2c20','MV2c100','MV2cl100','MV2m']) & set(TaggerList)):
     obj = ConfInstance.addTool('MultivariateTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
@@ -431,12 +426,6 @@ def SetupJetCollectionDefault(JetCollection, TaggerList, ConfInstance = None):
 #    addTool('MV2Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
   # Multivariate taggers
-  if 'MVb' in TaggerList:
-    tag = ConfInstance.addTool('MVbTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    obj.MVTagToolList += [tag,]
-  if 'MVbFlip' in TaggerList:
-    tag = ConfInstance.addTool('MVbFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    obj.MVTagToolList += [tag,]
   if 'MV2c00' in TaggerList:
     tag = ConfInstance.addTool('MV2c00Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
     obj.MVTagToolList += [tag,]
@@ -607,16 +596,6 @@ def SetupJetCollectionRetag(JetCollection, TaggerList, ConfInstance = None):
   if (set(['DL1Flip','MV2c00Flip','MV2c10Flip','MV2c20Flip','MV2c100Flip','MV2cl100Flip','MV2mFlip']) & set(TaggerList)):
     obj = ConfInstance.addTool('MultivariateFlipTagManager', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
 
-  if 'MVb' in TaggerList:
-    tag = ConfInstance.addTool('MVbTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    obj.MVTagToolList += [tag,]
-    #ConfInstance.addTool('MVbTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
-    #                     CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
-  if 'MVbFlip' in TaggerList:
-    tag = ConfInstance.addTool('MVbFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-    obj.MVTagToolList += [tag,]
-    #ConfInstance.addTool('MVbFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3,
-    #                    CheckOnlyInsideToolCollection=True, DoNotSetUpParticleAssociators=True)
   if 'MV2c00' in TaggerList:
     tag = ConfInstance.addTool('MV2c00Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
     obj.MVTagToolList += [tag,]
@@ -788,10 +767,6 @@ def SetupJetCollectionTrig(JetCollection, TaggerList, ConfInstance = None):
 
   if 'MV1' in TaggerList:
     ConfInstance.addTool('MV1Tag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-  if 'MVb' in TaggerList:
-    ConfInstance.addTool('MVbTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
-  if 'MVbFlip' in TaggerList:
-    ConfInstance.addTool('MVbFlipTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'MV1c' in TaggerList:
     ConfInstance.addTool('MV1cTag', ToolSvc, 'BTagTrackToJetAssociator', JetCollection, Verbose = BTaggingFlags.OutputLevel < 3)
   if 'MV1cFlip' in TaggerList:
