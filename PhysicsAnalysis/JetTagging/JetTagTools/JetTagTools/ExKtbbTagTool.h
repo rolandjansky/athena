@@ -47,6 +47,7 @@ class ExKtbbTagTool : public JetModifierBase {
     int         m_ExclusiveNJets;
 
     // related to subjet recording
+    std::string m_InputJetContainerName;             // Mainly used to build correct link from subjet to parent jet
     ToolHandle<ISubjetRecorderTool> m_SubjetRecorderTool;     
 
 

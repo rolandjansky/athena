@@ -3,7 +3,7 @@
 */
 
 // WARNING: this code was copied automatically from
-// https://github.com/dguest/lwtnn.git (rev v1.0-46-g8a1bd2b)
+// https://github.com/dguest/lwtnn.git (rev v1.0-55-gab82001)
 // Please don't edit it! To get the latest version, run
 // > ./update-lwtnn.sh
 // from JetTagTools/share
@@ -82,6 +82,7 @@ namespace lwt {
     _W_c(W_c),
     _U_c(U_c),
     _b_c(b_c),
+    _time(-1),
     _return_sequences(return_sequences)
   {
     _n_outputs = _W_o.rows();
@@ -124,10 +125,9 @@ namespace lwt {
     _time = -1;
 
 
-    for(_time=0; _time < x.cols(); _time++)
-      {
-  this->step( x.col( _time ) );
-      }
+    for(_time=0; _time < x.cols(); _time++) {
+      this->step( x.col( _time ) );
+    }
 
     return _return_sequences ? _h_t : _h_t.col(_h_t.cols() - 1);
   }
@@ -147,6 +147,7 @@ namespace lwt {
     _W_h(W_h),
     _U_h(U_h),
     _b_h(b_h),
+    _time(-1),
     _return_sequences(return_sequences)
   {
     _n_outputs = _W_h.rows();
@@ -309,6 +310,9 @@ namespace lwt {
         throw NNEvaluationException("can't find input: " + in_name);
       }
       const auto& invec = in.at(in_name);
+      if (invec.size() == 0) {
+        throw NNEvaluationException("Input vector of zero length");
+      }
       if (invec.size() != n_cols) {
         throw NNEvaluationException("Input vector size mismatch");
       }
