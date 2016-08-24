@@ -1,7 +1,7 @@
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource()=='data':
-  BTaggingFlags.TrigCalibrationFolderRoot=BTaggingFlags.TrigCalibrationFolderRoot.replace("/GLOBAL","/GLOBAL/Onl")
+  BTaggingFlags.TrigCalibrationFolderRoot=BTaggingFlags.TrigCalibrationFolderRoot.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
   connSchema="GLOBAL"
   message = "#BTAG (Trig)# accessing online conditions DB"
   if not athenaCommonFlags.isOnline():
@@ -14,61 +14,12 @@ else:
 print "#BTAG (Trig)# running in trigger mode -> btag calibration root folder is TrigCalibrationFolderRoot =", BTaggingFlags.TrigCalibrationFolderRoot
 
 theFolders = []
-if BTaggingFlags.IP1D:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'IP1D')
-if BTaggingFlags.IP2D:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'IP2D')
-if BTaggingFlags.IP3D:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'IP3D')
-if BTaggingFlags.SV1:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'SV1')
-if BTaggingFlags.SV2:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'SV2')
-if BTaggingFlags.SoftMu:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'SoftMu')
-if BTaggingFlags.SoftEl:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'SoftEl')
-if BTaggingFlags.JetFitterTag|BTaggingFlags.JetFitterNN: 
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'JetFitter')
-if BTaggingFlags.JetProb:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'JetProb')
-if BTaggingFlags.MV1 | BTaggingFlags.MV1Flip:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MV1')
-if BTaggingFlags.MV1c | BTaggingFlags.MV1cFlip:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MV1c')
-if BTaggingFlags.MV2:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MV2')
-if BTaggingFlags.MV2c00 | BTaggingFlags.MV2c00Flip:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MV2c00')
-if BTaggingFlags.MV2c10 | BTaggingFlags.MV2c10Flip:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MV2c10')
-if BTaggingFlags.MV2c20 | BTaggingFlags.MV2c20Flip:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MV2c20')
-if BTaggingFlags.MV2c100 | BTaggingFlags.MV2c100Flip:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MV2c100')
-if BTaggingFlags.MV2m | BTaggingFlags.MV2mFlip:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MV2m')
-if BTaggingFlags.MV3_bVSu | BTaggingFlags.MV3_bVSc | BTaggingFlags.MV3_cVSu | BTaggingFlags.MV3_bVSuFlip | BTaggingFlags.MV3_bVScFlip | BTaggingFlags.MV3_cVSuFlip:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MV3')
-if BTaggingFlags.JetFitterCharm | BTaggingFlags.JetFitterCharmNeg :
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'JetFitterCharm')
-if BTaggingFlags.MVb:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MVb')
-if BTaggingFlags.Gaia | BTaggingFlags.GaiaNeg :
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'Gaia')
-if BTaggingFlags.MVbPrime |  BTaggingFlags.MVbPrimeFlip :
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MVbPrime')
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MVbCharm')
-if BTaggingFlags.MultiSVbb1:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MultiSVbb1')
-if BTaggingFlags.MultiSVbb2:
-  theFolders.append(BTaggingFlags.TrigCalibrationFolderRoot+'MultiSVbb2')
-
+# Here were defined the calibration folder root tagger per tagger (obsolete scheme in previous release < 21)
 
 JetCollectionForCalib = []
 JetCollectionForCalib+= BTaggingFlags.Jets
-if "AntiKt4TopoEM" not in JetCollectionForCalib:
-  JetCollectionForCalib+=["AntiKt4TopoEM"]
+if "AntiKt4EMTopo" not in JetCollectionForCalib:
+  JetCollectionForCalib+=["AntiKt4EMTopo"]
 
 from JetTagCalibration.JetTagCalibrationConf import Analysis__CalibrationBroker
 BTagCalibrationBrokerTool_Trig = Analysis__CalibrationBroker(
