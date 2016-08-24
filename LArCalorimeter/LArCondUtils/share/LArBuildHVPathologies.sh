@@ -35,8 +35,8 @@ fi
 echo " Produce HV pathology DB from input file " $inputTextFile
 echo " IoV start to use for UPD4 tag " ${runStart} ${lbStart}
 
-upd1TagName="LARHVPathologiesOflPathologies-UPD1-00"
-upd4TagName="LARHVPathologiesOflPathologies-UPD4-01"
+upd1TagName="LARHVPathologiesOflPathologies-RUN2-UPD1-00"
+upd4TagName="LARHVPathologiesOflPathologies-RUN2-UPD4-01"
 
 echo " Run athena to produce sqlite file"
 
@@ -63,9 +63,9 @@ if [ $? -ne 0 ];  then
     exit    
 fi
 
-if grep -q ERROR read.log
+if [[ `cat read.log | grep ERROR | grep -v inputFilePeeker | grep -v AutoConfiguration` != '' ]]
       then    
-      echo " An error occured ! Please check read.log!"
+      echo " An error occured ! Please check read.log! "
       exit    
 fi
 
@@ -74,9 +74,9 @@ grep "Got pathology for cell ID:" read.log > newList.txt
 echo " List of pathologies in new sqlite file can be found in newList.txt"
 
 
-AtlCoolCopy.exe "sqlite://;schema=larhvpathology.db;dbname=COMP200" "sqlite://;schema=larhvpathology.db;dbname=COMP200" -f /LAR/HVPathologiesOfl/Pathologies -of /LAR/HVPathologiesOfl/Pathologies -t ${upd1TagName} -ot ${upd4TagName} -rls ${runStart} ${lbStart} -truncate
+AtlCoolCopy.exe "sqlite://;schema=larhvpathology.db;dbname=CONDBR2" "sqlite://;schema=larhvpathology.db;dbname=CONDBR2" -f /LAR/HVPathologiesOfl/Pathologies -of /LAR/HVPathologiesOfl/Pathologies -t ${upd1TagName} -ot ${upd4TagName} -rls ${runStart} ${lbStart} -truncate
 
 echo " Sqlite file produced, to merge it to Oracle execute: "
-echo " /afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py larhvpathology.db COMP200 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
+echo " /afs/cern.ch/user/a/atlcond/utils/AtlCoolMerge.py larhvpathology.db CONDBR2 ATLAS_COOLWRITE ATLAS_COOLOFL_LAR_W <password>"
 
 exit

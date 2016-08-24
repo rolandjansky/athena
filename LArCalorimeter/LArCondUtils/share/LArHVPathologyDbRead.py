@@ -1,11 +1,27 @@
 #
 # Job Options for reading LAr HV Pathologies from COOL using local SQLite database
 #
+from time import strptime,time
+from calendar import timegm
 
 if "GloablTag" not in dir():
-    GlobalTag = 'COMCOND-BLKPA-006-01'
+    GlobalTag = 'CONDBR2-BLKPA-2015-05'
 
+if "foldertag" not in dir():
+   foldertag="LARHVPathologiesOflPathologies-RUN2-UPD1-00"
 
+if "mode" not in dir():
+   mode=0
+
+if "date" not in dir():
+    date="2015-05-29:12:00:00"
+
+if "TimeStamp" not in dir():
+   try:
+       ts=strptime(date+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
+       TimeStamp=int(timegm(ts))*1000000000L
+   except ValueError:
+       print "ERROR in time specification, use e.g. 2007-05-25:14:01:00"
 
 ## basic job configuration
 import AthenaCommon.AtlasUnixGeneratorJob
@@ -15,30 +31,23 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
 ## get a handle to the ServiceManager
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+#from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 
 ## get a handle to the ApplicationManager
-from AthenaCommon.AppMgr import theApp
-
-## get a handle to the default top-level algorithm sequence
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
-
-## get a handle to the ServiceManager
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-
-## get a handle to the ApplicationManager
-from AthenaCommon.AppMgr import theApp
+#from AthenaCommon.AppMgr import theApp
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.all_setOff()
 DetFlags.LAr_setOn()
-DetFlags.Tile_setOn()
+DetFlags.Calo_setOn()
+DetFlags.digitize.all_setOff()
 
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
 globalflags.DataSource = 'data'
-globalflags.InputFormat = 'pool'
+#globalflags.InputFormat = 'pool'
+globalflags.InputFormat = 'bytestream'
+globalflags.DatabaseInstance="CONDBR2"
 
 from AthenaCommon.GlobalFlags import jobproperties
 jobproperties.Global.DetDescrVersion='ATLAS-GEO-20-00-00'
@@ -49,15 +58,18 @@ from AtlasGeoModel import SetupRecoGeometry
 
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
-TileUseDCS=False
+#TileUseDCS=False
 include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
 include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
-include( "TileIdCnv/TileIdCnv_jobOptions.py" )
+#include( "TileIdCnv/TileIdCnv_jobOptions.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
-include("TileConditions/TileConditions_jobOptions.py" )
-include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
+#include("TileConditions/TileConditions_jobOptions.py" )
+#include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
+include( "LArConditionsCommon/LArIdMap_comm_jobOptions.py" )
 
-
+conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/HVLineToElectrodeMap")
+conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREl/I16")
+conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREL/I8")
 #--------------------------------------------------------------
 # Access to IOVSvc, IOVDbSvc and CondDBMySQLCnvSvc
 #--------------------------------------------------------------
@@ -66,11 +78,16 @@ import IOVDbSvc.IOVDb
 from LArCondUtils.LArCondUtilsConf import LArHVPathologyDbAlg
 LArHVPathologyDbAlg = LArHVPathologyDbAlg()
 LArHVPathologyDbAlg.Folder = "/LAR/HVPathologiesOfl/Pathologies"
+LArHVPathologyDbAlg.Mode=mode
+if 'OutFile' in dir():
+   LArHVPathologyDbAlg.OutFile=OutFile
 topSequence += LArHVPathologyDbAlg
 
-# Here mytest.db is the name of SQLite file created by this job
-svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema=larhvpathology.db;dbname=COMP200"
-svcMgr.IOVDbSvc.Folders += [ "/LAR/HVPathologiesOfl/Pathologies<tag>LARHVPathologiesOflPathologies-UPD1-00</tag>" ]
+if 'inputsqlite' in dir():   
+   svcMgr.IOVDbSvc.dbConnection  = "sqlite://;schema="+inputsqlite+";dbname=CONDBR2"
+   svcMgr.IOVDbSvc.Folders += [ "/LAR/HVPathologiesOfl/Pathologies<tag>"+foldertag+"</tag>" ]
+else:  
+   conddb.addFolder("LAR_OFL","/LAR/HVPathologiesOfl/Pathologies<tag>"+foldertag+"</tag>")
     
 svcMgr.MessageSvc.OutputLevel = 4
 svcMgr.MessageSvc.debugLimit  = 100000
@@ -90,14 +107,14 @@ svcMgr.EventSelector.EventsPerRun      = 1
 svcMgr.EventSelector.FirstEvent        = 1
 svcMgr.EventSelector.EventsPerLB       = 1
 svcMgr.EventSelector.FirstLB           = 1
-svcMgr.EventSelector.InitialTimeStamp  = 0
+svcMgr.EventSelector.InitialTimeStamp  = int(TimeStamp/1e9)
 svcMgr.EventSelector.TimeStampInterval = 5
 theApp.EvtMax                   = 1
 
 #--------------------------------------------------------------
 # Load POOL support
 #--------------------------------------------------------------
-import AthenaPoolCnvSvc.WriteAthenaPool
+#import AthenaPoolCnvSvc.WriteAthenaPool
 
 # Check the dictionary in memory for completeness
 svcMgr.AthenaSealSvc.CheckDictionary = TRUE

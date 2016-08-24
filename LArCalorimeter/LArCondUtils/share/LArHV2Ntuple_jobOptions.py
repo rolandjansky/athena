@@ -4,79 +4,86 @@
 #
 ##################################################################
 
-import time
+from time import strptime,time
+from calendar import timegm
 
-tuple=(2010, 04, 29, 16, 00, 0,-1,-1,-1)
-itime = int(time.mktime(tuple))
+if "OutFile" not in dir():
+   OutFile="dump_hv.root"
 
-TimeStamp=itime
+if "date" not in dir():
+   date="2015-05-29:12:00:00"
+
+if "TimeStamp" not in dir():
+   try:
+      ts=strptime(date+'/UTC','%Y-%m-%d:%H:%M:%S/%Z')
+      TimeStamp=int(timegm(ts))*1000000000L
+   except ValueError:
+      print "ERROR in time specification, use e.g. 2007-05-25:14:01:00"
 
 # run number only relevant for HV mapping information..   Use latest mapping here
-RunNumber = 999999
+if "RunNumber" not in dir():
+   RunNumber = 999999
 
-# global tag to read other conditions if needed
-GlobalTag     = 'COMCOND-ES1P-002-00'
+if "addCells" not in dir():
+   addCells=False
+
+if "GloablTag" not in dir():
+   GlobalTag = 'CONDBR2-BLKPA-2016-14'
 
 
 ###################################################################
-from PerfMonComps.PerfMonFlags import jobproperties
-jobproperties.PerfMonFlags.doMonitoring = True
+## basic job configuration
+import AthenaCommon.AtlasUnixGeneratorJob
 
-from RecExConfig.RecFlags import rec
+## get a handle to the default top-level algorithm sequence
+from AthenaCommon.AlgSequence import AlgSequence
+topSequence = AlgSequence()
 
 from AthenaCommon.DetFlags import DetFlags
 DetFlags.all_setOff()
 DetFlags.LAr_setOn()
-DetFlags.Tile_setOn()
+DetFlags.Calo_setOn()
+DetFlags.digitize.all_setOff()
 
-from AthenaCommon.GlobalFlags  import GlobalFlags
-GlobalFlags.DetGeo.set_atlas()
-GlobalFlags.DataSource.set_data()
-GlobalFlags.Luminosity.set_zero()
+from AthenaCommon.GlobalFlags  import globalflags
+globalflags.DetGeo='atlas'
+globalflags.DataSource='data'
+globalflags.InputFormat = 'bytestream'
+globalflags.DatabaseInstance="CONDBR2"
 
 # Get a handle to the default top-level algorithm sequence
-from AthenaCommon.AppMgr import ToolSvc
-from AthenaCommon.AlgSequence import AlgSequence
-topSequence = AlgSequence()
+#from AthenaCommon.AppMgr import ToolSvc
 
-# Get a handle to the ServiceManager
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-
-# Get a handle to the ApplicationManager
-from AthenaCommon.AppMgr import theApp
 
 # Setup Db stuff
-import AthenaPoolCnvSvc.AthenaPool
+#import AthenaPoolCnvSvc.AthenaPool
 
 from AthenaCommon.GlobalFlags import jobproperties
-jobproperties.Global.DetDescrVersion='ATLAS-GEO-10-00-00'
+jobproperties.Global.DetDescrVersion='ATLAS-GEO-20-00-00'
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit
+from AtlasGeoModel import SetupRecoGeometry
 
 svcMgr.IOVDbSvc.GlobalTag = GlobalTag
 
-include( "AthenaCommon/Atlas_Gen.UnixStandardJob.py" )
-
 include( "CaloDetMgrDetDescrCnv/CaloDetMgrDetDescrCnv_joboptions.py")
 include( "CaloIdCnv/CaloIdCnv_joboptions.py" )
-include( "TileIdCnv/TileIdCnv_jobOptions.py" )
+#include( "TileIdCnv/TileIdCnv_jobOptions.py" )
 include( "LArDetDescr/LArDetDescr_joboptions.py" )
-include("TileConditions/TileConditions_jobOptions.py" )
+#include("TileConditions/TileConditions_jobOptions.py" )
 include("LArConditionsCommon/LArConditionsCommon_comm_jobOptions.py")
 
-include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
+#include( "LArCondAthenaPool/LArCondAthenaPool_joboptions.py" )
 
 from IOVDbSvc.CondDB import conddb 
+conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/HVLineToElectrodeMap");
 conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREl/I16")
 conddb.addFolder("DCS_OFL","/LAR/DCS/HV/BARREL/I8")
 
-# to read HV mapping from database file instead of Ascii file in LArTools
-from IOVDbSvc.CondDB import conddb
-conddb.addFolder("LAR_OFL","/LAR/IdentifierOfl/HVLineToElectrodeMap");
-
 from LArCondUtils.LArCondUtilsConf import LArHV2Ntuple
 theLArHV2Ntuple = LArHV2Ntuple("LArHV2Ntuple")
+theLArHV2Ntuple.AddCellID=addCells
 topSequence += theLArHV2Ntuple
 
 #  ------------------------------------------------------------------
@@ -84,9 +91,9 @@ topSequence += theLArHV2Ntuple
 # ------------------------------------------------------------------
 if not hasattr(ServiceMgr, 'THistSvc'):
    from GaudiSvc.GaudiSvcConf import THistSvc
-   ServiceMgr += THistSvc()
+   svcMgr += THistSvc()
 
-ServiceMgr.THistSvc.Output  = ["file1 DATAFILE='dump_hv.root' OPT='RECREATE'"];
+svcMgr.THistSvc.Output  = ["file1 DATAFILE='"+OutFile+"' OPT='RECREATE'"];
 
 
 
@@ -98,7 +105,7 @@ svcMgr.EventSelector.EventsPerRun      = 100
 svcMgr.EventSelector.FirstEvent        = 0
 svcMgr.EventSelector.EventsPerLB       = 100
 svcMgr.EventSelector.FirstLB           = 1
-svcMgr.EventSelector.InitialTimeStamp  = TimeStamp
+svcMgr.EventSelector.InitialTimeStamp  = int(TimeStamp/1e9)
 svcMgr.EventSelector.TimeStampInterval = 5
 svcMgr.EventSelector.OverrideRunNumber=True
 theApp.EvtMax                          = 1

@@ -31,7 +31,9 @@
 LArFEBTempTool::LArFEBTempTool(const std::string& type,
 			       const std::string& name,
 			       const IInterface* parent)
-  : AthAlgTool(type,name,parent), m_foldername("/LAR/DCS/FEBTEMP")
+  : AthAlgTool(type,name,parent), m_foldername("/LAR/DCS/FEBTEMP"),
+    m_atrlistcol(nullptr),
+    m_isinit(false)
 {
    declareInterface< ILArFEBTempTool >( this );
    declareProperty("FolderName",m_foldername);   

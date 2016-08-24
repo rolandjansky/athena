@@ -99,9 +99,9 @@ class LArHVToolDB: public AthAlgTool, virtual public ILArHVTool
 
   LArHVPathologiesDb* m_pathologyContainer;
 
-  std::vector<bool>  m_hasPathologyEM;
-  std::vector<bool>  m_hasPathologyHEC;
-  std::vector<bool>  m_hasPathologyFCAL;
+  std::vector<unsigned short>  m_hasPathologyEM;
+  std::vector<unsigned short>  m_hasPathologyHEC;
+  std::vector<unsigned short>  m_hasPathologyFCAL;
   std::string m_HVPathologiesFolderName;
 
   std::vector<HWIdentifier> m_updatedElectrodes;
