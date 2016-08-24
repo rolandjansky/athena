@@ -222,6 +222,7 @@ namespace Analysis {
 	sc = fillVkalVariables(myJet, newBTag, bTagVertexContainer, myVertexInfoVKal, theTrackParticleContainer, PrimaryVtx, basename);
 	if(sc.isFailure()){
 	  ATH_MSG_ERROR("#BTAG# error filling variables from VxSecVKalVertexInfo for tool " << *itSecVtxFinders);
+          delete myVertexInfo;
 	  return sc;
 	}
       } else if (const Trk::VxJetFitterVertexInfo* myVertexInfoJetFitter = dynamic_cast<const Trk::VxJetFitterVertexInfo*>(myVertexInfo)) {
@@ -229,6 +230,7 @@ namespace Analysis {
   	sc = fillJFVariables(myJet, newBTag, bTagJFVertexContainer, myVertexInfoJetFitter, theTrackParticleContainer, basename);
   	if(sc.isFailure()){
   	  ATH_MSG_ERROR("#BTAG# error filling variables from VxJetFitterVertexInfo for tool " << *itSecVtxFinders);
+          delete myVertexInfo;
   	  return sc;
   	}
       } else {

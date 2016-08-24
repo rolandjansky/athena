@@ -17,9 +17,6 @@ from BTagging.BTaggingConfiguration_InDetVKalVxInJetTool import *
 from BTagging.BTaggingConfiguration_InDetVKalVxNegativeTagInJetTool import *
 from BTagging.BTaggingConfiguration_InDetVKalVxMultiVxInJetTool import *
 
-# GbbNN tagger
-#from BTagging.BTaggingConfiguration_GbbNNTag import *
-
 # IP taggers
 #from BTagging.BTaggingConfiguration_IP1DTag import *
 #from BTagging.BTaggingConfiguration_IP2DFlipTag import *
@@ -85,8 +82,6 @@ from BTagging.BTaggingConfiguration_MultiSVbb2Tag import *
 # MV taggers
 from BTagging.BTaggingConfiguration_MV1FlipTag import *
 from BTagging.BTaggingConfiguration_MV1Tag import *
-from BTagging.BTaggingConfiguration_MVbTag import *
-from BTagging.BTaggingConfiguration_MVbFlipTag import *
 #from BTagging.BTaggingConfiguration_MV2FlipTag import *
 #from BTagging.BTaggingConfiguration_MV2Tag import *
 from BTagging.BTaggingConfiguration_MV1cTag import *
@@ -1583,7 +1578,6 @@ def taggerIsPossible(tagger):
                       'SV2Flip',
                       'TrackCountingFlip',
                       'MultiSVTag',
-                      'GbbNNTag',
                       'DL1',
                       'DL1Flip',
                       'MV1',
