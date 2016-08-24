@@ -236,7 +236,7 @@ int eflowRecoverSplitShowersTool::matchAndCreateEflowCaloObj() {
   eflowCaloObjectMaker makeCaloObject;
   int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(m_tracksToRecover, m_clustersToConsider,
                                                           m_eflowCaloObjectContainer);
-  msg(MSG::INFO) << "eflowRecoverSplitShowersTool created " << nCaloObjects << " CaloObjects." << endreq;
+  msg(MSG::DEBUG) << "eflowRecoverSplitShowersTool created " << nCaloObjects << " CaloObjects." << endreq;
 
   /* integrate cells; determine FLI; eoverp */
   for (unsigned int iCalo = nCaloObj; iCalo < m_eflowCaloObjectContainer->size(); ++iCalo) {
