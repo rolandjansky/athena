@@ -496,7 +496,7 @@ LArAffectedRegions::fillHistograms()
       }
       
       // HEC
-      if(layermin>=8 and layermin<=11){
+      if(layermin>=8 && layermin<=11){
 	float eta = etamin; 
 	// phimin < phimax
 	if(phimin<=phimax){
@@ -548,7 +548,7 @@ LArAffectedRegions::fillHistograms()
       }
       
       // FCAL
-      if(layermin>=21 and layermin<=23){
+      if(layermin>=21 && layermin<=23){
 	float eta = etamin; 
 	// phimin < phimax
 	if(phimin<=phimax){

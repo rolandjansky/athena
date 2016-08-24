@@ -27,6 +27,12 @@
 #include "LArCOOLConditions/LArDSPThresholdsFlat.h"
 
 #include "TTree.h"
+#include "LWHists/TH1I_LW.h"
+#include "LWHists/TH2I_LW.h"
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
+#include "LWHists/TProfile2D_LW.h"
+#include "LWHists/TProfile_LW.h"
 
 #include "LArMonTools/LArFEBMon.h"
 
@@ -40,6 +46,8 @@
 
 #include "xAODEventInfo/EventInfo.h"
 #include "LArTrigStreamMatching.h"
+
+const unsigned nFEBnominal=1524;
 
 // ********************************************************************
 LArFEBMon::LArFEBMon(const std::string& type, 
@@ -73,13 +81,15 @@ LArFEBMon::LArFEBMon(const std::string& type,
   declareProperty("ExcludeCosmicCalo",m_excoscalo);
  
   declareProperty("IsOnline",m_isOnline=true);
+
+  declareProperty("m_lumi_blocks", m_lumi_blocks = 3000 );
   
   m_onlineHelper	= NULL;
   m_strHelper		= NULL;
 
   m_eventsCounter = 0;
   
-  for (int i = 0;i < 1524; i++) {
+  for (int i = 0;i < nFEBnominal; i++) {
     m_febInError[i] = NULL;
     m_bfebIE[i]     = false;
   }
@@ -166,7 +176,9 @@ StatusCode LArFEBMon::bookHistograms() {
     (m_rejectedHisto->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
     (m_rejectedHisto->GetXaxis())->SetBinLabel(2,"Single FEB corrupted");
     (m_rejectedHisto->GetXaxis())->SetBinLabel(3,"Accepted");
-    sc = sc && summaryGroup.regHist(m_rejectedHisto);
+    //sc = sc && summaryGroup.regHist(m_rejectedHisto);
+    
+    sc = regHist(m_rejectedHisto,  "/LAr/FEBMon/Summary", run);
     
     m_rejectedYield = TH1F_LW::create("EventsRejectedYield","Data corruption yield",3,0.5,3.5);
     (m_rejectedYield->GetXaxis())->SetBinLabel(1,"Whole event corrupted");
@@ -212,25 +224,25 @@ StatusCode LArFEBMon::bookHistograms() {
     sc = sc && summaryGroup.regHist(m_LArAllErrors_dE);    
         
     // Number of events per minute vs LB
-    m_eventsLB = TH1I_LW::create("NbOfEventsVsLB","Nb of events per LB",1500,-0.5,1499.5);
+    m_eventsLB = TH1I_LW::create("NbOfEventsVsLB","Nb of events per LB",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_eventsLB->GetXaxis())->SetTitle("Luminosity Block");
     sc = sc && summaryGroup.regHist(m_eventsLB);
     
     // Number of events rejected per LB
-    m_rejectedYieldLB = TProfile_LW::create("YieldOfRejectedEventsVsLB","Yield of corrupted events",1500,-0.5,1499.5);
+    m_rejectedYieldLB = TProfile_LW::create("YieldOfRejectedEventsVsLB","Yield of corrupted events",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_rejectedYieldLB->GetXaxis())->SetTitle("Luminosity Block");
     (m_rejectedYieldLB->GetYaxis())->SetTitle("Yield(%)");
     m_rejectedYieldLB->SetMinimum(-5.);
     sc = sc && summaryGroup.regHist(m_rejectedYieldLB);
     
     // Number of events rejected per LB outside time veto window
-    m_rejectedYieldLBout = TProfile_LW::create("YieldOfRejectedEventsVsLBout","Yield of corrupted events not vetoed by time window",1500,-0.5,1499.5);
+    m_rejectedYieldLBout = TProfile_LW::create("YieldOfRejectedEventsVsLBout","Yield of corrupted events not vetoed by time window",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_rejectedYieldLBout->GetXaxis())->SetTitle("Luminosity Block");
     m_rejectedYieldLBout->SetMinimum(-5.);
     sc = sc && summaryGroup.regHist(m_rejectedYieldLBout);
     
     // Mean event size per LB
-    m_eventSizeLB = TProfile_LW::create("eventSizeVsLB","LAr event size (w/o ROS headers)",1500,-0.5,1499.5);
+    m_eventSizeLB = TProfile_LW::create("eventSizeVsLB","LAr event size (w/o ROS headers)",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5);
     (m_eventSizeLB->GetXaxis())->SetTitle("Luminosity Block");
     (m_eventSizeLB->GetYaxis())->SetTitle("Megabytes");
     sc = sc && summaryGroup.regHist(m_eventSizeLB);
@@ -239,7 +251,7 @@ StatusCode LArFEBMon::bookHistograms() {
        // Mean event size per stream per LB
        int nStreams = m_streams.size();
        if(nStreams > 0) {
-          m_stream_eventSizeLB = TProfile2D_LW::create("eventSizeStreamVsLB","LAr event size per stream per LB (w/o ROS headers)",1500,-0.5,1499.5,nStreams+1,-0.5,nStreams+0.5);
+          m_stream_eventSizeLB = TProfile2D_LW::create("eventSizeStreamVsLB","LAr event size per stream per LB (w/o ROS headers)",m_lumi_blocks+1,-0.5,(float)m_lumi_blocks+0.5,nStreams+1,-0.5,nStreams+0.5);
           (m_stream_eventSizeLB->GetXaxis())->SetTitle("Luminosity Block");
           for (int str = 0; str < nStreams; str++) {
              (m_stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
@@ -375,6 +387,7 @@ StatusCode LArFEBMon::fillHistograms() {
   m_eventTime_ns=thisEvent->timeStampNSOffset();
     
   unsigned lumi_block = thisEvent->lumiBlock();
+  bool lar_inerror = (thisEvent->errorState(xAOD::EventInfo::LAr)==xAOD::EventInfo::Error) ? true : false;
   
   //msg(MSG::INFO) << "LArFEBMon Lumi block: "<<lumi_block<<endreq;
 
@@ -572,28 +585,28 @@ StatusCode LArFEBMon::fillHistograms() {
       // Fill the errors in partition histograms
       switch (partitionNb_dE){
 	case 0:
-	  fillErrorsSummary(m_barrelCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_barrelCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 1:
-	  fillErrorsSummary(m_barrelASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_barrelASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 2:
-	  fillErrorsSummary(m_emecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_emecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 3:
-	  fillErrorsSummary(m_emecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_emecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;	
 	case 4:
-	  fillErrorsSummary(m_hecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_hecCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 5:
-	  fillErrorsSummary(m_hecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_hecASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 6:
-	  fillErrorsSummary(m_fcalCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_fcalCSummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
 	case 7:	    
-	  fillErrorsSummary(m_fcalASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block);
+	  fillErrorsSummary(m_fcalASummary,partitionNb_dE,ft,slot,feberrorSummary,lumi_block,lar_inerror);
 	  break;
       }
       if (m_currentFebStatus && m_febInErrorTree.size()<33){
@@ -698,17 +711,19 @@ StatusCode LArFEBMon::fillHistograms() {
     if (m_rejectedLBProfile->GetEntries() != lumi_block)
       m_rejectedLBProfile->Reset();
   }
-    
-  if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)){
-    m_rejectedYieldLB->Fill(lumi_block,100);
+  if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal) || nbOfFeb < nFEBnominal){
+    if ((m_eventRejected) || nbOfFebOK(nbOfFeb,m_nbOfFebBlocksTotal)) m_rejectedYieldLB->Fill(lumi_block,100); else m_rejectedYieldLB->Fill(lumi_block,50);
+
     if (!(thisEvent->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::DATACORRUPTEDVETO)))
       m_rejectedYieldLBout->Fill(lumi_block,100);
     else
       m_rejectedYieldLBout->Fill(lumi_block,0);
-    if (m_isOnline) m_rejectedLBProfile->Fill(0.5,100);
+
+    if (m_isOnline) {
+       if (lar_inerror) m_rejectedLBProfile->Fill(0.5,100); else m_rejectedLBProfile->Fill(0.5,50);
+    }
     m_CorruptTree->Fill();
-  }
-  else{
+  } else{
     m_rejectedYieldLB->Fill(lumi_block,0);
     m_rejectedYieldLBout->Fill(lumi_block,0);
     if (m_isOnline) m_rejectedLBProfile->Fill(0.5,0);
@@ -770,7 +785,7 @@ StatusCode LArFEBMon::fillHistograms() {
 
 
 // ********************************************************************
-void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block)
+void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block, bool lar_inerror)
 {  
   if (summ.maskedFEB->GetBinContent(slot,ft+1) != 0) return;
   
@@ -872,8 +887,12 @@ void LArFEBMon::fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,i
 
   if (m_currentFebStatus){
     (summ.LArAllErrors)->Fill(slot,ft);
-    m_eventRejected = true;
-    if (m_isOnline) (summ.m_rejectedLBProfilePart)->Fill(0.5,100);
+    if (lar_inerror) {// LArinError
+       m_eventRejected = true;
+       if (m_isOnline) (summ.m_rejectedLBProfilePart)->Fill(0.5,100);
+    } else {
+       if (m_isOnline)  (summ.m_rejectedLBProfilePart)->Fill(0.5,50);
+    }
   } else {
     if (m_isOnline)  (summ.m_rejectedLBProfilePart)->Fill(0.5,0);
   }
@@ -1044,7 +1063,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   if(m_isOnline && nStreams > 0) { // book 2d histo with asked streams 
     hName = "eventSizeStreamVsLB"+summName;
     hTitle = "LAr event size per stream per LB (w/o ROS headers)" + summName;  
-    summ.stream_eventSizeLB = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),1500,-0.5,1499.5,nStreams+1,-0.5,nStreams+0.5);
+    summ.stream_eventSizeLB = TProfile2D_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5,nStreams+1,-0.5,nStreams+0.5);
     (summ.stream_eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
     for (int str = 0; str < nStreams; str++) {
          (summ.stream_eventSizeLB->GetYaxis())->SetBinLabel(str+1,m_streams[str].c_str());
@@ -1054,7 +1073,7 @@ StatusCode LArFEBMon::bookNewPartitionSumm(summaryPartition& summ,std::string su
   } else { // book simple profile
     hName = "eventSizeVsLB"+summName;
     hTitle = "LAr event size per LB (w/o ROS headers)" + summName;  
-    summ.eventSizeLB = TProfile_LW::create(hName.c_str(),hTitle.c_str(),1500,-0.5,1499.5);
+    summ.eventSizeLB = TProfile_LW::create(hName.c_str(),hTitle.c_str(),m_lumi_blocks,-0.5,(float)m_lumi_blocks+0.5);
     (summ.eventSizeLB)->GetXaxis()->SetTitle("Luminosity Block");
     sc = sc && perPartitionDataGroup.regHist(summ.eventSizeLB);
   }

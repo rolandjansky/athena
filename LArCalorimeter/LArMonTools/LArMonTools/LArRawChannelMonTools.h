@@ -67,7 +67,8 @@ namespace LArMonTools {
     E_v_bc_h                             = 16,
     noise_fraction_TimeVetoLArNoisyRO_h  = 17,
     timeVetoBurst_h                      = 18,
-    noise_fraction_W_h                   = 19//Modif done by Camincher C.
+    noise_fraction_W_h                   = 19,//Modif done by Camincher C.
+    gain_h                               = 20
   };
 
   std::string detector_str( const Detector& );

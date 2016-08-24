@@ -70,7 +70,7 @@ typedef std::map<Detector,map_idhash_str_th2> map_det_idhash_str_th2;
 
 typedef std::vector<HWIdentifier>::const_iterator citer_vect_hwid;
 
-typedef std::pair<Detector,TH2*> pair_det_th2ptr;
+//typedef std::pair<Detector,TH2*> pair_det_th2ptr;
 typedef std::map<Detector,boost::shared_ptr<IHistoProxyBase> > map_det_th2ptr;
 typedef map_det_th2ptr::const_iterator citer_det_th2ptr;
 
@@ -425,6 +425,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
     _per_feb_hists.clear();
     _per_feb_hists[occ_h]       = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
     _per_feb_hists[sig_h]       = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
+    _per_feb_hists[gain_h]      = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
     _per_feb_hists[pos_noise_h] = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
     _per_feb_hists[neg_noise_h] = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
     _per_feb_hists[time_h]      = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
@@ -432,6 +433,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
     std::vector<shared_ptr<IHistoProxyBase> >& per_feb_occu = _per_feb_hists[occ_h];
     std::vector<shared_ptr<IHistoProxyBase> >& per_feb_sign = _per_feb_hists[sig_h];
+    //std::vector<shared_ptr<IHistoProxyBase> >& per_feb_gain = _per_feb_hists[gain_h];
     std::vector<shared_ptr<IHistoProxyBase> >& per_feb_posn = _per_feb_hists[pos_noise_h];
     std::vector<shared_ptr<IHistoProxyBase> >& per_feb_negn = _per_feb_hists[neg_noise_h];
     std::vector<shared_ptr<IHistoProxyBase> >& per_feb_time = _per_feb_hists[time_h];
@@ -455,6 +457,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
     _per_detector_hists.clear();
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_occu = _per_detector_hists[occ_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_sign = _per_detector_hists[sig_h];
+    std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_gain = _per_detector_hists[gain_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_posn = _per_detector_hists[pos_noise_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_negn = _per_detector_hists[neg_noise_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_burs = _per_detector_hists[burst_h];
@@ -641,6 +644,14 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	  factory_ptr->SetZTitle("Average Energy (MeV)");
 	  factory_ptr->setXAxisBinLabelsAllFebs(_lar_online_id_str_helper_ptr,detector_str(det));
 	  det_histogram_factories[det][sig_h] = factory_ptr;
+
+          title = "Average gain FEB and " + _data_name_base + " in " + detector_str( det ) + " (no LArEventInfo::ERROR)";
+          factory_ptr.reset(new LWHistProfile2DFactory(title.c_str(), n_bins, &axis[0],128, -0.5, 127.5));
+          factory_ptr->SetXTitle("Halfcrate (+ increasing slot)");
+          factory_ptr->SetYTitle("Channel");
+          factory_ptr->SetZTitle("Average gain");
+          factory_ptr->setXAxisBinLabelsAllFebs(_lar_online_id_str_helper_ptr,detector_str(det));
+          det_histogram_factories[det][gain_h] = factory_ptr;
 	}
 
 	if ( _monitor_positive_noise ) {
@@ -1038,6 +1049,15 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 // 	    per_det_sign.insert( dummy );
 	    per_det_sign[det] = shared_ptr<IHistoProxyBase>( createLWHistProxy(histo) );
 	  } else return StatusCode::FAILURE;
+
+          his_name  = detector_str( det ) + "_gain";
+          dir_name  = m_path + "/" + detector_str( det );
+          LWHist2D* histog = static_cast<LWHist2D*>( the_det_histo_factories[gain_h]->create( his_name ) );
+          if ( registerHistogram( histog, dir_name ) ) {
+//          pair_det_th2ptr dummy = make_pair(det, histo );
+//          per_det_sign.insert( dummy );
+            per_det_gain[det] = shared_ptr<IHistoProxyBase>( createLWHistProxy(histog) );
+          } else return StatusCode::FAILURE;
 	}
 
 	if ( _monitor_positive_noise ) {
@@ -1339,6 +1359,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_occu = _per_detector_hists[occ_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_sign = _per_detector_hists[sig_h];
+  std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_gain = _per_detector_hists[gain_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_posn = _per_detector_hists[pos_noise_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_negn = _per_detector_hists[neg_noise_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_qual = _per_detector_hists[quality_h];
@@ -1359,6 +1380,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
   shared_ptr<IHistoProxyBase> perdethist_occu; 
   shared_ptr<IHistoProxyBase> perdethist_sign; 
+  shared_ptr<IHistoProxyBase> perdethist_gain;
   shared_ptr<IHistoProxyBase> perdethist_posn; 
   shared_ptr<IHistoProxyBase> perdethist_negn; 
   shared_ptr<IHistoProxyBase> perdethist_qual;
@@ -1417,6 +1439,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
     float time;
     float noise;
     float significance;
+    int gain;
 
     try {
 
@@ -1453,6 +1476,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 	std::map<Detector,shared_ptr<IHistoProxyBase> >::iterator it;
 	it = per_det_occu.find(det); perdethist_occu = ((it==per_det_occu.end())?hnull:it->second);
 	it = per_det_sign.find(det); perdethist_sign = (it==per_det_sign.end()?hnull:it->second);
+        it = per_det_gain.find(det); perdethist_gain = (it==per_det_gain.end()?hnull:it->second);
 	it = per_det_posn.find(det); perdethist_posn = (it==per_det_posn.end()?hnull:it->second);
 	it = per_det_negn.find(det); perdethist_negn = (it==per_det_negn.end()?hnull:it->second);
 	it = per_det_qual.find(det); perdethist_qual = (it==per_det_qual.end()?hnull:it->second);
@@ -1473,6 +1497,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
       number = _lar_online_id_ptr->channel( hardware_id ) - 1;
       energy = chan.energy() * MeV ;        // energy is in fixed in MeV by DSP
       time   = chan.time()   * picosecond;  // time is fixed in ps by DSP
+      gain   = chan.gain();
       //eta    = calo_element_ptr->eta();
       //phi    = calo_element_ptr->phi();
       // This noise get the value at HIGH gain
@@ -1637,7 +1662,10 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 	// Sep 30, 2011. Now with no LArEventInfo::ERROR and isATLASReady
 	if ( _is_noise_event && _monitor_signal && energy > detthreshold_signal && isATLASReady() ) {
 	  if (perdethist_sign && !isEventFlaggedByLArNoisyROAlgInTimeW) perdethist_sign->Fill( x_bin, y_bin, energy );
+          if (perdethist_gain && !isEventFlaggedByLArNoisyROAlgInTimeW) perdethist_gain->Fill( x_bin, y_bin, gain );
 	}
+
+
 
 	// --- fill acceptance histogram ---
 	// Sep 30, 2011. Now with no LArEventInfo::ERROR and isATLASReady
