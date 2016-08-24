@@ -31,3 +31,4 @@ apply_pattern component_library
 
 # Install the jobOptions:
 apply_pattern declare_joboptions files=*.py
+

@@ -39,8 +39,9 @@ namespace InDet {
   class
 #endif
   CutLevel {
-    NoCut, Loose, LoosePrimary, TightPrimary, LooseMuon, LooseElectron, MinBias,
-      HILoose, HITight
+    NoCut, Loose, LoosePrimary, TightPrimary,
+      LooseMuon, LooseElectron, LooseTau,
+      MinBias, HILoose, HITight
       };
   
   /// Interface for track selection tool
