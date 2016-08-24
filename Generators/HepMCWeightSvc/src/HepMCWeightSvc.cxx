@@ -6,6 +6,7 @@
 #include "HepMCWeightSvc.h"
 
 #include "AthenaPoolUtilities/CondAttrListCollection.h"
+#include "CoralBase/AttributeListException.h"
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventType.h"
@@ -14,11 +15,13 @@
 
 #include "IOVDbDataModel/IOVMetaDataContainer.h"
 
+#include "boost/algorithm/string.hpp"
+
 HepMCWeightSvc::HepMCWeightSvc(const std::string& name, ISvcLocator* pSvcLocator)
   : AthService(name, pSvcLocator),
    m_metaDataTool("IOVDbMetaDataTool"),m_weightNamesLoaded(false)
 {
-
+  declareProperty("Enable",m_enabled=true,"If false, will return failure on loadWeights");
 }
 
 
@@ -57,12 +60,14 @@ StatusCode HepMCWeightSvc::loadWeights() {
    m_currentWeightNames.clear();
    m_weightNamesLoaded = true; //regardless of success or failure, we will say the weights are loaded!
 
+   if(!m_enabled) return StatusCode::FAILURE;
+
    //read the weight map from the metadata, it will be std::map<std::string,int> so we need to convert to our internal type 
    ServiceHandle<StoreGateSvc> inputMetaStore("StoreGateSvc/InputMetaDataStore",name());
    CHECK( inputMetaStore.retrieve() );
    
-   const IOVMetaDataContainer* cont = 0;
-   if(inputMetaStore->retrieve(cont,"/Generation/Parameters").isFailure()) {
+   const IOVMetaDataContainer* cont = inputMetaStore->tryConstRetrieve<IOVMetaDataContainer>("/Generation/Parameters");
+   if(cont==NULL) {
      //exit quietly... 
      return StatusCode::SUCCESS;
    }
@@ -82,11 +87,31 @@ StatusCode HepMCWeightSvc::loadWeights() {
    }
    const coral::Attribute& attr = cont->payloadContainer()->at(0)->attributeList(chanNum)["HepMCWeightNames"];
 
+   int version = 1;
+   try {
+     version = cont->payloadContainer()->at(0)->attributeList(chanNum)["HepMCWeightSvcVersion"].data<int>();
+   } catch(const coral::AttributeListException&) {
+     version = 1; //no version available so assume version 1
+   }
+
    std::map<std::string, int> in; 
 
-   CHECK( Gaudi::Parsers::parse(in,attr.data<std::string>()) );
+   std::string weightNames = attr.data<std::string>();
 
-   ATH_MSG_DEBUG("Loaded weightnames: " << attr.data<std::string>());
+   //protect against malformed weightnames - see ATLMCPROD-3103
+   //this actually only came about because the Gaudi::Utils::toString method was not used
+   //in setWeightNames below. I've now corrected that, but now the fear is that these
+   //replacements will interfere with those too!
+   //so use a versioning system now
+   if(version==1) {
+     boost::replace_all(weightNames, "{'", "{\"");
+     boost::replace_all(weightNames, "':", "\":");
+     boost::replace_all(weightNames, ", '", ", \"");
+   }
+   
+   ATH_MSG_DEBUG("Loading weightnames: " << weightNames);
+
+   CHECK( Gaudi::Parsers::parse(in,weightNames) );
 
    
    for(auto& i : in) m_currentWeightNames[i.first] = i.second;
@@ -121,14 +146,11 @@ StatusCode HepMCWeightSvc::setWeightNames(const std::map<std::string, std::size_
 
       //store as strings ... when read back in we use a gaudi parser to parse the list
       myAttributes.extend("HepMCWeightNames","string");
+      myAttributes.extend("HepMCWeightSvcVersion","int");
+      myAttributes["HepMCWeightSvcVersion"].data<int>() = 2;
       
-      std::string stringToStore = "{";
-      for(auto& name : weightNames) {
-         if(stringToStore != "{") stringToStore += ", ";
-         std::stringstream ss;
-         ss << "'" << name.first << "':" << name.second; stringToStore += ss.str();
-      }
-      stringToStore += "}";
+      std::string stringToStore = Gaudi::Utils::toString( weightNames );
+
       myAttributes["HepMCWeightNames"].data<std::string>() = stringToStore;
 
       //use the run-number as the 'channel' ... all weightnames should be the same for the same channel 
