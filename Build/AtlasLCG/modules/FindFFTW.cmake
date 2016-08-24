@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: FindFFTW.cmake 718732 2016-01-20 12:30:12Z krasznaa $
+# $Id: FindFFTW.cmake 769797 2016-08-24 10:03:31Z krasznaa $
 #
 # Defines:
 #
@@ -21,7 +21,8 @@ include( LCGFunctions )
 # Declare the external module:
 lcg_external_module( NAME FFTW
    INCLUDE_SUFFIXES include INCLUDE_NAMES fftw3.h
-   LIBRARY_SUFFIXES lib COMPULSORY_COMPONENTS fftw3 )
+   LIBRARY_SUFFIXES lib COMPULSORY_COMPONENTS fftw3f
+   EXTRA_OPTIONS NO_SYSTEM_ENVIRONMENT_PATH NO_CMAKE_SYSTEM_PATH )
 
 # Handle the standard find_package arguments:
 include( FindPackageHandleStandardArgs )

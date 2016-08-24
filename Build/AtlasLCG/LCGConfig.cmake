@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: LCGConfig.cmake 766881 2016-08-08 09:21:38Z krasznaa $
+# $Id: LCGConfig.cmake 769797 2016-08-24 10:03:31Z krasznaa $
 #
 # File implementing the code that gets called when a project imports
 # LCG using something like:
@@ -195,19 +195,32 @@ function( lcg_setup_packages lcgFile lcgReleaseDir )
       # The component's base directory:
       list( GET _line 3 dir1 )
       string( STRIP ${dir1} dir2 )
-      string( REPLACE "./" "" dir3 ${dir2} )
+      if( IS_ABSOLUTE ${dir2} )
+         set( dir3 ${dir2} )
+      else()
+         string( REPLACE "./" "" dir3 ${dir2} )
+      endif()
       # The component's dependencies:
       list( GET _line 4 dep )
-      string( REPLACE "," ";" dep ${dep} )
+      if( NOT dep STREQUAL "" )
+         string( REPLACE "," ";" dep ${dep} )
+      endif()
 
       # Set up the component. In an extremely simple way for now, which
       # just assumes that the Find<Component>.cmake files will find
       # these components based on the <Component>_ROOT or possibly
       # <Component>_DIR variable.
-      set( ${nameUpper}_ROOT ${lcgReleaseDir}/${dir3}
-         CACHE PATH "Directory for ${name}-${version}" )
-      set( ${nameUpper}_DIR ${lcgReleaseDir}/${dir3}
-         CACHE PATH "Directory for ${name}-${version}" )
+      if( IS_ABSOLUTE ${dir3} )
+         set( ${nameUpper}_ROOT ${dir3}
+            CACHE PATH "Directory for ${name}-${version}" )
+         set( ${nameUpper}_DIR ${dir3}
+            CACHE PATH "Directory for ${name}-${version}" )
+      else()
+         set( ${nameUpper}_ROOT ${lcgReleaseDir}/${dir3}
+            CACHE PATH "Directory for ${name}-${version}" )
+         set( ${nameUpper}_DIR ${lcgReleaseDir}/${dir3}
+            CACHE PATH "Directory for ${name}-${version}" )
+      endif()
       set( ${nameUpper}_VERSION ${version}
          CACHE STRING "Version of ${name}" )
 
@@ -389,6 +402,7 @@ if( NOT LCG_VERSION EQUAL 0 )
    list( APPEND CMAKE_PREFIX_PATH ${GRAPHVIZ_ROOT} )
    list( APPEND CMAKE_PREFIX_PATH ${COIN3D_ROOT} )
    list( APPEND CMAKE_PREFIX_PATH ${EXPAT_ROOT} )
+   set( TCMALLOC_ROOT ${GPERFTOOLS_ROOT} )
 
 endif()
 
