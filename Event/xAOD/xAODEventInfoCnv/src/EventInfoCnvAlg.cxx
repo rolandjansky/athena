@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventInfoCnvAlg.cxx 727101 2016-03-01 15:56:08Z krasznaa $
+// $Id: EventInfoCnvAlg.cxx 751296 2016-06-01 08:00:25Z krasznaa $
 
 // System include(s):
 #include <memory>
@@ -31,6 +31,7 @@ namespace xAODMaker {
       declareProperty( "AODKey", m_aodKey = "" );
       declareProperty( "xAODKey", m_xaodKey = "EventInfo" );
       declareProperty( "CnvTool", m_cnvTool );
+      declareProperty( "ForceOverwrite", m_overwrite = false );
    }
 
    StatusCode EventInfoCnvAlg::initialize() {
@@ -39,6 +40,7 @@ namespace xAODMaker {
       ATH_MSG_INFO( "Initializing - Package version: " << PACKAGE_VERSION );
       ATH_MSG_DEBUG( " AOD Key: " << m_aodKey );
       ATH_MSG_DEBUG( "xAOD Key: " << m_xaodKey );
+      ATH_MSG_DEBUG( "ForceOverwrite: " << m_overwrite );
 
       // Retrieve the converter tool:
       CHECK( m_cnvTool.retrieve() );
@@ -50,7 +52,8 @@ namespace xAODMaker {
    StatusCode EventInfoCnvAlg::execute() {
 
       // Check if anything needs to be done:
-      if( evtStore()->contains< xAOD::EventInfo >( m_xaodKey ) ) { 
+      if( evtStore()->contains< xAOD::EventInfo >( m_xaodKey ) &&
+          ( ! m_overwrite ) ) {
          ATH_MSG_DEBUG( "xAOD::EventInfo with key \"" << m_xaodKey
                         << "\" is already in StoreGate" );
          return StatusCode::SUCCESS;
@@ -77,8 +80,14 @@ namespace xAODMaker {
       xAOD::EventInfo* ei = xaod.get();
 
       // Record the xAOD object(s):
-      CHECK( evtStore()->record( std::move( aux ), m_xaodKey + "Aux." ) );
-      CHECK( evtStore()->record( std::move( xaod ), m_xaodKey ) );
+      if( m_overwrite ) {
+         CHECK( evtStore()->overwrite( std::move( aux ), m_xaodKey + "Aux.",
+                                       false ) );
+         CHECK( evtStore()->overwrite( std::move( xaod ), m_xaodKey, false ) );
+      } else {
+         CHECK( evtStore()->record( std::move( aux ), m_xaodKey + "Aux." ) );
+         CHECK( evtStore()->record( std::move( xaod ), m_xaodKey ) );
+      }
 
       // Check if this is a PileUpEventInfo object:
       const PileUpEventInfo* paod =
@@ -148,9 +157,16 @@ namespace xAODMaker {
       ei->setSubEvents( subEvents );
 
       // Record the xAOD object(s):
-      CHECK( evtStore()->record( std::move( puaux ),
-                                 "PileUp" + m_xaodKey + "Aux." ) );
-      CHECK( evtStore()->record( std::move( puei ), "PileUp" + m_xaodKey ) );
+      if( m_overwrite ) {
+         CHECK( evtStore()->overwrite( std::move( puaux ),
+                                       "PileUp" + m_xaodKey + "Aux.", false ) );
+         CHECK( evtStore()->overwrite( std::move( puei ),
+                                       "PileUp" + m_xaodKey, false ) );
+      } else {
+         CHECK( evtStore()->record( std::move( puaux ),
+                                    "PileUp" + m_xaodKey + "Aux." ) );
+         CHECK( evtStore()->record( std::move( puei ), "PileUp" + m_xaodKey ) );
+      }
 
       // Return gracefully:
       return StatusCode::SUCCESS;
