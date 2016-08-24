@@ -1,4 +1,4 @@
-# $Id: AtlasGPerfToolsEnvironmentConfig.cmake.in 725718 2016-02-23 14:23:07Z krasznaa $
+# $Id: AtlasGPerfToolsEnvironmentConfig.cmake.in 769764 2016-08-24 09:44:01Z limosani $
 #
 # File setting up the environment variable(s) needed for using
 # GPerfTools in ATLAS.
@@ -7,9 +7,8 @@
 # The environment setting(s):
 set( ATLASGPERFTOOLSENVIRONMENT_ENVIRONMENT
    SET ATLAS_GPERFTOOLS_DIR
-   \${@CMAKE_PROJECT_NAME@_DIR}/@CMAKE_INSTALL_LIBDIR@
-   SET TCMALLOCDIR
-   \${@CMAKE_PROJECT_NAME@_DIR}/@CMAKE_INSTALL_LIBDIR@ )
-
+   @TCMALLOC_LIBRARY_DIRS@ 
+   SET TCMALLOCDIR	
+   @TCMALLOC_LIBRARY_DIRS@ )
 # Silently declare the module found:
 set( ATLASGPERFTOOLSENVIRONMENT_FOUND TRUE )
