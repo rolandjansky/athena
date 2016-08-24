@@ -21,6 +21,7 @@ package AtlasGPerfTools
 
 author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 
+
 ## for athena policies: this has to be the first use statement
 use AtlasPolicy 	AtlasPolicy-*
 
@@ -67,3 +68,4 @@ end_private
 # define path for tcmalloc needed for preloading of tcmalloc during a athena job
 set TCMALLOCDIR $(AtlasGPerfTools_cmtpath)/InstallArea/$(CMTCONFIG)/lib
 include_dirs $(AtlasGPerfTools_cmtpath)/InstallArea/include
+
