@@ -13,13 +13,24 @@ from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence() 
 DESDM_SLTTMU_Seq = CfgMgr.AthSequencer("DESDM_SLTTMU_Seq")
 
+# A logger object:
+from AthenaCommon.Logging import logging
+PerfDPD_TtbarMuon_log = logging.getLogger( "PerfDPD_TtbarMuon.py" )
 
 ##============================================================================
 ## Define the skimming (event selection) for the DESD_PHOJET output stream
 ##============================================================================
 # Object selection strings
 sel_muon  = 'Muons.pt > 24*GeV && Muons.ptcone20/Muons.pt < 0.2'
-sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5 && BTagging_AntiKt4EMTopo.MV2c20_discriminant>0.0314'
+
+from AthenaCommon.BFieldFlags import jobproperties
+if jobproperties.BField.solenoidOn():
+    PerfDPD_TtbarMuon_log.info( "Configuring b-tagging selection with solenoid on" )
+    sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5 && BTagging_AntiKt4EMTopo.MV2c20_discriminant>0.0314'
+else:
+    PerfDPD_TtbarMuon_log.info( "Configuring b-tagging selection with solenoid off" )
+    sel_bjet  = 'AntiKt4EMTopoJets.pt > 25*GeV && abs(AntiKt4EMTopoJets.eta) < 2.5'
+    pass
 
 # Event selection string
 desd_ttbar = '(count('+sel_muon+')>=1 && count('+sel_bjet+')>=1)'
