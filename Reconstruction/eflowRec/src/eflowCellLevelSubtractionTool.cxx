@@ -177,7 +177,7 @@ int eflowCellLevelSubtractionTool::matchAndCreateEflowCaloObj(int n) {
   /* Create 3 types eflowCaloObjects: track-only, cluster-only, track-cluster-link */
   eflowCaloObjectMaker makeCaloObject;
   int nCaloObjects = makeCaloObject.makeTrkCluCaloObjects(m_eflowTrackContainer, m_eflowClusterContainer, m_eflowCaloObjectContainer);
-  msg(MSG::INFO)  << "eflowCellLevelSubtractionTool created total " << nCaloObjects << " CaloObjects." << endreq;
+  msg(MSG::DEBUG)  << "eflowCellLevelSubtractionTool created total " << nCaloObjects << " CaloObjects." << endreq;
 
   /* integrate cells; determine FLI; eoverp */
   for (unsigned int iCalo=0; iCalo<m_eflowCaloObjectContainer->size(); ++iCalo) {
