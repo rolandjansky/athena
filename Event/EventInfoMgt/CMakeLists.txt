@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CxxUtils
                           Control/SGTools
                           Control/StoreGate
+			  Control/AthenaBaseComps
                           Database/AthenaPOOL/AthenaPoolUtilities
                           Database/IOVDbMetaDataTools
                           Event/EventInfo )
@@ -22,7 +23,7 @@ atlas_add_component( EventInfoMgt
                      src/TagInfoMgr.cxx
                      src/EventInfoMgt_entries.cxx
                      src/EventInfoMgt_load.cxx
-                     LINK_LIBRARIES AthenaKernel GaudiKernel CxxUtils SGTools StoreGateLib SGtests AthenaPoolUtilities EventInfo )
+                     LINK_LIBRARIES AthenaKernel GaudiKernel CxxUtils SGTools StoreGateLib SGtests AthenaBaseComps AthenaPoolUtilities EventInfo )
 
 # Install files from the package:
 atlas_install_headers( EventInfoMgt )
