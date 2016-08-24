@@ -27,6 +27,7 @@ use AtlasReflex   AtlasReflex-*   External
 
 use xAODCaloEvent xAODCaloEvent-* Event/xAOD
 use xAODTracking  xAODTracking-*  Event/xAOD
+use xAODPFlow     xAODPFlow-*     Event/xAOD
 use xAODTruth	  xAODTruth-*  	  Event/xAOD
 
 apply_pattern lcgdict dict=xAODMissingET selectionfile=selection.xml \
