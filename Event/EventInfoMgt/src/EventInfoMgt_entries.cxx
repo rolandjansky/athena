@@ -15,6 +15,11 @@
 #include "TagInfoMgr.h"
 
 DECLARE_SERVICE_FACTORY(TagInfoMgr)
+
+
 DECLARE_FACTORY_ENTRIES(EventInfoMgt) {
   DECLARE_SERVICE(TagInfoMgr)
+
+    
+
 }
