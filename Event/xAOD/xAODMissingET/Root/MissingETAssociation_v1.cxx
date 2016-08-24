@@ -6,6 +6,7 @@
 #include "xAODMissingET/versions/MissingETCompositionBase.h"
 #include "xAODJet/JetContainer.h"
 #include "xAODTruth/TruthParticle.h"
+#include "xAODPFlow/PFO.h"
 
 #include <iterator>
 #include <cstdio>
@@ -505,7 +506,7 @@ namespace xAOD {
   std::vector<const IParticle*> MissingETAssociation_v1::objects() const
   { 
     vector<const IParticle*> pVec;
-    for ( objlink_vector_t::const_iterator fLnk(this->objectLinks().begin()); fLnk != this->objectLinks().end(); ++fLnk) { pVec.push_back(*(*fLnk)); }
+    for ( objlink_vector_t::const_iterator fLnk(this->objectLinks().begin()); fLnk != this->objectLinks().end(); ++fLnk) {pVec.push_back((*fLnk).isValid()?*(*fLnk):NULL); }
     return pVec;
   }
 
@@ -622,10 +623,21 @@ namespace xAOD {
       const IParticle* obj = *objpair.first;
       MissingETBase::Types::bitmask_t bm = objpair.second;
       if (obj->type()==xAOD::Type::TrackParticle) trkOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
-      else if (obj->type()==xAOD::Type::ParticleFlow && m_override.find(obj)!=m_override.end()) calOverlaps[bm] += m_override[obj];
       else if (obj->type()==xAOD::Type::ParticleFlow) {
-	trkOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
-	calOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
+	const PFO* pfo = static_cast<const PFO*>(obj);
+	if(fabs(pfo->charge())>1e-9) {
+	  // apply cPFO weight if present, only for the inclusive PFO sum
+	  if (m_override.find(obj)!=m_override.end()) {
+	    calOverlaps[bm] += m_override[obj];
+	  } else {
+	    calOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
+	  }
+	  trkOverlaps[bm] += MissingETBase::Types::constvec_t(*obj);
+	} else {
+	  if (m_override.find(obj)!=m_override.end()) {
+	    calOverlaps[bm] += m_override[obj];
+	  } // gets ignored otherwise?
+	}
       } else if(obj->type()==xAOD::Type::TruthParticle) {
 	const TruthParticle* tp = static_cast<const TruthParticle*>(obj);
 	if(fabs(tp->charge())>0.)

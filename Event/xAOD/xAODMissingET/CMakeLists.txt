@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 756914 2016-06-22 12:57:19Z krasznaa $
+# $Id: CMakeLists.txt 766460 2016-08-04 14:17:04Z khoo $
 ################################################################################
 # Package: xAODMissingET
 ################################################################################
@@ -50,3 +50,4 @@ atlas_add_test( ut_edmTest
    SOURCES test/ut_edmTest.cxx
    INCLUDE_DIRS ${Boost_INCLUDE_DIRS}
    LINK_LIBRARIES ${Boost_LIBRARIES} xAODMissingET )
+
