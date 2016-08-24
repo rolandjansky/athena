@@ -34,7 +34,9 @@
 LArFecLvTempDcsTool::LArFecLvTempDcsTool(const std::string& type,
                                          const std::string& name,
                                          const IInterface* parent)
-  : AthAlgTool(type,name,parent), m_foldername("/LAR/DCS/CLVTEMP")
+  : AthAlgTool(type,name,parent),
+    m_larOnlineId(nullptr),
+    m_foldername("/LAR/DCS/CLVTEMP")
 {
  declareInterface< ILArFecLvTempDcsTool >( this );
  declareProperty("FolderName",m_foldername);
@@ -78,9 +80,9 @@ StatusCode LArFecLvTempDcsTool::getV1( const std::string& cratename,
     int time=event->event_ID()->time_stamp();
     log << MSG::INFO << "In run/event [" << event->event_ID()->run_number() <<
       "," << event->event_ID()->event_number() << "] timestamp " << time <<
-      endreq;
+      endmsg;
   } else {
-    log << MSG::ERROR << "Could not get pointer to event" << endreq;
+    log << MSG::ERROR << "Could not get pointer to event" << endmsg;
   }
 
 
@@ -123,9 +125,9 @@ StatusCode LArFecLvTempDcsTool::getFec( const std::string& cratename,
     int time=event->event_ID()->time_stamp();
     log << MSG::INFO << "In run/event [" << event->event_ID()->run_number() <<
       "," << event->event_ID()->event_number() << "] timestamp " << time <<
-      endreq;
+      endmsg;
   } else {
-    log << MSG::ERROR << "Could not get pointer to event" << endreq;
+    log << MSG::ERROR << "Could not get pointer to event" << endmsg;
   }
   const CondAttrListCollection* atrlistcol;
 
