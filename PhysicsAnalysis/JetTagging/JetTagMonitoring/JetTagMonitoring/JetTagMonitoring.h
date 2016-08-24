@@ -195,6 +195,13 @@ private:
     TH1F_LW* m_tag_mv2c20_w_pT50_100 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_pT100_200 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_pT200 = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_LS = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT10_20_LS = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT20_50_LS = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT50_100_LS = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT100_200_LS = nullptr;
+    TH1F_LW* m_tag_mv2c20_w_pT200_LS = nullptr;
+
     TH1F_LW* m_tag_mv2c20_w_eta0_05 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_eta05_10 = nullptr;
     TH1F_LW* m_tag_mv2c20_w_eta10_15 = nullptr;
@@ -299,9 +306,11 @@ private:
     TH1F_LW* m_jet_tracks_phi = nullptr;
     /** @brief To monitor d0 of tracks in a jet. */
     TH1F_LW* m_jet_tracks_d0 = nullptr;
+    TH1F_LW* m_jet_tracks_d0_LS = nullptr;
     /** @brief To monitor z0 of tracks in a jet. */
     TH1F_LW* m_jet_tracks_z0 = nullptr;
-    /** @brief To monitor number of b layer hits in a jet. */
+    TH1F_LW* m_jet_tracks_z0_LS = nullptr;
+   /** @brief To monitor number of b layer hits in a jet. */
     TH1F_LW* m_jet_tracks_BLayerHits = nullptr;
     /** @brief To monitor number of pixel hits in a jet. */
     TH1F_LW* m_jet_tracks_PixelHits = nullptr;
@@ -349,6 +358,12 @@ private:
     TH2F_LW* m_mv2c20_tag_70_2D = nullptr;
     TH2F_LW* m_mv2c20_tag_80_2D = nullptr;   
     TH2F_LW* m_mv2c20_tag_80_2D_LS = nullptr;    
+
+    TH1F_LW* m_tag_mv2c20_w_eta_sum85OP_LS =nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum77OP_LS =nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum70OP_LS =nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sum50OP_LS =nullptr;
+    TH1F_LW* m_tag_mv2c20_w_eta_sumAll_LS =nullptr;
 
     enum Cuts_t { pTMin, d0Max, z0Max, sigd0Max, sigz0Max, etaMax,
                   nHitBLayer, deadBLayer, nHitPix, nHitSct, nHitSi, nHitTrt, nHitTrtHighE,
