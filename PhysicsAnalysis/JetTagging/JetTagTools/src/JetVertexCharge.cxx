@@ -89,6 +89,7 @@ namespace Analysis {
 
     declareInterface< ITagTool >(this);
 
+    ClearVars();
   }
   
 ///////////

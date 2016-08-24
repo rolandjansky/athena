@@ -648,7 +648,10 @@ namespace Analysis {
 	TVector3 trkvector(0,0,0);
 	trkvector = trk.Vect();
 
-	float trackRapidity = (-1)*log( tan( 0.5*trkvector.Angle(flightDir) ) );
+  float trackRapidity = (trkvector.Mag2()>0 ? tan( 0.5*trkvector.Angle(flightDir) ) : 0); // steps to protect against log(0)
+
+  trackRapidity = (trackRapidity < 0.000001 ? (-1)*log(0.000001) : (-1)*log(trackRapidity) ); // value of 0.000001 should provide enough margin for typical values of trackRapidity
+
 
 	sumTrackRapidity += trackRapidity;
 

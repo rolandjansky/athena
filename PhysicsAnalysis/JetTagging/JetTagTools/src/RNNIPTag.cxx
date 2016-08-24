@@ -132,10 +132,14 @@ namespace Analysis {
       m_unbiasIPEstimation(true),
       m_calibrationDirectory("RNNIP"),
       m_secVxFinderName("InDetVKalVxInJetTool"),
+      m_priVtx(0),
       m_trackToVertexTool("Reco::TrackToVertex"),
       m_trackSelectorTool("Analysis::TrackSelector"),
       m_SVForIPTool("Analysis::SVForIPTool"),
-      m_trackGradeFactory("Analysis::BasicTrackGradeFactory")
+      m_trackGradeFactory("Analysis::BasicTrackGradeFactory"),
+      m_nbjet(0),
+      m_ncjet(0),
+      m_nljet(0)
   {
 
     declareInterface<ITagTool>(this);

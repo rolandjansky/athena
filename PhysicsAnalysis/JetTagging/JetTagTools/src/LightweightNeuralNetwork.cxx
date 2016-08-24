@@ -3,7 +3,7 @@
 */
 
 // WARNING: this code was copied automatically from
-// https://github.com/dguest/lwtnn.git (rev v1.0-46-g8a1bd2b)
+// https://github.com/dguest/lwtnn.git (rev v1.0-55-gab82001)
 // Please don't edit it! To get the latest version, run
 // > ./update-lwtnn.sh
 // from JetTagTools/share
@@ -136,6 +136,7 @@ namespace lwt {
       0, 1, 0, 0,
       1, 0, 0, 0;
     _layers.push_back(new MatrixLayer(mat));
+    _n_outputs = 4;
   }
 
   // construct from LayerConfig

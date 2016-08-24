@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 752137 2016-06-03 13:18:11Z guirriec $
+# $Id: CMakeLists.txt 769887 2016-08-24 14:32:07Z guirriec $
 ################################################################################
 # Package: JetTagTools
 ################################################################################
@@ -52,7 +52,6 @@ atlas_depends_on_subdirs(
 find_package( Boost COMPONENTS filesystem thread system )
 find_package( CLHEP )
 find_package( Eigen )
-find_package( FastJet )
 find_package( ROOT COMPONENTS TMVA Core Tree MathCore Hist RIO pthread
    MathMore Minuit Minuit2 Matrix Physics HistPainter Rint RooFitCore RooFit )
 
@@ -72,7 +71,7 @@ atlas_add_library( JetTagToolsLib
    src/GradedTrack.cxx src/IPTag.cxx src/JetTagUtils.cxx
    src/SVForIPTool.cxx src/SVTag.cxx src/JetFitterTag.cxx
    src/JetFitterNtupleWriter.cxx src/JetFitterNNTool.cxx
-   src/MV1Tag.cxx src/MV1cTag.cxx src/MV2Tag.cxx src/MVbTag.cxx
+   src/MV1Tag.cxx src/MV1cTag.cxx src/MV2Tag.cxx
    src/JetFitterVariablesFactory.cxx src/MSVVariablesFactory.cxx
    src/MultiSVTag.cxx src/JetVertexCharge.cxx src/SoftMuonTag.cxx
    src/ExKtbbTag.cxx src/ExKtbbTagTool.cxx src/MultivariateTagManager.cxx

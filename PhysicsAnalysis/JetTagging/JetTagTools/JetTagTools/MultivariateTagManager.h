@@ -65,7 +65,7 @@ namespace Analysis {
     void fill_trkSum(var_map& inputs, xAOD::BTagging* BTag);
     void fill_softmuon(var_map& inputs, xAOD::BTagging* BTag);
 
-    //constants
+    //global variables used both in MultivariateTagManager::fill_sv1,fill_jetfitter and in MultivariateTagManager::fill_mvb
     float m_sv1_efrc;
     int m_sv1_ntkv;
     float m_jf_efrc;

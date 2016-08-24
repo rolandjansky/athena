@@ -164,7 +164,6 @@ namespace Analysis {
     float m_jf_scaled_efc;
 
     //mv2cl100 variables
-    float m_pt_alternative;
     float m_nTrk_vtx1;
     float m_mass_first_vtx;
     float m_e_first_vtx;

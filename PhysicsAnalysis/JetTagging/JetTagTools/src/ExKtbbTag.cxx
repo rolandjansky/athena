@@ -57,6 +57,8 @@ ExKtbbTag::ExKtbbTag(const std::string& t, const std::string& n, const IInterfac
   // variables for tagger
   declareProperty("SubJetLabel",              m_SubJetLabel);
   declareProperty("JFOnlyVtx",                m_JFOnlyVtx);
+
+  m_priVtx = 0;
 }
 
 

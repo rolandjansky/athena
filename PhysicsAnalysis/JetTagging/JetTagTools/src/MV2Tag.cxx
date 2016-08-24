@@ -447,9 +447,12 @@ namespace Analysis {
 
 
 void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
-    //map of default values TODO: move to calibration file
+    //map of default values, which replace nan values provided by MultivariateTagManager
+    //TODO: read the default values from the to the calibration file
     std::map<std::string, double > defaultvals;
 
+     defaultvals["m_pt"]                          = -99;
+     defaultvals["m_absEta"]                      = -99;
      defaultvals["m_ip2"]                         = -30;
      defaultvals["m_ip2_c"]                       = -30;
      defaultvals["m_ip2_cu"]                      = -30;
@@ -512,6 +515,19 @@ void MV2Tag::ReplaceNaN_andAssign(std::map<std::string, double> var_map){
      defaultvals["m_MaxTrkRapidity_jf_path"]      =  0.0;
      defaultvals["m_MinTrkRapidity_jf_path"]      =  0.0;
      defaultvals["m_AvgTrkRapidity_jf_path"]      =  0.0;
+     defaultvals["m_trkSum_ntrk"]                 = -1;
+     defaultvals["m_trkSum_sPt"]                  = -1000; //<== -1 GeV
+     defaultvals["m_trkSum_vPt"]                  = -1000;
+     defaultvals["m_trkSum_vAbsEta"]              = -10;
+     defaultvals["m_sm_mu_pt"]                    = -1;
+     defaultvals["m_sm_dR"]                       = -1;
+     defaultvals["m_sm_qOverPratio"]              = -99;
+     defaultvals["m_sm_mombalsignif"]             = -99;
+     defaultvals["m_sm_scatneighsignif"]          = -99;
+     defaultvals["m_sm_pTrel"]                    = -99;
+     defaultvals["m_sm_mu_d0"]                    = -99;
+     defaultvals["m_sm_mu_z0"]                    = -99;
+     defaultvals["m_sm_ID_qOverP"]                = -99;
 
     //assign values or replace NAN to defaults
     //note that the name of the variables in MVTM is not always identical to MV2 inputs
