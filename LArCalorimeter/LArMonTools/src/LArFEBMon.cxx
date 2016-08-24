@@ -27,6 +27,12 @@
 #include "LArCOOLConditions/LArDSPThresholdsFlat.h"
 
 #include "TTree.h"
+#include "LWHists/TH1I_LW.h"
+#include "LWHists/TH2I_LW.h"
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
+#include "LWHists/TProfile2D_LW.h"
+#include "LWHists/TProfile_LW.h"
 
 #include "LArMonTools/LArFEBMon.h"
 

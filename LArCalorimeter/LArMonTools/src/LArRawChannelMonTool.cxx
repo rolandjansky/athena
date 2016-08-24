@@ -70,7 +70,7 @@ typedef std::map<Detector,map_idhash_str_th2> map_det_idhash_str_th2;
 
 typedef std::vector<HWIdentifier>::const_iterator citer_vect_hwid;
 
-typedef std::pair<Detector,TH2*> pair_det_th2ptr;
+//typedef std::pair<Detector,TH2*> pair_det_th2ptr;
 typedef std::map<Detector,boost::shared_ptr<IHistoProxyBase> > map_det_th2ptr;
 typedef map_det_th2ptr::const_iterator citer_det_th2ptr;
 

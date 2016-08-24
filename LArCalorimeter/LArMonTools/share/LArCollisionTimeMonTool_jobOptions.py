@@ -22,6 +22,7 @@ if 'EventBlockSize' not in dir():
     EventBlockSize=0
 
 # --- LArCollisionTimeMon configuration ---
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from LArMonTools.LArMonToolsConf import LArCollisionTimeMonTool
 LArCollisionTimeMon = LArCollisionTimeMonTool(
     # --- Configure mon tool ---
@@ -30,7 +31,8 @@ LArCollisionTimeMon = LArCollisionTimeMonTool(
     nCells                    = 1,# Needs at least >=2 cells to get rid of electronic noise
     m_lumi_blocks             = 3000,
     BunchCrossingTool = theBunchCrossingTool,
-    TrainFrontDistance        = 20
+    TrainFrontDistance        = 20,
+    IsOnline                  = athenaCommonFlags.isOnline()
     )
 
 
@@ -39,7 +41,8 @@ LArCluCollTimeMonTool=LArCollisionTimeMonTool(Key="ClusterCollTime",
                                               nCells=0,
                                               m_lumi_blocks=3000,
                                               BunchCrossingTool = theBunchCrossingTool,
-                                              TrainFrontDistance = 20
+                                              TrainFrontDistance = 20,
+                                              IsOnline = athenaCommonFlags.isOnline()
                                               )
 
 
