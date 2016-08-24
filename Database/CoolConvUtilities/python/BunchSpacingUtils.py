@@ -19,7 +19,7 @@ def bunchSpacingOfRun(runnumber,LB,verbose=False):
         return None
 
     obj=None
-
+    db = None
     try:
         db=indirectOpen(tdaqDBName)
         f=db.getFolder(folder)
@@ -32,7 +32,8 @@ def bunchSpacingOfRun(runnumber,LB,verbose=False):
             print "BunchSpacingUtils: ERROR accesssing folder",folder,"on db",tdaqDBName
             print e
 
-        db.closeDatabase()
+        if db is not None:    
+            db.closeDatabase()
         return None
 
     pl=obj.payload()
@@ -63,12 +64,15 @@ def bunchSpacingOfRun(runnumber,LB,verbose=False):
         pass
 
     #Handle wrap-around:
-    if (firstFilled>0 and lastFilled>0):
+    if (firstFilled>=0 and lastFilled>0):
         bucketDiffs.append(len(buf)-lastFilled+firstFilled)
         if (verbose): print "Bunchdiff at wrap-around:",(len(buf)-lastFilled+firstFilled)
-    
-    db.closeDatabase()
-    return min(bucketDiffs)
+    if db is not None:
+        db.closeDatabase()
+    if len(bucketDiffs)==0:
+        return None
+    else: 
+        return min(bucketDiffs)
 
 
 if __name__=="__main__":
