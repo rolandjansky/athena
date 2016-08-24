@@ -1,5 +1,5 @@
 package xAODEventInfoCnv
-# $Id: requirements 727531 2016-03-03 17:44:38Z krasznaa $
+# $Id: requirements 769747 2016-08-24 08:07:58Z will $
 
 author Attila Krasznahorkay
 
@@ -26,11 +26,10 @@ use_ifndef pplist="XAOD_ANALYSIS" pkg="LumiBlock/LumiBlockComps"
 use xAODEventInfo        xAODEventInfo-*        Event/xAOD
 use EventInfo            EventInfo-*            Event
 
-end_private
+use xAODTruth xAODTruth-* Event/xAOD
 
-# Force dependencies against Eigen and CLHEP for cmake (transparent to CMT)
-apply_pattern cmake_add_command command="find_package(Eigen)"
-apply_pattern cmake_add_command command="find_package(CLHEP)"
+
+end_private
 
 # Declare the library:
 library xAODEventInfoCnv *.cxx components/*.cxx
