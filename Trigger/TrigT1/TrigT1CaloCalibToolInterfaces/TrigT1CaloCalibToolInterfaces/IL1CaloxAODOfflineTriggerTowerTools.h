@@ -60,12 +60,18 @@ namespace LVL1{
 //       virtual std::vector<unsigned int>                  nCaloCellsByReceiver( const xAOD::TriggerTower& tt ) const = 0; 
 //       virtual std::vector<unsigned int>                  nCaloCellsByReceiverByLayer( const xAOD::TriggerTower& tt ) const = 0; 
 
+      virtual std::vector<std::vector<const CaloCell*>>  caloCellsByReceiver( const xAOD::TriggerTower& tt ) const = 0;
+      virtual std::vector<std::vector<std::vector<const CaloCell*>>>            caloCellsByLayerByReceiver( const xAOD::TriggerTower& tt ) const = 0;
+
       virtual float                                      caloCellsEnergy( const xAOD::TriggerTower& tt ) const = 0;
       virtual float                                      caloCellsET( const xAOD::TriggerTower& tt ) const = 0;
       virtual std::vector<float>                         caloCellsEnergyByLayer( const xAOD::TriggerTower& tt ) const = 0;
       virtual std::vector<float>                         caloCellsETByLayer( const xAOD::TriggerTower& tt ) const = 0;      
       
-//       virtual std::vector<float>                         caloCellsEnergyByReceiver( const xAOD::TriggerTower& tt ,const int mode=0) const = 0;  
+      virtual std::vector<float>                         caloCellsEnergyByReceiver( const xAOD::TriggerTower& tt ) const = 0;
+      virtual std::vector<float>                         caloCellsETByReceiver( const xAOD::TriggerTower& tt ) const = 0;
+      virtual std::vector<std::vector<float>>            caloCellsEnergyByLayerByReceiver( const xAOD::TriggerTower& tt ) const = 0;
+      virtual std::vector<std::vector<float>>            caloCellsETByLayerByReceiver( const xAOD::TriggerTower& tt ) const = 0;
       
 //       virtual unsigned int                               badCaloCells( const xAOD::TriggerTower& tt ) const = 0;
       virtual float                                      caloCellsQuality( const xAOD::TriggerTower& tt ) const = 0;
