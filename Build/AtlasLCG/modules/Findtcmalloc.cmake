@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Findtcmalloc.cmake 718732 2016-01-20 12:30:12Z krasznaa $
+# $Id: Findtcmalloc.cmake 769797 2016-08-24 10:03:31Z krasznaa $
 #
 # - Locate tcmalloc library
 # Defines:
@@ -12,6 +12,7 @@
 #  TCMALLOC_profiler_LIBRARY
 #  TCMALLOC_LIBRARIES
 #  TCMALLOC_LIBRARY_DIRS
+#  TCMALLOC_BINARY_PATH
 #  PPROF_EXECUTABLE
 #
 # Can be steered using TCMALLOC_ROOT.
@@ -40,5 +41,5 @@ mark_as_advanced( TCMALLOC_FOUND TCMALLOC_INCLUDE_DIR TCMALLOC_INCLUDE_DIRS
    TCMALLOC_LIBRARIES TCMALLOC_LIBRARY_DIRS PPROF_EXECUTABLE
    TCMALLOC_BINARY_PATH )
 
-# tcmalloc is picked up from AtlasExternals, so let's not set up an LCG
-# RPM dependency for it.
+# Set up the RPM dependency:
+lcg_need_rpm( gperftools FOUND_NAME TCMALLOC VERSION_NAME GPERFTOOLS )
