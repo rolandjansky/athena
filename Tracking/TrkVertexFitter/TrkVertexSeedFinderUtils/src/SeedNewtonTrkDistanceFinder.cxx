@@ -21,15 +21,19 @@
 
 
 namespace {
+#if 0
   inline const Amg::Vector3D operator + ( const Amg::Vector3D & first, const Amg::Vector3D & second) {
     return Amg::Vector3D( first.x()+second.x(),first.y()+second.y(),first.z()+second.z());
   }
+#endif
   inline const Amg::Vector3D operator - ( const Amg::Vector3D & first, const Amg::Vector3D & second) {
     return Amg::Vector3D( first.x()-second.x(),first.y()-second.y(),first.z()-second.z());
   }
+#if 0
   inline const Amg::Vector3D operator / ( const Amg::Vector3D & first, const double second) {
     return Amg::Vector3D( first.x()/second,first.y()/second,first.z()/second);
   }
+#endif
   inline double square(const double tosquare) {
     return std::pow(tosquare,2);
   }
@@ -67,30 +71,30 @@ namespace Trk
      StatusCode s = AlgTool::initialize();
     if (s.isFailure() )
     {
-      msg(MSG::FATAL) << "AlgTool::initialize() initialize failed!" << endreq;
+      msg(MSG::FATAL) << "AlgTool::initialize() initialize failed!" << endmsg;
       return StatusCode::FAILURE;
     }
 
     s = m_2ddistanceseeder.retrieve();
     if (s.isFailure())
       {
-	msg(MSG::FATAL)<<"Could not find 2d distance seeder tool." << endreq;
+	msg(MSG::FATAL)<<"Could not find 2d distance seeder tool." << endmsg;
 	return StatusCode::FAILURE;
       }
     s = m_distancefinder.retrieve();
     if (s.isFailure())
       {
-	msg(MSG::FATAL)<<"Could not find newton distance finder implementation tool." << endreq;
+	msg(MSG::FATAL)<<"Could not find newton distance finder implementation tool." << endmsg;
 	return StatusCode::FAILURE;
       }
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   StatusCode SeedNewtonTrkDistanceFinder::finalize() 
   {
     
-    msg(MSG::INFO) << "Finalize successful. Number of failed minimizations: " << m_numberOfMinimizationFailures << ". Few per events is OK!" << endreq;
+    msg(MSG::INFO) << "Finalize successful. Number of failed minimizations: " << m_numberOfMinimizationFailures << ". Few per events is OK!" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -108,7 +112,7 @@ namespace Trk
 //      m_minpoints=m_distancefinder->GetClosestPoints(a,b); 
       minpoints=m_distancefinder->GetClosestPoints(a,b); 
     } catch (Error::NewtonProblem e) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem with Newton finder: " << e.p << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem with Newton finder: " << e.p << endmsg;
       try {
 //	m_minpoints=m_2ddistanceseeder->GetSeed(TwoTracks(a,b));
 //	m_minpoints=m_distancefinder->GetClosestPoints(m_minpoints);
@@ -116,7 +120,7 @@ namespace Trk
         minpoints=m_distancefinder->GetClosestPoints(minpoints);
  
       } catch (Error::NewtonProblem e) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem with Newton finder, even after 2d seeder: no minimum between tracks found" << e.p << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Problem with Newton finder, even after 2d seeder: no minimum between tracks found" << e.p << endmsg;
         m_numberOfMinimizationFailures+=1;
 	return false;
       } catch (...) {
@@ -126,11 +130,11 @@ namespace Trk
     }
     
 #ifdef SEEDNEWTONTRKDISTANCEFINDER_DEBUG
-//    m_log(MSG::DEBUG) << "Returned a_phi " << m_minpoints.first.getPhiPoint() << endreq;
-//    m_log(MSG::DEBUG) << "Returned b_phi " << m_minpoints.second.getPhiPoint() << endreq;
+//    m_log(MSG::DEBUG) << "Returned a_phi " << m_minpoints.first.getPhiPoint() << endmsg;
+//    m_log(MSG::DEBUG) << "Returned b_phi " << m_minpoints.second.getPhiPoint() << endmsg;
 
- if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Returned a_phi " << minpoints.first.getPhiPoint() << endreq;
- if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Returned b_phi " << minpoints.second.getPhiPoint() << endreq;
+ if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Returned a_phi " << minpoints.first.getPhiPoint() << endmsg;
+ if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Returned b_phi " << minpoints.second.getPhiPoint() << endmsg;
 #endif
 
     return true;
@@ -142,7 +146,7 @@ namespace Trk
   bool  SeedNewtonTrkDistanceFinder::CalculateMinimumDistance(const  Trk::Track & a, const Trk::Track & b) {
 
     if (std::isnan(a.perigeeParameters()->parameters()[Trk::d0])||std::isnan(b.perigeeParameters()->parameters()[Trk::d0])) {
-      msg(MSG::ERROR) << "Nan parameters in tracks. Cannot use them" << endreq;
+      msg(MSG::ERROR) << "Nan parameters in tracks. Cannot use them" << endmsg;
       return false;
     }
     
@@ -160,12 +164,12 @@ namespace Trk
     const Trk::Perigee* parperb=dynamic_cast<const Trk::Perigee*>(&parb);
 
     if (parpera==0||parperb==0) {
-      msg(MSG::WARNING) << "Cannot cast to perigee. Neutral will be supported soon" << endreq;
+      msg(MSG::WARNING) << "Cannot cast to perigee. Neutral will be supported soon" << endmsg;
       return false;
     }
 
     if (std::isnan(parpera->parameters()[Trk::d0])||std::isnan(parperb->parameters()[Trk::d0])) {
-      msg(MSG::ERROR) << "Nan parameters in tracks. Cannot use them" << endreq;
+      msg(MSG::ERROR) << "Nan parameters in tracks. Cannot use them" << endmsg;
       return false;
     }
     

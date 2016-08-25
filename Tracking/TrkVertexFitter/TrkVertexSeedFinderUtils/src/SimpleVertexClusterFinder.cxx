@@ -27,13 +27,13 @@ namespace Trk
   StatusCode SimpleVertexClusterFinder::initialize() 
   { 
     //no initializiation needed
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
   StatusCode SimpleVertexClusterFinder::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -93,7 +93,7 @@ namespace Trk
     //dont need the cluster vector anymore.  all the elements have been deleted in above loop
     delete clusts;
 
-    msg(MSG::DEBUG) << "returning " << vertices.size() << " clusters" << endreq;
+    msg(MSG::DEBUG) << "returning " << vertices.size() << " clusters" << endmsg;
     return vertices;
 
   } //End findSimpleVertexClusterFinders
