@@ -30,13 +30,13 @@ namespace Trk
 
   StatusCode FsmwMode1dFinder::initialize() 
   { 
-    msg(MSG::INFO) << "Initialize successfull" << endreq;
+    msg(MSG::INFO) << "Initialize successfull" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   StatusCode FsmwMode1dFinder::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successfull" << endreq;
+    msg(MSG::INFO)  << "Finalize successfull" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -52,7 +52,7 @@ namespace Trk
     if(DoubleAndWeights.size() == 1) return DoubleAndWeights.begin()->first;
     
 #ifdef FSMWMODE1DFINDER_DEBUG
-    msg(MSG::DEBUG) << "entered FsmwMode1dFinder::GetMode " << endreq;
+    msg(MSG::DEBUG) << "entered FsmwMode1dFinder::GetMode " << endmsg;
 #endif
     
   //first of all order the vector according to the double value
@@ -67,7 +67,7 @@ namespace Trk
     std::vector<DoubleAndWeight>::const_iterator best_end=end;
 
 #ifdef FSMWMODE1DFINDER_DEBUG
-    msg(MSG::DEBUG) << "Size of incoming vector is" << DoubleAndWeights.size() << endreq;
+    msg(MSG::DEBUG) << "Size of incoming vector is" << DoubleAndWeights.size() << endmsg;
 #endif
     
 
@@ -85,7 +85,7 @@ namespace Trk
       }
 
 #ifdef FSMWMODE1DFINDER_DEBUG
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before \"int step = (int)std::floor(fraction*(end-begin+1))\" " << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before \"int step = (int)std::floor(fraction*(end-begin+1))\" " << endmsg;
 #endif
     int step = (int)std::floor(fraction*(end-begin+1));
     overallweight=0.;
@@ -96,7 +96,7 @@ namespace Trk
       for (std::vector<DoubleAndWeight>::const_iterator j=i;j!=j_end;j++) {
 #ifdef FSMWMODE1DFINDER_DEBUG
 	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In the single interval, the component number unknown, value: " << j->first << " weight " 
-	<< j->second << endreq;
+	<< j->second << endmsg;
 #endif		  
 	overallweight+=j->second;
       }
@@ -106,11 +106,11 @@ namespace Trk
     std::vector<DoubleAndWeight>::const_iterator i_last = begin+step-1;
 
 #ifdef FSMWMODE1DFINDER_DEBUG
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After \"int step = (int)std::floor(fraction*(end-begin+1))\" " << endreq;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After \"int step = (int)std::floor(fraction*(end-begin+1))\" " << endmsg;
 #endif
     for (std::vector<DoubleAndWeight>::const_iterator i=begin;i!=(end-step+1);++i, ++i_last) {
 #ifdef FSMWMODE1DFINDER_DEBUG
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Interval number unknown, value: " << i->first << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Interval number unknown, value: " << i->first << endmsg;
 #endif	
 
       //calculate the weight the interval should be divided into
@@ -124,7 +124,7 @@ namespace Trk
       for (std::vector<DoubleAndWeight>::const_iterator j=i;j!=i+step;j++) {
 #ifdef FSMWMODE1DFINDER_DEBUG
 	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In the single interval, the component number unknown, value: " << j->first << " weight " 
-	<< j->second << endreq;
+	<< j->second << endmsg;
 #endif		  
 	alt_overallweight+=j->second;
       }
@@ -139,8 +139,8 @@ namespace Trk
       if (new_value<last_value) {
 #ifdef FSMWMODE1DFINDER_DEBUG
 	msg(MSG::DEBUG) << "New value: " << ((i+step-1)->first-i->first)/overallweight << " while the previous one was " << 
-		last_value << endreq;
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Best case since ever now" << endreq;
+		last_value << endmsg;
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Best case since ever now" << endmsg;
 #endif		  
 	last_value=((i+step-1)->first-i->first)/overallweight;
 	best_begin=i;
@@ -151,7 +151,7 @@ namespace Trk
     }
     
 #ifdef FSMWMODE1DFINDER_DEBUG
-    msg(MSG::DEBUG) << "Ended a cycle with success" << endreq;
+    msg(MSG::DEBUG) << "Ended a cycle with success" << endmsg;
     if (begin==best_begin && end ==best_end) {
       ATH_MSG_ERROR( "No change at step=" << step );
     }
@@ -188,7 +188,7 @@ namespace Trk
 
 
 #ifdef FSMWMODE1DFINDER_DEBUG
-    msg(MSG::DEBUG) << "entered FsmwMode1dFinder::GetMode " << endreq;
+    msg(MSG::DEBUG) << "entered FsmwMode1dFinder::GetMode " << endmsg;
 #endif
   
     //first of all order the vector according to the double value
@@ -203,7 +203,7 @@ namespace Trk
     std::vector<double>::const_iterator best_end=end;
 
 #ifdef FSMWMODE1DFINDER_DEBUG
-    msg(MSG::DEBUG) << "Size of incoming vector is" << Doubles.size() << endreq;
+    msg(MSG::DEBUG) << "Size of incoming vector is" << Doubles.size() << endmsg;
 #endif
     
 
@@ -212,30 +212,30 @@ namespace Trk
     bool isthelast=false;
     while (!isthelast) {
 #ifdef FSMWMODE1DFINDER_DEBUG
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before \"int step = (int)std::floor(m_fraction*(end-begin+1))\" " << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Before \"int step = (int)std::floor(m_fraction*(end-begin+1))\" " << endmsg;
 #endif
     int step = (int)std::floor(m_fraction*(end-begin+1));
 #ifdef FSMWMODE1DFINDER_DEBUG
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After \"int step = (int)std::floor(m_fraction*(end-begin+1))\" " << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "After \"int step = (int)std::floor(m_fraction*(end-begin+1))\" " << endmsg;
 #endif
     for (std::vector<double>::const_iterator i=begin;i!=(end-step+1);++i) {
 #ifdef FSMWMODE1DFINDER_DEBUG
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Interval number unknown, value: " << i->first << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Interval number unknown, value: " << i->first << endmsg;
 #endif	
       //calculate the weight the interval should be divided into
       //      overallweight=0.;
       //for (std::vector<double>::const_iterator j=i;j!=i+step;j++) {
       //#ifdef FSMWMODE1DFINDER_DEBUG
       //if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "In the single interval, the component number unknown, value: " << j->first << " weight " 
-      //<< j->second << endreq;
+      //<< j->second << endmsg;
       //#endif		  
       //overallweight+=j->second;
       //}
       if ((*(i+step-1)-*i)<last_value) {
 #ifdef FSMWMODE1DFINDER_DEBUG
 	msg(MSG::DEBUG) << "New value: " << *(i+step-1)-*i << " while the previous one was " << 
-		last_value << endreq;
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Best case since ever now" << endreq;
+		last_value << endmsg;
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Best case since ever now" << endmsg;
 #endif		  
 	last_value=*(i+step-1)-*i;
 	best_begin=i;
@@ -244,7 +244,7 @@ namespace Trk
     }
     
 #ifdef FSMWMODE1DFINDER_DEBUG
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ended a cycle with success" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ended a cycle with success" << endmsg;
 #endif
 
     //assign the new begin and end...

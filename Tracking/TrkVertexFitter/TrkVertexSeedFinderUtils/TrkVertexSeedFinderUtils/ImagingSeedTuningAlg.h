@@ -147,12 +147,12 @@ class ImagingSeedTuningAlg
   ServiceHandle< IBeamCondSvc > m_iBeamCondSvc;
   ServiceHandle< ITHistSvc > m_iTHistSvc;
 
-  std::vector<float>::const_iterator i_angularCutoffParameter;
-  std::vector<float>::const_iterator i_clusterWindowXY;
-  std::vector<float>::const_iterator i_mergeParameter;
-  std::vector<float>::const_iterator i_weightThreshold;
-  std::vector<bool>::const_iterator  i_refineZ;
-  std::vector<bool>::const_iterator  i_gaussianWindow;
+  std::vector<float>::const_iterator m_i_angularCutoffParameter;
+  std::vector<float>::const_iterator m_i_clusterWindowXY;
+  std::vector<float>::const_iterator m_i_mergeParameter;
+  std::vector<float>::const_iterator m_i_weightThreshold;
+  std::vector<bool>::const_iterator  m_i_refineZ;
+  std::vector<bool>::const_iterator  m_i_gaussianWindow;
 
   /// Default constructor: 
   ImagingSeedTuningAlg();
@@ -161,25 +161,25 @@ class ImagingSeedTuningAlg
 
   /// Histograms and trees
 
-  TH1* h_nTruthVertices;
-  TH1* h_zTruthVertices;
+  TH1* m_h_nTruthVertices;
+  TH1* m_h_zTruthVertices;
 
-  TTree* t_seeds;
-  int b_nTruth;
-  int b_nConditions;
-  int b_nSeeds[5000];
-  int b_nGoodSeeds[5000];
-  int b_nGoodTruth[5000];
-  int b_nFake[5000];
-  int b_nLost[5000];
-  int b_nMerge[5000];
-  int b_nSplit[5000];
-  float b_angularCutoffParameter[5000];
-  float b_weightThreshold[5000];
-  float b_mergeParameter[5000];
-  float b_clusterWindowXY[5000];
-  int b_refineZ[5000];
-  int b_gaussianWindow[5000];
+  TTree* m_t_seeds;
+  int m_b_nTruth;
+  int m_b_nConditions;
+  int m_b_nSeeds[5000];
+  int m_b_nGoodSeeds[5000];
+  int m_b_nGoodTruth[5000];
+  int m_b_nFake[5000];
+  int m_b_nLost[5000];
+  int m_b_nMerge[5000];
+  int m_b_nSplit[5000];
+  float m_b_angularCutoffParameter[5000];
+  float m_b_weightThreshold[5000];
+  float m_b_mergeParameter[5000];
+  float m_b_clusterWindowXY[5000];
+  int m_b_refineZ[5000];
+  int m_b_gaussianWindow[5000];
 
   int m_iCondition;
 

@@ -20,9 +20,11 @@ namespace {
   inline double distance2d(const Amg::Vector3D & a, const Amg::Vector3D & b) {
     return std::sqrt(std::pow(a.x()-b.x(),2)+std::pow(a.y()-b.y(),2));
   }
+#if 0
   inline double abs2d(const Amg::Vector3D& point) {
     return std::sqrt(std::pow(point.x(),2)+std::pow(point.y(),2));
   }
+#endif
   inline double takenearest(const double of, const double to) {
         if (of-to>=M_PI) return of-2*M_PI;
 	if (of-to<-M_PI) return of+2*M_PI;
@@ -43,6 +45,7 @@ namespace {
   inline double oppositeangle(const double angle) {
     return  angle>0. ? angle-M_PI : angle+M_PI;
   }
+#if 0
   inline const std::pair<double,double> gettwoanglesfromcos(const double cos) {
     return std::pair<double,double>(acos(cos),-acos(cos)); 
   }
@@ -51,6 +54,7 @@ namespace {
     if (angle+of<=-M_PI) return angle+of+2*M_PI;
     return angle+of;
   }
+#endif
   inline double square(const double tosquare) {
     return std::pow(tosquare,2);
   }
@@ -115,20 +119,20 @@ namespace Trk
     StatusCode s = AlgTool::initialize();
     if (s.isFailure() )
     {
-      msg(MSG::FATAL) << "AlgTool::initialize() initialize failed!" << endreq;
+      msg(MSG::FATAL) << "AlgTool::initialize() initialize failed!" << endmsg;
       return StatusCode::FAILURE;
     }
 
     if (m_magFieldSvc.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Could not find magnetic field service." << endreq;
+      msg(MSG::FATAL)<<"Could not find magnetic field service." << endmsg;
       return StatusCode::FAILURE;
     }
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   StatusCode Trk2dDistanceSeeder::finalize() 
   {
-    msg(MSG::INFO) << "Finalize successful" << endreq;
+    msg(MSG::INFO) << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -145,10 +149,10 @@ namespace Trk
     m_magFieldSvc->getField(posXYZ,magnFieldVect);
     m_bfield1=magnFieldVect[2]*299.792;//should be in GeV/mm
     if (m_bfield1==0.||isnan(m_bfield1)) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not find a magnetic field different from zero: very very strange" << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not find a magnetic field different from zero: very very strange" << endmsg;
       m_bfield1=0.60407; //Value in GeV/mm (ATLAS units)
     } else {
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::DEBUG) << "Magnetic field projection of z axis in the perigee position track 1 is: " << m_bfield1 << " GeV/mm " << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::DEBUG) << "Magnetic field projection of z axis in the perigee position track 1 is: " << m_bfield1 << " GeV/mm " << endmsg;
     }
 
     posXYZ[0] = mytracks.getSecondPerigee().associatedSurface().center().x();
@@ -157,10 +161,10 @@ namespace Trk
     m_magFieldSvc->getField(posXYZ,magnFieldVect);
     m_bfield2= magnFieldVect[2]*299.792;//should be in GeV/mm
     if (m_bfield2==0.||isnan(m_bfield2)) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not find a magnetic field different from zero: very very strange" << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not find a magnetic field different from zero: very very strange" << endmsg;
       m_bfield2=0.60407; //Value in GeV/mm (ATLAS units)
     } else {
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Magnetic field projection of z axis in the perigee position track 2 is: " << m_bfield2 << " GeV/mm " << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Magnetic field projection of z axis in the perigee position track 2 is: " << m_bfield2 << " GeV/mm " << endmsg;
     }
 
     //phitanpoca here means not the tan to poca (which is phi0) but the direction from perigee to the center of curvature (I don't know 
@@ -179,7 +183,7 @@ namespace Trk
     m_centersofcurv=std::pair<Amg::Vector3D,Amg::Vector3D>(getCenterOfCurvature(mytracks.getFirstPerigee(),m_abs1,m_phitanpoca1),
 							   getCenterOfCurvature(mytracks.getSecondPerigee(),m_abs2,m_phitanpoca2));
 #ifdef TRK2DDISTANCESEEDER_DEBUG
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Center of track number 1: " << m_centersofcurv.first << " center of track 2 " << m_centersofcurv.second << endreq;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Center of track number 1: " << m_centersofcurv.first << " center of track 2 " << m_centersofcurv.second << endmsg;
 #endif
 
     m_distance2d=distance2d(m_centersofcurv.first,m_centersofcurv.second);
@@ -189,9 +193,9 @@ namespace Trk
 
   
 #ifdef TRK2DDISTANCESEEDER_DEBUG
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_abs1: " << m_abs1 << " m_abs2: " << m_abs2 << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_phitanpoca1: " << m_phitanpoca1 << " m_phitanpoca2: " << m_phitanpoca2 << endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "distance2d " << m_distance2d << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_abs1: " << m_abs1 << " m_abs2: " << m_abs2 << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "m_phitanpoca1: " << m_phitanpoca1 << " m_phitanpoca2: " << m_phitanpoca2 << endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "distance2d " << m_distance2d << endmsg;
 #endif
 
 
@@ -199,7 +203,7 @@ namespace Trk
   if (m_distance2d>(m_abs1+m_abs2)) {
 
 #ifdef TRK2DDISTANCESEEDER_DEBUG
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Distinct circles " << endreq;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Distinct circles " << endmsg;
 #endif
 
     m_phi1=getangle(m_centersofcurv.second.y()-m_centersofcurv.first.y(),m_centersofcurv.second.x()-m_centersofcurv.first.x());
@@ -228,21 +232,21 @@ namespace Trk
     if (fabs(m_abs2-m_abs1)>=m_distance2d) {
 
 #ifdef TRK2DDISTANCESEEDER_DEBUG
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  one circle inside the other " << endreq;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  one circle inside the other " << endmsg;
 #endif
 
       //1)
       if (m_abs2<m_abs1) {
 
 #ifdef TRK2DDISTANCESEEDER_DEBUG
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  second radius smaller than first " << endreq;
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  second radius smaller than first " << endmsg;
 #endif 
 	m_phi1=getangle(m_centersofcurv.second.y()-m_centersofcurv.first.y(),m_centersofcurv.second.x()-m_centersofcurv.first.x());	
 	m_phi2=m_phi1;
       } else {
 	
 #ifdef TRK2DDISTANCESEEDER_DEBUG
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  first radius smaller than second " << endreq;
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "  first radius smaller than second " << endmsg;
 #endif 
 	
 	
@@ -272,7 +276,7 @@ namespace Trk
       double projection1=(square(m_abs2)-square(m_abs1)-square(m_distance2d))/2./m_distance2d;
       double cosinus1=projection1/m_sgnr1/m_abs1;
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "projection1: " << projection1 << " cosinus1 " << cosinus1
-	  << "projection2: " << projection2 << " cosinus2 " << cosinus2 << endreq;
+	  << "projection2: " << projection2 << " cosinus2 " << cosinus2 << endmsg;
 #endif
 
       double phibase2=
@@ -284,13 +288,13 @@ namespace Trk
 	TMath::ACos(cosinus2);
 
 #ifdef TRK2DDISTANCESEEDER_DEBUG
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " phibase2 is : " << phibase2 << " add to phi " << addtophi2<< endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " phibase2 is : " << phibase2 << " add to phi " << addtophi2<< endmsg;
 #endif
 
       std::pair<double,double> possiblephiontrack2(phibase2+addtophi2,phibase2-addtophi2);
 
 #ifdef TRK2DDISTANCESEEDER_DEBUG
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "the two phis are: " << possiblephiontrack2.first << " and " <<  possiblephiontrack2.second << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "the two phis are: " << possiblephiontrack2.first << " and " <<  possiblephiontrack2.second << endmsg;
 #endif
 
       std::pair<double,double> 
@@ -333,12 +337,12 @@ namespace Trk
 
 
 #ifdef TRK2DDISTANCESEEDER_DEBUG
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Point 1a: x " << possiblepoints1.first.x() << " y " << possiblepoints1.first.y() << endreq;
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Point 2a: x " << possiblepoints2.first.x() << " y " << possiblepoints2.first.y() << endreq;
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Point 1b: x " << possiblepoints1.second.x() << " y " << possiblepoints1.second.y() << endreq;
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Point 2b: x " << possiblepoints2.second.x() << " y " << possiblepoints2.second.y() << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Point 1a: x " << possiblepoints1.first.x() << " y " << possiblepoints1.first.y() << endmsg;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Point 2a: x " << possiblepoints2.first.x() << " y " << possiblepoints2.first.y() << endmsg;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Point 1b: x " << possiblepoints1.second.x() << " y " << possiblepoints1.second.y() << endmsg;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Point 2b: x " << possiblepoints2.second.x() << " y " << possiblepoints2.second.y() << endmsg;
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Distance between 1a and 2a:" << fabs(possiblepoints1.first.z()-possiblepoints2.first.z())  << 
-	"Distance between 1a and 2a:" << fabs(possiblepoints1.second.z()-possiblepoints2.second.z())  << endreq;
+	"Distance between 1a and 2a:" << fabs(possiblepoints1.second.z()-possiblepoints2.second.z())  << endmsg;
 #endif
 
       

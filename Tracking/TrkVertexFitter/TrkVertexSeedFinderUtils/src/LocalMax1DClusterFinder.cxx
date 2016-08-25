@@ -13,9 +13,11 @@ namespace Trk
 {
   
   namespace {
+#if 0
     bool compareMaxZ( LocalMax1DClusterFinder::Projection m1,  LocalMax1DClusterFinder::Projection m2 ) {
       return (m1.first < m2.first);
     }
+#endif
   }
 
   LocalMax1DClusterFinder::LocalMax1DClusterFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
@@ -43,13 +45,13 @@ namespace Trk
   
   StatusCode LocalMax1DClusterFinder::initialize() { 
     //no initializiation needed
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
   StatusCode LocalMax1DClusterFinder::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -172,7 +174,7 @@ namespace Trk
 	      if ( 4 * (w2 - w1) + 2 * (w1 - w3) > 0 ) {
 		z = z2 + (z2 - z1) * (w3 - w1)/(4 * (w2 - w1) + 2 * (w1 - w3));
 	      } else {  // degenerate (linear) or concave up cases should never happen since z2 is a local maximum
-		msg(MSG::WARNING) << "unexpected histogram shape ("<<w1<<","<<w2<<","<<w3<<")" << endreq;
+		msg(MSG::WARNING) << "unexpected histogram shape ("<<w1<<","<<w2<<","<<w3<<")" << endmsg;
 		z = image.getRelPosZ(m.first);
 	      }
 	    } else {
@@ -183,7 +185,7 @@ namespace Trk
       }
     }
 
-    msg(MSG::DEBUG) << "returning " << vertices.size() << " clusters" << endreq;
+    msg(MSG::DEBUG) << "returning " << vertices.size() << " clusters" << endmsg;
     return vertices;
 
   } //End findLocalMax1DClusterFinder
