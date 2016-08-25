@@ -45,17 +45,17 @@ namespace Muon {
   {
     ATH_MSG_VERBOSE("Initializing ...");
     if (m_idHelper.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_idHelper << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_idHelper << endmsg;
       return StatusCode::FAILURE; 
     }
 
     if (m_printer.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_printer << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_printer << endmsg;
       return StatusCode::FAILURE; 
     }
 
     if (m_helper.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_helper << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_helper << endmsg;
       return StatusCode::FAILURE; 
     }
 

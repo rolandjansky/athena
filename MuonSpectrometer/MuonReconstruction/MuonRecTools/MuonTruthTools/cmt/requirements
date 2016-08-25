@@ -48,3 +48,4 @@ library MuonTruthTools *.cxx components/*.cxx
 private
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
+
