@@ -81,8 +81,9 @@ namespace InDet {
 
       virtual void newEvent()=0;
       virtual void newEvent(Trk::TrackInfo,const TrackQualityCuts&)=0;
-
       virtual void endEvent()=0;
+      virtual void getTrackQualityCuts(const TrackQualityCuts&) = 0;
+      virtual void statistic(int*) = 0;
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
