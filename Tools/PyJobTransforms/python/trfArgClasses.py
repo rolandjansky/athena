@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 750283 2016-05-27 12:30:08Z graemes $
+# @version $Id: trfArgClasses.py 768736 2016-08-19 11:33:00Z mavogel $
 
 import argparse
 import bz2
@@ -1327,14 +1327,14 @@ class argBSFile(argAthenaFile):
         myargdict = self._mergeArgs(argdict)
         myargdict['maskEmptyInputs'] = argBool(True)
         myargdict['allowRename'] = argBool(True)
-        myargdict['emptyStubFile'] = argString(output)
+        myargdict['emptyStubFile'] = argString(inputs[0])
         
         # We need a athenaExecutor to do the merge
         # N.B. We never hybrid merge AthenaMP outputs as this would prevent further merging in another
         # task (hybrid merged files cannot be further bybrid merged) 
         myDataDictionary = {'BS_MRG_INPUT' : argBSFile(inputs, type=self.type, io='input'),
                             'BS_MRG_OUTPUT' : argBSFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = bsMergeExecutor(name='BSMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, exe = 'file_merging',
                                   inData=set(['BS_MRG_INPUT']), outData=set(['BS_MRG_OUTPUT']))
         myMerger.doAll(input=set(['BS_MRG_INPUT']), output=set(['BS_MRG_OUTPUT']))
@@ -1347,6 +1347,7 @@ class argBSFile(argAthenaFile):
 
         msg.debug('Post self-merge files are: {0}'.format(self._value))
         self._resetMetadata(inputs + [output])
+        return myMerger
     
 
 ## @brief POOL file class.
@@ -1395,10 +1396,10 @@ class argPOOLFile(argAthenaFile):
         # task (hybrid merged files cannot be further bybrid merged) 
         myDataDictionary = {'POOL_MRG_INPUT' : argPOOLFile(inputs, type=self.type, io='input'),
                             'POOL_MRG_OUTPUT' : argPOOLFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name='POOLMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, 
                                   skeletonFile = 'RecJobTransforms/skeleton.MergePool_tf.py',
-                                  inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']), perfMonFile = 'ntuple_POOLMerge.pmon.gz')
+                                  inData=set(['POOL_MRG_INPUT']), outData=set(['POOL_MRG_OUTPUT']), disableMP=True)
         myMerger.doAll(input=set(['POOL_MRG_INPUT']), output=set(['POOL_MRG_OUTPUT']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1432,10 +1433,10 @@ class argHITSFile(argPOOLFile):
         from PyJobTransforms.trfExe import athenaExecutor, executorConfig
         myDataDictionary = {'HITS' : argHITSFile(inputs, type=self.type, io='input'),
                             'HITS_MRG' : argHITSFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'SimuJobTransforms/skeleton.HITSMerge.py',
                                   conf=myMergeConf, 
-                                  inData=set(['HITS']), outData=set(['HITS_MRG']), perfMonFile = 'ntuple_HITSMerge.pmon.gz')
+                                  inData=set(['HITS']), outData=set(['HITS_MRG']), disableMP=True)
         myMerger.doAll(input=set(['HITS']), output=set(['HITS_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1468,10 +1469,10 @@ class argRDOFile(argPOOLFile):
         from PyJobTransforms.trfExe import athenaExecutor, executorConfig
         myDataDictionary = {'RDO' : argHITSFile(inputs, type=self.type, io='input'),
                             'RDO_MRG' : argHITSFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = athenaExecutor(name = 'RDOMergeAthenaMP{0}'.format(counter), skeletonFile = 'RecJobTransforms/skeleton.MergeRDO_tf.py',
                                   conf=myMergeConf, 
-                                  inData=set(['RDO']), outData=set(['RDO_MRG']), perfMonFile = 'ntuple_RDOMerge.pmon.gz')
+                                  inData=set(['RDO']), outData=set(['RDO_MRG']), disableMP=True)
         myMerger.doAll(input=set(['RDO']), output=set(['RDO_MRG']))
         
         # OK, if we got to here with no exceptions, we're good shape
@@ -1484,9 +1485,43 @@ class argRDOFile(argPOOLFile):
         self._resetMetadata(inputs + [output])
         return myMerger
     
+class argEVNTFile(argPOOLFile):
 
+    integrityFunction = "returnIntegrityOfPOOLFile"
+
+    ## @brief Method which can be used to merge EVNT files
+    def selfMerge(self, output, inputs, counter=0, argdict={}):
+        msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
+        
+        # First do a little sanity check
+        for fname in inputs:
+            if fname not in self._value:
+                raise trfExceptions.TransformMergeException(trfExit.nameToCode('TRF_FILEMERGE_PROBLEM'), 
+                                                            "File {0} is not part of this agument: {1}".format(fname, self))
+        
+        ## @note Modify argdict
+        mySubstepName = 'EVNTMergeAthenaMP{0}'.format(counter)
+        myargdict = self._mergeArgs(argdict)
+        
+        from PyJobTransforms.trfExe import athenaExecutor, executorConfig
+        myDataDictionary = {'EVNT' : argEVNTFile(inputs, type=self.type, io='input'),
+                            'EVNT_MRG' : argEVNTFile(output, type=self.type, io='output')}
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
+        myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',
+                                  conf=myMergeConf, 
+                                  inData=set(['EVNT']), outData=set(['EVNT_MRG']), disableMP=True)
+        myMerger.doAll(input=set(['EVNT']), output=set(['EVNT_MRG']))
+        
+        # OK, if we got to here with no exceptions, we're good shape
+        # Now update our own list of files to reflect the merge
+        for fname in inputs:
+            self._value.remove(fname)
+        self._value.append(output)
+
+        msg.debug('Post self-merge files are: {0}'.format(self._value))
+        self._resetMetadata(inputs + [output])
+        return myMerger
     
-
 ## @brief TAG file class
 #  @details Has a different validation routine to ESD/AOD POOL files
 class argTAGFile(argPOOLFile):
@@ -1531,7 +1566,7 @@ class argTAGFile(argPOOLFile):
         # We need a tagMergeExecutor to do the merge
         myDataDictionary = {'TAG_MRG_INPUT' : argTAGFile(inputs, type=self.type, io='input'),
                             'TAG_MRG_OUTPUT' : argTAGFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = tagMergeExecutor(name='TAGMergeAthenaMP{0}{1}'.format(self._subtype, counter), exe = 'CollAppend', 
                                         conf=myMergeConf, 
                                         inData=set(['TAG_MRG_INPUT']), outData=set(['TAG_MRG_OUTPUT']),)
@@ -1551,7 +1586,6 @@ class argTAGFile(argPOOLFile):
     def prodsysDescription(self):
         desc=super(argTAGFile, self).prodsysDescription
         return desc
-
 
 ## @brief Data quality histogram file class
 class argHISTFile(argFile):
@@ -1651,7 +1685,7 @@ class argNTUPFile(argFile):
         # We need a NTUPMergeExecutor to do the merge
         myDataDictionary = {'NTUP_MRG_INPUT' : argNTUPFile(inputs, type=self.type, io='input'),
                             'NYUP_MRG_OUTPUT' : argNTUPFile(output, type=self.type, io='output')}
-        myMergeConf = executorConfig(myargdict, myDataDictionary, disableMP=True)
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
         myMerger = NTUPMergeExecutor(name='NTUPMergeAthenaMP{0}{1}'.format(self._subtype, counter), conf=myMergeConf, 
                                      inData=set(['NTUP_MRG_INPUT']), outData=set(['NTUP_MRG_OUTPUT']))
         myMerger.doAll(input=set(['NTUP_MRG_INPUT']), output=set(['NYUP_MRG_OUTPUT']))
@@ -2105,6 +2139,12 @@ class argSubstepSteering(argSubstep):
     @property
     def value(self):
         return self._value
+    
+    # This argument gets dumped in a special way, using an alias directly
+    # instead of the expanded value
+    @property
+    def dumpvalue(self):
+        return self._dumpvalue
 
     @property
     def prodsysDescription(self):
@@ -2117,9 +2157,10 @@ class argSubstepSteering(argSubstep):
     #  This is then cast into a dictionary of tuples {substep: [('in/out', '+/-', DATATYPE), ...], ...}
     @value.setter
     def value(self, value):
-        msg.debug('Attempting to set argSubstepSteering from {0!s} (type {1}'.format(value, type(value)))
+        msg.debug('Attempting to set argSubstepSteering from {0!s} (type {1})'.format(value, type(value)))
         if value is None:
             self._value = {}
+            self._dumpvalue = [""]
         elif isinstance(value, dict):
             # OK, this should be the direct setable dictionary - but do a check of that
             for k, v in value.iteritems():
@@ -2131,9 +2172,15 @@ class argSubstepSteering(argSubstep):
                         raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_CONV_FAIL'), 
                                                                   'Failed to convert dict {0!s} to argSubstepSteering'.format(value))                    
             self._value = value
+            # Note we are a little careful here to never reset the dumpvalue - this is 
+            # because when processing the _list_ of steering arguments down to a single
+            # multi-valued argument we re-call value() with an expanded diectionary and
+            # one can nievely reset dumpvalue by mistake
+            self._dumpvalue = getattr(self, "_dumpvalue", value)
         elif isinstance(value, (str, list, tuple)):
             if isinstance(value, str):
                 value = [value,]
+            self._dumpvalue = getattr(self, "_dumpvalue", value)
             # Now we have a list of strings to parse
             self._value = {}
             for item in value:

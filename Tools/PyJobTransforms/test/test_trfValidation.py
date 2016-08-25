@@ -5,7 +5,7 @@
 ## @Package test_trfValidation.py
 #  @brief Unittests for trfValidation.py
 #  @author graeme.andrew.stewart@cern.ch
-#  @version $Id: test_trfValidation.py 749614 2016-05-25 10:46:26Z lerrenst $
+#  @version $Id: test_trfValidation.py 763940 2016-07-24 13:46:01Z uworlika $
 
 import unittest
 
@@ -566,10 +566,10 @@ class athenaLogFileReportTests(unittest.TestCase):
     def test_coreDumpCurAlg(self):
         self.assertEqual(self.myFileReport6.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
                                                            'firstError': {'count': 1, 'firstLine': 4,
-                                                               'message': 'Segmentation fault: Event counter: 41; Current algorithm: MuonCreatorAlg; Current Function: G4VoxelNavigation::ComputeStep'}})
+                                                               'message': 'Segmentation fault: Event counter: 41; Run: 204158; Evt: 70319934; Current algorithm: MuonCreatorAlg; Current Function: G4VoxelNavigation::ComputeStep'}})
         self.assertEqual(self.myFileReport7.worstError(), {'level': 'FATAL', 'nLevel': logging.FATAL,
                                                            'firstError': {'count': 1, 'firstLine': 4,
-                                                                          'message': 'Segmentation fault: Event counter: unknown; Current algorithm: unknown; Current Function: unknown'}})
+                                                                          'message': 'Segmentation fault: Event counter: unknown; Run: unknown; Evt: unknown; Current algorithm: unknown; Current Function: unknown'}})
 
     def test_dbMonitor(self):
         print self.myFileReport9 

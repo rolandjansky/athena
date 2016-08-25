@@ -6,7 +6,7 @@
 # @details Contains validation classes controlling how the transforms
 # will validate jobs they run.
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfValidation.py 749614 2016-05-25 10:46:26Z lerrenst $
+# @version $Id: trfValidation.py 763940 2016-07-24 13:46:01Z uworlika $
 # @note Old validation dictionary shows usefully different options:
 # <tt>self.validationOptions = {'testIfEmpty' : True, 'testIfNoEvents' : False, 'testIfExists' : True,
 #                          'testIfCorrupt' : True, 'testCountEvents' : True, 'extraValidation' : False,
@@ -417,7 +417,7 @@ class athenaLogFileReport(logFileReport):
     # There is a slight problem here in that the end of core dump trigger line will not get parsed
     # TODO: fix this (OTOH core dump is usually the very last thing and fatal!)
     def coreDumpSvcParser(self, lineGenerator, firstline, firstLineCount):
-        _eventCounter = _currentAlgorithm = _functionLine = _currentFunction = None
+        _eventCounter = _run = _event = _currentAlgorithm = _functionLine = _currentFunction = None
         coreDumpReport = 'Core dump from CoreDumpSvc'
         for line, linecounter in lineGenerator:
             m = self._regExp.match(line)
@@ -426,6 +426,22 @@ class athenaLogFileReport(logFileReport):
                     coreDumpReport = 'Segmentation fault'
                 if 'Event counter' in line:
                     _eventCounter = line
+
+                #Lookup: 'EventID: [Run,Evt,Lumi,Time,BunchCross,DetMask] = [267599,7146597,1,1434123751:0,0,0x0,0x0,0x0]'
+                if 'EventID' in line:
+                    match = re.findall('\[.*?\]', line)
+                    if match and match.__len__() >= 2:      # Assuming the line contains at-least one key-value pair.
+                        brackets = "[]"
+                        commaDelimer = ','
+                        keys = (match[0].strip(brackets)).split(commaDelimer)
+                        values = (match[1].strip(brackets)).split(commaDelimer)
+
+                        if 'Run' in keys:
+                            _run = 'Run: ' + values[keys.index('Run')]
+
+                        if 'Evt' in keys:
+                            _event = 'Evt: ' + values[keys.index('Evt')]
+
                 if 'Current algorithm' in line:
                     _currentAlgorithm = line
                 if '<signal handler called>' in line:
@@ -440,9 +456,11 @@ class athenaLogFileReport(logFileReport):
                 # lineGenerator.pushback(line)
                 break
         _eventCounter = 'Event counter: unknown' if not _eventCounter else _eventCounter
+        _run = 'Run: unknown' if not _run else _run
+        _event = 'Evt: unknown' if not _event else _event
         _currentAlgorithm = 'Current algorithm: unknown' if not _currentAlgorithm else _currentAlgorithm
         _currentFunction = 'Current Function: unknown' if not _currentFunction else 'Current Function: '+_currentFunction.split(' in ')[1].split()[0]
-        coreDumpReport = '{0}: {1}; {2}; {3}'.format(coreDumpReport, _eventCounter, _currentAlgorithm, _currentFunction)
+        coreDumpReport = '{0}: {1}; {2}; {3}; {4}; {5}'.format(coreDumpReport, _eventCounter, _run, _event, _currentAlgorithm, _currentFunction)
 
         # Core dumps are always fatal...
         msg.debug('Identified core dump - adding to error detail report')

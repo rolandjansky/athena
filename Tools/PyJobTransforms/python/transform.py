@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 743343 2016-04-27 15:47:21Z graemes $
+# @version $Id: transform.py 767907 2016-08-12 21:46:42Z mavogel $
 # 
 
 __version__ = '$Revision'
@@ -92,6 +92,9 @@ class transform(object):
         ## Report object for this transform
         self._report = trfJobReport(parentTrf = self)
         
+        ## Transform processed events
+        self._processedEvents = None
+        
         # Setup standard signal handling if asked
         if standardSignalHandlers:
             setTrfSignalHandlers(self._exitWithReport)
@@ -137,6 +140,18 @@ class transform(object):
     @property
     def executors(self):
         return self._executors
+    
+    @property
+    def processedEvents(self):
+        return self._processedEvents
+    
+    def getProcessedEvents(self):
+        nEvts = None
+        for executionStep in self._executorPath:
+            executor = self._executorDictionary[executionStep['name']]
+            if executor.conf.firstExecutor:
+                nEvts = executor.eventCount
+        return nEvts
 
     def appendToExecutorSet(self, executors):
         # Normalise to something iterable
@@ -282,7 +297,7 @@ class transform(object):
         
     ## @brief Execute transform
     # @detailed This function calls the actual transform execution class and
-    # sets \c self.exitCode and \c self.exitMsg transform data members.
+    # sets \c self.exitCode,  \c self.exitMsg and \c self.processedEvents transform data members.
     # TODO: This method should be timed - try a decorator function for that 
     # @return None.
     def execute(self):
@@ -352,17 +367,19 @@ class transform(object):
             for executor in self._executors:
                 executor.conf.setFromTransform(self)
 
-
             self.validateInFiles()
             
             for executionStep in self._executorPath:
                 msg.debug('Now preparing to execute {0}'.format(executionStep))
                 executor = self._executorDictionary[executionStep['name']]
                 executor.preExecute(input = executionStep['input'], output = executionStep['output'])
-                executor.execute()
-                executor.postExecute()
-                executor.validate()
-                
+                try:
+                    executor.execute()
+                    executor.postExecute()
+                finally:
+                    executor.validate()
+             
+            self._processedEvents = self.getProcessedEvents()
             self.validateOutFiles()
             
             msg.debug('Transform executor succeeded')
