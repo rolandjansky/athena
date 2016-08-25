@@ -6,10 +6,10 @@
 #  @details Classes whose instance encapsulates transform reports
 #   at different levels, such as file, executor, transform
 #  @author atlas-comp-transforms-dev@cern.ch
-#  @version $Id: trfReports.py 763940 2016-07-24 13:46:01Z uworlika $
+#  @version $Id: trfReports.py 769106 2016-08-22 12:48:19Z lerrenst $
 #
 
-__version__ = '$Revision: 763940 $'
+__version__ = '$Revision: 769106 $'
 
 import cPickle as pickle
 import json
@@ -105,7 +105,7 @@ class trfReport(object):
 class trfJobReport(trfReport):
     ## @brief This is the version counter for transform job reports
     #  any changes to the format @b must be reflected by incrementing this
-    _reportVersion = '2.0.4'
+    _reportVersion = '2.0.6'
     _metadataKeyMap = {'AMIConfig': 'AMI', }
     _maxMsgLen = 256
     _truncationMsg = " (truncated)"
@@ -179,6 +179,7 @@ class trfJobReport(trfReport):
         childCpuTime = reportTime[2] + reportTime[3]
         wallTime = reportTime[4] - self._trf.transformStart[4]
         cpuTime = myCpuTime
+        cpuTimeTotal = 0
         cpuTimePerWorker = myCpuTime
         maxWorkers = 1
         msg.debug('Raw cpu resource consumption: transform {0}, children {1}'.format(myCpuTime, childCpuTime))
@@ -193,6 +194,7 @@ class trfJobReport(trfReport):
                 pass
             try:
                 cpuTime += exeReport['cpuTime']
+                cpuTimeTotal += exeReport['total']['cpuTime']
                 if 'cpuTimePerWorker' in exeReport:
                     msg.debug('Adding {0}s to cpuTimePerWorker'.format(exeReport['cpuTimePerWorker']))
                     cpuTimePerWorker += exeReport['cpuTimePerWorker']
@@ -204,8 +206,11 @@ class trfJobReport(trfReport):
 
         msg.debug('maxWorkers: {0}, cpuTimeTotal: {1}, cpuTimePerWorker: {2}'.format(maxWorkers, cpuTime, cpuTimePerWorker))
         myDict['resource']['transform'] = {'cpuTime': int(myCpuTime + 0.5),
+                              'cpuTimeTotal': int(cpuTimeTotal + 0.5),
                               'externalCpuTime': int(childCpuTime + 0.5),
                               'wallTime': int(wallTime + 0.5),}
+        if self._trf.processedEvents:
+            myDict['resource']['transform']['processedEvents'] = self._trf.processedEvents
         # check for devision by zero for fast jobs, unit tests
         if int(wallTime+0.5) > 0:
             myDict['resource']['transform']['cpuEfficiency'] = round(int(cpuTime + 0.5)*1.0/maxWorkers/int(wallTime+0.5), 4)
@@ -588,7 +593,25 @@ def pyJobReportToFileDict(jobReport, io = 'all'):
 
 def exeResourceReport(exe, report):
     exeResource = {'cpuTime': exe.cpuTime, 
-                   'wallTime': exe.wallTime,}
+                   'wallTime': exe.wallTime,
+                   'preExe': {
+                       'cpuTime': exe.preExeCpuTime,
+                       'wallTime': exe.preExeWallTime,
+                       },
+                   'postExe': {
+                       'cpuTime': exe.postExeCpuTime,
+                       'wallTime': exe.postExeWallTime,
+                       },
+                   'validation': {
+                       'cpuTime': exe.validationCpuTime,
+                       'wallTime': exe.validationWallTime,
+                       },
+                   'total': {
+                       'cpuTime': exe.cpuTimeTotal,
+                       'wallTime': exe.wallTimeTotal,
+                       },
+                   }
+
     if exe.memStats:
         exeResource['memory'] = exe.memStats
     if exe.eventCount:
