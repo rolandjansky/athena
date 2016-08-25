@@ -15,7 +15,7 @@ class TrigHLTJetHypoValidationMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms = [ defineHistogram('CutCounter', type='TH1F', title="HLTJetHypo cut counter", xbins=3, xmin=-1.5, xmax=1.5, labels=labelsDescription) ]
         self.Histograms += [ defineHistogram('NJet', type='TH1F', title="HLTJetHypo NJet; Number of jets; nevents", xbins=20, xmin=0, xmax=20) ]
-        self.Histograms += [ defineHistogram('Et', type='TH1F', title="HLTJetHypo Et; Et [MeV]; nevents", xbins=100, xmin=0., xmax=500000.) ]
+        self.Histograms += [ defineHistogram('Et', type='TH1F', title="HLTJetHypo Et; Et [MeV]; nevents", xbins=200, xmin=0., xmax=1000000.) ]
         self.Histograms += [ defineHistogram('Eta', type='TH1F', title="HLTJetHypo Eta;Eta; nevents", xbins=100, xmin=-5., xmax=5.) ]
         self.Histograms += [ defineHistogram('Phi', type='TH1F', title="HLTJetHypo Phi;Phi; nevents", xbins=64, xmin=-3.1416, xmax=3.1416) ]
         self.Histograms += [ defineHistogram('Eta, Phi', type='TH2F', title="HLTJetHypo Phi vs. Eta;#eta;#phi", xbins=100, xmin=-5., xmax=5., ybins=64, ymin=-3.1416, ymax=3.1416) ]
@@ -42,7 +42,7 @@ class TrigHLTJetHypoOnlineMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms = [ defineHistogram('CutCounter', type='TH1F', title="HLTJetHypo cut counter", xbins=3, xmin=-1.5, xmax=1.5, labels=labelsDescription) ]
         self.Histograms += [ defineHistogram('NJet', type='TH1F', title="HLTJetHypo NJet; Number of jets; nevents", xbins=20, xmin=0, xmax=20) ]
-        self.Histograms += [ defineHistogram('Et', type='TH1F', title="HLTJetHypo Et; Et [MeV]; nevents", xbins=100, xmin=0., xmax=500000.) ]
+        self.Histograms += [ defineHistogram('Et', type='TH1F', title="HLTJetHypo Et; Et [MeV]; nevents", xbins=200, xmin=0., xmax=1000000.) ]
         self.Histograms += [ defineHistogram('Eta', type='TH1F', title="HLTJetHypo Eta;Eta; nevents", xbins=100, xmin=-5., xmax=5.) ]
         self.Histograms += [ defineHistogram('Phi', type='TH1F', title="HLTJetHypo Phi;Phi; nevents", xbins=64, xmin=-3.1416, xmax=3.1416) ]
         self.Histograms += [ defineHistogram('Eta, Phi', type='TH2F', title="HLTJetHypo Phi vs. Eta;#eta;#phi", xbins=100, xmin=-5., xmax=5., ybins=64, ymin=-3.1416, ymax=3.1416) ]
@@ -64,7 +64,7 @@ class TrigHLTJetHypoCosmicMonitoring(TrigGenericMonitoringToolConfig):
 
         self.Histograms = [ defineHistogram('CutCounter', type='TH1F', title="HLTJetHypo cut counter", xbins=3, xmin=-1.5, xmax=1.5, labels=labelsDescription) ]
         self.Histograms += [ defineHistogram('NJet', type='TH1F', title="HLTJetHypo NJet; Number of jets; nevents", xbins=20, xmin=0, xmax=20) ]
-        self.Histograms += [ defineHistogram('Et', type='TH1F', title="HLTJetHypo Et; Et [MeV]; nevents", xbins=100, xmin=0., xmax=500000.) ]
+        self.Histograms += [ defineHistogram('Et', type='TH1F', title="HLTJetHypo Et; Et [MeV]; nevents", xbins=200, xmin=0., xmax=1000000.) ]
         self.Histograms += [ defineHistogram('Eta', type='TH1F', title="HLTJetHypo Eta;Eta; nevents", xbins=100, xmin=-5., xmax=5.) ]
         self.Histograms += [ defineHistogram('Phi', type='TH1F', title="HLTJetHypo Phi;Phi; nevents", xbins=64, xmin=-3.1416, xmax=3.1416) ]
         self.Histograms += [ defineHistogram('Eta, Phi', type='TH2F', title="HLTJetHypo Phi vs. Eta;#eta;#phi", xbins=100, xmin=-5., xmax=5., ybins=64, ymin=-3.1416, ymax=3.1416) ]
