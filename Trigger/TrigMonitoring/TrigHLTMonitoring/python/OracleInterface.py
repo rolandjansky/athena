@@ -88,10 +88,6 @@ class OracleInterface:
         
         # insert a row,
         # optionally providing additional parameters as a dictionary
-        # TEMP TEST
-        #print "In OracleInterface.insert()"
-        #print "query =",query
-        #print "parameters_dict =",parameters_dict
         self.cursor.execute(query,parameters_dict)
         self.conn.commit()
 
@@ -682,13 +678,17 @@ class OracleInterface:
 
             # no match, so return the empty list
             return return_list
-            
-        # now we construct a query
-        query = "SELECT * FROM "+self.directory+table_name+" WHERE "+column_name+" = :INPUT1"
-
+   
         # construct the dict of the various input
         parameters_dict = {}
-        parameters_dict['INPUT1'] = input1
+
+        # now we construct a query
+        query = "SELECT * FROM "+self.directory+table_name
+        if input1:
+            query = query+" WHERE "+column_name+" = :INPUT1"
+            parameters_dict['INPUT1'] = input1
+            
+        #query = "SELECT * FROM "+self.directory+table_name+" WHERE "+column_name+" = :INPUT1"
 
         # perform the search
         search_results = self.fetch(query,parameters_dict)
@@ -738,24 +738,49 @@ class OracleInterface:
         # now our list of dictionaries should be complete, so we return it
         return return_list
 
-    def check_if_mck_to_smk_link_exists_and_is_active(self,mck_id,smk):
+    def check_if_smk_to_mck_link_exists_and_is_active(self,smk,mck):
         # return True of False, depending on whether this exact mck-smk link exists and is active
 
         # construct the query
         query = """SELECT * FROM """+self.directory+"""mck_to_smk_link \
-        WHERE """+self.directory+"""mck_to_smk_link.smk_link_mck = :MCK_ID \
+        WHERE """+self.directory+"""mck_to_smk_link.smk_link_mck = :MCK \
         AND """+self.directory+"""mck_to_smk_link.smk_link_smk = :SMK \
         AND """+self.directory+"""mck_to_smk_link.smk_link_active_mck = :ACTIVE_LINK """
 
         # construct the dict of the input mck_id and smk
         parameters_dict = {}
-        parameters_dict['MCK_ID'] = mck_id
+        parameters_dict['MCK'] = mck
         parameters_dict['SMK'] = smk
         parameters_dict['ACTIVE_LINK'] = '1'
 
         # perform the search
         search_results = self.fetch(query,parameters_dict)
 
+        # if there are results, return True
+        # otherwise return False
+        if len(search_results) > 0:
+            # we have found a match, so return True
+            return True
+        else:
+            # no match has been found, so return False
+            return False
+
+    def check_if_smk_to_mck_link_exists(self,smk,mck):
+        # return True of False, depending on whether this exact mck-smk link exists
+        
+        # construct the query
+        query = """SELECT * FROM """+self.directory+"""mck_to_smk_link \
+        WHERE """+self.directory+"""mck_to_smk_link.smk_link_mck = :MCK \
+        AND """+self.directory+"""mck_to_smk_link.smk_link_smk = :SMK """
+        
+        # construct the dict of the input mck_id and smk
+        parameters_dict = {}
+        parameters_dict['MCK'] = mck
+        parameters_dict['SMK'] = smk
+        
+        # perform the search
+        search_results = self.fetch(query,parameters_dict)
+        
         # if there are results, return True
         # otherwise return False
         if len(search_results) > 0:
@@ -783,16 +808,7 @@ class OracleInterface:
 
         return search_results
 
-        # if there are results, return True
-        # otherwise return False
-        #if len(search_results) > 0:
-            # we have found a match, so return True
-            #return True
-        #else:
-            # no match has been found, so return False
-            #return False
-
-    def deactivate_all_links_for_given_smk_except_for_given_mck(self,smk,input_mck_id):
+    def deactivate_all_links_for_given_smk_except_for_given_mck(self,smk,mck):
         # for a given smk, deactivate all existing smk-mck links
         # by setting smk_link_active_mck='0'
         # except for input_mck_id (which is ignored)
@@ -801,14 +817,52 @@ class OracleInterface:
         query = """ UPDATE """+self.directory+"""mck_to_smk_link \
         SET """+self.directory+"""mck_to_smk_link.smk_link_active_mck = :ACTIVE_LINK \
         WHERE """+self.directory+"""mck_to_smk_link.smk_link_smk = :SMK \
-        AND """+self.directory+"""mck_to_smk_link.smk_link_mck != :MCK_ID """
+        AND """+self.directory+"""mck_to_smk_link.smk_link_mck != :MCK """
 
         # create dictionary of input parameter
         parameters_dict = {}
-        parameters_dict['MCK_ID'] = input_mck_id
+        parameters_dict['MCK'] = mck
         parameters_dict['SMK'] = smk
         parameters_dict['ACTIVE_LINK'] = '0'
 
+        # insert this into the database
+        self.insert(query,parameters_dict)
+
+    def deactivate_smk_mck_link(self,smk,mck):
+        # for a given smk, deactivate all existing smk-mck links
+        # by setting smk_link_active_mck='0'
+        
+        # make query to update links
+        query = """ UPDATE """+self.directory+"""mck_to_smk_link \
+        SET """+self.directory+"""mck_to_smk_link.smk_link_active_mck = :ACTIVE_LINK \
+        WHERE """+self.directory+"""mck_to_smk_link.smk_link_smk = :SMK \
+        AND """+self.directory+"""mck_to_smk_link.smk_link_mck = :MCK """
+        
+        # create dictionary of input parameter
+        parameters_dict = {}
+        parameters_dict['SMK'] = smk
+        parameters_dict['MCK'] = mck
+        parameters_dict['ACTIVE_LINK'] = '0'
+        
+        # insert this into the database
+        self.insert(query,parameters_dict)
+
+    def activate_smk_mck_link(self,smk,mck):
+        # he given smk-mck link
+        # by setting smk_link_active_mck='1'
+        
+        # make query to update links
+        query = """ UPDATE """+self.directory+"""mck_to_smk_link \
+        SET """+self.directory+"""mck_to_smk_link.smk_link_active_mck = :ACTIVE_LINK \
+        WHERE """+self.directory+"""mck_to_smk_link.smk_link_smk = :SMK \
+        AND """+self.directory+"""mck_to_smk_link.smk_link_mck = :MCK """
+        
+        # create dictionary of input parameter
+        parameters_dict = {}
+        parameters_dict['SMK'] = smk
+        parameters_dict['MCK'] = mck
+        parameters_dict['ACTIVE_LINK'] = '1'
+        
         # insert this into the database
         self.insert(query,parameters_dict)
 
@@ -828,6 +882,7 @@ class OracleInterface:
 
         # insert this into the database
         self.insert(query,parameters_dict)
+
 
     def check_if_smk_exists(self,smk_id):
         
@@ -858,7 +913,7 @@ class OracleInterface:
         parameters_dict = {}
         parameters_dict['MCK_ID'] = mck_id
         parameters_dict['SMK'] = smk
-        parameters_dict['ACTIVE_LINK'] = '1'
+        parameters_dict['ACTIVE_LINK'] = '0'
         parameters_dict['CREATOR'] = creator
         parameters_dict['USER_COMMENT'] = comment
 

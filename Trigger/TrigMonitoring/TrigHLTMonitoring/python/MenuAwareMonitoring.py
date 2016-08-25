@@ -44,12 +44,11 @@ class MenuAwareMonitoring:
 
         # flag so that diff instruction are only printed once
         self.firstdiff = True
-        
+                
         # create MaMStandalone interaction object (includes connecting to oracle)    
         self.ms = MenuAwareMonitoringStandalone(alias,database_username,database_password,database_name,database_directory)
     
-        # holder for current local Athena version
-        self.current_athena_version = ""
+        # get athena version
         self.__get_athena_version__()
         
         # holder for stream (bulk or express)
@@ -59,14 +58,14 @@ class MenuAwareMonitoring:
         # print guide for user if this is an interactive session
         if self.ms.__is_session_interactive__():
             
-            print "Running in Athena release",self.current_athena_version
+            print "Running in Athena release",self.ms.current_athena_version
             print "Stream detected:",self.stream
             print ""
 
         # create tool interrogator object
         self.ti = ToolInterrogator()
 
-        #need to grab ms.local_global_info and make all methods act on that
+        # need to grab ms.local_global_info and make all methods act on that
 
         # pointer to local tool info
         self.local = self.ms.local_global_info['MONITORING_TOOL_DICT']
@@ -75,8 +74,8 @@ class MenuAwareMonitoring:
         self.get_current_local_info()
 
         # fill default global info (if available)
-        if self.ms.connected_to_oracle == True:
-            self.ms.get_default_from_db(self.current_athena_version)
+        #if self.ms.connected_to_oracle == True:
+            #self.ms.get_default_from_db(self.ms.current_athena_version)
 
 
     def __quiet_output__(self):
@@ -142,10 +141,11 @@ class MenuAwareMonitoring:
     def __get_athena_version__(self):
         "Get the current Athena version."
 
+        # Probably only want to store the first 4 digits?
         # get the current local Athena version (there must be a better way!)
         AtlasVersion = subprocess.check_output("echo $AtlasVersion", shell=True).replace("\n","")
         AtlasProject = subprocess.check_output("echo $AtlasProject", shell=True).replace("\n","")
-        self.current_athena_version = AtlasVersion+"-"+AtlasProject
+        self.ms.current_athena_version = AtlasProject+"-"+AtlasVersion
 
     def __update_local_pointer__(self):
         """update self.local to point to self.ms.local_global_info['MONITORING_TOOL_DICT']
@@ -268,7 +268,7 @@ class MenuAwareMonitoring:
             smck_info['SMCK_CONFIG_HASH'] = self.ms.__get_config_hash__(smck_config)
             smck_info['SMCK_SLICE_TYPE'] = smck_config['SliceType']
             smck_info['SMCK_TOOL_TYPE'] = tool
-            smck_info['SMCK_ATHENA_VERSION'] = self.current_athena_version
+            smck_info['SMCK_ATHENA_VERSION'] = self.ms.current_athena_version
             smck_info['SMCK_SVN_TAG'] = self.__get_tag__(str(smck_config['PackageName']).split(".")[0])
 
             # add this info to the local_global_info
@@ -329,7 +329,7 @@ class MenuAwareMonitoring:
 
             # info for user
             if print_output_here:
-                print "No default for this Athena version ("+self.current_athena_version+") has been uploaded"
+                print "No default for this Athena version ("+self.ms.current_athena_version+") has been uploaded"
                 print "If you are not running with any local changes to the default, then consider running the command \"<ThisVariable>.ms.upload_default()\""
             return
 
@@ -375,7 +375,7 @@ class MenuAwareMonitoring:
             
             # info for user
             if print_output_here:
-                print "No local differences have been found with respect to the default SMCK (SMCK_ID="+str(default_smck_info['SMCK_ID'])+") for this tool ("+str(input1)+"), for this Athena version ("+self.current_athena_version+")."
+                print "No local differences have been found with respect to the default SMCK (SMCK_ID="+str(default_smck_info['SMCK_ID'])+") for this tool ("+str(input1)+"), for this Athena version ("+self.ms.current_athena_version+")."
                 print "Nothing shall be uploaded to the Oracle database as a result."
             return
 
@@ -411,7 +411,7 @@ class MenuAwareMonitoring:
         diffed_smck_info2['SMCK_TOOL_TYPE'] = input1
         diffed_smck_info2['SMCK_SLICE_TYPE'] = local_smck_info['SMCK_SLICE_TYPE']
         diffed_smck_info2['SMCK_DEFAULT'] = 0
-        diffed_smck_info2['SMCK_ATHENA_VERSION'] = self.current_athena_version
+        diffed_smck_info2['SMCK_ATHENA_VERSION'] = self.ms.current_athena_version
         diffed_smck_info2['SMCK_SVN_TAG'] = local_smck_info['SMCK_SVN_TAG']
         diffed_smck_info2['SMCK_CREATOR'] = self.ms.current_user
         diffed_smck_info2['SMCK_COMMENT'] = comment
@@ -421,7 +421,7 @@ class MenuAwareMonitoring:
 
             # info for user
             if print_output_here:
-                print "No local differences have been found with respect to the default SMCK (SMCK_ID="+str(default_smck_info['SMCK_ID'])+") for this tool ("+str(input1)+"), for this Athena version ("+self.current_athena_version+")."
+                print "No local differences have been found with respect to the default SMCK (SMCK_ID="+str(default_smck_info['SMCK_ID'])+") for this tool ("+str(input1)+"), for this Athena version ("+self.ms.current_athena_version+")."
                 print "Nothing shall be uploaded to the Oracle database as a result."
             return
 
@@ -1002,8 +1002,11 @@ class MenuAwareMonitoring:
         
         mck_info = self.ms.oi.read_mck_info_from_db(mck_id)
         mck_athena_version = mck_info['MCK_ATHENA_VERSION']
+        
+        # change this to compare first 4 digits
+        return self.ms.check_compatibility_of_two_release_versions(mck_athena_version,self.ms.current_athena_version)
 
-        return mck_athena_version == self.current_athena_version            
+        #return mck_athena_version == self.ms.current_athena_version            
 
 
     def apply_mck(self,input1="",print_output_here=""):
@@ -1065,8 +1068,8 @@ class MenuAwareMonitoring:
         # get the release this SMCK was created for
         smck_athena_version = smck_info['SMCK_ATHENA_VERSION']
         # compare to our release
-        if smck_athena_version != self.current_athena_version: 
-            print "SMCK",input1,"is for athena version",smck_athena_version,", but MAM is running in ",self.current_athena_version,". This SMCK will not be applied."
+        if smck_athena_version != self.ms.current_athena_version: 
+            print "SMCK",input1,"is for athena version",smck_athena_version,", but MAM is running in ",self.ms.current_athena_version,". This SMCK will not be applied."
             return
 
         # get the processing step this smck should be used for
@@ -1288,12 +1291,32 @@ class MenuAwareMonitoring:
         # now we rerun hltmonList.config() to update it with all the latest info from all slices
         hltmonList.config()
 
-
     def get_mck_id_from_smk(self,input_smk):
         """Input an SMK, and get an MCK_ID back.
         If no MCK is found, -1 is returned.
         If an MCK of 0 is returned, this is intended to signify 
         that the default tool configurations should be used."""
+        
+        if self.ms.connected_to_oracle == False:
+            print "You are not connected to the database, so this function is not available."
+            return
+        
+        # returns an empty list if no MCK or a list of the MCK details
+        mck_info = self.ms.oi.find_active_smk_to_mck_link(input_smk) 
+
+        if len(mck_info) > 0:
+            return mck_info[0][0]
+        
+        # if we've made it this far, then an mck has not been found, so return 0 (no link)
+        return 0
+
+    def get_mck_id_from_smk_old(self,input_smk):
+        """Input an SMK, and get an MCK_ID back.
+        If no MCK is found, -1 is returned.
+        If an MCK of 0 is returned, this is intended to signify 
+        that the default tool configurations should be used.
+        This is the old version which returns the MCK linked to the next highest 
+        SMK in the case where the SMK is not linked."""
 
         if self.ms.connected_to_oracle == False:
             print "You are not connected to the database, so this function is not available."
@@ -1354,7 +1377,7 @@ class MenuAwareMonitoring:
         # fill extra mck_info
         self.ms.local_global_info['MCK'] = {}
         self.ms.local_global_info['MCK']['MCK_DEFAULT'] = default
-        self.ms.local_global_info['MCK']['MCK_ATHENA_VERSION'] = self.current_athena_version
+        self.ms.local_global_info['MCK']['MCK_ATHENA_VERSION'] = self.ms.current_athena_version
         self.ms.local_global_info['MCK']['MCK_CREATOR'] = self.ms.current_user
         self.ms.local_global_info['MCK']['MCK_COMMENT'] = comment
 
@@ -1365,7 +1388,7 @@ class MenuAwareMonitoring:
             tool_value['SMCK_PROCESSING_STEP'] = processing_step
             tool_value['SMCK_PROCESSING_STREAM'] = processing_stream
             tool_value['SMCK_DEFAULT'] = default
-            tool_value['SMCK_ATHENA_VERSION'] = self.current_athena_version
+            tool_value['SMCK_ATHENA_VERSION'] = self.ms.current_athena_version
             tool_value['SMCK_CREATOR'] = self.ms.current_user
             tool_value['SMCK_COMMENT'] = comment
 

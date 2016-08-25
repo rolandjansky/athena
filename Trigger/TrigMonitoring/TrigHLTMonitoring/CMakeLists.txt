@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LumiBlock/LumiCalc
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigConfiguration/TrigConfigSvc
+                          Trigger/TrigConfiguration/TrigConfInterfaces
                           Trigger/TrigEvent/TrigSteeringEvent
                           PRIVATE
                           Control/AthenaKernel

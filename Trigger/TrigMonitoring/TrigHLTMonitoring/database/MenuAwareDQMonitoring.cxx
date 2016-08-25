@@ -81,19 +81,19 @@ StatusCode MenuAwareDQMonitoring::initialize()
 
   //StatusCode sc;
   MsgStream log(msgSvc(), name());
-  log <<MSG::DEBUG <<"in initialize()" <<endreq;
+  log <<MSG::DEBUG <<"in initialize()" <<endmsg;
  
   // Storegate
   StatusCode sc = service("StoreGateSvc", m_sgSvc);
   if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to get the StoreGateSvc" << endreq;
+      log << MSG::ERROR << "Unable to get the StoreGateSvc" << endmsg;
       return sc;
      }
 
  // locate the conditions store ptr to it.
   sc = service("DetectorStore", m_detStore);
   if (!sc.isSuccess() || 0 == m_detStore)  {
-    log <<MSG::ERROR <<"Could not find DetStore" <<endreq;
+    log <<MSG::ERROR <<"Could not find DetStore" <<endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -125,7 +125,7 @@ StatusCode MenuAwareDQMonitoring::execute()
   sc = m_detStore->retrieve(attrListColl, "/TRIGGER/HLT/MenuAwareDQMonitoring5");
   if (sc.isFailure()) {
      ATH_MSG_ERROR ("Could not retrieve MenuAwareDQMonitoring5");
-     //log <<MSG::ERROR <<"Could not retrieve IOVDbTestAttrList" <<endreq;
+     //log <<MSG::ERROR <<"Could not retrieve IOVDbTestAttrList" <<endmsg;
      // Using COOL, is failure
      return( StatusCode::FAILURE);
   }

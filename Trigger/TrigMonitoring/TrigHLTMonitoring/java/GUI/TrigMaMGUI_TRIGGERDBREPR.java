@@ -23,7 +23,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.List;
 import java.lang.ProcessBuilder;
 
-public class TrigMaMGUI extends JFrame {
+public class TrigMaMGUI_TRIGGERDBREPR extends JFrame {
     
     private int MCK_ID;
     private int SMK_ID;
@@ -38,7 +38,7 @@ public class TrigMaMGUI extends JFrame {
     
     static public Boolean print_to_terminal;
     
-    public TrigMaMGUI () {
+    public TrigMaMGUI_TRIGGERDBREPR () {
         
         print_to_terminal = true;
         
@@ -89,53 +89,53 @@ public class TrigMaMGUI extends JFrame {
             
             SMK_MCK_link_button.addActionListener(new ActionListener() {  
                 public void actionPerformed(ActionEvent e) {	
-		    Boolean GoodValsFlag = true; //we have good MCK and SMK values unless they are found to be bad    
+                    Boolean GoodValsFlag = true; //we have good MCK and SMK values unless they are found to be bad    
                     
-		    try { SMK_ID = Integer.parseInt(SMK_ID_field.getText().trim()); }
-            catch (NumberFormatException nfe) { GUI_messenger.append("\nBad SMK ID, must be an integer. "); GoodValsFlag = false; }
-            try { MCK_ID = Integer.parseInt(MCK_ID_field.getText().trim()); }
-            catch (NumberFormatException nfe) { GUI_messenger.append("\nBad MCK ID, must be an integer. "); GoodValsFlag = false; }
-            MCK_SMK_link_comment = linkComment.getText();
-            
-            if ( !MCK_SMK_link_comment.contains("\"\"\"") && !MCK_SMK_link_comment.contains("'''") && !MCK_SMK_link_comment.contains("'") && !MCK_SMK_link_comment.matches("(.*)\"(.*)") && GoodValsFlag == true ) {
-                GUI_messenger.append("\nSMK " + SMK_ID + " and MCK " + MCK_ID +" are both integers, as required.");
-
-			if ( force_link_checkbox.isSelected() ) {
-			    
-			    Object[] options = {"Yes", "Cancel"};
-			    int dialogResult = JOptionPane.showOptionDialog(null, "Are you sure you want to overide any existing links to: \nSMK ID:"+SMK_ID+" and create a link to MCK ID: "+MCK_ID+"? \nPlease be sure you want to do this. If you are unsure, click 'Cancel'.",
-									    "Confirm SMK-MCK link override",
-									    JOptionPane.YES_NO_OPTION,
-									    JOptionPane.PLAIN_MESSAGE,
-									    null, options, options[1]);
-			    if (dialogResult == JOptionPane.YES_OPTION){
-				try {
-		
-                                    String link_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone();mam.force_deactivate_all_links_for_smk("+Integer.toString(SMK_ID)+",True);";
-				    ProcessBuilder submit_link = new ProcessBuilder("python", "-c", link_command);
-
-				    Process submit_link_proc = submit_link.start();
-				    
-				    InputStream link_stdout = submit_link_proc.getInputStream();
-				    InputStream link_stderr = submit_link_proc.getErrorStream();
-				    Thread link_threadOut = new Thread( new MyInputStreamSink( link_stdout, "out", GUI_messenger ));
-				    Thread link_threadErr = new Thread( new MyInputStreamSink( link_stderr, "err", null ));
-				    link_threadOut.setDaemon(true);
-				    link_threadErr.setDaemon(true);
-				    link_threadOut.setName( String.format("link_stdout reader" ));
-				    link_threadErr.setName( String.format("link_stderr reader" ));
-				    link_threadOut.start();
-				    link_threadErr.start();
-
-				} catch (IOException err) {
-				}
-			    }
-			    else if (dialogResult == JOptionPane.NO_OPTION){
-				GUI_messenger.append("\nForce upload cancelled.");
-				force_link_checkbox.setSelected(false);
-			    }
-			    
-			}
+                    try { SMK_ID = Integer.parseInt(SMK_ID_field.getText().trim()); }
+                    catch (NumberFormatException nfe) { GUI_messenger.append("\nBad SMK ID, must be an integer. "); GoodValsFlag = false; }
+                    try { MCK_ID = Integer.parseInt(MCK_ID_field.getText().trim()); }
+                    catch (NumberFormatException nfe) { GUI_messenger.append("\nBad MCK ID, must be an integer. "); GoodValsFlag = false; }
+                    MCK_SMK_link_comment = linkComment.getText();
+                    
+                    if ( !MCK_SMK_link_comment.contains("\"\"\"") && !MCK_SMK_link_comment.contains("'''") && !MCK_SMK_link_comment.contains("'") && !MCK_SMK_link_comment.matches("(.*)\"(.*)") && GoodValsFlag == true ) {
+                        GUI_messenger.append("\nSMK " + SMK_ID + " and MCK " + MCK_ID +" are both integers, as required.");
+                        
+                        if ( force_link_checkbox.isSelected() ) {
+                            
+                            Object[] options = {"Yes", "Cancel"};
+                            int dialogResult = JOptionPane.showOptionDialog(null, "Are you sure you want to overide any existing links to: \nSMK ID:"+SMK_ID+" and create a link to MCK ID: "+MCK_ID+"? \nPlease be sure you want to do this. If you are unsure, click 'Cancel'.",
+                                                                            "Confirm SMK-MCK link override",
+                                                                            JOptionPane.YES_NO_OPTION,
+                                                                            JOptionPane.PLAIN_MESSAGE,
+                                                                            null, options, options[1]);
+                            if (dialogResult == JOptionPane.YES_OPTION){
+                                try {
+                                    
+                                    String link_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone('TRIGGERDBREPR');mam.force_deactivate_all_links_for_smk("+Integer.toString(SMK_ID)+",True);";
+                                    ProcessBuilder submit_link = new ProcessBuilder("python", "-c", link_command);
+                                    
+                                    Process submit_link_proc = submit_link.start();
+                                    
+                                    InputStream link_stdout = submit_link_proc.getInputStream();
+                                    InputStream link_stderr = submit_link_proc.getErrorStream();
+                                    Thread link_threadOut = new Thread( new MyInputStreamSink( link_stdout, "out", GUI_messenger ));
+                                    Thread link_threadErr = new Thread( new MyInputStreamSink( link_stderr, "err", null ));
+                                    link_threadOut.setDaemon(true);
+                                    link_threadErr.setDaemon(true);
+                                    link_threadOut.setName( String.format("link_stdout reader" ));
+                                    link_threadErr.setName( String.format("link_stderr reader" ));
+                                    link_threadOut.start();
+                                    link_threadErr.start();
+                                    
+                                } catch (IOException err) {
+                                }
+                            }
+                            else if (dialogResult == JOptionPane.NO_OPTION){
+                                GUI_messenger.append("\nForce upload cancelled.");
+                                force_link_checkbox.setSelected(false);
+                            }
+                            
+                        }
                         Object[] options = {"Yes", "Cancel"};
                         int dialogResult = JOptionPane.showOptionDialog(null, "Are you sure you want to link: \nSMK ID:"+SMK_ID+" with MCK ID: "+MCK_ID+"\nwith comment: "+MCK_SMK_link_comment, 
                                                                         "Confirm SMK-MCK link", 
@@ -145,7 +145,7 @@ public class TrigMaMGUI extends JFrame {
                         if (dialogResult == JOptionPane.YES_OPTION){                        
                             try {                                
                                 
-                                String link_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone();mam.link_smk_to_mck("+Integer.toString(SMK_ID)+","+Integer.toString(MCK_ID)+",'"+MCK_SMK_link_comment+"');";
+                                String link_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone('TRIGGERDBREPR');mam.link_smk_to_mck("+Integer.toString(SMK_ID)+","+Integer.toString(MCK_ID)+",'"+MCK_SMK_link_comment+"');";
                                 ProcessBuilder submit_link = new ProcessBuilder("python", "-c", link_command);
                                 
                                 Process submit_link_proc = submit_link.start(); 
@@ -166,11 +166,11 @@ public class TrigMaMGUI extends JFrame {
                         }
                         else if (dialogResult == JOptionPane.NO_OPTION){                        
                             GUI_messenger.append("\nLink upload cancelled.");    
-			    force_link_checkbox.setSelected(false);
-			}    
-			} else if ( MCK_SMK_link_comment.contains("\"") || MCK_SMK_link_comment.contains("\"\"\"") || MCK_SMK_link_comment.contains("'''") || MCK_SMK_link_comment.contains("'") || MCK_SMK_link_comment.matches("(.*)\"(.*)") ) {
+                            force_link_checkbox.setSelected(false);
+                        }    
+                    } else if ( MCK_SMK_link_comment.contains("\"") || MCK_SMK_link_comment.contains("\"\"\"") || MCK_SMK_link_comment.contains("'''") || MCK_SMK_link_comment.contains("'") || MCK_SMK_link_comment.matches("(.*)\"(.*)") ) {
                         GUI_messenger.append("\nComment contains \' or \", please remove these characters.");
-			force_link_checkbox.setSelected(false);
+                        force_link_checkbox.setSelected(false);
                     } }
             });
         }
@@ -217,9 +217,9 @@ public class TrigMaMGUI extends JFrame {
                         if (dialogResult == JOptionPane.YES_OPTION){
                             try {
                                 
-                                String Make_MCK_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone();mam.upload_mck(["+SMCK_list+"]);";  
+                                String Make_MCK_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone('TRIGGERDBREPR');mam.upload_mck(["+SMCK_list+"]);";  
                                 ProcessBuilder make_mck = new ProcessBuilder("python", "-c", Make_MCK_command);
-
+                                
                                 Process make_mck_proc = make_mck.start();
                                 
                                 InputStream make_mck_stdout = make_mck_proc.getInputStream();
@@ -236,7 +236,7 @@ public class TrigMaMGUI extends JFrame {
                             } catch (IOException err) {
                             }
                         }
-                        } 
+                    } 
                 }
                 
             }); 
@@ -253,13 +253,11 @@ public class TrigMaMGUI extends JFrame {
             
             JPanel Clone_MCK_subpanel_1 = new JPanel(new FlowLayout(FlowLayout.CENTER,1,1));
             Clone_MCK_panel.add(Clone_MCK_subpanel_1);
-            JPanel Clone_MCK_subpanel_1 = new JPanel(new FlowLayout(FlowLayout.CENTER,1,1));
-            Clone_MCK_panel.add(Clone_MCK_subpanel_1);
             Clone_MCK_subpanel_1.add(new JLabel("MCK ID:"));
       		final JTextField MCK_ID_field = new JTextField(5); 
       		Clone_MCK_subpanel_1.add(MCK_ID_field);	
             clone_MCK_ID = 0; 
-      		Clone_MCK_subpanel_1.add(new JLabel("ATLAS release:"));
+      		Clone_MCK_subpanel_1.add(new JLabel("ATLAS project:"));
       		final JTextField release_field = new JTextField(8); 
       		Clone_MCK_subpanel_1.add(release_field);
             clone_release = ""; 
@@ -285,37 +283,37 @@ public class TrigMaMGUI extends JFrame {
                     if ( clone_release.isEmpty() == true || clone_version.isEmpty() ) {
                         GUI_messenger.append("\nPlease add the release and version that you want the new MCK to be valid in.");
                     } else {
-                    if ( GoodValsFlag == true ) {
-                        Object[] options = {"Yes",
-                            "Cancel"};
-                        int dialogResult = JOptionPane.showOptionDialog(null, "Are you sure you want to clone the entered MCK?",
-                                                                        "Confirm",
-                                                                        JOptionPane.YES_NO_OPTION, 
-                                                                        JOptionPane.PLAIN_MESSAGE, 
-                                                                        null, options, options[1]);
-                        if (dialogResult == JOptionPane.YES_OPTION){
-                            try {
-                                
-                                String Clone_MCK_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone();mam.clone_mck_for_new_release("+clone_MCK_ID+",'"+clone_release+"','"+clone_version+"');";  
-                                ProcessBuilder clone_mck = new ProcessBuilder("python", "-c", Clone_MCK_command);
-                                
-                                Process clone_mck_proc = clone_mck.start();
-                                
-                                InputStream clone_mck_stdout = clone_mck_proc.getInputStream();
-                                InputStream clone_mck_stderr = clone_mck_proc.getErrorStream();
-                                Thread clone_mck_threadOut = new Thread( new MyInputStreamSink( clone_mck_stdout, "out", GUI_messenger ));
-                                Thread clone_mck_threadErr = new Thread( new MyInputStreamSink( clone_mck_stderr, "err", null ));
-                                clone_mck_threadOut.setDaemon(true);
-                                clone_mck_threadErr.setDaemon(true);
-                                clone_mck_threadOut.setName( String.format("clone_mck_stdout reader" ));
-                                clone_mck_threadErr.setName( String.format("clone_mck_stderr reader" ));
-                                clone_mck_threadOut.start();
-                                clone_mck_threadErr.start();
-                                
-                            } catch (IOException err) {
+                        if ( GoodValsFlag == true ) {
+                            Object[] options = {"Yes",
+                                "Cancel"};
+                            int dialogResult = JOptionPane.showOptionDialog(null, "Are you sure you want to clone the entered MCK?",
+                                                                            "Confirm",
+                                                                            JOptionPane.YES_NO_OPTION, 
+                                                                            JOptionPane.PLAIN_MESSAGE, 
+                                                                            null, options, options[1]);
+                            if (dialogResult == JOptionPane.YES_OPTION){
+                                try {
+                                    
+                                    String Clone_MCK_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone('TRIGGERDBREPR');mam.clone_mck_for_new_release("+clone_MCK_ID+",'"+clone_release+"','"+clone_version+"');";  
+                                    ProcessBuilder clone_mck = new ProcessBuilder("python", "-c", Clone_MCK_command);
+                                    
+                                    Process clone_mck_proc = clone_mck.start();
+                                    
+                                    InputStream clone_mck_stdout = clone_mck_proc.getInputStream();
+                                    InputStream clone_mck_stderr = clone_mck_proc.getErrorStream();
+                                    Thread clone_mck_threadOut = new Thread( new MyInputStreamSink( clone_mck_stdout, "out", GUI_messenger ));
+                                    Thread clone_mck_threadErr = new Thread( new MyInputStreamSink( clone_mck_stderr, "err", null ));
+                                    clone_mck_threadOut.setDaemon(true);
+                                    clone_mck_threadErr.setDaemon(true);
+                                    clone_mck_threadOut.setName( String.format("clone_mck_stdout reader" ));
+                                    clone_mck_threadErr.setName( String.format("clone_mck_stderr reader" ));
+                                    clone_mck_threadOut.start();
+                                    clone_mck_threadErr.start();
+                                    
+                                } catch (IOException err) {
+                                }
                             }
-                        }
-                    } 
+                        } 
                     }
                 }   
             }); 
@@ -370,15 +368,15 @@ public class TrigMaMGUI extends JFrame {
                             Object[] options = {"Yes","Cancel"};
                             
                             int dialogResult = JOptionPane.showOptionDialog(null, "Are you sure you want to upload "+file_with_extension+" to the database?",
-
+                                                                            
                                                                             "Confirm file upload",
                                                                             JOptionPane.YES_NO_OPTION, 
                                                                             JOptionPane.PLAIN_MESSAGE, 
                                                                             null, options, options[1]);
                             if (dialogResult == JOptionPane.YES_OPTION){
                                 try {
-                                                                    
-                                    String json_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone();mam.upload_config_from_json('"+jsonFilename+"');";  
+                                    
+                                    String json_command = "from MenuAwareMonitoringStandalone import MenuAwareMonitoringStandalone;mam = MenuAwareMonitoringStandalone('TRIGGERDBREPR');mam.upload_config_from_json('"+jsonFilename+"');";  
                                     ProcessBuilder submit_json = new ProcessBuilder("python", "-c", json_command);                                  
                                     
                                     Process submit_json_proc = submit_json.start();
@@ -475,13 +473,13 @@ public class TrigMaMGUI extends JFrame {
     
     
     public static void main(String[] args) throws InterruptedException, IOException {
-
+        
         // Run the GUI construction in the Event-Dispatching thread for thread-safety
         SwingUtilities.invokeLater(new Runnable() {
             @Override
             public void run() {
                 try {
-                    TrigMaMGUI frame = new TrigMaMGUI();
+                    TrigMaMGUI_TRIGGERDBREPR frame = new TrigMaMGUI_TRIGGERDBREPR();
                     frame.setVisible(true);
                 } catch (Exception e) {
                     e.printStackTrace();
