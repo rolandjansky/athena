@@ -246,7 +246,8 @@ namespace TrigCostRootAnalysis {
     kUpgradeJetLargeWindow,
     kNoOnlineDeadtimeCorrection,
     kOnlineDeadtime,
-    kExpoRateScaleModifier,
+    kExpoRateScaleModifierL1,
+    kExpoRateScaleModifierHLT,
     kDeadtimeScalingFinal, // Final scaling factor used for online deadtime
     kDoUniqueRates,
     kRatesOnly,
@@ -258,9 +259,11 @@ namespace TrigCostRootAnalysis {
     kPredictionLumiRunXML, // From the EB XML (prioirty 3)
     kPredictionLumiMenuXML, // From the prescales XML (priority 2)
     kPredictionLumiFinal, // The value actually chosen to be used
-    kPredictionLumiFinalExpo, // The final value with exponential mu extrapolation
+    kPredictionLumiFinalExpoL1, // The final value with exponential mu extrapolation
+    kPredictionLumiFinalExpoHLT, // The final value with exponential mu extrapolation
     kPredictionLumiFinalMuComponent, // What part of PredictionLumiFinal is due to increased mu
-    kPredictionLumiFinalMuExpoComponent, // What mu extrapolation chains with an exponential mu dependence should get
+    kPredictionLumiFinalMuExpoL1Component, // What mu extrapolation chains with an exponential mu dependence should get
+    kPredictionLumiFinalMuExpoHLTComponent, // What mu extrapolation chains with an exponential mu dependence should get
     kPredictionLumiFinalBunchComponent, // What part of PredictionLumiFinal is due to extra bunches
     kEmptyBunchgroupExtrapolaion, // How much we extrapolate empty items
     kDoAdvancedLumiScaling,
@@ -272,6 +275,7 @@ namespace TrigCostRootAnalysis {
     kRunLumiXML,
     kDebug, 
     kNPasses,
+    kUpgradeMergeTOBOverlap,
     kCurrentPass,
     kMessageWait,
     kCleanAll,
@@ -339,6 +343,8 @@ namespace TrigCostRootAnalysis {
     kJetEtString,
     kEnergyString,
     kMissingEnergyString,
+    kHTString,
+    kMHTString,
     kROBINString,
     kROSString,
     kAlwaysPassString,
@@ -405,6 +411,14 @@ namespace TrigCostRootAnalysis {
     kVarHLTEvents,
     kVarHLTPassEvents,
     kVarHLTPUs,
+    kVarJetEta,
+    kVarMuEta,
+    kVarEmEta,
+    kVarTauEta,
+    kVarJetNThresh,
+    kVarMuNThresh,
+    kVarEmNThresh,
+    kVarTauNThresh,
     kVarROI,
     kVarType,
     kVarEta,
@@ -422,7 +436,7 @@ namespace TrigCostRootAnalysis {
     kDecROSString,
     kDecAlgClassName,
     kDecCounterClassification,
-    kDecChainName,
+    kDecChainName, 
     kDecSeqName,
     kDecLbLength,
     kDecType,
@@ -464,6 +478,7 @@ namespace TrigCostRootAnalysis {
     kMsgLumiScaling,
     kMsgNoTETOB,
     kMsgNoGroup,
+    kMsgTOBMerge,
     kConfKey_SIZE //!<  END of config. ENUM keysNumber of configuration keys - keep me as last entry
   };
 
@@ -582,6 +597,7 @@ namespace TrigCostRootAnalysis {
   ConfVariableOptionPair_t makePair(ConfKey_t _name, VariableOption_t _vo);
   UInt_t stringToIntHash( std::string& s );
   const std::string& getLevelString(UInt_t _level);
+  Float_t deltaR(Float_t _phi1, Float_t _phi2, Float_t _eta1, Float_t _eta2);
 
   class JsonExport {
   public:

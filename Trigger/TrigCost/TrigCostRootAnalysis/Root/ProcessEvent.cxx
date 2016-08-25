@@ -199,6 +199,7 @@ namespace TrigCostRootAnalysis {
     //Check for weights from energy extrapolation
     _weight *= EnergyExtrapolation::energyExtrapolation().getEventWeight( m_costData );
 
+
     //Check for enhanced bias weights.
     if (Config::config().getInt(kDoEBWeighting) == kTRUE) {
       _weight *= TrigXMLService::trigXMLService().getEventWeight( m_costData->getEventNumber(), m_costData->getLumi(), getPass() );
@@ -206,6 +207,10 @@ namespace TrigCostRootAnalysis {
 
     // For each active monitoring type, process event
     if ( isZero(_weight) == kTRUE) return false;
+
+
+    // HACK!
+    //if ( Config::config().getInt(kCurrentEventWasRandomOnline) == kFALSE ) return kFALSE;
 
     // Do any monitors want to take this event?
     m_takeEventTimer.start();

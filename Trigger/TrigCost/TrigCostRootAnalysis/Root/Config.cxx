@@ -132,6 +132,7 @@ namespace TrigCostRootAnalysis {
     static Int_t _noLBRescaling = kFALSE;
     static Int_t _useDefaultLumiScalingExceptions = kFALSE;
     static Int_t _useDefaultExponentialScalingList = kFALSE;
+    static Int_t _upgradeMergeTOBOverlap = kFALSE;
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -166,7 +167,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-09-30";
+    std::string _version = "TrigCostRootAnalysis-00-09-33";
     std::string _upgradeScenario = "";
     std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
@@ -195,7 +196,8 @@ namespace TrigCostRootAnalysis {
     Float_t _binMin = FLT_MIN;
     Float_t _binMax = FLT_MIN;
     Float_t _targetMu = 0.;
-    Float_t _expoRateScaleModifier = 0.149;
+    Float_t _expoRateScaleModifierL1 = 0.0615;
+    Float_t _expoRateScaleModifierHLT = 0.107;
 
     // Parse CLI
     Int_t _status = 0;
@@ -274,6 +276,7 @@ namespace TrigCostRootAnalysis {
         {"noLBRescaling",          no_argument,       &_noLBRescaling,          1},
         {"useDefaultLumiScalingExceptions", no_argument, &_useDefaultLumiScalingExceptions,1},
         {"useDefaultExponentialScalingList", no_argument, &_useDefaultExponentialScalingList,1},
+        {"upgradeMergeTOBOverlap", no_argument,       &_upgradeMergeTOBOverlap, 1},
         {"treeName",               required_argument, 0,                      't'},
         {"prescaleXML",            required_argument, 0,                      'M'},
         {"prescaleXML1",           required_argument, 0,                      'g'},
@@ -332,7 +335,9 @@ namespace TrigCostRootAnalysis {
         {"patternsNoMuLumiWeight", required_argument, 0,                      '2'},
         {"patternsNoBunchLumiWeight", required_argument, 0,                   '3'},
         {"patternsExpoMuLumiWeight",required_argument, 0,                     '4'},
-        {"expoRateScaleModifier",  required_argument, 0,                      '5'},
+        {"expoRateScaleModifierL1",  required_argument, 0,                    '5'},
+        {"expoRateScaleModifier",  required_argument, 0,                      '6'}, //alow either
+        {"expoRateScaleModifierHLT",  required_argument, 0,                   '6'}, //alow either
         {0, 0, 0, 0}
       };
 
@@ -439,7 +444,8 @@ namespace TrigCostRootAnalysis {
           std::cout << "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales." << std::endl;
           std::cout << "--doUniqueRates\t\t\t\t\tCalculate unique rates for chains. Warning, this is slow." << std::endl;
           std::cout << "--doCPS\t\t\t\t\t\tEnable special treatment for chains in coherent prescale groups." << std::endl;
-          std::cout << "--expoRateScaleModifier " << _expoRateScaleModifier << "\t\t\tMultiplier to exponent for exponential in <mu> rates extrapolation." << std::endl;
+          std::cout << "--expoRateScaleModifierL1 " << _expoRateScaleModifierL1 << "\t\t\tMultiplier to exponent for L1 exponential in <mu> rates extrapolation." << std::endl;
+          std::cout << "--expoRateScaleModifierHLT " << _expoRateScaleModifierHLT << "\t\t\tMultiplier to exponent for HLT exponential in <mu> rates extrapolation." << std::endl;
           std::cout << "--patternsUnique patt1 patt2 ...\t\tPatterns to match in names doing unique rates, recommended to use this rather than doing unique for all." << std::endl;
           std::cout << "--patternsExclude patt1 patt2 ...\t\tWhen doing unique rates, you may need to explicitly exclude some chains (PS:-1). Force this here." << std::endl;
           std::cout << "--patternsOverlap patt1 patt2 ...\t\tPatterns to match in chain names when doing chain-overlap rates, recommended to use this rather than doing unique for all." << std::endl;
@@ -458,6 +464,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "--noOnlineDTCorrection\t\t\t\tFlag to prevent automated scaling to correct for L1 deadtime of EB data." << std::endl;
           std::cout << "--upgradeScenario\t\t\t\tSpecify the name of the scenario to load when doing upgrade rate estimations." << std::endl;
           std::cout << "--doUpgradeRatesScan\t\t\t\tAdd a standard set of spaced out L1 triggers at different energies to get pT dependence." << std::endl;
+          std::cout << "--upgradeMergeTOBOverlap\t\t\t\tMerge nearby TOBs of the same type (exc. muon) when doing overlay based pileup simulation." << std::endl;
           std::cout << "--noUpgradePileupScaling\t\t\tWhen doing upgrade rates, use this flag to avoid scaling rates for increased <mu>." << std::endl;
           std::cout << "--noUpgradeBunchScaling\t\t\t\tWhen doing upgrade rates, use this flag to avoid scaling rates for increased bunches." << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ I/O CONFIGURATION ~~~~~~~~~~~~~~~" << std::endl;
@@ -729,7 +736,11 @@ namespace TrigCostRootAnalysis {
       case '5':
         // expoRateScaleModifier
         _ss << optarg;
-        _ss >> _expoRateScaleModifier;
+        _ss >> _expoRateScaleModifierL1;
+      case '6':
+        // expoRateScaleModifier
+        _ss << optarg;
+        _ss >> _expoRateScaleModifierHLT;
         break;
       case 'K':
         // File list
@@ -1240,7 +1251,9 @@ namespace TrigCostRootAnalysis {
     set(kIgnoreNonPhysBunchGroups, _ignoreNonPhysBunchGroups, "IgnoreNonPhyBunchgroups");
     set(kNoLBRescaling, _noLBRescaling, "NoLBRescaling");
     setFloat(kTargetPeakMuAverage, _targetMu, "TargetMu", kUnlocked);
-    setFloat(kExpoRateScaleModifier, _expoRateScaleModifier, "ExpoRateScaleModifier");
+    setFloat(kExpoRateScaleModifierL1, _expoRateScaleModifierL1, "ExpoRateScaleModifierL1");
+    setFloat(kExpoRateScaleModifierHLT, _expoRateScaleModifierHLT, "ExpoRateScaleModifierHLT");
+    set(kUpgradeMergeTOBOverlap, _upgradeMergeTOBOverlap, "UpgradeMergeTOBOverlap");
 
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
     if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNucmber");
@@ -1370,7 +1383,7 @@ namespace TrigCostRootAnalysis {
     setDisplayMsg(kMsgUnknownDecoration, 25, "Unknown decoration");
     setDisplayMsg(kMsgIllegalCharacters , 10, "Illegal character in output");
     setDisplayMsg(kMsgZeroRate, 1, "Chain with positive prescale but zero rate");
-    setDisplayMsg(kMsgLargeSteerTime, 3, "Hour boundary in steering time calculation");
+    setDisplayMsg(kMsgLargeSteerTime, 3, "Hour boundary in steering time calculation"); 
     setDisplayMsg(kMsgNoLumiInfo, 3, "No luminosity block length info in file, using default value");
     setDisplayMsg(kMsgCannotFindVar, 5, "Cannot find variable in data store");
     setDisplayMsg(kMsgCannotFindVO, 5, "Cannot find variable option (VO) for variable in data store");
@@ -1379,6 +1392,7 @@ namespace TrigCostRootAnalysis {
     setDisplayMsg(kMsgNoTETOB, 5, "Event did not contain any Total Energy TOB");
     setDisplayMsg(kMsgDupeTOB, 5, "Event contained multiple TOBs with the same ID");
     setDisplayMsg(kMsgNoGroup, 5, "Chain had no BW group associated with it");
+    setDisplayMsg(kMsgTOBMerge, 5, "TOB merged");
 
     // Const strings literals to be referenced throughout
     set(kL0String,"L0");
@@ -1413,6 +1427,8 @@ namespace TrigCostRootAnalysis {
     set(kJetEtString, "JetEt");
     set(kEnergyString, "Energy");
     set(kMissingEnergyString, "MET");
+    set(kHTString, "HT");
+    set(kMHTString, "MHT");
     set(kROBINString, "ROBIN");
     set(kROSString, "ROS");
     set(kAlwaysPassString, "UNSEEDED");
@@ -1484,6 +1500,14 @@ namespace TrigCostRootAnalysis {
     set(kVarEventsPerLumiblock, "EventsPerLB");
     set(kVarOverlap, "Overlap");
     set(kVarOverlapDP, "OverlapDirectPrescale");
+    set(kVarJetEta, "JetROIEta");
+    set(kVarMuEta, "MuROIEta");
+    set(kVarEmEta, "EMROIEta");
+    set(kVarTauEta, "TauROIEta");
+    set(kVarJetNThresh, "JetROINThresh");
+    set(kVarMuNThresh, "MuROINThresh");
+    set(kVarEmNThresh, "EMROINThresh");
+    set(kVarTauNThresh, "TauROINThresh");
     // Different types of decoration
     set(kDecStartTime, "StartTime");
     set(kDecCallOrCache, "CallOrCache");

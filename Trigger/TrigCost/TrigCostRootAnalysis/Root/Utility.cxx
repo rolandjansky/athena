@@ -9,7 +9,7 @@
 // STL include(s):
 #include <sstream>
 #include <iostream>
-#include <iomanip>
+#include <iomanip> 
 #include <assert.h>
 
 // Local include(s):
@@ -223,6 +223,22 @@ namespace TrigCostRootAnalysis {
       ss << std::scientific << _d;
     }
     return ss.str();
+  }
+
+  /**
+   * Helper function, calculate distance in eta and phi
+   */
+  Float_t deltaR(Float_t _phi1, Float_t _phi2, Float_t _eta1, Float_t _eta2) {
+    if (_phi1 < 0) _phi1 += 2*M_PI;
+    if (_phi2 < 0) _phi2 += 2*M_PI;
+    assert(_phi1 >= 0 && _phi1 <= 2*M_PI);
+    assert(_phi2 >= 0 && _phi2 <= 2*M_PI);
+    const Float_t _phiDiff = _phi2 - _phi1;
+    Float_t _deltaPhi = _phiDiff;
+    if (_phiDiff > M_PI) _deltaPhi = -2*M_PI + _phiDiff;
+    else if (_phiDiff < -M_PI) _deltaPhi = 2*M_PI + _phiDiff;
+    Float_t _dE = _eta1 - _eta2;
+    return TMath::Sqrt( _deltaPhi*_deltaPhi + _dE*_dE );
   }
   
   /**

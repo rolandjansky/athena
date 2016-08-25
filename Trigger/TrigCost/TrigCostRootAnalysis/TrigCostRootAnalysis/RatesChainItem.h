@@ -55,6 +55,7 @@ namespace TrigCostRootAnalysis {
     void setRateReductionFactor(Double_t _reductionFactor);
     void setTriggerLogic(TriggerLogic* _tl);
     void setProxy(CounterBaseRates* _c) { m_proxy = _c; }
+    void fillHistograms(DataStore& _dataStore, Float_t _weight);
 
     void beginEvent(Bool_t _passRaw, CounterBaseRatesSet_t& _counterSet);
     void beginEvent(TOBAccumulator* _eventTOBs);
@@ -118,6 +119,11 @@ namespace TrigCostRootAnalysis {
     CounterBaseRates* m_proxy; //!< Only currently used by the "UNSEEDED" item, this exceptionally gets its weight from the L1 rates counter. m_proxy should point to this counter.
 
     CounterBaseRatesSet_t m_clients; //!< Set of pointers to client rates counters which use this chain item.
+
+    std::vector<Float_t> m_bufferJetRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
+    std::vector<Float_t> m_bufferMuRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
+    std::vector<Float_t> m_bufferEmRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
+    std::vector<Float_t> m_bufferTauRoIEta; //!< For upgrade rates, eta of RoI(s) passing this item's threshold(s)
 
   }; // Class RatesChainItem
 
