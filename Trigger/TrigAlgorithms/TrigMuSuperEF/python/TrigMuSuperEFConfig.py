@@ -162,8 +162,25 @@ def TrigMuSuperEF_TMEFCombinerOnly(name="TrigMuSuperEF_TMEFCombinerOnly",**kwarg
 def TrigMuSuperEF_WideCone(name="TrigMuSuperEF_WideCone",**kwargs):
     kwargs.setdefault("deltaEtaRoI", 0.3)
     kwargs.setdefault("deltaPhiRoI", 0.3)
-    kwargs.setdefault("UseL2Info",False)
     kwargs.setdefault("IdTrackParticles", "InDetTrigTrackingxAODCnv_Muon_IDTrig")
+    kwargs.setdefault("doInsideOut", False)
+    kwargs.setdefault("doOutsideIn", True)
+    kwargs.setdefault("StandaloneOnly", True)
+    kwargs.setdefault("UseL2Info",False)
+    kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
+    kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
+    kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
+    kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
+    return TrigMuSuperEFConfig(name,**kwargs)
+
+def TrigMuSuperEF_WideCone04(name="TrigMuSuperEF_WideCone04",**kwargs):
+    kwargs.setdefault("deltaEtaRoI", 0.4)
+    kwargs.setdefault("deltaPhiRoI", 0.4)
+    kwargs.setdefault("IdTrackParticles", "InDetTrigTrackingxAODCnv_Muon_IDTrig")
+    kwargs.setdefault("doInsideOut", False)
+    kwargs.setdefault("doOutsideIn", True)
+    kwargs.setdefault("StandaloneOnly", True)
+    kwargs.setdefault("UseL2Info",False)
     kwargs.setdefault("ExtrapolatedTrackParticleContName", "MuonEFInfo_ExtrapTrackParticles_FullScan")
     kwargs.setdefault("MSonlyTrackParticleContName",  "MuonEFInfo_MSonlyTrackParticles_FullScan")
     kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
@@ -183,6 +200,7 @@ def TrigMuSuperEF_WideCone05(name="TrigMuSuperEF_WideCone05",**kwargs):
     kwargs.setdefault("CBTrackParticleContName",  "MuonEFInfo_CombTrackParticles_FullScan")
     kwargs.setdefault("MuonContName", "MuonEFInfo_FullScan" )
     return TrigMuSuperEFConfig(name,**kwargs)
+
 #
 # Full scan configs
 #
