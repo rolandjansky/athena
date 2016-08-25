@@ -90,6 +90,7 @@ namespace TrigCostRootAnalysis {
     Bool_t             m_alwaysDoExpressPS; //!< Used only by the RATE_EPRESS monitor to always use the chain's EXPRESS prescale when calculating the rates for the monitor
     StringSet_t        m_myCPSChains;    //!< HLT chains in my group (if I'm a group) Used by the coherent prescale logic.
     Double_t           m_eventLumiExtrapolation; //!< Filled during runWeight(), this is the weighted average L extrapolation factor to use for this counter.
+    Bool_t             m_disableEventLumiExtrapolation; //!< Do not apply the RateChainItem's averaged L extrapolation factor. Used in UpgradeRates mode
 
 
   }; //class CounterBaseRates

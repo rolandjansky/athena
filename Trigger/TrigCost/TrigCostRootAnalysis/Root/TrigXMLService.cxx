@@ -200,18 +200,21 @@ namespace TrigCostRootAnalysis {
       Float_t _lumiScaling = _predictionLumi / _runLumi;
       Float_t _targetMu = Config::config().getFloat(kTargetPeakMuAverage);
       Float_t _onlineMu = Config::config().getFloat(kOnlinePeakMuAverage);
-      Float_t _expoRateScaleModifier = Config::config().getFloat(kExpoRateScaleModifier);
+      Float_t _expoRateScaleModifierL1  = Config::config().getFloat(kExpoRateScaleModifierL1);
+      Float_t _expoRateScaleModifierHLT = Config::config().getFloat(kExpoRateScaleModifierHLT);
       Float_t _lumiMuScaling = _targetMu / _onlineMu;
       Float_t _lumiBunchScaling = _lumiScaling / _lumiMuScaling;
-      Float_t _lumiMuScalingExpo = TMath::Exp((_targetMu - _onlineMu) * _expoRateScaleModifier);
-      Float_t _lumiScalingExpo = _lumiBunchScaling * _lumiMuScalingExpo;
+      Float_t _lumiMuScalingExpoL1  = TMath::Exp((_targetMu - _onlineMu) * _expoRateScaleModifierL1);
+      Float_t _lumiMuScalingExpoHLT = TMath::Exp((_targetMu - _onlineMu) * _expoRateScaleModifierHLT);
+      Float_t _lumiScalingExpoL1  = _lumiBunchScaling * _lumiMuScalingExpoL1;
+      Float_t _lumiScalingExpoHLT = _lumiBunchScaling * _lumiMuScalingExpoHLT;
       Int_t _maxBunches = Config::config().getInt(kMaxBunches);
       Int_t _maxBCIDs = Config::config().getInt(kMaxBCIDs);
       Int_t _targetBunches = (Int_t) std::round(m_bunchGroupXML[1].second * _lumiBunchScaling);
-      Info("TrigXMLService::getLumiExtrapWeight", "Using targetMu setting %.2f. <mu> scaling factor: %.2f->%.2f = %.2f. Bunch scaling factor: %i->%i = %.2f. Lumi scaling factor, reg. = %.2f, expo. mu = %.2f",
-        _targetMu, _onlineMu, _targetMu, _lumiMuScaling, m_bunchGroupXML[1].second, _targetBunches, _lumiBunchScaling, _lumiScaling, _lumiScalingExpo);
-      Info("TrigXMLService::getLumiExtrapWeight", "Online deadtime was %.2f%%, including deadtime - the final lumi scaling factors are: linear = %.2f, exponential in mu = %.2f, bunch only = %.2f, mu only = %.2f",
-        _onlineDeadtime*100., _lumiScaling * (1 + _onlineDeadtime), _lumiScalingExpo * (1 + _onlineDeadtime), _lumiBunchScaling * (1 + _onlineDeadtime), _lumiMuScaling * (1 + _onlineDeadtime) );
+      Info("TrigXMLService::getLumiExtrapWeight", "Using targetMu setting %.2f. <mu> scaling factor: %.2f->%.2f = %.2f. Bunch scaling factor: %i->%i = %.2f. Lumi scaling factor, reg. = %.2f, expo. <mu> L1 = %.2f, expo. mu HLT %.2f",
+        _targetMu, _onlineMu, _targetMu, _lumiMuScaling, m_bunchGroupXML[1].second, _targetBunches, _lumiBunchScaling, _lumiScaling, _lumiScalingExpoL1, _lumiScalingExpoHLT);
+      Info("TrigXMLService::getLumiExtrapWeight", "Online deadtime was %.2f%%, including deadtime - the final lumi scaling factors are: linear = %.2f, expo. in <mu> L1 = %.2f, expo. in <mu> HLT = %.2f, bunch only = %.2f, mu only = %.2f",
+        _onlineDeadtime*100., _lumiScaling * (1 + _onlineDeadtime), _lumiScalingExpoL1 * (1 + _onlineDeadtime), _lumiScalingExpoHLT * (1 + _onlineDeadtime), _lumiBunchScaling * (1 + _onlineDeadtime), _lumiMuScaling * (1 + _onlineDeadtime) );
       Info("TrigXMLService::getLumiExtrapWeight", "PredictionLumi taken from %s.", _predFrom.c_str());
       if (_targetBunches > _maxBunches + 15 /*allow wiggle room*/ || _targetBunches < 1) {
         Warning("TrigXMLService::getLumiExtrapWeight", "To get to L=%.2e with a --targetMu of %.2f requires %i bunches. A full ring is %i!",
@@ -227,9 +230,11 @@ namespace TrigCostRootAnalysis {
       // Write info
       Config::config().set(kDoAdvancedLumiScaling, 1, "DoAdvancedLumiScaling");
       Config::config().setFloat(kPredictionLumiFinalMuComponent, _lumiMuScaling, "PredictionLumiFinalMuComponent");
-      Config::config().setFloat(kPredictionLumiFinalMuExpoComponent, _lumiMuScalingExpo, "PredictionLumiFinalExponentialMuComponent");
+      Config::config().setFloat(kPredictionLumiFinalMuExpoL1Component, _lumiMuScalingExpoL1, "PredictionLumiFinalExponentialMuL1Component");
+      Config::config().setFloat(kPredictionLumiFinalMuExpoHLTComponent, _lumiMuScalingExpoHLT, "PredictionLumiFinalExponentialMuHLTComponent");
       Config::config().setFloat(kPredictionLumiFinalBunchComponent, _lumiBunchScaling, "PredictionLumiFinalBunchComponent");
-      Config::config().setFloat(kPredictionLumiFinalExpo, _lumiScalingExpo, "PredictionLumiFinalExponentialMu");
+      Config::config().setFloat(kPredictionLumiFinalExpoL1, _lumiScalingExpoL1, "PredictionLumiFinalExponentialMuL1");
+      Config::config().setFloat(kPredictionLumiFinalExpoHLT, _lumiScalingExpoHLT, "PredictionLumiFinalExponentialMuHLT");
       Config::config().setFloat(kEmptyBunchgroupExtrapolaion, _emptyExtrap, "EmptyBunchgroupExtrapolation");
       Config::config().set(kTargetPairedBunches, _targetBunches, "TargetPairedBunches");
     } else {

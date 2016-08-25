@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <trigger>
   <lumivalues>
-    <target_paired_bcid>2808</target_paired_bcid>
-    <target_peak_mu_av>109</target_peak_mu_av>
+    <target_paired_bcid>2388</target_paired_bcid>
+    <target_peak_mu_av>200</target_peak_mu_av>
   </lumivalues>
   <iso_bits>
     <iso name="EM_HI"  bits="00100"/>
