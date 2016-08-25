@@ -1,0 +1,13 @@
+package InDetDynamicCutsTool
+
+author Christoph Rauchegger <christoph.rauchegger@cern.ch>
+
+public
+use  AtlasPolicy                AtlasPolicy-*                   
+use  AthenaBaseComps            AthenaBaseComps-*               Control
+use  GaudiInterface             GaudiInterface-*                External
+use InDetRecToolInterfaces   InDetRecToolInterfaces-* InnerDetector/InDetRecTools
+use TrkTrack 			TrkTrack-*   			Tracking/TrkEvent
+
+library InDetDynamicCutsTool *.cxx -s=components *.cxx
+apply_pattern component_library
