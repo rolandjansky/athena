@@ -1,6 +1,5 @@
 package CaloHiveEx
 
-
 use AtlasPolicy   AtlasPolicy-*
 
 private
