@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 764775 2016-07-27 18:09:38Z graemes $
+# @version $Id: trfArgClasses.py 768736 2016-08-19 11:33:00Z mavogel $
 
 import argparse
 import bz2
@@ -1485,9 +1485,43 @@ class argRDOFile(argPOOLFile):
         self._resetMetadata(inputs + [output])
         return myMerger
     
+class argEVNTFile(argPOOLFile):
 
+    integrityFunction = "returnIntegrityOfPOOLFile"
+
+    ## @brief Method which can be used to merge EVNT files
+    def selfMerge(self, output, inputs, counter=0, argdict={}):
+        msg.debug('selfMerge attempted for {0} -> {1} with {2}'.format(inputs, output, argdict))
+        
+        # First do a little sanity check
+        for fname in inputs:
+            if fname not in self._value:
+                raise trfExceptions.TransformMergeException(trfExit.nameToCode('TRF_FILEMERGE_PROBLEM'), 
+                                                            "File {0} is not part of this agument: {1}".format(fname, self))
+        
+        ## @note Modify argdict
+        mySubstepName = 'EVNTMergeAthenaMP{0}'.format(counter)
+        myargdict = self._mergeArgs(argdict)
+        
+        from PyJobTransforms.trfExe import athenaExecutor, executorConfig
+        myDataDictionary = {'EVNT' : argEVNTFile(inputs, type=self.type, io='input'),
+                            'EVNT_MRG' : argEVNTFile(output, type=self.type, io='output')}
+        myMergeConf = executorConfig(myargdict, myDataDictionary)
+        myMerger = athenaExecutor(name = mySubstepName, skeletonFile = 'PyJobTransforms/skeleton.EVNTMerge.py',
+                                  conf=myMergeConf, 
+                                  inData=set(['EVNT']), outData=set(['EVNT_MRG']), disableMP=True)
+        myMerger.doAll(input=set(['EVNT']), output=set(['EVNT_MRG']))
+        
+        # OK, if we got to here with no exceptions, we're good shape
+        # Now update our own list of files to reflect the merge
+        for fname in inputs:
+            self._value.remove(fname)
+        self._value.append(output)
+
+        msg.debug('Post self-merge files are: {0}'.format(self._value))
+        self._resetMetadata(inputs + [output])
+        return myMerger
     
-
 ## @brief TAG file class
 #  @details Has a different validation routine to ESD/AOD POOL files
 class argTAGFile(argPOOLFile):
@@ -1552,7 +1586,6 @@ class argTAGFile(argPOOLFile):
     def prodsysDescription(self):
         desc=super(argTAGFile, self).prodsysDescription
         return desc
-
 
 ## @brief Data quality histogram file class
 class argHISTFile(argFile):
