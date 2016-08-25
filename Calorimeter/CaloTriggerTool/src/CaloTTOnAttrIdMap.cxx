@@ -38,18 +38,18 @@ void CaloTTOnAttrIdMap::set( const CaloTTOnAttrId& m ) {
   bool dump2=false;
   if (log.level()<=MSG::DEBUG) dump2=true;
 
-  log<<MSG::DEBUG<<" CaloTTOnAttrId size = "<<m.size() <<endreq;
+  log<<MSG::DEBUG<<" CaloTTOnAttrId size = "<<m.size() <<endmsg;
   StoreGateSvc * detStore;
   status = Gaudi::svcLocator()->service("DetectorStore",detStore);
   if(status.isFailure()){
-     log << MSG::ERROR <<  "Cannot locate DetectorStore" << endreq;
+     log << MSG::ERROR <<  "Cannot locate DetectorStore" << endmsg;
   }
 
   const TTOnlineID* online_id;
 
   status=detStore->retrieve(online_id);
   if(status.isFailure()){
-    log << MSG::ERROR <<  "Cannot retrieve online_id" << endreq;
+    log << MSG::ERROR <<  "Cannot retrieve online_id" << endmsg;
   }
 
   CaloTTOnAttrId::const_iterator it  = m.begin();
@@ -70,9 +70,9 @@ void CaloTTOnAttrIdMap::set( const CaloTTOnAttrId& m ) {
              <<" em_had="<<t.em_had
              <<" pos_neg="<<t.pos_neg
              <<" barrel_endcap_fcal"<<t.barrel_endcap_fcal
-             << endreq;
+             << endmsg;
 
-             log<<MSG::VERBOSE<< " onl id = " << sid <<endreq;
+             log<<MSG::VERBOSE<< " onl id = " << sid <<endmsg;
             }
 
             AttrStruct attrStruct;
@@ -85,8 +85,8 @@ void CaloTTOnAttrIdMap::set( const CaloTTOnAttrId& m ) {
         }
         if (dump2) log<<MSG::DEBUG<<" CaloTTOnAttrIdMap::set : number of Ids="<<m_on2attrIdMap.size()<<std::endl;
     } catch (CaloID_Exception& except) {
-        log<<MSG::ERROR<<" Failed in CaloTTOnAttrIdMap::set " << endreq;
-        log<<MSG::ERROR<< (std::string) except  << endreq ;
+        log<<MSG::ERROR<<" Failed in CaloTTOnAttrIdMap::set " << endmsg;
+        log<<MSG::ERROR<< (std::string) except  << endmsg ;
     }
   return;
 }
@@ -106,7 +106,7 @@ unsigned int CaloTTOnAttrIdMap::em_had( HWIdentifier channelId ) const {
     }
 
     MsgStream log( msgSvc, "CaloTTOnAttrIdMap");
-    log<<MSG::ERROR<<" Online ID not found, channelId = " <<channelId.get_compact()<< endreq;
+    log<<MSG::ERROR<<" Online ID not found, channelId = " <<channelId.get_compact()<< endmsg;
     return 0;
 }
 unsigned int CaloTTOnAttrIdMap::pos_neg( HWIdentifier channelId ) const {
@@ -124,7 +124,7 @@ unsigned int CaloTTOnAttrIdMap::pos_neg( HWIdentifier channelId ) const {
     }
 
     MsgStream log( msgSvc, "CaloTTOnAttrIdMap");
-    log<<MSG::ERROR<<" Online ID not found, channelId = " <<channelId.get_compact()<< endreq;
+    log<<MSG::ERROR<<" Online ID not found, channelId = " <<channelId.get_compact()<< endmsg;
     return 0;
 }
 
@@ -143,7 +143,7 @@ unsigned int CaloTTOnAttrIdMap::barrel_endcap_fcal( HWIdentifier channelId ) con
     }
 
     MsgStream log( msgSvc, "CaloTTOnAttrIdMap");
-    log<<MSG::ERROR<<" Online ID not found, channelId = " <<channelId.get_compact()<< endreq;
+    log<<MSG::ERROR<<" Online ID not found, channelId = " <<channelId.get_compact()<< endmsg;
     return 0;
 }
 
@@ -162,7 +162,7 @@ unsigned int CaloTTOnAttrIdMap::module_type( HWIdentifier channelId ) const {
     }
 
     MsgStream log( msgSvc, "CaloTTOnAttrIdMap");
-    log<<MSG::ERROR<<" Online ID not found, channelId = " <<channelId.get_compact()<< endreq;
+    log<<MSG::ERROR<<" Online ID not found, channelId = " <<channelId.get_compact()<< endmsg;
     return 0;
 }
 

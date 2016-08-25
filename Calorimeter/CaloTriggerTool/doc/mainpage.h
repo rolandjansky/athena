@@ -20,7 +20,7 @@ try {
    Identifier ttId = cnvToIdentifier(ttChannel) ;
 } 
 catch(LArID_Exception& except) {
-   msglog << MSG::ERROR << "LArID_Exception " << (std::string) except << endreq ;
+   msglog << MSG::ERROR << "LArID_Exception " << (std::string) except << endmsg ;
 }
 </pre>
 
@@ -32,7 +32,7 @@ try {
    HWIdentifier ttOnlId = createTTChannelID(ttOffId)
 } 
 catch(LArID_Exception& except) {
-   msglog << MSG::ERROR << "LArID_Exception " << (std::string) except << endreq ;
+   msglog << MSG::ERROR << "LArID_Exception " << (std::string) except << endmsg ;
 }
 </pre>
 
