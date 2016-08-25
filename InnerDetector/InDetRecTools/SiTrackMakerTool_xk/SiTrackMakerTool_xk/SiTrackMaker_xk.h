@@ -29,6 +29,7 @@
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 #include "TrkCaloClusterROI/CaloClusterROI_Collection.h"
+#include "InDetRecToolInterfaces/IInDetDynamicCutsTool.h"
 
 class MsgStream;
 
@@ -103,9 +104,18 @@ namespace InDet{
       IBeamCondSvc*                                  m_beam        ;
 
       int                            m_nprint        ;  // Kind output information
-      int                            m_inputseeds    ;  // Number input seeds
-      int                            m_goodseeds     ;  // Number good  seeds
-      int                            m_findtracks    ;  // Numbe found tracks
+      int                            m_inputseeds [5];  // Number input seeds
+      int                            m_goodseeds  [5];  // Number good  seeds
+      int                            m_findtracks [5];  // Number found tracks
+      int                            m_bremseeds  [5];  // Number brem  seeds
+      int                            m_findtracksb[5];  // Number found tracks with brem
+      int                            m_twoclusters[5];
+      int                            m_wrongroad  [5];
+      int                            m_wronginit  [5];
+      int                            m_notrack    [5];
+      int                            m_notnewtrack[5];
+      int                            m_bremattempt[5];
+
       int                            m_seedsfilter   ;  // Level of seeds filer
       unsigned int                   m_wrongcluster  ;  // Max lentgh of thtrack
       std::string                    m_fieldmode     ;  // Mode of magnetic field
@@ -181,16 +191,22 @@ namespace InDet{
       void setTrackQualityCuts();
       void detectorElementsSelection(std::list<const InDetDD::SiDetectorElement*>&);
       bool newSeed    (const std::list<const Trk::SpacePoint*>&);
+      int  kindSeed   (const std::list<const Trk::SpacePoint*>&);
       bool isNewTrack(Trk::Track*);
       bool isCaloCompatible   ();
       bool isHadCaloCompatible();
       bool isDBMSeeds(const Trk::SpacePoint*);
       void clusterTrackMap(Trk::Track*);
+      void rapidityCuts(double eta);
       void       magneticFieldInit();
       StatusCode magneticFieldInit(IOVSVC_CALLBACK_ARGS);
 
       MsgStream&    dumpconditions(MsgStream&    out) const;
       MsgStream&    dumpevent     (MsgStream&    out) const;
+
+ 			/** tool to get cut values depending on different variable */   
+			ToolHandle<IInDetDynamicCutsTool>     m_dynamicCutsTool;
+      bool m_useDynamicCuts;	// use InDetDynamicCutsTool to determine the cut value depending on characteristics of each track (default is false)
     };
 
     MsgStream&    operator << (MsgStream&   ,const SiTrackMaker_xk&);
