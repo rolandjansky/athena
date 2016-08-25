@@ -1,0 +1,19 @@
+* update settings for Herwig 7
+
+  * cuts?
+
+* add hints for citation to terminal output, analogous to
+		Thanks for using LHAPDF 6.1.6. Please make sure to cite the paper:
+		 INFO   Eur.Phys.J. C75 (2015) 3, 132  (http://arxiv.org/abs/1412.7420)
+
+* Matchbox interface
+
+  * new generator name Herwig7Matchbox necessary or can both run
+    modes be unified under the Herwig7 generator?
+  * copy over Matchbox python bits and pieces and try to figure
+    out correct requirements files with Grigory
+    (open ticket at https://its.cern.ch/jira/browse/ATLINFR)
+  * ATLAS parameter settings
+
+* force Herwig output to be prepended by "Herwig7:" in the log.generate?
+
