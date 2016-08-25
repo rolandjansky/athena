@@ -93,9 +93,9 @@ namespace InDet{
    
       virtual void newEvent();
       virtual void newEvent(Trk::TrackInfo,const TrackQualityCuts&);
-
       virtual void endEvent();
-     
+      virtual void getTrackQualityCuts(const TrackQualityCuts&);
+      virtual void statistic(int*);   
 
       ///////////////////////////////////////////////////////////////////
       // Print internal tool parameters and status
@@ -120,6 +120,7 @@ namespace InDet{
 
       bool                           m_usePIX        ;
       bool                           m_useSCT        ;
+      int                            m_statistic[6]  ;
       int                            m_outputlevel   ;
       int                            m_nprint        ;  // Kind output information
       int                            m_inputseeds    ;  // Number input seeds
@@ -168,14 +169,13 @@ namespace InDet{
       // Methods 
       ///////////////////////////////////////////////////////////////////
 
-      bool findTrack
+      int findTrack
 	(const Trk::TrackParameters&, 
 	 const std::list<const Trk::SpacePoint*>&,
 	 const std::list<Amg::Vector3D>&,
 	 std::list<const InDetDD::SiDetectorElement*>&,
 	 std::multimap<const Trk::PrepRawData*,const Trk::Track*>&);
 
-      void getTrackQualityCuts(const TrackQualityCuts&);
 
       Trk::Track* convertToTrack();
       Trk::Track* convertToNextTrack();
