@@ -17,6 +17,7 @@ use TrigSteeringEvent       TrigSteeringEvent-*     Trigger/TrigEvent
 use TrigDecisionTool        TrigDecisionTool-*      Trigger/TrigAnalysis
 #use TrigDecision           TrigDecision-*          Trigger/TrigEvent
 use TrigConfigSvc           TrigConfigSvc-*         Trigger/TrigConfiguration
+use  TrigConfInterfaces         TrigConfInterfaces-*            Trigger/TrigConfiguration
 
 use LumiCalc                LumiCalc-*        LumiBlock
 use xAODLuminosity              xAODLuminosity-*     Event/xAOD

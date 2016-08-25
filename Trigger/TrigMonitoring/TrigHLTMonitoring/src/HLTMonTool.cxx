@@ -75,7 +75,7 @@ HLTMonTool::~HLTMonTool()
 StatusCode HLTMonTool:: init()
 /*---------------------------------------------------------*/
 { 
-  _useRun1Trigger = false;
+  m_useRun1Trigger = false;
   return StatusCode::SUCCESS;
 }
 
@@ -85,10 +85,10 @@ StatusCode HLTMonTool::book( ) //suppress 'unused' compiler warning
 {
   StatusCode sc = StatusCode::SUCCESS;
   ATH_MSG_VERBOSE("HLTMonTool::book()");
-  _useRun1Trigger = useRun1Trigger();
-  assert(getRunNr() > 0); // if this fails, run # is unknown & therefore _useRun1Trigger is not properly set 
+  m_useRun1Trigger = useRun1Trigger();
+  assert(getRunNr() > 0); // if this fails, run # is unknown & therefore m_useRun1Trigger is not properly set 
   
-  if(_useRun1Trigger)
+  if(m_useRun1Trigger)
     ATH_MSG_VERBOSE("Regular Expressions used for chain selection:\n" << m_run1regexlist);
   else
     ATH_MSG_VERBOSE("Regular Expressions used for chain selection:\n" << m_regexlist);
@@ -99,7 +99,7 @@ StatusCode HLTMonTool::book( ) //suppress 'unused' compiler warning
   sc = GetL1SummaryAndLBInfo();
   if(sc.isFailure()) ATH_MSG_WARNING("failed getting necessary info for booking");
 
-  if(_useRun1Trigger)
+  if(m_useRun1Trigger)
     {
       sc = bookResultAndConsistencyHistograms("L2");
       if(sc.isFailure()) ATH_MSG_WARNING("failed booking result and consistency histos L2");
@@ -132,7 +132,7 @@ StatusCode HLTMonTool::fill()
   //go to original MonGroup
   setCurrentMonGroup("HLT/ResultMon");  
 
-  if(_useRun1Trigger)
+  if(m_useRun1Trigger)
     {
       sc = fillResultAndConsistencyHistograms("HLTResult_L2", hist("ConfigConsistency_L2"), hist("HLTResultL2"));
       if(sc.isFailure()) ATH_MSG_WARNING("Filling Result and Consistency histograms failed for L2");
@@ -149,7 +149,7 @@ StatusCode HLTMonTool::fill()
   if(sc.isFailure()) ATH_MSG_WARNING("Filling Level 1 histograms failed");
   
   std::vector<std::string> myChains; 
-  if(_useRun1Trigger)
+  if(m_useRun1Trigger)
     myChains = getTDT()->getListOfTriggers("L2_.*|EF_*");
   else
     myChains = getTDT()->getListOfTriggers("HLT_.*");
@@ -162,7 +162,7 @@ StatusCode HLTMonTool::fill()
     }
   }
   else {
-    if(_useRun1Trigger)
+    if(m_useRun1Trigger)
       ATH_MSG_WARNING("No L2 and/or EF chains found using TDT");
     else
       ATH_MSG_WARNING("No HLT chains found using TDT");
@@ -210,7 +210,7 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
       xAOD::LumiBlockRangeContainer::const_iterator ie = m_lbc->end();
       xAOD::LumiBlockRangeContainer::const_iterator lbit = m_lbc->begin();
 
-      int m_nLBs = 0;
+      int nLBs = 0;
       uint32_t start, stop;
 
       //      uint32_t first = (((IOVRange*)(*lbit))->start()).event();
@@ -224,7 +224,7 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
 	start = (*lbit)->startLumiBlockNumber();
 	stop = (*lbit)->stopLumiBlockNumber();
 
-	m_nLBs += stop - start + 1;
+	nLBs += stop - start + 1;
       }//loop over contigous lb ranges
       
       //get all LumiBlocks for this run
@@ -245,9 +245,9 @@ StatusCode HLTMonTool::GetL1SummaryAndLBInfo(){
 	m_coolquery->openDbConn();
 	
 	m_coolquery->setIOV(IOVTime(getRunNr(),first).re_time(), IOVTime(getRunNr(),stop).re_time());
-	std::string m_parlvl1lblbfolder = "/TRIGGER/LUMI/LBLB";// for time information
-	m_lbStartTimes = m_coolquery->getObjMapFromFolderAtChan<cool::UInt63>("StartTime", m_parlvl1lblbfolder, 0);
-	m_lbStopTimes = m_coolquery->getObjMapFromFolderAtChan<cool::UInt63>("EndTime", m_parlvl1lblbfolder, 0);
+	std::string parlvl1lblbfolder = "/TRIGGER/LUMI/LBLB";// for time information
+	m_lbStartTimes = m_coolquery->getObjMapFromFolderAtChan<cool::UInt63>("StartTime", parlvl1lblbfolder, 0);
+	m_lbStopTimes = m_coolquery->getObjMapFromFolderAtChan<cool::UInt63>("EndTime", parlvl1lblbfolder, 0);
 	delete m_coolquery;
       }else{
 	ATH_MSG_WARNING("Couldn't create CoolQuery datase access.");
@@ -294,7 +294,7 @@ StatusCode HLTMonTool::bookLvl1Histograms(){
 StatusCode HLTMonTool::bookHLTHistograms(){
   StatusCode sc = StatusCode::SUCCESS;
   const std::map<std::string,std::string> * streams;
-  if(_useRun1Trigger)
+  if(m_useRun1Trigger)
     streams = &m_run1regexlist;
   else
     streams = &m_regexlist;
@@ -320,7 +320,7 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
   const char ** levelName = 0;
   const std::vector<std::string> * listOfTriggers = 0;
   unsigned array_length = 0;
-  if(_useRun1Trigger)
+  if(m_useRun1Trigger)
     {
       // some regex manipulation to replace "(L2|EF)_" from regex with "L2_" or "EF_"
       twolevels[0] = getTDT()->getListOfTriggers("L2_"+regex.substr(8,regex.length()-8));
@@ -374,7 +374,7 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
 	//	  IOVRange* range = (IOVRange*)(*lbit);
 	//  uint32_t start = (range->start()).event();
 	//  uint32_t stop = (range->stop()).event();
-        xAOD::LumiBlockRangeContainer::const_iterator i = m_lbc->begin();
+        //xAOD::LumiBlockRangeContainer::const_iterator i = m_lbc->begin();
         xAOD::LumiBlockRangeContainer::const_iterator ie = m_lbc->end();
         xAOD::LumiBlockRangeContainer::const_iterator lbit = m_lbc->begin();
         for(;lbit!=ie;++lbit){
@@ -390,86 +390,99 @@ StatusCode HLTMonTool::bookHLTHistogramsForStream(const std::string& name, const
 }
 
 StatusCode HLTMonTool::fillResultAndConsistencyHistograms(const std::string& key,TH1* chist, TH1* rhist){
-  StatusCode sc_trigDec = StatusCode::FAILURE;
-  StatusCode sc_hltResult = StatusCode::FAILURE;
-  
-  // will try to retrieve either the TrigDecision or the HLTResult
- const xAOD::TrigDecision* trigDec = 0;  
- const HLT::HLTResult*  HLTResult(0);
+    StatusCode sc_trigDec = StatusCode::FAILURE;
+    StatusCode sc_hltResult = StatusCode::FAILURE;
 
- const std::string m_sgKey = "xTrigDecision"; //sgKey from 20.0.0.2 AOD
- sc_trigDec = evtStore()->retrieve(trigDec,m_sgKey);
- if (sc_trigDec.isFailure()) 
-   {
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No xAOD::xTrigDecision found in SG " << endreq;
-   }
- else   
-   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found xAOD::xTrigDecision in SG ! " << endreq;
- 
- sc_hltResult = m_storeGate->retrieve(HLTResult,key);
- if (sc_hltResult.isFailure()) 
-   ATH_MSG_DEBUG(" Failed to retrieve HLT Result " << key);
- else
-   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found HLT Result in SG ! " << endreq;
+    // will try to retrieve either the TrigDecision or the HLTResult
+    const xAOD::TrigDecision* trigDec = 0;  
+    const HLT::HLTResult*  HLTResult(0);
 
- if(sc_hltResult.isFailure() && sc_trigDec.isFailure())
-   return StatusCode::SUCCESS; // if no info is available we simply skip to the next event
+    const std::string sgKey = "xTrigDecision"; //sgKey from 20.0.0.2 AOD
+    sc_trigDec = evtStore()->retrieve(trigDec,sgKey);
+    if (sc_trigDec.isFailure()) 
+    {
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No xAOD::xTrigDecision found in SG " << endmsg;
+    }
+    else   
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found xAOD::xTrigDecision in SG ! " << endmsg;
 
- uint32_t bskeys_1 = 9999; uint32_t bskeys_2 = 9999;
- bool isAccepted = false; bool isPassThrough = false;
- typedef std::vector< uint32_t >::const_iterator cIt;
- if(sc_hltResult == StatusCode::SUCCESS)
-   {
-     bskeys_1 = HLTResult->getConfigSuperMasterKey();
-     bskeys_2 = HLTResult->getConfigPrescalesKey();
-     isAccepted = HLTResult->isAccepted();
-     isPassThrough = HLTResult->isPassThrough();
-   }
- else if(sc_trigDec == StatusCode::SUCCESS)
-   {
-     bskeys_1 = trigDec->smk();
-     // this is not really useful as the whole point is to cross-check
-     // the prescale key against the one stored in HLTResult;
-     // leave here for now (Christos Leonidopoulos - Feb 15)
-     bskeys_2 = m_configsvc->hltPrescaleKey();
-     for(cIt it = trigDec->efPassedPhysics().begin(); it != trigDec->efPassedPhysics().end(); ++it)
-       if(*it > 0)
-	 {
-	   isAccepted = true;
-	   break;
-	 }
-     for(cIt it= trigDec->efPassedThrough().begin(); it != trigDec->efPassedThrough().end(); ++it)
-       if(*it > 0)
-	 {
-	   isPassThrough = true;
-	   break;
-	 }
+    // check whether HLTResult present (ESD)
+    if(m_storeGate->transientContains<HLT::HLTResult>(key)){
+        sc_hltResult = m_storeGate->retrieve(HLTResult,key);
+        if (sc_hltResult.isFailure()) 
+            ATH_MSG_DEBUG(" Failed to retrieve HLT Result " << key);
+        else
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found HLT Result in SG ! " << endmsg;
+    }
+    
+    if(sc_hltResult.isFailure() && sc_trigDec.isFailure())
+        return StatusCode::SUCCESS; // if no info is available we simply skip to the next event
+    
+    uint32_t bskeys_1 = 9999; uint32_t bskeys_2 = 9999;
+    bool isAccepted = false; bool isPassThrough = false;
+    typedef std::vector< uint32_t >::const_iterator cIt;
+    if(sc_hltResult == StatusCode::SUCCESS)
+    {
+        bskeys_1 = HLTResult->getConfigSuperMasterKey();
+        bskeys_2 = HLTResult->getConfigPrescalesKey();
+        isAccepted = HLTResult->isAccepted();
+        isPassThrough = HLTResult->isPassThrough();
+    }
+    else if(sc_trigDec == StatusCode::SUCCESS)
+    {
+        bskeys_1 = trigDec->smk();
+        // this is not really useful as the whole point is to cross-check
+        // the prescale key against the one stored in HLTResult;
+        // leave here for now (Christos Leonidopoulos - Feb 15)
+        if(m_configTool.empty()) bskeys_2 = m_configsvc->hltPrescaleKey();
+        else bskeys_2 = m_configTool->hltPrescaleKey();
+        for(cIt it = trigDec->efPassedPhysics().begin(); it != trigDec->efPassedPhysics().end(); ++it)
+            if(*it > 0)
+            {
+                isAccepted = true;
+                break;
+            }
+        for(cIt it= trigDec->efPassedThrough().begin(); it != trigDec->efPassedThrough().end(); ++it)
+            if(*it > 0)
+            {
+                isPassThrough = true;
+                break;
+            }
 
-   }
-   
- uint32_t bskeys[] = {bskeys_1, bskeys_2};
- uint32_t dbkeys[] = {m_configsvc->masterKey(), m_configsvc->hltPrescaleKey()};
- for(int i = 0; i < 2; ++i) {
-   ATH_MSG_VERBOSE("\t\t" << dbkeys[i] << "\t\t" << bskeys[i]);
-   if(dbkeys[i]==0) chist->Fill(3*i+1);
-   if(bskeys[i]==0) chist->Fill(3*i+2);
-   if(dbkeys[i]!=bskeys[i]) chist->Fill(3*i+3);
-   
-   rhist->Fill(1);
-   if (isAccepted) rhist->Fill(2); 
-   if (isPassThrough) rhist->Fill(3);
- }
- return sc_trigDec || sc_hltResult;
+    }
+
+    uint32_t bskeys[] = {bskeys_1, bskeys_2};
+    uint32_t dbkeys[2];
+    if(m_configTool.empty()) {
+        dbkeys[0]=m_configsvc->masterKey();
+        dbkeys[1]=m_configsvc->hltPrescaleKey();
+    }
+    else {
+        dbkeys[0]=m_configTool->masterKey();
+        dbkeys[1]=m_configTool->hltPrescaleKey();
+    }
+
+    for(int i = 0; i < 2; ++i) {
+        ATH_MSG_VERBOSE("\t\t" << dbkeys[i] << "\t\t" << bskeys[i]);
+        if(dbkeys[i]==0) chist->Fill(3*i+1);
+        if(bskeys[i]==0) chist->Fill(3*i+2);
+        if(dbkeys[i]!=bskeys[i]) chist->Fill(3*i+3);
+
+        rhist->Fill(1);
+        if (isAccepted) rhist->Fill(2); 
+        if (isPassThrough) rhist->Fill(3);
+    }
+    return sc_trigDec || sc_hltResult;
 }
 
 StatusCode HLTMonTool::fillLvl1Histograms(){
-  StatusCode sc = StatusCode::SUCCESS;
-  for (std::vector<std::string>::iterator aItem = m_L1_summary.begin();
-       aItem !=m_L1_summary.end(); ++aItem)
-    if (getTDT()->isPassed(*aItem))
-      hist("L1Events")->Fill((*aItem).c_str(),1);
-  if(sc.isFailure()) ATH_MSG_INFO("failed filling LVL1 Histograms");
-  return sc;
+    StatusCode sc = StatusCode::SUCCESS;
+    for (std::vector<std::string>::iterator aItem = m_L1_summary.begin();
+            aItem !=m_L1_summary.end(); ++aItem)
+        if (getTDT()->isPassed(*aItem))
+            hist("L1Events")->Fill((*aItem).c_str(),1);
+    if(sc.isFailure()) ATH_MSG_INFO("failed filling LVL1 Histograms");
+    return sc;
 }
 
 StatusCode HLTMonTool::fillForChain(const std::string& chain){
@@ -499,7 +512,7 @@ StatusCode HLTMonTool::fillForChain(const std::string& chain){
   
   unsigned length_to_chop = 0;
 
-  if(_useRun1Trigger)
+  if(m_useRun1Trigger)
     {
       length_to_chop = 3; // L2_ or EF_ from trigger chain name gets chopped
       streams = &m_run1regexlist;

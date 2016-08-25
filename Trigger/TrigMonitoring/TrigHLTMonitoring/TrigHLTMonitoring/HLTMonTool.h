@@ -80,7 +80,7 @@ class HLTMonTool : public IHLTMonTool {
   const xAOD::LumiBlockRangeContainer* m_lbc;
   bool m_scopeLumi;
   int m_nLBs; //# of lumi blocks in run;
-  bool _useRun1Trigger; 
+  bool m_useRun1Trigger; 
 
   // this is a hack (recommended by Frank Winklmeier) to determine
   // if we are processing "old/Run-1 data" (and we should expect 
