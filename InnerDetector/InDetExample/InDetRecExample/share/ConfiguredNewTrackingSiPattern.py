@@ -103,6 +103,7 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.maxRadius1         =1000.*Units.mm
             InDetSiSpacePointsSeedMaker.maxRadius2         =1000.*Units.mm
             InDetSiSpacePointsSeedMaker.maxRadius3         =1000.*Units.mm
+            InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
          if NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "VeryForwardSLHCTracks":
             InDetSiSpacePointsSeedMaker.checkEta           = True
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
@@ -112,7 +113,11 @@ class  ConfiguredNewTrackingSiPattern:
             InDetSiSpacePointsSeedMaker.etaMin             = NewTrackingCuts.minEta()
             InDetSiSpacePointsSeedMaker.etaMax             = NewTrackingCuts.maxEta()
             InDetSiSpacePointsSeedMaker.useDBM = True
-
+            
+         # Implement dynamic Cuts for SpacePointsSeedMaker later
+         #if InDetFlags.useInDetDynamicCuts() and NewTrackingCuts.mode() == "SLHC":
+         #   InDetSiSpacePointsSeedMaker.InDetDynamicCutsTool = InDetDynamicCutsTool
+         #   InDetSiSpacePointsSeedMaker.UseDynamicCuts       = True
                     
          #InDetSiSpacePointsSeedMaker.OutputLevel = VERBOSE
          ToolSvc += InDetSiSpacePointsSeedMaker
@@ -239,6 +244,10 @@ class  ConfiguredNewTrackingSiPattern:
         
          else:
            InDetSiTrackMaker.TrackPatternRecoInfo = 'SiSPSeededFinder'
+
+         if InDetFlags.useInDetDynamicCuts() and NewTrackingCuts.mode() == "SLHC":
+           InDetSiTrackMaker.InDetDynamicCutsTool = InDetDynamicCutsTool
+           InDetSiTrackMaker.UseDynamicCuts       = True
 					  
          #InDetSiTrackMaker.OutputLevel = VERBOSE				  
          ToolSvc += InDetSiTrackMaker
@@ -365,6 +374,10 @@ class  ConfiguredNewTrackingSiPattern:
          if InDetFlags.doTIDE_AmbiTrackMonitoring() and InDetFlags.doTIDE_Ambi() and not (NewTrackingCuts.mode() == "ForwardSLHCTracks" or NewTrackingCuts.mode() == "ForwardTracks" or NewTrackingCuts.mode() == "PixelPrdAssociation" or NewTrackingCuts.mode() == "DBM"):
            InDetAmbiTrackSelectionTool.ObserverTool             = TrackObserverTool     #observerTool
            InDetAmbiTrackSelectionTool.MonitorAmbiguitySolving  = True
+
+         if InDetFlags.useInDetDynamicCuts() and NewTrackingCuts.mode() == "SLHC":
+           InDetAmbiTrackSelectionTool.InDetDynamicCutsTool = InDetDynamicCutsTool
+           InDetAmbiTrackSelectionTool.UseDynamicCuts       = True
         
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #    InDetAmbiTrackSelectionTool.OutputLevel = VERBOSE
@@ -409,6 +422,12 @@ class  ConfiguredNewTrackingSiPattern:
 
          # if NewTrackingCuts.mode() == "ForwardTracks":
          #   InDetAmbiScoringTool.OutputLevel = VERBOSE   
+
+         if InDetFlags.useInDetDynamicCuts() and NewTrackingCuts.mode() == "SLHC":
+           InDetAmbiScoringTool.InDetDynamicCutsTool      = InDetDynamicCutsTool
+           InDetAmbiScoringTool.UseDynamicCuts       = True
+           InDetAmbiScoringTool.maxEta      = InDetDynamicCutsTool.maxEta
+
 
          ToolSvc += InDetAmbiScoringTool
          if (InDetFlags.doPrintConfigurables()):

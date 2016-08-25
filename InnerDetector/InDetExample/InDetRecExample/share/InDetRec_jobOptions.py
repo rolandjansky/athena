@@ -1230,6 +1230,10 @@ else:
         cuts = InDetNewTrackingCutsSLHCConversionFinding
       else:
         cuts = InDetNewTrackingCuts
+
+      if InDetFlags.useInDetDynamicCuts():
+        cuts = InDetNewTrackingCuts    #cr: otherwise wrong maxEta is used
+
       include("InDetRecExample/ConfiguredInDetValidation.py")
       InDetValidation = ConfiguredInDetValidation("",True,InDetFlags.doTruth(),cuts,TrackCollectionKeys,TrackCollectionTruthKeys)
       if InDetFlags.doDBM():

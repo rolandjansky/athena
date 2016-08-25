@@ -1056,6 +1056,12 @@ class doTIDE_AmbiTrackMonitoring(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class useInDetDynamicCuts(InDetFlagsJobProperty):
+  """ Use dynamic cuts (eta dependent, ... - InDetDynamicCutsTool) for the seeding, ambi process, etc. """
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = True
+
 class ForceCoraCool(InDetFlagsJobProperty):
   """ Use old (non CoolVectorPayload) SCT Conditions """
   statusOn     = True
@@ -1152,6 +1158,10 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doSLHCVeryForward():
        self.checkThenSet(self.doSLHC            , True)
        self.checkThenSet(self.doForwardTracks   , True)
+
+    if self.useInDetDynamicCuts(): # because InDetDynamicCuts covers whole eta region
+       self.checkThenSet(self.doSLHCVeryForward   , False)
+       self.checkThenSet(self.doForwardTracks   , False)
 
     if (jobproperties.Beam.beamType()=="singlebeam"):
        self.checkThenSet(self.useHVForSctDCS         , True)    
@@ -1273,8 +1283,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doSlimming             , False)
        self.checkThenSet(self.doSGDeletion           , True )
        # TEMPORARY FIX TO STOP SEG FAULT
-       self.checkThenSet(self.doPixelClusterSplitting, False)
-       self.checkThenSet(self.doTIDE_Ambi, False)
+       self.checkThenSet(self.doPixelClusterSplitting, True)
+       self.checkThenSet(self.doTIDE_Ambi, True)
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
 
     elif (self.doIBL()):
@@ -2668,6 +2678,7 @@ _list_InDetJobProperties = [Enabled,
                             doLowMuRunSetup,
                             doRobustReco,
                             doTIDE_AmbiTrackMonitoring,
+                            useInDetDynamicCuts,
                             doSingleCollisionVertexReco,
                             useMBTSTimeDiff,
                             useNewSiSPSeededTF,

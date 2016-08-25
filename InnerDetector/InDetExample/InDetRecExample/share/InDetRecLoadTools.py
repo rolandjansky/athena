@@ -1805,3 +1805,42 @@ if InDetFlags.doTIDE_AmbiTrackMonitoring():
   if InDetFlags.doPrintConfigurables():
       print TrackObserverTool
 
+# ------------------------------------------------------------
+#
+# ----------- Loading of tool for dynamic cuts
+#
+# ------------------------------------------------------------
+if InDetFlags.useInDetDynamicCuts():
+  from   InDetDynamicCutsTool.InDetDynamicCutsToolConf import InDet__InDetDynamicCutsTool
+  InDetDynamicCutsTool = InDet__InDetDynamicCutsTool("InDetDynamicCutsTool")
+
+  SLHCDynamicTrackingCuts = ConfiguredNewTrackingCuts("SLHCDynamicCuts")
+
+  #Set the configurables
+  InDetDynamicCutsTool.maxEta                  = SLHCDynamicTrackingCuts.maxEta()
+  InDetDynamicCutsTool.etaBins                 = SLHCDynamicTrackingCuts.etaBins()
+  InDetDynamicCutsTool.etaWidthBrem            = SLHCDynamicTrackingCuts.etaWidthBrem()
+  InDetDynamicCutsTool.maxdImpactSSSSeeds      = SLHCDynamicTrackingCuts.maxdImpactSSSSeeds()
+  InDetDynamicCutsTool.maxDoubleHoles          = SLHCDynamicTrackingCuts.maxDoubleHoles()
+  InDetDynamicCutsTool.maxHoles                = SLHCDynamicTrackingCuts.maxHoles()
+  InDetDynamicCutsTool.maxPixelHoles           = SLHCDynamicTrackingCuts.maxPixelHoles()
+  InDetDynamicCutsTool.maxPrimaryImpact        = SLHCDynamicTrackingCuts.maxPrimaryImpact()
+  InDetDynamicCutsTool.maxSctHoles             = SLHCDynamicTrackingCuts.maxSCTHoles()
+  InDetDynamicCutsTool.maxShared               = SLHCDynamicTrackingCuts.maxShared()
+  InDetDynamicCutsTool.maxZImpact              = SLHCDynamicTrackingCuts.maxZImpact()
+  InDetDynamicCutsTool.minClusters             = SLHCDynamicTrackingCuts.minClusters()
+  InDetDynamicCutsTool.minPixelHits            = SLHCDynamicTrackingCuts.minPixel()
+  InDetDynamicCutsTool.minPT                   = SLHCDynamicTrackingCuts.minPT()
+  InDetDynamicCutsTool.minPTBrem               = SLHCDynamicTrackingCuts.minPTBrem()
+  InDetDynamicCutsTool.minSiNotShared          = SLHCDynamicTrackingCuts.minSiNotShared()
+  InDetDynamicCutsTool.maxHolesGapPattern      = SLHCDynamicTrackingCuts.nHolesGapMax()
+  InDetDynamicCutsTool.maxHolesPattern         = SLHCDynamicTrackingCuts.nHolesMax()
+  InDetDynamicCutsTool.nWeightedClustersMin    = SLHCDynamicTrackingCuts.nWeightedClustersMin()
+  InDetDynamicCutsTool.phiWidthBrem            = SLHCDynamicTrackingCuts.phiWidthBrem()
+  InDetDynamicCutsTool.Xi2max                  = SLHCDynamicTrackingCuts.Xi2max()
+  InDetDynamicCutsTool.Xi2maxNoAdd             = SLHCDynamicTrackingCuts.Xi2maxNoAdd()
+
+  ToolSvc += InDetDynamicCutsTool
+  
+  if InDetFlags.doPrintConfigurables():
+    print InDetDynamicCutsTool
