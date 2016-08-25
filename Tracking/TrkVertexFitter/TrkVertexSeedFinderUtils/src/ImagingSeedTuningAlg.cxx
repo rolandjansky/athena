@@ -95,7 +95,7 @@ StatusCode ImagingSeedTuningAlg::initialize()
   SmartIF<IProperty> i_seedProp(p_ivsf);
   if ( !i_seedProp.isValid() ) 
   {
-    msg(MSG::FATAL) << "Failed to retrieve IProperty interface of " << m_seedFinder << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve IProperty interface of " << m_seedFinder << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -116,14 +116,14 @@ StatusCode ImagingSeedTuningAlg::initialize()
   m_imageMakerProperty = SmartIF<IProperty>(p_ivim);
   if ( !m_imageMakerProperty.isValid() ) 
   {
-    msg(MSG::FATAL) << "Failed to retrieve IProperty interface for " << s_imageMaker << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve IProperty interface for " << s_imageMaker << endmsg;
     return StatusCode::FAILURE;
   }
 
   m_clusterFinderProperty = SmartIF<IProperty>(p_ivcf);
   if ( !m_clusterFinderProperty.isValid() ) 
   {
-    msg(MSG::FATAL) << "Failed to retrieve IProperty interface for " << s_clusterFinder << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve IProperty interface for " << s_clusterFinder << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -132,31 +132,31 @@ StatusCode ImagingSeedTuningAlg::initialize()
   CHECK( m_trackFilter.retrieve() );
 
   // setup histograms/trees
-  h_nTruthVertices = new TH1F("nTruthVtx", "N truth vertices", 60, 0.0, 60.0);
-  h_zTruthVertices = new TH1F("zTruthVtx","z (visible truth vertices)",100,-200.0,200.0);
-  t_seeds          = new TTree("seeds","seeds");
+  m_h_nTruthVertices = new TH1F("nTruthVtx", "N truth vertices", 60, 0.0, 60.0);
+  m_h_zTruthVertices = new TH1F("zTruthVtx","z (visible truth vertices)",100,-200.0,200.0);
+  m_t_seeds          = new TTree("seeds","seeds");
 
-  CHECK( m_iTHistSvc->regHist("/file1/h/truthVertices", h_nTruthVertices) );
-  CHECK( m_iTHistSvc->regHist("/file1/h/zTruthVtx", h_zTruthVertices) );
-  CHECK( m_iTHistSvc->regTree("/file1/t/seeds", t_seeds) );
+  CHECK( m_iTHistSvc->regHist("/file1/h/truthVertices", m_h_nTruthVertices) );
+  CHECK( m_iTHistSvc->regHist("/file1/h/zTruthVtx", m_h_zTruthVertices) );
+  CHECK( m_iTHistSvc->regTree("/file1/t/seeds", m_t_seeds) );
 
-  t_seeds->Branch("nTruth", &b_nTruth, "nTruth/I");
-  t_seeds->Branch("nConditions", &b_nConditions, "nConditions/I");
-  t_seeds->Branch("nGoodTruth", &b_nGoodTruth, "nGoodTruth[nConditions]/I");
-  t_seeds->Branch("nSeeds", &b_nSeeds, "nSeeds[nConditions]/I");
-  t_seeds->Branch("nGoodSeeds", &b_nGoodSeeds, "nGoodSeeds[nConditions]/I");
-  t_seeds->Branch("nLost", &b_nLost, "nLost[nConditions]/I");
-  t_seeds->Branch("nFake", &b_nFake, "nFake[nConditions]/I");
-  t_seeds->Branch("nSplit", &b_nSplit, "nSplit[nConditions]/I");
-  t_seeds->Branch("nMerge", &b_nMerge, "nMerge[nConditions]/I");
-  t_seeds->Branch("angularCutoff", &b_angularCutoffParameter, "angularCutoff[nConditions]/F");
-  t_seeds->Branch("weightThreshold", &b_weightThreshold, "weightThreshold[nConditions]/F");
-  t_seeds->Branch("mergeParameter", &b_mergeParameter, "mergeParameter[nConditions]/F");
-  t_seeds->Branch("clusterWindowXY", &b_clusterWindowXY, "clusterWindowXY[nConditions]/F");
-  t_seeds->Branch("refineZ", &b_refineZ, "refineZ[nConditions]/I1");
-  t_seeds->Branch("gaussianWindow", &b_gaussianWindow, "gaussianWindow[nConditions]/I1");
+  m_t_seeds->Branch("nTruth", &m_b_nTruth, "nTruth/I");
+  m_t_seeds->Branch("nConditions", &m_b_nConditions, "nConditions/I");
+  m_t_seeds->Branch("nGoodTruth", &m_b_nGoodTruth, "nGoodTruth[nConditions]/I");
+  m_t_seeds->Branch("nSeeds", &m_b_nSeeds, "nSeeds[nConditions]/I");
+  m_t_seeds->Branch("nGoodSeeds", &m_b_nGoodSeeds, "nGoodSeeds[nConditions]/I");
+  m_t_seeds->Branch("nLost", &m_b_nLost, "nLost[nConditions]/I");
+  m_t_seeds->Branch("nFake", &m_b_nFake, "nFake[nConditions]/I");
+  m_t_seeds->Branch("nSplit", &m_b_nSplit, "nSplit[nConditions]/I");
+  m_t_seeds->Branch("nMerge", &m_b_nMerge, "nMerge[nConditions]/I");
+  m_t_seeds->Branch("angularCutoff", &m_b_angularCutoffParameter, "angularCutoff[nConditions]/F");
+  m_t_seeds->Branch("weightThreshold", &m_b_weightThreshold, "weightThreshold[nConditions]/F");
+  m_t_seeds->Branch("mergeParameter", &m_b_mergeParameter, "mergeParameter[nConditions]/F");
+  m_t_seeds->Branch("clusterWindowXY", &m_b_clusterWindowXY, "clusterWindowXY[nConditions]/F");
+  m_t_seeds->Branch("refineZ", &m_b_refineZ, "refineZ[nConditions]/I1");
+  m_t_seeds->Branch("gaussianWindow", &m_b_gaussianWindow, "gaussianWindow[nConditions]/I1");
 
-  b_nConditions = m_angularCutoffParameterValues.size() *
+  m_b_nConditions = m_angularCutoffParameterValues.size() *
     m_clusterWindowXYValues.size()*
     m_mergeParameterValues.size()*
     m_weightThresholdValues.size()*
@@ -223,16 +223,19 @@ StatusCode ImagingSeedTuningAlg::execute()
   std::vector<const Trk::TrackParameters*> perigeeList;
   analyzeTracks(trackVector, perigeeList);
 
-  std::vector<Trk::Vertex> truth;
+  std::vector<Amg::Vector3D> truth;
   CHECK( findTruth(trackVector, truth) );
-  h_nTruthVertices->Fill((float) truth.size());
-  b_nTruth = truth.size();
-  for (auto & v : truth) h_zTruthVertices->Fill(v.position()[2]);
+  m_h_nTruthVertices->Fill((float) truth.size());
+  m_b_nTruth = truth.size();
+  for (auto & v : truth) m_h_zTruthVertices->Fill(v[2]);
 
-  Trk::RecVertex theConstraint;
+  xAOD::Vertex theConstraint;
+  theConstraint.makePrivateStore();
   if (m_useBeamConstraint)
   {
-    theConstraint=m_iBeamCondSvc->beamVtx();
+    theConstraint.setPosition(m_iBeamCondSvc->beamVtx().position());
+    theConstraint.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+    theConstraint.setFitQuality(m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF());
   }
 
   bool done = true;
@@ -240,7 +243,7 @@ StatusCode ImagingSeedTuningAlg::execute()
   CHECK( initializeConditions(conditions) );
   do
   {
-    std::vector<Trk::Vertex> seeds;
+    std::vector<Amg::Vector3D> seeds;
     if (m_useBeamConstraint)
     {
       seeds = m_seedFinder->findMultiSeeds(perigeeList, &theConstraint);
@@ -251,7 +254,7 @@ StatusCode ImagingSeedTuningAlg::execute()
     CHECK( iterateConditions(conditions, done) );
   } while (!done);
 
-  t_seeds->Fill();
+  m_t_seeds->Fill();
 
   return StatusCode::SUCCESS;
 }
@@ -262,12 +265,12 @@ StatusCode ImagingSeedTuningAlg::execute()
 
 StatusCode ImagingSeedTuningAlg::initializeConditions(std::string& conditions)
 {
-  i_angularCutoffParameter = m_angularCutoffParameterValues.begin();
-  i_clusterWindowXY        = m_clusterWindowXYValues.begin();
-  i_mergeParameter         = m_mergeParameterValues.begin();
-  i_weightThreshold        = m_weightThresholdValues.begin();
-  i_refineZ                = m_refineZValues.begin();
-  i_gaussianWindow         = m_gaussianWindowValues.begin();
+  m_i_angularCutoffParameter = m_angularCutoffParameterValues.begin();
+  m_i_clusterWindowXY        = m_clusterWindowXYValues.begin();
+  m_i_mergeParameter         = m_mergeParameterValues.begin();
+  m_i_weightThreshold        = m_weightThresholdValues.begin();
+  m_i_refineZ                = m_refineZValues.begin();
+  m_i_gaussianWindow         = m_gaussianWindowValues.begin();
 
   m_iCondition = 0;
 
@@ -282,22 +285,22 @@ StatusCode ImagingSeedTuningAlg::iterateConditions(std::string& conditions, bool
   conditions = "done";
   m_iCondition++;
 
-  if (++i_angularCutoffParameter == m_angularCutoffParameterValues.end())
+  if (++m_i_angularCutoffParameter == m_angularCutoffParameterValues.end())
   {
-    i_angularCutoffParameter = m_angularCutoffParameterValues.begin();
-    if (++i_clusterWindowXY == m_clusterWindowXYValues.end())
+    m_i_angularCutoffParameter = m_angularCutoffParameterValues.begin();
+    if (++m_i_clusterWindowXY == m_clusterWindowXYValues.end())
     {
-      i_clusterWindowXY = m_clusterWindowXYValues.begin();
-      if (++i_mergeParameter == m_mergeParameterValues.end())
+      m_i_clusterWindowXY = m_clusterWindowXYValues.begin();
+      if (++m_i_mergeParameter == m_mergeParameterValues.end())
       {
-	i_mergeParameter = m_mergeParameterValues.begin();
-	if (++i_weightThreshold == m_weightThresholdValues.end())
+	m_i_mergeParameter = m_mergeParameterValues.begin();
+	if (++m_i_weightThreshold == m_weightThresholdValues.end())
 	{
-	  i_weightThreshold = m_weightThresholdValues.begin();
-	  if (++i_refineZ == m_refineZValues.end())
+	  m_i_weightThreshold = m_weightThresholdValues.begin();
+	  if (++m_i_refineZ == m_refineZValues.end())
 	  {
-	    i_refineZ = m_refineZValues.begin();
-	    if (++i_gaussianWindow == m_gaussianWindowValues.end())
+	    m_i_refineZ = m_refineZValues.begin();
+	    if (++m_i_gaussianWindow == m_gaussianWindowValues.end())
 	    {
 	      return StatusCode::SUCCESS;
 	    }
@@ -314,19 +317,19 @@ StatusCode ImagingSeedTuningAlg::iterateConditions(std::string& conditions, bool
 
 StatusCode ImagingSeedTuningAlg::setupConditions(std::string& conditions)
 {
-  b_gaussianWindow[m_iCondition] = *i_gaussianWindow;
-  b_refineZ[m_iCondition] = *i_refineZ;
-  b_weightThreshold[m_iCondition] = *i_weightThreshold;
-  b_mergeParameter[m_iCondition] = *i_mergeParameter;
-  b_clusterWindowXY[m_iCondition] = *i_clusterWindowXY;
-  b_angularCutoffParameter[m_iCondition] = *i_angularCutoffParameter;
+  m_b_gaussianWindow[m_iCondition] = *m_i_gaussianWindow;
+  m_b_refineZ[m_iCondition] = *m_i_refineZ;
+  m_b_weightThreshold[m_iCondition] = *m_i_weightThreshold;
+  m_b_mergeParameter[m_iCondition] = *m_i_mergeParameter;
+  m_b_clusterWindowXY[m_iCondition] = *m_i_clusterWindowXY;
+  m_b_angularCutoffParameter[m_iCondition] = *m_i_angularCutoffParameter;
 
-  std::string gaussianWindow = std::to_string(*i_gaussianWindow);
-  std::string refineZ = std::to_string(*i_refineZ);
-  std::string weightThreshold = std::to_string(*i_weightThreshold);
-  std::string mergeParameter = std::to_string(*i_mergeParameter);
-  std::string clusterWindowXY = std::to_string(*i_clusterWindowXY);
-  std::string angularCutoffParameter = std::to_string(*i_angularCutoffParameter);
+  std::string gaussianWindow = std::to_string(*m_i_gaussianWindow);
+  std::string refineZ = std::to_string(*m_i_refineZ);
+  std::string weightThreshold = std::to_string(*m_i_weightThreshold);
+  std::string mergeParameter = std::to_string(*m_i_mergeParameter);
+  std::string clusterWindowXY = std::to_string(*m_i_clusterWindowXY);
+  std::string angularCutoffParameter = std::to_string(*m_i_angularCutoffParameter);
 
   CHECK( m_imageMakerProperty->setProperty("angularCutoffParameter", angularCutoffParameter) );
   CHECK( m_clusterFinderProperty->setProperty("clusterWindowXY", clusterWindowXY) );
@@ -352,17 +355,17 @@ StatusCode ImagingSeedTuningAlg::setupConditions(std::string& conditions)
 }
 
 void ImagingSeedTuningAlg::analyzeSeeds(std::string conditions,
-					const std::vector<Trk::Vertex>& seeds, 
-					const std::vector<Trk::Vertex>& truth)
+					const std::vector<Amg::Vector3D>& seeds, 
+					const std::vector<Amg::Vector3D>& truth)
 {
   // simple analysis - count seeds that have a true vertex close to them
   m_allTruth[conditions] += truth.size();
   m_allSeeds[conditions] += seeds.size();
-  b_nSeeds[m_iCondition] = seeds.size();
+  m_b_nSeeds[m_iCondition] = seeds.size();
   int goodSeeds = 0;
   for (auto& seed : seeds) {
     for (auto& tru : truth) {
-      if (std::abs(seed.position()[2] - tru.position()[2]) <= m_truthWindow) {
+      if (std::abs(seed[2] - tru[2]) <= m_truthWindow) {
 	goodSeeds++;
 	break;
       }
@@ -370,86 +373,86 @@ void ImagingSeedTuningAlg::analyzeSeeds(std::string conditions,
   }
   // simple analysis - count truth vertices that have a seed close to them
   m_goodSeeds[conditions] += goodSeeds;
-  b_nGoodSeeds[m_iCondition] = goodSeeds;
+  m_b_nGoodSeeds[m_iCondition] = goodSeeds;
   int goodTruth = 0;
   for (auto& tru : truth) {
     for (auto& seed : seeds) {
-      if (std::abs(seed.position()[2] - tru.position()[2]) <= m_truthWindow){
+      if (std::abs(seed[2] - tru[2]) <= m_truthWindow){
 	goodTruth++;
 	break;
       }
     }
   }
   m_goodTruth[conditions] += goodTruth;
-  b_nGoodTruth[m_iCondition] = goodTruth;
+  m_b_nGoodTruth[m_iCondition] = goodTruth;
 
   // more careful analysis - match seeds and truth
   std::map<float, float > nearestSeed;
   std::map<float, float > nearestTruth;
-  b_nLost[m_iCondition] = 0;
-  b_nFake[m_iCondition] = 0;
-  b_nSplit[m_iCondition] = 0;
-  b_nMerge[m_iCondition] = 0;
+  m_b_nLost[m_iCondition] = 0;
+  m_b_nFake[m_iCondition] = 0;
+  m_b_nSplit[m_iCondition] = 0;
+  m_b_nMerge[m_iCondition] = 0;
   for (auto & tru : truth) {
-    nearestSeed[tru.position()[2]] = std::numeric_limits<float>::infinity();
+    nearestSeed[tru[2]] = std::numeric_limits<float>::infinity();
     for (auto & seed : seeds) {
-      if (std::abs(seed.position()[2] - tru.position()[2]) < 
-	  std::min(m_truthWindow, std::abs(nearestSeed[tru.position()[2]] - tru.position()[2])))
+      if (std::abs(seed[2] - tru[2]) < 
+	  std::min(m_truthWindow, std::abs(nearestSeed[tru[2]] - tru[2])))
       {
-	nearestSeed[tru.position()[2]] = seed.position()[2];
+	nearestSeed[tru[2]] = seed[2];
       }
     }
     // if a true vertex is not close to any seed, it is "lost"
-    if (nearestSeed[tru.position()[2]] == std::numeric_limits<float>::infinity())
+    if (nearestSeed[tru[2]] == std::numeric_limits<float>::infinity())
     {
-      b_nLost[m_iCondition]++;
+      m_b_nLost[m_iCondition]++;
       m_nLost[conditions]++;
     }
   }
   for (auto & seed : seeds) {
-    nearestTruth[seed.position()[2]] = std::numeric_limits<float>::infinity();
+    nearestTruth[seed[2]] = std::numeric_limits<float>::infinity();
     for (auto & tru : truth) {
-      if (std::abs(tru.position()[2] - seed.position()[2]) < 
-	  std::min(m_truthWindow, std::abs(nearestTruth[seed.position()[2]] - seed.position()[2])))
+      if (std::abs(tru[2] - seed[2]) < 
+	  std::min(m_truthWindow, std::abs(nearestTruth[seed[2]] - seed[2])))
       {
-	nearestTruth[seed.position()[2]] = tru.position()[2];
+	nearestTruth[seed[2]] = tru[2];
       }
     }
     // if a seed is not close to any true vertex, it is a "fake"
-    if (nearestTruth[seed.position()[2]] == std::numeric_limits<float>::infinity())
+    if (nearestTruth[seed[2]] == std::numeric_limits<float>::infinity())
     {
-      b_nFake[m_iCondition]++;
+      m_b_nFake[m_iCondition]++;
       m_nFake[conditions]++;
     }
   }
   // if a true vertex is closest to > 1 seed, that true vertex has been "split"
   for (auto & tru : truth)
   {
-    if (nearestSeed[tru.position()[2]] == std::numeric_limits<float>::infinity()) continue;
+    if (nearestSeed[tru[2]] == std::numeric_limits<float>::infinity()) continue;
     int nClosest = 0; // number of seeds that this true vertex is closest to
     for (auto & seed : seeds)
     {
-      if (nearestTruth[seed.position()[2]] == tru.position()[2]) nClosest++;
+      if (nearestTruth[seed[2]] == tru[2]) nClosest++;
     }
     if (nClosest > 1) 
     {
       m_nSplit[conditions] += (nClosest - 1);
-      b_nSplit[m_iCondition] += (nClosest - 1);
+      m_b_nSplit[m_iCondition] += (nClosest - 1);
     }
   }
   // if a seed is closest to > 1 true vertex, those true vertices have been "merged"
   for (auto & seed : seeds)
   {
-    if (nearestTruth[seed.position()[2]] == std::numeric_limits<float>::infinity()) continue;
+    if (nearestTruth[seed[2]] == std::numeric_limits<float>::infinity()) continue;
     int nClosest = 0; // number of truth vertices that this seed is closest to
     for (auto & tru : truth)
     {
-      if (nearestSeed[tru.position()[2]] == seed.position()[2]) nClosest++;
+      if (nearestSeed[tru[2]] == seed[2]) nClosest++;
     }
     if (nClosest > 1) 
     {
       m_nMerge[conditions] += (nClosest - 1);
-      b_nMerge[m_iCondition] += (nClosest - 1);
+      m_b_nMerge[m_iCondition] += (nClosest - 1);
     }
   }
 }
@@ -501,7 +504,7 @@ void ImagingSeedTuningAlg::selectTracks(const xAOD::TrackParticleContainer* trac
 /////////////////////////////////////////////////////////////////// 
 // Const methods: 
 ///////////////////////////////////////////////////////////////////
-StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& trackVector, std::vector<Trk::Vertex>& truth) const
+StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& trackVector, std::vector<Amg::Vector3D>& truth) const
 {
     xAOD::TrackParticle::ConstAccessor<ElementLink<xAOD::TruthParticleContainer> > truthParticleAssoc("truthParticleLink");
 
@@ -510,7 +513,7 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
     for (const xAOD::TruthEventBase* evt : *signalEvents)
     {
       const xAOD::TruthVertex* vLink = *(evt->truthVertexLink(0));
-      Trk::Vertex vTruth(Amg::Vector3D(vLink->x(),vLink->y(),vLink->z()));
+      Amg::Vector3D vTruth(Amg::Vector3D(vLink->x(),vLink->y(),vLink->z()));
       int nGoodTracks = 0;
       for (auto trk : trackVector)
       {
@@ -542,7 +545,7 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
     for (const xAOD::TruthEventBase* evt : *pileupEvents)
     {
       const xAOD::TruthVertex* vLink = *(evt->truthVertexLink(0));
-      Trk::Vertex vTruth(Amg::Vector3D(vLink->x(),vLink->y(),vLink->z()));
+      Amg::Vector3D vTruth(Amg::Vector3D(vLink->x(),vLink->y(),vLink->z()));
       int nGoodTracks = 0;
       for (auto trk : trackVector)
       {
@@ -572,7 +575,7 @@ StatusCode ImagingSeedTuningAlg::findTruth(const std::vector<Trk::ITrackLink*>& 
     return StatusCode::SUCCESS;
 }
 
-double ImagingSeedTuningAlg::distanceAndError(const Trk::TrackParameters* params, const Trk::Vertex * vertex, double & error) const
+double ImagingSeedTuningAlg::distanceAndError(const Trk::TrackParameters* params, const Amg::Vector3D * vertex, double & error) const
 {
     //find distance safely
     bool isOK=false;
@@ -584,13 +587,13 @@ double ImagingSeedTuningAlg::distanceAndError(const Trk::TrackParameters* params
     }
     catch (error::ImpactPoint3dEstimatorProblem err) {
       msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << 
-        err.p << endreq;
+        err.p << endmsg;
     }
     if (isOK) {
       distance=m_impactPoint3dEstimator->getDistance();
     }  
     if (distance<0) {
-      msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endreq;
+      msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endmsg;
     }
     //very approximate error
     error= 0.;
@@ -600,11 +603,11 @@ double ImagingSeedTuningAlg::distanceAndError(const Trk::TrackParameters* params
     }
       
     if (error==0.) {
-      msg(MSG::ERROR) << " Error is zero! " << distance << endreq;
+      msg(MSG::ERROR) << " Error is zero! " << distance << endmsg;
       error=1.;
     }
     msg(MSG::VERBOSE) << " Distance between track and seed vtx: " << distance << " d/s(d) = " << 
-      distance/error << " err " << error << endreq;
+      distance/error << " err " << error << endmsg;
 
     return distance;
 }

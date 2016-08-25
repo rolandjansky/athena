@@ -30,22 +30,22 @@ namespace Trk
     StatusCode s = AlgTool::initialize();
     if (s.isFailure() )
     {
-      msg(MSG::FATAL) << "AlgTool::initialize() initialize failed!" << endreq;
+      msg(MSG::FATAL) << "AlgTool::initialize() initialize failed!" << endmsg;
       return StatusCode::FAILURE;
     }
     if ( m_mode1dfinder.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_mode1dfinder << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_mode1dfinder << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_mode1dfinder << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_mode1dfinder << endmsg;
     }
-    msg(MSG::INFO) << "Initialize successfull" << endreq;
+    msg(MSG::INFO) << "Initialize successfull" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   StatusCode Mode3dTo1dFinder::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successfull" << endreq;
+    msg(MSG::INFO)  << "Finalize successfull" << endmsg;
     return StatusCode::SUCCESS;
   }
 

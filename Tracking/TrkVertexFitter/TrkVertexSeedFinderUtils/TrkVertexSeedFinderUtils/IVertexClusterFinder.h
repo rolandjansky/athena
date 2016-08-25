@@ -10,7 +10,7 @@
 #define TRKVERTEXSEEDFINDERUTILS_IVERTEXCLUSTERFINDER_H
 
 #include "GaudiKernel/IAlgTool.h"
-#include "VxVertex/Vertex.h"
+#include "GeoPrimitives/GeoPrimitives.h"
 
 namespace Trk
 {
@@ -24,6 +24,13 @@ namespace Trk
    Interface tool for Vertex cluster utils found in same package
 
    @author lars.egholm.pedersen@cern.ch
+
+   ------------------------------------
+   Changes:
+
+   David Shope <david.richard.shope@cern.ch> (2016-04-19)
+
+   EDM Migration to xAOD - from Trk::Vertex to Amg::Vector3D
 
    */
 
@@ -42,7 +49,7 @@ namespace Trk
        //Get a vector of vertices based on input histogram, defined by hist_rs;
        //Will return bin coordinates, which can be coverted to coordinates at a 
        //later stage
-       virtual std::vector<Trk::Vertex> findVertexClusters( const VertexImage & image ) = 0;
+       virtual std::vector<Amg::Vector3D> findVertexClusters( const VertexImage & image ) = 0;
   };
 }
 

@@ -3,7 +3,6 @@
 */
 
 #include "TrkVertexSeedFinderUtils/VertexImageMaker.h"
-#include "VxVertex/RecVertex.h"
 #include "GaudiKernel/PhysicalConstants.h"
 
 
@@ -52,16 +51,16 @@ namespace Trk
     //calculate total number of bins needed for filter
     m_filttot = m_xbins * m_ybins * ( m_zbins/2 + 1);
 
-    msg(MSG::INFO) << "Initializing frequency space filter" << endreq;
+    msg(MSG::INFO) << "Initializing frequency space filter" << endmsg;
     initFSFilter();
 
     //Allocate memory to histogram (used for both real and freq space)
-    msg(MSG::INFO) << "Allocating memory to fftw - Histogram size : " << m_xbins << " , " << m_ybins << " , " << m_zbins << endreq;
+    msg(MSG::INFO) << "Allocating memory to fftw - Histogram size : " << m_xbins << " , " << m_ybins << " , " << m_zbins << endmsg;
     m_histRS = (float*)fftwf_malloc( sizeof(float) * m_filttot * 2 );
     //Get a complex casted version for easier access to the freq space using same bin numbering
     m_histFS = (fftwf_complex*) m_histRS;
 
-    msg(MSG::INFO) << "Setting up FFTW plans" << endreq;
+    msg(MSG::INFO) << "Setting up FFTW plans" << endmsg;
     m_plan_r2c = fftwf_plan_dft_r2c_3d(m_xbins, m_ybins, m_zbins, m_histRS, m_histFS, FFTW_MEASURE);
     m_plan_c2r = fftwf_plan_dft_c2r_3d(m_xbins, m_ybins, m_zbins, m_histFS, m_histRS, FFTW_MEASURE);
 
@@ -84,12 +83,12 @@ namespace Trk
     fftwf_free( m_histRS );
     fftwf_cleanup();
 
-    msg(MSG::INFO) << "Finalize ImageingSeedFinder successful" << endreq;
+    msg(MSG::INFO) << "Finalize ImageingSeedFinder successful" << endmsg;
 
     return StatusCode::SUCCESS;
   }// End ImagingSeedFinder finalize
 
-  VertexImage VertexImageMaker::makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const RecVertex * constraint ) {
+  VertexImage VertexImageMaker::makeVertexImage( const std::vector<const Trk::TrackParameters*>& parametersList,const xAOD::Vertex * constraint ) {
 
     //Calculate ranges
     if( constraint ) {
@@ -109,18 +108,18 @@ namespace Trk
     }
 
    //Fill the histogram
-    msg(MSG::DEBUG) <<"Filling Histogram ..." << endreq;
+    msg(MSG::DEBUG) <<"Filling Histogram ..." << endmsg;
     fillHist( parametersList );
 
     //Forward transform
-    msg(MSG::DEBUG) <<"R2C Fourier ..." << endreq;
+    msg(MSG::DEBUG) <<"R2C Fourier ..." << endmsg;
     fftwf_execute( m_plan_r2c );
 
-    msg(MSG::DEBUG) <<"Filtering ..." << endreq;
+    msg(MSG::DEBUG) <<"Filtering ..." << endmsg;
     filterFSHist();
 
     //back transform
-    msg(MSG::DEBUG) <<"C2R Fourier" << endreq;
+    msg(MSG::DEBUG) <<"C2R Fourier" << endmsg;
     fftwf_execute( m_plan_c2r );
 
     return m_image;

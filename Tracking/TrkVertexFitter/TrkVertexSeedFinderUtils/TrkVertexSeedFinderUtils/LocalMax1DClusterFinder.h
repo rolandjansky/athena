@@ -19,6 +19,13 @@ namespace Trk
 
    @author Matt Rudolph <matthew.scott.rudolph@cern.ch
 
+   ------------------------------------
+   Changes:
+
+   David Shope <david.richard.shope@cern.ch> (2016-04-19)
+
+   EDM Migration to xAOD - from Trk::Vertex to Amg::Vector3D
+
    */
 
   //Forward declarations.
@@ -37,7 +44,7 @@ namespace Trk
     //destructor
     virtual ~LocalMax1DClusterFinder();
 
-    virtual std::vector<Trk::Vertex> findVertexClusters( const VertexImage & image );
+    virtual std::vector<Amg::Vector3D> findVertexClusters( const VertexImage & image );
 
     typedef std::pair<int, float> Projection;
 

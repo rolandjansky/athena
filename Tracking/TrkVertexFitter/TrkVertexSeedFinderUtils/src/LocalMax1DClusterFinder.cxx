@@ -6,7 +6,6 @@
           LocalMax1DClusterFinder.cxx - Description in header file
 *********************************************************************/
 #include "TrkVertexSeedFinderUtils/LocalMax1DClusterFinder.h"
-#include "VxVertex/Vertex.h"
 #include "TrkVertexSeedFinderUtils/VertexImage.h"
 #include <algorithm>
 
@@ -14,9 +13,11 @@ namespace Trk
 {
   
   namespace {
+#if 0
     bool compareMaxZ( LocalMax1DClusterFinder::Projection m1,  LocalMax1DClusterFinder::Projection m2 ) {
       return (m1.first < m2.first);
     }
+#endif
   }
 
   LocalMax1DClusterFinder::LocalMax1DClusterFinder(const std::string& t, const std::string& n, const IInterface*  p) : 
@@ -44,20 +45,20 @@ namespace Trk
   
   StatusCode LocalMax1DClusterFinder::initialize() { 
     //no initializiation needed
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
   StatusCode LocalMax1DClusterFinder::finalize() 
   {
-    msg(MSG::INFO)  << "Finalize successful" << endreq;
+    msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
 
   // --------------------------------------------------------------------------------
   // Find vertex clusters of input image
-  std::vector<Trk::Vertex> LocalMax1DClusterFinder::findVertexClusters( const VertexImage & image ){
+  std::vector<Amg::Vector3D> LocalMax1DClusterFinder::findVertexClusters( const VertexImage & image ){
 
     std::vector<float> zproj;
 
@@ -120,7 +121,7 @@ namespace Trk
     } //if we had at least 2 maxima to consider for merging
 
     // Fill return vector
-    std::vector<Vertex> vertices;    
+    std::vector<Amg::Vector3D> vertices;    
 
 
     //Set them to relative center of histogram in x,y
@@ -128,7 +129,7 @@ namespace Trk
     float y = image.getRelPosY( ((float) image.getNBinsY())/2. );
     for(auto & m : vmax) {
       if (!m_refineZ || zproj[m.first] <= 0) {
-          vertices.push_back( Vertex(Amg::Vector3D( x, y, image.getRelPosZ(m.first) ) ) );
+          vertices.push_back( Amg::Vector3D( x, y, image.getRelPosZ(m.first) ) );
       } else {
 	  float z;
 	  float z2 = image.getRelPosZ(m.first);
@@ -173,18 +174,18 @@ namespace Trk
 	      if ( 4 * (w2 - w1) + 2 * (w1 - w3) > 0 ) {
 		z = z2 + (z2 - z1) * (w3 - w1)/(4 * (w2 - w1) + 2 * (w1 - w3));
 	      } else {  // degenerate (linear) or concave up cases should never happen since z2 is a local maximum
-		msg(MSG::WARNING) << "unexpected histogram shape ("<<w1<<","<<w2<<","<<w3<<")" << endreq;
+		msg(MSG::WARNING) << "unexpected histogram shape ("<<w1<<","<<w2<<","<<w3<<")" << endmsg;
 		z = image.getRelPosZ(m.first);
 	      }
 	    } else {
 	      z = image.getRelPosZ(m.first);
 	    }
 	  }
-	  vertices.push_back( Vertex(Amg::Vector3D( x, y, z ) ) );
+	  vertices.push_back( Amg::Vector3D( x, y, z ) );
       }
     }
 
-    msg(MSG::DEBUG) << "returning " << vertices.size() << " clusters" << endreq;
+    msg(MSG::DEBUG) << "returning " << vertices.size() << " clusters" << endmsg;
     return vertices;
 
   } //End findLocalMax1DClusterFinder
