@@ -15,4 +15,3 @@ use TrkTrack                      TrkTrack-*                     Tracking/TrkEve
 use GeoPrimitives                 GeoPrimitives-*                DetectorDescription
 use MuonIdHelpers                 MuonIdHelpers-*                MuonSpectrometer
 private
-
