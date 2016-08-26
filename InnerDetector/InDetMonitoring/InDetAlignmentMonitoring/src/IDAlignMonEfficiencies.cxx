@@ -208,8 +208,8 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
    m_doHitQuality(false)
 {
   m_minLB=-0.5;
-  m_maxLB=1023.5;
-  m_nLB = 1024;
+  m_maxLB=3023.5;
+  m_nLB = 3024;
   m_trackSelection = ToolHandle<InDetAlignMon::TrackSelectionTool>("InDetAlignMon::TrackSelectionTool");
   m_hitQualityTool = ToolHandle<IInDetAlignHitQualSelTool>("");
   m_holeSearchTool = ToolHandle<Trk::ITrackHoleSearchTool>("InDetHoleSearchTool");
@@ -221,6 +221,7 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
   m_triggerChainName = "NoTriggerSelection";
   m_doHoleSearch = true;
   m_extendedPlots= false;
+  m_mapSplit=1;
 
   InitializeHistograms();
   
@@ -237,6 +238,7 @@ IDAlignMonEfficiencies::IDAlignMonEfficiencies( const std::string & type, const 
   declareProperty("SCT_Manager"            , m_SCT_Manager);
   declareProperty("TRT_Manager"            , m_TRT_Manager);
   declareProperty("trackSumTool"           , m_trackSumTool);
+  declareProperty("NSplitMap"              , m_mapSplit);
   declareProperty("useExtendedPlots"       , m_extendedPlots);
 }
 
@@ -1014,13 +1016,13 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  else if (barrelEC==2){ 
 	    m_hits_vs_layer_eca -> Fill(layerDisk); 
 	    m_hits_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
-	    m_hits_vs_LB_pix_eca -> Fill(float(LumiBlock));
+	    m_hits_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	    m_hits_vs_Eta_Phi_pix_eca -> Fill(layerDisk,modPhi);
 	  }
 	  else if (barrelEC == -2){ 
 	    m_hits_vs_layer_ecc -> Fill(layerDisk);
 	    m_hits_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
-	    m_hits_vs_LB_pix_ecc -> Fill(float(LumiBlock));
+	    m_hits_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
 	    m_hits_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }
 	} // end of pix
@@ -1119,7 +1121,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_measurements_vs_layer_eca -> Fill(layerDisk);
 	    m_noholes_vs_layer_eca -> Fill(layerDisk);
 	    m_measurements_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
-	    m_measurements_vs_LB_pix_eca -> Fill(float(LumiBlock));
+	    m_measurements_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	    if (m_extendedPlots) {
 	      if(foundXOverlap){
 		m_overlapX_vs_layer_eca-> Fill(layerDisk);
@@ -1140,7 +1142,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_measurements_vs_layer_ecc -> Fill(layerDisk);
 	    m_noholes_vs_layer_ecc -> Fill(layerDisk);
 	    m_measurements_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
-	    m_measurements_vs_LB_pix_ecc -> Fill(float(LumiBlock));
+	    m_measurements_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
 	    if (m_extendedPlots){
 	      if(foundXOverlap){
 		m_overlapX_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi); 
@@ -1256,18 +1258,21 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_outliers_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta, modPhi);
 	    m_outliers_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_outliers_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	    m_outliers_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
 	    m_outliers_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	  }//barrel
 
 	  else if (barrelEC == 2){ 
 	    m_outliers_vs_layer_eca -> Fill(layerDisk);
 	    m_noholes_vs_layer_eca -> Fill(layerDisk);
+	    m_outliers_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	    m_outliers_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
 	  }//ECA
 
 	  // ECC
 	  else if (barrelEC == -2){ 
 	    m_outliers_vs_layer_ecc -> Fill(layerDisk);
+	    m_outliers_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
 	    m_noholes_vs_layer_ecc -> Fill(layerDisk);
 	    m_outliers_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }//ecc
@@ -1373,9 +1378,7 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	  if (barrelEC == 0){
 	    // msg(MSG::WARNING) << " ** HOLE FOUND ** Pixel barrel ** layer_disk=" << m_pixelID->layer_disk(surfaceID) << ", eta=" << m_pixelID->eta_module(surfaceID) << ", phi=" << m_pixelID->phi_module(surfaceID) << endreq;
 	  
-	    m_hits_vs_layer_barrel -> Fill(layerDisk);
-	    
-	    m_hits_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi); 
+	   
 	    bool knownType = false;
 	    if ((*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement)) {
 	      knownType = true;
@@ -1389,9 +1392,11 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	      knownType = true;
 	      //std::cout << " Type: Hole ";
 	    }
-	    if (!knownType)  std::cout << "IDAlignment Monitoring HitEfficiencies Type: -- UNKNOWN -- ";
-	    std::cout << std::endl; 
+	    if (!knownType)  std::cout << "IDAlignment Monitoring HitEfficiencies Type: -- UNKNOWN -- "<<std::endl;
+	    
   
+	     m_hits_vs_layer_barrel -> Fill(layerDisk);
+	    m_hits_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi); 
 	    m_hits_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_hits_vs_LB_pix_b[layerDisk]  -> Fill(float(LumiBlock));
 	    m_hits_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
@@ -1403,13 +1408,13 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_hits_vs_layer_eca -> Fill(layerDisk);
 	    m_hits_vs_Phi_pix_eca[layerDisk] -> Fill(modPhi);
 	    m_hits_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
-	    m_hits_vs_LB_pix_eca -> Fill(float(LumiBlock));
+	    m_hits_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	  } // eca
 	  // ----------- ecc
 	  else if (barrelEC == -2){ 
 	    m_hits_vs_layer_ecc -> Fill(layerDisk);
 	    m_hits_vs_Phi_pix_ecc[layerDisk] -> Fill(modPhi);
-	    m_hits_vs_LB_pix_ecc  -> Fill(float(LumiBlock));
+	    m_hits_vs_LB_pix_ecc[layerDisk]  -> Fill(float(LumiBlock));
 	    m_hits_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  } // ecc
 	} // pixels
@@ -1456,16 +1461,19 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
 	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	    m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	  }
 	  // ----------- eca
 	  else if (barrelEC == 2){ 
 	    m_holes_vs_layer_eca -> Fill(layerDisk);
+	    m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
 	  }
 	  // ----------- ecc
 	  else if (barrelEC == -2){ 
 	    m_holes_vs_layer_ecc -> Fill(layerDisk);
+	    m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }
 	} // pix
@@ -1494,6 +1502,9 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 
       // filling histograms for holes being outliers
       if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Outlier) ){
+	
+	//This section has to be removed. There is no hole flagged as outlier. I've checked it (PF)
+	
 	// holes per layer and per hit
 	// --- pixel
 	if (detType==0){
@@ -1501,17 +1512,20 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_holes_vs_layer_barrel -> Fill(layerDisk);
 	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
 	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
+	    m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
 	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	  }
 	  // ----------- eca
 	  else if (barrelEC == 2){ 
 	    m_holes_vs_layer_eca -> Fill(layerDisk);
+	    m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
 	  }
 	  // ----------- ecc
 	  else if (barrelEC == -2){ 
 	    m_holes_vs_layer_ecc -> Fill(layerDisk);
+	    m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }
 	} // pix
@@ -1541,6 +1555,9 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 
       // filling histograms for holes being measurements 
       if ( (*HTSOSItr)->type(Trk::TrackStateOnSurface::Measurement) ){
+
+	//This has to be removed. There are no holes flagged as measurements. Checked it. PF
+
 	// holes per layer and per hit
 	// --- pixel
 	if (detType==0){
@@ -1549,16 +1566,19 @@ StatusCode IDAlignMonEfficiencies::fillHistograms()
 	    m_holes_vs_Eta_Phi_pix_b[layerDisk] -> Fill(modEta,modPhi);
 	    m_holes_vs_Eta_pix_b[layerDisk] -> Fill(modEta);
 	    m_holes_vs_Phi_pix_b[layerDisk] -> Fill(modPhi);
+	    m_holes_vs_LB_pix_b[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_pT_pix_b[layerDisk] -> Fill(abs_trkpt);
 	  }
 	  // ----------- eca
 	  else if (barrelEC == 2){ 
 	    m_holes_vs_layer_eca -> Fill(layerDisk);
+	    m_holes_vs_LB_pix_eca[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_eca -> Fill(layerDisk, modPhi);
 	  }
 	  // ----------- ecc
 	  else if (barrelEC == -2){ 
 	    m_holes_vs_layer_ecc -> Fill(layerDisk);
+	    m_holes_vs_LB_pix_ecc[layerDisk] -> Fill(float(LumiBlock));
 	    m_holes_vs_Eta_Phi_pix_ecc -> Fill(layerDisk, modPhi);
 	  }
 	} // pix
@@ -1815,8 +1835,11 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
       
 
 
-      //LB plots
+      //LB plots - Barrel
       makeEffHisto(m_measurements_vs_LB_pix_b[iLayer],m_hits_vs_LB_pix_b[iLayer],m_measurements_eff_vs_LB_pix_b[iLayer]);
+      makeEffHisto(m_outliers_vs_LB_pix_b[iLayer],m_hits_vs_LB_pix_b[iLayer],m_outliers_eff_vs_LB_pix_b[iLayer]);
+      makeEffHisto(m_holes_vs_LB_pix_b[iLayer],m_hits_vs_LB_pix_b[iLayer],m_holes_eff_vs_LB_pix_b[iLayer]);
+      
       
 
 
@@ -1824,29 +1847,40 @@ StatusCode IDAlignMonEfficiencies::procHistograms()
 
     for (int iECIndex = 0; iECIndex < m_PIX_Mgr->numerology().numEndcaps(); ++iECIndex) {
       int iSide = m_PIX_Mgr->numerology().endcapId(iECIndex);
-      for (int iWheel=0; iWheel < m_PIX_Mgr->numerology().numDisks();++iWheel)
+      for (int iDisk=0; iDisk < m_PIX_Mgr->numerology().numDisks();++iDisk)
 	{
-	  if (!m_SCT_Mgr->numerology().useDisk(iWheel)){//To check if the Wheel is in use.
-	    msg(MSG::WARNING) << "Wheel "<<iWheel<<" Not in Use"<<endreq;
+	  if (!m_PIX_Mgr->numerology().useDisk(iDisk)){//To check if the Disk is in use.
+	    msg(MSG::WARNING) << "Disk "<<iDisk<<" Not in Use"<<endreq;
 	    continue;}
 	  
 	  if (iSide>0)
 	    {
-	      makeEffHisto(m_measurements_vs_Phi_pix_eca[iWheel],m_hits_vs_Phi_pix_eca[iWheel],m_measurements_eff_vs_Phi_pix_eca[iWheel]);
+	      makeEffHisto(m_measurements_vs_Phi_pix_eca[iDisk],m_hits_vs_Phi_pix_eca[iDisk],m_measurements_eff_vs_Phi_pix_eca[iDisk]);
+	      makeEffHisto(m_measurements_vs_LB_pix_eca[iDisk],m_hits_vs_LB_pix_eca[iDisk],m_measurements_eff_vs_LB_pix_eca[iDisk]);
+	      makeEffHisto(m_holes_vs_LB_pix_eca[iDisk],m_hits_vs_LB_pix_eca[iDisk],m_holes_eff_vs_LB_pix_eca[iDisk]);
+	      makeEffHisto(m_outliers_vs_LB_pix_eca[iDisk],m_hits_vs_LB_pix_eca[iDisk],m_outliers_eff_vs_LB_pix_eca[iDisk]);
 	      
 	    }
 	  if (iSide<0)
 	    {
-	      makeEffHisto(m_measurements_vs_Phi_pix_ecc[iWheel],m_hits_vs_Phi_pix_ecc[iWheel],m_measurements_eff_vs_Phi_pix_ecc[iWheel]);
+	      makeEffHisto(m_measurements_vs_Phi_pix_ecc[iDisk],m_hits_vs_Phi_pix_ecc[iDisk],m_measurements_eff_vs_Phi_pix_ecc[iDisk]);
+	      makeEffHisto(m_measurements_vs_LB_pix_ecc[iDisk],m_hits_vs_LB_pix_ecc[iDisk],m_measurements_eff_vs_LB_pix_ecc[iDisk]);
+	      makeEffHisto(m_holes_vs_LB_pix_ecc[iDisk],m_hits_vs_LB_pix_ecc[iDisk],m_holes_eff_vs_LB_pix_ecc[iDisk]);
+	      makeEffHisto(m_outliers_vs_LB_pix_ecc[iDisk],m_hits_vs_LB_pix_ecc[iDisk],m_outliers_eff_vs_LB_pix_ecc[iDisk]);
 	      
-	    }	  
-	}//Wheel loop
+	    }
+	  
+	  
+	  
+	  
+	  
+	  
+	  
+	}//Disk loop
       
     }//Endcap loop
     
-    makeEffHisto(m_measurements_vs_LB_pix_eca,m_hits_vs_LB_pix_eca,m_measurements_eff_vs_LB_pix_eca);
-    makeEffHisto(m_measurements_vs_LB_pix_ecc,m_hits_vs_LB_pix_ecc,m_measurements_eff_vs_LB_pix_ecc);
-    
+
     for (int iLayer=0; iLayer < m_SCT_Mgr->numerology().numLayers();++iLayer) 
       {
 	if (!m_SCT_Mgr->numerology().useLayer(iLayer)){
@@ -2458,9 +2492,24 @@ void IDAlignMonEfficiencies::makePIXBarrelHistograms(MonGroup& al_mon){
       m_measurements_vs_LB_pix_b.push_back(new TH1F(("measurements_vs_LB_pix_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
       RegisterHisto(al_mon,m_measurements_vs_LB_pix_b[iLayer]); 
       
-      m_measurements_eff_vs_LB_pix_b.push_back(new TProfile(("measurements_eff_vs_LB_pix_b"+intToString(iLayer)).c_str(),("measurements per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.5,1.));  
-      RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_b[iLayer]);        
+      m_measurements_eff_vs_LB_pix_b.push_back(new TProfile(("measurements_eff_vs_LB_pix_b"+intToString(iLayer)).c_str(),("measurements eff per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+      RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_b[iLayer]);
+
+      //holes vs LB by layer
+      m_holes_vs_LB_pix_b.push_back(new TH1F(("holes_vs_LB_pix_b"+intToString(iLayer)).c_str(),("holes per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
+      RegisterHisto(al_mon,m_holes_vs_LB_pix_b[iLayer]); 
+
+      m_holes_eff_vs_LB_pix_b.push_back(new TProfile(("holes_eff_vs_LB_pix_b"+intToString(iLayer)).c_str(),("holes eff per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+      RegisterHisto(al_mon,m_holes_eff_vs_LB_pix_b[iLayer]);
       
+      //outliers vs LB by layer
+      
+      m_outliers_vs_LB_pix_b.push_back(new TH1F(("outliers_vs_LB_pix_b"+intToString(iLayer)).c_str(),("outliers per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB));  
+      RegisterHisto(al_mon,m_outliers_vs_LB_pix_b[iLayer]); 
+
+      m_outliers_eff_vs_LB_pix_b.push_back(new TProfile(("outliers_eff_vs_LB_pix_b"+intToString(iLayer)).c_str(),("outliers eff per possible hits vs. LB-ID in PIX barrel layer "+intToString(iLayer)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+      RegisterHisto(al_mon,m_outliers_eff_vs_LB_pix_b[iLayer]);
+
       
       //overlap efficiency by layer
       if (m_extendedPlots)
@@ -2562,9 +2611,39 @@ void IDAlignMonEfficiencies::makePIXEndCapsHistograms(MonGroup& al_mon){
 	    }	  
 	  if (iSide>0)
 	    {
-	      //hits for endcaps
-	      m_hits_vs_Phi_pix_eca.push_back( new TH1F(("hits_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("possible hits vs. Phi-ID in Pixel eca layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
+	      
+	      m_hits_vs_Phi_pix_eca.push_back( new TH1F(("hits_vs_Phi_pix_eca"+intToString(iWheel)).c_str(),("possible hits vs. Phi-ID in Pixel eca Disk "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
 	      RegisterHisto(al_mon,m_hits_vs_Phi_pix_eca[iWheel]) ;
+	      
+	      //vs LB
+  
+	      m_hits_vs_LB_pix_eca.push_back ( new TH1F(("hits_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("possible hits vs. LB-ID in Pixel ECA Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
+	      RegisterHisto(al_mon,m_hits_vs_LB_pix_eca[iWheel]);  
+	      
+	      m_measurements_vs_LB_pix_eca.push_back( new TH1F(("measurements_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("possible measurements vs. LB-ID in Pixel ECA Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
+	      RegisterHisto(al_mon,m_measurements_vs_LB_pix_eca[iWheel]);  
+	      
+	      m_measurements_eff_vs_LB_pix_eca.push_back(new TProfile(("measurements_eff_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("measurements eff per possible hits vs. LB-ID in PIX Eca Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+	      RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_eca[iWheel]);
+	      
+	      //outliers
+
+	      m_outliers_vs_LB_pix_eca.push_back( new TH1F(("outliers_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("outliers vs. LB-ID in Pixel ECA Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
+	      RegisterHisto(al_mon,m_outliers_vs_LB_pix_eca[iWheel]);  
+	      
+	      m_outliers_eff_vs_LB_pix_eca.push_back(new TProfile(("outliers_eff_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("outliers eff per possible hits vs. LB-ID in PIX Eca Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+	      RegisterHisto(al_mon,m_outliers_eff_vs_LB_pix_eca[iWheel]);
+
+	      //holes
+
+	      m_holes_vs_LB_pix_eca.push_back( new TH1F(("holes_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("holes vs. LB-ID in Pixel ECA Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
+	      RegisterHisto(al_mon,m_holes_vs_LB_pix_eca[iWheel]);  
+	      
+	      m_holes_eff_vs_LB_pix_eca.push_back(new TProfile(("holes_eff_vs_LB_pix_eca"+intToString(iWheel)).c_str(),("holes eff per possible hits vs. LB-ID in PIX Eca Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+	      RegisterHisto(al_mon,m_holes_eff_vs_LB_pix_eca[iWheel]);
+	      
+	      	      
+	      
 	      if (m_extendedPlots)
 		{
 		  //overlaps by layer
@@ -2595,6 +2674,35 @@ void IDAlignMonEfficiencies::makePIXEndCapsHistograms(MonGroup& al_mon){
 	      //hits for endcaps
 	      m_hits_vs_Phi_pix_ecc.push_back( new TH1F(("hits_vs_Phi_pix_ecc"+intToString(iWheel)).c_str(),("possible hits vs. Phi-ID in Pixel ecc layer "+intToString(iWheel)).c_str(),maxPhiModulesPerRing,-0.5,maxPhiModulesPerRing-0.5));  
 	      RegisterHisto(al_mon,m_hits_vs_Phi_pix_ecc[iWheel]) ;
+
+	      //vs LB
+	      
+	      m_hits_vs_LB_pix_ecc.push_back( new TH1F(("hits_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("possible hits vs. LB-ID in Pixel ECC  Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
+	      RegisterHisto(al_mon,m_hits_vs_LB_pix_ecc[iWheel]);  
+	      
+	      m_measurements_vs_LB_pix_ecc.push_back( new TH1F(("measurements_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("possible measurements vs. LB-ID in Pixel ECC Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
+	      RegisterHisto(al_mon,m_measurements_vs_LB_pix_ecc[iWheel]);  
+	      
+	      m_measurements_eff_vs_LB_pix_ecc.push_back(new TProfile(("measurements_eff_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("measurements eff per possible hits vs. LB-ID in PIX Ecc Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+	      RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_ecc[iWheel]);
+	      
+	      //outliers
+
+	      m_outliers_vs_LB_pix_ecc.push_back( new TH1F(("outliers_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("outliers vs. LB-ID in Pixel ECC Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
+	      RegisterHisto(al_mon,m_outliers_vs_LB_pix_ecc[iWheel]);  
+	      
+	      m_outliers_eff_vs_LB_pix_ecc.push_back(new TProfile(("outliers_eff_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("outliers eff per possible hits vs. LB-ID in PIX Ecc Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+	      RegisterHisto(al_mon,m_outliers_eff_vs_LB_pix_ecc[iWheel]);
+
+	      //holes
+
+	      m_holes_vs_LB_pix_ecc.push_back( new TH1F(("holes_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("holes vs. LB-ID in Pixel ECC Disk " +intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB));  
+	      RegisterHisto(al_mon,m_holes_vs_LB_pix_ecc[iWheel]);  
+	      
+	      m_holes_eff_vs_LB_pix_ecc.push_back(new TProfile(("holes_eff_vs_LB_pix_ecc"+intToString(iWheel)).c_str(),("holes eff per possible hits vs. LB-ID in PIX Ecc Disk "+intToString(iWheel)).c_str(),m_nLB,m_minLB,m_maxLB, 0.,1.));  
+	      RegisterHisto(al_mon,m_holes_eff_vs_LB_pix_ecc[iWheel]);
+
+
 	      if (m_extendedPlots)
 		{
 		  //overlaps by layer
@@ -2620,25 +2728,7 @@ void IDAlignMonEfficiencies::makePIXEndCapsHistograms(MonGroup& al_mon){
 	    }
 	}
     }
-  //vs LB
-  
-  m_hits_vs_LB_pix_eca = new TH1F("hits_vs_LB_pix_eca","possible hits vs. LB-ID in Pixel ECA",m_nLB,m_minLB,m_maxLB);  
-  RegisterHisto(al_mon,m_hits_vs_LB_pix_eca);  
-  m_measurements_vs_LB_pix_eca  = new TH1F("measurements_vs_LB_pix_eca","measurements per possible hits vs. LB-ID in Pixel ECA",m_nLB,m_minLB,m_maxLB);  
-  RegisterHisto(al_mon,m_measurements_vs_LB_pix_eca);
-  m_measurements_eff_vs_LB_pix_eca = new TProfile("measurements_eff_vs_LB_pix_eca","measurements per possible hits vs. LB-ID in Pixel ECA",m_nLB,m_minLB,m_maxLB, 0.5,1.);  
-  RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_eca); 
-  
-  //vs LB
-  
-  m_hits_vs_LB_pix_ecc = new TH1F("hits_vs_LB_pix_ecc","possible hits vs. LB-ID in Pixel ECC",m_nLB,m_minLB,m_maxLB);  
-  RegisterHisto(al_mon,m_hits_vs_LB_pix_ecc);
-  m_measurements_vs_LB_pix_ecc = new TH1F("measurements_vs_LB_pix_ecc","measurements per possible hits vs. LB-ID in Pixel ECC",m_nLB,m_minLB,m_maxLB);  
-  RegisterHisto(al_mon,m_measurements_vs_LB_pix_ecc);
-  m_measurements_eff_vs_LB_pix_ecc = new TProfile("measurements_eff_vs_LB_pix_ecc","measurements per possible hits vs. LB-ID in Pixel ECC",m_nLB,m_minLB,m_maxLB, 0.5,1.); 
-  RegisterHisto(al_mon,m_measurements_eff_vs_LB_pix_ecc); 
-  
-
+    
 }
 
 void IDAlignMonEfficiencies::makeSCTBarrelHistograms(MonGroup &al_mon){
