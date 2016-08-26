@@ -57,6 +57,12 @@ TRTR = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_r
 thiscan = DrawPlots(TRTR, outputDir+"/"+userPrefix+"TRTR."+oFext, "TRT barrel", "Hits on tracks / 22 #mum",
                     "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
 if (userCollectOutput): Canvases.append(thiscan)
+
+#TRT no Tube
+TRTR = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_b_residualR_notube","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
+thiscan = DrawPlots(TRTR, outputDir+"/"+userPrefix+"TRTR_notube."+oFext, "TRT barrel", "Hits on tracks / 22 #mum",
+                    "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput,0.59, 0.87)
+if (userCollectOutput): Canvases.append(thiscan)
     
 ## Individual Barrel Layer Residual Distributions
 PIXX1 = MakePlots(residualsDir,legendTitles,markerColors,markerStyles,"pix_b1_residualx","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
@@ -180,8 +186,16 @@ TRTECA = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_e
 DrawPlots(TRTECA, outputDir+"/"+userPrefix+"TRTECA."+oFext, "TRT Endcap A", "Hits on tracks / 22 #mum",
           "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput)
 
+TRTECA = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR_notubeEndcap_A","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(TRTECA, outputDir+"/"+userPrefix+"TRTECA_notube."+oFext, "TRT Endcap A", "Hits on tracks / 22 #mum",
+          "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput)
+
 TRTECC = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR_Endcap_C","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
 DrawPlots(TRTECC, outputDir+"/"+userPrefix+"TRTECC."+oFext, "TRT Endcap C", "Hits on tracks / 22 #mum",
+          "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput)
+
+TRTECC = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR_notubeEndcap_C","noFitWithStats",rootFiles,nFiles,normaliseHistos,unitArea)
+DrawPlots(TRTECC, outputDir+"/"+userPrefix+"TRTECC_notube."+oFext, "TRT Endcap C", "Hits on tracks / 22 #mum",
           "residual [mm]", 0.18, 0.88, "#mum",canvasText,makeOutput)
 
 TRTEC = MakePlots(trtResidualsDir,legendTitles,markerColors,markerStyles,"trt_ec_residualR","noFitWithStats",rootFiles,nFiles,normaliseHistos)#,unitArea)
