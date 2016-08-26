@@ -100,7 +100,7 @@ void addBranch( ::TTree* otree, ::TBranch* ibranch )
    // Get the type of the branch:
    TClass* cl = 0;
    EDataType dt = kOther_t;
-   ibranch->GetExpectedType( cl, dt );
+   (void)ibranch->GetExpectedType( cl, dt );
 	
    // Pointer to the output branch:
    ::TBranch* obranch = 0;
