@@ -8,15 +8,15 @@ DrawPlots(TrackD0, outputDir+"/"+"d0.png", "", "N Tracks",
 TrackD0 = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"d0_bscorr","noFitWithStats",rootFiles,nFiles,normaliseHistos)
 DrawPlots(TrackD0, outputDir+"/"+"d0BS.png", "", "N Tracks", "Impact Parameter [mm]", 0.19, 0.9, "#mum", canvasText, makeOutput)
 
-TrackD0 = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"d0_pvcorr","noFitWithStats",rootFiles,nFiles,normaliseHistos)
-DrawPlots(TrackD0, outputDir+"/"+"d0PV.png", "", "N Tracks",
-          "Impact Parameter [mm]", 0.19, 0.9, "#mum",
-          canvasText,makeOutput)
+#TrackD0 = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"d0_pvcorr","noFitWithStats",rootFiles,nFiles,normaliseHistos)
+#DrawPlots(TrackD0, outputDir+"/"+"d0PV.png", "", "N Tracks",
+#          "Impact Parameter [mm]", 0.19, 0.9, "#mum",
+#          canvasText,makeOutput)
 
-TrackZ0PV = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"z0_pvcorr","noFitWithStats",rootFiles,nFiles,normaliseHistos)
-DrawPlots(TrackZ0PV, outputDir+"/"+"z0PV.png", "", "N Tracks",
-          "z0 w.r.t PV [mm]", 0.19, 0.9, "#mum",
-          canvasText,makeOutput)
+#TrackZ0PV = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"z0_pvcorr","noFitWithStats",rootFiles,nFiles,normaliseHistos)
+#DrawPlots(TrackZ0PV, outputDir+"/"+"z0PV.png", "", "N Tracks",
+#          "z0 w.r.t PV [mm]", 0.19, 0.9, "#mum",
+#          canvasText,makeOutput)
 
 
 TrackZ0 = MakePlots(genericTracksDir,legendTitles,markerColors,markerStyles,"z0","noFit",rootFiles,nFiles,normaliseHistos)
@@ -70,7 +70,8 @@ DrawPlots(TrackCHI2DOF, outputDir+"/"+"chi2oDoF.png", "", "N Tracks",
           "Chi2/DOF", 0.69, 0.6, "",
           canvasText,makeOutput)
 
-if (userExtended):
+errD0 = False
+if (userExtended and errD0):
     ERRD0VSP = MakeProfPlots (genericTracksDir,legendTitles,markerColors,markerStyles,"errD0VsP","noFit",rootFiles,nFiles,False)
     DrawPlots(ERRD0VSP,outputDir+"/"+"D0ErrorVsP.png","","#sigma d_{0} [mm]", "p [GeV]",0.2,0.9,"#mum", canvasText,makeOutput, 0.60, 0.80, False);
 
