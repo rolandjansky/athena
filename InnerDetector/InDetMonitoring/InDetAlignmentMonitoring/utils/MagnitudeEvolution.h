@@ -15,11 +15,6 @@
 #include <vector>
 #include <string>
 
-//// ATLAS includes ////
-#include "include/AtlasLabels.C"
-#include "include/AtlasStyle.C"
-#include "include/AtlasUtils.C"
-
 //// ROOT includes ////
 #include "TArrow.h"
 #include "TCanvas.h"
@@ -39,6 +34,11 @@
 #include "TText.h"
 #include "TSystem.h"
 
+//// ATLAS includes ////
+#include "include/AtlasLabels.C"
+#include "include/AtlasStyle.C"
+#include "include/AtlasUtils.C"
+
 //// parameters ////
 #define NIBLSTAVES 0
 #define MINENTRIES 36
@@ -50,9 +50,9 @@
 
 const bool FULLOUTPUT= false;
 const bool USEPLANARONLY = true;
-bool LUMIBLOCKANALYSIS = false;
-bool ITER3ANALYSIS = true;
-const int REBINFACTOR = 5; // 100; // LumiBlock rebinning factor for the residuals vs LumiBlock histograms
+const bool LUMIBLOCKANALYSIS = false;
+const bool ITER3ANALYSIS = false;
+const int  REBINFACTOR = 2; // 100; // LumiBlock rebinning factor for the residuals vs LumiBlock histograms
 const bool WRITETEXTOUTPUT = true;
 const bool REGENERATEAFTERALIGMENTMONITORINGFILE = false;
 
@@ -62,12 +62,13 @@ const bool REGENERATEAFTERALIGMENTMONITORINGFILE = false;
 const TString me_trackCollection("ExtendedTracks_all");
 TString me_outputFolder;
 TString me_afterAlignmentHistosFolder;
+TString me_HOSTNAME;
 
 const double z_fix = 366.5; // Stave fixing screw position [mm]
 float xmax = 0.3;
 float xmin = -xmax;
 
-const double me_bowingRangeInPlots = 30.; //12.; //in microns
+const double me_bowingRangeInPlots = 12.; //12.; 30. //in microns
 
 const float me_systUncertaintyBowing = 0.255; // systematic uncertainty on the bowing measurements (in microns)
 
@@ -118,7 +119,7 @@ void          ME_clear ();
 void          ME_computeDeltaBx (int);
 void          ME_conditioningStaveSummaryHisto ();
 void          ME_drawEvolInTimeFormat();
-int           ME_extractRunNumber (int);
+//int           ME_extractRunNumber (int);
 void          ME_finalize ();
 bool          ME_fitBowingMagnitude (TH1F*, int, int, int lumiblockid = -1, TString theSuffix="");
 bool          ME_fitResidualsDistribution (TH1F*, int);

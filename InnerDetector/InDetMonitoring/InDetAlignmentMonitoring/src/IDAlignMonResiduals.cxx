@@ -1430,8 +1430,8 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 
 	const InDet::TRT_DriftCircleOnTrack *trtCircle = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>((*iter_tsos)->measurementOnTrack());
 
-	if (trtCircle == NULL)
-	  ATH_MSG_DEBUG("trtCircle is NULL pointer");
+	
+	  
 	
 	const InDet::TRT_DriftCircle *RawDriftCircle(NULL);
 	
@@ -1440,14 +1440,19 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	    ATH_MSG_DEBUG("Getting RawDriftCircle");
 	    RawDriftCircle = dynamic_cast<const InDet::TRT_DriftCircle*>(trtCircle->prepRawData());
 	  }
+	else
+	  ATH_MSG_DEBUG("trtCircle is a NULL pointer");
+	
 	if ( trtCircle != NULL){
 	  bool isValid;
 	  float leadingEdge = -999;
 	  if (RawDriftCircle != NULL)
 	    {
-	      ATH_MSG_DEBUG("RawDriftCircles have NULL pointer");
 	      leadingEdge=RawDriftCircle->driftTime(isValid);
 	    }
+	  else 
+	    ATH_MSG_DEBUG("RawDriftCircles are NULL pointer");
+	  
 	  Identifier DCoTId = trtCircle->identify();   
 	  float t0 = m_trtcaldbSvc->getT0(DCoTId, TRTCond::ExpandedIdentifier::STRAW);
 	  
@@ -1459,19 +1464,22 @@ StatusCode IDAlignMonResiduals::fillHistograms()
 	  /*  Estimates the global Z position of a TRT barrel hit by using the x,y position of the 
 	      straw and the track theta */	  
 	  float hitZ = -999.;
-	  Amg::Vector3D  center = RawDriftCircle->detectorElement()->surface( id ).center();
-	  if( fabs(m_barrel_ec) == 1 ){
+	  Amg::Vector3D  center(-9999.,-9999.,-9999);;
+	  if (RawDriftCircle!=NULL)
+	    center = RawDriftCircle->detectorElement()->surface( id ).center() ;
+	  
+	  if( fabs(m_barrel_ec) == 1 && RawDriftCircle!=NULL){
 	    hitZ = sqrt(center.x()*center.x()+center.y()*center.y())*tan(M_PI/2. - theta) + trkz0;
 	    //std::cout << "z: " << hitZ << std::endl;
 	  }
 	  /* Estimates the global R position of a TRT EC hit using the global z position of the straw
 	     and the track theta */
 	  float hitGlobalR = -9999.; // -999. is a possible value :)
-	  if( fabs(m_barrel_ec) == 2 ){
+	  if( fabs(m_barrel_ec) == 2 && RawDriftCircle!=NULL){
 	    hitGlobalR = (center.z() - trkz0) / tan(M_PI/2. - theta);
 	    //std::cout << "R: " << hitGlobalR << std::endl;
 	  }
-
+	  
 	  /** filling TRT histograms */
 	  fillTRTHistograms(m_barrel_ec
 			    ,m_layer_or_wheel
@@ -5117,7 +5125,7 @@ void IDAlignMonResiduals::fillTRTBarrelHistograms(int m_barrel_ec, int m_layer_o
     for(int lay=0; lay<3; ++lay){
       if(lay == m_layer_or_wheel){
 	m_trt_b_hist->lrOverPhiVsStrawLayer[side] -> Fill(numStrawLayers[lay]+m_straw_layer, LRcorrect, hweight);
-	if(m_extendedPlots){
+	if(m_extendedPlots && hitZ!=-999){
 	  m_trt_b_hist->resVsPhiZ[side][lay]->Fill(hitZ,m_phi_module,residualR,hweight);
 	  m_trt_b_hist->resVsPhiEta[side][lay]->Fill(trketa,m_phi_module,residualR,hweight);
 	}
@@ -5220,12 +5228,15 @@ void IDAlignMonResiduals::fillTRTEndcapHistograms(int m_barrel_ec, int m_layer_o
       // fill TH3F of ave residual vs wheel & radius vs charge & LOW PT ONLY
       if(fabs(trkpt) < m_maxPtEC){
 	int charge = (trkpt > 0 ? 1 : -1);
-	if(charge > 0){
-	  m_trt_ec_hist->resVsRadiusWheelPos[endcap]->Fill(getRing(m_layer_or_wheel,m_straw_layer),hitGlobalR,residualR,hweight);
-	}
-	else{
-	  m_trt_ec_hist->resVsRadiusWheelNeg[endcap]->Fill(getRing(m_layer_or_wheel,m_straw_layer),hitGlobalR,residualR,hweight);
-	}
+	if (hitGlobalR != -9999)
+	  {
+	    if(charge > 0){
+	      m_trt_ec_hist->resVsRadiusWheelPos[endcap]->Fill(getRing(m_layer_or_wheel,m_straw_layer),hitGlobalR,residualR,hweight);
+	    }
+	    else{
+	      m_trt_ec_hist->resVsRadiusWheelNeg[endcap]->Fill(getRing(m_layer_or_wheel,m_straw_layer),hitGlobalR,residualR,hweight);
+	    }
+	  }
       }
     }
     

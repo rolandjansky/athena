@@ -84,7 +84,7 @@ def  AutoColors(NFiles):
             Color_i = int(51+i*ColorStep)
             if Color_i>100:
                 Color_i = 100
-            #print " File ", i,  " --> color ",Color_i
+            #print " - color - File ", i,  " --> color ",Color_i
             Colors[i] = Color_i
         Colors[1] = 1    
             
@@ -455,13 +455,13 @@ def drawCorrEvolution(detector, labelList, drawErrors=False, drawLine=True, whic
     # Rz keep it independent
 
 
-    yrange[0] = 0.004
-    yrange[1] = 0.008
+    #yrange[0] = 0.004
+    yrange[1] = 0.0065
     #yrange[2] = 0.040
     #yrange[3] = 0.04
     #yrange[4] = 0.04
     #yrange[5] = 0.06
-    #yrange[6] = 0.0027
+    yrange[6] = 0.0025
 
     #
     # prepare the legend
@@ -504,12 +504,13 @@ def drawCorrEvolution(detector, labelList, drawErrors=False, drawLine=True, whic
         # prepare the histogram that will store the corrections 
         hname = 'Dof_%s_corrections_Evol' % (name)
         htitle = 'Evolution of %s corrections' % (name)
+        htitle = 'Evolution of d%s/dLB corrections' % (name)
         if (doDebug): 
             print " -- drawCorrEvolution -- dof= %d  hname= %s" %(dof, hname)
             print "                                 htitle= ", htitle
 
         # build the histogram that is the main frame to plot the corrections for this dof (evolution of dof for each sample)
-        hCorrectionsEvol[dof] = TH1F(hname, htitle, numberOfSamples, -0.5, numberOfSamples*1.-0.5)
+        hCorrectionsEvol[dof] = TH1F(hname, htitle, numberOfSamples-1, -0.5, numberOfSamples*1.-1.5) # the last sample is the accumulation
 
         # set the x axis labels
         hCorrectionsEvol[dof].GetXaxis().SetLabelSize(0.05)
@@ -531,6 +532,7 @@ def drawCorrEvolution(detector, labelList, drawErrors=False, drawLine=True, whic
         # label of the Y axis
         if name is 'Tx' or name is 'Ty' or name is 'Tz' or name is 'Bx':
             hCorrectionsEvol[dof].SetYTitle("mm")
+            hCorrectionsEvol[dof].SetYTitle("dTy/dLB [mm/25LB]")
         else:
             hCorrectionsEvol[dof].SetYTitle("mrad")
 
@@ -569,15 +571,20 @@ def drawCorrEvolution(detector, labelList, drawErrors=False, drawLine=True, whic
             hCorrectionsEvolStruct[dof]={}
             hname = 'Dof_%s_corrections_Evol_struct_%d' % (name, struct)
             htitle = 'Corrections evolution for structure %s (struct %d)' % (name, struct)
-            hCorrectionsEvolStruct[dof][struct] = TH1F(hname, htitle, numberOfSamples, -0.5, numberOfSamples*1.-0.5)
+            hCorrectionsEvolStruct[dof][struct] = TH1F(hname, htitle, numberOfSamples-1, -0.5, numberOfSamples*1.-1.5) # last point is for the accumulation --> do not show
             #print " -- drawCorrEvolution -- hCorrectionsEvolStruct has ",hCorrectionsEvolStruct[dof][struct].GetNbinsX(), ' bins in X'
             hCorrectionsEvolStruct[dof][struct].SetLineColor(EvolColor[struct])
             hCorrectionsEvolStruct[dof][struct].SetStats(False)
             # once the histogram is created, fill it with the corrections of each iteration
 
             currentLabel = "000000" # dummy value
-            for iterval in range(numberOfSamples): 
+            for iterval in range(numberOfSamples):  
                 value = detector[iterval].GetModule(struct).GetDoF(dof)[1]
+
+                # derivatives
+                if (iterval == 0): value = 0
+                if (iterval>0): value = (detector[iterval].GetModule(struct).GetDoF(dof)[1] - detector[iterval-1].GetModule(struct).GetDoF(dof)[1])
+                print " iterval ", iterval, "   dx=", value, "   +-",detector[iterval].GetModule(struct).GetDoFError(dof)[1]
                 hCorrectionsEvolStruct[dof][struct].SetBinContent(iterval+1, value)
                 if (drawErrors): hCorrectionsEvolStruct[dof][struct].SetBinError(iterval+1, detector[iterval].GetModule(struct).GetDoFError(dof)[1])
                 # check the label in case it needs to be marked
@@ -625,13 +632,14 @@ def drawCorrEvolution(detector, labelList, drawErrors=False, drawLine=True, whic
         finalName[dof] = "%f_evolution_%s" %(t, name)
         gPad.Update()
         if (outputFormat == ONEBYONE or outputFormat == SPLITBYSTRUCT):
-            print " -- drawCorrEvol -- saving plots from ONEBYONE " 
+            #print " -- drawCorrEvol -- saving plots from ONEBYONE " 
             Alldetector[dof].SaveAs(pathfiles + finalName[dof] + ".png", "png")
             Alldetector[dof].SaveAs(pathfiles + finalName[dof] + ".pdf", "pdf")
-            Alldetector[dof].SaveAs(pathfiles + finalName[dof] + ".root", "root")
+            #Alldetector[dof].SaveAs(pathfiles + finalName[dof] + ".root", "root")
+            #Alldetector[dof].SaveAs(pathfiles + finalName[dof] + ".C", "C")
 
     if (outputFormat == ALLINONE):
-        print " -- drawCorrEvol -- saving plots from ALLINONE " 
+        #print " -- drawCorrEvol -- saving plots from ALLINONE " 
         t = time.time()
         myFinalName = "%f_evolution_dofs" %(t)
         ThisCanvas.SaveAs(pathfiles+myFinalName + ".png","png")
