@@ -13,6 +13,11 @@ mglog = Logging.logging.getLogger('MadGraphUtils')
 
 
 def setup_path_protection():
+    # Addition for models directory
+    if 'PYTHONPATH' in os.environ:
+        if not 'Generators/madgraph/models' in os.environ['PYTHONPATH']:
+            os.environ['PYTHONPATH'] += ':/cvmfs/atlas.cern.ch/repo/sw/Generators/madgraph/models/latest'
+    # Make sure that gfortran doesn't write to somewhere it shouldn't
     if 'GFORTRAN_TMPDIR' in os.environ:
         return
     if 'TMPDIR' in os.environ:
@@ -354,11 +359,13 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
                 mglog.info('Modifying bin/internal/cluster.py for PBS cluster running')
                 os.system("sed -i \"s:text += prog:text += './'+prog:g\" bin/internal/cluster.py")                 
     
+        run_card_consistency_check(isNLO=isNLO)
         generate = subprocess.Popen(['bin/generate_events',str(mode),str(njobs),str(run_name)],stdin=subprocess.PIPE)
         generate.wait()
 
     elif not isNLO:   
-        
+
+        run_card_consistency_check(isNLO=isNLO)        
         mglog.info('Running serial generation.  This will take a bit more time than parallel generation.')
         generate = subprocess.Popen(['bin/generate_events','0',str(run_name)],stdin=subprocess.PIPE)
         generate.wait()
@@ -428,7 +435,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
         remove_shower.wait()
 
             
-        
+        run_card_consistency_check(isNLO=isNLO)        
         mygenerate = subprocess.Popen(['bin/generate_events','--name='+str(run_name)],stdin=subprocess.PIPE, stderr=subprocess.STDOUT)
         mygenerate.wait()
 
@@ -477,6 +484,7 @@ def generate(run_card_loc='run_card.dat',param_card_loc='param_card.dat',mode=0,
 
         else:
 
+            run_card_consistency_check(isNLO=isNLO)
 
             ### NLO RUN ###
 
@@ -602,7 +610,8 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
         mglog.info( sorted( os.listdir( currdir ) ) )
         mglog.info('For your information, ls of '+gridpack_dir+':')
         mglog.info( sorted( os.listdir( gridpack_dir ) ) )
-        
+
+        run_card_consistency_check(isNLO=isNLO,path=gridpack_dir)
         generate = subprocess.Popen([gridpack_dir+'/bin/run.sh',str(nevents),str(random_seed)],stdin=subprocess.PIPE)
         generate.wait()
         
@@ -713,6 +722,7 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
             mglog.info('Copying make_opts from Template')   
             shutil.copy(os.environ['MADPATH']+'/Template/LO/Source/make_opts',gridpack_dir+'/Source/')   
 
+            run_card_consistency_check(isNLO=isNLO,path=gridpack_dir) 
             generate = subprocess.Popen([gridpack_dir+'/bin/generate_events','--parton','--nocompile','--only_generation','-f','--name=%s'%run_name],stdin=subprocess.PIPE)
             generate.wait()
         else:
@@ -721,6 +731,7 @@ def generate_from_gridpack(run_name='Test',gridpack_dir='madevent/',nevents=-1,r
                 mglog.info('Unlinking '+gridpack_dir+'/lib/libLHAPDF.a')
                 os.unlink(gridpack_dir+'/lib/libLHAPDF.a')
 
+            run_card_consistency_check(isNLO=isNLO,path=gridpack_dir) 
             generate = subprocess.Popen([gridpack_dir+'/bin/generate_events','--parton','--only_generation','-f','--name=%s'%run_name],stdin=subprocess.PIPE)
             generate.wait()
 
@@ -853,6 +864,73 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
         LHADATAPATH=os.environ['LHAPATH'].split(':')[1]
     else:
         LHADATAPATH=os.environ['LHAPATH'].split(':')[0]
+
+
+
+    #pdfname='NNPDF30_nlo_as_0118'
+    #pdfid='260000'
+
+    pdfname=''
+    pdfid=-999
+
+    ### Reading LHAPDF ID from run card
+    mydict={}
+    run_card_loc=proc_dir+'/Cards/run_card.dat'
+    runcard = open(run_card_loc,'r')
+    for line in runcard:
+        if not line.strip().startswith('#'): # line commented out
+            command = line.split('!', 1)[0]
+            comment = line.split('!', 1)[1] if '!' in line else ''
+            if '=' in command:
+                setting = command.split('=')[-1].strip()
+                value = command.split('=')[0].strip()
+                mydict[setting]=value
+
+    runcard.close()
+
+    if mydict["pdlabel"].replace("'","") == 'lhapdf':
+        pdfid=int(mydict["lhaid"])
+        pdflist = open(LHADATAPATH+'/pdfsets.index','r')
+        for line in pdflist:
+            splitline=line.split()
+            if int(splitline[0]) == pdfid:
+                pdfname=splitline[1]
+                break
+        pdflist.close()
+
+        if pdfname=='':
+            err='Couldn\'t find PDF name associated to ID %i in %s.'%(pdfid,LHADATAPATH+'/pdfsets.index')
+            mglog.error(err)
+            raise RuntimeError(err)
+
+        mglog.info("Found LHAPDF ID=%i, name=%s!"%(pdfid,pdfname))
+
+
+        #Make local LHAPDF dir
+        mglog.info('creating local LHAPDF dir: MGC_LHAPDF/')
+        if os.path.islink('MGC_LHAPDF/'):
+            os.unlink('MGC_LHAPDF/')
+        elif os.path.isdir('MGC_LHAPDF/'):
+            shutil.rmtree('MGC_LHAPDF/')
+
+        mkdir = subprocess.Popen(['mkdir','MGC_LHAPDF'])
+        mkdir.wait()  
+
+        mglog.info('linking '+LHADATAPATH+'/'+pdfname+' --> MGC_LHAPDF/'+pdfname)
+        os.symlink(LHADATAPATH+'/'+pdfname,'MGC_LHAPDF/'+pdfname)
+        mglog.info('linking '+LHADATAPATH+'/pdfsets.index --> MGC_LHAPDF/pdfsets.index')
+        os.symlink(LHADATAPATH+'/pdfsets.index','MGC_LHAPDF/pdfsets.index')
+        
+        atlasLHADATAPATH=LHADATAPATH.replace('sft.cern.ch/lcg/external/lhapdfsets/current','atlas.cern.ch/repo/sw/Generators/lhapdfsets/current')
+        mglog.info('linking '+atlasLHADATAPATH+'/lhapdf.conf --> MGC_LHAPDF/lhapdf.conf')
+        os.symlink(atlasLHADATAPATH+'/lhapdf.conf','MGC_LHAPDF/lhapdf.conf')
+        
+        LHADATAPATH=os.getcwd()+'/MGC_LHAPDF'
+
+    else:
+        mglog.info('Not using LHAPDF')
+        return (LHAPATH,origLHAPATH,origLHAPDF_DATA_PATH)
+        
 
     if isNLO:
         os.environ['LHAPDF_DATA_PATH']=LHADATAPATH
@@ -1108,6 +1186,9 @@ def arrange_output(run_name='Test',proc_dir='PROC_mssm_0',outputDS='madgraph_OTF
     if not saveProcDir:
         mglog.info('Blasting away the process directory')
         shutil.rmtree(proc_dir,ignore_errors=True)
+
+        if os.path.isdir('MGC_LHAPDF/'):
+            shutil.rmtree('MGC_LHAPDF/',ignore_errors=True)
 
     mglog.info('All done with output arranging!')
     return outputDS
@@ -1794,3 +1875,36 @@ def is_NLO_run(proc_dir='PROC_mssm_0'):
         RuntimeError('escaping')
 
     return isNLO
+
+
+
+def run_card_consistency_check(isNLO=False,path='.'):
+    card = open(path+'/Cards/run_card.dat', 'r')
+    mydict={}
+    for line in iter(card):
+        if not line.strip().startswith('#'): # line commented out
+            command = line.split('!', 1)[0]
+            comment = line.split('!', 1)[1] if '!' in line else ''
+            if '=' in command:
+                setting = command.split('=')[-1].strip()
+                value = command.split('=')[0].strip()
+                mydict[setting]=value
+
+    for k,v in mydict.iteritems():
+        print '"%s" = %s'%(k,v)
+
+
+    if not isNLO: 
+        #Check CKKW-L setting
+        if float(mydict['ktdurham']) > 0 and int(mydict['ickkw']) != 0:
+            log='Bad combination of settings for CKKW-L merging! ktdurham=%s and ickkw=%s.'%(mydict['ktdurham'],mydict['ickkw'])
+            mglog.error(log)
+            raise RuntimeError(log)
+    
+
+
+    # close files
+    card.close()
+
+    mglog.info('Finished checking run card - All OK!')
+    return

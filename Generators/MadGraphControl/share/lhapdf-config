@@ -76,6 +76,9 @@ test -n "$tmp" && OUT="$OUT -I${prefix}/include"
 tmp=$( echo "$*" | egrep -- '--\<libdir\>')
 test -n "$tmp" && OUT="$OUT ${exec_prefix}/lib"
 
+tmp=$( echo "$*" | egrep -- '--\<libs\>')
+test -n "$tmp" && OUT="$OUT -L${exec_prefix}/lib -lLHAPDF"
+
 tmp=$( echo "$*" | egrep -- '--\<ldflags\>')
 test -n "$tmp" && OUT="$OUT -L${exec_prefix}/lib -lLHAPDF"
 
