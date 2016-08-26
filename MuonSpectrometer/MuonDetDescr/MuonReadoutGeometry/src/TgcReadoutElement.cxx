@@ -498,8 +498,8 @@ float TgcReadoutElement::stripDeltaPhi(int gasGap) const
   assert(validGap(gasGap));
 
   if (reLog().level()<=MSG::DEBUG) {
-    reLog()<<MSG::DEBUG<< "stripDeltaPhi WARINIG delta phi varies according to strip # for layout Q and following" <<endreq;
-    reLog()<< "therefore stripDeltaPhi does NOT correctly return delta phi."<<endreq;
+    reLog()<<MSG::DEBUG<< "stripDeltaPhi WARINIG delta phi varies according to strip # for layout Q and following" <<endmsg;
+    reLog()<< "therefore stripDeltaPhi does NOT correctly return delta phi."<<endmsg;
   }
 
   // number of strips in exclusive phi coverage of a chamber in T[1-3] and T4
@@ -895,14 +895,14 @@ void  TgcReadoutElement::setIdentifier(Identifier id)
     if (gethash_code != 0) 
 	reLog()<<MSG::WARNING
 	       <<"TgcReadoutElement --  collection hash Id NOT computed for id = "
-	       <<idh->show_to_string(id)<<endreq;
+	       <<idh->show_to_string(id)<<endmsg;
     m_idhash = collIdhash;
     // set RE hash id 
     gethash_code = idh->get_detectorElement_hash(id, detIdhash);
     if (gethash_code != 0) 
 	reLog()<<MSG::WARNING
 	       <<"TgcReadoutElement --  detectorElement hash Id NOT computed for id = "
-	       <<idh->show_to_string(id)<<endreq;
+	       <<idh->show_to_string(id)<<endmsg;
     m_detectorElIdhash = detIdhash;
 }
 
@@ -911,7 +911,7 @@ void TgcReadoutElement::fillCache() const {
 
   if( !m_surfaceData ) m_surfaceData = new SurfaceData();
   else{
-    reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endreq;
+    reLog()<<MSG::WARNING<<"calling fillCache on an already filled cache" << endmsg;
     return;
   }
   const TgcIdHelper* idh = manager()->tgcIdHelper();

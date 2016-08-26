@@ -337,12 +337,12 @@ namespace MuonGM {
   bool CscReadoutElement::measuresPhi(const Identifier& id) const { return manager()->cscIdHelper()->measuresPhi(id); } 
 
   double CscReadoutElement::distanceToReadout( const Amg::Vector2D& , const Identifier& ) const {
-    reLog() << MSG::WARNING << " distanceToReadout::dummy routine " << endreq;
+    reLog() << MSG::WARNING << " distanceToReadout::dummy routine " << endmsg;
     return 0.;
   }
 
   int CscReadoutElement::stripNumber( const Amg::Vector2D& , const Identifier&  ) const { 
-    reLog() << MSG::WARNING << " stripNumber::dummy routine " << endreq;
+    reLog() << MSG::WARNING << " stripNumber::dummy routine " << endmsg;
     return 1;
   }
 

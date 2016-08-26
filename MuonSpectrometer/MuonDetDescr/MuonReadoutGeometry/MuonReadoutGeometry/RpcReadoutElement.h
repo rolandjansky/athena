@@ -322,7 +322,7 @@ namespace MuonGM {
     if ( m_nphistrippanels == 1 ) dbPhi = 1;
     if( dbPhi > NphiStripPanels() || gasGap > numberOfLayers(true) ) {
       reLog() << MSG::WARNING << " surfaceHash: identifier out of range dbphi " << dbPhi << " max " << NphiStripPanels() 
-	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endreq;
+	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endmsg;
       return -1;
     }
     return  (dbPhi-1)*(2*NphiStripPanels()) + 2*(gasGap-1) + (measPhi ? 0 : 1);
@@ -343,7 +343,7 @@ namespace MuonGM {
 
     if( dbPhi > NphiStripPanels() || gasGap > numberOfLayers(true) ) {
       reLog() << MSG::WARNING << " layerHash: identifier out of range dbphi " << dbPhi << " max " << NphiStripPanels() 
-	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endreq;
+	      << " ch dbphi " << getDoubletPhi() << " gp " << gasGap << " max " << numberOfLayers() << endmsg;
       return -1;
     }
     return (dbPhi-1)*(NphiStripPanels()) + (gasGap-1);
@@ -361,7 +361,7 @@ namespace MuonGM {
   inline const MuonStripDesign* RpcReadoutElement::getDesign( const Identifier& id ) const {
     int phipanel = m_nphistrippanels == 1 ? 1 : manager()->rpcIdHelper()->doubletPhi(id);
     if( phipanel > (int)m_phiDesigns.size() ) {
-      reLog() << MSG::WARNING << " bad identifier, no MuonStripDesign found " << endreq;
+      reLog() << MSG::WARNING << " bad identifier, no MuonStripDesign found " << endmsg;
       return 0;
     }
     return manager()->rpcIdHelper()->measuresPhi(id) ? &m_phiDesigns[phipanel-1] : &m_etaDesigns[phipanel-1];

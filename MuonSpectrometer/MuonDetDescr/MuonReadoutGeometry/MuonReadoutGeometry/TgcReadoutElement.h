@@ -382,12 +382,12 @@ namespace MuonGM {
   bool TgcReadoutElement::measuresPhi(const Identifier& id) const { return manager()->tgcIdHelper()->isStrip(id); } 
 
   double TgcReadoutElement::distanceToReadout( const Amg::Vector2D& , const Identifier&  ) const {
-    reLog() << MSG::WARNING << " distanceToReadout::dummy routine " << endreq;
+    reLog() << MSG::WARNING << " distanceToReadout::dummy routine " << endmsg;
     return 0.;
   }
 
   int TgcReadoutElement::stripNumber( const Amg::Vector2D& , const Identifier& ) const { 
-    reLog() << MSG::WARNING << " stripNumber::dummy routine " << endreq;
+    reLog() << MSG::WARNING << " stripNumber::dummy routine " << endmsg;
     return 1;
   }
 
