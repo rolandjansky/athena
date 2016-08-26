@@ -793,7 +793,7 @@ SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
                 // int groupSize=size;
                 unsigned int size_rdo = (size & 0xFFFF);
                 int cluscounter = 0;
-
+		
                 // TC. Need to check if there are disabled strips in the cluster
                 if (size > 1) {
                     SiChargedDiodeIterator it2 = i_chargedDiode;
@@ -822,6 +822,8 @@ SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
                         }
                     }
                 }
+			       
+
                 unsigned int SCT_Word = (strip_rdo | size_rdo);
                 SCT1_RawData *p_rdo = new SCT1_RawData(id_readout, SCT_Word);
                 if (p_rdo) {
@@ -866,34 +868,37 @@ SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
                 int size = SiHelper::GetStripNum((*i_chargedDiode).second);
                 int groupSize = size;
 
-                // TC. Need to check if there are disabled strips in the cluster
-                int cluscounter = 0;
-                if (size > 1) {
-                    SiChargedDiodeIterator it2 = i_chargedDiode;
-                    ++it2;
-                    for (; it2 != i_chargedDiode_end; ++it2) {
-                        ++cluscounter;
-                        if (cluscounter >= size) {
-                            break;
-                        }
-                        if (it2->second.flag() & 0xDE) {
-                            int tmp = cluscounter;
-                            while (it2 != i_chargedDiode_end && cluscounter <
-                                   size - 1 && (it2->second.flag() & 0xDE)) {
-                                ++it2;
-                                ++cluscounter;
-                            }
-                            if (it2 != collection->end() &&
-                                !(it2->second.flag() & 0xDE)) {
-                                SiHelper::ClusterUsed(it2->second, false);
-                                SiHelper::SetStripNum(it2->second, size -
-                                                      cluscounter);
-                            }
-                            groupSize = tmp;
-                            break;
-                        }
-                    }
-                }
+		int cluscounter = 0;
+		if(size>1){
+		  SiChargedDiode * diode = i_chargedDiode->second.nextInCluster();
+		  while(diode){//check if there is a further strip in the cluster
+		    ++cluscounter;
+		    if (cluscounter >= size) {
+		      ATH_MSG_WARNING("Cluster size reached while neighbouring strips still defined.");
+		      break;
+		    }
+		    if (diode->flag() & 0xDE) {//see if it is disabled/below threshold/disconnected/etc (0xDE corresponds to BT_SET | DISABLED_SET | BADTOT_SET | DISCONNECTED_SET | MASKOFF_SET)
+		      int tmp = cluscounter;
+		      while (cluscounter < size - 1 && (diode->flag() & 0xDE)) { //check its not the end and still disabled
+			diode = diode->nextInCluster();
+			cluscounter++;
+		      }
+		      if (diode &&
+			  !(diode->flag() & 0xDE)) {
+			SiHelper::ClusterUsed(*diode, false);
+			SiHelper::SetStripNum(*diode, size -
+					      cluscounter);
+		      }
+		      
+		      groupSize = tmp;
+		       break;
+  
+		    }  
+		     
+		    diode = diode->nextInCluster();		    
+		  }
+		}
+
                 int stripIn11bits = strip & 0x7ff;
                 if (stripIn11bits != strip) {
                     ATH_MSG_DEBUG("Strip number " << strip <<

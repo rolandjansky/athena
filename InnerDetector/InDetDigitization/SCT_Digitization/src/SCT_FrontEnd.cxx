@@ -1120,7 +1120,7 @@ const {
                 // Create the corresponding diode
                 // ======================================
                 for (int i = clusterFirstStrip; i <= clusterLastStrip; ++i) {
-                  if (FirstDiode[i] == NULL) {
+		  if (FirstDiode[i] == NULL) {
                     // Create a new diode
                     SiCellId diode(i);
                     // Add noise to it
@@ -1154,6 +1154,7 @@ const {
                   }
                   if (i > clusterFirstStrip) {
                     SiHelper::ClusterUsed((*(FirstDiode[i])), true);
+		    (FirstDiode[i-1])->setNextInCluster(FirstDiode[i]); //set this cluster to be neighbour of previous one
                   }
                 }
                 SiHelper::SetStripNum(*(FirstDiode[clusterFirstStrip]),
