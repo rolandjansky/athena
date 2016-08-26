@@ -323,22 +323,40 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   std::vector<TProfile*> m_measurements_eff_vs_Phi_sct_b;
   
   std::vector<TProfile*> m_measurements_eff_vs_LB_pix_b;
+  std::vector<TProfile*> m_holes_eff_vs_LB_pix_b;
+  std::vector<TProfile*> m_outliers_eff_vs_LB_pix_b;
   std::vector<TH1F*> m_measurements_vs_LB_pix_b;
+  std::vector<TH1F*> m_holes_vs_LB_pix_b;
+  std::vector<TH1F*> m_outliers_vs_LB_pix_b;
   std::vector<TH1F*> m_hits_vs_LB_pix_b;
 
   std::vector<TProfile*> m_measurements_eff_vs_LB_sct_b;
   std::vector<TH1F*> m_measurements_vs_LB_sct_b;
   std::vector<TH1F*> m_hits_vs_LB_sct_b;
 
-  TProfile* m_measurements_eff_vs_LB_pix_eca;
-  TH1F*     m_hits_vs_LB_pix_eca;
-  TH1F*     m_measurements_vs_LB_pix_eca;
+  std::vector<TProfile*> m_measurements_eff_vs_LB_pix_eca;
+  std::vector<TProfile*> m_measurements_eff_vs_LB_pix_ecc;
+   std::vector<TProfile*> m_holes_eff_vs_LB_pix_eca;
+  std::vector<TProfile*> m_holes_eff_vs_LB_pix_ecc;
+   std::vector<TProfile*> m_outliers_eff_vs_LB_pix_eca;
+  std::vector<TProfile*> m_outliers_eff_vs_LB_pix_ecc;
+  
+  std::vector<TH1F*>     m_hits_vs_LB_pix_eca;
+  std::vector<TH1F*>     m_outliers_vs_LB_pix_eca;
+  std::vector<TH1F*>     m_holes_vs_LB_pix_eca;
+  std::vector<TH1F*>     m_measurements_vs_LB_pix_eca;
+  std::vector<TH1F*>     m_hits_vs_LB_pix_ecc;
+  std::vector<TH1F*>     m_outliers_vs_LB_pix_ecc;
+  std::vector<TH1F*>     m_holes_vs_LB_pix_ecc;
+  std::vector<TH1F*>     m_measurements_vs_LB_pix_ecc;
+  
+  
   TProfile* m_measurements_eff_vs_LB_sct_eca;
   TH1F*     m_hits_vs_LB_sct_eca;
   TH1F*     m_measurements_vs_LB_sct_eca;
-  TProfile* m_measurements_eff_vs_LB_pix_ecc;
-  TH1F*     m_hits_vs_LB_pix_ecc;
-  TH1F*     m_measurements_vs_LB_pix_ecc;
+  
+  
+  
   TProfile* m_measurements_eff_vs_LB_sct_ecc;
   TH1F*     m_hits_vs_LB_sct_ecc;
   TH1F*     m_measurements_vs_LB_sct_ecc;
@@ -422,12 +440,14 @@ class IDAlignMonEfficiencies : public ManagedMonitorToolBase
   float m_maxSiliconEffWindow;
   std::string m_triggerChainName;
   bool m_doHoleSearch;
+  bool m_extendedPlots;
   std::string m_Pixel_Manager;
   std::string m_SCT_Manager;
   std::string m_TRT_Manager;
   int m_checkrate;
   int m_NPixLayers;
   int m_events;
+  int m_mapSplit;
   int m_histosBooked;
   bool m_doHitQuality;
   float m_minLB;

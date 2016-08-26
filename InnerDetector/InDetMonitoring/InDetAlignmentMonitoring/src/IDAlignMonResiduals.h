@@ -90,9 +90,9 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   void MakeTRTBarrelHistograms(MonGroup& al_mon);
   void MakeTRTEndcapHistograms(MonGroup& al_mon);
   void MakeSiliconHistograms(MonGroup&);
-  void fillTRTHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float residualR, float pullR, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
-  void fillTRTBarrelHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
-  void fillTRTEndcapHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
+  void fillTRTHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float hitZ, float hitGlobalR, float residualR, float pullR, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
+  void fillTRTBarrelHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float hitZ, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
+  void fillTRTEndcapHistograms(int m_barrel_ec, int m_layer_or_wheel, int m_phi_module, int m_straw_layer,float perdictR, float hitR, float hitGlobalR, float residualR, float pullR, bool LRcorrect, float LE, float EP, float t0, bool isTubeHit ,float trketa, float trkpt, double hweight);
   unsigned int getRing(unsigned int wheel,unsigned int strawlayer);
 
   /** Convert from an int to a string */
@@ -131,7 +131,7 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   StatusCode getSiResiduals(const Trk::Track*, const Trk::TrackStateOnSurface*, bool, double*);
   const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::Track*, const Trk::TrackStateOnSurface*);
   void meanRMSProjections(TH2F*, TH1F*, int);
-  void meanRMSProjection2D(TH3F*, TH2F*, int);
+  void meanRMSProjection2D(TH3F*, TH2F*, int, bool);
   void fillRMSFromProfile(TProfile*, TProfile*);
   void fillGaussianMeanOrWidth(TH2F*, TH1F*, float, float, int);
   bool trackRequiresRefit(const Trk::Track*);
@@ -196,6 +196,8 @@ class IDAlignMonResiduals : public ManagedMonitorToolBase
   float m_LBGranularity;
   std::vector<TString> m_siliconBarrelLayersLabels; 
   std::vector<TString> m_siliconEndcapLayersLabels;
+  bool m_useGausFit;
+  float m_maxPtEC; // threshold for low-pt EC distributions
   
   //tools
   const AtlasDetectorID*                m_idHelper;
