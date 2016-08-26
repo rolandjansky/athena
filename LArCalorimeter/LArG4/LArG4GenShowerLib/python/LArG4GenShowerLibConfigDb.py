@@ -2,5 +2,5 @@
 
 from AthenaCommon.CfgGetter import addAlgorithm, addTool
 
-addTool("LArG4GenShowerLib.LArG4GenShowerLibConfig.getTestActionShowerLib", "TestActionShowerLib")
+addTool("LArG4GenShowerLib.LArG4GenShowerLibConfig.getTestActionShowerLibTool", "G4UA::TestActionShowerLibTool")
 addAlgorithm("LArG4GenShowerLib.LArG4GenShowerLibConfig.getLArG4GenShowerLib", "LArG4GenShowerLib")

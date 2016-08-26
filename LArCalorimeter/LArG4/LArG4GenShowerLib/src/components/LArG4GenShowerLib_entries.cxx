@@ -12,12 +12,12 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 #include "LArG4GenShowerLib/LArG4GenShowerLib.h"
-#include "LArG4GenShowerLib/TestActionShowerLib.h"
+#include "LArG4GenShowerLib/TestActionShowerLibTool.h"
 
 DECLARE_ALGORITHM_FACTORY( LArG4GenShowerLib )
-DECLARE_TOOL_FACTORY( TestActionShowerLib )
+DECLARE_TOOL_FACTORY( G4UA::TestActionShowerLibTool )
 
 DECLARE_FACTORY_ENTRIES( LArG4GenShowerLib ) {
-  DECLARE_TOOL( TestActionShowerLib )
+  DECLARE_TOOL( G4UA::TestActionShowerLibTool )
   DECLARE_ALGORITHM( LArG4GenShowerLib )
 }

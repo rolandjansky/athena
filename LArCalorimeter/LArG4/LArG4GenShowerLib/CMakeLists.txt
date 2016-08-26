@@ -11,9 +11,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/CLIDSvc
                           Control/DataModel
                           Control/SGTools
+                          Control/StoreGate
                           GaudiKernel
                           Simulation/G4Atlas/G4AtlasTools
+                          Simulation/G4Atlas/G4AtlasInterfaces
                           PRIVATE
+			  Control/CxxUtils
                           DetectorDescription/GeoModel/GeoModelInterfaces
                           Event/EventInfo
                           Generators/GeneratorObjects

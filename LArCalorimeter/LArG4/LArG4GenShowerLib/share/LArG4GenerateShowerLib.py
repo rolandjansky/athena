@@ -1,7 +1,7 @@
 #!/usr/bin/env physh
 # print command line for logging
 from optparse import OptionParser
-parser = OptionParser(usage = "usage: %prog", version="%prog $Id: LArG4GenerateShowerLib.py 711210 2015-11-27 15:56:00Z jchapman $")
+parser = OptionParser(usage = "usage: %prog", version="%prog $Id: LArG4GenerateShowerLib.py 767177 2016-08-10 08:49:45Z disimone $")
 
 parser.add_option("--inputEvtFileList",    dest="inputevt",    action="append",                       help="select the input file name")
 parser.add_option("--inputStructFileList", dest="inputstruct", action="append",                       help="select the output file name")
@@ -78,8 +78,8 @@ simFlags.RandomSeedOffset = randint(1,443921180)
 
 #add G4 function
 
-from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-UAStore.addAction('TestActionShowerLib',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
+from G4AtlasApps.SimFlags import simFlags
+simFlags.OptionalUserActionList.addAction('G4UA::TestActionShowerLibTool',['BeginOfEvent','EndOfEvent','BeginOfRun','EndOfRun','Step'])
 
 topSeq += PyG4AtlasAlg()
 
