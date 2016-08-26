@@ -41,9 +41,9 @@ int main(int argc, char** )
 
   bool crude = argc>1;
 
-  remove ("CollectionCatalog0.xml");
-  remove ("CollectionCatalog1.xml");
-  remove ("CollectionCatalog2.xml");
+  (void)remove ("CollectionCatalog0.xml");
+  (void)remove ("CollectionCatalog1.xml");
+  (void)remove ("CollectionCatalog2.xml");
    
 //  const string collConnection = "./";
   const string collConnection = "";
