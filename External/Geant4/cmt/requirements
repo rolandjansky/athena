@@ -227,7 +227,6 @@ macro_append Geant4_linkopts   " -lxerces-c" \
              notAsNeeded       "" \
              asNeeded          " $(notAsNeeded_linkopt) -lxerces-c $(asNeeded_linkopt) "
 
-
 # ***************** CLHEP ************************************
 
 macro_append Geant4_linkopts  ""
@@ -255,4 +254,3 @@ set G4NEUTRONHPDATA    "${Geant4_data}/G4NDL"
 set G4LEDATA           "${Geant4_data}/G4EMLOW"
 set G4NEUTRONXSDATA    "${Geant4_data}/G4NEUTRONXS"
 set G4SAIDXSDATA       "${Geant4_data}/G4SAIDDATA"
-

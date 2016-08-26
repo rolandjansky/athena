@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 751532 2016-06-01 15:40:24Z krasznaa $
+# $Id: CMakeLists.txt 770353 2016-08-26 15:28:34Z jchapman $
 #
 # Package building Geant4 with all its ATLAS specific patches, for the offline
 # builds.
@@ -22,12 +22,11 @@ endif()
 find_package( XercesC )
 find_package( EXPAT )
 
-# Source for Geant4:
-set( _source
-   http://geant4.web.cern.ch/geant4/support/source/geant4.10.01.p03.tar.gz )
-# The patch for Geant4:
-set( _patchDir
-   /afs/cern.ch/atlas/offline/external/geant4/g4.10.1/geant4.10.1.patch03.atlas01 )
+# Git repository for Geant4:
+set( _repository https://gitlab.cern.ch/atlas-simulation-team/geant4.git )
+# Git tag to build:
+set( _tag "v10.1.3.1" )
+
 # Version string to replace:
 set( _g4vers_orig "geant4-10-01-patch-03" )
 # Version string to use:
@@ -72,19 +71,8 @@ atlas_cpu_cores( nCPUs )
 ExternalProject_Add( Geant4
    PREFIX ${CMAKE_BINARY_DIR}
    INSTALL_DIR ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}
-   URL ${_source}
-   PATCH_COMMAND ${CMAKE_COMMAND} -E copy_directory
-   ${_patchDir}/ <SOURCE_DIR>
-   COMMAND sed "s/${_g4vers_orig}/${_g4vers_patch}/g"
-   <SOURCE_DIR>/include/G4Version.hh > <SOURCE_DIR>/include/G4Version_new.hh
-   COMMAND ${CMAKE_COMMAND} -E rename <SOURCE_DIR>/include/G4Version_new.hh
-   <SOURCE_DIR>/include/G4Version.hh
-   COMMAND sed "s/${_g4vers_orig}/${_g4vers_patch}/g"
-   <SOURCE_DIR>/source/global/management/include/G4Version.hh >
-   <SOURCE_DIR>/source/global/management/include/G4Version_new.hh
-   COMMAND ${CMAKE_COMMAND} -E rename
-   <SOURCE_DIR>/source/global/management/include/G4Version_new.hh
-   <SOURCE_DIR>/source/global/management/include/G4Version.hh
+   GIT_REPOSITORY ${_repository}
+   GIT_TAG ${_tag}
    CMAKE_CACHE_ARGS
    -DGEANT4_USE_GDML:BOOL=ON
    -DGEANT4_USE_SYSTEM_ZLIB:BOOL=OFF
