@@ -19,7 +19,8 @@ def drawCorr(detector, labelList, drawErrors=False, drawLine=True, drawingDOF=-1
     Histos.append(tmpGraph)
 
     if (True): print " -- drawCorr -- calling d_utils.drawCorrEvolution for drawingDOF=",drawingDOF
-    tmpCan = d_utils.drawCorrEvolution(detector, labelList, drawErrors, drawLine, drawingDOF ) # add dof number -->plot only that dof
+    d_utils.drawCorrEvolution(detector, labelList, drawErrors, drawLine, drawingDOF, 2 ) # add dof number -->plot only that dof
+    #tmpCan = d_utils.OLD_drawCorrEvolution(detector, labelList, drawErrors, drawLine, drawingDOF ) # add dof number -->plot only that dof
     Canvases.append(tmpCan)
 
     if len(detector[0].ReturnPixelBarrelModules())>0:
@@ -143,13 +144,11 @@ if __name__ == '__main__':
     print " == drawEvolution == start == "
     config = optParsing()
 
-    
     import os   
     import imp
     from ROOT import *
     gROOT.SetBatch()
 
- 
     fileList = config.inputLogFiles
     fileListGiven = True
     if (len(fileList)>0): 

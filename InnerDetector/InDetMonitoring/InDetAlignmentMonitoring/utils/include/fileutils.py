@@ -26,7 +26,7 @@ def writeCorr(outputfile, detector):
     
 def readConstants(file, useBarrels=True,  useEndCaps=True):
     import imp
-    print " <fileutils.readconstants> runWebMonitor=",runWebMonitor, "   runLocalTest = ", runLocalTest
+    #print " <fileutils.readconstants> runWebMonitor=",runWebMonitor, "   runLocalTest = ", runLocalTest
     #from module import Module
     #from module import Detector
     if (runWebMonitor):
@@ -79,10 +79,10 @@ def readConstants(file, useBarrels=True,  useEndCaps=True):
         elif "Number of tracks passing" in line:
             if (counter >= 0):
                 line = line[25:]
-                print " In Ntracks --> counter:", counter, "  Ntracks: ",line 
+                #print " In Ntracks --> counter:", counter, "  Ntracks: ",line 
                 detector.GetModule(counter).setTracks(int(line))
         elif "total time spent in solve" in line:
-            print " ** readConstants ** ** WARNING ** ** DISCARDING REST OF THE FILE ** after counter ", counter 
+            #print " ** readConstants ** ** WARNING ** ** DISCARDING REST OF THE FILE ** after counter ", counter 
             break
         else:
             if "Number of hits too small" in line:
@@ -127,7 +127,7 @@ def readConstants(file, useBarrels=True,  useEndCaps=True):
                         detector.GetModule(counter).setEBx(EBx)
                         print " -----> ",Bx
 
-    print " ** reading input file. Counter = ", counter
+    #print " ** reading input file. Counter = ", counter
     if OutputLevel > 0:
         detector.PrintValues()
     return detector

@@ -59,6 +59,7 @@ def optParsing():
 	parser.add_option("--Pulls", dest="inputPulls", help="Do pulls plots for all systems and then layer by layer", action="store_true",default=False)
 	parser.add_option("--ResidualMaps", dest="inputResidualMaps", help="Do residuals plots for all systems layer by layer", action="store_true",default=False)
 	parser.add_option("--Residuals", dest="inputResiduals", help="Do residuals plots for all systems and then layer by layer", action="store_true",default=False)
+	parser.add_option("--Overlaps", dest="inputOverlaps", help="Do Overlap residuals plots for all systems and then layer by layer", action="store_true",default=False)
 	parser.add_option("--Script", dest="inputScript", help="The user may provie its own script", default="")
 	parser.add_option("--SetBatch", dest="inputSetBatch", help="When SetBatch is used histogram displays are not open", action="store_true", default=True)
 	parser.add_option("--ShowPlots", dest="inputSetBatch", help="When ShowPlots is used the histogram display is open", action="store_false", default=True)
@@ -82,6 +83,7 @@ userIBL = config.inputIBL
 userPulls = config.inputPulls
 userResidualMaps = config.inputResidualMaps
 userResiduals = config.inputResiduals
+userOverlaps = config.inputOverlaps
 userTrackParams = config.inputTrackParams
 userTrackSegments = config.inputTrackSegments
 userExtended = config.inputExtended
@@ -113,6 +115,7 @@ if (config.inputALL):
     userPulls = True
     userResidualMaps = False
     userResiduals = True
+    userOverlaps  = True
     userTrackParams = True
     userExtended = True
     userResByModule = False # as this plots to many histograms, this can be only activated on purpose
@@ -132,6 +135,7 @@ if (userPDF): outputFileExtension="pdf"
 
 #
 doResiduals = False or userResiduals 
+doOverlaps  = False or userOverlaps
 doResidualProfiles = False 
 doPulls = False or userPulls
 doTrackParams = False or userTrackParams
@@ -197,6 +201,7 @@ print " -- MakeMajorAlignMonPlots -- Using in total ",nFiles, " input files "
 
 # Basic Barrel Residual distributions
 if (doResiduals): execfile("MakeResidualPlots.py")
+if (doOverlaps): execfile("MakeResidualOverlapPlots.py")
 if (doResidualProfiles): execfile("MakeResidualProfilesPlots.py") 
 if (doIBL): execfile("MakeResidualsIBL.py")
 if (doPulls): execfile("MakePullPlots.py") 

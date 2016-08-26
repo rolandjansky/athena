@@ -546,9 +546,22 @@ def DrawEvolutionPlot(inputTuple, outputName, plotTitle, yAxisTitle, legendLeftX
     # Y axis title  
     evolutionHisto.GetYaxis().SetTitle(yAxisTitle)
         
+    theMaximum = 0.
     # fill the evolution histogram 
     for i in range(0,nPoints):
-        evolutionHisto.Fill( i, histoGram[i].GetMean()) 
+        newval = histoGram[i].GetMean()
+        newerr = histoGram[i].GetRMS()/math.sqrt(histoGram[i].GetEntries())
+        thismax = abs(newval) + abs(newerr)
+        evolutionHisto.SetBinContent(i+1, newval) 
+        evolutionHisto.SetBinError(i+1, newerr) 
+        if (thismax >theMaximum): theMaximum = thismax
+
+    # rescale the maximum
+    theMaximum *= 1.10
+    
+    # symmetrize range
+    evolutionHisto.SetMaximum(theMaximum)
+    evolutionHisto.SetMinimum(-theMaximum)
 
     # open the canvas
     canvasName = "evolutionCanvas_"+outputName    
@@ -2508,13 +2521,31 @@ def GetHistogram(rootFile,histogramDir,histogramName,markerColor,markerStyle, fi
     # histoGram.SetAxisRange(-0.5,0.5)
     # if "asym" in histogramName:
     # histoGram.GetYaxis().SetRangeUser(-0.3,0.3)
-        # priscilla
+    # priscilla
 
-#    print " priscilla roofile ", rootFile.GetName()
+
 
 
     if histogramName=="delta_z0":
         histoGram.SetAxisRange(-1.,1.)
+
+    #Overlaps mean
+    if histogramName=="pix_b_Oyresyvsmodeta":
+        histoGram.Scale(1000.)
+        histoGram.GetYaxis().SetRangeUser(-300,200)
+
+    if histogramName=="pix_b_Oyresyvsmodphi":
+        histoGram.Scale(1000.)
+        histoGram.GetYaxis().SetRangeUser(-300,300)
+
+    if histogramName=="pix_b_Oxresxvsmodeta" or histogramName=="pix_b_Oxresxvsmodphi" or histogramName=="pix_eca_Oxresxvsmodphi" or histogramName=="pix_ecc_Oxresxvsmodphi" or histogramName=="pix_eca_Oyresyvsmodphi" or histogramName=="pix_ecc_Oyresyvsmodphi":
+        histoGram.Scale(1000.)
+        
+
+    if histogramName=="sct_b_Oxresxvsmodeta" or histogramName=="sct_b_Oyresxvsmodeta" or histogramName=="sct_b_Oyresxvsmodphi" or histogramName=="sct_b_Oxresxvsmodphi" or histogramName=="sct_b_yresxvsmodphi" or histogramName=="sct_eca_Oxresxvsmodphi" or histogramName=="sct_ecc_Oxresxvsmodphi":
+        histoGram.Scale(1000.)
+        
+
 
     if histogramName=="si_barrel_resX_mean" or histogramName=="si_eca_resX_mean" or histogramName=="si_ecc_resX_mean":
         #Patch for the mean

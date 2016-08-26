@@ -89,10 +89,10 @@ class Module:
     
     def PrintValues(self):
     #   info = "%6s %6s %6s %6s %6s %6s %6s %12s %12s %12s %12s %12s %12s %12s\n" % (str(self.index),
-        info = "%s %s %s %s %s %s %s %s\n" % (str(self.index),                                   
+        info = "%s %s %s %s %s %s %s %s %s\n" % (str(self.index),                                   
         str(self.Tx)[:12],str(self.Ty)[:12],str(self.Tz)[:12],
         str(self.Rx)[:12],str(self.Ry)[:12],str(self.Rz)[:12],
-        str(self.Hits))
+        str(self.Bx)[:12],str(self.Hits))
         return info
         
         

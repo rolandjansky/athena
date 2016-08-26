@@ -8,9 +8,10 @@
 #include "src/IDAlignMonSivsTRT.h" 
 #include "src/TrackSelectionTool.h" 
 #include "src/TrackSelectionAlg.h" 
+#include "src/IDAlignMonPVBiases.h"
 
 #include "GaudiKernel/DeclareFactoryEntries.h"
-
+DECLARE_TOOL_FACTORY(IDAlignMonPVBiases)
 DECLARE_TOOL_FACTORY(IDAlignMonEfficiencies)
 DECLARE_TOOL_FACTORY(IDAlignMonGenericTracks)
 DECLARE_TOOL_FACTORY(InDetAlignMonBeamSpot)
