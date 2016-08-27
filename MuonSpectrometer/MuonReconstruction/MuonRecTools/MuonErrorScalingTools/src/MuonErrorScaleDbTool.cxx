@@ -18,6 +18,10 @@ Muon::MuonErrorScaleDbTool::MuonErrorScaleDbTool(const std::string& type,
   : AthAlgTool(type,name,parent)
   , m_muonIdHelperTool("Muon::MuonIdHelperTool/MuonIdHelperTool")
   , m_muonFolder("/MUON/TrkErrorScaling")
+  , m_do_mdt(false)
+  , m_do_tgc(false)
+  , m_do_rpc(false)
+  , m_do_csc(false)
   , m_scaling_mdt_barrel(std::vector<double>(0))
   , m_scaling_mdt_endcap(std::vector<double>(0))
   , m_scaling_tgcPhi(std::vector<double>(0))
@@ -73,16 +77,16 @@ StatusCode Muon::MuonErrorScaleDbTool::initialize()
 	regFcn(&Muon::MuonErrorScaleDbTool::callback,
 	       this,colptr,m_muonFolder)) {
       msg(MSG::ERROR) << "Found the folder, but could not register a callback"
-		      << " on " << m_muonFolder << endreq;
+		      << " on " << m_muonFolder << endmsg;
       return StatusCode::FAILURE;
     } 
     else
       msg(MSG::INFO) << "Registered callback on COOL folder " 
-		     << m_muonFolder << endreq;
+		     << m_muonFolder << endmsg;
   } 
   else {
     msg(MSG::INFO) << "Folder " << m_muonFolder << " is not loaded, "
-		   << "intrinsic meas't errors will be used for Muon RIOs_OnTrack." << endreq;
+		   << "intrinsic meas't errors will be used for Muon RIOs_OnTrack." << endmsg;
     
     m_do_mdt = false;
     m_do_tgc = false;
@@ -206,12 +210,12 @@ Muon::MuonErrorScaleDbTool::callback(IOVSVC_CALLBACK_ARGS_P(I,keys) )
 	  }
 	  // catch problems with the attributelist accesses
 	  catch (coral::Exception& e) {
-	    msg(MSG::ERROR) << "Problem with AttributeList decoding: " << e.what() << endreq;
+	    msg(MSG::ERROR) << "Problem with AttributeList decoding: " << e.what() << endmsg;
 	    return StatusCode::FAILURE;
 	  }
 	}
       } else {
-	msg(MSG::ERROR) << "Problem reading conditions object " << *itr << endreq;
+	msg(MSG::ERROR) << "Problem reading conditions object " << *itr << endmsg;
 	return StatusCode::FAILURE;
       }
     }

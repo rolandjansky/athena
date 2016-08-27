@@ -37,7 +37,7 @@ Muon::MuonRIO_OnTrackErrorScalingTool::~MuonRIO_OnTrackErrorScalingTool()
 StatusCode Muon::MuonRIO_OnTrackErrorScalingTool::initialize()
 {
   
-  m_log.setLevel(outputLevel());
+  //m_log.setLevel(outputLevel());
   
   if (m_errorScaleDbTool.retrieve().isSuccess()) 
     ATH_MSG_INFO("Retrieved "<<m_errorScaleDbTool);
@@ -52,7 +52,7 @@ StatusCode Muon::MuonRIO_OnTrackErrorScalingTool::initialize()
   m_do_rpc = m_errorScaleDbTool->doRpc();
   m_do_csc = m_errorScaleDbTool->doCsc();
   
-  m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+  m_log << MSG::INFO << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;  
 }
 
@@ -67,7 +67,7 @@ MsgStream& Muon::MuonRIO_OnTrackErrorScalingTool::dump( MsgStream& out ) const
 //________________________________________________________________________
 StatusCode Muon::MuonRIO_OnTrackErrorScalingTool::finalize()
 {
-  msg(MSG::INFO)  << "finalize() successful in " << name() << endreq;
+  msg(MSG::INFO)  << "finalize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -115,9 +115,9 @@ Muon::MuonRIO_OnTrackErrorScalingTool::createScaledTgcCovariance(const Amg::Matr
     b = m_scaling_tgcEta[1];
   } else {
     delete newCov;
-    msg(MSG::WARNING) << "Wrong TGC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endreq;
-    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endreq;
-    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endreq;
+    msg(MSG::WARNING) << "Wrong TGC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endmsg;
+    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endmsg;
+    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endmsg;
     return 0;
   }
   (*newCov)(0,0) *= a*a;
@@ -140,9 +140,9 @@ Muon::MuonRIO_OnTrackErrorScalingTool::createScaledRpcCovariance(const Amg::Matr
     b = m_scaling_rpcEta[1];
   } else {
     delete newCov;
-    msg(MSG::WARNING) << "Wrong RPC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endreq;
-    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endreq;
-    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endreq;
+    msg(MSG::WARNING) << "Wrong RPC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endmsg;
+    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endmsg;
+    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endmsg;
     return 0;
   }
   (*newCov)(0,0) *= a*a;
@@ -165,9 +165,9 @@ Muon::MuonRIO_OnTrackErrorScalingTool::createScaledCscCovariance(const Amg::Matr
     b = m_scaling_cscEta[1];
   } else {
     delete newCov;
-    msg(MSG::WARNING) << "Wrong CSC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endreq;
-    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endreq;
-    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endreq;
+    msg(MSG::WARNING) << "Wrong CSC measurement coordinate definition given to RIO_OnTrackErrorScalingTool." << endmsg;
+    msg(MSG::WARNING) << "Error scaling cancelled, cov=NULL." << endmsg;
+    msg(MSG::INFO) << "Allowed definitions: Trk::distPhi, Trk::distEta." << endmsg;
     return 0;
   }
   (*newCov)(0,0) *= a*a;
