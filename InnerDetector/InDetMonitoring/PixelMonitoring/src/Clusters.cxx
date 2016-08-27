@@ -10,10 +10,11 @@
 #include "InDetRawData/InDetTimeCollection.h"
 //#include "TrkSpacePoint/SpacePointContainer.h"
 #include "InDetPrepRawData/PixelClusterContainer.h"         
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 //#include "TrkParameters/MeasuredAtaPlane.h"
 //#include "TrkParameters/MeasuredPerigee.h"
 //#include "InDetRIO_OnTrack/SiClusterOnTrack.h"
-//#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
+#include "PixelConditionsServices/IPixelByteStreamErrorsSvc.h"
 #include "InDetIdentifier/PixelID.h"
 #include "TH1F.h"   
 #include "TH1I.h"   
@@ -400,15 +401,20 @@ StatusCode PixelMainMon::BookClustersMon(void)
          ///
          /// Study for Quick Status
          ///
-         hname = makeHistname("Cluster_Occupamcy_L0_B11_S2_C6", true);
-         tmp2 = "Cluster Occupancy., L0_B11_S2_C6;lumi block;FE ID (8*(pix_phi/164) + (eta_pix/18);# clusters";
-         sc = clusterExpert.regHist(m_cluster_occupancy_FE_L0_B11_S2_C6 = TH2F_LW::create((hname+"_L0_B11_S2_C6").c_str(), tmp2.c_str(), nbins_LB, min_LB, max_LB, 16, -0.5, -0.5+16));
-         m_cluster_occupancy_FE_L0_B11_S2_C6->SetOption("colz");
+         //hname = makeHistname("Cluster_Occupamcy_L0_B11_S2_C6", true);
+         //tmp2 = "Cluster Occupancy., L0_B11_S2_C6;lumi block;FE ID (8*(pix_phi/164) + (eta_pix/18);# clusters";
+         //sc = clusterExpert.regHist(m_cluster_occupancy_FE_L0_B11_S2_C6 = TH2F_LW::create((hname+"_L0_B11_S2_C6").c_str(), tmp2.c_str(), nbins_LB, min_LB, max_LB, 16, -0.5, -0.5+16));
+         //m_cluster_occupancy_FE_L0_B11_S2_C6->SetOption("colz");
 
-         hname = makeHistname("Cluster_ToTMean_L0_B11_S2_C6", true);
-         tmp2 = "Cluster ToT Mean, L0_B11_S2_C6;lumi block;FE ID (8*(pix_phi/164) + (eta_pix/18);Mean Cluster ToT";
-         sc = clusterExpert.regHist(m_cluster_totmean_L0_B11_S2_C6 = TProfile2D_LW::create((hname+"_L0_B11_S2_C6").c_str(), tmp2.c_str(), nbins_LB, min_LB, max_LB, 16, -0.5, -0.5+16));
-         m_cluster_totmean_L0_B11_S2_C6->SetOption("colz");
+         //hname = makeHistname("Cluster_Occupamcy_isGood_L0_B11_S2_C6", true);
+         //tmp2 = "Cluster Occupancy., L0_B11_S2_C6(isGood);lumi block;FE ID (8*(pix_phi/164) + (eta_pix/18);# clusters";
+         //sc = clusterExpert.regHist(m_cluster_occupancy_isgood_FE_L0_B11_S2_C6 = TH2F_LW::create((hname+"_L0_B11_S2_C6").c_str(), tmp2.c_str(), nbins_LB, min_LB, max_LB, 16, -0.5, -0.5+16));
+         //m_cluster_occupancy_isgood_FE_L0_B11_S2_C6->SetOption("colz");
+
+         //hname = makeHistname("Cluster_ToTMean_L0_B11_S2_C6", true);
+         //tmp2 = "Cluster ToT Mean, L0_B11_S2_C6;lumi block;FE ID (8*(pix_phi/164) + (eta_pix/18);Mean Cluster ToT";
+         //sc = clusterExpert.regHist(m_cluster_totmean_L0_B11_S2_C6 = TProfile2D_LW::create((hname+"_L0_B11_S2_C6").c_str(), tmp2.c_str(), nbins_LB, min_LB, max_LB, 16, -0.5, -0.5+16));
+         //m_cluster_totmean_L0_B11_S2_C6->SetOption("colz");
 
          ///
          /// For FE map (temporary)
@@ -442,10 +448,16 @@ StatusCode PixelMainMon::BookClustersMon(void)
    {
       m_cluseff_mod = new PixelMonModulesProf("Clus_track_eff", ("Proportion of clusters on track vs t in module" + m_histTitleExt).c_str(), 2500,-0.5,2499.5,m_doIBL);
       sc = m_cluseff_mod->regHist(this,(path+"/Modules_Cluseff").c_str(),run, m_doIBL);
+
       m_cluster_size_mod = new PixelMonModules1D("Cluster_size", ("Cluster size in Module" + m_histTitleExt).c_str(), 20,-0.5,19.5,m_doIBL);
       sc = m_cluster_size_mod->regHist(this,(path+"/Modules_ClusterSize").c_str(),run,m_doIBL);
+      
       m_cluster_num_mod = new PixelMonModules1D("Cluster_num", ("Number of clusters per event in module" + m_histTitleExt).c_str(), 30,-0.5,29.5,m_doIBL);
       sc = m_cluster_num_mod->regHist(this,(path+"/Modules_NumberOfClusters").c_str(),run,m_doIBL);
+      
+      //m_cluster_num_mod_ontrack = new PixelMonModules1D("Cluster_num_ontrack", ("Number of clusters on track per track per event in module" + m_histTitleExt).c_str(), 30,-0.5,29.5,m_doIBL);
+      //sc = m_cluster_num_mod->regHist(this,(path+"/Modules_NumberOfClusters").c_str(),run,m_doIBL);
+      
       m_cluster_ToT_mod = new PixelMonModules1D("Cluster_ToT", ("Cluster ToT in Module" + m_histTitleExt).c_str(), 200,0.,200.,m_doIBL);
       sc = m_cluster_ToT_mod->regHist(this,(path+"/Modules_ClusToT").c_str(),run,m_doIBL);
    }
@@ -468,40 +480,65 @@ StatusCode PixelMainMon::BookClustersMon(void)
      if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
      tmp = "num_clusters"; tmp2 = "Number of pixel clusters in an event";
      sc = clusterShift.regHist(m_num_clusters      = TH1I_LW::create(tmp.c_str(),            (tmp2 + ";# pixel clusters/event" + m_histTitleExt + ";# events").c_str(), 1000,0.,(int)max_clusters));
-     //sc = clusterExpert.regHist(m_num_clusters_PIX = TH1I_LW::create((tmp + "_PIX").c_str(), (tmp2 + ", Pixel" + m_histTitleExt + ";# pixel clusters/event;# events").c_str(),1000,0.,(int)max_clusters));
-     sc = clusterExpert.regHist(m_num_clusters_B0  = TH1I_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B0" + m_histTitleExt + ";# pixel clusters/event;# events").c_str(),160,0.,(int)max_clusters_region));
-     sc = clusterExpert.regHist(m_num_clusters_B1  = TH1I_LW::create((tmp + "_B1").c_str(),  (tmp2 + ", B1" + m_histTitleExt + ";# pixel clusters/event;# events").c_str(),160,0.,(int)max_clusters_region));
-     sc = clusterExpert.regHist(m_num_clusters_B2  = TH1I_LW::create((tmp + "_B2").c_str(),  (tmp2 + ", B2" + m_histTitleExt + ";# pixel clusters/event;# events").c_str(),160,0.,(int)max_clusters_region));
-     sc = clusterExpert.regHist(m_num_clusters_ECA = TH1I_LW::create((tmp + "_ECA").c_str(), (tmp2 + ", ECA"   + m_histTitleExt + ";# pixel clusters/event;# events").c_str(),160,0.,(int)max_clusters_region));
-     sc = clusterExpert.regHist(m_num_clusters_ECC = TH1I_LW::create((tmp + "_ECC").c_str(), (tmp2 + ", ECC"   + m_histTitleExt + ";# pixel clusters/event;# events").c_str(),160,0.,(int)max_clusters_region));
-     if(m_doIBL){sc = clusterExpert.regHist(m_num_clusters_IBL  = TH1I_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";# pixel clusters/event;# events").c_str(),160,0.,(int)max_clusters_region));}
+     
+     for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
+       hname = makeHistname(("num_clusters_"+modlabel[i]), false);
+       tmp2 = "Number of pixel clusters in an event, " + modlabel[i] + m_histTitleExt + ";# pixel clusters/event;# events";
+       sc = clusterExpert.regHist(m_num_clusters_mod[i] = TH1I_LW::create(hname.c_str(), tmp2.c_str(), 160, 0., (int)max_clusters_region));
 
-     tmp = "cluster_occupancy_summary"; tmp2 = "Average cluster occupancy";
-     //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
-     sc = clusterExpert.regHist(m_ecA_cluster_occupancy_summary     = TH1F_LW::create((tmp + "_ECA").c_str(), (tmp2 + ", ECA" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
-     sc = clusterExpert.regHist(m_ecC_cluster_occupancy_summary     = TH1F_LW::create((tmp + "_ECC").c_str(), (tmp2 + ", ECC" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
-     sc = clusterExpert.regHist(m_bar_layI_cluster_occupancy_summary= TH1F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
-     sc = clusterExpert.regHist(m_bar_lay0_cluster_occupancy_summary= TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B0"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
-     sc = clusterExpert.regHist(m_bar_lay1_cluster_occupancy_summary= TH1F_LW::create((tmp + "_B1").c_str(),  (tmp2 + ", B1"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
-     sc = clusterExpert.regHist(m_bar_lay2_cluster_occupancy_summary= TH1F_LW::create((tmp + "_B2").c_str(),  (tmp2 + ", B2"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+       if(m_doOnTrack || m_doOnPixelTrack) { 
+          hname = makeHistname(("num_clusters_per_track_per_lumi_"+modlabel[i]), true);
+          tmp2 = "Number of pixel clusters in an event, " + modlabel[i] + m_histTitleExt + atext_LB + ";Avg #clusters/track/event";
+          sc = clusterExpert.regHist(m_clusters_per_track_per_lumi_mod[i] = TProfile_LW::create(hname.c_str(), tmp2.c_str(), nbins_LB, min_LB, max_LB));
+       }
+
+       hname = makeHistname(("cluster_occupancy_summary_" + modlabel[i]), true);
+       tmp2 = "Average cluster occupancy, " + modlabel[i] + m_histTitleExt + ";average # of clusters per module per event;# modules";
+       sc = clusterExpert.regHist(m_cluster_occupancy_summary_mod[i]= TH1F_LW::create(hname.c_str(), tmp2.c_str(), 100, 0., max_avclusters));
+     }
+
+     //tmp = "cluster_occupancy_summary"; tmp2 = "Average cluster occupancy";
+     //sc = clusterExpert.regHist(m_ecA_cluster_occupancy_summary     = TH1F_LW::create((tmp + "_ECA").c_str(), (tmp2 + ", ECA" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     //sc = clusterExpert.regHist(m_ecC_cluster_occupancy_summary     = TH1F_LW::create((tmp + "_ECC").c_str(), (tmp2 + ", ECC" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     //sc = clusterExpert.regHist(m_bar_layI_cluster_occupancy_summary= TH1F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     //sc = clusterExpert.regHist(m_bar_lay0_cluster_occupancy_summary= TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B0"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     //sc = clusterExpert.regHist(m_bar_lay1_cluster_occupancy_summary= TH1F_LW::create((tmp + "_B1").c_str(),  (tmp2 + ", B1"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
+     //sc = clusterExpert.regHist(m_bar_lay2_cluster_occupancy_summary= TH1F_LW::create((tmp + "_B2").c_str(),  (tmp2 + ", B2"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 100,0.,(int)max_avclusters));
    }
    if(m_doLowOccupancy)
    {
       tmp = "num_clusters_low_occupancy"; tmp2 = "Number of pixel clusters in an event";
       if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
       sc = clusterShift.regHist(m_num_clusters_low                        = TH1I_LW::create(tmp.c_str(),  (tmp2 + m_histTitleExt + ";# pixel clusters/event;# events").c_str(), 200,-0.5,199.5));
-      tmp = "cluster_occupancy_summary_low_occupancy"; tmp2 = "Average cluster occupancy";
-      //if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
-      sc = clusterExpert.regHist(m_ecA_cluster_occupancy_summary_low      = TH1F_LW::create((tmp + "_ECA").c_str(), (tmp2 + ", ECA" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
-      sc = clusterExpert.regHist(m_ecC_cluster_occupancy_summary_low      = TH1F_LW::create((tmp + "_ECC").c_str(), (tmp2 + ", ECC" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
-      sc = clusterExpert.regHist(m_bar_layI_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
-      sc = clusterExpert.regHist(m_bar_lay0_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B0"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
-      sc = clusterExpert.regHist(m_bar_lay1_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_B1").c_str(),  (tmp2 + ", B1"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
-      sc = clusterExpert.regHist(m_bar_lay2_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_B2").c_str(),  (tmp2 + ", B2"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      //tmp = "cluster_occupancy_summary_low_occupancy"; tmp2 = "Average cluster occupancy";
+      ////if(m_doOnTrack) { tmp = tmp + addOnTrack; tmp2 = tmp2 + addOnTrack; }
+      //sc = clusterExpert.regHist(m_ecA_cluster_occupancy_summary_low      = TH1F_LW::create((tmp + "_ECA").c_str(), (tmp2 + ", ECA" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      //sc = clusterExpert.regHist(m_ecC_cluster_occupancy_summary_low      = TH1F_LW::create((tmp + "_ECC").c_str(), (tmp2 + ", ECC" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      //sc = clusterExpert.regHist(m_bar_layI_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_IBL").c_str(), (tmp2 + ", IBL" + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      //sc = clusterExpert.regHist(m_bar_lay0_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_B0").c_str(),  (tmp2 + ", B0"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      //sc = clusterExpert.regHist(m_bar_lay1_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_B1").c_str(),  (tmp2 + ", B1"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+      //sc = clusterExpert.regHist(m_bar_lay2_cluster_occupancy_summary_low = TH1F_LW::create((tmp + "_B2").c_str(),  (tmp2 + ", B2"  + m_histTitleExt + ";average # of clusters per module per event;# modules").c_str(), 50,0.,2.));
+
+      for(int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
+        hname = makeHistname(("cluster_occupancy_summary_low_occupancy_" + modlabel[i]), true);
+        tmp2 = "Average cluster occupancy, " + modlabel[i] + m_histTitleExt + ";average # of clusters per module per event;# modules";
+        sc = clusterExpert.regHist(m_cluster_occupancy_summary_low_mod[i]= TH1F_LW::create(hname.c_str(), tmp2.c_str(), 50, 0., 2.));
+      }
    }
 
-   //if(m_doPixelOccupancy){ }
-   //if(m_doDetails){ }
+   /// Quick Status
+   if(m_doOnTrack || m_doOnPixelTrack) { 
+     hname = makeHistname("Clusters_onTrack_per_lumi_L0_B11_S2_C6", false);
+     htitles = makeHisttitle("Number of clusters on track, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits", false);
+     sc = clusterExpert.regHist(m_clusters_onTrack_L0_B11_S2_C6 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5+96));
+     m_clusters_onTrack_L0_B11_S2_C6->SetOption("colz");
+
+     hname = makeHistname("Clusters_offTrack_per_lumi_L0_B11_S2_C6", false);
+     htitles = makeHisttitle("Number of clusters not on track, L0_B11_S2_C6", ";lumi block;FE ID (16*(6-eta_mod) + 8*(pix_phi/164) + (eta_pix/18);#hits", false);
+     sc = clusterExpert.regHist(m_clusters_offTrack_L0_B11_S2_C6 = TH2F_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5+96));
+     m_clusters_offTrack_L0_B11_S2_C6->SetOption("colz");
+   }
+
 
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;   
    return StatusCode::SUCCESS;
@@ -586,6 +623,7 @@ StatusCode PixelMainMon::FillClustersMon(void)
    }//end Initialize
 
    Identifier clusID;
+   IdentifierHash id_hash;
    InDet::PixelClusterContainer::const_iterator colNext = m_Pixel_clcontainer->begin();
    InDet::PixelClusterContainer::const_iterator lastCol = m_Pixel_clcontainer->end();
    DataVector<PixelCluster>::const_iterator p_clus;
@@ -602,6 +640,7 @@ StatusCode PixelMainMon::FillClustersMon(void)
       for(p_clus=ClusterCollection->begin(); p_clus!=ClusterCollection->end(); ++p_clus)
       {
          clusID=(*p_clus)->identify();
+         id_hash = m_pixelid->wafer_hash(clusID);
          int pixlayer = GetPixLayerID(m_pixelid->barrel_ec(clusID), m_pixelid->layer_disk(clusID), m_doIBL);
          int pixlayerdbm = GetPixLayerIDDBM(m_pixelid->barrel_ec(clusID), m_pixelid->layer_disk(clusID), m_doIBL);
          int pixlayeribl2d3d = pixlayer;
@@ -613,6 +652,8 @@ StatusCode PixelMainMon::FillClustersMon(void)
             pixlayeribl2d3ddbm = GetPixLayerIDIBL2D3DDBM(m_pixelid->barrel_ec(clusID), m_pixelid->layer_disk(clusID), m_pixelid->eta_module(clusID), m_doIBL);
          }
          if(pixlayer == 99) continue;
+
+         //std::cout << id_hash << std::endl;
 
          int lumiblock = m_manager->lumiBlockNumber();
 
@@ -630,6 +671,22 @@ StatusCode PixelMainMon::FillClustersMon(void)
 
 
 	      nclusters_all++; // count all clusters for ontrack
+
+         
+         /// Quick Status
+         int fephi=0;
+         int feeta=0;
+         if( pixlayer == PixLayer::kB0 && GetFEID( pixlayer, m_pixelid->phi_index(clusID), m_pixelid->eta_index(clusID), fephi, feeta) ){
+            if(m_doOnTrack || m_doOnPixelTrack) { 
+               if(m_pixelid->phi_module(clusID) == 0 && m_pixelid->eta_module(clusID) < 0 ){
+                  if(OnTrack(clusID,true) ){
+                     if(m_clusters_onTrack_L0_B11_S2_C6) m_clusters_onTrack_L0_B11_S2_C6->Fill( m_manager->lumiBlockNumber(), (16*fabs(6+m_pixelid->eta_module(clusID)))+(8.0*fephi)+feeta );
+                  }else{
+                     if(m_clusters_offTrack_L0_B11_S2_C6) m_clusters_offTrack_L0_B11_S2_C6->Fill( m_manager->lumiBlockNumber(), (16*fabs(6+m_pixelid->eta_module(clusID)))+(8.0*fephi)+feeta );
+                  }
+               }
+            }
+         }
 
 
          if( (m_doOnTrack || m_doOnPixelTrack) && !OnTrack(clusID,true) ){
@@ -786,25 +843,21 @@ StatusCode PixelMainMon::FillClustersMon(void)
             }  
          }
 
-         int fephi=0;
-         int feeta=0;
-         if( pixlayer == PixLayer::kB0 && GetFEID( pixlayer, m_pixelid->phi_index(clusID), m_pixelid->eta_index(clusID), fephi, feeta) ){
-            //std::cout << "Cluster is valid  phi:" << fephi << "  eta:" << feeta << "   " << (8.0*m_pixelid->eta_module(clusID))+(1.0*feeta) << "  " << (2.0*m_pixelid->phi_module(clusID))+(1.0*fephi) << std::endl;
-            //std::cout << m_pixelid->eta_module(clusID) << " " << m_pixelid->phi_module(clusID) << " " << (8.0*m_pixelid->eta_module(clusID))+(1.0*feeta) << "  " << (2.0*m_pixelid->phi_module(clusID))+(1.0*fephi) << std::endl;
-            //if(m_cluster_occupancy_FE_B0) m_cluster_occupancy_FE_B0->Fill( (8.0*m_pixelid->eta_module(clusID))+(1.0*feeta), (2.0*m_pixelid->phi_module(clusID))+(1.0*fephi));
-            if(m_pixelid->phi_module(clusID) == 0 && m_pixelid->eta_module(clusID) == -6 && m_cluster_occupancy_FE_L0_B11_S2_C6) m_cluster_occupancy_FE_L0_B11_S2_C6->Fill( lumiblock, (8.0*fephi)+feeta );
-            if(m_pixelid->phi_module(clusID) == 0 && m_pixelid->eta_module(clusID) == -6 && m_cluster_totmean_L0_B11_S2_C6) m_cluster_totmean_L0_B11_S2_C6->Fill( lumiblock, (8.0*fephi)+feeta, cluster.totalToT() );
-            if(m_doOnline){
-              if(m_cluster_occupancy_FE_B0_mon) m_cluster_occupancy_FE_B0_mon->Fill( (8.0*m_pixelid->eta_module(clusID))+(1.0*feeta), (2.0*m_pixelid->phi_module(clusID))+(1.0*fephi));
-              if(m_doRefresh5min && m_cluster_occupancy_FE_B0_mon) m_cluster_occupancy_FE_B0_mon->Reset();
-            }
-         }
-
 	      if (m_doLumiBlock) {
 	         if (m_cluster_occupancy_LB) m_cluster_occupancy_LB->Fill(clusID,m_pixelid,m_doIBL);
 	         if (m_cluster_ToT_LB)m_cluster_ToT_LB->Fill(cluster.totalToT());     
 	         if (m_cluster_ToT_mod_LB) m_cluster_ToT_mod_LB->Fill(cluster.totalToT(),clusID,m_pixelid,m_doIBL);   
 	      }
+
+         /// Quick Status
+         fephi=0;
+         feeta=0;
+         if( pixlayer == PixLayer::kB0 && GetFEID( pixlayer, m_pixelid->phi_index(clusID), m_pixelid->eta_index(clusID), fephi, feeta) ){
+            if(m_doOnline){
+              if(m_cluster_occupancy_FE_B0_mon) m_cluster_occupancy_FE_B0_mon->Fill( (8.0*m_pixelid->eta_module(clusID))+(1.0*feeta), (2.0*m_pixelid->phi_module(clusID))+(1.0*fephi));
+              if(m_doRefresh5min && m_cluster_occupancy_FE_B0_mon) m_cluster_occupancy_FE_B0_mon->Reset();
+            }
+         }
 	 
          ///////////End of main fill block////////////////////
       } // PixelClusterContainer loop
@@ -813,8 +866,22 @@ StatusCode PixelMainMon::FillClustersMon(void)
    //////////////////////Fill after event block////////////////
    if(m_doOnline)//should we fill these mid run or only at the end?
    {
-      FillSummaryHistos(m_cluster_occupancy,m_ecA_cluster_occupancy_summary,m_ecC_cluster_occupancy_summary,m_bar_layI_cluster_occupancy_summary,m_bar_lay0_cluster_occupancy_summary,m_bar_lay1_cluster_occupancy_summary,m_bar_lay2_cluster_occupancy_summary);
-      FillSummaryHistos(m_cluster_occupancy,m_ecA_cluster_occupancy_summary_low,m_ecC_cluster_occupancy_summary_low,m_bar_layI_cluster_occupancy_summary_low,m_bar_lay0_cluster_occupancy_summary_low,m_bar_lay1_cluster_occupancy_summary_low,m_bar_lay2_cluster_occupancy_summary_low);
+      //FillSummaryHistos(m_cluster_occupancy,m_ecA_cluster_occupancy_summary,m_ecC_cluster_occupancy_summary,m_bar_layI_cluster_occupancy_summary,m_bar_lay0_cluster_occupancy_summary,m_bar_lay1_cluster_occupancy_summary,m_bar_lay2_cluster_occupancy_summary);
+      FillSummaryHistos(m_cluster_occupancy,
+                        m_cluster_occupancy_summary_mod[PixLayer::kECA],
+                        m_cluster_occupancy_summary_mod[PixLayer::kECC],
+                        m_cluster_occupancy_summary_mod[PixLayer::kIBL],
+                        m_cluster_occupancy_summary_mod[PixLayer::kB0],
+                        m_cluster_occupancy_summary_mod[PixLayer::kB1],
+                        m_cluster_occupancy_summary_mod[PixLayer::kB2]);
+      FillSummaryHistos(m_cluster_occupancy,
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kECA],
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kECC],
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kIBL],
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kB0],
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kB1],
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kB2]);
+      //FillSummaryHistos(m_cluster_occupancy,m_ecA_cluster_occupancy_summary_low,m_ecC_cluster_occupancy_summary_low,m_bar_layI_cluster_occupancy_summary_low,m_bar_lay0_cluster_occupancy_summary_low,m_bar_lay1_cluster_occupancy_summary_low,m_bar_lay2_cluster_occupancy_summary_low);
      if(m_doRefresh) {
        if(m_clustermap_mon && m_clustermap_tmp) m_clustermap_mon->Fill2DMon(m_clustermap_tmp);
      }
@@ -825,6 +892,9 @@ StatusCode PixelMainMon::FillClustersMon(void)
    //if(m_clusters_per_lumi_PIX)m_clusters_per_lumi_PIX->Fill(m_manager->lumiBlockNumber(),nclusters-nclusters_IBL); 
    for( int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
       if(m_clusters_per_lumi_mod[i]) m_clusters_per_lumi_mod[i]->Fill( m_manager->lumiBlockNumber(), nclusters_mod[i]);
+      if(m_doOnTrack || m_doOnPixelTrack) { 
+        if(m_clusters_per_track_per_lumi_mod[i] && m_ntracksPerEvent>0) m_clusters_per_track_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(), (1.0*nclusters_mod[i])/(1.0*m_ntracksPerEvent));
+      }
    }
 
    if(m_largeclusters_per_lumi)m_largeclusters_per_lumi->Fill(m_manager->lumiBlockNumber(), nlargeclusters); 
@@ -839,12 +909,10 @@ StatusCode PixelMainMon::FillClustersMon(void)
      
       if(m_num_clusters) m_num_clusters->Fill(nclusters);
       if(m_num_clusters_low) m_num_clusters_low->Fill(nclusters);
-      if(m_num_clusters_ECA) m_num_clusters_ECA->Fill(nclusters_mod[PixLayer::kECA]);
-      if(m_num_clusters_ECC) m_num_clusters_ECC->Fill(nclusters_mod[PixLayer::kECC]);
-      if(m_num_clusters_IBL) m_num_clusters_IBL->Fill(nclusters_mod[PixLayer::kIBL]);
-      if(m_num_clusters_B0)   m_num_clusters_B0->Fill(nclusters_mod[PixLayer::kB0]);
-      if(m_num_clusters_B1)   m_num_clusters_B1->Fill(nclusters_mod[PixLayer::kB1]);
-      if(m_num_clusters_B2)   m_num_clusters_B2->Fill(nclusters_mod[PixLayer::kB2]);
+      
+      for( int i=0; i<PixLayer::COUNT-1+(int)(m_doIBL); i++){
+         if(m_num_clusters_mod[i]) m_num_clusters_mod[i]->Fill( nclusters_mod[i] );
+      }
 
       if(m_cluster_occupancy_time1&&m_cluster_occupancy_time2&&m_cluster_occupancy_time3) FillTimeHisto(double(nclusters/(1744.0+280*m_doIBL)),m_cluster_occupancy_time1, m_cluster_occupancy_time2, m_cluster_occupancy_time3,10.,60.,360. );
       if(m_doLumiBlock && m_num_clusters_LB) m_num_clusters_LB->Fill(nclusters);
@@ -891,8 +959,22 @@ StatusCode PixelMainMon::ProcClustersMon(void)
 {
    if(m_doOffline) //run these only for offline
    {
-      FillSummaryHistos(m_cluster_occupancy,m_ecA_cluster_occupancy_summary,m_ecC_cluster_occupancy_summary,m_bar_layI_cluster_occupancy_summary,m_bar_lay0_cluster_occupancy_summary,m_bar_lay1_cluster_occupancy_summary,m_bar_lay2_cluster_occupancy_summary);
-      FillSummaryHistos(m_cluster_occupancy,m_ecA_cluster_occupancy_summary_low,m_ecC_cluster_occupancy_summary_low,m_bar_layI_cluster_occupancy_summary_low,m_bar_lay0_cluster_occupancy_summary_low,m_bar_lay1_cluster_occupancy_summary_low,m_bar_lay2_cluster_occupancy_summary_low);
+      //FillSummaryHistos(m_cluster_occupancy,m_ecA_cluster_occupancy_summary,m_ecC_cluster_occupancy_summary,m_bar_layI_cluster_occupancy_summary,m_bar_lay0_cluster_occupancy_summary,m_bar_lay1_cluster_occupancy_summary,m_bar_lay2_cluster_occupancy_summary);
+      FillSummaryHistos(m_cluster_occupancy,
+                        m_cluster_occupancy_summary_mod[PixLayer::kECA],
+                        m_cluster_occupancy_summary_mod[PixLayer::kECC],
+                        m_cluster_occupancy_summary_mod[PixLayer::kIBL],
+                        m_cluster_occupancy_summary_mod[PixLayer::kB0],
+                        m_cluster_occupancy_summary_mod[PixLayer::kB1],
+                        m_cluster_occupancy_summary_mod[PixLayer::kB2]);
+      FillSummaryHistos(m_cluster_occupancy,
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kECA],
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kECC],
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kIBL],
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kB0],
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kB1],
+                        m_cluster_occupancy_summary_low_mod[PixLayer::kB2]);
+      //FillSummaryHistos(m_cluster_occupancy,m_ecA_cluster_occupancy_summary_low,m_ecC_cluster_occupancy_summary_low,m_bar_layI_cluster_occupancy_summary_low,m_bar_lay0_cluster_occupancy_summary_low,m_bar_lay1_cluster_occupancy_summary_low,m_bar_lay2_cluster_occupancy_summary_low);
    }
    
    double events = m_event;
