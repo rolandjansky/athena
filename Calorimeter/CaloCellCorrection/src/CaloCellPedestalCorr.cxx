@@ -57,19 +57,15 @@ CaloCellPedestalCorr::CaloCellPedestalCorr(
 
 StatusCode CaloCellPedestalCorr::initialize()
 {
-  msg(MSG::INFO) << " in CaloCellPedestalCorr::initialize() " << endreq;
+  ATH_MSG_INFO( " in CaloCellPedestalCorr::initialize() "  );
 
   ATH_CHECK(detStore()->retrieve(m_cellId, "CaloCell_ID"));
 
   if (m_lumi0<0) {
     if (detStore()->contains<CondAttrListCollection>(m_lumiFolderName)) {
       const DataHandle<CondAttrListCollection> lumiData;
-      StatusCode sc = detStore()->regFcn(&CaloCellPedestalCorr::updateLumi, this , lumiData, m_lumiFolderName, true);
-      if (sc.isFailure()) {
-          msg(MSG::ERROR) << " cannot register callback for luminosity " << endreq;
-          return StatusCode::FAILURE;
-      }
-      msg(MSG::INFO) << " Registered a callback for " << m_lumiFolderName << " Cool folder " << endreq;
+      ATH_CHECK( detStore()->regFcn(&CaloCellPedestalCorr::updateLumi, this , lumiData, m_lumiFolderName, true) );
+      ATH_MSG_INFO( " Registered a callback for " << m_lumiFolderName << " Cool folder "  );
     }
     m_lumi0=0;
   }
@@ -77,12 +73,8 @@ StatusCode CaloCellPedestalCorr::initialize()
 
   if (!m_isMC) {
     //=== Register callback for this data handle
-    StatusCode sc=detStore()->regFcn(&CaloCellPedestalCorr::updateMap, this, m_noiseAttrListColl, m_folderName);
-    if (sc.isFailure()) {
-      msg(MSG::ERROR) << " cannot register callback " << endreq;
-      return StatusCode::FAILURE;
-    }
-    msg(MSG::INFO) << " registered a callback for " << m_folderName << " folder " << endreq;
+    ATH_CHECK( detStore()->regFcn(&CaloCellPedestalCorr::updateMap, this, m_noiseAttrListColl, m_folderName) );
+    ATH_MSG_INFO( " registered a callback for " << m_folderName << " folder "  );
 
     ATH_CHECK(m_caloCoolIdTool.retrieve());
   }
@@ -91,7 +83,7 @@ StatusCode CaloCellPedestalCorr::initialize()
     ATH_CHECK(m_caloLumiBCIDTool.retrieve());
   }
   
-  msg(MSG::INFO) << "CaloCellPedestalCorr initialize() end" << endreq;
+  ATH_MSG_INFO( "CaloCellPedestalCorr initialize() end"  );
 
   return StatusCode::SUCCESS;
 
@@ -101,7 +93,7 @@ StatusCode CaloCellPedestalCorr::initialize()
 StatusCode
 CaloCellPedestalCorr::updateLumi( IOVSVC_CALLBACK_ARGS )
 {
-  msg(MSG::INFO) << " in updateLumi() " << endreq;
+  ATH_MSG_INFO( " in updateLumi() "  );
 
   const CondAttrListCollection* attrListColl = 0;
   ATH_CHECK(detStore()->retrieve(attrListColl, m_lumiFolderName));
@@ -113,11 +105,11 @@ CaloCellPedestalCorr::updateLumi( IOVSVC_CALLBACK_ARGS )
      if (msgLvl(MSG::DEBUG)) {
        std::ostringstream attrStr1;
        (*first).second.toOutputStream( attrStr1 );
-       msg(MSG::DEBUG) << "ChanNum " << (*first).first << " Attribute list " << attrStr1.str() << endreq;
+       ATH_MSG_DEBUG( "ChanNum " << (*first).first << " Attribute list " << attrStr1.str()  );
      }
      const coral::AttributeList& attrList = (*first).second;
      if (attrList["LBAvInstLumi"].isNull()) {
-       msg(MSG::WARNING) << " NULL Luminosity information in database ... set it to 0 " << endreq;
+       ATH_MSG_WARNING( " NULL Luminosity information in database ... set it to 0 "  );
        m_lumi0 = 0.;
      } else {
        m_lumi0 = attrList["LBAvInstLumi"].data<float>() *1e-3;  // luminosity (from 10**30 units in db to 10*33 units)
@@ -126,10 +118,10 @@ CaloCellPedestalCorr::updateLumi( IOVSVC_CALLBACK_ARGS )
    }
   }
   if ( !(m_lumi0 == m_lumi0) ) {
-    msg(MSG::WARNING) << " Luminosity not a number ?  m_lumi0 " << m_lumi0 << "   ... set it to 0 " << endreq;
+    ATH_MSG_WARNING( " Luminosity not a number ?  m_lumi0 " << m_lumi0 << "   ... set it to 0 "  );
     m_lumi0 = 0.;
   }
-  msg(MSG::INFO) << " Luminosity " << m_lumi0 << endreq;
+  ATH_MSG_INFO( " Luminosity " << m_lumi0  );
   return StatusCode::SUCCESS;
 }
 
@@ -144,7 +136,7 @@ StatusCode CaloCellPedestalCorr::updateMap(IOVSVC_CALLBACK_ARGS_K(keys) )
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
     msg() << *itr << " ";
   }
-  msg() << endreq;
+  msg() << endmsg;
 
   //=== loop over collection (all cool channels)
   CondAttrListCollection::const_iterator iColl = m_noiseAttrListColl->begin();

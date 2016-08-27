@@ -151,7 +151,7 @@ StatusCode CaloCellNeighborsAverageCorr::process(CaloCellContainer* theCont)
           //log << MSG::VERBOSE << name[part] << module+1 << " nCells " 
           //    << nGoodCellsPerDrawer[part][module]
           //    << ( ( nGoodCellsPerDrawer[part][module] < 2 ) ? " bad drawer" : "")
-          //    << endreq;
+          //    << endmsg;
           if ( nGoodCellsPerDrawer[part][module] < 2 ) {
             ATH_MSG_VERBOSE ( "Bad drawer " << name[part] << module+1  );
           }
