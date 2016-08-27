@@ -44,8 +44,7 @@ CaloCellRescaler::~CaloCellRescaler() {}
 
 
 StatusCode CaloCellRescaler::initialize() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " initialization " << endreq;
+  ATH_MSG_INFO( " initialization "  );
   return StatusCode::SUCCESS;
 }
 
