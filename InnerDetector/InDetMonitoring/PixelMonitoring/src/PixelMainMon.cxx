@@ -165,6 +165,7 @@ PixelMainMon::PixelMainMon(const std::string & type,
    isFirstBook = false;
    m_nRefresh = 0;
    m_nRefresh5min = 0;
+   m_ntracksPerEvent = 0;
 
    //initalize all the histograms to 0 to start
    m_events_per_lumi = 0;
@@ -228,23 +229,17 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_track_res_eta = 0; 
    m_track_pull_eta = 0;
    m_track_chi2 = 0;
-   m_track_chi2_LB = 0;
    m_track_chi2_bcl1 = 0;
    m_track_chi2_bcl0 = 0;
    m_track_chi2_bclgt1 = 0;
    m_track_chi2_bcl1_highpt = 0;
    m_track_chi2_bcl0_highpt = 0;
    m_track_chi2_bclgt1_highpt = 0;
-   //m_tracks_per_lumi = 0;
-   //m_trackRate_per_lumi = 0;
-   //m_tracksPerEvt_per_lumi = 0;
+   m_tracksPerEvt_per_lumi = 0;
    //m_tracksPerEvtPerMu_per_lumi = 0;
    
    //m_cluster_occupancy_FE_B0 = 0;
    m_cluster_occupancy_FE_B0_mon = 0;
-   m_cluster_occupancy_FE_L0_B11_S2_C6 = 0;
-   m_cluster_totmean_L0_B11_S2_C6 = 0;
-   m_hit_totmean_L0_B11_S2_C6 = 0;
    
    m_LorentzAngle_IBL = 0;
    m_LorentzAngle_IBL2D = 0;
@@ -296,30 +291,31 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_cluster_ToT_mod = 0;
    m_cluster_size_mod = 0;
    m_cluster_num_mod = 0;
+   //m_cluster_num_mod_ontrack = 0;
    m_cluster_occupancy_time1 = 0;
    m_cluster_occupancy_time2 = 0;
    m_cluster_occupancy_time3 = 0;
    m_num_clusters = 0;
    //m_num_clusters_PIX = 0;
    m_num_clusters_low = 0;
-   m_num_clusters_ECA = 0;
-   m_num_clusters_ECC = 0;
-   m_num_clusters_IBL = 0;
-   m_num_clusters_B0 = 0;
-   m_num_clusters_B1 = 0;
-   m_num_clusters_B2 = 0;
-   m_ecA_cluster_occupancy_summary = 0;
-   m_ecC_cluster_occupancy_summary = 0;
-   m_bar_layI_cluster_occupancy_summary = 0;
-   m_bar_lay0_cluster_occupancy_summary = 0;
-   m_bar_lay1_cluster_occupancy_summary = 0;
-   m_bar_lay2_cluster_occupancy_summary = 0;
-   m_ecA_cluster_occupancy_summary_low = 0;
-   m_ecC_cluster_occupancy_summary_low = 0;
-   m_bar_layI_cluster_occupancy_summary_low = 0;
-   m_bar_lay0_cluster_occupancy_summary_low = 0;
-   m_bar_lay1_cluster_occupancy_summary_low = 0;
-   m_bar_lay2_cluster_occupancy_summary_low = 0;
+   //m_num_clusters_ECA = 0;
+   //m_num_clusters_ECC = 0;
+   //m_num_clusters_IBL = 0;
+   //m_num_clusters_B0 = 0;
+   //m_num_clusters_B1 = 0;
+   //m_num_clusters_B2 = 0;
+   //m_ecA_cluster_occupancy_summary = 0;
+   //m_ecC_cluster_occupancy_summary = 0;
+   //m_bar_layI_cluster_occupancy_summary = 0;
+   //m_bar_lay0_cluster_occupancy_summary = 0;
+   //m_bar_lay1_cluster_occupancy_summary = 0;
+   //m_bar_lay2_cluster_occupancy_summary = 0;
+   //m_ecA_cluster_occupancy_summary_low = 0;
+   //m_ecC_cluster_occupancy_summary_low = 0;
+   //m_bar_layI_cluster_occupancy_summary_low = 0;
+   //m_bar_lay0_cluster_occupancy_summary_low = 0;
+   //m_bar_lay1_cluster_occupancy_summary_low = 0;
+   //m_bar_lay2_cluster_occupancy_summary_low = 0;
    m_cluster_LVL1A_mod = 0;
    m_clustersOnOffTrack_per_lumi = 0;
    m_Status_modules = 0;
@@ -361,8 +357,14 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_lowToTHitsFraction_11 = 0;
    m_lowToTHitsFraction_13 = 0;
 
-   m_hiteff_incl_L0_B11_S2_C6 = 0;
-   m_holeRatio_incl_L0_B11_S2_C6 = 0;
+   //m_hiteff_incl_L0_B11_S2_C6 = 0;
+   //m_hiteff_isgood_L0_B11_S2_C6 = 0;
+   //m_holeRatio_incl_L0_B11_S2_C6 = 0;
+   m_occupancy_L0_B11_S2_C6 = 0;
+   m_nhits_L0_B11_S2_C6 = 0;
+   m_clusters_onTrack_L0_B11_S2_C6 = 0;
+   m_clusters_offTrack_L0_B11_S2_C6 = 0;
+
 
    m_pixelid =0;
    pixelmgr =0;
@@ -434,6 +436,10 @@ PixelMainMon::PixelMainMon(const std::string & type,
       m_cluster_LVL1A1d_mod[i] = 0;
       //m_clusize_ontrack_mod[i] = 0;
       //m_clusize_offtrack_mod[i] = 0;
+      m_clusters_per_track_per_lumi_mod[i] = 0;
+      m_num_clusters_mod[i] = 0;
+      m_cluster_occupancy_summary_mod[i] = 0;
+      m_cluster_occupancy_summary_low_mod[i] = 0;
    }
    for( int j=0; j<16; j++){
       m_errors_int_LB[j] = 0;

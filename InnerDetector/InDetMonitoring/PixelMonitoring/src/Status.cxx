@@ -143,7 +143,7 @@ StatusCode PixelMainMon::FillStatusMon(void)
       else {Index=1;}
 
       if(m_status) m_status->Fill(WaferID,m_pixelid,Index,m_doIBL);
-      //if(m_status_mon) m_status_mon->Fill(WaferID,m_pixelid,Index,m_doIBL);
+      if(m_status_mon) m_status_mon->Fill(WaferID,m_pixelid,Index,m_doIBL);
 
       if(m_doLumiBlock){
 	      if(m_status_LB) m_status_LB->Fill(WaferID,m_pixelid,Index,m_doIBL);
@@ -205,7 +205,7 @@ StatusCode PixelMainMon::FillStatusMon(void)
      m_majorityDisabled = false;
    }
 
-   //if(m_doRefresh && m_status_mon) m_status_mon->Reset();
+   if(m_doRefresh && m_status_mon) m_status_mon->Reset();
 
    return StatusCode::SUCCESS;
 
