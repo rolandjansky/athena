@@ -70,8 +70,8 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    const std::string modlabel2[nlayersIBL2d3d] = {"ECA", "ECC", "B0", "B1", "B2", "IBL", "IBL2D", "IBL3D"};
 
    unsigned int  nmod_eta[nlayers] = {3, 3, 13, 13, 13, 32};
-   float min_eta[nlayers] = {-0.5, -0.5, -6.5, -6.5, -6.5, -16.5};
-   float max_eta[nlayers] = {2.5, 3.5, 6.5, 6.5, 6.5, 15.5};
+   //float min_eta[nlayers] = {-0.5, -0.5, -6.5, -6.5, -6.5, -16.5};
+   //float max_eta[nlayers] = {2.5, 3.5, 6.5, 6.5, 6.5, 15.5};
 
    /// Set the number of bins, max/min bin
    std::string atext_LB = ";lumi block"; 
@@ -89,6 +89,10 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
    std::string hname;
    std::string htitles;
 
+
+   hname = makeHistname("SyncErrors_per_lumi_PIX", false);
+   htitles = makeHisttitle("Average Synchronization errors per event, PIXEL BARREL", (atext_LB+atext_err), false);
+   sc = rodHistos.regHist(m_SyncErrors_per_lumi_PIX = TProfile_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, minbin_LB, maxbin_LB));
 
    for( int i=0; i<nlayersIBL2d3d; i++){
       hname = makeHistname(("errors_per_lumi_"+modlabel2[i]), false);
@@ -171,9 +175,9 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
       htitles = makeHisttitle(("Errors for Bad Module, "+modlabel2[i]), (atext_LB+atext_erf), false);
       sc = rodExpert.regHist(m_bad_mod_errors_mod[i]  = TH1I_LW::create(hname.c_str(), htitles.c_str(), nbins_ES, minbin_ES, maxbin_ES));
 
-      hname = makeHistname(("Errors_EtaID_"+modlabel2[i]), false);
-      htitles = makeHisttitle(("Errors vs Eta Module ID, "+modlabel2[i]), ";eta module ID;Error State;# Errors", false);
-      sc = rodExpert.regHist(m_errors_etaid_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nmod_eta[i], min_eta[i], max_eta[i], 32,-0.5,31.5));
+      //hname = makeHistname(("Errors_EtaID_"+modlabel2[i]), false);
+      //htitles = makeHisttitle(("Errors vs Eta Module ID, "+modlabel2[i]), ";eta module ID;Error State;# Errors", false);
+      //sc = rodExpert.regHist(m_errors_etaid_mod[i] = TH2F_LW::create(hname.c_str(), htitles.c_str(), nmod_eta[i], min_eta[i], max_eta[i], 32,-0.5,31.5));
 
       //tmp = "Errors_EtaID_per_event_" + modlabel2[i];
       //tmp2 = "Errors vs Eta Module ID/event, " + modlabel2[i] + m_histTitleExt + ";#eta module ID;Error State;# Errors";
@@ -202,38 +206,38 @@ StatusCode PixelMainMon::BookRODErrorMon(void)
                                    "28",                "29",                   "30",                  "31"
                                    };
 
-   const char *disk[3] = { "Disk 1", "Disk 2", "Disk 3" };
-   const char *mod[13] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0","M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
-   const char *modIBL[32] = {"C8","","C7","",
-				                 "C6","","C5","",
-				                 "C4","","C3","",
-				                 "C2","","C1","",
-				                 "A1","","A2","",
-				                 "A3","","A4","",
-				                 "A5","","A6","",
-				                 "A7","","A8",""};
+   //const char *disk[3] = { "Disk 1", "Disk 2", "Disk 3" };
+   //const char *mod[13] = { "M6C", "M5C", "M4C", "M3C", "M2C", "M1C", "M0","M1A", "M2A", "M3A", "M4A", "M5A", "M6A" } ;
+   //const char *modIBL[32] = {"C8","","C7","",
+	//			                 "C6","","C5","",
+	//			                 "C4","","C3","",
+	//			                 "C2","","C1","",
+	//			                 "A1","","A2","",
+	//			                 "A3","","A4","",
+	//			                 "A5","","A6","",
+	//			                 "A7","","A8",""};
 
    for(int i=0; i<nlayers; i++){
       for( unsigned int x=1; x<=nmod_eta[i]; x++){
          if(i == PixLayer::kECA || i == PixLayer::kECC){
-            m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, disk[x-1]);
+            //m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, disk[x-1]);
             //m_errors_etaid_per_evt_mod[i]->GetXaxis()->SetBinLabel(x, disk[x-1]);
          }
          if(i >= PixLayer::kB0  && i <= PixLayer::kB2){
-            m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, mod[x-1]);
+            //m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, mod[x-1]);
             //m_errors_etaid_per_evt_mod[i]->GetXaxis()->SetBinLabel(x, mod[x-1]);
          }
          if(i == PixLayer::kIBL){
-            m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, modIBL[x-1]);
+            //m_errors_etaid_mod[i]->GetXaxis()->SetBinLabel(x, modIBL[x-1]);
             //m_errors_etaid_per_evt_mod[i]->GetXaxis()->SetBinLabel(x, modIBL[x-1]);
          }
       }
       for( unsigned int y=1; y<=32; y++){
          if(i != PixLayer::kIBL){
-            m_errors_etaid_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y-1]);
+            //m_errors_etaid_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y-1]);
             //m_errors_etaid_per_evt_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsIBL[y-1]);
          }else{
-            m_errors_etaid_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsIBL[y-1]);
+            //m_errors_etaid_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsIBL[y-1]);
             //m_errors_etaid_per_evt_mod[i]->GetYaxis()->SetBinLabel(y, errorBitsPIX[y-1]);
          }
       }
@@ -385,7 +389,7 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
          //if( (errors & (1<<kBit)) !=0 )
          if( (errors & (static_cast<uint64_t>(1)<<kBit)) !=0 )
          {
-            m_errors_etaid_mod[pixlayer]->Fill( GetEtaID(WaferID, m_pixelid, m_doIBL, false), kBit);
+            //m_errors_etaid_mod[pixlayer]->Fill( GetEtaID(WaferID, m_pixelid, m_doIBL, false), kBit);
 	         //TH2FSetBinScaled(m_errors_etaid_per_evt_mod[pixlayer], m_errors_etaid_mod[pixlayer], m_event);
 
 
@@ -492,6 +496,11 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
    
    for(int i=0; i<PixLayerIBL2D3D::COUNT; i++){
 
+      m_nActivAndSync_mod[i] = nErrorsCategory_permod[i][ErrorCategory::kSync];
+      if(i == PixLayerIBL2D3D::kIBL){
+         m_nActivAndSync_mod[i] = 2*nErrorsCategory_permod[PixLayerIBL2D3D::kIBL2D][ErrorCategory::kSync] + nErrorsCategory_permod[PixLayerIBL2D3D::kIBL3D][ErrorCategory::kSync];
+      }
+
       if(m_errors_per_lumi_mod[i]) m_errors_per_lumi_mod[i]->Fill(LBnum, nErrors_mod[i]);
       if(m_SyncErrors_per_lumi_mod[i]) m_SyncErrors_per_lumi_mod[i]->Fill(LBnum, nErrorsCategory_permod[i][ErrorCategory::kSync]);
       if(m_OpticalErrors_per_lumi_mod[i]) m_OpticalErrors_per_lumi_mod[i]->Fill(LBnum, nErrorsCategory_permod[i][ErrorCategory::kOpt]);
@@ -503,6 +512,8 @@ StatusCode PixelMainMon::FillRODErrorMon(void)
          if(m_ErrorFraction_per_evt[j][i] && nmodLayer[i] > 0) m_ErrorFraction_per_evt[j][i]->Fill(LBnum, nErrorsCategory_permod[i][j]/nmodLayer[i]);
       }
    }
+
+   if(m_SyncErrors_per_lumi_PIX) m_SyncErrors_per_lumi_PIX->Fill(LBnum, nErrorsCategory_permod[PixLayerIBL2D3D::kB0][ErrorCategory::kSync] + nErrorsCategory_permod[PixLayerIBL2D3D::kB1][ErrorCategory::kSync] + nErrorsCategory_permod[PixLayerIBL2D3D::kB2][ErrorCategory::kSync] );
 
    return StatusCode::SUCCESS;
 }
