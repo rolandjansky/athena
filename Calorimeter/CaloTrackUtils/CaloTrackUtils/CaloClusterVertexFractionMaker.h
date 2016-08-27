@@ -19,16 +19,18 @@ class CaloClusterVertexFractionMaker: public AthAlgTool, virtual public CaloClus
   CaloClusterVertexFractionMaker(const std::string& type, const std::string& name, const IInterface* parent);
   ~CaloClusterVertexFractionMaker();
 
-  StatusCode initialize();
-  StatusCode execute(xAOD::CaloClusterContainer* theClusColl);
-  StatusCode finalize();
+  using CaloClusterCollectionProcessor::execute;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* theClusColl) const override;
+  virtual StatusCode finalize() override;
 
   /** Callback added to handle Data-driven GeoModel initialisation
    */
 //   virtual StatusCode geoInit(IOVSVC_CALLBACK_ARGS);
 
  private:
-    double calculateDPhi(double phi1, double phi2);
+  double calculateDPhi(double phi1, double phi2) const;
 
     const double m_CALO_INNER_R;        // inner radius of the EM barrel envelope in mm
     const double m_CALO_INNER_Z;
