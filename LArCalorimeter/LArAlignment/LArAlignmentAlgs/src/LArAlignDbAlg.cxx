@@ -4,9 +4,6 @@
 
 #include "LArAlignmentAlgs/LArAlignDbAlg.h"
 
-//#include "StoreGate/StoreGate.h"
-//#include "GaudiKernel/MsgStream.h"
-//#include "GaudiKernel/ToolHandle.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 
@@ -50,25 +47,17 @@ LArAlignDbAlg::~LArAlignDbAlg()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 StatusCode LArAlignDbAlg::initialize()
 {
-  msg(MSG::DEBUG) <<" in initialize()" <<endreq;
+  ATH_MSG_DEBUG(" in initialize()"  );
 
   // Get Output Stream tool for writing
   if(m_writeCondObjs) {
-    if (m_streamer.retrieve().isFailure()) {
-      msg(MSG::ERROR)	<< " Unable to find AthenaPoolOutputStreamTool" << endreq;
-      return StatusCode::FAILURE;
-    }  
+    ATH_CHECK( m_streamer.retrieve() );
   }
     
   // Get the IOVRegistrationSvc when needed
   if(m_regIOV) {
-    if(m_regSvc.retrieve().isFailure()) {
-      msg(MSG::ERROR) << "Unable to find IOVRegistrationSvc "	<< endreq;
-      return StatusCode::FAILURE;
-    }  
-    else {
-      msg(MSG::DEBUG) << "Found IOVRegistrationSvc "  << endreq;
-    }
+    ATH_CHECK( m_regSvc.retrieve() );
+    ATH_MSG_DEBUG( "Found IOVRegistrationSvc "   );
   }
 
   return StatusCode::SUCCESS;
@@ -78,42 +67,23 @@ StatusCode LArAlignDbAlg::initialize()
 
 StatusCode LArAlignDbAlg::execute() 
 {
-  msg(MSG::DEBUG) <<" in execute() " << endreq;
+  ATH_MSG_DEBUG(" in execute() "  );
 
-  StatusCode sc = evtStore()->retrieve(m_evt);
-  if(sc.isFailure()) {
-    msg(MSG::ERROR) << " could not get event info " << endreq;
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve(m_evt) );
 
   int nrun = m_evt->event_ID()->run_number();
   int nevt = m_evt->event_ID()->event_number();
-  msg(MSG::DEBUG) << " Event: [" << nrun << "," << nevt << "]" << endreq;
+  ATH_MSG_DEBUG( " Event: [" << nrun << "," << nevt << "]"  );
 
   // If I need to write out the conditions object I'll do that on the first event
   if (m_writeCondObjs && nevt==1) {
-    msg(MSG::DEBUG) << "Creating conditions objects for run " << nrun << endreq;
+    ATH_MSG_DEBUG( "Creating conditions objects for run " << nrun  );
       
-    sc = createCondObjects();
-
-    if(sc.isFailure()) {
-      msg(MSG::ERROR) << " Could not create cond objects " << endreq;
-      return sc;
-    }
-      
-    //  Read objects from DetectorStore
-    sc = printCondObjects();
-    if(sc.isFailure()) {
-      msg(MSG::ERROR) << " Could not print out cond objects" << endreq;
-      return sc;
-    }
+    ATH_CHECK( createCondObjects() );
+    ATH_CHECK( printCondObjects() );
   } else {
     //  Read objects from DetectorStore
-    sc = printCondObjects();
-    if(sc.isFailure()) {
-      msg(MSG::ERROR) <<" Could not print out cond objects" << endreq;
-      return sc;
-    }
+    ATH_CHECK( printCondObjects() );
   }
     
   return StatusCode::SUCCESS;
@@ -123,40 +93,28 @@ StatusCode LArAlignDbAlg::execute()
 
 StatusCode LArAlignDbAlg::finalize()
 {
-  msg(MSG::DEBUG) << " in finalize() " << endreq;
-  StatusCode sc = StatusCode::SUCCESS;
-
+  ATH_MSG_DEBUG( " in finalize() "  );
   if(m_writeCondObjs) {
-    sc = streamOutCondObjects();
-    if(sc.isFailure()) {
-      msg(MSG::ERROR) << " Could not stream out objects" << endreq;
-      return sc;
-    } else {
-      msg(MSG::DEBUG) << " Streamed out OK " << endreq;
-    }
+    ATH_CHECK( streamOutCondObjects() );
+    ATH_MSG_DEBUG( " Streamed out OK "  );
   }
 
   if(m_regIOV) {
-    sc = registerCondObjects();
-    if(sc.isFailure()) {
-      msg(MSG::ERROR) << " Could not register objects" << endreq;
-      return sc;
-    } else {
-      msg(MSG::DEBUG) << " Register OK " << endreq;
-    }
+    ATH_CHECK( registerCondObjects() );
+    ATH_MSG_DEBUG( " Register OK "  );
   }
   
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
 
 StatusCode LArAlignDbAlg::createCondObjects()
 {
-  msg(MSG::INFO) <<" in createCondObjects() " <<endreq;
+  ATH_MSG_INFO(" in createCondObjects() "  );
   
   if(detStore()->contains<DetCondKeyTrans>(LAR_ALIGN)) {
-    msg(MSG::INFO) << " DetCondKeyTrans already exists, do nothing " <<endreq;
+    ATH_MSG_INFO( " DetCondKeyTrans already exists, do nothing "  );
     return StatusCode::SUCCESS;
   }
 
@@ -167,7 +125,7 @@ StatusCode LArAlignDbAlg::createCondObjects()
   infile.open(m_inpFile.value().c_str());
 
   if(!infile.is_open()) {
-    msg(MSG::ERROR) << "Unable to open " << m_inpFile << " for reading" << endreq;
+    ATH_MSG_ERROR( "Unable to open " << m_inpFile << " for reading"  );
     return StatusCode::FAILURE;
   }
 
@@ -190,14 +148,8 @@ StatusCode LArAlignDbAlg::createCondObjects()
   }
   infile.close();
 
-  StatusCode sc = detStore()->record(transforms,LAR_ALIGN);
-  
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << " Could not record LAR/Align " << endreq;
-    return sc;
-  }
-  else
-    msg(MSG::DEBUG) << " Recorded LAr/Align " << endreq;
+  ATH_CHECK( detStore()->record(transforms,LAR_ALIGN) );
+  ATH_MSG_DEBUG( " Recorded LAr/Align "  );
   
   return StatusCode::SUCCESS;
 }
@@ -210,9 +162,9 @@ StatusCode LArAlignDbAlg::printCondObjects()
   StatusCode sc = detStore()->retrieve(align, LAR_ALIGN);
 
   if(sc.isFailure()) 
-    msg(MSG::WARNING) << " Could not find DetCondKeyTrans" <<endreq;
+    ATH_MSG_WARNING( " Could not find DetCondKeyTrans"  );
   else if(0 == align) 
-    msg(MSG::WARNING) <<" DetCondKeyTrans ptr is 0" <<endreq;
+    ATH_MSG_WARNING(" DetCondKeyTrans ptr is 0"  );
   else {
     std::cout << " \n\n**************************************************** \n";
     std::cout << " ****                                            **** \n";
@@ -232,15 +184,10 @@ StatusCode LArAlignDbAlg::printCondObjects()
 
 StatusCode LArAlignDbAlg::streamOutCondObjects()
 {
-  msg(MSG::DEBUG) << " entering streamOutCondObjects "  << endreq;
+  ATH_MSG_DEBUG( " entering streamOutCondObjects "   );
 
-  StatusCode sc = m_streamer->connectOutput(m_outpFile.value());
-  if(sc.isFailure()) {
-    msg(MSG::ERROR) << " Could not connect stream to output" <<endreq;
-    return sc;
-  }
-  else
-    msg(MSG::DEBUG) <<" Did connect stream to output" <<endreq;
+  ATH_CHECK( m_streamer->connectOutput(m_outpFile.value()) );
+  ATH_MSG_DEBUG(" Did connect stream to output"  );
 
   int npairs = 1;
 
@@ -249,17 +196,8 @@ StatusCode LArAlignDbAlg::streamOutCondObjects()
   IAthenaOutputStreamTool::TypeKeyPair align("DetCondKeyTrans", LAR_ALIGN);
   typeKeys[0] = align;
   
-  sc = m_streamer->streamObjects(typeKeys);
-  if(sc.isFailure()) {
-    msg(MSG::ERROR) << " Could not stream out LAr Alignment " << endreq;
-    return sc;
-  }
-    
-  sc = m_streamer->commitOutput();
-  if(sc.isFailure()) {
-    msg(MSG::ERROR) << " Could not commit output stream " << endreq;
-    return sc;
-  }
+  ATH_CHECK( m_streamer->streamObjects(typeKeys) );
+  ATH_CHECK( m_streamer->commitOutput() );
 
   return StatusCode::SUCCESS;
 }
@@ -269,17 +207,12 @@ StatusCode LArAlignDbAlg::streamOutCondObjects()
 
 StatusCode LArAlignDbAlg::registerCondObjects()
 {
-  msg(MSG::DEBUG) << "entering registerCondObject()"  << endreq;
+  ATH_MSG_DEBUG( "entering registerCondObject()"   );
   
   std::string objname = "DetCondKeyTrans";
 
   // Register the IOV DB with the conditions data written out
-  StatusCode sc = m_regSvc->registerIOV(objname, m_outpTag);
-  if(sc.isFailure()) {
-    msg(MSG::ERROR) << " Could not register (" << objname << ", " << m_outpTag << ") in IOV DB " << endreq;
-    return sc;
-  }
-  
+  ATH_CHECK( m_regSvc->registerIOV(objname, m_outpTag) );
   return StatusCode::SUCCESS;
 }
 
