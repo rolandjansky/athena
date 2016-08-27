@@ -29,6 +29,7 @@ class CaloDmEnergy;
 #include <string>
 #include <vector>
 #include <set>
+#include <atomic>
 
 class ClusWeight {
  public: 
@@ -60,11 +61,12 @@ class CaloCalibClusterMomentsMaker: public AthAlgTool, virtual public CaloCluste
   CaloCalibClusterMomentsMaker(const std::string& type, const std::string& name,
 			       const IInterface* parent);
 
-  virtual ~CaloCalibClusterMomentsMaker();
+  virtual ~CaloCalibClusterMomentsMaker() override;
 
   using CaloClusterCollectionProcessor::execute;
-  StatusCode execute(xAOD::CaloClusterContainer* theClusColl);
-  StatusCode initialize();
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* theClusColl) const override;
+  virtual StatusCode initialize() override;
 
  private:
 
@@ -144,9 +146,7 @@ class CaloCalibClusterMomentsMaker: public AthAlgTool, virtual public CaloCluste
 
   std::vector<CalibHitIPhiIEtaRange> *m_i_phi_eta[3];
 
-  bool m_isInitialized;
-
-  bool m_foundAllContainers;
+  mutable std::atomic<bool> m_foundAllContainers;
 
   enum keys_dm_energy_sharing {kMatchDmOff, kMatchDmLoose, kMatchDmMedium, kMatchDmTight};
 
@@ -164,7 +164,7 @@ class CaloCalibClusterMomentsMaker: public AthAlgTool, virtual public CaloCluste
   //double m_showerScale;
   int m_MatchDmType;
 
-  double angle_mollier_factor(double x);
+  double angle_mollier_factor(double x) const;
 };
 
 #endif // CALOCALIBCLUSTERMOMENTSMAKER_H

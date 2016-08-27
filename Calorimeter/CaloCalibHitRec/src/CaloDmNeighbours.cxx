@@ -79,7 +79,7 @@ int CaloDmNeighbours::initialize(std::string DmNeighboursFileName)
   StatusCode sc = svcLoc->service("DetectorStore", m_detStore);
   if ( sc.isFailure() ) {
     log << MSG::ERROR
-        << "Unable to get pointer to StoreGate Service" << endreq;
+        << "Unable to get pointer to StoreGate Service" << endmsg;
     return 1;
   }
 
@@ -89,35 +89,35 @@ int CaloDmNeighbours::initialize(std::string DmNeighboursFileName)
   sc = m_detStore->retrieve(m_caloDM_ID);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve caloDM_ID helper from DetectorStore" << endreq;
+        << "Unable to retrieve caloDM_ID helper from DetectorStore" << endmsg;
     return 1;
   }
 
   sc = m_detStore->retrieve(m_caloCell_ID);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve caloCell_ID helper from DetectorStore" << endreq;
+        << "Unable to retrieve caloCell_ID helper from DetectorStore" << endmsg;
     return 1;
   }
 
   sc = m_detStore->retrieve(m_larFcal_ID);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve larFcal_ID helper from DetectorStore" << endreq;
+        << "Unable to retrieve larFcal_ID helper from DetectorStore" << endmsg;
     return 1;
   }
 
   sc = m_detStore->retrieve(m_larHec_ID);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve larHec_ID helper from DetectorStore" << endreq;
+        << "Unable to retrieve larHec_ID helper from DetectorStore" << endmsg;
     return 1;
   }
 
   sc = m_detStore->retrieve(m_id_helper);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endreq;
+        << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endmsg;
     return 1;
   }
 
@@ -129,7 +129,7 @@ int CaloDmNeighbours::initialize(std::string DmNeighboursFileName)
 //  sc = load_neighbours(DmNeighboursFileName);
 //  if (sc.isFailure()) {
 //    log << MSG::ERROR
-//        << "Unable to load neighbours from file " << DmNeighboursFileName << endreq;
+//        << "Unable to load neighbours from file " << DmNeighboursFileName << endmsg;
 //    return sc;
 //  }
 
@@ -475,11 +475,11 @@ StatusCode CaloDmNeighbours::load_neighbours(std::string DmNeighboursFileName)
 
   // Find the full path to filename:
   std::string file = PathResolver::find_file (DmNeighboursFileName, "DATAPATH");
-  log << MSG::INFO << "Reading file  " << file << endreq;
+  log << MSG::INFO << "Reading file  " << file << endmsg;
 
   std::ifstream fin(file.c_str());
   if(!fin){
-    log << MSG::ERROR << "Can't open file " << file << endreq;
+    log << MSG::ERROR << "Can't open file " << file << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -525,7 +525,7 @@ StatusCode CaloDmNeighbours::load_neighbours(std::string DmNeighboursFileName)
     }
   }
 #endif
-  log << MSG::INFO << "Neighbours loaded from file " << file << endreq;
+  log << MSG::INFO << "Neighbours loaded from file " << file << endmsg;
   return StatusCode::SUCCESS;
 }
 

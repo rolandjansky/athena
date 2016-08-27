@@ -36,6 +36,7 @@ class TruthParticleContainer;
 #include <vector>
 #include <set>
 #include <map>
+#include <atomic>
 
 
 class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClusterCollectionProcessor
@@ -55,36 +56,20 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
    */
   class MyCellInfo {
     public:
-      MyCellInfo(Identifier id): m_cellid(id) {}
-      MyCellInfo(Identifier id, int iClus, double w): m_cellid(id)
+      MyCellInfo(int iClus, double w)
       {
-        m_ClusWeights.push_back(std::pair<int, double> (iClus, w) );
+        m_ClusWeights.emplace_back(iClus, w);
       }
-      void Add(const MyCellInfo *other)
+      void Add(const MyCellInfo& other)
       {
-        for(std::vector<std::pair<int, double> >::const_iterator it=other->m_ClusWeights.begin(); it!=other->m_ClusWeights.end(); it++){
-          m_ClusWeights.push_back( (*it) );
+        for (const std::pair<int, double>& p : other.m_ClusWeights) {
+          m_ClusWeights.push_back( p );
         }
       }
-      bool Equals(MyCellInfo* const& h) const { 
-        return (m_cellid == h->m_cellid);
-      };
-      Identifier m_cellid;
       std::vector<std::pair<int, double> > m_ClusWeights;
   };
 
-  /**
-   * @brief Class to sort CellInfo objects
-   */
-  class MyCellInfoSort {
-    public:
-      bool operator() ( MyCellInfo* const& p, MyCellInfo* const& q ) const
-      {
-        return p->m_cellid < q->m_cellid;
-      }
-  };
-
-  typedef std::set<MyCellInfo *, MyCellInfoSort> m_CellInfoSet_t;
+  typedef std::map<Identifier, MyCellInfo> CellInfoSet_t;
 
   /**
    * @brief Class to store cluster's calibration energies
@@ -127,7 +112,7 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
       std::vector<double > engCalibDeadInArea;
       std::map<int, ClusCalibEnergy > engCalibParticle;
   };
-  typedef std::vector<MyClusInfo *> m_ClusInfo_t;
+  typedef std::vector<MyClusInfo> ClusInfo_t;
 
 
   /** @brief typedef for a pair to index the enums defined in
@@ -144,11 +129,12 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
   CaloCalibClusterMomentsMaker2(const std::string& type, const std::string& name,
                  const IInterface* parent);
 
-  virtual ~CaloCalibClusterMomentsMaker2();
+  virtual ~CaloCalibClusterMomentsMaker2() override;
 
   using CaloClusterCollectionProcessor::execute;
-  StatusCode execute(xAOD::CaloClusterContainer* theClusColl);
-  StatusCode initialize();
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer* theClusColl) const override;
+  virtual StatusCode initialize() override;
 
  private:
 
@@ -222,9 +208,6 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
 
   const CaloDmDescrManager* m_caloDmDescrManager; 
 
-  //const McEventCollection* m_truthEvent;
-  const TruthParticleContainer* m_truthParticles;
-
   int m_n_phi_out;
   int m_n_eta_out;
   double m_out_phi_max;
@@ -234,9 +217,7 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
 
   std::vector<CalibHitIPhiIEtaRange> *m_i_phi_eta[3];
 
-  bool m_isInitialized;
-
-  bool m_foundAllContainers;
+  mutable std::atomic<bool> m_foundAllContainers;
 
   enum keys_dm_energy_sharing {kMatchDmOff, kMatchDmLoose, kMatchDmMedium, kMatchDmTight};
   enum keys_calib_frac_origin {kCalibFracEM, kCalibFracHAD, kCalibFracREST, kCalibFracMax};
@@ -257,11 +238,9 @@ class CaloCalibClusterMomentsMaker2: public AthAlgTool, virtual public CaloClust
   //double m_showerScale;
   int m_MatchDmType;
 
-  double angle_mollier_factor(double x);
-  void get_calib_frac(const MyClusInfo *clusInfo, std::vector<double> &engFrac);
-
-  m_CellInfoSet_t m_CellInfo;
-  m_ClusInfo_t m_ClusInfo;
+  double angle_mollier_factor(double x) const;
+  void get_calib_frac(const TruthParticleContainer& truthParticles,
+                      const MyClusInfo& clusInfo, std::vector<double> &engFrac) const;
 };
 
 #endif // CALOCALIBCLUSTERMOMENTSMAKER2_H

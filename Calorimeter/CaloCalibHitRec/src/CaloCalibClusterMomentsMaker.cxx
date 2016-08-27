@@ -134,7 +134,6 @@ CaloCalibClusterMomentsMaker::CaloCalibClusterMomentsMaker(const std::string& ty
   for( int im=0;im<3;im++) {
     m_i_phi_eta[im] = new std::vector<CalibHitIPhiIEtaRange> [m_n_eta_out];
   }
-  m_isInitialized = false;
   m_doDeadEnergySharing = false;
   m_foundAllContainers = false;
   m_doOutOfClusterL = false;
@@ -158,8 +157,7 @@ CaloCalibClusterMomentsMaker::~CaloCalibClusterMomentsMaker() {
 
 StatusCode CaloCalibClusterMomentsMaker::initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initializing " << name() << endreq;
+  ATH_MSG_INFO( "Initializing " << name()  );
 
   std::vector<std::string>::const_iterator mNameIter = m_momentsNames.begin(); 
   std::vector<std::string>::const_iterator mNameIterEnd = m_momentsNames.end(); 
@@ -175,12 +173,12 @@ StatusCode CaloCalibClusterMomentsMaker::initialize()
       }
     }
     if ( !isValid) {
-      log << MSG::ERROR << "Moment " << *mNameIter
+      msg() << MSG::ERROR << "Moment " << *mNameIter
 	  << " is not a valid Moment name and will be ignored! "
 	  << "Valid names are:";
       for (unsigned int i=0;i<m_validNames.size();i++) 
-	log << (i==0?" ":", ") << m_validNames[i].first;
-      log << endreq;
+	msg() << (i==0?" ":", ") << m_validNames[i].first;
+      msg() << endmsg;
     }
   }
 
@@ -241,56 +239,74 @@ StatusCode CaloCalibClusterMomentsMaker::initialize()
 
   //---- initialize the StoreGateSvc ptr ----------------
 
-  StatusCode sg= service("StoreGateSvc", m_storeGate);
-  if (sg.isFailure()) {
-    log << MSG::FATAL
-	<< " StoreGate Service not found "
-	<< endreq;
-    return sg;
+  ATH_CHECK(  detStore()->retrieve(m_caloDM_ID) );
+
+  // initialize distance tables
+  for(int jeta = 0;jeta<m_n_eta_out;jeta++) {
+    double eta0 = (jeta+0.5) * (m_out_eta_max)/m_n_eta_out; 
+    HepLorentzVector middle(1,0,0,1);
+    middle.setREtaPhi(1./cosh(eta0),eta0,0);
+    double x_rmaxOut[3];
+    for (int im=0;im<3;im++) {
+      x_rmaxOut[im] = m_rmaxOut[im]*angle_mollier_factor(eta0);
+    }
+    for (int jp=-m_n_phi_out;jp<m_n_phi_out;jp++) {
+      double phi = (jp+0.5) * m_out_phi_max/m_n_phi_out; 
+      int ietaMin[3] = {m_n_eta_out,m_n_eta_out,m_n_eta_out};
+      int ietaMax[3] = {-m_n_eta_out,-m_n_eta_out,-m_n_eta_out};
+      for(int je = -m_n_eta_out;je<m_n_eta_out;je++) {
+        double eta = (je+0.5) * m_out_eta_max/m_n_eta_out; 
+        HepLorentzVector cpoint(1,0,0,1);
+        cpoint.setREtaPhi(1./cosh(eta),eta,phi);
+        double r = middle.angle(cpoint.vect());
+        for (int im=0;im<3;im++) {
+          if ( r < x_rmaxOut[im] ) {
+            if ( je < ietaMin[im] ) 
+              ietaMin[im] = je;
+            if ( je > ietaMax[im] ) 
+              ietaMax[im] = je;
+          }
+        }
+      }
+      for (int im=0;im<3;im++) {
+        if ( ietaMin[im] <= ietaMax[im] ) {
+          CalibHitIPhiIEtaRange theRange;
+          theRange.iPhi = (char)jp;
+          theRange.iEtaMin = (char)ietaMin[im];
+          theRange.iEtaMax = (char)ietaMax[im];
+          m_i_phi_eta[im][jeta].push_back(theRange); 
+        }
+      }
+    }
   }
 
-  StoreGateSvc* detStore;
-  sg = service("DetectorStore", detStore);
-  if ( sg.isFailure() ) {
-    log << MSG::ERROR
-        << "DetectorStoew Service not found" << endreq;
-    return sg;
-  }
-
-  sg = detStore->retrieve(m_caloDM_ID);
-  if (sg.isFailure()) {
-    log << MSG::ERROR
-        << "Unable to retrieve caloDM_ID helper from DetectorStore" << endreq;
-    return sg;
-  }
-
-  return sg; //sg from "initialize the StoreGateSvc ptr"
+  return StatusCode::SUCCESS;
 }
 
 //###############################################################################
 
-StatusCode CaloCalibClusterMomentsMaker::execute(xAOD::CaloClusterContainer *theClusColl)
+StatusCode
+CaloCalibClusterMomentsMaker::execute(const EventContext& /*ctx*/,
+                                      xAOD::CaloClusterContainer *theClusColl) const
 {  
-  MsgStream log( msgSvc(), name() );
-  log << MSG::DEBUG << "Executing " << name() << endreq;
+  ATH_MSG_DEBUG( "Executing " << name()  );
 
   bool foundAllContainers (true);
   const DataHandle<CaloCalibrationHitContainer> cchc;
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
-  std::vector<std::string>::iterator iter;
-  for (iter=m_CalibrationHitContainerNames.begin();iter!=m_CalibrationHitContainerNames.end();iter++) {
-    if ( !m_storeGate->contains<CaloCalibrationHitContainer>(*iter)) {
+  for (const std::string& cname : m_CalibrationHitContainerNames) {
+    if ( !m_storeGate->contains<CaloCalibrationHitContainer>(cname)) {
       if (m_foundAllContainers) {
 	// print ERROR message only if there was at least one event with 
 	// all containers 
-	log << MSG::ERROR << "SG does not contain calibration hit container " << *iter << endreq;
+	ATH_MSG_ERROR( "SG does not contain calibration hit container " << cname  );
       }
       foundAllContainers = false;
     }
     else {
-      StatusCode sc = m_storeGate->retrieve(cchc,*iter);
+      StatusCode sc = m_storeGate->retrieve(cchc,cname);
       if (sc.isFailure() ) {
-	log << MSG::ERROR << "Cannot retrieve calibration hit container " << *iter << endreq;
+	ATH_MSG_ERROR( "Cannot retrieve calibration hit container " << cname  );
 	foundAllContainers = false;
       } 
       else
@@ -299,19 +315,19 @@ StatusCode CaloCalibClusterMomentsMaker::execute(xAOD::CaloClusterContainer *the
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
-  for (iter=m_DMCalibrationHitContainerNames.begin();iter!=m_DMCalibrationHitContainerNames.end();iter++) {
-    if ( !m_storeGate->contains<CaloCalibrationHitContainer>(*iter)) {
+  for (const std::string& cname : m_DMCalibrationHitContainerNames) {
+    if ( !m_storeGate->contains<CaloCalibrationHitContainer>(cname)) {
       if (m_foundAllContainers) {
 	// print ERROR message only if there was at least one event with 
 	// all containers 
-	log << MSG::ERROR << "SG does not contain DM calibration hit container " << *iter << endreq;
+	ATH_MSG_ERROR( "SG does not contain DM calibration hit container " << cname  );
       }
       foundAllContainers = false;
     }
     else {
-      StatusCode sc = m_storeGate->retrieve(cchc,*iter);
+      StatusCode sc = m_storeGate->retrieve(cchc,cname);
       if (sc.isFailure() ) {
-	log << MSG::ERROR << "Cannot retrieve DM calibration hit container " << *iter << endreq;
+	ATH_MSG_ERROR( "Cannot retrieve DM calibration hit container " << cname  );
 	foundAllContainers = false;
       }
       else
@@ -321,48 +337,6 @@ StatusCode CaloCalibClusterMomentsMaker::execute(xAOD::CaloClusterContainer *the
 
   if ( !m_foundAllContainers && foundAllContainers ) 
     m_foundAllContainers = true;
-
-  if ( foundAllContainers && !m_isInitialized ) { 
-    // initialize distance tables
-    for(int jeta = 0;jeta<m_n_eta_out;jeta++) {
-      double eta0 = (jeta+0.5) * (m_out_eta_max)/m_n_eta_out; 
-      HepLorentzVector middle(1,0,0,1);
-      middle.setREtaPhi(1./cosh(eta0),eta0,0);
-      double x_rmaxOut[3];
-      for (int im=0;im<3;im++) {
-        x_rmaxOut[im] = m_rmaxOut[im]*angle_mollier_factor(eta0);
-      }
-      for (int jp=-m_n_phi_out;jp<m_n_phi_out;jp++) {
-	double phi = (jp+0.5) * m_out_phi_max/m_n_phi_out; 
-	int ietaMin[3] = {m_n_eta_out,m_n_eta_out,m_n_eta_out};
-	int ietaMax[3] = {-m_n_eta_out,-m_n_eta_out,-m_n_eta_out};
-	for(int je = -m_n_eta_out;je<m_n_eta_out;je++) {
-	  double eta = (je+0.5) * m_out_eta_max/m_n_eta_out; 
-	  HepLorentzVector cpoint(1,0,0,1);
-	  cpoint.setREtaPhi(1./cosh(eta),eta,phi);
-	  double r = middle.angle(cpoint.vect());
-	  for (int im=0;im<3;im++) {
-            if ( r < x_rmaxOut[im] ) {
-	      if ( je < ietaMin[im] ) 
-		ietaMin[im] = je;
-	      if ( je > ietaMax[im] ) 
-		ietaMax[im] = je;
-	    }
-	  }
-	}
-	for (int im=0;im<3;im++) {
-	  if ( ietaMin[im] <= ietaMax[im] ) {
-	    CalibHitIPhiIEtaRange theRange;
-	    theRange.iPhi = (char)jp;
-	    theRange.iEtaMin = (char)ietaMin[im];
-	    theRange.iEtaMax = (char)ietaMax[im];
-	    m_i_phi_eta[im][jeta].push_back(theRange); 
-	  }
-	}
-      }
-    }
-    m_isInitialized = true;
-  }
 
   if ( foundAllContainers ) {
     std::vector<ClusWeight *> cellVector[CaloCell_ID::NSUBCALO];
@@ -883,7 +857,7 @@ StatusCode CaloCalibClusterMomentsMaker::execute(xAOD::CaloClusterContainer *the
 /* ****************************************************************************
 
 **************************************************************************** */
-double CaloCalibClusterMomentsMaker::angle_mollier_factor(double x)
+double CaloCalibClusterMomentsMaker::angle_mollier_factor(double x) const
 {
   double eta = fabs(x);
   double ff;
