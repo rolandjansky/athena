@@ -73,7 +73,7 @@ StatusCode PixelMainMon::FillSpacePointMon(void)
    if (sc.isFailure() || !m_Pixel_spcontainer)
    {
       if(msgLvl(MSG::INFO)) msg(MSG::INFO)  <<"SpacePoint container for Pixels not found"<< endreq;
-      m_storegate_errors->Fill(2.,2.);  
+      if(m_storegate_errors) m_storegate_errors->Fill(2.,3.);  
       return StatusCode::SUCCESS;
    } else{
       if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  <<"Si SpacePoint container for Pixels found" <<endreq;
@@ -91,7 +91,7 @@ StatusCode PixelMainMon::FillSpacePointMon(void)
       const SpacePointCollection *colNext=&(**it);
       if (!colNext)
       {
-         m_storegate_errors->Fill(2.,4.);  //first entry (1). is for SP, second (4) is for data problem
+         if(m_storegate_errors) m_storegate_errors->Fill(2.,5.);  //first entry (1). is for SP, second (4) is for data problem
          continue;
       }
 
@@ -117,6 +117,6 @@ StatusCode PixelMainMon::FillSpacePointMon(void)
    }     //end rows
    if(m_num_spacepoints)m_num_spacepoints->Fill(nhits);
    if(m_num_spacepoints_low)m_num_spacepoints_low->Fill(nhits);
-   if(nhits==0) m_storegate_errors->Fill(2.,3.);//first entry for sp, second for size = 0
+   if(nhits==0 && m_storegate_errors) m_storegate_errors->Fill(2.,4.);//first entry for sp, second for size = 0
    return StatusCode::SUCCESS;
 }
