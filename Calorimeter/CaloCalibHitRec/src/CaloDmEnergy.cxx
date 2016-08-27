@@ -131,14 +131,14 @@ int CaloDmEnergy::initialize()
   StatusCode sc = svcLoc->service("StoreGateSvc", m_storeGate);
   if ( sc.isFailure() ) {
     log << MSG::ERROR
-        << "Unable to get pointer to StoreGate Service" << endreq;
+        << "Unable to get pointer to StoreGate Service" << endmsg;
     return sc;
   }
 
   sc = svcLoc->service("DetectorStore", m_detStore);
   if ( sc.isFailure() ) {
     log << MSG::ERROR
-        << "Unable to get pointer to DetectorStore Service" << endreq;
+        << "Unable to get pointer to DetectorStore Service" << endmsg;
     return sc;
   }
 
@@ -148,14 +148,14 @@ int CaloDmEnergy::initialize()
   sc = m_detStore->retrieve(m_caloDM_ID);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve caloDM_ID helper from DetectorStore" << endreq;
+        << "Unable to retrieve caloDM_ID helper from DetectorStore" << endmsg;
     return sc;
   }
 
   sc = m_detStore->retrieve(m_caloCell_ID);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve caloCell_ID helper from DetectorStore" << endreq;
+        << "Unable to retrieve caloCell_ID helper from DetectorStore" << endmsg;
     return sc;
   }
 
@@ -163,7 +163,7 @@ int CaloDmEnergy::initialize()
   sc = m_detStore->retrieve(m_id_helper);
   if (sc.isFailure()) {
     log << MSG::ERROR
-        << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endreq;
+        << "Unable to retrieve AtlasDetectorID helper from DetectorStore" << endmsg;
     return sc;
   }
 
@@ -198,7 +198,7 @@ int CaloDmEnergy::assign2clusters(const std::string &clusterContainerName)
     const DataHandle<CaloCalibrationHitContainer> dmcchc;
     sc = m_storeGate->retrieve(dmcchc,*iter);
     if (sc.isFailure() ) {
-      log << MSG::WARNING << "Cannot retrieve DM calibration hit container " << *iter << endreq;
+      log << MSG::WARNING << "Cannot retrieve DM calibration hit container " << *iter << endmsg;
       return 1;
     } else {
       v_dmcchc.push_back(dmcchc);
@@ -209,7 +209,7 @@ int CaloDmEnergy::assign2clusters(const std::string &clusterContainerName)
   const DataHandle<xAOD::CaloClusterContainer > theClusters;
   sc = m_storeGate->retrieve(theClusters, clusterContainerName);
   if (sc.isFailure()) {
-    log << MSG::WARNING << " Couldn't get cluster container '" << clusterContainerName << "'" << endreq;
+    log << MSG::WARNING << " Couldn't get cluster container '" << clusterContainerName << "'" << endmsg;
     return 0;
   }
 
@@ -496,11 +496,11 @@ int CaloDmEnergy::make_dmcell_vector(std::vector<const CaloCalibrationHitContain
           log << MSG::WARNING<<"CaloDmEnergy::process() -> Alien identifier "
               << m_id_helper->show_to_string(id)
               << " in container '" << (*itCont)->Name()
-              << "'." << endreq ;
+              << "'." << endmsg ;
         } // is lar_id, tile_id
       }// dmhit_n < m_max_dmhit
       if(dmhit_ntotal == m_max_dmhit) {
-        log << MSG::WARNING<<"CaloDmEnergy::process() -> Number of DM calibration hits exceed " << m_max_dmhit << endreq;
+        log << MSG::WARNING<<"CaloDmEnergy::process() -> Number of DM calibration hits exceed " << m_max_dmhit << endmsg;
       }
       dmhit_ntotal++;
     } // loop over hits 

@@ -70,7 +70,6 @@ CaloCalibClusterMomentsMaker2::CaloCalibClusterMomentsMaker2(const std::string& 
     m_calo_id(0),
     m_caloDM_ID(0),
     m_caloDmDescrManager(0),
-    m_truthParticles(0),
     m_useParticleID(true),
     m_energyMin(200*MeV),
     m_energyMinCalib(20*MeV),
@@ -138,7 +137,6 @@ CaloCalibClusterMomentsMaker2::CaloCalibClusterMomentsMaker2(const std::string& 
   for( int im=0;im<3;im++) {
     m_i_phi_eta[im] = new std::vector<CalibHitIPhiIEtaRange> [m_n_eta_out];
   }
-  m_isInitialized = false;
   m_doDeadEnergySharing = false;
   m_foundAllContainers = false;
   m_doOutOfClusterL = false;
@@ -166,8 +164,7 @@ CaloCalibClusterMomentsMaker2::~CaloCalibClusterMomentsMaker2() {
 
 StatusCode CaloCalibClusterMomentsMaker2::initialize()
 {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "Initializing " << name() << endreq;
+  ATH_MSG_INFO( "Initializing " << name()  );
 
   std::vector<std::string>::const_iterator mNameIter = m_momentsNames.begin(); 
   std::vector<std::string>::const_iterator mNameIterEnd = m_momentsNames.end(); 
@@ -183,12 +180,12 @@ StatusCode CaloCalibClusterMomentsMaker2::initialize()
       }
     }
     if ( !isValid) {
-      log << MSG::ERROR << "Moment " << *mNameIter
+      msg() << MSG::ERROR << "Moment " << *mNameIter
 	  << " is not a valid Moment name and will be ignored! "
 	  << "Valid names are:";
       for (unsigned int i=0;i<m_validNames.size();i++) 
-	log << (i==0?" ":", ") << m_validNames[i].first;
-      log << endreq;
+	msg() << (i==0?" ":", ") << m_validNames[i].first;
+      msg() << endmsg;
     }
   }
 
@@ -224,7 +221,7 @@ StatusCode CaloCalibClusterMomentsMaker2::initialize()
   }
   
   if(m_doCalibFrac && !m_useParticleID) {
-    log << MSG::INFO << "Usage of ParticleID was switched off (UseParticleID==False), no ENG_CALIB_FRAC_* moments will be available" << endreq;
+    ATH_MSG_INFO( "Usage of ParticleID was switched off (UseParticleID==False), no ENG_CALIB_FRAC_* moments will be available"  );
     m_doCalibFrac = false;
   }
 
@@ -252,38 +249,74 @@ StatusCode CaloCalibClusterMomentsMaker2::initialize()
 
   m_calo_id = m_calo_dd_man->getCaloCell_ID();
 
-  StatusCode sg = detStore()->retrieve(m_caloDM_ID);
-  if (sg.isFailure()) {
-    log << MSG::ERROR
-        << "Unable to retrieve caloDM_ID helper from DetectorStore" << endreq;
-    return sg;
+  ATH_CHECK( detStore()->retrieve(m_caloDM_ID) );
+
+  // initialize distance tables
+  for(int jeta = 0;jeta<m_n_eta_out;jeta++) {
+    double eta0 = (jeta+0.5) * (m_out_eta_max)/m_n_eta_out; 
+    HepLorentzVector middle(1,0,0,1);
+    middle.setREtaPhi(1./cosh(eta0),eta0,0);
+    double x_rmaxOut[3];
+    for (int im=0;im<3;im++) {
+      x_rmaxOut[im] = m_rmaxOut[im]*angle_mollier_factor(eta0);
+    }
+    for (int jp=-m_n_phi_out;jp<m_n_phi_out;jp++) {
+      double phi = (jp+0.5) * m_out_phi_max/m_n_phi_out; 
+      int ietaMin[3] = {m_n_eta_out,m_n_eta_out,m_n_eta_out};
+      int ietaMax[3] = {-m_n_eta_out,-m_n_eta_out,-m_n_eta_out};
+      for(int je = -m_n_eta_out;je<m_n_eta_out;je++) {
+        double eta = (je+0.5) * m_out_eta_max/m_n_eta_out; 
+        HepLorentzVector cpoint(1,0,0,1);
+        cpoint.setREtaPhi(1./cosh(eta),eta,phi);
+        double r = middle.angle(cpoint.vect());
+        for (int im=0;im<3;im++) {
+          if ( r < x_rmaxOut[im] ) {
+            if ( je < ietaMin[im] ) 
+              ietaMin[im] = je;
+            if ( je > ietaMax[im] ) 
+              ietaMax[im] = je;
+          }
+        }
+      }
+      for (int im=0;im<3;im++) {
+        if ( ietaMin[im] <= ietaMax[im] ) {
+          CalibHitIPhiIEtaRange theRange;
+          theRange.iPhi = (char)jp;
+          theRange.iEtaMin = (char)ietaMin[im];
+          theRange.iEtaMax = (char)ietaMax[im];
+          m_i_phi_eta[im][jeta].push_back(theRange); 
+        }
+      }
+    }
   }
 
-  return sg; 
+  return StatusCode::SUCCESS;
 }
 
 //###############################################################################
 
-StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *theClusColl)
+StatusCode
+CaloCalibClusterMomentsMaker2::execute(const EventContext& /*ctx*/,
+                                       xAOD::CaloClusterContainer *theClusColl) const
 {
 
   bool foundAllContainers (true);
   const DataHandle<CaloCalibrationHitContainer> cchc;
   std::vector<const CaloCalibrationHitContainer *> v_cchc;
   std::vector<std::string>::iterator iter;
-  for (iter=m_CalibrationHitContainerNames.begin();iter!=m_CalibrationHitContainerNames.end();iter++) {
-    if ( !evtStore()->contains<CaloCalibrationHitContainer>(*iter)) {
+  for (const std::string& cname : m_CalibrationHitContainerNames) {
+    if ( !evtStore()->contains<CaloCalibrationHitContainer>(cname)) {
       if (m_foundAllContainers) {
 	// print ERROR message only if there was at least one event with 
 	// all containers 
-	msg(MSG::ERROR) << "SG does not contain calibration hit container " << *iter << endreq;
+	msg(MSG::ERROR) << "SG does not contain calibration hit container " << cname << endmsg;
       }
       foundAllContainers = false;
     }
     else {
-      StatusCode sc = evtStore()->retrieve(cchc,*iter);
+      StatusCode sc = evtStore()->retrieve(cchc,cname);
       if (sc.isFailure() ) {
-	msg(MSG::ERROR) << "Cannot retrieve calibration hit container " << *iter << endreq;
+	msg(MSG::ERROR) << "Cannot retrieve calibration hit container " << cname << endmsg;
 	foundAllContainers = false;
       } 
       else
@@ -292,19 +325,19 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
   }
 
   std::vector<const CaloCalibrationHitContainer *> v_dmcchc;
-  for (iter=m_DMCalibrationHitContainerNames.begin();iter!=m_DMCalibrationHitContainerNames.end();iter++) {
-    if ( !evtStore()->contains<CaloCalibrationHitContainer>(*iter)) {
+  for (const std::string& cname : m_DMCalibrationHitContainerNames) {
+    if ( !evtStore()->contains<CaloCalibrationHitContainer>(cname)) {
       if (m_foundAllContainers) {
 	// print ERROR message only if there was at least one event with 
 	// all containers 
-	msg(MSG::ERROR) << "SG does not contain DM calibration hit container " << *iter << endreq;
+	msg(MSG::ERROR) << "SG does not contain DM calibration hit container " << cname << endmsg;
       }
       foundAllContainers = false;
     }
     else {
-      StatusCode sc = evtStore()->retrieve(cchc,*iter);
+      StatusCode sc = evtStore()->retrieve(cchc,cname);
       if (sc.isFailure() ) {
-	msg(MSG::ERROR) << "Cannot retrieve DM calibration hit container " << *iter << endreq;
+	msg(MSG::ERROR) << "Cannot retrieve DM calibration hit container " << cname << endmsg;
 	foundAllContainers = false;
       }
       else
@@ -315,52 +348,12 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
   if ( !m_foundAllContainers && foundAllContainers ) 
     m_foundAllContainers = true;
 
-  if ( foundAllContainers && !m_isInitialized ) { 
-    // initialize distance tables
-    for(int jeta = 0;jeta<m_n_eta_out;jeta++) {
-      double eta0 = (jeta+0.5) * (m_out_eta_max)/m_n_eta_out; 
-      HepLorentzVector middle(1,0,0,1);
-      middle.setREtaPhi(1./cosh(eta0),eta0,0);
-      double x_rmaxOut[3];
-      for (int im=0;im<3;im++) {
-        x_rmaxOut[im] = m_rmaxOut[im]*angle_mollier_factor(eta0);
-      }
-      for (int jp=-m_n_phi_out;jp<m_n_phi_out;jp++) {
-	double phi = (jp+0.5) * m_out_phi_max/m_n_phi_out; 
-	int ietaMin[3] = {m_n_eta_out,m_n_eta_out,m_n_eta_out};
-	int ietaMax[3] = {-m_n_eta_out,-m_n_eta_out,-m_n_eta_out};
-	for(int je = -m_n_eta_out;je<m_n_eta_out;je++) {
-	  double eta = (je+0.5) * m_out_eta_max/m_n_eta_out; 
-	  HepLorentzVector cpoint(1,0,0,1);
-	  cpoint.setREtaPhi(1./cosh(eta),eta,phi);
-	  double r = middle.angle(cpoint.vect());
-	  for (int im=0;im<3;im++) {
-            if ( r < x_rmaxOut[im] ) {
-	      if ( je < ietaMin[im] ) 
-		ietaMin[im] = je;
-	      if ( je > ietaMax[im] ) 
-		ietaMax[im] = je;
-	    }
-	  }
-	}
-	for (int im=0;im<3;im++) {
-	  if ( ietaMin[im] <= ietaMax[im] ) {
-	    CalibHitIPhiIEtaRange theRange;
-	    theRange.iPhi = (char)jp;
-	    theRange.iEtaMin = (char)ietaMin[im];
-	    theRange.iEtaMax = (char)ietaMax[im];
-	    m_i_phi_eta[im][jeta].push_back(theRange); 
-	  }
-	}
-      }
-    }
-    m_isInitialized = true;
-  }
-
   if ( !foundAllContainers ) return StatusCode::SUCCESS;
 
   // will contain detailed info about cluster calibration eneries
-  m_ClusInfo.resize(theClusColl->size(), 0);
+  ClusInfo_t clusInfoVec (theClusColl->size());
+
+  CellInfoSet_t cellInfo;
 
   /* ********************************************
   filling the map with info which cell belongs to which cluster and what 
@@ -372,8 +365,6 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
   for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
      const xAOD::CaloCluster * theCluster = (*clusIter);
 
-    m_ClusInfo[iClus] = new MyClusInfo();
-
     // loop over all cell members and fill cell vector for used cells
     xAOD::CaloCluster::const_cell_iterator cellIter    = theCluster->cell_begin();
     xAOD::CaloCluster::const_cell_iterator cellIterEnd = theCluster->cell_end();
@@ -381,21 +372,15 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
       const CaloCell* pCell = (*cellIter);
       Identifier myId = pCell->ID();
 
-      MyCellInfo *info = new MyCellInfo(myId, iClus, cellIter.weight() );
-      m_CellInfoSet_t::iterator bookmark = m_CellInfo.lower_bound( info );
-      if(bookmark == m_CellInfo.end() || !(*bookmark)->Equals( info )) {
+      MyCellInfo info (iClus, cellIter.weight() );
+      CellInfoSet_t::iterator bookmark = cellInfo.lower_bound( myId );
+      if(bookmark == cellInfo.end() || bookmark->first != myId) {
         // We haven't had a infohit in this cell before.  Add it to our set.
-        if(m_CellInfo.empty() || bookmark == m_CellInfo.begin()) {
-          // Insert the hit before the first entry in the map.
-          m_CellInfo.insert(info);
-        }else{
-          m_CellInfo.insert(--bookmark, info);
-        }
+        if (bookmark != cellInfo.begin()) --bookmark;
+        cellInfo.emplace_hint (bookmark, myId, std::move(info));
       }else{
         // Update the existing hit.
-        (*bookmark)->Add( info );
-        // We don't need the infohit anymore
-        delete info;
+        bookmark->second.Add( info );
       }
     } // cellIter
   } // iClus
@@ -414,18 +399,17 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
     for(;chIter!=chIterE;chIter++)  {
       Identifier myId = (*chIter)->cellID();
 
-      MyCellInfo info(myId);
-      m_CellInfoSet_t::iterator pos = m_CellInfo.find( &info );
-      if(pos != m_CellInfo.end() ) {
+      CellInfoSet_t::iterator pos = cellInfo.find( myId );
+      if(pos != cellInfo.end() ) {
         // i.e. given hit id belongs to one or more clusters
         CaloSampling::CaloSample nsmp = CaloSampling::CaloSample(m_calo_id->calo_sample(myId));
-        for(std::vector<std::pair<int, double> >::iterator it = (*pos)->m_ClusWeights.begin(); it!=(*pos)->m_ClusWeights.end(); it++){
-          int iClus = it->first;
-          double weight = it->second;
+        for ( const std::pair<int, double>& p : pos->second.m_ClusWeights) {
+          int iClus = p.first;
+          double weight = p.second;
           if(m_useParticleID){
-            m_ClusInfo[iClus]->Add(weight * (*chIter)->energyTotal(), nsmp, (*chIter)->particleID());
+            clusInfoVec[iClus].Add(weight * (*chIter)->energyTotal(), nsmp, (*chIter)->particleID());
           }else{
-            m_ClusInfo[iClus]->Add(weight * (*chIter)->energyTotal(), nsmp);
+            clusInfoVec[iClus].Add(weight * (*chIter)->energyTotal(), nsmp);
           }
         }
       }
@@ -437,19 +421,21 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
   }
 
   // if all calibration hits have ParticleID(i.e. barcode)==0 when simulation was done without ParticleID
+  bool doCalibFrac = m_doCalibFrac;
+  bool useParticleID = m_useParticleID;
   if(m_useParticleID && (nHitsTotal == nHitsWithoutParticleID) ) {
-    msg(MSG::INFO) << "Calibration hits do not have ParticleID, i.e. barcode of particle caused hits is always 0. Continuing without ParticleID machinery."<< endreq;
-    m_useParticleID = false;
-    m_doCalibFrac = false;
+    msg(MSG::INFO) << "Calibration hits do not have ParticleID, i.e. barcode of particle caused hits is always 0. Continuing without ParticleID machinery."<< endmsg;
+    useParticleID = false;
   }
 
   // reading particle information for later calcution of calibration enegry fraction caused
   // by particles of different types
-  if(m_doCalibFrac){
-    StatusCode sc = evtStore()->retrieve(m_truthParticles, m_truthParticleCollectionName);
-    if (sc.isFailure()||!m_truthParticles){
-      msg(MSG::WARNING) << "Truth particle collection '" << m_truthParticleCollectionName << "' not found, no cluster moments ENG_CALIB_FRAC_* will be available. "<< endreq;
-      m_doCalibFrac = false;
+  const TruthParticleContainer* truthParticles = nullptr;
+  if(doCalibFrac){
+    StatusCode sc = evtStore()->retrieve(truthParticles, m_truthParticleCollectionName);
+    if (sc.isFailure()||!truthParticles){
+      msg(MSG::WARNING) << "Truth particle collection '" << m_truthParticleCollectionName << "' not found, no cluster moments ENG_CALIB_FRAC_* will be available. "<< endmsg;
+      doCalibFrac = false;
     }
   }
 
@@ -476,11 +462,11 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
       clusIter = theClusColl->begin();
       iClus = 0;
       for( ;clusIter!=clusIterEnd;clusIter++,iClus++) {
-         const xAOD::CaloCluster * theCluster = (*clusIter);
+        const xAOD::CaloCluster * theCluster = (*clusIter);
 
-        MyClusInfo *clusInfo = m_ClusInfo[iClus];
+        MyClusInfo& clusInfo = clusInfoVec[iClus];
 
-        if ( clusInfo->engCalibIn.engTot > 0 ) {
+        if ( clusInfo.engCalibIn.engTot > 0 ) {
           int iEtaSign = 1;
           if ( theCluster->eta() < 0 ) iEtaSign = -1;
           int jeta = (int)(floor(m_n_eta_out*(theCluster->eta()/(m_out_eta_max))));
@@ -520,14 +506,13 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
       for(;chIter!=chIterE;chIter++)  {
         Identifier myId = (*chIter)->cellID();
 
-          MyCellInfo tmp(myId);
-          m_CellInfoSet_t::iterator pos = m_CellInfo.find( &tmp );
-          if(pos == m_CellInfo.end() ) {
+          CellInfoSet_t::iterator pos = cellInfo.find( myId );
+          if(pos == cellInfo.end() ) {
             // hit is not inside any cluster
             const CaloDetDescrElement* myCDDE = 
               m_calo_dd_man->get_element(myId);
             int pid(0);
-            if(m_useParticleID) pid = (*chIter)->particleID();
+            if(useParticleID) pid = (*chIter)->particleID();
             if ( myCDDE ) {
               int jeO = (int)floor(m_n_eta_out*(myCDDE->eta()/m_out_eta_max));
               if ( jeO >= -m_n_eta_out && jeO < m_n_eta_out ) {
@@ -550,11 +535,11 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
                     // loop over clusters which match given OOC hit
                     for(unsigned int i_cls=0; i_cls<(*pClusList)[(jpO+m_n_phi_out)*(2*m_n_eta_out+1)+jeO+m_n_eta_out].size(); i_cls++){
                       int iClus = (*pClusList)[(jpO+m_n_phi_out)*(2*m_n_eta_out+1)+jeO+m_n_eta_out][i_cls];
-                      MyClusInfo *clusInfo = m_ClusInfo[iClus];
+                      MyClusInfo& clusInfo = clusInfoVec[iClus];
                       // getting access to calibration energy inside cluster caused by same particleID (barcode)
                       // as given OOC hit
-                      std::map<int, MyClusInfo::ClusCalibEnergy>::iterator pos = clusInfo->engCalibParticle.find(pid);
-                      if(pos!=clusInfo->engCalibParticle.end()) {
+                      std::map<int, MyClusInfo::ClusCalibEnergy>::iterator pos = clusInfo.engCalibParticle.find(pid);
+                      if(pos!=clusInfo.engCalibParticle.end()) {
                         // given cluster have some energy inside caused by same particle as given OOC hitClusEffEnergy
                         // so the hit will be assigned to this cluster with some weight
                         hitClusNorm += pos->second.engTot;
@@ -605,7 +590,7 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
           myCDDE = m_caloDmDescrManager->get_element(myId);
           if ( myCDDE ) {
             int pid(0);
-            if(m_useParticleID) pid = (*chIter)->particleID();
+            if(useParticleID) pid = (*chIter)->particleID();
 
             int jeO = (int)floor(m_n_eta_out*(myCDDE->eta()/m_out_eta_max));
             if ( jeO >= -m_n_eta_out && jeO < m_n_eta_out ) {
@@ -627,11 +612,11 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
 		int iClus = (*pClusList)[(jpO+m_n_phi_out)*(2*m_n_eta_out+1)+jeO+m_n_eta_out][i_cls];
                 xAOD::CaloCluster * theCluster = theClusColl->at(iClus);
                 
-                MyClusInfo *clusInfo = m_ClusInfo[iClus];
+                MyClusInfo& clusInfo = clusInfoVec[iClus];
                 // getting access to calibration energy inside cluster caused by same particleID (barcode)
                 // as given OOC hit
-                std::map<int, MyClusInfo::ClusCalibEnergy>::iterator pos = clusInfo->engCalibParticle.find(pid);
-                if(pos!=clusInfo->engCalibParticle.end()) {
+                std::map<int, MyClusInfo::ClusCalibEnergy>::iterator pos = clusInfo.engCalibParticle.find(pid);
+                if(pos!=clusInfo.engCalibParticle.end()) {
                   double engClusPidCalib = pos->second.engTot;
 
                   if(engClusPidCalib > m_energyMinCalib  && theCluster->e()>m_energyMin) {
@@ -678,8 +663,8 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
                     std::cout << "CaloCalibClusterMomentsMaker2::execute() ->Error! Strange weight " <<  dm_weight<< std::endl;
                     std::cout << hitClusEffEnergy[i_cls] << " " << hitClusNorm << std::endl;
                   }
-                  m_ClusInfo[iClus]->engCalibDeadInArea[nDmArea] += (*chIter)->energyTotal()*dm_weight;
-                  m_ClusInfo[iClus]->engCalibDeadInArea[CaloDmDescrArea::DMA_ALL] += (*chIter)->energyTotal()*dm_weight;
+                  clusInfoVec[iClus].engCalibDeadInArea[nDmArea] += (*chIter)->energyTotal()*dm_weight;
+                  clusInfoVec[iClus].engCalibDeadInArea[CaloDmDescrArea::DMA_ALL] += (*chIter)->energyTotal()*dm_weight;
                 }
               } // hit clus norm
 
@@ -698,40 +683,40 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
   // assign moments
   for( clusIter = theClusColl->begin(),iClus=0;  clusIter!=clusIterEnd;clusIter++,iClus++) {
     xAOD::CaloCluster * theCluster = *clusIter;
-    MyClusInfo *clusInfo = m_ClusInfo[iClus];
+    MyClusInfo& clusInfo = clusInfoVec[iClus];
 
     // total DM energy assigned to cluster
-    double eng_calib_dead_tot = clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_ALL]
-          + clusInfo->engCalibIn.engSmp[CaloSampling::PreSamplerB]
-          + clusInfo->engCalibIn.engSmp[CaloSampling::PreSamplerE]
-          + clusInfo->engCalibIn.engSmp[CaloSampling::TileGap3];
+    double eng_calib_dead_tot = clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_ALL]
+          + clusInfo.engCalibIn.engSmp[CaloSampling::PreSamplerB]
+          + clusInfo.engCalibIn.engSmp[CaloSampling::PreSamplerE]
+          + clusInfo.engCalibIn.engSmp[CaloSampling::TileGap3];
     // DM energy before barrel presampler, inside it, and between presampler and strips
-    double eng_calib_dead_emb0 = clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_EMB0]
-          + clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_EMB1]
-          + clusInfo->engCalibIn.engSmp[CaloSampling::PreSamplerB];
+    double eng_calib_dead_emb0 = clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_EMB0]
+          + clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_EMB1]
+          + clusInfo.engCalibIn.engSmp[CaloSampling::PreSamplerB];
     // DM energy between barrel and tile
-    double eng_calib_dead_tile0 = clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_EMB3_TILE0];
+    double eng_calib_dead_tile0 = clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_EMB3_TILE0];
     // DM energy before scintillator and inside scintillator
-    double eng_calib_dead_tileg3 = clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_SCN]
-          + clusInfo->engCalibIn.engSmp[CaloSampling::TileGap3];
+    double eng_calib_dead_tileg3 = clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_SCN]
+          + clusInfo.engCalibIn.engSmp[CaloSampling::TileGap3];
     // DM energy beforee endcap presampler, inside it and between presampler and strips
-    double eng_calib_dead_eme0 = clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_EME0]
-          + clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_EME12]
-          + clusInfo->engCalibIn.engSmp[CaloSampling::PreSamplerE];
+    double eng_calib_dead_eme0 = clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_EME0]
+          + clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_EME12]
+          + clusInfo.engCalibIn.engSmp[CaloSampling::PreSamplerE];
     // DM energy between emec and hec
-    double eng_calib_dead_hec0 = clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_EME3_HEC0];
+    double eng_calib_dead_hec0 = clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_EME3_HEC0];
     // DM energy before FCAL and between HEC and FCAL
-    double eng_calib_dead_fcal = clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_FCAL0]
-          + clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_HEC_FCAL];
+    double eng_calib_dead_fcal = clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_FCAL0]
+          + clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_HEC_FCAL];
     // DM leakage behind the calorimeter
-    double eng_calib_dead_leakage = clusInfo->engCalibDeadInArea[CaloDmDescrArea::DMA_LEAK];
+    double eng_calib_dead_leakage = clusInfo.engCalibDeadInArea[CaloDmDescrArea::DMA_LEAK];
     // the rest of DM energy which remains unclassified
     double eng_calib_dead_unclass = eng_calib_dead_tot - eng_calib_dead_emb0 - eng_calib_dead_tile0 
           - eng_calib_dead_tileg3 - eng_calib_dead_eme0 - eng_calib_dead_hec0 - eng_calib_dead_fcal
           - eng_calib_dead_leakage;
 
-    if(m_doCalibFrac){
-      get_calib_frac(clusInfo, engCalibFrac);
+    if(doCalibFrac){
+      get_calib_frac(*truthParticles, clusInfo, engCalibFrac);
     }
 
     if ( m_momentsNames.size() > 0 ) {
@@ -745,7 +730,7 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
         // now calculate the actual moments
         switch (vMomentsIter->second) { 
         case xAOD::CaloCluster::ENG_CALIB_TOT:
-          myMoments[iMoment] = clusInfo->engCalibIn.engTot;
+          myMoments[iMoment] = clusInfo.engCalibIn.engTot;
           break;
         case xAOD::CaloCluster::ENG_CALIB_OUT_L:
           myMoments[iMoment] = engCalibOut[0][iClus];
@@ -757,13 +742,13 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
           myMoments[iMoment] = engCalibOut[2][iClus];
           break;
         case xAOD::CaloCluster::ENG_CALIB_EMB0:
-          myMoments[iMoment] = clusInfo->engCalibIn.engSmp[CaloSampling::PreSamplerB];
+          myMoments[iMoment] = clusInfo.engCalibIn.engSmp[CaloSampling::PreSamplerB];
           break;
         case xAOD::CaloCluster::ENG_CALIB_EME0:
-          myMoments[iMoment] = clusInfo->engCalibIn.engSmp[CaloSampling::PreSamplerE];
+          myMoments[iMoment] = clusInfo.engCalibIn.engSmp[CaloSampling::PreSamplerE];
           break;
         case xAOD::CaloCluster::ENG_CALIB_TILEG3:
-          myMoments[iMoment] = clusInfo->engCalibIn.engSmp[CaloSampling::TileGap3];
+          myMoments[iMoment] = clusInfo.engCalibIn.engSmp[CaloSampling::TileGap3];
           break;
         case xAOD::CaloCluster::ENG_CALIB_DEAD_TOT:
           myMoments[iMoment] = eng_calib_dead_tot;
@@ -811,17 +796,6 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
     }
   }
 
-
-  // clearing information
-  for(m_ClusInfo_t::iterator it=m_ClusInfo.begin(); it!=m_ClusInfo.end(); it++){
-    delete (*it);
-  }
-  m_ClusInfo.clear();
-  for(m_CellInfoSet_t::iterator it=m_CellInfo.begin(); it!=m_CellInfo.end(); it++){
-    delete (*it);
-  }
-  m_CellInfo.clear();
-
   return StatusCode::SUCCESS;
 }
 
@@ -830,7 +804,7 @@ StatusCode CaloCalibClusterMomentsMaker2::execute(xAOD::CaloClusterContainer *th
 /* ****************************************************************************
 
 **************************************************************************** */
-double CaloCalibClusterMomentsMaker2::angle_mollier_factor(double x)
+double CaloCalibClusterMomentsMaker2::angle_mollier_factor(double x) const
 {
   double eta = fabs(x);
   double ff;
@@ -849,15 +823,17 @@ double CaloCalibClusterMomentsMaker2::angle_mollier_factor(double x)
 /* ****************************************************************************
 Calculation of energy fraction caused by particles of different types
 **************************************************************************** */
-void CaloCalibClusterMomentsMaker2::get_calib_frac(const MyClusInfo *clusInfo, std::vector<double> &engFrac) {
+void CaloCalibClusterMomentsMaker2::get_calib_frac(const TruthParticleContainer& truthParticles,
+                                                   const MyClusInfo& clusInfo, std::vector<double> &engFrac) const
+{
   static unsigned int nWarnings = 0;
   engFrac.resize(kCalibFracMax, 0.0);
-  if(clusInfo->engCalibIn.engTot <= 0.0) return;
+  if(clusInfo.engCalibIn.engTot <= 0.0) return;
   // each MyClusInfo has a map of particle's barcode and particle calibration deposits in given cluster
-  for(std::map<int, MyClusInfo::ClusCalibEnergy >::const_iterator it = clusInfo->engCalibParticle.begin(); it != clusInfo->engCalibParticle.end(); it++){
+  for(std::map<int, MyClusInfo::ClusCalibEnergy >::const_iterator it = clusInfo.engCalibParticle.begin(); it != clusInfo.engCalibParticle.end(); it++){
     int barcode = it->first;
     const TruthParticle* p( 0 );
-    p = m_truthParticles->truthParticle( barcode );
+    p = truthParticles.truthParticle( barcode );
     if( 0 == p ) {
       if(nWarnings <10 ) {
         std::cout << "CaloCalibClusterMomentsMaker2::get_calib_frac -> Error! No particle with barcode " << barcode << " found in TruthParticleContainer" << std::endl;
@@ -874,6 +850,6 @@ void CaloCalibClusterMomentsMaker2::get_calib_frac(const MyClusInfo *clusInfo, s
       engFrac[kCalibFracREST] += it->second.engTot;
     }
   }
-  for(unsigned int i=0; i<engFrac.size(); i++) engFrac[i] = engFrac[i]/clusInfo->engCalibIn.engTot;
+  for(unsigned int i=0; i<engFrac.size(); i++) engFrac[i] = engFrac[i]/clusInfo.engCalibIn.engTot;
 }
 
