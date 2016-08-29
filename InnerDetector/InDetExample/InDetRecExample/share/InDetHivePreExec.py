@@ -12,12 +12,10 @@ topSequence += SGInputLoader( OutputLevel=INFO, ShowEventDump=False )
 topSequence.SGInputLoader.Load = [ ('PixelRDO_Container','PixelRDOs'),
                                    ('TRT_RDO_Container','TRT_RDOs'),
                                    ('SCT_RDO_Container','SCT_RDOs'),
-                                   #('CaloClusterROI_Collection','InDetHadCaloClusterROIs'),
-                                   #('CaloClusterROI_Collection','InDetCaloClusterROIs'),
-                                   #('Trk::SegmentCollection','TRTSegments'),
                                  ]
 
-#
-#from InDetRecExample.InDetJobProperties import InDetFlags
-#InDetFlags.doTRTPhaseCalculation = False
-#InDetFlags.doTruth = False
+
+from InDetRecExample.InDetJobProperties import InDetFlags
+InDetFlags.doTRTPhaseCalculation = False
+InDetFlags.doCaloSeededBrem = False
+InDetFlags.doCaloSeededTRTSegments = False

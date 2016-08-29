@@ -44,6 +44,9 @@ if InDetFlags.doCosmics():
 
 if InDetFlags.doStoreTrackSeeds():
    InDetESDList+=["TrackCollection#"+InDetKeys.SiSPSeedSegments()]
+   #if InDetFlags.doTruth():
+   #   InDetESDList += ["TrackTruthCollection#"+InDetKeys.SiSPSeedSegments()+'TruthCollection']
+   #   InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.SiSPSeedSegments()+'DetailedTruth']
 
 if InDetKeys.AliasToTracks() == 'none':
    InDetESDList+=["TrackCollection#"+InDetKeys.Tracks()]

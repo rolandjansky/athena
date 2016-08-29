@@ -119,9 +119,6 @@ class ConfiguredNewTrackingCuts :
     self.__SecondaryXi2max           = 15.0
     self.__SecondaryXi2maxNoAdd      = 50.0
 
-    # --- run back tracking and TRT only in RoI seed regions
-    self.__RoISeededBackTracking     = False
-
     # --------------------------------------
     # --- TRT Only TRACKING cuts
     # --------------------------------------
@@ -205,7 +202,10 @@ class ConfiguredNewTrackingCuts :
 
     if self.__indetflags.cutLevel() >= 13:
       # --- turn on RoI seeded for Back Tracking and TRT only
-      self.__RoISeededBackTracking   = True
+      print '--------> RoISeededBackTracking was retired use InDetFlags.doCaloSeededTRTSegments instead!'
+      import sys
+      sys.exit()
+
 
     if self.__indetflags.cutLevel() >= 14:
       print '--------> FATAL ERROR, cut level undefined, abort !'
@@ -945,9 +945,6 @@ class ConfiguredNewTrackingCuts :
   def doZBoundary( self ) :
     return self.__doZBoundary
 
-  def RoISeededBackTracking( self ) :
-    return self.__RoISeededBackTracking
-
   def printInfo( self ) :
     print '****** Inner Detector Track Reconstruction Cuts ************************************'
     print '*'
@@ -999,10 +996,6 @@ class ConfiguredNewTrackingCuts :
         print '* phi Width of road for brem  :  ', self.__phiWidthBrem
         print '* eta Width of road for brem  :  ', self.__etaWidthBrem
     print '*'  
-    if self.__useTRT and self.__RoISeededBackTracking:
-      print '*'  
-      print '* RoI seeded BackTracking and TRT only !!!'
-      print '*'
     if self.__useSCT and self.__useTRT:
       print '* BackTracking cuts:'
       print '* ------------------'

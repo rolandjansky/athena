@@ -15,7 +15,7 @@ if doReadBS:
   import os
   os.environ['STAGE_HOST']="castoratlast3"
   os.environ['STAGE_SVCCLASS']="atlascerngroupdisk"  
-  athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/perf-idtracking/InDetRecExample/data10_cos.00151040.physics_IDCosmic.merge.RAW/data10_cos.00151040.physics_IDCosmic.merge.RAW._lb0002._0001.1"]
+  athenaCommonFlags.FilesInput = ["root://eosatlas//eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/tracking/data10_cos.00151040.physics_IDCosmic.merge.RAW._lb0002._0001.1"]
 
 import AthenaPython.ConfigLib as apcl
 cfg = apcl.AutoCfg(name = 'InDetRecExampleAutoConfig', input_files=athenaCommonFlags.FilesInput())

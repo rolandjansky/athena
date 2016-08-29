@@ -243,6 +243,11 @@ class  ConfiguredNewTrackingSiPattern:
          if InDetFlags. doStoreTrackSeeds():
               InDetSiTrackMaker.SeedSegmentsWrite=True
               InDetSiTrackMaker.SeedToTrackConversion=InDet_SeedToTrackConversion
+
+         if not InDetFlags.doCaloSeededBrem():
+           InDetSiTrackMaker.InputClusterContainerName = ""
+           InDetSiTrackMaker.InputHadClusterContainerName = ""
+
          #InDetSiTrackMaker.OutputLevel = VERBOSE				  
          ToolSvc += InDetSiTrackMaker
          if (InDetFlags.doPrintConfigurables()):

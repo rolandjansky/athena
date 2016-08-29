@@ -295,8 +295,8 @@ class cutLevel(InDetFlagsJobProperty):
     """
     statusOn     = True
     allowedTypes = ['int']
-    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12,13]
-    StoredValue  = 13
+    allowedValues= [1,2,3,4,5,6,7,8,9,10,11,12]
+    StoredValue  = 12
 
 class doBremRecovery(InDetFlagsJobProperty):
     """Turn on running of Brem Recover in tracking"""
@@ -1024,7 +1024,7 @@ class doCaloSeededTRTSegments(InDetFlagsJobProperty):
     """ Switch for running AOD to xAOD conversion algs """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = False
+    StoredValue  = True
 
 class doInnerDetectorCommissioning(InDetFlagsJobProperty):
   """ Switch for running looser settings in ID for commissioning """
@@ -1212,6 +1212,7 @@ class InDetJobProperties(JobPropertyContainer):
        #self.checkThenSet(self.doTrackSegmentsPixel   , False)
        #self.checkThenSet(self.doTrackSegmentsSCT     , False)
        #self.checkThenSet(self.doTrackSegmentsTRT     , False)
+       self.checkThenSet(self.doCaloSeededTRTSegments, False)
        self.checkThenSet(self.doLowBetaFinder        , False)
        self.checkThenSet(self.doCosmics              , True )
        self.checkThenSet(self.preProcessing          , True )
@@ -1220,6 +1221,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.selectSCTIntimeHits    , False)
        self.checkThenSet(self.cutLevel               , 8    )
        self.checkThenSet(self.doInnerDetectorCommissioning, True)
+       
 
     # --- special case heavy ion
     elif (rec.doHeavyIon()):
@@ -1234,6 +1236,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doTrackSegmentsPixel   , False)
        self.checkThenSet(self.doTrackSegmentsSCT     , False)
        self.checkThenSet(self.doTrackSegmentsTRT     , False)
+       self.checkThenSet(self.doCaloSeededTRTSegments, False)
        self.checkThenSet(self.doForwardTracks        , False)
        self.checkThenSet(self.doBeamGas              , False)
        self.checkThenSet(self.doBeamHalo             , False)
@@ -1516,14 +1519,15 @@ class InDetJobProperties(JobPropertyContainer):
        # --- new setup for MinBias tracking
        if self.doMinBias():
           # --- run TRT only tracking over the entire detector
-          self.checkThenSet(self.cutLevel     , 12)
+          # self.checkThenSet(self.cutLevel     , 12)
+          self.checkThenSet(self.doCaloSeededTRTSegments, False)
           # --- disable forward tracklets
           self.checkThenSet(self.doForwardTracks     , False )
           # --- run tracklets
           self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
           self.checkThenSet(self.doTrackSegmentsPixel, True )
           #self.checkThenSet(self.doTrackSegmentsSCT  , False )
-          #self.checkThenSet(self.doTrackSegmentsTRT  , False )
+          #self.checkThenSet(self.doTrackSegmentsTRT  , False )          
           # --- turn off brem
           #self.checkThenSet(self.doBremRecovery  , False)
           #self.checkThenSet(self.doCaloSeededBrem, False)
@@ -1555,6 +1559,7 @@ class InDetJobProperties(JobPropertyContainer):
           self.checkThenSet(self.doTrackSegmentsPixel, True )
           self.checkThenSet(self.doTrackSegmentsSCT  , True )
           self.checkThenSet(self.doTrackSegmentsTRT  , True )
+          self.checkThenSet(self.doCaloSeededTRTSegments, False)
           # --- turn off brem
           self.checkThenSet(self.doBremRecovery  , False)
           self.checkThenSet(self.doCaloSeededBrem, False)
@@ -2221,6 +2226,8 @@ class InDetJobProperties(JobPropertyContainer):
        print '* - run ambi on TRT seeded tracks'
     if self.doTRTStandalone() :
        print '* - create TRT standalone tracks'
+    if self.doCaloSeededTRTSegments() :
+       print '* - TRT segment making in RoI guided model / calorimeter seeded.'
     # -----------------------------------------
     if self.doNewTrackingSegments():
        print '*'
@@ -2283,7 +2290,6 @@ class InDetJobProperties(JobPropertyContainer):
        print '*    (10)- use Z boundary seeding'
        print '*    (11)- TRT only uses eta depending hit cuts'
        print '*    (12)- Tighter X2 cuts on both track and hits being accepted'
-       print '*    (13)- TRT segment making in RoI guided model'
     else:
        print '*    (1) - 2010 heavy ion settings'
        print '*    (2) - 2011 heavy ion settings with seed level 2'
