@@ -15,7 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRecEvent
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           PRIVATE
                           Calorimeter/CaloUtils
                           Control/AthContainers
@@ -26,7 +26,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( LArClusterRec
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloEvent CaloRecLib AthenaBaseComps StoreGateLib SGtests xAODCaloEvent GaudiKernel LArIdentifier LArRecEvent LArToolsLib CaloUtilsLib AthContainers Identifier LArRawEvent )
+                     LINK_LIBRARIES CaloEvent CaloRecLib AthenaBaseComps StoreGateLib SGtests xAODCaloEvent GaudiKernel LArIdentifier LArRecEvent LArCablingLib CaloUtilsLib AthContainers Identifier LArRawEvent )
 
 # Install files from the package:
 atlas_install_headers( LArClusterRec )
