@@ -46,6 +46,8 @@ egammaSwTool::egammaSwTool(const std::string& type,
   declareProperty("ClusterCorrectionToolsEconv55",m_clusterCorrectionNamesEconv55);
   declareProperty("ClusterCorrectionToolsEconv35",m_clusterCorrectionNamesEconv35);
   declareProperty("ClusterCorrectionToolsEconv37",m_clusterCorrectionNamesEconv37);
+
+  declareProperty("ClusterCorrectionToolsSuperCluster",m_clusterCorrectionNamesSuperCluster);
 }
 
 // ===============================================================
@@ -288,6 +290,30 @@ StatusCode egammaSwTool::initialize()
       } 
     }
 
+    firstTool=m_clusterCorrectionNamesSuperCluster.begin();
+    lastTool =m_clusterCorrectionNamesSuperCluster.end();
+    
+    for ( ; firstTool != lastTool; firstTool++ ) {
+      IAlgTool* algToolPtr;
+      ListItem  clusAlgoTool(*firstTool);
+      StatusCode sCode = p_toolSvc->retrieveTool(clusAlgoTool.type(),
+						 clusAlgoTool.name(),
+						 algToolPtr,
+						 this);
+      if ( sCode.isFailure() ) {
+	ATH_MSG_ERROR("Cannot find tool for " << *firstTool);
+      }
+      else {
+	ATH_MSG_DEBUG("Found tool for " << *firstTool);
+	// check for tool type
+	CaloClusterProcessor* 
+	  theTool = dynamic_cast<CaloClusterProcessor*>(algToolPtr);
+	if ( theTool != 0 ) { 
+	  m_clusterCorrectionPointersSuperCluster.push_back(theTool); 
+	}
+      } 
+    }
+
     ATH_MSG_DEBUG("egammaSwTool initialisation completed successfully"); 
   }    
   
@@ -349,6 +375,10 @@ StatusCode egammaSwTool::execute(xAOD::CaloCluster *cluster)
   case xAOD::CaloCluster::SW_37Econv:
     firstTool = m_clusterCorrectionPointersEconv37.begin();
     lastTool  = m_clusterCorrectionPointersEconv37.end();
+    break;
+  case xAOD::CaloCluster::SuperCluster:
+    firstTool = m_clusterCorrectionPointersSuperCluster.begin();
+    lastTool  = m_clusterCorrectionPointersSuperCluster.end();
     break;
   default:
     ATH_MSG_DEBUG("Inexisting cluster type and calibration requested: " << requestedSize);

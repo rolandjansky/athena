@@ -57,6 +57,7 @@ class egammaSwTool : public AthAlgTool, virtual public IegammaSwTool
   std::vector<std::string> m_clusterCorrectionNamesEconv55;
   std::vector<std::string> m_clusterCorrectionNamesEconv35;
   std::vector<std::string> m_clusterCorrectionNamesEconv37;
+  std::vector<std::string> m_clusterCorrectionNamesSuperCluster;
 
   /** @brief the actual list of tools corresponding to above names */
   std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEle55; 
@@ -68,6 +69,7 @@ class egammaSwTool : public AthAlgTool, virtual public IegammaSwTool
   std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEconv55; 
   std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEconv35; 
   std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEconv37; 
+  std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersSuperCluster; 
 };
 
 #endif

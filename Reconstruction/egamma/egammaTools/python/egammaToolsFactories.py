@@ -64,7 +64,6 @@ EMBremCollectionBuilder = ToolFactory( egammaBremCollectionBuilder,
                                        ExtrapolationTool = EMExtrapolationTools,
                                        OutputTrackContainerName=egammaKeys.outputTrackKey(),
                                        ClusterContainerName=egammaKeys.inputClusterKey(),
-                                       UseBremFinder=jobproperties.egammaRecFlags.doBremFinding(),
                                        DoTruth=rec.doTruth()
 )
 
@@ -92,8 +91,10 @@ egammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
 electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
                                            name = 'electronSuperClusterBuilder',
                                            ExtrapolationTool=EMExtrapolationTools,
-                                           UseBremFinder=jobproperties.egammaRecFlags.doBremFinding(),
-                                           MVACalibTool= egammaMVATool
+                                           UseBremFinder=False,
+                                           MVACalibTool= egammaMVATool,
+                                           TopoWindowEtaCells = 5,
+                                           TopoWindowPhiCells = 7
                                          )
 
 

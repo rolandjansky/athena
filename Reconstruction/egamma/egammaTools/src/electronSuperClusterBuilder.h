@@ -70,6 +70,14 @@ class electronSuperClusterBuilder : public AthAlgTool,  virtual public Ielectron
 
   StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster);
 
+  bool PassesSimpleBremSearch(const xAOD::CaloCluster *seed,
+			      const xAOD::CaloCluster *sec,
+			      float perigeeExtrapEta,
+			      float perigeeExtrapPhi,
+			      float seedEOverP);
+
+  std::vector<float> perigeeExtrapEta, perigeeExtrapPhi;
+  
   /////////////////////////////////////////////////////////////////////
   //internal variables
   std::vector<const CaloCell*> m_cellsin3x5;  
@@ -77,20 +85,38 @@ class electronSuperClusterBuilder : public AthAlgTool,  virtual public Ielectron
   std::vector<double> m_bpExtrapEta; 
   std::vector<double> m_bpExtrapPhi;
   bool  m_useBremFinder;
+
   /** @brief Size of window in eta */
   int   m_delEtaCells;
   /** @brief Size of window in phi */
   int   m_delPhiCells;
+
+  /** @brief Size of seed cluster window in eta cells */
+  int   m_windowEtaCells;
+  float m_windowEta;
+  /** @brief Size of seed cluster window in phi cells */
+  int   m_windowPhiCells;
+  float m_windowPhi;
+  
+  /** @brief Size of maximum search window in eta */
+  int   m_maxDelEtaCells;
+  float m_maxDelEta;
+  float m_bremExtrapMatchDelEta;
+  float m_secEOverPCut;
+  
+  /** @brief Size of maximum search window in eta */
+  int   m_maxDelPhiCells;
+  float m_maxDelPhi;
+  float m_bremExtrapMatchDelPhi;
+
   //Keep track of # of 3x5 and brem point
   //clusters added to seed clusters.
-  int m_nWindowClusters, m_nExtraClusters,m_nBremPointClusters,m_nSameTrackClusters;
+  int m_nWindowClusters, m_nExtraClusters,m_nBremPointClusters,m_nSameTrackClusters,m_nSimpleBremSearchtClusters;
   float m_delEta; //!< half of window size, converted to units of eta
   float m_delPhi; //!< half of window size, converted to units of phi
   float m_EtThresholdCut;
   float m_secThresholdCut;
   float m_emFracCut;
-  float m_trackOverlapDelEta;
-  float m_trackOverlapDelPhi;
   float m_secondaryEmFracCut;
   float m_numberOfSiHits;
   bool  m_sumRemainingCellsInWindow;

@@ -45,13 +45,24 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& type
   m_nExtraClusters(0),
   m_nBremPointClusters(0),
   m_nSameTrackClusters(0),
+  m_nSimpleBremSearchtClusters(0),
   m_extrapolationTool("EMExtrapolationTools"),
   m_clusterCorrectionTool("egammaSwTool/egammaswtool")
 {
+
   declareProperty("WindowDelEtaCells", m_delEtaCells = 3);
 
   declareProperty("WindowDelPhiCells", m_delPhiCells = 5);
-  
+
+  ////////////////////////////////////////////////////////////////////////////////
+  //NEW: Maximum window search parameters.
+  declareProperty("MaxWindowDelEtaCells", m_maxDelEtaCells = 5);
+  declareProperty("MaxWindowDelPhiCells", m_maxDelPhiCells = 12);
+  declareProperty("BremExtrapDelEtaCut",  m_bremExtrapMatchDelEta = 0.05);
+  declareProperty("BremExtrapDelPhiCut",  m_bremExtrapMatchDelPhi = 0.1);
+  declareProperty("BremSearchEOverPCut",  m_secEOverPCut = 1.5);
+  ////////////////////////////////////////////////////////////////////////////////
+
   declareProperty("UseBremFinder", m_useBremFinder=false);
 
   declareProperty("EtThresholdCut", m_EtThresholdCut = 1.0*GeV);
@@ -61,10 +72,6 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& type
   declareProperty("EMFracCut", m_emFracCut = 0.5);
 
   declareProperty("SecondaryEMFracCut", m_secondaryEmFracCut = 0.9);
-
-  declareProperty("TrackOverlapDelEta", m_trackOverlapDelEta = 0.075);
-
-  declareProperty("TrackOverlapDelPhi", m_trackOverlapDelPhi = 0.15);
 
   declareProperty("SumRemainingCellsInWindow", m_sumRemainingCellsInWindow = false);
 
@@ -91,8 +98,17 @@ electronSuperClusterBuilder::electronSuperClusterBuilder(const std::string& type
   declareProperty("MVACalibTool", m_MVACalibTool);
   declareProperty("ClusterCorrectionTool", m_clusterCorrectionTool);
 
-  m_delPhi = m_delPhiCells *cellPhiSize * 0.5;
-  m_delEta = m_delEtaCells *cellEtaSize * 0.5;
+  declareProperty("TopoWindowEtaCells", m_windowEtaCells = 1E6);
+  declareProperty("TopoWindowPhiCells", m_windowPhiCells = 1E6);
+
+  m_delPhi = m_delPhiCells * cellPhiSize * 0.5;
+  m_delEta = m_delEtaCells * cellEtaSize * 0.5;
+
+  m_maxDelPhi = m_maxDelPhiCells * cellPhiSize * 0.5;
+  m_maxDelEta = m_maxDelEtaCells * cellEtaSize * 0.5;
+
+  m_windowEta = 0.5*float(m_windowEtaCells)*cellEtaSize;
+  m_windowPhi = 0.5*float(m_windowPhiCells)*cellPhiSize;
 
   // Declare interface & properties.
   declareInterface<IelectronSuperClusterBuilder>(this);
@@ -118,6 +134,13 @@ StatusCode electronSuperClusterBuilder::initialize() {
 
   m_delPhi = m_delPhiCells *cellPhiSize * 0.5;
   m_delEta = m_delEtaCells *cellEtaSize * 0.5;
+
+  m_maxDelPhi = m_maxDelPhiCells * cellPhiSize * 0.5;
+  m_maxDelEta = m_maxDelEtaCells * cellEtaSize * 0.5;
+
+  m_windowEta = 0.5*float(m_windowEtaCells)*cellEtaSize;
+  m_windowPhi = 0.5*float(m_windowPhiCells)*cellPhiSize;
+
   return StatusCode::SUCCESS;
 }
 
@@ -131,7 +154,7 @@ StatusCode electronSuperClusterBuilder::finalize() {
 //////////////////////////////////////////////////////////////////////////////
 
 StatusCode electronSuperClusterBuilder::execute(){
-
+  
   //-------------------------------------------------------------------------------------------------------
   //Register cluster container.
   xAOD::CaloClusterContainer *outputClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(), 
@@ -201,6 +224,7 @@ StatusCode electronSuperClusterBuilder::execute(){
     m_nExtraClusters = 0;
     m_nBremPointClusters=0;
     m_nSameTrackClusters=0;
+    m_nSimpleBremSearchtClusters=0;
     //
     //=========================================================================================
     ATH_MSG_DEBUG("=====================================================================");
@@ -223,6 +247,15 @@ StatusCode electronSuperClusterBuilder::execute(){
     ATH_MSG_DEBUG("Find the Brem Extrapolation");
     CHECK(GetBremExtrapolations(egRec));
     //===========
+
+    perigeeExtrapEta.clear();
+    perigeeExtrapPhi.clear();
+
+    static const SG::AuxElement::Accessor< std::vector<float> > pgExtrapEta ("perigeeExtrapEta");
+    perigeeExtrapEta = pgExtrapEta(*egRec->trackParticle());
+
+    static const SG::AuxElement::Accessor< std::vector<float> > pgExtrapPhi ("perigeeExtrapPhi");
+    perigeeExtrapPhi = pgExtrapPhi(*egRec->trackParticle());
 
     //Find Secondary Clusters
     ATH_MSG_DEBUG("Find secondary clusters");
@@ -266,9 +299,12 @@ StatusCode electronSuperClusterBuilder::execute(){
       ATH_MSG_DEBUG("Clusters in Window " <<  m_nWindowClusters);
       static const SG::AuxElement::Accessor<int> nExtrapClusters ("nExtraClusters");
       nExtrapClusters(*newClus) = m_nExtraClusters;
+      static const SG::AuxElement::Accessor<int> nSimpleBremSearchtClusters ("nSimpleBremSearchtClusters");
+      nSimpleBremSearchtClusters(*newClus) = m_nSimpleBremSearchtClusters;
       ATH_MSG_DEBUG("extra  clusters " << m_nExtraClusters);
       ATH_MSG_DEBUG("Brem Point  clusters " << m_nBremPointClusters);
       ATH_MSG_DEBUG("Same Track  clusters " << m_nSameTrackClusters);
+
       //////////////////////////////////////////////////////////////////
       //Push back the new cluster into the output container.
       outputClusterContainer->push_back(newClus);
@@ -289,6 +325,7 @@ StatusCode electronSuperClusterBuilder::execute(){
       }
     }
   } //End loop on egammaRecs
+
   return StatusCode::SUCCESS;
 }
 
@@ -323,6 +360,7 @@ const std::vector<std::size_t> electronSuperClusterBuilder::SearchForSecondaryCl
     if (clus->e()*emFrac < m_secThresholdCut) {
       continue;
     }
+
     //Now the actual checks
     //Check if clusters are nearby enough to form the "topo-seeded window.'
     bool matchesInWindow(MatchesInWindow(seedCluster,clus));
@@ -330,22 +368,42 @@ const std::vector<std::size_t> electronSuperClusterBuilder::SearchForSecondaryCl
       ATH_MSG_DEBUG("Cluster  with Et : " << clus->et()<< " matched in window");
       ++ m_nWindowClusters;
     }    
-    //Lastly, check if we have any other egRec with the same track as best.
-    bool matchSameTrack (MatchSameTrack(seedEgammaRec,egRec));
-    if(matchSameTrack){
-      ATH_MSG_DEBUG("Cluster  with Et : " << clus->et()<< " eta " << clus->eta()<<" phi " << clus->phi() << " matches same track");
-      ++m_nSameTrackClusters;
-      ++m_nExtraClusters;
+
+    //Satellite brem cluster search for clusters
+    //outside the 3x5 window.
+    bool passesSimpleBremSearch(false);
+    bool matchSameTrack        (false);
+
+    float seedSecdEta(fabs(seedCluster->eta() - clus->eta()));
+    float seedSecdPhi(fabs(P4Helpers::deltaPhi(seedCluster->phi(), clus->phi())));
+
+    if (!matchesInWindow && seedSecdEta<m_maxDelEta && seedSecdPhi<m_maxDelPhi) {
+
+      matchSameTrack = MatchSameTrack(seedEgammaRec,egRec);
+
+      if(matchSameTrack) {
+	++m_nSameTrackClusters;
+	++m_nExtraClusters;
+      } else {
+	if (egRec->trackParticle()) {
+	  float qoverp    = egRec->trackParticle()->qOverP();
+	  float seedEOverP(egRec->caloCluster()->e() / fabs(1./qoverp));
+	  if (perigeeExtrapEta.size())
+	    passesSimpleBremSearch = PassesSimpleBremSearch(seedCluster,
+							    clus,
+							    perigeeExtrapEta[0],
+							    perigeeExtrapPhi[0],
+							    seedEOverP);
+	  if (passesSimpleBremSearch) {
+	    ++m_nSimpleBremSearchtClusters;
+	    ++m_nExtraClusters;
+	  }
+	}
+      }
     }
-    //Now go through to see if any match the brem point extrapolations.
-    bool overlapsBremPoint(OverlapsABremPoint(clus) && emFrac > m_secondaryEmFracCut);
-    if(overlapsBremPoint) {
-      ATH_MSG_DEBUG("Cluster  with Et : " << clus->et()<< " overlaps brem point");
-      ++m_nBremPointClusters;
-      ++m_nExtraClusters;
-    }
+    
     //Add it to the list of secondary clusters if it matches.
-    if (matchesInWindow || overlapsBremPoint || matchSameTrack) {
+    if (matchesInWindow || passesSimpleBremSearch || matchSameTrack) {
       secondaryClusters.push_back(i); 
       isUsed.at(i)=1;
     }
@@ -363,10 +421,12 @@ xAOD::CaloCluster *electronSuperClusterBuilder::AddTopoClusters(const std::vecto
   ATH_MSG_DEBUG("Adding Topo Clusters Together");
   xAOD::CaloCluster* myCluster = CaloClusterStoreHelper::makeCluster(clusters.at(0)->getCellLinks()->getCellContainer());
   if (myCluster) { 
+
     myCluster->setClusterSize(xAOD::CaloCluster::SuperCluster);
     //Use only the EM cells to calculate the energy.
     AddEMCellsToCluster(myCluster, clusters.at(0));
     CaloClusterKineHelper::calculateKine(myCluster, true, true);
+    
   }else {
     ATH_MSG_ERROR("Null Cluster in AddTopoCluster");
     return 0;
@@ -576,14 +636,6 @@ bool electronSuperClusterBuilder::MatchSameTrack(const egammaRec *seed,
 						 const egammaRec *sec) const{
   bool matchesSameTrack(false);
   if (seed && sec) {
-
-    float dEta(fabs(seed->caloCluster()->eta() - sec->caloCluster()->eta()));
-    float dPhi(fabs(P4Helpers::deltaPhi(seed->caloCluster()->phi(), sec->caloCluster()->phi())));
-      
-    if (dEta > m_trackOverlapDelEta || dPhi > m_trackOverlapDelPhi){
-      return false;
-    }
-
     const xAOD::TrackParticle *seedTrack = seed->trackParticle();
     const xAOD::TrackParticle *secTrack  = sec ->trackParticle();
     if (seedTrack && secTrack) {
@@ -605,7 +657,9 @@ bool electronSuperClusterBuilder::MatchSameTrack(const egammaRec *seed,
 //Handles cases where we want to sum a cluster's cells,
 //or add cells from another cluster.
 void electronSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster*       self,
-						      const xAOD::CaloCluster* ref){
+						      const xAOD::CaloCluster* ref)
+
+{
   if (!self || !ref) {
     ATH_MSG_DEBUG("Can't find clusters!");
     return;
@@ -618,6 +672,13 @@ void electronSuperClusterBuilder::AddEMCellsToCluster(xAOD::CaloCluster*       s
     if (!cell){
       continue;
     }
+
+    if (fabs(ref->eta()-cell->eta()) > m_windowEta)
+      continue;
+
+    if (fabs(P4Helpers::deltaPhi(ref->phi(),cell->phi())) > m_windowPhi)
+      continue;
+    
     //Add all LAR EM
     if (cell->caloDDE()->getSubCalo() == CaloCell_ID::LAREM) {
       self->addCell(cell_itr.index(), cell_itr.weight());
@@ -682,4 +743,27 @@ StatusCode electronSuperClusterBuilder::fillPositionsInCalo(xAOD::CaloCluster* c
 
   return StatusCode::SUCCESS;
 
+}
+
+bool electronSuperClusterBuilder::PassesSimpleBremSearch(const xAOD::CaloCluster *seed,
+							 const xAOD::CaloCluster *sec,
+							 float perigeeExtrapEta,
+							 float perigeeExtrapPhi,
+							 float seedEOverP)
+{
+
+  if (seedEOverP > m_secEOverPCut)
+    return false;
+
+  float perigeeExtrapClusDelEta = fabs(seed->eta() - perigeeExtrapEta);
+  float perigeeExtrapClusDelPhi = fabs(P4Helpers::deltaPhi(seed->phi(), perigeeExtrapPhi));
+
+  float perigeeExtrapSecClusDelEta = fabs(sec->eta() - perigeeExtrapEta);
+  float perigeeExtrapSecClusDelPhi = fabs(P4Helpers::deltaPhi(sec->phi(), perigeeExtrapPhi));
+
+  if (perigeeExtrapClusDelEta > m_delEta && perigeeExtrapClusDelPhi > m_delPhi)
+    if (perigeeExtrapSecClusDelEta < m_bremExtrapMatchDelEta && perigeeExtrapSecClusDelPhi < m_bremExtrapMatchDelPhi)
+      return true;
+
+  return false;
 }
