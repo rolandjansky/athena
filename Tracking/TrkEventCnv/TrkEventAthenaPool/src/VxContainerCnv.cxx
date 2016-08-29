@@ -39,15 +39,15 @@ StatusCode VxContainerCnv::initialize()
   StatusCode sc = VxContainerCnvBase::initialize();
   if( sc.isFailure() ) 
   {
-    m_log << MSG::FATAL << "Could not initialize VxContainerCnvBase" << endreq;
+    m_log << MSG::FATAL << "Could not initialize VxContainerCnvBase" << endmsg;
     return sc;
   }
   
   m_log.setLevel( m_msgSvc->outputLevel() );
-  m_log << MSG::INFO << "VxContainerCnv::initialize()" << endreq;
+  m_log << MSG::INFO << "VxContainerCnv::initialize()" << endmsg;
   
   IConverter  *converter =  m_athenaPoolCnvSvc->converter( CLID(1943140) );
-  m_log << MSG::INFO << "VxContainerCnv: MVFVxCandidate converter=" << converter << endreq;
+  m_log << MSG::INFO << "VxContainerCnv: MVFVxCandidate converter=" << converter << endmsg;
   registerExtendingCnv( converter );
   
   return StatusCode::SUCCESS;

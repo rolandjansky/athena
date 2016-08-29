@@ -51,7 +51,7 @@ StatusCode TrackCollectionCnv::initialize()
 {
     StatusCode sc = TrackCollectionCnvBase::initialize();
     if( sc.isFailure() ) {
-        m_log << MSG::FATAL << "Could not initialize cnv base" << endreq;
+        m_log << MSG::FATAL << "Could not initialize cnv base" << endmsg;
         return sc;
     }
 
@@ -61,7 +61,7 @@ StatusCode TrackCollectionCnv::initialize()
     m_log.setLevel( MSG::VERBOSE );
 
     // m_log.setLevel( m_msgSvc->outputLevel() );
-    m_log << MSG::VERBOSE << "TrackCollectionCnv::initialize()" << endreq;
+    m_log << MSG::VERBOSE << "TrackCollectionCnv::initialize()" << endmsg;
 
     IConverter	*converter =  m_athenaPoolCnvSvc->converter( CLID(17001567) );
     bool doInDet(true);
@@ -84,7 +84,7 @@ StatusCode TrackCollectionCnv::initialize()
     //-------------------------------------------------------------------------
     if( !doInDet && !doMuon && !doCalo) {
         m_log << MSG::WARNING << "Could not get any of the extending convertors, and so might have problems later on.";
-        m_log << endreq;
+        m_log << endmsg;
     }
 
     return StatusCode::SUCCESS;

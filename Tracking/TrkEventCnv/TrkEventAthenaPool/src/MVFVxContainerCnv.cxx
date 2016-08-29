@@ -39,7 +39,7 @@ StatusCode MVFVxContainerCnv::initialize()
  StatusCode sc = MVFVxContainerCnvBase::initialize();
   if( sc.isFailure() ) 
   {
-    log << MSG::FATAL << "Could not initialize MVFVxContainerCnvBase" << endreq;
+    log << MSG::FATAL << "Could not initialize MVFVxContainerCnvBase" << endmsg;
     return sc;
   }
   
@@ -47,7 +47,7 @@ StatusCode MVFVxContainerCnv::initialize()
 // Set up the message stream
 //-------------------------------------------------------------------------
   // log.setLevel( m_msgSvc->outputLevel() );
-  log << MSG::INFO << "MVFVxContainerCnv::initialize()" << endreq; 
+  log << MSG::INFO << "MVFVxContainerCnv::initialize()" << endmsg; 
   return StatusCode::SUCCESS;
 }
 
