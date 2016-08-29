@@ -65,7 +65,8 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       'Trkloose', 'Zmumu', 'noL2', 'noEFbph',
                       'noinvm', 'ss', 'BpmumuKp', 'Taumumux',
                       '11invm24', '24invm60',
-                      'tightChi2', 'Lxy0', 'Ftk','legacyVtx']
+                      'tightChi2', 'Lxy0', 'Ftk','legacyVtx',
+                      'BsmumuPhi', 'BsJpsiPhi']
 AllowedTopos_jet = ['muvtx',
                     'revllp',
                     'llp',
@@ -82,7 +83,7 @@ AllowedTopos_jet = ['muvtx',
                     'invm700',
                     'invm800',
                     'invm1000']
-AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','60mVis10000']
+AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','60mVis10000','03dR30']
 AllowedTopos_comb = ['taumass', 'dr05', 'dz02']
 
 #AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
@@ -104,7 +105,7 @@ JetChainParts = {
     'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490','280eta320', '320eta490'],
     'gscThreshold' : ['gsc400','gsc380','gsc360','gsc110'],
     'trigType'     : ['j'],
-    'extra'        : ['noL1','test1','test2','test3','delayed'],
+    'extra'        : ['noL1','test1','test2','test3','delayed','AND'],
     'cleaning'     : ['cleanL','cleanT','cleanLLP',
                       'cleanLA','cleanTA','cleanLLPA', 'noCleaning'
                       ],
@@ -526,7 +527,7 @@ HeavyIonChainParts = {
     'extra'          : ['th1', 'th2', 'th3', 'th4', 'th5', 'th6', 'th7', 'th8', 'th9', 'th10', 'th11', 'th12', 'th13', 'th14', 'th15', 'th16', 'perf', 'perfzdc'],
     'IDinfo'         : [],
     'trkInfo'        : [],
-    'eventShape'     : ['v2', 'v3', 'v23'],
+    'eventShape'     : ['v2', 'v3', 'v23', 'v2A', 'v2C'],    
     'eventShapeVeto' : ['veto2', 'veto3'],
     'hypoL2Info'     : ['loose', 'medium', 'tight', 'gg',],
     'pileupInfo'     : ['zdcpu'],

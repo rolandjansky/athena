@@ -195,7 +195,7 @@ class L2EFChain_Monitoring(L2EFChainDef):
     def setupTimeBurnerChain(self):
         from TrigGenericAlgs.TrigGenericAlgsConf import TimeBurner
         TimeBurner= TimeBurner("DummyTimeBurner")
-        TimeBurner.TimeDelay = 15
+        TimeBurner.TimeDelay = 200
         self.L2sequenceList += [[ self.L2InputTE,     
                                   [TimeBurner], 
                                   'L2_DummyTimeBurner']]
