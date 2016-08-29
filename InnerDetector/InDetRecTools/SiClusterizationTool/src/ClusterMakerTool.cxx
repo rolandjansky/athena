@@ -53,12 +53,14 @@ ClusterMakerTool::ClusterMakerTool(const std::string& t,
   m_IBLParameterSvc("IBLParameterSvc",n), 
   m_calibSvc("PixelCalibSvc", n),
   m_overflowIBLToT(0),
-  m_offlineCalibSvc("PixelOfflineCalibSvc", n)
+  m_offlineCalibSvc("PixelOfflineCalibSvc", n),
+  m_correctLorentzShift(true)
 { 
   declareInterface<ClusterMakerTool>(this);
   declareProperty("UsePixelCalibCondDB",m_calibrateCharge=true,"Compute deposited charge in Pixels");
   declareProperty("PixelCalibSvc",m_calibSvc);
   declareProperty("PixelOfflineCalibSvc",m_offlineCalibSvc);
+  declareProperty("CorrectLorentzShift",m_correctLorentzShift);
 }
 
 //=============== Destructor =================================================
@@ -214,7 +216,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   }
 // ask for Lorentz correction, get global position
  
-  double shift = element->getLorentzCorrection();
+  double shift = m_correctLorentzShift ? element->getLorentzCorrection() : 0.;
   const InDetDD::SiLocalPosition& localPosition = 
           InDetDD::SiLocalPosition(localPos[Trk::locY],
                           localPos[Trk::locX]+shift,0);
@@ -417,7 +419,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   if (msgLvl(MSG::VERBOSE)) msg() << "omega =  " << omegax << " " << omegay << endreq;
 
 // ask for Lorentz correction, get global position
-  double shift = element->getLorentzCorrection();
+  double shift = m_correctLorentzShift ? element->getLorentzCorrection() : 0.;
   const InDetDD::SiLocalPosition& localPosition = 
     InDetDD::SiLocalPosition(localPos[Trk::locY],
 			     localPos[Trk::locX]+shift,0);

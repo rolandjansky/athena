@@ -145,6 +145,8 @@ private:
   mutable int                                                 m_overflowIBLToT;                                                                                          
   ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
 
+  bool m_correctLorentzShift;
+  
   // Parametrization of the Pixel errors
   // now moved in PixelConditionsData, except for CTB parametrization
   
