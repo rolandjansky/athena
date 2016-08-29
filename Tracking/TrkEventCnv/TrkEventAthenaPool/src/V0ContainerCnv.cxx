@@ -36,14 +36,14 @@ StatusCode V0ContainerCnv::initialize()
   StatusCode sc = V0ContainerCnvBase::initialize();
   if( sc.isFailure() ) 
   {
-    m_log << MSG::FATAL << "Could not initialize V0ContainerCnvBase" << endreq;
+    m_log << MSG::FATAL << "Could not initialize V0ContainerCnvBase" << endmsg;
     return sc;
   }
 //-------------------------------------------------------------------------
 // Set up the message stream
 //-------------------------------------------------------------------------
   m_log.setLevel( m_msgSvc->outputLevel() );
-  m_log << MSG::INFO << "V0ContainerCnv::initialize()" << endreq;
+  m_log << MSG::INFO << "V0ContainerCnv::initialize()" << endmsg;
   
   return StatusCode::SUCCESS;
   

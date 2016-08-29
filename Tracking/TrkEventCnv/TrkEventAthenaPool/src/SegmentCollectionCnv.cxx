@@ -36,25 +36,25 @@ StatusCode SegmentCollectionCnv::initialize()
 {
     StatusCode sc = SegmentCollectionCnvBase::initialize();
     if( sc.isFailure() ) {
-        m_log << MSG::FATAL << "Could not initialize cnv base" << endreq;
+        m_log << MSG::FATAL << "Could not initialize cnv base" << endmsg;
         return sc;
     }
     //-------------------------------------------------------------------------
     // Set up the message stream
     //-------------------------------------------------------------------------
     m_log.setLevel( m_msgSvc->outputLevel() );
-    m_log << MSG::INFO << "SegmentCollectionCnv::initialize()" << endreq;
+    m_log << MSG::INFO << "SegmentCollectionCnv::initialize()" << endmsg;
     
     bool doInDet(true);
     bool doMuon(true);
     
     IConverter	*converter =  m_athenaPoolCnvSvc->converter( CLID(17001567) );
-    m_log << MSG::DEBUG << "SegmentCollectionCnv: InDetTrack converter=" << converter << endreq;
+    m_log << MSG::DEBUG << "SegmentCollectionCnv: InDetTrack converter=" << converter << endmsg;
     if(converter != 0) registerExtendingCnv( converter );    
     else doInDet=false;
     
     converter =  m_athenaPoolCnvSvc->converter( CLID(239128586) );
-    m_log << MSG::DEBUG << "SegmentCollectionCnv: MuonMeasurements converter=" << converter << endreq;
+    m_log << MSG::DEBUG << "SegmentCollectionCnv: MuonMeasurements converter=" << converter << endmsg;
     if(converter !=0 ) registerExtendingCnv( converter );
     else doMuon=false;
     
@@ -63,7 +63,7 @@ StatusCode SegmentCollectionCnv::initialize()
     //-------------------------------------------------------------------------
     if( !doInDet && !doMuon ) {
         m_log << MSG::FATAL << "Could not get either ID or Muon tl convertor! Aborting.";
-        m_log << endreq;
+        m_log << endmsg;
         return StatusCode::FAILURE;
     }
    
