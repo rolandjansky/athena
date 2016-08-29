@@ -23,6 +23,7 @@
   <class name="TileTBID" />
   <class name="CaloIdManager" />
   <class name="CaloIDHelper" />
+  <enum name="CaloGain::CaloGain"/>
 
   <!-- should really be in DetDescrDictionary. -->
   <class name="boost::iterator_range<std::vector<Identifier>::const_iterator>"/>

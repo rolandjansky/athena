@@ -32,15 +32,15 @@ CaloCell_ID::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 {
   
   MsgStream log(m_msgSvc, "CaloCell_ID");
-  if(m_msgSvc)log << MSG::DEBUG << "Initialize" << endreq;
+  if(m_msgSvc)log << MSG::DEBUG << "Initialize" << endmsg;
   
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+    if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
     return (0);
   }
   else {
-    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endreq;
+    if(m_msgSvc)log << MSG::DEBUG << "(Re)initialize" << endmsg;
   }
   
   // init base object

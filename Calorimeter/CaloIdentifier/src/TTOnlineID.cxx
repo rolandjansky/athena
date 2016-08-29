@@ -74,7 +74,7 @@ int  TTOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   MsgStream log(m_msgSvc, "TTOnlineID" );
   std::string strg = "initialize_from_dictionary";
   if(m_msgSvc) {
-    log << MSG::INFO << strg << endreq;
+    log << MSG::INFO << strg << endmsg;
   }
   else {
     std::cout << strg << std::endl;
@@ -84,11 +84,11 @@ int  TTOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   // -------------------------------------------------
   if (!reinitialize(dict_mgr)) {
     if(m_msgSvc)log << MSG::DEBUG << "Request to reinitialize not satisfied - tags have not changed"
-		    << endreq;
+		    << endmsg;
     return (0);
   }
   else {
-    log << MSG::DEBUG << "(Re)initialize" << endreq;
+    log << MSG::DEBUG << "(Re)initialize" << endmsg;
   }
 
   // init base object
@@ -99,12 +99,12 @@ int  TTOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
 
   m_dict = dict_mgr.find_dictionary("Calorimeter");
 
-  log << MSG::DEBUG << " => defined m_dict from find_dictionary(Calorimeter) = " << m_dict << endreq;
+  log << MSG::DEBUG << " => defined m_dict from find_dictionary(Calorimeter) = " << m_dict << endmsg;
   if(!m_dict)
     {
       strg = " initialize_from_dictionary - cannot access Calorimeter dictionary";
       if(m_msgSvc) {
-	//log << MSG::ERROR << strg << endreq;
+	//log << MSG::ERROR << strg << endmsg;
       }
       else
 	{
@@ -135,14 +135,14 @@ int  TTOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     strm << atlasDict->m_name;
     strg= " Could not get value for label 'Calorimeter' of field 'subdet' in dictionary "+strm.str();
     if(m_msgSvc){
-      log << MSG::ERROR << strg << endreq;
+      log << MSG::ERROR << strg << endmsg;
     }
     else{
       std::cout << "TTOnlineID:" << strg << std::endl;
     }
     return (1);
   }
-  log << MSG::DEBUG << "[init_from_dictionary] > caloValue = "<< caloValue << endreq;
+  log << MSG::DEBUG << "[init_from_dictionary] > caloValue = "<< caloValue << endmsg;
 
   /* Find values for the fake field DetZside */
   // --------------------------------------
@@ -150,7 +150,7 @@ int  TTOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   // retrieve the calo tag from the DB
   std::string tag = m_dict->dict_tag();
   bool oldTag = ( tag.size()==0 || tag == "CaloIdentifier-DC3-05" || tag == "CaloIdentifier-LVL1-01");
-  log << MSG::DEBUG << "Calorimeter dict. DB tag= " << tag << endreq;
+  log << MSG::DEBUG << "Calorimeter dict. DB tag= " << tag << endmsg;
 
   //int detzsideValue   = -1;
   //if (m_dict->get_label_value("DetZside", "no_side", detzsideValue)) {
@@ -160,7 +160,7 @@ int  TTOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
       strm <<  m_dict->m_name;
       strg = "WARNING : Could not get value for label 'DetZside' in dictionary "+strm.str();
       if(m_msgSvc) {
-	log << MSG::INFO << strg << endreq;
+	log << MSG::INFO << strg << endmsg;
       }
       else{
 	std::cout << strg << std::endl;
@@ -168,7 +168,7 @@ int  TTOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
     }
     return (0);
   }
-  log << MSG::DEBUG << "[init_from_dictionary] > detzsideValue = "<< detzside_field_value() << endreq;
+  log << MSG::DEBUG << "[init_from_dictionary] > detzsideValue = "<< detzside_field_value() << endmsg;
 
 
   // Set up id for tower and layer's range prefix
@@ -187,13 +187,13 @@ int  TTOnlineID::initialize_from_dictionary (const IdDictMgr& dict_mgr)
   m_full_channel_range   = m_dict->build_multirange(reg_id, prefix, "channel");
 
   log << MSG::DEBUG << "[initialize_from_dictionary] >  Crate range -> "
-      << (std::string)m_full_crate_range << endreq;
+      << (std::string)m_full_crate_range << endmsg;
   log << MSG::DEBUG << "[initialize_from_dictionary] >  Module range -> "
-      << (std::string)m_full_module_range << endreq;
+      << (std::string)m_full_module_range << endmsg;
   log << MSG::DEBUG << "[initialize_from_dictionary] >  SubModule range -> "
-      << (std::string)m_full_submodule_range << endreq;
+      << (std::string)m_full_submodule_range << endmsg;
   log << MSG::DEBUG << "[initialize_from_dictionary] >  Channel range -> "
-      << (std::string)m_full_channel_range << endreq;
+      << (std::string)m_full_channel_range << endmsg;
 
 
   // Setup the hash tables
@@ -385,15 +385,15 @@ int TTOnlineID::initLevelsFromDict(void)
 //=========================================================
 {
   MsgStream log(m_msgSvc, "TTOnlineID" );
-  log << MSG::DEBUG  << "[initLevelsFromDict] (0) Entering routine... " << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (0) Entering routine... " << endmsg;
 
   if(!m_dict) {
     log << MSG::INFO  << "TTOnlineID::initLevelsFromDict - dictionary NOT initialized "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
 
-  log << MSG::DEBUG  << "[initLevelsFromDict] (1) m_dict OK ... " << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (1) m_dict OK ... " << endmsg;
 
   // Find out which identifier field corresponds to each level.
   // ----------------------------------------------------------
@@ -404,22 +404,22 @@ int TTOnlineID::initLevelsFromDict(void)
   m_submodule_index           = 999 ;
   m_channel_index             = 999 ;
 
-  log << MSG::DEBUG  << "[initLevelsFromDict] (2) data member initialization OK ... "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (2) data member initialization OK ... "  << endmsg;
 
   // retrieve the calo tag from the DB
   std::string tag = m_dict->dict_tag();
   bool oldTag = ( tag.size()==0 || tag == "CaloIdentifier-DC3-05" || tag == "CaloIdentifier-LVL1-01");
-  log << MSG::DEBUG << "Calorimeter dict. DB tag= " << tag << endreq;
+  log << MSG::DEBUG << "Calorimeter dict. DB tag= " << tag << endmsg;
 
   // Save index to a Online LVL1 region for unpacking - search with region name
   IdDictRegion* reg = m_dict->find_region("PPM_Crate-00");
   if (reg) {
       m_l1online_regions_index = reg->m_index;}
   else {
-    if(!oldTag) log << MSG::INFO  << "WARNING : TTOnlineID::initLevelsFromDict - unable to find 'PPM_Crate-00' region" << endreq;
+    if(!oldTag) log << MSG::INFO  << "WARNING : TTOnlineID::initLevelsFromDict - unable to find 'PPM_Crate-00' region" << endmsg;
     return (0);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] (3) region 'PPM_Crate-00' found OK ... " << m_l1online_regions_index << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (3) region 'PPM_Crate-00' found OK ... " << m_l1online_regions_index << endmsg;
 
   // Look for Fields...
   // ------------------
@@ -428,10 +428,10 @@ int TTOnlineID::initLevelsFromDict(void)
     m_calo_index = field->m_index;}
   else {
     log << MSG::INFO  <<  "TTOnlineID::initLevelsFromDict - unable to find 'Calo' field "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] (4) field 'Calo' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (4) field 'Calo' found OK "  << endmsg;
 
 
   field = m_dict->find_field("DetZside") ;
@@ -439,10 +439,10 @@ int TTOnlineID::initLevelsFromDict(void)
     m_detzside_index = field->m_index ;}
   else {
     log << MSG::INFO  <<  "TTOnlineID::initLevelsFromDict - unable to find 'DetZside' field "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] (5) field 'DetZside' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (5) field 'DetZside' found OK "  << endmsg;
 
 
   field = m_dict->find_field("crate") ;
@@ -450,10 +450,10 @@ int TTOnlineID::initLevelsFromDict(void)
     m_crate_index = field->m_index ;}
   else {
     log << MSG::INFO  <<  "TTOnlineID::initLevelsFromDict - unable to find 'crate' field "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] (6) field 'crate' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (6) field 'crate' found OK "  << endmsg;
 
   field = m_dict->find_field("module") ;
   if (field) {
@@ -461,67 +461,67 @@ int TTOnlineID::initLevelsFromDict(void)
   }
   else {
     log << MSG::INFO  <<  "TTOnlineID::initLevelsFromDict - unable to find 'module' field "
-              << endreq ;
+              << endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] (7) field 'module' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (7) field 'module' found OK "  << endmsg;
 
   field = m_dict->find_field("submodule") ;
   if (field) {
     m_submodule_index = field->m_index ;
   }
   else {
-    log << MSG::INFO  <<  "TTOnlineID::initLevelsFromDict - unable to find 'submodule' field " << endreq ;
+    log << MSG::INFO  <<  "TTOnlineID::initLevelsFromDict - unable to find 'submodule' field " << endmsg ;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] (8) field 'submodule' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (8) field 'submodule' found OK "  << endmsg;
 
   field = m_dict->find_field("channel") ;
   if (field) {
     m_channel_index = field->m_index ;
   }
   else {
-    log << MSG::INFO  <<  "TTOnlineID::initLevelsFromDict - unable to find 'channel' field " << endreq;
+    log << MSG::INFO  <<  "TTOnlineID::initLevelsFromDict - unable to find 'channel' field " << endmsg;
     return (1);
   }
-  log << MSG::DEBUG  << "[initLevelsFromDict] (9) field 'channel' found OK "  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (9) field 'channel' found OK "  << endmsg;
 
 
   // Set the field implementation
   // ------------------------------
   const IdDictRegion& region = *m_dict->m_regions[m_l1online_regions_index];
-  log << MSG::DEBUG  << "[initLevelsFromDict] (10) found levels: " << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > subdet         " << m_calo_index           << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > detzside       " << m_detzside_index  << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > crate          " << m_crate_index          << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > module         " << m_module_index         << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > submodule      " << m_submodule_index      << endreq ;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > channel        " << m_channel_index        << endreq ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (10) found levels: " << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > subdet         " << m_calo_index           << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > detzside       " << m_detzside_index  << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > crate          " << m_crate_index          << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > module         " << m_module_index         << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > submodule      " << m_submodule_index      << endmsg ;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > channel        " << m_channel_index        << endmsg ;
 
-  log << MSG::DEBUG  << "[initLevelsFromDict] > ...fields implementation... " << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_calo_index " << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > ...fields implementation... " << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_calo_index " << endmsg;
   m_calo_impl          = region.m_implementation[m_calo_index];
 
-  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_det_side_index " << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_det_side_index " << endmsg;
   m_calo_detzside_impl = region.m_implementation[m_detzside_index];
 
-  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_crate_index " << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_crate_index " << endmsg;
   m_crate_impl     = region.m_implementation[m_crate_index];
 
-  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_module_index " << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_module_index " << endmsg;
   m_module_impl     = region.m_implementation[m_module_index];
-  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_submodule_index " << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_submodule_index " << endmsg;
   m_submodule_impl   = region.m_implementation[m_submodule_index];
-  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_channel_index " << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > ...implementation: m_channel_index " << endmsg;
   m_channel_impl   = region.m_implementation[m_channel_index];
 
-  log << MSG::DEBUG  << "[initLevelsFromDict] (11) decode index and bit fields for each level: " << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > calo          " << m_calo_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > detzside  "  << m_calo_detzside_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > crate         " << m_crate_impl.show_to_string()  << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > module        " << m_module_impl.show_to_string() << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > submodule     " << m_submodule_impl.show_to_string()  << endreq;
-  log << MSG::DEBUG  << "[initLevelsFromDict] > channel       " << m_channel_impl.show_to_string()  << endreq;
+  log << MSG::DEBUG  << "[initLevelsFromDict] (11) decode index and bit fields for each level: " << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > calo          " << m_calo_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > detzside  "  << m_calo_detzside_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > crate         " << m_crate_impl.show_to_string()  << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > module        " << m_module_impl.show_to_string() << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > submodule     " << m_submodule_impl.show_to_string()  << endmsg;
+  log << MSG::DEBUG  << "[initLevelsFromDict] > channel       " << m_channel_impl.show_to_string()  << endmsg;
 
   return(0) ;
 }
@@ -560,8 +560,8 @@ int  TTOnlineID::init_hashes(void)
 		strm3 << show_to_string(cra_id);
 		strg3 = " expanded Id= "+strm3.str();
 		if(m_msgSvc){
-		  log  << MSG::ERROR << strg1 << endreq;
-		  log  << MSG::ERROR << strg3 << endreq;
+		  log  << MSG::ERROR << strg1 << endmsg;
+		  log  << MSG::ERROR << strg3 << endmsg;
 		}
 		else{
 		  std::cout << "TTOnlineID::Error" << strg1 << std::endl;
@@ -579,9 +579,9 @@ int  TTOnlineID::init_hashes(void)
 	    strg3 = " hash max "+strm2.str();
 	    if(m_msgSvc)
 	      {
-		log << MSG::ERROR << strg1 << endreq;
-		log << MSG::ERROR << strg2 << endreq;
-		log << MSG::ERROR << strg3 << endreq;
+		log << MSG::ERROR << strg1 << endmsg;
+		log << MSG::ERROR << strg2 << endmsg;
+		log << MSG::ERROR << strg3 << endmsg;
 	      }
 	    else
 	      {
@@ -599,7 +599,7 @@ int  TTOnlineID::init_hashes(void)
 	    m_crate_vec[nids] = (*first) ;
 	    nids++;
 	  }
-	  log << MSG::DEBUG << "[init_hashes()] > Crate_size= " << m_crate_vec.size() << endreq;
+	  log << MSG::DEBUG << "[init_hashes()] > Crate_size= " << m_crate_vec.size() << endmsg;
 	}
 
   // Module hash
@@ -623,8 +623,8 @@ int  TTOnlineID::init_hashes(void)
 		strm3 << show_to_string(mod_id);
 		strg3 = " expanded Id= "+strm3.str();
 		if(m_msgSvc){
-		  log  << MSG::ERROR << strg1 << endreq;
-		  log  << MSG::ERROR << strg3 << endreq;
+		  log  << MSG::ERROR << strg1 << endmsg;
+		  log  << MSG::ERROR << strg3 << endmsg;
 		}
 		else{
 		  std::cout << "TTOnlineID::Error" << strg1 << std::endl;
@@ -642,9 +642,9 @@ int  TTOnlineID::init_hashes(void)
 	    strg3 = " hash max "+strm2.str();
 	    if(m_msgSvc)
 	      {
-		log << MSG::ERROR << strg1 << endreq;
-		log << MSG::ERROR << strg2 << endreq;
-		log << MSG::ERROR << strg3 << endreq;
+		log << MSG::ERROR << strg1 << endmsg;
+		log << MSG::ERROR << strg2 << endmsg;
+		log << MSG::ERROR << strg3 << endmsg;
 	      }
 	    else
 	      {
@@ -662,7 +662,7 @@ int  TTOnlineID::init_hashes(void)
 	    m_module_vec[nids] = (*first) ;
 	    nids++;
 	  }
-	  log << MSG::DEBUG << "[init_hashes()] > Module_size= " << m_module_vec.size() << endreq;
+	  log << MSG::DEBUG << "[init_hashes()] > Module_size= " << m_module_vec.size() << endmsg;
 	}
 
   // SubModule hash
@@ -686,8 +686,8 @@ int  TTOnlineID::init_hashes(void)
 		strm3 << show_to_string(submod_id);
 		strg3 = " expanded Id= "+strm3.str();
 		if(m_msgSvc){
-		  log  << MSG::ERROR << strg1 << endreq;
-		  log  << MSG::ERROR << strg3 << endreq;
+		  log  << MSG::ERROR << strg1 << endmsg;
+		  log  << MSG::ERROR << strg3 << endmsg;
 		}
 		else{
 		  std::cout << "TTOnlineID::Error" << strg1 << std::endl;
@@ -706,9 +706,9 @@ int  TTOnlineID::init_hashes(void)
 	    strg3 = " hash max "+strm2.str();
 	    if(m_msgSvc)
 	      {
-		log << MSG::ERROR << strg1 << endreq;
-		log << MSG::ERROR << strg2 << endreq;
-		log << MSG::ERROR << strg3 << endreq;
+		log << MSG::ERROR << strg1 << endmsg;
+		log << MSG::ERROR << strg2 << endmsg;
+		log << MSG::ERROR << strg3 << endmsg;
 	      }
 	    else
 	      {
@@ -726,7 +726,7 @@ int  TTOnlineID::init_hashes(void)
 	    m_submodule_vec[nids] = (*first) ;
 	    nids++;
 	  }
-	  log << MSG::DEBUG << "[init_hashes()] > Submodule_size= " << m_submodule_vec.size() << endreq;
+	  log << MSG::DEBUG << "[init_hashes()] > Submodule_size= " << m_submodule_vec.size() << endmsg;
 	}
 
   // Channel hash
@@ -750,8 +750,8 @@ int  TTOnlineID::init_hashes(void)
 		strm3 << show_to_string(chan_id);
 		strg3 = " expanded Id= "+strm3.str();
 		if(m_msgSvc){
-		  log  << MSG::ERROR << strg1 << endreq;
-		  log  << MSG::ERROR << strg3 << endreq;
+		  log  << MSG::ERROR << strg1 << endmsg;
+		  log  << MSG::ERROR << strg3 << endmsg;
 		}
 		else{
 		  std::cout << "TTOnlineID::Error" << strg1 << std::endl;
@@ -769,9 +769,9 @@ int  TTOnlineID::init_hashes(void)
 	    strg3 = " hash max "+strm2.str();
 	    if(m_msgSvc)
 	      {
-		log << MSG::ERROR << strg1 << endreq;
-		log << MSG::ERROR << strg2 << endreq;
-		log << MSG::ERROR << strg3 << endreq;
+		log << MSG::ERROR << strg1 << endmsg;
+		log << MSG::ERROR << strg2 << endmsg;
+		log << MSG::ERROR << strg3 << endmsg;
 	      }
 	    else
 	      {
@@ -789,7 +789,7 @@ int  TTOnlineID::init_hashes(void)
 	    m_channel_vec[nids] = (*first) ;
 	    nids++;
 	  }
-	  log << MSG::DEBUG << "[init_hashes()] > Channel_size= " << m_channel_vec.size() << endreq;
+	  log << MSG::DEBUG << "[init_hashes()] > Channel_size= " << m_channel_vec.size() << endmsg;
 	}
   return (0);
 }

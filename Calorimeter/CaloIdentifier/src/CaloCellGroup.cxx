@@ -58,7 +58,7 @@ bool CaloCellGroup::setDefinition(const CaloCell_ID* caloCellId, const std::stri
   
   if (iField!=subdefs.size()-1 || i==definition.size()) {
     logStr << MSG::ERROR << "Definition String [" << definition << "] malformed. Expect " 
-	   << NFIELDS << " fileds separated by '/'" << endreq;
+	   << NFIELDS << " fileds separated by '/'" << endmsg;
     return false;
   }
 
@@ -87,7 +87,7 @@ bool CaloCellGroup::setDefinition(const CaloCell_ID* caloCellId, const std::stri
       m_fcal=true;
     else {
       logStr << MSG::ERROR << "Unknown sub-calo name '"<< subCaloStr.substr(pos1,len) <<"'found. " 
-	     << "Allowed values are EMB, EMECIW, EMECOW, HEC and FCAL" << endreq;
+	     << "Allowed values are EMB, EMECIW, EMECOW, HEC and FCAL" << endmsg;
       return false;
     }
     pos1=pos2+1;
@@ -107,7 +107,7 @@ bool CaloCellGroup::setDefinition(const CaloCell_ID* caloCellId, const std::stri
   else if (subdefs[1][0]=='*')
     m_pos=m_neg=true;
   else {
-    logStr << MSG::ERROR << "Allowed values for side are: A,C or * (means both), found " << subdefs[1] << endreq;
+    logStr << MSG::ERROR << "Allowed values for side are: A,C or * (means both), found " << subdefs[1] << endmsg;
     return false;
   }
   //Interpret remaining fields
@@ -121,7 +121,7 @@ bool CaloCellGroup::setDefinition(const CaloCell_ID* caloCellId, const std::stri
 	if (isdigit(subdef[0])) 
 	  lower=upper=atol(subdef.c_str());
 	else
-	  logStr << MSG::ERROR << "Malformed string [" << subdef << "], expected numerical value!" << endreq;
+	  logStr << MSG::ERROR << "Malformed string [" << subdef << "], expected numerical value!" << endmsg;
       }
       else {//Found '-'
 	std::string lStr=subdef.substr(0,pos1);
@@ -130,13 +130,13 @@ bool CaloCellGroup::setDefinition(const CaloCell_ID* caloCellId, const std::stri
 	  if (isdigit(lStr[0]))
 	      lower=atol(lStr.c_str());
 	  else
-	    logStr << MSG::ERROR << "Malformed string [" << subdef << "], expected numerical value!" << endreq;
+	    logStr << MSG::ERROR << "Malformed string [" << subdef << "], expected numerical value!" << endmsg;
         }
 	if (uStr.size()>0) {
 	  if (isdigit(uStr[0]))
 	    upper=atol(uStr.c_str());
 	  else
-	    logStr << MSG::ERROR << "Malformed string [" << subdef << "], expected numerical value!" << endreq;
+	    logStr << MSG::ERROR << "Malformed string [" << subdef << "], expected numerical value!" << endmsg;
         }
       }    
     }//end not *
@@ -156,7 +156,7 @@ bool CaloCellGroup::setDefinition(const CaloCell_ID* caloCellId, const std::stri
   }
   while(*ptr2!='\0');
  
-  logStr << MSG::INFO << "Sussefully parsed defintion string" << endreq;
+  logStr << MSG::INFO << "Sussefully parsed defintion string" << endmsg;
   return true;
 }
 
@@ -216,7 +216,7 @@ bool CaloCellGroup::inGroup(const Identifier id) const {
 
 
 void CaloCellGroup::complain(MsgStream& logStr, const std::string problem) const {
-  logStr << MSG::ERROR << "Malformed definition string '"<<problem << "'" << endreq;
+  logStr << MSG::ERROR << "Malformed definition string '"<<problem << "'" << endmsg;
   return;
 }
 
@@ -230,7 +230,7 @@ bool CaloCellGroupList::setDefinition(const CaloCell_ID* caloCellId, const std::
   m_defaults.clear();
 
   if (definitions.size()==0) {
-    logStr << MSG::WARNING << "No definition string found" << endreq;
+    logStr << MSG::WARNING << "No definition string found" << endmsg;
     return true;
   }
 
@@ -255,7 +255,7 @@ bool CaloCellGroupList::setDefinition(const CaloCell_ID* caloCellId, const std::
     bool s=m_groups[i].setDefinition(caloCellId,definitions[i+1],logStr);
     if (!s) return false;
     if (m_groups[i].getValue().size()!=m_defaults.size()) {
-      logStr << MSG::ERROR << "Incosistent number of values!" << endreq;
+      logStr << MSG::ERROR << "Incosistent number of values!" << endmsg;
       return false;
     }
   }

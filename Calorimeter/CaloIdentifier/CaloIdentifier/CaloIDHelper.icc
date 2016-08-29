@@ -45,7 +45,7 @@ CaloIDHelper::HashGroup::init (const T& parent,
         log << MSG::ERROR << parent.name() << "init_hashes "
             << " duplicated id for channel id. nids= " << ids.size()
             << " compact Id  " << parent.show_to_string(id)
-            << endreq;
+            << endmsg;
       }
     }
   }
