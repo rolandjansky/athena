@@ -283,9 +283,9 @@ template <class HANDLE>
 bool LArRawChannelMonTool::RetrieveHandle( const HANDLE& handle )
 {
   if ( handle.retrieve().isSuccess() ) {
-    msg(MSG::DEBUG) << "successfully retrieved: " << handle << endreq;
+    msg(MSG::DEBUG) << "successfully retrieved: " << handle << endmsg;
   } else {
-    msg(MSG::ERROR) << "unable to retrieve: " << handle << endreq;
+    msg(MSG::ERROR) << "unable to retrieve: " << handle << endmsg;
     return false;
   }
   return true;
