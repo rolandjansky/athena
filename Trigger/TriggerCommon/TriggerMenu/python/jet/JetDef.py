@@ -95,7 +95,7 @@ def _check_chainpart_consistency(chain_parts):
         the different chainParts"""
 
         to_remove = ['multiplicity', 'etaRange', 'threshold', 'chainPartName',
-                     'addInfo', 'bTag', 'bTracking', 'bConfig', 'topo', 'bMatching']
+                     'addInfo', 'bTag', 'bTracking', 'bConfig', 'topo', 'bMatching','extra']
         for tr in to_remove: 
             try:
                 del d[tr]

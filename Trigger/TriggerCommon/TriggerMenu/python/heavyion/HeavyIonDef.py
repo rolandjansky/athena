@@ -125,7 +125,21 @@ class L2EFChain_HI(L2EFChainDef):
             th=int(ESth)
             ESDiHypo = [V2_th[th], V3_th[th]]
 
-        print "WTF", ESHypo, VetoHypo, ESDiHypo, " when making chain ", self.chainPart
+        elif 'v2A' == self.chainPart['eventShape']:
+            from TrigHIHypo.VnHypos import V2Assym
+            chainSuffix = 'v2A_th'+ESth
+            th=int(ESth)
+            ESHypo=V2Assym(th, 'A')
+
+        elif 'v2C' == self.chainPart['eventShape']:
+            from TrigHIHypo.VnHypos import V2Assym
+            chainSuffix = 'v2C_th'+ESth
+            th=int(ESth)
+            ESHypo=V2Assym(th, 'C')
+
+
+
+        #print "ERROR", ESHypo, VetoHypo, ESDiHypo, " when making chain ", self.chainPart
 
         from TrigHIHypo.UE import theUEMaker, theFSCellMaker
 

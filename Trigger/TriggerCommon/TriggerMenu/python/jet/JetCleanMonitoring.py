@@ -14,6 +14,7 @@ JetChainsToKeepMonitoring={
 "ht850",
 "ht850_L1J75",
 "ht850_L1J100",
+"ht1000_L1J100",
 #nice to keep for crosschecks, as used in DQ (offline monitoring):
 "5j60",
 "6j45",
