@@ -60,6 +60,7 @@
 namespace InDet
 {
 
+#if 0
 namespace {
 void  deleteMeasuredPerigeeIf(bool IsToDelete,const Trk::TrackParameters* & WhatToDelete) {
     if (IsToDelete) {
@@ -68,6 +69,7 @@ void  deleteMeasuredPerigeeIf(bool IsToDelete,const Trk::TrackParameters* & What
     }
   }
 }
+#endif
 
 InDetAdaptivePriVxFinderTool::InDetAdaptivePriVxFinderTool(const std::string& t, const std::string& n, const IInterface*  p)
         : AthAlgTool(t,n,p),
@@ -94,19 +96,19 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
 
     /* Get the right vertex fitting tool from ToolSvc */
     if ( m_iVertexFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
       return StatusCode::FAILURE;
     } 
     
     sc = m_iBeamCondSvc.retrieve();
     if (sc.isFailure())
     {
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endreq;
+      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
       return sc;
     }
 
     if(m_trkFilter.retrieve().isFailure()) {
-      msg(MSG::ERROR) <<" Unable to retrieve "<<m_trkFilter<<endreq;
+      msg(MSG::ERROR) <<" Unable to retrieve "<<m_trkFilter<<endmsg;
       return StatusCode::FAILURE;
     }
     if ( m_VertexEdmFactory.retrieve().isFailure() ) {
@@ -116,9 +118,9 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
    
     // since some parameters special to an inherited class this method
     // will be overloaded by the inherited class
-    m_printParameterSettings();
+    printParameterSettings();
 
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -142,19 +144,19 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
       if ( m_trkFilter->accept(**itr,&beamposition)==false ) continue;
       origParameters.push_back ( ( *itr )->perigeeParameters() );
     }
-    if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks " << origParameters.size() << " survived the preselection." << endreq;
+    if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks " << origParameters.size() << " survived the preselection." << endmsg;
 
     //---- do the actual vertex finding on TrackParameters obejcts ---------------//
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = m_findVertex( origParameters );
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( origParameters );
 
     //---- validate the element links ---------------//
-    for ( xAOD::VertexContainer::const_iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; vxContItr++ )
+    for ( xAOD::VertexContainer::iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; vxContItr++ )
     {
       std::vector<Trk::VxTrackAtVertex> * tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
       for ( std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++ )
       {
         const Trk::TrackParameters* initialPerigee = ( *itr ).initialPerigee();
-        Trk::Track*          correspondingTrack ( 0 );
+        const Trk::Track*          correspondingTrack ( 0 );
         // find the track to that perigee ...
         for ( TrackCollection::const_iterator itr1 = trackTES->begin(); itr1 != trackTES->end(); itr1++ )
         {
@@ -173,7 +175,7 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
           link->setElement( correspondingTrack );
           ( *itr ).setOrigTrack ( link );
         }
-        else msg(MSG::WARNING) << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endreq;
+        else msg(MSG::WARNING) << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endmsg;
         // TODO: also mention that links stored directly in xAOD::Vertices are not set because a TrackCollection was given as input
       }
     }
@@ -199,8 +201,8 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
     origParameters.clear();
 
     // unsigned int size = trackTES->size();
-    // if (msgLvl(MSG::VERBOSE)) msg() << "TrackParticleBaseContainer @ " << trackTES << endreq;
-    // if (msgLvl(MSG::VERBOSE)) msg() << "Size of the container: " << size << endreq;
+    // if (msgLvl(MSG::VERBOSE)) msg() << "TrackParticleBaseContainer @ " << trackTES << endmsg;
+    // if (msgLvl(MSG::VERBOSE)) msg() << "Size of the container: " << size << endmsg;
     for ( Trk::TrackParticleBaseCollection::const_iterator itr  = trackTES->begin(); itr != trackTES->end(); itr++ )
     {
       if ( m_trkFilter->accept(*((*itr)->originalTrack()), &beamposition) == false ) continue;
@@ -209,20 +211,20 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
     }
 
     if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
-    << origParameters.size() << " survived the preselection." << endreq;
+    << origParameters.size() << " survived the preselection." << endmsg;
 
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = m_findVertex( origParameters );
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( origParameters );
     
     // now we have to make the link to the original track ...
     //     unsigned int count ( 1 );
-    for ( xAOD::VertexContainer::const_iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; vxContItr++ )
+    for ( xAOD::VertexContainer::iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; vxContItr++ )
     {
       // std::cout << "Check vertex " << count << std::endl; count++;
       std::vector<Trk::VxTrackAtVertex> * tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
       for ( std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++ )
       {
         const Trk::TrackParameters* initialPerigee = ( *itr ).initialPerigee();
-        Trk::TrackParticleBase*    correspondingTrack ( 0 );
+        const Trk::TrackParticleBase*    correspondingTrack ( 0 );
         // find the track to that perigee ...
         for ( Trk::TrackParticleBaseCollection::const_iterator itr1 = trackTES->begin(); itr1 != trackTES->end(); itr1++ )
         {
@@ -242,12 +244,12 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
           link->setElement ( correspondingTrack );
           ( *itr ).setOrigTrack ( link );
         }
-        else if (msgLvl(MSG::WARNING)) msg() << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endreq;
+        else if (msgLvl(MSG::WARNING)) msg() << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endmsg;
         // TODO: also mention that links stored directly in xAOD::Vertices are not set because a TrackParticleBaseCollection was given as input
       }
     }
 
-    // log << MSG::VERBOSE << "... end findVertex(const Trk::TrackParticleBaseCollection* )" << endreq;
+    // log << MSG::VERBOSE << "... end findVertex(const Trk::TrackParticleBaseCollection* )" << endmsg;
     return returnContainers;
 
   }
@@ -276,9 +278,9 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
 
     ATH_MSG_DEBUG("Of " << trackParticles->size() << " tracks " << origParameters.size() << " survived the preselection.");
 
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = m_findVertex( origParameters );
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( origParameters );
 
-    for ( xAOD::VertexContainer::const_iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; ++vxContItr )
+    for ( xAOD::VertexContainer::iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; ++vxContItr )
     {
       std::vector<Trk::VxTrackAtVertex> * tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
 
@@ -339,7 +341,7 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
   }
 
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptivePriVxFinderTool::m_findVertex ( std::vector<const Trk::TrackParameters*>& origParameters )
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptivePriVxFinderTool::findVertex ( std::vector<const Trk::TrackParameters*>& origParameters )
   {
     std::vector<Trk::VxTrackAtVertex> * trkAtVtx;
 
@@ -361,7 +363,7 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
       /* @TODO? The fit tool does not return tracks chi2 ordered anymore
                 We have to do it */
 
-    } else if(msgLvl(MSG::DEBUG)) msg() << "Less than two tracks or fitting without constraint - drop candidate vertex." << endreq;
+    } else if(msgLvl(MSG::DEBUG)) msg() << "Less than two tracks or fitting without constraint - drop candidate vertex." << endmsg;
     // end if preselection for first iteration
  
     if (origParameters.size() >= 1 ) {
@@ -392,7 +394,7 @@ StatusCode InDetAdaptivePriVxFinderTool::initialize()
 	    << myxAODVertex->position()[1] << "+/-" << yVtxError << ", "
 	    << myxAODVertex->position()[2] << "+/-" << zVtxError << ") with chi2 = "
 	    << myxAODVertex->chiSquared() << " ("
-	    << myxAODVertex->vxTrackAtVertex().size() << " tracks)" << endreq;
+	    << myxAODVertex->vxTrackAtVertex().size() << " tracks)" << endmsg;
       }
     }
     
@@ -441,16 +443,16 @@ StatusCode InDetAdaptivePriVxFinderTool::finalize()
     return StatusCode::SUCCESS;
 }
 
-void InDetAdaptivePriVxFinderTool::m_printParameterSettings()
+void InDetAdaptivePriVxFinderTool::printParameterSettings()
 {
-    msg(MSG::INFO) << "VxPrimary initialize(): Parametersettings " << endreq;
-    msg(MSG::INFO) << "VertexFitter " << m_iVertexFitter << endreq;
-    msg(MSG::INFO) << endreq;
+    msg(MSG::INFO) << "VxPrimary initialize(): Parametersettings " << endmsg;
+    msg(MSG::INFO) << "VertexFitter " << m_iVertexFitter << endmsg;
+    msg(MSG::INFO) << endmsg;
 }
 
-void InDetAdaptivePriVxFinderTool::m_SGError(std::string errService)
+void InDetAdaptivePriVxFinderTool::SGError(std::string errService)
 {
-    msg(MSG::FATAL) << errService << " not found. Exiting !" << endreq;
+    msg(MSG::FATAL) << errService << " not found. Exiting !" << endmsg;
     return;
 }
 

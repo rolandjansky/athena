@@ -108,7 +108,7 @@ public:
  private:
    
    /** the common finding code (regardless of Track or TrackParticle(Base) is here */
-   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> m_findVertex(std::vector<const Trk::TrackParameters*>& origParameters);
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(std::vector<const Trk::TrackParameters*>& origParameters);
 
    ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
    ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
@@ -117,13 +117,13 @@ public:
    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
    
 
-   void m_SGError(std::string errService);
+   void SGError(std::string errService);
 
    /**
     * Internal method to print the parameters setting
     */
 
-   virtual void m_printParameterSettings();
+   virtual void printParameterSettings();
  
  };//end of class definitions
 }//end of namespace definitions

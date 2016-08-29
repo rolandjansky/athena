@@ -124,32 +124,32 @@ StatusCode InDetAdaptiveMultiPriVxFinderTool::initialize()
 
     /* Get the right vertex fitting tool */
     if ( m_MultiVertexFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_MultiVertexFitter << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_MultiVertexFitter << endmsg;
       return StatusCode::FAILURE;
     } 
     
     if ( m_SeedFinder.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_SeedFinder << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_SeedFinder << endmsg;
       return StatusCode::FAILURE;
     }
 
     sc = m_iBeamCondSvc.retrieve();
     if (sc.isFailure())
       {
-	msg(MSG::ERROR) << "Could not find BeamCondSvc." << endreq;
+	msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
 	return sc;
       }
     
     if(m_trkFilter.retrieve().isFailure()) {
-      msg(MSG::ERROR) << " Unable to retrieve "<<m_trkFilter<<endreq;
+      msg(MSG::ERROR) << " Unable to retrieve "<<m_trkFilter<<endmsg;
       return StatusCode::FAILURE;
     } 
  
     // since some parameters special to an inherited class this method
     // will be overloaded by the inherited class
-    m_printParameterSettings();
+    printParameterSettings();
 
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -205,7 +205,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
   }
 
   if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
-      << selectedTracks.size() << " survived the preselection." << endreq;
+      << selectedTracks.size() << " survived the preselection." << endmsg;
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( selectedTracks );
   
@@ -261,7 +261,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
   }
 
   if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
-      << selectedTracks.size() << " survived the preselection." << endreq;
+      << selectedTracks.size() << " survived the preselection." << endmsg;
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( selectedTracks );
 
@@ -394,14 +394,14 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     
     if (seedtracknumber==0) 
     {
-      if(msgLvl(MSG::DEBUG)) msg() << " No tracks available after track selection for seeding. No finding done." << endreq;
+      if(msgLvl(MSG::DEBUG)) msg() << " No tracks available after track selection for seeding. No finding done." << endmsg;
       break;
     }
 
     // TODO: get rid of following line
     //std::cout << std::endl << std::endl << "Iter: " << iteration << std::endl;
 
-    if(msgLvl(MSG::DEBUG)) msg() << "ITERATION NUMBER " << iteration << endreq;
+    if(msgLvl(MSG::DEBUG)) msg() << "ITERATION NUMBER " << iteration << endmsg;
     iteration+=1;
     //now use all the perigee parameters you have so far
 
@@ -457,8 +457,8 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     if (actualVertex.z()==0.) {
       if (msgLvl(MSG::WARNING))
       {
-        msg() << "No seed found: no primary vertex finding performed on this event" << endreq;
-        msg() << "Error in Seed Finder. Number of input tracks: " << perigeeList.size() << " but no seed returned." << endreq;
+        msg() << "No seed found: no primary vertex finding performed on this event" << endmsg;
+        msg() << "Error in Seed Finder. Number of input tracks: " << perigeeList.size() << " but no seed returned." << endmsg;
       }
       // TODO: Do I need this?
       delete constraintVertex;
@@ -490,7 +490,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
     //now iterate on all tracks and find out if they are sufficiently close to the found vertex
     
-    if(msgLvl(MSG::VERBOSE)) msg() << "Adding all the tracks which are near the seed to the candidate " << endreq;
+    if(msgLvl(MSG::VERBOSE)) msg() << "Adding all the tracks which are near the seed to the candidate " << endmsg;
     
     for (std::vector<const Trk::ITrackLink*>::const_iterator trkiter=trkbegin;trkiter!=trkend;++trkiter) {
 
@@ -577,11 +577,11 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
         //std::cout << "number of tracks added to actualcandidate due to proximity after actualVertex updated with nearest track: " << VTAV(*actualcandidate).size() << std::endl;
 
 	if (VTAV(*actualcandidate).size()==0) {
-	  if (msgLvl(MSG::ERROR)) msg() << " Internal error in the Multi Vertex Finder. No tracks while at least one track was expected." << endreq;
+	  if (msgLvl(MSG::ERROR)) msg() << " Internal error in the Multi Vertex Finder. No tracks while at least one track was expected." << endmsg;
 	  break;
 	}
       } else {
-	  if (msgLvl(MSG::ERROR)) msg() << "Internal error in the Multi Vertex Finder. Nearest track is missing while it is expected." << endreq;
+	  if (msgLvl(MSG::ERROR)) msg() << "Internal error in the Multi Vertex Finder. Nearest track is missing while it is expected." << endmsg;
 	  break;
       }
     }
@@ -590,7 +590,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     //now at least you have all the tracks you really want to fit and the connections to the TrackToVtxLinks
     //      std::cout << "Calling MultiVertexFitter addVtxTofit() " << std::endl;
 
-    if (msgLvl(MSG::DEBUG)) msg() << "running addVtxTofit() " << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "running addVtxTofit() " << endmsg;
     #ifdef MULTIFINDER_DEBUG
     std::cout << "The actual candidate has " << VTAV(*actualcandidate).size() << " tracks in the vector" << std::endl;
     #endif
@@ -810,11 +810,11 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 	    seedtrkbegin=seedTracks.begin();
 	    seedtrkend=seedTracks.end();
 	  } else {
-	    if (msgLvl(MSG::ERROR)) msg() << " Internal error in the Multi Vertex Finder. No nearest track found while it was expected to be found." << endreq;
+	    if (msgLvl(MSG::ERROR)) msg() << " Internal error in the Multi Vertex Finder. No nearest track found while it was expected to be found." << endmsg;
 	    break;
 	  }
 	} else {
-	  if (msgLvl(MSG::ERROR)) msg() << " Internal error in the Multi Vertex Finder. No further seeding track was found (3 methods used): it was expected to be found " << endreq;
+	  if (msgLvl(MSG::ERROR)) msg() << " Internal error in the Multi Vertex Finder. No further seeding track was found (3 methods used): it was expected to be found " << endmsg;
 	  break;
 	}
       }
@@ -913,7 +913,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
           }
           else
           {
-            if (msgLvl(MSG::ERROR)) msg() << " Inversion of matrix during splitting phase failed... Please report... " << endreq;
+            if (msgLvl(MSG::ERROR)) msg() << " Inversion of matrix during splitting phase failed... Please report... " << endmsg;
             dependence=100;
           }
 	  */
@@ -981,7 +981,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
             && iteration<m_maxIterations);
 
   if (iteration>= m_maxIterations) {
-    if (msgLvl(MSG::WARNING)) msg() << " Primary vertex finding: maximum number of iterations reached (more vertices -> set the maximum to a higher value)" << endreq;
+    if (msgLvl(MSG::WARNING)) msg() << " Primary vertex finding: maximum number of iterations reached (more vertices -> set the maximum to a higher value)" << endmsg;
   }
 
   // TODO: delete following line:
@@ -1087,9 +1087,9 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
 
   // If track links are to xAOD::TrackParticles, set the links directly in xAOD::Vertex with their weights
   // Needed for weight calculator in sorting tool
-  xAOD::VertexContainer::const_iterator vxBegin=theVertexContainer->begin();
-  xAOD::VertexContainer::const_iterator vxEnd=theVertexContainer->end();
-  for (xAOD::VertexContainer::const_iterator vxIter=vxBegin;vxIter!=vxEnd;++vxIter)
+  xAOD::VertexContainer::iterator vxBegin=theVertexContainer->begin();
+  xAOD::VertexContainer::iterator vxEnd=theVertexContainer->end();
+  for (xAOD::VertexContainer::iterator vxIter=vxBegin;vxIter!=vxEnd;++vxIter)
   {
     std::vector<Trk::VxTrackAtVertex>* myVxTracksAtVtx = &((*vxIter)->vxTrackAtVertex());
 
@@ -1106,7 +1106,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
       {
         if(msgLvl(MSG::VERBOSE))
         { 
-          msg(MSG::VERBOSE) << " Iterating over new vertex in fixing xAOD::TrackParticle links... "  << endreq;
+          msg(MSG::VERBOSE) << " Iterating over new vertex in fixing xAOD::TrackParticle links... "  << endmsg;
         }
 
         (*vxIter)->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
@@ -1225,7 +1225,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
           perigee=(*i)->initialPerigee();
         }
 	if (perigee==0) {
-	  if (msgLvl(MSG::ERROR)) msg() << "Neutrals not supported. Skipping track in pT calculation..." << endreq;
+	  if (msgLvl(MSG::ERROR)) msg() << "Neutrals not supported. Skipping track in pT calculation..." << endmsg;
 	  continue;
 	}
         total_pt_squared+=std::pow(std::fabs(1./perigee->parameters()[Trk::qOverP])*sin(perigee->parameters()[Trk::theta]),2);
@@ -1261,7 +1261,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
           perigee=(*i)->initialPerigee();
         }
 	if (perigee==0) {
-	  if (msgLvl(MSG::ERROR)) msg() << "Neutrals not supported. Skipping track in pT calculation..." << endreq;
+	  if (msgLvl(MSG::ERROR)) msg() << "Neutrals not supported. Skipping track in pT calculation..." << endmsg;
 	  continue;
 	}
         double actualpt(std::fabs(1./perigee->parameters()[Trk::qOverP])*sin(perigee->parameters()[Trk::theta]));
@@ -1304,29 +1304,29 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetAdaptiveMultiP
     return StatusCode::SUCCESS;
   }
 
-  void InDetAdaptiveMultiPriVxFinderTool::m_printParameterSettings()
+  void InDetAdaptiveMultiPriVxFinderTool::printParameterSettings()
   {
-    msg(MSG::INFO) << "VxPrimary initialize(): Parametersettings " << endreq;
+    msg(MSG::INFO) << "VxPrimary initialize(): Parametersettings " << endmsg;
  
-    msg(MSG::INFO) << "" << endreq;
-    msg(MSG::INFO) << "Trackselection cuts handled by the TrackSelectorTool: " << m_trkFilter << endreq;
-    msg(MSG::INFO) << "Finder settings: " << endreq;
-    msg(MSG::INFO) << "Maximum distance between simultaneously fitted vertices: TracksMaxZinterval " << m_TracksMaxZinterval << endreq;
-    msg(MSG::INFO) << "Seeding: minimum weight for a track being an outlier:  maxVertexChi2 " << m_maxVertexChi2 << endreq;
-    msg(MSG::INFO) << "Signal identification: final cut on track chi2: finalCutMaxVertexChi2 = " << m_finalCutMaxVertexChi2 << endreq;
-    msg(MSG::INFO) << "Activate complete multi vertex fitting feature: realMultiVertex " << m_realMultiVertex << endreq;
-    msg(MSG::INFO) << "Merging vertices: upper cut on significance to merge two vertices: cutVertexDependence = " << m_cutVertexDependence << endreq;
-    msg(MSG::INFO) << "Maximum number of iterations: maxIterations = " << m_maxIterations << endreq;
-    msg(MSG::INFO) << "Selection type (0 is sqrt(Ntr)*Sum_{tr} pT^2): selectiontype = " << m_selectiontype << endreq;
-    msg(MSG::INFO) << "Use fast compatibility (if false use refitted chi2 instead of approximation): useFastCompatibility = "<<  m_useFastCompatibility << endreq;
-    msg(MSG::INFO) << "MinWeight (if track weight in the fit is lower, don't perform the Kalman Update) = " << m_minweight << endreq;
+    msg(MSG::INFO) << "" << endmsg;
+    msg(MSG::INFO) << "Trackselection cuts handled by the TrackSelectorTool: " << m_trkFilter << endmsg;
+    msg(MSG::INFO) << "Finder settings: " << endmsg;
+    msg(MSG::INFO) << "Maximum distance between simultaneously fitted vertices: TracksMaxZinterval " << m_TracksMaxZinterval << endmsg;
+    msg(MSG::INFO) << "Seeding: minimum weight for a track being an outlier:  maxVertexChi2 " << m_maxVertexChi2 << endmsg;
+    msg(MSG::INFO) << "Signal identification: final cut on track chi2: finalCutMaxVertexChi2 = " << m_finalCutMaxVertexChi2 << endmsg;
+    msg(MSG::INFO) << "Activate complete multi vertex fitting feature: realMultiVertex " << m_realMultiVertex << endmsg;
+    msg(MSG::INFO) << "Merging vertices: upper cut on significance to merge two vertices: cutVertexDependence = " << m_cutVertexDependence << endmsg;
+    msg(MSG::INFO) << "Maximum number of iterations: maxIterations = " << m_maxIterations << endmsg;
+    msg(MSG::INFO) << "Selection type (0 is sqrt(Ntr)*Sum_{tr} pT^2): selectiontype = " << m_selectiontype << endmsg;
+    msg(MSG::INFO) << "Use fast compatibility (if false use refitted chi2 instead of approximation): useFastCompatibility = "<<  m_useFastCompatibility << endmsg;
+    msg(MSG::INFO) << "MinWeight (if track weight in the fit is lower, don't perform the Kalman Update) = " << m_minweight << endmsg;
 
-    msg(MSG::INFO) << "" << endreq;
+    msg(MSG::INFO) << "" << endmsg;
 }
 
-void InDetAdaptiveMultiPriVxFinderTool::m_SGError(std::string errService)
+void InDetAdaptiveMultiPriVxFinderTool::SGError(std::string errService)
 {
-    msg(MSG::FATAL) << errService << " not found. Exiting !" << endreq;
+    msg(MSG::FATAL) << errService << " not found. Exiting !" << endmsg;
     return;
 }
 

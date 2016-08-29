@@ -142,13 +142,13 @@ public:
    bool m_doMaxTracksCut; 
    unsigned int m_maxTracks;
 
-   void m_SGError(std::string errService);
+   void SGError(std::string errService);
 
    /**
     * Internal method to print the parameters setting
     */
 
-   virtual void m_printParameterSettings();
+   virtual void printParameterSettings();
  
 
 

@@ -108,23 +108,23 @@ StatusCode InDetMultiPriVxFinderTool::initialize()
 
     if (m_createSplitVertices==true && m_useBeamConstraint==true)
     {
-      msg(MSG::FATAL) << " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." << endreq;
+      msg(MSG::FATAL) << " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." << endmsg;
       return StatusCode::FAILURE;
     }
     
     /* Get the right vertex fitting tool from ToolSvc */
     if ( m_iVertexFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
       return StatusCode::FAILURE;
     } 
 
     if ( m_SeedFinder.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_SeedFinder << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_SeedFinder << endmsg;
       return StatusCode::FAILURE;
     }
 
     if ( m_ImpactPoint3dEstimator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ImpactPoint3dEstimator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ImpactPoint3dEstimator << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -137,21 +137,21 @@ StatusCode InDetMultiPriVxFinderTool::initialize()
     sc = m_iBeamCondSvc.retrieve();
     if (sc.isFailure())
       {
-        msg(MSG::ERROR) << "Could not find BeamCondSvc." << endreq;
+        msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
         return sc;
       }
 
     if(m_trkFilter.retrieve().isFailure()) {
-      msg(MSG::ERROR) <<" Unable to retrieve "<<m_trkFilter<<endreq;
+      msg(MSG::ERROR) <<" Unable to retrieve "<<m_trkFilter<<endmsg;
       return StatusCode::FAILURE;
     }
     
 
     // since some parameters special to an inherited class this method
     // will be overloaded by the inherited class
-    m_printParameterSettings();
+    printParameterSettings();
 
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
 }
   
@@ -160,7 +160,7 @@ StatusCode InDetMultiPriVxFinderTool::initialize()
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFinderTool::findVertex(const TrackCollection* trackTES) 
 {
 
-  if(msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endreq;
+  if(msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endmsg;
 
   std::vector<Trk::ITrackLink*> selectedTracks;
 
@@ -195,7 +195,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
   }
 
   if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
-      << selectedTracks.size() << " survived the preselection." << endreq;
+      << selectedTracks.size() << " survived the preselection." << endmsg;
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( selectedTracks );
 
@@ -205,7 +205,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
 
 std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) {
  
-  if(msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endreq;
+  if(msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endmsg;
 
   std::vector<Trk::ITrackLink*> selectedTracks;
 
@@ -241,7 +241,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
   }
 
   if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
-      << selectedTracks.size() << " survived the preselection." << endreq;
+      << selectedTracks.size() << " survived the preselection." << endmsg;
 
   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( selectedTracks );
 
@@ -490,7 +490,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
 	    }
 	  }
 	  if (!found) {
-	    msg(MSG::ERROR) << " Cannot find vector element to fix links (step 4)! " << endreq;
+	    msg(MSG::ERROR) << " Cannot find vector element to fix links (step 4)! " << endmsg;
 	  }
 	}
       }
@@ -518,7 +518,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
   } //end loop over vector of vector of tracks in which fit was performed
 
 
-  msg(MSG::DEBUG) << " Vtx size: "<<theVertexContainer->size()<< endreq;;
+  msg(MSG::DEBUG) << " Vtx size: "<<theVertexContainer->size()<< endmsg;;
   for (size_t i = 0 ; i < theVertexContainer->size(); i++) {
     if(msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << " Vtx: " << i << 
@@ -528,7 +528,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
 	" ntracks= " << (*theVertexContainer)[i]->vxTrackAtVertex().size() << 
 	" chi2= " << (*theVertexContainer)[i]->chiSquared()
 		      << " ndf = " << (*theVertexContainer)[i]->numberDoF() 
-		     << endreq;
+		     << endmsg;
     }
   }
 
@@ -556,7 +556,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
     dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
   }
   
-  // msg(MSG::DEBUG) << " Vtx size, with a dummy vertex: "<<theVertexContainer->size()<< endreq;
+  // msg(MSG::DEBUG) << " Vtx size, with a dummy vertex: "<<theVertexContainer->size()<< endmsg;
   // loop over the pile up to set it as pile up (EXCLUDE first and last vertex, do not do that in split mode)
   for (size_t i = 0 ; i < theVertexContainer->size()-1; i++) {
   	if (i>0) {
@@ -572,10 +572,10 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
   //       " z= " << (*theVertexContainer)[i]->position().z() << 
   //       " ntracks= " << (*theVertexContainer)[i]->vxTrackAtVertex().size() << 
   //       " chi2= " << (*theVertexContainer)[i]->chiSquared()
-  //       	      << " ndf = " << (*theVertexContainer)[i]->numberDoF() << endreq;
+  //       	      << " ndf = " << (*theVertexContainer)[i]->numberDoF() << endmsg;
 		      
-  //       if((*theVxContainer)[i]->vertexType()==(xAOD::VxType::NoVtx) msg(MSG::DEBUG) << " Vtx: " << i << "dummy"<< endreq;
-  //       else  msg(MSG::DEBUG) << " not a dummy vertex "<< endreq;
+  //       if((*theVxContainer)[i]->vertexType()==(xAOD::VxType::NoVtx) msg(MSG::DEBUG) << " Vtx: " << i << "dummy"<< endmsg;
+  //       else  msg(MSG::DEBUG) << " not a dummy vertex "<< endmsg;
   //   }
   // }
   
@@ -592,7 +592,7 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetMultiPriVxFind
     }
   }
 
-  //  msg(MSG::DEBUG) << "Returning VertexContainer " << MyTrackVxContainer << endreq;
+  //  msg(MSG::DEBUG) << "Returning VertexContainer " << MyTrackVxContainer << endmsg;
   return std::make_pair(theVertexContainer, theVertexAuxContainer);
 
 }
@@ -602,16 +602,16 @@ StatusCode InDetMultiPriVxFinderTool::finalize()
     return StatusCode::SUCCESS;
 }
 
-void InDetMultiPriVxFinderTool::m_printParameterSettings()
+void InDetMultiPriVxFinderTool::printParameterSettings()
 {
-    msg(MSG::INFO) << "VxPrimary initialize(): Parametersettings " << endreq;
-    msg(MSG::INFO) << "VertexFitter " << m_iVertexFitter << endreq;
-    msg(MSG::INFO) << endreq;
+    msg(MSG::INFO) << "VxPrimary initialize(): Parametersettings " << endmsg;
+    msg(MSG::INFO) << "VertexFitter " << m_iVertexFitter << endmsg;
+    msg(MSG::INFO) << endmsg;
 }
 
-void InDetMultiPriVxFinderTool::m_SGError(std::string errService)
+void InDetMultiPriVxFinderTool::SGError(std::string errService)
 {
-    msg(MSG::FATAL) << errService << " not found. Exiting !" << endreq;
+    msg(MSG::FATAL) << errService << " not found. Exiting !" << endmsg;
     return;
 }
 
@@ -656,14 +656,14 @@ double InDetMultiPriVxFinderTool::distanceAndError(const Trk::TrackParameters* p
 	isOK=true;
       }
       catch (error::ImpactPoint3dEstimatorProblem err) {
-	msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endreq;
+	msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endmsg;
       }
       
       if (isOK) {
 	distance=m_ImpactPoint3dEstimator->getDistance();
       }  
       if (distance<0) {
-	msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endreq;
+	msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endmsg;
       }
 
 
@@ -678,11 +678,11 @@ double InDetMultiPriVxFinderTool::distanceAndError(const Trk::TrackParameters* p
       }
       
       if (error==0.) {
-	msg(MSG::ERROR) << " Error is zero! " << distance << endreq;
+	msg(MSG::ERROR) << " Error is zero! " << distance << endmsg;
 	error=1.;
       }
       msg(MSG::VERBOSE) << " Distance between track and seed vtx: " << distance << " d/s(d) = " << 
-	distance/error << " err " << error << endreq;
+	distance/error << " err " << error << endmsg;
 
       return distance;
 

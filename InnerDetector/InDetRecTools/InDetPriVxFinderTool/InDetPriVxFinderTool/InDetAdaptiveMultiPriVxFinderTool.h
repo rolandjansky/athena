@@ -148,8 +148,8 @@ namespace InDet
 
     std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const std::vector<const Trk::ITrackLink*> & trackVector);
   
-    void m_SGError(std::string errService);
-    virtual void m_printParameterSettings();
+    void SGError(std::string errService);
+    virtual void printParameterSettings();
 
     ToolHandle< Trk::AdaptiveMultiVertexFitter > m_MultiVertexFitter;
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;

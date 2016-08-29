@@ -57,6 +57,7 @@
 namespace InDet
 {
 
+#if 0
   namespace {
     void  deleteMeasuredPerigeeIf(bool IsToDelete,const Trk::TrackParameters* & WhatToDelete) 
     {
@@ -67,6 +68,7 @@ namespace InDet
       }
     }
   }
+#endif
 
 
   InDetPriVxFinderTool::InDetPriVxFinderTool ( const std::string& t, const std::string& n, const IInterface*  p )
@@ -108,7 +110,7 @@ namespace InDet
     //check if the split was requested and it is still possible to make it
     if (m_createSplitVertices==true && m_useBeamConstraint==true)
     {
-      msg(MSG::FATAL) << " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." << endreq;
+      msg(MSG::FATAL) << " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." << endmsg;
       return StatusCode::FAILURE;
     }  
   
@@ -119,42 +121,42 @@ namespace InDet
     {
       if ( m_iPriVxSeedFinder.retrieve().isFailure() )
       {
-        msg(MSG::FATAL) << "Failed to retrieve tool " << m_iPriVxSeedFinder << endreq;
+        msg(MSG::FATAL) << "Failed to retrieve tool " << m_iPriVxSeedFinder << endmsg;
         return StatusCode::FAILURE;
       } else
       {
-        msg(MSG::INFO) << "Retrieved tool " << m_iPriVxSeedFinder << endreq;
+        msg(MSG::INFO) << "Retrieved tool " << m_iPriVxSeedFinder << endmsg;
       }
     } else
     // track selector is only needed if no seeding is done (otherwise the seeder does the track selection)
     {
       if(m_trkFilter.retrieve().isFailure())
       {
-        msg(MSG::ERROR) << "Failed to retrieve tool "<<m_trkFilter<<endreq;
+        msg(MSG::ERROR) << "Failed to retrieve tool "<<m_trkFilter<<endmsg;
         return StatusCode::FAILURE;
       } else
       {
-        msg(MSG::INFO) << "Retrieved tool " << m_trkFilter << endreq;
+        msg(MSG::INFO) << "Retrieved tool " << m_trkFilter << endmsg;
       }
     }
 
     /* Get the right vertex fitting tool from ToolSvc */
     if ( m_iVertexFitter.retrieve().isFailure() )
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
       return StatusCode::FAILURE;
     } else
     {
-      msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
     }
 
     if ( m_iBeamCondSvc.retrieve().isFailure() )
     {
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endreq;
+      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
       return StatusCode::FAILURE;;
     }
 
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -232,7 +234,7 @@ namespace InDet
       seedsVector = m_iPriVxSeedFinder->seeds(origTracks);
 
     }
-    if (msgLvl(MSG::DEBUG)) msg() << "Seed vector has " << seedsVector.size() << " seeds." << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Seed vector has " << seedsVector.size() << " seeds." << endmsg;
 
     // fill track particle seeds into a track parameter base format
     std::vector< std::vector<const Trk::TrackParameters*> > origParameters;
@@ -242,30 +244,30 @@ namespace InDet
     //after the seeding should be done here..
     for (unsigned int icluster = 0 ; icluster < seedsVector.size() ; icluster++)
     {
-      if (msgLvl(MSG::DEBUG)) msg() << "Seed vector " << icluster << " has " << seedsVector[icluster].size() << " tracks." << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Seed vector " << icluster << " has " << seedsVector[icluster].size() << " tracks." << endmsg;
 
       std::vector<const Trk::TrackParameters*> tmpVector;
       for (unsigned int itrack = 0 ; itrack < seedsVector[icluster].size() ; itrack++)
       {
         tmpVector.push_back(seedsVector[icluster].at(itrack)->perigeeParameters());
       }
-      if (msgLvl(MSG::DEBUG)) msg() << "Orig parameters " << icluster << " has " << tmpVector.size() << " tracks." << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Orig parameters " << icluster << " has " << tmpVector.size() << " tracks." << endmsg;
       origParameters.push_back(tmpVector);
     }
     
-    if (msgLvl(MSG::DEBUG)) msg() << "Orig parameters has " << origParameters.size() << " seeds." << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Orig parameters has " << origParameters.size() << " seeds." << endmsg;
 
     //---- do the actual vertex finding on TrackParameters obejcts ---------------//
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = m_findVertex ( origParameters );
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex ( origParameters );
 
     //---- validate the element links ---------------//
-    for ( xAOD::VertexContainer::const_iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; vxContItr++ )
+    for ( xAOD::VertexContainer::iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; vxContItr++ )
     {
       std::vector<Trk::VxTrackAtVertex> * tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
       for ( std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++ )
       {
         const Trk::TrackParameters* initialPerigee = ( *itr ).initialPerigee();
-        Trk::Track*          correspondingTrack ( 0 );
+        const Trk::Track*          correspondingTrack ( 0 );
         // find the track to that perigee ...
         for ( TrackCollection::const_iterator itr1 = trackTES->begin(); itr1 != trackTES->end(); itr1++ )
         {
@@ -284,7 +286,7 @@ namespace InDet
           link->setElement( correspondingTrack );
           ( *itr ).setOrigTrack ( link );
         }
-        else if (msgLvl(MSG::WARNING)) msg() << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endreq;
+        else if (msgLvl(MSG::WARNING)) msg() << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endmsg;
         // TODO: also mention that links stored directly in xAOD::Vertices are not set because a TrackCollection was given as input
       }
     }
@@ -370,7 +372,7 @@ namespace InDet
       seedsVector = m_iPriVxSeedFinder->seeds(origTrackParticles);
 
     }
-    //     if (msgLvl(MSG::DEBUG)) msg() << "Seed vector has " << seedsVector.size() << " seeds." << endreq;
+    //     if (msgLvl(MSG::DEBUG)) msg() << "Seed vector has " << seedsVector.size() << " seeds." << endmsg;
     // fill track particle seeds into a track parameter base format
     //    std::cout<<"Seeds produced "<<std::endl;
     
@@ -378,33 +380,33 @@ namespace InDet
     origParameters.clear();
     for (unsigned int icluster = 0 ; icluster < seedsVector.size() ; icluster++)
     {
-      //       if (msgLvl(MSG::DEBUG)) msg() << "Seed vector " << icluster << " has " << seedsVector[icluster].size() << " tracks." << endreq;
+      //       if (msgLvl(MSG::DEBUG)) msg() << "Seed vector " << icluster << " has " << seedsVector[icluster].size() << " tracks." << endmsg;
       std::vector<const Trk::TrackParameters*> tmpVector;
       for (unsigned int itrack = 0 ; itrack < seedsVector[icluster].size() ; itrack++)
       {
         tmpVector.push_back(&(seedsVector[icluster].at(itrack)->definingParameters()));
       }
-      //       if (msgLvl(MSG::DEBUG)) msg() << "Orig parameters " << icluster << " has " << tmpVector.size() << " tracks." << endreq;
+      //       if (msgLvl(MSG::DEBUG)) msg() << "Orig parameters " << icluster << " has " << tmpVector.size() << " tracks." << endmsg;
       origParameters.push_back(tmpVector);
     }
     
-    //     if (msgLvl(MSG::DEBUG)) msg() << "Orig parameters has " << origParameters.size() << " seeds." << endreq;
+    //     if (msgLvl(MSG::DEBUG)) msg() << "Orig parameters has " << origParameters.size() << " seeds." << endmsg;
 
     // find vertices from the seeds
     
     //    std::cout<<"Calling parameters based find vertices "<<std::endl;
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = m_findVertex( origParameters );
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( origParameters );
 
     // now we have to make the link to the original track ...
     //     unsigned int count ( 1 );
-    for ( xAOD::VertexContainer::const_iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; vxContItr++ )
+    for ( xAOD::VertexContainer::iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; vxContItr++ )
     {
       // std::cout << "Check vertex " << count << std::endl; count++;
       std::vector<Trk::VxTrackAtVertex> * tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
       for ( std::vector<Trk::VxTrackAtVertex>::iterator itr = tmpVxTAVtx->begin(); itr != tmpVxTAVtx->end(); itr++ )
       {
         const Trk::TrackParameters* initialPerigee = ( *itr ).initialPerigee();
-        Trk::TrackParticleBase*    correspondingTrack ( 0 );
+        const Trk::TrackParticleBase*    correspondingTrack ( 0 );
         // find the track to that perigee ...
         for ( Trk::TrackParticleBaseCollection::const_iterator itr1 = trackTES->begin(); itr1 != trackTES->end(); itr1++ )
         {
@@ -424,7 +426,7 @@ namespace InDet
           link->setElement ( correspondingTrack );
           ( *itr ).setOrigTrack ( link );
         }
-        else if (msgLvl(MSG::WARNING)) msg() << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endreq;
+        else if (msgLvl(MSG::WARNING)) msg() << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endmsg;
         // TODO: also mention that links stored directly in xAOD::Vertices are not set because a TrackParticleBaseCollection was given as input
       }
     }
@@ -505,12 +507,12 @@ namespace InDet
 
     }
     
-    if (msgLvl(MSG::DEBUG)) msg() << "Seed vector has " << seedsVector.size() << " seeds." << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Seed vector has " << seedsVector.size() << " seeds." << endmsg;
 
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = m_findVertex( seedsVector );
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( seedsVector );
 
     //---- validate the element links ---------------//
-    for ( xAOD::VertexContainer::const_iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; vxContItr++ )
+    for ( xAOD::VertexContainer::iterator vxContItr = returnContainers.first->begin() ; vxContItr != returnContainers.first->end() ; vxContItr++ )
     {
       std::vector<Trk::VxTrackAtVertex> * tmpVxTAVtx = &(*vxContItr)->vxTrackAtVertex();
 
@@ -537,7 +539,7 @@ namespace InDet
     	  link->setElement( correspondingTrack );
     	  ( *itr ).setOrigTrack ( link );
     	}
-    	else if (msgLvl(MSG::WARNING)) msg() << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endreq;
+    	else if (msgLvl(MSG::WARNING)) msg() << "No corresponding track found for this initial perigee! Vertex will have no link to the track." << endmsg;
       } //end of loop over vxTrackAtVertices to assign links
 
       //now set links to xAOD::TrackParticles directly in xAOD::Vertices
@@ -573,7 +575,7 @@ namespace InDet
   }
   
 
-  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetPriVxFinderTool::m_findVertex ( std::vector< std::vector<const Trk::TrackParameters*> >& zTrackColl )
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetPriVxFinderTool::findVertex ( std::vector< std::vector<const Trk::TrackParameters*> >& zTrackColl )
   {
   
     //   std::cout<<"Starting the main part of the finding "<<std::endl;
@@ -584,10 +586,10 @@ namespace InDet
 
     // Finding hot spots of z0's in case of pile up.
     std::vector<const Trk::TrackParameters*> zTracks;
-    typedef std::vector<const Trk::TrackParameters*>::const_iterator zTrkIter;
+    //typedef std::vector<const Trk::TrackParameters*>::const_iterator zTrkIter;
     zTracks.clear();
     
-    typedef std::vector<std::vector<const Trk::TrackParameters* > >::iterator zTrkCollIter;
+    //typedef std::vector<std::vector<const Trk::TrackParameters* > >::iterator zTrkCollIter;
 
     // VertexContainer which takes xAOD::Vertex and is stored in StoreGate
     xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
@@ -606,7 +608,7 @@ namespace InDet
     {
     
       // std::cout<<"Inside the loop"<<std::endl;
-      if (msgLvl(MSG::DEBUG)) msg() << "Fitting vertex of Z-Cluster " << i << " with " << zTrackColl[i].size() << " Tracks" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Fitting vertex of Z-Cluster " << i << " with " << zTrackColl[i].size() << " Tracks" << endmsg;
       myxAODVertex = 0;
       std::vector<const Trk::TrackParameters*> origParameters;
       origParameters.clear();
@@ -643,7 +645,7 @@ namespace InDet
       {
         // std::cout<<"choosing 2nd option"<<std::endl;
         
-        // if(msgLvl(MSG::VERBOSE)) msg() << "First call of fitting tool!" << endreq;
+        // if(msgLvl(MSG::VERBOSE)) msg() << "First call of fitting tool!" << endmsg;
         if ( m_useBeamConstraint )
         {
           xAOD::Vertex theconstraint;
@@ -673,7 +675,7 @@ namespace InDet
           std::vector<int> indexOfSortedChi2;
           // std::cout<< "Calling the sort " <<std::endl;
 	  
-          m_sortTracksInChi2 ( indexOfSortedChi2,myxAODVertex );
+          sortTracksInChi2 ( indexOfSortedChi2,myxAODVertex );
          
           // std::cout<< "Sort done " <<std::endl;
 
@@ -713,7 +715,7 @@ namespace InDet
             // delete old xAOD::Vertex first
             if ( myxAODVertex!=0 ) { delete myxAODVertex; myxAODVertex=0; }
          
-            if(msgLvl(MSG::VERBOSE)) msg() << "Second call of fitting tool!" << endreq;
+            if(msgLvl(MSG::VERBOSE)) msg() << "Second call of fitting tool!" << endmsg;
             if ( m_useBeamConstraint )
 	    {
               xAOD::Vertex theconstraint;
@@ -753,10 +755,10 @@ namespace InDet
               origParameters.erase ( origParameters.begin() + ( * ( indexOfSortedChi2.end()-1 ) ) );
 
               // delete old xAOD::Vertex first
-              if ( myxAODVertex!=0 ) delete myxAODVertex; myxAODVertex=0; 
+              delete myxAODVertex; myxAODVertex=0; 
               
 	 
-              if(msgLvl(MSG::VERBOSE)) msg() << "Second call of fitting tool!" << endreq;
+              if(msgLvl(MSG::VERBOSE)) msg() << "Second call of fitting tool!" << endmsg;
                
 	      if ( m_useBeamConstraint )
               {
@@ -777,7 +779,7 @@ namespace InDet
                 trkAtVtx = &( myxAODVertex->vxTrackAtVertex() );
 
                 //re-soring tracks to avoid gaps
-                m_sortTracksInChi2 ( indexOfSortedChi2, myxAODVertex );
+                sortTracksInChi2 ( indexOfSortedChi2, myxAODVertex );
 	      }else{
 	      
                 //we're down to non-fittable combination. so far, just give up. In future one may 
@@ -788,14 +790,14 @@ namespace InDet
 	    }//end of while stateme
           } //end of mode selection
         } else  if (msgLvl(MSG::DEBUG))
-          msg() << "FastVertexFitter returned zero pointer ... could not fit vertex for this z cluster!" << endreq;
+          msg() << "FastVertexFitter returned zero pointer ... could not fit vertex for this z cluster!" << endmsg;
       } // end if "more than one track after m_preSelect(...)"
-      else if (msgLvl(MSG::DEBUG)) msg() << "Less than two tracks or fitting without constraint - drop candidate vertex." << endreq;
+      else if (msgLvl(MSG::DEBUG)) msg() << "Less than two tracks or fitting without constraint - drop candidate vertex." << endmsg;
       // end if preselection for first iteration
       
       if ( ( origParameters.size() > 1 || ( m_useBeamConstraint && origParameters.size() == 1 ) ) && myxAODVertex && !m_createSplitVertices)
       {
-        if(msgLvl(MSG::VERBOSE)) msg() << "Storing the fitted vertex." << endreq;
+        if(msgLvl(MSG::VERBOSE)) msg() << "Storing the fitted vertex." << endmsg;
         
 	/* Store the primary vertex */
         trkAtVtx = &( myxAODVertex->vxTrackAtVertex() );
@@ -838,7 +840,7 @@ namespace InDet
     {
       for ( std::map<double,xAOD::Vertex*>::reverse_iterator i=vertexMap.rbegin(); i!=vertexMap.rend();i++ )
       {
-        if(msgLvl(MSG::VERBOSE)) msg() << "Sorting the fitted vertices. " << vertexMap.size() << " have been found." << endreq;
+        if(msgLvl(MSG::VERBOSE)) msg() << "Sorting the fitted vertices. " << vertexMap.size() << " have been found." << endmsg;
         theVertexContainer->push_back ( ( *i ).second );
         if(msgLvl(MSG::DEBUG)) /* Print info only if requested */
         {
@@ -850,7 +852,7 @@ namespace InDet
      	  << ( *i ).second->position() [1] << "+/-" << yVtxError << ", "
      	  << ( *i ).second->position() [2] << "+/-" << zVtxError << ") with chi2 = "
      	  << ( *i ).second->chiSquared() << " ("
-     	  << ( *i ).second->vxTrackAtVertex().size() << " tracks)" << endreq;
+     	  << ( *i ).second->vxTrackAtVertex().size() << " tracks)" << endmsg;
         }
       }//end of sorting loop
     } else for(std::vector<xAOD::Vertex *>::iterator l_vt = splitVtxVector.begin(); l_vt != splitVtxVector.end();++l_vt)
@@ -920,7 +922,7 @@ namespace InDet
     return StatusCode::SUCCESS;
   }
 
-  void InDetPriVxFinderTool::m_sortTracksInChi2 ( std::vector<int>& indexOfSortedChi2, xAOD::Vertex * myxAODVertex )
+  void InDetPriVxFinderTool::sortTracksInChi2 ( std::vector<int>& indexOfSortedChi2, xAOD::Vertex * myxAODVertex )
   {
     // we need an index vector here which tells us the right order from smallest to
     // largest of the chi2PerTrack vector
@@ -955,7 +957,7 @@ namespace InDet
     
   }//end of sort method
 
-  void InDetPriVxFinderTool::m_sortTracksInZ0 ( std::vector<const Trk::TrackParameters*> tv,std::vector<int>& indexOfSortedZ0 )
+  void InDetPriVxFinderTool::sortTracksInZ0 ( std::vector<const Trk::TrackParameters*> tv,std::vector<int>& indexOfSortedZ0 )
   {
     // we need an index vector here which tells us the right order from smallest to
     // largest of the z0 vector

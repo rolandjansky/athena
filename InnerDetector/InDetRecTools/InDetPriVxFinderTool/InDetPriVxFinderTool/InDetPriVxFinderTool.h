@@ -135,10 +135,10 @@ private:
 
     /** the common finding code (regardless of Track or TrackParticle(Base) is here */
     //VxContainer* m_findVertex(std::vector< std::vector<const Trk::TrackParameters*> >& origParameters);
-    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> m_findVertex(std::vector< std::vector<const Trk::TrackParameters*> >& origParameters);
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(std::vector< std::vector<const Trk::TrackParameters*> >& origParameters);
 
-    virtual void m_sortTracksInChi2(std::vector<int> &indexOfSortedChi2, xAOD::Vertex * myxAODVertex);
-    virtual void m_sortTracksInZ0(std::vector<const Trk::TrackParameters*> tv,std::vector<int>& indexOfSortedZ0);
+    virtual void sortTracksInChi2(std::vector<int> &indexOfSortedChi2, xAOD::Vertex * myxAODVertex);
+    virtual void sortTracksInZ0(std::vector<const Trk::TrackParameters*> tv,std::vector<int>& indexOfSortedZ0);
     
     
     bool m_createSplitVertices;
