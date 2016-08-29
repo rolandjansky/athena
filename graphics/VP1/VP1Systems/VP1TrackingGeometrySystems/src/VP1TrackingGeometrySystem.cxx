@@ -552,8 +552,8 @@ void VP1TrackingGeometrySystem::retrieveTrackingGeometry()
 
     if( !trackingGeometry)
     {
-      return;
       message("Error: Could not retrieve default TrackingGeometry");
+      return;
     }
     else
     {
@@ -1568,6 +1568,7 @@ VP1TrackingGeometrySystem::saveState()
   //TK: BAD!!!!
   messageDebug("WARNING: VP1TrackingGeometrySystem persistification disabled for now due to crashes!");
   return QByteArray();
+  /** sroe: unreachable code, coverity 17207
   ensureBuildController();
   // Setup stream writing to a byteArray:
   QByteArray byteArray;
@@ -1595,13 +1596,15 @@ VP1TrackingGeometrySystem::saveState()
   // Last step
   buffer.close();
   return byteArray;
+  **/
 }
 
 void
-VP1TrackingGeometrySystem::restoreFromState( QByteArray ba)
+VP1TrackingGeometrySystem::restoreFromState( QByteArray /*ba*/) //unused parameter
 {
   messageDebug("WARNING: VP1TrackingGeometrySystem persistification disabled for now due to crashes!");
   return;
+  /** sroe: none of the following code was reachable, coverity defect 17185
   // Setup stream for getting the contents of the byteArray:
   QBuffer buffer(&ba);
   buffer.open(QIODevice::ReadOnly);
@@ -1627,5 +1630,5 @@ VP1TrackingGeometrySystem::restoreFromState( QByteArray ba)
   d->lineEdit_TrackingGeometryName->setText( d->initialTrackingGeometryName);
 
   retrieveTrackingGeometry();
-
+  **/
 }

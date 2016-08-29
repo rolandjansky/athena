@@ -262,15 +262,15 @@ SoMaterial*
 ColorCodeConverter::lookup( unsigned int colorCode)
 {
   SoMaterial* ret = 0;
-  
-  if( colorCode > s_colorConversionTableSize)
+  //sroe: coverity 16515, original was "if (colorCode > s_colorConversionTableSize)"
+  //which still allows colorCode = 200, which is out-of-bounds.
+  if( colorCode >= s_colorConversionTableSize)
   {
     // if color code is out of bounds choose red as default color
-    colorCode = red;
+    colorCode = red; //red is defined as =2 in the header 
   }
   
-  std::map<unsigned int, SoMaterial*>::const_iterator it =
-      m_materialCache.find( colorCode);
+  std::map<unsigned int, SoMaterial*>::const_iterator it = m_materialCache.find( colorCode);
   if( it != m_materialCache.end())
   {
     ret = it->second;
