@@ -85,33 +85,33 @@ LArHVCorrectionMonTool::~LArHVCorrectionMonTool()
 StatusCode LArHVCorrectionMonTool::initialize()
 {
   
-  msg(MSG::INFO) << "Initialize LArHVCorrectionMonTool" << endreq;
+  msg(MSG::INFO) << "Initialize LArHVCorrectionMonTool" << endmsg;
   StatusCode sc;
   
   sc = detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArOnlineIDHelper" << endreq;
+    msg(MSG::FATAL) << "Could not get LArOnlineIDHelper" << endmsg;
     return sc;
   }
   
   // Retrieve HVCorrTool 
   sc = m_hvCorrTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to find tool for LArHVCorrTool" << endreq;
+    msg(MSG::ERROR) << "Unable to find tool for LArHVCorrTool" << endmsg;
     return StatusCode::FAILURE;
   }
   
   // Retrieve HV Correction reference
   sc = detStore()->regHandle(m_dd_HVScaleCorr,m_keyHVScaleCorr);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to register handle to HVScaleCorr " << endreq;
+    msg(MSG::ERROR) << "Unable to register handle to HVScaleCorr " << endmsg;
     return StatusCode::FAILURE;
   }
   
   // Retrieve ID helpers
   sc =  detStore()->retrieve( m_caloIdMgr );
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloIdMgr" << endreq;
+    msg(MSG::FATAL) << "Could not get CaloIdMgr" << endmsg;
     return sc;
   }
   m_LArEM_IDHelper   = m_caloIdMgr->getEM_ID();
@@ -121,14 +121,14 @@ StatusCode LArHVCorrectionMonTool::initialize()
   // CaloDetDescrMgr gives "detector description", including real positions of cells
   sc = detStore()->retrieve(m_CaloDetDescrMgr);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloDetDescrMgr "<< endreq;
+    msg(MSG::FATAL) << "Could not get CaloDetDescrMgr "<< endmsg;
     return sc;
   }
   
   // Get LAr Cabling Service
   sc=m_larCablingService.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -138,7 +138,7 @@ StatusCode LArHVCorrectionMonTool::initialize()
   
   // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successful Initialize LArHVCorrection " << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successful Initialize LArHVCorrection " << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -146,7 +146,7 @@ StatusCode LArHVCorrectionMonTool::initialize()
 StatusCode 
 LArHVCorrectionMonTool::bookHistograms()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in bookHists()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in bookHists()" << endmsg;
   
   //  if(isNewRun){
     
@@ -260,7 +260,7 @@ LArHVCorrectionMonTool::bookHistograms()
     //  }// end isNewRun
   
   // Reset event counter at the start of each LB 
-  if(newLumiBlock){
+  if(newLumiBlockFlag()){
     
     m_eventsCounter = 0;
     
@@ -274,7 +274,7 @@ LArHVCorrectionMonTool::bookHistograms()
 StatusCode 
 LArHVCorrectionMonTool::fillHistograms()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillHists()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillHists()" << endmsg;
   
   static CaloPhiRange m_phiHelper;
   m_eventsCounter++;
@@ -284,7 +284,7 @@ LArHVCorrectionMonTool::fillHistograms()
     // Retrieve event information
     const xAOD::EventInfo* thisEventInfo;
     if (evtStore()->retrieve(thisEventInfo).isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endmsg;
       return StatusCode::FAILURE;
     }
     //const DataHandle<EventInfo> event_info;
@@ -299,7 +299,7 @@ LArHVCorrectionMonTool::fillHistograms()
     const LArRawChannelContainer* pRawChannelsContainer;
     StatusCode sc = evtStore()->retrieve(pRawChannelsContainer, m_channelKey);
     if(sc.isFailure()) {
-      msg(MSG::WARNING) << "Can't retrieve LArRawChannelContainer with key " << m_channelKey <<endreq;
+      msg(MSG::WARNING) << "Can't retrieve LArRawChannelContainer with key " << m_channelKey <<endmsg;
       return StatusCode::SUCCESS;
     }
     
@@ -321,7 +321,7 @@ LArHVCorrectionMonTool::fillHistograms()
       float etaChan = 0; float phiChan = 0.;
       const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
       if(m_CaloDetElement == 0 ){
-	msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endreq;
+	msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	continue; 
       }else{
 	etaChan = m_CaloDetElement->eta_raw();
@@ -334,13 +334,13 @@ LArHVCorrectionMonTool::fillHistograms()
       // Retrieve HV correction info
       float hvdev = 0;
       float hvcorr = m_hvCorrTool->Scale(offlineID);
-      //msg(MSG::VERBOSE) << "hvcorr" << hvcorr << endreq;
+      //msg(MSG::VERBOSE) << "hvcorr" << hvcorr << endmsg;
       float hvonline = m_dd_HVScaleCorr->HVScaleCorr(offlineID);
       if (hvonline<=0) continue; //No valid online correction
-      //msg(MSG::VERBOSE) << "hvonline" << hvonline << endreq;
+      //msg(MSG::VERBOSE) << "hvonline" << hvonline << endmsg;
       if (hvcorr>hvonline) hvdev = hvonline-hvcorr; //Monitor only channels that get a higher correction from DCS (eg are at a lower voltage). 
 
-      //msg(MSG::VERBOSE) << "hvdev" << hvdev << endreq;
+      //msg(MSG::VERBOSE) << "hvdev" << hvdev << endmsg;
       
     if (fabs(hvdev/hvonline)> m_threshold){
 	
@@ -409,7 +409,7 @@ LArHVCorrectionMonTool::fillHistograms()
 StatusCode LArHVCorrectionMonTool::procHistograms()
 {
   
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms " << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms " << endmsg;
   
 //  //
 //  // Normalize and fix bins only at the end of a block, and only ONCE ! Otherwise it's a mess

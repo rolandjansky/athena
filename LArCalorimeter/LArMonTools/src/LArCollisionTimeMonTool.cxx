@@ -26,6 +26,9 @@
 #include <utility>
 #include <algorithm>
 
+#include "LWHists/TH1F_LW.h"
+#include "LWHists/TH2F_LW.h"
+
 #include "LArMonTools/LArCollisionTimeMonTool.h"
 #include "LArRecEvent/LArCollisionTime.h"
 
@@ -58,7 +61,8 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
   declareProperty( "Key"                ,      m_key="LArCollisionTime");
   declareProperty( "histPath"           ,      m_histPath="LArCollisionTime"); 
   declareProperty( "BunchCrossingTool"  ,      m_bunchGroupTool); 
-  declareProperty( "TrainFrontDistance"  ,     m_distance = 30); 
+  declareProperty( "TrainFrontDistance" ,      m_distance = 30); 
+  declareProperty( "IsOnline"           ,      m_IsOnline=false);
   
   m_eventsCounter = 0;  
   
@@ -83,7 +87,7 @@ LArCollisionTimeMonTool::initialize() {
 
   ManagedMonitorToolBase::initialize().ignore();
   CHECK(m_bunchGroupTool.retrieve());
-  msg(MSG::DEBUG) << "Successful Initialize LArCollisionTimeMonTool " << endreq;
+  msg(MSG::DEBUG) << "Successful Initialize LArCollisionTimeMonTool " << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -91,29 +95,32 @@ LArCollisionTimeMonTool::initialize() {
 StatusCode 
 LArCollisionTimeMonTool::bookHistograms() {
   
+  if(m_IsOnline)  m_nhist=2; else m_nhist=1;
   // So far 2 histos, all bcid and inside the train
-  m_LArCollTime_h=new TH1F*[m_nhist];
-  m_LArCollAvgTime_h=new TH1F*[m_nhist];
-  m_LArCollTime_lb_h=new TH1F*[m_nhist];
-  m_LArCollTime_lb_timeCut_h=new TH1F*[m_nhist];
-  m_LArCollTime_lb_singlebeam_timeCut_h=new TH1F*[m_nhist];
-  m_LArCollTime_vs_LB_h=new TH2F*[m_nhist];
-  m_LArCollTime_vs_BCID_h=new TH2F*[m_nhist];
-  m_LArCollAvgTime_vs_LB_h=new TH2F*[m_nhist];
-  m_LArCollAvgTime_vs_BCID_h=new TH2F*[m_nhist];
+  m_LArCollTime_h=new TH1F_LW*[m_nhist];
+  m_LArCollAvgTime_h=new TH1F_LW*[m_nhist];
+  m_LArCollTime_lb_h=new TH1F_LW*[m_nhist];
+  m_LArCollTime_lb_timeCut_h=new TH1F_LW*[m_nhist];
+  m_LArCollTime_lb_singlebeam_timeCut_h=new TH1F_LW*[m_nhist];
+  m_LArCollTime_vs_LB_h=new TH2F_LW*[m_nhist];
+  m_LArCollTime_vs_BCID_h=new TH2F_LW*[m_nhist];
+  m_LArCollAvgTime_vs_LB_h=new TH2F_LW*[m_nhist];
+  m_LArCollAvgTime_vs_BCID_h=new TH2F_LW*[m_nhist];
 
-  std::vector<std::string> hnameadd(m_nhist); hnameadd={"","_intrain"};
-  std::vector<std::string> htitadd(m_nhist); htitadd={"",", inside the train"};
+  std::vector<std::string> hnameadd(m_nhist); 
+  if(m_IsOnline) hnameadd={"","_intrain"}; else hnameadd={""};
+  std::vector<std::string> htitadd(m_nhist); 
+  if(m_IsOnline) htitadd={"",", inside the train"}; else htitadd={""};
 
   MonGroup generalGroupShift( this, "/LAr/"+m_histPath+"/", run, ATTRIB_MANAGED);
-  MonGroup generalGroupLB( this, "/LAr/"+m_histPath+"/", run, ATTRIB_X_VS_LB);
+  MonGroup generalGroupLB( this, "/LAr/"+m_histPath+"/", run, ATTRIB_X_VS_LB, "", "merge");
   //if(isNewRun ){ // Commented by B.Trocme to comply with new ManagedMonitorToolBase
     newrun=true;
     //
     // Create top folder for histos
     //
   for(unsigned i=0; i<m_nhist; ++i) {   
-    m_LArCollTime_h[i] = new TH1F(("LArCollTime"+hnameadd[i]).data(), 
+    m_LArCollTime_h[i] = TH1F_LW::create(("LArCollTime"+hnameadd[i]).data(), 
 			       ("LArCollisionTime - difference of avg time from ECC and ECA"+htitadd[i]).data(),
 			       101, -50.5, 50.5 );			
     
@@ -121,7 +128,7 @@ LArCollisionTimeMonTool::bookHistograms() {
     m_LArCollTime_h[i]->GetXaxis()->SetTitle("<t_{C}> - <t_{A}> (ns)");
     generalGroupShift.regHist(m_LArCollTime_h[i]).ignore();
     
-    m_LArCollTime_lb_h[i] = new TH1F(("LArCollTimeLumiBlock"+hnameadd[i]).data(), 
+    m_LArCollTime_lb_h[i] = TH1F_LW::create(("LArCollTimeLumiBlock"+hnameadd[i]).data(), 
 				     ("LArCollisionTime - difference of avg time from ECC and ECA"+htitadd[i]).data(),
 				  101, -50.5, 50.5 );			
     
@@ -131,7 +138,7 @@ LArCollisionTimeMonTool::bookHistograms() {
     
     
     
-    m_LArCollTime_vs_LB_h[i] = new TH2F(("LArCollTime_vs_LB"+hnameadd[i]).data(), 
+    m_LArCollTime_vs_LB_h[i] = TH2F_LW::create(("LArCollTime_vs_LB"+hnameadd[i]).data(), 
 				        ("LArCollisionTime Vs Luminosity Block - difference of avg time of ECC and ECA as a function of luminosity block"+htitadd[i]).data(),
 				     m_lumi_blocks, 0.5, double(m_lumi_blocks)+0.5, 101, -50.5, 50.5 );			
     
@@ -140,7 +147,7 @@ LArCollisionTimeMonTool::bookHistograms() {
     m_LArCollTime_vs_LB_h[i]->GetZaxis()->SetTitle("Number of events (weighted by energy/GeV)");
     generalGroupLB.regHist(m_LArCollTime_vs_LB_h[i]).ignore();
     
-    m_LArCollTime_vs_BCID_h[i] = new TH2F(("LArCollTime_vs_BCID"+hnameadd[i]).data(), 
+    m_LArCollTime_vs_BCID_h[i] = TH2F_LW::create(("LArCollTime_vs_BCID"+hnameadd[i]).data(), 
 				          ("LArCollisionTime Vs BCID - difference of avg time of ECC and ECA as a function of BCID"+htitadd[i]).data(),
 				       3564, 0.5, 3564.5, 101, -50.5, 50.5 );			
     
@@ -151,7 +158,7 @@ LArCollisionTimeMonTool::bookHistograms() {
     
     // Average Time
     
-    m_LArCollAvgTime_h[i] = new TH1F(("LArCollAvgTime"+hnameadd[i]).data(), 
+    m_LArCollAvgTime_h[i] = TH1F_LW::create(("LArCollAvgTime"+hnameadd[i]).data(), 
 				     ("LArCollisionAverageTime - avg time of ECC and ECA"+htitadd[i]).data(),
 				  320, -40., 40. );			
     
@@ -159,7 +166,7 @@ LArCollisionTimeMonTool::bookHistograms() {
     m_LArCollAvgTime_h[i]->GetXaxis()->SetTitle("(<t_{C}> + <t_{A}>) / 2 (ns)");
     generalGroupShift.regHist(m_LArCollAvgTime_h[i]).ignore();
     
-    m_LArCollAvgTime_vs_LB_h[i] = new TH2F(("LArCollAvgTime_vs_LB"+hnameadd[i]).data(), 
+    m_LArCollAvgTime_vs_LB_h[i] = TH2F_LW::create(("LArCollAvgTime_vs_LB"+hnameadd[i]).data(), 
 					   ("LArCollisionAvgTime Vs Luminosity Block - avg time of ECC and ECA as a function of luminosity block"+htitadd[i]).data(),
 					m_lumi_blocks, 0.5, double(m_lumi_blocks)+0.5, 320, -40., 40. );			
     
@@ -168,7 +175,7 @@ LArCollisionTimeMonTool::bookHistograms() {
     m_LArCollAvgTime_vs_LB_h[i]->GetZaxis()->SetTitle("Number of events (weighted by energy/GeV)");
     generalGroupLB.regHist(m_LArCollAvgTime_vs_LB_h[i]).ignore();
     
-    m_LArCollAvgTime_vs_BCID_h[i] = new TH2F(("LArCollAvgTime_vs_BCID"+hnameadd[i]).data(), 
+    m_LArCollAvgTime_vs_BCID_h[i] = TH2F_LW::create(("LArCollAvgTime_vs_BCID"+hnameadd[i]).data(), 
 					     ("LArCollisionAvgTime Vs BCID - avg time of ECC and ECA as a function of luminosity block"+htitadd[i]).data(),
 					m_lumi_blocks, 0.5, double(m_lumi_blocks)+0.5, 320, -40., 40. );			
     
@@ -178,7 +185,7 @@ LArCollisionTimeMonTool::bookHistograms() {
     generalGroupShift.regHist(m_LArCollAvgTime_vs_BCID_h[i]).ignore();
     
     //Monitoring events as a function of LB when events lie in a time window of +/-10ns
-    m_LArCollTime_lb_timeCut_h[i] = new TH1F(("LArCollTimeLumiBlockTimeCut"+hnameadd[i]).data(), 
+    m_LArCollTime_lb_timeCut_h[i] = TH1F_LW::create(("LArCollTimeLumiBlockTimeCut"+hnameadd[i]).data(), 
 					     ("Events with abs(<t_{C}> - <t_{A}>) < 10ns as a function of LB"+htitadd[i]).data(),
 					  m_lumi_blocks, 0.5, double(m_lumi_blocks)+0.5 );			
     
@@ -187,7 +194,7 @@ LArCollisionTimeMonTool::bookHistograms() {
     generalGroupShift.regHist(m_LArCollTime_lb_timeCut_h[i]).ignore();
     
     //Monitoring events as a function of LB when events lie in a time window of +/-[20-30]ns
-    m_LArCollTime_lb_singlebeam_timeCut_h[i] = new TH1F(("LArCollTimeLumiBlockSingleBeamTimeCut"+hnameadd[i]).data(), 
+    m_LArCollTime_lb_singlebeam_timeCut_h[i] = TH1F_LW::create(("LArCollTimeLumiBlockSingleBeamTimeCut"+hnameadd[i]).data(), 
 						        ("Events with 20 ns < abs(<t_{C}> - <t_{A}>) < 30ns as a function of LB"+htitadd[i]).data(),
 						     m_lumi_blocks, 0.5, double(m_lumi_blocks)+0.5 );			
     
@@ -207,7 +214,7 @@ LArCollisionTimeMonTool::bookHistograms() {
 StatusCode 
 LArCollisionTimeMonTool::fillHistograms()
 {
-  msg(MSG::DEBUG) << "in fillHists()" << endreq;
+  msg(MSG::DEBUG) << "in fillHists()" << endmsg;
   
   // Increment event counter
   m_eventsCounter++;
@@ -218,7 +225,7 @@ LArCollisionTimeMonTool::fillHistograms()
   unsigned lumi_block        = 0;
   //double event_time_minutes = -1;
   if (evtStore()->retrieve( event_info ).isFailure()) {
-    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve EventInfo object" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -229,8 +236,8 @@ LArCollisionTimeMonTool::fillHistograms()
   lumi_block = event_info->lumiBlock();
     
   if(m_bunchGroupTool->bcType(bunch_crossing_id) == Trig::IBunchCrossingTool::Empty) {
-     //msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" empty, not filling CollTime" <<endreq;
-     msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" empty ? not filling the coll. time" <<endreq;
+     //msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" empty, not filling CollTime" <<endmsg;
+     msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" empty ? not filling the coll. time" <<endmsg;
      return StatusCode::SUCCESS; // not filling anything in empty bunches
   }
 
@@ -240,10 +247,10 @@ LArCollisionTimeMonTool::fillHistograms()
   const LArCollisionTime * larTime;
   if(evtStore()->retrieve(larTime,m_key).isFailure())
   {
-    msg(MSG::WARNING) << "Unable to retrieve LArCollisionTime event store" << endreq;
+    msg(MSG::WARNING) << "Unable to retrieve LArCollisionTime event store" << endmsg;
     return StatusCode::SUCCESS; // Check if failure shd be returned. VB
   } else {
-    msg(MSG::DEBUG) << "LArCollisionTime successfully retrieved from event store" << endreq;
+    msg(MSG::DEBUG) << "LArCollisionTime successfully retrieved from event store" << endmsg;
   }
 
   if (larTime and !(event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,3))) {// Do not fill histo if noise burst suspected
@@ -262,8 +269,8 @@ LArCollisionTimeMonTool::fillHistograms()
       m_LArCollAvgTime_vs_BCID_h[0]->Fill(bunch_crossing_id, m_ECTimeAvg,weight);
       if ( fabs(m_ECTimeDiff) < 10 ) m_LArCollTime_lb_timeCut_h[0]->Fill(lumi_block);
       if ( fabs(m_ECTimeDiff) > 20 && fabs(m_ECTimeDiff) < 30 ) m_LArCollTime_lb_singlebeam_timeCut_h[0]->Fill(lumi_block);
-      if(bcid_distance > m_distance) { // fill histos inside the train
-        msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" distance from Front: "<<bcid_distance<<"Filling in train..."<<endreq;    
+      if(m_IsOnline && bcid_distance > m_distance) { // fill histos inside the train
+        msg(MSG::INFO) <<"BCID: "<<bunch_crossing_id<<" distance from Front: "<<bcid_distance<<"Filling in train..."<<endmsg;    
         m_LArCollTime_h[1]->Fill(m_ECTimeDiff,weight);
         m_LArCollTime_lb_h[1]->Fill(m_ECTimeDiff,weight);
         m_LArCollTime_vs_LB_h[1]->Fill(lumi_block, m_ECTimeDiff,weight);
@@ -284,11 +291,11 @@ LArCollisionTimeMonTool::fillHistograms()
 StatusCode LArCollisionTimeMonTool::procHistograms()
 {
   
-  if(endOfLumiBlock ){
+  if(endOfLumiBlockFlag() ){
     // For online monitoring, reset the histogram after Lumi block finishes
     for(unsigned i=0; i<m_nhist; ++i) m_LArCollTime_lb_h[i]->Reset();
   }
   
-  msg(MSG::DEBUG) << "End of procHistograms " << endreq;
+  msg(MSG::DEBUG) << "End of procHistograms " << endmsg;
   return StatusCode::SUCCESS;
 }

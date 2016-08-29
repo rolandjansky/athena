@@ -83,7 +83,7 @@ StatusCode LArNoisyROMon::initialize()
 {
   if ( !(detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID" ).isSuccess()) )
   {
-    msg(MSG::FATAL) << "unable to retrieve LArOnlineID from detStore" << endreq;
+    msg(MSG::FATAL) << "unable to retrieve LArOnlineID from detStore" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -96,7 +96,7 @@ StatusCode LArNoisyROMon::initialize()
     StatusCode sc = m_trigDec.retrieve();
     if ( !sc.isSuccess() )
     {
-      msg(MSG::FATAL) << "unable to initialize TrigDecisionTool " << endreq;
+      msg(MSG::FATAL) << "unable to initialize TrigDecisionTool " << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -249,7 +249,7 @@ StatusCode LArNoisyROMon::fillHistograms()
   sc = evtStore()->retrieve(noisyRO,m_inputKey);
   if (sc.isFailure()) 
   {
-    msg(MSG::WARNING) << "Can't retrieve LArNoisyROSummary " <<endreq;
+    msg(MSG::WARNING) << "Can't retrieve LArNoisyROSummary " <<endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -258,7 +258,7 @@ StatusCode LArNoisyROMon::fillHistograms()
   sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) 
   {
-    msg(MSG::WARNING) << "Can't retrieve EventInfo " <<endreq;
+    msg(MSG::WARNING) << "Can't retrieve EventInfo " <<endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -805,7 +805,7 @@ StatusCode LArNoisyROMon::procHistograms()
 {  
   if(!m_doHisto) return StatusCode::SUCCESS;
 
-  if ( endOfRun || endOfEventsBlock){
+  if ( endOfRunFlag() || endOfEventsBlockFlag()){
     if ( m_IsOnline )
     {
       // copy the "running" histo to the final ones, to be normalised
@@ -995,7 +995,7 @@ StatusCode LArNoisyROMon::procHistograms()
     }//end if m_eventCounter>0
   }
   
-  if ( endOfRun ) {
+  if ( endOfRunFlag() ) {
     // delete temposary histograms
     if ( h_LBN ) {
 //      LWHist::safeDelete(h_LBN); 
@@ -1506,7 +1506,7 @@ void LArNoisyROMon::fillTriggerHisto(partitionHistos& partition, uint8_t trigger
 
 StatusCode LArNoisyROMon::finalize()
 {
-  msg(MSG::INFO) << " in LArNoisyROMon::finalize() " << endreq;
+  msg(MSG::INFO) << " in LArNoisyROMon::finalize() " << endmsg;
   // delete temposary histograms
 
   if ( h_LBN ) {

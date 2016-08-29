@@ -20,15 +20,16 @@
 #include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-#include "LWHists/TH1I_LW.h"
-#include "LWHists/TH2I_LW.h"
-#include "LWHists/TH1F_LW.h"
-#include "LWHists/TH2F_LW.h"
-#include "LWHists/TProfile2D_LW.h"
-#include "LWHists/TProfile_LW.h"
+//#include "LWHists/TH1I_LW.h"
+//#include "LWHists/TH2I_LW.h"
+//#include "LWHists/TH1F_LW.h"
+//#include "LWHists/TH2F_LW.h"
+//#include "LWHists/TProfile2D_LW.h"
+//#include "LWHists/TProfile_LW.h"
 
 class TH1I_LW;
 class TH1F_LW;
+class TH2F_LW;
 class TH2I_LW;
 class TProfile2D_LW;
 class TProfile_LW;
