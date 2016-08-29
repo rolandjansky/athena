@@ -27,6 +27,8 @@
 #include "CaloIdentifier/LArHEC_SuperCell_ID.h"
 #include "CaloIdentifier/LArFCAL_SuperCell_ID.h"
 #include "CaloIdentifier/Tile_SuperCell_ID.h"
+#include "CaloIdentifier/JTower_ID.h"
+#include "CaloIdentifier/GTower_ID.h"
 
 // Athena/Gaudi includes
 #include "GaudiKernel/Bootstrap.h"
@@ -52,7 +54,9 @@ CaloIdManager::CaloIdManager(void)
     m_em_supercell_id(0),
     m_hec_supercell_id(0),
     m_fcal_supercell_id(0),
-    m_tile_supercell_id(0)
+    m_tile_supercell_id(0),
+    m_jTower_id(0),
+    m_gTower_id(0)
 {
 }
 
@@ -204,7 +208,16 @@ CaloIdManager::getTile_SuperCell_ID      (void) const
 {
     return (m_tile_supercell_id);
 }
-
+const JTower_ID*
+CaloIdManager::getJTower_ID              (void) const
+{
+    return (m_jTower_id);
+}
+const GTower_ID*
+CaloIdManager::getGTower_ID              (void) const
+{
+    return (m_gTower_id);
+}
 
 void
 CaloIdManager::initialize              (void)
@@ -305,4 +318,17 @@ void
 CaloIdManager::set_helper              (const Tile_SuperCell_ID* idHelper)
 {
     m_tile_supercell_id = idHelper;
+}
+
+void
+CaloIdManager::set_helper              (const JTower_ID*     idHelper)
+{
+    m_jTower_id = idHelper;
+}
+
+
+void
+CaloIdManager::set_helper              (const GTower_ID*     idHelper)
+{
+    m_gTower_id = idHelper;
 }

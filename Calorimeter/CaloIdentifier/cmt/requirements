@@ -46,6 +46,8 @@ macro_append test_lvl1_id_dependencies CaloIdentifier
 macro ep "mask/zero|Reading file|^AtlasDetectorID(Helper)?::"
 
 use TestTools      TestTools-*         AtlasTest 
+#apply_pattern UnitTest_run unit_test=GTower_ID extrapatterns="$(ep)"
+#apply_pattern UnitTest_run unit_test=JTower_ID extrapatterns="$(ep)"
 apply_pattern UnitTest_run unit_test=LArEM_ID extrapatterns="$(ep)"
 apply_pattern UnitTest_run unit_test=LArEM_SuperCell_ID extrapatterns="$(ep)"
 apply_pattern UnitTest_run unit_test=LArHEC_ID extrapatterns="$(ep)"

@@ -60,6 +60,20 @@ atlas_add_executable( test_lvl1_id
                       INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
                       LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers SGTools AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier )
 
+#atlas_add_test( GTower_ID_test
+#                SOURCES
+#                test/GTower_ID_test.cxx
+#                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+#                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers SGTools AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
+#                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+
+#atlas_add_test( JTower_ID_test
+#                SOURCES
+#                test/JTower_ID_test.cxx
+#                INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS}
+#                LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} CaloGeoHelpers SGTools AtlasDetDescr IdDict Identifier GaudiKernel TestTools CxxUtils StoreGateLib SGtests IdDictParser PathResolver CaloIdentifier
+#                EXTRA_PATTERNS "mask/zero|Reading file|^AtlasDetectorID(Helper)?::" )
+
 atlas_add_test( LArEM_ID_test
                 SOURCES
                 test/LArEM_ID_test.cxx
