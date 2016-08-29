@@ -81,6 +81,9 @@ CaloESDList += ["TileMuonReceiverContainer#TileMuRcvCnt"]
 if jobproperties.Beam.beamType() == 'cosmics' or jobproperties.Beam.beamType() == 'singlebeam' :
     CaloESDList +=["TileCosmicMuonContainer#TileCosmicMuonHT","TileCosmicMuonContainer#TileCosmicMuonMF"]
 
+from AthenaCommon.DetFlags import DetFlags
+if hasattr(DetFlags.detdescr, 'HGTD_on') and DetFlags.detdescr.HGTD_on():
+    CaloESDList += [ "LArHitContainer#HGTDDigitContainer_MC" ]
 
 #**************   AOD list  ************************************************
 
@@ -161,3 +164,6 @@ CaloAODList +=  ["LArNoisyROSummary#LArNoisyROSummary"]
 CaloAODList += [ "xAOD::CaloTowerContainer#CmbTowers",
                  "xAOD::CaloTowerAuxContainer#CmbTowersAux."
                  ]
+from AthenaCommon.DetFlags import DetFlags
+if hasattr(DetFlags.detdescr, 'HGTD_on') and DetFlags.detdescr.HGTD_on():
+    CaloAODList += [ "LArHitContainer#HGTDDigitContainer_MC" ]
