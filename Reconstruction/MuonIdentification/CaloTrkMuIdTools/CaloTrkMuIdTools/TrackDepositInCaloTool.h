@@ -189,27 +189,27 @@ class TrackDepositInCaloTool: public AthAlgTool, virtual public ITrackDepositInC
     //mutable int     m_stacks;                                                  //!< Counts the number of stacks (diagnoses indefinite recursion).
 
     // Histograms        
-    TH1F* hDepositLayer12;
-    TH1F* hDepositLayer13;
-    TH1F* hDepositLayer14;
+    TH1F* m_hDepositLayer12;
+    TH1F* m_hDepositLayer13;
+    TH1F* m_hDepositLayer14;
     
-    TH2F* hParELossEta;
-    TH2F* hParELossSample;
+    TH2F* m_hParELossEta;
+    TH2F* m_hParELossSample;
 
     ///////////////////////////////
-    TH1F* hDeltaEtaLastPar;
-    TH1F* hDeltaRadiusLastPar;
-    TH1F* hDepositsInCore;
-    TH1F* hDepositsInCone;
-    TH2F* hDistDepositsTile;
-    TH2F* hDistDepositsHEC;
+    TH1F* m_hDeltaEtaLastPar;
+    TH1F* m_hDeltaRadiusLastPar;
+    TH1F* m_hDepositsInCore;
+    TH1F* m_hDepositsInCone;
+    TH2F* m_hDistDepositsTile;
+    TH2F* m_hDistDepositsHEC;
     
-    TH2F* hEMB1vsdPhi;
-    TH2F* hEMB2vsdPhi;
-    TH2F* hEMB3vsdPhi;
-    TH2F* hEMB1vsdEta;
-    TH2F* hEMB2vsdEta;
-    TH2F* hEMB3vsdEta;
+    TH2F* m_hEMB1vsdPhi;
+    TH2F* m_hEMB2vsdPhi;
+    TH2F* m_hEMB3vsdPhi;
+    TH2F* m_hEMB1vsdEta;
+    TH2F* m_hEMB2vsdEta;
+    TH2F* m_hEMB3vsdEta;
 
 };
     
