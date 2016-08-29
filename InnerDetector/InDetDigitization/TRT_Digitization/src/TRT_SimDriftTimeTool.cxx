@@ -39,7 +39,7 @@ TRT_SimDriftTimeTool::TRT_SimDriftTimeTool( const std::string& type,
 //__________________________________________________________________________
 StatusCode TRT_SimDriftTimeTool::initialize() {
 
-  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Initializing TRT_SimDriftTimeTool."<<endreq;
+  if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Initializing TRT_SimDriftTimeTool."<<endmsg;
 
   /////////////////////////////////////////////////////
   /////////////////////////////////////////////////////
@@ -51,16 +51,16 @@ StatusCode TRT_SimDriftTimeTool::initialize() {
   // Get the TRT Detector Manager
   const InDetDD::TRT_DetectorManager * detmgr;
   if (StatusCode::SUCCESS != detStore()->retrieve(detmgr,"TRT")) {
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Can't get TRT_DetectorManager." << endreq;
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Can't get TRT_DetectorManager." << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved TRT_DetectorManager with version " << detmgr->getVersion().majorNum() << endreq;
+    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieved TRT_DetectorManager with version " << detmgr->getVersion().majorNum() << endmsg;
   }
 
   m_digversion = detmgr->digitizationVersion();
 
   if (m_digversion<11) {
-      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now :(" <<endreq;
+      if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now :(" <<endmsg;
       throw;
   }
 
@@ -124,7 +124,7 @@ double TRT_SimDriftTimeTool::getAverageDriftTime( const double& dist,
 
   if (effectivefield_squared>m_maxFieldSquaredLimit) { //a little extrapolation is ok
     if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Extrapolation from tabulated field values greater than 10% (at "
-						<< std::sqrt(effectivefield_squared)/CLHEP::tesla<<" Tesla)"<<endreq;
+						<< std::sqrt(effectivefield_squared)/CLHEP::tesla<<" Tesla)"<<endmsg;
   }
 
   const unsigned int distIndex(static_cast<int>( m_invDeltaTabulatedDistances*(dist-m_minDistance) ));
@@ -132,7 +132,7 @@ double TRT_SimDriftTimeTool::getAverageDriftTime( const double& dist,
   if ( distIndex >= m_nTabulatedDistances)
     {
       if (msgLvl(MSG::FATAL)) msg(MSG::FATAL) << "getAverageDriftTime: Somehow distIndex (" << distIndex << " ) is out of bounds ("
-                                              << m_nTabulatedDistances << "). The job will die now." <<endreq;
+                                              << m_nTabulatedDistances << "). The job will die now." <<endmsg;
       throw;
     }
 

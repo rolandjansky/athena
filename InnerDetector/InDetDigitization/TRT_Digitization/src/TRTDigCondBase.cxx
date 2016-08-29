@@ -39,7 +39,7 @@ TRTDigCondBase::TRTDigCondBase( const TRTDigSettings* digset,
 {
   m_crosstalk_noiselevel = m_settings->crossTalkNoiseLevel();
   m_crosstalk_noiselevel_other_end = m_settings->crossTalkNoiseLevelOtherEnd();
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTDigCondBase::Constructor" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTDigCondBase::Constructor" << endmsg;
 }
 
 
@@ -137,10 +137,10 @@ void TRTDigCondBase::initialize() {
   //just put it to something:
   m_it_hitid_to_StrawState_Last = m_it_hitid_to_StrawState;
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTDigCondBase::initialize end" << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) <<"TRTDigCondBase::initialize end" << endmsg;
 
   if (m_hitid_to_StrawState.empty()) {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) <<"TRTDigCondBase::initialize it seems that ALL straws are dead/masked! This wont work." << endreq;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) <<"TRTDigCondBase::initialize it seems that ALL straws are dead/masked! This wont work." << endmsg;
   }
 
   //just to avoid having an uninitialized iterator hanging around:
@@ -209,7 +209,7 @@ bool TRTDigCondBase::crossTalkNoiseOtherEnd( CLHEP::HepRandomEngine* randengine 
 
 //________________________________________________________________________________
 
-void TRTDigCondBase::display (const std::string& msg, int lvl) const { this->msg() << static_cast<MSG::Level>(lvl) << msg << endreq; }
+void TRTDigCondBase::display (const std::string& msg, int lvl) const { this->msg() << static_cast<MSG::Level>(lvl) << msg << endmsg; }
 
 void TRTDigCondBase::setLvl (int lvl) { msg().setLevel ((MSG::Level)lvl); }
 
@@ -221,7 +221,7 @@ void TRTDigCondBase::setLvl (const std::string& lvl)
   } else if (lvl=="warning") { new_lvl = MSG::WARNING;
   } else if (lvl=="error")   { new_lvl = MSG::ERROR;
   } else {
-    msg() << MSG::WARNING << "lvl [" << lvl << "] UNKNOWN !" << endreq;
+    msg() << MSG::WARNING << "lvl [" << lvl << "] UNKNOWN !" << endmsg;
     return;
   }
   msg().setLevel (new_lvl);

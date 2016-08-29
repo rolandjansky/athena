@@ -47,7 +47,7 @@ TRTDigSettings::TRTDigSettings()
 //_________________________________________________________________________________________________________
 void TRTDigSettings::initialize(const InDetDD::TRT_DetectorManager* detmgr) {
 
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing" << endreq;
+  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Initializing" << endmsg;
 
   //1) Fill defaults based on digversion
   fillDefaults(detmgr);
@@ -227,7 +227,7 @@ StatusCode TRTDigSettings::DigSettingsFromCondDB(int m_dig_vers_from_condDB) {
   if (m_dig_vers_from_condDB==12) {
     // the settings are default now
   } else {
-    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Error in settings / condDB" << endreq;
+    if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Error in settings / condDB" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -422,7 +422,7 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
 
   // After TRT_Digitization-00-10-74 (end of Run1) we will no longer support m_digversion<11
   if (m_digversion<11) {
-      if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now :(" <<endreq;
+      if (msgLevel(MSG::FATAL)) msg(MSG::FATAL) << "digversion < 11 (" << m_digversion << ") is no longer supported. The job will die now :(" <<endmsg;
       throw;
   }
 
@@ -430,8 +430,8 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
   if ( activegastype == InDetDD::TRT_DetectorManager::newgas ) gasok = true;
 
   if (!gasok) {
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Active gas setting seems incompatible with dig. version number."<<endreq;
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "If not deliberate, it might indicate a configuration or DB problem."<<endreq;
+    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Active gas setting seems incompatible with dig. version number."<<endmsg;
+    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "If not deliberate, it might indicate a configuration or DB problem."<<endmsg;
   }
 
   // miscellaneous
@@ -530,14 +530,15 @@ void TRTDigSettings::fillDefaults(const InDetDD::TRT_DetectorManager* detmgr) {
     m_trEfficiencyBarrel = 0.95;
     m_trEfficiencyEndCapA = 1.00;
     m_trEfficiencyEndCapB = 1.00;
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Setting up non suppressed double counted delta-ray xenon tune"<<endreq;
+    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Setting up non suppressed double counted delta-ray xenon tune"<<endmsg;
   }
 
   // (Argon) Initial tuning by Artem July 2014. See log file. Requires fine tuning.
   // HT middle-bit fraction tune - wider shaping function; 01-00-24
   // HT middle-bit fraction tune - 2015 data; 01-01-16
-  m_lowThresholdBarArgon        = 0.070*CLHEP::keV; 
-  m_lowThresholdECArgon         = 0.070*CLHEP::keV;
+  // Argon LT tune to 2015 data; 01-02-06
+  m_lowThresholdBarArgon        = 0.150*CLHEP::keV; 
+  m_lowThresholdECArgon         = 0.150*CLHEP::keV;
   m_highThresholdBarShortArgon  = 2.607*CLHEP::keV;
   m_highThresholdBarLongArgon   = 2.540*CLHEP::keV;
   m_highThresholdECAwheelsArgon = 2.414*CLHEP::keV;
@@ -588,12 +589,12 @@ void TRTDigSettings::processOverrides() {
   for (;itd!=itdE;++itd) {
     if (itd->second.valueSetByUser != m_propertyNotSetMagicNumber) {
       if (itd->second.valueSetByUser < itd->second.okrange_low || itd->second.valueSetByUser > itd->second.okrange_high) {
-	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itd->first<<" : New value outside allowed range" << endreq;
+	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itd->first<<" : New value outside allowed range" << endmsg;
       } else {
         if ( static_cast<float>(*(itd->second.directvaraddress)) != static_cast<float>(itd->second.valueSetByUser) ) {
           if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itd->first<<" flag ("
                                                         << (*(itd->second.directvaraddress))/itd->second.unit<<" "<<itd->second.unitname<<" -> "
-                                                        << itd->second.valueSetByUser/itd->second.unit<<" "<<itd->second.unitname<<")"<<endreq;
+                                                        << itd->second.valueSetByUser/itd->second.unit<<" "<<itd->second.unitname<<")"<<endmsg;
           *(itd->second.directvaraddress) = itd->second.valueSetByUser;
           anyoverrides = true;
         }
@@ -607,13 +608,13 @@ void TRTDigSettings::processOverrides() {
   for (;itib!=itibE;++itib) {
     if (itib->second.valueSetByUser != m_propertyNotSetMagicNumber_int) {
       if (itib->second.valueSetByUser < itib->second.okrange_low || itib->second.valueSetByUser > itib->second.okrange_high) {
-	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itib->first<<" : New value outside allowed range" << endreq;
+	if (msgLevel(MSG::ERROR)) msg(MSG::ERROR) << "Can not override value of "<<itib->first<<" : New value outside allowed range" << endmsg;
       } else {
 	if (itib->second.directvaraddress_int) {
 	  //int
           if ( (*(itib->second.directvaraddress_int)) != itib->second.valueSetByUser ) {
 	    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
-	  						  << *(itib->second.directvaraddress_int)<<" -> "<< itib->second.valueSetByUser<<")"<<endreq;
+	  						  << *(itib->second.directvaraddress_int)<<" -> "<< itib->second.valueSetByUser<<")"<<endmsg;
 	    *(itib->second.directvaraddress_int) = itib->second.valueSetByUser;
             anyoverrides = true;
           }
@@ -621,7 +622,7 @@ void TRTDigSettings::processOverrides() {
 	  //unsigned int
          if ( (*(itib->second.directvaraddress_uint)) != static_cast<unsigned int>(itib->second.valueSetByUser) ) {
 	    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
-						 	  << *(itib->second.directvaraddress_uint)<<" -> "<< itib->second.valueSetByUser<<")"<<endreq;
+						 	  << *(itib->second.directvaraddress_uint)<<" -> "<< itib->second.valueSetByUser<<")"<<endmsg;
 	    *(itib->second.directvaraddress_uint) = itib->second.valueSetByUser;
             anyoverrides = true;
           }
@@ -631,7 +632,7 @@ void TRTDigSettings::processOverrides() {
           if ( (*(itib->second.directvaraddress_bool)) != itib->second.valueSetByUser ) {
 	    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Overriding "<<itib->first<<" flag ("
 							  << (*(itib->second.directvaraddress_bool)?1:0)<<" -> "
-							  << (itib->second.valueSetByUser?1:0)<<")"<<endreq;
+							  << (itib->second.valueSetByUser?1:0)<<")"<<endmsg;
 	    *(itib->second.directvaraddress_bool) = itib->second.valueSetByUser == 1;
             anyoverrides = true;
 	  }
@@ -641,6 +642,6 @@ void TRTDigSettings::processOverrides() {
   }
 
   if (anyoverrides)
-    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Settings overridden from joboptions => possible deviation from version defaults." << endreq;
+    if (msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "Settings overridden from joboptions => possible deviation from version defaults." << endmsg;
 
 }

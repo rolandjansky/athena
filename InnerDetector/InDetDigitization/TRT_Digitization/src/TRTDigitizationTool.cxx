@@ -945,7 +945,7 @@ StatusCode TRTDigitizationTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
     std::list<std::string>::const_iterator itr;
     if (msgLvl(MSG::INFO)) {
       for( itr=keys.begin(); itr !=keys.end(); ++itr) {
-	msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endreq;
+	msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endmsg;
       }
     }
     m_dig_vers_from_condDB =(*atrlist)["TRT_Dig_Vers"].data<int>();
