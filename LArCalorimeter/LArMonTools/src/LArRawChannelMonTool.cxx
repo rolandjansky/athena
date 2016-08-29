@@ -70,7 +70,7 @@ typedef std::map<Detector,map_idhash_str_th2> map_det_idhash_str_th2;
 
 typedef std::vector<HWIdentifier>::const_iterator citer_vect_hwid;
 
-typedef std::pair<Detector,TH2*> pair_det_th2ptr;
+//typedef std::pair<Detector,TH2*> pair_det_th2ptr;
 typedef std::map<Detector,boost::shared_ptr<IHistoProxyBase> > map_det_th2ptr;
 typedef map_det_th2ptr::const_iterator citer_det_th2ptr;
 
@@ -166,7 +166,7 @@ LArRawChannelMonTool::~LArRawChannelMonTool()
 /*----------------------------------------------------------------------------*/
 StatusCode LArRawChannelMonTool::initialize()
 {
-  ATH_MSG(DEBUG) << "===> start " << name() << "::initialize <=== " << endreq;
+  ATH_MSG(DEBUG) << "===> start " << name() << "::initialize <=== " << endmsg;
 
   _event_counter = 0;
   _noise_stream_event_counter = 0;
@@ -176,12 +176,12 @@ StatusCode LArRawChannelMonTool::initialize()
   // --- non-trivial ManagedMonitorToolBase intialize routine ---
   if ( ManagedMonitorToolBase::initialize().isSuccess() ) {
 
-    ATH_MSG(DEBUG) << "initialized ManagedMonitorToolBase" << endreq;
+    ATH_MSG(DEBUG) << "initialized ManagedMonitorToolBase" << endmsg;
 
   } else {
 
     msg(MSG::FATAL) << "Unable to initialize ManagedMonitorToolBase"
-		    << endreq;
+		    << endmsg;
     return StatusCode::FAILURE;
 
   }
@@ -189,11 +189,11 @@ StatusCode LArRawChannelMonTool::initialize()
   // --- get LArOnlineID ---
   if ( detStore()->retrieve( _lar_online_id_ptr, "LArOnlineID" ).isSuccess() ) {
 
-    ATH_MSG(DEBUG) << "connected non-tool: LArOnlineID" << endreq;
+    ATH_MSG(DEBUG) << "connected non-tool: LArOnlineID" << endmsg;
 
   } else {
 
-    msg(MSG::FATAL) << "unable to connect non-tool: LArOnlineID" << endreq;
+    msg(MSG::FATAL) << "unable to connect non-tool: LArOnlineID" << endmsg;
     return StatusCode::FAILURE;
 
   }
@@ -203,12 +203,12 @@ StatusCode LArRawChannelMonTool::initialize()
   // --- get CaloDetDescrManager ---
   if ( detStore()->retrieve( _calo_description_mgr_ptr ).isSuccess() ) {
 
-    ATH_MSG(DEBUG) << "connected non-tool: CaloDetDescrManager " << endreq;
+    ATH_MSG(DEBUG) << "connected non-tool: CaloDetDescrManager " << endmsg;
 
   } else {
 
     msg(MSG::FATAL) << "unable to connect non-tool: CaloDetDescrMgr "
-	<< endreq;
+	<< endmsg;
     return StatusCode::FAILURE;
 
   }
@@ -216,12 +216,12 @@ StatusCode LArRawChannelMonTool::initialize()
   // --- get CaloIDManager ---
   if ( detStore()->retrieve( _calo_id_mgr_ptr ).isSuccess() ) {
 
-    ATH_MSG(DEBUG) << "connected non-tool: CaloIdManager" << endreq;
+    ATH_MSG(DEBUG) << "connected non-tool: CaloIdManager" << endmsg;
 
   } else {
 
     msg(MSG::FATAL) << "unable to connect non-tool: CaloIdManager "
-	<< endreq;
+	<< endmsg;
     return StatusCode::FAILURE;
 
   }
@@ -295,7 +295,7 @@ StatusCode LArRawChannelMonTool::initialize()
 
     } catch ( std::out_of_range &err ) {
 
-      msg(MSG::WARNING) << "FEB hash out of range" << err.what() << endreq;
+      msg(MSG::WARNING) << "FEB hash out of range" << err.what() << endmsg;
 
     }
 
@@ -351,7 +351,7 @@ StatusCode LArRawChannelMonTool::initialize()
     foreach( det_int_map_t::value_type i, _det_to_nchannels){
       msg(MSG::DEBUG) << detector_str( i.first ) << " has " << i.second << "channels " << std::endl;
     }
-    msg(MSG::DEBUG) << endreq;
+    msg(MSG::DEBUG) << endmsg;
   }
 
 
@@ -362,7 +362,7 @@ StatusCode LArRawChannelMonTool::initialize()
 
 
   m_noise_streams_set.insert(_noise_streams.begin(),_noise_streams.end());
-  ATH_MSG(DEBUG) << "===> end " << name() << "::initialize <=== " << endreq;
+  ATH_MSG(DEBUG) << "===> end " << name() << "::initialize <=== " << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -373,7 +373,7 @@ StatusCode LArRawChannelMonTool::initialize()
 StatusCode LArRawChannelMonTool::bookHistograms()
 {
 
-  ATH_MSG(DEBUG) << "===> start " << name() << "::bookHistograms <=== " << endreq;
+  ATH_MSG(DEBUG) << "===> start " << name() << "::bookHistograms <=== " << endmsg;
 
   std::deque<Detector> detectors = list_of( EMBA )( EMBC )( EMECA )( EMECC )( HECA )( HECC )( FCALA )( FCALC );
 
@@ -404,7 +404,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 //  case all:
 //  default:
 //    msg(MSG::WARNING) << "given bad interval job-option: " << _interval_str
-//     << " ... booking histograms per run ..." << endreq;
+//     << " ... booking histograms per run ..." << endmsg;
 //      is_new_interval = isNewRun;
 //  }
 //
@@ -425,6 +425,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
     _per_feb_hists.clear();
     _per_feb_hists[occ_h]       = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
     _per_feb_hists[sig_h]       = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
+    _per_feb_hists[gain_h]      = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
     _per_feb_hists[pos_noise_h] = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
     _per_feb_hists[neg_noise_h] = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
     _per_feb_hists[time_h]      = std::vector<shared_ptr<IHistoProxyBase> >( feb_hash_max );
@@ -432,6 +433,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
     std::vector<shared_ptr<IHistoProxyBase> >& per_feb_occu = _per_feb_hists[occ_h];
     std::vector<shared_ptr<IHistoProxyBase> >& per_feb_sign = _per_feb_hists[sig_h];
+    //std::vector<shared_ptr<IHistoProxyBase> >& per_feb_gain = _per_feb_hists[gain_h];
     std::vector<shared_ptr<IHistoProxyBase> >& per_feb_posn = _per_feb_hists[pos_noise_h];
     std::vector<shared_ptr<IHistoProxyBase> >& per_feb_negn = _per_feb_hists[neg_noise_h];
     std::vector<shared_ptr<IHistoProxyBase> >& per_feb_time = _per_feb_hists[time_h];
@@ -455,6 +457,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
     _per_detector_hists.clear();
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_occu = _per_detector_hists[occ_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_sign = _per_detector_hists[sig_h];
+    std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_gain = _per_detector_hists[gain_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_posn = _per_detector_hists[pos_noise_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_negn = _per_detector_hists[neg_noise_h];
     std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_burs = _per_detector_hists[burst_h];
@@ -641,6 +644,14 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	  factory_ptr->SetZTitle("Average Energy (MeV)");
 	  factory_ptr->setXAxisBinLabelsAllFebs(_lar_online_id_str_helper_ptr,detector_str(det));
 	  det_histogram_factories[det][sig_h] = factory_ptr;
+
+          title = "Average gain FEB and " + _data_name_base + " in " + detector_str( det ) + " (no LArEventInfo::ERROR)";
+          factory_ptr.reset(new LWHistProfile2DFactory(title.c_str(), n_bins, &axis[0],128, -0.5, 127.5));
+          factory_ptr->SetXTitle("Halfcrate (+ increasing slot)");
+          factory_ptr->SetYTitle("Channel");
+          factory_ptr->SetZTitle("Average gain");
+          factory_ptr->setXAxisBinLabelsAllFebs(_lar_online_id_str_helper_ptr,detector_str(det));
+          det_histogram_factories[det][gain_h] = factory_ptr;
 	}
 
 	if ( _monitor_positive_noise ) {
@@ -882,7 +893,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 	// --- Book and register per Feedthrough Histograms ---
 	if ( _monitor_feedthroughs ) {
 
-	  ATH_MSG(DEBUG) << " - Booking per feedthrough histos" << endreq;
+	  ATH_MSG(DEBUG) << " - Booking per feedthrough histos" << endmsg;
 
 	  // --- Look for existing feedthough histogram ---
 	  bool is_new_ft = false;
@@ -1004,7 +1015,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
       } catch ( std::out_of_range &err ){
 
-	msg(MSG::WARNING) << "FEB hash out of range: " << err.what() << endreq;
+	msg(MSG::WARNING) << "FEB hash out of range: " << err.what() << endmsg;
 
       }
 
@@ -1038,6 +1049,15 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 // 	    per_det_sign.insert( dummy );
 	    per_det_sign[det] = shared_ptr<IHistoProxyBase>( createLWHistProxy(histo) );
 	  } else return StatusCode::FAILURE;
+
+          his_name  = detector_str( det ) + "_gain";
+          dir_name  = m_path + "/" + detector_str( det );
+          LWHist2D* histog = static_cast<LWHist2D*>( the_det_histo_factories[gain_h]->create( his_name ) );
+          if ( registerHistogram( histog, dir_name ) ) {
+//          pair_det_th2ptr dummy = make_pair(det, histo );
+//          per_det_sign.insert( dummy );
+            per_det_gain[det] = shared_ptr<IHistoProxyBase>( createLWHistProxy(histog) );
+          } else return StatusCode::FAILURE;
 	}
 
 	if ( _monitor_positive_noise ) {
@@ -1215,7 +1235,7 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 
   } // --- end booking for monitoring interval ---
 
-  ATH_MSG(DEBUG) << "===> end " << name() << "::bookHistograms <=== " << endreq;
+  ATH_MSG(DEBUG) << "===> end " << name() << "::bookHistograms <=== " << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -1226,12 +1246,12 @@ StatusCode LArRawChannelMonTool::bookHistograms()
 StatusCode LArRawChannelMonTool::fillHistograms()
 {
 
-  ATH_MSG(DEBUG) << "===> start " << name() << "::fillHistograms boulou <=== " << endreq;
+  ATH_MSG(DEBUG) << "===> start " << name() << "::fillHistograms boulou <=== " << endmsg;
 
 
   // -- Set ATLAS Ready Filter
   setIsATLASReady();
-  //  ATH_MSG(DEBUG) << "Vikas Says: ATLAS READY Flag is set to " << isATLASReady() << endreq;
+  //  ATH_MSG(DEBUG) << "Vikas Says: ATLAS READY Flag is set to " << isATLASReady() << endmsg;
 
   // --- check set in bookHistogram ---
   if ( !_has_lar_raw_channels ) return StatusCode::SUCCESS;
@@ -1241,7 +1261,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   if ( !evtStore()->retrieve( raw_channels, _LArRawChannel_container_key ).isSuccess() ) {
 
     msg(MSG::WARNING) << "Cannot retrieve LArRawChannelContainer with key: "
-	<< _LArRawChannel_container_key << endreq;
+	<< _LArRawChannel_container_key << endmsg;
     return StatusCode::FAILURE;
 
   }
@@ -1256,24 +1276,24 @@ StatusCode LArRawChannelMonTool::fillHistograms()
   //  double event_time_minutes = -1;
   if ( evtStore()->retrieve( event_info ).isSuccess()) {
    
-    //ATH_MSG(DEBUG) << "event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0"<<event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0) << endreq;
+    //ATH_MSG(DEBUG) << "event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0"<<event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,0) << endmsg;
     // Check for LArNoisyROAlg event info
     //    if (event_info->errorState(EventInfo::LAr) == EventInfo::Warning) {
     if ( event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS) ) {
       isEventFlaggedByLArNoisyROAlg = true;
-      ATH_MSG(DEBUG) << " !!! Noisy event found from LArNoisyROAlg !!!" << endreq;
+      ATH_MSG(DEBUG) << " !!! Noisy event found from LArNoisyROAlg !!!" << endmsg;
     }
 
    
     if ( event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,LArEventBitInfo::BADFEBS_W) ) {
       isEventFlaggedByLArNoisyROAlg_W = true;
-      ATH_MSG(DEBUG) << " !!! Noisy event found from LArNoisyROAlg_W !!!" << endreq;
+      ATH_MSG(DEBUG) << " !!! Noisy event found from LArNoisyROAlg_W !!!" << endmsg;
     }
    
 
     if ( event_info->isEventFlagBitSet(xAOD::EventInfo::LAr,3) ) {
       isEventFlaggedByLArNoisyROAlgInTimeW = true;
-      ATH_MSG(DEBUG) << " !!! Noisy event found by LArNoisyROAlg in Time window of 500ms!!!" << endreq;
+      ATH_MSG(DEBUG) << " !!! Noisy event found by LArNoisyROAlg in Time window of 500ms!!!" << endmsg;
     }
 
 
@@ -1309,7 +1329,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
       std::vector<TriggerInfo::StreamTag> event_stream_tags = trig->streamTags();
       foreach( const std::string & stream_name, _noise_streams ) {
 	foreach( const TriggerInfo::StreamTag stream_tag, event_stream_tags ) {
-	  ATH_MSG(DEBUG) << "Keeping Stream Tag: " << stream_tag.type() << "_" << stream_tag.name()  << endreq;
+	  ATH_MSG(DEBUG) << "Keeping Stream Tag: " << stream_tag.type() << "_" << stream_tag.name()  << endmsg;
 	  if( stream_name == stream_tag.name()) {
 	    _is_noise_event = true;
 	    break;
@@ -1318,7 +1338,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
       }
     }
     */
-  } else ATH_MSG(DEBUG) << "Cannot retrieve EventInfo" << endreq;
+  } else ATH_MSG(DEBUG) << "Cannot retrieve EventInfo" << endmsg;
 
 
   ++_event_counter;
@@ -1339,6 +1359,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_occu = _per_detector_hists[occ_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_sign = _per_detector_hists[sig_h];
+  std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_gain = _per_detector_hists[gain_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_posn = _per_detector_hists[pos_noise_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_negn = _per_detector_hists[neg_noise_h];
   std::map<Detector,shared_ptr<IHistoProxyBase> >& per_det_qual = _per_detector_hists[quality_h];
@@ -1359,6 +1380,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
   shared_ptr<IHistoProxyBase> perdethist_occu; 
   shared_ptr<IHistoProxyBase> perdethist_sign; 
+  shared_ptr<IHistoProxyBase> perdethist_gain;
   shared_ptr<IHistoProxyBase> perdethist_posn; 
   shared_ptr<IHistoProxyBase> perdethist_negn; 
   shared_ptr<IHistoProxyBase> perdethist_qual;
@@ -1417,6 +1439,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
     float time;
     float noise;
     float significance;
+    int gain;
 
     try {
 
@@ -1453,6 +1476,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 	std::map<Detector,shared_ptr<IHistoProxyBase> >::iterator it;
 	it = per_det_occu.find(det); perdethist_occu = ((it==per_det_occu.end())?hnull:it->second);
 	it = per_det_sign.find(det); perdethist_sign = (it==per_det_sign.end()?hnull:it->second);
+        it = per_det_gain.find(det); perdethist_gain = (it==per_det_gain.end()?hnull:it->second);
 	it = per_det_posn.find(det); perdethist_posn = (it==per_det_posn.end()?hnull:it->second);
 	it = per_det_negn.find(det); perdethist_negn = (it==per_det_negn.end()?hnull:it->second);
 	it = per_det_qual.find(det); perdethist_qual = (it==per_det_qual.end()?hnull:it->second);
@@ -1473,6 +1497,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
       number = _lar_online_id_ptr->channel( hardware_id ) - 1;
       energy = chan.energy() * MeV ;        // energy is in fixed in MeV by DSP
       time   = chan.time()   * picosecond;  // time is fixed in ps by DSP
+      gain   = chan.gain();
       //eta    = calo_element_ptr->eta();
       //phi    = calo_element_ptr->phi();
       // This noise get the value at HIGH gain
@@ -1506,13 +1531,13 @@ StatusCode LArRawChannelMonTool::fillHistograms()
     } catch ( const std::out_of_range &err ) {
 
       msg(MSG::WARNING) << "FEB hash out of range. Detector undefined"
-	  << err.what() << endreq;
+	  << err.what() << endmsg;
       continue; // skip this channel
 
     } catch ( const LArID_Exception& err ) {
 
       msg(MSG::WARNING) << "channel offline id undefined ... skipping"
-	  << endreq;
+	  << endmsg;
       continue; // skip this channel
 
     }
@@ -1554,11 +1579,11 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 
       } catch ( std::out_of_range &err ) {
 
-	msg(MSG::WARNING) <<"failed per FEB monitoring "<< err.what() << endreq;
+	msg(MSG::WARNING) <<"failed per FEB monitoring "<< err.what() << endmsg;
 
       } catch ( std::bad_cast &err ) {
 
-	msg(MSG::WARNING) <<"failed per FEB monitoring "<< err.what() << endreq;
+	msg(MSG::WARNING) <<"failed per FEB monitoring "<< err.what() << endmsg;
 
       }
 
@@ -1598,7 +1623,7 @@ StatusCode LArRawChannelMonTool::fillHistograms()
       } catch ( std::out_of_range &err ) {
 
 	msg(MSG::WARNING) << "failed per feedthrough monitoring " << err.what()
-			  << endreq;
+			  << endmsg;
 
       }
 
@@ -1637,7 +1662,10 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 	// Sep 30, 2011. Now with no LArEventInfo::ERROR and isATLASReady
 	if ( _is_noise_event && _monitor_signal && energy > detthreshold_signal && isATLASReady() ) {
 	  if (perdethist_sign && !isEventFlaggedByLArNoisyROAlgInTimeW) perdethist_sign->Fill( x_bin, y_bin, energy );
+          if (perdethist_gain && !isEventFlaggedByLArNoisyROAlgInTimeW) perdethist_gain->Fill( x_bin, y_bin, gain );
 	}
+
+
 
 	// --- fill acceptance histogram ---
 	// Sep 30, 2011. Now with no LArEventInfo::ERROR and isATLASReady
@@ -1701,18 +1729,18 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 	case 7: 
 	  per_detector_total_energy[FCALC] += energy; break;	  
 	default:
-	  msg(MSG::WARNING) << "Something is wrong with choosing of detector partition " << endreq;	  
+	  msg(MSG::WARNING) << "Something is wrong with choosing of detector partition " << endmsg;	  
 	}
 
 
 
       } catch ( const std::out_of_range &err ) {
 
-	msg(MSG::WARNING) << "Failed monitoring " << err.what() << endreq;
+	msg(MSG::WARNING) << "Failed monitoring " << err.what() << endmsg;
 
       } catch ( const std::bad_cast &err ) {
 
-	msg(MSG::WARNING) << "Failed monitoring " << err.what() << endreq;
+	msg(MSG::WARNING) << "Failed monitoring " << err.what() << endmsg;
 
       }
 
@@ -1921,25 +1949,25 @@ StatusCode LArRawChannelMonTool::fillHistograms()
 StatusCode LArRawChannelMonTool::procHistograms()
 {
 
-  ATH_MSG(DEBUG) << "===> start " << name() << "::procHistograms <=== " << endreq;
+  ATH_MSG(DEBUG) << "===> start " << name() << "::procHistograms <=== " << endmsg;
 
   bool is_new_interval = false;
   switch ( _interval ) {
 
 // BT : what about endOfEventsBlock????
   case lumiBlock:
-    is_new_interval = endOfLumiBlock;
+    is_new_interval = endOfLumiBlockFlag();
     break;
   case lowStat:
     is_new_interval = newLowStat;
     break;
   case run:
-    is_new_interval = endOfRun;
+    is_new_interval = endOfRunFlag();
     break;
   default:
     msg(MSG::WARNING) << "given bad interval job-option: " << _interval_str
-	<< " ... booking histograms per run ..." << endreq;
-      is_new_interval = endOfRun;
+	<< " ... booking histograms per run ..." << endmsg;
+      is_new_interval = endOfRunFlag();
   }
 
   if ( is_new_interval ) {
@@ -2013,7 +2041,7 @@ StatusCode LArRawChannelMonTool::procHistograms()
 
   }
 
-  ATH_MSG(DEBUG) << "===> end " << name() << "::procHistograms <=== " << endreq;
+  ATH_MSG(DEBUG) << "===> end " << name() << "::procHistograms <=== " << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -2033,7 +2061,7 @@ std::string LArRawChannelMonTool::threshold_histogram_title_snippet( const doubl
   } catch ( const bad_lexical_cast& err ) {
 
     msg(MSG::WARNING) << "Could not include threshold for histogram titles."
-	<< err.what() << endreq;
+	<< err.what() << endmsg;
     return "";
 
   }
@@ -2052,7 +2080,7 @@ std::string LArRawChannelMonTool::threshold_histogram_title_snippet( const int& 
   } catch ( const bad_lexical_cast& err ) {
 
     msg(MSG::WARNING) << "Could not include threshold for histogram titles."
-	<< err.what() << endreq;
+	<< err.what() << endmsg;
     return "";
 
   }
@@ -2064,12 +2092,12 @@ bool LArRawChannelMonTool::registerHistogram( LWHist* histo, const std::string& 
   MonGroup histGroup(this,dir,_interval,ATTRIB_MANAGED,"",merge);
   if ( !histGroup.regHist(histo).isSuccess() ) {
 
-    msg(MSG::ERROR) << "Cannot book: " << histo->GetName() << endreq;
+    msg(MSG::ERROR) << "Cannot book: " << histo->GetName() << endmsg;
     return false;
 
   } else {
 
-    ATH_MSG(DEBUG) << "Booked: " << histo->GetName() << endreq;
+    ATH_MSG(DEBUG) << "Booked: " << histo->GetName() << endmsg;
     return true;
 
   }

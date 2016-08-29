@@ -109,19 +109,19 @@ LArCoverage::~LArCoverage()
 StatusCode 
 LArCoverage::initialize()
 {
-  msg(MSG::INFO) << "Initialize LArCoverage" << endreq;
+  msg(MSG::INFO) << "Initialize LArCoverage" << endmsg;
   StatusCode sc;
 
   sc = detStore()->retrieve(m_LArOnlineIDHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get LArOnlineIDHelper" << endreq;
+    msg(MSG::FATAL) << "Could not get LArOnlineIDHelper" << endmsg;
     return sc;
   }
   
   // Retrieve ID helpers
   sc =  detStore()->retrieve( m_caloIdMgr );
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloIdMgr" << endreq;
+    msg(MSG::FATAL) << "Could not get CaloIdMgr" << endmsg;
     return sc;
   }
   m_LArEM_IDHelper   = m_caloIdMgr->getEM_ID();
@@ -131,30 +131,30 @@ LArCoverage::initialize()
   // CaloDetDescrMgr gives "detector description", including real positions of cells
   sc = detStore()->retrieve(m_CaloDetDescrMgr);
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Could not get CaloDetDescrMgr "<< endreq;
+    msg(MSG::FATAL) << "Could not get CaloDetDescrMgr "<< endmsg;
     return sc;
   }
 
   // Get BadChannelTool
   sc=m_badChannelTool.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArBadChannelTool " << m_badChannelTool << endreq;
+    msg(MSG::ERROR) << "Could not retrieve LArBadChannelTool " << m_badChannelTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LArBadChannelTool" << m_badChannelTool << " retrieved" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "LArBadChannelTool" << m_badChannelTool << " retrieved" << endmsg;
   }
 
   // Get bad-channel mask
   sc=m_badChannelMask.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve BadChannelMask" << m_badChannelMask<< endreq;
+    msg(MSG::ERROR) << "Could not retrieve BadChannelMask" << m_badChannelMask<< endmsg;
     return StatusCode::FAILURE;
   }
    
   // Get LAr Cabling Service
   sc=m_larCablingService.retrieve();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endreq;
+    msg(MSG::ERROR) << "Could not retrieve LArCablingService" << endmsg;
     return StatusCode::FAILURE;
   }
    
@@ -164,15 +164,15 @@ LArCoverage::initialize()
 
   // Get CaloNoiseTool
   if ( m_caloNoiseTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_caloNoiseTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_caloNoiseTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_caloNoiseTool << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_caloNoiseTool << endmsg;
   }
 
   // End Initialize
   ManagedMonitorToolBase::initialize().ignore();
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successful Initialize LArCoverage " << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Successful Initialize LArCoverage " << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -180,14 +180,14 @@ LArCoverage::initialize()
 StatusCode 
 LArCoverage::bookHistograms()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in bookHists()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in bookHists()" << endmsg;
 
   //  if(isNewRun ){// Commented by B.Trocme to comply with new ManagedMonitorToolBase
 
   const xAOD::EventInfo* thisEventInfo;
     uint32_t lb1 = 0;
     if ((evtStore()->retrieve(thisEventInfo))!=StatusCode::SUCCESS)
-      msg(MSG::WARNING) << "No EventInfo object found! Can't read run number!" << endreq;
+      msg(MSG::WARNING) << "No EventInfo object found! Can't read run number!" << endmsg;
     else{
       lb1 = thisEventInfo->lumiBlock();
     }
@@ -601,7 +601,7 @@ LArCoverage::bookHistograms()
 StatusCode 
 LArCoverage::fillHistograms()
 {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillHists()" << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillHists()" << endmsg;
 
   static CaloPhiRange m_phiHelper;
   m_eventsCounter++;
@@ -612,7 +612,7 @@ LArCoverage::fillHistograms()
   const LArRawChannelContainer* pRawChannelsContainer;
   StatusCode sc = evtStore()->retrieve(pRawChannelsContainer, m_channelKey);
   if(sc.isFailure()) {
-    msg(MSG::WARNING) << "Can\'t retrieve LArRawChannelContainer with key " << m_channelKey <<endreq;
+    msg(MSG::WARNING) << "Can\'t retrieve LArRawChannelContainer with key " << m_channelKey <<endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -640,7 +640,7 @@ LArCoverage::fillHistograms()
     float etaChan = 0; float phiChan = 0.;
     const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
     if(m_CaloDetElement == 0 ){
-      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endreq;
+      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
       continue; 
     }else{
       etaChan = m_CaloDetElement->eta_raw();
@@ -830,7 +830,7 @@ LArCoverage::fillHistograms()
 StatusCode LArCoverage::procHistograms()
 {
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms " << endreq;
+  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In procHistograms " << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -912,7 +912,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
           float eta, phi;
 	  const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
 	  if(m_CaloDetElement == 0 ){
-	    msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endreq;
+	    msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	    continue; 
 	  }else{
 	    eta = m_CaloDetElement->eta_raw();
@@ -944,7 +944,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
           float eta, phi;
 	  const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
 	  if(m_CaloDetElement == 0 ){
-	    msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endreq;
+	    msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	    continue; 
 	  }else{
 	    eta = m_CaloDetElement->eta_raw();
@@ -981,7 +981,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
 	    float eta, phi;
 	    const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
 	    if(m_CaloDetElement == 0 ){
-	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endreq;
+	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	      continue; 
 	    }else{
 	      eta = m_CaloDetElement->eta_raw();
@@ -1013,7 +1013,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
 	    float eta, phi;
 	    const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
 	    if(m_CaloDetElement == 0 ){
-	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endreq;
+	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	      continue; 
 	    }else{
 	      eta = m_CaloDetElement->eta_raw();
@@ -1079,7 +1079,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
 	    float eta, phi;
 	    const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
 	    if(m_CaloDetElement == 0 ){
-	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endreq;
+	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	      continue; 
 	    }else{
 	      eta = m_CaloDetElement->eta_raw();
@@ -1111,7 +1111,7 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
 	    float eta, phi;
 	    const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
 	    if(m_CaloDetElement == 0 ){
-	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endreq;
+	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	      continue; 
 	    }else{
 	      eta = m_CaloDetElement->eta_raw();

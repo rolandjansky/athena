@@ -20,15 +20,16 @@
 #include "LArMonTools/LArOnlineIDStrHelper.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 
-#include "LWHists/TH1I_LW.h"
-#include "LWHists/TH2I_LW.h"
-#include "LWHists/TH1F_LW.h"
-#include "LWHists/TH2F_LW.h"
-#include "LWHists/TProfile2D_LW.h"
-#include "LWHists/TProfile_LW.h"
+//#include "LWHists/TH1I_LW.h"
+//#include "LWHists/TH2I_LW.h"
+//#include "LWHists/TH1F_LW.h"
+//#include "LWHists/TH2F_LW.h"
+//#include "LWHists/TProfile2D_LW.h"
+//#include "LWHists/TProfile_LW.h"
 
 class TH1I_LW;
 class TH1F_LW;
+class TH2F_LW;
 class TH2I_LW;
 class TProfile2D_LW;
 class TProfile_LW;
@@ -62,7 +63,7 @@ private:
   bool m_ignoreMissingHeaderPS;
   std::string m_keyDSPThresholds;
   bool m_isOnline;
-  
+  unsigned int m_lumi_blocks; 
   bool m_eventRejected;
   std::bitset<13> m_rejectionBits;
   bool m_currentFebStatus;
@@ -196,7 +197,7 @@ private:
   TTree* m_CorruptTree;
   
   StatusCode bookNewPartitionSumm(summaryPartition& summ,std::string summName);
-  void fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block = 0 );
+  void fillErrorsSummary(summaryPartition& summ,int partitNb_2,int ft,int slot,uint16_t error, unsigned lumi_block = 0, bool lar_inerror = false );
   void plotMaskedFEB();
   void fillFebInError(const summaryPartition& summ,int errorType,int barrel_ec,int pos_neg,std::string summName);
   void fillYieldHistos(TH2I_LW* summaryHisto,TH2F_LW* statusHisto);

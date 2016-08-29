@@ -82,7 +82,8 @@ theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
                                  #PrecisionERange3 = 512,
                                  #PrecisionERangeMax = 8192,
 
-                                 #Adding 1MeV after Alexis investigation (May 2016): 
+                                 #Adding 1MeV on request of Alexis (truncating difference) (May 2016):
+
                                  PrecisionERange0 = 2, # MeV (Precision on E is on Eoff - Eonl)
                                  PrecisionERange1 = 9,
                                  PrecisionERange2 = 65,
@@ -97,11 +98,11 @@ theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
                                  PrecisionTRange3 = 340,
                                  PrecisionTRangeMax = 340,
                                  # Expected precision for Q calculation
-                                 PrecisionQRange0 = 2, # ADC (Precision on Q is on (Qoff - Qonl)/Sqrt(Qoff))
-                                 PrecisionQRange1 = 2,
-                                 PrecisionQRange2 = 2,
-                                 PrecisionQRange3 = 2,
-                                 PrecisionQRangeMax = 2,
+                                 PrecisionQRange0 = 3, # ADC (Precision on Q is on (Qoff - Qonl)/Sqrt(Qoff))
+                                 PrecisionQRange1 = 3,
+                                 PrecisionQRange2 = 3,
+                                 PrecisionQRange3 = 3,
+                                 PrecisionQRangeMax = 3,
                                  # Some other flags
                                  LArBadChannelMask = theLArBadChannelsMasker,
                                  SkipKnownProblematicChannels = False,
@@ -113,7 +114,7 @@ theLArRODMonTool = LArRODMonTool(name="LArRODMonTool",
                                  ADCthreshold = 0,
                                  peakTimeCut = 5.,
                                  IsOnline = False,
-                                 numberOfLB = 2000.,
+                                 numberOfLB = 3000.,
                                  Streams = ["express","L1Calo","L1CaloEM","CosmicCalo","MinBias"],
                                  ProcessNEvents = EventBlockSize
                                  )
