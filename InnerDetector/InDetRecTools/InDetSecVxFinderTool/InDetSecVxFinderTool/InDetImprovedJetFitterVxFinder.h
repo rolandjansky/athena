@@ -143,9 +143,9 @@ namespace InDet {
     double m_cutIPD0BothTracksCriteriumOneForKsAndLambda;
     double m_cutIPZ0BothTracksCriteriumOneForKsAndLambda;
     double m_cutTransverseTwoTrkVtxDistanceCriteriumTwoForKsAndLambda;
-    double m_cutCompatibilityToPrimaryNeutralTrackFromConversion;
-    double m_cutCompatibilityToPrimaryNeutralTrackFromKs;
-    double m_cutCompatibilityToPrimaryNeutralTrackFromLambda;
+    //double m_cutCompatibilityToPrimaryNeutralTrackFromConversion;
+    //double m_cutCompatibilityToPrimaryNeutralTrackFromKs;
+    //double m_cutCompatibilityToPrimaryNeutralTrackFromLambda;
     double m_cutCompatibilityChi2ToPrimaryNeutralTrackFromConversion;
     double m_cutCompatibilityChi2ToPrimaryNeutralTrackFromKs;
     double m_cutCompatibilityChi2ToPrimaryNeutralTrackFromLambda;
