@@ -29,23 +29,20 @@ class LArTBClusterBuilder : public AthAlgTool, virtual public CaloClusterCollect
 
   // List of our cells
   typedef  std::list<const CaloCell*> CellList;
-  CellList  m_cell_list;
-  CellList  m_middle_cell_list;
 
   // Constructor
   LArTBClusterBuilder(const std::string& type, const std::string& name, const IInterface* parent);
   
   // Destructor
-  ~LArTBClusterBuilder();
+  virtual ~LArTBClusterBuilder() override;
   
-  virtual StatusCode initialize();
-  virtual StatusCode execute(xAOD::CaloClusterContainer*);
+  using CaloClusterCollectionProcessor::execute;
+  virtual StatusCode initialize() override;
+  virtual StatusCode execute(const EventContext& ctx,
+                             xAOD::CaloClusterContainer*) const override;
   
  private:
- 
-  StoreGateSvc* m_storeGateSvc;
-  
-  // Eta size of the middle and strips layer  
+   // Eta size of the middle and strips layer  
   double m_eta_size,m_deta;
 
   // Phi size of the middle
@@ -58,9 +55,6 @@ class LArTBClusterBuilder : public AthAlgTool, virtual public CaloClusterCollect
   int m_nbcluster;
   
   // Energy & barycentrs per layer 
-  double m_layere[8];
-  double m_layereta[8];
-  double m_layerphi[8];	  
 
   std::string m_cellContainerName;
   std::string m_caloRegion;

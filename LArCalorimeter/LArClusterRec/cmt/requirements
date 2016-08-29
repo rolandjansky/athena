@@ -11,7 +11,7 @@ use GaudiInterface GaudiInterface-*    External
 use StoreGate      StoreGate-*         Control
 
 use LArRecEvent    LArRecEvent-*       LArCalorimeter
-use LArTools       LArTools-*          LArCalorimeter
+use LArCabling     LArCabling-*        LArCalorimeter
 use LArIdentifier  LArIdentifier-*     LArCalorimeter
 
 use CaloEvent      CaloEvent-*         Calorimeter

@@ -37,25 +37,14 @@ LArDigitThinnerFromEMClust::~LArDigitThinnerFromEMClust() { }
 
 StatusCode LArDigitThinnerFromEMClust::initialize() {
 
-  StatusCode sc;
-
-  sc = m_larCablingSvc.retrieve();
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not retrieve LArCablingService Tool" << endreq;
-    return StatusCode::FAILURE;
-  }
-  
-  sc = detStore()->retrieve(m_onlineID, "LArOnlineID");
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
-    return sc;
-  } 
+  ATH_CHECK( m_larCablingSvc.retrieve() );
+  ATH_CHECK(  detStore()->retrieve(m_onlineID, "LArOnlineID") );
 
   m_nchannels = m_onlineID->channelHashMax();
 
   m_listCells.resize(m_nchannels);
 
-  msg(MSG::INFO) << " Number of LAr online channels " << m_nchannels << endreq;
+  ATH_MSG_INFO( " Number of LAr online channels " << m_nchannels  );
 
   m_nevent=0;
   m_ncells=0;
@@ -65,9 +54,9 @@ StatusCode LArDigitThinnerFromEMClust::initialize() {
 
 StatusCode LArDigitThinnerFromEMClust::finalize()
 {
-  msg(MSG::INFO) << "LArDigitThinnerFromEMClust Finalize" << endreq;  
-  msg(MSG::INFO) << " Number of events " << m_nevent << endreq;
-  msg(MSG::INFO) << " Number of digits written " << m_ncells << endreq;
+  ATH_MSG_INFO( "LArDigitThinnerFromEMClust Finalize"  );
+  ATH_MSG_INFO( " Number of events " << m_nevent  );
+  ATH_MSG_INFO( " Number of digits written " << m_ncells  );
 
   return StatusCode::SUCCESS;
 }
@@ -79,14 +68,14 @@ StatusCode LArDigitThinnerFromEMClust::execute() {
   // Create the new digit container
   ConstDataVector<LArDigitContainer>* outputContainer = new ConstDataVector<LArDigitContainer>(SG::VIEW_ELEMENTS);
   if (!outputContainer){
-    msg() << MSG::WARNING << "Could not allocate a new LArDigitContainer" << endreq;
+    ATH_MSG_WARNING( "Could not allocate a new LArDigitContainer"  );
     return StatusCode::SUCCESS;	  
   }
   
   sc = evtStore()->record(outputContainer , m_outputContainerName);
   if (sc.isFailure()) {
-    msg(MSG::WARNING) << "Could not record output LArDigitContainer with key " 
-		      << m_outputContainerName << endreq;
+    ATH_MSG_WARNING( "Could not record output LArDigitContainer with key " 
+                     << m_outputContainerName  );
     return StatusCode::SUCCESS;
   }
 
@@ -94,16 +83,13 @@ StatusCode LArDigitThinnerFromEMClust::execute() {
   sc = evtStore()->retrieve(inputContainer, m_inputContainerName);
   
   if (sc.isFailure()) { 
-    msg(MSG::WARNING) << "Input LArDigitContainer not found with key"
-		      << m_inputContainerName << endreq;
+    ATH_MSG_WARNING( "Input LArDigitContainer not found with key"
+                     << m_inputContainerName  );
     return StatusCode::SUCCESS;
   }
 
 
-  sc = getCells(); 
-  if (sc.isFailure()) { 
-    return StatusCode::SUCCESS;
-  }
+  ATH_CHECK( getCells() );
 
   m_nevent++;
 
@@ -139,9 +125,7 @@ StatusCode  LArDigitThinnerFromEMClust::getCells()
   StatusCode sc = evtStore()->retrieve(clusterCollection, m_clusterContainerName);
     
   if ( sc.isFailure() || !clusterCollection) {
-    msg() << MSG::WARNING
-	  << " Cluster collection not found "
-	  << endreq;
+    ATH_MSG_WARNING( " Cluster collection not found " );
     return StatusCode::SUCCESS;
   }
 
