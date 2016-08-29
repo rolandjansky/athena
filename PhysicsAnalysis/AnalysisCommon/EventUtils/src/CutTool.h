@@ -48,10 +48,10 @@ class CutTool
   virtual ~CutTool();
 
   /// Athena algtool's initialize
-  virtual StatusCode  initialize();
+  virtual StatusCode  initialize() override;
 
   /// Athena algtool's finalize
-  virtual StatusCode  finalize();
+  virtual StatusCode  finalize() override;
 
 
   /// Implement the method from the ISkimmingTool interface
