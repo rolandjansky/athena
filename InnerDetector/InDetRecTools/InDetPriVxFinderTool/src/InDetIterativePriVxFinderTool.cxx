@@ -7,7 +7,13 @@
                              -------------------
     begin   : 23-02-2010
     authors : Giacinto Piacquadio (CERN PH-ADE-ID)
+    changes : 
+              2016-04-26   David Shope <david.richard.shope@cern.ch>
+              EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
 
+                findVertex will now always return an xAOD::VertexContainer,
+                even when using a TrackCollection or a TrackParticleBaseCollection
+                as input.
  ***************************************************************************/
 #include "InDetPriVxFinderTool/InDetIterativePriVxFinderTool.h"
 #include "CLHEP/Matrix/SymMatrix.h"
@@ -18,7 +24,6 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkParticleBase/TrackParticleBase.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "VxVertex/VxCandidate.h"
 #include <map>
 #include <vector>
 #include <utility>
@@ -33,7 +38,8 @@
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 #include "TrkVertexFitterInterfaces/IVertexSeedFinder.h"
 
-#include "VxVertex/VxContainer.h"
+//#include "VxVertex/VxContainer.h"
+#include "VxVertex/RecVertex.h"
 #include "VxVertex/VxTrackAtVertex.h"
 #include "DataModel/DataVector.h"
 #include "TrkEventPrimitives/ParamDefs.h"
@@ -116,61 +122,61 @@ StatusCode InDetIterativePriVxFinderTool::initialize()
 
     if (m_createSplitVertices==true && m_useBeamConstraint==true)
     {
-      msg(MSG::FATAL) << " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." << endreq;
+      msg(MSG::FATAL) << " Split vertices cannot be obtained if beam spot constraint is true! Change settings..." << endmsg;
       return StatusCode::FAILURE;
     }
     
 
     /* Get the right vertex fitting tool from ToolSvc */
     if ( m_iVertexFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
       return StatusCode::FAILURE;
     } 
 
     if ( m_SeedFinder.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_SeedFinder << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_SeedFinder << endmsg;
       return StatusCode::FAILURE;
     }
     /*
     if ( m_distFinder.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_distFinder << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_distFinder << endmsg;
       return StatusCode::FAILURE;
     }
     */
     if ( m_LinearizedTrackFactory.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_LinearizedTrackFactory << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_LinearizedTrackFactory << endmsg;
       return StatusCode::FAILURE;
     }
 
     if ( m_ImpactPoint3dEstimator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ImpactPoint3dEstimator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ImpactPoint3dEstimator << endmsg;
       return StatusCode::FAILURE;
     }
 
     sc = m_iBeamCondSvc.retrieve();
     if (sc.isFailure())
     {
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endreq;
+      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
       return sc;
     }
 
     if(m_trkFilter.retrieve().isFailure()) {
-      msg(MSG::ERROR) <<" Unable to retrieve "<<m_trkFilter<<endreq;
+      msg(MSG::ERROR) <<" Unable to retrieve "<<m_trkFilter<<endmsg;
       return StatusCode::FAILURE;
     }
     /*
      if ( m_TrackCompatibilityEstimator.retrieve().isFailure() ) {
-       msg(MSG::ERROR) << "Failed to retrieve tool " << m_TrackCompatibilityEstimator << endreq;
+       msg(MSG::ERROR) << "Failed to retrieve tool " << m_TrackCompatibilityEstimator << endmsg;
        return StatusCode::FAILURE;
      } else {
-       msg(MSG::INFO) << "Retrieved tool " << m_TrackCompatibilityEstimator << endreq;
+       msg(MSG::INFO) << "Retrieved tool " << m_TrackCompatibilityEstimator << endmsg;
      }
      
      if ( m_ImpactPoint3dAtaPlaneFactory.retrieve().isFailure() ) {
-       msg(MSG::ERROR) << "Failed to retrieve tool " << m_ImpactPoint3dAtaPlaneFactory << endreq;
+       msg(MSG::ERROR) << "Failed to retrieve tool " << m_ImpactPoint3dAtaPlaneFactory << endmsg;
        return StatusCode::FAILURE;
      } else {
-       msg(MSG::INFO) << "Retrieved tool " << m_ImpactPoint3dAtaPlaneFactory << endreq;
+       msg(MSG::INFO) << "Retrieved tool " << m_ImpactPoint3dAtaPlaneFactory << endmsg;
      }
     */
 
@@ -181,31 +187,39 @@ StatusCode InDetIterativePriVxFinderTool::initialize()
 
     // since some parameters special to an inherited class this method
     // will be overloaded by the inherited class
-    m_printParameterSettings();
+    printParameterSettings();
 
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
 }
 
   namespace
   {
-    
-    struct VxCandidates_pair
+
+    struct xAODVertex_pair
     {
       double first;
-      Trk::VxCandidate* second;
-      VxCandidates_pair(double p1, Trk::VxCandidate* p2)
+      xAOD::Vertex* second;
+      xAODVertex_pair(double p1, xAOD::Vertex* p2)
               : first (p1), second (p2) {}
-      bool operator< (const VxCandidates_pair& other) const
+      bool operator< (const xAODVertex_pair& other) const
             { return first > other.first; }
     };
   } //anonymous namespace
+
   
-  
-VxContainer* InDetIterativePriVxFinderTool::findVertex(const TrackCollection* trackTES) 
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativePriVxFinderTool::findVertex(const TrackCollection* trackTES) 
 {
 
-  if(msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endreq;
+  if(msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endmsg;
+
+  // TODO: change trkFilter to allow for this replacement
+  /*
+  xAOD::Vertex beamposition;
+  beamposition.makePrivateStore();
+  beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
+  beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+  */
 
   Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
 
@@ -234,19 +248,27 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const TrackCollection* tr
   }
 
   if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
-      << selectedTracks.size() << " survived the preselection." << endreq;
+      << selectedTracks.size() << " survived the preselection." << endmsg;
 
-  VxContainer* returnContainer=findVertex(selectedTracks);
-  
-  return returnContainer;
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( selectedTracks );
+
+  return returnContainers;
 
 }
 
-VxContainer* InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) {
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleBaseCollection* trackTES) {
  
-  if(msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endreq;
+  if(msgLvl(MSG::DEBUG)) msg() << " Number of input tracks before track selection: " << trackTES->size() << endmsg;
 
   std::vector<Trk::ITrackLink*> selectedTracks;
+
+  // TODO: change trkFilter to allow for this replacement
+  /*
+  xAOD::Vertex beamposition;
+  beamposition.makePrivateStore();
+  beamposition.setPosition(m_iBeamCondSvc->beamVtx().position());
+  beamposition.setCovariancePosition(m_iBeamCondSvc->beamVtx().covariancePosition());
+  */
 
   Trk::RecVertex beamposition(m_iBeamCondSvc->beamVtx());
 
@@ -274,12 +296,11 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const Trk::TrackParticleB
   }
 
   if(msgLvl(MSG::DEBUG)) msg() << "Of " << trackTES->size() << " tracks "
-      << selectedTracks.size() << " survived the preselection." << endreq;
+      << selectedTracks.size() << " survived the preselection." << endmsg;
 
-  VxContainer* returnContainer=findVertex(selectedTracks);
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers = findVertex( selectedTracks );
 
-
-  return returnContainer;
+  return returnContainers;
   
 }
 
@@ -324,22 +345,15 @@ std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativePriVx
 
   ATH_MSG_DEBUG("Of " << trackParticles->size() << " tracks " << selectedTracks.size() << " survived the preselection.");
 
-  //Find vertex using track links, returns VxContainer
-  VxContainer* returnContainer=findVertex(selectedTracks);
+  //beamposition.releasePrivateStore(); //TODO: should I add this here? it was in InDetPriVxFinderTool method
 
-  //now convert VxContainer to XAOD Vertex
-  xAOD::VertexContainer *xAODContainer(0);
-  xAOD::VertexAuxContainer *xAODAuxContainer(0);
-  if (m_VertexEdmFactory->createXAODVertexContainer(*returnContainer, xAODContainer, xAODAuxContainer) != StatusCode::SUCCESS) {
-    ATH_MSG_WARNING("Cannot convert output vertex container to xAOD. Returning null pointer.");
-  }
-  delete returnContainer;
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> returnContainers=findVertex(selectedTracks);
 
-  return std::make_pair(xAODContainer, xAODAuxContainer);
-  
+  return returnContainers;
+
 }
 
-VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> & trackVector) const
+std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::ITrackLink*> & trackVector) const
 {
   
 
@@ -352,24 +366,30 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
   std::vector<Trk::ITrackLink*> origTracks=trackVector;
   std::vector<Trk::ITrackLink*> seedTracks=trackVector;
   
-  std::vector<VxCandidates_pair> myVxCandidates;
+  // TODO: xAODVertex_pair never seems to be used?
+  std::vector<xAODVertex_pair> myxAODVertices;
   
-  VxContainer* theVxContainer = new VxContainer;
-  
+  xAOD::VertexContainer* theVertexContainer = new xAOD::VertexContainer;
+  xAOD::VertexAuxContainer* theVertexAuxContainer = new xAOD::VertexAuxContainer;
+  theVertexContainer->setStore( theVertexAuxContainer );
+
   //bail out early with only Dummy vertex if multiplicity cut is applied and exceeded
   if (m_doMaxTracksCut && (trackVector.size() > m_maxTracks)){ 
-    if (msgLvl(MSG::WARNING)) msg() << trackVector.size() << " tracks - exceeds maximum (" << m_maxTracks << "), skipping vertexing and returning only dummy..." << endreq; 
-    Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate(m_iBeamCondSvc->beamVtx(),std::vector<Trk::VxTrackAtVertex*>());
-    dummyVxCandidate->setVertexType(Trk::NoVtx);
-    theVxContainer->push_back ( dummyVxCandidate );
-    return theVxContainer;
+    if (msgLvl(MSG::WARNING)) msg() << trackVector.size() << " tracks - exceeds maximum (" << m_maxTracks << "), skipping vertexing and returning only dummy..." << endmsg; 
+    xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+    theVertexContainer->push_back( dummyxAODVertex ); // have to add vertex to container here first so it can use its aux store
+    dummyxAODVertex->setPosition( m_iBeamCondSvc->beamVtx().position() );
+    dummyxAODVertex->setCovariancePosition( m_iBeamCondSvc->beamVtx().covariancePosition() );
+    dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
+    dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
+    return std::make_pair(theVertexContainer, theVertexAuxContainer);
   } 
  
   int iterations=-1;
   unsigned int seedtracknumber=seedTracks.size();
   
   //used to store seed info
-  Trk::Vertex actualVertex;
+  Amg::Vector3D actualVertex;
 
   //prepare iterators for tracks only necessary for seeding
   std::vector<Trk::ITrackLink*>::iterator seedBegin;
@@ -384,12 +404,12 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
 
     if (seedtracknumber==0)
     {
-      if(msgLvl(MSG::DEBUG)) msg() << " New iteration. No tracks available after track selection for seeding. No finding done." << endreq;
+      if(msgLvl(MSG::DEBUG)) msg() << " New iteration. No tracks available after track selection for seeding. No finding done." << endmsg;
       break;
     }
     
     iterations+=1;
-    if(msgLvl(MSG::DEBUG)) msg() << "ITERATION NUMBER " << iterations << endreq;
+    if(msgLvl(MSG::DEBUG)) msg() << "ITERATION NUMBER " << iterations << endmsg;
     
     //now find a new SEED
     
@@ -398,31 +418,37 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
          seedtrkAtVtxIter!=seedEnd;++seedtrkAtVtxIter) {
       perigeeList.push_back((*seedtrkAtVtxIter)->parameters());
     }
-    
-    Trk::RecVertex theconstraint;
+
+    xAOD::Vertex theconstraint;
     if (m_useBeamConstraint) {
-      theconstraint=m_iBeamCondSvc->beamVtx();
-      actualVertex=m_SeedFinder->findSeed(perigeeList,&theconstraint);
+      theconstraint = xAOD::Vertex(); // Default constructor creates a private store
+      theconstraint.setPosition( m_iBeamCondSvc->beamVtx().position() );
+      theconstraint.setCovariancePosition( m_iBeamCondSvc->beamVtx().covariancePosition() );
+      theconstraint.setFitQuality( m_iBeamCondSvc->beamVtx().fitQuality().chiSquared(), m_iBeamCondSvc->beamVtx().fitQuality().doubleNumberDoF() );
+      actualVertex = m_SeedFinder->findSeed(perigeeList,&theconstraint);
     } else {
-      actualVertex=m_SeedFinder->findSeed(perigeeList);
+      actualVertex = m_SeedFinder->findSeed(perigeeList);
       Amg::MatrixX looseConstraintCovariance(3,3);
       looseConstraintCovariance.setIdentity();
       looseConstraintCovariance = looseConstraintCovariance * 1e+8;
-      theconstraint=Trk::RecVertex(actualVertex.position(),looseConstraintCovariance,-3.,0.);
+      theconstraint = xAOD::Vertex();
+      theconstraint.setPosition( actualVertex );
+      theconstraint.setCovariancePosition( looseConstraintCovariance );
+      theconstraint.setFitQuality( 0.,-3. );
     }
-    
+
     if (msgLvl(MSG::DEBUG))
     {
-      msg(MSG::DEBUG) << " seed at x: " << actualVertex.position().x() << 
-          " at y: " <<      actualVertex.position().y() << 
-          " at z: " <<      actualVertex.position().z() << endreq;
+      msg(MSG::DEBUG) << " seed at x: " << actualVertex.x() << 
+          " at y: " <<      actualVertex.y() << 
+          " at z: " <<      actualVertex.z() << endmsg;
     }
     
-    if (actualVertex.position().z()==0.) {
+    if (actualVertex.z()==0.) {
       if (msgLvl(MSG::DEBUG))
       {
-        msg(MSG::DEBUG) << "No seed found: no further vertices in event" << endreq;
-        msg(MSG::DEBUG) << "Number of input tracks: " << perigeeList.size() << " but no seed returned." << endreq;
+        msg(MSG::DEBUG) << "No seed found: no further vertices in event" << endmsg;
+        msg(MSG::DEBUG) << "Number of input tracks: " << perigeeList.size() << " but no seed returned." << endmsg;
       }
       break;
     }
@@ -478,7 +504,7 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
         }
         catch (error::ImpactPoint3dEstimatorProblem err)
         {
-          msg(MSG::WARNING) << " ImpactPoin3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endreq;
+          msg(MSG::WARNING) << " ImpactPoint3dEstimator failed to find minimum distance between track and vertex seed: " << err.p << endmsg;
         }
         
         
@@ -489,7 +515,7 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
         
         if (distance<0)
         {
-          msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endreq;
+          msg(MSG::WARNING) << " Distance between track and seed vtx is negative: " << distance << endmsg;
         }
         
         
@@ -506,14 +532,14 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
 	
         if (error==0.)
         {
-          msg(MSG::ERROR) << " Error is zero! " << distance << endreq;
+          msg(MSG::ERROR) << " Error is zero! " << distance << endmsg;
           error=1.;
         }
         
         if(msgLvl(MSG::VERBOSE))
         {
           msg(MSG::VERBOSE) << " Distance between track and seed vtx: " << distance << " d/s(d) = " << 
-              distance/error << " err " << error << endreq;
+              distance/error << " err " << error << endmsg;
         }
         
 
@@ -535,10 +561,10 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
     
     if(msgLvl(MSG::VERBOSE))
     {
-      msg(MSG::VERBOSE) << " Considering n. " << perigeesToFit.size() << " tracks for the fit. " << endreq;
+      msg(MSG::VERBOSE) << " Considering n. " << perigeesToFit.size() << " tracks for the fit. " << endmsg;
       if (m_createSplitVertices)
       {
-        msg(MSG::VERBOSE) << " and n. " << perigeesToFitSplitVertex.size() << " tracks for split vertex fit. " << endreq;
+        msg(MSG::VERBOSE) << " and n. " << perigeesToFitSplitVertex.size() << " tracks for split vertex fit. " << endmsg;
       }
     }
     
@@ -546,7 +572,7 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
     {
       if(msgLvl(MSG::DEBUG))
       {
-        msg(MSG::DEBUG) << " No good seed found. Exiting search for vertices..." << endreq;
+        msg(MSG::DEBUG) << " No good seed found. Exiting search for vertices..." << endmsg;
       }
       
       break;
@@ -558,39 +584,39 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
     //to reassign vertices you look ino what is already in myVxCandidate
     //you do it only ONCE!
 
-    Trk::VxCandidate * myVxCandidate = 0;
-    Trk::VxCandidate * myVxCandidateSplitVertex = 0;
+    xAOD::Vertex * myxAODVertex = 0;
+    xAOD::Vertex * myxAODSplitVertex = 0;
 
     if (m_useBeamConstraint && perigeesToFit.size()>0)
     {
-       myVxCandidate=m_iVertexFitter->fit(perigeesToFit, theconstraint);
+      myxAODVertex=m_iVertexFitter->fit(perigeesToFit, theconstraint);
     }
     else if (!m_useBeamConstraint && perigeesToFit.size()>1)
     {
-      myVxCandidate=m_iVertexFitter->fit(perigeesToFit);
+      myxAODVertex=m_iVertexFitter->fit(perigeesToFit);
     }
     if (m_createSplitVertices && perigeesToFitSplitVertex.size()>1)
     {
-      myVxCandidateSplitVertex=m_iVertexFitter->fit(perigeesToFitSplitVertex);
+      myxAODSplitVertex=m_iVertexFitter->fit(perigeesToFitSplitVertex);
     }
 
     double ndf = 0.;
     int ntracks = 0;
-    countTracksAndNdf(myVxCandidate,ndf,ntracks);
+    countTracksAndNdf(myxAODVertex,ndf,ntracks);
 
     double ndfSplitVertex = 0.;
     int ntracksSplitVertex  = 0;
-    countTracksAndNdf(myVxCandidateSplitVertex,ndfSplitVertex,ntracksSplitVertex);
+    countTracksAndNdf(myxAODSplitVertex,ndfSplitVertex,ntracksSplitVertex);
 
     bool goodVertex = 
-        myVxCandidate != 0 &&
+        myxAODVertex != 0 &&
         ((!m_useBeamConstraint && ndf>0 && ntracks>=2) ||
          (m_useBeamConstraint && ndf>3 && ntracks>=2));
 
     if (msgLvl(MSG::DEBUG))
     {
-      msg(MSG::DEBUG) << " VxCandidate is pointer: " << myVxCandidate << 
-          " ndf = " << ndf << " ntracks (with weight>0.01) " << ntracks << " beam constraint " << (m_useBeamConstraint?"yes":"no") << endreq;
+      msg(MSG::DEBUG) << " xAOD::Vertex is pointer: " << myxAODVertex << 
+          " ndf = " << ndf << " ntracks (with weight>0.01) " << ntracks << " beam constraint " << (m_useBeamConstraint?"yes":"no") << endmsg;
     }
 
     if (!goodVertex)
@@ -600,7 +626,7 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
 
       if (msgLvl(MSG::DEBUG))
       {
-        msg(MSG::DEBUG) << " Going to new iteration with: " << seedTracks.size() << " seed tracks after BAD VERTEX. " << endreq;
+        msg(MSG::DEBUG) << " Going to new iteration with: " << seedTracks.size() << " seed tracks after BAD VERTEX. " << endmsg;
       }     
     }
     else
@@ -612,7 +638,7 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
         
         if(msgLvl(MSG::VERBOSE))
         {
-          msg(MSG::VERBOSE) << " N tracks used for fit before reallocating: "  << perigeesToFit.size() << endreq;
+          msg(MSG::VERBOSE) << " N tracks used for fit before reallocating: "  << perigeesToFit.size() << endmsg;
         }
         //now you HAVE a good vertex
         //but you want to add the tracks which you missed...
@@ -621,51 +647,51 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
 
         //iterate on remaining vertices and cross-check if tracks need to be attached 
         //to new vertex
-        VxContainer::iterator vxBegin=theVxContainer->begin();
-        VxContainer::iterator vxEnd=theVxContainer->end();
+        xAOD::VertexContainer::iterator vxBegin=theVertexContainer->begin();
+        xAOD::VertexContainer::iterator vxEnd=theVertexContainer->end();
         
-        for (VxContainer::iterator vxIter=vxBegin;vxIter!=vxEnd;++vxIter)
+        for (xAOD::VertexContainer::iterator vxIter=vxBegin;vxIter!=vxEnd;++vxIter)
         {
           
           //now iterate on tracks at vertex
           
-          std::vector<Trk::VxTrackAtVertex*>* myVxTracksAtVtx=(*vxIter)->vxTrackAtVertex();
+          std::vector<Trk::VxTrackAtVertex>* myVxTracksAtVtx=(&(*vxIter)->vxTrackAtVertex());
           
           if (!myVxTracksAtVtx) continue;
     
-          std::vector<Trk::VxTrackAtVertex*>::iterator tracksBegin=myVxTracksAtVtx->begin();
-          std::vector<Trk::VxTrackAtVertex*>::iterator tracksEnd=myVxTracksAtVtx->end();
+          std::vector<Trk::VxTrackAtVertex>::iterator tracksBegin=myVxTracksAtVtx->begin();
+          std::vector<Trk::VxTrackAtVertex>::iterator tracksEnd=myVxTracksAtVtx->end();
 
           if(msgLvl(MSG::VERBOSE))
           {
-            msg(MSG::VERBOSE) << " Iterating over new vertex to look for tracks to reallocate... "  << endreq;
+            msg(MSG::VERBOSE) << " Iterating over new vertex to look for tracks to reallocate... "  << endmsg;
           }
           
-          for (std::vector<Trk::VxTrackAtVertex*>::iterator tracksIter=tracksBegin;
+          for (std::vector<Trk::VxTrackAtVertex>::iterator tracksIter=tracksBegin;
                tracksIter!=tracksEnd;)
           {
             
             //only try with tracks which are not too tightly assigned to another vertex
-            if ((*tracksIter)->weight()>0.01)
+            if ((*tracksIter).weight()>0.01)
             {
               ++tracksIter;
               continue;
             }
             
-            const Trk::TrackParameters* trackPerigee=(*tracksIter)->initialPerigee();
+            const Trk::TrackParameters* trackPerigee=(*tracksIter).initialPerigee();
                         
             if (trackPerigee==0)
             {
-              msg(MSG::ERROR) << " Cast to perigee gives 0 pointer " << endreq;
+              msg(MSG::ERROR) << " Cast to perigee gives 0 pointer " << endmsg;
             }
             
-            double chi2_newvtx=compatibility(*trackPerigee,myVxCandidate->recVertex());
-            double chi2_oldvtx=compatibility(*trackPerigee,(*vxIter)->recVertex());
+            double chi2_newvtx=compatibility(*trackPerigee,*myxAODVertex);
+            double chi2_oldvtx=compatibility(*trackPerigee,*(*vxIter));
 
             if (msgLvl(MSG::VERBOSE))
             {
               msg(MSG::VERBOSE) << "Compatibility to old vtx is : " << chi2_oldvtx << 
-                  " to new vtx is: " << chi2_newvtx << endreq;
+                  " to new vtx is: " << chi2_newvtx << endmsg;
             }
 
             bool remove=false;
@@ -676,7 +702,7 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
               if(msgLvl(MSG::DEBUG))
               {
                 msg(MSG::DEBUG) << " Found track of old vertex (chi2= " << chi2_oldvtx << 
-                    ") more compatible to new one (chi2= " << chi2_newvtx << ")" << endreq;
+                    ") more compatible to new one (chi2= " << chi2_newvtx << ")" << endmsg;
               }
               
               perigeesToFit.push_back(trackPerigee);
@@ -694,7 +720,7 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
                 {
                   if (msgLvl(MSG::VERBOSE))
                   {
-                    msg(MSG::VERBOSE) << " found the old perigee to be re-added to seedTracks in order to be deleted again!" << endreq;
+                    msg(MSG::VERBOSE) << " found the old perigee to be re-added to seedTracks in order to be deleted again!" << endmsg;
                   }
                   isFound=true;
                   seedTracks.push_back(*origIter);
@@ -704,7 +730,7 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
 
               if (!isFound)
               {
-                msg(MSG::WARNING) << " Cannot find old perigee to re-add back to seed tracks... " << endreq;
+                msg(MSG::WARNING) << " Cannot find old perigee to re-add back to seed tracks... " << endmsg;
               }             
               
               numberOfAddedTracks+=1;
@@ -732,47 +758,47 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
 
         if(msgLvl(MSG::VERBOSE))
         {
-          msg(MSG::VERBOSE) << " N tracks used for fit after reallocating: "  << perigeesToFit.size() << endreq;
+          msg(MSG::VERBOSE) << " N tracks used for fit after reallocating: "  << perigeesToFit.size() << endmsg;
         }
         if(msgLvl(MSG::DEBUG))
         {
           if (numberOfAddedTracks>0)
           {
-            msg(MSG::DEBUG) << "Added : " << numberOfAddedTracks << " from different vertices " << endreq;
+            msg(MSG::DEBUG) << "Added : " << numberOfAddedTracks << " from different vertices " << endmsg;
           }
         }
 
-        //now you have to delete the previous VxCandidate, do a new fit, then check if 
+        //now you have to delete the previous xAOD::Vertex, do a new fit, then check if 
         //you still have a good vertex
 
         if (numberOfAddedTracks>0)
         {
           
-          delete myVxCandidate;
-          myVxCandidate=0;
+          delete myxAODVertex;
+          myxAODVertex=0;
           
           if (m_useBeamConstraint && perigeesToFit.size()>0)
           {
-            myVxCandidate=m_iVertexFitter->fit(perigeesToFit, theconstraint);
+            myxAODVertex=m_iVertexFitter->fit(perigeesToFit, theconstraint);
           }
           else if (!m_useBeamConstraint && perigeesToFit.size()>1)
           {
-            myVxCandidate=m_iVertexFitter->fit(perigeesToFit);
+            myxAODVertex=m_iVertexFitter->fit(perigeesToFit);
           }        
           
           ndf = 0.;
           ntracks = 0;
-          countTracksAndNdf(myVxCandidate,ndf,ntracks);
+          countTracksAndNdf(myxAODVertex,ndf,ntracks);
           
           goodVertex = 
-              myVxCandidate != 0 &&
+              myxAODVertex != 0 &&
               ((!m_useBeamConstraint && ndf>0 && ntracks>=2) ||
                (m_useBeamConstraint && ndf>3 && ntracks>=2));
           
           if (msgLvl(MSG::DEBUG))
           {
-            msg(MSG::DEBUG) << " Refitted VxCandidate is pointer: " << myVxCandidate << 
-                " ndf = " << ndf << " ntracks (with weight>0.01) " << ntracks << " beam constraint " << (m_useBeamConstraint?"yes":"no") << endreq;
+            msg(MSG::DEBUG) << " Refitted xAODVertex is pointer: " << myxAODVertex << 
+                " ndf = " << ndf << " ntracks (with weight>0.01) " << ntracks << " beam constraint " << (m_useBeamConstraint?"yes":"no") << endmsg;
           }
 
           if (!goodVertex)
@@ -782,10 +808,10 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
             
             if (msgLvl(MSG::DEBUG))
             {
-              msg(MSG::DEBUG) << " Going to new iteration with: " << seedTracks.size() << " seed tracks after BAD VERTEX. " << endreq;
+              msg(MSG::DEBUG) << " Going to new iteration with: " << seedTracks.size() << " seed tracks after BAD VERTEX. " << endmsg;
             }     
             
-            msg(MSG::DEBUG) << " Adding tracks resulted in an invalid vertex. Should be rare. " << endreq;
+            msg(MSG::DEBUG) << " Adding tracks resulted in an invalid vertex. Should be rare. " << endmsg;
           }
         }//end if tracks were added...
 
@@ -797,66 +823,66 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
       {
         if (msgLvl(MSG::VERBOSE))
         {
-          msg(MSG::VERBOSE) << "Number of seeds before: " << seedTracks.size() << endreq;
+          msg(MSG::VERBOSE) << "Number of seeds before: " << seedTracks.size() << endmsg;
         }
-        
-        removeCompatibleTracks(myVxCandidate,
+
+        removeCompatibleTracks(myxAODVertex,
                                perigeesToFit,
                                seedTracks);
         
         if (msgLvl(MSG::VERBOSE))
         {
-          msg(MSG::VERBOSE) << "Number of seeds after removal of outliers: " << seedTracks.size() << endreq;
+          msg(MSG::VERBOSE) << "Number of seeds after removal of outliers: " << seedTracks.size() << endmsg;
         }
       }
       
       
-    }//end else if not good Vertex
+    }//end else case on if not good Vertex
     
 
     
 
-    bool goodVertexSplitVertex=false;
+    bool goodSplitVertex=false;
     
 
     if (m_createSplitVertices)
     {
     
-      goodVertexSplitVertex = 
-          myVxCandidateSplitVertex != 0 &&
+      goodSplitVertex = 
+          myxAODSplitVertex != 0 &&
           ndfSplitVertex>0 && ntracksSplitVertex>=2;
-    
       
+
       if (msgLvl(MSG::DEBUG))
       {
-        msg(MSG::DEBUG) << " VxCandidateSplitVertex is pointer: " << myVxCandidateSplitVertex << 
-            " ndf = " << ndfSplitVertex << " ntracks (with weight>0.01) " << ntracksSplitVertex << endreq;
+        msg(MSG::DEBUG) << " xAODSplitVertex is pointer: " << myxAODSplitVertex << 
+            " ndf = " << ndfSplitVertex << " ntracks (with weight>0.01) " << ntracksSplitVertex << endmsg;
       }
       
-      if (!goodVertexSplitVertex)
+      if (!goodSplitVertex)
       {
         
         removeAllFrom(perigeesToFitSplitVertex,seedTracks);
         
         if (msgLvl(MSG::DEBUG))
         {
-          msg(MSG::DEBUG) << " SPLIT VERTEX Going to new iteration with: " << seedTracks.size() << " seed tracks after BAD Split VERTEX. " << endreq;
+          msg(MSG::DEBUG) << " SPLIT VERTEX Going to new iteration with: " << seedTracks.size() << " seed tracks after BAD Split VERTEX. " << endmsg;
         }     
       }
       else
       {
         if (msgLvl(MSG::VERBOSE))
         {
-          msg(MSG::VERBOSE) << "SPLIT VERTEX Number of seeds before: " << seedTracks.size() << endreq;
+          msg(MSG::VERBOSE) << "SPLIT VERTEX Number of seeds before: " << seedTracks.size() << endmsg;
         }
         
-        removeCompatibleTracks(myVxCandidateSplitVertex,
+        removeCompatibleTracks(myxAODSplitVertex,
                                perigeesToFitSplitVertex,
                                seedTracks);
         
         if (msgLvl(MSG::VERBOSE))
         {
-          msg(MSG::VERBOSE) << "SPLIT VERTEX Number of seeds after removal of outliers: " << seedTracks.size() << endreq;
+          msg(MSG::VERBOSE) << "SPLIT VERTEX Number of seeds after removal of outliers: " << seedTracks.size() << endmsg;
         }
         
       }//end else if not good Vertex
@@ -867,14 +893,14 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
     {
       if (goodVertex)
       {
-        theVxContainer->push_back (myVxCandidate);
+        theVertexContainer->push_back (myxAODVertex);
       }
       else
       {
-        if (myVxCandidate)
+        if (myxAODVertex)
         {
-          delete myVxCandidate;
-          myVxCandidate=0;
+          delete myxAODVertex;
+          myxAODVertex=0;
         }
       }
     }
@@ -883,40 +909,40 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
       if (goodVertex)
       {
         // type does not seem to be set earlier
-        myVxCandidate->setVertexType(Trk::PriVtx);
-        theVxContainer->push_back (myVxCandidate);
+        myxAODVertex->setVertexType(xAOD::VxType::PriVtx);
+        theVertexContainer->push_back (myxAODVertex);
       } else
       {
-        if (myVxCandidate)
+        if (myxAODVertex)
         {
-          delete myVxCandidate;
-          myVxCandidate=0;
+          delete myxAODVertex;
+          myxAODVertex=0;
         }
-        Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate (
-            m_iBeamCondSvc->beamVtx(),
-        std::vector<Trk::VxTrackAtVertex*>()
-                                                                   );
-        dummyVxCandidate->setVertexType(Trk::NoVtx);
-        theVxContainer->push_back ( dummyVxCandidate );
+        xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+        theVertexContainer->push_back( dummyxAODVertex ); // have to add vertex to container here first so it can use its aux store
+        dummyxAODVertex->setPosition( m_iBeamCondSvc->beamVtx().position() );
+        dummyxAODVertex->setCovariancePosition( m_iBeamCondSvc->beamVtx().covariancePosition() );
+        dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
+        dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
       }
-      if (goodVertexSplitVertex)
+      if (goodSplitVertex)
       {
         // type does not seem to be set earlier
-        myVxCandidateSplitVertex->setVertexType(Trk::PriVtx);
-        theVxContainer->push_back (myVxCandidateSplitVertex);
+        myxAODSplitVertex->setVertexType(xAOD::VxType::PriVtx);
+        theVertexContainer->push_back (myxAODSplitVertex);
       } else
       {
-        if (myVxCandidateSplitVertex)
+        if (myxAODSplitVertex)
         {
-          delete myVxCandidateSplitVertex;
-          myVxCandidateSplitVertex=0;
+          delete myxAODSplitVertex;
+          myxAODSplitVertex=0;
         }
-        Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate (
-            m_iBeamCondSvc->beamVtx(),
-        std::vector<Trk::VxTrackAtVertex*>()
-                                                                   );
-        dummyVxCandidate->setVertexType(Trk::NoVtx);
-        theVxContainer->push_back ( dummyVxCandidate );
+        xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+        theVertexContainer->push_back( dummyxAODVertex ); // have to add vertex to container here first so it can use its aux store
+        dummyxAODVertex->setPosition( m_iBeamCondSvc->beamVtx().position() );
+        dummyxAODVertex->setCovariancePosition( m_iBeamCondSvc->beamVtx().covariancePosition() );
+        dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
+        dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
       }
     }
   }
@@ -924,7 +950,7 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
 
   if (iterations>=m_maxVertices)
   {
-    msg(MSG::WARNING) << "Reached maximum iterations " << endreq;
+    msg(MSG::WARNING) << "Reached maximum iterations " << endmsg;
   }
   
   //unfortunately you have still a problem with the track to links!!!
@@ -933,91 +959,110 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
   //---- if one or more vertices are already there: let dummy have same position as primary vertex
   if (!m_createSplitVertices)
   {
-    if ( theVxContainer->size() >= 1)
+    if ( theVertexContainer->size() >= 1)
     {
-      Trk::VxCandidate * primaryVtx = theVxContainer->front();
-      if (primaryVtx->vxTrackAtVertex()->size()>0)
+      xAOD::Vertex * primaryVtx = theVertexContainer->front();
+      if (primaryVtx->vxTrackAtVertex().size()>0)
       {
-        primaryVtx->setVertexType(Trk::PriVtx);
-        Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate ( primaryVtx->recVertex(),
-                                                                    std::vector<Trk::VxTrackAtVertex*>());
-        dummyVxCandidate->setVertexType(Trk::NoVtx);
-        theVxContainer->push_back ( dummyVxCandidate );
+        primaryVtx->setVertexType((xAOD::VxType::VertexType)Trk::PriVtx);
+        xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+        theVertexContainer->push_back( dummyxAODVertex ); // have to add vertex to container here first so it can use its aux store
+        dummyxAODVertex->setPosition( primaryVtx->position() );
+        dummyxAODVertex->setCovariancePosition( primaryVtx->covariancePosition() );
+        dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
+        dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
       }
       else
       {
-        primaryVtx->setVertexType(Trk::NoVtx);
+        primaryVtx->setVertexType(xAOD::VxType::NoVtx);
       }
       
     }
     //---- if no vertex is there let dummy be at beam spot
-    else if ( theVxContainer->size() == 0 )
+    else if ( theVertexContainer->size() == 0 )
     {
-      Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate ( m_iBeamCondSvc->beamVtx(),
-                                                                  std::vector<Trk::VxTrackAtVertex*>());
-      dummyVxCandidate->setVertexType(Trk::NoVtx);
-      theVxContainer->push_back ( dummyVxCandidate );
+      xAOD::Vertex * dummyxAODVertex = new xAOD::Vertex;
+      theVertexContainer->push_back( dummyxAODVertex ); // have to add vertex to container here first so it can use its aux store
+      dummyxAODVertex->setPosition( m_iBeamCondSvc->beamVtx().position() );
+      dummyxAODVertex->setCovariancePosition( m_iBeamCondSvc->beamVtx().covariancePosition() );
+      dummyxAODVertex->vxTrackAtVertex() = std::vector<Trk::VxTrackAtVertex>();
+      dummyxAODVertex->setVertexType(xAOD::VxType::NoVtx);
     }
     // loop over the pile up to set it as pile up (EXCLUDE first and last vertex, do not do that in split mode)
-    for (unsigned int i = 0 ; i < theVxContainer->size()-1 ; i++)
+    for (unsigned int i = 0 ; i < theVertexContainer->size()-1 ; i++)
     {
       if(msgLvl(MSG::DEBUG))
       {
         msg(MSG::DEBUG) << " Vtx: " << i << 
-            " x= " << (*theVxContainer)[i]->recVertex().position().x() << 
-            " y= " << (*theVxContainer)[i]->recVertex().position().y() << 
-            " z= " << (*theVxContainer)[i]->recVertex().position().z() << 
-            " ntracks= " << (*theVxContainer)[i]->vxTrackAtVertex()->size() << 
-            " chi2= " << (*theVxContainer)[i]->recVertex().fitQuality().chiSquared()
-                        << " ndf = " << (*theVxContainer)[i]->recVertex().fitQuality().doubleNumberDoF() << endreq;
+            " x= " << (*theVertexContainer)[i]->position().x() << 
+            " y= " << (*theVertexContainer)[i]->position().y() << 
+            " z= " << (*theVertexContainer)[i]->position().z() << 
+            " ntracks= " << (*theVertexContainer)[i]->vxTrackAtVertex().size() <<
+            " chi2= " << (*theVertexContainer)[i]->chiSquared()
+                        << " ndf = " << (*theVertexContainer)[i]->numberDoF() << endmsg;
       }
   
       if (i>0)
       {
-        (*theVxContainer)[i]->setVertexType(Trk::PileUp);
+        (*theVertexContainer)[i]->setVertexType(xAOD::VxType::PileUp);
       }
     }
   }
   
-  VxContainer::const_iterator vxBegin=theVxContainer->begin();
-  VxContainer::const_iterator vxEnd=theVxContainer->end();
+  xAOD::VertexContainer::iterator vxBegin=theVertexContainer->begin();
+  xAOD::VertexContainer::iterator vxEnd=theVertexContainer->end();
   
   //prepare iterators for tracks only necessary for seeding
   std::vector<Trk::ITrackLink*>::iterator origtrkbegin=origTracks.begin();
   std::vector<Trk::ITrackLink*>::iterator origtrkend=origTracks.end();
   
-  for (VxContainer::const_iterator vxIter=vxBegin;vxIter!=vxEnd;++vxIter)
+  for (xAOD::VertexContainer::iterator vxIter=vxBegin;vxIter!=vxEnd;++vxIter)
   {
-    std::vector<Trk::VxTrackAtVertex*>* myVxTracksAtVtx=(*vxIter)->vxTrackAtVertex();
+    std::vector<Trk::VxTrackAtVertex>* myVxTracksAtVtx = &((*vxIter)->vxTrackAtVertex());
 
     if (!myVxTracksAtVtx) continue;
     
-    std::vector<Trk::VxTrackAtVertex*>::iterator tracksBegin=myVxTracksAtVtx->begin();
-    std::vector<Trk::VxTrackAtVertex*>::iterator tracksEnd=myVxTracksAtVtx->end();
+    std::vector<Trk::VxTrackAtVertex>::iterator tracksBegin=myVxTracksAtVtx->begin();
+    std::vector<Trk::VxTrackAtVertex>::iterator tracksEnd=myVxTracksAtVtx->end();
     
     if(msgLvl(MSG::VERBOSE))
     {
-      msg(MSG::VERBOSE) << " Iterating over new vertex in fixing links... "  << endreq;
+      msg(MSG::VERBOSE) << " Iterating over new vertex in fixing links... "  << endmsg;
     }
     
     bool found=false;
     
-    for (std::vector<Trk::VxTrackAtVertex*>::iterator tracksIter=tracksBegin;
+    for (std::vector<Trk::VxTrackAtVertex>::iterator tracksIter=tracksBegin;
          tracksIter!=tracksEnd;++tracksIter)
     {
       if(msgLvl(MSG::VERBOSE))
       {
-        msg(MSG::VERBOSE) << " Iterating over new track in fixing links... " << endreq;
+        msg(MSG::VERBOSE) << " Iterating over new track in fixing links... " << endmsg;
       }
       
       //now look for corresponding ITrackLink
       for (std::vector<Trk::ITrackLink*>::iterator origtrkiter=origtrkbegin;
            origtrkiter!=origtrkend;++origtrkiter)
       {
-        if ((*origtrkiter)->parameters()==(*tracksIter)->initialPerigee())
+        if ((*origtrkiter)->parameters()==(*tracksIter).initialPerigee())
         {
+
           found=true;
-          ( *tracksIter)->setOrigTrack ( *origtrkiter );
+
+          //assigning the input track to the fitted vertex through VxTrackAtVertices vector
+          ( *tracksIter).setOrigTrack ( *origtrkiter );
+
+          // See if the trklink is to an xAOD::TrackParticle
+          Trk::LinkToXAODTrackParticle* linkToXAODTP = dynamic_cast<Trk::LinkToXAODTrackParticle*>( *origtrkiter );
+
+          // If track is an xAOD::TrackParticle, set directly in xAOD::Vertex
+          if (linkToXAODTP)
+          {
+
+            (*vxIter)->addTrackAtVertex(*linkToXAODTP, (*tracksIter).weight());
+
+          } //TODO: else write in a warning? (if tracks were Trk::Tracks or Trk::TrackParticleBase)
+
           origTracks.erase(origtrkiter);
           origtrkbegin=origTracks.begin();
           origtrkend=origTracks.end();
@@ -1026,8 +1071,11 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
       }
       if (!found)
       {
-        msg(MSG::ERROR) << " Cannot find vector element to fix links (step 4)! " << endreq;
+        msg(MSG::ERROR) << " Cannot find vector element to fix links (step 4)! " << endmsg;
       }
+
+      
+
     }//end iterate on tracks at vtx
   }//end iterate on vertices
   
@@ -1039,8 +1087,8 @@ VxContainer* InDetIterativePriVxFinderTool::findVertex(const std::vector<Trk::IT
       *origtrkiter=0;
     }
   }
-  
-  return theVxContainer;
+
+  return std::make_pair(theVertexContainer, theVertexAuxContainer);
 }
 
 StatusCode InDetIterativePriVxFinderTool::finalize()
@@ -1048,30 +1096,25 @@ StatusCode InDetIterativePriVxFinderTool::finalize()
     return StatusCode::SUCCESS;
 }
 
-void InDetIterativePriVxFinderTool::m_printParameterSettings()
+void InDetIterativePriVxFinderTool::printParameterSettings()
 {
-    msg(MSG::INFO) << "VxPrimary initialize(): Parametersettings " << endreq;
-    msg(MSG::INFO) << "VertexFitter " << m_iVertexFitter << endreq;
-    msg(MSG::INFO) << endreq;
+    msg(MSG::INFO) << "VxPrimary initialize(): Parametersettings " << endmsg;
+    msg(MSG::INFO) << "VertexFitter " << m_iVertexFitter << endmsg;
+    msg(MSG::INFO) << endmsg;
 }
 
-void InDetIterativePriVxFinderTool::m_SGError(std::string errService)
+void InDetIterativePriVxFinderTool::SGError(std::string errService)
 {
-    msg(MSG::FATAL) << errService << " not found. Exiting !" << endreq;
+    msg(MSG::FATAL) << errService << " not found. Exiting !" << endmsg;
     return;
 }
 
 double InDetIterativePriVxFinderTool::compatibility(const Trk::TrackParameters & measPerigee,
-                                                    const Trk::RecVertex & vertex) const
+                                                    const xAOD::Vertex & vertex) const
 {
   
-  Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(&measPerigee,vertex);
-  
-  Amg::Vector3D vertexPosition;
-  vertexPosition[0]=vertex.position()[0];
-  vertexPosition[1]=vertex.position()[1];
-  vertexPosition[2]=vertex.position()[2];
-  
+  Trk::LinearizedTrack* myLinearizedTrack=m_LinearizedTrackFactory->linearizedTrack(&measPerigee,vertex.position());
+
   AmgMatrix(2,2) weightReduced=myLinearizedTrack->expectedCovarianceAtPCA().block<2,2>(0,0);
   
   AmgMatrix(2,2) errorVertexReduced=(myLinearizedTrack->positionJacobian()*
@@ -1105,7 +1148,7 @@ void InDetIterativePriVxFinderTool::removeAllFrom(std::vector<const Trk::TrackPa
   {
     if (msgLvl(MSG::VERBOSE))
     {
-      msg(MSG::VERBOSE) << " Iterating on ne track in original perigeesToFit list of BAD VERTEX..." << endreq;
+      msg(MSG::VERBOSE) << " Iterating on new track in original perigeesToFit list of BAD VERTEX..." << endmsg;
     }
     
     bool found=false;
@@ -1117,7 +1160,7 @@ void InDetIterativePriVxFinderTool::removeAllFrom(std::vector<const Trk::TrackPa
       {
         if (msgLvl(MSG::VERBOSE))
         {
-          msg(MSG::VERBOSE) << " found and deleted from seeds!" << endreq;
+          msg(MSG::VERBOSE) << " found and deleted from seeds!" << endmsg;
         }
         found=true;
         seedTracks.erase(seedIter);
@@ -1129,30 +1172,30 @@ void InDetIterativePriVxFinderTool::removeAllFrom(std::vector<const Trk::TrackPa
     
     if (!found)
     {
-      msg(MSG::ERROR) << " Cannot find vector element to delete when removing BAD vertex! " << endreq;
+      msg(MSG::ERROR) << " Cannot find vector element to delete when removing BAD vertex! " << endmsg;
     }
     
   }//for cycle
   
 }
 
-void InDetIterativePriVxFinderTool::countTracksAndNdf(Trk::VxCandidate * myVxCandidate,
+void InDetIterativePriVxFinderTool::countTracksAndNdf(xAOD::Vertex * myxAODVertex,
                                                       double & ndf, int & ntracks) const
 {
-  if (myVxCandidate)
+  if (myxAODVertex)
   {
-    ndf = myVxCandidate->recVertex().fitQuality().doubleNumberDoF();
+    ndf = myxAODVertex->numberDoF();
     
-    std::vector<Trk::VxTrackAtVertex*>* myVxTracksAtVtx=myVxCandidate->vxTrackAtVertex();
+    std::vector<Trk::VxTrackAtVertex> myVxTracksAtVtx = myxAODVertex->vxTrackAtVertex();
     
-    std::vector<Trk::VxTrackAtVertex*>::iterator tracksBegin=myVxTracksAtVtx->begin();
-    std::vector<Trk::VxTrackAtVertex*>::iterator tracksEnd=myVxTracksAtVtx->end();
+    std::vector<Trk::VxTrackAtVertex>::iterator tracksBegin=myVxTracksAtVtx.begin();
+    std::vector<Trk::VxTrackAtVertex>::iterator tracksEnd=myVxTracksAtVtx.end();
     
-    for (std::vector<Trk::VxTrackAtVertex*>::iterator tracksIter=tracksBegin;
+    for (std::vector<Trk::VxTrackAtVertex>::iterator tracksIter=tracksBegin;
          tracksIter!=tracksEnd;++tracksIter)
     {
       
-      if ((*tracksIter)->weight()>0.01)
+      if ((*tracksIter).weight()>0.01)
       {
         ntracks+=1;
       }
@@ -1162,7 +1205,7 @@ void InDetIterativePriVxFinderTool::countTracksAndNdf(Trk::VxCandidate * myVxCan
 
 
 
-void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * myVxCandidate,
+void InDetIterativePriVxFinderTool::removeCompatibleTracks(xAOD::Vertex * myxAODVertex,
                                                            std::vector<const Trk::TrackParameters*> & perigeesToFit,
                                                            std::vector<Trk::ITrackLink*> & seedTracks) const
 {
@@ -1170,10 +1213,10 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
 
   //now you have your new vertex with its new tracks
   //now you have to get the compatibility also of all tracks which DIDN'T BELONG to the vertex!
-  std::vector<Trk::VxTrackAtVertex*>* tracksAtVertex=myVxCandidate->vxTrackAtVertex();
+  std::vector<Trk::VxTrackAtVertex>* tracksAtVertex= &(myxAODVertex->vxTrackAtVertex());
   
-  std::vector<Trk::VxTrackAtVertex*>::const_iterator tracksAtVertexBegin=tracksAtVertex->begin();
-  std::vector<Trk::VxTrackAtVertex*>::const_iterator tracksAtVertexEnd=tracksAtVertex->end();
+  std::vector<Trk::VxTrackAtVertex>::const_iterator tracksAtVertexBegin=tracksAtVertex->begin();
+  std::vector<Trk::VxTrackAtVertex>::const_iterator tracksAtVertexEnd=tracksAtVertex->end();
   
   std::vector<Trk::ITrackLink*>::iterator  seedBegin=seedTracks.begin();
   std::vector<Trk::ITrackLink*>::iterator  seedEnd=seedTracks.end();
@@ -1181,13 +1224,13 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
   std::vector<const Trk::TrackParameters*>::iterator perigeesToFitBegin=perigeesToFit.begin();
   std::vector<const Trk::TrackParameters*>::iterator perigeesToFitEnd=perigeesToFit.end();
   
-  for (std::vector<Trk::VxTrackAtVertex*>::const_iterator tracksAtVertexIter=tracksAtVertexBegin;
+  for (std::vector<Trk::VxTrackAtVertex>::const_iterator tracksAtVertexIter=tracksAtVertexBegin;
        tracksAtVertexIter!=tracksAtVertexEnd;++tracksAtVertexIter)
   {
     
     if (msgLvl(MSG::VERBOSE))
     {
-      msg(MSG::VERBOSE) << " new track..." << endreq;
+      msg(MSG::VERBOSE) << " new track..." << endmsg;
     }
     
     bool found=false;
@@ -1195,14 +1238,14 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
     for (std::vector<Trk::ITrackLink*>::iterator seedIter=seedBegin;
          seedIter!=seedEnd;++seedIter)
     {
-      if ((*seedIter)->parameters()==(*tracksAtVertexIter)->initialPerigee() )
+      if ((*seedIter)->parameters()==(*tracksAtVertexIter).initialPerigee() )
       {
         found=true;
-        if ((*tracksAtVertexIter)->weight()>0.01)
+        if ((*tracksAtVertexIter).weight()>0.01)
         {
           if (msgLvl(MSG::VERBOSE))
           {
-            msg(MSG::VERBOSE) << " found and deleted from seeds!" << endreq;
+            msg(MSG::VERBOSE) << " found and deleted from seeds!" << endmsg;
           }
           seedTracks.erase(seedIter);
           seedBegin=seedTracks.begin();
@@ -1214,22 +1257,22 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
     
     if (!found)
     {
-      msg(MSG::ERROR) << " Cannot find vector element to delete (step 1)! " << endreq;
+      msg(MSG::ERROR) << " Cannot find vector element to delete (step 1)! " << endmsg;
     }
     
     found=false;
     for (std::vector<const Trk::TrackParameters*>::iterator perigeesToFitIter=perigeesToFitBegin;
          perigeesToFitIter!=perigeesToFitEnd;++perigeesToFitIter)
     {
-      if (*perigeesToFitIter==(*tracksAtVertexIter)->initialPerigee())
+      if (*perigeesToFitIter==(*tracksAtVertexIter).initialPerigee())
       {
         found=true;
         
-        if ((*tracksAtVertexIter)->weight()>0.01)
+        if ((*tracksAtVertexIter).weight()>0.01)
         {
           if (msgLvl(MSG::VERBOSE))
           {
-            msg(MSG::VERBOSE) << " found and deleted from perigeesToFit!" << endreq;
+            msg(MSG::VERBOSE) << " found and deleted from perigeesToFit!" << endmsg;
           }
           perigeesToFit.erase(perigeesToFitIter);
           perigeesToFitBegin=perigeesToFit.begin();
@@ -1241,24 +1284,24 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
     
     if (!found)
     {
-      msg(MSG::ERROR) << " Cannot find vector element to delete (step 2)! " << endreq;
+      msg(MSG::ERROR) << " Cannot find vector element to delete (step 2)! " << endmsg;
     }
     
   }//finishing iterating on tracks at vertex
   
   if (msgLvl(MSG::DEBUG))
   {
-    msg(MSG::DEBUG) << " Outliers still to be considered: " << perigeesToFit.size() << endreq;
+    msg(MSG::DEBUG) << " Outliers still to be considered: " << perigeesToFit.size() << endmsg;
   }
   if (msgLvl(MSG::VERBOSE))
   {
-    msg(MSG::VERBOSE) << "Number of seeds after removal of inliers: " << seedTracks.size() << endreq;
+    msg(MSG::VERBOSE) << "Number of seeds after removal of inliers: " << seedTracks.size() << endmsg;
   }
+
+  std::vector<Trk::VxTrackAtVertex>* myVxTracksAtVertex= &(myxAODVertex->vxTrackAtVertex());
   
-  std::vector<Trk::VxTrackAtVertex*>* myVxTracksAtVertex=myVxCandidate->vxTrackAtVertex();
-  
-  std::vector<Trk::VxTrackAtVertex*>::iterator tracksBegin=myVxTracksAtVertex->begin();
-  std::vector<Trk::VxTrackAtVertex*>::iterator tracksEnd=myVxTracksAtVertex->end();
+  std::vector<Trk::VxTrackAtVertex>::iterator tracksBegin=myVxTracksAtVertex->begin();
+  std::vector<Trk::VxTrackAtVertex>::iterator tracksEnd=myVxTracksAtVertex->end();
   
   for (std::vector<const Trk::TrackParameters*>::iterator perigeesToFitIter=perigeesToFitBegin;
        perigeesToFitIter!=perigeesToFitEnd;++perigeesToFitIter)
@@ -1273,14 +1316,14 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
     
     if (myPerigee==0)
     {
-      msg(MSG::ERROR) << " Cast to perigee gives 0 pointer " << endreq;
+      msg(MSG::ERROR) << " Cast to perigee gives 0 pointer " << endmsg;
     }
     
-    double chi2=compatibility(*myPerigee,myVxCandidate->recVertex());
-    
+    double chi2=compatibility(*myPerigee,*myxAODVertex);
+   
     if (msgLvl(MSG::VERBOSE))
     {
-      msg(MSG::VERBOSE) << "Compatibility is : " << chi2 << endreq;
+      msg(MSG::VERBOSE) << "Compatibility is : " << chi2 << endmsg;
     }
     
     //check if still sufficiently compatible to previous vertex
@@ -1290,7 +1333,7 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
       if (msgLvl(MSG::VERBOSE))
       {
         msg(MSG::VERBOSE) << " Found track with compatibility: " << chi2 << 
-            " to be removed from the seeds... " << endreq;
+            " to be removed from the seeds... " << endmsg;
       }
       
       for (std::vector<Trk::ITrackLink*>::iterator seedIter=seedTracks.begin();
@@ -1300,7 +1343,7 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
         {
           if (msgLvl(MSG::VERBOSE))
           {
-            msg(MSG::VERBOSE) << " found and deleted from seeds!" << endreq;
+            msg(MSG::VERBOSE) << " found and deleted from seeds!" << endmsg;
           }
           found=true;
           seedTracks.erase(seedIter);
@@ -1312,7 +1355,7 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
       
       if (!found)
       {
-        msg(MSG::ERROR) << " Cannot find vector element to delete (step 3)! " << endreq;
+        msg(MSG::ERROR) << " Cannot find vector element to delete (step 3)! " << endmsg;
       }
     }
     else
@@ -1323,23 +1366,27 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
       if (msgLvl(MSG::VERBOSE))
       {
         msg(MSG::VERBOSE) << " Found track with compatibility: " << chi2 << 
-            " to be further considered and thus to be removed from previous vertex if it was there... " << endreq;
+            " to be further considered and thus to be removed from previous vertex if it was there... " << endmsg;
       }
       
       bool found=false;
       
-      for (std::vector<Trk::VxTrackAtVertex*>::iterator tracksIter=tracksBegin;
+      for (std::vector<Trk::VxTrackAtVertex>::iterator tracksIter=tracksBegin;
            tracksIter!=tracksEnd;++tracksIter)
       {
-        if ((*tracksIter)->initialPerigee()==*perigeesToFitIter)
+        if ((*tracksIter).initialPerigee()==*perigeesToFitIter)
         {
           
           if (msgLvl(MSG::VERBOSE))
           {
-            msg(MSG::VERBOSE) << " OK, removing track with compatibility:"  << (*tracksIter)->trackQuality().chiSquared() << 
-                " or vtx compatibility" << (*tracksIter)->vtxCompatibility() << " which was found attached to the vertex... " << endreq;
+            msg(MSG::VERBOSE) << " OK, removing track with compatibility:"  << (*tracksIter).trackQuality().chiSquared() << 
+                " or vtx compatibility" << (*tracksIter).vtxCompatibility() << " which was found attached to the vertex... " << endmsg;
           }
-          delete *tracksIter; // delete has to happen BEFORE the erase (because the iterator will point to the next object in the vector AFTER the erase!)
+          // this delete is no longer needed because objects in myVxTracksAtVertex are no longer pointers - memory deletion of this VxTrackAtVertex
+          // was already taken care of inside fitter the moment the VxTrackAtVertex was added to the vector stored in xAOD::Vertex
+          // -David S.
+          //
+          //delete *tracksIter; // delete has to happen BEFORE the erase (because the iterator will point to the next object in the vector AFTER the erase!)
           myVxTracksAtVertex->erase(tracksIter);
           tracksBegin=myVxTracksAtVertex->begin();
           tracksEnd=myVxTracksAtVertex->end();
@@ -1353,7 +1400,7 @@ void InDetIterativePriVxFinderTool::removeCompatibleTracks(Trk::VxCandidate * my
       {
         if (msgLvl(MSG::VERBOSE))
         {
-          msg(MSG::VERBOSE) << "Track not found: probably it was already not attached to the vertex" << endreq;
+          msg(MSG::VERBOSE) << "Track not found: probably it was already not attached to the vertex" << endmsg;
         }
       }
     }

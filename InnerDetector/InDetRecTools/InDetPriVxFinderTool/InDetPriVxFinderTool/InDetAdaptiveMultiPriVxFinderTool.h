@@ -46,8 +46,38 @@
  *
  * This finder is particularly suited for the high luminosities 
  * scenarios which will came up at LHC.
+ *
+ * ------------------------------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-19)
+ *
+ * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex, 
+ *                         from Trk::RecVertex   to xAOD::Vertex,
+ *                         from Trk::Vertex      to Amg::Vector3D
+ *
+ * Also, VxMultiVertex EDM has been migrated to the following:
+ *
+ *   Trk::MvfFitInfo  
+ *     constraintVertex     now uses xAOD::Vertex
+ *     seedVertex           now uses Amg::Vector3D
+ *     linearizationVertex  now uses Amg::Vector3D
+ *
+ *   Trk::TrackToVtxLink
+ *     Vertex objects stored using this class are now xAOD::Vertex
+ *
+ * Instead of using the MVFVxCandidate class, xAOD::Vertex is employed by decorating it
+ * with the multi-vertex information:
+ *
+ *   bool                              isInitialized
+ *   MvfFitInfo*                       MvfFitInfo
+ *   std::Vector<VxTrackAtVertex*>     VTAV
+ *
+ *   This last decoration is needed in order to be able to use MVFVxTrackAtVertex objects
+ *   which have the additional information of xAOD::Vertices associated to the track
+ *   and (through polymorphism) to still be able to pass them to the KalmanVertexUpdator as
+ *   VxTracksAtVertex objects.
  */
-
 
 #ifndef INDETPRIVXFINDERTOOL_INDETADAPTIVEMULTIPRIVXFINDERTOOL_H
 #define INDETPRIVXFINDERTOOL_INDETADAPTIVEMULTIPRIVXFINDERTOOL_H
@@ -68,7 +98,6 @@
 #include "xAODTracking/VertexContainerFwd.h"
 #include "xAODTracking/TrackParticleContainerFwd.h"
 
-class VxContainer;
 class TrackToVtxLinkContainer;
 class NN;
 class IBeamCondSvc;
@@ -77,11 +106,9 @@ namespace Trk
 {
   class IVertexSeedFinder;
   class AdaptiveMultiVertexFitter;
-  class VxCandidate;
   class Track;
   class ITrackLink;
   class TrkQuality;
-  class Vertex;
   class IVxCandidateXAODVertex;
 }
 
@@ -103,7 +130,7 @@ namespace InDet
     /**
      * The MultiVertexFinding is performed.
      *
-     * Input is the Track Collection. Output is the VxContainer 
+     * Input is the Track Collection. Output is the VertexContainer 
      * with a list of fitted vertices, according to the probability 
      * of being the primary interaction point.
      * 
@@ -111,18 +138,18 @@ namespace InDet
      *
      */
 
-    VxContainer* findVertex(const TrackCollection* trackTES);
-    VxContainer* findVertex(const Trk::TrackParticleBaseCollection* trackTES);
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trackTES);
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES);
     std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles);
 
     StatusCode finalize();
     
   private:
 
-    VxContainer* findVertex(const std::vector<const Trk::ITrackLink*> & trackVector);
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const std::vector<const Trk::ITrackLink*> & trackVector);
   
-    void m_SGError(std::string errService);
-    virtual void m_printParameterSettings();
+    void SGError(std::string errService);
+    virtual void printParameterSettings();
 
     ToolHandle< Trk::AdaptiveMultiVertexFitter > m_MultiVertexFitter;
     ToolHandle< Trk::IVertexSeedFinder > m_SeedFinder;
@@ -249,22 +276,22 @@ namespace InDet
 
    double m_maximumVertexContamination;
 
-//    struct CompareTheTwoVxCandidates {
-//      bool operator()( Trk::VxCandidate* const & first, Trk::VxCandidate* const & second);
-//    };
+   struct CompareTheTwoVertices {
+     bool operator()( xAOD::Vertex* const & first, xAOD::Vertex* const & second);
+   };
 
    /**												     
     * Internal method to estimate the probability to be signal vertex of a certain vertex candidate. 
     */												     
 
-   double estimateSignalCompatibility(Trk::VxCandidate *mycand);				     
+   double estimateSignalCompatibility(xAOD::Vertex *myxAODVertex);				     
 
    /**
     * Estimate DeltaZ given a certain track parameters and beam spot center position
     * ONLY TEMPORARY 15-08-2009: common tool needed to collect this method
     */
    
-   double estimateDeltaZ(const Trk::TrackParameters& myPerigee, const Trk::Vertex& myTransvVertex);
+   double estimateDeltaZ(const Trk::TrackParameters& myPerigee, const Amg::Vector3D& myTransvVertex);
 
    
 

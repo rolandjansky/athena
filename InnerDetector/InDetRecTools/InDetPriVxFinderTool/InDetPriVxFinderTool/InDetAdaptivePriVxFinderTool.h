@@ -31,6 +31,13 @@
  *      06/12/2006   Kirill.Prokofiev@cern.ch 
  *      EDM cleanup and switching to the FitQuality use 
  *
+ *      2016-04-26   David Shope <david.richard.shope@cern.ch>
+ *      EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
+ *
+ *        findVertex will now always return an xAOD::VertexContainer,
+ *        even when using a TrackCollection or a TrackParticleBaseCollection
+ *        as input.
+ *
  ***************************************************************************/
 
 //implemented using as template the InDetPriVxFinderTool class of A. Wildauer and F. Akesson
@@ -49,7 +56,6 @@
  * Forward declarations 
  */
  
-class VxContainer;
 class IBeamCondSvc;
 #include "xAODTracking/VertexFwd.h"
 #include "xAODTracking/TrackParticleFwd.h"
@@ -59,7 +65,6 @@ class IBeamCondSvc;
 namespace Trk
 {
  class IVertexFitter;
- class VxCandidate;
  class Track;
  class TrackParticleBase;
  class IVxCandidateXAODVertex;
@@ -94,8 +99,8 @@ public:
     * a VxContainer.
     */
 
-   VxContainer* findVertex(const TrackCollection* trackTES);//by GP: deleted const before VxContainer*
-   VxContainer* findVertex(const Trk::TrackParticleBaseCollection* trackTES);
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trackTES);
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES);
    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles);
    
    StatusCode finalize();
@@ -103,7 +108,7 @@ public:
  private:
    
    /** the common finding code (regardless of Track or TrackParticle(Base) is here */
-   VxContainer* m_findVertex(std::vector<const Trk::TrackParameters*>& origParameters);
+   std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(std::vector<const Trk::TrackParameters*>& origParameters);
 
    ToolHandle< Trk::IVertexFitter > m_iVertexFitter;
    ToolHandle< InDet::IInDetTrackSelectionTool > m_trkFilter;
@@ -112,13 +117,13 @@ public:
    ServiceHandle<IBeamCondSvc> m_iBeamCondSvc; //!< pointer to the beam condition service
    
 
-   void m_SGError(std::string errService);
+   void SGError(std::string errService);
 
    /**
     * Internal method to print the parameters setting
     */
 
-   virtual void m_printParameterSettings();
+   virtual void printParameterSettings();
  
  };//end of class definitions
 }//end of namespace definitions

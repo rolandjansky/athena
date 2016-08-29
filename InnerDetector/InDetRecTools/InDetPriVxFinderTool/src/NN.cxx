@@ -6,12 +6,12 @@
 #include <cmath>
 
 double NN::value(int index,double in0,double in1,double in2,double in3,double in4,double in5) {
-   input0 = (in0 - 12179.3)/28373;
-   input1 = (in1 - 4851.2)/10068.7;
-   input2 = (in2 - 3081.34)/5700.85;
-   input3 = (in3 - 38999.7)/69592.8;
-   input4 = (in4 - 1.19444e+09)/7.98268e+09;
-   input5 = (in5 - 15.2873)/17.2206;
+   m_input0 = (in0 - 12179.3)/28373;
+   m_input1 = (in1 - 4851.2)/10068.7;
+   m_input2 = (in2 - 3081.34)/5700.85;
+   m_input3 = (in3 - 38999.7)/69592.8;
+   m_input4 = (in4 - 1.19444e+09)/7.98268e+09;
+   m_input5 = (in5 - 15.2873)/17.2206;
    switch(index) {
      case 0:
          return ((neuron0x8f1eda8()*1)+0);
@@ -21,27 +21,27 @@ double NN::value(int index,double in0,double in1,double in2,double in3,double in
 }
 
 double NN::neuron0x8eed3f8() {
-   return input0;
+   return m_input0;
 }
 
 double NN::neuron0x8f0ea18() {
-   return input1;
+   return m_input1;
 }
 
 double NN::neuron0x8f0ec10() {
-   return input2;
+   return m_input2;
 }
 
 double NN::neuron0x8f0ee08() {
-   return input3;
+   return m_input3;
 }
 
 double NN::neuron0x8f0f030() {
-   return input4;
+   return m_input4;
 }
 
 double NN::neuron0x8f1d488() {
-   return input5;
+   return m_input5;
 }
 
 double NN::input0x8f1d6a0() {

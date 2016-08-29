@@ -17,6 +17,13 @@
              Development never stops ;). 
 	     Now adding the split vertices for the HI run
 
+             2016-04-26  David Shope <david.richard.shope@cern.ch>
+
+             EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex
+   
+               findVertex will now always return an xAOD::VertexContainer,
+               even when using a TrackCollection or a TrackParticleBaseCollection
+               as input.
  ***************************************************************************/
 
 #ifndef INDETPRIVXFINDERTOOL_INDETPRIVXFINDERTOOL_H
@@ -79,7 +86,6 @@
 */
 
 /* Forward declarations */
-class VxContainer;
 class IBeamCondSvc;
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
@@ -89,7 +95,6 @@ class IBeamCondSvc;
 namespace Trk
 {
 class IVertexFitter;
-class VxCandidate;
 class Track;
 class TrackParticleBase;
 class IVxCandidateXAODVertex;
@@ -106,8 +111,8 @@ public:
     InDetPriVxFinderTool(const std::string& t, const std::string& n, const IInterface*  p);
     virtual ~InDetPriVxFinderTool();
     StatusCode initialize();
-    VxContainer* findVertex(const TrackCollection* trackTES);
-    VxContainer* findVertex(const Trk::TrackParticleBaseCollection* trackTES);
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const TrackCollection* trackTES);
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const Trk::TrackParticleBaseCollection* trackTES);
     std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(const xAOD::TrackParticleContainer* trackParticles);
     StatusCode finalize();
 private:
@@ -129,10 +134,11 @@ private:
     double m_maxChi2PerTrack;
 
     /** the common finding code (regardless of Track or TrackParticle(Base) is here */
-    VxContainer* m_findVertex(std::vector< std::vector<const Trk::TrackParameters*> >& origParameters);
-    
-    virtual void m_sortTracksInChi2(std::vector<int> &indexOfSortedChi2, Trk::VxCandidate * myVxCandidate);
-    virtual void m_sortTracksInZ0(std::vector<const Trk::TrackParameters*> tv,std::vector<int>& indexOfSortedZ0);
+    //VxContainer* m_findVertex(std::vector< std::vector<const Trk::TrackParameters*> >& origParameters);
+    std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> findVertex(std::vector< std::vector<const Trk::TrackParameters*> >& origParameters);
+
+    virtual void sortTracksInChi2(std::vector<int> &indexOfSortedChi2, xAOD::Vertex * myxAODVertex);
+    virtual void sortTracksInZ0(std::vector<const Trk::TrackParameters*> tv,std::vector<int>& indexOfSortedZ0);
     
     
     bool m_createSplitVertices;
