@@ -57,8 +57,8 @@ trt.Override_trEfficiencyEndCapB = 0.809
 # 0.000070 0.000070 0.002446 0.002141 0.002235 0.002146   01-00-09
 # 0.000070 0.000070 0.002660 0.002352 0.002414 0.002295   01-00-24    (HT middle-bit fraction tune - scaled from Xenon study)
 # 0.000070 0.000070 0.002607 0.002540 0.002414 0.002295   01-01-16    (HT middle-bit fraction tune - 2015 data)
-trt.Override_lowThresholdBarArgon        = 0.000070
-trt.Override_lowThresholdECArgon         = 0.000070
+trt.Override_lowThresholdBarArgon        = 0.000150
+trt.Override_lowThresholdECArgon         = 0.000150
 trt.Override_highThresholdBarShortArgon  = 0.002607
 trt.Override_highThresholdBarLongArgon   = 0.002540
 trt.Override_highThresholdECAwheelsArgon = 0.002414
