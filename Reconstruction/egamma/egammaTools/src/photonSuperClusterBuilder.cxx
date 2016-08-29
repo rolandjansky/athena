@@ -123,10 +123,6 @@ StatusCode photonSuperClusterBuilder::finalize() {
 
 StatusCode photonSuperClusterBuilder::execute(){
 
-  // for stats
-  int nWindowClusters = 0;
-  int nExtraClusters = 0;
-
   //Retrieve input egammaRec container.
   const EgammaRecContainer *egammaRecs = 0;
   StatusCode sc=evtStore()->retrieve(egammaRecs, m_inputEgammaRecContainerName );
@@ -186,6 +182,10 @@ StatusCode photonSuperClusterBuilder::execute(){
     //////////////////////////////
     //Core Logic goes here
     ATH_MSG_DEBUG("Find secondary clusters");
+
+    // for stats
+    int nWindowClusters = 0;
+    int nExtraClusters = 0;
 
     const std::vector<std::size_t> secondaryClusters = 
       SearchForSecondaryClusters(i, egammaRecs, isUsed, nWindowClusters, nExtraClusters);
@@ -269,6 +269,18 @@ StatusCode photonSuperClusterBuilder::execute(){
     nExtraClustersAcc(*newCluster) = nExtraClusters;
     ATH_MSG_DEBUG("extra  clusters " << nExtraClusters);
     //////////////////////////////////////////////////////////////////
+
+    // ////////////////////////////////////////////////////////////////
+    // // This is effectively an assert. Can comment out when not debugging
+    // const auto numClusters = constituentLinks.size();
+    // if (!((numClusters == 1 && nWindowClusters == 0 && nExtraClusters == 0) ||
+    // 	  (numClusters > 1 && (nWindowClusters || nExtraClusters)))) {
+    //   ATH_MSG_FATAL("The cluster links or the counts are wrong!");
+    //   ATH_MSG_FATAL("  numClusters = " << numClusters 
+    // 		    << ", nWindowClusters = " << nWindowClusters
+    // 		    << ", nExtraClusters = " << nExtraClusters);
+    //   return StatusCode::FAILURE;
+    // }
 
     //Add the remaining cells
     if (m_sumRemainingCellsInWindow) {

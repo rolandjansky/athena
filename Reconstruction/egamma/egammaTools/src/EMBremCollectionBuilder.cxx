@@ -104,9 +104,6 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
   declareProperty("narrowDeltaPhiRescaleBrem",               m_narrowRescaleBrem =0.1,
 		  "Value of the narrow cut for delta phi Rescale Brem");
 
-  //Switch to turn on-off saving of brem points found by GSF.
-  declareProperty("UseBremFinder", m_useBremFinder = false);
-
   m_AllClusters=0;
   m_AllTracks=0;
   m_AllTRTTracks=0;
@@ -118,7 +115,6 @@ EMBremCollectionBuilder::EMBremCollectionBuilder(const std::string& type, const 
   m_FailedSiliconRequirFit=0;
   m_RefittedTracks=0;
 
-  
   declareInterface<IEMBremCollectionBuilder>(this);
 }
 // ===================================================================
@@ -192,7 +188,7 @@ StatusCode EMBremCollectionBuilder::EMBremCollectionBuilder::finalize(){
   ATH_MSG_INFO ("Not refitted due to Silicon Requirements " << m_FailedSiliconRequirFit);
   ATH_MSG_INFO ("Failed Fit Tracks " << m_FailedFitTracks);
   ATH_MSG_INFO ("RefittedTracks " << m_RefittedTracks);
-
+  
   return StatusCode::SUCCESS;
 }
 
@@ -405,27 +401,35 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     trk_refit = new Trk::Track(*tmpTrk);
   }
 
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
-  //Try looking for hard brem points after using BremFinder tool.
-  std::vector<const Trk::TrackStateOnSurface*> bremTSOS;
-  if (m_useBremFinder) {
-    if (trk_refit) {
-      auto tsos = trk_refit->trackStateOnSurfaces()->begin();
-      for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
-	if ((*tsos)->type(Trk::TrackStateOnSurface::BremPoint) && (*tsos)->trackParameters()!=0) {
-	  Trk::EstimatedBremOnTrack *estimatedBremOnTrack(0);
-	  if ((*tsos)->materialEffectsOnTrack()) {
-	    estimatedBremOnTrack = (Trk::EstimatedBremOnTrack*)((*tsos)->materialEffectsOnTrack());
-	  } 
-	
-	  if (estimatedBremOnTrack) {
-	    bremTSOS.push_back((**tsos).clone());
-	  }
-	}
+  //Save perigee eta, phi for later usage in supercluster algorithm.
+  std::vector<float> perigeeExtrapEta, perigeeExtrapPhi;
+  if (trk_refit) {
+    auto tsos = trk_refit->trackStateOnSurfaces()->begin();
+    for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
+
+      if ((*tsos)->type(Trk::TrackStateOnSurface::Perigee) && (*tsos)->trackParameters()!=0) {
+
+	float extrapEta(-999.), extrapPhi(-999.);
+	const Trk::TrackParameters      *perigeeTrackParams(0);
+      
+	perigeeTrackParams = (*tsos)->trackParameters();
+      
+	const Trk::PerigeeSurface pSurface (perigeeTrackParams->position());
+	std::unique_ptr<const Trk::TrackParameters> pTrkPar(pSurface.createTrackParameters( perigeeTrackParams->position(), perigeeTrackParams->momentum().unit()*1.e9, +1, 0));
+
+	//Do the straight-line extrapolation.	  
+	bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
+	if (hitEM2) {
+	  perigeeExtrapEta.push_back(extrapEta);
+	  perigeeExtrapPhi.push_back(extrapPhi);
+	} else {
+	  ATH_MSG_INFO("Extrapolation to EM2 failed!");
+	  perigeeExtrapEta.push_back(-999.);
+	  perigeeExtrapPhi.push_back(-999.);
+	}	
       }
     }
   }
-  ////////////////////////////////////////////////////////////////////////////////////////////////////
   
   //Slim the tracks   
   Trk::Track* slimmed = m_slimTool->slim(*trk_refit);
@@ -452,11 +456,11 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     aParticle->setTrackLink( trackLink );     
     aParticle->setVertexLink(tmpTrkPart->vertexLink());     
 
-    //If requested, save list of brem points.
-    if (m_useBremFinder) {
-      static const SG::AuxElement::Accessor< std::vector<const Trk::TrackStateOnSurface*> > bremPoints("bremPoints");
-      bremPoints(*aParticle) = bremTSOS;
-    }
+    static const SG::AuxElement::Accessor< std::vector<float> > pgExtrapEta ("perigeeExtrapEta");
+    pgExtrapEta(*aParticle) = perigeeExtrapEta;    
+
+    static const SG::AuxElement::Accessor<std::vector<float> > pgExtrapPhi ("perigeeExtrapPhi");
+    pgExtrapPhi(*aParticle) = perigeeExtrapPhi;
     
     //Add qoverP for the last measurement
     static const SG::AuxElement::Accessor<float > QoverPLM  ("QoverPLM");
