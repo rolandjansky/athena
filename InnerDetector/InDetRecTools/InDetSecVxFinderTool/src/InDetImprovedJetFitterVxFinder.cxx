@@ -253,85 +253,85 @@ namespace InDet
     StatusCode sc = AlgTool::initialize();
     if(sc.isFailure())
       {
-	msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endreq;
+	msg(MSG::ERROR)<<" Unable to initialize the AlgTool"<<endmsg;
 	return sc;
       }
     
     //retrieving the udator itself 	 
     sc =  m_helper.retrieve();
     if(sc.isFailure()) 	  { 	 
-      	msg(MSG::ERROR) << " Unable to retrieve "<<m_helper<<endreq; 	 
+      	msg(MSG::ERROR) << " Unable to retrieve "<<m_helper<<endmsg; 	 
       return StatusCode::FAILURE; 	 
-    }else msg(MSG::INFO) << "JetFitter Helper retrieved"<<endreq; 
+    }else msg(MSG::INFO) << "JetFitter Helper retrieved"<<endmsg; 
     
     
     sc = m_initializationHelper.retrieve();
     if(sc.isFailure()) 	  { 	 
-      msg(MSG::ERROR) << " Unable to retrieve "<<m_initializationHelper<<endreq; 	 
+      msg(MSG::ERROR) << " Unable to retrieve "<<m_initializationHelper<<endmsg; 	 
       return StatusCode::FAILURE; 	 
-    }else msg(MSG::INFO) << "JetFitter Initialization Helper retrieved"<<endreq; 
+    }else msg(MSG::INFO) << "JetFitter Initialization Helper retrieved"<<endmsg; 
     
     sc = m_routines.retrieve();
     if(sc.isFailure()) 	  
     { 	 
-      msg(MSG::ERROR) << " Unable to retrieve the JetFitter routines"<<m_routines<<endreq; 	 
+      msg(MSG::ERROR) << " Unable to retrieve the JetFitter routines"<<m_routines<<endmsg; 	 
       return StatusCode::FAILURE; 	 
     }
-    else msg(MSG::INFO) << "JetFitter Routines class retrieved"<<endreq; 
+    else msg(MSG::INFO) << "JetFitter Routines class retrieved"<<endmsg; 
     
     if(m_trkFilter.retrieve().isFailure()) 
     {
-      msg(MSG::ERROR) << " Unable to retrieve "<<m_trkFilter<<endreq;
+      msg(MSG::ERROR) << " Unable to retrieve "<<m_trkFilter<<endmsg;
       return StatusCode::FAILURE;
     } 
-    else msg(MSG::INFO) << "Track filter retrieved"<<endreq; 
+    else msg(MSG::INFO) << "Track filter retrieved"<<endmsg; 
     
     
     if (m_jetFitterUtils.retrieve().isFailure()) 
     {
-      msg(MSG::ERROR) << "Could not find JetFitterUtils tool." << endreq;
+      msg(MSG::ERROR) << "Could not find JetFitterUtils tool." << endmsg;
       return StatusCode::FAILURE;
     } 
-    else msg(MSG::INFO) << " JetFitterUtils retrieved" << endreq;
+    else msg(MSG::INFO) << " JetFitterUtils retrieved" << endmsg;
 
     if (m_CrossDistancesSeedFinder.retrieve().isFailure())
     {
-      msg(MSG::ERROR) <<  "Could not find CrossDistancesSeedFinder tool." << endreq;
+      msg(MSG::ERROR) <<  "Could not find CrossDistancesSeedFinder tool." << endmsg;
       return StatusCode::FAILURE;
-    } else msg(MSG::INFO) << " CrossDistancesSeedFinder tool retrieved" << endreq;
+    } else msg(MSG::INFO) << " CrossDistancesSeedFinder tool retrieved" << endmsg;
       
     if (m_mode3dfinder.retrieve().isFailure())
     {
-      msg(MSG::ERROR) <<  "Could not find mode3dfinder tool." << endreq;
+      msg(MSG::ERROR) <<  "Could not find mode3dfinder tool." << endmsg;
       return StatusCode::FAILURE;
-    } else msg(MSG::INFO) << " Mode3DFinder tool retrieved" << endreq;
+    } else msg(MSG::INFO) << " Mode3DFinder tool retrieved" << endmsg;
 
     if (m_SequentialVertexFitter.retrieve().isFailure())
     {
-      msg(MSG::ERROR) <<  "Could not get the sequential vertex fitter tool."<<endreq;
+      msg(MSG::ERROR) <<  "Could not get the sequential vertex fitter tool."<<endmsg;
       return StatusCode::FAILURE;
-    } else msg(MSG::INFO) << " Sequential vertex fitter retrieved " << endreq;
+    } else msg(MSG::INFO) << " Sequential vertex fitter retrieved " << endmsg;
 
     if (m_extrapolator.retrieve().isFailure())
     {
-    msg(MSG::ERROR) << "Could not find extrapolator tool." << endreq;
+    msg(MSG::ERROR) << "Could not find extrapolator tool." << endmsg;
     return StatusCode::FAILURE;
-    } else msg(MSG::INFO) <<  " Extrapolator retrieved " << endreq;
+    } else msg(MSG::INFO) <<  " Extrapolator retrieved " << endmsg;
     
     sc = m_VertexEdmFactory.retrieve();
     if(sc.isFailure()) {
-      msg(MSG::ERROR) << "Unable to retrieve" << m_VertexEdmFactory <<endreq;
+      msg(MSG::ERROR) << "Unable to retrieve" << m_VertexEdmFactory <<endmsg;
       return StatusCode::FAILURE;
-    } else msg(MSG::INFO) << " xAOD vertex converter retrieved " <<endreq;
+    } else msg(MSG::INFO) << " xAOD vertex converter retrieved " <<endmsg;
 
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
 
    StatusCode InDetImprovedJetFitterVxFinder::finalize() {
 
-     msg(MSG::INFO)  << "Finalize successful" << endreq;
+     msg(MSG::INFO)  << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS;
 
   } 
@@ -344,7 +344,7 @@ namespace InDet
     std::vector<const Trk::ITrackLink*> selectedTracks;
            
     std::vector<const xAOD::IParticle*>::const_iterator   trk_iter;
-    std::vector<const xAOD::IParticle*>::const_iterator   trk_end=inputTracks.end();
+    //std::vector<const xAOD::IParticle*>::const_iterator   trk_end=inputTracks.end();
 
 
     double sumpT=0;
@@ -417,7 +417,7 @@ namespace InDet
   const Trk::VxSecVertexInfo* InDetImprovedJetFitterVxFinder::findSecVertex(const Trk::RecVertex & primaryVertex,
                                                                             const TLorentzVector & jetMomentum,
                                                                             const std::vector<const Trk::TrackParticleBase*> & myTracks) const {
-    if (msgLvl(MSG::VERBOSE)) msg() << " Starting findSecVertex " << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << " Starting findSecVertex " << endmsg;
 
     std::vector<const Trk::ITrackLink*> selectedTracks;
 
@@ -427,7 +427,7 @@ namespace InDet
 	 tracksIter!=tracksEnd;++tracksIter) {
       if (m_trkFilter->decision(**tracksIter,&primaryVertex)==true) {
         
-        if (msgLvl(MSG::VERBOSE)) msg() << " Adding new ElementLink " << endreq;
+        if (msgLvl(MSG::VERBOSE)) msg() << " Adding new ElementLink " << endmsg;
         
         ElementLink<Trk::TrackParticleBaseCollection> link;
         link.setElement(const_cast<Trk::TrackParticleBase*>(*tracksIter));
@@ -450,7 +450,7 @@ namespace InDet
                                                                            const std::vector<const Trk::ITrackLink*> & myTracks) const
   {
   
-    if (msgLvl(MSG::VERBOSE)) msg() <<  " doTheFinding called " << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() <<  " doTheFinding called " << endmsg;
 
     //some fundamental masses
     //I know they are hard coded here... 
@@ -467,7 +467,7 @@ namespace InDet
 //    const xAOD::VertexContainer* myVxContainer(0);
 //    StatusCode sc = evtStore()->retrieve(myVxContainer,m_VxContainerName);
 //    if (sc.isFailure()) {
-//      msg(MSG::ERROR) << m_VxContainerName << " not found in StoreGate." << endreq;
+//      msg(MSG::ERROR) << m_VxContainerName << " not found in StoreGate." << endmsg;
 //      return 0;
 //    }  
 //
@@ -497,14 +497,14 @@ namespace InDet
     Trk::VxCandidate* signalVertex=0;
     sc = m_VertexEdmFactory->createVxCandidate(primaryVertex, signalVertex);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << m_VertexEdmFactory << " fail to createVxCandidate." << endreq;
+      msg(MSG::ERROR) << m_VertexEdmFactory << " fail to createVxCandidate." << endmsg;
       return 0;
     }  
 
 
     if (signalVertex==0)
     {
-      if (msgLvl(MSG::WARNING)) msg() << " No primary vertex in collection for jetfitter... No secondary vertices fit can be performed" << endreq;
+      if (msgLvl(MSG::WARNING)) msg() << " No primary vertex in collection for jetfitter... No secondary vertices fit can be performed" << endmsg;
     }
     const Trk::RecVertex& primaryVertexRecVertex = signalVertex->recVertex();
 
@@ -516,7 +516,7 @@ namespace InDet
     std::vector<const Trk::ITrackLink*> secondaryTracks;
 
     //here all the V0candidates will be stored
-    std::vector<const Trk::VxCandidate*> V0candidates;
+    std::vector<const xAOD::Vertex*> V0candidates;
     std::map<const Trk::ITrackLink*,const Trk::ITrackLink*> fromLinkInV0CandidateToOriginalLink;
 
     //here the Neutral Tracks to store as TrackParticleBase
@@ -550,7 +550,7 @@ namespace InDet
     //now you need to get the compatibility of the tracks
     //(you want to use the primary vertex chi2 if this is NEEDED)
 
-    if (msgLvl(MSG::VERBOSE)) msg() << " JetFitterFinding phase 1: getting the compatibilities of all tracks to the primary vertex... " << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << " JetFitterFinding phase 1: getting the compatibilities of all tracks to the primary vertex... " << endmsg;
 
     std::vector<Trk::VxTrackAtVertex*>::const_iterator trkBegin=signalVertex->vxTrackAtVertex()->begin();
     std::vector<Trk::VxTrackAtVertex*>::const_iterator trkEnd=signalVertex->vxTrackAtVertex()->end();
@@ -579,7 +579,7 @@ namespace InDet
 
       if (!trkCastedLinkTPxAOD && !trkCastedLinkTPBase)
       {
-        if (msgLvl(MSG::WARNING)) msg() <<  " One track among the selected ones is neither an xAOD::TrackParticle nor a TrackParticle. Skipping track..." << endreq;
+        if (msgLvl(MSG::WARNING)) msg() <<  " One track among the selected ones is neither an xAOD::TrackParticle nor a TrackParticle. Skipping track..." << endmsg;
         continue;
       }
       
@@ -590,7 +590,7 @@ namespace InDet
      
       //const Trk::Perigee* myMeasuredPerigee=0;
 
-      if (msgLvl(MSG::VERBOSE)) msg() <<  "PV position " << primaryVertexRecVertex.position().x() << " " << primaryVertexRecVertex.position().y() << " " << primaryVertexRecVertex.position().z() << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() <<  "PV position " << primaryVertexRecVertex.position().x() << " " << primaryVertexRecVertex.position().y() << " " << primaryVertexRecVertex.position().z() << endmsg;
 
        const Trk::TrackParameters* myMeasuredPerigee=nullptr;
       
@@ -605,7 +605,7 @@ namespace InDet
         
         //if (perigeeBeforeExtrapolation==0)
         //{
-        //  if (msgLvl(MSG::WARNING)) msg() <<  "No Perigee at TrackParticleBase: this is a problem!" << endreq;
+        //  if (msgLvl(MSG::WARNING)) msg() <<  "No Perigee at TrackParticleBase: this is a problem!" << endmsg;
         //  continue;
         //}
 
@@ -625,7 +625,7 @@ namespace InDet
 
       if (!myMeasuredPerigee)
       {
-        msg(MSG::WARNING) << " Extrapolation to primary vertex failed. Skipping track " << endreq;
+        msg(MSG::WARNING) << " Extrapolation to primary vertex failed. Skipping track " << endmsg;
         continue;
       }
 
@@ -661,8 +661,8 @@ namespace InDet
           {
             if (countDebug%500==0)
             {
-              if (msgLvl(MSG::DEBUG)) msg() <<  " Jet Fitter Vertex Finding is done on TrackParticleBase, primary vertex information is stored based on xAOD::TrackParticleBase or viceversa." << endreq;
-              if (msgLvl(MSG::DEBUG)) msg() <<  " Cannot use the fit of primary vertex for estimating the compatibility to the primary vertex. No correlation between primary vertex fit and track will be considered. Please activate PV REFITTING on AOD..." << endreq;
+              if (msgLvl(MSG::DEBUG)) msg() <<  " Jet Fitter Vertex Finding is done on TrackParticleBase, primary vertex information is stored based on xAOD::TrackParticleBase or viceversa." << endmsg;
+              if (msgLvl(MSG::DEBUG)) msg() <<  " Cannot use the fit of primary vertex for estimating the compatibility to the primary vertex. No correlation between primary vertex fit and track will be considered. Please activate PV REFITTING on AOD..." << endmsg;
             }
             countDebug+=1;
           }
@@ -672,7 +672,7 @@ namespace InDet
         
         if (case11&&case22)
         {
-          msg(MSG::WARNING) << " Throwing exception " << endreq;
+          msg(MSG::WARNING) << " Throwing exception " << endmsg;
           throw std::string("Internal algorithmic error in InDetImprovedJetFitterVxFinder");
         }
         
@@ -708,17 +708,17 @@ namespace InDet
           if (fabs(WouldBe/fitQuality.chiSquared()-1)>0.02)
           {
             if (msgLvl(MSG::VERBOSE)) msg() << " Probability mismatch: 1st vertex chi2 is: " << fitQuality.chiSquared() << 
-                                          " while a posteriori chi2 is: " << WouldBe << endreq;
+                                          " while a posteriori chi2 is: " << WouldBe << endmsg;
             
 	    if (msgLvl(MSG::VERBOSE)) msg() << "d0/s(d0)" << myMeasuredPerigee->parameters()[Trk::d0]/Amg::error(*myMeasuredPerigee->covariance(),Trk::d0) 
-					    << "z0/s(z0)" << myMeasuredPerigee->parameters()[Trk::z0]/Amg::error(*myMeasuredPerigee->covariance(),Trk::z0) << endreq;
+					    << "z0/s(z0)" << myMeasuredPerigee->parameters()[Trk::z0]/Amg::error(*myMeasuredPerigee->covariance(),Trk::z0) << endmsg;
             
           }
         }
 	//	else
 	//	  {
 	//	    if (msgLvl(MSG::VERBOSE)) msg() << " Probability match: 1st vertex chi2 is: " << fitQuality.chiSquared() <<
-	//					" while a posteriori chi2 is: " << WouldBe << endreq;
+	//					" while a posteriori chi2 is: " << WouldBe << endmsg;
 	//	  }
         
 #endif
@@ -728,7 +728,7 @@ namespace InDet
       } 
       else 
       {
-        if (msgLvl(MSG::VERBOSE)) msg() << " Not using any primary vertex information for track compatibilities." << endreq;
+        if (msgLvl(MSG::VERBOSE)) msg() << " Not using any primary vertex information for track compatibilities." << endmsg;
       }
       
       if (!matched) 
@@ -738,13 +738,13 @@ namespace InDet
 #ifdef InDetImprovedJetFitterVxFinder_DEBUGAddOns
         
         if (msgLvl(MSG::DEBUG)) msg() << " the compatibility which will be stored for a non primary vtx track is: " << 
-            actualcomp << endreq;
+            actualcomp << endmsg;
         if (msgLvl(MSG::VERBOSE)) 
         {
 	  //Amg::Vector3D trackParameters = myMeasuredPerigee->parameters();
           
           msg(MSG::VERBOSE) << "d0/s(d0)" << myMeasuredPerigee->parameters()[Trk::d0]/Amg::error(*myMeasuredPerigee->covariance(),Trk::d0) 
-                            << "z0/s(z0)" << myMeasuredPerigee->parameters()[Trk::z0]/Amg::error(*myMeasuredPerigee->covariance(),Trk::z0) << endreq;
+                            << "z0/s(z0)" << myMeasuredPerigee->parameters()[Trk::z0]/Amg::error(*myMeasuredPerigee->covariance(),Trk::z0) << endmsg;
         }
 #endif
         
@@ -770,7 +770,7 @@ namespace InDet
     //3) myTracks (const std::vector<const Trk::ITrackLink*>)
     //4) compatibilityOfTrack (std::map<const Trk::ITrackLink*,double>)
 
-    if (msgLvl(MSG::VERBOSE)) msg() <<  " JetFitterFinding phase 2: distinguish between primary and secondary tracks " << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() <<  " JetFitterFinding phase 2: distinguish between primary and secondary tracks " << endmsg;
 
     //now distinguish between primary and secondary tracks
 
@@ -805,7 +805,7 @@ namespace InDet
 
     //now you also have primaryTracks and secondaryTracks
 
-    if (msgLvl(MSG::VERBOSE)) msg() << " JetFitterFinding phase 3: finding all two track vertices combinations " << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << " JetFitterFinding phase 3: finding all two track vertices combinations " << endmsg;
     
     //iterate only on the secondaryTracks and go through all the 2-tracks combinations
     
@@ -835,33 +835,38 @@ namespace InDet
         
         perigeeToFit.clear();
         secondPerigee=(*secondaryTracksIter2)->parameters();
-        
      	perigeeToFit.push_back(firstPerigee);
 	perigeeToFit.push_back(secondPerigee);
         
-	Trk::Vertex seedVertex;
+	//MU Trk::Vertex seedVertex;
+	Amg::Vector3D seedVertex;
 	try {
 	  seedVertex=m_CrossDistancesSeedFinder->findSeed(perigeeToFit);
 
-	  Amg::Vector3D seedVertexPos=seedVertex.position();
+	  //MU	  Amg::Vector3D seedVertexPos=seedVertex.position();
           
-          if (seedVertex.position().perp()>m_maxR || fabs(seedVertex.position().z())>m_maxZ)
+	  //MU          if (seedVertex.position().perp()>m_maxR || fabs(seedVertex.position().z())>m_maxZ)
+          if (seedVertex.perp()>m_maxR || fabs(seedVertex.z())>m_maxZ)
           {
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Vertex seed outside ID. R=" << seedVertex.position().perp() << " Z=" << seedVertex.position().z() << endreq;   
-            seedVertexPos[0] = (primaryVertexRecVertex.position().x());
-            seedVertexPos[1] = (primaryVertexRecVertex.position().y());
-            seedVertexPos[2] = (primaryVertexRecVertex.position().z());
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Vertex seed outside ID. R=" << seedVertex.perp() << " Z=" << seedVertex.z() << endmsg;   
+            seedVertex[0] = (primaryVertexRecVertex.position().x());
+            seedVertex[1] = (primaryVertexRecVertex.position().y());
+            seedVertex[2] = (primaryVertexRecVertex.position().z());
           }
 	} catch (...) {
-	  if (msgLvl(MSG::WARNING)) msg() <<  "Seed finding failed. Using primary vertex as seed... (clearly not optimal)" << endreq;
-	  seedVertex=Trk::Vertex(Amg::Vector3D(primaryVertexRecVertex.position()));
+	  if (msgLvl(MSG::WARNING)) msg() <<  "Seed finding failed. Using primary vertex as seed... (clearly not optimal)" << endmsg;
+	  seedVertex=Amg::Vector3D(primaryVertexRecVertex.position());
 	}
         
         //N*(N-1) combinations are considered (this is why a cut on primary tracks is done)
-	Trk::VxCandidate* myCandidate(m_SequentialVertexFitter->fit(perigeeToFit,
-                                                                    seedVertex));
+	//MU	m_SequentialVertexFitter->fit(perigeeToFit, seedVertex);
+	xAOD::Vertex* myCandidate(m_SequentialVertexFitter->fit(perigeeToFit,
+								seedVertex));
+	//MU  			  );
+	//MU  Trk::VxCandidate* myCandidate(m_SequentialVertexFitter->fit(perigeeToFit,
+        //MU                                                              seedVertex));
 	if (myCandidate==0) {
-	  if (msgLvl(MSG::DEBUG)) msg() << " Sequential fit failed. shouldn't happen... Skipping V0 candidate... " << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg() << " Sequential fit failed. shouldn't happen... Skipping V0 candidate... " << endmsg;
           continue;
 	}
 
@@ -875,25 +880,25 @@ namespace InDet
 //        compatibilityOfTrack[newLinkTrack1]=compatibilityOfTrack[*secondaryTracksIter];
 //        compatibilityOfTrack[newLinkTrack2]=compatibilityOfTrack[*secondaryTracksIter2];
 
-        (*(myCandidate->vxTrackAtVertex()))[0]->setOrigTrack ( newLinkTrack1  );
-        (*(myCandidate->vxTrackAtVertex()))[1]->setOrigTrack ( newLinkTrack2 );
+        ((myCandidate->vxTrackAtVertex()))[0].setOrigTrack ( newLinkTrack1  );
+        ((myCandidate->vxTrackAtVertex()))[1].setOrigTrack ( newLinkTrack2 );
 
-        if (myCandidate->recVertex().fitQuality().chiSquared()<0 ||
-            myCandidate->recVertex().fitQuality().numberDoF()<0)
+        if (myCandidate->chiSquared()<0 ||
+            myCandidate->numberDoF()<0)
         {
-          msg(MSG::WARNING) << " Fit for V0 candidate failed: chi2 or ndf negative. Deleting candidate..." << endreq;
+          msg(MSG::WARNING) << " Fit for V0 candidate failed: chi2 or ndf negative. Deleting candidate..." << endmsg;
           delete myCandidate;
           myCandidate=0;
           continue;
         }
         
 
-        if (TMath::Prob(myCandidate->recVertex().fitQuality().chiSquared(),
-                        myCandidate->recVertex().fitQuality().numberDoF())>m_twoVertexProbabilityCut) 
+        if (TMath::Prob(myCandidate->chiSquared(),
+                        myCandidate->numberDoF())>m_twoVertexProbabilityCut) 
         {
 #ifdef InDetImprovedJetFitterVxFinder_DEBUGAddOns
-          if (msgLvl(MSG::DEBUG)) msg() << " passed probability vertex: " << TMath::Prob(myCandidate->recVertex().fitQuality().chiSquared(),
-                                                                                         myCandidate->recVertex().fitQuality().numberDoF()) << endreq;
+          if (msgLvl(MSG::DEBUG)) msg() << " passed probability vertex: " << TMath::Prob(myCandidate->chiSquared(),
+                                                                                         myCandidate->numberDoF()) << endmsg;
 #endif
           V0candidates.push_back(myCandidate);
           fromLinkInV0CandidateToOriginalLink[newLinkTrack1]=*secondaryTracksIter;
@@ -904,9 +909,9 @@ namespace InDet
 #ifdef InDetImprovedJetFitterVxFinder_DEBUGAddOns
           if (msgLvl(MSG::DEBUG)) msg() << " didn't pass probability cut for 2-tr vtx: " << 
               std::setprecision(10) <<
-              TMath::Prob(myCandidate->recVertex().fitQuality().chiSquared(),
-                          myCandidate->recVertex().fitQuality().numberDoF()) << 
-              endreq;
+              TMath::Prob(myCandidate->chiSquared(),
+                          myCandidate->numberDoF()) << 
+              endmsg;
 #endif        
           delete myCandidate;
           myCandidate=0;
@@ -916,23 +921,23 @@ namespace InDet
     
     //now the two track vertices were found
 
-    if (msgLvl(MSG::VERBOSE)) msg() <<  " JetFitterFinding phase 4: create neutral tracks out of recognized conversions, KS and Lambdas " << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() <<  " JetFitterFinding phase 4: create neutral tracks out of recognized conversions, KS and Lambdas " << endmsg;
 
 #ifdef InDetImprovedJetFitterVxFinder_DEBUGAddOns
-    if (msgLvl(MSG::DEBUG)) msg() <<  "Found " << V0candidates.size() << " V0 candidates. " << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() <<  "Found " << V0candidates.size() << " V0 candidates. " << endmsg;
 #endif
 
     //now iterate over all the two track vertices and realize if neutral tracks can be created from these...
     
-    std::vector<const Trk::VxCandidate*>::const_iterator v0candBegin=V0candidates.begin();
-    std::vector<const Trk::VxCandidate*>::const_iterator v0candEnd=V0candidates.end();
+    std::vector<const xAOD::Vertex*>::const_iterator v0candBegin=V0candidates.begin();
+    std::vector<const xAOD::Vertex*>::const_iterator v0candEnd=V0candidates.end();
     
-    for (std::vector<const Trk::VxCandidate*>::const_iterator v0candIter=v0candBegin;v0candIter!=v0candEnd;++v0candIter)
+    for (std::vector<const xAOD::Vertex*>::const_iterator v0candIter=v0candBegin;v0candIter!=v0candEnd;++v0candIter)
     {
       
-      const Trk::RecVertex & fittedVertex((*v0candIter)->recVertex());
+      const xAOD::Vertex * fittedVertex = *v0candIter;
 
-      double radius=fittedVertex.position().perp();
+      double radius=fittedVertex->position().perp();
 
       if (msgLvl(MSG::VERBOSE)) msg() <<   " radius of 2-tr vertex is: " << radius;
       
@@ -941,12 +946,12 @@ namespace InDet
 //          TMath::Prob(fittedVertex.fitQuality().chiSquared(),fittedVertex.fitQuality().numberDoF()) : -1;
       
       //now obtain the daughters of the two vertex
-      std::vector<Trk::VxTrackAtVertex*>::const_iterator vtxIter=(*v0candIter)->vxTrackAtVertex()->begin();
+      std::vector<Trk::VxTrackAtVertex>::const_iterator vtxIter = fittedVertex->vxTrackAtVertex().begin();
       //obtain first track
-      Trk::VxTrackAtVertex* firstTrack(*vtxIter);
+      auto const & firstTrack = *vtxIter;
       //obtain second track
       ++vtxIter;
-      Trk::VxTrackAtVertex* secondTrack(*vtxIter);
+      auto const & secondTrack = *vtxIter;
 
       int charge=m_jetFitterUtils->getTwoTrackVtxCharge(**v0candIter);
 
@@ -968,37 +973,37 @@ namespace InDet
                                                            s_massproton,
                                                            s_masspion);
 
-      if (msgLvl(MSG::VERBOSE)) msg() << " massprpi " << massprpi << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() << " massprpi " << massprpi << endmsg;
       
       std::pair<double,double> distanceAndError=
-          m_jetFitterUtils->getDistanceAndErrorBetweenTwoVertices(fittedVertex,primaryVertexRecVertex);
+          m_jetFitterUtils->getDistanceAndErrorBetweenTwoVertices(*fittedVertex,primaryVertexRecVertex);
       
-      if (msgLvl(MSG::VERBOSE)) msg() <<" distance " << distanceAndError.first << " error " <<  distanceAndError.second << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() <<" distance " << distanceAndError.first << " error " <<  distanceAndError.second << endmsg;
 
       //now assign a sign to the distance (decay in front or behind the primary vertex)
       double signeddistance=distanceAndError.first;
       
       Amg::Vector3D jetMomSpatial(jetMomentum.X(),jetMomentum.Y(),jetMomentum.Z());
-      double sign=(fittedVertex.position() - primaryVertexRecVertex.position()).dot(jetMomSpatial);
+      double sign=(fittedVertex->position() - primaryVertexRecVertex.position()).dot(jetMomSpatial);
       if (sign<0) 
       {
         signeddistance*=-1.;
       }
 
-      if (msgLvl(MSG::VERBOSE)) msg() <<" signed distance " << signeddistance << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() <<" signed distance " << signeddistance << endmsg;
 
       //now to understand if the 2-track vertex can represent a neutral track (conversion,Ks,Lambda)
       bool isKs=fabs(masspipi-s_massks)<m_cutDeltaMKs;
       bool isLambda=fabs(massprpi-s_masslambda)<m_cutDeltaMLambda;
       bool isPhoton=fabs(massee)<m_cutDeltaMGamma;
       
-      const Trk::ITrackLink* originalTrackLink1=fromLinkInV0CandidateToOriginalLink[firstTrack->trackOrParticleLink()];
-      const Trk::ITrackLink* originalTrackLink2=fromLinkInV0CandidateToOriginalLink[secondTrack->trackOrParticleLink()];
+      const Trk::ITrackLink* originalTrackLink1=fromLinkInV0CandidateToOriginalLink[firstTrack.trackOrParticleLink()];
+      const Trk::ITrackLink* originalTrackLink2=fromLinkInV0CandidateToOriginalLink[secondTrack.trackOrParticleLink()];
      
       double compatibilityTrack1=compatibilityOfTrack[originalTrackLink1];
       double compatibilityTrack2=compatibilityOfTrack[originalTrackLink2];
 
-      if (msgLvl(MSG::VERBOSE)) msg() <<" compatibility of track 1 " << compatibilityTrack1 << " compatibility of track 2 " << compatibilityTrack2 << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() <<" compatibility of track 1 " << compatibilityTrack1 << " compatibility of track 2 " << compatibilityTrack2 << endmsg;
       
       bool flightSignificance= 
           TMath::Prob(fabs(compatibilityTrack1),2)<m_cutCompatibilityPrimaryVertexSingleTrackForKsAndLambda&&
@@ -1006,14 +1011,14 @@ namespace InDet
           TMath::Prob(fabs(compatibilityTrack1)+
                       fabs(compatibilityTrack2),4)<m_cutCompatibilityPrimaryVertexBothTracksForKsAndLambda;
 
-      if (msgLvl(MSG::VERBOSE)) msg() <<" flightSignificance " << flightSignificance << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() <<" flightSignificance " << flightSignificance << endmsg;
       
-      const Trk::TrackParameters* initialPerigee1=firstTrack->initialPerigee();
-      const Trk::TrackParameters* initialPerigee2=secondTrack->initialPerigee();
+      const Trk::TrackParameters* initialPerigee1=firstTrack.initialPerigee();
+      const Trk::TrackParameters* initialPerigee2=secondTrack.initialPerigee();
       
       if (!initialPerigee1 || !initialPerigee2)
       {
-        msg(MSG::WARNING) << "No refitted parameters available for fitted v0 candidate. Discarding candidate..." << endreq;
+        msg(MSG::WARNING) << "No refitted parameters available for fitted v0 candidate. Discarding candidate..." << endmsg;
         continue;
       }
 
@@ -1024,8 +1029,8 @@ namespace InDet
                                                                             primaryVertexRecVertex);
       
 
-      if (msgLvl(MSG::VERBOSE)) msg() <<" tr 1 d0ip " << track1_IPd0z0.first << " z0 ip " << track1_IPd0z0.second << endreq;
-      if (msgLvl(MSG::VERBOSE)) msg() <<" tr 2 d0ip " << track2_IPd0z0.first << " z0 ip " << track2_IPd0z0.second << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() <<" tr 1 d0ip " << track1_IPd0z0.first << " z0 ip " << track1_IPd0z0.second << endmsg;
+      if (msgLvl(MSG::VERBOSE)) msg() <<" tr 2 d0ip " << track2_IPd0z0.first << " z0 ip " << track2_IPd0z0.second << endmsg;
       
       bool tightIPcut1=fabs(track1_IPd0z0.first)<m_cutIPD0BothTracksCriteriumOneForKsAndLambda&&fabs(track1_IPd0z0.second)<m_cutIPZ0BothTracksCriteriumOneForKsAndLambda;
       bool tightIPcut2=fabs(track2_IPd0z0.first)<m_cutIPD0BothTracksCriteriumOneForKsAndLambda&&fabs(track2_IPd0z0.second)<m_cutIPZ0BothTracksCriteriumOneForKsAndLambda;
@@ -1083,7 +1088,7 @@ namespace InDet
       
 
       if (msgLvl(MSG::VERBOSE)) msg() <<" is Ks " << (requirementForKs?"yes":"no")<< " is conversion "  << (requirementForConversion?"yes":"no")<<
-          " is Lambda " << (requirementForLambda?"yes":"no") << endreq;
+          " is Lambda " << (requirementForLambda?"yes":"no") << endmsg;
 
     if (requirementForKs||requirementForLambda||requirementForConversion)
       {
@@ -1096,7 +1101,7 @@ namespace InDet
         //const Trk::Track* myTrack=0;
 
         std::vector<const Trk::TrackParameters*> myDummyVector;
-        if (msgLvl(MSG::DEBUG)) msg() << "creating new neutral track particle base" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << "creating new neutral track particle base" << endmsg;
         
 	///THIS WILL NOT WORK IN NEW EDM! NEEDS A FIX!!!
 	/*
@@ -1128,7 +1133,7 @@ namespace InDet
         }
         else
         {
-          msg(MSG::WARNING) << " Internal error. Neutral candidate is discarded. " << endreq;
+          msg(MSG::WARNING) << " Internal error. Neutral candidate is discarded. " << endmsg;
           continue;
         }
 	*/
@@ -1136,7 +1141,7 @@ namespace InDet
     }
     
 
-    if (msgLvl(MSG::VERBOSE)) msg() <<" JetFitterFinding phase 5: try to further analyze conversions,Ks and Lambda and do some sort of overlap removal" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() <<" JetFitterFinding phase 5: try to further analyze conversions,Ks and Lambda and do some sort of overlap removal" << endmsg;
     
     //now you have the following things
     //as before
@@ -1150,7 +1155,7 @@ namespace InDet
     //7)neutralTracks + masses (massOfNeutralTrack)
 
     std::vector<const Trk::ITrackLink*> tracksToVeto;
-    std::vector<const Trk::VxCandidate*> candidatesToVeto;
+    std::vector<const xAOD::Vertex*> candidatesToVeto;
     std::vector<const Trk::LinkToTrackParticleBase*> selectedNeutralTracks;
     std::vector<const Trk::LinkToTrackParticleBase*> selectedNeutralTracksForIP;
 
@@ -1160,16 +1165,15 @@ namespace InDet
     //v0candIter
 
     //first iteration to understand if there are conversions
-     for (std::vector<const Trk::VxCandidate*>::const_iterator v0candIter=v0candBegin;v0candIter!=v0candEnd;++v0candIter)
+    for (std::vector<const xAOD::Vertex*>::const_iterator v0candIter=v0candBegin;v0candIter!=v0candEnd;++v0candIter)
      {
-       
-       const Trk::VxCandidate* v0candPtr=*v0candIter;      
+       const xAOD::Vertex* v0candPtr=*v0candIter;      
      
-       if (msgLvl(MSG::DEBUG)) msg() << " Analyzing new neutral candidate for conversion " << endreq;
+       if (msgLvl(MSG::DEBUG)) msg() << " Analyzing new neutral candidate for conversion " << endmsg;
        
        if (v0candPtr==0) 
        {
-         msg(MSG::WARNING) << " Pointer for V0 is null pointer. Skipping V0 candidate..." << endreq;
+         msg(MSG::WARNING) << " Pointer for V0 is null pointer. Skipping V0 candidate..." << endmsg;
          continue;
        }
 
@@ -1199,29 +1203,29 @@ namespace InDet
            m_jetFitterUtils->compatibility(myMeasuredNeutralPerigee,primaryVertexRecVertex).first;
            
 #ifdef InDetImprovedJetFitterVxFinder_DEBUGAddOns
-       if (msgLvl(MSG::DEBUG)) msg() << " The compatibility of the conversion is: " << compatibilityToPrimaryOfNeutralTrack << endreq;
+       if (msgLvl(MSG::DEBUG)) msg() << " The compatibility of the conversion is: " << compatibilityToPrimaryOfNeutralTrack << endmsg;
 #endif
 
        selectedNeutralTracksForIP.push_back(correspondingNeutralLink);
 
        if (fabs(compatibilityToPrimaryOfNeutralTrack)<m_cutCompatibilityChi2ToPrimaryNeutralTrackFromConversion)
        {
-         tracksToVeto.push_back(fromLinkInV0CandidateToOriginalLink[(*(v0candPtr->vxTrackAtVertex()))[0]->trackOrParticleLink()]);
-         tracksToVeto.push_back(fromLinkInV0CandidateToOriginalLink[(*(v0candPtr->vxTrackAtVertex()))[1]->trackOrParticleLink()]);
+         tracksToVeto.push_back(fromLinkInV0CandidateToOriginalLink[((v0candPtr->vxTrackAtVertex()))[0].trackOrParticleLink()]);
+         tracksToVeto.push_back(fromLinkInV0CandidateToOriginalLink[((v0candPtr->vxTrackAtVertex()))[1].trackOrParticleLink()]);
        }
      }
      
      //now do the same but trying to find out KSs
-     for (std::vector<const Trk::VxCandidate*>::const_iterator v0candIter=v0candBegin;v0candIter!=v0candEnd;++v0candIter)
+    for (std::vector<const xAOD::Vertex*>::const_iterator v0candIter=v0candBegin;v0candIter!=v0candEnd;++v0candIter)
      {
        
-       const Trk::VxCandidate* v0candPtr=*v0candIter;      
+       const xAOD::Vertex * v0candPtr=*v0candIter;      
      
-       if (msgLvl(MSG::DEBUG)) msg() << " Analyzing new neutral candidate for KS " << endreq;
+       if (msgLvl(MSG::DEBUG)) msg() << " Analyzing new neutral candidate for KS " << endmsg;
        
        if (v0candPtr==0) 
        {
-         msg(MSG::WARNING) << " Pointer for V0 is null pointer. Skipping KS candidate..." << endreq;
+         msg(MSG::WARNING) << " Pointer for V0 is null pointer. Skipping KS candidate..." << endmsg;
          continue;
        }
 
@@ -1250,25 +1254,25 @@ namespace InDet
            m_jetFitterUtils->compatibility(myMeasuredNeutralPerigee,primaryVertexRecVertex).first;
            
 #ifdef InDetImprovedJetFitterVxFinder_DEBUGAddOns
-       if (msgLvl(MSG::DEBUG)) msg() << " The compatibility of the KS is: " << compatibilityToPrimaryOfNeutralTrack << endreq;
+       if (msgLvl(MSG::DEBUG)) msg() << " The compatibility of the KS is: " << compatibilityToPrimaryOfNeutralTrack << endmsg;
 #endif
-       
-       const Trk::VxTrackAtVertex* firstTrack((*(v0candPtr->vxTrackAtVertex()))[0]);
-       const Trk::VxTrackAtVertex* secondTrack((*(v0candPtr->vxTrackAtVertex()))[1]);
+
+       auto const &  firstTrack = v0candPtr->vxTrackAtVertex()[0];
+       auto const & secondTrack = v0candPtr->vxTrackAtVertex()[1];       
 
        if (firstTrack==0 || secondTrack ==0)
        {
-         msg(MSG::WARNING) << " Zero pointer (VxTrackAtVertex): skipping Ks candidate " << endreq;
+         msg(MSG::WARNING) << " Zero pointer (VxTrackAtVertex): skipping Ks candidate " << endmsg;
          continue;
        }
        
 
-       const Trk::ITrackLink* trackLink1=firstTrack->trackOrParticleLink();
-       const Trk::ITrackLink* trackLink2=secondTrack->trackOrParticleLink();
+       const Trk::ITrackLink* trackLink1=firstTrack.trackOrParticleLink();
+       const Trk::ITrackLink* trackLink2=secondTrack.trackOrParticleLink();
 
        if (trackLink1==0 || trackLink2==0)
        {
-         msg(MSG::WARNING) << " Zero pointer (ITrackLink): skipping Ks candidate " << endreq;
+         msg(MSG::WARNING) << " Zero pointer (ITrackLink): skipping Ks candidate " << endmsg;
          continue;
        }
 
@@ -1289,7 +1293,7 @@ namespace InDet
        if (fabs(compatibilityToPrimaryOfNeutralTrack)<m_cutCompatibilityChi2ToPrimaryNeutralTrackFromKs)
        {
 
-         if (msgLvl(MSG::VERBOSE)) msg() <<" Add neutral to the candidates to veto " << endreq;
+         if (msgLvl(MSG::VERBOSE)) msg() <<" Add neutral to the candidates to veto " << endmsg;
 
          //add neutral to the candidates to veto
          candidatesToVeto.push_back(v0candPtr);
@@ -1299,12 +1303,12 @@ namespace InDet
        {
 
 
-         const Trk::TrackParameters * trackPerigee1=firstTrack->initialPerigee();
-         const Trk::TrackParameters * trackPerigee2=secondTrack->initialPerigee();
+         const Trk::TrackParameters * trackPerigee1=firstTrack.initialPerigee();
+         const Trk::TrackParameters * trackPerigee2=secondTrack.initialPerigee();
          
          if (trackPerigee1==0||trackPerigee2==0)
          {
-           msg(MSG::WARNING) << " Null Pointer in Perigee returned. Skipping KS candidate... " << endreq;
+           msg(MSG::WARNING) << " Null Pointer in Perigee returned. Skipping KS candidate... " << endmsg;
            continue;
          }
          
@@ -1318,11 +1322,11 @@ namespace InDet
          bool tightIPcut1=fabs(track1IPd0z0.first)<m_cutIPD0BothTracksCriteriumOneForKsAndLambda&&fabs(track1IPd0z0.second)<m_cutIPZ0BothTracksCriteriumOneForKsAndLambda;
          bool tightIPcut2=fabs(track2IPd0z0.first)<m_cutIPD0BothTracksCriteriumOneForKsAndLambda&&fabs(track2IPd0z0.second)<m_cutIPZ0BothTracksCriteriumOneForKsAndLambda;
 
-         if (msgLvl(MSG::VERBOSE)) msg() <<  " tightIPcut1 " << (tightIPcut1?"yes":"no") << " tightIPcut2: " << (tightIPcut2?"yes":"no") << endreq;
+         if (msgLvl(MSG::VERBOSE)) msg() <<  " tightIPcut1 " << (tightIPcut1?"yes":"no") << " tightIPcut2: " << (tightIPcut2?"yes":"no") << endmsg;
          
          bool atLeastOneLoose=( !tightIPcut1 ) || ( !tightIPcut2 );
 
-         if (msgLvl(MSG::VERBOSE)) msg() <<" at least one loose " << (atLeastOneLoose?"yes":"no") << endreq;
+         if (msgLvl(MSG::VERBOSE)) msg() <<" at least one loose " << (atLeastOneLoose?"yes":"no") << endmsg;
          
          if (atLeastOneLoose)
          {
@@ -1348,7 +1352,7 @@ namespace InDet
              if ((*fromLinkInV0CandidateToOriginalLinkIter).second==originalTrackLink1||
                  (*fromLinkInV0CandidateToOriginalLinkIter).second==originalTrackLink2)
              {
-               if (msgLvl(MSG::VERBOSE)) msg() <<" Found one of the original ITrackLink " << endreq;
+               if (msgLvl(MSG::VERBOSE)) msg() <<" Found one of the original ITrackLink " << endmsg;
                vectorOfV0ITrackLink.push_back((*fromLinkInV0CandidateToOriginalLinkIter).first);
              }
            }
@@ -1364,7 +1368,7 @@ namespace InDet
              if (m_jetFitterUtils->checkIfTrackIsInNeutralTrackVector(*vectorOfV0ITrackLinkIter,neutralTracks))
              {
                hasTrackInPreviousNeutral=true;
-               if (msgLvl(MSG::DEBUG)) msg() << " Found track in previous neutral. Skipping new neutral candidate... " << endreq;
+               if (msgLvl(MSG::DEBUG)) msg() << " Found track in previous neutral. Skipping new neutral candidate... " << endmsg;
                break;
              }
            }
@@ -1383,7 +1387,7 @@ namespace InDet
            //PLEASE NOTE: when adding to tracksToUseInFirstFit, you need 
            //ALWAYS
            
-           if (msgLvl(MSG::VERBOSE)) msg() <<" Add to the tracks to use in the first fit...! " << endreq;
+           if (msgLvl(MSG::VERBOSE)) msg() <<" Add to the tracks to use in the first fit...! " << endmsg;
 
            tracksToUseInFirstFit.push_back(correspondingNeutralLink);
            selectedNeutralTracks.push_back(correspondingNeutralLink);
@@ -1395,16 +1399,16 @@ namespace InDet
      }
   
      //now do the same but trying to find out Lambdas
-     for (std::vector<const Trk::VxCandidate*>::const_iterator v0candIter=v0candBegin;v0candIter!=v0candEnd;++v0candIter)
+    for (std::vector<const xAOD::Vertex*>::const_iterator v0candIter=v0candBegin;v0candIter!=v0candEnd;++v0candIter)
      {
        
-       const Trk::VxCandidate* v0candPtr=*v0candIter;      
+       const xAOD::Vertex* v0candPtr=*v0candIter;      
      
-       if (msgLvl(MSG::DEBUG)) msg() << " Analyzing new neutral candidate for Lambdas " << endreq;
+       if (msgLvl(MSG::DEBUG)) msg() << " Analyzing new neutral candidate for Lambdas " << endmsg;
        
        if (v0candPtr==0) 
        {
-         msg(MSG::WARNING) << " Pointer for V0 is null pointer. Skipping Lambdas candidate..." << endreq;
+         msg(MSG::WARNING) << " Pointer for V0 is null pointer. Skipping Lambdas candidate..." << endmsg;
          continue;
        }
 
@@ -1434,32 +1438,32 @@ namespace InDet
            m_jetFitterUtils->compatibility(myMeasuredNeutralPerigee,primaryVertexRecVertex).first;
            
 #ifdef InDetImprovedJetFitterVxFinder_DEBUGAddOns
-       if (msgLvl(MSG::DEBUG)) msg() << " The compatibility of the Lambda is: " << compatibilityToPrimaryOfNeutralTrack << endreq;
+       if (msgLvl(MSG::DEBUG)) msg() << " The compatibility of the Lambda is: " << compatibilityToPrimaryOfNeutralTrack << endmsg;
 #endif
        
-       const Trk::VxTrackAtVertex* firstTrack((*(v0candPtr->vxTrackAtVertex()))[0]);
-       const Trk::VxTrackAtVertex* secondTrack((*(v0candPtr->vxTrackAtVertex()))[1]);
+       auto const &  firstTrack = v0candPtr->vxTrackAtVertex()[0];
+       auto const & secondTrack = v0candPtr->vxTrackAtVertex()[1];
 
        if (firstTrack==0 || secondTrack ==0)
        {
-         msg(MSG::WARNING) << " Zero pointer (VxTrackAtVertex): skipping Lambda candidate " << endreq;
+         msg(MSG::WARNING) << " Zero pointer (VxTrackAtVertex): skipping Lambda candidate " << endmsg;
          continue;
        }
        
 
-       const Trk::ITrackLink* trackLink1=firstTrack->trackOrParticleLink();
-       const Trk::ITrackLink* trackLink2=secondTrack->trackOrParticleLink();
+       const Trk::ITrackLink* trackLink1=firstTrack.trackOrParticleLink();
+       const Trk::ITrackLink* trackLink2=secondTrack.trackOrParticleLink();
 
        if (trackLink1==0 || trackLink2==0)
        {
-         msg(MSG::WARNING) << " Zero pointer (ITrackLink): skipping Lambda candidate " << endreq;
+         msg(MSG::WARNING) << " Zero pointer (ITrackLink): skipping Lambda candidate " << endmsg;
          continue;
        }
 
        //check if the candidate was vetoed
        if (m_jetFitterUtils->checkIfVxCandidateIsInVector(v0candPtr,candidatesToVeto))
        {
-         if (msgLvl(MSG::VERBOSE)) msg() <<" candidate has to be vetoed " << endreq;
+         if (msgLvl(MSG::VERBOSE)) msg() <<" candidate has to be vetoed " << endmsg;
          continue;
        }
        
@@ -1470,12 +1474,12 @@ namespace InDet
        if (m_jetFitterUtils->checkIfTrackIsInVector(fromLinkInV0CandidateToOriginalLink[trackLink2],tracksToVeto))
            continue;
        
-       const Trk::TrackParameters * trackPerigee1=firstTrack->initialPerigee();
-       const Trk::TrackParameters * trackPerigee2=secondTrack->initialPerigee();
+       const Trk::TrackParameters * trackPerigee1=firstTrack.initialPerigee();
+       const Trk::TrackParameters * trackPerigee2=secondTrack.initialPerigee();
        
        if (trackPerigee1==0||trackPerigee2==0)
        {
-         msg(MSG::WARNING) << " Null Pointer in Perigee returned. Skipping Lambda candidate... " << endreq;
+         msg(MSG::WARNING) << " Null Pointer in Perigee returned. Skipping Lambda candidate... " << endmsg;
          continue;
        }
 
@@ -1494,7 +1498,7 @@ namespace InDet
        if (fabs(compatibilityToPrimaryOfNeutralTrack)<m_cutCompatibilityChi2ToPrimaryNeutralTrackFromLambda)
        {
 
-         if (msgLvl(MSG::VERBOSE)) msg() <<" Adding Lambda to candidates to veto or veto the tracks directly " << endreq;
+         if (msgLvl(MSG::VERBOSE)) msg() <<" Adding Lambda to candidates to veto or veto the tracks directly " << endmsg;
 
          //add neutral to the candidates to veto
          candidatesToVeto.push_back(v0candPtr);
@@ -1503,8 +1507,8 @@ namespace InDet
 
          if (atLeastOneLoose)
          {
-           tracksToVeto.push_back(fromLinkInV0CandidateToOriginalLink[(*(v0candPtr->vxTrackAtVertex()))[0]->trackOrParticleLink()]);
-           tracksToVeto.push_back(fromLinkInV0CandidateToOriginalLink[(*(v0candPtr->vxTrackAtVertex()))[1]->trackOrParticleLink()]);
+           tracksToVeto.push_back(fromLinkInV0CandidateToOriginalLink[((v0candPtr->vxTrackAtVertex()))[0].trackOrParticleLink()]);
+           tracksToVeto.push_back(fromLinkInV0CandidateToOriginalLink[((v0candPtr->vxTrackAtVertex()))[1].trackOrParticleLink()]);
          }
          else
          {
@@ -1520,41 +1524,41 @@ namespace InDet
        }
      }
 
-     if (msgLvl(MSG::VERBOSE)) msg() <<" JetFitterFinding phase 6: use two-track vertices as a first seed for JetFitter " << endreq;
+     if (msgLvl(MSG::VERBOSE)) msg() <<" JetFitterFinding phase 6: use two-track vertices as a first seed for JetFitter " << endmsg;
  
      //now you can add the tracks from the two-track vertices for a first fit with 
      //only the "best tracks"
-     for (std::vector<const Trk::VxCandidate*>::const_iterator v0candIter=v0candBegin;v0candIter!=v0candEnd;++v0candIter)
+     for (std::vector<const xAOD::Vertex*>::const_iterator v0candIter=v0candBegin;v0candIter!=v0candEnd;++v0candIter)
      {
        
-       const Trk::VxCandidate* v0candPtr=*v0candIter;      
+       const xAOD::Vertex * v0candPtr = *v0candIter;      
      
-       if (msgLvl(MSG::DEBUG)) msg() << " Analyzing two track vertices to select the best tracks" << endreq;
+       if (msgLvl(MSG::DEBUG)) msg() << " Analyzing two track vertices to select the best tracks" << endmsg;
        
        if (v0candPtr==0) 
        {
-         msg(MSG::WARNING) << " Pointer for V0 is null pointer. Skipping V0 candidate..." << endreq;
+         msg(MSG::WARNING) << " Pointer for V0 is null pointer. Skipping V0 candidate..." << endmsg;
          continue;
        }
        
        if (m_jetFitterUtils->checkIfVxCandidateIsInVector(v0candPtr,candidatesToVeto))
            continue;
        
-       const Trk::VxTrackAtVertex* firstTrack((*(v0candPtr->vxTrackAtVertex()))[0]);
-       const Trk::VxTrackAtVertex* secondTrack((*(v0candPtr->vxTrackAtVertex()))[1]);
+       auto const &  firstTrack = v0candPtr->vxTrackAtVertex()[0];
+       auto const & secondTrack = v0candPtr->vxTrackAtVertex()[1];
        
        if (firstTrack==0 || secondTrack ==0)
        {
-         msg(MSG::WARNING) << " Zero pointer (VxTrackAtVertex): skipping 2-track candidate " << endreq;
+         msg(MSG::WARNING) << " Zero pointer (VxTrackAtVertex): skipping 2-track candidate " << endmsg;
          continue;
        }
        
-       const Trk::ITrackLink* trackLink1=firstTrack->trackOrParticleLink();
-       const Trk::ITrackLink* trackLink2=secondTrack->trackOrParticleLink();
+       const Trk::ITrackLink* trackLink1=firstTrack.trackOrParticleLink();
+       const Trk::ITrackLink* trackLink2=secondTrack.trackOrParticleLink();
        
        if (trackLink1==0 || trackLink2==0)
        {
-         msg(MSG::WARNING) << " Zero pointer (ITrackLink): skipping 2-track candidate " << endreq;
+         msg(MSG::WARNING) << " Zero pointer (ITrackLink): skipping 2-track candidate " << endmsg;
          continue;
        }
        
@@ -1566,10 +1570,10 @@ namespace InDet
 
        if (hasTrack1HardVetoed || hasTrack2HardVetoed)
            continue;
-       
-       const Trk::FitQuality & vertexQuality=v0candPtr->recVertex().fitQuality();
+        
+       //MU       const Trk::FitQuality & vertexQuality= v0candPtr->fitQuality();
 
-       double vertexProb=TMath::Prob(vertexQuality.chiSquared(),vertexQuality.numberDoF());
+       double vertexProb=TMath::Prob(v0candPtr->chiSquared(),v0candPtr->numberDoF());
 
        if (vertexProb<m_cutTwoTrkVtxVertexProbForBFirstSelectionFirstCriterium && 
            vertexProb<m_cutTwoTrkVtxVertexProbForBFirstSelectionSecondCriterium)
@@ -1590,12 +1594,12 @@ namespace InDet
        if (!flightSignificance)
            continue;
        
-       const Trk::TrackParameters* initialPerigee1=firstTrack->initialPerigee();
-       const Trk::TrackParameters* initialPerigee2=secondTrack->initialPerigee();
+       const Trk::TrackParameters* initialPerigee1=firstTrack.initialPerigee();
+       const Trk::TrackParameters* initialPerigee2=secondTrack.initialPerigee();
        
        if (!initialPerigee1 || !initialPerigee2)
        {
-         msg(MSG::WARNING) << "No refitted parameters available for 2-track vertex. Candidate not accepted..." << endreq;
+         msg(MSG::WARNING) << "No refitted parameters available for 2-track vertex. Candidate not accepted..." << endmsg;
          continue;
        }
       
@@ -1613,15 +1617,15 @@ namespace InDet
       if (!bothGoodQUALITY)
           continue;
       
-      const Trk::RecVertex & fittedVertex((*v0candIter)->recVertex());
+      const xAOD::Vertex * fittedVertex = *v0candIter;
 
       std::pair<double,double> distanceAndError=
-          m_jetFitterUtils->getDistanceAndErrorBetweenTwoVertices(fittedVertex,primaryVertexRecVertex);
+	m_jetFitterUtils->getDistanceAndErrorBetweenTwoVertices(*fittedVertex,primaryVertexRecVertex);
       
       //now assign a sign to the distance (decay in front or behind the primary vertex)
       double signeddistance=distanceAndError.first;
       Amg::Vector3D jetMomSpatial(jetMomentum.X(),jetMomentum.Y(),jetMomentum.Z());
-      double sign=(fittedVertex.position()-primaryVertexRecVertex.position()).dot(jetMomSpatial);
+      double sign=(fittedVertex->position()-primaryVertexRecVertex.position()).dot(jetMomSpatial);
 
       if (sign<0) 
       {
@@ -1648,7 +1652,7 @@ namespace InDet
       }
       
       
-      double radius=fittedVertex.position().perp();
+      double radius=fittedVertex->position().perp();
       int interactiontype=-1;
 
       if (radius>m_firstBeam_min && radius<m_firstBeam_max)
@@ -1681,7 +1685,7 @@ namespace InDet
                         fabs(compatibilityTrack2),4)<m_cutCompatibilityToPrimaryBothTracksForMatInteractions;
         if (signifCutTight)
         {
-          if (msgLvl(MSG::DEBUG)) msg() << " Material interaction in layer... Skipping candidate..." << endreq;
+          if (msgLvl(MSG::DEBUG)) msg() << " Material interaction in layer... Skipping candidate..." << endmsg;
           continue;
         }
       }
@@ -1708,12 +1712,12 @@ namespace InDet
       {
         if ((*fromLinkInV0CandidateToOriginalLinkIter).second==originalTrackLink1)
         {
-          if (msgLvl(MSG::VERBOSE)) msg() <<" Found one of the original ITrackLink " << endreq;
+          if (msgLvl(MSG::VERBOSE)) msg() <<" Found one of the original ITrackLink " << endmsg;
           vectorOfV0ITrackLink1.push_back((*fromLinkInV0CandidateToOriginalLinkIter).first);
         }
         if ((*fromLinkInV0CandidateToOriginalLinkIter).second==originalTrackLink2)
         {
-          if (msgLvl(MSG::VERBOSE)) msg() <<" Found one of the original ITrackLink " << endreq;
+          if (msgLvl(MSG::VERBOSE)) msg() <<" Found one of the original ITrackLink " << endmsg;
           vectorOfV0ITrackLink2.push_back((*fromLinkInV0CandidateToOriginalLinkIter).first);
         }
       }
@@ -1757,7 +1761,7 @@ namespace InDet
 
       if (hasTrack2InCommonWithNeutral  && hasTrack1InCommonWithNeutral ) 
       {
-        if (msgLvl(MSG::DEBUG)) msg() << " Both tracks in common with neutral " << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << " Both tracks in common with neutral " << endmsg;
         continue;
       }
       else if (hasTrack1InCommonWithNeutral)
@@ -1766,14 +1770,14 @@ namespace InDet
         if (!m_jetFitterUtils->checkIfTrackIsInVector(trackLink2Original,
                                                       tracksToUseInFirstFit)) 
         {
-          if (msgLvl(MSG::DEBUG)) msg() << " Track 1 in common with neutrals. Adding track 2... " << endreq;          
+          if (msgLvl(MSG::DEBUG)) msg() << " Track 1 in common with neutrals. Adding track 2... " << endmsg;          
           tracksToUseInFirstFit.push_back(trackLink2Original);
         }
         else
         {
-          if (msgLvl(MSG::DEBUG)) msg() << " Track 1 in common with neutrals.BUT NOT Adding track 2 because already there... " << endreq;          
+          if (msgLvl(MSG::DEBUG)) msg() << " Track 1 in common with neutrals.BUT NOT Adding track 2 because already there... " << endmsg;          
         }
-        positionsOfSeedingVertices.push_back(Trk::PositionAndWeight(v0candPtr->recVertex().position(),1));
+        positionsOfSeedingVertices.push_back(Trk::PositionAndWeight(v0candPtr->position(),1));
       }
       else if (hasTrack2InCommonWithNeutral)
       {
@@ -1781,15 +1785,15 @@ namespace InDet
         if (!m_jetFitterUtils->checkIfTrackIsInVector(trackLink1Original,
                                                       tracksToUseInFirstFit)) 
         {
-          if (msgLvl(MSG::DEBUG)) msg() << " Track 2 in common with neutrals. Adding track 1... " << endreq;
+          if (msgLvl(MSG::DEBUG)) msg() << " Track 2 in common with neutrals. Adding track 1... " << endmsg;
           tracksToUseInFirstFit.push_back(trackLink1Original);
         }
         else
         {
-          if (msgLvl(MSG::DEBUG)) msg() << " Track 2 in common with neutrals.BUT NOT Adding track 1 because already there... " << endreq;          
+          if (msgLvl(MSG::DEBUG)) msg() << " Track 2 in common with neutrals.BUT NOT Adding track 1 because already there... " << endmsg;          
         }
         
-        positionsOfSeedingVertices.push_back(Trk::PositionAndWeight(v0candPtr->recVertex().position(),1));
+        positionsOfSeedingVertices.push_back(Trk::PositionAndWeight(v0candPtr->position(),1));
       }
       else //no tracks in common with neutrals
       {
@@ -1797,26 +1801,26 @@ namespace InDet
         const Trk::ITrackLink* trackLink2Original=fromLinkInV0CandidateToOriginalLink[trackLink2];
         const Trk::ITrackLink* trackLink1Original=fromLinkInV0CandidateToOriginalLink[trackLink1];
         
-        if (msgLvl(MSG::DEBUG)) msg() << " No track in common with neutrals. Considering adding both of them... " << endreq;
+        if (msgLvl(MSG::DEBUG)) msg() << " No track in common with neutrals. Considering adding both of them... " << endmsg;
         
         if (!m_jetFitterUtils->checkIfTrackIsInVector(trackLink2Original,
                                                       tracksToUseInFirstFit)) 
         {
-          if (msgLvl(MSG::DEBUG)) msg() << " Adding track 2... " << endreq;          
+          if (msgLvl(MSG::DEBUG)) msg() << " Adding track 2... " << endmsg;          
           tracksToUseInFirstFit.push_back(trackLink2Original);
         }
         
         if (!m_jetFitterUtils->checkIfTrackIsInVector(trackLink1Original,
                                                       tracksToUseInFirstFit)) 
         {
-          if (msgLvl(MSG::DEBUG)) msg() << " Adding track 1... " << endreq;          
+          if (msgLvl(MSG::DEBUG)) msg() << " Adding track 1... " << endmsg;          
           tracksToUseInFirstFit.push_back(trackLink1Original);
         }
-        positionsOfSeedingVertices.push_back(Trk::PositionAndWeight(v0candPtr->recVertex().position(),1));
+        positionsOfSeedingVertices.push_back(Trk::PositionAndWeight(v0candPtr->position(),1));
       }
      }
 
-     if (msgLvl(MSG::VERBOSE)) msg() <<" JetFitterFinding phase 7: determine single good tracks to add in the fit in a second step " << endreq;
+     if (msgLvl(MSG::VERBOSE)) msg() <<" JetFitterFinding phase 7: determine single good tracks to add in the fit in a second step " << endmsg;
      
      //now the tracksToUseInFirstFit are filled, what is missing are the single tracks to be used 
      //in a further step of the fit
@@ -1833,7 +1837,7 @@ namespace InDet
        
        if (measPerigee==0)
        {
-         msg(MSG::WARNING) << " Track parameters have no covariance. skipping single track candidate... " << endreq;
+         msg(MSG::WARNING) << " Track parameters have no covariance. skipping single track candidate... " << endmsg;
          continue;
        }
        
@@ -1861,7 +1865,7 @@ namespace InDet
            ( compatibilityOfActualTrack<0 && TMath::Prob(fabs(compatibilityOfActualTrack),2)>cutCompatibilityPrimaryVertexSingleNegativeLifetimeTrackForBSecondSelection) ||
            pT< m_cutPtSingleTrackForBSecondSelection) 
        {
-         if (msgLvl(MSG::DEBUG)) msg() << " Candidate didn't pass one of the selection cuts " << endreq;
+         if (msgLvl(MSG::DEBUG)) msg() << " Candidate didn't pass one of the selection cuts " << endmsg;
          continue;
        }
 
@@ -1870,7 +1874,7 @@ namespace InDet
        
        if (alreadyUsed)
        {
-         if (msgLvl(MSG::VERBOSE)) msg() <<" Track was already used " << endreq;
+         if (msgLvl(MSG::VERBOSE)) msg() <<" Track was already used " << endmsg;
          continue;
        }
        
@@ -1879,7 +1883,7 @@ namespace InDet
        
        if (isVetoed)
        {
-         if (msgLvl(MSG::VERBOSE)) msg() <<" Track was vetoed " << endreq;
+         if (msgLvl(MSG::VERBOSE)) msg() <<" Track was vetoed " << endmsg;
          continue;
        }
 
@@ -1897,7 +1901,7 @@ namespace InDet
        {
          if ((*fromLinkInV0CandidateToOriginalLinkIter).second==*secondaryTracksIter)
          {
-           if (msgLvl(MSG::VERBOSE)) msg() <<" Found one of the original ITrackLink " << endreq;
+           if (msgLvl(MSG::VERBOSE)) msg() <<" Found one of the original ITrackLink " << endmsg;
            vectorOfV0ITrackLink.push_back((*fromLinkInV0CandidateToOriginalLinkIter).first);
          }
        }
@@ -1923,7 +1927,7 @@ namespace InDet
 
        if (isInVetoedCandidate)
        {
-         if (msgLvl(MSG::DEBUG)) msg() << " vetoed by existing V0 candidate veto " << endreq;
+         if (msgLvl(MSG::DEBUG)) msg() << " vetoed by existing V0 candidate veto " << endmsg;
          continue;
        }
 
@@ -1933,7 +1937,7 @@ namespace InDet
        
        if (alreadyUsedSecondFit)
        {
-         msg(MSG::WARNING) << " Already used in second fit. Should this be really possible??? " << endreq;
+         msg(MSG::WARNING) << " Already used in second fit. Should this be really possible??? " << endmsg;
          continue;
        }
        
@@ -1944,12 +1948,12 @@ namespace InDet
      int secondFitTracksNum=tracksToUseInSecondFit.size();
      
      if (msgLvl(MSG::DEBUG)) msg() << " First fit with : " << firstFitTracksNum << 
-         " tracks. Second fit with : " << secondFitTracksNum << endreq;
+         " tracks. Second fit with : " << secondFitTracksNum << endmsg;
 
     //now take the positionsOfSeedingVertices and try to obtain a good seed direction...
      Amg::Vector3D JFseedDirection(jetMomentum.X(),jetMomentum.Y(),jetMomentum.Z());
      JFseedDirection.normalize();
-     if (msgLvl(MSG::VERBOSE)) msg() <<" Jet Direction would be: " << JFseedDirection << endreq;
+     if (msgLvl(MSG::VERBOSE)) msg() <<" Jet Direction would be: " << JFseedDirection << endmsg;
      
      if (positionsOfSeedingVertices.size()!=0) 
      {
@@ -1959,11 +1963,11 @@ namespace InDet
          if ((theSeedVertex-primaryVertexRecVertex.position()).dot(JFseedDirection)>0) 
          {
            JFseedDirection=(theSeedVertex-primaryVertexRecVertex.position()).unit();
-           if (msgLvl(MSG::DEBUG)) msg() << " Using twotrkvtx direction for start: " << JFseedDirection << endreq;
+           if (msgLvl(MSG::DEBUG)) msg() << " Using twotrkvtx direction for start: " << JFseedDirection << endmsg;
          }
          else 
          {
-           msg(MSG::WARNING) << " NORMAL SEEDING: Seed vertex is on negative side... Using Jet Direction!" << endreq;
+           msg(MSG::WARNING) << " NORMAL SEEDING: Seed vertex is on negative side... Using Jet Direction!" << endmsg;
          }
        }
        else
@@ -1971,16 +1975,16 @@ namespace InDet
          if ((theSeedVertex-primaryVertexRecVertex.position()).dot(JFseedDirection)<0) 
          {
            JFseedDirection=-(theSeedVertex-primaryVertexRecVertex.position()).unit();
-           if (msgLvl(MSG::DEBUG)) msg() << " Using twotrkvtx direction for start: " << JFseedDirection << endreq;
+           if (msgLvl(MSG::DEBUG)) msg() << " Using twotrkvtx direction for start: " << JFseedDirection << endmsg;
          }
          else 
          {
-           msg(MSG::WARNING) << " REVERSE SEEDING: Seed vertex is on positive side... Using Jet Direction!" << endreq;
+           msg(MSG::WARNING) << " REVERSE SEEDING: Seed vertex is on positive side... Using Jet Direction!" << endmsg;
          }         
        }
      }
 
-     if (msgLvl(MSG::VERBOSE)) msg() <<" JetFitterFinding phase 8: do the real finding with JetFitter " << endreq;
+     if (msgLvl(MSG::VERBOSE)) msg() <<" JetFitterFinding phase 8: do the real finding with JetFitter " << endmsg;
 
      Trk::VxJetCandidate* myJetCandidate=findSecVertex(primaryVertexRecVertex,
                                                        jetMomentum,
@@ -1988,7 +1992,7 @@ namespace InDet
                                                        tracksToUseInSecondFit,
                                                        JFseedDirection);
      
-     if (msgLvl(MSG::VERBOSE)) msg() <<" JetFitterFinding phase 9: store the results " << endreq;
+     if (msgLvl(MSG::VERBOSE)) msg() <<" JetFitterFinding phase 9: store the results " << endmsg;
 
 
      //now in principle you just need to store the RESULT...
@@ -2042,7 +2046,9 @@ namespace InDet
      //for the moment do not store material interactions...
 
      //now create the output object
-     std::vector<Trk::VxCandidate*> myCandidates;
+     //MU      std::vector<Trk::VxCandidate*> myCandidates;
+     std::vector<Trk::VxJetCandidate*> myCandidates;
+     // This push_back is problematic for the migration to xAOD::Vertex, it works simply because VxJetCandidate inherits from VxCandidate
      myCandidates.push_back(myJetCandidate);
 
      /* SERIOUS PROBLEM */
@@ -2073,7 +2079,7 @@ namespace InDet
   {
 
 
-    if (msgLvl(MSG::VERBOSE)) msg() << " entered findSecVertex(). Applying JetFitter finding to the found sets of tracks and performing clustering (pattern recognition)  " << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << " entered findSecVertex(). Applying JetFitter finding to the found sets of tracks and performing clustering (pattern recognition)  " << endmsg;
 
     Amg::Vector3D myDirection(jetMomentum.X(),jetMomentum.Y(),jetMomentum.Z());
 
@@ -2085,7 +2091,7 @@ namespace InDet
     std::vector<const Trk::ITrackLink*>::const_iterator tracks2End=firstInputTracks.end();
     for (std::vector<const Trk::ITrackLink*>::const_iterator tracks2Iter=tracks2Begin;
 	 tracks2Iter!=tracks2End;++tracks2Iter) {
-      if (msgLvl(MSG::VERBOSE)) msg() <<" adding track to fit " << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() <<" adding track to fit " << endmsg;
       tracksToAdd.push_back(*tracks2Iter);
     }
     
@@ -2096,7 +2102,7 @@ namespace InDet
     std::vector<const Trk::ITrackLink*>::const_iterator tracks3End=secondInputTracks.end();
     for (std::vector<const Trk::ITrackLink*>::const_iterator tracks3Iter=tracks3Begin;
 	 tracks3Iter!=tracks3End;++tracks3Iter) {
-      if (msgLvl(MSG::VERBOSE)) msg() <<" adding track to fit " << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() <<" adding track to fit " << endmsg;
       tracksToAdd.push_back(*tracks3Iter);
     }
 
@@ -2126,7 +2132,7 @@ namespace InDet
 	 BunchesIter!=BunchesEnd;++BunchesIter) {
       
       if (BunchesIter==BunchesBegin) {
-	if (msgLvl(MSG::VERBOSE)) msg() <<" initial fit with  " << (*BunchesIter).size() << " tracks " << endreq;
+	if (msgLvl(MSG::VERBOSE)) msg() <<" initial fit with  " << (*BunchesIter).size() << " tracks " << endmsg;
 	myJetCandidate=m_initializationHelper->initializeJetCandidate(*BunchesIter,&primaryVertex,&myDirection,&vtxSeedDirection);
 	m_routines->initializeToMinDistancesToJetAxis(myJetCandidate);
         if ((*BunchesIter).size()>0) 
@@ -2134,7 +2140,7 @@ namespace InDet
           doTheFit(myJetCandidate,true);
         }
       } else {
-	if (msgLvl(MSG::VERBOSE)) msg() <<" other fit with " << (*BunchesIter).size() << " tracks " << endreq;
+	if (msgLvl(MSG::VERBOSE)) msg() <<" other fit with " << (*BunchesIter).size() << " tracks " << endmsg;
 	std::vector<Trk::VxVertexOnJetAxis*> setOfVertices=myJetCandidate->getVerticesOnJetAxis();
 	std::vector<Trk::VxTrackAtVertex*>* setOfTracks=myJetCandidate->vxTrackAtVertex();
 	tracksToAddBegin=(*BunchesIter).begin();
@@ -2146,7 +2152,7 @@ namespace InDet
 	  setOfTracks->push_back(newVxTrack);
 	  setOfVertices.push_back(new Trk::VxVertexOnJetAxis(temp_vector_tracksAtVertex));
 	}
-	if (msgLvl(MSG::VERBOSE)) msg() <<" new overall number of tracks to fit : " << setOfVertices.size() << endreq;
+	if (msgLvl(MSG::VERBOSE)) msg() <<" new overall number of tracks to fit : " << setOfVertices.size() << endmsg;
 	myJetCandidate->setVerticesOnJetAxis(setOfVertices);
 	m_initializationHelper->updateTrackNumbering(myJetCandidate);
         //question: should this be done???
@@ -2173,7 +2179,7 @@ namespace InDet
 
     do {//reguards clustering
 
-      if (msgLvl(MSG::VERBOSE)) msg() <<"InDetImprovedJetFitterVxFinder:      ------>>>>         new cycle of fit" << endreq;
+      if (msgLvl(MSG::VERBOSE)) msg() <<"InDetImprovedJetFitterVxFinder:      ------>>>>         new cycle of fit" << endmsg;
 
       int numLoops=0;
       bool noMoreTracksToDelete(false);
@@ -2193,7 +2199,7 @@ namespace InDet
 	for (std::vector<Trk::VxVertexOnJetAxis*>::const_iterator verticesIter=verticesBegin;
 	     verticesIter!=verticesEnd;++verticesIter) {
 	  if (*verticesIter==0) {
-	    msg(MSG::WARNING) << "One vertex is empy. Problem when trying to delete incompatible vertices. No further vertices deleted." << endreq;
+	    msg(MSG::WARNING) << "One vertex is empy. Problem when trying to delete incompatible vertices. No further vertices deleted." << endmsg;
 	  } else {
 	    const Trk::FitQuality & fitQuality=(*verticesIter)->fitQuality();
 	    if (TMath::Prob(fitQuality.chiSquared(),(int)std::floor(fitQuality.numberDoF()+0.5))<max_prob) {
@@ -2203,17 +2209,17 @@ namespace InDet
 	  }
 	}
 	if (max_prob<m_vertexProbCut) {
-	  if (msgLvl(MSG::DEBUG)) msg() << "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob << endreq;
+	  if (msgLvl(MSG::DEBUG)) msg() << "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob << endmsg;
 	  //	  std::cout << "Deleted vertex " << worseVertex->getNumVertex() << " with probability " << max_prob << std::endl;
 	  if (worseVertex==myJetCandidate->getPrimaryVertex()) {
-	    if (msgLvl(MSG::VERBOSE)) msg() << " It's the primary" << endreq;
+	    if (msgLvl(MSG::VERBOSE)) msg() << " It's the primary" << endmsg;
 	  }
 
 	  m_routines->deleteVertexFromJetCandidate(worseVertex,myJetCandidate);
 
 	} else {
 	  noMoreTracksToDelete=true;
-	  if (msgLvl(MSG::VERBOSE)) msg() <<"No tracks to delete: maximum probability is " << max_prob << endreq;
+	  if (msgLvl(MSG::VERBOSE)) msg() <<"No tracks to delete: maximum probability is " << max_prob << endmsg;
 	}
 	
 	numLoops+=1;
@@ -2232,11 +2238,11 @@ namespace InDet
       
 
       if (clusteringTablePtr==0) {
-	msg(MSG::WARNING) << " No Clustering Table while it should have been calculated... no more clustering performed during vertexing " << endreq;
+	msg(MSG::WARNING) << " No Clustering Table while it should have been calculated... no more clustering performed during vertexing " << endmsg;
 	noMoreVerticesToCluster=true;
       } else {
 
-	if (msgLvl(MSG::VERBOSE)) msg() <<" clustering table is " << *clusteringTablePtr << endreq;
+	if (msgLvl(MSG::VERBOSE)) msg() <<" clustering table is " << *clusteringTablePtr << endmsg;
 
 	//now iterate over the full map and decide wether you want to do the clustering OR not...
 	float probVertex(0.);
@@ -2245,7 +2251,7 @@ namespace InDet
 	
 	if (probVertex>0.&&probVertex>m_vertexClusteringProbabilityCut) {
 	  if (msgLvl(MSG::VERBOSE)) msg() <<" merging vtx number " << (*pairOfVxVertexOnJetAxis.first).getNumVertex() << 
-	    " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << endreq;
+	    " and " << (*pairOfVxVertexOnJetAxis.second).getNumVertex() << endmsg;
           //	  const Trk::VxVertexOnJetAxis & mergedVertex=
           m_helper->mergeVerticesInJetCandidate(*pairOfVxVertexOnJetAxis.first,
                                                 *pairOfVxVertexOnJetAxis.second,
