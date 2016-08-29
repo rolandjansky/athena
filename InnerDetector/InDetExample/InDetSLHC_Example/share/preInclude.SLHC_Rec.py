@@ -57,8 +57,9 @@ if rec.doWriteESD() or rec.doWriteAOD() or ('doWriteESD' in dir() and doWriteESD
         # --- Turn on Brem-Recovery 
         InDetFlags.doBremRecovery = True; 
         InDetFlags.doCaloSeededBrem = False; 
-        # --- Turn on Forward tracking 
-        InDetFlags.doForwardTracks = True; 
+        # --- Turn on Forward tracking
+        if not InDetFlags.useInDetDynamicCuts(): # because InDetDynamicCuts covers whole eta region 
+            InDetFlags.doForwardTracks = True; 
 
         # --- not sure this is needed
         InDetFlags.doSharedHits = True

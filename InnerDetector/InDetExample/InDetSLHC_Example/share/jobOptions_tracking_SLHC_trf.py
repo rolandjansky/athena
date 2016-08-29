@@ -148,7 +148,8 @@ else:
     InDetFlags.doBremRecovery.set_Value_and_Lock(True);
     InDetFlags.doCaloSeededBrem.set_Value_and_Lock(False);
     # --- Turn on Forward tracking
-    InDetFlags.doForwardTracks.set_Value_and_Lock(True);
+    if not InDetFlags.useInDetDynamicCuts(): # because InDetDynamicCuts covers whole eta region
+        InDetFlags.doForwardTracks.set_Value_and_Lock(True);
 
     # --- de-activate monitorings
     InDetFlags.doMonitoringGlobal    = False
