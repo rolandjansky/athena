@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTruthPileupEventContainerCnv.cxx 637417 2014-12-24 11:44:05Z jcatmore $
+// $Id: xAODTruthPileupEventContainerCnv.cxx 637416 2014-12-24 11:43:22Z jcatmore $
 
 // System include(s):
 #include <exception>
