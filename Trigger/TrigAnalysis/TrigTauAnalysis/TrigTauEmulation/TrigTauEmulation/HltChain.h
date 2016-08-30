@@ -32,7 +32,9 @@ class HltChain
           ++m_n_tau_items;
         }
     }
-    HltChain() {;}
+    HltChain() {
+      m_n_tau_items = 0;
+    };
 
     void addHltItem(const HltItem &item) {
       m_items.push_back(item);

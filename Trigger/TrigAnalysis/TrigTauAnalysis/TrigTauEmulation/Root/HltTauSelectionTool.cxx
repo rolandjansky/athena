@@ -21,15 +21,6 @@ HltTauSelectionTool::HltTauSelectionTool(const std::string& name) : SelectionToo
   declareProperty("UseFastTracking", m_use_fasttracking=true, "Turn on/off fast tracking");
   declareProperty("FastTrackSelectionTool", m_ftf_tool);
  
-  // --> not needed anymore (central tool now) / will remove soooon
-  // declareProperty("TrackD0", m_d0=2.0, "d0 cut");
-  // declareProperty("TrackZ0", m_z0=150.0, "z0 cut");
-  // declareProperty("DeltaZ0", m_delta_z0=2.0, "delta z0 cut");
-  // declareProperty("CoreConeDr", m_core=0.2, "Dr of the cone");
-  // declareProperty("IsoConeDr", m_iso=0.4, "Dr of the isolation");
-  // declareProperty("Ncore", m_ncore_bound=4, "Upper bound on Ncore");
-  // declareProperty("Niso", m_niso_bound=2, "Upper bound on Niso");
-
   declareProperty("IdLevel", m_id_level="medium", "loose/medium/tight");
   declareProperty("UseTauID", m_use_tauid=true, "Turn on/off the tau id selection");
 
@@ -37,16 +28,29 @@ HltTauSelectionTool::HltTauSelectionTool(const std::string& name) : SelectionToo
   declareProperty("TauDiscriminantToolName", m_TauDiscriminantToolName="TauIDTool");
 
   m_calopresel = new HltTauCaloPresel();
-
-  // --> not needed anymore (central tool now) / will remove soooon
-  // m_ftk = new FastTrackSelection();
   m_tauid = new HltTauID();
 
 }
 
 // Copy constructor
 HltTauSelectionTool::HltTauSelectionTool(const HltTauSelectionTool& other) : SelectionTool(other.name() + "_copy")
-{}
+{
+  m_pt = other.m_pt;
+  m_centfrac_strategy = other.m_centfrac_strategy;
+  m_centfrac = other.m_centfrac;
+  m_use_presel = other.m_use_presel;
+  m_use_calo_presel = other.m_use_calo_presel;
+  m_use_fasttracking = other.m_use_fasttracking;
+  m_ftf_tool = other.m_ftf_tool;
+  m_id_level = other.m_id_level;
+  m_use_tauid = other.m_use_tauid;
+  m_recalculateBDTscore = other.m_recalculateBDTscore;
+  m_TauDiscriminantToolName = other.m_TauDiscriminantToolName;
+
+  m_calopresel = new HltTauCaloPresel();
+  m_tauid = new HltTauID();
+
+}
 
 
 HltTauSelectionTool::~HltTauSelectionTool() {

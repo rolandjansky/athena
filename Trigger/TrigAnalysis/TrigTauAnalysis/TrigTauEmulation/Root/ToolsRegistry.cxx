@@ -123,9 +123,6 @@ ToolsRegistry::~ToolsRegistry(){
   }
 }
 
-ToolsRegistry::ToolsRegistry(const ToolsRegistry& other): asg::AsgTool(other.name() + "_copy"), ExtensionContainer(other)
-{}
-
 StatusCode ToolsRegistry::initialize()
 {
   m_ftf_tool->msg().setLevel(this->msg().level());

@@ -19,8 +19,8 @@ class HltL1MatchingTool : public virtual IHltL1MatchingTool, public asg::AsgTool
  public:
   
   HltL1MatchingTool(const std::string & name);
-  
   HltL1MatchingTool(const HltL1MatchingTool & other);
+  HltL1MatchingTool& operator=(const HltL1MatchingTool & other) = delete;
 
   virtual StatusCode initialize();
 
