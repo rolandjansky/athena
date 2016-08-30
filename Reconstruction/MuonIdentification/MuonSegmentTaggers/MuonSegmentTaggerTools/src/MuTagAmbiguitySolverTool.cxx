@@ -40,7 +40,12 @@ MuTagAmbiguitySolverTool::MuTagAmbiguitySolverTool(const std::string& t,
   p_muonHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),	 
   p_muonPrinter("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
   p_muonIdHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
-  p_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool")
+  p_segmentMatchingTool("Muon::MuonSegmentMatchingTool/MuonSegmentMatchingTool"),
+  p_StoreGateSvc(0),
+  m_mdtIdHelper(0),
+  m_cscIdHelper(0),
+  m_rpcIdHelper(0),
+  m_tgcIdHelper(0)
 {
   declareInterface<IMuTagAmbiguitySolverTool>(this);
   declareProperty("MuonSegmentMatchingTool" , p_segmentMatchingTool ) ;
@@ -317,7 +322,7 @@ int MuTagAmbiguitySolverTool::ambiguousSegment( const Muon::MuonSegment& seg1, c
 	if( match ){
 	  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " found matching segment pair: " << std::endl
 						      << p_muonPrinter->print(seg1) << std::endl
-						      << p_muonPrinter->print(seg2) << endreq;
+						      << p_muonPrinter->print(seg2) << endmsg;
 	  
 	  // if overlap matching enabled flag as ambiguous
 	  if( m_slOverlapMatching ) return 2;
@@ -341,7 +346,7 @@ int MuTagAmbiguitySolverTool::ambiguousSegment( const Muon::MuonSegment& seg1, c
       if( m_hitOverlapMatching ){
 	if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " found overlapping segment pair: " << compareSegments.print(result) << std::endl
 						    << p_muonPrinter->print(seg1) << std::endl
-						    << p_muonPrinter->print(seg2) << endreq;
+						    << p_muonPrinter->print(seg2) << endmsg;
 	return 3;
       }
     }
