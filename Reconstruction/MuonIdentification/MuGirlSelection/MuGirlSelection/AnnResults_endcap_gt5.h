@@ -9,22 +9,22 @@ namespace MuGirlNS
 {
 class AnnResults_endcap_gt5 {
 public:
-   AnnResults_endcap_gt5() : input0(-999.), input1(-999.), input2(-999.), input3(-999.), input4(-999.), input5(-999.), input6(-999.),
-                             input7(-999.), input8(-999.), input9(-999.) {}
+   AnnResults_endcap_gt5() : m_input0(-999.), m_input1(-999.), m_input2(-999.), m_input3(-999.), m_input4(-999.), m_input5(-999.), m_input6(-999.),
+                             m_input7(-999.), m_input8(-999.), m_input9(-999.) {}
    ~AnnResults_endcap_gt5() {}
    double value(int index,double in0,double in1,double in2,double in3,double in4,double in5,double in6,double in7,double in8,double in9);
    double value(int index, double* input);
 private:
-   double input0;
-   double input1;
-   double input2;
-   double input3;
-   double input4;
-   double input5;
-   double input6;
-   double input7;
-   double input8;
-   double input9;
+   double m_input0;
+   double m_input1;
+   double m_input2;
+   double m_input3;
+   double m_input4;
+   double m_input5;
+   double m_input6;
+   double m_input7;
+   double m_input8;
+   double m_input9;
    double neuron0xa97c700();
    double neuron0xa97c8b0();
    double neuron0xa97caa8();

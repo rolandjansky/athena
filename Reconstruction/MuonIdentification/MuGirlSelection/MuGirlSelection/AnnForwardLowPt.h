@@ -17,15 +17,15 @@ public:
    ~AnnForwardLowPt() {}
    double value(int index,double in0,double in1,double in2,double in3,double in4,double in5,double in6,double in7,double in8);
 private:
-   double input0;
-   double input1;
-   double input2;
-   double input3;
-   double input4;
-   double input5;
-   double input6;
-   double input7;
-   double input8;
+   double m_input0;
+   double m_input1;
+   double m_input2;
+   double m_input3;
+   double m_input4;
+   double m_input5;
+   double m_input6;
+   double m_input7;
+   double m_input8;
    double neuron0C111ED8();
    double neuron0C196990();
    double neuron0C196AB0();

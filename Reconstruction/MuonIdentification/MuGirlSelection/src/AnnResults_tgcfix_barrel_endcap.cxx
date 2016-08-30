@@ -6,16 +6,16 @@
 #include <cmath>
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::value(int index,double in0,double in1,double in2,double in3,double in4,double in5,double in6,double in7,double in8,double in9) {
-   input0 = (in0 - 0)/1;
-   input1 = (in1 - 0)/1;
-   input2 = (in2 - 0)/1;
-   input3 = (in3 - 0)/1;
-   input4 = (in4 - 0)/1;
-   input5 = (in5 - 0)/1;
-   input6 = (in6 - 0)/1;
-   input7 = (in7 - 0)/1;
-   input8 = (in8 - 0)/1;
-   input9 = (in9 - 0)/1;
+   m_input0 = (in0 - 0)/1;
+   m_input1 = (in1 - 0)/1;
+   m_input2 = (in2 - 0)/1;
+   m_input3 = (in3 - 0)/1;
+   m_input4 = (in4 - 0)/1;
+   m_input5 = (in5 - 0)/1;
+   m_input6 = (in6 - 0)/1;
+   m_input7 = (in7 - 0)/1;
+   m_input8 = (in8 - 0)/1;
+   m_input9 = (in9 - 0)/1;
    switch(index) {
      case 0:
          return neuron0x92e8120();
@@ -25,43 +25,43 @@ double MuGirlNS::AnnResults_tgcfix_barrel_endcap::value(int index,double in0,dou
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::neuron0x92d7e90() {
-   return input0;
+   return m_input0;
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::neuron0x92d8068() {
-   return input1;
+   return m_input1;
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::neuron0x92d8260() {
-   return input2;
+   return m_input2;
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::neuron0x92e6680() {
-   return input3;
+   return m_input3;
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::neuron0x92e6858() {
-   return input4;
+   return m_input4;
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::neuron0x92e6a30() {
-   return input5;
+   return m_input5;
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::neuron0x92e6c08() {
-   return input6;
+   return m_input6;
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::neuron0x92e6de0() {
-   return input7;
+   return m_input7;
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::neuron0x92e6fd8() {
-   return input8;
+   return m_input8;
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::neuron0x92e71d0() {
-   return input9;
+   return m_input9;
 }
 
 double MuGirlNS::AnnResults_tgcfix_barrel_endcap::input0x92e74c8() {
