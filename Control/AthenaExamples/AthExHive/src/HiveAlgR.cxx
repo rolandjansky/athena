@@ -18,7 +18,7 @@ DECLARE_COMPONENT(HiveAlgR)
 
 HiveAlgR::HiveAlgR( const std::string& name, 
 		    ISvcLocator* pSvcLocator ) : 
-  ::AthReEntAlgorithm( name, pSvcLocator )
+  ::AthReentrantAlgorithm( name, pSvcLocator )
   ,m_evt("McEventInfo")
   ,m_wrh1("ar1")
 {
@@ -45,7 +45,7 @@ StatusCode HiveAlgR::finalize() {
   return StatusCode::SUCCESS;
 }
 
-StatusCode HiveAlgR::execute_R(const EventContext& ctx) const {
+StatusCode HiveAlgR::execute_r(const EventContext& ctx) const {
 
   info() << "execute_R: " << index() << " on " << ctx << endmsg;
 

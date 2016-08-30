@@ -2,35 +2,35 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ATHEXHIVE_HIVEALGR_H
-#define ATHEXHIVE_HIVEALGR_H 1
+#ifndef ATHEXHIVE_ALGL1_H
+#define ATHEXHIVE_ALGL1_H 1
 
-#include "AthenaBaseComps/AthReentrantAlgorithm.h"
-
+#include "HiveAlgBase.h"
 #include "StoreGate/WriteHandleKey.h"
 #include "StoreGate/ReadHandleKey.h"
 #include "AthExHive/HiveDataObj.h"
-#include "EventInfo/EventInfo.h"
+#include "HiveAlgBase.h"
 
-class HiveAlgR  :  public AthReentrantAlgorithm {
+#include <string>
+
+class HiveAlgL1  :  public HiveAlgBase {
   
 public:
   
   // Standard Algorithm Constructor:
   
-  HiveAlgR (const std::string& name, ISvcLocator* pSvcLocator);
-  ~HiveAlgR ();
+  HiveAlgL1 (const std::string& name, ISvcLocator* pSvcLocator);
+  ~HiveAlgL1();
   
   // Define the initialize, execute and finalize methods:
   
   StatusCode initialize();
-  StatusCode execute_r(const EventContext&) const;
+  StatusCode execute();
   StatusCode finalize();
   
 private:
-
-  SG::ReadHandleKey<EventInfo> m_evt;
-
+  
+  SG::ReadHandleKey<HiveDataObj> m_rdh1;
   SG::WriteHandleKey<HiveDataObj> m_wrh1;
   
 };

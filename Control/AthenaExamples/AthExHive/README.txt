@@ -1,8 +1,8 @@
                                                                             
                                                                             
                                                                             
-     Data Dependency Graph                                                  
-    ========================                                                
+     Data Dependency Graph of AthExHiveOpts.py                   
+    ===========================================                             
                                                                             
        B            A                                                       
        |           / \                                                      
@@ -42,6 +42,29 @@
             \-------------------D1                                          
                                                                             
                                                                             
+                                                                            
+     Data Dependency Graph of DataLoopTest.py                           
+    ===========================================                             
+                                                                            
+       B            A                                                       
+       |           / \                                                      
+     b1|        a1/   \a2                                                   
+       |         /     \                                                    
+        \       C       L1                                                  
+         \     / \      |                                                   
+          \ c1/   \c2   |l1                                                 
+           \ /     \    |                                                   
+            E           L2                                                  
+            |           |                                                   
+            |e1         |l1                                                
+                        |                                                   
+                        L3
+                     \  |                         
+                    a2\ |l1                       
+                       \|                         
+                        M                         
+                                                                            
+       the sequence that encloses [L1,L2,L3,M] is meant to have strict ordering
                                                                             
                                                                             
                                                                             

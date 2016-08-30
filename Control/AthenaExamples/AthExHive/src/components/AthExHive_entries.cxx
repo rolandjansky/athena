@@ -5,6 +5,10 @@
 #include "../HiveAlgE.h"
 #include "../HiveAlgF.h"
 #include "../HiveAlgG.h"
+#include "../HiveAlgL1.h"
+#include "../HiveAlgL2.h"
+#include "../HiveAlgL3.h"
+#include "../HiveAlgM.h"
 #include "../HiveAlgV.h"
 #include "../HiveTool.h"
 #include "../HiveExSvc.h"
@@ -31,6 +35,10 @@ DECLARE_ALGORITHM_FACTORY( HiveAlgD )
 DECLARE_ALGORITHM_FACTORY( HiveAlgE )
 DECLARE_ALGORITHM_FACTORY( HiveAlgF )
 DECLARE_ALGORITHM_FACTORY( HiveAlgG )
+DECLARE_ALGORITHM_FACTORY( HiveAlgL1 )
+DECLARE_ALGORITHM_FACTORY( HiveAlgL2 )
+DECLARE_ALGORITHM_FACTORY( HiveAlgL3 )
+DECLARE_ALGORITHM_FACTORY( HiveAlgM )
 DECLARE_ALGORITHM_FACTORY( HiveAlgV )
 
 #ifdef REENTRANT_GAUDI

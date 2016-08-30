@@ -7,6 +7,7 @@
 
 #include "HiveAlgBase.h"
 #include "StoreGate/ReadHandleKeyArray.h"
+#include "StoreGate/WriteHandleKeyArray.h"
 #include "AthExHive/HiveDataObj.h"
 #include "rGen.h"
 
@@ -29,7 +30,13 @@ public:
   
 private:
   
+  bool m_writeFirst { true };
+
   SG::ReadHandleKeyArray<HiveDataObj> m_rhv;
+  SG::WriteHandleKeyArray<HiveDataObj> m_whv;
+
+  StatusCode read() const;
+  void write();
    
 };
 #endif
