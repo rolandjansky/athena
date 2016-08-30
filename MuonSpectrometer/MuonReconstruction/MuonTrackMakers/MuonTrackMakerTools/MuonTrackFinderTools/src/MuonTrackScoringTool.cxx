@@ -96,7 +96,7 @@ namespace Muon {
     else
       summary = m_trkSummaryTool->createSummary(track);
 
-    //log <<MSG::DEBUG<<"Track has TrackSummary "<<*summary<<endreq;
+    //log <<MSG::DEBUG<<"Track has TrackSummary "<<*summary<<endmsg;
     Trk::TrackScore score = Trk::TrackScore( simpleScore(track, *summary) );
     delete summary;
     return score;

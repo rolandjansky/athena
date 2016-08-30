@@ -112,18 +112,18 @@ namespace Muon {
       double failedTriggerStationCutFraction = (double)m_failedTriggerStationCut/(double)m_ntotalTracks;
       double failedMaxMDTHoleCutFraction = (double)m_failedMaxMDTHoleCut/(double)m_ntotalTracks;
       double failedMaxHoleCutFraction = (double)m_failedMaxHoleCut/(double)m_ntotalTracks;
-      ATH_MSG_INFO(" Fractions failing selection cuts: " << endreq
-		   << std::setw(30) << " Chi2/Ndof Cut                 " << failedChi2NDofCutFraction << endreq
-		   << std::setw(30) << " RPC AveMin Time Cut           " << failedRPCAveMinTimeCutFraction << endreq
-		   << std::setw(30) << " RPC AveMax Time Cut           " << failedRPCAveMaxTimeCutFraction << endreq
-		   << std::setw(30) << " RPC Spread Time Cut           " << failedRPCSpreadTimeCutFraction << endreq
-		   << std::setw(30) << " Single station Cut            " << failedSingleStationsCutFraction << endreq
-		   << std::setw(30) << " Two station Cut               " << failedTwoStationsCutFraction << endreq
-		   << std::setw(30) << " Two station Max MDT hole Cut  " << failedTwoStationsMaxMDTHoleCutFraction << endreq
-		   << std::setw(30) << " Two station Max hole Cut      " << failedTwoStationsMaxHoleCutFraction << endreq
-		   << std::setw(30) << " Two station good station Cut  " << failedTwoStationsGoodStationCutFraction << endreq
-		   << std::setw(30) << " Trigger station cut           " << failedTriggerStationCutFraction << endreq
-		   << std::setw(30) << " MDT hole Cut                  " << failedMaxMDTHoleCutFraction << endreq
+      ATH_MSG_INFO(" Fractions failing selection cuts: " << endmsg
+		   << std::setw(30) << " Chi2/Ndof Cut                 " << failedChi2NDofCutFraction << endmsg
+		   << std::setw(30) << " RPC AveMin Time Cut           " << failedRPCAveMinTimeCutFraction << endmsg
+		   << std::setw(30) << " RPC AveMax Time Cut           " << failedRPCAveMaxTimeCutFraction << endmsg
+		   << std::setw(30) << " RPC Spread Time Cut           " << failedRPCSpreadTimeCutFraction << endmsg
+		   << std::setw(30) << " Single station Cut            " << failedSingleStationsCutFraction << endmsg
+		   << std::setw(30) << " Two station Cut               " << failedTwoStationsCutFraction << endmsg
+		   << std::setw(30) << " Two station Max MDT hole Cut  " << failedTwoStationsMaxMDTHoleCutFraction << endmsg
+		   << std::setw(30) << " Two station Max hole Cut      " << failedTwoStationsMaxHoleCutFraction << endmsg
+		   << std::setw(30) << " Two station good station Cut  " << failedTwoStationsGoodStationCutFraction << endmsg
+		   << std::setw(30) << " Trigger station cut           " << failedTriggerStationCutFraction << endmsg
+		   << std::setw(30) << " MDT hole Cut                  " << failedMaxMDTHoleCutFraction << endmsg
 		   << std::setw(30) << " Max hole Cut                  " << failedMaxHoleCutFraction );
     }
 
