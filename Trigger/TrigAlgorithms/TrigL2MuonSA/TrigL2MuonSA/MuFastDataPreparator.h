@@ -111,6 +111,7 @@ class MuFastDataPreparator: public AthAlgTool
 
   void setExtrapolatorTool(ToolHandle<ITrigMuonBackExtrapolator>* backExtrapolator);
 
+  bool isRpcFakeRoi() {return m_isRpcFakeRoi;}
 
  protected:
   
@@ -141,6 +142,8 @@ class MuFastDataPreparator: public AthAlgTool
   ToolHandle<ITrigMuonBackExtrapolator>* m_backExtrapolatorTool;
 
   BooleanProperty m_use_rpc;
+
+  bool m_isRpcFakeRoi;
 
 };
   

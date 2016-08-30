@@ -326,9 +326,9 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   if( phiMin < 0 ) phiMin += 2*CLHEP::pi;  
   if( phiMax < 0 ) phiMax += 2*CLHEP::pi; 
   
-  TrigRoiDescriptor* roiDescr = new TrigRoiDescriptor( m_roi->eta(), etaMin, etaMax, phi_roi, phiMin, phiMax );     
+  TrigRoiDescriptor roiDescr( m_roi->eta(), etaMin, etaMax, phi_roi, phiMin, phiMax );     
     
-  const IRoiDescriptor* iroi = (IRoiDescriptor*) roiDescr;                                                        
+  const IRoiDescriptor* iroi = (IRoiDescriptor*) &roiDescr;                                                        
   m_regionSelector->DetROBIDListUint(MDT, *iroi, robIdList);  
 
   // dump the list of robs for debugging 
@@ -347,7 +347,6 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRoiFragment(const LVL1::RecMuo
   std::vector<uint32_t> cscRobIdList;
   m_regionSelector->DetROBIDListUint(CSC, *iroi, cscRobIdList);  
   msg() << MSG::DEBUG << "Size of the tgc rob list: " << cscRobIdList.size() << std::endl;
-
 
   LVL2_MUON_CALIBRATION::CalibEvent  event(1,runId,lvl1Id,1,1,mrods,name().c_str(),eta,phi,pt);
   LVL2_MUON_CALIBRATION::MdtCalibFragment mdtFragment;
@@ -579,7 +578,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
   const RpcPadContainer* rpcPadContainer; 
   StatusCode sc = m_storeGate->retrieve(rpcPadContainer,"RPCPAD");
   if ( sc != StatusCode::SUCCESS ) { 
-    msg() << MSG::ERROR << "Could not retrieve the " << endreq;
+    msg() << MSG::ERROR << "Could not retrieve the RpcPadContainer" << endreq;
     return sc;
   }
 
@@ -597,7 +596,7 @@ StatusCode TrigL2MuonSA::MuCalStreamerTool::createRpcFragment(const LVL1::RecMuo
 
     RpcPadContainer::const_iterator itPad = rpcPadContainer->indexFind(padIdHash);  
     if( itPad==rpcPadContainer->end() ) {        
-      msg() << MSG::ERROR << "Failed to retrieve PAD hash Id " << padIdHash << endreq;  
+      msg() << MSG::WARNING << "Failed to retrieve PAD" << endreq;  
       return StatusCode::FAILURE;                         
     } 
 

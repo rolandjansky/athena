@@ -29,6 +29,7 @@
 MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc) 
   : HLT::FexAlgo(name, svc), 
     m_storeGate("StoreGateSvc", this->name()), 
+    m_timerSvc(0),
     m_regionSelector(0),
     m_dataPreparator("TrigL2MuonSA::MuFastDataPreparator"),
     m_patternFinder("TrigL2MuonSA::MuFastPatternFinder"),
@@ -42,7 +43,9 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
     m_mdtRegion(), m_muonRoad(),
     m_rpcFitResult(), m_tgcFitResult(),
     m_mdtHits_normal(), m_mdtHits_overlap(),
-    m_cscHits()
+    m_cscHits(),
+    m_ptBarrelLUTSvc(0), m_ptEndcapLUTSvc(0),
+    m_jobOptionsSvc(0), m_trigCompositeContainer(0)
 {
   declareProperty("DataPreparator",    m_dataPreparator,    "data preparator");
   declareProperty("PatternFinder",     m_patternFinder,     "pattern finder");
@@ -74,7 +77,7 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("USE_ROIBASEDACCESS_MDT", m_use_RoIBasedDataAccess_MDT = true);
   declareProperty("USE_ROIBASEDACCESS_TGC", m_use_RoIBasedDataAccess_TGC = true);
   declareProperty("USE_ROIBASEDACCESS_RPC", m_use_RoIBasedDataAccess_RPC = true);
-  declareProperty("USE_ROIBASEDACCESS_CSC", m_use_RoIBasedDataAccess_CSC = false);
+  declareProperty("USE_ROIBASEDACCESS_CSC", m_use_RoIBasedDataAccess_CSC = true);
 
   declareProperty("USE_NEW_SEGMENTFIT", m_use_new_segmentfit = true);
 
@@ -83,6 +86,8 @@ MuFastSteering::MuFastSteering(const std::string& name, ISvcLocator* svc)
   declareProperty("Scale_Road_BarrelOuter",m_scaleRoadBarrelOuter=1);
   
   declareProperty("WinPt",m_winPt=4.0);
+
+  declareProperty("RpcErrToDebugStream",m_rpcErrToDebugStream = false);
 
   declareMonitoredVariable("InnMdtHits", m_inner_mdt_hits);
   declareMonitoredVariable("MidMdtHits", m_middle_mdt_hits);
@@ -345,7 +350,9 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
   std::vector<const LVL1::RecMuonRoI*> muonRoIs;
   std::vector<const LVL1::RecMuonRoI*>::const_iterator p_roi;
   HLT::ErrorCode hec = getFeatures(inputTE, muonRoIs);
+
   if (hec != HLT::OK && hec2 != HLT::OK) {
+    msg() << MSG::ERROR << "Could not find input TE" << endreq;
     return hec2;
   }
   
@@ -397,6 +404,14 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
          return HLT::OK;
       }
       if (m_timerSvc) m_timers[ITIMER_DATA_PREPARATOR]->pause();
+
+      if ( m_rpcErrToDebugStream && m_dataPreparator->isRpcFakeRoi() ) {
+	msg() << MSG::ERROR << "Invalid RoI in RPC data found: event to debug stream" << endreq;
+	updateOutputTE(outputTE, inputTE, *p_roi, *p_roids, m_muonRoad, m_mdtRegion, m_rpcHits, m_tgcHits,
+		       m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
+	return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::UNKNOWN);
+      } 
+
 
       // Pattern finding
       if (m_timerSvc) m_timers[ITIMER_PATTERN_FINDER]->resume();
@@ -1508,7 +1523,9 @@ HLT::ErrorCode MuFastSteering::prepareRobRequests(const HLT::TriggerElement* inp
   
   std::vector<const TrigRoiDescriptor*> roids;
   HLT::ErrorCode hec = getFeatures(inputTE, roids);
+
   if (hec != HLT::OK) {
+    msg() << MSG::ERROR << "Could not find input TE" << endreq;
     return hec;
   }
   

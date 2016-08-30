@@ -191,7 +191,8 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
    // clear the hash ID vector
    m_tgcHashList.clear();
    
-   m_regionSelector->DetHashIDList(TGC, *iroi, m_tgcHashList);
+   if (iroi) m_regionSelector->DetHashIDList(TGC, *iroi, m_tgcHashList);
+   else m_regionSelector->DetHashIDList(TGC, m_tgcHashList);
    if(roi) delete roi;
    
    // now convert from RDO to PRD
@@ -215,6 +216,75 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
      return StatusCode::FAILURE;;
    }  
  
+   //Find closest wires in Middle
+   Muon::TgcPrepDataContainer::const_iterator wi = tgcPrepContainer->begin();
+   Muon::TgcPrepDataContainer::const_iterator wi_end = tgcPrepContainer->end();
+   float min_dphi_wire=1000.;
+   float second_dphi_wire=1000.;
+   std::vector<float> ov_dphi;
+   ov_dphi.clear();
+   for( ; wi!=wi_end; ++wi ) { // loop over collections
+     const Muon::TgcPrepDataCollection* colwi = *wi;
+     if( !colwi ) continue;
+     Muon::TgcPrepDataCollection::const_iterator cwi = colwi->begin();
+     Muon::TgcPrepDataCollection::const_iterator cwi_end = colwi->end();
+     for( ;cwi!=cwi_end;++cwi ){ // loop over data in the collection
+       if( !*cwi ) continue;
+       const Muon::TgcPrepData& prepDataWi = **cwi;
+       if (!m_tgcIdHelper->isStrip(prepDataWi.identify())) {//wire
+         int stationNumWi = m_tgcIdHelper->stationRegion(prepDataWi.identify())-1;
+         if (stationNumWi==-1) stationNumWi=3;
+         if (stationNumWi<3 && fabs(prepDataWi.globalPosition().eta() - roi_eta) < mid_eta_test ) {
+           float dphi = acos(cos(prepDataWi.globalPosition().phi()-roi_phi));
+           bool overlap=false;
+           for (unsigned int ov=0;ov<ov_dphi.size();ov++)
+             if (fabs(dphi-ov_dphi[ov])<1e-5) overlap=true;
+           if (overlap) continue;
+           ov_dphi.push_back(dphi);
+           if (dphi<second_dphi_wire){
+             second_dphi_wire=dphi;
+           }
+           if (dphi<min_dphi_wire) {
+             second_dphi_wire=min_dphi_wire;
+             min_dphi_wire=dphi;
+           }
+         }
+       }
+     }
+   }
+
+   //Check if there are enough number of hits
+   Muon::TgcPrepDataContainer::const_iterator hit = tgcPrepContainer->begin();
+   Muon::TgcPrepDataContainer::const_iterator hit_end = tgcPrepContainer->end();
+   int num_min_hits=0;
+   int num_second_hits=0;
+   for( ; hit!=hit_end; ++hit ) { // loop over collections
+     const Muon::TgcPrepDataCollection* colhit = *hit;
+     if( !colhit ) continue;
+     Muon::TgcPrepDataCollection::const_iterator chit = colhit->begin();
+     Muon::TgcPrepDataCollection::const_iterator chit_end = colhit->end();
+     for( ;chit!=chit_end;++chit ){ // loop over data in the collection
+       if( !*chit ) continue;
+       const Muon::TgcPrepData& prepDataHit = **chit;
+       if (!m_tgcIdHelper->isStrip(prepDataHit.identify())) {//strip
+         int stationNumHit = m_tgcIdHelper->stationRegion(prepDataHit.identify())-1;
+         if (stationNumHit==-1) stationNumHit=3;
+         if (stationNumHit<3 && fabs(prepDataHit.globalPosition().eta() - roi_eta) < mid_eta_test ) {
+           float dphi = acos(cos(prepDataHit.globalPosition().phi()-roi_phi));
+           if (fabs(dphi-min_dphi_wire)<1e-5) num_min_hits++;
+           if (fabs(dphi-second_dphi_wire)<1e-5) num_second_hits++;
+         }
+       }
+     }
+   }
+
+   float dphi_wire=min_dphi_wire;
+   bool useDefault=false;
+   if (num_min_hits<5) {
+     if (num_second_hits>5) dphi_wire=second_dphi_wire;
+     else useDefault=true;
+   }
+
    Muon::TgcPrepDataContainer::const_iterator it = tgcPrepContainer->begin();
    Muon::TgcPrepDataContainer::const_iterator it_end = tgcPrepContainer->end();
    for( ; it!=it_end; ++it ) { // loop over collections
@@ -240,7 +310,11 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        }
        else {
 	 // For wires, apply eta cut.
-	 if     ( stationNum < 3  && fabs(prepData.globalPosition().eta() - roi_eta) < mid_eta_test ) { isInRoad = true; }
+         float dphi = acos(cos(prepData.globalPosition().phi()-roi_phi));
+	 if     ( stationNum < 3  && fabs(prepData.globalPosition().eta() - roi_eta) < mid_eta_test ) {
+           if (useDefault) isInRoad = true;//default
+           else if (fabs(dphi-dphi_wire)<1e-5) isInRoad = true;//for close-by muon 
+         }
 	 else if( stationNum == 3 && fabs(prepData.globalPosition().eta() - roi_eta) < inn_eta_test ) { isInRoad = true; }
        }
        if( ! isInRoad ) continue;
@@ -266,8 +340,6 @@ StatusCode TrigL2MuonSA::TgcDataPreparator::prepareData(const LVL1::RecMuonRoI* 
        lutDigit.bcTag = 2;
        lutDigit.inRoad = false;
        
-       msg() << MSG::DEBUG << "TGC hits extracted eta/phi/r/z="
-	     << lutDigit.eta << "/" << lutDigit.phi << "/" << lutDigit.r << "/" << lutDigit.z << endreq;
 
        tgcHits.push_back(lutDigit);
        

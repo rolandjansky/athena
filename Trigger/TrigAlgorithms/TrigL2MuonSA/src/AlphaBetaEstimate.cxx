@@ -130,19 +130,10 @@ StatusCode TrigL2MuonSA::AlphaBetaEstimate::setAlphaBeta(const LVL1::RecMuonRoI*
       double theta = atan(InnerR/fabsf(InnerZ));
       etaInner = -log(tan(theta/2.))*InnerZ/fabsf(InnerZ);
     }
-
-    if (InnerZ!=0.) {
-      if (tgcFitResult.tgcInn[3]!=0.) phi = tgcFitResult.tgcInn[1];
-
-      trackPattern.etaMap = etaInner;      
-      // correction by KN, implemented by MI
-      if (MiddleZ!=0. && fabs(etaInner-etaMiddle)>0.03 &&
-	  fabs(p_roi->eta()) > 1.9 && fabs(p_roi->eta()) < 2.1) {
-	trackPattern.etaMap = etaMiddle;  
-      }
-    } else if (MiddleZ!=0.) {
-      trackPattern.etaMap = etaMiddle;  
-    }
+    
+    if (MiddleZ!=0.) trackPattern.etaMap = etaMiddle;  
+    else if (InnerZ!=0.) trackPattern.etaMap = etaInner;      
+    if (tgcFitResult.tgcInn[3]!=0.) phi = tgcFitResult.tgcInn[1];
 
     if ( phim > CLHEP::pi+0.1 ) phim = phim - 2*CLHEP::pi;
     if ( phim >= 0 ) trackPattern.phiMap = (phi>=0.)? phi - phim : phim - fabs(phi);

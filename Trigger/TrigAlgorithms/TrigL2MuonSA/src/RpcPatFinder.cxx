@@ -392,29 +392,31 @@ bool  TrigL2MuonSA::RpcPatFinder::deltaOK(int l1, int l2, double x1, double x2, 
   
 }
 
+// --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+
 double TrigL2MuonSA::RpcPatFinder::calibR(std::string stationName, double R, double Phi){
-  double calibR, DeltaPhi, temp_phi;
+  double DeltaPhi, temp_phi;
+  double calibPhi = acos(cos(Phi)); // 0 < Phi < 2PI
   
-  Phi=acos(cos(Phi)); // 0 < Phi < 2PI
-  
-  if(stationName.substr(2,3)=="L"){//For Large , SP
-    DeltaPhi= 999;temp_phi=9999;
+  if(std::string::npos != stationName.rfind("L")){//For Large , SP
+    DeltaPhi= 999; temp_phi=9999;
     for(int inum=0;inum < 8;inum++){
-      temp_phi = fabs((inum * M_PI/4.0 )- Phi);
+      temp_phi = fabs((inum * M_PI/4.0 )- calibPhi);
       if(temp_phi < DeltaPhi)      DeltaPhi = temp_phi;
     }
-  }else if(stationName.substr(2,3)=="S" ||
-	   stationName.substr(2,3)=="F" ||
-	   stationName.substr(2,3)=="G" ){//For Small , SP
-    
-    DeltaPhi= 999;temp_phi=9999;
+  }else if(std::string::npos != stationName.rfind("S") ||
+	   std::string::npos != stationName.rfind("F") ||
+	   std::string::npos != stationName.rfind("G")   ){
+    DeltaPhi= 999; temp_phi=9999;
+
     for(int inum=0;inum < 8;inum++){
-      temp_phi = fabs(inum *(M_PI/4.0 )+(M_PI/8.0) - Phi);
+      temp_phi = fabs(inum *(M_PI/4.0 )+(M_PI/8.0) - calibPhi);
       if(temp_phi < DeltaPhi)      DeltaPhi = temp_phi;
     }//for end                                                                                                                      
   }else return R;
-  
-  calibR = R *cos(DeltaPhi);
+
+  double calibR = R *cos(DeltaPhi);
   
   return calibR;
 }//calbR()

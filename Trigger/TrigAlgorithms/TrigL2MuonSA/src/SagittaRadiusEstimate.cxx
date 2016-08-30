@@ -107,6 +107,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
       xn = x0 - f(x0,c0,c1,c2,c3)/fp(x0,c33,c22,c1);
       x0 = xn;
     }
+    if (fabs(xn)<ZERO_LIMIT) xn = ZERO_LIMIT;//To avoid divergence
     
     x1 = xn;
     y1 = y0;    
@@ -114,11 +115,11 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
     if (superPoints[0]->R > ZERO_LIMIT ) {
       rad = superPoints[0]->R;
       theta = atan2(rad,(double)fabs(superPoints[0]->Z));
-      signZ = superPoints[0]->Z/fabs(superPoints[0]->Z);
+      signZ = (fabs(superPoints[0]->Z) > ZERO_LIMIT)? superPoints[0]->Z/fabs(superPoints[0]->Z): 1.;
     } else {
       rad = y1;
       theta = atan2(rad,(double)fabs(x1));
-      signZ = x1/fabs(x1);
+      signZ = (fabs(x1) > ZERO_LIMIT)? x1/fabs(x1): 1.;
     }
         
     trackPattern.etaMap = (-log(tan(theta/2.)))*signZ;

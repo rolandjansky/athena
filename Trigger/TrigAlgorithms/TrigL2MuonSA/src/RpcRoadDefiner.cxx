@@ -89,7 +89,6 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
       rpcFitResult.slope_outer = 1.0/aw[2];
 
       for(int i=0;i<3;i++){
-	//	std::cout<<"GGG "<<i<<" : aw(R/Z) = "<<1.0/aw[i]<<" / bw = "<<bw[i]<<std::endl;
 	if(fabs(1.0/aw[i]) <= ZERO_LIMIT) rpcFitResult.isSuccess = false;
       }
     } else {
@@ -147,9 +146,14 @@ StatusCode TrigL2MuonSA::RpcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*     
   double phiMax = muonRoad.phiMiddle+.01;
   if(phiMax > CLHEP::pi) phiMax -= CLHEP::pi*2.;
   if(phiMin < CLHEP::pi*-1) phiMin += CLHEP::pi*2.;
+
   TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
+
   const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-  m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+
+  if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+  else m_regionSelector->DetHashIDList(MDT, mdtHashList);
+
   if(roi) delete roi;
   
   for(int i_hash=0; i_hash < (int)mdtHashList.size(); i_hash++){

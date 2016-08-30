@@ -175,7 +175,7 @@ StatusCode TrigL2MuonSA::MuFastPatternFinder::findPatterns(const TrigL2MuonSA::M
    // Saddress = pos1/3 = 0:Large, 1:Large-SP, 2:Small, 3:Small-SP
    trackPattern.s_address = (muonRoad.isEndcap)? -1: muonRoad.Special + 2*muonRoad.LargeSmall;
 
-   const unsigned int MAX_STATION =  10;
+   const unsigned int MAX_STATION =  11;
    const unsigned int MAX_LAYER   =  12;
 
    TrigL2MuonSA::MdtLayerHits v_mdtLayerHits[MAX_STATION][MAX_LAYER];

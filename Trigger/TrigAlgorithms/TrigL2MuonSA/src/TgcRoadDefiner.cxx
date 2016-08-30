@@ -82,7 +82,6 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
 
   // Define road by using TGC fit result
   const double R_WIDTH_DEFAULT       = 100;
-  const double R_WIDTH_MIDDLE_NO_HIT = 150;
   const double R_WIDTH_INNER_NO_HIT  = 200;
   
   const double ZERO_LIMIT = 1e-5;
@@ -183,14 +182,15 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
 
         double tmp  = (tmp1+tmp2)/2.;
 
-        tgcFitResult.dPhidZ = (fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3])>0.)?
+        tgcFitResult.dPhidZ = (fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]) > ZERO_LIMIT)?
           (tmp2-tmp1)/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]): 0;
 
         tgcFitResult.phi = (tmp>0.)? tmp - CLHEP::pi : tmp + CLHEP::pi;
 
       } else {
 
-        tgcFitResult.dPhidZ = (tgcFitResult.tgcMid2[1]-tgcFitResult.tgcMid1[1])/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]);
+        tgcFitResult.dPhidZ = (fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]) > ZERO_LIMIT)?
+	  (tgcFitResult.tgcMid2[1]-tgcFitResult.tgcMid1[1])/fabs(tgcFitResult.tgcMid2[3]-tgcFitResult.tgcMid1[3]): 0;
         tgcFitResult.phi = (tgcFitResult.tgcMid2[1]+tgcFitResult.tgcMid1[1])/2.;
 
       }
@@ -201,42 +201,20 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
     float Y2 = tgcFitResult.tgcMid2[3] * sin(tgcFitResult.tgcMid2[1]);
     if (X1>ZERO_LIMIT && X2>ZERO_LIMIT) tgcFitResult.phiDir = (Y1/X1 + Y2/X2)/2.;
 
-    
-    if( ! isMiddleFailure ) {
-      muonRoad.aw[endcap_middle][0]     = tgcFitResult.slope;
-      muonRoad.bw[endcap_middle][0]     = tgcFitResult.intercept;
-      muonRoad.aw[endcap_outer][0]     = tgcFitResult.slope;
-      muonRoad.bw[endcap_outer][0]     = tgcFitResult.intercept;
-      muonRoad.aw[endcap_extra][0]     = tgcFitResult.slope;
-      muonRoad.bw[endcap_extra][0]     = tgcFitResult.intercept;
-      muonRoad.aw[bee][0]     = tgcFitResult.slope;
-      muonRoad.bw[bee][0]     = tgcFitResult.intercept;
-      for (int i_layer=0; i_layer<8; i_layer++) {
-        muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_DEFAULT;
-        muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_DEFAULT;
-        muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_DEFAULT;
-        muonRoad.rWidth[bee][i_layer] = R_WIDTH_DEFAULT;
-      }
-    } else {
-      roiEta = p_roi->eta();
-      theta  = atan(exp(-fabs(roiEta)))*2.;
-      aw     = (fabs(roiEta) > ZERO_LIMIT)? tan(theta)*(fabs(roiEta)/roiEta): 0.;
-      muonRoad.aw[endcap_middle][0]     = aw;
-      muonRoad.bw[endcap_middle][0]     = 0;
-      muonRoad.aw[endcap_outer][0]     = aw;
-      muonRoad.bw[endcap_outer][0]     = 0;
-      muonRoad.aw[endcap_extra][0]     = aw;
-      muonRoad.bw[endcap_extra][0]     = 0;
-      muonRoad.aw[bee][0]     = aw;
-      muonRoad.bw[bee][0]     = 0;
-      for (int i_layer=0; i_layer<8; i_layer++) {
-        muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-        muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-        muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-        muonRoad.rWidth[bee][i_layer] = R_WIDTH_MIDDLE_NO_HIT;
-      }
+    muonRoad.aw[endcap_middle][0]     = tgcFitResult.slope;
+    muonRoad.bw[endcap_middle][0]     = tgcFitResult.intercept;
+    muonRoad.aw[endcap_outer][0]     = tgcFitResult.slope;
+    muonRoad.bw[endcap_outer][0]     = tgcFitResult.intercept;
+    muonRoad.aw[endcap_extra][0]     = tgcFitResult.slope;
+    muonRoad.bw[endcap_extra][0]     = tgcFitResult.intercept;
+    muonRoad.aw[bee][0]     = tgcFitResult.slope;
+    muonRoad.bw[bee][0]     = tgcFitResult.intercept;
+    for (int i_layer=0; i_layer<8; i_layer++) {
+      muonRoad.rWidth[endcap_middle][i_layer] = R_WIDTH_DEFAULT;
+      muonRoad.rWidth[endcap_outer][i_layer] = R_WIDTH_DEFAULT;
+      muonRoad.rWidth[endcap_extra][i_layer] = R_WIDTH_DEFAULT;
+      muonRoad.rWidth[bee][i_layer] = R_WIDTH_DEFAULT;
     }
-    
     
     if( fabs(tgcFitResult.tgcInn[3]) > ZERO_LIMIT ) {
       muonRoad.aw[endcap_inner][0]  = tgcFitResult.tgcInn[2]/tgcFitResult.tgcInn[3];
@@ -373,7 +351,8 @@ bool TrigL2MuonSA::TgcRoadDefiner::defineRoad(const LVL1::RecMuonRoI*      p_roi
   if(phiMin < CLHEP::pi*-1) phiMin += CLHEP::pi*2.;
   TrigRoiDescriptor* roi = new TrigRoiDescriptor( p_roi->eta(), etaMin, etaMax, p_roi->phi(), phiMin, phiMax ); 
   const IRoiDescriptor* iroi = (IRoiDescriptor*) roi;
-  m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+  if (iroi) m_regionSelector->DetHashIDList(MDT, *iroi, mdtHashList);
+  else m_regionSelector->DetHashIDList(MDT, mdtHashList);
   if(roi) delete roi;
   
   for(int i_hash=0; i_hash<(int)mdtHashList.size(); i_hash++){
