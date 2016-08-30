@@ -100,7 +100,7 @@ namespace InDet
                              xAOD::VertexContainer*& ksContainer, xAOD::VertexAuxContainer*& ksAuxContainer,
                              xAOD::VertexContainer*& laContainer, xAOD::VertexAuxContainer*& laAuxContainer,
                              xAOD::VertexContainer*& lbContainer, xAOD::VertexAuxContainer*& lbAuxContainer,
-                             xAOD::Vertex* vertex, std::string vertCollName);
+                             const xAOD::Vertex* vertex, std::string vertCollName);
 
   //protected:
   private:
@@ -175,12 +175,12 @@ namespace InDet
     bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, const xAOD::Vertex * vertex);
     bool d0Pass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2, Amg::Vector3D vertex);
 
-    bool pointAtVertex(xAOD::Vertex* v0, xAOD::Vertex* PV);
+    bool pointAtVertex(const xAOD::Vertex* v0, const xAOD::Vertex* PV);
     bool pointAtVertexColl(xAOD::Vertex* v0, const xAOD::VertexContainer * vertColl);
 
     bool doMassFit(xAOD::Vertex* vxCandidate, int pdgID);
 
-    xAOD::Vertex* massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Trk::Vertex vertex, Trk::TrkV0VertexFitter* concreteVertexFitter);
+    xAOD::Vertex* massFit(int pdgID, std::vector<const xAOD::TrackParticle*> pairV0, Amg::Vector3D vertex, Trk::TrkV0VertexFitter* concreteVertexFitter);
 
   };
 

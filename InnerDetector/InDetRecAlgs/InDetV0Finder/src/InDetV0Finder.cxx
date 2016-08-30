@@ -79,31 +79,31 @@ StatusCode InDetV0Finder::initialize()
 
   sc = resetStatistics();     // reset counters
   if (sc.isFailure()) {
-    msg(MSG::FATAL) << "Error in resetStatistics !" << endreq;
+    msg(MSG::FATAL) << "Error in resetStatistics !" << endmsg;
     return sc;
   }
 
 // uploading the V0Finding tools
   if ( m_v0FinderTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_v0FinderTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_v0FinderTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_v0FinderTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_v0FinderTool << endmsg;
   }
 
 // uploading the V0 tools
   if ( m_V0Tools.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_V0Tools << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_V0Tools << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_V0Tools << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_V0Tools << endmsg;
   }
 
 // get the Particle Properties Service
   IPartPropSvc* partPropSvc = 0;
   sc = service("PartPropSvc", partPropSvc, true);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not initialize Particle Properties Service" << endreq;
+    msg(MSG::ERROR) << "Could not initialize Particle Properties Service" << endmsg;
     return StatusCode::FAILURE;
   }
   m_particleDataTable = partPropSvc->PDT();
@@ -121,7 +121,7 @@ StatusCode InDetV0Finder::initialize()
    m_massLambda = pd_L->mass();
   }
 
-  msg(MSG::INFO) << "Initialization successful" << endreq;
+  msg(MSG::INFO) << "Initialization successful" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -133,7 +133,7 @@ StatusCode InDetV0Finder::execute()
   m_events_processed++;
 
 // Get primary vertex from StoreGate
-  xAOD::Vertex * primaryVertex(0);
+  const xAOD::Vertex * primaryVertex(0);
   const xAOD::VertexContainer * importedVxContainer(0);
   sc = evtStore()->retrieve(importedVxContainer,m_VxPrimaryCandidateName);
   if (sc.isFailure() ) {
@@ -189,7 +189,7 @@ StatusCode InDetV0Finder::execute()
     xAOD::VertexContainer::const_iterator v0Itr = v0Container->begin();
     for ( v0Itr=v0Container->begin(); v0Itr!=v0Container->end(); ++v0Itr )
     {
-      xAOD::Vertex * unconstrV0 = (*v0Itr);
+      const xAOD::Vertex * unconstrV0 = (*v0Itr);
       double mass_ks = m_V0Tools->invariantMass(unconstrV0,m_masspi,m_masspi);
       double mass_error_ks = m_V0Tools->invariantMassError(unconstrV0,m_masspi,m_masspi);
       double mass_la = m_V0Tools->invariantMass(unconstrV0,m_massp,m_masspi);
@@ -218,7 +218,7 @@ StatusCode InDetV0Finder::execute()
     xAOD::VertexContainer::const_iterator ksItr = ksContainer->begin();
     for ( ksItr=ksContainer->begin(); ksItr!=ksContainer->end(); ++ksItr )
     {
-      xAOD::Vertex * ksV0 = (*ksItr);
+      const xAOD::Vertex * ksV0 = (*ksItr);
       double mass_ks = m_V0Tools->invariantMass(ksV0,m_masspi,m_masspi);
       double mass_error_ks = m_V0Tools->invariantMassError(ksV0,m_masspi,m_masspi);
       double pt = m_V0Tools->pT(ksV0);
@@ -239,7 +239,7 @@ StatusCode InDetV0Finder::execute()
     xAOD::VertexContainer::const_iterator laItr = laContainer->begin();
     for ( laItr=laContainer->begin(); laItr!=laContainer->end(); ++laItr )
     {
-      xAOD::Vertex * laV0 = (*laItr);
+      const xAOD::Vertex * laV0 = (*laItr);
       double mass_la = m_V0Tools->invariantMass(laV0,m_massp,m_masspi);
       double mass_error_la = m_V0Tools->invariantMassError(laV0,m_massp,m_masspi);
       double pt = m_V0Tools->pT(laV0);
@@ -260,7 +260,7 @@ StatusCode InDetV0Finder::execute()
     xAOD::VertexContainer::const_iterator lbItr = lbContainer->begin();
     for ( lbItr=lbContainer->begin(); lbItr!=lbContainer->end(); ++lbItr )
     {
-      xAOD::Vertex * lbV0 = (*lbItr);
+      const xAOD::Vertex * lbV0 = (*lbItr);
       double mass_lb = m_V0Tools->invariantMass(lbV0,m_masspi,m_massp);
       double mass_error_lb = m_V0Tools->invariantMassError(lbV0,m_masspi,m_massp);
       double pt = m_V0Tools->pT(lbV0);
@@ -317,14 +317,14 @@ StatusCode InDetV0Finder::execute()
 StatusCode InDetV0Finder::finalize()
 {
   msg(MSG::INFO)
-    << "----------------------------------------------------------------------------------------------------------------------------------------------" << endreq
-    << "\tSummary" << endreq 
-    << "\tProcessed              : " << m_events_processed            << " events" << endreq
-    << "\tStored                 : " << m_V0s_stored                  << " V0s" << endreq
-    << "\tof which               : " << m_Kshort_stored               << " Kshorts" << endreq
-    << "\t                       : " << m_Lambda_stored               << " Lambdas" << endreq
-    << "\t                       : " << m_Lambdabar_stored            << " Lambdabars" << endreq;
-  msg(MSG::INFO) << "----------------------------------------------------------------------------------------------------------------------------------------------" << endreq;
+    << "----------------------------------------------------------------------------------------------------------------------------------------------" << endmsg
+    << "\tSummary" << endmsg 
+    << "\tProcessed              : " << m_events_processed            << " events" << endmsg
+    << "\tStored                 : " << m_V0s_stored                  << " V0s" << endmsg
+    << "\tof which               : " << m_Kshort_stored               << " Kshorts" << endmsg
+    << "\t                       : " << m_Lambda_stored               << " Lambdas" << endmsg
+    << "\t                       : " << m_Lambdabar_stored            << " Lambdabars" << endmsg;
+  msg(MSG::INFO) << "----------------------------------------------------------------------------------------------------------------------------------------------" << endmsg;
 
   return StatusCode::SUCCESS;
 }
