@@ -13,12 +13,12 @@ ParticleCreatorNTuple::ParticleCreatorNTuple(MsgStream& log) : m_log(log)
 
 StatusCode ParticleCreatorNTuple::book(NTuple::Tuple* pNTuple)
 {
-    m_log << MSG::INFO << " ParticleCreatorNTuple initialization" << endreq;
+    m_log << MSG::INFO << " ParticleCreatorNTuple initialization" << endmsg;
 
     if (    pNTuple->addItem("AOD/RunNumber",   m_RunNumber).isFailure() ||
             pNTuple->addItem("AOD/EventNumber", m_EventNumber).isFailure())
     {
-        m_log << MSG::WARNING << "Cannot addItem(AOD/<Run and event numbers>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(AOD/<Run and event numbers>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -62,7 +62,7 @@ StatusCode ParticleCreatorNTuple::book(NTuple::Tuple* pNTuple)
             pNTuple->addItem("AOD/SaveAnn",     m_SaveAnn).isFailure() ||
             pNTuple->addItem("AOD/SaveStau",    m_SaveStau).isFailure() )
     {
-        m_log << MSG::WARNING << "Cannot addItem(AOD/items)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(AOD/items)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -72,7 +72,7 @@ StatusCode ParticleCreatorNTuple::book(NTuple::Tuple* pNTuple)
 StatusCode ParticleCreatorNTuple::fillEventInfo(unsigned nRunNumber, unsigned nEventNumber)
 {
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "ParticleCreatorNTuple::fillEventInfo(" << nRunNumber << ", " << nEventNumber << ")" << endreq;
+        m_log << MSG::DEBUG << "ParticleCreatorNTuple::fillEventInfo(" << nRunNumber << ", " << nEventNumber << ")" << endmsg;
 
     m_RunNumber   = (long)nRunNumber;
     m_EventNumber = (long)nEventNumber;
@@ -85,7 +85,7 @@ StatusCode ParticleCreatorNTuple::fill(const CandidateSummary* pSummary,
                                        const ToolHandle<IPerformanceTruthTool> &pTruthTool)
 {
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "ParticleCreatorNTuple::fill" << endreq;
+        m_log << MSG::DEBUG << "ParticleCreatorNTuple::fill" << endmsg;
 
     reset();
 
@@ -176,7 +176,7 @@ StatusCode ParticleCreatorNTuple::fill(const CandidateSummary* pSummary,
     m_SaveStau = pSummary->saveStau;
 
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "ParticleCreatorNTuple::fill ended" << endreq;
+        m_log << MSG::DEBUG << "ParticleCreatorNTuple::fill ended" << endmsg;
     return StatusCode::SUCCESS;
 }
 
