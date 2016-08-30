@@ -21,8 +21,8 @@ class FastTrackSelectionTool : public virtual IFastTrackSelectionTool, public as
  public:
   
   FastTrackSelectionTool(const std::string & name);
-
   FastTrackSelectionTool(const FastTrackSelectionTool & other);
+  FastTrackSelectionTool& operator=(const FastTrackSelectionTool & other) = delete;
 
   virtual ~FastTrackSelectionTool() {};
 

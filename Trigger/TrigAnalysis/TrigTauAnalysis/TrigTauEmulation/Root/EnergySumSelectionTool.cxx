@@ -2,6 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// vim: ts=2 sw=2
+
 #include "TrigTauEmulation/EnergySumSelectionTool.h"
 #include <TMath.h>
 // Default constructor
@@ -11,8 +13,9 @@ EnergySumSelectionTool::EnergySumSelectionTool(const std::string& name) : Level1
 }
 
 // Copy constructor
-EnergySumSelectionTool::EnergySumSelectionTool(const EnergySumSelectionTool& other) : Level1SelectionTool(other.name() + "_copy")
-{}
+EnergySumSelectionTool::EnergySumSelectionTool(const EnergySumSelectionTool& other) : Level1SelectionTool(other.name() + "_copy") {
+  m_MET_cut = other.m_MET_cut;
+}
 
 // Tool initialize
 StatusCode EnergySumSelectionTool::initialize()

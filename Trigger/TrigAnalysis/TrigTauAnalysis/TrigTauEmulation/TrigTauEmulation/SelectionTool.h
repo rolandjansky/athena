@@ -27,6 +27,7 @@ class SelectionTool : public Extension<SelectionTool*>, public virtual ISelectio
   
     SelectionTool(const std::string& name) : asg::AsgTool(name) {};
     SelectionTool(const SelectionTool& other) : asg::AsgTool(other.name() + "_copy") {};
+    SelectionTool& operator=(const SelectionTool& other) = delete;
 
 
 };

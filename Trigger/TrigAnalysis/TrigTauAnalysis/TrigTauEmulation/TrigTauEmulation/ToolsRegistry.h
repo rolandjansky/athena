@@ -45,7 +45,8 @@ class ToolsRegistry : public ExtensionContainer<SelectionTool*>, virtual public 
   public:
 
     ToolsRegistry(const std::string& name);
-    ToolsRegistry(const ToolsRegistry& other);
+    ToolsRegistry(const ToolsRegistry& other) = delete;
+    ToolsRegistry& operator=(const ToolsRegistry& other) = delete;
 
     virtual ~ToolsRegistry();
 

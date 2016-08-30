@@ -25,6 +25,7 @@ class Level1SelectionTool : public virtual ILevel1SelectionTool, public Selectio
   
     Level1SelectionTool(const std::string& name) : SelectionTool(name) { };
     Level1SelectionTool(const Level1SelectionTool& other) : SelectionTool(other.name() + "_copy") { };
+    Level1SelectionTool& operator=(const Level1SelectionTool& other) = delete;
 
 };
 #endif

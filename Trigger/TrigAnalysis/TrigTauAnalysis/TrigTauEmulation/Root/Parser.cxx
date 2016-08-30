@@ -9,12 +9,18 @@
 // Default constructor
 Parser::Parser(const std::string& name) : asg::AsgTool(name)
 {
-
+  m_is_DR = false;
+  m_is_BOX = false;
+  m_is_OLR = false;
 }
 
 // Copy constructor
 Parser::Parser(const Parser& other) : asg::AsgTool(other.name() + "_copy")
-{}
+{
+  m_is_DR = other.m_is_DR;
+  m_is_BOX = other.m_is_BOX;
+  m_is_OLR = other.m_is_OLR;
+}
 
 // Tool initialize
 StatusCode Parser::initialize()

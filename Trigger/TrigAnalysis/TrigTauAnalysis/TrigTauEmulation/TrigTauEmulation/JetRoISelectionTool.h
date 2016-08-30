@@ -25,6 +25,7 @@ class JetRoISelectionTool : public virtual IJetRoISelectionTool, public Level1Se
 
     // Copy Constructor 
     JetRoISelectionTool(const JetRoISelectionTool& other);
+    JetRoISelectionTool& operator=(const JetRoISelectionTool& other) = delete;
 
     // Destructor
     virtual ~JetRoISelectionTool() {};

@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// vim: ts=2 sw=2
 #include "TrigTauEmulation/Level1TopoSelectionTool.h"
 #include "TrigTauEmulation/Utils.h"
 #include "TrigTauEmulation/MsgStream.h"
@@ -20,18 +21,23 @@ Level1TopoSelectionTool::Level1TopoSelectionTool(const std::string& name) : Leve
   // m_topo_decisions = new std::map<std::string, bool>();
 }
 
-Level1TopoSelectionTool::Level1TopoSelectionTool(const Level1TopoSelectionTool& other) : Level1SelectionTool(other.name() + "_copy")
-{}
+Level1TopoSelectionTool::Level1TopoSelectionTool(const Level1TopoSelectionTool& other) : Level1SelectionTool(other.name() + "_copy") {
+  m_delta_r = other.m_delta_r;
+  m_delta_phi = other.m_delta_phi;
+  m_use_box = other.m_use_box;
+  m_box_delta_phi = other.m_box_delta_phi;
+  m_box_delta_eta = other.m_box_delta_eta;
+}
 
 StatusCode Level1TopoSelectionTool::initialize() {
   return StatusCode::SUCCESS;
 }
 
 StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
-					    const xAOD::EmTauRoIContainer * c2,
-					    const std::string & decor,
-					    const std::string & sel1,
-					    const std::string & sel2)
+              const xAOD::EmTauRoIContainer * c2,
+              const std::string & decor,
+              const std::string & sel1,
+              const std::string & sel2)
 {
   // std::map<std::string, bool> blurp;
   // const std::string decor = "DR-" + sel1 + sel2;
@@ -42,17 +48,17 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
     // Only consider selected objects
     if ( sel1 == "" || (sel1 != "" && p1->auxdataConst<bool>(sel1) == true) ) {
       for(const auto p2 : *c2){
-	p2->auxdecor<bool>(decor) = false;
-	// Only consider selected objects
-	if ( sel2 == "" || (sel2 != "" && p2->auxdataConst<bool>(sel2) == true) ) {
-	  double delta_r = Utils::L1_DeltaR_Square(p1->eta(), p1->phi(), p2->eta(), p2->phi());
-	  bool is_topo = topological_criteria(p1->eta(), p1->phi(), p2->eta(), p2->phi(), m_use_box);
-	  if (is_topo && delta_r > DELTA_OVERLAP_EMTAU) {
-	    m_topo_decisions[decor] = true;
-	    p1->auxdecor<bool>(decor) = true;
-	    p2->auxdecor<bool>(decor) = true;
-	  }
-	}
+  p2->auxdecor<bool>(decor) = false;
+  // Only consider selected objects
+  if ( sel2 == "" || (sel2 != "" && p2->auxdataConst<bool>(sel2) == true) ) {
+    double delta_r = Utils::L1_DeltaR_Square(p1->eta(), p1->phi(), p2->eta(), p2->phi());
+    bool is_topo = topological_criteria(p1->eta(), p1->phi(), p2->eta(), p2->phi(), m_use_box);
+    if (is_topo && delta_r > DELTA_OVERLAP_EMTAU) {
+      m_topo_decisions[decor] = true;
+      p1->auxdecor<bool>(decor) = true;
+      p2->auxdecor<bool>(decor) = true;
+    }
+  }
       }
     }
   }
@@ -61,10 +67,10 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
 
 // Tool execute
 StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
-					    const xAOD::JetRoIContainer * c2,
-					    const std::string & decor,
-					    const std::string & sel1,
-					    const std::string & sel2)
+              const xAOD::JetRoIContainer * c2,
+              const std::string & decor,
+              const std::string & sel1,
+              const std::string & sel2)
 {
   // std::string decor = "DR-" + sel1 + sel2;
   m_topo_decisions[decor] = false;
@@ -73,17 +79,17 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
     // Only consider selected objects
     if ( sel1 == "" || (sel1 != "" && p1->auxdataConst<bool>(sel1) == true) ) {
       for(const auto p2 : *c2){
-	p2->auxdecor<bool>(decor) = false;
-	// Only consider selected objects
-	if ( sel2 == "" || (sel2 != "" && p2->auxdataConst<bool>(sel2) == true) ) {
-	  double delta_r = Utils::L1_DeltaR_Square(p1->eta(), p1->phi(), p2->eta(), p2->phi());
-	  bool is_topo = topological_criteria(p1->eta(), p1->phi(), p2->eta(), p2->phi(), m_use_box);
-	  if (is_topo && delta_r > DELTA_OVERLAP_J) {
-	    m_topo_decisions[decor] = true;
-	    p1->auxdecor<bool>(decor) = true;
-	    p2->auxdecor<bool>(decor) = true;
-	  }
-	}
+  p2->auxdecor<bool>(decor) = false;
+  // Only consider selected objects
+  if ( sel2 == "" || (sel2 != "" && p2->auxdataConst<bool>(sel2) == true) ) {
+    double delta_r = Utils::L1_DeltaR_Square(p1->eta(), p1->phi(), p2->eta(), p2->phi());
+    bool is_topo = topological_criteria(p1->eta(), p1->phi(), p2->eta(), p2->phi(), m_use_box);
+    if (is_topo && delta_r > DELTA_OVERLAP_J) {
+      m_topo_decisions[decor] = true;
+      p1->auxdecor<bool>(decor) = true;
+      p2->auxdecor<bool>(decor) = true;
+    }
+  }
       }
     }
   }
@@ -92,10 +98,10 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
 
 // Tool execute
 StatusCode Level1TopoSelectionTool::execute(const xAOD::MuonRoIContainer * c1,
-					    const xAOD::EmTauRoIContainer * c2,
-					    const std::string & decor,
-					    const std::string & sel1,
-					    const std::string & sel2)
+              const xAOD::EmTauRoIContainer * c2,
+              const std::string & decor,
+              const std::string & sel1,
+              const std::string & sel2)
 {
   // std::string decor = "DR-" + sel1 + sel2;
   m_topo_decisions[decor] = false;
@@ -104,16 +110,16 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::MuonRoIContainer * c1,
     // Only consider selected objects
     if ( sel1 == "" || (sel1 != "" && p1->auxdataConst<bool>(sel1) == true) ) {
       for(const auto p2 : *c2){
-	p2->auxdecor<bool>(decor) = false;
-	// Only consider selected objects
-	if ( sel2 == "" || (sel2 != "" && p2->auxdataConst<bool>(sel2) == true) ) {
-	  bool is_topo = topological_criteria(p1->eta(), p1->phi(), p2->eta(), p2->phi(), m_use_box);
-	  if (is_topo) {
-	    m_topo_decisions[decor] = true;
-	    p1->auxdecor<bool>(decor) = true;
-	    p2->auxdecor<bool>(decor) = true;
-	  }
-	}
+  p2->auxdecor<bool>(decor) = false;
+  // Only consider selected objects
+  if ( sel2 == "" || (sel2 != "" && p2->auxdataConst<bool>(sel2) == true) ) {
+    bool is_topo = topological_criteria(p1->eta(), p1->phi(), p2->eta(), p2->phi(), m_use_box);
+    if (is_topo) {
+      m_topo_decisions[decor] = true;
+      p1->auxdecor<bool>(decor) = true;
+      p2->auxdecor<bool>(decor) = true;
+    }
+  }
       }
     }
   }
@@ -122,10 +128,10 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::MuonRoIContainer * c1,
 
 // Tool execute
 StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
-					    const xAOD::EnergySumRoI * met,
-					    const std::string & decor,
-					    const std::string & sel1,
-					    const std::string & sel2)
+              const xAOD::EnergySumRoI * met,
+              const std::string & decor,
+              const std::string & sel1,
+              const std::string & sel2)
 {
   // std::string decor = "DR-" + sel1 + sel2;
   m_topo_decisions[decor] = false;
@@ -137,12 +143,12 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
       p1->auxdecor<bool>(decor) = false;
       // Only consider selected objects
       if ( sel1 == "" || (sel1 != "" && p1->auxdataConst<bool>(sel1) == true) ) {
-	double delta_phi = Utils::DeltaPhi(p1->phi(), met_phi);
-	if (delta_phi < m_delta_phi) {
-	  m_topo_decisions[decor] = true;
-	  p1->auxdecor<bool>(decor) = true;
-	  met->auxdecor<bool>(decor) = true;
-	}
+  double delta_phi = Utils::DeltaPhi(p1->phi(), met_phi);
+  if (delta_phi < m_delta_phi) {
+    m_topo_decisions[decor] = true;
+    p1->auxdecor<bool>(decor) = true;
+    met->auxdecor<bool>(decor) = true;
+  }
       }
     }
   }
@@ -151,12 +157,12 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
 
 // Tool execute
 StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
-					    const xAOD::EmTauRoIContainer * c2,
-					    const xAOD::JetRoIContainer * c3,
-					    const std::string & decor,
-					    const std::string & sel1,
-					    const std::string & sel2,
-					    const std::string & sel3)
+              const xAOD::EmTauRoIContainer * c2,
+              const xAOD::JetRoIContainer * c3,
+              const std::string & decor,
+              const std::string & sel1,
+              const std::string & sel2,
+              const std::string & sel3)
 {
   // Topo criteria with an additional 
   // object (overlap removal)
@@ -169,29 +175,29 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
     // Only consider selected objects
     if (sel1 == "" || (sel1 != "" && p1->auxdataConst<bool>(sel1) == true)) {
       for (const auto p2 : *c2) {
-	p2->auxdecor<bool>(decor) = false;
-	// Only consider selected objects
-	if (sel2 == "" || (sel2 != "" && p2->auxdataConst<bool>(sel2) == true)) {
-	  double delta_r = Utils::L1_DeltaR_Square(p1->eta(), p1->phi(), p2->eta(), p2->phi());
-	  bool is_topo = topological_criteria(p1->eta(), p1->phi(), p2->eta(), p2->phi(), m_use_box);
-	  if (is_topo && delta_r > DELTA_OVERLAP_EMTAU) {
-	    // Check if we have an additional jet that is not one of the 2 taus
-	    for (const auto p3 : *c3) {
-	      p3->auxdecor<bool>(decor) = false;
-	      // Only consider selected objects
-	      if (sel3 == "" || (sel3 != "" && p3->auxdataConst<bool>(sel3) == true)) {
-		double delta_r_p1_p3 = Utils::L1_DeltaR_Square(p1->eta(), p1->phi(), p3->eta(), p3->phi());
-		double delta_r_p2_p3 = Utils::L1_DeltaR_Square(p2->eta(), p2->phi(), p3->eta(), p3->phi());
-		if (delta_r_p1_p3 > DELTA_OVERLAP_J && delta_r_p2_p3 > DELTA_OVERLAP_J) {
-		  m_topo_decisions[decor] = true;
-		  p1->auxdecor<bool>(decor) = true;
-		  p2->auxdecor<bool>(decor) = true;
-		  p3->auxdecor<bool>(decor) = true;
-		}
-	      }
-	    }
-	  }
-	}
+  p2->auxdecor<bool>(decor) = false;
+  // Only consider selected objects
+  if (sel2 == "" || (sel2 != "" && p2->auxdataConst<bool>(sel2) == true)) {
+    double delta_r = Utils::L1_DeltaR_Square(p1->eta(), p1->phi(), p2->eta(), p2->phi());
+    bool is_topo = topological_criteria(p1->eta(), p1->phi(), p2->eta(), p2->phi(), m_use_box);
+    if (is_topo && delta_r > DELTA_OVERLAP_EMTAU) {
+      // Check if we have an additional jet that is not one of the 2 taus
+      for (const auto p3 : *c3) {
+        p3->auxdecor<bool>(decor) = false;
+        // Only consider selected objects
+        if (sel3 == "" || (sel3 != "" && p3->auxdataConst<bool>(sel3) == true)) {
+    double delta_r_p1_p3 = Utils::L1_DeltaR_Square(p1->eta(), p1->phi(), p3->eta(), p3->phi());
+    double delta_r_p2_p3 = Utils::L1_DeltaR_Square(p2->eta(), p2->phi(), p3->eta(), p3->phi());
+    if (delta_r_p1_p3 > DELTA_OVERLAP_J && delta_r_p2_p3 > DELTA_OVERLAP_J) {
+      m_topo_decisions[decor] = true;
+      p1->auxdecor<bool>(decor) = true;
+      p2->auxdecor<bool>(decor) = true;
+      p3->auxdecor<bool>(decor) = true;
+    }
+        }
+      }
+    }
+  }
       }
     }
   }
@@ -200,12 +206,12 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::EmTauRoIContainer * c1,
 
 // Tool execute
 StatusCode Level1TopoSelectionTool::execute(const xAOD::MuonRoIContainer * c1,
-					    const xAOD::EmTauRoIContainer * c2,
-					    const xAOD::JetRoIContainer * c3,
-					    const std::string & decor,
-					    const std::string & sel1,
-					    const std::string & sel2,
-					    const std::string & sel3)
+              const xAOD::EmTauRoIContainer * c2,
+              const xAOD::JetRoIContainer * c3,
+              const std::string & decor,
+              const std::string & sel1,
+              const std::string & sel2,
+              const std::string & sel3)
 {
   // Topo criteria with an additional 
   // object (overlap removal)
@@ -218,29 +224,29 @@ StatusCode Level1TopoSelectionTool::execute(const xAOD::MuonRoIContainer * c1,
     // Only consider selected objects
     if (sel1 == "" || (sel1 != "" && p1->auxdataConst<bool>(sel1) == true)) {
       for (const auto p2 : *c2) {
-	p2->auxdecor<bool>(decor) = false;
-	// Only consider selected objects
-	if (sel2 == "" || (sel2 != "" && p2->auxdataConst<bool>(sel2) == true)) {
-	  bool is_topo_p1_p2 = topological_criteria(p1->eta(), p1->phi(), p2->eta(), p2->phi(), m_use_box);
-	  if (is_topo_p1_p2) {
-	    // Check if we have an additional jet that is not one of the 2 taus
-	    for (const auto p3 : *c3) {
-	      p3->auxdecor<bool>(decor) = false;
-	      // Only consider selected objects
-	      if (sel3 == "" || (sel3 != "" && p3->auxdataConst<bool>(sel3) == true)) {
-		// Muon and Jet do not overlap so we don't need this check
-		// double delta_r_p1_p3 = Utils::L1_DeltaR_Square(p1->eta(), p1->phi(), p3->eta(), p3->phi());
-		double delta_r_p2_p3 = Utils::L1_DeltaR_Square(p2->eta(), p2->phi(), p3->eta(), p3->phi());
-		if (/*delta_r_p1_p3 > DELTA_OVERLAP && */ delta_r_p2_p3 > DELTA_OVERLAP_J) {
-		  m_topo_decisions[decor] = true;
-		  p1->auxdecor<bool>(decor) = true;
-		  p2->auxdecor<bool>(decor) = true;
-		  p3->auxdecor<bool>(decor) = true;
-		}
-	      }
-	    }
-	  }
-	}
+  p2->auxdecor<bool>(decor) = false;
+  // Only consider selected objects
+  if (sel2 == "" || (sel2 != "" && p2->auxdataConst<bool>(sel2) == true)) {
+    bool is_topo_p1_p2 = topological_criteria(p1->eta(), p1->phi(), p2->eta(), p2->phi(), m_use_box);
+    if (is_topo_p1_p2) {
+      // Check if we have an additional jet that is not one of the 2 taus
+      for (const auto p3 : *c3) {
+        p3->auxdecor<bool>(decor) = false;
+        // Only consider selected objects
+        if (sel3 == "" || (sel3 != "" && p3->auxdataConst<bool>(sel3) == true)) {
+    // Muon and Jet do not overlap so we don't need this check
+    // double delta_r_p1_p3 = Utils::L1_DeltaR_Square(p1->eta(), p1->phi(), p3->eta(), p3->phi());
+    double delta_r_p2_p3 = Utils::L1_DeltaR_Square(p2->eta(), p2->phi(), p3->eta(), p3->phi());
+    if (/*delta_r_p1_p3 > DELTA_OVERLAP && */ delta_r_p2_p3 > DELTA_OVERLAP_J) {
+      m_topo_decisions[decor] = true;
+      p1->auxdecor<bool>(decor) = true;
+      p2->auxdecor<bool>(decor) = true;
+      p3->auxdecor<bool>(decor) = true;
+    }
+        }
+      }
+    }
+  }
       }
     }
   }
