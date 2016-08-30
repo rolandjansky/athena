@@ -114,19 +114,19 @@ StatusCode EventSelectorByteStream::initialize() {
          std::vector<const Property*>::const_iterator ii = esProps->begin();
          if (esProps != 0) {
             while (ii != esProps->end()) {
-               StringArrayProperty temp;
                if ((*ii)->name() == "FullFileName") {
+                  StringArrayProperty temp;
                   if ((*ii)->load(temp)) {
                      retrieve = true;
-                     m_inputCollectionsProp = temp;
+                     m_inputCollectionsProp.assign(temp);
                      ATH_MSG_INFO("Retrieved InputCollections from InputSvc");
                   }
                }
-               StringProperty temp2;
                if ((*ii)->name() == "EventStore") {
+                  StringProperty temp2;
                   if ((*ii)->load(temp2)) {
                      m_evtStore = ServiceHandle<StoreGateSvc>(temp2.value(),this->name());
-                     ATH_MSG_INFO("Retrieved StoreGateSvc name of " << temp);
+                     ATH_MSG_INFO("Retrieved StoreGateSvc name of " << temp2);
                   }
                }
                ++ii;
