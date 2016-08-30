@@ -53,23 +53,28 @@ public:
    virtual StatusCode finalize();
 
 private:
-  /// Update an existing (possibly empty) xAOD::CutBookkeeperContainer with
-  /// all the information from the container(s) form the input file
-  StatusCode updateCollFromInputStore( xAOD::CutBookkeeperContainer* coll,
-                                       const std::string &collName );
   
   /// Helper class to update a container with information from another one
   StatusCode updateContainer( xAOD::CutBookkeeperContainer* contToUpdate,
                               const xAOD::CutBookkeeperContainer* otherCont );
+
+  /// Fill Cutflow information
+  StatusCode addCutFlow();
  
   /// Pointer to cut flow svc 
   //ServiceHandle<ICutFlowSvc> m_cutflowsvc;
 
-  /// The name of the completed, i.e., fully processed, CutBookkeeperContainer
-  std::string m_completeCollName;
+  /// The name of the output CutBookkeeperContainer
+  std::string m_outputCollName;
   
-  /// The name of the incomplete, i.e., not fully processed (e.g. failed job), CutBookkeeperContainer
-  std::string  m_incompleteCollName;
+  /// The name of the input CutBookkeeperContainer
+  std::string  m_inputCollName;
+
+  /// The name of the CutFlowSvc CutBookkeeperContainer
+  std::string m_cutflowCollName;
+
+  bool m_cutflowTaken;
+
 };
 
 #endif
