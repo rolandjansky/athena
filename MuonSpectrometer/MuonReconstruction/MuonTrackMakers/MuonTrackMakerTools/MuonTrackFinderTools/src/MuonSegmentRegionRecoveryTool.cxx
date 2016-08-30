@@ -357,7 +357,7 @@ namespace Muon {
       if( msgLvl(MSG::DEBUG) ){
 	msg() << "State parameters: eta: " << eta << " ,phi: " << phi << " pos r " << rpos << " z " << zpos;
 	if( pars->covariance() ) msg() << MSG::DEBUG << " extrapolation error " << Amg::error(*pars->covariance(),Trk::locX);
-	msg() << endreq;
+	msg() << endmsg;
       }
       if( rpos < 2500 && zpos < 4000 ) continue;
       

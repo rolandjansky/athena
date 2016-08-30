@@ -112,12 +112,6 @@ namespace Muon {
 
 
     const MuonGM::MuonDetectorManager*  m_detMgr;
-    StoreGateSvc* m_storeGate;
-
-    const RpcIdHelper*                  m_rpcIdHelper;
-    const TgcIdHelper*                  m_tgcIdHelper;
-    const CscIdHelper*                  m_cscIdHelper;
-    const MdtIdHelper*                  m_mdtIdHelper;
 
     ToolHandle<Muon::IMuonSegmentMaker>              m_segMaker;           //!< actual segment maker with hole search
     ToolHandle<Muon::IMuonSegmentMaker>              m_segMakerNoHoles;    //!< actual segment maker no hole search

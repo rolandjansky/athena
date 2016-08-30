@@ -286,7 +286,7 @@ namespace Muon {
     if( m_deweightBOE )                  msg(MSG::INFO) << MSG::INFO << " Deweight BOE";
     if( m_deweightEEL1C05 )              msg(MSG::INFO) << MSG::INFO << " Deweight EEL1C05";
     if( m_deweightTwoStationTracks )     msg(MSG::INFO) << MSG::INFO << " Deweight Two stations";
-    msg(MSG::INFO) << endreq;
+    msg(MSG::INFO) << endmsg;
 
     return StatusCode::SUCCESS;
   }
@@ -297,19 +297,19 @@ namespace Muon {
     double scaleRefit = m_nrefits != 0 ? 1./(double)m_nrefits : 1.;
     double scaleExtr = m_nbackExtrapolations != 0 ? 1./(double)m_nbackExtrapolations : 1.;
     double scaleUp = m_nupdates != 0 ? 1./(double)m_nupdates : 1.;
-    ATH_MSG_INFO(   "Number of refits                        " << m_nrefits << endreq 
-		    << "Good                                    " << scaleRefit*m_ngoodRefits << endreq
-		    << "Failed Error update in outlier removal  " << scaleRefit*m_failedErrorUpdateOutlierRemoval << endreq
-		    << "Failed Outlier removal                  " << scaleRefit*m_failedOutlierRemoval << endreq
-		    << "Failed Error Update                     " << scaleRefit*m_failedErrorUpdate << endreq
-		    << "Failed Refit                            " << scaleRefit*m_failedRefit << endreq
+    ATH_MSG_INFO(   "Number of refits                        " << m_nrefits << endmsg 
+		    << "Good                                    " << scaleRefit*m_ngoodRefits << endmsg
+		    << "Failed Error update in outlier removal  " << scaleRefit*m_failedErrorUpdateOutlierRemoval << endmsg
+		    << "Failed Outlier removal                  " << scaleRefit*m_failedOutlierRemoval << endmsg
+		    << "Failed Error Update                     " << scaleRefit*m_failedErrorUpdate << endmsg
+		    << "Failed Refit                            " << scaleRefit*m_failedRefit << endmsg
 		    << "Failed Extrapolation to Muon Entry      " << scaleRefit*m_failedExtrapolationMuonEntry);
-    ATH_MSG_INFO(   "Number of extrapolations to IP   " << m_nbackExtrapolations << endreq 
-		    << "Good                             " << scaleExtr*m_ngoodBackExtrapolations << endreq
+    ATH_MSG_INFO(   "Number of extrapolations to IP   " << m_nbackExtrapolations << endmsg 
+		    << "Good                             " << scaleExtr*m_ngoodBackExtrapolations << endmsg
 		    << "Failed Extrapolation to IP       "  << scaleExtr*m_failedExtrapolationIP);
 
-    ATH_MSG_INFO(   "Number of updated tracks   " << m_nupdates << endreq 
-		    << "Good                       " << scaleUp*m_ngoodUpdates << endreq
+    ATH_MSG_INFO(   "Number of updated tracks   " << m_nupdates << endmsg 
+		    << "Good                       " << scaleUp*m_ngoodUpdates << endmsg
 		    << "Failed updates             "  << scaleUp*m_failedUpdates);
   
     if( AthAlgTool::finalize().isFailure() ){
@@ -362,6 +362,7 @@ namespace Muon {
 	ATH_MSG_DEBUG("Failed to refit track");
 	++m_failedRefit;
 // BUG fix Peter 
+	delete newTrack;
         newTrack = &track;
 	return newTrack;
       }
@@ -594,8 +595,7 @@ namespace Muon {
         if( !meas ) {
           continue;
         }
-        // skip outliers
-        if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
+//        if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
         Identifier id = m_helper->getIdentifier(*meas);
 
 // make Alignment Effect using the surface of the TSOS 
@@ -630,8 +630,12 @@ namespace Muon {
           trackStateOnSurfaces->push_back(tsosAEOTs[i]);
         }
       }
+// skip outliers
+//      if( (*tsit)->type(Trk::TrackStateOnSurface::Outlier) ) continue;
       trackStateOnSurfaces->push_back( (*tsit)->clone());
     }
+
+    if(indexAEOTs.size()==0) ATH_MSG_WARNING(" Track without AEOT ");
 
     Trk::Track* newTrack =  new Trk::Track( track.info(), trackStateOnSurfaces, track.fitQuality() ? track.fitQuality()->clone():0 );
 
@@ -936,11 +940,11 @@ namespace Muon {
       msg() << MSG::DEBUG << " Selected sector " << selectedSector << " nstations " << nmaxStations 
 	    << " barrel " << nbarrel << " endcap " << nendcap; 
       if( barrelEndcap ) {
-	msg() << " barrel/endcap overlap "  << endreq; 
-	if(deweightEndcap) msg() << " deweight endcap "  << endreq; 
-	if(deweightBarrel) msg() << " deweight barrel "  << endreq; 
+	msg() << " barrel/endcap overlap "  << endmsg; 
+	if(deweightEndcap) msg() << " deweight endcap "  << endmsg; 
+	if(deweightBarrel) msg() << " deweight barrel "  << endmsg; 
       }
-      msg() << MSG::DEBUG << endreq; 
+      msg() << MSG::DEBUG << endmsg; 
     } 
 
     unsigned int deweightHits = 0;
@@ -1128,7 +1132,7 @@ namespace Muon {
 	    else           msg() << " No T0";
 	    if( type == Trk::TrackStateOnSurface::Outlier ) msg() << " Outlier";
 	    if( fabs(newMdt->driftRadius() - mdt->driftRadius() ) > 0.1 ) msg() << " Bad recalibration: old r " << mdt->driftRadius();
-	    msg() << endreq;
+	    msg() << endmsg;
 	  }
 
 	  Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate( **tsit, newMdt, pars->clone(), type );
@@ -1395,7 +1399,7 @@ namespace Muon {
 	    else           msg() << " No T0";
 	    if( type == Trk::TrackStateOnSurface::Outlier ) msg() << " Outlier";
 	    if( fabs(newMdt->driftRadius() - mdt->driftRadius() ) > 0.1 ) msg() << " Bad recalibration: old r " << mdt->driftRadius();
-	    msg() << endreq;
+	    msg() << endmsg;
 	  }
 
 	  Trk::TrackStateOnSurface* tsos = MuonTSOSHelper::createMeasTSOSWithUpdate( **tsit, newMdt, pars->clone(), type );
