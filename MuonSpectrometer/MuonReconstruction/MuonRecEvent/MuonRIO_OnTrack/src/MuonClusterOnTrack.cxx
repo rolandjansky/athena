@@ -77,7 +77,7 @@ MsgStream& MuonClusterOnTrack::dump( MsgStream&    stream) const
           <<this->globalPosition().y()<<", "
           <<this->globalPosition().z()<<")"<<std::endl;
   stream << "Position along strip: "<<m_positionAlongStrip<<std::endl;
-  stream<<"}"<<endreq;
+  stream<<"}"<<endmsg;
   return stream;
 }
 

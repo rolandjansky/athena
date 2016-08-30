@@ -263,7 +263,7 @@ MsgStream& Muon::MdtDriftCircleOnTrack::dump( MsgStream&    stream) const
     
     stream << "Position along wire: "<<positionAlongWire()<<", \tlocal angle="<<localAngle()<<std::endl;
     stream << "Creation strategy: "<<m_errorStrategy;
-    stream<<"}"<<endreq;
+    stream<<"}"<<endmsg;
     return stream;
 }
 

@@ -109,7 +109,7 @@ namespace Muon
     stream << "Cluster Status: "<<toString(m_status)<<std::endl;
     stream << "Cluster Time Status: "<<toString(m_timeStatus)<<std::endl;
 
-    stream<<"}"<<endreq;
+    stream<<"}"<<endmsg;
     return stream;
   }
 

@@ -83,7 +83,7 @@ MsgStream& TgcClusterOnTrack::dump( MsgStream&    stream) const
 
     MuonClusterOnTrack::dump(stream); 
 
-    stream<<"}"<<endreq;
+    stream<<"}"<<endmsg;
     return stream;
 }
 

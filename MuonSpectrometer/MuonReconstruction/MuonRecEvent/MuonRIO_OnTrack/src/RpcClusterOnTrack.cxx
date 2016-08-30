@@ -96,7 +96,7 @@ MsgStream& RpcClusterOnTrack::dump( MsgStream&    stream) const
   stream <<"Time: "<<m_time<<std::endl;
   MuonClusterOnTrack::dump(stream); 
 
-  stream<<"}"<<endreq;
+  stream<<"}"<<endmsg;
   return stream;
 }
 
