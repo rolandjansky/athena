@@ -6,16 +6,16 @@
 #include <cmath>
 
 double MuGirlNS::AnnResultsOverlapReg_2::value(int index,double in0,double in1,double in2,double in3,double in4,double in5,double in6,double in7,double in8,double in9) {
-   input0 = (in0 - 0)/1;
-   input1 = (in1 - 0)/1;
-   input2 = (in2 - 0)/1;
-   input3 = (in3 - 0)/1;
-   input4 = (in4 - 0)/1;
-   input5 = (in5 - 0)/1;
-   input6 = (in6 - 0)/1;
-   input7 = (in7 - 0)/1;
-   input8 = (in8 - 0)/1;
-   input9 = (in9 - 0)/1;
+   m_input0 = (in0 - 0)/1;
+   m_input1 = (in1 - 0)/1;
+   m_input2 = (in2 - 0)/1;
+   m_input3 = (in3 - 0)/1;
+   m_input4 = (in4 - 0)/1;
+   m_input5 = (in5 - 0)/1;
+   m_input6 = (in6 - 0)/1;
+   m_input7 = (in7 - 0)/1;
+   m_input8 = (in8 - 0)/1;
+   m_input9 = (in9 - 0)/1;
    switch(index) {
      case 0:
          return neuron0x90c8a88();
@@ -25,43 +25,43 @@ double MuGirlNS::AnnResultsOverlapReg_2::value(int index,double in0,double in1,d
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::neuron0x90b8818() {
-   return input0;
+   return m_input0;
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::neuron0x90b89c8() {
-   return input1;
+   return m_input1;
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::neuron0x90b8bc0() {
-   return input2;
+   return m_input2;
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::neuron0x90b8db8() {
-   return input3;
+   return m_input3;
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::neuron0x90c7200() {
-   return input4;
+   return m_input4;
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::neuron0x90c73d8() {
-   return input5;
+   return m_input5;
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::neuron0x90c75b0() {
-   return input6;
+   return m_input6;
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::neuron0x90c7788() {
-   return input7;
+   return m_input7;
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::neuron0x90c7960() {
-   return input8;
+   return m_input8;
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::neuron0x90c7b38() {
-   return input9;
+   return m_input9;
 }
 
 double MuGirlNS::AnnResultsOverlapReg_2::input0x90c7e30() {

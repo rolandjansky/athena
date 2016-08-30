@@ -67,7 +67,7 @@ int MuGirlNS::ANNSelectionTool::calculateRegion(double /*pt*/, double eta)
 
 StatusCode MuGirlNS::ANNSelectionTool::initialize()
 {
-    msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+    msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
     StatusCode sc = AthAlgTool::initialize();
     if (sc.isFailure())
         return sc;
@@ -75,7 +75,7 @@ StatusCode MuGirlNS::ANNSelectionTool::initialize()
     if (retrieve(m_pMuGirlCandidateTool).isFailure())
         return StatusCode::RECOVERABLE;
 
-    msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+    msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -83,7 +83,7 @@ StatusCode MuGirlNS::ANNSelectionTool::initialize()
 
 StatusCode MuGirlNS::ANNSelectionTool::finalize()
 {
-    msg(MSG::INFO) << "Finalizing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+    msg(MSG::INFO) << "Finalizing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
     StatusCode sc = AthAlgTool::finalize();
     return sc;
 }

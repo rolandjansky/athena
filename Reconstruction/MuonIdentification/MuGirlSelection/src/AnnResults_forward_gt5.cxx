@@ -6,16 +6,16 @@
 #include <cmath>
 
 double MuGirlNS::AnnResults_forward_gt5::value(int index,double in0,double in1,double in2,double in3,double in4,double in5,double in6,double in7,double in8,double in9) {
-   input0 = (in0 - 0)/1;
-   input1 = (in1 - 0)/1;
-   input2 = (in2 - 0)/1;
-   input3 = (in3 - 0)/1;
-   input4 = (in4 - 0)/1;
-   input5 = (in5 - 0)/1;
-   input6 = (in6 - 0)/1;
-   input7 = (in7 - 0)/1;
-   input8 = (in8 - 0)/1;
-   input9 = (in9 - 0)/1;
+   m_input0 = (in0 - 0)/1;
+   m_input1 = (in1 - 0)/1;
+   m_input2 = (in2 - 0)/1;
+   m_input3 = (in3 - 0)/1;
+   m_input4 = (in4 - 0)/1;
+   m_input5 = (in5 - 0)/1;
+   m_input6 = (in6 - 0)/1;
+   m_input7 = (in7 - 0)/1;
+   m_input8 = (in8 - 0)/1;
+   m_input9 = (in9 - 0)/1;
    switch(index) {
      case 0:
          return neuron0xb2b5b08();
@@ -25,16 +25,16 @@ double MuGirlNS::AnnResults_forward_gt5::value(int index,double in0,double in1,d
 }
 
 double MuGirlNS::AnnResults_forward_gt5::value(int index, double* input) {
-   input0 = (input[0] - 0)/1;
-   input1 = (input[1] - 0)/1;
-   input2 = (input[2] - 0)/1;
-   input3 = (input[3] - 0)/1;
-   input4 = (input[4] - 0)/1;
-   input5 = (input[5] - 0)/1;
-   input6 = (input[6] - 0)/1;
-   input7 = (input[7] - 0)/1;
-   input8 = (input[8] - 0)/1;
-   input9 = (input[9] - 0)/1;
+   m_input0 = (input[0] - 0)/1;
+   m_input1 = (input[1] - 0)/1;
+   m_input2 = (input[2] - 0)/1;
+   m_input3 = (input[3] - 0)/1;
+   m_input4 = (input[4] - 0)/1;
+   m_input5 = (input[5] - 0)/1;
+   m_input6 = (input[6] - 0)/1;
+   m_input7 = (input[7] - 0)/1;
+   m_input8 = (input[8] - 0)/1;
+   m_input9 = (input[9] - 0)/1;
    switch(index) {
      case 0:
          return neuron0xb2b5b08();
@@ -44,43 +44,43 @@ double MuGirlNS::AnnResults_forward_gt5::value(int index, double* input) {
 }
 
 double MuGirlNS::AnnResults_forward_gt5::neuron0xb2a5640() {
-   return input0;
+   return m_input0;
 }
 
 double MuGirlNS::AnnResults_forward_gt5::neuron0xb2b3c10() {
-   return input1;
+   return m_input1;
 }
 
 double MuGirlNS::AnnResults_forward_gt5::neuron0xb2b3e08() {
-   return input2;
+   return m_input2;
 }
 
 double MuGirlNS::AnnResults_forward_gt5::neuron0xb2b4000() {
-   return input3;
+   return m_input3;
 }
 
 double MuGirlNS::AnnResults_forward_gt5::neuron0xb2b41f8() {
-   return input4;
+   return m_input4;
 }
 
 double MuGirlNS::AnnResults_forward_gt5::neuron0xb2b43f0() {
-   return input5;
+   return m_input5;
 }
 
 double MuGirlNS::AnnResults_forward_gt5::neuron0xb2b45e8() {
-   return input6;
+   return m_input6;
 }
 
 double MuGirlNS::AnnResults_forward_gt5::neuron0xb2b47e0() {
-   return input7;
+   return m_input7;
 }
 
 double MuGirlNS::AnnResults_forward_gt5::neuron0xb2b49d8() {
-   return input8;
+   return m_input8;
 }
 
 double MuGirlNS::AnnResults_forward_gt5::neuron0xb2b4bd0() {
-   return input9;
+   return m_input9;
 }
 
 double MuGirlNS::AnnResults_forward_gt5::input0xb2b4ed8() {
