@@ -1165,7 +1165,7 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
   if(X0ScaleMS<0.5||ElossScaleMS<0.5||X0ScaleMS>2.||ElossScaleMS>2.) {
     ATH_MSG_WARNING("Too large or too small X0ScaleMS " << X0ScaleMS << " ElossScaleMS " << ElossScaleMS);
   }
-  
+
   DataVector<const Trk::TrackStateOnSurface>::iterator it = firstMS;
   int msStates = 0;
   int msMatStates = 0;
@@ -1202,14 +1202,14 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
           if(debug) std::cout << " updateVectorMS Old Eloss " <<  energyLoss->deltaE() << " new Eloss " << deltaE << std::endl;
 
           Trk::EnergyLoss* energyLossNew = new EnergyLoss(deltaE, sigmaDeltaE, sigmaMinusDeltaE, sigmaPlusDeltaE, deltaE_ioni, sigmaDeltaE_ioni, deltaE_rad, sigmaDeltaE_rad, depth ) ;
-          const Trk::Surface& surf = *(meot->associatedSurface().clone());
+          const Trk::Surface& surf = meot->associatedSurface();
           const Trk::MaterialEffectsOnTrack*  newMeot =  new Trk::MaterialEffectsOnTrack(X0ScaleMS*meot->thicknessInX0(), scatNew, energyLossNew, surf, meotPattern);
           const Trk::TrackParameters* pars = 0;
           if((*it)->trackParameters()) pars = (*it)->trackParameters()->clone();
 	// make new TSOS 
           const Trk::TrackStateOnSurface* newTSOS = new Trk::TrackStateOnSurface( 0, pars, 0, newMeot, typePattern );
           DataVector<const Trk::TrackStateOnSurface>* newTSOSvector = new DataVector<const Trk::TrackStateOnSurface>(SG::VIEW_ELEMENTS);
-          newTSOSvector->push_back(newTSOS);
+          newTSOSvector->push_back(&(*newTSOS));
 // replace TSOS in MS with new one
           std::copy(newTSOSvector->begin(), newTSOSvector->end(), it);
           delete newTSOSvector;
@@ -1218,6 +1218,8 @@ void Trk::TrkMaterialProviderTool::updateVectorMS(DataVector<const Trk::TrackSta
       }
     }
   }
+
+ 
   if(debug) { 
    std::cout << " msStates " <<   msStates << " msMatStates " << msMatStates << " msMatParStates " << msMatParStates << std::endl;
 
@@ -1529,7 +1531,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
         Trk::EnergyLoss* energyLossNew = new EnergyLoss(deltaE_tot, sigmaDeltaE_tot, sigmaMinusDeltaE_tot, sigmaPlusDeltaE_tot, deltaE_ioni_tot, sigmaDeltaE_ioni_tot, deltaE_rad_tot, sigmaDeltaE_rad_tot, depth ) ;
 	const CaloEnergy* caloEnergyNew = new CaloEnergy(*energyLossNew);
 	delete energyLossNew;
-        const Trk::Surface& surf = *(meot->associatedSurface().clone());
+        const Trk::Surface& surf = meot->associatedSurface();
         const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot, scatNew, caloEnergyNew, surf, meotPattern);
         const Trk::TrackParameters* pars = m->trackParameters()->clone();
 
@@ -1564,7 +1566,7 @@ Trk::TrkMaterialProviderTool::modifyTSOSvector(const std::vector<const Trk::Trac
 	  Trk::EnergyLoss* energyLossNew = new EnergyLoss(deltaE_tot, sigmaDeltaE_tot, sigmaMinusDeltaE_tot, sigmaPlusDeltaE_tot, deltaE_ioni_tot, sigmaDeltaE_ioni_tot, deltaE_rad_tot, sigmaDeltaE_rad_tot, depth ) ;
 	  const CaloEnergy* caloEnergyNew = new CaloEnergy(*energyLossNew);
 	  delete energyLossNew;
-          const Trk::Surface& surf = *(meot->associatedSurface().clone());
+          const Trk::Surface& surf = meot->associatedSurface();
           const Trk::MaterialEffectsOnTrack*  meotLast =  new Trk::MaterialEffectsOnTrack(X0_tot, scatNew, caloEnergyNew, surf, meotPattern);
           const Trk::TrackParameters* pars = m->trackParameters()->clone();
 	  //        make new TSOS 
