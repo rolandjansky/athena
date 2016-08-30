@@ -2,7 +2,6 @@
 #include "TrigJetHypo/TrigL2JetHypoNoise.h"
 #include "TrigJetHypo/TrigEFJetHypo.h"
 //#include "TrigJetHypo/TrigEFJetHypo_RF.h"
-#include "TrigJetHypo/TrigHLTJetHypo.h"
 #include "TrigJetHypo/TrigEFJetHypoNoise.h"
 #include "TrigJetHypo/TrigL2DEtaFex.h"
 #include "TrigJetHypo/TrigEFDEtaFex.h"
@@ -29,7 +28,6 @@
 
 DECLARE_ALGORITHM_FACTORY( TrigEFJetHypo )
 //DECLARE_ALGORITHM_FACTORY( TrigEFJetHypo_RF )
-DECLARE_ALGORITHM_FACTORY( TrigHLTJetHypo )
 DECLARE_ALGORITHM_FACTORY( TrigEFJetHypoNoise )
 DECLARE_ALGORITHM_FACTORY( TrigL2JetHypo )
 DECLARE_ALGORITHM_FACTORY( TrigL2JetHypoNoise )
@@ -57,7 +55,6 @@ DECLARE_ALGORITHM_FACTORY( TrigL2DEtaMjjAllTE )
 DECLARE_FACTORY_ENTRIES( TrigJetHypo ) {
   DECLARE_ALGORITHM( TrigEFJetHypo )
 //  DECLARE_ALGORITHM( TrigEFJetHypo_RF)
-  DECLARE_ALGORITHM( TrigHLTJetHypo)
   DECLARE_ALGORITHM( TrigEFJetHypoNoise )
   DECLARE_ALGORITHM( TrigL2JetHypo )
   DECLARE_ALGORITHM( TrigL2JetHypoNoise )
