@@ -12,18 +12,18 @@ namespace MuGirlNS
 {
 class test_endcap {
 public:
-   test_endcap() : input0(-999.), input1(-999.), input2(-999.), input3(-999.), input4(-999.), input5(-999.), input6(-999.), input7(-999.) {}
+   test_endcap() : m_input0(-999.), m_input1(-999.), m_input2(-999.), m_input3(-999.), m_input4(-999.), m_input5(-999.), m_input6(-999.), m_input7(-999.) {}
    ~test_endcap() {}
    double value(int index,double in0,double in1,double in2,double in3,double in4,double in5,double in6,double in7);
 private:
-   double input0;
-   double input1;
-   double input2;
-   double input3;
-   double input4;
-   double input5;
-   double input6;
-   double input7;
+   double m_input0;
+   double m_input1;
+   double m_input2;
+   double m_input3;
+   double m_input4;
+   double m_input5;
+   double m_input6;
+   double m_input7;
    double neuron0A0A7EB8();
    double neuron09F384F0();
    double neuron09F38610();

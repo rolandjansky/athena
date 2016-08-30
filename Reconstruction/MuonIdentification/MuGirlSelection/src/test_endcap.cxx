@@ -6,14 +6,14 @@
 #include "math.h"
 
 double MuGirlNS::test_endcap::value(int index,double in0,double in1,double in2,double in3,double in4,double in5,double in6,double in7) {
-   input0 = (in0 - 0)/1;
-   input1 = (in1 - 0)/1;
-   input2 = (in2 - 0)/1;
-   input3 = (in3 - 0)/1;
-   input4 = (in4 - 0)/1;
-   input5 = (in5 - 0)/1;
-   input6 = (in6 - 0)/1;
-   input7 = (in7 - 0)/1;
+   m_input0 = (in0 - 0)/1;
+   m_input1 = (in1 - 0)/1;
+   m_input2 = (in2 - 0)/1;
+   m_input3 = (in3 - 0)/1;
+   m_input4 = (in4 - 0)/1;
+   m_input5 = (in5 - 0)/1;
+   m_input6 = (in6 - 0)/1;
+   m_input7 = (in7 - 0)/1;
    switch(index) {
      case 0:
          return ((neuron08309EA8()*1)+0);
@@ -23,35 +23,35 @@ double MuGirlNS::test_endcap::value(int index,double in0,double in1,double in2,d
 }
 
 double MuGirlNS::test_endcap::neuron0A0A7EB8() {
-   return input0;
+   return m_input0;
 }
 
 double MuGirlNS::test_endcap::neuron09F384F0() {
-   return input1;
+   return m_input1;
 }
 
 double MuGirlNS::test_endcap::neuron09F38610() {
-   return input2;
+   return m_input2;
 }
 
 double MuGirlNS::test_endcap::neuron08027FB8() {
-   return input3;
+   return m_input3;
 }
 
 double MuGirlNS::test_endcap::neuron080280D8() {
-   return input4;
+   return m_input4;
 }
 
 double MuGirlNS::test_endcap::neuron08028240() {
-   return input5;
+   return m_input5;
 }
 
 double MuGirlNS::test_endcap::neuron080283A8() {
-   return input6;
+   return m_input6;
 }
 
 double MuGirlNS::test_endcap::neuron0A0DEAB0() {
-   return input7;
+   return m_input7;
 }
 
 double MuGirlNS::test_endcap::neuron0A0DEC18() {

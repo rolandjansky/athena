@@ -12,15 +12,15 @@
 
 double MuGirlNS::AnnBarrelGoodLowPt::value(int index,double in0,double in1,double in2,double in3,double in4,double in5,double in6,double in7,double in8)
 {
-   input0 = (in0 - 0)/1;
-   input1 = (in1 - 0)/1;
-   input2 = (in2 - 0)/1;
-   input3 = (in3 - 0)/1;
-   input4 = (in4 - 0)/1;
-   input5 = (in5 - 0)/1;
-   input6 = (in6 - 0)/1;
-   input7 = (in7 - 0)/1;
-   input8 = (in8 - 0)/1;
+   m_input0 = (in0 - 0)/1;
+   m_input1 = (in1 - 0)/1;
+   m_input2 = (in2 - 0)/1;
+   m_input3 = (in3 - 0)/1;
+   m_input4 = (in4 - 0)/1;
+   m_input5 = (in5 - 0)/1;
+   m_input6 = (in6 - 0)/1;
+   m_input7 = (in7 - 0)/1;
+   m_input8 = (in8 - 0)/1;
    switch(index) 
    {
      case 0:
@@ -31,47 +31,47 @@ double MuGirlNS::AnnBarrelGoodLowPt::value(int index,double in0,double in1,doubl
 }
 double MuGirlNS::AnnBarrelGoodLowPt::neuron0BDE51C0() 
 {
-   return input0;
+   return m_input0;
 }
 
 double MuGirlNS::AnnBarrelGoodLowPt::neuron0DB2E240() 
 {
-   return input1;
+   return m_input1;
 }
 
 double MuGirlNS::AnnBarrelGoodLowPt::neuron0DB9CEE0() 
 {
-   return input2;
+   return m_input2;
 }
 
 double MuGirlNS::AnnBarrelGoodLowPt::neuron0DB647E0() 
 {
-   return input3;
+   return m_input3;
 }
 
 double MuGirlNS::AnnBarrelGoodLowPt::neuron0DB64948() 
 {
-   return input4;
+   return m_input4;
 }
 
 double MuGirlNS::AnnBarrelGoodLowPt::neuron0DB64AB0() 
 {
-   return input5;
+   return m_input5;
 }
 
 double MuGirlNS::AnnBarrelGoodLowPt::neuron0DB64C18() 
 {
-   return input6;
+   return m_input6;
 }
 
 double MuGirlNS::AnnBarrelGoodLowPt::neuron0C1DE7E0() 
 {
-   return input7;
+   return m_input7;
 }
 
 double MuGirlNS::AnnBarrelGoodLowPt::neuron0C1DE8B8() 
 {
-   return input8;
+   return m_input8;
 }
 
 double MuGirlNS::AnnBarrelGoodLowPt::neuron0C1DEA20() 

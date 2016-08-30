@@ -25,15 +25,15 @@ namespace MuGirlNS
 
     private:
 
-   double input0;
-   double input1;
-   double input2;
-   double input3;
-   double input4;
-   double input5;
-   double input6;
-   double input7;
-   double input8;
+   double m_input0;
+   double m_input1;
+   double m_input2;
+   double m_input3;
+   double m_input4;
+   double m_input5;
+   double m_input6;
+   double m_input7;
+   double m_input8;
    double neuron0BDE51C0();
    double neuron0DB2E240();
    double neuron0DB9CEE0();
