@@ -74,7 +74,7 @@ namespace Muon
 
     MuonClusterOnTrack::dump(stream); 
 
-    stream<<"}"<<endreq;
+    stream<<"}"<<endmsg;
     return stream;
   }
 
