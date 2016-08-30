@@ -264,7 +264,14 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
       m_h_l1topo_2d_ItemsBC[i] =
 	m_histTool->bookTH2F(std::string("l1topo_2d_ItemsBC")+
 			     std::to_string(i),
-			     std::string("Bunch Crossing vs Algorithm Number ")+textFPGA[i],
+			     std::string("Timing vs "
+					 "Algorithm Number ")+textFPGA[i],
+			     32, i*32, (i+1)*32, 3, -1.5, 1.5);
+      m_h_l1topo_2d_ItemsBC_ratio[i] =
+	m_histTool->bookTH2F(std::string("l1topo_2d_ItemsBC_ratio")+
+			     std::to_string(i),
+			     std::string("Timing Ratio vs "
+					 "Algorithm Number ")+textFPGA[i],
 			     32, i*32, (i+1)*32, 3, -1.5, 1.5);
     }
 
@@ -360,28 +367,32 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	  const unsigned int topoTipStart(384);
 	  const unsigned int nTopoCTPOutputs(128);
 	  for (unsigned int item=0; item<nTopoCTPOutputs; ++item){
-      int h = (int)item/32;
-      int binx = m_h_l1topo_2d_ItemsBC[h]->GetXaxis()->FindBin(item);
-      int biny = m_h_l1topo_2d_ItemsBC[h]->GetYaxis()->FindBin(bc);
-	    if (item == 8 || item == 29 || item == 30 || item == 31 || item == 46 || item == 47 || 
-           item == 48 || item == 49 || item == 50 || item == 51 || item == 52 || item == 53 || 
-           item == 54 || item == 55 || item == 56 || item == 57 || item == 58 || item == 59 || 
-           item == 60 || item == 61 || item == 62 || item == 63 || item == 88 || item == 89 || 
-           item == 90 || item == 91 || item == 92 || item == 93 || item == 94 || item == 95 || 
-           item == 107 || item == 108) { 
-          m_h_l1topo_2d_ItemsBC[item/32]->SetBinContent(binx, biny,-200); //Sets bin value for algorithms not used in the run
-          } 
-      else {
-           if (tip.test(item+topoTipStart)) { //Checks if algorithms fired on event-by-event basis
-             m_h_l1topo_2d_ItemsBC[item/32]->Fill(item,bc);
-              }
-           }
-        }
+	    int h = (int)item/32;
+	    int binx = m_h_l1topo_2d_ItemsBC[h]->GetXaxis()->FindBin(item);
+	    int biny = m_h_l1topo_2d_ItemsBC[h]->GetYaxis()->FindBin(bc);
+	    if (item == 8 || item == 29 || item == 30 || item == 31
+		|| item == 46 || item == 47 || item == 48 || item == 49
+		|| item == 50 || item == 51 || item == 52 || item == 53
+		|| item == 54 || item == 55 || item == 56 || item == 57
+		|| item == 58 || item == 59 || item == 60 || item == 61
+		|| item == 62 || item == 63 || item == 88 || item == 89
+		|| item == 90 || item == 91 || item == 92 || item == 93
+		|| item == 94 || item == 95 || item == 107 || item == 108) { 
+	      //Sets bin value for algorithms not used in the run
+	      m_h_l1topo_2d_ItemsBC[item/32]->SetBinContent(binx, biny,-200);
+	    } 
+	    else {
+	      //Checks if algorithms fired on event-by-event basis
+	      if (tip.test(item+topoTipStart)) {
+		m_h_l1topo_2d_ItemsBC[item/32]->Fill(item,bc);
+	      }
+	    }
+	  }
+	}
       }
     }
   }
-}
-
+  
   // Retrieve CMX tobs
   bool cmx_ematch=true;
   const DataHandle<xAOD::CMXJetTobContainer> cmxtob = 0;
@@ -548,7 +559,7 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	      const int jem      = (word >> 24) & 0xF;
 	      const int frame    = (word >> 21) & 0x7;
 	      const int location = (word >> 19) & 0x3;
-	      const int energyL  = (word & 0x2FF);
+	      const int energyL  = (word & 0x3FF);
 	      const int x = crate*16 + jem;
 	      const int y = frame*4 + location;
 	      //auto tob = L1Topo::JetTOB(word);
@@ -692,8 +703,28 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 StatusCode L1CaloL1TopoMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  if ( endOfLumiBlock ) { }
-
+  if ( endOfLumiBlock ) {
+    for (int cpu=0; cpu<=3; ++cpu) {
+      for (int item=1; item<=32; ++item) {
+	for (int bc=1; bc<=3; ++bc) {
+	  if (m_h_l1topo_2d_ItemsBC[cpu]->GetBinContent(item,bc)<0);
+	    //m_h_l1topo_2d_ItemsBC_ratio[cpu]->SetBinContent(item,bc,-0.4);
+	  else if (m_h_l1topo_2d_ItemsBC[cpu]->GetBinContent(item,bc)==0)
+	    m_h_l1topo_2d_ItemsBC_ratio[cpu]->SetBinContent(item,bc,0.0001);
+	  else if (bc==2)
+	    m_h_l1topo_2d_ItemsBC_ratio[cpu]->SetBinContent(item,bc,1);
+	  else {
+	    float ratio=m_h_l1topo_2d_ItemsBC[cpu]->
+	      GetBinContent(item,bc)/(float)
+	      m_h_l1topo_2d_ItemsBC[cpu]->GetBinContent(item,2);
+	    m_h_l1topo_2d_ItemsBC_ratio[cpu]->
+	      SetBinContent(item,bc,fmax(0.05,ratio));
+	  }
+	}
+      }
+    }
+  }
+  
   if ( endOfRun ) { }
 
   return StatusCode::SUCCESS;
