@@ -15,7 +15,8 @@ HltL1MatchingTool::HltL1MatchingTool(const std::string & name) : asg::AsgTool(na
 
 
 HltL1MatchingTool::HltL1MatchingTool(const HltL1MatchingTool & other) : asg::AsgTool(other.name() + "_copy") {
-
+  m_dr_cut = other.m_dr_cut;
+  m_l1seeds = other.m_l1seeds;
 } 
 
 StatusCode HltL1MatchingTool::initialize() {

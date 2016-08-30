@@ -50,7 +50,25 @@ namespace TrigTauEmul {
 
   // Copy constructor
   HltEmulationTool::HltEmulationTool(const HltEmulationTool& other): asg::AsgTool(other.name() + "_copy")
-  {}
+  {
+#ifdef ASGTOOL_STANDALONE
+    std::string tdt_name = "TrigDecisionTool_copy";
+    m_trigdec_tool = new ToolHandle<Trig::TrigDecisionTool> (tdt_name);
+#endif
+
+#ifdef ASGTOOL_ATHENA
+    m_trigdec_tool = new ToolHandle<Trig::TrigDecisionTool> ();
+    declareProperty("TrigDecTool", *m_trigdec_tool);
+#endif
+   
+    m_hlt_chains_vec = other.m_hlt_chains_vec;
+    m_perform_l1_emulation = other.m_perform_l1_emulation;
+    m_l1_emulation_tool = other.m_l1_emulation_tool;
+
+    m_HLTTriggerCondition = other.m_HLTTriggerCondition;
+    m_L1TriggerCondition = other.m_L1TriggerCondition;
+  
+  }
 
   // Initialize
   StatusCode HltEmulationTool::initialize() {
@@ -76,7 +94,16 @@ namespace TrigTauEmul {
     }
 
     m_l1_emulation_tool->GetChains();
-    auto registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+
+    // This is a fallback initialization mostly meant for athena running - in RootCore, TriggerValidation does this already
+    //auto registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    ToolsRegistry *registry = nullptr;
+    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
+      registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    } else {
+      registry = new ToolsRegistry("ToolsRegistry");
+    }
+
     //m_hlt_tau_tools = registry->GetHltTauTools();
 
     // Build the list of l1 tools 
@@ -193,7 +220,12 @@ namespace TrigTauEmul {
     reset_tau_decision();
     clearL1Decision();
     
-    auto registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    ToolsRegistry *registry = nullptr;
+    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
+      registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    } else {
+      registry = new ToolsRegistry("ToolsRegistry");
+    }
     
     for (const auto hlt_tau : hlt_taus) {
       //for (auto it: m_hlt_tau_tools) {

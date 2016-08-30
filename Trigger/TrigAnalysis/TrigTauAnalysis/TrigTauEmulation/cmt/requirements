@@ -1,6 +1,6 @@
 package TrigTauEmulation
 author Quentin Buat <quentin.buat@no.spam.cern.ch>
-
+author Geert-Jan Besjes <geert-jan.besjes@no.spam.cern.ch>
 
 public 
 
@@ -19,6 +19,8 @@ use xAODTracking        xAODTracking-*          Event/xAOD
 use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 
 private
+use xAODBase            xAODBase-*              Event/xAOD
+use xAODCore            xAODCore-*              Event/xAOD
 use xAODJet             xAODJet-*               Event/xAOD
 end_private
 
@@ -38,7 +40,7 @@ apply_pattern component_library
 ## install the python modules
 apply_pattern declare_python_modules files="*.py"
 
-# Generate dictionaries
+## Generate dictionaries
 private
 use AtlasReflex         AtlasReflex-*           External -no-auto-imports
 apply_pattern lcgdict dict=TrigTauEmulation selectionfile=selection.xml headerfiles="../TrigTauEmulation/TrigTauEmulationDict.h"

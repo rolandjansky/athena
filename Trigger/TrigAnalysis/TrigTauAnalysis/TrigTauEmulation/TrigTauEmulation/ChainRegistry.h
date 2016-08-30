@@ -21,6 +21,7 @@ class ChainRegistry : virtual public IChainRegistry, virtual public asg::AsgTool
 
     ChainRegistry(const std::string& name);
     ChainRegistry(const ChainRegistry& other);
+    ChainRegistry& operator=(const ChainRegistry&) = delete;
 
     virtual ~ChainRegistry();
 

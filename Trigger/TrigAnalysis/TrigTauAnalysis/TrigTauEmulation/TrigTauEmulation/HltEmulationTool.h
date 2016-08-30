@@ -41,6 +41,7 @@ namespace TrigTauEmul {
 
       /// Copy constructor for reflex in Athena
       HltEmulationTool(const HltEmulationTool& other);
+      HltEmulationTool& operator=(const HltEmulationTool& other) = delete;
 
       /// virtual destructor
       virtual ~HltEmulationTool();
@@ -68,7 +69,7 @@ namespace TrigTauEmul {
 
     private:
       bool m_perform_l1_emulation;  
-      bool m_recalculateBDTscore;
+      //bool m_recalculateBDTscore;
 
       unsigned int m_HLTTriggerCondition;
       unsigned int m_L1TriggerCondition;
