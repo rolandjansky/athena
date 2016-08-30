@@ -70,11 +70,11 @@ namespace {
   }
 #endif
 
-  
+
 }
 
 
-MuTagMatchingTool::MuTagMatchingTool(const std::string& t, 
+MuTagMatchingTool::MuTagMatchingTool(const std::string& t,
 				     const std::string& n,
 				     const IInterface*  p ):
   AthAlgTool(t,n,p)
@@ -86,6 +86,13 @@ MuTagMatchingTool::MuTagMatchingTool(const std::string& t,
   , m_hitSummaryTool("Muon::MuonSegmentHitSummaryTool/MuonSegmentHitSummaryTool")
   , m_selectionTool("Muon::MuonSegmentSelectionTool/MuonSegmentSelectionTool")
   , m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
+  , p_StoreGateSvc(0)
+  , m_detMgr(0)
+  , m_mdtIdHelper(0)
+  , m_cscIdHelper(0)
+  , m_rpcIdHelper(0)
+  , m_tgcIdHelper(0)
+  , m_trackingGeometry(0)
 {
   declareInterface<IMuTagMatchingTool>(this);
   declareProperty( "IExtrapolator" , p_IExtrapolator ) ;
@@ -949,6 +956,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
     }
     double dydyz = scale*info.exCovYZY;
     double correction = dydyz/(info.exErrorYZ*info.exErrorYZ);
+/*
 //
 // Flip sign in endcap for eta > 0 (not understood why)
 //
@@ -958,7 +966,7 @@ MuonCombined::MuonSegmentInfo MuTagMatchingTool::muTagSegmentInfo( const Trk::Tr
         ATH_MSG_DEBUG(" Flip correlation term for segment direction theta " << segment->globalDirection().theta() << " position theta " <<  segment->globalPosition().theta()); 
       } 
     } 
-
+*/
 // 
 //  residual after taking into account the correlation with the angle YZ
 //
