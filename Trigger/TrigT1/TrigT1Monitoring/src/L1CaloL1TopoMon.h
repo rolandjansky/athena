@@ -105,6 +105,7 @@ class TrigT1CaloLWHistogramTool;
    TH1F_LW* m_h_l1topo_1d_DAQOverflowBits;
    TH1F_LW* m_h_l1topo_1d_ROITobs;
    TH2F*    m_h_l1topo_2d_ItemsBC[4];
+   TH2F*    m_h_l1topo_2d_ItemsBC_ratio[4];
 };
 
 // ============================================================================
