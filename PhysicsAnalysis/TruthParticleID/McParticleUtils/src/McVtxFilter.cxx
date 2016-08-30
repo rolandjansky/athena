@@ -133,7 +133,7 @@ McVtxFilter & McVtxFilter::operator=(const McVtxFilter &rhs)
 bool McVtxFilter::isAccepted( const HepMC::GenVertex * vtx ) const
 {
   m_msg << MSG::VERBOSE
-	<< "In McVtxFilter::isAccepted(...)" << endreq;
+	<< "In McVtxFilter::isAccepted(...)" << endmsg;
 
   ////////////////////////////////////////////////////////////////
   /// First handle special case where the filter has only 1 child
@@ -189,13 +189,13 @@ bool McVtxFilter::isAccepted( const HepMC::GenVertex * vtx ) const
   ////////////////////////////////
   /// Handle other generic cases
   ///
-  m_msg << MSG::VERBOSE << "trying checkParentBranch(...)" << endreq;
+  m_msg << MSG::VERBOSE << "trying checkParentBranch(...)" << endmsg;
   if ( checkParentBranch( vtx ) == false ) return false;
 
-  m_msg << MSG::VERBOSE << "trying checkChildBranch(...)" << endreq;
+  m_msg << MSG::VERBOSE << "trying checkChildBranch(...)" << endmsg;
   if ( checkChildBranch ( vtx ) == false ) return false;
 
-  m_msg << MSG::VERBOSE << "McVtxFilter::isAccepted(...) => DONE" << endreq;
+  m_msg << MSG::VERBOSE << "McVtxFilter::isAccepted(...) => DONE" << endmsg;
   return true;
 }
 
@@ -242,7 +242,7 @@ void McVtxFilter::setFilter( const IFilterCuts * filter )
       m_msg << MSG::ERROR
 	    << "Can't dynamic_cast " << typeid(filter).name() 
 	    << " to a McVtxFilter"
-	    << endreq;
+	    << endmsg;
     }
   } //> filter is a valid pointer
 }
@@ -307,7 +307,7 @@ void McVtxFilter::setDecayPattern( const std::string& decayPattern )
 
 bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
 {
-  m_msg << MSG::VERBOSE << "In checkParentBranch..." << endreq;
+  m_msg << MSG::VERBOSE << "In checkParentBranch..." << endmsg;
 
   /// Check we aren't in the "any particle" case
   if ( m_parentList.empty() ) {
@@ -327,7 +327,7 @@ bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
     m_msg << MSG::VERBOSE 
 	  << "Number of list of parents : " 
 	  << m_parentList.size() 
-	  << endreq;
+	  << endmsg;
     m_parentList.front()->dropList();
   }
 
@@ -367,13 +367,13 @@ bool McVtxFilter::checkParentBranch( const HepMC::GenVertex * vtx ) const
   m_msg << MSG::VERBOSE << ">>> CheckParentBranch is DONE : " 
 	<< ( accepted ? "accept" : "reject" )
 	<< " vtx= " << vtx->barcode()
-	<< endreq;
+	<< endmsg;
   return accepted;
 }
 
 bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
 {
-  m_msg << MSG::VERBOSE << "In checkChildBranch..." << endreq;
+  m_msg << MSG::VERBOSE << "In checkChildBranch..." << endmsg;
 
   if ( m_msg.level() <= MSG::VERBOSE ) {
     vtx->print();
@@ -388,7 +388,7 @@ bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
   if ( static_cast<unsigned int>(vtx->particles_out_size()) < m_childList.size() ) return false;
 
   m_msg << MSG::VERBOSE << "Number of list of children : " 
-	<< m_childList.size() << endreq;
+	<< m_childList.size() << endmsg;
 
   std::vector<int> childIds;
   for ( HepMC::GenVertex::particles_out_const_iterator itrPart = vtx->particles_out_const_begin(); 
@@ -421,13 +421,13 @@ bool McVtxFilter::checkChildBranch( const HepMC::GenVertex * vtx ) const
   m_msg << MSG::VERBOSE << ">>> CheckChildBranch is DONE : " 
 	<< ( accepted ? "accept" : "reject" )
 	<< " vtx= " << vtx->barcode()
-	<< endreq;
+	<< endmsg;
   return accepted;
 }
 
 bool McVtxFilter::checkTwoBodyDecay( const HepMC::GenVertex * vtx ) const
 {
-  m_msg << MSG::VERBOSE << "In checkTwoBodyDecay..." << endreq;
+  m_msg << MSG::VERBOSE << "In checkTwoBodyDecay..." << endmsg;
 
   /// First check the parent branch matching decision
   /// if it doesn't fulfil our requirements, it is not worth
@@ -438,7 +438,7 @@ bool McVtxFilter::checkTwoBodyDecay( const HepMC::GenVertex * vtx ) const
   }
 
   /// Now, handle the child branch
-  m_msg << MSG::VERBOSE << ">>> Check child branch" << endreq;
+  m_msg << MSG::VERBOSE << ">>> Check child branch" << endmsg;
 
   /// Cache the 2 particle candidate lists
   const ParticleCandidateList * children1 = m_childList[0];
@@ -461,14 +461,14 @@ bool McVtxFilter::checkTwoBodyDecay( const HepMC::GenVertex * vtx ) const
 	 ++itr2 ) {
       m_msg << MSG::VERBOSE << "Checking the pair : " 
 	    << (*itr1) << "/" << (*itr2) 
-	    << endreq;
+	    << endmsg;
 
       /// If the strict match sign has been required, we check if
       /// the PDG ids are matching
       if ( m_matchSign && 
 	   ( ( (*itr1) == pdgId1 && (*itr2) == pdgId2 ) ||
 	     ( (*itr1) == pdgId2 && (*itr2) == pdgId1 ) ) ) {
-	m_msg << MSG::VERBOSE << "Strict sign matching found !" << endreq;
+	m_msg << MSG::VERBOSE << "Strict sign matching found !" << endmsg;
 	return true;
       /// if we are in a loose sign request, we check only that the
       /// absolute values of the pdg IDs are matching
@@ -476,16 +476,16 @@ bool McVtxFilter::checkTwoBodyDecay( const HepMC::GenVertex * vtx ) const
 		    std::abs(*itr2) == std::abs(pdgId2) )   ||
 		  ( std::abs(*itr1) == std::abs(pdgId2) && 
 		    std::abs(*itr2) == std::abs(pdgId1) ) ) {
-	m_msg << MSG::VERBOSE << "Loose sign matching found !" << endreq;
+	m_msg << MSG::VERBOSE << "Loose sign matching found !" << endmsg;
 	return true;
       }
-      m_msg << MSG::VERBOSE << "Checking next pair" << endreq;
+      m_msg << MSG::VERBOSE << "Checking next pair" << endmsg;
     }//> loop over 2nd child's candidates
   }//> loop over 1st child's candidates
 
   /// If we are here, then the vertex candidate didn't fulfil the 
   /// requirements we have setup
-  m_msg << MSG::VERBOSE << ">>> CheckTwoBodyDecay is DONE." << endreq;
+  m_msg << MSG::VERBOSE << ">>> CheckTwoBodyDecay is DONE." << endmsg;
   return false;
 }
 
@@ -497,7 +497,7 @@ MsgStream& operator<<( MsgStream & msg, const McVtxFilter &obj )
 {
   std::stringstream out;
   obj.dump( out );
-  msg << out.str() << endreq;
+  msg << out.str() << endmsg;
   return msg;
 }
 
