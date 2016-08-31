@@ -434,7 +434,7 @@ Trk::VolumeTreeObject* Trk::MaterialMapper::volumeTreeObject(const Trk::Layer* l
         tvolName.ReplaceAll("::","_");
 
         TString   treeName   = tvolName;
-                  treeName  += "/";
+                  treeName  += "_";
                   treeName  += m_volumeTreePrefix;
         if (!lay) treeName  += "_UNMAPPED";
 
@@ -494,7 +494,7 @@ Trk::LayerTreeObject* Trk::MaterialMapper::layerTreeObject(const Trk::Layer& lay
         tvolName.ReplaceAll("::","_");
 
         TString treeName   = tvolName;
-                treeName  += "/";
+                treeName  += "_";
                 treeName  += m_layerTreePrefix;
 
         TString layerType = (lay.surfaceRepresentation().type() == Trk::Surface::Cylinder) ? 
