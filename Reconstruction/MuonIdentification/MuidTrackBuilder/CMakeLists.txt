@@ -16,6 +16,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkTrack
                           PRIVATE
+                          Control/AthenaKernel
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           MagneticField/MagFieldInterfaces
                           MuonSpectrometer/MuonDetDescr/MuonReadoutGeometry

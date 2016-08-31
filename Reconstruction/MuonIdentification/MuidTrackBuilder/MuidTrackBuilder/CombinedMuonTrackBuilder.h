@@ -222,7 +222,8 @@ namespace Rec
 	    const Trk::RecVertex*					vertex) const;
 
         void dumpCaloEloss(const Trk::Track* track, std::string txt ) const;
-        void countAEOTs(const Trk::Track* track, std::string txt ) const;
+        int countAEOTs(const Trk::Track* track, std::string txt ) const;
+        bool checkTrack(std::string txt, Trk::Track* newTrack, Trk::Track* track) const;
 	
 	// helpers, managers, tools
 	ToolHandle<Rec::IMuidCaloEnergy>		m_caloEnergyParam;
