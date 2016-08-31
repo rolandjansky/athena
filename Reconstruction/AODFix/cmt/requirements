@@ -1,6 +1,7 @@
 package AODFix
 
 author Rolf Seuster <seuster AT cern.ch>
+author Jovan Mitrevski <Jovan.Mitrevski AT cern.ch>
 
 use AtlasPolicy AtlasPolicy-*
 
