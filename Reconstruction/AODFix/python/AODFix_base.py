@@ -90,6 +90,9 @@ class AODFix_base(object):
             from AthenaCommon.AppMgr import ServiceMgr as svcMgr
             svcMgr.TagInfoMgr.ExtraTagValuePairs += ["AODFixVersion", str]
 
+    def willDoAODFix(self):
+        '''Returns a boolean on whether AOD to AOD fix will be performed'''
+        return self.doAODFix
 
     # The functions below do nothing in the base class. Override them as necessary to implement AODFix.
 

@@ -193,6 +193,11 @@ def AODFix_Init():
     elif  len(prevReleaseSplit) <2 and prevRelease not in ("bs","none"):
         logAODFix.info("input file produced from a nightly, and no AODFix applied. Will *not* schedule AODFix automatically! Please do manually 'rec.doApplyAODFix.set_Value_and_Lock(True)' to overwrite")
 
+# To inquire whether AODFix will be run
+
+def AODFix_willDoAODFix():
+    '''Returns a boolean on whether AOD to AOD fix will be performed'''
+    return _aodFixInstance.willDoAODFix()
 
 # The interface routines
 def AODFix_addMetaData():
