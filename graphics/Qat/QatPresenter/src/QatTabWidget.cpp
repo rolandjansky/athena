@@ -274,9 +274,10 @@ int QatTabWidget::tabBarWidthForMaxChars( int /*maxLength*/ )
 
     int lw = fm.width( newTitle );
     int iw = 0;
-    if ( !tabBar()->tabIcon( i ).isNull() )
+    if ( !tabBar()->tabIcon( i ).isNull() ){
       iw = tabBar()->tabIcon( i ).pixmap( style()->pixelMetric( QStyle::PM_SmallIconSize ), QIcon::Normal ).width() + 4;
-      x += ( tabBar()->style()->sizeFromContents( QStyle::CT_TabBarTab, 0L,
+    }
+    x += ( tabBar()->style()->sizeFromContents( QStyle::CT_TabBarTab, 0L,
            QSize( qMax( lw + hframe + iw, QApplication::globalStrut().width() ), 0 ),
            this ) ).width();
   }
