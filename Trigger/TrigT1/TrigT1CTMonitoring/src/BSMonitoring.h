@@ -14,9 +14,7 @@
 #include <inttypes.h>
 
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
-#include "StoreGate/StoreGate.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "TrigDecisionInterface/ITrigDecisionTool.h"
 //#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 #include "CoolKernel/IFolder.h"

@@ -148,9 +148,6 @@ initialize() {
     CHECK( m_tgcRoiSvc.retrieve() );
   }
 
-  //manually set the outputlevel to DEBUG
-  (this)->msg().setLevel(MSG::DEBUG);
-
   return StatusCode::SUCCESS;
 }
 
@@ -1805,7 +1802,7 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
       item->topNode()->getAllRandomTriggers(randoms);
       
       //do not include random and non-simulated triggers in this test, so skip those
-      bool skip = randoms.size()>0 || item->name().find("L1_TRT") != string::npos || item->name().find("L1_ZB") != string::npos;
+      bool skip = randoms.size()>0 || item->name().find("L1_TRT") != string::npos || item->name().find("L1_ZB") != string::npos || item->name().find("L1_AFP") != string::npos;
 
       if( skip ) continue;
 
