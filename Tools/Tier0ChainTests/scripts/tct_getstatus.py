@@ -6,6 +6,7 @@ __author__ = 'Renaud Bruneliere <Renaud.Bruneliere@cern.ch>'
 __doc__    = 'Print tct status. Usage tct_getstatus.py -h'
 
 import os, sys, datetime, glob
+import xml.etree.ElementTree as eTree # HAZ
 
 tctdir = '/afs/cern.ch/atlas/project/RTT/prod/Results/tct'
 jobstatus = ['\033[31mFailure\033[0m', '\033[32mSuccess\033[0m', '\033[37mN/A\033[m']
@@ -35,7 +36,8 @@ def parseCmdLine(args,itoday):
 def getJobResults(workdir,config):
     # Print out table header
     print '%-65s  %-14s   %-14s   %-9s %-9s' % ('Job', 'Start', 'End', 'Test', 'Output')
-
+    if config.dump: # Have column headings also show up in textdump/emails
+        config.file.write('%-65s  %-14s   %-16s   %-9s %-9s\n' % ('--Job--', '--Start--', '--End--', '--Test--', '--Output--'))
     # Loop over jobs
     jobs = [j for j in os.listdir(workdir)]
     jobs.sort()
@@ -64,35 +66,30 @@ def getJobResults(workdir,config):
                 if "Started at" in line:
                     words = line.split()
                     startTimeString = "%3s%2s %8s" % (words[3], words[4], words[5])
-                elif "Results reported at" in line:
+                elif "Results reported on" in line:
                     words = line.split()
                     endTimeString = "%3s%2s %8s" % (words[4], words[5], words[6])
                 if startTimeString != "Unknown" and endTimeString != "Unknown":
                     break
 
-            # check if the batch job completed successfully
+            # check if the batch job completed successfully and expected outputs are okay
+            # HAZ: Modified this to look at the xml
             success = 0
-            for line in scriptLog:
-                if 'Successfully completed.' in line:
-                    success = 1
-                    break
+            testSuc = 0
+            rootTree = eTree.parse('%s/%s/rttjobinfo.xml' % (workdir, job)).getroot()
+            success = int(rootTree.find('jobExitCode').text) == 0
 
-            jobLine      = '%-65s  %14s - %14s   %9s ' % (job,startTimeString,endTimeString,jobstatus[success])
-            jobLineNoCol = '%-65s  %14s - %14s   %9s ' % (job,startTimeString,endTimeString,jobstatusNoColor[success])
-            # do extra checks on file handling of reco jobs (at least RAWtoESD)
-            esdLogs = glob.glob('%s/%s/log.*toESD' % (workdir, job))
-            if len(esdLogs) > 0:
-                isCastorCopyOk = 0;
-                for line in jobLog:
-                    if 'All files copied from castor are ok !' in line:
-                        isCastorCopyOk = 1
-                        break
-                jobLine      = jobLine      + '  %-9s' % jobstatus[isCastorCopyOk]
-                jobLineNoCol = jobLineNoCol + '  %-9s' % jobstatusNoColor[isCastorCopyOk]
-                pass
-            else:
-                jobLine      = jobLine      + '  %-9s' % jobstatus[2]
-                jobLineNoCol = jobLineNoCol + '  %-9s' % jobstatusNoColor[2]
+            if success:
+                nTests    = int(rootTree.find('tests').find('ntests'      ).text)
+                nTestsSuc = int(rootTree.find('tests').find('ntestsuccess').text)
+                if nTests == 0:
+                    testSuc = 2
+                else:
+                    testSuc = (nTests == nTestsSuc)
+
+            jobLine      = '%-65s  %14s - %14s   %9s   %-9s' % (job,startTimeString,endTimeString,jobstatus[success], jobstatus[testSuc])
+            jobLineNoCol = '%-65s  %14s - %14s   %9s   %-9s' % (job,startTimeString,endTimeString,jobstatusNoColor[success], jobstatusNoColor[testSuc])
+
         else:
             jobLineNoCol = jobLine = '%40s  Not started yet' % (job)
             pass
