@@ -111,11 +111,11 @@ if tileESDMon:
                                          , jetPtMin          = 20000.0
                                          , jetEtaMax         = 1.6
                                          , jetCollectionName = 'AntiKt4EMTopoJets'
-                                         , do_1dim_histos    = False
+                                         , do_1dim_histos    = True
                                          , do_2dim_histos    = False
                                          , do_enediff_histos = False
-                                         , energyChanMin     = 2000
-                                         , energyChanMax     = 4000
+                                         , energyChanMin     = 15000 # 2000
+                                         , energyChanMax     = 50000 # 4000
                                          , enediff_threshold = 2000
                                          , do_energy_profiles= True
                                          , do_event_cleaning = True
@@ -143,6 +143,20 @@ if tileESDMon:
             ToolSvc.TileJetMonTool.do_jet_cleaning   = False
         
         ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileJetMonTool ]
+
+    if not 'doTileTMDBRawChannelMon' in dir() or doTileTMDBRawChannelMon:
+        from TileConditions.TileCondToolConf import getTileCondToolTMDB
+        tileCondToolTMDB = getTileCondToolTMDB('COOL')
+        if tileCondToolTMDB:
+            ToolSvc += tileCondToolTMDB
+            ToolSvc += CfgMgr.TileTMDBRawChannelMonTool(name            = 'TileTMDBRawChannelDspMon'
+                                                        , OutputLevel   = INFO
+                                                        , NotDSP        = False
+                                                        , Efficiency    = True
+                                                        , TileRawChannelContainer = "MuRcvRawChCnt"
+                                                        , TileCondToolTMDB = tileCondToolTMDB
+                                                        , histoPathBase = "/Tile/TMDBRawChannel/Dsp")
+            ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileTMDBRawChannelDspMon ];
 
 
 
