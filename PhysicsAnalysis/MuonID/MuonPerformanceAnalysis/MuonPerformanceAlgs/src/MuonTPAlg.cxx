@@ -82,17 +82,19 @@ StatusCode MuonTPAlg::finalize() {
 
 StatusCode MuonTPAlg::execute() {  
 
-
+	ATH_MSG_DEBUG("in execute");
   // if this is truth-based, do not run on data.
   if (m_is_TruthOnData) return StatusCode::SUCCESS;
 
 
     // retrieve Event Info
+  ATH_MSG_DEBUG(" -- Check EI");
   const xAOD::EventInfo* info = 0;
   if (evtStore()->retrieve(info).isFailure()){
       ATH_MSG_FATAL( "Unable to retrieve Event Info" );
   }
 
+  ATH_MSG_DEBUG(" -- Pick up tags");
   // retrieve tag (muon) container
   const xAOD::MuonContainer* tagContainer = 0;
   if(evtStore()->retrieve(tagContainer, m_tagContainerName).isFailure()) {
@@ -106,7 +108,8 @@ StatusCode MuonTPAlg::execute() {
           return StatusCode::FAILURE;
       }
   }
-  
+
+  ATH_MSG_DEBUG(" -- Pick up probes");
   // retrieve probe container
   const xAOD::IParticleContainer* probeContainer = 0;
   if(evtStore()->retrieve(probeContainer, m_probeContainerName).isFailure()) {
@@ -121,6 +124,7 @@ StatusCode MuonTPAlg::execute() {
       }
   }
 
+  ATH_MSG_DEBUG(" -- Pick up matches");
   // retrieve match container  
   const xAOD::IParticleContainer* matchContainer = 0;
   if(evtStore()->retrieve(matchContainer, m_matchContainerName).isFailure()) {
@@ -134,11 +138,14 @@ StatusCode MuonTPAlg::execute() {
           return StatusCode::FAILURE;
       }
   }
-  
+
+  ATH_MSG_DEBUG(" -- Call the tools");
     // call the TP tool 
   for(auto tool : m_tptools) {
-    tool->runTagAndProbe(tagContainer, probeContainer, matchContainer);
+	  ATH_MSG_DEBUG(" -- Call to "<<tool->name());
+	  tool->runTagAndProbe(tagContainer, probeContainer, matchContainer);
   }
+  ATH_MSG_DEBUG("done with execute");
   
   return StatusCode::SUCCESS;
 }

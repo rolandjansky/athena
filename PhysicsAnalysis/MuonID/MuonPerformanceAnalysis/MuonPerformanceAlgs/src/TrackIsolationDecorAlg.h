@@ -15,10 +15,11 @@
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "xAODPrimitives/IsolationType.h"
 
 # if !defined(XAOD_ANALYSIS)
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
-#include "RecoToolInterfaces/ICaloTopoClusterIsolationTool.h"
+#include "RecoToolInterfaces/IsolationCommon.h"
 # endif
 
 class ITHistSvc;
@@ -54,8 +55,14 @@ private:
   ServiceHandle<ITHistSvc> m_histSvc;
 # if !defined(XAOD_ANALYSIS)
   ToolHandle<xAOD::ITrackIsolationTool> m_track_iso_tool;
-  ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_calo_iso_tool;
 # endif
+  // track collection to decorate
+  std::string m_track_collection;
+  // pt threshold to apply
+  float m_pt_min;
+  std::vector<xAOD::Iso::IsolationType> m_trk_iso_types;
+  xAOD::TrackCorrection m_trk_corr;
+  
 };
 
 
