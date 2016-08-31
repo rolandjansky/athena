@@ -259,7 +259,7 @@ double  CaloMuonTag::interpolate(std::string cutName, double pt) const {
 	pt = pt / 1000;
 	int ptBin = getPtBinLow(pt);
 	int cutBin = getCutBin(cutName);
-	if (ptBin == 0 || ptBin > m_numPtBins || cutBin == 0 || cutBin > m_numCuts)
+	if (ptBin < 0 || ptBin > m_numPtBins || cutBin == 0 || cutBin > m_numCuts)
 		ATH_MSG_WARNING("Bin out of bound");
 
 	// Get lowest pt bin
