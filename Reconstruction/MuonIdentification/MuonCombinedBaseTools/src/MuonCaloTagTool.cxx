@@ -113,7 +113,7 @@ namespace MuonCombined {
     // --- Get an Identifier helper object ---
     //StoreGateSvc* detStore(0);
     //if (service("DetectorStore", detStore).isFailure()) {
-    //  msg(MSG::ERROR) << "Detector service not found !" << endreq;
+    //  msg(MSG::ERROR) << "Detector service not found !" << endmsg;
     //  return StatusCode::FAILURE;
     //}
     if( true ){
