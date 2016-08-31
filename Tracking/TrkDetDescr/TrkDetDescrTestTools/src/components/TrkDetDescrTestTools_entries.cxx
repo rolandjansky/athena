@@ -8,6 +8,7 @@
 #include "TrkDetDescrTestTools/RandomSurfaceBuilder.h"
 #include "TrkDetDescrTestTools/RecursiveGeometryProcessor.h"
 #include "TrkDetDescrTestTools/TrackingVolumeDisplayer.h"
+#include "TrkDetDescrTestTools/GeometryJsonDumper.h"
 
 using namespace Trk;
 
@@ -20,6 +21,7 @@ DECLARE_TOOL_FACTORY( LayerMaterialAnalyser )
 DECLARE_TOOL_FACTORY( RandomSurfaceBuilder )
 DECLARE_TOOL_FACTORY( RecursiveGeometryProcessor )
 DECLARE_TOOL_FACTORY( TrackingVolumeDisplayer )
+DECLARE_TOOL_FACTORY( GeometryJsonDumper )
 
 /** factory entries need to have the name of the package */
 DECLARE_FACTORY_ENTRIES( TrkDetDescrTestTools )
@@ -33,6 +35,7 @@ DECLARE_FACTORY_ENTRIES( TrkDetDescrTestTools )
     DECLARE_TOOL( RandomSurfaceBuilder )
     DECLARE_TOOL( RecursiveGeometryProcessor )    
     DECLARE_TOOL( TrackingVolumeDisplayer )
+    DECLARE_TOOL( GeometryJsonDumper )
 }
 
 

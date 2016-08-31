@@ -37,6 +37,6 @@ macro_append TrkDetDescrMemMonMacro "-DTRKDETDESCR_MEMUSAGE"
 macro_append  use_pp_cppflags                "" \
               use_trkdetdescr_memmon $(TrkDetDescrMemMonMacro)
 
-#macro cppdebugflags '$(cppdebugflags_s)'
-#macro_remove componentshr_linkopts "-Wl,-s"
+macro cppdebugflags '$(cppdebugflags_s)'
+macro_remove componentshr_linkopts "-Wl,-s"
 macro DOXYGEN_IMAGE_PATH "../doc/images"

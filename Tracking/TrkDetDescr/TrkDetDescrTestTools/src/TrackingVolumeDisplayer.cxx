@@ -14,6 +14,7 @@
 #include "TrkSurfaces/DiscBounds.h"
 #include "TrkSurfaces/RectangleBounds.h"
 #include "TrkSurfaces/TrapezoidBounds.h"
+#include "TrkSurfaces/DiscTrapezoidalBounds.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkVolumes/Volume.h"
 #include "TrkVolumes/VolumeBounds.h"
@@ -292,6 +293,7 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Surface& sf, siz
     // test version just with planar bounds
     const Trk::RectangleBounds* recBo = dynamic_cast<const Trk::RectangleBounds*>(&(sf.bounds()));
     const Trk::TrapezoidBounds* traBo = recBo ? 0 : dynamic_cast<const Trk::TrapezoidBounds*>(&(sf.bounds()));
+    const Trk::DiscTrapezoidalBounds* disctraBo = (recBo || traBo) ? 0 : dynamic_cast<const Trk::DiscTrapezoidalBounds*>(&(sf.bounds()));
     if (recBo) {
         // it is a rectangle surface
         double halfX = recBo->halflengthX();
@@ -307,7 +309,7 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Surface& sf, siz
         m_fileSurfaceOutput << xTheta << "," << xPhi << "," << yTheta << "," << yPhi << ", " << zTheta << "," << zPhi << ");" << std::endl;
 
     } else if (traBo) {
-        //example
+      //example
         //TGTRA gtra = new TGTRA("GTRA","GTRA","void",390,0,0,20,60,40,90,15120,80180,15);
         // prepare the surface (swap Y and Z)
         m_fileSurfaceOutput << surfaceString << " =  new TTRD1(\""<< surfaceString << "\",\"" << surfaceString<< "\",\"void\",";
@@ -318,12 +320,51 @@ StatusCode Trk::TrackingVolumeDisplayer::processNode(const Trk::Surface& sf, siz
         // the rotation (swap Y and Z)
         m_fileSurfaceOutput << rotationString << "= new TRotMatrix(\" "<< rotationString << " \",\" " << rotationString << " \", ";
         m_fileSurfaceOutput << xTheta << "," << xPhi << ", " << zTheta << "," << zPhi << "," << yTheta << "," << yPhi << ");" << std::endl;
-    }
+    } else if (disctraBo) {
+      //double rMedium  = disctraBo->rCenter();
+      //double Rc = (sf.center()).perp();
+      //double side = (sf.normal()).z();
+      //double stereo = side*2.*asin(Rc/(2.*rMedium));
+      //double avePhi = (side>0) ? disctraBo->averagePhi()+stereo : -disctraBo->averagePhi()+M_PI+stereo; 
 
+      double stereo  = disctraBo->stereo();
+      double rMedium = disctraBo->rCenter();
+      double avePhi  = disctraBo->averagePhi()+stereo;
+      
+      surfX = rMedium*cos(avePhi);
+      surfY = rMedium*sin(avePhi);
+      surfZ = (sf.center()).z();
+
+      Amg::RotationMatrix3D rotation;
+      rotation = Amg::AngleAxis3D(0., Amg::Vector3D::UnitX())*
+	Amg::AngleAxis3D(0., Amg::Vector3D::UnitY())*
+	Amg::AngleAxis3D(-M_PI/2.+avePhi-surfZ/fabs(surfZ)*stereo, Amg::Vector3D::UnitZ());
+
+      // ROOT wants the angles in degrees
+      xPhi   = rotation.col(0).phi()*convFac;
+      xTheta = rotation.col(0).theta()*convFac;
+      yPhi   = rotation.col(1).phi()*convFac;
+      yTheta = rotation.col(1).theta()*convFac;
+      zPhi   = rotation.col(2).phi()*convFac;
+      zTheta = rotation.col(2).theta()*convFac;
+	
+      //example
+      //TGTRA gtra = new TGTRA("GTRA","GTRA","void",390,0,0,20,60,40,90,15120,80180,15);
+      // prepare the surface (swap Y and Z)
+      m_fileSurfaceOutput << surfaceString << " =  new TTRD1(\""<< surfaceString << "\",\"" << surfaceString<< "\",\"void\",";
+      m_fileSurfaceOutput << disctraBo->minHalflengthX() << "," << disctraBo->maxHalflengthX() << ",2," << disctraBo->halflengthY() << ");"  << '\n';
+      
+      m_fileSurfaceOutput << surfaceString << "->SetLineColor(80);" << std::endl;
+      
+      // the rotation (swap Y and Z)
+      m_fileSurfaceOutput << rotationString << "= new TRotMatrix(\" "<< rotationString << " \",\" " << rotationString << " \", ";
+      m_fileSurfaceOutput << xTheta << "," << xPhi << ", " << zTheta << "," << zPhi << "," << yTheta << "," << yPhi << ");" << std::endl;
+    }
+    
     // the node
     m_fileSurfaceOutput << nodeString << " = new TNode(\"" << nodeString << "\",\"" << nodeString << "\"," << surfaceString;
     m_fileSurfaceOutput << "," << surfX << ", " << surfY << "," << surfZ << ", " << rotationString << ");" << std::endl;
-
+    
     return StatusCode::SUCCESS;    
 
 }
