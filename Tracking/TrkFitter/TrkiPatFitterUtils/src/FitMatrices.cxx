@@ -39,11 +39,11 @@
 
 namespace Trk{
     
-FitMatrices::FitMatrices(bool constrainedAlignmentEffects, bool fastMatrixTreatment)
+FitMatrices::FitMatrices(bool constrainedAlignmentEffects, bool /*fastMatrixTreatment*/)
     :	m_columns			(mxparam),	// reserve at maximum size
 	m_constrainedAlignmentEffects	(constrainedAlignmentEffects),
 	m_covariance			(0),
-	m_fastMatrixTreatment		(fastMatrixTreatment),
+	//m_fastMatrixTreatment		(fastMatrixTreatment),
 	m_finalCovariance		(0),
 	m_largePhiWeight		(10000.),	// arbitrary - equiv to 10um
 	m_matrixFromCLHEP		(false),

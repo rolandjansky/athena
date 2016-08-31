@@ -631,14 +631,14 @@ FitParameters::trackParameters (MsgStream&		log,
     //   1) a Surface is required
     if (! measurement.surface())
     {
-	log << MSG::WARNING << "FitParameters::trackParameters - measurement lacks Surface" << endreq;
+	log << MSG::WARNING << "FitParameters::trackParameters - measurement lacks Surface" << endmsg;
 	return 0;
     }
 
     //   2) a SurfaceIntersection is required
     if (! measurement.hasIntersection(FittedTrajectory))
     {
-	log << MSG::WARNING << "FitParameters::trackParameters - invalid measurement" << endreq;
+	log << MSG::WARNING << "FitParameters::trackParameters - invalid measurement" << endmsg;
 	return 0;
     }
 	
@@ -649,7 +649,7 @@ FitParameters::trackParameters (MsgStream&		log,
 					       intersection.direction(),
 					       localPos))
     {
-	log << MSG::WARNING << "FitParameters::trackParameters - globalToLocal failure" << endreq;
+	log << MSG::WARNING << "FitParameters::trackParameters - globalToLocal failure" << endmsg;
 	return 0;
     }
 	
@@ -808,7 +808,7 @@ FitParameters::trackParameters (MsgStream&		log,
 	return parameters;
     }
     
-    log << MSG::WARNING << "FitParameters::trackParameters - unrecognized surface" << endreq;
+    log << MSG::WARNING << "FitParameters::trackParameters - unrecognized surface" << endmsg;
     delete covMatrix;
     return 0;
 }
