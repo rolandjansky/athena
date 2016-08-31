@@ -43,8 +43,15 @@ def RunPatchedQTest(qtest,pwd,release,theTestArea,extraArg):
     if q != "q221":
         extraArg=""
     logging.info("Running patched in rel "+release+" \"Reco_tf.py --AMI "+q+" "+extraArg+"\"")
-    cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null  ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
-    subprocess.call(cmd,shell=True)
+
+    if 'WorkDir_DIR' in os.environ:
+        cmake_build_dir = (os.environ['WorkDir_DIR'])
+        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null  ; source "+cmake_build_dir+"/setup.sh ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+        subprocess.call(cmd,shell=True)
+    else :
+        cmd = "cd "+pwd+"; source $AtlasSetup/scripts/asetup.sh "+release+" --testarea "+theTestArea+" >& /dev/null  ; mkdir -p run_"+q+"; cd run_"+q+"; Reco_tf.py --AMI="+q+" "+extraArg+" > "+q+".log 2>&1"
+        subprocess.call(cmd,shell=True)
+
     logging.info("Finished patched \"Reco_tf.py --AMI "+q+"\"")
     pass
 
@@ -111,16 +118,21 @@ def list_patch_packages():
                     logging.info('\t%s\n' % (packageVersion))
                 except ValueError:
                     logging.info("Warning, unusual output from cmt: %s\n" % line )
-    elif 'CMAKE_PREFIX_PATH' in os.environ :                 
+    elif 'WorkDir_DIR' in os.environ :                 
         logging.info("Patch packages in your build to be tested:\n")
-        myfilepath = os.environ['CMAKE_PREFIX_PATH'].split(":")[0]                                                                                  
+        myfilepath = os.environ['WorkDir_DIR']                                                                                  
         fname = str(myfilepath) + '/packages.txt'                                                                                                   
         with open(fname) as fp:
             for line in fp:
                 if '#' not in line:
                     logging.info(line)
     else: 
-        logging.info("A release has not been setup")
+        logging.warning("")
+        logging.warning("A release area with locally installed packages has not been setup.")
+        logging.warning("quit by executing <CONTROL-C> if this is not your intention, and")
+        logging.warning("source <YOUR_CMake_BUILD_AREA>/setup.sh")
+        logging.warning("to pickup locally built packages in your environment.")
+        logging.warning("")
     pass
 
 ###############################
@@ -346,7 +358,6 @@ def RunHistTest(q,CleanRunHeadDir,UniqID):
 
 ##########################################################################
 def main():
-
     from optparse import OptionParser
 
     parser=OptionParser(usage="\n ./RunTier0Test.py \n")
@@ -402,21 +413,19 @@ def main():
         logging.info("E.g. "                                                                                             )
         logging.info("     asetup 20.7.X.Y-VAL,rel_5,AtlasProduction --testarea `pwd`"                                   )
         logging.info(                                                                                                    )
-
-
-
         sys.exit(0)
     elif not os.path.exists(os.environ['TestArea']):
         logging.info("Exit. The path for your TestArea "+os.environ['TestArea']+" does not exist!."        )
     else:
-
         if 'AtlasPatchVersion' not in os.environ and 'AtlasArea' not in os.environ and 'AtlasBaseDir' in os.environ:
             logging.info("Please be aware that you are running in a base release rather than a Tier0 release, where in general q-tests are not guaranteed to work.")
+
+            
         
 
 ########### Define which q-tests to run
         qTestsToRun = { 
-            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],          
+            'q221':[ 'HITtoRDO','RAWtoESD','ESDtoAOD','AODtoTAG'],
             'q431':[ 'RAWtoESD','ESDtoAOD','AODtoTAG']
             }          
         
@@ -430,7 +439,7 @@ def main():
         if options.ref and options.val:
             cleanSetup = options.ref
             mysetup = options.val
-            logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local testare will not be considered!!!" %(cleanSetup, mysetup))
+            logging.info("WARNING: You have specified a dedicated release as reference %s and as validation %s release, Your local testarea will not be considered!!!" %(cleanSetup, mysetup))
             logging.info("this option is mainly designed for comparing release versions!!")
         else:
             list_patch_packages()
