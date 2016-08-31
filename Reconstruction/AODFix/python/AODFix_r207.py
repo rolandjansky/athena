@@ -21,10 +21,20 @@ class AODFix_r207(AODFix_base):
     @staticmethod
     def latestAODFixVersion():
         """The latest version of the AODFix. Moving to new AODFix version scheme"""
-        nextMajRel = "20.7.7"
+        nextMajRel = "20.7.8"
+
+        # items in this list will be excluded from the metadata, so will always rerun
+        excludeFromMetadata = ["btagging"] 
+
         metadataList = [item.split("_")[0] for item in sorted(AODFix_r207.__dict__.keys()) 
                         if ("_" in item and "__" not in item)]
+
+        for excl in excludeFromMetadata:
+            if excl in metadataList:
+                metadataList.remove(excl)
+
         metadataList.insert(0, nextMajRel)
+
         return "-".join(metadataList)
 
     def preInclude( self ):
@@ -33,12 +43,21 @@ class AODFix_r207(AODFix_base):
         """
         if self.doAODFix:
             oldMetadataList = self.prevAODFix.split("-")
+            # Note that the two (xAOD::)EventInfo fixing functions can't clash
+            # with each other. Since the "pileup" fix is only applied on data,
+            # and the "mcweight" fix is only applied on MC.
             if "pileup" not in oldMetadataList:
                 self.pileup_preInclude()
+                pass
+            if "mcweight" not in oldMetadataList:
+                self.mcweight_preInclude()
+                pass
+            pass
+        return
 
     def postSystemRec(self):
         """
-        This function calls the other postSytemRecs base on metadata"
+        This function calls the other postSystemRecs base on metadata"
         """
 
         if self.doAODFix:
@@ -49,15 +68,70 @@ class AODFix_r207(AODFix_base):
             topSequence = AlgSequence()
             
             oldMetadataList = self.prevAODFix.split("-")
-            if "other" not in oldMetadataList:
-                self.other_postSystemRec(topSequence)
+            if "mcutils" not in oldMetadataList:
+                self.mcutils_postSystemRec(topSequence)
+                pass
+            if "btagging" not in oldMetadataList:
+                self.btagging_postSystemRec(topSequence)
+                pass
+            if "met" not in oldMetadataList:
+                self.met_postSystemRec(topSequence)
+                pass
+            if "pflow" not in oldMetadataList:
+                self.pflow_postSystemRec(topSequence)
+                pass
             # Muon AODfix
             if "muon" not in oldMetadataList:
                 self.muon_postSystemRec(topSequence)
+                pass
+
+            # if "tau" not in oldMetadataList:
+            #     self.tau_postSystemRec(topSequence)
+            #     pass
+
+            # Reset all of the ElementLinks. To be safe.
+            from AthenaCommon import CfgMgr
+            topSequence += \
+                CfgMgr.xAODMaker__ElementLinkResetAlg( "AODFix_ElementLinkReset" )
+            pass
+
+        return
 
 
     # Below are the individual AODfixes, split up and documented
     # Name must follow format: <fixID>_<whereCalled>
+
+    def mcweight_preInclude( self ):
+        """
+        This fixes the problem with propagating multiple MC weights correctly
+        into the (xAOD::)EventInfo object in MC samples that provide multiple
+        weights. The issue is described in:
+           https://its.cern.ch/jira/browse/ATLASSIM-2989
+        """
+
+        # Tell the user what's happening:
+        logAODFix_r207.debug( "Executing AODFix_r207_mcweight_preInclude" )
+
+        # This fix is only needed for MC files that don't have this fix.
+        from AthenaCommon.GlobalFlags import globalflags
+        if globalflags.DataSource() != "geant4":
+            return
+
+        # Access the main algorithm sequence:
+        from AthenaCommon.AlgSequence import AlgSequence
+        topSequence = AlgSequence()
+
+        # Add the AODFix algorithms to this sub-sequence:
+        from AthenaCommon import CfgMgr
+        topSequence += \
+            CfgMgr.EventInfoMCWeightFixAlg( "AODFix_EventInfoMCWeightFixAlg" )
+        # Note that we must use the default algorithm name, as the CutFlowSvc's
+        # setup will only be correct with that name. Otherwise the event
+        # bookkeeping metadata doesn't see this fix...
+        topSequence += \
+            CfgMgr.xAODMaker__EventInfoCnvAlg( ForceOverwrite = True )
+
+        return
 
     def pileup_preInclude(self):
         """
@@ -110,170 +184,14 @@ class AODFix_r207(AODFix_base):
         from xAODMuonCnv.xAODMuonCnvConf import xAOD__MuonAODFixAlg
         topSequence+=xAOD__MuonAODFixAlg()
         
+    # Comment out for now so that it doesn't get added in the metadata
 
-    def other_postSystemRec(self, topSequence):
-        """
-        Please seperate out this function into multiple functions
-        """
-        from AthenaCommon.AppMgr import ToolSvc
+    # def tau_postSystemRec(self, topSequence):
+    #     from tauRec.TauRecAODBuilder import TauRecAODProcessor
+    #     TauRecAODProcessor()
+    #     return
 
-        if self.isMC:
-
-            from ParticleJetTools.ParticleJetToolsConf import CopyFlavorLabelTruthParticles
-            from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
-
-            ptypes = ["TausFinal","BHadronsFinal","CHadronsFinal"]
-            for ptype in ptypes:
-                AODFix_ctp = CopyFlavorLabelTruthParticles("AODFix_CopyTruthTag"+ptype)
-                AODFix_ctp.ParticleType = ptype
-                AODFix_ctp.OutputName = "AODFix_TruthLabel" + ptype
-                ToolSvc += AODFix_ctp
-
-            AODFix_JetDeltaRLabelTool = ParticleJetDeltaRLabelTool(
-              "AODFix_jetdrlabeler",
-              LabelName = "HadronConeExclTruthLabelID",
-              BLabelName = "ConeExclBHadronsFinal",
-              CLabelName = "ConeExclCHadronsFinal",
-              TauLabelName = "ConeExclTausFinal",
-              BParticleCollection = "AODFix_TruthLabelBHadronsFinal",
-              CParticleCollection = "AODFix_TruthLabelCHadronsFinal",
-              TauParticleCollection = "AODFix_TruthLabelTausFinal",
-              PartPtMin = 5000.0,
-              JetPtMin = 0.0,
-              DRMax = 0.3,
-              MatchMode = "MinDR"
-            )
-            ToolSvc += AODFix_JetDeltaRLabelTool
-
-            AODFix_FatJetDeltaRLabelTool = ParticleJetDeltaRLabelTool(
-              "AODFix_fatjetdrlabeler",
-              LabelName = "HadronConeExclTruthLabelID",
-              BLabelName = "ConeExclBHadronsFinal",
-              CLabelName = "ConeExclCHadronsFinal",
-              TauLabelName = "ConeExclTausFinal",
-              BParticleCollection = "AODFix_TruthLabelBHadronsFinal",
-              CParticleCollection = "AODFix_TruthLabelCHadronsFinal",
-              TauParticleCollection = "AODFix_TruthLabelTausFinal",
-              PartPtMin = 5000.0,
-              JetPtMin = 0.0,
-              DRMax = 1.0,
-              MatchMode = "MinDR"
-            )
-            ToolSvc += AODFix_FatJetDeltaRLabelTool
-
-            AODFix_TrackJetDeltaRLabelTool = ParticleJetDeltaRLabelTool(
-              "AODFix_trackjetdrlabeler",
-              LabelName = "HadronConeExclTruthLabelID",
-              BLabelName = "ConeExclBHadronsFinal",
-              CLabelName = "ConeExclCHadronsFinal",
-              TauLabelName = "ConeExclTausFinal",
-              BParticleCollection = "AODFix_TruthLabelBHadronsFinal",
-              CParticleCollection = "AODFix_TruthLabelCHadronsFinal",
-              TauParticleCollection = "AODFix_TruthLabelTausFinal",
-              PartPtMin = 5000.0,
-              JetPtMin = 4500.0,
-              DRMax = 0.3,
-              MatchMode = "MinDR"
-            )
-
-            ToolSvc += AODFix_TrackJetDeltaRLabelTool
-
-            from JetRec.JetRecConf import JetRecTool
-            JetRecTool_AntiKt4EMTopo = JetRecTool("AODFix_AntiKt4EMTopoJets", InputContainer="AntiKt4EMTopoJets", OutputContainer="AntiKt4EMTopoJets", JetModifiers = [ToolSvc.AODFix_jetdrlabeler])
-            ToolSvc += JetRecTool_AntiKt4EMTopo    
-            JetRecTool_AntiKt4LCTopo = JetRecTool("AODFix_AntiKt4LCTopoJets", InputContainer="AntiKt4LCTopoJets", OutputContainer="AntiKt4LCTopoJets", JetModifiers = [ToolSvc.AODFix_jetdrlabeler])
-            ToolSvc += JetRecTool_AntiKt4LCTopo    
-            JetRecTool_AntiKt10LCTopo = JetRecTool("AODFix_AntiKt10LCTopoJets", InputContainer="AntiKt10LCTopoJets", OutputContainer="AntiKt10LCTopoJets", JetModifiers = [ToolSvc.AODFix_fatjetdrlabeler])
-            ToolSvc += JetRecTool_AntiKt10LCTopo    
-            JetRecTool_AntiKt2PV0Track = JetRecTool("AODFix_AntiKt2PV0TrackJets", InputContainer="AntiKt2PV0TrackJets", OutputContainer="AntiKt2PV0TrackJets", JetModifiers = [ToolSvc.AODFix_trackjetdrlabeler])
-            ToolSvc += JetRecTool_AntiKt2PV0Track    
-            JetRecTool_AntiKt3PV0Track = JetRecTool("AODFix_AntiKt3PV0TrackJets", InputContainer="AntiKt3PV0TrackJets", OutputContainer="AntiKt3PV0TrackJets", JetModifiers = [ToolSvc.AODFix_trackjetdrlabeler])
-            ToolSvc += JetRecTool_AntiKt3PV0Track    
-            JetRecTool_AntiKt4PV0Track = JetRecTool("AODFix_AntiKt4PV0TrackJets", InputContainer="AntiKt4PV0TrackJets", OutputContainer="AntiKt4PV0TrackJets", JetModifiers = [ToolSvc.AODFix_trackjetdrlabeler])
-            ToolSvc += JetRecTool_AntiKt4PV0Track   
-
-            from JetRec.JetRecConf import JetAlgorithm
-            topSequence += JetAlgorithm("jetalgAODFix", Tools = [ToolSvc.AODFix_CopyTruthTagCHadronsFinal,ToolSvc.AODFix_CopyTruthTagBHadronsFinal, ToolSvc.AODFix_CopyTruthTagTausFinal, ToolSvc.AODFix_AntiKt2PV0TrackJets, ToolSvc.AODFix_AntiKt3PV0TrackJets, ToolSvc.AODFix_AntiKt4PV0TrackJets, ToolSvc.AODFix_AntiKt4EMTopoJets, ToolSvc.AODFix_AntiKt4LCTopoJets, ToolSvc.AODFix_AntiKt10LCTopoJets])
-
-        JetCollectionList = [ 'AntiKt4EMTopoJets','AntiKt4LCTopoJets',
-                              'AntiKt2TrackJets','AntiKt3TrackJets',
-                              'AntiKt4TrackJets']
-
-        SA = 'AODFix_'
-        from BTagging.BTaggingConfiguration import getConfiguration
-        BTagConf = getConfiguration("AODFix")
-        BTagConf.PrefixxAODBaseName(False)
-        BTagConf.PrefixVertexFinderxAODBaseName(False)
-
-        BTagConf.doNotCheckForTaggerObstacles()
-        from BTagging.BTaggingConf import Analysis__StandAloneJetBTaggerAlg as StandAloneJetBTaggerAlg
-
-        btag = "BTagging_"
-        AuthorSubString = [ btag+name[:-4] for name in JetCollectionList]
-        for i, jet in enumerate(JetCollectionList):
-            try:
-                btagger = BTagConf.setupJetBTaggerTool(ToolSvc, JetCollection=jet[:-4], 
-                                                       AddToToolSvc=True, SetupScheme="Retag", 
-                                                       TaggerList = ['IP3D','MV2c00','MV2c10',
-                                                                     'MV2c20','MV2c100','MV2m',
-                                                                     'MV2c10hp','MV2cl100',
-                                                                     'MVb','JetVertexCharge'])
-                jet = jet.replace("Track", "PV0Track")
-                SAbtagger = StandAloneJetBTaggerAlg(name=SA + AuthorSubString[i].lower(),
-                                          JetBTaggerTool=btagger,
-                                          JetCollectionName = jet,
-                                          )
-
-                topSequence += SAbtagger
-            except AttributeError as error:
-                print '#BTAG# --> ' + str(error)
-                print '#BTAG# --> ' + jet
-                print '#BTAG# --> ' + AuthorSubString[i]
-
-        # MET AODFix
-        from METReconstruction.METAssocConfig import AssocConfig, getAssociator
-        from METReconstruction.METReconstructionConf import METBadTrackEventFilter
-        from AthenaCommon.AlgSequence import AthSequencer
-        METMapSequence = AthSequencer("MET_LCEM_SelectionSequence_AODFix")
-        topSequence += METMapSequence
-
-        from AthenaCommon import CfgMgr
-        newtrkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc_AODFix",
-                                             CutLevel="TightPrimary",
-                                             maxZ0SinTheta=3,
-                                             maxD0overSigmaD0=2)
-        ToolSvc += newtrkseltool
-
-        METMapSequence += METBadTrackEventFilter("METBadTrackEventFilter_AODFix",TrackSelectorTool=newtrkseltool)
-
-        LCtermlist = ['LCJet','Muon','Ele','Gamma','Tau','Soft']
-        LCAssociators = [ getAssociator(AssocConfig(config),suffix='AntiKt4LCTopo',doPFlow=False,trkseltool=newtrkseltool) for config in LCtermlist ]
-        LCAssocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_AntiKt4LCTopo_AODFix',
-                                                     METAssociators = LCAssociators,
-                                                     METSuffix = 'AntiKt4LCTopo',
-                                                     AllowOverwrite=True,
-                                                     TCSignalState=1) # LC clusters
-        ToolSvc += LCAssocTool
-
-        EMtermlist = ['EMJet','Muon','Ele','Gamma','Tau','Soft']
-        EMAssociators = [ getAssociator(AssocConfig(config),suffix='AntiKt4EMTopo',doPFlow=False,trkseltool=newtrkseltool) for config in EMtermlist ]
-        EMAssocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_AntiKt4EMTopo_AODFix',
-                                                     METAssociators = EMAssociators,
-                                                     METSuffix = 'AntiKt4EMTopo',
-                                                     AllowOverwrite=True,
-                                                     TCSignalState=0) # EM clusters
-        ToolSvc += EMAssocTool
-
-        METAssocAlg_LCEM = CfgMgr.met__METRecoAlg(name='METAssociation_LCEM_AODFix',RecoTools=[LCAssocTool,EMAssocTool])
-        METMapSequence += METAssocAlg_LCEM
-
-        from METUtilities.METMakerConfig import getMETMakerAlg
-        METMakerAlg_LC = getMETMakerAlg('AntiKt4LCTopo',confsuffix="_AODFix")
-        METMakerAlg_LC.AllowOverwrite = True
-        METMakerAlg_EM = getMETMakerAlg('AntiKt4EMTopo',confsuffix="_AODFix")
-        METMakerAlg_EM.AllowOverwrite = True
-        METMapSequence += METMakerAlg_LC
-        METMapSequence += METMakerAlg_EM
+    def pflow_postSystemRec(self, topSequence):
 
         #Only run pflow AOD fix if input file contains AntKt4EMPFlowJets - should be the case for all samples, except HI samples
         from RecExConfig.ObjKeyStore import cfgKeyStore
@@ -284,6 +202,7 @@ class AODFix_r207(AODFix_base):
             #This configuration should be identical to the AntiKt4EMPflowJets configured in:
             #http://acode-browser2.usatlas.bnl.gov/lxr-rel20/source/atlas/Reconstruction/Jet/JetRec/share/JetRec_jobOptions.py
             #with the addJetFinder function (in the svn tag for 20.7)
+            from AthenaCommon import CfgMgr
             particleFlowJetFinder_AntiKt4 = CfgMgr.JetFinder("AntiKt4EMPFlowJetsFinder_AODFix")
             particleFlowJetFinder_AntiKt4.JetAlgorithm = "AntiKt"
             particleFlowJetFinder_AntiKt4.JetRadius = 0.4
@@ -291,6 +210,7 @@ class AODFix_r207(AODFix_base):
             particleFlowJetFinder_AntiKt4.PtMin = 2000
 
             #Then we setup a jet builder to calculate the areas needed for the rho subtraction
+            from AthenaCommon.AppMgr import ToolSvc
             particleFlowJetBuilder_AntiKt4 = CfgMgr.JetFromPseudojet("jblda_AODFix", Attributes = ["ActiveArea", "ActiveArea4vec"])
             ToolSvc += particleFlowJetBuilder_AntiKt4
             particleFlowJetFinder_AntiKt4.JetBuilder = particleFlowJetBuilder_AntiKt4
@@ -533,31 +453,6 @@ class AODFix_r207(AODFix_base):
             particleFlowJetRecTool.JetModifiers += [ToolSvc.comshapes_AODFix]
 
             #common_ungroomed_modifiers that are for MC only
-
-            ## (JM) Now introduced an isMC flag, so can remove this suff.
-            # #First we check if the file is MC or data using the metadata (not allowed to use reco flags om AODFix)
-            # from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-            # theInputFile_AODFix = athenaCommonFlags.PoolAODInput.get_Value()[0]
-            # import PyUtils.AthFile as af
-            # haveParticleJetTools_AODFix = False
-            # f = af.fopen(theInputFile_AODFix)
-            # if 'evt_type' in f.infos.keys():
-            #     import re
-            #     if re.match(str(f.infos['evt_type'][0]), 'IS_SIMULATION') :
-            #         try:
-            #             haveParticleJetTools_AODFix = True
-            #         except:
-            #             haveParticleJetTools_AODFix = False
-
-            #         if haveParticleJetTools_AODFix:
-            #             ToolSvc += CfgMgr.Analysis__JetPartonTruthLabel("partontruthlabel_AODFix")
-            #             particleFlowJetRecTool.JetModifiers += [ToolSvc.partontruthlabel_AODFix]
-
-            #             ToolSvc += CfgMgr.Analysis__JetQuarkLabel("jetquarklabel_AODFix",McEventCollection = "TruthEvents")
-            #             ToolSvc += CfgMgr.Analysis__JetConeLabeling("truthpartondr_AODFix",JetTruthMatchTool = ToolSvc.jetquarklabel_AODFix)
-            #             particleFlowJetRecTool.JetModifiers += [ToolSvc.truthpartondr_AODFix]
-
-            #This is the replacement
             if self.isMC:
                 ToolSvc += CfgMgr.Analysis__JetPartonTruthLabel("partontruthlabel_AODFix")
                 particleFlowJetRecTool.JetModifiers += [ToolSvc.partontruthlabel_AODFix]
@@ -565,9 +460,7 @@ class AODFix_r207(AODFix_base):
                 ToolSvc += CfgMgr.Analysis__JetQuarkLabel("jetquarklabel_AODFix",McEventCollection = "TruthEvents")
                 ToolSvc += CfgMgr.Analysis__JetConeLabeling("truthpartondr_AODFix",JetTruthMatchTool = ToolSvc.jetquarklabel_AODFix)
                 particleFlowJetRecTool.JetModifiers += [ToolSvc.truthpartondr_AODFix]
-            ## end of JM modificatoin
-
-
+            ## end of JM modification
             #common_ungroomed_modifiers end here
 
             # Modifiers for topo (and pflow) jets.
@@ -658,6 +551,13 @@ class AODFix_r207(AODFix_base):
             newpfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_AODFix')
             ToolSvc += newpfotool
 
+            #is this the right config ????? undefined before I put this here <griffith@cern.ch>
+            newtrkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc_AODFix",
+                                                                CutLevel="TightPrimary",
+                                                                maxZ0SinTheta=3,
+                                                                maxD0overSigmaD0=2)
+
+            from METReconstruction.METAssocConfig import AssocConfig, getAssociator
             PFAssociators = [ getAssociator(AssocConfig(config),suffix='AntiKt4EMPFlow',doPFlow=True,trkseltool=newtrkseltool,pfotool=newpfotool) for config in PFtermlist ]
             PFAssocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_AntiKt4EMPFlow_AODFix',
                                                          METAssociators = PFAssociators,
@@ -665,11 +565,14 @@ class AODFix_r207(AODFix_base):
                                                          AllowOverwrite=True)
             ToolSvc += PFAssocTool
 
+            from METUtilities.METMakerConfig import getMETMakerAlg
+
             METAssocAlg_PFlow = CfgMgr.met__METRecoAlg(name='METAssociation_PFlow_AODFix',RecoTools=[PFAssocTool])
             METMakerAlg_PF = getMETMakerAlg('AntiKt4EMPFlow',confsuffix="_AODFix")
             METMakerAlg_PF.AllowOverwrite = True
-
+            
             #Set up our own sequence
+            from AthenaCommon.AlgSequence import AthSequencer
             ParticleFlowJetSequence = AthSequencer("ParticleFlowSelectionSequence")
             topSequence += ParticleFlowJetSequence
 
@@ -682,4 +585,181 @@ class AODFix_r207(AODFix_base):
             ParticleFlowJetSequence += METAssocAlg_PFlow
             #Build the reference MET container
             ParticleFlowJetSequence += METMakerAlg_PF
+    # End PFlow AODFix
 
+    def met_postSystemRec(self, topSequence):
+        # MET AODFix
+        from METReconstruction.METAssocConfig import AssocConfig, getAssociator
+        from METReconstruction.METReconstructionConf import METBadTrackEventFilter
+        from AthenaCommon.AlgSequence import AthSequencer
+        METMapSequence = AthSequencer("MET_LCEM_SelectionSequence_AODFix")
+        topSequence += METMapSequence
+
+        from AthenaCommon import CfgMgr
+        newtrkseltool=CfgMgr.InDet__InDetTrackSelectionTool("IDTrkSel_METAssoc_AODFix",
+                                             CutLevel="TightPrimary",
+                                             maxZ0SinTheta=3,
+                                             maxD0overSigmaD0=2)
+        from AthenaCommon.AppMgr import ToolSvc
+        ToolSvc += newtrkseltool
+
+        METMapSequence += METBadTrackEventFilter("METBadTrackEventFilter_AODFix",TrackSelectorTool=newtrkseltool)
+
+        LCtermlist = ['LCJet','Muon','Ele','Gamma','Tau','Soft']
+        LCAssociators = [ getAssociator(AssocConfig(config),suffix='AntiKt4LCTopo',doPFlow=False,trkseltool=newtrkseltool) for config in LCtermlist ]
+        LCAssocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_AntiKt4LCTopo_AODFix',
+                                                     METAssociators = LCAssociators,
+                                                     METSuffix = 'AntiKt4LCTopo',
+                                                     AllowOverwrite=True,
+                                                     TCSignalState=1) # LC clusters
+        ToolSvc += LCAssocTool
+
+        EMtermlist = ['EMJet','Muon','Ele','Gamma','Tau','Soft']
+        EMAssociators = [ getAssociator(AssocConfig(config),suffix='AntiKt4EMTopo',doPFlow=False,trkseltool=newtrkseltool) for config in EMtermlist ]
+        EMAssocTool = CfgMgr.met__METAssociationTool('MET_AssociationTool_AntiKt4EMTopo_AODFix',
+                                                     METAssociators = EMAssociators,
+                                                     METSuffix = 'AntiKt4EMTopo',
+                                                     AllowOverwrite=True,
+                                                     TCSignalState=0) # EM clusters
+        ToolSvc += EMAssocTool
+
+        METAssocAlg_LCEM = CfgMgr.met__METRecoAlg(name='METAssociation_LCEM_AODFix',RecoTools=[LCAssocTool,EMAssocTool])
+        METMapSequence += METAssocAlg_LCEM
+
+        from METUtilities.METMakerConfig import getMETMakerAlg
+        METMakerAlg_LC = getMETMakerAlg('AntiKt4LCTopo',confsuffix="_AODFix")
+        METMakerAlg_LC.AllowOverwrite = True
+        METMakerAlg_EM = getMETMakerAlg('AntiKt4EMTopo',confsuffix="_AODFix")
+        METMakerAlg_EM.AllowOverwrite = True
+        METMapSequence += METMakerAlg_LC
+        METMapSequence += METMakerAlg_EM
+
+    # End MET AODFix
+
+    def mcutils_postSystemRec(self, topSequence):
+        """
+        This fixes the MCUtils/TruthUtil bug:
+        https://its.cern.ch/jira/browse/ATLASRECTS-3008
+        """
+
+        from AthenaCommon.AppMgr import ToolSvc
+
+        if self.isMC:
+
+            from ParticleJetTools.ParticleJetToolsConf import CopyFlavorLabelTruthParticles
+            from ParticleJetTools.ParticleJetToolsConf import ParticleJetDeltaRLabelTool
+
+            ptypes = ["TausFinal","BHadronsFinal","CHadronsFinal"]
+            for ptype in ptypes:
+                AODFix_ctp = CopyFlavorLabelTruthParticles("AODFix_CopyTruthTag"+ptype)
+                AODFix_ctp.ParticleType = ptype
+                AODFix_ctp.OutputName = "AODFix_TruthLabel" + ptype
+                ToolSvc += AODFix_ctp
+
+            AODFix_JetDeltaRLabelTool = ParticleJetDeltaRLabelTool(
+              "AODFix_jetdrlabeler",
+              LabelName = "HadronConeExclTruthLabelID",
+              BLabelName = "ConeExclBHadronsFinal",
+              CLabelName = "ConeExclCHadronsFinal",
+              TauLabelName = "ConeExclTausFinal",
+              BParticleCollection = "AODFix_TruthLabelBHadronsFinal",
+              CParticleCollection = "AODFix_TruthLabelCHadronsFinal",
+              TauParticleCollection = "AODFix_TruthLabelTausFinal",
+              PartPtMin = 5000.0,
+              JetPtMin = 0.0,
+              DRMax = 0.3,
+              MatchMode = "MinDR"
+            )
+            ToolSvc += AODFix_JetDeltaRLabelTool
+
+            AODFix_FatJetDeltaRLabelTool = ParticleJetDeltaRLabelTool(
+              "AODFix_fatjetdrlabeler",
+              LabelName = "HadronConeExclTruthLabelID",
+              BLabelName = "ConeExclBHadronsFinal",
+              CLabelName = "ConeExclCHadronsFinal",
+              TauLabelName = "ConeExclTausFinal",
+              BParticleCollection = "AODFix_TruthLabelBHadronsFinal",
+              CParticleCollection = "AODFix_TruthLabelCHadronsFinal",
+              TauParticleCollection = "AODFix_TruthLabelTausFinal",
+              PartPtMin = 5000.0,
+              JetPtMin = 0.0,
+              DRMax = 1.0,
+              MatchMode = "MinDR"
+            )
+            ToolSvc += AODFix_FatJetDeltaRLabelTool
+
+            AODFix_TrackJetDeltaRLabelTool = ParticleJetDeltaRLabelTool(
+              "AODFix_trackjetdrlabeler",
+              LabelName = "HadronConeExclTruthLabelID",
+              BLabelName = "ConeExclBHadronsFinal",
+              CLabelName = "ConeExclCHadronsFinal",
+              TauLabelName = "ConeExclTausFinal",
+              BParticleCollection = "AODFix_TruthLabelBHadronsFinal",
+              CParticleCollection = "AODFix_TruthLabelCHadronsFinal",
+              TauParticleCollection = "AODFix_TruthLabelTausFinal",
+              PartPtMin = 5000.0,
+              JetPtMin = 4500.0,
+              DRMax = 0.3,
+              MatchMode = "MinDR"
+            )
+
+            ToolSvc += AODFix_TrackJetDeltaRLabelTool
+
+            from JetRec.JetRecConf import JetRecTool
+            JetRecTool_AntiKt4EMTopo = JetRecTool("AODFix_AntiKt4EMTopoJets", InputContainer="AntiKt4EMTopoJets", OutputContainer="AntiKt4EMTopoJets", JetModifiers = [ToolSvc.AODFix_jetdrlabeler])
+            ToolSvc += JetRecTool_AntiKt4EMTopo    
+            JetRecTool_AntiKt4LCTopo = JetRecTool("AODFix_AntiKt4LCTopoJets", InputContainer="AntiKt4LCTopoJets", OutputContainer="AntiKt4LCTopoJets", JetModifiers = [ToolSvc.AODFix_jetdrlabeler])
+            ToolSvc += JetRecTool_AntiKt4LCTopo    
+            JetRecTool_AntiKt10LCTopo = JetRecTool("AODFix_AntiKt10LCTopoJets", InputContainer="AntiKt10LCTopoJets", OutputContainer="AntiKt10LCTopoJets", JetModifiers = [ToolSvc.AODFix_fatjetdrlabeler])
+            ToolSvc += JetRecTool_AntiKt10LCTopo    
+            JetRecTool_AntiKt2PV0Track = JetRecTool("AODFix_AntiKt2PV0TrackJets", InputContainer="AntiKt2PV0TrackJets", OutputContainer="AntiKt2PV0TrackJets", JetModifiers = [ToolSvc.AODFix_trackjetdrlabeler])
+            ToolSvc += JetRecTool_AntiKt2PV0Track    
+            JetRecTool_AntiKt3PV0Track = JetRecTool("AODFix_AntiKt3PV0TrackJets", InputContainer="AntiKt3PV0TrackJets", OutputContainer="AntiKt3PV0TrackJets", JetModifiers = [ToolSvc.AODFix_trackjetdrlabeler])
+            ToolSvc += JetRecTool_AntiKt3PV0Track    
+            JetRecTool_AntiKt4PV0Track = JetRecTool("AODFix_AntiKt4PV0TrackJets", InputContainer="AntiKt4PV0TrackJets", OutputContainer="AntiKt4PV0TrackJets", JetModifiers = [ToolSvc.AODFix_trackjetdrlabeler])
+            ToolSvc += JetRecTool_AntiKt4PV0Track   
+
+            from JetRec.JetRecConf import JetAlgorithm
+            topSequence += JetAlgorithm("jetalgAODFix", Tools = [ToolSvc.AODFix_CopyTruthTagCHadronsFinal,ToolSvc.AODFix_CopyTruthTagBHadronsFinal, ToolSvc.AODFix_CopyTruthTagTausFinal, ToolSvc.AODFix_AntiKt2PV0TrackJets, ToolSvc.AODFix_AntiKt3PV0TrackJets, ToolSvc.AODFix_AntiKt4PV0TrackJets, ToolSvc.AODFix_AntiKt4EMTopoJets, ToolSvc.AODFix_AntiKt4LCTopoJets, ToolSvc.AODFix_AntiKt10LCTopoJets])
+
+    def btagging_postSystemRec(self, topSequence):
+        """
+        This fixes the uptodate BTagging calibration conditions tag.
+        """
+
+        from AthenaCommon.AppMgr import ToolSvc
+
+        JetCollectionList = [ 'AntiKt4EMTopoJets','AntiKt4LCTopoJets',
+                              'AntiKt2TrackJets','AntiKt3TrackJets',
+                              'AntiKt4TrackJets']
+
+        SA = 'AODFix_'
+        from BTagging.BTaggingConfiguration import getConfiguration
+        BTagConf = getConfiguration("AODFix")
+        BTagConf.PrefixxAODBaseName(False)
+        BTagConf.PrefixVertexFinderxAODBaseName(False)
+
+        BTagConf.doNotCheckForTaggerObstacles()
+        from BTagging.BTaggingConf import Analysis__StandAloneJetBTaggerAlg as StandAloneJetBTaggerAlg
+
+        btag = "BTagging_"
+        AuthorSubString = [ btag+name[:-4] for name in JetCollectionList]
+        for i, jet in enumerate(JetCollectionList):
+            try:
+                btagger = BTagConf.setupJetBTaggerTool(ToolSvc, JetCollection=jet[:-4], 
+                                                       AddToToolSvc=True, SetupScheme="Retag", 
+                                                       TaggerList = ['IP3D','MV2c00','MV2c10',
+                                                                     'MV2c20','MV2c100','MV2m',
+                                                                     'MV2c10hp','MV2cl100',
+                                                                     'MVb','JetVertexCharge'])
+                jet = jet.replace("Track", "PV0Track")
+                SAbtagger = StandAloneJetBTaggerAlg(name=SA + AuthorSubString[i].lower(),
+                                          JetBTaggerTool=btagger,
+                                          JetCollectionName = jet,
+                                          )
+
+                topSequence += SAbtagger
+            except AttributeError as error:
+                print '#BTAG# --> ' + str(error)
+                print '#BTAG# --> ' + jet
+                print '#BTAG# --> ' + AuthorSubString[i]
