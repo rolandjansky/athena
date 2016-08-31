@@ -4,6 +4,7 @@ author			Kostas Nikolopoulos <Konstantinos.Nikolopoulos@cern.ch>
 
 private
 use AtlasCLHEP			AtlasCLHEP-*			External
+use AthenaKernel                AthenaKernel-*                  Control
 use CaloEvent			CaloEvent-*			Calorimeter
 use CaloIdentifier		CaloIdentifier-*		Calorimeter
 use CaloInterface		CaloInterface-*			Calorimeter
