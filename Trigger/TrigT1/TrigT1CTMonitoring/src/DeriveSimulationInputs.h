@@ -10,7 +10,6 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/Property.h"
-#include "StoreGate/DataHandle.h"
 //#include "TrigConfigSvc/ITrigConfigSvc.h"
 //#include "TrigConfigSvc/ILVL1ConfigSvc.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"

@@ -6,7 +6,7 @@
 #include "GaudiKernel/GaudiException.h"
 
 // Package includes
-#include "TrigT1CTMonitoring/BSMonitoring.h"
+#include "BSMonitoring.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
@@ -57,6 +57,9 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include <cmath>
+
+#include "boost/lexical_cast.hpp"
+
 
 using namespace std;
 
@@ -228,6 +231,8 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
       const DataHandle<CTP_RDO> theCTP_RDO = 0;
       const DataHandle<CTP_RIO> theCTP_RIO = 0;
       const DataHandle<ROIB::RoIBResult> roIBResult = 0;
+      const DataHandle <Muon::TgcCoinDataContainer> theTGCContainer = 0;
+      const DataHandle <RpcSectorLogicContainer> theRPCContainer = 0;
       const EventInfo* eventInfo = 0; 
 
       bool validMuCTPI_RIO = true;
@@ -235,6 +240,8 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
       bool validCTP_RIO = true;
       bool validCTP_RDO = true;
       bool validRoIBResult = true;
+      bool validTGCContainer = true;
+      bool validRPCContainer = true;
       int numberOfInvalidFragments = 0;
 
       TProfile_LW* errorSummary = getTProfile("errorSummary");
@@ -252,9 +259,20 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
       if (m_processMuctpi) {
          sc = evtStore()->retrieve(theMuCTPI_RDO, "MUCTPI_RDO");
          if (sc.isFailure()) {
-            ATH_MSG(WARNING) << "Could not find \"MUCTPI_RDO\" in StoreGate" << endreq;
-            validMuCTPI_RDO = false;
-            ++numberOfInvalidFragments;
+	   ATH_MSG(WARNING) << "Could not find \"MUCTPI_RDO\" in StoreGate" << endreq;
+	   validMuCTPI_RDO = false;
+	   ++numberOfInvalidFragments;
+         }
+	 // now try to get RPC and TGC SL output for comparisons
+	 sc = evtStore()->retrieve(theRPCContainer, "RPC_SECTORLOGIC");
+         if (sc.isFailure()) {
+	   ATH_MSG(WARNING) << "Could not find RPC container in StoreGate" << endreq;
+            validRPCContainer = false;
+         }
+	 sc = evtStore()->retrieve(theTGCContainer, "TrigT1CoinDataCollection");
+         if (sc.isFailure()) {
+	   ATH_MSG(WARNING) << "Could not find TGC container in StoreGate" << endreq;
+            validTGCContainer = false;
          }
          if (m_processMuctpiRIO && !m_runOnESD) {
             sc = evtStore()->retrieve(theMuCTPI_RIO, "MUCTPI_RIO");
@@ -265,6 +283,7 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
             }
          }
       }
+
       if (m_processCTP) {
          sc = evtStore()->retrieve(theCTP_RDO, "CTP_RDO");
          if (sc.isFailure()) {
@@ -400,6 +419,12 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
          if (!validRoIBResult) {
             incompleteFragmentType->Fill(4,1);
          }
+         if (!validTGCContainer) {
+            incompleteFragmentType->Fill(6,1);
+         }
+         if (!validRPCContainer) {
+            incompleteFragmentType->Fill(7,1);
+         }
       }
       else { // since errorSummary holds error _rate_, also fill when there are no errors
          errorSummary->Fill(15, 0);
@@ -420,10 +445,10 @@ TrigT1CTMonitoring::BSMonitoring::fillHistograms() {
       }
 
       if (m_processMuctpi && m_processCTP && validCTP_RDO && validCTP_RIO && validMuCTPI_RDO && validMuCTPI_RIO)
-         doCtpMuctpi(theCTP_RDO, theCTP_RIO, theMuCTPI_RDO, theMuCTPI_RIO);
+	doCtpMuctpi(theCTP_RDO, theCTP_RIO, theMuCTPI_RDO, theMuCTPI_RIO);
 
-      if (m_processMuctpi && validMuCTPI_RDO && validMuCTPI_RIO) {
-         doMuctpi(theMuCTPI_RDO, theMuCTPI_RIO);
+      if (m_processMuctpi && validMuCTPI_RDO && validMuCTPI_RIO && validTGCContainer && validRPCContainer) {
+	doMuctpi(theMuCTPI_RDO, theMuCTPI_RIO, theRPCContainer, theTGCContainer );
          if (m_processRoIB && m_processMuctpiRIO) 
             doMuonRoI(theMuCTPI_RDO, theMuCTPI_RIO, roIBResult);
       }
@@ -446,6 +471,12 @@ procHistograms() {
   
   updateRangeUser();
   
+  TH1F_LW* h1;
+  if ((h1=getTH1("l1ItemsBPSimMismatchItems"))) {
+    int lastFilledXBin =  h1->getROOTHist()->FindLastBinAbove(0,1); // find last bin above 0 on x-axis
+    h1->getROOTHist()->GetXaxis()->SetRangeUser(0, lastFilledXBin);
+  }
+
   ATH_MSG(DEBUG) << "processed " << m_eventCount << " events ("
 		 << m_filledEventCount << " filled )" << endreq;
   ATH_MSG(DEBUG) << "end procHistograms()" << endreq;
@@ -458,10 +489,10 @@ initCtpHistograms() {
   // error histograms
   m_dirName=m_baseDirName+"/";
 
-  CHECK( registerTProfile("errorSummary", "CTP and MuCTPI errors; ; Error rate", 16, 0.5, 16.5, -1, 2) );
-  CHECK( registerTH2("errorSummaryPerLumiBlock", "Errors per lumi block; LB number; Errors", 2000, 0.5, 2000.5, 16, 0.5, 16.5) );
+  CHECK( registerTProfile("errorSummary", "CTP and MuCTPI errors; ; Error rate", 20, 0.5, 20.5, -1, 2) );
+  CHECK( registerTH2("errorSummaryPerLumiBlock", "Errors per lumi block; LB number; Errors", 2000, 0.5, 2000.5, 20, 0.5, 20.5) );
   CHECK( registerTH1("errorPerLumiBlock", "Number of errors per lumi block; LB number; Errors", 2001, -0.5, 2000.5) );
-  CHECK( registerTH1("incompleteFragmentType", "Number of missing fragments per type; Fragment type; Number of incomplete fragments", 6, -0.5, 5.5) );
+  CHECK( registerTH1("incompleteFragmentType", "Number of missing fragments per type; Fragment type; Number of incomplete fragments", 8, -0.5, 7.5) );
 
   // CTP histograms
   m_dirName=m_baseDirName+"CTP/";
@@ -478,7 +509,17 @@ initCtpHistograms() {
   CHECK( registerTH1("ctpStatus1", "CTP Status Word 1; Bit; Number of times ON", 24, -0.5, 23.5) );
   CHECK( registerTH1("ctpStatus2", "CTP Status Word 2; Bit; Number of times ON", 24, -0.5, 23.5) );
 
+  CHECK( registerTH1("l1ItemsBPSimMismatch","Sim mismatch L1 Items before prescale", 512, 0, 512) );
+  CHECK( registerTH1("l1ItemsBPSimMismatchItems","Sim mismatch L1 Items before prescale, mismatched ones only", 512, 0, 512) );
+
   // fix cosmetics of some histos, e.g. bin labels
+
+  TH1F_LW* l1ItemsBPSimMismatch = getTH1("l1ItemsBPSimMismatch");
+  for(const TrigConf::TriggerItem * item : m_configSvc->ctpConfig()->menu().itemVector()) {
+    if(item==nullptr) continue;
+    string label = item->name() + " (CTP ID " + boost::lexical_cast<string,int>(item->ctpId())+ ")";
+    l1ItemsBPSimMismatch->GetXaxis()->SetBinLabel(item->ctpId()+1,label.c_str());
+  }
 
   std::map<int, std::string> errorSummaryBinLabels;
   errorSummaryBinLabels[1] = "CTP/ROD BCID Offset";
@@ -497,6 +538,10 @@ initCtpHistograms() {
   errorSummaryBinLabels[14] = "CTP sim. mismatch";
   errorSummaryBinLabels[15] = "Incomplete fragment";
   errorSummaryBinLabels[16] = "Missing orbit pulse";
+  errorSummaryBinLabels[17] = "MuCTPI/noRPC candidate mismatch";
+  errorSummaryBinLabels[18] = "MuCTPI/noTGC candidate mismatch";
+  errorSummaryBinLabels[19] = "RPC/noMuCTPI candidate mismatch";
+  errorSummaryBinLabels[20] = "TGC/noMuCTPI candidate mismatch";
 
   TProfile_LW* errorSummary = getTProfile("errorSummary");
   TH2F_LW* errorSummaryPerLumiBlock = getTH2("errorSummaryPerLumiBlock");
@@ -516,7 +561,8 @@ initCtpHistograms() {
     incompleteFragmentType->GetXaxis()->SetBinLabel(3, "MuCTPI RIO");
     incompleteFragmentType->GetXaxis()->SetBinLabel(4, "MuCTPI RDO");
     incompleteFragmentType->GetXaxis()->SetBinLabel(5, "RoIBResult");
-    incompleteFragmentType->GetXaxis()->SetBinLabel(6, "Any in event");
+    incompleteFragmentType->GetXaxis()->SetBinLabel(6, "TGC SL RDO");
+    incompleteFragmentType->GetXaxis()->SetBinLabel(7, "RPC SL RDO");
   }
 
   return StatusCode::SUCCESS;
@@ -571,6 +617,17 @@ initMuctpiHistograms() {
   //Number of candidates in each region
   CHECK( registerTH1("nCandidates_secLoc", "All candidates by sector location; Sector location; Candidates", 3, -0.5, 2.5) );
   
+  //Plots for comparing MuCTPI output to output of RPC and TGC SL
+  CHECK( registerTH2("muctpiNoRPCCandfound", "MuCTPI BA candidate with no equivalent candidate in RPC SL r/o, Sector ID vs. RoI number", 30, -0.5, 29.5, 64, -0.5, 63.5) );
+  CHECK( registerTH2("rpcNoMuCTPICandfound", "RPC SL r/o candidate with no equivalent candidate in MuCTPI r/o, Sector ID vs. RoI number", 30, -0.5, 29.5, 64, -0.5, 63.5) );
+
+  CHECK( registerTH2("muctpiNoTGCecCandfound", "MuCTPI EC candidate with no equivalent candidate in TGC SL r/o, Sector ID vs. RoI number", 150, -0.5, 149.5, 100, -0.5, 99.5) );
+  CHECK( registerTH2("tgcecNoMuCTPICandfound", "TGC EC SL r/o candidate with no equivalent candidate in MuCTPI r/o, Sector ID vs. RoI number", 150, -0.5, 149.5, 100, -0.5, 99.5) );
+  CHECK( registerTH2("muctpiNoTGCfwCandfound", "MuCTPI FW candidate with no equivalent candidate in TGC SL r/o, Sector ID vs. RoI number", 64, -0.5, 63.5, 50, -0.5, 49.5) );
+  CHECK( registerTH2("tgcfwNoMuCTPICandfound", "TGC FW SL r/o candidate with no equivalent candidate in MuCTPI r/o, Sector ID vs. RoI number", 64, -0.5, 63.5, 50, -0.5, 49.5) );
+
+ 
+
   //Fix cosmetics for some plots, i.e. bin labels
   TH1F_LW* nCandidates_secLoc = getTH1("nCandidates_secLoc");
   if (nCandidates_secLoc) {
@@ -623,7 +680,7 @@ initRoIHistograms() {
 }
 
 void TrigT1CTMonitoring::BSMonitoring::
-doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO> theMuCTPI_RIO) {
+doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO> theMuCTPI_RIO, const DataHandle <RpcSectorLogicContainer> theRPCContainer, const DataHandle <Muon::TgcCoinDataContainer> theTGCContainer) {
 
   TProfile_LW* errorSummary = getTProfile("errorSummary");
   TH2F_LW* errorSummaryPerLumiBlock = getTH2("errorSummaryPerLumiBlock");
@@ -668,14 +725,29 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
   TH2F_LW *nCandidatesPt = getTH2("nCandidatesPt");
   TH2F_LW *nCandidatesDataWordPt = getTH2("nCandidatesDataWordPt");
   TH2F_LW *barrelSectorIDOverlapBits = getTH2("barrelSectorIDOverlapBits");
+  TH2F_LW *muctpiNoRPCCandfound = getTH2("muctpiNoRPCCandfound");
+  TH2F_LW *rpcNoMuCTPICandfound = getTH2("rpcNoMuCTPICandfound");
+  TH2F_LW *muctpiNoTGCecCandfound = getTH2("muctpiNoTGCecCandfound");
+  TH2F_LW *tgcecNoMuCTPICandfound = getTH2("tgcecNoMuCTPICandfound");
+  TH2F_LW *muctpiNoTGCfwCandfound = getTH2("muctpiNoTGCfwCandfound");
+  TH2F_LW *tgcfwNoMuCTPICandfound = getTH2("tgcfwNoMuCTPICandfound");
+
   if ( !barrelRoiSectorID || !endcapRoiSectorID || !forwardRoiSectorID || 
        !barrelRoiSectorIDAll || !endcapRoiSectorIDAll || !forwardRoiSectorIDAll || 
        !barrelNCandSectorID || !endcapNCandSectorID || !forwardNCandSectorID || 
-       !nCandidatesPt || !barrelSectorIDOverlapBits ) {
+       !nCandidatesPt || !barrelSectorIDOverlapBits || !muctpiNoRPCCandfound ||
+       !rpcNoMuCTPICandfound || !muctpiNoTGCecCandfound || !tgcecNoMuCTPICandfound ||
+       !muctpiNoTGCfwCandfound || !tgcfwNoMuCTPICandfound) {
     ATH_MSG(FATAL) << "Problems finding 2D histograms for MuCTPI!"
 	<< endreq;
     return;
   }
+
+  // maps for comapring MuCTPI and RPC/TGC candidates
+  std::map <std::string,MuCTPI_DataWord_Decoder> muctpiCandidates;
+  std::map <std::string, RpcSLTriggerHit* > rpcCandidates;
+  std::map <std::string, Muon::TgcCoinData* > tgcCandidates;
+
 
   // Get the data
   MuCTPI_MultiplicityWord_Decoder multWord(theMuCTPI_RDO->candidateMultiplicity(), m_inclusiveTriggerThresholds);
@@ -714,19 +786,31 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
   for ( std::vector<uint32_t>::const_iterator it = vDataWords.begin();
         it != vDataWords.end(); ++it ) {
     dataWord.setWord(*it);
+    std::ostringstream keystring;
+
     //count all candidates for sector multiplicities    
     if (dataWord.getSectorLocation() == MuCTPI_RDO::BARREL) {
       ++ncand[0][dataWord.getSectorID(1)+32*dataWord.getHemisphere()];
+      keystring << "BA" << dataWord.getSectorID(1)+32*dataWord.getHemisphere() <<"-RoI" << dataWord.getRoiNumber()
+		<< "-Pt" << dataWord.getPt();
     }
     else if (dataWord.getSectorLocation() == MuCTPI_RDO::ENDCAP) { 
       ++ncand[1][dataWord.getSectorID()+48*dataWord.getHemisphere()];
+      keystring << "EC" << dataWord.getSectorID()+48*dataWord.getHemisphere() <<"-RoI" << dataWord.getRoiNumber()
+		<< "-Pt" << dataWord.getPt();
     } 
     else if (dataWord.getSectorLocation() == MuCTPI_RDO::FORWARD) { 
       ++ncand[2][dataWord.getSectorID()+24*dataWord.getHemisphere()]; 
+      keystring << "FW" << dataWord.getSectorID()+24*dataWord.getHemisphere() <<"-RoI" << dataWord.getRoiNumber()
+		<< "-Pt" << dataWord.getPt();
     } 
 
+    
     if (dataWord.getBCID() == multWord.getBCID()) {
-      //Use only candidates from the same BCID for overlap histograms
+      // Fill the muctpi map for later comparision to RPC and TGC
+      muctpiCandidates.insert ( std::pair<std::string,MuCTPI_DataWord_Decoder>(keystring.str(),dataWord) );
+ 
+     //Use only candidates from the same BCID for overlap histograms
       if (dataWord.getOverlapBits()) {
 	if (dataWord.getSectorLocation() == MuCTPI_RDO::ENDCAP) {
 	  endcapSectorIDOverlapBit->Fill(dataWord.getSectorID()+48*dataWord.getHemisphere());
@@ -922,7 +1006,175 @@ doMuctpi(const DataHandle<MuCTPI_RDO> theMuCTPI_RDO, const DataHandle<MuCTPI_RIO
       }
     }
   }
+
+  const EventInfo* eventInfo = 0; 
+  StatusCode sc = StatusCode::SUCCESS;
+  sc = evtStore()->retrieve(eventInfo);
+      if (!sc.isSuccess()) {
+         ATH_MSG(WARNING) << "Could not retrieve EventInfo from StoreGate" << endreq;
+      }
+
+  // Get candidates from TGC and RPC SLs for comparisons
+
+  RpcSectorLogicContainer::const_iterator it_rpc = theRPCContainer->begin();
+  for ( ; it_rpc !=theRPCContainer-> end() ; ++it_rpc )
+    {
+      // Loop over the trigger hits of each sector
+      RpcSectorLogic::const_iterator it_rpc_hit = (*it_rpc) -> begin();
+      for ( ; it_rpc_hit != (*it_rpc) -> end() ; ++it_rpc_hit )
+	{
+	  if (!(*it_rpc_hit) -> isInput() && (*it_rpc_hit) -> rowinBcid() == 1) {
+	    std::ostringstream rpckey;
+	    rpckey << "BA" << (*it_rpc)->sectorId() <<"-RoI" << (*it_rpc_hit) -> roi()
+		   << "-Pt" << (*it_rpc_hit) -> ptId();
+	    rpcCandidates.insert (std::pair<std::string, RpcSLTriggerHit* >(rpckey.str(),(*it_rpc_hit)));
+	  }
+
+	}	
+    }
+
+
+  Muon::TgcCoinDataContainer::const_iterator it_tgc;
+  Muon::TgcCoinDataCollection::const_iterator it_tgc_col;
+  for (it_tgc = theTGCContainer->begin(); it_tgc != theTGCContainer->end(); it_tgc++) {
+    for (it_tgc_col = (*it_tgc)->begin(); it_tgc_col != (*it_tgc)->end(); it_tgc_col++) {
+      if ((*it_tgc_col)->pt() != 0 ) {
+	std::ostringstream tgckey;
+	std::string sys = "FW";
+	if ((*it_tgc_col)->isForward()) {  // Forward sector, account for different numbering scheme in SL readout
+	  int secID = (*it_tgc_col)->phi();
+	  if (secID == 24) secID = 0;
+	  tgckey << sys << secID+(24*(*it_tgc_col)->isAside()) <<"-RoI" << (*it_tgc_col)->roi()
+		 << "-Pt" << (*it_tgc_col)->pt();
+	} else { // Endcap sector, account for different numbering scheme in SL readout
+	  std::string sys = "EC";
+	  int secID =  (*it_tgc_col)->phi()+1;
+	  if (secID == 48 ) secID = 0;
+	  if (secID == 49 ) secID = 1;
+	  tgckey << sys << secID + (48*(*it_tgc_col)->isAside()) <<"-RoI" << (*it_tgc_col)->roi()
+		 << "-Pt" << (*it_tgc_col)->pt();
+	}
+	tgcCandidates.insert(std::pair<std::string, Muon::TgcCoinData* >(tgckey.str(),(*it_tgc_col)));
+      }
+    }
+  }
+
+  // Now loop over MuCTPI/RPC/TGC maps and try to find matching keys, and plot candidates where no match is found
+  // loop over MUCTPI candidates and try to find match in RPC/TGC maps
+  bool miRPCmismatch = false;
+  bool miTGCmismatch = false;
+  for (std::map<std::string,MuCTPI_DataWord_Decoder>::const_iterator it_mui = muctpiCandidates.begin(); 
+       it_mui != muctpiCandidates.end(); ++it_mui) {
+    int tgcnum = tgcCandidates.count(it_mui->first); 
+    int rpcnum = rpcCandidates.count(it_mui->first); 
+    if (tgcnum > 0 || rpcnum > 0 ) {
+      ATH_MSG(DEBUG) << "MuCTPI to RPC/TGC match found: MuCTPI key/ MuCTPI BCID / #TGC matches / #RPC matches: "
+		     << it_mui->first << " / " << it_mui->second.getBCID() << " / " 
+		     << tgcnum << " / " << rpcnum << endreq;
+    } else {
+      if ( (it_mui->first).substr(0,2) == "BA" )  { 
+	int baSecID = (it_mui->second).getSectorID(1)+32*(it_mui->second).getHemisphere();
+	int baRoIID = (it_mui->second).getRoiNumber();
+	muctpiNoRPCCandfound->Fill(baRoIID,baSecID);
+	miRPCmismatch = true;
+      } else if ( (it_mui->first).substr(0,2) == "EC" ) {
+	int ecSecID = (it_mui->second).getSectorID()+48*(it_mui->second).getHemisphere();
+	int ecRoIID = (it_mui->second).getRoiNumber();
+	muctpiNoTGCecCandfound->Fill(ecRoIID,ecSecID);
+	miTGCmismatch= true;
+      }else if ( (it_mui->first).substr(0,2) == "FW" ) {
+	int fwSecID = (it_mui->second).getSectorID()+24*(it_mui->second).getHemisphere();
+	int fwRoIID = (it_mui->second).getRoiNumber();
+	muctpiNoTGCfwCandfound->Fill(fwRoIID,fwSecID);
+	miTGCmismatch= true;
+      } else {
+	ATH_MSG(WARNING) << "Invalid string label in MuCTPI to RPC/TGC map: " 
+			 << (it_mui->first).substr(0,2) << endreq;
+      }
+      ATH_MSG(WARNING) << "No Muctpi to RPC/TGC match found: MuCTPI key / MuCTPI BCID: " 
+		       << it_mui->first  << " / " << it_mui->second.getBCID() << endreq;
+    }
+  }
+
+  if (miRPCmismatch) {
+     errorSummary->Fill(17,1);
+     errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 17);
+     errorPerLumiBlock->Fill(m_currentLumiBlock);
+  } else {
+    errorSummary->Fill(17,0);
+  }
+  if (miTGCmismatch) {
+     errorSummary->Fill(18,1);
+     errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 18);
+     errorPerLumiBlock->Fill(m_currentLumiBlock);
+  } else {
+    errorSummary->Fill(18,0);
+  }
+
+
+  bool rpcMImismatch = false;
+  // loop over RPC candidates and try to find match in Muctpi map
+  for (std::map<std::string, RpcSLTriggerHit*>::const_iterator it_rpc = rpcCandidates.begin(); 
+       it_rpc != rpcCandidates.end(); ++it_rpc) {
+    int muinum = muctpiCandidates.count(it_rpc->first); 
+    if (muinum > 0) {
+      ATH_MSG(DEBUG) << " RPC to Muctpi match found: RPC key / RPC BCID / # matches: "
+		     << it_rpc->first << " / " <<  it_rpc->second->rowinBcid()  << " / " 
+		     << muinum << endreq;
+    } else {
+      int idEnd = (it_rpc->first).find("-RoI");
+      int secID = std::stoi((it_rpc->first).substr(2,idEnd-2));
+      int roiID = (it_rpc->second)->roi();
+      rpcNoMuCTPICandfound->Fill(roiID,secID);
+      ATH_MSG(WARNING) << "No RPC to Muctpi  match found: RPC key / RPC BCID: " 
+		       << it_rpc->first << " / " <<  it_rpc->second->rowinBcid() << endreq;
+      rpcMImismatch =true;
+    }
+  }
+  if (rpcMImismatch) {
+     errorSummary->Fill(19,1);
+     errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 19);
+     errorPerLumiBlock->Fill(m_currentLumiBlock);
+  } else {
+    errorSummary->Fill(19,0);
+  }
+  bool tgcMImismatch = false;
+  // loop over TGC candidates and try to find match in Muctpi map
+  for (std::map<std::string, Muon::TgcCoinData* >::const_iterator it_tgc = tgcCandidates.begin(); 
+       it_tgc != tgcCandidates.end(); ++it_tgc) {
+    int muinum = muctpiCandidates.count(it_tgc->first); 
+    if (muinum > 0) {
+      ATH_MSG(DEBUG) << "TGC to Muctpi match found: TGC key / TGC BCID / # matches: "
+		     << it_tgc->first  << " / " << (int)TgcDigit::BC_CURRENT << muinum << endreq;
+    } else {
+      int idEnd = (it_tgc->first).find("-RoI");
+      int secID = std::stoi((it_tgc->first).substr(2,idEnd-2));
+      if ( (it_tgc->first).substr(0,2) == "EC" ) {
+	int ecRoIID = (it_tgc->second)->roi();
+	tgcecNoMuCTPICandfound->Fill(ecRoIID,secID);
+      }else if ( (it_tgc->first).substr(0,2) == "FW" ) {
+	int fwRoIID = (it_tgc->second)->roi();
+	tgcfwNoMuCTPICandfound->Fill(fwRoIID,secID);
+      } else {
+	ATH_MSG(WARNING) << "Invalid string label in TGC to MuCTPI map: " 
+			 << (it_tgc->first).substr(0,2) << endreq;
+      }
+      ATH_MSG(WARNING) << "No TGC to Muctpi match found: TGC key: " << it_tgc->first << endreq;
+      tgcMImismatch =true;
+    }
+  }
+  if (tgcMImismatch) {
+     errorSummary->Fill(20,1);
+     errorSummaryPerLumiBlock->Fill(m_currentLumiBlock, 20);
+     errorPerLumiBlock->Fill(m_currentLumiBlock);
+  } else {
+    errorSummary->Fill(20,0);
+  }
 }
+
+
+
+
 
 void TrigT1CTMonitoring::BSMonitoring::
 doCtp(const DataHandle<CTP_RDO> theCTP_RDO,const DataHandle<CTP_RIO> theCTP_RIO) {
@@ -1515,6 +1767,8 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
   TProfile_LW *errorSummary = getTProfile("errorSummary");
   TH2F_LW* errorSummaryPerLumiBlock = getTH2("errorSummaryPerLumiBlock");
   TH1F_LW *errorPerLumiBlock = getTH1("errorPerLumiBlock");
+  TH1F_LW* l1ItemsBPSimMismatch = getTH1("l1ItemsBPSimMismatch");
+  TH1F_LW* l1ItemsBPSimMismatchItems = getTH1("l1ItemsBPSimMismatchItems");
 
   const CTP_RDO* theCTP_RDO_Rerun = 0;
   ATH_MSG(DEBUG) << "Retrieving CTP_RDO from SG with key CTP_RDO_Rerun" << endreq;
@@ -1539,26 +1793,27 @@ StatusCode TrigT1CTMonitoring::BSMonitoring::compareRerun(const CTP_BC &bunchCro
   ATH_MSG(DEBUG) << "Comparing TBP from CTP_RDO objects with keys CTP_RDO (from data) and CTP_RDO_Rerun (from simulation)" << endreq;
   
   const std::bitset<512> currentTBP(bunchCrossing.getTBP());
-  const std::bitset<512> currentTBP_rerun(ctp_bc_rerun.at(0).getTBP()); 
-
+  const std::bitset<512> currentTBP_rerun(ctp_bc_rerun.at(0).getTBP());
+ 
   if ( currentTBP != currentTBP_rerun ) {
-
     for ( TrigConf::TriggerItem* item: m_configSvc->ctpConfig()->menu().items() ) {
 
       std::vector<unsigned int> randoms;
       item->topNode()->getAllRandomTriggers(randoms);
       
       //do not include random and non-simulated triggers in this test, so skip those
-      bool skip = randoms.size()>0 || item->name().find("L1_TRT") != string::npos;
+      bool skip = randoms.size()>0 || item->name().find("L1_TRT") != string::npos || item->name().find("L1_ZB") != string::npos || item->name().find("L1_AFP") != string::npos;
 
       if( skip ) continue;
 
       bool tbp       = currentTBP.test( item->ctpId() );
       bool tbp_rerun = currentTBP_rerun.test( item->ctpId() );
-      if ( tbp !=  tbp_rerun ) {
+      if ( tbp !=  tbp_rerun) {
          ATH_MSG(WARNING) << "CTPSimulation TBP / TPB_rerun mismatch!! For L1Item '" << item->name() << "' (CTP ID " << item->ctpId() << "): data=" 
                          << (tbp?"pass":"fail") << " != simulation=" << (tbp_rerun?"pass":"fail") << endreq;
         Mismatch=1;
+	l1ItemsBPSimMismatch->Fill(item->ctpId(),1);
+	l1ItemsBPSimMismatchItems->getROOTHist()->Fill( (item->name()).c_str(), 1 );
       }
     }
   }
