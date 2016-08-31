@@ -2,6 +2,7 @@
 
 from MuonPerformanceAlgs import CommonMuonTPConfig, ZmumuTPTrigAnalysis, ZmumuTPIsolAnalysis
 
+#========================================================================================================================
 def AddConfiguredMuonTPAlg(name_suffix  = "MuonProbe",
                             MatchContainer = "Muons",
                             doIso = True,
@@ -13,238 +14,148 @@ def AddConfiguredMuonTPAlg(name_suffix  = "MuonProbe",
                             writeNtuple    = False,
                             doClosure      = False,
                             doDRSys    = False,
-                            doDPhiTPSys    = False,
-                            doProbeCharSys = False,
+                            doMinimalCutsTree = False,
                             doVeryLooseProbes = False,
                             doLooseProbes   = False,
                             doMediumProbes  = False,
                             doTightProbes   = False,
                             doHighPtProbes   = False,
                             doTruthProbes   = False,
+                            doLooseTrackOnly=True,
+                            doLoose=True,
+                            doTight=True,
+                            doGradient=True,
+                            doGradientLoose=True,
                             DoProbeMatchPlots=True,
                             ProduceEfficiencies=False,
                             doL1 = False,
-                            doL2 = False, doEF = False,
-                            doHLT = False
+                            doHLT = False,
+                            IsRunOnDAOD=False
                 ):
     
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.AppMgr import ToolSvc
     job = AlgSequence()
 
-    MuonContainerToUse = "Muons"
-    if hasattr(job, "MuonQualityUpdater"):
-        MuonContainerToUse = "UpdatedMuons"
 
-    ProbeContainer = MuonContainerToUse
+    ProbeContainer = CommonMuonTPConfig.GetRightMuonContainer()
     theAlg = CommonMuonTPConfig.AddTagProbeAlg(name="ZmumuMuProbeAlg_%s"%name_suffix, ProbeCont=ProbeContainer, MatchCont=MatchContainer)
     theAlg.TopLevelFolderName = "ZmumuTPMuon"
 
     SelectionTools = []
     
+    if doMinimalCutsTree:
+        SelecToolOC_Minimal = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_MinimalCuts_%s"%name_suffix,EffiFlag="%s_MinimalCuts_LooseMuonProbes"%name_suffix, ProbeType="Loose",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
+        SelecToolOC_Minimal.UseLooseProbes = True
+        SelecToolOC_Minimal.TagPtCut=1000
+        SelecToolOC_Minimal.ProbePtCut=1000
+        SelecToolOC_Minimal.TagD0Cut = -1
+        SelecToolOC_Minimal.TagD0SignCut = -1
+        SelecToolOC_Minimal.TagZ0Cut = -1
+        SelecToolOC_Minimal.ProbeD0Cut = -1
+        SelecToolOC_Minimal.ProbeD0SignCut = -1
+        SelecToolOC_Minimal.ProbeZ0Cut = -1
+        SelecToolOC_Minimal.DoTagIsolation = False
+        SelecToolOC_Minimal.DoProbeIsolation = False
+        SelecToolOC_Minimal.AcceptOppCharge=True
+        SelecToolOC_Minimal.AcceptSameCharge=True
+        SelectionTools.append(SelecToolOC_Minimal)
+    
+    # for high-eta muons
+    if doVeryLooseProbes:
+        SelecToolsOC_VeryLooseProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_VeryLooseProbes_%s"%name_suffix,EffiFlag="%s_OC_VeryLooseProbes"%name_suffix, ProbeType="VeryLoose",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
+        # no IP cuts
+        SelecToolsOC_VeryLooseProbes.UseVeryLooseProbes = True
+        SelecToolsOC_VeryLooseProbes.TagD0Cut = -1
+        SelecToolsOC_VeryLooseProbes.TagD0SignCut = -1
+        SelecToolsOC_VeryLooseProbes.TagZ0Cut = -1
+        SelecToolsOC_VeryLooseProbes.ProbeD0Cut = -1
+        SelecToolsOC_VeryLooseProbes.ProbeD0SignCut = -1
+        SelecToolsOC_VeryLooseProbes.ProbeZ0Cut = -1
+        # turn on the pivot plane eta/phi extrapolation - used for CSC inefficiency crossschecks
+        SelecToolsOC_VeryLooseProbes.SkipTriggerPivotPlaneDr = False
+        SelectionTools.append(SelecToolsOC_VeryLooseProbes)
+        
+        SelecToolsSC_VeryLooseProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_VeryLooseProbes_%s"%name_suffix,EffiFlag="%s_SC_VeryLooseProbes"%name_suffix, ProbeType="VeryLoose", SameSign=True,forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
+        SelecToolsSC_VeryLooseProbes.UseVeryLooseProbes = True
+        SelecToolsSC_VeryLooseProbes.TagD0Cut = -1
+        SelecToolsSC_VeryLooseProbes.TagD0SignCut = -1
+        SelecToolsSC_VeryLooseProbes.TagZ0Cut = -1
+        SelecToolsSC_VeryLooseProbes.ProbeD0Cut = -1
+        SelecToolsSC_VeryLooseProbes.ProbeD0SignCut = -1
+        SelecToolsSC_VeryLooseProbes.ProbeZ0Cut = -1
+        # turn on the pivot plane eta/phi extrapolation - used for CSC inefficiency crossschecks
+        SelecToolsSC_VeryLooseProbes.SkipTriggerPivotPlaneDr = False
+        SelectionTools.append(SelecToolsSC_VeryLooseProbes)
+    
     if doLooseProbes:
-        SelecToolsOC_LooseProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_LooseProbes_%s"%name_suffix,EffiFlag="%s_OC_LooseProbes"%name_suffix, ProbeType="Loose")
+        SelecToolsOC_LooseProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_LooseProbes_%s"%name_suffix,EffiFlag="%s_OC_LooseProbes"%name_suffix, ProbeType="Loose",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
         SelecToolsOC_LooseProbes.UseLooseProbes = True
         SelectionTools.append(SelecToolsOC_LooseProbes)
         
-        SelecToolsSC_LooseProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_LooseProbes_%s"%name_suffix,EffiFlag="%s_SC_LooseProbes"%name_suffix, ProbeType="Loose", SameSign=True)
+        # configure one additional instance without d0 cuts, to measure the efficiency of IP requirements in data and MC
+        SelecToolsOC_LooseProbes_noProbeIP = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_LooseProbes_noProbeIP_%s"%name_suffix,EffiFlag="%s_OC_LooseProbes_noProbeIP"%name_suffix, ProbeType="Loose",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
+        SelecToolsOC_LooseProbes_noProbeIP.UseLooseProbes = True
+        SelecToolsOC_LooseProbes_noProbeIP.TagD0Cut = -1
+        SelecToolsOC_LooseProbes_noProbeIP.TagD0SignCut = -1
+        SelecToolsOC_LooseProbes_noProbeIP.TagZ0Cut = -1
+        SelecToolsOC_LooseProbes_noProbeIP.ProbeD0Cut = -1
+        SelecToolsOC_LooseProbes_noProbeIP.ProbeD0SignCut = -1
+        SelecToolsOC_LooseProbes_noProbeIP.ProbeZ0Cut = -1
+        SelectionTools.append(SelecToolsOC_LooseProbes_noProbeIP)
+        
+        
+        SelecToolsSC_LooseProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_LooseProbes_%s"%name_suffix,EffiFlag="%s_SC_LooseProbes"%name_suffix, ProbeType="Loose", SameSign=True,forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
         SelecToolsSC_LooseProbes.UseLooseProbes = True
         SelectionTools.append(SelecToolsSC_LooseProbes)
-
         
-        if doDPhiTPSys:
-            SelecToolsOC_LooseProbesDPhiCut = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_LooseProbesDPhiCut_%s"%name_suffix,EffiFlag="%s_OC_LooseProbesDPhiCut"%name_suffix, ProbeType="Loose")
-            SelecToolsOC_LooseProbesDPhiCut.DeltaPhiCut  = 3.04
-            SelecToolsOC_LooseProbesDPhiCut.IsNominal = False
-            SelectionTools.append(SelecToolsOC_LooseProbesDPhiCut)
-            
-            SelecToolsSC_LooseProbesDPhiCut = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_LooseProbesDPhiCut_%s"%name_suffix,EffiFlag="%s_SC_LooseProbesDPhiCut"%name_suffix, ProbeType="Loose", SameSign=True)
-            SelecToolsSC_LooseProbesDPhiCut.DeltaPhiCut  = 3.04
-            SelecToolsSC_LooseProbesDPhiCut.IsNominal = False
-            SelectionTools.append(SelecToolsSC_LooseProbesDPhiCut)
-
-        if doProbeCharSys:
-            SelecToolsOC_LooseProbesPos = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_LooseProbesPos_%s"%name_suffix,EffiFlag="%s_OC_LooseProbesPos"%name_suffix, ProbeType="Loose")
-            SelecToolsOC_LooseProbesPos.doProbeChargeSys = True
-            SelecToolsOC_LooseProbesPos.ProbeCharge = "positive"
-            SelecToolsOC_LooseProbesPos.IsNominal = False
-            SelectionTools.append(SelecToolsOC_LooseProbesPos)
-
-            SelecToolsOC_LooseProbesNeg = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_LooseProbesNeg_%s"%name_suffix,EffiFlag="%s_OC_LooseProbesNeg"%name_suffix, ProbeType="Loose")
-            SelecToolsOC_LooseProbesNeg.doProbeChargeSys = True
-            SelecToolsOC_LooseProbesNeg.IsNominal = False
-            SelecToolsOC_LooseProbesNeg.ProbeCharge = "negative"
-            SelectionTools.append(SelecToolsOC_LooseProbesNeg)
-            
-            
-            SelecToolsSC_LooseProbesPos = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_LooseProbesPos_%s"%name_suffix,EffiFlag="%s_SC_LooseProbesPos"%name_suffix, ProbeType="Loose", SameSign=True)
-            SelecToolsSC_LooseProbesPos.doProbeChargeSys = True
-            SelecToolsSC_LooseProbesPos.ProbeCharge = "positive"
-            SelecToolsSC_LooseProbesPos.IsNominal = False
-            SelectionTools.append(SelecToolsSC_LooseProbesPos)
-
-            SelecToolsSC_LooseProbesNeg = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_LooseProbesNeg_%s"%name_suffix,EffiFlag="%s_SC_LooseProbesNeg"%name_suffix, ProbeType="Loose", SameSign=True)
-            SelecToolsSC_LooseProbesNeg.doProbeChargeSys = True
-            SelecToolsSC_LooseProbesNeg.IsNominal = False
-            SelecToolsSC_LooseProbesNeg.ProbeCharge = "negative"
-            SelectionTools.append(SelecToolsSC_LooseProbesNeg)
-
-    
+        SelecToolsSC_LooseProbes_noProbeIP = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_LooseProbes_noProbeIP_%s"%name_suffix,EffiFlag="%s_SC_LooseProbes_noProbeIP"%name_suffix, ProbeType="Loose", SameSign=True,forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
+        SelecToolsSC_LooseProbes_noProbeIP.UseLooseProbes = True
+        SelecToolsSC_LooseProbes_noProbeIP.TagD0Cut = -1
+        SelecToolsSC_LooseProbes_noProbeIP.TagD0SignCut = -1
+        SelecToolsSC_LooseProbes_noProbeIP.TagZ0Cut = -1
+        SelecToolsSC_LooseProbes_noProbeIP.ProbeD0Cut = -1
+        SelecToolsSC_LooseProbes_noProbeIP.ProbeD0SignCut = -1
+        SelecToolsSC_LooseProbes_noProbeIP.ProbeZ0Cut = -1
+        SelectionTools.append(SelecToolsSC_LooseProbes_noProbeIP)
+        
     if doMediumProbes:
-        SelecToolsOC_MediumProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_MediumProbes_%s"%name_suffix,EffiFlag="%s_OC_MediumProbes"%name_suffix, ProbeType="Medium")
+        SelecToolsOC_MediumProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_MediumProbes_%s"%name_suffix,EffiFlag="%s_OC_MediumProbes"%name_suffix, ProbeType="Medium",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
         SelecToolsOC_MediumProbes.UseMediumProbes = True
         SelectionTools.append(SelecToolsOC_MediumProbes)
         
-        SelecToolsSC_MediumProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_MediumProbes_%s"%name_suffix,EffiFlag="%s_SC_MediumProbes"%name_suffix, ProbeType="Medium", SameSign=True)
+        SelecToolsSC_MediumProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_MediumProbes_%s"%name_suffix,EffiFlag="%s_SC_MediumProbes"%name_suffix, ProbeType="Medium",forTriggerEff=doTrig, SameSign=True,IsRunOnDAOD=IsRunOnDAOD)
         SelecToolsSC_MediumProbes.UseMediumProbes = True
         SelectionTools.append(SelecToolsSC_MediumProbes)
 
-        
-        if doDPhiTPSys:
-            SelecToolsOC_MediumProbesDPhiCut = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_MediumProbesDPhiCut_%s"%name_suffix,EffiFlag="%s_OC_MediumProbesDPhiCut"%name_suffix, ProbeType="Medium")
-            SelecToolsOC_MediumProbesDPhiCut.DeltaPhiCut  = 3.04
-            SelecToolsOC_MediumProbesDPhiCut.IsNominal = False
-            SelectionTools.append(SelecToolsOC_MediumProbesDPhiCut)
-            
-            SelecToolsSC_MediumProbesDPhiCut = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_MediumProbesDPhiCut_%s"%name_suffix,EffiFlag="%s_SC_MediumProbesDPhiCut"%name_suffix, ProbeType="Medium", SameSign=True)
-            SelecToolsSC_MediumProbesDPhiCut.DeltaPhiCut  = 3.04
-            SelecToolsSC_MediumProbesDPhiCut.IsNominal = False
-            SelectionTools.append(SelecToolsSC_MediumProbesDPhiCut)
-
-        if doProbeCharSys:
-            SelecToolsOC_MediumProbesPos = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_MediumProbesPos_%s"%name_suffix,EffiFlag="%s_OC_MediumProbesPos"%name_suffix, ProbeType="Medium")
-            SelecToolsOC_MediumProbesPos.doProbeChargeSys = True
-            SelecToolsOC_MediumProbesPos.ProbeCharge = "positive"
-            SelecToolsOC_MediumProbesPos.IsNominal = False
-            SelectionTools.append(SelecToolsOC_MediumProbesPos)
-
-            SelecToolsOC_MediumProbesNeg = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_MediumProbesNeg_%s"%name_suffix,EffiFlag="%s_OC_MediumProbesNeg"%name_suffix, ProbeType="Medium")
-            SelecToolsOC_MediumProbesNeg.doProbeChargeSys = True
-            SelecToolsOC_MediumProbesNeg.IsNominal = False
-            SelecToolsOC_MediumProbesNeg.ProbeCharge = "negative"
-            SelectionTools.append(SelecToolsOC_MediumProbesNeg)
-            
-            
-            SelecToolsSC_MediumProbesPos = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_MediumProbesPos_%s"%name_suffix,EffiFlag="%s_SC_MediumProbesPos"%name_suffix, ProbeType="Medium", SameSign=True)
-            SelecToolsSC_MediumProbesPos.doProbeChargeSys = True
-            SelecToolsSC_MediumProbesPos.ProbeCharge = "positive"
-            SelecToolsSC_MediumProbesPos.IsNominal = False
-            SelectionTools.append(SelecToolsSC_MediumProbesPos)
-
-            SelecToolsSC_MediumProbesNeg = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_MediumProbesNeg_%s"%name_suffix,EffiFlag="%s_SC_MediumProbesNeg"%name_suffix, ProbeType="Medium", SameSign=True)
-            SelecToolsSC_MediumProbesNeg.doProbeChargeSys = True
-            SelecToolsSC_MediumProbesNeg.IsNominal = False
-            SelecToolsSC_MediumProbesNeg.ProbeCharge = "negative"
-            SelectionTools.append(SelecToolsSC_MediumProbesNeg)
-
     if doTightProbes:
-        SelecToolsOC_TightProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_TightProbes_%s"%name_suffix,EffiFlag="%s_OC_TightProbes"%name_suffix, ProbeType="Tight")
+        SelecToolsOC_TightProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_TightProbes_%s"%name_suffix,EffiFlag="%s_OC_TightProbes"%name_suffix, ProbeType="Tight",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
         SelecToolsOC_TightProbes.UseTightProbes = True
         SelectionTools.append(SelecToolsOC_TightProbes)
         
-        SelecToolsSC_TightProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_TightProbes_%s"%name_suffix,EffiFlag="%s_SC_TightProbes"%name_suffix, ProbeType="Tight", SameSign=True)
+        SelecToolsSC_TightProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_TightProbes_%s"%name_suffix,EffiFlag="%s_SC_TightProbes"%name_suffix, ProbeType="Tight",forTriggerEff=doTrig, SameSign=True,IsRunOnDAOD=IsRunOnDAOD)
         SelecToolsSC_TightProbes.UseTightProbes = True
         SelectionTools.append(SelecToolsSC_TightProbes)
 
-        
-        if doDPhiTPSys:
-            SelecToolsOC_TightProbesDPhiCut = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_TightProbesDPhiCut_%s"%name_suffix,EffiFlag="%s_OC_TightProbesDPhiCut"%name_suffix, ProbeType="Tight")
-            SelecToolsOC_TightProbesDPhiCut.DeltaPhiCut  = 3.04
-            SelecToolsOC_TightProbesDPhiCut.IsNominal = False
-            SelectionTools.append(SelecToolsOC_TightProbesDPhiCut)
-            
-            SelecToolsSC_TightProbesDPhiCut = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_TightProbesDPhiCut_%s"%name_suffix,EffiFlag="%s_SC_TightProbesDPhiCut"%name_suffix, ProbeType="Tight", SameSign=True)
-            SelecToolsSC_TightProbesDPhiCut.DeltaPhiCut  = 3.04
-            SelecToolsSC_TightProbesDPhiCut.IsNominal = False
-            SelectionTools.append(SelecToolsSC_TightProbesDPhiCut)
-
-        if doProbeCharSys:
-            SelecToolsOC_TightProbesPos = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_TightProbesPos_%s"%name_suffix,EffiFlag="%s_OC_TightProbesPos"%name_suffix, ProbeType="Tight")
-            SelecToolsOC_TightProbesPos.doProbeChargeSys = True
-            SelecToolsOC_TightProbesPos.ProbeCharge = "positive"
-            SelecToolsOC_TightProbesPos.IsNominal = False
-            SelectionTools.append(SelecToolsOC_TightProbesPos)
-
-            SelecToolsOC_TightProbesNeg = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_TightProbesNeg_%s"%name_suffix,EffiFlag="%s_OC_TightProbesNeg"%name_suffix, ProbeType="Tight")
-            SelecToolsOC_TightProbesNeg.doProbeChargeSys = True
-            SelecToolsOC_TightProbesNeg.IsNominal = False
-            SelecToolsOC_TightProbesNeg.ProbeCharge = "negative"
-            SelectionTools.append(SelecToolsOC_TightProbesNeg)
-            
-            
-            SelecToolsSC_TightProbesPos = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_TightProbesPos_%s"%name_suffix,EffiFlag="%s_SC_TightProbesPos"%name_suffix, ProbeType="Tight", SameSign=True)
-            SelecToolsSC_TightProbesPos.doProbeChargeSys = True
-            SelecToolsSC_TightProbesPos.ProbeCharge = "positive"
-            SelecToolsSC_TightProbesPos.IsNominal = False
-            SelectionTools.append(SelecToolsSC_TightProbesPos)
-
-            SelecToolsSC_TightProbesNeg = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_TightProbesNeg_%s"%name_suffix,EffiFlag="%s_SC_TightProbesNeg"%name_suffix, ProbeType="Tight", SameSign=True)
-            SelecToolsSC_TightProbesNeg.doProbeChargeSys = True
-            SelecToolsSC_TightProbesNeg.IsNominal = False
-            SelecToolsSC_TightProbesNeg.ProbeCharge = "negative"
-            SelectionTools.append(SelecToolsSC_TightProbesNeg)
-
-
     if doHighPtProbes:
-        SelecToolsOC_HighPtProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_HighPtProbes_%s"%name_suffix,EffiFlag="%s_OC_HighPtProbes"%name_suffix, ProbeType="HighPt")
+        SelecToolsOC_HighPtProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_HighPtProbes_%s"%name_suffix,EffiFlag="%s_OC_HighPtProbes"%name_suffix, ProbeType="HighPt",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
         SelecToolsOC_HighPtProbes.UseHighPtProbes = True
         SelectionTools.append(SelecToolsOC_HighPtProbes)
         
-        SelecToolsSC_HighPtProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_HighPtProbes_%s"%name_suffix,EffiFlag="%s_SC_HighPtProbes"%name_suffix, ProbeType="HighPt", SameSign=True)
+        SelecToolsSC_HighPtProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_HighPtProbes_%s"%name_suffix,EffiFlag="%s_SC_HighPtProbes"%name_suffix, ProbeType="HighPt",forTriggerEff=doTrig, SameSign=True,IsRunOnDAOD=IsRunOnDAOD)
         SelecToolsSC_HighPtProbes.UseHighPtProbes = True
         SelectionTools.append(SelecToolsSC_HighPtProbes)
-
-        
-        if doDPhiTPSys:
-            SelecToolsOC_HighPtProbesDPhiCut = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_HighPtProbesDPhiCut_%s"%name_suffix,EffiFlag="%s_OC_HighPtProbesDPhiCut"%name_suffix, ProbeType="HighPt")
-            SelecToolsOC_HighPtProbesDPhiCut.DeltaPhiCut  = 3.04
-            SelecToolsOC_HighPtProbesDPhiCut.IsNominal = False
-            SelectionTools.append(SelecToolsOC_HighPtProbesDPhiCut)
-            
-            SelecToolsSC_HighPtProbesDPhiCut = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_HighPtProbesDPhiCut_%s"%name_suffix,EffiFlag="%s_SC_HighPtProbesDPhiCut"%name_suffix, ProbeType="HighPt", SameSign=True)
-            SelecToolsSC_HighPtProbesDPhiCut.DeltaPhiCut  = 3.04
-            SelecToolsSC_HighPtProbesDPhiCut.IsNominal = False
-            SelectionTools.append(SelecToolsSC_HighPtProbesDPhiCut)
-
-        if doProbeCharSys:
-            SelecToolsOC_HighPtProbesPos = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_HighPtProbesPos_%s"%name_suffix,EffiFlag="%s_OC_HighPtProbesPos"%name_suffix, ProbeType="HighPt")
-            SelecToolsOC_HighPtProbesPos.doProbeChargeSys = True
-            SelecToolsOC_HighPtProbesPos.ProbeCharge = "positive"
-            SelecToolsOC_HighPtProbesPos.IsNominal = False
-            SelectionTools.append(SelecToolsOC_HighPtProbesPos)
-
-            SelecToolsOC_HighPtProbesNeg = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_HighPtProbesNeg_%s"%name_suffix,EffiFlag="%s_OC_HighPtProbesNeg"%name_suffix, ProbeType="HighPt")
-            SelecToolsOC_HighPtProbesNeg.doProbeChargeSys = True
-            SelecToolsOC_HighPtProbesNeg.IsNominal = False
-            SelecToolsOC_HighPtProbesNeg.ProbeCharge = "negative"
-            SelectionTools.append(SelecToolsOC_HighPtProbesNeg)
-            
-            
-            SelecToolsSC_HighPtProbesPos = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_HighPtProbesPos_%s"%name_suffix,EffiFlag="%s_SC_HighPtProbesPos"%name_suffix, ProbeType="HighPt", SameSign=True)
-            SelecToolsSC_HighPtProbesPos.doProbeChargeSys = True
-            SelecToolsSC_HighPtProbesPos.ProbeCharge = "positive"
-            SelecToolsSC_HighPtProbesPos.IsNominal = False
-            SelectionTools.append(SelecToolsSC_HighPtProbesPos)
-
-            SelecToolsSC_HighPtProbesNeg = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_SC_HighPtProbesNeg_%s"%name_suffix,EffiFlag="%s_SC_HighPtProbesNeg"%name_suffix, ProbeType="HighPt", SameSign=True)
-            SelecToolsSC_HighPtProbesNeg.doProbeChargeSys = True
-            SelecToolsSC_HighPtProbesNeg.IsNominal = False
-            SelecToolsSC_HighPtProbesNeg.ProbeCharge = "negative"
-            SelectionTools.append(SelecToolsSC_HighPtProbesNeg)
             
             
     from AthenaCommon.GlobalFlags import globalflags
     if doTruthProbes and not globalflags.DataSource()=='data':
-        SelecToolsOC_TruthProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_TruthProbes_%s"%name_suffix,EffiFlag="%s_TruthProbes"%name_suffix, ProbeType="TruthMatchedMuons")
+        SelecToolsOC_TruthProbes = CommonMuonTPConfig.AddZmumuTPSelectionTool(name="ZmumuTPSelectionTool_OC_TruthProbes_%s"%name_suffix,EffiFlag="%s_TruthProbes"%name_suffix, ProbeType="TruthMatchedMuons",forTriggerEff=doTrig,IsRunOnDAOD=IsRunOnDAOD)
         SelectionTools.append(SelecToolsOC_TruthProbes)
         
         
     for thetool in SelectionTools:
-        thetool.ProbeTrackIsoCut = -1
-        thetool.ProbeTrackAntiIsoCut = -1
-        thetool.ProbeCaloIsoCut = -1
-        thetool.ProbeCaloAntiIsoCut = -1
-        # also accept high eta muons
+        thetool.DoTagIsolation = False
+        thetool.DoProbeIsolation=False 
         thetool.ProbeEtaCut = 4.5   
         
     PlotTools = []
@@ -255,30 +166,43 @@ def AddConfiguredMuonTPAlg(name_suffix  = "MuonProbe",
                                         doEtaSlices=doTrigEtaSlices,
                                         doClosure=doClosure,
                                         DoProbeMatchPlots=DoProbeMatchPlots,
-                                        ProduceEfficiencies=ProduceEfficiencies)
+                                        ProduceEfficiencies=ProduceEfficiencies,
+                                        IsRunOnDAOD=IsRunOnDAOD)
     # then the isolation plots
     if doIso and doIsolPlots:
         PlotTools += ZmumuTPIsolAnalysis.AddIsolPlots(name_suffix=name_suffix,
                                         doEtaSlices=doIsolEtaSlices,
                                         doClosure=doClosure,
                                         DoProbeMatchPlots=DoProbeMatchPlots,
-                                        ProduceEfficiencies=ProduceEfficiencies)
+                                        ProduceEfficiencies=ProduceEfficiencies,
+                                        IsRunOnDAOD=IsRunOnDAOD)
         
     
     MatchingTools = []
     if doTrig:
-        MatchingTools += ZmumuTPTrigAnalysis.AddTrigMatchTools(name_suffix=name_suffix,doL1 = doL1, doL2=doL2, doEF=doEF,doHLT=doHLT,doDRSys=doDRSys)
+        MatchingTools += ZmumuTPTrigAnalysis.AddTrigMatchTools(name_suffix=name_suffix,doL1 = doL1, doHLT=doHLT,
+                                                               doDRSys=doDRSys,doClosure=doClosure,doRerunMode=False)
+
+        #MatchingTools += ZmumuTPTrigAnalysis.AddTrigMatchTools(name_suffix=name_suffix+'_RM',doL1 = doL1, doHLT=doHLT,
+        #                                                       doDRSys=doDRSys,doClosure=doClosure,doRerunMode=True)
     if doIso:
-        MatchingTools += ZmumuTPIsolAnalysis.AddIsolMatchTools(name_suffix=name_suffix)
+        MatchingTools += ZmumuTPIsolAnalysis.AddIsolMatchTools(name_suffix=name_suffix,
+                                                               doLooseTrackOnly=doLooseTrackOnly,doLoose=doLoose,
+                                                               doTight=doTight,doGradient=doGradient,
+                                                               doGradientLoose=doGradientLoose,doClosure=doClosure)
     
     
     ntuples = []
     if writeNtuple:
-        ntuples.append(CommonMuonTPConfig.AddTreeTool(name="ZmumuTPMuonTreeTool_%s"%name_suffix, EffiFlag="Trees",WriteSFInfo=doClosure))
+        ntuples.append(CommonMuonTPConfig.AddTreeTool(name="ZmumuTPMuonTreeTool_%s"%name_suffix, 
+                                                      EffiFlag="Trees",WriteSFInfo=doClosure,
+                                                      IsRunOnDAOD=IsRunOnDAOD))
     
     for ntuple in ntuples:
         if doIso:
             ntuple.AddExtendedIsolation = True
+        if doTrig:
+            ntuple.AddExtendedTrigger = True
         
     # create the TP tool itself
     TheTPTool = CommonMuonTPConfig.AddMuonTPTool(name = "MuonProbeTPTool_%s"%name_suffix,EffiFlag=name_suffix)
@@ -288,8 +212,7 @@ def AddConfiguredMuonTPAlg(name_suffix  = "MuonProbe",
     TheTPTool.TreeTools             = ntuples
     theAlg.MuonTPTools += [TheTPTool]
     
-    
-    
+#========================================================================================================================
 def AddZmumuTPMuonAnalysis(doIso = True,
                            doTrig = True,
                            doTrigEtaSlices    = True, 
@@ -297,29 +220,32 @@ def AddZmumuTPMuonAnalysis(doIso = True,
                            doIsolPlots      = False,
                            doTriggerPlots      = True,
                            writeNtuple=False, doClosure=False, 
-                           doDRSys=False, doDPhiTPSys=True, 
-                           doProbeCharSys=True, 
+                           doDRSys=False,
+                           doMinimalCutsTree=False,
+                           doVeryLooseProbes = False,
                            doLooseProbes=False, doMediumProbes=False, 
                            doTightProbes=False,  
                            doTruthProbes=False,
                            doHighPtProbes=False,
-                           doL1=False, doL2=False, doEF=False, 
+                           doLooseTrackOnly=True,
+                           doLoose=True,
+                           doTight=True,
+                           doGradient=True,
+                           doGradientLoose=True,
+                           doL1=False, 
                            doHLT=False, DoProbeMatchPlots=True, 
-                           ProduceEfficiencies=False):
+                           ProduceEfficiencies=False,
+                           IsRunOnDAOD=False):
     
     from AthenaCommon.AlgSequence import AlgSequence
     from AthenaCommon.AppMgr import ToolSvc
     job = AlgSequence()
 
-
-    MuonContainerToUse = "Muons"
-    if hasattr(job, "MuonQualityUpdater"):
-        MuonContainerToUse = "UpdatedMuons"
         
     ##########################################################################################
     # Add the Zmm TP algorithm for muon probes
     AddConfiguredMuonTPAlg(name_suffix  = "MuonProbe",
-                            MatchContainer = "Muons",
+                            MatchContainer = CommonMuonTPConfig.GetRightMuonContainer(),
                             doIso=doIso,
                             doTrig=doTrig,
                             doTrigEtaSlices    = doTrigEtaSlices, 
@@ -329,15 +255,21 @@ def AddZmumuTPMuonAnalysis(doIso = True,
                             writeNtuple    = writeNtuple,
                             doClosure      = doClosure,
                             doDRSys      = doDRSys,
-                            doDPhiTPSys    = doDPhiTPSys,
-                            doProbeCharSys = doProbeCharSys,
+                            doVeryLooseProbes = doVeryLooseProbes,
                             doLooseProbes   = doLooseProbes,
                             doMediumProbes  = doMediumProbes,
                             doTightProbes   = doTightProbes,
                             doHighPtProbes   = doHighPtProbes,
                             doTruthProbes=doTruthProbes,
-                            doL1 = doL1, doL2=doL2, 
-                            doEF=doEF,doHLT=doHLT,
+                            doLooseTrackOnly=doLooseTrackOnly,
+                            doLoose=doLoose,
+                            doTight=doTight,
+                            doMinimalCutsTree=doMinimalCutsTree,
+                            doGradient=doGradient,
+                            doGradientLoose=doGradientLoose,
+                            doL1 = doL1, 
+                            doHLT=doHLT,
                             DoProbeMatchPlots=DoProbeMatchPlots,
-                            ProduceEfficiencies=ProduceEfficiencies
-                )
+                            ProduceEfficiencies=ProduceEfficiencies,
+                            IsRunOnDAOD=IsRunOnDAOD)
+                

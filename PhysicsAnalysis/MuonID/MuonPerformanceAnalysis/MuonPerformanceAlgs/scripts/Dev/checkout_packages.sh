@@ -1,0 +1,7 @@
+cmt co PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceAlgs
+cmt co PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPerformanceHistUtils
+cmt co PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonTPTools
+cmt co PhysicsAnalysis/MuonID/MuonPerformanceAnalysis/MuonPtCalibNtupleMaker
+    
+
+setupWorkArea.py

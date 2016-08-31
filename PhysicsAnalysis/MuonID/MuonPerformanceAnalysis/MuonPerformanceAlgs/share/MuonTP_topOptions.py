@@ -96,6 +96,31 @@ if not "pandaJob" in globals():     # special setting for local running
 if "EVTMAX" in  globals():
     acf.EvtMax = EVTMAX
 
+# optional override for local testing
+doClo=False
+if "DOCLOSURE" in  globals():
+    doClo = DOCLOSURE
+
+# optional override for local testing
+doPlots=False
+if "DOPLOTS" in  globals():
+    doPlots = DOPLOTS
+    
+# optional override for local testing
+doEff=False
+if "DOEFF" in  globals():
+    doEff = DOEFF
+    
+# optional override for local testing
+IncludeMinCuts=False
+if "MINCUTS" in  globals():
+    IncludeMinCuts = MINCUTS
+
+# optional override for local testing
+grl=''
+if "GRL" in  globals():
+    grl = GRL
+
 #--------------------------------------------------------------
 # Configure algorithm.
 #--------------------------------------------------------------
@@ -107,7 +132,10 @@ ServiceMgr.MessageSvc.infoLimit = 20000
 
 # Configure Muon TP tools
 from MuonPerformanceAlgs import MuonTPAnalysis
-MuonTPAnalysis.MuonTPConfig('muontp.root',doPlots=True,doEff=True)
+MuonTPAnalysis.MuonTPConfig('muontp.root',doPlots=doPlots,doEff=doEff,doClosure=doClo,GRL=grl,IncludeMinimalCutTree=IncludeMinCuts)
+
+
+
 
 
 

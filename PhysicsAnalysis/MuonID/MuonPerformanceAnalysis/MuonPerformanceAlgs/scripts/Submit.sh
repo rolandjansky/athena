@@ -11,10 +11,12 @@
 #///////////////////////////////////////////////////////////////
 
 # configure the name of the output dataset:
-SUFFIX="TP_"
-DATE=`date +%Y%m%d`
-SUFFIX+=$DATE
-SUFFIX+="_v1"                  # change version name
+SUFFIX="TP"
+# DATE=`date +%Y%m%d`
+# SUFFIX+=$DATE
+SUFFIX+="_v010h"                  # change version name
+
+GRL="grl.xml" ## defined in setup.sh
 
 if  [ "niko" = $USER ]; then
         NAME="nkoehler"
@@ -64,16 +66,23 @@ while read sample
   dsorig=${dsorig/group.det-muon./}
   dsorig=${dsorig//s????_/}
   dsorig=${dsorig%\/}
-  outname="user.$my_prun_nickname.$dsorig.$SUFFIX"
+
+  # Output name
+  #outname="user.$my_prun_nickname.$dsorig.$SUFFIX"
+  outname="group.perf-muons.$dsorig.$SUFFIX"
+
   # Submit using pathena.
   pathena MuonPerformanceAlgs/MuonTP_topOptions.py \
+      -c "GRL='$GRL'" \
       --inDS $ds \
       --outDS $outname \
       --express \
       --mergeOutput \
       --useShortLivedReplicas \
       --site=AUTO \
-      --inTarBall=otb.tar\
+      --nFilesPerJob=2 \
+      --official --voms=atlas:/atlas/perf-muons/Role=production \
+      --inTarBall=otb.tar \
       --inRunConfig=runconf.datatp
   echo "output DS is " $outname/
 done < "$list"
