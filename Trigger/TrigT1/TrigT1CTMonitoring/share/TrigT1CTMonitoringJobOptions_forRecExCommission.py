@@ -155,7 +155,7 @@ if isOnline:
     LVL1ConfigSvc.XMLFile = "L1MenuM5.xml"
     LVL1ConfigSvc.CreateLegacyObjects = True
     LVL1ConfigSvc.DumpTTVmap = False
-    LVL1ConfigSvc.OutputLevel = VERBOSE
+    #LVL1ConfigSvc.OutputLevel = VERBOSE
     svcMgr += LVL1ConfigSvc
     theApp.CreateSvc += [ "TrigConf::LVL1ConfigSvc/LVL1ConfigSvc" ]
    

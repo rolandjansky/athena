@@ -6,7 +6,6 @@
 #include <vector>
 
 // Athena/Gaudi includes:
-#include "StoreGate/StoreGateSvc.h"
 #include "AthenaMonitoring/IMonitorToolBase.h"
 
 
@@ -15,7 +14,7 @@
 #include "GaudiKernel/GaudiException.h"
 
 // Package includes
-#include "TrigT1CTMonitoring/DeriveSimulationInputs.h"
+#include "DeriveSimulationInputs.h"
 #include "TrigT1Result/MuCTPI_DataWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_MultiplicityWord_Decoder.h"
 #include "TrigT1Result/MuCTPI_RDO.h"
@@ -156,7 +155,7 @@ TrigT1CTMonitoring::DeriveSimulationInputs::execute() {
 
 
    // get CTP RDO from storegate
-   const DataHandle < CTP_RDO > theCTP_RDO = nullptr;
+   const CTP_RDO* theCTP_RDO = nullptr;
    CHECK( evtStore()->retrieve(theCTP_RDO, "CTP_RDO") );
 
    
