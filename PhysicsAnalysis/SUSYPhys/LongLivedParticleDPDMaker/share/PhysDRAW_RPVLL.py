@@ -20,6 +20,10 @@
 
 from LongLivedParticleDPDMaker.LongLivedDPDFlags import WriteRPVLLStream
 from LongLivedParticleDPDMaker.PrimaryDPDFlags_RPVLLStream import primRPVLLDESDM
+print dir(primRPVLLDESDM)
+print primRPVLLDESDM.__module__
+print primRPVLLDESDM.__name__
+print primRPVLLDESDM
  
 RPVLL_augmentationKernels = []
 
@@ -54,6 +58,11 @@ if primRPVLLDESDM.doDV():
 # Kink-based chargino search (contact: Shimpei Yamamoto)
 if primRPVLLDESDM.doKinkedTrack():
     include("LongLivedParticleDPDMaker/PhysDESDM_KinkedTrack.py")
+    pass
+
+## Emerging jet search (contact James Beacham)
+if primRPVLLDESDM.doEmerging():
+    include("LongLivedParticleDPDMaker/PhysDESDM_Emerging.py")
     pass
 
 ## Stopped R-hadron search (contact: Andy Haas)
