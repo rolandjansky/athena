@@ -36,6 +36,7 @@
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkTrackSummary/MuonTrackSummary.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkGeometry/MagneticFieldProperties.h"
 #include "TrkExInterfaces/IPropagator.h"
@@ -68,6 +69,7 @@
 #include "MuidInterfaces/IMuonTrackQuery.h"
 
 #include "TrackSegmentAssociationTool.h"
+#include "MuonIdHelpers/MuonStationIndex.h"
 
 //#include "xAODTruth/TruthEventContainer.h"
 
@@ -79,6 +81,7 @@ namespace MuonCombined {
   MuonCreatorTool::MuonCreatorTool (const std::string& type, const std::string& name, const IInterface* parent)
     :	AthAlgTool(type, name, parent),
     m_makeMSPreExtrapLink(false),
+    m_haveAddedCaloInformation(false),
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_printer("Muon::MuonEDMPrinterTool/MuonEDMPrinterTool"),
     m_edmHelper("Muon::MuonEDMHelperTool/MuonEDMHelperTool"),
@@ -115,6 +118,7 @@ namespace MuonCombined {
     declareProperty("MeanMDTdADCTool",m_meanMDTdADCTool);	
     declareProperty("BuildStauContainer",m_buildStauContainer=false);
     declareProperty("FillEnergyLossFromTrack",m_fillEnergyLossFromTrack=true);
+    declareProperty("FillAlignmentEffectsOnTrack",m_fillAlignmentEffectsOnTrack=true);
     declareProperty("FillExtraELossInfo", m_fillExtraELossInfo=true);
     declareProperty("PrintSummary", m_printSummary=false);
     declareProperty("UseUpdatedExtrapolatedTrack", m_useUpdatedExtrapolatedTrack = true );
@@ -216,6 +220,13 @@ namespace MuonCombined {
       ATH_MSG_DEBUG("New MuonCandidate");
       create(*can,outputData);
       ATH_MSG_DEBUG("Creation of Muon from MuonCandidates done");
+    }
+
+    // Add alignment effects on tracks to ME and CB tracks
+    if( m_fillAlignmentEffectsOnTrack ) {
+      if(outputData.combinedTrackParticleContainer) addAlignmentEffectsOnTrack(outputData.combinedTrackParticleContainer);
+      if(outputData.extrapolatedTrackParticleContainer) addAlignmentEffectsOnTrack(outputData.extrapolatedTrackParticleContainer);
+      if(outputData.msOnlyExtrapolatedTrackParticleContainer) addAlignmentEffectsOnTrack(outputData.msOnlyExtrapolatedTrackParticleContainer);
     }
 
     if( msgLvl(MSG::DEBUG) || m_printSummary ){    
@@ -975,7 +986,7 @@ namespace MuonCombined {
     if( msgLvl(MSG::DEBUG) && inDetCandidates ){
       ATH_MSG_DEBUG("ID candidates:  " << inDetCandidates->size() << "  after stau selection " << resolvedInDetCandidates.size() );
       for( auto candidate : resolvedInDetCandidates ){
-        msg(MSG::DEBUG) << "ID candidate staus:  " << candidate->toString() << endreq;
+        msg(MSG::DEBUG) << "ID candidate staus:  " << candidate->toString() << endmsg;
       }      
     }
 
@@ -1010,7 +1021,7 @@ namespace MuonCombined {
           if( msgLvl(MSG::DEBUG) && tags.size() >= 1 ) {
             msg(MSG::DEBUG) << " InDetCandidate ";
             for( auto tag : tags ) msg(MSG::DEBUG) << " - " << tag->toString() << " " << typeRank(tag->type()) << " " << authorRank(tag->author());
-            msg(MSG::DEBUG)<< endreq;
+            msg(MSG::DEBUG)<< endmsg;
           }
         }
       }
@@ -1020,7 +1031,7 @@ namespace MuonCombined {
       if( msgLvl(MSG::DEBUG) ){
         ATH_MSG_DEBUG("ID candidates:  " << inDetCandidates->size() << "  after selection " << resolvedInDetCandidates.size() );
         for( auto candidate : resolvedInDetCandidates ){
-          msg(MSG::DEBUG) << "ID candidate:  " << candidate->toString() << endreq;
+          msg(MSG::DEBUG) << "ID candidate:  " << candidate->toString() << endmsg;
         }      
       }
       
@@ -1082,7 +1093,7 @@ namespace MuonCombined {
     if( msgLvl(MSG::DEBUG) && inDetCandidates ){
       ATH_MSG_DEBUG("ID candidates:  " << inDetCandidates->size() << "  after ambiguity solving " << resolvedInDetCandidates.size() );
       for( auto candidate : resolvedInDetCandidates ){
-        msg(MSG::DEBUG) << "ID candidate:  " << candidate->toString() << endreq;
+        msg(MSG::DEBUG) << "ID candidate:  " << candidate->toString() << endmsg;
       }      
     }
     
@@ -1093,7 +1104,7 @@ namespace MuonCombined {
       if( msgLvl(MSG::DEBUG) ){
         ATH_MSG_DEBUG("Muon candidates:  " << muonCandidates->size() );
         for( auto candidate : *muonCandidates ){
-          msg(MSG::DEBUG) << "Muon candidate:  " << candidate->toString() << endreq;
+          msg(MSG::DEBUG) << "Muon candidate:  " << candidate->toString() << endmsg;
         }      
       }
 
@@ -1131,7 +1142,7 @@ namespace MuonCombined {
       if( msgLvl(MSG::DEBUG) ){
         ATH_MSG_DEBUG("Muon candidates:  " << muonCandidates->size() << "  after ambiguity solving " << resolvedMuonCandidates.size() );
         for( auto candidate : resolvedMuonCandidates ){
-          msg(MSG::DEBUG) << "Muon candidate:  " << candidate->toString() << endreq;
+          msg(MSG::DEBUG) << "Muon candidate:  " << candidate->toString() << endmsg;
         }      
       }
     }
@@ -1175,7 +1186,7 @@ namespace MuonCombined {
     return newtrack;
   }
 
-  bool MuonCreatorTool::dressMuon(  xAOD::Muon& muon ) const {
+  bool MuonCreatorTool::dressMuon(  xAOD::Muon& muon  ) const {
 
     if( muon.primaryTrackParticleLink().isValid() ){
       const xAOD::TrackParticle* primary = muon.primaryTrackParticle();
@@ -1287,7 +1298,6 @@ namespace MuonCombined {
     if( m_fillTimingInformationOnMuon  ) addRpcTiming(muon);
     
     if( !m_trackSegmentAssociationTool.empty() ) addSegmentsOnTrack(muon);
-
 
     return true;
   }
@@ -1576,4 +1586,48 @@ namespace MuonCombined {
                   << etcore[Rec::CaloCellCollector::ET_TileCore] << "/"    
                   << etcore[Rec::CaloCellCollector::ET_HECCore]);
   }
+
+  void MuonCreatorTool::addAlignmentEffectsOnTrack( xAOD::TrackParticleContainer* trkCont ) const {
+
+    for(auto tp : *trkCont) {
+      std::vector<std::vector<unsigned int> > chId;
+      std::vector<float> deltaTrans;
+      std::vector<float> sigmaDeltaTrans;
+      std::vector<float> deltaAngle;
+      std::vector<float> sigmaDeltaAngle;
+
+      const Trk::Track* trk = tp->track();
+      if(trk && trk->trackStateOnSurfaces()) {
+
+	for(auto tsos : *(trk->trackStateOnSurfaces())) {
+	  if (!tsos->type(Trk::TrackStateOnSurface::Alignment)) continue;
+
+	  const Trk::AlignmentEffectsOnTrack* aeot = tsos->alignmentEffectsOnTrack();
+	  if(aeot) {
+	    std::set<unsigned int> chIdSet;
+	    for(auto id : aeot->vectorOfAffectedTSOS()) {
+	      if( !id.is_valid() || !m_idHelper->isMuon(id) ) continue;
+	      chIdSet.insert( m_idHelper->chamberIndex(id) );
+	    }
+	    std::vector<unsigned int> chIdVec;
+	    std::copy(chIdSet.begin(), chIdSet.end(), std::back_inserter(chIdVec));
+
+	    chId.push_back( chIdVec );
+	    deltaTrans.push_back( aeot->deltaTranslation() );
+	    sigmaDeltaTrans.push_back( aeot->sigmaDeltaTranslation() );
+	    deltaAngle.push_back( aeot->deltaAngle() ); 
+	    sigmaDeltaAngle.push_back( aeot->sigmaDeltaAngle() );
+	  }
+	}
+      }
+
+      tp->auxdecor< std::vector< std::vector<unsigned int> > >("alignEffectChId") = chId;
+      tp->auxdecor< std::vector<float> >("alignEffectDeltaTrans")       = deltaTrans;
+      tp->auxdecor< std::vector<float> >("alignEffectSigmaDeltaTrans")  = sigmaDeltaTrans;
+      tp->auxdecor< std::vector<float> >("alignEffectDeltaAngle")       = deltaAngle;
+      tp->auxdecor< std::vector<float> >("alignEffectSigmaDeltaAngle")  = sigmaDeltaAngle;
+    }
+  }
+
+ 
 }	// end of namespace
