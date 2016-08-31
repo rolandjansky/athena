@@ -11,6 +11,7 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Reconstruction/MuonIdentification/MuidInterfaces
                           PRIVATE
+                          Control/AthenaKernel
                           Calorimeter/CaloEvent
                           Calorimeter/CaloIdentifier
                           Calorimeter/CaloInterface
