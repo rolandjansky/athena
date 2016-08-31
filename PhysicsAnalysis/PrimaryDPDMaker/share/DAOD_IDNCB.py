@@ -161,7 +161,7 @@ DFIDNCB = DerivationFramework__TrackStateOnSurfaceDecorator(name = "DFTrackState
                                                           OutputLevel = INFO)
 
 # this variable is redundant and remove from DerivationFrameworkInDet-00-00-56
-DFIDNCB.TRT_ToT_dEdx = TRT_dEdx_Tool
+#DFIDNCB.TRT_ToT_dEdx = TRT_dEdx_Tool
 ToolSvc += DFIDNCB
 augmentationTools+=[DFIDNCB]
 
