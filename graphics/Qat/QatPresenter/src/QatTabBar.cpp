@@ -46,6 +46,7 @@ class QatTabBar::Private
       : mReorderStartTab( -1 ),
         mReorderPreviousTab( -1 ),
         mDragSwitchTab( -1 ),
+        mActivateDragSwitchTabTimer(nullptr),
         mTabReorderingEnabled( false ),
         mTabCloseActivatePrevious( false )
     {

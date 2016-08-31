@@ -410,8 +410,9 @@ void PresenterApplication::loadSystem(const std::string & system)
       
       instance = piloader.instance();
       if (instance) {
-	break;
-	c->loadMap[system]=instance;
+        c->loadMap[system]=instance; //should presumably be here
+	      break;
+	      //c->loadMap[system]=instance; unreachable code
       }
     }
   }
