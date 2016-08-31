@@ -16,7 +16,6 @@
 
 #include <cmath>
 #include <iomanip>
-#include "CLHEP/Units/SystemOfUnits.h"
 
 #include "MuidTrackBuilder/OutwardsCombinedMuonTrackBuilder.h"
 
@@ -37,6 +36,10 @@
 #include "VxVertex/RecVertex.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
+
+#include "AthenaKernel/Units.h"
+
+namespace Units = Athena::Units;
 
 namespace Rec
 {
@@ -94,7 +97,7 @@ OutwardsCombinedMuonTrackBuilder::initialize()
     msg(MSG::INFO) << " with options: ";
     if (m_allowCleanerVeto)	msg(MSG::INFO) << " AllowCleanerVeto";
     if (m_cleanCombined)	msg(MSG::INFO) << " CleanCombined";
-    msg(MSG::INFO) << endreq;
+    msg(MSG::INFO) << endmsg;
 
     if (!m_cleaner.empty()){
     if (m_cleaner.retrieve().isFailure())
@@ -233,7 +236,7 @@ OutwardsCombinedMuonTrackBuilder::indetExtension (const Trk::Track&	      indetT
 Trk::Track*
 OutwardsCombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	/*spectrometerTrack*/,
 						 const Trk::Vertex*	/*vertex*/,
-                                                 float bs_x, float bs_y, float bs_z ) const
+                                                 float /*bs_x*/, float /*bs_y*/, float /*bs_z*/ ) const
 {
   return 0;
 }
@@ -613,7 +616,7 @@ Trk::Track*  OutwardsCombinedMuonTrackBuilder::addIDMSerrors(Trk::Track* track) 
     for ( ; t != track->trackStateOnSurfaces()->end(); ++t) {
       itsos++;
       if((**t).trackParameters()) {
-        if(p==-1.) p = (**t).trackParameters()->momentum().mag()/1000.;
+        if(p==-1.) p = (**t).trackParameters()->momentum().mag()/Units::GeV;
         if(m_indetVolume->inside((**t).trackParameters()->position())) {
           continue;
         }
