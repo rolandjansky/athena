@@ -144,6 +144,20 @@ if tileESDMon:
         
         ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileJetMonTool ]
 
+    if not 'doTileTMDBRawChannelMon' in dir() or doTileTMDBRawChannelMon:
+        from TileConditions.TileCondToolConf import getTileCondToolTMDB
+        tileCondToolTMDB = getTileCondToolTMDB('COOL')
+        if tileCondToolTMDB:
+            ToolSvc += tileCondToolTMDB
+            ToolSvc += CfgMgr.TileTMDBRawChannelMonTool(name            = 'TileTMDBRawChannelDspMon'
+                                                        , OutputLevel   = INFO
+                                                        , NotDSP        = False
+                                                        , Efficiency    = True
+                                                        , TileRawChannelContainer = "MuRcvRawChCnt"
+                                                        , TileCondToolTMDB = tileCondToolTMDB
+                                                        , histoPathBase = "/Tile/TMDBRawChannel/Dsp")
+            ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileTMDBRawChannelDspMon ];
+
 
 
 if  tileRawMon:
