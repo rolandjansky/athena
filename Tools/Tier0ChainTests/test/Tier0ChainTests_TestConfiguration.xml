@@ -1155,6 +1155,38 @@
                             </jobTransform>
                             
                         </chainElement>
+
+                        <!-- Standard reco test job with derived outputs  (from f739 for now DAOD_SCTVALID and DAOD_IDNCB are excluded due tothe issue at ATLASRECTS-3427) -->
+                        <chainElement>
+                            <jobTransform userJobId="Reco_with_Derived_Outputs">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>Reco_with_Derived_Outputs</jobTransformJobName>
+                                <jobTransformCmd>
+                                   Reco_tf.py --conditionsTag all:CONDBR2-BLKPA-2016-16 --ignoreErrors 'False' --autoConfiguration='everything' --maxEvents '250' --geometryVersion all:ATLAS-R2-2015-04-00-00 --steering='doRAWtoALL' --inputBSFile 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/derivedoutputtest/data16_13TeV.00306451.physics_Main.daq.RAW._lb0948._SFO-4._0001.data' --outputDRAW_EGZFile 'myDRAW_EGZ.data' --outputDESDM_IDALIGNFile 'myDESDM_IDALIGN.pool.root' --outputDESDM_SGLELFile 'myDESDM_SGLEL.pool.root' --outputDESDM_SLTTMUFile 'myDESDM_SLTTMU.pool.root' --outputDAOD_IDTRKVALIDFile 'myDAOD_IDTRKVALID.pool.root' --outputDRAW_ZMUMUFile 'myDRAW_ZMUMU.data' --outputAODFile 'myAOD.pool.root' --outputDRAW_TAUMUHFile 'myDRAW_TAUMUH.data' --outputDESDM_EGAMMAFile 'myDESDM_EGAMMA.pool.root' --outputDESDM_MCPFile 'myDESDM_MCP.pool.root' --outputDESDM_CALJETFile 'myDESDM_CALJET.pool.root' --outputDESDM_PHOJETFile 'myDESDM_PHOJET.pool.root' --outputDESDM_TILEMUFile 'myDESDM_TILEMU.pool.root' --outputDRAW_RPVLLFile 'myDRAW_RPVLL.data' --outputDESDM_EXOTHIPFile 'myDESDM_EXOTHIP.pool.root' --outputESDFile 'myESD.pool.root' --outputHISTFile 'myHIST.root' --outputDAOD_IDTIDEFile 'myDAOD_IDTIDE.pool.root' 
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>Reco_with_Derived_Outputs.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                            </jobTransform>
+                        </chainElement>
+
                         
                         <!-- Reconstruction job, using latest castor collections -->
                         <chainElement>
@@ -1674,40 +1706,6 @@
                             </jobTransform>
                         </chainElement>
 			
-			<!-- Trigger+Reconstruction job, using TrigTransform -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="TrigTransform">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>TrigTransform</jobTransformJobName>
-                                <jobTransformCmd>
-				    Trig_reco_tf.py --inputBS_RDOFile=/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_cos.00259424.physics_CosmicMuons.merge.RAW._lb0487._SFO-11._0001.1 --precommand "testPhysicsV5=True;HLTOutputLevel=INFO;doCosmics=True;doValidation=True" --outputHISTFile 'myHIST.root' --outputAODFile 'myAOD.pool.root' --outputESDFile 'myESD.pool.root' --outputNTUP_MUONCALIBFile 'myNTUP_MUONCALIB.root' --asetup b2r:AtlasP1HLT,20.2.0.2 --beamType 'cosmics' --autoConfiguration='everything' --maxEvents '15' --preExec 'r2e:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doCTPMon=False;' --geometryVersion all:ATLAS-R2-2015-02-00-00 --conditionsTag all:CONDBR2-BLKPA-2015-02 --triggerConfig r2e=DATARECO:REPR   
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>TrigTransform.summary.txt</argvalue> 
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>
 			
                         <sequential> <!-- DigitizationTest, Reconstruct_ttbar_RDO_Collisions -->
                             <!-- Run digitization on a fixed RDO file -->
@@ -1717,7 +1715,7 @@
                                     <doc>Run digitization on a fixed HITS file</doc>
                                     <jobTransformJobName>DigitizationTest</jobTransformJobName>
                                     <jobTransformCmd>
-				        Digi_tf.py --inputHITSFile '/afs/cern.ch/atlas/project/rig/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1' --digiSeedOffset1 '1' --digiSeedOffset2 '2' --geometryVersion 'ATLAS-R2-2015-02-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-22' --DataRunNumber '222525' --maxEvents '50' --outputRDOFile 'MCtest_ttbar.digit.pool.root'
+				        Digi_tf.py --inputHITSFile '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._[000416,000417,000418,000419,000420].pool.root' --digiSeedOffset1 '1' --digiSeedOffset2 '2' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-22' --DataRunNumber '222525' --maxEvents '50' --outputRDOFile 'MCtest_ttbar.digit.pool.root'
                                     </jobTransformCmd> 
                                     <group>TCTTransform</group>
                                     <queue>short</queue>
