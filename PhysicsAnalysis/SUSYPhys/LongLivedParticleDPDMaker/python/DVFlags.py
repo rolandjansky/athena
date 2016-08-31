@@ -92,7 +92,7 @@ class DV_METFilterFlags(JobProperty):
     statusOn=True
     allowedTypes=["bool"]
     StoredValue=True
-    cutMetMin=130.0*Units.GeV
+    cutMetMin=180.0*Units.GeV
     deltaPhiCut=0.1
     triggers=["HLT_xe90_L1XE50","HLT_xe100_L1XE50","HLT_xe120_L1XE50",
 		          "HLT_xe90_L1XE55","HLT_xe100_L1XE55","HLT_xe120_L1XE55",
@@ -108,7 +108,8 @@ class DV_METFilterFlags(JobProperty):
 		          "HLT_xe90_topoclPS_L1XE60","HLT_xe100_topoclPS_L1XE60","HLT_xe120_topoclPS_L1XE60",
 		          "HLT_xe90_topoclPUC_L1XE50","HLT_xe100_topoclPUC_L1XE50","HLT_xe120_topoclPUC_L1XE50",
 		          "HLT_xe90_topoclPUC_L1XE55","HLT_xe100_topoclPUC_L1XE55","HLT_xe120_topoclPUC_L1XE55",
-	      	    "HLT_xe90_topoclPUC_L1XE60","HLT_xe100_topoclPUC_L1XE60","HLT_xe120_topoclPUC_L1XE60"
+	      	    "HLT_xe90_topoclPUC_L1XE60","HLT_xe100_topoclPUC_L1XE60","HLT_xe120_topoclPUC_L1XE60",
+              "HLT_xe130_mht_L1XE50"
 		         ]
     pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)
@@ -134,7 +135,7 @@ class DV_DoubleTracklessJetFilterFlags(JobProperty):
 primRPVLLDESDM.add_JobProperty(DV_DoubleTracklessJetFilterFlags)
 
 class DV_MeffFilterFlags(JobProperty):
-    statusOn=True
+    statusOn=False
     allowedTypes=['bool']
     StoredValue=True
     cutMeffMin=1.0*Units.TeV ##

@@ -162,17 +162,19 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
     bool passD0cut = true;
     int type = (*mu_itr2)->muonType();
     const xAOD::Muon *mu = (*mu_itr2);
-    if(IsGood(*mu)){
-      if(type==0){ //d0 cut is for combined muons only
-	passD0cut = false;
-	if(fabs((*mu_itr2)->primaryTrackParticle()->d0())>m_mu2d0Min) passD0cut = true;
-      }
-      if((*mu_itr2)->pt()>m_mu2PtMin && fabs((*mu_itr2)->eta())<m_mu2AbsEtaMax && passTypeCut && isIso && passD0cut){
-	muon2passed = true;
-	break;
+
+    if(type==0){ //d0 cut is for combined muons only
+      passD0cut = false;
+      if(IsGood(*mu)){//if muon has a good chi2/dof
+        if(fabs((*mu_itr2)->primaryTrackParticle()->d0())>m_mu2d0Min) passD0cut = true;
       }
     }
+    if((*mu_itr2)->pt()>m_mu2PtMin && fabs((*mu_itr2)->eta())<m_mu2AbsEtaMax && passTypeCut && isIso && passD0cut){
+      muon2passed = true;
+      break;
+    }
   }
+ 
   
   if(muon2passed) acceptEvent = true;
   
