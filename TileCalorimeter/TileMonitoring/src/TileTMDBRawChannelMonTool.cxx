@@ -88,9 +88,9 @@ StatusCode TileTMDBRawChannelMonTool:: initialize() {
 
   ATH_MSG_INFO( "in initialize()" );
 
-
-  CHECK(m_tileToolTMDB.retrieve());
-  
+  if (m_eff) {
+    CHECK(m_tileToolTMDB.retrieve());  
+  }
 
   return TileFatherMonTool::initialize();
 }
