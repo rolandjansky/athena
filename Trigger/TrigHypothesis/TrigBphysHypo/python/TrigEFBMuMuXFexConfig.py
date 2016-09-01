@@ -515,7 +515,7 @@ class EFBMuMuXFex_BsMuMuPhi (TrigEFBMuMuXFex):
         self.DoBd_KstarMuMuDecay = False
         # Bs -> Phi(1020) Mu Mu
         self.DoBs_Phi1020MuMuDecay = True
-        self.LowerPhi1020_KaonMassCut = 990.
+        self.LowerPhi1020_KaonMassCut = 980.
         self.UpperPhi1020_KaonMassCut = 1050.
         self.LowerBs_Phi1020MuMuMassCut = 5000.
         self.UpperBs_Phi1020MuMuMassCut = 5800.
@@ -544,6 +544,16 @@ class EFBMuMuXFex_BsMuMuPhi (TrigEFBMuMuXFex):
         time = TrigTimeHistToolConfig("Time")
 
         self.AthenaMonTools = [ validation, online, time ]
+        
+        
+class EFBMuMuXFex_BsJpsiPhi (EFBMuMuXFex_BsMuMuPhi):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXFex_BsJpsiPhi"):
+        EFBMuMuXFex_BsMuMuPhi.__init__(self, name )
+        
+        # user narrower Jpsi mass cut
+        self.LowerMuMuMassCut = 2500.
+        self.UpperMuMuMassCut = 4200.
         
         
 class EFBMuMuXFex_BsMuMuPhi_noVtx (TrigEFBMuMuXFex):

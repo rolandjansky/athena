@@ -79,8 +79,8 @@ class TrigL2BMuMuHypo: public HLT::HypoAlgo  {
     //  TrigVertexCollection* m_VertexColl;
 
   /* monitored variables */
-  int mon_cutCounter;
-  std::vector<float> mon_MuMumass;
+  int m_mon_cutCounter;
+  std::vector<float> m_mon_MuMumass;
   
 };
 

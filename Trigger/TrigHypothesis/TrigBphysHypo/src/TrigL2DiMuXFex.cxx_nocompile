@@ -65,17 +65,17 @@ TrigL2DiMuXFex::~TrigL2DiMuXFex()
 /*-------------------------------------------*/
 HLT::ErrorCode TrigL2DiMuXFex::hltInitialize()
 {
-  msg() << MSG::INFO << "|----------------------- INFO FROM TrigL2DiMuXFex --------------------|" << endreq;
-  msg() << MSG::INFO << "Initializing TrigL2DiMuXFex" << endreq;
+  msg() << MSG::INFO << "|----------------------- INFO FROM TrigL2DiMuXFex --------------------|" << endmsg;
+  msg() << MSG::INFO << "Initializing TrigL2DiMuXFex" << endmsg;
   msg() << MSG::INFO << "AcceptAll            = " 
-	<< (m_acceptAll==true ? "True" : "False") << endreq; 
-  msg() << MSG::INFO << "LowerMuMuMassCut     = " << m_lowerMuMuMassCut << endreq;
-  msg() << MSG::INFO << "UpperMuMuMassCut     = " << m_upperMuMuMassCut << endreq;
-  msg() << MSG::INFO << "LowerKplusMuMuMassCut    = " << m_lowerKplusMuMuMassCut << endreq;
-  msg() << MSG::INFO << "UpperKplusMuMuMassCut    = " << m_upperKplusMuMuMassCut << endreq;
+	<< (m_acceptAll==true ? "True" : "False") << endmsg; 
+  msg() << MSG::INFO << "LowerMuMuMassCut     = " << m_lowerMuMuMassCut << endmsg;
+  msg() << MSG::INFO << "UpperMuMuMassCut     = " << m_upperMuMuMassCut << endmsg;
+  msg() << MSG::INFO << "LowerKplusMuMuMassCut    = " << m_lowerKplusMuMuMassCut << endmsg;
+  msg() << MSG::INFO << "UpperKplusMuMuMassCut    = " << m_upperKplusMuMuMassCut << endmsg;
   msg() << MSG::INFO << "doVertexFit              = " 
-	<< (m_doVertexFit==true ? "True" : "False") << endreq; 
-  msg() << MSG::INFO << "|---------------------------------------------------------------------|" << endreq;
+	<< (m_doVertexFit==true ? "True" : "False") << endmsg; 
+  msg() << MSG::INFO << "|---------------------------------------------------------------------|" << endmsg;
  
   m_lastEvent=0;
   m_lastEvent_DiMu=0;
@@ -100,26 +100,26 @@ HLT::ErrorCode TrigL2DiMuXFex::hltInitialize()
   if ( m_doVertexFit ){
     StatusCode sc = m_L2vertFitter.retrieve();
     if ( sc.isFailure() ) {
-      msg() << MSG::FATAL << "Unable to locate TrigL2VertexFitter tool" << endreq;
+      msg() << MSG::FATAL << "Unable to locate TrigL2VertexFitter tool" << endmsg;
       return HLT::BAD_JOB_SETUP;
     } 
     else {
-      msg() << MSG::INFO << "TrigL2VertexFitter retrieved"<< endreq;
+      msg() << MSG::INFO << "TrigL2VertexFitter retrieved"<< endmsg;
     }
     
     sc = m_vertexingTool.retrieve();
     if ( sc.isFailure() ) {
-      msg() << MSG::FATAL << "Unable to locate TrigVertexingTool tool" << endreq;
+      msg() << MSG::FATAL << "Unable to locate TrigVertexingTool tool" << endmsg;
       return HLT::BAD_JOB_SETUP;
     } else {
-      msg() << MSG::INFO << "TrigVertexingTool retrieved"<< endreq;
+      msg() << MSG::INFO << "TrigVertexingTool retrieved"<< endmsg;
     }
   }
     if (m_bphysHelperTool.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endreq;
+        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endmsg;
         return HLT::BAD_JOB_SETUP;
     } else {
-        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endreq;
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endmsg;
     }
 
   // add timers
@@ -133,21 +133,21 @@ HLT::ErrorCode TrigL2DiMuXFex::hltInitialize()
 /*---------------------------------------------*/
 HLT::ErrorCode TrigL2DiMuXFex::hltFinalize()
 {
-  msg() << MSG::INFO << "Finalizing TrigL2DiMuXFex" << endreq;
+  msg() << MSG::INFO << "Finalizing TrigL2DiMuXFex" << endmsg;
   
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigL2DiMuXFex -----------------|" << endreq;
-  msg() << MSG::INFO << "Run on events / RoIs " << m_countTotalEvents  << " / " << m_countTotalRoI <<  endreq;
-  msg() << MSG::INFO << "Run on events / RoIs " << m_countTotalEvents_DiMu  << " / " << m_countTotalRoI_DiMu << " from DiMuon algo" <<  endreq;
+  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigL2DiMuXFex -----------------|" << endmsg;
+  msg() << MSG::INFO << "Run on events / RoIs " << m_countTotalEvents  << " / " << m_countTotalRoI <<  endmsg;
+  msg() << MSG::INFO << "Run on events / RoIs " << m_countTotalEvents_DiMu  << " / " << m_countTotalRoI_DiMu << " from DiMuon algo" <<  endmsg;
   if ( !m_doVertexFit ) {
-    msg() << MSG::INFO << "Passed events / RoIs " << m_countPassedEvents << " / " << m_countPassedRoIs <<  endreq;
+    msg() << MSG::INFO << "Passed events / RoIs " << m_countPassedEvents << " / " << m_countPassedRoIs <<  endmsg;
   } else {
-    msg() << MSG::INFO << "Passed events / RoIs " << m_countPassedEventsKMuMu << " / " << m_countPassedKMuMuVertexCut <<  endreq;
+    msg() << MSG::INFO << "Passed events / RoIs " << m_countPassedEventsKMuMu << " / " << m_countPassedKMuMuVertexCut <<  endmsg;
   }
-  msg() << MSG::INFO << "Passed MuMu Invariant Mass Cut ( events / RoIs ) : "      << m_countPassedEventsMuMu  << " / " << m_countPassedMuMuMassCut << endreq;
-  msg() << MSG::INFO << "Passed KplusMuMu Invariant Mass Cut ( events / RoIs ) : " << m_countPassedEvents      << " / " << m_countPassedKMuMuMassCut << endreq;
+  msg() << MSG::INFO << "Passed MuMu Invariant Mass Cut ( events / RoIs ) : "      << m_countPassedEventsMuMu  << " / " << m_countPassedMuMuMassCut << endmsg;
+  msg() << MSG::INFO << "Passed KplusMuMu Invariant Mass Cut ( events / RoIs ) : " << m_countPassedEvents      << " / " << m_countPassedKMuMuMassCut << endmsg;
   if ( m_doVertexFit )
-    msg() << MSG::INFO << "Passed KplusMuMu vertexing ( events / RoIs ) : "          << m_countPassedEventsKMuMu << " / " << m_countPassedKMuMuVertexCut << endreq;
-  msg() << MSG::INFO << "|---------------------------------------------------------------------|" << endreq;
+    msg() << MSG::INFO << "Passed KplusMuMu vertexing ( events / RoIs ) : "          << m_countPassedEventsKMuMu << " / " << m_countPassedKMuMuVertexCut << endmsg;
+  msg() << MSG::INFO << "|---------------------------------------------------------------------|" << endmsg;
 
   return HLT::OK;
 }
@@ -159,7 +159,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
     m_TotTimer->start();
 
 
-  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigL2DiMuXFex" << endreq;
+  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigL2DiMuXFex" << endmsg;
 
   bool result      = false;
   bool resultMuMu  = false;
@@ -180,7 +180,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
     // event info
     uint32_t runNumber(0), evtNumber(0), lbBlock(0);
     if (m_bphysHelperTool->getRunEvtLb( runNumber, evtNumber, lbBlock).isFailure()) {
-        msg() << MSG::ERROR << "Error retriving EventInfo" << endreq;
+        msg() << MSG::ERROR << "Error retriving EventInfo" << endmsg;
     }
     IdEvent = evtNumber;
     IdRun   = runNumber;
@@ -189,11 +189,11 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
     // Accept-All mode: temporary patch; should be done with force-accept
   if ( m_acceptAll ) {
     if ( msgLvl() <= MSG::DEBUG ){
-      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endreq;
+      msg() << MSG::DEBUG << "AcceptAll property is set: taking all events" << endmsg;
     }
   } else {
     if ( msgLvl() <= MSG::DEBUG ){
-      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" << endreq;
+      msg() << MSG::DEBUG << "AcceptAll property not set: applying selection" << endmsg;
     }
   }
 
@@ -204,15 +204,15 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
   if ( roiDescriptor ) {
     if ( msgLvl() <= MSG::DEBUG ){
       msg() << MSG::DEBUG 
-	    << "Using outputTE ( " << outputTE << " ) ->getId(): " << outputTE->getId() << endreq;
+	    << "Using outputTE ( " << outputTE << " ) ->getId(): " << outputTE->getId() << endmsg;
       msg() << MSG::DEBUG << "RoI id " << roiDescriptor->roiId()
 	    << " LVL1 id " << roiDescriptor->l1Id()
 	    << " located at   phi = " <<  roiDescriptor->phi()
-	    << ", eta = " << roiDescriptor->eta() << endreq;
+	    << ", eta = " << roiDescriptor->eta() << endmsg;
     }
   } else {
     if ( msgLvl() <= MSG::WARNING ) {
-      msg() << MSG::WARNING << "No RoI for this Trigger Element!" << endreq;
+      msg() << MSG::WARNING << "No RoI for this Trigger Element!" << endmsg;
     }
     if ( timerSvc() ) 
       m_TotTimer->stop();    
@@ -240,18 +240,18 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
   HLT::ErrorCode status = getFeature ( outputTE, trigBphysColl );
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING ) {
-      msg() << MSG::WARNING << "Failed to get TrigBphysics collection" << endreq;
+      msg() << MSG::WARNING << "Failed to get TrigBphysics collection" << endmsg;
     }
     return HLT::OK;
   } else {
     if ( trigBphysColl == NULL ) {
       if ( msgLvl() <= MSG::DEBUG ) {
-	msg() << MSG::DEBUG << "No Bphys particles found" << endreq;
+	msg() << MSG::DEBUG << "No Bphys particles found" << endmsg;
       }
       return HLT::OK;
     }
     if ( msgLvl() <= MSG::DEBUG ) {
-      msg() << MSG::DEBUG << "Got TrigBphys collection with " << trigBphysColl->size() << " Bphys particle candidates" << endreq;
+      msg() << MSG::DEBUG << "Got TrigBphys collection with " << trigBphysColl->size() << " Bphys particle candidates" << endmsg;
     }
     // to count events from TrigDiMuon
     if ( IdEvent != m_lastEvent_DiMu ) {
@@ -264,17 +264,17 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
   xAOD::TrigBphysContainer::const_iterator endPair = trigBphysColl->end();
   for ( xAOD::TrigBphysContainer::const_iterator thePair = trigBphysColl->begin(); thePair != endPair; ++thePair ){
 
-    //if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "particleType = " << (*thePair)->particleType() << endreq;
+    //if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "particleType = " << (*thePair)->particleType() << endmsg;
     if ( (*thePair)->particleType() == xAOD::TrigBphys::JPSIMUMU) {
 
       float mass = (*thePair)->mass();
-      if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MuMu Invariant Mass = " << mass << endreq;
+      if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MuMu Invariant Mass = " << mass << endmsg;
 
       // apply mass cut
       if ( mass < m_lowerMuMuMassCut || mass > m_upperMuMuMassCut) {
 	if ( msgLvl()<= MSG::DEBUG ){
 	  msg() << MSG::DEBUG << "Combination discarded by mass cut: "
-		<< mass << " MeV" << endreq;
+		<< mass << " MeV" << endmsg;
 	}
           //particleOK.clear(); //to have only the muon pair in the vector
           v_particleOK.clear();
@@ -285,7 +285,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
           resultMuMu = true;
           if( msgLvl() <= MSG::DEBUG ) {
               msg() << MSG::DEBUG << "MuMu combination retained! Invariant mass value: "
-              << mass << " MeV" << endreq;
+              << mass << " MeV" << endmsg;
           }
           //particleOK.clear(); //to have only the muon pair in the vector
 	v_particleOK.clear(); 
@@ -298,7 +298,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
       //	TrackInVertexList* p_tracks=p_vtx->tracks();
         //const ElementLinkVector<TrigInDetTrackCollection> trackVector = (*thePair)->trackVector();
         const std::vector<ElementLink<xAOD::TrackParticleContainer> > & trackVector = (*thePair)->trackParticleLinks();
-      if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Number of tracks in vertex:  " << trackVector.size() << endreq;
+      if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Number of tracks in vertex:  " << trackVector.size() << endmsg;
       
       //std::list<const TrigInDetTrack*>::iterator vtrkIt=p_tracks->begin();	
       //std::list<const TrigInDetTrack*>::iterator vtrkItEnd=p_tracks->end();	
@@ -308,27 +308,27 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
             //  JW OLD          const TrigInDetTrackFitPar* p_param=(*(*vtrkIt))->param();
             //            if ( p_param == NULL ) {
             //                if( msgLvl() <= MSG::WARNING ) {
-            //                    msg() << MSG::WARNING << "No track parameters for track  " << itrk << endreq;
+            //                    msg() << MSG::WARNING << "No track parameters for track  " << itrk << endmsg;
             //                }
             //                continue;
             //            }
             //            if ( (*(*vtrkIt))->chi2() == 100000000.000 ) {
-            //                if( msgLvl() <= MSG::WARNING ) msg() << MSG::WARNING << "Chi2 of muon track " << itrk << " is 1e8 !" << endreq;
+            //                if( msgLvl() <= MSG::WARNING ) msg() << MSG::WARNING << "Chi2 of muon track " << itrk << " is 1e8 !" << endmsg;
             //                continue;
             //            }
             //            if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Parameters for track " << itrk << " : pT = "
             //                << p_param->pT() << " phi = " << p_param->phi0() << " eta = "
-            //                << p_param->eta() << endreq;
+            //                << p_param->eta() << endmsg;
             //            particleOK.push_back(p_param);	  
             //            v_particleOK.push_back(*(*vtrkIt));
             
             if ( (*(*vtrkIt))->chiSquared() == 100000000.000 ) {
-                if( msgLvl() <= MSG::WARNING ) msg() << MSG::WARNING << "Chi2 of muon track " << itrk << " is 1e8 !" << endreq;
+                if( msgLvl() <= MSG::WARNING ) msg() << MSG::WARNING << "Chi2 of muon track " << itrk << " is 1e8 !" << endmsg;
                 continue;
             } // if chi2
             if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Parameters for track " << itrk << " : pT = "
                 << (*(*vtrkIt))->pt() << " phi = " << (*(*vtrkIt))->phi() << " eta = "
-                << (*(*vtrkIt))->eta() << endreq;
+                << (*(*vtrkIt))->eta() << endmsg;
             //particleOK.push_back(p_param);
             //v_particleOK.push_back(*(*vtrkIt));
             v_particleOK.push_back(*(*vtrkIt));
@@ -340,12 +340,12 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
       status = getFeatures( outputTE, vectorOfTrackCollections );
       
       if ( trigBphysColl != NULL ){
-	if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphys collection with " << trigBphysColl->size() << " muon pairs candidates" << endreq;
+	if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphys collection with " << trigBphysColl->size() << " muon pairs candidates" << endmsg;
 	
 	if ( status != HLT::OK ) {
-	  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get InDetTrackCollections " << endreq;
+	  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get InDetTrackCollections " << endmsg;
 	} else {
-	  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got " << vectorOfTrackCollections.size() << " InDetTrackCollections" << endreq;
+	  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Got " << vectorOfTrackCollections.size() << " InDetTrackCollections" << endmsg;
 	}
 	
 	std::vector<const xAOD::TrackParticleContainer*>::iterator lastTrackColl = vectorOfTrackCollections.end();
@@ -353,7 +353,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
 	  
 	  xAOD::TrackParticleContainer::const_iterator track= (*iterTrackColl)->begin();
 	  xAOD::TrackParticleContainer::const_iterator lastTrack= (*iterTrackColl)->end();
-	  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found " << (*iterTrackColl)->size() << " tracks" << endreq;	 
+	  if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found " << (*iterTrackColl)->size() << " tracks" << endmsg;	 
 	  if ( (*iterTrackColl)->size() <= 2 )
 	    continue;
 	  
@@ -362,7 +362,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
           unsigned int algoId = (*track)->trackProperties(); //JW (*track)->algorithmId();
 	    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Info on InDet tracks, track: " << itrk << ", algo " << algoId
 		  << " pT = " << (*track)->pt() << " phi = " << (*track)->phi()
-		  << " eta = " << (*track)->eta() << endreq;
+		  << " eta = " << (*track)->eta() << endmsg;
 
 	    if ( (*track)->chiSquared() == 100000000.000 ) continue;
 	    
@@ -387,7 +387,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
 	    if ( std::fabs(v_particleOK[2]->pt() - v_particleOK[0]->pt()) > EPSILON && std::fabs(v_particleOK[2]->pt() - v_particleOK[1]->pt()) > EPSILON ){
             //double BmassHypo = InvMass(particleOK, massHypo);
             double BmassHypo = m_bphysHelperTool->invariantMass(v_particleOK,massHypo);
-	      if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "3 particles inv mass = " << BmassHypo << endreq;
+	      if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "3 particles inv mass = " << BmassHypo << endmsg;
             //particleOK.pop_back();
 	      v_particleOK.pop_back();
 	      
@@ -395,7 +395,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
 	      if ( BmassHypo < m_lowerKplusMuMuMassCut || BmassHypo > m_upperKplusMuMuMassCut ) {
 		if ( msgLvl()<= MSG::DEBUG ){
 		  msg() << MSG::DEBUG << "3 particles combination discarded by mass cut: "
-			<< BmassHypo << " MeV" << endreq;
+			<< BmassHypo << " MeV" << endmsg;
 		}
 		continue;
 	      } else {
@@ -404,7 +404,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
 		result = true;
 		if( msgLvl() <= MSG::DEBUG ) {
 		  msg() << MSG::DEBUG << "3 particles combination retained! Invariant mass value: "
-			<< BmassHypo << " MeV" << endreq;
+			<< BmassHypo << " MeV" << endmsg;
 		}
 	      }
 	      
@@ -419,7 +419,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
                 msg()  << MSG::DEBUG << "Create Bphys particle with roI Id " << trigPartBmumuX->roiId()
                 << " phi = " << trigPartBmumuX->phi() << " eta = " << trigPartBmumuX->eta()
                 << " mass = " << trigPartBmumuX->mass()
-                << " particle type (trigPartBmumuX->particleType()) " << trigPartBmumuX->particleType() << endreq;
+                << " particle type (trigPartBmumuX->particleType()) " << trigPartBmumuX->particleType() << endmsg;
             }
             // need to find index of tracks in collection
             xAOD::TrackParticleContainer::const_iterator it = (*iterTrackColl)->begin(),e = (*iterTrackColl)->end();
@@ -431,7 +431,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
                 if (v_particleOK[1] == (*it)) itr2=itrk;
                 if (v_particleOK[2] == (*it)) itr3=itrk;
             }
-            if (itr1==-99 || itr2==-99 || itr3==-99) msg() << MSG::INFO << "Something is worng, can't find tracks in original container" << endreq;
+            if (itr1==-99 || itr2==-99 || itr3==-99) msg() << MSG::INFO << "Something is worng, can't find tracks in original container" << endmsg;
             ElementLink<xAOD::TrackParticleContainer> track1EL(*(*iterTrackColl),itr1);
             ElementLink<xAOD::TrackParticleContainer> track2EL(*(*iterTrackColl),itr2);
             ElementLink<xAOD::TrackParticleContainer> track3EL(*(*iterTrackColl),itr3);
@@ -453,15 +453,15 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
                 // adding TrigInDetTrack* to the vertex
                 StatusCode sc_v = m_vertexingTool->addTrack(v_particleOK[0]->track(), vL2Kmumu, Trk::muon);
                 if(sc_v.isFailure()){
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to add track 1 to vertexingTool" << endreq;
+                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to add track 1 to vertexingTool" << endmsg;
                 }
                 sc_v = m_vertexingTool->addTrack(v_particleOK[1]->track(), vL2Kmumu, Trk::muon);
                 if(sc_v.isFailure()){
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to add track 2 to vertexingTool" << endreq;
+                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to add track 2 to vertexingTool" << endmsg;
                 }
                 sc_v = m_vertexingTool->addTrack(v_particleOK[2]->track(), vL2Kmumu, Trk::kaon);
                 if(sc_v.isFailure()){
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to add track 3 to vertexingTool" << endreq;
+                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to add track 3 to vertexingTool" << endmsg;
                 }
                 
                 // vertex fit
@@ -475,20 +475,20 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
                         sc_vert = m_vertexingTool->createMotherParticle(vL2Kmumu);
                         if ( sc_vert.isSuccess() ) {
                             if ( msgLvl() <= MSG::DEBUG) {
-                                msg() << MSG::DEBUG << "B+ created:" << endreq;
+                                msg() << MSG::DEBUG << "B+ created:" << endmsg;
                                 msg() << MSG::DEBUG << "B+ particle parameters : "
                                 << "  d0 =" << vL2Kmumu->m_getMotherTrack()->a0()
                                 << "  z0 = " << vL2Kmumu->m_getMotherTrack()->z0()
                                 << "  phi0 = " << vL2Kmumu->m_getMotherTrack()->phi0()
                                 << "  eta = " << vL2Kmumu->m_getMotherTrack()->eta()
-                                << "  pT = " << vL2Kmumu->m_getMotherTrack()->pT() << endreq;
+                                << "  pT = " << vL2Kmumu->m_getMotherTrack()->pT() << endmsg;
                             }
                             p_KmumuV = m_vertexingTool->createTrigVertex(vL2Kmumu);
                             
                             if ( p_KmumuV != NULL ){
                                 if ( msgLvl() <= MSG::DEBUG) {
-                                    msg() << MSG::DEBUG << "REGTEST: Kmumu vertex Fit: x = " << p_KmumuV->x() << " , y = " << p_KmumuV->y() << " , z = " << p_KmumuV->z() << endreq;
-                                    msg() << MSG::DEBUG << "REGTEST: Kmumu invariant mass = " << p_KmumuV->mass() << endreq;
+                                    msg() << MSG::DEBUG << "REGTEST: Kmumu vertex Fit: x = " << p_KmumuV->x() << " , y = " << p_KmumuV->y() << " , z = " << p_KmumuV->z() << endmsg;
+                                    msg() << MSG::DEBUG << "REGTEST: Kmumu invariant mass = " << p_KmumuV->mass() << endmsg;
                                 }
                                 trigPartBmumuX->setFitmass(p_KmumuV->mass());
                                 trigPartBmumuX->setFitchi2(p_KmumuV->chi2());
@@ -496,32 +496,32 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
                                 trigPartBmumuX->setFitx(p_KmumuV->x());
                                 trigPartBmumuX->setFity(p_KmumuV->y());
                                 trigPartBmumuX->setFitz(p_KmumuV->z());
-                                if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Added vertex information to B particle" << endreq;
+                                if ( msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "Added vertex information to B particle" << endmsg;
                                 
                                 m_trigBphysColl->push_back(trigPartBmumuX);
-                                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Added particle to Bphys particle collection" << endreq;
+                                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Added particle to Bphys particle collection" << endmsg;
                                 
                                 resultKMuMu = true;
                                 PassedKMuMuVertex = true;
                                 delete p_KmumuV;
                                 
                             } else {
-                                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"Failed to create Kmumu vertex" << endreq;
+                                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"Failed to create Kmumu vertex" << endmsg;
                                 delete p_KmumuV;
                                 delete trigPartBmumuX;
                             }
                         } else {
-                            if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"Failed to create mother particle of the Kmumu L2vertex" << endreq;
+                            if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"Failed to create mother particle of the Kmumu L2vertex" << endmsg;
                             delete p_KmumuV;
                             delete trigPartBmumuX;
                         }
                     } else {
-                        if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"Failed to calculate invariant mass for the Kmumu L2vertex" << endreq;
+                        if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"Failed to calculate invariant mass for the Kmumu L2vertex" << endmsg;
                         delete p_KmumuV;
                         delete trigPartBmumuX;
                     }
                 } else {
-                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"Failed to fit the Kmumu L2vertex" << endreq;
+                    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG <<"Failed to fit the Kmumu L2vertex" << endmsg;
                     delete p_KmumuV;    
                     delete trigPartBmumuX;
                 }
@@ -532,7 +532,7 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
             } else {  //end if ( m_doVertexFit ) 
                 
                 m_trigBphysColl->push_back(trigPartBmumuX);
-                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Added particle to Bphys particle collection" << endreq;
+                if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Added particle to Bphys particle collection" << endmsg;
                 
             }  //end if ( m_doVertexFit ) else
             
@@ -546,16 +546,16 @@ HLT::ErrorCode TrigL2DiMuXFex::hltExecute(const HLT::TriggerElement* /*inputTE*/
   } // end iterator over pairs TrigL2Bphys Collection
   
   if ( ( m_trigBphysColl != 0 ) && ( m_trigBphysColl->size() > 0 ) ) {
-    if ( msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << m_trigBphysColl->size() << endreq;
+    if ( msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << m_trigBphysColl->size() << endmsg;
     HLT::ErrorCode sc = attachFeature(outputTE, m_trigBphysColl, "L2DiMuXFex" );
     if ( sc != HLT::OK ) {
-      msg() << MSG::WARNING << "Failed to store trigBphys Collection" << endreq;
+      msg() << MSG::WARNING << "Failed to store trigBphys Collection" << endmsg;
       if ( timerSvc() ) 
 	m_TotTimer->stop();        
       return sc;
     }
   } else {
-    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: No Bphys Collection to store"  << endreq;
+    if ( msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: No Bphys Collection to store"  << endmsg;
     delete m_trigBphysColl;
   }
   m_trigBphysColl=nullptr;

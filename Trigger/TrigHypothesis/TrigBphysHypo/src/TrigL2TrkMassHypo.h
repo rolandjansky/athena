@@ -41,12 +41,12 @@ private:
     void handle(const Incident &); 
 
     /* monitored variables */
-    int mon_cutCounter;
-    int mon_NBphys;
-    std::vector<float> mon_Mass;
-    //std::vector<float> mon_FitMass;
-    //std::vector<float> mon_Chi2;
-    //std::vector<float> mon_Chi2Prob;
+    int m_mon_cutCounter;
+    int m_mon_NBphys;
+    std::vector<float> m_mon_Mass;
+    //std::vector<float> m_mon_FitMass;
+    //std::vector<float> m_mon_Chi2;
+    //std::vector<float> m_mon_Chi2Prob;
 
 };
 

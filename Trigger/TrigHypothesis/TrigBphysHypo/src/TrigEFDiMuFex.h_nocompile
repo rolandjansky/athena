@@ -1,0 +1,90 @@
+/***************************************************************************
+    Authors: E. Reinherz-Aronis, A. Kreisel 
+             This Fex is able to run after both TrigMuGirl and TrigMounEF
+***************************************************************************/
+#ifndef TRIGEFDIMUFEX_XAOD_H
+#define TRIGEFDIMUFEX_XAOD_H
+
+#include "TrigInterfaces/FexAlgo.h"
+#include "TrigParticle/TrigEFBphys.h"
+#include "TrigParticle/TrigEFBphysContainer.h"
+
+// for vertex fitting
+#include "TrkVKalVrtFitter/TrkVKalVrtFitter.h"
+
+#include "xAODTrigBphys/TrigBphys.h"
+#include "xAODTrigBphys/TrigBphysContainer.h"
+#include "xAODTrigBphys/TrigBphysAuxContainer.h"
+
+
+class TriggerElement;
+//class TrigEFDiMuNtuple;
+
+class TrigEFDiMuFex: public HLT::FexAlgo{
+
+public:
+    TrigEFDiMuFex(const std::string& name, ISvcLocator* pSvcLocator);
+    ~TrigEFDiMuFex();
+
+    HLT::ErrorCode hltInitialize();
+    HLT::ErrorCode hltFinalize();
+    HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE, HLT::TriggerElement* outputTE);
+    HLT::ErrorCode doMuTruth();
+	
+private:
+    
+    DoubleProperty m_MassMin;
+    DoubleProperty m_MassMax;
+    BooleanProperty m_ApplyMassMax;
+    BooleanProperty m_ApplyOppCharge;
+    //    BooleanProperty m_acceptAll;
+
+    int m_eRunNumber;
+    int m_eEventNumber;
+
+    float m_jpsiMass;
+    //    float jpsiMassCut;
+    float m_jpsiE;
+    //    float jpsiECut;
+
+    std::vector<float> m_pt;
+    std::vector<float> m_cotTh;
+    std::vector<float> m_eta;
+    std::vector<float> m_phi;
+    std::vector<float> m_m;
+    std::vector<float> m_charge;
+    std::vector<float> m_type;
+
+    float m_p1[4], m_p2[4];
+
+    int m_NumberOfMuons;
+
+    //TrigEFBphys* pMuPair;
+    //TrigEFBphysContainer* pOut;
+    xAOD::TrigBphysContainer * m_TrigBphysColl;
+    //xAOD::TrigBphysAuxContainer * mTrigBphysAuxColl;
+
+//     int                                 m_max_pair;
+    StringProperty                      m_ntupleName;       /**< The name of the output NTuple */
+    StringProperty                      m_ntupleTitle;      /**< The label of the output NTuple */
+    StringProperty			m_fileName;
+    BooleanProperty                     m_doTruth;
+    BooleanProperty                     m_doNTuple;
+    // TrigEFDiMuNtuple*                   m_pTrigEFDiMuNtuple;
+    int *m_pTrigEFDiMuNtuple;
+//     NTuple::Tuple*                      m_ntuple;
+
+    BooleanProperty                     m_GotFitTool;
+    ToolHandle<Trk::IVertexFitter>      m_iVKVVertexFitter; 
+    Trk::TrkVKalVrtFitter*              m_eVKalVrtFitter;
+    
+    /* monitored variables */
+    std::vector<float> m_mon_muonpT;
+    std::vector<float> m_mon_muonEta;
+    std::vector<float> m_mon_muonPhi;
+    std::vector<float> m_mon_jpsiMass;
+    std::vector<float> m_mon_VtxPt;
+    
+};
+
+#endif 

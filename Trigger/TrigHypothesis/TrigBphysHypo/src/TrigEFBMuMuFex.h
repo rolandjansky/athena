@@ -76,22 +76,22 @@ class TrigEFBMuMuFex: public HLT::ComboAlgo  {
     bool m_considerSameRoiCombinations; // look also at muon pairs within same roi
     
     //Monitored variables
-    std::vector<int>   mon_Errors;
-    std::vector<int>   mon_Acceptance;
-    double mon_dEtaRoI;
-    double mon_dPhiRoI;
-    double mon_dEtaMuMu;
-    double mon_dPhiMuMu;
-    double mon_pTsum;
-    double mon_mu1pT;
-    double mon_mu2pT;
-    double mon_mu1eta;
-    double mon_mu2eta;
-    double mon_mu1phi;
-    double mon_mu2phi;
-    double mon_MuMumass;
-    double mon_BmassFit;
-    double mon_Chi2;
+    std::vector<int>   m_mon_Errors;
+    std::vector<int>   m_mon_Acceptance;
+    double m_mon_dEtaRoI;
+    double m_mon_dPhiRoI;
+    double m_mon_dEtaMuMu;
+    double m_mon_dPhiMuMu;
+    double m_mon_pTsum;
+    double m_mon_mu1pT;
+    double m_mon_mu2pT;
+    double m_mon_mu1eta;
+    double m_mon_mu2eta;
+    double m_mon_mu1phi;
+    double m_mon_mu2phi;
+    double m_mon_MuMumass;
+    double m_mon_BmassFit;
+    double m_mon_Chi2;
 
     //Counters
     uint32_t m_lastEvent;
