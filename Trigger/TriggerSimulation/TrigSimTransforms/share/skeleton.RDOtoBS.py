@@ -5,8 +5,8 @@ log.info("="*20 + "Beginning of RDOtoBS" + "="*20)
 
 # Input and output
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.PoolRDOInput.set_Value_and_Lock( runArgs.inputRDOFile )
-athenaCommonFlags.BSRDOOutput.set_Value_and_Lock( runArgs.outputBS_OLDFile )
+athenaCommonFlags.PoolRDOInput.set_Value_and_Lock(runArgs.inputRDOFile)
+athenaCommonFlags.BSRDOOutput.set_Value_and_Lock(runArgs.outputBS_OLDFile)
 athenaCommonFlags.EvtMax = -1
 if hasattr(runArgs, "skipEvents"): athenaCommonFlags.SkipEvents.set_Value_and_Lock(runArgs.skipEvents)
 
@@ -28,7 +28,6 @@ if hasattr(runArgs, "outputBSEventStorageVersion"):
 # disable check of geometry tags
 from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
 GeoModelSvc = GeoModelSvc()
-GeoModelSvc.IgnoreTagSupport = True
 GeoModelSvc.IgnoreTagDifference = True
 
 include("TrigSimTransforms/athena_RDOtoBS.py")

@@ -540,8 +540,8 @@ MessageSvc = svcMgr.MessageSvc
 MessageSvc.Format = "% F%48W%S%7W%R%T %0W%M"
 MessageSvc.debugLimit = 100000
 
-
-topSequence.TrigSteer_L2.muFast_900GeV.AthenaMonTools = PrivateToolHandleArray(['TrigGenericMonitoringTool/TrigmuFastOnlineMonitoring', 'TrigGenericMonitoringTool/TrigmuFastCosmicMonitoring', 'TrigTimeHistTool/Time'])
+# commenting-out, this causes ERROR message "No variables to be monitored"
+# topSequence.TrigSteer_L2.muFast_900GeV.AthenaMonTools = PrivateToolHandleArray(['TrigGenericMonitoringTool/TrigmuFastOnlineMonitoring', 'TrigGenericMonitoringTool/TrigmuFastCosmicMonitoring', 'TrigTimeHistTool/Time'])
 
 defaultOptions = {}
 defaultOptions['setModifiers']=[#Common modifiers for MC and data

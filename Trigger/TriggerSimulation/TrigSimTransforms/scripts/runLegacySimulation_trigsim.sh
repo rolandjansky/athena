@@ -11,19 +11,18 @@ INPUTBS="../rdo2bs/digiBS.data"
 
 OUTPUTBS="trigBS.data"
 
-DIGICON="OFLCOND-MC12b-SDR-01"
-DIGIGEO="ATLAS-GEO-21-02-02"
-#DIGICON="OFLCOND-RUN12-SDR-25"
-#DIGIGEO="ATLAS-R2-2015-02-01-00"
-TRIGCONFIG='all=MCRECO:DB:TRIGGERDBMC:325,142,266'
-#ASETUP="b2tb:--testarea=/afs/cern.ch/user/s/salnikov/work/public/LegacySimulation/17.2.11.2 AtlasProduction,17.2.11.2,slc5"
+GEOMTAG="ATLAS-GEO-21-02-02"
+CONDTAG="OFLCOND-MC12b-SDR-01"
+#CONDTAG="OFLCOND-RUN12-SDR-25"
+#GEOMTAG="ATLAS-R1-2012-02-00-00"  # crashes
+TRIGCONFIG='all=MCRECO:DB:TRIGGERDBMC_RUN1:325,142,266'
 ASETUP="b2tb:17.2.11.2,slc5"
 
 echo "Input file : "$INPUTBS
 echo "Output     : "$OUTPUTBS
 echo
-echo "Conditions : "$DIGICON
-echo "Geometry   : "$DIGIGEO
+echo "Conditions : "$CONDTAG
+echo "Geometry   : "$GEOMTAG
 echo "Trigger    : "$TRIGCONFIG
 echo
 
@@ -32,7 +31,7 @@ test -n "$ASETUP" && ASETUP="--asetup \"$ASETUP\""
 eval TrigAndReco_tf.py --inputBS_OLDFile $INPUTBS --outputBS_TRIG_OLDFile $OUTPUTBS \
     --imf false \
     --triggerConfig $TRIGCONFIG \
-    --geometryVersion "b2tb:$DIGIGEO" --conditionsTag "b2tb:$DIGICON" \
+    --geometryVersion "b2tb:$GEOMTAG" --conditionsTag "b2tb:$CONDTAG" \
     --copyJO "b2tb:TrigSimTransforms/skeleton.BStoTRIGBS.py" \
     $ASETUP \
     > log  2>&1
