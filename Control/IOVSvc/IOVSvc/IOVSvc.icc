@@ -56,7 +56,7 @@
 //    std::string fullname = tname + "[" + key + "]";
 
 //    log << MSG::ERROR << "regHandle(): DataHandle must be const: " << fullname 
-//        << endreq;
+//        << endmsg;
 
 //    return StatusCode::FAILURE;
 //  }
@@ -75,12 +75,12 @@
 
 //    std::string fullname = tname + "[" + key + "]";
 
-//    log << MSG::DEBUG << "regHandle: " << fullname << endreq;
+//    log << MSG::DEBUG << "regHandle: " << fullname << endmsg;
 
 //    // bind the handle to the key, creates an invalid DataProxy
 //    if (p_cndSvc->bind(handle,key).isFailure()) {
 //      log << MSG::ERROR << "could not bind handle to " << tname
-//  	<< " to key: " << key << endreq;
+//  	<< " to key: " << key << endmsg;
 //      return StatusCode::FAILURE;
 //    }
 
@@ -90,7 +90,7 @@
 
 //    if ( dp == 0 ) {
 //      log << MSG::ERROR << "could not get proxy for handle " << fullname
-//  	<<  endreq;
+//  	<<  endmsg;
 //      return StatusCode::FAILURE;
 //    }
 
@@ -114,7 +114,7 @@
 //    std::string fullname = tname + "[" + key + "]";
 
 //    log << MSG::ERROR << "regFcn(): DataHandle must be const: " << fullname 
-//        << endreq;
+//        << endmsg;
 
 //    return StatusCode::FAILURE;
 
@@ -137,7 +137,7 @@
 //    // bind the handle to the key, creates an invalid DataProxy
 //    if (p_cndSvc->bind(handle,key).isFailure()) {
 //      log << MSG::ERROR << "could not bind handle to " << tname
-//  	<< " to key: " << key << endreq;
+//  	<< " to key: " << key << endmsg;
 //      return StatusCode::FAILURE;
 //    }
 
@@ -146,7 +146,7 @@
 
 //    if ( dp == 0 ) {
 //      log << MSG::ERROR << "could not get proxy for handle " << fullname 
-//  	<<  endreq;
+//  	<<  endmsg;
 //      return StatusCode::FAILURE;
 //    }
 
@@ -168,7 +168,7 @@
 //      log << MSG::ERROR << "Cannot register object " << c.name()
 //  	<< " with DataHandle " << fullname 
 //  	<< " -> Need to bind DataHandle first" 
-//  	<< endreq;
+//  	<< endmsg;
 //      return StatusCode::FAILURE;
 //    } else {
 //      m_names[dp] = fullname;
@@ -180,7 +180,7 @@
 //    #if (__GNUC__ < 3)
 //    if (c.offset() == 0x7fff) {
 //      log << MSG::ERROR << "Callback function " << c.name() << " is not virtual."
-//  	<< " Cannot bind it to " << fullname << endreq;
+//  	<< " Cannot bind it to " << fullname << endmsg;
 //      return StatusCode::FAILURE;
 //    }
 //    #endif
@@ -192,7 +192,7 @@
 //    for (pmITR p=fitr.first; p!=fitr.second; ++p) {
 //      if ( m_fcnMap[p->second] == c ) {
 //        log << MSG::ERROR << "CallBack function " << c.name()
-//  	  << " already registered against " << fullname << endreq;
+//  	  << " already registered against " << fullname << endmsg;
 //        return StatusCode::FAILURE;
 //      }
 //    }
@@ -213,12 +213,12 @@
 //    m_bfcnMap.insert(std::pair<BFCN*, const SG::DataProxy*> (obs,dp));
 
 //    log << MSG::INFO << "register by " << c.name() << " bound to " << fullname 
-//        << endreq;
+//        << endmsg;
 
 //    if (trigger) {
 //      if (m_first) {
 //        log << MSG::ERROR << "Still in initialize phase, not tiggering callback."
-//  	  << endreq;
+//  	  << endmsg;
 //      } else {
 //        return triggerCallback(obs, dp->name());
 //      }
@@ -252,7 +252,7 @@
 
 //    if (c1 == c2) {
 //      log << MSG::ERROR << "Cannot register 2nd callback function and assocaited"
-//  	<< " object with itself" << endreq;
+//  	<< " object with itself" << endmsg;
 //      return StatusCode::FAILURE;
 //    }
 
@@ -260,7 +260,7 @@
 //    if (m_cbidMap.find(c1) == m_cbidMap.end()) {
 //      log << MSG::ERROR << "CallBack function " << c2.name()
 //  	<< " cannot be registered since function " << c1.name()
-//  	<< " has not been registered first" << endreq;
+//  	<< " has not been registered first" << endmsg;
 //      return StatusCode::FAILURE;
 //    }
 
@@ -282,7 +282,7 @@
 //  	if (prx1 == prx2) {
 //  	  log << MSG::WARNING << "Callback function " << c2.name()
 //  	      << " cannot be registered since it has already been registered "
-//  	      << "against " << m_names[prx1] << endreq;
+//  	      << "against " << m_names[prx1] << endmsg;
 //  	} else {
 //  	  proxyset.insert(prx1);    // don't care if it gets done many times
 //  	}
@@ -305,7 +305,7 @@
 //    if (proxyset.size() == 0) {
 //      log << MSG::ERROR << "Callback function " << c2.name() 
 //  	<< " cannot be registered, since it has already been registered"
-//  	<< " against everything it can be." << endreq;
+//  	<< " against everything it can be." << endmsg;
 //      return StatusCode::FAILURE;
 //    }
 
@@ -318,14 +318,14 @@
 //      m_bfcnMap.insert(std::pair<BFCN*,const SG::DataProxy*>(obs2,prx));
 	
 //      log << MSG::INFO << "register by " << c2.name() << " bound to "
-//  	<< m_names[prx] << endreq;
+//  	<< m_names[prx] << endmsg;
 //      klist.push_back( prx->name() );
 //    }
 
 //    if (trigger) {
 //      if (m_first) {
 //        log << MSG::ERROR << "Still in initialize phase, not tiggering callback."
-//  	  << endreq;
+//  	  << endmsg;
 //      } else {
 //        return triggerCallback(obs2, *(klist.begin()) );
 //      }
