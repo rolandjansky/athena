@@ -39,6 +39,7 @@
 
 static bool isIBL(false);
 static bool isRUN1(false);
+static bool isITK(false);
  
 //namespace PixelCalib
 //{
@@ -123,8 +124,9 @@ StatusCode  PixelCalibDbTool::initialize()
     msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
     return (StatusCode::FAILURE);
   }
-  if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN2)isIBL=true;
-  if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN1)isRUN1=true;
+  if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN2) { isIBL =true; }
+  if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN1) { isRUN1=true; }
+  if(m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN4) { isITK =true; }
 
   // Get the geometry 
   InDetDD::SiDetectorElementCollection::const_iterator iter, itermin, itermax; 
@@ -153,12 +155,14 @@ StatusCode  PixelCalibDbTool::initialize()
     if(element !=0){ 
       Identifier ident = element->identify(); 
       if(m_pixid->is_pixel(ident)){  // OK this Element is included 
-	const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-	if(!design)continue;
-	unsigned int mchips = design->numberOfCircuits();
-	if(mchips==8||abs(m_pixid->barrel_ec(ident))==2||(m_pixid->barrel_ec(ident)==0&&m_pixid->layer_disk(ident)>0))mchips *=2; // guess numberOfCircuits() 
-	m_calibobjs.push_back(std::make_pair(ident,mchips)); 
-	// write up the dump calibration here with default value:
+        const InDetDD::PixelModuleDesign* design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+        if(!design)continue;
+        unsigned int mchips = design->numberOfCircuits();
+        if (!isITK) {
+          if(mchips==8||abs(m_pixid->barrel_ec(ident))==2||(m_pixid->barrel_ec(ident)==0&&m_pixid->layer_disk(ident)>0))mchips *=2; // guess numberOfCircuits() 
+        }
+        m_calibobjs.push_back(std::make_pair(ident,mchips)); 
+        // write up the dump calibration here with default value:
       }
     }
   }
@@ -247,12 +251,12 @@ StatusCode PixelCalibDbTool::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys))
  
 	int component, eta;
 	unsigned int layer,phi;
-	if(!isRUN1){
-	  // RUN-1 or RUN-4 IOVs
-	  if(!isIBL)continue;
-	  istr>>component>>c>>layer>>c>>phi>>c>>eta;
-	}
-	else{	 
+  if(!isRUN1){
+    // RUN-2 or RUN-4 IOVs
+//    if(!isIBL)continue;   // Need to think better protection mechanism.
+    istr>>component>>c>>layer>>c>>phi>>c>>eta;
+  }
+  else{	 
 	  istr>>ix;
 	  unsigned int hashID = atoi(ix.c_str());
 	  component =static_cast<int>((hashID & (3 << 25)) / 33554432) * 2 - 2 ;
