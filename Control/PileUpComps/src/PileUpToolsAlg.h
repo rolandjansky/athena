@@ -31,7 +31,7 @@ public:
 
 private:
   StatusCode clearXing(SubEventIterator& fEvt,
-                       SubEventIterator& lEvt);
+                       const SubEventIterator& lEvt);
   ToolHandleArray<IPileUpTool> m_puTools;
 };
 
