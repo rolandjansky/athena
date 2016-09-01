@@ -63,7 +63,6 @@ const std::vector< std::shared_ptr<const Trk::Surface> > Trk::DigitizationModule
     const Trk::DigitizationCell startCell = m_segmentation->cell(start);
     const Trk::DigitizationCell endCell   = m_segmentation->cell(end);
     
-    
     // go along x - first with the naive binning (i.e. w.o lorentz angle)
     size_t sCellX = startCell.first;
     size_t eCellX = endCell.first;

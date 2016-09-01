@@ -171,19 +171,20 @@ const Trk::DigitizationStep Trk::RectangularSegmentation::digitizationStep(const
                                                                            double halfThickness,
                                                                            int readoutDirection, 
                                                                            double lorentzAngle) const
-{
-   
+{   
     Amg::Vector3D stepCenter = 0.5*(startStep+endStep);
-    // project to parameter surface
-    double lorentzDeltaX = -readoutDirection*stepCenter.z()*tan(lorentzAngle);
-    // take the full drift length
-    double driftInZ = (halfThickness-readoutDirection*stepCenter.z());
-    double driftLength  = fabs(driftInZ/cos(lorentzAngle)); 
-    // the projected center
+    // take the full drift length 
+    // this is the absolute drift in z
+    double driftInZ     = halfThickness-readoutDirection*stepCenter.z();
+    // this is the absolute drift length
+    double driftLength  = driftInZ/cos(lorentzAngle); 
+    // project to parameter the readout surface
+    double lorentzDeltaX = readoutDirection*driftInZ*tan(lorentzAngle);
+    // the projected center, it has the lorentz shift applied 
     Amg::Vector2D stepCenterProjected(stepCenter.x()+lorentzDeltaX,stepCenter.y());
     // the cell & its center
     Trk::DigitizationCell dCell = cell(stepCenterProjected);
-    Amg::Vector2D cellCenter = cellPosition(dCell);
+    Amg::Vector2D cellCenter    = cellPosition(dCell);
     // we are ready to return what we have
     return Trk::DigitizationStep((endStep-startStep).mag(),driftLength,dCell,startStep,endStep,stepCenterProjected,cellCenter);   
 }
