@@ -11,7 +11,7 @@
 #include "yampl/Exceptions.h"
 
 #include "boost/shared_ptr.hpp"
-#include <queue>
+#include <deque>
 
 class IEventSeek;
 class IEventShare;
@@ -73,7 +73,7 @@ class EvtRangeProcessor : public AthenaMPToolBase
   AthenaInterprocess::SharedQueue*  m_sharedFailedPidQueue;          
 
   std::map<pid_t,int>               m_nProcessedEvents; // Number of processed events by PID
-  std::queue<pid_t>                 m_finQueue;         // PIDs of processes queued for finalization
+  std::deque<pid_t>                 m_finQueue;         // PIDs of processes queued for finalization
 
   yampl::ISocketFactory*            m_socketFactory;
   yampl::ISocket*                   m_socket2Scatterer;
