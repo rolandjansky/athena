@@ -63,8 +63,8 @@ HLT::ComboAlgo(name, pSvcLocator)
 ,m_bphysHelperTool("TrigBphysHelperUtilsTool")
 //,m_trigBphysColl_b(NULL)
 //,m_trigBphysColl_X(NULL)
-,mTrigBphysColl_b(NULL)
-,mTrigBphysColl_X(NULL)
+,m_TrigBphysColl_b(NULL)
+,m_TrigBphysColl_X(NULL)
 
 ,m_TotTimer(0)
 ,m_VtxFitTimer(0)
@@ -237,106 +237,106 @@ HLT::ComboAlgo(name, pSvcLocator)
     
     // Monitoring variables
     //   General
-    declareMonitoredStdContainer("Errors",     mon_Errors,     AutoClear);
-    declareMonitoredStdContainer("Acceptance", mon_Acceptance, AutoClear);
-    declareMonitoredVariable("nTriedCombinations", mon_nTriedCombinations );
+    declareMonitoredStdContainer("Errors",     m_mon_Errors,     AutoClear);
+    declareMonitoredStdContainer("Acceptance", m_mon_Acceptance, AutoClear);
+    declareMonitoredVariable("nTriedCombinations", m_mon_nTriedCombinations );
     //   Timing
-    declareMonitoredVariable("TotalRunTime",  mon_TotalRunTime);
-    declareMonitoredVariable("VertexingTime", mon_VertexingTime);
+    declareMonitoredVariable("TotalRunTime",  m_mon_TotalRunTime);
+    declareMonitoredVariable("VertexingTime", m_mon_VertexingTime);
     //   RoIs
-    declareMonitoredStdContainer("RoI_RoI1Eta", mon_RoI_RoI1Eta, AutoClear);
-    declareMonitoredStdContainer("RoI_RoI2Eta", mon_RoI_RoI2Eta, AutoClear);
-    declareMonitoredStdContainer("RoI_RoI1Phi", mon_RoI_RoI1Phi, AutoClear);
-    declareMonitoredStdContainer("RoI_RoI2Phi", mon_RoI_RoI2Phi, AutoClear);
-    declareMonitoredStdContainer("RoI_dEtaRoI", mon_RoI_dEtaRoI, AutoClear);
-    declareMonitoredStdContainer("RoI_dPhiRoI", mon_RoI_dPhiRoI, AutoClear);
+    declareMonitoredStdContainer("RoI_RoI1Eta", m_mon_RoI_RoI1Eta, AutoClear);
+    declareMonitoredStdContainer("RoI_RoI2Eta", m_mon_RoI_RoI2Eta, AutoClear);
+    declareMonitoredStdContainer("RoI_RoI1Phi", m_mon_RoI_RoI1Phi, AutoClear);
+    declareMonitoredStdContainer("RoI_RoI2Phi", m_mon_RoI_RoI2Phi, AutoClear);
+    declareMonitoredStdContainer("RoI_dEtaRoI", m_mon_RoI_dEtaRoI, AutoClear);
+    declareMonitoredStdContainer("RoI_dPhiRoI", m_mon_RoI_dPhiRoI, AutoClear);
     //   DiMuon
-    declareMonitoredVariable("DiMu_n", mon_DiMu_n);
-    declareMonitoredStdContainer("DiMu_Pt_Mu1",       mon_DiMu_Pt_Mu1,       AutoClear);
-    declareMonitoredStdContainer("DiMu_Pt_Mu2",       mon_DiMu_Pt_Mu2,       AutoClear);
-    declareMonitoredStdContainer("DiMu_Eta_Mu1",      mon_DiMu_Eta_Mu1,      AutoClear);
-    declareMonitoredStdContainer("DiMu_Eta_Mu2",      mon_DiMu_Eta_Mu2,      AutoClear);
-    declareMonitoredStdContainer("DiMu_Phi_Mu1",      mon_DiMu_Phi_Mu1,      AutoClear);
-    declareMonitoredStdContainer("DiMu_Phi_Mu2",      mon_DiMu_Phi_Mu2,      AutoClear);
-    declareMonitoredStdContainer("DiMu_dEtaMuMu",     mon_DiMu_dEtaMuMu,     AutoClear);
-    declareMonitoredStdContainer("DiMu_dPhiMuMu",     mon_DiMu_dPhiMuMu,     AutoClear);
-    declareMonitoredStdContainer("DiMu_pTsumMuMu",    mon_DiMu_pTsumMuMu,    AutoClear);
-    declareMonitoredStdContainer("DiMu_InvMassMuMu",  mon_DiMu_InvMassMuMu, AutoClear);
-    declareMonitoredStdContainer("DiMu_VtxMassMuMu",  mon_DiMu_VtxMassMuMu, AutoClear);
-    declareMonitoredStdContainer("DiMu_Chi2MuMu",     mon_DiMu_Chi2MuMu,    AutoClear);
+    declareMonitoredVariable("DiMu_n", m_mon_DiMu_n);
+    declareMonitoredStdContainer("DiMu_Pt_Mu1",       m_mon_DiMu_Pt_Mu1,       AutoClear);
+    declareMonitoredStdContainer("DiMu_Pt_Mu2",       m_mon_DiMu_Pt_Mu2,       AutoClear);
+    declareMonitoredStdContainer("DiMu_Eta_Mu1",      m_mon_DiMu_Eta_Mu1,      AutoClear);
+    declareMonitoredStdContainer("DiMu_Eta_Mu2",      m_mon_DiMu_Eta_Mu2,      AutoClear);
+    declareMonitoredStdContainer("DiMu_Phi_Mu1",      m_mon_DiMu_Phi_Mu1,      AutoClear);
+    declareMonitoredStdContainer("DiMu_Phi_Mu2",      m_mon_DiMu_Phi_Mu2,      AutoClear);
+    declareMonitoredStdContainer("DiMu_dEtaMuMu",     m_mon_DiMu_dEtaMuMu,     AutoClear);
+    declareMonitoredStdContainer("DiMu_dPhiMuMu",     m_mon_DiMu_dPhiMuMu,     AutoClear);
+    declareMonitoredStdContainer("DiMu_pTsumMuMu",    m_mon_DiMu_pTsumMuMu,    AutoClear);
+    declareMonitoredStdContainer("DiMu_InvMassMuMu",  m_mon_DiMu_InvMassMuMu, AutoClear);
+    declareMonitoredStdContainer("DiMu_VtxMassMuMu",  m_mon_DiMu_VtxMassMuMu, AutoClear);
+    declareMonitoredStdContainer("DiMu_Chi2MuMu",     m_mon_DiMu_Chi2MuMu,    AutoClear);
     //   Tracks
-    declareMonitoredVariable("Tracks_n", mon_Tracks_n);
-    declareMonitoredStdContainer("Tracks_Eta", mon_Tracks_Eta, AutoClear);
-    declareMonitoredStdContainer("Tracks_Pt",  mon_Tracks_Pt,  AutoClear);
-    declareMonitoredStdContainer("Tracks_Phi", mon_Tracks_Phi, AutoClear);
+    declareMonitoredVariable("Tracks_n", m_mon_Tracks_n);
+    declareMonitoredStdContainer("Tracks_Eta", m_mon_Tracks_Eta, AutoClear);
+    declareMonitoredStdContainer("Tracks_Pt",  m_mon_Tracks_Pt,  AutoClear);
+    declareMonitoredStdContainer("Tracks_Phi", m_mon_Tracks_Phi, AutoClear);
     //   B+
-    declareMonitoredVariable("BMuMuK_n", mon_BMuMuK_n);
-    declareMonitoredStdContainer("BMuMuK_Pt_K",      mon_BMuMuK_Pt_K,      AutoClear);
-    declareMonitoredStdContainer("BMuMuK_Eta_K",     mon_BMuMuK_Eta_K,     AutoClear);
-    declareMonitoredStdContainer("BMuMuK_Phi_K",     mon_BMuMuK_Phi_K,     AutoClear);
-    declareMonitoredStdContainer("BMuMuK_InvMass_B", mon_BMuMuK_InvMass_B, AutoClear);
-    declareMonitoredStdContainer("BMuMuK_VtxMass_B", mon_BMuMuK_VtxMass_B, AutoClear);
-    declareMonitoredStdContainer("BMuMuK_Chi2_B",    mon_BMuMuK_Chi2_B,    AutoClear);
+    declareMonitoredVariable("BMuMuK_n", m_mon_BMuMuK_n);
+    declareMonitoredStdContainer("BMuMuK_Pt_K",      m_mon_BMuMuK_Pt_K,      AutoClear);
+    declareMonitoredStdContainer("BMuMuK_Eta_K",     m_mon_BMuMuK_Eta_K,     AutoClear);
+    declareMonitoredStdContainer("BMuMuK_Phi_K",     m_mon_BMuMuK_Phi_K,     AutoClear);
+    declareMonitoredStdContainer("BMuMuK_InvMass_B", m_mon_BMuMuK_InvMass_B, AutoClear);
+    declareMonitoredStdContainer("BMuMuK_VtxMass_B", m_mon_BMuMuK_VtxMass_B, AutoClear);
+    declareMonitoredStdContainer("BMuMuK_Chi2_B",    m_mon_BMuMuK_Chi2_B,    AutoClear);
     //   Bd
-    declareMonitoredVariable("BdMuMuKs_n", mon_BdMuMuKs_n);
-    declareMonitoredStdContainer("BdMuMuKs_Pt_K",          mon_BdMuMuKs_Pt_K,          AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_Eta_K",         mon_BdMuMuKs_Eta_K,         AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_Phi_K",         mon_BdMuMuKs_Phi_K,         AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_Pt_Pi",         mon_BdMuMuKs_Pt_Pi,         AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_Eta_Pi",        mon_BdMuMuKs_Eta_Pi,        AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_Phi_Pi",        mon_BdMuMuKs_Phi_Pi,        AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_InvMass_Kstar", mon_BdMuMuKs_InvMass_Kstar, AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_VtxMass_Kstar", mon_BdMuMuKs_VtxMass_Kstar, AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_Chi2_Kstar",    mon_BdMuMuKs_Chi2_Kstar,    AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_InvMass_Bd",    mon_BdMuMuKs_InvMass_Bd,    AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_VtxMass_Bd",    mon_BdMuMuKs_VtxMass_Bd,    AutoClear);
-    declareMonitoredStdContainer("BdMuMuKs_Chi2_Bd",       mon_BdMuMuKs_Chi2_Bd,       AutoClear);
+    declareMonitoredVariable("BdMuMuKs_n", m_mon_BdMuMuKs_n);
+    declareMonitoredStdContainer("BdMuMuKs_Pt_K",          m_mon_BdMuMuKs_Pt_K,          AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_Eta_K",         m_mon_BdMuMuKs_Eta_K,         AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_Phi_K",         m_mon_BdMuMuKs_Phi_K,         AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_Pt_Pi",         m_mon_BdMuMuKs_Pt_Pi,         AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_Eta_Pi",        m_mon_BdMuMuKs_Eta_Pi,        AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_Phi_Pi",        m_mon_BdMuMuKs_Phi_Pi,        AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_InvMass_Kstar", m_mon_BdMuMuKs_InvMass_Kstar, AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_VtxMass_Kstar", m_mon_BdMuMuKs_VtxMass_Kstar, AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_Chi2_Kstar",    m_mon_BdMuMuKs_Chi2_Kstar,    AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_InvMass_Bd",    m_mon_BdMuMuKs_InvMass_Bd,    AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_VtxMass_Bd",    m_mon_BdMuMuKs_VtxMass_Bd,    AutoClear);
+    declareMonitoredStdContainer("BdMuMuKs_Chi2_Bd",       m_mon_BdMuMuKs_Chi2_Bd,       AutoClear);
     //   Bs
-    declareMonitoredVariable("BsMuMuPhi_n", mon_BsMuMuPhi_n);
-    declareMonitoredStdContainer("BsMuMuPhi_Pt_K1",           mon_BsMuMuPhi_Pt_K1,           AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_Eta_K1",          mon_BsMuMuPhi_Eta_K1,          AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_Phi_K1",          mon_BsMuMuPhi_Phi_K1,          AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_Pt_K2",           mon_BsMuMuPhi_Pt_K2,           AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_Eta_K2",          mon_BsMuMuPhi_Eta_K2,          AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_Phi_K2",          mon_BsMuMuPhi_Phi_K2,          AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_InvMass_Phi1020", mon_BsMuMuPhi_InvMass_Phi1020, AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_VtxMass_Phi1020", mon_BsMuMuPhi_VtxMass_Phi1020, AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_Chi2_Phi1020",    mon_BsMuMuPhi_Chi2_Phi1020,    AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_InvMass_Bs",      mon_BsMuMuPhi_InvMass_Bs,      AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_VtxMass_Bs",      mon_BsMuMuPhi_VtxMass_Bs,      AutoClear);
-    declareMonitoredStdContainer("BsMuMuPhi_Chi2_Bs",         mon_BsMuMuPhi_Chi2_Bs,         AutoClear);
+    declareMonitoredVariable("BsMuMuPhi_n", m_mon_BsMuMuPhi_n);
+    declareMonitoredStdContainer("BsMuMuPhi_Pt_K1",           m_mon_BsMuMuPhi_Pt_K1,           AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_Eta_K1",          m_mon_BsMuMuPhi_Eta_K1,          AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_Phi_K1",          m_mon_BsMuMuPhi_Phi_K1,          AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_Pt_K2",           m_mon_BsMuMuPhi_Pt_K2,           AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_Eta_K2",          m_mon_BsMuMuPhi_Eta_K2,          AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_Phi_K2",          m_mon_BsMuMuPhi_Phi_K2,          AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_InvMass_Phi1020", m_mon_BsMuMuPhi_InvMass_Phi1020, AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_VtxMass_Phi1020", m_mon_BsMuMuPhi_VtxMass_Phi1020, AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_Chi2_Phi1020",    m_mon_BsMuMuPhi_Chi2_Phi1020,    AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_InvMass_Bs",      m_mon_BsMuMuPhi_InvMass_Bs,      AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_VtxMass_Bs",      m_mon_BsMuMuPhi_VtxMass_Bs,      AutoClear);
+    declareMonitoredStdContainer("BsMuMuPhi_Chi2_Bs",         m_mon_BsMuMuPhi_Chi2_Bs,         AutoClear);
     //   Lambda_b
-    declareMonitoredVariable("LbMuMuLambda_n", mon_LbMuMuLambda_n);
-    declareMonitoredStdContainer("LbMuMuLambda_Pt_P",           mon_LbMuMuLambda_Pt_P,           AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_Eta_P",          mon_LbMuMuLambda_Eta_P,          AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_Phi_P",          mon_LbMuMuLambda_Phi_P,          AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_Pt_Pi",          mon_LbMuMuLambda_Pt_Pi,          AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_Eta_Pi",         mon_LbMuMuLambda_Eta_Pi,         AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_Phi_Pi",         mon_LbMuMuLambda_Phi_Pi,         AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_InvMass_Lambda", mon_LbMuMuLambda_InvMass_Lambda, AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_VtxMass_Lambda", mon_LbMuMuLambda_VtxMass_Lambda, AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_Chi2_Lambda",    mon_LbMuMuLambda_Chi2_Lambda,    AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_InvMass_Lb",     mon_LbMuMuLambda_InvMass_Lb,     AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_VtxMass_Lb",     mon_LbMuMuLambda_VtxMass_Lb,     AutoClear);
-    declareMonitoredStdContainer("LbMuMuLambda_Chi2_Lb",        mon_LbMuMuLambda_Chi2_Lb,        AutoClear);
+    declareMonitoredVariable("LbMuMuLambda_n", m_mon_LbMuMuLambda_n);
+    declareMonitoredStdContainer("LbMuMuLambda_Pt_P",           m_mon_LbMuMuLambda_Pt_P,           AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_Eta_P",          m_mon_LbMuMuLambda_Eta_P,          AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_Phi_P",          m_mon_LbMuMuLambda_Phi_P,          AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_Pt_Pi",          m_mon_LbMuMuLambda_Pt_Pi,          AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_Eta_Pi",         m_mon_LbMuMuLambda_Eta_Pi,         AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_Phi_Pi",         m_mon_LbMuMuLambda_Phi_Pi,         AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_InvMass_Lambda", m_mon_LbMuMuLambda_InvMass_Lambda, AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_VtxMass_Lambda", m_mon_LbMuMuLambda_VtxMass_Lambda, AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_Chi2_Lambda",    m_mon_LbMuMuLambda_Chi2_Lambda,    AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_InvMass_Lb",     m_mon_LbMuMuLambda_InvMass_Lb,     AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_VtxMass_Lb",     m_mon_LbMuMuLambda_VtxMass_Lb,     AutoClear);
+    declareMonitoredStdContainer("LbMuMuLambda_Chi2_Lb",        m_mon_LbMuMuLambda_Chi2_Lb,        AutoClear);
     //   Bc
-    declareMonitoredVariable("BcMuMuDs_n", mon_BcMuMuDs_n);
-    declareMonitoredStdContainer("BcMuMuDs_Pt_K1",           mon_BcMuMuDs_Pt_K1,           AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_Eta_K1",          mon_BcMuMuDs_Eta_K1,          AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_Phi_K1",          mon_BcMuMuDs_Phi_K1,          AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_Pt_K2",           mon_BcMuMuDs_Pt_K2,           AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_Eta_K2",          mon_BcMuMuDs_Eta_K2,          AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_Phi_K2",          mon_BcMuMuDs_Phi_K2,          AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_Pt_pi",           mon_BcMuMuDs_Pt_pi,           AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_Eta_pi",          mon_BcMuMuDs_Eta_pi,          AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_Phi_pi",          mon_BcMuMuDs_Phi_pi,          AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_InvMass_PhiDs",   mon_BcMuMuDs_InvMass_PhiDs,   AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_InvMass_Ds",      mon_BcMuMuDs_InvMass_Ds,      AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_VtxMass_Ds",      mon_BcMuMuDs_VtxMass_Ds,      AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_Chi2_Ds",         mon_BcMuMuDs_Chi2_Ds,         AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_InvMass_Bc",      mon_BcMuMuDs_InvMass_Bc,      AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_VtxMass_Bc",      mon_BcMuMuDs_VtxMass_Bc,      AutoClear);
-    declareMonitoredStdContainer("BcMuMuDs_Chi2_Bc",         mon_BcMuMuDs_Chi2_Bc,         AutoClear);
+    declareMonitoredVariable("BcMuMuDs_n", m_mon_BcMuMuDs_n);
+    declareMonitoredStdContainer("BcMuMuDs_Pt_K1",           m_mon_BcMuMuDs_Pt_K1,           AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_Eta_K1",          m_mon_BcMuMuDs_Eta_K1,          AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_Phi_K1",          m_mon_BcMuMuDs_Phi_K1,          AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_Pt_K2",           m_mon_BcMuMuDs_Pt_K2,           AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_Eta_K2",          m_mon_BcMuMuDs_Eta_K2,          AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_Phi_K2",          m_mon_BcMuMuDs_Phi_K2,          AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_Pt_pi",           m_mon_BcMuMuDs_Pt_pi,           AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_Eta_pi",          m_mon_BcMuMuDs_Eta_pi,          AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_Phi_pi",          m_mon_BcMuMuDs_Phi_pi,          AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_InvMass_PhiDs",   m_mon_BcMuMuDs_InvMass_PhiDs,   AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_InvMass_Ds",      m_mon_BcMuMuDs_InvMass_Ds,      AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_VtxMass_Ds",      m_mon_BcMuMuDs_VtxMass_Ds,      AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_Chi2_Ds",         m_mon_BcMuMuDs_Chi2_Ds,         AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_InvMass_Bc",      m_mon_BcMuMuDs_InvMass_Bc,      AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_VtxMass_Bc",      m_mon_BcMuMuDs_VtxMass_Bc,      AutoClear);
+    declareMonitoredStdContainer("BcMuMuDs_Chi2_Bc",         m_mon_BcMuMuDs_Chi2_Bc,         AutoClear);
     
     
 }
@@ -350,24 +350,24 @@ TrigEFBMuMuXFex::~TrigEFBMuMuXFex()
 /*----------------------------------------------------------------------------*/
 HLT::ErrorCode TrigEFBMuMuXFex::hltInitialize()
 {
-    msg() << MSG::INFO << "Running TrigEFBMuMuXFex::hltInitialize" << endreq;
+    msg() << MSG::INFO << "Running TrigEFBMuMuXFex::hltInitialize" << endmsg;
     
     if(msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
+        msg() << MSG::DEBUG << "Initialization completed successfully:" << endmsg;
         msg() << MSG::DEBUG << "AcceptAll          = "
-        << (m_acceptAll==true ? "True" : "False") << endreq;
+        << (m_acceptAll==true ? "True" : "False") << endmsg;
         msg() << MSG::DEBUG << "DoFTK         = "
-        << (m_FTK==true ? "True" : "False") << endreq;
-        msg() << MSG::INFO << "MaxNcombinations            = " << m_maxNcombinations << endreq;
+        << (m_FTK==true ? "True" : "False") << endmsg;
+        msg() << MSG::INFO << "MaxNcombinations            = " << m_maxNcombinations << endmsg;
         
-        msg() << MSG::DEBUG << "Activated decays:" << endreq;
-        msg() << MSG::DEBUG << "    B+ -> mu mu K+ : " << (m_doB_KMuMuDecay==true ? "True" : "False") << endreq;
-        msg() << MSG::DEBUG << "    Bd -> mu mu K*(K+ Pi-) : " << (m_doBd_KstarMuMuDecay==true ? "True" : "False") << endreq;
-        msg() << MSG::DEBUG << "    Bs -> mu mu Phi(K+ K-) : " << (m_doBs_Phi1020MuMuDecay==true ? "True" : "False") << endreq;
-        msg() << MSG::DEBUG << "    Lambda_b -> mu mu Lambda(P Pi) : " << (m_doLb_LambdaMuMuDecay==true ? "True" : "False") << endreq;
-        msg() << MSG::DEBUG << "    Bc -> mu mu Ds(Phi pi) : " << (m_doBc_DsMuMuDecay==true ? "True" : "False") << endreq;
+        msg() << MSG::DEBUG << "Activated decays:" << endmsg;
+        msg() << MSG::DEBUG << "    B+ -> mu mu K+ : " << (m_doB_KMuMuDecay==true ? "True" : "False") << endmsg;
+        msg() << MSG::DEBUG << "    Bd -> mu mu K*(K+ Pi-) : " << (m_doBd_KstarMuMuDecay==true ? "True" : "False") << endmsg;
+        msg() << MSG::DEBUG << "    Bs -> mu mu Phi(K+ K-) : " << (m_doBs_Phi1020MuMuDecay==true ? "True" : "False") << endmsg;
+        msg() << MSG::DEBUG << "    Lambda_b -> mu mu Lambda(P Pi) : " << (m_doLb_LambdaMuMuDecay==true ? "True" : "False") << endmsg;
+        msg() << MSG::DEBUG << "    Bc -> mu mu Ds(Phi pi) : " << (m_doBc_DsMuMuDecay==true ? "True" : "False") << endmsg;
         
-        msg() << MSG::DEBUG << "OppositeCharge     = "        << (m_oppositeCharge==true ? "True" : "False") << endreq;
+        msg() << MSG::DEBUG << "OppositeCharge     = "        << (m_oppositeCharge==true ? "True" : "False") << endmsg;
         
     }
     
@@ -379,21 +379,21 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltInitialize()
     
     // retrieving the vertex fitting tool
     if (m_fitterSvc.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find Trk::TrkVKalVrtFitter" << endreq;
+        msg() << MSG::ERROR << "Can't find Trk::TrkVKalVrtFitter" << endmsg;
         return StatusCode::SUCCESS;
     } else {
         if (msgLvl() <= MSG::DEBUG) {
-            msg() << MSG::DEBUG << "Trk::TrkVKalVrtFitter found" << endreq;
+            msg() << MSG::DEBUG << "Trk::TrkVKalVrtFitter found" << endmsg;
         }
         m_VKVFitter = dynamic_cast< Trk::TrkVKalVrtFitter* > (&(*m_fitterSvc));
     }
     
     // retrieving BphysHelperUtilsTool
     if (m_bphysHelperTool.retrieve().isFailure()) {
-        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endreq;
+        msg() << MSG::ERROR << "Can't find TrigBphysHelperUtilsTool" << endmsg;
         return StatusCode::SUCCESS;
     } else {
-            if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endreq;
+            if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "TrigBphysHelperUtilsTool found" << endmsg;
     }
     
     // set counters
@@ -463,50 +463,50 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltInitialize()
 HLT::ErrorCode TrigEFBMuMuXFex::hltFinalize()
 {
     
-    msg() << MSG::INFO << "Running TrigEFBMuMuXFex::hltFinalize" << endreq;
+    msg() << MSG::INFO << "Running TrigEFBMuMuXFex::hltFinalize" << endmsg;
     
-    msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigEFBMuMuXFex -------------|" << endreq;
-    msg() << MSG::INFO << "Run on events/RoIs      " << m_countTotalEvents << "/" << m_countTotalRoI <<  endreq;
-    msg() << MSG::INFO << "Passed events/RoIs      " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endreq;
-    msg() << MSG::INFO << "Evts Passed B+:         " << m_countPassedEventsBplus << endreq;
-    msg() << MSG::INFO << "Evts Passed Bd:         " << m_countPassedEventsBd << endreq;
-    msg() << MSG::INFO << "Evts Passed Bs:         " << m_countPassedEventsBs << endreq;
-    msg() << MSG::INFO << "Evts Passed Lambda_b:   " << m_countPassedEventsLb << endreq;
-    msg() << MSG::INFO << "Evts Passed Bc:         " << m_countPassedEventsBc << endreq;
-    msg() << MSG::INFO << std::endl << endreq;
-    msg() << MSG::INFO << "PassedMuMuID:           " << m_countPassedMuMuID << endreq;
-    msg() << MSG::INFO << "PassedMuMuOS:           " << m_countPassedMuMuOS << endreq;
-    msg() << MSG::INFO << "PassedMuMuMass:         " << m_countPassedMuMuMass << endreq;
-    msg() << MSG::INFO << "PassedMuMuVtx:          " << m_countPassedMuMuVtx << endreq;
-    msg() << MSG::INFO << "PassedMuMuVtxChi2:      " << m_countPassedMuMuVtxChi2 << endreq;
-    msg() << MSG::INFO << "PassedBplusMass:        " << m_countPassedBplusMass << endreq;
-    msg() << MSG::INFO << "PassedBplusVtx:         " << m_countPassedBplusVtx << endreq;
-    msg() << MSG::INFO << "PassedBplusVtxChi2:     " << m_countPassedBplusVtxChi2 << endreq;
-    msg() << MSG::INFO << "PassedKstarMass:        " << m_countPassedKstarMass << endreq;
-    msg() << MSG::INFO << "PassedKstarVtx:         " << m_countPassedKstarVtx << endreq;
-    msg() << MSG::INFO << "PassedKstarVtxChi2:     " << m_countPassedKstarVtxChi2 << endreq;
-    msg() << MSG::INFO << "PassedBdMass:           " << m_countPassedBdMass << endreq;
-    msg() << MSG::INFO << "PassedBdVtx:            " << m_countPassedBdVtx << endreq;
-    msg() << MSG::INFO << "PassedBdVtxChi2:        " << m_countPassedBdVtxChi2 << endreq;
-    msg() << MSG::INFO << "PassedPhi1020Mass:      " << m_countPassedPhi1020Mass << endreq;
-    msg() << MSG::INFO << "PassedPhi1020Vtx:       " << m_countPassedPhi1020Vtx << endreq;
-    msg() << MSG::INFO << "PassedPhi1020VtxChi2:   " << m_countPassedPhi1020VtxChi2 << endreq;
-    msg() << MSG::INFO << "PassedBsMass:           " << m_countPassedBsMass << endreq;
-    msg() << MSG::INFO << "PassedBsVtx:            " << m_countPassedBsVtx << endreq;
-    msg() << MSG::INFO << "PassedBsVtxChi2:        " << m_countPassedBsVtxChi2 << endreq;
-    msg() << MSG::INFO << "PassedLambdaMass:       " << m_countPassedLambdaMass << endreq;
-    msg() << MSG::INFO << "PassedLambdaVtx:        " << m_countPassedLambdaVtx << endreq;
-    msg() << MSG::INFO << "PassedLambdaVtxChi2:    " << m_countPassedLambdaVtxChi2 << endreq;
-    msg() << MSG::INFO << "PassedLbMass:           " << m_countPassedLbMass << endreq;
-    msg() << MSG::INFO << "PassedLbVtx:            " << m_countPassedLbVtx << endreq;
-    msg() << MSG::INFO << "PassedLbVtxChi2:        " << m_countPassedLbVtxChi2 << endreq;
-    msg() << MSG::INFO << "PassedPhiDsMass:        " << m_countPassedPhiDsMass << endreq;
-    msg() << MSG::INFO << "PassedDsMass:           " << m_countPassedDsMass << endreq;
-    msg() << MSG::INFO << "PassedDsVtx:            " << m_countPassedDsVtx << endreq;
-    msg() << MSG::INFO << "PassedDsVtxChi2:        " << m_countPassedDsVtxChi2 << endreq;
-    msg() << MSG::INFO << "PassedBcMass:           " << m_countPassedBcMass << endreq;
-    msg() << MSG::INFO << "PassedBcVtx:            " << m_countPassedBcVtx << endreq;
-    msg() << MSG::INFO << "PassedBcVtxChi2:        " << m_countPassedBcVtxChi2 << endreq;
+    msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigEFBMuMuXFex -------------|" << endmsg;
+    msg() << MSG::INFO << "Run on events/RoIs      " << m_countTotalEvents << "/" << m_countTotalRoI <<  endmsg;
+    msg() << MSG::INFO << "Passed events/RoIs      " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endmsg;
+    msg() << MSG::INFO << "Evts Passed B+:         " << m_countPassedEventsBplus << endmsg;
+    msg() << MSG::INFO << "Evts Passed Bd:         " << m_countPassedEventsBd << endmsg;
+    msg() << MSG::INFO << "Evts Passed Bs:         " << m_countPassedEventsBs << endmsg;
+    msg() << MSG::INFO << "Evts Passed Lambda_b:   " << m_countPassedEventsLb << endmsg;
+    msg() << MSG::INFO << "Evts Passed Bc:         " << m_countPassedEventsBc << endmsg;
+    msg() << MSG::INFO << std::endl << endmsg;
+    msg() << MSG::INFO << "PassedMuMuID:           " << m_countPassedMuMuID << endmsg;
+    msg() << MSG::INFO << "PassedMuMuOS:           " << m_countPassedMuMuOS << endmsg;
+    msg() << MSG::INFO << "PassedMuMuMass:         " << m_countPassedMuMuMass << endmsg;
+    msg() << MSG::INFO << "PassedMuMuVtx:          " << m_countPassedMuMuVtx << endmsg;
+    msg() << MSG::INFO << "PassedMuMuVtxChi2:      " << m_countPassedMuMuVtxChi2 << endmsg;
+    msg() << MSG::INFO << "PassedBplusMass:        " << m_countPassedBplusMass << endmsg;
+    msg() << MSG::INFO << "PassedBplusVtx:         " << m_countPassedBplusVtx << endmsg;
+    msg() << MSG::INFO << "PassedBplusVtxChi2:     " << m_countPassedBplusVtxChi2 << endmsg;
+    msg() << MSG::INFO << "PassedKstarMass:        " << m_countPassedKstarMass << endmsg;
+    msg() << MSG::INFO << "PassedKstarVtx:         " << m_countPassedKstarVtx << endmsg;
+    msg() << MSG::INFO << "PassedKstarVtxChi2:     " << m_countPassedKstarVtxChi2 << endmsg;
+    msg() << MSG::INFO << "PassedBdMass:           " << m_countPassedBdMass << endmsg;
+    msg() << MSG::INFO << "PassedBdVtx:            " << m_countPassedBdVtx << endmsg;
+    msg() << MSG::INFO << "PassedBdVtxChi2:        " << m_countPassedBdVtxChi2 << endmsg;
+    msg() << MSG::INFO << "PassedPhi1020Mass:      " << m_countPassedPhi1020Mass << endmsg;
+    msg() << MSG::INFO << "PassedPhi1020Vtx:       " << m_countPassedPhi1020Vtx << endmsg;
+    msg() << MSG::INFO << "PassedPhi1020VtxChi2:   " << m_countPassedPhi1020VtxChi2 << endmsg;
+    msg() << MSG::INFO << "PassedBsMass:           " << m_countPassedBsMass << endmsg;
+    msg() << MSG::INFO << "PassedBsVtx:            " << m_countPassedBsVtx << endmsg;
+    msg() << MSG::INFO << "PassedBsVtxChi2:        " << m_countPassedBsVtxChi2 << endmsg;
+    msg() << MSG::INFO << "PassedLambdaMass:       " << m_countPassedLambdaMass << endmsg;
+    msg() << MSG::INFO << "PassedLambdaVtx:        " << m_countPassedLambdaVtx << endmsg;
+    msg() << MSG::INFO << "PassedLambdaVtxChi2:    " << m_countPassedLambdaVtxChi2 << endmsg;
+    msg() << MSG::INFO << "PassedLbMass:           " << m_countPassedLbMass << endmsg;
+    msg() << MSG::INFO << "PassedLbVtx:            " << m_countPassedLbVtx << endmsg;
+    msg() << MSG::INFO << "PassedLbVtxChi2:        " << m_countPassedLbVtxChi2 << endmsg;
+    msg() << MSG::INFO << "PassedPhiDsMass:        " << m_countPassedPhiDsMass << endmsg;
+    msg() << MSG::INFO << "PassedDsMass:           " << m_countPassedDsMass << endmsg;
+    msg() << MSG::INFO << "PassedDsVtx:            " << m_countPassedDsVtx << endmsg;
+    msg() << MSG::INFO << "PassedDsVtxChi2:        " << m_countPassedDsVtxChi2 << endmsg;
+    msg() << MSG::INFO << "PassedBcMass:           " << m_countPassedBcMass << endmsg;
+    msg() << MSG::INFO << "PassedBcVtx:            " << m_countPassedBcVtx << endmsg;
+    msg() << MSG::INFO << "PassedBcVtxChi2:        " << m_countPassedBcVtxChi2 << endmsg;
     
     return HLT::OK;
 }
@@ -516,7 +516,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltFinalize()
 HLT::ErrorCode TrigEFBMuMuXFex::acceptInputs(HLT::TEConstVec& , bool& pass)
 {
     if ( msgLvl() <= MSG::DEBUG )
-        msg() << MSG::DEBUG << "Running TrigEFBMuMuXFex::acceptInputs" << endreq;
+        msg() << MSG::DEBUG << "Running TrigEFBMuMuXFex::acceptInputs" << endmsg;
     
     pass = true;
     
@@ -528,7 +528,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::acceptInputs(HLT::TEConstVec& , bool& pass)
 HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::TriggerElement*  outputTE )
 {
     if ( msgLvl() <= MSG::DEBUG )
-        msg() << MSG::DEBUG << "Running TrigEFBMuMuXFex::hltExecute" << endreq;
+        msg() << MSG::DEBUG << "Running TrigEFBMuMuXFex::hltExecute" << endmsg;
     
     if ( timerSvc() ) m_TotTimer->start();
     
@@ -540,23 +540,23 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     bool result(false);
     
     // Set monitoring counters to zeroes
-    mon_nTriedCombinations = 0;
-    mon_DiMu_n         = 0;
-    mon_Tracks_n       = 0;
-    mon_BMuMuK_n       = 0;
-    mon_BdMuMuKs_n     = 0;
-    mon_BsMuMuPhi_n    = 0;
-    mon_LbMuMuLambda_n = 0;
-    mon_BcMuMuDs_n     = 0;
-    mon_TotalRunTime   = 0.;
-    mon_VertexingTime  = 0.;
+    m_mon_nTriedCombinations = 0;
+    m_mon_DiMu_n         = 0;
+    m_mon_Tracks_n       = 0;
+    m_mon_BMuMuK_n       = 0;
+    m_mon_BdMuMuKs_n     = 0;
+    m_mon_BsMuMuPhi_n    = 0;
+    m_mon_LbMuMuLambda_n = 0;
+    m_mon_BcMuMuDs_n     = 0;
+    m_mon_TotalRunTime   = 0.;
+    m_mon_VertexingTime  = 0.;
     
     if(msgLvl() <= MSG::VERBOSE) {
         if (m_acceptAll) {
-            msg() << MSG::VERBOSE << "AcceptAll property is set: taking all events" << endreq;
+            msg() << MSG::VERBOSE << "AcceptAll property is set: taking all events" << endmsg;
             result = true;
         } else {
-            msg() << MSG::VERBOSE << "AcceptAll property not set: applying selection" << endreq;
+            msg() << MSG::VERBOSE << "AcceptAll property not set: applying selection" << endmsg;
         }
     }
     
@@ -568,19 +568,19 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endreq;
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endmsg;
         // now try the old event ifo
         if ( store()->retrieve(pEventInfo).isFailure() ) {
-            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
-            mon_Errors.push_back( ERROR_No_EventInfo );
+            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
+            m_mon_Errors.push_back( ERROR_No_EventInfo );
         } else {
             IdRun   = pEventInfo->event_ID()->run_number();
             IdEvent = pEventInfo->event_ID()->event_number();
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << " using algo " << "m_muonAlgo"<<  endreq;
+            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << " using algo " << "m_muonAlgo"<<  endmsg;
         }// found old event info
     }else { // found the xAOD event info
         if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << evtInfo->runNumber()
-            << " Event " << evtInfo->eventNumber() << " using algo m_muonAlgo" << endreq;
+            << " Event " << evtInfo->eventNumber() << " using algo m_muonAlgo" << endmsg;
         IdRun   = evtInfo->runNumber();
         IdEvent = evtInfo->eventNumber();
     } // get event info
@@ -591,8 +591,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     int mu2_TE=-1;
     if (!m_FTK) {
       if ( inputTE.size() != 2 ) {
-        msg() << MSG::ERROR << "Got different than 2 number of input TEs: " << inputTE.size() << endreq;
-        mon_Errors.push_back(ERROR_Not_2_InputTEs);
+        msg() << MSG::ERROR << "Got different than 2 number of input TEs: " << inputTE.size() << endmsg;
+        m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::BAD_JOB_SETUP;
       }
@@ -600,8 +600,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
       mu2_TE=1;
     } else {
       if ( inputTE.size() != 3 ) {
-        msg() << MSG::ERROR << "FTK mode expect 3 input TEs, got : " << inputTE.size() << endreq;
-        mon_Errors.push_back(ERROR_Not_2_InputTEs);
+        msg() << MSG::ERROR << "FTK mode expect 3 input TEs, got : " << inputTE.size() << endmsg;
+        m_mon_Errors.push_back(ERROR_Not_2_InputTEs);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::BAD_JOB_SETUP;
       }
@@ -625,7 +625,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     // JK DEBUG input TEs
 
     for (unsigned int iTE=0; iTE<inputTE.size(); ++iTE) {
-      msg() << MSG::DEBUG << "Input TE " << iTE << "  " << inputTE[iTE] << " ID " << inputTE[iTE]->getId() << endreq;
+      msg() << MSG::DEBUG << "Input TE " << iTE << "  " << inputTE[iTE] << " ID " << inputTE[iTE]->getId() << endmsg;
     }
 
 
@@ -637,31 +637,31 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     // get them from the navigation
 
      if ( getFeature(inputTE[mu1_TE], roiDescriptor1) != HLT::OK ) {
-        msg() << MSG::ERROR << "Navigation error while getting RoI descriptor 1" << endreq;
-        mon_Errors.push_back(ERROR_No_RoIs);
+        msg() << MSG::ERROR << "Navigation error while getting RoI descriptor 1" << endmsg;
+        m_mon_Errors.push_back(ERROR_No_RoIs);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::NAV_ERROR;
      }
      if ( !roiDescriptor1 ) {
-       msg() << MSG::ERROR << "roiDescriptor1 is NULL" << endreq;
+       msg() << MSG::ERROR << "roiDescriptor1 is NULL" << endmsg;
        return HLT::NAV_ERROR;
      }
     
      if ( getFeature(inputTE[mu2_TE], roiDescriptor2) != HLT::OK ) {
-        msg() << MSG::ERROR << "Navigation error while getting RoI descriptor 2" << endreq;
-        mon_Errors.push_back(ERROR_No_RoIs);
+        msg() << MSG::ERROR << "Navigation error while getting RoI descriptor 2" << endmsg;
+        m_mon_Errors.push_back(ERROR_No_RoIs);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::NAV_ERROR;
      }
      if ( !roiDescriptor2 ) {
-       msg() << MSG::ERROR << "roiDescriptor2 is NULL" << endreq;
+       msg() << MSG::ERROR << "roiDescriptor2 is NULL" << endmsg;
        return HLT::NAV_ERROR;
      }
 
      if (m_FTK) {
       if ( getFeature(inputTE[0], roiDescriptorTrk) != HLT::OK ) {
-        msg() << MSG::ERROR << "Navigation error while getting RoI descriptor Trk" << endreq;
-        mon_Errors.push_back(ERROR_No_RoIs);
+        msg() << MSG::ERROR << "Navigation error while getting RoI descriptor Trk" << endmsg;
+        m_mon_Errors.push_back(ERROR_No_RoIs);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::NAV_ERROR;
       }
@@ -674,26 +674,26 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         << "; RoI IDs = "   << roiDescriptor1->roiId()<< " AND   " <<roiDescriptor2->roiId() << std::endl
         << ": Eta1 =    "   << roiDescriptor1->eta() << " Eta2= " <<roiDescriptor2->eta() << std::endl
         << ", Phi1 =    "   << roiDescriptor1->phi() << " Phi2= " <<roiDescriptor2->phi()
-        << endreq;
+        << endmsg;
 	if (m_FTK) {
 	  msg() << MSG::DEBUG << "Using inputTE for tracks: "<< inputTE[0] << " " << inputTE[0]->getId()<< std::endl
         << "; RoI IDs = "   << roiDescriptorTrk->roiId() << std::endl
         << ": EtaTrk =    "   << roiDescriptorTrk->eta() << std::endl
         << ", PhiTrk =    "   << roiDescriptorTrk->phi() 
-        << endreq;
+        << endmsg;
 	}
     }
     
     // Fill RoIs monitoring containers
-    mon_RoI_RoI1Eta.push_back(roiDescriptor1->eta());
-    mon_RoI_RoI1Phi.push_back(roiDescriptor1->phi());
-    mon_RoI_RoI2Eta.push_back(roiDescriptor2->eta());
-    mon_RoI_RoI2Phi.push_back(roiDescriptor2->phi());
-    mon_RoI_dEtaRoI.push_back( fabs(roiDescriptor1->eta() - roiDescriptor2->eta()) );
+    m_mon_RoI_RoI1Eta.push_back(roiDescriptor1->eta());
+    m_mon_RoI_RoI1Phi.push_back(roiDescriptor1->phi());
+    m_mon_RoI_RoI2Eta.push_back(roiDescriptor2->eta());
+    m_mon_RoI_RoI2Phi.push_back(roiDescriptor2->phi());
+    m_mon_RoI_dEtaRoI.push_back( fabs(roiDescriptor1->eta() - roiDescriptor2->eta()) );
     float tmp_RoI_dPhiRoI = roiDescriptor1->phi() - roiDescriptor2->phi();
     while (tmp_RoI_dPhiRoI >  M_PI) tmp_RoI_dPhiRoI -= 2*M_PI;
     while (tmp_RoI_dPhiRoI < -M_PI) tmp_RoI_dPhiRoI += 2*M_PI;
-    mon_RoI_dPhiRoI.push_back( fabs(tmp_RoI_dPhiRoI) );
+    m_mon_RoI_dPhiRoI.push_back( fabs(tmp_RoI_dPhiRoI) );
     
     // Retrieve muons
     //std::vector<const Trk::Track*> muidIDtracks1;
@@ -710,11 +710,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     // Get the muon container from the outputTE
     //std::vector<const xAOD::MuonContainer*> muonContainerEF1;
     ElementLinkVector<xAOD::MuonContainer> muonContainerEF1;
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon 1" << endreq;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon 1" << endmsg;
     //if(getFeatures(inputTE[mu1_TE], muonContainerEF1)!=HLT::OK ) {
     if(getFeaturesLinks<xAOD::MuonContainer,xAOD::MuonContainer>(inputTE[mu1_TE], muonContainerEF1)!=HLT::OK ) {
-        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon 1, exiting" << endreq;
-        mon_Errors.push_back(ERROR_No_MuonEFInfoContainer);
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon 1, exiting" << endmsg;
+        m_mon_Errors.push_back(ERROR_No_MuonEFInfoContainer);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::OK; // FIXME should be HLT::MISSING_FEATURE ??
     }
@@ -722,7 +722,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     
     for ( const auto muel : muonContainerEF1 ) {
       if ( (*muel)->muonType() != xAOD::Muon::Combined && (*muel)->muonType() != xAOD::Muon::SegmentTagged) {
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Muon from roi1 is neither Combined or SegmentTagged - reject" << endreq;
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Muon from roi1 is neither Combined or SegmentTagged - reject" << endmsg;
         continue;
       }
       const xAOD::Muon* mu = *muel;
@@ -731,12 +731,12 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         const ElementLink<xAOD::TrackParticleContainer> & idtpEl = mu->inDetTrackParticleLink();
       if( idtpEl.isValid() ) idtp = *idtpEl;
       if (!idtp) {
-          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No innerdetector muon1 TrackParticle found" << endreq;
+          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No innerdetector muon1 TrackParticle found" << endmsg;
           continue;
       }
         //const Trk::Track* indetTrack = idtp->track();
         //if ( !indetTrack ) {
-        //  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No id muon1 id Trk::Track found" << endreq;
+        //  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No id muon1 id Trk::Track found" << endmsg;
         //  continue;
         //}
         //addUnique(muidIDtracks1, indetTrack);
@@ -746,7 +746,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG
             << " Comb muon 1 pt/eta/phi " << idtp->pt()
             << " / " << idtp->eta() << " / " << idtp->phi()
-            << endreq;
+            << endmsg;
 
         
 //         std::vector<const Trk::Track*> idTrks;
@@ -761,21 +761,21 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //             if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG
 //                 << " Comb muon 1 pt/eta/phi " << perigee->pT()
 //                 << " / " << perigee->eta() << " / " << perigee->parameters()[Trk::phi]
-//                 << endreq;
+//                 << endmsg;
 //         } // loop over any tracks
     } // for
     
     
     //  std::vector<const TrigMuonEFInfoContainer*> MuEFTracksEF1;
-    //  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon 1" << endreq;
+    //  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon 1" << endmsg;
     //  HLT::ErrorCode status = getFeatures(inputTE.front(), MuEFTracksEF1);
     //  if ( status != HLT::OK ) {
-    //    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon 1, exiting" << endreq;
-    //    mon_Errors.push_back(ERROR_No_MuonEFInfoContainer);
+    //    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon 1, exiting" << endmsg;
+    //    m_mon_Errors.push_back(ERROR_No_MuonEFInfoContainer);
     //    if ( timerSvc() ) m_TotTimer->stop();
     //    return HLT::OK;
     //  }
-    //  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Got MuonEF (1) Feature, size = " << MuEFTracksEF1.size() << endreq;
+    //  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Got MuonEF (1) Feature, size = " << MuEFTracksEF1.size() << endmsg;
     //  for ( unsigned int i_mu=0; i_mu<MuEFTracksEF1.size(); i_mu++ ) {
     //    std::vector<const Trk::Track*> idTrks;
     //    status = GetTrigMuonEFInfoTracks(MuEFTracksEF1[i_mu], idTrks, msg());
@@ -789,7 +789,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     //      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG
     //                                          << " Comb muon 1 " << idTrks[i_trk] << " pt/eta/phi " << perigee->pT()
     //                                          << " / " << perigee->eta() << " / " << perigee->parameters()[Trk::phi]
-    //                                          << endreq;
+    //                                          << endmsg;
     //    }
     //  }
     
@@ -797,11 +797,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     
     //std::vector<const xAOD::MuonContainer*> muonContainerEF2;
     ElementLinkVector<xAOD::MuonContainer> muonContainerEF2;
-    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon 2" << endreq;
+    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon 2" << endmsg;
     //if(getFeatures(inputTE[mu2_TE], muonContainerEF2)!=HLT::OK ) {
     if(getFeaturesLinks<xAOD::MuonContainer,xAOD::MuonContainer>(inputTE[mu2_TE], muonContainerEF2)!=HLT::OK ) {
-        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon 2, exiting" << endreq;
-        mon_Errors.push_back(ERROR_No_MuonEFInfoContainer);
+        if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon 2, exiting" << endmsg;
+        m_mon_Errors.push_back(ERROR_No_MuonEFInfoContainer);
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::OK; // FIXME - should be
         // return HLT::MISSING_FEATURE; // was HLT::OK
@@ -810,7 +810,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     
     for ( const auto muel : muonContainerEF2 ) {
       if ( (*muel)->muonType() != xAOD::Muon::Combined && (*muel)->muonType() != xAOD::Muon::SegmentTagged) {
-        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Muon from roi2 is neither Combined or SegmentTagged - reject" << endreq;
+        if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Muon from roi2 is neither Combined or SegmentTagged - reject" << endmsg;
         continue;
       }
       const xAOD::Muon* mu = *muel;
@@ -819,12 +819,12 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         const ElementLink<xAOD::TrackParticleContainer> & idtpEl = mu->inDetTrackParticleLink();
         if( idtpEl.isValid() ) idtp = *idtpEl;
       if (!idtp) {
-          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No innerdetector muon2 TrackParticle found" << endreq;
+          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No innerdetector muon2 TrackParticle found" << endmsg;
           continue;
       }
         //      const Trk::Track* indetTrack = idtp->track();
         //      if ( !indetTrack ) {
-        //          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No id muon2 id Trk::Track found" << endreq;
+        //          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No id muon2 id Trk::Track found" << endmsg;
         //          continue;
         //      }
         //addUnique(muidIDtracks2, indetTrack);
@@ -833,13 +833,13 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG
             << " Comb muon 1 pt/eta/phi " << idtp->pt()
             << " / " << idtp->eta() << " / " << idtp->phi()
-            << endreq;
+            << endmsg;
 
 //      const Trk::Perigee* perigee = indetTrack->perigeeParameters();
 //      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG
 //          << " Comb muon 2 pt/eta/phi " << perigee->pT()
 //          << " / " << perigee->eta() << " / " << perigee->parameters()[Trk::phi]
-//          << endreq;
+//          << endmsg;
       
 //         std::vector<const Trk::Track*> idTrks;
 //         HLT::ErrorCode status = GetxAODMuonTracks(muonContainerEF2[i_mu], idTrks, msg());
@@ -850,7 +850,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //             if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG
 //                 << " Comb muon 2 pt/eta/phi " << perigee->pT()
 //                 << " / " << perigee->eta() << " / " << perigee->parameters()[Trk::phi]
-//                 << endreq;
+//                 << endmsg;
 //         } // loop over any tracks
     } // for loop over muons
     
@@ -876,15 +876,15 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     //} // muonContainerEF2
 
     //    std::vector<const TrigMuonEFInfoContainer*> MuEFTracksEF2;
-    //  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon 2" << endreq;
+    //  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Try to retrieve EFInfo container of muon 2" << endmsg;
     //  status = getFeatures(inputTE.back(), MuEFTracksEF2);
     //  if ( status != HLT::OK ) {
-    //    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon 2, exiting" << endreq;
-    //    mon_Errors.push_back(ERROR_No_MuonEFInfoContainer);
+    //    if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Failed to get EFInfo feature of muon 2, exiting" << endmsg;
+    //    m_mon_Errors.push_back(ERROR_No_MuonEFInfoContainer);
     //    if ( timerSvc() ) m_TotTimer->stop();
     //    return HLT::OK;
     //  }
-    //  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Got MuonEF (2) Feature, size = " << MuEFTracksEF2.size() << endreq;
+    //  if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Got MuonEF (2) Feature, size = " << MuEFTracksEF2.size() << endmsg;
     //  for ( unsigned int i_mu=0; i_mu<MuEFTracksEF2.size(); i_mu++ ) {
     //    std::vector<const Trk::Track*> idTrks;
     //    HLT::ErrorCode status = GetTrigMuonEFInfoTracks(MuEFTracksEF2[i_mu], idTrks, msg());
@@ -898,28 +898,28 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     //      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG
     //                                          << " Comb muon 2 " << idTrks[i_trk] << " pt/eta/phi " << perigee->pT()
     //                                          << " / " << perigee->eta() << " / " << perigee->parameters()[Trk::phi]
-    //                                          << endreq;
+    //                                          << endmsg;
     //    }
     //  }
     
     if(msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << "muonContainerEF1.size()= " << muonContainerEF1.size()<<endreq;
-        msg() << MSG::DEBUG << "muonContainerEF2.size()= " << muonContainerEF2.size()<<endreq;
-        msg() << MSG::DEBUG << "muonTPELtracks1.size()= "  << muonTPELtracks1.size() <<endreq;
-        msg() << MSG::DEBUG << "muonTPELtracks2.size()= "  << muonTPELtracks2.size() <<endreq;
-        msg() << MSG::DEBUG << "muonTPELtracksMerged.size()= "  << muonTPELtracksMerged.size() <<endreq;
+        msg() << MSG::DEBUG << "muonContainerEF1.size()= " << muonContainerEF1.size()<<endmsg;
+        msg() << MSG::DEBUG << "muonContainerEF2.size()= " << muonContainerEF2.size()<<endmsg;
+        msg() << MSG::DEBUG << "muonTPELtracks1.size()= "  << muonTPELtracks1.size() <<endmsg;
+        msg() << MSG::DEBUG << "muonTPELtracks2.size()= "  << muonTPELtracks2.size() <<endmsg;
+        msg() << MSG::DEBUG << "muonTPELtracksMerged.size()= "  << muonTPELtracksMerged.size() <<endmsg;
         
         for (auto muel: muonTPELtracks1) {
             msg() << MSG::DEBUG << "muonTPELtracks1: " << *muel << " " <<
-            (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endreq;
+            (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
         }
         for (auto muel: muonTPELtracks2) {
             msg() << MSG::DEBUG << "muonTPELtracks2: " << *muel << " " <<
-            (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endreq;
+            (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
         }
         for (auto muel: muonTPELtracksMerged) {
             msg() << MSG::DEBUG << "muonTPELtracksMerged: " << *muel << " " <<
-            (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endreq;
+            (*muel)->pt() << " , " << (*muel)->eta() << " , " << (*muel)->phi() << " , " << (*muel)->charge() << endmsg;
         }
     } // if debug
     
@@ -930,13 +930,13 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     //m_trigBphysColl_b = new TrigEFBphysContainer();
     //m_trigBphysColl_X = new TrigEFBphysContainer();
     
-    mTrigBphysColl_b = new xAOD::TrigBphysContainer();
+    m_TrigBphysColl_b = new xAOD::TrigBphysContainer();
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl_b;
-    mTrigBphysColl_b->setStore(&xAODTrigBphysAuxColl_b);
+    m_TrigBphysColl_b->setStore(&xAODTrigBphysAuxColl_b);
     
-    mTrigBphysColl_X = new xAOD::TrigBphysContainer();
+    m_TrigBphysColl_X = new xAOD::TrigBphysContainer();
     xAOD::TrigBphysAuxContainer xAODTrigBphysAuxColl_X;
-    mTrigBphysColl_X->setStore(&xAODTrigBphysAuxColl_X);
+    m_TrigBphysColl_X->setStore(&xAODTrigBphysAuxColl_X);
     
     // Tried combinations counter - protection against timeouts
     int nTriedCombinations(0);
@@ -944,14 +944,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
     if( !(muonTPELtracks1.size()> 0 && muonTPELtracks2.size() > 0) )
     {
         if ( msgLvl() <= MSG::DEBUG )
-            msg() << MSG::DEBUG << "No muon candidate found for one or both TEs" << endreq;
-        mon_Errors.push_back(ERROR_No_MuonCandidate);
+            msg() << MSG::DEBUG << "No muon candidate found for one or both TEs" << endmsg;
+        m_mon_Errors.push_back(ERROR_No_MuonCandidate);
         //delete m_trigBphysColl_b;
         //delete m_trigBphysColl_X;
-        delete mTrigBphysColl_b;
-        delete mTrigBphysColl_X;
-        mTrigBphysColl_b = 0;
-        mTrigBphysColl_X = 0;
+        delete m_TrigBphysColl_b;
+        delete m_TrigBphysColl_X;
+        m_TrigBphysColl_b = 0;
+        m_TrigBphysColl_X = 0;
         if ( timerSvc() ) m_TotTimer->stop();
         return HLT::OK;
     } else {
@@ -969,19 +969,19 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
             for(mElItr=pElItr+1; mElItr != muonTPELtracksMerged.end(); ++mElItr) {
                 auto pTp = **pElItr;
                 auto mTp = **mElItr;
-                ATH_MSG(DEBUG) << "Try to build muon pair from mu1 " << *(*pElItr) << ", mu2 " << *(*mElItr) << endreq;
+                ATH_MSG(DEBUG) << "Try to build muon pair from mu1 " << *(*pElItr) << ", mu2 " << *(*mElItr) << endmsg;
                 
                 // check that we have two different muon tracks
                 if (pTp==mTp) {
-                    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Muon tracks are same" << endreq;
-                    mon_Errors.push_back(ERROR_SameMuon);
+                    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Muon tracks are same" << endmsg;
+                    m_mon_Errors.push_back(ERROR_SameMuon);
                     continue;
                 }
                 m_countPassedMuMuID++;
                 
                 // check if muons have opposite signs
                 if( m_oppositeCharge && (mTp->charge())*(pTp->charge()) > 0) {
-                    ATH_MSG(DEBUG) << "Muon pair rejected by opposite change check: mu1 " << pTp->charge() << ", mu2 " << mTp->charge() << endreq;
+                    ATH_MSG(DEBUG) << "Muon pair rejected by opposite change check: mu1 " << pTp->charge() << ", mu2 " << mTp->charge() << endmsg;
                     continue;
                 }
                 m_countPassedMuMuOS++;
@@ -990,7 +990,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                 //float massMuMu = XMass(*pItr,*mItr,di_to_muons);
                 float massMuMu = XMass(pTp,mTp,di_to_muons);
                 if( massMuMu < m_lowerMuMuMassCut || massMuMu > m_upperMuMuMassCut ) {
-                    ATH_MSG(DEBUG) << "Muon pair rejected by mass cut: m = " << massMuMu << endreq;
+                    ATH_MSG(DEBUG) << "Muon pair rejected by mass cut: m = " << massMuMu << endmsg;
                     continue;
                 }
                 m_countPassedMuMuMass++;
@@ -1005,7 +1005,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                 std::vector<double> masses_mumu = {MUMASS,MUMASS};
                 if (!m_bphysHelperTool->vertexFit(trigMuMuUniquePtr.get(),
                                                   vec_mumu_tracks,masses_mumu).isSuccess()) {
-                    ATH_MSG(DEBUG) << " Vertex fitting failed." << endreq;
+                    ATH_MSG(DEBUG) << " Vertex fitting failed." << endmsg;
                     if ( timerSvc() ) m_VtxFitTimer->pause();
                     continue;
                 }
@@ -1016,31 +1016,31 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                 
                 float chi2MuMu = trigMuMuUniquePtr->fitchi2();
                 if(chi2MuMu > m_muVtxChi2Cut || chi2MuMu < 0) {
-                    ATH_MSG(DEBUG) << "Muon pair rejected by chi2 cut: chi2 = " << chi2MuMu << endreq;
+                    ATH_MSG(DEBUG) << "Muon pair rejected by chi2 cut: chi2 = " << chi2MuMu << endmsg;
                     continue;
                 }
                 m_countPassedMuMuVtxChi2++;
                 
                 
                 // Fill muons monitoring containers
-                mon_DiMu_Pt_Mu1.push_back (pTp->pt()/1000.);
-                mon_DiMu_Pt_Mu2.push_back (mTp->pt()/1000.);
-                mon_DiMu_Eta_Mu1.push_back(pTp->eta());
-                mon_DiMu_Eta_Mu2.push_back(mTp->eta());
-                mon_DiMu_Phi_Mu1.push_back(pTp->phi());
-                mon_DiMu_Phi_Mu2.push_back(mTp->phi());
+                m_mon_DiMu_Pt_Mu1.push_back (pTp->pt()/1000.);
+                m_mon_DiMu_Pt_Mu2.push_back (mTp->pt()/1000.);
+                m_mon_DiMu_Eta_Mu1.push_back(pTp->eta());
+                m_mon_DiMu_Eta_Mu2.push_back(mTp->eta());
+                m_mon_DiMu_Phi_Mu1.push_back(pTp->phi());
+                m_mon_DiMu_Phi_Mu2.push_back(mTp->phi());
                 
-                mon_DiMu_dEtaMuMu.push_back( fabs(pTp->eta() - mTp->eta()) );
+                m_mon_DiMu_dEtaMuMu.push_back( fabs(pTp->eta() - mTp->eta()) );
                 float tmp_DiMu_dPhiMuMu = roiDescriptor1->phi() - roiDescriptor2->phi();
                 while (tmp_DiMu_dPhiMuMu >  M_PI) tmp_DiMu_dPhiMuMu -= 2*M_PI;
                 while (tmp_DiMu_dPhiMuMu < -M_PI) tmp_DiMu_dPhiMuMu += 2*M_PI;
-                mon_DiMu_dPhiMuMu.push_back( fabs(tmp_DiMu_dPhiMuMu) );
-                mon_DiMu_pTsumMuMu.push_back( (pTp->pt() + mTp->pt())/1000. );
-                mon_DiMu_InvMassMuMu.push_back(massMuMu/1000.);
-                mon_DiMu_VtxMassMuMu.push_back(trigMuMuUniquePtr->fitmass()/1000.);
-                mon_DiMu_Chi2MuMu.push_back(chi2MuMu);
+                m_mon_DiMu_dPhiMuMu.push_back( fabs(tmp_DiMu_dPhiMuMu) );
+                m_mon_DiMu_pTsumMuMu.push_back( (pTp->pt() + mTp->pt())/1000. );
+                m_mon_DiMu_InvMassMuMu.push_back(massMuMu/1000.);
+                m_mon_DiMu_VtxMassMuMu.push_back(trigMuMuUniquePtr->fitmass()/1000.);
+                m_mon_DiMu_Chi2MuMu.push_back(chi2MuMu);
                 
-                mon_DiMu_n++;
+                m_mon_DiMu_n++;
                 
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Dimuon Sec Vtx at ("
                     << trigMuMuUniquePtr->fitx() << " , "
@@ -1048,7 +1048,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                     << trigMuMuUniquePtr->fitz()  <<  ") with chi2 = "
                     << trigMuMuUniquePtr->fitchi2() << " ("
                     << trigMuMuUniquePtr->fitndof() << "  dof)"
-                    << " Mass= "<< massMuMu << endreq;
+                    << " Mass= "<< massMuMu << endmsg;
                 
                 // JK look for tracks in TrackParticle containers and add to TrigEFBphys
                 //
@@ -1068,36 +1068,36 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                 //HLT::ErrorCode status = getFeature(inputTE.front(), tracksRoiI1); // Need to insert the correct label
                 HLT::ErrorCode status = getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE.front(), tracksRoiI1);
                 if(status != HLT::OK) {
-                    msg() << MSG::WARNING << "Failed to get xAOD::TrackParticleCollection from the 1st trigger element" << endreq;
-                    mon_Errors.push_back(ERROR_No_TrackColl);
-                    delete mTrigBphysColl_b;
-                    delete mTrigBphysColl_X;
-                    mTrigBphysColl_b = NULL;
-                    mTrigBphysColl_X = NULL;
+                    msg() << MSG::WARNING << "Failed to get xAOD::TrackParticleCollection from the 1st trigger element" << endmsg;
+                    m_mon_Errors.push_back(ERROR_No_TrackColl);
+                    delete m_TrigBphysColl_b;
+                    delete m_TrigBphysColl_X;
+                    m_TrigBphysColl_b = NULL;
+                    m_TrigBphysColl_X = NULL;
                     return HLT::MISSING_FEATURE;
                 }
                 //status = getFeature(inputTE.back() , tracksRoiI2); // Need to insert the correct label
                 status = getFeaturesLinks< xAOD::TrackParticleContainer, xAOD::TrackParticleContainer > (inputTE.back(), tracksRoiI2);
                 if(status != HLT::OK) {
-                    msg() << MSG::WARNING << "Failed to get xAOD::TrackParticleCollection from the 2nd trigger element" << endreq;
-                    mon_Errors.push_back(ERROR_No_TrackColl);
-                    delete mTrigBphysColl_b;
-                    delete mTrigBphysColl_X;
-                    mTrigBphysColl_b = NULL;
-                    mTrigBphysColl_X = NULL;
+                    msg() << MSG::WARNING << "Failed to get xAOD::TrackParticleCollection from the 2nd trigger element" << endmsg;
+                    m_mon_Errors.push_back(ERROR_No_TrackColl);
+                    delete m_TrigBphysColl_b;
+                    delete m_TrigBphysColl_X;
+                    m_TrigBphysColl_b = NULL;
+                    m_TrigBphysColl_X = NULL;
                     if ( timerSvc() ) m_TotTimer->stop();
                     return HLT::MISSING_FEATURE;
                 }
-                ATH_MSG(DEBUG) << "Ntracks RoI1: " << ( tracksRoiI1.empty() ? -1 : tracksRoiI1.size() ) << endreq;
-                ATH_MSG(DEBUG) << "Ntracks RoI2: " << ( tracksRoiI2.empty() ? -1 : tracksRoiI2.size() ) << endreq;
+                ATH_MSG(DEBUG) << "Ntracks RoI1: " << ( tracksRoiI1.empty() ? -1 : tracksRoiI1.size() ) << endmsg;
+                ATH_MSG(DEBUG) << "Ntracks RoI2: " << ( tracksRoiI2.empty() ? -1 : tracksRoiI2.size() ) << endmsg;
                 // JW if containers are empty - it's not necessarily an issue; right?
                 //                if ( tracksRoiI1.empty() || tracksRoiI2.empty()) {
-                //                    msg() << MSG::WARNING << "Null track pointer" << endreq;
-                //                    mon_Errors.push_back(ERROR_No_TrackColl);
-                //                    delete mTrigBphysColl_b;
-                //                    delete mTrigBphysColl_X;
-                //                    mTrigBphysColl_b = NULL;
-                //                    mTrigBphysColl_X = NULL;
+                //                    msg() << MSG::WARNING << "Null track pointer" << endmsg;
+                //                    m_mon_Errors.push_back(ERROR_No_TrackColl);
+                //                    delete m_TrigBphysColl_b;
+                //                    delete m_TrigBphysColl_X;
+                //                    m_TrigBphysColl_b = NULL;
+                //                    m_TrigBphysColl_X = NULL;
                 //                    if ( timerSvc() ) m_TotTimer->stop();
                 //                    return HLT::MISSING_FEATURE;
                 //                }
@@ -1156,7 +1156,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                             msg() << MSG::DEBUG <<  "   no Trk::Track\n" ;
                         }
                     }
-                    msg() << MSG::DEBUG<< endreq;
+                    msg() << MSG::DEBUG<< endmsg;
                 } // if debug
                 
                 
@@ -1184,16 +1184,16 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                   //                ELmu2.resetWithKeyAndIndex(mTp->dataID(),mTp->index());
                   //                Found2Track = true;
                 
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Matching summary: " << Found1Track<<Found2Track << endreq;
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Matching summary: " << Found1Track<<Found2Track << endmsg;
                 
                 
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Now loop over TrackParticles to find tracks " << endreq;
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Now loop over TrackParticles to find tracks " << endmsg;
                 //                    xAOD::TrackParticleContainer::const_iterator trkIt =  merged_tracks.begin();
                 //                    xAOD::TrackParticleContainer::const_iterator lastTrkIt = merged_tracks.end();
                 //std::vector<const xAOD::TrackParticle*>::const_iterator trkIt     = merged_tracks.begin();
                 std::vector<const xAOD::TrackParticle*>::const_iterator lastTrkIt = merged_tracks.end();
                 
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found tracks, ntrack= " << merged_tracks.size() << endreq;
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found tracks, ntrack= " << merged_tracks.size() << endmsg;
                 
                 
                 // Main outer loop over tracks
@@ -1214,33 +1214,33 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                     ItrackEL3.resetWithKeyAndIndex(trackEL3.dataID(), trackEL3.index());
 
                     if (*trackEL3 != track1) {
-                        ATH_MSG(FATAL) << "Track 1 doesn't match dereferenced elementlink: " << track1 << " " << *trackEL3 << endreq;
+                        ATH_MSG(FATAL) << "Track 1 doesn't match dereferenced elementlink: " << track1 << " " << *trackEL3 << endmsg;
                         if ( timerSvc() ) m_TotTimer->stop();
                         return HLT::MISSING_FEATURE;
                     }
                     
                     // Check that it is not muon track
                     //                         if(itrk1==piTrk || itrk1==miTrk) {
-                    //                             ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a muon, skip it" << endreq;
+                    //                             ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a muon, skip it" << endmsg;
                     //                             continue;
                     //                         }
                     
                     // ST: EL comparison does not work -- they appear to be always different
                     //                         if(trackEL3 == trackELmu1 || trackEL3 == trackELmu2 ) {
-                    //                             ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a muon, skip it" << endreq;
+                    //                             ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a muon, skip it" << endmsg;
                     //                             continue;
                     //                         }
                     if( !(Found1Track && isUnique(*trkIt1,*trackELmu1)) || !(Found2Track &&isUnique(*trkIt1,*trackELmu2)) ) {
-                        ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a muon, skip it" << endreq;
+                        ATH_MSG(DEBUG) << "Track " << track1 << " was matched to a muon, skip it" << endmsg;
                         continue;
                     }
                     
                     // Fill tracks monitoring containers
-                    mon_Tracks_Pt.push_back (track1->pt()/1000.);
-                    mon_Tracks_Eta.push_back(track1->eta());
-                    mon_Tracks_Phi.push_back(track1->phi());
+                    m_mon_Tracks_Pt.push_back (track1->pt()/1000.);
+                    m_mon_Tracks_Eta.push_back(track1->eta());
+                    m_mon_Tracks_Phi.push_back(track1->phi());
                     
-                    mon_Tracks_n++;
+                    m_mon_Tracks_n++;
                     
                     //
                     // B+ -> mu mu K+ part
@@ -1253,21 +1253,21 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                             if(m_maxBpToStore >= 0 && m_countBpToStore >= m_maxBpToStore) {
                               delete trigPartBplusMuMuKplus;
                               if(m_countBpToStore == m_maxBpToStore) {
-                                ATH_MSG(WARNING) << "Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" << endreq;
-                                mon_Errors.push_back(ERROR_MaxNumBpReached);
+                                ATH_MSG(WARNING) << "Reached maximum number of B+ candidates to store " << m_maxBpToStore << "; following candidates won't be written out" << endmsg;
+                                m_mon_Errors.push_back(ERROR_MaxNumBpReached);
                               }
                               else
-                                ATH_MSG(DEBUG) << "Do not write out " << m_countBpToStore+1 << "th B+ candidate" << endreq;
+                                ATH_MSG(DEBUG) << "Do not write out " << m_countBpToStore+1 << "th B+ candidate" << endmsg;
                             }
                             else {
-                              mTrigBphysColl_b->push_back(trigPartBplusMuMuKplus);
+                              m_TrigBphysColl_b->push_back(trigPartBplusMuMuKplus);
                               // trackParticleLinks are set by the vertexing method
                               trigPartBplusMuMuKplus->addParticleLink(ItrackEL3);				// Sergey S.
                               if(Found1Track) trigPartBplusMuMuKplus->addParticleLink(ELmu1);
                               if(Found2Track) trigPartBplusMuMuKplus->addParticleLink(ELmu2);
                             }
                             result=true;
-                            mon_BMuMuK_n++;
+                            m_mon_BMuMuK_n++;
                             m_countBpToStore++;
                             if(IdEvent!=m_lastEventPassedBplus) {
                                 m_countPassedEventsBplus++;
@@ -1284,7 +1284,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                     //                            if (trigPartBplusMuMuKplus) {
                     //                                //now make the xaod object
                     //                                xAOD::TrigBphys* xaodObj = new xAOD::TrigBphys();
-                    //                                mTrigBphysColl_b->push_back( xaodObj );
+                    //                                m_TrigBphysColl_b->push_back( xaodObj );
                     //                                xaodObj->initialise(0, 0., 0., xAOD::TrigBphys::BKMUMU, trigPartBplusMuMuKplus->mass(), xAOD::TrigBphys::EF );
                     //
                     //                                //xaodObj->setEta         (trigPartBplusMuMuKplus->eta());
@@ -1329,15 +1329,15 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                     
                     // Protection
                     if( nTriedCombinations > m_maxNcombinations ) {
-                        ATH_MSG(DEBUG) << "Too many track combinations: " << endreq;
+                        ATH_MSG(DEBUG) << "Too many track combinations: " << endmsg;
                         ATH_MSG(DEBUG) << "  nTriedCombinations = " << nTriedCombinations
-                        << ", while MaxNcombinations = " << m_maxNcombinations << endreq;
-                        ATH_MSG(DEBUG) << "Terminate the loop" << endreq;
-                        ATH_MSG(DEBUG) << "  Bphys Collection size is " << mTrigBphysColl_b->size() << endreq;
-                        if(mTrigBphysColl_b->size() > 0)
-                            mon_Errors.push_back(ERROR_TooManyComb_Acc);
+                        << ", while MaxNcombinations = " << m_maxNcombinations << endmsg;
+                        ATH_MSG(DEBUG) << "Terminate the loop" << endmsg;
+                        ATH_MSG(DEBUG) << "  Bphys Collection size is " << m_TrigBphysColl_b->size() << endmsg;
+                        if(m_TrigBphysColl_b->size() > 0)
+                            m_mon_Errors.push_back(ERROR_TooManyComb_Acc);
                         else
-                            mon_Errors.push_back(ERROR_TooManyComb_Rej);
+                            m_mon_Errors.push_back(ERROR_TooManyComb_Rej);
                         break;
                     }
                     
@@ -1366,7 +1366,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
                             
                             if (*trackEL4 != track2) {
-                                ATH_MSG(FATAL) << "Track 2 doesn't match dereferenced elementlink: " << track2 << " " << *trackEL4 << endreq;
+                                ATH_MSG(FATAL) << "Track 2 doesn't match dereferenced elementlink: " << track2 << " " << *trackEL4 << endmsg;
                                 if ( timerSvc() ) m_TotTimer->stop();
                                 return HLT::MISSING_FEATURE;
                             }
@@ -1374,11 +1374,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                             
                                 // Check that it is not muon track
 //                                 if(itrk2==piTrk || itrk2==miTrk) {
-//                                     ATH_MSG(DEBUG) << "Track " << track2 << " was matched to a muon, skip it" << endreq;
+//                                     ATH_MSG(DEBUG) << "Track " << track2 << " was matched to a muon, skip it" << endmsg;
 //                                     continue;
 //                                 }
                                 if( !(Found1Track && isUnique(*trkIt2,*trackELmu1)) || !(Found2Track &&isUnique(*trkIt2,*trackELmu2)) ) {
-                                    ATH_MSG(DEBUG) << "Track " << track2 << " was matched to a muon, skip it" << endreq;
+                                    ATH_MSG(DEBUG) << "Track " << track2 << " was matched to a muon, skip it" << endmsg;
                                     continue;
                                 }
                                 
@@ -1386,7 +1386,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                 if( (track1->charge())*(track2->charge()) > 0) {
                                     ATH_MSG(DEBUG) << "Track pair rejected by opposite charge check: "
                                     << track1 << " = " << track1->charge() << ",  "
-                                    << track2 << " = " << track2->charge() << endreq;
+                                    << track2 << " = " << track2->charge() << endmsg;
                                     continue;
                                 }
                                 
@@ -1407,15 +1407,15 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           delete xaod_trigPartBdMuMuKstar;
                                           delete xaod_trigPartKstar;
                                           if(m_countBdToStore == m_maxBdToStore) {
-                                            ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endreq;
-                                            mon_Errors.push_back(ERROR_MaxNumBdReached);
+                                            ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endmsg;
+                                            m_mon_Errors.push_back(ERROR_MaxNumBdReached);
                                           }
                                           else
-                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endreq;
+                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endmsg;
                                         }
                                         else {
-                                          mTrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
-                                          mTrigBphysColl_X->push_back(xaod_trigPartKstar );
+                                          m_TrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
+                                          m_TrigBphysColl_X->push_back(xaod_trigPartKstar );
                                           // trackParticleLinks are set by the vertexing method
                                           xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL3);				// Sergey S.
                                           xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL4);
@@ -1427,12 +1427,12 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
                                           // set the secondary link; note, does not set correctly for persistified data.
                                           // see code further down for the re-setting of these links
-                                          int iKstar = mTrigBphysColl_X->size() - 1;
-                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iKstar);
+                                          int iKstar = m_TrigBphysColl_X->size() - 1;
+                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iKstar);
                                           xaod_trigPartBdMuMuKstar->setSecondaryDecayLink(trigPartXEL);
                                         }
                                         result=true;
-                                        mon_BdMuMuKs_n++;
+                                        m_mon_BdMuMuKs_n++;
                                         m_countBdToStore++;
                                         if(IdEvent!=m_lastEventPassedBplus) {
                                             m_countPassedEventsBplus++;
@@ -1453,15 +1453,15 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           delete xaod_trigPartBdMuMuKstar;
                                           delete xaod_trigPartKstar;
                                           if(m_countBdToStore == m_maxBdToStore) {
-                                            ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endreq;
-                                            mon_Errors.push_back(ERROR_MaxNumBdReached);
+                                            ATH_MSG(WARNING) << "Reached maximum number of Bd candidates to store " << m_maxBdToStore << "; following candidates won't be written out" << endmsg;
+                                            m_mon_Errors.push_back(ERROR_MaxNumBdReached);
                                           }
                                           else
-                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endreq;
+                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBdToStore+1 << "th Bd candidate" << endmsg;
                                         }
                                         else {
-                                          mTrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
-                                          mTrigBphysColl_X->push_back(xaod_trigPartKstar );
+                                          m_TrigBphysColl_b->push_back(xaod_trigPartBdMuMuKstar);
+                                          m_TrigBphysColl_X->push_back(xaod_trigPartKstar );
                                           // trackParticleLinks are set by the vertexing method
                                           xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL4);				// Sergey S.
                                           xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL3);
@@ -1473,12 +1473,12 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           
                                           // set the secondary link; note, does not set correctly for persistified data.
                                           // see code further down for the re-setting of these links
-                                          int iKstar = mTrigBphysColl_X->size() - 1;
-                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iKstar);
+                                          int iKstar = m_TrigBphysColl_X->size() - 1;
+                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iKstar);
                                           xaod_trigPartBdMuMuKstar->setSecondaryDecayLink(trigPartXEL);
                                         }
                                         result=true;
-                                        mon_BdMuMuKs_n++;
+                                        m_mon_BdMuMuKs_n++;
                                         m_countBdToStore++;
                                         if(IdEvent!=m_lastEventPassedBplus) {
                                             m_countPassedEventsBplus++;
@@ -1499,14 +1499,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                        //                     trigPartBdMuMuKstar->addTrack(trackELmu2);
 //                                        //now make the xaod object
 //                                        xAOD::TrigBphys* xaod_trigPartBdMuMuKstar = new xAOD::TrigBphys();
-//                                        mTrigBphysColl_b->push_back( xaod_trigPartBdMuMuKstar );
+//                                        m_TrigBphysColl_b->push_back( xaod_trigPartBdMuMuKstar );
 //                                        xaod_trigPartBdMuMuKstar->initialise(0, 0., 0.,
 //                                                                             (xAOD::TrigBphys::pType)trigPartBdMuMuKstar->particleType(),
 //                                                                             trigPartBdMuMuKstar->mass(),
 //                                                                             xAOD::TrigBphys::EF );
 //                                        
 //                                        xAOD::TrigBphys* xaod_trigPartKstar = new xAOD::TrigBphys();
-//                                        mTrigBphysColl_X->push_back( xaod_trigPartKstar );
+//                                        m_TrigBphysColl_X->push_back( xaod_trigPartKstar );
 //                                        xaod_trigPartKstar->initialise(0, 0., 0.,
 //                                                                       (xAOD::TrigBphys::pType)trigPartKstar->particleType(),
 //                                                                       trigPartKstar->mass(),
@@ -1542,8 +1542,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                        xaod_trigPartKstar->addParticleLink(ItrackEL3);
 //                                        xaod_trigPartKstar->addParticleLink(ItrackEL4);
 //                                        //m_trigBphysColl_X->push_back(trigPartKstar);
-//                                        int iKstar = mTrigBphysColl_X->size() - 1;
-//                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iKstar);
+//                                        int iKstar = m_TrigBphysColl_X->size() - 1;
+//                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iKstar);
 //                                        xaod_trigPartBdMuMuKstar->addTrackParticleLink(trackEL3);
 //                                        xaod_trigPartBdMuMuKstar->addTrackParticleLink(trackEL4);
 //                                        xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL3);
@@ -1573,14 +1573,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                    if (trigPartBdMuMuKstar) {
 //                                        //now make the xaod object
 //                                        xAOD::TrigBphys* xaod_trigPartBdMuMuKstar = new xAOD::TrigBphys();
-//                                        mTrigBphysColl_b->push_back( xaod_trigPartBdMuMuKstar );
+//                                        m_TrigBphysColl_b->push_back( xaod_trigPartBdMuMuKstar );
 //                                        xaod_trigPartBdMuMuKstar->initialise(0, 0., 0.,
 //                                                                             (xAOD::TrigBphys::pType)trigPartBdMuMuKstar->particleType(),
 //                                                                             trigPartBdMuMuKstar->mass(),
 //                                                                             xAOD::TrigBphys::EF );
 //                                        
 //                                        xAOD::TrigBphys* xaod_trigPartKstar = new xAOD::TrigBphys();
-//                                        mTrigBphysColl_X->push_back( xaod_trigPartKstar );
+//                                        m_TrigBphysColl_X->push_back( xaod_trigPartKstar );
 //                                        xaod_trigPartKstar->initialise(0, 0., 0.,
 //                                                                       (xAOD::TrigBphys::pType)trigPartKstar->particleType(),
 //                                                                       trigPartKstar->mass(),
@@ -1616,8 +1616,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                        xaod_trigPartKstar->addParticleLink(ItrackEL3);
 //                                        xaod_trigPartKstar->addParticleLink(ItrackEL4);
 //                                        //m_trigBphysColl_X->push_back(trigPartKstar);
-//                                        int iKstar = mTrigBphysColl_X->size() - 1;
-//                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iKstar);
+//                                        int iKstar = m_TrigBphysColl_X->size() - 1;
+//                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iKstar);
 //                                        xaod_trigPartBdMuMuKstar->addTrackParticleLink(trackEL3);
 //                                        xaod_trigPartBdMuMuKstar->addTrackParticleLink(trackEL4);
 //                                        xaod_trigPartBdMuMuKstar->addParticleLink(ItrackEL3);
@@ -1659,15 +1659,15 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           delete xaod_trigPartBsMuMuPhi;
                                           delete xaod_trigPartPhi;
                                           if(m_countBsToStore == m_maxBsToStore) {
-                                            ATH_MSG(WARNING) << "Reached maximum number of Bs candidates to store " << m_maxBsToStore << "; following candidates won't be written out" << endreq;
-                                            mon_Errors.push_back(ERROR_MaxNumBsReached);
+                                            ATH_MSG(WARNING) << "Reached maximum number of Bs candidates to store " << m_maxBsToStore << "; following candidates won't be written out" << endmsg;
+                                            m_mon_Errors.push_back(ERROR_MaxNumBsReached);
                                           }
                                           else
-                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBsToStore+1 << "th Bs candidate" << endreq;
+                                            ATH_MSG(DEBUG) << "Do not write out " << m_countBsToStore+1 << "th Bs candidate" << endmsg;
                                         }
                                         else {
-                                          mTrigBphysColl_b->push_back(xaod_trigPartBsMuMuPhi);
-                                          mTrigBphysColl_X->push_back(xaod_trigPartPhi );
+                                          m_TrigBphysColl_b->push_back(xaod_trigPartBsMuMuPhi);
+                                          m_TrigBphysColl_X->push_back(xaod_trigPartPhi );
                                           // trackParticleLinks are set by the vertexing method
                                           xaod_trigPartBsMuMuPhi->addParticleLink(ItrackEL3);				// Sergey S.
                                           xaod_trigPartBsMuMuPhi->addParticleLink(ItrackEL4);
@@ -1679,12 +1679,12 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           
                                           // set the secondary link; note, does not set correctly for persistified data.
                                           // see code further down for the re-setting of these links
-                                          int iPhi = mTrigBphysColl_X->size() - 1;
-                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iPhi);
+                                          int iPhi = m_TrigBphysColl_X->size() - 1;
+                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iPhi);
                                           xaod_trigPartBsMuMuPhi->setSecondaryDecayLink(trigPartXEL);
                                         }
                                         result=true;
-                                        mon_BsMuMuPhi_n++;
+                                        m_mon_BsMuMuPhi_n++;
                                         m_countBsToStore++;
                                         if(IdEvent!=m_lastEventPassedBplus) {
                                             m_countPassedEventsBplus++;
@@ -1703,14 +1703,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                    if (trigPartBsMuMuPhi) {
 //                                        //now make the xaod object
 //                                        xAOD::TrigBphys* xaod_trigPartBsMuMuPhi = new xAOD::TrigBphys();
-//                                        mTrigBphysColl_b->push_back( xaod_trigPartBsMuMuPhi );
+//                                        m_TrigBphysColl_b->push_back( xaod_trigPartBsMuMuPhi );
 //                                        xaod_trigPartBsMuMuPhi->initialise(0, 0., 0.,
 //                                                                             (xAOD::TrigBphys::pType)trigPartBsMuMuPhi->particleType(),
 //                                                                             trigPartBsMuMuPhi->mass(),
 //                                                                             xAOD::TrigBphys::EF );
 //                                        
 //                                        xAOD::TrigBphys* xaod_trigPartPhi = new xAOD::TrigBphys();
-//                                        mTrigBphysColl_X->push_back( xaod_trigPartPhi );
+//                                        m_TrigBphysColl_X->push_back( xaod_trigPartPhi );
 //                                        xaod_trigPartPhi->initialise(0, 0., 0.,
 //                                                                       (xAOD::TrigBphys::pType)trigPartPhi->particleType(),
 //                                                                       trigPartPhi->mass(),
@@ -1744,8 +1744,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                        xaod_trigPartPhi->addTrackParticleLink(trackEL3);
 //                                        xaod_trigPartPhi->addTrackParticleLink(trackEL4);
 //                                        //m_trigBphysColl_X->push_back(trigPartPhi);
-//                                        int iPhi = mTrigBphysColl_X->size() - 1;
-//                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iPhi);
+//                                        int iPhi = m_TrigBphysColl_X->size() - 1;
+//                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iPhi);
 //                                        xaod_trigPartBsMuMuPhi->addTrackParticleLink(trackEL3);
 //                                        xaod_trigPartBsMuMuPhi->addTrackParticleLink(trackEL4);
 //                                        if(Found1Track) xaod_trigPartBsMuMuPhi->addTrackParticleLink(trackELmu1);
@@ -1788,15 +1788,15 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           delete xaod_trigPartLbMuMuLambda;
                                           delete xaod_trigPartLambda;
                                           if(m_countLbToStore == m_maxLbToStore) {
-                                            ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endreq;
-                                            mon_Errors.push_back(ERROR_MaxNumLbReached);
+                                            ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endmsg;
+                                            m_mon_Errors.push_back(ERROR_MaxNumLbReached);
                                           }
                                           else
-                                            ATH_MSG(DEBUG) << "Do not write out " << m_countLbToStore+1 << "th Lb candidate" << endreq;
+                                            ATH_MSG(DEBUG) << "Do not write out " << m_countLbToStore+1 << "th Lb candidate" << endmsg;
                                         }
                                         else {
-                                          mTrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
-                                          mTrigBphysColl_X->push_back(xaod_trigPartLambda );
+                                          m_TrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
+                                          m_TrigBphysColl_X->push_back(xaod_trigPartLambda );
                                           // trackParticleLinks are set by the vertexing method
                                           xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL3);				// Sergey S.
                                           xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL4);
@@ -1808,12 +1808,12 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           
                                           // set the secondary link; note, does not set correctly for persistified data.
                                           // see code further down for the re-setting of these links
-                                          int iLambda = mTrigBphysColl_X->size() - 1;
-                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iLambda);
+                                          int iLambda = m_TrigBphysColl_X->size() - 1;
+                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iLambda);
                                           xaod_trigPartLbMuMuLambda->setSecondaryDecayLink(trigPartXEL);
                                         }
                                         result=true;
-                                        mon_LbMuMuLambda_n++;
+                                        m_mon_LbMuMuLambda_n++;
                                         m_countLbToStore++;
                                         if(IdEvent!=m_lastEventPassedBplus) {
                                             m_countPassedEventsBplus++;
@@ -1835,15 +1835,15 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           delete xaod_trigPartLbMuMuLambda;
                                           delete xaod_trigPartLambda;
                                           if(m_countLbToStore == m_maxLbToStore) {
-                                            ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endreq;
-                                            mon_Errors.push_back(ERROR_MaxNumLbReached);
+                                            ATH_MSG(WARNING) << "Reached maximum number of Lb candidates to store " << m_maxLbToStore << "; following candidates won't be written out" << endmsg;
+                                            m_mon_Errors.push_back(ERROR_MaxNumLbReached);
                                           }
                                           else
-                                            ATH_MSG(DEBUG) << "Do not write out " << m_countLbToStore+1 << "th Lb candidate" << endreq;
+                                            ATH_MSG(DEBUG) << "Do not write out " << m_countLbToStore+1 << "th Lb candidate" << endmsg;
                                         }
                                         else {
-                                          mTrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
-                                          mTrigBphysColl_X->push_back(xaod_trigPartLambda );
+                                          m_TrigBphysColl_b->push_back(xaod_trigPartLbMuMuLambda);
+                                          m_TrigBphysColl_X->push_back(xaod_trigPartLambda );
                                           // trackParticleLinks are set by the vertexing method
                                           xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL4);				// Sergey S.
                                           xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL3);
@@ -1855,12 +1855,12 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                           
                                           // set the secondary link; note, does not set correctly for persistified data.
                                           // see code further down for the re-setting of these links
-                                          int iLambda = mTrigBphysColl_X->size() - 1;
-                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iLambda);
+                                          int iLambda = m_TrigBphysColl_X->size() - 1;
+                                          ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iLambda);
                                           xaod_trigPartLbMuMuLambda->setSecondaryDecayLink(trigPartXEL);
                                         }
                                         result=true;
-                                        mon_LbMuMuLambda_n++;
+                                        m_mon_LbMuMuLambda_n++;
                                         m_countLbToStore++;
                                         if(IdEvent!=m_lastEventPassedBplus) {
                                             m_countPassedEventsBplus++;
@@ -1882,14 +1882,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                    if (trigPartLbMuMuLambda) {
 //                                        //now make the xaod object
 //                                        xAOD::TrigBphys* xaod_trigPartLbMuMuLambda = new xAOD::TrigBphys();
-//                                        mTrigBphysColl_b->push_back( xaod_trigPartLbMuMuLambda );
+//                                        m_TrigBphysColl_b->push_back( xaod_trigPartLbMuMuLambda );
 //                                        xaod_trigPartLbMuMuLambda->initialise(0, 0., 0.,
 //                                                                           (xAOD::TrigBphys::pType)trigPartLbMuMuLambda->particleType(),
 //                                                                           trigPartLbMuMuLambda->mass(),
 //                                                                           xAOD::TrigBphys::EF );
 //                                        
 //                                        xAOD::TrigBphys* xaod_trigPartLambda = new xAOD::TrigBphys();
-//                                        mTrigBphysColl_X->push_back( xaod_trigPartLambda );
+//                                        m_TrigBphysColl_X->push_back( xaod_trigPartLambda );
 //                                        xaod_trigPartLambda->initialise(0, 0., 0.,
 //                                                                     (xAOD::TrigBphys::pType)trigPartLambda->particleType(),
 //                                                                     trigPartLambda->mass(),
@@ -1925,8 +1925,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                        xaod_trigPartLambda->addParticleLink(ItrackEL3);
 //                                        xaod_trigPartLambda->addParticleLink(ItrackEL4);
 //                                        // m_trigBphysColl_X->push_back(trigPartLambda);
-//                                        int iLambda = mTrigBphysColl_X->size() - 1;
-//                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iLambda);
+//                                        int iLambda = m_TrigBphysColl_X->size() - 1;
+//                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iLambda);
 //                                        xaod_trigPartLbMuMuLambda->addTrackParticleLink(trackEL3);
 //                                        xaod_trigPartLbMuMuLambda->addTrackParticleLink(trackEL4);
 //                                        xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL3);
@@ -1956,14 +1956,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                    if (trigPartLbMuMuLambda) {
 //                                        //now make the xaod object
 //                                        xAOD::TrigBphys* xaod_trigPartLbMuMuLambda = new xAOD::TrigBphys();
-//                                        mTrigBphysColl_b->push_back( xaod_trigPartLbMuMuLambda );
+//                                        m_TrigBphysColl_b->push_back( xaod_trigPartLbMuMuLambda );
 //                                        xaod_trigPartLbMuMuLambda->initialise(0, 0., 0.,
 //                                                                              (xAOD::TrigBphys::pType)trigPartLbMuMuLambda->particleType(),
 //                                                                              trigPartLbMuMuLambda->mass(),
 //                                                                              xAOD::TrigBphys::EF );
 //                                        
 //                                        xAOD::TrigBphys* xaod_trigPartLambda = new xAOD::TrigBphys();
-//                                        mTrigBphysColl_X->push_back( xaod_trigPartLambda );
+//                                        m_TrigBphysColl_X->push_back( xaod_trigPartLambda );
 //                                        xaod_trigPartLambda->initialise(0, 0., 0.,
 //                                                                        (xAOD::TrigBphys::pType)trigPartLambda->particleType(),
 //                                                                        trigPartLambda->mass(),
@@ -2012,8 +2012,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                        xaod_trigPartLambda->addParticleLink(ItrackEL3);
 //                                        xaod_trigPartLambda->addParticleLink(ItrackEL4);
 //                                        // m_trigBphysColl_X->push_back(trigPartLambda);
-//                                        int iLambda = mTrigBphysColl_X->size() - 1;
-//                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iLambda);
+//                                        int iLambda = m_TrigBphysColl_X->size() - 1;
+//                                        ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iLambda);
 //                                        xaod_trigPartLbMuMuLambda->addTrackParticleLink(trackEL3);
 //                                        xaod_trigPartLbMuMuLambda->addTrackParticleLink(trackEL4);
 //                                        xaod_trigPartLbMuMuLambda->addParticleLink(ItrackEL3);
@@ -2061,7 +2061,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
                                                 // looping over all tracks, so expect to same tracks, but should skip those combinations
                                                 if(itrk3==itrk1 || itrk3==itrk2) {
-                                                    ATH_MSG(DEBUG) << "Track " << track3 << " is the same as another" << endreq;
+                                                    ATH_MSG(DEBUG) << "Track " << track3 << " is the same as another" << endmsg;
                                                     continue;
                                                 }
 
@@ -2078,7 +2078,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 
                                                 
                                                 if (*trackEL5 != track3) {
-                                                    ATH_MSG(FATAL) << "Track 3 doesn't match dereferenced elementlink: " << track3 << " " << *trackEL5 << endreq;
+                                                    ATH_MSG(FATAL) << "Track 3 doesn't match dereferenced elementlink: " << track3 << " " << *trackEL5 << endmsg;
                                                     if ( timerSvc() ) m_TotTimer->stop();
                                                     return HLT::MISSING_FEATURE;
                                                 }
@@ -2087,11 +2087,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                 
                                                 // Check that it is not muon track
 //                                                 if(itrk3==piTrk || itrk3==miTrk) {
-//                                                     ATH_MSG(DEBUG) << "Track " << track3 << " was matched to a muon, skip it" << endreq;
+//                                                     ATH_MSG(DEBUG) << "Track " << track3 << " was matched to a muon, skip it" << endmsg;
 //                                                     continue;
 //                                                 }
                                                 if( !(Found1Track && isUnique(*trkIt3,*trackELmu1)) || !(Found2Track &&isUnique(*trkIt3,*trackELmu2)) ) {
-                                                    ATH_MSG(DEBUG) << "Track " << track3 << " was matched to a muon, skip it" << endreq;
+                                                    ATH_MSG(DEBUG) << "Track " << track3 << " was matched to a muon, skip it" << endmsg;
                                                     continue;
                                                 }
                                                 
@@ -2105,15 +2105,15 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       delete trigPartBcMuMuDs;
                                                       delete trigPartDs;
                                                       if(m_countBcToStore == m_maxBcToStore) {
-                                                        ATH_MSG(WARNING) << "Reached maximum number of Bc candidates to store " << m_maxBcToStore << "; following candidates won't be written out" << endreq;
-                                                        mon_Errors.push_back(ERROR_MaxNumBcReached);
+                                                        ATH_MSG(WARNING) << "Reached maximum number of Bc candidates to store " << m_maxBcToStore << "; following candidates won't be written out" << endmsg;
+                                                        m_mon_Errors.push_back(ERROR_MaxNumBcReached);
                                                       }
                                                       else
-                                                        ATH_MSG(DEBUG) << "Do not write out " << m_countBcToStore+1 << "th Bc candidate" << endreq;
+                                                        ATH_MSG(DEBUG) << "Do not write out " << m_countBcToStore+1 << "th Bc candidate" << endmsg;
                                                     }
                                                     else {
-                                                      mTrigBphysColl_b->push_back( trigPartBcMuMuDs );
-                                                      mTrigBphysColl_X->push_back( trigPartDs );
+                                                      m_TrigBphysColl_b->push_back( trigPartBcMuMuDs );
+                                                      m_TrigBphysColl_X->push_back( trigPartDs );
                                                       m_bphysHelperTool->setBeamlineDisplacement(trigPartBcMuMuDs,
                                                                                                 {*trkIt1,*trkIt2,*trkIt3,*trackELmu1,*trackELmu2});
                                                       m_bphysHelperTool->setBeamlineDisplacement(trigPartDs,
@@ -2122,8 +2122,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                       trigPartDs->addParticleLink(ItrackEL4);
                                                       trigPartDs->addParticleLink(ItrackEL5);
                                                     
-                                                      int iDs = mTrigBphysColl_X->size() - 1;
-                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iDs);
+                                                      int iDs = m_TrigBphysColl_X->size() - 1;
+                                                      ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDs);
                                                       
                                                       trigPartBcMuMuDs->addParticleLink(ItrackEL3);
                                                       trigPartBcMuMuDs->addParticleLink(ItrackEL4);
@@ -2134,7 +2134,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                                                     }
 
                                                     result=true;
-                                                    mon_BcMuMuDs_n++;
+                                                    m_mon_BcMuMuDs_n++;
                                                     m_countBcToStore++;
                                                     if(IdEvent!=m_lastEventPassedBc) {
                                                         m_countPassedEventsBc++;
@@ -2157,14 +2157,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                                    
 //                                                    //now make the xaod object
 //                                                    xAOD::TrigBphys* xaod_trigPartBcMuMuDs = new xAOD::TrigBphys();
-//                                                    mTrigBphysColl_b->push_back( xaod_trigPartBcMuMuDs );
+//                                                    m_TrigBphysColl_b->push_back( xaod_trigPartBcMuMuDs );
 //                                                    xaod_trigPartBcMuMuDs->initialise(0, 0., 0.,
 //                                                                                          (xAOD::TrigBphys::pType)trigPartBcMuMuDs->particleType(),
 //                                                                                          trigPartBcMuMuDs->mass(),
 //                                                                                          xAOD::TrigBphys::EF );
 //                                                    
 //                                                    xAOD::TrigBphys* xaod_trigPartDs = new xAOD::TrigBphys();
-//                                                    mTrigBphysColl_X->push_back( xaod_trigPartDs );
+//                                                    m_TrigBphysColl_X->push_back( xaod_trigPartDs );
 //                                                    xaod_trigPartDs->initialise(0, 0., 0.,
 //                                                                                    (xAOD::TrigBphys::pType)trigPartDs->particleType(),
 //                                                                                    trigPartDs->mass(),
@@ -2202,8 +2202,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                                    xaod_trigPartDs->addParticleLink(ItrackEL4);
 //                                                    xaod_trigPartDs->addParticleLink(ItrackEL5);
 //                                                    //m_trigBphysColl_X->push_back(trigPartDs);
-//                                                    int iDs = mTrigBphysColl_X->size() - 1;
-//                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*mTrigBphysColl_X,iDs);
+//                                                    int iDs = m_TrigBphysColl_X->size() - 1;
+//                                                    ElementLink<xAOD::TrigBphysContainer> trigPartXEL(*m_TrigBphysColl_X,iDs);
 //                                                    xaod_trigPartBcMuMuDs->addTrackParticleLink(trackEL3);
 //                                                    xaod_trigPartBcMuMuDs->addTrackParticleLink(trackEL4);
 //                                                    xaod_trigPartBcMuMuDs->addTrackParticleLink(trackEL5);
@@ -2238,19 +2238,19 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         } // end of outer muon loop
     } // end if muidIDtracks1,2 sizes >= 0
     
-    if (msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "Totally tried to build " << nTriedCombinations << " tracks cobinations" << endreq;
-    mon_nTriedCombinations = nTriedCombinations;
+    if (msgLvl() <= MSG::DEBUG) msg()  << MSG::DEBUG << "Totally tried to build " << nTriedCombinations << " tracks cobinations" << endmsg;
+    m_mon_nTriedCombinations = nTriedCombinations;
     
 //     std::string  KEY; //sivokl
     
-    if(mTrigBphysColl_b!=0 && mTrigBphysColl_b->size()>0) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << mTrigBphysColl_b->size() << endreq;
-        HLT::ErrorCode sc = attachFeature(outputTE, mTrigBphysColl_X, "EFBMuMuXFex_X" );
+    if(m_TrigBphysColl_b!=0 && m_TrigBphysColl_b->size()>0) {
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: Store Bphys Collection size: " << m_TrigBphysColl_b->size() << endmsg;
+        HLT::ErrorCode sc = attachFeature(outputTE, m_TrigBphysColl_X, "EFBMuMuXFex_X" );
         if(sc != HLT::OK) {
-            msg() << MSG::WARNING << "Failed to store trigBphys_X Collection in outputTE" << endreq;
-            mon_Errors.push_back(ERROR_BphysCollStore_Fails);
-            delete mTrigBphysColl_b;
-            delete mTrigBphysColl_X;
+            msg() << MSG::WARNING << "Failed to store trigBphys_X Collection in outputTE" << endmsg;
+            m_mon_Errors.push_back(ERROR_BphysCollStore_Fails);
+            delete m_TrigBphysColl_b;
+            delete m_TrigBphysColl_X;
             if ( timerSvc() ) m_TotTimer->stop();
             return HLT::ERROR;
         }
@@ -2260,7 +2260,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //         const xAOD::TrigBphysContainer * TrigBphysColl_X_persist(0);
 //         sc = getFeature(outputTE, TrigBphysColl_X_persist, "EFBMuMuXFex_X");
         if(sc != HLT::OK) {
-        msg() << MSG::WARNING << "Failed to getFeaturesLinks trigBphys_X Collection in outputTE" << endreq;
+        msg() << MSG::WARNING << "Failed to getFeaturesLinks trigBphys_X Collection in outputTE" << endmsg;
         } else {
             for ( const auto eltp: ELvecTBPh) {
               if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "  ===== TrigBphys Container ElementLinks : " 
@@ -2269,12 +2269,12 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
               << " hashkey: "<< eltp.key()
               << " valid: "  << eltp.isValid()
               << " ptr: "    << (eltp.isValid() ? *eltp : nullptr)
-              << endreq;
+              << endmsg;
 //               KEY = eltp.dataID();
             }
         }
         // Sergey S.: reset the secondary decay links to persistified container
-        for( xAOD::TrigBphysContainer::const_iterator BPobj = mTrigBphysColl_b->begin(); BPobj != mTrigBphysColl_b->end(); ++BPobj) {
+        for( xAOD::TrigBphysContainer::iterator BPobj = m_TrigBphysColl_b->begin(); BPobj != m_TrigBphysColl_b->end(); ++BPobj) {
             if ((*BPobj)->secondaryDecayLink().isValid() ) {
               ElementLink<xAOD::TrigBphysContainer> secEL;
 //               secEL.resetWithKeyAndIndex(KEY,(*BPobj)->secondaryDecayLink().index());
@@ -2284,7 +2284,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
                   secEL = persistentSecEL;
               }
               if(!secEL.isValid())
-                msg() << MSG::WARNING << "Failed to find persistified secondary decay EL" << endreq;
+                msg() << MSG::WARNING << "Failed to find persistified secondary decay EL" << endmsg;
               else
                 (*BPobj)->setSecondaryDecayLink(secEL);
               
@@ -2294,26 +2294,26 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
               << "S link   index = " << (*BPobj)->secondaryDecayLink().index() << std::endl
               << "S link     key = " << (*BPobj)->secondaryDecayLink().key() << std::endl
               << "S link    cptr = " << (*BPobj)->secondaryDecayLink().cptr() << std::endl
-              << endreq;
+              << endmsg;
             }
         }
 
 
 
 	        
-        sc = attachFeature(outputTE, mTrigBphysColl_b, "EFBMuMuXFex" );
+        sc = attachFeature(outputTE, m_TrigBphysColl_b, "EFBMuMuXFex" );
         if(sc != HLT::OK) {
-            msg() << MSG::WARNING << "Failed to store trigBphys Collection in outputTE" << endreq;
-            mon_Errors.push_back(ERROR_BphysCollStore_Fails);
-            delete mTrigBphysColl_b;
-            delete mTrigBphysColl_X;
+            msg() << MSG::WARNING << "Failed to store trigBphys Collection in outputTE" << endmsg;
+            m_mon_Errors.push_back(ERROR_BphysCollStore_Fails);
+            delete m_TrigBphysColl_b;
+            delete m_TrigBphysColl_X;
             if ( timerSvc() ) m_TotTimer->stop();
             return HLT::ERROR;
         }
     } else {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endreq;
-        delete mTrigBphysColl_b;
-        delete mTrigBphysColl_X;
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "REGTEST: no bphys collection to store "  << endmsg;
+        delete m_TrigBphysColl_b;
+        delete m_TrigBphysColl_X;
     }
     
     if(result) {
@@ -2328,13 +2328,13 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
         m_TotTimer->stop();
         m_VtxFitTimer->resume();
         m_VtxFitTimer->stop();
-        mon_TotalRunTime   = m_TotTimer->elapsed();
-        mon_VertexingTime  = m_VtxFitTimer->elapsed();
+        m_mon_TotalRunTime   = m_TotTimer->elapsed();
+        m_mon_VertexingTime  = m_VtxFitTimer->elapsed();
     }
     
     if ( timerSvc() ) {
-        ATH_MSG(DEBUG) << "m_TotTimer->elapsed()    = " << m_TotTimer->elapsed() << endreq;
-        ATH_MSG(DEBUG) << "m_VtxFitTimer->elapsed() = " << m_VtxFitTimer->elapsed() << endreq;
+        ATH_MSG(DEBUG) << "m_TotTimer->elapsed()    = " << m_TotTimer->elapsed() << endmsg;
+        ATH_MSG(DEBUG) << "m_VtxFitTimer->elapsed() = " << m_VtxFitTimer->elapsed() << endmsg;
     }
     
     return HLT::OK;
@@ -2467,22 +2467,22 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //         pMon_BMuMu2X_VtxMass_B  = &mon_LbMuMuLambda_VtxMass_Lb;
 //         pMon_BMuMu2X_Chi2_B     = &mon_LbMuMuLambda_Chi2_Lb;
 //     } else {
-//         ATH_MSG(DEBUG) << "Wrong decay identifier passed to checkBMuMu2X: decay = " << decay << endreq;
-//         mon_Errors.push_back(ERROR_WrongDecayID);
+//         ATH_MSG(DEBUG) << "Wrong decay identifier passed to checkBMuMu2X: decay = " << decay << endmsg;
+//         m_mon_Errors.push_back(ERROR_WrongDecayID);
 //         return trigPartXMuMu;
 //     }
 //     
-//     ATH_MSG(DEBUG) << "Try to build " << decayName << " with tracks " << track1 << ", " << track2 << endreq;
+//     ATH_MSG(DEBUG) << "Try to build " << decayName << " with tracks " << track1 << ", " << track2 << endmsg;
 //     
 //     float massX = XMass(track1, track2, decay);
 //     if( !(massX > lowerXMassCut && massX < upperXMassCut) ) {
-//         ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X mass cut: m = " << massX << endreq;
+//         ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X mass cut: m = " << massX << endmsg;
 //     } else {
 //         (*countPassedXMass)++;
 //         
 //         float massXMuMu = XMuMuMass(mu1, mu2, track1, track2, decay);
 //         if( !(massXMuMu > lowerXMuMuMassCut && massXMuMu < upperXMuMuMassCut) ) {
-//             ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu mass cut: m = " << massXMuMu << endreq;
+//             ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu mass cut: m = " << massXMuMu << endmsg;
 //         } else {
 //             (*countPassedXMuMuMass)++;
 //             
@@ -2499,14 +2499,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                 if ( timerSvc() ) m_VtxFitTimer->pause();
 //                 
 //                 if( !XVxCandidate ) {
-//                     ATH_MSG(DEBUG) << " Failed to fit X vertex for " << decayName << endreq;
-//                     // mon_Errors.push_back(ERROR_XVtxFit_Fails);
+//                     ATH_MSG(DEBUG) << " Failed to fit X vertex for " << decayName << endmsg;
+//                     // m_mon_Errors.push_back(ERROR_XVtxFit_Fails);
 //                 } else {
 //                     (*countPassedXVtx)++;
 //                     
 //                     float chi2X = XVxCandidate->recVertex().fitQuality().chiSquared();
 //                     if( !(chi2X < chi2XCut) ) {
-//                         ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endreq;
+//                         ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endmsg;
 //                     } else {
 //                         (*countPassedXVtxChi2)++;
 //                         
@@ -2515,8 +2515,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                         std::vector<int> trkIndicesX;
 //                         for (int i=0;i<(int)trackPair.size();++i) {trkIndicesX.push_back(1);}
 //                         if( !(m_VKVFitter->VKalGetMassError(trkIndicesX,vtxMassX,vtxMassErrorX).isSuccess()) ) {
-//                             ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for X in " << decayName << "!" << endreq;
-//                             mon_Errors.push_back(ERROR_XVtxMass_Fails);
+//                             ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for X in " << decayName << "!" << endmsg;
+//                             m_mon_Errors.push_back(ERROR_XVtxMass_Fails);
 //                         }
 //                         
 //                         if(doBMuMu2XVertexing) {
@@ -2532,14 +2532,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                             if ( timerSvc() ) m_VtxFitTimer->pause();
 //                             
 //                             if( !XMuMuVxCandidate ) {
-//                                 ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << decayName << endreq;
-//                                 // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+//                                 ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << decayName << endmsg;
+//                                 // m_mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
 //                             } else {
 //                                 (*countPassedXMuMuVtx)++;
 //                                 
 //                                 float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
 //                                 if( !(chi2XMuMu < chi2XMuMuCut) ) {
-//                                     ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
+//                                     ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
 //                                 } else {
 //                                     (*countPassedXMuMuVtxChi2)++;
 //                                     
@@ -2548,8 +2548,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                     //                   std::vector<int> trkIndicesXMuMu;
 //                                     //                   for (int i=0;i<(int)quartet.size();++i) {trkIndicesXMuMu.push_back(1);}
 //                                     //                   if( !(m_VKVFitter->VKalGetMassError(trkIndicesXMuMu,vtxMassXMuMu,vtxMassErrorXMuMu).isSuccess()) ) {
-//                                     //                     ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endreq;
-//                                     //                     mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
+//                                     //                     ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endmsg;
+//                                     //                     m_mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
 //                                     //                   }
 //                                     
 //                                     trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, massX);
@@ -2585,7 +2585,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                         msg() << MSG::DEBUG << " Good " << decayName << " found!" << std::endl
 //                                         << "  m = " << trigPartXMuMu->mass() << ", "
 //                                         << "chi2 = " << trigPartXMuMu->fitchi2() << ", vertex (" << trigPartXMuMu->fitx() << ", "
-//                                         << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endreq;
+//                                         << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endmsg;
 //                                 } // end XMuMu chi2 cut
 //                             } // end if(XMuMuVxCandidate)
 //                             delete XMuMuVxCandidate;
@@ -2622,7 +2622,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                             
 //                             if(msgLvl() <= MSG::DEBUG)
 //                                 msg() << MSG::DEBUG << " Good " << decayName << " found (no BMuMu2X vertexing)!" << std::endl
-//                                 << "  m = " << trigPartXMuMu->mass() << endreq;
+//                                 << "  m = " << trigPartXMuMu->mass() << endmsg;
 //                         } // end if(!doBMuMu2XVertexing), do2XVertexing
 //                         
 //                     } // end X chi2 cut
@@ -2645,14 +2645,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                     if ( timerSvc() ) m_VtxFitTimer->pause();
 //                     
 //                     if( !XMuMuVxCandidate ) {
-//                         ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << decayName << endreq;
-//                         // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+//                         ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << decayName << endmsg;
+//                         // m_mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
 //                     } else {
 //                         (*countPassedXMuMuVtx)++;
 //                         
 //                         float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
 //                         if( !(chi2XMuMu < chi2XMuMuCut) ) {
-//                             ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
+//                             ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
 //                         } else {
 //                             (*countPassedXMuMuVtxChi2)++;
 //                             
@@ -2661,8 +2661,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                             //               std::vector<int> trkIndicesXMuMu;
 //                             //               for (int i=0;i<(int)quartet.size();++i) {trkIndicesXMuMu.push_back(1);}
 //                             //               if( !(m_VKVFitter->VKalGetMassError(trkIndicesXMuMu,vtxMassXMuMu,vtxMassErrorXMuMu).isSuccess()) ) {
-//                             //                 ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endreq;
-//                             //                 mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
+//                             //                 ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endmsg;
+//                             //                 m_mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
 //                             //               }
 //                             
 //                             trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, massX);
@@ -2696,7 +2696,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                 << ", vertex ("
 //                                 << trigPartXMuMu->fitx() << ", "
 //                                 << trigPartXMuMu->fity() << ", "
-//                                 << trigPartXMuMu->fitz() << ")" << endreq;
+//                                 << trigPartXMuMu->fitz() << ")" << endmsg;
 //                         } // end XMuMu chi2 cut
 //                     } // end if(XMuMuVxCandidate)
 //                     delete XMuMuVxCandidate;
@@ -2723,7 +2723,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                     
 //                     if(msgLvl() <= MSG::DEBUG)
 //                         msg() << MSG::DEBUG << " Good " << decayName << " found (no 2X vertexing, no BMuMu2X vertexing)!" << std::endl
-//                         << "  m = " << trigPartXMuMu->mass() << endreq;
+//                         << "  m = " << trigPartXMuMu->mass() << endmsg;
 //                 }// end if(!doBMuMu2XVertexing), !do2XVertexing
 //                 
 //             } // end if(!do2XVertexing)
@@ -2742,17 +2742,17 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //     
 //     m_countPassedPhiDsMass++;
 //     
-//     ATH_MSG(DEBUG) << "Try to build " << "D_s" << " with tracks " << track1 << ", " << track2 << ", " << track3 << endreq;
+//     ATH_MSG(DEBUG) << "Try to build " << "D_s" << " with tracks " << track1 << ", " << track2 << ", " << track3 << endmsg;
 //     
 //     float massX = X3Mass(track1, track2, track3);
 //     if( !(massX > m_lowerDs_MassCut && massX < m_upperDs_MassCut) ) {
-//         ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by the mass cut: m = " << massX << endreq;
+//         ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by the mass cut: m = " << massX << endmsg;
 //     } else {
 //         m_countPassedDsMass++;
 //         
 //         float massXMuMu = X3MuMuMass(mu1, mu2, track1, track2, track3);
 //         if( !(massXMuMu > m_lowerBc_DsMuMuMassCut && massXMuMu < m_upperBc_DsMuMuMassCut) ) {
-//             ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by the mass cut: m = " << massXMuMu << endreq;
+//             ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by the mass cut: m = " << massXMuMu << endmsg;
 //         } else {
 //             m_countPassedBcMass++;
 //             
@@ -2770,14 +2770,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                 if ( timerSvc() ) m_VtxFitTimer->pause();
 //                 
 //                 if( !XVxCandidate ) {
-//                     ATH_MSG(DEBUG) << " Failed to fit X vertex for " << "D_s" << endreq;
-//                     // mon_Errors.push_back(ERROR_XVtxFit_Fails);
+//                     ATH_MSG(DEBUG) << " Failed to fit X vertex for " << "D_s" << endmsg;
+//                     // m_mon_Errors.push_back(ERROR_XVtxFit_Fails);
 //                 } else {
 //                     m_countPassedDsVtx++;
 //                     
 //                     float chi2X = XVxCandidate->recVertex().fitQuality().chiSquared();
 //                     if( !(chi2X < m_DsVtxChi2Cut) ) {
-//                         ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endreq;
+//                         ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endmsg;
 //                     } else {
 //                         m_countPassedDsVtxChi2++;
 //                         
@@ -2786,8 +2786,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                         std::vector<int> trkIndicesX;
 //                         for (int i=0;i<(int)trackTroika.size();++i) {trkIndicesX.push_back(1);}
 //                         if( !(m_VKVFitter->VKalGetMassError(trkIndicesX,vtxMassX,vtxMassErrorX).isSuccess()) ) {
-//                             ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for X in " << "D_s" << "!" << endreq;
-//                             mon_Errors.push_back(ERROR_XVtxMass_Fails);
+//                             ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for X in " << "D_s" << "!" << endmsg;
+//                             m_mon_Errors.push_back(ERROR_XVtxMass_Fails);
 //                         }
 //                         
 //                         if(m_doBc_DsMuMuVertexing) {
@@ -2804,14 +2804,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                             if ( timerSvc() ) m_VtxFitTimer->pause();
 //                             
 //                             if( !XMuMuVxCandidate ) {
-//                                 ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endreq;
-//                                 // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+//                                 ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endmsg;
+//                                 // m_mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
 //                             } else {
 //                                 m_countPassedBcVtx++;
 //                                 
 //                                 float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
 //                                 if( !(chi2XMuMu < m_bCVtxChi2Cut) ) {
-//                                     ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
+//                                     ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
 //                                 } else {
 //                                     m_countPassedBcVtxChi2++;
 //                                     
@@ -2855,7 +2855,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                         << ", vertex ("
 //                                         << trigPartXMuMu->fitx() << ", "
 //                                         << trigPartXMuMu->fity() << ", "
-//                                         << trigPartXMuMu->fitz() << ")" << endreq;
+//                                         << trigPartXMuMu->fitz() << ")" << endmsg;
 //                                 } // end XMuMu chi2 cut
 //                             } // end if(XMuMuVxCandidate)
 //                             delete XMuMuVxCandidate;
@@ -2897,7 +2897,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                             
 //                             if(msgLvl() <= MSG::DEBUG) 
 //                                 msg() << MSG::DEBUG << " Good " << "B_c" << " found (no BMuMu2X vertexing)!" << std::endl
-//                                 << "  m = " << trigPartXMuMu->mass() << endreq;
+//                                 << "  m = " << trigPartXMuMu->mass() << endmsg;
 //                         } // end if(!doBMuMu2XVertexing), do2XVertexing
 //                         
 //                     } // end X chi2 cut
@@ -2921,14 +2921,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                     if ( timerSvc() ) m_VtxFitTimer->pause();
 //                     
 //                     if( !XMuMuVxCandidate ) {
-//                         ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endreq;
-//                         // mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
+//                         ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endmsg;
+//                         // m_mon_Errors.push_back(ERROR_XMuMuVtxFit_Fails);
 //                     } else {
 //                         m_countPassedBcVtx++;
 //                         
 //                         float chi2XMuMu = XMuMuVxCandidate->recVertex().fitQuality().chiSquared();
 //                         if( !(chi2XMuMu < m_bCVtxChi2Cut) ) {
-//                             ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
+//                             ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
 //                         } else {
 //                             m_countPassedBcVtxChi2++;
 //                             
@@ -2937,8 +2937,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                             //               std::vector<int> trkIndicesXMuMu;
 //                             //               for (int i=0;i<(int)quartet.size();++i) {trkIndicesXMuMu.push_back(1);} 
 //                             //               if( !(m_VKVFitter->VKalGetMassError(trkIndicesXMuMu,vtxMassXMuMu,vtxMassErrorXMuMu).isSuccess()) ) {
-//                             //                 ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endreq;
-//                             //                 mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
+//                             //                 ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for XMuMu in " << decayName << "!" << endmsg;
+//                             //                 m_mon_Errors.push_back(ERROR_XMuMuVtxMass_Fails);
 //                             //               }
 //                             
 //                             //              trigPartX = new TrigEFBphys( 0, 0., 0., TrigEFBphys::PHIKK, xPhiMass);
@@ -2974,7 +2974,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                                 msg() << MSG::DEBUG << " Good " << "B_c" << " found (no 2X vertexing)!" << std::endl
 //                                 << "  m = " << trigPartXMuMu->mass() << ", "
 //                                 << "chi2 = " << trigPartXMuMu->fitchi2() << ", vertex (" << trigPartXMuMu->fitx() << ", " 
-//                                 << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endreq;
+//                                 << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endmsg;
 //                         } // end XMuMu chi2 cut
 //                     } // end if(XMuMuVxCandidate)
 //                     delete XMuMuVxCandidate;
@@ -3006,7 +3006,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                     
 //                     if(msgLvl() <= MSG::DEBUG) 
 //                         msg() << MSG::DEBUG << " Good " << "B_c" << " found (no 2X vertexing, no BMuMu2X vertexing)!" << std::endl
-//                         << "  m = " << trigPartXMuMu->mass() << endreq;
+//                         << "  m = " << trigPartXMuMu->mass() << endmsg;
 //                 }// end if(!doBMuMu2XVertexing), !do2XVertexing
 //                 
 //             } // end if(!do2XVertexing)
@@ -3025,11 +3025,11 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 // {
 //     TrigEFBphys* trigPartXMuMu(0);
 //     
-//     ATH_MSG(DEBUG) << "Try to build B+ -> mu mu K+ with track " << track1 << endreq;
+//     ATH_MSG(DEBUG) << "Try to build B+ -> mu mu K+ with track " << track1 << endmsg;
 //     
 //     float massKMuMu = KMuMuMass(mu1,mu2,track1);
 //     if( !(massKMuMu > m_lowerKMuMuMassCut && massKMuMu < m_upperKMuMuMassCut) ) {
-//         ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by mass cut: m = " << massKMuMu << endreq;
+//         ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by mass cut: m = " << massKMuMu << endmsg;
 //     } else {
 //         m_countPassedBplusMass++;
 //         
@@ -3047,14 +3047,14 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //             if ( timerSvc() ) m_VtxFitTimer->pause();
 //             
 //             if( !bPlusVxCandidate ) {
-//                 ATH_MSG(DEBUG) << " Failed to fit B+ -> mu mu K+ vertex" << endreq;
-//                 // mon_Errors.push_back(ERROR_BplusVtxFit_Fails);
+//                 ATH_MSG(DEBUG) << " Failed to fit B+ -> mu mu K+ vertex" << endmsg;
+//                 // m_mon_Errors.push_back(ERROR_BplusVtxFit_Fails);
 //             } else {
 //                 m_countPassedBplusVtx++;
 //                 
 //                 float chi2KMuMu = bPlusVxCandidate->recVertex().fitQuality().chiSquared();
 //                 if( !(chi2KMuMu < m_bVtxChi2Cut) ) {
-//                     ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by chi2 cut: chi2 = " << chi2KMuMu << endreq;
+//                     ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by chi2 cut: chi2 = " << chi2KMuMu << endmsg;
 //                 } else {
 //                     m_countPassedBplusVtxChi2++;
 //                     
@@ -3063,8 +3063,8 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                     //           std::vector<int> trkIndices;
 //                     //           for (int i=0;i<(int)trio.size();++i) {trkIndices.push_back(1);} 
 //                     //           if( !(m_VKVFitter->VKalGetMassError(trkIndices,vtxMassKMuMu,vtxMassErrorKMuMu).isSuccess()) ) {
-//                     //             ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for B+ -> mu mu K+!" << endreq;
-//                     //             mon_Errors.push_back(ERROR_BplusVtxMass_Fails);
+//                     //             ATH_MSG(DEBUG) << "Warning from VKalVrt - cannot calculate fitmass and error for B+ -> mu mu K+!" << endmsg;
+//                     //             m_mon_Errors.push_back(ERROR_BplusVtxMass_Fails);
 //                     //           }
 //                     
 //                     //           trigPartXMuMu = new TrigEFBphys( 0, 0., 0., TrigEFBphys::BMUMUX, massKMuMu);
@@ -3087,7 +3087,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //                         msg() << MSG::DEBUG << " Good B+ -> mu mu K+ found!" << std::endl
 //                         << "  m = " << trigPartXMuMu->mass() << ", "
 //                         << "chi2 = " << trigPartXMuMu->fitchi2() << ", vertex (" << trigPartXMuMu->fitx() << ", " 
-//                         << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endreq;
+//                         << trigPartXMuMu->fity() << ", " << trigPartXMuMu->fitz() << ")" << endmsg;
 //                 } // end KMuMu chi2 cut
 //             } // end if(bPlusVxCandidate)
 //             delete bPlusVxCandidate;
@@ -3106,7 +3106,7 @@ HLT::ErrorCode TrigEFBMuMuXFex::hltExecute(HLT::TEConstVec& inputTE, HLT::Trigge
 //             
 //             if(msgLvl() <= MSG::DEBUG) 
 //                 msg() << MSG::DEBUG << " Good B+ -> mu mu K+ found (no vertexing)!" << std::endl
-//                 << "  m = " << trigPartXMuMu->mass() << endreq;
+//                 << "  m = " << trigPartXMuMu->mass() << endmsg;
 //         }
 //         
 //     } // end if KMuMu mass cut
@@ -3120,24 +3120,24 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBplusMuMuKplus(const ElementLink<xAOD::Tr
                                                       const ElementLink<xAOD::TrackParticleContainer> & elmu2) {
     
     if(msgLvl() <= MSG::DEBUG) {
-        ATH_MSG(DEBUG) << "Try to build B+ -> mu mu K+ with track " << *eltrack1 << endreq;
+        ATH_MSG(DEBUG) << "Try to build B+ -> mu mu K+ with track " << *eltrack1 << endmsg;
     }
     float massKMuMu = KMuMuMass(*elmu1,*elmu2,*eltrack1);
     
     static std::vector<double> masses = {KPLUSMASS,MUMASS,MUMASS};
     
     if( !(massKMuMu > m_lowerKMuMuMassCut && massKMuMu < m_upperKMuMuMassCut) ) {
-        ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by mass cut: m = " << massKMuMu << endreq;
+        ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by mass cut: m = " << massKMuMu << endmsg;
         return nullptr;
     }
     ++m_countPassedBplusMass;
     auto track1 = *eltrack1;
     
     // Fill BMuMuK monitoring containers
-    mon_BMuMuK_Pt_K.push_back(track1->pt()*0.001);
-    mon_BMuMuK_Eta_K.push_back(track1->eta());
-    mon_BMuMuK_Phi_K.push_back(track1->phi());
-    mon_BMuMuK_InvMass_B.push_back(massKMuMu*0.001);
+    m_mon_BMuMuK_Pt_K.push_back(track1->pt()*0.001);
+    m_mon_BMuMuK_Eta_K.push_back(track1->eta());
+    m_mon_BMuMuK_Phi_K.push_back(track1->phi());
+    m_mon_BMuMuK_InvMass_B.push_back(massKMuMu*0.001);
     
     // create initial object
     xAOD::TrigBphys * result = new xAOD::TrigBphys;
@@ -3151,7 +3151,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBplusMuMuKplus(const ElementLink<xAOD::Tr
         
         if ( timerSvc() ) m_VtxFitTimer->resume();
         if (!m_bphysHelperTool->vertexFit(result,vec_tracks,masses).isSuccess()) {
-            ATH_MSG(DEBUG) << " Vertex fitting failed." << endreq;
+            ATH_MSG(DEBUG) << " Vertex fitting failed." << endmsg;
             if ( timerSvc() ) m_VtxFitTimer->pause();
             delete result;
             return nullptr;
@@ -3161,11 +3161,11 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBplusMuMuKplus(const ElementLink<xAOD::Tr
         double chi2val(result->fitchi2());
         
         if (chi2val > m_bVtxChi2Cut || chi2val < 0) {
-            ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by chi2 cut: chi2 = " << chi2val << endreq;
+            ATH_MSG(DEBUG) << " B+ -> mu mu K+ candidate rejected by chi2 cut: chi2 = " << chi2val << endmsg;
             delete result;
             return nullptr;
         }
-        mon_BMuMuK_Chi2_B.push_back(chi2val);
+        m_mon_BMuMuK_Chi2_B.push_back(chi2val);
         ++m_countPassedBplusVtxChi2;
         
         
@@ -3173,7 +3173,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBplusMuMuKplus(const ElementLink<xAOD::Tr
             msg() << MSG::DEBUG << " Good B+ -> mu mu K+ found!" << std::endl
             << "  m = " << result->mass() << ", "
             << "chi2 = " << result->fitchi2() << ", vertex (" << result->fitx() << ", "
-            << result->fity() << ", " << result->fitz() << ")" << endreq;
+            << result->fity() << ", " << result->fitz() << ")" << endmsg;
         } // if debug
         
         
@@ -3205,19 +3205,19 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
     
     m_countPassedPhiDsMass++;
     
-    ATH_MSG(DEBUG) << "Try to build " << "D_s" << " with tracks " << *eltrack1 << ", " << *eltrack2 << ", " << *eltrack3 << endreq;
+    ATH_MSG(DEBUG) << "Try to build " << "D_s" << " with tracks " << *eltrack1 << ", " << *eltrack2 << ", " << *eltrack3 << endmsg;
     
     
     float massX = X3Mass(*eltrack1, *eltrack2, *eltrack3);
     if( !(massX > m_lowerDs_MassCut && massX < m_upperDs_MassCut) ) {
-        ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by the mass cut: m = " << massX << endreq;
+        ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by the mass cut: m = " << massX << endmsg;
         return nullptr;
     }
     m_countPassedDsMass++;
     
     float massXMuMu = X3MuMuMass(*elmu1, *elmu2, *eltrack1, *eltrack2, *eltrack3);
     if( !(massXMuMu > m_lowerBc_DsMuMuMassCut && massXMuMu < m_upperBc_DsMuMuMassCut) ) {
-        ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by the mass cut: m = " << massXMuMu << endreq;
+        ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by the mass cut: m = " << massXMuMu << endmsg;
         return nullptr;
     }
     m_countPassedBcMass++;
@@ -3235,24 +3235,24 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
     std::vector<ElementLink<xAOD::TrackParticleContainer> > vec_tracksX = {eltrack1,eltrack2,eltrack3};
     std::vector<ElementLink<xAOD::TrackParticleContainer> > vec_tracks  = {elmu1,elmu2,eltrack1,eltrack2,eltrack3};
     
-    mon_BcMuMuDs_Pt_K1.push_back ((*eltrack1)->pt()*0.001);
-    mon_BcMuMuDs_Eta_K1.push_back((*eltrack1)->eta());
-    mon_BcMuMuDs_Phi_K1.push_back((*eltrack1)->phi());
-    mon_BcMuMuDs_Pt_K2.push_back( (*eltrack1)->pt()*0.001);
-    mon_BcMuMuDs_Eta_K2.push_back((*eltrack2)->eta());
-    mon_BcMuMuDs_Phi_K2.push_back((*eltrack2)->phi());
-    mon_BcMuMuDs_Pt_pi.push_back ((*eltrack3)->pt()*0.001);
-    mon_BcMuMuDs_Eta_pi.push_back((*eltrack3)->eta());
-    mon_BcMuMuDs_Phi_pi.push_back((*eltrack3)->phi());
+    m_mon_BcMuMuDs_Pt_K1.push_back ((*eltrack1)->pt()*0.001);
+    m_mon_BcMuMuDs_Eta_K1.push_back((*eltrack1)->eta());
+    m_mon_BcMuMuDs_Phi_K1.push_back((*eltrack1)->phi());
+    m_mon_BcMuMuDs_Pt_K2.push_back( (*eltrack1)->pt()*0.001);
+    m_mon_BcMuMuDs_Eta_K2.push_back((*eltrack2)->eta());
+    m_mon_BcMuMuDs_Phi_K2.push_back((*eltrack2)->phi());
+    m_mon_BcMuMuDs_Pt_pi.push_back ((*eltrack3)->pt()*0.001);
+    m_mon_BcMuMuDs_Eta_pi.push_back((*eltrack3)->eta());
+    m_mon_BcMuMuDs_Phi_pi.push_back((*eltrack3)->phi());
     
     
-    mon_BcMuMuDs_InvMass_PhiDs.push_back(xPhiMass/1000.);
+    m_mon_BcMuMuDs_InvMass_PhiDs.push_back(xPhiMass/1000.);
     
     
     if(m_doDs_Vertexing) {
         if ( timerSvc() ) m_VtxFitTimer->resume();
         if (!m_bphysHelperTool->vertexFit(fitVtx_X,vec_tracksX,massHypoX).isSuccess()) {
-            ATH_MSG(DEBUG) << " Failed to fit X vertex for " << "D_s" << endreq;
+            ATH_MSG(DEBUG) << " Failed to fit X vertex for " << "D_s" << endmsg;
             if ( timerSvc() ) m_VtxFitTimer->pause();
             delete fitVtx_X;
             delete fitVtx;
@@ -3263,15 +3263,15 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
         
         float chi2X = fitVtx_X->fitchi2();
         if( chi2X > m_DsVtxChi2Cut || chi2X < 0  ) {
-            ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endreq;
+            ATH_MSG(DEBUG) << " " << "D_s" << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endmsg;
             delete fitVtx_X;
             delete fitVtx;
             return nullptr;
         }
         m_countPassedDsVtxChi2++;
-        mon_BcMuMuDs_InvMass_Ds.push_back(massX/1000.);
+        m_mon_BcMuMuDs_InvMass_Ds.push_back(massX/1000.);
         //                   mon_BcMuMuDs_VtxMass_Ds.push_back(vtxMassX/1000.);
-        mon_BcMuMuDs_Chi2_Ds.push_back(chi2X);
+        m_mon_BcMuMuDs_Chi2_Ds.push_back(chi2X);
         
     } // m_doDs_Vertexing
     else {
@@ -3285,7 +3285,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
         // Try to fit XMuMu -> mu mu X vertex
         if ( timerSvc() ) m_VtxFitTimer->resume();
         if (!m_bphysHelperTool->vertexFit(fitVtx,vec_tracks,massHypo).isSuccess()) {
-            ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endreq;
+            ATH_MSG(DEBUG) << " Failed to fit XMuMu vertex for " << "B_c" << endmsg;
             if ( timerSvc() ) m_VtxFitTimer->pause();
             delete fitVtx_X;
             delete fitVtx;
@@ -3295,16 +3295,16 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
         m_countPassedBcVtx++;
         float chi2XMuMu = fitVtx->fitchi2();
         if( chi2XMuMu > m_bCVtxChi2Cut ||  chi2XMuMu < 0 ) {
-            ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endreq;
+            ATH_MSG(DEBUG) << " " << "B_c" << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2XMuMu << endmsg;
             delete fitVtx_X;
             delete fitVtx;
             return nullptr;
         }
         m_countPassedBcVtxChi2++;
         
-        mon_BcMuMuDs_InvMass_Bc.push_back(massXMuMu/1000.);
+        m_mon_BcMuMuDs_InvMass_Bc.push_back(massXMuMu/1000.);
         //                   mon_BcMuMuDs_VtxMass_Bc.push_back(vtxMassXMuMu/1000.);
-        mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
+        m_mon_BcMuMuDs_Chi2_Bc.push_back(chi2XMuMu);
         
     } //m_doBc_DsMuMuVertexing
     else {
@@ -3320,7 +3320,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBcMuMuDs(const ElementLink<xAOD::TrackPar
         << " doBcVtx: " << (m_doBc_DsMuMuVertexing ? "Yes" : "No")
         << "  m = " << fitVtx->mass() << ", "
         << "chi2 = " << fitVtx->fitchi2() << ", vertex (" << fitVtx->fitx() << ", "
-        << fitVtx->fity() << ", " << fitVtx->fitz() << ")" << endreq;
+        << fitVtx->fity() << ", " << fitVtx->fitz() << ")" << endmsg;
     }
     
     trigPartX = fitVtx_X;
@@ -3390,18 +3390,18 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBMuMu2X(const ElementLink<xAOD::TrackPart
         countPassedXMuMuVtxChi2 = &m_countPassedBdVtxChi2;
         do2XVertexing      = m_doKstar_KPiVertexing;
         doBMuMu2XVertexing = m_doBd_KstarMuMuVertexing;
-        pMon_BMuMu2X_Pt_X1      = &mon_BdMuMuKs_Pt_K;
-        pMon_BMuMu2X_Eta_X1     = &mon_BdMuMuKs_Eta_K;
-        pMon_BMuMu2X_Phi_X1     = &mon_BdMuMuKs_Phi_K;
-        pMon_BMuMu2X_Pt_X2      = &mon_BdMuMuKs_Pt_Pi;
-        pMon_BMuMu2X_Eta_X2     = &mon_BdMuMuKs_Eta_Pi;
-        pMon_BMuMu2X_Phi_X2     = &mon_BdMuMuKs_Phi_Pi;
-        pMon_BMuMu2X_InvMass_2X = &mon_BdMuMuKs_InvMass_Kstar;
-        pMon_BMuMu2X_VtxMass_2X = &mon_BdMuMuKs_VtxMass_Kstar;
-        pMon_BMuMu2X_Chi2_2X    = &mon_BdMuMuKs_Chi2_Kstar;
-        pMon_BMuMu2X_InvMass_B  = &mon_BdMuMuKs_InvMass_Bd;
-        pMon_BMuMu2X_VtxMass_B  = &mon_BdMuMuKs_VtxMass_Bd;
-        pMon_BMuMu2X_Chi2_B     = &mon_BdMuMuKs_Chi2_Bd;
+        pMon_BMuMu2X_Pt_X1      = &m_mon_BdMuMuKs_Pt_K;
+        pMon_BMuMu2X_Eta_X1     = &m_mon_BdMuMuKs_Eta_K;
+        pMon_BMuMu2X_Phi_X1     = &m_mon_BdMuMuKs_Phi_K;
+        pMon_BMuMu2X_Pt_X2      = &m_mon_BdMuMuKs_Pt_Pi;
+        pMon_BMuMu2X_Eta_X2     = &m_mon_BdMuMuKs_Eta_Pi;
+        pMon_BMuMu2X_Phi_X2     = &m_mon_BdMuMuKs_Phi_Pi;
+        pMon_BMuMu2X_InvMass_2X = &m_mon_BdMuMuKs_InvMass_Kstar;
+        pMon_BMuMu2X_VtxMass_2X = &m_mon_BdMuMuKs_VtxMass_Kstar;
+        pMon_BMuMu2X_Chi2_2X    = &m_mon_BdMuMuKs_Chi2_Kstar;
+        pMon_BMuMu2X_InvMass_B  = &m_mon_BdMuMuKs_InvMass_Bd;
+        pMon_BMuMu2X_VtxMass_B  = &m_mon_BdMuMuKs_VtxMass_Bd;
+        pMon_BMuMu2X_Chi2_B     = &m_mon_BdMuMuKs_Chi2_Bd;
     } else if(decay == bS_to_Phi) {
         massHypoX = {KPLUSMASS,KPLUSMASS};
         massHypo  = {KPLUSMASS,KPLUSMASS,MUMASS,MUMASS};
@@ -3421,18 +3421,18 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBMuMu2X(const ElementLink<xAOD::TrackPart
         countPassedXMuMuVtxChi2 = &m_countPassedBsVtxChi2;
         do2XVertexing      = m_doPhi1020_KKVertexing;
         doBMuMu2XVertexing = m_doBs_Phi1020MuMuVertexing;
-        pMon_BMuMu2X_Pt_X1      = &mon_BsMuMuPhi_Pt_K1;
-        pMon_BMuMu2X_Eta_X1     = &mon_BsMuMuPhi_Eta_K1;
-        pMon_BMuMu2X_Phi_X1     = &mon_BsMuMuPhi_Phi_K1;
-        pMon_BMuMu2X_Pt_X2      = &mon_BsMuMuPhi_Pt_K2;
-        pMon_BMuMu2X_Eta_X2     = &mon_BsMuMuPhi_Eta_K2;
-        pMon_BMuMu2X_Phi_X2     = &mon_BsMuMuPhi_Phi_K2;
-        pMon_BMuMu2X_InvMass_2X = &mon_BsMuMuPhi_InvMass_Phi1020;
-        pMon_BMuMu2X_VtxMass_2X = &mon_BsMuMuPhi_VtxMass_Phi1020;
-        pMon_BMuMu2X_Chi2_2X    = &mon_BsMuMuPhi_Chi2_Phi1020;
-        pMon_BMuMu2X_InvMass_B  = &mon_BsMuMuPhi_InvMass_Bs;
-        pMon_BMuMu2X_VtxMass_B  = &mon_BsMuMuPhi_VtxMass_Bs;
-        pMon_BMuMu2X_Chi2_B     = &mon_BsMuMuPhi_Chi2_Bs;
+        pMon_BMuMu2X_Pt_X1      = &m_mon_BsMuMuPhi_Pt_K1;
+        pMon_BMuMu2X_Eta_X1     = &m_mon_BsMuMuPhi_Eta_K1;
+        pMon_BMuMu2X_Phi_X1     = &m_mon_BsMuMuPhi_Phi_K1;
+        pMon_BMuMu2X_Pt_X2      = &m_mon_BsMuMuPhi_Pt_K2;
+        pMon_BMuMu2X_Eta_X2     = &m_mon_BsMuMuPhi_Eta_K2;
+        pMon_BMuMu2X_Phi_X2     = &m_mon_BsMuMuPhi_Phi_K2;
+        pMon_BMuMu2X_InvMass_2X = &m_mon_BsMuMuPhi_InvMass_Phi1020;
+        pMon_BMuMu2X_VtxMass_2X = &m_mon_BsMuMuPhi_VtxMass_Phi1020;
+        pMon_BMuMu2X_Chi2_2X    = &m_mon_BsMuMuPhi_Chi2_Phi1020;
+        pMon_BMuMu2X_InvMass_B  = &m_mon_BsMuMuPhi_InvMass_Bs;
+        pMon_BMuMu2X_VtxMass_B  = &m_mon_BsMuMuPhi_VtxMass_Bs;
+        pMon_BMuMu2X_Chi2_B     = &m_mon_BsMuMuPhi_Chi2_Bs;
     } else if(decay == lB_to_L) {
         massHypoX = {PROTONMASS,PIMASS};
         massHypo  = {PROTONMASS,PIMASS,MUMASS,MUMASS};
@@ -3452,29 +3452,29 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBMuMu2X(const ElementLink<xAOD::TrackPart
         countPassedXMuMuVtxChi2 = &m_countPassedLbVtxChi2;
         do2XVertexing      = m_doLambda_PPiVertexing;
         doBMuMu2XVertexing = m_doLb_LambdaMuMuVertexing;
-        pMon_BMuMu2X_Pt_X1      = &mon_LbMuMuLambda_Pt_P;
-        pMon_BMuMu2X_Eta_X1     = &mon_LbMuMuLambda_Eta_P;
-        pMon_BMuMu2X_Phi_X1     = &mon_LbMuMuLambda_Phi_P;
-        pMon_BMuMu2X_Pt_X2      = &mon_LbMuMuLambda_Pt_Pi;
-        pMon_BMuMu2X_Eta_X2     = &mon_LbMuMuLambda_Eta_Pi;
-        pMon_BMuMu2X_Phi_X2     = &mon_LbMuMuLambda_Phi_Pi;
-        pMon_BMuMu2X_InvMass_2X = &mon_LbMuMuLambda_InvMass_Lambda;
-        pMon_BMuMu2X_VtxMass_2X = &mon_LbMuMuLambda_VtxMass_Lambda;
-        pMon_BMuMu2X_Chi2_2X    = &mon_LbMuMuLambda_Chi2_Lambda;
-        pMon_BMuMu2X_InvMass_B  = &mon_LbMuMuLambda_InvMass_Lb;
-        pMon_BMuMu2X_VtxMass_B  = &mon_LbMuMuLambda_VtxMass_Lb;
-        pMon_BMuMu2X_Chi2_B     = &mon_LbMuMuLambda_Chi2_Lb;
+        pMon_BMuMu2X_Pt_X1      = &m_mon_LbMuMuLambda_Pt_P;
+        pMon_BMuMu2X_Eta_X1     = &m_mon_LbMuMuLambda_Eta_P;
+        pMon_BMuMu2X_Phi_X1     = &m_mon_LbMuMuLambda_Phi_P;
+        pMon_BMuMu2X_Pt_X2      = &m_mon_LbMuMuLambda_Pt_Pi;
+        pMon_BMuMu2X_Eta_X2     = &m_mon_LbMuMuLambda_Eta_Pi;
+        pMon_BMuMu2X_Phi_X2     = &m_mon_LbMuMuLambda_Phi_Pi;
+        pMon_BMuMu2X_InvMass_2X = &m_mon_LbMuMuLambda_InvMass_Lambda;
+        pMon_BMuMu2X_VtxMass_2X = &m_mon_LbMuMuLambda_VtxMass_Lambda;
+        pMon_BMuMu2X_Chi2_2X    = &m_mon_LbMuMuLambda_Chi2_Lambda;
+        pMon_BMuMu2X_InvMass_B  = &m_mon_LbMuMuLambda_InvMass_Lb;
+        pMon_BMuMu2X_VtxMass_B  = &m_mon_LbMuMuLambda_VtxMass_Lb;
+        pMon_BMuMu2X_Chi2_B     = &m_mon_LbMuMuLambda_Chi2_Lb;
     } else {
-        ATH_MSG(DEBUG) << "Wrong decay identifier passed to checkBMuMu2X: decay = " << decay << endreq;
-        mon_Errors.push_back(ERROR_WrongDecayID);
+        ATH_MSG(DEBUG) << "Wrong decay identifier passed to checkBMuMu2X: decay = " << decay << endmsg;
+        m_mon_Errors.push_back(ERROR_WrongDecayID);
         return nullptr;
     }
     
-    ATH_MSG(DEBUG) << "Try to build " << decayName << " with tracks " << *eltrack1 << ", " << *eltrack2 << endreq;
+    ATH_MSG(DEBUG) << "Try to build " << decayName << " with tracks " << *eltrack1 << ", " << *eltrack2 << endmsg;
     
     float massX = XMass(*eltrack1, *eltrack2, decay);
     if( !(massX > lowerXMassCut && massX < upperXMassCut) ) {
-        ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X mass cut: m = " << massX << endreq;
+        ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X mass cut: m = " << massX << endmsg;
         trigPartX = nullptr;
         return nullptr;
     }
@@ -3483,7 +3483,7 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBMuMu2X(const ElementLink<xAOD::TrackPart
     
     float massXMuMu = XMuMuMass(*elmu1, *elmu2, *eltrack1, *eltrack2, decay);
     if( !(massXMuMu > lowerXMuMuMassCut && massXMuMu < upperXMuMuMassCut) ) {
-        ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu mass cut: m = " << massXMuMu << endreq;
+        ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu mass cut: m = " << massXMuMu << endmsg;
         trigPartX = nullptr;
         return nullptr;
     }
@@ -3519,14 +3519,14 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBMuMu2X(const ElementLink<xAOD::TrackPart
     if(do2XVertexing) {
         if ( timerSvc() ) m_VtxFitTimer->resume();
         if (!m_bphysHelperTool->vertexFit(fitVtx_X,vec_tracksX,massHypoX).isSuccess()) {
-            ATH_MSG(DEBUG) << " Vertex fitting of X failed." << decayName << endreq;
+            ATH_MSG(DEBUG) << " Vertex fitting of X failed." << decayName << endmsg;
         }
         if ( timerSvc() ) m_VtxFitTimer->pause();
         
         ++(*countPassedXVtx);
         double chi2X(fitVtx_X->fitchi2());
         if( chi2X > chi2XCut || chi2X < 0 ) {
-            ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endreq;
+            ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by X vertex chi2 cut: chi2 = " << chi2X << endmsg;
             delete fitVtx_X;
             delete fitVtx;
             return nullptr;
@@ -3545,13 +3545,13 @@ xAOD::TrigBphys* TrigEFBMuMuXFex::checkBMuMu2X(const ElementLink<xAOD::TrackPart
     if(doBMuMu2XVertexing) {
         if ( timerSvc() ) m_VtxFitTimer->resume();
         if (!m_bphysHelperTool->vertexFit(fitVtx,vec_tracks,massHypo).isSuccess()) {
-            ATH_MSG(DEBUG) << " Vertex fitting of MuMuX failed for " << decayName << endreq;
+            ATH_MSG(DEBUG) << " Vertex fitting of MuMuX failed for " << decayName << endmsg;
         }
         if ( timerSvc() ) m_VtxFitTimer->pause();
         (*countPassedXMuMuVtx)++;
         double chi2MuMuX(fitVtx->fitchi2());
         if( chi2MuMuX > chi2XMuMuCut || chi2MuMuX < 0 ) {
-            ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2MuMuX << endreq;
+            ATH_MSG(DEBUG) << " " << decayName << " candidate rejected by XMuMu vertex chi2 cut: chi2 = " << chi2MuMuX << endmsg;
             delete fitVtx_X;
             delete fitVtx;
             return nullptr;

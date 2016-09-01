@@ -30,7 +30,8 @@
 #include <math.h>
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
-#include "TrigSteeringEvent/TrigPassBits.h"
+//#include "TrigSteeringEvent/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBits.h"
 #include "TrigNavigation/Navigation.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 //#include "Particle/TrackParticleContainer.h"
@@ -75,8 +76,8 @@ TrigEFBMuMuHypo::TrigEFBMuMuHypo(const std::string & name, ISvcLocator* pSvcLoca
   declareProperty("ApplyLxyCut", m_ApplyLxyCut=false);
   declareProperty("LxyCut", m_LxyCut=0.0);                                                                                                
     
-  declareMonitoredVariable("CutCounter",   mon_cutCounter);
-  declareMonitoredVariable("MuMumass",     mon_MuMumass  );
+  declareMonitoredVariable("CutCounter",   m_mon_cutCounter);
+  declareMonitoredVariable("MuMumass",     m_mon_MuMumass  );
 
 
 }
@@ -90,12 +91,12 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltInitialize()
   if(msgLvl() <= MSG::DEBUG) {
 
     msg() << MSG::DEBUG << "AcceptAll            = "
-        << (m_acceptAll==true ? "True" : "False") << endreq;
+        << (m_acceptAll==true ? "True" : "False") << endmsg;
     msg() << MSG::DEBUG << "OppositeCharge       = "
-        << (m_oppositeCharge==true ? "True" : "False") << endreq;
-    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
-    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
-    msg() << MSG::DEBUG << "ApplyUpperMassCut         = " << m_ApplyupperMassCut << endreq;
+        << (m_oppositeCharge==true ? "True" : "False") << endmsg;
+    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endmsg;
+    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endmsg;
+    msg() << MSG::DEBUG << "ApplyUpperMassCut         = " << m_ApplyupperMassCut << endmsg;
 
   }
 
@@ -114,13 +115,13 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltInitialize()
 
 HLT::ErrorCode TrigEFBMuMuHypo::hltFinalize()
 {
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigEFBMuMuHypo -------------|" << endreq;
-  msg() << MSG::INFO << "Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endreq;
-  msg() << MSG::INFO << "Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endreq;
-  msg() << MSG::INFO << "RoIs Passed BsMass: "  << m_countPassedBsMass << endreq;
-  msg() << MSG::INFO << "RoIs Passed Chi2 cut: "  << m_countPassedChi2Cut << endreq;
-  msg() << MSG::INFO << "RoIs Passed Lxy cut: "  << m_countPassedLxyCut << endreq;
+  msg() << MSG::INFO << "in finalize()" << endmsg;
+  msg() << MSG::INFO << "|----------------------- SUMMARY FROM TrigEFBMuMuHypo -------------|" << endmsg;
+  msg() << MSG::INFO << "Run on events/2xRoIs " << m_countTotalEvents << "/" << m_countTotalRoI <<  endmsg;
+  msg() << MSG::INFO << "Passed events/2xRoIs " << m_countPassedEvents << "/" << m_countPassedRoIs <<  endmsg;
+  msg() << MSG::INFO << "RoIs Passed BsMass: "  << m_countPassedBsMass << endmsg;
+  msg() << MSG::INFO << "RoIs Passed Chi2 cut: "  << m_countPassedChi2Cut << endmsg;
+  msg() << MSG::INFO << "RoIs Passed Lxy cut: "  << m_countPassedLxyCut << endmsg;
 
   return HLT::OK;
 }
@@ -133,7 +134,7 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   bool PassedChi2Cut=false;
   bool PassedLxyCut=false;
   bool result = false;
-  mon_cutCounter = -1;
+  m_mon_cutCounter = -1;
     // Retrieve event info
     int IdRun   = 0;
     int IdEvent = 0;
@@ -142,19 +143,19 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     const EventInfo* pEventInfo(0);
     const xAOD::EventInfo *evtInfo(0);
     if ( store()->retrieve(evtInfo).isFailure() ) {
-        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endreq;
+        if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get xAOD::EventInfo " << endmsg;
         // now try the old event ifo
         if ( store()->retrieve(pEventInfo).isFailure() ) {
-            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endreq;
-            //mon_Errors.push_back( ERROR_No_EventInfo );
+            if ( msgLvl() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Failed to get EventInfo " << endmsg;
+            //m_mon_Errors.push_back( ERROR_No_EventInfo );
         } else {
             IdRun   = pEventInfo->event_ID()->run_number();
             IdEvent = pEventInfo->event_ID()->event_number();
-            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent <<  endreq;
+            if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent <<  endmsg;
         }// found old event info
     }else { // found the xAOD event info
         if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << " Run " << evtInfo->runNumber()
-            << " Event " << evtInfo->eventNumber() << endreq;
+            << " Event " << evtInfo->eventNumber() << endmsg;
         IdRun   = evtInfo->runNumber();
         IdEvent = evtInfo->eventNumber();
     } // get event ifo
@@ -173,10 +174,10 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   if(msgLvl() <= MSG::DEBUG) {
     if (m_acceptAll) {
       msg() << MSG::DEBUG << "AcceptAll property is set: taking all events"
-          << endreq;
+          << endmsg;
     } else {
       msg() << MSG::DEBUG << "AcceptAll property not set: applying selection"
-          << endreq;
+          << endmsg;
     }
   }
 
@@ -191,51 +192,52 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get xAOD::TrigBphysics collection" << endreq;
+      msg() << MSG::WARNING << "Failed to get xAOD::TrigBphysics collection" << endmsg;
     }
 
     return HLT::OK;
   }
 
-  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Retrieved Bphys collection  trigBphysColl = " << trigBphysColl << endreq;
+  if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Retrieved Bphys collection  trigBphysColl = " << trigBphysColl << endmsg;
   if ( trigBphysColl == 0 ) {
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endreq;
+      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endmsg;
 
     return HLT::OK;
   }
 
   if ( msgLvl() <= MSG::DEBUG ) {
     msg() << MSG::DEBUG << "Got TrigBphys collection with " << trigBphysColl->size()
-        << " TrigBphys particles " << endreq;
+        << " TrigBphys particles " << endmsg;
   }
 
   // if no Bphys particles were found, just leave TrigBphysColl. empty and leave
   if ( trigBphysColl->size() == 0 ) {
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endreq;
+      msg() << MSG::DEBUG << "No Bphys particles to analyse, leaving!" << endmsg;
 
     return HLT::OK;
   }
 
 // Beam spot                                                                                                                            
-   IBeamCondSvc* m_iBeamCondSvc;   
+   IBeamCondSvc* iBeamCondSvc;   
     //JW EDM   HepGeom::Point3D<double> m_beamSpot_CLHEP;
-    Amg::Vector3D m_beamSpot(0.,0.,0.);
-    if ( service("BeamCondSvc", m_iBeamCondSvc).isFailure() || m_iBeamCondSvc == 0)                                                       
-       { msg() << MSG::DEBUG<< "Could not retrieve Beam Conditions Service. " << endreq;                                                     
+    Amg::Vector3D beamSpot(0.,0.,0.);
+    if ( service("BeamCondSvc", iBeamCondSvc).isFailure() || iBeamCondSvc == 0)                                                       
+       { msg() << MSG::DEBUG<< "Could not retrieve Beam Conditions Service. " << endmsg;                                                     
        }else {                                                                                                                              
-          m_beamSpot = m_iBeamCondSvc->beamPos();
-          int m_beamSpotBitMap = m_iBeamCondSvc->beamStatus();                                                                          
+          beamSpot = iBeamCondSvc->beamPos();
+          int beamSpotBitMap = iBeamCondSvc->beamStatus();                                                                          
 //* Check if beam spot is from online algorithms *//                                                                                  
-          int m_beamSpotStatus = ((m_beamSpotBitMap & 0x4) == 0x4);                                                                        
-          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  m_beamSpotBitMap= "<< m_beamSpotBitMap<<" m_beamSpotStatus= "<<m_beamSpotStatus<<endreq;               
-//std::cout<<" BBBBBBB:  m_beamSpot.x()= "<< m_beamSpot.x()<<" m_beamSpot.y()= "<<m_beamSpot.y()<<std::endl;               
+          int beamSpotStatus = ((beamSpotBitMap & 0x4) == 0x4);                                                                        
+          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "  beamSpotBitMap= "<< beamSpotBitMap<<" beamSpotStatus= "<<beamSpotStatus<<endmsg;               
+//std::cout<<" BBBBBBB:  beamSpot.x()= "<< beamSpot.x()<<" beamSpot.y()= "<<beamSpot.y()<<std::endl;               
        }                                                                                                                                       
                                                 
 
-  mon_cutCounter = 0;
-  TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);
+  m_mon_cutCounter = 0;
+  //TrigPassBits *bits = HLT::makeTrigPassBits(trigBphysColl);
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::TrigBphysContainer>(trigBphysColl);
 
   // now loop over Bphys particles to see if one passes cuts
     for (xAOD::TrigBphysContainer::const_iterator bphysIter = trigBphysColl->begin(); bphysIter !=  trigBphysColl->end(); ++bphysIter) {
@@ -245,8 +247,8 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
             
             double BsMass = (*bphysIter)->mass();
             
-            double Dx = (*bphysIter)->fitx() - m_beamSpot.x();
-            double Dy = (*bphysIter)->fity() - m_beamSpot.y();
+            double Dx = (*bphysIter)->fitx() - beamSpot.x();
+            double Dy = (*bphysIter)->fity() - beamSpot.y();
             double BsLxy = -99999.;
             
             
@@ -255,59 +257,59 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
             const std::vector<ElementLink<xAOD::TrackParticleContainer> > trackVector = (*bphysIter)->trackParticleLinks();
             
             if (trackVector.size() != 0) {
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " got track vector size: " << trackVector.size() << endreq;
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " got track vector size: " << trackVector.size() << endmsg;
                 std::vector<ElementLink<xAOD::TrackParticleContainer> >::const_iterator trkIt=trackVector.begin();
                 double pBx = 0, pBy=0;
                 for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
                     //                    // JW EDM const Trk::MeasuredPerigee* trackPerigee=(*(*trkIt))->measuredPerigee();
                     //                    const Trk::Perigee* trackPerigee=(*(*trkIt))->measuredPerigee();
-                    //                    if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
+                    //                    if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endmsg;
                     //                    //double phi = trackPerigee->parameters()[Trk::phi];
                     //                    //double theta = trackPerigee->parameters()[Trk::theta];
                     //                    pBx += trackPerigee->momentum()[Trk::px];
                     //                    pBy += trackPerigee->momentum()[Trk::py];
                     //                    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "track " << itrk << " px=" <<trackPerigee->momentum()[Trk::px]<<
-                    //                        " py= "<< trackPerigee->momentum()[Trk::py] << endreq;
-                    if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
+                    //                        " py= "<< trackPerigee->momentum()[Trk::py] << endmsg;
+                    if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endmsg;
                     pBx += (*(*trkIt))->p4().Px(); // FIXME - is there a more optimal way
                     pBy += (*(*trkIt))->p4().Py();
                     
                     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "track " << itrk
                         << " px=" << (*(*trkIt))->p4().Px()
-                        << " py= "<< (*(*trkIt))->p4().Py() << endreq;
+                        << " py= "<< (*(*trkIt))->p4().Py() << endmsg;
 
                 } // for loop
                 double pBt = sqrt(pBx*pBx + pBy*pBy);
                 
                 BsLxy = (pBx*Dx+pBy*Dy)/pBt;
             } else {
-                if(msgLvl() <= MSG::DEBUG)  msg() << MSG::DEBUG << " no track vector!!! "  << endreq;
+                if(msgLvl() <= MSG::DEBUG)  msg() << MSG::DEBUG << " no track vector!!! "  << endmsg;
             }
             
             if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "EFBphys with mass: " << BsMass <<" GeV" << "   chi2 " << (*bphysIter)->fitchi2() <<
-                " Lxy  "<<BsLxy<<"  lxy= "<<sqrt(Dx*Dx+Dy*Dy)<<endreq;
+                " Lxy  "<<BsLxy<<"  lxy= "<<sqrt(Dx*Dx+Dy*Dy)<<endmsg;
             bool thisPassedBsMass = (m_lowerMassCut < BsMass && ((BsMass < m_upperMassCut) || (!m_ApplyupperMassCut) ));
             // PassedBsMass |= thisPassedBsMass;
-            bool thisPassedChi2Cut = ((!m_ApplyChi2Cut) || ((*bphysIter)->fitchi2() < m_Chi2VtxCut) );
+            bool thisPassedChi2Cut = ((!m_ApplyChi2Cut) || ((*bphysIter)->fitchi2() < m_Chi2VtxCut && (*bphysIter)->fitchi2() >= -1e-10) );
             // PassedChi2Cut |= thisPassedChi2Cut;
             bool thisPassedLxyCut = ((!m_ApplyLxyCut) || ( BsLxy > m_LxyCut) );
             // PassedLxyCut |= thisPassedLxyCut;
             
             if(thisPassedBsMass)
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed mass cut " << BsMass <<" GeV" << endreq;
-            mon_MuMumass = ((BsMass*0.001));
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed mass cut " << BsMass <<" GeV" << endmsg;
+            m_mon_MuMumass = ((BsMass*0.001));
             if(thisPassedChi2Cut)
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply chi2 cut : " << m_ApplyChi2Cut << " Passed Chi2 cut < "<< m_Chi2VtxCut << endreq;
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply chi2 cut : " << m_ApplyChi2Cut << " Passed Chi2 cut < "<< m_Chi2VtxCut << endmsg;
             if(thisPassedLxyCut)
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply Lxy cut : " << m_ApplyLxyCut << " Passed Lxy cut  "<< m_LxyCut << endreq;
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply Lxy cut : " << m_ApplyLxyCut << " Passed Lxy cut  "<< m_LxyCut << endmsg;
             if(!thisPassedBsMass && !thisPassedChi2Cut)
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass mass & chi2 cuts < "<< endreq;
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass mass & chi2 cuts < "<< endmsg;
             if(!thisPassedLxyCut)
-                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass Lxy cuts  "<<  BsLxy << " <  Lxy cut "<< m_LxyCut<< endreq;
+                if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass Lxy cuts  "<<  BsLxy << " <  Lxy cut "<< m_LxyCut<< endmsg;
             
-            if (thisPassedBsMass)  { m_countPassedBsMass++; mon_cutCounter++;
-                if (thisPassedChi2Cut) { m_countPassedChi2Cut++; mon_cutCounter++;
-                    if (thisPassedLxyCut)  { m_countPassedLxyCut++; mon_cutCounter++; }
+            if (thisPassedBsMass)  { m_countPassedBsMass++; m_mon_cutCounter++;
+                if (thisPassedChi2Cut) { m_countPassedChi2Cut++; m_mon_cutCounter++;
+                    if (thisPassedLxyCut)  { m_countPassedLxyCut++; m_mon_cutCounter++; }
                 }
             }
               
@@ -316,7 +318,8 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
                 PassedBsMass = true;
                 PassedChi2Cut = true;
                 PassedLxyCut = true;
-                HLT::markPassing(bits, *bphysIter, trigBphysColl);
+                //HLT::markPassing(bits, *bphysIter, trigBphysColl);
+                xBits->markPassing((*bphysIter),trigBphysColl,true);
             }
             
         }
@@ -326,14 +329,14 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     /*
     const ElementLinkVector<Rec::TrackParticleContainer> trackVector = (*bphysIter)->trackVector();
     if (trackVector.size() != 0) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " got track vector size: " << trackVector.size() << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " got track vector size: " << trackVector.size() << endmsg;
   } else {
-    if(msgLvl() <= MSG::DEBUG)  msg() << MSG::DEBUG << " no track vector!!! "  << endreq;
+    if(msgLvl() <= MSG::DEBUG)  msg() << MSG::DEBUG << " no track vector!!! "  << endmsg;
   }
     ElementLinkVector<Rec::TrackParticleContainer>::const_iterator trkIt=trackVector.begin();
     for (int itrk=0 ; trkIt!= trackVector.end(); ++itrk, ++trkIt) {
     const Trk::MeasuredPerigee* trackPerigee=(*(*trkIt))->measuredPerigee();
-    if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
+    if(msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endmsg;
     double phi = trackPerigee->parameters()[Trk::phi];
     double theta = trackPerigee->parameters()[Trk::theta];
     double px = trackPerigee->momentum()[Trk::px];
@@ -342,7 +345,7 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
     double eta = -std::log(tan(theta/2));
 
     if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "track " << itrk << " pt phi eta " << pt << " " <<
-    phi << " " << eta << endreq;
+    phi << " " << eta << endmsg;
   }
     */
     // end JK debug printout
@@ -351,9 +354,9 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
 
     /*
-    if (PassedBsMass)  { m_countPassedBsMass++; mon_cutCounter++;
-        if (PassedChi2Cut) { m_countPassedChi2Cut++; mon_cutCounter++;
-            if (PassedLxyCut)  { m_countPassedLxyCut++; mon_cutCounter++; }
+    if (PassedBsMass)  { m_countPassedBsMass++; m_mon_cutCounter++;
+        if (PassedChi2Cut) { m_countPassedChi2Cut++; m_mon_cutCounter++;
+            if (PassedLxyCut)  { m_countPassedLxyCut++; m_mon_cutCounter++; }
         }
     }
     */
@@ -370,11 +373,14 @@ HLT::ErrorCode TrigEFBMuMuHypo::hltExecute(const HLT::TriggerElement* outputTE, 
         }
         pass=true;
     }
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << " TrigEFBMuMuHypo result : " << pass << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " Run " << IdRun << " Event " << IdEvent << " TrigEFBMuMuHypo result : " << pass << endmsg;
     // store result
-    if ( attachBits(outputTE, bits) != HLT::OK ) {
-        msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endreq;
-    }
+    //if ( attachBits(outputTE, bits) != HLT::OK ) {
+    //    msg() << MSG::ERROR << "Problem attaching TrigPassBits! " << endmsg;
+    //}
+    if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+      ATH_MSG_ERROR("Could not store TrigPassBits! ");
+
 
   return HLT::OK;
 }

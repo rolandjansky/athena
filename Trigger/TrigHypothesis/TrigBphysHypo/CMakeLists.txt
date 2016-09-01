@@ -18,6 +18,7 @@ atlas_depends_on_subdirs( PRIVATE
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigBphys
                           Event/xAOD/xAODTrigMuon
+                          Event/xAOD/xAODTrigger
                           GaudiKernel
                           Generators/GeneratorObjects
                           InnerDetector/InDetConditions/InDetBeamSpotService

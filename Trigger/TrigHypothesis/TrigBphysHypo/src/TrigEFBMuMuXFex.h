@@ -163,106 +163,106 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
 
     // Monitoring variables and containers
     //   General
-    std::vector<int>   mon_Errors;
-    std::vector<int>   mon_Acceptance;
-    int                mon_nTriedCombinations;
+    std::vector<int>   m_mon_Errors;
+    std::vector<int>   m_mon_Acceptance;
+    int                m_mon_nTriedCombinations;
     //   Timing
-    float              mon_TotalRunTime;
-    float              mon_VertexingTime;
+    float              m_mon_TotalRunTime;
+    float              m_mon_VertexingTime;
     //   RoIs
-    std::vector<float> mon_RoI_RoI1Eta;
-    std::vector<float> mon_RoI_RoI2Eta;
-    std::vector<float> mon_RoI_RoI1Phi;
-    std::vector<float> mon_RoI_RoI2Phi;
-    std::vector<float> mon_RoI_dEtaRoI;
-    std::vector<float> mon_RoI_dPhiRoI;
+    std::vector<float> m_mon_RoI_RoI1Eta;
+    std::vector<float> m_mon_RoI_RoI2Eta;
+    std::vector<float> m_mon_RoI_RoI1Phi;
+    std::vector<float> m_mon_RoI_RoI2Phi;
+    std::vector<float> m_mon_RoI_dEtaRoI;
+    std::vector<float> m_mon_RoI_dPhiRoI;
     //   DiMuon
-    int                mon_DiMu_n;
-    std::vector<float> mon_DiMu_Pt_Mu1;
-    std::vector<float> mon_DiMu_Pt_Mu2;
-    std::vector<float> mon_DiMu_Eta_Mu1;
-    std::vector<float> mon_DiMu_Eta_Mu2;
-    std::vector<float> mon_DiMu_Phi_Mu1;
-    std::vector<float> mon_DiMu_Phi_Mu2;
-    std::vector<float> mon_DiMu_dEtaMuMu;
-    std::vector<float> mon_DiMu_dPhiMuMu;
-    std::vector<float> mon_DiMu_pTsumMuMu;
-    std::vector<float> mon_DiMu_InvMassMuMu;
-    std::vector<float> mon_DiMu_VtxMassMuMu;
-    std::vector<float> mon_DiMu_Chi2MuMu;
+    int                m_mon_DiMu_n;
+    std::vector<float> m_mon_DiMu_Pt_Mu1;
+    std::vector<float> m_mon_DiMu_Pt_Mu2;
+    std::vector<float> m_mon_DiMu_Eta_Mu1;
+    std::vector<float> m_mon_DiMu_Eta_Mu2;
+    std::vector<float> m_mon_DiMu_Phi_Mu1;
+    std::vector<float> m_mon_DiMu_Phi_Mu2;
+    std::vector<float> m_mon_DiMu_dEtaMuMu;
+    std::vector<float> m_mon_DiMu_dPhiMuMu;
+    std::vector<float> m_mon_DiMu_pTsumMuMu;
+    std::vector<float> m_mon_DiMu_InvMassMuMu;
+    std::vector<float> m_mon_DiMu_VtxMassMuMu;
+    std::vector<float> m_mon_DiMu_Chi2MuMu;
     //   Tracks
-    int                mon_Tracks_n;
-    std::vector<float> mon_Tracks_Eta;
-    std::vector<float> mon_Tracks_Pt;
-    std::vector<float> mon_Tracks_Phi;
+    int                m_mon_Tracks_n;
+    std::vector<float> m_mon_Tracks_Eta;
+    std::vector<float> m_mon_Tracks_Pt;
+    std::vector<float> m_mon_Tracks_Phi;
     //   B+
-    int                mon_BMuMuK_n;
-    std::vector<float> mon_BMuMuK_Pt_K;  
-    std::vector<float> mon_BMuMuK_Eta_K;
-    std::vector<float> mon_BMuMuK_Phi_K;
-    std::vector<float> mon_BMuMuK_InvMass_B;
-    std::vector<float> mon_BMuMuK_VtxMass_B;
-    std::vector<float> mon_BMuMuK_Chi2_B;
+    int                m_mon_BMuMuK_n;
+    std::vector<float> m_mon_BMuMuK_Pt_K;  
+    std::vector<float> m_mon_BMuMuK_Eta_K;
+    std::vector<float> m_mon_BMuMuK_Phi_K;
+    std::vector<float> m_mon_BMuMuK_InvMass_B;
+    std::vector<float> m_mon_BMuMuK_VtxMass_B;
+    std::vector<float> m_mon_BMuMuK_Chi2_B;
     //   Bd
-    int                mon_BdMuMuKs_n;
-    std::vector<float> mon_BdMuMuKs_Pt_K;
-    std::vector<float> mon_BdMuMuKs_Eta_K;
-    std::vector<float> mon_BdMuMuKs_Phi_K;
-    std::vector<float> mon_BdMuMuKs_Pt_Pi;
-    std::vector<float> mon_BdMuMuKs_Eta_Pi;
-    std::vector<float> mon_BdMuMuKs_Phi_Pi;
-    std::vector<float> mon_BdMuMuKs_InvMass_Kstar;
-    std::vector<float> mon_BdMuMuKs_VtxMass_Kstar;
-    std::vector<float> mon_BdMuMuKs_Chi2_Kstar;
-    std::vector<float> mon_BdMuMuKs_InvMass_Bd;
-    std::vector<float> mon_BdMuMuKs_VtxMass_Bd;
-    std::vector<float> mon_BdMuMuKs_Chi2_Bd;
+    int                m_mon_BdMuMuKs_n;
+    std::vector<float> m_mon_BdMuMuKs_Pt_K;
+    std::vector<float> m_mon_BdMuMuKs_Eta_K;
+    std::vector<float> m_mon_BdMuMuKs_Phi_K;
+    std::vector<float> m_mon_BdMuMuKs_Pt_Pi;
+    std::vector<float> m_mon_BdMuMuKs_Eta_Pi;
+    std::vector<float> m_mon_BdMuMuKs_Phi_Pi;
+    std::vector<float> m_mon_BdMuMuKs_InvMass_Kstar;
+    std::vector<float> m_mon_BdMuMuKs_VtxMass_Kstar;
+    std::vector<float> m_mon_BdMuMuKs_Chi2_Kstar;
+    std::vector<float> m_mon_BdMuMuKs_InvMass_Bd;
+    std::vector<float> m_mon_BdMuMuKs_VtxMass_Bd;
+    std::vector<float> m_mon_BdMuMuKs_Chi2_Bd;
     //   Bs
-    int                mon_BsMuMuPhi_n;
-    std::vector<float> mon_BsMuMuPhi_Pt_K1;
-    std::vector<float> mon_BsMuMuPhi_Eta_K1;
-    std::vector<float> mon_BsMuMuPhi_Phi_K1;
-    std::vector<float> mon_BsMuMuPhi_Pt_K2;
-    std::vector<float> mon_BsMuMuPhi_Eta_K2;
-    std::vector<float> mon_BsMuMuPhi_Phi_K2;
-    std::vector<float> mon_BsMuMuPhi_InvMass_Phi1020;
-    std::vector<float> mon_BsMuMuPhi_VtxMass_Phi1020;
-    std::vector<float> mon_BsMuMuPhi_Chi2_Phi1020;
-    std::vector<float> mon_BsMuMuPhi_InvMass_Bs;
-    std::vector<float> mon_BsMuMuPhi_VtxMass_Bs;
-    std::vector<float> mon_BsMuMuPhi_Chi2_Bs;
+    int                m_mon_BsMuMuPhi_n;
+    std::vector<float> m_mon_BsMuMuPhi_Pt_K1;
+    std::vector<float> m_mon_BsMuMuPhi_Eta_K1;
+    std::vector<float> m_mon_BsMuMuPhi_Phi_K1;
+    std::vector<float> m_mon_BsMuMuPhi_Pt_K2;
+    std::vector<float> m_mon_BsMuMuPhi_Eta_K2;
+    std::vector<float> m_mon_BsMuMuPhi_Phi_K2;
+    std::vector<float> m_mon_BsMuMuPhi_InvMass_Phi1020;
+    std::vector<float> m_mon_BsMuMuPhi_VtxMass_Phi1020;
+    std::vector<float> m_mon_BsMuMuPhi_Chi2_Phi1020;
+    std::vector<float> m_mon_BsMuMuPhi_InvMass_Bs;
+    std::vector<float> m_mon_BsMuMuPhi_VtxMass_Bs;
+    std::vector<float> m_mon_BsMuMuPhi_Chi2_Bs;
     //   Lambda_b
-    int                mon_LbMuMuLambda_n;
-    std::vector<float> mon_LbMuMuLambda_Pt_P;
-    std::vector<float> mon_LbMuMuLambda_Eta_P;
-    std::vector<float> mon_LbMuMuLambda_Phi_P;
-    std::vector<float> mon_LbMuMuLambda_Pt_Pi;
-    std::vector<float> mon_LbMuMuLambda_Eta_Pi;
-    std::vector<float> mon_LbMuMuLambda_Phi_Pi;
-    std::vector<float> mon_LbMuMuLambda_InvMass_Lambda;
-    std::vector<float> mon_LbMuMuLambda_VtxMass_Lambda;
-    std::vector<float> mon_LbMuMuLambda_Chi2_Lambda;
-    std::vector<float> mon_LbMuMuLambda_InvMass_Lb;
-    std::vector<float> mon_LbMuMuLambda_VtxMass_Lb;
-    std::vector<float> mon_LbMuMuLambda_Chi2_Lb;
+    int                m_mon_LbMuMuLambda_n;
+    std::vector<float> m_mon_LbMuMuLambda_Pt_P;
+    std::vector<float> m_mon_LbMuMuLambda_Eta_P;
+    std::vector<float> m_mon_LbMuMuLambda_Phi_P;
+    std::vector<float> m_mon_LbMuMuLambda_Pt_Pi;
+    std::vector<float> m_mon_LbMuMuLambda_Eta_Pi;
+    std::vector<float> m_mon_LbMuMuLambda_Phi_Pi;
+    std::vector<float> m_mon_LbMuMuLambda_InvMass_Lambda;
+    std::vector<float> m_mon_LbMuMuLambda_VtxMass_Lambda;
+    std::vector<float> m_mon_LbMuMuLambda_Chi2_Lambda;
+    std::vector<float> m_mon_LbMuMuLambda_InvMass_Lb;
+    std::vector<float> m_mon_LbMuMuLambda_VtxMass_Lb;
+    std::vector<float> m_mon_LbMuMuLambda_Chi2_Lb;
     //   Bc
-    int                mon_BcMuMuDs_n;
-    std::vector<float> mon_BcMuMuDs_Pt_K1;
-    std::vector<float> mon_BcMuMuDs_Eta_K1;
-    std::vector<float> mon_BcMuMuDs_Phi_K1;
-    std::vector<float> mon_BcMuMuDs_Pt_K2;
-    std::vector<float> mon_BcMuMuDs_Eta_K2;
-    std::vector<float> mon_BcMuMuDs_Phi_K2;
-    std::vector<float> mon_BcMuMuDs_Pt_pi;
-    std::vector<float> mon_BcMuMuDs_Eta_pi;
-    std::vector<float> mon_BcMuMuDs_Phi_pi;
-    std::vector<float> mon_BcMuMuDs_InvMass_PhiDs;
-    std::vector<float> mon_BcMuMuDs_InvMass_Ds;
-    std::vector<float> mon_BcMuMuDs_VtxMass_Ds;
-    std::vector<float> mon_BcMuMuDs_Chi2_Ds;
-    std::vector<float> mon_BcMuMuDs_InvMass_Bc;
-    std::vector<float> mon_BcMuMuDs_VtxMass_Bc;
-    std::vector<float> mon_BcMuMuDs_Chi2_Bc;
+    int                m_mon_BcMuMuDs_n;
+    std::vector<float> m_mon_BcMuMuDs_Pt_K1;
+    std::vector<float> m_mon_BcMuMuDs_Eta_K1;
+    std::vector<float> m_mon_BcMuMuDs_Phi_K1;
+    std::vector<float> m_mon_BcMuMuDs_Pt_K2;
+    std::vector<float> m_mon_BcMuMuDs_Eta_K2;
+    std::vector<float> m_mon_BcMuMuDs_Phi_K2;
+    std::vector<float> m_mon_BcMuMuDs_Pt_pi;
+    std::vector<float> m_mon_BcMuMuDs_Eta_pi;
+    std::vector<float> m_mon_BcMuMuDs_Phi_pi;
+    std::vector<float> m_mon_BcMuMuDs_InvMass_PhiDs;
+    std::vector<float> m_mon_BcMuMuDs_InvMass_Ds;
+    std::vector<float> m_mon_BcMuMuDs_VtxMass_Ds;
+    std::vector<float> m_mon_BcMuMuDs_Chi2_Ds;
+    std::vector<float> m_mon_BcMuMuDs_InvMass_Bc;
+    std::vector<float> m_mon_BcMuMuDs_VtxMass_Bc;
+    std::vector<float> m_mon_BcMuMuDs_Chi2_Bc;
 
 
     // to set Accept-All mode: should be done with force-accept when possible
@@ -272,8 +272,8 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     // TrigEFBphysContainer* m_trigBphysColl_b;
     // TrigEFBphysContainer* m_trigBphysColl_X;
 
-    xAOD::TrigBphysContainer * mTrigBphysColl_b;
-    xAOD::TrigBphysContainer * mTrigBphysColl_X;
+    xAOD::TrigBphysContainer * m_TrigBphysColl_b;
+    xAOD::TrigBphysContainer * m_TrigBphysColl_X;
     
     // Timers
     TrigTimer* m_TotTimer;
