@@ -361,7 +361,7 @@ Amg::Transform3D PRDHandleBase::getTransform_CLHEP() const
     theHitGPos= new Amg::Vector3D (theSurface.center());
   } else {
     // for clusters or short tubes, use position of hit.
-    theHitGPos = theSurface.localToGlobal(prd->localPosition());
+    theHitGPos = theSurface.localToGlobal(prd->localPosition()); //theSurface 'new s' a Vector3D and returns pointer
   }
 
 //  CLHEP::Hep3Vector t(theSurface.transform().getTranslation());
@@ -370,7 +370,7 @@ Amg::Transform3D PRDHandleBase::getTransform_CLHEP() const
   t = Amg::getTranslationVectorFromTransform(theSurface.transform());
   Amg::Translation3D transl = Amg::Translation3D(theHitGPos->x()-t.x(), theHitGPos->y()-t.y(), theHitGPos->z()-t.z());
   Amg::Transform3D transf = transl * (theSurface.transform());
-
+  delete theHitGPos;
   return transf;
 }
 

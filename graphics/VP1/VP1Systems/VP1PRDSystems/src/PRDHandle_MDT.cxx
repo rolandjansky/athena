@@ -25,7 +25,7 @@ PRDHandle_MDT::PRDHandle_MDT(PRDCollHandle_MDT*collhandle, const Muon::MdtPrepDa
 void PRDHandle_MDT::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
 {
   const Trk::CylinderBounds* ccbo = dynamic_cast<const Trk::CylinderBounds*>(&(m_driftcircle->detectorElement()->surface(m_driftcircle->identify()).bounds()));
-  assert(ccbo!=0);
+  if (not ccbo) return;
 
   double radius = m_driftcircle->localPosition()[0];
   if (radius<0.15)

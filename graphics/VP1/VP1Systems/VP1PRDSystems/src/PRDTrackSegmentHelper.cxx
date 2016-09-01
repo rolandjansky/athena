@@ -492,7 +492,7 @@ inline  std::vector<const Trk::PrepRawData *> PRDTrackSegmentHelper::Imp::measur
 {
   std::vector<const Trk::PrepRawData *>prds;
   const Trk::RIO_OnTrack * rio = dynamic_cast<const Trk::RIO_OnTrack *>(measbase);
-  if (rio) prds.push_back( rio ? rio->prepRawData() : 0 );
+  if (rio) prds.push_back( rio->prepRawData() );
   const Trk::CompetingRIOsOnTrack * crot = dynamic_cast<const Trk::CompetingRIOsOnTrack *>(measbase);
   if (crot) {
 

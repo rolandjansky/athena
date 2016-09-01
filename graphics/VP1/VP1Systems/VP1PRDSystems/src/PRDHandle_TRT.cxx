@@ -30,7 +30,7 @@ PRDHandle_TRT::PRDHandle_TRT(PRDCollHandle_TRT*collhandle, const InDet::TRT_Drif
 void PRDHandle_TRT::buildShapes(SoNode*&shape_simple, SoNode*&shape_detailed)
 {
   const Trk::CylinderBounds* ccbo = dynamic_cast<const Trk::CylinderBounds*>(&(m_driftcircle->detectorElement()->surface(m_driftcircle->identify()).bounds()));
-  assert(ccbo!=0);
+  if (not ccbo) return;
   const double radius = m_driftcircle->localPosition()[0];
   const double halflength = ccbo->halflengthZ();
   const double mintuberadius = 0.1;
