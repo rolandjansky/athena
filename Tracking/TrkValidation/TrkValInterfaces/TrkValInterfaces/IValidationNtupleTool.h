@@ -17,7 +17,6 @@
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkEventPrimitives/FitQualityOnSurface.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkFitterUtils/FitterStatusCode.h"
 //#include "GeneratorObjects/HepMcParticleLink.h"
 #include <vector>
 
@@ -33,7 +32,6 @@ class MeasurementBase;     //!< measurement base
 class Track;
 class ProtoTrackStateOnSurface; //!< measurement base
 class TrackStateOnSurface;
-//class FitterStatusCode;
 
     /** trajectory of Trk::ProtoTrackStateOnSurface as used internally by the Trk::KalmanFitter and Trk::DeterministicAnnealingFilter */
     typedef std::vector<Trk::ProtoTrackStateOnSurface> ProtoTrajectory;
@@ -58,7 +56,7 @@ public:
     virtual StatusCode writeTrackData (
         const Trk::Track&,
         const int iterationIndex,
-        const Trk::FitterStatusCode fitStatCode = Trk::FitterStatusCode::Success ) const = 0;
+        const unsigned int fitStatCode = 0 ) const = 0;
 
      /** fill AND write ntuple data of a given track particle */
     virtual StatusCode writeTrackParticleData (
@@ -69,7 +67,7 @@ public:
     virtual StatusCode fillTrackData (
         const Trk::Track&,
         const int iterationIndex,
-        const Trk::FitterStatusCode fitStatCode = Trk::FitterStatusCode::Success ) const = 0;
+        const unsigned int fitStatCode = 0 ) const = 0;
 
     /** fill ntuple data of a given track particle without writing the record.
     - if this method is called twice without writing the ntuple inbetween the first data will be lost! */
@@ -111,7 +109,7 @@ public:
         const Trk::ProtoTrajectory&,
         const int iterationIndex,
         const Trk::Perigee* = 0,
-        const Trk::FitterStatusCode fitStatCode = Trk::FitterStatusCode::Success ) const = 0;
+        const unsigned int fitStatCode = 0 ) const = 0;
 
     /** write the filled data into the ntuple */
     virtual StatusCode writeRecord( TTree* tree ) const = 0;

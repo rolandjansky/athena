@@ -16,7 +16,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkFitterUtils/FitterStatusCode.h"
 
 class TrackTruth;
 class TTree;
@@ -55,7 +54,7 @@ public:
     virtual StatusCode fillTrackData (
         const Trk::Track&,
         const int iterationIndex,
-        const Trk::FitterStatusCode fitStatCode = Trk::FitterStatusCode::Success ) const = 0;
+        const unsigned int fitStatCode = 0) const = 0;
 
     /** fill ntuple data of a given track particle without writing the record.
     - if this method is called twice without writing the ntuple inbetween the first data will be lost! */
@@ -71,7 +70,7 @@ public:
         const Trk::ProtoTrajectory&,
         const int iterationIndex,
         const Trk::Perigee* = 0,
-        const Trk::FitterStatusCode fitStatCode = Trk::FitterStatusCode::Success ) const = 0;
+        const unsigned int fitStatCode = 0) const = 0;
 
     /** reset the variables after writing the record to disk ntuple */
     virtual void resetVariables( ) const = 0;

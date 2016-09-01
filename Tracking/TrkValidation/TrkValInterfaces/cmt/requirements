@@ -7,7 +7,7 @@ use GaudiInterface      GaudiInterface-*         External
 use GeoPrimitives       GeoPrimitives-*          DetectorDescription
 use TrkEventPrimitives  TrkEventPrimitives-*     Tracking/TrkEvent
 use TrkParameters       TrkParameters-*          Tracking/TrkEvent
-use TrkFitterUtils      TrkFitterUtils-*         Tracking/TrkFitter
+#use TrkFitterUtils      TrkFitterUtils-*         Tracking/TrkFitter
 use TrkTrack            TrkTrack-*         	     Tracking/TrkEvent
 
 # Declare this package as a metalibrary for cmake so that it's clients have access to the libraries

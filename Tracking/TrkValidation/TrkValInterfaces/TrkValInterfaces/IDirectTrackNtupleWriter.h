@@ -17,7 +17,6 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
-#include "TrkFitterUtils/FitterStatusCode.h"
 #include <vector>
 
 class TrackTruth;
@@ -56,7 +55,7 @@ public:
     virtual StatusCode writeTrackData (
         const Trk::Track&,
         const int iterationIndex,
-        const Trk::FitterStatusCode fitStatCode = Trk::FitterStatusCode::Success ) const = 0;
+        const unsigned int fitStatCode = 0) const = 0;
 
      /** fill AND write ntuple data of a given track particle */
     virtual StatusCode writeTrackParticleData (
@@ -67,7 +66,7 @@ public:
         const Trk::ProtoTrajectory&,
         const int iterationIndex,
         const Trk::Perigee* = 0,
-        const Trk::FitterStatusCode fitStatCode = Trk::FitterStatusCode::Success ) const = 0;
+        const unsigned int fitStatCode = 0) const = 0;
 };
 
 inline const InterfaceID& Trk::IDirectTrackNtupleWriter::interfaceID() {
