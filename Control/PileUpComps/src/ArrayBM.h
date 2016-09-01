@@ -8,43 +8,45 @@
 #define PILEUPCOMPS_ARRAYBM 1
 /** @file ArrayBM.h
  * @brief A IBeamIntensity service configured with an intensity array
- * The FloatArrayProperty describes the intensity pattern that is 
+ * The FloatArrayProperty describes the intensity pattern that is
  * repeated for the entire beam xing range.
  *
  * $Id: BkgStreamsCache.h,v 1.10 2008-08-28 01:11:06 calaf Exp $
  * @author Paolo Calafiura - ATLAS Collaboration
  */
-#include "PileUpTools/IBeamIntensity.h"
-#include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"
-template <class TYPE> class SvcFactory;
+
+#include "PileUpTools/IBeamIntensity.h"
+#include "AthenaBaseComps/AthService.h"
+
 class IAtRndmGenSvc;
-namespace CLHEP {
+namespace CLHEP
+{
   class RandGeneral;
 }
 
-class ArrayBM : virtual public IBeamIntensity, public AthService {
+class ArrayBM : virtual public IBeamIntensity, public AthService
+{
 public:
-  virtual ~ArrayBM();
-  virtual void selectT0();
-  virtual unsigned int getCurrentT0BunchCrossing() const { return m_t0Offset; }
-  virtual unsigned int getBeamPatternLength() const { return m_ipLength; }
-  virtual float largestElementInPattern() const { return m_largestElementInPattern; }
-  virtual float normFactor(int iXing) const { 
-    unsigned int index = static_cast<unsigned int>((((iXing + static_cast<int>(m_t0Offset)) % static_cast<int>(m_ipLength)) + static_cast<int>(m_ipLength) )  % static_cast<int>(m_ipLength));
-    //The array itself has max-value 1.0, but we want it to have mean value 1.0 (for filled bunch crossings), so we multiple by the m_largestElementInPattern.
-    ATH_MSG_VERBOSE("normFactor for BCID " << iXing 
-		    << " (offset " << m_t0Offset 
-		    << " index " << index
-		    << ") is = " <<  m_largestElementInPattern*m_intensityPattern[ index ]);
-    return m_largestElementInPattern*m_intensityPattern[ index ]; 
-  }
-  virtual StatusCode initialize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-protected:
-  friend class SvcFactory<ArrayBM>;
+  /// \name Constructor and Destructor
+  //@{
   ArrayBM(const std::string& name,ISvcLocator* svc);
+  virtual ~ArrayBM();
+  //@}
+  /// \name AthService methods
+  //@{
+  virtual StatusCode initialize() override final;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
+  //@}
+  /// \name IBeamIntensity methods
+  //@{
+  virtual float normFactor(int iXing) const override final;
+  virtual float largestElementInPattern() const override final { return m_largestElementInPattern; }
+  virtual void selectT0() override final;
+  virtual unsigned int getCurrentT0BunchCrossing() const override final { return m_t0Offset; }
+  virtual unsigned int getBeamPatternLength() const override final { return m_ipLength; }
+  //@}
 private:
   /// max bunch crossings per orbit
   unsigned int m_maxBunchCrossingPerOrbit;
@@ -67,4 +69,3 @@ private:
   float m_largestElementInPattern;
 };
 #endif
-

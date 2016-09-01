@@ -21,7 +21,6 @@
 #include "PileUpTools/PileUpStream.h"
 #include "PileUpTools/IBkgStreamsCache.h"
 #include "EventInfo/PileUpTimeEventIndex.h" /* needed for PileUpType */
-#include "AthenaKernel/MsgStreamMember.h"
 
 class ActiveStoreSvc;
 class EventInfo;
@@ -38,52 +37,52 @@ namespace CLHEP {
 /** @class BkgStreamsCache
  * @brief In-memory cache for pileup events
  */
-class BkgStreamsCache : 
-  virtual public IBkgStreamsCache, 
-  virtual public AthAlgTool 
+class BkgStreamsCache :
+  virtual public IBkgStreamsCache,
+  virtual public AthAlgTool
 {
 public:
   BkgStreamsCache( const std::string&, const std::string&, const IInterface*);
   virtual ~BkgStreamsCache();
-  
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
-  /** 
-      @param nXings bunch Xings to be processed
-      @param firstStore id of first store in cache 
+
+  virtual StatusCode initialize() override final;
+  virtual StatusCode finalize() override final;
+  /**
+     @param nXings bunch Xings to be processed
+     @param firstStore id of first store in cache
   */
   virtual StatusCode setup(int firstXing,
-			   unsigned int nXings,  
-			   unsigned int firstStore,
-			   IBeamIntensity*); 
+                           unsigned int nXings,
+                           unsigned int firstStore,
+                           IBeamIntensity*) override final;
   /// inform cache that we start overlaying a new event
-  virtual void newEvent();
-  /// reset scale factor at new run/lumiblk       
-  virtual void resetEvtsPerXingScaleFactor(float sf);
+  virtual void newEvent() override final;
+  /// reset scale factor at new run/lumiblk
+  virtual void resetEvtsPerXingScaleFactor(float sf) override final;
   /**
      @brief Read input events in bkg stores and link them to overlay store
      @param iXing         offset to first xing number (=0 first Xing, =nXings for last xing)
      @param overlaidEvent reference to resulting overlaid event
-     @param t0BinCenter   time wrto t0 of current bin center in ns      
+     @param t0BinCenter   time wrto t0 of current bin center in ns
   */
-  virtual StatusCode addSubEvts(unsigned int iXing, 
-				PileUpEventInfo& overlaidEvent,
-				int t0BinCenter);
+  virtual StatusCode addSubEvts(unsigned int iXing,
+                                PileUpEventInfo& overlaidEvent,
+                                int t0BinCenter) override final;
   /**
      @brief Read input events in bkg stores and link them to overlay store
      @param iXing         offset to first xing number (=0 first Xing, =nXings for last xing)
      @param overlaidEvent reference to resulting overlaid event
-     @param t0BinCenter   time wrto t0 of current bin center in ns      
-     @param loadEventProxies should we load the event proxies or not.   
+     @param t0BinCenter   time wrto t0 of current bin center in ns
+     @param loadEventProxies should we load the event proxies or not.
      @param BCID          bunch-crossing ID of signal bunch crossing
   */
   virtual StatusCode addSubEvts(unsigned int iXing,
-				PileUpEventInfo& overEvent,
-				int t0BinCenter, bool loadEventProxies, unsigned int /*BCID*/);
+                                PileUpEventInfo& overEvent,
+                                int t0BinCenter, bool loadEventProxies, unsigned int /*BCID*/) override final;
   /// how many stores in this cache
-  virtual unsigned int nStores() const { return m_nStores; }
+  virtual unsigned int nStores() const override final { return m_nStores; }
 
-  virtual StatusCode queryInterface(const InterfaceID&, void**);
+  virtual StatusCode queryInterface(const InterfaceID&, void**) override final;
 
   /// meant to be used (mainly) via m_f_collDistr
   long collXing() { return m_collXing; }
@@ -102,7 +101,7 @@ private:
 
   unsigned int setNEvtsXing(unsigned int iXing);
   unsigned int nEvtsXing(unsigned int iXing) const;
-  
+
   typedef std::vector<PileUpStream> StreamVector;
   bool alreadyInUse(StreamVector::size_type iStream);
   ActiveStoreSvc* p_activeStore;
@@ -150,7 +149,7 @@ private:
   /// function returning the number of bkg events per bunch crossing
   /// after bunch structure modulation
   boost::function1< unsigned int, unsigned int > m_f_numberOfBackgroundForBunchCrossing;
-  /// float scaling number of collisions per bunch crossing 
+  /// float scaling number of collisions per bunch crossing
   float m_collXingSF;
   /// bool apply scaling number of collisions per bunch crossing ?
   BooleanProperty m_ignoreSF;
@@ -160,7 +159,7 @@ private:
   IBeamIntensity* m_beamInt;
   /// Force events used in the central bunch crossing to be refreshed
   BooleanProperty m_forceReadForBC0;
-  
+
 };
 
 #endif // PILEUPTOOLS_BKGSTREAMSCACHE_H

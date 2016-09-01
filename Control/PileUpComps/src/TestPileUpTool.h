@@ -14,13 +14,18 @@
 #include <vector>
 #include <utility> /* pair */
 
-#include "EventInfo/PileUpEventInfo.h"  /*SubEvent*/
 #include "PileUpTools/PileUpToolBase.h"
-class TestPileUpTool : public PileUpToolBase {
+class TestPileUpTool : public PileUpToolBase
+{
 public:
+  /// \name Constructor
+  //@{
   TestPileUpTool(const std::string& type,
                  const std::string& name,
                  const IInterface* parent);
+  //@}
+  /// \name IPileUpTool methods
+  //@{
   ///called before the bunchXing loop
   virtual StatusCode prepareEvent(unsigned int nInputEvents);
   ///called at the end of the subevts loop. Not (necessarily) able to access
@@ -34,8 +39,10 @@ public:
                    SubEventIterator eSubEvents);
   /// return false if not interested in  certain xing times (in ns)
   /// implemented by default in PileUpToolBase as FirstXing<=bunchXing<=LastXing
-  //  virtual bool toProcess(int bunchXing) const;
+  //@}
 private:
   std::vector<std::pair<unsigned int, int> > m_seen;
+  bool m_doFiltering;
+  unsigned int m_maxInTimePileUp;
 };
 #endif

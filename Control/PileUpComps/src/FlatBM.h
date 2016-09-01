@@ -14,26 +14,29 @@
  */
 #include "PileUpTools/IBeamIntensity.h"
 #include "AthenaBaseComps/AthService.h"
-template <class TYPE> class SvcFactory;
 
-class FlatBM : virtual public IBeamIntensity, public AthService {
+class FlatBM : virtual public IBeamIntensity, public AthService
+{
 public:
-  inline virtual void selectT0() {}
-  inline virtual float largestElementInPattern() const {
-    return 1.0;
-  }
-  inline virtual unsigned int getCurrentT0BunchCrossing() const { 
+  /// \name Constructor
+  //@{
+  FlatBM(const std::string& name,ISvcLocator* svc);
+  //@}
+  /// \name AthService methods
+  //@{
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
+  //@}
+  /// \name IBeamIntensity methods
+  //@{
+  inline virtual float normFactor(int /*iXing*/) const override final { return 1.0; }
+  inline virtual float largestElementInPattern() const override final { return 1.0; }
+  inline virtual void selectT0() override {}
+  inline virtual unsigned int getCurrentT0BunchCrossing() const override final
+  {
     //The first filled bunch crossing is always BCID 1
-    return 1; 
+    return 1;
   }
-  inline virtual unsigned int getBeamPatternLength() const { 
-    return 1; 
-  }
-  inline virtual float normFactor(int /*iXing*/) const { return 1.0; }
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
- protected:
-  friend class SvcFactory<FlatBM>;
-  FlatBM(const std::string& name,ISvcLocator* svc): AthService(name,svc) { }
+  inline virtual unsigned int getBeamPatternLength() const override final { return 1; }
+  //@}
 };
 #endif
-

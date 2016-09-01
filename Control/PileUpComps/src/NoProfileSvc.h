@@ -14,19 +14,24 @@
 #include "PileUpTools/IBeamLuminosity.h"
 #include "AthenaBaseComps/AthService.h"
 #include "GaudiKernel/Property.h"
-template <class TYPE> class SvcFactory;
 
-class NoProfileSvc : virtual public IBeamLuminosity, public AthService {
+class NoProfileSvc : virtual public IBeamLuminosity, public AthService
+{
 public:
+  /// \name Constructor / Destructor
+  //@{
+  NoProfileSvc(const std::string& name, ISvcLocator* svc);
   virtual ~NoProfileSvc();
-  virtual float scaleFactor(unsigned int run, unsigned int lumi, bool & updated);
-  virtual StatusCode initialize();
-  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-protected:
-  friend class SvcFactory<NoProfileSvc>;
-  NoProfileSvc(const std::string& name,ISvcLocator* svc);
-
-
+  //@}
+  /// \name AthService methods
+  //@{
+  virtual StatusCode initialize() override final;
+  virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface ) override final;
+  //@}
+  /// \name IBeamLuminosity methods
+  //@{
+  virtual float scaleFactor(unsigned int run, unsigned int lumi, bool & updated) override final;
+  //@}
 };
 #endif
 
