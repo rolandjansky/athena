@@ -116,15 +116,15 @@ StatusCode Trk::DeterministicAnnealingFilter::initialize() {
     StatusCode sc;
 
     if (msgLvl(MSG::DEBUG)) {
-        //m_log << MSG::DEBUG<<"ToolForExtrapolation : "<< m_option_ExtrapTool<<endreq;
-        //m_log << MSG::DEBUG<<"ToolForCompetingROTsCreation: "<< m_option_compROTcreator<<endreq;
-        //m_log << MSG::DEBUG<<"ToolForUpdating             : "<< m_option_UpdatingTool<<endreq;
-        //m_log << MSG::DEBUG<<"ITrackFitterTool            : "<< m_option_KalmanFitter << (m_option_KalmanFitter=="none" ? " i.e. Kalman Forward Filter and Backward Smoother are used directly" : "")<<endreq;
-        //m_log << MSG::DEBUG<<"FitterValidationTool        : "<< m_option_FitterValidationTool<<endreq;
-        msg(MSG::DEBUG) <<"AnnealingScheme             : "<< m_option_annealingScheme<<endreq;
-        msg(MSG::DEBUG)<<"OutlierCutValue             : "<< m_option_OutlierCut<<endreq;
-        msg(MSG::DEBUG)<<"doHitSorting                : "<< m_option_doHitSorting<<endreq;
-        msg(MSG::DEBUG)<<"generatePerigeeParameters   : "<< m_option_generatePerigee<<endreq;
+        //m_log << MSG::DEBUG<<"ToolForExtrapolation : "<< m_option_ExtrapTool<<endmsg;
+        //m_log << MSG::DEBUG<<"ToolForCompetingROTsCreation: "<< m_option_compROTcreator<<endmsg;
+        //m_log << MSG::DEBUG<<"ToolForUpdating             : "<< m_option_UpdatingTool<<endmsg;
+        //m_log << MSG::DEBUG<<"ITrackFitterTool            : "<< m_option_KalmanFitter << (m_option_KalmanFitter=="none" ? " i.e. Kalman Forward Filter and Backward Smoother are used directly" : "")<<endmsg;
+        //m_log << MSG::DEBUG<<"FitterValidationTool        : "<< m_option_FitterValidationTool<<endmsg;
+        msg(MSG::DEBUG) <<"AnnealingScheme             : "<< m_option_annealingScheme<<endmsg;
+        msg(MSG::DEBUG)<<"OutlierCutValue             : "<< m_option_OutlierCut<<endmsg;
+        msg(MSG::DEBUG)<<"doHitSorting                : "<< m_option_doHitSorting<<endmsg;
+        msg(MSG::DEBUG)<<"generatePerigeeParameters   : "<< m_option_generatePerigee<<endmsg;
     }
     // Get Extrapolator
     if ( ! m_extrapolator.empty() ) {
@@ -136,7 +136,7 @@ StatusCode Trk::DeterministicAnnealingFilter::initialize() {
     } else {
         ATH_MSG_WARNING("No Tool for extrapolation given.");
         msg(MSG::WARNING) << "If ever a set of PrepRawData or MeasurementBase is given to a fit,"
-        << " your code will fail." << endreq;
+        << " your code will fail." << endmsg;
     }
 
     // Get CompetingRIOsOnTrackTool
@@ -157,7 +157,7 @@ StatusCode Trk::DeterministicAnnealingFilter::initialize() {
 //             return sc;
 //         } else {
 //             m_log << MSG::DEBUG<<"Found ITrackFitter, \""
-//             << lKalmanTool.type()<<"\"." <<endreq;
+//             << lKalmanTool.type()<<"\"." <<endmsg;
 //         }
 //     } else {
 
@@ -338,7 +338,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit(const Trk::Track&  inputTrack
         for( ; it!=itEnd; it++) {
             msg(MSG::VERBOSE) << " radius of TrackPar is: " <<
             (*it)->position().mag() << ", to ref is " <<
-            ((*it)->position()-refGP).mag() << endreq;
+            ((*it)->position()-refGP).mag() << endmsg;
         }
         ATH_MSG_VERBOSE( " (those track parameters were not shown sorted)" );
     }
@@ -457,13 +457,13 @@ Trk::Track* Trk::DeterministicAnnealingFilter::fit( const Trk::MeasurementSet&  
         }
         // some debug output
         if (msgLvl(MSG::VERBOSE)) {
-            msg(MSG::VERBOSE) << "-F- The list of MeasurementBase has been ordered along the initial direction." <<endreq;
+            msg(MSG::VERBOSE) << "-F- The list of MeasurementBase has been ordered along the initial direction." <<endmsg;
             MeasurementSet::const_iterator it1    = sortedHitSet.begin();
             MeasurementSet::const_iterator it1End = sortedHitSet.end();
             for( ; it1!=it1End; it1++) {
               msg(MSG::VERBOSE) << "-F- radius of globalPos() is " 
                                 << (*it1)->globalPosition().mag() << ", transverse r "
-                                << (*it1)->globalPosition().perp() << endreq;
+                                << (*it1)->globalPosition().perp() << endmsg;
             }
         }
         delete MeasB_CompFunc;
@@ -886,7 +886,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
             //m_smoother->clearFitResultsAfterOutlier(m_trajectory,fitQual,1);
             delete fitQual;
             fitQual = 0;
-            ATH_MSG_VERBOSE( endreq << "********** call forward kalman filter, iteration #"<< annealingIteration << " **********" << endreq );
+            ATH_MSG_VERBOSE( endmsg << "********** call forward kalman filter, iteration #"<< annealingIteration << " **********" << endmsg );
         } // end if(annealingIteration > 0 )
 
         // fit again with KalmanFitter:
@@ -899,15 +899,15 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
         if (msgLvl(MSG::VERBOSE)) m_utility->dumpTrajectory(m_trajectory, name());
         // protect against failed fit
         if (fitstatus.isFailure()) {
-            ATH_MSG_DEBUG( "forward fitter #" << annealingIteration << " rejected fit" << endreq << endreq );
+            ATH_MSG_DEBUG( "forward fitter #" << annealingIteration << " rejected fit" << endmsg << endmsg );
             monitorTrackFits( ForwardFilterFailure, estimatedStartParameters->eta(), annealingIteration);
             if (m_doValidation) callValidation(annealingIteration, matEffects, fitstatus);
             return 0;
         }
-        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endreq
+        if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg
                                     << "********** Forward fit passed, now call smoother #"
                                     << annealingIteration
-                                    << ". ************* " << endreq << endreq;
+                                    << ". ************* " << endmsg << endmsg;
 
         // run backward smoother
         fitstatus = m_smoother->fit(m_trajectory, fitQual, controlledMatEff);
@@ -915,14 +915,14 @@ Trk::Track* Trk::DeterministicAnnealingFilter::doDAFfitWithKalman(
         if (m_doValidation) callValidation(annealingIteration, matEffects, fitstatus);
         // protect against failed fit
         if (fitstatus.isFailure()) {
-            ATH_MSG_DEBUG( "smoother #" << annealingIteration << " rejected fit" << endreq << endreq );
+            ATH_MSG_DEBUG( "smoother #" << annealingIteration << " rejected fit" << endmsg << endmsg );
             monitorTrackFits( SmootherFailure, estimatedStartParameters->eta(), annealingIteration );
             return 0;
         }
         if (msgLvl(MSG::VERBOSE)) {
-            msg(MSG::VERBOSE) << endreq
+            msg(MSG::VERBOSE) << endmsg
                                  << "************ Backward smoother #" << annealingIteration
-                                 << " passed. ************* " << endreq << endreq;
+                                 << " passed. ************* " << endmsg << endmsg;
             m_utility->dumpTrajectory(m_trajectory, name());
         }
         //if (m_option_doValidationAction) m_extrapolator->validationAction();
@@ -1010,7 +1010,7 @@ Trk::Track* Trk::DeterministicAnnealingFilter::makeTrack(const Trk::ParticleHypo
                         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "FQoS for state #"<<i<<" (chi2/ndof): " 
                                                 << fQoS->chiSquared() << "/" << fQoS->numberDoF() 
                                                 << " assgnProb=" << sumAssgnProb 
-                                                << "=> " << (fQoS->chiSquared() * sumAssgnProb) << "/" << (double(fQoS->numberDoF()) * sumAssgnProb) << endreq;
+                                                << "=> " << (fQoS->chiSquared() * sumAssgnProb) << "/" << (double(fQoS->numberDoF()) * sumAssgnProb) << endmsg;
                         delete fQoS;
                     } else {
                         ATH_MSG_DEBUG( "calculation of FQoS failed for state #"<<i<<"; assgnProb=" << sumAssgnProb );
@@ -1058,10 +1058,10 @@ Trk::Track* Trk::DeterministicAnnealingFilter::makeTrack(const Trk::ParticleHypo
         if (fittedTrack) {
             msg(MSG::DEBUG) << "********** done, track made with Chi2 = "
                     << fittedTrack->fitQuality()->chiSquared() << " / " 
-                    << fittedTrack->fitQuality()->numberDoF() << " ********** " << endreq << endreq;
+                    << fittedTrack->fitQuality()->numberDoF() << " ********** " << endmsg << endmsg;
         } else {
             msg(MSG::DEBUG) << "####### trouble, NO track has been made. #########" 
-                    << endreq << endreq;
+                    << endmsg << endmsg;
         }
     }
     return fittedTrack;
@@ -1287,7 +1287,9 @@ void Trk::DeterministicAnnealingFilter::callValidation( int iterationIndex,
         ATH_MSG_WARNING( "Perigee-making for validation failed: no useful parameters on track!" );
     }
     // write validation data for iteration with index
-    m_FitterValidationTool->writeProtoTrajectoryData(m_trajectory, iterationIndex, per, fitStatCode);
+    StatusCode sc = m_FitterValidationTool->writeProtoTrajectoryData(m_trajectory, iterationIndex, per, fitStatCode.getCode());
+    // FICME. just ignore as this is only for validation.
+    sc.ignore(); 
     delete perPar;
     return;
 }

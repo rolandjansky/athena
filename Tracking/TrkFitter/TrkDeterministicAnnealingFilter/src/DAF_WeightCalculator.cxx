@@ -14,18 +14,16 @@
 
 // Trk
 #include "TrkDeterministicAnnealingFilter/DAF_WeightCalculator.h"
-#include "GaudiKernel/MsgStream.h"
+//#include "GaudiKernel/MsgStream.h"
 
 #include "TrkEventPrimitives/LocalParameters.h"
-//#include "TrkEventPrimitives/FitQualityOnSurface.h"
-//#include "TrkParameters/TrackParameters.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkRIO_OnTrack/RIO_OnTrack.h"
 
-//#include "TrkParameters/MeasuredTrackParameters.h"
-
 // standard libs
-#include <math.h>
+//#include <math.h>
+#include <cmath>
+#include <numeric> //for accumulate
 
 // constructor
 Trk::DAF_WeightCalculator::DAF_WeightCalculator(
@@ -114,7 +112,7 @@ Trk::CompetingRIOsOnTrack::AssignmentProb Trk::DAF_WeightCalculator::calculateWe
     const Trk::TrackParameters& trkPar,
     const Trk::RIO_OnTrack& ROT,
     const AnnealingFactor beta) const {
-
+    static constexpr double M_PI_MULT_2 = M_PI*2.0;
     ATH_MSG_DEBUG("---> calculate weight for a single measurement");
 
     //check whether TrackParameters are given on the right surface
@@ -128,9 +126,10 @@ Trk::CompetingRIOsOnTrack::AssignmentProb Trk::DAF_WeightCalculator::calculateWe
         // -----------------------------------------
         // calculate covariance (of the measurement) dependend factor
         // dimension of the measurement vector
-        int ROTdim = ROT.localParameters().dimension();
+        const int ROTdim = ROT.localParameters().dimension();
         ATH_MSG_VERBOSE("dimension of the measurements: " << ROTdim );
-        double ROTdimFactor =   pow(2.0*M_PI, (ROTdim/2)) ;     //  (2 \pi)^(n/2)
+        //sroe: see comment at line 199
+        double ROTdimFactor =   pow(M_PI_MULT_2, (ROTdim*0.5)) ;     //  (2 \pi)^(n/2)
         // 1 / ( (2 \pi)^(n/2) * \sqrt(\beta \det(V_i)) )
         double factor =  1./( ROTdimFactor * sqrt( beta * ROT.localCovariance().inverse().eval().determinant() ) );
         ATH_MSG_VERBOSE("scale factor of prob: " << factor );
@@ -141,17 +140,17 @@ Trk::CompetingRIOsOnTrack::AssignmentProb Trk::DAF_WeightCalculator::calculateWe
         ATH_MSG_VERBOSE("size of reduction matrix: " << H.cols() << "x" << H.rows() );
         ATH_MSG_VERBOSE("dimension of TrackParameters: " << trkPar.parameters().rows() );
         // residual of the measurement r = (m_i - Hx)
-	Amg::VectorX r = ROT.localParameters() - H * trkPar.parameters();
+	      Amg::VectorX r = ROT.localParameters() - H * trkPar.parameters();
         // (m_i - Hx)^T * V^{-1} * (m_i - Hx) = (m_i - Hx)^T * G * (m_i - Hx)
         Amg::MatrixX weight  = ROT.localCovariance().inverse();
         double exponential =  r.dot(weight*r)/(2.*beta);
         if (msgLvl(MSG::VERBOSE)){
             trkPar.dump(msg(MSG::VERBOSE));
-            msg(MSG::VERBOSE)<<"local parameters of ROT: " << ROT.localParameters()<<endreq;
-            msg(MSG::VERBOSE)<<"locX of parameters: ROT: " << ROT.localParameters()[Trk::locX] << " track: " << trkPar.parameters()[Trk::locX]<< " H*track: " << (H * trkPar.parameters())[Trk::locX] <<endreq;
-            msg(MSG::VERBOSE)<<"norm of residual: " << r.norm() <<endreq;
-            msg(MSG::VERBOSE)<<"ROT weight(locX): " << weight(Trk::locX,Trk::locX) <<endreq;
-            msg(MSG::VERBOSE)<<"exponent of prob: " << exponential <<endreq;
+            msg(MSG::VERBOSE)<<"local parameters of ROT: " << ROT.localParameters()<<endmsg;
+            msg(MSG::VERBOSE)<<"locX of parameters: ROT: " << ROT.localParameters()[Trk::locX] << " track: " << trkPar.parameters()[Trk::locX]<< " H*track: " << (H * trkPar.parameters())[Trk::locX] <<endmsg;
+            msg(MSG::VERBOSE)<<"norm of residual: " << r.norm() <<endmsg;
+            msg(MSG::VERBOSE)<<"ROT weight(locX): " << weight(Trk::locX,Trk::locX) <<endmsg;
+            msg(MSG::VERBOSE)<<"exponent of prob: " << exponential <<endmsg;
         }
         return ( factor * exp(-exponential) );
     } // end if (equal surfaces)
@@ -170,7 +169,7 @@ const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >* Trk::DAF_WeightC
     // TODO: check whether this is right, or if a loop is needed:
     *newAssgnProbs = *assgnProbs;
     ATH_MSG_DEBUG("call other normalize()");
-    Trk::DAF_WeightCalculator::normalize( newAssgnProbs, ROTs, beta, cutValue );
+    Trk::DAF_WeightCalculator::normalize( *newAssgnProbs, ROTs, beta, cutValue );
     return newAssgnProbs;
 }
 
@@ -190,37 +189,48 @@ void Trk::DAF_WeightCalculator::normalize (
         ATH_MSG_DEBUG("starting normalization:");
         // ----------------------------
         // calculate sum of assgnProbs:
-        double assgnProbSum = 0;
-        std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >::const_iterator probIter = assgnProbs.begin();
+        
+        //std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >::const_iterator probIter = assgnProbs.begin();
+        //use accumulate; 0.0 is a double literal by default (this is important)
+        const double assgnProbSum = std::accumulate(assgnProbs.begin(), assgnProbs.end(),0.0);  
+        /**
         for (; probIter!=assgnProbs.end(); ++probIter) {
             assgnProbSum += (*probIter);
         }
+        **/
         if (assgnProbSum > 0.) {
             // -----------------------------------------
             // calculate sum of ROT specific cut values:
             // dimension of the measurement vectors (assume that all ROTs have the same dimension!!!)
-            int ROTdim = (*(ROTs->begin()))->localParameters().dimension();
-            double ROTdimFactor =  pow(2.0*M_PI, (ROTdim/2)) ;     //  (2 \pi)^(n/2)
-            double cutFactor = exp(-cutValue/(beta*2.));
+            //int ROTdim = (*(ROTs->begin()))->localParameters().dimension();
+            const int ROTdim = ROTs->front()->localParameters().dimension();
+           /**
+            * sroe 30/06/2016
+            * Coverity 105661 Result is not floating-point; the original code returned an
+            * integer exponent of 2*pi, but the original reference does not indicate this
+            * is correct, and in fact a floating point exponent was intended.
+            * ref.:http://cds.cern.ch/record/1014533/files/thesis-2007-011.pdf, p. 26
+            **/
+            const double ROTdimFactor =  pow(2.0*M_PI, (ROTdim*0.5)) ;     //  (2 \pi)^(n/2)
+            const double cutFactor = exp(-cutValue/(beta*2.));
             ATH_MSG_VERBOSE("   cut factor: " << cutFactor );
             double cutProbSum = 0;
-            std::vector< const Trk::RIO_OnTrack*>::const_iterator rotIter = ROTs->begin();
-            for (; rotIter!=ROTs->end(); ++rotIter) {
+            //std::vector< const Trk::RIO_OnTrack*>::const_iterator rotIter = ROTs->begin();
+            for (const auto & thisROT: *ROTs) {
                 // exp(-1/2 * c/\beta) / ( (2 \pi)^(n/2) * \sqrt(\det(V_i)) )
-                cutProbSum +=  cutFactor/( ROTdimFactor * sqrt( beta * (*rotIter)->localCovariance().determinant() ) );
+                cutProbSum +=  cutFactor/( ROTdimFactor * sqrt( beta * thisROT->localCovariance().determinant() ) );
             }
             ATH_MSG_VERBOSE("   sum of non-normalized assgn-probs: " << assgnProbSum );
             ATH_MSG_VERBOSE("   sum of values for probabilty cuts: " << cutProbSum );
             //----------------------------------------
             // calculate new assignment probabilities:
-            double factor = 1./(assgnProbSum + cutProbSum);
-            //        probIter = assgnProbs.begin();
-            //        for (; probIter!=assgnProbs.end(); ++probIter) {
-            //            *probIter *= factor;
-            //        }
+            const double factor = 1./(assgnProbSum + cutProbSum);
+            /**     }
             for (unsigned int i=0; i < assgnProbs.size(); i++) {
                 assgnProbs[i] *= factor;
             }
+            **/
+            for (double &p : assgnProbs){ p *= factor; }
         } // end if (assgnProbSum > 0.)
     } // end if(vector sizes match)
 }

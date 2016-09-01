@@ -123,11 +123,11 @@ Trk::CompetingRIOsOnTrack::AssignmentProb Trk::DAF_SimpleWeightCalculator::calcu
         double exponential =  r.dot(weight*r)/(2.*beta);
         if (msgLvl(MSG::VERBOSE)) {
             trkPar.dump(msg(MSG::VERBOSE));
-            msg(MSG::VERBOSE)<<"local parameters of ROT: " << ROT.localParameters()<<endreq;
-            msg(MSG::VERBOSE)<<"locX of parameters: ROT: " << ROT.localParameters()[Trk::locX] << " track: " << trkPar.parameters()[Trk::locX]<< " H*track: " << (H * trkPar.parameters())[Trk::locX] <<endreq;
-            msg(MSG::VERBOSE)<<"norm of residual: " << r.norm() <<endreq;
-            msg(MSG::VERBOSE)<<"ROT weight(locX): " << weight(Trk::locX,Trk::locX) <<endreq;
-            msg(MSG::VERBOSE)<<"exponent of prob: " << exponential <<endreq;
+            msg(MSG::VERBOSE)<<"local parameters of ROT: " << ROT.localParameters()<<endmsg;
+            msg(MSG::VERBOSE)<<"locX of parameters: ROT: " << ROT.localParameters()[Trk::locX] << " track: " << trkPar.parameters()[Trk::locX]<< " H*track: " << (H * trkPar.parameters())[Trk::locX] <<endmsg;
+            msg(MSG::VERBOSE)<<"norm of residual: " << r.norm() <<endmsg;
+            msg(MSG::VERBOSE)<<"ROT weight(locX): " << weight(Trk::locX,Trk::locX) <<endmsg;
+            msg(MSG::VERBOSE)<<"exponent of prob: " << exponential <<endmsg;
         }
         return ( exp(-exponential) );
     } // end if (equal surfaces)
@@ -145,7 +145,7 @@ const std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >* Trk::DAF_SimpleW
     std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >* newAssgnProbs  = new std::vector< Trk::CompetingRIOsOnTrack::AssignmentProb >;
     *newAssgnProbs = *assgnProbs;
     ATH_MSG_DEBUG("call other normalize()");
-    Trk::DAF_SimpleWeightCalculator::normalize( newAssgnProbs, ROTs, beta, cutValue );
+    Trk::DAF_SimpleWeightCalculator::normalize( *newAssgnProbs, ROTs, beta, cutValue );
     return newAssgnProbs;
 }
 
