@@ -161,7 +161,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
   // ________________________ Get IncidentSvc and fire PostFork ________________________
   IIncidentSvc* p_incidentSvc(0);
   if(!serviceLocator()->service("IncidentSvc", p_incidentSvc).isSuccess()) {
-    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endreq;
+    msg(MSG::ERROR) << "Unable to retrieve IncidentSvc" << endmsg;
     return outwork;
   }
   p_incidentSvc->fireIncident(Incident(name(),"PostFork"));
@@ -195,38 +195,46 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
 
   // ________________________ Update event selector property ________________________
   IProperty* propertyServer(0);
+  propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
+  if(!propertyServer) {
+    ATH_MSG_ERROR("Unable to dyn-cast the event selector to IProperty");
+    return outwork;
+  }
   std::string propertyName("");
   // -- Try BS first
   if(serviceLocator()->existsService("ByteStreamInputSvc")) {
-    if(serviceLocator()->service("ByteStreamInputSvc",propertyServer).isFailure()) {
-      ATH_MSG_ERROR("Unable to retrieve ByteStreamInputSvc");
-      return outwork;
-    }
-    propertyName = "FullFileName";
+    propertyName = "Input";
   }
   else {
     // -- Fail over to the POOL event selector
-    propertyServer = dynamic_cast<IProperty*>(m_evtSelector);
-    if(!propertyServer) {
-      ATH_MSG_ERROR("Unable to dyn-cast the event selector to IProperty");
-      return outwork;
-    }
     propertyName = "InputCollections";
   }
   
   std::vector<std::string> vect;
   StringArrayProperty inputFileList(propertyName, vect);
   StatusCode sc = propertyServer->getProperty(&inputFileList);
+  if(sc.isFailure() && propertyName == "Input") {
+    if(serviceLocator()->service("ByteStreamInputSvc",propertyServer).isFailure()) { 
+      ATH_MSG_ERROR("Unable to retrieve ByteStreamInputSvc"); 
+      return outwork; 
+    }
+    ATH_MSG_WARNING("'Input' property not found in EventSelector (ByteStream?) " <<
+                    "Setting ByteStreamInputSvc.FullFileName");
+    inputFileList.setName("FullFileName");
+    sc = propertyServer->getProperty(&inputFileList);
+  }
   if(sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to get " << propertyName << " property from the property server");
+    ATH_MSG_ERROR("Unable to get " << inputFileList.name() << " property from the property server");
     return outwork;
   }
   for(std::size_t i=0, imax=inputFileList.value().size(); i!=imax; ++i)
-    if((int)i%m_nprocs==m_rankId)
-      vect.push_back(inputFileList.value()[i]);
-  StringArrayProperty newInputFileList(propertyName, vect);
+     if((int)i%m_nprocs==m_rankId) {
+        vect.push_back(inputFileList.value()[i]);
+        ATH_MSG_INFO("Assigning input file #" << i << ": " << inputFileList.value()[i]);
+     }
+  StringArrayProperty newInputFileList(inputFileList.name(), vect);
   if(propertyServer->setProperty(newInputFileList).isFailure()) {
-    ATH_MSG_ERROR("Unable to update " << propertyName << " property on the property server");
+    ATH_MSG_ERROR("Unable to update " << newInputFileList.name() << " property on the property server");
     return outwork;
   }
 

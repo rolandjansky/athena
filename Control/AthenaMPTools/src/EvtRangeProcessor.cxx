@@ -29,6 +29,18 @@
 
 #include "yampl/SocketFactory.h"
 
+#include <ctime>
+void getLocalTime(char * buffer)
+{
+  std::time_t rawtime;
+  std::tm* timeinfo;
+
+  std::time(&rawtime);
+  timeinfo = std::localtime(&rawtime);
+
+  std::strftime(buffer,80,"%Y-%m-%d %H:%M:%S",timeinfo);
+}
+
 struct ShareEventHeader {
   long evtSeqNumber;
   long fileSeqNumber;
@@ -186,6 +198,18 @@ StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
       return sc;
     }
 
+    // It may happen that a process failed after finalization
+    // At this point all outputs have been written out, so we don't care and we return SUCCESS
+    bool afterFin(true);
+    for(auto ppid : m_finQueue) {
+      if(ppid==pid) {
+        afterFin = false;
+        break;
+      }
+    }
+    if(afterFin)
+      return StatusCode::SUCCESS;
+
     // Send the pid to Range Scatterer
     if(!m_sharedFailedPidQueue->send_basic<pid_t>(pid)) {
       ATH_MSG_ERROR("Failed to send the failed PID to Token Scatterer");
@@ -195,17 +219,30 @@ StatusCode EvtRangeProcessor::wait_once(pid_t& pid)
     // If the process failed at finalization, then remove pid from the finQueue
     if(pid==m_finQueue.front()) {
       ATH_MSG_DEBUG("Removing failed PID=" << pid << " from the finalization queue");
-      m_finQueue.pop();
+      m_finQueue.pop_front();
+ 
+      // Schedule finalization of the next process in the queue (if not empty)
+      if(m_finQueue.size()) {
+        if(mapAsyncFlag(AthenaMPToolBase::FUNC_FIN,m_finQueue.front())
+           || m_processGroup->map_async(0,0,m_finQueue.front())) {
+          ATH_MSG_ERROR("Problem scheduling finalization on PID=" << m_finQueue.front());
+          return sc;
+        }
+        else  {
+          ATH_MSG_INFO("Scheduled finalization of PID=" << m_finQueue.front());
+        }
+      }
+   }
+    else {
+      // Try to start a new process
+      if(startProcess().isSuccess()) {
+	ATH_MSG_INFO("Successfully started new process");
+	pid=0;
+      }
+      else
+	ATH_MSG_WARNING("Failed to start new process");
     }
 
-    // Try to start a new process
-    if(startProcess().isSuccess()) {
-      ATH_MSG_INFO("Successfully started new process");
-      pid=0;
-    }
-    else
-      ATH_MSG_WARNING("Failed to start new process");
-    
     if(m_processGroup->getChildren().size()) {
       ATH_MSG_INFO("The process group continues with " << m_processGroup->getChildren().size() << " processes");
       return StatusCode::SUCCESS;
@@ -624,6 +661,9 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> EvtRangeProcessor::fin_func()
   if(!outputFileReport.empty()) {
     void* message2scatterer = malloc(outputFileReport.size());
     memcpy(message2scatterer,outputFileReport.data(),outputFileReport.size());
+    char buffer [80];
+    getLocalTime(buffer);
+    std::cout << buffer << " Reporting the output file: " << outputFileReport << std::endl;
     socket2Scatterer->send(message2scatterer,outputFileReport.size());
   }
 
@@ -666,7 +706,7 @@ int EvtRangeProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResu
 
     if(doFinalize) {
       // Add PID to the finalization queue
-      m_finQueue.push(presult->pid);
+      m_finQueue.push_back(presult->pid);
       ATH_MSG_DEBUG("Added PID=" << presult->pid << " to the finalization queue");
 
       // If this is the only element in the queue then start its finalization
@@ -688,7 +728,7 @@ int EvtRangeProcessor::decodeProcessResult(const AthenaInterprocess::ProcessResu
     pid_t pid = m_finQueue.front();
     if(pid==presult->pid) {
       // pid received as expected. Remove it from the queue
-      m_finQueue.pop();
+      m_finQueue.pop_front();
       ATH_MSG_DEBUG("PID=" << presult->pid << " removed from the queue");
       // Schedule finalization of the next processe in the queue
       if(m_finQueue.size()) {
