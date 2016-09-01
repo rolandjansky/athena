@@ -37,6 +37,9 @@ Trk::DigitizationModuleTest::DigitizationModuleTest(const std::string& name, ISv
  m_binsY(128),
  m_pitchY(0.4),
  m_testTrapezoidal(false),
+ m_smearing(0),
+ m_smearingSigma(0.1),
+ m_pathCutOff(0.0),
  m_digitizationStepper(),
  m_digitizationModule(nullptr),
  m_recordSurfaces(true),
@@ -59,6 +62,10 @@ Trk::DigitizationModuleTest::DigitizationModuleTest(const std::string& name, ISv
   declareProperty("BinsY",                    m_binsY);
   declareProperty("PitchY",                   m_pitchY);
   declareProperty("TestTrapezoidal",          m_testTrapezoidal);
+  // smearing and cutting
+  declareProperty("SmearingMode",             m_smearing);
+  declareProperty("SmearingSigma",            m_smearingSigma);
+  declareProperty("PathCutOff",               m_pathCutOff);
   // the stepper
   declareProperty("DigitizationStepper",      m_digitizationStepper);
   // display surfaces
@@ -177,8 +184,12 @@ StatusCode Trk::DigitizationModuleTest::bookTree()
      m_tree->Branch("ClusterTrueCellIdY",    &m_clusterTrueIdsY);
      m_tree->Branch("ClusterRecoX",          &m_clusterRecoX);
      m_tree->Branch("ClusterRecoY",          &m_clusterRecoY);
+     m_tree->Branch("ClusterRecoDigitalX",   &m_clusterRecoDigitalX);
+     m_tree->Branch("ClusterRecoDigitalY",   &m_clusterRecoDigitalY);     
      m_tree->Branch("ClusterRecoCellIdX",    &m_clusterRecoIdsX);
      m_tree->Branch("ClusterRecoCellIdY",    &m_clusterRecoIdsY);
+     m_tree->Branch("ClusterSizeX" ,         &m_clusterSizeX);
+     m_tree->Branch("ClusterSizeY",          &m_clusterSizeY);
      m_tree->Branch("PathLengthNominal",     &m_nominalPathLength);
      m_tree->Branch("PathLengthAccumulated", &m_accumulatedPathLength);
      m_tree->Branch("StepCellIdX",           &m_cellIdsX);       
@@ -224,9 +235,9 @@ StatusCode Trk::DigitizationModuleTest::runTest()
         m_clusterTrueY      = 0.;
         m_clusterTrueIdsX   = 0.;
         m_clusterTrueIdsY   = 0.;
-        
-
-        
+        // cluster widths/length
+        m_clusterSizeX      = 0;
+        m_clusterSizeY      = 0;
         // step information 
         m_cellIdsX->clear();        
         m_cellIdsY->clear();        
@@ -245,37 +256,37 @@ StatusCode Trk::DigitizationModuleTest::runTest()
         
         // create a random intersection
         double intersectY       = 0.5*m_binsY*m_pitchY * (2*TrkDigUnitTestBase::m_flatDist->shoot()-1);
-	double localPicthX      = m_pitchX;
- 	if (m_testTrapezoidal) {
-     	  double tanPhi         = 0.5*m_binsX*(m_pitchXmax-m_pitchX)/(0.5*m_binsY*m_pitchY);
-     	  double lengthXatHit   = (0.5*m_binsY*m_pitchY*0.5*m_binsX*(m_pitchXmax+m_pitchX)/(0.5*m_binsX*(m_pitchXmax-m_pitchX)) + intersectY)* tanPhi;
- 	  localPicthX           = lengthXatHit/float(m_binsX);
- 	}
-	double intersectX      = 0.5*m_binsX*localPicthX*(2*TrkDigUnitTestBase::m_flatDist->shoot()-1);
+        double localPitchX      = m_pitchX;
+        if (m_testTrapezoidal) {
+          double tanPhi         = 0.5*m_binsX*(m_pitchXmax-m_pitchX)/(0.5*m_binsY*m_pitchY);
+          double lengthXatHit   = (0.5*m_binsY*m_pitchY*0.5*m_binsX*(m_pitchXmax+m_pitchX)/(0.5*m_binsX*(m_pitchXmax-m_pitchX)) + intersectY)* tanPhi;
+          localPitchX           = lengthXatHit/float(m_binsX);
+        }
+        double intersectX      = 0.5*m_binsX*localPitchX*(2*TrkDigUnitTestBase::m_flatDist->shoot()-1);
 	
-	Trk::DigitizationCell dCell = m_digitizationModule->segmentation().cell(Amg::Vector3D(intersectX,intersectY,0.));
+        Trk::DigitizationCell dCell = m_digitizationModule->segmentation().cell(Amg::Vector3D(intersectX,intersectY,0.));
         
         ATH_MSG_VERBOSE("Created a hit at [intersectX/intersectY] = " << intersectX << "/" << intersectY << " with cell ID = " << dCell.first << "/" << dCell.second);
         
         double intersectDeltaY     = 0.5*m_incidentDeltaBinsRangeY*m_pitchY * (2*TrkDigUnitTestBase::m_flatDist->shoot()-1);
-	double intersectDeltaMinX  = 0.5*m_incidentDeltaBinsRangeX*localPicthX * (2*TrkDigUnitTestBase::m_flatDist->shoot()-1);
-	double intersectDeltaMaxX  = 0.5*m_incidentDeltaBinsRangeX*localPicthX * (2*TrkDigUnitTestBase::m_flatDist->shoot()-1); 
+        double intersectDeltaMinX  = 0.5*m_incidentDeltaBinsRangeX*localPitchX * (2*TrkDigUnitTestBase::m_flatDist->shoot()-1);
+        double intersectDeltaMaxX  = 0.5*m_incidentDeltaBinsRangeX*localPitchX * (2*TrkDigUnitTestBase::m_flatDist->shoot()-1); 
 	
-	double clusterPicthX = m_pitchX;
-	if (m_testTrapezoidal) {
-    	  double tanPhi         = 0.5*m_binsX*(m_pitchXmax-m_pitchX)/(0.5*m_binsY*m_pitchY);
-	  // evaluating the intersectDeltaMinX (X variation at position intersectY-intersectDeltaY)
-	  double localMinY      = intersectY-intersectDeltaY;
-    	  double lengthXatHit   = (0.5*m_binsY*m_pitchY*0.5*m_binsX*(m_pitchXmax+m_pitchX)/(0.5*m_binsX*(m_pitchXmax-m_pitchX)) + localMinY)* tanPhi;
-	  double localPicthMinX = lengthXatHit/float(m_binsX);
-	  intersectDeltaMinX    = 0.5*m_incidentDeltaBinsRangeX*localPicthMinX * (2*TrkDigUnitTestBase::m_flatDist->shoot()-1);
-	  // evaluating the intersectDeltaMinX (X variation at position intersectY+intersectDeltaY)
-	  double localMaxY      = intersectY+intersectDeltaY;
-    	  lengthXatHit          = (0.5*m_binsY*m_pitchY*0.5*m_binsX*(m_pitchXmax+m_pitchX)/(0.5*m_binsX*(m_pitchXmax-m_pitchX)) + localMaxY)* tanPhi;
-	  double localPicthmaxX = lengthXatHit/float(m_binsX);
-	  intersectDeltaMaxX    = 0.5*m_incidentDeltaBinsRangeX*localPicthmaxX * (2*TrkDigUnitTestBase::m_flatDist->shoot()-1);
-	  clusterPicthX         = 0.5*(localPicthMinX+localPicthmaxX);
-	}	
+        double clusterPicthX = m_pitchX;
+        if (m_testTrapezoidal) {
+          double tanPhi         = 0.5*m_binsX*(m_pitchXmax-m_pitchX)/(0.5*m_binsY*m_pitchY);
+          // evaluating the intersectDeltaMinX (X variation at position intersectY-intersectDeltaY)
+          double localMinY      = intersectY-intersectDeltaY;
+          double lengthXatHit   = (0.5*m_binsY*m_pitchY*0.5*m_binsX*(m_pitchXmax+m_pitchX)/(0.5*m_binsX*(m_pitchXmax-m_pitchX)) + localMinY)* tanPhi;
+          double localPicthMinX = lengthXatHit/float(m_binsX);
+          intersectDeltaMinX    = 0.5*m_incidentDeltaBinsRangeX*localPicthMinX * (2*TrkDigUnitTestBase::m_flatDist->shoot()-1);
+          // evaluating the intersectDeltaMinX (X variation at position intersectY+intersectDeltaY)
+          double localMaxY      = intersectY+intersectDeltaY;
+          lengthXatHit          = (0.5*m_binsY*m_pitchY*0.5*m_binsX*(m_pitchXmax+m_pitchX)/(0.5*m_binsX*(m_pitchXmax-m_pitchX)) + localMaxY)* tanPhi;
+          double localPicthmaxX = lengthXatHit/float(m_binsX);
+          intersectDeltaMaxX    = 0.5*m_incidentDeltaBinsRangeX*localPicthmaxX * (2*TrkDigUnitTestBase::m_flatDist->shoot()-1);
+          clusterPicthX         = 0.5*(localPicthMinX+localPicthmaxX);
+        }	
         // screen output
         
         ATH_MSG_VERBOSE("Created a clusters with average size [binsX/binsY] = " << int(2*(0.5*(fabs(intersectDeltaMaxX)+fabs(intersectDeltaMinX)))/clusterPicthX)+1  << "/" << int(2*fabs(intersectDeltaY)/m_pitchY)+1);
@@ -284,7 +295,7 @@ StatusCode Trk::DigitizationModuleTest::runTest()
         Amg::Vector3D exitPoint(intersectX+intersectDeltaMinX,intersectY+intersectDeltaY,m_halfThickness);
 	
         ATH_MSG_VERBOSE("entryPoint = " << entryPoint.x() << ", " << entryPoint.y() << ", " << entryPoint.z());
-	ATH_MSG_VERBOSE("exitPoint  = " << exitPoint.x() << ", " << exitPoint.y() << ", " << exitPoint.z());
+        ATH_MSG_VERBOSE("exitPoint  = " << exitPoint.x() << ", " << exitPoint.y() << ", " << exitPoint.z());
         
         // write it to the TTree
         // - input paramters
@@ -300,10 +311,18 @@ StatusCode Trk::DigitizationModuleTest::runTest()
         m_endPositionZ    = exitPoint.z();
 
         // - reco'd parameters
-        m_clusterRecoX      = 0.;
-        m_clusterRecoY      = 0.;
-        m_clusterRecoIdsX   = 0;
-        m_clusterRecoIdsY   = 0;
+        m_clusterRecoX        = 0.;
+        m_clusterRecoY        = 0.;
+        m_clusterRecoDigitalX = 0.;
+        m_clusterRecoDigitalY = 0.;
+        m_clusterRecoIdsX     = 0;
+        m_clusterRecoIdsY     = 0;
+
+        // 
+        int minCellX = 10000;
+        int maxCellX = 0;
+        int minCellY = 10000;
+        int maxCellY = 0;
 
         // now get the steps
         std::vector<Trk::DigitizationStep> digitizationSteps = m_digitizationStepper->cellSteps(*m_digitizationModule,entryPoint,exitPoint);
@@ -312,10 +331,18 @@ StatusCode Trk::DigitizationModuleTest::runTest()
         
         ATH_MSG_VERBOSE("Stepped through " << digitizationSteps.size() << " individual cells.");
 
-
         for (auto& dStep : digitizationSteps){
             ATH_MSG_VERBOSE("Step in cell " << dStep.stepCell.first << "/" << dStep.stepCell.second);
-            m_accumulatedPathLength += dStep.stepLength;
+            
+            // cut off applied
+            if (dStep.stepLength < m_pathCutOff) continue;
+            
+            // the cluster sizes
+            minCellX = int(dStep.stepCell.first) < minCellX ? dStep.stepCell.first : minCellX;
+            maxCellX = int(dStep.stepCell.first) > maxCellX ? dStep.stepCell.first : maxCellX;
+            minCellY = int(dStep.stepCell.second) < minCellY ? dStep.stepCell.second : minCellY;
+            maxCellY = int(dStep.stepCell.second) > maxCellX ? dStep.stepCell.second : maxCellY;
+            
             // record the step information
             m_cellIdsX->push_back(dStep.stepCell.first);
             m_cellIdsY->push_back(dStep.stepCell.second);
@@ -329,14 +356,48 @@ StatusCode Trk::DigitizationModuleTest::runTest()
             m_stepEndPositionX->push_back(dStep.stepExit.x());  
             m_stepEndPositionY->push_back(dStep.stepExit.y());       
             m_stepEndPositionZ->push_back(dStep.stepExit.z());
-            // @TODO implement smearing
-            m_clusterRecoX += dStep.stepLength * dStep.stepCellCenter.x(); 
-            m_clusterRecoY += dStep.stepLength * dStep.stepCellCenter.y(); 
+            // -----------------------------------
+            double smearedPath =  dStep.stepLength;
+            switch (m_smearing){
+              // no smearing applied 
+              case 0 : break;
+              // smear gaussian with 
+              case 1 : {
+                smearedPath *= (1+m_smearingSigma*m_gaussDist->shoot());
+              } break;
+              // smear gaussian depending on the drift length
+              case 2 : {
+                // @TODO implement 
+              } break;
+              
+            }
+            // above cut off -> go on
+            m_accumulatedPathLength += smearedPath;
             
+            // cluster x / y with smearing 
+            m_clusterRecoX        += smearedPath * dStep.stepCellCenter.x(); 
+            m_clusterRecoY        += smearedPath * dStep.stepCellCenter.y(); 
+            // digitial
+            m_clusterRecoDigitalX += dStep.stepCellCenter.x();
+            m_clusterRecoDigitalY += dStep.stepCellCenter.y();
         }
-        // reweight
+        // reweight the centroid method
         m_clusterRecoX /= m_accumulatedPathLength;
         m_clusterRecoY /= m_accumulatedPathLength;
+        // reweight the digital method
+        m_clusterRecoDigitalX /= digitizationSteps.size();
+        m_clusterRecoDigitalY /= digitizationSteps.size();
+        
+        // calculate the lorentz correction
+        double shift = m_readoutDirection*m_halfThickness*tan(m_lorentzAngle);
+        
+        // fill the cluster size
+        m_clusterSizeX = maxCellX - minCellX + 1;
+        m_clusterSizeY = maxCellY - minCellY + 1;
+        
+        // now add the lorentz shift
+        m_clusterRecoX        -= shift;
+        m_clusterRecoDigitalX -= shift;
         
         Trk::DigitizationCell rCell = m_digitizationModule->segmentation().cell(Amg::Vector2D(m_clusterRecoX,m_clusterRecoY));
         m_clusterRecoIdsX = rCell.first;

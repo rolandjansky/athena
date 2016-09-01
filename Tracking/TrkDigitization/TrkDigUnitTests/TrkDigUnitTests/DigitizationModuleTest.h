@@ -65,8 +65,11 @@ namespace Trk {
        double                                               m_pitchY;
        bool                                                 m_testTrapezoidal;
        
-       ToolHandle<IModuleStepper>                           m_digitizationStepper;
+       int                                                  m_smearing;
+       double                                               m_smearingSigma;
+       double                                               m_pathCutOff;
        
+       ToolHandle<IModuleStepper>                           m_digitizationStepper;
        DigitizationModule*                                  m_digitizationModule;
        
        bool                                                 m_recordSurfaces;  
@@ -89,12 +92,19 @@ namespace Trk {
        float                                                m_clusterTrueY;
        int                                                  m_clusterTrueIdsX;
        int                                                  m_clusterTrueIdsY;
+       
+       int                                                  m_clusterSizeX;
+       int                                                  m_clusterSizeY;
 
        float                                                m_nominalPathLength;
        float                                                m_accumulatedPathLength;
 
        float                                                m_clusterRecoX;
        float                                                m_clusterRecoY;
+       
+       float                                                m_clusterRecoDigitalX;
+       float                                                m_clusterRecoDigitalY;
+       
        int                                                  m_clusterRecoIdsX;
        int                                                  m_clusterRecoIdsY;
 
