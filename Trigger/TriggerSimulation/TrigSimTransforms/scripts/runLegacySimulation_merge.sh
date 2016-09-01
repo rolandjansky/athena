@@ -18,6 +18,9 @@ INPUTBS='../bs2trigbs/trigBS.data'
 
 OUTPUTRDO="trigRDO.pool.root"
 
+CONDTAG=OFLCOND-MC12-SDR-06
+GEOMTAG=ATLAS-R1-2012-02-00-00
+
 echo
 echo "Input RDO file : "$INPUTRDO
 echo "Input BS file  : "$INPUTBS
@@ -28,4 +31,6 @@ TrigAndReco_tf.py \
     --inputBS_TRIG_OLDFile $INPUTBS \
     --inputRDOFile $INPUTRDO \
     --outputRDO_TRIG_OLDFile $OUTPUTRDO \
+    --geometryVersion "tb2tr:$GEOMTAG" \
+    --conditionsTag "tb2tr:$CONDTAG" \
     > log  2>&1

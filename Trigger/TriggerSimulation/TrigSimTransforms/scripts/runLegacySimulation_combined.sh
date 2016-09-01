@@ -15,17 +15,17 @@ mkdir $WORKDIR
 cd $WORKDIR
 
 #INPUTRDO='root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/valid3.110401.PowhegPythia_P2012_ttbar_nonallhad.recon.RDO.e3099_s2579_r6164_tid05062245_00/RDO.05062245._000003.pool.root.1'
-#INPUTRDO='root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/mc12_8TeV.208002.Pythia8B_AU2_CTEQ6L1_pp_Jpsimu6mu6.recon.RDO.e1331_a159_a190_tid01180650_00/RDO.01180650._000002.pool.root.1'
-INPUTRDO=/afs/cern.ch/work/s/stelzer/LegacySimWorkareaForWernerJoerg/digitizedRDO/digiRDO.pool.root
+#INPUTRDO=/afs/cern.ch/work/s/stelzer/LegacySimWorkareaForWernerJoerg/digitizedRDO/digiRDO.pool.root
+INPUTRDO='root://eosatlas//eos/atlas/atlascerngroupdisk/trig-daq/validation/test_data/LegacySim/digitizedRDO/digiRDO.pool.root'
 
 OUTPUTRDO="trigRDO.pool.root"
 
 CONDTAG="all:OFLCOND-MC12b-SDR-01"
 
-GEOMTAG="all:ATLAS-GEO-21-02-02"
+GEOMTAG="ATLAS-R1-2012-02-00-00 b2tb:ATLAS-GEO-21-02-02"
 
 TRIGCONFIG='default=MCRECO:MC_pp_v6'
-TRIGCONFIG_OLD='b2tb=MCRECO:DB:TRIGGERDBMC:325,142,266'
+TRIGCONFIG_OLD='b2tb=MCRECO:DB:TRIGGERDBMC_RUN1:325,142,266'
 
 ASETUP="b2tb:17.2.11.2,slc5"
 COPYJO="b2tb:TrigSimTransforms/skeleton.BStoTRIGBS.py"
@@ -55,5 +55,4 @@ TrigAndReco_tf.py \
     --outputBSEformatVersion "r2bo:run1" \
     --outputBSEventStorageVersion "r2bo:run1" \
     --imf false \
-    --ignoreErrors true \
     > log  2>&1
