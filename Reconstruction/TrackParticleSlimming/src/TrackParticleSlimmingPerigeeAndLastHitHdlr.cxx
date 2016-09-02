@@ -20,7 +20,7 @@ void TrackParticleSlimmingPerigeeAndLastHitHdlr::commit()
 {
   typedef std::vector<const Trk::ParametersBase<5,Trk::Charged>*> TPBs;
   TPBs * parameters = const_cast<TPBs*> (&(m_trkp->trackParameters()));
-  std::vector<const Trk::ParametersBase<5,Trk::Charged>*>::iterator pit=parameters->begin();
+  ///std::vector<const Trk::ParametersBase<5,Trk::Charged>*>::iterator pit=parameters->begin();
   //Cases: size of parameters is 1 --> we keep it
   //       size of parameters is 3 --> we keep only the last one
   if(parameters->size() == 1)
@@ -47,7 +47,7 @@ void TrackParticleSlimmingPerigeeAndLastHitHdlr::commit()
       else
         {
 	  Athena::MsgStreamMember log(Athena::Options::Eager, m_thisName);
-          log << MSG::ERROR << "Order in Trk::ParametersBase vector different that expected ! Not doing anything !" << endreq;
+          log << MSG::ERROR << "Order in Trk::ParametersBase vector different that expected ! Not doing anything !" << endmsg;
         }
       
     }
@@ -57,7 +57,7 @@ void TrackParticleSlimmingPerigeeAndLastHitHdlr::rollback()
 {
   typedef std::vector<const Trk::ParametersBase<5,Trk::Charged>*> TPBs;
   TPBs* parameters = const_cast<TPBs*> (&(m_trkp->trackParameters()));
-  std::vector<const Trk::ParametersBase<5,Trk::Charged>*>::iterator pit=parameters->begin();
+  //std::vector<const Trk::ParametersBase<5,Trk::Charged>*>::iterator pit=parameters->begin();
   // put back hits, if we removed them
   if(parameters->size() == 1 )
     {
