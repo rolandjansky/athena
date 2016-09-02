@@ -348,7 +348,7 @@ TrackFitter::print (TrackStatus			status,
     msg() << std::setiosflags(std::ios::fixed) << std::setw(6)
 	  << m_planarHits << "(" << std::setw(2) << m_driftHits << ") planar(drift) hits "
 	  << std::setw(5) << m_parameters->numberScatterers() << " scattering parameters "
-	  << endreq;
+	  << endmsg;
 }
 
 void
@@ -617,6 +617,9 @@ TrackFitter::initialize()
 
     // can now create FitProcedure class
     m_fitProcedure = new Trk::FitProcedure(false,
+					   false,
+					   false,
+					   false,
 					   m_rungeKuttaIntersector,
 					   m_solenoidalIntersector,
 					   m_straightLineIntersector);
@@ -759,7 +762,7 @@ TrackFitter::fitWithRejection(TrackStatus		status,
 		msg() << "  ratio " << ((**h).broadSigma()/(**h).sigma());
 	    if (reject && number_rejected == maxReject)
 		msg() << "  number_rejected " << number_rejected;
-	    msg() << endreq;
+	    msg() << endmsg;
 	}
 	
 	if (reject && ++number_rejected > maxReject)
