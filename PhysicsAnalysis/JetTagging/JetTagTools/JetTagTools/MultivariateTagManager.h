@@ -55,22 +55,15 @@ namespace Analysis {
     var_map inputs;
 
     // load input variables from xAOD
-    void fill_ip2d(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_ip3d(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_sv0(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_sv1(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_jetfitter(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_mvb(var_map& inputs, xAOD::Jet& jet, xAOD::BTagging* BTag);
-    void fill_mv2cl100(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_trkSum(var_map& inputs, xAOD::BTagging* BTag);
-    void fill_softmuon(var_map& inputs, xAOD::BTagging* BTag);
-
-    //global variables used both in MultivariateTagManager::fill_sv1,fill_jetfitter and in MultivariateTagManager::fill_mvb
-    float m_sv1_efrc;
-    int m_sv1_ntkv;
-    float m_jf_efrc;
-    int m_jf_nvtx1t;
-    int m_jf_ntrkv;
+    void fill_ip2d(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_ip3d(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_sv0(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_sv1(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_jetfitter(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_mvb(var_map& inputs, xAOD::Jet& jet, xAOD::BTagging* BTag) const;
+    void fill_mv2cl100(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_trkSum(var_map& inputs, xAOD::BTagging* BTag) const;
+    void fill_softmuon(var_map& inputs, xAOD::BTagging* BTag) const;
 
     // container information
     std::string m_ip2d_infosource;
