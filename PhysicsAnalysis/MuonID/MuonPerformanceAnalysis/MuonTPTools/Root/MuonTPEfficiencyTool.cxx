@@ -10,7 +10,7 @@
 //**********************************************************************
 
 MuonTPEfficiencyTool::MuonTPEfficiencyTool(std::string myname)
-  : AsgTool(myname),  m_matchTool("Trig::ITrigMuonMatching/TrigMuonMatching"){
+  : AsgTool(myname){
   
   declareProperty("MatchPtCut",     m_matchPtCut     = 0.0); 
   declareProperty("MatchEtaCut",    m_matchEtaCut    = 5.0);
@@ -19,10 +19,15 @@ MuonTPEfficiencyTool::MuonTPEfficiencyTool(std::string myname)
   declareProperty("EfficiencyFlag", m_efficiencyFlag = "CBMuons");  
   declareProperty("IsNominal", m_isNominal=true);
   declareProperty("SelectionTool", m_selection_tool);
-  declareProperty("ScaleFactorTool", m_sf_tool);
+  declareProperty("RecoScaleFactorTool", m_reco_sf_tool);
+  declareProperty("IsolScaleFactorTool", m_isol_sf_tool);
+  declareProperty("TrigScaleFactorTool", m_trig_sf_tool);
+  declareProperty("IDTrackIsoDecorator", m_IDtrack_isol_tool);
   declareProperty("ApplyScaleFactors", m_do_sf = false);
-  declareProperty("TriggerMatchTool", m_matchTool);
-  declareProperty("TrigItem",        m_trigger_item="");
+  declareProperty("TriggerUtils",     m_trigUtils);
+  declareProperty("IsoSelectionTool",        m_isolTool);
+  declareProperty("TrigItem",          m_trigger_item="");
+  declareProperty("RerunMode", m_rerunMode=false);
 }
 
 MuonTPEfficiencyTool::~MuonTPEfficiencyTool()
@@ -31,8 +36,15 @@ MuonTPEfficiencyTool::~MuonTPEfficiencyTool()
 StatusCode MuonTPEfficiencyTool::initialize()
 {
   ATH_CHECK(m_selection_tool.retrieve());
-  if (m_do_sf) ATH_CHECK(m_sf_tool.retrieve());
-  ATH_CHECK(m_matchTool.retrieve());
+  ATH_CHECK(m_trigUtils.retrieve());
+  ATH_CHECK(m_IDtrack_isol_tool.retrieve());
+  ATH_CHECK(m_isolTool.retrieve());
+  ATH_CHECK(m_isolTool->setIParticleCutsFrom(xAOD::Type::Muon));
+  if (m_do_sf){
+      ATH_CHECK(m_reco_sf_tool.retrieve());
+      ATH_CHECK(m_isol_sf_tool.retrieve());
+      ATH_CHECK(m_trig_sf_tool.retrieve());
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -78,18 +90,18 @@ void MuonTPEfficiencyTool::dRMatching(ProbeContainer* probes, const xAOD::IParti
       // Calculate dR
       double dR = deltaR(probe, match);
       if(dR < dRMin) {
-	dRMin = dR;
-	matchProbe = probe;
-	if (mumatch) best_match_muon = mumatch;
+        dRMin = dR;
+        matchProbe = probe;
+        if (mumatch) best_match_muon = mumatch;
       }
     }
-    probe->sfweight(1.);
+    probe->sf_reco(1.);
     // check if a matched probe is found
     probe->isMatched((matchProbe && dRMin<m_maximumDrCut));
     if (m_do_sf && best_match_muon && probe->isMatched()){
       float sf = 1.;
-      if (m_sf_tool->getEfficiencyScaleFactor(*best_match_muon,sf) == CP::CorrectionCode::Ok){
-	probe->sfweight(sf);
+      if (m_reco_sf_tool->getEfficiencyScaleFactor(*best_match_muon,sf) == CP::CorrectionCode::Ok){
+        probe->sf_reco(sf);
       }
 
     }
@@ -105,6 +117,13 @@ double MuonTPEfficiencyTool::deltaR(Probe* probe, const xAOD::IParticle* match) 
 
 //  check for a trigger match (probe side)
 bool MuonTPEfficiencyTool::MatchTrigger (const xAOD::IParticle* match,  std::string trigger) const {
-  return m_matchTool->match(match->eta(),match->phi(),  trigger);
-    
+	const xAOD::Muon* matchmu = dynamic_cast <const xAOD::Muon*>(match);
+	if (matchmu){
+		return m_trigUtils->Trig_Match(*matchmu, trigger);
+	}
+	// case of ID probes - not likely to be used
+	else {
+		ATH_MSG_WARNING("Trigger matching to ID tracks not yet supported.");
+		return false;
+	}
 }

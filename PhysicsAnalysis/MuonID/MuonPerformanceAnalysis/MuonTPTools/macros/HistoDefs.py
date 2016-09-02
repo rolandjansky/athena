@@ -2,7 +2,7 @@
 
 from Defs import *
 import sys
-import math, ROOT, itertools, os.path
+import math, ROOT, itertools, os
 from array import array 
 
 # TH2Poly for fine eta-phi binning
@@ -20,6 +20,13 @@ def TPFineEtaPhiHist(name,title):
     
     phiSectorBarrel = [-2.905,-2.59,-2.12,-1.805,-1.335,-1.02,-0.55,-0.235,0.235,0.55,1.02,1.335,1.805,2.12,2.59,2.905]
     phiSectorEC = [-3.011,-2.487,-2.225,-1.702,-1.440,-0.916,-0.655,-0.131,0.131,0.655,0.916,1.440,1.702,2.225,2.487,3.011]
+
+    #etabins = [0.15,0.6,barrelECTrans,1.5,2.,2.5]
+    #etabins = sorted([0.]+etabins+[-binX for binX in etabins])
+    
+    #phiSectorBarrel = [-2.905,-2.12,-1.335,-0.55,0.55,1.335,2.12,2.905]
+    #phiSectorEC = [-3.011,-2.225,-1.440,-0.655,0.655,1.440,2.225,3.011]
+
     
     # we go like this when adding the bins:
     # 
@@ -133,6 +140,74 @@ def TPFineEtaPhiHist(name,title):
     return histo
 
 
+# example code: 
+# fine eta-phi binning using the map of europe
+#
+# This class requires the external file http://root.cern.ch/files/europe.root!        
+def TPFineEtaPhiHistEurope(name,title):
+    histo = ROOT.TH2Poly()
+    histo.SetName(name)
+    histo.SetTitle(title)
+    
+    mg = ROOT.TMultiGraph()
+    
+    # this class requires the external file http://root.cern.ch/files/europe.root!
+    if not os.path.isfile("europe.root"):
+        print 'Trying to download http://root.cern.ch/files/europe.root...'
+        os.sys("wget http://root.cern.ch/files/europe.root")
+    if os.path.isfile("europe.root"):
+        fileMap = ROOT.TFile("europe.root")
+        if fileMap == None:
+            print "File europe.root cannot be read in current directory!\nDownload it from: http://root.cern.ch/files/europe.root"
+            sys.exit(1)
+        fileMap.cd()
+        
+        key=ROOT.TKey()
+        nextkey=ROOT.gDirectory.GetListOfKeys()
+        
+        # need maximum values for rescaling
+        xval = []
+        yval = []
+        
+        # for europe:
+        # x-min: -24.54652, x-max: 34.59792
+        # y-min: 34.56351, y-max: 71.18811
+        # maximum range: x: 59.14444, y: 36.6246
+        #
+        # x -> (x+25.65159)*scaleX-math.pi
+        # y -> (y-34.802852)*scaleY-math.pi
+        
+        scaleX= 2*2.5/(34.59792+24.54652)
+        scaleY= 2*math.pi/(71.18811-34.56351)
+        
+        for key in nextkey:
+            obj = key.ReadObj()
+            if obj.InheritsFrom("TMultiGraph"):
+                graphlist = obj.GetListOfGraphs()
+                graph=ROOT.TObject()
+                for i in range(0,graphlist.GetSize()):
+                    if True:
+                        for iPoint in range(0,graphlist.At(i).GetN()):
+                            # need maximum values for rescaling
+                            #xval.append(graphlist.At(i).GetX()[iPoint])
+                            #yval.append(graphlist.At(i).GetY()[iPoint])
+                            
+                            graphlist.At(i).SetPoint(iPoint,(graphlist.At(i).GetX()[iPoint]+24.54652)*scaleX-2.5,(graphlist.At(i).GetY()[iPoint]-34.56351)*scaleY-math.pi)
+
+                mg = obj
+                histo.AddBin(mg)
+
+        # need maximum values for rescaling
+        #print 'x-min: %s, x-max: %s'%(min(xval),max(xval))
+        #print 'y-min: %s, y-max: %s'%(min(yval),max(yval))
+        #print 'maximum range: x: %s, y: %s'%(max(xval)-min(xval),max(yval)-min(yval))
+        
+        return histo
+    else:
+        print "File europe.root was not found in current directory!\nDownload it from: http://root.cern.ch/files/europe.root"
+        sys.exit(1)
+
+
 
         
 # list of already created histograms
@@ -143,87 +218,118 @@ HistoSetups = { "mll" : "mll" }
 def initHisto(name):
 
     
-    CaloTagEtaBins =  [-2.5,-2,-1.8,-1.6,-1.5,-1.1,-0.15,0.15,1.1,1.5,1.6,1.8,2,2.5]
-    CaloTagPtBins =  [15,20,30,40,50,60,70,90,1e15]
-    PtBins = [10,15,20,25,30,35,40,50,65,80,100]
+    CaloTagEtaBins =  [-2.5,-2,-1.8,-1.6,-1.5,-1.1,-0.5,0.5,1.1,1.5,1.6,1.8,2,2.5]
+    CaloTagPtBins =  [15,25,35,45,55,70,1e15]
+    #PtBins = [10,15,20,25,30,35,40,50,65,80,100]
+    PtBins = [10,20,25,30,35,40,50,65,80,120]
+    #PtBins = [10,20,30,40,50,65,90]
+    #PtBins = [10,20,30,35,40,50,60,70,120]
     #etaBins = [-2.5, -1.1,-0.2,0.2,1.1,2.5] 
     etaBins = [-2.5, 2.5]
     
+    # setup global cuts here
+    extracuts = ["dilep_mll > 81000 && dilep_mll < 101000"]
+    
+    if "_pt30" in name:
+        name = "".join(name.split("_pt30"))
+        extracuts += ["probe_pt > 30."]
+    if "_pt70" in name:
+        name = "".join(name.split("_pt70"))
+        extracuts += ["probe_pt > 70."]
+        
+        
+    
+    # now compose all cuts
+    cuts = "1"
+    for cut in extracuts:
+        cuts = cuts + " && (%s)"%cut
+    
     # 1D
     if name == "DetRegions":
-        histo = ROOT.TH1F("DetRegions_template","DetRegions;Detector Region;Probes",12,-0.5,11.5)
-        histo.GetXaxis().SetBinLabel(1,"unknown")
-        histo.GetXaxis().SetBinLabel(2,"Barrel large")
-        histo.GetXaxis().SetBinLabel(3,"Barrel small")
-        histo.GetXaxis().SetBinLabel(4,"Barrel overlap")
-        histo.GetXaxis().SetBinLabel(5,"Feet")
-        histo.GetXaxis().SetBinLabel(6,"Transition")
-        histo.GetXaxis().SetBinLabel(7,"Endcap large")
-        histo.GetXaxis().SetBinLabel(8,"Endcap small")
-        histo.GetXaxis().SetBinLabel(9,"BEE")
-        histo.GetXaxis().SetBinLabel(10,"Forward large")
-        histo.GetXaxis().SetBinLabel(11,"Forward small")
-        histo.GetXaxis().SetBinLabel(12,"Crack")
+        histo = ROOT.TH1F("DetRegions_template","DetRegions;Detector Region;Probes",11,0.5,11.5)
+        #histo.GetXaxis().SetBinLabel(1,"unknown")
+        histo.GetXaxis().SetBinLabel(1,"Barrel large")
+        histo.GetXaxis().SetBinLabel(2,"Barrel small")
+        histo.GetXaxis().SetBinLabel(3,"Barrel overlap")
+        histo.GetXaxis().SetBinLabel(4,"Feet")
+        histo.GetXaxis().SetBinLabel(5,"Transition")
+        histo.GetXaxis().SetBinLabel(6,"Endcap large")
+        histo.GetXaxis().SetBinLabel(7,"Endcap small")
+        histo.GetXaxis().SetBinLabel(8,"BEE")
+        histo.GetXaxis().SetBinLabel(9,"Forward large")
+        histo.GetXaxis().SetBinLabel(10,"Forward small")
+        histo.GetXaxis().SetBinLabel(11,"Crack")
+        
+        #binUNKNOWN=0, bin1BARRELLG=1, bin1BARRELSM=2, bin2BARREL=3, binFEET=4,
+            #binTRANSITION=5, binENDCAPLG=6, binENDCAPSM=7, binBEE=8, binFORWARDLG=9, 
+            #binFORWARDSM=10, binCRACKLG = 11,  binCRACKSM = 12, binCRACK = 13,
+        
         histo.SetDirectory(0)
         HistoSetups[name] = name
-        return [histo,"detRegion",""]
+        return [histo,"(probe_detRegion < 12 ? probe_detRegion : 11)",cuts]
     elif name == "mll":
         HistoSetups[name] = name
-        return [ROOT.TH1F("mll_template","mll;m_{ll} [GeV];TP Pairs",8,80000,100000),"mll",""]
+        return [ROOT.TH1F("mll_template","mll;m_{ll} [GeV];TP Pairs",10,81000,101000),"dilep_mll",cuts]
     elif name == "pt":
         HistoSetups[name] = name
-        return [ROOT.TH1F("pt_template","pt;p_{T} [GeV];Probes",len(PtBins)-1,array("f",PtBins)),"pt",""]
+        return [ROOT.TH1F("pt_template","pt;p_{T} [GeV];Probes",len(PtBins)-1,array("f",PtBins)),"probe_pt",cuts]
     elif name == "eta":
         HistoSetups[name] = name
-        return [ROOT.TH1F("eta_template","eta;#eta;Probes",20,-2.5,2.5),"eta",""]
+        return [ROOT.TH1F("eta_template","eta;#eta;Probes",25,-2.5,2.5),"probe_eta",cuts]
     elif name == "etaTemp":
         HistoSetups[name] = name
-        return [ROOT.TH1F("etaTemp_template","eta;#eta;Probes",len(etaBins)-1,array("f",etaBins)),"eta",""]
+        return [ROOT.TH1F("etaTemp_template","eta;#eta;Probes",len(etaBins)-1,array("f",etaBins)),"probe_eta",cuts]
     elif name == "phi":
         HistoSetups[name] = name
-        return [ROOT.TH1F("phi_template","phi;#phi;Probes",20,-math.pi,math.pi),"phi",""]
+        return [ROOT.TH1F("phi_template","phi;#phi;Probes",12,-math.pi,math.pi),"probe_phi",cuts]
     elif name == "d0":
         HistoSetups[name] = name
-        return [ROOT.TH1F("d0_template","d0;d_{0} [mm];Probes",20,-0.2,0.2),"d0",""]
+        return [ROOT.TH1F("d0_template","d0;d_{0} [mm];Probes",20,-0.2,0.2),"probe_d0",cuts]
     elif name == "z0":
         HistoSetups[name] = name
-        return [ROOT.TH1F("z0_template","z0;z_{0} [mm];Probes",20,-0.2,0.2),"z0",""]
+        return [ROOT.TH1F("z0_template","z0;z_{0} [mm];Probes",20,-0.2,0.2),"probe_z0",cuts]
     elif name == "z_pt":
         HistoSetups[name] = name
-        return [ROOT.TH1F("z_pt_template","z_pt;p_{T}(Z) [GeV];TP Pairs",100,0,200),"1",""]
+        return [ROOT.TH1F("z_pt_template","z_pt;p_{T}(Z) [GeV];TP Pairs",100,0,200),"dilep_pt",cuts]
     elif name == "fineEtaPhi":
         HistoSetups[name] = name
-        return [ROOT.TH1F("fineEtaPhi_template","fineEtaPhi;fine (#eta,#phi) bin;Probes",352,-175.5,176.5),"fineEtaPhi",""]
+        return [ROOT.TH1F("fineEtaPhi_template","fineEtaPhi;fine (#eta,#phi) bin;Probes",352,-175.5,176.5),"probe_fineEtaPhi",cuts]
     elif name == "fineEtaPhi_negq":
         HistoSetups[name] = name
-        return [ROOT.TH1F("fineEtaPhi_negq_template","fineEtaPhi_negq;fine (#eta,#phi) bin;Probes",352,-175.5,176.5),"fineEtaPhi_negq",""]
+        return [ROOT.TH1F("fineEtaPhi_negq_template","fineEtaPhi_negq;fine (#eta,#phi) bin;Probes",352,-175.5,176.5),"probe_fineEtaPhi_negq",cuts]
     elif name == "fineEtaPhi_posq":
         HistoSetups[name] = name
-        return [ROOT.TH1F("fineEtaPhi_posq_template","fineEtaPhi_posq;fine (#eta,#phi) bin;Probes",352,-175.5,176.5),"fineEtaPhi_posq",""]
+        return [ROOT.TH1F("fineEtaPhi_posq_template","fineEtaPhi_posq;fine (#eta,#phi) bin;Probes",352,-175.5,176.5),"probe_fineEtaPhi_posq",cuts]
     elif name == "DetRegions_Aside":
         HistoSetups[name] = name
-        return [ROOT.TH1F("DetRegions_Aside_template","DetRegions_Aside;Detector Region;Probes",14,-0.5,13.5),"detRegion","abs(eta) > 0"]
+        tmplist = initHisto("DetRegions")
+        histo = tmplist[0].Clone("DetRegions_Aside_template")
+        return [histo,tmplist[1]," (%s) && (probe_eta > 0)"%tmplist[2]]
     elif name == "DetRegions_Cside":
         HistoSetups[name] = name
-        return [ROOT.TH1F("DetRegions_Cside_template","DetRegions_Cside;Detector Region;Probes",14,-0.5,13.5),"detRegion","abs(eta) < 0"]
-
+        tmplist = initHisto("DetRegions")
+        histo = tmplist[0].Clone("DetRegions_Cside_template")
+        return [histo,tmplist[1]," (%s) && (probe_eta < 0)"%tmplist[2]]
     # 2D
     elif name == "etaphi":
         HistoSetups[name] = name
-        return [ROOT.TH2F("etaphi_template","etaphi;#eta;#phi",30,-2.5,2.5,32,-math.pi,math.pi),"phi : eta",""]
+        return [ROOT.TH2F("etaphi_template","etaphi;#eta;#phi",10,-2.5,2.5,10,-math.pi,math.pi),"probe_phi : probe_eta",cuts]
     elif name == "etapt":
         HistoSetups[name] = name
-        return [ROOT.TH2F("etapt_template","etapt;#eta;p_{T} [GeV]",20,-2.5,2.5,10,10,120),"pt : eta",""]
+        return [ROOT.TH2F("etapt_template","etapt;#eta;p_{T} [GeV]",20,-2.5,2.5,10,10,120),"probe_pt : probe_eta",cuts]
     elif name == "CaloTag2D":
         HistoSetups[name] = name
-        return [ROOT.TH2F("CaloTag2D_template","CaloTag2D;#eta;p_{T} [GeV]",len(CaloTagEtaBins)-1,array("f",CaloTagEtaBins), len(CaloTagPtBins)-1, array("f",CaloTagPtBins)),"pt : eta",""]
+        return [ROOT.TH2F("CaloTag2D_template","CaloTag2D;#eta;p_{T} [GeV]",len(CaloTagEtaBins)-1,array("f",CaloTagEtaBins), len(CaloTagPtBins)-1, array("f",CaloTagPtBins)),"probe_pt : probe_eta",cuts]
     elif name == "ptmll":
         HistoSetups[name] = name
-        return [ROOT.TH2F("ptmll_template","ptmll;p_{T} [GeV];m_{ll} [GeV]",10,10,120,20,80000,100000),"mll : pt",""]
+        return [ROOT.TH2F("ptmll_template","ptmll;p_{T} [GeV];m_{ll} [GeV]",10,10,120,20,80000,100000),"dilep_mll : probe_pt",cuts]
     elif name == "etaphiFine":
         HistoSetups[name] = name
-        return [TPFineEtaPhiHist("etaphiFine_template","etaphiFine;#eta;#phi;Efficiency"),"phi : eta",""]
+        return [TPFineEtaPhiHist("etaphiFine_template","etaphiFine;#eta;#phi;Efficiency"),"probe_phi : probe_eta",cuts]
+    elif name == "etaphiFineEurope":
+        HistoSetups[name] = name
+        return [TPFineEtaPhiHistEurope("etaphiFineEurope_template","etaphiFineEurope;#eta;#phi;Efficiency"),"probe_phi : probe_eta",cuts]
     
     else:
-        print "Histogram not defined!"
+        #print "Histogram not defined!"
         return None

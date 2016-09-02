@@ -14,7 +14,10 @@
 
 /// This is the implementation of the IMuonTPSelectionTool for the tag and probe
 /// efficiency measurement using dimuon resonances (JPsi and Z).
+
 #include "MuonTPTools/MuonTPSelectionTool.h"
+#include "MuonTPTools/IMuonTPExtrapolationTool.h"
+#include "IsolationSelection/IIsolationSelectionTool.h"
 #include "AsgTools/AsgTool.h"
 
 class DiMuonTPSelectionTool:  public MuonTPSelectionTool{
@@ -50,16 +53,11 @@ private:
     bool m_accept_oppCharge;
 
     bool m_probe_ID_hits;
-
-    double m_tagPtConeIso;
-    double m_probePtConeIso;
-    double m_tag_antiPtConeIso;
-    double m_probe_antiPtConeIso;
-
-    double m_tagEtConeIso;
-    double m_probeEtConeIso;
-    double m_tag_antiEtConeIso;
-    double m_probe_antiEtConeIso;
+    
+    bool m_probe_iso;
+    bool m_tag_iso;
+    bool m_probe_antiiso;
+    bool m_tag_antiiso;
 
     bool m_IDProbe;
     bool m_CaloProbe;
@@ -83,6 +81,7 @@ private:
 
     double m_deltaPhiCut;
     double m_deltaEtaCut;
+    double m_deltaRTriggerPivot;
 
     bool m_doProbeChargeSys;
     std::string m_ProbeCharge;
@@ -92,6 +91,16 @@ private:
     bool m_MediumProbe;
     bool m_TightProbe;
     bool m_HighPtProbe;
+    
+    // special flag to skip the very costly trigger pivot plane extrapolation
+    // note: this will also break the ntuple output variable
+    // use only if you don't want to cut on this, neither online nor offline
+    /// for example, it's safe to turn off for the Z
+    bool m_skip_dRTriggerPivotPlane;
+    
+    ToolHandle<IMuonTPExtrapolationTool> m_muonTPextrapolator;
+    ToolHandle<CP::IIsolationSelectionTool> m_tag_isotool;
+    ToolHandle<CP::IIsolationSelectionTool> m_probe_isotool;
 };
 
 

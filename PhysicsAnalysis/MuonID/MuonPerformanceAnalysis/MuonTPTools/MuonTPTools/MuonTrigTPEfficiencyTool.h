@@ -30,11 +30,12 @@ public:
     // Match probes for efficiency calculation
     void matchProbes(ProbeContainer*, const xAOD::IParticleContainer*) const;
     
+    CP::CorrectionCode getTrigSF(const xAOD::Muon * probe, double & sf) const;
+    
 private:
 
     float m_dR_L1;
     float m_dR_HLT;
-
 };
 
 #endif /* MUONTRIGTPEFFICIENCYTOOL_H_ */

@@ -26,9 +26,15 @@ public:
   
   // check if the tool represents a nominal run or a sys variation
   virtual bool isNominal() const=0;
+  
+  // check if the tool applies SF
+  virtual bool doesApplySF() const=0;
 
   // return the triger item (if any configured)
   virtual std::string triggerItem() =0;  
+
+  // return if the tool is using a rerun mode trigger
+  virtual bool rerunTriggerMode() =0;  
 };
 
 #endif

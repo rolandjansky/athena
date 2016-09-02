@@ -7,9 +7,11 @@ import Utils
 import sys
 from Defs import *
 from PlotUtils import PlotUtils
+import ParseGRL
 ROOT.gROOT.Macro("rootlogon.C")
 ROOT.gROOT.SetStyle("ATLAS")
 ROOT.gROOT.SetBatch(1)
+from Histos import TPHistoSet
 
 histos = []
 eff_axis_ranges = []
@@ -19,7 +21,7 @@ def draw2D (hist, var, probe, match, region, conf_Data):
     
     pu = PlotUtils()
     pu.Size = 0.06*(1-pu.VerticalCanvasSplit)
-    pu.Lumi = conf_Data.Lumi/1000.
+    pu.Lumi = conf_Data.Lumi
     
     ROOT.gStyle.SetPalette(54)
     
@@ -52,18 +54,74 @@ def draw2D (hist, var, probe, match, region, conf_Data):
 
     can.SaveAs("Plots/AllProbePlots.pdf")
     
-def doProbePlots1D (hists_final, var, probe, match, region, conf_Data, conf_Zmumu, log):
-
-    if len(hists_final)>1:
-        print 'Error: Something went wrong in TPFinalHistos()!'
-        sys.exit(1)
-    else:
-        h_data = hists_final[0].Histos[PlotKinds.Probes]["Data"]
-        h_bkg = hists_final[0].Histos[PlotKinds.Probes]["Bkg"]
-        h_mc = hists_final[0].Histos[PlotKinds.Probes]["MC"]
-        h_model = hists_final[0].Histos[PlotKinds.Probes]["Model"]
-        ratio = hists_final[0].Histos[PlotKinds.Probes]["DataVsModel"]
+def doProbePlots1D ( var, probe, match, region, infiles, log, analysis):
     
+    MCTotal = None
+    MCHists = None
+    DataHists = None
+    BkgHists = {}
+        
+    conf_Data = None
+    for [thing, sample] in infiles:
+        if sample.SampleType == SampleTypes.Signal:
+            conf_Zmumu = sample
+            ahisto = TPHistoSet(thing, var=var,probe=probe,match = match, region = region, infile = ROOT.TFile(sample.Filepath,"READ"), doClosure=False,useAsymEff=True,analysis=analysis) 
+            ahistoscaled = TPHistoSet.Copy(ahisto)
+            #print ahistoscaled
+            ahistoscaled.ApplyXSScale(sample.XS, sample.nEvents, sample.Lumi)
+            if MCHists == None:
+                MCHists = ahistoscaled
+            else: 
+                MCHists.Add(ahistoscaled)
+        if sample.SampleType == SampleTypes.Data:
+            GRLHandler = None
+            if not sample.GRLs == None:
+                GRLHandler = ParseGRL.GRLHandler(sample.GRLs)
+            conf_Data = sample
+            ahisto = TPHistoSet(thing, var=var,probe=probe,match = match, region = region, infile = ROOT.TFile(sample.Filepath,"READ"), doClosure=False,useAsymEff=True,analysis=analysis,GRLHandler=GRLHandler) 
+            if DataHists == None:
+                DataHists = ahisto
+            else: 
+                DataHists.Add(ahisto)
+        if sample.SampleType == SampleTypes.Irreducible:
+            ahisto = TPHistoSet(thing, var=var,probe=probe,match = match, region = region, infile = ROOT.TFile(sample.Filepath,"READ"), doClosure=False,useAsymEff=True,analysis=analysis) 
+            ahisto.ApplyXSScale(sample.XS, sample.nEvents, sample.Lumi)
+            BkgHists[sample]=ahisto
+    MCTotal = TPHistoSet.Copy(MCHists)
+
+    bglist = []
+    for thing,bkg in BkgHists.iteritems():
+        MCTotal.Add(bkg)
+        bglist.append(bkg)
+        
+
+    BkgDataHists = DataHists.DataDrivenBG(SignalMC=[MCHists],IrredMC=bglist,SysVar = "")
+    MCTotal.Add(BkgDataHists)
+
+
+
+
+
+    h_data = DataHists.Histos[ChargeProducts.OC][PlotKinds.Probes].Histo
+
+    h_model = MCTotal.Histos[ChargeProducts.OC][PlotKinds.Probes].Histo
+    sf = h_data.Integral()/h_model.Integral()
+    print "Scale factor is %.4f"%sf
+    h_model.Scale(sf)
+    h_red = BkgDataHists.Histos[ChargeProducts.OC][PlotKinds.Probes].Histo
+    h_red.Scale(sf)
+    h_mc = MCHists.Histos[ChargeProducts.OC][PlotKinds.Probes].Histo
+    h_mc.Scale(sf)
+    h_bkg = {}
+    for smp,hist in BkgHists.iteritems():
+        ahist = hist.Histos[ChargeProducts.OC][PlotKinds.Probes].Histo
+        ahist.Scale(sf)
+        h_bkg[smp] = ahist
+    ratio = h_data.Clone("ratio")
+    ratio.Divide(h_data,h_model,1.,1.)
+   
+   
+    print 'Data T&P pairs: %s'%h_data.Integral() 
     ######
     # used for styling histo (when TGraphAsymmErrors are used)
     h_styling = HistoDefs.initHisto(var)[0].Clone("stylingHisto")
@@ -83,18 +141,29 @@ def doProbePlots1D (hists_final, var, probe, match, region, conf_Data, conf_Zmum
     h_styling.GetYaxis().SetTitle("Probes")
     ######
     
-    pu = PlotUtils()
-    pu.Size = 0.06
-    pu.Lumi = conf_Data.Lumi/1000.
-    pu.SqrtS = 13
+    #pu = PlotUtils()
+    #pu.Size = 0.06
     
-    can,p1,p2 = pu.Prepare2PadCanvas("ProbeCheck_%s_%s_%s"%(var,probe,region))
+    #pu.Lumi = conf_Data.Lumi
+    ##pu.SqrtS = 8
+    
+    #can,p1,p2 = pu.Prepare2PadCanvas("ProbeCheck_%s_%s_%s"%(var,probe,region))
+    #can.cd()
+    
+    #p1.Draw()
+    #histos.append(p1)
+    #histos.append(p2)
+    #histos.append(can)
+    #p1.cd()
+    
+    pu = PlotUtils()
+    pu.Size = 0.06*(1-pu.VerticalCanvasSplit)
+    pu.Lumi = conf_Data.Lumi
+        
+    can = ROOT.TCanvas("ProbeCheck_%s_%s_%s"%(var,probe,region),PlotKinds.Probes,800,600)
     can.cd()
-    p1.Draw()
-    histos.append(p1)
-    histos.append(p2)
-    histos.append(can)
-    p1.cd()
+    
+
     
     
     # plotting style:
@@ -105,56 +174,84 @@ def doProbePlots1D (hists_final, var, probe, match, region, conf_Data, conf_Zmum
     ratio.SetMarkerStyle(ROOT.kFullDotLarge)
     ratio.SetLineColor(h_data.GetLineColor())
     ratio.SetMarkerColor(h_data.GetLineColor())
-    h_bkg.SetLineColor(ROOT.kOrange-2)
-    h_bkg.SetFillColor(h_bkg.GetLineColor())
-    h_bkg.SetTitle("Data-driven Background")
-    h_mc.SetLineColor(ROOT.kBlue-9)
+    
+    h_red.SetLineColor(ROOT.kBlue-9)
+    h_red.SetFillColor(h_red.GetLineColor())
+    h_red.SetTitle("Data-driven Background")
+    h_mc.SetLineColor(ROOT.kRed)
+    #h_mc.SetLineColor(ROOT.kBlue-9)
     h_mc.SetFillColor(h_mc.GetLineColor())
     h_mc.SetTitle(conf_Zmumu.Label)
-
-    if (log):
-        p1.SetLogy()
-        
+    
     stk = ROOT.THStack("Stack","Stack")
-    stk.Add(h_bkg)
+
+    
+    for sample,hist in h_bkg.iteritems():
+        hist.SetLineColor(sample.Colour)
+        hist.SetFillColor(hist.GetLineColor())
+        hist.SetTitle(sample.Label)
+        stk.Add(hist)
+    stk.Add(h_red)
     stk.Add(h_mc)
+    
+    if (log):
+        #p1.SetLogy()
+        can.SetLogy()
+
     stk.Draw("HIST")
     
     ######
     # labels and axis ranges
-    pu.AdaptLabelsTopPad([h_styling,stk.GetHistogram(),h_data,h_bkg,h_mc])
-    eff_axis_ranges.append(pu.SetFancyAxisRanges([stk.GetHistogram(), h_data, h_bkg, h_mc]))
+    #pu.AdaptLabelsTopPad([h_styling,stk.GetHistogram(),h_data,h_red,h_mc])
+    eff_axis_ranges.append(pu.SetFancyAxisRanges([stk.GetHistogram(), h_data, h_red, h_mc]))
     pu.SetFancyAxisRanges([h_styling], minmax = eff_axis_ranges[0][0][1], maxmin = eff_axis_ranges[0][0][0], fixRange=True)
+    del eff_axis_ranges[:]
     ######
 
     h_styling.Draw("AXIS")
     
     if(log):
-        stk.SetMinimum(5e-1)
-        stk.GetHistogram().SetMaximum(1e3*stk.GetMaximum())
+        h_styling.SetMinimum(5e-3)
+        h_styling.SetMaximum(1e5*h_styling.GetMaximum())
+    else:
+        h_styling.SetMinimum(0.)
+        h_styling.SetMaximum(1.1*h_styling.GetMaximum())
         
+    stk.GetHistogram().SetMaximum(1.35*stk.GetMaximum())
     stk.Draw("sameHIST")
     h_data.Draw("same")
     
     pu.DrawAtlas(0.19,0.83)
     pu.DrawLumiSqrtS(0.19,0.76)
-    pu.DrawLegend([(h_data,"PL"), (h_mc,"F"), (h_bkg,"F")],0.6,0.6,0.89,0.89)
+    #pu.DrawTLatex(0.19, 0.69,"Runs 267638, 267639")
+    if "_pt30" in var:
+        pu.DrawTLatex(0.19,0.08,"p_{T} > 30 GeV",0.06)
+    if "_pt70" in var:
+        pu.DrawTLatex(0.19,0.08,"p_{T} > 70 GeV",0.06)
+    #pu.DrawTLatex(0.19,0.62,"MC normalized to data")
+    #pu.DrawTLatex(0.19,0.55,"MC not smeared")
+    pu.DrawLegend([(h_data,"PL"), (h_mc,"F"), (h_red,"F")]+ [(histo, "F") for sample, histo in h_bkg.iteritems()],0.6,0.6,0.89,0.89)
 
-    p2.cd()
-    p2.SetGridy()
+    #p2.cd()
+    #p2.SetGridy()
     
     ######
     # labels and axis ranges
-    pu.AdaptLabelsBottomPad([h_styling_ratio,ratio])
-    sf_axis_ranges.append(pu.SetFancyAxisRanges_SF_Probes([ratio]))
-    pu.SetFancyAxisRanges_SF_Probes([h_styling_ratio], minmax = sf_axis_ranges[0][0][1], maxmin = sf_axis_ranges[0][0][0], fixRange=True)
-    ######
+    #pu.AdaptLabelsBottomPad([h_styling_ratio,ratio])
+    #sf_axis_ranges.append(pu.SetFancyAxisRanges_SF_Probes([ratio]))
+    #pu.SetFancyAxisRanges_SF_Probes([h_styling_ratio], minmax = sf_axis_ranges[0][0][1], maxmin = sf_axis_ranges[0][0][0], fixRange=True)
+    #del sf_axis_ranges[:]
+    #######
+    #h_styling_ratio.SetMinimum(0.7)
+    #h_styling_ratio.SetMaximum(1.3)
+    #h_styling_ratio.Draw("AXIS")
+    #ratio.Draw("same")
     
-    h_styling_ratio.Draw("AXIS")
-    ratio.Draw("same")
+    ROOT.gPad.RedrawAxis()
+    print "I have %.6f estimated red. BG counts!"%h_red.Integral()
     
     can.SaveAs ("Plots/ProbeCheck_%s_%s_%s.pdf"%(var,probe,region))
-    p1.cd()
+    #p1.cd()
     
     pu.DrawTLatex(0.5,0.94,"%s for %s probes in %s"%(var,probe,region),0.04,52,22)
 
@@ -177,7 +274,7 @@ def doProbePlots2D (hists_final, var, probe, match, region, conf_Data, conf_Zmum
     draw2D (["SM",h_model], var, probe, match, region, conf_Data)
     draw2D (["DataSM",ratio], var, probe, match, region, conf_Data)
 
-def doProbePlots (var, probe, region, conf_Data, conf_Zmumu, log=True):
+def doProbePlots (var, probe, region, conf_Data, conf_Zmumu, log=False, backgrounds = {},analysis =Analysis.Z_Reco ):
     
     match = Matches.Medium
     if probe == Probes.MStoMu:
@@ -185,27 +282,40 @@ def doProbePlots (var, probe, region, conf_Data, conf_Zmumu, log=True):
         
     infiles = [
                    ["MC",conf_Zmumu],
-                   ["Data",conf_Data]
+                   ["Data",conf_Data],
                    ]
+    for k,v in backgrounds.iteritems():
+        infiles.append( [k,v])
+        
+    doProbePlots1D ( var, probe, match, region, infiles, log, analysis)
 
-    hists_final = []
+    #hists_final = []
     
-    # faster (without systematic uncertainty bands):
-    hists_final.append(Histos.TPFinalHistos("test",probe,match,region,var,infiles,useAsymEff=False))
+    ## faster (without systematic uncertainty bands):
+    #hists_final.append(Histos.TPFinalHistos("test",probe,match,region,var,infiles,useAsymEff=False))
 
-    if hists_final[0].Histos[HistoKinds.Efficiency][HistoKinds.DataEfficiency].InheritsFrom("TH2"):
-        doProbePlots2D (hists_final, var, probe, match, region, conf_Data, conf_Zmumu, log)
-    else:
-        doProbePlots1D (hists_final, var, probe, match, region, conf_Data, conf_Zmumu, log)
+    #if hists_final[0].Histos[HistoKinds.Efficiency][HistoKinds.DataEfficiency].InheritsFrom("TH2"):
+        #doProbePlots2D (hists_final, var, probe, match, region, conf_Data, conf_Zmumu, log)
+    #else:
+        #doProbePlots1D (hists_final, var, probe, match, region, conf_Data, conf_Zmumu, log)
 
     
 if __name__ == "__main__":
     
     # what we want to run on:
-    InputData = DSConfig.Data_15_firstWeek
-    InputZmumu = DSConfig.Zmumu_mc15
+    InputData = DSConfig.Data_15_50ns
+    InputZmumu = DSConfig.Zmumu_r6630
+    
+    backgrounds = {
+        "ttbar":DSConfig.Ttbar_r6633,
+        "Ztautau":DSConfig.Ztautau_r6633,
+        #"W1":DSConfig.Wplus_r6633,
+        #"W2":DSConfig.Wminus_r6633,
+        #"Wplus":DSConfig.Wplus_r6633,
+        #"Wminus":DSConfig.Wminus_r6633,
+        }
 
-    dummy = ROOT.TCanvas("dummy","dummy",800,800)
+    dummy = ROOT.TCanvas("dummy","dummy",800,600)
     dummy.SaveAs("Plots/AllProbePlots.pdf[")
     
     # variables we want to plot:
@@ -216,19 +326,22 @@ if __name__ == "__main__":
     #doProbePlots ("d0", Probes.ID, DetRegions.All, InputData, InputZmumu)
     #doProbePlots ("z0", Probes.ID, DetRegions.All, InputData, InputZmumu)
 
-    doProbePlots ("etaphiFine", Probes.Calo, DetRegions.All, InputData, InputZmumu, log=False)
-    doProbePlots ("mll", Probes.Calo, DetRegions.All, InputData, InputZmumu, log=False)
-    doProbePlots ("pt", Probes.Calo, DetRegions.All, InputData, InputZmumu)
-    doProbePlots ("eta", Probes.Calo, DetRegions.All, InputData, InputZmumu)
-    doProbePlots ("d0", Probes.Calo, DetRegions.All, InputData, InputZmumu)
-    doProbePlots ("z0", Probes.Calo, DetRegions.All, InputData, InputZmumu)
+    #doProbePlots ("etaphiFine", Probes.Calo, DetRegions.All, InputData, InputZmumu, log=False,backgrounds=backgrounds)
+    doProbePlots ("mll", Probes.Calo, DetRegions.All, InputData, InputZmumu, log=False,backgrounds=backgrounds, analysis=Analysis.Z_Reco)
+    #doProbePlots ("pt", Probes.Calo, DetRegions.All, InputData, InputZmumu, log=True,backgrounds=backgrounds, analysis=Analysis.Z_Reco)
+    #doProbePlots ("pt", Probes.Calo, DetRegions.noCrack, InputData, InputZmumu, log=True,backgrounds=backgrounds, analysis=Analysis.Z_Reco)
+    #doProbePlots ("eta", Probes.Calo, DetRegions.All, InputData, InputZmumu, log=True,backgrounds=backgrounds, analysis=Analysis.Z_Reco)
+    #doProbePlots ("phi_pt70", Probes.Calo, DetRegions.All, InputData, InputZmumu, log=False,backgrounds=backgrounds)
+    #doProbePlots ("d0", Probes.Calo, DetRegions.All, InputData, InputZmumu,backgrounds=backgrounds)
+    #doProbePlots ("z0", Probes.Calo, DetRegions.All, InputData, InputZmumu,backgrounds=backgrounds)
 
-    #doProbePlots ("etaphiFine", Probes.MStoMu, DetRegions.All, InputData, InputZmumu, log=False)
-    #doProbePlots ("mll", Probes.MStoMu, DetRegions.All, InputData, InputZmumu, log=False)
-    #doProbePlots ("pt", Probes.MStoMu, DetRegions.All, InputData, InputZmumu)
-    #doProbePlots ("eta", Probes.MStoMu, DetRegions.All, InputData, InputZmumu)
-    #doProbePlots ("d0", Probes.MStoMu, DetRegions.All, InputData, InputZmumu)
-    #doProbePlots ("z0", Probes.MStoMu, DetRegions.All, InputData, InputZmumu)
+    #doProbePlots ("etaphiFine", Probes.MStoMu, DetRegions.All, InputData, InputZmumu, log=False,backgrounds=backgrounds)
+    #doProbePlots ("mll", Probes.MStoMu, DetRegions.All, InputData, InputZmumu, log=False,backgrounds=backgrounds, analysis=Analysis.Z_Reco)
+    #doProbePlots ("pt", Probes.MStoMu, DetRegions.All, InputData, InputZmumu, log=False,backgrounds=backgrounds, analysis=Analysis.Z_Reco)
+    #doProbePlots ("eta", Probes.MStoMu, DetRegions.All, InputData, InputZmumu, log=False,backgrounds=backgrounds, analysis=Analysis.Z_Reco)
+    #doProbePlots ("phi", Probes.MStoMu, DetRegions.All, InputData, InputZmumu, log=False,backgrounds=backgrounds)
+    #doProbePlots ("d0", Probes.MStoMu, DetRegions.All, InputData, InputZmumu,backgrounds=backgrounds)
+    #doProbePlots ("z0", Probes.MStoMu, DetRegions.All, InputData, InputZmumu,backgrounds=backgrounds)
     
     #doProbePlots ("etaphiFine", Probes.ID, DetRegions.noCrack, InputData, InputZmumu, log=False)
     #doProbePlots ("mll", Probes.ID, DetRegions.noCrack, InputData, InputZmumu, log=False)
@@ -238,9 +351,9 @@ if __name__ == "__main__":
     #doProbePlots ("z0", Probes.ID, DetRegions.noCrack, InputData, InputZmumu)
 
     #doProbePlots ("etaphiFine", Probes.Calo, DetRegions.noCrack, InputData, InputZmumu, log=False)
-    #doProbePlots ("mll", Probes.Calo, DetRegions.noCrack, InputData, InputZmumu, log=False)
-    #doProbePlots ("pt", Probes.Calo, DetRegions.noCrack, InputData, InputZmumu)
-    #doProbePlots ("eta", Probes.Calo, DetRegions.noCrack, InputData, InputZmumu)
+    #doProbePlots ("mll", Probes.Calo, DetRegions.noCrack, InputData, InputZmumu, log=False,backgrounds=backgrounds, analysis=Analysis.Z_Reco)
+    #doProbePlots ("pt", Probes.Calo, DetRegions.noCrack, InputData, InputZmumu, log=False,backgrounds=backgrounds, analysis=Analysis.Z_Reco)
+    #doProbePlots ("eta", Probes.Calo, DetRegions.noCrack, InputData, InputZmumu, log=False,backgrounds=backgrounds, analysis=Analysis.Z_Reco)
     #doProbePlots ("d0", Probes.Calo, DetRegions.noCrack, InputData, InputZmumu)
     #doProbePlots ("z0", Probes.Calo, DetRegions.noCrack, InputData, InputZmumu)
 
