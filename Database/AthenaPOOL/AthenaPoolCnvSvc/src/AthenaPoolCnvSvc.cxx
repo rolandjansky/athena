@@ -46,14 +46,6 @@ StatusCode AthenaPoolCnvSvc::initialize() {
       ATH_MSG_FATAL("Cannot get DataModelCompatSvc.");
       return(StatusCode::FAILURE);
    }
-#if ROOT_VERSION_CODE < ROOT_VERSION(5,99,0)
-   // Initialize AthenaRootStreamerSvc
-   ServiceHandle<IService> arssvc("AthenaRootStreamerSvc", this->name());
-   if (!arssvc.retrieve().isSuccess()) {
-      ATH_MSG_FATAL("Cannot get AthenaRootStreamerSvc.");
-      return(StatusCode::FAILURE);
-   }
-#endif
    // Retrieve PoolSvc
    if (!m_poolSvc.retrieve().isSuccess()) {
       ATH_MSG_FATAL("Cannot get PoolSvc.");
@@ -407,6 +399,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
                IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
                if (!cnv->updateRepRefs(&address, (DataObject*)obj).isSuccess()) {
                   ATH_MSG_ERROR("Failed updateRepRefs for obj = " << token->toString());
+                  delete token; token = 0;
                   return(StatusCode::FAILURE);
                }
             }
@@ -417,6 +410,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
                IConverter* cnv = converter(ClassID_traits<DataHeader>::ID());
                if (!cnv->updateRep(&address, (DataObject*)obj).isSuccess()) {
                   ATH_MSG_ERROR("Failed updateRep for obj = " << token->toString());
+                  delete token; token = 0;
                   return(StatusCode::FAILURE);
                }
             }
@@ -465,7 +459,7 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
    }
    static int commitCounter = 1;
    try {
-      if ((commitCounter > m_commitInterval && m_commitInterval > 0) || doCommit) {
+      if (/*(commitCounter > m_commitInterval && m_commitInterval > 0) || */doCommit) {
          commitCounter = 1;
          if (!m_poolSvc->commit(IPoolSvc::kOutputStream).isSuccess()) {
             ATH_MSG_ERROR("commitOutput FAILED to commit OutputStream.");
@@ -503,8 +497,10 @@ StatusCode AthenaPoolCnvSvc::commitOutput(const std::string& /*outputConnectionS
    if (m_useDetailChronoStat.value()) {
       m_chronoStatSvc->chronoStop("commitOutput");
    }
-   // prepare chrono for next commit
-   m_doChronoStat = true;
+   // prepare chrono for next commit, keep disabled for streaming mode
+   if (m_inputStreamingTool.empty() && m_outputStreamingTool.empty()) {
+      m_doChronoStat = true;
+   }
    return(StatusCode::SUCCESS);
 }
 //______________________________________________________________________________

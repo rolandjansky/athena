@@ -32,12 +32,12 @@ CondAttrListVecCnv::~CondAttrListVecCnv() {
 }
 //__________________________________________________________________________
 StatusCode CondAttrListVecCnv::initialize() {
-   MsgStream log(messageService(), "CondAttrListVecCnv");
+   MsgStream log(msgSvc(), "CondAttrListVecCnv");
 
-   log << MSG::DEBUG << "initialize() in CondAttrListVecCnv" << endreq;
+   log << MSG::DEBUG << "initialize() in CondAttrListVecCnv" << endmsg;
    StatusCode status = Converter::initialize();
    if (!status.isSuccess()) {
-      log << MSG::ERROR << "Can not initialize Converter base class." << endreq;
+      log << MSG::ERROR << "Can not initialize Converter base class." << endmsg;
       return(status);
    }
    return(status);
@@ -49,8 +49,8 @@ StatusCode CondAttrListVecCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
     // extract an AthenaAttributeList pointer from an
     // AthenaAttrListAddress and return it
 
-    MsgStream log(messageService(), "CondAttrListVecCnv");
-    log << MSG::DEBUG << "Creating CondAttrListVecAddress Object" << endreq;
+    MsgStream log(msgSvc(), "CondAttrListVecCnv");
+    log << MSG::DEBUG << "Creating CondAttrListVecAddress Object" << endmsg;
 
     CondAttrListVecAddress* addr = dynamic_cast<CondAttrListVecAddress*>(pAddr);
 
@@ -58,11 +58,11 @@ StatusCode CondAttrListVecCnv::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
 	// Successful cast
 	pObj = SG::asStorable(addr->attrListVec());
 	if (!pObj) {
-	    log << MSG::ERROR << "CondAttrListVec ptr is 0 from CondAttrListVecAddress " << endreq;
+	    log << MSG::ERROR << "CondAttrListVec ptr is 0 from CondAttrListVecAddress " << endmsg;
 	    return(StatusCode::FAILURE);       
 	}
     } else {
-	log << MSG::ERROR << "Could not extract ptr for CondAttrListVecAddress " << endreq;
+	log << MSG::ERROR << "Could not extract ptr for CondAttrListVecAddress " << endmsg;
 	return(StatusCode::FAILURE);       
     }
 
@@ -75,8 +75,8 @@ StatusCode CondAttrListVecCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAdd
     // create an AthenaAttrListAddress and fill it with a pointer to
     // the AthenaAttributeList
 
-    MsgStream log(messageService(), "CondAttrListVecCnv");
-    log << MSG::DEBUG << "Copy CondAttrListVec ptr into CondAttrListVecAddress" << endreq;
+    MsgStream log(msgSvc(), "CondAttrListVecCnv");
+    log << MSG::DEBUG << "Copy CondAttrListVec ptr into CondAttrListVecAddress" << endmsg;
 
     CondAttrListVec* list = 0; //dynamic_cast<AthenaAttributeList*>(pObj);
     SG::fromStorable(pObj, list);
@@ -85,7 +85,7 @@ StatusCode CondAttrListVecCnv::createRep(DataObject* pObj, IOpaqueAddress*& pAdd
 		    "POOLContainer_CondAttrListVec][CLID=x");
     addr->setAttrListVec(list);
     pAddr = addr;
-    log << MSG::DEBUG << "Created CondAttrListVec with list ptr: " << list << endreq;
+    log << MSG::DEBUG << "Created CondAttrListVec with list ptr: " << list << endmsg;
     return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
