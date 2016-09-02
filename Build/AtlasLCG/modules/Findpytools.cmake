@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Findpytools.cmake 722366 2016-02-08 10:06:10Z krasznaa $
+# $Id: Findpytools.cmake 771318 2016-09-01 14:55:33Z elmsheus $
 #
 # Sets:
 #  PYTOOLS_BINARY_PATH
@@ -22,7 +22,7 @@ find_path( PYTOOLS_BINARY_PATH ipython
    PATH_SUFFIXES bin PATHS ${PYTOOLS_ROOT} )
 
 # Find the python path:
-find_path( PYTOOLS_PYTHON_PATH mock.py
+find_path( PYTOOLS_PYTHON_PATH site.py
    PATH_SUFFIXES lib/python2.7/site-packages
    PATHS ${PYTOOLS_ROOT} )
 
