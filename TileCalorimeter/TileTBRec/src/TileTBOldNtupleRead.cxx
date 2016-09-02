@@ -172,7 +172,7 @@ StatusCode TileTBOldNtupleRead::execute()
     TileBeamElem * rc = new TileBeamElem(adc_id,value);
     pBeamContainer->push_back(rc);
   }
-  if (msgLvl(MSG::VERBOSE)) msg() << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << endmsg;
   StatusCode sc=evtStore()->record(pBeamContainer, m_beamContainer, false);
   if(sc.isFailure()) {
     ATH_MSG_ERROR( "Failed to register the container: " << m_beamContainer );
@@ -232,12 +232,12 @@ StatusCode TileTBOldNtupleRead::execute()
                 digitSamples[i] = 0;
               }
             }
-            if (msgLvl(MSG::VERBOSE)) msg() << endreq;
+            if (msgLvl(MSG::VERBOSE)) msg() << endmsg;
           	  
             TileDigits * digi = new TileDigits(adc_id,digitSamples);
             pDigitsContainer->push_back(digi);
             //if (verbose) {
-              //log << MSG::VERBOSE << m_tileHWID->to_string(adc_id) << " " << (std::string)(*digi) << endreq;
+              //log << MSG::VERBOSE << m_tileHWID->to_string(adc_id) << " " << (std::string)(*digi) << endmsg;
             //}
           }
 	}
@@ -281,12 +281,12 @@ StatusCode TileTBOldNtupleRead::execute()
             digitSamples[i] = samples[i];
             if (msgLvl(MSG::VERBOSE)) msg() << " " << digitSamples[i];
           }
-          if (msgLvl(MSG::VERBOSE)) msg() << endreq;
+          if (msgLvl(MSG::VERBOSE)) msg() << endmsg;
           	  
 	  TileDigits * digi = new TileDigits(adc_id,digitSamples);
 	  pDigitsContainer->push_back(digi);
           //if (verbose) {
-            //log << MSG::VERBOSE << m_tileHWID->to_string(adc_id) << " " << (std::string)(*digi) << endreq;
+            //log << MSG::VERBOSE << m_tileHWID->to_string(adc_id) << " " << (std::string)(*digi) << endmsg;
 	  //}
 	}
       }
