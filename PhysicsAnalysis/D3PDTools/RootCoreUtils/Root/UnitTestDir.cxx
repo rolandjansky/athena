@@ -28,7 +28,7 @@ namespace RCU
   void UnitTestDir ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
+    //RCU_INVARIANT (this != 0);
   }
 
 

@@ -26,7 +26,7 @@ namespace RCU
   void ExceptionMsg ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != 0);
+    //RCU_INVARIANT (this != 0);
     RCU_INVARIANT (m_file != 0);
     RCU_INVARIANT (m_line != 0);
     RCU_INVARIANT (!m_message.empty());
