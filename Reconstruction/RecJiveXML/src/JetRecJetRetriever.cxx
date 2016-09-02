@@ -104,10 +104,10 @@ namespace JiveXML {
     if (found!=std::string::npos){ // User selected a Rec::TrackParticle Collection
       if (evtStore()->retrieve(tracks, m_trackCollection).isFailure()){
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve track collection"
-                                                  << m_trackCollection << " for association "<< endreq;
+                                                  << m_trackCollection << " for association "<< endmsg;
       } else {
          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved " << 
-	     m_trackCollection << endreq;
+	     m_trackCollection << endmsg;
 
          Rec::TrackParticleContainer::const_iterator track;
          for(track=tracks->begin();track!=tracks->end();++track) {
@@ -117,14 +117,14 @@ namespace JiveXML {
          }
       }
     }else{ // it's a Trk::Tracks collection
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " User selected a Trk::Track collection ! " << endreq; 
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " User selected a Trk::Track collection ! " << endmsg; 
 
       if (evtStore()->retrieve(trktracks, m_trackCollection).isFailure()){
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve track collection"
-                                                  << m_trackCollection << " for association "<< endreq;
+                                                  << m_trackCollection << " for association "<< endmsg;
       } else {
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved " << 
-	    m_trackCollection << endreq;
+	    m_trackCollection << endmsg;
         TrackCollection::const_iterator track;
         for(track=trktracks->begin();track!=trktracks->end();++track) {
           const Trk::Perigee* trackPerigee = (*track)->perigeeParameters();
@@ -146,29 +146,29 @@ namespace JiveXML {
    */
   StatusCode JetRecJetRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
     
     const DataHandle<JetCollection> iterator, end;
     const JetCollection* jets;
 
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKeyFavourite << ")" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKeyFavourite << ")" << endmsg;
     StatusCode sc = evtStore()->retrieve(jets, m_sgKeyFavourite);
     if (sc.isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKeyFavourite << " not found in SG " << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKeyFavourite << " not found in SG " << endmsg; 
     }else{
       DataMap data = getData(jets);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKeyFavourite, &data).isFailure()){
-       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKeyFavourite << " not found in SG " << endreq;
+       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKeyFavourite << " not found in SG " << endmsg;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKeyFavourite << ") retrieved" << endreq;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKeyFavourite << ") retrieved" << endmsg;
       }
     }
 
     if ( m_otherKeys.empty() ) {
       //obtain all other collections from StoreGate
       if (( evtStore()->retrieve(iterator, end)).isFailure()){
-         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for Jet collection" << endreq;
+         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "Unable to retrieve iterator for Jet collection" << endmsg;
 //        return false;
       }
       
@@ -178,15 +178,15 @@ namespace JiveXML {
         if ( m_doWriteHLT ){ position = 99; } // override SG key find
 
 //      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " JetRecJet: HLTAutoKey in " << iterator.key() << " at position " 
-//           << position << endreq;
+//           << position << endmsg;
         if ( position != 0 ){  // SG key doesn't contain HLTAutoKey         
          if (iterator.key()!=m_sgKeyFavourite) {
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
              DataMap data = getData(iterator);
              if ( FormatTool->AddToEvent(dataTypeName(), iterator.key(), &data).isFailure()){
-              if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+              if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
            }else{
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") retrieved" << endreq;
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") retrieved" << endmsg;
            }
           }
        }
@@ -198,12 +198,12 @@ namespace JiveXML {
        if ( !evtStore()->contains<JetCollection>( (*keyIter) ) ){ continue; } // skip if not in SG
        StatusCode sc = evtStore()->retrieve( jets, (*keyIter) );
        if (!sc.isFailure()) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << (*keyIter) << ")" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << (*keyIter) << ")" << endmsg;
           DataMap data = getData(jets);
           if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter), &data).isFailure()){
-           if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endreq;
+           if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endmsg;
          }else{
-            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endmsg;
          }
        }
       }
@@ -216,7 +216,7 @@ namespace JiveXML {
 
   const DataMap JetRecJetRetriever::getData(const JetCollection* jets) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endmsg;
 
     DataMap m_DataMap;
 
@@ -268,12 +268,12 @@ namespace JiveXML {
 
 
 //    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Loop over cell collections, Size of collection: " << 
-//        jets->size() << endreq;
+//        jets->size() << endmsg;
 
     StatusCode sc = fillPerigeeList();
     if (!sc.isFailure()) {
        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Perigee list filled with " << perigeeVector.size()
-                        << " entries " << endreq;
+                        << " entries " << endmsg;
     }    
 
     for (; itr != jets->end(); ++itr) {
@@ -285,7 +285,7 @@ namespace JiveXML {
     const Analysis::TrackAssociation* trackAssoc = (*itr)->getAssociation<Analysis::TrackAssociation>("Tracks");
     if ( trackAssoc ){
      std::vector<const Rec::TrackParticle*>* trackVector = trackAssoc->tracks();
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " tracks vector size: " <<  trackVector->size() << endreq;
+     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " tracks vector size: " <<  trackVector->size() << endmsg;
      for(std::vector<const Rec::TrackParticle*>::iterator trkItr = trackVector->begin();
       trkItr !=trackVector->end(); ++trkItr) {
        const Rec::TrackParticle* aTemp = *trkItr;      
@@ -303,11 +303,11 @@ namespace JiveXML {
         aTemp->perigee()->parameters()[Trk::d0]/CLHEP::cm << ", z0= " <<
         aTemp->perigee()->parameters()[Trk::z0]/CLHEP::cm << ", phi0= " <<
         aTemp->perigee()->parameters()[Trk::phi0/CLHEP::cm] << ", pt= " <<
-        pt << endreq; }
+        pt << endmsg; }
 
        for (unsigned int i=0; i<perigeeVector.size(); i++) {
 //         if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << " perigee iterator at " 
-//	     << i << " with d0 " << perigeeVector[i]->parameters()[Trk::d0]/CLHEP::cm << endreq; }
+//	     << i << " with d0 " << perigeeVector[i]->parameters()[Trk::d0]/CLHEP::cm << endmsg; }
 
        if ( perigeeVector[i] ){
 // manual match works for both track types !
@@ -322,7 +322,7 @@ namespace JiveXML {
            countPerigee++;
            countMatches++;
            if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << " Track perigee match at index " << i 
-	      << ", count is " << countPerigee << ", collection: " << m_trackCollection << endreq; }
+	      << ", count is " << countPerigee << ", collection: " << m_trackCollection << endmsg; }
            trackIndexVec.push_back(DataType( i ));
            trackKeyVec.push_back(DataType( m_trackCollection ));
 	 } //perigee match
@@ -384,7 +384,7 @@ namespace JiveXML {
          ++noCell;
        }
       numCells.push_back(DataType(noCell));
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of cells: " << noCell << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Number of cells: " << noCell << endmsg;
 
       // basic jet quality 
       quality.push_back(DataType((*itr)->getMoment("LArQuality")));
@@ -438,7 +438,7 @@ namespace JiveXML {
       cellMultStr = "1.0";
     }
     m_DataMap["cells multiple=\""+cellMultStr+"\""] = cellVec;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cells multiple: " << cellMultStr << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cells multiple: " << cellMultStr << endmsg;
 
     // calculate track multiple and create multiple string
     double trackMult = 0.;
@@ -451,7 +451,7 @@ namespace JiveXML {
     }
     m_DataMap["trackIndex multiple=\""+trackMultStr+"\""] = trackIndexVec;
     m_DataMap["trackKey multiple=\""+trackMultStr+"\""] = trackKeyVec;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "tracks multiple: " << trackMultStr << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "tracks multiple: " << trackMultStr << endmsg;
 
     //std::cout << " cell multiple: " << std::setprecision (6) << cellMult 
     //          << ", string: " << cellMultStr << std::endl; 
@@ -504,7 +504,7 @@ namespace JiveXML {
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " (ESD, with cells), collection: " << dataTypeName();
-      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay

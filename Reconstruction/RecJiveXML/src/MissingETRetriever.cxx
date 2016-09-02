@@ -33,7 +33,7 @@ namespace JiveXML {
    */
   StatusCode MissingETRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "MissingETRetriver::retrieve()" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "MissingETRetriver::retrieve()" << endmsg;
 
     const DataHandle<MissingET> iterator, end;
     const MissingET* missingET;
@@ -41,14 +41,14 @@ namespace JiveXML {
     //obtain the default collection first
     StatusCode sc = evtStore()->retrieve(missingET, m_sgKeyFavourite);
     if (sc.isFailure()) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Data at " << m_sgKeyFavourite << " not found in SG " << endreq;
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Data at " << m_sgKeyFavourite << " not found in SG " << endmsg;
     }else{
       DataMap data = getData(missingET);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKeyFavourite, &data).isFailure()){
-        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << dataTypeName() << " (" << m_sgKeyFavourite << ") getData failed " << endreq;
+        if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << dataTypeName() << " (" << m_sgKeyFavourite << ") getData failed " << endmsg;
       } 
       else{
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << m_sgKeyFavourite << ") retrieved" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << m_sgKeyFavourite << ") retrieved" << endmsg;
       }
     }
     
@@ -56,17 +56,17 @@ namespace JiveXML {
 
       //obtain all other collections
       if (( evtStore()->retrieve(iterator, end)).isFailure()){
-         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve iterator for MissingET collection " << endreq;
+         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve iterator for MissingET collection " << endmsg;
       }
       for (; iterator!=end; iterator++) {
         if (iterator.key()!=m_sgKeyFavourite) {
           if (!evtStore()->contains<MissingET>( iterator.key() )){ continue ; } //skip if not in SG
           DataMap data = getData(iterator);
           if ( FormatTool->AddToEvent(dataTypeName(), iterator.key(), &data).isFailure()){
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << dataTypeName() << " (" << iterator.key() << ") getData failed " << endreq;
+            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << dataTypeName() << " (" << iterator.key() << ") getData failed " << endmsg;
           } 
           else {
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") retrieved" << endreq;
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") retrieved" << endmsg;
           }
         }
       }
@@ -77,14 +77,14 @@ namespace JiveXML {
         if (!evtStore()->contains<MissingET>(*keyIter)){ continue ; } //skip if not in SG
         StatusCode sc = evtStore()->retrieve( iterator, (*keyIter) );
         if (sc.isFailure()) {
-          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Data at " << (*keyIter) << " not found in SG " << endreq;
+          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Data at " << (*keyIter) << " not found in SG " << endmsg;
         }else{
           DataMap data = getData(iterator);
           if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter), &data).isFailure()){
-            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << dataTypeName() << " (" << (*keyIter) << ") getData failed " << endreq;
+            if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << dataTypeName() << " (" << (*keyIter) << ") getData failed " << endmsg;
           } 
           else{
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endreq;
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endmsg;
           }
         }
       }
