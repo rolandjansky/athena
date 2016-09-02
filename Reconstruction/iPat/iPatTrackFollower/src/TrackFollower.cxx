@@ -562,7 +562,7 @@ TrackFollower::setDataContainers (const InDet::SiClusterContainer* pixelContaine
 	msg(MSG::VERBOSE) << "setDataContainer: setting SiClusterContainer for ";
 	if (pixelContainer)	msg() << "pixel ";
 	if (sctContainer)	msg() << "SCT ";
-	msg() << endreq;
+	msg() << endmsg;
     }
 }
 
