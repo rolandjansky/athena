@@ -23,6 +23,10 @@ class MuonRecoTPEfficiencyTool : public MuonTPEfficiencyTool{
   void dRMatching(ProbeContainer* probes, const xAOD::IParticleContainer* matches) const;
   void ptrMatching(ProbeContainer* probes, const xAOD::IParticleContainer* matches) const;
   bool GoodMatchMuonType(const xAOD::IParticle* probe) const;
+
+  void DecorateMatchInfo(const xAOD::IParticle & probe, const xAOD::IParticle* match, const xAOD::IParticleContainer* matches) const;
+
+
  private:
 
   bool m_ptrMatching;
@@ -45,6 +49,8 @@ class MuonRecoTPEfficiencyTool : public MuonTPEfficiencyTool{
   bool m_match_CaloLikelihood;
   bool m_match_ExtrapolateToIP;
   bool m_do_IDHits;
+
+
 
 };
 

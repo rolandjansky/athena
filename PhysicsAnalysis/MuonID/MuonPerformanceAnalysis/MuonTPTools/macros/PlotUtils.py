@@ -24,15 +24,18 @@ class PlotUtils:
     def DrawAtlas(self, x,y,align=11):
         self.DrawTLatex(x,y,"#font[72]{ATLAS} %s"%self.Status,self.Size,42,align)
     def DrawLumiSqrtS(self,x,y,align=11,lumi="20.3"):
-        if self.Lumi < 0.001:
-            lumiToPrint = "%.1f"%(self.Lumi*1e6)
-            self.DrawTLatex(x,y,"#sqrt{s} = %s TeV, %s nb^{-1}"%(self.SqrtS, lumiToPrint),self.Size,42,align)
-        elif  self.Lumi < 1.:
-            lumiToPrint = "%.1f"%(self.Lumi*1e3)
-            self.DrawTLatex(x,y,"#sqrt{s} = %s TeV, %s pb^{-1}"%(self.SqrtS, lumiToPrint),self.Size,42,align)
+        if self.Lumi >= 999999999:
+            self.DrawTLatex(x,y,"#sqrt{s} = %s TeV, ?? pb^{-1}"%(self.SqrtS),self.Size,42,align)
         else:
-            lumiToPrint = "%.1f"%(self.Lumi)
-            self.DrawTLatex(x,y,"#sqrt{s} = %s TeV, %s fb^{-1}"%(self.SqrtS, lumiToPrint),self.Size,42,align)
+            if self.Lumi < 0.1:
+                lumiToPrint = "%.1f"%(self.Lumi*1e3)
+                self.DrawTLatex(x,y,"#sqrt{s} = %s TeV, %s nb^{-1}"%(self.SqrtS, lumiToPrint),self.Size,42,align)
+            elif  self.Lumi > 1000.:
+                lumiToPrint = "%.1f"%(self.Lumi*1e-3)
+                self.DrawTLatex(x,y,"#sqrt{s} = %s TeV, %s fb^{-1}"%(self.SqrtS, lumiToPrint),self.Size,42,align)
+            else:
+                lumiToPrint = "%.1f"%(self.Lumi)
+                self.DrawTLatex(x,y,"#sqrt{s} = %s TeV, %s pb^{-1}"%(self.SqrtS, lumiToPrint),self.Size,42,align)
     def DrawLumiSqrtSEvolution(self,x,y,align=11,lumi="20.3"):
         self.DrawTLatex(x,y,"#sqrt{s} = %s TeV, %s pb^{-1}"%(self.SqrtS,lumi),self.Size,42,align)
     def DrawSource(self,probe,x,y,align=11):
@@ -63,6 +66,21 @@ class PlotUtils:
         if match == Matches.ID:
             text = "ID Tracks"
         self.DrawTLatex(x,y,text,self.Size,42,align)
+    def DrawRegionLabel(self,region,x,y,align=11):
+        text = ""
+        if region == DetRegions.Crack:
+            text = "|#eta|<0.1"
+        elif region == DetRegions.noCrack:
+            text = "|#eta|>0.1"
+        elif region == DetRegions.Barrel:
+            text = "0.1<|#eta|<1.1"
+        elif region == DetRegions.Transition:
+            text = "1.1<|#eta|<1.3"
+        elif region == DetRegions.Endcap:
+            text = "1.3<|#eta|<2.0"
+        elif region == DetRegions.CSC:
+            text = "2.0<|#eta|<2.5"
+        self.DrawTLatex(x,y,text,self.Size,42,align)
         
     def DrawLegend (self,histos,x1,y1,x2,y2):
         leg = ROOT.TLegend(x1,y1,x2,y2)
@@ -76,6 +94,7 @@ class PlotUtils:
             #else:
             leg.AddEntry(histo[0],histo[0].GetTitle(),histo[1])
         leg.Draw()
+        return leg
         
     def Prepare2PadCanvas(self, cname, width=800, height=800):
         can = ROOT.TCanvas(cname,cname,width,height)
@@ -129,7 +148,7 @@ class PlotUtils:
                 #histo.GetYaxis().SetRangeUser(0.4,1.6)
                 histo.GetYaxis().SetNdivisions(3,ROOT.kTRUE)
             # not yet clear yet how to apply this on the y-axis only
-            ROOT.TGaxis.SetMaxDigits(3)
+            #ROOT.TGaxis.SetMaxDigits(3)
             finalRanges.append([ymin,ymax])
         else:
         
@@ -147,10 +166,10 @@ class PlotUtils:
                     
             GoodStops = [0.0,0.3,0.4,0.5,0.65,0.7,0.75,0.8,0.9,0.95,0.98,0.99,0.995,1.005,1.01,1.02,1.05,1.1,1.2,1.25,1.3,1.35,1.5,1.6,1.7,1.72]
             
-            ymaxl = [p for p in GoodStops  if p + 0.5 * abs(p - 1) > ymax]
+            ymaxl = [p for p in GoodStops  if p + 0.3 * abs(p - 1) > ymax]
             if len (ymaxl) > 0:
                 ymax = ymaxl[0]
-            yminl = [p for p in GoodStops if p- 0.5 * abs(p - 1)  < ymin ]
+            yminl = [p for p in GoodStops if p- 0.3 * abs(p - 1)  < ymin ]
             if len (yminl) > 0:
                 ymin = yminl[-1]
                             
@@ -161,7 +180,7 @@ class PlotUtils:
                 histo.GetYaxis().SetRangeUser(ymin - (0.5 * abs(1. - ymin)),ymax + 0.5 * abs(ymax - 1))
                 histo.GetYaxis().SetNdivisions(3,ROOT.kTRUE)
             # not yet clear yet how to apply this on the y-axis only
-            ROOT.TGaxis.SetMaxDigits(3)
+            #ROOT.TGaxis.SetMaxDigits(3)
             finalRanges.append([ymin,ymax])
         return finalRanges
     
@@ -171,6 +190,7 @@ class PlotUtils:
         
         finalRanges = []
         
+        avgerr = 0
         if fixRange:
             if ymin < .334:
                 histo.GetYaxis().SetRangeUser(ymin - 0.05,ymax + 0.05)
@@ -181,11 +201,16 @@ class PlotUtils:
                     # show exponent (smaller numbers) but shift it away
                     histo.GetXaxis().SetNoExponent(ROOT.kFALSE)
             # not yet clear yet how to apply this on the y-axis only
-            ROOT.TGaxis.SetMaxDigits(3)
-            ROOT.TGaxis.SetExponentOffset(1.)
+            #ROOT.TGaxis.SetMaxDigits(3)
+            ROOT.TGaxis.SetExponentOffset(2.)
             finalRanges.append([ymin,ymax])
         else:
             for histo in histos:
+                anavgerr = 0
+                for ibin in range(1,histo.GetNbinsX()+1):
+                    anavgerr += histo.GetBinError(ibin)/float(histo.GetNbinsX())
+                if anavgerr > avgerr:
+                    avgerr = anavgerr
                 histo.GetXaxis().SetNoExponent(ROOT.kTRUE)
                 if histo.InheritsFrom("TGraphAsymmErrors"):
                     if (ROOT.TMath.MaxElement(histo.GetN(),histo.GetY())<1.9) and (ROOT.TMath.MaxElement(histo.GetN(),histo.GetY()) > ymax):
@@ -197,8 +222,7 @@ class PlotUtils:
                         ymax = histo.GetMaximum(1.9)
                     if histo.GetMinimum(0.1) < ymin:
                         ymin = histo.GetMinimum(0.1)
-                    
-            GoodStops = [0.0,0.1,0.3,0.4,0.5,0.65,0.7,0.75,0.8,0.9,0.95,0.98,0.99,0.995,1.005,1.01,1.02,1.05,1.1,1.2,1.25,1.3,1.35,1.5,1.6,1.7,1.9,1.72]
+            GoodStops = [0.0,0.1,0.3,0.4,0.5,0.65,0.7,0.75,0.9,0.95,0.98,0.99,0.995,1.005,1.01,1.02,1.05,1.1,1.25,1.3,1.35,1.5,1.6,1.7,1.9,1.72]
             
             ymaxl = [p for p in GoodStops  if p + 0.5 * abs(p - 1) > ymax]
             if len (ymaxl) > 0:
@@ -238,7 +262,7 @@ class PlotUtils:
                     if histo.GetMinimum(0.4) < ymin:
                         ymin = histo.GetMinimum(0.4)
                 
-            GoodStops = [0.01,0.401,0.501,0.601,0.701,0.801,0.851,0.931]
+            GoodStops = [0.01,0.401,0.501,0.601,0.701,0.851,0.901,0.931]
 
             yminl = [p for p in GoodStops if p < ymin]
             if len (yminl) > 0:
@@ -259,6 +283,7 @@ class PlotUtils:
         if fixRange:
             for histo in histos:
                 histo.GetYaxis().SetRangeUser(ymin,ymax)
+            ROOT.TGaxis.SetExponentOffset(2.)
             
         else:
             for histo in histos:

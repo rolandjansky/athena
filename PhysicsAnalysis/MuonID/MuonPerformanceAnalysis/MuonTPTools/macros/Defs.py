@@ -4,14 +4,13 @@
 import ROOT, math
 import HistoDefs
 
-class Analysis:
-    Z_Reco = "ZmumuTPReco"
-    Z_Isol = "ZmumuTPIsol"
-    Z_Trig = "ZmumuTPTrig"
-    JP_Reco = "JPsiTPReco"
-    JP_Isol = "JPsiTPIsol"
-    JP_Trig = "JPsiTPTrig"
-    
+class Analysis: 
+    Z_Reco = "ZmumuTPReco" 
+    Z_Isol = "ZmumuTPIsol" 
+    Z_Trig = "ZmumuTPTrig" 
+    JP_Reco = "JPsiTPReco" 
+    JP_Isol = "JPsiTPIsol" 
+    JP_Trig = "JPsiTPTrig" 
     
 class ChargeProducts:
     OC="OC"
@@ -43,6 +42,7 @@ class Matches:
     LooseNoCalo ="LooseMuons_noCaloTag"
     Medium ="MediumMuons"
     Tight ="TightMuons"
+    HighPt ="HighPtMuons"
     ID ="IDTracks"
     ID_noMCP ="IDTracks_noMCP"
 
@@ -50,6 +50,12 @@ class PlotKinds:
     Probes="Probes"
     Matches="Matches"
     Efficiency="Efficiency"
+    
+class SampleTypes:
+    Data="Data",
+    Signal="Signal",
+    Irreducible="Irreducible",
+    Reducible="Reducible"
 
 class HistoKinds:
     Efficiency="Efficiency"
@@ -64,16 +70,17 @@ class Systematics:
     dR="dR"
     truth="Truth"
     BG="BG"
-    Det="DetectorRun1"
+    Charge="Charge"
+    #Det="DetectorRun1"
     All="Total"
 
 ExtraCuts = {
     DetRegions.All: "",
-    DetRegions.Crack: "abs(eta) < 0.1",
-    DetRegions.noCrack: "abs(eta) > 0.1",
-    DetRegions.Barrel: "abs(eta) > 0.1 && abs(eta) < 1.1",
-    DetRegions.Transition: "abs(eta) > 1.1 && abs(eta) < 1.3",
-    DetRegions.Endcap: "abs(eta) > 1.3 && abs(eta) < 2.0",
-    DetRegions.CSC: "abs(eta) > 2.0 && abs(eta) < 2.5",
+    DetRegions.Crack: "abs(probe_eta) < 0.1",
+    DetRegions.noCrack: "abs(probe_eta) > 0.1",
+    DetRegions.Barrel: "abs(probe_eta) > 0.1 && abs(probe_eta) < 1.1",
+    DetRegions.Transition: "abs(probe_eta) > 1.1 && abs(probe_eta) < 1.3",
+    DetRegions.Endcap: "abs(probe_eta) > 1.3 && abs(probe_eta) < 2.0",
+    DetRegions.CSC: "abs(probe_eta) > 2.0 && abs(probe_eta) < 2.5",
 }
 

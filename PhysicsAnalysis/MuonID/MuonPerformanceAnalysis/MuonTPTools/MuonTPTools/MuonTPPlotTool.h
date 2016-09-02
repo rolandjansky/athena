@@ -63,6 +63,7 @@ protected:
         bool m_doAsymmErrors;
         bool m_doEffPlots;
         bool m_doProbeMatchPlots;
+        bool m_is_on_DAOD;
 };
 
 #endif /* MUONTPPLOTTOOL_H_ */
