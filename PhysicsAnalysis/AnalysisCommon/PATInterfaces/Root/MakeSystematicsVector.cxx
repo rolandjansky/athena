@@ -65,7 +65,7 @@ namespace CP
   void MakeSystematicsVector ::
   testInvariant () const
   {
-    RCU_INVARIANT (this != nullptr);
+    //RCU_INVARIANT (this != nullptr);
     RCU_INVARIANT (!m_config.empty());
   }
 
