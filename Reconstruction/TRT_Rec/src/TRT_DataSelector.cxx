@@ -51,7 +51,7 @@ TRT_DataSelector::initialize()
 {
     // print where you are
     m_log = new MsgStream(msgSvc(), name());
-    *m_log << MSG::INFO << "TRT_DataSelector::initialize()" << endreq;
+    *m_log << MSG::INFO << "TRT_DataSelector::initialize()" << endmsg;
     if (m_log->level() < 3)
     {
 	if (m_log->level() < 2) m_verbose = true;
@@ -75,7 +75,7 @@ TRT_DataSelector::finalize()
 {
     delete m_log;
     m_log = new MsgStream(msgSvc(), name());
-    *m_log << MSG::INFO << "TRT_DataSelector::finalize()" << endreq;
+    *m_log << MSG::INFO << "TRT_DataSelector::finalize()" << endmsg;
     
     delete m_log;
     for (std::vector<TRT_RoadData*>::reverse_iterator rd = m_roadDataList.rbegin();
@@ -390,7 +390,7 @@ TRT_DataSelector::setDataContainer (const InDet::TRT_DriftCircleContainer* conta
     {
 	delete m_log;
 	m_log = new MsgStream(msgSvc(), name());
-	*m_log << MSG::VERBOSE << "setDataContainer: setting TRT_DriftCircleContainer" << endreq;
+	*m_log << MSG::VERBOSE << "setDataContainer: setting TRT_DriftCircleContainer" << endmsg;
     }
 }
 
