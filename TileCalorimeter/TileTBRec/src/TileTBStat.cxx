@@ -428,7 +428,7 @@ StatusCode TileTBStat::execute() {
 //              << std::endl << "Alpha: "  << lasAlpha << std::endl   << std::endl;
   }
   
-  //log<<MSG::DEBUG<<"execute() completed successfully"<<endreq;
+  //log<<MSG::DEBUG<<"execute() completed successfully"<<endmsg;
   return StatusCode::SUCCESS;
 }
 

@@ -1597,7 +1597,7 @@ StatusCode TileTBAANtuple::storeDigits() {
         // Digits in normal mode
 
         // store evtnr, bcid,crc, size
-        //log << MSG::INFO << "Normal mode, filling variables" << endreq;
+        //log << MSG::INFO << "Normal mode, filling variables" << endmsg;
         *m_rodBCIDVec[type] = (*itColl)->getRODBCID();
         *m_sizeVec[type] = (*itColl)->getFragSize();
         *m_evtVec[type] = m_evtNr;
