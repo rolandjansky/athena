@@ -10,8 +10,8 @@
  * $Id: BarrelDMConstruction.h,v 1.3 2007-07-08 18:50:15 tsulaia Exp $
  */
 
-#ifndef __BarrelDMConstruction_H__
-#define __BarrelDMConstruction_H__
+#ifndef LARGEOBARREL_BARRELDMCONSTRUCTION_H
+#define LARGEOBARREL_BARRELDMCONSTRUCTION_H
 
 // Forward declarations
 class GeoFullPhysVol;
@@ -35,17 +35,13 @@ namespace LArGeo {
     void create(GeoFullPhysVol* envelope);
 
   private: 
-
-    // It is illegal to copy a BarrelDMConstruction:
-    BarrelDMConstruction (const BarrelDMConstruction &);
-
-    // It is illegal to assign a BarrelDMConstruction:
-    BarrelDMConstruction & operator= (const BarrelDMConstruction &);
-
+    // It is illegal to copy/assign a BarrelDMConstruction:
+    BarrelDMConstruction (const BarrelDMConstruction &) = delete;
+    BarrelDMConstruction & operator= (const BarrelDMConstruction &) = delete;
   };
 
  
 
 }  // namespace LArGeo
 
-#endif // __BarrelDMConstruction_H__
+#endif // LARGEOBARREL_BARRELDMCONSTRUCTION_H

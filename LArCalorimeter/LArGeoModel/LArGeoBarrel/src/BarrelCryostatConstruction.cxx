@@ -150,7 +150,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
     throw std::runtime_error("Error in BarrelCryostatConstruction, cannot access RDBAccessSvc");
 
   DecodeVersionKey larVersionKey(geoModel, "LAr");
-  log << MSG::DEBUG << "Getting primary numbers for " << larVersionKey.node() << ", " << larVersionKey.tag() << endreq;
+  log << MSG::DEBUG << "Getting primary numbers for " << larVersionKey.node() << ", " << larVersionKey.tag() << endmsg;
 
   // ---- Alignable transforms for the barrel:
   // 1. HalfLar + Presampler (pos/neg)
@@ -499,7 +499,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
                                                               larVersionKey.tag(),
                                                               larVersionKey.node());
     if (cryoBolts->size() >0) {
-        log << MSG::INFO << " new description with barrel croystat bolts" << endreq;
+        log << MSG::INFO << " new description with barrel croystat bolts" << endmsg;
         const IRDBRecord * cryoBoltsRecord = (*cryoBolts) [0];
         double rmax_vis = cryoBoltsRecord->getDouble("RBOLT");
         int    Nvis     = cryoBoltsRecord->getInt("NBOLT");
@@ -549,7 +549,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
         }
      }  //  bolts found in the geometry database
      else {
-        log << MSG::INFO << " old description withut bold in the geometry database " << endreq;
+        log << MSG::INFO << " old description withut bold in the geometry database " << endmsg;
      }
 
     
@@ -602,7 +602,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
       int nPairTot,indexWall;
       IRDBRecordset_ptr newBlocks        = rdbAccess->getRecordsetPtr("LArBarBumperBlocks", larVersionKey.tag(),larVersionKey.node());
       if (newBlocks->size() >0 ) {
-            log << MSG::INFO << " new coil bumper description " << endreq;
+            log << MSG::INFO << " new coil bumper description " << endmsg;
             const IRDBRecord * newBlocksRecord = (*newBlocks) [0];
             length         =   newBlocksRecord->getDouble("LENGTH");     // deltaX
             height         =   newBlocksRecord->getDouble("HEIGHT");     // delta Y
@@ -617,7 +617,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
             }
       }
       else {
-         log << MSG::INFO << " old coil bumper description " << endreq;
+         log << MSG::INFO << " old coil bumper description " << endmsg;
         IRDBRecordset_ptr tiBlocks        = rdbAccess->getRecordsetPtr("TiBlocks", larVersionKey.tag(),larVersionKey.node());
         const IRDBRecord * tiBlocksRecord = (*tiBlocks)  [0];
         length         =   tiBlocksRecord->getDouble("LENGTH");    // delta X
@@ -681,7 +681,7 @@ GeoFullPhysVol* LArGeo::BarrelCryostatConstruction::GetEnvelope()
 
      }   // r>0.
      else {
-       log << MSG::WARNING << " could not find wall index plane => no coil bumper description " << endreq;
+       log << MSG::WARNING << " could not find wall index plane => no coil bumper description " << endmsg;
      }
 
     }  // end of coil supports
