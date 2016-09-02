@@ -1,0 +1,21 @@
+package PanTauUtils
+
+author Sebastian Fleischmann <sebastian.fleischmann@cern.ch>
+
+use AtlasPolicy           AtlasPolicy-* 
+use PanTauEvent           PanTauEvent-*             Reconstruction/PanTau
+
+private
+use GaudiInterface        GaudiInterface-*          External
+use tauEvent              tauEvent-*                Reconstruction
+use TauTrackEvent         TauTrackEvent-*           PhysicsAnalysis/TauID
+
+public
+apply_pattern installed_library
+library PanTauUtils *.cxx
+
+private
+#macro cppdebugflags '$(cppdebugflags_s)'
+#macro_remove componentshr_linkopts "-Wl,-s"
+
+
