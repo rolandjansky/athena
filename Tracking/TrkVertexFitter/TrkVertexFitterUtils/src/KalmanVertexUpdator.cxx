@@ -51,7 +51,7 @@ namespace Trk{
  }
  
 
- xAOD::Vertex * KalmanVertexUpdator::update(xAOD::Vertex& vtx, VxTrackAtVertex& trk, int sign) const
+ xAOD::Vertex * KalmanVertexUpdator::update(xAOD::Vertex& vtx, const VxTrackAtVertex& trk, int sign) const
  {
 
    //getting tracks at vertex
@@ -85,11 +85,8 @@ namespace Trk{
      }
    }//end for loop
 
-   //passing the pointer schema fix    KP
-   Trk::VxTrackAtVertex * clone_trk = &trk;
    if (!found)
    {
-     clone_trk = trk.clone();
      ATH_MSG_VERBOSE ("The track requested for removal or adding is not found in the vector of tracks");
      if (sign<0) {
        ATH_MSG_ERROR ("During remove track has to be already attached to the vertex");
@@ -97,9 +94,8 @@ namespace Trk{
        return &vtx;
      }
 
-     //  tracksAtVertex->push_back(trk.clone());
-     tracksAtVertex->push_back( *clone_trk ); // TODO: delete clone_trk? No memory leak with trk.clone() is there? (no longer passing the pointer to tracksAtVertex)
-     righttrack = tracksAtVertex->end();
+     tracksAtVertex->push_back( trk ); // tracksAtVertex stores the objects themselves in xAOD EDM and not pointers to them - this simply calls the copy constructor
+     righttrack = tracksAtVertex->end()-1; // vector::end() returns an iterator referring to the "past-the-end" element and thus does not point to any element!
      ATH_MSG_VERBOSE ("Updating vertex with new track which is still not attached to vertex. Adding it before updating...");
    }
 
@@ -110,7 +106,6 @@ namespace Trk{
    double trkWeight = trk.weight();
    //  std::cout<< "Updator::update Weight is: " << trkWeight <<std::endl;
 
-   //const RecVertex & old_vrt = RecVertex( vtx.position(), vtx.covariancePosition(), vtx.numberDoF(), vtx.chiSquared() );
    const xAOD::Vertex & old_vrt = xAOD::Vertex(vtx); // this also copies track info from vtx which old_vrt doesn't need...oh well
 
    // ATH_MSG_DEBUG ("old vertex is: " << old_vrt); //TODO: operator << not defined for xAOD::Vertex
@@ -146,28 +141,13 @@ namespace Trk{
    if( sign > 0 )
    {
      //changes towards fit quality
-     //   trk.setWeight(trkWeight);   
-     //   trk.setTrackQuality(Trk::FitQuality(trk_chi, 2 * trkWeight) );
-     clone_trk->setWeight( trkWeight );
-     clone_trk->setTrackQuality( Trk::FitQuality(trk_chi, 2 * trkWeight) );
+     righttrack->setWeight( trkWeight );
+     righttrack->setTrackQuality( Trk::FitQuality(trk_chi, 2 * trkWeight) );
    }
 
    if( sign < 0 )
    {
-     //*******************************************************************
-     //      What the following 2 lines were doing previously before EDM migration was deleting
-     //      the pointer to the vxTrackAtVertex which was stored in the
-     //      vector of pointers to vxTrackAtVertices inside VxCandidate
-     //
-     //      In xAOD::Vertex, the vector of vxTrackAtVertices are the actual
-     //      objects themselves, not pointers to them - therefore, we no longer need to
-     //      delete the contents of the iterator righttrack
-     //
-     //      -David S.
-     //******************************************************************* 
-     //delete *righttrack;
-     //righttrack = 0;
-     tracksAtVertex->erase( righttrack ); // righttrack still contains the address to the vxTrackAtVertex needing to be erased
+     tracksAtVertex->erase( righttrack );
    }
 
    //ATH_MSG_VERBOSE ("final vtx "  <<  vtx ); //TODO: operator << not defined for xAOD::Vertex
@@ -225,10 +205,12 @@ namespace Trk{
    Amg::Vector3D new_vrt_position =  new_vrt_weight_later_cov*(old_vrt_weight * old_pos + trackWeight * sign * A.transpose() * gB *(trackParameters - constantTerm) );
    //  std::cout << "New vertex position obtained: " << new_vrt_position << std::endl;
 
-   xAOD::Vertex r_vtx = xAOD::Vertex();
-   r_vtx.makePrivateStore(); // only need position and covariancePosition from r_vtx, so don't bother setting fitQuality
+   xAOD::Vertex r_vtx;
+   r_vtx.makePrivateStore();
+   // r_vtx was a RecVertex before vertex EDM migration and instantiated using RecVertex(pos,cov)
    r_vtx.setPosition( new_vrt_position );
    r_vtx.setCovariancePosition( new_vrt_weight_later_cov );
+   r_vtx.setFitQuality( 0., 0.); // therefore, set FitQuality to default just like in RecVertex copy constructor
    ATH_MSG_VERBOSE ( "Maths done, returning a valid xAOD::Vertex.");
 
    return r_vtx;

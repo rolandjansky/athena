@@ -69,7 +69,7 @@ namespace Trk
 /**
  * Method where the fit is actually done
  */
-  xAOD::Vertex* update(xAOD::Vertex& vtx,  VxTrackAtVertex& trk,int sign) const;
+  xAOD::Vertex* update(xAOD::Vertex& vtx, const VxTrackAtVertex& trk,int sign) const;
  
 /**
  * Helper method calculating the interstep Chi2 increment
