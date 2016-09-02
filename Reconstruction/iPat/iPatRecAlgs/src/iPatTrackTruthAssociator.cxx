@@ -396,7 +396,7 @@ iPatTrackTruthAssociator::execute()
 	    
 	    if (msgLvl(MSG::DEBUG))
 	    {
-		ATH_MSG_DEBUG( endreq << " iPatTrackTruthAssociator: possible fake-track with "
+		ATH_MSG_DEBUG( endmsg << " iPatTrackTruthAssociator: possible fake-track with "
 			       << uniqueSilicon << " unique, "
 			       << wrongSilicon  << " wrong and "
 			       << sharedSilicon << " shared SiliconClusters" );
