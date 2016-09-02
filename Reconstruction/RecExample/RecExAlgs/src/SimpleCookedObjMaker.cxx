@@ -39,7 +39,7 @@ StatusCode SimpleCookedObjMaker::initialize()
 {
   // Code entered here will be executed once at program start.
   
-  ATH_MSG_INFO(" initialize()" << endreq
+  ATH_MSG_INFO(" initialize()" << endmsg
                << " Cooked Message is: " << m_cookedMessage);
 
   if (m_rawObjNames.size()==0) {
