@@ -31,11 +31,11 @@ PanTau::TauClassificationTypes::TruthTauType PanTau::TauClassificationUtility::g
     } else if (truthTau.type(TauID::TruthTau::FiveProng)) {
         truthTypeIndex = TauClassificationTypes::TruthOther;
     } else {
-        log << MSG::WARNING  << "Something is wrong, could not identify truth tau type of " << truthTau.dumpType() << " BC =" << truthTau.barcode() << endreq;
-        log << MSG::WARNING  << "Resonance: " << truthTau.resonancePdgId() << ", charged daughters: " << endreq;
+        log << MSG::WARNING  << "Something is wrong, could not identify truth tau type of " << truthTau.dumpType() << " BC =" << truthTau.barcode() << endmsg;
+        log << MSG::WARNING  << "Resonance: " << truthTau.resonancePdgId() << ", charged daughters: " << endmsg;
         std::vector< const TruthParticle * >::const_iterator chargedProdIter = truthTau.chargedProducts().begin();
         for (; chargedProdIter != truthTau.chargedProducts().end(); chargedProdIter++) {
-            log << MSG::WARNING  << "  * BC " << (*chargedProdIter)->barcode() << ", PDG ID " << (*chargedProdIter)->pdgId() << endreq;
+            log << MSG::WARNING  << "  * BC " << (*chargedProdIter)->barcode() << ", PDG ID " << (*chargedProdIter)->pdgId() << endmsg;
         }
     }
     return truthTypeIndex;
@@ -44,7 +44,7 @@ PanTau::TauClassificationTypes::TruthTauType PanTau::TauClassificationUtility::g
 PanTau::TauClassificationTypes::PanTauRecoMode PanTau::TauClassificationUtility::getSeedTauType(const PanTau::TauSeed& seed, MsgStream& log) const
 {
     TauClassificationTypes::PanTauRecoMode seedTypeIndex = seed.getRecoModeLoose();
-    log << MSG::VERBOSE << "tau type is: " << seedTypeIndex << endreq;
+    log << MSG::VERBOSE << "tau type is: " << seedTypeIndex << endmsg;
     return seedTypeIndex;
 }
 
@@ -57,7 +57,7 @@ PanTau::TauClassificationTypes::PanTauRecoMode PanTau::TauClassificationUtility:
         // the PanTau case: Use PanTau::TauSeed to identify the type
         const TauSeed* tauSeed = tauDetails->seed();
         if (!tauSeed) {
-            log << MSG::WARNING << "Could not get TauSeed for PanTau TauJet! Cannot identify its reconstructed type" << endreq;
+            log << MSG::WARNING << "Could not get TauSeed for PanTau TauJet! Cannot identify its reconstructed type" << endmsg;
         } else {
             candTypeIndex = this->getSeedTauType(*tauSeed, log);
         } // end if (!tauSeed)
