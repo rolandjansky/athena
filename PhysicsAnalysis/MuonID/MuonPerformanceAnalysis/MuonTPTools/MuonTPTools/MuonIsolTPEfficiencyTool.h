@@ -25,7 +25,6 @@ public:
     void matchProbes(ProbeContainer*, const xAOD::IParticleContainer*) const;
      
 private:
-    
 
 };
 

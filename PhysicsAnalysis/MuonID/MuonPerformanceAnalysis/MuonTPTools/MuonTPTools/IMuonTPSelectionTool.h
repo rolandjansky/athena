@@ -31,11 +31,16 @@ public:
   // check if the tool represents a nominal run or a sys variation
   virtual bool isNominal() const=0;
   
+  // check if the probe is decorated with calorimeter energy depositionsa
+  virtual bool probeHasCaloDeposits() const=0;
+
   // check if the tool is a systematic variation that can not be evaluated using the nominal ntuples
   virtual bool notIncludedInNominal() const=0;
   
-  virtual std::vector<std::string> tagTriggerList() const = 0;
+  virtual const std::vector<std::string>& tagTriggerList         () const = 0;
+  virtual const std::vector<std::string>& tagTriggerListRerunMode() const = 0;
 
+  virtual const std::vector<std::string>& observerTriggerList(const std::string &) const = 0;
 };
 
 #endif

@@ -21,6 +21,7 @@ MuonTPPlotTool::MuonTPPlotTool(std::string name)
   declareProperty("DoAsymmErrorGraphs",  m_doAsymmErrors = false);
   declareProperty("ProduceEfficiencies", m_doEffPlots = false);
   declareProperty("ProduceProbeMatchPlots", m_doProbeMatchPlots = true);
+  declareProperty("IsRunOnDAOD",    m_is_on_DAOD=false);
 
 }
 

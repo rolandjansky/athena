@@ -9,45 +9,56 @@
 #include "MCTruthClassifier/MCTruthClassifierDefs.h"
 // #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h"
 #include "xAODTruth/TruthParticleContainer.h"
+#include "MuonTPTools/TrackParticlexAODHelpers.h"
 
 //**********************************************************************
 
+//========================================================================================================================
 MuonTPSelectionTool::MuonTPSelectionTool(std::string myname) : 
-    AsgTool(myname),m_tag_Triggers(0), 
+    AsgTool(myname),
+    m_tag_Triggers(0), 
+    m_tag_Triggers_RerunMode(0), 
     m_selection_tool(),
-    m_trigTool("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_matchTool("Trig::ITrigMuonMatching/TrigMuonMatching"), 
     m_grlTool("GoodRunsListSelectionTool/GRLTool")
 {
     declareProperty("TagPtCut",       m_tagPtCut = 20000.0);
     declareProperty("TagEtaCut",      m_tagEtaCut = 2.5);
     declareProperty("ProbePtCut",     m_probePtCut = 20000.0);
-    declareProperty("ProbeEtaCut",    m_probeEtaCut = 2.5);
+    declareProperty("ProbeEtaCut",    m_probeEtaCut = 3.0);
     declareProperty("HighMassWindow", m_highMassWindow = 101000.0);
     declareProperty("LowMassWindow",  m_lowMassWindow = 81000.0);
-    declareProperty("EfficiencyFlag", m_efficiencyFlag = "IDProbes");
-    declareProperty("TagTriggerList", m_tag_Triggers );
-    declareProperty("SelectionTool",  m_selection_tool);
-    declareProperty("TriggerDecisionTool", m_trigTool);
-    declareProperty("TriggerMatchTool",    m_matchTool);
-    declareProperty("IsNominal",    m_isNominal=true);
-    declareProperty("IsNotIncludedInNominal",    m_isNotPartOfNominal=false);
-    declareProperty("GRLTool",        m_grlTool, "The private GoodRunsListSelectionTool");
+    declareProperty("IsNominal",              m_isNominal=true);
+    declareProperty("IsNotIncludedInNominal", m_isNotPartOfNominal=false);
+
+    declareProperty("EfficiencyFlag",          m_efficiencyFlag = "IDProbes");
+    declareProperty("TagTriggerList",          m_tag_Triggers);
+    declareProperty("TagTriggerListRerunMode", m_tag_Triggers_RerunMode);
+    declareProperty("ObserverTriggerListL1",   m_observer_Triggers_L1);
+    declareProperty("ObserverTriggerListHLT",  m_observer_Triggers_HLT);
+
+    declareProperty("SelectionTool",           m_selection_tool);
+    declareProperty("TriggerUtils",     m_trigUtils);
+    declareProperty("GRLTool",                 m_grlTool, "The private GoodRunsListSelectionTool");
+    declareProperty("IDTrackIsoDecorator",                 m_trk_iso_tool);
+    declareProperty("IDTrackCaloDepositsDecorator",        m_trk_calodep_tool);
+    declareProperty("DecorateProbeWithCaloDeposits",       m_addCaloDeposits = false);
+    declareProperty("IsRunOnDAOD",    m_is_on_DAOD=false);
 
 }
 
+//========================================================================================================================
 StatusCode MuonTPSelectionTool::initialize()
 {
-    
     ATH_CHECK(m_selection_tool.retrieve());
-    ATH_CHECK(m_trigTool.retrieve());
-    ATH_CHECK(m_matchTool.retrieve());
+    ATH_CHECK(m_trigUtils.retrieve());
     ATH_CHECK(m_grlTool.retrieve());
+    ATH_CHECK(m_trk_iso_tool.retrieve());
+    ATH_MSG_INFO("m_is_on_DAOD: "<<m_is_on_DAOD);
+    if (!m_is_on_DAOD) ATH_CHECK(m_trk_calodep_tool.retrieve());
     return StatusCode::SUCCESS;
 }
 
-//**********************************************************************
-
+//========================================================================================================================
 ProbeContainer* MuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* tags, const xAOD::IParticleContainer* probes) const
 {
   // use m_muonSelectionTool to select muons
@@ -106,8 +117,8 @@ ProbeContainer* MuonTPSelectionTool::selectProbes(const xAOD::MuonContainer* tag
 
   return probeCont;
 }
-//**********************************************************************
 
+//========================================================================================================================
 bool MuonTPSelectionTool::passGRL(const xAOD::EventInfo* info) const
 {
     if(!info->eventType(xAOD::EventInfo::IS_SIMULATION)){
@@ -116,12 +127,15 @@ bool MuonTPSelectionTool::passGRL(const xAOD::EventInfo* info) const
     return true;
 }
 
+//========================================================================================================================
 bool MuonTPSelectionTool::isTag(const xAOD::Muon* tag, const xAOD::IParticle* probe) const
 {
   return ( tag->p4().DeltaR(probe->p4()) < 0.01);
 }
-int MuonTPSelectionTool::ChargeProd (const xAOD::Muon* tag, const xAOD::IParticle* probe) const {
 
+//========================================================================================================================
+int MuonTPSelectionTool::ChargeProd (const xAOD::Muon* tag, const xAOD::IParticle* probe) const 
+{
   // case of a muon probe
   const xAOD::Muon* muprobe = dynamic_cast<const xAOD::Muon*>(probe);
   if (muprobe) {
@@ -134,43 +148,16 @@ int MuonTPSelectionTool::ChargeProd (const xAOD::Muon* tag, const xAOD::IParticl
   }
   return 0;
 }
-double MuonTPSelectionTool::DeltaPhiTP (const xAOD::Muon* tag, const xAOD::IParticle* probe) const{
+
+//========================================================================================================================
+double MuonTPSelectionTool::DeltaPhiTP (const xAOD::Muon* tag, const xAOD::IParticle* probe) const
+{
   return fabs(tag->p4().DeltaPhi(probe->p4()));
 }
 
-double MuonTPSelectionTool::ptcone_trk (const xAOD::IParticle* part,  double ) const{
-    
-  //  this is present in the MUON1 derivation or if our tool already wrote it in a previous iteration
-  if (part->isAvailable<float>("MUON1_ptcone40")){
-    try{
-      return part->auxdataConst<float>("MUON1_ptcone40");
-    }
-    catch(SG::ExcBadAuxVar failed){
-      // sometimes this is missing
-      ATH_MSG_WARNING("Missing PtCone40 decoration!");
-      return -1;
-    }
-  }
-  else {  
-    return -1;
-  }
-}
-double MuonTPSelectionTool::etcone_trk (const xAOD::IParticle* part,  double ) const{
-    
-  if (part->isAvailable<float>("MUON1_topoetcone40")){
-    try{
-      return part->auxdataConst<float>("MUON1_topoetcone40");
-    }
-    catch(SG::ExcBadAuxVar failed){
-      // sometimes this is missing
-      ATH_MSG_WARNING("Missing EtCone40 decoration!");
-      return -1;
-    }
-  }
-  return -1;
-}
-bool MuonTPSelectionTool::isFinalStateTruthMuon(const xAOD::IParticle* part) const{
-
+//========================================================================================================================
+bool MuonTPSelectionTool::isFinalStateTruthMuon(const xAOD::IParticle* part) const
+{
   // first, make sure we are actually looping over truth particles!
   const xAOD::TruthParticle* truthmu = dynamic_cast <const xAOD::TruthParticle*>(part);
   if (!truthmu) return false;
@@ -195,73 +182,104 @@ bool MuonTPSelectionTool::isFinalStateTruthMuon(const xAOD::IParticle* part) con
   return true;
 }
 
-bool MuonTPSelectionTool::isTruthMatched(const xAOD::IParticle* part) const{
-
+//========================================================================================================================
+bool MuonTPSelectionTool::isTruthMatched(const xAOD::IParticle* part) const
+{
   // it's an xAOD::Muon
   const xAOD::Muon* muon = dynamic_cast<const xAOD::Muon*>(part);
   if(muon) {
     if(muon->isAvailable<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink")) {
       ElementLink<xAOD::TruthParticleContainer> link = muon->auxdata<ElementLink<xAOD::TruthParticleContainer> >("truthParticleLink");
-      if(link.isValid() && (*link)->auxdata<int>("truthType")==MCTruthPartClassifier::IsoMuon)
-	return true;
+      try{
+          if(link.isValid() && (*link)->auxdata<int>("truthType")==MCTruthPartClassifier::IsoMuon)
+          return true;
+      }
+      catch (SG::ExcBadAuxVar &){
+          ATH_MSG_WARNING("Unable to access truth matching info for probe!");
+      }
     }
   } 
   // it's an xAOD::TrackParticle 
   else{
     const xAOD::TrackParticle* track = dynamic_cast<const xAOD::TrackParticle*>(part);
-    if(track && track->auxdata<int>("truthType")==MCTruthPartClassifier::IsoMuon)
-      return true;    
+    try{
+        if(track && track->auxdata<int>("truthType")==MCTruthPartClassifier::IsoMuon)
+          return true;    
+        }
+    catch (SG::ExcBadAuxVar &){
+        ATH_MSG_WARNING("Unable to access truth matching info for probe!");
+    }
   }  
 
   return false;
 }
 
-bool MuonTPSelectionTool::passDummyTrigger(const xAOD::Muon* tag) const{
+//========================================================================================================================
+bool MuonTPSelectionTool::passDummyTrigger(const xAOD::Muon* tag) const
+{
   // until we have real trigger info, we select muons that went into the endcaps and are well above the pt threshold...
   //     (void)passTagTrigger(tag);
   return (fabs(tag->eta()) > 1.1 && tag->pt() > 25000.);
 }
-bool MuonTPSelectionTool::TagTriggerMatch (const xAOD::Muon* tag) const{
 
-  //  nothing requested -> pass through
-  if (m_tag_Triggers.size() == 0) return true;
-  //  no trigger info --> dummy trigger
-  if (m_trigTool->getListOfTriggers().size() == 0) {
-    ATH_MSG_DEBUG("Running with dummy trigger - no triggers found");
-    return passDummyTrigger(tag);
-  }
-  //  require the tag to match one of our triggers
-  bool pass = false;
-  for (auto trig: m_tag_Triggers) {
-      
-    ATH_MSG_DEBUG("Matching on "<<trig <<": \t"<<m_matchTool->match(tag, trig));
-    bool res = (m_trigTool->isPassed(trig) && m_matchTool->match(tag, trig));
-    pass|=res;
-    
-    // decorate the tag with the trigger matching outcome, for the ntuples
-    SG::AuxElement::Decorator<bool> dec_trig ( std::string("trigmatch_")+trig); 
-    dec_trig(*tag) = res;
-    float dr = -1.;
-    if (res){
-        dr = m_matchTool->minDelR(tag, trig,0.6);
+//========================================================================================================================
+bool MuonTPSelectionTool::TagTriggerMatch (const xAOD::Muon* tag) const
+{
+
+
+    //  nothing requested -> pass through
+    if (m_tag_Triggers.size() == 0) return true;
+    //  require the tag to match one of our triggers
+    bool pass = false;
+    for (auto trig: m_tag_Triggers) {
+    	pass |= m_trigUtils->Trig_Match(*tag, trig);
     }
-    SG::AuxElement::Decorator<float> dr_trig ( std::string("trigmatch_dR_")+trig); 
-    dr_trig(*tag) = dr;
-  }
-  return pass;
+    return pass;
 }
 
-void MuonTPSelectionTool::AddCutFlowHist(MuonTPCutFlowBase* hist){
+//========================================================================================================================
+bool MuonTPSelectionTool::TagTriggerMatch_RerunMode (const xAOD::Muon* tag) const
+{
+    //  nothing requested -> pass through
+    if (m_tag_Triggers_RerunMode.size() == 0) return true;
+    //  require the tag to match one of our triggers
+    bool pass = false;
+    for (auto trig: m_tag_Triggers_RerunMode) {
+    	pass |= m_trigUtils->Trig_Match_RM(*tag, trig);
+    }
+    return pass;
+}
+
+//========================================================================================================================
+void MuonTPSelectionTool::AddCutFlowHist(MuonTPCutFlowBase* hist)
+{
   m_cutFlows.push_back(hist);
 }
-void MuonTPSelectionTool::FillCutFlows(std::string step, double weight) const{
+
+//========================================================================================================================
+void MuonTPSelectionTool::FillCutFlows(std::string step, double weight) const
+{
   for (auto cf : m_cutFlows){
     cf->fill(step.c_str(),weight);
   }
 }
 
-bool MuonTPSelectionTool::PassIPCuts(const xAOD::TrackParticle* tp, double d0cut, double d0signcut, double z0cut) const{
+//========================================================================================================================
+const std::vector<std::string>& MuonTPSelectionTool::observerTriggerList(const std::string &key) const
+{
+  if(key == "L1")  return m_observer_Triggers_L1;
+  if(key == "HLT") return m_observer_Triggers_HLT;
+  
+  ATH_MSG_WARNING("observerTriggerList - unknown key: " << key);
+  
+  static std::vector<std::string> empty;
 
+  return empty;
+}
+
+//========================================================================================================================
+bool MuonTPSelectionTool::PassIPCuts(const xAOD::TrackParticle* tp, double d0cut, double d0signcut, double z0cut) const
+{
   // find the PV
   const xAOD::VertexContainer* primVertices = 0 ;
   const xAOD::Vertex* pv = 0;
@@ -272,15 +290,16 @@ bool MuonTPSelectionTool::PassIPCuts(const xAOD::TrackParticle* tp, double d0cut
     pv = primVertices->at(0);
   }
 
-  float d0 = 0;
-  float d0sign = 0;
-  float z0 = 0;
-
-  d0 = tp->d0();
-  float d0err = sqrt(tp->definingParametersCovMatrix()(0,0));
-  d0sign = fabs(d0) / (d0err != 0 ? d0err : 1e-9);
-  z0 = tp->z0();
-  if (pv) z0 += tp->vz() - pv->z();
+  const xAOD::EventInfo* info = 0;
+  ATH_MSG_DEBUG(""<<evtStore());
+  if (evtStore()->retrieve(info, "EventInfo").isFailure()){
+    ATH_MSG_FATAL( "Unable to retrieve Event Info" );
+  }
+  
+  float d0     = tp->d0();
+  float d0sign = xAOD::MuonTP_TrackingHelpers::d0significance(tp, info->beamPosSigmaX(), info->beamPosSigmaY(), info->beamPosSigmaXY() );
+  float z0     = tp->z0();
+  if (pv) z0   += tp->vz() - pv->z();
 
   if (d0cut >= 0 && fabs(d0) > d0cut) return false;
   if (d0signcut >= 0 && fabs(d0sign) > d0signcut) return false;
@@ -289,15 +308,15 @@ bool MuonTPSelectionTool::PassIPCuts(const xAOD::TrackParticle* tp, double d0cut
   return true;
 }
 
+//========================================================================================================================
+bool MuonTPSelectionTool::Event_Trigger (void) const
+{
+    // if we are not requesting a trigger, or if the DS has no trigger info, accept the event
+    if (m_tag_Triggers.size() == 0) return true;
+    // otherwise see if one of our triggers is passed.
 
-bool MuonTPSelectionTool::Event_Trigger (void) const{
-  // if we are not requesting a trigger, or if the DS has no trigger info, accept the event
-  ATH_MSG_DEBUG("Have "<<m_trigTool->getListOfTriggers().size() <<" Triggers");
-  if (m_tag_Triggers.size() == 0 || m_trigTool->getListOfTriggers().size() == 0) return true;
-  // otherwise see if one of our triggers is passed.
-  for (auto trig: m_tag_Triggers){
-    ATH_MSG_DEBUG("Test "<<trig <<": \t"<<m_trigTool->isPassed(trig));
-    if (m_trigTool->isPassed(trig)) return true;
-  }
-  return false;
+    for (auto trig: m_tag_Triggers){
+        if (m_trigUtils->TrigDecision(trig)) return true;
+    }
+    return false;
 }

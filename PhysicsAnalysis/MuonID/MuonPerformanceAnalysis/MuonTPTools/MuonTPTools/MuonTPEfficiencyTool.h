@@ -15,8 +15,11 @@
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "AsgTools/AsgTool.h"
 #include "AsgTools/ToolHandle.h"
-#include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
-#include "TrigMuonMatching/ITrigMuonMatching.h"
+#include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
+#include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "MuonTPTools/IIDTrackIsolationDecoratorTool.h"
+#include "MuonTPTools/MuonTPTrigUtils.h"
+#include "IsolationSelection/IsolationSelectionTool.h"
 
 class MuonTPEfficiencyTool
 : public asg::AsgTool,
@@ -49,8 +52,14 @@ public:
   // check if the tool represents a nominal matching
   bool isNominal() const {return m_isNominal;}
   
+  // check if the tool applies SF
+  bool doesApplySF() const {return m_do_sf;}
+  
   // return the triger item (if any configured)
   std::string triggerItem() {return m_trigger_item;}
+
+  // return if the tool is using a rerun mode trigger
+  bool rerunTriggerMode() {return m_rerunMode;}  
 
 protected:
 
@@ -62,10 +71,15 @@ protected:
   bool m_isNominal;
   std::string m_trigger_item;
   ToolHandle<CP::IMuonSelectionTool> m_selection_tool;
-  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_sf_tool;
+  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_reco_sf_tool;
+  ToolHandle<CP::IMuonEfficiencyScaleFactors> m_isol_sf_tool;
+  ToolHandle<CP::IMuonTriggerScaleFactors> m_trig_sf_tool;
   bool m_do_sf;
-//   ToolHandle<Trig::TrigDecisionTool> m_trigTool;
-  ToolHandle<Trig::ITrigMuonMatching> m_matchTool;
+
+  ToolHandle<IMuonTPTrigUtils> m_trigUtils;
+  ToolHandle<CP::IIsolationSelectionTool> m_isolTool;
+  ToolHandle<IIDTrackIsolationDecoratorTool> m_IDtrack_isol_tool;
+  bool m_rerunMode;
 
 };
 
