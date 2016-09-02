@@ -46,7 +46,7 @@ void TrackParticleSlimmingLastHitHdlr::commit()
       else
 	{
 	  Athena::MsgStreamMember log(Athena::Options::Eager, m_thisName);
-	  log << MSG::ERROR << "Order in Trk::ParametersBase vector different that expected ! Not doing anything !" << endreq;
+	  log << MSG::ERROR << "Order in Trk::ParametersBase vector different that expected ! Not doing anything !" << endmsg;
 	}
     }
 }
