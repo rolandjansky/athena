@@ -173,7 +173,7 @@ void TruthParticleBuilder::setupFilterTool( Property& /*doFiltering*/ )
 	 << m_filterTool.type() << "/" 
 	//<< m_filterTool.name() 
 	 << "] !!"
-	 << endreq
+	 << endmsg
 	 << "Memory won't be freed until ::finalize()...");
     } else {
       ATH_MSG_DEBUG
@@ -211,7 +211,7 @@ void TruthParticleBuilder::setupCnvTool( Property& /*doTruthParticles*/ )
 	 << m_cnvTool.type() << "/" 
 	 //<< m_cnvTool.name() 
 	 << "] !!"
-	 << endreq
+	 << endmsg
 	 << "Memory won't be freed until ::finalize()...");
     } else {
       ATH_MSG_DEBUG
