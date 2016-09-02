@@ -12,6 +12,7 @@
 // includes
 //
 
+#undef NDEBUG
 #include <PATInterfaces/SystematicVariation.h>
 
 #include <RootCoreUtils/Assert.h>
