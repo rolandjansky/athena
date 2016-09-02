@@ -37,7 +37,7 @@ StatusCode SimpleRawObjMaker::initialize()
   
   ATH_MSG_INFO(name() << " initialize()"
                << endmsg
-               << " Raw Message is: " << m_rawMessage << endreq
+               << " Raw Message is: " << m_rawMessage << endmsg
                << " will write out RawObj with key " << m_rawObjOutputName);
 
 
