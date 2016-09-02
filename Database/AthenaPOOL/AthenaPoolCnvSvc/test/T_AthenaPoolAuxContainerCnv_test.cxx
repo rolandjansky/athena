@@ -258,6 +258,7 @@ int main()
 
   TestCnvSvc* svc = new TestCnvSvc ("AthenaPoolCnvSvc", pSvcLoc);
   ISvcManager* mgr = dynamic_cast<ISvcManager*> (pSvcLoc);
+  if (!mgr) std::abort();
   if (mgr->addService (svc).isFailure())
     std::abort();
   

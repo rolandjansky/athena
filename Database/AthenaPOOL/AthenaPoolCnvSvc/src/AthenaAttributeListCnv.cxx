@@ -33,12 +33,12 @@ AthenaAttributeListCnv::~AthenaAttributeListCnv() {
 }
 //__________________________________________________________________________
 StatusCode AthenaAttributeListCnv::initialize() {
-   MsgStream log(messageService(), "AthenaAttributeListCnv");
+   MsgStream log(msgSvc(), "AthenaAttributeListCnv");
 
-   log << MSG::DEBUG << "initialize() in AthenaAttributeListCnv" << endreq;
+   log << MSG::DEBUG << "initialize() in AthenaAttributeListCnv" << endmsg;
    StatusCode status = Converter::initialize();
    if (!status.isSuccess()) {
-      log << MSG::ERROR << "Can not initialize Converter base class." << endreq;
+      log << MSG::ERROR << "Can not initialize Converter base class." << endmsg;
       return(status);
    }
    return(status);
@@ -50,8 +50,8 @@ StatusCode AthenaAttributeListCnv::createObj(IOpaqueAddress* pAddr, DataObject*&
     // extract an AthenaAttributeList pointer from an
     // AthenaAttrListAddress and return it
 
-    MsgStream log(messageService(), "AthenaAttributeListCnv");
-    log << MSG::DEBUG << "Creating AthenaAttrListAddress Object" << endreq;
+    MsgStream log(msgSvc(), "AthenaAttributeListCnv");
+    log << MSG::DEBUG << "Creating AthenaAttrListAddress Object" << endmsg;
 
     AthenaAttrListAddress* addr = dynamic_cast<AthenaAttrListAddress*>(pAddr);
 
@@ -59,11 +59,11 @@ StatusCode AthenaAttributeListCnv::createObj(IOpaqueAddress* pAddr, DataObject*&
 	// Successful cast
 	pObj = SG::asStorable(addr->attrList());
 	if (!pObj) {
-	    log << MSG::ERROR << "AttributeList ptr is 0 from AthenaAttrListAddress " << endreq;
+	    log << MSG::ERROR << "AttributeList ptr is 0 from AthenaAttrListAddress " << endmsg;
 	    return(StatusCode::FAILURE);       
 	}
     } else {
-	log << MSG::ERROR << "Could not extract ptr for AthenaAttrListAddress " << endreq;
+	log << MSG::ERROR << "Could not extract ptr for AthenaAttrListAddress " << endmsg;
 	return(StatusCode::FAILURE);       
     }
 
@@ -76,8 +76,8 @@ StatusCode AthenaAttributeListCnv::createRep(DataObject* pObj, IOpaqueAddress*& 
     // create an AthenaAttrListAddress and fill it with a pointer to
     // the AthenaAttributeList
 
-    MsgStream log(messageService(), "AthenaAttributeListCnv");
-    log << MSG::DEBUG << "Copy AthenaAttributeList ptr into AthenaAttrListAddress" << endreq;
+    MsgStream log(msgSvc(), "AthenaAttributeListCnv");
+    log << MSG::DEBUG << "Copy AthenaAttributeList ptr into AthenaAttrListAddress" << endmsg;
 
     AthenaAttributeList* list = 0; //dynamic_cast<AthenaAttributeList*>(pObj);
     SG::fromStorable(pObj, list);
@@ -87,7 +87,7 @@ StatusCode AthenaAttributeListCnv::createRep(DataObject* pObj, IOpaqueAddress*& 
     addr->setAttrList(list);
     pAddr = addr;
 
-    log << MSG::DEBUG << "Created AthenaAttrListAddress with list ptr: " << list << endreq;
+    log << MSG::DEBUG << "Created AthenaAttrListAddress with list ptr: " << list << endmsg;
     return(StatusCode::SUCCESS);
 }
 //__________________________________________________________________________
