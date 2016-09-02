@@ -81,7 +81,7 @@ SiDetectorLocator::initialize()
 	{
 	    ATH_MSG_FATAL( " attempt to initialize SiDetectorLocator with "
 			   << "invalid Pixel hashId. Check configuration of Identifier Dictionary. "
-			   << endreq
+			   << endmsg
 			   << " max HashId: " << maxHash
 			   << " should be equal to (number of detectors-1): "
 			   << (m_pixelDetectors.size()-1) );
@@ -98,7 +98,7 @@ SiDetectorLocator::initialize()
 	{
 	    ATH_MSG_FATAL( " attempt to initialize SiDetectorLocator with "
 			   << "invalid SCT hashId. Check configuration of Identifier Dictionary. "
-			   << endreq
+			   << endmsg
 			   << " max HashId: " << maxHash
 			   << " should be equal to (number of detectors-1): "
 			   << (m_SCT_Detectors.size()-1) );
