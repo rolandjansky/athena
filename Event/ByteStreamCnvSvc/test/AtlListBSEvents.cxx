@@ -4,9 +4,9 @@
 
 /**
  * @file findEvent.cxx
- * $Author: cranshaw $
- * $Revision: 633182 $
- * $Date: 2014-12-02 22:26:23 +0100 (Tue, 02 Dec 2014) $
+ * $Author: ssnyder $
+ * $Revision: 754823 $
+ * $Date: 2016-06-14 20:32:30 +0200 (Tue, 14 Jun 2016) $
  *
  */
  
@@ -21,7 +21,14 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
 #include "eformat/eformat.h"
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
 #include "eformat/old/util.h"
 #include "eformat/index.h"
 #include "EventStorage/pickDataReader.h"

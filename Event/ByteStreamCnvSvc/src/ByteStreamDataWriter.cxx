@@ -77,7 +77,7 @@ ByteStreamDataWriter::makeWriter(int version,
                                  EventStorage::CompressionType compression,
                                  unsigned int compLevel)
 {
-    ByteStreamDataWriter* res;
+    ByteStreamDataWriter* res = nullptr;
     if (version == 0 or version == FILE_FORMAT_VERSION) {
         // Use current version
         res = new ByteStreamDataWriterCurrent(writingPath,
@@ -125,7 +125,7 @@ ByteStreamDataWriter::makeWriter(int version,
                                  EventStorage::CompressionType compression,
                                  unsigned int compLevel)
 {
-    ByteStreamDataWriter* res;
+    ByteStreamDataWriter* res = nullptr;
     if (version == 0 or version == FILE_FORMAT_VERSION) {
         // Use current version
         res = new ByteStreamDataWriterCurrent(writingPath,
