@@ -5,13 +5,16 @@
 #include "AthenaKernel/errorcheck.h"
 #include "DataModel/ElementLink.h"
 
-#include "GeneratorObjects/McEventCollection.h"
+#define private public
+#   include "GeneratorObjects/McEventCollection.h"
+#undef private
 #include "GeneratorObjects/xAODTruthParticleLink.h"
 
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/DataSvc.h"
 #include "GaudiKernel/PhysicalConstants.h"
-#include "StoreGate/StoreGateSvc.h"
+
+#include "EventInfo/EventStreamInfo.h"
 
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthEventContainer.h"
@@ -29,7 +32,11 @@
 #include "xAODTruth/TruthVertexContainer.h"
 #include "xAODTruth/TruthVertexAuxContainer.h"
 
+#include "xAODTruth/TruthMetaDataAuxContainer.h"
+#include "xAODTruth/TruthMetaData.h"
+
 #include "xAODTruthCnvAlg.h"
+
 
 using namespace std;
 
@@ -37,7 +44,7 @@ namespace xAODMaker {
 
 
   xAODTruthCnvAlg::xAODTruthCnvAlg( const string& name, ISvcLocator* svcLoc )
-    : AthAlgorithm( name, svcLoc )
+    : AthAlgorithm( name, svcLoc ), m_metaStore( "MetaDataStore", name ), inputMetaStore( "StoreGateSvc/InputMetaDataStore",name)
   {
     declareProperty("AODContainerName", m_aodContainerName="GEN_AOD" );
     declareProperty("xAODTruthEventContainerName", m_xaodTruthEventContainerName="TruthEvents" );
@@ -49,8 +56,9 @@ namespace xAODMaker {
     declareProperty("TruthLinks", m_truthLinkContainerName="xAODTruthLinks" );
     declareProperty( "WriteAllPileUpTruth", m_doAllPileUp = false);
     declareProperty( "WriteInTimePileUpTruth", m_doInTimePileUp = false);
+    declareProperty( "MetaObjectName", m_metaName = "TruthMetaData" );   
+    declareProperty( "MetaDataStore", m_metaStore );
     declareProperty( "ForceRerun", m_forceRerun = false);
-
   }
 
 
@@ -69,11 +77,23 @@ namespace xAODMaker {
     if (m_doInTimePileUp) ATH_MSG_INFO( "In-time pile-up truth (but not out-of-time) will be written" );
     if (!m_doAllPileUp && !m_doInTimePileUp) ATH_MSG_INFO( "No pile-up truth will be written" );
 
+    CHECK( m_metaStore.retrieve() );
+
+    // Create an empty truth meta data container:
+    xAOD::TruthMetaDataAuxContainer* aux = new xAOD::TruthMetaDataAuxContainer();
+    m_tmd = new xAOD::TruthMetaDataContainer();
+    m_tmd->setStore( aux );
+
+    // Record the trigger configuration metadata into it:
+    CHECK( m_metaStore->record( aux, m_metaName + "Aux." ) );
+    CHECK( m_metaStore->record( m_tmd, m_metaName ) );
+
     return StatusCode::SUCCESS;
   }
 
 
   StatusCode xAODTruthCnvAlg::execute() {
+
 
     // If the containers already exist then assume that nothing needs to be done
     /// @todo Should this check be AND rather than OR? But pileup might be missing.
@@ -194,6 +214,33 @@ namespace xAODMaker {
         	const HepMC::GenCrossSection* const crossSection = genEvt->cross_section();
         	xTruthEvent->setCrossSection(crossSection ? (float)crossSection->cross_section() : -1);
         	xTruthEvent->setCrossSectionError(crossSection ? (float)crossSection->cross_section_error() : -1);
+
+		//The mcChannelNumber is used as a unique identifier for which truth meta data belongs to  
+		const EventStreamInfo* esi = nullptr;
+		CHECK( inputMetaStore->retrieve(esi));
+		uint32_t mcChannelNumber = esi->getEventTypes().begin()->mc_channel_number();
+    
+		//Inserting in a (unordered_)set returns an <iterator, boolean> pair, where the boolean
+		//is used to check if the key already exists (returns false in the case it exists)
+		if( m_existingMetaDataChan.insert(mcChannelNumber).second ) {
+			xAOD::TruthMetaData* md = new xAOD::TruthMetaData();
+			m_tmd->push_back( md );
+
+			auto weightNameMap = genEvt->m_weights.m_names;
+			std::vector<std::string> orderedWeightNameVec;
+			orderedWeightNameVec.reserve( weightNameMap.size() ); 
+			for (auto& entry: weightNameMap) {
+				orderedWeightNameVec.push_back(entry.first);
+			}
+
+			//The map from the HepMC record pairs the weight names with a corresponding index,
+			//it is not guaranteed that the indices are ascending when iterating over the map
+			std::sort(orderedWeightNameVec.begin(), orderedWeightNameVec.end(), 
+			[&](std::string i, std::string j){return weightNameMap.at(i) < weightNameMap.at(j);});
+	
+			md->setMcChannelNumber(mcChannelNumber);
+			md->setWeightNames( std::move(orderedWeightNameVec) );
+		}
 
         	// Event weights
         	vector<float> weights;
@@ -318,7 +365,7 @@ namespace xAODMaker {
           // (c) Put particle into container; Build Event<->Vertex element link
           ElementLink<xAOD::TruthVertexContainer> eltv(*xTruthVertexContainer, xTruthVertexContainer->size()-1);
           // Mark if this is the signal process vertex
-          if ((vertex == signalProcessVtx) && isSignalProcess) xTruthEvent->setSignalProcessVertexLink(eltv);
+          if (vertex == signalProcessVtx && isSignalProcess) xTruthEvent->setSignalProcessVertexLink(eltv);
           if (isSignalProcess) xTruthEvent->addTruthVertexLink(eltv);
 	  if (!isSignalProcess) xTruthPileupEvent->addTruthVertexLink(eltv);
           // (d) Assign incoming particles to the vertex, from the map

@@ -9,6 +9,10 @@
 
 #include "xAODTruth/TruthEvent.h"
 #include "xAODTruth/TruthPileupEvent.h"
+#include "xAODTruth/TruthMetaDataContainer.h"
+#include "StoreGate/StoreGateSvc.h"
+
+#include <unordered_set>
 
 namespace HepMC {
   class GenVertex;
@@ -65,6 +69,16 @@ namespace xAODMaker {
     /// Pile-up options
     bool m_doAllPileUp;
     bool m_doInTimePileUp;
+
+    /// Connection to the metadata store
+    ServiceHandle< StoreGateSvc > m_metaStore;
+    ServiceHandle<StoreGateSvc> inputMetaStore;
+    /// The meta data container to be written out
+    xAOD::TruthMetaDataContainer* m_tmd;
+    /// SG key and name for meta data
+    std::string m_metaName;
+    /// Set for tracking the mc channels for which we already added meta data 
+    std::unordered_set<uint32_t> m_existingMetaDataChan;
 
     /// a flag to force rerunning (useful for rerunning on ESDs)
     bool m_forceRerun;
