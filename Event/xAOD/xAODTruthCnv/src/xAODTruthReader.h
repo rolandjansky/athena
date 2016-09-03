@@ -32,11 +32,10 @@ namespace xAODReader {
   private:
 
     /// The keys for the input xAOD truth containers
-
-
-    SG::ReadHandle<xAOD::TruthEventContainer>  m_xTruthEventContainer; //std::string m_xaodTruthEventContainerName;
-    SG::ReadHandle<xAOD::TruthPileupEventContainer> m_xTruthPUEventContainer;   //std::string m_xaodTruthPUEventContainerName;
-
+    std::string m_xaodTruthEventContainerName;
+    std::string m_xaodTruthPUEventContainerName;
+    std::string m_xaodTruthParticleContainerName;
+    std::string m_xaodTruthVertexContainerName;
 
     void printEvent(const xAOD::TruthEventBase*);
     void printVertex(const xAOD::TruthVertex*);

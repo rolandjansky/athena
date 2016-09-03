@@ -27,18 +27,18 @@ namespace xAODReader {
 
 
   xAODTruthReader::xAODTruthReader(const string& name, ISvcLocator* svcLoc)
-    : AthAlgorithm(name, svcLoc), m_xTruthEventContainer("TruthEvents"), m_xTruthPUEventContainer("TruthPileupEvents")
+    : AthAlgorithm(name, svcLoc)
   {
     /// @todo Provide these names centrally in a Python module and remove these hard-coded versions?
-    declareProperty( "xAODTruthEventContainerName", m_xTruthEventContainer);
-    declareProperty( "xAODTruthPileupEventContainerName", m_xTruthPUEventContainer );
+    declareProperty( "xAODTruthEventContainerName", m_xaodTruthEventContainerName="TruthEvents" );
+    declareProperty( "xAODTruthPileupEventContainerName", m_xaodTruthPUEventContainerName="TruthPileupEvents" );
   }
 
 
   StatusCode xAODTruthReader::initialize() {
     ATH_MSG_INFO("Initializing; package version = " << PACKAGE_VERSION );
-    ATH_MSG_INFO("xAOD TruthEventContainer name = " << m_xTruthEventContainer.name() );
-    ATH_MSG_INFO("xAOD TruthPileupEventContainer name = " << m_xTruthPUEventContainer.name() );
+    ATH_MSG_INFO("xAOD TruthEventContainer name = " << m_xaodTruthEventContainerName );
+    ATH_MSG_INFO("xAOD TruthPileupEventContainer name = " << m_xaodTruthPUEventContainerName );
     return StatusCode::SUCCESS;
   }
 
@@ -46,18 +46,17 @@ namespace xAODReader {
   StatusCode xAODTruthReader::execute() {
     // Retrieve the xAOD truth:
     /// @todo Can the main truth event be a singleton, not a container?
-    
+    const xAOD::TruthEventContainer* xTruthEventContainer = NULL;
+    CHECK( evtStore()->retrieve( xTruthEventContainer, m_xaodTruthEventContainerName));
+    const xAOD::TruthPileupEventContainer* xTruthPUEventContainer = NULL;
+    //CHECK( evtStore()->retrieve( xTruthPUEventContainer, m_xaodTruthPUEventContainerName));
 
-    if(!m_xTruthEventContainer.isValid()){
-      ATH_MSG_ERROR("Error retrieving " << m_xTruthEventContainer.name());
-      return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Number of signal events in this Athena event: " << m_xTruthEventContainer->size());
-
+    ATH_MSG_INFO("Number of signal events in this Athena event: " << xTruthEventContainer->size());
+    if (xTruthPUEventContainer) ATH_MSG_INFO("Number of pile-up events in this Athena event: " << xTruthPUEventContainer->size());
 
     // Signal process loop
     ATH_MSG_INFO("Printing signal event...");
-    for (const xAOD::TruthEvent* evt : *m_xTruthEventContainer) {
+    for (const xAOD::TruthEvent* evt : *xTruthEventContainer) {
       cout << endl << endl;
 
       // Print PDF info if found
@@ -82,13 +81,11 @@ namespace xAODReader {
     }
 
     // Pile-up loop
-        
     ATH_MSG_INFO("Printing pileup events...");
-    if (!m_xTruthPUEventContainer.name().empty() && m_xTruthPUEventContainer.isValid()) {
-      ATH_MSG_INFO("Number of pile-up events in this Athena event: " << m_xTruthPUEventContainer->size());
-      for (const xAOD::TruthPileupEvent* evt : *m_xTruthPUEventContainer) {
-	        cout << endl << endl;
-	        printEvent(evt);
+    if (xTruthPUEventContainer) {
+      for (const xAOD::TruthPileupEvent* evt : *xTruthPUEventContainer) {
+	cout << endl << endl;
+	printEvent(evt);
       } 
     }
 
