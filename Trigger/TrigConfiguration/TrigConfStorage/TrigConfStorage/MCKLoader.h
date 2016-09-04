@@ -17,7 +17,8 @@ namespace TrigConf {
         MCKLoader(StorageMgr& sm);
         virtual ~MCKLoader();
 
-        bool loadMCKlinkedToSMK(unsigned int smk, unsigned int & mck);
+        bool loadMCKlinkedToSMK(unsigned int smk, unsigned int & mck);        
+        bool loadReleaseLinkedToMCK(unsigned int mck, std::string & mck_release);
 
     };
 
