@@ -132,6 +132,11 @@ namespace TrigConf {
       void writeHLTPayload( ValidityRange vr,
                             const HLTFrame& hltFrame,
                             const std::string& configSource);
+       
+      void writeMCKPayload(ValidityRange vr,
+                             unsigned int mck,
+                            std::string& release,
+                            std::string& info);
 
 
       /**@brief Writing run-wise configuration information the COOL database
@@ -219,6 +224,10 @@ namespace TrigConf {
                                     const TrigConf::HLTPrescaleSet & pss);
       void writeHltPrescalePayload( const RunRangeVec& runRanges,
                                     const TrigConf::HLTPrescaleSet & pss);
+      void writeHltPrescalePayload( cool::ValidityKey since,
+                                    cool::ValidityKey until,
+                                    const TrigConf::HLTPrescaleSet & pss);
+    
     
       /**@brief Writing luminosityblock-wise configuration information the COOL database
        *
@@ -234,11 +243,10 @@ namespace TrigConf {
       void writeL1PrescalePayload( const RunRangeVec& runRanges,
                                    unsigned int lvl1PrescaleKey,
                                    const TrigConf::PrescaleSet & prescale);
-    
-
-
-
-
+      void writeL1PrescalePayload( cool::ValidityKey since,
+                                   cool::ValidityKey until,
+                                   unsigned int lvl1PrescaleKey,
+                                   const TrigConf::PrescaleSet & prescaleSet);
 
 
 
@@ -364,7 +372,7 @@ namespace TrigConf {
        */
       void readL1Menu(unsigned int runNumber, CTPConfig & ctpc);
 
-      std::vector<std::string> checkPayloadSize(unsigned int run, unsigned int lb, int displayMode);
+      std::vector<std::string> checkPayloadSize(unsigned int run, unsigned int lb, int displayMode, bool openend, unsigned int lbend);
 
       void addWriteFolder(const std::string& fname) { m_writeFolderList.push_back( fname ); }
 
@@ -419,17 +427,6 @@ namespace TrigConf {
 
       void rangeInfo(const std::string& content, cool::ValidityKey since, cool::ValidityKey until);
 
-      /**@brief the writer for the HLT prescale set*/
-      void writeHltPrescalePayload( cool::ValidityKey since,
-                                    cool::ValidityKey until,
-                                    const TrigConf::HLTPrescaleSet & pss);
-    
-      /**@brief the writer for the prescale set*/
-      void writeL1PrescalePayload( cool::ValidityKey since,
-                                   cool::ValidityKey until,
-                                   unsigned int lvl1PrescaleKey,
-                                   const TrigConf::PrescaleSet & prescaleSet);
-    
       /**@brief check if foldername is in list of writeable folders*/
       bool shouldFolderBeUpdated(const std::string & foldername) {
          if( m_writeFolderList.size()==0 ) return true; // nothing specified --> write everything (default)

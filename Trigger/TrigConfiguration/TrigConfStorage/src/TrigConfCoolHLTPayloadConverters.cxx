@@ -79,6 +79,13 @@ TrigConfCoolHLTPayloadConverters::createHltConfigKeysPayload(cool::IFolderPtr fl
    return payload;
 }
 
+Record
+TrigConfCoolHLTPayloadConverters::createMonConfigKeyPayload(cool::IFolderPtr fld, uint mck, string& info ) {
+    Record payload(fld->payloadSpecification());
+ 	payload["MonConfigKey"].setValue<cool::UInt32>(mck);
+    payload["Info"].setValue<cool::String4k>(info);
+ 	return payload;
+}
 
 Record
 TrigConfCoolHLTPayloadConverters::createHltPrescalesPayload(cool::IFolderPtr fld, float prescale,
