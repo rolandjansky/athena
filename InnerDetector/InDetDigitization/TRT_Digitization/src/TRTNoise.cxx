@@ -105,8 +105,8 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
   std::vector<float> maxLTOverNoiseAmp;
   m_pElectronicsNoise->getSamplesOfMaxLTOverNoiseAmp(maxLTOverNoiseAmp,10000);
 
-  sort(    maxLTOverNoiseAmp.begin(), maxLTOverNoiseAmp.end() );
-  reverse( maxLTOverNoiseAmp.begin(), maxLTOverNoiseAmp.end() );
+  std::stable_sort( maxLTOverNoiseAmp.begin(), maxLTOverNoiseAmp.end() );
+  reverse(          maxLTOverNoiseAmp.begin(), maxLTOverNoiseAmp.end() );
 
   // If we have LT event-event fluctuations, we need to include that effect in the curve
 
@@ -449,7 +449,7 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
 
 void TRTNoise::sortDigits(std::vector<TRTDigit>& digitVect)
 {
-  std::sort(digitVect.begin(), digitVect.end(), TRTDigitSorterObject);
+  std::stable_sort(digitVect.begin(), digitVect.end(), TRTDigitSorterObject);
   return;
 }
 

@@ -153,7 +153,7 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 StatusCode TRTDigitizationTool::initialize()
 {
 
-  ATH_MSG_INFO ( "TRTDigitization::initialize() KryptonDev" );
+  ATH_MSG_INFO ( "TRTDigitization::initialize() 2016Rel22Dev" );
   ATH_MSG_DEBUG ( "TRTDigitization::initialize() begin" );
 
   // Get the TRT Detector Manager
