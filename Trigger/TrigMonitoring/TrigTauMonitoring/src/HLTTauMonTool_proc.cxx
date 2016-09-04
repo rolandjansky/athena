@@ -676,9 +676,22 @@ StatusCode HLTTauMonTool::proc()
                 cloneProfile("TProfRecoHLTNVtxEfficiency","HLT/TauMon/Expert/"+lowest_trigger_names.at(i)+"/TurnOnCurves/RecoEfficiency");
                 
             }
+
+	    setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots");
+	    cloneHistogram("hL1Counts","HLT/TauMon/Expert");
+	    cloneHistogram("hHLTCounts","HLT/TauMon/Expert");
+	    cloneProfile("hL1Emulation","HLT/TauMon/Expert/Emulation");
+            for(unsigned int j=0;j<m_topo_chains.size(); ++j){
+		setCurrentMonGroup("HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots/"+m_topo_chains.at(j));
+		cloneProfile("TProfRecoL1_dREfficiency","HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(j));	
+            }
+	    
             
         }//End of lowest name loop
-        
+       
+	
+
+ 
     }//End of Run  
     return StatusCode::SUCCESS;
 }
