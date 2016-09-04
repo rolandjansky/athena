@@ -35,7 +35,9 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
     m_tracksfinder("InDet::SiCombinatorialTrackFinder_xk"),
     m_seedtrack   ("InDet::SeedToTrackConversionTool"    ),
     m_caloCluster("InDetCaloClusterROIs"),
-    m_caloHad("InDetHadCaloClusterROIs")
+    m_caloHad("InDetHadCaloClusterROIs"),
+		m_dynamicCutsTool("InDet::InDetDynamicCutsTool/InDetDynamicCutsTool"),
+    m_useDynamicCuts(false)
 {
   m_fieldmode    = "MapSolenoid"      ;
   m_patternName  = "SiSPSeededFinder" ; 
@@ -66,9 +68,6 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
   m_nclusmin     = 6                  ;
   m_nwclusmin    = 6                  ;              
   m_wrongcluster = 10                 ; 
-  m_inputseeds   = 0                  ;
-  m_goodseeds    = 0                  ;
-  m_findtracks   = 0                  ;
   m_seedsfilter  = 2                  ;
   m_phiWidth     = .3                 ;
   m_etaWidth     = .3                 ;
@@ -120,6 +119,9 @@ InDet::SiTrackMaker_xk::SiTrackMaker_xk
 
   declareProperty("ITKclusterSizeCuts"   ,m_useITKclusterSizeCuts); // ITK stuff (extended barrel)
   declareProperty("ITKNsigmaClusterSizeZcut",m_Nsigma_clSizeZcut); // ITK stuff (extended barrel)
+
+	declareProperty("InDetDynamicCutsTool"		, m_dynamicCutsTool); 
+  declareProperty("UseDynamicCuts"          , m_useDynamicCuts);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -188,6 +190,18 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     }
   }
 
+  // Get InDetDynamicCutsTool
+  //
+	if(m_useDynamicCuts) { 
+		sc = m_dynamicCutsTool.retrieve();
+		if (sc.isFailure()) {
+			ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_dynamicCutsTool);
+			return sc;
+		}
+		else 
+			ATH_MSG_INFO( "Retrieved tool " << m_dynamicCutsTool );
+	}
+
   m_heavyion = false;
 
   // TrackpatternRecoInfo preparation 
@@ -240,6 +254,21 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   }
   
   if(m_pTmin < 20.) m_pTmin = 20.;
+  for (int i=0; i!=5; ++i) {
+    m_inputseeds [i] = 0;
+    m_ntrackpar  [i] = 0;
+    m_goodseeds  [i] = 0;
+    m_findtracks [i] = 0;
+    m_bremseeds  [i] = 0;
+    m_findtracksb[i] = 0;
+    m_twoclusters[i] = 0;
+    m_wrongroad  [i] = 0;
+    m_wronginit  [i] = 0;
+    m_notrack    [i] = 0;
+    m_notnewtrack[i] = 0;
+    m_bremattempt[i] = 0;
+    m_desize     [i] = 0.;
+  }
   return StatusCode::SUCCESS;
 }
 
@@ -249,7 +278,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
 
 StatusCode InDet::SiTrackMaker_xk::finalize()
 {
-   StatusCode sc = AlgTool::finalize(); return sc;
+   StatusCode sc = AlgTool::finalize(); 
+   m_nprint=1; msg(MSG::INFO)<<(*this)<<endreq;
+   return sc;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -320,22 +351,132 @@ MsgStream& InDet::SiTrackMaker_xk::dumpconditions( MsgStream& out ) const
   return out;
 }
 
-
 ///////////////////////////////////////////////////////////////////
 // Dumps event information into the MsgStream
 ///////////////////////////////////////////////////////////////////
 
 MsgStream& InDet::SiTrackMaker_xk::dumpevent( MsgStream& out ) const
 {
-  out<<"|---------------------------------------------------------------------|"
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|"
        <<std::endl;
-  out<<"| Number input seeds      | "<<std::setw(12)<<m_inputseeds
-     <<"                              |"<<std::endl;
-  out<<"| Number good  seeds      | "<<std::setw(12)<<m_goodseeds 
-     <<"                              |"<<std::endl;
-  out<<"| Number output tracks    | "<<std::setw(12)<<m_findtracks  
-     <<"                              |"<<std::endl;
-  out<<"|---------------------------------------------------------------------|"
+  out<<"| Kind of seed         |     PPP      |     PPS      |     PSS      |     SSS      |     ALL      |"
+       <<std::endl;
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|"
+       <<std::endl;
+  out<<"| Input  seeds         | "
+     <<std::setw(12)<<m_inputseeds[0]<<" | "
+     <<std::setw(12)<<m_inputseeds[1]<<" | "
+     <<std::setw(12)<<m_inputseeds[2]<<" | "
+     <<std::setw(12)<<m_inputseeds[3]<<" | "
+     <<std::setw(12)<<(m_inputseeds[0]+m_inputseeds[1]+m_inputseeds[2]+m_inputseeds[3])
+     <<" |"<<std::endl;
+
+  out<<"| No track parameters  | "
+     <<std::setw(12)<<m_ntrackpar[0]<<" | " 
+     <<std::setw(12)<<m_ntrackpar[1]<<" | " 
+     <<std::setw(12)<<m_ntrackpar[2]<<" | " 
+     <<std::setw(12)<<m_ntrackpar[3]<<" | " 
+     <<std::setw(12)<<(m_ntrackpar[0]+m_ntrackpar[1]+ m_ntrackpar[2]+m_ntrackpar[3])
+     <<" |"<<std::endl;
+
+  out<<"| Good   seeds         | "
+     <<std::setw(12)<<m_goodseeds[0]<<" | " 
+     <<std::setw(12)<<m_goodseeds[1]<<" | " 
+     <<std::setw(12)<<m_goodseeds[2]<<" | " 
+     <<std::setw(12)<<m_goodseeds[3]<<" | " 
+     <<std::setw(12)<<(m_goodseeds[0]+m_goodseeds[1]+ m_goodseeds[2]+m_goodseeds[3])
+     <<" |"<<std::endl;
+
+  out<<"| Good   seeds  brem   | "
+     <<std::setw(12)<<m_bremseeds[0]<<" | " 
+     <<std::setw(12)<<m_bremseeds[1]<<" | " 
+     <<std::setw(12)<<m_bremseeds[2]<<" | " 
+     <<std::setw(12)<<m_bremseeds[3]<<" | " 
+     <<std::setw(12)<<(m_bremseeds[0]+m_bremseeds[1]+m_bremseeds[2]+m_bremseeds[3]) 
+     <<" |"<<std::endl;
+
+  double tdetsize = 0.;
+  int    goodseed = 0;
+  for(int i=0; i!=4; ++i) {
+    tdetsize+= m_desize[i];
+    goodseed+= m_goodseeds[i];
+    if(m_goodseeds[i] > 0) m_desize[i]/=double(m_goodseeds[i]);
+  }
+  if(goodseed > 0) tdetsize/=double(goodseed);
+
+  out<<"| Det elements in road | "
+     <<std::setw(12)<<std::setprecision(4)<<m_desize[0]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<m_desize[1]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<m_desize[2]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<m_desize[3]<<" | " 
+     <<std::setw(12)<<std::setprecision(5)<<tdetsize 
+     <<" |"<<std::endl;
+
+
+  out<<"| Two clusters on DE   | "
+     <<std::setw(12)<<m_twoclusters[0]<<" | " 
+     <<std::setw(12)<<m_twoclusters[1]<<" | " 
+     <<std::setw(12)<<m_twoclusters[2]<<" | " 
+     <<std::setw(12)<<m_twoclusters[3]<<" | " 
+     <<std::setw(12)<<(m_twoclusters[0]+m_twoclusters[1]+m_twoclusters[2]+m_twoclusters[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Wrong DE road        | "
+     <<std::setw(12)<<m_wrongroad[0]<<" | " 
+     <<std::setw(12)<<m_wrongroad[1]<<" | " 
+     <<std::setw(12)<<m_wrongroad[2]<<" | " 
+     <<std::setw(12)<<m_wrongroad[3]<<" | " 
+     <<std::setw(12)<<(m_wrongroad[0]+m_wrongroad[1]+m_wrongroad[2]+m_wrongroad[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Wrong initialization | "
+     <<std::setw(12)<<m_wronginit[0]<<" | " 
+     <<std::setw(12)<<m_wronginit[1]<<" | " 
+     <<std::setw(12)<<m_wronginit[2]<<" | " 
+     <<std::setw(12)<<m_wronginit[3]<<" | " 
+     <<std::setw(12)<<(m_wronginit[0]+m_wronginit[1]+m_wronginit[2]+m_wronginit[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Can not find track   | "
+     <<std::setw(12)<<m_notrack[0]<<" | " 
+     <<std::setw(12)<<m_notrack[1]<<" | " 
+     <<std::setw(12)<<m_notrack[2]<<" | " 
+     <<std::setw(12)<<m_notrack[3]<<" | " 
+     <<std::setw(12)<<(m_notrack[0]+m_notrack[1]+m_notrack[2]+m_notrack[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| It is not new track  | "
+     <<std::setw(12)<<m_notnewtrack[0]<<" | " 
+     <<std::setw(12)<<m_notnewtrack[1]<<" | " 
+     <<std::setw(12)<<m_notnewtrack[2]<<" | " 
+     <<std::setw(12)<<m_notnewtrack[3]<<" | " 
+     <<std::setw(12)<<(m_notnewtrack[0]+m_notnewtrack[1]+m_notnewtrack[2]+m_notnewtrack[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Attempts brem model  | "
+     <<std::setw(12)<<m_bremattempt[0]<<" | " 
+     <<std::setw(12)<<m_bremattempt[1]<<" | " 
+     <<std::setw(12)<<m_bremattempt[2]<<" | " 
+     <<std::setw(12)<<m_bremattempt[3]<<" | " 
+     <<std::setw(12)<<(m_bremattempt[0]+m_bremattempt[1]+m_bremattempt[2]+m_bremattempt[3]) 
+     <<" |"<<std::endl;
+
+  out<<"| Output tracks        | "
+     <<std::setw(12)<<m_findtracks[0]<<" | "  
+     <<std::setw(12)<<m_findtracks[1]<<" | " 
+     <<std::setw(12)<<m_findtracks[2]<<" | "  
+     <<std::setw(12)<<m_findtracks[3]<<" | "  
+     <<std::setw(12)<<(m_findtracks[0]+m_findtracks[1]+m_findtracks[2]+m_findtracks[3])
+     <<" |"<<std::endl;
+
+  out<<"| Output tracks brem   | "
+     <<std::setw(12)<<m_findtracksb[0]<<" | "  
+     <<std::setw(12)<<m_findtracksb[1]<<" | " 
+     <<std::setw(12)<<m_findtracksb[2]<<" | "  
+     <<std::setw(12)<<m_findtracksb[3]<<" | "  
+     <<std::setw(12)<<(m_findtracksb[0]+m_findtracksb[1]+m_findtracksb[2]+m_findtracksb[3])
+     <<" |"<<std::endl;
+  out<<"|----------------------|--------------|--------------|--------------|--------------|--------------|"
      <<std::endl;
   return out;
 }
@@ -391,12 +532,6 @@ void InDet::SiTrackMaker_xk::newEvent(bool PIX,bool SCT)
   // Erase cluster to track association
   //
   if(m_seedsfilter) m_clusterTrack.clear();
-
-  // Erase statistic information
-  //
-  m_inputseeds = 0;
-  m_goodseeds  = 0;
-  m_findtracks = 0;
 
   // Retrieve 
   //
@@ -464,11 +599,6 @@ void InDet::SiTrackMaker_xk::newTrigEvent(bool PIX,bool SCT)
   //
   if(m_seedsfilter) m_clusterTrack.clear(); 
 
-  // Erase statistic information
-  //
-  m_inputseeds = 0;
-  m_goodseeds  = 0;
-  m_findtracks = 0;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -502,7 +632,9 @@ void InDet::SiTrackMaker_xk::endEvent()
 const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 (const std::list<const Trk::SpacePoint*>& Sp)
 {
-  ++m_inputseeds;
+  int K = kindSeed(Sp); 
+
+  ++m_inputseeds[K];
   m_tracks.clear();
   if(!m_pix && !m_sct) return m_tracks;
   
@@ -510,14 +642,14 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
   !m_seedsfilter ? good=true : good=newSeed(Sp);  
 
   if(!good) return m_tracks;
-
+  
   m_dbm = isDBMSeeds(*Sp.begin());
 
   // Get initial parameters estimation
   // 
   const Trk::TrackParameters* Tp = getAtaPlane(m_sss && m_useHClusSeed,Sp);
-  if(!Tp) return m_tracks;
-  ++m_goodseeds;
+  if(!Tp) {++m_ntrackpar[K]; return m_tracks;}
+  ++m_goodseeds[K];
 
   // Get detector elements road
   //
@@ -527,8 +659,10 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 
   if(!m_pix || !m_sct || m_dbm) detectorElementsSelection(DE);
 
-  if( int(DE.size())  <   m_nclusmin) {delete Tp; return m_tracks;} 
+  if(m_useDynamicCuts) rapidityCuts(Tp->eta());
 
+  if( int(DE.size())  <   m_nclusmin) {delete Tp; return m_tracks;} 
+  m_desize[K]+=double(DE.size());
   std::list<Amg::Vector3D> Gp;
   
   // Find possible list of tracks using space points space points information
@@ -537,14 +671,24 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
     m_tracks = m_tracksfinder->getTracks        (*Tp,Sp,Gp,DE,m_clusterTrack);
   }
   else if(!m_useCaloSeeds      ) {
+    ++m_bremseeds[K];
     m_tracks = m_tracksfinder->getTracksWithBrem(*Tp,Sp,Gp,DE,m_clusterTrack,false);
   }
   else if(  isCaloCompatible() ) {
+    ++m_bremseeds[K];
     m_tracks = m_tracksfinder->getTracksWithBrem(*Tp,Sp,Gp,DE,m_clusterTrack,true);
   }
   else                           {
     m_tracks = m_tracksfinder->getTracks        (*Tp,Sp,Gp,DE,m_clusterTrack);
   }
+
+  int inf[6];  m_tracksfinder->statistic(inf);
+  if(inf[0]) ++m_twoclusters[K];
+  if(inf[1]) ++m_wrongroad  [K];
+  if(inf[2]) ++m_wronginit  [K];
+  if(inf[3]) ++m_notrack    [K];
+  if(inf[4]) ++m_notnewtrack[K];
+  if(inf[5]) ++m_bremattempt[K];
   
   if(m_seedsfilter) {
 
@@ -555,7 +699,16 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
       else                  {clusterTrackMap((*t++));         }
     }
   }
-  m_findtracks+=m_tracks.size();
+  if(m_tracks.size()) {
+
+    m_findtracks[K]+=m_tracks.size();
+
+    std::list<Trk::Track*>::iterator t = m_tracks.begin();
+    for(; t!= m_tracks.end(); ++t) {
+      if((*t)->info().trackProperties(Trk::TrackInfo::BremFit)) ++m_findtracksb[K];
+    }
+    
+  }
 
   // Call seed to track execution
   //
@@ -572,11 +725,12 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 (const Trk::TrackParameters& Tp,const std::list<Amg::Vector3D>& Gp)
 {
-  ++m_inputseeds;
+
+  ++m_inputseeds[4];
   m_tracks.clear();
   if(!m_pix && !m_sct) return m_tracks;
 
-  ++m_goodseeds;
+  ++m_goodseeds[4];
 
   // Get detector elements road
   //
@@ -586,7 +740,10 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
 
   if(!m_pix || !m_sct) detectorElementsSelection(DE);
 
-  if( int(DE.size())  <   m_nclusmin) return m_tracks; 
+  if(m_useDynamicCuts) rapidityCuts(Tp.eta());
+
+  if( int(DE.size())  <   m_nclusmin) return m_tracks;
+  m_desize[4]+=double(DE.size());
 
   // Find possible list of tracks with trigger track parameters or global positions
   //
@@ -596,9 +753,11 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
     m_tracks = m_tracksfinder->getTracks        (Tp,Sp,Gp,DE,m_clusterTrack);
   }
   else if(!m_useCaloSeeds      ) {
+    ++m_bremseeds[4]; 
     m_tracks = m_tracksfinder->getTracksWithBrem(Tp,Sp,Gp,DE,m_clusterTrack,false);
   }
   else if(  isCaloCompatible() ) {
+    ++m_bremseeds[4]; 
     m_tracks = m_tracksfinder->getTracksWithBrem(Tp,Sp,Gp,DE,m_clusterTrack,true);
   }
   else                           {
@@ -614,7 +773,16 @@ const std::list<Trk::Track*>& InDet::SiTrackMaker_xk::getTracks
       else                  {clusterTrackMap((*t++));         }
     }
   }
-  m_findtracks+=m_tracks.size();
+  if(m_tracks.size()) {
+
+    m_findtracks[4]+=m_tracks.size();
+
+    std::list<Trk::Track*>::iterator t = m_tracks.begin();
+    for(; t!= m_tracks.end(); ++t) {
+      if((*t)->info().trackProperties(Trk::TrackInfo::BremFit)) ++m_findtracksb[4];
+    }
+    
+  }
   return m_tracks;
 }
 
@@ -673,6 +841,8 @@ const Trk::TrackParameters* InDet::SiTrackMaker_xk::getAtaPlane
 
   m_p[0] = d[0]*Ax[0]+d[1]*Ax[1]+d[2]*Ax[2];
   m_p[1] = d[0]*Ay[0]+d[1]*Ay[1]+d[2]*Ay[2];
+
+  if(m_useDynamicCuts) rapidityCuts((*is)->eta());    // all spacepoints should have approx. same eta
 
   if(m_fieldprop.magneticFieldMode() > 0) {
 
@@ -1048,8 +1218,6 @@ bool InDet::SiTrackMaker_xk::globalPosition
   double a1[3] = {e1.second.x()-e1.first.x(), e1.second.y()-e1.first.y(), e1.second.z()-e1.first.z()};
   double dr[3] = {e1.first .x()-e0.first.x(), e1.first .y()-e0.first.y(), e1.first .z()-e0.first.z()};
   
-  double d0    = m_distmax/sqrt(a0[0]*a0[0]+a0[1]*a0[1]+a0[2]*a0[2]);
-
   // u = a1 x dir and  v = a0 x dir
   //
   double u[3]  = {a1[1]*dir[2]-a1[2]*dir[1],a1[2]*dir[0]-a1[0]*dir[2],a1[0]*dir[1]-a1[1]*dir[0]};
@@ -1061,9 +1229,6 @@ bool InDet::SiTrackMaker_xk::globalPosition
   if(du==0. || dv==0.) return false;
 
   double s0 = (dr[0]*u[0]+dr[1]*u[1]+dr[2]*u[2])/du;
-  double s1 =-(dr[0]*v[0]+dr[1]*v[1]+dr[2]*v[2])/dv;
-
-  if(s0 < -d0 || s0 > 1.+d0 ||  s1 < -d0 || s1 > 1.+d0) return false;
 
   p[0] = e0.first.x()+s0*a0[0]; 
   p[1] = e0.first.y()+s0*a0[1]; 
@@ -1190,3 +1355,54 @@ void InDet::SiTrackMaker_xk::globalDirections
   d2[0] = Sa*C2-Sb*S2; d2[1]= Sa*S2+Sb*C2; d2[2]=Ce;  
 }
 
+///////////////////////////////////////////////////////////////////
+// Kind of seed calculation 0-PPP, 1-PPS, 2-PSS, 3-SSS another -1
+///////////////////////////////////////////////////////////////////
+
+int InDet::SiTrackMaker_xk::kindSeed(const std::list<const Trk::SpacePoint*>& Sp)
+{
+  if(Sp.size()!=3) return 4;
+
+  std::list<const Trk::SpacePoint*>::const_iterator s=Sp.begin(),se=Sp.end();
+
+  int n = 0;
+  for(; s!=se; ++s) {if((*s)->clusterList().second) ++n;}
+  return n;
+}
+
+///////////////////////////////////////////////////////////////////
+// Cuts calculation as function rapidity
+///////////////////////////////////////////////////////////////////
+
+void InDet::SiTrackMaker_xk::rapidityCuts(double eta) {
+
+  std::map<std::string, double> dynamicCutsMapDouble;
+  dynamicCutsMapDouble = m_dynamicCutsTool->getAllDoubleCutsByEta(eta);
+
+  if(dynamicCutsMapDouble.size() > 0) {
+    //TODO maybe add m_pTminSSS to dynamic cus
+
+    m_pTmin       = dynamicCutsMapDouble["minPT"];
+    m_pTminBrem   = dynamicCutsMapDouble["minPTBrem"];
+    m_xi2max      = dynamicCutsMapDouble["Xi2max"];
+    m_xi2maxNoAdd = dynamicCutsMapDouble["Xi2maxNoAdd"];
+    m_phiWidth    = dynamicCutsMapDouble["phiWidthBrem"];
+    m_etaWidth    = dynamicCutsMapDouble["etaWidthBrem"];
+    
+    // because cast double-->int is expensive we use extra map for integer cut values
+    //
+    std::map<std::string, int> dynamicCutsMapInteger = m_dynamicCutsTool->getAllIntegerCutsByEta(eta);
+
+    m_nclusmin    = dynamicCutsMapInteger["minClusters"];
+    m_nholesmax   = dynamicCutsMapInteger["maxHolesPattern"];
+    m_dholesmax   = dynamicCutsMapInteger["maxHolesGapPattern"];
+    m_nwclusmin   = dynamicCutsMapInteger["nWeightedClustersMin"];
+
+    if(m_pTmin < 20.) m_pTmin = 20.;
+    m_xi2multitracks = m_xi2max;
+  }
+  else {ATH_MSG_ERROR ("Can not find eta-dependent cuts");}
+
+  setTrackQualityCuts();		// that all dependencies are updated with new cuts
+  m_tracksfinder->getTrackQualityCuts(m_trackquality);	// that the tool is updated with new cuts
+}
