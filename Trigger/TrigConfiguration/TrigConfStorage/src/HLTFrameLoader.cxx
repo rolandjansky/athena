@@ -203,6 +203,12 @@ TrigConf::HLTFrameLoader::GetConnectedPSKs(unsigned int smk) {
 
    commitSession();
 
+   stringstream ss;
+   for(int psk : connected_psks)
+       ss << psk << ", ";
+
+   TRG_MSG_INFO( "To SMK " << smk << " connected HLT prescale keys are " << ss.str() );
+
    return connected_psks;
 }
 

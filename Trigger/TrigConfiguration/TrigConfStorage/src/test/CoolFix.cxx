@@ -65,7 +65,7 @@ void printhelp(std::ostream & o, std::ostream& (*lineend) ( std::ostream& os )) 
   o << "[Global options]\n";
   o << "  -c|--cooldb       <cooldb>                    ... cool database and run number (default is COOLONL_TRIGGER/CONDBR2)\n";
   o << "                                                    e.g. COOLONL_TRIGGER/CONDBR2 or testcool.db \n";
-  o << "  -r|--run          <run> [<lb>]                ... run number (mandatory) and lb\n";
+  o << "  -r|--run          <run> [<lb>] [<lbend>]      ... run number (mandatory) and optionally lb (range)\n";
   o << "\n";
   o << "     --triggerdb    <triggerdb>                 ... trigger database as source of information (default is TRIGGERDBR2)\n";
   o << "     --smk          <smk>                       ... SMK to load to cool (specify when needed)\n";
@@ -95,6 +95,8 @@ public:
    string       cooldb{"COOLONL_TRIGGER/CONDBR2"};
    unsigned int run {0};
    unsigned int lb {0};
+   unsigned int lbend {0};
+   bool openended {true};
    // fix the database
    bool         fix {false};
    bool         extendedSelection {false}; // if true also allows fixing of MV folders
@@ -124,6 +126,7 @@ int
 JobConfig::parseProgramOptions(int argc, char* argv[]) {
    std::string currentPar("");
    std::string listofUnknownParameters = "";
+   uint runargpos(0);
    for(int i=1; i<argc; i++) {
       string currInput(argv[i]);
       int fchar = currInput.find_first_not_of('-');
@@ -153,12 +156,21 @@ JobConfig::parseProgramOptions(int argc, char* argv[]) {
          currentPar = stripped;
       } else {
          if(currentPar == "c" || currentPar == "cooldb")   { cooldb = stripped; currentPar=""; continue; }
-         if(currentPar == "r" || currentPar == "run")      { 
-            if(run==0) {
-               run = boost::lexical_cast<int,string>(stripped); 
-            } else {
-               lb = boost::lexical_cast<int,string>(stripped); 
-            }               
+         if(currentPar == "r" || currentPar == "run")      {
+            unsigned int val = boost::lexical_cast<unsigned int,string>(stripped);
+            switch(runargpos) {
+            case 0:
+               run = val;
+               break;
+            case 1:
+               lb = val;
+               break;
+            case 2:
+               lbend = val;
+               openended = false;
+               break;
+            }
+            runargpos++;
             continue;
          }
          if(currentPar == "triggerdb")                     { triggerdb = stripped; continue; }
@@ -225,7 +237,7 @@ JobConfig::PrintSetup() {
    cout << "JOB SETUP: " << endl;
    cout << "----------" << endl;
    cout << "   Run                 : " << run << endl;
-   cout << "   LB                  : " << lb << endl;
+   cout << "   LB                  : " << lb << " - " << lbend << endl;
    cout << "   Cool DB             : " << coolConnection << endl;
    cout << "   Trigger database    : " << triggerdb << endl;
    cout << "   Fix flag            : " << (fix ? "yes" : "no") << endl;
@@ -276,7 +288,7 @@ int main( int argc, char* argv[] ) {
 
    int displayMode = gConfig.fix ? ( gConfig.extendedSelection ? 2 : 1 ) : 0;
 
-   vector<string> fixableFolders = coolReader->checkPayloadSize( gConfig.run, gConfig.lb, displayMode );
+   vector<string> fixableFolders = coolReader->checkPayloadSize( gConfig.run, gConfig.lb, displayMode, gConfig.openended, gConfig.lbend );
 
    if( ! gConfig.fix ) {
       delete coolReader;
@@ -328,7 +340,7 @@ int main( int argc, char* argv[] ) {
             
             gConfig.extendedSelection = !gConfig.extendedSelection;
 
-            fixableFolders = coolReader->checkPayloadSize( gConfig.run, gConfig.lb, gConfig.extendedSelection ? 2 : 1 );
+            fixableFolders = coolReader->checkPayloadSize( gConfig.run, gConfig.lb, gConfig.extendedSelection ? 2 : 1, gConfig.openended, gConfig.lbend );
 
             selectForFixing.clear();
             
@@ -416,7 +428,12 @@ int main( int argc, char* argv[] ) {
       readKeyFromPrompt("Please specify L1 Prescaleset key : ", gConfig.l1psk );
    
    if( loadHLTPSK && gConfig.hltpsk==0) {
-      string prompt = "Please specify HLT Prescaleset key (starting at LB " + lexical_cast<string,int>(gConfig.lb) + "): ";
+      string prompt = "Please specify HLT Prescaleset key";
+      if(gConfig.openended) {
+          prompt += " (starting at LB " + lexical_cast<string,int>(gConfig.lb) + "): ";
+      } else {
+          prompt += " (for LB " + lexical_cast<string,int>(gConfig.lb) + " - " + std::to_string(gConfig.lbend) + "): ";
+      }
       readKeyFromPrompt( prompt, gConfig.hltpsk );
    }
 
@@ -491,41 +508,75 @@ int main( int argc, char* argv[] ) {
    cout << "Writing cool to destination " << gConfig.coolConnection << endl;
    TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( gConfig.coolConnection );
 
-   for(const string & folderToFix : foldersToFix) {
+   ValidityRange vr(gConfig.run);
 
-      /**
-       *  BGSK
-       */
-      if( folderToFix == "/TRIGGER/LVL1/BunchGroupKey")
-         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
+   if(gConfig.openended) {
+       vr = ValidityRange(gConfig.run, gConfig.lb);
+   } else {
+       cool::ValidityKey since(gConfig.run); since <<= 32; since += gConfig.lb;
+       cool::ValidityKey until(gConfig.run); until <<= 32; until += gConfig.lbend+1;
+       vr = ValidityRange(since, until);
+   }
 
-      if( folderToFix == "/TRIGGER/LVL1/BunchGroupContent")
-         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
 
-      if( folderToFix == "/TRIGGER/LVL1/BunchGroupDescription") {
-         if(ctpConfig && bgs) {
-            coolWriter->writeL1BunchGroupRunPayload( ValidityRange(gConfig.run),
-                                                     ctpConfig->menu(),
-                                                     *bgs);
+   /**
+    *  BGSK
+    */
+   {
+
+      bool doWrite(false);
+      for(const string & folderToFix : foldersToFix) {
+         if( folderToFix == "/TRIGGER/LVL1/BunchGroupKey" ||
+             folderToFix == "/TRIGGER/LVL1/BunchGroupContent") {
+            coolWriter->addWriteFolder( folderToFix );
+            doWrite = true;
+         }
+      }
+      if(loadBGSK && doWrite) {
+         coolWriter->writeL1BunchGroupLBPayload( vr, bgs->id(), *bgs);
+      }
+      coolWriter->clearWriteFolder();
+
+      for(const string & folderToFix : foldersToFix) {
+         if( folderToFix == "/TRIGGER/LVL1/BunchGroupDescription") {
+            if(ctpConfig && bgs) {
+               coolWriter->writeL1BunchGroupRunPayload( vr,
+                                                        ctpConfig->menu(),
+                                                        *bgs);
+            }
          }
       }
 
-      /**
-       *  L1PSK
-       */
-      if( folderToFix == "/TRIGGER/LVL1/Lvl1ConfigKey")
-         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
-
-      if( folderToFix == "/TRIGGER/LVL1/Prescales")
-         cout << "Writing of COOL folder " << folderToFix << " not yet implemented" << endl;
-   
    }
+
+   /**
+    *  L1PSK
+    */
+   {
+
+      bool doWrite(false);
+      for(const string & folderToFix : foldersToFix) {
+         if( folderToFix == "/TRIGGER/LVL1/Lvl1ConfigKey" ||
+             folderToFix == "/TRIGGER/LVL1/Prescales") {
+            coolWriter->addWriteFolder( folderToFix );
+            doWrite = true;
+         }
+      }
+      if(loadL1PSK && doWrite) {
+         coolWriter->writeL1PrescalePayload( vr.since(), vr.until(), l1pss->id() , *l1pss);
+      }
+      coolWriter->clearWriteFolder();
+
+
+   }
+
 
 
    /**
     *  HLT prescales
     */
    {
+
       bool doWrite(false);
       for(const string & folderToFix : foldersToFix) {
          if( folderToFix == "/TRIGGER/HLT/PrescaleKey" ||
@@ -535,7 +586,7 @@ int main( int argc, char* argv[] ) {
          }
       }
       if(hltpss && doWrite) {
-         coolWriter->writeHltPrescalePayload( gConfig.run, gConfig.lb, *hltpss);
+         coolWriter->writeHltPrescalePayload( vr.since(), vr.until(), *hltpss);
       }
       coolWriter->clearWriteFolder();
    }

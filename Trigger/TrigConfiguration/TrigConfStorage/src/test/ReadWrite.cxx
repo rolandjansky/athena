@@ -32,6 +32,7 @@
 #include "TrigConfStorage/StorageMgr.h"
 #include "TrigConfStorage/IHLTFrameLoader.h"
 #include "TrigConfStorage/TrigConfCoolWriter.h"
+#include "TrigConfStorage/MCKLoader.h"
 
 #include "TrigConfL1Data/CaloInfo.h"
 #include "TrigConfL1Data/CTPConfig.h"
@@ -417,7 +418,8 @@ int main( int argc, char* argv[] ) {
    BunchGroupSet* bgs(nullptr);
    HLTFrame* hltFrame(0);
    TXC::L1TopoMenu* l1tm = nullptr;
-   uint smk(0),l1psk(0),hltpsk(0),bgsk(0);
+   uint smk(0),l1psk(0),hltpsk(0),bgsk(0), mck{0};
+   string release; 
 
 
    /*------------------
@@ -457,6 +459,17 @@ int main( int argc, char* argv[] ) {
       l1psk  = gConfig.getKey(1);
       hltpsk = gConfig.getKey(2);
       bgsk   = gConfig.getKey(3);
+
+      // loading attached MCK
+      auto mckloader = new MCKLoader(*sm);
+      mckloader->loadMCKlinkedToSMK(smk, mck);
+      if ( mck != 0 ) {
+         mckloader->loadReleaseLinkedToMCK(mck,release);
+        log << "Loaded MCK " << mck << " (active for SMK " << smk << " and release " << release << ")" << endl;
+      } else {
+	log << "Did not load MCK from DB as MCK is 0 or no MCK is linked";
+      }
+      
 
    }
    /*------------------
@@ -659,6 +672,7 @@ int main( int argc, char* argv[] ) {
       log << lineend;
       TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( gConfig.coolOutputConnection );
       string configSource("");
+      string info("");
       unsigned int runNr = gConfig.coolOutputRunNr;
       if(runNr == 0) { runNr = 0x80000000; } // infinite range
       
@@ -667,7 +681,9 @@ int main( int argc, char* argv[] ) {
       
       if(hltFrame)
          coolWriter->writeHLTPayload(runNr, *hltFrame, configSource);
-
+      
+       if(mck)
+         coolWriter->writeMCKPayload(runNr, mck, release, info);
    }
 
    delete ctpc;

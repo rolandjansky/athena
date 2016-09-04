@@ -174,6 +174,38 @@ private:
    std::string m_offending;
 };
 
+
+///////////////////////// Max lenght of TRIGGER ELEMENTS name  /////////////////////////
+class TENameLengthTest : public TrigConfTest {
+public:
+
+  TENameLengthTest() 
+      : TrigConfTest("TENameLength", "Max length of TE name must be less than 100 characters"),
+        m_offending("")
+  {}
+  
+   virtual void execute(const Exc_t&) {
+      if ( ! m_hlt ) return;
+
+      unsigned int _maxTElength = 100;
+     
+      for(const TrigConf::HLTSequence* seq : m_hlt->getHLTSequenceList()) {
+         const std::string& tename = seq->outputTE()->name();
+
+	 if (tename.length() > _maxTElength )
+	   m_offending += tename + ", ";
+	 
+      }	 
+	 
+      if(m_offending.size()!=0)
+	m_error = " Following Trigger elements are too long [more than 100 characters long]: " + m_offending;
+   }
+  
+private:
+   std::string m_offending;
+};
+
+
 /////////////// CHECK WHETHER ALL SIGNATURES IN A GROUP ARE CONNECTED BY COMMON TEs //////////////////
 ////// ALL OUTPUT TEs OF A SIGNATURE ARE THE FINAL TE OF THE CHAIN OR THE INPTUT OF ANOTHER SIGNATURE   ///
 ////// CHECK ALSO CHANGE OF MULTIPLICITY BETWEEN SIGNATURES
@@ -1704,6 +1736,7 @@ ConfigurationCheck::ConfigurationCheck(TrigConf::CTPConfig* ctp, TrigConf::HLTFr
   m_tests.push_back(new CTPCountersUnique());
   m_tests.push_back(new ChainsNamingConventionTest());
   m_tests.push_back(new TENamingConventionTest());
+  m_tests.push_back(new TENameLengthTest());
   m_tests.push_back(new ChainsNamingUniqueTest());
   m_tests.push_back(new ChainsCountersUniqueTest());
   m_tests.push_back(new ChainsCounterRangeTest());

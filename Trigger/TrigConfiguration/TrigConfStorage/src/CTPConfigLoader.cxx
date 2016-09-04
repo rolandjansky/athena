@@ -198,7 +198,7 @@ bool TrigConf::CTPConfigLoader::load(CTPConfig& ctpcTarget) {
          m.setId(menuid);
          m.setSuperMasterTableId(ctpcTarget.superMasterTableId());
          if ( !mldr.load( m ) ) {
-            TRG_MSG_ERROR("loading Menu " << m.id());
+            TRG_MSG_ERROR("failed loading Menu " << m.id());
             throw std::runtime_error( "CTPConfigLoader:                  ERROR loading Menu" );
          }
          if(isRun1()) {

@@ -35,8 +35,8 @@ bool TrigConf::L1TopoMenuLoader::load( TXC::L1TopoMenu& tcaTarget ) {
      startSession();
      loadTopoAlgos(tcaTarget);
      commitSession();
-     if(msg().level() <= TrigConf::MSGTC::INFO)
-       tcaTarget.print();
+     if(msg().level() < TrigConf::MSGTC::INFO)
+        tcaTarget.print();
    } catch( const std::exception& e ) {
       TRG_MSG_ERROR("L1TopoMenuLoader::load >> Standard C++ exception: " << e.what());
    } catch( ... ) {

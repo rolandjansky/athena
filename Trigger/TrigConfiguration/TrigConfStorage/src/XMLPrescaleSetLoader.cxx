@@ -25,9 +25,6 @@ TrigConf::XMLPrescaleSetLoader::load(PrescaleSet& ps) {
    }
    ps.resize(maxctpid+1);
 
-   vector<int64_t> prescale_val(maxctpid+1,-1);
-
-
    int ival = 0;
    string sval("");
    readAttribute(pt(), "id",      ival); ps.setId(ival);
@@ -49,7 +46,9 @@ TrigConf::XMLPrescaleSetLoader::load(PrescaleSet& ps) {
       string scut("");
       float prescale = -1;
       if ( readAttribute(v.second, "n", nn) && readAttribute(v.second, "m", mm) && readAttribute(v.second, "d", dd) ) { // fractional prescale - run 1
-         prescale_val[ctpid] = L1PSNumber::encodeNMD(nn, mm, dd);
+         int64_t prescale64bit = L1PSNumber::encodeNMD(nn, mm, dd);
+         prescale = L1PSNumber(prescale64bit).getFloatPrescale();
+         ps.setPrescale(ctpid, prescale);
       } else if( readAttribute(v.second, "cut", scut) ) { // new style contains 'cut' and 'value' as attributes
          int cut;
          stringstream ss;
@@ -58,14 +57,11 @@ TrigConf::XMLPrescaleSetLoader::load(PrescaleSet& ps) {
          ps.setCut(ctpid, cut);
          newStyle = true;
       } else if( readAttribute(v.second, "ps", prescale) ) { // new style contains 'cut' and 'value' as attributes
-         prescale_val[ctpid] = L1PSNumber::decodeFloat(prescale);
+         ps.setPrescale(ctpid, prescale);
       } else if( getTextContent(v.second, prescale) ) {
-         prescale_val[ctpid] = L1PSNumber::decodeFloat(prescale);
+         ps.setPrescale(ctpid, prescale);
       }
    }
-
-   if(!newStyle)
-      ps.setPrescales(prescale_val);
 
    ps.setNewPrescaleStyle(newStyle);
 
