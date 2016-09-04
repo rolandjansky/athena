@@ -418,7 +418,8 @@ int main( int argc, char* argv[] ) {
    BunchGroupSet* bgs(nullptr);
    HLTFrame* hltFrame(0);
    TXC::L1TopoMenu* l1tm = nullptr;
-   uint smk(0),l1psk(0),hltpsk(0),bgsk(0);
+   uint smk(0),l1psk(0),hltpsk(0),bgsk(0), mck{0};
+   string release; 
 
 
    /*------------------
@@ -460,11 +461,15 @@ int main( int argc, char* argv[] ) {
       bgsk   = gConfig.getKey(3);
 
       // loading attached MCK
-      unsigned int mck{0};
       auto mckloader = new MCKLoader(*sm);
       mckloader->loadMCKlinkedToSMK(smk, mck);
+      if ( mck != 0 ) {
+         mckloader->loadReleaseLinkedToMCK(mck,release);
+        log << "Loaded MCK " << mck << " (active for SMK " << smk << " and release " << release << ")" << endl;
+      } else {
+	log << "Did not load MCK from DB as MCK is 0 or no MCK is linked";
+      }
       
-      log << "Loaded MCK " << mck << " (active for SMK " << smk << ")" << endl;
 
    }
    /*------------------
@@ -667,6 +672,7 @@ int main( int argc, char* argv[] ) {
       log << lineend;
       TrigConfCoolWriter * coolWriter = new TrigConfCoolWriter( gConfig.coolOutputConnection );
       string configSource("");
+      string info("");
       unsigned int runNr = gConfig.coolOutputRunNr;
       if(runNr == 0) { runNr = 0x80000000; } // infinite range
       
@@ -675,7 +681,9 @@ int main( int argc, char* argv[] ) {
       
       if(hltFrame)
          coolWriter->writeHLTPayload(runNr, *hltFrame, configSource);
-
+      
+       if(mck)
+         coolWriter->writeMCKPayload(runNr, mck, release, info);
    }
 
    delete ctpc;
