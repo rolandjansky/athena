@@ -2,90 +2,10 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "GaudiKernel/IJobOptionsSvc.h"
-#include "AthenaMonitoring/AthenaMonManager.h"
-#include "AthenaMonitoring/ManagedMonitorToolTest.h"
-#include "AnalysisUtils/AnalysisMisc.h"
-
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/PropertyMgr.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "StoreGate/StoreGateSvc.h"
-#include "EventInfo/TriggerInfo.h"
-#include "TrigSteeringEvent/HLTResult.h"
-#include "EventInfo/EventInfo.h"
-#include <EventInfo/EventID.h>
-#include "xAODEventInfo/EventInfo.h"
-
-#include "TrigDecisionTool/FeatureContainer.h"
-#include "TrigDecisionTool/Feature.h"
-//#include "TrigSteeringEvent/TrigOperationalInfo.h"
-//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
-#include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
-
-//#include "TrigSteeringEvent/TrigOperationalInfoCollection.h"
-
-#include "TrigConfL1Data/PrescaleSet.h"
-
-#include "TrigTauEmulation/Level1EmulationTool.h"
-#include "TrigTauEmulation/HltEmulationTool.h"
-
-#include "xAODTau/TauJet.h"
-#include "xAODTau/TauJetContainer.h"
-#include "xAODTau/TauJetAuxContainer.h"
-#include "xAODTau/TauDefs.h"
-
-#include "xAODTrigger/EmTauRoI.h"
-#include "xAODTrigger/EmTauRoIContainer.h"
-
-#include "xAODTruth/TruthParticleContainer.h"
-#include "xAODTruth/TruthParticle.h"
-#include "xAODTruth/TruthVertex.h"
-#include "xAODTruth/TruthVertexContainer.h"
-
-#include "xAODTracking/TrackParticle.h"
-#include "xAODTracking/TrackParticleContainer.h"
-
-#include "xAODMissingET/MissingET.h"
-#include "xAODMissingET/MissingETContainer.h"
-
-#include "xAODMuon/Muon.h"
-#include "xAODMuon/MuonContainer.h"
-
-#include "xAODEgamma/Electron.h"
-#include "xAODEgamma/ElectronContainer.h"
-
-#include "xAODJet/Jet.h"
-#include "xAODJet/JetContainer.h"
-
-#include "VxVertex/VxContainer.h"
-
-#include "TROOT.h"
-#include "TH1I.h"
-#include "TH1F.h"
-#include "TH2I.h"
-#include "TH2F.h"
-#include "TEfficiency.h"
+#include "HLTTauMonTool.h"
 #include "TProfile.h"
 
-#include <vector>
-#include <iostream>
-#include <fstream>
-//#define _USE_MATH_DEFINES
-#include <math.h>
-#include "TrigHLTMonitoring/IHLTMonTool.h"
-#include "HLTTauMonTool.h"
-
-
 using namespace std;
-using namespace AnalysisUtils;
-
-const float PI=2.0*acos(0.);
-const float TWOPI=2.0*PI;
-
 
 ///////////////////////////////////////////////////////////////////
 void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
@@ -447,7 +367,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTrueTauNTrackDenom",";Number of tracks;",10,0,10));
             addHistogram(new TH1F("hTrueTauNVtxDenom",";Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTrueTauMuDenom",";Average interactions per bunch crossing;",nbin_mu-1,bins_mu));*/
-            addHistogram(new TH2F("hTrueTauEtaVsPhiDenom",";#eta; #phi;",nbin_eta-1,bins_eta,16,-3.2,3.2));
+            //addHistogram(new TH2F("hTrueTauEtaVsPhiDenom",";#eta; #phi;",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
 	    /*
             addHistogram(new TH1F("hTrueL1PtNum","L1 vs Truth;Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -459,7 +379,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTrueL1NVtxNum","L1 vs Truth;Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTrueL1MuNum","L1 vs Truth;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
 	    */
-            addHistogram(new TH2F("hTrueL1EtaVsPhiNum","L1 vs Truth;#eta;#phi;",nbin_eta-1,bins_eta,16,-3.2,3.2));
+            //addHistogram(new TH2F("hTrueL1EtaVsPhiNum","L1 vs Truth;#eta;#phi;",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
 	    /*
             addHistogram(new TH1F("hTrueHLTPtNum","HLT vs Truth;Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -471,7 +391,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTrueHLTNVtxNum","HLT vs Truth;Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTrueHLTMuNum","HLT vs Truth;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
 	    */
-            addHistogram(new TH2F("hTrueHLTEtaVsPhiNum","HLT vs Truth;#eta;#phi;",nbin_eta-1,bins_eta,16,-3.2,3.2));
+            //addHistogram(new TH2F("hTrueHLTEtaVsPhiNum","HLT vs Truth;#eta;#phi;",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
 	    /*            addHistogram(new TH1F("hTrueL1PtEfficiency","L1 vs Truth Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueL1Pt1PEfficiency","L1 vs Truth Efficiency; Truth 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -482,7 +402,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTrueL1NVtxEfficiency","L1 vs Truth Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTrueL1MuEfficiency","L1 vs Truth Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
 	    */
-            addHistogram(new TH2F("hTrueL1EtaVsPhiEfficiency","L1 vs Truth in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
+            //addHistogram(new TH2F("hTrueL1EtaVsPhiEfficiency","L1 vs Truth in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             /*
             addHistogram(new TH1F("hTrueHLTPtEfficiency","HLT vs Truth Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTrueHLTPt1PEfficiency","HLT vs Truth Efficiency; Truth 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -493,7 +413,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTrueHLTNVtxEfficiency","HLT vs Truth Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTrueHLTMuEfficiency","HLT vs Truth Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
 	    */
-            addHistogram(new TH2F("hTrueHLTEtaVsPhiEfficiency","HLT vs truth in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
+            //addHistogram(new TH2F("hTrueHLTEtaVsPhiEfficiency","HLT vs truth in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
             addProfile(new TProfile("TProfTrueL1PtEfficiency","L1 vs Truth Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addProfile(new TProfile("TProfTrueL1Pt1PEfficiency","L1 vs Truth Efficiency; Truth 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -526,7 +446,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTruthRecoTauNVtxDenom",";Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTruthRecoTauMuDenom",";Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
 	    */
-            addHistogram(new TH2F("hTruthRecoTauEtaVsPhiDenom",";#eta;#phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
+            //addHistogram(new TH2F("hTruthRecoTauEtaVsPhiDenom",";#eta;#phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             /*
             addHistogram(new TH1F("hTruthRecoL1PtNum","L1 vs Truth+Reco; Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoL1Pt1PNum","L1 vs Truth+Reco; Truth 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -537,7 +457,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTruthRecoL1NVtxNum","L1 vs Truth+Reco; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTruthRecoL1MuNum","L1 vs Truth+Reco;Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
 	    */
-            addHistogram(new TH2F("hTruthRecoL1EtaVsPhiNum","L1 vs Truth+Reco;#eta;#phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
+            //addHistogram(new TH2F("hTruthRecoL1EtaVsPhiNum","L1 vs Truth+Reco;#eta;#phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
 	    /*            addHistogram(new TH1F("hTruthRecoHLTPtNum","HLT vs Truth+Reco; Truth p_{T} [GeV];",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoHLTPt1PNum","HLT vs Truth+Reco; Truth 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -548,7 +468,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTruthRecoHLTNVtxNum","HLT vs Truth+Reco; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTruthRecoHLTMuNum","HLT vs Truth+Reco; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
 	    */
-            addHistogram(new TH2F("hTruthRecoHLTEtaVsPhiNum","HLT vs Truth+Reco; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
+            //addHistogram(new TH2F("hTruthRecoHLTEtaVsPhiNum","HLT vs Truth+Reco; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
 	    /*
             addHistogram(new TH1F("hTruthRecoL1PtEfficiency","L1 vs Truth+Reco Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -560,7 +480,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTruthRecoL1NVtxEfficiency","L1 vs Truth+Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTruthRecoL1MuEfficiency","L1 vs Truth+Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
 	    */
-            addHistogram(new TH2F("hTruthRecoL1EtaVsPhiEfficiency","L1 vs Truth+Reco in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
+            //addHistogram(new TH2F("hTruthRecoL1EtaVsPhiEfficiency","L1 vs Truth+Reco in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
             /*addHistogram(new TH1F("hTruthRecoHLTPtEfficiency","HLT vs Truth+Reco Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addHistogram(new TH1F("hTruthRecoHLTPt1PEfficiency","HLT vs Truth+Reco Efficiency; Truth 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -571,7 +491,7 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
             addHistogram(new TH1F("hTruthRecoHLTNVtxEfficiency","HLT vs Truth+Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
             addHistogram(new TH1F("hTruthRecoHLTMuEfficiency","HLT vs Truth+Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
 	    */
-            addHistogram(new TH2F("hTruthRecoHLTEtaVsPhiEfficiency","HLT vs Truth+Reco in  Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
+            //addHistogram(new TH2F("hTruthRecoHLTEtaVsPhiEfficiency","HLT vs Truth+Reco in  Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
             
             addProfile(new TProfile("TProfTruthRecoL1PtEfficiency","L1 vs Truth+Reco Efficiency; Truth p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
             addProfile(new TProfile("TProfTruthRecoL1Pt1PEfficiency","L1 vs Truth+Reco Efficiency; Truth 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -675,9 +595,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoTauNTrackDenom","; Number of tracks;",10,0,10));
         addHistogram(new TH1F("hRecoTauNVtxDenom","; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoTauMuDenom","; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
-	*/
         addHistogram(new TH2F("hRecoTauEtaVsPhiDenom","; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-        
+        */
 	/*
 	  addHistogram(new TH1F("hRecoL1PtNum","L1 vs Reco; Reco p_{T} [GeV];",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoL1Pt1PNum","L1 vs Reco; Reco 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -687,8 +606,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoL1NTrackNum","L1 vs Reco Number of tracks;",10,0,10));
         addHistogram(new TH1F("hRecoL1NVtxNum","L1 vs Reco; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoL1MuNum","L1 vs Reco; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
-	*/
         addHistogram(new TH2F("hRecoL1EtaVsPhiNum","L1 vs Reco; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
+	*/
         /*
         addHistogram(new TH1F("hRecoHLTPtNum","HLT vs Reco; Reco p_{T} [GeV];",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoHLTPt1PNum","HLT vs Reco; Reco 1 prong p_{T} [GeV];",nbin_pt-1,bins_pt));
@@ -698,9 +617,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoHLTNTrackNum","HLT vs Reco; Number of tracks;",10,0,10));
         addHistogram(new TH1F("hRecoHLTNVtxNum","HLT vs Reco; Number of primary vertices;",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoHLTMuNum","HLT vs Reco; Average interactions per bunch crossing;",nbin_mu-1,bins_mu));
-	*/
         addHistogram(new TH2F("hRecoHLTEtaVsPhiNum","HLT vs Reco; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-        
+        */
 	/*
         addHistogram(new TH1F("hRecoL1PtEfficiency","L1 vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoL1Pt1PEfficiency","L1 vs Reco Efficiency; Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -710,8 +628,8 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoL1NTrackEfficiency","L1 vs Reco Efficiency; Number of tracks; Efficiency",10,0,10));
         addHistogram(new TH1F("hRecoL1NVtxEfficiency","L1 vs Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoL1MuEfficiency","L1 vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
-	*/
         addHistogram(new TH2F("hRecoL1EtaVsPhiEfficiency","L1 vs Reco in Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
+	*/
         /*
         addHistogram(new TH1F("hRecoHLTPtEfficiency","HLT vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addHistogram(new TH1F("hRecoHLTPt1PEfficiency","HLT vs Reco Efficiency; Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
@@ -721,10 +639,9 @@ void HLTTauMonTool::bookHistogramsForItem(const std::string & trigItem){
         addHistogram(new TH1F("hRecoHLTNTrackEfficiency","HLT vs Reco Efficiency; Number of tracks; Efficiency",10,0,10));
         addHistogram(new TH1F("hRecoHLTNVtxEfficiency","HLT vs Reco Efficiency; Number of primary vertices; Efficiency",nbin_nvtx-1,bins_nvtx));
         addHistogram(new TH1F("hRecoHLTMuEfficiency","HLT vs Reco Efficiency; Average interactions per bunch crossing; Efficiency",nbin_mu-1,bins_mu));
-	*/
         addHistogram(new TH2F("hRecoHLTEtaVsPhiEfficiency","HLT vs Reco in  Eta-Phi; #eta; #phi",nbin_eta-1,bins_eta,16,-3.2,3.2));
-       
-         addProfile(new TProfile("TProfRecoL1PtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
+       */
+        addProfile(new TProfile("TProfRecoL1PtEfficiency", "L1 Vs Reco Efficiency; Reco p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addProfile(new TProfile("TProfRecoL1Pt1PEfficiency", "L1 Vs Reco Efficiency; Reco 1 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addProfile(new TProfile("TProfRecoL1Pt3PEfficiency", "L1 Vs Reco Efficiency; Reco 3 prong p_{T} [GeV]; Efficiency",nbin_pt-1,bins_pt));
         addProfile(new TProfile("TProfRecoL1EtaEfficiency", "L1 Vs Reco Efficiency; Reco #eta; Efficiency",nbin_eta-1,bins_eta));
@@ -909,6 +826,17 @@ void HLTTauMonTool::bookHistogramsAllItem(){
         //      addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFVsOffline/BDT/1p_nonCorrected",run));
         //      addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/EFVsOffline/BDT/mp_nonCorrected",run));
         addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/TurnOnCurves",run));
+	addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots",run));
+        for(unsigned int j=0;j<m_topo_chains.size(); ++j){
+                addMonGroup(new MonGroup(this,"HLT/TauMon/Shifter/"+lowest_names.at(i)+"/OtherPlots/"+m_topo_chains.at(j),run));
+        }
+    }
+ 
+    for(unsigned int i=0;i<m_topo_chains.size(); ++i){
+   	addMonGroup(new MonGroup(this,"HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i),run));
+    	setCurrentMonGroup("HLT/TauMon/Expert/TopoDiTau/"+m_topo_chains.at(i));
+        addProfile(new TProfile("TProfRecoL1_dREfficiency", "dR eff; dR(tau,tau); Efficiency",50,0.,4.));
+        addHistogram(new TH1F("hHLTdR", "dR; dR(tau,tau); Events",50,0.,4.));        
     }
 
     if(m_doTopoValidation){

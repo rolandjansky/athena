@@ -4,6 +4,9 @@
 
 #include "HLTTauMonTool.h"
 #include "TProfile.h"
+#include "AthenaKernel/Units.h"
+
+using Athena::Units::GeV;
 
 /*
 STRATEGY:
@@ -137,31 +140,31 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
      /* match offline tau with HLT taus and fill nominators */
       if(L1TauMatching(l1_chain, theOfflineTau->p4(), dRL1Cut))  	
         {
-	  profile("TProfDijetFakeTausL1MuEfficiency")->Fill(mu_offline,1);
-          profile("TProfDijetFakeTausL1PtEfficiency")->Fill(theOfflineTau->pt()/1000.,1);
+	  profile("TProfDijetFakeTausL1MuEfficiency")->Fill(m_mu_offline,1);
+          profile("TProfDijetFakeTausL1PtEfficiency")->Fill(theOfflineTau->pt()/GeV,1);
           profile("TProfDijetFakeTausL1EtaEfficiency")->Fill(theOfflineTau->eta(),1);
           profile("TProfDijetFakeTausL1NTracksEfficiency")->Fill(theOfflineTau->nTracks(),1);
         }
        else
         {
-          profile("TProfDijetFakeTausL1PtEfficiency")->Fill(theOfflineTau->pt()/1000.,0);
+          profile("TProfDijetFakeTausL1PtEfficiency")->Fill(theOfflineTau->pt()/GeV,0);
           profile("TProfDijetFakeTausL1EtaEfficiency")->Fill(theOfflineTau->eta(),0);
-	  profile("TProfDijetFakeTausL1MuEfficiency")->Fill(mu_offline,0);
+	  profile("TProfDijetFakeTausL1MuEfficiency")->Fill(m_mu_offline,0);
           profile("TProfDijetFakeTausL1NTracksEfficiency")->Fill(theOfflineTau->nTracks(),0);
         }
 
       if(HLTTauMatching(aHighPtChain, theOfflineTau->p4(), dRCut)) 	
         {
-          profile("TProfDijetFakeTausHLTPtEfficiency")->Fill(theOfflineTau->pt()/1000.,1);
+          profile("TProfDijetFakeTausHLTPtEfficiency")->Fill(theOfflineTau->pt()/GeV,1);
           profile("TProfDijetFakeTausHLTEtaEfficiency")->Fill(theOfflineTau->eta(),1);
-          profile("TProfDijetFakeTausHLTMuEfficiency")->Fill(mu_offline,1);
+          profile("TProfDijetFakeTausHLTMuEfficiency")->Fill(m_mu_offline,1);
           profile("TProfDijetFakeTausHLTNTracksEfficiency")->Fill(theOfflineTau->nTracks(),1);
         }
       else
         {
-          profile("TProfDijetFakeTausHLTPtEfficiency")->Fill(theOfflineTau->pt()/1000.,0);
+          profile("TProfDijetFakeTausHLTPtEfficiency")->Fill(theOfflineTau->pt()/GeV,0);
           profile("TProfDijetFakeTausHLTEtaEfficiency")->Fill(theOfflineTau->eta(),0);
-          profile("TProfDijetFakeTausHLTMuEfficiency")->Fill(mu_offline,0);
+          profile("TProfDijetFakeTausHLTMuEfficiency")->Fill(m_mu_offline,0);
           profile("TProfDijetFakeTausHLTNTracksEfficiency")->Fill(theOfflineTau->nTracks(),0);
         }
     }
