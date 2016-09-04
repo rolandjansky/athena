@@ -176,8 +176,8 @@ class HLTTauMonTool : public IHLTMonTool {
 
   ToolHandle<ILumiBlockMuTool> m_lumiBlockMuTool;
   ToolHandle<ILuminosityTool>  m_luminosityToolOnline;
-  float mu_offline;
-  int mu_online;
+  float m_mu_offline;
+  int m_mu_online;
 
   ///Name of the trigger items to be monitored.
   ///Set by job options

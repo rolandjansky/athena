@@ -8,8 +8,10 @@
 
 #include "TProfile.h"
 #include "HLTTauMonTool.h"
+#include "AthenaKernel/Units.h"
 
 using namespace std;
+using Athena::Units::GeV;
 
 
 StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem){
@@ -85,7 +87,7 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem){
             #else
             recotau_trk = (*recoItr)->track(recoTrack)->track();
             #endif
-            float recotau_trk_pt = recotau_trk->pt()/1000.;
+            float recotau_trk_pt = recotau_trk->pt()/GeV;
             float recotau_trk_eta = recotau_trk->eta();
             float recotau_trk_phi = recotau_trk->phi();
             float recotau_trk_d0 = recotau_trk->d0();
@@ -142,7 +144,7 @@ StatusCode HLTTauMonTool::trackCurves(const std::string & trigItem){
             	hist("hrecotauNum_trk_z0")->Fill(recotau_trk_z0);
             	hist2("hrecotauNum_trk_etaphi")->Fill(recotau_trk_eta, recotau_trk_phi);
             
-            	float pstau_trk_pt = pstau_trk_clos->pt()/1000.;
+            	float pstau_trk_pt = pstau_trk_clos->pt()/GeV;
             	float pstau_trk_eta = pstau_trk_clos->eta();
             	float pstau_trk_phi = pstau_trk_clos->phi();
             	float pstau_trk_d0 = pstau_trk_clos->d0();
