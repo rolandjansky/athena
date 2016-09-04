@@ -823,6 +823,9 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
 
   InDet::SiClusterCollection::const_iterator p =  m_sibegin;
 
+  bool BA =  m_useITKclusterSizeCuts && m_detelement->isBarrel();
+  double tanTheta = 0.,eta = 0.; if(BA) {tanTheta = 1.0/(Tp.cotTheta()); eta = Tp.eta();}
+
   for(; p!=m_siend; ++p) {
     
     const InDet::SiCluster*  c  = (*p); 
@@ -843,7 +846,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoPIX
     if(x>Xc) continue;
 
     //---------- ITK: check compatibility of cluster size with track direction
-    if(m_useITKclusterSizeCuts && !isGoodPixelCluster(c,1.0/(Tp.cotTheta()),Tp.eta())) continue;
+    if(BA && !isGoodPixelCluster(c,tanTheta,eta)) continue;
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
@@ -994,6 +997,9 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
 
   InDet::SiClusterCollection::const_iterator p =  m_sibegin;
 
+  bool BA =  m_useITKclusterSizeCuts && m_detelement->isBarrel();
+  double tanTheta = 0.,eta = 0.; if(BA) {tanTheta = 1.0/(Tp.cotTheta()); eta = Tp.eta();}
+
   for(; p!=m_siend; ++p) {
     
     const InDet::SiCluster*  c  = (*p);  
@@ -1015,7 +1021,7 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssPIX
     if(x>Xc) continue;
 
     //---------- ITK: check compatibility of cluster size with track direction
-    if(m_useITKclusterSizeCuts && !isGoodPixelCluster(c,1.0/(Tp.cotTheta()),Tp.eta())) continue;
+    if(BA && !isGoodPixelCluster(c,tanTheta,eta)) continue;
 
     if(x < Xm) {
       InDet::SiClusterLink_xk l(c,x);
@@ -1859,42 +1865,39 @@ bool InDet::SiTrajectoryElement_xk::straightLineStepToPlane
 //  ITK: New functions to take into account cluster size 
 //////////////////////////////////////////////////////////////////////////////
 
-bool InDet::SiTrajectoryElement_xk::isGoodPixelCluster(const InDet::SiCluster* clust, double tanTheta, double eta) {
-  bool pass=true;
-  const InDetDD::SiDetectorElement* de = clust->detectorElement();
-  if(de->isPixel() && de->isBarrel())
+bool InDet::SiTrajectoryElement_xk::isGoodPixelCluster(const InDet::SiCluster* clust, double tanTheta, double eta) 
+{
+  const PixelID* p_pixelId = static_cast<const PixelID*>(m_detelement->getIdHelper());     
+  const double sizeZ=clust->width().z(); 
+  const double sizePhi=clust->width().phiR();
+  const InDetDD::PixelModuleDesign* module(static_cast<const InDetDD::PixelModuleDesign*>(&m_detelement->design()));
+  const double pitchZ= module->etaPitch(); 
+  const double pitchPhi= module->phiPitch(); 
+  const double thickness= m_detelement->thickness();
+  Identifier id_cl=clust->identify();
+  const int cl_col_min=p_pixelId->eta_index(id_cl); // first pixel in the cluster: lower left corner of the box around cluster
+  const int cl_row_min=p_pixelId->phi_index(id_cl); // first pixel in the cluster: lower left corner of the box around cluster
+  const int n_cols=module->columns(); 
+  const int n_rows=module->rows();
+  const int cl_size_z=(int)rint(sizeZ/pitchZ);
+  const int cl_size_phi=(int)rint(sizePhi/pitchPhi);      
+  bool isEdge= (cl_col_min==0) || (cl_col_min+cl_size_z-1>=n_cols-1) || (cl_row_min+cl_size_phi-1>=n_rows-1);
+  int delta=deltaSize(sizeZ,predictedClusterLength(thickness,tanTheta),pitchZ);
+  if(!isEdge) // cluster is away from chip boundaries
     {
-      const PixelID* p_pixelId = static_cast<const PixelID*>(de->getIdHelper());     
-      const double sizeZ=clust->width().z(); 
-      const double sizePhi=clust->width().phiR();
-      const InDetDD::PixelModuleDesign* module(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
-      const double pitchZ= module->etaPitch(); 
-      const double pitchPhi= module->phiPitch(); 
-      const double thickness= de->thickness();
-      Identifier id_cl=clust->identify();
-      const int cl_col_min=p_pixelId->eta_index(id_cl); // first pixel in the cluster: lower left corner of the box around cluster
-      const int cl_row_min=p_pixelId->phi_index(id_cl); // first pixel in the cluster: lower left corner of the box around cluster
-      const int n_cols=module->columns(); 
-      const int n_rows=module->rows();
-      const int cl_size_z=(int)rint(sizeZ/pitchZ);
-      const int cl_size_phi=(int)rint(sizePhi/pitchPhi);      
-      bool isEdge= (cl_col_min==0) || (cl_col_min+cl_size_z-1>=n_cols-1) || (cl_row_min+cl_size_phi-1>=n_rows-1);
-      int delta=deltaSize(sizeZ,predictedClusterLength(thickness,tanTheta),pitchZ);
-      if(!isEdge) // cluster is away from chip boundaries
-	{
-	  int layer_num=p_pixelId->layer_disk(id_cl);
-	  double right_rms=parR_clSizeZcut[0][layer_num] + parR_clSizeZcut[1][layer_num]*fabs(eta);		  
-	  double left_rms= parL_clSizeZcut[layer_num];
-	  if(layer_num<2 && fabs(eta)>2.5) right_rms=(3-layer_num)*right_rms;
-	  if(delta<0 && fabs(1.0*delta) > m_Nsigma_clSizeZcut*left_rms) return false;
-	  if(delta>0 && fabs(1.0*delta) > m_Nsigma_clSizeZcut*right_rms) return false;
-	}
-      else // cluster is close to chip boundaries 
-	{
-	  if(delta>4) return false; // bottom cluster is too large for this seed (to be tuned)
-	}
+      int layer_num=p_pixelId->layer_disk(id_cl);
+      double right_rms=parR_clSizeZcut[0][layer_num] + parR_clSizeZcut[1][layer_num]*fabs(eta);		  
+      double left_rms= parL_clSizeZcut[layer_num];
+      if(layer_num<2 && fabs(eta)>2.5) right_rms=(3-layer_num)*right_rms;
+      if(delta<0 && fabs(1.0*delta) > m_Nsigma_clSizeZcut*left_rms) return false;
+      if(delta>0 && fabs(1.0*delta) > m_Nsigma_clSizeZcut*right_rms) return false;
     }
-  return pass;
+  else // cluster is close to chip boundaries 
+    {
+      if(delta>4) return false; // bottom cluster is too large for this seed (to be tuned)
+    }
+
+  return true;
 }
 
 double InDet::SiTrajectoryElement_xk::predictedClusterLength(double thickness, double tanTheta) {
