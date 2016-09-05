@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "TrigSteerMonitor/TrigTEMoni.h"
+#include "TrigTEMoni.h"
 
 #include "TrigConfL1Data/ThresholdConfig.h"
 
@@ -81,7 +81,7 @@ StatusCode TrigTEMoni::initialize()
   //need LVL1 Config Svc for LVL1 thresholds
   /*sc = service( "TrigConf::LVL1ConfigSvc", m_lvl1ConfigSvc);
     if(sc.isFailure()) {
-    if(m_logLvl <= MSG::FATAL) msg() << MSG::FATAL << " Unable to get pointer to Lvl1ConfigService " << endreq;
+    if(m_logLvl <= MSG::FATAL) msg() << MSG::FATAL << " Unable to get pointer to Lvl1ConfigService " << endmsg;
     return sc;
     }
   */
@@ -160,12 +160,12 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
       foundLvl1TETypes[(*lvl1TT)->name()] = teId;
       
     } else {
-      //if(m_logLvl <= MSG::DEBUG) msg() << MSG::DEBUG << " => NO" << endreq;
+      //if(m_logLvl <= MSG::DEBUG) msg() << MSG::DEBUG << " => NO" << endmsg;
     }
     int tn = (*lvl1TT)->thresholdNumber()+1;
     if (tn < 0) {
       msg() << MSG::WARNING << "this LVL1 threshold bit position (" << tn << ") is smaller 0"
-	       << ", go on w/o this threshold!" <<endreq;
+	       << ", go on w/o this threshold!" <<endmsg;
     }
   }
       //now build m_configuredlvl1TETypes, m_lvl1labels
@@ -269,7 +269,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   m_numberOfTEsHist_runsummary = new TH1I(run_name.c_str(),run_title.c_str(), bin_number,0.5, bin_number+0.5 );
   if (expertHistograms.regHist(m_numberOfTEsHist_runsummary).isFailure()){
     msg() << MSG::WARNING << "Can't book "
-	     <<  m_numberOfTEsHist_runsummary->GetName() << endreq;
+	     <<  m_numberOfTEsHist_runsummary->GetName() << endmsg;
   }
   if ( m_useLBHistos) {
     m_numberOfTEsHist = new TrigLBNHist<TH1I>(*m_numberOfTEsHist_runsummary);
@@ -281,7 +281,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   std::string title = "TE abundance in "+ m_trigLvl;
   m_numberOfTEsHist = new  TH1I(name.c_str(),title.c_str(), bin_number,0.5, bin_number+0.5) ;
   if ( expertHistograms.regHist(m_numberOfTEsHist).isFailure() ) 
-    msg() << MSG::WARNING << "Can't book histogram " << name << endreq;
+    msg() << MSG::WARNING << "Can't book histogram " << name << endmsg;
 
   /*
     histo for number of all TE
@@ -295,7 +295,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   m_numberOfallTEsHist_runsummary =new TH1I(run_name.c_str(),run_title.c_str(), bin_number,0.5, bin_number+0.5 );
   if (expertHistograms.regHist(m_numberOfallTEsHist_runsummary).isFailure()){
     msg() << MSG::WARNING << "Can't book "
-	     << m_numberOfallTEsHist_runsummary ->GetName() << endreq;
+	     << m_numberOfallTEsHist_runsummary ->GetName() << endmsg;
   }
   if ( m_useLBHistos ) {
     m_numberOfallTEsHist = new TrigLBNHist<TH1I>(*m_numberOfallTEsHist_runsummary);
@@ -306,7 +306,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   title    = "All TE abundance in "+ m_trigLvl;
   m_numberOfallTEsHist =new TH1I(name.c_str(),title.c_str(), bin_number,0.5, bin_number+0.5 ) ;  
   if ( expertHistograms.regHist( m_numberOfallTEsHist ).isFailure()) 
-    msg() << MSG::WARNING << "Can't book histogram " << name << endreq;
+    msg() << MSG::WARNING << "Can't book histogram " << name << endmsg;
 
 
   /*
@@ -321,7 +321,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     
     if (expertHistograms.regHist(m_numberOfTEsHist2d_runsummary).isFailure()){
     msg() << MSG::WARNING << "Can't book "
-    << m_numberOfTEsHist2d_runsummary ->GetName() << endreq;
+    << m_numberOfTEsHist2d_runsummary ->GetName() << endmsg;
     }
     if ( m_useLBHistos ) {
     m_numberOfTEsHist2d = new TrigLBNHist<TH2I>(*m_numberOfTEsHist2d_runsummary);
@@ -335,7 +335,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   title  = "Number of TE per event in "+ m_trigLvl;
   m_numberOfTEsHist2d =new TH2I(name.c_str(),title.c_str(), bin_number,0.5, bin_number+0.5 , 20,-0.5,19.5 ) ;
   if ( expertHistograms.regHist( m_numberOfTEsHist2d ).isFailure()) 
-    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
+    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endmsg;
 
 
 
@@ -353,7 +353,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     
     if (expertHistograms.regHist(m_numberOfallTEsHist2d_runsummary).isFailure()){
     msg() << MSG::WARNING << "Can't book "
-    << m_numberOfallTEsHist2d_runsummary ->GetName() << endreq;
+    << m_numberOfallTEsHist2d_runsummary ->GetName() << endmsg;
     }
     if ( m_useLBHistos ) {
     m_numberOfallTEsHist2d = new TrigLBNHist<TH2I>(m_numberOfallTEsHist2d_runsummary);
@@ -366,7 +366,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
   m_numberOfallTEsHist2d = new TH2I(name.c_str(),title.c_str(), bin_number,0.5, bin_number+0.5 , 20,-0.5,19.5 );
 
   if ( expertHistograms.regHist( m_numberOfallTEsHist2d ).isFailure()) 
-    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
+    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endmsg;
 
 
 
@@ -387,7 +387,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     }
 
   if ( expertHistograms.regHist( m_numberOflvl1TEsHist ).isFailure()) 
-    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
+    msg() << MSG::WARNING << "Can't book Trig histogram " << name << endmsg;
 
 
 
@@ -408,7 +408,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     }
 
     if ( expertHistograms.regHist( (ITrigLBNHist*)m_numberOfalllvl1TEsHist ).isFailure()) 
-      msg() << MSG::WARNING << "Can't book TrigLBN histogram " << name << endreq;
+      msg() << MSG::WARNING << "Can't book TrigLBN histogram " << name << endmsg;
   */
 
 
@@ -426,7 +426,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
       m_numberOflvl1TEsHist2d = new TH2I(name.c_str(), title.c_str(), 1,-0.5, 0.5, 20,-0.5,19.5  );
     }
     if ( expertHistograms.regHist( m_numberOflvl1TEsHist2d ).isFailure()) 
-      msg() << MSG::WARNING << "Can't book Trig histogram " << name << endreq;
+      msg() << MSG::WARNING << "Can't book Trig histogram " << name << endmsg;
 
 
 
@@ -444,7 +444,7 @@ StatusCode TrigTEMoni::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNewLu
     }
 
     if ( expertHistograms.regHist( (ITrigLBNHist*)m_numberOfalllvl1TEsHist2d ).isFailure()) 
-      msg() << MSG::WARNING << "Can't book TrigLBN histogram " << name << endreq; 
+      msg() << MSG::WARNING << "Can't book TrigLBN histogram " << name << endmsg; 
     */
   }//"EF"
 
@@ -494,7 +494,7 @@ StatusCode TrigTEMoni::fillHists()
 				     !m_numberOflvl1TEsHist )
 				     //|| !( m_numberOfalllvl1TEsHist>0)  
 	    )  ){
-    msg()<<MSG::WARNING<<" pointers to runsummary histograms not ok, dont Fill ! "<<endreq;
+    msg()<<MSG::WARNING<<" pointers to runsummary histograms not ok, dont Fill ! "<<endmsg;
     return StatusCode::FAILURE;  
   }
   

@@ -13,18 +13,21 @@
  * @author Gordon Fischer        Gordon.Fischer@cern.ch
  *
  * File and Version Information:
- * $Id: TrigSignatureMoni.h,v 1.17 2009-04-14 14:59:18 medinnis Exp $
+ * $Id: TrigSignatureMoni.h 764935 2016-07-28 04:03:37Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGSIGNATUREMONI_H
 #define TRIGSIGNATUREMONI_H
 
-#include "TrigMonitorBase/TrigMonitorToolBase.h"
-#include <vector>
-#include <string>
-#include <map>
+#include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 
+#include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "TrigMonitorBase/TrigLBNHist.h"
 #include "TrigConfInterfaces/ITrigConfigSvc.h"
+
+#include <set>
+#include <string>
+#include <map>
 
 namespace HLT {
    class TrigSteer;
@@ -63,10 +66,8 @@ class TrigSignatureMoni: public TrigMonitorToolBase {
 
  private:
 
-  bool getDebugStreams(std::vector<std::string> &errorStreamNames);
+  ServiceHandle<TrigConf::ITrigConfigSvc > m_trigConfigSvc;
 
-  ServiceHandle<TrigConf::ITrigConfigSvc > m_trigConfigSvc; //!< handle for the Trigger configuration service
- 
   std::string m_histoPathexpert;
   const HLT::TrigSteer* m_parentAlg; // should give us pointer to TrigSteer topAlgorithm!!!
 
@@ -79,7 +80,7 @@ class TrigSignatureMoni: public TrigMonitorToolBase {
    // histograms
   TH2I* m_streamCorrel;
   TH1I* m_chainlengthHist;
-  TH1I* m_lumiBlockNumDiffHist;
+  //TH1I* m_lumiBlockNumDiffHist;
   TH1I* m_stepForEBHist;
 
   // Lumi Block histo sets
@@ -89,7 +90,7 @@ class TrigSignatureMoni: public TrigMonitorToolBase {
   std::map<std::string, TH1I*> m_chainsInStream;
 
   std::string m_trigLvl;
-  unsigned int m_highestLBN;
+  //unsigned int m_highestLBN;
   int m_eventsPerLBHack;
 
 };

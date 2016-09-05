@@ -14,7 +14,7 @@
  * @author Gordon Fischer        Gordon.Fischer@cern.ch
  *
  * File and Version Information:
- * $Id: TrigTEMoni.h,v 1.11 2008-10-16 20:21:15 tbold Exp $
+ * $Id: TrigTEMoni.h 761301 2016-07-12 11:51:07Z fwinkl $
  **********************************************************************************/
 
 

@@ -34,7 +34,7 @@
 #include "TrigConfHLTData/HLTStreamTag.h"
 #include "TrigConfHLTData/HLTUtils.h"
 
-#include "TrigSteerMonitor/TrigCorMoni.h"
+#include "TrigCorMoni.h"
 
 //------------------------------------------------------------------------------------------
 TrigCorMoni::TrigCorMoni(const std::string & type,
@@ -236,7 +236,7 @@ StatusCode TrigCorMoni::fillHists()
     return StatusCode::SUCCESS;
   }
 
-  TriggerInfo *trig = event_handle->trigger_info();
+  const TriggerInfo *trig = event_handle->trigger_info();
   if(!trig) {    
     ATH_MSG_WARNING("Null TriggerInfo pointer");
     return StatusCode::SUCCESS;
