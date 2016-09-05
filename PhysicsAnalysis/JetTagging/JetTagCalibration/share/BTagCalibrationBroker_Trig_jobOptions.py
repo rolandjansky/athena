@@ -1,7 +1,7 @@
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 from AthenaCommon.GlobalFlags import globalflags
 if globalflags.DataSource()=='data':
-  BTaggingFlags.TrigCalibrationFolderRoot=BTaggingFlags.TrigCalibrationFolderRoot.replace("/GLOBAL/BTagCalib","/GLOBAL/Onl/BTagCalib")
+  BTaggingFlags.TrigCalibrationFolderRoot=BTaggingFlags.TrigCalibrationFolderRoot.replace("/GLOBAL/TrigBTagCalib","/GLOBAL/Onl/TrigBTagCalib")
   connSchema="GLOBAL"
   message = "#BTAG (Trig)# accessing online conditions DB"
   if not athenaCommonFlags.isOnline():
