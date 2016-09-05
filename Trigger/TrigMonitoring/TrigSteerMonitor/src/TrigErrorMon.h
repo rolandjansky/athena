@@ -52,7 +52,7 @@ class TrigErrorMon: public TrigMonitorToolBase {
 
   TH2I* m_histo2d_reason{0};
   TH2I* m_histo2d_action{0};
-  TH2I* m_histo2d_steeringInternalReason{0};
+  //TH2I* m_histo2d_steeringInternalReason{0};
   TH2I* m_histo_te_errors_etaphi{0};
 
   std::string m_trigLvl;

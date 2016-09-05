@@ -196,23 +196,23 @@ StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNew
   
   if ( expertHistograms.regHist((ITrigLBNHist*)m_histo_reason).isFailure())
     msg() << MSG::WARNING << "Can't book "
-	     <<  m_histo_reason->GetName() << endreq;
+	     <<  m_histo_reason->GetName() << endmsg;
 
   if ( expertHistograms.regHist((ITrigLBNHist*)m_histo_action).isFailure())
     msg() << MSG::WARNING << "Can't book "
-	     << m_histo_action->GetName() << endreq;
+	     << m_histo_action->GetName() << endmsg;
 
   if ( expertHistograms.regHist((ITrigLBNHist*)m_histo_steeringInternalReason).isFailure())
     msg() << MSG::WARNING << "Can't book "
-	     << m_histo_steeringInternalReason->GetName() << endreq;
+	     << m_histo_steeringInternalReason->GetName() << endmsg;
   
   if ( expertHistograms.regHist(m_histo2d_reason).isFailure())
     msg() << MSG::WARNING << "Can't book "
-	     <<  m_histo2d_reason->GetName() << endreq;
+	     <<  m_histo2d_reason->GetName() << endmsg;
   
   if ( expertHistograms.regHist(m_histo2d_action).isFailure())
     msg() << MSG::WARNING << "Can't book "
-	     << m_histo2d_action->GetName() << endreq;
+	     << m_histo2d_action->GetName() << endmsg;
 
 
   if ( ! m_expertMode )
@@ -226,7 +226,7 @@ StatusCode TrigErrorMon::bookHistograms( bool/* isNewEventsBlock*/, bool /*isNew
 
   if ( expertHistograms.regHist(m_histo_te_errors_etaphi).isFailure()) {
     msg() << MSG::WARNING << "Can't book "
-	     <<  m_histo_te_errors_etaphi->GetName() << endreq;
+	     <<  m_histo_te_errors_etaphi->GetName() << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -249,7 +249,7 @@ StatusCode TrigErrorMon::fillHists()
   
   if( !m_histo_action || !m_histo_reason || !m_histo_steeringInternalReason 
       || !m_histo2d_reason || !m_histo2d_action ){
-    msg()<<MSG::WARNING<<" pointers to histograms not ok, dont Fill ! "<<endreq;
+    msg()<<MSG::WARNING<<" pointers to histograms not ok, dont Fill ! "<<endmsg;
     return StatusCode::FAILURE;
   }
 

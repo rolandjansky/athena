@@ -119,7 +119,7 @@ class TrigRateMoni : public TrigMonitorToolBase {
 
   enum ybins { input=0, prescale=1, raw=2, output=3, rerun=4, algoIn=5, passedrerun=6 };
 
-  Athena::AlgorithmTimer* m_timer;
+  Athena::AlgorithmTimer* m_timer{0};
   void callback();
   boost::mutex m_update_mutex;
   bool m_in_running;

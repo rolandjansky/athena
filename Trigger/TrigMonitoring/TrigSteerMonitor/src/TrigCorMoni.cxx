@@ -236,7 +236,7 @@ StatusCode TrigCorMoni::fillHists()
     return StatusCode::SUCCESS;
   }
 
-  TriggerInfo *trig = event_handle->trigger_info();
+  const TriggerInfo *trig = event_handle->trigger_info();
   if(!trig) {    
     ATH_MSG_WARNING("Null TriggerInfo pointer");
     return StatusCode::SUCCESS;
