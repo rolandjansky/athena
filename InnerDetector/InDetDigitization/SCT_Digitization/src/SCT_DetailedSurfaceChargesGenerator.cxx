@@ -118,6 +118,7 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
   m_stripCharge_iymax = 284;
   m_stripCharge_dx=1;
   m_stripCharge_dy=1;
+  declareProperty("isOverlay", m_isOverlay=false);
 }
 
 // Destructor:
@@ -268,7 +269,9 @@ float SCT_DetailedSurfaceChargesGenerator::DriftTime(float zhit) const {
   float denominator = vdepl+vbias-(2.0*zhit*vdepl/sensorThickness);
   if (denominator<=0.0) {
     if(vbias>=vdepl) { //Should not happen
-      ATH_MSG_ERROR ( "DriftTime: negative argument X for log(X) "<<zhit ) ;
+      if(!m_isOverlay) {
+	ATH_MSG_ERROR ( "DriftTime: negative argument X for log(X) "<<zhit ) ;
+      }
       return -1.0 ;
     }
     else { // (vbias<vdepl) can happen with underdepleted sensors, lose charges in that volume
