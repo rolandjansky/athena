@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMatchExAlg.h 297842 2010-05-07 13:47:24Z krasznaa $
+// $Id: TrigMatchExAlg.h 770492 2016-08-28 16:52:40Z rwhite $
 #ifndef TRIGANALYSISEXAMPLES_TRIG_MATCH_EX_ALG_H
 #define TRIGANALYSISEXAMPLES_TRIG_MATCH_EX_ALG_H
 
@@ -15,12 +15,10 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
-// Forward declaration(s):
-class TrigMatchTool;
 
 /**
  * @brief The TrigMatchExAlg is an example of how to use the
- *        TrigMatchTool
+ *        TriggerMatchingTool
  *
  *        Please see TrigMatchExAlg.cxx for detailed comments
  *
@@ -58,7 +56,7 @@ private:
    bool m_matchEF;
 
    // needed tools
-   ToolHandle< TrigMatchTool > m_matchTool;
+   ToolHandle< Trig::IMatchingTool > m_matchTool;
 
 }; // end of class TrigMatchExAlg
 

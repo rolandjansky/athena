@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TDTExample.h 491249 2012-03-28 13:25:12Z stelzer $
+// $Id: TDTExample.h 771105 2016-08-31 19:04:44Z rwhite $
 #ifndef TRIGANALYSISEXAMPLES_TDTEXAMPLE_H
 #define TRIGANALYSISEXAMPLES_TDTEXAMPLE_H
 
@@ -26,14 +26,14 @@ namespace Trig {
 
    // Forward declaration(s):
    class ChainGroup;
-
+   class TriggerAnalysisHelper;
    /**
     *  @short Example for the usage of TrigDecisionTool in C++
     *
     * @author Tomasz Bold     <tomasz.bold@cern.ch>     - UC Irvine, AGH-UST Krakow
     *
-    * $Revision: 491249 $
-    * $Date: 2012-03-28 15:25:12 +0200 (Wed, 28 Mar 2012) $
+    * $Revision: 771105 $
+    * $Date: 2016-08-31 21:04:44 +0200 (Wed, 31 Aug 2016) $
     */
    class TDTExample : public AthAlgorithm {
 
@@ -47,22 +47,26 @@ namespace Trig {
       virtual StatusCode execute(); 
   
    private:
+      StatusCode checkTriggerDecision(); //!< decision bit analysis
       StatusCode checkLevels(); //!< checks if levels passed are right (i.e. L1 pass if L2 passed)
-      StatusCode printLevels(); 
+      StatusCode printLevels();
+      StatusCode printChainConfiguration();
       StatusCode printRoIs();
+      StatusCode printHelpers();
       StatusCode matchRoIs(); //!< features access example
       StatusCode electronsAndFlags();
       StatusCode featuresOfCompositeChain();
       StatusCode printBGInformation();
 
       ToolHandle< Trig::TrigDecisionTool > m_trigDec; //!< TDT handle
-
+      ToolHandle< Trig::TriggerAnalysisHelper > m_tah; //! Helper class for tutorial, provides an additional layer to illustrate TDT functionality
+      int m_evtNr;
       const ChainGroup* m_all;
       const ChainGroup* m_allL1;
-      const ChainGroup* m_allL2;
-      const ChainGroup* m_allEF;
+      const ChainGroup* m_allHLT;
 
       std::vector< std::string > m_chain_names;
+      std::vector< std::string > m_cfg_chains;
 
       StatusCode jetRoItoChains( std::vector<JetInfo>& jetRoIs );
       StatusCode addChainInfo( std::vector<JetInfo>& jetRoIs, const ChainGroup* cg );

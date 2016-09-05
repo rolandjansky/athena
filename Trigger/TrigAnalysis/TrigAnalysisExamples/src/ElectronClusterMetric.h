@@ -5,13 +5,10 @@
 #ifndef ELECTRON_CLUSTER_METRIC
 #define ELECTRON_CLUSTER_METRIC
 
-#include "TrigObjectMatching/DistanceFunctor.h"
-
-namespace Analysis {
-  class Electron;
-}
-
-class TrigElectron;
+// EDM include(s):
+#include "xAODTrigEgamma/TrigElectron.h"
+#include "xAODEgamma/Electron.h"
+//#include "TrigObjectMatching/DistanceFunctor.h"
 
 /**
  * @brief The ElectronClusterMetric is a brief example how to
@@ -29,8 +26,18 @@ class TrigElectron;
  *
  */
 
-class ElectronClusterMetric : 
-  public DistanceFunctor<TrigElectron, Analysis::Electron> {
+
+class ElectronClusterMetric {
+    public:
+        ElectronClusterMetric() {};
+        virtual ~ElectronClusterMetric() {};
+    
+    private:
+        virtual float calculateDistance(const xAOD::TrigElectron *t, const xAOD::Electron *u) const;
+};
+
+/*class ElectronClusterMetric : 
+  public DistanceFunctor<xAOD::TrigElectron, xAOD::Electron> {
 
   public:
 
@@ -44,8 +51,8 @@ class ElectronClusterMetric :
 
     // this is the only function that you need to implement. The base
     // class takes care of everything else, including reflexivity.
-    virtual float calculateDistance(const TrigElectron *t, const Analysis::Electron *u) const;
+    virtual float calculateDistance(const xAOD::TrigElectron *t, const xAOD::Electron *u) const;
 
-};
+};*/
 
 #endif

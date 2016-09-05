@@ -2,11 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: ElectronClusterMetric.cxx 297842 2010-05-07 13:47:24Z krasznaa $
-
-// EDM include(s):
-#include "TrigParticle/TrigElectron.h"
-#include "egammaEvent/Electron.h"
+// $Id: ElectronClusterMetric.cxx 770492 2016-08-28 16:52:40Z rwhite $
 
 // Local include(s):
 #include "ElectronClusterMetric.h"
@@ -32,8 +28,8 @@
 //     work just as well numbers between 0 and 1
 
 float ElectronClusterMetric::calculateDistance(
-    const TrigElectron *trig,
-    const Analysis::Electron *reco) const {
+    const xAOD::TrigElectron *trig,
+    const xAOD::Electron *reco) const {
 
   // test for valid parameters
   if(!trig || !reco)
@@ -41,8 +37,8 @@ float ElectronClusterMetric::calculateDistance(
 
   // We can instantiate the default deltaR distance functor to
   // calculate deltaR for us
-  DeltaRDistanceFunctor<CaloCluster,TrigEMCluster> deltaRMetric;
-  float dist = deltaRMetric(reco->cluster(), trig->cluster());
-
+  //DeltaRDistanceFunctor<xAOD::CaloCluster,xAOD::TrigEMCluster> deltaRMetric;
+  //float dist = deltaRMetric(reco->cluster(), trig->cluster());
+  float dist=0.;
   return dist;
 }
