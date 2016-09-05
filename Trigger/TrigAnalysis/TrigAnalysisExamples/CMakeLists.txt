@@ -9,27 +9,25 @@ atlas_subdir( TrigAnalysisExamples )
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaPython
                           TestPolicy
-                          Trigger/TrigEvent/TrigCaloEvent
-                          Trigger/TrigEvent/TrigInDetEvent
-                          Trigger/TrigEvent/TrigMuonEvent
-                          Trigger/TrigEvent/TrigParticle
+                          Event/xAOD/xAODEventInfo
+                          Event/xAOD/xAODTrigger
+                          Event/xAOD/xAODEgamma
+                          Event/xAOD/xAODTau
+                          Trigger/TrigConfiguration/TrigConfHLTData
                           PRIVATE
-                          Calorimeter/CaloEvent
                           Control/AthenaBaseComps
                           Control/AthenaKernel
                           Control/StoreGate
+                          Control/AthAnalysisBaseComps
+                          Control/AthToolSupport/AsgTools
                           Event/EventInfo
                           GaudiKernel
-                          PhysicsAnalysis/AnalysisCommon/AnalysisUtils
-                          PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
-                          Reconstruction/Jet/JetEvent
-                          Reconstruction/MuonIdentification/muonEvent
-                          Reconstruction/egamma/egammaEvent
-                          Reconstruction/tauEvent
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           Trigger/TrigAnalysis/TrigDecisionTool
-                          Trigger/TrigAnalysis/TrigObjectMatching
-                          Trigger/TrigEvent/TrigSteeringEvent )
+                          Trigger/TrigAnalysis/TriggerMatchingTool
+                          Trigger/TrigAnalysis/TrigEgammaEmulationTool
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          Event/FourMomUtils)
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -40,7 +38,7 @@ atlas_add_component( TrigAnalysisExamples
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigParticle CaloEvent AthenaBaseComps AthenaKernel StoreGateLib SGtests EventInfo GaudiKernel AnalysisUtilsLib AnalysisTriggerEvent JetEvent muonEvent egammaEvent tauEvent TrigDecisionToolLib TrigObjectMatchingLib TrigSteeringEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib AthAnalysisBaseCompsLib AsgTools SGtests EventInfo GaudiKernel xAODEventInfo xAODTrigger xAODEgamma xAODTau TrigConfHLTData TrigDecisionToolLib TriggerMatchingTool TrigEgammaEmulationTool TrigSteeringEvent FourMomUtils)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
