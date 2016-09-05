@@ -94,6 +94,8 @@ def getSCT_SurfaceChargesGenerator(name="SCT_SurfaceChargesGenerator", **kwargs)
     kwargs.setdefault("SmallStepLength", 5)
     kwargs.setdefault("DepletionVoltage", 70)
     kwargs.setdefault("BiasVoltage", 150)
+    from AthenaCommon.GlobalFlags import globalflags
+    kwargs.setdefault("isOverlay", globalflags.isOverlay())
 
     from Digitization.DigitizationFlags import digitizationFlags
     if 'doDetailedSurfChargesGen' in digitizationFlags.experimentalDigi():

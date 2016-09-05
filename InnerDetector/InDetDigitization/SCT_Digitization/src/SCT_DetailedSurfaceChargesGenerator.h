@@ -198,6 +198,7 @@ private:
   CLHEP::HepRandomEngine *           m_rndmEngine;          //!< Random Engine
   std::string                        m_rndmEngineName;      //!< name of random engine, actual pointer in SiDigitization
 
+  bool m_isOverlay; // flag for overlay
 };
 
 #endif // SCT_DETAILEDSURFACECHARGESGENERATOR_H
