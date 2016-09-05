@@ -13,7 +13,7 @@
  * @author Gordon Fischer        Gordon.Fischer@cern.ch
  *
  * File and Version Information:
- * $Id: TrigSignatureMoni.h 761301 2016-07-12 11:51:07Z fwinkl $
+ * $Id: TrigSignatureMoni.h 764935 2016-07-28 04:03:37Z ssnyder $
  **********************************************************************************/
 #ifndef TRIGSIGNATUREMONI_H
 #define TRIGSIGNATUREMONI_H
@@ -80,7 +80,7 @@ class TrigSignatureMoni: public TrigMonitorToolBase {
    // histograms
   TH2I* m_streamCorrel;
   TH1I* m_chainlengthHist;
-  TH1I* m_lumiBlockNumDiffHist;
+  //TH1I* m_lumiBlockNumDiffHist;
   TH1I* m_stepForEBHist;
 
   // Lumi Block histo sets
@@ -90,7 +90,7 @@ class TrigSignatureMoni: public TrigMonitorToolBase {
   std::map<std::string, TH1I*> m_chainsInStream;
 
   std::string m_trigLvl;
-  unsigned int m_highestLBN;
+  //unsigned int m_highestLBN;
   int m_eventsPerLBHack;
 
 };

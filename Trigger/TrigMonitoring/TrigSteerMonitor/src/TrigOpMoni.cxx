@@ -440,17 +440,17 @@ void TrigOpMoni::FillSubDetHist()
 
          if(!m_JobOptionsSvc->getProperties("DataFlowConfig"))
          {
-            msg() << "\"DataFlowConfig\" does not exist!" << endreq;
+            msg() << "\"DataFlowConfig\" does not exist!" << endmsg;
             m_SubDetHistFilled = true;
          }
 
          else {
-            msg() << "\"DF_Enabled_ROB_IDs\" does not exist! Available properties are:" << endreq;
+            msg() << "\"DF_Enabled_ROB_IDs\" does not exist! Available properties are:" << endmsg;
 
             const vector<const Property* >* PropTmp = m_JobOptionsSvc->getProperties("DataFlowConfig");
 
             for(unsigned int i = 0; i != PropTmp->size(); i++) {
-              msg() << MSG::DEBUG << (*PropTmp)[i]->name() << endreq;
+              msg() << MSG::DEBUG << (*PropTmp)[i]->name() << endmsg;
             }
          }
       }
