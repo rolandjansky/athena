@@ -40,7 +40,7 @@ MDT::MDT(CandidateTool* pMuGirl, const std::string& sPrepDataCollection) :
     m_detId = ::MDT;
     m_pIdHelper = dynamic_cast<const MdtIdHelper*>(pMuGirl->muonManager()->mdtIdHelper());
     if(m_pIdHelper == 0)
-      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be MdtIdHelper, but it is NOT!" << endreq;
+      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be MdtIdHelper, but it is NOT!" << endmsg;
 }
 
 const MuonGM::MuonReadoutElement* MDT::readoutElement(const Identifier& id) const
@@ -70,7 +70,7 @@ StatusCode MDT::retrievePrepData()
        {
            m_pPrepDataContainer=NULL;
            if (m_pMuGirl->msgLvl(MSG::DEBUG))
-               m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve MDT PrepData Container " << m_sPrepDataCollection << endreq;
+               m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve MDT PrepData Container " << m_sPrepDataCollection << endmsg;
        }
        return StatusCode::SUCCESS;
     }
@@ -78,7 +78,7 @@ StatusCode MDT::retrievePrepData()
     {
         m_pPrepDataContainer=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain MDT PrepData Container " << m_sPrepDataCollection << endreq;
+            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain MDT PrepData Container " << m_sPrepDataCollection << endmsg;
     }
     return StatusCode::SUCCESS;
 }
@@ -100,7 +100,7 @@ unsigned MDT::prepData(Chamber* pChamber, PrepDataList& array)
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainer, m_sPrepDataCollection).isFailure() ||
             m_pPrepDataContainer == NULL)
         {
-            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve MDT PrepData Container " << m_sPrepDataCollection << endreq;
+            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve MDT PrepData Container " << m_sPrepDataCollection << endmsg;
             return 0;
         }
     }
@@ -125,11 +125,11 @@ unsigned MDT::prepData(Chamber* pChamber, PrepDataList& array)
             {
                 if (prd->adc() >= 50 && prd->status() != Muon::MdtStatusMasked && prd->status() != Muon::MdtStatusBeforeSpectrum)
                 {
-//                  m_pMuGirl->msg(MSG::DEBUG) << "Adding PRD adc=" << prd->adc() << " status=" << status2str(prd->status()) << endreq;
+//                  m_pMuGirl->msg(MSG::DEBUG) << "Adding PRD adc=" << prd->adc() << " status=" << status2str(prd->status()) << endmsg;
                     array.push_back(prd);
                 }
                 else if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                    m_pMuGirl->msg(MSG::DEBUG) << "Dropping PRD adc=" << prd->adc() << " status=" << status2str(prd->status()) << endreq;
+                    m_pMuGirl->msg(MSG::DEBUG) << "Dropping PRD adc=" << prd->adc() << " status=" << status2str(prd->status()) << endmsg;
             }
         }
      }
@@ -148,14 +148,14 @@ Amg::Vector3D MDT::hitPosition(const Trk::PrepRawData* pPrepData)
     const Muon::MdtPrepData* pMdtPrepData = dynamic_cast<const Muon::MdtPrepData*>(pPrepData);
     if (pMdtPrepData == NULL)
     {
-        m_pMuGirl->msg(MSG::WARNING) << "Cannot convert from Trk::PrepRawData* to Muon::MdtPrepData*" << endreq;
+        m_pMuGirl->msg(MSG::WARNING) << "Cannot convert from Trk::PrepRawData* to Muon::MdtPrepData*" << endmsg;
         return Amg::Vector3D();
     }
 
     const MuonGM::MdtReadoutElement* pReadoutElement = pMdtPrepData->detectorElement();
     if (pReadoutElement == NULL)
     {
-        m_pMuGirl->msg(MSG::WARNING) << "Cannot get MdtReadoutElement" << endreq;
+        m_pMuGirl->msg(MSG::WARNING) << "Cannot get MdtReadoutElement" << endmsg;
         return Amg::Vector3D();
     }
     return pReadoutElement->tubePos(pPrepData->identify());
@@ -170,7 +170,9 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
 {
     MsgStream log(m_pMuGirl->msgSvc(), m_pMuGirl->name());
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "MDT::buildSegments" << endreq;
+        m_pMuGirl->msg() << "MDT::buildSegments" << endmsg;
+
+    const double momentum = (QoverP != 0) ? fabs(1 / QoverP) : 0;
 
     StationChamberMap stationChambers;
     StationList stations;
@@ -199,7 +201,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
             << TechnologyTypeName(triggerTech) << ","
             << DistanceTypeName(chambers.front()->distanceType()) << ","
             << RegionTypeName(chambers.front()->regionType()) << ")"
-            << " contains " << count_clusters(clusters) << " clusters" << endreq;
+            << " contains " << count_clusters(clusters) << " clusters" << endmsg;
 
     for (StationList::iterator itSta = stations.begin(); itSta != stations.end(); itSta++)
     {
@@ -220,7 +222,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
           const RIOList& rios = pChamber->RIOs();
           const Muon::MdtDriftCircleOnTrack* pMdcot = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(rios.at(0));
           if (pMdcot == NULL){
-            if (m_pMuGirl->msgLvl(MSG::DEBUG)) m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack - continueing" << endreq;
+            if (m_pMuGirl->msgLvl(MSG::DEBUG)) m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack - continueing" << endmsg;
             continue;
           }
           Identifier chId = m_pMuGirl->muonIdHelperTool()->chamberId(pMdcot->identify());
@@ -239,7 +241,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
             const Muon::MdtDriftCircleOnTrack* pMdcot = dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(rios.at(0));
             if (pMdcot == NULL){
               if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack - continuing" << endreq;
+                m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack - continuing" << endmsg;
               continue;
             }
             Identifier chId = m_pMuGirl->muonIdHelperTool()->chamberId(pMdcot->identify());
@@ -272,7 +274,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
                     if (pMdcot == NULL)
                     {
                         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                            m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack - continuing" << endreq;
+                            m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack - continuing" << endmsg;
                         continue;
                     }
                     mdcots.push_back(pMdcot);
@@ -281,11 +283,11 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
                     m_pMuGirl->msg() << mdcots.size() << " ";
             }
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                m_pMuGirl->msg() << "hits" << endreq;
+                m_pMuGirl->msg() << "hits" << endmsg;
             Trk::TrackRoad* pRoad = chamberList[0]->baseRoad();
             if (pRoad == NULL)
             {
-                log << MSG::DEBUG << "Cannot find base road" << endreq;
+                log << MSG::DEBUG << "Cannot find base road" << endmsg;
                 return;
             }
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
@@ -295,18 +297,16 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
                 MdtSegmentMakerInfo* pMdtSegmentMakerInfo = new MdtSegmentMakerInfo(pRoad, mdts);
                 pCand->getMdtSegmentMakerInfo().push_back(pMdtSegmentMakerInfo);
             }
-            double momentum = 0;
-            if (QoverP != 0) momentum = fabs(1 / QoverP);
             pSegments = pSegmentMaker->find(*pRoad, mdts, clusters, true, momentum);
             if (pSegments == NULL || pSegments->empty())
             {
                 if (pSegments != NULL)
                     delete pSegments;
-                //log << MSG::WARNING << "Got NULL segment list from MdtSegmentMaker" << endreq;
+                //log << MSG::WARNING << "Got NULL segment list from MdtSegmentMaker" << endmsg;
                 continue;
             }
             if (log.level() <= MSG::DEBUG)
-                log << MSG::DEBUG << "Found " << pSegments->size() << "T0 segments" << endreq;
+                log << MSG::DEBUG << "Found " << pSegments->size() << "T0 segments" << endmsg;
 
             //pCand->fillChamberT0s(*pSegments);
             for (std::vector<const Muon::MuonSegment*>::const_iterator itSeg = pSegments->
@@ -335,7 +335,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
                     << " chi2=" << pMuonSegment->fitQuality()->chiSquared()
                     << " prob=" << prob
                     << " quality=" << quality
-                    << endreq;
+                    << endmsg;
                 if (maxQuality < quality || (maxQuality == quality && maxProb < prob))
                 {
                     maxQuality = quality;
@@ -357,7 +357,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
                                                       chamberList[0]->station());
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
                     m_pMuGirl->msg() << "Selected MDT segment at "
-                    << pMaxQuality->globalPosition() << endreq;
+                    << pMaxQuality->globalPosition() << endmsg;
                 //pCand->addMDTSegmenttoMuonSegments(pSegment->muonSegment());
                 pCand->markHits(chamberList, pSegment);
                 pCand->addMDTSegmenttoMuonSegments(pMaxQuality);
@@ -376,7 +376,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
                         //                                 pCand->qOverP());
                     if (pRefTrkIsect == NULL)
                     {
-                        m_pMuGirl->msg(MSG::WARNING) << " pRefTrkIsect is NULL !!!! " << endreq;
+                        m_pMuGirl->msg(MSG::WARNING) << " pRefTrkIsect is NULL !!!! " << endmsg;
                         return;
                     }
                     Amg::Vector3D refDir  = pRefTrkIsect->direction();
@@ -396,15 +396,15 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
                     {
                         m_pMuGirl->msg() << "MDT correction: "
-                        << "pos from " << pMaxQuality->globalPosition() << " to " << segPos1 << endreq;
+                        << "pos from " << pMaxQuality->globalPosition() << " to " << segPos1 << endmsg;
                         m_pMuGirl->msg() << "                "
-                        << "dir from " << pMaxQuality->globalDirection() << " to " << segDir << endreq;
+                        << "dir from " << pMaxQuality->globalDirection() << " to " << segDir << endmsg;
                     }
                 }
                 Trk::TrackSurfaceIntersection* pTrkIsect =
                     new Trk::TrackSurfaceIntersection(segPos1, segDir.unit(), 0.0);
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                    m_pMuGirl->msg() << "Adding MDT intersection at " << pTrkIsect << endreq;
+                    m_pMuGirl->msg() << "Adding MDT intersection at " << pTrkIsect << endmsg;
                 Intersection* pIsect = pCand->addIntersection(FIT_INTERSECTION,
                                        pTrkIsect,
                                        MDT_TECH,
@@ -426,7 +426,7 @@ void MDT::buildSegments(Candidate* pCand, ChamberList& chambers, double QoverP)
     }
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "MDT::buildSegments ended" << endreq;
+        m_pMuGirl->msg() << "MDT::buildSegments ended" << endmsg;
 }
 
 

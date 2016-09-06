@@ -140,7 +140,7 @@ CandidateTool::~CandidateTool()
 
 StatusCode CandidateTool::initialize()
 {
-    msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+    msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
     StatusCode sc = AthAlgTool ::initialize();
     if (sc.isFailure())
         return sc;
@@ -148,7 +148,7 @@ StatusCode CandidateTool::initialize()
     // initialize MuonDetectorManager
     if (detStore()->retrieve(m_pMuonMgr).isFailure() || m_pMuonMgr == NULL)
     {
-        msg(MSG::ERROR) << "Cannot retrieve MuonDetectorManager" << endreq;
+        msg(MSG::ERROR) << "Cannot retrieve MuonDetectorManager" << endmsg;
         return StatusCode::RECOVERABLE;
     }
     if (m_doCSC)
@@ -196,20 +196,20 @@ StatusCode CandidateTool::initialize()
     //    if (retrieve(m_pNtupleSvc).isFailure())
     //        return StatusCode::RECOVERABLE;
     if (retrieve(m_helperTool).isFailure())
-        msg(MSG::WARNING) << "Could not retrieve EDMHelperTool " << endreq;
+        msg(MSG::WARNING) << "Could not retrieve EDMHelperTool " << endmsg;
     if (retrieve(m_idHelperTool).isFailure()) {
-        msg(MSG::WARNING) << "Could not retrieve the IdHelperTool " << endreq;
+        msg(MSG::WARNING) << "Could not retrieve the IdHelperTool " << endmsg;
         return StatusCode::FAILURE;
     }
     if (retrieve(m_segmentSelectionTool).isFailure())
         return StatusCode::RECOVERABLE;
 
     if ( m_pMuonLayerHoughTool.retrieve().isFailure() ) {
-        msg(MSG::WARNING) << "Could not retrieve the MuonLayerHoughTool" << endreq;
-        msg(MSG::WARNING) << "Info from the Hough transform will not be in the MuGirl ntuple" << endreq;
+        msg(MSG::WARNING) << "Could not retrieve the MuonLayerHoughTool" << endmsg;
+        msg(MSG::WARNING) << "Info from the Hough transform will not be in the MuGirl ntuple" << endmsg;
         return StatusCode::RECOVERABLE;
     } else {
-        msg(MSG::INFO) << "MuonLayerHoughTool successfully retrieved" << endreq;
+        msg(MSG::INFO) << "MuonLayerHoughTool successfully retrieved" << endmsg;
     }
 
     // initialize distances
@@ -229,7 +229,7 @@ StatusCode CandidateTool::initialize()
     m_pStationMgr = new StationManger(this);
     m_pCandidate  = new Candidate(this);
 
-    msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+    msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
     return StatusCode::SUCCESS;
 } 
 
@@ -237,7 +237,7 @@ StatusCode CandidateTool::initialize()
 
 StatusCode CandidateTool::finalize()
 {
-    msg(MSG::INFO) << "Finalizing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+    msg(MSG::INFO) << "Finalizing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
     m_pCandidate->clear();
     delete m_distances[INNER_DIST];
     delete m_distances[EE_DIST];
@@ -315,7 +315,7 @@ StatusCode CandidateTool::fillNTuple(std::vector<MuonHough::MuonLayerHough::Maxi
 //============================================================================================
 StatusCode CandidateTool::fill(int iTrack, const xAOD::TrackParticle* pTrackParticle, const Trk::TrackParameters* extrMuonEntry, bool bSaveMdtSegmentMakerInfo)
 {
-    if (msgLvl(MSG::DEBUG)) msg() << "in CandidateTool::fill" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "in CandidateTool::fill" << endmsg;
 
     m_iTrack = iTrack;
 
@@ -325,7 +325,7 @@ StatusCode CandidateTool::fill(int iTrack, const xAOD::TrackParticle* pTrackPart
         TechnologyType eTech = (TechnologyType)iTech;
         if (!m_doCSC  && eTech  == CSC_TECH) continue; 
         if (msgLvl(MSG::DEBUG)) msg() << "CandidateTool::fill - Calling m_technologies["
-            << TechnologyTypeName((TechnologyType)iTech) << "]->retrievePrepData()" << endreq;
+            << TechnologyTypeName((TechnologyType)iTech) << "]->retrievePrepData()" << endmsg;
         if (m_technologies[iTech]->retrievePrepData().isFailure())
             continue;
     }
@@ -338,7 +338,7 @@ StatusCode CandidateTool::fill(int iTrack, const xAOD::TrackParticle* pTrackPart
         << " q/p = " << starting_seed->parameters()[Trk::qOverP]
         << " eta = " << starting_seed->eta()
         << " phi = " << starting_seed->parameters()[Trk::phi]
-        << " pt  = " << starting_seed->pT() << endreq;
+        << " pt  = " << starting_seed->pT() << endmsg;
 
     m_pCandidate->clear();
     m_pCandidate->setSaveMdtSegmentMakerInfo(bSaveMdtSegmentMakerInfo);
@@ -604,7 +604,7 @@ bool CandidateTool::isHoughMaxAssociated(MuonHough::MuonLayerHough::Maximum* max
       }
 
       // compute delta eta between the chamber intersection and the Hough maximum
-      float deta = fabsf(max_eta - pIsect->position().eta());
+      float deta = std::abs(max_eta - pIsect->position().eta());
       if ( deta<DetaMin ) DetaMin = deta;
 
       ATH_MSG_VERBOSE("    retrieved intersection " << pIsect->toString() << ",  Hough maximum Deta=" << deta);
