@@ -13,7 +13,6 @@
 #include "G4NistManager.hh"
 #include "G4LogicalVolume.hh"
 #include "G4PVPlacement.hh"
-#include "G4GDMLParser.hh"
 
 // Geant4 includes used in functions
 
@@ -23,7 +22,6 @@ GeoDetectorTool::GeoDetectorTool(const std::string& type, const std::string& nam
   m_topTransform.setIdentity();
   ATH_MSG_DEBUG( "GeoDetectorTool constructor for " << name );
   declareProperty("GeoDetectorName",m_geoDetectorName, "Name of the detector in GeoModel, if different from G4.");
-  declareProperty("GDMLFileOut",m_dumpGDMLFile,"File name where the GDML description for the detector will be dumped.");
 
 }
 
@@ -69,20 +67,7 @@ void GeoDetectorTool::BuildGeometry()
     {
       this->SetInitialTransformation();
     }
-
   ATH_MSG_VERBOSE( name() << " GeoDetectorTool::BuildGeometry(): Finished" );
-}
-
-void GeoDetectorTool::PositionInParent()
-{
-  ATH_MSG_INFO( name() << " GeoDetectorTool::PositionInParent(): Starting" );
-  
-  DetectorGeometryBase::PositionInParent();
-  if (!m_dumpGDMLFile.empty()) 
-  {
-  	G4GDMLParser parser;
-	parser.Write(m_dumpGDMLFile,m_envelope.thePositionedVolume);
-  }  
 }
 
 G4LogicalVolume* GeoDetectorTool::Convert()

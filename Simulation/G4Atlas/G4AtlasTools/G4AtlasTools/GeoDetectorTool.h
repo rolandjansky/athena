@@ -39,14 +39,11 @@ public:
 
   /** virtual methods being implemented here */
 
-  void BuildGeometry() override final;
-  
-  void PositionInParent() override final;
+  virtual void BuildGeometry() override final;
 
 private:
 
   std::string m_builderName;
-  std::string m_dumpGDMLFile="";
   bool m_blParamOn;
   bool m_blGetTopTransform;
   G4Transform3D m_topTransform;
