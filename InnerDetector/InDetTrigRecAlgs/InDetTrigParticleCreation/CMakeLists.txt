@@ -12,8 +12,12 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigSteer/TrigInterfaces
                           PRIVATE
                           Control/AthenaKernel
+                          DetectorDescription/AtlasDetDescr
                           DetectorDescription/IRegionSelector
+                          DetectorDescription/IdDictDetDescr
+                          DetectorDescription/Identifier
                           Event/xAOD/xAODTracking
+                          InnerDetector/InDetDetDescr/InDetIdentifier
                           Reconstruction/Particle
                           Tracking/TrkEvent/TrkParameters
                           Tracking/TrkEvent/TrkParticleBase
@@ -28,7 +32,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( InDetTrigParticleCreation
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES GaudiKernel TrkTrack TrigInterfacesLib AthenaKernel IRegionSelector xAODTracking Particle TrkParameters TrkParticleBase TrkTrackSummary VxVertex TrkToolInterfaces TrigParticle TrigSteeringEvent )
+                     LINK_LIBRARIES GaudiKernel TrkTrack TrigInterfacesLib AthenaKernel AtlasDetDescr IRegionSelector IdDictDetDescr Identifier xAODTracking InDetIdentifier Particle TrkParameters TrkParticleBase TrkTrackSummary VxVertex TrkToolInterfaces TrigParticle TrigSteeringEvent )
 
 # Install files from the package:
 atlas_install_headers( InDetTrigParticleCreation )

@@ -5,6 +5,7 @@
 #include "GaudiKernel/ITHistSvc.h"
 #include "InDetTrigParticleCreation/TrigTrackingxAODCnv.h"
 #include "TrkToolInterfaces/ITrackParticleCreatorTool.h"
+#include "TrkToolInterfaces/IResidualPullCalculator.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "VxVertex/VxContainer.h"
@@ -20,6 +21,11 @@
 #include "IRegionSelector/IRegSelSvc.h"
 #include "TrkTrackSummary/TrackSummary.h"
 
+#include "Identifier/Identifier.h"
+#include "InDetIdentifier/PixelID.h"
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "IdDictDetDescr/IdDictManager.h"
+
 #include <cmath>
 #include <algorithm>
 
@@ -31,7 +37,9 @@ namespace InDet
 					   ISvcLocator *pSvcLocator)
     : HLT::FexAlgo (name, pSvcLocator),
       m_particleCreatorTool("Trk::ParticleCreatorTool"),
+      m_residualCalc("Trk::ResidualPullCalculator"),
       m_tracks(0),
+      m_doIBLresidual(false),
       m_slice_name(""),
       m_mon_doSliceSpecific(true),
       m_mon_counter(0),
@@ -39,6 +47,8 @@ namespace InDet
       m_mon_ptmin(1)
   {
     declareProperty("ParticleCreatorTool", m_particleCreatorTool);
+    declareProperty("ResidualPullCalculator", m_residualCalc);
+    declareProperty("doIBLresidual", m_doIBLresidual);
 
     //+++ DQM (SA): monitoring
     declareProperty("MonSliceSpecific", m_mon_doSliceSpecific);
@@ -87,6 +97,11 @@ namespace InDet
     declareMonitoredVariable("ta_sumCh",  m_dqm_ta_sum_ch);
     declareMonitoredVariable("ta_asyCh",  m_dqm_ta_asy_ch);
     declareMonitoredVariable("ta_m",       m_dqm_ta_m);
+    //IBL related
+    declareMonitoredStdContainer("IBLz", m_dqm_ibl_z);
+    declareMonitoredStdContainer("IBLresx", m_dqm_ibl_res_x);
+    declareMonitoredStdContainer("IBLresy", m_dqm_ibl_res_y);
+    declareMonitoredStdContainer("IBLHitExpectedAndFound", m_dqm_ibl_hit_expected_found); 
 
   }
 
@@ -111,8 +126,26 @@ namespace InDet
 
     msg() << MSG::DEBUG << name() << " initialize() " << PACKAGE_VERSION << endreq;
 
+    if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
+      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+    
+    if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
+      msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+
     if ( m_particleCreatorTool.retrieve().isFailure() ) {
       msg() << MSG::FATAL << "Failed to retrieve tool " << m_particleCreatorTool << endreq;
+      return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
+    }
+    else{
+      msg() << MSG::INFO << "Retrieved tool " << m_particleCreatorTool << endreq;
+    }
+
+    if ( m_residualCalc.retrieve().isFailure() ) {
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_residualCalc << endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
@@ -149,8 +182,7 @@ namespace InDet
 
     int outputLevel = msgLvl();
 
-    if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "execHLTAlgorithm()" << endreq;
+    ATH_MSG_DEBUG("execHLTAlgorithm()");
 
 
     //----------------------------------------------------------------------
@@ -172,8 +204,8 @@ namespace InDet
     ResetMon();
 
     //
-    float tmp_eta_roi = -999;  // Uggly solution, should not need to fill a !!!
-    float tmp_phi_roi = -999;  // vector with the same value for each track !!!
+    float tmp_eta_roi = -999;  
+    float tmp_phi_roi = -999;  
     const TrigRoiDescriptor* roi;
     if ( HLT::OK == getFeature(outputTE, roi) && roi ) {
       tmp_eta_roi = roi->eta();
@@ -186,34 +218,32 @@ namespace InDet
       runAlg = false;
       statCode = HLT::NAV_ERROR;
     }
-
+    
     if(!m_tracks){
-      if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endreq;
+      ATH_MSG_DEBUG(" Input track collection was not attached. Algorithm not executed!");
       runAlg = false;
       statCode = HLT::OK;
     } else {
-      if(outputLevel <= MSG::VERBOSE)
-	msg() << MSG::VERBOSE << " Input track collection has size " << m_tracks->size() << endreq;
+      ATH_MSG_VERBOSE(" Input track collection has size " << m_tracks->size());
       if ( m_tracks->size() == 0 ) {
-	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
+	ATH_MSG_DEBUG(" Input track collection has 0 size. Algorithm not executed!");
 	runAlg = false;
 	statCode=HLT::OK;
       }
     }
-
-
+    
+    
     //convert tracks
-
+    
     xAOD::TrackParticleContainer* tpCont = new xAOD::TrackParticleContainer();
-    //    xAOD::TrackParticleAuxContainer* tpAuxCont = new xAOD::TrackParticleAuxContainer();
     xAOD::TrackParticleAuxContainer tpAuxCont; // = new xAOD::TrackParticleAuxContainer();      //this guy should allow reset
     tpCont->setStore( &tpAuxCont );
 
     if(m_tracks && runAlg) {
       for(unsigned int idtr=0; idtr< m_tracks->size(); ++idtr) {
         const ElementLink<TrackCollection> trackLink(*m_tracks, idtr);
+
+	if (m_doIBLresidual) fillIBLResidual(m_tracks->at(idtr));
 
         xAOD::TrackParticle* tp = m_particleCreatorTool->createParticle( trackLink, tpCont);
 
@@ -226,9 +256,10 @@ namespace InDet
   	    if (ts){
   	      npix = ts->get(Trk::numberOfPixelHits);
   	      nsct = ts->get(Trk::numberOfSCTHits);
-  	      ntrt = ts->get(Trk::numberOfTRTHits);
+	      ntrt = ts->get(Trk::numberOfTRTHits);
   	      nscth= ts->get(Trk::numberOfSCTHoles);
   	      npixh= ts->get(Trk::numberOfPixelHoles);
+	      
   	    }
   	  }
   
@@ -244,25 +275,20 @@ namespace InDet
         }
       }
     }
+ 
 
-    if(outputLevel <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "REGTEST container size = " << tpCont->size() << endreq;
-    }
-
-
+    ATH_MSG_DEBUG("REGTEST container size = " << tpCont->size());
+    
     if ( HLT::OK !=  attachFeature(outputTE, tpCont, name()) ) {
       msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
       return HLT::NAV_ERROR;
     }
     else {
-      if(outputLevel <= MSG::DEBUG){
-	msg() << MSG::DEBUG << "Stored xAOD::TrackParticle container " << endreq;
-      }
+      ATH_MSG_DEBUG("Stored xAOD::TrackParticle container ");
     }
 
 
-    for (xAOD::TrackParticleContainer::iterator itr = tpCont->begin();
-     itr != tpCont->end(); ++itr)  {
+    for (xAOD::TrackParticleContainer::iterator itr = tpCont->begin(); itr != tpCont->end(); ++itr)  {
       FillMonPerTrack(*itr, tmp_eta_roi, tmp_phi_roi);
     }
 
@@ -270,14 +296,11 @@ namespace InDet
       //+++ DQM (SA): per RoI quantities
       FillMonPerRoi(roi, tmp_eta_roi, tmp_phi_roi);
       ++m_mon_counter;
-
+      
       return HLT::OK;
     } else {
       return statCode;
     }
-
-
-
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -331,7 +354,23 @@ namespace InDet
     m_dqm_nsct_hits.push_back(static_cast<int>(numberOfSCTHits));
     uint8_t numberOfTRTHits = 0;
     particle->summaryValue(numberOfTRTHits, xAOD::numberOfTRTHits);
-    m_dqm_ntrt_hits.push_back(static_cast<int>(numberOfTRTHits));
+    if (fabs(particle->eta())<1.9){
+      m_dqm_ntrt_hits.push_back(static_cast<int>(numberOfTRTHits));
+    } else {
+      m_dqm_ntrt_hits.push_back(-1);
+    }
+
+    uint8_t expectInnermostHit = 0;
+    particle->summaryValue(expectInnermostHit, xAOD::expectInnermostPixelLayerHit  );
+    uint8_t numberOfInnermostHits = 0;
+    particle->summaryValue(numberOfInnermostHits, xAOD::numberOfInnermostPixelLayerHits  );
+    if (numberOfInnermostHits>1) numberOfInnermostHits = 1;
+    if (expectInnermostHit>0){
+      m_dqm_ibl_hit_expected_found.push_back(float(numberOfInnermostHits));
+    }
+    else {
+      m_dqm_ibl_hit_expected_found.push_back(-1.);
+    }
 
     if(particle->numberDoF()>0) {
       m_dqm_chi2dof.push_back(particle->chiSquared() / particle->numberDoF());
@@ -351,6 +390,73 @@ namespace InDet
     }
 
     return;
+  }
+
+  void TrigTrackingxAODCnv::fillIBLResidual(const Trk::Track *track){
+    
+    ATH_MSG_DEBUG("In fillIBLResidual");
+    const DataVector<const Trk::TrackStateOnSurface>* trackStates=track->trackStateOnSurfaces();    
+    
+    for (DataVector<const Trk::TrackStateOnSurface>::const_iterator it=trackStates->begin();
+	 it!=trackStates->end();
+	 it++) {
+      if (!(*it)) {
+	msg(MSG::WARNING) << "TrackStateOnSurface == Null" << endreq;
+	continue;
+      }
+      
+      ATH_MSG_VERBOSE("type of state on surface" << (*it)->dumpType());
+      if ((*it)->type(Trk::TrackStateOnSurface::Measurement) ){
+	
+	ATH_MSG_VERBOSE ("try to get measurement for track state");
+	// Get pointer to measurement on track
+	const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
+	
+	/*
+	ATH_MSG_VERBOSE("(*it)->trackParameters() " << (*it)->trackParameters());
+	if ((*it)->trackParameters() !=0)
+	  ATH_MSG_VERBOSE("  (*it)->trackParameters()->associatedSurface() " << &((*it)->trackParameters()->associatedSurface()));
+	*/
+
+	if(  (*it)->trackParameters() !=0 &&
+	     &((*it)->trackParameters()->associatedSurface()) !=0 &&  
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement() !=0 && 
+	     (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify() !=0 )
+	  {  
+	    
+	    Identifier id;
+	    id = (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->identify();
+	    float zmod = (*it)->trackParameters()->associatedSurface().associatedDetectorElement()->center().z();
+	    if (m_idHelper->is_pixel(id)) 
+	      {
+		ATH_MSG_VERBOSE("Found pixel module : Associated track parameter");
+		if(m_pixelId->is_barrel(id)) 
+		  { 
+		    ATH_MSG_VERBOSE("Found pixel barrel");
+		    if(m_pixelId->layer_disk(id) == 0) 
+		      {
+			ATH_MSG_VERBOSE("Found Innermost Pixel Layer  " << id.get_compact());
+			
+			const Trk::ResidualPull* pull = m_residualCalc->residualPull(measurement,(*it)->trackParameters(),Trk::ResidualPull::Unbiased);
+			m_dqm_ibl_z.push_back(zmod);
+			if (pull){
+			  m_dqm_ibl_res_x.push_back(pull->residual()[Trk::locX]);
+			  m_dqm_ibl_res_y.push_back(pull->residual()[Trk::locY]);
+			  delete pull;
+			} else {
+			  msg(MSG::WARNING) << "Could not calculate the pulls" << endreq;
+			  m_dqm_ibl_res_x.push_back(-1.);   //out of range of the profile
+			  m_dqm_ibl_res_y.push_back(-1.);
+			}
+		      }
+		  }
+	      }
+	  }
+      } else {
+	ATH_MSG_VERBOSE("Not a measurement type");
+      }
+    }
+   
   }
 
 
@@ -525,6 +631,11 @@ namespace InDet
     m_dqm_ntrkpart = 0;
     m_dqm_ntrk = 0;
     m_dqm_nvertex = 0;
+
+    m_dqm_ibl_z.clear();
+    m_dqm_ibl_res_x.clear();
+    m_dqm_ibl_res_y.clear();
+    m_dqm_ibl_hit_expected_found.clear();
 
     // Bjet
     m_dqm_bj_sumpt = 0;
