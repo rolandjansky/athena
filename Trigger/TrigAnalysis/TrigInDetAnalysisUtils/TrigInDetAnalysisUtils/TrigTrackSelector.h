@@ -1,7 +1,7 @@
 // emacs: this is -*- c++ -*-
 
-#ifndef __TRIGTRACKSELECTOR_H
-#define __TRIGTRACKSELECTOR_H
+#ifndef TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
+#define TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H
 
 #include "TrigInDetAnalysisUtils/TIDA_newtracking.h"
 
@@ -73,11 +73,11 @@ public:
   ~TrigTrackSelector() { clear(); }
 
 
-  void setBeamline( double x, double y, double z=0) { xBeam = x; yBeam = y; zBeam=z; }
+  void setBeamline( double x, double y, double z=0) { m_xBeam = x; m_yBeam = y; m_zBeam=z; }
 
-  double getBeamX() const { return xBeam; } 
-  double getBeamY() const { return yBeam; } 
-  double getBeamZ() const { return zBeam; } 
+  double getBeamX() const { return m_xBeam; } 
+  double getBeamY() const { return m_yBeam; } 
+  double getBeamZ() const { return m_zBeam; } 
 
   void correctTracks(bool b=true) { m_correctTrkTracks = b; } 
 
@@ -149,11 +149,11 @@ private:
 
   unsigned long m_id;
 
-  double xBeam;
-  double yBeam;
-  double zBeam;
+  double m_xBeam;
+  double m_yBeam;
+  double m_zBeam;
 
-  bool m_first;
+  //bool m_first;
 
   bool m_correctTrkTracks;
 
@@ -163,4 +163,4 @@ private:
 // }
 
 #endif //   TIDA_NEWTRACKING_H
-#endif // __TRIGTRACKSELECTOR_H
+#endif // TRIGINDETANALYSISUTILS_TRIGTRACKSELECTOR_H

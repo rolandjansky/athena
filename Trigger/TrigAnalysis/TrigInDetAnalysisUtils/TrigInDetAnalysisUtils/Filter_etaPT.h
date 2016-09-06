@@ -9,8 +9,8 @@
 //   $Id: Filter_PT.h, v0.0   Wed 28 Oct 2009 02:47:05 CET sutt $
 
 
-#ifndef __FILTER_ETAPT_H
-#define __FILTER_ETAPT_H
+#ifndef TRIGINDETANALYSISUTILS_FILTER_ETAPT_H
+#define TRIGINDETANALYSISUTILS_FILTER_ETAPT_H
 
 #include <iostream>
 #include <cmath>
@@ -43,8 +43,8 @@ private:
   // selection cuts
 
   double  m_etaMax;
-  double  m_d0Max;
-  double  m_z0Max;
+  //double  m_d0Max;
+  //double  m_z0Max;
   double  m_pTMin;
 
 };
@@ -58,14 +58,4 @@ inline std::ostream& operator<<( std::ostream& s, const Filter_etaPT& /*_s*/ ) {
 }
 
 
-#endif  // __FILTER_ETAPT_H 
-
-
-
-
-
-
-
-
-
-
+#endif  // TRIGINDETANALYSISUTILS_FILTER_ETAPT_H

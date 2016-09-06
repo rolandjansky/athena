@@ -30,10 +30,15 @@
 
 #include "TrigInDetTruthEvent/TrigInDetTrackTruthMap.h"
 
+#ifdef XAODTRACKING_TRACKPARTICLE_H
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
+#include "xAODTau/TauJetContainer.h"
+#else
 #include "muonEvent/MuonContainer.h"
 #include "egammaEvent/ElectronContainer.h"
 #include "tauEvent/TauJetContainer.h"
-
+#endif
 
 class MsgSvc;
 class StoreGateSvc;
@@ -81,6 +86,7 @@ public:
     m_releaseData(""),
     m_keepAllEvents(false),
     m_useHighestPT(false),
+    m_vtxIndex(-1),
     m_filterOnRoi(true),
     m_requireDecision(false)
   {
@@ -245,7 +251,7 @@ public:
   const TrackAnalysis* analysis() const {return m_analysis;}
 
   void setMCTruth(bool b=true) { m_mcTruth=b; }
-  void mcTruth() const         { return m_mcTruth; }
+  bool mcTruth() const         { return m_mcTruth; }
 
   void   setBeamX(double d) { m_beamX=d; }
   void   setBeamY(double d) { m_beamY=d; }
@@ -257,7 +263,7 @@ public:
   bool genericFlag() const    { return m_genericFlag; }
   void setGenericFlag(bool b) { m_genericFlag=b; }
 
-  void releaseData() const                { return m_releaseData; }
+  std::string releaseData() const                { return m_releaseData; }
   void releaseData(const std::string& s)  { m_releaseData = s; }
 
   void keepAllEvents( bool b ) { m_keepAllEvents = b; }
@@ -265,11 +271,14 @@ public:
   void setUseHighestPT( bool b )    { m_useHighestPT=b; } 
   bool getUseHighestPT()      const { return m_useHighestPT; } 
 
+  void setVtxIndex( int i )    { m_vtxIndex=i; } 
+  int  getVtxIndex()     const { return m_vtxIndex; } 
+
   bool filterOnRoi()          const { return m_filterOnRoi; }
   bool setFilterOnRoi(bool b)       { return m_filterOnRoi=b; }
 
-  void       setRequireDecision(bool b) { m_requireDecision=b; } 
-  bool requireDecision() const          { return m_requireDecision; } 
+  void setRequireDecision(bool b) { m_requireDecision=b; } 
+  bool requireDecision() const    { return m_requireDecision; } 
   
 protected:
 
@@ -284,12 +293,12 @@ protected:
     std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key, TrigDefs::alsoDeactivateTEs );
     if ( !trackcollections.empty() ) {
       // NB!! a combination should never have more than one entry for a track collection from a single algorithm,
-      //   if ( trackcollections.size()>1 ) std::cerr << "SUTT OH NO!!!!!!!!" << endreq;
+      //   if ( trackcollections.size()>1 ) std::cerr << "SUTT OH NO!!!!!!!!" << endmsg;
       for ( unsigned ifeat=0 ; ifeat<trackcollections.size() ; ifeat++ ) {
 	//	std::cout << "selectTracks() ifeat=" << ifeat << "\tkey " << key << std::endl;
 	Trig::Feature<Collection> trackfeature = trackcollections.at(ifeat);
 	if ( !trackfeature.empty() ) {
-	  //	  m_provider->msg(MSG::DEBUG) << "TDT TrackFeature->size() " << trackfeature.cptr()->size() << " (" << key << ")" << endreq;
+	  //	  m_provider->msg(MSG::DEBUG) << "TDT TrackFeature->size() " << trackfeature.cptr()->size() << " (" << key << ")" << endmsg;
 	  // actually select the tracks from this roi at last!!
 	  const Collection* trigtracks = trackfeature.cptr();
 	  selector->selectTracks( trigtracks );
@@ -298,7 +307,7 @@ protected:
       return true;
     }
     else {
-      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection (" << key << ") is empty " << endreq;
+      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection (" << key << ") is empty " << endmsg;
       return false;
     }
   }
@@ -320,7 +329,7 @@ protected:
       const HLT::NavigationCore* nc = em->getNavigation();
 
       // NB!! a combination should never have more than one entry for a track collection from a single algorithm,
-      //   if ( trackcollections.size()>1 ) std::cerr << "SUTT OH NO!!!!!!!!" << endreq;
+      //   if ( trackcollections.size()>1 ) std::cerr << "SUTT OH NO!!!!!!!!" << endmsg;
       //   maybe a bit dodgy, if we really do have multiple objects returned, but that should only be for
       //   multiple object triggers - then probably none of this would work anyhow
       for ( unsigned ifeat=0 ; ifeat<trackcollections.size() ; ifeat++ ) {
@@ -343,18 +352,18 @@ protected:
 	  ///     since it will do nothing if index is out of range
 	  if ( index!=iv ) continue;
 	  //	if ( !trackfeature.empty() ) {
-	  // m_provider->msg(MSG::DEBUG) << "TDT TrackFeature->size() " << trackfeature.cptr()->size() << " (" << key << ")" << endreq;
+	  // m_provider->msg(MSG::DEBUG) << "TDT TrackFeature->size() " << trackfeature.cptr()->size() << " (" << key << ")" << endmsg;
 	  // actually select the tracks from this roi at last!!
 	  //	  const Collection* trigtracks = trackfeature.cptr();
 	  //	  selector->selectTracks( trigtracks, truthmap );
-	  // m_provider->msg(MSG::DEBUG) << "TDT TrackFeature->size() " << collectionVector[iv]->size() << " (" << key << ")" << endreq;
+	  // m_provider->msg(MSG::DEBUG) << "TDT TrackFeature->size() " << collectionVector[iv]->size() << " (" << key << ")" << endmsg;
 	  selector->selectTracks( collectionVector[iv], truthmap );
 	}
       }
       return true;
     }
     else {
-      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection (" << key << ") is empty" << endreq;
+      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection (" << key << ") is empty" << endmsg;
       return false;
     }
   }
@@ -368,7 +377,7 @@ protected:
     if ( key!="" ) {
       if ( m_provider->evtStore()->template contains<Collection>( key ) ) {
 	StatusCode sc = m_provider->evtStore()->retrieve( collection, key );
-	m_provider->msg(MSG::DEBUG) << "SG Collection->size() " << collection->size() << " (" << key << ")" << endreq;
+	m_provider->msg(MSG::DEBUG) << "SG Collection->size() " << collection->size() << " (" << key << ")" << endmsg;
 	if( sc.isSuccess() && collection ) {
 	  selector->selectTracks( collection );
 	  return true;
@@ -380,10 +389,82 @@ protected:
 
 
 
+
+
+
+
+
+  template<class Collection>
+  std::vector<double>  getBeamspot( const std::string& key ) {
+    const Collection* collection = 0;
+    std::vector<double> v;
+
+    if ( key!="" ) {
+      if ( m_provider->evtStore()->template contains<Collection>( key ) ) {
+	StatusCode sc = m_provider->evtStore()->retrieve( collection, key );
+	m_provider->msg(MSG::DEBUG) << "SG Collection->size() " << collection->size() << " (" << key << ")" << endmsg;
+	if( sc.isSuccess() && collection ) {
+
+	  typename Collection::const_iterator  trackitr = collection->begin();
+	  typename Collection::const_iterator  trackend = collection->end();
+	  if ( trackitr!=trackend ) {
+	    v.resize(3);
+	    v[0] = (*trackitr)->vx();
+	    v[1] = (*trackitr)->vy();
+	    v[2] = (*trackitr)->vz();
+	    return v;
+	  } // only need to look at the first track
+	}
+      }
+    }
+    return v;
+  }
+
+
+
+
+  template<class Collection>
+  std::vector<double> getBeamspot( Trig::FeatureContainer::combination_const_iterator citr,  const std::string& key="" ) {
+    std::vector< Trig::Feature<Collection> >  trackcollections = citr->get<Collection>( key, TrigDefs::alsoDeactivateTEs );
+    std::vector<double> v;
+    if ( !trackcollections.empty() ) {
+      // NB!! a combination should never have more than one entry for a track collection from a single algorithm,                                                                                                     
+      //   if ( trackcollections.size()>1 ) std::cerr << "SUTT OH NO!!!!!!!!" << endmsg;                                                                                                                              
+      for ( unsigned ifeat=0 ; ifeat<trackcollections.size() ; ifeat++ ) {
+        //      std::cout << "selectTracks() ifeat=" << ifeat << "\tkey " << key << std::endl;                                                                                                                        
+	Trig::Feature<Collection> trackfeature = trackcollections.at(ifeat);
+        if ( !trackfeature.empty() ) {
+          //      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature->size() " << trackfeature.cptr()->size() << " (" << key << ")" << endmsg;                                                                          
+          // actually select the tracks from this roi at last!!                                                                                                                                                       
+          const Collection* trigtracks = trackfeature.cptr();
+
+	  typename Collection::const_iterator  trackitr = trigtracks->begin();
+	  typename Collection::const_iterator  trackend = trigtracks->end();
+          if ( trackitr!=trackend ) {
+            v.resize(3);
+            v[0] = (*trackitr)->vx();
+            v[1] = (*trackitr)->vy();
+            v[2] = (*trackitr)->vz();
+            return v;
+	  } // only need to look at the first track
+        }
+      }
+      return v;
+    }
+    else {
+      m_provider->msg(MSG::DEBUG) << "TDT TrackFeature collection (" << key << ") is empty " << endmsg;
+      return v;
+    }
+  }
+
+
+
+
+
   ////////////////////////////////////////////////////////////////////////////////////////////
   /// select offline electrons
   ////////////////////////////////////////////////////////////////////////////////////////////
-  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection = 0,
+  unsigned processElectrons( TrigTrackSelector& selectorRef, const unsigned int selection=0, double ETOffline=0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
 			     const std::string& containerName = "Electrons"
 #                            else
@@ -391,7 +472,7 @@ protected:
 #                            endif
 			     )  {
 
-    m_provider->msg(MSG::INFO) << " Fetching offline electrons: " << containerName << endreq;
+    m_provider->msg(MSG::INFO) << " Fetching offline electrons: " << containerName << endmsg;
 
     selectorRef.clear();
 
@@ -405,17 +486,17 @@ protected:
     const Container* container = 0;
     
     if( ! m_provider->evtStore()->template contains<Container>(containerName) ) {
-      m_provider->msg(MSG::WARNING) << "Error No Electron Container " << containerName << " !" << endreq;
+      m_provider->msg(MSG::WARNING) << "Error No Electron Container " << containerName << " !" << endmsg;
       return 0;
     }
     
     StatusCode sc=m_provider->evtStore()->retrieve( container, containerName);
     if( sc.isFailure() || !container ) {
-      m_provider->msg(MSG::WARNING) << "Error retrieving container: " << containerName << " !" << endreq;
+      m_provider->msg(MSG::WARNING) << "Error retrieving container: " << containerName << " !" << endmsg;
       return 0;
     }
 
-    m_provider->msg(MSG::INFO) << "Event with " <<  container->size() << " Electron object(s) " << endreq;
+    m_provider->msg(MSG::INFO) << "Event with " <<  container->size() << " Electron object(s) " << endmsg;
 
     auto elec     = container->begin();
     auto elec_end = container->end();
@@ -429,11 +510,11 @@ protected:
       //	       << ",  trackParticle " << (*elec)->trackParticle()
       //	       << ",  conversion "    << (*elec)->conversion()
       //	       << ",  mediumPP "      << ((*elec)->isem(egammaPID::ElectronMediumPP)==0)
-      //	       << endreq;
+      //	       << endmsg;
 
       bool good_electron = false;
 #     ifdef XAODTRACKING_TRACKPARTICLE_H
-      good_electron = TIDA::isGoodOffline(*(*elec), selection);
+      good_electron = TIDA::isGoodOffline(*(*elec), selection, ETOffline );
 #     else
       good_electron = TIDA::isGoodOffline(*(*elec));
 #     endif
@@ -450,6 +531,7 @@ protected:
   /// select offline muons
   ////////////////////////////////////////////////////////////////////////////////////////////
   unsigned processMuons(     TrigTrackSelector& selectorRef,
+			     double ETOffline=0,
 #                            ifdef XAODTRACKING_TRACKPARTICLE_H
                              const std::string& containerName = "Muons"
 #                            else
@@ -463,37 +545,39 @@ protected:
     typedef Analysis::MuonContainer Container;
 #   endif
 
-    m_provider->msg(MSG::DEBUG) << " Offline muons (" << containerName << ")" << endreq;
+    m_provider->msg(MSG::DEBUG) << " Offline muons (" << containerName << ")" << endmsg;
 
     selectorRef.clear();
 
     const Container*     container = 0;
 
     if( ! m_provider->evtStore()->template contains<Container>(containerName) ) {
-      m_provider->msg(MSG::WARNING) << "Error No MuonCollection" << containerName << " !" << endreq;
+      m_provider->msg(MSG::WARNING) << "Error No MuonCollection" << containerName << " !" << endmsg;
       return 0;
     }
 
     StatusCode sc=m_provider->evtStore()->retrieve( container, containerName );
     if( sc.isFailure() || !container ) {
-      m_provider->msg(MSG::WARNING) << "Error retrieving " << containerName << " !" << endreq;
+      m_provider->msg(MSG::WARNING) << "Error retrieving " << containerName << " !" << endmsg;
       return 0;
     }
 
     auto muon     = container->begin();
     auto muon_end = container->end();
 
+    //    std::cout << "SUTT Offline muons " << container->size() << "\t threshold " << ETOffline << std::endl;
+
     for( ; muon!=muon_end ; ++muon ){
-      if (TIDA::isGoodOffline(*(*muon))) {
-#      ifdef XAODTRACKING_TRACKPARTICLE_H
-       selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
-#      else
-       selectorRef.selectTrack((*muon)->inDetTrackParticle());
-#      endif
-      }
+#     ifdef XAODTRACKING_TRACKPARTICLE_H
+      if ( TIDA::isGoodOffline(*(*muon), ETOffline) ) selectorRef.selectTrack(*((*muon)->inDetTrackParticleLink()));
+#     else
+      if ( TIDA::isGoodOffline(*(*muon)) ) selectorRef.selectTrack((*muon)->inDetTrackParticle());
+#     endif
     }
 
-    m_provider->msg(MSG::DEBUG) << "found  " << selectorRef.tracks().size() << " muons for " << containerName << endreq;
+
+    //    std::cout <<              "SUTT found  " << selectorRef.tracks().size() << " muons for " << containerName << std::endl;
+    m_provider->msg(MSG::DEBUG) << "found  " << selectorRef.tracks().size() << " muons for " << containerName << endmsg;
 
     return selectorRef.tracks().size();
 }
@@ -503,15 +587,15 @@ protected:
     ////////////////////////////////////////////////////////////////////////////////////////////
     /// select offline taus
     ////////////////////////////////////////////////////////////////////////////////////////////
-unsigned processTaus(      TrigTrackSelector& selectorRef,
-			   bool doThreeProng = true,
-			   double tauEtCutOffline = 0.,
-			   const unsigned int selection = 0,
-#                          ifdef XAODTRACKING_TRACKPARTICLE_H
-			   const std::string& containerName = "TauJets"
-#                          else
-			   const std::string& containerName = "TauRecContainer"
-#                          endif
+unsigned processTaus( TrigTrackSelector& selectorRef,
+		      bool           doThreeProng=true,
+		      const unsigned selection=0,
+		      double         EtCutOffline=0,
+#                     ifdef XAODTRACKING_TRACKPARTICLE_H
+		      const std::string& containerName = "TauJets"
+#                     else
+		      const std::string& containerName = "TauRecContainer"
+#                     endif
 			   ) {
   
 # ifdef XAODTRACKING_TRACKPARTICLE_H
@@ -526,33 +610,33 @@ unsigned processTaus(      TrigTrackSelector& selectorRef,
 
   selectorRef.clear();
 
-  m_provider->msg(MSG::DEBUG) << " Offline taus " << containerName << endreq;
+  m_provider->msg(MSG::DEBUG) << " Offline taus " << containerName << endmsg;
 
   if ( !m_provider->evtStore()->template contains<Container>(containerName)) {
-    m_provider->msg(MSG::WARNING) << " Offline taus not found" << endreq;
+    m_provider->msg(MSG::WARNING) << " Offline taus not found" << endmsg;
     return 0;
   }
   
 
   StatusCode sc = m_provider->evtStore()->retrieve( container, containerName);
   if (sc != StatusCode::SUCCESS) {
-    m_provider->msg(MSG::WARNING) << " Offline tau retrieval not successful" << endreq;
+    m_provider->msg(MSG::WARNING) << " Offline tau retrieval not successful" << endmsg;
     return 0;
   }
 
-  auto tau     = container->begin();
-  auto tau_end = container->end();
+  Container::const_iterator tau     = container->begin();
+  Container::const_iterator tau_end = container->end();
 
   unsigned Ntaus = 0;
 
   for ( ; tau!=tau_end ; ++tau ) {
 
     bool good_tau = false;
-#     ifdef XAODTRACKING_TRACKPARTICLE_H
-    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, tauEtCutOffline, selection );
-#     else
-    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, tauEtCutOffline );
-#     endif
+#   ifdef XAODTRACKING_TRACKPARTICLE_H
+    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, selection, EtCutOffline );
+#   else
+    good_tau = TIDA::isGoodOffline( *(*tau), doThreeProng, EtCutOffline );
+#   endif
       
     if (good_tau){
 #     ifdef XAODTRACKING_TRACKPARTICLE_H
@@ -561,8 +645,12 @@ unsigned processTaus(      TrigTrackSelector& selectorRef,
       unsigned N = (*tau)->numTrack(); 
 #     endif
 
-      for ( unsigned i=N ; i-- ; )  {  
+      for ( unsigned i=N ; i-- ; )  {
+#       ifdef XAODTAU_TAUTRACK_H  
+        selectorRef.selectTrack((*tau)->track(i)->track());
+#       else
         selectorRef.selectTrack((*tau)->track(i));
+#       endif
         Ntaus++;
       }
     }
@@ -623,6 +711,8 @@ protected:
   bool                   m_keepAllEvents;
 
   bool                   m_useHighestPT;
+  
+  int                    m_vtxIndex;
 
   bool                   m_filterOnRoi;
 
