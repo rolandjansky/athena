@@ -87,61 +87,61 @@ namespace InDet
   {
     StatusCode sc = AthAlgTool::initialize();
     if ( sc.isFailure() ) {
-      msg(MSG::FATAL) << "Unable to initialize InDetConversionFinderTools" << endreq;
+      msg(MSG::FATAL) << "Unable to initialize InDetConversionFinderTools" << endmsg;
       return StatusCode::FAILURE;
     } 
     /* Get the right vertex fitting tool from ToolSvc */
     if ( m_iVertexFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
     }
     /* Get the track pairs selector tool from ToolSvc */
     if ( m_trackPairsSelector.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackPairsSelector << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackPairsSelector << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_trackPairsSelector << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_trackPairsSelector << endmsg;
     }
     
     /* Get the vertex point estimator tool from ToolSvc */
     if ( m_vertexEstimator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_vertexEstimator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_vertexEstimator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_vertexEstimator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_vertexEstimator << endmsg;
     }
     /* Get the postselector tool from ToolSvc */
     if ( m_postSelector.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_postSelector << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_postSelector << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_postSelector << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_postSelector << endmsg;
     }
     /* Get the single track conversion tool from ToolSvc */
     if ( m_singleTrkConvTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_singleTrkConvTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_singleTrkConvTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_singleTrkConvTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_singleTrkConvTool << endmsg;
     }
     /* Get the extrapolator tool from ToolSvc */
     if ( m_extrapolator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
     }
     /* Get the track selector tool from ToolSvc */
     if ( m_trkSelector.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSelector << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSelector << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_trkSelector << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_trkSelector << endmsg;
     }
     
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
@@ -150,25 +150,31 @@ namespace InDet
     return StatusCode::SUCCESS;
   }
 
-  VxContainer* InDetConversionFinderTools::findVertex(const Trk::TrackParticleBaseCollection* /*trk_coll*/){
-    // Make collection for conversions.
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetConversionFinderTools::findVertex(const Trk::TrackParticleBaseCollection* /*trk_coll*/){
     
     ATH_MSG_ERROR("Using old TrackParticle Container no longer supported returning an empty conatiner");
-    
-    VxContainer* InDetConversionContainer = new VxContainer;
-    return  InDetConversionContainer; 
-  } 
+
+    // Make collection for conversions.
+    xAOD::VertexContainer* InDetConversionContainer = new xAOD::VertexContainer();
+    xAOD::VertexAuxContainer* InDetConversionContainerAux = new xAOD::VertexAuxContainer();
+    InDetConversionContainer->setStore( InDetConversionContainerAux ); 
+
+    return std::make_pair(InDetConversionContainer,InDetConversionContainerAux); 
+   } 
 
 
   //TrackCollection
-  VxContainer* InDetConversionFinderTools::findVertex(const TrackCollection* /*trk_coll*/)
+  std::pair<xAOD::VertexContainer*, xAOD::VertexAuxContainer*> InDetConversionFinderTools::findVertex(const TrackCollection* /*trk_coll*/)
   {
     
     ATH_MSG_ERROR("Using Track Container not currently supported returning an empty conatiner");
 
     // Make collection for conversions.
-    VxContainer* InDetConversionContainer = new VxContainer;
-    return  InDetConversionContainer;
+    xAOD::VertexContainer* InDetConversionContainer = new xAOD::VertexContainer();
+    xAOD::VertexAuxContainer* InDetConversionContainerAux = new xAOD::VertexAuxContainer();
+    InDetConversionContainer->setStore( InDetConversionContainerAux ); 
+
+    return std::make_pair(InDetConversionContainer,InDetConversionContainerAux); 
   }
 
   //TrackParticleBaseCollection
@@ -183,7 +189,6 @@ namespace InDet
     
     //have to be used for the vertex fit
     Amg::Vector3D pos(0.,0.,0.); Amg::Vector3D initPos(0.,0.,0.);
-    Trk::Vertex vertex(pos); 
     
     // Make seperate lists of positive and negative tracks (after presection cuts)
     std::vector<const xAOD::TrackParticle*> negSelectedTracks; negSelectedTracks.clear();
@@ -193,7 +198,7 @@ namespace InDet
     //track preselection -->pt-cut
     xAOD::TrackParticleContainer::const_iterator iter;
     for ( iter =(*trk_coll).begin(); iter !=(*trk_coll).end(); ++iter ) {    
-      if (m_trkSelector->decision(**iter, 0)){ // Only save if track passes the pt, d0 and z0 cuts
+      if (m_trkSelector->decision(**iter, 0)){ // Only save if track passes the pt, d0, z0 and TRT PID cuts
         ATH_MSG_DEBUG("Track passed preselection");
         if ( (*iter)->charge() < 0) {negSelectedTracks.push_back(*iter); negIndx.push_back(0);}
         else {posSelectedTracks.push_back(*iter); posIndx.push_back(0);}
@@ -233,8 +238,7 @@ namespace InDet
         trackParticleList.push_back( *iter_neg );
         
         xAOD::Vertex* myVertex =0;
-        Trk::Vertex estimatedVertex(initPos);
-        myVertex = m_iVertexFitter->fit(trackParticleList, estimatedVertex);
+	myVertex = m_iVertexFitter->fit(trackParticleList, initPos);
         trackParticleList.clear();
         if(myVertex) {
           ATH_MSG_DEBUG("VertexFit successful!"); 
@@ -273,14 +277,8 @@ namespace InDet
 		    myVertex->auxdata<float>(kv.first) = kv.second;
 		  }
 	      }	      
-	      ElementLink<xAOD::TrackParticleContainer> newLinkPos;
-	      newLinkPos.setElement(*iter_pos);
-	      newLinkPos.setStorableObject(*trk_coll);
-	      newLinkPos.index();
-	      ElementLink<xAOD::TrackParticleContainer> newLinkNeg;
-	      newLinkNeg.setElement(*iter_neg);
-	      newLinkNeg.setStorableObject(*trk_coll);
-	      newLinkNeg.index();            
+	      ElementLink<xAOD::TrackParticleContainer> newLinkPos(*iter_pos, *trk_coll);
+	      ElementLink<xAOD::TrackParticleContainer> newLinkNeg(*iter_neg, *trk_coll);
 	      myVertex->addTrackAtVertex(newLinkPos);
 	      myVertex->addTrackAtVertex(newLinkNeg);
 	    }
