@@ -112,25 +112,22 @@ namespace InDet {
   double ConversionFinderUtils::distBetweenTracks(const Trk::Track *trk_pos, const Trk::Track *trk_neg) {
 
     //position of the first measurement on the positive track
-    std::vector<const Trk::MeasurementBase*>::const_iterator it;
-    std::vector<const Trk::MeasurementBase*>::const_iterator it_pos = trk_pos->measurementsOnTrack()->begin();
-    std::vector<const Trk::MeasurementBase*>::const_iterator it_pos_end = trk_pos->measurementsOnTrack()->end();
-    Amg::Vector3D trk_hit_pos = (*it_pos)->globalPosition();
-    const Trk::MeasurementBase* first_pos_meas = *it_pos;
+    const Trk::MeasurementBase* first_pos_meas = trk_pos->measurementsOnTrack()->front();
+    Amg::Vector3D trk_hit_pos = first_pos_meas->globalPosition();
     
     //check if really the first measurement
-    for (it = it_pos; it != it_pos_end; ++it) if(trk_hit_pos.mag()>(*it)->globalPosition().mag()) first_pos_meas = (*it);	
+    for (const Trk::MeasurementBase* m : *trk_pos->measurementsOnTrack())
+      if(trk_hit_pos.mag() > m->globalPosition().mag()) first_pos_meas = m;	
     
     trk_hit_pos = first_pos_meas->globalPosition();
     
     //position of the first hit--->track2
-    std::vector<const Trk::MeasurementBase*>::const_iterator it_neg = trk_neg->measurementsOnTrack()->begin();	
-    Amg::Vector3D trk_hit_neg=(*it_neg)->globalPosition();
-    const Trk::MeasurementBase* first_neg_meas = *it_neg;
+    const Trk::MeasurementBase* first_neg_meas = trk_neg->measurementsOnTrack()->front();
+    Amg::Vector3D trk_hit_neg = first_neg_meas->globalPosition();
     
     //check if really the first measurement
-    for (it = it_neg; it != trk_neg->measurementsOnTrack()->end(); ++it) if (trk_hit_neg.mag() > (*it)->globalPosition().mag())
-      first_neg_meas = (*it);
+    for (const Trk::MeasurementBase* m : *trk_neg->measurementsOnTrack())
+      if(trk_hit_neg.mag() > m->globalPosition().mag()) first_neg_meas = m;	
     
     trk_hit_neg = first_neg_meas->globalPosition();
     double distance = 1000.;

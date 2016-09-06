@@ -87,61 +87,61 @@ namespace InDet
   {
     StatusCode sc = AthAlgTool::initialize();
     if ( sc.isFailure() ) {
-      msg(MSG::FATAL) << "Unable to initialize InDetConversionFinderTools" << endreq;
+      msg(MSG::FATAL) << "Unable to initialize InDetConversionFinderTools" << endmsg;
       return StatusCode::FAILURE;
     } 
     /* Get the right vertex fitting tool from ToolSvc */
     if ( m_iVertexFitter.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_iVertexFitter << endmsg;
     }
     /* Get the track pairs selector tool from ToolSvc */
     if ( m_trackPairsSelector.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackPairsSelector << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackPairsSelector << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_trackPairsSelector << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_trackPairsSelector << endmsg;
     }
     
     /* Get the vertex point estimator tool from ToolSvc */
     if ( m_vertexEstimator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_vertexEstimator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_vertexEstimator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_vertexEstimator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_vertexEstimator << endmsg;
     }
     /* Get the postselector tool from ToolSvc */
     if ( m_postSelector.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_postSelector << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_postSelector << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_postSelector << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_postSelector << endmsg;
     }
     /* Get the single track conversion tool from ToolSvc */
     if ( m_singleTrkConvTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_singleTrkConvTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_singleTrkConvTool << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_singleTrkConvTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_singleTrkConvTool << endmsg;
     }
     /* Get the extrapolator tool from ToolSvc */
     if ( m_extrapolator.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
     }
     /* Get the track selector tool from ToolSvc */
     if ( m_trkSelector.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSelector << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSelector << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_trkSelector << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_trkSelector << endmsg;
     }
     
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }
   
