@@ -45,7 +45,7 @@ MDTCablingDbTool::MDTCablingDbTool (const std::string& type,
   : AthAlgTool(type, name, parent), 
     m_log( msgSvc(), name ),
     m_debug(false),
-    m_verbose(false)    
+    m_verbose(false)
 {
 
   declareInterface<IMDTCablingDbTool>(this);
@@ -70,7 +70,7 @@ StatusCode MDTCablingDbTool::updateAddress(StoreID::type /*storeID*/, SG::Transi
   std::string key  = tad->name();
   if ( 51038731== clid && m_DataLocation == key)
     {
-      if( m_verbose ) m_log << MSG::VERBOSE << "OK " << endreq;
+      if( m_verbose ) m_log << MSG::VERBOSE << "OK " << endmsg;
       return StatusCode::SUCCESS;
     }
   return StatusCode::FAILURE;
@@ -85,20 +85,20 @@ StatusCode MDTCablingDbTool::initialize()
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
 
-  if( m_verbose ) m_log << MSG::VERBOSE << "Initializing " << endreq;
+  if( m_verbose ) m_log << MSG::VERBOSE << "Initializing " << endmsg;
  
   StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
   if ( sc.isSuccess() ) {
-    if( m_verbose ) m_log << MSG::VERBOSE << "Retrieved DetectorStore" << endreq;
+    if( m_verbose ) m_log << MSG::VERBOSE << "Retrieved DetectorStore" << endmsg;
   }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
     return sc;
   }
 
   // retrieve the mdt id helper
   sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
   if (!sc.isSuccess()) {
-    m_log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endreq;
+    m_log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endmsg;
     return sc;
   }
 
@@ -108,7 +108,7 @@ StatusCode MDTCablingDbTool::initialize()
   sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
   if ( sc.isFailure() )
   {
-       m_log << MSG::ERROR << "Unable to get the IOVSvc" << endreq;
+       m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
        return StatusCode::FAILURE;
   }
 
@@ -118,7 +118,7 @@ StatusCode MDTCablingDbTool::initialize()
   sc = service( "IOVDbSvc", m_IOVDbSvc, CREATEIF );
   if ( sc.isFailure() )
   {
-       m_log << MSG::ERROR << "Unable to get the IOVDbSvc" << endreq;
+       m_log << MSG::ERROR << "Unable to get the IOVDbSvc" << endmsg;
        return StatusCode::FAILURE;
   }
 
@@ -130,22 +130,22 @@ StatusCode MDTCablingDbTool::initialize()
   // initialize the chrono service
   sc = service("ChronoStatSvc",m_chronoSvc);
   if (sc != StatusCode::SUCCESS) {
-    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endreq;
+    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
     return sc;
   }
       
   // commented for now
     m_cablingData = new MuonMDT_CablingMap();
  
-    if( m_verbose ) m_log << MSG::VERBOSE<<" pointer to Map container =<"<<m_cablingData<<endreq;
+    if( m_verbose ) m_log << MSG::VERBOSE<<" pointer to Map container =<"<<m_cablingData<<endmsg;
    
     sc = m_detStore->record(m_cablingData,m_DataLocation);
     if (sc == StatusCode::FAILURE) {
       m_log << MSG::ERROR << "Cannot record cabling container in the detector store"
-	  << endreq;
+	  << endmsg;
       return sc;
     }
-    else m_log << MSG::INFO << "Map container recorded in the detector store"<<endreq;
+    else m_log << MSG::INFO << "Map container recorded in the detector store"<<endmsg;
 
  
 
@@ -155,22 +155,22 @@ StatusCode MDTCablingDbTool::initialize()
  
    SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MuonMDT_CablingMap>::ID(), m_DataLocation);
    if (!proxy) {
-     m_log << MSG::ERROR << "Unable to get the proxy for class Cabling Container" << endreq;
+     m_log << MSG::ERROR << "Unable to get the proxy for class Cabling Container" << endmsg;
      return StatusCode::FAILURE;
-   }else m_log << MSG::INFO << "proxy for class Cabling Container found" << endreq;
+   }else m_log << MSG::INFO << "proxy for class Cabling Container found" << endmsg;
 
 
 
    SG::TransientAddress* tad =  proxy->transientAddress();
    if (!tad) {
-     m_log << MSG::ERROR << "Unable to get the tad" << endreq;
+     m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
       return StatusCode::FAILURE;
-   }else m_log << MSG::INFO << "proxy transient Address found" << endreq;
+   }else m_log << MSG::INFO << "proxy transient Address found" << endmsg;
 
    IAddressProvider* addp = this;
    //   tad->setProvider(addp);
    tad->setProvider(addp, StoreID::DETECTOR_STORE);
-   if( m_verbose ) m_log << MSG::VERBOSE << "set address provider for CABLING Container" << endreq;
+   if( m_verbose ) m_log << MSG::VERBOSE << "set address provider for CABLING Container" << endmsg;
     
    return StatusCode::SUCCESS;
 
@@ -204,7 +204,7 @@ StatusCode MDTCablingDbTool::loadMezzanine(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/
   m_verbose = m_log.level() <= MSG::VERBOSE;
 
   StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load Mezzanine Type parameters  from DB" << endreq;
+  m_log << MSG::INFO << "Load Mezzanine Type parameters  from DB" << endmsg;
   return  sc;
  
   // maybe not used....
@@ -219,7 +219,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   m_debug = m_log.level() <= MSG::DEBUG;
   m_verbose = m_log.level() <= MSG::VERBOSE;
   StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load Mezzanine Type parameters  from DB" << endreq;
+  m_log << MSG::INFO << "Load Mezzanine Type parameters  from DB" << endmsg;
 
   m_chrono1 = "loadMDTMap method";
   m_chrono2 = "access only DB and parsing";
@@ -232,18 +232,18 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   
   sc = m_detStore->retrieve( m_cablingData, m_DataLocation );
   if(sc.isSuccess())  {
-    if( m_verbose ) m_log << MSG::VERBOSE << "Cabling Container found " << m_cablingData << endreq;
+    if( m_verbose ) m_log << MSG::VERBOSE << "Cabling Container found " << m_cablingData << endmsg;
     sc = m_detStore->remove( m_cablingData );
     if (sc.isSuccess()) {
-     if( m_verbose ) m_log << MSG::VERBOSE << "Cabling Container at " << m_cablingData << " removed "<<endreq;
+     if( m_verbose ) m_log << MSG::VERBOSE << "Cabling Container at " << m_cablingData << " removed "<<endmsg;
     } else{
-      m_log << MSG::WARNING <<"Remove failed for: "<<m_cablingData<<endreq;
+      m_log << MSG::WARNING <<"Remove failed for: "<<m_cablingData<<endmsg;
     }
   }
 
   else {
     if (m_cablingData) {
-        if( m_verbose ) m_log << MSG::VERBOSE << "Previous Map Container not in the DetStore but pointer not NULL <" << m_cablingData <<">"<< endreq;
+        if( m_verbose ) m_log << MSG::VERBOSE << "Previous Map Container not in the DetStore but pointer not NULL <" << m_cablingData <<">"<< endmsg;
         delete m_cablingData;
     }
   }
@@ -256,7 +256,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   
   m_cablingData = new  MuonMDT_CablingMap() ;
   
-  if( m_debug ) m_log << MSG::DEBUG<<"New Map container pointer "<<m_cablingData<<endreq;
+  if( m_debug ) m_log << MSG::DEBUG<<"New Map container pointer "<<m_cablingData<<endmsg;
 
   
   //******************************************************************
@@ -270,12 +270,12 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   if(sc.isFailure())  {
     m_log << MSG::ERROR 
 	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<< m_mezzanineFolder << endreq;
+	<< m_mezzanineFolder << endmsg;
     return sc;
   }
   
   else
-       m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endreq;
+       m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
   
   m_chronoSvc->chronoStop(m_chrono3);
   CondAttrListCollection::const_iterator itr;
@@ -290,17 +290,17 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     layer=*(static_cast<const int*>((atr["Layer"]).addressOfData()));
     sequence=*(static_cast<const int*>((atr["Sequence"]).addressOfData()));
     
-    if( m_verbose ) m_log << MSG::VERBOSE << "Sequence load is " << sequence << " for the mezzanine type =  "<< mezzanine_type<< " for the layer  number  = " <<layer <<endreq;
+    if( m_verbose ) m_log << MSG::VERBOSE << "Sequence load is " << sequence << " for the mezzanine type =  "<< mezzanine_type<< " for the layer  number  = " <<layer <<endmsg;
     
     
     // here add the mezzanine type to the cabling class
     bool addLine = m_cablingData->addMezzanineLine(mezzanine_type, layer, sequence);
     if (!addLine) {
       m_log << MSG::ERROR << "Could not add the mezzanine sequence to the map "
-	  << endreq;
+	  << endmsg;
     }
     else {
-      if( m_verbose ) m_log << MSG::VERBOSE << "Sequence added successfully to the map" << endreq;
+      if( m_verbose ) m_log << MSG::VERBOSE << "Sequence added successfully to the map" << endmsg;
     }
     
   }
@@ -314,12 +314,13 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   if(sc.isFailure())  {
     m_log << MSG::ERROR 
 	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<< m_mapFolder << endreq;
+	<< m_mapFolder << endmsg;
     return sc;
   }
   else
-    m_log<<MSG::INFO<<" CondAttrListCollection from DB Map folder have been obtained with size "<< atrc->size() <<endreq;
+    m_log<<MSG::INFO<<" CondAttrListCollection from DB Map folder have been obtained with size "<< atrc->size() <<endmsg;
   
+  bool BMGchamberadded = false;
   
   //CondAttrListCollection::const_iterator itr;
   for (itr = atrc_map->begin(); itr != atrc_map->end(); ++itr) {
@@ -341,7 +342,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     map=*(static_cast<const std::string*>((atr["Map"]).addressOfData()));
     
     if( m_verbose ) m_log << MSG::VERBOSE << "Data load is: /n" <<
-      "Chamber_Name = " << chamber_name << " eta= " << eta << "   Phi= " << phi << " sub_id = " <<subdetector_id << "  mrod = " << mrod << " csm = " << csm << "  chan= " << chan << " mezzanine_type= " << mezzanine_type << "  map = " <<map << " FINISHED HERE "<<endreq;
+      "Chamber_Name = " << chamber_name << " eta= " << eta << "   Phi= " << phi << " sub_id = " <<subdetector_id << "  mrod = " << mrod << " csm = " << csm << "  chan= " << chan << " mezzanine_type= " << mezzanine_type << "  map = " <<map << " FINISHED HERE "<<endmsg;
 
     // convert the string name to index
     std::string stationNameString = chamber_name.substr(0,3);
@@ -349,8 +350,9 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     if (stationNameString == "BOE") {
       stationNameString = "BOL";
     }
+    if (stationNameString == "BMG") BMGchamberadded = true;    
     int stationIndex = m_mdtIdHelper->stationNameIndex(stationNameString);
-    if( m_verbose ) m_log << MSG::VERBOSE << "station name: " << stationNameString << " index: " << stationIndex << endreq;
+    if( m_verbose ) m_log << MSG::VERBOSE << "station name: " << stationNameString << " index: " << stationIndex << endmsg;
     
     // convert the subdetector id to integer
     int subdetectorId = atoi(subdetector_id.c_str());
@@ -360,7 +362,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 
     MuonCalib::MdtStringUtils::tokenize(map,info_map,delimiter);
     
-    if( m_verbose ) m_log << MSG::VERBOSE << " parsing of the map" << endreq;
+    if( m_verbose ) m_log << MSG::VERBOSE << " parsing of the map" << endmsg;
 
     // this is a loop on the mezzanines, add each mezzanine to the map
     int index=0;
@@ -371,7 +373,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     int tube = -99;
 
     for(unsigned int i=0; i<info_map.size();i++){
-      if( m_verbose ) m_log<< MSG::VERBOSE << i << "..."<< info_map[i]<< endreq;
+      if( m_verbose ) m_log<< MSG::VERBOSE << i << "..."<< info_map[i]<< endmsg;
       int info = atoi(info_map[i].c_str());
 
       index++;
@@ -392,7 +394,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 	index = 0;
 
 	if( m_verbose ) m_log << MSG::VERBOSE << "Adding new mezzanine: tdcId " << tdcId << " channel " << channelId
-	    << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube << endreq;
+	    << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube << endmsg;
 
 	// now this mezzanine can be added to the map:
 	/*bool addMezzanine = */m_cablingData->addMezzanine(mezzanine_type, stationIndex, eta, phi, multilayer,
@@ -406,31 +408,100 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 
     
   }
+
+  if(m_mdtIdHelper->stationNameIndex("BMG") != -1 && !BMGchamberadded) {
+    m_log << MSG::WARNING << "Running a layout including BMG chambers, but missing them in cabling from conditions --> hard-coding BMG cabling." << endmsg;
+    int stationIndex = m_mdtIdHelper->stationNameIndex("BMG");
+
+    // BMG1A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,   1,   6,          1,     1,(i*6)+4,            99,   48,   2,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,   1,   6,          2,     1,(i*6)+4,            99,   48,   2,   i+9,         0);
+    // BMG2A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,   2,   6,          1,     1,(i*6)+4,            99,   48,   5,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,   2,   6,          2,     1,(i*6)+4,            99,   48,   5,   i+9,         0);
+    // BMG3A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,   3,   6,          1,     1,(i*6)+4,            97,   48,   5,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,   3,   6,          2,     1,(i*6)+4,            97,   48,   5,   i+9,         0);
+
+    // BMG1C12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,  -1,   6,          1,     1,(i*6)+4,           100,   48,   2,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,  -1,   6,          2,     1,(i*6)+4,           100,   48,   2,   i+9,         0);
+    // BMG2C12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,  -2,   6,          1,     1,(i*6)+4,           100,   48,   5,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,  -2,   6,          2,     1,(i*6)+4,           100,   48,   5,   i+9,         0);
+    // BMG3C12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,  -3,   6,          1,     1,(i*6)+4,            98,   48,   5,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,  -3,   6,          2,     1,(i*6)+4,            98,   48,   5,   i+9,         0);
+
+    // BMG1A14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,   1,   7,          1,     1,(i*6)+4,           100,   51,   2,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,   1,   7,          2,     1,(i*6)+4,           100,   51,   2,   i+9,         0);
+    // BMG2A14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,   2,   7,          1,     1,(i*6)+4,           100,   50,   2,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,   2,   7,          2,     1,(i*6)+4,           100,   50,   2,   i+9,         0);
+    // BMG3A14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,   3,   7,          1,     1,(i*6)+4,           100,   49,   2,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,   3,   7,          2,     1,(i*6)+4,           100,   49,   2,   i+9,         0);
+
+    // BMG1C14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,  -1,   7,          1,     1,(i*6)+4,           100,   51,   5,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,  -1,   7,          2,     1,(i*6)+4,           100,   51,   5,   i+9,         0);
+    // BMG2C14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,  -2,   7,          1,     1,(i*6)+4,           100,   50,   5,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,  -2,   7,          2,     1,(i*6)+4,           100,   50,   5,   i+9,         0);
+    // BMG3C14 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
+    for(int i=0; i<9; i++) // ML1
+       m_cablingData->addMezzanine(         43, stationIndex,  -3,   7,          1,     1,(i*6)+4,           100,   49,   5,     i,         0);
+    for(int i=0; i<9; i++) // ML2
+       m_cablingData->addMezzanine(         43, stationIndex,  -3,   7,          2,     1,(i*6)+4,           100,   49,   5,   i+9,         0);
+  }
   
   // return  sc; 
    m_chronoSvc->chronoStop(m_chrono2);
   
   
   if( m_verbose ) m_log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
-      << atrc_map->clID() << endreq;
+      << atrc_map->clID() << endmsg;
 
  
 
     
   sc=m_detStore->record( m_cablingData, m_DataLocation );
   if (sc==StatusCode::SUCCESS) {
-    m_log << MSG::INFO<<"New Mapcontainer recoded in the DetStore with key "<<m_DataLocation<<endreq;
+    m_log << MSG::INFO<<"New Mapcontainer recoded in the DetStore with key "<<m_DataLocation<<endmsg;
   }
 
   SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MuonMDT_CablingMap>::ID(), m_DataLocation);
   if (!proxy) {
-    m_log << MSG::ERROR << "Unable to get the proxy for class Cabling Container" << endreq;
+    m_log << MSG::ERROR << "Unable to get the proxy for class Cabling Container" << endmsg;
     return StatusCode::FAILURE;
   }
 
   SG::TransientAddress* tad =  proxy->transientAddress();
   if (!tad) {
-    m_log << MSG::ERROR << "Unable to get the tad" << endreq;
+    m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -438,12 +509,12 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   IAddressProvider* addp = this;
   //  tad->setProvider(addp);
   tad->setProvider(addp, StoreID::DETECTOR_STORE);
-  if( m_verbose ) m_log << MSG::VERBOSE<< "set address provider for Cabling Container" << endreq;
+  if( m_verbose ) m_log << MSG::VERBOSE<< "set address provider for Cabling Container" << endmsg;
  
   //IOVRange range;
   //sc=m_IOVSvc->getRange(1238547719, m_mapFolder, range);
   
-  //m_log << MSG::VERBOSE <<"CondAttrListCollection IOVRange "<<range<<endreq;
+  //m_log << MSG::VERBOSE <<"CondAttrListCollection IOVRange "<<range<<endmsg;
   
   // IOVRange range2;
   //sc=m_IOVSvc->setRange(51038731, m_DataLocation, range, "StoreGateSvc");
@@ -451,7 +522,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   
   //sc=m_IOVSvc->setRange(51038731, m_DataLocation, range);
   //sc=m_IOVSvc->getRange(51038731, m_DataLocation, range2);
-  //m_log << MSG::VERBOSE <<"Container new IOVRange "<<range2<<endreq;
+  //m_log << MSG::VERBOSE <<"Container new IOVRange "<<range2<<endmsg;
   
   m_IOVDbSvc->dropObject(m_mapFolder, true);
   //m_detStore->releaseObject(51038731, "keyMDT"); 
