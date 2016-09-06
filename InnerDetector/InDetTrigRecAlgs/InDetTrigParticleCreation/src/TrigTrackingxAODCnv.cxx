@@ -635,6 +635,7 @@ namespace InDet
     m_dqm_ibl_z.clear();
     m_dqm_ibl_res_x.clear();
     m_dqm_ibl_res_y.clear();
+    m_dqm_ibl_hit_expected_found.clear();
 
     // Bjet
     m_dqm_bj_sumpt = 0;
