@@ -137,8 +137,8 @@ StatusCode
 MuonDetectorTool::initialize()
 {
     //MsgStream log(msgSvc(), name());
-    //log<<MSG::INFO<<"Initialize"<<endreq;
-    msg(MSG::INFO)<<"Initializing ..."<<endreq;
+    //log<<MSG::INFO<<"Initialize"<<endmsg;
+    msg(MSG::INFO)<<"Initializing ..."<<endmsg;
 
     if( !m_condDataTool.empty() ) ATH_CHECK( m_condDataTool.retrieve() );
 
@@ -161,7 +161,7 @@ void MuonDetectorTool::handle(const Incident& inc)
     {
         //MsgStream log(msgSvc(), "MGM::MuonDetectorTool::MuonDetectorTool");
         // Do clear cache built up during the event ...
-        //log<<MSG::DEBUG<<"Clearing cache at end of event "<<endreq;
+        //log<<MSG::DEBUG<<"Clearing cache at end of event "<<endmsg;
       ATH_MSG_DEBUG ("Clearing cache at end of event after EventStore is cleared"); 
       //only for Mdt tubes which are able to rebuild cache on demand 
       m_manager->clearMdtCache();
@@ -201,13 +201,13 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
 
     if (msgLvl(MSG::VERBOSE))        
         msg(MSG::VERBOSE)<<" Show properties (user sett.s or default): LayoutName                 "<<m_layout
-                         <<endreq
+                         <<endmsg
                          <<" Show properties (user sett.s or default): IncludeCutouts             "<<m_includeCutouts
-                         <<endreq
+                         <<endmsg
                          <<" Show properties (user sett.s or default): IncludeCutoutsBog          "<<m_includeCutoutsBog
-                         <<endreq
+                         <<endmsg
                          <<" Show properties (user sett.s or default): IncludeCtbBis              "<<m_includeCtbBis
-                         <<endreq;
+                         <<endmsg;
   
     // Get the detector configuration.
     IGeoModelSvc *geoModel;
@@ -216,22 +216,22 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
     std::string AtlasVersion = geoModel->atlasVersion();
     std::string MuonVersion  = geoModel->muonVersionOverride();
 
-    msg(MSG::INFO)<<"create MuonDetectorTool - package version = "<<PACKAGE_VERSION<<endreq;
-    msg(MSG::INFO)<<"(from GeoModelSvc)    AtlasVersion = <"<< AtlasVersion<<">  MuonVersion = <"<<MuonVersion<<">"<<endreq;
+    msg(MSG::INFO)<<"create MuonDetectorTool - package version = "<<PACKAGE_VERSION<<endmsg;
+    msg(MSG::INFO)<<"(from GeoModelSvc)    AtlasVersion = <"<< AtlasVersion<<">  MuonVersion = <"<<MuonVersion<<">"<<endmsg;
 
     // Unless we are using custom muons, the switch positions are going to
     // come from the database:
 
     std::string detectorKey  = MuonVersion.empty() ? AtlasVersion : MuonVersion;
     std::string detectorNode = MuonVersion.empty() ? "ATLAS" : "MuonSpectrometer";
-    msg(MSG::INFO)<<"Keys for Muon Switches are  (key) "  << detectorKey  << " (node) " << detectorNode << endreq;
+    msg(MSG::INFO)<<"Keys for Muon Switches are  (key) "  << detectorKey  << " (node) " << detectorNode << endmsg;
 
     std::map<std::string,std::string> altAsciiDBMap = std::map<std::string,std::string>();
     if ( MuonVersion == "CUSTOM" ) 
-        msg( MSG::WARNING )<< "Detector Information coming from a custom configuration !!" << endreq; 
+        msg( MSG::WARNING )<< "Detector Information coming from a custom configuration !!" << endmsg; 
     else
     {
-        msg( MSG::DEBUG )<< "Detector Information coming from the database (job options IGNORED)" << endreq;
+        msg( MSG::DEBUG )<< "Detector Information coming from the database (job options IGNORED)" << endmsg;
         IRDBAccessSvc *accessSvc;
         service("RDBAccessSvc",accessSvc);
         IRDBRecordset_ptr switchSet = accessSvc->getRecordsetPtr("MuonSwitches", detectorKey, detectorNode);
@@ -244,10 +244,10 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
         if (MuonVersion == "") {
             MuonVersion = accessSvc->getChildTag("MuonSpectrometer",detectorKey,detectorNode);
             msg(MSG::INFO)<<"(from GeoModelSvc) in AtlasVersion = <"<< AtlasVersion<<">  default MuonVersion is <"
-                          <<MuonVersion<<">"<<endreq;
+                          <<MuonVersion<<">"<<endmsg;
         }
 
-        msg(MSG::DEBUG)<<" m_altAsztFile: "<<m_altAsztFile<<endreq;
+        msg(MSG::DEBUG)<<" m_altAsztFile: "<<m_altAsztFile<<endmsg;
         // use ascii file to read in ASZT parameters
 	if (m_altAsztFile != "" )
 	  altAsciiDBMap.insert(std::make_pair("ASZT",m_altAsztFile));  	
@@ -266,52 +266,52 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
     { 
         msg(MSG::ERROR) 
             << "Could not find GeoModelExperiment ATLAS" 
-            << endreq; 
+            << endmsg; 
         return (StatusCode::FAILURE); 
     }
 
     if (!m_useCscIntAlines) m_controlCscIntAlines = 0;
     msg(MSG::INFO)
-      <<"Properties have been set as follows: "<<endreq
-      <<"    LayoutName                     "<< m_layout.substr(0,1)<<endreq
-      <<"    IncludeCutouts                 "<< m_includeCutouts<<endreq
-      <<"    IncludeCutoutsBog              "<< m_includeCutoutsBog<<endreq
-      <<"    IncludeCtbBis                  "<< m_includeCtbBis<<endreq
-      <<"    ControlAlines                  "<< m_controlAlines<<endreq
-      <<"    MinimalGeoFlag                 "<< m_minimalGeoFlag<<endreq 
-      <<"    EnableCscIntAlignment          "<<m_useCscIntAlines<<endreq
-      <<"    EnableCscIntAlignmentFromGM    "<<m_useCscIntAlinesFromGM<<endreq;
+      <<"Properties have been set as follows: "<<endmsg
+      <<"    LayoutName                     "<< m_layout.substr(0,1)<<endmsg
+      <<"    IncludeCutouts                 "<< m_includeCutouts<<endmsg
+      <<"    IncludeCutoutsBog              "<< m_includeCutoutsBog<<endmsg
+      <<"    IncludeCtbBis                  "<< m_includeCtbBis<<endmsg
+      <<"    ControlAlines                  "<< m_controlAlines<<endmsg
+      <<"    MinimalGeoFlag                 "<< m_minimalGeoFlag<<endmsg 
+      <<"    EnableCscIntAlignment          "<<m_useCscIntAlines<<endmsg
+      <<"    EnableCscIntAlignmentFromGM    "<<m_useCscIntAlinesFromGM<<endmsg;
     if (m_useCscIntAlines) msg(MSG::INFO)
-		  <<"    ControlCscIntAlines            "<< m_controlCscIntAlines <<endreq;
-    else msg(MSG::INFO)<<"    ControlCscIntAlines   reset to "<< m_controlCscIntAlines <<endreq;
+		  <<"    ControlCscIntAlines            "<< m_controlCscIntAlines <<endmsg;
+    else msg(MSG::INFO)<<"    ControlCscIntAlines   reset to "<< m_controlCscIntAlines <<endmsg;
     msg(MSG::INFO)
-      <<"    EnableMdtDeformations          "<<m_enableMdtDeformations<<endreq;
+      <<"    EnableMdtDeformations          "<<m_enableMdtDeformations<<endmsg;
     msg(MSG::INFO)
-      <<"    EnableMdtAsBuiltParameters     "<<m_enableMdtAsBuiltParameters<<endreq;
+      <<"    EnableMdtAsBuiltParameters     "<<m_enableMdtAsBuiltParameters<<endmsg;
 
     if ( m_stationSelection > 0) {
 		StationSelector::SetSelectionType( m_stationSelection);
         if ( (m_selectedStations.size()+ m_selectedStEta.size()+ m_selectedStPhi.size()) < 1){
-            msg(MSG::ERROR) << " **** Badly set Option "<< endreq
-                            << " **** SelectedStations size =" << m_selectedStations.size()<<endreq
-                            << " **** SelectedStJzz    size =" << m_selectedStations.size()<<endreq
-                            << " **** SelectedStJff    size =" << m_selectedStations.size()<<endreq
-                            << " **** while StationSelection = 1"<< endreq;
+            msg(MSG::ERROR) << " **** Badly set Option "<< endmsg
+                            << " **** SelectedStations size =" << m_selectedStations.size()<<endmsg
+                            << " **** SelectedStJzz    size =" << m_selectedStations.size()<<endmsg
+                            << " **** SelectedStJff    size =" << m_selectedStations.size()<<endmsg
+                            << " **** while StationSelection = 1"<< endmsg;
             return( StatusCode::FAILURE );
         }
         for (unsigned int i=0; i<m_selectedStations.size() ; i++){
-            msg(MSG::INFO) << "          Selected stations      " << m_selectedStations[i] << endreq;
+            msg(MSG::INFO) << "          Selected stations      " << m_selectedStations[i] << endmsg;
         }
   
         if ( m_selectedStEta.size() > 0 )
         {
             for (unsigned int i=0; i<m_selectedStEta.size() ; i++)
-                msg(MSG::INFO) << "          Selected Jzz locations  " << m_selectedStEta[i] << endreq;
+                msg(MSG::INFO) << "          Selected Jzz locations  " << m_selectedStEta[i] << endmsg;
         }
         if ( m_selectedStPhi.size() > 0 )
         {
             for (unsigned int i=0; i<m_selectedStPhi.size() ; i++)
-                msg(MSG::INFO) << "          Selected Jff locations  " << m_selectedStPhi[i] << endreq;
+                msg(MSG::INFO) << "          Selected Jff locations  " << m_selectedStPhi[i] << endmsg;
         }
     }
   
@@ -323,7 +323,7 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
     if (StatusCode::SUCCESS != detStore->retrieve(theMaterialManager, "MATERIALS")) {
         msg(MSG::ERROR) 
             << "Could not find Material Manager MATERIALS" 
-            << endreq; 
+            << endmsg; 
         return (StatusCode::FAILURE); 
     } 
 
@@ -388,9 +388,9 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
             //
             GeoPhysVol *world=&*theExpt->getPhysVol();
             theFactory.create(world);
-            //      log << MSG::INFO << "CREATING MuonDetectorNode; MM=" << &*theMaterialManager<< endreq;
+            //      log << MSG::INFO << "CREATING MuonDetectorNode; MM=" << &*theMaterialManager<< endmsg;
         } catch (std::bad_alloc) {
-            msg(MSG::FATAL)<< "Could not create new MuonDetectorNode!" << endreq;
+            msg(MSG::FATAL)<< "Could not create new MuonDetectorNode!" << endmsg;
             return StatusCode::FAILURE; 
         }
 
@@ -412,7 +412,7 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
         //Recod in StoreGate the ABline historical containers
 	ALineMapContainer * amap = m_manager->ALineContainer();
 	BLineMapContainer * bmap = m_manager->BLineContainer();
-	msg(MSG::DEBUG)<<"A/BLineMapContainers are @ <"<<(uintptr_t)amap<<"> and <"<<(uintptr_t)bmap<<">"<<endreq;
+	msg(MSG::DEBUG)<<"A/BLineMapContainers are @ <"<<(uintptr_t)amap<<"> and <"<<(uintptr_t)bmap<<">"<<endmsg;
 	
 	// is this really needed ???????????
         if ((detStore->record(amap,"MDT_A_LINE_CORR")).isFailure()) return StatusCode::FAILURE;
@@ -449,25 +449,25 @@ MuonDetectorTool::create( StoreGateSvc* detStore )
         // this way any client will ask the DetStore for them will not activate their converters 
         // StatusCode scridh = detStore->record(theFactory.getDetectorManager()->mdtIdHelper(), "MDTIDHELPER");
         // if (scridh != StatusCode::SUCCESS) msg(MSG::ERROR) 
-        //                                        << "Could not record MDTIDHELPER" << endreq;
+        //                                        << "Could not record MDTIDHELPER" << endmsg;
         // scridh = detStore->record(theFactory.getDetectorManager()->rpcIdHelper(), "RPCIDHELPER");
         // if (scridh != StatusCode::SUCCESS) msg(MSG::ERROR) 
-        //                                        << "Could not record RPCIDHELPER" << endreq; 
+        //                                        << "Could not record RPCIDHELPER" << endmsg; 
         // scridh = detStore->record(theFactory.getDetectorManager()->tgcIdHelper(), "TGCIDHELPER");
         // if (scridh != StatusCode::SUCCESS) msg(MSG::ERROR) 
-        //                                        << "Could not record TGCIDHELPER" << endreq; 
+        //                                        << "Could not record TGCIDHELPER" << endmsg; 
         // scridh = detStore->record(theFactory.getDetectorManager()->cscIdHelper(), "CSCIDHELPER");
         // if (scridh != StatusCode::SUCCESS) msg(MSG::ERROR) 
-        //                                        << "Could not record CSCIDHELPER" << endreq; 
+        //                                        << "Could not record CSCIDHELPER" << endmsg; 
         //}
         theExpt->addManager(theFactory.getDetectorManager());
 
-        //     log<<MSG::INFO<<"ToolHandle in create - "<<m_condDataTool<<endreq;
+        //     log<<MSG::INFO<<"ToolHandle in create - "<<m_condDataTool<<endmsg;
         //     IMuonAlignmentDbTool* pAliTool = &*m_condDataTool;
         //     //and why not also print out this pAliTool pointer ? The &* is the trick to get the pointer to the real tool.
-        //     log<<MSG::INFO<<"pointer to the concrete tool in create - "<<pAliTool<<endreq;
+        //     log<<MSG::INFO<<"pointer to the concrete tool in create - "<<pAliTool<<endmsg;
         //     std::string afn = m_condDataTool->aLineFolderName();
-        //     log << MSG::INFO << "A-line folder name is "<<afn << endreq;
+        //     log << MSG::INFO << "A-line folder name is "<<afn << endmsg;
 
     }
 
@@ -513,7 +513,7 @@ MuonDetectorTool::registerCallback( StoreGateSvc* detStore)
 
     if (m_accessCondDb == 0) 
     {
-        msg(MSG::INFO)<<"No data will be read from the condition DB"<<endreq;
+        msg(MSG::INFO)<<"No data will be read from the condition DB"<<endmsg;
         if (m_asciiCondData == 0) return StatusCode::FAILURE;//!< This is OK: We don't want to look at condition data !
     }
 
@@ -531,7 +531,7 @@ MuonDetectorTool::registerCallback( StoreGateSvc* detStore)
 
     if( !m_condDataTool.empty() ){
       std::vector<std::string> folderNames = m_condDataTool->abLineFolderNames();
-      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endreq;
+      msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endmsg;
       int ic=0;
       for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
       {
@@ -540,18 +540,18 @@ MuonDetectorTool::registerCallback( StoreGateSvc* detStore)
           if (detStore->contains<CondAttrListCollection>(*ifld)) {
               aFolderFound=true;
               foundFolderNames.push_back(*ifld);
-              msg(MSG::INFO)<<"     found in the DetStore"<<endreq;
+              msg(MSG::INFO)<<"     found in the DetStore"<<endmsg;
           }
           else
-              msg(MSG::INFO)<<" NOT found in the DetStore"<<endreq;
+              msg(MSG::INFO)<<" NOT found in the DetStore"<<endmsg;
       }
     }
 
     if (!aFolderFound) 
     {
-        msg(MSG::INFO)<<"CondAttrListCollection not found in the DetectorStore"<<endreq
-                      <<"Unable to register callback on CondAttrListCollection for any folder in the list "<<endreq
-                      <<"This is OK unless you expect to read alignment and deformations from COOL "<<endreq;
+        msg(MSG::INFO)<<"CondAttrListCollection not found in the DetectorStore"<<endmsg
+                      <<"Unable to register callback on CondAttrListCollection for any folder in the list "<<endmsg
+                      <<"This is OK unless you expect to read alignment and deformations from COOL "<<endmsg;
         if (m_asciiCondData!=0) 	
 	{
             int dummyint;
@@ -573,9 +573,9 @@ MuonDetectorTool::registerCallback( StoreGateSvc* detStore)
         if (sc.isFailure())
         {
             msg(MSG::WARNING)<<"Unable to register call-back to MuonDetectorTool::align() against folder <"<<*ifld<<">"
-               <<" This is OK unless you expect to read alignment and deformations from COOL "<<endreq;
+               <<" This is OK unless you expect to read alignment and deformations from COOL "<<endmsg;
         }
-        else msg(MSG::INFO)<<"Call-back to MuonDetectorTool::align() against folder "<<*ifld<<" registered "<<endreq;
+        else msg(MSG::INFO)<<"Call-back to MuonDetectorTool::align() against folder "<<*ifld<<" registered "<<endmsg;
     }
     
     return StatusCode::SUCCESS;
@@ -584,18 +584,18 @@ MuonDetectorTool::registerCallback( StoreGateSvc* detStore)
 StatusCode MuonDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
     //MsgStream log(msgSvc(), name());
-    msg(MSG::INFO)<<"In MuonDetectorTool::align"<<endreq;
+    msg(MSG::INFO)<<"In MuonDetectorTool::align"<<endmsg;
     if (m_accessCondDb == 0) 
     {
-        msg(MSG::INFO)<<"Access to the cond DB not enabled by MuonGeoModel specific job-options (UseConditionDb=0)"<<endreq;
+        msg(MSG::INFO)<<"Access to the cond DB not enabled by MuonGeoModel specific job-options (UseConditionDb=0)"<<endmsg;
         if (m_asciiCondData==0) return StatusCode::SUCCESS;
     }	
-    if (m_asciiCondData==0) msg(MSG::INFO)<<"Access to the cond DB enabled by MuonGeoModel specific job-options (UseConditionDb=1)"<<endreq;
+    if (m_asciiCondData==0) msg(MSG::INFO)<<"Access to the cond DB enabled by MuonGeoModel specific job-options (UseConditionDb=1)"<<endmsg;
     
-    msg(MSG::DEBUG)<<"ToolHandle in align - "<<m_condDataTool<<endreq;
+    msg(MSG::DEBUG)<<"ToolHandle in align - "<<m_condDataTool<<endmsg;
     IMuonAlignmentDbTool* pAliTool = &*m_condDataTool;
     //and why not also print out this pAliTool pointer ? The &* is the trick to get the pointer to the real tool.
-    msg(MSG::DEBUG)<<"pointer to the concrete tool in align - "<<(uintptr_t)pAliTool<<endreq;
+    msg(MSG::DEBUG)<<"pointer to the concrete tool in align - "<<(uintptr_t)pAliTool<<endmsg;
 
     std::ofstream geoModelStats;
     int mem = 0;
@@ -617,15 +617,15 @@ StatusCode MuonDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if (sc.isRecoverable())
     {
         msg(MSG::WARNING)
-	   <<"Recoverable error while loading the Alignment and Deformation parameters"<<endreq
-           <<"part of alignment data requested might be missing"<<endreq;
+	   <<"Recoverable error while loading the Alignment and Deformation parameters"<<endmsg
+           <<"part of alignment data requested might be missing"<<endmsg;
     }
     else if (sc.isFailure())
     {
-        msg(MSG::ERROR)<<"Unable to load the Alignment and Deformation parameters"<<endreq;
+        msg(MSG::ERROR)<<"Unable to load the Alignment and Deformation parameters"<<endmsg;
         return sc;
     }
-    msg(MSG::INFO)<<"Alignment and Deformation parameters loaded and stored in the DetectorStore"<<endreq;
+    msg(MSG::INFO)<<"Alignment and Deformation parameters loaded and stored in the DetectorStore"<<endmsg;
 
     if (m_dumpMemoryBreakDown)
     {
@@ -637,8 +637,8 @@ StatusCode MuonDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
     }
 
     sc = m_manager->updateAlignment(m_condDataTool->ALineContainer());
-    if (sc.isFailure()) msg(MSG::ERROR)<<"Unable to updateAlignment"<<endreq;
-    else msg(MSG::DEBUG)<<"updateAlignment DONE"<<endreq;
+    if (sc.isFailure()) msg(MSG::ERROR)<<"Unable to updateAlignment"<<endmsg;
+    else msg(MSG::DEBUG)<<"updateAlignment DONE"<<endmsg;
 
     if (m_dumpMemoryBreakDown)
     {
@@ -651,8 +651,8 @@ StatusCode MuonDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
 
     sc = m_manager->updateDeformations(m_condDataTool->BLineContainer());
-    if (sc.isFailure()) msg(MSG::ERROR)<<"Unable to updateDeformations"<<endreq;
-    else msg(MSG::DEBUG)<<"updateDeformations DONE"<<endreq;
+    if (sc.isFailure()) msg(MSG::ERROR)<<"Unable to updateDeformations"<<endmsg;
+    else msg(MSG::DEBUG)<<"updateDeformations DONE"<<endmsg;
 
     if (m_dumpMemoryBreakDown)
     {
@@ -664,8 +664,8 @@ StatusCode MuonDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
     }
 
     sc = m_manager->updateAsBuiltParams(m_condDataTool->AsBuiltContainer());
-    if (sc.isFailure()) msg(MSG::ERROR)<<"Unable to updateAsBuiltParams"<<endreq;
-    else msg(MSG::DEBUG)<<"updateAsBuiltParams DONE"<<endreq;
+    if (sc.isFailure()) msg(MSG::ERROR)<<"Unable to updateAsBuiltParams"<<endmsg;
+    else msg(MSG::DEBUG)<<"updateAsBuiltParams DONE"<<endmsg;
 
     if (m_dumpMemoryBreakDown)
     {
@@ -677,8 +677,8 @@ StatusCode MuonDetectorTool::align(IOVSVC_CALLBACK_ARGS_P(I,keys))
     }
     
     if (!m_useCscIntAlinesFromGM) sc = m_manager->updateCSCInternalAlignmentMap(m_condDataTool->ILineContainer());
-    if (sc.isFailure() && !m_useCscIntAlinesFromGM) msg(MSG::ERROR)<<"Unable to updateCSCInternalAlignmentMap"<<endreq;
-    else msg(MSG::DEBUG)<<"updateCSCInternalAlignmentMap DONE or used via GM"<<endreq;
+    if (sc.isFailure() && !m_useCscIntAlinesFromGM) msg(MSG::ERROR)<<"Unable to updateCSCInternalAlignmentMap"<<endmsg;
+    else msg(MSG::DEBUG)<<"updateCSCInternalAlignmentMap DONE or used via GM"<<endmsg;
 
     if (m_dumpMemoryBreakDown && !m_useCscIntAlinesFromGM)
     {

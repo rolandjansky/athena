@@ -101,7 +101,7 @@ bool StationSelector::select(StationIterator it)
                        
          if (myflag) 
 		 {
-		 	log<<MSG::INFO<<" StationSelector: removing station "<<name<<endreq;
+		 	log<<MSG::INFO<<" StationSelector: removing station "<<name<<endmsg;
 		    return false;
 		 }
 
