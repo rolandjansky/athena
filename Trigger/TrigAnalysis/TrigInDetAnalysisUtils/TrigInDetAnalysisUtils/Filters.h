@@ -208,18 +208,18 @@ class Filter_Combined : public TrackFilter {
 
  public:
 
- Filter_Combined( TrackFilter* f1, TrackFilter* f2) : mf1(f1), mf2(f2), m_roi(0) { } 
+ Filter_Combined( TrackFilter* f1, TrackFilter* f2) : m_f1(f1), m_f2(f2), m_roi(0) { } 
 
   void setRoi( TIDARoiDescriptor* r ) { m_roi = r; } 
 
   bool select( const TIDA::Track* t, const TIDARoiDescriptor* r=0 ) {
-    //    std::cout << this << "\tfilter1 " << mf1->select(t,r) << "\tfilter2 " << mf2->select(t,r) << "\troi " << m_roi << std::endl; 
+    //    std::cout << this << "\tfilter1 " << m_f1->select(t,r) << "\tfilter2 " << m_f2->select(t,r) << "\troi " << m_roi << std::endl; 
 
     if ( r!=0 ) m_roi = r;
-    if ( m_roi==0 ) return ( mf1->select(t,r) && mf2->select(t,r) );
+    if ( m_roi==0 ) return ( m_f1->select(t,r) && m_f2->select(t,r) );
     else {
 
-      if ( m_roi->isFullscan() ) return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
+      if ( m_roi->isFullscan() ) return ( m_f1->select(t,m_roi) && m_f2->select(t,m_roi) );
 
       bool contained_phi = false;
 
@@ -230,7 +230,7 @@ class Filter_Combined : public TrackFilter {
 	   ( contained_phi ) &&
 	   ( t->z0()>m_roi->zedMinus() &&  t->z0()<m_roi->zedPlus() ) ) { 
 	//	if ( m_debugPrintout ) std::cout << "\tFilter::inside roi" << std::endl;
-	return ( mf1->select(t,m_roi) && mf2->select(t,m_roi) );
+	return ( m_f1->select(t,m_roi) && m_f2->select(t,m_roi) );
       }
       else  return false;
 
@@ -239,8 +239,8 @@ class Filter_Combined : public TrackFilter {
 
  private:
 
-  TrackFilter* mf1;
-  TrackFilter* mf2;
+  TrackFilter* m_f1;
+  TrackFilter* m_f2;
 
   const TIDARoiDescriptor* m_roi;
 
@@ -251,16 +251,16 @@ class Filter_Combined : public TrackFilter {
 //class Filter_TruthParticle : public TrackFilter {  
 //
 //	public:
-//		Filter_TruthParticle( TrackFilter* f1) : mf1(f1), m_roi(0) { } 
+//		Filter_TruthParticle( TrackFilter* f1) : m_f1(f1), m_roi(0) { } 
 //		void setRoi( TIDARoiDescriptor* r ) { m_roi = r; } 
 //		bool select( const Track* t, const TIDARoiDescriptor* r=0 ) {
-//			return ( mf1->select(t,r) && t->hitPattern()>0 && t->hitPattern()<200000);
+//			return ( m_f1->select(t,r) && t->hitPattern()>0 && t->hitPattern()<200000);
 //		}  
 //
 //	private:
 //
 //		const TIDARoiDescriptor* m_roi;
-//		TrackFilter* mf1;
+//		TrackFilter* m_f1;
 //
 //};
 
