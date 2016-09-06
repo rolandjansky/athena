@@ -161,8 +161,8 @@ namespace MuGirlNS
 
     //<S>==================================================================
     // stauCandidate definitions
-    #define SPEEDOFLIGHT 0.299792458;   //[m/ns]
-    #define RPCINVSIGVEL 4.8;       //[ns/m]
+    #define SPEEDOFLIGHT 0.299792458    //[m/ns]
+    #define RPCINVSIGVEL 4.8        //[ns/m]
     #define STEPINBETA 0.01         //The step size in the loop
     #define TDC2NS 0.78125          //1tdc=0.78125ns
 
