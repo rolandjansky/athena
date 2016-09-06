@@ -209,12 +209,36 @@ double MdtReadoutElement::getTubeLengthForCaching(int tubeLayer, int tube) const
       if (nGrandchildren <= 0) return tlength;
       // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
       int ii = (tubeLayer-1)*m_ntubesperlayer+tube;
+      if( (getStationName()).find("BMG") != std::string::npos ) {
+        // usually the tube number corresponds to the child number, however for
+        // BMG chambers full tubes are skipped during the building process
+        // therefore the matching needs to be done via the volume ID
+        int tubenbr = -1;
+        int layernbr = -1;
+        bool tubefound = false;
+        for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+           tubenbr = cv->getIdOfChildVol(kk) % 100;
+           layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
+           if( tubenbr == tube && layernbr == tubeLayer) {
+             ii = kk;
+             if (reLog().level() <= MSG::DEBUG)
+	        reLog() << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubeLayer
+                        << ") - output match : tube(" << tubenbr << "), layer(" << layernbr << ")" << endmsg;
+             tubefound = true;
+             break;
+           }
+        }
+        if(!tubefound) reLog()<<MSG::DEBUG << "no volume corresponding volume found for " << getStationName() << " stEta " << getStationEta()
+                                           << " stPhi " << getStationPhi()<< " ml " << getMultilayer() << " layer " << tubeLayer << " tube " << tube << endreq;
+      }
       if (ii>=nGrandchildren) 
 	{
-	  reLog() << MSG::WARNING << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
-		  << " stPhi " << getStationPhi() << " multilayer "<<getMultilayer()<<" has cutouts, nChild = "<<nGrandchildren
-		  <<" --- getTubeLength is looking for child with index ii="<<ii<<" for tubeL and tube = "<<tubeLayer<<" "<<tube<< endreq;
-	  reLog() << MSG::WARNING << "returning nominalTubeLength "<<endreq; 
+	  if( (getStationName()).find("BMG") == std::string::npos ) {
+	    reLog() << MSG::WARNING << " MdtReadoutElement " << getStationName() << " stEta " << getStationEta()
+		    << " stPhi " << getStationPhi() << " multilayer "<<getMultilayer()<<" has cutouts, nChild = "<<nGrandchildren
+		    <<" --- getTubeLength is looking for child with index ii="<<ii<<" for tubeL and tube = "<<tubeLayer<<" "<<tube<< endreq;
+	    reLog() << MSG::WARNING << "returning nominalTubeLength "<<endreq; 
+	  }
 	  //ii = nGrandchildren-1;
 	  return tlength;
 	}
@@ -550,13 +574,35 @@ MdtReadoutElement::nodeform_localTubePos(int multilayer, int tubelayer, int tube
         int nGrandchildren = cv->getNChildVols();
         // child vol 0 is foam; 1 to (nGrandchildren-1) should be tubes
         int ii = (tubelayer-1)*m_ntubesperlayer+tube;
+        if( (getStationName()).find("BMG") != std::string::npos ) {
+          // usually the tube number corresponds to the child number, however for
+          // BMG chambers full tubes are skipped during the building process
+          // therefore the matching needs to be done via the volume ID
+          int tubenbr = -1;
+          int layernbr = -1;
+          bool tubefound = false;
+          for(unsigned int kk=0; kk < cv->getNChildVols(); kk++) {
+             tubenbr = cv->getIdOfChildVol(kk) % 100;
+             layernbr = ( cv->getIdOfChildVol(kk) - tubenbr ) / 100;
+             if( tubenbr == tube && layernbr == tubelayer) {
+               ii = kk;
+               if (reLog().level() <= MSG::DEBUG)
+	          reLog() << MSG::DEBUG << " MdtReadoutElement tube match found for BMG - input : tube(" << tube  << "), layer(" <<  tubelayer
+                          << ") - output match : tube(" << tubenbr << "), layer(" << layernbr << ")" << endmsg;
+               tubefound = true;
+               break;
+             }
+          }
+          if(!tubefound) reLog()<<MSG::DEBUG << "no volume corresponding volume found for " << getStationName() << " stEta " << getStationEta()
+                                             << " stPhi " << getStationPhi() <<" ml " << multilayer << " layer " << tubelayer << " tube " << tube << endreq;
+        }
         HepGeom::Transform3D tubeTrans = cv->getXToChildVol(ii);
         PVConstLink tv = cv->getChildVol(ii);
         double maxtol = 0.0000001;
 
-        if (std::abs(xtube - tubeTrans[0][3]) > maxtol ||
+        if ( (std::abs(xtube - tubeTrans[0][3]) > maxtol ||
             //std::abs(ytube - tubeTrans[1][3]) > maxtol && std::abs(tubeTrans[1][3]) > maxtol ||
-            std::abs(ztube - tubeTrans[2][3]) > maxtol) {
+            std::abs(ztube - tubeTrans[2][3]) > maxtol) && (getStationName()).find("BMG") == std::string::npos ) {
           reLog()<<MSG::ERROR << "taking localTubepos from RAW geoModel!!! MISMATCH IN local Y-Z (amdb) for a MDT with cutouts "
                  << endreq << ": from tube-id and pitch, tube pos = " << xtube
                  << ", " << ytube << ", " << ztube
