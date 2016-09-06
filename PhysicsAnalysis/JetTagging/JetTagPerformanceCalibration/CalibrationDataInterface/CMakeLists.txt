@@ -27,4 +27,3 @@ atlas_add_library( CalibrationDataInterfaceLib
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-
