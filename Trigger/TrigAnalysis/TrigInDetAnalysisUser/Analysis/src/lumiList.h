@@ -6,7 +6,7 @@
 //  
 //   Copyright (C) 2010 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: lumiList.h 513209 2012-08-10 13:21:01Z sutt $
+//   $Id: lumiList.h 765633 2016-07-31 08:52:35Z sutt $
 
 
 #ifndef __LUMILIST_H
@@ -21,29 +21,43 @@ class lumiList : public std::map< int, std::vector<std::pair<int,int> > >  {
 private:
 
   /// vector of start-end numbers for each run
-  typedef  std::vector<std::pair<int,int> >  list_type;
-  
+  typedef  std::vector< std::pair<int,int> >    list_type;
+ 
+  /// full map type 
+  typedef  std::map< int, list_type >           full_type;
+
+  /// iterator over the full map
+  typedef  std::map< int, list_type >::iterator iterator;
+
 public:
   
-  lumiList() { } 
+  lumiList(bool b=true) : mterse(b) {  } 
 
   ~lumiList() { } 
 
+  void setterse(bool b) { mterse=b; }
 
   /// add a lumi block range for a given run
   void addRange(int _run, int _start, int _end) {
 
-    std::map<int, list_type >::iterator it = find(_run);
+    static bool first = true;
 
-    if ( it == end() ) {       
-      std::pair< std::map<int, list_type >::iterator, bool> in = 
-	insert( std::pair<int, list_type >( _run, list_type() ) );
+    if ( first && mterse ) std::cout << "lumiList::addRange() terse output - only printing first range from each run" << std::endl;
+
+    iterator it = find(_run);
+
+    bool printout       = false;
+
+    if ( it == end() ) {
+      printout = true;
+      std::pair< iterator, bool> in = insert( std::pair<int, list_type >( _run, list_type() ) );
       it = in.first;
+      first = false;
     }
    
     it->second.push_back( std::pair<int,int>(_start,_end) );
    
-    std::cout << "lumiList::addRange() run " << _run << ";\t" << _start << " - " << _end << std::endl;
+    if ( !mterse || printout ) std::cout << "lumiList::addRange() run " << _run << ";\t" << _start << " - " << _end << std::endl;
   } 
 
 
@@ -65,6 +79,10 @@ public:
     }
     return false; 
   }    
+
+private: 
+
+  bool mterse;
 
 };
 
