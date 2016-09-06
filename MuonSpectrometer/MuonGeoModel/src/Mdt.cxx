@@ -167,6 +167,87 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
                 << " cutoutNtubes[" << i << "] = " << cutoutNtubes[i]
                 << std::endl; 
 
+    // encoding BMG chambers in Nsteps: Nsteps negative => BMG chamber
+    // a/ 1st digit: eta index (1 to 3)
+    // b/ 2nd digit: 1 == A side, 2 == C side
+    // c/ 3rd digit: multilayer (1 or 2)
+    // d/ last 2 digits: sector (12 or 14)
+
+    if( logVolName.find("MDT10") != std::string::npos ) {
+      // multilayer 1 of BMG1A12, BMG2A12, BMG3A12, BMG1C14, BMG2C14, BMG3C14
+      if( vcutdef[0]->icut == 1 ) { // these are BMG1A12 and BMG1C14
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -11112; // cut angle for A side positive BMG1A12
+        else Nsteps = -12114; // cut angle for C side negative BMG1C14
+      } else if( vcutdef[0]->icut == 2 ) {
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -21112; // cut angle for A side positive BMG2A12
+        else Nsteps = -22114; // cut angle for C side negative BMG2C14
+      } else if( vcutdef[0]->icut == 3 ) {
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31112; // cut angle for A side positive BMG3A12
+        else Nsteps = -32114; // cut angle for C side negative BMG3C14
+      } else {
+        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
+        std::abort();
+      }
+    } else if( logVolName.find("MDT11") != std::string::npos ) {
+      // multilayer 1 of BMG1A14, BMG2A14, BMG3A14, BMG1C12, BMG2C12, BMG3C12
+      if( vcutdef[0]->icut == 1 ) { // these are BMG1A12 and BMG1C14
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -11114; // cut angle for A side positive BMG1A14
+        else Nsteps = -12112; // cut angle for C side negative BMG1C12
+      } else if( vcutdef[0]->icut == 2 ) {
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -21114; // cut angle for A side positive BMG2A14
+        else Nsteps = -22112; // cut angle for C side negative BMG2C12
+      } else if( vcutdef[0]->icut == 3 ) {
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31114; // cut angle for A side positive BMG3A14
+        else Nsteps = -32112; // cut angle for C side negative BMG3C12
+      } else {
+        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
+        std::abort();
+      }
+    } else if( logVolName.find("MDT12") != std::string::npos ) {
+      // multilayer 2 of BMG1A12, BMG2A12, BMG3A12, BMG1C14, BMG2C14, BMG3C14
+      if( vcutdef[0]->icut == 1 ) { // these are BMG1A12 and BMG1C14
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -11212; // cut angle for A side positive BMG1A12
+        else Nsteps = -12214; // cut angle for C side negative BMG1C14
+      } else if( vcutdef[0]->icut == 2 ) {
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -21212; // cut angle for A side positive BMG2A12
+        else Nsteps = -22214; // cut angle for C side negative BMG2C14
+      } else if( vcutdef[0]->icut == 3 ) {
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31212; // cut angle for A side positive BMG3A12
+        else Nsteps = -32214; // cut angle for C side negative BMG3C14
+      } else {
+        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
+        std::abort();
+      }
+    } else if( logVolName.find("MDT13") != std::string::npos ) {
+      // multilayer 2 of BMG1A14, BMG2A14, BMG3A14, BMG1C12, BMG2C12, BMG3C12
+      if( vcutdef[0]->icut == 1 ) { // these are BMG1A12 and BMG1C14
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -11214; // cut angle for A side positive BMG1A14
+        else Nsteps = -12212; // cut angle for C side negative BMG1C12
+      } else if( vcutdef[0]->icut == 2 ) {
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -21214; // cut angle for A side positive BMG2A14
+        else Nsteps = -22212; // cut angle for C side negative BMG2C12
+      } else if( vcutdef[0]->icut == 3 ) {
+        if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31214; // cut angle for A side positive BMG3A14
+        else Nsteps = -32212; // cut angle for C side negative BMG3C12
+      } else {
+        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
+        std::abort();
+      }
+    }
+
+    if ( logVolName.find("MDT10") != std::string::npos
+       || logVolName.find("MDT11") != std::string::npos
+       || logVolName.find("MDT12") != std::string::npos
+       || logVolName.find("MDT13") != std::string::npos ) {
+       for (int i = 0; i < 5; i++) {
+           cutoutNtubes[i] = 0;
+           cutoutFullLength[i] = true;
+           cutoutXtubes[i] = 0.;
+           cutoutTubeLength[i] = width;
+           cutoutYmax[i] = 0.;
+        }
+    }
+
     // Pass information to multilayer and MdtComponent
     layer->cutoutNsteps = Nsteps;
     m_component->cutoutTubeXShift = 0.;

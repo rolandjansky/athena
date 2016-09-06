@@ -39,7 +39,7 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
     MsgStream log(m_msgSvc, "MuGM:RDBReadAtlas");
     m_SCdbaccess = StatusCode::FAILURE;
 
-    log<<MSG::INFO<<"Start retriving dbObjects with tag = <"<<geoTag<<"> node <"<<geoNode<<">"<<endreq;
+    log<<MSG::INFO<<"Start retriving dbObjects with tag = <"<<geoTag<<"> node <"<<geoNode<<">"<<endmsg;
     // here putting RDB data in private "objects" form
     IRDBQuery* dbdata;
     dbdata = m_pRDBAccess->getQuery("ATYP",geoTag,geoNode);
@@ -108,46 +108,46 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
     m_wsup= m_dhwsup->data();
     // Mdt AsBuilt parameters
     dbdata = m_pRDBAccess->getQuery("XtomoData",geoTag,geoNode);
-    log<<MSG::INFO<<"After getQuery XtomoData"<<endreq;    
+    log<<MSG::INFO<<"After getQuery XtomoData"<<endmsg;    
     m_dhxtomo = new DblQ00Xtomo(dbdata);
-    log<<MSG::INFO<<"After new DblQ00Xtomo"<<endreq;  
+    log<<MSG::INFO<<"After new DblQ00Xtomo"<<endmsg;  
     m_xtomo = m_dhxtomo->data();
-    log<<MSG::INFO<<"After m_dhxtomo.data()"<<endreq; 
+    log<<MSG::INFO<<"After m_dhxtomo.data()"<<endmsg; 
 
     // ASZT
     m_dhaszt=0;
     if (asciiFileDBMap!=0 && 
 	asciiFileDBMap->find("ASZT") != asciiFileDBMap->end()) {         
-      log<<MSG::INFO<<"getting aszt from ascii file - named <"<<asciiFileDBMap->find("ASZT")->second<<">"<<endreq;
-      log<<MSG::INFO<<"Ascii aszt input has priority over A-lines in ORACLE; A-lines from Oracle will not be read"<<endreq;
+      log<<MSG::INFO<<"getting aszt from ascii file - named <"<<asciiFileDBMap->find("ASZT")->second<<">"<<endmsg;
+      log<<MSG::INFO<<"Ascii aszt input has priority over A-lines in ORACLE; A-lines from Oracle will not be read"<<endmsg;
       //      dbdata=0;
       m_dhaszt = new DblQ00Aszt(asciiFileDBMap->find("ASZT")->second);
       if (m_dhaszt->size()==0) 
-	log<<MSG::ERROR<<"Couldn't read ASZT from ascii file!"<<endreq;
-      else log<<MSG::INFO<<"N. of lines read = "<<m_dhaszt->size()<<endreq;
+	log<<MSG::ERROR<<"Couldn't read ASZT from ascii file!"<<endmsg;
+      else log<<MSG::INFO<<"N. of lines read = "<<m_dhaszt->size()<<endmsg;
     }
     if (m_dhaszt==0 || m_dhaszt->size()==0) {
-      log<<MSG::INFO<<"No Ascii aszt input found: looking for A-lines in ORACLE"<<endreq;
+      log<<MSG::INFO<<"No Ascii aszt input found: looking for A-lines in ORACLE"<<endmsg;
       dbdata = m_pRDBAccess->getQuery("ASZT",geoTag,geoNode);
       if (dbdata == 0) {
 	m_dhaszt = new DblQ00Aszt();
-	log<<MSG::INFO<<"No ASZT table in Oracle"<<endreq;
+	log<<MSG::INFO<<"No ASZT table in Oracle"<<endmsg;
       }
       else 
       {
-	  log<<MSG::INFO<<"ASZT table found in Oracle"<<endreq;
+	  log<<MSG::INFO<<"ASZT table found in Oracle"<<endmsg;
 	  m_dhaszt = new DblQ00Aszt(dbdata);
-	  log<<MSG::INFO<<"ASZT size is "<<m_dhaszt->size()<<endreq;
+	  log<<MSG::INFO<<"ASZT size is "<<m_dhaszt->size()<<endmsg;
       }
       delete dbdata;
     }
-    else log<<MSG::INFO<<"ASZT table in Oracle, if any, will not be read"<<endreq;
+    else log<<MSG::INFO<<"ASZT table in Oracle, if any, will not be read"<<endmsg;
     m_aszt= m_dhaszt->data();
 
     //
     if (dumpAlinesFromOracle) 
     {
-	log<<MSG::DEBUG<<"writing ASZT values to file"<<endreq;
+	log<<MSG::DEBUG<<"writing ASZT values to file"<<endmsg;
 	m_dhaszt->WriteAsztToAsciiFile("aszt_fromAscii_or_Oracle.txt");
     }
     
@@ -155,34 +155,34 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
     m_dhiacsc=0;
     if (asciiFileDBMap!=0 && 
 	asciiFileDBMap->find("IACSC") != asciiFileDBMap->end()) {         
-      log<<MSG::INFO<<"getting iacsc from ascii file - named <"<<asciiFileDBMap->find("IACSC")->second<<">"<<endreq;
-      log<<MSG::INFO<<"Ascii iacsc input has priority over A-lines in ORACLE; A-lines from Oracle will not be read"<<endreq;
+      log<<MSG::INFO<<"getting iacsc from ascii file - named <"<<asciiFileDBMap->find("IACSC")->second<<">"<<endmsg;
+      log<<MSG::INFO<<"Ascii iacsc input has priority over A-lines in ORACLE; A-lines from Oracle will not be read"<<endmsg;
       //      dbdata=0;
       m_dhiacsc = new DblQ00IAcsc(asciiFileDBMap->find("IACSC")->second);
       if (m_dhiacsc->size()==0) 
-	log<<MSG::ERROR<<"Couldn't read IACSC from ascii file!"<<endreq;
-      else log<<MSG::INFO<<"N. of lines read = "<<m_dhiacsc->size()<<endreq;
+	log<<MSG::ERROR<<"Couldn't read IACSC from ascii file!"<<endmsg;
+      else log<<MSG::INFO<<"N. of lines read = "<<m_dhiacsc->size()<<endmsg;
     }
     if (m_dhiacsc==0 || m_dhiacsc->size()==0) {
-      log<<MSG::INFO<<"No Ascii iacsc input found: looking for A-lines in ORACLE"<<endreq;
+      log<<MSG::INFO<<"No Ascii iacsc input found: looking for A-lines in ORACLE"<<endmsg;
       dbdata = m_pRDBAccess->getQuery("ISZT",geoTag,geoNode);    
       if (dbdata == 0) {
 	m_dhiacsc = new DblQ00IAcsc();
-	log<<MSG::INFO<<"No ISZT table in Oracle"<<endreq;
+	log<<MSG::INFO<<"No ISZT table in Oracle"<<endmsg;
       }
       else {
-	log<<MSG::INFO<<"ISZT table found in Oracle"<<endreq;
+	log<<MSG::INFO<<"ISZT table found in Oracle"<<endmsg;
 	m_dhiacsc = new DblQ00IAcsc(dbdata);
       }
       delete dbdata;
     }
-    else log<<MSG::INFO<<"ISZT table in Oracle, if any, will not be read"<<endreq;
+    else log<<MSG::INFO<<"ISZT table in Oracle, if any, will not be read"<<endmsg;
     m_iacsc= m_dhiacsc->data();
 
     //
     if (dumpCscInternalAlinesFromOracle) 
     {
-	log<<MSG::DEBUG<<"writing ISZT values to file"<<endreq;
+	log<<MSG::DEBUG<<"writing ISZT values to file"<<endmsg;
 	m_dhiacsc->WriteIAcscToAsciiFile("IAcsc_fromAscii_or_Oracle.txt");
     }
     
@@ -220,7 +220,7 @@ RDBReaderAtlas::RDBReaderAtlas(StoreGateSvc *pDetStore, IRDBAccessSvc* pRDBAcces
     
     // everything fetched 
     m_SCdbaccess = StatusCode::SUCCESS;    
-    log<<MSG::INFO<<"Access granted for all dbObjects needed by muon detectors"<<endreq;
+    log<<MSG::INFO<<"Access granted for all dbObjects needed by muon detectors"<<endmsg;
 }
 
 StatusCode RDBReaderAtlas::ProcessDB()
@@ -268,7 +268,7 @@ StatusCode RDBReaderAtlas::ProcessDB()
     if (m_dhxtomo->size() > 0) { ProcessMdtAsBuiltParams(); }
     
     //
-    log<<MSG::INFO<<"Intermediate Objects built from primary numbers"<<endreq;
+    log<<MSG::INFO<<"Intermediate Objects built from primary numbers"<<endmsg;
 
     return m_SCdbaccess;
 
@@ -373,7 +373,7 @@ void RDBReaderAtlas::ProcessTechnologies()
     slist.push_back("*");
     StationSelector sel(slist);
     StationSelector::StationIterator it;
-    log<<MSG::DEBUG<<" from RDBReaderAtlas --- start "<<endreq;
+    log<<MSG::DEBUG<<" from RDBReaderAtlas --- start "<<endmsg;
 
 
     bool have_spa_details = (getGeometryVersion().substr(0,1) != "P");
@@ -400,9 +400,9 @@ void RDBReaderAtlas::ProcessTechnologies()
         }
     }
 
-    log<<MSG::INFO<<"nMDT "<<nmdt<<" nCSC "<<ncsc<<" nTGC "<<ntgc<<" nRPC "<<nrpc<<endreq;
-    log<<MSG::INFO<<"nDED "<<nded<<" nSUP "<<nsup<<" nSPA "<<nspa<<endreq;
-    log<<MSG::INFO<<"nCHV "<<nchv<<" nCRO "<<ncro<<" nCMI "<<ncmi<<" nLBI "<<nlbi<<endreq;
+    log<<MSG::INFO<<"nMDT "<<nmdt<<" nCSC "<<ncsc<<" nTGC "<<ntgc<<" nRPC "<<nrpc<<endmsg;
+    log<<MSG::INFO<<"nDED "<<nded<<" nSUP "<<nsup<<" nSPA "<<nspa<<endmsg;
+    log<<MSG::INFO<<"nCHV "<<nchv<<" nCRO "<<ncro<<" nCMI "<<ncmi<<" nLBI "<<nlbi<<endmsg;
 
 }
 
@@ -417,13 +417,13 @@ void RDBReaderAtlas::ProcessTGCreadout () {
         IRDBRecordset_ptr ggsd = m_pRDBAccess->getRecordsetPtr("GGSD",m_geoTag,m_geoNode);
         IRDBRecordset_ptr ggcd = m_pRDBAccess->getRecordsetPtr("GGCD",m_geoTag,m_geoNode);
         log<<MSG::INFO
-           <<"RDBReaderAtlas::ProcessTGCreadout GGSD, GGCD retrieven from Oracle"<<endreq;
+           <<"RDBReaderAtlas::ProcessTGCreadout GGSD, GGCD retrieven from Oracle"<<endmsg;
 
     
         int version = (int) (*ggsd)[0]->getDouble("VERS");
         float wirespacing = (*ggsd)[0]->getDouble("WIRESP")*CLHEP::cm;
         log<<MSG::INFO
-           <<" ProcessTGCreadout - version "<<version<<" wirespacing "<<wirespacing<<endreq;
+           <<" ProcessTGCreadout - version "<<version<<" wirespacing "<<wirespacing<<endmsg;
     
         //
         // in case of the layout P03
@@ -521,7 +521,7 @@ void RDBReaderAtlas::ProcessTGCreadout () {
         int version = (int) (*ggln)[0]->getInt("VERS");
         float wirespacing = (*ggln)[0]->getFloat("WIRESP")*CLHEP::mm;
         log<<MSG::INFO
-           <<" ProcessTGCreadout - version "<<version<<" wirespacing "<<wirespacing<<endreq;
+           <<" ProcessTGCreadout - version "<<version<<" wirespacing "<<wirespacing<<endmsg;
 
 	MYSQL *mysql=MYSQL::GetPointer();
 

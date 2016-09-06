@@ -94,12 +94,14 @@ GeoFullPhysVol* MultiLayer::build()
       if (fabs(foamthicknessup - 15*CLHEP::mm) < 0.1) foamthicknessup = 15*CLHEP::mm;
       else if (fabs(foamthicknessup - 30.75*CLHEP::mm) < 0.1) foamthicknessup = 30.75*CLHEP::mm;
       else if (fabs(foamthicknessup - 30.00*CLHEP::mm) < 0.1) foamthicknessup = 30.00*CLHEP::mm;
+      else if (fabs(foamthicknessup - 10.00*CLHEP::mm) < 0.1
+               && logVolName.find("BMG") != std::string::npos ) foamthicknessup = 10.00*CLHEP::mm;
       else if ( logVolName == "BME1MDT09" || logVolName == "BME2MDT09" ) { //@@
 	foamthicknesslow = 0.;
 	foamthicknessup  = 0.;
       } else {
-        std::cout << " problem with thickness of foam in LogVolName "
-                  << logVolName << std::endl;
+        std::cout << " problem with thickness of " << std::abs(foamthicknessup)
+                  << " for foam in LogVolName " << logVolName << std::endl;
       }
 
     } else {
@@ -107,18 +109,20 @@ GeoFullPhysVol* MultiLayer::build()
       if (fabs(foamthicknesslow - 15*CLHEP::mm) < 0.1) foamthicknesslow = 15*CLHEP::mm;
       else if (fabs(foamthicknesslow - 30.75*CLHEP::mm) < 0.1) foamthicknesslow = 30.75*CLHEP::mm;
       else if (fabs(foamthicknesslow - 30.00*CLHEP::mm) < 0.1) foamthicknesslow = 30.00*CLHEP::mm;
+      else if (fabs(foamthicknesslow - 10.00*CLHEP::mm) < 0.1
+               && logVolName.find("BMG") != std::string::npos ) foamthicknesslow = 10.00*CLHEP::mm;
       else if ( logVolName == "BME1MDT09" || logVolName == "BME2MDT09" ) { //@@
 	foamthicknesslow = 0.;
 	foamthicknessup  = 0.;
       } else {
-        std::cout << " problem with thickness of foam in LogVolName "
-                  << logVolName << std::endl;
+        std::cout << " problem with thickness of " << std::abs(foamthicknesslow)
+                  << " for foam in LogVolName " << logVolName << std::endl;
       }
     }
 
     // Build the layer envelope into which the MDTs are placed
     double TrdDwoverL= (longWidth-width)/length;
-    if (cutoutNsteps == 1 || cutoutAtAngle ) { 
+    if (cutoutNsteps == 1 || cutoutAtAngle || (cutoutNsteps < -10000 && cutoutNsteps > -40000 ) ) { 
       // No cutouts - layer is a simple box or trapezoid
       slay = new GeoTrd(mdtthickness/2, mdtthickness/2, width/2, 
                         longWidth/2, length/2);
@@ -455,7 +459,103 @@ GeoFullPhysVol* MultiLayer::build()
     GeoSerialDenominator* sd = new GeoSerialDenominator("DriftTube");
     play->add(sd);
 
-    if (cutoutNsteps > 1) {
+    if (cutoutNsteps < -10000 && cutoutNsteps > -40000) {
+
+      bool internalCutoutBMG[3] = {false, true, false};
+      std::array< std::array<int,3>, 4> NtubesBMG;
+
+      if ( cutoutNsteps == -11112 ) // BMG1A12 - ML1
+         NtubesBMG = {{ {{16,  7, 31}}, {{17,  7, 30}}, {{17,  7, 30}}, {{18,  7, 29}} }};
+      else if ( cutoutNsteps == -11212 ) // BMG1A12 - ML2
+         NtubesBMG = {{ {{22,  7, 25}}, {{23,  7, 24}}, {{23,  7, 24}}, {{24,  7, 23}} }};
+      else if ( cutoutNsteps == -21112 ) // BMG2A12 - ML1
+         NtubesBMG = {{ {{19,  8, 27}}, {{20,  8, 26}}, {{20,  8, 26}}, {{21,  8, 25}} }};
+      else if ( cutoutNsteps == -21212 ) // BMG2A12 - ML2
+         NtubesBMG = {{ {{31,  8, 15}}, {{32,  8, 14}}, {{32,  8, 14}}, {{33,  8, 13}} }};
+      else if ( cutoutNsteps == -31112 ) // BMG3A12 - ML1
+         NtubesBMG = {{ {{ 5, 14, 35}}, {{ 7, 14, 33}}, {{ 7, 14, 33}}, {{ 9, 14, 31}} }};
+      else if ( cutoutNsteps == -31212 ) // BMG3A12 - ML2
+         NtubesBMG = {{ {{22, 14, 18}}, {{24, 14, 16}}, {{24, 14, 16}}, {{26, 14, 14}} }};
+      else if ( cutoutNsteps == -12112 ) // BMG1C12 - ML1
+         NtubesBMG = {{ {{17,  6, 31}}, {{16,  7, 31}}, {{17,  8, 29}}, {{17,  7, 30}} }};
+      else if ( cutoutNsteps == -12212 ) // BMG1C12 - ML2
+         NtubesBMG = {{ {{23,  7, 24}}, {{23,  7, 24}}, {{24,  7, 23}}, {{24,  6, 24}} }};
+      else if ( cutoutNsteps == -22112 ) // BMG2C12 - ML1
+         NtubesBMG = {{ {{19,  8, 27}}, {{19,  8, 27}}, {{21,  8, 25}}, {{21,  8, 25}} }};
+      else if ( cutoutNsteps == -22212 ) // BMG2C12 - ML2
+         NtubesBMG = {{ {{31,  8, 15}}, {{31,  9, 14}}, {{33,  8, 13}}, {{33,  8, 13}} }};
+      else if ( cutoutNsteps == -32112 ) // BMG3C12 - ML1
+         NtubesBMG = {{ {{ 6, 14, 34}}, {{ 6, 14, 34}}, {{ 8, 14, 32}}, {{ 8, 14, 32}} }};
+      else if ( cutoutNsteps == -32212 ) // BMG3C12 - ML2
+         NtubesBMG = {{ {{23, 14, 17}}, {{24, 13, 17}}, {{25, 14, 15}}, {{26, 13, 15}} }};
+      else if ( cutoutNsteps == -11114 ) // BMG1A14 - ML1
+         NtubesBMG = {{ {{17,  6, 31}}, {{16,  7, 31}}, {{17,  8, 29}}, {{17,  7, 30}} }};
+      else if ( cutoutNsteps == -11214 ) // BMG1A14 - ML2
+         NtubesBMG = {{ {{23,  7, 24}}, {{23,  7, 24}}, {{24,  7, 23}}, {{24,  6, 24}} }};
+      else if ( cutoutNsteps == -21114 ) // BMG2A14 - ML1
+         NtubesBMG = {{ {{19,  8, 27}}, {{19,  8, 27}}, {{21,  8, 25}}, {{21,  8, 25}} }};
+      else if ( cutoutNsteps == -21214 ) // BMG2A14 - ML2
+         NtubesBMG = {{ {{31,  8, 15}}, {{31,  9, 14}}, {{33,  8, 13}}, {{33,  8, 13}} }};
+      else if ( cutoutNsteps == -31114 ) // BMG3A14 - ML1
+         NtubesBMG = {{ {{ 6,  9, 39}}, {{ 6, 10, 38}}, {{ 8,  9, 37}}, {{ 8, 10, 36}} }};
+      else if ( cutoutNsteps == -31214 ) // BMG3A14 - ML2
+         NtubesBMG = {{ {{23, 10, 21}}, {{24,  9, 21}}, {{25, 10, 19}}, {{26,  9, 19}} }};
+      else if ( cutoutNsteps == -12114 ) // BMG1C14 - ML1
+         NtubesBMG = {{ {{16,  7, 31}}, {{17,  7, 30}}, {{17,  7, 30}}, {{18,  7, 29}} }};
+      else if ( cutoutNsteps == -12214 ) // BMG1C14 - ML2
+         NtubesBMG = {{ {{22,  7, 25}}, {{23,  7, 24}}, {{23,  7, 24}}, {{24,  7, 23}} }};
+      else if ( cutoutNsteps == -22114 ) // BMG2C14 - ML1
+         NtubesBMG = {{ {{19,  8, 27}}, {{20,  8, 26}}, {{20,  8, 26}}, {{21,  8, 25}} }};
+      else if ( cutoutNsteps == -22214 ) // BMG2C14 - ML2
+         NtubesBMG = {{ {{31,  8, 15}}, {{32,  8, 14}}, {{32,  8, 14}}, {{33,  8, 13}} }};
+      else if ( cutoutNsteps == -32114 ) // BMG3C14 - ML1
+         NtubesBMG = {{ {{ 5, 10, 39}}, {{ 7,  9, 38}}, {{ 7, 10, 37}}, {{ 9,  9, 36}} }};
+      else if ( cutoutNsteps == -32214 ) // BMG3C14 - ML2
+         NtubesBMG = {{ {{22, 10, 22}}, {{24, 10, 20}}, {{24, 10, 20}}, {{26, 10, 18}} }};
+      else {
+         NtubesBMG = {{ {{ 0,  0,  0}}, {{ 0,  0,  0}}, {{ 0,  0,  0}}, {{ 0,  0,  0}} }};
+         std::cout << "massive error placing tubes for BMG chambers" << std::endl;
+         std::abort();
+      }
+
+      for (int i = 0; i < nrOfLayers; i++) {
+	  if (verbose_multilayer) std::cout << "Tube Layers n. " << i <<std::endl;
+        tstart = -mdtthickness/2. + yy[i];
+        double loffset = 0.;
+        int nttot = 0;
+        for (unsigned int j = 0; j < sizeof(NtubesBMG[i])/sizeof(int); j++) {
+          // for BMGs tubeVector should be of size 1 with the one default tube
+          GeoVPhysVol* tV = tubeVector[0];
+          int nt = NtubesBMG[i][j];
+
+	    if (verbose_multilayer) std::cout<< "cutout region "<<j<<" n. of tubes affected should be "<< NtubesBMG[i][j]<<" internal cutout "<<internalCutoutBMG[j] <<std::endl;
+
+          // ususal tube placement
+          if (nt > 0 && !internalCutoutBMG[j]) { 
+            loffset = nttot*tubePitch;
+            lstart = loffset - length/2. + xx[i];
+            Genfun::Variable K;
+            Genfun::GENFUNCTION f = tubePitch*K + lstart;
+            TRANSFUNCTION t = HepGeom::TranslateY3D(0.)*HepGeom::RotateX3D(90*CLHEP::deg)*
+                              HepGeom::TranslateX3D(tstart)*Pow(HepGeom::TranslateY3D(1.0),f);
+            GeoSerialTransformer* s = new GeoSerialTransformer(tV,&t,nt);
+            play->add(new GeoSerialIdentifier(100*(i+1)+nttot + 1));
+            play->add(s);
+
+            nttot = nttot + nt;
+            if (verbose_multilayer)
+              std::cout << " placing " << nt << " starting at t = " << tstart << " , y = " 
+                        << lstart << " with " << nttot << " tubes so far " << std::endl;
+          } else {
+            nttot = nttot + nt;
+            if (verbose_multilayer)
+              std::cout << " *NOT* placing " << nt << " starting at t = " << tstart << " , y = " 
+                        << lstart << " with " << nttot << " tubes so far " << std::endl;
+          }
+        }
+      } // Loop over layers
+
+    } else if (cutoutNsteps > 1) {
       bool arrowpointoutwards=false;
       bool cutAtAngle = cutoutAtAngle;
       if (xx[1]-xx[0]>0.) 
