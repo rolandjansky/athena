@@ -44,25 +44,35 @@ public:
 		int  minPixelHits, int minSctHits, int minSiHits, int minBlayerHits,  
 		int minStrawHits, int minTrHits, double prob=0, 
 		int maxPixelHoles=20, int maxSctHoles=20, int maxSiHoles=20 ) :
-    m_etaMax(etaMax), m_d0Max(d0Max),  m_z0Max(z0Max),  m_pTMin(pTMin), 
+    m_etaMax(etaMax), m_d0Max(d0Max),  m_z0Max(z0Max),  m_pTMin(pTMin), m_pTMax(pTMin-1), // guarantee that the default pTMax is *always* < pTMin  
     m_minPixelHits(minPixelHits),   m_minSctHits(minSctHits),     m_minSiHits(minSiHits),   
     m_minBlayerHits(minBlayerHits), m_minStrawHits(minStrawHits), m_minTrHits(minTrHits),
     m_maxPixelHoles(maxPixelHoles), m_maxSctHoles(maxSctHoles), m_maxSiHoles(maxSiHoles),
-    m_prob(prob)
+    m_prob(prob),
+    m_chargeSelection(0)
   { } 
 
   bool select(const TIDA::Track* t, const TIDARoiDescriptor* =0 ) { 
     // Select track parameters
     bool selected = true;
     if ( std::fabs(t->eta())>m_etaMax || std::fabs(t->a0())>m_d0Max || std::fabs(t->z0())>m_z0Max || std::fabs(t->pT())<m_pTMin ) selected = false;
+    if ( m_pTMax>m_pTMin && std::fabs(t->pT())>m_pTMax ) selected = false;
     // Select track silicon hit content
     if( t->pixelHits()<m_minPixelHits || t->sctHits()<m_minSctHits || t->siHits()<m_minSiHits || t->bLayerHits()<m_minBlayerHits ) selected = false;
     if( t->pixelHoles()>m_maxPixelHoles || t->sctHoles()>m_maxSctHoles || (t->pixelHoles()+t->sctHoles())>m_maxSiHoles ) selected = false; 
     // Select track trt hit content
     if( t->strawHits()<m_minStrawHits || t->trHits()<m_minTrHits ) selected = false;
-    if( m_prob>0 && TMath::Prob( t->chi2(), t->dof() )<m_prob ) selected = false;
+    if( m_prob>0 && TMath::Prob( t->chi2(), t->dof() )<m_prob )    selected = false;
+    // track chare selection
+    if ( m_chargeSelection!=0 && t->pT()*m_chargeSelection<=0 )  selected = false;
     return selected;
   } 
+
+  void chargeSelection( int i ) { m_chargeSelection=i; }
+  int  chargeSelection() const  { return m_chargeSelection; }
+
+  void   maxpT( double pTMax ) { m_pTMax = pTMax; } 
+  double maxpT() const         { return  m_pTMax; } 
 
 private:
 
@@ -72,6 +82,7 @@ private:
   double  m_d0Max;
   double  m_z0Max;
   double  m_pTMin;
+  double  m_pTMax;
 
   int  m_minPixelHits;
   int  m_minSctHits;
@@ -85,6 +96,8 @@ private:
   int  m_maxSiHoles;
 
   double  m_prob;
+
+  int     m_chargeSelection;
 };
 
 

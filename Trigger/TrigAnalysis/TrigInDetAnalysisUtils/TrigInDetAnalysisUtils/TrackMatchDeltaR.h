@@ -9,8 +9,8 @@
 //   $Id: TrackMatchDeltaR.h, v0.0   Sun 18 Jan 2009 19:40:47 GMT sutt $
 
 
-#ifndef __TRACKMATCHDELTAR_H
-#define __TRACKMATCHDELTAR_H
+#ifndef TRIGINDETANALYSISUTILS_TRACKMATCHDELTAR_H
+#define TRIGINDETANALYSISUTILS_TRACKMATCHDELTAR_H
 
 #include <iostream>
 #include <string>
@@ -27,7 +27,7 @@ class TrackMatchDeltaR : public TrackAssociator {
 public:
 
   TrackMatchDeltaR(const std::string& name, double R) : 
-    TrackAssociator(name), mR2(R*R) 
+    TrackAssociator(name), m_R2(R*R) 
   { } 
 
   ~TrackMatchDeltaR() { } 
@@ -65,7 +65,7 @@ public:
       }
 
       // is this inside the delta R specification?
-      if ( tmptrack && R2min<mR2 ) { 
+      if ( tmptrack && R2min<m_R2 ) { 
 	mmatched.insert(    map_type::value_type(reftrack,tmptrack) );
 	mrevmatched.insert( map_type::value_type(tmptrack,reftrack) );
 	
@@ -85,7 +85,7 @@ public:
 
 private:
 
-  double mR2;
+  double m_R2;
 
 };
 
@@ -95,14 +95,4 @@ inline std::ostream& operator<<(std::ostream& s, const TrackMatchDeltaR& /*tm*/)
 }
 
 
-#endif  // __TRACKMATCHDELTAR_H 
-
-
-
-
-
-
-
-
-
-
+#endif  // TRIGINDETANALYSISUTILS_TRACKMATCHDELTAR_H
