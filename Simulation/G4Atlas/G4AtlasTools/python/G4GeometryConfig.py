@@ -124,10 +124,10 @@ def getForwardRegionEnvelope(name='ForwardRegion', **kwargs):
 
 def getMUONEnvelope(name="MUONQ02", **kwargs): #FIXME rename to MUON when safe
     kwargs.setdefault("DetectorName", "MUONQ02") #FIXME rename to MUON when safe
-    kwargs.setdefault("NSurfaces", 30)
-    kwargs.setdefault("InnerRadii", [1050.,1050.,1050.,1050.,436.7,436.7,279.,279.,70.,70.,420.,420.,3800.,3800.,4255.,4255.,3800.,3800.,420.,420.,70.,70.,279.,279.,436.7,436.7,1050.,1050.,1050.,1050.]) #FIXME Units?
-    kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,13910.,13910.,13910.,13910.,13910.,13910.,13000.,13000.,13910.,13910.,13910.,13910.,13910.,13910.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
-    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-6736.,-6736.,-6550.,-6550.,6550.,6550.,6736.,6736.,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
+    kwargs.setdefault("NSurfaces", 34)
+    kwargs.setdefault("InnerRadii", [1050.,1050.,1050.,1050.,436.7,436.7,279.,279.,70.,70.,420.,420.,3800.,3800.,4255.,4255.,4255.,4255.,4255.,4255.,3800.,3800.,420.,420.,70.,70.,279.,279.,436.7,436.7,1050.,1050.,1050.,1050.]) #FIXME Units?
+    kwargs.setdefault("OuterRadii", [1500.,1500.,2750.,2750.,12650.,12650.,13400.,13400.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13000.,13000.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,14200.,13400.,13400.,12650.,12650.,2750.,2750.,1500.,1500.]) #FIXME Units?
+    kwargs.setdefault("ZSurfaces", [-26046.,-23001.,-23001.,-22030.,-22030.,-18650.,-18650.,-12900.,-12900.,-6783.,-6783.,-6736.,-6736.,-6550.,-6550.,-4000.,-4000.,4000.,4000.,6550.,6550.,6736.,6736.,6783.,6783.,12900.,12900.,18650.,18650.,22030.,22030.,23001.,23001.,26046.]) #FIXME Units?
     SubDetectorList=[]
     from AthenaCommon.DetFlags import DetFlags
     if DetFlags.geometry.Muon_on():
@@ -187,8 +187,8 @@ def getATLAS(name="Atlas", **kwargs):
 
     ## OuterRadii
     AtlasForwardOuterR = 2751.
-    AtlasOuterR1 = 13911.
-    AtlasOuterR2 = 13911.
+    AtlasOuterR1 = 14201.
+    AtlasOuterR2 = 14201.
     AtlasOuterR3 =  1501.
     if jobproperties.Beam.beamType() != 'cosmics' and not DetFlags.Muon_on() and not \
        (simFlags.CavernBG.statusOn and not 'Signal' in simFlags.CavernBG.get_Value() ):
