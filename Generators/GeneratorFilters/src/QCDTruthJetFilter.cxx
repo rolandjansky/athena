@@ -118,7 +118,7 @@ StatusCode QCDTruthJetFilter::filterEvent() {
 
   // Get MC event collection for setting weight
   const DataHandle<McEventCollection> mecc = 0;
-  CHECK(evtStore()->retrieve(mecc));
+  CHECK(evtStore()->retrieve(mecc, m_mcEventKey));
   ATH_MSG_DEBUG("Event passed.  Will mod event weights by " << w*m_norm << " for pt_lead of " << pt_lead << " norm " << m_norm << " w " << w << " high " << m_high << " rnd " << rnd);
   double orig = 1.;
   McEventCollection* mec = const_cast<McEventCollection*> (&(*mecc));
