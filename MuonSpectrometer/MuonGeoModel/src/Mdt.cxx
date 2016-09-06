@@ -185,7 +185,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
         if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31112; // cut angle for A side positive BMG3A12
         else Nsteps = -32114; // cut angle for C side negative BMG3C14
       } else {
-        std::cout << "massive error with MDT10 (BMG chambers)" << std::cout;
+        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
         std::abort();
       }
     } else if( logVolName.find("MDT11") != std::string::npos ) {
@@ -200,7 +200,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
         if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31114; // cut angle for A side positive BMG3A14
         else Nsteps = -32112; // cut angle for C side negative BMG3C12
       } else {
-        std::cout << "massive error with MDT10 (BMG chambers)" << std::cout;
+        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
         std::abort();
       }
     } else if( logVolName.find("MDT12") != std::string::npos ) {
@@ -215,7 +215,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
         if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31212; // cut angle for A side positive BMG3A12
         else Nsteps = -32214; // cut angle for C side negative BMG3C14
       } else {
-        std::cout << "massive error with MDT10 (BMG chambers)" << std::cout;
+        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
         std::abort();
       }
     } else if( logVolName.find("MDT13") != std::string::npos ) {
@@ -230,7 +230,7 @@ GeoFullPhysVol* Mdt::build(std::vector<Cutout*> vcutdef)
         if ( vcutdef[0]->dead1 > 0. ) Nsteps = -31214; // cut angle for A side positive BMG3A14
         else Nsteps = -32212; // cut angle for C side negative BMG3C12
       } else {
-        std::cout << "massive error with MDT10 (BMG chambers)" << std::cout;
+        std::cout << "massive error with MDT10 (BMG chambers)" << std::endl;
         std::abort();
       }
     }
