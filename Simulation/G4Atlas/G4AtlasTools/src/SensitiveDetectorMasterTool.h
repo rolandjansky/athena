@@ -13,27 +13,44 @@
 #include "GaudiKernel/ToolHandle.h" // For tool handle array
 #include "G4AtlasInterfaces/ISensitiveDetector.h" // What we have a handle on
 
-class SensitiveDetectorMasterTool : public AthAlgTool , public virtual ISensitiveDetectorMasterTool {
+/// @class SensitiveDetectorMasterTool
+/// @brief Public tool which manages all the sensitive detector tools.
+///
+/// This tool provides functionality to trigger creation of SDs for the current
+/// worker thread and to invoke special SD methods at the beginning and end of
+/// an Athena event.
+///
+/// This will probably be changed (back) to a service in the near future.
+///
+class SensitiveDetectorMasterTool : public AthAlgTool,
+                                    public virtual ISensitiveDetectorMasterTool
+{
  public:
-  // Standard constructor and destructor
+  /// Standard constructor
   SensitiveDetectorMasterTool(const std::string& type, const std::string& name,
                               const IInterface* parent);
+  /// Empty virtual destructor
   virtual ~SensitiveDetectorMasterTool() {}
 
-  // Gaudi methods
+  /// Gaudi boiler plate methods
   virtual StatusCode queryInterface( const InterfaceID& riid, void** ppvInterface );
-  static const InterfaceID& interfaceID() { return ISensitiveDetectorMasterTool::interfaceID(); }
+  static const InterfaceID& interfaceID() {
+    return ISensitiveDetectorMasterTool::interfaceID();
+  }
 
   /// Retrieve the SD tools. SD creation is deferred until initializeSDs.
   StatusCode initialize() override final;
 
-  // Base class methods
-  StatusCode initializeSDs() override final; ///!< Base class method to initialize all the SDs
-  StatusCode BeginOfAthenaEvent() override final; ///!< Base class method that calls setup for all SDs
-  StatusCode EndOfAthenaEvent() override final; ///!< Base class method that calls gather for all SDs
+  /// Calls initializeSD on each SD tool to create the SDs for the current worker thread.
+  StatusCode initializeSDs() override final;
+  /// Calls SetupEvent on each SD tool
+  StatusCode BeginOfAthenaEvent() override final;
+  /// Calls Gather on each SD tool
+  StatusCode EndOfAthenaEvent() override final;
 
  private:
-  ToolHandleArray<ISensitiveDetector> m_SenDetList; ///!< Private array of tool handles pointing to all SDs
+  /// Private array of tool handles pointing to all SD tools.
+  ToolHandleArray<ISensitiveDetector> m_senDetTools;
 };
 
 #endif

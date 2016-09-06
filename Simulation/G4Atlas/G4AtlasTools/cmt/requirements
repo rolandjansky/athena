@@ -11,6 +11,7 @@ use Geant4               Geant4-*                External
 
 # Member variables
 use SubDetectorEnvelopes SubDetectorEnvelopes-*  AtlasGeometryCommon
+use AtlasTBB             AtlasTBB-*              External
 
 private
 use AtlasBoost           AtlasBoost-*            External
