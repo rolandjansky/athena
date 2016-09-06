@@ -29,7 +29,7 @@ sTGC::sTGC(CandidateTool* pMuGirl, const std::string& sPrepDataCollection) :
     m_detId = ::PIXEL;   // dummy as we do not yet have the detector elemement implemented in the region selector
     m_pIdHelper = dynamic_cast<const sTgcIdHelper*>(pMuGirl->muonManager()->stgcIdHelper());
     if(m_pIdHelper == 0)
-      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be sTgcIdHelper, but it is NOT!" << endreq;
+      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be sTgcIdHelper, but it is NOT!" << endmsg;
 }
 
 const MuonGM::MuonReadoutElement* sTGC::readoutElement(const Identifier& id) const
@@ -59,7 +59,7 @@ StatusCode sTGC::retrievePrepData()
        {
            m_pPrepDataContainer=NULL;
            if (m_pMuGirl->msgLvl(MSG::DEBUG))
-               m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve sTGC PrepData Container " << m_sPrepDataCollection << endreq;
+               m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve sTGC PrepData Container " << m_sPrepDataCollection << endmsg;
        }
        return StatusCode::SUCCESS;
     }
@@ -67,7 +67,7 @@ StatusCode sTGC::retrievePrepData()
     {
         m_pPrepDataContainer=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain sTGC PrepData Container " << m_sPrepDataCollection << endreq;
+            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain sTGC PrepData Container " << m_sPrepDataCollection << endmsg;
     }
     return StatusCode::SUCCESS;
 }
@@ -78,7 +78,7 @@ unsigned sTGC::prepData(Chamber* pChamber, PrepDataList& array)
 
     if (m_pPrepDataContainer == NULL)
     {
-        m_pMuGirl->msg(MSG::INFO) << "Cannot retrieve sTGC PrepData Container " << m_sPrepDataCollection << endreq;
+        m_pMuGirl->msg(MSG::INFO) << "Cannot retrieve sTGC PrepData Container " << m_sPrepDataCollection << endmsg;
         return 0;
 
         // so far the RdoToPrepData converter are not implemented for the sTGC
@@ -94,7 +94,7 @@ unsigned sTGC::prepData(Chamber* pChamber, PrepDataList& array)
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainer, m_sPrepDataCollection).isFailure() ||
             m_pPrepDataContainer == NULL)
         {
-            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve MDT PrepData Container " << m_sPrepDataCollection << endreq;
+            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve MDT PrepData Container " << m_sPrepDataCollection << endmsg;
             return 0;
         }
         */
@@ -107,7 +107,7 @@ unsigned sTGC::prepData(Chamber* pChamber, PrepDataList& array)
         {
             // so far it is impossible to decode MicroMegas PrepRawData; if the collection is not in, then return an empty array
             m_pMuGirl->msg(MSG::WARNING) << "sTGC chamber hash ID " << pChamber->hashId() 
-                     << " may be invalid: no collection found into the sTGCPrepDataContainer" << endreq;
+                     << " may be invalid: no collection found into the sTGCPrepDataContainer" << endmsg;
 
             /*
             std::vector<IdentifierHash> inhash, outhash;
@@ -137,7 +137,7 @@ std::vector<IdentifierHash> sTGC::retrieveAvailableCollections() const {
     std::vector<IdentifierHash> Ids;
     if (m_pPrepDataContainer == NULL)
     {
-        m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve sTGC PrepData Container " << m_sPrepDataCollection << endreq;
+        m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve sTGC PrepData Container " << m_sPrepDataCollection << endmsg;
         // so far the RdoToPrepData converter are not implemented for the sTGC
     }
 
@@ -157,14 +157,14 @@ Amg::Vector3D sTGC::hitPosition(const Trk::PrepRawData* pPrepData)
     const Muon::sTgcPrepData* psTgcPrepData = dynamic_cast<const Muon::sTgcPrepData*>(pPrepData);
     if (psTgcPrepData == NULL)
     {
-        m_pMuGirl->msg(MSG::WARNING) << "Cannot convert from Trk::PrepRawData* to Muon::sTgcPrepData*" << endreq;
+        m_pMuGirl->msg(MSG::WARNING) << "Cannot convert from Trk::PrepRawData* to Muon::sTgcPrepData*" << endmsg;
         return Amg::Vector3D();
     }
 
     const MuonGM::sTgcReadoutElement* pReadoutElement = psTgcPrepData->detectorElement();
     if (pReadoutElement == NULL)
     {
-        m_pMuGirl->msg(MSG::WARNING) << "Cannot get sTgcReadoutElement" << endreq;
+        m_pMuGirl->msg(MSG::WARNING) << "Cannot get sTgcReadoutElement" << endmsg;
         return Amg::Vector3D();
     }
 
@@ -191,7 +191,7 @@ void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double
     /*
     MsgStream log(m_pMuGirl->msgSvc(), m_pMuGirl->name());
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "MDT::buildSegments" << endreq;
+        m_pMuGirl->msg() << "MDT::buildSegments" << endmsg;
 
     StationChamberMap stationChambers;
     StationList stations;
@@ -220,7 +220,7 @@ void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double
             << TechnologyTypeName(triggerTech) << ","
             << DistanceTypeName(chambers.front()->distanceType()) << ","
             << RegionTypeName(chambers.front()->regionType()) << ")"
-            << " contains " << count_clusters(clusters) << " clusters" << endreq;
+            << " contains " << count_clusters(clusters) << " clusters" << endmsg;
 
     for (StationList::iterator itSta = stations.begin(); itSta != stations.end(); itSta++)
     {
@@ -247,7 +247,7 @@ void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double
                     if (pMdcot == NULL)
                     {
                         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                            m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack" << endreq;
+                            m_pMuGirl->msg(MSG::DEBUG) << "Cannot convert Trk::RIO_OnTrack to Muon::MdtDriftCircleOnTrack" << endmsg;
                         return;
                     }
                     mdcots.push_back(pMdcot);
@@ -256,11 +256,11 @@ void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double
                     m_pMuGirl->msg() << mdcots.size() << " ";
             }
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                m_pMuGirl->msg() << "hits" << endreq;
+                m_pMuGirl->msg() << "hits" << endmsg;
             Trk::TrackRoad* pRoad = chamberList[0]->baseRoad();
             if (pRoad == NULL)
             {
-                log << MSG::DEBUG << "Cannot find base road" << endreq;
+                log << MSG::DEBUG << "Cannot find base road" << endmsg;
                 return;
             }
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
@@ -277,11 +277,11 @@ void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double
             {
                 if (pSegments != NULL)
                     delete pSegments;
-                //log << MSG::WARNING << "Got NULL segment list from MdtSegmentMaker" << endreq;
+                //log << MSG::WARNING << "Got NULL segment list from MdtSegmentMaker" << endmsg;
                 continue;
             }
             if (log.level() <= MSG::DEBUG)
-                log << MSG::DEBUG << "Found " << pSegments->size() << "T0 segments" << endreq;
+                log << MSG::DEBUG << "Found " << pSegments->size() << "T0 segments" << endmsg;
 
             //pCand->fillChamberT0s(*pSegments);
             for (std::vector<const Muon::MuonSegment*>::const_iterator itSeg = pSegments->
@@ -310,7 +310,7 @@ void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double
                     << " chi2=" << pMuonSegment->fitQuality()->chiSquared()
                     << " prob=" << prob
                     << " quality=" << quality
-                    << endreq;
+                    << endmsg;
                 if (maxQuality < quality || (maxQuality == quality && maxProb < prob))
                 {
                     maxQuality = quality;
@@ -332,7 +332,7 @@ void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double
                                                       chamberList[0]->station());
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
                     m_pMuGirl->msg() << "Selected MDT segment at "
-                    << pMaxQuality->globalPosition() << endreq;
+                    << pMaxQuality->globalPosition() << endmsg;
                 //pCand->addMDTSegmenttoMuonSegments(pSegment->muonSegment());
                 pCand->markHits(chamberList, pSegment);
                 pCand->addMDTSegmenttoMuonSegments(pMaxQuality);
@@ -350,7 +350,7 @@ void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double
                                                          pCand->qOverP());
                     if (pRefTrkIsect == NULL)
                     {
-                        m_pMuGirl->msg(MSG::WARNING) << " pRefTrkIsect is NULL !!!! " << endreq;
+                        m_pMuGirl->msg(MSG::WARNING) << " pRefTrkIsect is NULL !!!! " << endmsg;
                         return;
                     }
                     HepGeom::Vector3D<double> refDir = pRefTrkIsect->direction();
@@ -370,15 +370,15 @@ void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
                     {
                         m_pMuGirl->msg() << "MDT correction: "
-                        << "pos from " << pMaxQuality->globalPosition() << " to " << segPos1 << endreq;
+                        << "pos from " << pMaxQuality->globalPosition() << " to " << segPos1 << endmsg;
                         m_pMuGirl->msg() << "                "
-                        << "dir from " << pMaxQuality->globalDirection() << " to " << segDir << endreq;
+                        << "dir from " << pMaxQuality->globalDirection() << " to " << segDir << endmsg;
                     }
                 }
                 Trk::TrackSurfaceIntersection* pTrkIsect =
                     new Trk::TrackSurfaceIntersection(segPos1, segDir.unit(), 0.0);
                 if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                    m_pMuGirl->msg() << "Adding MDT intersection at " << pTrkIsect << endreq;
+                    m_pMuGirl->msg() << "Adding MDT intersection at " << pTrkIsect << endmsg;
                 Intersection* pIsect = pCand->addIntersection(FIT_INTERSECTION,
                                        pTrkIsect,
                                        MDT_TECH,
@@ -394,7 +394,7 @@ void sTGC::buildSegments(Candidate* /*pCand*/, ChamberList& /*chambers*/, double
     }
 
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "MDT::buildSegments ended" << endreq;
+        m_pMuGirl->msg() << "MDT::buildSegments ended" << endmsg;
     */
 }
 

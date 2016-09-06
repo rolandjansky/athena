@@ -250,12 +250,12 @@ private:
         if (sc.isFailure())
         {
             if (bError)
-                msg(MSG::ERROR) << "Cannot retrieve tool " << pHandle << endreq;
+                msg(MSG::ERROR) << "Cannot retrieve tool " << pHandle << endmsg;
             else
-                msg(MSG::WARNING) << "Cannot retrieve tool " << pHandle << endreq;
+                msg(MSG::WARNING) << "Cannot retrieve tool " << pHandle << endmsg;
         }
         else
-            msg(MSG::INFO) << "Retrieved tool " << pHandle << endreq;
+            msg(MSG::INFO) << "Retrieved tool " << pHandle << endmsg;
         return sc;
     }
     template <class T>
@@ -265,12 +265,12 @@ private:
         if (sc.isFailure())
         {
             if (bError)
-                msg(MSG::ERROR) << "Cannot retrieve service " << pHandle << endreq;
+                msg(MSG::ERROR) << "Cannot retrieve service " << pHandle << endmsg;
             else
-                msg(MSG::WARNING) << "Cannot retrieve service " << pHandle << endreq;
+                msg(MSG::WARNING) << "Cannot retrieve service " << pHandle << endmsg;
         }
         else
-            msg(MSG::INFO) << "Retrieved service " << pHandle << endreq;
+            msg(MSG::INFO) << "Retrieved service " << pHandle << endmsg;
         return sc;
     }
 

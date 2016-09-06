@@ -37,14 +37,14 @@ CandidateNtuple::CandidateNtuple(MsgStream& log, Muon::MuonIdHelperTool& helper)
 
 StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
 {
-    m_log << MSG::INFO << " CandidateNtuple initialization" << endreq;
+    m_log << MSG::INFO << " CandidateNtuple initialization" << endmsg;
 
     // Run/Event/Candidate identification
     if (    pNTuple->addItem("MUGIRL/RunNumber",       m_RunNumber).isFailure() ||
             pNTuple->addItem("MUGIRL/EventNumber",     m_EventNumber).isFailure() ||
             pNTuple->addItem("MUGIRL/CandidateNumber", m_CandidateNumber).isFailure())
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Run and event numbers>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Run and event numbers>)" << endmsg;
         return StatusCode::FAILURE;
     }
     // Muon Feature Parameters
@@ -59,7 +59,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
             pNTuple->addItem("MUGIRL/MFdir_z" ,   m_MFdir_z).isFailure() ||
             pNTuple->addItem("MUGIRL/MFeta" ,     m_MFeta).isFailure())
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<MuonFeature parameters>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<MuonFeature parameters>)" << endmsg;
         return StatusCode::FAILURE;
     }
     // ID track parameters
@@ -80,7 +80,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
 	     pNTuple->addItem("MUGIRL/IDTrkCov44",   m_IDTrkCov44).isFailure() ||
 	     pNTuple->addItem("MUGIRL/IDTrkCov55",   m_IDTrkCov55).isFailure())
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<ID track parameters>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<ID track parameters>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -94,7 +94,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
          pNTuple->addItem("MUGIRL/ExtrIDTrkQOverP",  m_extrIDTrkQOverP).isFailure() ||
          pNTuple->addItem("MUGIRL/ExtrIDTrkCharge",  m_extrIDTrkCharge).isFailure() )
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<ID extrapolated track parameters>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<ID extrapolated track parameters>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -111,7 +111,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
             pNTuple->addItem("MUGIRL/LHR",           m_Lhr).isFailure() ||
             pNTuple->addItem("MUGIRL/Isolation",     m_Isolation).isFailure())
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<ANN parameters>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<ANN parameters>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -136,7 +136,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
             pNTuple->addIndexedItem("MUGIRL/ChamberRZ",         m_NumChambers, m_ChamberRZ).isFailure() ||
             pNTuple->addIndexedItem("MUGIRL/ChamberPhi",        m_NumChambers, m_ChamberPhi).isFailure() )
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Chamber parameters>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Chamber parameters>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -158,7 +158,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
             pNTuple->addIndexedItem("MUGIRL/IsectDirZ",         m_NumIsects, m_IsectDirZ).isFailure() ||
             pNTuple->addIndexedItem("MUGIRL/IsectSegment",      m_NumIsects, m_IsectSegment).isFailure() )
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Intersection parameters>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Intersection parameters>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -181,7 +181,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
             pNTuple->addIndexedItem("MUGIRL/SegProb",           m_NumSegs, m_SegProb).isFailure() ||
             pNTuple->addIndexedItem("MUGIRL/SegIsect",          m_NumSegs, m_SegIsect).isFailure() )
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Segment parameters>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Segment parameters>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -217,7 +217,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
             pNTuple->addIndexedItem("MUGIRL/HitDriftRadius",    m_NumHits, m_HitDriftRadius).isFailure() ||
             pNTuple->addIndexedItem("MUGIRL/HitError",          m_NumHits, m_HitError).isFailure() )
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Hit parameters>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Hit parameters>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -226,7 +226,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
             pNTuple->addIndexedItem("MUGIRL/HitSegMapHit",      m_NumHitSegMaps, m_HitSegMapHit).isFailure() ||
             pNTuple->addIndexedItem("MUGIRL/HitSegMapSeg",      m_NumHitSegMaps, m_HitSegMapSeg).isFailure() )
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Hit/Segment Association>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Hit/Segment Association>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -248,7 +248,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
         pNTuple->addItem("MUGIRL/RefittedTrkSummaryNumRpcPhiHoles",m_RefittedTrkSummaryNumRpcPhiHoles,0, m_maxHits).isFailure())
 
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Number of hits and holes>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Number of hits and holes>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -265,7 +265,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
         pNTuple->addIndexedItem("MUGIRL/MaximumUppPos",   m_NumHoughMaxima, m_MaximumUppPos).isFailure()   ||
         pNTuple->addIndexedItem("MUGIRL/TriggerConfirmed",m_NumHoughMaxima, m_TriggerConfirmed).isFailure() )
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Hough transform maxima>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Hough transform maxima>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -283,7 +283,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
         pNTuple->addIndexedItem("MUGIRL/HoughMaximum",       m_NumHoughHits, m_HoughMaximum).isFailure()       ||
         pNTuple->addIndexedItem("MUGIRL/HoughMuGirlHit",     m_NumHoughHits, m_HoughMuGirlHit).isFailure() )
     {
-        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Hough transform hits>)" << endreq;
+        m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<Hough transform hits>)" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -293,7 +293,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
     if (pNTuple->addItem("MUGIRL/MSRefittedTrkSummaryFlag",m_MSRefittedTrkSummaryFlag).isFailure())
       
       {
-	m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<MSFlag>)" << endreq;
+	m_log << MSG::WARNING << "Cannot addItem(MUGIRL/<MSFlag>)" << endmsg;
 	return StatusCode::FAILURE;
       }*/
     return StatusCode::SUCCESS;
@@ -302,7 +302,7 @@ StatusCode CandidateNtuple::book(NTuple::Tuple* pNTuple)
 StatusCode CandidateNtuple::fillEventInfo(unsigned nRunNumber, unsigned nEventNumber)
 {
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "CandidateNtuple::fillEventInfo(" << nRunNumber << ", " << nEventNumber << ")" << endreq;
+        m_log << MSG::DEBUG << "CandidateNtuple::fillEventInfo(" << nRunNumber << ", " << nEventNumber << ")" << endmsg;
 
     m_RunNumber   = (long)nRunNumber;
     m_EventNumber = (long)nEventNumber;
@@ -314,7 +314,7 @@ StatusCode CandidateNtuple::fillCandidate(int iTrack, Candidate* pCand)
 {
      m_isMuonFeature = 0;
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "CandidateNtuple::fillCandidate(" << iTrack << ")" << endreq;
+        m_log << MSG::DEBUG << "CandidateNtuple::fillCandidate(" << iTrack << ")" << endmsg;
     m_MFhasCombined = 0;
     if (pCand->hasCombinedMF())
     m_MFhasCombined = 1;
@@ -326,7 +326,7 @@ StatusCode CandidateNtuple::fillCandidate(int iTrack, Candidate* pCand)
     const MuonFeature*     mFeature = pCand->getMuonFeature();
     if (pPerigee == NULL && mFeature == NULL && mEFTrack == NULL)
     {
-        m_log << MSG::WARNING << "pCand->getIDPerigee(), pCand->getMuonEFTrack() and pCand->getMuonFeature() returned NULL!" << endreq;
+        m_log << MSG::WARNING << "pCand->getIDPerigee(), pCand->getMuonEFTrack() and pCand->getMuonFeature() returned NULL!" << endmsg;
         return StatusCode::RECOVERABLE;
     }
     if (mEFTrack!=NULL)
@@ -498,7 +498,7 @@ StatusCode CandidateNtuple::fillCandidate(int iTrack, Candidate* pCand)
         m_NumChambers++;
     }
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "CandidateNtuple::fill filled " << m_NumChambers << " chambers" << endreq;
+        m_log << MSG::DEBUG << "CandidateNtuple::fill filled " << m_NumChambers << " chambers" << endmsg;
 
     m_NumIsects = 0;
     for (IntersectionList::const_iterator itIsect = pCand->intersections().begin();
@@ -532,7 +532,7 @@ StatusCode CandidateNtuple::fillCandidate(int iTrack, Candidate* pCand)
         m_NumIsects++;
     }
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "CandidateNtuple::fill filled " << m_NumIsects << " intersections" << endreq;
+        m_log << MSG::DEBUG << "CandidateNtuple::fill filled " << m_NumIsects << " intersections" << endmsg;
 
     m_NumHits = 0;
     for (HitList::const_iterator itHit = pCand->hits().begin();
@@ -546,7 +546,7 @@ StatusCode CandidateNtuple::fillCandidate(int iTrack, Candidate* pCand)
         Chamber* pChamber = pHit->chamber();
         if (pChamber == NULL)
         {
-            m_log << MSG::WARNING << "pHit->chamber() returned NULL!" << endreq;
+            m_log << MSG::WARNING << "pHit->chamber() returned NULL!" << endmsg;
             return StatusCode::RECOVERABLE;
         }
         Intersection* pFineIsect =  pChamber->intersection(ID_TECH,   Chamber::SAME_DISTANCE);
@@ -597,14 +597,14 @@ StatusCode CandidateNtuple::fillCandidate(int iTrack, Candidate* pCand)
             const Muon::MdtDriftCircleOnTrack* pMdcot =
                 dynamic_cast<const Muon::MdtDriftCircleOnTrack*>(pHit->RIO());
             if (pMdcot == NULL)
-                m_log << MSG::WARNING << "pHit->RIO is not a MdtDriftCircleOnTrack" << endreq;
+                m_log << MSG::WARNING << "pHit->RIO is not a MdtDriftCircleOnTrack" << endmsg;
             else
                 m_HitDriftRadius[m_NumHits] = pMdcot->driftRadius();
         }
         m_NumHits++;
     }
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "CandidateNtuple::fill filled " << m_NumHits << " hits" << endreq;
+        m_log << MSG::DEBUG << "CandidateNtuple::fill filled " << m_NumHits << " hits" << endmsg;
 
     //fill segment information
     m_NumSegs = 0;
@@ -673,7 +673,7 @@ StatusCode CandidateNtuple::fillCandidate(int iTrack, Candidate* pCand)
         m_NumSegs++;
     }
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "CandidateNtuple::fill filled " << m_NumSegs << " segments with " << m_NumHitSegMaps << " hit mappings" << endreq;
+        m_log << MSG::DEBUG << "CandidateNtuple::fill filled " << m_NumSegs << " segments with " << m_NumHitSegMaps << " hit mappings" << endmsg;
 
     if (pCand->RefittedTrack()!=NULL)
     {
@@ -707,7 +707,7 @@ StatusCode CandidateNtuple::fillCandidate(int iTrack, Candidate* pCand)
     */
 
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "CandidateNtuple::fillCandidate ended" << endreq;
+        m_log << MSG::DEBUG << "CandidateNtuple::fillCandidate ended" << endmsg;
 
     return StatusCode::SUCCESS;
 }
@@ -716,7 +716,7 @@ StatusCode CandidateNtuple::fillCandidate(int iTrack, Candidate* pCand)
 StatusCode CandidateNtuple::fillHoughData(Candidate* pCand, std::vector<MuonHough::MuonLayerHough::Maximum*> hough_data[16][4][2])
 {
     if (m_log.level() <= MSG::DEBUG)
-      m_log << MSG::DEBUG << "CandidateNtuple::fillHoughData" << endreq;
+      m_log << MSG::DEBUG << "CandidateNtuple::fillHoughData" << endmsg;
 
     m_NumHoughMaxima=0;
     m_NumHoughHits = 0;
@@ -764,27 +764,27 @@ StatusCode CandidateNtuple::fillHoughData(Candidate* pCand, std::vector<MuonHoug
                 // check if the identifier is valid
                 if (m_idHelperTool.isMdt(id)) {
                   if (!m_idHelperTool.mdtIdHelper().valid(id)) {
-                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepData loop: MDT id 0x" << id << " is invalid!" << endreq;
+                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepData loop: MDT id 0x" << id << " is invalid!" << endmsg;
                     (*it)->prd->dump(m_log);
                   }
                 } else if (m_idHelperTool.isRpc(id)) {
                   if (!m_idHelperTool.rpcIdHelper().valid(id)) {
-                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepData loop: RPC id 0x" << id << " is invalid!" << endreq;
+                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepData loop: RPC id 0x" << id << " is invalid!" << endmsg;
                     (*it)->prd->dump(m_log);
                   }
                 } else if (m_idHelperTool.issTgc(id)) {
                   if (!m_idHelperTool.stgcIdHelper().valid(id)) {
-                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepData loop: sTGC id 0x" << id << " is invalid!" << endreq;
+                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepData loop: sTGC id 0x" << id << " is invalid!" << endmsg;
                     (*it)->prd->dump(m_log);
                    }
                 } else if (m_idHelperTool.isMM(id)) {
                   if (!m_idHelperTool.mmIdHelper().valid(id)) {
-                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepData loop: MM id 0x" << id << " is invalid!" << endreq;
+                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepData loop: MM id 0x" << id << " is invalid!" << endmsg;
                     (*it)->prd->dump(m_log);
                   }
                 } else if (m_idHelperTool.isCsc(id)) {
                   if (!m_idHelperTool.cscIdHelper().valid(id)) {
-                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepData loop: CSC id 0x" << id << " is invalid!" << endreq;
+                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepData loop: CSC id 0x" << id << " is invalid!" << endmsg;
                     (*it)->prd->dump(m_log);
                   }
                 }
@@ -793,7 +793,7 @@ StatusCode CandidateNtuple::fillHoughData(Candidate* pCand, std::vector<MuonHoug
                 const Amg::Vector2D locPos = (*it)->prd->localPosition();
                 const Trk::TrkDetElementBase* detEl = (*it)->prd->detectorElement();
                 if (detEl==0) {
-                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepRawData loop: detector element retrieved from the PRD is invalid!" << endreq;
+                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, PrepRawData loop: detector element retrieved from the PRD is invalid!" << endmsg;
                     continue;
                 }
                 Amg::Vector3D gPos,dummy(1.,1.,1.);
@@ -818,14 +818,14 @@ StatusCode CandidateNtuple::fillHoughData(Candidate* pCand, std::vector<MuonHoug
                   Identifier id = tgc[tgc_hit]->identify();
                   // check if the identifier is valid
                   if (!m_idHelperTool.tgcIdHelper().valid(id)) {
-                      m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, Tgc PrepData loop: id 0x" << id << " is invalid!" << endreq;
+                      m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, Tgc PrepData loop: id 0x" << id << " is invalid!" << endmsg;
                       //(*it)->tgc->dump(m_log);
                   }
 
                   const Amg::Vector2D locPos = tgc[tgc_hit]->localPosition();
                   const Trk::TrkDetElementBase* detEl = tgc[tgc_hit]->detectorElement();
                   if (detEl==0) {
-                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, Tgc Prepdata loop:: detector element retrieved from the TgcPrepData is invalid!" << endreq;
+                    m_log << MSG::ERROR << "CandidateNtuple::fillHoughData, Tgc Prepdata loop:: detector element retrieved from the TgcPrepData is invalid!" << endmsg;
                     continue;
                   }
                   Amg::Vector3D gPos, dummy(1.,1.,1.);
@@ -855,10 +855,10 @@ StatusCode CandidateNtuple::fillHoughData(Candidate* pCand, std::vector<MuonHoug
 
     if (m_log.level() <= MSG::DEBUG)
         m_log << MSG::DEBUG << "CandidateNtuple::fillHoughdata: number of Hough Maxima processed: " << m_NumHoughMaxima 
-                         << ",  number of Hough Hits processed: " << m_NumHoughHits << endreq;
+                         << ",  number of Hough Hits processed: " << m_NumHoughHits << endmsg;
 
     if (m_log.level() <= MSG::DEBUG)
-        m_log << MSG::DEBUG << "CandidateNtuple::fillHoughData ended" << endreq;
+        m_log << MSG::DEBUG << "CandidateNtuple::fillHoughData ended" << endmsg;
 
     return StatusCode::SUCCESS;
 }

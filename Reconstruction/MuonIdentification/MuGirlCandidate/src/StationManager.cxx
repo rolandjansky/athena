@@ -55,10 +55,11 @@ namespace MuGirlNS
         makeStation(pMuGirl, "MMS", MM_TECH,  INNER_DIST,  ENDCAP_REGION);
         makeStation(pMuGirl, "STL", STGC_TECH,INNER_DIST,  ENDCAP_REGION);
         makeStation(pMuGirl, "STS", STGC_TECH,INNER_DIST,  ENDCAP_REGION);
-	makeStation(pMuGirl, "BME", MDT_TECH, MIDDLE_DIST, BARREL_REGION);  
+	makeStation(pMuGirl, "BME", MDT_TECH, MIDDLE_DIST, BARREL_REGION);
 	makeStation(pMuGirl, "BME", RPC_TECH, MIDDLE_DIST, BARREL_REGION);
-	makeStation(pMuGirl, "BOE", MDT_TECH, OUTER_DIST,  BARREL_REGION); 
+	makeStation(pMuGirl, "BOE", MDT_TECH, OUTER_DIST,  BARREL_REGION);
 	makeStation(pMuGirl, "BOE", RPC_TECH, OUTER_DIST,  BARREL_REGION);
+	makeStation(pMuGirl, "BMG", MDT_TECH, MIDDLE_DIST, BARREL_REGION);
     }
 
     StationManger::~StationManger()

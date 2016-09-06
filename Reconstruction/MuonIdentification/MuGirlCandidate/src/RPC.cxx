@@ -36,7 +36,7 @@ RPC::RPC(CandidateTool* pMuGirl, const std::string& sPrepDataCollection) :
     m_detId = ::RPC;
     m_pIdHelper = dynamic_cast<const RpcIdHelper*>(pMuGirl->muonManager()->rpcIdHelper());
     if(m_pIdHelper == 0)
-      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be RpcIdHelper, but it is NOT!" << endreq;
+      m_pMuGirl->msg(MSG::ERROR) << "IdHelper should be RpcIdHelper, but it is NOT!" << endmsg;
 }
 
 const MuonGM::MuonReadoutElement* RPC::readoutElement(const Identifier& id) const
@@ -66,7 +66,7 @@ StatusCode RPC::retrievePrepData()
        {
            m_pPrepDataContainer=NULL;
            if (m_pMuGirl->msgLvl(MSG::DEBUG))
-              m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve RPC PrepData Container " << m_sPrepDataCollection << endreq;
+              m_pMuGirl->msg(MSG::DEBUG) << "Cannot retrieve RPC PrepData Container " << m_sPrepDataCollection << endmsg;
        }
        return StatusCode::SUCCESS;
     }
@@ -74,7 +74,7 @@ StatusCode RPC::retrievePrepData()
     {
         m_pPrepDataContainer=NULL;
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain RPC PrepData Container " << m_sPrepDataCollection << endreq;
+            m_pMuGirl->msg(MSG::DEBUG) << "EventStore does not contain RPC PrepData Container " << m_sPrepDataCollection << endmsg;
     }
     return StatusCode::SUCCESS;
 }
@@ -96,7 +96,7 @@ unsigned RPC::prepData(Chamber* pChamber, PrepDataList& array)
         if (m_pMuGirl->evtStore()->retrieve(m_pPrepDataContainer, m_sPrepDataCollection).isFailure() ||
             m_pPrepDataContainer == NULL)
         {
-            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve RPC PrepData Container " << m_sPrepDataCollection << endreq;
+            m_pMuGirl->msg(MSG::WARNING) << "Cannot retrieve RPC PrepData Container " << m_sPrepDataCollection << endmsg;
             return 0;
         }
     }
@@ -135,7 +135,7 @@ Amg::Vector3D RPC::hitPosition(const Trk::PrepRawData* pPrepData)
     const Muon::RpcPrepData* pRpcPrepData = dynamic_cast<const Muon::RpcPrepData*>(pPrepData);
     if (pRpcPrepData == NULL)
     {
-        m_pMuGirl->msg(MSG::WARNING) << "Cannt convert from Trk::PrepRawData* to Muon::RpcPrepData*" << endreq;
+        m_pMuGirl->msg(MSG::WARNING) << "Cannt convert from Trk::PrepRawData* to Muon::RpcPrepData*" << endmsg;
         return Amg::Vector3D();
     }
     return pRpcPrepData->globalPosition();
@@ -150,7 +150,7 @@ bool RPC::isEtaHit(const Trk::PrepRawData* pPrepData)
 void RPC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
 {
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "RPC::buildSegments - " << chambers.size() << " chambers" << endreq;
+        m_pMuGirl->msg() << "RPC::buildSegments - " << chambers.size() << " chambers" << endmsg;
 
     if (chambers.empty())
         return;
@@ -177,9 +177,9 @@ void RPC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
                     dynamic_cast<const Muon::MuonClusterOnTrack*>(*itRIO);
                 if (pMcot == NULL)
                 {
-                    m_pMuGirl->msg(MSG::WARNING) << "Cannot convert Trk::RIO_OnTrack to Muon::MuonClusterOnTrack" << endreq;
+                    m_pMuGirl->msg(MSG::WARNING) << "Cannot convert Trk::RIO_OnTrack to Muon::MuonClusterOnTrack" << endmsg;
                     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                        m_pMuGirl->msg() << "RPC::buildSegments ended" << endreq;
+                        m_pMuGirl->msg() << "RPC::buildSegments ended" << endmsg;
                     return;
                 }
                 mcots.push_back(pMcot);
@@ -189,7 +189,7 @@ void RPC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
     if (nChamber == 0)
     {
         if (m_pMuGirl->msgLvl(MSG::DEBUG))
-            m_pMuGirl->msg() << "No RPC hits" << endreq;
+            m_pMuGirl->msg() << "No RPC hits" << endmsg;
         return;
     }
     clusters.resize(nChamber);
@@ -197,11 +197,11 @@ void RPC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
         m_pMuGirl->msg() << "clusters(" << TechnologyTypeName(RPC_TECH) << ","
             << DistanceTypeName(chambers.front()->distanceType()) << ","
             << RegionTypeName(chambers.front()->regionType()) << ")"
-            << " contains " << count_clusters(clusters) << " clusters" << endreq;
+            << " contains " << count_clusters(clusters) << " clusters" << endmsg;
     Trk::TrackRoad* pRoad = pGoodChamber->baseRoad();
     if (pRoad == NULL)
     {
-        m_pMuGirl->msg(MSG::DEBUG) << "Cannot find base road" << endreq;
+        m_pMuGirl->msg(MSG::DEBUG) << "Cannot find base road" << endmsg;
         return;
     }
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
@@ -227,7 +227,7 @@ void RPC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
                 << " hits=" << pMuonSegment->numberOfContainedROTs()
                 << " chi2=" << pMuonSegment->fitQuality()->chiSquared()
                 << " prob=" << pSegment->fitProbability()
-                << endreq;
+                << endmsg;
 
             // This is a workaround occasional inversion of direction by MuonSegemnt
             // ---------------------------------------------------------------------
@@ -238,7 +238,7 @@ void RPC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
             Trk::TrackSurfaceIntersection* pTrkIsect =
                 new Trk::TrackSurfaceIntersection(pMuonSegment->globalPosition(), dir, 0.0);
             if (m_pMuGirl->msgLvl(MSG::DEBUG))
-                m_pMuGirl->msg() << "Adding RPC intersection at " << pTrkIsect << endreq;
+                m_pMuGirl->msg() << "Adding RPC intersection at " << pTrkIsect << endmsg;
             Intersection* pIsect = pCand->addIntersection(FIT_INTERSECTION,
                                    pTrkIsect,
                                    RPC_TECH,
@@ -253,7 +253,7 @@ void RPC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
         delete pSegments;
     }
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "RPC::buildSegments ended" << endreq;
+        m_pMuGirl->msg() << "RPC::buildSegments ended" << endmsg;
 }
 
 //<S>==============================================================
@@ -261,15 +261,15 @@ void RPC::buildSegments(Candidate* pCand, ChamberList& chambers, double)
 void RPC::stauHitBeta(Hit* pHit, double& d_beta, bool& b_isEta)
 {
     if (m_pMuGirl->msgLvl(MSG::DEBUG))
-        m_pMuGirl->msg() << "RPC::stauHitBeta - " << endreq;
+        m_pMuGirl->msg() << "RPC::stauHitBeta - " << endmsg;
 
     const Trk::RIO_OnTrack* pRIO = pHit->RIO();
 
     const Trk::PrepRawData* pPrepData = pRIO->prepRawData();
     const Muon::RpcPrepData* pRpcPrepData = dynamic_cast<const Muon::RpcPrepData*>(pPrepData);
     if(!pRpcPrepData) {
-      m_pMuGirl->msg(MSG::WARNING) << "PrepData should be RpcPrepData, but it is NOT!" << endreq;
-      m_pMuGirl->msg(MSG::WARNING) << "Returning beta=0. and isEta=false." << endreq;
+      m_pMuGirl->msg(MSG::WARNING) << "PrepData should be RpcPrepData, but it is NOT!" << endmsg;
+      m_pMuGirl->msg(MSG::WARNING) << "Returning beta=0. and isEta=false." << endmsg;
       d_beta = 0.;
       b_isEta = false;
       return;
