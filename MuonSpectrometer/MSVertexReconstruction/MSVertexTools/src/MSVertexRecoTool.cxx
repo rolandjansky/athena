@@ -34,7 +34,14 @@ namespace Muon {
 				      const IInterface* parent)
     : 
     AthAlgTool(type, name, parent),
-    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator") {
+    m_extrapolator("Trk::Extrapolator/AtlasExtrapolator"),
+    m_mdtIdHelper(0),
+    m_rpcIdHelper(0),
+    m_tgcIdHelper(0),
+    m_PI(3.1415927),
+    m_rndmEngine(0),
+    m_rndmSvc(0)
+  {
     declareInterface<IMSVertexRecoTool>(this);
     
     declareProperty("xAODVertexContainer",m_xAODContainerName="MSDisplacedVertex");//name of SG container

@@ -27,7 +27,7 @@
   3 == BMS  10 == BOG   |   17 == EML
   4 == BOL  52 == BIM   |   18 == EMS
   5 == BOS  53 == BME   |   20 == EOL
-  6 == BEE
+  6 == BEE  54 == BMG
 
 */
 
@@ -46,7 +46,16 @@ namespace Muon {
   MSVertexTrackletTool::MSVertexTrackletTool (const std::string& type, const std::string& name,
 					      const IInterface* parent)
     : 
-    AthAlgTool(type, name, parent) {
+    AthAlgTool(type, name, parent),
+    m_mdtIdHelper(0),
+    m_DeltaAlphaCut(0),
+    m_nMDT(0),
+    m_PI(3.1415927),
+    m_BIL(28.4366),
+    m_BML(62.8267),
+    m_BMS(53.1259),
+    m_BOL(29.7554)
+  {
     declareInterface<IMSVertexTrackletTool>(this);    
 
     declareProperty("xAODTrackParticleContainer",m_TPContainer = "MSonlyTracklets");
@@ -138,7 +147,7 @@ namespace Muon {
     }
 
     if (msgLvl(MSG::DEBUG)) 
-      msg(MSG::DEBUG) << m_nMDT << " MDT hits are selected and sorted" << endreq;
+      msg(MSG::DEBUG) << m_nMDT << " MDT hits are selected and sorted" << endmsg;
 
     //loop over the MDT hits and find segments
     //select the tube combinations to be fit
@@ -235,7 +244,7 @@ namespace Muon {
       // 0 == BI  1 == BM  2 == BO
       // 3 == EI  4 == EM  5 == EO
       if(stName == 0 || stName == 1 || stName == 7 || stName == 52) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[0][ML-1][sector-1].push_back(mlsegments.at(k));
-      else if(stName == 2 || stName == 3 || stName == 8) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[1][ML-1][sector-1].push_back(mlsegments.at(k));
+      else if(stName == 2 || stName == 3 || stName == 8 || stName == 54) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[1][ML-1][sector-1].push_back(mlsegments.at(k));
       else if(stName == 4 || stName == 5 || stName == 9 || stName == 10) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[2][ML-1][sector-1].push_back(mlsegments.at(k));
       else if(stName == 13 || stName == 49) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[3][ML-1][sector-1].push_back(mlsegments.at(k));
       else if(stName == 17 || stName == 18) for(unsigned int k=0; k<mlsegments.size(); ++k) segs[4][ML-1][sector-1].push_back(mlsegments.at(k));
@@ -267,6 +276,7 @@ namespace Muon {
 	  if( stName == 0) m_DeltaAlphaCut = m_BIL/750.0;
 	  else if(stName == 2) m_DeltaAlphaCut = m_BML/750.0;
 	  else if(stName == 3) m_DeltaAlphaCut = m_BMS/750.0;
+          else if(stName == 54) m_DeltaAlphaCut = m_BMS/750.0;
 	  else if(stName == 4) m_DeltaAlphaCut = m_BOL/750.0;
 	  else if(stName == 7) m_DeltaAlphaCut = m_BIL/750.0;
 	  else if(stName == 8) m_DeltaAlphaCut = m_BML/750.0;
@@ -440,11 +450,11 @@ namespace Muon {
     const Muon::MdtPrepDataContainer* mdtTES = 0;
     if(evtStore()->retrieve(mdtTES,"MDT_DriftCircles").isFailure()) {
       if (msgLvl(MSG::DEBUG)) 
-	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles was not retrieved" << endreq;
+	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles was not retrieved" << endmsg;
       return 0;
     } else {
       if (msgLvl(MSG::DEBUG)) 
-	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles retrieved" << endreq;
+	msg(MSG::DEBUG) << "Muon::MdtPrepDataContainer with key MDT_DriftCircles retrieved" << endmsg;
     }
 
     Muon::MdtPrepDataContainer::const_iterator MDTItr = mdtTES->begin();
@@ -1034,6 +1044,7 @@ namespace Muon {
     if(chamber == 0) pTot = m_BIL/fabs(deltaAlpha);
     else if(chamber == 2) pTot = m_BML/fabs(deltaAlpha);
     else if(chamber == 3) pTot = m_BMS/fabs(deltaAlpha);
+    else if(chamber == 54) pTot = m_BMS/fabs(deltaAlpha);
     else if(chamber == 4) pTot = m_BOL/fabs(deltaAlpha);
     else if(chamber == 7) pTot = m_BIL/fabs(deltaAlpha);
     else if(chamber == 8) pTot = m_BML/fabs(deltaAlpha);
@@ -1057,6 +1068,7 @@ namespace Muon {
     if(ChType == 0) pErr = dalpha/m_BIL;
     else if(ChType == 2) pErr = dalpha/m_BML;
     else if(ChType == 3) pErr = dalpha/m_BMS;
+    else if(ChType == 54) pErr = dalpha/m_BMS;
     else if(ChType == 4) pErr = dalpha/m_BOL;
     else if(ChType == 7) pErr = dalpha/m_BIL;
     else if(ChType == 8) pErr = dalpha/m_BML;
@@ -1079,6 +1091,7 @@ namespace Muon {
     if(ChType == 0) pErr = dalpha/m_BIL;
     else if(ChType == 2) pErr = dalpha/m_BML;
     else if(ChType == 3) pErr = dalpha/m_BMS;
+    else if(ChType == 54) pErr = dalpha/m_BMS;
     else if(ChType == 4) pErr = dalpha/m_BOL;
     else if(ChType == 7) pErr = dalpha/m_BIL;
     else if(ChType == 8) pErr = dalpha/m_BML;
