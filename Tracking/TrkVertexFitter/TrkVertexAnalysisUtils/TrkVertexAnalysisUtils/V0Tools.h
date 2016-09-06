@@ -346,14 +346,14 @@ namespace Trk
 /**
  * pointer from a mass constrained (Kshort, Lambda or Lambdabar) V0 to the unconstrained one
  */
-  xAOD::Vertex* v0Link(xAOD::Vertex * vxCandidate) const;
+  xAOD::Vertex* v0Link(const xAOD::Vertex * vxCandidate) const;
 
 /**
  * pointers to Kshort, Lambda or Lambdabar mass constrained V0s, if they exist, from the unconstrained one
  */
-  xAOD::Vertex* kshortLink(xAOD::Vertex * vxCandidate) const;
-  xAOD::Vertex* lambdaLink(xAOD::Vertex * vxCandidate) const;
-  xAOD::Vertex* lambdabarLink(xAOD::Vertex * vxCandidate) const;
+  xAOD::Vertex* kshortLink(const xAOD::Vertex * vxCandidate) const;
+  xAOD::Vertex* lambdaLink(const xAOD::Vertex * vxCandidate) const;
+  xAOD::Vertex* lambdabarLink(const xAOD::Vertex * vxCandidate) const;
  
   private:
 

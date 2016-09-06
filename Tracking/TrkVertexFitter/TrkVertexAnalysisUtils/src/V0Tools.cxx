@@ -41,24 +41,24 @@ namespace Trk
 
   //get the extrapolator
   if ( m_extrapolator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
   }
 
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS; 
   }
  
   StatusCode V0Tools::finalize()
   {
-    msg(MSG::INFO) << "Finalize successful" << endreq;
+    msg(MSG::INFO) << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS; 
   }
 
 
-  xAOD::Vertex * V0Tools::v0Link(xAOD::Vertex * vxCandidate) const
+  xAOD::Vertex * V0Tools::v0Link(const xAOD::Vertex * vxCandidate) const
   {
     xAOD::Vertex* v0(0);
     static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "V0Link" );
@@ -69,7 +69,7 @@ namespace Trk
     return v0;
   }
 
-  xAOD::Vertex * V0Tools::kshortLink(xAOD::Vertex * vxCandidate) const
+  xAOD::Vertex * V0Tools::kshortLink(const xAOD::Vertex * vxCandidate) const
   {
     xAOD::Vertex* v0(0);
     static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "KshortLink" );
@@ -80,7 +80,7 @@ namespace Trk
     return v0;
   }
 
-  xAOD::Vertex * V0Tools::lambdaLink(xAOD::Vertex * vxCandidate) const
+  xAOD::Vertex * V0Tools::lambdaLink(const xAOD::Vertex * vxCandidate) const
   {
     xAOD::Vertex* v0(0);
     static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdaLink" );
@@ -91,7 +91,7 @@ namespace Trk
     return v0;
   }
 
-  xAOD::Vertex * V0Tools::lambdabarLink(xAOD::Vertex * vxCandidate) const
+  xAOD::Vertex * V0Tools::lambdabarLink(const xAOD::Vertex * vxCandidate) const
   {
     xAOD::Vertex* v0(0);
     static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdabarLink" );
