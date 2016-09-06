@@ -210,7 +210,7 @@ void ReadCards::parse()
     size_t pos = mString.find(";");
     
     while ( pos != std::string::npos ) { 
-    
+
       std::string duff =  mString.substr(0,pos);
     
       //      size_t n = std::count(duff.begin(), duff.end(), "\"");
@@ -228,11 +228,16 @@ void ReadCards::parse()
 
 
       pos = mString.find(";");
+
     }      
+
+    if ( mString.find("|")==std::string::npos ) { 
+      error("syntax error, missing semicolon at end of input " + mString );
+    }
 
     string input = choptoken(mString,"|"); // shafted = input;
     string line  = input;   
-
+    
     // copy the unparsed line
     line         = chop(line,"|");
     
@@ -248,6 +253,7 @@ void ReadCards::parse()
 	if ( line[iq]=='=' ) break;
 	found = false;    
     }
+
     if ( found && quotecount>0 )  error("syntax error in tag name : " + input + " quotes" ); 
 
     string sline = chop(line, "=");       // split at =
@@ -265,8 +271,8 @@ void ReadCards::parse()
     // parse the tag name
 
     //    cout << "input >" << input << "<" << endl;
-    //    cout << "line >"  << line  << "<" << endl;
-    //    cout << "sline >" << sline << "<" << endl;
+    //    cout << "line  (val)>"  << line  << "<" << endl;
+    //    cout << "sline (tag)>" << sline << "<" << endl;
 
     chopends(sline); 
     string tagname = chopfirst(sline);

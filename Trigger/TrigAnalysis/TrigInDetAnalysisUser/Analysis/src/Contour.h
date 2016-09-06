@@ -62,8 +62,8 @@ public:
     for ( unsigned i=this->size()-1 ; i-- ;  ) { 
       if ( this->at(i).second ) { 
 	char _name[64];
-	if ( s=="" ) std::printf( _name, "%s_%d", mname.c_str(), i-1 ); 
-	else         std::printf( _name, "%s_%d", s.c_str(), i-1 ); 
+	if ( s=="" ) std::sprintf( _name, "%s_%d", mname.c_str(), i-1 ); 
+	else         std::sprintf( _name, "%s_%d", s.c_str(), i-1 ); 
 	this->at(i).second->Bayes()->Write(_name);
       }  
     }

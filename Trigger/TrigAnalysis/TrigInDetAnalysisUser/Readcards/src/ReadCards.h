@@ -34,6 +34,7 @@ using std::cerr;
 using std::endl;
 using std::ifstream;
 using std::ostringstream;
+using std::exit;
 
 
 #include "Value.h"
@@ -139,10 +140,16 @@ public:
 
   void print();
 
-  std::vector<string> Tags() const { 
+
+  std::vector<string> Tags(const std::string& pattern="") const { 
     std::vector<string> tags;
-    for ( unsigned i=0 ; i<mValues.size() ; i++ ) { 
-      tags.push_back(mValues[i].Tag());
+    if ( pattern=="" ) { 
+      for ( unsigned i=0 ; i<mValues.size() ; i++ ) tags.push_back(mValues[i].Tag());
+    }
+    else { 
+      for ( unsigned i=0 ; i<mValues.size() ; i++ ) { 
+	if ( mValues[i].Tag().find(pattern)!=std::string::npos ) tags.push_back(mValues[i].Tag());
+      }
     }
     return tags;
   }
@@ -160,6 +167,17 @@ public:
     if ( isTagDefined(key) ) t = GetVector(key);
   }
   
+
+
+  void declareProperty( const std::string& key, std::string& t ) { 
+    if ( isTagDefined(key) ) t = GetString(key);
+  }
+
+  void declareProperty( const std::string& key, std::vector<std::string>& t ) { 
+    if ( isTagDefined(key) ) t = GetStringVector(key);
+  }
+  
+
 private:
 
   void ReadParam();

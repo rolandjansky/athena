@@ -22,6 +22,12 @@ inline std::string label( const std::string& format, int i ) {
   return c;
 }
 
+inline std::string label( const std::string& format, unsigned i ) { 
+  char c[256];
+  std::sprintf( c, format.c_str(), i );
+  return c;
+}
+
 inline std::string label( const std::string& format, int i, int j ) { 
   char c[256];
   std::sprintf( c, format.c_str(), i, j );

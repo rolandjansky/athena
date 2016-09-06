@@ -40,8 +40,7 @@ bool Resplot::interpolate_flag = true;
 
 /// use the new error estimates
 bool Resplot::oldrms95   = true;
-// bool Resplot::oldrms95   = false;
-bool Resplot::scalerms95 = true;
+bool Resplot::scalerms95 = false;
 
 Resplot::ERROR Resplot::ErrorSet = Resplot::OK;
 
@@ -386,6 +385,8 @@ double NCounter(TH1D* h) {
 // Get the offsets and resolutions overall and for each slice 
 int Resplot::Finalise(double a, double b, TF1* (*func)(TH1D* s, double a, double b)) {
   
+  //  gDirectory->pwd();
+
   ErrorSet = OK;
 
   //  std::cout << "Resplot::Finalise() Name " << Name() << "\tn_primary " << n_primary << std::endl;
