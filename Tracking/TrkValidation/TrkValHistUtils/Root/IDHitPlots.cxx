@@ -144,7 +144,7 @@ namespace Trk {
         nPixelGangedHitsFlaggedFakes->Fill(iPixelGangedFakes);
       }
       if (trk.summaryValue(iSCTOutliers, xAOD::numberOfSCTOutliers)) {
-        nPixelOutliers->Fill(iSCTOutliers);
+        nSCTOutliers->Fill(iSCTOutliers);
       }
       if (trk.summaryValue(iSCTDoubleHoles, xAOD::numberOfSCTDoubleHoles)) {
         nSCTDoubleHoles->Fill(iSCTDoubleHoles);
