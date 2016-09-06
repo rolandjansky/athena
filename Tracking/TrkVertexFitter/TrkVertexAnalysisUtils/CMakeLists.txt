@@ -14,10 +14,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           GaudiKernel
                           PRIVATE
-                          Reconstruction/Particle
                           Tracking/TrkEvent/TrkParametersBase
                           Tracking/TrkEvent/TrkParticleBase
-                          Tracking/TrkEvent/TrkV0Vertex
                           Tracking/TrkEvent/VxVertex
                           Tracking/TrkExtrapolation/TrkExInterfaces )
 
@@ -32,10 +30,10 @@ atlas_add_library( TrkVertexAnalysisUtilsLib
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
                    LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventKernel EventPrimitives xAODTracking GaudiKernel
-                   PRIVATE_LINK_LIBRARIES Particle TrkParametersBase TrkParticleBase TrkV0Vertex VxVertex TrkExInterfaces )
+                   PRIVATE_LINK_LIBRARIES TrkParametersBase TrkParticleBase VxVertex TrkExInterfaces )
 
 atlas_add_component( TrkVertexAnalysisUtils
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventKernel EventPrimitives xAODTracking GaudiKernel Particle TrkParametersBase TrkParticleBase TrkV0Vertex VxVertex TrkExInterfaces TrkVertexAnalysisUtilsLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${EIGEN_LIBRARIES} AthenaBaseComps GeoPrimitives EventKernel EventPrimitives xAODTracking GaudiKernel TrkParametersBase TrkParticleBase VxVertex TrkExInterfaces TrkVertexAnalysisUtilsLib )
 

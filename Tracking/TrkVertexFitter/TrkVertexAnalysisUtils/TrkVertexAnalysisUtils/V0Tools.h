@@ -6,41 +6,26 @@
 #define V0TOOLS_H
 
 #include "AthenaBaseComps/AthAlgTool.h"
-#include "CLHEP/Vector/LorentzVector.h"
-#include "CLHEP/Matrix/Vector.h"
-#include "CLHEP/Matrix/Matrix.h"
-#include "CLHEP/Matrix/SymMatrix.h"
 #include "EventKernel/PdtPdg.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitivesHelpers.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticleContainer.h"
+#include "CLHEP/Vector/LorentzVector.h"
 
 /**
  *  @class V0Tools
  *  A simple tool to calculate a number of properties of a given V0 candidate.
  * 
  *  begin: 20-03-2007
- *  @authors Evelina Bouhova-Thacker (Lancaster University), Rob Henderson (Lancater University)
- *  e.bouhova@cern.ch, r.henderson@lancaster.ac.uk  
- *
+ *  @authors Evelina Bouhova-Thacker (Lancaster University)
+ *  e.bouhova@cern.ch
  */
-namespace Rec
-{
- class TrackParticle;
-}
 
 namespace Trk
 {
- class RecVertex;
- class Vertex;
- class VxCandidate;
- class ExtendedVxCandidate;
- class V0Candidate;
- class V0Hypothesis;
  class TrackParticleBase;
- class CovarianceMatrix;
  class IExtrapolator;
 
  static const InterfaceID IID_V0Tools("V0Tools", 1, 1);
@@ -73,22 +58,14 @@ namespace Trk
    return IID_V0Tools;
   }
 
-/**
- *  Methods, returning pointers to the different V0 Hypotheses
- */
-  const Trk::V0Hypothesis* findHypothesis(const V0Candidate * v0Candidate, const int pdgID) const;
-  
-  const Trk::V0Hypothesis* v0Unconstr(const V0Candidate * v0Candidate) const;
-  const Trk::V0Hypothesis* v0Kshort(const V0Candidate * v0Candidate) const;
-  const Trk::V0Hypothesis* v0Lambda(const V0Candidate * v0Candidate) const;
-  const Trk::V0Hypothesis* v0LambdaBar(const V0Candidate * v0Candidate) const;
-  const Trk::V0Hypothesis* v0Gamma(const V0Candidate * v0Candidate) const;
- 
  
 /**
  *  Methods, returning the invariant mass, error on the invariant mass and 
  *  Chi2 probability of the invariant mass of an xAOD::Vertex
  *  for a given hypothesis for the masses of the input tracks and the V0 mass.
+ *
+ *  if a negative value for a track is provided, the invariantMass and invariantMassError
+ *  are returned excluding that track
  */
   double invariantMass(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
   double invariantMass(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const;
@@ -347,6 +324,9 @@ namespace Trk
  *  Methods, returning the invariant mass and the error on the invariant mass
  *  calculated from the original track parameters (at the perigee (IP) or at a given vertex position
  *  if no vertex is specified, the reconstructed vertex position is used
+ *
+ *  if a negative value for a track is provided, the invariantMass and invariantMassError
+ *  are returned excluding that track
  */
   double invariantMassBeforeFitIP(const xAOD::Vertex * vxCandidate, double posTrackMass, double negTrackMass) const;
   double invariantMassBeforeFitIP(const xAOD::Vertex * vxCandidate, const std::vector<double> &masses) const;
@@ -366,14 +346,14 @@ namespace Trk
 /**
  * pointer from a mass constrained (Kshort, Lambda or Lambdabar) V0 to the unconstrained one
  */
-  xAOD::Vertex* v0Link(xAOD::Vertex * vxCandidate) const;
+  xAOD::Vertex* v0Link(const xAOD::Vertex * vxCandidate) const;
 
 /**
  * pointers to Kshort, Lambda or Lambdabar mass constrained V0s, if they exist, from the unconstrained one
  */
-  xAOD::Vertex* kshortLink(xAOD::Vertex * vxCandidate) const;
-  xAOD::Vertex* lambdaLink(xAOD::Vertex * vxCandidate) const;
-  xAOD::Vertex* lambdabarLink(xAOD::Vertex * vxCandidate) const;
+  xAOD::Vertex* kshortLink(const xAOD::Vertex * vxCandidate) const;
+  xAOD::Vertex* lambdaLink(const xAOD::Vertex * vxCandidate) const;
+  xAOD::Vertex* lambdabarLink(const xAOD::Vertex * vxCandidate) const;
  
   private:
 
@@ -388,20 +368,6 @@ namespace Trk
  
  };//end of class definitions
 
- inline const Trk::V0Hypothesis* V0Tools::v0Unconstr(const V0Candidate * v0Candidate) const
- {return findHypothesis(v0Candidate,PDG::null);}
- 
- inline const Trk::V0Hypothesis* V0Tools::v0Kshort(const V0Candidate * v0Candidate) const
- {return findHypothesis(v0Candidate,PDG::K_S0);}
- 
- inline const Trk::V0Hypothesis* V0Tools::v0Lambda(const V0Candidate * v0Candidate) const
- {return findHypothesis(v0Candidate,PDG::Lambda0);}
- 
- inline const Trk::V0Hypothesis* V0Tools::v0LambdaBar(const V0Candidate * v0Candidate) const
- {return findHypothesis(v0Candidate, PDG::anti_Lambda0);}
- 
- inline const Trk::V0Hypothesis* V0Tools::v0Gamma(const V0Candidate * v0Candidate) const
- {return findHypothesis(v0Candidate,PDG::gamma);}
 
 }//end of namespace definitions
 

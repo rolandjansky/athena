@@ -15,14 +15,12 @@ use GeoPrimitives	 GeoPrimitives-*        DetectorDescription
 use xAODTracking         xAODTracking-*         Event/xAOD
 
 private
-#use TrkParameters        TrkParameters-*        Tracking/TrkEvent
 use TrkParticleBase      TrkParticleBase-*      Tracking/TrkEvent
 use VxVertex             VxVertex-*             Tracking/TrkEvent
-use TrkV0Vertex          TrkV0Vertex-*          Tracking/TrkEvent
+#use TrkV0Vertex          TrkV0Vertex-*          Tracking/TrkEvent
 use TrkParametersBase    TrkParametersBase-*    Tracking/TrkEvent
-#use TrkNeutralParameters TrkNeutralParameters-* Tracking/TrkEvent
 use TrkExInterfaces      TrkExInterfaces-*      Tracking/TrkExtrapolation
-use Particle             Particle-*             Reconstruction
+#use Particle             Particle-*             Reconstruction
 
 
 public

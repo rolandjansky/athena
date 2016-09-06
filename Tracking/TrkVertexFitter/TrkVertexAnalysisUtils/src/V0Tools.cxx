@@ -5,31 +5,21 @@
 /*********************************************************************
         V0Tools.cxx - Description in header file
 
-    begin   : 20-03-2007
-    authors : Kirill Prokofiev (Sheffield University), Evelina Bouhova-Thacker (Lancater University), Rob Henderson (Lancater University)
-    email   : Kirill.Prokofiev@cern.ch, e.bouhova@cern.ch, r.henderson@lancaster.ac.uk
+    authors : Evelina Bouhova-Thacker (Lancater University)
+    email   : e.bouhova@cern.ch
  
 *********************************************************************/
 
 #include "TrkVertexAnalysisUtils/V0Tools.h"
-#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
 #include "TrkParametersBase/ParametersBase.h"
 #include "TrkParticleBase/LinkToTrackParticleBase.h"
-#include "VxVertex/VxTrackAtVertex.h"
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Units/PhysicalConstants.h"
-
-// forward includes
-#include "TrkV0Vertex/V0Candidate.h"
-#include "TrkV0Vertex/V0Hypothesis.h"
-#include "VxVertex/ExtendedVxCandidate.h"
-#include "VxVertex/RecVertex.h"
-#include "VxVertex/Vertex.h"
-#include "Particle/TrackParticle.h"
 #include "TrkParticleBase/TrackParticleBase.h"
+#include "VxVertex/VxTrackAtVertex.h"
 #include "EventPrimitives/EventPrimitives.h"
 #include "TrkExInterfaces/IExtrapolator.h"
-
+#include "CLHEP/GenericFunctions/CumulativeChiSquare.hh"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "CLHEP/Units/PhysicalConstants.h"
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/VertexContainer.h"
 
@@ -51,50 +41,24 @@ namespace Trk
 
   //get the extrapolator
   if ( m_extrapolator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
   }
 
-    msg(MSG::INFO) << "Initialize successful" << endreq;
+    msg(MSG::INFO) << "Initialize successful" << endmsg;
     return StatusCode::SUCCESS; 
   }
  
   StatusCode V0Tools::finalize()
   {
-    msg(MSG::INFO) << "Finalize successful" << endreq;
+    msg(MSG::INFO) << "Finalize successful" << endmsg;
     return StatusCode::SUCCESS; 
   }
 
-//  const Trk::V0Hypothesis* V0Tools::findHypothesis(const V0Candidate * v0Candidate, const int pdgID) const
-//  {
-//    std::vector<Trk::V0Hypothesis *>::const_iterator cand_b = v0Candidate->v0Hypothesis()->begin();
-//    std::vector<Trk::V0Hypothesis *>::const_iterator cand_e = v0Candidate->v0Hypothesis()->end();
-//    bool found = false;
-//    do {
-//      if((*cand_b)->hypothesisID() == pdgID)found=true;
-//      else ++cand_b;
-//    } while (cand_b != cand_e && !found);
-//    return (found ? (*cand_b) : 0);
-//  }
 
-  const Trk::V0Hypothesis* V0Tools::findHypothesis(const V0Candidate * v0Candidate, const int pdgID) const
-  {
-    bool found = false;
-    const Trk::V0Hypothesis* hypo(0);
-    for (std::vector<Trk::V0Hypothesis *>::const_iterator cand_b = v0Candidate->v0Hypothesis()->begin();
-         cand_b != v0Candidate->v0Hypothesis()->end() ; ++cand_b) {
-      if ((*cand_b)->hypothesisID() == pdgID) {
-        found = true;
-        hypo = (*cand_b);
-        //break;
-      }
-    }
-    return (found ? hypo : 0);
-  }
-
-  xAOD::Vertex * V0Tools::v0Link(xAOD::Vertex * vxCandidate) const
+  xAOD::Vertex * V0Tools::v0Link(const xAOD::Vertex * vxCandidate) const
   {
     xAOD::Vertex* v0(0);
     static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "V0Link" );
@@ -105,7 +69,7 @@ namespace Trk
     return v0;
   }
 
-  xAOD::Vertex * V0Tools::kshortLink(xAOD::Vertex * vxCandidate) const
+  xAOD::Vertex * V0Tools::kshortLink(const xAOD::Vertex * vxCandidate) const
   {
     xAOD::Vertex* v0(0);
     static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "KshortLink" );
@@ -116,7 +80,7 @@ namespace Trk
     return v0;
   }
 
-  xAOD::Vertex * V0Tools::lambdaLink(xAOD::Vertex * vxCandidate) const
+  xAOD::Vertex * V0Tools::lambdaLink(const xAOD::Vertex * vxCandidate) const
   {
     xAOD::Vertex* v0(0);
     static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdaLink" );
@@ -127,7 +91,7 @@ namespace Trk
     return v0;
   }
 
-  xAOD::Vertex * V0Tools::lambdabarLink(xAOD::Vertex * vxCandidate) const
+  xAOD::Vertex * V0Tools::lambdabarLink(const xAOD::Vertex * vxCandidate) const
   {
     xAOD::Vertex* v0(0);
     static SG::AuxElement::Accessor< ElementLink< xAOD::VertexContainer > > acc( "LambdabarLink" );
@@ -156,11 +120,13 @@ namespace Trk
       return -999999.;
     }
     for( unsigned int it=0; it<NTrk; it++) {
-      xAOD::TrackParticle::FourMom_t lorentz_trk = track4Momentum(vxCandidate,it,masses[it]);
-      px += lorentz_trk.Px();
-      py += lorentz_trk.Py();
-      pz += lorentz_trk.Pz();
-       e += lorentz_trk.E();
+      if (masses[it] >= 0.) {
+        xAOD::TrackParticle::FourMom_t lorentz_trk = track4Momentum(vxCandidate,it,masses[it]);
+        px += lorentz_trk.Px();
+        py += lorentz_trk.Py();
+        pz += lorentz_trk.Pz();
+         e += lorentz_trk.E();
+      }
     }
     double msq = e*e - px*px - py*py - pz*pz;
     return (msq>0.) ? sqrt(msq) : 0.;
@@ -220,30 +186,34 @@ namespace Trk
     std::vector<double>d0(NTrk), z0(NTrk), phi(NTrk), theta(NTrk), qOverP(NTrk), charge(NTrk), e(NTrk);
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
-      double trkCharge = 1.;
-      if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      d0[it]     = bPer->parameters()[Trk::d0];
-      z0[it]     = bPer->parameters()[Trk::z0];
-      phi[it]    = bPer->parameters()[Trk::phi];
-      theta[it]  = bPer->parameters()[Trk::theta];
-      qOverP[it] = bPer->parameters()[Trk::qOverP];
-      double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
-      double pe = (tmp>0.) ? sqrt(tmp) : 0.;
-      e[it] = pe;
-      E  += e[it];
-      Px += bPer->momentum()[Trk::px];
-      Py += bPer->momentum()[Trk::py];
-      Pz += bPer->momentum()[Trk::pz];
+      if (masses[it] >= 0.) {
+        const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
+        double trkCharge = 1.;
+        if (bPer->parameters()[Trk::qOverP] < 0.) trkCharge = -1.;
+        charge[it] = trkCharge;
+        d0[it]     = bPer->parameters()[Trk::d0];
+        z0[it]     = bPer->parameters()[Trk::z0];
+        phi[it]    = bPer->parameters()[Trk::phi];
+        theta[it]  = bPer->parameters()[Trk::theta];
+        qOverP[it] = bPer->parameters()[Trk::qOverP];
+        double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
+        double pe = (tmp>0.) ? sqrt(tmp) : 0.;
+        e[it] = pe;
+        E  += e[it];
+        Px += bPer->momentum()[Trk::px];
+        Py += bPer->momentum()[Trk::py];
+        Pz += bPer->momentum()[Trk::pz];
+      }
     }
     double msq = E*E - Px*Px - Py*Py - Pz*Pz;
     double mass = (msq>0.) ? sqrt(msq) : 0.;
 
     for( unsigned int it=0; it<NTrk; it++) {
-      dm2dphi[it]    = 2.*(Px*sin(phi[it])-Py*cos(phi[it]))*sin(theta[it])*charge[it]/qOverP[it];
-      dm2dtheta[it]  = 2.*(Pz*sin(theta[it])-(Px*cos(phi[it])+Py*sin(phi[it]))*cos(theta[it]))*charge[it]/qOverP[it];
-      dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
+      if (masses[it] >= 0.) {
+        dm2dphi[it]    = 2.*(Px*sin(phi[it])-Py*cos(phi[it]))*sin(theta[it])*charge[it]/qOverP[it];
+        dm2dtheta[it]  = 2.*(Pz*sin(theta[it])-(Px*cos(phi[it])+Py*sin(phi[it]))*cos(theta[it]))*charge[it]/qOverP[it];
+        dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
+      }
     }
 
     Amg::MatrixX D_vec(5*NTrk,1); D_vec.setZero();
@@ -286,45 +256,49 @@ namespace Trk
  
     double phi=0.,theta=0.,invP=0.;
     for( unsigned int it=0; it<NTrk; it++){
-      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
-      phi   =  bPer->parameters()[Trk::phi];
-      theta =  bPer->parameters()[Trk::theta];
-      invP  =  bPer->parameters()[Trk::qOverP];
-      double px = cos(phi)*sin(theta)/fabs(invP);
-      double py = sin(phi)*sin(theta)/fabs(invP);
-      double pz = cos(theta)/fabs(invP);
-      double esq = px*px + py*py + pz*pz + masses[it]*masses[it];
-      double e = (esq>0.) ? sqrt(esq) : 0.;
-      xAOD::TrackParticle::FourMom_t tmp(0,0,0,0);
-      tmp.SetPxPyPzE(px,py,pz,e);
-      particleMom[it] = tmp;
-      totalMom += tmp;
+      if (masses[it] >= 0.) {
+        const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
+        phi   =  bPer->parameters()[Trk::phi];
+        theta =  bPer->parameters()[Trk::theta];
+        invP  =  bPer->parameters()[Trk::qOverP];
+        double px = cos(phi)*sin(theta)/fabs(invP);
+        double py = sin(phi)*sin(theta)/fabs(invP);
+        double pz = cos(theta)/fabs(invP);
+        double esq = px*px + py*py + pz*pz + masses[it]*masses[it];
+        double e = (esq>0.) ? sqrt(esq) : 0.;
+        xAOD::TrackParticle::FourMom_t tmp(0,0,0,0);
+        tmp.SetPxPyPzE(px,py,pz,e);
+        particleMom[it] = tmp;
+        totalMom += tmp;
 
 //  d(Px,Py,Pz)/d(Phi,Theta,InvP)
-      tmpDeriv(0,0) = - tmp.Py();
-      tmpDeriv(1,0) =   tmp.Px();
-      tmpDeriv(2,0) =   0.;
-      tmpDeriv(0,1) =   cos(phi) * tmp.Pz();
-      tmpDeriv(1,1) =   sin(phi) * tmp.Pz();
-      tmpDeriv(2,1) = - sin(theta)/fabs(invP);
-      tmpDeriv(0,2) = - tmp.Px()/invP;
-      tmpDeriv(1,2) = - tmp.Py()/invP;
-      tmpDeriv(2,2) = - tmp.Pz()/invP;
-      particleDeriv[it] = tmpDeriv;
+        tmpDeriv(0,0) = - tmp.Py();
+        tmpDeriv(1,0) =   tmp.Px();
+        tmpDeriv(2,0) =   0.;
+        tmpDeriv(0,1) =   cos(phi) * tmp.Pz();
+        tmpDeriv(1,1) =   sin(phi) * tmp.Pz();
+        tmpDeriv(2,1) = - sin(theta)/fabs(invP);
+        tmpDeriv(0,2) = - tmp.Px()/invP;
+        tmpDeriv(1,2) = - tmp.Py()/invP;
+        tmpDeriv(2,2) = - tmp.Pz()/invP;
+        particleDeriv[it] = tmpDeriv;
+      }
     }
   
     double dMdPx=0., dMdPy=0., dMdPz=0., dMdPhi=0., dMdTheta=0., dMdInvP=0.;
     std::vector<double> Deriv(3*NTrk+3, 0.);
     for(unsigned int it=0; it<NTrk; it++){
-      dMdPx = ( totalMom.E() * particleMom[it].Px()/particleMom[it].E() - totalMom.Px() ) / totalMom.M();
-      dMdPy = ( totalMom.E() * particleMom[it].Py()/particleMom[it].E() - totalMom.Py() ) / totalMom.M();
-      dMdPz = ( totalMom.E() * particleMom[it].Pz()/particleMom[it].E() - totalMom.Pz() ) / totalMom.M();
+      if (masses[it] >= 0.) {
+        dMdPx = ( totalMom.E() * particleMom[it].Px()/particleMom[it].E() - totalMom.Px() ) / totalMom.M();
+        dMdPy = ( totalMom.E() * particleMom[it].Py()/particleMom[it].E() - totalMom.Py() ) / totalMom.M();
+        dMdPz = ( totalMom.E() * particleMom[it].Pz()/particleMom[it].E() - totalMom.Pz() ) / totalMom.M();
   
-      dMdPhi   = dMdPx*particleDeriv[it](0,0) + dMdPy*particleDeriv[it](1,0) + dMdPz*particleDeriv[it](2,0);
-      dMdTheta = dMdPx*particleDeriv[it](0,1) + dMdPy*particleDeriv[it](1,1) + dMdPz*particleDeriv[it](2,1);
-      dMdInvP  = dMdPx*particleDeriv[it](0,2) + dMdPy*particleDeriv[it](1,2) + dMdPz*particleDeriv[it](2,2);
+        dMdPhi   = dMdPx*particleDeriv[it](0,0) + dMdPy*particleDeriv[it](1,0) + dMdPz*particleDeriv[it](2,0);
+        dMdTheta = dMdPx*particleDeriv[it](0,1) + dMdPy*particleDeriv[it](1,1) + dMdPz*particleDeriv[it](2,1);
+        dMdInvP  = dMdPx*particleDeriv[it](0,2) + dMdPy*particleDeriv[it](1,2) + dMdPz*particleDeriv[it](2,2);
   
-      Deriv[3*it + 3 + 0] = dMdPhi;    Deriv[3*it + 3 + 1] = dMdTheta; Deriv[3*it + 3 + 2] = dMdInvP;
+        Deriv[3*it + 3 + 0] = dMdPhi;    Deriv[3*it + 3 + 1] = dMdTheta; Deriv[3*it + 3 + 2] = dMdInvP;
+      }
     }
 
     double err = 0;
@@ -357,40 +331,44 @@ namespace Trk
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
-      const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
-      const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
-      V0_cor(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-      V0_cor(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-      V0_cor(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-      V0_cor(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-      V0_cor(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-      V0_cor(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-      V0_cor(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-      V0_cor(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-      V0_cor(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      double trkCharge = 1.;
-      if (bPer->parameters()(Trk::qOverP) < 0.) trkCharge = -1.;
-      charge[it] = trkCharge;
-      d0[it]     = bPer->parameters()(Trk::d0);
-      z0[it]     = bPer->parameters()(Trk::z0);
-      phi[it]    = bPer->parameters()(Trk::phi);
-      theta[it]  = bPer->parameters()(Trk::theta);
-      qOverP[it] = bPer->parameters()(Trk::qOverP);
-      double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
-      double pe = (tmp>0.) ? sqrt(tmp) : 0.;
-      e[it] = pe;
-      E  += e[it];
-      Px += bPer->momentum()(Trk::px);
-      Py += bPer->momentum()(Trk::py);
-      Pz += bPer->momentum()(Trk::pz);
+      if (masses[it] >= 0.) {
+        const Trk::TrackParameters* bPer = vxCandidate->vxTrackAtVertex()[it].perigeeAtVertex();
+        const AmgSymMatrix(5)* cov_tmp = bPer->covariance();
+        V0_cor(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cor(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cor(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cor(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cor(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cor(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cor(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cor(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cor(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+        double trkCharge = 1.;
+        if (bPer->parameters()(Trk::qOverP) < 0.) trkCharge = -1.;
+        charge[it] = trkCharge;
+        d0[it]     = bPer->parameters()(Trk::d0);
+        z0[it]     = bPer->parameters()(Trk::z0);
+        phi[it]    = bPer->parameters()(Trk::phi);
+        theta[it]  = bPer->parameters()(Trk::theta);
+        qOverP[it] = bPer->parameters()(Trk::qOverP);
+        double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
+        double pe = (tmp>0.) ? sqrt(tmp) : 0.;
+        e[it] = pe;
+        E  += e[it];
+        Px += bPer->momentum()(Trk::px);
+        Py += bPer->momentum()(Trk::py);
+        Pz += bPer->momentum()(Trk::pz);
+      }
     }
     double msq = E*E - Px*Px - Py*Py - Pz*Pz;
     double mass = (msq>0.) ? sqrt(msq) : 0.;
 
     for( unsigned int it=0; it<NTrk; it++) {
-      dm2dphi[it]    = 2.*(Px*sin(phi[it])-Py*cos(phi[it]))*sin(theta[it])*charge[it]/qOverP[it];
-      dm2dtheta[it]  = 2.*(Pz*sin(theta[it])-(Px*cos(phi[it])+Py*sin(phi[it]))*cos(theta[it]))*charge[it]/qOverP[it];
-      dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
+      if (masses[it] >= 0.) {
+        dm2dphi[it]    = 2.*(Px*sin(phi[it])-Py*cos(phi[it]))*sin(theta[it])*charge[it]/qOverP[it];
+        dm2dtheta[it]  = 2.*(Pz*sin(theta[it])-(Px*cos(phi[it])+Py*sin(phi[it]))*cos(theta[it]))*charge[it]/qOverP[it];
+        dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
+      }
     }
 
     Amg::MatrixX D_vec(5*NTrk,1); D_vec.setZero();
@@ -1969,14 +1947,16 @@ namespace Trk
       return -999999.;
     }
     for( unsigned int it=0; it<NTrk; it++) {
-      const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
-      if (TP == 0) return -999999.;
-      px += TP->p4().Px();
-      py += TP->p4().Py();
-      pz += TP->p4().Pz();
-      double pesq = 1./(TP->qOverP()*TP->qOverP()) + masses[it]*masses[it];
-      double pe = (pesq>0.) ? sqrt(pesq) : 0.;
-      e += pe;
+      if (masses[it] >= 0.) {
+        const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
+        if (TP == 0) return -999999.;
+        px += TP->p4().Px();
+        py += TP->p4().Py();
+        pz += TP->p4().Pz();
+        double pesq = 1./(TP->qOverP()*TP->qOverP()) + masses[it]*masses[it];
+        double pe = (pesq>0.) ? sqrt(pesq) : 0.;
+        e += pe;
+      }
     }
     double msq = e*e - px*px - py*py - pz*pz;
     return (msq>0.) ? sqrt(msq) : 0.;
@@ -1998,17 +1978,19 @@ namespace Trk
       return -999999.;
     }
     for( unsigned int it=0; it<NTrk; it++) {
-      const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
-      if (TP == 0) return -999999.;
-      const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
-      if (extrPer == 0) return -999999.;
-      px += extrPer->momentum().x();
-      py += extrPer->momentum().y();
-      pz += extrPer->momentum().z();
-      double pesq = extrPer->momentum().mag2() + masses[it]*masses[it];
-      double pe = (pesq>0.) ? sqrt(pesq) : 0.;
-      e += pe;
-      delete extrPer;
+      if (masses[it] >= 0.) {
+        const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
+        if (TP == 0) return -999999.;
+        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
+        if (extrPer == 0) return -999999.;
+        px += extrPer->momentum().x();
+        py += extrPer->momentum().y();
+        pz += extrPer->momentum().z();
+        double pesq = extrPer->momentum().mag2() + masses[it]*masses[it];
+        double pe = (pesq>0.) ? sqrt(pesq) : 0.;
+        e += pe;
+        delete extrPer;
+      }
     }
     double msq = e*e - px*px - py*py - pz*pz;
     return (msq>0.) ? sqrt(msq) : 0.;
@@ -2030,17 +2012,19 @@ namespace Trk
       return -999999.;
     }
     for( unsigned int it=0; it<NTrk; it++) {
-      const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
-      if (TP == 0) return -999999.;
-      const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
-      if (extrPer == 0) return -999999.;
-      px += extrPer->momentum().x();
-      py += extrPer->momentum().y();
-      pz += extrPer->momentum().z();
-      double pesq = extrPer->momentum().mag2() + masses[it]*masses[it];
-      double pe = (pesq>0.) ? sqrt(pesq) : 0.;
-      e += pe;
-      delete extrPer;
+      if (masses[it] >= 0.) {
+        const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
+        if (TP == 0) return -999999.;
+        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
+        if (extrPer == 0) return -999999.;
+        px += extrPer->momentum().x();
+        py += extrPer->momentum().y();
+        pz += extrPer->momentum().z();
+        double pesq = extrPer->momentum().mag2() + masses[it]*masses[it];
+        double pe = (pesq>0.) ? sqrt(pesq) : 0.;
+        e += pe;
+        delete extrPer;
+      }
     }
     double msq = e*e - px*px - py*py - pz*pz;
     return (msq>0.) ? sqrt(msq) : 0.;
@@ -2066,37 +2050,41 @@ namespace Trk
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
-      const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
-      if (TP == 0) return -999999.;
-      const xAOD::ParametersCovMatrix_t cov_tmp = TP->definingParametersCovMatrix();
-      V0_cor(5*it+2,5*it+2) = cov_tmp(2,2);
-      V0_cor(5*it+2,5*it+3) = cov_tmp(2,3);
-      V0_cor(5*it+2,5*it+4) = cov_tmp(2,4);
-      V0_cor(5*it+3,5*it+3) = cov_tmp(3,3);
-      V0_cor(5*it+3,5*it+4) = cov_tmp(3,4);
-      V0_cor(5*it+4,5*it+4) = cov_tmp(4,4);
-      V0_cor(5*it+3,5*it+2) = cov_tmp(2,3);
-      V0_cor(5*it+4,5*it+2) = cov_tmp(2,4);
-      V0_cor(5*it+4,5*it+3) = cov_tmp(3,4);
-      charge[it] = TP->charge();
-      d0[it]     = TP->d0();
-      z0[it]     = TP->z0();
-      phi[it]    = TP->phi();
-      theta[it]  = TP->theta();
-      qOverP[it] = TP->qOverP();
-      double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
-      double pe = (tmp>0.) ? sqrt(tmp) : 0.;
-      e[it] = pe;
-      E  += e[it];
-      Px += TP->p4().Px();
-      Py += TP->p4().Py();
-      Pz += TP->p4().Pz();
+      if (masses[it] >= 0.) {
+        const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
+        if (TP == 0) return -999999.;
+        const xAOD::ParametersCovMatrix_t cov_tmp = TP->definingParametersCovMatrix();
+        V0_cor(5*it+2,5*it+2) = cov_tmp(2,2);
+        V0_cor(5*it+2,5*it+3) = cov_tmp(2,3);
+        V0_cor(5*it+2,5*it+4) = cov_tmp(2,4);
+        V0_cor(5*it+3,5*it+3) = cov_tmp(3,3);
+        V0_cor(5*it+3,5*it+4) = cov_tmp(3,4);
+        V0_cor(5*it+4,5*it+4) = cov_tmp(4,4);
+        V0_cor(5*it+3,5*it+2) = cov_tmp(2,3);
+        V0_cor(5*it+4,5*it+2) = cov_tmp(2,4);
+        V0_cor(5*it+4,5*it+3) = cov_tmp(3,4);
+        charge[it] = TP->charge();
+        d0[it]     = TP->d0();
+        z0[it]     = TP->z0();
+        phi[it]    = TP->phi();
+        theta[it]  = TP->theta();
+        qOverP[it] = TP->qOverP();
+        double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
+        double pe = (tmp>0.) ? sqrt(tmp) : 0.;
+        e[it] = pe;
+        E  += e[it];
+        Px += TP->p4().Px();
+        Py += TP->p4().Py();
+        Pz += TP->p4().Pz();
+      }
     }
 
     for( unsigned int it=0; it<NTrk; it++) {
-      dm2dphi[it]    = 2.*(Px*sin(phi[it])-Py*cos(phi[it]))*sin(theta[it])*charge[it]/qOverP[it];
-      dm2dtheta[it]  = 2.*(Pz*sin(theta[it])-(Px*cos(phi[it])+Py*sin(phi[it]))*cos(theta[it]))*charge[it]/qOverP[it];
-      dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
+      if (masses[it] >= 0.) {
+        dm2dphi[it]    = 2.*(Px*sin(phi[it])-Py*cos(phi[it]))*sin(theta[it])*charge[it]/qOverP[it];
+        dm2dtheta[it]  = 2.*(Pz*sin(theta[it])-(Px*cos(phi[it])+Py*sin(phi[it]))*cos(theta[it]))*charge[it]/qOverP[it];
+        dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
+      }
     }
 
     Amg::MatrixX D_vec(5*NTrk,1); D_vec.setZero();
@@ -2154,42 +2142,46 @@ namespace Trk
     std::vector<double>dm2dphi(NTrk), dm2dtheta(NTrk), dm2dqOverP(NTrk);
     Amg::MatrixX V0_cor(5*NTrk,5*NTrk); V0_cor.setZero();
     for( unsigned int it=0; it<NTrk; it++) {
-      const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
-      if (TP == 0) return -999999.;
-      const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
-      if (extrPer == 0) return -999999.;
-      const AmgSymMatrix(5)* cov_tmp = extrPer->covariance();
-      V0_cor(5*it+2,5*it+2) = (*cov_tmp)(2,2);
-      V0_cor(5*it+2,5*it+3) = (*cov_tmp)(2,3);
-      V0_cor(5*it+2,5*it+4) = (*cov_tmp)(2,4);
-      V0_cor(5*it+3,5*it+3) = (*cov_tmp)(3,3);
-      V0_cor(5*it+3,5*it+4) = (*cov_tmp)(3,4);
-      V0_cor(5*it+4,5*it+4) = (*cov_tmp)(4,4);
-      V0_cor(5*it+3,5*it+2) = (*cov_tmp)(2,3);
-      V0_cor(5*it+4,5*it+2) = (*cov_tmp)(2,4);
-      V0_cor(5*it+4,5*it+3) = (*cov_tmp)(3,4);
-      charge[it] = TP->charge();
-      d0[it]     = extrPer->parameters()[Trk::d0];
-      z0[it]     = extrPer->parameters()[Trk::z0];
-      phi[it]    = extrPer->parameters()[Trk::phi];
-      theta[it]  = extrPer->parameters()[Trk::theta];
-      qOverP[it] = extrPer->parameters()[Trk::qOverP];
-      double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
-      double pe = (tmp>0.) ? sqrt(tmp) : 0.;
-      e[it] = pe;
-      E  += e[it];
-      Px += extrPer->momentum().x();
-      Py += extrPer->momentum().y();
-      Pz += extrPer->momentum().z();
-      delete extrPer;
+      if (masses[it] >= 0.) {
+        const xAOD::TrackParticle* TP = origTrack(vxCandidate,it);
+        if (TP == 0) return -999999.;
+        const Trk::TrackParameters* extrPer = m_extrapolator->extrapolate(*TP, perigeeSurface);
+        if (extrPer == 0) return -999999.;
+        const AmgSymMatrix(5)* cov_tmp = extrPer->covariance();
+        V0_cor(5*it+2,5*it+2) = (*cov_tmp)(2,2);
+        V0_cor(5*it+2,5*it+3) = (*cov_tmp)(2,3);
+        V0_cor(5*it+2,5*it+4) = (*cov_tmp)(2,4);
+        V0_cor(5*it+3,5*it+3) = (*cov_tmp)(3,3);
+        V0_cor(5*it+3,5*it+4) = (*cov_tmp)(3,4);
+        V0_cor(5*it+4,5*it+4) = (*cov_tmp)(4,4);
+        V0_cor(5*it+3,5*it+2) = (*cov_tmp)(2,3);
+        V0_cor(5*it+4,5*it+2) = (*cov_tmp)(2,4);
+        V0_cor(5*it+4,5*it+3) = (*cov_tmp)(3,4);
+        charge[it] = TP->charge();
+        d0[it]     = extrPer->parameters()[Trk::d0];
+        z0[it]     = extrPer->parameters()[Trk::z0];
+        phi[it]    = extrPer->parameters()[Trk::phi];
+        theta[it]  = extrPer->parameters()[Trk::theta];
+        qOverP[it] = extrPer->parameters()[Trk::qOverP];
+        double tmp = 1./(qOverP[it]*qOverP[it]) + masses[it]*masses[it];
+        double pe = (tmp>0.) ? sqrt(tmp) : 0.;
+        e[it] = pe;
+        E  += e[it];
+        Px += extrPer->momentum().x();
+        Py += extrPer->momentum().y();
+        Pz += extrPer->momentum().z();
+        delete extrPer;
+      }
     }
     double msq = E*E - Px*Px - Py*Py - Pz*Pz;
     double mass = (msq>0.) ? sqrt(msq) : 0.;
 
     for( unsigned int it=0; it<NTrk; it++) {
-      dm2dphi[it]    = 2.*(Px*sin(phi[it])-Py*cos(phi[it]))*sin(theta[it])*charge[it]/qOverP[it];
-      dm2dtheta[it]  = 2.*(Pz*sin(theta[it])-(Px*cos(phi[it])+Py*sin(phi[it]))*cos(theta[it]))*charge[it]/qOverP[it];
-      dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
+      if (masses[it] >= 0.) {
+        dm2dphi[it]    = 2.*(Px*sin(phi[it])-Py*cos(phi[it]))*sin(theta[it])*charge[it]/qOverP[it];
+        dm2dtheta[it]  = 2.*(Pz*sin(theta[it])-(Px*cos(phi[it])+Py*sin(phi[it]))*cos(theta[it]))*charge[it]/qOverP[it];
+        dm2dqOverP[it] = 2.*(Pz*cos(theta[it])+(Px*cos(phi[it])+Py*sin(phi[it]))*sin(theta[it])-E*charge[it]/(qOverP[it]*e[it]))*charge[it]/(qOverP[it]*qOverP[it]);
+      }
     }
 
     Amg::MatrixX D_vec(5*NTrk,1); D_vec.setZero();
