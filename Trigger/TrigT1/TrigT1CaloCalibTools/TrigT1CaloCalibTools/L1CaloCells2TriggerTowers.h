@@ -21,7 +21,7 @@
 // LAr includes
 #include "LArRawEvent/LArDigitContainer.h"
 #include "LArRawEvent/LArDigit.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 // Tile includes
 #include "TileEvent/TileDigitsContainer.h"

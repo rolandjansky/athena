@@ -155,7 +155,7 @@ L1CaloPprPhos4Shape* L1CaloPprPhos4ShapeCollection::GetSignalShape(const L1CaloC
    m_signalShapesItr = m_signalShapes->find(coolId.id());
 
    if ( m_signalShapesItr == m_signalShapes->end()) {
-      *m_log << MSG::WARNING << "[GetSignalShape] Did not find requested COOL ID, 0x" << std::hex << coolId.id() << std::dec << ", in signalShapes." << endreq;
+      *m_log << MSG::WARNING << "[GetSignalShape] Did not find requested COOL ID, 0x" << std::hex << coolId.id() << std::dec << ", in signalShapes." << endmsg;
       return (L1CaloPprPhos4Shape*)0;
    }
 
@@ -178,11 +178,11 @@ L1CaloPprPhos4ShapeCollection::ShapesMap_itr L1CaloPprPhos4ShapeCollection::GetM
    // for this COOL ID
    if (m_signalShapesItr == m_signalShapes->end()) {
 
-//       *m_log << MSG::INFO << " Creating coolId: 0x" << std::hex << coolId << std::dec << endreq;
+//       *m_log << MSG::INFO << " Creating coolId: 0x" << std::hex << coolId << std::dec << endmsg;
 
       // make sure cool ID exists first
       if (!CoolIdExists(coolId)) {
-         *m_log << MSG::WARNING << "[GetMapIterator] channel 0x" << CoolIdToString(coolId) << " does not exist and will not be created." << endreq;
+         *m_log << MSG::WARNING << "[GetMapIterator] channel 0x" << CoolIdToString(coolId) << " does not exist and will not be created." << endmsg;
          return m_signalShapes->end();
       }
 
@@ -193,7 +193,7 @@ L1CaloPprPhos4ShapeCollection::ShapesMap_itr L1CaloPprPhos4ShapeCollection::GetM
       m_signalShapesItr = m_signalShapes->find(coolId.id());
 
       if (m_signalShapesItr == m_signalShapes->end()) {
-         *m_log << MSG::WARNING << "[GetMapIterator] Something strange going on. Did not find newly created signal shape for cool ID: 0x" << CoolIdToString(coolId) << endreq;
+         *m_log << MSG::WARNING << "[GetMapIterator] Something strange going on. Did not find newly created signal shape for cool ID: 0x" << CoolIdToString(coolId) << endmsg;
          return m_signalShapes->end();
       }
    }
@@ -205,7 +205,7 @@ L1CaloPprPhos4ShapeCollection::ShapesMap_itr L1CaloPprPhos4ShapeCollection::GetM
 StatusCode L1CaloPprPhos4ShapeCollection::Fill(const L1CaloCoolChannelId& coolId, const unsigned int ns_step, const unsigned int adc) {
    ShapesMap_itr itr = GetMapIterator(coolId);
    if (itr == m_signalShapes->end()) {
-      *m_log << MSG::WARNING << "[Fill] no iterator returned for 0x" << CoolIdToString(coolId) << endreq;
+      *m_log << MSG::WARNING << "[Fill] no iterator returned for 0x" << CoolIdToString(coolId) << endmsg;
       return StatusCode::FAILURE;
    }
    return itr->second->Fill(ns_step, adc);
@@ -215,7 +215,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Fill(const L1CaloCoolChannelId& coolId
 StatusCode L1CaloPprPhos4ShapeCollection::Fill(const L1CaloCoolChannelId& coolId, const unsigned int timeSlice, const unsigned int rodHeaderStep, const int adc) {
    ShapesMap_itr itr = GetMapIterator(coolId);
    if (itr == m_signalShapes->end()) {
-      *m_log << MSG::WARNING << "[Fill] no iterator returned for 0x" << CoolIdToString(coolId) << endreq;
+      *m_log << MSG::WARNING << "[Fill] no iterator returned for 0x" << CoolIdToString(coolId) << endmsg;
       return StatusCode::FAILURE;
    }
    return itr->second->Fill(timeSlice, rodHeaderStep, adc);
@@ -225,7 +225,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Fill(const L1CaloCoolChannelId& coolId
 StatusCode L1CaloPprPhos4ShapeCollection::Fill(const L1CaloCoolChannelId& coolId, const unsigned int rodHeaderStep, const std::vector<int> adc) {
    ShapesMap_itr itr = GetMapIterator(coolId);
    if (itr == m_signalShapes->end()) {
-      *m_log << MSG::WARNING << "[Fill] no iterator returned for 0x" << CoolIdToString(coolId) << endreq;
+      *m_log << MSG::WARNING << "[Fill] no iterator returned for 0x" << CoolIdToString(coolId) << endmsg;
       return StatusCode::FAILURE;
    }
    return itr->second->Fill(rodHeaderStep, adc);
@@ -236,7 +236,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
    // want to store the profiles and histograms for each cool id into
    // a TTree, which will be output to a file.
 
-   *m_log << MSG::INFO << "[Finalize] In Finalize()" << endreq;
+   *m_log << MSG::INFO << "[Finalize] In Finalize()" << endmsg;
 
    // open the output file
    std::string filename;
@@ -247,17 +247,17 @@ StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
       filename = (m_outputFileDirName + '/' + m_outputFileName + '_' + m_runNumberStr + '.' + m_outputFileNamePostfix);
    }
 
-   *m_log << MSG::INFO << "[Finalize] Opening output file: " << filename << endreq;
+   *m_log << MSG::INFO << "[Finalize] Opening output file: " << filename << endmsg;
    TFile* outputFile = new TFile(filename.c_str(), "RECREATE");
    if (!outputFile->IsOpen()) {
-      *m_log << MSG::ERROR << "[Finalize]: Could not open file for TTree output: " << filename << endreq;
+      *m_log << MSG::ERROR << "[Finalize]: Could not open file for TTree output: " << filename << endmsg;
 
       delete outputFile; outputFile = 0;
       return StatusCode::FAILURE;
    }
 
 
-   *m_log << MSG::INFO << "[Finalize] Create TTree" << endreq;
+   *m_log << MSG::INFO << "[Finalize] Create TTree" << endmsg;
 
    TTree* tree = new TTree("phos4signalShapes", "phos4signalShapes");
 
@@ -299,7 +299,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
 
    tree->Branch(m_currentFullDelayDataName.c_str(), &m_currentFullDelayData, std::string(m_currentFullDelayDataName + "/i").c_str());
 
-   *m_log << MSG::INFO << "[Finalize] Looping over shapes for processing." << endreq;
+   *m_log << MSG::INFO << "[Finalize] Looping over shapes for processing." << endmsg;
 
    // open a file to output each of the new FullDelayData values for the database
    std::string dbFilename_rawMax;
@@ -320,19 +320,19 @@ StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
    }
    std::ofstream dbFile_rawMax(dbFilename_rawMax.c_str());
    if (!dbFile_rawMax.is_open()) {
-      *m_log << MSG::ERROR << "[Finalize]: Failed to open file for database output, " << dbFilename_rawMax << endreq;
+      *m_log << MSG::ERROR << "[Finalize]: Failed to open file for database output, " << dbFilename_rawMax << endmsg;
    }
    std::ofstream dbFile_rawFit(dbFilename_rawFit.c_str());
    if (!dbFile_rawFit.is_open()) {
-      *m_log << MSG::ERROR << "[Finalize]: Failed to open file for database output, " << dbFilename_rawFit << endreq;
+      *m_log << MSG::ERROR << "[Finalize]: Failed to open file for database output, " << dbFilename_rawFit << endmsg;
    }
    std::ofstream dbFile_processedMax(dbFilename_processedMax.c_str());
    if (!dbFile_processedMax.is_open()) {
-      *m_log << MSG::ERROR << "[Finalize]: Failed to open file for database output, " << dbFilename_processedMax << endreq;
+      *m_log << MSG::ERROR << "[Finalize]: Failed to open file for database output, " << dbFilename_processedMax << endmsg;
    }
    std::ofstream dbFile_processedFit(dbFilename_processedFit.c_str());
    if (!dbFile_processedFit.is_open()) {
-      *m_log << MSG::ERROR << "[Finalize]: Failed to open file for database output, " << dbFilename_processedFit << endreq;
+      *m_log << MSG::ERROR << "[Finalize]: Failed to open file for database output, " << dbFilename_processedFit << endmsg;
    }
 
    ////////////////////////////////////////////////////////////////////
@@ -671,7 +671,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
 
       // save canses to file
       if (digiChanNum == maxPlotsPerPage - 1) {
-         *m_log << MSG::INFO << "[Finalize] Saving Channel Shapes to file. " << endreq;
+         *m_log << MSG::INFO << "[Finalize] Saving Channel Shapes to file. " << endmsg;
          // set title for the page
          std::string rawTitle = GetPadTitle(m_coolId) + " (raw)";
          std::string processedTitle = GetPadTitle(m_coolId) + " (processed)";
@@ -810,7 +810,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
       // the maximum
       if (nErrorPlots == maxErrorPlotsPerPage) {
 
-         *m_log << MSG::INFO << "[Finalize] Saving Error Shapes to file. " << endreq;
+         *m_log << MSG::INFO << "[Finalize] Saving Error Shapes to file. " << endmsg;
 
          // set title for the page
          std::string rawTitle = "Failed Channels (raw)";
@@ -984,7 +984,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
    // if there are earlier pages, end the file
    if (nErrorPlotPages > 0) {
 
-      *m_log << MSG::INFO << "[Finalize] Saving Last Error Shapes to file. " << endreq;
+      *m_log << MSG::INFO << "[Finalize] Saving Last Error Shapes to file. " << endmsg;
 
       // set title for the page
       std::string rawTitle = "Failed Channels (raw)";
@@ -1019,7 +1019,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
    // if there is only one page just save it
    else if (nErrorPlots != 0 ) {
 
-      *m_log << MSG::INFO << "[Finalize] Saving Single Page of Error Shapes to file. " << endreq;
+      *m_log << MSG::INFO << "[Finalize] Saving Single Page of Error Shapes to file. " << endmsg;
 
       // set title for the page
       std::string rawTitle = "Failed Channels (raw)";
@@ -1060,7 +1060,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
    if (dbFile_processedMax.is_open()) dbFile_processedMax.close();
    if (dbFile_processedFit.is_open()) dbFile_processedFit.close();
 
-   *m_log << MSG::INFO << "[Finalize] Writing TTree." << endreq;
+   *m_log << MSG::INFO << "[Finalize] Writing TTree." << endmsg;
 
    tree->Write();
 
@@ -1085,7 +1085,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::Finalize(void) {
    ///////////////////////////
    // Save and Draw summary plots
    ///////////////////////////
-   *m_log << MSG::INFO << "Recording Summary Plots." << endreq;
+   *m_log << MSG::INFO << "Recording Summary Plots." << endmsg;
 
    std::string summaryRootFile, summaryPsFile;
    if (m_runNumberStr.empty()) {
@@ -1391,7 +1391,7 @@ bool L1CaloPprPhos4ShapeCollection::SetChannelEtaPhiLayer(const L1CaloCoolChanne
 StatusCode L1CaloPprPhos4ShapeCollection::SetCurrentFullDelayData(const L1CaloCoolChannelId& coolId, unsigned int delay) {
    ShapesMap_itr itr = GetMapIterator(coolId);
    if (itr == m_signalShapes->end()) {
-      *m_log << MSG::WARNING << "[SetCurrentFullDelayData] no iterator returned for 0x" << CoolIdToString(coolId) << endreq;
+      *m_log << MSG::WARNING << "[SetCurrentFullDelayData] no iterator returned for 0x" << CoolIdToString(coolId) << endmsg;
       return StatusCode::FAILURE;
    }
 
@@ -1404,7 +1404,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::SetCurrentFullDelayData(const L1CaloCo
 StatusCode L1CaloPprPhos4ShapeCollection::SetPedValue(const L1CaloCoolChannelId& coolId, unsigned int value) {
    ShapesMap_itr itr = GetMapIterator(coolId);
    if (itr == m_signalShapes->end()) {
-      *m_log << MSG::WARNING << "[SetPedValue] no iterator returned for 0x" << CoolIdToString(coolId) << endreq;
+      *m_log << MSG::WARNING << "[SetPedValue] no iterator returned for 0x" << CoolIdToString(coolId) << endmsg;
       return StatusCode::FAILURE;
    }
 
@@ -1416,7 +1416,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::SetPedValue(const L1CaloCoolChannelId&
 StatusCode L1CaloPprPhos4ShapeCollection::SetL1aFadcSlice(const L1CaloCoolChannelId& coolId, unsigned int slice) {
    ShapesMap_itr itr = GetMapIterator(coolId);
    if (itr == m_signalShapes->end()) {
-      *m_log << MSG::WARNING << "[SetL1aFadcSlice] no iterator returned for 0x" << CoolIdToString(coolId) << endreq;
+      *m_log << MSG::WARNING << "[SetL1aFadcSlice] no iterator returned for 0x" << CoolIdToString(coolId) << endmsg;
       return StatusCode::FAILURE;
    }
 
@@ -1428,7 +1428,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::SetL1aFadcSlice(const L1CaloCoolChanne
 StatusCode L1CaloPprPhos4ShapeCollection::SetValidChannel(const L1CaloCoolChannelId& coolId, bool validity) {
    ShapesMap_itr itr = GetMapIterator(coolId);
    if (itr == m_signalShapes->end()) {
-      *m_log << MSG::WARNING << "[SetValidChannel] no iterator returned for 0x" << CoolIdToString(coolId) << endreq;
+      *m_log << MSG::WARNING << "[SetValidChannel] no iterator returned for 0x" << CoolIdToString(coolId) << endmsg;
       return StatusCode::FAILURE;
    }
 
@@ -1440,7 +1440,7 @@ StatusCode L1CaloPprPhos4ShapeCollection::SetValidChannel(const L1CaloCoolChanne
 StatusCode L1CaloPprPhos4ShapeCollection::SetChannelEnabled(const L1CaloCoolChannelId& coolId, bool enabled) {
    ShapesMap_itr itr = GetMapIterator(coolId);
    if (itr == m_signalShapes->end()) {
-      *m_log << MSG::WARNING << "[SetChannelEnabled] no iterator returned for 0x" << CoolIdToString(coolId) << endreq;
+      *m_log << MSG::WARNING << "[SetChannelEnabled] no iterator returned for 0x" << CoolIdToString(coolId) << endmsg;
       return StatusCode::FAILURE;
    }
 
@@ -1454,27 +1454,27 @@ bool L1CaloPprPhos4ShapeCollection::CoolIdExists(const L1CaloCoolChannelId& cool
 {
    // must be a PPM
    if (coolId.moduleType() != L1CaloModuleType::Ppm) {
-      *m_log << MSG::WARNING << "[CoolIdExists] channel 0x" << CoolIdToString(coolId) << " has L1CaloModuleType is " << coolId.moduleType().toString() << ", but expecting PPM." << endreq;
+      *m_log << MSG::WARNING << "[CoolIdExists] channel 0x" << CoolIdToString(coolId) << " has L1CaloModuleType is " << coolId.moduleType().toString() << ", but expecting PPM." << endmsg;
       return false;
    }
    // crate must be 0-7
    else if (!(coolId.crate() <= 7)) {
-      *m_log << MSG::WARNING << "[CoolIdExists] channel 0x" << CoolIdToString(coolId) << " has crate is " << coolId.crate() << ", but should be 0 - 7." << endreq;
+      *m_log << MSG::WARNING << "[CoolIdExists] channel 0x" << CoolIdToString(coolId) << " has crate is " << coolId.crate() << ", but should be 0 - 7." << endmsg;
       return false;
    }
    // module must be 0-15
    else if (!(coolId.module() <= 15)) {
-      *m_log << MSG::WARNING << "[CoolIdExists] channel 0x" << CoolIdToString(coolId) << " has module is " << coolId.module() << ", but should be 0 - 15." << endreq;
+      *m_log << MSG::WARNING << "[CoolIdExists] channel 0x" << CoolIdToString(coolId) << " has module is " << coolId.module() << ", but should be 0 - 15." << endmsg;
       return false;
    }
    // subModule must be 0-15
    else if (!(coolId.subModule() <= 15)) {
-      *m_log << MSG::WARNING << "[CoolIdExists] channel 0x" << CoolIdToString(coolId) << " has subModule is " << coolId.subModule() << ", but should be 0 - 15." << endreq;
+      *m_log << MSG::WARNING << "[CoolIdExists] channel 0x" << CoolIdToString(coolId) << " has subModule is " << coolId.subModule() << ", but should be 0 - 15." << endmsg;
       return false;
    }
    // channel must be 0-3
    else if (!(coolId.channel() <= 3)) {
-      *m_log << MSG::WARNING << "[CoolIdExists] channel 0x" << CoolIdToString(coolId) << " has channel is " << coolId.channel() << ", but should be 0 - 3." << endreq;
+      *m_log << MSG::WARNING << "[CoolIdExists] channel 0x" << CoolIdToString(coolId) << " has channel is " << coolId.channel() << ", but should be 0 - 3." << endmsg;
       return false;
    }
 
@@ -1510,7 +1510,7 @@ void L1CaloPprPhos4ShapeCollection::gzipFile(std::string& filename) const
 {
    if (!gSystem->AccessPathName(filename.c_str())) {
       std::string command = "gzip -f " + filename;
-      *m_log << MSG::INFO << "Running System command: " << command << endreq;
+      *m_log << MSG::INFO << "Running System command: " << command << endmsg;
       gSystem->Exec(command.c_str());
 
    }
@@ -1525,7 +1525,7 @@ void L1CaloPprPhos4ShapeCollection::ps2pdf(std::string& filename) const
       std::string command = "ps2pdf " + filename;
       command += " ";
       command += temp;
-      *m_log << MSG::INFO << "Running System command: " << command << endreq;
+      *m_log << MSG::INFO << "Running System command: " << command << endmsg;
       gSystem->Exec(command.c_str());
    }
 }
@@ -1537,7 +1537,7 @@ void L1CaloPprPhos4ShapeCollection::psmerge(std::string& file1, std::string& fil
       )
    {
       std::string command = "psmerge " + file1 + ' ' + file2 + " > " + outputfile;
-      *m_log << MSG::INFO << "Running System command: " << command << endreq;
+      *m_log << MSG::INFO << "Running System command: " << command << endmsg;
       gSystem->Exec(command.c_str());
    }
 }
@@ -1547,7 +1547,7 @@ void L1CaloPprPhos4ShapeCollection::mv(std::string& file1, std::string& file2) c
    if (!gSystem->AccessPathName(file1.c_str()) )
    {
       std::string command = "mv " + file1 + ' ' + file2;
-      *m_log << MSG::INFO << "Running System command: " << command << endreq;
+      *m_log << MSG::INFO << "Running System command: " << command << endmsg;
       gSystem->Exec(command.c_str());
    }
 }
@@ -1557,7 +1557,7 @@ void L1CaloPprPhos4ShapeCollection::rm(std::string& file) const
    if (!gSystem->AccessPathName(file.c_str()) )
    {
       std::string command = "rm " + file;
-      *m_log << MSG::INFO << "Running System command: " << command << endreq;
+      *m_log << MSG::INFO << "Running System command: " << command << endmsg;
       gSystem->Exec(command.c_str());
    }
 }

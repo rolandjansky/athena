@@ -300,7 +300,7 @@ TF1* L1CaloPprPhos4Shape::FitSignalPeak(TH1* histo,const float maxPeakValue,cons
 void L1CaloPprPhos4Shape::CalculatePedestal(TH1* histo,float& pedMean,float& pedSigma){
    
    if((unsigned int)histo->GetNbinsX() < NANOSEC_PER_LHC_CLOCK_TICK*2){
-      *m_log << MSG::WARNING << "[CalculatePedestal] Could not calculate pedestal due to lack of bins in " << histo->GetName() << endreq;
+      *m_log << MSG::WARNING << "[CalculatePedestal] Could not calculate pedestal due to lack of bins in " << histo->GetName() << endmsg;
       return;
    }
    
@@ -371,7 +371,7 @@ unsigned int L1CaloPprPhos4Shape::CalculateFullDelayData(const int truePeakPosit
    
    const int newFullDelayData = (baseDelay + dt);
    if(newFullDelayData < 0){
-      *m_log << MSG::WARNING << "[CalculateFullDelayData]: New Full Delay data was calculated as zero. Should only be greater than zero. Returning 0 for safety. Channel 0x" << CoolIdToString(m_coolId) << ". Peak position passed was: " << truePeakPosition << " and the idealPeakPosition is: " << idealPeakPosition << endreq;
+      *m_log << MSG::WARNING << "[CalculateFullDelayData]: New Full Delay data was calculated as zero. Should only be greater than zero. Returning 0 for safety. Channel 0x" << CoolIdToString(m_coolId) << ". Peak position passed was: " << truePeakPosition << " and the idealPeakPosition is: " << idealPeakPosition << endmsg;
       return 0;
    }
    
@@ -382,7 +382,7 @@ void L1CaloPprPhos4Shape::FillErrorCode(bool signalIsPresent,bool signalIsSatura
    
    // if the signal is not present set the bad data bit
    if(!signalIsPresent){
-      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data bit because signal not present. Channel 0x" << CoolIdToString(m_coolId) << endreq;
+      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data bit because signal not present. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
       m_errorCode.badData(true);
       m_errorCode.phos4ScanNoSignal(true);
       
@@ -395,7 +395,7 @@ void L1CaloPprPhos4Shape::FillErrorCode(bool signalIsPresent,bool signalIsSatura
    }
    
    if(signalIsSaturated){
-      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data bit because signal is saturated. Channel 0x" << CoolIdToString(m_coolId) << endreq;
+      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data bit because signal is saturated. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
       m_errorCode.badData(true);
       m_errorCode.phos4ScanSignalSaturated(true);
       
@@ -414,9 +414,9 @@ void L1CaloPprPhos4Shape::FillErrorCode(bool signalIsPresent,bool signalIsSatura
    
    // if no Mean or sigma was calculated this usually indicates a bad signal shape
    if((m_risingSlopeMean < 0.0001 || m_risingSlopeSigma < 0.0001)){
-      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data bit because the signal shape is corrupt. Channel 0x" << CoolIdToString(m_coolId) << endreq;
+      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data bit because the signal shape is corrupt. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
       m_errorCode.badData(true);
-      *m_log << MSG::WARNING << "[FillErrorCode] Set phos4 scan bad signal bit because the signal shape is corrupt. Channel 0x" << CoolIdToString(m_coolId) << endreq;
+      *m_log << MSG::WARNING << "[FillErrorCode] Set phos4 scan bad signal bit because the signal shape is corrupt. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
       m_errorCode.phos4ScanBadSignal(true);
       
       
@@ -427,9 +427,9 @@ void L1CaloPprPhos4Shape::FillErrorCode(bool signalIsPresent,bool signalIsSatura
       m_processed_fitFullDelayData = m_currentFullDelayData;
    }
    else if( m_risingSlopeSigma > 10.0){
-      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data because the signal rising edge instantaneous slope has a large sigma. Channel 0x" << CoolIdToString(m_coolId) << endreq;
+      *m_log << MSG::WARNING << "[FillErrorCode] Set bad data because the signal rising edge instantaneous slope has a large sigma. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
       m_errorCode.badData(true);
-      *m_log << MSG::WARNING << "[FillErrorCode] Set phos4 scan bad signal bit because the signal rising edge instantaneous slope has a large sigma. Channel 0x" << CoolIdToString(m_coolId) << endreq;
+      *m_log << MSG::WARNING << "[FillErrorCode] Set phos4 scan bad signal bit because the signal rising edge instantaneous slope has a large sigma. Channel 0x" << CoolIdToString(m_coolId) << endmsg;
       m_errorCode.phos4ScanBadSignal(true);
       
       

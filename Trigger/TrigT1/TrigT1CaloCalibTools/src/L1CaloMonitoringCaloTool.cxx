@@ -87,7 +87,7 @@ StatusCode L1CaloMonitoringCaloTool:: initialize()
     return sc;
   }
   else {
-    //msg(MSG::DEBUG) << " Found the CaloLVL1_ID helper. " << endreq;
+    //msg(MSG::DEBUG) << " Found the CaloLVL1_ID helper. " << endmsg;
     m_lvl1Helper = (CaloLVL1_ID*) lvl1_id;
   }
 
