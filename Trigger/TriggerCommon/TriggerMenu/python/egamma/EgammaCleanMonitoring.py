@@ -4,6 +4,7 @@
 EgammaChainsToKeepMonitoring={
 # ES triggers
 "e26_lhtight_nod0_ivarloose",
+"e26_lhtight",
 "2e17_lhvloose_nod0",
 "e26_lhtight_nod0_e15_etcut_L1EM7_Zee",
 "e5_lhtight_nod0_e4_etcut_Jpsiee",
@@ -25,8 +26,10 @@ EgammaChainsToKeepMonitoring={
 "e20_lhmedium_nod0_2g10_loose_L1EM15VH_3EM8VH",
 # Single items
 "e17_lhvloose_nod0",
+"e17_lhvloose",
 "e12_lhloose_nod0",
 "e60_lhmedium_nod0",
+"e60_lhmedium",
 "e140_lhloose_nod0",
 "g22_tight",
 "g25_loose",

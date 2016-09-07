@@ -166,17 +166,48 @@ def _make_chaindef(from_central, instantiator):
                          level='EF',
                          lower_chain_name=chain_config.seed)
 
+    #reduce number of online histograms according to a whitelist, strictComparison is needed as e.g. j25 is found as a substring in other chain names
+    keepMon = KeepMonitoring(final_chain_name,JetChainsToKeepMonitoring, strictComparison = True)
+    
+    # build a dictionary of hypo algorithm names and their associated online monitoring algorithm
+    if not hasattr(_make_chaindef, "dictMonAlg"):
+        _make_chaindef.dictMonAlg = {}
+    # build a list of hypo algorithm names that need to be kept in the online monitoring
+    if not hasattr(_make_chaindef, "keepMonNames"):
+        _make_chaindef.keepMonNames = []
+
+
     # add sequence and signature (check point) information to it
-
-    disableMon = not KeepMonitoring(final_chain_name,JetChainsToKeepMonitoring, strictComparison = True) #reduce number of online histograms according to a whitelist, strictComparison is needed as e.g. j25 is found as a substring in other chain names
-
     sig_ind = 0
     for s in sequences:
-        
-        if disableMon: #if block used to remove online histograms of a hypo's AthenaMonTools
-            if "hypo" in s.alias:
-                for thisalg in s.alg_list:
-                    if hasattr(thisalg,"AthenaMonTools"):
+        if "hypo" in s.alias:
+            for thisalg in s.alg_list:
+                if hasattr(thisalg,"AthenaMonTools"):
+                    for item in thisalg.AthenaMonTools:
+                        target = item.target()
+                        if type(target) is type(""):
+                            if target == "Online":
+                                _make_chaindef.dictMonAlg[thisalg.getName()] = item
+                        if type(target) is type([]):
+                            for t in target:
+                                if t == "Online":
+                                    _make_chaindef.dictMonAlg[thisalg.getName()] = item
+                    if keepMon:
+                        _make_chaindef.keepMonNames += [thisalg.getName()]
+                    if thisalg.getName() in _make_chaindef.keepMonNames:
+                        onlineMonReenable = True
+                        for item in thisalg.AthenaMonTools:
+                            target = item.target()
+                            if type(target) is type(""):
+                                if target == "Online":
+                                    onlineMonReenable = False
+                            if type(target) is type([]):
+                                for t in target:
+                                    if t == "Online":
+                                        onlineMonReenable = False
+                        if onlineMonReenable:
+                            thisalg.AthenaMonTools += [_make_chaindef.dictMonAlg[thisalg.getName()]] #put back the original online monitoring alg if it was removed
+                    else:  
                         thisalg.AthenaMonTools = DisableMonitoringButValAndTime(thisalg.AthenaMonTools)
     
         sig_ind += 1

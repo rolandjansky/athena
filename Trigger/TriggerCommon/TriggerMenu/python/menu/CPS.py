@@ -305,6 +305,19 @@ def defineCPSGroups():
                                'xe35_pufit_wEFMu',
                                ],
 
+        'RATE:CPS:HLT_xe70_L1XE50' : ['xe70_L1XE50',
+                                      'xe75_L1XE50',
+                                      'xe80_L1XE50',
+                                      'xe90_L1XE50',
+                                      'xe110_mht_L1XE50_AND_xe70_L1XE50',
+                                      'xe110_mht_L1XE50_AND_xe75_L1XE50',
+                                      'xe110_mht_L1XE50_AND_xe80_L1XE50', 
+                                      ],
+
+        'RATE:CPS:HLT_xe75_L1XE55' : ['xe75_L1XE55',
+                                      'xe80_L1XE55',
+                                      'xe90_L1XE55',],
+
         
         'RATE:CPS:HLT_xe90_L1XE50' : ['xe90_tc_lcw_L1XE50', 
                                       'xe90_mht_L1XE50',   
