@@ -8,24 +8,27 @@ atlas_subdir( InDetPhysValMonitoring )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
+			  Control/AthToolSupport/AsgTools
                           Control/AthenaMonitoring
+			  DetectorDescription/AtlasDetDescr
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTruth
                           GaudiKernel
+			  InnerDetector/InDetDetDescr/InDetIdentifier
+			  InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           Tracking/TrkValidation/TrkValHistUtils
-                          PRIVATE
-                          Control/AthToolSupport/AsgTools
+			  DetectorDescription/AtlasDetDescr
+                          PRIVATE	
+			  Control/AthAnalysisBaseComps	                    
                           Control/AthenaKernel
-                          DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODJet
                           InnerDetector/InDetConditions/InDetBeamSpotService
-                          InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRecEvent/InDetPrepRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
                           PhysicsAnalysis/MCTruthClassifier

@@ -5,7 +5,7 @@
 <!ENTITY PI "3.1415926">
 <!ENTITY ETA "4.0">
 ]>
-<hdef>
+<hdef xmlns:xi="http://www.w3.org/2001/XInclude">
 <h id="num_truthmatch_match" type="TH1F" title="num_truthmatch_match">
   <x title="Num. matching truth" n="10" lo="0" hi="10"/>
   <y title="Entries"/>
@@ -59,7 +59,7 @@
   <y title="Entries"/>
 </h>
 <h id="truthd0" type="TH1F" title="d_{0} of selected truth (in mm)">
-  <x title="d_{0}(mm)" n="200" lo="-2" hi="2"/>
+  <x title="d_{0}(mm)" n="2000" lo="-2" hi="2"/>
   <y title="Entries"/>
 </h>
 <h id="truthz0" type="TH1F" title="z_{0} of selected truth (in mm)">
@@ -283,6 +283,46 @@
   <y title="Efficiency" lo="0" hi="1"/>
 </h>
 <!--  -->
+
+<!-- stuff pilfered from old backtracking script -->
+<h id="eff_vs_eta_of_daughters" type="TProfile" title="Efficiency vs #eta of daughter particles">
+  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+
+<h id="eff_vs_theta_of_daughters" type="TProfile" title="Efficiency vs #theta of daughter particles">
+  <x title="#theta" n="28" lo="0.0" hi="&PI;"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+
+<h id="eff_vs_theta_tan_of_daughters" type="TProfile" title="Efficiency vs tan(#theta) of daughter particles">
+  <x title="tan(#theta)" n="32" lo="-8" hi="8"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+
+<h id="eff_vs_theta_cotan_of_daughters" type="TProfile" title="Efficiency vs cotan(#theta) of daughter particles">
+  <x title="cotan(#theta)" n="32" lo="-8" hi="8"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+
+<h id="eff_vs_phi_of_daughters" type="TProfile" title="Efficiency vs #phi of daughter particles">
+  <x title="#phi" n="16" lo="-&PI;" hi="&PI;"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+
+<h id="eff_vs_phi_sin_of_daughters" type="TProfile" title="Efficiency vs sin(#phi) of daughter particles">
+  <x title="sin(#phi)" n="14" lo="-1.2" hi="1.2"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+
+<h id="eff_vs_phi_cos_of_daughters" type="TProfile" title="Efficiency vs cos(#phi) of daughter particles">
+  <x title="cos(#phi)" n="14" lo="-1.2" hi="1.2"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+
+
+<!-- -->
+
 <!-- vertices -->
 <h id="vx_x" type="TH1F" title="X position of vertex">
   <x title="X (mm)" n="200" lo="-1.0" hi="1.0"/>
@@ -657,6 +697,36 @@
   <y title="Entries"/>
 </h>
 <!--  -->
+<!-- Track in Jet efficiencies -->
+<h id="trackinjeteff_vs_eta" type="TProfile" title="Track in jets efficiency vs #eta (Det. Paper def.)">
+  <x title="#eta" n="20" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackinjeteff_vs_phi" type="TProfile" title="Track in jets efficiency vs #phi (Det. Paper def.)">
+  <x title="#eta" n="24" lo="-1.5708" hi="1.5708"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackinjeteff_vs_pt" type="TProfile" title="Track in jets efficiency vs p_{T} for |#eta| &lt; &ETA; (Det. Paper def.)">
+  <x title="p_{T} (GeV/c)" n="25" lo="0" hi="50"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackinjeteff_vs_dr" type="TProfile" title="Track in jets efficiency vs #DeltaR for |#eta| &lt; &ETA; (Det. Paper def.)">
+  <x title="#DeltaR" n="10" lo="0.0" hi="0.4"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackinjeteff_vs_dr_lt_j50" type="TProfile" title="Track in jets efficiency vs #DeltaR for |#eta| &lt; &ETA; (E_{T}(jet) &lt; 50 GeV)">
+  <x title="#DeltaR" n="10" lo="0.0" hi="0.2"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackinjeteff_vs_dr_gr_j100" type="TProfile" title="Track in jets efficiency vs #DeltaR for |#eta| &lt; &ETA; (E_{T}(jet) &gt; 100 GeV)">
+  <x title="#DeltaR" n="10" lo="0.0" hi="0.2"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackinjeteff_vs_jetet" type="TProfile" title="Track in jets efficiency vs jet E_{T} for |#eta| &lt; &ETA; ">
+  <x title="E_{jet} (GeV)" n="10" lo="0.0" hi="250"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<!-- -->
 <!-- spectrum plots -->
 <h id="nPixDeadSensors_vs_eta" type="TProfile" title="# pix deadsensors vs Eta">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
@@ -848,8 +918,12 @@
   <x title="Z" n="100" lo="-350" hi="350"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
-<h id="trackinjeteff_vs_dr_gr_j100" type="TProfile" title="Track in jets efficiency vs #DeltaR for |#eta| &lt; &ETA; (E_{T}(jet) &gt;10 100 GeV)">
-  <x title="#DeltaR" n="10" lo="0.0" hi="0.2"/>
+<h id="trackeff_vs_prodR" type="TProfile" title="Track Efficiency vs Production Vertex Radius">
+  <x title="prod_R" n="100" lo="0" hi="1500"/>
+  <y title="Efficiency" lo="0.0" hi="2.0"/>
+</h>
+<h id="trackeff_vs_prodZ" type="TProfile" title="Track Efficiency vs Production Vertex Z">
+  <x title="prod_Z" n="100" lo="0" hi="2000"/>
   <y title="Efficiency" lo="0.0" hi="2.0"/>
 </h>
 <h id="eff_hit_vs_eta_ibl_barrel" type="TProfile" title="Cluster Efficiency: Pixel Barrel IBL">
@@ -924,6 +998,300 @@
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
   <y title="# SCT deadsensors" lo="0" hi="20"/>
 </h>
+
+<!--  -->
+<!-- Unsorted : todo: sort -->
+<h id="incFakevsTracks" type="TProfile" title="Selected Reco Tracks / Selected Truth Tracks vs # of reco tracks">
+  <x title="tracks" n="200" lo="0" hi="2000"/>
+  <y title="Inclusive Fake Rate" lo="0" hi="2"/>
+</h>
+<h id="selectedTracks_vs_nTracks" type="TH2F" title="Selected Reco Tracks vs # Reco Tracks ">
+  <x title="Reco Tracks" n="200" lo="0" hi="2000"/>
+  <y title="Selected Reco Tracks" n="80" lo="0" hi="1600"/>
+</h>
+<h id="nSCTHits_phi_vs_eta" type="TH2F" title="# SCT hits phi vs Eta">
+  <x title="#etaphi" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# SCT Hits" n="60" lo="-3" hi="3"/>
+</h>
+<h id="nPixHits_phi_vs_eta" type="TH2F" title="# Pix hits phi vs Eta">
+  <x title="#etaphi" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# Pix Hits" n="60" lo="-3" hi="3"/>
+</h>
+<h id="nTotHits_phi_vs_eta" type="TH2F" title="# total hits phi vs Eta">
+  <x title="#etaphi" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="# total Hits" n="60" lo="-3" hi="3"/>
+</h>
+<h id="recoMatchProbabilitySpectrumUNLINKED" type="TH1F" title="truth match probability spectrum">
+  <x title="truth match probability" n="110" lo="0." hi="1.1"/>
+  <y title="Entries"/>
+</h>
+<h id="recoMatchProbabilitySpectrumLINKED" type="TH1F" title="truth match probability spectrum">
+  <x title="truth match probability" n="110" lo="0." hi="1.1"/>
+  <y title="Entries"/>
+</h>
+<h id="recod0Spectrum" type="TH1F" title="reco d0 spectrum">
+  <x title="d0" n="200" lo="-5." hi="5."/>
+  <y title="Entries"/>
+</h>
+<h id="recoz0Spectrum" type="TH1F" title="reco z0 spectrum">
+  <x title="z0" n="500" lo="-250." hi="250."/>
+  <y title="Entries"/>
+</h>
+<h id="recoz0sinSpectrum" type="TH1F" title="reco z0sin spectrum">
+  <x title="z0sintheta" n="500" lo="-250." hi="250."/>
+  <y title="Entries"/>
+</h>
+<h id="recod0TVRSpectrum" type="TH1F" title="reco d0-TruthVtxR spectrum">
+  <x title="d0-TrVtR" n="200" lo="-5." hi="5."/>
+  <y title="Entries"/>
+</h>
+<h id="recoz0TVZSpectrum" type="TH1F" title="reco z0-TruthVtxZ spectrum">
+  <x title="d0-TrVtZ" n="200" lo="-10." hi="10."/>
+  <y title="Entries"/>
+</h>
+<h id="recoz0TVZsinSpectrum" type="TH1F" title="reco (z0-TruthVtxZ)sin spectrum">
+  <x title="(d0-TrVtZ)sin" n="200" lo="-10." hi="10."/>
+  <y title="Entries"/>
+</h>
+<h id="ptvsEtaUnlinked_postSelect" type="TH2F" title="PT vs Eta Spectrum">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="pt" n="200" lo="0" hi="200"/>
+</h>
+<h id="probvsSCTUnlinked_postSelect" type="TH2F" title="Truth Match Probability vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="truth match probability" n="55" lo="0" hi="1.1"/>
+</h>
+<h id="probvsPixUnlinked_postSelect" type="TH2F" title="Truth Match Probability vs Pix Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="truth match probability" n="55" lo="0" hi="1.1"/>
+</h>
+<h id="sharedHitsvsSCTUnlinked_postSelect" type="TH2F" title="Shared Hits vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="Shared Hits" n="20" lo="0" hi="20"/>
+</h>
+<h id="sharedHitsvsPixUnlinked_postSelect" type="TH2F" title="Shared Hits vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="Shared Hits" n="20" lo="0" hi="20"/>
+</h>
+<h id="holesvsPixUnlinked_postSelect" type="TH2F" title="Holes vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="Holes" n="10" lo="0" hi="10"/>
+</h>
+<h id="pixholesvsPixUnlinked_postSelect" type="TH2F" title="Pixel Holes vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="Holes" n="10" lo="0" hi="10"/>
+</h>
+<h id="holesvsSCTUnlinked_postSelect" type="TH2F" title="Holes vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="Holes" n="10" lo="0" hi="10"/>
+</h>
+<h id="sctholesvsSCTUnlinked_postSelect" type="TH2F" title="SCT Holes vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="Holes" n="10" lo="0" hi="10"/>
+</h>
+<h id="outliersvsPixUnlinked_postSelect" type="TH2F" title="Outliers vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="Outliers" n="10" lo="0" hi="10"/>
+</h>
+<h id="pixoutliersvsPixUnlinked_postSelect" type="TH2F" title="Pixel Outliers vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="Outliers" n="10" lo="0" hi="10"/>
+</h>
+<h id="outliersvsSCTUnlinked_postSelect" type="TH2F" title="Outliers vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="Outliers" n="10" lo="0" hi="10"/>
+</h>
+<h id="sctoutliersvsSCTUnlinked_postSelect" type="TH2F" title="SCT Outliers vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="Outliers" n="10" lo="0" hi="10"/>
+</h>
+<h id="hitsvsEtaUnlinked_postSelect" type="TProfile" title="Hits vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Hits" lo="0" hi="20"/>
+</h>
+<h id="pixHolesvsEtaUnlinked_postSelect" type="TProfile" title="Pixel Holes vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Pixel Holes" lo="0" hi="5"/>
+</h>
+<h id="sctHolesvsEtaUnlinked_postSelect" type="TProfile" title="SCT Holes vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Pixel Holes" lo="0" hi="5"/>
+</h>
+<h id="sctHitsvsPixHitsUnlinked_postSelect" type="TH2F" title="SCT Hits vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="SCT Hits" n="20" lo="0" hi="20"/>
+</h>
+<h id="sctHitsvsEtaUnlinked_postSelect" type="TProfile" title="SCT Hits vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="SCT Hits" lo="0" hi="20"/>
+</h>
+<h id="pixHitsvsEtaUnlinked_postSelect" type="TProfile" title="Pixel Hits vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="SCT Hits" lo="0" hi="20"/>
+</h>
+<h id="sctOutliersvsEtaUnlinked_postSelect" type="TProfile" title="SCT Outliers vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="SCT Hits" lo="0" hi="20"/>
+</h>
+<h id="pixOutliersvsEtaUnlinked_postSelect" type="TProfile" title="Pixel Outliers vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="SCT Hits" lo="0" hi="20"/>
+</h>
+<h id="ptvsEtaLinked_postSelect" type="TH2F" title="PT vs Eta Spectrum">
+  <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Fake Rate" n="200" lo="0" hi="200"/>
+</h>
+<h id="probvsSCTLinked_postSelect" type="TH2F" title="Truth Match Probability vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="truth match probability" n="55" lo="0" hi="1.1"/>
+</h>
+<h id="probvsPixLinked_postSelect" type="TH2F" title="Truth Match Probability vs Pix Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="truth match probability" n="55" lo="0" hi="1.1"/>
+</h>
+<h id="sharedHitsvsSCTLinked_postSelect" type="TH2F" title="Shared Hits vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="Shared Hits" n="20" lo="0" hi="20"/>
+</h>
+<h id="sharedHitsvsPixLinked_postSelect" type="TH2F" title="Shared Hits vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="Shared Hits" n="20" lo="0" hi="20"/>
+</h>
+<h id="holesvsPixLinked_postSelect" type="TH2F" title="Holes vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="Holes" n="10" lo="0" hi="10"/>
+</h>
+<h id="pixholesvsPixLinked_postSelect" type="TH2F" title="Pixel Holes vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="Holes" n="10" lo="0" hi="10"/>
+</h>
+<h id="holesvsSCTLinked_postSelect" type="TH2F" title="Holes vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="Holes" n="10" lo="0" hi="10"/>
+</h>
+<h id="sctholesvsSCTLinked_postSelect" type="TH2F" title="SCT Holes vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="Holes" n="10" lo="0" hi="10"/>
+</h>
+<h id="outliersvsPixLinked_postSelect" type="TH2F" title="Outliers vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="Outliers" n="10" lo="0" hi="10"/>
+</h>
+<h id="pixoutliersvsPixLinked_postSelect" type="TH2F" title="Pixel Outliers vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="Outliers" n="10" lo="0" hi="10"/>
+</h>
+<h id="outliersvsSCTLinked_postSelect" type="TH2F" title="Outliers vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="Outliers" n="10" lo="0" hi="10"/>
+</h>
+<h id="sctoutliersvsSCTLinked_postSelect" type="TH2F" title="SCT Outliers vs SCT Hits">
+  <x title="SCT Hits" n="20" lo="0" hi="20"/>
+  <y title="Outliers" n="10" lo="0" hi="10"/>
+</h>
+<h id="hitsvsEtaLinked_postSelect" type="TProfile" title="Hits vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Hits" lo="0" hi="20"/>
+</h>
+<h id="pixHolesvsEtaLinked_postSelect" type="TProfile" title="Pixel Holes vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Pixel Holes" lo="0" hi="5"/>
+</h>
+<h id="sctHolesvsEtaLinked_postSelect" type="TProfile" title="SCT Holes vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="Pixel Holes" lo="0" hi="5"/>
+</h>
+<h id="sctHitsvsPixHitsLinked_postSelect" type="TH2F" title="SCT Hits vs Pixel Hits">
+  <x title="Pixel Hits" n="20" lo="0" hi="20"/>
+  <y title="SCT Hits" n="20" lo="0" hi="20"/>
+</h>
+<h id="sctHitsvsEtaLinked_postSelect" type="TProfile" title="SCT Hits vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="SCT Hits" lo="0" hi="20"/>
+</h>
+<h id="pixHitsvsEtaLinked_postSelect" type="TProfile" title="Pixel Hits vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="SCT Hits" lo="0" hi="20"/>
+</h>
+<h id="sctOutliersvsEtaLinked_postSelect" type="TProfile" title="SCT Outliers vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="SCT Hits" lo="0" hi="20"/>
+</h>
+<h id="pixOutliersvsEtaLinked_postSelect" type="TProfile" title="Pixel Outliers vs Eta">
+  <x title="#eta" n="40" lo="-&ETA;" hi="&ETA;"/>
+  <y title="SCT Hits" lo="0" hi="20"/>
+</h>
+<h id="recoMatchvsSiHitsUNLINKED_postSelect" type="TH2F" title="truth match probability vs Silicon hits (UNLINKED)">
+  <x title="Si Hits" n="25" lo="0" hi="25"/>
+  <y title="truth match probability" n="40" lo="0" hi="1.1"/>
+</h>
+<h id="recoMatchvsSCTHitsUNLINKED_postSelect" type="TH2F" title="truth match probability vs SCT hits (UNLINKED)">
+  <x title="SCT Hits" n="25" lo="0" hi="25"/>
+  <y title="truth match probability" n="40" lo="0" hi="1.1"/>
+</h>
+<h id="recoMatchvsPixHitsUNLINKED_postSelect" type="TH2F" title="truth match probability vs Pixel hits (UNLINKED)">
+  <x title="Pixel Hits" n="25" lo="0" hi="25"/>
+  <y title="truth match probability" n="40" lo="0" hi="1.1"/>
+</h>
+<h id="recoMatchvsSiHitsLINKED_postSelect" type="TH2F" title="truth match probability vs Silicon hits (LINKED)">
+  <x title="Si Hits" n="25" lo="0" hi="25"/>
+  <y title="truth match probability" n="40" lo="0" hi="1.1"/>
+</h>
+<h id="recoMatchvsSCTHitsLINKED_postSelect" type="TH2F" title="truth match probability vs SCT hits (LINKED)">
+  <x title="SCT Hits" n="25" lo="0" hi="25"/>
+  <y title="truth match probability" n="40" lo="0" hi="1.1"/>
+</h>
+<h id="recoMatchvsPixHitsLINKED_postSelect" type="TH2F" title="truth match probability vs Pixel hits (LINKED)">
+  <x title="Pixel Hits" n="25" lo="0" hi="25"/>
+  <y title="truth match probability" n="40" lo="0" hi="1.1"/>
+</h>
+<!--  -->
+<!-- VTX-related -->
+<h id="TVXspectrum" type="TH1F" title="TruthVtxX spectrum">
+  <x title="TrVtxX" n="500" lo="-0.5" hi="0.5"/>
+  <y title="Entries"/>
+</h>
+<h id="TVYspectrum" type="TH1F" title="TruthVtxY spectrum">
+  <x title="TrVtxY" n="500" lo="-0.5" hi="0.5"/>
+  <y title="Entries"/>
+</h>
+<h id="TVRspectrum" type="TH1F" title="TruthVtxR spectrum">
+  <x title="TrVtxR" n="500" lo="0." hi="0.5"/>
+  <y title="Entries"/>
+</h>
+<h id="TVZspectrum" type="TH1F" title="TruthVtxZ spectrum">
+  <x title="TrVtxZ" n="500" lo="-250." hi="250."/>
+  <y title="Entries"/>
+</h>
+<h id="recod0PVRSpectrum" type="TH1F" title="reco d0-PrimVtxR spectrum">
+  <x title="d0-PrVtR" n="200" lo="-10." hi="10."/>
+  <y title="Entries"/>
+</h>
+<h id="recoz0PVZSpectrum" type="TH1F" title="reco z0-PrimVtxZ spectrum">
+  <x title="d0-PrVtZ" n="200" lo="-20." hi="20."/>
+  <y title="Entries"/>
+</h>
+<h id="recoz0PVZsinSpectrum" type="TH1F" title="reco (z0-PrimVtxZ)sin spectrum">
+  <x title="(d0-PrVtZ)sin" n="200" lo="-20." hi="20."/>
+  <y title="Entries"/>
+</h>
+<h id="PVXspectrum" type="TH1F" title="PrimVtxX spectrum">
+  <x title="PrVtxX" n="500" lo="-0.25" hi="0.25"/>
+  <y title="Entries"/>
+</h>
+<h id="PVYspectrum" type="TH1F" title="PrimVtxY spectrum">
+  <x title="PrVtxY" n="500" lo="-0.25" hi="0.25"/>
+  <y title="Entries"/>
+</h>
+<h id="PVRspectrum" type="TH1F" title="PrimVtxR spectrum">
+  <x title="PrVtxR" n="100" lo="0." hi="0.25"/>
+  <y title="Entries"/>
+</h>
+<h id="PVZspectrum" type="TH1F" title="PrimVtxZ spectrum">
+  <x title="PrVtxZ" n="500" lo="-250." hi="250."/>
+  <y title="Entries"/>
+</h>
+
 </hdef>
 
 

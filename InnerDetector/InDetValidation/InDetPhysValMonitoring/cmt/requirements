@@ -9,9 +9,8 @@ use GaudiInterface 	GaudiInterface-* 	External
 
 ## put here your package dependencies...
 
-#use AsgTools            AsgTools-*              Control/AthToolSupport
-
 public
+use AsgTools            AsgTools-*              Control/AthToolSupport
 use xAODTruth           xAODTruth-*             Event/xAOD
 use AthenaMonitoring    AthenaMonitoring-*      Control
 use TrkValHistUtils     TrkValHistUtils-*       Tracking/TrkValidation
@@ -20,6 +19,9 @@ use AtlasROOT           AtlasROOT-*             External
 use PATCore             PATCore-*               PhysicsAnalysis/AnalysisCommon
 use InDetTrackSelectionTool InDetTrackSelectionTool-*  InnerDetector/InDetRecTools   
 use AthenaBaseComps     AthenaBaseComps-*       Control
+use AtlasDetDescr               AtlasDetDescr-*         DetectorDescription
+use InDetIdentifier             InDetIdentifier-*       InnerDetector/InDetDetDescr
+use InDetReadoutGeometry  InDetReadoutGeometry-* InnerDetector/InDetDetDescr
 
 private
 use AtlasXercesC        AtlasXercesC-*        	External  
@@ -35,12 +37,9 @@ use TrkTrack                    TrkTrack-*              Tracking/TrkEvent
 use GeoPrimitives               GeoPrimitives-*         DetectorDescription
 use EventPrimitives     EventPrimitives-*       Event
 use xAODEventInfo	xAODEventInfo-*		Event/xAOD
-use AtlasDetDescr               AtlasDetDescr-*         DetectorDescription
-use InDetIdentifier             InDetIdentifier-*       InnerDetector/InDetDetDescr
 use  MCTruthClassifier          MCTruthClassifier-*             PhysicsAnalysis 
 use InDetBeamSpotService InDetBeamSpotService-* InnerDetector/InDetConditions
 use xAODJet             xAODJet-*               Event/xAOD
-use AsgTools            AsgTools-*              Control/AthToolSupport
 use PathResolver         PathResolver-*         Tools
 
 use InDetPrepRawData            InDetPrepRawData-*      InnerDetector/InDetRecEvent
@@ -48,7 +47,8 @@ use AthenaKernel     AthenaKernel-*       Control
 use TrkTrack         TrkTrack-*           Tracking/TrkEvent
 # for the DummyTrackSlimmingTool
 use TrkToolInterfaces TrkToolInterfaces-* Tracking/TrkTools/
-
+# for metadata  queries
+use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
 
 branches src src/components doc
 
