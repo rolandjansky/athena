@@ -13,9 +13,15 @@ ServiceMgr += SpecialPixelMapSvc
 
 from AthenaCommon.GlobalFlags import globalflags
 
+globalflags.DatabaseInstance = 'CONDBR2'
+
 globalflags.DetGeo = 'atlas'
 globalflags.DataSource = 'data'
 globalflags.InputFormat = 'pool'
+globalflags.DetDescrVersion = 'ATLAS-R2-2015-03-01-00'
+#globalflags.ConditionsTag = 'OFLCOND-RUN12-SDR-20' # 27-Nov-2014
+#globalflags.ConditionsTag = 'CONDBR2-ES1PA-2014-00' # steffen
+globalflags.ConditionsTag = 'CONDBR2-BLKPA-2014-03'
 globalflags.print_JobProperties()
 
 
@@ -23,19 +29,21 @@ globalflags.print_JobProperties()
 
 from IOVDbSvc.CondDB import conddb
 
-conddb.setGlobalTag('COMCOND-000-00')
+conddb.setGlobalTag('CONDBR2-BLKPA-2014-03')
+###conddb.setGlobalTag('COMCOND-000-00')
+#conddb.setGlobalTag('OFLCOND-RUN12-SDR-22')
 
 if not 'ReferenceDB' in dir() :
   ReferenceDB = "default"
 if not 'ReferenceTag' in dir() :
-  ReferenceTag = "PixNoiseMapShort-000-00"
-  ReferenceLongTag = "PixNoiseMapLong-000-00"
+  ReferenceTag = "PixNoiseMapShort-DATA-RUN2-000-00"
+  ReferenceLongTag = "PixNoiseMapLong-DATA-RUN2-000-00"
 
 
 if ReferenceDB == "sqlite" :
-  dbConnection = "sqlite://;schema=noisemap.db;dbname=COMP200"
+  dbConnection = "sqlite://;schema=noisemap.db;dbname=CONDBR2"
 if ReferenceDB == "oracle" :
-  dbConnection = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_PIXEL;dbname=COMP200"
+  dbConnection = "oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_PIXEL;dbname=CONDBR2"
 
 if ReferenceDB == "sqlite" or ReferenceDB == "oracle" :
   SpecialPixelMapSvc.DBFolders = [ '/PIXEL/NoiseMapShortRef', '/PIXEL/NoiseMapLongRef' ]
@@ -47,17 +55,17 @@ if ReferenceDB == "sqlite" or ReferenceDB == "oracle" :
 if ReferenceDB == "default" :
   SpecialPixelMapSvc.DBFolders = [ '/PIXEL/NoiseMapShortRef_oracle', '/PIXEL/NoiseMapLongRef_oracle' ]
   SpecialPixelMapSvc.SpecialPixelMapKeys = [ 'SpecialPixelMap', 'NoiseMapLong' ]
-  conddb.iovdbsvc.Folders += [ "<dbConnection> oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_PIXEL;dbname=COMP200 </dbConnection> /PIXEL/NoiseMapShort <tag>" + ReferenceTag + "</tag>" + "<key> /PIXEL/NoiseMapShortRef_oracle </key>"]
-  conddb.iovdbsvc.Folders += [ "<dbConnection> oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_PIXEL;dbname=COMP200 </dbConnection> /PIXEL/NoiseMapLong <tag>" + ReferenceLongTag + "</tag>" + "<key> /PIXEL/NoiseMapLongRef_oracle </key>" ]
+  conddb.iovdbsvc.Folders += [ "<dbConnection> oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_PIXEL;dbname=CONDBR2 </dbConnection> /PIXEL/NoiseMapShort <tag>" + ReferenceTag + "</tag>" + "<key> /PIXEL/NoiseMapShortRef_oracle </key>"]
+  conddb.iovdbsvc.Folders += [ "<dbConnection> oracle://ATLAS_COOLPROD;schema=ATLAS_COOLOFL_PIXEL;dbname=CONDBR2 </dbConnection> /PIXEL/NoiseMapLong <tag>" + ReferenceLongTag + "</tag>" + "<key> /PIXEL/NoiseMapLongRef_oracle </key>" ]
 
   if os.path.isfile("noisemap.db") :
     SpecialPixelMapSvc.OverlayFolder = '/PIXEL/NoiseMapShortRef_sqlite'
     SpecialPixelMapSvc.OverlayLongFolder = '/PIXEL/NoiseMapLongRef_sqlite'
     SpecialPixelMapSvc.OverlayKey = 'NoiseMapShort_sqlite'
-    SpecialPixelMapSvc.OverlayLongKey = 'NoiseMapLong_sqlite' 
+    SpecialPixelMapSvc.OverlayLongKey = 'NoiseMapLong_sqlite'
     SpecialPixelMapSvc.ModuleLevelOverlay = True
-    conddb.iovdbsvc.Folders += [ "<dbConnection> sqlite://;schema=noisemap.db;dbname=COMP200 </dbConnection> /PIXEL/NoiseMapShort <tag>" + ReferenceTag + "</tag>" + "<key> /PIXEL/NoiseMapShortRef_sqlite </key>"]
-    conddb.iovdbsvc.Folders += [ "<dbConnection> sqlite://;schema=noisemap.db;dbname=COMP200 </dbConnection> /PIXEL/NoiseMapLong <tag>" + ReferenceLongTag + "</tag>" + "<key> /PIXEL/NoiseMapLongRef_sqlite </key>" ]
+    conddb.iovdbsvc.Folders += [ "<dbConnection> sqlite://;schema=noisemap.db;dbname=CONDBR2 </dbConnection> /PIXEL/NoiseMapShort <tag>" + ReferenceTag + "</tag>" + "<key> /PIXEL/NoiseMapShortRef_sqlite </key>"]
+    conddb.iovdbsvc.Folders += [ "<dbConnection> sqlite://;schema=noisemap.db;dbname=CONDBR2 </dbConnection> /PIXEL/NoiseMapLong <tag>" + ReferenceLongTag + "</tag>" + "<key> /PIXEL/NoiseMapLongRef_sqlite </key>" ]
 
 
 
@@ -73,7 +81,7 @@ if not 'NoiseMapFilename' in dir() :
 PixMapDBWriter.PixMapFileName = NoiseMapFilename   # name of ROOT input file with maps of noisy pixels
 PixMapDBWriter.DoValidate = True
 
-PixMapDBWriter.SpecialPixelMapKey = SpecialPixelMapSvc.SpecialPixelMapKeys[0] 
+PixMapDBWriter.SpecialPixelMapKey = SpecialPixelMapSvc.SpecialPixelMapKeys[0]
 
 
 ## DetFlags
@@ -84,7 +92,9 @@ DetFlags.all_setOff()
 DetFlags.pixel_setOn()
 DetFlags.Print()
 
-DetDescrVersion = "ATLAS-GEO-08-00-00"
+#DetDescrVersion = "ATLAS-GEO-08-00-00" #####
+#DetDescrVersion = "ATLAS-R2-2015-02-01-00" # 09-Nov-2014
+
 
 from AtlasGeoModel import SetGeometryVersion
 from AtlasGeoModel import GeoModelInit

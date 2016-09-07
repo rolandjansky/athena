@@ -92,22 +92,10 @@ MessageSvc.OutputLevel      = 3
 MessageSvc.debugLimit       = 100000
 MessageSvc.infoLimit        = 100000
 MessageSvc.errorLimit       = 1000
-job.PixMapOverlayWriter.ModuleIDFragments = [ ]
-job.PixMapOverlayWriter.Frontends = { }
-# As an example, these are masking of the following modules 
-# "D3A_B02_S1_M6",
-# "D3A_B02_S2_M5",
-# "D3A_B03_S2_M6",
-# "D3C_B02_S1_M2",
-# "D3C_B04_S2_M5",
-# "L0_B03_S1_C7_M4C",
-# "L0_B03_S2_A7_M3A",
-# "L0_B04_S1_A6_M1A",
-# "L0_B04_S2_A7_M1A",
-# "L0_B07_S1_A6_M3A",
-# "L0_B07_S2_A7_M0",
-# "L1_B05_S1_C7_M0"
 
+job.PixMapOverlayWriter.ModuleIDFragments = [ ]
+
+# This is where the module ID's go to mask entire modules
 job.PixMapOverlayWriter.Modules = [
     84869120,
     85917696,
@@ -122,3 +110,5 @@ job.PixMapOverlayWriter.Modules = [
     43843584,
     51445760 ]
 
+# This is where the dictionary of {Module:[FE's to mask]} goes
+job.PixMapOverlayWriter.Frontends = { "50679808": [8,9,10,11],"52187136": [11] }
