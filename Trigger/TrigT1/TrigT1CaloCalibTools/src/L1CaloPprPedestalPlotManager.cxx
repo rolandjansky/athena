@@ -107,7 +107,7 @@ double L1CaloPprPedestalPlotManager::getMonitoringValue(const xAOD::TriggerTower
 	  }
 	  else
 	  {
-	      *m_log<<MSG::WARNING<< "No L1CaloPprConditions available" << endreq;
+	      *m_log<<MSG::WARNING<< "No L1CaloPprConditions available" << endmsg;
 	  }
 	}
 	if (m_isRun2 == true) {
@@ -118,13 +118,13 @@ double L1CaloPprPedestalPlotManager::getMonitoringValue(const xAOD::TriggerTower
 	  }
 	  else
 	  {
-	      *m_log<<MSG::WARNING<< "No L1CaloPprConditions available" << endreq;
+	      *m_log<<MSG::WARNING<< "No L1CaloPprConditions available" << endmsg;
 	  }
 	}
     }
     else
     {
-        *m_log<<MSG::WARNING<< "No Conditions Container available" << endreq;
+        *m_log<<MSG::WARNING<< "No Conditions Container available" << endmsg;
     }
 
     double pedestal = 0;  // to be returned
@@ -509,7 +509,7 @@ void L1CaloPprPedestalPlotManager::loadConditionsContainer()
 {
     if (m_l1CondSvc)
     {
-        *m_log<<MSG::DEBUG<< "Retrieving Conditions Container" << endreq;
+        *m_log<<MSG::DEBUG<< "Retrieving Conditions Container" << endmsg;
 	StatusCode sc;
 	if (m_isRun2 == true) {
 	  sc = m_l1CondSvc->retrieve(m_conditionsContainerRun2);
@@ -519,15 +519,15 @@ void L1CaloPprPedestalPlotManager::loadConditionsContainer()
 	}
 	if (sc.isFailure()) 
 	{
-	    *m_log<<MSG::WARNING<< "Could not retrieve Conditions Container" << endreq;
+	    *m_log<<MSG::WARNING<< "Could not retrieve Conditions Container" << endmsg;
 	}
 	else 
 	{
-	    *m_log<<MSG::DEBUG<< "Retrieved Conditions Container" << endreq;
+	    *m_log<<MSG::DEBUG<< "Retrieved Conditions Container" << endmsg;
 	}
     }
     else 
     {
-        *m_log<<MSG::WARNING<< "Could not retrieve Conditions Containers" << endreq;
+        *m_log<<MSG::WARNING<< "Could not retrieve Conditions Containers" << endmsg;
     }
 }
