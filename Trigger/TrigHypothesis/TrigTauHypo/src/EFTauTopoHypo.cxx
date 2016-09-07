@@ -104,7 +104,6 @@ HLT::ErrorCode EFTauTopoHypo::hltExecute(const HLT::TriggerElement* inputTE, boo
 
   	} // End of loop over TrigComposites in EFTAUInfo
 
-        pass = true;
         return HLT::OK;
 
 
