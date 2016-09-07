@@ -91,6 +91,8 @@ public:
 
     // position -> id
     SiCellId cellIdOfPosition(const SiLocalPosition &localPos) const;
+    void closestStripRowOfPosition(SiLocalPosition const &pos, int & strip, int & row) const;
+    
     // id to position
     SiLocalPosition positionFromStrip(const SiCellId &cellId) const;
     SiLocalPosition positionFromStrip(const int stripNumber) const;

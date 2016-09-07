@@ -342,7 +342,7 @@ namespace InDetDD {
     inline PixelModuleDesign::ReadoutTechnology PixelModuleDesign::getReadoutTechnology() const {
       const int maxRow = m_readoutScheme.rowsPerCircuit();
       const int maxCol = m_readoutScheme.columnsPerCircuit();
-      if (maxRow*maxCol>130000)     { return RD53; }  // RD53 has 134400
+      if (maxRow*maxCol>30000)      { return RD53; }  // nominal RD53 has 134400; may be as low as 53760 for older layouts such as LoI
       else if (maxRow*maxCol>26000) { return FEI4; }  // FEI4 has 26880
       else                          { return FEI3; }
     }

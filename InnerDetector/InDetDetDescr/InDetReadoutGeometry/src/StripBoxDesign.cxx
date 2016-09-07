@@ -134,14 +134,9 @@ SiLocalPosition StripBoxDesign::localPositionOfCluster(SiCellId const &cellId,
 /// Give end points of the strip that covers the given position
 std::pair<SiLocalPosition, SiLocalPosition> StripBoxDesign::endsOfStrip(SiLocalPosition const &pos) const {
 
-    SiCellId cellId = cellIdOfPosition(pos);
-    if (!cellId.isValid()) {
-        cerr << "StripBoxDesign::endsOfStrip: (eta, phi, depth) = (" << pos.xEta() << ", " << 
-                 pos.xPhi() << ", " <<  pos.xDepth() << ") was outside\n";
-        return std::pair<SiLocalPosition, SiLocalPosition> (SiLocalPosition(0., 0., 0.), SiLocalPosition(0., 0., 0.));
-    }
+  
     int strip, row;
-    getStripRow(cellId, &strip, &row);
+    closestStripRowOfPosition(pos, strip, row);
 
     double etaStart = (row - m_nRows / 2.) * m_length;
     double etaEnd = etaStart + m_length;
@@ -153,6 +148,22 @@ std::pair<SiLocalPosition, SiLocalPosition> StripBoxDesign::endsOfStrip(SiLocalP
 
     return pair<SiLocalPosition, SiLocalPosition>(end1, end2);
 }
+
+
+
+void StripBoxDesign::closestStripRowOfPosition(SiLocalPosition const &pos, int & strip, int & row) const {
+      	    	        
+    strip = (int) floor(pos.xPhi() / m_pitch) + m_nStrips / 2;
+    if (strip < 0 )  strip = 0;
+    if (strip >= m_nStrips) strip = (m_nStrips -1);
+  	 
+    row = (int) floor(pos.xEta() / m_length) + m_nRows / 2;
+    if (row < 0) row = 0;
+    if (row >= m_nRows) row = (m_nRows -1);
+}
+  	  
+
+
 
 bool StripBoxDesign::inActiveArea(SiLocalPosition const &pos,
                                   bool /*checkBondGap*/) const {
