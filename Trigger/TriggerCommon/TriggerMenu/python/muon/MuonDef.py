@@ -67,6 +67,8 @@ class L2EFChain_mu(L2EFChainDef):
     self.chainPartName = self.chainPart['chainPartName']
     self.chainPartNameNoMult = self.chainPartName[1:] if self.mult > 1 else self.chainPartName
     self.L2InputTE = self.chainPartL1Item or self.chainL1Item
+    if 'AFP' in self.L2InputTE:
+      self.L2InputTE = self.L2InputTE.replace("AFP_C_","")
     if self.L2InputTE:      # cut of L1_, _EMPTY,..., & multiplicity
       self.L2InputTE = self.L2InputTE.replace("L1_","")
       self.L2InputTE = self.L2InputTE.split("_")[0]
