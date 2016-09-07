@@ -87,7 +87,7 @@ StatusCode L1CaloPprFineTimePlotManager::getCaloCells()
     
     sc = m_caloTool->loadCaloCells();
     if ( sc.isFailure() ) {
-        *m_log<<MSG::WARNING<<"Could not load CaloCells" << endreq;
+        *m_log<<MSG::WARNING<<"Could not load CaloCells" << endmsg;
     }
 
     return sc;
@@ -204,7 +204,7 @@ double L1CaloPprFineTimePlotManager::getMonitoringValue(const xAOD::TriggerTower
 	    // subtract the reference value
 	    fineTime = fineTime - refValue;
 	    if(calFactor <= 0.000001){//setting unreasonable calibration factors to minus 1
-// 	       *m_log<<MSG::INFO<<"Calibration factor < 10^-10 provided! Setting it to -1" <<endreq;
+// 	       *m_log<<MSG::INFO<<"Calibration factor < 10^-10 provided! Setting it to -1" <<endmsg;
 	       calFactor = -1;
 	    }
 	    // and calibrate the value
@@ -232,13 +232,13 @@ void L1CaloPprFineTimePlotManager::loadTools()
     if (isOnline) {
         sc = m_caloTool.retrieve();
 	if ( sc.isFailure()) {
-	    *m_log<<MSG::WARNING<<"Unable to locate tool L1CaloMonitoringCaloTool" << endreq;
+	    *m_log<<MSG::WARNING<<"Unable to locate tool L1CaloMonitoringCaloTool" << endmsg;
 	}
     }
     else {
         sc = m_storeGate.retrieve();
 	if ( sc.isFailure()) {
-	    *m_log<<MSG::WARNING<<"Unable to retrieve store gate" << endreq;
+	    *m_log<<MSG::WARNING<<"Unable to retrieve store gate" << endmsg;
 	}
     }
     

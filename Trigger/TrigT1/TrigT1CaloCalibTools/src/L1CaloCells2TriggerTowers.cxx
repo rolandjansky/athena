@@ -503,7 +503,7 @@ namespace LVL1{
 
     //LArg cells
     } else {
-      //log<<MSG::INFO<<"is_lar"<<endreq;
+      //log<<MSG::INFO<<"is_lar"<<endmsg;
       std::vector<const LArDigit*> vLArDigits(this->larDigits(ttId));
 
       std::vector<double> vADCSum;

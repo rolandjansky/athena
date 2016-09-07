@@ -19,7 +19,7 @@ use CaloIdentifier              CaloIdentifier-*                Calorimeter
 use CaloDetDescr                CaloDetDescr-*                  Calorimeter
 use CaloTriggerTool             CaloTriggerTool-*               Calorimeter
 use LArRawEvent                 LArRawEvent-*                   LArCalorimeter
-use LArTools                    LArTools-*                      LArCalorimeter
+use LArCabling                  LArCabling-*                    LArCalorimeter
 use LArIdentifier               LArIdentifier-*                 LArCalorimeter
 use LArRecConditions            LArRecConditions-*              LArCalorimeter
 use LArRecUtils                 LArRecUtils-*                   LArCalorimeter
@@ -58,7 +58,7 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Graf Gpad)
 branches TrigT1CaloCalibTools src share
 
 # Create a dual-use library
-apply_pattern dual_use_library files= "../src/*.cxx ../src/components/*.cxx"
+apply_pattern dual_use_library files= "../src/*.cxx"
 
 # Install  python modules
 apply_pattern declare_python_modules files="*.py"

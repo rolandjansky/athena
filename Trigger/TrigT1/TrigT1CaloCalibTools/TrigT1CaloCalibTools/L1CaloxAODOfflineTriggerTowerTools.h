@@ -90,12 +90,17 @@ namespace LVL1{
 //       std::vector<unsigned int>                  nCaloCellsByReceiver( const xAOD::TriggerTower& tt ) const; 
 //       std::vector<unsigned int>                  nCaloCellsByReceiverByLayer( const xAOD::TriggerTower& tt ) const; 
 
+      std::vector<std::vector<const CaloCell*>>  caloCellsByReceiver( const xAOD::TriggerTower& tt ) const;
+      std::vector<std::vector<std::vector<const CaloCell*>>>            caloCellsByLayerByReceiver( const xAOD::TriggerTower& tt ) const;
+
       float                                      caloCellsEnergy( const xAOD::TriggerTower& tt ) const;
       float                                      caloCellsET( const xAOD::TriggerTower& tt ) const;
       std::vector<float>                         caloCellsEnergyByLayer( const xAOD::TriggerTower& tt ) const;
       std::vector<float>                         caloCellsETByLayer( const xAOD::TriggerTower& tt ) const;
-      
-//       std::vector<float>                         caloCellsEnergyByReceiver( const xAOD::TriggerTower& tt , const int mode=0 ) const;  
+      std::vector<float>                         caloCellsEnergyByReceiver( const xAOD::TriggerTower& tt ) const;
+      std::vector<float>                         caloCellsETByReceiver( const xAOD::TriggerTower& tt ) const;
+      std::vector<std::vector<float>>            caloCellsEnergyByLayerByReceiver( const xAOD::TriggerTower& tt ) const;
+      std::vector<std::vector<float>>            caloCellsETByLayerByReceiver( const xAOD::TriggerTower& tt ) const;
       
 //       unsigned int                               badCaloCells( const xAOD::TriggerTower& tt ) const;
       float                                      caloCellsQuality( const xAOD::TriggerTower& tt ) const;
@@ -160,7 +165,7 @@ namespace LVL1{
       
       // Sort Calo Cells
       std::vector<std::vector<const CaloCell*>>  sortEMCrackCells(const std::vector<const CaloCell*> &cells) const;
-      std::vector<std::vector<const CaloCell*>>  sortFCAL23Cells(const std::vector<const CaloCell*> &cells,const std::vector<unsigned int>& rxId) const;
+      std::vector<std::vector<const CaloCell*>>  sortFCAL23Cells(const std::vector<const CaloCell*> &cells,const std::vector<L1CaloRxCoolChannelId>& rx) const;
       
       // Cell quality
       float                                      LArCaloQuality(const std::vector<const CaloCell*> &cells) const;

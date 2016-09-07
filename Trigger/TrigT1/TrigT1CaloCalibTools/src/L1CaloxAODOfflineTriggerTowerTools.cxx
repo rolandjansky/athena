@@ -14,6 +14,10 @@
 
 #include "TrigT1CaloCalibTools/L1CaloxAODOfflineTriggerTowerTools.h"
 
+#include <algorithm> // for std::transform
+#include <iterator> // for std::back_inserter
+#include <utility> // for std::move
+
 namespace LVL1{
   
   L1CaloxAODOfflineTriggerTowerTools::L1CaloxAODOfflineTriggerTowerTools( const std::string& name ) :
@@ -268,14 +272,131 @@ namespace LVL1{
       output.push_back( m_cells2tt->et( i ) );
     }
     return output;     
-  }  
+  }
 
-//   std::vector<float>                         
-//   L1CaloxAODOfflineTriggerTowerTools::caloCellsEnergyByReceiver( const xAOD::TriggerTower& tt , const int mode )  const
-//   {
-//     std::vector<float> output;
-//     return output;     
-//   }
+  std::vector<std::vector<const CaloCell*>>
+  L1CaloxAODOfflineTriggerTowerTools::caloCellsByReceiver( const xAOD::TriggerTower& tt ) const
+  {
+    std::vector<std::vector<const CaloCell*>> output;
+    const auto& rx = receivers(tt);
+    if (rx.size() == 1) {
+      output = { getCaloCells(tt) };
+    } else if(rx.size() == 2) {
+      output = ((tt.layer() == 0) ? sortEMCrackCells(getCaloCells(tt)) : sortFCAL23Cells(getCaloCells(tt), rx));
+    } else {
+      // shouldn't happen ... non-critical code, warning is sufficient
+      ATH_MSG_WARNING("Found TT with " << rx.size() << " receivers!");
+    }
+    return output;
+  }
+
+  std::vector<float>                         
+  L1CaloxAODOfflineTriggerTowerTools::caloCellsEnergyByReceiver( const xAOD::TriggerTower& tt )  const
+  {
+    using std::begin;
+    using std::end;
+    using std::back_inserter;
+
+    std::vector<float> energyByReceiver;
+    const auto& cellsByReceiver = caloCellsByReceiver(tt);
+    std::transform(begin(cellsByReceiver), end(cellsByReceiver),
+                   back_inserter(energyByReceiver),
+                   [this](const std::vector<const CaloCell*>& c) -> float {
+                     return m_cells2tt->energy( c );
+                   });
+
+    return energyByReceiver;     
+  }
+
+  std::vector<float>                         
+  L1CaloxAODOfflineTriggerTowerTools::caloCellsETByReceiver( const xAOD::TriggerTower& tt )  const
+  {
+    using std::begin;
+    using std::end;
+    using std::back_inserter;
+
+    std::vector<float> etByReceiver;
+    const auto& cellsByReceiver = caloCellsByReceiver(tt);
+    std::transform(begin(cellsByReceiver), end(cellsByReceiver),
+                   back_inserter(etByReceiver),
+                   [this](const std::vector<const CaloCell*>& c) -> float {
+                     return m_cells2tt->et( c );
+                   });
+
+    return etByReceiver;     
+  }
+
+  std::vector<std::vector<std::vector<const CaloCell*>>>
+  L1CaloxAODOfflineTriggerTowerTools::caloCellsByLayerByReceiver( const xAOD::TriggerTower& tt ) const
+  {
+    using std::begin;
+    using std::end;
+    using std::back_inserter;
+    using std::vector;
+
+    vector<vector<vector<const CaloCell*>>> output;
+    const auto& rx = receivers(tt);
+    if(rx.size() == 1) {
+      const auto& cellsByLayer = m_cells2tt->caloCellsByLayer(towerID(tt));
+      std::transform(begin(cellsByLayer), end(cellsByLayer),
+                     back_inserter(output),
+                     [](vector<const CaloCell*> C)->vector<vector<const CaloCell*>> {
+                       return {C};
+                     });
+    } else if(rx.size() == 2) {
+      Identifier id = towerID( tt );
+      const auto& cellsByLayer = m_cells2tt->caloCellsByLayer( id );
+      for(const auto& cells : cellsByLayer) {
+        const auto& cellsByReceiver = ((tt.layer() == 0) ? sortEMCrackCells(cells) : sortFCAL23Cells(cells, rx));
+        output.push_back(cellsByReceiver);
+      }
+    } else {
+      ATH_MSG_WARNING("Found TT with " << rx.size() << " receivers!");
+    }
+
+    return output;
+  }
+
+  std::vector<std::vector<float>>
+  L1CaloxAODOfflineTriggerTowerTools::caloCellsEnergyByLayerByReceiver( const xAOD::TriggerTower& tt ) const
+  {
+    using std::begin;
+    using std::end;
+    using std::back_inserter;
+
+    std::vector<std::vector<float>> output;
+    for(const auto& cellsByReceiver : caloCellsByLayerByReceiver(tt)) {
+      std::vector<float> cellsEnergyByReceiver;
+      for(const auto& cells : cellsByReceiver) {
+        cellsEnergyByReceiver.push_back(m_cells2tt->energy(cells));
+      }
+      output.push_back(std::move(cellsEnergyByReceiver));
+    }
+
+    return output;
+  }
+
+
+  std::vector<std::vector<float>>
+  L1CaloxAODOfflineTriggerTowerTools::caloCellsETByLayerByReceiver( const xAOD::TriggerTower& tt ) const
+  {
+    using std::begin;
+    using std::end;
+    using std::back_inserter;
+
+    std::vector<std::vector<float>> output;
+    for(const auto& cellsByReceiver : caloCellsByLayerByReceiver(tt)) {
+      std::vector<float> cellsEnergyByReceiver;
+      for(const std::vector<const CaloCell*>& cells : cellsByReceiver) {
+        cellsEnergyByReceiver.push_back(m_cells2tt->et(cells));
+      }
+      output.push_back(std::move(cellsEnergyByReceiver));
+    }
+
+    return output;
+  }
+
+
 //   
 // 
 //   unsigned int                               
@@ -417,7 +538,7 @@ namespace LVL1{
   }
   
   std::vector<std::vector<const CaloCell*>>              
-  L1CaloxAODOfflineTriggerTowerTools::sortFCAL23Cells(const std::vector<const CaloCell*> &cells,const std::vector<unsigned int>& rxId) const
+  L1CaloxAODOfflineTriggerTowerTools::sortFCAL23Cells(const std::vector<const CaloCell*> &cells,const std::vector<L1CaloRxCoolChannelId>& rx) const
   {
     // vectors of calo cells for the different receivers
     std::vector<const CaloCell*> cellsA;
@@ -426,8 +547,8 @@ namespace LVL1{
     std::vector<std::vector<const CaloCell*>> output;
 
     // RxID of the different receivers
-    unsigned int rxidA = rxId.at(0);
-    unsigned int rxidB = rxId.at(1);
+    unsigned int rxidA = rx.at(0).id();
+    unsigned int rxidB = rx.at(1).id();
 
     // Loop over calo cells and use mapping tool to assign cells to different receivers
     for( auto i : cells ){
