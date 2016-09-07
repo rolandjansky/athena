@@ -16,6 +16,8 @@
 #include "TrkTruthTrackInterfaces/IPRD_TruthTrajectoryBuilder.h"
 #include "TrkTruthTrackInterfaces/PRD_TruthTrajectory.h"
 
+#include "InDetRecToolInterfaces/IInDetDynamicCutsTool.h"
+
 class AtlasDetectorID;
 class PRD_MultiTruthCollection;  
 
@@ -75,6 +77,8 @@ namespace Trk {
         bool                                                m_geantinos;                        //!< Track geantinos or not        
         mutable std::map< const HepMC::GenParticle*, PRD_TruthTrajectory > m_gpPrdTruthTrajectories; //!< the cache for the return (cleared by Incident)
         
+        ToolHandle<InDet::IInDetDynamicCutsTool>            m_dynamicCutsTool;                  //!< tool to get cut values depending on different variable  
+        bool                                                m_useDynamicCuts;                   //!< use InDetDynamicCutsTool to determine the cut value depending on characteristics of each track (default is false)
   };
 
 } // end of namespace

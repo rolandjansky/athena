@@ -27,7 +27,9 @@ Trk::PRD_TruthTrajectoryBuilder::PRD_TruthTrajectoryBuilder(const std::string& t
   m_idPrdProvider(""),
   m_msPrdProvider(""),
   m_minPt(400.),
-  m_geantinos(false)
+  m_geantinos(false),
+  m_dynamicCutsTool("InDet::InDetDynamicCutsTool/InDetDynamicCutsTool"),
+  m_useDynamicCuts(false)
 {
     declareInterface<Trk::IPRD_TruthTrajectoryBuilder>(this);
     // the PRD multi truth collections this builder works on
@@ -41,6 +43,9 @@ Trk::PRD_TruthTrajectoryBuilder::PRD_TruthTrajectoryBuilder(const std::string& t
     declareProperty("MinimumPt",         m_minPt);
     // Track geantinos
     declareProperty("Geantinos",         m_geantinos);
+    // Dynamic cut tool
+    declareProperty("InDetDynamicCutsTool", m_dynamicCutsTool); 
+    declareProperty("UseDynamicCuts",    m_useDynamicCuts);
 }
 
 // Athena algtool's Hooks - initialize
@@ -67,6 +72,11 @@ StatusCode  Trk::PRD_TruthTrajectoryBuilder::initialize()
         ATH_MSG_ERROR ("Could not get configured " << m_prdTruthTrajectoryManipulators << ". Arborting ..." );
         return StatusCode::FAILURE;
     }
+    // get the dynamic cuts tool
+    if ( !m_dynamicCutsTool.empty() && m_dynamicCutsTool.retrieve().isFailure()){
+        ATH_MSG_ERROR ("Could not get " << m_dynamicCutsTool << ". Arborting ..." );
+        return StatusCode::FAILURE;
+    }   
 
     return StatusCode::SUCCESS;
 }
@@ -122,7 +132,11 @@ const std::map< const HepMC::GenParticle*, Trk::PRD_TruthTrajectory >& Trk::PRD_
             const HepMC::GenParticle* curGenP       = (*prdMtCIter).second;
             Identifier                curIdentifier = (*prdMtCIter).first;
             // apply the min pT cut 
-            if ( curGenP->momentum().perp() < m_minPt ) continue;
+            if(m_useDynamicCuts) {
+                double dynamicMinPt = m_dynamicCutsTool->getMinPTByEta(curGenP->momentum().perp());
+                if ( curGenP->momentum().perp() < dynamicMinPt ) continue;
+            }
+            else if ( curGenP->momentum().perp() < m_minPt ) continue; 
             // skip geantinos if required
             if (!m_geantinos && std::abs(curGenP->pdg_id())==999) continue;
             // get the associated PRD from the provider

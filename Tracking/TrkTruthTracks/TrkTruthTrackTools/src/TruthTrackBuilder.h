@@ -16,6 +16,8 @@
 // Trk includes
 #include "TrkTruthTrackInterfaces/ITruthTrackBuilder.h"
 
+#include "InDetRecToolInterfaces/IInDetDynamicCutsTool.h"
+
 class IPartPropSvc;
 class AtlasDetectorID;
 
@@ -74,6 +76,9 @@ namespace Trk {
         float                                       m_forwardBoundary;           //!< Boundary eta value defining the forward region
         
         bool                                        m_materialInteractions;      //!< run with material interactions
+
+        ToolHandle<InDet::IInDetDynamicCutsTool>    m_dynamicCutsTool;          //!< tool to get cut values depending on different variable  
+        bool                                        m_useDynamicCuts;           //!< use InDetDynamicCutsTool to determine the cut value depending on characteristics of each track (default is false)
   };
 
 } // end of namespace

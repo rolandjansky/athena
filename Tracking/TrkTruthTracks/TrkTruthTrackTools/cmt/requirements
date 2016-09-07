@@ -20,11 +20,12 @@ use TrkToolInterfaces           TrkToolInterfaces-*         Tracking/TrkTools
 use TrkFitterInterfaces         TrkFitterInterfaces-*       Tracking/TrkFitter
 use TrkExInterfaces             TrkExInterfaces-*           Tracking/TrkExtrapolation
 use TrkTrack                    TrkTrack-*                  Tracking/TrkEvent
-use TrkTruthData	        TrkTruthData-*              Tracking/TrkEvent
+use TrkTruthData	            TrkTruthData-*              Tracking/TrkEvent
 use TrkEventUtils               TrkEventUtils-*             Tracking/TrkEvent
 use TrkSurfaces                 TrkSurfaces-*               Tracking/TrkDetDescr
 use TrkPrepRawData              TrkPrepRawData-*            Tracking/TrkEvent
 use TrkRIO_OnTrack              TrkRIO_OnTrack-*            Tracking/TrkEvent
+use InDetRecToolInterfaces      InDetRecToolInterfaces-*    InnerDetector/InDetRecTools
 
 public
 library TrkTruthTrackTools *.cxx components/*.cxx

@@ -49,7 +49,9 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
   m_minSiHits(7),
   m_minSiHitsForward(m_minSiHits),
   m_forwardBoundary(2.4),
-  m_materialInteractions(true)
+  m_materialInteractions(true),
+  m_dynamicCutsTool("InDet::InDetDynamicCutsTool/InDetDynamicCutsTool"),
+  m_useDynamicCuts(false)
 {
     declareInterface<Trk::ITruthTrackBuilder>(this);
     // TrackFitter
@@ -64,6 +66,8 @@ Trk::TruthTrackBuilder::TruthTrackBuilder(const std::string& t, const std::strin
     declareProperty("MinSiHitsForward",                  m_minSiHitsForward);
     declareProperty("ForwardBoundary",                   m_forwardBoundary);
     declareProperty("MaterialInteractions",              m_materialInteractions);
+    declareProperty("InDetDynamicCutsTool",              m_dynamicCutsTool); 
+    declareProperty("UseDynamicCuts",                    m_useDynamicCuts);
 }
 
 
@@ -112,6 +116,12 @@ StatusCode  Trk::TruthTrackBuilder::initialize()
       ATH_MSG_ERROR( "Could not get ParticleDataTable! Cannot associate pdg code with charge. Aborting. " );
       return StatusCode::FAILURE;
     }    
+    
+    if (m_dynamicCutsTool.retrieve().isFailure()) 
+    {
+        ATH_MSG_ERROR("Can not retrieve " << m_dynamicCutsTool << " . Aborting ... " );
+        return StatusCode::FAILURE;
+    }
     
     // need an Atlas id-helper to identify sub-detectors, take the one from detStore
     if (detStore()->retrieve(m_DetID, "AtlasID").isFailure()) {
@@ -239,10 +249,18 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
    // this is the reference trajectory to be refitted  
    Trk::TrackInfo info;
    Trk::Track track(info,traj,0);
-   if (/* ndof<0 */ (track.measurementsOnTrack()->size()<m_minSiHits && fabs(genPart->momentum().eta())<=m_forwardBoundary) || (track.measurementsOnTrack()->size()<m_minSiHitsForward && fabs(genPart->momentum().eta())>m_forwardBoundary) || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {
+   if(m_useDynamicCuts) {
+       unsigned int dynamicMinSiHits = m_dynamicCutsTool->getMinClustersByEta(genPart->momentum().eta());
+       if ( track.measurementsOnTrack()->size() < dynamicMinSiHits ||(m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff))  {
+           ATH_MSG_VERBOSE("Track does not fulfill requirements for refitting. Skipping it.");
+           return 0;
+       }
+   }
+   else if ( (track.measurementsOnTrack()->size()<m_minSiHits && fabs(genPart->momentum().eta())<=m_forwardBoundary) || (track.measurementsOnTrack()->size()<m_minSiHitsForward && fabs(genPart->momentum().eta())>m_forwardBoundary) || (m_onlyPrimaries && barcode>=m_primaryBarcodeCutOff)) {
        ATH_MSG_VERBOSE("Track does not fulfill requirements for refitting. Skipping it.");
        return 0;
    }
+ 
    // choose the material effects
    //!< TODO : if we need a dedicated electron fitter is has to go in here !
    Trk::ParticleHypothesis mateffects;
@@ -290,10 +308,14 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
 
    //        
     
-    if ( refittedtrack2 ) 
+    if ( refittedtrack2 ){ 
+        refittedtrack2 ->  info().setPatternRecognitionInfo( Trk::TrackInfo::Pseudotracking);
         ATH_MSG_VERBOSE("Track fit of truth trajectory successful, track created. ");
+    }
     else 
         ATH_MSG_VERBOSE("Track fit of truth trajectory NOT successful, NO track created. ");
     // return what you have
+    // Before returning, fix the creator
+
     return refittedtrack2;
 }
