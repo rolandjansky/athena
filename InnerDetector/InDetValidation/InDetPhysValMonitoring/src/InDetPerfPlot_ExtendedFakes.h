@@ -7,27 +7,24 @@
 /**
  * @file InDetPerfPlot_ExtendedFakes.h
  * @author shaun roe
-**/
+ **/
 
-//std includes
+// std includes
 #include <string>
 #include <map>
 
-//local includes
+// local includes
 #include "InDetPerfPlot_fakes.h"
 
 ///class holding fake plots for Inner Detector RTT Validation and implementing fill methods
-class InDetPerfPlot_ExtendedFakes : public InDetPerfPlot_fakes {
-
- public:
-  InDetPerfPlot_ExtendedFakes (InDetPlotBase* pParent, const std::string& dirName);
-  void fill (const xAOD::TrackParticle& trkprt, const bool isFake, const InDetPerfPlot_fakes::Category& f = ALL);
-  
- private:
-  
-  //fake rates as TProfiles
-  std::map< std::string, TProfile* > m_HitInfoFakerates;
-  std::map< std::string, TProfile* > m_KinematicFakerates;
+class InDetPerfPlot_ExtendedFakes: public InDetPerfPlot_fakes {
+public:
+  InDetPerfPlot_ExtendedFakes (InDetPlotBase *pParent, const std::string &dirName);
+  void fill(const xAOD::TrackParticle &trkprt, const bool isFake, const InDetPerfPlot_fakes::Category &f = ALL);
+private:
+  // fake rates as TProfiles
+  std::map< std::string, TProfile * > m_HitInfoFakerates;
+  std::map< std::string, TProfile * > m_KinematicFakerates;
 
   // Variables (for easy access).
   std::vector< std::string > m_variables = {
@@ -35,7 +32,7 @@ class InDetPerfPlot_ExtendedFakes : public InDetPerfPlot_fakes {
     "nBLayerOutliers",
     "nBLayerSplitHits",
     "nBLayerSharedHits",
-    
+
     "nPixHits",
     "nPixHoles",
     "nPixSharedHits",
@@ -43,27 +40,24 @@ class InDetPerfPlot_ExtendedFakes : public InDetPerfPlot_fakes {
     "nPixContribLayers",
     "nPixSplitHits",
     "nPixGangedHits",
-    
+
     "nSCTHits",
     "nSCTHoles",
     "nSCTDoubleHoles",
     "nSCTSharedHits",
     "nSCTOutliers",
-    
+
     "nSiHits",
-    
+
     "nTRTHits",
     "nTRTHighThresholdHits",
     "nTRTOutliers",
     "nTRTHighThresholdOutliers",
   };
-  
-  
-  //plot base has nop default implementation of this; we use it to book the histos
-  void initializePlots();	
 
 
-  
+  // plot base has nop default implementation of this; we use it to book the histos
+  void initializePlots();
 };
 
 #endif

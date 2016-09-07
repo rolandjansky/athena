@@ -20,7 +20,7 @@ theApp.AuditAlgorithms=True
 # Load Geometry
 #--------------------------------------------------------------
 from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion = "ATLAS-GEO-20-00-01"
+globalflags.DetDescrVersion = "ATLAS-R1-2010-02-00-00"
 globalflags.DetGeo="atlas"
 globalflags.InputFormat="pool"
 globalflags.DataSource="geant4"

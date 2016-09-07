@@ -21,12 +21,26 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
-//#include "src/TrackTruthSelectionTool.h"
 #include "xAODTruth/TruthParticleContainer.h"
+
+#include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
+#include "src/InDetPhysHitDecoratorTool.h"
+#include "InDetPhysValMonitoring/ITrackTruthSelectionTool.h"
+
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/TRT_ID.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
+
+//#include "src/GeoUtilsTool.h"
 
 //fwd declaration
 class IInDetPhysValDecoratorTool;
 class InDetRttPlots;
+class ITrackTruthSelectionTool;
 namespace Root {
   class TAccept;
 }
@@ -57,24 +71,25 @@ private:
 	std::string m_truthParticleName;
 	///Primary vertex container's name
 	std::string m_vertexContainerName;
+	///Truth vertex container's name
+	std::string m_truthVertexContainerName;
 	///EventInfo container name
 	std::string m_eventInfoContainerName;
 
 	///Directory name
 	std::string m_dirName;
-
+	
 	///histograms
 	std::unique_ptr< InDetRttPlots > m_monPlots;
 	///Tool for selecting tracks
 	bool m_useTrackSelection;
 	bool m_onlyInsideOutTracks;
+	bool m_TrkSelectPV;   // make track selection relative to PV
+
 	ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
-
-	ToolHandle<IAsgSelectionTool> m_truthSelectionTool;
-
-	//bool m_TrackTruthSelectionTool;
-	//ToolHandle<TrackTruthSelectionTool> m_TrackTruthSelectionTool;
-
+	ToolHandle<ITrackTruthSelectionTool> m_truthSelectionTool;
+	//ToolHandle<GeoUtils::GeoUtilsTool> m_geoUtilsTool;
+	
 	std::vector<int> m_prospectsMatched;
 	int m_twoMatchedEProb;
 	int m_threeMatchedEProb;
@@ -103,6 +118,8 @@ private:
 
 	void getTruthParticles(std::vector<const xAOD::TruthParticle*>& truthParticles);
 	
+	const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement );
+
 	template<class T>
 	const T* getContainer( const std::string & containerName);
 };
