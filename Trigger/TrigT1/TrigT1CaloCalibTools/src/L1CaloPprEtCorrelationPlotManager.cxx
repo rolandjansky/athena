@@ -77,7 +77,7 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
       
         sc = m_storeGate->retrieve(caloCellContainer, m_caloCellContainerName);
 	if ( sc.isFailure() || !caloCellContainer) {
-	    *m_log<<MSG::WARNING<<"Could not retrieve calo cell container" << endreq;
+	    *m_log<<MSG::WARNING<<"Could not retrieve calo cell container" << endmsg;
 	}
 	else {
 	    m_ttToolOffline->caloCells(caloCellContainer);
@@ -88,7 +88,7 @@ StatusCode L1CaloPprEtCorrelationPlotManager::getCaloCells()
 
         sc = m_caloTool->loadCaloCells();
 	if ( sc.isFailure() ) {
-	    *m_log<<MSG::WARNING<<"Could not load CaloCells" << endreq;
+	    *m_log<<MSG::WARNING<<"Could not load CaloCells" << endmsg;
         }
 
     }
@@ -160,13 +160,13 @@ void L1CaloPprEtCorrelationPlotManager::loadTools()
     if (isOnline) {
         sc = m_caloTool.retrieve();
 	if ( sc.isFailure()) {
-	    *m_log<<MSG::WARNING<<"Unable to locate tool L1CaloMonitoringCaloTool" << endreq;
+	    *m_log<<MSG::WARNING<<"Unable to locate tool L1CaloMonitoringCaloTool" << endmsg;
 	}
     }
     else {
         sc = m_storeGate.retrieve();
 	if ( sc.isFailure()) {
-	    *m_log<<MSG::WARNING<<"Unable to retrieve store gate" << endreq;
+	    *m_log<<MSG::WARNING<<"Unable to retrieve store gate" << endmsg;
 	}
     }
     
