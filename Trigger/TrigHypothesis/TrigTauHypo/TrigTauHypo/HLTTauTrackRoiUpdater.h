@@ -26,6 +26,8 @@ class HLTTauTrackRoiUpdater : public HLT::FexAlgo
   int m_nHitPix;      //<! at least n hits in pixels on lead track
   int m_nSiHoles;     //<! maximum number of Si holes on lead track
 
+  bool m_updateEta;  //<! flag to determine whether Roi eta should be updated using the track direction (true by default)
+  bool m_updatePhi;  //<! flag to determine whether Roi phi should be updated using the track direction (false by default)
 
 };
 #endif
