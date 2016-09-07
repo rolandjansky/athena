@@ -10,6 +10,8 @@
 
 //needed from Sherpa EvtGenerator
 #include "SHERPA/Main/Sherpa.H"
+#include "SHERPA/Initialization/Initialization_Handler.H"
+#include "SHERPA/Tools/Variations.H"
 #include "ATOOLS/Org/Exception.H"
 #include "ATOOLS/Org/Run_Parameter.H"
 
@@ -26,6 +28,7 @@ Sherpa_i::Sherpa_i(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("RunPath", m_path = ".");
   declareProperty("Parameters", m_params);
   declareProperty("CrossSectionScaleFactor", m_xsscale=1.0);
+  declareProperty("ScaleVariationReference", m_scalevarref="MUR1_MUF1_PDF261000");
 }
 
 
@@ -63,7 +66,7 @@ StatusCode Sherpa_i::genInitialize(){
     delete [] argv;
   }
   catch (ATOOLS::Exception exception) {
-    if (exception.Class()=="Amegic" && exception.Type()==ATOOLS::ex::normal_exit) {
+    if (exception.Class()=="Matrix_Element_Handler" && exception.Type()==ATOOLS::ex::normal_exit) {
       delete p_sherpa;
 
       ATH_MSG_INFO("Have to compile Amegic libraries");
@@ -119,8 +122,26 @@ StatusCode Sherpa_i::fillEvt(HepMC::GenEvent* event) {
 
   p_sherpa->FillHepMCEvent(*event);
   if (event->weights().size()>2) {
-    event->weights()[0]/=event->weights()[2];
-    while (event->weights().size()>1) event->weights().pop_back();
+    double weight_normalisation = event->weights()[2];
+    for (size_t i=0; i<event->weights().size(); ++i) {
+      if (i==0 || i>3) event->weights()[i] /= weight_normalisation;
+      ATH_MSG_DEBUG("Sherpa WEIGHT " << i << " value="<< event->weights()[i]);
+    }
+
+    // workaround according to https://sherpa.hepforge.org/trac/ticket/365
+    if (event->weights().has_key(m_scalevarref)) {
+      double correction_factor = event->weights()[0] / event->weights()[m_scalevarref];
+      if (correction_factor != 1.0) {
+        ATH_MSG_DEBUG("correction_factor = " << correction_factor);
+        for (size_t i=4; i<event->weights().size(); ++i) {
+          event->weights()[i] *= correction_factor;
+        }
+      }
+    }
+    else {
+      ATH_MSG_DEBUG("No weight with key " << m_scalevarref);
+    }
+
   }
 
   GeVToMeV(event); //unit check
@@ -132,7 +153,7 @@ StatusCode Sherpa_i::genFinalize() {
 
   ATH_MSG_INFO("Sherpa_i finalize()");
 
-  std::cout << "MetaData: generator = Sherpa " << SHERPA_VERSION << "." << SHERPA_SUBVERSION << std::endl;
+  std::cout << "MetaData: generator = Sherpa" << SHERPA_VERSION << "." << SHERPA_SUBVERSION << std::endl;
   std::cout << "MetaData: cross-section (nb)= " << p_sherpa->TotalXS()/1000.0 << std::endl;
   if (m_xsscale!=1.0) {
     std::cout << "MetaData: cross-section*CrossSectionScaleFactor (nb)= " 
@@ -141,6 +162,9 @@ StatusCode Sherpa_i::genFinalize() {
   }
 
   std::cout << "MetaData: PDF = " << p_sherpa->PDFInfo() << std::endl;
+
+  std::cout << "Named variations initialised by Sherpa:" << std::endl;
+  std::cout << *p_sherpa->GetInitHandler()->GetVariations() << std::endl;
 
   p_sherpa->SummarizeRun();
   delete p_sherpa;

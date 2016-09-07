@@ -34,6 +34,7 @@ protected:
   std::string m_path;
   std::vector<std::string> m_params;
   double m_xsscale;
+  std::string m_scalevarref;
 };
 
 
