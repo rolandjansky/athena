@@ -30,13 +30,13 @@ namespace InDet {
   public:
     
     SiSpacePointForSeedITK();
-    SiSpacePointForSeedITK(Trk::SpacePoint*const&,const float*);
+    SiSpacePointForSeedITK(Trk::SpacePoint*const&,const float*,bool,int);
     SiSpacePointForSeedITK(Trk::SpacePoint*const&,const float*,const float*);
     SiSpacePointForSeedITK(const SiSpacePointForSeedITK&);
     virtual ~SiSpacePointForSeedITK()                 ;
     SiSpacePointForSeedITK& operator  = (const SiSpacePointForSeedITK&);
 
-    void set(Trk::SpacePoint*const&,const float*)  ;
+    void set(Trk::SpacePoint*const&,const float*,bool,int)  ;
     void set(Trk::SpacePoint*const&,const float*,const float*);
     void setQuality(float);
     void setParam(const float&);
@@ -55,9 +55,14 @@ namespace InDet {
     const Trk::Surface* sun() const {return m_sn;}
 
     bool coordinates(float*,float*);
-
-  protected:
+    bool barrel() const {return m_barrel;}
+    int  layer () const {return m_layer ;}
     
+  protected:
+
+    bool  m_barrel;
+    int   m_layer ;
+
     float m_x   ; // x-coordinate in beam system coordinates  
     float m_y   ; // y-coordinate in beam system coordinates
     float m_z   ; // z-coordinate in beam system coordinetes
@@ -94,6 +99,8 @@ namespace InDet {
       m_q     = 0.;
       m_su    = 0 ;
       m_sn    = 0 ;
+      m_layer = 0 ;
+      m_barrel= false;
       for(int i=0; i!=3; ++i) {m_b0[i]=0.; m_b1[i]=0.; m_dr[i]=0.; m_r0[i]=0.;}
    }
 
@@ -110,7 +117,9 @@ namespace InDet {
 	m_covz      = sp.m_covz    ;
 	m_q         = sp.m_q       ;
 	m_su        = sp.m_su      ;
-	m_sn        = sp.m_sn      ;        
+	m_sn        = sp.m_sn      ;     
+	m_layer     = sp.m_layer   ;
+	m_barrel    = sp.m_barrel  ;
 	for(int i=0; i!=3; ++i) m_b0[i]=sp.m_b0[i];
 	for(int i=0; i!=3; ++i) m_b1[i]=sp.m_b1[i];
 	for(int i=0; i!=3; ++i) m_dr[i]=sp.m_dr[i];
@@ -120,9 +129,9 @@ namespace InDet {
     }
  
   inline SiSpacePointForSeedITK::SiSpacePointForSeedITK
-    (Trk::SpacePoint*const& sp,const float* r) 
+    (Trk::SpacePoint*const& sp,const float* r,bool ba,int la) 
     {
-      set(sp,r); m_param = 0.;
+      set(sp,r,ba,la); m_param = 0.;
     }
 
   inline SiSpacePointForSeedITK::SiSpacePointForSeedITK
@@ -153,9 +162,11 @@ namespace InDet {
   /////////////////////////////////////////////////////////////////////////////////
 
   inline void SiSpacePointForSeedITK::set
-    (Trk::SpacePoint*const& sp,const float* r)
+    (Trk::SpacePoint*const& sp,const float* r,bool ba,int la)
     {
       spacepoint = sp  ;
+      m_barrel   = ba  ;
+      m_layer    = la  ;
       m_x        = r[0];
       m_y        = r[1];
       m_z        = r[2];

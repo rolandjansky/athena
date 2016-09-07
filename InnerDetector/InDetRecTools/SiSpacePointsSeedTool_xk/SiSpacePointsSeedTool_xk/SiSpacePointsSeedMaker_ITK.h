@@ -312,6 +312,10 @@ namespace InDet {
 
       void newOneSeedWithCurvaturesComparison
 	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
+      void newOneSeedWithCurvaturesComparisonPPP
+	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
+      void newOneSeedWithCurvaturesComparisonSSS
+	(SiSpacePointForSeedITK*&,SiSpacePointForSeedITK*&,float);
 
       void fillSeeds()                                            ;
       void fillLists     ()                                       ;
@@ -330,6 +334,12 @@ namespace InDet {
 	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 int,int,int&);
+      void production3SpPPPold
+	(std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
+	 int,int,int&);
       void production3SpTrigger
 	(std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
 	 std::list<InDet::SiSpacePointForSeedITK*>::iterator*,
@@ -342,6 +352,8 @@ namespace InDet {
       bool isZCompatible     (float&,float&,float&)               ;
       void convertToBeamFrameWork(Trk::SpacePoint*const&,float*)  ;
       bool isUsed(const Trk::SpacePoint*); 
+      bool pixInform(Trk::SpacePoint*const&,bool&,int&);
+      void sctInform(Trk::SpacePoint*const&,bool&,int&,float*);
 
       // new methods for ITK long barrel -------------------------------------
       double predictedClusterLength(const InDet::SiSpacePointForSeedITK*,  double thickness, float seed_zvx);
@@ -354,6 +366,7 @@ namespace InDet {
 /* 				   const double pitch, const double thickness, const int layerNum, const float Nsigma_clus); */
       bool ClusterCleanupSizeZCuts(const Trk::SpacePoint* sp, const double sizePhi, const double sizeZ, const double zvx, 
 				   const double pitch_phi, const double pitch_z, const double thickness, const int layerNum, const float Nsigma_clus);
+      bool PixelSpacePointFilter(const Trk::SpacePoint*);
       //---------- end of new methods for ITK long barrel --------------------
    
    };
@@ -415,12 +428,16 @@ namespace InDet {
 	float y = r[1]*m_dzdrmin     ;
 	if((z*z )<(x*x+y*y)) return 0;
       }
+      bool barrel;
+      int  layer ;
+      if(!sp->clusterList().second) {if(!pixInform(sp,barrel,layer  )) return 0;} 
+      else                          {    sctInform(sp,barrel,layer,r);          }
 
       if(i_spforseed!=l_spforseed.end()) {
-	sps = (*i_spforseed++); sps->set(sp,r); 
+	sps = (*i_spforseed++); sps->set(sp,r,barrel,layer); 
       }
       else                               {
-	l_spforseed.push_back((sps=new SiSpacePointForSeedITK(sp,r)));
+	l_spforseed.push_back((sps=new SiSpacePointForSeedITK(sp,r,barrel,layer)));
 	i_spforseed = l_spforseed.end();	
       }
       

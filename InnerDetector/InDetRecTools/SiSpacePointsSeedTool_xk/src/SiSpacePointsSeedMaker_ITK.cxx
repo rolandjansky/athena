@@ -356,9 +356,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
   r_first = 0;
   if(m_pixel) {
 
-//    m_spacepointsPixel = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname);
-
     if(m_spacepointsPixel.isValid()) {
 
       SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
@@ -372,60 +369,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
 	for(; sp != spe; ++sp) {
 
 	  if ((m_useassoTool &&  isUsed(*sp)) || (*sp)->r() > r_rmax || (*sp)->r() < r_rmin ) continue;
-
-	  ///////////////////////////////////////////////////////
-	  //  Cluster clean-up cuts for ITK extended barrel 
-	  ///////////////////////////////////////////////////////
-	  if(m_usePixelClusterCleanUp)
-	    {
-	      const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>((*sp)->clusterList().first);
-	      const InDet::PixelCluster* pixclust  = dynamic_cast<const InDet::PixelCluster*>((*sp)->clusterList().first);
-	      // apply cuts only to non-split and non-ganged clusters
-	      if(pixclust->isSplit()!=true && clust->gangedPixel()!=true) 
-		{
-		  const InDetDD::SiDetectorElement* de = clust ->detectorElement();
-		  const InDetDD::PixelModuleDesign* module(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
-		  double size_z= clust->width().z(); // in mm
-		  double size_phi= clust->width().phiR(); // in mm
-// 		  const double pitch_z= de->etaPitch(); // TODO: need to be checked, it might be average pitch (Active_length/number_of_cells)
-// 		  const double pitch_phi=de->phiPitch();
-		  const double pitch_z= module->etaPitch(); 
-		  const double pitch_phi=module->phiPitch();
-// 		  std::cout<<"------> Sasha checks: pitch_z="<<pitch_z<<"  pitch_phi="<<pitch_phi<<std::endl;
-		  if(de->isEndcap() && (m_usePixelClusterCleanUp_sizeZcutsE || m_usePixelClusterCleanUp_sizePhicutsE)) // cuts for disks go here
-		    {
-		      // removing obviously anomalous clusters
-		      if(m_usePixelClusterCleanUp_sizeZcutsE && size_z>m_pix_sizePhiCut*pitch_z) continue; // for end-cap use the same cut for sizeZ and size-Phi
-		      if(m_usePixelClusterCleanUp_sizePhicutsE)
-			{
-			  if(size_phi>m_pix_sizePhiCut*pitch_phi) continue;
-			  if(size_phi/size_z>m_pix_sizePhi2sizeZCut_p0E/size_z+m_pix_sizePhi2sizeZCut_p1E) continue;
-			}
-		    }
-		  if(de->isBarrel() && (m_usePixelClusterCleanUp_sizeZcutsB || m_usePixelClusterCleanUp_sizePhicutsB)) // cuts for barrel go here
-		    {
- 		      if(m_usePixelClusterCleanUp_sizeZcutsB) 
-			{
-			  const PixelID* p_pixelId = static_cast<const PixelID*> (de->getIdHelper());
-			  Identifier id=de->identify();
-			  int layer_num=p_pixelId->layer_disk(id);
-
-			  if(ClusterCleanupSizeZCuts((*sp),size_phi,size_z,0.0,pitch_phi,pitch_z,de->thickness(),layer_num,m_Nsigma_clSizeZcut)==false) continue;
-			}
-		      // removing obviously anomalous clusters
-		      if(m_usePixelClusterCleanUp_sizePhicutsB)
-			{
-			  if(size_phi>m_pix_sizePhiCut*pitch_phi) continue;
-			  if(size_phi/size_z>m_pix_sizePhi2sizeZCut_p0B/size_z+m_pix_sizePhi2sizeZCut_p1B) continue;
-			}
-		    }
-
-		}
-	    }
-	  //---------- end of cluster clean-up cuts for ITK extended barrel
-
 	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp)); if(!sps) continue;
-
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
@@ -441,8 +385,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
   //
   if(m_sct) {
 
-//    m_spacepointsSCT = 0;
-//    StatusCode sc = evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname);
     if(m_spacepointsSCT.isValid()) {
 
       SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
@@ -471,8 +413,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::newEvent(int iteration)
     //
     if(m_useOverlap) {
 
-//      m_spacepointsOverlap = 0;
-//      sc = evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname);
       if(m_spacepointsOverlap.isValid()) {
 	
 	SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
@@ -594,7 +534,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::newRegion
 	for(; sp != spe; ++sp) {
 
 	  float r = (*sp)->r(); if(r > r_rmax || r < r_rmin) continue;
-	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp)); 
+	  InDet::SiSpacePointForSeedITK* sps = newSpacePoint((*sp));
 	  int   ir = int(sps->radius()*irstep); if(ir>irmax) ir = irmax;
 	  r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
@@ -1062,7 +1002,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildFrameWork()
   m_dzdrmin0  = 1./tan(2.*atan(exp(-m_etamin)));
   
   m_COF       =  134*.05*9.                    ;
-  m_ipt       = 1./fabs(.9*m_ptmin)            ;
+  m_ipt       = 1./fabs(m_ptmin)               ;
   m_ipt2      = m_ipt*m_ipt                    ;
   m_K         = 0.                             ;
 
@@ -1266,49 +1206,9 @@ void InDet::SiSpacePointsSeedMaker_ITK::buildBeamFrameWork()
 void  InDet::SiSpacePointsSeedMaker_ITK::convertToBeamFrameWork
 (Trk::SpacePoint*const& sp,float* r) 
 {
-  
   r[0] = float(sp->globalPosition().x())-m_xbeam[0];
   r[1] = float(sp->globalPosition().y())-m_ybeam[0];
   r[2] = float(sp->globalPosition().z())-m_zbeam[0];
-
-  if(!sp->clusterList().second) return;
-
-  // Only for SCT space points
-  //
-  const InDet::SiCluster* c0 = static_cast<const InDet::SiCluster*>(sp->clusterList().first );
-  const InDet::SiCluster* c1 = static_cast<const InDet::SiCluster*>(sp->clusterList().second);
-  
-  Amg::Vector2D lc0 = c0->localPosition();  
-  Amg::Vector2D lc1 = c1->localPosition();  
-  
-  std::pair<Amg::Vector3D, Amg::Vector3D > e0 =
-    (c0->detectorElement()->endsOfStrip(InDetDD::SiLocalPosition(lc0.y(),lc0.x(),0.))); 
-  std::pair<Amg::Vector3D, Amg::Vector3D > e1 =
-    (c1->detectorElement()->endsOfStrip(InDetDD::SiLocalPosition(lc1.y(),lc1.x(),0.))); 
-
-  Amg::Vector3D b0 (e0.second-e0.first);
-  Amg::Vector3D b1 (e1.second-e1.first);
-  Amg::Vector3D d02(e0.first -e1.first);
-
-  // b0
-  r[ 3] = float(b0[0]);
-  r[ 4] = float(b0[1]);
-  r[ 5] = float(b0[2]);
-  
-  // b1
-  r[ 6] = float(b1[0]);
-  r[ 7] = float(b1[1]);
-  r[ 8] = float(b1[2]);
-
-  // r0-r2
-  r[ 9] = float(d02[0]);
-  r[10] = float(d02[1]);
-  r[11] = float(d02[2]);
-
-  // r0
-  r[12] = float(e0.first[0])-m_xbeam[0];
-  r[13] = float(e0.first[1])-m_ybeam[0];
-  r[14] = float(e0.first[2])-m_zbeam[0];
 }
    
 ///////////////////////////////////////////////////////////////////
@@ -1529,9 +1429,9 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3Sp()
 	rt [NT] = rfz_Sorted[an].begin(); rte[NT++] = rfz_Sorted[an].end();
       } 
 
-      if(m_iteration == 0  && m_iteration0 ==0) production3SpSSS(rb,rbe,rt,rte,NB,NT,nseed);
-      else                                      production3SpPPP(rb,rbe,rt,rte,NB,NT,nseed);
-
+      if     (m_iteration == 0  && m_iteration0 ==0) production3SpSSS   (rb,rbe,rt,rte,NB,NT,nseed);
+      else if(m_useITKseedCuts                     ) production3SpPPP   (rb,rbe,rt,rte,NB,NT,nseed);
+      else                                           production3SpPPPold(rb,rbe,rt,rte,NB,NT,nseed);
       if(!m_endlist) {m_fNmin=f; m_zMin = z; return;} 
     }
   }
@@ -1575,6 +1475,9 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
     float               Y    = (*r0)->y()  ;
     float               Z    = (*r0)->z()  ;
     int                 Nb   = 0           ;
+    bool                BA   = (*r0)->barrel();
+    int                 LA   = (*r0)->layer ();
+
 
     // Bottom links production
     //
@@ -1588,7 +1491,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 	if(dR > m_drmax) {rb[i]=r; continue;}   
 	if(dR < m_drmin) break;
 	if((*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
-
 	float Tz = (Z-(*r)->z())/dR, aTz =fabs(Tz);
 
 	if(aTz < m_dzdrmin || aTz > m_dzdrmax) continue;
@@ -1597,60 +1499,13 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 	//
 	float Zo = Z-R*Tz; if(!isZCompatible(Zo,Rb,Tz)) continue;
 
-	//===================================================
-	//------------ New cluster size checks for Extended Barrel ---------------
-	// accessing cluster information for bottom link
-
 	if(m_useITKseedCuts)
 	  {
-	    const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>((*r)->spacepoint->clusterList().first);
-	    const InDet::SiCluster* clust0  = dynamic_cast<const InDet::SiCluster*>((*r0)->spacepoint->clusterList().first);
-	    const InDetDD::SiDetectorElement* de = clust->detectorElement();   // bottom link
-	    const InDetDD::SiDetectorElement* de0 = clust0->detectorElement(); // middle link
-
- 	    // if middle link is in layer-0 of Pixel endcap rings, then require bottom link in layer-0,1 of Pixel barrel
- 	    if(m_useITKseedCuts_hit && de0->isPixel() && de0->isEndcap())
-	      {
-		const PixelID* p_pixelId_b = static_cast<const PixelID*>(de->getIdHelper());
-		Identifier id_b=de->identify();
-		int layer_num_b=p_pixelId_b->layer_disk(id_b); // layer number for bottom link
-		const PixelID* p_pixelId_m = static_cast<const PixelID*>(de0->getIdHelper());
-		Identifier id_m=de0->identify();
-		int layer_num_m=p_pixelId_m->layer_disk(id_m); // layer number for middle link
-		if(layer_num_m==0 && de->isPixel() && de->isBarrel() && layer_num_b>1) continue;
-	      } 
-
-	    // no check for pixel disks is implemented yet, to be considered in the future
-	    if(m_useITKseedCuts_dR && de0->isPixel() && de->isPixel() && de0->isBarrel() && de->isBarrel())
-	      {
-		const PixelID* p_pixelId_b = static_cast<const PixelID*>(de->getIdHelper());
-		Identifier id_b=de->identify();
-		int layer_num_b=p_pixelId_b->layer_disk(id_b); // layer number for bottom link
-		const PixelID* p_pixelId_m = static_cast<const PixelID*>(de0->getIdHelper());
-		Identifier id_m=de0->identify();
-		int layer_num_m=p_pixelId_m->layer_disk(id_m); // layer number for middle link
-		if(abs(layer_num_m-layer_num_b)<1) continue; // middle and bottom links are in the same layer/disk, reject
-	      }
-
-	    if(m_useITKseedCuts_PixHole)
-	      {
-		// this check is only for the case when both links are in the Pixel barrel
-		// the case of the Pixel end-cap is to be considered later
- 		if(de0->isPixel() && de->isPixel() && de0->isBarrel() && de->isBarrel())
-		  {
-		    const PixelID* p_pixelId_b = static_cast<const PixelID*>(de->getIdHelper());
-		    Identifier id_b=de->identify();
-		    int layer_num_b=p_pixelId_b->layer_disk(id_b); // layer number for bottom link
-		    const PixelID* p_pixelId_m = static_cast<const PixelID*>(de0->getIdHelper());
-		    Identifier id_m=de0->identify();
-		    int layer_num_m=p_pixelId_m->layer_disk(id_m); // layer number for middle link
-		    if(abs(layer_num_m-layer_num_b)>1) continue; // middle and bottom links have a hole between them, reject
-		  }
-	      }
+	    if(m_useITKseedCuts_hit     && !BA && LA==0 && (*r)->barrel() && (*r)->layer() > 1) continue;
+	    if(m_useITKseedCuts_dR      &&  BA && (*r)->barrel() && LA-(*r)->layer()       < 1) continue;
+	    if(m_useITKseedCuts_PixHole &&  BA && (*r)->barrel() && LA-(*r)->layer()       > 1) continue;
 	    if(ClusterSizeCuts((*r),(*r0),Zo)!=true) continue;
 	  }
-	//____________ end of new cluster size checks for  Extended barrel________________
-
 
 	m_SP[Nb] = (*r); if(++Nb==m_maxsizeSP) goto breakb;
       }
@@ -1681,45 +1536,12 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 	//
 	float Zo = Z-R*Tz; if(!isZCompatible(Zo,R ,Tz)) continue;
 
-
-	// //===================================================
-	// //------------ New cluster size checks for Extended barrel ---------------
 	if(m_useITKseedCuts)
 	  {
-	    const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>((*r0)->spacepoint->clusterList().first);
-	    const InDet::SiCluster* clust0  = dynamic_cast<const InDet::SiCluster*>((*r)->spacepoint->clusterList().first);
-	    const InDetDD::SiDetectorElement* de = clust->detectorElement();   // middle link
-	    const InDetDD::SiDetectorElement* de0 = clust0->detectorElement(); // top link
-
-	    if(m_useITKseedCuts_dR && de0->isPixel() && de->isPixel() && de0->isBarrel() && de->isBarrel())
-	      {
-		const PixelID* p_pixelId_m = static_cast<const PixelID*> (de->getIdHelper());
-		Identifier id_m=de->identify();
-		int layer_num_m=p_pixelId_m->layer_disk(id_m); // layer number for middle link
-		const PixelID* p_pixelId_t = static_cast<const PixelID*> (de0->getIdHelper());
-		Identifier id_t=de0->identify();
-		int layer_num_t=p_pixelId_t->layer_disk(id_t); // layer number for top link
-		if(abs(layer_num_t-layer_num_m)<1) continue; // middle and top links are in the same layer/disk, reject		
-	      }
-
-	    if(m_useITKseedCuts_PixHole)
-	      {
-		// both links are in Pixel barrel or endcap
-		if(de0->isPixel() && de->isPixel() && (de0->isBarrel())==(de->isBarrel())) 
-		  {
-		    const PixelID* p_pixelId_m = static_cast<const PixelID*> (de->getIdHelper());
-		    Identifier id_m=de->identify();
-		    int layer_num_m=p_pixelId_m->layer_disk(id_m); // layer number for middle link
-		    const PixelID* p_pixelId_t = static_cast<const PixelID*> (de0->getIdHelper());
-		    Identifier id_t=de0->identify();
-		    int layer_num_t=p_pixelId_t->layer_disk(id_t); // layer number for top link
-		    if(abs(layer_num_t-layer_num_m)>1) continue; // middle and top links have a hole between them, reject
-		  }
-	      }
+	    if(m_useITKseedCuts_dR      && BA && (*r)->barrel() && (*r)->layer()-LA < 1) continue;
+	    if(m_useITKseedCuts_PixHole && BA == (*r)->barrel() && (*r)->layer()-LA > 1) continue;
 	    if(ClusterSizeCuts((*r0),(*r),Zo)!=true) continue;
 	  }
-	//------------------ end of cluster size checks
-
 
   	m_SP[Nt] = (*r); if(++Nt==m_maxsizeSP) goto breakt;
       }
@@ -1786,7 +1608,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 
 	// >>>>>>>> New checks of compatibility of a cluster size for bottom cluster with a position 
         // >>>>>>>> of top cluster
-
+	
 	if(m_useITKseedCuts && (m_useITKseedCuts_dSize || m_useITKseedCuts_sizeDiff))
 	  {
 	    double dR= m_SP[t]->radius() - m_SP[b]->radius();
@@ -1795,9 +1617,171 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 	    double Zo= m_SP[b]->z() - m_SP[b]->radius()/Tz;
 		
 	    if(ClusterSizeCuts(m_SP[b],m_SP[t],Zo)!=true) continue;
-
 	  }
+       
 	//------------------ end of cluster size checks
+
+	float Im  = fabs((A-B*R)*R)                  ;
+
+	if(Im <= imax) {
+	  float dr; m_R[t] < m_R[b] ? dr = m_R[t] : dr = m_R[b]; Im+=fabs((Tzb-m_Tz[t])/(dr*sTzb2));
+	  m_CmSp.push_back(std::make_pair(B/sqrt(S2),m_SP[t])); m_SP[t]->setParam(Im);
+	}
+      }
+      if(!m_CmSp.empty()) {newOneSeedWithCurvaturesComparison(m_SP[b],(*r0),Zob);}
+    }
+    fillSeeds();  nseed += m_fillOneSeeds;
+    if(nseed>=m_maxsize) {m_endlist=false; ++r0; m_rMin = r0;  return;} 
+  }
+}
+
+///////////////////////////////////////////////////////////////////
+// Production 3 pixel space points seeds for full scan
+///////////////////////////////////////////////////////////////////
+
+void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPPold
+( std::list<InDet::SiSpacePointForSeedITK*>::iterator* rb ,
+  std::list<InDet::SiSpacePointForSeedITK*>::iterator* rbe,
+  std::list<InDet::SiSpacePointForSeedITK*>::iterator* rt ,
+  std::list<InDet::SiSpacePointForSeedITK*>::iterator* rte,
+  int NB, int NT, int& nseed) 
+{
+  std::list<InDet::SiSpacePointForSeedITK*>::iterator r0=rb[0],r;
+  if(!m_endlist) {r0 = m_rMin; m_endlist = true;}
+
+  float ipt2K = m_ipt2K   ;
+  float ipt2C = m_ipt2C   ;
+  float COFK  = m_COFK    ; 
+  float imaxp = m_diver   ;
+
+  m_CmSp.clear();
+
+  // Loop through all trigger space points
+  //
+  for(; r0!=rbe[0]; ++r0) {
+
+    m_nOneSeeds = 0;
+    m_mapOneSeeds.clear();
+
+    float R  = (*r0)->radius(); 
+
+    const Trk::Surface* sur0 = (*r0)->sur();
+    const Trk::Surface* surn = (*r0)->sun();
+    float               X    = (*r0)->x()  ;
+    float               Y    = (*r0)->y()  ;
+    float               Z    = (*r0)->z()  ;
+    int                 Nb   = 0           ;
+
+
+    // Bottom links production
+    //
+    for(int i=0; i!=NB; ++i) {
+
+      for(r=rb[i]; r!=rbe[i]; ++r) {
+	
+	float Rb =(*r)->radius();  
+	float dR = R-Rb; 
+
+	if(dR > m_drmax) {rb[i]=r; continue;}   
+	if(dR < m_drmin) break;
+	if((*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
+	float Tz = (Z-(*r)->z())/dR, aTz =fabs(Tz);
+
+	if(aTz < m_dzdrmin || aTz > m_dzdrmax) continue;
+	
+	// Comparison with vertices Z coordinates
+	//
+	float Zo = Z-R*Tz; if(!isZCompatible(Zo,Rb,Tz)) continue;
+	m_SP[Nb] = (*r); if(++Nb==m_maxsizeSP) goto breakb;
+      }
+    }
+  breakb:
+    if(!Nb || Nb==m_maxsizeSP) continue;  
+    int Nt = Nb;
+    
+    // Top   links production
+    //
+    for(int i=0; i!=NT; ++i) {
+      
+      for(r=rt[i]; r!=rte[i]; ++r) {
+	
+	float Rt =(*r)->radius();
+	float dR = Rt-R; 
+	
+	if(dR<m_drmin) {rt[i]=r; continue;}
+	if(dR>m_drmax) break;
+
+	if( (*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
+
+	float Tz = ((*r)->z()-Z)/dR, aTz =fabs(Tz);  
+
+	if(aTz < m_dzdrmin || aTz > m_dzdrmax) continue;
+
+	// Comparison with vertices Z coordinates
+	//
+	float Zo = Z-R*Tz; if(!isZCompatible(Zo,R ,Tz)) continue;
+  	m_SP[Nt] = (*r); if(++Nt==m_maxsizeSP) goto breakt;
+      }
+    }
+    
+  breakt:
+    if(!(Nt-Nb)) continue;
+    float covr0 = (*r0)->covr ();
+    float covz0 = (*r0)->covz ();
+    float ax    = X/R           ;
+    float ay    = Y/R           ;
+
+    for(int i=0; i!=Nt; ++i) {
+
+      InDet::SiSpacePointForSeedITK* sp = m_SP[i];  
+
+      float dx  = sp->x()-X   ;
+      float dy  = sp->y()-Y   ;
+      float dz  = sp->z()-Z   ;
+      float x   = dx*ax+dy*ay ;
+      float y   = dy*ax-dx*ay ;
+      float r2  = 1./(x*x+y*y);
+      float dr  = sqrt(r2)    ;
+      float tz  = dz*dr       ; if(i < Nb) tz = -tz;
+
+      m_Tz[i]   = tz                                            ;
+      m_Zo[i]   = Z-R*tz                                        ;
+      m_R [i]   = dr                                            ;
+      m_U [i]   = x*r2                                          ;
+      m_V [i]   = y*r2                                          ;
+      m_Er[i]   = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;
+    }
+    covr0      *= .5;
+    covz0      *= 2.;
+   
+    // Three space points comparison
+    //
+    for(int b=0; b!=Nb; ++b) {
+    
+      float  Zob  = m_Zo[b]      ;
+      float  Tzb  = m_Tz[b]      ;
+      float  Rb2r = m_R [b]*covr0;
+      float  Rb2z = m_R [b]*covz0;
+      float  Erb  = m_Er[b]      ;
+      float  Vb   = m_V [b]      ;
+      float  Ub   = m_U [b]      ;
+      float  Tzb2 = (1.+Tzb*Tzb) ;
+      float sTzb2 = sqrt(Tzb2)   ;
+      float  CSA  = Tzb2*COFK    ;
+      float ICSA  = Tzb2*ipt2C   ;
+      float imax  = imaxp        ; 
+  
+      for(int t=Nb;  t!=Nt; ++t) {
+	
+	float dT  = ((Tzb-m_Tz[t])*(Tzb-m_Tz[t])-m_R[t]*Rb2z-(Erb+m_Er[t]))-(m_R[t]*Rb2r)*((Tzb+m_Tz[t])*(Tzb+m_Tz[t]));
+	if( dT > ICSA) continue;
+
+	float dU  = m_U[t]-Ub; if(dU == 0.) continue ; 
+	float A   = (m_V[t]-Vb)/dU                   ;
+	float S2  = 1.+A*A                           ;
+	float B   = Vb-A*Ub                          ;
+	float B2  = B*B                              ;
+	if(B2  > ipt2K*S2 || dT*S2 > B2*CSA) continue;
 
 	float Im  = fabs((A-B*R)*R)                  ; 
 
@@ -1806,7 +1790,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpPPP
 	  m_CmSp.push_back(std::make_pair(B/sqrt(S2),m_SP[t])); m_SP[t]->setParam(Im);
 	}
       }
-      if(!m_CmSp.empty()) {newOneSeedWithCurvaturesComparison(m_SP[b],(*r0),Zob);}
+      if(!m_CmSp.empty()) {newOneSeedWithCurvaturesComparisonPPP(m_SP[b],(*r0),Zob);}
     }
     fillSeeds();  nseed += m_fillOneSeeds;
     if(nseed>=m_maxsize) {m_endlist=false; ++r0; m_rMin = r0;  return;} 
@@ -1849,6 +1833,8 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
     float               Y    = (*r0)->y()  ;
     float               Z    = (*r0)->z()  ;
     int                 Nb   = 0           ;
+    bool                BA   = (*r0)->barrel();
+    int                 LA   = (*r0)->layer ();
 
     // Bottom links production
     //
@@ -1862,6 +1848,10 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	if(dR > m_drmax) {rb[i]=r; continue;} 
 	if(dR < m_drmin) break;
 	if((*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
+	if((*r)->barrel() == BA && (*r)->layer() == LA     ) continue;
+	if(m_useITKseedCuts_SctHole && LA-(*r)->layer() > 1) continue;
+
+
 	float Tz = (Z-(*r)->z())/dR, aTz =fabs(Tz);
 
 	if(aTz < m_dzdrmin || aTz > m_dzdrmax) continue;
@@ -1869,36 +1859,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	// Comparison with vertices Z coordinates
 	//
 	float Zo = Z-R*Tz; if(!isZCompatible(Zo,Rb,Tz)) continue;
-
-	//===================================================
-	//------------ Checks for holes go here ---------------
-	// accessing cluster information for bottom link
-
-	if(m_useITKseedCuts)
-	  {
-	    const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>((*r)->spacepoint->clusterList().first);
-	    const InDet::SiCluster* clust0  = dynamic_cast<const InDet::SiCluster*>((*r0)->spacepoint->clusterList().first);
-	    const InDetDD::SiDetectorElement* de = clust->detectorElement();   // bottom link
-	    const InDetDD::SiDetectorElement* de0 = clust0->detectorElement(); // middle link
-
-	    if(m_useITKseedCuts_SctHole) 
-	      {
-		const SCT_ID* p_sctId_b = static_cast<const SCT_ID*>(de->getIdHelper());
-		Identifier id_b=de->identify();
-		int layer_num_b=p_sctId_b->layer_disk(id_b); // layer number for bottom link
-		const SCT_ID* p_sctId_m = static_cast<const SCT_ID*>(de0->getIdHelper());
-		Identifier id_m=de0->identify();
-		int layer_num_m=p_sctId_m->layer_disk(id_m); // layer number for middle link
-		// both links are in SCT 
-		if(de0->isSCT() && de->isSCT() && (de0->isBarrel())==(de->isBarrel())) 
-		  {
-		    if(abs(layer_num_b-layer_num_m)>1) continue; // bottom and middle links have hole in between: reject
-		  }		
-	      }
-	  }
-	//____________ end of checks for holes ________________
-
-
 	m_SP[Nb] = (*r); if(++Nb==m_maxsizeSP) goto breakb;
       }
     }
@@ -1919,6 +1879,9 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	if(dR>m_drmax) break;
 
 	if( (*r)->sur()==sur0 || (surn && surn==(*r)->sun())) continue;
+	if((*r)->barrel() == BA && (*r)->layer() == LA     ) continue;
+	if(m_useITKseedCuts_SctHole && (*r)->layer()-LA > 1) continue;
+
 	float Tz = ((*r)->z()-Z)/dR, aTz =fabs(Tz);  
 
 	if(aTz < m_dzdrmin || aTz > m_dzdrmax) continue;
@@ -1926,34 +1889,6 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	// Comparison with vertices Z coordinates
 	//
 	float Zo = Z-R*Tz; if(!isZCompatible(Zo,R ,Tz)) continue;
-
-	// //===================================================
-	// //------------ Checks for holes go here ---------------
-	if(m_useITKseedCuts)
-	  {
-	    const InDet::SiCluster* clust  = dynamic_cast<const InDet::SiCluster*>((*r0)->spacepoint->clusterList().first);
-	    const InDet::SiCluster* clust0  = dynamic_cast<const InDet::SiCluster*>((*r)->spacepoint->clusterList().first);
-	    const InDetDD::SiDetectorElement* de = clust->detectorElement();   // middle link
-	    const InDetDD::SiDetectorElement* de0 = clust0->detectorElement(); // top link
-
-	    if(m_useITKseedCuts_SctHole) 
-	      {
-		const SCT_ID* p_sctId_m = static_cast<const SCT_ID*> (de->getIdHelper());
-		Identifier id_m=de->identify();
-		int layer_num_m=p_sctId_m->layer_disk(id_m); // layer number for middle link
-		const SCT_ID* p_sctId_t = static_cast<const SCT_ID*> (de0->getIdHelper());
-		Identifier id_t=de0->identify();
-		int layer_num_t=p_sctId_t->layer_disk(id_t); // layer number for top link
-		// both links are in SCT
-		if(de0->isSCT() && de->isSCT() && (de0->isBarrel())==(de->isBarrel())) 
-		  {
-		    if(abs(layer_num_m-layer_num_t)>1) continue; // top and middle links have hole in between: reject
-		  }		
-	      }
-	  }
-	//------------------ end of checks for holes
-
-
   	m_SP[Nt] = (*r); if(++Nt==m_maxsizeSP) goto breakt;
       }
     }
@@ -2078,12 +2013,13 @@ void InDet::SiSpacePointsSeedMaker_ITK::production3SpSSS
 	}
 	
       }
-      if(!m_CmSp.empty()) {newOneSeedWithCurvaturesComparison(m_SP[b],(*r0),Zob);}
+      if(!m_CmSp.empty()) {newOneSeedWithCurvaturesComparisonSSS(m_SP[b],(*r0),Zob);}
     }
     fillSeeds();  nseed += m_fillOneSeeds;
     if(nseed>=m_maxsize) {m_endlist=false; ++r0; m_rMin = r0;  return;} 
   }
 }
+
 
 ///////////////////////////////////////////////////////////////////
 // Production 3 space points seeds in ROI
@@ -2342,6 +2278,105 @@ void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparison
 }
 
 ///////////////////////////////////////////////////////////////////
+// New 3 space points pro seeds production 
+///////////////////////////////////////////////////////////////////
+
+void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparisonSSS
+	(SiSpacePointForSeedITK*& SPb,SiSpacePointForSeedITK*& SP0,float Zob)
+{
+  const float dC = .00003;
+
+  std::sort(m_CmSp.begin(),m_CmSp.end(),comCurvatureITK());
+  std::vector<std::pair<float,InDet::SiSpacePointForSeedITK*>>::iterator j,jn,i = m_CmSp.begin(),ie = m_CmSp.end(); jn=i; 
+      
+  for(; i!=ie; ++i) {
+
+    float u    = (*i).second->param()-400.; 
+
+    const Trk::Surface* Sui  = (*i).second->sur   ();
+    float               Ri   = (*i).second->radius();  
+    float               Ci1  =(*i).first-dC         ;
+    float               Ci2  =(*i).first+dC         ;
+    float               Rmi  = 0.                   ;
+    float               Rma  = 0.                   ;
+    bool                in   = false;
+
+    for(j=jn;  j!=ie; ++j) {
+      
+      if(       j == i           ) continue;
+      if( (*j).first < Ci1       ) {jn=j; ++jn; continue;}
+      if( (*j).first > Ci2       ) break;
+      if( (*j).second->sur()==Sui) continue;
+      
+      float Rj = (*j).second->radius(); if(fabs(Rj-Ri) < m_drmin) continue;
+
+      if(in) {
+	if     (Rj > Rma) Rma = Rj;
+	else if(Rj < Rmi) Rmi = Rj;
+	else continue;
+	if( (Rma-Rmi) > 20.) {u-=200.; break;}
+      }
+      else {
+	in=true; Rma=Rmi=Rj; u-=200.;
+      }
+    }
+    newOneSeed(SPb,SP0,(*i).second,Zob,u);
+  }
+  m_CmSp.clear();
+}
+
+///////////////////////////////////////////////////////////////////
+// New 3 space points pro seeds production
+///////////////////////////////////////////////////////////////////
+
+void InDet::SiSpacePointsSeedMaker_ITK::newOneSeedWithCurvaturesComparisonPPP
+	(SiSpacePointForSeedITK*& SPb,SiSpacePointForSeedITK*& SP0,float Zob)
+{
+  const float dC = .00003;
+
+  std::sort(m_CmSp.begin(),m_CmSp.end(),comCurvatureITK());
+  std::vector<std::pair<float,InDet::SiSpacePointForSeedITK*>>::iterator j,jn,i = m_CmSp.begin(),ie = m_CmSp.end(); jn=i; 
+      
+  for(; i!=ie; ++i) {
+
+    //if(fabs(SPb->z()-(*i).second->z()) > m_dzmaxPPP) continue;  
+
+    float u    = (*i).second->param()-200.; 
+
+    const Trk::Surface* Sui  = (*i).second->sur   ();
+    float               Ri   = (*i).second->radius();
+    float               Ci1  =(*i).first-dC         ;
+    float               Ci2  =(*i).first+dC         ;
+    float               Rmi  = 0.                   ;
+    float               Rma  = 0.                   ;
+    bool                in   = false;
+
+    for(j=jn;  j!=ie; ++j) {
+      
+      if(       j == i           ) continue;
+      if( (*j).first < Ci1       ) {jn=j; ++jn; continue;}
+      if( (*j).first > Ci2       ) break;
+      if( (*j).second->sur()==Sui) continue;
+      
+      float Rj = (*j).second->radius(); if(fabs(Rj-Ri) < m_drmin) continue;
+
+      if(in) {
+	if     (Rj > Rma) Rma = Rj;
+	else if(Rj < Rmi) Rmi = Rj;
+	else continue;
+	if( (Rma-Rmi) > 20.) {u-=200.; break;}
+      }
+      else {
+	in=true; Rma=Rmi=Rj; u-=200.;
+      }
+    }
+    if(u > -200.) continue;
+    newOneSeed(SPb,SP0,(*i).second,Zob,u);
+  }
+  m_CmSp.clear();
+}
+
+///////////////////////////////////////////////////////////////////
 // Fill seeds
 ///////////////////////////////////////////////////////////////////
 
@@ -2362,7 +2397,7 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillSeeds ()
 
     float w = (*l).first ;
     s       = (*l).second;
-    if(l!=lf && s->spacepoint0()->radius() < 43. && w > -200.) continue;
+    if(l!=lf && s->spacepoint0()->radius() < 43. && w > -200.) continue;     
     if(!s->setQuality(w)) continue;
     
     if(i_seede!=l_seeds.end()) {
@@ -2381,6 +2416,123 @@ void InDet::SiSpacePointsSeedMaker_ITK::fillSeeds ()
 
     m_seeds.insert(std::make_pair(w,s)); ++m_fillOneSeeds;
   }
+}
+
+///////////////////////////////////////////////////////////////////
+// Pixels information
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiSpacePointsSeedMaker_ITK::pixInform(Trk::SpacePoint*const& sp,bool& barrel,int& layer)
+{
+  if(m_usePixelClusterCleanUp && !PixelSpacePointFilter(sp)) return false;
+
+  const InDet::SiCluster*           cl = static_cast<const InDet::SiCluster*>(sp->clusterList().first); 
+  const InDetDD::SiDetectorElement* de = cl->detectorElement(); 
+  const PixelID* pixId = static_cast<const PixelID*>(de->getIdHelper());
+  barrel = de->isBarrel();
+  layer  = pixId->layer_disk(de->identify());
+  
+  return true;
+}
+
+///////////////////////////////////////////////////////////////////
+// SCT information
+///////////////////////////////////////////////////////////////////
+
+void InDet::SiSpacePointsSeedMaker_ITK::sctInform(Trk::SpacePoint*const& sp,bool& barrel,int& layer,float* r) 
+{
+  const InDet::SiCluster* c0 = static_cast<const InDet::SiCluster*>(sp->clusterList().first );
+  const InDet::SiCluster* c1 = static_cast<const InDet::SiCluster*>(sp->clusterList().second);
+  const InDetDD::SiDetectorElement* d0 = c0->detectorElement(); 
+  const InDetDD::SiDetectorElement* d1 = c1->detectorElement(); 
+
+  const SCT_ID* sctId = static_cast<const SCT_ID*>(d0->getIdHelper());
+  barrel  = d0->isBarrel();
+  layer   = sctId->layer_disk(d0->identify());
+
+  Amg::Vector2D lc0 = c0->localPosition();  
+  Amg::Vector2D lc1 = c1->localPosition();  
+  
+  std::pair<Amg::Vector3D, Amg::Vector3D > e0 =
+    (d0->endsOfStrip(InDetDD::SiLocalPosition(lc0.y(),lc0.x(),0.))); 
+  std::pair<Amg::Vector3D, Amg::Vector3D > e1 =
+    (d1->endsOfStrip(InDetDD::SiLocalPosition(lc1.y(),lc1.x(),0.))); 
+
+  Amg::Vector3D b0 (e0.second-e0.first);
+  Amg::Vector3D b1 (e1.second-e1.first);
+  Amg::Vector3D d02(e0.first -e1.first);
+
+  // b0
+  r[ 3] = float(b0[0]);
+  r[ 4] = float(b0[1]);
+  r[ 5] = float(b0[2]);
+  
+  // b1
+  r[ 6] = float(b1[0]);
+  r[ 7] = float(b1[1]);
+  r[ 8] = float(b1[2]);
+
+  // r0-r2
+  r[ 9] = float(d02[0]);
+  r[10] = float(d02[1]);
+  r[11] = float(d02[2]);
+
+  // r0
+  r[12] = float(e0.first[0])-m_xbeam[0];
+  r[13] = float(e0.first[1])-m_ybeam[0];
+  r[14] = float(e0.first[2])-m_zbeam[0];
+}
+
+///////////////////////////////////////////////////////////////////
+// SCT information
+///////////////////////////////////////////////////////////////////
+
+bool InDet::SiSpacePointsSeedMaker_ITK::PixelSpacePointFilter(const Trk::SpacePoint* sp)
+{
+
+  const InDet::SiCluster*       clust  = dynamic_cast<const InDet::SiCluster*>   (sp->clusterList().first);
+  const InDet::PixelCluster* pixclust  = dynamic_cast<const InDet::PixelCluster*>(sp->clusterList().first);
+  
+  // apply cuts only to non-split and non-ganged clusters
+
+  if(pixclust->isSplit()!=true && clust->gangedPixel()!=true) 
+    {
+      const InDetDD::SiDetectorElement* de = clust ->detectorElement();
+      const InDetDD::PixelModuleDesign* module(dynamic_cast<const InDetDD::PixelModuleDesign*>(&de->design()));
+      double size_z= clust->width().z(); // in mm
+      double size_phi= clust->width().phiR(); // in mm
+      const double pitch_z= module->etaPitch(); 
+      const double pitch_phi=module->phiPitch();
+      if(de->isEndcap() && (m_usePixelClusterCleanUp_sizeZcutsE || m_usePixelClusterCleanUp_sizePhicutsE)) // cuts for disks go here
+	{
+	  // removing obviously anomalous clusters
+	  if(m_usePixelClusterCleanUp_sizeZcutsE && size_z>m_pix_sizePhiCut*pitch_z) return false; // for end-cap use the same cut for sizeZ and size-Phi
+	  if(m_usePixelClusterCleanUp_sizePhicutsE)
+	    {
+	      if(size_phi>m_pix_sizePhiCut*pitch_phi) return false;
+	      if(size_phi/size_z>m_pix_sizePhi2sizeZCut_p0E/size_z+m_pix_sizePhi2sizeZCut_p1E) return false;
+	    }
+	}
+      if(de->isBarrel() && (m_usePixelClusterCleanUp_sizeZcutsB || m_usePixelClusterCleanUp_sizePhicutsB)) // cuts for barrel go here
+	{
+	  if(m_usePixelClusterCleanUp_sizeZcutsB) 
+	    {
+	      const PixelID* p_pixelId = static_cast<const PixelID*> (de->getIdHelper());
+	      Identifier id=de->identify();
+	      int layer_num=p_pixelId->layer_disk(id);
+	      
+	      if(ClusterCleanupSizeZCuts(sp,size_phi,size_z,0.0,pitch_phi,pitch_z,de->thickness(),layer_num,m_Nsigma_clSizeZcut)==false) return false;
+	    }
+
+	  // removing obviously anomalous clusters
+	  if(m_usePixelClusterCleanUp_sizePhicutsB)
+	    {
+	      if(size_phi>m_pix_sizePhiCut*pitch_phi) return false;
+	      if(size_phi/size_z>m_pix_sizePhi2sizeZCut_p0B/size_z+m_pix_sizePhi2sizeZCut_p1B) return false;
+	    }
+	}
+    }
+  return true;
 }
 
 //---------------------------------------------------------------------------
