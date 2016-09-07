@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## Reco_tf.py - New transform re-implementation of the beast that is Reco_trf.
-# @version $Id: Reco_tf.py 743340 2016-04-27 15:43:19Z graemes $ 
+# @version $Id: Reco_tf.py 769766 2016-08-24 09:49:03Z lerrenst $ 
 
 import sys
 import time
@@ -28,9 +28,16 @@ def main():
     
     msg.info('This is %s' % sys.argv[0])
 
-    RAWtoALL = detectRAWtoALL(sys.argv[1:])
+    if "--help" in sys.argv[1:]:
+        # just looking for help, skip r2a limited parser
+        RAWtoALL = False
+    else:
+        RAWtoALL = detectRAWtoALL(sys.argv[1:])
+
     if RAWtoALL:
         msg.info("RAWtoALL workflow detected")
+    else:
+        msg.info("no RAWtoALL")
 
     trf = getTransform(RAWtoALL)
     trf.parseCmdLineArgs(sys.argv[1:])

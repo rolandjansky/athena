@@ -84,6 +84,11 @@ if hasattr(runArgs, "outputTXT_FTKIPFile"):
     rec.doTau.set_Value_and_Lock(False)
     rec.doTrigger.set_Value_and_Lock(False)
     rec.UserAlgs=["FastTrackSimWrap/FastTrackSimWrap_jobOptions.py"]
+
+if hasattr(runArgs,"outputNTUP_MUONCALIBFile"):
+    from MuonRecExample.MuonRecFlags import muonRecFlags
+    muonRecFlags.doCalib = True
+    muonRecFlags.calibNtupleOutput.set_Value_and_Lock( runArgs.outputNTUP_MUONCALIBFile )
     
 # Event display tarballs    
 if hasattr(runArgs, 'outputTXT_JIVEXMLTGZFile'):

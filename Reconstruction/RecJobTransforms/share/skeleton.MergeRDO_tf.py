@@ -112,6 +112,10 @@ DetFlags.Print()
 ## TGCcablingServerSvc Hack
 import MuonCnvExample.MuonCablingConfig
 
+# PixelLorentzAngleSvc and SCTLorentzAngleSvc
+from InDetRecExample.InDetJobProperties import InDetFlags
+include("InDetRecExample/InDetRecConditionsAccess.py")
+
 #--------------------------------------------------------------
 # Setup Input
 #--------------------------------------------------------------
