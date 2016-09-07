@@ -82,7 +82,17 @@ atlas_add_executable( updateDeadMaps
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetPrepRawData AthenaPoolUtilities CoralDB DetDescrConditions Identifier EventInfo PixelConditionsData InDetIdentifier InDetReadoutGeometry InDetRawData PathResolver PixelOfflineCalib )
 
+atlas_add_executable( createDeadModuleList
+                      Application/createDeadModuleList.C
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetPrepRawData AthenaPoolUtilities CoralDB DetDescrConditions Identifier EventInfo PixelConditionsData InDetIdentifier InDetReadoutGeometry InDetRawData PathResolver PixelOfflineCalib )
+
+atlas_add_executable( hackNoiseMapsForStudyCP
+                      Application/hackNoiseMapsForStudyCP.C
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CORAL_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${CORAL_LIBRARIES} ${CLHEP_LIBRARIES} AthenaBaseComps GaudiKernel InDetPrepRawData AthenaPoolUtilities CoralDB DetDescrConditions Identifier EventInfo PixelConditionsData InDetIdentifier InDetReadoutGeometry InDetRawData PathResolver PixelOfflineCalib )
+
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/*.txt share/*.sh )
+atlas_install_runtime( share/*.txt share/*.sh share/*.dat )
 

@@ -5,8 +5,8 @@ if [[ $# -ne 1 ]] ; then
   exit -1
 fi
 
-noiseFile=/afs/cern.ch/user/i/idcalib/w0/Pixel_Calibration/NoiseMaps/NoiseMap_run${1}_calibration_PixelNoise.root
-hitFile=/afs/cern.ch/user/i/idcalib/w0/Pixel_Calibration/OccupancyMaps/OccupancyMap_run${1}_express_express.root
+noiseFile=/afs/cern.ch/work/a/atlpixdq/Pixel_Calibration/NoiseMaps/NoiseMap_run${1}_calibration_PixelNoise.root
+hitFile=/afs/cern.ch/work/a/atlpixdq/Pixel_Calibration/OccupancyMaps/OccupancyMap_run${1}_express_express.root
 macroFile=checkModules.C
 macroDir=$TestArea/InnerDetector/InDetCalibAlgs/PixelCalibAlgs/Macro
 

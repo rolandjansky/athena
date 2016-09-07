@@ -34,7 +34,7 @@ if os.path.isfile("inputfilelist"):
     collection.append(line.strip())
 else:
   raise RuntimeError, "Unable to open inputfilelist"
-  
+
 
 ## GlobalFlags
 
@@ -54,13 +54,26 @@ elif inputfile.fileinfos['file_type'] == 'pool':
   globalflags.InputFormat = 'pool'
 else:
   raise RuntimeError, "Unable to read input file (format not supported)"
-  
+
 
 if inputfile.fileinfos['file_type'] == 'pool':
   globalflags.DetDescrVersion = inputfile.fileinfos['geometry']
 else:
-  globalflags.DetDescrVersion = 'ATLAS-GEO-08-00-02'
+  globalflags.ConditionsTag = 'CONDBR2-BLKPA-2016-07' # yosuke
+ # globalflags.ConditionsTag = 'CONDBR2-BLKPA-2015-10' # steffen
+  globalflags.DatabaseInstance = 'CONDBR2'  ######################
+  #globalflags.ConditionsTag = 'OFLCOND-RUN12-SDR-22' #
 
+from IOVDbSvc.CondDB import conddb;
+conddb.addOverride("/PIXEL/NoiseMapLong","PixNoiseMapLong-RUN2-DATA-UPD4-02");
+conddb.addOverride("/PIXEL/NoiseMapShort","PixNoiseMapShort-RUN2-DATA-UPD4-02");
+conddb.addOverride("/PIXEL/PixMapLong","PixMapLong-RUN2-DATA-UPD1-02");
+conddb.addOverride("/PIXEL/PixMapShort","PixMapShort-RUN2-DATA-UPD1-02");
+
+#conddb.addOverride("/PIXEL/NoiseMapLong","PixNoiseMapLong-DATA-RUN2-000-00");
+#conddb.addOverride("/PIXEL/NoiseMapShort","PixNoiseMapShort-DATA-RUN2-000-00");
+#conddb.addOverride("/PIXEL/PixMapLong","PixMapLong-DATA-RUN2-000-00");
+#conddb.addOverride("/PIXEL/PixMapShort","PixMapShort-DATA-RUN2-000-00");
 globalflags.print_JobProperties()
 
 
@@ -83,6 +96,8 @@ from AtlasGeoModel import GeoModelInit
 ## Offline Conditions
 
 from IOVDbSvc.CondDB import conddb
+conddb.setGlobalTag('CONDBR2-BLKPA-2014-03') ###########
+#conddb.blockFolder("/PIXEL/PixCalib");conddb.addFolder("PIXEL_OFL","/PIXEL/PixCalib <tag>PixCalib-IBL3D25DBM-04-01</tag>",force=True,forceMC=True);
 
 include("PixelConditionsServices/SpecialPixelMapSvc_jobOptions.py")
 
@@ -90,21 +105,31 @@ if not 'doValidate' in dir() :
   doValidate=False
 
 if doValidate == False :
-  conddb.addOverride('/PIXEL/PixMapShort','PixMapShort-empty');
-  conddb.addOverride('/PIXEL/PixMapLong','PixMapLong-empty');
+#  conddb.addOverride('/PIXEL/PixMapShort','PixMapShort-DATA-RUN2-000-00');
+#  conddb.addOverride('/PIXEL/PixMapLong','PixMapLong-DATA-RUN2-000-00');
+
+  conddb.addOverride('/PIXEL/PixMapShort','PixMapShort-RUN2-DATA-UPD1-02');
+  conddb.addOverride('/PIXEL/PixMapLong','PixMapLong-RUN2-DATA-UPD1-02');
 else :
-  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=COMP200</dbConnection> /PIXEL/NoiseMapShort<tag>NoiseMapShort-000-00</tag>" ]
-  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=COMP200</dbConnection> /PIXEL/NoiseMapLong<tag>NoiseMapLong-000-00</tag>" ]
+#  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=CONDBR2</dbConnection> /PIXEL/NoiseMapShort<tag>PixNoiseMapShort-DATA-RUN2-000-00</tag>" ]
+#  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=CONDBR2</dbConnection> /PIXEL/NoiseMapLong<tag>PixNoiseMapLong-DATA-RUN2-000-00</tag>" ]
+
+  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=CONDBR2</dbConnection> /PIXEL/NoiseMapShort<tag>PixNoiseMapShort-RUN2-DATA-UPD4-02</tag>" ]
+  conddb.iovdbsvc.Folders += [ "<dbConnection>sqlite://;schema=noisemap.db;dbname=CONDBR2</dbConnection> /PIXEL/NoiseMapLong<tag>PixNoiseMapLong-RUN2-DATA-UPD4-02</tag>" ]
+
   ServiceMgr.SpecialPixelMapSvc.DBFolders = [ "/PIXEL/NoiseMapShort", "/PIXEL/NoiseMapLong" ]
   ServiceMgr.SpecialPixelMapSvc.SpecialPixelMapKeys = [ "SpecialPixelMap", "NoiseMapLong" ]
 
-conddb.setGlobalTag('COMCOND-000-00')
+#conddb.setGlobalTag('COMCOND-000-00')
+#conddb.setGlobalTag('CONDBR2-BLKPA-2014-03') # 2014-10-28
+#conddb.setGlobalTag('OFLCOND-RUN12-SDR-22') # 2014-10-28
+#https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CoolProdTags
 
 
 #
 #-- set that if using some ModuleOverlay maks
 #
-#conddb.iovdbsvc.Folders += [ "<dbConnection>impl=cool;techno=sqlite;schema=module_overlay.db;X:COMP200</dbConnection> /PIXEL/PixMapOverlay <tag>PixMapOverlay-Test-00</tag>" ]
+#conddb.iovdbsvc.Folders += [ "<dbConnection>impl=cool;techno=sqlite;schema=module_overlay.db;X:CONDBR2</dbConnection> /PIXEL/PixMapOverlay <tag>PixMapOverlay-Test-00</tag>" ]
 #ServiceMgr.SpecialPixelMapSvc.ModuleOverlayFolder = "/PIXEL/PixMapOverlay"
 #ServiceMgr.SpecialPixelMapSvc.ModuleOverlayKey = "PixMapOverlay"
 
@@ -188,17 +213,17 @@ if doClusterization :
 ###Flags for data container types
 #  PixelMainsMon.doRDO = True
 #  PixelMainsMon.doRODError = True
-#  PixelMainsMon.doSpacePoint = False 
-#  PixelMainsMon.doCluster = True 
-#  PixelMainsMon.doTrack = False 
+#  PixelMainsMon.doSpacePoint = False
+#  PixelMainsMon.doCluster = True
+#  PixelMainsMon.doTrack = False
 #  PixelMainsMon.OfflineDoPixelOccupancy = True
 #
 ###Flags for environment types
-#  PixelMainsMon.doPitPix = False 
+#  PixelMainsMon.doPitPix = False
 #  PixelMainsMon.doCosmics = False
 #  PixelMainsMon.doBeam = False
 #  PixelMainsMon.doRodSim = False
-#  PixelMainsMon.doOffline = True 
+#  PixelMainsMon.doOffline = True
 #
 ###Names of storegate containers
 #  PixelMainsMon.RDOName = "PixelRDOs"
@@ -226,6 +251,9 @@ if doClusterization :
 #ServiceMgr.EventSelector.SkipEvents = 0
 theApp.EvtMax = -1
 
-ServiceMgr.MessageSvc.OutputLevel  = INFO
+ServiceMgr.MessageSvc.OutputLevel  = INFO # original
+#ServiceMgr.MessageSvc.OutputLevel  = DEBUG # kazuki
 
 
+topSequence.NoiseMapBuilder.LBMin = 0 #yosuke160415
+topSequence.NoiseMapBuilder.LBMax = -1 #yosuke160415

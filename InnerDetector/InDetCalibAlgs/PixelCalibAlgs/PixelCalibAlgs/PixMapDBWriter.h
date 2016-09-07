@@ -11,7 +11,14 @@
 
 class ISpecialPixelMapSvc;
 class PixelID;
+namespace InDetDD{
+  class PixelDetectorManager;
+}
 
+#include <string>
+#include <sstream>
+#include <vector>
+#include <fstream>
 
 /**
  *
@@ -27,15 +34,15 @@ class PixelID;
 
 
 class PixMapDBWriter : public AthAlgorithm{
-  
+
  public:
   PixMapDBWriter (const std::string& name, ISvcLocator* pSvcLocator);
   ~PixMapDBWriter();
-  
+
   StatusCode initialize();
   StatusCode execute();
   StatusCode finalize();
-  
+
  private:
   ServiceHandle< ISpecialPixelMapSvc > m_specialPixelMapSvc;
 
@@ -46,10 +53,37 @@ class PixMapDBWriter : public AthAlgorithm{
   std::string m_pixelPropertyName;
   unsigned int m_pixelStatus;
   bool m_listSpecialPixels;
-
+  bool m_isIBL;
   std::string m_pixMapFileName;
 
   const PixelID* m_pixelID;
+  const InDetDD::PixelDetectorManager* m_pixman; // kazuki
+
+  std::vector< std::pair< std::string, std::vector<int> > > m_pixelMapping;
+  std::vector<int> getPositionFromDCSID (std::string DCSID);
+  std::string getDCSIDFromPosition (int barrel_ec, int layer, int module_phi, int module_eta);
+
+  std::vector<std::string> &splitter(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss(s);
+    std::string item;
+    while (std::getline(ss, item, delim)) {
+      elems.push_back(item);
+    }
+    return elems;
+  };
+
+  std::vector<std::string> splitter(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    splitter(s, delim, elems);
+    return elems;
+  };
+
+  bool is_file_exist(const char *fileName)
+  {
+    std::ifstream infile;
+    infile.open(fileName);
+    return infile.good();
+  };
 };
 
 #endif

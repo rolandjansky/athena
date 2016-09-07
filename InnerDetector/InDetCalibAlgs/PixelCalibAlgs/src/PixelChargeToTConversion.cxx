@@ -36,10 +36,10 @@ StatusCode PixelChargeToTConversion::initialize(){
   ATH_MSG_INFO( "Initializing PixelChargeToTConversion" );
 
   if (StatusCode::SUCCESS!=m_calibsvc.retrieve() ) {
-    msg(MSG::FATAL) << "PixelCalibSvc not found" << endreq;
+    msg(MSG::FATAL) << "PixelCalibSvc not found" << endmsg;
     return StatusCode::FAILURE;
   }
-  msg(MSG::INFO) << " PixelCalibSvc found " << endreq;
+  msg(MSG::INFO) << " PixelCalibSvc found " << endmsg;
 
   if ( !m_offlineCalibSvc.empty() ) {
     StatusCode sc = m_offlineCalibSvc.retrieve();
@@ -131,7 +131,7 @@ StatusCode PixelChargeToTConversion::execute(){
           if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {
             int tot0 = totInt;
 	    if ( totInt >= m_overflowIBLToT ) totInt = m_overflowIBLToT;
-            msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(pixid) << " layer_disque = " <<  pixelID.layer_disk(pixid) << " ToT = " << tot0 << " Real ToT = " << totInt << endreq;
+            msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(pixid) << " layer_disque = " <<  pixelID.layer_disk(pixid) << " ToT = " << tot0 << " Real ToT = " << totInt << endmsg;
           }
 	  
 	  totList.push_back( totInt ) ; // Fudge to make sure we round to the correct number

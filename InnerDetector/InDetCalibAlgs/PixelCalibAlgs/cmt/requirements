@@ -43,6 +43,9 @@ application PlotChargeSharingConstants ../Application/PlotChargeSharingConstants
 application PlotPixelClusterOnTrackErrors ../Application/PlotPixelClusterOnTrackErrors.cxx
 application updateNoiseMaps ../Application/updateNoiseMaps.C
 application updateDeadMaps ../Application/updateDeadMaps.C
+application createDeadModuleList ../Application/createDeadModuleList.C
+application makeInactiveModuleList ../Application/makeInactiveModuleList.C
+application hackNoiseMapsForStudyCP ../Application/hackNoiseMapsForStudyCP.C
 
 apply_pattern named_component_library library=PixelCalibAlgs
 apply_pattern named_installed_library library=PixelOfflineCalib
@@ -52,8 +55,11 @@ apply_pattern application_alias application=PlotChargeSharingConstants
 apply_pattern application_alias application=PlotPixelClusterOnTrackErrors
 apply_pattern application_alias application=updateNoiseMaps
 apply_pattern application_alias application=updateDeadMaps
+apply_pattern application_alias application=createDeadModuleList
+apply_pattern application_alias application=makeInactiveModuleList
+apply_pattern application_alias application=hackNoiseMapsForStudyCP
 apply_pattern declare_joboptions files="*.py"
-apply_pattern declare_runtime files="*.txt *.sh" 
+apply_pattern declare_runtime files="*.txt *.sh *.dat" 
 
 #################################################
 
@@ -74,6 +80,8 @@ macro_append PlotChargeSharingConstantslinkopts " -lPixelOfflineCalib"
 macro_append PlotPixelClusterOnTrackErrorslinkopts " -lPixelOfflineCalib"
 macro_append updateNoiseMapslinkopts " -lPixelCalibAlgs"
 macro_append updateDeadMapslinkopts " -lPixelCalibAlgs"
+macro_append createDeadModuleListlinkopts " -lPixelCalibAlgs"
+macro_append makeInactiveModuleListlinkopts " -lPixelCalibAlgs"
 #macro_append ROOT_linkopts " -lMatrix -lGpad -lGraf" # -lCintex"
 #macro_append ROOT_linkopts   $(rootCintexLibs)
 macro_append doPixelOfflineCalib_dependencies " PixelOfflineCalib"
@@ -82,5 +90,7 @@ macro_append PlotChargeSharingConstants_dependencies " PixelOfflineCalib"
 macro_append PlotPixelClusterOnTrackErrors_dependencies " PixelOfflineCalib"
 macro_append updateNoiseMaps_dependencies " PixelCalibAlgs"
 macro_append updateDeadMaps_dependencies " PixelCalibAlgs"
+macro_append createDeadModuleList_dependencies " PixelCalibAlgs"
+macro_append makeInactiveModuleList_dependencies " PixelCalibAlgs"
 # are these two needed? no code dependence exists!
 macro_append PixelCalibAlgs_dependencies " PixelOfflineCalib"
