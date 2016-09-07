@@ -418,6 +418,15 @@ class doXingByXingPileUp(JobProperty):
     allowedTypes=['bool']
     StoredValue=False
 
+#
+class doBichselSimulation(JobProperty):
+    """ Should the Bichsel model be used in Pixel and SCT
+    Digitization.
+    """
+    statusOn=False
+    allowedTypes=['bool']
+    StoredValue=False
+
 class IOVDbGlobalTag(JobProperty):
     """ This overrides the default IOVDbGlobalTag which
         corresponds to the detector description in
@@ -781,8 +790,8 @@ jobproperties.add_Container(Digitization)
 # We want always the following flags in the container
 list_jobproperties=[doInDetNoise,doCaloNoise,doMuonNoise,doFwdNoise,doRadiationDamage,\
                     rndmSvc,rndmSeedList,rndmSeedOffset1,rndmSeedOffset2,readSeedsFromFile,\
-                    rndmSeedInputFile,physicsList,overrideMetadata,IOVDbGlobalTag,SimG4VersionUsed,\
-                    numberOfCollisions,\
+                    rndmSeedInputFile,physicsList,overrideMetadata,doBichselSimulation,\
+                    IOVDbGlobalTag,SimG4VersionUsed,numberOfCollisions,\
                     doLowPtMinBias,numberOfLowPtMinBias,LowPtMinBiasInputCols,\
                     doHighPtMinBias,numberOfHighPtMinBias,HighPtMinBiasInputCols,\
                     doCavern,numberOfCavern,cavernInputCols,\

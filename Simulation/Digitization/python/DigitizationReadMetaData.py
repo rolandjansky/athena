@@ -269,7 +269,7 @@ def signalMetaDataCheck(metadatadict):
     if not skipCheck('SimulatedDetectors'):
         if 'SimulatedDetectors' in simkeys:
             logDigitizationReadMetadata.debug("Switching off subdetectors which were not simulated")
-            possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
+            possibleSubDetectors=['pixel','SCT','TRT','BCM','Lucid','ZDC','ALFA','AFP','FwdRegion','LAr','HGTD','Tile','MDT','CSC','TGC','RPC','Micromegas','sTGC','Truth']
             switchedOffSubDetectors=[]
             for subdet in possibleSubDetectors:
                 if not subdet in metadatadict['SimulatedDetectors']:
