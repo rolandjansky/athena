@@ -185,61 +185,61 @@ HLT::ErrorCode TrigBjetFexStandalone::hltInitialize() {
   
   //* Get message service *//
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Initializing TrigBjetFex, version " << PACKAGE_VERSION << endreq;
+    msg() << MSG::INFO << "Initializing TrigBjetFex, version " << PACKAGE_VERSION << endmsg;
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " AlgoId = "              << m_algo << endreq; 
-    msg() << MSG::DEBUG << " Instance = "            << m_instance << endreq;
+    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
+    msg() << MSG::DEBUG << " AlgoId = "              << m_algo << endmsg; 
+    msg() << MSG::DEBUG << " Instance = "            << m_instance << endmsg;
  
-    msg() << MSG::DEBUG << " UseBeamSpotFlag = "     << m_useBeamSpotFlag << endreq; 
-    msg() << MSG::DEBUG << " SetBeamSpotWidth = "    << m_setBeamSpotWidth << endreq;
+    msg() << MSG::DEBUG << " UseBeamSpotFlag = "     << m_useBeamSpotFlag << endmsg; 
+    msg() << MSG::DEBUG << " SetBeamSpotWidth = "    << m_setBeamSpotWidth << endmsg;
 
-    msg() << MSG::DEBUG << " UseParamFromData = "     << m_useParamFromData << endreq; 
+    msg() << MSG::DEBUG << " UseParamFromData = "     << m_useParamFromData << endmsg; 
 
-    msg() << MSG::DEBUG << " Taggers = "             << m_taggers << endreq; 
-    msg() << MSG::DEBUG << " UseErrIPParam = "       << m_useErrIPParam << endreq; 
-    msg() << MSG::DEBUG << " JetDirection = "        << m_jetDirection << endreq; 
-    msg() << MSG::DEBUG << " L2PrmVtxAtEF = "        << m_l2PrmVtxAtEF << endreq;
-    msg() << MSG::DEBUG << " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel << endreq;
+    msg() << MSG::DEBUG << " Taggers = "             << m_taggers << endmsg; 
+    msg() << MSG::DEBUG << " UseErrIPParam = "       << m_useErrIPParam << endmsg; 
+    msg() << MSG::DEBUG << " JetDirection = "        << m_jetDirection << endmsg; 
+    msg() << MSG::DEBUG << " L2PrmVtxAtEF = "        << m_l2PrmVtxAtEF << endmsg;
+    msg() << MSG::DEBUG << " UseEtaPhiTrackSel = "   << m_useEtaPhiTrackSel << endmsg;
 
-    msg() << MSG::DEBUG << " JetProb 0 MC = "      << m_par_0_MC << endreq; 
-    msg() << MSG::DEBUG << " JetProb 1 MC = "      << m_par_1_MC << endreq; 
-    msg() << MSG::DEBUG << " JetProb 0 DT = "      << m_par_0_DT << endreq; 
-    msg() << MSG::DEBUG << " JetProb 1 DT = "      << m_par_1_DT << endreq; 
+    msg() << MSG::DEBUG << " JetProb 0 MC = "      << m_par_0_MC << endmsg; 
+    msg() << MSG::DEBUG << " JetProb 1 MC = "      << m_par_1_MC << endmsg; 
+    msg() << MSG::DEBUG << " JetProb 0 DT = "      << m_par_0_DT << endmsg; 
+    msg() << MSG::DEBUG << " JetProb 1 DT = "      << m_par_1_DT << endmsg; 
 
-    msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endreq; 
-    msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endreq; 
-    msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endreq; 
-    msg() << MSG::DEBUG << " SizeIP2D = "          << m_sizeIP2D << endreq;
-    msg() << MSG::DEBUG << " bIP2D = "             << m_bIP2D << endreq; 
-    msg() << MSG::DEBUG << " uIP2D = "             << m_uIP2D << endreq;  
-    msg() << MSG::DEBUG << " SizeIP3D = "          << m_sizeIP3D << endreq; 
-    msg() << MSG::DEBUG << " bIP3D = "             << m_bIP3D << endreq; 
-    msg() << MSG::DEBUG << " uIP3D = "             << m_uIP3D << endreq; 
+    msg() << MSG::DEBUG << " SizeIP1D = "          << m_sizeIP1D << endmsg; 
+    msg() << MSG::DEBUG << " bIP1D = "             << m_bIP1D << endmsg; 
+    msg() << MSG::DEBUG << " uIP1D = "             << m_uIP1D << endmsg; 
+    msg() << MSG::DEBUG << " SizeIP2D = "          << m_sizeIP2D << endmsg;
+    msg() << MSG::DEBUG << " bIP2D = "             << m_bIP2D << endmsg; 
+    msg() << MSG::DEBUG << " uIP2D = "             << m_uIP2D << endmsg;  
+    msg() << MSG::DEBUG << " SizeIP3D = "          << m_sizeIP3D << endmsg; 
+    msg() << MSG::DEBUG << " bIP3D = "             << m_bIP3D << endmsg; 
+    msg() << MSG::DEBUG << " uIP3D = "             << m_uIP3D << endmsg; 
 
-    msg() << MSG::DEBUG << " TrkSel_Chi2 = "     << m_trkSelChi2 << endreq; 
-    msg() << MSG::DEBUG << " TrkSel_BLayer = "   << m_trkSelBLayer << endreq; 
-    msg() << MSG::DEBUG << " TrkSel_SiHits = "   << m_trkSelSiHits << endreq; 
-    msg() << MSG::DEBUG << " TrkSel_D0 = "       << m_trkSelD0 << endreq; 
-    msg() << MSG::DEBUG << " TrkSel_Z0 = "       << m_trkSelZ0 << endreq; 
-    msg() << MSG::DEBUG << " TrkSel_Pt = "       << m_trkSelPt << endreq; 
+    msg() << MSG::DEBUG << " TrkSel_Chi2 = "     << m_trkSelChi2 << endmsg; 
+    msg() << MSG::DEBUG << " TrkSel_BLayer = "   << m_trkSelBLayer << endmsg; 
+    msg() << MSG::DEBUG << " TrkSel_SiHits = "   << m_trkSelSiHits << endmsg; 
+    msg() << MSG::DEBUG << " TrkSel_D0 = "       << m_trkSelD0 << endmsg; 
+    msg() << MSG::DEBUG << " TrkSel_Z0 = "       << m_trkSelZ0 << endmsg; 
+    msg() << MSG::DEBUG << " TrkSel_Pt = "       << m_trkSelPt << endmsg; 
 
     if (m_instance == "EF") {
   
-      msg() << MSG::DEBUG << " SizeMVtx = "       << m_sizeMVtx << endreq; 
-      msg() << MSG::DEBUG << " bMVtx = "          << m_bMVtx << endreq; 
-      msg() << MSG::DEBUG << " uMVtx = "          << m_uMVtx << endreq;
-      msg() << MSG::DEBUG << " SizeEVtx = "       << m_sizeEVtx << endreq; 
-      msg() << MSG::DEBUG << " bEVtx = "          << m_bEVtx << endreq; 
-      msg() << MSG::DEBUG << " uEVtx = "          << m_uEVtx << endreq;  
-      msg() << MSG::DEBUG << " SizeNVtx = "       << m_sizeNVtx << endreq; 
-      msg() << MSG::DEBUG << " bNVtx = "          << m_bNVtx << endreq; 
-      msg() << MSG::DEBUG << " uNVtx = "          << m_uNVtx << endreq;
-      msg() << MSG::DEBUG << " SizeSV = "         << m_sizeSV << endreq; 
-      msg() << MSG::DEBUG << " bSV = "            << m_bSV << endreq; 
-      msg() << MSG::DEBUG << " uSV = "            << m_uSV << endreq;  
+      msg() << MSG::DEBUG << " SizeMVtx = "       << m_sizeMVtx << endmsg; 
+      msg() << MSG::DEBUG << " bMVtx = "          << m_bMVtx << endmsg; 
+      msg() << MSG::DEBUG << " uMVtx = "          << m_uMVtx << endmsg;
+      msg() << MSG::DEBUG << " SizeEVtx = "       << m_sizeEVtx << endmsg; 
+      msg() << MSG::DEBUG << " bEVtx = "          << m_bEVtx << endmsg; 
+      msg() << MSG::DEBUG << " uEVtx = "          << m_uEVtx << endmsg;  
+      msg() << MSG::DEBUG << " SizeNVtx = "       << m_sizeNVtx << endmsg; 
+      msg() << MSG::DEBUG << " bNVtx = "          << m_bNVtx << endmsg; 
+      msg() << MSG::DEBUG << " uNVtx = "          << m_uNVtx << endmsg;
+      msg() << MSG::DEBUG << " SizeSV = "         << m_sizeSV << endmsg; 
+      msg() << MSG::DEBUG << " bSV = "            << m_bSV << endmsg; 
+      msg() << MSG::DEBUG << " uSV = "            << m_uSV << endmsg;  
     }
   }
 
@@ -247,7 +247,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltInitialize() {
   m_constTrigBjetTagger  = const_cast<const TrigBjetTagger*>(m_trigBjetTagger);
 
   if (msgLvl() <= MSG::DEBUG) 
-    msg() << MSG::DEBUG << "Retrieving tuning likelihoods." << endreq;
+    msg() << MSG::DEBUG << "Retrieving tuning likelihoods." << endmsg;
 
   m_tuningLikelihoodIP1D = new TuningLikelihood(&m_sizeIP1D[0], &m_bIP1D[0], &m_uIP1D[0], m_sizeIP1D.size());
   m_trigBjetTagger->fillLikelihoodMap("IP1D", m_tuningLikelihoodIP1D);
@@ -284,10 +284,10 @@ HLT::ErrorCode TrigBjetFexStandalone::hltInitialize() {
   //* Retrieve TrigTrackJetFinder tool *//
   //StatusCode sc = m_trackJetFinderTool.retrieve();
   //if(sc.isFailure()) {
-  //  msg() << MSG::FATAL << "Failed to locate tool " << m_trackJetFinderTool << endreq;
+  //  msg() << MSG::FATAL << "Failed to locate tool " << m_trackJetFinderTool << endmsg;
   //  return HLT::BAD_JOB_SETUP;
   //} else
-  //  msg() << MSG::INFO << "Retrieved tool " << m_trackJetFinderTool << endreq;
+  //  msg() << MSG::INFO << "Retrieved tool " << m_trackJetFinderTool << endmsg;
   
   m_trackJetFinderTool = new TrigTrackJetFinderTool("TrigTrackJetFinderTool()");
 
@@ -317,62 +317,62 @@ bool TrigBjetFexStandalone::l2TrackSel(const TrigBjetTrackInfo &track, unsigned 
 			 m_trigBjetPrmVtxInfo->xBeamSpot(), m_trigBjetPrmVtxInfo->yBeamSpot());
 
   if (msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::VERBOSE << "l2TrackSel method" << endreq;    
-    msg() << MSG::VERBOSE << " Track number " << i+1 << " to be selected must be:" << endreq;
-    msg() << MSG::VERBOSE << "  Pt " << track.pT() << " >= " << m_trkSelPt << endreq;
-    msg() << MSG::VERBOSE << "  d0 " << fabs(d0) << " <= " << m_trkSelD0 << endreq;
-    msg() << MSG::VERBOSE << "  z0*sin(theta) " << fabs(z0-zv)*TMath::Sin(theta) << " <= " << m_trkSelZ0 << endreq;
-    msg() << MSG::VERBOSE << "  SiHit " << (int)track.siHits() << " >= " << m_trkSelSiHits << endreq;
-    msg() << MSG::VERBOSE << "  isBLayer " << track.Blayer() << " = 0" << endreq;
-    msg() << MSG::VERBOSE << "  Prob(chi2) " << TMath::Prob(track.chi2(),(int)track.siHits()*3-5) << " > " << m_trkSelChi2 << endreq;
+    msg() << MSG::VERBOSE << "l2TrackSel method" << endmsg;    
+    msg() << MSG::VERBOSE << " Track number " << i+1 << " to be selected must be:" << endmsg;
+    msg() << MSG::VERBOSE << "  Pt " << track.pT() << " >= " << m_trkSelPt << endmsg;
+    msg() << MSG::VERBOSE << "  d0 " << fabs(d0) << " <= " << m_trkSelD0 << endmsg;
+    msg() << MSG::VERBOSE << "  z0*sin(theta) " << fabs(z0-zv)*TMath::Sin(theta) << " <= " << m_trkSelZ0 << endmsg;
+    msg() << MSG::VERBOSE << "  SiHit " << (int)track.siHits() << " >= " << m_trkSelSiHits << endmsg;
+    msg() << MSG::VERBOSE << "  isBLayer " << track.Blayer() << " = 0" << endmsg;
+    msg() << MSG::VERBOSE << "  Prob(chi2) " << TMath::Prob(track.chi2(),(int)track.siHits()*3-5) << " > " << m_trkSelChi2 << endmsg;
   }
 
   if(m_useEtaPhiTrackSel) {
 
     if (fabs(track.eta() - m_trigBjetJetInfo->etaRoI()) > 0.2) {
-      if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (eta matching)" << endreq;;
+      if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (eta matching)" << endmsg;;
       m_listCutApplied.push_back(2); return false;
     }
 
     if (fabs(m_taggerHelper->phiCorr(m_taggerHelper->phiCorr(track.phi()) - m_trigBjetJetInfo->phiRoI())) > 0.2) {
       if (msgLvl() <= MSG::VERBOSE)
-	msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (phi matching)" << endreq;;
+	msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (phi matching)" << endmsg;;
       m_listCutApplied.push_back(3); return false;
     }
   }
 
   if (fabs(track.pT()) < m_trkSelPt) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (pT cut)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (pT cut)" << endmsg;
     m_listCutApplied.push_back(4); return false;
   }
 
   if (fabs(d0) > m_trkSelD0) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (d0 cut)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (d0 cut)" << endmsg;
     m_listCutApplied.push_back(5); return false;
   }
 
   if (fabs(z0-zv)*TMath::Sin(theta) > m_trkSelZ0) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (z0 cut)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (z0 cut)" << endmsg;
     m_listCutApplied.push_back(6); return false;
   }
 
   if (track.Blayer() == 0) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (missing b-layer hit)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (missing b-layer hit)" << endmsg;
     m_listCutApplied.push_back(7); return false;
   }
 
   if ((int)track.siHits() < m_trkSelSiHits) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (too few silicon hits)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (too few silicon hits)" << endmsg;
     m_listCutApplied.push_back(8); return false;
   }
 
   if (TMath::Prob(track.chi2(),(int)track.siHits()*3-5) <= m_trkSelChi2) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (chi2 cut)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (chi2 cut)" << endmsg;
     m_listCutApplied.push_back(9); return false;
   }
 
   if (msgLvl() <= MSG::VERBOSE)
-    msg() << MSG::VERBOSE << "  track " << i+1 << " selected" << endreq;
+    msg() << MSG::VERBOSE << "  track " << i+1 << " selected" << endmsg;
 
   m_listCutApplied.push_back(10);
   return true;
@@ -399,68 +399,68 @@ bool TrigBjetFexStandalone::efTrackSel(const TrigBjetTrackInfo &track, unsigned 
 			 d0,z0,track.phi(), track.eta(), pT, m_trigBjetPrmVtxInfo->xBeamSpot(), m_trigBjetPrmVtxInfo->yBeamSpot());
 
   if (msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::VERBOSE << "efTrackSel method" << endreq;
-    msg() << MSG::VERBOSE << "  Track number " << i+1 << " to be selected must be:" << endreq;
-    msg() << MSG::VERBOSE << "    Pt " << fabs(pT) << " >= " << m_trkSelPt << endreq;
-    msg() << MSG::VERBOSE << "    d0 " << fabs(d0) << " <= " << m_trkSelD0 << endreq;
-    msg() << MSG::VERBOSE << "    z0*sin(theta) " << fabs(z0-zv)*TMath::Sin(theta) << " <= " << m_trkSelZ0 << endreq;
-    msg() << MSG::VERBOSE << "    bLayer " << track.Blayer() << " >= " << m_trkSelBLayer << endreq;
-    msg() << MSG::VERBOSE << "    pixelHit " << track.pixHits() << " >= " << m_trkSelPixHits << endreq;
+    msg() << MSG::VERBOSE << "efTrackSel method" << endmsg;
+    msg() << MSG::VERBOSE << "  Track number " << i+1 << " to be selected must be:" << endmsg;
+    msg() << MSG::VERBOSE << "    Pt " << fabs(pT) << " >= " << m_trkSelPt << endmsg;
+    msg() << MSG::VERBOSE << "    d0 " << fabs(d0) << " <= " << m_trkSelD0 << endmsg;
+    msg() << MSG::VERBOSE << "    z0*sin(theta) " << fabs(z0-zv)*TMath::Sin(theta) << " <= " << m_trkSelZ0 << endmsg;
+    msg() << MSG::VERBOSE << "    bLayer " << track.Blayer() << " >= " << m_trkSelBLayer << endmsg;
+    msg() << MSG::VERBOSE << "    pixelHit " << track.pixHits() << " >= " << m_trkSelPixHits << endmsg;
     msg() << MSG::VERBOSE << "    SiHit " << (track.pixHits() + track.sctHits()) << " >= " 
-	  << m_trkSelSiHits << endreq;
-    msg() << MSG::VERBOSE << "    Prob(chi2) " << TMath::Prob(track.chi2(), (int)numberOfSiHits*3-5) << " > " << m_trkSelChi2 << endreq;
+	  << m_trkSelSiHits << endmsg;
+    msg() << MSG::VERBOSE << "    Prob(chi2) " << TMath::Prob(track.chi2(), (int)numberOfSiHits*3-5) << " > " << m_trkSelChi2 << endmsg;
   }
 
   if(m_useEtaPhiTrackSel) {
 
     if (fabs(track.eta() - m_trigBjetJetInfo->etaRoI()) > 0.2) {
-      if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " is not selected (eta matching)" << endreq;
+      if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " is not selected (eta matching)" << endmsg;
       m_listCutApplied.push_back(2); return false;
     }
 
     if (fabs(m_taggerHelper->phiCorr(m_taggerHelper->phiCorr(track.phi()) - m_trigBjetJetInfo->phiRoI())) > 0.2) {
-      if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " is not selected (phi matching)" << endreq;
+      if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " is not selected (phi matching)" << endmsg;
       m_listCutApplied.push_back(3); return false;
     }
   }
 
   if (fabs(pT) < m_trkSelPt) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (pT cut)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (pT cut)" << endmsg;
     m_listCutApplied.push_back(4); return false;
   }
 
   if (fabs(d0) > m_trkSelD0) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (d0 cut)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (d0 cut)" << endmsg;
     m_listCutApplied.push_back(5); return false;
   }
 
   if (fabs(z0-zv)*TMath::Sin(theta) > m_trkSelZ0) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (z0 cut)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (z0 cut)" << endmsg;
     m_listCutApplied.push_back(6); return false;
   }
 
   if (track.Blayer() < m_trkSelBLayer) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (missing b-layer hit)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (missing b-layer hit)" << endmsg;
     m_listCutApplied.push_back(7); return false;
   }
 
   if (track.pixHits() < m_trkSelPixHits) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (too few pixel hits)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (too few pixel hits)" << endmsg;
     m_listCutApplied.push_back(8); return false;
   }
 
   if (numberOfSiHits < m_trkSelSiHits) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (too few silicon hits)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (too few silicon hits)" << endmsg;
     m_listCutApplied.push_back(9); return false;
   }
 
   if (TMath::Prob(track.chi2(), (int)numberOfSiHits*3-5) <= m_trkSelChi2) {
-    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (chi2 cut)" << endreq;
+    if (msgLvl() <= MSG::VERBOSE) msg() << MSG::VERBOSE << "  track " << i+1 << " not selected (chi2 cut)" << endmsg;
     m_listCutApplied.push_back(10); return false;
   }
   
   if (msgLvl() <= MSG::VERBOSE)
-    msg() << MSG::VERBOSE << "    track " << i+1 << " is selected" << endreq;
+    msg() << MSG::VERBOSE << "    track " << i+1 << " is selected" << endmsg;
 
   m_listCutApplied.push_back(11);
   return true;
@@ -526,7 +526,7 @@ HLT::ErrorCode TrigBjetFexStandalone::loadTrack(float pT, float eta, float phi, 
 
 HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBjetFex" << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executing TrigBjetFex" << endmsg;
 
   m_totSelTracks = 0;
   m_totTracks    = 0;
@@ -548,7 +548,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   m_trigBjetPrmVtxInfo->setBeamSpotStatus(m_beamSpotStatus);
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endreq;
+    msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endmsg;
  
   //* Apply beam spot correction for tilt *//
   float m_xPrmVtx=0, m_yPrmVtx=0, m_zPrmVtx=0;
@@ -565,7 +565,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   m_trigBjetPrmVtxInfo->setPrmVtx(m_xPrmVtx, m_yPrmVtx, m_zPrmVtx);
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endreq;
+    msg() << MSG::DEBUG << *m_trigBjetPrmVtxInfo << endmsg;
 
   m_trackJetFinderTool->clear();
   m_trackJetFinderTool->inputPrimaryVertexZ(m_trigBjetPrmVtxInfo->zPrmVtx());
@@ -590,8 +590,8 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 			       m_trigBjetPrmVtxInfo->xBeamSpot(),m_trigBjetPrmVtxInfo->yBeamSpot());
 	trigBjetTrackInfo.setIPCorr(d0Corr, z0Corr);
 	if (msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Track " << j+1 << " selected." << endreq;
-	  msg() << MSG::DEBUG << "  " << trigBjetTrackInfo << endreq;
+	  msg() << MSG::DEBUG << "Track " << j+1 << " selected." << endmsg;
+	  msg() << MSG::DEBUG << "  " << trigBjetTrackInfo << endmsg;
 	}
 	trigBjetTrackInfoVector.push_back(trigBjetTrackInfo);
 	m_trackJetFinderTool->addTrack(track, j);
@@ -618,8 +618,8 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 			       m_trigBjetPrmVtxInfo->xBeamSpot(),m_trigBjetPrmVtxInfo->yBeamSpot());
 	trigBjetTrackInfo.setIPCorr(d0Corr, z0Corr);
 	if (msgLvl() <= MSG::DEBUG) {
-	  msg() << MSG::DEBUG << "Track " << j+1 << " selected." << endreq;
-	  msg() << MSG::DEBUG << "  " << trigBjetTrackInfo << endreq;
+	  msg() << MSG::DEBUG << "Track " << j+1 << " selected." << endmsg;
+	  msg() << MSG::DEBUG << "  " << trigBjetTrackInfo << endmsg;
 	}
 	trigBjetTrackInfoVector.push_back(trigBjetTrackInfo);
 	m_trackJetFinderTool->addTrack(track, j);
@@ -635,8 +635,8 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   if (etaTrackJet != -99 && phiTrackJet != -99) {
     
     if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "eta RoI = " << m_trigBjetJetInfo->etaRoI() << " ; eta Jet at EF = " << etaTrackJet << endreq;
-      msg() << MSG::DEBUG << "phi RoI = " << m_trigBjetJetInfo->phiRoI() << " ; phi Jet at EF = " << phiTrackJet << endreq;
+      msg() << MSG::DEBUG << "eta RoI = " << m_trigBjetJetInfo->etaRoI() << " ; eta Jet at EF = " << etaTrackJet << endmsg;
+      msg() << MSG::DEBUG << "phi RoI = " << m_trigBjetJetInfo->phiRoI() << " ; phi Jet at EF = " << phiTrackJet << endmsg;
     }
     
     m_trigBjetJetInfo->setEtaPhiTrkJet(etaTrackJet, phiTrackJet);
@@ -646,10 +646,10 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
     m_trigBjetJetInfo->setEtaPhiTrkJet(m_trigBjetJetInfo->etaRoI(), m_trigBjetJetInfo->phiRoI());
     
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "eta Jet = eta RoI" << endreq;
+      msg() << MSG::DEBUG << "eta Jet = eta RoI" << endmsg;
   }
   
-  msg() << MSG::DEBUG << *m_trigBjetJetInfo << endreq;
+  msg() << MSG::DEBUG << *m_trigBjetJetInfo << endmsg;
 
   std::vector<std::string>::iterator pTagger    = m_taggers.begin();
   std::vector<std::string>::iterator lastTagger = m_taggers.end();
@@ -657,8 +657,8 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   if (m_useBeamSpotFlag && !m_trigBjetPrmVtxInfo->beamSpotStatus()) {
 
     if(msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Beam spot status flag set to " << m_trigBjetPrmVtxInfo->beamSpotStatus() << ". Discriminant weights are not computed." << endreq;
-      msg() << MSG::DEBUG << "Beam spot flag set to " << m_useBeamSpotFlag << ". Discriminant weights are not computed." << endreq;
+      msg() << MSG::DEBUG << "Beam spot status flag set to " << m_trigBjetPrmVtxInfo->beamSpotStatus() << ". Discriminant weights are not computed." << endmsg;
+      msg() << MSG::DEBUG << "Beam spot flag set to " << m_useBeamSpotFlag << ". Discriminant weights are not computed." << endmsg;
     }
 
     m_listCutApplied.push_back(0);
@@ -667,7 +667,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   } else if (m_trigBjetPrmVtxInfo->xBeamSpotWidth()>m_setBeamSpotWidth || m_trigBjetPrmVtxInfo->yBeamSpotWidth()>m_setBeamSpotWidth) {
 
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Beam spot width is more than " << m_setBeamSpotWidth << "um. Discriminant weights are not computed." << endreq;
+      msg() << MSG::DEBUG << "Beam spot width is more than " << m_setBeamSpotWidth << "um. Discriminant weights are not computed." << endmsg;
 
     m_listCutApplied.push_back(1);
     m_trigBjetTagger->getWeights();
@@ -676,7 +676,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
     
     if (msgLvl() <= MSG::DEBUG) 
       msg() << MSG::DEBUG << "Computing discriminant weights using taggers: " << m_taggers 
-	    << " and using calibration from " << (m_useParamFromData==0 ? "MC" : "data") << " for CHI2" << endreq;
+	    << " and using calibration from " << (m_useParamFromData==0 ? "MC" : "data") << " for CHI2" << endmsg;
     
     m_trigBjetTagger->getWeights(m_trigBjetTrackInfoVector, m_trigBjetPrmVtxInfo, m_trigBjetSecVtxInfo, m_trigBjetJetInfo);
     
@@ -684,33 +684,33 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
   
   if (msgLvl() <= MSG::DEBUG) {
      
-      msg() << MSG::DEBUG << "REGTEST:  Tracks: " << m_totTracks << " reconstructed and " << m_totSelTracks <<" selected" << endreq;
+      msg() << MSG::DEBUG << "REGTEST:  Tracks: " << m_totTracks << " reconstructed and " << m_totSelTracks <<" selected" << endmsg;
       
       if (m_instance == "EF") {
 	msg() << MSG::DEBUG << "REGTEST:  "
-	      << " (x,y,z) = (" << m_trigBjetPrmVtxInfo->xPrmVtx() << "," << m_trigBjetPrmVtxInfo->yPrmVtx() << "," << m_trigBjetPrmVtxInfo->zPrmVtx() << ")" << endreq;
+	      << " (x,y,z) = (" << m_trigBjetPrmVtxInfo->xPrmVtx() << "," << m_trigBjetPrmVtxInfo->yPrmVtx() << "," << m_trigBjetPrmVtxInfo->zPrmVtx() << ")" << endmsg;
         /*
 	if (pointerToEFSecVtxCollections)
-	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: " << pointerToEFSecVtxCollections->size() << " reconstructed" << endreq;
+	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: " << pointerToEFSecVtxCollections->size() << " reconstructed" << endmsg;
 	else
-	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: 0 reconstructed" << endreq;
+	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: 0 reconstructed" << endmsg;
         */
       } else {
 	msg() << MSG::DEBUG << "REGTEST:  "
-	      << " z = " << m_trigBjetPrmVtxInfo->zPrmVtx() << endreq;
+	      << " z = " << m_trigBjetPrmVtxInfo->zPrmVtx() << endmsg;
         /*
 	if (pointerToL2SecVtxCollections)
-	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: " << pointerToL2SecVtxCollections->size() << " reconstructed" << endreq;
+	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: " << pointerToL2SecVtxCollections->size() << " reconstructed" << endmsg;
 	else
-	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: 0 reconstructed" << endreq;
+	  msg() << MSG::DEBUG << "REGTEST:  Secondary vertex: 0 reconstructed" << endmsg;
          */
       }
       
-      msg() << MSG::DEBUG << "REGTEST: List weights stored probability and likelihood objects:" << endreq;
+      msg() << MSG::DEBUG << "REGTEST: List weights stored probability and likelihood objects:" << endmsg;
 
       pTagger = m_taggers.begin();
       for ( ; pTagger != lastTagger; pTagger++)
-	msg() << MSG::DEBUG << "REGTEST:  X(" << (*pTagger) << ") = " << m_trigBjetTagger->taggersXMap((*pTagger))  << endreq;
+	msg() << MSG::DEBUG << "REGTEST:  X(" << (*pTagger) << ") = " << m_trigBjetTagger->taggersXMap((*pTagger))  << endmsg;
 
   }
 
@@ -724,7 +724,7 @@ HLT::ErrorCode TrigBjetFexStandalone::hltExecute() {
 HLT::ErrorCode TrigBjetFexStandalone::hltFinalize() {
 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Finalizing TrigBjetFex" << endreq;
+    msg() << MSG::INFO << "Finalizing TrigBjetFex" << endmsg;
 
   return HLT::OK;
 }
