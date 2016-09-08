@@ -72,7 +72,8 @@ def HLTCaloMonitoringTool():
     #list += [ "HLTCaloTool/HLTFullCalo" ];
     return list
 
-  elif DQMonFlags.monManEnvironment == 'tier0ESD':
+  #elif DQMonFlags.monManEnvironment == 'tier0ESD':
+  elif ( ( DQMonFlags.monManEnvironment == 'tier0ESD' ) or ( DQMonFlags.monManEnvironment == 'tier0' ) ) :
     from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloToolL2
     from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloClusterTool
     from TrigCaloMonitoring.TrigCaloMonitoringConf import HLTCaloESD_xAODTrigEMClusters
