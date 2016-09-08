@@ -9,11 +9,9 @@ atlas_subdir( DerivationFrameworkCalo )
 atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloIdentifier
                           Control/AthenaBaseComps
-                          Event/xAOD/xAODBase
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODJet
-                          Event/xAOD/xAODMuon
                           PhysicsAnalysis/DerivationFramework/DerivationFrameworkInterfaces
                           PRIVATE
                           Calorimeter/CaloClusterCorrection
@@ -21,6 +19,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Calorimeter/CaloGeoHelpers
                           Calorimeter/CaloUtils
                           Event/xAOD/xAODTau
+                          Event/xAOD/xAODMuon
+                          Event/xAOD/xAODBase
                           Event/FourMomUtils
                           GaudiKernel
                           LArCalorimeter/LArTools
