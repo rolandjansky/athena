@@ -8,7 +8,7 @@
 // Author: Simone Mazza (simone.mazza@mi.infn.it)
 
 #include "DerivationFrameworkCalo/CaloClusterThinning.h"
-#include "DerivationFrameworkCalo/ClustersInCone.h"
+#include "ClustersInCone.h"
 
 #include "ExpressionEvaluation/ExpressionParser.h"
 #include "ExpressionEvaluation/SGxAODProxyLoader.h"
