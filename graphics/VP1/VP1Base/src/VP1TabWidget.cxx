@@ -260,9 +260,9 @@ bool VP1TabWidget::tabCloseActivatePrevious() const
 
 int VP1TabWidget::tabBarWidthForMaxChars( int /*maxLength*/ )
 {
-  int hframe, overlap;
+  int hframe /*, overlap*/;
   hframe  = tabBar()->style()->pixelMetric( QStyle::PM_TabBarTabHSpace, 0L, tabBar() );
-  overlap = tabBar()->style()->pixelMetric( QStyle::PM_TabBarTabOverlap, 0L, tabBar() );
+  //overlap = tabBar()->style()->pixelMetric( QStyle::PM_TabBarTabOverlap, 0L, tabBar() );
 
   QFontMetrics fm = tabBar()->fontMetrics();
   int x = 0;
@@ -273,11 +273,12 @@ int VP1TabWidget::tabBarWidthForMaxChars( int /*maxLength*/ )
 
     int lw = fm.width( newTitle );
     int iw = 0;
-    if ( !tabBar()->tabIcon( i ).isNull() )
+    if ( !tabBar()->tabIcon( i ).isNull() ){
       iw = tabBar()->tabIcon( i ).pixmap( style()->pixelMetric( QStyle::PM_SmallIconSize ), QIcon::Normal ).width() + 4;
-      x += ( tabBar()->style()->sizeFromContents( QStyle::CT_TabBarTab, 0L,
-           QSize( qMax( lw + hframe + iw, QApplication::globalStrut().width() ), 0 ),
-           this ) ).width();
+    }
+    x += ( tabBar()->style()->sizeFromContents( QStyle::CT_TabBarTab, 0L,
+      QSize( qMax( lw + hframe + iw, QApplication::globalStrut().width() ), 0 ),
+      this ) ).width();
   }
 
   return x;

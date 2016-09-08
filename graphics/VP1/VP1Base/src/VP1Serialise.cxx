@@ -44,7 +44,7 @@
 //____________________________________________________________________
 class VP1Serialise::Imp {
 public:
-  Imp(VP1Serialise *tc) : theclass(tc), buffer(0), state(0),checkedUnused(false) {}
+  Imp(VP1Serialise *tc) : theclass(tc), buffer(0), state(0),checkedUnused(false),version(0) {}
   VP1Serialise * theclass;
   QByteArray byteArray;
   QBuffer * buffer;

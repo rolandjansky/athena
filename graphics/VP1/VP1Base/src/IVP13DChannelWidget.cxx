@@ -128,7 +128,7 @@ void IVP13DChannelWidget::goingToNextEvent()
 }
 
 //_______________________________________________________
-QPixmap IVP13DChannelWidget::getSnapshot(bool transp, int width, bool batch)
+QPixmap IVP13DChannelWidget::getSnapshot(bool transp, int width, bool /*batch*/)
 {
 	VP1Msg::messageVerbose("IVP13DChannelWidget::getSnapshot()");
 

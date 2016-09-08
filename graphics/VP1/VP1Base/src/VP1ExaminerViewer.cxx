@@ -78,6 +78,7 @@ public:
   popup_antiAliasAction(0),
   popup_bgdColAction(0),
   popup_ambientLightAction(0),
+  popup_focalLengthAction(0),
   popup_dumpSceneAction(0),
   popup_toSVGAction(0),
   popup_toEPSAction(0),
@@ -112,6 +113,8 @@ public:
   action_moviefps(0),
   action_movieoutdir(0),
   action_moviefadetocurrentview(0),
+  stereo_offset_value(0.0),
+  popup_focal_value_action(0),
   detectorViewButtons(dvb),
   animationSequencer(tc),
   tourLoopsForever(false),
@@ -1174,7 +1177,8 @@ SoSphere * VP1ExaminerViewer::Imp::getRegionSphere(REGION region,bool perspectiv
   switch (region) {
   case VERTEX:
     VP1Msg::messageVerbose("set sphere dimensions for vertex");
-    r = perspective ? 0.5 : 0.5;
+    //r = perspective ? 0.5 : 0.5;
+    r=0.5;
     break;
   case INDET:
     VP1Msg::messageVerbose("set sphere dimensions for indet");
@@ -1186,7 +1190,8 @@ SoSphere * VP1ExaminerViewer::Imp::getRegionSphere(REGION region,bool perspectiv
     break;
   case FORWARDREGION:
     VP1Msg::messageVerbose("set sphere dimensions for forward region");
-    r = perspective ? 600 : 600;
+    //r = perspective ? 600 : 600;
+    r=600;
     break;
   case MUON:
   default:
@@ -2676,7 +2681,7 @@ void VP1ExaminerViewer::showPopupMenu()
 		//		float old = d->popup_focal_value_action->data().toFloat();
 		bool ok;
 		SoPerspectiveCamera * camera = dynamic_cast<SoPerspectiveCamera*>(getCamera());
-		if (!camera==NULL) {
+		if (camera) {
 			float current_value = camera->focalDistance.getValue();
 			int newfocal = QInputDialog::getDouble(getWidget(),
 					"Change focal length", // title

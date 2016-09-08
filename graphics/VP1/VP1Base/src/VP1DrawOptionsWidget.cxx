@@ -219,11 +219,13 @@ void VP1DrawOptionsWidget::updateNodes()
   }
 
   // 3) Update fields
-  if (!d->complexityDisabled)
+  if (!d->complexityDisabled){
     //We avoid setting the complexity value exactly to 0:
     complexityval = std::min<double>(1.0,std::max<double>(0.0,0.01+0.991*complexityval));
-    if (d->complexity->value.getValue()!=complexityval)
+  }
+  if (d->complexity->value.getValue()!=complexityval){
       d->complexity->value.setValue(complexityval);
+  }
   if (!d->linewidthsDisabled||!d->pointsizesDisabled) {
     double val_lw = d->linewidthsDisabled ? 0 : VP1QtInventorUtils::getValueLineWidthSlider(d->ui.horizontalSlider_linewidths);
     double val_ps = d->pointsizesDisabled ? 0 : VP1QtInventorUtils::getValuePointSizeSlider(d->ui.horizontalSlider_pointsizes);

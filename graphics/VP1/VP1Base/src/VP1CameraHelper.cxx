@@ -369,7 +369,7 @@ void VP1CameraHelper::Imp::actual_animatedZoomToCameraState( const QByteArray& c
 //____________________________________________________________________
 //STATIC:
 VP1CameraHelper*  VP1CameraHelper::animatedZoomToPath( SoCamera * camera, SoGroup * sceneroot,
-						       SoPath * path,double duration_in_secs, double clipVolPercent, double slack,
+						       SoPath * path,double duration_in_secs, double /*clipVolPercent*/, double slack,
 						       const SbVec3f& lookat, const SbVec3f& upvec, bool varySpeed,
 						       bool forceCircular )
 {  
@@ -411,7 +411,7 @@ void VP1CameraHelper::Imp::actual_animatedZoomToPath( SoPath * path,double durat
 //____________________________________________________________________
 //STATIC:
 VP1CameraHelper * VP1CameraHelper::animatedZoomToSubTree(SoCamera * camera, SoGroup * sceneroot,
-							 SoNode*subtreeroot,double duration_in_secs, double clipVolPercent, double lastClipVolPercent, double slack,
+							 SoNode*subtreeroot,double duration_in_secs, double /* clipVolPercent*/, double /*lastClipVolPercent*/, double slack,
 							 const SbVec3f& lookat, const SbVec3f& upvec, bool varySpeed,
 							 bool forceCircular )
 {  
@@ -458,7 +458,7 @@ void VP1CameraHelper::Imp::actual_animatedZoomToSubTree( SoNode*subtreeroot,doub
 //____________________________________________________________________
 //STATIC:
 VP1CameraHelper * VP1CameraHelper::animatedZoomToBBox(SoCamera * camera, SoGroup * sceneroot,
-						      const SbBox3f& box,double duration_in_secs, double clipVolPercent, double slack,
+						      const SbBox3f& box,double duration_in_secs, double /*clipVolPercent*/, double slack,
 						      const SbVec3f& lookat, const SbVec3f& upvec , bool varySpeed,
 						      bool forceCircular )
 {
@@ -590,7 +590,7 @@ void VP1CameraHelper::Imp::actual_animatedZoomToBBox( const SbBox3f& box,double 
 //____________________________________________________________________
 //STATIC:
 VP1CameraHelper * VP1CameraHelper::animatedZoomToPoint(SoCamera * camera, SoGroup * sceneroot,
-						       SbVec3f targetpoint,double duration_in_secs, double clipVolPercent, bool varySpeed,
+						       SbVec3f targetpoint,double duration_in_secs, double /*clipVolPercent*/, bool varySpeed,
 						       bool forceCircular )
 {  
   VP1CameraHelper * helper = new VP1CameraHelper(camera,sceneroot);
