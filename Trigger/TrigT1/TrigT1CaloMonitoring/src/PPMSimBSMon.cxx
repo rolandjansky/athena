@@ -349,7 +349,8 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
     const std::vector<uint_least16_t>& ADC = tt->adc();
     const int Slices = ADC.size();
     const int Peak = tt->adcPeak();
-    int16_t pedCorr = tt->correction()[Peak];	//pedestal correction
+    bool pedCorrOverflow = false;
+    const std::size_t nPedCorr = tt->correction().size();
     int simCp = 0;
     int simJep = 0;
     int simBcid = 0;
@@ -358,6 +359,15 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
     if ( datBcidVec.size() > 0) {
       datBcid = datBcidVec[tt->peak()];
     }
+
+    //Check for over-/underflow of pedestalCorrection
+    for(std::size_t i = 0; i < nPedCorr; ++i) {
+      if(tt->correction()[i]>=511 or tt->correction()[i]<=-512){
+        pedCorrOverflow = true;
+        break;
+       }
+    }
+
 
     // only run simulation for non-empty TTs
     if(datCp || datJep || *std::max_element(std::begin(ADC), std::end(ADC)) >= m_simulationADCCut) {
@@ -454,7 +464,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       } else if (simCp != datCp) {  // mis-match
         mismatch = 1;
         if (simCp && datCp) {       // non-zero mis-match
-          if (pedCorr < 511 && pedCorr > -512 ){		// no pedCorr over- or underflow
+          if (!pedCorrOverflow){		// no pedCorr over- or underflow
 	    hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData;
           }
         } else if (!datCp) {        // no data
@@ -476,7 +486,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       } else if (simJep != datJep) {  // mis-match
         mismatch = 1;
         if (simJep && datJep) {       // non-zero mis-match
-          if (pedCorr < 511 && pedCorr > -512 ){		// no pedCorr over- or underflow
+          if (!pedCorrOverflow){		// no pedCorr over- or underflow
 	     hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData;
           }
         } else if (!datJep) {        // no data
@@ -500,7 +510,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       } else if (simCp != datCp) {  // mis-match
         mismatch = 1;
         if (simCp && datCp) {       // non-zero mis-match
-           if (pedCorr < 511 && pedCorr > -512 ){		// no pedCorr over- or underflow
+           if (!pedCorrOverflow){		// no pedCorr over- or underflow
               hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNeData;
            }
         } else if (!datCp) {        // no data
@@ -522,7 +532,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       } else if (simJep != datJep) {  // mis-match
         mismatch = 1;
         if (simJep && datJep) {       // non-zero mis-match
-           if (pedCorr < 511 && pedCorr > -512 ){		// no pedCorr over- or underflow
+           if (!pedCorrOverflow){		// no pedCorr over- or underflow
              hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData;
            }
         } else if (!datJep) {        // no data
