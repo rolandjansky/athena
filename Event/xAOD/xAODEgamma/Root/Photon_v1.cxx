@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Photon_v1.cxx 741466 2016-04-19 20:21:49Z christos $
+// $Id: Photon_v1.cxx 741489 2016-04-20 01:30:34Z christos $
 
 // EDM include(s):
 #include "xAODCore/AuxStoreAccessorMacros.h"
@@ -70,7 +70,7 @@ namespace xAOD {
 
    size_t xAOD::Photon_v1::nVertices() const {
 
-      const static SG::AuxElement::Accessor< Photon_v1::VxELVec_t >
+      static const SG::AuxElement::Accessor< Photon_v1::VxELVec_t >
          vertexAcc( "vertexLinks" );
 
       if( vertexAcc.isAvailable( *this ) ) {

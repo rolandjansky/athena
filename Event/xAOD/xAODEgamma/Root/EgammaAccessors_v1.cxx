@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaAccessors_v1.cxx 741466 2016-04-19 20:21:49Z christos $
+// $Id: EgammaAccessors_v1.cxx 741489 2016-04-20 01:30:34Z christos $
 
 // System include(s):
 #include <iostream>
@@ -14,7 +14,7 @@
 #define DEFINE_ACCESSOR(TYPE, NAME )                               \
    case xAOD::EgammaParameters::NAME:                              \
    {                                                               \
-     const static SG::AuxElement::Accessor< TYPE > a( #NAME );	   \
+     static const SG::AuxElement::Accessor< TYPE > a( #NAME );	   \
      return &a;							   \
    }                                                               \
    break;

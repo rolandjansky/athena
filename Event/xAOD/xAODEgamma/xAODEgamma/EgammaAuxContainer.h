@@ -22,4 +22,8 @@ namespace xAOD {
    typedef EgammaAuxContainer_v1 EgammaAuxContainer;
 }
 
+// Set up a CLID for the class:
+#include "xAODCore/CLASS_DEF.h"
+CLASS_DEF( xAOD::EgammaAuxContainer, 1239597298 , 1 )
+
 #endif // XAODEGAMMA_EGAMMAAUXCONTAINER_H

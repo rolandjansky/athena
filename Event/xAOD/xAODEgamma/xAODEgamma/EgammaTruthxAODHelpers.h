@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaTruthxAODHelpers.h 741466 2016-04-19 20:21:49Z christos $
+// $Id: EgammaTruthxAODHelpers.h 768706 2016-08-18 23:55:25Z christos $
 #ifndef XAOD_EGAMMATRUTHXAODHELPERS_H
 #define XAOD_EGAMMATRUTHXAODHELPERS_H
 
@@ -69,7 +69,7 @@ namespace xAOD {
 
     ///@brief Helper wrapper function for calling the function below that accepts truth input.
     std::vector<const xAOD::TruthParticle*> 
-    getBkgElectronLineage(const xAOD::Electron* el,const unsigned int barcodecut=0);
+    getBkgElectronLineage(const xAOD::Electron* el,const int barcodecut=0);
     
     ///@brief Helper function for getting the True Lineage of an electron for an existing electron.
     /// There are cases when an electron has  a  photon (or electron) mother, that in turn comes
@@ -81,7 +81,7 @@ namespace xAOD {
     /// the first non geant particle occuring when going back the lineage.
     /// The method will stop after the 1st particle failing this cut 
     std::vector<const xAOD::TruthParticle*> 
-    getBkgElectronLineage(const xAOD::TruthParticle* truthel,const unsigned int barcodecut=0);
+    getBkgElectronLineage(const xAOD::TruthParticle* truthel,const  int barcodecut=0);
 
         
   }// EgammaHelpers

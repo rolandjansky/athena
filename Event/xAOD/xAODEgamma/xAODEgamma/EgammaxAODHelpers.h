@@ -4,12 +4,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaxAODHelpers.h 673480 2015-06-08 18:14:25Z christos $
+// $Id: EgammaxAODHelpers.h 768704 2016-08-18 23:43:08Z christos $
 #ifndef XAOD_EGAMMAXAODHELPERS_H
 #define XAOD_EGAMMAXAODHELPERS_H
 #include "xAODEgamma/EgammaFwd.h"
 #include "xAODCaloEvent/CaloClusterFwd.h"
 #include "xAODTracking/TrackParticle.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 // Include all other helpers: The user only needs to include this file
 
@@ -45,6 +46,12 @@ namespace xAOD {
     ///@brief return true if the cluster (or the majority of its energy) is in the barrel
     bool isBarrel(const xAOD::CaloCluster *cluster);
 
+    ///@brief Return a vector of all the elementlinks to the topo clusters associated with the egamma cluster
+    const std::vector< ElementLink< xAOD::CaloClusterContainer > > getAssociatedTopoClustersLinks(const xAOD::CaloCluster *cluster); 
+    
+    ///@brief Return a vector of all the topo clusters associated with the egamma cluster
+    const std::vector<const xAOD::CaloCluster*> getAssociatedTopoClusters(const xAOD::CaloCluster *cluster);
+
     ///@brief Return a list of all or only the best TrackParticle associated to the object. 
     ///If useBremAssoc is set, get the original TrackParticle 
     ///This is useful when a std::set of the original track Particles is required, which is mainly the case for the 
@@ -59,6 +66,7 @@ namespace xAOD {
     ///best match ordering
     const std::vector<const xAOD::TrackParticle*> getTrackParticlesVec(const xAOD::Egamma *eg,
 								       bool useBremAssoc = true, bool allParticles = true);
+
 
     ///@brief return the summary value for a TrackParticle or default value (-999)
     /// (to be used mostly in python where uint8_t is converted to char and the Tracking does not provide unprotected methods)
