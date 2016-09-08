@@ -57,7 +57,7 @@ TrigLeptonJetFexAllTE::~TrigLeptonJetFexAllTE() {}
 HLT::ErrorCode TrigLeptonJetFexAllTE::hltInitialize() {
 
   if (msgLvl() <= MSG::INFO)
-    msg() << MSG::INFO << "TrigLeptonJetFexAllTE initialization" << endreq;
+    msg() << MSG::INFO << "TrigLeptonJetFexAllTE initialization" << endmsg;
 
   
   return HLT::OK;
@@ -82,7 +82,7 @@ float TrigLeptonJetFexAllTE::phiCorr(float phi) {
 HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTE, unsigned int output) {
   
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Executing TrigLeptonJetFexAllTE" << endreq;
+    msg() << MSG::DEBUG << "Executing TrigLeptonJetFexAllTE" << endmsg;
 
   bool pass = false;
 
@@ -93,17 +93,17 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   m_deltaPhiPass = -9; m_muonEFPhi = -9;
 
   if (inputTE.size() < 2) {
-    msg() << MSG::ERROR << "Number of input TEs is " <<  inputTE.size() << " and not 2. Configuration problem." << endreq;  
+    msg() << MSG::ERROR << "Number of input TEs is " <<  inputTE.size() << " and not 2. Configuration problem." << endmsg;  
     return HLT::MISSING_FEATURE;
   }
 
   if(inputTE[0].size() == 0) {
-    msg() << MSG::DEBUG << "No muon TE found" << endreq;
+    msg() << MSG::DEBUG << "No muon TE found" << endmsg;
     return HLT::OK;
   }
 
   if(inputTE[1].size() == 0) {
-    msg() << MSG::DEBUG << "No jet TE found" << endreq;
+    msg() << MSG::DEBUG << "No jet TE found" << endmsg;
     return HLT::OK;
   }
 
@@ -120,7 +120,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   if (statusMuons != HLT::OK || statusJets  != HLT::OK) {
 
     if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Failed to retrieve features" << endreq;
+      msg() << MSG::WARNING << "Failed to retrieve features" << endmsg;
 
     return HLT::NAV_ERROR;
   } 
@@ -128,14 +128,14 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   if(muons==0 || jets_EF==0) {
 
     if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Missing feature." << endreq;
+      msg() << MSG::WARNING << "Missing feature." << endmsg;
 
     return HLT::MISSING_FEATURE;
 
   } else if (muons->size()!=1) {
 
     if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Wrong feature." << endreq;
+      msg() << MSG::WARNING << "Wrong feature." << endmsg;
 
     return HLT::MISSING_FEATURE;
 
@@ -154,7 +154,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   if(jets.size()==0 ){
 
     if (msgLvl() <= MSG::DEBUG)
-      msg()<< MSG::DEBUG << " Size of JetCollection is 0" << endreq;
+      msg()<< MSG::DEBUG << " Size of JetCollection is 0" << endmsg;
 
     m_cutCounter=0;
 
@@ -164,7 +164,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
   //  std::sort (jets.begin(), jets.end(), P4Sorters::Descending::Et());
  
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Found " << muons->size() << " muons and " << jets_EF->size() << " jets" << endreq; 
+    msg() << MSG::DEBUG << "Found " << muons->size() << " muons and " << jets_EF->size() << " jets" << endmsg; 
 
 
   int j=0;
@@ -176,7 +176,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
     muonPhi = Muon->phi();
 
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "Muon "<< j+1 << "; ipt " <<  Muon->pt() << "; eta "<< muonEta << "; phi " << muonPhi << endreq;
+      msg() << MSG::DEBUG << "Muon "<< j+1 << "; ipt " <<  Muon->pt() << "; eta "<< muonEta << "; phi " << muonPhi << endmsg;
 
     unsigned int i=0;
     for ( xAOD::JetContainer::const_iterator jetitr=jets_EF->begin() ; jetitr!=jets_EF->end() ; jetitr++ ) {
@@ -190,7 +190,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 	
     if (jetEt < m_etThreshold) {
           if (msgLvl() <= MSG::DEBUG)
-            msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_etThreshold/1000 << " GeV threshold; Et " << jetEt/1000 << endreq;
+            msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_etThreshold/1000 << " GeV threshold; Et " << jetEt/1000 << endmsg;
           continue;
         }
 
@@ -199,7 +199,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
       jetPhi = jet->phi();
 
    if (msgLvl() <= MSG::DEBUG)
-          msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt/1000 << "; eta "<< jetEta << "; phi " << jetPhi << endreq;
+          msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jetEt/1000 << "; eta "<< jetEta << "; phi " << jetPhi << endmsg;
 
 	  
       deltaEta = muonEta - jetEta;
@@ -207,7 +207,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 	
       double dR = sqrt(deltaEta*deltaEta + deltaPhi*deltaPhi);
 
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "deltaR = "<< dR << endreq; 
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "deltaR = "<< dR << endmsg; 
 
       switch (m_workingMode) {
 
@@ -232,7 +232,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
     if (pass) {
 	
       if(msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Accepting the event" << endreq;
+        msg() << MSG::DEBUG << "Accepting the event" << endmsg;
 	
       m_cutCounter=1;
         
@@ -241,7 +241,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
     } else {
 	
       if(msgLvl() <= MSG::DEBUG)
-        msg() << MSG::DEBUG << "Rejecting the event" << endreq;
+        msg() << MSG::DEBUG << "Rejecting the event" << endmsg;
 	
       m_cutCounter=0;
          
@@ -267,7 +267,7 @@ HLT::ErrorCode TrigLeptonJetFexAllTE::hltExecute(std::vector<std::vector<HLT::Tr
 
 HLT::ErrorCode TrigLeptonJetFexAllTE::hltFinalize() {
 
-  msg() << MSG::INFO << "Finalizing TrigLeptonJetFexAllTE" << endreq;
+  msg() << MSG::INFO << "Finalizing TrigLeptonJetFexAllTE" << endmsg;
 
   return HLT::OK;
 }

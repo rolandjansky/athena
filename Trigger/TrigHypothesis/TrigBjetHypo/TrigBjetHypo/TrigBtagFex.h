@@ -107,6 +107,7 @@ class TrigBtagFex: public HLT::FexAlgo {
   /** @brief Switch for offline tools */
   bool m_setupOfflineTools;
 
+  const xAOD::Vertex* getPrimaryVertex(const xAOD::VertexContainer* vertexContainer);
 
 
   // MOSTLY OLD VARIABLES - needs cleanup
