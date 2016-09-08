@@ -192,7 +192,8 @@ SoSphere * AnimationSequencer::Clockwork::getRegionSphere(AnimationSequence::REG
   switch (region) {
   case AnimationSequence::VERTEX:
     VP1Msg::messageVerbose("set sphere dimensions for vertex");
-    r = perspective ? 0.5 : 0.5;
+    //r = perspective ? 0.5 : 0.5;
+    r=0.5;
     break;
   case AnimationSequence::INDET:
     VP1Msg::messageVerbose("set sphere dimensions for indet");

@@ -149,7 +149,7 @@ public:
 		} endianTest;
 		ImageRec *image;
 		int swapFlag;
-		int x;
+		//int x;
 
 		endianTest.testWord = 1;
 		if (endianTest.testByte[0] == 1) {
@@ -170,41 +170,44 @@ public:
 
 		int bytesRead = fread(image, 1, 12, image->file);
         
-        if (!bytesRead) {
-            fprintf(stderr, "fread failed!\n");
-        }
-        if (image == NULL) {
+    if (!bytesRead) {
+      fprintf(stderr, "fread failed!\n");
+    }
+        /**if (image == NULL) { //image cannot be null here, it has been used!
             fprintf(stderr, "image == NULL!\n");
             return (ImageRec *)malloc(sizeof(ImageRec));
-        }
+        } **/
 
 		if (swapFlag) {
 			ConvertShort(&image->imagic, 6);
 		}
 
-        if (image) {
-		    image->tmp = (unsigned char *)malloc(image->xsize*256);
-		    image->tmpR = (unsigned char *)malloc(image->xsize*256);
-		    image->tmpG = (unsigned char *)malloc(image->xsize*256);
-		    image->tmpB = (unsigned char *)malloc(image->xsize*256);
+        
+        const unsigned int colourBuffSize=image->xsize*256u;
+		    image->tmp = (unsigned char *)malloc(colourBuffSize);
+		    image->tmpR = (unsigned char *)malloc(colourBuffSize);
+		    image->tmpG = (unsigned char *)malloc(colourBuffSize);
+		    image->tmpB = (unsigned char *)malloc(colourBuffSize);
 		    if (image->tmp == NULL || image->tmpR == NULL || image->tmpG == NULL ||
 			    	image->tmpB == NULL) {
 			    fprintf(stderr, "Out of memory!\n");
 			    exit(1);
 		    }
-        }
-
+        
+    //should test upper limits on x here...but what is sensible? 1Mb? 100Mb?
 		if ((image->type & 0xFF00) == 0x0100) {
-			x = (image->ysize * image->zsize) * sizeof(unsigned);
+			size_t x = ((size_t)image->ysize * (size_t)image->zsize) * sizeof(unsigned);
 			image->rowStart = (unsigned *)malloc(x);
 			image->rowSize = (int *)malloc(x);
 			if (image->rowStart == NULL || image->rowSize == NULL) {
-				fprintf(stderr, "Out of memory!\n");
+				fprintf(stderr, "Out of memory!\n"); 
 				exit(1);
 			}
 			image->rleEnd = 512 + (2 * x);
-			fseek(image->file, 512, SEEK_SET);
-
+			const int fseekRetVal= fseek(image->file, 512, SEEK_SET);
+      if (fseekRetVal !=0){
+        fprintf(stderr, "Something very wrong with fseek near line 205 of VP1QtInventorUtils.cxx");
+      }
 			size_t bytesRead = 0;
 			bytesRead = fread(image->rowStart, 1, x, image->file);
 			VP1Msg::messageDebug("bytesRead(rowStart): " + QString::number(bytesRead));
@@ -269,8 +272,8 @@ public:
 					}
 				}
 			} else {
-			
-            int okstatus = fseek(image->file, 512+(y*image->xsize)+(z*image->xsize*image->ysize), SEEK_SET);
+			      const unsigned int yDim(y*image->xsize), zDim(z*image->xsize*image->ysize);
+            int okstatus = fseek(image->file, 512u+yDim+zDim, SEEK_SET);
             if (okstatus) { VP1Msg::messageDebug("fseek failed!!"); }
 
 			size_t bytesRead = 0;
@@ -299,11 +302,15 @@ public:
 		(*width)=image->xsize;
 		(*height)=image->ysize;
 		(*components)=image->zsize;
-		base = (unsigned *)malloc(image->xsize*image->ysize*sizeof(unsigned));
-		rbuf = (unsigned char *)malloc(image->xsize*sizeof(unsigned char));
-		gbuf = (unsigned char *)malloc(image->xsize*sizeof(unsigned char));
-		bbuf = (unsigned char *)malloc(image->xsize*sizeof(unsigned char));
-		abuf = (unsigned char *)malloc(image->xsize*sizeof(unsigned char));
+		const unsigned int imageWidth =  image->xsize;
+		const unsigned int imageHeight = image->ysize;
+		const unsigned int uintSize(sizeof(unsigned)), ucharSize(sizeof(unsigned char));
+		const unsigned int colourBufSize=imageWidth*ucharSize;
+		base = (unsigned *)malloc(imageWidth*imageHeight*uintSize);
+		rbuf = (unsigned char *)malloc(colourBufSize);
+		gbuf = (unsigned char *)malloc(colourBufSize);
+		bbuf = (unsigned char *)malloc(colourBufSize);
+		abuf = (unsigned char *)malloc(colourBufSize);
 		if(!base || !rbuf || !gbuf || !bbuf) {
 			ImageClose(image);
 			if (base) free(base);
