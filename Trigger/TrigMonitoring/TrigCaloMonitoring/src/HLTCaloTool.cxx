@@ -15,13 +15,17 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
+
 #include "TH1F.h"
 #include "TH2F.h"
 #include "TNtuple.h"
 #include <string>
 
 HLTCaloTool::HLTCaloTool(const std::string & type, const std::string & name, const IInterface* parent) : IHLTMonTool(type,name,parent),
- m_tcrAlgTools(this,""){
+ m_tcrAlgTools(this),
+ m_onlineHelper(NULL),
+ m_tileID(NULL)
+{
 	declareProperty ("TCRTools", m_tcrAlgTools);
 	declareProperty ("DoNtuple", m_ntuple = false);
 	// Nothing for the moment
@@ -32,42 +36,42 @@ HLTCaloTool::~HLTCaloTool() {
 }
 
 StatusCode HLTCaloTool::init() {
-	(*m_log) << MSG::DEBUG << "Initializing" << endreq;
+	(*m_log) << MSG::DEBUG << "Initializing" << endmsg;
 
 	if ( m_tcrAlgTools.retrieve().isFailure() ) {
-    		(*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_tcrAlgTools << endreq;
+    		(*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_tcrAlgTools << endmsg;
 		return StatusCode::FAILURE;
 	} else {
-		(*m_log) << MSG::DEBUG << "Retrieved " << m_tcrAlgTools << endreq;
+		(*m_log) << MSG::DEBUG << "Retrieved " << m_tcrAlgTools << endmsg;
 	}
 	if ( m_cablingSvc.retrieve().isFailure() ) {
-                 (*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_cablingSvc << endreq;
+                 (*m_log) << MSG::ERROR << "Failed to retrieve helper tools: " << m_cablingSvc << endmsg;
                  return StatusCode::FAILURE;
         } else {
-                 (*m_log) << MSG::INFO << "Retrieved " << m_cablingSvc << endreq;
+                 (*m_log) << MSG::INFO << "Retrieved " << m_cablingSvc << endmsg;
         }
 
         ServiceHandle<StoreGateSvc> detStore("DetectorStore",name());
         if ( detStore.retrieve().isFailure() ) {
-               (*m_log) << MSG::ERROR << "Unable to retrieve DetectorStore" << endreq;
+               (*m_log) << MSG::ERROR << "Unable to retrieve DetectorStore" << endmsg;
                 return StatusCode::FAILURE;
         }
         const LArIdManager* larMgr;
         if ( (detStore->retrieve(larMgr)).isFailure() ) {
-                (*m_log) << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endreq;
+                (*m_log) << MSG::ERROR << "Unable to retrieve LArIdManager from DetectorStore" << endmsg;
                 return StatusCode::FAILURE;
         } else {
-                (*m_log) << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endreq;
+                (*m_log) << MSG::DEBUG << "Successfully retrieved LArIdManager from DetectorStore" << endmsg;
         }
         m_onlineHelper = larMgr->getOnlineID();
         if (!m_onlineHelper) {
-                (*m_log) << MSG::ERROR << "Could not access LArOnlineID helper" << endreq;
+                (*m_log) << MSG::ERROR << "Could not access LArOnlineID helper" << endmsg;
                 return StatusCode::FAILURE;
         } else {
-        (*m_log) << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endreq;
+        (*m_log) << MSG::DEBUG << "Successfully accessed LArOnlineID helper" << endmsg;
         }
         if ( (detStore->retrieve(m_tileID)).isFailure() ) {
-                (*m_log) << MSG::ERROR << "Could not access TileID" << endreq;
+                (*m_log) << MSG::ERROR << "Could not access TileID" << endmsg;
                 return StatusCode::FAILURE;
 	}
 
@@ -106,7 +110,7 @@ StatusCode HLTCaloTool::book(bool newEventsBlock, bool newLumiBlock, bool newRun
     return StatusCode::SUCCESS;
   }
 
-  *m_log << MSG::DEBUG << "End of book" << endreq;
+  *m_log << MSG::DEBUG << "End of book" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -115,12 +119,12 @@ StatusCode HLTCaloTool::fill() {
 	const DataHandle<CaloCellContainer> AllCalo;
 	if ( m_storeGate->retrieve(AllCalo,"AllCalo").isFailure() ){
 		(*m_log) << MSG::DEBUG << "No Calo Cell Container found"
-                        << endreq;
+                        << endmsg;
 		return StatusCode::SUCCESS;
 	}
 	if ( (*m_log).level() <= MSG::DEBUG ) {
 	  (*m_log) << MSG::DEBUG << "Got container "; 
-	  (*m_log) << "Size : " << AllCalo->size() << endreq;
+	  (*m_log) << "Size : " << AllCalo->size() << endmsg;
 	}
 
 	CaloCellContainer* pCaloCellContainer
@@ -136,7 +140,7 @@ StatusCode HLTCaloTool::fill() {
 
 	if ( (*m_log).level() <= MSG::DEBUG ) {
 	   (*m_log) << MSG::DEBUG << "Tool name : " 
-		<< (*itrtcr).name() << endreq;
+		<< (*itrtcr).name() << endmsg;
 	}
 	phimin=-M_PI;
 	phimax=M_PI;
@@ -155,7 +159,7 @@ StatusCode HLTCaloTool::fill() {
 	}
 	if ( sc.isFailure() ) {
 		(*m_log) << MSG::ERROR << "Problem with filling the cont"
-			<< endreq;
+			<< endmsg;
 	} else {
 	  // This method does not exist in this place now
           uint32_t in_error = (*itrtcr)->report_error();
@@ -167,14 +171,14 @@ StatusCode HLTCaloTool::fill() {
 	hist("conversionErrors")->Fill(conversionError);
 	if ( error ) {
 		(*m_log) << MSG::DEBUG << "Problems in unpacking : "
-		<< error << endreq;
+		<< error << endmsg;
 	}
 
 	if ( (*m_log).level() <=MSG::DEBUG) {
 	(*m_log) << MSG::DEBUG << "HLT Container size : "
-		<< pCaloCellContainer->size() << endreq;
+		<< pCaloCellContainer->size() << endmsg;
 	(*m_log) << MSG::DEBUG << "Differences in container sizes : "
-		<< (pCaloCellContainer->size())-(AllCalo->size()) <<endreq;
+		<< (pCaloCellContainer->size())-(AllCalo->size()) <<endmsg;
 	}
 	CaloCellContainer::const_iterator tbeg = pCaloCellContainer->begin();
 	CaloCellContainer::const_iterator tend = pCaloCellContainer->end();
@@ -252,7 +256,7 @@ StatusCode HLTCaloTool::fill() {
 				 count_tcellspL++;
 				}
 				if ( (*m_log).level() <=MSG::VERBOSE)
-				  (*m_log) << endreq;
+				  (*m_log) << endmsg;
 				if ( m_ntuple ) 
 				 ((TNtuple*)tree("Details"))->Fill(cell->et(),cell->eta(),cell->phi(),(double)cell->gain(),tcell->et(),tcell->eta(),tcell->phi(),(double)tcell->gain(),lartile ); 
 			}
@@ -277,10 +281,10 @@ StatusCode HLTCaloTool::fill() {
 	hist("NBadCellsTile")->Fill(count_tcellspT);
 	hist("NCellsTile")->Fill(count_tcellsT);
 	if ( (*m_log).level() <= MSG::DEBUG) {
-		(*m_log) << MSG::DEBUG << "Number of LAr cells found " << count_tcellsL << endreq;
-		(*m_log) << MSG::DEBUG << "Number of LAr cells w problems " << count_tcellspL << endreq;
-		(*m_log) << MSG::DEBUG << "Number of Tile cells found " << count_tcellsT << endreq;
-		(*m_log) << MSG::DEBUG << "Number of Tile cells w problems " << count_tcellspT << endreq;
+		(*m_log) << MSG::DEBUG << "Number of LAr cells found " << count_tcellsL << endmsg;
+		(*m_log) << MSG::DEBUG << "Number of LAr cells w problems " << count_tcellspL << endmsg;
+		(*m_log) << MSG::DEBUG << "Number of Tile cells found " << count_tcellsT << endmsg;
+		(*m_log) << MSG::DEBUG << "Number of Tile cells w problems " << count_tcellspT << endmsg;
 	}
 	delete pCaloCellContainer;
 
