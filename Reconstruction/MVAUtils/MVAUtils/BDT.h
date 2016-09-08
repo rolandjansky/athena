@@ -40,13 +40,7 @@ namespace MVAUtils
   {
   public:
     BDT(TTree *tree);
-    BDT(TMVA::MethodBDT *bdt);
-
-    // create new tree from root file
-    void newTree(const std::vector<int>& vars, const std::vector<float>& values);
-	
-    // create new tree from decision tree
-    void newTree(const TMVA::DecisionTreeNode *node); 
+    BDT(TMVA::MethodBDT *bdt, bool isRegression = true, bool useYesNoLeaf = false);
 
     /** return the number of trees in the forest */
     unsigned int GetNTrees() const { return m_forest.size(); }
@@ -63,6 +57,14 @@ namespace MVAUtils
       return (m_pointers.size() ? GetResponse(m_pointers) : -9999.); 
     }
 
+    /** these return Sum( purity_i*weight_i )/Sum weight_i */
+    float GetClassification() const {
+      return (m_pointers.size() ? GetClassification(m_pointers) : -9999.);
+    }
+    
+    /** these return Sum( purity_i*weight_i )/Sum weight_i */
+    float GetClassification(const std::vector<float*>& pointers) const;
+    
     // these return 2.0/(1.0+exp(-2.0*sum))-1, with no offset.
     float GetGradBoostMVA(const std::vector<float>& values) const;
     float GetGradBoostMVA(const std::vector<float*>& pointers) const;
@@ -89,11 +91,20 @@ namespace MVAUtils
 
   private:
 
+    // create new tree from root file
+    void newTree(const std::vector<int>& vars, const std::vector<float>& values);
+	
+    // create new tree from decision tree
+    void newTree(const TMVA::DecisionTreeNode *node, bool isRegression, bool useYesNoLeaf); 
+
+
     float GetTreeResponse(const std::vector<float>& values, Node::index_t index) const;
     float GetTreeResponse(const std::vector<float*>& pointers, Node::index_t index) const;
 
     float m_offset; //!< the offset to add in the GetResponse functions
+    float m_sumWeights; //!< the sumOfBoostWeights--no need to recompute each call
     std::vector<Node::index_t> m_forest; //!< indices of the top-level nodes of each tree
+    std::vector<float> m_weights; //!< boost weights
     std::vector<float*> m_pointers; //!< where vars to cut on can be set (but can also be passed)
     std::vector<Node> m_nodes; //!< where the nodes of the forest are stored
 	
