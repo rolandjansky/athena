@@ -407,7 +407,7 @@ HLT::ErrorCode TrigMissingETMuon::hltExecute(std::vector<std::vector<HLT::Trigge
   unsigned int muonComp = m_met->getNumberOfComponents() - 1;
   // Suggested by Diego: Checking the component name of the input
   if( (m_met->nameOfComponent(muonComp)).substr(0,4)!="Muon") {
-    msg() << MSG::ERROR << "Wrong component name!!! Exit..." <<endreq;
+    msg() << MSG::ERROR << "Could not find MET container with muon information!!! Exit..." <<endreq;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::BAD_JOB_SETUP);    
   }
   // Fetch Muon Components
