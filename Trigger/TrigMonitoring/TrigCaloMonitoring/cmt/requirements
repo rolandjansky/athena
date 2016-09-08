@@ -24,7 +24,7 @@ use egammaEvent		 egammaEvent-*		 Reconstruction/egamma
 
 use TrigT2CaloCommon	TrigT2CaloCommon-*	Trigger/TrigAlgorithms
 use TrigCaloEvent	TrigCaloEvent-*		Trigger/TrigEvent
-use TrigSteeringEvent   TrigSteeringEvent-*     Trigger/TrigEvent
+use TrigSteeringEvent	TrigSteeringEvent-*	Trigger/TrigEvent
 
 apply_tag ROOTGraphicsLibs
 apply_tag ROOTMathLibs
