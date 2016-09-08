@@ -67,7 +67,6 @@ EmEfficienciesMonTool::EmEfficienciesMonTool(const std::string & type,
 			m_histTool("LVL1::TrigT1CaloLWHistogramToolV1/TrigT1CaloLWHistogramToolV1"),
 			m_ttTool("LVL1::L1TriggerTowerTool/L1TriggerTowerTool"),
 			m_larEnergy("LVL1::L1CaloLArTowerEnergy/L1CaloLArTowerEnergy"),
-			m_trigger("Trig::TrigDecisionTool/TrigDecisionTool"),
 			m_dbPpmDeadChannelsFolder("/TRIGGER/L1Calo/V1/Calibration/PpmDeadChannels"),
 			m_triggerTowersLocation("TriggerTowers"),
 			m_lvl1RoIsLocation("LVL1_ROI"),
@@ -118,7 +117,6 @@ EmEfficienciesMonTool::EmEfficienciesMonTool(const std::string & type,
 	declareProperty("HistogramTool", m_histTool);
 	declareProperty("TriggerTowerTool", m_ttTool);
 	declareProperty("LArTowerEnergyTool", m_larEnergy);
-	declareProperty("TrigDecisionTool", m_trigger);
 	declareProperty("DeadChannelsFolder", m_dbPpmDeadChannelsFolder);
 	declareProperty("TriggerTowersLocation", m_triggerTowersLocation);
 	declareProperty("RoIsLocation", m_lvl1RoIsLocation);
@@ -167,7 +165,7 @@ EmEfficienciesMonTool::~EmEfficienciesMonTool()
 StatusCode EmEfficienciesMonTool::initialize()
 /*---------------------------------------------------------*/
 {
-	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endreq;
+	msg(MSG::INFO) << "Initializing " << name() << " - package version " << PACKAGE_VERSION << endmsg;
 
 	StatusCode sc;
 
@@ -177,33 +175,25 @@ StatusCode EmEfficienciesMonTool::initialize()
 
         sc = m_errorTool.retrieve();
         if (sc.isFailure()) {
-                msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endreq;
+                msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool" << endmsg;
                 return sc;
         }
 
 	sc = m_histTool.retrieve();
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloHistogramTool" << endreq;
+		msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloHistogramTool" << endmsg;
 		return sc;
 	}
 
 	sc = m_ttTool.retrieve();
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Cannot retrieve L1TriggerTowerTool" << endreq;
+		msg(MSG::ERROR) << "Cannot retrieve L1TriggerTowerTool" << endmsg;
 		return sc;
 	}
 
 	sc = m_larEnergy.retrieve();
 	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Cannot retrieve L1CaloLArTowerEnergy" << endreq;
-		return sc;
-	}
-
-	// Load in trigger tools
-	// This tool gives you access to the physics trigger menu decisions for each event.
-	sc = m_trigger.retrieve();
-	if (sc.isFailure()) {
-		msg(MSG::ERROR) << "Can't get handle on TrigDecisionTool" << endreq;
+		msg(MSG::ERROR) << "Cannot retrieve L1CaloLArTowerEnergy" << endmsg;
 		return sc;
 	}
 
@@ -212,7 +202,7 @@ StatusCode EmEfficienciesMonTool::initialize()
 	msg(MSG::INFO) << "TriggerStrings:";
 	for (; iter != iterE; ++iter)
 		msg(MSG::INFO) << " " << *iter;
-	msg(MSG::INFO) << endreq;
+	msg(MSG::INFO) << endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -221,7 +211,7 @@ StatusCode EmEfficienciesMonTool::initialize()
 StatusCode EmEfficienciesMonTool::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-	msg(MSG::DEBUG) << "bookHistograms entered" << endreq;
+	msg(MSG::DEBUG) << "bookHistograms entered" << endmsg;
 
 	if (m_environment == AthenaMonManager::online) {
 		// book histograms that are only made in the online environment...
@@ -231,8 +221,8 @@ StatusCode EmEfficienciesMonTool::bookHistogramsRecurrent()
 		// book histograms that are only relevant for cosmics data...
 	}
 
-	if (newLumiBlock) {
-	}
+	//if (newLumiBlock) {
+	//}
 
 	if (newRun) {
 
@@ -421,7 +411,7 @@ StatusCode EmEfficienciesMonTool::bookHistogramsRecurrent()
 		m_numEmObjTotal = 0;
 	}
 
-	msg(MSG::DEBUG) << "Leaving bookHistograms" << endreq;
+	msg(MSG::DEBUG) << "Leaving bookHistograms" << endmsg;
 
 	return StatusCode::SUCCESS;
 }
@@ -431,12 +421,12 @@ StatusCode EmEfficienciesMonTool::fillHistograms()
 /*---------------------------------------------------------*/
 {
 	const bool debug = msgLvl(MSG::DEBUG);
-	if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endreq;
+	if (debug) msg(MSG::DEBUG) << "fillHistograms entered" << endmsg;
 
         // Skip events believed to be corrupt
 
         if (m_errorTool->corrupt()) {
-                if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
+                if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
                 return StatusCode::SUCCESS;
         }
 
@@ -447,7 +437,7 @@ StatusCode EmEfficienciesMonTool::fillHistograms()
 		m_firstEvent = false;
 	        sc = this->triggerTowerAnalysis();
 		if (sc.isFailure()) {
-			if (debug) msg(MSG::DEBUG) << "Problem running triggerTowerAnalysis" << endreq;
+			if (debug) msg(MSG::DEBUG) << "Problem running triggerTowerAnalysis" << endmsg;
 			return sc;
 		}
 	}
@@ -457,16 +447,17 @@ StatusCode EmEfficienciesMonTool::fillHistograms()
 	if (m_useTrigger) {
 		typedef std::vector<std::string>::iterator Itr_s;
 		for (Itr_s i = m_triggerStrings.begin(); i != m_triggerStrings.end(); ++i) {
-			if (m_trigger->isPassed(*i)) {
+			if (m_trigDecTool->isPassed(*i)) {
 				useEvent = true;
-				if (debug) msg(MSG::DEBUG)<< "First requested trigger that fired is : "<< (*i) << " with prescale "<< m_trigger->getPrescale(*i);
+                                Trig::TrigDecisionTool* trigdec = dynamic_cast<Trig::TrigDecisionTool*> (&*m_trigDecTool);
+				if (debug) msg(MSG::DEBUG)<< "First requested trigger that fired is : "<< (*i) << " with prescale "<< trigdec->getPrescale(*i);
 				break;
 			}
 		}
 
 		sc = this->triggerChainAnalysis();
 		if (sc.isFailure()) {
-			if (debug) msg(MSG::DEBUG) << "Problem checking Trigger Chains" << endreq;
+			if (debug) msg(MSG::DEBUG) << "Problem checking Trigger Chains" << endmsg;
 			return sc;
 		}
 	}
@@ -479,7 +470,7 @@ StatusCode EmEfficienciesMonTool::fillHistograms()
 	        m_eventInfo = 0;
 	        sc = evtStore()->retrieve(m_eventInfo);
 	        if (sc.isFailure()) {
-		        msg(MSG::WARNING) << "Failed to load EventInfo" << endreq;
+		        msg(MSG::WARNING) << "Failed to load EventInfo" << endmsg;
 		        return sc;
 	        }
 	        if( m_removeNoiseBursts ) {
@@ -498,16 +489,16 @@ StatusCode EmEfficienciesMonTool::fillHistograms()
 
 		sc = this->loadContainers();
 		if (sc.isFailure()) {
-			msg(MSG::WARNING) << "Problem loading Athena Containers" << endreq;
+			msg(MSG::WARNING) << "Problem loading Athena Containers" << endmsg;
 			return sc;
 		}
 		
-		if (debug) msg(MSG::DEBUG) << "Run number "<< m_eventInfo->event_ID()->run_number()<< " : Lumi Block "<< m_eventInfo->event_ID()->lumi_block() << " : Event "<< m_eventInfo->event_ID()->event_number() << endreq;
+		if (debug) msg(MSG::DEBUG) << "Run number "<< m_eventInfo->event_ID()->run_number()<< " : Lumi Block "<< m_eventInfo->event_ID()->lumi_block() << " : Event "<< m_eventInfo->event_ID()->event_number() << endmsg;
 
 		// Look at vertex requirements
 		int numVtx = 0, numTrk = 0;
 		if (!vertexRequirementsPassed(numVtx, numTrk)) {
-			if (debug) msg(MSG::DEBUG) << "Event " << m_eventInfo->event_ID()->event_number() << " fails vertex requirements " << endreq;
+			if (debug) msg(MSG::DEBUG) << "Event " << m_eventInfo->event_ID()->event_number() << " fails vertex requirements " << endmsg;
 			return StatusCode::SUCCESS;
 		}
 
@@ -516,25 +507,25 @@ StatusCode EmEfficienciesMonTool::fillHistograms()
 		m_numOffElecTriggered = 0;
 		sc = this->analyseOfflineElectrons();
 		if (sc.isFailure()) {
-			msg(MSG::WARNING) << "analyseElectrons Failed " << endreq;
+			msg(MSG::WARNING) << "analyseElectrons Failed " << endmsg;
 			//return sc;
 		}
-		if (debug) msg(MSG::DEBUG) << "Number of Offline Electrons = "<< m_numOffElecInContainer << " Passing Cuts = "<< m_numOffElecPassCuts << " Triggered = "<< m_numOffElecTriggered << endreq;
+		if (debug) msg(MSG::DEBUG) << "Number of Offline Electrons = "<< m_numOffElecInContainer << " Passing Cuts = "<< m_numOffElecPassCuts << " Triggered = "<< m_numOffElecTriggered << endmsg;
 
 		m_numOffPhotInContainer = 0;
 		m_numOffPhotPassCuts = 0;
 		m_numOffPhotTriggered = 0;
 		sc = this->analyseOfflinePhotons();
 		if (sc.isFailure()) {
-			msg(MSG::WARNING) << "analysePhotons Failed " << endreq;
+			msg(MSG::WARNING) << "analysePhotons Failed " << endmsg;
 			//return sc;
 		}
-		if (debug) msg(MSG::DEBUG) << "Number of Offline Photons = "<< m_numOffPhotInContainer << " Passing Cuts = "<< m_numOffPhotPassCuts << " Triggered = "<< m_numOffPhotTriggered << endreq;
+		if (debug) msg(MSG::DEBUG) << "Number of Offline Photons = "<< m_numOffPhotInContainer << " Passing Cuts = "<< m_numOffPhotPassCuts << " Triggered = "<< m_numOffPhotTriggered << endmsg;
 
 	}
 
 	if (debug)
-		msg(MSG::DEBUG) << "Leaving fillHistograms" << endreq;
+		msg(MSG::DEBUG) << "Leaving fillHistograms" << endmsg;
 
 	return StatusCode::SUCCESS;
 
@@ -544,15 +535,15 @@ StatusCode EmEfficienciesMonTool::fillHistograms()
 StatusCode EmEfficienciesMonTool::procHistograms()
 /*---------------------------------------------------------*/
 {
-	msg(MSG::DEBUG) << "procHistograms entered" << endreq;
+	msg(MSG::DEBUG) << "procHistograms entered" << endmsg;
 
-	if (endOfLumiBlock) {
-	}
+	//if (endOfLumiBlock) {
+	//}
 
 	if (endOfRun) {
-		msg(MSG::DEBUG) << "Number of offline electrons = " << m_numOffElec << endreq;
-		msg(MSG::DEBUG) << "Number of offline photons = " << m_numOffPhot << endreq;
-		msg(MSG::DEBUG) << "Number of events = " << m_numEvents << endreq;
+		msg(MSG::DEBUG) << "Number of offline electrons = " << m_numOffElec << endmsg;
+		msg(MSG::DEBUG) << "Number of offline photons = " << m_numOffPhot << endmsg;
+		msg(MSG::DEBUG) << "Number of events = " << m_numEvents << endmsg;
 
 		m_histTool->efficienciesForMerge(m_h_ClusterRaw_Et_gdEta,
 				m_h_ClusterRaw_Et_triggered_gdEta,
@@ -1113,7 +1104,7 @@ void EmEfficienciesMonTool::getRawClusterValuesFromCells(CaloCluster* cc,
 			rawEta += cellE * cellEta;
 
 		} else {
-			msg(MSG::WARNING) << "Problem with Cell within Cluster, check cell pointer: " << cell << endreq;
+			msg(MSG::WARNING) << "Problem with Cell within Cluster, check cell pointer: " << cell << endmsg;
 		}
 	}
 
@@ -1400,21 +1391,21 @@ StatusCode EmEfficienciesMonTool::triggerTowerAnalysis() {
 	m_dbPpmDeadChannels = 0;
 	StatusCode sc = detStore()->retrieve(m_dbPpmDeadChannels, m_dbPpmDeadChannelsFolder);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load DB PPM Dead Channels" << endreq;
+		msg(MSG::WARNING) << "Failed to load DB PPM Dead Channels" << endmsg;
 		return sc;
 	}
 
 	m_triggerTowers = 0;
 	sc = evtStore()->retrieve(m_triggerTowers, m_triggerTowersLocation);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load Trigger Towers" << endreq;
+		msg(MSG::WARNING) << "Failed to load Trigger Towers" << endmsg;
 		return sc;
 	}
 
 	// Look at trigger towers around physics objects
 
 	typedef TriggerTowerCollection::const_iterator Itr_tt;
-	typedef std::vector<int>::const_iterator Itr_i;
+	//typedef std::vector<int>::const_iterator Itr_i;
 	Itr_tt ttItrE = m_triggerTowers->end();
 	for (Itr_tt ttItr = m_triggerTowers->begin(); ttItr != ttItrE; ++ttItr) {
 		
@@ -1450,7 +1441,8 @@ StatusCode EmEfficienciesMonTool::triggerChainAnalysis() {
 
 	// Get the list of all triggers but do this only once in the event loop
 	if (m_configuredChains.size() == 0) {
-		m_configuredChains = m_trigger->getListOfTriggers();
+          Trig::TrigDecisionTool* trigdec = dynamic_cast<Trig::TrigDecisionTool*> (&*m_trigDecTool);
+		m_configuredChains = trigdec->getListOfTriggers();
 		m_wantedTriggers.resize(m_configuredChains.size());
 		int i = 0;
 	        std::vector<std::string>::const_iterator itE = m_configuredChains.end();
@@ -1509,7 +1501,7 @@ StatusCode EmEfficienciesMonTool::triggerChainAnalysis() {
 		}
 	}
 
-	//msg(MSG::DEBUG) << "Trigger Analysis: New Event" << endreq;
+	//msg(MSG::DEBUG) << "Trigger Analysis: New Event" << endmsg;
 
 	int trigSet = 0;
 	int i = 0;
@@ -1519,7 +1511,7 @@ StatusCode EmEfficienciesMonTool::triggerChainAnalysis() {
 
 		//Check that the trigger was passed
 		const int trigMap = m_wantedTriggers[i];
-		if (((trigMap^trigSet)&trigMap) && m_trigger->isPassed(*it)) {
+		if (((trigMap^trigSet)&trigMap) && m_trigDecTool->isPassed(*it)) {
 			trigSet |= trigMap;
 		}
 	}
@@ -1541,28 +1533,28 @@ StatusCode EmEfficienciesMonTool::loadContainers() {
 	m_primaryVtx = 0;
 	sc = evtStore()->retrieve(m_primaryVtx, m_primaryVertexLocation);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load Primary Vertices" << endreq;
+		msg(MSG::WARNING) << "Failed to load Primary Vertices" << endmsg;
 		return sc;
 	}
 
 	m_lvl1RoIs = 0;
 	sc = evtStore()->retrieve(m_lvl1RoIs, m_lvl1RoIsLocation);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load LVL1 RoIs" << endreq;
+		msg(MSG::WARNING) << "Failed to load LVL1 RoIs" << endmsg;
 		return sc;
 	}
 
 	m_offlineElectrons = 0;
 	sc = evtStore()->retrieve(m_offlineElectrons, m_offlineElectronsLocation);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load Offline Electrons" << endreq;
+		msg(MSG::WARNING) << "Failed to load Offline Electrons" << endmsg;
 		return sc;
 	}
 
 	m_offlinePhotons = 0;
 	sc = evtStore()->retrieve(m_offlinePhotons, m_offlinePhotonsLocation);
 	if (sc.isFailure()) {
-		msg(MSG::WARNING) << "Failed to load Offline Photons" << endreq;
+		msg(MSG::WARNING) << "Failed to load Offline Photons" << endmsg;
 		return sc;
 	}
 

@@ -122,7 +122,7 @@ StatusCode JEPJEMMon::initialize()
 /*---------------------------------------------------------*/
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   StatusCode sc;
 
@@ -132,14 +132,14 @@ StatusCode JEPJEMMon::initialize()
   sc = m_errorTool.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloMonErrorTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
   sc = m_histTool.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Unable to locate Tool TrigT1CaloLWHistogramTool"
-                    << endreq;
+                    << endmsg;
     return sc;
   }
 
@@ -150,7 +150,7 @@ StatusCode JEPJEMMon::initialize()
 StatusCode JEPJEMMon::bookHistogramsRecurrent()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in JEPJEMMon::bookHistogramsRecurrent" << endreq;
+  msg(MSG::DEBUG) << "in JEPJEMMon::bookHistogramsRecurrent" << endmsg;
 
   if ( m_environment == AthenaMonManager::online ) {
     // book histograms that are only made in the online environment...
@@ -160,7 +160,7 @@ StatusCode JEPJEMMon::bookHistogramsRecurrent()
     // book histograms that are only relevant for cosmics data...
   }
 
-  if ( newEventsBlock || newLumiBlock) { }
+  //if ( newEventsBlock || newLumiBlock) { }
 
   if ( newRun ) {
 
@@ -321,14 +321,14 @@ StatusCode JEPJEMMon::fillHistograms()
   const bool debug = msgLvl(MSG::DEBUG);
 
   if (!m_histBooked) {
-    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Histogram(s) not booked" << endmsg;
     return StatusCode::SUCCESS;
   }
 
   // Skip events believed to be corrupt
 
   if (m_errorTool->corrupt()) {
-    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endreq;
+    if (debug) msg(MSG::DEBUG) << "Skipping corrupt event" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -347,7 +347,7 @@ StatusCode JEPJEMMon::fillHistograms()
 
   if (sc == StatusCode::FAILURE || !jetElements) {
     msg(MSG::INFO) << "No JetElements found in TES at " << m_JetElementLocation
-                   << endreq;
+                   << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -368,7 +368,7 @@ StatusCode JEPJEMMon::fillHistograms()
       msg(MSG::VERBOSE) << "JE has coords (eta,phi): " << eta << ", " << phi
                         << " and energies (Em,Had): " << emEnergy << ", "
                         << hadEnergy << " HW Crate:" << crate
-                        << " Module: " << module << " " << cord << endreq;
+                        << " Module: " << module << " " << cord << endmsg;
     }
 
     if (emEnergy > 0) {
@@ -459,12 +459,12 @@ StatusCode JEPJEMMon::fillHistograms()
   sc = evtStore()->retrieve(JEMEtSums, m_JEMEtSumsLocation);
   if (sc == StatusCode::FAILURE || !JEMEtSums) {
     msg(MSG::INFO) << "No JEMEtSums found in TES at " << m_JEMEtSumsLocation
-                   << endreq ;
+                   << endmsg ;
     return StatusCode::SUCCESS;
   }
 
   if (debug) {
-    msg(MSG::DEBUG) << "-------------- JEM Et Sums ---------------" << endreq;
+    msg(MSG::DEBUG) << "-------------- JEM Et Sums ---------------" << endmsg;
   }
 
   // Step over all cells
@@ -486,7 +486,7 @@ StatusCode JEPJEMMon::fillHistograms()
                       << "   Ex: "            <<  ex
                       << "   Ey: "            <<  ey
                       << "   Et: "            <<  et
-                      << endreq;
+                      << endmsg;
     }
   }
 
@@ -498,12 +498,12 @@ StatusCode JEPJEMMon::fillHistograms()
   sc = evtStore()->retrieve (JEMRoIs, m_JEMRoILocation);
   if (sc == StatusCode::FAILURE || !JEMRoIs) {
     msg(MSG::INFO) << "No JEM RoIs found in TES at" << m_JEMRoILocation
-                   << endreq;
+                   << endmsg;
     return StatusCode::SUCCESS;
   }
 
   if (debug) {
-    msg(MSG::DEBUG) << "-------------- JEM RoIs ---------------" << endreq;
+    msg(MSG::DEBUG) << "-------------- JEM RoIs ---------------" << endmsg;
   }
 
   // Step over all cells
@@ -549,12 +549,12 @@ StatusCode JEPJEMMon::fillHistograms()
   std::vector<int>* save = new std::vector<int>(overview);
   sc = evtStore()->record(save, m_errorLocation);
   if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR) << "Error recording JEM error vector in TES " << endreq;
+    msg(MSG::ERROR) << "Error recording JEM error vector in TES " << endmsg;
     return sc;
   }
 
   if (debug) {
-    msg(MSG::DEBUG) << "--------------------------------------" << endreq;
+    msg(MSG::DEBUG) << "--------------------------------------" << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -564,9 +564,9 @@ StatusCode JEPJEMMon::fillHistograms()
 StatusCode JEPJEMMon::procHistograms()
 /*---------------------------------------------------------*/
 {
-  msg(MSG::DEBUG) << "in procHistograms" << endreq ;
+  msg(MSG::DEBUG) << "in procHistograms" << endmsg ;
 
-  if ( endOfEventsBlock || endOfLumiBlock || endOfRun ) { }
+  //if ( endOfEventsBlock || endOfLumiBlock || endOfRun ) { }
 
   return StatusCode::SUCCESS;
 }
