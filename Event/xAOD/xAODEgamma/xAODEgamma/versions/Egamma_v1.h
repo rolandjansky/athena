@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: Egamma_v1.h 656759 2015-03-25 15:37:07Z christos $
+// $Id: Egamma_v1.h 772353 2016-09-09 00:44:09Z christos $
 #ifndef XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 #define XAODEGAMMA_VERSIONS_EGAMMA_V1_H
 
@@ -47,8 +47,8 @@ namespace xAOD {
   /// @author Anthony Morley
   /// @author Jovan Mitrevski
   ///
-  /// $Revision: 656759 $
-  /// $Date: 2015-03-25 16:37:07 +0100 (Wed, 25 Mar 2015) $
+  /// $Revision: 772353 $
+  /// $Date: 2016-09-09 02:44:09 +0200 (Fri, 09 Sep 2016) $
   ///
   class Egamma_v1 :public IParticle {
 
@@ -175,7 +175,7 @@ namespace xAOD {
     /// @name xAOD::Egamma author (i.e. which reco algorithm was used)
     /// @{
 
-    /// @brief Get author 
+     /// @brief Get author 
     uint16_t author(uint16_t bitmask=EgammaParameters::AuthorALL) const;
 
     /// @brief add author 
@@ -183,9 +183,16 @@ namespace xAOD {
 
     /// @brief set author 
     void setAuthor( uint16_t );
-
     /// @}
 
+    /// @name xAOD::Egamma ambiguousObject i.e get the electron/photon corresponding to an ambiguous photon/electron
+    /// as the same cluster leads to creation of both.
+    /// @{
+
+    /// @brief Get ambiguous 
+    const Egamma_v1* ambiguousObject() const;
+    /// @}
+    
    
     /// @name xAOD::Egamma Shower shape  Accesors
     /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
@@ -204,6 +211,21 @@ namespace xAOD {
     bool setShowerShapeValue(float value, const EgammaParameters::ShowerShapeType information) ;
 
     /// @}
+
+
+    /// @name xAOD::Egamma  object quality of the calorimeter cluster 
+    /// @{    
+    
+    /// @brief  Check object quality. Return True is it is Good Object Quality
+    bool isGoodOQ(uint32_t mask ) const;
+
+    /// @brief  Return the object quality bit word
+    uint32_t OQ( ) const;
+
+    /// @brief Set the object quality
+    void setOQ(uint32_t newOQ);
+  
+    ///@}
 
     /// @name xAOD::Egamma Isolation value Accesors
     /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
@@ -239,7 +261,6 @@ namespace xAOD {
     }
 
     /// @}
-
 
     /// @name xAOD::Egamma Isolation correction  Accesors
     /// If 'information' is stored in this xAOD::Egamma and is of the correct type,
@@ -294,20 +315,7 @@ namespace xAOD {
     /// @}
 
     
-    /// @name xAOD::Egamma  object quality of the calorimeter cluster 
-    /// @{    
-    
-    /// @brief  Check object quality. Return True is it is Good Object Quality
-    bool isGoodOQ(uint32_t mask ) const;
-
-    /// @brief  Return the object quality bit word
-    uint32_t OQ( ) const;
-
-    /// @brief Set the object quality
-    void setOQ(uint32_t newOQ);
-    
-    ///@}
-
+  
     /// @name xAOD::Egamma selector / isEM methods using enums
     /// @{    
 

@@ -10,12 +10,10 @@ public
 
 # Central package(s):
 use AtlasPolicy   AtlasPolicy-*
-use SGTools       SGTools-*       Control
 use AthContainers AthContainers-* Control
 use AtlasROOT     AtlasROOT-*     External
 use AthLinks      AthLinks-*      Control
 use CxxUtils       CxxUtils-*          Control
-
 
 # EDM package(s):
 use xAODBase		xAODBase-*		Event/xAOD
@@ -29,9 +27,6 @@ use xAODTruth           xAODTruth-*             Event/xAOD
 use EventPrimitives      EventPrimitives-*      Event
 use GeoPrimitives        GeoPrimitives-*        DetectorDescription
 
-# Specify to cmake that this package has non-standard headers (transparent to CMT)
-apply_pattern cmake_add_command command="athena_install_nonstandard_headers(xAODEgamma/versions)"
-
 library xAODEgamma ../Root/*.cxx
 apply_pattern installed_library
 
@@ -42,6 +37,5 @@ use AtlasReflex   AtlasReflex-*   External
 apply_pattern lcgdict dict=xAODEgamma selectionfile=selection.xml \
                       headerfiles="../xAODEgamma/xAODEgammaDict.h" \
                       extralibfiles=../Root/dict/*.cxx
-
 
 apply_pattern do_genCLIDDB library=xAODEgamma

@@ -8,6 +8,7 @@
 #include "xAODCore/AuxStoreAccessorMacros.h"
 // Local include(s):
 #include "xAODEgamma/versions/Egamma_v1.h"
+#include "xAODEgamma/EgammaContainer.h"
 #include "EgammaAccessors_v1.h"
 #include "xAODPrimitives/tools/getIsolationAccessor.h"
 #include "xAODPrimitives/tools/getIsolationCorrectionAccessor.h" 
@@ -39,22 +40,22 @@ namespace xAOD {
 
 
   double Egamma_v1::pt() const {
-    const static Accessor< float > acc( "pt" );
+    static const Accessor< float > acc( "pt" );
     return acc( *this );
   }
   
   double Egamma_v1::eta() const {
-    const static Accessor<float > acc( "eta" );
+    static const Accessor<float > acc( "eta" );
     return acc( *this );
   }
   
   double Egamma_v1::phi() const {
-    const static Accessor< float > acc( "phi" );
+    static const Accessor< float > acc( "phi" );
     return acc( *this );
   }
   
   double Egamma_v1::m() const {
-    const static Accessor< float> acc( "m" );
+    static const Accessor< float> acc( "m" );
     return acc( *this );
   }
   
@@ -75,48 +76,48 @@ namespace xAOD {
   }
   
   void Egamma_v1::setP4(float pt, float eta, float phi, float m){
-    const static Accessor< float > acc1( "pt" );
+    static const Accessor< float > acc1( "pt" );
     acc1( *this ) = pt;
-    const static Accessor< float > acc2( "eta" );
+    static const Accessor< float > acc2( "eta" );
     acc2( *this ) = eta;
-    const static Accessor< float > acc3( "phi" );
+    static const Accessor< float > acc3( "phi" );
     acc3( *this ) = phi;
-    const static Accessor< float > acc4( "m" );
+    static const Accessor< float > acc4( "m" );
     acc4( *this ) = m;
     //Need to recalculate m_p4 if requested after update
     m_p4Cached=false;
   }
   
   void Egamma_v1::setPt(float pt){
-    const static Accessor< float > acc( "pt" );
+    static const Accessor< float > acc( "pt" );
     acc( *this ) = pt;
     //Need to recalculate m_p4 if requested after update
     m_p4Cached=false;
   }
   
   void Egamma_v1::setEta(float eta){
-    const static Accessor< float > acc( "eta" );
+    static const Accessor< float > acc( "eta" );
     acc( *this ) = eta;
     //Need to recalculate m_p4 if requested after update
     m_p4Cached=false;
   }
 
   void Egamma_v1::setPhi(float phi){
-    const static Accessor< float > acc( "phi" );
+    static const Accessor< float > acc( "phi" );
     acc( *this ) = phi;
     //Need to recalculate m_p4 if requested after update
     m_p4Cached=false;
   }
 
   void Egamma_v1::setM(float m){
-    const static Accessor< float > acc( "m" );
+    static const Accessor< float > acc( "m" );
     acc( *this ) = m;
     //Need to recalculate m_p4 if requested after update
     m_p4Cached=false;
   }
 
   Egamma_v1::EgammaCovMatrix_t Egamma_v1::covMatrix() const{
-    const static Accessor< std::vector<float> > acc( "EgammaCovarianceMatrix" );
+    static const Accessor< std::vector<float> > acc( "EgammaCovarianceMatrix" );
     if(!acc.isAvailable( *this) ) { 
       EgammaCovMatrix_t dummy;
       dummy.setZero();
@@ -128,28 +129,39 @@ namespace xAOD {
 
   void Egamma_v1::setCovMatrix(const Egamma_v1::EgammaCovMatrix_t& cov){
     //The internal storage is an std::vector
-    const static Accessor< std::vector < float > > acc( "EgammaCovarianceMatrix" );
+    static const Accessor< std::vector < float > > acc( "EgammaCovarianceMatrix" );
     const std::vector<float> v(cov.data(),cov.data()+16);
     acc(*this)=v;
   }
   
+  ////egamma author 
   uint16_t Egamma_v1::author(uint16_t mask) const {
-    const static Accessor< uint16_t > acc( "author" );
+    static const Accessor< uint16_t > acc( "author" );
     uint16_t author = acc( *this );
     return author & mask;
   }
   
   void Egamma_v1::addAuthor(uint16_t newAuthor) {
-    const static Accessor< uint16_t > acc( "author" );
+    static const Accessor< uint16_t > acc( "author" );
     uint16_t author = acc( *this );
     acc( *this) = author | newAuthor;
   }
   
   void Egamma_v1::setAuthor(uint16_t newAuthor) {
-    const static Accessor< uint16_t > acc( "author" );
+    static const Accessor< uint16_t > acc( "author" );
     acc( *this) = newAuthor;
   }
     
+  //// ambiguous
+  const Egamma_v1* Egamma_v1::ambiguousObject() const{
+    static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > acc("ambiguityLink");
+    if(acc.isAvailable(*this) && acc(*this).isValid()){
+      return (*acc(*this));
+    }
+    return 0;
+  }
+
+
   /////////////// shower shapes
   bool Egamma_v1::showerShapeValue(float& value, const EgammaParameters::ShowerShapeType information)  const {
     const xAOD::Egamma_v1::Accessor< float >* acc = showerShapeAccessorV1( information );
@@ -177,6 +189,23 @@ namespace xAOD {
     ( *acc )( *this ) = value;
     return true;
 
+  }
+
+  /////////// Object Quality
+  bool Egamma_v1::isGoodOQ(uint32_t mask) const {
+    static const Accessor< uint32_t > acc( "OQ" );
+    uint32_t OQ = acc( *this );
+    return (OQ & mask)==0;
+  }
+
+  uint32_t Egamma_v1::OQ() const{
+    static const Accessor< uint32_t > acc( "OQ" );
+    return acc( *this) ;
+  }
+  
+  void Egamma_v1::setOQ(uint32_t newOQ) {
+    static const Accessor< uint32_t > acc( "OQ" );
+    acc( *this) = newOQ;
   }
 
   ///////////////   Isolation value
@@ -361,23 +390,6 @@ namespace xAOD {
   AUXSTORE_OBJECT_SETTER_AND_GETTER( Egamma_v1, Egamma_v1::CLELVec_t,
                                      caloClusterLinks, setCaloClusterLinks )
 
-  ///////////
-
-  bool Egamma_v1::isGoodOQ(uint32_t mask) const {
-    const static Accessor< uint32_t > acc( "OQ" );
-    uint32_t OQ = acc( *this );
-    return (OQ & mask)==0;
-  }
-
-  uint32_t Egamma_v1::OQ() const{
-    const static Accessor< uint32_t > acc( "OQ" );
-    return acc( *this) ;
-  }
-  
-  void Egamma_v1::setOQ(uint32_t newOQ) {
-    const static Accessor< uint32_t > acc( "OQ" );
-    acc( *this) = newOQ;
-  }
 
   /////////// 
 
