@@ -72,7 +72,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   setCurrentMonGroup(m_mongroup_name);
   
   // HLT clusters
-  addHistogram(new TH1F     ("HLT_num",     "Number of HLT Clusters; Num Clusters; Entries", 101,  -0.5, 200.5));
+  addHistogram(new TH1F     ("HLT_num",     "Number of HLT Clusters; Num Clusters; Entries", 101,  -0.5, 100.5));
   addHistogram(new TH2F     ("HLT_num_map", "Number of HLT Clusters; #eta;         #phi;",    50,  -5.0,   5.0, 64, -M_PI, M_PI));
   addHistogram(new TH1F     ("HLT_et",      "HLT Cluster E_{T};      E_{T} [GeV];  Entries", 100,   0.0, 100.0));
   addHistogram(new TH1F     ("HLT_eta",     "HLT Cluster #eta;       #eta;         Entries",  50,  -5.0,   5.0));
@@ -81,7 +81,7 @@ StatusCode HLTCaloESD_xAODCaloClusters::book()
   addHistogram(new TH1F     ("HLT_size",    "HLT Cluster Size;       Num Cells;    Entries", 101,  -0.5, 200.5));
   
   // OFF clusters
-  addHistogram(new TH1F     ("OFF_num",     "Number of OFF Clusters; Num Clusters; Entries", 101,  -0.5, 200.5));
+  addHistogram(new TH1F     ("OFF_num",     "Number of OFF Clusters; Num Clusters; Entries", 101,  -0.5, 100.5));
   addHistogram(new TH2F     ("OFF_num_map", "Number of OFF Clusters; #eta;         #phi",     50,  -5.0,   5.0, 64, -M_PI, M_PI));
   addHistogram(new TH1F     ("OFF_et",      "OFF Cluster E_{T};      E_{T} [GeV];  Entries", 100,   0.0, 100.0));
   addHistogram(new TH1F     ("OFF_eta",     "OFF Cluster #eta;       #eta;         Entries",  50,  -5.0,   5.0));
