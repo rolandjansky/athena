@@ -38,8 +38,7 @@
 #include "Identifier/Identifier.h"
 #include "InDetIdentifier/SCT_ID.h"
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
-#include "EventInfo/EventID.h"
-#include "EventInfo/EventInfo.h"
+#include "xAODEventInfo/EventInfo.h"
 #include "cArrayUtilities.h"
 #include <vector>
 #include <set>
@@ -225,12 +224,12 @@ SCTErrMonTool::SCTErrMonTool(const std::string & type,const std::string & name,c
   m_LinksWithBadErrorsVsLBLayer{},
   m_LinksWithLnkErrorsVsLBLayer{},
   m_LinksWithRODErrorsVsLBLayer{},
+  m_NumberOfSCTFlagErrorsVsLB{},
+  m_NumberOfEventsVsLB{},
   m_ConfEffOnline{},
   m_ConfNoiseOnline{},
   m_ConfNoiseOnlineRecent{},
   m_DetailedConfiguration{},
-  m_NumberOfSCTFlagErrorsVsLB{},
-  m_NumberOfEventsVsLB{},
   m_thistSvc("THistSvc",name),
   m_byteStreamErrSvc("SCT_ByteStreamErrorsSvc",name),
   m_checkBadModules(true),
@@ -378,17 +377,17 @@ StatusCode SCTErrMonTool::bookHistograms()
 //====================================================================================================
 StatusCode SCTErrMonTool::fillHistograms(){
   typedef SCT_RDORawData SCTRawDataType;
-  const EventInfo* pEvent(0);
+  const xAOD::EventInfo* pEvent(0);
   if( evtStore()->retrieve(pEvent).isFailure() ) {
     ATH_MSG_WARNING( "Could not retrieve event info!" );
     return StatusCode::RECOVERABLE; 
   }
-  m_current_lb = pEvent->event_ID()->lumi_block();
+  m_current_lb = pEvent->lumiBlock();
   if (fillByteStreamErrors().isFailure() ) {
     ATH_MSG_ERROR("Could not fill ByteStreamErrors ");
     return StatusCode::FAILURE;
   }
-  if(pEvent->errorState(EventInfo::SCT)==EventInfo::Error){
+  if(pEvent->errorState(xAOD::EventInfo::SCT)==xAOD::EventInfo::Error){
     //ATH_MSG_WARNING("SCT_Flag==FALSE:: LVL1ID Errors >500 ");
     m_NumberOfSCTFlagErrorsVsLB->Fill(m_current_lb);
     return StatusCode::SUCCESS;
@@ -710,12 +709,12 @@ void SCTErrMonTool::numByteStreamErrors(const std::set<IdentifierHash>* errors, 
 StatusCode SCTErrMonTool::fillByteStreamErrors() {
 
   // Masked and ROB Fragment vs. lb
-  const EventInfo* pEvent(0);
+  const xAOD::EventInfo* pEvent(0);
   if( evtStore()->retrieve(pEvent).isFailure() ) {
     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve event info!" <<endreq;
     return StatusCode::FAILURE;
   }
-  unsigned int current_lb = pEvent->event_ID()->lumi_block();
+  unsigned int current_lb = pEvent->lumiBlock();
   
   int bytestream_errs[N_ERRTYPES][NREGIONS_INC_GENERAL];
   int tot_mod_bytestream_errs[N_ERRTYPES][NREGIONS_INC_GENERAL];
