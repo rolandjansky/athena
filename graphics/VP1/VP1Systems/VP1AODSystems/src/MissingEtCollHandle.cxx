@@ -85,7 +85,7 @@ public:
 
 //____________________________________________________________________
 MissingEtCollHandle::MissingEtCollHandle(AODSysCommonData * cd, const QString& name, xAOD::Type::ObjectType type)
-  : AODCollHandleBase(cd,name,type), d(new Imp)
+  : AODCollHandleBase(cd,name,type), d(new Imp), m_cut_phi_allowall{}, m_cut_phi_allwillfail{}
 {
   d->theclass = this;
   d->updateGUICounter = 0;

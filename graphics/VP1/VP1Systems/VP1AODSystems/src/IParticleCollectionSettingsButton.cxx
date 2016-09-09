@@ -33,7 +33,7 @@
 //____________________________________________________________________
 class IParticleCollectionSettingsButton::Imp {
 public:
-  Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), lightModel(0){}
+  Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), lightModel(0),dim(0){}
   IParticleCollectionSettingsButton * theclass;
   QWidget * editwindow;
   Ui::IParticleCollectionSettingsForm editwindow_ui;

@@ -36,7 +36,10 @@
 //____________________________________________________________________
 class VertexCollectionSettingsButton::Imp {
 public:
-  Imp():theclass(0),editwindow(0),matButton(0), vertexDrawStyle(0), vertexLightModel(0){}
+  Imp():theclass(0),editwindow(0),editwindow_ui{},matButton(0), dim(0),vertexDrawStyle(0), vertexLightModel(0),
+  last_vertexRadius(0.0),last_cutAllowedR{}, last_cutAllowedZ{},dragStartPosition{}{
+    //nop
+  }
   VertexCollectionSettingsButton * theclass;
   QWidget * editwindow;
   Ui::VertexCollectionSettingsForm editwindow_ui;

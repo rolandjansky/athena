@@ -40,7 +40,11 @@ class JetCollectionSettingsButton::Imp {
 public:
 
 //	Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0){}
-	Imp():theclass(0),editwindow(0),matButton(0), dim(0) {}
+	Imp():theclass(0),editwindow(0),matButton(0), last_scale(0.0), last_useDefaultCuts{},
+	last_randomJetColours{}, last_useMaxR{}, last_maxR(0.0), last_bTaggingEnabled{},
+	last_bTaggingCut(0.0),last_bTaggingRenderingSkin{}, last_bTaggingRenderingMaterial{},
+	m_jetMaterialDefault(nullptr), materialFallback(nullptr),
+	dim(0) {}
 
 	// the main class
 	JetCollectionSettingsButton * theclass;
