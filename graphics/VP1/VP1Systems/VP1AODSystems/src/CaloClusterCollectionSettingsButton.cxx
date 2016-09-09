@@ -45,7 +45,11 @@ class CaloClusterCollectionSettingsButton::Imp {
 public:
 
 //	Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0){}
-	Imp():dim(0),matButton(0),theclass(0),editwindow(0) {}
+	Imp():dim(0),matButton(nullptr),theclass(nullptr),coll(nullptr),editwindow(nullptr),
+	m_transverseEnergy{},m_forceRebuild{},last_useDefaultCuts{},
+	gui_mostEnergetic{0.0} {
+	  //nop
+	}
 
 	int dim;
 	QPoint dragStartPosition;

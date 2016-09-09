@@ -215,8 +215,9 @@ bool IParticleCollHandle_Muon::cut(AODHandleBase* handle)
     return false;
 
   IParticleHandle_Muon * muon = dynamic_cast<IParticleHandle_Muon*>(handle);
+  if (not muon) return false;
   std::cout<<"muon: "<<muon<<"\t muon->quality()="<<muon->quality()<<" collSettingsButton().minimumQuality()="<<collSettingsButton().minimumQuality()<<std::endl;
-  if (!muon || static_cast<unsigned int>(muon->quality()) > collSettingsButton().minimumQuality() )
+  if (static_cast<unsigned int>(muon->quality()) > collSettingsButton().minimumQuality() )
     return false;
   //Fixme: more? Or just use base class method and remove this?
 

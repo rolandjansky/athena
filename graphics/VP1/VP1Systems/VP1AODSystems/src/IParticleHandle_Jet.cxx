@@ -195,7 +195,7 @@ SoNode* IParticleHandle_Jet::nodes(){
 	}
 
 	const IParticleCollHandle_Jet* collHandleJet = dynamic_cast<const IParticleCollHandle_Jet*>(collHandle());
-
+  if (not collHandleJet) return d->sep; //would nullptr be better?
 	SbVec3f origin(0.,0.,0.);
 	/* TODO: ask if origin info is present in xAOD, like in the old Jet class
 	if ( d->m_jet->origin() ) {
@@ -722,8 +722,8 @@ double IParticleHandle_Jet::getBTaggingWeight(std::string tagger)
 		weight = myBTag->JetFitterCombNN_pc();
 	else if (tagger == "JetFitterCombNN_pu")
 		weight = myBTag->JetFitterCombNN_pu();
-	else if ("MV2c20")
-		const bool hasMv2c20 = myBTag->MVx_discriminant("MV2c20", weight);
+	else if (tagger=="MV2c20")
+		/*const bool hasMv2c20 =*/ myBTag->MVx_discriminant("MV2c20", weight);
 	else
 		VP1Msg::message("Tagger '" + QString::fromStdString(tagger) + "' not found! Returning weight=0.0 ...");
 

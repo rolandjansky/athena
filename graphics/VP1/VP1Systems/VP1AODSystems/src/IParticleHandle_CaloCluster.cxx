@@ -107,6 +107,7 @@ SoGenericBox* IParticleHandle_CaloCluster::genericBox() const
 bool IParticleHandle_CaloCluster::isConsiderTransverseEnergies() const
 {
 	const IParticleCollHandle_CaloCluster* collHandleJet = dynamic_cast<const IParticleCollHandle_CaloCluster*>(collHandle());
+	if (not collHandleJet) return false;
 	bool Et = collHandleJet->isConsiderTransverseEnergy();
 	VP1Msg::messageDebug("IParticleHandle_CaloCluster::isConsiderTransverseEnergies() - " + QString::number(Et));
 	return Et;
@@ -170,7 +171,7 @@ SoNode* IParticleHandle_CaloCluster::nodes(){
 	}
 
 	const IParticleCollHandle_CaloCluster* coll_handle = dynamic_cast<const IParticleCollHandle_CaloCluster*>(collHandle());
-
+  if (not coll_handle) return d->sep;
 	VP1Msg::messageVerbose("creating the shapes");
 
 	/*

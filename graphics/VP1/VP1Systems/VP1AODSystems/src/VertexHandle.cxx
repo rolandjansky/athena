@@ -51,7 +51,7 @@ public:
 
   static int nvtxhandles;
 
-  Imp(VertexHandle*tc, const xAOD::Vertex* vtx) : theclass(tc), vertex(vtx), sep(0), sphere(0){}
+  Imp(VertexHandle*tc, const xAOD::Vertex* vtx) : theclass(tc), vertex(vtx), collHandle(nullptr),sep(nullptr), sphere(nullptr){}
   ~Imp() { }
   VertexHandle * theclass;
   const xAOD::Vertex* vertex;
