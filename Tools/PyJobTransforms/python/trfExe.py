@@ -5,7 +5,7 @@
 # @brief Transform execution functions
 # @details Standard transform executors
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfExe.py 770109 2016-08-25 14:58:32Z mavogel $
+# @version $Id: trfExe.py 772406 2016-09-09 12:10:12Z mavogel $
 
 import copy
 import json
@@ -828,7 +828,7 @@ class athenaExecutor(scriptExecutor):
 
         # Setup JO templates
         if self._skeleton is not None:
-            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 770109 2016-08-25 14:58:32Z mavogel $')
+            self._jobOptionsTemplate = JobOptionsTemplate(exe = self, version = '$Id: trfExe.py 772406 2016-09-09 12:10:12Z mavogel $')
         else:
             self._jobOptionsTemplate = None
 
@@ -946,9 +946,10 @@ class athenaExecutor(scriptExecutor):
                         if not matchedViaGlob and "ALL" in self.conf.argdict['athenaMPMergeTargetSize'].value:
                             self.conf._dataDictionary[dataType].mergeTargetSize = self.conf.argdict['athenaMPMergeTargetSize'].value["ALL"] * 1000000 # Convert from MB to B
                             msg.info('Set target merge size for {0} to {1} from "ALL" value'.format(dataType, self.conf._dataDictionary[dataType].mergeTargetSize))
+         
             # For AthenaMP jobs we ensure that the athena outputs get the suffix _000
             # so that the mother process output file (if it exists) can be used directly
-            # as soft linking is can lead to problems in the PoolFileCatalog (see ATLASJT-317) 
+            # as soft linking can lead to problems in the PoolFileCatalog (see ATLASJT-317)
             for dataType in output:
                 self.conf._dataDictionary[dataType].originalName = self.conf._dataDictionary[dataType].value[0]
                 self.conf._dataDictionary[dataType].value[0] += "_000"
@@ -1040,8 +1041,11 @@ class athenaExecutor(scriptExecutor):
         # If this was an athenaMP run then we need to update output files
         if self._athenaMP:
             outputDataDictionary = dict([ (dataType, self.conf.dataDictionary[dataType]) for dataType in self._output ])
-            ## @note Update argFile values to have the correct outputs from the MP workers 
-            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP)
+            ## @note Update argFile values to have the correct outputs from the MP workers
+            skipFileChecks=False
+            if 'eventService' in self.conf.argdict and self.conf.argdict['eventService'].value:
+                skipFileChecks=True
+            athenaMPOutputHandler(self._athenaMPFileReport, self._athenaMPWorkerTopDir, outputDataDictionary, self._athenaMP, skipFileChecks)
             for dataType in self._output:
                 if self.conf.dataDictionary[dataType].io == "output" and len(self.conf.dataDictionary[dataType].value) > 1:
                     self._smartMerge(self.conf.dataDictionary[dataType])
@@ -1329,7 +1333,7 @@ class athenaExecutor(scriptExecutor):
             return
         
         if fileArg.mergeTargetSize == 0:
-            msg.info('Files in {0} will not be merged as target size is set to 0)'.format(fileArg.name))
+            msg.info('Files in {0} will not be merged as target size is set to 0'.format(fileArg.name))
             return
 
         ## @note Produce a list of merge jobs - this is a list of lists

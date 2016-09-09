@@ -5,7 +5,7 @@
 # @brief Main package for new style ATLAS job transforms
 # @details Core class for ATLAS job transforms
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: transform.py 767907 2016-08-12 21:46:42Z mavogel $
+# @version $Id: transform.py 772406 2016-09-09 12:10:12Z mavogel $
 # 
 
 __version__ = '$Revision'
@@ -230,8 +230,14 @@ class transform(object):
                 except Exception, e:
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_ARG_ERROR'), 'Error when deserialising JSON file {0} ({1})'.format(self._argdict['argJSON'], e))
             
-            
-            
+            # Event Service
+            if 'eventService' in self._argdict and self._argdict['eventService'].value:
+                updateDict = {}
+                updateDict['athenaMPMergeTargetSize'] = '*:0'
+                updateDict['checkEventCount'] = False
+                updateDict['outputFileValidation'] = False
+                extraParameters.update(updateDict)
+                
             # Process anything we found
             for k,v in extraParameters.iteritems():
                 msg.debug('Found this extra argument: {0} with value: {1} ({2})'.format(k, v, type(v)))
