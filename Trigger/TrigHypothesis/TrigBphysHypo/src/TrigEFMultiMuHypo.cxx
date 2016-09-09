@@ -56,6 +56,7 @@ TrigEFMultiMuHypo::TrigEFMultiMuHypo(const std::string & name, ISvcLocator* pSvc
   // Read cuts
 
   declareProperty("AcceptAll",    m_acceptAll=true);
+  declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "EFMultiMuFex" );
   declareProperty("OppositeSign", m_oppositeCharge=true);
   declareProperty("LowerMassCut", m_lowerMassCut=4000.0);
   declareProperty("UpperMassCut", m_upperMassCut=6000.0);
@@ -80,6 +81,7 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltInitialize()
 
     msg() << MSG::DEBUG << "AcceptAll            = "
         << (m_acceptAll==true ? "True" : "False") << endmsg;
+    msg() << MSG::DEBUG << "TrigBphys collection " << m_bphysCollectionKey << endmsg;
     msg() << MSG::DEBUG << "OppositeCharge       = "
         << (m_oppositeCharge==true ? "True" : "False") << endmsg;
     msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endmsg;
@@ -178,7 +180,7 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
 //  const TrigEFBContainer* trigBphysColl = 0;
 //  const VxContainer* VertexColl;
 
-  HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, "EFMultiMuFex");
+  HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, m_bphysCollectionKey );
 
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING) {
@@ -234,9 +236,9 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
             if(!thisPassedBsMass && !thisPassedChi2Cut)
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass mass & chi2 cuts < "<< endmsg;
             
+	    if( thisPassedBsMass ) PassedBsMass = true;
             if( thisPassedBsMass && thisPassedChi2Cut )
             {
-              PassedBsMass = true;
               PassedChi2Cut = true;
                 //HLT::markPassing(bits, *bphysIter, trigBphysColl);
               xBits->markPassing((*bphysIter),trigBphysColl,true);
@@ -287,6 +289,7 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
       m_lastEventPassed=IdEvent;
     }
     pass=true;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " accepting event" << endmsg;
   }
 
   // store result
