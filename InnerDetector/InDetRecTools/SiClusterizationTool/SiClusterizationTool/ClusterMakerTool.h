@@ -30,7 +30,6 @@ class IPixelCalibSvc;
 template <class T> class ServiceHandle;
 class Identifier;
 class StatusCode;
-class IBLParameterSvc;
 
 namespace InDetDD {
   class SiDetectorElement;
@@ -139,10 +138,8 @@ public:
 private:
 
   //  mutable MsgStream m_log;
-  ServiceHandle<IBLParameterSvc>                         m_IBLParameterSvc;  
   bool m_calibrateCharge;
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
-  mutable int                                                 m_overflowIBLToT;                                                                                          
   ServiceHandle<IPixelOfflineCalibSvc> m_offlineCalibSvc;
 
   // Parametrization of the Pixel errors
