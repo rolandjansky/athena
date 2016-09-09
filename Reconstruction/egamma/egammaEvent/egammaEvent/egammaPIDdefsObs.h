@@ -47,7 +47,7 @@
 
 #include <climits>
 
-namespace egammaPID { 
+namespace egammaPIDObs { 
   
  /*! \enum Bitdefinitons for the egamma identification tools */
   enum PID {

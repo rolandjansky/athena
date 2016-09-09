@@ -41,7 +41,7 @@ UPDATED:
 #include "egammaEvent/egDetail.h"
 
 #include "egammaEvent/egPID.h"
-#include "egammaEvent/egammaPIDdefs.h"
+#include "egammaEvent/egammaPIDdefsObs.h"
 
 #include "egammaEvent/CaloRingsContainer.h"
 
@@ -171,8 +171,8 @@ class egamma
 
   /** @brief access to PID information, as double to work for IsEM 
       and all possible weights as likelihood */
-  double egammaID(egammaPID::PID, bool *found) const;
-  double egammaID(egammaPID::PID) const;
+  double egammaID(egammaPIDObs::PID, bool *found) const;
+  double egammaID(egammaPIDObs::PID) const;
   const egPID* pid() const;
 
   /** @brief set detail */
@@ -187,13 +187,13 @@ class egamma
   void set_pid(egPID* );
   /** @brief set_egamma ID, for doubles
       and all possible weights as likelihood */
-  bool set_egammaID(egammaPID::PID id, double result);
+  bool set_egammaID(egammaPIDObs::PID id, double result);
 
   /** @brief set_egamma ID, for usigned int values */
-  bool set_egammaIDint(egammaPID::PID id, unsigned int result);
+  bool set_egammaIDint(egammaPIDObs::PID id, unsigned int result);
 
   // move this in egPID and just provide return of egPID 
-  //  const std::vector< std::pair<egammaPID::PID,double> > & get_egammaID()       const;
+  //  const std::vector< std::pair<egammaPIDObs::PID,double> > & get_egammaID()       const;
 
   // to save pointers to access the different objects of the e/g data class
 
@@ -256,32 +256,32 @@ class egamma
   virtual void fillToken( INavigationToken & thisToken, const boost::any& ) const;
 
   /** @brief ID flag with cuts, true:e/phot, false:bkg  */
-  bool isElectron(unsigned int mask= egammaPID::ALL, 
-		  egammaPID::PID pid=egammaPID::IsEM, 
+  bool isElectron(unsigned int mask= egammaPIDObs::ALL, 
+		  egammaPIDObs::PID pid=egammaPIDObs::IsEM, 
 		  bool *found = NULL) const;
-  bool isPhoton(unsigned int mask= egammaPID::ALL, 
-		egammaPID::PID pid=egammaPID::IsEM, 
+  bool isPhoton(unsigned int mask= egammaPIDObs::ALL, 
+		egammaPIDObs::PID pid=egammaPIDObs::IsEM, 
 		bool *found = NULL) const; // exactly the same as isElectron
 
    /** @brief does electron/photon pass the given quality  */
-  bool passID(egammaPID::egammaIDQuality id) const;
+  bool passID(egammaPIDObs::egammaIDQuality id) const;
 
   /** @brief uses special softe cuts */
-  bool isSofte(unsigned int mask= egammaPID::ALL, bool *found = NULL) const;
+  bool isSofte(unsigned int mask= egammaPIDObs::ALL, bool *found = NULL) const;
 
   /** @brief ID flag with cuts, 0:e, >1:jet  */
-  unsigned int isem(unsigned int mask= egammaPID::ALL, 
-		    egammaPID::PID pid=egammaPID::IsEM) const;
+  unsigned int isem(unsigned int mask= egammaPIDObs::ALL, 
+		    egammaPIDObs::PID pid=egammaPIDObs::IsEM) const;
   unsigned int isem(unsigned int mask, 
-		    egammaPID::PID pid,
+		    egammaPIDObs::PID pid,
 		    bool *found) const;
   /** @brief ID flag with cuts for softe, 0:e, >1:jet */
-  unsigned int isemse(unsigned int mask= egammaPID::ALL) const;
+  unsigned int isemse(unsigned int mask= egammaPIDObs::ALL) const;
   unsigned int isemse(unsigned int mask, bool *found) const;
 
   /** @brief OQ flag  */  
-  bool isGoodOQ(unsigned int mask= egammaPID::ALLOQ, bool *found = NULL) const;
-  unsigned int isgoodoq(unsigned int mask= egammaPID::ALLOQ, bool *found = NULL) const;
+  bool isGoodOQ(unsigned int mask= egammaPIDObs::ALLOQ, bool *found = NULL) const;
+  unsigned int isgoodoq(unsigned int mask= egammaPIDObs::ALLOQ, bool *found = NULL) const;
 
   
   /** @brief override standard errors to allow lazy loading */
