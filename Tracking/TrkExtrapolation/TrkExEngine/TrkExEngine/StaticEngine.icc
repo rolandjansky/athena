@@ -209,6 +209,8 @@ template <class T> Trk::ExtrapolationCode Trk::StaticEngine::handleLayerT(Trk::E
     //    - Recovered              : layer was not hit, so can be ignored in the layer to layer loop 
     eCode = m_propagationEngine->propagate(eCell,*eCell.leadLayerSurface,pDir,true,eCell.navigationCurvilinear);
     CHECK_ECODE_SUCCESS_NODEST(eCell, eCode);
+    // record the passive parameters 
+    if (eCode!=Trk::ExtrapolationCode::Recovered) eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectPassive);  
     // check if the layer was actually hit
     if (eCode.inProgress()){
         // successful layer hit 
@@ -219,8 +221,6 @@ template <class T> Trk::ExtrapolationCode Trk::StaticEngine::handleLayerT(Trk::E
         // - SuccessMaterialLimit  : material limit reached & configured to stop there
         eCode = m_materialEffectsEngine->handleMaterial(eCell,pDir,Trk::fullUpdate);
         CHECK_ECODE_CONTINUE(eCell, eCode);
-        // record the passive parameters
-        eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectPassive);
         // return the progress eCode back to the extrapolateT
         return eCode;
     }    
@@ -344,7 +344,9 @@ template <class T> Trk::ExtrapolationCode Trk::StaticEngine::resolveLayerT(Trk::
                     eCode = m_materialEffectsEngine->handleMaterial(eCell,pDir,Trk::fullUpdate);
                     CHECK_ECODE_CONTINUE(eCell, eCode);
                 }
-            } 
+            } else if (eCode== Trk::ExtrapolationCode::SuccessPathLimit) {
+                eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectPassive);              
+	    }  
        } // loop over test surfaces done
     } // there are compatible surfaces          
 

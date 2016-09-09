@@ -135,12 +135,13 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::handleBou
     // check for progress 
     if (eCode.inProgress()){         
         // check if the boundary solution is compatible with the radial direciton of the extrapolation
-	    if (!eCell.checkRadialCompatibility()) {
+	if (!eCell.checkRadialCompatibility()) {
             // screen output for the radial compatibility check
             EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "handleBoundaryT", "radial compatbility check failed, radial direction is: " << eCell.radialDirection);
             // it's not jump back to the last valid lead parameters and return Unset as a trigger
-	        eCell.leadParameters = eCell.lastLeadParameters;
-	        return Trk::ExtrapolationCode::Unset;
+	    // delete eCell.leadParameters;    // ST memory leak ?
+	    eCell.leadParameters = eCell.lastLeadParameters;
+	    return Trk::ExtrapolationCode::Unset;
         }
         EX_MSG_VERBOSE(eCell.navigationStep, "navigation", "", "parameters on boundary surface created, moving to next volume."); 
         // get the nextVolume - modify the position in case you have a step out trial, take attachment otherwise
@@ -148,15 +149,18 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::handleBou
                 trackingGeometry().lowestTrackingVolume(Amg::Vector3D(eCell.leadParameters->position()+pDir*eCell.leadParameters->momentum().unit())) :
                 bSurfaceTV.attachedVolume(eCell.leadParameters->position(), eCell.leadParameters->momentum(), pDir);
         // check if we have no nextVolume : boundary rechaed @TODO it's not really a success
-        if (!nextVolume) return Trk::ExtrapolationCode::SuccessBoundaryReached;
+        if (!nextVolume) {
+          eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectBoundary);   // ST fixing memory leak	
+	  return Trk::ExtrapolationCode::SuccessBoundaryReached;
+	}
         // check if it is a boundary reached case
         // - geometrySignature change and configuration to stop then triggers a Success 
         bool stopAtThisBoundary = eCell.checkConfigurationMode(Trk::ExtrapolationMode::StopAtBoundary) 
                                   && (nextVolume->geometrySignature() != eCell.leadVolume->geometrySignature());        
         // fill the boundary into the cache if successfully hit boundary surface
         // - only cache if those are not the final parameters caused by a StopAtBoundary
-        if (!stopAtThisBoundary)
-            eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectBoundary);
+        //if (!stopAtThisBoundary)  // ST fixing memory leak
+        eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectBoundary);
         // loop protection - relaxed for the cases where you start from the boundary
         if (eCell.leadVolume == nextVolume ) {
             // the start parameters where on the boundary already give a relaxed return code
@@ -192,6 +196,8 @@ template <class T> Trk::ExtrapolationCode Trk::StaticNavigationEngine::handleBou
         eCell.leadLayer                       = 0;
         // we have bParameters -> break the loop over boundaryIntersections
         return  Trk::ExtrapolationCode::InProgress;
+     } else if (eCode!= Trk::ExtrapolationCode::Recovered) {
+      eCell.stepParameters(eCell.leadParameters, Trk::ExtrapolationMode::CollectPassive);              
      }
 
      // you need to keep on trying 

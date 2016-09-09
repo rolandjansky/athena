@@ -86,8 +86,14 @@ Trk::ExtrapolationCode Trk::PropagationEngine::propagate(Trk::ExCellCharged& eCe
                                                                       propLength,
                                                                       eCell.pHypothesis,
                                                                       returnCurvilinear);
+    // jacobian collection
+    if ( tjac ) {
+      if (eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectJacobians) && pParameters) {
+        if (pParameters) eCell.stepTransport(pParameters->associatedSurface(),propLength,tjac);
+      } else delete tjac;     // ST fix memory leak
+    }
    // set the return type according to how the propagation went
-   if (pParameters){
+   if (pParameters){ 
        // cache the last lead parameters, useful in case a navigation error occured
        eCell.lastLeadParameters = eCell.leadParameters;
        // assign the lead and end parameters

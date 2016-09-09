@@ -62,7 +62,7 @@ Trk::ExtrapolationCode Trk::MaterialEffectsEngine::handleMaterial(Trk::ExCellNeu
         // path correction 
         double pathCorrection = layer->surfaceRepresentation().pathCorrection(eCell.leadParameters->position(),dir*(eCell.leadParameters->momentum()));
         // the relative direction wrt with the layer
-        Trk::PropDirection rlDir = (pathCorrection > 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
+        Trk::PropDirection rlDir = (pathCorrection >= 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
         // multiply by the pre-and post-update factor
         double mFactor = layer->layerMaterialProperties()->factor(rlDir, matupstage);
         if (mFactor == 0.){
@@ -76,7 +76,7 @@ Trk::ExtrapolationCode Trk::MaterialEffectsEngine::handleMaterial(Trk::ExCellNeu
         // get the actual material bin
         const Trk::MaterialProperties* materialProperties = layer->layerMaterialProperties()->fullMaterial(eCell.leadParameters->position());
         // and let's check if there's acutally something to do
-        if (materialProperties){
+        if (materialProperties && fabs(pathCorrection)>0.){
             // thickness in X0 
             double thicknessInX0          = materialProperties->thicknessInX0();
             // check if material filling was requested
@@ -121,7 +121,7 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
     // path correction 
     double pathCorrection = layer->surfaceRepresentation().pathCorrection(parameters.position(),dir*(parameters.momentum()));
     // the relative direction wrt with the layer
-    Trk::PropDirection rlDir = (pathCorrection > 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
+    Trk::PropDirection rlDir = (pathCorrection >= 0. ? Trk::alongMomentum : Trk::oppositeMomentum);
     // multiply by the pre-and post-update factor
     double mFactor = layer->layerMaterialProperties()->factor(rlDir, matupstage);
     if (mFactor == 0.){
@@ -135,7 +135,8 @@ const Trk::TrackParameters* Trk::MaterialEffectsEngine::updateTrackParameters(co
     // get the actual material bin
     const Trk::MaterialProperties* materialProperties = layer->layerMaterialProperties()->fullMaterial(parameters.position());
     // and let's check if there's acutally something to do
-    if (materialProperties && ( m_eLossCorrection || m_mscCorrection || eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)) ){
+    if (materialProperties && fabs(pathCorrection)>0. && 
+	( m_eLossCorrection || m_mscCorrection || eCell.checkConfigurationMode(Trk::ExtrapolationMode::CollectMaterial)) ){
         // and add them 
         int sign = int(eCell.materialUpdateMode);
         // a simple cross-check if the parameters are the initial ones
