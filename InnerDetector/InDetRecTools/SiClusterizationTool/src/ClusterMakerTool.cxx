@@ -26,7 +26,6 @@
 
 #include "PixelConditionsServices/IPixelOfflineCalibSvc.h"
 #include "PixelConditionsServices/IPixelCalibSvc.h"
-#include "PixelGeoModel/IBLParameterSvc.h" 
 
 #include "EventPrimitives/EventPrimitives.h"
 
@@ -50,9 +49,7 @@ ClusterMakerTool::ClusterMakerTool(const std::string& t,
                                    const std::string& n,
                                    const IInterface* p) :
   AthAlgTool(t,n,p),
-  m_IBLParameterSvc("IBLParameterSvc",n), 
   m_calibSvc("PixelCalibSvc", n),
-  m_overflowIBLToT(0),
   m_offlineCalibSvc("PixelOfflineCalibSvc", n)
 { 
   declareInterface<ClusterMakerTool>(this);
@@ -70,7 +67,8 @@ StatusCode  ClusterMakerTool::initialize(){
   // Code entered here will be executed once at program start.
 
    ATH_MSG_INFO ( name() << " initialize()" );
-   
+
+/*
    if (m_IBLParameterSvc.retrieve().isFailure()) { 
      ATH_MSG_WARNING( "Could not retrieve IBLParameterSvc"); 
    } 
@@ -79,6 +77,7 @@ StatusCode  ClusterMakerTool::initialize(){
      m_calibSvc.setTypeAndName(m_IBLParameterSvc->setStringParameters(m_calibSvc.typeAndName(),"PixelCalibSvc")); 
      m_IBLParameterSvc->setBoolParameters(m_calibrateCharge,"UsePixelCalibCondDB"); 
    } 
+*/
 
    // Protect from the situation in which the PixelOfflineCalibSvc is not 
    // configured: that should be the case if no PixelRDO are read in.
@@ -180,8 +179,6 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     issueError=false;
   }
   
-  if (m_IBLParameterSvc->containsIBL() && !m_offlineCalibSvc.empty()) m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow(); //Do we really need this for every cluster? Every event would be sufficient I think, but a lot of client code may need changing to do that... to be looked at in future //NS
-
   const AtlasDetectorID* aid = element->getIdHelper();
   const PixelID* pid = dynamic_cast<const PixelID*>(aid);
   if (not pid){
@@ -198,17 +195,7 @@ PixelCluster* ClusterMakerTool::pixelCluster(
     for (int i=0; i<nRDO; i++) {
       Identifier pixid=rdoList[i];
       int ToT=totList[i];
-      float charge;
-      if( m_IBLParameterSvc->containsIBL() && pid->barrel_ec(pixid) == 0 && pid->layer_disk(pixid) == 0 ) {
-	      if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
-	      msg(MSG::DEBUG) << "barrel_ec = " << pid->barrel_ec(pixid) << " layer_disque = " <<  pid->layer_disk(pixid) << " ToT = " << totList[i] << " Real ToT = " << ToT << endreq;
-      }
-      float A = m_calibSvc->getQ2TotA(pixid);
-      if ( A>0. && (ToT/A)<1. ) {
-				float E = m_calibSvc->getQ2TotE(pixid);
-				float C = m_calibSvc->getQ2TotC(pixid);
-				charge = (C*ToT/A-E)/(1-ToT/A);
-      } else charge=0.;
+      float charge = m_calibSvc->getCharge(pixid,ToT);
       chargeList.push_back(charge);
     }
   }
@@ -345,8 +332,6 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   }
   if ( errorStrategy==2 && forceErrorStrategy1 ) errorStrategy=1;
 
-  if (m_IBLParameterSvc->containsIBL() && !m_offlineCalibSvc.empty()) m_overflowIBLToT = m_offlineCalibSvc->getIBLToToverflow(); //Do we really need this for every cluster? Every event would be sufficient I think, but a lot of client code may need changing to do that... to be looked at in future //NS
-
   // Fill vector of charges and compute charge balance
   const InDetDD::PixelModuleDesign* design = (dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design()));
   if (not design){
@@ -365,21 +350,13 @@ PixelCluster* ClusterMakerTool::pixelCluster(
   for (int i=0; i<nRDO; i++) {
      Identifier pixid=rdoList[i];
      int ToT=totList[i];
-     if( m_IBLParameterSvc->containsIBL() && pixelID.barrel_ec(pixid) == 0 && pixelID.layer_disk(pixid) == 0 ) {
-       if (ToT >= m_overflowIBLToT ) ToT = m_overflowIBLToT;
-       msg(MSG::DEBUG) << "barrel_ec = " << pixelID.barrel_ec(pixid) << " layer_disque = " <<  pixelID.layer_disk(pixid) << " ToT = " << totList[i] << " Real ToT = " << ToT << endreq;
-     }
-     
+
      float charge = ToT;
      if (m_calibrateCharge){
-       float A = m_calibSvc->getQ2TotA(pixid);
-       if ( A>0. && (ToT/A)<1. ) {
-	       float E = m_calibSvc->getQ2TotE(pixid);
-	       float C = m_calibSvc->getQ2TotC(pixid);
-	       charge = (C*ToT/A-E)/(1-ToT/A);
-       } else charge=0.;
+       charge = m_calibSvc->getCharge(pixid,ToT);
        chargeList.push_back(charge);
      }
+
      //     std::cout << "tot, charge =  " << ToT << " " << charge << std::endl;
      int row = pixelID.phi_index(pixid);
      int col = pixelID.eta_index(pixid);
