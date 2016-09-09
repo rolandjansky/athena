@@ -32,6 +32,12 @@ TBECInnerModuleTool::TBECInnerModuleTool(const std::string& type, const std::str
 
 StatusCode TBECInnerModuleTool::initializeSD()
 {
+  // Multi-threading not yet supported
+  if(m_gapadjSD) {
+    ATH_MSG_ERROR("TBECInnerModuleTool::initializeSD - SDs already exist. " <<
+                  "Are you running an MT job? Not yet supported!");
+    return StatusCode::FAILURE;
+  }
   m_gapadjSD = new LArG4SimpleSD( "LAr::EMEC::InnerModule::SDin_gapadj" , new LArG4::EC::EnergyCalculator(LArWheelCalculator::InnerAbsorberModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ) , m_timeBinType , m_timeBinWidth );
   m_gapoldSD = new LArG4SimpleSD("LAr::EMEC::InnerModule::SDin_gapold", new LArG4::EC::EnergyCalculator(LArWheelCalculator::InnerAbsorberModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_OLD) , m_timeBinType , m_timeBinWidth);
   m_gap_eSD  = new LArG4SimpleSD("LAr::EMEC::InnerModule::SDin_gap_e", new LArG4::EC::EnergyCalculator(LArWheelCalculator::InnerAbsorberModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_E) , m_timeBinType , m_timeBinWidth);

@@ -14,6 +14,9 @@
 
 class LArG4CalibSD;
 
+/// DEPRECATED AND WILL BE REMOVED.
+/// Please see LArG4::H62004InactiveSDTool instead.
+///
 class LArG4H62004InactiveSDTool : public LArG4SDTool
 {
  public:

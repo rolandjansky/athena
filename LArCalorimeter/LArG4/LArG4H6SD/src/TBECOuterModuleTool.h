@@ -14,6 +14,11 @@
 
 class LArG4SimpleSD;
 
+/// @class TBECOuterModuleTool
+///
+/// This implementation has issues in multi-threading and so cannot
+/// be used in an MT job. Migration discussion ongoing in ATLASSIM-2606.
+///
 class TBECOuterModuleTool : public LArG4SDTool
 {
  public:

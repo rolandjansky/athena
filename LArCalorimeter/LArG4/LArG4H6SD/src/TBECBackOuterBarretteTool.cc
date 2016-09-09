@@ -32,6 +32,12 @@ TBECBackOuterBarretteTool::TBECBackOuterBarretteTool(const std::string& type, co
 
 StatusCode TBECBackOuterBarretteTool::initializeSD()
 {
+  // Multi-threading not yet supported
+  if(m_gapadjSD) {
+    ATH_MSG_ERROR("TBECBackOuterBarretteTool::initializeSD - SDs already exist. " <<
+                  "Are you running an MT job? Not yet supported!");
+    return StatusCode::FAILURE;
+  }
   m_gapadjSD = new LArG4SimpleSD( "LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gapadj" , new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ) , m_timeBinType , m_timeBinWidth );
   m_gapoldSD = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gapold", new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_OLD) , m_timeBinType , m_timeBinWidth);
   m_gap_eSD  = new LArG4SimpleSD("LAr::EMEC::BackOuterBarrette::Module::Phidiv::SDout_gap_e", new LArG4::EC::EnergyCalculator(LArWheelCalculator::BackOuterBarretteModule, LArG4::EC::EnergyCalculator::EMEC_ECOR_GADJ_E) , m_timeBinType , m_timeBinWidth);

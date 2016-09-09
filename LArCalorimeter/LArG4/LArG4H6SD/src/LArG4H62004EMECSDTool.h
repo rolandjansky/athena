@@ -14,6 +14,9 @@
 
 class LArG4SimpleSD;
 
+/// DEPRECATED AND WILL BE REMOVED.
+/// Please see LArG4::H62004EMECSDTool instead.
+///
 class LArG4H62004EMECSDTool : public LArG4SDTool
 {
  public:

@@ -28,6 +28,7 @@ atlas_depends_on_subdirs( PUBLIC
                           LArCalorimeter/LArG4TB/LArG4TBSimEvent
                           LArCalorimeter/LArGeoModel/LArReadoutGeometry
                           LArCalorimeter/LArSimEvent
+                          Simulation/G4Atlas/G4AtlasInterfaces
                           Simulation/G4Atlas/G4AtlasTools
                           Simulation/G4Sim/SimHelpers
                           Simulation/HitManagement
@@ -48,7 +49,7 @@ atlas_add_component( LArG4H6SD
                      src/*.cc
                      src/components/*.cxx
                      INCLUDE_DIRS ${CORAL_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${XERCESC_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GEANT4_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} GaudiKernel CaloG4SimLib CaloSimEvent AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests GeoModelUtilities Identifier GeneratorObjects LArG4Code LArG4EC LArG4FCAL LArG4HEC LArG4RunControl LArG4TBSimEvent LArReadoutGeometry LArSimEvent G4AtlasToolsLib SimHelpers HitManagement TBEvent PathResolver )
+                     LINK_LIBRARIES ${CORAL_LIBRARIES} ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} ${GEANT4_LIBRARIES} GaudiKernel CaloG4SimLib CaloSimEvent AthenaBaseComps AthenaKernel CxxUtils StoreGateLib SGtests GeoModelUtilities Identifier GeneratorObjects LArG4Code LArG4EC LArG4FCAL LArG4HEC LArG4RunControl LArG4TBSimEvent LArReadoutGeometry LArSimEvent G4AtlasInterfaces G4AtlasToolsLib SimHelpers HitManagement TBEvent PathResolver )
 
 # Install files from the package:
 atlas_install_headers( LArG4H6SD )
