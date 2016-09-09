@@ -56,6 +56,7 @@ class TrigEFMultiMuHypo: public HLT::HypoAlgo  {
 
     // to set Accept-All mode: should be done with force-accept when possible
     bool m_acceptAll;
+    std::string m_bphysCollectionKey;
 
 
   //Counters
