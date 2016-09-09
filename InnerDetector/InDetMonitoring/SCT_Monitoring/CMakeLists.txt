@@ -25,6 +25,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Control/DataModel
                           DetectorDescription/Identifier
                           Event/EventInfo
+                          Event/xAOD/xAODEventInfo
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           InnerDetector/InDetRawEvent/InDetRawData
                           InnerDetector/InDetRecEvent/InDetRIO_OnTrack
