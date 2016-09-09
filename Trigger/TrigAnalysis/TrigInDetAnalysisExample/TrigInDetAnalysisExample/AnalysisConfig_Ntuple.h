@@ -49,6 +49,7 @@ public:
     m_doOffline(false),
     m_doVertices(false),
     m_doMuons(false),
+    m_doMuonsSP(false),
     m_doElectrons(false),
     m_doElectrons_tightCB(false),
     m_doElectrons_mediumCB(false),
@@ -100,6 +101,7 @@ public:
       if ( chainNames[i]=="Electrons_MediumLH" ) m_doElectrons_mediumLH = true;
       if ( chainNames[i]=="Electrons_LooseLH" )  m_doElectrons_looseLH  = true;
       if ( chainNames[i]=="Muons" )       m_doMuons       = true;
+      if ( chainNames[i]=="MuonsSP" )     m_doMuonsSP     = true;
       if ( chainNames[i]=="Taus_1Prong" ) m_doTaus_1Prong = true;
       if ( chainNames[i]=="Taus_Tight_1Prong" )  m_doTaus_tight_1Prong  = true;
       if ( chainNames[i]=="Taus_Medium_1Prong" ) m_doTaus_medium_1Prong = true;
@@ -144,6 +146,7 @@ protected:
   bool m_doOffline;
   bool m_doVertices;
   bool m_doMuons;
+  bool m_doMuonsSP;
   bool m_doElectrons;
   bool m_doElectrons_tightCB;
   bool m_doElectrons_mediumCB;
