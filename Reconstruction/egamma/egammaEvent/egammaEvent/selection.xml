@@ -30,9 +30,9 @@
  <class name="EMErrorDetail" />
  <class name="egPID" />
  <class name="std::vector<std::pair<egammaPID::PID,double> >" />
- <class name="std::pair<egammaPID::PID,double>" />
+ <class name="std::pair<egammaPIDObs::PID,double>" />
  <class name="std::vector<std::pair<egammaPID::PID,unsigned int> >" />
- <class name="std::pair<egammaPID::PID,unsigned int>" />
+ <class name="std::pair<egammaPIDObs::PID,unsigned int>" />
 
  <class name="EMShowerMinimalContainer" id="7CAB4FCD-1965-1CDC-1614-60EB93E5551B" />
  <class name="EMShowerMinimal" />

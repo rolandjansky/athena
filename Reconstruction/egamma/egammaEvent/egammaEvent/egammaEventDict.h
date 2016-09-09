@@ -39,8 +39,8 @@ struct temp {
   Navigable<EMShowerMinimalContainer,double> m_nav2;
   ElementLink<EMShowerMinimalContainer> m_link2;
   std::pair<ElementLink<EMShowerMinimalContainer>,double> m_pair2;
-  std::pair<egammaPID::PID,double> m_pair3;
-  std::pair<egammaPID::PID,unsigned int> m_pair4;
+  std::pair<egammaPIDObs::PID,double> m_pair3;
+  std::pair<egammaPIDObs::PID,unsigned int> m_pair4;
   std::pair<egammaParameters::ParamDef,double> m_pair5;
   std::pair<egammaParameters::ParamDef,bool> m_pair6;
   ElementLinkVector<egDetailContainer> m_linkVector;
