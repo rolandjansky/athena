@@ -585,7 +585,9 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
     
     // memory handling for locally created particles ( TODO : add hits for them by collecting active, too)
     eCell.leadParameters=upd; 
-    if (isp!=m_isp) eCell.stepParameters(eCell.leadParameters,Trk::ExtrapolationMode::CollectPassive); 
+    // ST fixing memory leak
+    // if (isp!=m_isp) eCell.stepParameters(eCell.leadParameters,Trk::ExtrapolationMode::CollectPassive); 
+    eCell.stepParameters(eCell.leadParameters,Trk::ExtrapolationMode::CollectPassive); 
 
     if (upd->momentum().mag() < m_minimumMomentum ) {
       if (isp!=m_isp) { delete isp;}
@@ -851,6 +853,9 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
         else 
 	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "leaving layer" ); 
 
+        // cleanup
+        ecc.finalize(exitCode);
+
       } else {
 	Trk::NeutralCurvilinearParameters  nParm(childs[ic]->position(),childs[ic]->momentum(),childs[ic]->charge());
 	Trk::ExtrapolationCell< Trk::NeutralParameters > enc(nParm);
@@ -879,6 +884,10 @@ Trk::ExtrapolationCode iFatras::McMaterialEffectsEngine::processMaterialOnLayer(
 	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "stopped in layer" );
         else 
 	  EX_MSG_VERBOSE( "", "processMaterialOnLayer", "", "child particle:"<< ic << "leaving layer" ); 
+
+        // cleanup
+        enc.finalize(exitCode);
+
       }
     }
     
