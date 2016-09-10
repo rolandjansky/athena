@@ -36,13 +36,13 @@ void ElectronCnv_p3::persToTrans( const Electron_p3* pers,
 				  MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading Electron from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // base class
   m_egammaCnv.persToTrans( &pers->m_egamma, trans, msg );
 
 //   msg << MSG::DEBUG << "Loaded Electron from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
 
   return;
 }
@@ -52,12 +52,12 @@ void ElectronCnv_p3::transToPers( const Analysis::Electron* trans,
 				  MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of Electron..."
-//       << endreq;
+//       << endmsg;
 
   // base class
   m_egammaCnv.transToPers( trans, &pers->m_egamma, msg );
 
 //   msg << MSG::DEBUG << "Created persistent state of Electron [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }

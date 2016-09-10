@@ -38,7 +38,7 @@ void egammaCnv_p5::persToTrans( const egamma_p5* pers,
 				MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading egamma from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // Clear
   *trans = egamma (pers->m_author);
@@ -89,7 +89,7 @@ void egammaCnv_p5::persToTrans( const egamma_p5* pers,
     assert( egEnum.size() == egID.size() );
 
     for ( unsigned int i=0; i< egID.size(); i++ ) {
-      trans->set_egammaID( (egammaPID::PID) egEnum[i],      egID[i] );
+      trans->set_egammaID( (egammaPIDObs::PID) egEnum[i],      egID[i] );
     }
   }
 
@@ -97,7 +97,7 @@ void egammaCnv_p5::persToTrans( const egamma_p5* pers,
   m_ringsCnv.persToTrans( &pers->m_rings, &rings, msg);
   trans->setRingsElementLink (rings);
 //   msg << MSG::DEBUG << "Loaded egamma from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
@@ -106,7 +106,7 @@ void egammaCnv_p5::transToPers( const egamma* trans,
 				MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of egamma..."
-//       << endreq;
+//       << endmsg;
 
   m_momCnv.transToPers (&trans->momentumBase(), 
 		      &pers->m_momentum,
@@ -143,11 +143,11 @@ void egammaCnv_p5::transToPers( const egamma* trans,
     std::vector<double>& egID = pers->m_egammaDblPIDs;
     std::vector<unsigned int>& egEnum = pers->m_egammaEnumPIDs;
 
-    unsigned int nbOfEgammaIDs = (int) egammaPID::LastEgammaPID;
+    unsigned int nbOfEgammaIDs = (int) egammaPIDObs::LastEgammaPID;
 
     bool found;
     for ( unsigned int i=0; i<nbOfEgammaIDs; i++ ) {
-      const double tmpID = trans->egammaID( (egammaPID::PID) i, &found);
+      const double tmpID = trans->egammaID( (egammaPIDObs::PID) i, &found);
       if (found) {
 	egEnum.push_back(i);
 	egID.push_back(tmpID);
@@ -157,6 +157,6 @@ void egammaCnv_p5::transToPers( const egamma* trans,
 
   m_ringsCnv.transToPers (&trans->ringsElementLink(), &pers->m_rings, msg);
 //   msg << MSG::DEBUG << "Created persistent state of egamma [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
