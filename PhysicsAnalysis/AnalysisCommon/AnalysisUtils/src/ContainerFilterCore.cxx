@@ -10,7 +10,7 @@ ContainerFilterCore::ContainerFilterCore(PropertyMgr *pmgr) : AraToolBase(pmgr) 
 
 StatusCode ContainerFilterCore::initialize()
 {
-  if(!RunningARA) {
+  if(!runningARA()) {
     if ( m_selectorHandles.retrieve().isFailure() ) {
       return StatusCode::FAILURE;
     }
@@ -21,7 +21,7 @@ StatusCode ContainerFilterCore::initialize()
 
 StatusCode ContainerFilterCore::finalize()
 {
-  if(RunningARA) {
+  if(runningARA()) {
     std::vector<ISelectorCore*>::iterator toolItr=m_selectors.begin();
     std::vector<ISelectorCore*>::iterator toolEnd=m_selectors.end();
 
@@ -49,7 +49,7 @@ DataVector<INavigable4Momentum> *ContainerFilterCore::filter(DataVector<INavigab
   for (;itr!=iend;itr++) {
     bool pass=true;
 
-    if (RunningARA)
+    if (runningARA())
       pass=filterParticleARA(*itr);
     else
       pass=filterParticleAthena(*itr);

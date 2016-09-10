@@ -178,7 +178,7 @@ void ChargeFilter<T>::setFilter( const IFilterCuts * filter )
       log << MSG::ERROR
 	  << "Can't dynamic_cast " << typeid(filter).name() 
 	  << " to a ChargeFilter"
-	  << endreq;
+	  << endmsg;
     }
   }
 }

@@ -96,7 +96,7 @@
 #include "egammaEvent/Electron.h"
 #include "egammaEvent/egamma.h"
 #include "egammaEvent/EMShower.h"
-#include "egammaEvent/egammaPIDdefs.h"
+#include "egammaEvent/egammaPIDdefsObs.h"
 #include "Particle/TrackParticle.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
@@ -137,54 +137,54 @@ StatusCode ElectronIDSelectorCore::initialize()
   if ( m_isEMCut == "RobustLoose" )
     {
       // Does it pass the loose isEM with Reta and w2 removed?
-      const unsigned int CALOMIDDLE_ELECTRON_NoReta_NoW2 = 0x1 << egammaPID::ClusterMiddleEnergy_Electron;
-      const unsigned int ElectronLoose_NoReta_NoW2 = CALOMIDDLE_ELECTRON_NoReta_NoW2 | egammaPID::HADLEAKETA_ELECTRON;
+      const unsigned int CALOMIDDLE_ELECTRON_NoReta_NoW2 = 0x1 << egammaPIDObs::ClusterMiddleEnergy_Electron;
+      const unsigned int ElectronLoose_NoReta_NoW2 = CALOMIDDLE_ELECTRON_NoReta_NoW2 | egammaPIDObs::HADLEAKETA_ELECTRON;
       m_isEM = ElectronLoose_NoReta_NoW2;
     }
   else if ( m_isEMCut == "RobustMedium" )
     {
-      const unsigned int CALOMIDDLE_ELECTRON_NoReta_NoW2 = 0x1 << egammaPID::ClusterMiddleEnergy_Electron;
+      const unsigned int CALOMIDDLE_ELECTRON_NoReta_NoW2 = 0x1 << egammaPIDObs::ClusterMiddleEnergy_Electron;
   
       const unsigned int CALO_ELECTRON_NoReta_NoW2 = 
-        egammaPID::HADLEAKETA_ELECTRON | 
-        egammaPID::CALOSTRIPS_ELECTRON | 
+        egammaPIDObs::HADLEAKETA_ELECTRON | 
+        egammaPIDObs::CALOSTRIPS_ELECTRON | 
         CALOMIDDLE_ELECTRON_NoReta_NoW2 ;
 
       const unsigned int ElectronMedium_NOReta_NoW2 = 
         CALO_ELECTRON_NoReta_NoW2 | 
-        egammaPID::TRACKINGNOBLAYER_ELECTRON | 
-        egammaPID::TRACKMATCHDETA_ELECTRON;
+        egammaPIDObs::TRACKINGNOBLAYER_ELECTRON | 
+        egammaPIDObs::TRACKMATCHDETA_ELECTRON;
   
       m_isEM = ElectronMedium_NOReta_NoW2;
     }
   else if ( m_isEMCut == "RobustTight" || m_isEMCut == "RobusterTight" )
     {
-      const unsigned int CALOMIDDLE_ELECTRON_NoReta_NoW2 = 0x1 << egammaPID::ClusterMiddleEnergy_Electron;
+      const unsigned int CALOMIDDLE_ELECTRON_NoReta_NoW2 = 0x1 << egammaPIDObs::ClusterMiddleEnergy_Electron;
    
       const unsigned int CALO_ELECTRON_NoReta_NoW2 = 
-        egammaPID::HADLEAKETA_ELECTRON | 
-        egammaPID::CALOSTRIPS_ELECTRON | 
+        egammaPIDObs::HADLEAKETA_ELECTRON | 
+        egammaPIDObs::CALOSTRIPS_ELECTRON | 
         CALOMIDDLE_ELECTRON_NoReta_NoW2 ;  
    
       const unsigned int ElectronTightRobust_NoReta_NoW2 = 
         CALO_ELECTRON_NoReta_NoW2 | 
-        egammaPID::TRACKING_ELECTRON | 
-        0x1 << egammaPID::TrackMatchEta_Electron | 
-        0x1 << egammaPID::TrackMatchEoverP_Electron | 
-        0x1 << egammaPID::TrackA0Tight_Electron |
-        0x1 << egammaPID::ConversionMatch_Electron |
-        egammaPID::TRT_ELECTRON ;
+        egammaPIDObs::TRACKING_ELECTRON | 
+        0x1 << egammaPIDObs::TrackMatchEta_Electron | 
+        0x1 << egammaPIDObs::TrackMatchEoverP_Electron | 
+        0x1 << egammaPIDObs::TrackA0Tight_Electron |
+        0x1 << egammaPIDObs::ConversionMatch_Electron |
+        egammaPIDObs::TRT_ELECTRON ;
 
       m_isEM = ElectronTightRobust_NoReta_NoW2;
 
       // Tight without the conversion requirement 
       const unsigned int ElectronTightRobust_NoReta_NoW2_NoConvCut = 
         CALO_ELECTRON_NoReta_NoW2 | 
-        egammaPID::TRACKING_ELECTRON | 
-        0x1 << egammaPID::TrackMatchEta_Electron | 
-        0x1 << egammaPID::TrackMatchEoverP_Electron | 
-        0x1 << egammaPID::TrackA0Tight_Electron |
-        egammaPID::TRT_ELECTRON ;
+        egammaPIDObs::TRACKING_ELECTRON | 
+        0x1 << egammaPIDObs::TrackMatchEta_Electron | 
+        0x1 << egammaPIDObs::TrackMatchEoverP_Electron | 
+        0x1 << egammaPIDObs::TrackA0Tight_Electron |
+        egammaPIDObs::TRT_ELECTRON ;
       
       m_isEM_NoConvCut = ElectronTightRobust_NoReta_NoW2_NoConvCut;
     }

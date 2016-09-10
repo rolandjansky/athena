@@ -274,7 +274,7 @@ void KinematicSelectorCore::convertStringRange( std::string &range,
         << " numberClosed=" << closedBracketPositions.size()
         << " and cut string=" << rangeCopy
         << std::endl;
-//             << endreq ;
+//             << endmsg ;
 //         }
     }
   
