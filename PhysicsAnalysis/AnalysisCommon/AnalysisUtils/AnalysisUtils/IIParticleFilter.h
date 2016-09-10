@@ -152,7 +152,7 @@ void IIParticleFilter<T>::setFilter( const IFilterCuts * ifilter )
       log << MSG::ERROR
 	  << "Can't dynamic_cast " << typeid(ifilter).name() 
 	  << " to a IIParticleFilter<T>"
-	  << endreq;
+	  << endmsg;
     }
   }
 }

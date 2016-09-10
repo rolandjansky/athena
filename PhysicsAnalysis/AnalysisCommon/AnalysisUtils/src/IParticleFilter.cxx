@@ -72,9 +72,9 @@ IParticleFilter& IParticleFilter::operator=( const IParticleFilter& rhs )
 /*
 MsgStream& operator<<( MsgStream& msg, const IParticleFilter& obj )
 {
-  msg << "Pt Min= "  << obj.ptMin() << endreq
+  msg << "Pt Min= "  << obj.ptMin() << endmsg
       << "PdgIds: "
-      << endreq;
+      << endmsg;
   obj.pdgIds()->dropList();
   return msg;
 }
