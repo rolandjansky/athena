@@ -36,7 +36,7 @@ void egammaCnv_p2::persToTrans( const egamma_p2* pers,
 				MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading egamma from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // Clear
   *trans = egamma (pers->m_author);
@@ -80,14 +80,14 @@ void egammaCnv_p2::persToTrans( const egamma_p2* pers,
     assert( egEnum.size() == egID.size() );
 
     for ( unsigned int i=0; i< egID.size(); i++ ) {
-      trans->set_egammaID( (egammaPID::PID) egEnum[i],      egID[i] );
+      trans->set_egammaID( (egammaPIDObs::PID) egEnum[i],      egID[i] );
     }
   }
   //Clearing Rings ElementLink:
   trans->resetRings(); 
 
 //   msg << MSG::DEBUG << "Loaded egamma from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
@@ -96,7 +96,7 @@ void egammaCnv_p2::transToPers( const egamma* trans,
 				MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of egamma..."
-//       << endreq;
+//       << endmsg;
 
   m_momCnv.transToPers (&trans->momentumBase(), 
 		      &pers->m_momentum,
@@ -128,12 +128,12 @@ void egammaCnv_p2::transToPers( const egamma* trans,
     std::vector<double>& egID = pers->m_egammaDblPIDs;
     std::vector<unsigned int>& egEnum = pers->m_egammaEnumPIDs;
 
-    unsigned int nbOfEgammaIDs = (int) egammaPID::LastEgammaPID;
+    unsigned int nbOfEgammaIDs = (int) egammaPIDObs::LastEgammaPID;
 
     double tmpID;
     for ( unsigned int i=0; i<nbOfEgammaIDs; i++ ) {
-      tmpID = trans->egammaID( (egammaPID::PID) i);
-      if ( tmpID != egammaPID::EgPidUndefined ) {
+      tmpID = trans->egammaID( (egammaPIDObs::PID) i);
+      if ( tmpID != egammaPIDObs::EgPidUndefined ) {
 	egEnum.push_back(i);
 	egID.push_back(tmpID);
       }
@@ -141,6 +141,6 @@ void egammaCnv_p2::transToPers( const egamma* trans,
   }
 
 //   msg << MSG::DEBUG << "Created persistent state of egamma [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }

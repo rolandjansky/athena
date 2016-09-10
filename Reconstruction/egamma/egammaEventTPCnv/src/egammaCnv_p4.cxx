@@ -37,7 +37,7 @@ void egammaCnv_p4::persToTrans( const egamma_p4* pers,
 				MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading egamma from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // Clear
   *trans = egamma (pers->m_author);
@@ -88,7 +88,7 @@ void egammaCnv_p4::persToTrans( const egamma_p4* pers,
     assert( egEnum.size() == egID.size() );
 
     for ( unsigned int i=0; i< egID.size(); i++ ) {
-      trans->set_egammaID( (egammaPID::PID) egEnum[i],      egID[i] );
+      trans->set_egammaID( (egammaPIDObs::PID) egEnum[i],      egID[i] );
     }
 
     // HACK: before rel 17 PID values of 0 were not stored. Therefore,
@@ -96,21 +96,21 @@ void egammaCnv_p4::persToTrans( const egamma_p4* pers,
     // about the MVA tools)
 
     bool found;
-    trans->isem(egammaPID::ALL, egammaPID::IsEM, &found);
-    if (!found) trans->set_egammaIDint(egammaPID::IsEM, 0);
+    trans->isem(egammaPIDObs::ALL, egammaPIDObs::IsEM, &found);
+    if (!found) trans->set_egammaIDint(egammaPIDObs::IsEM, 0);
 
-    trans->isemse(egammaPID::ALL, &found);
-    if (!found) trans->set_egammaIDint(egammaPID::SofteIsEM, 0);
+    trans->isemse(egammaPIDObs::ALL, &found);
+    if (!found) trans->set_egammaIDint(egammaPIDObs::SofteIsEM, 0);
 
-    trans->isgoodoq(egammaPID::ALLOQ, &found);
-    if (!found) trans->set_egammaIDint(egammaPID::IsGoodOQ, 0);
+    trans->isgoodoq(egammaPIDObs::ALLOQ, &found);
+    if (!found) trans->set_egammaIDint(egammaPIDObs::IsGoodOQ, 0);
 
   }
   //Clearing Rings ElementLink:
   trans->resetRings(); 
 
 //   msg << MSG::DEBUG << "Loaded egamma from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
@@ -119,7 +119,7 @@ void egammaCnv_p4::transToPers( const egamma* trans,
 				MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of egamma..."
-//       << endreq;
+//       << endmsg;
 
   m_momCnv.transToPers (&trans->momentumBase(), 
 		      &pers->m_momentum,
@@ -156,12 +156,12 @@ void egammaCnv_p4::transToPers( const egamma* trans,
     std::vector<double>& egID = pers->m_egammaDblPIDs;
     std::vector<unsigned int>& egEnum = pers->m_egammaEnumPIDs;
 
-    unsigned int nbOfEgammaIDs = (int) egammaPID::LastEgammaPID;
+    unsigned int nbOfEgammaIDs = (int) egammaPIDObs::LastEgammaPID;
 
     double tmpID;
     for ( unsigned int i=0; i<nbOfEgammaIDs; i++ ) {
-      tmpID = trans->egammaID( (egammaPID::PID) i);
-      if ( tmpID != egammaPID::EgPidUndefined ) {
+      tmpID = trans->egammaID( (egammaPIDObs::PID) i);
+      if ( tmpID != egammaPIDObs::EgPidUndefined ) {
 	egEnum.push_back(i);
 	egID.push_back(tmpID);
       }
@@ -169,6 +169,6 @@ void egammaCnv_p4::transToPers( const egamma* trans,
   }
 
 //   msg << MSG::DEBUG << "Created persistent state of egamma [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }

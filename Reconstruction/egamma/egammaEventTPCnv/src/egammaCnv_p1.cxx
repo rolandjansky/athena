@@ -40,7 +40,7 @@ void egammaCnv_p1::persToTrans( const egamma_p1* pers,
 				MsgStream& msg ) 
 {
 //   msg << MSG::DEBUG << "Loading egamma from persistent state..."
-//       << endreq;
+//       << endmsg;
 
   // Clear
   *trans = egamma (pers->m_author);
@@ -84,14 +84,14 @@ void egammaCnv_p1::persToTrans( const egamma_p1* pers,
     assert( egEnum.size() == egID.size() );
 
     for ( unsigned int i=0; i< egID.size(); i++ ) {
-      trans->set_egammaID( (egammaPID::PID) egEnum[i],      egID[i] );
+      trans->set_egammaID( (egammaPIDObs::PID) egEnum[i],      egID[i] );
     }
   }
   //Clearing Rings ElementLink:
   trans->resetRings(); 
 
 //   msg << MSG::DEBUG << "Loaded egamma from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
