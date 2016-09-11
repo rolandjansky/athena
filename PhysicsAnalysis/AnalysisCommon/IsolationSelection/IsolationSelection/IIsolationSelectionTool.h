@@ -4,11 +4,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: IIsolationSelectionTool.h 697402 2015-09-29 14:32:10Z dzhang $
+// $Id: IIsolationSelectionTool.h 764207 2016-07-25 18:16:03Z alesage $
 // #ifndef ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
 // #define ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
-#ifndef ELECTRONISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
-#define ELECTRONISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
+#ifndef ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
+#define ISOLATIONSELECTION_IISOLATIONSELECTIONTOOL_H
 
 // Framework include(s):
 #include "AsgTools/IAsgTool.h"
@@ -28,8 +28,8 @@
   ///
   /// @author John Morris <john.morris@cern.ch>
   ///
-  /// $Revision: 697402 $
-  /// $Date: 2015-09-29 16:32:10 +0200 (Tue, 29 Sep 2015) $
+  /// $Revision: 764207 $
+  /// $Date: 2016-07-25 20:16:03 +0200 (Mon, 25 Jul 2016) $
   ///
   /// @brief Select isolated Photons, Electrons and Muons
   ///  

@@ -19,7 +19,11 @@ class Interp3D {
   };
   
   Interp3D() { m_NoInterp.clear(); m_debug = false; };
-  Interp3D(std::map<std::string,VetoInterp> noInterp) { m_NoInterp = noInterp; };
+  Interp3D(const std::map<std::string,VetoInterp>& noInterp)
+    : m_NoInterp (noInterp),
+      m_debug (false)
+  {
+  };
   ~Interp3D() {};
 
   double Interpol3d(double x,double y,double z, std::shared_ptr<TH3F> h);

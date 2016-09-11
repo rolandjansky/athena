@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 742362 2016-04-23 09:23:48Z krasznaa $
+# $Id: CMakeLists.txt 767045 2016-08-09 11:46:34Z emoyse $
 ################################################################################
 # Package: IsolationSelection
 ################################################################################
@@ -16,6 +16,8 @@ atlas_depends_on_subdirs(
   Event/xAOD/xAODMuon
   Event/xAOD/xAODPrimitives
   PhysicsAnalysis/AnalysisCommon/PATCore
+  PhysicsAnalysis/AnalysisCommon/PATInterfaces
+  InnerDetector/InDetRecTools/InDetTrackSelectionTool
   PRIVATE
   Control/AthenaBaseComps
   GaudiKernel
@@ -30,8 +32,9 @@ atlas_add_library( IsolationSelectionLib
   PUBLIC_HEADERS IsolationSelection
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES AthContainers AsgTools xAODBase xAODEgamma xAODMuon
-  xAODPrimitives PATCoreLib
+  xAODPrimitives PATCoreLib PATInterfaces InDetTrackSelectionTool
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} PathResolver )
+
 
 atlas_add_component( IsolationSelection
   src/*.h src/*.cxx src/components/*.cxx
