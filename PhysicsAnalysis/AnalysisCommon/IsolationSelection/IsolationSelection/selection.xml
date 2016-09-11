@@ -1,0 +1,9 @@
+<lcgdict>
+  <class name="CP::IIsolationSelectionTool" />
+  <class name="CP::IsolationSelectionTool" />
+  <class name="CP::IsolationWP" />
+  <class name="CP::IsolationCondition" />
+  <class name="CP::IsolationConditionFormula" />
+  <class name="CP::IsolationConditionHist" />
+  <class name="Interp3D" />
+</lcgdict>

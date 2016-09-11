@@ -17,6 +17,7 @@ namespace CP
      IsolationWP(std::string name):m_name(name),m_cutValues(nullptr){};
      ~IsolationWP();
      std::string name(){return m_name;}
+     void name(std::string name) {m_name = name;}
 
      const Root::TAccept& accept(const xAOD::IParticle& p) const;
      const Root::TAccept& accept(const strObj& p) const;

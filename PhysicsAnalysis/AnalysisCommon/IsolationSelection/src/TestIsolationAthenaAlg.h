@@ -4,9 +4,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TestIsolationAthenaAlg.h 672993 2015-06-06 16:55:34Z dzhang $
-#ifndef ELECTRONISOLATIONSELECTION_TESTISOLATIONATHENAALG_H
-#define ELECTRONISOLATIONSELECTION_TESTISOLATIONATHENAALG_H
+// $Id: TestIsolationAthenaAlg.h 764207 2016-07-25 18:16:03Z alesage $
+#ifndef ISOLATIONSELECTION_TESTISOLATIONATHENAALG_H
+#define ISOLATIONSELECTION_TESTISOLATIONATHENAALG_H
 
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"

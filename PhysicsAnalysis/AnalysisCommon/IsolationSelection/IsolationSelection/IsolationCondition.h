@@ -29,13 +29,19 @@ namespace CP
 {
   class IsolationCondition{
     public:
-      IsolationCondition(std::string name, xAOD::Iso::IsolationType isoType):m_name(name),m_isolationType(isoType){
+      IsolationCondition(std::string name, xAOD::Iso::IsolationType isoType):m_name(name),m_isolationType(isoType),m_cutValue(-999.){
         m_acc = xAOD::getIsolationAccessor(m_isolationType);
-        m_cutValue = -999;
       };
       virtual ~IsolationCondition(){}
       
-      IsolationCondition() = delete;
+//       IsolationCondition() = delete;
+      IsolationCondition():m_name(""),m_isolationType(xAOD::Iso::numIsolationTypes),m_acc(0),m_cutValue(-999){};
+      void setName(std::string name){m_name = name;}
+      void setCut(xAOD::Iso::IsolationType isoType){
+        m_isolationType = isoType;
+        m_acc = xAOD::getIsolationAccessor(m_isolationType);
+      };
+
       IsolationCondition(const IsolationCondition& rhs) = delete;
       IsolationCondition& operator=(const IsolationCondition& rhs) = delete;
       
