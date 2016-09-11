@@ -81,18 +81,23 @@ namespace CP {
             ATH_CHECK(m_selectorTool.retrieve());
 	   
             CP::IsolationSelectionTool* theSelectionTool = dynamic_cast<CP::IsolationSelectionTool*>(&*m_selectorTool);
-
-            for(auto x: theSelectionTool->getMuonWPs()) {
-                ATH_CHECK(theSelectionTool->addWP(x, xAOD::Type::Other));
-                ATH_MSG_INFO("adding WP " << x->name());
-            }
-            for(auto x: theSelectionTool->getElectronWPs()) {
-                ATH_CHECK(theSelectionTool->addWP(x, xAOD::Type::Other));
-                ATH_MSG_INFO("adding WP " << x->name());
-            }
-            for(auto x: theSelectionTool->getPhotonWPs()) {
-                ATH_CHECK(theSelectionTool->addWP(x, xAOD::Type::Other));
-                ATH_MSG_INFO("adding WP " << x->name());
+            
+            if(theSelectionTool) {
+                for(auto x: theSelectionTool->getMuonWPs()) {
+                    ATH_CHECK(theSelectionTool->addWP(x, xAOD::Type::Other));
+                    ATH_MSG_INFO("adding WP " << x->name());
+                }
+                for(auto x: theSelectionTool->getElectronWPs()) {
+                    ATH_CHECK(theSelectionTool->addWP(x, xAOD::Type::Other));
+                    ATH_MSG_INFO("adding WP " << x->name());
+                }
+                for(auto x: theSelectionTool->getPhotonWPs()) {
+                    ATH_CHECK(theSelectionTool->addWP(x, xAOD::Type::Other));
+                    ATH_MSG_INFO("adding WP " << x->name());
+                }
+            } else {
+                ATH_MSG_ERROR("The selection tool could not be retrieved." );
+                return StatusCode::FAILURE;
             }
 		    
         }
@@ -216,7 +221,7 @@ namespace CP {
 
 //  		if( !m_tracksInConeTool->particlesInCone(tp->eta(), tp->phi(), coneSize, tps) ) { return CP::CorrectionCode::Error; } // TO BE ADDED AT SOME POINT!!!
 
-		if( !getparticlesInCone(tp->eta(), tp->phi(), coneSize, tps) ) { return CP::CorrectionCode::Error; } // TO BE REOMVED AT SOME POINT!!!
+		if(getparticlesInCone(tp->eta(), tp->phi(), coneSize, tps) != CP::CorrectionCode::Ok) { return CP::CorrectionCode::Error; } // TO BE REMOVED AT SOME POINT!!!
 
 		correction = 0.0;
 
@@ -303,13 +308,9 @@ namespace CP {
 		const xAOD::CaloClusterContainer* topoClusters = 0;
 		if(topoetconeModel == -1) {
 		    bool foundContainer = false;
-		    if(!topoClusters) {
-		        if (!evtStore()->retrieve(topoClusters, "CaloCalTopoClusters").isSuccess()) {
-		            ATH_MSG_WARNING("Could not retrieve the topocluster container. Will use a simple model." );
-		            topoetconeModel = 0;
-		        } else {
-		            foundContainer = true;
-		        }
+		    if (!evtStore()->retrieve(topoClusters, "CaloCalTopoClusters").isSuccess()) {
+		        ATH_MSG_WARNING("Could not retrieve the topocluster container. Will use a simple model." );
+		        topoetconeModel = 0;
 		    } else {
 		        foundContainer = true;
 		    }
