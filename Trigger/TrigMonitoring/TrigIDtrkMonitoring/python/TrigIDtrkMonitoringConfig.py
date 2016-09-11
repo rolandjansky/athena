@@ -264,6 +264,8 @@ def TrigIDtrkMonitoringTool():
 		tidabjet.ntupleChainNames += [
 			"Offline",
 			# jet based chains
+			"HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j55_bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF:roi=SuperRoi",
 			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 			"HLT_j.*bperf_split:key=InDetTrigTrackingxAODCnv_Bjet_FTF",
@@ -294,8 +296,8 @@ def TrigIDtrkMonitoringTool():
 #			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 #			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_FTF"
 #			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi",
-			"HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-			"HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
+			"HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
 			]
 		ToolSvc += tidabjetshift;
 		list += [ "TrigTestBase/IDBjetShifterTool" ]
@@ -313,8 +315,8 @@ def TrigIDtrkMonitoringTool():
 #			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 #			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_FTF"
 #			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi",
-			"HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
-			"HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
+			"HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
 			]
 		ToolSvc += tidabjetpurity;
 		list += [ "TrigTestBase/IDBjetPurityTool" ]
@@ -330,8 +332,9 @@ def TrigIDtrkMonitoringTool():
 #			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
 #			"HLT_j.*bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
 #			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_IDTrig",
-#			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_FTF"
-			"HLT_j55_bperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi"
+#			"HLT_j.*bperf:InDetTrigTrackingxAODCnv_Bjet_FTF",
+			"HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=xPrimVx",
+			"HLT_j55_boffperf_split:InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF_SuperRoi:roi=SuperRoi:vtx=EFHistoVtx"
 #			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_Bjet_FTF",
 #			"HLT_j400_bperf_split:InDetTrigTrackingxAODCnv_Bjet_IDTrig"
 			]
