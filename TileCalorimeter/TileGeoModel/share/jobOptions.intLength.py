@@ -100,8 +100,7 @@ theApp.initialize()
 # include("G4UserActions/RadLengthIntegrator_options.py")
 include("G4UserActions/IntLengthIntegrator_options.py")
 
-#G4Command=AtlasG4Eng.G4Eng.gbl.G4Commands()
-#G4Command.tracking.verbose(1)
+#SimFlags.G4Commands += ['/tracking/verbose 1']
 
 # start run after the interactive mode 
 #AtlasG4Eng.G4Eng.init_Simulation(3)

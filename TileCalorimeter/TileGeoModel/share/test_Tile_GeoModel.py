@@ -65,10 +65,8 @@ AtlasG4Eng.G4Eng._ctrl.geometryMenu.SetGeometryCheck(1000)
 AtlasG4Eng.G4Eng.init_Simulation(3)
 print "END><"
 
-# AtlasG4Eng.G4Eng._ctrl.G4Command("/run/initialize")
-# AtlasG4Eng.G4Eng._ctrl.G4Command("/geometry/test/recursion_start 0")
-# AtlasG4Eng.G4Eng._ctrl.G4Command("/geometry/test/recursion_depth 2")
-# AtlasG4Eng.G4Eng._ctrl.G4Command("/geometry/test/recursive_test")
+#from G4AtlasApps.callbacks import do_recursive_geometry_test
+#do_recursive_geometry_test()
 
 # forcing the exit after the geo test 
 theApp.exit() 

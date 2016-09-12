@@ -53,7 +53,7 @@ TileDetectorTool::~TileDetectorTool()
 StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
 { 
   MsgStream log(msgSvc(), name()); 
-  log << MSG::INFO <<" Entering TileDetectorTool::create()" << endreq;
+  log << MSG::INFO <<" Entering TileDetectorTool::create()" << endmsg;
 
   // Get the detector configuration
   IGeoModelSvc *geoModel;
@@ -71,7 +71,7 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
     versionNode = "TileCal";	
   }
   if (atlasVersion.compare(0,9,"ATLAS-CTB") == 0 || tileVersion.compare(0,6,"TileTB") == 0) {
-    log << MSG::INFO << "CTB geometry detected: " << atlasVersion  << " " << tileVersion << endreq;
+    log << MSG::INFO << "CTB geometry detected: " << atlasVersion  << " " << tileVersion << endmsg;
     m_testBeam = true;
   }
   
@@ -79,7 +79,7 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
   DataHandle<GeoModelExperiment> theExpt; 
   if (StatusCode::SUCCESS != detStore->retrieve(theExpt, "ATLAS")) 
   { 
-    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endreq; 
+    log << MSG::ERROR << "Could not find GeoModelExperiment ATLAS" << endmsg; 
     return (StatusCode::FAILURE); 
   } 
 
@@ -93,27 +93,27 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
 
     if (0==dbManager->GetNumberOfEnv() && m_useNewFactory) {
       log << MSG::WARNING <<
-             "New TileAtlasFactory can not be used because TileGlobals do not exist in Database"<< endreq;
-      log << MSG::WARNING <<"Use old TileDetectorFactory instead" << endreq;
+             "New TileAtlasFactory can not be used because TileGlobals do not exist in Database"<< endmsg;
+      log << MSG::WARNING <<"Use old TileDetectorFactory instead" << endmsg;
       m_useNewFactory = false;
     }
 
     if (StatusCode::SUCCESS != initIds(detStore,m_manager,&log)) 
     {
-      log << MSG::ERROR << "Cannot initialize IdDict helpers" << endreq;
+      log << MSG::ERROR << "Cannot initialize IdDict helpers" << endmsg;
       return (StatusCode::FAILURE); 
     }
 
     int UshapeDB = dbManager->Ushape();
     if (m_Ushape < 0) {
        m_Ushape = UshapeDB;
-       log << MSG::INFO << " U-shape parameter from database is: " << m_Ushape << endreq;
+       log << MSG::INFO << " U-shape parameter from database is: " << m_Ushape << endmsg;
     } else {
        if (m_Ushape != UshapeDB) {
            log << MSG::WARNING << " Overriding U-shape value from DB by value from jobOptions, using " 
-               << m_Ushape << " instead of " << UshapeDB << endreq;
+               << m_Ushape << " instead of " << UshapeDB << endmsg;
        } else {
-           log << MSG::INFO << " U-shape parameter from jobOptions is: " << m_Ushape << endreq;
+           log << MSG::INFO << " U-shape parameter from jobOptions is: " << m_Ushape << endmsg;
        }
     }
     m_not_locked = false;
@@ -145,14 +145,14 @@ StatusCode TileDetectorTool::create(StoreGateSvc* detStore)
 
     if (StatusCode::SUCCESS != createElements(m_manager,&log)) 
      {
-       log << MSG::ERROR << "Cannot create CaloDetDescrElements" << endreq;
+       log << MSG::ERROR << "Cannot create CaloDetDescrElements" << endmsg;
        return (StatusCode::FAILURE); 
      }
 
     // Register the TileDetDescrManager instance with the Transient Detector Store
     if (StatusCode::SUCCESS != detStore->record(m_manager, m_manager->getName()))
     {
-      log << MSG::ERROR << "Could not record TileDetDescr manager in detector store" << endreq; 
+      log << MSG::ERROR << "Could not record TileDetDescr manager in detector store" << endmsg; 
       return StatusCode::FAILURE;
     }
     theExpt->addManager(m_manager);
@@ -190,7 +190,7 @@ StatusCode TileDetectorTool::initIds(StoreGateSvc* detStore,
   StatusCode status = detStore->retrieve(tileID, "TileID");
   if (status.isFailure())
   {
-    (*log) << MSG::ERROR <<"Could not get TileID helper !" << endreq;
+    (*log) << MSG::ERROR <<"Could not get TileID helper !" << endmsg;
     return StatusCode::FAILURE;
   } 
   manager->set_helper(tileID);
@@ -200,7 +200,7 @@ StatusCode TileDetectorTool::initIds(StoreGateSvc* detStore,
   status = detStore->retrieve(cellID, "CaloCell_ID");
   if (status.isFailure()) 
   {
-    (*log) << MSG::ERROR <<"Could not get CaloCell_ID helper!" << endreq;
+    (*log) << MSG::ERROR <<"Could not get CaloCell_ID helper!" << endmsg;
     return StatusCode::FAILURE;
   } 
   manager->set_helper(cellID);
@@ -210,7 +210,7 @@ StatusCode TileDetectorTool::initIds(StoreGateSvc* detStore,
   status = detStore->retrieve(tileHWID, "TileHWID");
   if (status.isFailure()) 
   {
-    (*log) << MSG::ERROR <<"Could not get TileHWID helper!" << endreq;
+    (*log) << MSG::ERROR <<"Could not get TileHWID helper!" << endmsg;
     return StatusCode::FAILURE;
   } 
   manager->set_helper(tileHWID);
@@ -219,7 +219,7 @@ StatusCode TileDetectorTool::initIds(StoreGateSvc* detStore,
   TileCablingService * cabling = TileCablingService::getInstance(); 
   if(cabling==0)
   {
-    (*log) << MSG::ERROR <<"Could not get instance of TileCablingService" << endreq;
+    (*log) << MSG::ERROR <<"Could not get instance of TileCablingService" << endmsg;
     return StatusCode::FAILURE;
   }
   
