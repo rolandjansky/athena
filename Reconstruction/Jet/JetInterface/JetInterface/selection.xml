@@ -8,7 +8,6 @@
   <class name="IJetFinder" />
   <class name="IJetFromPseudojet" />
   <class name="IJetGroomer" />
-  <class name="IJetModifier" />
   <class name="IJetPseudojetRetriever" />
   <class name="IJetSelector" />
   <class name="IJetTrackSelector" />
