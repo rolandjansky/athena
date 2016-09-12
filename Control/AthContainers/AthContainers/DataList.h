@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataList.h 721712 2016-02-03 20:57:28Z ssnyder $
+// $Id: DataList.h 772789 2016-09-12 15:55:30Z ssnyder $
 
 /**
  * @file AthContainers/DataList.h
@@ -236,6 +236,7 @@
 #include <iostream>
 #include <algorithm> // for std::swap, find, find_if
 #include <iterator>
+#include <type_traits>
 
 // Boost includes
 #include <boost/static_assert.hpp>
@@ -1265,7 +1266,7 @@ public:
   typedef DataModel_detail::NoBase DVL_BASE;
 
   /// Mark as a sequence, for DataLink / ElementLink.
-  typedef boost::true_type isSequence;
+  typedef std::true_type isSequence;
 
   /// This is the type of the underlying @c std::list
   /// (what @c stdcont returns).

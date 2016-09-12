@@ -30,6 +30,7 @@ using namespace SGTest;
 struct Payload
 {
   Payload (int x = 0) : m_x (x) {}
+  Payload& operator= (const Payload&) = default;
   int m_x;
   bool operator== (const Payload& other)
   { return m_x == other.m_x; }

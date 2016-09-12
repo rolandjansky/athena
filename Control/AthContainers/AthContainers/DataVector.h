@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: DataVector.h 741471 2016-04-19 20:58:27Z ssnyder $
+// $Id: DataVector.h 772789 2016-09-12 15:55:30Z ssnyder $
 
 /**
  * @file  AthContainers/DataVector.h
@@ -520,8 +520,8 @@
 #include "AthContainers/tools/IsMostDerivedFlag.h"
 #include "AthLinks/tools/selection_ns.h"
 #include <boost/static_assert.hpp>
-#include <boost/type_traits.hpp>
 #include <boost/iterator/iterator_adaptor.hpp>
+#include <type_traits>
 #include <vector>
 #include <typeinfo>
 #include <functional>
@@ -529,9 +529,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <iterator>
-#if __cplusplus > 201100
 #include <initializer_list>
-#endif
 
 
 
@@ -1931,7 +1929,7 @@ public:
   typedef DataModel_detail::NoBase DVL_BASE;
 
   /// Mark as a sequence, for DataLink / ElementLink.
-  typedef boost::true_type isSequence;
+  typedef std::true_type isSequence;
 
   /// This is the type of the underlying @c std::vector
   /// (what @c stdcont returns).

@@ -126,12 +126,11 @@ void test2()
 {
   std::cout << "test2\n";
 
-  SG::AuxTypeVector<int>* v1 = new SG::AuxTypeVector<int> (10, 20);
-  assert (!v1->setOption (SG::AuxDataOption ("opt", 1)));
+  SG::AuxTypeVector<int> v1 (10, 20);
+  assert (!v1.setOption (SG::AuxDataOption ("opt", 1)));
 
-  SG::AuxTypeVector<int, TestContainer>* v2 =
-    new SG::AuxTypeVector<int, TestContainer> (10, 20);
-  assert (v2->setOption (SG::AuxDataOption ("opt", 1)));
+  SG::AuxTypeVector<int, TestContainer> v2 (10, 20);
+  assert (v2.setOption (SG::AuxDataOption ("opt", 1)));
   assert (TestContainer::lastopt.name() == "opt");
   assert (TestContainer::lastopt.intVal() == 1);
 }
@@ -141,38 +140,38 @@ void test2()
 void test3()
 {
   std::cout << "test3\n";
-  SG::AuxTypeVector<int>* v1 = new SG::AuxTypeVector<int> (0, 0);
-  v1->vec().push_back(1);
-  v1->vec().push_back(2);
+  SG::AuxTypeVector<int> v1 (0, 0);
+  v1.vec().push_back(1);
+  v1.vec().push_back(2);
 
-  assert (v1->objType() == &typeid(std::vector<int>));
+  assert (v1.objType() == &typeid(std::vector<int>));
 
-  void* ptr = v1->toPtr();
+  void* ptr = v1.toPtr();
   int* iptr = reinterpret_cast<int*>(ptr);
-  assert (v1->size() == 2);
+  assert (v1.size() == 2);
   assert (iptr[0] == 1);
   assert (iptr[1] == 2);
 
-  SG::IAuxTypeVector* v2 = v1->toPacked();
+  SG::IAuxTypeVector* v2 = v1.toPacked();
   assert (v2 != 0);
   assert (ptr == v2->toPtr());
   assert (v2->size() == 2);
   assert (iptr[0] == 1);
   assert (iptr[1] == 2);
-  assert (v1->size() == 0);
-  assert (v1->toPtr() == 0);
+  assert (v1.size() == 0);
+  assert (v1.toPtr() == 0);
 
   assert (v2->objType() == &typeid(SG::PackedContainer<int>));
   SG::PackedContainer<int>* pptr =
     reinterpret_cast<SG::PackedContainer<int>*> (v2->toVector());
   assert (typeid(*pptr) == typeid(SG::PackedContainer<int>));
 
-  SG::AuxTypeVector<std::string>* v3 = new SG::AuxTypeVector<std::string> (0, 0);
-  v3->vec().push_back("1");
-  v3->vec().push_back("2");
+  SG::AuxTypeVector<std::string> v3 (0, 0);
+  v3.vec().push_back("1");
+  v3.vec().push_back("2");
 
-  assert (v3->toPacked() == 0);
-  assert (v3->size() == 2);
+  assert (v3.toPacked() == 0);
+  assert (v3.size() == 2);
 }
 
 

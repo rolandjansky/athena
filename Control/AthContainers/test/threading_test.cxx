@@ -90,6 +90,7 @@ struct Payload
 {
   Payload(int i) : m_i(i) { std::cout << "ctor " << i << "\n"; }
   ~Payload() { std::cout << "dtor " << m_i << "\n"; }
+  Payload& operator= (const Payload&) = default;
   int m_i;
 };
 

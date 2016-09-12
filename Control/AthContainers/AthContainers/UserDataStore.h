@@ -18,8 +18,8 @@
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 581165 $
- * $Date: 2014-02-03 11:42:54 +0100 (Mon, 03 Feb 2014) $
+ * $Revision: 764634 $
+ * $Date: 2016-07-27 16:09:53 +0200 (Wed, 27 Jul 2016) $
  */
 class UserDataStore {
 
@@ -192,7 +192,7 @@ StatusCode UserDataStore::retrieve(const IAthenaBarCode& obj, const std::string&
   StatusCode sc=this->retrieveAny(obj,label, aValue);
   if (sc.isFailure()) return sc;
   if (typeid(T) != aValue->type()) { 
-    m_msg << MSG::ERROR << "Typeid mismatch while retrieving user data with label " << label << endreq;
+    m_msg << MSG::ERROR << "Typeid mismatch while retrieving user data with label " << label << endmsg;
     return StatusCode::FAILURE;
   }
   const T* decoPtr=boost::any_cast<T>(aValue);

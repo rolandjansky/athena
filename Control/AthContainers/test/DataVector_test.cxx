@@ -66,6 +66,7 @@ struct DerivedFluff : public AbsFluff {
     AbsFluff(), 
     m_int(rhs.m_int), m_float(-379.456f), 
     m_string("this is the Fluff struct") { }
+  DerivedFluff& operator= (const DerivedFluff&) = delete;
 
   virtual void foo() { /* cout << "foo called" << std::endl; */ }
   virtual void cfoo() const { /* cout << "foo called" << std::endl; */ }
@@ -560,7 +561,8 @@ void test_iterate()
   int ii = 0;
   while (const void* p = iterator->next()) {
     const P* pp = reinterpret_cast<const P*> (p);
-    myassert (pp->x == ii++);
+    myassert (pp->x == ii);
+    ++ii;
   }
   delete iterator;
 

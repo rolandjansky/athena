@@ -83,17 +83,17 @@ void tester()
   typedef typename T::DD DD;
   typedef typename DataModel_detail::DVLCast<T> Cast;
 
-  D* d = new D (1);
-  DD* dd = new DD (2);
-  B* b = d;
-  assert (Cast::cast (b) == d);
-  const B* cb = d;
-  assert (Cast::cast (cb) == d);
+  D d(1);
+  DD dd(2);
+  B* b = &d;
+  assert (Cast::cast (b) == &d);
+  const B* cb = &d;
+  assert (Cast::cast (cb) == &d);
 
-  b = dd;
-  D* dd2 = dd;
+  b = &dd;
+  D* dd2 = &dd;
   assert (Cast::cast (b) == dd2);
-  cb = dd;
+  cb = &dd;
   assert (Cast::cast (cb) == dd2);
 }
 

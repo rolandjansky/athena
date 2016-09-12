@@ -155,6 +155,7 @@ class myvec2
 public:
   myvec2 (SG::OwnershipPolicy pol = SG::VIEW_ELEMENTS) : myvec (pol) {}
   myvec2 (const myvec2&) : myvec (SG::VIEW_ELEMENTS), SG::AuxVectorBase() {}
+  myvec2& operator= (const myvec2&) = delete;
   virtual size_t capacity_v() const { return 0; }
   virtual size_t size_v() const { return 0; }
 };
@@ -234,7 +235,8 @@ CONT* test_DVLInfo1 ()
   int ii = 0;
   while (const void* p = iit->next()) {
     const int* pp = reinterpret_cast<const int*> (p);
-    assert (*pp == ii++);
+    assert (*pp == ii);
+    ++ii;
   }
 
   return cont;
@@ -291,14 +293,14 @@ void test_dvl_convert1()
 {
   static DataModel_detail::DVLInfo<CONTB> info;
 
-  CONTD* contd = new CONTD (SG::VIEW_ELEMENTS);
+  CONTD contd (SG::VIEW_ELEMENTS);
   for (int i=0; i < 10; i++)
-    contd->push_back (new D(i));
+    contd.push_back (new D(i));
 
   DataModel_detail::DVLInfoBase* info2;
-  void* newp = DataModel_detail::dvl_convert (*contd, typeid (CONTI), info2);
+  void* newp = DataModel_detail::dvl_convert (contd, typeid (CONTI), info2);
   assert (newp == 0);
-  newp = DataModel_detail::dvl_convert (*contd, typeid (CONTB), info2);
+  newp = DataModel_detail::dvl_convert (contd, typeid (CONTB), info2);
   assert (info2->tinfo() == info.tinfo());
   CONTB* contb = reinterpret_cast<CONTB*> (newp);
   assert (contb->size() == 10);
@@ -308,7 +310,7 @@ void test_dvl_convert1()
     ++it;
   }
 
-  newp = DataModel_detail::dvl_convert (*contd,
+  newp = DataModel_detail::dvl_convert (contd,
                                         ClassID_traits<CONTB>::ID(), info2);
   assert (info2->tinfo() == info.tinfo());
   contb = reinterpret_cast<CONTB*> (newp);
@@ -319,10 +321,10 @@ void test_dvl_convert1()
     ++it;
   }
 
-  CONTD* contd2 = new CONTD (SG::VIEW_ELEMENTS);
+  CONTD contd2 (SG::VIEW_ELEMENTS);
   for (int i=9; i >= 0; i--)
-    contd->push_back (new D(i));
-  DataModel_detail::dvl_update (*contd2, newp, info2);
+    contd.push_back (new D(i));
+  DataModel_detail::dvl_update (contd2, newp, info2);
   it = contb->begin();
   for (int i=9; i >= 0; i--) {
     assert ((*it)->bb = i+10);
