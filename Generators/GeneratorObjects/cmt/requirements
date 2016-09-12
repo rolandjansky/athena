@@ -13,7 +13,9 @@ use xAODTruth           xAODTruth-*             Event/xAOD
 
 private
 use AthenaKernel        AthenaKernel-*          Control
+use CxxUtils            CxxUtils-*              Control
 use StoreGate           StoreGate-*             Control
+use AtlasGoogleTest     AtlasGoogleTest-*       External
 end_private
 
 # Must give explicit list of classes so as NOT to include in the list

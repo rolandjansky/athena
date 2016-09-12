@@ -1,14 +1,14 @@
 <?xml version="1.0"?>
 <atn>
-   <TEST name=T name="GeneratorObjectsTest" type="makecheck" suite="Examples">
+   <TEST name="UnitTests" type="makecheck">
       <package>Generator/GeneratorObjects</package>
       <timelimit>5</timelimit>
-      <author> Paolo Calafiura </author>
-      <mailto> pcalafiura@lbl.gov, George.Stavropoulos@cern.ch> </mailto>
+      <author>John Chapman</author>
+      <mailto>atlas-srl-Sim-ISF-Core</mailto>
       <expectations>
          <errorMessage>Athena exited abnormally</errorMessage>
          <warningMessage> # WARNING_MESSAGE : post.sh> ERROR</warningMessage>
-          <successMessage>check ok</successMessage>
+          <successMessage>OK</successMessage>
           <returnValue>0</returnValue>
        </expectations>
     </TEST>

@@ -72,10 +72,10 @@ const HepMC::GenParticle* HepMcParticleLink::cptr() const {
       } else {
 	mlog() << MSG::WARNING 
 	       << "cptr: Mc Truth not stored for event " << eventIndex() 
-	       << endreq;
+	       << endmsg;
       }
     } else {
-      mlog() << MSG::WARNING << "cptr: McEventCollection not found" << endreq;
+      mlog() << MSG::WARNING << "cptr: McEventCollection not found" << endmsg;
     }
   }
 
@@ -109,21 +109,21 @@ bool HepMcParticleLink::find_hostkey() const
     s_HOSTKEY=s_AODKEY;
   if (!s_HOSTKEY.empty()) {
     mlog() << MSG::INFO << "find_hostkey: Using " << s_HOSTKEY
-        <<" as McEventCollection key for this job " << endreq;
+        <<" as McEventCollection key for this job " << endmsg;
     return true;
   }
   if (msgCount<CPTRMAXMSGCOUNT) {
     mlog() << MSG::WARNING << "find_hostkey: No Valid MC event Collection found "
-	   <<   endreq;
+	   <<   endmsg;
     ++msgCount;
   } else if (msgCount==CPTRMAXMSGCOUNT) {
     mlog() << MSG::WARNING <<"find_hostkey: suppressing further messages about valid MC event Collection. Use \n"
 	   << "  msgSvc.setVerbose += [HepMcParticleLink]\n"
-	   << "to see all messages" << endreq;
+	   << "to see all messages" << endmsg;
     ++msgCount;
   } else {
     mlog() << MSG::VERBOSE << "find_hostkey: No Valid MC event Collection found "
-	   << endreq;
+	   << endmsg;
   }
   return false;
 }
