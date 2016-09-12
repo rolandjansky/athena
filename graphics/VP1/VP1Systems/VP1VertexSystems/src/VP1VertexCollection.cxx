@@ -269,7 +269,8 @@ public:
 
 //____________________________________________________________________
 VP1VertexCollection::VP1VertexCollection(VertexSysController*controller,const QString& key)
-  : VP1StdCollection(controller->systemBase(),"VP1VertexCollection_"+key), d(new Imp)
+  : VP1StdCollection(controller->systemBase(),"VP1VertexCollection_"+key), d(new Imp),
+  m_colourby(COLOUR_PERCOLLECTION)
 {
   d->theclass = this;
   d->controller = controller;
