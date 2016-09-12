@@ -926,11 +926,8 @@ else:
             InDetKeys.TracksTruth              = InDetKeys.PseudoTracksTruth()
             InDetKeys.UnslimmedTracksTruth     = InDetKeys.PseudoTracksTruth()
             # add as the combined ID collection
-            InputCombinedInDetTracks = [ InDetKeys.PseudoTracks() ]
-        if InDetFlags.doSplitReco() :
             InputCombinedInDetTracks += [ InDetKeys.PseudoTracks() ]
-
-
+        
         # add final output for statistics
         TrackCollectionKeys      += [ InDetKeys.PseudoTracks() ]
         TrackCollectionTruthKeys += [ InDetKeys.PseudoTracksTruth() ]
@@ -1230,6 +1227,10 @@ else:
         cuts = InDetNewTrackingCutsSLHCConversionFinding
       else:
         cuts = InDetNewTrackingCuts
+
+      if InDetFlags.useInDetDynamicCuts():
+        cuts = InDetNewTrackingCuts    #cr: otherwise wrong maxEta is used
+
       include("InDetRecExample/ConfiguredInDetValidation.py")
       InDetValidation = ConfiguredInDetValidation("",True,InDetFlags.doTruth(),cuts,TrackCollectionKeys,TrackCollectionTruthKeys)
       if InDetFlags.doDBM():

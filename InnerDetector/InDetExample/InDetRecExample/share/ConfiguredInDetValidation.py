@@ -132,6 +132,10 @@ class  ConfiguredInDetValidation:
         InDetTrackClusterAssValidation.MinNumberSpacePoints   = 4
         if InDetFlags.doBeamHalo():
           InDetTrackClusterAssValidation.MomentumCut            = 0
+
+      if InDetFlags.useInDetDynamicCuts():
+        InDetTrackClusterAssValidation.InDetDynamicCutsTool = InDetDynamicCutsTool
+        InDetTrackClusterAssValidation.UseDynamicCuts       = True
  
       topSequence += InDetTrackClusterAssValidation
       if (InDetFlags.doPrintConfigurables()):

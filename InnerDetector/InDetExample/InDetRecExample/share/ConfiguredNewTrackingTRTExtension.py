@@ -24,7 +24,7 @@ class  ConfiguredNewTrackingTRTExtension:
       #    
       # ---------- TRT_TrackExtension
       #
-      if InDetFlags.doTRTExtension():
+      if InDetFlags.doTRTExtension() and InDetFlags.doTRTExtensionNew():
 
 
          #
@@ -71,7 +71,7 @@ class  ConfiguredNewTrackingTRTExtension:
       #
       # ------------ Track Extension Processor
       #
-      if InDetFlags.doExtensionProcessor():
+      if InDetFlags.doExtensionProcessor() and InDetFlags.doTRTExtensionNew():
             
          if InDetFlags.trtExtensionType() is 'DAF' :
             #

@@ -619,6 +619,12 @@ class SiSpSeededTracks(JobProperty):
     allowedTypes = ['str']
     StoredValue  = 'SiSPSeededTracks'
 
+class SiSPSeedSegments(JobProperty): 	 	
+    """ Storegate key for SP Seed Segments to studies""" 	 	
+    statusOn     = True 	 	
+    allowedTypes = ['str'] 	 	
+    StoredValue  = 'SiSPSeedSegments'
+
 class SiSpSeededSLHCTracks(JobProperty):
     """ Storegate key for new-tracking SP seeded SLHC tracks"""
     statusOn     = True
@@ -1168,6 +1174,7 @@ jobproperties.InDetContainerKeys.add_JobProperty(SCTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(TRTTracks_NewT)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededTracks)
+jobproperties.InDetContainerKeys.add_JobProperty(SiSPSeedSegments)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededSLHCTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededLowPtTracks)
 jobproperties.InDetContainerKeys.add_JobProperty(SiSpSeededVeryLowPtTracks)

@@ -477,11 +477,11 @@ class doSiSPSeededTrackFinder(InDetFlagsJobProperty):
     allowedTypes = ['bool']
     StoredValue  = False
 
-#class doTRTExtension(InDetFlagsJobProperty):
-#    """ turn on / off TRT extensions  """
-#    statusOn     = True
-#    allowedTypes = ['bool']
-#    StoredValue  = True
+class doTRTExtensionNew(InDetFlagsJobProperty):
+    """ turn on / off TRT extensions  """
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = True
 
 class trtExtensionType(InDetFlagsJobProperty):
     """ which extension type ("xk"/"DAF") """
@@ -549,7 +549,7 @@ class doSlimming(InDetFlagsJobProperty):
     """ turn track slimming on/off """
     statusOn     = True
     allowedTypes = ['bool']
-    StoredValue  = True
+    StoredValue  = False
 
 class doVertexFinding(InDetFlagsJobProperty):        
     """ Turn on the primary vertex reconstruction """
@@ -1056,6 +1056,12 @@ class doTIDE_AmbiTrackMonitoring(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class useInDetDynamicCuts(InDetFlagsJobProperty):
+  """ Use dynamic cuts (eta dependent, ... - InDetDynamicCutsTool) for the seeding, ambi process, etc. """
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = True
+
 class ForceCoraCool(InDetFlagsJobProperty):
   """ Use old (non CoolVectorPayload) SCT Conditions """
   statusOn     = True
@@ -1110,6 +1116,12 @@ class doParticleConversion(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class doStoreTrackSeeds(InDetFlagsJobProperty): 	 	
+   """Turn on to save the Track Seeds in a xAOD track collecting for development studies""" 	 	
+   statusOn     = True 	 	
+   allowedTypes = ['bool']
+   StoredValue  = False
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -1152,6 +1164,10 @@ class InDetJobProperties(JobPropertyContainer):
     if self.doSLHCVeryForward():
        self.checkThenSet(self.doSLHC            , True)
        self.checkThenSet(self.doForwardTracks   , True)
+
+    if self.useInDetDynamicCuts(): # because InDetDynamicCuts covers whole eta region
+       self.checkThenSet(self.doSLHCVeryForward   , False)
+       self.checkThenSet(self.doForwardTracks   , False)
 
     if (jobproperties.Beam.beamType()=="singlebeam"):
        self.checkThenSet(self.useHVForSctDCS         , True)    
@@ -1273,8 +1289,8 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.doSlimming             , False)
        self.checkThenSet(self.doSGDeletion           , True )
        # TEMPORARY FIX TO STOP SEG FAULT
-       self.checkThenSet(self.doPixelClusterSplitting, False)
-       self.checkThenSet(self.doTIDE_Ambi, False)
+       self.checkThenSet(self.doPixelClusterSplitting, True)
+       self.checkThenSet(self.doTIDE_Ambi, True)
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
 
     elif (self.doIBL()):
@@ -1887,7 +1903,7 @@ class InDetJobProperties(JobPropertyContainer):
   
   def doTRTExtension(self):
     from AthenaCommon.DetFlags import DetFlags
-    return (self.doNewTracking() or self.doBeamGas() or self.doLargeD0()) and DetFlags.haveRIO.TRT_on()
+    return ( (self.doNewTracking() or self.doBeamGas() or self.doLargeD0()) and DetFlags.haveRIO.TRT_on() ) and self.doTRTExtensionNew()
   
   def doExtensionProcessor(self):
     from AthenaCommon.DetFlags    import DetFlags
@@ -2585,7 +2601,7 @@ _list_InDetJobProperties = [Enabled,
                             doHolesOnTrack,
                             useZvertexTool,
                             doSiSPSeededTrackFinder,
-#                            doTRTExtension,
+                            doTRTExtensionNew,
                             trtExtensionType,
                             redoTRT_LR,
                             doTrtSegments,
@@ -2668,6 +2684,7 @@ _list_InDetJobProperties = [Enabled,
                             doLowMuRunSetup,
                             doRobustReco,
                             doTIDE_AmbiTrackMonitoring,
+                            useInDetDynamicCuts,
                             doSingleCollisionVertexReco,
                             useMBTSTimeDiff,
                             useNewSiSPSeededTF,
@@ -2687,7 +2704,8 @@ _list_InDetJobProperties = [Enabled,
                             doSCTModuleVeto,
                             doDBMstandalone,
                             doDBM,
-                            doParticleConversion
+                            doParticleConversion,
+                            doStoreTrackSeeds
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

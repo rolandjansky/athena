@@ -193,3 +193,17 @@ if InDetFlags.doTrackSegmentsTRT() and InDetFlags.doParticleCreation():
  #xAODTRTTrackParticleCnvAlg.OutputLevel = VERBOSE
  topSequence += xAODTRTTrackParticleCnvAlg
 
+
+if InDetFlags.doStoreTrackSeeds() and InDetFlags.doParticleCreation(): 	 	
+ from xAODTrackingCnv.xAODTrackingCnvConf import xAODMaker__TrackParticleCnvAlg 	 	
+ xAODSeedsTrackParticleCnvAlg = xAODMaker__TrackParticleCnvAlg( InDetKeys.SiSPSeedSegments()+"TrackParticle" ) 	 	
+ xAODSeedsTrackParticleCnvAlg.xAODContainerName = InDetKeys.SiSPSeedSegments()+"TrackParticle" 	 	
+ xAODSeedsTrackParticleCnvAlg.xAODTrackParticlesFromTracksContainerName = InDetKeys.SiSPSeedSegments()+"TrackParticle" 	 	
+ xAODSeedsTrackParticleCnvAlg.TrackParticleCreator = InDetxAODParticleCreatorTool 	 	
+ xAODSeedsTrackParticleCnvAlg.TrackContainerName = InDetKeys.SiSPSeedSegments() 	 	
+ xAODSeedsTrackParticleCnvAlg.ConvertTrackParticles = False 	 	
+ xAODSeedsTrackParticleCnvAlg.ConvertTracks = True 	 	
+ xAODSeedsTrackParticleCnvAlg.AddTruthLink = False 	 	
+ xAODSeedsTrackParticleCnvAlg.PrintIDSummaryInfo = True 	 	
+ # xAODSeedsTrackParticleCnvAlg.OutputLevel = VERBOSE 	 	
+ topSequence += xAODSeedsTrackParticleCnvAlg

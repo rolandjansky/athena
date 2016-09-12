@@ -215,6 +215,11 @@ if InDetFlags.loadRotCreator():
                                               Mode             = 'indet')
     ToolSvc += InDetRotCreatorDigital
 
+    if InDetFlags.doStoreTrackSeeds(): 	 	
+        from SeedToTrackConversionTool.SeedToTrackConversionToolConf import InDet__SeedToTrackConversionTool 	 	
+        InDet_SeedToTrackConversion = InDet__SeedToTrackConversionTool( name = "InDet_SeedToTrackConversion") 	 	
+        ToolSvc += InDet_SeedToTrackConversion
+
     #
     # --- configure broad cluster ROT creator
     #
@@ -1138,7 +1143,7 @@ if InDetFlags.doPattern():
 # ----------- Track extension to TRT tool for New Tracking
 #
 # ------------------------------------------------------------
-if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on() and InDetFlags.doTRTExtension():
+if InDetFlags.doPattern() and DetFlags.haveRIO.TRT_on():
     # if new tracking is OFF then xk extension type has to be used!!
     if (InDetFlags.trtExtensionType() is 'xk') or (not InDetFlags.doNewTracking()) :
 
@@ -1805,3 +1810,42 @@ if InDetFlags.doTIDE_AmbiTrackMonitoring():
   if InDetFlags.doPrintConfigurables():
       print TrackObserverTool
 
+# ------------------------------------------------------------
+#
+# ----------- Loading of tool for dynamic cuts
+#
+# ------------------------------------------------------------
+if InDetFlags.useInDetDynamicCuts():
+  from   InDetDynamicCutsTool.InDetDynamicCutsToolConf import InDet__InDetDynamicCutsTool
+  InDetDynamicCutsTool = InDet__InDetDynamicCutsTool("InDetDynamicCutsTool")
+
+  SLHCDynamicTrackingCuts = ConfiguredNewTrackingCuts("SLHCDynamicCuts")
+
+  #Set the configurables
+  InDetDynamicCutsTool.maxEta                  = SLHCDynamicTrackingCuts.maxEta()
+  InDetDynamicCutsTool.etaBins                 = SLHCDynamicTrackingCuts.etaBins()
+  InDetDynamicCutsTool.etaWidthBrem            = SLHCDynamicTrackingCuts.etaWidthBrem()
+  InDetDynamicCutsTool.maxdImpactSSSSeeds      = SLHCDynamicTrackingCuts.maxdImpactSSSSeeds()
+  InDetDynamicCutsTool.maxDoubleHoles          = SLHCDynamicTrackingCuts.maxDoubleHoles()
+  InDetDynamicCutsTool.maxHoles                = SLHCDynamicTrackingCuts.maxHoles()
+  InDetDynamicCutsTool.maxPixelHoles           = SLHCDynamicTrackingCuts.maxPixelHoles()
+  InDetDynamicCutsTool.maxPrimaryImpact        = SLHCDynamicTrackingCuts.maxPrimaryImpact()
+  InDetDynamicCutsTool.maxSctHoles             = SLHCDynamicTrackingCuts.maxSCTHoles()
+  InDetDynamicCutsTool.maxShared               = SLHCDynamicTrackingCuts.maxShared()
+  InDetDynamicCutsTool.maxZImpact              = SLHCDynamicTrackingCuts.maxZImpact()
+  InDetDynamicCutsTool.minClusters             = SLHCDynamicTrackingCuts.minClusters()
+  InDetDynamicCutsTool.minPixelHits            = SLHCDynamicTrackingCuts.minPixel()
+  InDetDynamicCutsTool.minPT                   = SLHCDynamicTrackingCuts.minPT()
+  InDetDynamicCutsTool.minPTBrem               = SLHCDynamicTrackingCuts.minPTBrem()
+  InDetDynamicCutsTool.minSiNotShared          = SLHCDynamicTrackingCuts.minSiNotShared()
+  InDetDynamicCutsTool.maxHolesGapPattern      = SLHCDynamicTrackingCuts.nHolesGapMax()
+  InDetDynamicCutsTool.maxHolesPattern         = SLHCDynamicTrackingCuts.nHolesMax()
+  InDetDynamicCutsTool.nWeightedClustersMin    = SLHCDynamicTrackingCuts.nWeightedClustersMin()
+  InDetDynamicCutsTool.phiWidthBrem            = SLHCDynamicTrackingCuts.phiWidthBrem()
+  InDetDynamicCutsTool.Xi2max                  = SLHCDynamicTrackingCuts.Xi2max()
+  InDetDynamicCutsTool.Xi2maxNoAdd             = SLHCDynamicTrackingCuts.Xi2maxNoAdd()
+
+  ToolSvc += InDetDynamicCutsTool
+  
+  if InDetFlags.doPrintConfigurables():
+    print InDetDynamicCutsTool

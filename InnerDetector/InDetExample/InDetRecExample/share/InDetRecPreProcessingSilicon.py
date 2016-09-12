@@ -33,7 +33,7 @@ if InDetFlags.doPRDFormation():
                                                       PixelOfflineCalibSvc = None,
                                                       UsePixelCalibCondDB  = False)
 
-      if DetFlags.makeRIO.pixel_on() and not (athenaCommonFlags.isOnline() or InDetFlags.doSLHC()):
+      if DetFlags.makeRIO.pixel_on() and not (athenaCommonFlags.isOnline()):
          InDetClusterMakerTool.PixelCalibSvc        = InDetPixelCalibSvc
          InDetClusterMakerTool.PixelOfflineCalibSvc = InDetPixelOfflineCalibSvc
          InDetClusterMakerTool.UsePixelCalibCondDB  = True
@@ -63,7 +63,6 @@ if InDetFlags.doPRDFormation():
          if InDetFlags.pixelClusterSplittingType() == 'NeuralNet':
 
             useBeamConstraint = InDetFlags.useBeamConstraint()
-            
             # --- new NN prob tool
             MultiplicityContent = [1 , 1 , 1]
             if InDetFlags.doSLHC():

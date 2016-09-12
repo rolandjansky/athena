@@ -41,6 +41,11 @@ elif InDetFlags.writePRDs():
 if InDetFlags.doCosmics():
    if InDetFlags.doNewTracking():
       InDetESDList+=["TrackCollection#"+InDetKeys.UnslimmedTracks()]
+if InDetFlags.doStoreTrackSeeds(): 	 	
+   InDetESDList+=["TrackCollection#"+InDetKeys.SiSPSeedSegments()] 	 	
+   # if InDetFlags.doTruth(): 	 	
+   #   InDetESDList += ["TrackTruthCollection#"+InDetKeys.SiSPSeedSegments()+'TruthCollection'] 	 	
+   #   InDetESDList += ["DetailedTrackTruthCollection#"+InDetKeys.SiSPSeedSegments()+'DetailedTruth']
 
 if InDetKeys.AliasToTracks() == 'none':
    InDetESDList+=["TrackCollection#"+InDetKeys.Tracks()]
@@ -126,6 +131,10 @@ if InDetFlags.doxAOD():
   InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODTrackParticleContainer()]
   InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODTrackParticleContainer()+'Aux.' + excludedAuxData]
 
+  if InDetFlags.doStoreTrackSeeds(): 	 	
+     InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"] 	 	
+     InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.SiSPSeedSegments()+"TrackParticle"+'Aux.' + excludedAuxData]
+     
   if not InDetFlags.doSLHC():
      InDetESDList+=['xAOD::TrackParticleContainer#'+InDetKeys.xAODForwardTrackParticleContainer()]
      InDetESDList+=['xAOD::TrackParticleAuxContainer#'+InDetKeys.xAODForwardTrackParticleContainer()+'Aux.' + excludedAuxData ]
