@@ -52,15 +52,17 @@ def DBMChargeTool(name="DBMChargeTool", **kwargs):
 
 def BichselSimTool(name="BichselSimTool", **kwargs):
     kwargs.setdefault("DeltaRayCut", 117.)
+    kwargs.setdefault("nCols", 5)
+    kwargs.setdefault("LoopLimit", 100000)
     return CfgMgr.BichselSimTool(name, **kwargs)
 
 def PixelBarrelBichselChargeTool(name="PixelBarrelBichselChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    # kwargs.setdefault("doBichsel", False)
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
+    kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     # kwargs.setdefault("OutputFileName", digitizationFlags.BichselOutputFileName())
     # kwargs.setdefault("doHITPlots", True)
@@ -70,8 +72,8 @@ def PixelECBichselChargeTool(name="PixelECBichselChargeTool", **kwargs):
     kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc())
     kwargs.setdefault("RndmEngine", "PixelDigitization")
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
-    # kwargs.setdefault("doBichsel", False)
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
+    kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     return CfgMgr.PixelECBichselChargeTool(name, **kwargs)
 
@@ -81,6 +83,7 @@ def IblPlanarBichselChargeTool(name="IblPlanarBichselChargeTool", **kwargs):
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
+    kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     return CfgMgr.IblPlanarBichselChargeTool(name, **kwargs)
 
@@ -90,6 +93,7 @@ def Ibl3DBichselChargeTool(name="Ibl3DBichselChargeTool", **kwargs):
     kwargs.setdefault("doBichsel", hasattr(digitizationFlags, "doBichselSimulation") and digitizationFlags.doBichselSimulation())
     kwargs.setdefault("doBichselBetaGammaCut", 0.7)   # dEdx not quite consistent below this
     kwargs.setdefault("doDeltaRay", False)            # needs validation
+    kwargs.setdefault("doPU", True)
     kwargs.setdefault("BichselSimTool", "BichselSimTool")
     return CfgMgr.Ibl3DBichselChargeTool(name, **kwargs)
 
@@ -242,7 +246,7 @@ def BasicPixelDigitizationTool(name="PixelDigitizationTool", **kwargs):
         # For IBL and DBM, values of LVL1Latency and LowToTDupli are superseded by values driven by HitDiscCnfg settings, in PixelDigitizationTool.cxx
         LVL1Latency = [16, 150, 255, 255, 255, 16]
         ToTMinCut = [0, 6, 6, 6, 6, 0]
-        ApplyDupli = [False, False, False, False, False, False]
+        ApplyDupli = [True, False, False, False, False, False]
         LowTOTduplication = [0, 7, 7, 7, 7, 0]
         kwargs.setdefault("LVL1Latency", LVL1Latency)
         kwargs.setdefault("ToTMinCut", ToTMinCut)
