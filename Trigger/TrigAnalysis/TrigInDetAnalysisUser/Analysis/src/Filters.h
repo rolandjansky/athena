@@ -7,7 +7,7 @@
 //  
 //   Copyright (C) 2012 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: Filters.h 688225 2015-08-07 20:12:06Z sutt $
+//   $Id: Filters.h 767214 2016-08-10 12:23:36Z sutt $
 
 
 #ifndef  FILTERS_H
@@ -189,13 +189,57 @@ private:
 
 
 
+
+/// calculate the (very approximate) phi position 
+/// for a track at a rafius r
+
+double outerphi( double pt, double phi, double r=1000 ) {  
+      
+  /// track (signed) radius of curvature
+
+  double mqR = 10*pt/(2.99792458*2); // 2.998=speed of light, 2=Atlas B field 
+  
+  double ratio = 0.5*r/mqR;
+  
+  double newphi = phi;
+
+  /// make sure it escapes the radius 
+  /// in question
+  if ( std::fabs(ratio)>1 ) return 0; 
+    
+  /// calculate new position
+  newphi -= std::asin( ratio );  
+  
+  /// wrap to -pi to pi
+  while ( newphi<-M_PI ) newphi += 2*M_PI;
+  while ( newphi> M_PI ) newphi -= 2*M_PI;
+  
+  return newphi;
+
+}
+  
+
+
 class Filter_Combined : public TrackFilter {  
 
 public:
 
-  Filter_Combined( TrackFilter* f1, TrackFilter* f2) : mf1(f1), mf2(f2), m_roi(0),  m_debugPrintout(false) { } 
+  Filter_Combined( TrackFilter* f1, TrackFilter* f2) : 
+    mf1(f1), mf2(f2), m_roi(0), 
+    m_debugPrintout(false), 
+    mcontain(true), 
+    mcontainR(1000), 
+    mcontainZ(2700) 
+  { } 
 
   void setRoi( TIDARoiDescriptor* r ) { m_roi = r; } 
+
+
+  /// set / unset the flag to determine whether tracks 
+  /// should be fully contained in the RoI or not 
+
+  void containtracks( bool b=true ) { mcontain=b; }
+  void containtracksR( double r )   { mcontainR=r; }
 
 
   bool contains( const TIDA::Track* t, const TIDARoiDescriptor* r ) const { 
@@ -215,8 +259,38 @@ public:
       bool contained_phi = false;
       
       if ( r->phiMinus()<r->phiPlus() )  contained_phi = ( t->phi()>r->phiMinus() &&  t->phi()<r->phiPlus() );
-      else                               contained_phi = ( t->phi()>r->phiMinus() ||  t->phi()<r->phiPlus() );
-      
+      else 	                         contained_phi = ( t->phi()>r->phiMinus() ||  t->phi()<r->phiPlus() ); 
+        
+
+
+      if ( mcontain ) { 
+	/// so here - depending on the track charge, and track pt, 
+	/// ensure that the track is *completely* contained within 
+	/// the RoI 
+
+	double zexit = mcontainZ;
+
+	if  ( t->eta()<0 ) zexit = -mcontainZ;
+       
+	double tantheta = std::tan( 2*std::atan( std::exp( -t->eta() ) ) );
+	
+	double rexit = (zexit-t->z0()) * tantheta;
+	
+	/// leaves through the barrel side or front face?
+	if ( std::fabs(rexit)>mcontainR ) { 
+	  rexit = mcontainR;
+	  ///  don't actually need to calculate the z exit coordinate
+	  //	  zexit = mcontainR / tantheta + t->z0();
+	}
+	
+	double newphi = outerphi( t->pT(), t->phi(), rexit );
+	
+	if ( newphi==0 ) return false;
+	
+	if ( r->phiMinus()<r->phiPlus() ) contained_phi &= ( newphi>r->phiMinus() &&  newphi<r->phiPlus() );
+	else                              contained_phi &= ( newphi>r->phiMinus() ||  newphi<r->phiPlus() );
+      }      
+
       if ( ( t->eta()>r->etaMinus() &&  t->eta()<r->etaPlus() ) && 
 	   ( contained_phi ) &&
 	   ( t->z0()>r->zedMinus() &&  t->z0()<r->zedPlus() ) ) { 
@@ -262,6 +336,10 @@ private:
   const TIDARoiDescriptor* m_roi;
 
   bool  m_debugPrintout;
+
+  bool   mcontain;
+  double mcontainR;
+  double mcontainZ;
 
 };
 

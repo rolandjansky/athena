@@ -37,13 +37,11 @@ public:
   void read( const std::string& file ) {
 
     /// open the file
-    std::ifstream input( file );
+    std::ifstream input( file.c_str() );
 
     int run;
     std::vector<int> lbstart;
     std::vector<int> lbend;
-    
-    bool first = true;
     
     /// go through all the lines ...
     for( std::string line; getline( input, line ); ) { 
@@ -151,7 +149,7 @@ private:
 
 
 inline std::ostream& operator<<( std::ostream& s, const lumiParser& _l ) { 
-  return s;
+  return s << *dynamic_cast<const lumiList*>(&_l);
 }
 
 

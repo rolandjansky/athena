@@ -6,7 +6,7 @@
 // 
 //   Copyright (C) 2007 M.Sutton (sutt@cern.ch)    
 //
-//   $Id: ConfAnalysis.h 760970 2016-07-11 10:25:16Z sutt $
+//   $Id: ConfAnalysis.h 770310 2016-08-26 12:34:42Z sutt $
 
 
 #ifndef __CONFANALYSIS_H
@@ -20,7 +20,6 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysis/TIDDirectory.h"
 #include "TrigInDetAnalysis/Efficiency.h"
-#include "TrigInDetAnalysis/Efficiency2D.h"
 #include "TrigInDetAnalysis/TIDARoiDescriptor.h"
 
 #include "Resplot.h"
@@ -142,9 +141,6 @@ private:
   Efficiency* purity_d0;
   Efficiency* purity_a0;
 
-  Efficiency2D* eff_pteta; 
-  Efficiency2D* eff_etapt; 
-  Efficiency2D* eff_etaphi; 
 
 #if 0
   TH2F* h2;
@@ -228,6 +224,8 @@ private:
   std::vector<Resplot*> rDd0res;
   std::vector<Resplot*> rDa0res;
   std::vector<Resplot*> rDz0res;
+
+  Resplot* rzedreslb;
 
   //  std::vector<Resplot*> rd0res_95;
   //  std::vector<Resplot*> rd0res_rms;
