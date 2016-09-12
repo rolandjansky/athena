@@ -15,6 +15,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           AtlasTest/TestTools
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Control/RootUtils
                           Control/StoreGate )
 
@@ -22,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( HepMC )
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( GTest )
 
 # Component(s) in the package:
 atlas_add_library( GeneratorObjects
@@ -42,13 +44,7 @@ atlas_add_dictionary( GeneratorObjectsDict
                       LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers AthLinks SGTools xAODTruth GaudiKernel TestTools AthenaKernel RootUtils RootUtilsPyROOT StoreGateLib SGtests GeneratorObjects )
 
 atlas_add_test( HepMcParticleLink_test
-                SOURCES
-                test/HepMcParticleLink_test.cxx
-                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS}
-                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers AthLinks SGTools xAODTruth GaudiKernel TestTools AthenaKernel RootUtils RootUtilsPyROOT StoreGateLib SGtests GeneratorObjects
-                EXTRA_PATTERNS "ClassIDSvc Initialized successfully|^JobOptionsSvc +INFO"
-                ENVIRONMENT "JOBOPTSEARCHPATH=${CMAKE_CURRENT_SOURCE_DIR}/share" )
-
-# Install files from the package:
-atlas_install_joboptions( share/HepMcParticleLink_test.txt )
+                SOURCES test/HepMcParticleLink_test.cxx
+                INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HEPMC_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS}
+                LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} ${HEPMC_LIBRARIES} AthContainers CxxUtils AthLinks SGTools xAODTruth GaudiKernel TestTools AthenaKernel RootUtils RootUtilsPyROOT StoreGateLib SGtests GeneratorObjects ${GTEST_LIBRARIES} )
 
