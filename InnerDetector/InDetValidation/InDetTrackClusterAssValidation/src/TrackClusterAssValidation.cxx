@@ -16,7 +16,9 @@
 ///////////////////////////////////////////////////////////////////
 
 InDet::TrackClusterAssValidation::TrackClusterAssValidation
-(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator)
+(const std::string& name,ISvcLocator* pSvcLocator) : AthAlgorithm(name,pSvcLocator),
+  m_dynamicCutsTool("InDet::InDetDynamicCutsTool/InDetDynamicCutsTool"),
+  m_useDynamicCuts(false)
 {
 
   // TrackClusterAssValidation steering parameters
@@ -45,6 +47,7 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   m_useSCT                 = true                             ;
   m_useTRT                 = true                             ;
   m_useOutliers            = false                            ;
+  m_usebarcode             = false                            ;
   m_pdg                    = 0                                ;
   m_outputlevel            = 0                                ;
   m_nprint                 = 0                                ; 
@@ -96,6 +99,9 @@ InDet::TrackClusterAssValidation::TrackClusterAssValidation
   declareProperty("useTRT"                ,m_useTRT                );
   declareProperty("useOutliers"           ,m_useOutliers           );
   declareProperty("pdgParticle"           ,m_pdg                   );
+  declareProperty("InDetDynamicCutsTool"  ,m_dynamicCutsTool       );
+  declareProperty("UseDynamicCuts"  	  ,m_useDynamicCuts        );  
+  declareProperty("useBarcode"            ,m_usebarcode            );
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -106,6 +112,18 @@ StatusCode InDet::TrackClusterAssValidation::initialize()
 {
   
   StatusCode sc; 
+
+	// Get InDetDynamicCutsTool
+  //
+  if (m_useDynamicCuts) {
+    sc = m_dynamicCutsTool.retrieve();
+    if (sc.isFailure()) {
+	  	ATH_MSG_ERROR("Failed to retrieve AlgTool " << m_dynamicCutsTool);
+		  return sc;
+  	}
+	  else 
+  		ATH_MSG_INFO( "Retrieved tool " << m_dynamicCutsTool );
+  }
 
   m_rapcut ? m_tcut = 1./tan(2.*atan(exp(-m_rapcut))) : m_tcut = 0.;
 
@@ -234,15 +252,25 @@ StatusCode InDet::TrackClusterAssValidation::execute()
     }
   }
 
-  newClustersEvent                   ();
-  newSpacePointsEvent                ();
-  m_nqtracks = QualityTracksSelection();
-  tracksComparison                   ();
-  if(m_particles[0].size() > 0) {
-
-    efficiencyReconstruction(); 
-    if(m_outputlevel<=0) noReconstructedParticles();
-
+  if(!m_usebarcode) { //  Use HepMC::GenParticle*
+    newClustersEventN                   ();
+    newSpacePointsEventN                ();
+    m_nqtracks = QualityTracksSelectionN();
+    tracksComparisonN                   ();
+    if(m_particles[0].size() > 0) {
+      efficiencyReconstructionN(); 
+      if(m_outputlevel<=0) noReconstructedParticlesN();
+    }
+  }
+  else              { //  Use barcode()
+    newClustersEvent                    ();
+    newSpacePointsEvent                 ();
+    m_nqtracks = QualityTracksSelection ();
+    tracksComparison                    ();
+    if(m_particles[0].size() > 0) {
+      efficiencyReconstruction(); 
+      if(m_outputlevel<=0) noReconstructedParticles();
+    }
   }
 
   if(m_outputlevel< 0) {
@@ -581,9 +609,16 @@ StatusCode InDet::TrackClusterAssValidation::finalize() {
   std::cout<<"|               Additional cuts for truth particles are                             |"
 	   <<std::endl;
 
-  std::cout<<"|                    number silicon clusters >=" 
+  if(!m_useDynamicCuts) {
+     std::cout<<"|                    number silicon clusters >=" 
 	   <<std::setw(13)<<m_clcut
 	   <<"                        |"<<std::endl;
+  }
+  else {   // use dynamic cuts
+     std::cout<<"|                    number silicon clusters >=" 
+	   << " eta dependent"
+	   <<"                       |"<<std::endl;  
+  }
   std::cout<<"|                    number   trt   clusters >=" 
 	   <<std::setw(13)<<m_clcutTRT
 	   <<"                        |"<<std::endl;
@@ -1363,7 +1398,6 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
       }
     }
   }
-
   if(!m_trtcontainer) return;
 
   // Loop through all trt clusters
@@ -1381,6 +1415,111 @@ void InDet::TrackClusterAssValidation::newClustersEvent()
       ++m_nclustersTRT;
       int nk = kine((*c),Kine,999);
       for(int i=0; i!=nk; ++i) m_kineclusterTRT.insert(std::make_pair(Kine[i],(*c)));  
+    }
+  }
+}
+void InDet::TrackClusterAssValidation::newClustersEventN()
+{
+
+  m_nclusters    = 0;
+  m_nclustersTRT = 0;
+  m_kineclusterN   .clear();
+  m_kineclusterTRTN.clear();
+   
+  // Get pixel clusters container
+  // 
+  StatusCode sc;
+  m_pixcontainer = 0;
+  if(m_usePIX) {
+    sc = evtStore()->retrieve(m_pixcontainer,m_clustersPixelname);
+    if (sc.isFailure()) msg(MSG::DEBUG)<<"Pixel clusters container"<<endreq;
+  }
+
+  // Get sct   clusters container
+  //
+  m_sctcontainer = 0; 
+  if(m_useSCT) {
+    sc            = evtStore()->retrieve(m_sctcontainer,m_clustersSCTname  );
+    if (sc.isFailure()) msg(MSG::DEBUG)<<"SCT clusters container"<<endreq;
+  } 
+
+  // Get trt   cluster container
+  //
+  m_trtcontainer = 0;
+  if(m_clcutTRT > 0) {
+    sc            = evtStore()->retrieve(m_trtcontainer,m_clustersTRTname  );
+    if (sc.isFailure()) msg(MSG::DEBUG)<<"TRT drift circles container"<<endreq;
+  }
+
+  const HepMC::GenParticle* Kine[1000];
+
+  // Loop through all pixel clusters
+  //
+  if(m_pixcontainer) {
+
+    InDet::SiClusterContainer::const_iterator w  =  m_pixcontainer->begin();
+    InDet::SiClusterContainer::const_iterator we =  m_pixcontainer->end  ();
+
+    for(; w!=we; ++w) {
+      
+      InDet::SiClusterCollection::const_iterator c  = (*w)->begin();
+      InDet::SiClusterCollection::const_iterator ce = (*w)->end  ();
+      
+      for(; c!=ce; ++c) {
+
+	++m_nclusters;
+
+	int nk = kine((*c),Kine,999);
+	for(int i=0; i!=nk; ++i) {
+	  if(!isTheSameDetElement(Kine[i],(*c))) {
+	    m_kineclusterN.insert(std::make_pair(Kine[i],(*c)));  
+	  }
+	}
+      }
+    }
+  }
+
+  // Loop through all sct clusters
+  //
+  if(m_sctcontainer) {
+
+    InDet::SiClusterContainer::const_iterator w  =  m_sctcontainer->begin();
+    InDet::SiClusterContainer::const_iterator we =  m_sctcontainer->end  ();
+
+    for(; w!=we; ++w) {
+      
+      InDet::SiClusterCollection::const_iterator c  = (*w)->begin();
+      InDet::SiClusterCollection::const_iterator ce = (*w)->end  ();
+
+      for(; c!=ce; ++c) {
+
+	++m_nclusters;
+	
+	int nk = kine((*c),Kine,999);
+	for(int i=0; i!=nk; ++i) {
+	  if(!isTheSameDetElement(Kine[i],(*c))) m_kineclusterN.insert(std::make_pair(Kine[i],(*c)));  
+	}
+      }
+    }
+  }
+
+  if(!m_trtcontainer) return;
+
+  // Loop through all trt clusters
+  //
+  InDet::TRT_DriftCircleContainer::const_iterator  w  = m_trtcontainer->begin();
+  InDet::TRT_DriftCircleContainer::const_iterator  we = m_trtcontainer->end  ();
+
+  for(; w!=we; ++w) {
+
+    InDet::TRT_DriftCircleCollection::const_iterator c  = (*w)->begin();
+    InDet::TRT_DriftCircleCollection::const_iterator ce = (*w)->end  ();
+
+    for(; c!=ce; ++c) {
+
+      ++m_nclustersTRT;
+      int nk = kine((*c),Kine,999);
+      for(int i=0; i!=nk; ++i) m_kineclusterTRTN.insert(std::make_pair(Kine[i],(*c)));  
     }
   }
 }
@@ -1492,6 +1631,111 @@ void InDet::TrackClusterAssValidation::newSpacePointsEvent()
     }
   }
 }
+
+void InDet::TrackClusterAssValidation::newSpacePointsEventN()
+{
+
+  m_nspacepoints = 0;
+  m_kinespacepointN.clear();
+
+  const HepMC::GenParticle* Kine[1000];
+
+  m_spacepointsPixel = 0;
+
+  if(m_usePIX) {
+    if (evtStore()->contains<SpacePointContainer>(m_spacepointsPixelname))
+    {
+      if (evtStore()->retrieve(m_spacepointsPixel,m_spacepointsPixelname).isFailure())
+        msg(MSG::DEBUG)<<"Pixels space points container"<<endreq;
+
+      if(m_spacepointsPixel) {
+      
+        SpacePointContainer::const_iterator spc  =  m_spacepointsPixel->begin();
+        SpacePointContainer::const_iterator spce =  m_spacepointsPixel->end  ();
+      
+        for(; spc != spce; ++spc) {
+        
+          SpacePointCollection::const_iterator sp  = (*spc)->begin();
+          SpacePointCollection::const_iterator spe = (*spc)->end  ();
+        
+          for(; sp != spe; ++sp) {
+            
+            ++m_nspacepoints;
+            int nk = kine((*sp)->clusterList().first,Kine,999);
+            for(int i=0; i!=nk; ++i) {
+              
+              if(!isTheSameDetElement(Kine[i],(*sp))) {
+                m_kinespacepointN.insert(std::make_pair(Kine[i],(*sp)));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  // Get sct space points containers from store gate 
+  //
+  m_spacepointsSCT = 0;
+  if(m_useSCT) {
+    if (evtStore()->contains<SpacePointContainer>(m_spacepointsSCTname))
+    {
+      if (evtStore()->retrieve(m_spacepointsSCT,m_spacepointsSCTname).isFailure())
+          msg(MSG::DEBUG)<<"SCT space points container"<<endreq;
+
+      if(m_spacepointsSCT) {
+        
+        SpacePointContainer::const_iterator spc  =  m_spacepointsSCT->begin();
+        SpacePointContainer::const_iterator spce =  m_spacepointsSCT->end  ();
+        
+        for(; spc != spce; ++spc) {
+          
+          SpacePointCollection::const_iterator sp  = (*spc)->begin();
+          SpacePointCollection::const_iterator spe = (*spc)->end  ();
+          
+          for(; sp != spe; ++sp) {
+            
+            
+            ++m_nspacepoints;
+            int nk = kine((*sp)->clusterList().first,(*sp)->clusterList().second,Kine,999);
+            for(int i=0; i!=nk; ++i) {
+              if(!isTheSameDetElement(Kine[i],(*sp))) {
+                m_kinespacepointN.insert(std::make_pair(Kine[i],(*sp)));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  // Get sct overlap space points containers from store gate 
+  //
+  m_spacepointsOverlap = 0;
+  if(m_useSCT) {
+    if (evtStore()->contains<SpacePointContainer>(m_spacepointsOverlapname))
+    {
+      if (evtStore()->retrieve(m_spacepointsOverlap,m_spacepointsOverlapname).isFailure())
+        msg(MSG::DEBUG)<<"SCT overlap space points container"<<endreq;
+
+      if(m_spacepointsOverlap) {
+        
+        SpacePointOverlapCollection::const_iterator sp  = m_spacepointsOverlap->begin();
+        SpacePointOverlapCollection::const_iterator spe = m_spacepointsOverlap->end  ();
+        
+        for (; sp!=spe; ++sp) {
+          
+          ++m_nspacepoints;
+          int nk = kine((*sp)->clusterList().first,(*sp)->clusterList().second,Kine,999);
+          for(int i=0; i!=nk; ++i) {
+            if(!isTheSameDetElement(Kine[i],(*sp))) {
+              m_kinespacepointN.insert(std::make_pair(Kine[i],(*sp)));
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 ///////////////////////////////////////////////////////////////////
 // Good kine tracks  selection
 ///////////////////////////////////////////////////////////////////
@@ -1519,10 +1763,10 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
     m_kineclusterTRT.erase(m_kineclusterTRT.begin(),m_kineclusterTRT.end());
     return 0;
   }
-
   std::list<int> worskine;
 
   int          rp = 0;
+  double       etaExact = 0.0;
   int          t  = 0;
   int          k0 = (*c).first;
   int          q0 = k0*charge((*c),rp);
@@ -1531,7 +1775,12 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
   for(++c; c!=m_kinecluster.end(); ++c) {
 
     if((*c).first==k0) {++nc; continue;}
-    q0 = charge((*c),rp)*k0;
+    //q0 = charge((*c),rp)*k0;
+    q0 = charge((*c),rp, etaExact)*k0;
+
+		if(m_useDynamicCuts) {
+			m_clcut = m_dynamicCutsTool->getMinClustersByEta(etaExact);
+		}
 
     nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];
     nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
@@ -1549,8 +1798,13 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
     }
 
     k0 = (*c).first;
-    q0 =charge((*c),rp)*k0;
+    //q0 =charge((*c),rp)*k0;
+    q0 = charge((*c),rp, etaExact)*k0;
     nc = 1         ;
+  }
+
+  if(m_useDynamicCuts) {
+    m_clcut = m_dynamicCutsTool->getMinClustersByEta(etaExact);
   }
 
   nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];  
@@ -1565,7 +1819,6 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
   else {
     InDet::Barcode BC(q0,rp); m_particles[0].push_back(BC); ++t;
   }
-
 
   std::list<int>::iterator w=worskine.begin(), we=worskine.end();
 
@@ -1608,6 +1861,119 @@ int InDet::TrackClusterAssValidation::QualityTracksSelection()
  
 
   std::list<InDet::Barcode>::iterator p = m_particles[0].begin(), pe =m_particles[0].end();
+  for(; p!=pe; ++p) {
+    for(int nc=1; nc<m_ncolection; ++nc) m_particles[nc].push_back((*p));
+  }
+  return t;
+}
+
+int InDet::TrackClusterAssValidation::QualityTracksSelectionN()
+{
+  for(int nc = 0; nc!=m_ncolection; ++nc) {m_particles[nc].clear();}
+
+  std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*>::iterator c = m_kineclusterN   .begin();
+  std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*>::iterator u = m_kineclusterTRTN.begin();
+  std::multimap<const HepMC::GenParticle*,const Trk::SpacePoint*>::iterator  s = m_kinespacepointN.begin();
+
+  if( c == m_kineclusterN   .end())                   return 0;
+  if( s == m_kinespacepointN.end())                   return 0;
+  if( m_clcutTRT > 0 && u == m_kineclusterTRTN.end()) return 0;
+
+  std::list<const HepMC::GenParticle*> worskine;
+
+  int          rp = 0 ;
+  double etaExact = 0.;
+  int          t  = 0 ;
+  const HepMC::GenParticle*  k0 = (*c).first;
+  unsigned int nc = 1 ;
+  int          q0 = charge((*c),rp);
+     
+  for(++c; c!=m_kineclusterN.end(); ++c) {
+
+    if((*c).first==k0) {++nc; continue;}
+    q0 = charge((*c),rp, etaExact);
+
+    if(m_useDynamicCuts) {
+      m_clcut = m_dynamicCutsTool->getMinClustersByEta(etaExact);
+    }
+
+    nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];
+    nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
+
+  
+    int ns = m_kinespacepointN.count(k0);
+    ns < 50 ?  ++m_particleSpacePoints   [ns]     : ++m_particleSpacePoints   [49];  
+    ns < 50 ?  ++m_particleSpacePointsBTE[ns][rp] : ++m_particleSpacePointsBTE[49][rp];  
+
+    if     (nc                         < m_clcut   ) worskine.push_back(k0);
+    else if(m_kinespacepointN.count(k0)< m_spcut   ) worskine.push_back(k0);
+    else if(m_kineclusterTRTN.count(k0)< m_clcutTRT) worskine.push_back(k0);
+    else {
+      InDet::Barcode BC(q0,rp,k0); m_particles[0].push_back(BC); ++t;
+     }
+
+    k0 = (*c).first;
+    q0 = charge((*c),rp, etaExact);
+    nc = 1         ;
+  }
+
+  if(m_useDynamicCuts) {
+    m_clcut = m_dynamicCutsTool->getMinClustersByEta(etaExact);
+  }
+
+  nc < 50 ?  ++m_particleClusters   [nc]     : ++m_particleClusters   [49];  
+  nc < 50 ?  ++m_particleClustersBTE[nc][rp] : ++m_particleClustersBTE[49][rp];
+  int ns = m_kinespacepointN.count(k0);
+  ns < 50 ?  ++m_particleSpacePoints   [ns]     : ++m_particleSpacePoints   [49];  
+  ns < 50 ?  ++m_particleSpacePointsBTE[ns][rp] : ++m_particleSpacePointsBTE[49][rp];  
+
+  if     (nc                         < m_clcut   ) worskine.push_back(k0);
+  else if(m_kinespacepointN.count(k0)< m_spcut   ) worskine.push_back(k0);  
+  else if(m_kineclusterTRTN.count(k0)< m_clcutTRT) worskine.push_back(k0);
+  else {
+    InDet::Barcode BC(q0,rp,k0); m_particles[0].push_back(BC); ++t;
+  }
+
+  std::list<const HepMC::GenParticle*>::iterator w=worskine.begin(), we=worskine.end();
+
+  for(; w!=we; ++w) {
+    m_kineclusterN   .erase((*w));
+    m_kineclusterTRTN.erase((*w));
+    m_kinespacepointN.erase((*w));
+  }
+
+  for(c = m_kineclusterN.begin(); c!= m_kineclusterN.end(); ++c) {
+    
+    const Trk::PrepRawData* 
+      d = (*c).second;
+    const InDetDD::SiDetectorElement* 
+      de= dynamic_cast<const InDetDD::SiDetectorElement*>(d->detectorElement());
+    int q  = charge(*c,rp); 
+
+    if     (q<0) {
+      if (de->isDBM())
+	++m_nclustersNegDBM;
+      else if(de->isBarrel()) {
+	de->isPixel() ? ++m_nclustersNegBP : ++m_nclustersNegBS; 
+      }
+      else                                     {
+	de->isPixel() ? ++m_nclustersNegEP : ++m_nclustersNegES; 
+      }
+
+    }
+    else if(q>0) {
+      if (de->isDBM())
+	++m_nclustersPosDBM;
+      else if(de->isBarrel()) {
+	de->isPixel() ? ++m_nclustersPosBP : ++m_nclustersPosBS; 
+      }
+      else                                     {
+	de->isPixel() ? ++m_nclustersPosEP : ++m_nclustersPosES; 
+      }
+    }
+  }
+ 
+  std::list<InDet::Barcode>::iterator p = m_particles[0].begin(), pe =m_particles[0].end();
 
   for(; p!=pe; ++p) {
     for(int nc=1; nc<m_ncolection; ++nc) m_particles[nc].push_back((*p));
@@ -1623,7 +1989,6 @@ void InDet::TrackClusterAssValidation::tracksComparison()
 {
   if(!m_nqtracks) return;
 
-
   std::vector<std::string>::const_iterator co =m_tracklocation.begin(),coe=m_tracklocation.end();
 
   int nc = -1;
@@ -1634,13 +1999,13 @@ void InDet::TrackClusterAssValidation::tracksComparison()
     const TrackCollection*  inputTracks = 0;
     StatusCode sc	= evtStore()->retrieve(inputTracks, (*co));
     if (sc.isFailure() || !inputTracks) continue;
-
+    
     // Loop through all found tracks
     //
     TrackCollection::const_iterator t,te = inputTracks->end();
 
     int KINE[200],NKINE[200];
-  
+ 
     for (t=inputTracks->begin(); t!=te; ++t) {
 
       DataVector<const Trk::TrackStateOnSurface>::const_iterator 
@@ -1713,8 +2078,115 @@ void InDet::TrackClusterAssValidation::tracksComparison()
       for(int n=0; n!=NK; ++n) {
 	if(NKINE[n]==nkm) {
 	  int NQ = 1000*NKINE[n]+(NC-NKINE[n]);
-
 	  m_tracks[nc].insert(std::make_pair(KINE[n],NQ));
+	  if(qTf) {        
+	    if(NC-N0 > 2) {
+	      ++m_total[nc][NC]; if(NC-NKINE[n] > 2) {++m_fake[nc][NC];}
+	    }
+	  }
+	}
+      }
+    }
+
+  }
+}
+
+void InDet::TrackClusterAssValidation::tracksComparisonN()
+{
+  if(!m_nqtracks) return;
+
+
+  std::vector<std::string>::const_iterator co =m_tracklocation.begin(),coe=m_tracklocation.end();
+
+  int nc = -1;
+  for(; co!=coe; ++co) {
+    if(++nc >= 100) return;
+    m_tracksN[nc].clear();
+
+    const TrackCollection*  inputTracks = 0;
+    StatusCode sc	= evtStore()->retrieve(inputTracks, (*co));
+    if (sc.isFailure() || !inputTracks) continue;
+
+    // Loop through all found tracks
+    //
+    TrackCollection::const_iterator t,te = inputTracks->end();
+
+    const HepMC::GenParticle* KINE[200];
+    int NKINE[200];
+    for (t=inputTracks->begin(); t!=te; ++t) {
+
+      DataVector<const Trk::TrackStateOnSurface>::const_iterator 
+	s  = (*t)->trackStateOnSurfaces()->begin(),
+	se = (*t)->trackStateOnSurfaces()->end  ();
+      
+      int  NK  = 0;
+      int  NC  = 0;
+      int  N0  = 0;
+      int  nkm = 0;
+      bool qp  = false;
+      
+      const Trk::TrackParameters* tpf = (*s)->trackParameters();  if(!tpf) continue;
+      const AmgVector(5)&         Vpf = tpf ->parameters     ();
+      double                      pTf = fabs(sin(Vpf[3])/Vpf[4]);
+      bool                        qTf = pTf > m_ptcut;          
+      for(; s!=se; ++s) {
+	
+	if(!qp) {
+	  
+	  const Trk::TrackParameters* tp = (*s)->trackParameters();
+
+	  if(tp) {
+	    qp = true;
+	    const AmgVector(5)& Vp = tp->parameters();
+	    double pT  = sin(Vp[3])/Vp[4]  ;
+	    double rap = fabs(log(tan(.5*Vp[3])));
+	    if     (pT >  m_ptcut && pT <  m_ptcutmax) {
+	      if     (rap <      1. ) ++m_ntracksPOSB[nc];
+	      else if(rap < 3.0) ++m_ntracksPOSE[nc];
+	      else if(rap < m_rapcut) ++m_ntracksPOSDBM[nc];
+	    }
+	    else if(pT < -m_ptcut && pT > -m_ptcutmax) {
+	      if     (rap <      1. ) ++m_ntracksNEGB[nc];
+              else if(rap < 3.0) ++m_ntracksNEGE[nc];
+	      else if(rap < m_rapcut) ++m_ntracksNEGDBM[nc];
+	    }
+	  }
+	}
+	 
+	if(!m_useOutliers && !(*s)->type(Trk::TrackStateOnSurface::Measurement)) continue;
+	
+	const Trk::MeasurementBase* mb = (*s)->measurementOnTrack();
+	if(!mb) continue;
+
+	const Trk::RIO_OnTrack*     ri = dynamic_cast<const Trk::RIO_OnTrack*>(mb);
+	if(!ri) continue;
+	
+	const Trk::PrepRawData*     rd = ri->prepRawData();
+	if(!rd) continue;
+      
+	const InDet::SiCluster*     si = dynamic_cast<const InDet::SiCluster*>(rd);
+	if(!si) continue;
+
+	if(!m_usePIX && dynamic_cast<const InDet::PixelCluster*>(si)) continue;
+	if(!m_useSCT && dynamic_cast<const InDet::SCT_Cluster*> (si)) continue;
+
+        const HepMC::GenParticle* Kine[1000];
+	int nk=kine0(rd,Kine,999); ++NC; if(!nk) ++N0;
+
+	for(int k = 0; k!=nk; ++k) {
+	  
+	  int n = 0;
+	  for(; n!=NK; ++n) {if(Kine[k]==KINE[n]) {++NKINE[n]; break;}}
+	  if(n==NK) {KINE[NK] = Kine[k]; NKINE[NK] = 1; if (NK < 200) ++NK;}
+	}
+	for(int n=0; n!=NK; ++n) {if(NKINE[n]>nkm) nkm = NKINE[n];}
+      }
+
+      for(int n=0; n!=NK; ++n) {
+	if(NKINE[n]==nkm) {
+	  int NQ = 1000*NKINE[n]+(NC-NKINE[n]);
+
+	  m_tracksN[nc].insert(std::make_pair(KINE[n],NQ));
 	  if(qTf) {        
 	    if(NC-N0 > 2) {
 	      ++m_total[nc][NC]; if(NC-NKINE[n] > 2) {++m_fake[nc][NC];}
@@ -1735,13 +2207,12 @@ void InDet::TrackClusterAssValidation::efficiencyReconstruction()
 {
   for(int nc = 0; nc!=m_ncolection; ++nc) {
 
-    m_difference[nc].erase(m_difference[nc].begin(),m_difference[nc].end());
+    m_difference[nc].clear();
     std::list<InDet::Barcode>::iterator p = m_particles[nc].begin(), pe =m_particles[nc].end();
     if(p==pe) return;
     std::multimap<int,int>::iterator t, te = m_tracks[nc].end(); 
-    
+
     while (p!=pe) {
-    
       int k = (*p).barcode();
       int n = m_kinecluster.count(k);
       int m = 0;
@@ -1755,6 +2226,50 @@ void InDet::TrackClusterAssValidation::efficiencyReconstruction()
 	else if(ts==m && w > ws) {        w = ws;}
       }
       int d = n-m; if(d<0) d = 0; else if(d > 5) d=5; if(w>4) w = 4; 
+
+      if(m) {
+	++m_efficiency [nc][d];
+	++m_efficiencyN[nc][d][w];
+      }
+      int ch = (*p).charge();
+      if(m) {
+	++m_efficiencyBTE[nc][d][w][(*p).rapidity()];
+	ch > 0 ? ++m_efficiencyPOS[nc][d] : ++m_efficiencyNEG[nc][d];
+      }
+      if(nc==0) {
+	++m_events; ch > 0 ? ++m_eventsPOS : ++m_eventsNEG;
+	++m_eventsBTE[(*p).rapidity()];
+      }
+      if(d==0) m_particles[nc].erase(p++); 
+      else {m_difference[nc].push_back(n-m);  ++p;}
+    }
+  }
+}
+
+void InDet::TrackClusterAssValidation::efficiencyReconstructionN()
+{
+  for(int nc = 0; nc!=m_ncolection; ++nc) {
+
+    m_difference[nc].clear();
+    std::list<InDet::Barcode>::iterator p = m_particles[nc].begin(), pe =m_particles[nc].end();
+    if(p==pe) return;
+    std::multimap<const HepMC::GenParticle*,int>::iterator t, te = m_tracksN[nc].end();   
+
+    while (p!=pe) {
+      const HepMC::GenParticle* k = (*p).particle();
+      int n = m_kineclusterN.count(k);
+      int m = 0;
+      int w = 0;
+      t = m_tracksN[nc].find(k);
+      for(; t!=te; ++t) {
+	if((*t).first!=k) break; 
+	int ts = (*t).second/1000;
+	int ws = (*t).second%1000;
+	if     (ts > m         ) {m = ts; w = ws;}
+	else if(ts==m && w > ws) {        w = ws;}
+      }
+      int d = n-m; if(d<0) d = 0; else if(d > 5) d=5; if(w>4) w = 4; 
+
       if(m) {
 	++m_efficiency [nc][d];
 	++m_efficiencyN[nc][d][w];
@@ -1783,6 +2298,24 @@ int InDet::TrackClusterAssValidation::kine
 {
   int nkine = 0;
   int Kine1[1000],Kine2[1000];
+  int n1 = kine(d1,Kine1,nmax); if(!n1) return nkine;
+  int n2 = kine(d2,Kine2,nmax); if(!n2) return nkine;
+
+  for(int i = 0; i!=n1; ++i) {
+    for(int j = 0; j!=n2; ++j) {
+      if(Kine1[i]==Kine2[j]) {Kine[nkine++] = Kine1[i];  break;}
+    }
+  } 
+  return nkine;
+}
+
+int InDet::TrackClusterAssValidation::kine
+(const Trk::PrepRawData* d1,const Trk::PrepRawData* d2,const HepMC::GenParticle** Kine,int nmax)   
+{
+  int nkine = 0;
+  const HepMC::GenParticle* Kine1[1000];
+  const HepMC::GenParticle* Kine2[1000];
+
   int n1 = kine(d1,Kine1,nmax); if(!n1) return nkine;
   int n2 = kine(d2,Kine2,nmax); if(!n2) return nkine;
 
@@ -1847,6 +2380,55 @@ int InDet::TrackClusterAssValidation::kine
   return nkine;
 }
 
+int InDet::TrackClusterAssValidation::kine
+(const Trk::PrepRawData* d,const HepMC::GenParticle** Kine,int nmax) 
+{
+
+  PRD_MultiTruthCollection::const_iterator mce;
+  PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+
+  Identifier ID    = d->identify();
+  int        nkine = 0;
+
+  for(; mc!=mce; ++mc) {
+
+    if( (*mc).first != ID ) return nkine;
+
+    int k = (*mc).second.barcode(); if(k<=0) continue;
+
+    const HepMC::GenParticle* pa = (*mc).second.cptr(); 	
+    if(!pa || !pa->production_vertex()) continue;
+
+    int pdg = abs(pa->pdg_id()); if(m_pdg && m_pdg != pdg ) continue;
+
+    const HepPDT::ParticleData* pd  = m_particleDataTable->particle(pdg);
+    if(!pd ||  fabs(pd->charge()) < .5) continue;
+
+    // pT cut
+    //
+    double           px = pa->momentum().px(); 
+    double           py = pa->momentum().py(); 
+    double           pz = pa->momentum().pz(); 
+    double           pt = sqrt(px*px+py*py);
+    if( pt < m_ptcut || pt > m_ptcutmax) continue;
+    
+    // Rapidity cut
+    //
+    double           t  = fabs(pz)/pt;
+    if( t  > m_tcut ) continue;
+    
+    // Radius cut
+    //
+    double           vx = pa->production_vertex()->point3d().x();
+    double           vy = pa->production_vertex()->point3d().y();
+    double           r = sqrt(vx*vx+vy*vy);
+    if( r < m_rmin || r > m_rmax) continue;
+
+    Kine[nkine] = pa; if(++nkine >= nmax) break;
+  }
+  return nkine;
+}
+
 ///////////////////////////////////////////////////////////////////
 // Pointer to particle production for cluster
 ///////////////////////////////////////////////////////////////////
@@ -1871,6 +2453,27 @@ int InDet::TrackClusterAssValidation::kine0
   return nkine;
 }
 
+int InDet::TrackClusterAssValidation::kine0
+(const Trk::PrepRawData* d,const HepMC::GenParticle** Kine,int nmax) 
+{
+
+  PRD_MultiTruthCollection::const_iterator mce;
+  PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+
+  Identifier ID    = d->identify();
+  int        nkine = 0;
+
+  for(; mc!=mce; ++mc) {
+
+    if( (*mc).first != ID ) return nkine;
+
+    int k = (*mc).second.barcode(); if(k<=0) continue;
+    const HepMC::GenParticle* pa = (*mc).second.cptr(); if(!pa) continue; 	
+    Kine[nkine] = pa; if(++nkine >= nmax) break;
+  }
+  return nkine;
+}
+
 ///////////////////////////////////////////////////////////////////
 // Test detector element
 ///////////////////////////////////////////////////////////////////
@@ -1880,6 +2483,18 @@ bool InDet::TrackClusterAssValidation::isTheSameDetElement
 {
   std::multimap<int,const Trk::PrepRawData*>::iterator k = m_kinecluster.find(K); 
   for(; k!=m_kinecluster.end(); ++k) {
+
+    if((*k).first!= K) return false;
+    if(d->detectorElement()==(*k).second->detectorElement()) return true;
+  }
+  return false;
+}
+
+bool InDet::TrackClusterAssValidation::isTheSameDetElement
+(const HepMC::GenParticle* K,const Trk::PrepRawData* d) 
+{
+  std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*>::iterator k = m_kineclusterN.find(K); 
+  for(; k!=m_kineclusterN.end(); ++k) {
 
     if((*k).first!= K) return false;
     if(d->detectorElement()==(*k).second->detectorElement()) return true;
@@ -1915,6 +2530,44 @@ bool InDet::TrackClusterAssValidation::isTheSameDetElement
   }
 
   for(; k!=m_kinespacepoint.end(); ++k) {
+    if((*k).first!= K) return false;
+
+    const Trk::PrepRawData*  n1 = (*k).second->clusterList().first ; 
+    const Trk::PrepRawData*  n2 = (*k).second->clusterList().second; 
+
+    if(p1->detectorElement() == n1->detectorElement()) return true;
+    if(p2->detectorElement() == n1->detectorElement()) return true;
+    if(!n2) continue;
+    if(p1->detectorElement() == n2->detectorElement()) return true;
+    if(p2->detectorElement() == n2->detectorElement()) return true;
+  }
+  return false;
+}
+
+bool InDet::TrackClusterAssValidation::isTheSameDetElement
+(const HepMC::GenParticle* K,const Trk::SpacePoint* sp) 
+{
+  const Trk::PrepRawData*  p1 = sp->clusterList().first; 
+  const Trk::PrepRawData*  p2 = sp->clusterList().second; 
+
+  std::multimap<const HepMC::GenParticle*,const Trk::SpacePoint*>::iterator  k = m_kinespacepointN.find(K);
+
+  if(!p2) {
+    
+    for(; k!=m_kinespacepointN.end(); ++k) {
+      if((*k).first!= K) return false;
+
+      const Trk::PrepRawData*  n1 = (*k).second->clusterList().first ; 
+      const Trk::PrepRawData*  n2 = (*k).second->clusterList().second; 
+
+      if(p1->detectorElement() == n1->detectorElement()) return true;
+      if(!n2) continue;
+      if(p1->detectorElement() == n2->detectorElement()) return true;
+    }
+    return false;
+  }
+
+  for(; k!=m_kinespacepointN.end(); ++k) {
     if((*k).first!= K) return false;
 
     const Trk::PrepRawData*  n1 = (*k).second->clusterList().first ; 
@@ -2010,6 +2663,82 @@ bool InDet::TrackClusterAssValidation::noReconstructedParticles()
   return true;
 }
 
+bool InDet::TrackClusterAssValidation::noReconstructedParticlesN()
+{
+
+  for(int nc=0; nc!=m_ncolection; ++nc) {
+
+    std::list<InDet::Barcode>::iterator p = m_particles[nc].begin(), pe =m_particles[nc].end();
+    if(p==pe) continue;
+
+    std::list<int>::iterator dif = m_difference[nc].begin();
+
+    std::multimap<int,const Trk::PrepRawData*>::iterator c,ce = m_kinecluster.end(); 
+
+    int n  = 69-m_tracklocation[nc].size();
+    std::string s1; for(int i=0; i<n; ++i) s1.append(" "); s1.append("|");
+
+    std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
+    std::cout<<"|                   "<<m_tracklocation[nc]<<s1
+	     <<std::endl;
+
+    std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
+    std::cout<<"|    #   pdg   barcode  Ncl Ntr Nsp Lose     pT(MeV)    rapidity    radius          z    |"<<std::endl;
+    std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
+    n = 0;
+    for(; p!=pe; ++p) {
+      
+      const HepMC::GenParticle* pa = (*p).particle();
+      /*
+      c = m_kinecluster.find(k); if(c==ce) continue;
+      const Trk::PrepRawData* d = (*c).second;
+
+      PRD_MultiTruthCollection::const_iterator mce;
+      PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+
+      Identifier ID    = d->identify();
+      bool Q = false;
+      for(; mc!=mce; ++mc) {
+	if((*mc).first != ID) break;
+	if((*mc).second.cptr()->barcode()==k) {Q=true; break;}
+      }
+
+      if(!Q) continue;
+      const HepMC::GenParticle* pa = (*mc).second.cptr(); 	
+      */
+      double           px =  pa->momentum().px();
+      double           py =  pa->momentum().py();
+      double           pz =  pa->momentum().pz();
+      double           vx = pa->production_vertex()->point3d().x();
+      double           vy = pa->production_vertex()->point3d().y();
+      double           vz = pa->production_vertex()->point3d().z();
+      double           pt = sqrt(px*px+py*py);
+      double           t  = atan2(pt,pz);
+      double           ra =-log(tan(.5*t));
+      double           r  = sqrt(vx*vx+vy*vy);
+      ++n;
+      std::cout<<"| "
+	     <<std::setw(4)<<n
+	       <<std::setw(6)<<pa->pdg_id() 
+	       <<std::setw(10)<<pa->barcode()
+	       <<std::setw(4)<<m_kineclusterN   .count(pa)
+	       <<std::setw(4)<<m_kineclusterTRTN.count(pa)
+	       <<std::setw(4)<<m_kinespacepointN.count(pa)
+	       <<std::setw(4)<<(*dif)
+	       <<std::setw(12)<<std::setprecision(5)<<pt
+	       <<std::setw(12)<<std::setprecision(5)<<ra
+	       <<std::setw(12)<<std::setprecision(5)<<r
+	       <<std::setw(12)<<std::setprecision(5)<<vz
+	       <<"   |"
+	       <<std::endl;
+      ++dif;
+      
+    }
+    std::cout<<"|----------------------------------------------------------------------------------------|"<<std::endl;
+  }
+  return true;
+}
+
 ///////////////////////////////////////////////////////////////////
 // Cluster truth information
 //////////////recon/////////////////////////////////////////////////////
@@ -2070,5 +2799,107 @@ int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawDat
       return 0;
     } 	
   }
+  return 0;
+}
+
+int InDet::TrackClusterAssValidation::charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*> pa,int& rap)
+{     
+  const HepMC::GenParticle*   pat  = pa.first;
+
+  rap       = 0;
+  double px =  pat->momentum().px();
+  double py =  pat->momentum().py();
+  double pz =  pat->momentum().pz();
+  double pt = sqrt(px*px+py*py)   ;
+  double t  = atan2(pt,pz)        ;
+  double ra = fabs(log(tan(.5*t)));
+  // DBM
+  if (ra > 3.0)
+    rap = 3;
+  else
+    // other regions
+    ra > 1.6 ? rap = 2 : ra > .8 ?  rap = 1 : rap = 0;
+  
+  int                         pdg = pat->pdg_id();  
+  const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
+  if(!pd) return 0;
+  double ch = pd->charge(); if(pdg < 0) ch = -ch;
+  if(ch >  .5) return  1;
+  if(ch < -.5) return -1;
+  return 0;
+}
+
+///////////////////////////////////////////////////////////////////
+// Cluster truth information
+//////////////recon/////////////////////////////////////////////////////
+
+int InDet::TrackClusterAssValidation::charge(std::pair<int,const Trk::PrepRawData*> pa,int& rap, double& etaExact)
+{
+  int                     k = pa.first;
+  const Trk::PrepRawData* d = pa.second;
+  PRD_MultiTruthCollection::const_iterator mce;
+  PRD_MultiTruthCollection::const_iterator mc = findTruth(d,mce);
+  
+  for(; mc!=mce; ++mc) {
+    if((*mc).second.cptr()->barcode()==k) {
+
+      const HepMC::GenParticle*   pat  = (*mc).second.cptr();
+      
+      rap       = 0;
+      double px =  pat->momentum().px();
+      double py =  pat->momentum().py();
+      double pz =  pat->momentum().pz();
+      double pt = sqrt(px*px+py*py)   ;
+      double t  = atan2(pt,pz)        ;
+      double ra = fabs(log(tan(.5*t)));
+
+      etaExact = ra;
+
+      // DBM
+      if (ra > 3.0)
+	rap = 3;
+      else
+      // other regions
+	ra > 1.6 ? rap = 2 : ra > .8 ?  rap = 1 : rap = 0;
+
+      int                         pdg = pat->pdg_id();  
+      const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
+      if(!pd) return 0;
+      double ch = pd->charge(); if(pdg < 0) ch = -ch;
+      if(ch >  .5) return  1;
+      if(ch < -.5) return -1;
+      return 0;
+    } 	
+  }
+  return 0;
+}
+
+int InDet::TrackClusterAssValidation::charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*> pa,int& rap, double& etaExact)
+{
+  const HepMC::GenParticle*   pat  = pa.first;
+      
+  rap       = 0;
+  double px =  pat->momentum().px();
+  double py =  pat->momentum().py();
+  double pz =  pat->momentum().pz();
+  double pt = sqrt(px*px+py*py)   ;
+  double t  = atan2(pt,pz)        ;
+  double ra = fabs(log(tan(.5*t)));
+  
+  etaExact = ra;
+
+  // DBM
+  if (ra > 3.0)
+    rap = 3;
+  else
+    // other regions
+    ra > 1.6 ? rap = 2 : ra > .8 ?  rap = 1 : rap = 0;
+  
+  int                         pdg = pat->pdg_id();  
+  const HepPDT::ParticleData* pd  = m_particleDataTable->particle(abs(pdg));
+  if(!pd) return 0;
+  double ch = pd->charge(); if(pdg < 0) ch = -ch;
+  if(ch >  .5) return  1;
+  if(ch < -.5) return -1;
   return 0;
 }

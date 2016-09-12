@@ -17,6 +17,7 @@ use HepPDT                  v*		             LCG_Interfaces
 use InDetPrepRawData        InDetPrepRawData-*       InnerDetector/InDetRecEvent
 use TrkSpacePoint           TrkSpacePoint-*          Tracking/TrkEvent
 use TrkTruthData            TrkTruthData-*           Tracking/TrkEvent
+use InDetRecToolInterfaces      InDetRecToolInterfaces-*        InnerDetector/InDetRecTools
 
 
 library InDetTrackClusterAssValidation *.cxx components/*.cxx

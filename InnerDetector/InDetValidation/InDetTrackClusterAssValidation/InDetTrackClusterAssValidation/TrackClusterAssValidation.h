@@ -10,6 +10,7 @@
 #include <map>
 
 #include "AthenaBaseComps/AthAlgorithm.h"
+#include "GaudiKernel/ToolHandle.h"
 #include "TrkSpacePoint/SpacePointContainer.h" 
 #include "TrkSpacePoint/SpacePointOverlapCollection.h" 
 #include "InDetPrepRawData/SiClusterContainer.h"
@@ -17,6 +18,8 @@
 #include "HepMC/GenParticle.h"
 #include "HepPDT/ParticleDataTable.hh"
 #include "TrkTruthData/PRD_MultiTruthCollection.h"
+
+#include "InDetRecToolInterfaces/IInDetDynamicCutsTool.h"
 
 namespace InDet {
 
@@ -34,16 +37,19 @@ namespace InDet {
       Barcode()  {};
       Barcode(const Barcode&);
       Barcode(int,int);
+      Barcode(int,int,const HepMC::GenParticle*);
       ~Barcode() {};
       Barcode& operator = (const Barcode&);
       int barcode () const {return abs(m_barcharge);}
       int charge  () const {if(m_barcharge<0) return -1; if(m_barcharge>0) return 1; return 0;}
       int rapidity() const {return m_rapidity;}
+      const HepMC::GenParticle* particle() const {return m_particle;}
 
     protected:
 
       int m_barcharge;
       int m_rapidity;
+      const HepMC::GenParticle* m_particle;
     };
   
   /////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +66,7 @@ namespace InDet {
       if(&BC!=this) {
 	m_barcharge = BC.m_barcharge;
 	m_rapidity  = BC.m_rapidity ;
+	m_particle  = BC.m_particle ;
       }
       return(*this);
     }
@@ -67,6 +74,13 @@ namespace InDet {
     {
       m_barcharge = bc ;
       m_rapidity  = rap;
+      m_particle  = 0  ;
+    }
+  inline Barcode::Barcode (int bc,int rap,const HepMC::GenParticle* pa)
+    {
+      m_barcharge = bc ;
+      m_rapidity  = rap;
+      m_particle  = pa ;
     }
 
   // Class-algorithm for track cluster association validation
@@ -107,6 +121,7 @@ namespace InDet {
       bool                               m_useSCT                 ;
       bool                               m_useTRT                 ;
       bool                               m_useOutliers            ;
+      bool                               m_usebarcode             ;
       int                                m_pdg                    ;
       int                                m_outputlevel            ;
       int                                m_nprint                 ;
@@ -177,33 +192,60 @@ namespace InDet {
       std::multimap<int,const Trk::PrepRawData*> m_kinecluster    ;
       std::multimap<int,const Trk::PrepRawData*> m_kineclusterTRT ;
       std::multimap<int,const Trk::SpacePoint*>  m_kinespacepoint ;
+
+      std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*> m_kineclusterN    ;
+      std::multimap<const HepMC::GenParticle*,const Trk::PrepRawData*> m_kineclusterTRTN ;
+      std::multimap<const HepMC::GenParticle*,const Trk::SpacePoint*>  m_kinespacepointN ;
+
       std::list<Barcode>                         m_particles[100] ;
       std::list<int>                             m_difference[100];
       std::multimap<int,int>                     m_tracks[100]    ;
+      std::multimap<const HepMC::GenParticle*,int> m_tracksN[100] ;
       const HepPDT::ParticleDataTable*        m_particleDataTable ;
+			
+      /** tool to get cut values depending on different variable */   
+      ToolHandle<IInDetDynamicCutsTool>     m_dynamicCutsTool;   
+      bool m_useDynamicCuts;	// use InDetDynamicCutsTool to determine the cut value depending on characteristics of each track (default is false)   
 
       ///////////////////////////////////////////////////////////////////
       // Protected methods
       ///////////////////////////////////////////////////////////////////
 
       void newSpacePointsEvent     ();
+      void newSpacePointsEventN    ();
       void newClustersEvent        ();
+      void newClustersEventN       ();
       void tracksComparison        ();
+      void tracksComparisonN       ();
       void efficiencyReconstruction();
+      void efficiencyReconstructionN();
       bool noReconstructedParticles();
-
+      bool noReconstructedParticlesN();
       int  QualityTracksSelection();
+      int  QualityTracksSelectionN();
+
       int kine(const Trk::PrepRawData*,const Trk::PrepRawData*,int*,int);
       int kine (const Trk::PrepRawData*,int*,int);	
       int kine0(const Trk::PrepRawData*,int*,int);
-      
+
+      int kine (const Trk::PrepRawData*,const Trk::PrepRawData*,const HepMC::GenParticle**,int);
+      int kine (const Trk::PrepRawData*,const HepMC::GenParticle**,int);
+      int kine0(const Trk::PrepRawData*,const HepMC::GenParticle**,int);
+     
       bool isTheSameDetElement(int,const Trk::PrepRawData*);
       bool isTheSameDetElement(int,const Trk::SpacePoint* );
+
+      bool isTheSameDetElement(const HepMC::GenParticle*,const Trk::PrepRawData*);
+      bool isTheSameDetElement(const HepMC::GenParticle*,const Trk::SpacePoint* );
 
       PRD_MultiTruthCollection::const_iterator findTruth
 	(const Trk::PrepRawData*,PRD_MultiTruthCollection::const_iterator&);
       
       int charge(std::pair<int,const Trk::PrepRawData*>,int&);
+      int charge(std::pair<int,const Trk::PrepRawData*>,int&, double&);
+
+      int charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*>,int&);
+      int charge(std::pair<const HepMC::GenParticle*,const Trk::PrepRawData*>,int&, double&);
 
       MsgStream&    dumptools(MsgStream&    out) const;
       MsgStream&    dumpevent(MsgStream&    out) const;
