@@ -199,6 +199,7 @@ void handle_using_decl (tree /*decl*/)
 
     // using decls from g4
     if (strendswith_p (file, "/G4SystemOfUnits.hh")) return;
+    if (strendswith_p (file, "/G4PhysicalConstants.hh")) return;
     if (strendswith_p (file, "/G4RadioactivityTable.hh")) return;
 
 
