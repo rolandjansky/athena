@@ -72,7 +72,7 @@ TileDetectorFactory::~TileDetectorFactory()
 // Creation of geometry:
 void TileDetectorFactory::create(GeoPhysVol *world) 
 {
-  (*m_log) << MSG::INFO <<" Entering TileDetectorFactory::create()" << endreq;
+  (*m_log) << MSG::INFO <<" Entering TileDetectorFactory::create()" << endmsg;
 
   double dzGlue;     //Thickness of glue layer in the absorber
   double thicknessWedgeMother, heightWedgeMother, dy1WedgeMother, dy2WedgeMother;
@@ -88,7 +88,7 @@ void TileDetectorFactory::create(GeoPhysVol *world)
   DataHandle<StoredMaterialManager> theMaterialManager;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
   { 
-    (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endreq; 
+    (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endmsg; 
     return; 
   }
   const GeoMaterial* matAir = theMaterialManager->getMaterial("std::Air");
