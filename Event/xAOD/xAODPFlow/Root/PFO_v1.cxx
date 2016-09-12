@@ -613,8 +613,8 @@ namespace xAOD {
   const CaloCluster* PFO_v1::cluster(unsigned int index) const {
     
     const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::CaloCluster);
-    if (!p_acc) return false;
-    else if (!p_acc->isAvailable(*this)) {return false;}
+    if (!p_acc) return nullptr;
+    else if (!p_acc->isAvailable(*this)) {return nullptr;}
     else {
       const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
       if(index<=theLinks.size()) {
@@ -635,8 +635,8 @@ namespace xAOD {
   const TrackParticle* PFO_v1::track(unsigned int index) const {
 
     const Accessor<std::vector<ElementLink<IParticleContainer > > >* p_acc = PFOParticleTypeMapper_temp::getAccessor(PFODetails::Track);
-    if (!p_acc) return false;
-    else if (!p_acc->isAvailable(*this)) {return false;}
+    if (!p_acc) return nullptr;
+    else if (!p_acc->isAvailable(*this)) {return nullptr;}
     else {
       const std::vector<ElementLink<IParticleContainer> >& theLinks = (*p_acc)(*this);
       if(index<=theLinks.size()) {
