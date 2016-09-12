@@ -791,7 +791,7 @@ PixelDigitizationTool::createRDO(SiChargedDiodeCollection *collection)
   std::vector<int> col;
   const int maxRow = p_design->rowsPerCircuit();
   const int maxCol = p_design->columnsPerCircuit();
-  std::vector < std::vector < int > > FEI4Map ( maxRow, std::vector < int > ( maxCol) );
+  std::vector < std::vector < int > > FEI4Map ( maxRow+1, std::vector < int > ( maxCol+1) );
   ATH_MSG_DEBUG ( "layerIndex = " << layerIndex << " MaxRow = " << maxRow << " MaxCol = " << maxCol);
 
   m_overflowIBLToT = (!m_offlineCalibSvc.empty() ?  m_offlineCalibSvc->getIBLToToverflow() : 16);

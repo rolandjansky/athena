@@ -23,11 +23,6 @@
 class PixelID;
 
 class SubChargesTool;
-class PixelBarrelChargeTool;
-class PixelECChargeTool;
-class IblPlanarChargeTool;
-class Ibl3DChargeTool;
-class DBMChargeTool;
 
 namespace InDetDD {
   class SiDetectorElement;
@@ -85,11 +80,11 @@ private:
   /** Tool handles for the technology-specific tools for generating 
     * surface charges. 
     */ 
-  ToolHandle<PixelBarrelChargeTool> m_PixelBarrelChargeTool;
-  ToolHandle<PixelECChargeTool> m_PixelECChargeTool;
-  ToolHandle<DBMChargeTool> m_DBMChargeTool;
-  ToolHandle<IblPlanarChargeTool> m_IblPlanarChargeTool;
-  ToolHandle<Ibl3DChargeTool> m_Ibl3DChargeTool;
+  ToolHandle<SubChargesTool> m_PixelBarrelChargeTool;
+  ToolHandle<SubChargesTool> m_PixelECChargeTool;
+  ToolHandle<SubChargesTool> m_DBMChargeTool;
+  ToolHandle<SubChargesTool> m_IblPlanarChargeTool;
+  ToolHandle<SubChargesTool> m_Ibl3DChargeTool;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
   
   /** map connecting Technology to the relevant tool */
