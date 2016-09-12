@@ -26,6 +26,7 @@
 
 #include "YODA/ROOTCnv.h"
 
+/// @todo Eliminate Boost?
 #include <boost/algorithm/string.hpp>
 #include "boost/foreach.hpp"
 #ifndef foreach
@@ -33,6 +34,7 @@
 #endif
 
 #include <cstdlib>
+#include <memory>
 using namespace std;
 
 
@@ -225,13 +227,13 @@ StatusCode Rivet_i::finalize() {
       const string basename = ao->path().substr(ao->path().rfind("/")+1); // There should always be >= 1 slash
 
       // Convert YODA histos to heap-allocated ROOT objects and register
-      /// @todo Counter
+      /// @todo Convert Counter... as what?
       if (ao->type() == "Histo1D") {
-        TH1* h = (TH1*) YODA::toTH1D(*boost::dynamic_pointer_cast<YODA::Histo1D>(ao)).Clone(basename.c_str());
+        TH1* h = (TH1*) YODA::toTH1D(*dynamic_pointer_cast<YODA::Histo1D>(ao)).Clone(basename.c_str());
         CHECK(m_histSvc->regHist(m_stream + path, h));
         ATH_MSG_INFO("TH1D " + path + " created from YODA::Histo1D");
       } else if (ao->type() == "Histo2D") {
-        TH2* h = (TH2*) YODA::toTH2D(*boost::dynamic_pointer_cast<YODA::Histo2D>(ao)).Clone(basename.c_str());
+        TH2* h = (TH2*) YODA::toTH2D(*dynamic_pointer_cast<YODA::Histo2D>(ao)).Clone(basename.c_str());
         CHECK(m_histSvc->regHist(m_stream + path, h));
         ATH_MSG_INFO("TH2 " + path + " created from YODA::Histo2D");
       // } else if (ao->type() == "Profile2D") {
@@ -239,7 +241,7 @@ StatusCode Rivet_i::finalize() {
       //   CHECK(m_histSvc->regHist(m_stream + path, h));
       //   ATH_MSG_INFO("TProfile2D " + path + " created from YODA::Profile2D");
       } else if (ao->type() == "Profile1D") {
-        TH1* h = (TH1*) YODA::toTProfile(*boost::dynamic_pointer_cast<YODA::Profile1D>(ao)).Clone(basename.c_str());
+        TH1* h = (TH1*) YODA::toTProfile(*dynamic_pointer_cast<YODA::Profile1D>(ao)).Clone(basename.c_str());
         CHECK(m_histSvc->regHist(m_stream + path, h));
         ATH_MSG_INFO("TProfile " + path + " created from YODA::Profile1D");
       // } else if (ao->type() == "Scatter1D") {
@@ -247,7 +249,7 @@ StatusCode Rivet_i::finalize() {
       //   CHECK(m_histSvc->regGraph(m_stream + path, g));
       //   ATH_MSG_INFO("TGraph " + path + " created from YODA::Scatter2D");
       } else if (ao->type() == "Scatter2D") {
-        TGraph* g = (TGraph*) YODA::toTGraph(*boost::dynamic_pointer_cast<YODA::Scatter2D>(ao)).Clone(basename.c_str());
+        TGraph* g = (TGraph*) YODA::toTGraph(*dynamic_pointer_cast<YODA::Scatter2D>(ao)).Clone(basename.c_str());
         CHECK(m_histSvc->regGraph(m_stream + path, g));
         ATH_MSG_INFO("TGraph " + path + " created from YODA::Scatter2D");
       // } else if (ao->type() == "Scatter3D") {
