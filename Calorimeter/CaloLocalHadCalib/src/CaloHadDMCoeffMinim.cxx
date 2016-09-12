@@ -216,10 +216,10 @@ CaloLocalHadCoeff * CaloHadDMCoeffMinim::process(CaloHadDMCoeffData *myData, Cal
 
     double EnergyResolution; // in GeV
     if( abs(m_data->m_mc_pdg) == 211) {
-      EnergyResolution = sqrt((0.5*0.5/GeV)*m_data->m_mc_ener+(0.03*0.03/GeV)*pow((m_data->m_mc_ener),2));// in GeV
+      EnergyResolution = sqrt((0.5*0.5/GeV)*m_data->m_mc_ener+pow((0.03/GeV*m_data->m_mc_ener),2));// in GeV
     } else {
       //EnergyResolution = sqrt(0.1*0.1*m_data->m_mc_ener/GeV+0.003*0.003+0.007*0.007*pow((m_data->m_mc_ener/GeV),2)); // in GeV
-      EnergyResolution = sqrt((0.5*0.5/GeV)*m_data->m_mc_ener+(0.03*0.03/GeV)*pow((m_data->m_mc_ener),2));// in GeV
+      EnergyResolution = sqrt((0.5*0.5/GeV)*m_data->m_mc_ener+pow((0.03/GeV*m_data->m_mc_ener),2));// in GeV
     }
 
     // checking event quality
