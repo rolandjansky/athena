@@ -693,8 +693,8 @@ void test_copy_base_aux()
 
   SG::auxid_t ityp1 = SG::AuxTypeRegistry::instance().getAuxID<int> ("anInt1");
 
-  C* pc = new C;
-  b1.setIndexTest (pc, 0);
+  C pc;
+  b1.setIndexTest (&pc, 0);
   b1.getData<int> (ityp1, 0) = 10;
 
   SG::AuxVectorBase_test b2;

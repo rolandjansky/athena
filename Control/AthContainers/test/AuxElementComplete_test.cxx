@@ -27,6 +27,8 @@ public:
     : SG::AuxElement(other),
       x(other.x)
   {}
+  
+  Elt& operator= (const Elt&) = default;
 
   int& ityp1()
   {

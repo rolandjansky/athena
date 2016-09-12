@@ -258,6 +258,8 @@ public:
     makePrivateStore(other);
   }
 
+  Elt& operator= (const Elt&) = default;
+
   int& ityp1()
   {
     static Accessor<int> acc ("anInt");

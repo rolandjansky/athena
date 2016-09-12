@@ -13,7 +13,7 @@ void UDSLabelHashTable::addLabel(const std::string& label, hash_t hash)
   if (h != hash) {
     MsgStream logstr(Athena::getMessageSvc(), "UDSLabelHashTable");
     logstr << MSG::ERROR << "Hash mismatch for " << label
-           << ": " << hash << "/" << h << endreq;
+           << ": " << hash << "/" << h << endmsg;
   }
 }
 
@@ -21,13 +21,13 @@ void UDSLabelHashTable::addLabel(const std::string& label, hash_t hash)
 UDSLabelHashTable::hash_t UDSLabelHashTable::addLabel(const std::string& label) {
   if (label.size()==0) {
     MsgStream logstr(Athena::getMessageSvc(), "UDSLabelHashTable");
-    logstr << MSG::ERROR << "Zero-length string given as Label!" << endreq;
+    logstr << MSG::ERROR << "Zero-length string given as Label!" << endmsg;
     return INVALID;
   }
   hash_t h=this->hash(label);
   if (h==INVALID) {
     MsgStream logstr(Athena::getMessageSvc(), "UDSLabelHashTable");
-    logstr << MSG::ERROR << "Label " << label << " yields an invalid hash. Please choose different name!" << endreq;
+    logstr << MSG::ERROR << "Label " << label << " yields an invalid hash. Please choose different name!" << endmsg;
     return INVALID;
   }
 
@@ -40,7 +40,7 @@ UDSLabelHashTable::hash_t UDSLabelHashTable::addLabel(const std::string& label) 
     //Hash exists already
     if (it->second!=label) { //Same hash but different label -> hash-collision! 
       MsgStream logstr(Athena::getMessageSvc(), "UDSLabelHashTable");
-      logstr << MSG::ERROR << "Hash collision between label " << label << " and label " << it->second << endreq;
+      logstr << MSG::ERROR << "Hash collision between label " << label << " and label " << it->second << endmsg;
       return INVALID;
     }
   }

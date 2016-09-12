@@ -777,7 +777,7 @@ void test2_insertion_ctor2()
   test2_insertion_ctor1<DV>();
 
   typedef typename DV::base_value_type T;
-  bool auxdata = typename SG::AuxStore_traits<T>::flag();
+  const bool auxdata = typename SG::AuxStore_traits<T>::flag();
   clear_dtor_log();
   {
     std::vector<typename DV::value_type> tt;
