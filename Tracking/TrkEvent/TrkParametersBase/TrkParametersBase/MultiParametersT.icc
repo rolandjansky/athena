@@ -1,0 +1,102 @@
+/*
+  Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+*/
+
+///////////////////////////////////////////////////////////////////
+// MultiParametersT.icc, (c) ATLAS Detector software
+///////////////////////////////////////////////////////////////////
+
+// STD
+#include <utility>
+
+namespace Trk
+{
+  template<int DIM>
+  MultiParametersT<DIM>::MultiParametersT(ParametersBase<DIM,Trk::Charged>& tp,double weight):
+    m_TPList({std::make_pair(weight,&tp)})
+  {}
+
+  /** equality operator */
+  template<int DIM>
+  bool MultiParametersT<DIM>::operator==(const ParametersBase<DIM,Trk::Charged>& rhs) const
+  {
+    // tolerance for comparing matrices
+    static const double& tolerance = 1e-8;
+
+    // make sure we compare objects of same type
+    decltype(this) pCasted = dynamic_cast<decltype(this)>(&rhs);
+    if(!pCasted)
+      return false;
+
+    // comparison to myself?
+    if(pCasted == this)
+      return true;
+
+    if(size() != pCasted->size())
+      return false;
+    
+    // make element-wise comparison
+    auto my_it = begin();
+    auto rhs_it = pCasted->begin();
+    for(; my_it != end(); ++my_it, ++rhs_it)
+    {
+      // compare weights
+      if(fabs(my_it->first - rhs_it->first) > tolerance)
+	return false;
+
+      // compare track parameters
+      if(*my_it->second != *rhs_it->second)
+	return false;
+    }
+    
+    return true;
+  }
+  
+  template<int DIM>
+  double MultiParametersT<DIM>::charge() const
+  {
+    return m_TPList.begin()->second->charge();
+  }
+
+  template<int DIM>
+  const AmgVector(DIM)& MultiParametersT<DIM>::parameters() const
+  {
+    return m_TPList.begin()->second->parameters();
+  }
+
+  template<int DIM>
+  const AmgSymMatrix(DIM)* MultiParametersT<DIM>::covariance() const
+  {
+    return m_TPList.begin()->second->covariance();
+  }
+
+  template<int DIM>
+  const Surface& MultiParametersT<DIM>::associatedSurface() const
+  {
+    return m_TPList.begin()->second->associatedSurface();
+  }
+  
+  template<int DIM>
+  const Amg::RotationMatrix3D MultiParametersT<DIM>::measurementFrame() const
+  {
+    return m_TPList.begin()->second->measurementFrame();
+  }
+
+  template<int DIM>
+  const Amg::Vector3D& MultiParametersT<DIM>::position() const
+  {
+    return m_TPList.begin()->second->position();
+  }
+
+  template<int DIM>
+  const Amg::Vector3D& MultiParametersT<DIM>::momentum() const
+  {
+    return m_TPList.begin()->second->momentum();
+  }
+
+  template<int DIM>
+  typename MultiParametersT<DIM>::iterator MultiParametersT<DIM>::insert(ParametersBase<DIM,Trk::Charged>& tp,double weight)
+  {
+    return m_TPList.insert(std::make_pair(weight,&tp));
+  }
+} // end of namespace Trk
