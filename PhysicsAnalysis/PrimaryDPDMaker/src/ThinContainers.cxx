@@ -101,7 +101,33 @@ ThinContainers::ThinContainers(const std::string& name, ISvcLocator* pSvcLocator
   AthAlgorithm(name, pSvcLocator),
   m_thinningSvc( "ThinningSvc",  name ),
   m_trtID(0),
-  m_regionSelector("RegSelSvc", name) 
+  m_regionSelector("RegSelSvc", name),
+  m_nClustersKept(0),
+  m_nClustersRemoved(0),
+  m_nPixelCollectionsProcessed(0),
+  m_nPixelCollectionsKept(0),
+  m_nPixelCollectionsRemoved(0),
+  m_nPixelClustersProcessed(0),
+  m_nPixelClustersKept(0),
+  m_nPixelClustersRemoved(0),
+  m_nSCTClusterCollectionsProcessed(0),
+  m_nSCTClusterCollectionsKept(0),
+  m_nSCTClusterCollectionsRemoved(0),
+  m_nSCTClustersProcessed(0),
+  m_nSCTClustersKept(0),
+  m_nSCTClustersRemoved(0),
+  m_nTRTDriftCircleCollectionsProcessed(0),
+  m_nTRTDriftCircleCollectionsKept(0),
+  m_nTRTDriftCircleCollectionsRemoved(0),
+  m_nTRTDriftCirclesProcessed(0),
+  m_nTRTDriftCirclesKept(0),
+  m_nTRTDriftCirclesRemoved(0),
+  m_nTrackParticlesProcessed(0),
+  m_nTrackParticlesKept(0),
+  m_nTrackParticlesRemoved(0),
+  m_nTracksProcessed(0),
+  m_nTracksKept(0),
+  m_nTracksRemoved(0)
 {
   // Properties go here
   declareProperty("RegionSelectorTool",      m_regionSelector);		
@@ -764,16 +790,15 @@ StatusCode ThinContainers::execute()
 
 
   //Retrieve the vertex container to get the position of the vertex
-  const Trk::Vertex* vertex=0;
   const VxContainer* importedVxContainer = 0;
-  static const std::string m_containerName = "VxPrimaryCandidate";
+  static const std::string containerName = "VxPrimaryCandidate";
   Hep3Vector VertexPos(0.0,0.0,0.0);
-  if ( evtStore()->contains<VxContainer>(m_containerName))
+  if ( evtStore()->contains<VxContainer>(containerName))
     {
-      if ( StatusCode::SUCCESS != evtStore()->retrieve(importedVxContainer,m_containerName))
+      if ( StatusCode::SUCCESS != evtStore()->retrieve(importedVxContainer,containerName))
         {
           // in general this means this container won't be around at all for this run
-          ATH_MSG_WARNING( "No " << m_containerName
+          ATH_MSG_WARNING( "No " << containerName
                            << " found in StoreGate."
                            << " Will use the default 0,0,0 vertex position instead!" );
           sc = StatusCode::SUCCESS;
@@ -781,10 +806,10 @@ StatusCode ThinContainers::execute()
       else
         {
           //Get the primary vertex 
-          vertex = new Trk::RecVertex(importedVxContainer->at(0)->recVertex());
-          VertexPos.setX(vertex->position().x());
-          VertexPos.setY(vertex->position().y());
-          VertexPos.setZ(vertex->position().z());
+          const Trk::Vertex& vertex = importedVxContainer->at(0)->recVertex();
+          VertexPos.setX(vertex.position().x());
+          VertexPos.setY(vertex.position().y());
+          VertexPos.setZ(vertex.position().z());
         }
     }
   
@@ -1678,18 +1703,18 @@ StatusCode ThinContainers::findGoodIDObjects(DETID detectorID,
                                              double maxDeltaEta, double maxDeltaPhi, double maxDeltaZ)
 {
 	
-  std::vector<IdentifierHash>* m_listOfHashIDs;
+  std::vector<IdentifierHash>* listOfHashIDs;
 
   switch(detectorID)
     {
     case PIXEL:
-      m_listOfHashIDs = &m_goodPixelIDs;
+      listOfHashIDs = &m_goodPixelIDs;
       break;
     case SCT:
-      m_listOfHashIDs = &m_goodSCTClusterIDs;
+      listOfHashIDs = &m_goodSCTClusterIDs;
       break;
     case TRT:
-      m_listOfHashIDs = &m_goodTRTDriftCircleIDs; /// what is this?? The RegionSelector does not return a list of "DriftCircleIDs"
+      listOfHashIDs = &m_goodTRTDriftCircleIDs; /// what is this?? The RegionSelector does not return a list of "DriftCircleIDs"
       break;
     default: // everything else
       ATH_MSG_ERROR( "Invalid Detector ID." );
@@ -1718,15 +1743,15 @@ StatusCode ThinContainers::findGoodIDObjects(DETID detectorID,
   while ( roiPhiMin<-M_PI ) roiPhiMin += 2*M_PI;
   while ( roiPhiMin> M_PI ) roiPhiMin -= 2*M_PI;
 
-  while ( roiPhiMax<-M_PI ) roiPhiMin += 2*M_PI;
-  while ( roiPhiMax> M_PI ) roiPhiMin -= 2*M_PI;
+  while ( roiPhiMax<-M_PI ) roiPhiMax += 2*M_PI;
+  while ( roiPhiMax> M_PI ) roiPhiMax -= 2*M_PI;
 
 
-  RoiDescriptor _roi( candHepLorentz.eta(), roiEtaMin, roiEtaMax, 
+  RoiDescriptor roi( candHepLorentz.eta(), roiEtaMin, roiEtaMax, 
 		      roiPhi, roiPhiMin, roiPhiMax, 
 		      primaryVertex.z(), roiZMin, roiZMax );
 
-  m_regionSelector->DetHashIDList( detectorID, _roi, *m_listOfHashIDs);
+  m_regionSelector->DetHashIDList( detectorID, roi, *listOfHashIDs);
 
   return StatusCode::SUCCESS;
 }
