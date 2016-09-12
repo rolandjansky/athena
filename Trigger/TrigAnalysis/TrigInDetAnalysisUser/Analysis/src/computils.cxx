@@ -37,12 +37,21 @@
 bool Plots::watermark = true;
 
 
-void Norm( TH1* h ) {
+///
+
+double  Entries( TH1* h ) {
   double n = 0;
   for ( int i=h->GetNbinsX()+1 ; --i ; ) n += h->GetBinContent(i);
+  return n;
+}
+
+
+void Norm( TH1* h, double scale ) {
+  double n = 0;
+  for ( int i=h->GetNbinsX()+2 ; --i ; ) n += h->GetBinContent(i);
   if ( n!=0 ) {
-    double in=1/n;
-    for ( int i=h->GetNbinsX()+1 ; --i ; ) {
+    double in=scale/n;
+    for ( int i=h->GetNbinsX()+2 ; --i ; ) {
       h->SetBinContent(i, h->GetBinContent(i)*in );
       h->SetBinError(i, h->GetBinError(i)*in );
     }

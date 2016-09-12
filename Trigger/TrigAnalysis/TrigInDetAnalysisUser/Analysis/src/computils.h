@@ -15,6 +15,8 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstdio>
+#include <cstdlib>
 
 #include "label.h"
 #include "utils.h"
@@ -39,7 +41,9 @@ void myText( Double_t x, Double_t y, Color_t color, const std::string& text, Dou
 std::string stime();
 static std::string release;
 
-void Norm( TH1* h);
+void Norm( TH1* h, double scale=1 );
+
+double Entries( TH1* h );
 
 /// does a string contain the substring
 bool contains( const std::string& s, const std::string& p);
@@ -568,7 +572,7 @@ public:
     if ( m_logy ) m_min = tmin;
 
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      at(i).href()->SetMaximum(scale*tmax);
+      if ( at(i).href() ) at(i).href()->SetMaximum(scale*tmax);
       at(i).htest()->SetMaximum(scale*tmax);
 
       //      if ( m_logy ) {
@@ -589,7 +593,7 @@ public:
 
     if ( scale==0 ) { 
       for ( unsigned i=0 ; i<size() ; i++ ) {
-	at(i).href()->SetMinimum(0);
+	if ( at(i).href() ) at(i).href()->SetMinimum(0);
 	at(i).htest()->SetMinimum(0);
       }  
       return;
@@ -604,7 +608,7 @@ public:
     m_min = scale*tmin;
 
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      at(i).href()->SetMinimum(scale*tmin);
+      if ( at(i).href() ) at(i).href()->SetMinimum(scale*tmin);
       at(i).htest()->SetMinimum(scale*tmin);
 
       //      if ( m_logy ) { 
@@ -623,10 +627,10 @@ public:
   void Min( double scale ) { 
     m_minset = true;
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      at(i).href()->SetMinimum(scale);
+      if ( at(i).href() ) at(i).href()->SetMinimum(scale);
       at(i).htest()->SetMinimum(scale);
       if ( m_logy ) { 
-	if ( at(i).href()->GetMinimum()<=0 )  at(i).href()->GetMinimum(1e-4);
+	if ( at(i).href() ) if ( at(i).href()->GetMinimum()<=0 )  at(i).href()->GetMinimum(1e-4);
 	if ( at(i).htest()->GetMinimum()<=0 ) at(i).htest()->GetMinimum(1e-4);
       }
       
@@ -641,7 +645,7 @@ public:
   void Max( double scale ) { 
     m_maxset = true;
     for ( unsigned i=0 ; i<size() ; i++ ) {
-      at(i).href()->SetMaximum(scale);
+      if ( at(i).href() ) at(i).href()->SetMaximum(scale);
       at(i).htest()->SetMaximum(scale);
     }
   }
@@ -708,7 +712,7 @@ public:
   void xrange(bool symmetric=false) { 
     m_rangeset = false;
     for ( unsigned i=0 ; i<size() ; i++ ) { 
-      ::xrange( at(i).href(), symmetric );
+      if ( at(i).href() ) ::xrange( at(i).href(), symmetric );
       ::xrange( at(i).htest(), symmetric );
       // ::xrange( at(i).htest(), symmetric );
     }
@@ -719,7 +723,7 @@ public:
     m_lo = lo;
     m_hi = hi;
     for ( unsigned i=0 ; i<size() ; i++ ) { 
-      at(i).href()->GetXaxis()->SetRangeUser( m_lo, m_hi );
+      if ( at(i).href() ) at(i).href()->GetXaxis()->SetRangeUser( m_lo, m_hi );
       at(i).htest()->GetXaxis()->SetRangeUser( m_lo, m_hi );
     }
   }

@@ -340,7 +340,7 @@ int main(int argc, char** argv) {
      
       if ( fractional ) _ylog = false;
 
-      if ( Nent==0 && Nent_ref==0 ) { 
+      if ( Nent==0 || Nent_ref==0 ) { 
 	_ylog = false;
 	std::cerr << "histograms empty: " << testhist->GetName() << std::endl;
 	continue;
