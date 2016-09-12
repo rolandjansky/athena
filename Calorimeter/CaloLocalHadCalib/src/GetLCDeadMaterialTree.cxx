@@ -114,8 +114,6 @@ GetLCDeadMaterialTree::~GetLCDeadMaterialTree()
 ***************************************************************************** */
 StatusCode GetLCDeadMaterialTree::initialize()
 {
-  MsgStream log(messageService(), name());
-
   //---- initialize the StoreGateSvc ptr ----------------
 
   // pointer to detector manager:
@@ -142,9 +140,7 @@ StatusCode GetLCDeadMaterialTree::initialize()
   std::string fileName = PathResolver::find_file (m_HadDMCoeffInitFile, "DATAPATH");
   m_HadDMCoeff = dmHelper.InitDataFromFile(fileName.c_str());
   if( !m_HadDMCoeff ) {
-    log << MSG::FATAL
-        << " Error while initializing default dead material coefficients "
-        << endreq;
+    ATH_MSG_FATAL( " Error while initializing default dead material coefficients " );
     return StatusCode::FAILURE;
   }
   // how we have to set correspondance between dead material areas and calibration moments
@@ -161,9 +157,7 @@ StatusCode GetLCDeadMaterialTree::initialize()
       }
     }
     if ( !isValid) {
-      log << MSG::FATAL
-          << " Unknown moment name '" << m_HadDMCoeff->getArea(i_dm)->getTitle() << "' in the m_HadDMCoeff!"
-          << endreq;
+      ATH_MSG_FATAL( " Unknown moment name '" << m_HadDMCoeff->getArea(i_dm)->getTitle() << "' in the m_HadDMCoeff!" );
       return StatusCode::FAILURE;
     }
   }
@@ -188,9 +182,7 @@ StatusCode GetLCDeadMaterialTree::initialize()
 ***************************************************************************** */
 StatusCode GetLCDeadMaterialTree::finalize()
 {
-  MsgStream log(messageService(), name());
-
-  log << MSG::INFO << "Writing out tree" << endreq;
+  ATH_MSG_INFO( "Writing out tree"  );
   m_outputFile->cd();
   m_outputTree->Write();
   m_outputFile->Close();
@@ -205,33 +197,21 @@ StatusCode GetLCDeadMaterialTree::finalize()
 ***************************************************************************** */
 StatusCode GetLCDeadMaterialTree::execute()
 {
-  MsgStream log(messageService(), name());
-
   //bool useLink = true;
 
   /* ********************************************
   access to cluster container
   ******************************************** */
   const DataHandle<xAOD::CaloClusterContainer> pClusColl;
-  StatusCode sc = evtStore()->retrieve(pClusColl,m_clusterCollName);
-  if(sc != StatusCode::SUCCESS) {
-    log << MSG::ERROR << "Could not retrieve ClusterContainer " 
-        << m_clusterCollName << " from StoreGate" << endreq;
-    return sc;
-  }
+  ATH_CHECK( evtStore()->retrieve(pClusColl,m_clusterCollName) );
 
   const DataHandle<xAOD::CaloClusterContainer> pClusCollCalib;
   if(m_doSaveCalibClusInfo) {
-    sc = evtStore()->retrieve(pClusCollCalib,m_clusterCollNameCalib);
-    if(sc != StatusCode::SUCCESS) {
-      log << MSG::ERROR << "Could not retrieve ClusterContainer " 
-          << m_clusterCollNameCalib << " from StoreGate" << endreq;
-      return sc;
-    }
+    ATH_CHECK( evtStore()->retrieve(pClusCollCalib,m_clusterCollNameCalib) );
 
     if(pClusColl->size() != pClusCollCalib->size()) {
-      log << MSG::WARNING << "Different size of calibrated and uncalibrated cluster collection " 
-          << pClusColl->size() << " " << pClusCollCalib->size() << endreq;
+      ATH_MSG_WARNING( "Different size of calibrated and uncalibrated cluster collection " 
+                       << pClusColl->size() << " " << pClusCollCalib->size()  );
       return StatusCode::SUCCESS;
     }
   }
@@ -241,22 +221,14 @@ StatusCode GetLCDeadMaterialTree::execute()
   ******************************************** */
   const TBEventInfo* theTBEventInfo = 0;
   if(m_isTestbeam) {
-    sc = evtStore()->retrieve(theTBEventInfo,"TBEventInfo");
-    if (sc.isFailure()||!theTBEventInfo){
-      log << MSG::ERROR << "No  theTBEventInfo found"<< endreq;
-      return StatusCode::FAILURE;
-    }
+    ATH_CHECK(  evtStore()->retrieve(theTBEventInfo,"TBEventInfo") );
   }
 
   /* ********************************************
   reading primary particle
   ******************************************** */
   const McEventCollection* truthEvent=0;
-  sc = evtStore()->retrieve(truthEvent, "TruthEvent");
-  if (sc.isFailure()||!truthEvent){
-    log << MSG::ERROR << "No  McEventCollection found"<< endreq;
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( evtStore()->retrieve(truthEvent, "TruthEvent") );
   HepMC::GenEvent::particle_const_iterator pit  = truthEvent->at(0)->particles_begin();
   const HepMC::GenParticle * gen  = *pit;
 
@@ -320,7 +292,7 @@ StatusCode GetLCDeadMaterialTree::execute()
     // calibration energy of clusters
     double mx_calib_tot=0;
     if( !theCluster->retrieveMoment( xAOD::CaloCluster::ENG_CALIB_TOT, mx_calib_tot) ) {
-      log << MSG::ERROR << "Moment ENG_CALIB_TOT is absent"  << endreq;
+      ATH_MSG_ERROR( "Moment ENG_CALIB_TOT is absent"   );
       return StatusCode::FAILURE;
     }
     m_data->m_engClusSumCalib += mx_calib_tot;
@@ -330,7 +302,7 @@ StatusCode GetLCDeadMaterialTree::execute()
     if( !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_EMB0, mx_calib_emb0)
 	|| !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_EME0, mx_calib_eme0)
 	|| !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_TILEG3, mx_calib_tileg3)){
-      log << MSG::ERROR << "One of the moment ENG_CALIB_EMB0, ENG_CALIB_EME0, ENG_CALIB_TILEG3 is absent" << endreq;
+      ATH_MSG_ERROR( "One of the moment ENG_CALIB_EMB0, ENG_CALIB_EME0, ENG_CALIB_TILEG3 is absent"  );
       return StatusCode::FAILURE;
     }else{
        (*m_data->m_cls_engcalibpres)[iClus] = (mx_calib_emb0+mx_calib_eme0+mx_calib_tileg3);
@@ -347,7 +319,7 @@ StatusCode GetLCDeadMaterialTree::execute()
       // classification pi0 probability (available on calibrated cluster)
       double pi0Prob = 0;
       if( !theClusterCalib->retrieveMoment( xAOD::CaloCluster::EM_PROBABILITY, pi0Prob) ) {
-        //log << MSG::ERROR << "Moment ENG_CALIB_TOT is absent"  << endreq;
+        //ATH_MSG_ERROR( "Moment ENG_CALIB_TOT is absent"   );
         pi0Prob = -1.0;
       } else {
         if ( pi0Prob < 0 ) pi0Prob = 0;
@@ -359,7 +331,7 @@ StatusCode GetLCDeadMaterialTree::execute()
     // cluster isolation moment and out of cluster energy
     double mx_isol;
     if ( !theCluster->retrieveMoment(xAOD::CaloCluster::ISOLATION, mx_isol)) {
-      log << MSG::ERROR << "Moment ISOLATION is absent"  << endreq;
+      ATH_MSG_ERROR( "Moment ISOLATION is absent"   );
       return StatusCode::FAILURE;
     }else{
       (*m_data->m_cls_isol)[iClus] = mx_isol;
@@ -367,7 +339,7 @@ StatusCode GetLCDeadMaterialTree::execute()
 
     double mx_calib_oocL;
     if ( !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_OUT_L, mx_calib_oocL)) {
-      log << MSG::ERROR << "Moment ENG_CALIB_OUT_L is absent"  << endreq;
+      ATH_MSG_ERROR( "Moment ENG_CALIB_OUT_L is absent"   );
       return StatusCode::FAILURE;
     }else{
       (*m_data->m_cls_oocener)[iClus] = mx_calib_oocL;
@@ -375,7 +347,7 @@ StatusCode GetLCDeadMaterialTree::execute()
 
     double mx_calib_emfrac;
     if ( !theCluster->retrieveMoment(xAOD::CaloCluster::ENG_CALIB_FRAC_EM, mx_calib_emfrac)) {
-      log << MSG::WARNING << "Moment ENG_CALIB_FRAC_EM is absent"  << endreq;
+      ATH_MSG_WARNING( "Moment ENG_CALIB_FRAC_EM is absent"   );
       return StatusCode::FAILURE;
     }else{
       (*m_data->m_cls_calib_emfrac)[iClus] = mx_calib_emfrac;
@@ -397,7 +369,7 @@ StatusCode GetLCDeadMaterialTree::execute()
     double clusEner = (*m_data->m_cls_ener_unw)[iClus];
     double clusLambda=0;
     if (!theCluster->retrieveMoment(xAOD::CaloCluster::CENTER_LAMBDA,clusLambda)) {
-      log << MSG::WARNING << "Moment CENTER_LAMBDA is absent"  << endreq;
+      ATH_MSG_WARNING( "Moment CENTER_LAMBDA is absent"   );
       return StatusCode::FAILURE;
     }
     (*m_data->m_cls_lambda)[iClus] = clusLambda;
@@ -414,7 +386,7 @@ StatusCode GetLCDeadMaterialTree::execute()
         //(*m_cls_ibin)[iClus][i_dma] = m_HadDMCoeff->getBin(i_dma, (float)clusEmFrac, (float)clusEner, (float)clusLambda, (float)clusEta);
 	double dmVal=0;
 	if (!theCluster->retrieveMoment( m_momentForDMArea[i_dma],dmVal)) {
-	  log << MSG::WARNING << "Moment "<< m_momentForDMArea[i_dma] << " is absent"  << endreq;
+	  ATH_MSG_WARNING( "Moment "<< m_momentForDMArea[i_dma] << " is absent"   );
 	  return StatusCode::FAILURE;
 	}
         (*m_data->m_cls_dmener)[iClus][i_dma] = dmVal;
@@ -466,7 +438,7 @@ StatusCode GetLCDeadMaterialTree::execute()
             eprep = (*m_data->m_cls_ener_unw)[iClus];
             break;
           default:
-            log << MSG::ERROR << "No such moment registered " << m_momentForDMArea[i_dma] << endreq;
+            ATH_MSG_ERROR( "No such moment registered " << m_momentForDMArea[i_dma]  );
             return StatusCode::FAILURE;
             break;
         }

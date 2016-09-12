@@ -35,7 +35,7 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
   
   // Find the full path to filename:
   std::string file = PathResolver::find_file (theLCClassificationFileName, "DATAPATH");
-  log << MSG::INFO << "Reading file  " << file << endreq;
+  log << MSG::INFO << "Reading file  " << file << endmsg;
   TFile* theLCClassificationFile = new TFile(file.c_str());
   if ( !theLCClassificationFile ) {
     return StatusCode::FAILURE;
@@ -81,7 +81,7 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
     for (idim=0;idim<keys.size();idim++) {
       size_t found = sTitle.find(keys[idim]);
       if ( found == std::string::npos ) {
-	log << MSG::ERROR << "Could not find key " << keys[idim] << " in current histogram." << endreq;
+	log << MSG::ERROR << "Could not find key " << keys[idim] << " in current histogram." << endmsg;
 	allValid = false;
       }
       else {
@@ -89,7 +89,7 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
 	std::istringstream tstr(sTitle.substr(found+keys[idim].length()));
 	tstr >> ibin[idim] >> c >> c >> rmin[idim] >> c >> rmax[idim] >> c >> nbin[idim];
 	if ( ibin[idim] < 0 || ibin[idim] >= nbin[idim] ) {
-	  log << MSG::ERROR << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endreq;
+	  log << MSG::ERROR << "Found invalid bin number " << ibin[idim] << " not in valid range [0," << nbin[idim] << " in current histogram." << endmsg;
 	  allValid = false;
 	}
       }
@@ -108,7 +108,7 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
 	  CaloLocalHadCoeff::LocalHadDimension theDim(names[idim].c_str(),types[idim],nbin[idim],rmin[idim],rmax[idim]);
 	  theArea.addDimension(theDim);
 	}
-	log << MSG::INFO << "adding Area with nDim = " << theArea.getNdim() << endreq;
+	log << MSG::INFO << "adding Area with nDim = " << theArea.getNdim() << endmsg;
 	m_data->addArea(theArea);
       }
       // now fill all data for current histogram
@@ -128,7 +128,7 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
 	  log << MSG::INFO << "Now set data for bins: ";
 	  for(unsigned int ii=0;ii<ibin.size();ii++)
 	    log << ibin[ii] << " ";
-	  log << endreq;
+	  log << endmsg;
 	  m_data->setCoeff(m_data->getBin(0,ibin),theData);
 	}
       }
@@ -141,27 +141,27 @@ StatusCode CaloReadLCClassificationFile::initDataFromFile(std::string theLCClass
 
 StatusCode CaloReadLCClassificationFile::initialize() {
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " Building CaloLocalHadCoeff object " << endreq;
+  log << MSG::INFO << " Building CaloLocalHadCoeff object " << endmsg;
   StatusCode sc;
   StoreGateSvc* detStore;
   sc=service("DetectorStore",detStore);
   if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to get the DetectorStore" << endreq;
+     log << MSG::ERROR << "Unable to get the DetectorStore" << endmsg;
      return sc;
   }
   sc=initDataFromFile(m_LCClassificationFileName);
   if (sc.isFailure()) {
-     log << MSG::ERROR << "Unable to read input Data File" << endreq;
+     log << MSG::ERROR << "Unable to read input Data File" << endmsg;
      return sc;
   }
   sc=detStore->record(m_data,m_key);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to record CaloLocalHadCoeff" << endreq;
+    log << MSG::ERROR << "Unable to record CaloLocalHadCoeff" << endmsg;
     return sc;
   }
   sc=detStore->setConst(m_data);
   if (sc.isFailure()) {
-    log << MSG::ERROR << "Unable to lock CaloLocalHadCoeff" << endreq;
+    log << MSG::ERROR << "Unable to lock CaloLocalHadCoeff" << endmsg;
     return sc;
   }
   return StatusCode::SUCCESS;
