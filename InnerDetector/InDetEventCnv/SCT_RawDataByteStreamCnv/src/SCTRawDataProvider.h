@@ -24,22 +24,19 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 /** other */
-#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 #include "InDetRawData/InDetTimeCollection.h"
+#include "ByteStreamCnvSvcBase/IROBDataProviderSvc.h"
 /** STL */
 #include <string>
 
 /** forward declarations */
-
 class ISCTRawDataProviderTool;
 class ISCT_CablingSvc;
-class IRobDataProviderSvc;
 class SCT_ID;
-class ISCT_CablingSvc;
 
 class SCTRawDataProvider : public AthAlgorithm
 {
-public:
+ public:
 
   //! Constructor.
   SCTRawDataProvider(const std::string &name, ISvcLocator *pSvcLocator);
@@ -52,13 +49,13 @@ public:
 
   //! Finalize
   virtual StatusCode finalize()
-    { return StatusCode::SUCCESS;}
+  { return StatusCode::SUCCESS;}
 
   //! Destructur
   ~SCTRawDataProvider() 
     { }
 
-private:
+ private:
 
   ServiceHandle<IROBDataProviderSvc> m_robDataProvider;
   ToolHandle<ISCTRawDataProviderTool> m_rawDataTool;

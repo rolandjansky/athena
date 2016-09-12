@@ -17,6 +17,7 @@
 #include <vector>
 
 ///C99 : Not nice, this header puts types in the global namespace
+//should use <cstdint> and std:: namespace, since C++11
 #include <inttypes.h>
 
 ///Gaudi
@@ -28,9 +29,8 @@
 ///InDet
 /**needed for typedef, cannot fwd declare */
 #include "InDetRawData/SCT_RDO_Container.h"
+#include "SCT_Cabling/ISCT_CablingSvc.h"
 
-
-class ISCT_CablingSvc;
 class ISCT_ByteStreamErrorsSvc;
 class SCT_ID;
 
@@ -88,7 +88,7 @@ class SCT_RodEncoder : virtual public ISCT_RodEncoder, virtual public AthAlgTool
   int groupSize(const RDO * rdo) {return rdo->getGroupSize(); }
   
   /// Get the strip number info from the RDO  
-  int strip(const RDO * rdo) {return rdo->getStrip() ; }
+  int strip(const RDO * rdo) ;
  
   /// Get the offline Identifirer from the RDO  
   Identifier offlineId(const RDO * rdo) ;

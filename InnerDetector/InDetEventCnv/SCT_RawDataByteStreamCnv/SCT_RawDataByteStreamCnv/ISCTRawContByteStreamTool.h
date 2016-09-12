@@ -18,7 +18,7 @@ class InterfaceID;
  */
 
 class ISCTRawContByteStreamTool: virtual public IAlgTool {
-public:
+ public:
 
   //! destructor 
   virtual ~ISCTRawContByteStreamTool() {} ;
