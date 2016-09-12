@@ -10,10 +10,11 @@ from AthenaCommon.Constants import INFO
 
 #=== check Athena running mode
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-isOnline=athenaCommonFlags.isOnline()
+isOnline = athenaCommonFlags.isOnline()
 
 from IOVDbSvc.CondDB import conddb
 isUsedDataBaseRun2 = (conddb.GetInstance() == 'CONDBR2')
+
 
 validRunTypes = ['PHY','LAS', 'GAPLAS','CIS','PED','CISPULSE100','CISPULSE5P2','CISLEAK100','CISLEAK5P2']
 validSources = ['COOL','FILE']
@@ -584,11 +585,13 @@ def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', na
     from TileConditions.TileConditionsConf import TileCondToolOfcCool
 
     #do some check for global flag here: if source='' and flag set, adopt flag
+    from AthenaCommon.GlobalFlags import globalflags
+    isMC = (globalflags.DataSource() != 'data')
 
     tool = None
     if source == 'COOL':
         # There are OFC for OF1 only in DB used in Run2
-        if ofcType == 'OF1' and not isUsedDataBaseRun2: return None
+        if ofcType == 'OF1' and not (isUsedDataBaseRun2 or isMC): return None
 
         from TileCoolMgr import GetTileOfcCoolSource, AddTileOfcCoolSource, tileCoolMgr
         
@@ -608,6 +611,96 @@ def getTileCondToolOfcCool(source = 'FILE', runType = 'PHY', ofcType = 'OF2', na
     for n,v in kwargs.items():
         setattr(tool, n, v)
     return tool
+
+
+#
+#____________________________________________________________________________
+def getTileCondToolTMDB(source = 'FILE', runType = 'PHY', name = 'TileCondToolTMDB', **kwargs):
+
+    if not runType in validRunTypes: raise(Exception("Invalid run type %s" % runType))
+    from TileConditions.TileConditionsConf import TileCondToolTMDB
+
+    #do some check for global flag here: if source='' and flag set, adopt flag
+    tool = None
+
+    if not isUsedDataBaseRun2: return None
+    
+    if source == 'COOL': 
+        run = string.capwords(runType)
+        #====================================================
+        #=== Connect COOL TileCondProxies to the tool
+        #====================================================
+        tool = TileCondToolTMDB(name,
+                                ProxyThreshold = getTileCondProxy('COOL', 'Flt', 'onlTmdbThreshold' + run, 'TileCondProxyCool_TmdbThreshold' + run),
+                                ProxyDelay = getTileCondProxy('COOL', 'Flt', 'onlTmdbDelay' + run, 'TileCondProxyCool_TmdbDelay' + run),
+                                ProxyTMF = getTileCondProxy('COOL', 'Flt', 'onlTmdbTmf' + run, 'TileCondProxyCool_TmdbTmf' + run),
+                                ProxyCalib = getTileCondProxy('COOL', 'Flt', 'onlTmdbCalibPhy', 'TileCondProxyCool_TmdbCalibPhy'))
+                                
+
+
+        
+    else:
+        #========================================================
+        #=== Connect FILE TileCondProxies to the tool (default)
+        #========================================================
+        raise(Exception("Invalid source %s" % source))
+
+       
+    #=== set the arguments passed and return tool
+    for n,v in kwargs.items():
+        setattr(tool, n, v)
+    return tool
+
+
+
+#
+#____________________________________________________________________________
+def getTileCondToolDspThreshold(source = 'FILE', name = 'TileCondToolDspThreshold', **kwargs):
+    
+    from TileConditions.TileConditionsConf import TileCondToolDspThreshold
+    
+    #do some check for global flag here: if source='' and flag set, adopt flag
+    
+    tool = None
+
+    if source == 'COOL':
+        #====================================================
+        #=== Connect COOL TileCondProxies to the tool
+        #====================================================
+
+        if not isUsedDataBaseRun2: return None
+
+        tool = TileCondToolDspThreshold(name,
+                                         ProxyDspThreshold = getTileCondProxy('COOL', 'Flt', 'oflDspThreshold', 'TileCondProxyCool_DspThreshold'))
+        
+    elif  source == 'FILE':
+        #========================================================
+        #=== Connect FILE TileCondProxies to the tool (default)
+        #========================================================
+        tool = TileCondToolDspThreshold(name,
+                                         ProxyDspThreshold = getTileCondProxy('FILE', 'Flt', 'TileDefault.dspThreshold', 'TileCondProxyFile_DspThreshold'))
+        
+
+    else:
+        #====================================================
+        #=== guess source is file name
+        #====================================================
+
+        file_name = find_data_file(source)
+        if file_name is not None:
+            tool = TileCondToolDspThreshold(name,
+                                             ProxyDspThreshold = getTileCondProxy('FILE', 'Flt', file_name, 'TileCondProxyFile_DspThreshold'))
+
+        else:
+            raise(Exception("Invalid source: %s" %source ))
+
+
+    #=== set the arguments passed and return tool
+    for n, v in kwargs.items():
+        setattr(tool, n, v)
+    return tool
+
+
 
 
 import os
