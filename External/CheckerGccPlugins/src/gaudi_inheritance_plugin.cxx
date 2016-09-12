@@ -73,6 +73,7 @@ void type_callback (void* gcc_data, void* /*user_data*/)
   // Core classes for which we should skip this test.
   std::string name = type_name(tt);
   if (name == "AthAlgorithm" ||
+      name == "AthReentrantAlgorithm" ||
       name == "AthAlgTool" ||
       name == "AthService" ||
       name == "SegMemSvc" ||
