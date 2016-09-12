@@ -1,6 +1,5 @@
 package TrigInDetAnalysisExample
 
-
 # ============================================================================================
 public
 
@@ -29,6 +28,7 @@ use     tauEvent                tauEvent-*                      Reconstruction
 
 use     AtlasHepMC              AtlasHepMC-*                    External
 use     EventInfo               EventInfo-*             	Event
+use     xAODEventInfo           xAODEventInfo-*             	Event/xAOD
 use 	GeneratorObjects 	GeneratorObjects-* 		Generators
 use     McParticleEvent         McParticleEvent-*               PhysicsAnalysis/TruthParticleID
 
@@ -73,3 +73,6 @@ apply_pattern declare_python_modules files="*.py"
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
+
+# why isn't there a command line argument to disable checkreq 
+# action checkreq " echo 'disabling checkreq!!' " 

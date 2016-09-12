@@ -33,6 +33,7 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
      m_fileopen(false),
      m_first(true),
      m_useHighestPT(false),
+     m_vtxIndex(-1),
      m_runPurity(false),
      m_shifterChains(1),
      m_sliceTag("")
@@ -92,8 +93,11 @@ TrigTestBase::TrigTestBase(const std::string & type, const std::string & name, c
   declareProperty( "InitialisePerRun", m_initialisePerRun = false );
   declareProperty( "KeepAllEvents",    m_keepAllEvents = false );
   declareProperty( "UseHighestPT",     m_useHighestPT = false );
+  declareProperty( "VtxIndex",         m_vtxIndex = -1 );
+
   declareProperty( "RunPurity",        m_runPurity = false );
   declareProperty( "ShifterChains",    m_shifterChains = 1 );
+
 
   declareProperty( "GenericFlag", m_genericFlag = true );
   
@@ -152,6 +156,19 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
   msg(MSG::DEBUG) << " ----- enter book() ----- " << endreq;
 
   msg(MSG::INFO) << "TrigTestBase::book() " << gDirectory->GetName() << endreq;
+
+  //  MMTB_DEPRECATED(duff)
+
+
+
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+#if 0
+  // #ifndef ManagedMonitorToolBase_CXX
+  bool newEventsBlock = newEventsBlockFlag();
+  bool newLumiBlock   = newLumiBlockFlag();
+  bool newRun         = newRunFlag();
+#endif
+#endif
 
 
   msg(MSG::DEBUG) << "TrigTestBase::book() SUTT buildNtuple " << m_buildNtuple
@@ -214,6 +231,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
     // if (m_analysis_config == "Tier0") {
     {
       std::vector<std::string> chains;
+      // std::vector<ChainString> chains;
       chains.reserve( m_ntupleChainNames.size() );
 
       /// handle wildcard chain selection - but only the first time
@@ -266,8 +284,17 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
             if ( chainName.extra()!="" )   selectChains[iselected] += ":index="+chainName.extra();
             if ( chainName.element()!="" ) selectChains[iselected] += ":te="+chainName.element();
 	    if ( chainName.roi()!="" )     selectChains[iselected] += ":roi="+chainName.roi();
+	    if ( chainName.vtx()!="" )     selectChains[iselected] += ":vtx="+chainName.vtx();
             if ( !chainName.passed() )     selectChains[iselected] += ";DTE";
 
+#if 0
+	    std::cout << "\nTrigTestBase::chain specification: " << chainName << "\t" << chainName.raw() << std::endl;
+	    std::cout << "\tchain: " << chainName.head()    << std::endl;
+	    std::cout << "\tkey:   " << chainName.tail()    << std::endl;
+	    std::cout << "\troi:   " << chainName.roi()     << std::endl;
+	    std::cout << "\tvtx:   " << chainName.vtx()     << std::endl;
+	    std::cout << "\tte:    " << chainName.element() << std::endl;
+#endif
 
 	    if ( m_sliceTag.find("Shifter")!=std::string::npos ) { 
 	      /// shifter histograms 
@@ -306,7 +333,8 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 	    }
 	    
             /// replace wildcard with actual matching chains ...
-            chains.push_back( ChainString(selectChains[iselected]) );
+	    //            chains.push_back( ChainString(selectChains[iselected]) );
+            chains.push_back( selectChains[iselected] );
 
             msg(MSG::VERBOSE) << "^[[91;1m" << "Matching chain " << selectChains[iselected] << "^[[m" << endreq;
 
@@ -319,8 +347,7 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
       for (unsigned i=0; i<m_chainNames.size(); ++i) {
 
-	
-	
+	//     	std::cout << "\tcreating analysis : " << m_chainNames[i] << std::endl;
 
 	AnalysisConfig_Tier0* analysis =  new AnalysisConfig_Tier0( m_sliceTag, // m_chainNames[i],
 								    m_chainNames[i], "", "",
@@ -341,6 +368,11 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
         if ( m_useHighestPT ) { 
 	  msg(MSG::INFO) << "       using highest PT only for chain " << m_chainNames[i] << endreq;
 	  m_sequences.back()->setUseHighestPT(true);
+	}
+
+	if ( !(m_vtxIndex<0) )  {
+	  msg(MSG::INFO) << "       searching for vertex index " << m_vtxIndex << endreq;
+	  m_sequences.back()->setVtxIndex(m_vtxIndex);
 	}
 
 	/// don't filter cosmic chains on Roi
@@ -428,9 +460,15 @@ StatusCode TrigTestBase::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/
 #endif
   // StatusCode TrigTestBase::procHistograms() {
 
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+#if 0
+  // #ifndef ManagedMonitorToolBase_CXX
+  bool endOfRun       = endOfRunFlag();
+#endif
+#endif
 
   msg(MSG::INFO) << " ----- enter proc() ----- " << endreq;
-  if ( m_initialisePerRun && endOfRun) {
+  if ( m_initialisePerRun && endOfRun ) {
     for ( unsigned i=0 ; i<m_sequences.size() ; i++ ) m_sequences[i]->finalize();
     m_fileopen = false;
   }

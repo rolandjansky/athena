@@ -5,16 +5,32 @@
 #include "TrigInDetAnalysis/Track.h"
 #include "TrigInDetAnalysisExample/Analysis_Tier0.h"
 
+#include "TrigInDetAnalysisExample/ChainString.h"
 
 
 Analysis_Tier0::Analysis_Tier0(const std::string& name, double pTCut, double etaCut, double d0Cut, double z0Cut) :
-  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false) {                                   ;}
+  TrackAnalysis(name), m_pTCut(pTCut), m_etaCut(etaCut), m_d0Cut(d0Cut), m_z0Cut(z0Cut), m_debug(false) 
+{  }
+
 
 void Analysis_Tier0::initialise() {
 
+  ChainString cname = name();
+
+  //  std::cout << "Analysis_Tier0::initialise() name " << name() << std::endl; 
+
+#if 0
+  std::cout << "\nAnalysis_Tier0:: chain specification: " << cname << "\t" << cname.raw() << std::endl;
+  std::cout << "\tchain: " << cname.head()    << std::endl;
+  std::cout << "\tkey:   " << cname.tail()    << std::endl;
+  std::cout << "\troi:   " << cname.roi()     << std::endl;
+  std::cout << "\tvtx:   " << cname.vtx()     << std::endl;
+  std::cout << "\tte:    " << cname.element() << std::endl;
+#endif
+
   m_debug = false;
 
-  h_chain = new TH1D( "Chain", name().c_str(), 1, 0, 1 );
+  h_chain = new TH1F( "Chain", cname.c_str(), 1, 0, 1 );
 
   /// archive the chain name
 
@@ -35,17 +51,17 @@ void Analysis_Tier0::initialise() {
 
   }
 
-  //  h_trkpT  = new TH1D("reftrk_pT" , "Reference track pT",  50,    0.,    100.);
-  h_trkpT  = new TH1D("reftrk_pT" , "Reference track pT",  25,   &ptbins[0]   );
-  h_trkphi = new TH1D("reftrk_phi", "Reference track Phi", 25,   -M_PI,   M_PI);
-  h_trketa = new TH1D("reftrk_eta", "Reference track Eta", 25,   -2.5,     2.5) ;
-  h_trkd0  = new TH1D("reftrk_d0" , "Reference track d0", 101,   -5.,      5.);
-  h_trkz0  = new TH1D("reftrk_z0" , "Reference track z0",  50, -225.,    225.);
+  //  h_trkpT  = new TH1F("reftrk_pT" , "Reference track pT",  50,    0.,    100.);
+  h_trkpT  = new TH1F("reftrk_pT" , "Reference track pT",  25,   &ptbins[0]   );
+  h_trkphi = new TH1F("reftrk_phi", "Reference track Phi", 25,   -M_PI,   M_PI);
+  h_trketa = new TH1F("reftrk_eta", "Reference track Eta", 25,   -2.5,     2.5) ;
+  h_trkd0  = new TH1F("reftrk_d0" , "Reference track d0", 101,   -5.0,     5.0 );
+  h_trkz0  = new TH1F("reftrk_z0" , "Reference track z0",  50,   -225.,    225.);
 
-  h_trkdd0  = new TH1D("reftrk_dd0" , "Reference track sigma(d0)", 101,   -0.5,     0.5);
-  h_trkdz0  = new TH1D("reftrk_dz0" , "Reference track sigma(z0)", 101,   -2.5,     2.5);
+  h_trkdd0  = new TH1F("reftrk_dd0" , "Reference track sigma(d0)", 101,   -0.5,     0.5);
+  h_trkdz0  = new TH1F("reftrk_dz0" , "Reference track sigma(z0)", 101,   -2.5,     2.5);
 
-  h_trkd0sig = new TH1D("reftrk_d0sig" , "Reference track d0 significance", 101,   -5.,     5.);
+  h_trkd0sig = new TH1F("reftrk_d0sig" , "Reference track d0 significance", 101,   -5.,     5.);
 
   addHistogram(h_trkpT);
   addHistogram(h_trkphi);
@@ -60,17 +76,17 @@ void Analysis_Tier0::initialise() {
 
   /// test track distributions
 
-  //  h_trkpT_rec  = new TH1D("testtrk_pT" , "Test track pT",  25,    0.,   100.);
-  h_trkpT_rec  = new TH1D("testtrk_pT" , "Test track pT",  25,   &ptbins[0]   );
-  h_trkphi_rec = new TH1D("testtrk_phi", "Test track Phi", 25,   -M_PI,  M_PI);
-  h_trketa_rec = new TH1D("testtrk_eta", "Test track Eta", 25,   -2.5,    2.5) ;
-  h_trkd0_rec  = new TH1D("testtrk_d0" , "Test track d0", 101,   -5.,     5.);
-  h_trkz0_rec  = new TH1D("testtrk_z0" , "Test track z0",  50, -225.,   225.);
+  //  h_trkpT_rec  = new TH1F("testtrk_pT" , "Test track pT",  25,    0.,   100.);
+  h_trkpT_rec  = new TH1F("testtrk_pT" , "Test track pT",  25,   &ptbins[0]   );
+  h_trkphi_rec = new TH1F("testtrk_phi", "Test track Phi", 25,   -M_PI,  M_PI);
+  h_trketa_rec = new TH1F("testtrk_eta", "Test track Eta", 25,   -2.5,    2.5) ;
+  h_trkd0_rec  = new TH1F("testtrk_d0" , "Test track d0", 101,   -5.0,    5.0 );
+  h_trkz0_rec  = new TH1F("testtrk_z0" , "Test track z0",  50,   -225.,   225.);
 
-  h_trkdd0_rec  = new TH1D("testtrk_dd0" , "Test track sigma(d0)", 101,   -0.5,     0.5);
-  h_trkdz0_rec  = new TH1D("testtrk_dz0" , "Test track sigma(z0)", 101,   -2.5,     2.5);
+  h_trkdd0_rec  = new TH1F("testtrk_dd0" , "Test track sigma(d0)", 101,   -0.5,     0.5);
+  h_trkdz0_rec  = new TH1F("testtrk_dz0" , "Test track sigma(z0)", 101,   -2.5,     2.5);
 
-  h_trkd0sig_rec = new TH1D("testtrk_d0sig" , "Test track d0 significance", 101,   -5.,     5.);
+  h_trkd0sig_rec = new TH1F("testtrk_d0sig" , "Test track d0 significance", 101,   -5.0,     5.0);
 
 
   addHistogram(h_trkpT_rec);
@@ -86,15 +102,36 @@ void Analysis_Tier0::initialise() {
 
   /// trigger tracking efficiencies
 
+  double d0bins[40] = { -5.0,  -4.0,  -3.0,  -2.5,   
+			-2.0,  -1.8,  -1.6,  -1.4,  -1.2,  
+			-1.05, -0.95, -0.85, -0.75, -0.65, -0.55, -0.45, -0.35, -0.25, -0.15, -0.05, 
+		 	 0.05,  0.15,  0.25,  0.35,  0.45,  0.55,  0.65,  0.75,  0.85,  0.95,  1.05,  
+			 1.2,   1.4,   1.6,   1.8,   2.0,  
+			 2.5,   3.0,   4.0,   5.0 };
+
+
+
   h_total_efficiency = new TProfile ("Eff_overall",  "total efficiency",  1, 0., 1.);
 
   // h_pTeff = new TProfile( "Eff_pT",     "pT efficiency",     25,    0.,  100.   );
   h_pTeff    = new TProfile( "Eff_pT",     "pT efficiency",     25,   &ptbins[0]   );
   h_etaeff   = new TProfile( "Eff_Eta",    "eta efficiency",    25,   -2.5,   2.5  );
   h_phieff   = new TProfile( "Eff_Phi",    "phi  efficiency",   25,   -M_PI, M_PI  );
-  h_d0eff    = new TProfile( "Eff_d0",     "d0 efficiency",    101,   -5.,   5.    );
+  h_d0eff    = new TProfile( "Eff_d0",     "d0 efficiency",     39,   d0bins    );
   h_z0eff    = new TProfile( "Eff_z0",     "z0 efficiency",     50, -225.,  225.   );
   h_nVtxeff  = new TProfile( "Eff_nVtx",   "nVtx efficiency",   41,   -0.5,  40.5  );
+
+  h_vtxlbeff = new TProfile( "Eff_lb", "efficinecy vs lumiblock", 301, -0.5, 3009.5 );
+
+  addHistogram( h_vtxlbeff );
+
+  h_trkvtx_x_lb = new TProfile( "trkvtx_x_vs_lb", "track vertex x vs lumiblock", 301, -0.5, 3009.5 );
+  h_trkvtx_y_lb = new TProfile( "trkvtx_y_vs_lb", "track vertex y vs lumiblock", 301, -0.5, 3009.5 );
+  h_trkvtx_z_lb = new TProfile( "trkvtx_z_vs_lb", "track vertex z vs lumiblock", 301, -0.5, 3009.5 );
+
+  addHistogram( h_trkvtx_x_lb );
+  addHistogram( h_trkvtx_y_lb );
+  addHistogram( h_trkvtx_z_lb );
 
   /// han config too stufid to deal with spaces in histogram names
   h_npixvseta     = new TProfile("npix_vs_eta",      "offline npix vs eta;offline #eta;# mean number of offline pixel hits", 30,   -2.5,  2.5);
@@ -114,6 +151,16 @@ void Analysis_Tier0::initialise() {
 
   h_ntrtvsphi     = new TProfile("ntrt_vs_phi",      "offline ntrt vs phi;offline #phi;# mean number of offline trt hits", 30,   -M_PI, M_PI );
   h_ntrtvsphi_rec = new TProfile("ntrt_vs_phi_rec",  "trigger ntrt vs phi;trigger #phi;# mean number of trigger trt hits", 30,   -M_PI, M_PI );
+
+  h_npixvsd0     = new TProfile("npix_vs_d0",      "offline npix vs d0;offline #d0;# mean number of offline pixel hits", 39,  d0bins );
+  h_npixvsd0_rec = new TProfile("npix_vs_d0_rec",  "trigger npix vs d0;trigger #d0;# mean number of trigger pixel hits", 39,  d0bins );
+
+  h_nsctvsd0     = new TProfile("nsct_vs_d0",      "offline nsct vs d0;offline #d0;# mean number of offline sct hits", 39,   d0bins );
+  h_nsctvsd0_rec = new TProfile("nsct_vs_d0_rec",  "trigger nsct vs d0;trigger #d0;# mean number of trigger sct hits", 39,   d0bins );
+
+
+
+
 
 
 
@@ -143,6 +190,12 @@ void Analysis_Tier0::initialise() {
   addHistogram( h_ntrtvsphi ); 
   addHistogram( h_ntrtvsphi_rec ); 
 
+  addHistogram( h_npixvsd0 ); 
+  addHistogram( h_npixvsd0_rec ); 
+
+  addHistogram( h_nsctvsd0 ); 
+  addHistogram( h_nsctvsd0_rec ); 
+
   /// trigger tracking differential resolutions
 
   /// change all these residiuals to be vs eta, rather than vs themselves
@@ -171,15 +224,15 @@ void Analysis_Tier0::initialise() {
 
   /// residuals
 
-  h_trkpT_residual  = new TH1D("residual_pT" , "track pT residual",  201, -100.0,    100.0  );
-  h_trkipT_residual = new TH1D("residual_ipT", "track ipT residual",  55,   -5.5,      5.5  );
-  h_trkphi_residual = new TH1D("residual_phi", "track Phi residual",  50,   -0.02,     0.02 );
-  h_trketa_residual = new TH1D("residual_eta", "track Eta residual",  50,   -0.02,     0.02 );
-  h_trkd0_residual  = new TH1D("residual_d0" , "track d0 residual ", 251,   -2.5,      2.5  );
-  h_trkz0_residual  = new TH1D("residual_z0" , "track z0 residual",  401,  -20.0,     20.0  );
+  h_trkpT_residual  = new TH1F("residual_pT" , "track pT residual",  201, -100.0,    100.0  );
+  h_trkipT_residual = new TH1F("residual_ipT", "track ipT residual",  55,   -5.5,      5.5  );
+  h_trkphi_residual = new TH1F("residual_phi", "track Phi residual",  50,   -0.02,     0.02 );
+  h_trketa_residual = new TH1F("residual_eta", "track Eta residual",  50,   -0.02,     0.02 );
+  h_trkd0_residual  = new TH1F("residual_d0" , "track d0 residual ", 251,   -2.5,      2.5  );
+  h_trkz0_residual  = new TH1F("residual_z0" , "track z0 residual",  401,  -20.0,     20.0  );
 
-  h_trkdd0_residual  = new TH1D("residual_dd0" , "track sigma d0 residual ", 251,   -0.5,     0.5  );
-  h_trkdz0_residual  = new TH1D("residual_dz0" , "track sigma z0 residual",  401,   -1.0,     1.0  );
+  h_trkdd0_residual  = new TH1F("residual_dd0" , "track sigma d0 residual ", 251,   -0.5,     0.5  );
+  h_trkdz0_residual  = new TH1F("residual_dz0" , "track sigma z0 residual",  401,   -1.0,     1.0  );
 
   addHistogram(h_trkpT_residual);
   addHistogram(h_trkipT_residual);
@@ -191,17 +244,17 @@ void Analysis_Tier0::initialise() {
   addHistogram(h_trkdd0_residual);
   addHistogram(h_trkdz0_residual);
 
-  h_npix     = new TH1D("npix",     "npix",     26,  -0.5,     25.5  );
-  h_npix_rec = new TH1D("npix_rec", "npix_rec", 26,  -0.5,     25.5  );
+  h_npix     = new TH1F("npix",     "npix",     26,  -0.5,     25.5  );
+  h_npix_rec = new TH1F("npix_rec", "npix_rec", 26,  -0.5,     25.5  );
 
-  h_nsct     = new TH1D("nsct",     "nsct",     31,  -0.5,     30.5  );
-  h_nsct_rec = new TH1D("nsct_rec", "nsct_rec", 31,  -0.5,     30.5  );
+  h_nsct     = new TH1F("nsct",     "nsct",     31,  -0.5,     30.5  );
+  h_nsct_rec = new TH1F("nsct_rec", "nsct_rec", 31,  -0.5,     30.5  );
 
-  h_nsihits     = new TH1D("nsiHits",     "nsiHits",     41,  -0.5,     40.5  );
-  h_nsihits_rec = new TH1D("nsiHits_rec", "nsiHits_rec", 41,  -0.5,     40.5  );
+  h_nsihits     = new TH1F("nsiHits",     "nsiHits",     41,  -0.5,     40.5  );
+  h_nsihits_rec = new TH1F("nsiHits_rec", "nsiHits_rec", 41,  -0.5,     40.5  );
 
-  h_ntrt     = new TH1D("ntrt",     "ntrt",      91,  -0.5,     91.5  );
-  h_ntrt_rec = new TH1D("ntrt_rec", "ntrt_rec",  91,  -0.5,     91.5  );
+  h_ntrt     = new TH1F("ntrt",     "ntrt",      91,  -0.5,     91.5  );
+  h_ntrt_rec = new TH1F("ntrt_rec", "ntrt_rec",  91,  -0.5,     91.5  );
 
   addHistogram( h_npix );
   addHistogram( h_nsct );
@@ -222,6 +275,35 @@ void Analysis_Tier0::initialise() {
   addHistogram( h_d0vsphi ); 
   //  addHistogram( h2d_d0vsphi ); 
   //  addHistogram( h2d_d0vsphi_rec ); 
+
+  m_vtxanal = 0;
+
+#if 1
+
+  //  std::cout << "Analysis_Tier0 vertex info: " << name() << std::endl;  
+
+  /// vertex analyses if required ...
+  if ( name().find("vtx")!=std::string::npos || name().find("Vtx")!=std::string::npos ||
+       name().find("vx")!=std::string::npos || name().find("Vx")!=std::string::npos ) { 
+
+    // std::cout << "Analysis_Tier0 vertex info: " << name() << std::endl;  
+
+    m_vtxanal = new VtxAnalysis("VTX");
+
+    /// is this needed ? 
+    store().insert( m_vtxanal, "VTX" );
+
+    /// initialise the vtx analysis
+    m_vtxanal->initialise();
+
+    //    std::cout << "vtxanal obj  size() " << m_vtxanal->objects().size() << std::endl;
+    //    std::cout << "vtxanal prof size() " << m_vtxanal->profs().size() << std::endl;
+
+    /// store the historams
+    for ( unsigned i=0 ; i<m_vtxanal->objects().size() ; i++ ) addHistogram( m_vtxanal->objects()[i] );
+    for ( unsigned i=0 ; i<m_vtxanal->profs().size() ; i++ )   addHistogram( m_vtxanal->profs()[i] );
+  }
+#endif
 
 }
 
@@ -280,9 +362,13 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
     h_nsctvseta->Fill( referenceEta,  (*reference)->sctHits() ); 
     h_ntrtvseta->Fill( referenceEta,  (*reference)->strawHits() ); 
 
+
     h_npixvsphi->Fill( referencePhi,  int(((*reference)->pixelHits()+0.5)*0.5) ); 
     h_nsctvsphi->Fill( referencePhi,  (*reference)->sctHits() ); 
     h_ntrtvsphi->Fill( referencePhi,  (*reference)->strawHits() ); 
+
+    h_npixvsd0->Fill( referenceD0,  int(((*reference)->pixelHits()+0.5)*0.5) ); 
+    h_nsctvsd0->Fill( referenceD0,  (*reference)->sctHits() ); 
 
 
     h_npix->Fill(  int(((*reference)->pixelHits()+0.5)*0.5) ); 
@@ -315,6 +401,12 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_phires->Fill( referenceEta, phi(test->phi() - referencePhi) );
       h_d0res->Fill( referenceEta, test->a0() - referenceD0 );
       h_z0res->Fill( referenceEta, test->z0() - referenceZ0  );
+
+      h_trkvtx_x_lb->Fill( event()->lumi_block(), beamTestx() );
+      h_trkvtx_y_lb->Fill( event()->lumi_block(), beamTesty() );
+      h_trkvtx_z_lb->Fill( event()->lumi_block(), beamTestz() );
+ 
+      //      std::cout << "SUTT beam x " << beamTestx() << " " << "\tx " << beamTesty() << " " <<  "\ty " << beamTestz() << std::endl;
 
 #if 0
       /// reference tracks values for tracks with a reference track match (not test track values) 
@@ -359,11 +451,17 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
       h_npixvsphi_rec->Fill( referencePhi, int((test->pixelHits()+0.5)*0.5) ); 
       h_nsctvsphi_rec->Fill( referencePhi, test->sctHits() ); 
 
+      h_npixvsd0_rec->Fill( referenceD0, int((test->pixelHits()+0.5)*0.5) ); 
+      h_nsctvsd0_rec->Fill( referenceD0, test->sctHits() ); 
+
       h_npix_rec->Fill(  int((test->pixelHits()+0.5)*0.5) ); 
       h_nsct_rec->Fill(  test->sctHits() ); 
       h_nsihits_rec->Fill(  test->siHits() ); 
     
       h_ntrt_rec->Fill(  test->strawHits() ); 
+
+      h_ntrtvseta_rec->Fill( referenceEta, test->strawHits() ); 
+      h_ntrtvsphi_rec->Fill( referencePhi, test->strawHits() ); 
 
     }
     //    else { 
@@ -379,8 +477,16 @@ void Analysis_Tier0::execute(const std::vector<TIDA::Track*>& referenceTracks,
 
 
 
-void Analysis_Tier0::finalise() {
 
+void Analysis_Tier0::execute_vtx(const std::vector<TIDA::Vertex*>& vtx0, 
+				 const std::vector<TIDA::Vertex*>& vtx1,
+				 const TIDA::Event* tevt ) { 
+  if ( m_vtxanal ) m_vtxanal->execute( vtx0, vtx1, tevt );
+}
+
+
+void Analysis_Tier0::finalise() {
+  if ( m_vtxanal ) m_vtxanal->finalise();
 } 
 
 

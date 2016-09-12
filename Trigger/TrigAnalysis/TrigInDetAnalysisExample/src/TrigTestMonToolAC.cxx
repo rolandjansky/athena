@@ -153,6 +153,13 @@ StatusCode TrigTestMonToolAC::book(bool newEventsBlock, bool newLumiBlock, bool 
 
   msg(MSG::INFO) << "TrigTestMonToolAC::book() " << gDirectory->GetName() << endreq;
 
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+#if 0
+  bool newEventsBlock = newEventsBlockFlag();
+  bool newLumiBlock   = newLumiBlockFlag();
+  bool newRun         = newRunFlag();
+#endif
+#endif
 
   msg(MSG::DEBUG) << "TrigTestMonToolAC::book() SUTT buildNtuple " << m_buildNtuple 
 		  << "\tNewEventBlock " << newEventsBlock 
@@ -304,7 +311,7 @@ StatusCode TrigTestMonToolAC::fill() {
 
   for ( unsigned i=0 ; i<m_chainNames.size() ; i++ ) { 
     ChainString s = m_chainNames[i];
-    std::vector<string> triggers = m_tdt->getListOfTriggers( s.head() );
+    //std::vector<std::string> triggers = m_tdt->getListOfTriggers( s.head() );
     msg(MSG::INFO) << "Trigger output " << s.head() << " " << s.tail() << "\tdecision " << m_tdt->isPassed( s.head() ) << endreq;
   }
   
@@ -322,6 +329,12 @@ StatusCode TrigTestMonToolAC::fill() {
 StatusCode TrigTestMonToolAC::proc() { 
 #else
 StatusCode TrigTestMonToolAC::proc(bool /* endOfEventsBlock*/, bool /* endOfLumiBlock*/, bool endOfRun) {
+#endif
+
+#ifdef ManagedMonitorToolBase_Uses_API_201401
+#if 0
+  bool endOfRun       = endOfRunFlag();
+#endif
 #endif
 
   msg(MSG::DEBUG) << " ----- enter proc() ----- " << endreq;
