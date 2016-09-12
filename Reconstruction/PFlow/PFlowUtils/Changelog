@@ -1,3 +1,17 @@
+2016-09-12 Teng Jian Khoo <khoo@cern.ch>
+	* Reorganise the weight method and fix the 60 GeV track case again
+	* Tagging as PFlowUtils-00-00-10
+
+2016-09-11 Teng Jian Khoo <khoo@cern.ch>
+	* Don't weight 60 GeV tracks to 0 unless in dense environment
+	* Set tiny but non-zero weights to ensure high-pt cPFOs that are weighted down become jet constituents
+	* Needed for PF MET
+	* Tagging as PFlowUtils-00-00-09
+
+2016-08-04 Teng Jian Khoo <khoo@cern.ch>
+	* Added WeightPFOTool for extraction of charged PFO weights
+	* Tagging as PFlowUtils-00-00-08 (missed files in 07 tag)
+
 2016-04-16 Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 	* Created a new tag with a slightly adjusted CMakeLists.txt
 	  file.
