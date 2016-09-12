@@ -807,7 +807,7 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize,int tbin, uint32_t onlineId
     return -1;
   }
 
-  if ((strip & 0x7f) + (groupSize-1) > 127 ) {
+  if (((strip & 0x7f) + (groupSize-1) > 127) or (strip<0) or (strip>767)) {
     ATH_MSG_WARNING("Cluster with "<<groupSize<<" strips, starting at strip "<<strip<<" in collection "<<idCollHash<<" out of range. Will not make RDO");
     return -1;
   }
@@ -845,6 +845,10 @@ int SCT_RodDecoder::makeRDO(int strip, int groupSize,int tbin, uint32_t onlineId
   }
 
   Identifier iddigit = m_sct_id->strip_id(idColl,strip) ;
+  if(not m_sct_id->is_sct(iddigit)) {
+    ATH_MSG_WARNING("Cluster with invalid Identifier. Will not make RDO");
+    return -1;
+  }
   unsigned int rawDataWord = (groupSize | (strip << 11) | (tbin <<22) | (ERRORS << 25)) ;
 
   ATH_MSG_DEBUG("Output Raw Data "<<std::hex<<" Coll "<<idColl.getString()<<":-> "<<m_sct_id->print_to_string(iddigit)<<std::dec) ;

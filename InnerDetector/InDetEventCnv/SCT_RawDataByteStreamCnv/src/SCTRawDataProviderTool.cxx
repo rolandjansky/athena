@@ -130,29 +130,33 @@ StatusCode SCTRawDataProviderTool::convert( std::vector<const ROBFragment*>& vec
   int nLVL1ID = m_bsErrSvc->getErrorSet(SCT_ByteStreamErrors::LVL1IDError)->size();
 
   if (nLVL1ID > 500) {
-    //// retrieve EventInfo.  First try the xAOD one:
+    //// retrieve EventInfo.  
+    /// First the xAOD one
+    bool setOK_xAOD = false;
     const xAOD::EventInfo* xevtInfo_const;
     sc = evtStore()->retrieve(xevtInfo_const);  
     if (sc==StatusCode::SUCCESS) {
       xAOD::EventInfo* xevtInfo=0;
       xevtInfo=const_cast<xAOD::EventInfo*>(xevtInfo_const);
-      bool setOK = xevtInfo->setErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
-      sc = (setOK)?(StatusCode::SUCCESS):(StatusCode::RECOVERABLE);
-    } else {  /// didn't find xAOD::EventInfo - try to get the old-style one
-      msg(MSG::WARNING) << "Failed to retrieve xAOD::EventInfo, will try and find old-style EventInfo"<<endreq;
-      const EventInfo* evtInfo_const;
-      sc = evtStore()->retrieve(evtInfo_const);  
-      if (sc.isFailure()) {   /// didn't find either EventInfo
-	msg(MSG::ERROR)<<"Failed to retrieve EventInfo"<<endreq;
-	return sc;
-      } else {
-    	/// now set it 
-    	EventInfo* evtInfo = 0;
-    	evtInfo =const_cast<EventInfo*>(evtInfo_const);
-    	bool setOK = evtInfo->setErrorState(EventInfo::SCT, EventInfo::Error);
-    	sc = (setOK)?(StatusCode::SUCCESS):(StatusCode::RECOVERABLE);
-      }
+      setOK_xAOD = xevtInfo->setErrorState(xAOD::EventInfo::SCT, xAOD::EventInfo::Error);
+    } 
+
+    /// Second the old-style one
+    bool setOK_old = false;
+    const EventInfo* evtInfo_const;
+    sc = evtStore()->retrieve(evtInfo_const);  
+    if (sc==StatusCode::SUCCESS) {
+      EventInfo* evtInfo = 0;
+      evtInfo =const_cast<EventInfo*>(evtInfo_const);
+      setOK_old = evtInfo->setErrorState(EventInfo::SCT, EventInfo::Error);
     }
+
+    if ((not setOK_xAOD) and (not setOK_old)) {
+      msg(MSG::ERROR)<<"Failed to retrieve EventInfo containers or to set error states"<<endreq;
+      return StatusCode::RECOVERABLE;
+    }
+
+    sc = StatusCode::SUCCESS;
   } /// 500 LVL1ID errors
 
   return sc; 
