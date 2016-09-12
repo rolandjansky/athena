@@ -32,7 +32,7 @@ StatusCode CaloClusterConstituentsOrigin::process(xAOD::IParticleContainer* cont
        const xAOD::VertexContainer* vertexContainer=0;
 
        //get vertexcontainer from eventstore
-       CHECK( evtStore()->retrieve(vertexContainer, m_vertexContName) );
+       ATH_CHECK( evtStore()->retrieve(vertexContainer, m_vertexContName) );
 
        return process(clust, vertexContainer->at(0)); 
      }
@@ -55,9 +55,11 @@ StatusCode CaloClusterConstituentsOrigin::processLC(xAOD::CaloClusterContainer* 
 
 
   for(xAOD::CaloCluster* cl : *cont) {
-    xAOD::CaloVertexedTopoCluster corrCL( *cl,vert->position());
-    cl->setEta(corrCL.eta());
-    cl->setPhi(corrCL.phi());
+    if(cl->calE()>1e-9) {
+      xAOD::CaloVertexedTopoCluster corrCL( *cl,vert->position());
+      cl->setEta(corrCL.eta());
+      cl->setPhi(corrCL.phi());
+    }
   }
   return StatusCode::SUCCESS;
 }
@@ -66,10 +68,12 @@ StatusCode CaloClusterConstituentsOrigin::processEM(xAOD::CaloClusterContainer* 
 
 
   for(xAOD::CaloCluster* cl : *cont) {
-    xAOD::CaloVertexedTopoCluster corrCL( *cl,xAOD::CaloCluster::UNCALIBRATED, vert->position());
-    cl->setE(corrCL.e());
-    cl->setEta(corrCL.eta());
-    cl->setPhi(corrCL.phi());
+    if(cl->rawE()>1e-9) {
+      xAOD::CaloVertexedTopoCluster corrCL( *cl,xAOD::CaloCluster::UNCALIBRATED, vert->position());
+      cl->setE(corrCL.e());
+      cl->setEta(corrCL.eta());
+      cl->setPhi(corrCL.phi());
+    }
   }
   return StatusCode::SUCCESS;
 }

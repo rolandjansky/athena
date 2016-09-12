@@ -30,9 +30,8 @@ JetConstituentModSequence::JetConstituentModSequence(const std::string &name): a
 
 }
 
-#ifdef ASGTOOL_ATHENA
 StatusCode JetConstituentModSequence::initialize() {
-  CHECK( m_modifiers.retrieve() );
+  ATH_CHECK( m_modifiers.retrieve() );
   if( m_modifiers.empty() ) {
     ATH_MSG_ERROR(" empty container !!" );
     return StatusCode::FAILURE;
@@ -52,7 +51,7 @@ StatusCode JetConstituentModSequence::initialize() {
   
 int JetConstituentModSequence::execute() const {
   const xAOD::IParticleContainer* cont = 0;
-  CHECK( evtStore()->retrieve(cont, m_inputContainer) );
+  ATH_CHECK( evtStore()->retrieve(cont, m_inputContainer) );
 
   xAOD::IParticleContainer* modifiedCont = 0;
 
@@ -96,5 +95,4 @@ int JetConstituentModSequence::execute() const {
   
   return 0;
 }
-#endif
 

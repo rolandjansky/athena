@@ -39,9 +39,7 @@ use xAODBase                xAODBase-*                  Event/xAOD
 use xAODCaloEvent           xAODCaloEvent-*             Event/xAOD
 use xAODTracking        xAODTracking-*          Event/xAOD
 use AsgTools            AsgTools-*              Control/AthToolSupport
-
 use PFlowUtils          PFlowUtils-*            Reconstruction/PFlow
-
 
 private
 # Add explicit dependency against xAODPFlow to avoid indirect dependency from PFlowUtils
