@@ -141,19 +141,20 @@ InDetRttPlots::fillSpectrum(const xAOD::TrackParticle &trkprt, const xAOD::Verte
 }
 
 void
-InDetRttPlots::fillSpectrumLinked(const xAOD::TrackParticle &particle, const xAOD::TruthParticle &truthParticle) {
+InDetRttPlots::fillSpectrumLinked(const xAOD::TrackParticle &particle, const xAOD::TruthParticle &truthParticle, float /*weight*/) {
   double prob = getMatchingProbability(particle);
-
   m_specPlots.fillSpectrumLinked(particle, truthParticle, prob);
-  m_fakePlots.fillLinked(particle, truthParticle, prob);
+}
+
+void
+InDetRttPlots::fillLinkedandUnlinked(const xAOD::TrackParticle &particle, float Prim_w, float Sec_w, float Unlinked_w) {
+  m_fakePlots.fillLinkedandUnlinked(particle, Prim_w, Sec_w, Unlinked_w);
 }
 
 void
 InDetRttPlots::fillSpectrumUnlinked2(const xAOD::TrackParticle &particle) {
   double prob = getMatchingProbability(particle);
-
   m_specPlots.fillSpectrumUnlinked2(particle, prob);
-  m_fakePlots.fillUnlinked(particle, prob);
 }
 
 void
@@ -332,6 +333,9 @@ InDetRttPlots::fillJetTrkTruthCounter(const xAOD::Jet &jet) {
 }
 
 void
-InDetRttPlots::fillIncFake(int nTracks, double ifr, int nSelected) {
-  m_fakePlots.fillIncFake(nTracks, ifr, nSelected);
+InDetRttPlots::fillIncTrkRate(const unsigned int nMuEvents, std::vector<int> incTrkNum, std::vector<int> incTrkDenom)
+{
+  m_fakePlots.fillIncTrkRate(nMuEvents,incTrkNum,incTrkDenom);
+
 }
+

@@ -142,14 +142,14 @@ print "Set Up InDetTrackSelectorTool"
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import TrackTruthSelectionTool
 TrackTruthSelectionTool = TrackTruthSelectionTool("TrackTruthSelectionTool")
 # todo: manually adapt this acc. to the fiducial acceptance of your detector
-#TrackTruthSelectionTool.maxEta     = 4.0
+TrackTruthSelectionTool.maxEta     = 4.0
 TrackTruthSelectionTool.maxPt      = -1
 TrackTruthSelectionTool.minPt      = 900 # default 400 MeV
 TrackTruthSelectionTool.maxBarcode = 200e3
 TrackTruthSelectionTool.pdgId      = -1
 TrackTruthSelectionTool.requireCharged = True
 TrackTruthSelectionTool.requireStatus1 = True
-TrackTruthSelectionTool.requireDecayBeforePixel = True
+TrackTruthSelectionTool.maxProdVertRadius = 260. # max prod. vertex radius for secondaries [mm]
 TrackTruthSelectionTool.OutputLevel = DEBUG
 ToolSvc += TrackTruthSelectionTool
 

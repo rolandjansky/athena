@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 772068 2016-09-07 08:13:14Z sroe $
+# $Id: PhysVal_jobOptions.py 772874 2016-09-13 09:10:36Z sroe $
 
 # Set up the reading of the input xAOD:
 import getpass
@@ -10,8 +10,18 @@ if (getpass.getuser())=="mbaugh":
   #FNAME = "../rootfile_storage/ESD.ttbarB.pool.root"
   #FNAME = "../rootfile_storage/ESD.kshortBT_large.pool.root"
   FNAME = "../rootfile_storage/ESD.newphoton_OFF.pool.root"
+  '''
+  The following sets an environment variable to enable backtracking debug messages.
+  To use in C++:
+  const char * debugBacktracking = std::getenv("BACKTRACKDEBUG");
+  if (debugBacktracking){
+    std::cout<<"Rey: the number of Inside-Out tracks is "<<nInsideOut<<"\n";
+    std::cout<<"Finn: the number of Outside-In tracks is "<<nOutsideIn<<"\n";
+  }
+  '''
+  os.environ["BACKTRACKDEBUG"] = "1"
+  #
   print " Hello, Max"
-
 include( "AthenaPython/iread_file.py" )
 
 if (getpass.getuser())=="woodsn":
@@ -83,11 +93,13 @@ InDetTrackSelectorTool = InDet__InDetTrackSelectionTool(name = "InDetTrackSelect
 ToolSvc += InDetTrackSelectorTool
 '''
 #This section should control TTST  7-12-16                                                        
-mode = "Back" #Set this to "Back" for backtracking
+mode = "FWD" #Set this to "Back" for backtracking
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import TrackTruthSelectionTool
 truthSelection = TrackTruthSelectionTool()
 if mode == "Back":
-  truthSelection.requireDecayBeforePixel = False
+  # max prod. vertex radius for secondaries [mm]
+  # < 0 corresponds to : do not require decay before pixel
+  truthSelection.maxProdVertRadius = -999.9 
   truthSelection.maxBarcode = -1
 
 ToolSvc += truthSelection
@@ -118,4 +130,4 @@ ServiceMgr.MessageSvc.OutputLevel = WARNING
 ServiceMgr.MessageSvc.defaultLimit = 10000
 theApp.EvtMax = -1
 if (getpass.getuser())=="sroe":
-  theApp.EvtMax = -1
+  theApp.EvtMax = 5

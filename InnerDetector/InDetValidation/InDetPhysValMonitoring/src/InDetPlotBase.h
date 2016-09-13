@@ -60,6 +60,7 @@ public:
   void fillHisto(TProfile *pTprofile, const float bin, const float weight );
   //
   void fillHisto(TH1 *pTh1, const float value);
+  void fillHisto(TH1 *pTh1, const float value,const float weight);
   //
   void fillHisto(TH2 *pTh2, const float xval, const float yval);
   //
