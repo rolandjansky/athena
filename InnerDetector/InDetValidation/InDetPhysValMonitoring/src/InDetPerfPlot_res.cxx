@@ -5,426 +5,436 @@
 /**
  * @file InDetPerfPlot_res.cxx
  * @author Max Baugh
-**/
+ **/
 
 #include "InDetPerfPlot_res.h"
 #include "xAODTracking/TrackingPrimitives.h"
 #include <vector>
+#include <utility>
+#include "TH1D.h"
+#include "TH2D.h"
 
 using namespace TMath;
 
-using std::string;
-using std::endl;
-using std::sqrt;
-using std::pair;
-using std::make_pair;
-
-InDetPerfPlot_res::InDetPerfPlot_res(InDetPlotBase* pParent, const std::string & sDir)  :InDetPlotBase(pParent, sDir), 
-   m_trackEtaBins(20),
-   m_etaMin(-2.5),
-   m_etaMax(2.5),
-   m_PtBins(20),
-   m_PtMin(400),
-   m_PtMax(10000),
-   log_mode("ON"),
-   m_meanbasePlots(NPARAMS),
-   m_meanPlots(NPARAMS),
-   m_mean_vs_ptbasePlots(NPARAMS),
-   m_mean_vs_ptPlots(NPARAMS),
-   m_resoPlots(NPARAMS),
-   m_resptPlots(NPARAMS),
-   m_pullPlots(NPARAMS),
-   m_pullbasePlots(NPARAMS),
-   m_pullmeanPlots(NPARAMS),
-   m_pullwidthPlots(NPARAMS),
-   m_paramNames{{"d0",1.0}, {"z0",1.5},{"phi",0.03}, {"theta",0.1},{"z0*sin(theta)",1.5},{"qOverP",0.4}}
-   {
+InDetPerfPlot_res::InDetPerfPlot_res(InDetPlotBase *pParent, const std::string &sDir)  : InDetPlotBase(pParent, sDir),
+  m_meanbasePlots(NPARAMS, nullptr),
+  m_meanbase_vs_eta_d0{},
+  m_meanbase_vs_eta_z0{},
+  m_meanbase_vs_eta_phi{},
+  m_meanbase_vs_eta_theta{},
+  m_meanbase_vs_eta_z0_sin_theta{},
+  m_meanbase_vs_eta_qopt{},
+  m_meanPlots(NPARAMS, nullptr),
+  m_resmean_vs_eta_d0{},
+  m_resmean_vs_eta_z0{},
+  m_resmean_vs_eta_phi{},
+  m_resmean_vs_eta_theta{},
+  m_resmean_vs_eta_z0_sin_theta{},
+  m_resmean_vs_eta_qopt{},
+  m_resoPlots(NPARAMS, nullptr),
+  m_reswidth_vs_eta_d0{},
+  m_reswidth_vs_eta_z0{},
+  m_reswidth_vs_eta_phi{},
+  m_reswidth_vs_eta_theta{},
+  m_reswidth_vs_eta_z0_sin_theta{},
+  m_reswidth_vs_eta_qopt{},										      
+  m_mean_vs_ptbasePlots(NPARAMS, nullptr),
+  m_base_vs_pt_d0{},
+  m_base_vs_pt_z0{},
+  m_base_vs_pt_phi{},
+  m_base_vs_pt_theta{},
+  m_base_vs_pt_z0_sin_theta{},
+  m_base_vs_pt_qopt{},
+  m_mean_vs_ptPlots(NPARAMS, nullptr),
+  m_resmean_vs_pt_d0{},
+  m_resmean_vs_pt_z0{},
+  m_resmean_vs_pt_phi{},
+  m_resmean_vs_pt_theta{},
+  m_resmean_vs_pt_z0_sin_theta{},
+  m_resmean_vs_pt_qopt{},
+  m_resptPlots(NPARAMS, nullptr),
+  m_reswidth_vs_pt_d0{},
+  m_reswidth_vs_pt_z0{},
+  m_reswidth_vs_pt_phi{},
+  m_reswidth_vs_pt_theta{},
+  m_reswidth_vs_pt_z0_sin_theta{},
+  m_reswidth_vs_pt_qopt{},
+  m_pullPlots(NPARAMS, nullptr),
+  m_pull_d0{},
+  m_pull_z0{},
+  m_pull_phi{},
+  m_pull_theta{},
+  m_pull_z0_sin_theta{},
+  m_pull_qopt{},
+  m_pullbasePlots(NPARAMS, nullptr),
+  m_pullbase_d0{},
+  m_pullbase_z0{},
+  m_pullbase_phi{},
+  m_pullbase_theta{},
+  m_pullbase_z0_sin_theta{},
+  m_pullbase_qopt{},
+  m_pullmeanPlots(NPARAMS, nullptr),
+  m_pullmean_d0{},
+  m_pullmean_z0{},
+  m_pullmean_phi{},
+  m_pullmean_theta{},
+  m_pullmean_z0_sin_theta{},
+  m_pullmean_qopt{},
+  m_pullwidthPlots(NPARAMS, nullptr),
+  m_pullwidth_d0{},
+  m_pullwidth_z0{},
+  m_pullwidth_phi{},
+  m_pullwidth_theta{},
+  m_pullwidth_z0_sin_theta{},
+  m_pullwidth_qopt{},
+  m_paramNames{"d0", "z0", "phi","theta","z0*sin(theta)","qopt"}
+{
 //
 }
 
 
-void InDetPerfPlot_res::initializePlots() {
-  const bool PrependDirectory(false); //What is this?  Why is it here?
-  //The original Pull script has 200 bins instead of only 20, is that important?
-  //Should the pull_widerange plots be kept as well?  Or are they superfluous?
-  typedef std::pair<float, float> Limits_t;
-  Limits_t allLimits = Limits_t(-5.0, 5.0);
-  int nPullBins(200); //number of bins specifically for the pull plots
-  int m_yBins(20);  //number of y bins for the TH2 plots
+void
+InDetPerfPlot_res::initializePlots() {
+  book(m_meanbase_vs_eta_d0,            "res_d0_vs_eta");
+  book(m_meanbase_vs_eta_z0,            "res_z0_vs_eta");
+  book(m_meanbase_vs_eta_phi,           "res_phi_vs_eta");
+  book(m_meanbase_vs_eta_theta,         "res_theta_vs_eta");
+  book(m_meanbase_vs_eta_z0_sin_theta,  "res_z0*sin(theta)_vs_eta");
+  book(m_meanbase_vs_eta_qopt,          "res_qopt_vs_eta");
 
-  //  double m_Pt_logmin = Log10(m_PtMin);
-  //  double m_Pt_logmax = Log10(m_PtMax);
+  m_meanbasePlots[0] = m_meanbase_vs_eta_d0;
+  m_meanbasePlots[1] = m_meanbase_vs_eta_z0;
+  m_meanbasePlots[2] = m_meanbase_vs_eta_phi;
+  m_meanbasePlots[3] = m_meanbase_vs_eta_theta;
+  m_meanbasePlots[4] = m_meanbase_vs_eta_z0_sin_theta;
+  m_meanbasePlots[5] = m_meanbase_vs_eta_qopt;
 
-  std::string dir = this->getDirectory();
-  //  std::cout << "Histo Directory " <<  dir  << endl;
+  book(m_resmean_vs_eta_d0,           "resmean_d0_vs_eta");
+  book(m_resmean_vs_eta_z0,           "resmean_z0_vs_eta");
+  book(m_resmean_vs_eta_phi,          "resmean_phi_vs_eta");
+  book(m_resmean_vs_eta_theta,        "resmean_theta_vs_eta");
+  book(m_resmean_vs_eta_z0_sin_theta, "resmean_z0*sin(theta)_vs_eta");
+  book(m_resmean_vs_eta_qopt,         "resmean_qopt_vs_eta");
 
-  for (unsigned int var(0); var != NPARAMS; ++var){
+  m_meanPlots[0] = m_resmean_vs_eta_d0;
+  m_meanPlots[1] = m_resmean_vs_eta_z0;
+  m_meanPlots[2] = m_resmean_vs_eta_phi;
+  m_meanPlots[3] = m_resmean_vs_eta_theta;
+  m_meanPlots[4] = m_resmean_vs_eta_z0_sin_theta;
+  m_meanPlots[5] = m_resmean_vs_eta_qopt;
 
-    std::string res_vs_etaName = formName(var,"res_vs_eta",dir);
-    std::string res_vs_etaTitle = formTitle(var, "res_vs_eta");
-    std::string resmean_vs_etaName = formName(var, "resmean_vs_eta",dir);
-    std::string resmean_vs_etaTitle = formTitle(var, "resmean_vs_eta");
-    std::string reswidth_vs_etaName = formName(var,"reswidth_vs_eta",dir);
-    std::string reswidth_vs_etaTitle = formTitle(var, "reswidth_vs_eta");
-    
-    std::string res_vs_ptName = formName(var, "res_vs_pt",dir);
-    std::string mptTitle = formTitle(var, "res_vs_pt");
-    std::string resmean_vs_ptName = formName(var, "resmean_vs_pt",dir);
-    std::string nptTitle = formTitle(var, "resmean_vs_pt");
-    std::string reswidth_vs_ptName = formName(var,"reswidth_vs_pt",dir);
-    std::string rptTitle = formTitle(var, "reswidth_vs_pt");
-    
-    std::string pullName = formName(var, "pull",dir);
-    std::string pullTitle = formTitle(var, "pull");
-    std::string pull_vs_etaName = formName(var, "pull_vs_eta",dir);
-    std::string pbTitle = formTitle(var, "pull_vs_eta");
-    std::string pullmean_vs_etaName = formName(var, "pullmean_vs_eta",dir);
-    std::string pmTitle = formTitle(var, "pullmean_vs_eta");
-    std::string pullwidth_vs_etaName = formName(var, "pullwidth_vs_eta",dir);
-    std::string pwTitle = formTitle(var, "pullwidth_vs_eta");
-    
-    TH2 * meanbaseHisto = Book2D(res_vs_etaName, res_vs_etaTitle, m_trackEtaBins, m_etaMin, m_etaMax, m_yBins, -m_paramNames.at(var).second, m_paramNames.at(var).second, PrependDirectory);
-    m_meanbasePlots[var] = meanbaseHisto;
-    TH1 * meanHisto = Book1D(resmean_vs_etaName, resmean_vs_etaTitle, m_trackEtaBins, m_etaMin, m_etaMax, PrependDirectory);
-    m_meanPlots[var] = meanHisto;
-    TH1 * rHisto = Book1D(reswidth_vs_etaName, reswidth_vs_etaTitle, m_trackEtaBins, m_etaMin, m_etaMax, PrependDirectory);
-    m_resoPlots[var] = rHisto;
+  book(m_reswidth_vs_eta_d0,           "reswidth_d0_vs_eta");
+  book(m_reswidth_vs_eta_z0,           "reswidth_z0_vs_eta");
+  book(m_reswidth_vs_eta_phi,          "reswidth_phi_vs_eta");
+  book(m_reswidth_vs_eta_theta,        "reswidth_theta_vs_eta");
+  book(m_reswidth_vs_eta_z0_sin_theta, "reswidth_z0*sin(theta)_vs_eta");
+  book(m_reswidth_vs_eta_qopt,         "reswidth_qopt_vs_eta");
 
-    double xMin(0),xMax(0);
-    if(log_mode == "ON"){
-      xMin = Log10(m_PtMin);
-      xMax = Log10(m_PtMax);
-    } else if(log_mode == "OFF"){
-      xMin = m_PtMin;
-      xMax = m_PtMax;
-    }
-    TH2 * meanPtbaseHisto = Book2D(res_vs_ptName, mptTitle, m_PtBins, xMin, xMax, m_yBins, -m_paramNames.at(var).second, m_paramNames.at(var).second, PrependDirectory);
-    m_mean_vs_ptbasePlots[var] = meanPtbaseHisto;
-    TH1 * meanPtHisto = Book1D(resmean_vs_ptName, nptTitle, m_PtBins, xMin, xMax, PrependDirectory);
-    m_mean_vs_ptPlots[var] = meanPtHisto;
-    TH1 * rptHisto = Book1D(reswidth_vs_ptName, rptTitle, m_PtBins, xMin, xMax, PrependDirectory);
-    m_resptPlots[var] = rptHisto;
+  m_resoPlots[0] = m_reswidth_vs_eta_d0;
+  m_resoPlots[1] = m_reswidth_vs_eta_z0;
+  m_resoPlots[2] = m_reswidth_vs_eta_phi;
+  m_resoPlots[3] = m_reswidth_vs_eta_theta;
+  m_resoPlots[4] = m_reswidth_vs_eta_z0_sin_theta;
+  m_resoPlots[5] = m_reswidth_vs_eta_qopt;
+
+  book(m_base_vs_pt_d0,           "res_d0_vs_pt");
+  book(m_base_vs_pt_z0,           "res_z0_vs_pt");
+  book(m_base_vs_pt_phi,          "res_phi_vs_pt");
+  book(m_base_vs_pt_theta,        "res_theta_vs_pt");
+  book(m_base_vs_pt_z0_sin_theta, "res_z0*sin(theta)_vs_pt");
+  book(m_base_vs_pt_qopt,         "res_qopt_vs_pt");
+
+  m_mean_vs_ptbasePlots[0] = m_base_vs_pt_d0;
+  m_mean_vs_ptbasePlots[1] = m_base_vs_pt_z0;
+  m_mean_vs_ptbasePlots[2] = m_base_vs_pt_phi;
+  m_mean_vs_ptbasePlots[3] = m_base_vs_pt_theta;
+  m_mean_vs_ptbasePlots[4] = m_base_vs_pt_z0_sin_theta;
+  m_mean_vs_ptbasePlots[5] = m_base_vs_pt_qopt;
+
+  book(m_resmean_vs_pt_d0,           "resmean_d0_vs_pt");
+  book(m_resmean_vs_pt_z0,           "resmean_z0_vs_pt");
+  book(m_resmean_vs_pt_phi,          "resmean_phi_vs_pt");
+  book(m_resmean_vs_pt_theta,        "resmean_theta_vs_pt");
+  book(m_resmean_vs_pt_z0_sin_theta, "resmean_z0*sin(theta)_vs_pt");
+  book(m_resmean_vs_pt_qopt,         "resmean_qopt_vs_pt");
+
+  m_mean_vs_ptPlots[0] = m_resmean_vs_pt_d0;
+  m_mean_vs_ptPlots[1] = m_resmean_vs_pt_z0;
+  m_mean_vs_ptPlots[2] = m_resmean_vs_pt_phi;
+  m_mean_vs_ptPlots[3] = m_resmean_vs_pt_theta;
+  m_mean_vs_ptPlots[4] = m_resmean_vs_pt_z0_sin_theta;
+  m_mean_vs_ptPlots[5] = m_resmean_vs_pt_qopt;
+
+  book(m_reswidth_vs_pt_d0,           "reswidth_d0_vs_pt");
+  book(m_reswidth_vs_pt_z0,           "reswidth_z0_vs_pt");
+  book(m_reswidth_vs_pt_phi,          "reswidth_phi_vs_pt");
+  book(m_reswidth_vs_pt_theta,        "reswidth_theta_vs_pt");
+  book(m_reswidth_vs_pt_z0_sin_theta, "reswidth_z0*sin(theta)_vs_pt");
+  book(m_reswidth_vs_pt_qopt,         "reswidth_qopt_vs_pt");
+
+  m_resptPlots[0] = m_reswidth_vs_pt_d0;
+  m_resptPlots[1] = m_reswidth_vs_pt_z0;
+  m_resptPlots[2] = m_reswidth_vs_pt_phi;
+  m_resptPlots[3] = m_reswidth_vs_pt_theta;
+  m_resptPlots[4] = m_reswidth_vs_pt_z0_sin_theta;
+  m_resptPlots[5] = m_reswidth_vs_pt_qopt;
+
+  book(m_pullbase_d0,           "pull_d0_vs_eta");
+  book(m_pullbase_z0,           "pull_z0_vs_eta");
+  book(m_pullbase_phi,          "pull_phi_vs_eta");
+  book(m_pullbase_theta,        "pull_theta_vs_eta");
+  book(m_pullbase_z0_sin_theta, "pull_z0*sin(theta)_vs_eta");
+  book(m_pullbase_qopt,         "pull_qopt_vs_eta");
+
+  m_pullbasePlots[0] = m_pullbase_d0;
+  m_pullbasePlots[1] = m_pullbase_z0;
+  m_pullbasePlots[2] = m_pullbase_phi;
+  m_pullbasePlots[3] = m_pullbase_theta;
+  m_pullbasePlots[4] = m_pullbase_z0_sin_theta;
+  m_pullbasePlots[5] = m_pullbase_qopt;
+
+  book(m_pullmean_d0,           "pullmean_d0_vs_eta");
+  book(m_pullmean_z0,           "pullmean_z0_vs_eta");
+  book(m_pullmean_phi,          "pullmean_phi_vs_eta");
+  book(m_pullmean_theta,        "pullmean_theta_vs_eta");
+  book(m_pullmean_z0_sin_theta, "pullmean_z0*sin(theta)_vs_eta");
+  book(m_pullmean_qopt,         "pullmean_qopt_vs_eta");
+
+  m_pullmeanPlots[0] = m_pullmean_d0;
+  m_pullmeanPlots[1] = m_pullmean_z0;
+  m_pullmeanPlots[2] = m_pullmean_phi;
+  m_pullmeanPlots[3] = m_pullmean_theta;
+  m_pullmeanPlots[4] = m_pullmean_z0_sin_theta;
+  m_pullmeanPlots[5] = m_pullmean_qopt;
+
+  book(m_pullwidth_d0,           "pullwidth_d0_vs_eta");
+  book(m_pullwidth_z0,           "pullwidth_z0_vs_eta");
+  book(m_pullwidth_phi,          "pullwidth_phi_vs_eta");
+  book(m_pullwidth_theta,        "pullwidth_theta_vs_eta");
+  book(m_pullwidth_z0_sin_theta, "pullwidth_z0*sin(theta)_vs_eta");
+  book(m_pullwidth_qopt,         "pullwidth_qopt_vs_eta");
+
+  m_pullwidthPlots[0] = m_pullwidth_d0;
+  m_pullwidthPlots[1] = m_pullwidth_z0;
+  m_pullwidthPlots[2] = m_pullwidth_phi;
+  m_pullwidthPlots[3] = m_pullwidth_theta;
+  m_pullwidthPlots[4] = m_pullwidth_z0_sin_theta;
+  m_pullwidthPlots[5] = m_pullwidth_qopt;
+
+  book(m_pull_d0,           "pull_d0");
+  book(m_pull_z0,           "pull_z0");
+  book(m_pull_phi,          "pull_phi");
+  book(m_pull_theta,        "pull_theta");
+  book(m_pull_z0_sin_theta, "pull_z0_sin_theta");
+  book(m_pull_qopt,         "pull_qopt");
   
-    TH1 * pHisto = Book1D(pullName, pullTitle, nPullBins, allLimits.first, allLimits.second, PrependDirectory);
-    m_pullPlots[var] = pHisto;
-    
-    TH2 * pbHisto = Book2D(pull_vs_etaName, pbTitle, m_trackEtaBins, m_etaMin, m_etaMax, m_yBins, allLimits.first, allLimits.second, PrependDirectory);
-    m_pullbasePlots[var] = pbHisto;
-    TH1 * pmHisto = Book1D(pullmean_vs_etaName, pmTitle, m_trackEtaBins, m_etaMin, m_etaMax, PrependDirectory);
-    m_pullmeanPlots[var] = pmHisto;    
-    TH1 * pwHisto = Book1D(pullwidth_vs_etaName, pwTitle, m_trackEtaBins, m_etaMin, m_etaMax, PrependDirectory);
-    m_pullwidthPlots[var] = pwHisto;    
-  }
+  m_pullPlots[0] = m_pull_d0;
+  m_pullPlots[1] = m_pull_z0;
+  m_pullPlots[2] = m_pull_phi;
+  m_pullPlots[3] = m_pull_theta;
+  m_pullPlots[4] = m_pull_z0_sin_theta;
+  m_pullPlots[5] = m_pull_qopt;  
 }
 
-void InDetPerfPlot_res::fill(const xAOD::TrackParticle& trkprt, const xAOD::TruthParticle& truthprt) {
-  float eta = trkprt.eta();
-  float pt = trkprt.pt();
+void
+InDetPerfPlot_res::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &truthprt) {
+  double truth_eta = truthprt.eta();  // eta of the truthParticle
+  double truth_pt = truthprt.pt();    // pt of the truthParticle
+  double log_trupt = Log10(truth_pt) - 3.0;
 
-  double log_pt = Log10(trkprt.pt());
+  float truth_charge = 1;
 
-  float trkParticleParams[NPARAMS];
+  double trkParticleParams[NPARAMS];
+
   trkParticleParams[D0] = trkprt.d0();
   trkParticleParams[Z0] = trkprt.z0();
   trkParticleParams[PHI] = trkprt.phi0();
   trkParticleParams[THETA] = trkprt.theta();
-  trkParticleParams[Z0SIN_THETA] = trkprt.z0() * std::sin(trkprt.theta()); //This should be it
-  trkParticleParams[QOVERP] = trkprt.qOverP();
-   
-  for (unsigned int var(0);var!=NPARAMS;++var){
-    const string  varName = m_paramNames.at(var).first;
-    const string  errName = varName + std::string("err");
-    float trackParameter = trkParticleParams[var];                      //needed for all of them
+  trkParticleParams[Z0SIN_THETA] = trkprt.z0() * std::sin(trkprt.theta());
+  // trkParticleParams[QOVERP] = trkprt.qOverP();
+  trkParticleParams[QOPT] = (trkprt.qOverP()) * 1000. / sin(trkprt.theta()); // This switches it to the "qOverPt" PRTT
+                                                                             // uses
+
+  if (trkParticleParams[PHI] < 0) {
+    trkParticleParams[PHI] += 2 * CLHEP::pi;  // Add in the 2*pi correction for negative phi, as in PRTT
+  }
+  for (unsigned int var(0); var != NPARAMS; ++var) {
+    const std::string varName = m_paramNames.at(var);
+    const std::string errName = varName + std::string("err");
+    float trackParameter = trkParticleParams[var];                      // needed for all of them
     bool truthIsAvailable = truthprt.isAvailable<float>(varName);
+    if (varName == "qopt") {
+      truthIsAvailable = truthprt.isAvailable<float>("qOverP");                      // need to get q/pt to actually
+                                                                                     // fill
+    }
     bool sigmaIsAvailable = trkprt.isAvailable<float>(errName);
-
-    //    std::cout << "Parameter: " << varName << " " << trackParameter << " " << truthIsAvailable << " " << sigmaIsAvailable << endl;
-
-    if(var == Z0SIN_THETA){
-      float truthParameter = truthprt.auxdata< float >("z0") * std::sin(truthprt.auxdata< float >("theta"));
-     
-      (m_meanbasePlots[var])->Fill(eta, (trackParameter - truthParameter));
-      if(log_mode == "ON"){
-	(m_mean_vs_ptbasePlots[var])->Fill(log_pt, (trackParameter - truthParameter));
-      }else if(log_mode == "OFF"){
-	(m_mean_vs_ptbasePlots[var])->Fill(pt, (trackParameter - truthParameter));
+    if (varName == "z0*sin(theta)") {
+      truthIsAvailable = (truthprt.isAvailable<float>("z0") and truthprt.isAvailable<float>("theta"));
+      sigmaIsAvailable = (trkprt.isAvailable<float>("z0err") and trkprt.isAvailable<float>("thetaerr"));
+      if (truthIsAvailable and sigmaIsAvailable){
+      //ATH_MSG_INFO("yeay! truth and sigma are available");
       }
-      
-      if(trkprt.isAvailable<float>("z0err") and trkprt.isAvailable<float>("thetaerr")){
-	float z0_sigma = (trkprt.auxdata< float >("z0err"));
-	float theta_sigma = (trkprt.auxdata< float >("thetaerr"));
-	float z0_sin_theta_sigma = sqrt( pow(z0_sigma * std::sin(trkprt.theta()), 2) + pow(trkprt.z0() * theta_sigma * std::cos(trkprt.theta()), 2));
-	if(m_pullPlots[var]){
-          (m_pullPlots[var])->Fill( (trackParameter - truthParameter) / z0_sin_theta_sigma);
-          (m_pullbasePlots[var])->Fill(eta, (trackParameter - truthParameter)/z0_sin_theta_sigma);
+    }
+    if (truthIsAvailable) {  // get the corresponding truth variable, only Fill if it exists
+      float truthParameter = 0;
+      float deviation(0);
+      if (m_meanbasePlots[var]) {
+        if (var == QOPT) {
+          truthParameter = (truthprt.auxdata< float >("qOverP")) * 1000. / sin(truthprt.auxdata< float >("theta"));
+          if (truthParameter < 0) {
+            truth_charge = -1;
+          }
+          deviation = (trackParameter - truthParameter) * fabs(truth_pt / 1000.) * truth_charge;  // Used to match PRTT
+                                                                                                  // version
+        }else if (var == Z0SIN_THETA) {
+          truthParameter = truthprt.auxdata< float >("z0") * std::sin(truthprt.auxdata< float >("theta"));
+          deviation = trackParameter - truthParameter;
+        }else {
+          truthParameter = (truthprt.auxdata< float >(varName));
+          if ((var == PHI)and(truthParameter < 0)) {
+            truthParameter += 2 * CLHEP::pi; // add in 2*pi correction for negative phi, as in PRTT
+          }
+          deviation = trackParameter - truthParameter;
+        }
+        fillHisto(m_meanbasePlots[var],truth_eta, deviation);
+	      fillHisto(m_mean_vs_ptbasePlots[var],log_trupt, deviation);
+	      //ATH_MSG_INFO("Filling "<<varName<<" "<<truth_eta<<" "<<deviation);
+      }
+      if (sigmaIsAvailable) {
+        //ATH_MSG_INFO("sigma exists for "<<varName);
+        float sigma(0);
+        if (var == Z0SIN_THETA) {
+          float z0_sigma = (trkprt.auxdata< float >("z0err"));
+          float theta_sigma = (trkprt.auxdata< float >("thetaerr"));
+          const float theta = trkprt.theta();
+          const float cosTheta = std::cos(theta);
+          const float sinTheta = std::sin(theta);
+          const float z0 = trkprt.z0();
+          const float sigmaSq = ((z0_sigma * sinTheta) * (z0_sigma * sinTheta)) +
+                                ((z0 * theta_sigma * cosTheta) * (z0 * theta_sigma * cosTheta));
+          sigma = std::sqrt(sigmaSq);
+        } else {
+          sigma = (trkprt.auxdata< float >(errName));
+        }
+        if (m_pullPlots[var]) {
+          float pull(0);
+          if (var == QOPT) {
+            pull = ((trackParameter - truthParameter) * truth_charge / sigma); // used to match PRTT version
+          }else {
+            pull = ((trackParameter - truthParameter) / sigma);
+          }
+          fillHisto(m_pullPlots[var],pull);
+          fillHisto(m_pullbasePlots[var],truth_eta, pull);
+          //ATH_MSG_INFO("Filling "<<varName<<" "<<truth_eta<<" "<<pull);
         }
       }
-    }
-
-    if (truthIsAvailable){   //get the corresponding truth variable, only Fill if it exists
-      float truthParameter = (truthprt.auxdata< float >(varName));
-      if(m_meanbasePlots[var]){
-	if(var == QOVERP){
-	  (m_meanbasePlots[var])->Fill(eta, 1.0 - (truthParameter/trackParameter));
-	  if(log_mode == "ON"){
-	    (m_mean_vs_ptbasePlots[var])->Fill(log_pt, (trackParameter - truthParameter)); // ??? I'M NOT SURE ABOUT THIS, INVESTIGATE!!!
-	  }else if(log_mode == "OFF"){
-	    (m_mean_vs_ptbasePlots[var])->Fill(pt, 1.0 - (truthParameter/trackParameter));
-	  }
-	  
-	  if(trkprt.isAvailable<float>("pterr")){
-	    float pt_sigma = (trkprt.auxdata< float >("pterr"));  //This isn't right, I'm not sure how to get the actual error on Pt, fix later
-	    float q_over_pt_sigma = truthParameter * (pt_sigma/pt);
-	    if(m_pullPlots[var]){
-	      (m_pullPlots[var])->Fill( (trackParameter - truthParameter) / q_over_pt_sigma);
-	      (m_pullbasePlots[var])->Fill(eta, (trackParameter - truthParameter)/q_over_pt_sigma);
-	    }
-	  }
-	  
-
-
-	}else{
-	  (m_meanbasePlots[var])->Fill(eta, (trackParameter - truthParameter));
-	  if(log_mode == "ON"){
-	    (m_mean_vs_ptbasePlots[var])->Fill(log_pt, (trackParameter - truthParameter));
-	  }else if(log_mode == "OFF"){
-	    (m_mean_vs_ptbasePlots[var])->Fill(pt, (trackParameter - truthParameter));
-	  }
-	}
-      }
-
-      if(sigmaIsAvailable){
-	float sigma = (trkprt.auxdata< float >(errName));
-	if(m_pullPlots[var]){
-	  (m_pullPlots[var])->Fill( (trackParameter - truthParameter) / sigma);
-	  (m_pullbasePlots[var])->Fill(eta, (trackParameter - truthParameter)/sigma);
-	}
-      }
-
-    }
+    }// REAL END OF IF(TRUTHISAVAILABLE) STATEMENT
   }
 }
 
-
-void InDetPerfPlot_res::finalizePlots(){
-  string width_method = "iterative_convergence";      //switch for changing between the iterative convergence & gaussian fit strategies
-
-  for (unsigned int var(0);var != NPARAMS; ++var){
-    double aymin = 0;
-    double aymax = 0;
-
-    for(unsigned int j=1; j<=m_trackEtaBins; j++){
-      //Create dummy histo w/ content from TH2 in relevant eta bin
-      TH1D * temp = m_meanbasePlots[var]->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", j), j, j);
-      TH1D * temp_pull = m_pullbasePlots[var]->ProjectionY(Form("%s_projy_bin%d", "Pull_Histo", j), j, j);
-      double mean(0);
-      double mean_error(0);
-      double RMS_error(0);
-      if( width_method == "iterative_convergence" ){
-
-        double tempRes_RMS = 0;
-        double newRes_RMS = 10;
-        while(fabs(newRes_RMS - tempRes_RMS) > 0.01){
-          tempRes_RMS = temp->GetRMS();
-          aymin = (temp->GetMean()) - 5*tempRes_RMS;
-          aymax = (temp->GetMean()) + 5*tempRes_RMS;
-          temp->SetAxisRange(aymin, aymax);
-          mean = temp->GetMean();
-          newRes_RMS = temp->GetRMS();
+void
+InDetPerfPlot_res::Refinement(TH1D *temp, std::string width, int var, int j, const std::vector<TH1 *> &tvec,
+                              const std::vector<TH1 *> &rvec) {
+  if (temp->GetXaxis()->TestBit(TAxis::kAxisRange)) {
+    // remove range if set previously
+    temp->GetXaxis()->SetRange();
+    temp->ResetStats();
+  }
+  double mean(0.0), mean_error(0.0), prim_RMS(0.0), sec_RMS(0.0), RMS_error(0.0);
+  if (temp->GetEntries() != 0.0) {
+    mean = temp->GetMean();
+    prim_RMS = temp->GetRMS();
+    mean_error = temp->GetMeanError();
+    RMS_error = temp->GetRMSError();
+    if (width == "iterative_convergence") {
+      sec_RMS = prim_RMS + 1.0;
+      while (fabs(sec_RMS - prim_RMS) > 0.001) {
+        prim_RMS = temp->GetRMS();
+        double aymin = -3.0 * prim_RMS;
+        double aymax = 3.0 * prim_RMS;
+        if (aymin < temp->GetBinLowEdge(1)) {
+          aymin = temp->GetBinLowEdge(1);
         }
-        mean_error = temp->GetMeanError();       
-        RMS_error = temp->GetRMSError();      
-        (m_meanPlots[var])->SetBinContent(j, mean);
-        (m_meanPlots[var])->SetBinError(j, mean_error);
-        (m_resoPlots[var])->SetBinContent(j, newRes_RMS);
-        (m_resoPlots[var])->SetBinError(j, RMS_error);
-
-        double tempPull_RMS = 0;
-        double newPull_RMS = 10;
-        while(fabs(newPull_RMS - tempPull_RMS) > 0.01){                                 
-	  tempPull_RMS = temp_pull->GetRMS();
-	  aymin = (temp_pull->GetMean()) - 5*tempPull_RMS;
-	  aymax = (temp_pull->GetMean()) + 5*tempPull_RMS;
-	  temp_pull->SetAxisRange(aymin, aymax);
-	  mean = temp_pull->GetMean();
-	  newPull_RMS = temp_pull->GetRMS();
+        if (aymax > temp->GetBinCenter(temp->GetNbinsX())) {
+          aymax = temp->GetBinCenter(temp->GetNbinsX());
         }
-        mean_error = temp_pull->GetMeanError();
-        RMS_error = temp_pull->GetRMSError(); 
-        (m_pullmeanPlots[var])->SetBinContent(j, mean);
-        (m_pullmeanPlots[var])->SetBinError(j, mean_error);	
-        (m_pullwidthPlots[var])->SetBinContent(j, newPull_RMS);
-        (m_pullwidthPlots[var])->SetBinError(j, RMS_error);	
-
-        double content = m_pullwidthPlots[var]->GetBinContent(j);
-        ATH_MSG_DEBUG("Pull Width: "<<newPull_RMS<<"  Histo Content: "<<content);
-
-      }else if( width_method == "gaussian" ){
-	double sigma(0);
-	if(temp->GetEntries() != 0){
-	  mean = temp->Fit("gaus", "QS0")->Parameter(1);
-	  mean_error = temp->GetMeanError();
-	  sigma = temp->Fit("gaus", "QS0")->Parameter(2);
-	  RMS_error = temp->GetRMSError();
-	  (m_meanPlots[var])->SetBinContent(j, mean);
-	  (m_meanPlots[var])->SetBinError(j, mean_error);
-	  (m_resoPlots[var])->SetBinContent(j, sigma);
-	  (m_resoPlots[var])->SetBinError(j, RMS_error);
-	}else{
-	  (m_meanPlots[var])->SetBinContent(j, mean);
-	  (m_resoPlots[var])->SetBinContent(j, sigma);
-	}
-	double width(0);
-	if(temp_pull->GetEntries() != 0){width = temp_pull->Fit("gaus", "QS0")->Parameter(2);}
-	(m_pullwidthPlots[var])->SetBinContent(j, width);
+        temp->SetAxisRange(aymin, aymax);
+        mean = temp->GetMean();
+        sec_RMS = temp->GetRMS();
       }
-    }
-
-    for (unsigned int i=1; i<=m_PtBins; i++){
-      TH1D * temp = m_mean_vs_ptbasePlots[var]->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", i), i , i);
-      double mean(0);
-      double mean_error(0);
-      double RMS_error(0);
-      if(width_method == "iterative_convergence"){
-
-	double temp_RMS = 0;
-	double new_RMS = 10;
-	while(fabs(new_RMS - temp_RMS) > 0.01){
-	  temp_RMS = temp->GetRMS();
-	  aymin = (temp->GetMean()) - 5*temp_RMS;
-	  aymax = (temp->GetMean()) + 5*temp_RMS;
-	  temp->SetAxisRange(aymin, aymax);
-	  mean = temp->GetMean();
-	  new_RMS = temp->GetRMS();
-	}
-	mean_error = temp->GetMeanError();
-	RMS_error = temp->GetRMSError();
-	(m_mean_vs_ptPlots[var])->SetBinContent(i, mean);
-	(m_mean_vs_ptPlots[var])->SetBinError(i, mean_error);
-	(m_resptPlots[var])->SetBinContent(i, new_RMS);
-	(m_resptPlots[var])->SetBinError(i, RMS_error);
-
-      }else if(width_method == "gaussian"){
-	double sigma(0);
-	if(temp->GetEntries() != 0){
-	  mean = temp->Fit("gaus", "QS0")->Parameter(1);
-	  sigma = temp->Fit("gaus", "QS0")->Parameter(2);
-	  mean_error = temp->GetMeanError();
-	  RMS_error = temp->GetRMSError();
-
-	  (m_mean_vs_ptPlots[var])->SetBinContent(i, mean);
-	  (m_mean_vs_ptPlots[var])->SetBinError(i, mean_error);
-	  (m_resptPlots[var])->SetBinContent(i, sigma);
-	  (m_resptPlots[var])->SetBinError(i, RMS_error);
-	}else{
-	  (m_mean_vs_ptPlots[var])->SetBinContent(i, mean);
-	  (m_resptPlots[var])->SetBinContent(i, sigma);
-	}
+      mean_error = temp->GetMeanError();
+      RMS_error = temp->GetRMSError();
+    }else if (width == "gaussian") {
+      TFitResultPtr r = temp->Fit("gaus", "QS0");
+      if (r.Get() and r->Status() % 1000 == 0) {
+        mean = r->Parameter(1);
+        mean_error = r->ParError(1);
+        sec_RMS = r->Parameter(2);
+        RMS_error = r->ParError(2);
+      }
+    }else if (width == "fusion") {
+      sec_RMS = prim_RMS + 1.0;
+      double aymin = temp->GetBinLowEdge(1);
+      double aymax = temp->GetBinCenter(temp->GetNbinsX());
+      while ((fabs(sec_RMS - prim_RMS) > 0.001)) {
+        prim_RMS = temp->GetRMS();
+        aymin = -3.0 * prim_RMS;
+        aymax = 3.0 * prim_RMS;
+        if (aymin < temp->GetBinLowEdge(1)) {
+          aymin = temp->GetBinLowEdge(1);
+        }
+        if (aymax > temp->GetBinCenter(temp->GetNbinsX())) {
+          aymax = temp->GetBinCenter(temp->GetNbinsX());
+        }
+        temp->SetAxisRange(aymin, aymax);
+        mean = temp->GetMean();
+        sec_RMS = temp->GetRMS();
+      }
+      TFitResultPtr r = temp->Fit("gaus", "QS0", "", aymin, aymax);
+      if (r.Get() and r->Status() % 1000 == 0) {
+        mean = r->Parameter(1);
+        mean_error = r->ParError(1);
+        sec_RMS = r->Parameter(2);
+        RMS_error = r->ParError(2);
       }
     }
   }
+  (tvec[var])->SetBinContent(j, mean);
+  (tvec[var])->SetBinError(j, mean_error);
+  (rvec[var])->SetBinContent(j, sec_RMS);
+  (rvec[var])->SetBinError(j, RMS_error);
 }
 
-
-std::string
-InDetPerfPlot_res::formName(const unsigned int p, std::string type, const std::string dir) const{
-
-  std::string hdir = " ";
-
-  if (dir == "IDPerformanceMon/Tracks/SelectedGoodTracks"){hdir = "GoodTrks_";}
-  else if (dir == "IDPerformanceMon/Tracks/SelectedGoodJetTracks"){hdir = "GoodJetTrks_";}
-  else if (dir == "IDPerformanceMon/Tracks/SelectedGoodJetHighPtTracks"){hdir = "GoodJetHighPtTrks_";}
-  else { std::cout << "Unidentified Dir = " << dir << endl;};
-    
-  // to be removed when postprocessHistos script is ready for extended histo names
-  hdir = "";
-
-  if (type == "res_vs_eta"){
-    return hdir+std::string("res_")+m_paramNames.at(p).first +std::string("_vs_eta");
-  }else if(type == "resmean_vs_eta"){
-    return hdir+std::string("resmean_")+m_paramNames.at(p).first +std::string("_vs_eta");
-  }else if(type == "reswidth_vs_eta"){
-    return hdir+std::string("reswidth_")+m_paramNames.at(p).first +std::string("_vs_eta");
-  }else if((type == "res_vs_pt") and (log_mode == "OFF")){
-    return hdir+std::string("res_")+m_paramNames.at(p).first +std::string("_vs_pt");
-  }else if((type == "res_vs_pt") and (log_mode == "ON")){
-    return hdir+std::string("res_")+m_paramNames.at(p).first +std::string("_vs_logpt");
-  }else if((type == "resmean_vs_pt") and (log_mode == "OFF")){
-    return hdir+std::string("resmean_")+m_paramNames.at(p).first +std::string("_vs_pt");
-  }else if((type == "resmean_vs_pt") and (log_mode == "ON")){
-    return hdir+std::string("resmean_")+m_paramNames.at(p).first +std::string("_vs_logpt");
-  }else if((type == "reswidth_vs_pt") and (log_mode == "OFF")){
-    return hdir+std::string("reswidth_")+m_paramNames.at(p).first +std::string("_vs_pt");
-  }else if((type == "reswidth_vs_pt") and (log_mode == "ON")){
-    return hdir+std::string("reswidth_")+m_paramNames.at(p).first +std::string("_vs_logpt");
-  }else if(type == "pull"){
-    return hdir+std::string("pull_")+m_paramNames.at(p).first;
-  }else if(type == "pull_vs_eta"){
-    return hdir+std::string("pull_")+m_paramNames.at(p).first +std::string("_vs_eta");
-  }else if(type == "pullmean_vs_eta"){
-    return hdir+std::string("pullmean_")+m_paramNames.at(p).first +std::string("_vs_eta");
-  }else if(type == "pullwidth_vs_eta"){
-    return hdir+std::string("pullwidth_")+m_paramNames.at(p).first +std::string("_vs_eta");
+void
+InDetPerfPlot_res::finalizePlots() {
+  // switch for changing between iterative convergence & gaussian fit methods
+  // iterative convergence with 3*RMS works better than 5*RMS
+  std::string width_method = "iterative_convergence";
+  std::string pull_width_method = "gaussian";
+  unsigned int ptBins(0);
+  if (m_mean_vs_ptbasePlots[0]) {
+    ptBins = m_mean_vs_ptPlots[0]->GetNbinsX();
+  } else {
+    ATH_MSG_WARNING("InDetPerfPlot_res::finalizePlots(): null pointer for histogram, likely it wasn't booked, possibly due to missing histogram definition");
+    return;
   }
-  return "";
-}
-
-
-std::string
-InDetPerfPlot_res::formTitle(const unsigned int param, std::string type) const{
-
-  std::string titlePrefix("");
-  std::string titleLeft[NPARAMS] = {"d_{0}: ", "z_{0}: ", "#phi: ", "#theta:", "z_{0}*sin(#theta): ", "q/p: "};
-  std::string titleRight[NPARAMS] = {"","","","","",""}; 
-  std::string titlePostfix("");
-
-  //  std::cout << "Type : " << type << endl;
-
-  if((type == "res_vs_eta") || (type == "res_vs_pt") || (type == "resmean_vs_eta") || (type == "resmean_vs_pt")){
-    titleRight[0] = "(d^{rec}_{0} - d^{tru}_{0})";
-    titleRight[1] = "(z^{rec}_{0} - z^{tru}_{0})";
-    titleRight[2] = "(#phi^{rec} - #phi^{tru})";
-    titleRight[3] = "(#theta^{rec} - #theta^{tru})";
-    titleRight[4] = "(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})";
-    titleRight[5] = "1  - ((q/p)^{rec}/(q/p)^{tru})";
-
-    if((type == "res_vs_eta") || (type == "res_vs_pt")){ 
-      titlePrefix = "Residual "; 
-    }else if((type == "resmean_vs_eta") || (type == "resmean_vs_pt")){
-      titlePrefix = "Residual mean ";}
-
-  }else if((type == "reswidth_vs_eta") || (type == "reswidth_vs_pt")){
-    titleRight[0] = "#sigma(d^{rec}_{0} - d^{tru}_{0})";
-    titleRight[1] = "#sigma(z^{rec}_{0} - z^{tru}_{0})";
-    titleRight[2] = "#sigma(#phi^{rec} - #phi^{tru})";
-    titleRight[3] = "#sigma(#theta^{rec} - #theta^{tru})";
-    titleRight[4] = "#sigma(z_{0}*sin(#theta)^{rec} - z_{0}*sin(#theta)^{tru})";
-    titleRight[5] = "(1 - (q/p)^{tru}/(q/p)^{rec})";
-    
-    titlePrefix = "Residual width ";
-  }else if((type == "pull") || (type == "pull_vs_eta") || (type == "pullwidth_vs_eta") || (type == "pullmean_vs_eta")){
-    titleRight[0] = "(d^{rec}_{0} - d^{tru}_{0})/#sigma_{d_{0}}";
-    titleRight[1] = "(z^{rec}_{0} - z^{tru}_{0})/#sigma_{z_{0}}";
-    titleRight[2] = "(#phi^{rec} - #phi^{tru})/#sigma_{#phi}";
-    titleRight[3] = "(#theta^{rec} - #theta^{tru})/#sigma_{#theta}";
-    titleRight[4] = "(z^{rec}_{0}*sin(#theta^{rec}) - z^{tru}_{0}*sin(#theta^{tru})/#sigma_{z_{0}*sin(#theta)}"; //???
-    titleRight[5] = "((q/p)^{rec} - (q/p)^{tru})/#sigma_{q/p}";
-
-    if((type == "pull_vs_eta") || (type == "pull")){ 
-      titlePrefix = "Pull ";
-    } else if (type == "pullmean_vs_eta"){
-      titlePrefix = "Pull mean ";
-    } else if (type == "pullwidth_vs_eta"){
-      titlePrefix = "Pull width ";
-    }
-  }     
-
-  if((type == "res_vs_eta") || (type == "resmean_vs_eta") || (type == "reswidth_vs_eta") || (type == "pull_vs_eta") || (type == "pullwidth_vs_eta")) titlePostfix = " vs #eta";
-  if(log_mode == "ON"){
-    if((type == "res_vs_pt") || (type == "resmean_vs_pt") || (type == "reswidth_vs_pt")) titlePostfix = " vs log(p_{T})";} else {
-    if((type == "res_vs_pt") || (type == "resmean_vs_pt") || (type == "reswidth_vs_pt")) titlePostfix = " vs p_{T}";}
-    
-  //  std::cout << "varName " << titlePrefix << " | " << titleLeft[param] << " | " << titleRight[param] << endl;
-
-  return titlePrefix + titleLeft[param] + titleRight[param] + titlePostfix;
+  for (unsigned int var(0); var != NPARAMS; ++var) {
+    if (m_meanPlots[var]){
+      unsigned int etaBins = m_meanPlots[var]->GetNbinsX();
+      auto & meanbasePlot = m_meanbasePlots[var];
+      auto & pullbasePlot = m_pullbasePlots[var];
+      for (unsigned int j = 1; j <= etaBins; j++) {
+        // Create dummy histo w/ content from TH2 in relevant eta bin
+        TH1D *temp = meanbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", j), j, j);
+        TH1D *temp_pull = pullbasePlot->ProjectionY(Form("%s_projy_bin%d", "Pull_Histo", j), j, j);
+        Refinement(temp, width_method, var, j, m_meanPlots, m_resoPlots);
+        Refinement(temp_pull, pull_width_method, var, j, m_pullmeanPlots, m_pullwidthPlots);
+      }
+      auto & mean_vs_ptbasePlot = m_mean_vs_ptbasePlots[var];
+      for (unsigned int i = 1; i <= ptBins; i++) {
+        TH1D *temp = mean_vs_ptbasePlot->ProjectionY(Form("%s_projy_bin%d", "Big_Histo", i), i, i);
+        Refinement(temp, width_method, var, i, m_mean_vs_ptPlots, m_resptPlots);
+      }
+    } 
+  }
 }

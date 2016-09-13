@@ -40,9 +40,11 @@ struct SingleHistogramDefinition{
     bool empty() const;
     std::string str() const;
     bool validType() const;
+    bool isValid() const;
     std::string stringIndex() const;
     static std::string stringIndex(const std::string & thisname, const std::string & thisfolder);
-private:
+    std::string titleDigest() const;
+
     bool m_empty;
 };
 
