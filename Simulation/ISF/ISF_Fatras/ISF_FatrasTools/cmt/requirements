@@ -20,7 +20,7 @@ use ISF_FatrasInterfaces     ISF_FatrasInterfaces-*    Simulation/ISF/ISF_Fatras
 use ISF_Interfaces           ISF_Interfaces-*          Simulation/ISF/ISF_Core 
  
 ########## Barcode #############################################################
-use BarcodeInterfaces        BarcodeInterfaces-*       Simulation/Barcode
+use BarcodeEvent             BarcodeEvent-*            Simulation/Barcode
 
 ########## Tracking ############################################################
 use TrkDetDescrUtils         TrkDetDescrUtils-*        Tracking/TrkDetDescr

@@ -24,7 +24,7 @@
 // Fatras
 #include "ISF_FatrasInterfaces/IPhotonConversionTool.h"
 // Barcode
-#include "BarcodeInterfaces/PhysicsProcessCode.h"
+#include "BarcodeEvent/PhysicsProcessCode.h"
 
 class TTree;
 
