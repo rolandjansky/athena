@@ -134,6 +134,14 @@ InDetPlotBase::fillHisto(TH1 *pTh1, const float value){
     pTh1->Fill(value);
   }
 }
+
+void
+InDetPlotBase::fillHisto(TH1 *pTh1, const float value,const float weight){
+  if (pTh1 and validArguments(value)) {
+    pTh1->Fill(value,weight);
+  }
+}
+
 //
 void 
 InDetPlotBase::fillHisto(TH2 *pTh2, const float xval, const float yval){

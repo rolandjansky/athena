@@ -150,13 +150,90 @@
   <y title="Fake Rate" lo="0" hi="100"/>
 </h>
 <h id="track_fakerate_vs_d0" type="TProfile" title="Fraction of tracks with &lt;50% truth match probability">
-  <x title="d0" n="20" lo="-6" hi="6"/>
+  <x title="d_{0}" n="20" lo="-6" hi="6"/>
   <y title="Fake Rate" lo="0" hi="100"/>
 </h>
 <h id="track_fakerate_vs_z0" type="TProfile" title="Fraction of tracks with &lt;50% truth match probability">
-  <x title="z0" n="20" lo="-300" hi="300"/>
+  <x title="z_{0}" n="20" lo="-300" hi="300"/>
   <y title="Fake Rate" lo="0" hi="100"/>
 </h>
+<!--  -->
+
+<!-- More fake plots -->
+<h id="fakePtPrimary" type="TProfile" title="Fraction of Linked Primary tracks with &lt;50% truth match probability vs Pt">
+  <x title="Pt (GeV)" n="400" lo="0" hi="200" />
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="fakeetaPrimary" type="TProfile" title="Fraction of Linked Primary tracks with &lt;50% truth match probability vs #eta">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="fakePhiPrimary" type="TProfile" title="Fraction of Linked Primary tracks with &lt;50% truth match probability vs #phi">
+  <x title="#phi" n="60" lo="-&PI;" hi="&PI;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="faked0Primary" type="TProfile" title="Fraction of Linked Primary tracks with &lt;50% truth match probability vs d_{0}">
+  <x title="d_{0}" n="60" lo="-1.5" hi="1.5"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="fakez0Primary" type="TProfile" title="Fraction of Linked Primary tracks with &lt;50% truth match probability vs z_{0}">
+  <x title="z_{0}" n="50" lo="-200" hi="200"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fakePtSecondary" type="TProfile" title="Fraction of Linked Secondary tracks with &lt;50% truth match probability vs Pt">
+  <x title="Pt (GeV)" n="400" lo="0" hi="200" />
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="fakeetaSecondary" type="TProfile" title="Fraction of Linked Secondary tracks with &lt;50% truth match probability vs #eta">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="fakePhiSecondary" type="TProfile" title="Fraction of Linked Secondary tracks with &lt;50% truth match probability vs #phi">
+  <x title="#phi" n="60" lo="-&PI;" hi="&PI;"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="faked0Secondary" type="TProfile" title="Fraction of Linked Secondary tracks with &lt;50% truth match probability vs d_{0}">
+  <x title="d_{0}" n="60" lo="-1.5" hi="1.5"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="fakez0Secondary" type="TProfile" title="Fraction of Linked Secondary tracks with &lt;50% truth match probability vs z_{0}">
+  <x title="z_{0}" n="50" lo="-200" hi="200"/>
+  <y title="Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="fakePtUnlinkedFrac" type="TProfile" title="Pt Unlinked Fraction">
+  <x title="Pt (GeV)" n="400" lo="0" hi="200"/>
+  <y title="Unlinked Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="fakeetaUnlinkedFrac" type="TProfile" title="#eta Unlinked Fraction">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="Unlinked Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="fakePhiUnlinkedFrac" type="TProfile" title="#phi Unlinked Fraction">
+  <x title="#phi" n="60" lo="-&PI;" hi="&PI;"/>
+  <y title="Unlinked Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="faked0UnlinkedFrac" type="TProfile" title="d_{0} Unlinked Fraction">
+  <x title="d_{0}" n="60" lo="-1.5" hi="1.5"/>
+  <y title="Unlinked Fake Rate" lo="0" hi="2.0"/>
+</h>
+<h id="fakez0UnlinkedFrac" type="TProfile" title="z_{0} Unlinked Fraction">
+  <x title="z_{0}" n="50" lo="-200" hi="200"/>
+  <y title="Unlinked Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="incFakeEta" type="TProfile" title="Inclusive Fake Rate #eta">
+  <x title="#eta" n="80" lo="-4" hi="4"/>
+  <y title="Inclusive Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+<h id="incFakePt" type="TProfile" title="Inclusive Fake Rate Pt">
+  <x title="Pt" n="400" lo="0" hi="200"/>
+  <y title="Inclusive Fake Rate" lo="0" hi="2.0"/>
+</h>
+
+
 <!--  -->
 <!-- GOOD eff plots -->
 <h id="trackeff_vs_eta" type="TProfile" title="Fraction of reco-matched truth track">

@@ -25,7 +25,6 @@
 
 #include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
 #include "src/InDetPhysHitDecoratorTool.h"
-#include "InDetPhysValMonitoring/ITrackTruthSelectionTool.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
 #include "InDetIdentifier/PixelID.h"
@@ -35,12 +34,9 @@
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
-//#include "src/GeoUtilsTool.h"
-
 //fwd declaration
 class IInDetPhysValDecoratorTool;
 class InDetRttPlots;
-class ITrackTruthSelectionTool;
 namespace Root {
   class TAccept;
 }
@@ -78,7 +74,7 @@ private:
 
 	///Directory name
 	std::string m_dirName;
-	
+
 	///histograms
 	std::unique_ptr< InDetRttPlots > m_monPlots;
 	///Tool for selecting tracks
@@ -87,9 +83,10 @@ private:
 	bool m_TrkSelectPV;   // make track selection relative to PV
 
 	ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
-	ToolHandle<ITrackTruthSelectionTool> m_truthSelectionTool;
-	//ToolHandle<GeoUtils::GeoUtilsTool> m_geoUtilsTool;
-	
+
+	//ToolHandle<Trk::ITrackSelectorTool> m_trackSelectionTool;
+	ToolHandle<IAsgSelectionTool> m_truthSelectionTool;
+
 	std::vector<int> m_prospectsMatched;
 	int m_twoMatchedEProb;
 	int m_threeMatchedEProb;
@@ -128,7 +125,7 @@ template<class T>
 	const T* InDetPhysValMonitoringTool::getContainer(const std::string & containerName){
 		const T * ptr = evtStore()->retrieve< const T >( containerName );
     	if (!ptr) {
-        	ATH_MSG_ERROR("Container '"<<containerName<<"' could not be retrieved");
+        	ATH_MSG_WARNING("Container '"<<containerName<<"' could not be retrieved");
     	}
     	return ptr;
 	}
