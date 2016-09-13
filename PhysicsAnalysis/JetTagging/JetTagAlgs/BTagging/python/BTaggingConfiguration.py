@@ -99,6 +99,8 @@ from BTagging.BTaggingConfiguration_MV2c20Tag import *
 from BTagging.BTaggingConfiguration_MV2c20FlipTag import *
 from BTagging.BTaggingConfiguration_MV2c100Tag import *
 from BTagging.BTaggingConfiguration_MV2c100FlipTag import *
+from BTagging.BTaggingConfiguration_MV2cl100Tag import *
+from BTagging.BTaggingConfiguration_MV2cl100FlipTag import *
 from BTagging.BTaggingConfiguration_MV2mTag import *
 from BTagging.BTaggingConfiguration_MV2mFlipTag import *
 from BTagging.BTaggingConfiguration_MV2c10hpTag import *
