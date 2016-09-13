@@ -24,14 +24,14 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include "TriggerAnalysisHelper.h"
-#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
 
 /**
  * @brief 
- *        
+ * Example code for emulating the trigger decision 
+ * from reconstructed objects, e.g. L1 Objects
  *        
  *
- * @author 
+ * @author Ryan White <ryan.white@cern.ch>
  *
  * Please see the .cxx file for detailed comments
  *
@@ -66,9 +66,6 @@ private:
    ToolHandle<Trig::IMatchingTool> m_matchTool;
    //! Helper class for tutorial, provides an additional layer to illustrate TDT functionality
    ToolHandle< Trig::TriggerAnalysisHelper > m_tah; 
-   //! Egamma TrigEmulator tool
-   ToolHandle<Trig::ITrigEgammaEmulationTool> m_egEmulationTool;
-   
    // The THistSvc
    ServiceHandle< ITHistSvc > m_histSvc;
    

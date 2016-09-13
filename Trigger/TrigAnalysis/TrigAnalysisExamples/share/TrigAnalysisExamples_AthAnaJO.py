@@ -1,53 +1,29 @@
+from AthenaCommon.AppMgr import theApp
+from AthenaCommon.AppMgr import ToolSvc
+## get a handle on the ServiceManager
+from AthenaCommon.AppMgr import ServiceMgr
 
-#
-# Properties that should be modified by the user:
-#
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+#--------------------------------------------------------------
+# Load POOL support
+#--------------------------------------------------------------
+import AthenaPoolCnvSvc.ReadAthenaPool
+ 
+from glob import glob
+
 if not "InputFiles" in dir():
-    #InputFiles = ["/afs/cern.ch/user/r/rwhite/workspace/public/tutorial/mc15_13TeV.361106.PowhegPythia8EvtGen_AZNLOCTEQ6L1_Zee.merge.AOD.e3601_s2876_r7917_r7676/AOD.08275487._000742.pool.root.1"]
-    InputFiles = ["/afs/cern.ch/user/r/rwhite/workspace/public/tutorial/data16_13TeV.00307195.physics_Main.merge.DAOD_EGZ.f731_m1616_f731_m1662._0001.1"]
+    #InputFiles = [ "/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/validation-data/attila.AOD.pool.root" ]
+    ServiceMgr.EventSelector.InputCollections = ["/afs/cern.ch/user/r/rwhite/workspace/public/tutorial/data16_13TeV.00307195.physics_Main.merge.DAOD_EGZ.f731_m1616_f731_m1662._0001.1"]
 if not "OutputFile" in dir():
     OutputFile = "TDTExample.root"
-if not "athenaCommonFlags.EvtMax" in dir():
-    athenaCommonFlags.EvtMax = 100
+if not "AthenaCommon.AppMgr.EvtMax" in dir():
+    theApp.EvtMax=20
 
-#if not already done, you should determine if you are running on MC or Data:
-#from PyUtils import AthFile
-#af = AthFile.fopen(svcMgr.EventSelector.InputCollections[0]) 
-#isMC = 'IS_SIMULATION' in af.fileinfos['evt_type']
-isMC = True
-#must set the globalflags appropriately so that the correct conditions database is queried when you extract the bunch train
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DataSource = 'geant4' if isMC else 'data' 
-globalflags.DatabaseInstance = 'CONDBR2' 
+cfgtool = CfgMgr.TrigConf__xAODConfigTool("xAODConfigTool")
+ToolSvc += cfgtool
 
-# Set up the needed RecEx flags:
-athenaCommonFlags.FilesInput.set_Value_and_Lock( InputFiles )
+from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
 
-# Set up what the RecExCommon job should and shouldn't do:
-from RecExConfig.RecFlags import rec
-rec.AutoConfiguration = [ "everything" ]
-rec.doCBNT.set_Value_and_Lock( False )
-rec.doWriteESD.set_Value_and_Lock( False )
-rec.doWriteAOD.set_Value_and_Lock( False )
-rec.doWriteTAG.set_Value_and_Lock( False )
-rec.doESD.set_Value_and_Lock( False )
-rec.doAOD.set_Value_and_Lock( False )
-rec.doDPD.set_Value_and_Lock( False )
-rec.doHist.set_Value_and_Lock( False )
-rec.doPerfMon.set_Value_and_Lock( False )
-rec.doForwardDet.set_Value_and_Lock( False )
-
-# Let RecExCommon set everything up:
-include( "RecExCommon/RecExCommon_topOptions.py" )
-
-# Correctly configure the trigger via TriggerJobOpts
-# The following will configure the TDT
-from TriggerJobOpts.TriggerFlags import TriggerFlags
-TriggerFlags.configurationSourceList.set_Value_and_Lock( [ "ds" ] )
-    
-from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-TriggerConfigGetter()
+ToolSvc += Trig__TrigDecisionTool( "TrigDecisionTool" )
 
 #########################################################################
 #                                                                       #
@@ -120,4 +96,3 @@ topSequence += jetmet
 #topSequence += emulator
 topSequence += express
 #topSequence += tat
-

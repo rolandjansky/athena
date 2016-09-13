@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TagAndProbeExAlg.cxx 771843 2016-09-05 16:56:27Z rwhite $
+// $Id: TagAndProbeExAlg.cxx 771815 2016-09-05 15:04:05Z rwhite $
 // Updated to xAOD for Trigger Tutorial
 //
 // Gaudi/Athena include(s):

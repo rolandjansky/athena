@@ -13,6 +13,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigger
                           Event/xAOD/xAODEgamma
                           Event/xAOD/xAODTau
+                          Event/xAOD/xAODTrigEgamma
+                          Event/xAOD/xAODTrigCalo
+                          Event/xAOD/xAODJet
                           Trigger/TrigConfiguration/TrigConfHLTData
                           PRIVATE
                           Control/AthenaBaseComps
@@ -25,7 +28,6 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigAnalysisInterfaces
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigAnalysis/TriggerMatchingTool
-                          Trigger/TrigAnalysis/TrigEgammaEmulationTool
                           Trigger/TrigEvent/TrigSteeringEvent
                           Event/FourMomUtils)
 
@@ -38,7 +40,7 @@ atlas_add_component( TrigAnalysisExamples
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib AthAnalysisBaseCompsLib AsgTools SGtests EventInfo GaudiKernel xAODEventInfo xAODTrigger xAODEgamma xAODTau TrigConfHLTData TrigDecisionToolLib TriggerMatchingTool TrigEgammaEmulationTool TrigSteeringEvent FourMomUtils)
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} AthenaBaseComps AthenaKernel StoreGateLib AthAnalysisBaseCompsLib AsgTools SGtests EventInfo GaudiKernel xAODEventInfo xAODTrigger xAODEgamma xAODTau xAODTrigEgamma xAODTrigCalo xAODJet TrigConfHLTData TrigDecisionToolLib TriggerMatchingTool TrigSteeringEvent FourMomUtils)
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

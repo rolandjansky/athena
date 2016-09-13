@@ -13,33 +13,39 @@ use TestPolicy                  TestPolicy-*
 use AthenaPython                AthenaPython-*          Control -no_auto_imports
 
 # for example EDM access test
-use TrigParticle                TrigParticle-*          Trigger/TrigEvent
+# use TrigParticle                TrigParticle-*          Trigger/TrigEvent
+
+
+private
+
+# xAOD
 use xAODTrigger                 xAODTrigger-*           Event/xAOD
 use xAODEgamma                 xAODEgamma-*           Event/xAOD
+use xAODTrigEgamma                 xAODTrigEgamma-*           Event/xAOD
 use xAODTau                 xAODTau-*           Event/xAOD
 use xAODCaloEvent                 xAODCaloEvent-*           Event/xAOD
 use xAODMuon                    xAODMuon-*              Event/xAOD
 use xAODBase                    xAODBase-*              Event/xAOD
-use xAODTrigEgamma              xAODTrigEgamma-*        Event/xAOD
 use xAODEventInfo               xAODEventInfo-*         Event/xAOD
-use FourMomUtils                FourMomUtils-*          Control/FourMomUtils
+use xAODJet                     xAODJet-*               Event/xAOD
+use xAODTrigCalo               xAODTrigCalo-*          Event/xAOD
 
-private
 # tools for analysis
+use FourMomUtils                FourMomUtils-*          Event
 use AthenaBaseComps             AthenaBaseComps-*       Control
 use AthenaKernel                AthenaKernel-*          Control
 
 use AtlasBoost                  AtlasBoost-*            External
 use GaudiInterface              GaudiInterface-*        External
 
-use AtlasTriggerRunTime         AtlasTriggerRunTime-*
 use StoreGate                   StoreGate-*             Control
 # For the TrigBunchCrossingTool example:
 use TrigAnalysisInterfaces      TrigAnalysisInterfaces-* Trigger/TrigAnalysis
-
+use EventInfo                   EventInfo-*             Event
 # for TrigDecisionTool test
 use TrigDecisionTool            TrigDecisionTool-*      Trigger/TrigAnalysis
 use TriggerMatchingTool          TriggerMatchingTool-*    Trigger/TrigAnalysis
+use TrigConfHLTData             TrigConfHLTData-*       Trigger/TrigConfiguration
 # for TrigMatchExamples
 
 public
@@ -55,6 +61,5 @@ apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions files="*.py"
 
 private
-use AnalysisTriggerEvent        AnalysisTriggerEvent-*       PhysicsAnalysis/AnalysisTrigger
 use AtlasROOT			        AtlasROOT-*                  External
 use TrigSteeringEvent           TrigSteeringEvent-*          Trigger/TrigEvent

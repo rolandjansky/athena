@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.cxx 771843 2016-09-05 16:56:27Z rwhite $
+// $Id: TriggerAnalysisTutorial.cxx 772674 2016-09-12 09:12:29Z rwhite $
 
 // System include(s):
 #include <iomanip>
@@ -41,7 +41,8 @@ TriggerAnalysisTutorial::TriggerAnalysisTutorial( const std::string &name,
      m_tah( "Trig::TriggerAnalysisHelper/TriggerAnalysisHelper",this ),
      m_bcTool( "Trig::TrigConfBunchCrossingTool/BunchCrossingTool" ),
      m_histSvc( "THistSvc", name ) {
-
+         
+         declareProperty( "TriggerList", m_chain_names, "List of triggers to analyze");
 }
 
 TriggerAnalysisTutorial::~TriggerAnalysisTutorial()
@@ -75,6 +76,18 @@ StatusCode TriggerAnalysisTutorial::execute() {
    ++m_eventNr;
 
    ATH_MSG_INFO( "Event Number " << m_eventNr );
+   // Get list of configured chains on first event
+   // Check HLT chains are configured and push_back on cfg_chains
+   if(m_eventNr==1){
+       std::vector<std::string> allHLT = m_trigDec->getChainGroup("HLT_.*")->getListOfTriggers();
+       // Create list of configured chains from input list
+       for(const std::string chain:allHLT){
+           if(std::find(m_chain_names.begin(), m_chain_names.end(), chain) != m_chain_names.end()){ 
+               ATH_MSG_INFO("Found corresponding chain in list " << chain); 
+               m_cfg_chains.push_back(chain);
+           }
+       }
+   }
 
    return StatusCode::SUCCESS;
 }

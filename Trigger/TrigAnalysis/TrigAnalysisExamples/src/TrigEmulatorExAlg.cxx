@@ -21,13 +21,11 @@ TrigEmulatorExAlg::TrigEmulatorExAlg( const std::string& name, ISvcLocator *pSvc
     m_trigDec( "Trig::TrigDecisionTool/TrigDecisionTool" ),
     m_matchTool( "Trig::MatchingTool/MatchingTool",this),
     m_tah( "Trig::TriggerAnalysisHelper/TriggerAnalysisHelper",this ),
-    m_egEmulationTool("Trig::TrigEgammaEmulationTool/TrigEgammaEmulationTool",this),
     m_histSvc( "THistSvc", name ) {
 
         // job option configurable properties
         declareProperty( "L1TriggerList", m_l1chainList);
         declareProperty( "HLTTriggerList", m_hltchainList);
-        declareProperty( "EgammaEmulation", m_doEg=false);
 }
 
 StatusCode TrigEmulatorExAlg::initialize() {
@@ -35,10 +33,8 @@ StatusCode TrigEmulatorExAlg::initialize() {
    CHECK( m_trigDec.retrieve() );
    CHECK( m_matchTool.retrieve() );
    CHECK( m_tah.retrieve() );
-   CHECK(m_egEmulationTool.retrieve());
    CHECK( m_histSvc.retrieve() );
 
-   CHECK(m_egEmulationTool->initialize());
    m_trigDec->ExperimentalAndExpertMethods()->enable();
    
    //Setup histograms for trigger decision and prescale
@@ -122,15 +118,6 @@ StatusCode TrigEmulatorExAlg::collectTriggerStatistics() {
  * TriggerAnalysis for TrigEmulator 
  * *******************************************************************************************/
 StatusCode TrigEmulatorExAlg::EmulationAnalysis (){
-    if(m_doEg){
-        m_egEmulationTool->EventWiseContainer(); // Need to retrieve all trigger containers
-        for(const auto chain : m_hltchainList){
-            if(m_egEmulationTool->isPassed(chain)){
-                m_numHLTEmulatedEvents[chain]+=1;
-                h_emulationAccepts->Fill( chain.c_str(), 1 );
-            }
-        } //
-    }
     return StatusCode::SUCCESS;
 }
 

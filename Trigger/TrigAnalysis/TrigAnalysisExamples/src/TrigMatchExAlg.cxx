@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigMatchExAlg.cxx 770909 2016-08-30 19:59:36Z rwhite $
+// $Id: TrigMatchExAlg.cxx 772674 2016-09-12 09:12:29Z rwhite $
 
 // Athena/Gaudi include(s):
 #include "AthenaKernel/errorcheck.h"
@@ -15,7 +15,6 @@
 
 // Local include(s):
 #include "TrigMatchExAlg.h"
-#include "ElectronClusterMetric.h"
 
 TrigMatchExAlg::TrigMatchExAlg( const std::string& name, ISvcLocator *pSvcLocator )
    : AthAlgorithm( name, pSvcLocator ),
