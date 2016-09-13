@@ -15,9 +15,8 @@
 #include "AthenaKernel/MsgStreamMember.h"
 
 #include "G4AtlasInterfaces/IDetectorGeometrySvc.h"
-//#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
 #include "G4AtlasInterfaces/ISensitiveDetectorMasterTool.h"
-//#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
+#include "G4AtlasInterfaces/IFastSimulationMasterTool.h"
 #include "G4AtlasInterfaces/IUserActionSvc.h"
 
 
@@ -47,6 +46,9 @@ protected:
   /// Initialize the geometry on the worker
   void InitializeGeometry() override final;
 
+  /// Initialize the physics on the worker
+  void InitializePhysics() override final;
+
 private:
 
   /// Pure singleton private constructor
@@ -69,7 +71,7 @@ private:
   ToolHandle<ISensitiveDetectorMasterTool> m_senDetTool;
 
   /// Handle to the FastSim tool
-  //ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
+  ToolHandle<IFastSimulationMasterTool> m_fastSimTool;
 
   /// Handle to the user action service
   ServiceHandle<G4UA::IUserActionSvc> m_userActionSvc;

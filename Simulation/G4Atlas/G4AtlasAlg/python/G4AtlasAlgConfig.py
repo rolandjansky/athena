@@ -2,16 +2,6 @@
 
 from AthenaCommon import CfgMgr
 
-def getAthenaStackingAction(name='AthenaStackingAction', **kwargs):
-    from G4AtlasApps.SimFlags import simFlags
-    if "ATLAS" in simFlags.SimLayout():
-        kwargs.setdefault('KillAllNeutrinos',  True)
-    return CfgMgr.AthenaStackingAction(name,**kwargs)
-
-def getAthenaTrackingAction(name='AthenaTrackingAction', **kwargs):
-    kwargs.setdefault('SecondarySavingLevel', 2)
-    return CfgMgr.AthenaTrackingAction(name,**kwargs)
-
 def getAthenaStackingActionTool(name='G4UA::AthenaStackingActionTool', **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     if "ATLAS" in simFlags.SimLayout():
@@ -52,12 +42,6 @@ def getG4AtlasAlg(name='G4AtlasAlg', **kwargs):
         kwargs.setdefault('AtRndmGenSvc' ,simFlags.RandomSvc.get_Value())
     if not simFlags.RandomSeedList.checkForExistingSeed('AtlasG4'):
         simFlags.RandomSeedList.addSeed( "AtlasG4", 423451, 3213210 )
-
-    # Until we fully migrate to V2 user actions, we disable the unused version via switch
-    if simFlags.UseV2UserActions.get_Value() == True:
-        kwargs.setdefault('UserActionSvc', '')
-    else:
-        kwargs.setdefault('UserActionSvcV2', '')
 
     # Multi-threading settinggs
     from AthenaCommon.ConcurrencyFlags import jobproperties as concurrencyProps

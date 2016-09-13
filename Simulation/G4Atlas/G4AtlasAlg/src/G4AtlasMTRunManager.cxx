@@ -22,14 +22,13 @@
 #include "GaudiKernel/Bootstrap.h"
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
 
-//#include "G4AtlasInterfaces/ISensitiveDetectorSvc.h"
-//#include "G4AtlasInterfaces/IFastSimulationSvc.h"
 
 G4AtlasMTRunManager::G4AtlasMTRunManager()
   : G4MTRunManager(),
     m_msg("G4AtlasMTRunManager"),
     m_detGeoSvc("DetectorGeometrySvc", "G4AtlasMTRunManager"),
-    m_physListTool("PhysicsListToolBase")
+    m_physListTool("PhysicsListToolBase"),
+    m_fastSimTool("FastSimulationMasterTool")
 {}
 
 
@@ -101,7 +100,8 @@ void G4AtlasMTRunManager::InitializeGeometry()
   }*/
 }
 
-void G4AtlasMTRunManager::InitializePhysics() {
+void G4AtlasMTRunManager::InitializePhysics()
+{
   ATH_MSG_INFO("InitializePhysics");
   kernel->InitializePhysics();
 
@@ -119,6 +119,17 @@ void G4AtlasMTRunManager::InitializePhysics() {
     abort(); // to keep Coverity happy
   }
   m_physListTool->SetPhysicsOptions();
+
+  // Setup the fast simulations
+  const std::string methodName = "G4AtlasMTRunManager::InitializePhysics";
+  if(m_fastSimTool.retrieve().isFailure()){
+    throw GaudiException("Could not retrieve FastSims master tool",
+                         methodName, StatusCode::FAILURE);
+  }
+  if(m_fastSimTool->initializeFastSims().isFailure()){
+    throw GaudiException("Failed to initialize FastSims for master thread",
+                         methodName, StatusCode::FAILURE);
+  }
 
   // TODO: parallel worlds stuff here
 }
