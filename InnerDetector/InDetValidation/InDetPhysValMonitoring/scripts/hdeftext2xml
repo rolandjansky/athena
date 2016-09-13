@@ -1,0 +1,69 @@
+#!/usr/bin/python
+import sys, os, re
+from string import Template
+from xml.sax.saxutils import escape
+
+def parseOneLine(line):
+  TH1Groups="id,type,title,nbins,xlo,xhi,xtitle,ytitle,folder"
+  TProfGroups="id,type,title,nbins,xlo,xhi,ylo,yhi,xtitle,ytitle,folder"
+  TH1Rex='^(?P<type>\w+)\s+(?P<id>\w+)\s+"(?P<title>[^"]+)"\s+(?P<nbins>\d+)\s+(?P<xlo>[-+.0-9eE]+)\s+(?P<xhi>[-+.0-9eE]+)\s+"(?P<xtitle>[^"]+)"\s+"(?P<ytitle>[^"]+)"\s*(?P<folder>.*)\s*$'
+  TProfRex='^(?P<type>\w+)\s+(?P<id>\w+)\s+"(?P<title>[^"]+)"\s+(?P<nbins>\d+)\s+(?P<xlo>[-+.0-9eE]+)\s+(?P<xhi>[-+.0-9eE]+)\s+(?P<ylo>[-+.0-9eE]+)\s+(?P<yhi>[-+.0-9eE]+)\s+"(?P<xtitle>[^"]+)"\s+"(?P<ytitle>[^"]+)"\s*(?P<folder>.*)\s*$'
+  commentRex='^#(?P<comment>.*)$'
+  f=re.match(TH1Rex,line)
+  if not f:
+    f=re.match(TProfRex,line)
+  if not f:
+    f=re.match(commentRex,line)
+  if not f:
+    return f
+  return f.groupdict()
+  
+def makeComment(attributeDict):
+  return "<!-- " + attributeDict['comment']+" -->\n"
+
+def parseFileLinewise(fname,ofname):
+  with open(fname,'r') as infile:
+    with open(ofname,'w') as opfile:
+      opfile.write('<?xml version="1.0" encoding="UTF-8"?>\n')
+      opfile.write('<?xml-stylesheet type="text/xsl" media="screen" href="hdefhtml.xsl"?>\n')
+      opfile.write('<?xml-stylesheet type="text/xsl" media="tty" href="hdeftty.xsl" alternate="yes"?>\n')
+      opfile.write("<hdef>\n")
+      for line in infile:
+        attributeDict=parseOneLine(escape(line))
+        if not attributeDict:
+          continue
+        if "comment" in attributeDict:
+          opfile.write(makeComment(attributeDict))
+        else:
+          opfile.write(makeElement(attributeDict))
+      opfile.write("</hdef>\n")
+   
+
+def makeElement(attrDict):
+  hType=attrDict["type"]
+  th1Element='<h id="$id" type="$type" title="$title">\n  <x title="$xtitle" n="$nbins" lo="$xlo" hi="$xhi"/>\n  <y title="$ytitle"/>\n</h>\n'
+  tprofElement='<h id="$id" type="$type" title="$title">\n  <x title="$xtitle" n="$nbins" lo="$xlo" hi="$xhi"/>\n  <y title="$ytitle" lo="$ylo" hi="$yhi"/>\n</h>\n'
+  s='<h/>'
+  if hType=='TProfile':
+    s=Template(tprofElement).substitute(attrDict)
+  if hType=='TH1F':
+    s=Template(th1Element).substitute(attrDict)
+  return s
+  
+def main(args):
+  #implementation
+  try:
+    fileName=args[0]
+    opFileName=args[1]
+  except:
+    print "Script to transform a plain text hdef file to xml"
+    print "\033[91m Enter name of existing input text file and name of target xml file as arguments \033[0m"
+    #fileName="/Users/sroe/Developer/Software projects/Python/regex/inDetPhysValMonitoringPlotDefinitions.hdef"
+    #opFileName="/Users/sroe/Developer/Software projects/Python/regex/test.xml"
+    return (-1)
+  parseFileLinewise(fileName,opFileName)
+  return 0
+  
+if __name__=="__main__":
+  sys.exit(main(sys.argv[1:]))
+

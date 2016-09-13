@@ -1,0 +1,20 @@
+<?xml version="1.0" standalone="yes" ?>
+<!DOCTYPE  hdef [
+<!ENTITY NBINS "100">
+]>
+<!-- 
+  This is the file intended to be 'Xincluded' to a mother file. Note that both the 
+  mother file AND this file must be fully well-formed XML. If you wish to check the 
+  files individually, you can use the 'xmllint' command like: 
+                            xmllint inc.xml
+  If you wish to check the assembled whole file, with the xincludes added, you can use:
+                            xmllint - -xinclude mother.xml
+  (note: no space between the two hyphens!)
+  where 'mother.xml' is the name of the mother file containing the xi:include instruction.
+-->
+<hdef>
+  <h id="include" type="TH1F" title="Included using XINCLUDE!">
+    <x title="I have been included" n="&NBINS;" lo="0" hi="&NBINS;"/>
+    <y title="Num. entries"/>
+  </h>
+</hdef>

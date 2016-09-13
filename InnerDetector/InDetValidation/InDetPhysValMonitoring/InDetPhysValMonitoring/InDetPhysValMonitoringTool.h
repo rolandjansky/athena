@@ -21,8 +21,18 @@
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
-//#include "src/TrackTruthSelectionTool.h"
 #include "xAODTruth/TruthParticleContainer.h"
+
+#include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
+#include "src/InDetPhysHitDecoratorTool.h"
+
+#include "AtlasDetDescr/AtlasDetectorID.h"
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+#include "InDetIdentifier/TRT_ID.h"
+#include "InDetReadoutGeometry/PixelDetectorManager.h"
+#include "InDetReadoutGeometry/SCT_DetectorManager.h"
+#include "InDetReadoutGeometry/TRT_DetectorManager.h"
 
 //fwd declaration
 class IInDetPhysValDecoratorTool;
@@ -57,6 +67,8 @@ private:
 	std::string m_truthParticleName;
 	///Primary vertex container's name
 	std::string m_vertexContainerName;
+	///Truth vertex container's name
+	std::string m_truthVertexContainerName;
 	///EventInfo container name
 	std::string m_eventInfoContainerName;
 
@@ -68,12 +80,12 @@ private:
 	///Tool for selecting tracks
 	bool m_useTrackSelection;
 	bool m_onlyInsideOutTracks;
+	bool m_TrkSelectPV;   // make track selection relative to PV
+
 	ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
 
+	//ToolHandle<Trk::ITrackSelectorTool> m_trackSelectionTool;
 	ToolHandle<IAsgSelectionTool> m_truthSelectionTool;
-
-	//bool m_TrackTruthSelectionTool;
-	//ToolHandle<TrackTruthSelectionTool> m_TrackTruthSelectionTool;
 
 	std::vector<int> m_prospectsMatched;
 	int m_twoMatchedEProb;
@@ -103,6 +115,8 @@ private:
 
 	void getTruthParticles(std::vector<const xAOD::TruthParticle*>& truthParticles);
 	
+	const Trk::TrackParameters* getUnbiasedTrackParameters(const Trk::TrackParameters* trkParameters, const Trk::MeasurementBase* measurement );
+
 	template<class T>
 	const T* getContainer( const std::string & containerName);
 };
@@ -111,7 +125,7 @@ template<class T>
 	const T* InDetPhysValMonitoringTool::getContainer(const std::string & containerName){
 		const T * ptr = evtStore()->retrieve< const T >( containerName );
     	if (!ptr) {
-        	ATH_MSG_ERROR("Container '"<<containerName<<"' could not be retrieved");
+        	ATH_MSG_WARNING("Container '"<<containerName<<"' could not be retrieved");
     	}
     	return ptr;
 	}

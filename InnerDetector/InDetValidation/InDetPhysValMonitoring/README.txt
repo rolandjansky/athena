@@ -13,11 +13,27 @@ The plots are intended to be as simple structures as possible, only retrieving a
 the added decoration variables. There are numerous decorators for either truth or track particles,
 inheriting from a common interface. 
 
+====
+	Making and running a test job(CMAKE)
+====
+From your Athena working directory:
 
+mkdir build source run
+cd source
+asetup here, dev, rel_5, cmake
+svnco InDetPhysValMonitoring
+cd ../build
+cmake ../source
+make -j4
+cd ..
+ln -s $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/share .
+cd run
+source ../build/x86_64-slc6-gcc49-opt/setup.sh
+athena $TestArea/InnerDetector/InDetValidation/InDetPhysValMonitoring/run/PhysVal_jobOptions.py
 
 
 ========
-  Run a physics validataion reco transform
+  Run a physics validation reco transform
 ========
 
 ---
@@ -27,16 +43,9 @@ inheriting from a common interface.
 1) setup the athena release in which You want to run the validation job
    Presumably anything older than 20.1.5.12 will not work
 
-2). At the moment some additional packages are still needed :
 
-   * At least InDetRecExample-02-05-57
-   * At least PhysValMonitoring-00-01-40
-   * InDetPhysValMonitoring-00-00-22-03 (old, but should work) or at least revision 680873 of the trunk
 
-   These packages only need to be checked out and compiled if they are not yet
-   part of the release.
-
-3). Run the reco transform.
+2). Run the reco transform.
 
     To enable the InDetPhysValMonitoring histograms, add "--valid True --validationFlags doInDet --outputNTUP_PHYSVALFile physval.root"
     to the transform You would run without the additional validation histograms. For example: 
@@ -218,3 +227,9 @@ https://twiki.cern.ch/twiki/bin/view/AtlasComputing/DCubeSoftware
 
      ... and verify that everything is now green in DCube, since rerunning should 
      perfectly reproduce the histograms.
+
+
+
+Use this command:
+
+    dcube.py -r Results/rtt/rel_4/dev/build/x86_64-slc6-gcc49-opt/offline/InDetPhysValMonitoring/IdPhysValTtbar/Mttbar_9Nov_v0.root -c ../Testdir/ref/IdPhysValTtbar/DCube_IdPhysValTtbar.xml Results/rtt/rel_4/dev/build/x86_64-slc6-gcc49-opt/offline/InDetPhysValMonitoring/IdPhysValTtbar/Mttbar_9Nov_v0.root

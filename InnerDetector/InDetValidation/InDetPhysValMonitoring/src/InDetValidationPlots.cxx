@@ -4,15 +4,15 @@
 
 #include "InDetPhysValMonitoring/InDetValidationPlots.h"
 
-//std includes
+// std includes
 
 
-InDetValidationPlots::InDetValidationPlots(PlotBase * pParent, const std::string & dirName):PlotBase(pParent, dirName),
-m_idPlots(this, "all/"){
-	//nop
+InDetValidationPlots::InDetValidationPlots(PlotBase *pParent, const std::string &dirName) : PlotBase(pParent, dirName),
+  m_idPlots(this, "all/") {
+  // nop
 }
 
 void
-InDetValidationPlots::fill(const xAOD::TrackParticle & trkParticle){
-	m_idPlots.fill(trkParticle);
+InDetValidationPlots::fill(const xAOD::TrackParticle &trkParticle) {
+  m_idPlots.fill(trkParticle);
 }

@@ -28,6 +28,8 @@ public:
 	
 	virtual bool decorateTruth(const xAOD::TruthParticle & /*particle*/, const std::string& /*prefix = ""*/){return false;} //default implementation
   virtual bool decorateTrack(const xAOD::TrackParticle & /*particle*/, const std::string& /*prefix = ""*/){return false;}
+  
+
 };
 
 inline const InterfaceID & IInDetPhysValDecoratorTool::interfaceID(){
