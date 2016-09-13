@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TagAndProbeExAlg.h 771843 2016-09-05 16:56:27Z rwhite $
+// $Id: TagAndProbeExAlg.h 773008 2016-09-13 14:08:35Z rwhite $
 #ifndef TRIGANALYSISEXAMPLES_TAG_AND_PROBE_EX_ALG_H
 #define TRIGANALYSISEXAMPLES_TAG_AND_PROBE_EX_ALG_H
 
@@ -24,6 +24,10 @@
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
 #include "TriggerAnalysisHelper.h"
+
+// xAOD include
+#include "xAODMuon/MuonContainer.h"
+#include "xAODEgamma/ElectronContainer.h"
 /**
  * @brief The TagAndProbeExAlg is an example of how to use
  *        the TrigMatchTool to do a tag and probe measurement with

@@ -12,6 +12,9 @@
 
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "TriggerMatchingTool/IMatchingTool.h"
+#include "xAODTrigger/TrigPassBits.h"
+#include "xAODTrigCalo/TrigEMCluster.h"
+#include "xAODTrigEgamma/TrigElectronContainer.h"
 
 //TrigConf include(s)
 #include "TrigConfHLTData/HLTTriggerElement.h"
