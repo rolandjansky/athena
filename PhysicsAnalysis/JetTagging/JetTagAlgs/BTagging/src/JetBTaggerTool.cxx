@@ -137,9 +137,14 @@ int JetBTaggerTool::modify(xAOD::JetContainer& jets) const{
     StatusCode sc = overwrite<xAOD::BTaggingContainer,xAOD::BTaggingAuxContainer>(bTaggingContName, m_augment);
     if (sc.isFailure()) return sc;
     CHECK( evtStore()->retrieve(bTaggingContainer, bTaggingContName) );
-    if (m_augment && jets.size() != bTaggingContainer->size()) {
+    if (m_augment && jets.size() != bTaggingContainer->size() && m_magFieldSvc->solenoidOn()) {
       ATH_MSG_ERROR("#BTAG# existing BTaggingContainer has size" << bTaggingContainer->size() << ", expected " << jets.size());
     }
+    for (const xAOD::Jet* j : jets) {
+      const_cast<ElementLink< xAOD::BTaggingContainer >&>(j->btaggingLink()).toTransient();
+    }
+
+
     // bTaggingContainer = new xAOD::BTaggingContainer();
     // bTaggingAuxContainer = new xAOD::BTaggingAuxContainer();
     // bTaggingContainer->setStore(bTaggingAuxContainer);
