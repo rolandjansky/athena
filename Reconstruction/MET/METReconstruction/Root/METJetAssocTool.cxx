@@ -113,9 +113,11 @@ namespace met {
       if (m_pflow && !mismatchedPFlow) {
         for (size_t consti = 0; consti < jet->numConstituents(); consti++) {
           const xAOD::PFO *pfo = static_cast<const xAOD::PFO*>(jet->rawConstituent(consti));
-          if (pfo->charge()!=0) {
+	  ATH_MSG_VERBOSE("Jet constituent PFO, pt " << pfo->pt());
+          if (fabs(pfo->charge())>1e-9) {
+	    ATH_MSG_VERBOSE("  Accepted charged PFO, pt " << pfo->pt());
 	    trkvec += *pfo;
-	    selectedTracks.push_back(pfo->track(0));
+	    selectedTracks.push_back(pfo);
 	  }
         }
       } else {
@@ -160,8 +162,9 @@ namespace met {
 
     for(const auto& pfo : *pfoCont) {
       const TrackParticle* pfotrk = pfo->track(0);
-      if (pfo->charge()!=0) for(const auto& trk : jettracks) if (trk==pfotrk) consts.push_back(pfo);
-      if (pfo->charge()==0) {
+      if (fabs(pfo->charge())>1e-9) {
+	for(const auto& trk : jettracks) if (trk==pfotrk) consts.push_back(pfo);
+      } else {
         bool marked = false;
         for (size_t consti = 0; consti < jet->numConstituents(); consti++) if (pfo->p4EM().DeltaR(jet->rawConstituent(consti)->p4())<0.05) marked = true;
         if (marked) {

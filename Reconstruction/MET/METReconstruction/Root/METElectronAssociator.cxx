@@ -123,7 +123,7 @@ namespace met {
     nearbyPFO.reserve(10);
     for(const auto& pfo : *pfoCont) {
       std::vector<const IParticle*> cls;
-      if (pfo->charge()==0) {
+      if (fabs(pfo->charge())<1e-9) {
         if (swclus->p4().DeltaR(pfo->p4EM())<m_tcMatch_dR && pfo->eEM()>0) {
 	  nearbyPFO.push_back(pfo);
 	}
@@ -134,6 +134,11 @@ namespace met {
 	  if(pfotrk == eltrk) {
 	    if(acceptChargedPFO(eltrk,pv)) {
 	      pfolist.push_back(pfo);
+	      if(m_weight_charged_pfo) {
+		float weight = 0.0;
+		ATH_CHECK( m_pfoweighttool->fillWeight( *pfo, weight ) );
+		momenta[pfo] = weight*MissingETBase::Types::constvec_t(*pfo);
+	      }
 	    }
 	  }
 	}
@@ -143,6 +148,7 @@ namespace met {
 
     bool doSum = true;
     double sumE_pfo = 0.;
+    TLorentzVector momentum;
     std::sort(nearbyPFO.begin(),nearbyPFO.end(),greaterPtPFO);
     for(const auto& pfo : nearbyPFO) {
       // Handle neutral PFOs like topoclusters
@@ -157,7 +163,7 @@ namespace met {
 	pfolist.push_back(pfo);
 	sumE_pfo += pfo_e;
 
-        TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4EM();
+        momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4EM();
 	momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 							momentum.E(),momentum.Pt());
       } // if we will retain the topocluster

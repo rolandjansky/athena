@@ -53,8 +53,10 @@ namespace met {
     declareProperty( "UseModifiedClus",    m_useModifiedClus = false           );
     declareProperty( "UseTracks",          m_useTracks   = true                  );
     declareProperty( "PFlow",              m_pflow       = false                 );
+    declareProperty( "WeightCPFO",        m_weight_charged_pfo = true         );
     declareProperty( "UseRapidity",        m_useRapidity = false                 );
     declareProperty( "PFOTool",            m_pfotool                             );
+    declareProperty( "PFOWeightTool",     m_pfoweighttool                     );
     declareProperty( "UseIsolationTools",  m_useIsolationTools=true              );
     declareProperty( "TrackSelectorTool",  m_trkseltool                          );
     declareProperty( "TrackIsolationTool", m_trkIsolationTool                    );
@@ -81,6 +83,10 @@ namespace met {
     ATH_CHECK( m_trkseltool.retrieve() );
     ATH_CHECK(m_trkIsolationTool.retrieve());
     ATH_CHECK(m_caloIsolationTool.retrieve());
+    if(m_pflow) {
+      ATH_CHECK( m_pfotool.retrieve() );
+      ATH_CHECK( m_pfoweighttool.retrieve() );
+    }
 
     if(m_clcoll == "CaloCalTopoClusters") {
       if(m_useModifiedClus) {

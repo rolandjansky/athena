@@ -35,6 +35,7 @@
 #include "xAODPFlow/PFOContainer.h"
 #include "xAODPFlow/PFO.h"
 #include "PFlowUtils/IRetrievePFOTool.h"
+#include "PFlowUtils/IWeightPFOTool.h"
 #include "FourMomUtils/xAODP4Helpers.h"
 
 #include "RecoToolInterfaces/ITrackIsolationTool.h"
@@ -76,8 +77,10 @@ namespace met {
     bool m_useRapidity;
     bool m_useIsolationTools;
     bool m_useModifiedClus;
+    bool m_weight_charged_pfo;
 
     ToolHandle<CP::IRetrievePFOTool> m_pfotool;
+    ToolHandle<CP::IWeightPFOTool> m_pfoweighttool;
     ToolHandle<InDet::IInDetTrackSelectionTool> m_trkseltool;
     ToolHandle<xAOD::ITrackIsolationTool> m_trkIsolationTool;
     ToolHandle<xAOD::ICaloTopoClusterIsolationTool> m_caloIsolationTool;

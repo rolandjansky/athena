@@ -98,7 +98,7 @@ namespace met {
       }
       for(const auto& sig : *uniquePFOs) {
 	const PFO *pfo = static_cast<const PFO*>(sig);
-	if (pfo->charge()!=0) {
+	if (fabs(pfo->charge())>1e-9) {
 	  if (acceptChargedPFO(pfo->track(0),pv)) {
 	    *metCoreTrk += sig;
 	    *metCoreCl += sig;

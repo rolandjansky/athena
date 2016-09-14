@@ -184,9 +184,10 @@ namespace met {
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* seedjet = *tau->jetLink();
+    TLorentzVector momentum;
     for(const auto& pfo : *pfoCont) {
       bool match = false;
-      if (pfo->charge()==0) {
+      if (fabs(pfo->charge())<1e-9) {
 	if(seedjet->p4().DeltaR(pfo->p4EM())<0.2 && pfo->eEM()>0) {match = true;}
       }
       else {
@@ -216,10 +217,14 @@ namespace met {
       }
       if(match) {
 	pfolist.push_back(pfo);
-	if(pfo->charge()==0) {
-	  TLorentzVector momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4EM();
+	if(fabs(pfo->charge())<1e-9) {
+	  momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4EM();
 	  momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 						     momentum.E(),momentum.Pt());
+	} else if(m_weight_charged_pfo) {
+	  float weight = 0.0;
+	  ATH_CHECK( m_pfoweighttool->fillWeight( *pfo, weight ) );
+	  momenta[pfo] = weight*MissingETBase::Types::constvec_t(*pfo);
 	}
       }
     }

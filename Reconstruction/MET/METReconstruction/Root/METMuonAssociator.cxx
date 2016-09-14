@@ -143,15 +143,23 @@ namespace met {
   StatusCode METMuonAssociator::extractPFO(const xAOD::IParticle* obj,
 					   std::vector<const xAOD::IParticle*>& pfolist,
 					   const xAOD::PFOContainer* pfoCont,
-					   std::map<const IParticle*,MissingETBase::Types::constvec_t>&,
+					   std::map<const IParticle*,MissingETBase::Types::constvec_t>& momenta,
 					   const xAOD::Vertex* pv) const
   {  
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
     if(idtrack && acceptChargedPFO(idtrack,pv)) {
       for(const auto& pfo : *pfoCont) {
-	if (pfo->charge()!=0 && pfo->track(0) == idtrack) {
+	if (fabs(pfo->charge())>1e-9 && pfo->track(0) == idtrack) {
+	  ATH_MSG_VERBOSE("Accept muon PFO " << pfo << " px, py = " << pfo->p4().Px() << ", " << pfo->p4().Py());
+	  ATH_MSG_VERBOSE("Muon PFO index: " << pfo->index() << ", pt: " << pfo->pt() << ", eta: " << pfo->eta() << ", phi: " << pfo->phi() );
+	  ATH_MSG_VERBOSE("Muon ID Track index: " << idtrack->index() << ", pt: " << idtrack->pt() << ", eta: " << idtrack->eta() << ", phi: " << idtrack->phi() );
 	  pfolist.push_back(pfo);
+	  if(m_weight_charged_pfo) {
+	    float weight = 0.0;
+	    ATH_CHECK( m_pfoweighttool->fillWeight( *pfo, weight ) );
+	    momenta[pfo] = weight*MissingETBase::Types::constvec_t(*pfo);
+	  }
 	  break;
 	}
       }
