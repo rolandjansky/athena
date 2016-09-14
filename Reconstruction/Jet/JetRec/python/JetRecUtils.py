@@ -2,6 +2,9 @@
 
 from AthenaCommon.AppMgr import ToolSvc
 
+from AthenaCommon import Logging
+jetlog = Logging.logging.getLogger('JetRec_jobOptions')
+
 def retrieveAODList():
     from JetRec.JetRecFlags import jetFlags
     from RecExConfig.RecFlags import rec
@@ -15,8 +18,8 @@ def retrieveAODList():
     l = [
         # event shape objects
         'xAOD::EventShape#Kt4EMPFlowEventShape',                    'xAOD::EventShapeAuxInfo#Kt4EMPFlowEventShapeAux.',
-        'xAOD::EventShape#Kt4EMTopoEventShape',                     'xAOD::EventShapeAuxInfo#Kt4EMTopoEventShapeAux.',
-        'xAOD::EventShape#Kt4LCTopoEventShape',                     'xAOD::EventShapeAuxInfo#Kt4LCTopoEventShapeAux.',
+        'xAOD::EventShape#Kt4EMTopoOriginEventShape',               'xAOD::EventShapeAuxInfo#Kt4EMTopoOriginEventShapeAux.',
+        'xAOD::EventShape#Kt4LCTopoOriginEventShape',               'xAOD::EventShapeAuxInfo#Kt4LCTopoOriginEventShapeAux.',
         'xAOD::EventShape#NeutralParticleFlowIsoCentralEventShape', 'xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoCentralEventShapeAux.',
         'xAOD::EventShape#NeutralParticleFlowIsoForwardEventShape', 'xAOD::EventShapeAuxInfo#NeutralParticleFlowIsoForwardEventShapeAux.',
         'xAOD::EventShape#ParticleFlowIsoCentralEventShape',        'xAOD::EventShapeAuxInfo#ParticleFlowIsoCentralEventShapeAux.',
@@ -26,12 +29,12 @@ def retrieveAODList():
 
         'xAOD::JetContainer#AntiKt10LCTopoJets',                    'xAOD::JetAuxContainer#AntiKt10LCTopoJetsAux.',
         'xAOD::JetContainer#AntiKt2PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt2PV0TrackJetsAux.', 
-        'xAOD::JetContainer#AntiKt3PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.', 
+        #'xAOD::JetContainer#AntiKt3PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt3PV0TrackJetsAux.', 
         'xAOD::JetContainer#AntiKt4EMPFlowJets',                    'xAOD::JetAuxContainer#AntiKt4EMPFlowJetsAux.',
         'xAOD::JetContainer#AntiKt4EMTopoJets',                     'xAOD::JetAuxContainer#AntiKt4EMTopoJetsAux.',
         'xAOD::JetContainer#AntiKt4LCTopoJets',                     'xAOD::JetAuxContainer#AntiKt4LCTopoJetsAux.',
         'xAOD::JetContainer#AntiKt4PV0TrackJets',                   'xAOD::JetAuxContainer#AntiKt4PV0TrackJetsAux.', 
-        'xAOD::JetContainer#CamKt12LCTopoJets',                     'xAOD::JetAuxContainer#CamKt12LCTopoJetsAux.',
+        #'xAOD::JetContainer#CamKt12LCTopoJets',                     'xAOD::JetAuxContainer#CamKt12LCTopoJetsAux.',
 
         'xAOD::CaloClusterContainer#EMOriginTopoClusters',          'xAOD::ShallowAuxContainer#EMOriginTopoClustersAux.',
         'xAOD::CaloClusterContainer#LCOriginTopoClusters' ,         'xAOD::ShallowAuxContainer#LCOriginTopoClustersAux.',
@@ -62,11 +65,13 @@ def retrieveAODList():
 
     ## return esdjets
 
-def buildJetAlgName(finder, mainParam):
+def buildJetAlgName(finder, mainParam, variableRMassScale=0, variableRMinRadius=0):  # variableRMassScale (Rho) in MeV
+    if ( variableRMassScale > 0 ):
+        return finder + "VR" + str(int(variableRMassScale/1000)) + "Rmax" + str(int(mainParam*10)) + "Rmin" +str(int(variableRMinRadius*10))
     return finder + str(int(mainParam*10))
 
-def buildJetContName(finder, mainParam, input):
-    return buildJetAlgName(finder, mainParam) +input+"Jets" # could be more elaborated...
+def buildJetContName(finder, mainParam, input, variableRMassScale=0, variableRMinRadius=0):
+    return buildJetAlgName(finder, mainParam, variableRMassScale, variableRMinRadius) +input+"Jets" # could be more elaborated...
 
 def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
     # first step : guess the finder, input , mainParam, if needed
@@ -76,7 +81,7 @@ def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
                 finder = a
                 break
         if finder is None:
-            print "Error could not guess jet finder type in ",jetcollName
+            jetrec.info( "Error could not guess jet finder type in ",jetcollName )
             return 
 
     if input is None:
@@ -90,7 +95,7 @@ def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
                         input = "TopoTower"
                 break
         if input is None:
-            print "Error could not guess input type in ",jetcollName            
+            jetrec.info( "Error could not guess input type in ",jetcollName )
             return
         
     if mainParam is None:
@@ -100,7 +105,7 @@ def interpretJetName(jetcollName,  finder = None,input=None, mainParam=None):
         try :
             mainParam = float(mp)/10.
         except ValueError :
-            print "Error could not guess main parameter in ",jetcollName
+            jetrec.info( "Error could not guess main parameter in ",jetcollName )
             return
 
     return finder, mainParam, input
