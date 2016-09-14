@@ -86,7 +86,6 @@ private:
   CLHEP::HepRandomEngine* m_rndmEngine;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc;
   bool m_IBLabsent;
-  bool m_doITk;
 };
 
 #endif

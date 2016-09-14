@@ -107,14 +107,17 @@
 #include "InDetRawData/InDetRawDataCLASS_DEF.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "PixelConditionsServices/IPixelCalibSvc.h"
-#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
-#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
+
 #include "SiPropertiesSvc/ISiPropertiesSvc.h"
 #include "PixelConditionsTools/IModuleDistortionsTool.h"
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "PixelCabling/IPixelCablingSvc.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
+
+// Conditions
+#include "PixelConditionsServices/IPixelCalibSvc.h"
+#include "PixelConditionsServices/ISpecialPixelMapSvc.h"
+#include "InDetConditionsSummaryService/IInDetConditionsSvc.h"
 
 class PixelID;
 class SiChargedDiodeCollection;
@@ -220,8 +223,6 @@ private:
   
    virtual StatusCode createOutputContainers();
    StatusCode getNextEvent();
-   enum ReadoutTech {FEI3,FEI4,RD53};
-   ReadoutTech getReadoutTech(const InDetDD::SiDetectorElement *module);   
 
    PixelDigitizationTool();
    PixelDigitizationTool(const PixelDigitizationTool&);
@@ -270,7 +271,6 @@ private:
    std::vector<bool>         m_applyDupli;        /**< Apply hit duplication */
    std::vector<int>          m_maxToTForDupli;    /**< Maximum ToT for hit duplication */
    bool                      m_IBLabsent;
-   bool                      m_doITk;
 
    double                    m_time_y_eq_zero;
    ComTime                  *m_ComTime;

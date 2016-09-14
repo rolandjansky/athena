@@ -12,6 +12,7 @@
 #include "PixelCellDiscriminator.h"
 #include "SiDigitization/SiChargedDiodeCollection.h"
 #include "SiDigitization/SiHelper.h"
+#include "InDetReadoutGeometry/PixelModuleDesign.h"
 #include "CalibSvc.h"
 #include "TimeSvc.h"
 // random number service
@@ -35,15 +36,13 @@ PixelCellDiscriminator::PixelCellDiscriminator(const std::string& type, const st
   m_rndmEngineName("PixelDigitization"),
   m_rndmEngine(0),
   m_IBLParameterSvc("IBLParameterSvc",name),
-  m_IBLabsent(true),
-  m_doITk(false)
+  m_IBLabsent(true)
 {  
 	declareInterface< PixelCellDiscriminator >( this );
 	declareProperty("RndmSvc",m_rndmSvc,"Random Number Service used in Pixel digitization");
 	declareProperty("RndmEngine",m_rndmEngineName,"Random engine name");
 	declareProperty("CalibSvc",m_CalibSvc);
 	declareProperty("TimeSvc",m_TimeSvc);
-        declareProperty("doITk",m_doITk,"Phase-II upgrade ITk flag");
 }
 
 // Destructor:
@@ -107,19 +106,13 @@ StatusCode PixelCellDiscriminator::finalize() {
 void PixelCellDiscriminator::process(SiChargedDiodeCollection &collection) const
 {   
  
-   bool ComputeTW = true;
-   //   such calls to getReadoutTech don't compile
-   //if (getReadoutTech(collection.element()) == RD53) ComputeTW = false;
-   //if (getReadoutTech(collection.element()) == FEI4) ComputeTW = false;
-   //   ... instead for ITk:
-   if (m_doITk) ComputeTW = false;
-   //   ... and for IBL:
+   bool ComputeTW = false;
+   const PixelModuleDesign *p_design = dynamic_cast<const PixelModuleDesign*>(&(collection.element()->design()));
+   if (p_design->getReadoutTechnology()==PixelModuleDesign::FEI3) {
+     ComputeTW = true;
+   }
+
    const PixelID* pixelId = static_cast<const PixelID *>((collection.element())->getIdHelper());
-   if ((!m_IBLabsent && pixelId->is_blayer(collection.element()->identify())) || 
-                      pixelId->barrel_ec(collection.element()->identify())==4 ||
-		      pixelId->barrel_ec(collection.element()->identify())==-4) ComputeTW = false;
-  // discriminator is applied to all cells, even unconnected ones to be
-  /// able to use the unconnected cells as well
 
   for(SiChargedDiodeIterator i_chargedDiode=collection.begin() ;
       i_chargedDiode!=collection.end() ; ++i_chargedDiode) {
