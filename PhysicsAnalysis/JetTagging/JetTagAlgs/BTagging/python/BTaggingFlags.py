@@ -145,7 +145,7 @@ class _BTaggingFlags:
       # discussion.
       self.DL1LocalNNConfig = ''
       self.ForceDL1CalibrationAlias = True
-      self.DL1CalibAlias = 'AntiKt4TopoEM'
+      self.DL1CalibAlias = 'AntiKt4EMTopo'
       self.DL1 = True
       self.DL1Flip = False
 
@@ -342,7 +342,7 @@ class _BTaggingFlags:
         setattr(self, attr, True)
 
       for attr in self._MV2CalibAlias:
-        setattr(self, attr, 'AntiKt4TopoEM')
+        setattr(self, attr, 'AntiKt4EMTopo')
 
       for attr in self._MV2cTrainingConfig:
         setattr(self, attr, 'NoJF_NoSV0NoSv1_V3')
@@ -359,7 +359,7 @@ class _BTaggingFlags:
 
 
       #defaultJetCollections = ['AntiKt4LCTopo','AntiKt6LCTopo','AntiKt4TopoEM','AntiKt6TopoEM']
-      defaultJetCollections = ['AntiKt4LCTopo','AntiKt4TopoEM']
+      defaultJetCollections = ['AntiKt4LCTopo','AntiKt4EMTopo']
 
       for attr in self._Jets:
         setattr(self, attr, defaultJetCollections[:])
@@ -368,7 +368,7 @@ class _BTaggingFlags:
       for attr in self._RetagJets:
         setattr(self, attr, defaultJetCollections[:])
       for attr in self._JetsForNtuple:
-        setattr(self, attr, 'AntiKt4TopoEM')
+        setattr(self, attr, 'AntiKt4EMTopo')
 
       for attr in self._CalibrationFolderRoot:
         setattr(self, attr, '/GLOBAL/BTagCalib/')
@@ -409,6 +409,8 @@ class _BTaggingFlags:
                               #stay there if we want support for JetRec to setup b-tagging from their end.
                               "AntiKt4EMTopo->AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
                               "AntiKt4LCTopo->AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
+                              "AntiKt4EMTopoOrigin->AntiKt4EMTopoOrigin,AntiKt4EMTopo,AntiKt4TopoEM,AntiKt4LCTopo",
+                              "AntiKt4LCTopoOrigin->AntiKt4LCTopoOrigin,AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                               "AntiKt10LCTopo->AntiKt10LCTopo,AntiKt6LCTopo,AntiKt6TopoEM,AntiKt4LCTopo,AntiKt4TopoEM,AntiKt4EMTopo",
                               "AntiKt10Truth->AntiKt6TopoEM,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
                               "AntiKt10TruthWZ->AntiKt10TruthWZ,AntiKt6TopoEM,AntiKt4TopoEM,AntiKt4EMTopo,AntiKt4LCTopo",
