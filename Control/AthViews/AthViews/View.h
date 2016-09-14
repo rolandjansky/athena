@@ -22,6 +22,9 @@ class View : public IProxyDict {
 public:
   View (const std::string& name);
   virtual ~View ();
+  View (const View&) = delete;
+  View& operator= (const View&) = delete;
+  
   void impl ( IProxyDict* impl ) { m_implementation = impl; }
   IProxyDict* impl (void ) { return m_implementation; }
   const IProxyDict* impl (void ) const { return m_implementation; }

@@ -118,7 +118,7 @@ StatusCode DFlowAlg3::execute()
 
   // create a temporary r-handle
   SG::ReadHandle<std::vector<int> > ints(m_r_ints.name());
-  StatusCode sc = ints.setStore( eventView() );
+  StatusCode sc = ints.setProxyDict( eventView() );
   if ( !sc.isSuccess() ) ATH_MSG_INFO( "Failed to load view " );
   ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
   /*ATH_MSG_INFO("compare pointers: ok=" << (ints.ptr() == m_r_ints.ptr()));

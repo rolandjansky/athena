@@ -12,26 +12,31 @@
 
 from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
 svcMgr += ForwardSchedulerSvc()
-#svcMgr.ForwardSchedulerSvc.CheckDependencies = True # fails when views are dynamic
+svcMgr.ForwardSchedulerSvc.CheckDependencies = True
 
-# Use McEventSelector so we can run with AthenaMP
-import AthenaCommon.AtlasUnixGeneratorJob
+# Make a separate alg pool for the view algs
+# We don't actually need to do this if we attach the algs to job
+# I'm hoping we can keep the mechanism for later, alternatively do the lazy init
+from GaudiHive.GaudiHiveConf import AlgResourcePool
+viewAlgPoolName = "ViewAlgPool"
+svcMgr += AlgResourcePool( viewAlgPoolName )
+#svcMgr.ViewAlgPool.TopAlg = [ "AthViews::DFlowAlg1/dflow_alg1", "AthViews::DFlowAlg2/dflow_alg2", "AthViews::DFlowAlg3/dflow_alg3" ] #algs will be instantiated with default config
+svcMgr.ViewAlgPool.TopAlg = [ "dflow_alg1", "dflow_alg2", "dflow_alg3" ] #use existing instances
 
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
 
 viewList = []
-for viewNumber in range( 2 ):
+for viewNumber in range( 5 ):
 	viewList += [ "view" + str( viewNumber ) ]
 
-#Make views
+# Make views
 job += CfgMgr.AthViews__ViewSubgraphAlg("make_alg")
 job.make_alg.ViewNames = viewList
-for viewName in viewList:
-	job.make_alg.ExtraOutputs += [ ( 'int', viewName + '_view_start' ) ]
+job.make_alg.AlgPoolName = viewAlgPoolName
 
-#Make one view
+# Algorithms for one view
 job += CfgMgr.AthViews__DFlowAlg1("dflow_alg1")
 job.dflow_alg1.RequireView = True
 #
@@ -41,10 +46,9 @@ job.dflow_alg2.RequireView = True
 job += CfgMgr.AthViews__DFlowAlg3("dflow_alg3")
 job.dflow_alg3.RequireView = True
 
-#Merge views
+# Merge views
 job += CfgMgr.AthViews__ViewMergeAlg("merge_alg")
-for viewName in viewList:
-	job.merge_alg.ExtraInputs += [ ( 'int', viewName + '_dflow_dummy' ) ]
+job.merge_alg.ExtraInputs += [ ( 'int', 'all_views_done_dflow' ) ]
 
 #--------------------------------------------------------------
 # Event related parameters

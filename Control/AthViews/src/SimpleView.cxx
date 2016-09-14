@@ -173,7 +173,7 @@ unsigned long SimpleView::release()
 {
 	return 0; //FIX
 }
-StatusCode SimpleView::queryInterface( const InterfaceID &ti, void** pp )
+StatusCode SimpleView::queryInterface( const InterfaceID &/*ti*/, void** /*pp*/ )
 {
 	return StatusCode::FAILURE; //FIX
 }

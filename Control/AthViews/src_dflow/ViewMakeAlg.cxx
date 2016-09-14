@@ -27,8 +27,8 @@ namespace AthViews {
 ViewMakeAlg::ViewMakeAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_w_int( "view_start" ),
   m_w_views( "all_views" ),
+  m_w_int( "view_start" ),
   m_viewNames( std::vector< std::string >() )
 {
   //
@@ -81,8 +81,8 @@ StatusCode ViewMakeAlg::execute()
     m_w_views->push_back( newView );
 
     //Write data to the new view
-    StatusCode sc = m_w_int.setStore( newView );
-    if ( !sc.isSuccess() ) ATH_MSG_ERROR( "setStore() failed for new view" );
+    StatusCode sc = m_w_int.setProxyDict( newView );
+    if ( !sc.isSuccess() ) ATH_MSG_ERROR( "setProxyDict() failed for new view" );
     m_w_int.record( CxxUtils::make_unique<int>( ( viewIndex * 10 ) + 10 + m_event_context->evt() ) );
   }
 

@@ -31,9 +31,11 @@ namespace AthViews {
 ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_w_int( "view_start" ),
   m_w_views( "all_views" ),
-  m_viewNames( std::vector< std::string >() )
+  m_w_int( "view_start" ),
+  m_w_allViewsDone( "all_views_done_dflow" ),
+  m_viewNames( std::vector< std::string >() ),
+  m_algPoolName( "" )
 {
   //
   // Property declaration
@@ -41,10 +43,14 @@ ViewSubgraphAlg::ViewSubgraphAlg( const std::string& name,
   //declareProperty( "Property", m_nProperty );
 
   declareProperty( "ViewStart", m_w_int, "A number to start off the view" );
+  
+  declareProperty( "AllViewsDone", m_w_allViewsDone, "Data flow to indicate that all views have been completed" );
 
   declareProperty( "AllViews", m_w_views, "All views" );
 
   declareProperty( "ViewNames", m_viewNames, "View names" );
+
+  declareProperty( "AlgPoolName", m_algPoolName, "Name for the algorithm pool service to use with the views" );
 }
 
 // Destructor
@@ -75,6 +81,7 @@ StatusCode ViewSubgraphAlg::execute()
 
   //Subgraph a view for each name given
   m_w_views.record( CxxUtils::make_unique< std::vector< SG::View* > >() );
+  tbb::task_list allTasks;
   for ( unsigned int viewIndex = 0; viewIndex < m_viewNames.size(); viewIndex++ )
   {
     std::string const viewName = m_viewNames[ viewIndex ];
@@ -85,8 +92,8 @@ StatusCode ViewSubgraphAlg::execute()
     m_w_views->push_back( newView );
 
     //Write data to the new view
-    StatusCode sc = m_w_int.setStore( newView );
-    if ( !sc.isSuccess() ) ATH_MSG_ERROR( "setStore() failed for new view" );
+    StatusCode sc = m_w_int.setProxyDict( newView );
+    if ( !sc.isSuccess() ) ATH_MSG_ERROR( "setProxyDict() failed for new view" );
     m_w_int.record( CxxUtils::make_unique<int>( ( viewIndex * 10 ) + 10 + m_event_context->evt() ) );
 
     //Make a context with the view attached
@@ -95,10 +102,12 @@ StatusCode ViewSubgraphAlg::execute()
 
     //Make a subgraph
     std::vector< std::string > algorithmNameSequence = { "dflow_alg1", "dflow_alg2", "dflow_alg3" };
-    tbb::task * t = new( tbb::task::allocate_root() )GraphExecutionTask( algorithmNameSequence, viewContext, serviceLocator() );
-    tbb::task::enqueue( *t );
+    tbb::task * t = new( tbb::task::allocate_root() )GraphExecutionTask( algorithmNameSequence, viewContext, serviceLocator()->service( m_algPoolName ) );
+    allTasks.push_back( *t );
   }
+  tbb::task::spawn_root_and_wait( allTasks );
 
+  m_w_allViewsDone.record( CxxUtils::make_unique<int>( 1 ) );
   return StatusCode::SUCCESS;
 }
 

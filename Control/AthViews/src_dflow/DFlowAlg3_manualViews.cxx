@@ -34,9 +34,9 @@ DFlowAlg3_manualViews::DFlowAlg3_manualViews( const std::string& name,
   m_r_int( "dflow_int" ),
   m_r_ints( "dflow_ints" ),
   //m_rw_ints( "dflow_ints" ),
-  m_w_dflowDummy( "dflow_dummy" ),
   m_viewName( "view1" ),
-  m_r_views( "all_views" )
+  m_r_views( "all_views" ),
+  m_w_dflowDummy( "dflow_dummy" )
 {
   //
   // Property declaration
@@ -95,9 +95,9 @@ StatusCode DFlowAlg3_manualViews::execute()
       {
         foundView = true;
 	thisView = view;
-        StatusCode sc = m_r_int.setStore( view );
-        sc = m_r_ints.setStore( view );
-        //sc = m_rw_ints.setStore( view );
+        StatusCode sc = m_r_int.setProxyDict( view );
+        sc = m_r_ints.setProxyDict( view );
+        //sc = m_rw_ints.setProxyDict( view );
         if ( !sc.isSuccess() ) ATH_MSG_ERROR( "Failed to load view " << m_viewName );
         break;
       }
@@ -146,7 +146,7 @@ StatusCode DFlowAlg3_manualViews::execute()
   SG::ReadHandle<std::vector<int> > ints(m_r_ints.name());
   if ( thisView ) //Apparently it needs to run in the current view
   {
-	  StatusCode sc = ints.setStore( thisView );
+	  StatusCode sc = ints.setProxyDict( thisView );
 	  if ( !sc.isSuccess() ) ATH_MSG_INFO( "Failed to load view " << m_viewName );
   }
   ATH_MSG_INFO("temporary r-handle[ints] - size: " << ints->size());
@@ -276,7 +276,7 @@ StatusCode DFlowAlg3_manualViews::execute()
   //Dummy object to fix the data flow
   if ( thisView )
   {
-    StatusCode sc = m_w_dflowDummy.setStore( thisView );
+    StatusCode sc = m_w_dflowDummy.setProxyDict( thisView );
     if ( sc.isSuccess() )
     {
       m_w_dflowDummy.record( CxxUtils::make_unique<int>( 1 ) );

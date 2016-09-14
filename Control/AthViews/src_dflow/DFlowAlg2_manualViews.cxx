@@ -88,9 +88,9 @@ StatusCode DFlowAlg2_manualViews::execute()
       if ( view->name() == m_viewName )
       {
         foundView = true;
-        StatusCode sc = m_r_int.setStore( view );
-        //sc = m_rw_int.setStore( view );
-        sc = m_ints.setStore( view );
+        StatusCode sc = m_r_int.setProxyDict( view );
+        //sc = m_rw_int.setProxyDict( view );
+        sc = m_ints.setProxyDict( view );
         if ( !sc.isSuccess() ) ATH_MSG_ERROR( "Failed to load view " << m_viewName );
         break;
       }

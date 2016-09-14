@@ -131,12 +131,12 @@ StatusCode AthViewAlgorithm::sysExecute()
   for ( auto handle : inputHandles() )
   {
     SG::VarHandleBase * athenaHandle = ( SG::VarHandleBase* )handle;
-    CHECK( athenaHandle->setStore( myView ) );
+    CHECK( athenaHandle->setProxyDict( myView ) );
   }
   for ( auto handle : outputHandles() )
   {
     SG::VarHandleBase * athenaHandle = ( SG::VarHandleBase* )handle;
-    CHECK( athenaHandle->setStore( myView ) );
+    CHECK( athenaHandle->setProxyDict( myView ) );
   }
 
   return AthAlgorithm::sysExecute();
@@ -157,13 +157,13 @@ void AthViewAlgorithm::useView()
   for ( auto handle : inputHandles() )
   {
     SG::VarHandleBase * athenaHandle = ( SG::VarHandleBase* )handle;
-    sc = athenaHandle->setStore( myView );
+    sc = athenaHandle->setProxyDict( myView );
     if ( !sc.isSuccess() ) ATH_MSG_ERROR( "Cannot set view " << myView << " for handle " << athenaHandle );
   }
   for ( auto handle : outputHandles() )
   {
     SG::VarHandleBase * athenaHandle = ( SG::VarHandleBase* )handle;
-    sc = athenaHandle->setStore( myView );
+    sc = athenaHandle->setProxyDict( myView );
     if ( !sc.isSuccess() ) ATH_MSG_ERROR( "Cannot set view " << myView << " for handle " << athenaHandle );
   }
 }
@@ -175,7 +175,7 @@ SG::View * AthViewAlgorithm::eventView()
   if ( m_viewName != "" )
   {
     //Try to retrieve view container
-    StatusCode sc = m_r_views.setStore( 0 );
+    StatusCode sc = m_r_views.setProxyDict( 0 );
     if ( !sc.isSuccess() || !m_r_views.isValid() )
     {
       ATH_MSG_ERROR( "Cannot retrieve view container: " << sc << ", " << m_r_views.isValid() );

@@ -16,6 +16,7 @@ use CxxUtils           CxxUtils-*               Control
 use EventInfo          EventInfo-*              Event
 end_private
 
+
 #This makes libAthViewsLib.so (in addition to libAthViews.so, which gets made anyway)
 #Seems to be necessary for linking to StoreGate
 apply_pattern dual_use_library files=*.cxx

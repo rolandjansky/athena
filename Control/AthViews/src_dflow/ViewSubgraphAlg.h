@@ -60,7 +60,9 @@ class ViewSubgraphAlg
   // vars
   SG::WriteHandle< std::vector< SG::View* > > m_w_views;
   SG::WriteHandle<int> m_w_int;
+  SG::WriteHandle<int> m_w_allViewsDone;
   std::vector< std::string > m_viewNames;
+  std::string m_algPoolName;
 }; 
 
 // I/O operators

@@ -26,8 +26,8 @@ namespace AthViews {
 ViewMergeAlg::ViewMergeAlg( const std::string& name, 
                       ISvcLocator* pSvcLocator ) : 
   ::AthAlgorithm( name, pSvcLocator ),
-  m_r_ints( "dflow_ints" ),
   m_w_ints( "dflow_ints" ),
+  m_r_ints( "dflow_ints" ),
   m_r_views( "all_views" )
 {
   //
@@ -78,7 +78,7 @@ StatusCode ViewMergeAlg::execute()
 	  ATH_MSG_INFO( "Merging view: " << view->name() );
 
 	  //Retrieve the view data
-	  StatusCode sc = m_r_ints.setStore( view );
+	  StatusCode sc = m_r_ints.setProxyDict( view );
 	  if ( !sc.isSuccess() )
 	  {
 		  ATH_MSG_ERROR( "Unable to load view " << view->name() );
@@ -93,7 +93,7 @@ StatusCode ViewMergeAlg::execute()
   }
 
   //Output the merged data
-  if ( !m_w_ints.setStore( 0 ).isSuccess() )
+  if ( !m_w_ints.setProxyDict( 0 ).isSuccess() )
   {
 	  ATH_MSG_INFO( "Unable to load main event store" );
   }

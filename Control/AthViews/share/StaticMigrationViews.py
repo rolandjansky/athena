@@ -14,9 +14,6 @@ from GaudiHive.GaudiHiveConf import ForwardSchedulerSvc
 svcMgr += ForwardSchedulerSvc()
 svcMgr.ForwardSchedulerSvc.CheckDependencies = True
 
-# Use McEventSelector so we can run with AthenaMP
-import AthenaCommon.AtlasUnixGeneratorJob
-
 # Full job is a list of algorithms
 from AthenaCommon.AlgSequence import AlgSequence
 job = AlgSequence()
