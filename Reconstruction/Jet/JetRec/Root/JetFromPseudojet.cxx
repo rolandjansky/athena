@@ -66,9 +66,11 @@ buildAndSetEMScaleMom(xAOD::Jet* jet,
     // If constituents are already uncalibrated, the momentum is the same.
     jet->setJetP4(xAOD::JetEMScaleMomentum, jet->jetP4());
     ATH_MSG_DEBUG("  EM scale momentum set to jet scale");
-  } else if ( (inputtype == xAOD::JetInput::LCTopo) ||
+  } else if ( (inputtype == xAOD::JetInput::EMTopoOrigin) ||
+              (inputtype == xAOD::JetInput::LCTopoOrigin) ||
+              (inputtype == xAOD::JetInput::LCTopo) ||
               (inputtype == xAOD::JetInput::LCPFlow)|| 
-              (inputtype == xAOD::JetInput::EMCPFlow) ) {     
+              (inputtype == xAOD::JetInput::EMCPFlow) ) {
     // fetch and sum the uncalibrated constituent momenta
     xAOD::JetConstituentVector vec = jet->getConstituents();
     if(! vec.isValid() ) {
@@ -80,7 +82,9 @@ buildAndSetEMScaleMom(xAOD::Jet* jet,
     xAOD::JetConstitScale uncal = xAOD::UncalibratedJetConstituent;
     // just sum 4-vectors:
     ATH_MSG_VERBOSE("  Summing four vectors.");
-    for (auto it=vec.begin(uncal); it != vec.end(uncal); ++it) emscaleSum +=**it;
+    for (auto it=vec.begin(uncal); it != vec.end(uncal); ++it) {
+      emscaleSum +=**it;
+    }
   
     ATH_MSG_VERBOSE("  Setting EM scale momentum");
     jet->setJetP4(xAOD::JetEMScaleMomentum, emscaleSum);        

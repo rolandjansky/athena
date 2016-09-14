@@ -45,7 +45,7 @@ if jetFlags.useTopo():
   jtm.addJetFinder("AntiKt10LCTopoJets",  "AntiKt", 1.0,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter=50000, calibOpt="none")
 #  jtm.addJetFinder("CamKt12LCTopoJets",    "CamKt", 1.2,   "lctopo", "calib", ghostArea=0.01, ptmin= 2000, ptminFilter=50000, calibOpt="none")
 if jetFlags.usePFlow():
-  jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,  "empflow", "pflow", ghostArea=0.01, ptmin= 2000, ptminFilter= 5000, calibOpt="a:pflow")
+  jtm.addJetFinder("AntiKt4EMPFlowJets",  "AntiKt", 0.4,  "empflow", "pflow", ghostArea=0.01, ptmin= 2000, ptminFilter= 5000, calibOpt="ar:pflow")
 
 #--------------------------------------------------------------
 # Build output container list.

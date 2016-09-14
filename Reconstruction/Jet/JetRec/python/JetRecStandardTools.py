@@ -30,7 +30,7 @@ from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrac
 from MCTruthClassifier.MCTruthClassifierConf import MCTruthClassifier
 
 from PFlowUtils.PFlowUtilsConf import CP__RetrievePFOTool as RetrievePFOTool
-#from PFlowUtils.PFlowUtilsConf import CP__WeightPFOTool as WeightPFOTool
+from PFlowUtils.PFlowUtilsConf import CP__WeightPFOTool as WeightPFOTool
 from JetRecTools.JetRecToolsConf import TrackPseudoJetGetter
 from JetRecTools.JetRecToolsConf import JetTrackSelectionTool
 from JetRecTools.JetRecToolsConf import SimpleJetTrackSelectionTool
@@ -240,7 +240,7 @@ jtm += ctm.buildConstitModifSequence( "JetConstitSeq_EMOrigin",
 jtm += PseudoJetGetter(
   "lcoriginget",
   InputContainer = jtm.JetConstitSeq_LCOrigin.OutputContainer,
-  Label = "LCTopo",
+  Label = "LCTopoOrigin",
   OutputContainer = jtm.JetConstitSeq_LCOrigin.OutputContainer+"PseudoJet",
   SkipNegativeEnergy = True,
   GhostScale = 0.0
@@ -249,7 +249,7 @@ jtm += PseudoJetGetter(
 jtm += PseudoJetGetter(
   "emoriginget",
   InputContainer = jtm.JetConstitSeq_EMOrigin.OutputContainer,
-  Label = "EMTopo",
+  Label = "EMTopoOrigin",
   OutputContainer = jtm.JetConstitSeq_EMOrigin.OutputContainer+"PseudoJet",
   SkipNegativeEnergy = True,
   GhostScale = 0.0
@@ -310,7 +310,7 @@ jtm += MuonSegmentPseudoJetGetter(
 jtm += RetrievePFOTool("pflowretriever")
 
 # Weight tool for charged pflow objects.
-#jtm += WeightPFOTool("pflowweighter")
+jtm += WeightPFOTool("pflowweighter")
 
 useVertices = True
 if False == jetFlags.useVertices:
@@ -331,7 +331,7 @@ jtm += PFlowPseudoJetGetter(
   Label = "EMPFlow",
   OutputContainer = "PseudoJetEMPFlow",
   RetrievePFOTool = jtm.pflowretriever,
-  #WeightPFOTool = jtm.pflowweighter,
+  WeightPFOTool = jtm.pflowweighter,
   InputIsEM = True,
   CalibratePFO = False,
   SkipNegativeEnergy = True,
@@ -346,7 +346,7 @@ jtm += PFlowPseudoJetGetter(
   Label = "EMCPFlow",
   OutputContainer = "PseudoJetEMCPFlow",
   RetrievePFOTool = jtm.pflowretriever,
-  #WeightPFOTool = jtm.pflowweighter,
+  WeightPFOTool = jtm.pflowweighter,
   InputIsEM = True,
   CalibratePFO = True,
   SkipNegativeEnergy = True,
@@ -361,7 +361,7 @@ jtm += PFlowPseudoJetGetter(
   Label = "LCPFlow",
   OutputContainer = "PseudoJetLCPFlow",
   RetrievePFOTool = jtm.pflowretriever,
-  #WeightPFOTool = jtm.pflowweighter,
+  WeightPFOTool = jtm.pflowweighter,
   InputIsEM = False,
   CalibratePFO = False,
   SkipNegativeEnergy = True,
