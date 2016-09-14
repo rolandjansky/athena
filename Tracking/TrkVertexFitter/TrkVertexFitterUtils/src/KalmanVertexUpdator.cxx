@@ -205,12 +205,10 @@ namespace Trk{
    Amg::Vector3D new_vrt_position =  new_vrt_weight_later_cov*(old_vrt_weight * old_pos + trackWeight * sign * A.transpose() * gB *(trackParameters - constantTerm) );
    //  std::cout << "New vertex position obtained: " << new_vrt_position << std::endl;
 
-   xAOD::Vertex r_vtx;
-   r_vtx.makePrivateStore();
-   // r_vtx was a RecVertex before vertex EDM migration and instantiated using RecVertex(pos,cov)
+   // return a vertex which is identical to the input vertex but with updated position and covariance
+   xAOD::Vertex r_vtx( vtx );
    r_vtx.setPosition( new_vrt_position );
    r_vtx.setCovariancePosition( new_vrt_weight_later_cov );
-   r_vtx.setFitQuality( 0., 0.); // therefore, set FitQuality to default just like in RecVertex copy constructor
    ATH_MSG_VERBOSE ( "Maths done, returning a valid xAOD::Vertex.");
 
    return r_vtx;
