@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 757525 2016-06-24 15:23:55Z krasznaa $
+# $Id: CMakeLists.txt 771040 2016-08-31 13:46:25Z ssnyder $
 ################################################################################
 # Package: JetMomentTools
 ################################################################################
@@ -35,6 +35,16 @@ find_package( Boost )
 find_package( ROOT COMPONENTS Core Hist )
 
 # Component(s) in the package:
+atlas_add_library( JetMomentToolsLib
+  JetMomentTools/*.h src/*.h src/*.cxx Root/*.cxx src/components/*.cxx
+  PUBLIC_HEADERS JetMomentTools
+  PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+  LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} CaloDetDescrLib
+  CaloEvent CaloIdentifier AsgTools AthenaKernel xAODCaloEvent xAODJet
+  xAODMissingET xAODTracking GaudiKernel JetEDM JetInterface JetRecLib
+  JetUtils CaloGeoHelpers xAODEventInfo xAODPFlow PathResolver JetRecCaloLib )
+
+
 atlas_add_component( JetMomentTools
   JetMomentTools/*.h src/*.h src/*.cxx Root/*.cxx src/components/*.cxx
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
@@ -42,6 +52,17 @@ atlas_add_component( JetMomentTools
   CaloEvent CaloIdentifier AsgTools AthenaKernel xAODCaloEvent xAODJet
   xAODMissingET xAODTracking GaudiKernel JetEDM JetInterface JetRecLib
   JetUtils CaloGeoHelpers xAODEventInfo xAODPFlow PathResolver JetRecCaloLib )
+
+atlas_add_dictionary( JetMomentToolsDict
+		      JetMomentTools/JetMomentToolsDict.h
+                      JetMomentTools/selection.xml
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} 
+		      CaloDetDescrLib CaloEvent CaloIdentifier AsgTools 
+		      AthenaKernel xAODCaloEvent xAODJet xAODMissingET 
+		      xAODTracking GaudiKernel JetEDM JetInterface JetRecLib
+  		      JetUtils CaloGeoHelpers xAODEventInfo xAODPFlow 
+		      PathResolver JetRecCaloLib JetMomentToolsLib )
 
 # Install files from the package:
 atlas_install_headers( JetMomentTools )
