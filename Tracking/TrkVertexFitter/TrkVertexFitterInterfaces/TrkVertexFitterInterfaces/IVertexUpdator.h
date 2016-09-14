@@ -72,6 +72,16 @@ namespace Trk
       */
        virtual xAOD::Vertex positionUpdate (const xAOD::Vertex& vtx, const LinearizedTrack * trk, double trackWeight, int sign) const = 0;
        
+       /**
+       * Method calculating the interstep Chi2 increment
+       */ 
+       virtual float trackParametersChi2(const xAOD::Vertex& new_vtx, const LinearizedTrack * trk) const = 0;
+
+       /** 
+       * Method calculating the vertex displacement-related part of the chi2   
+       */
+       virtual float vertexPositionChi2(const xAOD::Vertex& old_vtx, const xAOD::Vertex& new_vtx) const = 0;
+
   };
 }
 #endif
