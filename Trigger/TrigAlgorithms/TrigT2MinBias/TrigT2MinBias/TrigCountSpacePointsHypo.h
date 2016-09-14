@@ -33,6 +33,9 @@ class TrigCountSpacePointsHypo: public HLT::HypoAlgo {
   /** Name of the TrigSpacePointCounts object */
   std::string m_trigSpacePointCountsKey;
 
+  /** If enabled this inverts the final decision of the hypo, turning it into a veto. */
+  bool m_veto;
+
   /** If enabled the event is passed, ignoring the trigger decision. */
   bool m_acceptAll;
 

@@ -57,6 +57,7 @@ class TrigCountSpacePoints: public HLT::AllTEAlgo {
 
   bool m_doPixelSp; //!< Flag to switch on or off Pixel space point retrieval 
   bool m_doSctSp; //!< Flag to switch on or off SCT space point retrieval 
+  bool m_doOnlyBLayer; //!< Flag to only count innermost layer of PIX (does not affect SCT)
 
   const PixelID* m_pixHelper;   
   const SCT_ID* m_sctHelper;
