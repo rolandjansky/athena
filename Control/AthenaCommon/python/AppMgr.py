@@ -575,6 +575,18 @@ class AthAppMgr( AppMgr ):
    
  # redefines to take into acount setup of Configurables
    def initialize( self ):
+      # Touch these types early, before dictionaries are loaded,
+      # to prevent spurious error messages from ROOT.
+      # See ATLASRECTS-3486.
+      import cppyy
+      getattr(cppyy.gbl, 'vector<bool>')
+      getattr(cppyy.gbl, 'vector<float>')
+      getattr(cppyy.gbl, 'vector<unsigned short>')
+      getattr(cppyy.gbl, 'vector<short>')
+      getattr(cppyy.gbl, 'vector<unsigned long>')
+      getattr(cppyy.gbl, 'vector<ULong64_t>')
+      getattr(cppyy.gbl, 'map<string,string>')
+
     # build configuration
       self.setup()
 
