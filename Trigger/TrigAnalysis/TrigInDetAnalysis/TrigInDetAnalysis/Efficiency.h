@@ -138,7 +138,23 @@ public:
   TH1F* Hist() { return m_heff; }
 
   TGraphAsymmErrors* Bayes(double scale=100) const { 
+
+    /// stupid root, told to divide, it skips bins where the 
+    /// nukber of entries is 0 (ok) but then complains that
+    /// "number of points is not the same as the number of 
+    /// bins" now that would be ok, *if these were user input
+    /// values*, but is *stupid* if this is some root policy.
+    /// : root decides to do X and then prints a warning 
+    /// so instead, set the bin contents, for these bins to 
+    /// something really, really, *really* tiny ... 
+
+    for ( int i=0 ; i<m_hdenom->GetNbinsX() ; i++ ) { 
+      double y = m_hdenom->GetBinContent(i+1);
+      if ( y==0 ) m_hdenom->SetBinContent(i+1, 1e-20);
+    }
+
     TGraphAsymmErrors* tg = new TGraphAsymmErrors( m_hnumer, m_hdenom, "cl=0.683 b(1,1) mode" );
+
 
     double* x      = tg->GetX();
     double* y      = tg->GetY();
