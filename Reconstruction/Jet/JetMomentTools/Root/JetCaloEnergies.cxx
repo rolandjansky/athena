@@ -56,7 +56,11 @@ void JetCaloEnergies::fillEperSamplingCluster(xAOD::Jet& jet, std::vector<float>
   // loop over raw constituents
   size_t numConstit = jet.numConstituents();    
   for ( size_t i=0; i<numConstit; i++ ) {
-    const xAOD::CaloCluster* constit = dynamic_cast<const xAOD::CaloCluster*>(jet.rawConstituent(i));      
+    if(jet.rawConstituent(i)->type()!=xAOD::Type::CaloCluster) {
+      ATH_MSG_WARNING("Tried to call fillEperSamplingCluster with a jet constituent that is not a cluster!");
+      continue;
+    }
+    const xAOD::CaloCluster* constit = static_cast<const xAOD::CaloCluster*>(jet.rawConstituent(i));      
     for ( size_t s= CaloSampling::PreSamplerB; s< CaloSampling::Unknown; s++ ) {
         ePerSampling[s] += constit->eSample( (xAOD::CaloCluster::CaloSample) s );
       }
@@ -66,10 +70,16 @@ void JetCaloEnergies::fillEperSamplingCluster(xAOD::Jet& jet, std::vector<float>
   static xAOD::JetAttributeAccessor::AccessorWrapper<float>& hecFracAcc =
     *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::HECFrac);      
   
-  emFracAcc(jet) = jet::JetCaloQualityUtils::emFraction( ePerSampling);
-  hecFracAcc(jet) = jet::JetCaloQualityUtils::hecF( &jet );       
+  emFracAcc(jet) = jet::JetCaloQualityUtils::emFraction( ePerSampling );
+  hecFracAcc(jet) = jet::JetCaloQualityUtils::hecF( &jet );
 }
 
+#define FillESamplingPFO( LAYERNAME )					\
+  float E_##LAYERNAME = 0.0;						\
+  if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_##LAYERNAME, E_##LAYERNAME)) { \
+    ePerSampling[CaloSampling::LAYERNAME] += E_##LAYERNAME;		\
+  }
+  
 void JetCaloEnergies::fillEperSamplingPFO(xAOD::Jet & jet, std::vector<float> & ePerSampling ) const {
 
   float emTot=0;
@@ -78,104 +88,56 @@ void JetCaloEnergies::fillEperSamplingPFO(xAOD::Jet & jet, std::vector<float> & 
   size_t numConstit = jet.numConstituents();
 
   for ( size_t i=0; i<numConstit; i++ ) {
-    const xAOD::PFO* constit = dynamic_cast<const xAOD::PFO*>(jet.rawConstituent(i));
-    if (constit){
+    if (jet.rawConstituent(i)->type()==xAOD::Type::ParticleFlow){
+      const xAOD::PFO* constit = static_cast<const xAOD::PFO*>(jet.rawConstituent(i));
       eTot += constit->eEM();
       if (0 == constit->charge()){
 
-        float E_PreSamplerB = 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_PreSamplerB, E_PreSamplerB)) ePerSampling[CaloSampling::PreSamplerB] += E_PreSamplerB;
-          
-        float E_EMB1 = 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_EMB1, E_EMB1)) ePerSampling[CaloSampling::EMB1] += E_EMB1;
-          
-        float E_EMB2 = 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_EMB2, E_EMB2)) ePerSampling[CaloSampling::EMB2] += E_EMB2;
-	  
-        float E_EMB3 = 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_EMB3, E_EMB3)) ePerSampling[CaloSampling::EMB3] += E_EMB3;
-          
-        float E_PreSamplerE = 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_PreSamplerE, E_PreSamplerE)) ePerSampling[CaloSampling::PreSamplerE] += E_PreSamplerE;
-          
-        float E_EME1 = 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_EME1, E_EME1)) ePerSampling[CaloSampling::EME1] += E_EME1;
-          
-        float E_EME2 = 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_EME2, E_EME2)) ePerSampling[CaloSampling::EME2] += E_EME2;
-          
-        float E_EME3 = 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_EME3, E_EME3)) ePerSampling[CaloSampling::EME3] += E_EME3;
-          
-        float E_HEC0= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_HEC0, E_HEC0)) ePerSampling[CaloSampling::HEC0] += E_HEC0;
-          
-        float E_HEC1= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_HEC1, E_HEC1)) ePerSampling[CaloSampling::HEC1] += E_HEC1;
-          
-        float E_HEC2= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_HEC2, E_HEC2)) ePerSampling[CaloSampling::HEC2] += E_HEC2;
-          
-        float E_HEC3= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_HEC3, E_HEC3)) ePerSampling[CaloSampling::HEC3] += E_HEC3;
+	FillESamplingPFO(PreSamplerB);
+	FillESamplingPFO(EMB1);
+	FillESamplingPFO(EMB2);
+	FillESamplingPFO(EMB3);
 
-	float E_TileBar0= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_TileBar0, E_TileBar0)) ePerSampling[CaloSampling::TileBar0] += E_TileBar0;
+	FillESamplingPFO(PreSamplerE);
+	FillESamplingPFO(EME1);
+	FillESamplingPFO(EME2);
+	FillESamplingPFO(EME3);
 
-        float E_TileBar1= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_TileBar1, E_TileBar1)) ePerSampling[CaloSampling::TileBar1] += E_TileBar1;
+	FillESamplingPFO(HEC0);
+	FillESamplingPFO(HEC1);
+	FillESamplingPFO(HEC2);
+	FillESamplingPFO(HEC3);
 
-        float E_TileBar2= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_TileBar2, E_TileBar2)) ePerSampling[CaloSampling::TileBar2] += E_TileBar2;
+	FillESamplingPFO(TileBar0);
+	FillESamplingPFO(TileBar1);
+	FillESamplingPFO(TileBar2);
 
-        float E_TileGap1= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_TileGap1, E_TileGap1)) ePerSampling[CaloSampling::TileGap1] += E_TileGap1;
+	FillESamplingPFO(TileGap1);
+	FillESamplingPFO(TileGap2);
+	FillESamplingPFO(TileGap3);
 
-        float E_TileGap2= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_TileGap2, E_TileGap2)) ePerSampling[CaloSampling::TileGap2] += E_TileGap2;
-        
-        float E_TileGap3= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_TileGap3, E_TileGap3)) ePerSampling[CaloSampling::TileGap3] += E_TileGap3;
+	FillESamplingPFO(TileExt0);
+	FillESamplingPFO(TileExt1);
+	FillESamplingPFO(TileExt2);
 
-        float E_TileExt0= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_TileExt0, E_TileExt0)) ePerSampling[CaloSampling::TileExt0] += E_TileExt0;
+	FillESamplingPFO(FCAL0);
+	FillESamplingPFO(FCAL1);
+	FillESamplingPFO(FCAL2);
 
-        float E_TileExt1= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_TileExt1, E_TileExt1)) ePerSampling[CaloSampling::TileExt1] += E_TileExt1;
+	FillESamplingPFO(MINIFCAL0);
+	FillESamplingPFO(MINIFCAL1);
+	FillESamplingPFO(MINIFCAL2);
+	FillESamplingPFO(MINIFCAL3);	
 
-        float E_TileExt2= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_TileExt2, E_TileExt2)) ePerSampling[CaloSampling::TileExt2] += E_TileExt2;
-
-        float E_FCAL0= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_FCAL0, E_FCAL0)) ePerSampling[CaloSampling::FCAL0] += E_FCAL0;
-
-        float E_FCAL1= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_FCAL1, E_FCAL1)) ePerSampling[CaloSampling::FCAL1] += E_FCAL1;
-
-        float E_FCAL2= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_FCAL2, E_FCAL2)) ePerSampling[CaloSampling::FCAL2] += E_FCAL2;
-
-        float E_MINIFCAL0= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_MINIFCAL0, E_MINIFCAL0)) ePerSampling[CaloSampling::MINIFCAL0] += E_MINIFCAL0;
-
-        float E_MINIFCAL1= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_MINIFCAL1, E_MINIFCAL1)) ePerSampling[CaloSampling::MINIFCAL1] += E_MINIFCAL1;
-
-        float E_MINIFCAL2= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_MINIFCAL2, E_MINIFCAL2)) ePerSampling[CaloSampling::MINIFCAL2] += E_MINIFCAL2;
-
-        float E_MINIFCAL3= 0.0;
-        if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_MINIFCAL3, E_MINIFCAL3)) ePerSampling[CaloSampling::MINIFCAL3] += E_MINIFCAL3;
-
-	//We calculate emTot and hecTot from these stored values, because above layer energies are NOT stored in the xAOD/ESD.
-	float E_EM = 0.0;
-	if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_EM,E_EM)) emTot += E_EM;
+	emTot += ( E_PreSamplerB+E_EMB1+E_EMB2+E_EMB3+
+		  E_PreSamplerE+E_EME1+E_EME2+E_EME3+
+		  E_FCAL0 );
+	hecTot += ( E_HEC0+E_HEC1+E_HEC2+E_HEC3 );
 	
-	float E_HEC = 0.0;
-	if (constit->attribute<float>(xAOD::PFODetails::eflowRec_LAYERENERGY_HEC,E_HEC)) hecTot += E_HEC;
-	
-	 }//only consider neutral PFO
-    }//if dynamic cast worked
+      }//only consider neutral PFO
+    } else {
+      ATH_MSG_WARNING("Tried to call fillEperSamplingPFlow with a jet constituent that is not a PFO!");
+    }
   }
 
   static xAOD::JetAttributeAccessor::AccessorWrapper<float>& emFracAcc = *xAOD::JetAttributeAccessor::accessor< float >(xAOD::JetAttribute::EMFrac);
