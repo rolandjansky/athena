@@ -25,7 +25,7 @@ StatusCode FastSimulationMasterTool::initializeFastSims(){
   CHECK( m_FastSimList.retrieve() );
 
   // Initialize the SDs
-  for (auto ifs : m_FastSimList){
+  for (auto& ifs : m_FastSimList){
     CHECK(ifs->initializeFastSim());
   }
 
@@ -47,7 +47,7 @@ StatusCode FastSimulationMasterTool::initializeFastSims(){
 
 StatusCode FastSimulationMasterTool::EndOfAthenaEvent(){
   // Call gather for all sensitive detectors
-  for (auto ifs : m_FastSimList){
+  for (auto& ifs : m_FastSimList){
     CHECK(ifs->EndOfAthenaEvent());
   }
   return StatusCode::SUCCESS;
