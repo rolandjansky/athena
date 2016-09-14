@@ -189,7 +189,7 @@ namespace met {
 
   bool METSoftTermsTool::accept(const xAOD::PFO* pfo) const
   {
-    if(pfo->charge()==0) return true;
+    if(fabs(pfo->charge())<1e-9) return true;
     if(fabs(pfo->track(0)->z0() - (*m_pv_cont)[0]->z())>2) return false;
     return true;
   }
@@ -373,11 +373,13 @@ namespace met {
 	   iPart!=signalList.end(); ++iPart) {
 	const PFO* pfo = dynamic_cast<const PFO*>(*iPart);
         if(pfo) {
-	  if(pfo->charge()==0) {
 	    metTerm->add(pfo->ptEM()*cos(pfo->phiEM()),
 		         pfo->ptEM()*sin(pfo->phiEM()),
 		         pfo->ptEM());
 	  } else {
+	  // In principle for the charged PFOs we should perhaps add the weights
+	  // but this shouldn't happen if we don't have a jet. 
+	  if(fabs(pfo->charge()<1e-9)) {
 	    metTerm->add(pfo->pt()*cos(pfo->phi()),
 		         pfo->pt()*sin(pfo->phi()),
 		         pfo->pt());

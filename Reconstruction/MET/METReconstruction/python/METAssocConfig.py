@@ -80,10 +80,12 @@ def getAssociator(config,suffix,doPFlow=False,
         pfotool = CfgMgr.CP__RetrievePFOTool('MET_PFOTool_'+suffix)
         ToolSvc += pfotool
         tool.PFOTool = pfotool
+        pfoweighttool = CfgMgr.CP__WeightPFOTool('MET_PFOWeightTool_'+suffix)
+        ToolSvc += pfoweighttool
+        tool.PFOWeightTool = pfoweighttool
         tool.PFlow = True
     else:
         tool.UseModifiedClus = doOriginCorrClus
-
     # set input/output key names
     if config.inputKey == '':
         tool.InputCollection = defaultInputKey[config.objType]
