@@ -41,7 +41,8 @@
 TrackSystemDisplay::TrackSystemDisplay()
   : IVP13DSystemSimple("TrackSystemDisplay",
                        "This is a temporary testing version of the basic 3D track display system.",
-                       "Manuel Proissl, mproissl@cern.ch"), m_ptcut(0*Gaudi::Units::GeV), m_multiselection(0)
+                       "Manuel Proissl, mproissl@cern.ch"), m_ptcut(0*Gaudi::Units::GeV), m_multiselection(0),
+                       m_trackInfoDisplay(nullptr)
 {
   std::cout << "INFO :: TrackSystemDisplay -> constructor" << std::endl;
 }//END: constructor

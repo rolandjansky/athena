@@ -41,7 +41,7 @@ public:
   void userChangedSelection(SoCooperativeSelection*, QSet<SoNode*>, QSet<SoPath*>);
   QWidget * buildController();
   void printTrackInfo(QString title, QList<QString> paraname, QList<QString> paravalue);
-  
+
 private slots:
   void ptCutChanged(double);
   void updateSelectionMode(bool single);

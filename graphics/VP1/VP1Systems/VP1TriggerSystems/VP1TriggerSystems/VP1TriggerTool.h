@@ -32,7 +32,11 @@ namespace VP1Trig {
   public:
     VP1TriggerTool();
     virtual ~VP1TriggerTool();
-    
+    //
+    VP1TriggerTool & operator=(const VP1TriggerTool &) = delete;
+    //
+    VP1TriggerTool(const VP1TriggerTool &) = delete;
+    //
     //External Interface ---------------------------->
     void process(StoreGateSvc* m_storeGate);
     void clear();

@@ -34,10 +34,14 @@ int muonsInEvt=-1;
 //_____________________________________________________________________________________________
 VP1Trig::VP1TriggerProcessor::VP1TriggerProcessor()
   : Logger("VP1TriggerProcessor"),
+    m_triggersystem(nullptr),
     m_initStatus(false), 
     m_daqStatus(false),
     m_trigLvl("all"),
-    m_dataFormat('v') {log_verbose("constructor");}
+    m_dataFormat('v'),
+    L1_QData{}, L2_QData{}, EF_QData{} {
+     log_verbose("constructor");
+    }
 
 
 //Trigger Processor Destructor
@@ -228,7 +232,7 @@ void VP1Trig::VP1TriggerProcessor::processData()
     if(handleEF.size()>0) {
       log_info(pfx1()+"processing EF data: start");
       if(m_dataFormat=='q') {
-	log_verbose("processing sector for QTree format");
+	      log_verbose("processing sector for QTree format");
         //************************* INIT *************************//
         EF_QData = new QTreeWidgetItem(0);
         EF_QData->setText(0, QString("EF Data"));

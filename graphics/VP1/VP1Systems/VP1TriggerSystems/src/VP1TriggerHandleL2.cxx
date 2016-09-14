@@ -57,10 +57,8 @@ bool VP1Trig::VP1TriggerHandleL2::processitem()
   
   //Muon feature iterator
   std::vector<const MuonFeatureDetails*>::const_iterator itMfd;
-  
+  //bool off_match = false; never used, code commented out below
   for(itMfd=m_containerL2.begin(); itMfd!=m_containerL2.end(); itMfd++) {
-    bool off_match = false;
-    
     //Check ID
     int id = (*itMfd)->id();
     if(id!=1) continue; //muFast_Muon
@@ -85,10 +83,10 @@ bool VP1Trig::VP1TriggerHandleL2::processitem()
       float rpc1_z = (*itMfd)->rpc1_z();
       float rpc2_z = (*itMfd)->rpc2_z();
       const float NO_VALUE = 99999;
-      if(nRPC!=0) 
-	isL1hitThere = true;
-      if(fabs(rpc1_z-NO_VALUE) > ZERO_LIMIT && fabs(rpc1_z) > ZERO_LIMIT && fabs(rpc2_z-NO_VALUE) > ZERO_LIMIT && fabs(rpc2_z) > ZERO_LIMIT) 
-	isL1emuOkForTriggerPlane = true;
+      if(nRPC!=0) isL1hitThere = true;
+      if(fabs(rpc1_z-NO_VALUE) > ZERO_LIMIT && fabs(rpc1_z) > ZERO_LIMIT && fabs(rpc2_z-NO_VALUE) > ZERO_LIMIT && fabs(rpc2_z) > ZERO_LIMIT) {
+	     isL1emuOkForTriggerPlane = true;
+	    }
       
       //Dump to vectors
       barrelID.push_back("RPC-1: Z");
@@ -99,13 +97,10 @@ bool VP1Trig::VP1TriggerHandleL2::processitem()
             
       barrelID.push_back("RPC: nHits");
       barrelData.push_back(QString::number(nRPC));
-    }
-    else { //TGC
+    } else { //TGC
       const float NO_VALUE = -99999;
-      if(nTGCMidRho!=0 && nTGCMidPhi!=0) 
-	isL1hitThere = true;
-      if(fabs(TGCMidRhoChi2 - NO_VALUE) > ZERO_LIMIT && fabs(TGCMidPhiChi2 - NO_VALUE) > ZERO_LIMIT) 
-	isL1emuOkForTriggerPlane = true;
+      if(nTGCMidRho!=0 && nTGCMidPhi!=0) isL1hitThere = true;
+      if(fabs(TGCMidRhoChi2 - NO_VALUE) > ZERO_LIMIT && fabs(TGCMidPhiChi2 - NO_VALUE) > ZERO_LIMIT) isL1emuOkForTriggerPlane = true;
       
       //Dump to vectors
       endcapID.push_back("TGC Mid nHits: Rho");
@@ -134,57 +129,57 @@ bool VP1Trig::VP1TriggerHandleL2::processitem()
     //Process systems
     if(systemID==0) { //Barrel
       for(int i_tube=0; i_tube<(int)mdt_tube_residual.size(); i_tube++) {
-	QString tube;
+	      QString tube;
         float res = mdt_tube_residual[i_tube];
         float r = mdt_tube_r[i_tube];
         int imr = 2;
 	
-	//Flags
+	      //Flags
         if     (r<650) { imr=0; }
         else if(r<850) { imr=1; }
         
 	//Dump to vectors
         if(imr==0) {
           n_mdt_hits_inner++;
-	  tube = (QString::number(i_tube));
+	        tube = (QString::number(i_tube));
           barrelID.push_back(QString("muFast_MDT_Inn_residual_barrel Tube No-")+tube);
           barrelData.push_back(QString::number(res));
           
-          if(off_match){
-	    tube = (QString::number(i_tube));   
-	    barrelID.push_back(QString("muFast_MDT_Inn_residual_barrel_OffMatch Tube No-")+tube);
+          /**if(off_match){
+	          tube = (QString::number(i_tube));   
+	          barrelID.push_back(QString("muFast_MDT_Inn_residual_barrel_OffMatch Tube No-")+tube);
             barrelData.push_back(QString::number(res));
-          }
+          } **/
         }
         else if(imr==1) {
           n_mdt_hits_middle++;
-	  tube = (QString::number(i_tube));
+	        tube = (QString::number(i_tube));
           barrelID.push_back(QString("muFast_MDT_Mid_residual_barrel Tube No-")+tube);
           barrelData.push_back(QString::number(res));
 	  
-          if(off_match){
-	    tube = (QString::number(i_tube));
+          /**if(off_match){
+	          tube = (QString::number(i_tube));
             barrelID.push_back(QString("muFast_MDT_Mid_residual_barrel_OffMatch Tube No-")+tube);
             barrelData.push_back(QString::number(res));
-	  }
+	        } **/
         }
         else if(imr==2) {
           n_mdt_hits_outer++;
-	  tube = (QString::number(i_tube));
+	        tube = (QString::number(i_tube));
           barrelID.push_back(QString("muFast_MDT_Out_residual_barrel tube No-")+tube);
           barrelData.push_back(QString::number(res));
           
-          if(off_match){
-	    tube = (QString::number(i_tube));
+          /**if(off_match){
+            tube = (QString::number(i_tube));
             barrelID.push_back(QString("muFast_MDT_Out_residual_barrel_OffMatch tube No-")+tube);
             barrelData.push_back(QString::number(res));
-	  }
+	        } **/
         }
       }
     }//END: systemID=0
     else{ //Endcap
       for(int i_tube=0; i_tube<(int)mdt_tube_residual.size(); i_tube++) {
-	QString tube;
+	      QString tube;
         float z = mdt_tube_z[i_tube];
         int imr = 2;
 	
@@ -194,39 +189,38 @@ bool VP1Trig::VP1TriggerHandleL2::processitem()
 	//Dump to vectors
         if(imr == 0) {
           n_mdt_hits_inner++;
-	  tube = (QString::number(i_tube));
+	        tube = (QString::number(i_tube));
           endcapID.push_back(QString("muFast_MDT_Inn_residual_endcap Tube No-")+tube);
           endcapData.push_back(QString::number(TGCMidRhoChi2));
           
-          if(off_match){
-	    tube = (QString::number(i_tube));
+          /**if(off_match){
+	          tube = (QString::number(i_tube));
             endcapID.push_back(QString("muFast_MDT_Inn_residual_endcap Tube No-")+tube);
             endcapData.push_back(QString::number(TGCMidRhoChi2));
-	  }
+	        } **/
         }
         else if(imr == 1) {
           n_mdt_hits_middle++;
-	  tube = (QString::number(i_tube));
+	        tube = (QString::number(i_tube));
           endcapID.push_back(QString("muFast_MDT_Mid_residual_endcap Tube No-")+tube);
           endcapData.push_back(QString::number(TGCMidRhoChi2));
           
-          if(off_match){
-	    tube = (QString::number(i_tube));
+          /**if(off_match){
+	          tube = (QString::number(i_tube));
             endcapID.push_back(QString("muFast_MDT_Mid_residual_endcap_OffMatch Tube No-")+tube);
             endcapData.push_back(QString::number(TGCMidRhoChi2));
-	  }
-        }
-        else if(imr == 2) {
+	        } **/
+        } else if(imr == 2) {
           n_mdt_hits_outer++;
-	  tube = (QString::number(i_tube));
+	        tube = (QString::number(i_tube));
           endcapID.push_back(QString("muFast_MDT_Out_residual_endcap Tube No-" )+tube);
           endcapData.push_back(QString::number(TGCMidRhoChi2));
           
-          if(off_match){
-	    tube = (QString::number(i_tube));
+          /**if(off_match){
+	          tube = (QString::number(i_tube));
             endcapID.push_back(QString("muFast_MDT_Out_residual_endcap_OffMatch Tube No-")+tube);
             endcapData.push_back(QString::number(TGCMidRhoChi2));
-	  }
+	        } **/
         }
       }
     }//END: Endcap
@@ -244,12 +238,11 @@ bool VP1Trig::VP1TriggerHandleL2::processitem()
     
     const float MDT_CHI2_NO_VALUE = -99999;
     
-    if(n_mdt_hits_middle != 0) 
-      isMDThitThereForTriggerPlane = true;
-    if(fabs(MDTMidChi2-MDT_CHI2_NO_VALUE) > ZERO_LIMIT) 
-      isMDTFitOkForTriggerPlane = true;
-    if(isMDTFitOkForTriggerPlane && (fabs(MDTInnChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT || fabs(MDTOutChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT) ) 
+    if(n_mdt_hits_middle != 0) isMDThitThereForTriggerPlane = true;
+    if(fabs(MDTMidChi2-MDT_CHI2_NO_VALUE) > ZERO_LIMIT) isMDTFitOkForTriggerPlane = true;
+    if(isMDTFitOkForTriggerPlane && (fabs(MDTInnChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT || fabs(MDTOutChi2 - MDT_CHI2_NO_VALUE) > ZERO_LIMIT) ) {
       isMDTFitOkFor2Plane = true;
+    }
     
     //DEFs
     int isL1hitTheret, isL1emuOkForTriggerPlanet, isMDThitTheret, isMDTFitOkForTriggerPlanet, isMDTFitOkFor2Planet;
