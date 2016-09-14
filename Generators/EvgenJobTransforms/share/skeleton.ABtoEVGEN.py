@@ -252,12 +252,12 @@ if joparts[0].startswith("MC"): #< if this is an "official" JO
     expectedgenpart = expectedgenpart.replace("HerwigJimmy", "Herwig")
     def _norm(s):
         # TODO: add EvtGen to this normalization for MC14?
-        return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "")
+        return s.replace("Photospp", "").replace("Photos", "").replace("Tauola", "").replace("Tauolapp", "").replace("TauolaPP", "")
     def _norm2(s):
-        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
+        return s.replace("Py", "Pythia").replace("MG","MadGraph").replace("Ph","Powheg").replace("Hpp","Herwigpp").replace("H7","Herwig7").replace("Sh","Sherpa").replace("Ag","Alpgen").replace("EG","EvtGen").replace("PG","ParticleGun")
 
     def _short2(s):
-         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
+         return s.replace("Pythia","Py").replace("MadGraph","MG").replace("Powheg","Ph").replace("Herwigpp","Hpp").replace("Herwig7","H7").replace("Sherpa","Sh").replace("Alpgen","Ag").replace("EvtGen","EG").replace("PG","ParticleGun")
 
     if genpart != expectedgenpart and _norm(genpart) != _norm(expectedgenpart) and _norm2(genpart) != expectedgenpart and _norm2(genpart) != _norm(expectedgenpart):
         evgenLog.error("Expected first part of JO name to be '%s' or '%s' or '%s', but found '%s'" % (_norm(expectedgenpart), expectedgenpart, _short2(expectedgenpart), genpart))
