@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+## Any arguments are considered overrides, and will be added at the end
+export TRF_ECHO=True;
+Generate_tf.py --ecmEnergy=8000 --runNumber=105200 --maxEvents=10 \
+    --jobConfig=$JODIR/share/tests/MC14.105200.McAtNloHerwig_CT10_ttbar_LeptonFilter.py \
+    --inputGeneratorFile=$TESTDATA/group.phys-gener.mcatnlo406.105200.ttbar_8TeV.TXT.mc12_v1._02667.tar.gz \
+    --outputEVNTFile=test_mcatnlojimmy_ttbar_leptonfilter.EVNT.pool.root \
+    $@

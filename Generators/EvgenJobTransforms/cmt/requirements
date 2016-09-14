@@ -1,0 +1,19 @@
+package EvgenJobTransforms
+
+
+use AtlasPolicy          AtlasPolicy-*
+use PyJobTransforms      PyJobTransforms-*      Tools
+
+private
+use TestPolicy           TestPolicy-*
+end_private
+
+apply_pattern declare_job_transforms tfs='*.py' jo='*.py'
+apply_pattern declare_python_modules files="*.py"
+apply_pattern declare_runtime_extras extras="../test/EvgenJobTransforms_TestConfiguration.xml"
+apply_pattern declare_joboptions files="../test/test_*.py"
+
+private
+apply_pattern validate_xml
+end_private
+macro EvgenJobTransforms_TestConfiguration "../test/EvgenJobTransforms_TestConfiguration.xml"
