@@ -1,0 +1,55 @@
+################################################################################
+# Package: VP1TriggerSystems
+################################################################################
+
+# Declare the package name:
+atlas_subdir( VP1TriggerSystems )
+
+# Declare the package's dependencies:
+atlas_depends_on_subdirs( PUBLIC
+                          Control/StoreGate
+                          PhysicsAnalysis/AnalysisTrigger/AnalysisTriggerEvent
+                          Trigger/TrigAnalysis/TrigDecisionTool
+                          Trigger/TrigAnalysis/TrigObjectMatching
+                          Trigger/TrigEvent/TrigMuonEvent
+                          Trigger/TrigEvent/TrigSteeringEvent
+                          graphics/VP1/VP1Base
+                          PRIVATE
+                          DetectorDescription/GeoPrimitives
+                          GaudiKernel
+                          Tracking/TrkEvent/TrkParameters
+                          Tracking/TrkEvent/TrkTrack )
+
+# External dependencies:
+find_package( Coin3D )
+find_package( Eigen )
+find_package( Qt4 COMPONENTS QtCore QtOpenGL QtGui )
+
+include_directories( /usr/X11R6/include )
+
+# Generate UI files automatically:
+set( CMAKE_AUTOUIC TRUE )
+# Generate MOC files automatically:
+set( CMAKE_AUTOMOC TRUE )
+set( CMAKE_AUTOMOC_MOC_OPTIONS "-DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED") 
+# ### NOTE! ###
+# "-DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED" is needed when using Qt < 5.0 together with BOOST > 1.52. 
+# Details: 
+# - https://its.cern.ch/jira/browse/ATLASRECTS-3097
+# - https://its.cern.ch/jira/browse/ATLASVPONE-184
+
+
+# Generate resource files automatically:
+set( CMAKE_AUTORCC TRUE )
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+
+
+# Component(s) in the package:
+atlas_add_library( VP1TriggerSystems VP1TriggerSystems/*.h src/*.h src/*.cxx src/*.qrc
+                   PUBLIC_HEADERS VP1TriggerSystems
+                   INCLUDE_DIRS ${QT4_INCLUDE_DIRS}
+                   PRIVATE_INCLUDE_DIRS ${COIN3D_INCLUDE_DIRS} ${EIGEN_INCLUDE_DIRS}
+                   LINK_LIBRARIES AnalysisTriggerEvent TrigMuonEvent TrigSteeringEvent VP1Base ${QT4_LIBRARIES} GL StoreGateLib SGtests TrigDecisionToolLib TrigObjectMatchingLib
+                   PRIVATE_LINK_LIBRARIES ${COIN3D_LIBRARIES} ${EIGEN_LIBRARIES} GeoPrimitives GaudiKernel TrkParameters TrkTrack 
+                 )
+

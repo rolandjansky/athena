@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>TrackSystemControllerForm</class>
+ <widget class="QWidget" name="TrackSystemControllerForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>425</width>
+    <height>618</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout">
+   <item row="0" column="0">
+    <layout class="QVBoxLayout" name="mainBox">
+     <item>
+      <widget class="QGroupBox" name="cutsBox">
+       <property name="title">
+        <string>Cuts</string>
+       </property>
+       <layout class="QHBoxLayout" name="cutsLayout">
+        <item>
+         <widget class="QLabel" name="pt_label">
+          <property name="text">
+           <string>pT Cut:</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="doubleSpinBox_ptcut">
+          <property name="alignment">
+           <set>Qt::AlignRight</set>
+          </property>
+          <property name="suffix">
+           <string> GeV</string>
+          </property>
+          <property name="maximum">
+           <double>9999.989999999999782</double>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="pt_spacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>16</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="trackselectBox">
+       <property name="title">
+        <string>Track Selections</string>
+       </property>
+       <layout class="QGridLayout" name="trackselectLayout">
+        <item row="0" column="0">
+         <widget class="QRadioButton" name="radioButton_select_single">
+          <property name="text">
+           <string>Single (display track info)</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QRadioButton" name="radioButton_select_multi">
+          <property name="text">
+           <string>Multi (display invariant mass)</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="triggerBox">
+       <property name="title">
+        <string>Trigger Data</string>
+       </property>
+       <layout class="QGridLayout" name="triggerLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="trig_status_label">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string>Status:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QLabel" name="trigStatus">
+          <property name="text">
+           <string>NOT AVAILABLE</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0">
+         <widget class="QLabel" name="browser_label">
+          <property name="text">
+           <string>Browser:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QPushButton" name="pushButton_display_TriggerBrowser">
+          <property name="text">
+           <string>Launch</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="trackinfoBox">
+       <property name="title">
+        <string>Track Information</string>
+       </property>
+       <layout class="QVBoxLayout" name="trackinfoLayout">
+        <item>
+         <widget class="QTextBrowser" name="trackInfoDisplay"/>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="1">
+    <spacer name="right_spacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>16</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="2" column="0">
+    <spacer name="bottom_spacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>16</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
