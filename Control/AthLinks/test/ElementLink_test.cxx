@@ -72,7 +72,7 @@ struct Bar
 struct BarCont
   : public XXX, public FooCont
 {
-  typedef boost::true_type isSequence;
+  typedef std::true_type isSequence;
   typedef Bar* value_type;
   struct const_iterator
     : public FooCont::const_iterator

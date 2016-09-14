@@ -16,19 +16,10 @@
 #ifndef ATHLINKS_TOOLS_ISSTLSEQUENCE_H
 # define ATHLINKS_TOOLS_ISSTLSEQUENCE_H
 
-// INCLUDES
-#include "AthenaKernel/tools/type_tools.h"
 #include <vector>
 #include <list>
 #include <deque>
-#include <boost/config.hpp>
-#include <boost/concept_check.hpp>
-#include <boost/type_traits/is_base_and_derived.hpp>
-#include <boost/type_traits/is_base_of.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/ice.hpp>
-#include <boost/type_traits/remove_pointer.hpp>
-#include <boost/type_traits/integral_constant.hpp>
+#include <type_traits>
 
 
 
@@ -38,7 +29,7 @@ namespace SG {
   template <class CONTAINER, class FLAG_>
   struct TestSequenceTag
   {
-    typedef boost::false_type type;
+    typedef std::false_type type;
   };
 
   template <class CONTAINER>
@@ -55,27 +46,26 @@ namespace SG {
     typedef typename CONTAINER::value_type value_type;
 
     // vectors
-    typedef typename boost::is_base_of< std::vector<value_type>, CONTAINER> isVector;
+    typedef typename std::is_base_of< std::vector<value_type>, CONTAINER> isVector;
 
     // lists
-    typedef typename boost::is_base_of< std::list<value_type>, CONTAINER> isList;
+    typedef typename std::is_base_of< std::list<value_type>, CONTAINER> isList;
 
     // queues
-    typedef typename boost::is_base_of< std::deque<value_type>, CONTAINER> isDeque;
+    typedef typename std::is_base_of< std::deque<value_type>, CONTAINER> isDeque;
 
     // explicit tag, by adding
     //   typedef type_tools::true_tag isSequence;
     // to a class.
-    typedef typename TestSequenceTag<CONTAINER, boost::true_type>::type hasSequenceTag;
+    typedef typename TestSequenceTag<CONTAINER, std::true_type>::type hasSequenceTag;
 
-    //putting it all together
-    typedef typename 
-    boost::type_traits::ice_or< isDeque::value,
-				isList::value,
-				isVector::value,
-                                hasSequenceTag::value > isSequence;
   public:
-    BOOST_STATIC_CONSTANT(bool, value = isSequence::value);
+    //putting it all together
+    static const bool value =
+      isDeque::value ||
+      isList::value ||
+      isVector::value ||
+      hasSequenceTag::value;
   };
 }
 #endif // ATHLINKS_TOOLS_ISSTLSEQUENCE_H
