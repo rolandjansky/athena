@@ -523,7 +523,7 @@ StatusCode topoEgammaBuilder::execute()
   //For ambiguity. Probably we could mark in one pass , for now naive solution
   
   //These should be the CaloCalTopo links for the clustes. the 0 should be the seed (always there) 
-  const static SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
+  static const SG::AuxElement::Accessor < std::vector< ElementLink< xAOD::CaloClusterContainer > > > caloClusterLinks("constituentClusterLinks");
   
   ATH_MSG_DEBUG("Build  "<< electronSuperRecs->size() << " electron Super Clusters"); 
   ATH_MSG_DEBUG("Build  "<< photonSuperRecs->size() << " photon Super Clusters"); 
@@ -615,7 +615,7 @@ StatusCode topoEgammaBuilder::execute()
   //-----------------------------------------------------------------
   //Set the ambiguity link
   ///Needs the same logic as the ambiguity after building the objects (make sure they are all valid)
-  const static SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
+  static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
   ElementLink<xAOD::EgammaContainer> dummylink;
   for (size_t photonIndex=0; photonIndex < photonContainer->size() ; ++photonIndex) {    
     
@@ -729,7 +729,7 @@ bool topoEgammaBuilder::getElectron(const egammaRec* egRec,
   electronContainer->push_back( electron );
   electron->setAuthor( author );
 
-  const static SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
+  static const SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");
   acc(*electron) = type;
 
   std::vector< ElementLink< xAOD::CaloClusterContainer > > clusterLinks;

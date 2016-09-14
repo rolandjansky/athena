@@ -12,6 +12,8 @@ from egammaRec.egammaKeys import egammaKeysDict
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
+###############Print Egamma JobProperties#############
+jobproperties.egammaRecFlags.print_JobProperties()
 #####################################################################
 # Run calo-based (egamma) algorithm, includes topo-seeded
 # It requires either to read ESD

@@ -14,26 +14,32 @@ from egammaRec.Factories import AlgFactory, FcnWrapper
 from egammaRec import egammaRecFlags as egRecFlags
 egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 
+#Some handy flags
 def doSuperclusters():
   return egammaRecFlags.doSuperclusters()
 
 def doBremFinding():
-  return egammaRecFlags.doBremFinding()
+  return DetFlags.detdescr.ID_on() and egammaRecFlags.doBremFinding()
 
+def doConversions() :
+  return DetFlags.detdescr.ID_on() and egammaRecFlags.doConversions()
+################
+
+# Import the tool factories
 from egammaTools.egammaToolsFactories import \
     EMBremCollectionBuilder, EMTrackMatchBuilder,\
     EMVertexBuilder, EMConversionBuilder, EGammaAmbiguityTool,\
     EMClusterTool, EMFourMomBuilder, EMShowerBuilder, egammaOQFlagsBuilder, \
     ElectronPIDBuilder, PhotonPIDBuilder
 
+# Extra tool when we do the superclustering approach
 if doSuperclusters() : 
   from egammaTools.egammaToolsFactories import \
-      egammaTopoClusterCopier, electronSuperClusterBuilder, photonSuperClusterBuilder,\
-      egammaTopoClusterMap
+      egammaTopoClusterCopier, electronSuperClusterBuilder, photonSuperClusterBuilder
 
-def doConversions() :
-  return DetFlags.detdescr.ID_on() and egammaRecFlags.doConversions()
-
+#
+#Topo seeded fixed size clusters, related configurations
+#Create and return the TopoSeededCollection
 def getTopoSeededCollectionName():
   if egammaRecFlags.doTopoCaloSeeded():
     from CaloRec import CaloRecFlags
@@ -44,10 +50,12 @@ def getTopoSeededCollectionName():
     return theCaloClusterTopoEMFixedSizeGetter.outputKey()
   else:
     return ""
-
 def doTopoCaloSeeded():
-  return egammaRecFlags.doTopoCaloSeeded() and getTopoSeededCollectionName()
+  return egammaRecFlags.doTopoCaloSeeded() and not egammaRecFlags.doSuperclusters() and getTopoSeededCollectionName() 
+#
 
+#
+#The tools used to add properties 
 def egammaDecorationTools():
   "Return a list with the tools that decorate both electrons and photons"
   return [EMClusterTool(), EMFourMomBuilder(), EMShowerBuilder(), egammaOQFlagsBuilder()]
@@ -59,6 +67,7 @@ def electronDecorationTools():
 def photonDecorationTools():
   "Return a list with the tools that decorate only photons"
   return [ PhotonPIDBuilder() ]
+#
 
 class egammaGetter ( Configured ) :
 
