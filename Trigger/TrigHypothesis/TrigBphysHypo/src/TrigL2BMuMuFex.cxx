@@ -73,6 +73,7 @@ m_massMuon(105.6583715)
     
     // Read properties - boolean switches
     declareProperty("AcceptAll"        , m_acceptAll         = true );
+    declareProperty("AcceptSameMuon"   , m_acceptSameMuon    = false);
     declareProperty("OppositeSign"     , m_oppositeCharge    = true );
     declareProperty("SameSign"         , m_sameCharge        = false );
     declareProperty("ApplyUpperMassCut", m_ApplyupperMassCut = true );
@@ -641,15 +642,26 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         //      if ( m_muon2->idTrack() && isUnique(m_muon1->idTrack(),m_muon2->idTrack())) mon_Acceptance.push_back( ACCEPT_Mu2_IDTrack );
         if ( m_muon2->idTrack() && isUnique(m_muon1->idTrack(),m_muon2->idTrack())) mon_Acceptance.push_back( ACCEPT_Mu2_IDTrack );
         
-        if ( !(m_muon1->idTrack() && m_muon2->idTrack() && isUnique(m_muon1->idTrack(),m_muon2->idTrack())) ) {
+        // ST: option to accept all events if two identical muon tracks are found
+        if ( m_acceptSameMuon && m_muon1->idTrack() && m_muon2->idTrack() && !(isUnique(m_muon1->idTrack(),m_muon2->idTrack())) ) {
+          pass = true;
+          if ( timerSvc() ) {
+            m_BmmHypTot->stop();
+            mon_TotalRunTime = m_BmmHypTot->elapsed();
+          }
+          if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Accepting two identical muons as AcceptSameMuon is set" << endreq;
+          // return HLT::OK;
+        }
+        
+        if ( !m_acceptSameMuon && !(m_muon1->idTrack() && m_muon2->idTrack() && isUnique(m_muon1->idTrack(),m_muon2->idTrack())) ) {
             if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Missing track(s) from ID or they are the same" << endreq;
             vtxpass    = false;
             mumuIDpass = false;
             pass = true; // ST: to actually pass the empty collection to L2BMuMuHypo
-            if ( timerSvc() ) {
-              m_BmmHypTot->stop();
-              mon_TotalRunTime = m_BmmHypTot->elapsed();
-            }
+//             if ( timerSvc() ) {
+//               m_BmmHypTot->stop();
+//               mon_TotalRunTime = m_BmmHypTot->elapsed();
+//             }
             return HLT::OK;
         } else {
             mon_Acceptance.push_back( ACCEPT_MuMu_Both_IDTracks );
@@ -768,7 +780,7 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         else                     mu1ptq = fabs(m_muon->pt()) * m_muon->charge();
         mu2ptq = pMuonFeature->pt()*1000.; // convert to MeV
     }
-    if ( m_oppositeCharge ) {
+    if ( !m_acceptSameMuon && m_oppositeCharge ) {
         if ( mu1ptq * mu2ptq > 0 ) {
             if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Combination discarded by opposite charge check" << endreq;
             pass = true; // ST: to actually pass the empty collection to L2BMuMuHypo
@@ -817,9 +829,15 @@ HLT::ErrorCode TrigL2BMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         mon_InvMass_stand_wideRange.push_back(mass / CLHEP::GeV);
     }
     msg() << MSG::DEBUG << "Mass: " << mass << endreq;
+    
+    // ST: if two identical muons - set mass to -1 to accept in Hypo then
+    if( m_acceptSameMuon && !(isUnique(m_muon1->idTrack(),m_muon2->idTrack())) ) {
+      mass = -1.;
+      if ( msgLvl() <= MSG::DEBUG ) msg() << MSG::DEBUG << "Mass is set to -1. for identical muons" << endreq;
+    }
 
     // Apply the cut on the mass
-    if ( mass < m_lowerMassCut || (mass > m_upperMassCut && m_ApplyupperMassCut) ) {
+    if ( !m_acceptSameMuon && (mass < m_lowerMassCut || (mass > m_upperMassCut && m_ApplyupperMassCut)) ) {
         if ( msgLvl() <= MSG::DEBUG )
             msg() << MSG::DEBUG << "Combination discarded by mass cut: " << mass << " MeV" << endreq;
         pass = true; // ST: to actually pass the empty collection to L2BMuMuHypo

@@ -292,7 +292,7 @@ StatusCode TrigBphysHelperUtilsTool::buildDiMu(const std::vector<ElementLink<xAO
 
     
     xAOD::TrackParticle::FourMom_t fourMom = (*particles[0])->p4() + (*particles[1])->p4();
-    double massMuMu = invariantMass( *particles[0], *particles[1], 105.6583715,105.6583715); // #FIXME - don't hardcode!
+    double massMuMu = invariantMass( *particles[0], *particles[1], m_massMuon,m_massMuon); 
     
     double rap      = fourMom.Rapidity();
     double phi      = fourMom.Phi();
@@ -454,6 +454,74 @@ StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
     for ( auto ptlEL : particles) {
         result->addTrackParticleLink(ptlEL);
     }
+    return StatusCode::SUCCESS;
+} //vertexFit
+
+
+StatusCode TrigBphysHelperUtilsTool::vertexFit(xAOD::TrigBphys * result,
+                                               const std::vector<const xAOD::TrackParticle*> &trks,
+                                               std::vector<double>& inputMasses) { // inputmasses not const, as vertex code doesn't allowit
+    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "In vertexFit" << endreq;
+    if (!result) {
+        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "Need to provide valid TrigBphys object" << endreq;
+        return StatusCode::FAILURE;
+    }
+    if (trks.size() != inputMasses.size()) {
+        if ( msg().level() <= MSG::WARNING ) msg()  << MSG::WARNING << "Mismatch in particle and mass vector sizes" << endreq;
+        return StatusCode::FAILURE;
+    }
+    bool doFit(true); // set false if problematic TP
+    
+    const Trk::Vertex startingPoint(Amg::Vector3D(0.,0.,0.)); // #FIXME use beamline for starting point?
+    xAOD::Vertex * vx(0);
+    if (doFit) vx =  m_fitterSvc->fit(trks,startingPoint);
+    
+    if (!vx){
+        if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG << "No Vertex returned from fit / fitting not allowed" << endreq;
+        
+        result->setFitmass     (-9999);
+        result->setFitchi2     (-9999);
+        result->setFitndof     (-9999);
+        result->setFitx        (-9999);
+        result->setFity        (-9999);
+        result->setFitz        (-9999);
+        
+    } else {
+        std::vector<int> trkIndices(trks.size(),1);
+        double invariantMass(0.), invariantMassError(0.); // #FIXME what about the input masses?
+        m_VKVFitter->setMassInputParticles( inputMasses); // give input tracks muon mass
+        if (!(m_VKVFitter->VKalGetMassError(trkIndices,invariantMass,invariantMassError).isSuccess())) {
+            if ( msg().level() <= MSG::DEBUG ) msg()<<MSG::DEBUG<<"Warning from VKaVrt - cannot calculate uncertainties!"<<endreq;
+            invariantMass = -9999.;
+        } // if
+        
+        result->setFitmass     (invariantMass);
+        result->setFitchi2     (vx->chiSquared());
+        result->setFitndof     (vx->numberDoF());
+        result->setFitx        (vx->x());
+        result->setFity        (vx->y());
+        result->setFitz        (vx->z());
+        
+        delete vx; vx = 0;
+    } // if vx
+    if ( msg().level() <= MSG::DEBUG ) msg()  << MSG::DEBUG <<
+        "Print for obj: " << result << "\n\t  " <<
+        "roiId:         " << result->roiId()  << "\n\t  " <<
+        "particleType:  " << result->particleType() << "\n\t  " <<
+        "level:         " << result->level() << "\n\t  " <<
+        "eta:           " << result->eta() << "\n\t  " <<
+        "phi:           " << result->phi() << "\n\t  " <<
+        "mass:          " << result->mass() << "\n\t  " <<
+        "fitmass:       " << result->fitmass() << "\n\t  " <<
+        "fitchi2:       " << result->fitchi2() << "\n\t  " <<
+        "fitndof:       " << result->fitndof() << "\n\t  " <<
+        "fitx:          " << result->fitx() << "\n\t  " <<
+        "fity:          " << result->fity() << "\n\t  " <<
+        "fitz:          " << result->fitz() << "\n\t  " << endreq;
+    
+    //    for ( auto ptlEL : particles) {
+    //    result->addTrackParticleLink(ptlEL);
+    //}
     return StatusCode::SUCCESS;
 } //vertexFit
 

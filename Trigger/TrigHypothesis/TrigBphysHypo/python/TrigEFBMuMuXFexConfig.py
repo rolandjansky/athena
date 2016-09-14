@@ -1,7 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 # vim: tabstop=4:shiftwidth=4:expandtab
+# include the python fragment to set up the default bphysics vertex fitter
+from TrigBphysHypo.TrigBphysHypoConf       import TrigBphysHelperUtilsTool
 from TrigBphysHypo.TrigBphysHypoConf import TrigEFBMuMuXFex
+from TrigBphysHypo import TrigBphysVertexingConfig
+
 
 from AthenaCommon.AppMgr import ToolSvc
 
@@ -13,7 +17,7 @@ class EFBMuMuXFex_1 (TrigEFBMuMuXFex):
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
         # Timeout protection: maximum number of track combinations to try
-        self.MaxNcombinations = 50000
+        self.MaxNcombinations = 40000 #JW arbitary reduction from 50000 in ncombinations for timeouts
         # muon part
         self.OppositeSign = True # if check opposite sign of muons
         self.LowerMuMuMassCut = 100.
@@ -89,7 +93,7 @@ class EFBMuMuXFex_1 (TrigEFBMuMuXFex):
         self.UpperPhiDs_MassCut = 1080.
         self.LowerDs_MassCut = 1600.
         self.UpperDs_MassCut = 2400.
-        self.LowerBc_DsMuMuMassCut = 1800.
+        self.LowerBc_DsMuMuMassCut = 5450.
         self.UpperBc_DsMuMuMassCut = 7050.
         self.DoDs_Vertexing = True
         self.DoBc_DsMuMuVertexing = True
@@ -107,7 +111,16 @@ class EFBMuMuXFex_1 (TrigEFBMuMuXFex):
 
         self.AthenaMonTools = [ validation, online, time ]
         
-
+        
+class EFBMuMuXFex_1_legacyVtx (EFBMuMuXFex_1):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXFex_1_legacyVtx"):
+        EFBMuMuXFex_1.__init__(self, name )
+        
+        # set lecacy helper tool with 'broken' vertex fitter
+        self.TrigBphysHelperTool = ToolSvc.TrigBphysHelperUtilsToolLegacy
+        
+        
 class EFBMuMuXFex_allModes (EFBMuMuXFex_1):
     __slots__ = []
     def __init__(self, name = "EFBMuMuXFex_allModes"):
@@ -128,13 +141,23 @@ class EFBMuMuXFex_allModes (EFBMuMuXFex_1):
         self.AthenaMonTools = [ validation, online, time ]
 
 
+class EFBMuMuXFex_FTK (EFBMuMuXFex_1):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXFex_FTK"):
+        EFBMuMuXFex_1.__init__(self, name )
+        
+        # FTK
+        self.DoFTK = True
+        
+
+
 class EFBMuMuXFex_allModes_tightBc (EFBMuMuXFex_allModes):
     __slots__ = []
     def __init__(self, name = "EFBMuMuXFex_allModes_tightBc"):
         EFBMuMuXFex_allModes.__init__(self, name )
         
         # Bc -> D_s* Mu Mu
-        self.LowerBc_DsMuMuMassCut = 5400.
+        self.LowerBc_DsMuMuMassCut = 5450.
         
 
 class EFBMuMuXFex_noVtx (TrigEFBMuMuXFex):
@@ -219,7 +242,7 @@ class EFBMuMuXFex_noVtx (TrigEFBMuMuXFex):
         self.UpperPhiDs_MassCut = 1080.
         self.LowerDs_MassCut = 1600.
         self.UpperDs_MassCut = 2400.
-        self.LowerBc_DsMuMuMassCut = 1800.
+        self.LowerBc_DsMuMuMassCut = 5450.
         self.UpperBc_DsMuMuMassCut = 7050.
         self.DoDs_Vertexing = False
         self.DoBc_DsMuMuVertexing = False
@@ -246,11 +269,11 @@ class EFBMuMuXFex_BplusMuMuKplus (TrigEFBMuMuXFex):
         self.AcceptAll = False
         # muon part
         self.OppositeSign = True # if check opposite sign of muons
-        self.LowerMuMuMassCut = 100.
-        self.UpperMuMuMassCut = 5500.
+        self.LowerMuMuMassCut = 2500. # JW update to loose jpsi mass range
+        self.UpperMuMuMassCut = 4200.
         ##self.LowerMuVtxMassCut = 100.
         ##self.UpperMuVtxMassCut = 5500.
-        self.MuVtxChi2Cut = 40.
+        self.MuVtxChi2Cut = 20. # JW tighten vertex requirement
         # B{+/-} -> K{+/-} Mu Mu
         self.DoB_KMuMuDecay = True
         self.LowerKMuMuMassCut = 4500.
@@ -260,7 +283,7 @@ class EFBMuMuXFex_BplusMuMuKplus (TrigEFBMuMuXFex):
         #self.LowerBVtxMassCut = 4500.
         #self.UpperBVtxMassCut = 5900.
         self.DoB_KMuMuVertexing = True
-        self.BVtxChi2Cut = 300.
+        self.BVtxChi2Cut = 200. # JW reduce from 
         # Bd -> K*(892) Mu Mu
         self.DoBd_KstarMuMuDecay = False
         # Bs -> Phi(1020) Mu Mu
@@ -281,6 +304,50 @@ class EFBMuMuXFex_BplusMuMuKplus (TrigEFBMuMuXFex):
 
         self.AthenaMonTools = [ validation, online, time ]
         
+class EFBMuMuXFex_TauMuMuX (TrigEFBMuMuXFex):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXFex_TauMuMuX"):
+        super( TrigEFBMuMuXFex, self ).__init__( name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll = False
+        # muon part
+        self.OppositeSign = True # if check opposite sign of muons
+        self.LowerMuMuMassCut = 0.
+        self.UpperMuMuMassCut = 2700.
+        ##self.LowerMuVtxMassCut = 100.
+        ##self.UpperMuVtxMassCut = 5500.
+        self.MuVtxChi2Cut = 100.
+        # B{+/-} -> K{+/-} Mu Mu
+        self.DoB_KMuMuDecay = True
+        self.LowerKMuMuMassCut = 700.
+        self.UpperKMuMuMassCut = 2700.
+        #self.LowerB_KMuMuMassCutVtxOff = 4500.
+        #self.UpperB_KMuMuMassCutVtxOff = 5900.        
+        #self.LowerBVtxMassCut = 4500.
+        #self.UpperBVtxMassCut = 5900.
+        self.DoB_KMuMuVertexing = True
+        self.BVtxChi2Cut = 100.
+        # Bd -> K*(892) Mu Mu
+        self.DoBd_KstarMuMuDecay = False
+        # Bs -> Phi(1020) Mu Mu
+        self.DoBs_Phi1020MuMuDecay = False
+        # Lb -> L Mu Mu     
+        self.DoLb_LambdaMuMuDecay = False
+        # Bc -> D_s* Mu Mu
+        self.DoBc_DsMuMuDecay = False
+        
+        #from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexValidationMonitoring
+        #validation = EFBMuMuXFexValidationMonitoring()
+
+        #from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexOnlineMonitoring_BpMuMuKp
+        #online = EFBMuMuXFexOnlineMonitoring_BpMuMuKp()
+        
+        #from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+        #time = TrigTimeHistToolConfig("Time")
+
+        #self.AthenaMonTools = [ validation, online, time ]
+        
 class EFBMuMuXFex_BplusMuMuKplus_noVtx (TrigEFBMuMuXFex):
     __slots__ = []
     def __init__(self, name = "EFBMuMuXFex_BplusMuMuKplus_noVtx"):
@@ -290,11 +357,11 @@ class EFBMuMuXFex_BplusMuMuKplus_noVtx (TrigEFBMuMuXFex):
         self.AcceptAll = False
         # muon part
         self.OppositeSign = True # if check opposite sign of muons
-        self.LowerMuMuMassCut = 100.
-        self.UpperMuMuMassCut = 5500.
+        self.LowerMuMuMassCut = 2500.
+        self.UpperMuMuMassCut = 4200.
         ##self.LowerMuVtxMassCut = 100.
         ##self.UpperMuVtxMassCut = 5500.
-        self.MuVtxChi2Cut = 40.
+        self.MuVtxChi2Cut = 20.
         # B{+/-} -> K{+/-} Mu Mu
         self.DoB_KMuMuDecay = True
         self.LowerKMuMuMassCut = 4500.
@@ -304,7 +371,7 @@ class EFBMuMuXFex_BplusMuMuKplus_noVtx (TrigEFBMuMuXFex):
         #self.LowerBVtxMassCut = 4500.
         #self.UpperBVtxMassCut = 5900.
         self.DoB_KMuMuVertexing = False
-        self.BVtxChi2Cut = 300.
+        self.BVtxChi2Cut = 200.
         # Bd -> K*(892) Mu Mu
         self.DoBd_KstarMuMuDecay = False
         # Bs -> Phi(1020) Mu Mu
@@ -448,7 +515,7 @@ class EFBMuMuXFex_BsMuMuPhi (TrigEFBMuMuXFex):
         self.DoBd_KstarMuMuDecay = False
         # Bs -> Phi(1020) Mu Mu
         self.DoBs_Phi1020MuMuDecay = True
-        self.LowerPhi1020_KaonMassCut = 990.
+        self.LowerPhi1020_KaonMassCut = 980.
         self.UpperPhi1020_KaonMassCut = 1050.
         self.LowerBs_Phi1020MuMuMassCut = 5000.
         self.UpperBs_Phi1020MuMuMassCut = 5800.
@@ -477,6 +544,16 @@ class EFBMuMuXFex_BsMuMuPhi (TrigEFBMuMuXFex):
         time = TrigTimeHistToolConfig("Time")
 
         self.AthenaMonTools = [ validation, online, time ]
+        
+        
+class EFBMuMuXFex_BsJpsiPhi (EFBMuMuXFex_BsMuMuPhi):
+    __slots__ = []
+    def __init__(self, name = "EFBMuMuXFex_BsJpsiPhi"):
+        EFBMuMuXFex_BsMuMuPhi.__init__(self, name )
+        
+        # user narrower Jpsi mass cut
+        self.LowerMuMuMassCut = 2500.
+        self.UpperMuMuMassCut = 4200.
         
         
 class EFBMuMuXFex_BsMuMuPhi_noVtx (TrigEFBMuMuXFex):
@@ -661,12 +738,13 @@ class EFBMuMuXFex_BcMuMuDs (TrigEFBMuMuXFex):
         self.UpperPhiDs_MassCut = 1080.
         self.LowerDs_MassCut = 1600.
         self.UpperDs_MassCut = 2400.
-        self.LowerBc_DsMuMuMassCut = 1800.
+        self.LowerBc_DsMuMuMassCut = 5450.
         self.UpperBc_DsMuMuMassCut = 7050.
         self.DoDs_Vertexing = True
         self.DoBc_DsMuMuVertexing = True
         self.DsVtxChi2Cut = 90.
         self.BcVtxChi2Cut = 120.
+        self.MaxBcToStore = 1000
         
         from TrigBphysHypo.TrigEFBMuMuXFexMonitoring import EFBMuMuXFexValidationMonitoring
         validation = EFBMuMuXFexValidationMonitoring()
@@ -686,7 +764,7 @@ class EFBMuMuXFex_BcMuMuDs_tight (EFBMuMuXFex_BcMuMuDs):
         EFBMuMuXFex_BcMuMuDs.__init__(self, name )
 
         # Bc -> D_s* Mu Mu
-        self.LowerBc_DsMuMuMassCut = 5400.
+        self.LowerBc_DsMuMuMassCut = 5450.
         
         
 class EFBMuMuXFex_BcMuMuDs_noVtx (TrigEFBMuMuXFex):
@@ -717,7 +795,7 @@ class EFBMuMuXFex_BcMuMuDs_noVtx (TrigEFBMuMuXFex):
         self.UpperPhiDs_MassCut = 1080.
         self.LowerDs_MassCut = 1600.
         self.UpperDs_MassCut = 2400.
-        self.LowerBc_DsMuMuMassCut = 1800.
+        self.LowerBc_DsMuMuMassCut = 5450.
         self.UpperBc_DsMuMuMassCut = 7050.
         self.DoDs_Vertexing = False
         self.DoBc_DsMuMuVertexing = False

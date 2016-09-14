@@ -22,6 +22,7 @@ class L2BMuMuFex_1 (TrigL2BMuMuFex):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         # self.TrackPTthr       = 1.4
@@ -50,6 +51,7 @@ class L2BMuMuFex_Jpsi (TrigL2BMuMuFex):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         # self.TrackPTthr       = 1.4
@@ -71,6 +73,14 @@ class L2BMuMuFex_Jpsi (TrigL2BMuMuFex):
 
         self.AthenaMonTools = [ validation, online, time ]
 
+class L2BMuMuFex_Jpsi_noSameMu (L2BMuMuFex_Jpsi):
+    __slots__ = []
+    def __init__(self, name = "L2BMuMuFex_Jpsi_noSameMu"):
+        L2BMuMuFex_Jpsi.__init__( self, name )
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptSameMuon = False
+        
 class L2BMuMuFex_Upsi (TrigL2BMuMuFex):
     __slots__ = []
     def __init__(self, name = "L2BMuMuFex_Upsi"):
@@ -78,6 +88,7 @@ class L2BMuMuFex_Upsi (TrigL2BMuMuFex):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         # self.TrackPTthr       = 1.4
@@ -106,6 +117,7 @@ class L2BMuMuFex_B (TrigL2BMuMuFex):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         # self.TrackPTthr       = 1.4
@@ -134,6 +146,7 @@ class L2BMuMuFex_DiMu (TrigL2BMuMuFex):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         # self.TrackPTthr       = 1.4
@@ -274,6 +287,7 @@ class L2BMuMuFex_DiMu_noOS (TrigL2BMuMuFex):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         # self.TrackPTthr       = 1.4
@@ -754,6 +768,7 @@ class L2BMuMuFex_DiMu_noinvm_SS (TrigL2BMuMuFex):
 
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll = False
+        self.AcceptSameMuon = True
 
         # L2 Bmumu cuts
         # self.TrackPTthr       = 1.4

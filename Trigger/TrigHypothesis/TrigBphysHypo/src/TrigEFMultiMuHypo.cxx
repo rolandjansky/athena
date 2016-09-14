@@ -55,6 +55,7 @@ TrigEFMultiMuHypo::TrigEFMultiMuHypo(const std::string & name, ISvcLocator* pSvc
   // Read cuts
 
   declareProperty("AcceptAll",    m_acceptAll=true);
+  declareProperty("bphysCollectionKey", m_bphysCollectionKey  = "EFMultiMuFex" );
   declareProperty("OppositeSign", m_oppositeCharge=true);
   declareProperty("LowerMassCut", m_lowerMassCut=4000.0);
   declareProperty("UpperMassCut", m_upperMassCut=6000.0);
@@ -64,6 +65,7 @@ TrigEFMultiMuHypo::TrigEFMultiMuHypo(const std::string & name, ISvcLocator* pSvc
 
   declareMonitoredVariable("CutCounter",   mon_cutCounter);
   declareMonitoredVariable("MuMumass",     mon_MuMumass  );
+  declareMonitoredVariable("FitChi2",      mon_FitChi2  );
 
 
 }
@@ -78,11 +80,15 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltInitialize()
 
     msg() << MSG::DEBUG << "AcceptAll            = "
         << (m_acceptAll==true ? "True" : "False") << endreq;
+    msg() << MSG::DEBUG << "TrigBphys collection " << m_bphysCollectionKey << endmsg;
     msg() << MSG::DEBUG << "OppositeCharge       = "
         << (m_oppositeCharge==true ? "True" : "False") << endreq;
     msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
     msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
-    msg() << MSG::DEBUG << "ApplyUpperMassCut         = " << m_ApplyupperMassCut << endreq;
+    msg() << MSG::DEBUG << "ApplyUpperMassCut    = " << m_ApplyupperMassCut << endreq;
+    msg() << MSG::DEBUG << "ApplyChi2Cut         = " << m_ApplyChi2Cut << endreq;
+    msg() << MSG::DEBUG << "Chi2VtxCut           = " << m_Chi2VtxCut << endreq;
+
 
   }
 
@@ -118,6 +124,8 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
   bool PassedChi2Cut=false;
   bool result = false;
   mon_cutCounter = -1;
+  mon_FitChi2 = -1;
+  mon_MuMumass = -1;
     // Retrieve event info
     int IdRun   = 0;
     int IdEvent = 0;
@@ -171,7 +179,7 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
 //  const TrigEFBContainer* trigBphysColl = 0;
 //  const VxContainer* VertexColl;
 
-  HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, "EFMultiMuFex");
+  HLT::ErrorCode status = getFeature(outputTE, trigBphysColl, m_bphysCollectionKey );
 
   if ( status != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING) {
@@ -214,20 +222,23 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
             
             float BsMass = (*bphysIter)->mass();
             bool thisPassedBsMass = (m_lowerMassCut < BsMass && ((BsMass < m_upperMassCut) || (!m_ApplyupperMassCut) ));
-            PassedBsMass |= thisPassedBsMass;
-            bool thisPassedChi2Cut = ((!m_ApplyChi2Cut) || ((*bphysIter)->fitchi2() < m_Chi2VtxCut && (*bphysIter)->fitchi2() != -99) );
-            PassedChi2Cut |= thisPassedChi2Cut;
+            //PassedBsMass |= thisPassedBsMass;
+            bool thisPassedChi2Cut = ((!m_ApplyChi2Cut) || ((*bphysIter)->fitchi2() < m_Chi2VtxCut && (*bphysIter)->fitchi2() >= -1e-10) );
+            //PassedChi2Cut |= thisPassedChi2Cut;
             if(thisPassedBsMass)
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Passed mass cut " << BsMass <<" GeV" << endreq;
             mon_MuMumass = ((BsMass*0.001));
             if(thisPassedChi2Cut)
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Apply chi2 cut : " << m_ApplyChi2Cut << " chi2 :  " << (*bphysIter)->fitchi2() << " Passed Chi2 cut < "<< m_Chi2VtxCut << endreq;
+	    mon_FitChi2 = (*bphysIter)->fitchi2();
             if(!thisPassedBsMass && !thisPassedChi2Cut)
                 if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Did not pass mass & chi2 cuts < "<< endreq;
-            
+
+            if( thisPassedBsMass ) PassedBsMass = true;
             if( thisPassedBsMass && thisPassedChi2Cut )
             {
-                HLT::markPassing(bits, *bphysIter, trigBphysColl);
+              PassedChi2Cut = true;
+	      HLT::markPassing(bits, *bphysIter, trigBphysColl);
             }
             
         }
@@ -275,6 +286,7 @@ HLT::ErrorCode TrigEFMultiMuHypo::hltExecute(const HLT::TriggerElement* outputTE
       m_lastEventPassed=IdEvent;
     }
     pass=true;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " accepting event" << endmsg;
   }
 
   // store result

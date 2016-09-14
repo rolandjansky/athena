@@ -3,8 +3,8 @@
 # vim: tabstop=4:shiftwidth=4:expandtab
 from TrigMonitorBase.TrigGenericMonitoringToolConfig import defineHistogram, TrigGenericMonitoringToolConfig 
 
-ERROR_labels = ' No_EventInfo : Not_2_InputTEs : No_RoIs : No_MuonEFInfoContainer : No_MuonCandidate : SameMuon : DiMuVtxFitFails : DiMuVtxMass_Fails : No_TrackColl : BplusVtxFit_Fails : BplusVtxMass_Fails : WrongDecayID : XVtxFit_Fails : XVtxMass_Fails : XMuMuVtxFit_Fails : XMuMuVtxMass_Fails : BphysCollStore_Fails : No_MuonTrackMatch : TooManyCom_Acc : TooManyComb_Rej'
-ERROR_number = 20
+ERROR_labels = ' No_EventInfo : Not_2_InputTEs : No_RoIs : No_MuonEFInfoContainer : No_MuonCandidate : SameMuon : DiMuVtxFitFails : DiMuVtxMass_Fails : No_TrackColl : BplusVtxFit_Fails : BplusVtxMass_Fails : WrongDecayID : XVtxFit_Fails : XVtxMass_Fails : XMuMuVtxFit_Fails : XMuMuVtxMass_Fails : BphysCollStore_Fails : No_MuonTrackMatch : TooManyCom_Acc : TooManyComb_Rej : MaxNumBpReached : MaxNumBdReached : MaxNumBsReached : MaxNumLbReached : MaxNumBcReached'
+ERROR_number = 25
 
 #ACCEPTANCE_labels = ' Input : AcceptAll : Got_RoIs : Got_Muons : Got_TrackColl : Full_TrackColl : Full_IDTracks : Pass_OppChargeC : MuonTracks_Added : Muon_Vertexing : CalcInvMass : MuonVtx_Part : MuMu_mass : MotherVtxCreated : BphysCollParticle '
 #ACCEPTANCE_number = 15
