@@ -878,11 +878,15 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_3D (const TrackParameters& TP,
                                                    Trk::FitQualityOnSurface*& fitQoS,
                                                    bool createFQoS ) const {
   // transform EDM to new math lib
-  SParVector3 SmeasPar(measPar[Trk::locX],measPar[Trk::locY],measPar[Trk::phi]);
+  SParVector3 SmeasPar;
   SCovMatrix3 SmeasCov;
   // make reduction matrix H from LocalParameters
   ROOT::Math::SMatrix<double,3,5,ROOT::Math::MatRepStd<double, 3, 5> > H;
-  for (int i=0, irow=0; i<5; ++i) {
+  for (int i=0, irow=0, imeas=0; i<5; ++i) {
+    if (measPar.contains(Trk::ParamDefs(i))){
+      SmeasPar[imeas] = measPar[Trk::ParamDefs(i)];
+      ++imeas;
+    }
     if (measPar.parameterKey() & (1<<i)) {
       SParVector5 v; v(i)=1.0;
       H.Place_in_row(v, irow, 0);
@@ -892,6 +896,7 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_3D (const TrackParameters& TP,
       ++irow;
     }
   }
+
   SParVector3 r = SmeasPar - H * trkPar;
   //  FIXME catchPiPi;
   SCovMatrix3 R = sign * SmeasCov + projection_3D(trkCov,measPar.parameterKey());
@@ -972,13 +977,15 @@ Trk::KalmanUpdatorSMatrix::calculateFilterStep_4D (const TrackParameters& TP,
                                             Trk::FitQualityOnSurface*& fitQoS,
                                             bool createFQoS ) const {
   // transform EDM to new math lib
-  SParVector4 SmeasPar(measPar[Trk::d0],measPar[Trk::z0],
-                       measPar[Trk::phi0],measPar[Trk::theta]);
+  SParVector4 SmeasPar;
   SCovMatrix4 SmeasCov;
-
   // make reduction matrix H from LocalParameters
   ROOT::Math::SMatrix<double,4,5,ROOT::Math::MatRepStd<double, 4, 5> > H;
-  for (int i=0, irow=0; i<5; ++i) {
+  for (int i=0, irow=0, imeas=0; i<5; ++i) {
+    if (measPar.contains(Trk::ParamDefs(i))){
+      SmeasPar[imeas] = measPar[Trk::ParamDefs(i)];
+      ++imeas;
+    }
     if (measPar.parameterKey() & (1<<i)) {
       SParVector5 v; v(i)=1.0;
       H.Place_in_row(v, irow, 0);
