@@ -9,7 +9,8 @@
 #include "TrkMaterialOnTrack/MaterialEffectsBase.h"
 #include "TrkMaterialOnTrack/EstimatedBremOnTrack.h"
 #include "TrkEventTPCnv/TrkMaterialOnTrack/EstimatedBremOnTrack_p1.h"
-#include "TrkEventTPCnv/TrkMaterialOnTrack/MaterialEffectsBaseCnv_p1.h"
+//#include "TrkEventTPCnv/TrkMaterialOnTrack/MaterialEffectsBaseCnv_p1.h"
+#include "TrkEventTPCnv/TrkMaterialOnTrack/MaterialEffectsBaseCnv_p2.h"
 
 class MsgStream;
 
@@ -32,7 +33,8 @@ class EstimatedBremOnTrackCnv_p1:
                     Trk::EstimatedBremOnTrack_p1       *persObj,
                     MsgStream                          &log );
  private:
-  MaterialEffectsBaseCnv_p1*  m_mefBaseCnv;
+  //MaterialEffectsBaseCnv_p1*  m_mefBaseCnv;
+  MaterialEffectsBaseCnv_p2*  m_mefBaseCnv;
 
 };
 
