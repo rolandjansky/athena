@@ -22,12 +22,17 @@
  * The former is used in egamma, while in JetFitter the latter is used.
  *
  * @author N. Giacinto Piacquadio (for the Freiburg Group)
+ *
+ * -----------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-26)
+ *
+ *   EDM Migration to xAOD - remove method using VxCandidate
  */
 
 namespace Trk
 {
-  class VxCandidate;
-
   static const InterfaceID IID_NeutralParticleParameterCalculator("INeutralParticleParameterCalculator", 1, 0);
   
   class INeutralParticleParameterCalculator : virtual public IAlgTool
@@ -39,8 +44,6 @@ namespace Trk
    /**
     * method calculating the parameters
     */
-    virtual NeutralPerigee* createNeutralTrackFromVertex(const Trk::VxCandidate& ) const = 0;
-
     virtual NeutralPerigee* createNeutralTrackFromVertex(const xAOD::Vertex& ) const = 0;
 
 

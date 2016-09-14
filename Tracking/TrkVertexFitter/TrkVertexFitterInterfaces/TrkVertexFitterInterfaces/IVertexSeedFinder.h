@@ -11,6 +11,7 @@
 
 #include "GaudiKernel/IAlgTool.h"
 #include "TrkParameters/TrackParameters.h"
+#include "xAODTracking/Vertex.h"
 
 /**
  * @class Trk::IVertexSeedFinder
@@ -26,14 +27,19 @@
  * See concrete implementations for more details.
  *
  *@author Giacinto.Piacquadio@physik.uni-freiburg.de 
+ *
+ * --------------------------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-19)
+ *
+ * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex, 
+ *                         from Trk::RecVertex   to xAOD::Vertex,
+ *                         from Trk::Vertex      to Amg::Vector3D
  */
 
-
-// AW how come a forward declare of Vertex is enough in this header even though Vertex is not used as pointer nor reference but as concrete type?
 namespace Trk
 {
-  class Vertex;
-  class RecVertex;
   class Track;
 
   static const InterfaceID IID_IVertexSeedFinder("IVertexSeedFinder", 1, 0);
@@ -53,32 +59,32 @@ namespace Trk
 
        /**
         *  Finds a linearization point out of a vector of tracks
-	*  and returns it as a Trk::Vertex object. If you want an 
+	*  and returns it as an Amg::Vector3D object. If you want an 
 	*  additional constraint can be taken into account.
         */
-       virtual Vertex findSeed(const std::vector<const Trk::Track*>& vectorTrk,const RecVertex * constraint=0) = 0;
+       virtual Amg::Vector3D findSeed(const std::vector<const Trk::Track*>& vectorTrk,const xAOD::Vertex * constraint=0) = 0;
 
 
        /** 
         * Finds a linearization point out of a vector of TrackParameters
-        *  and returns it as a Trk::Vertex object. If you want an 
+        *  and returns it as an Amg::Vector3D object. If you want an 
 	* additional constraint can be taken into account.
 	*/
-       virtual Vertex findSeed(const std::vector<const Trk::TrackParameters*>& perigeeList,const RecVertex * constraint=0) = 0;
+       virtual Amg::Vector3D findSeed(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0) = 0;
 
        /**
         * Finds full vector of linearization points from a vector of tracks
-        *  and returns it as a Trk::Vertex object.  Intended for seed finders that produce all at once.
+        *  and returns it as an Amg::Vector3D object.  Intended for seed finders that produce all at once.
 	*  If you want an additional constraint can be taken into account.
         */
-       virtual std::vector<Vertex> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,const RecVertex * constraint=0) = 0;
+       virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::Track*>& vectorTrk,const xAOD::Vertex * constraint=0) = 0;
 
        /**
         * Finds full vector of linearization points from a vector of TrackParameters
-        *  and returns it as a Trk::Vertex object.  Intended for seed finders that produce all at once.
+        *  and returns it as an Amg::Vector3D object.  Intended for seed finders that produce all at once.
 	*  If you want an additional constraint can be taken into account.
         */
-       virtual std::vector<Vertex> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const RecVertex * constraint=0) = 0;
+       virtual std::vector<Amg::Vector3D> findMultiSeeds(const std::vector<const Trk::TrackParameters*>& perigeeList,const xAOD::Vertex * constraint=0) = 0;
 
 
 

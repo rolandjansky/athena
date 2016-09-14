@@ -19,16 +19,18 @@
  * Kirill.Prokofiev@cern.ch 
  * 
  * June 2009
+ *
+ * ---------------------------------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-19)
+ *
+ *   EDM Migration to xAOD - Replace Trk::VxContainer with xAOD::VertexContainer
+ *
  */
-
-
-class VxContainer;
 
 namespace Trk
 {
-
-  class Track;
-  class TrackParticleBase;
 
  static const InterfaceID IID_IPVTrackCompatibilityEstimator("IPVTrackCompatibilityEstimator", 1, 0);
  
@@ -41,14 +43,11 @@ namespace Trk
     
     static const InterfaceID& interfaceID(){return IID_IPVTrackCompatibilityEstimator;}
     
-    virtual bool isCompatible(const Trk::Track* track,
-                              const VxContainer* pvContainer, unsigned int pvIndex = 0) const = 0;
-    
-    virtual bool isCompatible(const Trk::TrackParticleBase* track,
-                              const VxContainer* pvContainer, unsigned int pvIndex = 0) const = 0;
+    virtual bool isCompatible(const xAOD::TrackParticle* track,
+                              const xAOD::VertexContainer* pvContainer, unsigned int pvIndex = 0) const = 0;
 
     virtual bool isCompatible(const TrackParameters* track,
-                              const VxContainer* pvContainer, unsigned int pvIndex = 0) const = 0;
+                              const xAOD::VertexContainer* pvContainer, unsigned int pvIndex = 0) const = 0;
     
  }; 
   

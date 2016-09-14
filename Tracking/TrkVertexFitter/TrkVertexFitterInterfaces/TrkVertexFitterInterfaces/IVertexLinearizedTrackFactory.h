@@ -13,6 +13,9 @@
 #include "TrkParameters/TrackParameters.h"
 #include "TrkNeutralParameters/NeutralParameters.h"
 
+// For Amg
+#include "GeoPrimitives/GeoPrimitives.h"
+
  /**
    * @class Trk::IVertexLinearizedTrackFactory
    *
@@ -39,6 +42,14 @@
    *
    * @author Giacinto.Piacquadio@physik.uni-freiburg.de 
    * @author Kirill.Prokofiev@cern.ch
+   *
+   * -----------------------------------------
+   * Changes:
+   *
+   * David Shope <david.richard.shope@cern.ch> (2016-06-01)
+   *
+   *   EDM Migration to xAOD - replace Trk::Vertex with Amg::Vector3D
+   *
    */
 
 
@@ -50,7 +61,6 @@ namespace Trk
 
   class VxTrackAtVertex;
   class LinearizedTrack;
-  class Vertex;
   
   class IVertexLinearizedTrackFactory : virtual public IAlgTool 
   {
@@ -73,7 +83,7 @@ namespace Trk
       * Produces a new perigee linearized state and stores its pointer as a private  
       * member of Trk::VxTrackAtVertex
       */
-       virtual void linearize(VxTrackAtVertex & theTrack,const Vertex & linPoint) const = 0;
+       virtual void linearize(VxTrackAtVertex & theTrack,const Amg::Vector3D & linPoint) const = 0;
       
 
      /**
@@ -82,14 +92,14 @@ namespace Trk
       * Creates a new perigee linearized track state and returns its pointer.
       */
        virtual LinearizedTrack * linearizedTrack(const TrackParameters * perigee, 
-                                                 const Vertex & linPoint) const =0;
+                                                 const Amg::Vector3D & linPoint) const =0;
      /**
        * Linearization method:
        * Takes a Trk::NeutralParameters and a linearization point.
        * Creates a new perigee linearized track state and returns its pointer.
        */
        virtual LinearizedTrack * linearizedTrack(const NeutralParameters * perigee,
-                                                 const Vertex & linPoint) const =0;
+                                                 const Amg::Vector3D & linPoint) const =0;
 
   };
 
