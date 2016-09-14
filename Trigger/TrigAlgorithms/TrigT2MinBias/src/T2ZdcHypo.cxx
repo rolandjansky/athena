@@ -87,8 +87,8 @@ HLT::ErrorCode T2ZdcHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
      
   pass = false;
-  bool m_pass[3];
-  for(int ib=0; ib<3; ++ib) m_pass[ib]=false;
+  bool passflags[3];
+  for(int ib=0; ib<3; ++ib) passflags[ib]=false;
   
   
   // Try to retrieve the TrigT2ZdcSignals object produced by the Fex
@@ -131,38 +131,38 @@ HLT::ErrorCode T2ZdcHypo::hltExecute(const HLT::TriggerElement* outputTE,
   }
 
   if(m_timeLogic==2){ // selects out of window
-    if(fabs(m_timeDiff_A_C)>m_timeCut) m_pass[0] = true;
+    if(fabs(m_timeDiff_A_C)>m_timeCut) passflags[0] = true;
   }
   if(m_timeLogic==1){ // selects in time of window
-    if(fabs(m_timeDiff_A_C)<=m_timeCut) m_pass[0] = true;
+    if(fabs(m_timeDiff_A_C)<=m_timeCut) passflags[0] = true;
   } 
 
   if(m_energyLogic==1){ // AND
     if(m_sumEn.first>= m_SumEn[0] && m_sumEn.first<= m_SumEn[1]){
       if(m_sumEn.second>= m_SumEn[2] && m_sumEn.second<= m_SumEn[3]){
-	m_pass[1] = true;
+	passflags[1] = true;
       }
     }
   } else if (m_energyLogic==2){ // OR
     if((m_sumEn.first>= m_SumEn[0] && m_sumEn.first<= m_SumEn[1])
        || (m_sumEn.second>= m_SumEn[2] && m_sumEn.second<= m_SumEn[3])){
-      m_pass[1] = true;
+      passflags[1] = true;
     }
   }
   
   if(m_multiLogic==1){ // AND
     if(m_mult.first >= m_Mult[0] && m_mult.second >= m_Mult[1]){
-      m_pass[2] = true;
+      passflags[2] = true;
     }
   } else if(m_multiLogic==2){ // OR
     if(m_mult.first >= m_Mult[0] || m_mult.second >= m_Mult[1]){
-      m_pass[2] = true;
+      passflags[2] = true;
     }
   }
   
-  if( ((m_timeLogic==0) || m_pass[0]) &&
-      ((m_energyLogic==0) || m_pass[1]) &&
-      ((m_multiLogic==0) || m_pass[2])){
+  if( ((m_timeLogic==0) || passflags[0]) &&
+      ((m_energyLogic==0) || passflags[1]) &&
+      ((m_multiLogic==0) || passflags[2])){
     pass=true;
     m_selMult_A = m_mult.first;
     m_selMult_C = m_mult.second;

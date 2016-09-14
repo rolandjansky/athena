@@ -120,8 +120,8 @@ HLT::ErrorCode TrigCountTrtHitsHypo::hltExecute(const HLT::TriggerElement* outpu
 
   // Do initialisation at start of first event
   if (m_hltExecuteInitialisationRun == false) {
-    HLT::ErrorCode _ec = checkDetectorMask();
-    if (_ec != HLT::OK) return _ec;
+    HLT::ErrorCode ec = checkDetectorMask();
+    if (ec != HLT::OK) return ec;
   }
 
   if(msgLvl() <= MSG::DEBUG) {
