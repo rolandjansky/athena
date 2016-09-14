@@ -276,7 +276,7 @@ HLTJetMonTool::~HLTJetMonTool() {
 StatusCode HLTJetMonTool::init() {
 
   // init message stream
-  m_log->setLevel(outputLevel());
+  m_log->setLevel(msgLevel());
   m_debuglevel = (m_log->level() <= MSG::DEBUG);
 
   ATH_MSG_INFO( "in HLTJetMonTool::init()" );
