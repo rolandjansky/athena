@@ -184,20 +184,20 @@ StatusCode OutputConditionsAlg::finalize() {
       "Register objects in IOV database, interval of validity ";
     if (m_par_timestamp) {
       msg() << "[time] from [" << 
-	  m_par_time1 << "] to [" << m_par_time2 << "]" << endreq;
+	  m_par_time1 << "] to [" << m_par_time2 << "]" << endmsg;
     } else {
       msg() << "[run,LB] from [" <<
           m_par_run1 << "," << m_par_lumib1 << "] to [" << m_par_run2 <<
-          "," << m_par_lumib2 << "]" << endreq;
+          "," << m_par_lumib2 << "]" << endmsg;
     }
     int nreg=0;
     for (int iobj=0;iobj<nObjects;++iobj) {
       msg() << MSG::INFO << "Register object " << types[iobj] << "#" << 
 	keys[iobj] << " in IOV database folder " << folders[iobj] << " ";
       if (tags[iobj]=="") {
-	msg() << MSG::INFO << "without tagging" << endreq;
+	msg() << MSG::INFO << "without tagging" << endmsg;
       } else {
-	msg() << MSG::INFO << "with tag " << tags[iobj] << endreq;
+	msg() << MSG::INFO << "with tag " << tags[iobj] << endmsg;
       }
       if (m_par_timestamp) {
 	sc=p_regsvc->registerIOV(types[iobj],keys[iobj],
