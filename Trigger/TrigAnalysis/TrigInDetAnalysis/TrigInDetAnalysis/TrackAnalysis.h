@@ -20,6 +20,8 @@
 
 #include "TrigInDetAnalysis/TrackAssociator.h"
 #include "TrigInDetAnalysis/Track.h"
+#include "TrigInDetAnalysis/TIDAEvent.h"
+#include "TrigInDetAnalysis/TIDAVertex.h"
 #include "TrigInDetAnalysis/TIDAFeatureStore.h"
 
 #include "TH1.h"
@@ -31,8 +33,9 @@ public:
 
   TrackAnalysis( const std::string& name ) : 
     mname(name), 
-    m_xBeamReference(0), m_yBeamReference(0), 
-    m_xBeamTest(0),      m_yBeamTest(0) 
+    m_xBeamReference(0), m_yBeamReference(0), m_zBeamReference(0),
+    m_xBeamTest(0),      m_yBeamTest(0),      m_zBeamTest(0),
+    m_event(0)
   { } 
   
   virtual ~TrackAnalysis() { } 
@@ -46,6 +49,11 @@ public:
   virtual void execute( const std::vector<TIDA::Track*>& tracks1,
 			const std::vector<TIDA::Track*>& tracks2,
 			TrackAssociator* matcher ) = 0;
+
+  virtual void execute_vtx( const std::vector<TIDA::Vertex*>& ,
+			    const std::vector<TIDA::Vertex*>& , 
+			    const TIDA::Event* =0 ) { }  
+			   
   
   virtual void finalise() = 0;
 
@@ -65,7 +73,31 @@ public:
   void  setBeamRef( double x, double y, double z=0 ) {  m_xBeamReference = x;  m_yBeamReference = y; m_zBeamReference = z; } 
   void setBeamTest( double x, double y, double z=0 ) {  m_xBeamTest      = x;       m_yBeamTest = y;      m_zBeamTest = z; }
 
+  void  setBeamRef( const std::vector<double>& v ) {  
+    if ( v.size()>0 ) m_xBeamReference = v[0]; 
+    if ( v.size()>1 ) m_yBeamReference = v[1]; 
+    if ( v.size()>2 ) m_zBeamReference = v[2]; 
+  }
+ 
+  void setBeamTest(  const std::vector<double>& v ) { 
+    if ( v.size()>0 ) m_xBeamTest = v[0]; 
+    if ( v.size()>1 ) m_yBeamTest = v[1]; 
+    if ( v.size()>2 ) m_zBeamTest = v[2]; 
+  }
+
+  double  beamRefx() const { return m_xBeamReference; }
+  double  beamRefy() const { return m_yBeamReference; }
+  double  beamRefz() const { return m_zBeamReference; }
+
+  double  beamTestx() const { return  m_xBeamTest; }
+  double  beamTesty() const { return  m_yBeamTest; }
+  double  beamTestz() const { return  m_zBeamTest; }
+
+
   TIDA::FeatureStore& store() { return m_store; }
+
+  TIDA::Event*    event()               { return m_event; }
+  void         setevent(TIDA::Event* e) { m_event=e; }
 
 protected:
  
@@ -89,7 +121,9 @@ protected:
   double m_zBeamTest;
 
   TIDA::FeatureStore m_store;
-
+  
+  TIDA::Event*       m_event;
+  
 };
 
 

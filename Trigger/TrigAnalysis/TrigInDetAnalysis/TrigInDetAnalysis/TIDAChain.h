@@ -71,7 +71,7 @@ private:
 }
 
 inline std::ostream& operator<<( std::ostream& s, const TIDA::Chain& c ) { 
-  s << "\tChain " << c.name();
+  s << "\tChain " << c.name() << "\trois: " << c.rois().size();
   for ( unsigned i=0 ; i<c.rois().size() ; i++ ) s << "\n\t" << c.rois()[i];
   return s;
 }
