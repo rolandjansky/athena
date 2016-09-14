@@ -64,22 +64,22 @@ namespace Trk
  */
   xAOD::Vertex positionUpdate (const xAOD::Vertex& vtx, const LinearizedTrack * trk, double trackWeight, int sign) const;
 
+/**
+ * Method calculating the interstep Chi2 increment
+ */ 
+  float trackParametersChi2(const xAOD::Vertex& new_vtx, const LinearizedTrack * trk) const;
+
+/** 
+ * Method calculating the vertex displacement-related part of the chi2   
+ */
+  float vertexPositionChi2(const xAOD::Vertex& old_vtx, const xAOD::Vertex& new_vtx) const;
+
   private:
   
 /**
  * Method where the fit is actually done
  */
   xAOD::Vertex* update(xAOD::Vertex& vtx, const VxTrackAtVertex& trk,int sign) const;
- 
-/**
- * Helper method calculating the interstep Chi2 increment
- */ 
-  float trackParametersChi2(const xAOD::Vertex& new_vtx, const LinearizedTrack * trk) const;
-
-/** 
- * Helper method calculating the vertex displacement-related part of the chi2   
- */
-  float vertexPositionChi2(const xAOD::Vertex& old_vtx, const xAOD::Vertex& new_vtx) const;
    
  };//end of class definition
 }//end of namespace definition

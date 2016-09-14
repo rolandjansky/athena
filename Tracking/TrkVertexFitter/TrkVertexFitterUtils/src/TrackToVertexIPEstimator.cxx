@@ -422,15 +422,25 @@ const xAOD::Vertex * TrackToVertexIPEstimator::getUnbiasedVertex(const TrackPara
 	 else tmpLinTrack = true;
        }
        //now update vertex position removing the linearized track, and do not add the track back to the output vertex
-       //Trk::RecVertex originalVtx(vtx->position(), vtx->covariancePosition(), vtx->numberDoF(), vtx->chiSquared());
-       //Trk::RecVertex reducedVertex;
        xAOD::Vertex reducedVertex;
-       //reducedVertex = m_Updator->positionUpdate(originalVtx, linTrack, trackWeight,-1);
        reducedVertex = m_Updator->positionUpdate(*vtx, linTrack, trackWeight,-1);
+       
+       //calculate updated chi2
+       double chi2 = vtx->chiSquared();
+       double trk_chi = m_Updator->trackParametersChi2( reducedVertex, linTrack );
+       chi2 += -1 * (m_Updator->vertexPositionChi2(*vtx, reducedVertex) + trackWeight * trk_chi);
+
+       //calculate updated ndf
+       double ndf = vtx->numberDoF();
+       ndf += -1 * trackWeight * (2.0);
+
+       //reducedVertex has the updated position and covariance
        outputVertex->setPosition(reducedVertex.position());
        outputVertex->setCovariancePosition(reducedVertex.covariancePosition());
-       //outputVertex->setFitQuality(reducedVertex.fitQuality().chiSquared(),reducedVertex.fitQuality().numberDoF());
-       outputVertex->setFitQuality(reducedVertex.chiSquared(),reducedVertex.numberDoF());
+
+       //chi2 and ndf now store the updated FitQuality
+       outputVertex->setFitQuality( chi2, ndf );
+
        if (tmpLinTrack) delete linTrack; //only delete if it was created new, and doesn't belong to a vertex
      } else {
        //track not to be removed. Add back the track to the vertex collection
