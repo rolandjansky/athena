@@ -213,9 +213,9 @@ RegistrationStream::execute()
         if (getRefs(refs) == StatusCode::FAILURE) {
 	  ATH_MSG_WARNING
 	    ("No refs found: RegStream selected to write out ref to event "
-	     << endreq
+	     << endmsg
 	     << "   but DataHeader can NOT be found in StoreGate. "
-	     << endreq
+	     << endmsg
 	     << "   Most likely the event was NOT selected to be written by "
 	     << "an output stream ");
             return sc;
