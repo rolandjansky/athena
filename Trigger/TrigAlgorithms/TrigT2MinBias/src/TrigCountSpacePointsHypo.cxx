@@ -28,7 +28,9 @@ TrigCountSpacePointsHypo::TrigCountSpacePointsHypo(const std::string& name,
   // veto large multiplicity events
   declareProperty("VetoLargeSP",          m_vetoLargeSP = false); 
 
-  
+  // Invert the final decision of the hypo - turning it into a SP veto
+  declareProperty("Veto",                    m_veto = false); 
+
   // Threshold settings for multiplicity requirements.
   // A trigger threshold can be disabled by setting it to be < 0
   declareProperty("TotalPixelClus",          m_totalPixelClus_cut = 10.);
@@ -574,6 +576,12 @@ HLT::ErrorCode TrigCountSpacePointsHypo::hltExecute(const HLT::TriggerElement* o
     }
     else
       if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Event fails Pixel OR SCT " << endreq;
+  }
+
+  // Veto
+  if (m_veto == true) {
+    pass = !pass;
+    if(msgLvl() <= MSG::DEBUG) m_log << MSG::DEBUG << "Using inverted/VETO logic, final decision is " << (pass ? "PASS" : "FAIL") << endreq;
   }
 
   // for monitoring  
