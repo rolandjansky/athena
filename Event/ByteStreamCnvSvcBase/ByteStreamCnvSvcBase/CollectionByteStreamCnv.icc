@@ -42,33 +42,33 @@ CollectionByteStreamCnv<TOOL>::initialize()
 
    MsgStream log(messageService(), "CollectionByteStreamCnv");
 
-   log << MSG::DEBUG<< " initialize " <<endreq; 
+   log << MSG::DEBUG<< " initialize " <<endmsg; 
 
    // Get ROBDataProvider
    sc = service("ROBDataProviderSvc", m_robDataProvider); 
    if(sc != StatusCode::SUCCESS ) {
-     log<<MSG::ERROR << " Cant get ROBDataProviderSvc " <<endreq;
+     log<<MSG::ERROR << " Cant get ROBDataProviderSvc " <<endmsg;
      return sc ;
    } else {
      Service* svc = dynamic_cast<Service*>(m_robDataProvider);	
      if (svc != 0) {
-	 log<<MSG::DEBUG << " connected to RobDataProvider = " << svc->name() <<endreq;            
+	 log<<MSG::DEBUG << " connected to RobDataProvider = " << svc->name() <<endmsg;            
      } else {
-         log<<MSG::ERROR << " Cant cast ROBDataProviderSvc to Service " <<endreq;
+         log<<MSG::ERROR << " Cant cast ROBDataProviderSvc to Service " <<endmsg;
      }	
    }			
 
   IToolSvc* toolSvc;
   if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-    log << MSG::ERROR << " Can't get ToolSvc " << endreq;
+    log << MSG::ERROR << " Can't get ToolSvc " << endmsg;
     return StatusCode::FAILURE; 
   }  
 
   std::string toolType = System::typeinfoName(typeid(TOOL)) ; 
-  log << MSG::DEBUG <<"  Tool Type = "<<toolType<<endreq; 
+  log << MSG::DEBUG <<"  Tool Type = "<<toolType<<endmsg; 
   if(StatusCode::SUCCESS != toolSvc->retrieveTool(toolType,m_tool))
   {
-    log << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
+    log << MSG::ERROR << " Can't get ByteStreamTool " << endmsg;
     return StatusCode::FAILURE; 
   }
 
@@ -83,14 +83,14 @@ CollectionByteStreamCnv<TOOL>::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress*>(pAddr); 
   if(!pBS_Addr) {
-    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq ; 
+    log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg ; 
     return StatusCode::FAILURE;    
   }
 	
   const std::string nm = *(pBS_Addr->par()) ; 
   
 #ifndef NDEBUG
-  log << MSG::DEBUG<<" Creating Objects   "<<nm<<endreq; 
+  log << MSG::DEBUG<<" Creating Objects   "<<nm<<endmsg; 
 #endif 
   
   const std::vector<uint32_t>& vID = pBS_Addr->getRobIDs(); 
@@ -110,7 +110,7 @@ CollectionByteStreamCnv<TOOL>::createObj(IOpaqueAddress* pAddr, DataObject*& pOb
   COLLECTION* coll ;
   StatusCode sc = m_tool->convert(vRobData, coll, pBS_Addr->ipar() , log ); 
   if(sc != StatusCode::SUCCESS) { 
-        log << MSG::ERROR<<" Failed to create Objects   "<<nm<<endreq; 
+        log << MSG::ERROR<<" Failed to create Objects   "<<nm<<endmsg; 
 	return sc; 
   }
 
@@ -136,7 +136,7 @@ CollectionByteStreamCnv<TOOL>::createRep(DataObject* pObj, IOpaqueAddress*& pAdd
    pAddr = addr; 
 
 
-   log << MSG::ERROR << "  THIS METHOD SHOULD NOT BE CALLED "<< endreq ; 
+   log << MSG::ERROR << "  THIS METHOD SHOULD NOT BE CALLED "<< endmsg ; 
 
    StatusCode sc = StatusCode::FAILURE ; 
    return sc; 

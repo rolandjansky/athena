@@ -88,7 +88,7 @@ void
 FullEventAssembler<IDMAP>::RodToRob(RODMAP& rodMap,
 			ROBMAP& robMap,  MsgStream& log ) 
 { 
-  log << MSG::DEBUG << " RodToRob " << endreq;
+  log << MSG::DEBUG << " RodToRob " << endmsg;
 
   // loop over all the RODs 
   RODMAP::iterator it_rod     = rodMap.begin(); 
@@ -99,7 +99,7 @@ FullEventAssembler<IDMAP>::RodToRob(RODMAP& rodMap,
       RODDATA*  intv = (*it_rod).second; 
 
       std::ios_base::fmtflags oflags=log.stream().flags();
-      log << MSG::DEBUG << " Rod id = " << MSG::hex << rodid << endreq;
+      log << MSG::DEBUG << " Rod id = " << MSG::hex << rodid << endmsg;
       log.flags(oflags); // reset precision after use of hex
 
       // make an ROB id from an ROD id. 
@@ -110,7 +110,7 @@ FullEventAssembler<IDMAP>::RodToRob(RODMAP& rodMap,
       if(itr2!=robMap.end())
 	{
           oflags=log.stream().flags();
-	  log << MSG::ERROR << " More than one RODs in ROB:" << MSG::hex << (*itr2).first << endreq;
+	  log << MSG::ERROR << " More than one RODs in ROB:" << MSG::hex << (*itr2).first << endmsg;
           log.flags(oflags); // reset precision after use of hex
         }
       else 
@@ -130,7 +130,7 @@ FullEventAssembler<IDMAP>::RodToRob(RODMAP& rodMap,
 template <class IDMAP> 
 void FullEventAssembler<IDMAP>::RobToEvt(ROBMAP& robMap, RawEventWrite* re, MsgStream& log ) 
 {
-  log << MSG::DEBUG<< " RobToEvt, number of ROBFrag= " << robMap.size() << endreq;
+  log << MSG::DEBUG<< " RobToEvt, number of ROBFrag= " << robMap.size() << endmsg;
   OFFLINE_FRAGMENTS_NAMESPACE_WRITE::ROBFragment* theROB; 
   
   ROBMAP::iterator it_rob = robMap.begin(); 
@@ -140,12 +140,12 @@ void FullEventAssembler<IDMAP>::RobToEvt(ROBMAP& robMap, RawEventWrite* re, MsgS
       theROB = (*it_rob).second; 
       std::ios_base::fmtflags oflags=log.stream().flags();
       log << MSG::DEBUG << " RobToEvt: adding ROB " << MSG::hex <<
- 	theROB->source_id() << endreq; 
+ 	theROB->source_id() << endmsg; 
       log.flags(oflags); // reset precision after use of hex
       re->append((*it_rob).second); 
     } 
 
-  log << MSG::DEBUG << " FullEventFragment is done " << re << endreq;
+  log << MSG::DEBUG << " FullEventFragment is done " << re << endmsg;
 }
 
 
