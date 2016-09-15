@@ -5,7 +5,7 @@ import AthenaPoolCnvSvc.ReadAthenaPool
 from PartPropSvc.PartPropSvcConf import PartPropSvc
 
 include( "ParticleBuilderOptions/McAOD_PoolCnv_jobOptions.py")
-#include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
+include( "EventAthenaPool/EventAthenaPool_joboptions.py" )
 
 import os
 from glob import glob
@@ -16,20 +16,14 @@ ServiceMgr.EventSelector.InputCollections = athenaCommonFlags.FilesInput() # Thi
 from AthenaCommon.AlgSequence import AlgSequence
 topSequence = AlgSequence()
 
-from HitAnalysis.HitAnalysisConf import CaloHitAnalysis
-CaloHitAnalysis = CaloHitAnalysis()
-topSequence += CaloHitAnalysis
-CaloHitAnalysis.HistPath = '/CaloHitAnalysis/histos/'
-CaloHitAnalysis.NtupleFileName = '/CaloHitAnalysis/ntuple/'
-#ExpertMode adds more histograms to the output. Default mode is off
-CaloHitAnalysis.ExpertMode = "off"
-#CalibHits adds Calibrated hits histograms to the output. Default mode is off
-CaloHitAnalysis.CalibHits = "off"
+from HitAnalysis.HitAnalysisConf import TRTHitAnalysis
+topSequence += TRTHitAnalysis() 
+TRTHitAnalysis = TRTHitAnalysis()
+TRTHitAnalysis.HistPath = '/TRTHitAnalysis/'
 
 from GaudiSvc.GaudiSvcConf import THistSvc
 ServiceMgr += THistSvc()
-ServiceMgr.THistSvc.Output += ["CaloHitAnalysis DATAFILE='CaloHitAnalysis.root' OPT='RECREATE'" ]
-
+ServiceMgr.THistSvc.Output += [ "TRTHitAnalysis DATAFILE='TRTHitAnalysis.root' OPT='RECREATE'" ]
 
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 9999999
