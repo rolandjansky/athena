@@ -19,11 +19,15 @@
 TBTDCRawMonTool::TBTDCRawMonTool(const std::string & type, 
 				 const std::string & name,
 				 const IInterface* parent)
-  : MonitorToolBase(type, name, parent)
+  : MonitorToolBase(type, name, parent),
+    m_isBooked(false),
+    m_histo_tdc(nullptr),
+    m_tdcNum(0)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
-  declareProperty("histoPathBase",m_path = "/stat"); 
+  //declareProperty("histoPathBase",m_path = "/stat"); 
+  m_path = "/stat";
   
   //TDC histogram properties
   declareProperty("TDCNames",m_tdcNames);

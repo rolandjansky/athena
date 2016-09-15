@@ -29,11 +29,15 @@
 TBScintillatorMonTool::TBScintillatorMonTool(const std::string & type, 
 				 const std::string & name,
 				 const IInterface* parent)
-  : MonitorToolBase(type, name, parent)
+  : MonitorToolBase(type, name, parent),
+    m_fake_detector(false),
+    m_isBooked(false),
+    m_scintnum(0)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
-  declareProperty("histoPathBase",m_path = "/stat"); //Already definde in base class
+  //declareProperty("histoPathBase",m_path = "/stat"); //Already definde in base class
+  m_path = "/stat";
   declareProperty("histoPath",m_histoPath="/BeamDetectors/Scintillator/");
 
   declareProperty("FakeDetectors",m_fake_detector=false);
@@ -127,14 +131,13 @@ StatusCode TBScintillatorMonTool::mybookHists()
 
    //Get Run number
   std::stringstream rn_stream;
-  EventID *thisEvent;           //EventID is a part of EventInfo
   const EventInfo* thisEventInfo;
   StatusCode sc=evtStore()->retrieve(thisEventInfo);
   if (sc!=StatusCode::SUCCESS)
     ATH_MSG_WARNING ( "No EventInfo object found! Can't read run number!" );
   else
-    {thisEvent=thisEventInfo->event_ID();
-     rn_stream << "Run " << thisEvent->run_number() << " ";
+    {
+     rn_stream << "Run " << thisEventInfo->event_ID()->run_number() << " ";
     }
 
   const std::string runnumber=rn_stream.str();
@@ -256,7 +259,7 @@ StatusCode TBScintillatorMonTool::fillHists()
 	  if ((*it_scint)->getDetectorName() != m_scint_names[m_scint_map[nameind]]) it_scint++;
 	  else break;
 	}
-	msg() << MSG::DEBUG << endreq;
+	msg() << MSG::DEBUG << endmsg;
       }
       if(it_scint==last_scint) {
 	// did not find the scint

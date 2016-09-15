@@ -20,11 +20,20 @@
 TBMWPCMonTool::TBMWPCMonTool(const std::string & type, 
 				 const std::string & name,
 				 const IInterface* parent)
-  : MonitorToolBase(type, name, parent)
+  : MonitorToolBase(type, name, parent),
+    m_isBooked(false),
+    m_histo_mwpcrawHitDist(),
+    m_histo_mwpcrawClustDist(),
+    m_histo_mwpcrawHits(nullptr),
+    m_histo_mwpcrawC(),
+    m_histo_mwpcrawN(),
+    m_histo_mwpcCenter(),
+    m_histo_mwpcSize()
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
-  declareProperty("histoPathBase",m_path = "/stat"); 
+  //declareProperty("histoPathBase",m_path = "/stat"); 
+  m_path = "/stat";
   
   //ADC histogram properties
   declareProperty("MWPCRangeRawCenter",m_range_rawcenter);
@@ -230,11 +239,11 @@ StatusCode TBMWPCMonTool::fillHists()
 	  // Centers of clusters
 	  for(unsigned int k=0;k<wirec.size();k++) {
 	    m_histo_mwpcrawC[i]->fill(wirec[k]);
-	    //	    log<< MSG::INFO << "  MWPC "<< i <<" wirecenter = "<< wirec[k] << endreq;continue;
+	    //	    log<< MSG::INFO << "  MWPC "<< i <<" wirecenter = "<< wirec[k] << endmsg;continue;
 	  }
 
 	  std::vector<int> wiren = mwpc->getNwires();
-	  //	log<< MSG::DEBUG << mwpc->getDetectorName()<< " " << wiren[0]  << endreq;continue;
+	  //	log<< MSG::DEBUG << mwpc->getDetectorName()<< " " << wiren[0]  << endmsg;continue;
 	  int nhit=0;
 	  // Sizes of clusters & number of hits
 	  for(unsigned int k=0;k<wiren.size();k++) {

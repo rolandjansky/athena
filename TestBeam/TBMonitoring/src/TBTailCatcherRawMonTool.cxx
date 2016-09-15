@@ -21,11 +21,17 @@
 TBTailCatcherRawMonTool::TBTailCatcherRawMonTool(const std::string & type, 
 				 const std::string & name,
 				 const IInterface* parent)
-  : MonitorToolBase(type, name, parent)
+  : MonitorToolBase(type, name, parent),
+    m_isBooked(false),
+    m_histo_tcScintADC(nullptr),
+    m_histo_tcreco(nullptr),
+    m_histo_tcTotal(nullptr),
+    m_tcScintNum(0)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
-  declareProperty("histoPathBase",m_path = "/stat"); 
+  //declareProperty("histoPathBase",m_path = "/stat"); 
+  m_path = "/stat";
   
   //TailCatcher histogram properties
   declareProperty("TailCatcherMax",m_posMax=1024);

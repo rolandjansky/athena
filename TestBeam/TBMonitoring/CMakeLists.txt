@@ -16,11 +16,12 @@ atlas_depends_on_subdirs( PUBLIC
                           TestBeam/TBEvent
                           TestBeam/TBUtils
                           PRIVATE
+                          Control/AthenaKernel
                           Calorimeter/CaloEvent
                           Calorimeter/CaloUtils
                           Event/EventInfo
                           LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArTools )
+                          LArCalorimeter/LArCabling )
 
 # External dependencies:
 find_package( AIDA )
@@ -33,13 +34,13 @@ atlas_add_library( TBMonitoringLib
                    INCLUDE_DIRS ${AIDA_INCLUDE_DIRS}
                    PRIVATE_INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    PRIVATE_DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES CaloGeoHelpers CaloIdentifier Identifier GaudiKernel TBEvent AthenaMonitoringLib StoreGateLib SGtests CaloUtilsLib LArToolsLib
-                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloEvent EventInfo LArIdentifier )
+                   LINK_LIBRARIES CaloGeoHelpers CaloIdentifier Identifier GaudiKernel TBEvent AthenaMonitoringLib StoreGateLib SGtests CaloUtilsLib LArCablingLib
+                   PRIVATE_LINK_LIBRARIES ${CLHEP_LIBRARIES} AthenaKernel CaloEvent EventInfo LArIdentifier )
 
 atlas_add_component( TBMonitoring
                      src/components/*.cxx
                      INCLUDE_DIRS ${AIDA_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloGeoHelpers CaloIdentifier AthenaMonitoringLib StoreGateLib SGtests Identifier GaudiKernel TBEvent CaloEvent CaloUtilsLib EventInfo LArIdentifier LArToolsLib TBMonitoringLib )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloGeoHelpers CaloIdentifier AthenaMonitoringLib StoreGateLib SGtests Identifier GaudiKernel TBEvent AthenaKernel CaloEvent CaloUtilsLib EventInfo LArIdentifier LArCablingLib TBMonitoringLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.txt share/*.py )

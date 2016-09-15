@@ -27,12 +27,15 @@
 TBBeamQualityDoubleHitsMonTool::TBBeamQualityDoubleHitsMonTool(const std::string& type,
 							       const std::string& name,
 							       const IInterface* parent)
-  : MonitorToolBase(type, name, parent)
+  : MonitorToolBase(type, name, parent),
+    m_scintnum(0),
+    m_isBooked(false)
 {
   declareInterface<IMonitorToolBase>(this);
   // before/after BQ cuts
   declareProperty("FillTime",m_time="after");
-  declareProperty("histoPathBase",m_path = "/stat");
+  //declareProperty("histoPathBase",m_path = "/stat");
+  m_path = "/stat";
   declareProperty("histoPath",m_histoPath="/BeamQuality/DoubleHits/");
   declareProperty("ScintMax",m_scintadcmax=1024);
   declareProperty("ScintMin",m_scintadcmin=0);
