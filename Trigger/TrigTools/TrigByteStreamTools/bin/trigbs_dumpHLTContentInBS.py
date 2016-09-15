@@ -10,6 +10,8 @@ import eformat
 import argparse
 import operator
 
+from PyUtils.Decorators import memoize
+
 __doc__ = """\
 Dump content of the HLT result and HLT related details from the event header.
 """
@@ -28,6 +30,12 @@ parser.add_argument("-s", "--skip", metavar="N", action="store", type=int,
 
 parser.add_argument("--l1", action="store_true", default=False,
                     help="L1 trigger bits (from event header)")
+
+parser.add_argument("--decodeItems", action="store_true", default=False,
+                    help="Decode trigger item names")
+
+parser.add_argument("--smk", action="store", type=int, default=0,
+                    help="Specify SMK for trigger item decoding if not available in HLT result")
 
 parser.add_argument("--l2", action="store_true", default=False,
                     help="L2 trigger bits (from event header)")
@@ -86,7 +94,7 @@ res = hltResult()
 
 featureSizes={}
 stats = {}
-
+smk = None
 
 def Lvl1_Info(event):
   info = event.lvl1_trigger_info()
@@ -120,10 +128,27 @@ def CTP_Info(event, module_id=1):
       upd
     )
     for w in ['TBP','TAP','TAV']:
-      print "ROB 0x%0x, %s: %s" % (rob.source_id(), w, CTPfragment.decodeTriggerBits(CTPfragment.getTriggerWords(rob,w)))
-      
+      items = CTPfragment.decodeTriggerBits(CTPfragment.getTriggerWords(rob,w))
+      print "ROB 0x%0x, %s: %s" % (rob.source_id(), w, printL1Items(items,smk))
+
+
+@memoize
+def getL1Menu(smk):
+  from CoolRunQuery.utils.AtlRunQueryTriggerUtils import getL1Menu
+  return getL1Menu(str(smk))
+
+def printL1Items(items,smk):
+  if not args.decodeItems: return items
+  
+  l1menu = getL1Menu(smk)
+  names = [l1menu[i].name for i in items]
+  return names
+
+  
 def my_dump(bsfile):
   """Runs the dumping routines"""
+
+  global smk
   
   # open a file
   print "="*100
@@ -150,19 +175,32 @@ def my_dump(bsfile):
     
     print "======================= RunNumber : %d , Event: %d,  LB: %d, LVL1_ID: %d, Global_ID: %d bunch-x: %d TT: x%x ==========================" \
           % ( event.run_no(), event_count, event.lumi_block(), event.lvl1_id(), event.global_id(), event.bc_id(), event.lvl1_trigger_type())
+
+    smk = args.smk
+    if args.decodeItems and args.smk==0:  # Need to get SMK from HLT result
+      hltrob = [f for f in event.children() if f.source_id().subdetector_id() in [eformat.helper.SubDetector.TDAQ_LVL2,eformat.helper.SubDetector.TDAQ_EVENT_FILTER] ]
+      if len(hltrob)==0:
+        print "ERROR: Cannot find HLT result. Will not decode trigger item names."
+        args.decodeItems = False
+      else:
+        res.load(hltrob[0])
+        smk = res.getConfigSuperMasterKey()
+        if smk==0:
+          print "ERROR: No SMK stored in HLT result. Will not decode trigger item names."
+          args.decodeItems = False
+      
     if args.l1:
       #print "L1 TriggerInfo: ", ["0x%x"%i for i in event.lvl1_trigger_info() ]
       words = Lvl1_Info(event)
-      print "L1 CTP IDs - TBP: ", words[0]
-      print "L1 CTP IDs - TAP: ", words[1]
-      print "L1 CTP IDs - TAV: ", words[2]
+      print "L1 CTP IDs - TBP: ", printL1Items(words[0],smk)
+      print "L1 CTP IDs - TAP: ", printL1Items(words[1],smk)
+      print "L1 CTP IDs - TAV: ", printL1Items(words[2],smk)
 
     if args.ctp:
       CTP_Info(event,int(args.ctp))
-      
+                  
     if args.l2:
       print "L2 TriggerInfo: ", ["0x%x"%i for i in event.lvl2_trigger_info() ]
-
 
     # loop over the SubDetFragments and find LVL2
     if args.l2res or args.sizeSummary:
@@ -208,7 +246,7 @@ def my_dump(bsfile):
           print ".. EOF HLTResult for EF"
       if not found:
         print ".. No HLTResult for EF"
-          
+
     if args.stag:
       print "StreamTag: ", [(s.name, s.type) for s in event.stream_tag()]
     

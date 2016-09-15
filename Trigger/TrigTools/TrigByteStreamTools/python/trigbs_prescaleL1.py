@@ -28,7 +28,7 @@ log.setLevel(logging.INFO)
 
 def loadPrescales(config):
   """Load L1 prescales from DB"""
-  
+
   database = config['db-server']
   l1psk = int(config['db-extra']['lvl1key'])
 
@@ -65,7 +65,7 @@ def modify_general(**kwargs):
       TAVpos = CTPfragment._versioned(CTPdataformat,'TAVpos',v)
             
       L1TBP = CTPfragment.decodeTriggerBits(data[TBPpos:TBPpos+TBPwords])
-      log.debug('Old L1TBP: %s' % L1TBP)
+      log.debug('L1TBP: %s' % L1TBP)
       newL1TAV = []
       for ctp in L1TBP:
         if prescales[ctp]<=0: continue
@@ -77,9 +77,13 @@ def modify_general(**kwargs):
       for i,value in enumerate(newL1TAVBits):
         data[TAVpos+i] = value
 
+      # Write new CTP ROB
       newrob = eformat.write.ROBFragment(rob)        
       newrob.rod_data(data)
       new_event.append(newrob)
+      # Update event header
+      l1bits = [b for b in event.lvl1_trigger_info()]
+      new_event.lvl1_trigger_info(l1bits[0:TBPwords]+data[TAVpos:TAVpos+TBPwords]*2)
 
   return new_event.readonly()
 

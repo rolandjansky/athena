@@ -104,7 +104,7 @@ def print_all_chains(blob):
 def print_all_navigation(result):
   print "... features"
   for f in result.nav_payload:
-    print ".... %-52s %6d B " % (f[0]+'#'+f[1], f[2])
+    print ".... %-52s %6d B " % (str(f[0])+'#'+str(f[1]), f[2])
   return
 
 
