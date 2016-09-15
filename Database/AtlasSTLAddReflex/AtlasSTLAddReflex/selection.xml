@@ -42,13 +42,9 @@
   <class name="std::map<unsigned int, std::string>"/>
   <class name="std::map<const std::string, unsigned int>"/>
   <class name="std::map<std::string, bool>"/>
-  <class name="std::map<std::string, int>"/>
   <class name="std::map<std::string, int>::iterator"/>
   <class name="std::map<std::string, unsigned short>"/>
   <class name="std::map<std::string, unsigned long>"/>
-  <class name="std::map<std::string, float>"/>
-  <class name="std::map<std::string, double>"/>
-  <class name="std::map<std::string, std::string>"/>
   <class name="std::map<std::string, std::vector<bool> >"/>
   <class name="std::map<std::string, std::vector<float> >"/>
   <class name="std::map<std::string, std::vector<double> >"/>
