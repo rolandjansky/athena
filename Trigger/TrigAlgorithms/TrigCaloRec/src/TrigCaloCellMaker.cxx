@@ -56,8 +56,8 @@ TrigCaloCellMaker::TrigCaloCellMaker(const std::string& name, ISvcLocator* pSvcL
   ,  m_tcrAlgTools(this), 
     m_counter(0),
     m_data("TrigDataAccess/TrigDataAccess"),
-    pCaloCellContainer(NULL),
-    pTrigCaloQuality(NULL),
+    m_caloCellContainer(NULL),
+    m_trigCaloQuality(NULL),
     m_fullScanEnabled(false),
     m_trustRoiLimits(false),
     m_createRoiForID(false),
@@ -119,14 +119,14 @@ TrigCaloCellMaker::~TrigCaloCellMaker()
 
 HLT::ErrorCode TrigCaloCellMaker::hltInitialize()
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << "in initialize()" << endmsg;
 
   m_counter = 0;
   
   // Cache pointer to ToolSvc
   IToolSvc* toolSvc = 0;// Pointer to Tool Service
   if (service("ToolSvc", toolSvc).isFailure()) {
-    msg() << MSG::FATAL << " Tool Service not found " << endreq;
+    msg() << MSG::FATAL << " Tool Service not found " << endmsg;
     return HLT::TOOL_FAILURE;
   }
 
@@ -137,10 +137,10 @@ HLT::ErrorCode TrigCaloCellMaker::hltInitialize()
 
 
   /*if ( m_tcrAlgTools.retrieve().isFailure() ) {
-    msg() << MSG::ERROR << "Failed to retrieve helper tools: " << m_tcrAlgTools << endreq;
+    msg() << MSG::ERROR << "Failed to retrieve helper tools: " << m_tcrAlgTools << endmsg;
     return HLT::BAD_JOB_SETUP;
    } else {
-    msg() << MSG::INFO << "Retrieved " << m_tcrAlgTools << endreq;
+    msg() << MSG::INFO << "Retrieved " << m_tcrAlgTools << endmsg;
   }*/
 
   std::vector<std::string>::iterator itrName;
@@ -153,16 +153,16 @@ HLT::ErrorCode TrigCaloCellMaker::hltInitialize()
   for (; itrtcr!=endtcr; ++itrtcr) {
 
     if( (itrtcr->retrieve()).isFailure() ) {
-        msg() << MSG::ERROR << "Unable to find tool named " << (*itrtcr).name() << endreq;
+        msg() << MSG::ERROR << "Unable to find tool named " << (*itrtcr).name() << endmsg;
         return HLT::BAD_JOB_SETUP;
     } else {
-      msg() << MSG::INFO << " successfully retrieved " << (*itrtcr).name() << endreq;
+      msg() << MSG::INFO << " successfully retrieved " << (*itrtcr).name() << endmsg;
       std::vector<TrigTimer*> tooltimers = (*itrtcr)->getTimers();
       std::vector<TrigTimer*>::iterator timer = tooltimers.begin();
       for (; timer != tooltimers.end(); timer++){
           declareMonitoredObject((*timer)->name(),*(*timer), &TrigTimer::lastElapsed);
           //declareMonitoredObject((*timer)->name(),*(*timer), &TrigTimer::elapsed);
-          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found timer. Added to monitoring " << endreq;
+          if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Found timer. Added to monitoring " << endmsg;
       }
     }    
     if((*itrtcr).name() == "FullCaloCellContMaker")
@@ -178,10 +178,10 @@ HLT::ErrorCode TrigCaloCellMaker::hltInitialize()
     IAlgTool* algtool;
      
     if( toolSvc->retrieveTool(theItem.type(), theItem.name(), algtool,this).isFailure() ) {
-      msg() << MSG::FATAL << "Unable to find tool for " << (*itrName) << endreq;
+      msg() << MSG::FATAL << "Unable to find tool for " << (*itrName) << endmsg;
       return HLT::TOOL_FAILURE;
     } else {
-      msg() << MSG::INFO << (*itrName) << " successfully retrieved" << endreq;
+      msg() << MSG::INFO << (*itrName) << " successfully retrieved" << endmsg;
  // Save the cell container tools (only for checking purposes) in m_containerTools
       m_containerTools.push_back(dynamic_cast<ICaloCellMakerTool*>(algtool) );
       if(timerSvc() ) m_timer.push_back(addTimer("TCC_"+theItem.name())); // One timer per tool
@@ -192,10 +192,10 @@ HLT::ErrorCode TrigCaloCellMaker::hltInitialize()
  if (msgLvl() <= MSG::DEBUG)
    msg() << MSG::DEBUG
          << "Initialization of TrigCaloCellMaker completed successfully"
-         << endreq;
+         << endmsg;
 
  if ((m_data.retrieve()).isFailure()) {
-     msg() << MSG::ERROR << "Could not get m_data" << endreq;
+     msg() << MSG::ERROR << "Could not get m_data" << endmsg;
      return StatusCode::FAILURE;
  }
  
@@ -206,7 +206,7 @@ HLT::ErrorCode TrigCaloCellMaker::hltInitialize()
 HLT::ErrorCode TrigCaloCellMaker::hltFinalize()
 {
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in finalize()" << endreq;
+    msg() << MSG::DEBUG << "in finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -221,7 +221,7 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   
 #ifndef NDEBUG
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in execute()" << endreq;
+    msg() << MSG::DEBUG << "in execute()" << endmsg;
 #endif
   
   // Monitoring initialization...
@@ -230,8 +230,8 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   // Some debug output:
 #ifndef NDEBUG
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endreq;
-    msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endreq;
+    msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endmsg;
+    msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endmsg;
   }
 #endif
    
@@ -278,19 +278,19 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
       
 #ifndef NDEBUG
       if (msgLvl() <= MSG::DEBUG) {
-	msg() << MSG::DEBUG << " eta0 = "<< eta0 << endreq;
-	msg() << MSG::DEBUG << " phi0 = "<< phi0 << endreq;
-	msg() << MSG::DEBUG << " etamin = "<< etamin << endreq;
-	msg() << MSG::DEBUG << " etamax = "<< etamax << endreq;
-	msg() << MSG::DEBUG << " phimin = "<< phimin << endreq;
-	msg() << MSG::DEBUG << " phimax = "<< phimax << endreq;
+	msg() << MSG::DEBUG << " eta0 = "<< eta0 << endmsg;
+	msg() << MSG::DEBUG << " phi0 = "<< phi0 << endmsg;
+	msg() << MSG::DEBUG << " etamin = "<< etamin << endmsg;
+	msg() << MSG::DEBUG << " etamax = "<< etamax << endmsg;
+	msg() << MSG::DEBUG << " phimin = "<< phimin << endmsg;
+	msg() << MSG::DEBUG << " phimax = "<< phimax << endmsg;
       }
 #endif
       
-      TrigRoiDescriptor* _roi = new TrigRoiDescriptor( roiDescriptor->roiWord(), roiDescriptor->l1Id(), roiDescriptor->roiId(),
+      TrigRoiDescriptor* roi = new TrigRoiDescriptor( roiDescriptor->roiWord(), roiDescriptor->l1Id(), roiDescriptor->roiId(),
 						       eta0, etamin, etamax, phi0, phimin, phimax );
-      attachFeature( outputTE, _roi, "" );
-      roiDescriptor = _roi; 
+      attachFeature( outputTE, roi, "" );
+      roiDescriptor = roi; 
     }
   }
   
@@ -301,34 +301,34 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   
 #ifndef NDEBUG
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " REGTEST: RoI id " << *roiDescriptor << roiDescriptor->eta() << endreq;
+    msg() << MSG::DEBUG << " REGTEST: RoI id " << *roiDescriptor << roiDescriptor->eta() << endmsg;
 #endif
   
 
   //if (timerSvc()) m_timer[1]->start(); // Measures the time to retrieve the cells in the RoI
 
   // The CellContainer is not the cell owner (SG::VIEW_ELEMENTS)...
-  //CaloCellContainer* pCaloCellContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
-  pCaloCellContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
-  pCaloCellContainer->reserve(190000);
-  pTrigCaloQuality   = new TrigCaloQuality();
+  //CaloCellContainer* m_caloCellContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
+  m_caloCellContainer = new CaloCellContainer(SG::VIEW_ELEMENTS);
+  m_caloCellContainer->reserve(190000);
+  m_trigCaloQuality   = new TrigCaloQuality();
 
   bool isPersistent = (m_persistencyPSF!=0 && (m_counter%m_persistencyPSF)==0) ? 1 : 0;
   std::string persKey = isPersistent ? m_persistencyKey : "TrigCaloCellMaker";
 #ifndef NDEBUG
   if ( msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "CaloCellContainer is stored with key = " << persKey << endreq;
+    msg() << MSG::DEBUG << "CaloCellContainer is stored with key = " << persKey << endmsg;
   }
 #endif
 
   std::string cellCollKey;
-  sc = getUniqueKey( pCaloCellContainer, cellCollKey, persKey );
+  sc = getUniqueKey( m_caloCellContainer, cellCollKey, persKey );
   if (sc != HLT::OK) { 
-    msg() << MSG::DEBUG << "Could not retrieve the cell collection key" << endreq;
+    msg() << MSG::DEBUG << "Could not retrieve the cell collection key" << endmsg;
     return sc; 
   }     
-  if ( store()->record(pCaloCellContainer, cellCollKey).isFailure() ) {
-    msg() << MSG::ERROR << "Could not record a cell container in the RoI with key " << cellCollKey << endreq;
+  if ( store()->record(m_caloCellContainer, cellCollKey).isFailure() ) {
+    msg() << MSG::ERROR << "Could not record a cell container in the RoI with key " << cellCollKey << endmsg;
   }
   
   // Creating the cells containers...
@@ -340,28 +340,30 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   
   if (timerSvc()) m_timer[1]->start();
 
+  unsigned idet=0;
   for (; itrtcr!=endtcr; ++itrtcr) {
     
     //if (timerSvc()) m_timer[2+index]->start();
     StatusCode sc;
 
     if(m_fullScanEnabled) {
-      sc= (*itrtcr)->execute(*pCaloCellContainer);
+      sc= (*itrtcr)->execute(*m_caloCellContainer);
     } else {
-      //      sc = (*itrtcr)->execute(*pCaloCellContainer, new TrigRoiDescriptor( eta0, etamin, etamax, phi0, phimin, phimax ) );
-      sc = (*itrtcr)->execute(*pCaloCellContainer, *roiDescriptor );
+      //      sc = (*itrtcr)->execute(*m_caloCellContainer, new TrigRoiDescriptor( eta0, etamin, etamax, phi0, phimin, phimax ) );
+      sc = (*itrtcr)->execute(*m_caloCellContainer, *roiDescriptor );
     }
     
     if ( sc.isFailure() ) {
-      msg() << MSG::ERROR << "Error executing TCR tool " << (*itrtcr).name() << endreq;
+      msg() << MSG::ERROR << "Error executing TCR tool " << (*itrtcr).name() << endmsg;
       return HLT::TOOL_FAILURE;
     } else {  
       uint32_t in_error = (*itrtcr)->report_error();
-      unsigned int idet = (in_error>>28);
+      if ( m_fullScanEnabled ) idet = IAlgToolEFCalo::EFFULLCALO;
       if (0x0FFFFFFF & in_error) ++m_conversionError[idet];
+      idet++;
       error|=(in_error&0x0FFFFFFF);
 #     ifndef NDEBUG
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executed TCR tool " << (*itrtcr).name() << endreq;
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executed TCR tool " << (*itrtcr).name() << endmsg;
 #     endif
     }
     //if (timerSvc()) m_timer[2+index]->stop();
@@ -376,18 +378,19 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   //  if ( !m_trustRoiLimits && !m_useSuperRoi ) delete roiDescriptor;
   // if ( createdRoi ) delete roiDescriptor;
 
-  if (pCaloCellContainer->size() < 1) return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
+  if (m_caloCellContainer->size() < 1) return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
 
   // Check conversion status
-  pTrigCaloQuality->setPersistencyFlag(isPersistent);
-  pTrigCaloQuality->setError(error);
-  if (store()->record(pTrigCaloQuality, cellCollKey).isFailure()) {
+  m_trigCaloQuality->setPersistencyFlag(false);
+  m_trigCaloQuality->setPersistencyFlag(isPersistent);
+  m_trigCaloQuality->setError(error);
+  if (store()->record(m_trigCaloQuality, cellCollKey).isFailure()) {
     msg() << MSG::WARNING << "TrigCaloQuality cannot recorded with key=" 
-	  << cellCollKey << endreq;
+	  << cellCollKey << endmsg;
   } 
 # ifndef NDEBUG
   else {
-    msg() << MSG::DEBUG << "successfully record TrigCaloQuality with key=" << cellCollKey << " " << error << endreq;
+    msg() << MSG::DEBUG << "successfully record TrigCaloQuality with key=" << cellCollKey << " " << error << endmsg;
   }
 # endif
 
@@ -399,63 +402,63 @@ HLT::ErrorCode TrigCaloCellMaker::hltExecute(const HLT::TriggerElement* inputTE,
   index=0;
   for (; itrcont!=endcont; ++itrcont) {
     if (timerSvc()) m_timer[2+index]->start();
-    if ( (*itrcont)->process(pCaloCellContainer).isFailure() ) {
-      //msg() << MSG::ERROR << "Error executing tool " << m_containerToolNames[index] << endreq;
-      msg() << MSG::ERROR << "Error executing container tool " << endreq;
+    if ( (*itrcont)->process(m_caloCellContainer).isFailure() ) {
+      //msg() << MSG::ERROR << "Error executing tool " << m_containerToolNames[index] << endmsg;
+      msg() << MSG::ERROR << "Error executing container tool " << endmsg;
     } 
 #ifndef NDEBUG
 else {
-      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executed container tool " << endreq;
+      if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "Executed container tool " << endmsg;
     }
 #endif
     if (timerSvc()) m_timer[2+index]->stop();
     ++index;
   }
-  if ( m_fullScanEnabled) pCaloCellContainer->updateCaloIterators();
-  (evtStore()->setConst( pCaloCellContainer ) ).ignore();
+  if ( m_fullScanEnabled) m_caloCellContainer->updateCaloIterators();
+  (evtStore()->setConst( m_caloCellContainer ) ).ignore();
 //if (timerSvc()) m_timer[1]->stop();
 
  /* // Protection against types used in methods API (uint16_t). Ask Tomasz.
-  if (pCaloCellContainer->size()>= 65535) {
-    msg() << MSG::WARNING << "CellContainer Size larger than 65535, Chain Aborted " << endreq;
+  if (m_caloCellContainer->size()>= 65535) {
+    msg() << MSG::WARNING << "CellContainer Size larger than 65535, Chain Aborted " << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
   }
 */
 
   cellCollKey = "";
   try {
-    sc = reAttachFeature(outputTE, pCaloCellContainer, cellCollKey, persKey );
+    sc = reAttachFeature(outputTE, m_caloCellContainer, cellCollKey, persKey );
     if (sc != HLT::OK) {
-      msg() << MSG::WARNING << "Could not record a cell container in the RoI with key " << cellCollKey << " " << name() << endreq;
+      msg() << MSG::WARNING << "Could not record a cell container in the RoI with key " << cellCollKey << " " << name() << endmsg;
     } 
 #   ifndef NDEBUG
     else {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " REGTEST: Recorded the cell container in the RoI " << endreq;
+	msg() << MSG::DEBUG << " REGTEST: Recorded the cell container in the RoI " << endmsg;
     }
 #   endif
   } catch (std::exception& e) {
-    msg() << MSG::WARNING << "HLTNavigation reached it's limit: " << e.what() << endreq;
+    msg() << MSG::WARNING << "HLTNavigation reached it's limit: " << e.what() << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::NAV_ERROR);
   }
 
 # ifndef NDEBUG
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " REGTEST: Produced a Cell Container of Size= " << pCaloCellContainer->size() << endreq;
+    msg() << MSG::DEBUG << " REGTEST: Produced a Cell Container of Size= " << m_caloCellContainer->size() << endmsg;
 # endif
 
   //monitoring
-  m_CellContainerSize = (float)pCaloCellContainer->size();
+  m_CellContainerSize = (float)m_caloCellContainer->size();
 
   /// create and attache an RoI for the ID Trigger
   if ( m_createRoiForID ) {
 
     if ( roiDescriptor->composite() ) { 
-      msg() << MSG::WARNING << " Request to build an RoI for the ID From a composite RoiDescriptor" << *roiDescriptor  << endreq;
+      msg() << MSG::WARNING << " Request to build an RoI for the ID From a composite RoiDescriptor" << *roiDescriptor  << endmsg;
     }
     
 
-    TrigRoiDescriptor* _roi = new TrigRoiDescriptor( roiDescriptor->roiWord(), 
+    TrigRoiDescriptor* roi = new TrigRoiDescriptor( roiDescriptor->roiWord(), 
 						     roiDescriptor->l1Id(), 
 						     roiDescriptor->roiId(),
 						     roiDescriptor->eta(),
@@ -466,11 +469,11 @@ else {
 						     HLT::wrapPhi(roiDescriptor->phi()+m_phiWidthForID) ); 
 
     if ( m_etaWidthForID==0 || m_phiWidthForID==0 )  {
-      msg() << MSG::WARNING << "ZERO width RoI requested for the ID: " <<  *_roi << endreq;
+      msg() << MSG::WARNING << "ZERO width RoI requested for the ID: " <<  *roi << endmsg;
     }
 
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: attach RoI for ID " << *_roi << endreq;
-    attachFeature( outputTE, _roi, "forID" );
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: attach RoI for ID " << *roi << endmsg;
+    attachFeature( outputTE, roi, "forID" );
   }
 
 

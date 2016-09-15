@@ -68,7 +68,7 @@ private:
   std::vector<CaloClusterCollectionProcessor*> m_clusterMakerPointers;      //pointers to tools
   std::vector<CaloClusterProcessor*>           m_clusterCorrectionPointers; //pointers to tools
   
-  xAOD::CaloClusterContainer* m_pCaloClusterContainer, *AllTECaloClusterContainer;
+  xAOD::CaloClusterContainer* m_pCaloClusterContainer, *m_AllTECaloClusterContainer;
   
   double m_ClusterContainerSize;
  

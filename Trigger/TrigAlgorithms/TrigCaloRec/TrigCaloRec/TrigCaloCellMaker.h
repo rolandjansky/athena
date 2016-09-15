@@ -86,7 +86,7 @@ class TrigCaloCellMaker : public HLT::FexAlgo {
   ToolHandle<ITrigDataAccess>  m_data;
 
   /** Produced Calorimeter Cell Container. */
-  CaloCellContainer* pCaloCellContainer;
+  CaloCellContainer* m_caloCellContainer;
 
   // monitored variables 
 
@@ -95,7 +95,7 @@ class TrigCaloCellMaker : public HLT::FexAlgo {
   
   /** data preparation error */
   unsigned int m_conversionError[6];
-  TrigCaloQuality * pTrigCaloQuality;
+  TrigCaloQuality * m_trigCaloQuality;
 
   double m_EtaL2, m_PhiL2;
   bool m_fullScanEnabled;

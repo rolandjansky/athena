@@ -1090,3 +1090,42 @@ class TrigL1BSTowerHypoConfig (TrigL1BSTowerHypo):
         towertime = TrigTimeHistToolConfig("TrigL1BSTower_Time")
 
         self.AthenaMonTools = [ toweronline, towertime]
+
+
+### Predefined HLTCalo Alg Sequences (For Menu Development): ###
+
+def TopoClustering_ROI():
+    
+    te_in  = ""
+    te_out = ""
+    
+    algseq = [TrigCaloCellMaker_tau(), TrigCaloClusterMaker_topo()]
+    
+    return [te_in, algseq, te_out]
+
+def TopoClustering_PS():
+    
+    te_in  = ""
+    te_out = "TopoClusters_PS"
+    
+    algseq = [TrigCaloCellMaker_jet_super(doNoise=0, AbsE=True), TrigCaloClusterMaker_topo()]
+    
+    return [te_in, algseq, te_out]
+
+def TopoClustering_FS():     
+    
+    te_in  = ""
+    te_out = "TopoClusters_FS"
+    
+    algseq = [PESA__DummyUnseededAllTEAlgo("DummyAlgo"), TrigCaloCellMaker_jet_fullcalo(doNoise=0, AbsE=True, doPers=True), TrigCaloClusterMaker_topo()]
+    
+    return [te_in, algseq, te_out]
+
+def SLW_Clustering():
+    
+    te_in  = ""
+    te_out = ""
+    
+    algseq = [TrigCaloCellMaker_eGamma(), TrigCaloTowerMaker_eGamma(), TrigCaloClusterMaker_slw()]
+    
+    return [te_in, algseq, te_out]

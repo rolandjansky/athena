@@ -39,7 +39,7 @@ RoIFCalHadCellContMaker::RoIFCalHadCellContMaker(const std::string & type, const
 				    m_cablingSvc(NULL)
 {
 
-  declareProperty("DoLArCellsNoiseSuppression", do_LArCells_noise_suppression = 1);
+  declareProperty("DoLArCellsNoiseSuppression", m_do_LArCells_noise_suppression = 1);
   declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
   declareProperty("CutValue",m_cutvalue = 2,"Cell accepted if e>m_cutvalue*larcellnoise");
 
@@ -55,7 +55,7 @@ StatusCode RoIFCalHadCellContMaker::initialize(){
         return StatusCode::FAILURE;
     }
 
-  if (do_LArCells_noise_suppression!=0){
+  if (m_do_LArCells_noise_suppression!=0){
 
     if (m_noiseTool.retrieve().isFailure()) return StatusCode::FAILURE;
 
@@ -90,7 +90,8 @@ StatusCode RoIFCalHadCellContMaker::finalize(){
 StatusCode RoIFCalHadCellContMaker::execute(CaloCellContainer &pCaloCellContainer, 
 					    const IRoiDescriptor& roi ) { 
   // reset error
-  m_error = (EFFCALHAD<<28);
+  //m_error = (EFFCALHAD<<28);
+  m_error = 0;
 
   if (m_timersvc) {
     (m_timer.at(0))->start();
@@ -111,7 +112,7 @@ StatusCode RoIFCalHadCellContMaker::execute(CaloCellContainer &pCaloCellContaine
        //return StatusCode::FAILURE;       
      }
      if (m_data->report_error()) {
-       m_error=m_data->report_error() + (EFFCALHAD<<28);
+       m_error=m_data->report_error();// + (EFFCALHAD<<28);
        if (m_timersvc) (m_timer.at(2))->pause();
        //continue;
      }
@@ -120,7 +121,7 @@ StatusCode RoIFCalHadCellContMaker::execute(CaloCellContainer &pCaloCellContaine
      if (m_timersvc) (m_timer.at(3))->resume();
      LArTT_Selector<LArCellCont>::const_iterator it;
 
-    if (do_LArCells_noise_suppression!=0){
+    if (m_do_LArCells_noise_suppression!=0){
 
       //const CaloDetDescrManager* m_CaloDetDescrManager = CaloDetDescrManager::instance();
       //if ( m_CaloDetDescrManager == 0 ) {

@@ -99,39 +99,39 @@ TrigCaloTopoTowerAlgorithm::TrigCaloTopoTowerAlgorithm(const std::string& name, 
       if  ( m_includedCalos[iCalos] == "LAREM" )
 	{
 	  m_caloIndices.push_back(CaloCell_ID::LAREM);
-	  if (msgLvl() <= MSG::DEBUG)msg() << MSG::DEBUG<< "LAREM"<< endreq;
+	  if (msgLvl() <= MSG::DEBUG)msg() << MSG::DEBUG<< "LAREM"<< endmsg;
 	}
       else if ( m_includedCalos[iCalos] == "LARHEC")
 	{
 	  m_caloIndices.push_back(CaloCell_ID::LARHEC);
-	  if (msgLvl() <= MSG::DEBUG)msg() << MSG::DEBUG<< "LARHEC"<< endreq;
+	  if (msgLvl() <= MSG::DEBUG)msg() << MSG::DEBUG<< "LARHEC"<< endmsg;
 	}
       else if ( m_includedCalos[iCalos] == "LARFCAL" )
 	{
 	  m_caloIndices.push_back(CaloCell_ID::LARFCAL);
-	  if (msgLvl() <= MSG::DEBUG)msg() << MSG::DEBUG<< "LARFCAL"<< endreq;
+	  if (msgLvl() <= MSG::DEBUG)msg() << MSG::DEBUG<< "LARFCAL"<< endmsg;
 	}
       else if ( m_includedCalos[iCalos] == "TILE" )
 	{
 	  m_caloIndices.push_back(CaloCell_ID::TILE);
-	  if (msgLvl() <= MSG::DEBUG)msg() << MSG::DEBUG<< "TILE"<< endreq;
+	  if (msgLvl() <= MSG::DEBUG)msg() << MSG::DEBUG<< "TILE"<< endmsg;
 	}
     }
 
   m_caloSelection=false;
   unsigned int nSubCalo=static_cast<int>(CaloCell_ID::NSUBCALO) ;
 
-  if (msgLvl() <= MSG::DEBUG)msg() << MSG::DEBUG<< "caloIndices size cut "<<m_caloIndices.size()<<"  "<<nSubCalo<< endreq;
+  if (msgLvl() <= MSG::DEBUG)msg() << MSG::DEBUG<< "caloIndices size cut "<<m_caloIndices.size()<<"  "<<nSubCalo<< endmsg;
 
   if (m_caloIndices.size()>0 && m_caloIndices.size()<nSubCalo) m_caloSelection=true;
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " Calo selection applied ? " << m_caloSelection << endreq;
+    msg() << MSG::DEBUG << " Calo selection applied ? " << m_caloSelection << endmsg;
 
   if (m_caloSelection) {
-    if (msgLvl() <= MSG::DEBUG)      msg() << MSG::DEBUG<< "   subcalo selected "<<endreq;
+    if (msgLvl() <= MSG::DEBUG)      msg() << MSG::DEBUG<< "   subcalo selected "<<endmsg;
     for (unsigned int iCalos=0;iCalos< m_includedCalos.size(); iCalos++ ) 
-      if (msgLvl() <= MSG::DEBUG)    msg() << MSG::DEBUG << " " << m_includedCalos[iCalos]<<endreq;
+      if (msgLvl() <= MSG::DEBUG)    msg() << MSG::DEBUG << " " << m_includedCalos[iCalos]<<endmsg;
   }
 
 
@@ -145,7 +145,7 @@ TrigCaloTopoTowerAlgorithm::TrigCaloTopoTowerAlgorithm(const std::string& name, 
     {
       msg() << MSG::ERROR
 	    << "no tools given for this algorithm."
-	    << endreq;
+	    << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
 
@@ -155,17 +155,17 @@ TrigCaloTopoTowerAlgorithm::TrigCaloTopoTowerAlgorithm(const std::string& name, 
   ToolHandleArray<ICaloTopoTowerBuilderToolBase>::const_iterator lastITool  = m_ptools.end();
 
   unsigned int toolCtr = 0;
-  msg() << MSG::INFO << " " << endreq;
+  msg() << MSG::INFO << " " << endmsg;
   msg() << MSG::INFO << "List of tools in execution sequence:"
-      << endreq;
+      << endmsg;
   msg() << MSG::INFO << "------------------------------------"
-      << endreq;
+      << endmsg;
 
   StatusCode checkOut;
   checkOut = m_ptools.retrieve();
   if ( checkOut.isFailure() )
     {
-      msg() << MSG::WARNING << "Cannot retrieve tool array " << m_ptools << endreq;
+      msg() << MSG::WARNING << "Cannot retrieve tool array " << m_ptools << endmsg;
       return HLT::BAD_JOB_SETUP;
     }
 
@@ -178,15 +178,15 @@ TrigCaloTopoTowerAlgorithm::TrigCaloTopoTowerAlgorithm(const std::string& name, 
           << "::name() = \042"
           << (*firstITool)->name()
           << "\042"
-          << endreq;
+          << endmsg;
       // reset statistics                                                                                                         
       //m_toolInvoke[(*firstITool)->name()] = 0;
       //m_toolReject[(*firstITool)->name()] = 0;
       //m_toolAccept[(*firstITool)->name()] = 0;
 
       msg() << MSG::INFO << "------------------------------------"
-          << endreq;
-      msg() << MSG::INFO << " " << endreq;
+          << endmsg;
+      msg() << MSG::INFO << " " << endmsg;
 
     } //close iteration over tools  
 
@@ -273,7 +273,7 @@ HLT::ErrorCode TrigCaloTopoTowerAlgorithm::hltExecute(const HLT::TriggerElement*
       
       processStatus = (*firstITool)->execute(newTowers);
       
-      // if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << << MSG::INFO << "processStatus is: " << processStatus << endreq;
+      // if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << << MSG::INFO << "processStatus is: " << processStatus << endmsg;
       
       if ( ! processStatus.isFailure() )
 	{
@@ -281,7 +281,7 @@ HLT::ErrorCode TrigCaloTopoTowerAlgorithm::hltExecute(const HLT::TriggerElement*
 					   << (*firstITool)->name()
 					   << ": CaloTopoTowerContainer::size() = "
 					   << newTowers->size()
-					   << endreq;	  
+					   << endmsg;	  
 	  //m_toolAccept[(*firstITool)->name()]++;
 	  firstITool++;
 	}
@@ -293,7 +293,7 @@ HLT::ErrorCode TrigCaloTopoTowerAlgorithm::hltExecute(const HLT::TriggerElement*
 					   << (*firstITool)->name()
 					   << "\042 - cross-check CaloTopoTowerContainer::size() = "
 					   << newTowers->size()
-					   << endreq;
+					   << endmsg;
 	  //m_toolReject[(*firstITool)->name()]++;
 	  firstITool++;
 	}

@@ -70,7 +70,7 @@ class TrigCaloTowerMaker : public HLT::FexAlgo {
   TrigTimer* m_towerContTimer;
  
   /** Produced Calorimeter Tower Container. */
-  CaloTowerContainer* pCaloTowerContainer;
+  CaloTowerContainer* m_pCaloTowerContainer;
 
   /** Tower Container size (for monitoring purpouses). */
   double m_TowerContainerSize;
@@ -80,7 +80,7 @@ class TrigCaloTowerMaker : public HLT::FexAlgo {
 
 public:
 
-  inline CaloTowerContainer* GetTowerContainer() const {return pCaloTowerContainer;}
+  inline CaloTowerContainer* GetTowerContainer() const {return m_pCaloTowerContainer;}
 
 };
 #endif
