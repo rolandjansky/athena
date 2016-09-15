@@ -79,10 +79,10 @@ void ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t* trans, Pe
       // ok. that's the corner case we talked about above.
       msg << MSG::DEBUG
 	  << "caught a maybe_thinning_error: [" << err.what() << "]"
-	  << endreq
+	  << endmsg
 	  << "(this is an expected case of the EL-state-phase-space "
 	  << "when thinning is active)"
-	  << endreq;
+	  << endmsg;
     }
     const SG::DataProxy* dp = el.proxy();
     const std::size_t idx = dp ? 
@@ -101,7 +101,7 @@ void ElementLinkVectorCnv_p1<LINK_TYPE>::transToPers(const LinkVect_t* trans, Pe
         shortref = std::distance (trans->beginHostDObjs(), ihost);
       else {
         msg << MSG::WARNING
-            << "link not found in ElemLinkVector" << endreq;
+            << "link not found in ElemLinkVector" << endmsg;
       }
     }
     typedef typename PersLinkVect_t::ElementRef PersELRef;
@@ -140,7 +140,7 @@ void ElementLinkVectorCnv_p1< LINK_TYPE >::persToTrans(const PersLinkVect_t* per
 	  << "ElementLinkVectorCnv_p1::PersToTrans(): KEY="
 	  <<  pers->m_links[link_iter->m_nameIndex].m_link
 	  << ", IDX=" << link_iter->m_elementIndex 
-	  << endreq;
+	  << endmsg;
       #endif
       link_iter++;
    }

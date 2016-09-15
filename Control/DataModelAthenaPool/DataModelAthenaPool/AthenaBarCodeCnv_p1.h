@@ -53,13 +53,13 @@ inline void AthenaBarCodeCnv_p1::persToTrans(const AthenaBarCode_p1* pers,
     trans->setAthenaBarCode(IAthenaBarCode::UNDEFINEDBARCODE);
     //Maybe reading from an old version where Athenabarcode didn't exist
     if (msgCount<ABCMAXMSGCOUNT) {
-      //      log << MSG::DEBUG << "AthenaBarCodeCnv_p1::persToTrans(): AthenaBarCode undefined in the persistent state. Maybe reading from an older version where AthenaBarCode didn't exist. A new AthenaBarCode has been assigned to this object: " <<std::hex<<trans->getAthenaBarCode()<<endreq;
+      //      log << MSG::DEBUG << "AthenaBarCodeCnv_p1::persToTrans(): AthenaBarCode undefined in the persistent state. Maybe reading from an older version where AthenaBarCode didn't exist. A new AthenaBarCode has been assigned to this object: " <<std::hex<<trans->getAthenaBarCode()<<endmsg;
       ++msgCount;
     } else if (msgCount==ABCMAXMSGCOUNT) {
-      //      log << MSG::DEBUG << "AthenaBarCodeCnv_p1::persToTrans(): AthenaBarCode undefined in the persistent state. Maybe reading from an older version where AthenaBarCode didn't exist. A new AthenaBarCode has been assigned to this object: " <<std::hex<<trans->getAthenaBarCode()<<"suppressing further messages on this issue, please set message level to VERBOSE to see other messages."<<endreq;
+      //      log << MSG::DEBUG << "AthenaBarCodeCnv_p1::persToTrans(): AthenaBarCode undefined in the persistent state. Maybe reading from an older version where AthenaBarCode didn't exist. A new AthenaBarCode has been assigned to this object: " <<std::hex<<trans->getAthenaBarCode()<<"suppressing further messages on this issue, please set message level to VERBOSE to see other messages."<<endmsg;
       ++msgCount;
     } else {
-      //      log << MSG::VERBOSE << "AthenaBarCodeCnv_p1::persToTrans(): AthenaBarCode undefined in the persistent state. Maybe reading from an older version where AthenaBarCode didn't exist. A new AthenaBarCode has been assigned to this object: " <<std::hex<<trans->getAthenaBarCode()<<endreq;
+      //      log << MSG::VERBOSE << "AthenaBarCodeCnv_p1::persToTrans(): AthenaBarCode undefined in the persistent state. Maybe reading from an older version where AthenaBarCode didn't exist. A new AthenaBarCode has been assigned to this object: " <<std::hex<<trans->getAthenaBarCode()<<endmsg;
     }
   } else {
     trans->setAthenaBarCode(pers->m_athenabarcode);
@@ -67,12 +67,12 @@ inline void AthenaBarCodeCnv_p1::persToTrans(const AthenaBarCode_p1* pers,
       //      log << MSG::WARNING
       //	  << "AthenaBarCodeCnv_p1::persToTrans(): BarCode for Object "
       //	  <<trans->getAthenaBarCode()
-      //	  <<" has no jobID hash, something wrong!"<<endreq;
+      //	  <<" has no jobID hash, something wrong!"<<endmsg;
     }
   }
   
   //  log<<MSG::VERBOSE<<"AthenaBarCodeCnv_p1::persToTrans::trans->getAthenaBarCode()="
-  //<<std::hex<<trans->getAthenaBarCode()<<endreq;
+  //<<std::hex<<trans->getAthenaBarCode()<<endmsg;
 }
 
 #endif

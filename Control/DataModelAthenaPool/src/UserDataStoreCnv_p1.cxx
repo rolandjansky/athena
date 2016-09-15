@@ -149,7 +149,7 @@ UserDataStoreCnv_p1::transToPers(const UserDataStore& transObj, UserDataStore_p1
 
 	free(tyNameS);
 	mLog << MSG::ERROR << "while writing out UserData label " << transObj.m_labelTable.getLabel(itVar->first) 
-	     <<": The type " << tyName << " is not supported." << endreq;
+	     <<": The type " << tyName << " is not supported." << endmsg;
       }
     }// end loop over variables
   }// end loop over objects (barcodes)
@@ -258,7 +258,7 @@ UserDataStoreCnv_p1::persToTrans(const UserDataStore_p1& persObj, UserDataStore&
       }
       else {
        	mLog << MSG::ERROR << "while reading in  UserData label " << transObj.m_labelTable.getLabel(valhash) 
-	     <<": Encountered unsupported type (" <<  ty << ")" << endreq;
+	     <<": Encountered unsupported type (" <<  ty << ")" << endmsg;
       }// end-else
 
     }//end loop over attributes (=hashes)

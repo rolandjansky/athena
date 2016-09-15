@@ -122,10 +122,10 @@ transToPers(const Link_t* trans, PersLink_t* pers, MsgStream&
 #ifdef  ELLINK_DEBUG
         msg << MSG::DEBUG << "caught a maybe_thinning_error: ["
             << err.what() << "]"
-            << endreq
+            << endmsg
             << "(this is an expected case of the EL-state-phase-space "
             << "when thinning is active)"
-            << endreq;
+            << endmsg;
 #endif
       }
       const std::size_t persIdx = dp ?
@@ -145,7 +145,7 @@ transToPers(const Link_t* trans, PersLink_t* pers, MsgStream&
 #ifdef  ELLINK_DEBUG
           msg << MSG::ERROR 
               << "Empty link name table ptr - must use resetForCnv "
-              << endreq;
+              << endmsg;
 #endif
         }
         else {
@@ -161,7 +161,7 @@ transToPers(const Link_t* trans, PersLink_t* pers, MsgStream&
 #ifdef  ELLINK_DEBUG
         msg << MSG::ERROR
             << "Empty link name table ptr - must use resetForCnv " 
-            << endreq;
+            << endmsg;
 #endif
       }
       else {
@@ -175,7 +175,7 @@ transToPers(const Link_t* trans, PersLink_t* pers, MsgStream&
         <<  trans->dataID() << ", IDX= " << trans->index() 
         <<  ", pers cont index= " << pers->m_contIndex
         <<  ", ele index= " << pers->m_elementIndex
-        << endreq;
+        << endmsg;
 #endif
   }
 }
@@ -197,11 +197,11 @@ void ElementLinkCnv_p2< LINK_TYPE >
 #ifdef  ELLINK_DEBUG
     if (contName) {
         log << MSG::DEBUG << "ElementLinkCnv_p2::PersToTrans(): container name" << 
-            (*contName) << endreq;
+            (*contName) << endmsg;
     }
     else {
         log << MSG::ERROR << "ElementLinkCnv_p2::PersToTrans(): container name EMPTY"
-            << endreq;
+            << endmsg;
     }
 #endif
     if( contName->empty() ) {
@@ -210,7 +210,7 @@ void ElementLinkCnv_p2< LINK_TYPE >
         // existing EL from DataPool
 	trans->reset();
 #ifdef  ELLINK_DEBUG
-	log << MSG::DEBUG << "ElementLinkCnv_p2::PersToTrans(): reading EL in Default state" << endreq;
+	log << MSG::DEBUG << "ElementLinkCnv_p2::PersToTrans(): reading EL in Default state" << endmsg;
 #endif
     } else {
 	// reset trans ELink with key and index - changeds to identified state
@@ -218,10 +218,10 @@ void ElementLinkCnv_p2< LINK_TYPE >
 
 #ifdef  ELLINK_DEBUG
 	log << MSG::DEBUG << "ElementLinkCnv_p2::PersToTrans(): KEY="
-	    << (*contName) << ", IDX=" << pers->m_elementIndex << endreq;
+	    << (*contName) << ", IDX=" << pers->m_elementIndex << endmsg;
 	if ((*contName) == "NO LAST NAME") {
 	    log << MSG::ERROR << "ElementLinkCnv_p2::PersToTrans(): INCORRECT KEY  KEY="
-		<< (*contName) << ", IDX=" << pers->m_elementIndex << endreq;
+		<< (*contName) << ", IDX=" << pers->m_elementIndex << endmsg;
 	}
 #endif
     }
@@ -305,11 +305,11 @@ ElementLinkCnv_p2< LINK_TYPE >::getContName (unsigned int nameIndex,
     // Get the container name with the name index from the lookup table
     if (!m_clookupTable || m_clookupTable->m_names.size() < nameIndex + 1) {
         if (!m_clookupTable) {
-            log << MSG::ERROR << "Empty link name table ptr" << endreq;
+            log << MSG::ERROR << "Empty link name table ptr" << endmsg;
         }
         else {
             log << MSG::ERROR << "Empty name vector in lookup table - looking for index "
-                << nameIndex << " size " << m_clookupTable->m_names.size() << endreq;
+                << nameIndex << " size " << m_clookupTable->m_names.size() << endmsg;
         }
 	return;
     }
