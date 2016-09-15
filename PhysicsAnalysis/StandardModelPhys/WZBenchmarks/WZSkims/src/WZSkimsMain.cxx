@@ -1301,13 +1301,13 @@ void WZSkimsMain::ReadElectrons(const std::vector<const Electron*> & electrons, 
 {
   struct lepton l;
   for (std::vector<const Electron*>::const_iterator electronIter=electrons.begin(); electronIter!=electrons.end(); ++electronIter) {
-    l.medium = (*electronIter)->isElectron(egammaPID::ElectronMedium);
+    l.medium = (*electronIter)->isElectron(egammaPIDObs::ElectronMedium);
     if (l.medium) { // keep only medium leptons
       l.pt  = (*electronIter)->cluster()->pt();
       if (l.pt>m_electronPtCut) { // keep only leptons with good pt
         l.eta = (*electronIter)->cluster()->eta();
         l.phi = (*electronIter)->cluster()->phi();
-        l.tight  = (*electronIter)->isElectron(egammaPID::ElectronTight);
+        l.tight  = (*electronIter)->isElectron(egammaPIDObs::ElectronTight);
         leptons.push_back(l);
       }
     }
@@ -1437,11 +1437,11 @@ std::vector<bool> WZSkimsMain::CheckElectronVector(std::vector<const Electron*> 
   for (electronIter=AllElectronsVector.begin(); electronIter!=AllElectronsVector.end(); ++electronIter) {
     double electronPt = fabs((*electronIter)->cluster()->pt());
     double electronEta = fabs((*electronIter)->cluster()->eta());
-    bool isElecLoose = (*electronIter)->isElectron(egammaPID::ElectronLoose);
-    bool isElecMedium = (*electronIter)->isElectron(egammaPID::ElectronMedium);
-    bool isElecTight = (*electronIter)->isElectron(egammaPID::ElectronTight);
-    bool isFwdElecLoose = (*electronIter)->isElectron(egammaPID::frwdElectronLoose);
-    bool isFwdElecTight = (*electronIter)->isElectron(egammaPID::frwdElectronTight);
+    bool isElecLoose = (*electronIter)->isElectron(egammaPIDObs::ElectronLoose);
+    bool isElecMedium = (*electronIter)->isElectron(egammaPIDObs::ElectronMedium);
+    bool isElecTight = (*electronIter)->isElectron(egammaPIDObs::ElectronTight);
+    bool isFwdElecLoose = (*electronIter)->isElectron(egammaPIDObs::frwdElectronLoose);
+    bool isFwdElecTight = (*electronIter)->isElectron(egammaPIDObs::frwdElectronTight);
     ATH_MSG_DEBUG("electron Pt, Eta, Type: " << electronPt << " " << electronEta << " " << isElecLoose << isElecMedium << isElecTight << isFwdElecLoose << isFwdElecTight);
     // if (isFwdElecLoose) isElecLoose = true; // Loose forward electrons bring too many events: not included in LOOSE
     if (isFwdElecTight) isElecTight = true;
@@ -1718,7 +1718,7 @@ bool WZSkimsMain::SelectEtmiss(std::string l_missingEtObjectName) {
 
   double etmiss = sqrt(ExMiss*ExMiss + EyMiss*EyMiss); 
   
-  ATH_MSG_DEBUG("Etmiss (from " << l_missingEtObjectName << "): " << etmiss << endreq);
+  ATH_MSG_DEBUG("Etmiss (from " << l_missingEtObjectName << "): " << etmiss );
 
   if (etmiss >= m_EtmissCut) {
     ATH_MSG_DEBUG (" --> cut passed for this Etmiss");
@@ -1748,7 +1748,7 @@ bool WZSkimsMain::SelectEtmiss() {
 
   double etmiss = sqrt(ExMiss*ExMiss + EyMiss*EyMiss); 
   
-  ATH_MSG_DEBUG("Etmiss (from MET_RefFinal): " << etmiss << endreq);
+  ATH_MSG_DEBUG("Etmiss (from MET_RefFinal): " << etmiss );
 
   if (etmiss >= m_EtmissCut) {
     ATH_MSG_DEBUG (" --> cut passed for this Etmiss");
@@ -1785,7 +1785,7 @@ bool WZSkimsMain::SelectEtmiss() {
 
   etmiss = sqrt(ExMiss*ExMiss + EyMiss*EyMiss); 
   
-  ATH_MSG_DEBUG("Etmiss (from MET_LocHadTopo + MET_MuonBoy - MET_RefMuon_Track): " << etmiss << endreq);
+  ATH_MSG_DEBUG("Etmiss (from MET_LocHadTopo + MET_MuonBoy - MET_RefMuon_Track): " << etmiss );
 
   if (etmiss >= m_EtmissCut) {
     ATH_MSG_DEBUG (" --> cut passed for this Etmiss");
