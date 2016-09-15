@@ -14,7 +14,7 @@
 #include "CaloIdentifier/CaloLVL1_ID.h" 
 #include "LArIdentifier/LArOnlineID.h" 
 
-#include "LArTools/LArCablingService.h" 
+#include "LArCabling/LArCablingService.h" 
 #include "CaloTriggerTool/CaloTriggerTowerService.h" 
 
 #include "StoreGate/StoreGateSvc.h"
@@ -55,98 +55,35 @@ StatusCode LArRoI_Map::initialize()
   // LArDetDescritor
 
 
-  MsgStream log(msgSvc(), name());
-
-  StoreGateSvc* detStore;
-  if(StatusCode::SUCCESS != service("DetectorStore",detStore)){
-    log << MSG::ERROR << " Can't get DetectorStore " << endreq;
-    return StatusCode::FAILURE;
-  }
-
   //  const DataHandle<CaloTTDescrManager> ttMan; 
 
-  if(StatusCode::SUCCESS != detStore->retrieve(m_TT_ID) ) {
-    log << MSG::ERROR << " Can't get CaloLVL1_ID " << endreq;
-    return StatusCode::FAILURE;
-  } 
+  ATH_CHECK( detStore()->retrieve(m_TT_ID) );
+  ATH_CHECK( detStore()->retrieve(m_onlineID) );
+  ATH_CHECK( detStore()->retrieve(m_em_id) );
+  ATH_CHECK( detStore()->retrieve(m_hec_id) );
+  ATH_CHECK( detStore()->retrieve(m_fcal_id) );
+  ATH_CHECK( toolSvc()->retrieveTool("LArCablingService",m_cablingSvc) );
+  ATH_CHECK( toolSvc()->retrieveTool("CaloTriggerTowerService",m_ttSvc) );
 
-  if(StatusCode::SUCCESS != detStore->retrieve(m_onlineID) ) {
-    // temp FIXME 
-    log << MSG::ERROR << " Can't get LArOnlineID " << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-
-  if(StatusCode::SUCCESS != detStore->retrieve(m_em_id) ) {
-    log << MSG::ERROR << " Can't get LArEM_ID " << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  if(StatusCode::SUCCESS != detStore->retrieve(m_hec_id) ) {
-    log << MSG::ERROR << " Can't get LArHEC_ID " << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  if(StatusCode::SUCCESS != detStore->retrieve(m_fcal_id) ) {
-    log << MSG::ERROR << " Can't get LArFCAL_ID " << endreq;
-    return StatusCode::FAILURE;
-  } 
-
-  IToolSvc* toolSvc;
-  StatusCode sc   = service( "ToolSvc",toolSvc  );
-  if(! sc.isSuccess()) { 
-    log << MSG::ERROR << " Can't get ToolSvc" << endreq;
-     return sc;
-  }  
-
-  sc =toolSvc->retrieveTool("LArCablingService",m_cablingSvc);
-  if(!sc.isSuccess() ) {
-    log << MSG::ERROR << " Can't get LArCablingService " << endreq;
-    return sc;
-  }
-
-  sc =toolSvc->retrieveTool("CaloTriggerTowerService",m_ttSvc);
-  if(!sc.isSuccess() ) {
-    log << MSG::ERROR << " Can't get CaloTriggerTowerService " << endreq;
-    return sc;
-  }
-
-  sc = detStore->regFcn(&LArCablingService::iovCallBack,&(*m_cablingSvc),
-		                                   &LArRoI_Map::iovCallBack,
-		                                   this,true) ; 
-  if(!sc.isSuccess() ) {
-    log << MSG::ERROR << " Can't regFcn to LArCablingService  " << endreq;
-    return sc;
-  }
-
-  sc = detStore->regFcn(&CaloTriggerTowerService::iovCallBack,&(*m_ttSvc),
-		                                   &LArRoI_Map::iovCallBack,
-		                                   this,true) ; 
-
-  if(!sc.isSuccess() ) {
-    log << MSG::ERROR << " Can't regFcn to LArCablingService  " << endreq;
-    return sc;
-  }
-
- 
+  ATH_CHECK( detStore()->regFcn(&LArCablingService::iovCallBack,&(*m_cablingSvc),
+                                &LArRoI_Map::iovCallBack,
+                                this,true) );
+  ATH_CHECK(  detStore()->regFcn(&CaloTriggerTowerService::iovCallBack,&(*m_ttSvc),
+                                 &LArRoI_Map::iovCallBack,
+                                 this,true) ) ;
 
   if (m_loadAtBegin) {
-    log << MSG::DEBUG << "Setting callback function to load id map at begin of run" << endreq;
+    ATH_MSG_DEBUG( "Setting callback function to load id map at begin of run"  );
     // Incident Service: 
-    IIncidentSvc* incSvc;
-    sc = service("IncidentSvc", incSvc);
-    if (sc.isFailure()) {
-      log << MSG::ERROR << "Unable to retrieve pointer to IncidentSvc "
-	  << endreq;
-      return sc;
-    }
+    IIncidentSvc* incSvc = nullptr;
+    ATH_CHECK( service("IncidentSvc", incSvc) );
     
     //start listening to "BeginRun". The incident should be fired AFTER the IOV callbacks and only once.
     const long priority=std::numeric_limits<long>::min(); //Very low priority
     incSvc->addListener(this, "BeginRun", priority ,false,true); //single-shot incident
   }
     
-  log << MSG::INFO << " LArRoI_Map initialized " << endreq;
+  ATH_MSG_INFO( " LArRoI_Map initialized "  );
   return StatusCode::SUCCESS; 
 
 }
@@ -154,8 +91,7 @@ StatusCode LArRoI_Map::initialize()
 
 void LArRoI_Map::handle(const Incident& /*inc*/)
 { 
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " handle called " << endreq;
+  ATH_MSG_INFO( " handle called "  );
 
   initData().ignore(); 
 
@@ -163,8 +99,7 @@ void LArRoI_Map::handle(const Incident& /*inc*/)
 }
 
 StatusCode LArRoI_Map::iovCallBack(IOVSVC_CALLBACK_ARGS) {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << " iovCallBack " << endreq;
+  ATH_MSG_INFO( " iovCallBack "  );
 
   m_validCache = false; 
 
@@ -175,17 +110,14 @@ StatusCode LArRoI_Map::iovCallBack(IOVSVC_CALLBACK_ARGS) {
 
 StatusCode LArRoI_Map::initData()
 { 
-
   // intialize the internal map
 
-  MsgStream log(msgSvc(), name());
-
   if(m_validCache) {
-    log<<MSG::DEBUG<<" in initData, but cache is valid"<<endreq;
+    ATH_MSG_DEBUG(" in initData, but cache is valid" );
     return StatusCode::SUCCESS;
   }
 
-  log<<MSG::DEBUG<<" in initData, cache is not valid"<<endreq;
+  ATH_MSG_DEBUG(" in initData, cache is not valid" );
 
   m_offmap.clear(); 
   m_onlmap.clear(); 
@@ -233,7 +165,7 @@ StatusCode LArRoI_Map::initData()
 
   m_validCache = true; 
 
-  log << MSG::INFO << " LArRoI_Map data cache reset " << endreq;
+  ATH_MSG_INFO( " LArRoI_Map data cache reset "  );
 
   if(m_print){ 
     std::cout << " LArRoI_Map:  number of cells made in Map (EM, HEC, FCAL)" 
@@ -323,8 +255,7 @@ return ;
 
 
 // Given offline channel ID, find TT ID. 
-LArRoI_Map::TT_ID LArRoI_Map::TrigTowerID(const Identifier& id) 
- const throw(LArID_Exception)
+LArRoI_Map::TT_ID LArRoI_Map::TrigTowerID(const Identifier& id) const
 { 
   
   if(!m_validCache){
@@ -355,8 +286,7 @@ LArRoI_Map::TT_ID LArRoI_Map::TrigTowerID(const Identifier& id)
      throw except; 
 */
 
-     MsgStream log(msgSvc(),name());
-     log << MSG::DEBUG << " TrigTowerID failed, use hashmax + 1 " << endreq;
+     ATH_MSG_DEBUG( " TrigTowerID failed, use hashmax + 1 "  );
 
      return m_TT_ID->layer_hash_max()+1 ; 
 
@@ -368,8 +298,7 @@ LArRoI_Map::TT_ID LArRoI_Map::TrigTowerID(const Identifier& id)
 
 
 // Given online Channel ID, find TT ID. 
-LArRoI_Map::TT_ID LArRoI_Map::TrigTowerID(const HWIdentifier& sigId)
-const throw(LArID_Exception)
+LArRoI_Map::TT_ID LArRoI_Map::TrigTowerID(const HWIdentifier& sigId) const
 {
 
   if(!m_validCache){
@@ -396,8 +325,7 @@ const throw(LArID_Exception)
      LArID_Exception except(err,1); 
      throw except; 
 */
-     MsgStream log(msgSvc(),name() );
-     log << MSG::DEBUG << " TrigTowerID failed, use hashmax + 1 " << endreq;
+     ATH_MSG_DEBUG( " TrigTowerID failed, use hashmax + 1 "  );
      return m_TT_ID->layer_hash_max()+1 ; 
 
   }
@@ -437,8 +365,7 @@ const LArRoI_Map::COLL_ID_VEC& LArRoI_Map::CollectionID
    std::cout <<" TT id = "<<(unsigned int)ttSam.TT_id()<<" sam=" 
 	     << ttSam.sampling()<<endl;
 */    
-   MsgStream log(msgSvc(),name());
-   log << MSG::DEBUG << " CollectionID failed, empty vector " << endreq;
+   ATH_MSG_DEBUG( " CollectionID failed, empty vector "  );
    static COLL_ID_VEC v ; 
    return v; 
 }
@@ -465,19 +392,9 @@ bool  LArRoI_Map::validId
 
 void LArRoI_Map::print()
 {
-
-  MsgStream log(msgSvc(), name());
-
-  StoreGateSvc* detStore;
-  if(StatusCode::SUCCESS != service("DetectorStore",detStore)){
-    log<<MSG::ERROR <<  " Can't get ToolSvc " << endreq;
-    return  ; 
-  }
-
   const CaloTTDescrManager* ttMan; 
-
-  if(StatusCode::SUCCESS != detStore->retrieve(ttMan) ) {
-    log<<MSG::ERROR <<  " Can't CaloTTDescrManager " << endreq;
+  if(StatusCode::SUCCESS != detStore()->retrieve(ttMan) ) {
+    ATH_MSG_ERROR(  " Can't CaloTTDescrManager "  );
     return;
   } 
 
@@ -612,7 +529,7 @@ void LArRoI_Map::print()
 	} 
   }
 
-  log<< MSG::DEBUG <<" Total number of TTs = "<<ncount<< endreq;
+  ATH_MSG_DEBUG(" Total number of TTs = "<<ncount );
 
   delete ttmapEM[0];
   delete ttmapEM[1];
@@ -633,10 +550,10 @@ void LArRoI_Map::print()
   ROIMAP::const_iterator it  = m_roimap.begin();
   ROIMAP::const_iterator it_e  = m_roimap.end();
   
-  log<<MSG::INFO<< " size of roimap "<<m_roimap.size()<< endreq;
+  ATH_MSG_INFO( " size of roimap "<<m_roimap.size() );
     
   for (;it!=it_e;++it){
-    log<<MSG::INFO<< " tt id "<< (*it).first << " size = "<<(*it).second.size()<<endreq;
+    ATH_MSG_INFO( " tt id "<< (*it).first << " size = "<<(*it).second.size() );
   }
 
   return ;

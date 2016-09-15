@@ -34,15 +34,15 @@ LArRawDetSelector::LArRawDetSelector ( const LArRawChannelContainer*  )
 
   StoreGateSvc* sg; 
   if(svcLoc->service( "DetectorStore",sg).isFailure()) {
-    log << MSG::ERROR << "Faild to get DetectorStore" << endreq;
+    log << MSG::ERROR << "Faild to get DetectorStore" << endmsg;
     return;
   }
     if(sg->retrieve(m_onlineID).isFailure()) {
-      log << MSG::ERROR << "Faild to get LArOnlineID helper" << endreq;
+      log << MSG::ERROR << "Faild to get LArOnlineID helper" << endmsg;
       return;
     }
     if(sg->retrieve(m_caloCellID).isFailure()) {
-      log << MSG::ERROR << "Faild to get LArOnlineID helper" << endreq;
+      log << MSG::ERROR << "Faild to get LArOnlineID helper" << endmsg;
       return;
     }
     return ;
