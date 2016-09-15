@@ -76,7 +76,7 @@ class CscIdHelper : public MuonIdHelper
 				   IdentifierHash& hash_id ) const;
   virtual int get_detectorElement_hash (const Identifier& id,
 					IdentifierHash& hash_id ) const;
-
+  virtual int get_channel_hash(const Identifier&, IdentifierHash&) const;
 
   ///////////// compact identifier stuff ends ////////////////////////////////////// 
   
