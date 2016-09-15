@@ -21,7 +21,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigT1/TrigT1Result )
 
 # External dependencies:
-find_package( tdaq-common COMPONENTS CTPfragment )
+find_package( tdaq-common COMPONENTS CTPfragment eformat )
 
 # tag $(ttr_allow_undefined) was not recognized in automatic conversion in cmt2cmake
 
