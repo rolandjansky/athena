@@ -39,7 +39,7 @@ TrigL1BSTowerHypo::~TrigL1BSTowerHypo()
 
 HLT::ErrorCode TrigL1BSTowerHypo::hltInitialize()
 {
-	msg() << MSG::INFO << "in hltInitialize()" << endreq;
+	msg() << MSG::INFO << "in hltInitialize()" << endmsg;
 	m_AdcEM.reserve(100); m_AdcHAD.reserve(100);
         m_EtEM. reserve(100);  m_EtHAD.reserve(100);
         m_etaEM.reserve(100); m_etaHAD.reserve(100);
@@ -50,7 +50,7 @@ HLT::ErrorCode TrigL1BSTowerHypo::hltInitialize()
 HLT::ErrorCode TrigL1BSTowerHypo::hltFinalize()
 {
 
-	msg() << MSG::INFO << "in hltFinalize()" << endreq;
+	msg() << MSG::INFO << "in hltFinalize()" << endmsg;
 	return HLT::OK;
 
 }
@@ -64,7 +64,7 @@ HLT::ErrorCode TrigL1BSTowerHypo::hltExecute(const HLT::TriggerElement* outputTE
 	m_phiEM.clear(); m_phiHAD.clear();
 	const xAOD::TriggerTowerContainer* container(0);
 	if ( getFeature(outputTE,container) != HLT::OK ) {
-		msg() << MSG::WARNING << " Failed to get TT collection." << endreq;
+		msg() << MSG::WARNING << " Failed to get TT collection." << endmsg;
 		return HLT::ERROR;
 	}
 	for(unsigned int i=0;i<container->size();i++){
