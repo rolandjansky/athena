@@ -147,7 +147,7 @@ void MuonSelector::Init()
   StatusCode sc = serviceLocator->service("ToolSvc", toolSvc, true);
 
   if ( sc.isFailure() || toolSvc == 0 ) {
-    (*m_msgStream) << MSG::ERROR << "Unable to retrieve ToolSvc " << endreq;
+    (*m_msgStream) << MSG::ERROR << "Unable to retrieve ToolSvc " << endmsg;
     return;
   }
   PARENT::Init();
@@ -237,7 +237,7 @@ bool MuonSelector::passPtCuts()
     }
   }
 
-  (*m_msgStream) << MSG::DEBUG << " this muon did not pass the PtCuts:" << endreq;
+  (*m_msgStream) << MSG::DEBUG << " this muon did not pass the PtCuts:" << endmsg;
   return false;
 }
 

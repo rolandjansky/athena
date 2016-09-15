@@ -38,7 +38,7 @@
 #include "TrkEventPrimitives/LocalParameters.h"
 
 #include "egammaEvent/egammaParamDefs.h"
-#include "egammaEvent/egammaPIDdefs.h"
+#include "egammaEvent/egammaPIDdefsObs.h"
 
 
 
@@ -89,10 +89,10 @@ StatusCode IDPerfMonWenu::initialize()
 
   m_histosBooked = 0;
 
-  if (m_tracksName.empty() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " no track collection given" << endreq;
+  if (m_tracksName.empty() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << " no track collection given" << endmsg;
 
   StatusCode sc = ManagedMonitorToolBase::initialize();
-  if (sc.isFailure() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not initialize ManagedMonitorToolBase" << endreq;
+  if (sc.isFailure() && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not initialize ManagedMonitorToolBase" << endmsg;
 
   //---Electron Likelihood tool---
   ATH_MSG_INFO("IDPerfMonWenu::Initialize() -- Setting up electron LH tool.");
@@ -397,7 +397,7 @@ void IDPerfMonWenu::RegisterHisto(MonGroup& mon, TH1* histo, bool doSumw2) {
   if (doSumw2) histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH1 Histogram:" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH1 Histogram:" << endmsg;
   }
 }
 
@@ -405,7 +405,7 @@ void IDPerfMonWenu::RegisterHisto(MonGroup& mon, TProfile* histo) {
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TProfile Histogram:" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TProfile Histogram:" << endmsg;
   }
 }
 
@@ -414,7 +414,7 @@ void IDPerfMonWenu::RegisterHisto(MonGroup& mon, TH2* histo, bool doSumw2) {
   if (doSumw2) histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH2 Histogram:" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Cannot book TH2 Histogram:" << endmsg;
   }
 }
 
@@ -426,15 +426,15 @@ StatusCode IDPerfMonWenu::fillHistograms()
   // get electron container from storegate
   const xAOD::ElectronContainer* electrons = 0;
   if (!evtStore()->contains<xAOD::ElectronContainer>(m_electronsName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_electronsName << " found in StoreGate" << endreq;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_electronsName << " found in StoreGate" << endreq;
+    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_electronsName << " found in StoreGate" << endmsg;
+    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_electronsName << " found in StoreGate" << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
     StatusCode sc = evtStore()->retrieve(electrons,m_electronsName);
     if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_electronsName << " from StoreGate" << endreq;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_electronsName << " from StoreGate" << endreq;
+      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_electronsName << " from StoreGate" << endmsg;
+      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_electronsName << " from StoreGate" << endmsg;
       return StatusCode::SUCCESS;
     }
   }
@@ -442,15 +442,15 @@ StatusCode IDPerfMonWenu::fillHistograms()
   // get photon container from storegate
   const xAOD::PhotonContainer* photons = 0;
   if (!evtStore()->contains<xAOD::PhotonContainer>(m_photonsName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_photonsName << " found in StoreGate" << endreq;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_photonsName << " found in StoreGate" << endreq;
+    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_photonsName << " found in StoreGate" << endmsg;
+    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_photonsName << " found in StoreGate" << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
     StatusCode sc = evtStore()->retrieve(photons,m_photonsName);
     if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_photonsName << " from StoreGate" << endreq;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_photonsName << " from StoreGate" << endreq;
+      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_photonsName << " from StoreGate" << endmsg;
+      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_photonsName << " from StoreGate" << endmsg;
       return StatusCode::SUCCESS;
     }
   }
@@ -458,15 +458,15 @@ StatusCode IDPerfMonWenu::fillHistograms()
   // get emcluster container from storegate
   const xAOD::CaloClusterContainer* emclusters = 0;
   if (!evtStore()->contains<xAOD::CaloClusterContainer>(m_emclustersName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_emclustersName << " found in StoreGate" << endreq;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_emclustersName << " found in StoreGate" << endreq;
+    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_emclustersName << " found in StoreGate" << endmsg;
+    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_emclustersName << " found in StoreGate" << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
     StatusCode sc = evtStore()->retrieve(emclusters,m_emclustersName);
     if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_emclustersName << " from StoreGate" << endreq;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_emclustersName << " from StoreGate" << endreq;
+      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_emclustersName << " from StoreGate" << endmsg;
+      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_emclustersName << " from StoreGate" << endmsg;
       return StatusCode::SUCCESS;
     }
   }
@@ -474,15 +474,15 @@ StatusCode IDPerfMonWenu::fillHistograms()
   // get track container from storegate
   const xAOD::TrackParticleContainer* tracks = 0;
   if (!evtStore()->contains<xAOD::TrackParticleContainer>(m_tracksName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_tracksName << " found in StoreGate" << endreq;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_tracksName << " found in StoreGate" << endreq;
+    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_tracksName << " found in StoreGate" << endmsg;
+    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_tracksName << " found in StoreGate" << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
     StatusCode sc = evtStore()->retrieve(tracks,m_tracksName);
     if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_tracksName << " from StoreGate" << endreq;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_tracksName << " from StoreGate" << endreq;
+      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_tracksName << " from StoreGate" << endmsg;
+      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_tracksName << " from StoreGate" << endmsg;
       return StatusCode::SUCCESS;
     }
   }
@@ -490,15 +490,15 @@ StatusCode IDPerfMonWenu::fillHistograms()
   // get met container from storegate
   const xAOD::MissingETContainer* final_met = 0;
   if (!evtStore()->contains<xAOD::MissingETContainer>(m_metName)) {
-    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_metName << " found in StoreGate" << endreq;
-    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_metName << " found in StoreGate" << endreq;
+    if (nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No Collection with name " << m_metName << " found in StoreGate" << endmsg;
+    else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name " << m_metName << " found in StoreGate" << endmsg;
     return StatusCode::SUCCESS;
   }
   else {
     StatusCode sc = evtStore()->retrieve(final_met,m_metName);
     if (sc.isFailure()) {
-      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_metName << " from StoreGate" << endreq;
-      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_metName << " from StoreGate" << endreq;
+      if(nevents == 1 && msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Could not retrieve Collection " << m_metName << " from StoreGate" << endmsg;
+      else if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not retrieve Collection " << m_metName << " from StoreGate" << endmsg;
       return StatusCode::SUCCESS;
     }
   }
@@ -511,7 +511,7 @@ StatusCode IDPerfMonWenu::fillHistograms()
   const xAOD::MissingET *MET;
   MET = (*final_met)[m_metRefFinalName];
   double met = MET->met();
-  msg(MSG::DEBUG) << "MET = " << met << endreq;
+  msg(MSG::DEBUG) << "MET = " << met << endmsg;
   // *******************
   // Look at EM clusters
   // *******************

@@ -27,7 +27,7 @@ class StoreGateSvc;
 
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "egammaEvent/egammaParamDefs.h"
-#include "egammaEvent/egammaPIDdefs.h"
+#include "egammaEvent/egammaPIDdefsObs.h"
 
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/ElectronContainer.h"
