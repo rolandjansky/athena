@@ -571,7 +571,7 @@ inline bool MuonIdHelper::isSmall(const int& stationNameIndex) const
 // Access to name and technology maps
 inline int MuonIdHelper::stationNameIndex(const std::string& name) const
 {
-// (*m_Log) << MSG::WARNING << "Bad habit: please avoid using string" << endreq;
+// (*m_Log) << MSG::WARNING << "Bad habit: please avoid using string" << endmsg;
   int index = -1;
   std::vector< std::string >::const_iterator first = m_stationNameVector.begin();
   std::vector< std::string >::const_iterator last   = m_stationNameVector.end();
@@ -589,7 +589,7 @@ inline int MuonIdHelper::stationNameIndex(const std::string& name) const
 /*******************************************************************************/
 inline int MuonIdHelper::technologyIndex(const std::string& name) const
 {
-// (*m_Log) << MSG::WARNING << "Bad habit: please avoid using string" << endreq;
+// (*m_Log) << MSG::WARNING << "Bad habit: please avoid using string" << endmsg;
   int index = -1;
   std::vector< std::string >::const_iterator first = m_technologyNameVector.begin();
   std::vector< std::string >::const_iterator last  = m_technologyNameVector.end();

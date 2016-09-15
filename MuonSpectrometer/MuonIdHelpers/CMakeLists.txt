@@ -1,3 +1,4 @@
+# $Id: CMakeLists.txt 761516 2016-07-13 06:43:14Z krasznaa $
 ################################################################################
 # Package: MuonIdHelpers
 ################################################################################
@@ -5,43 +6,48 @@
 # Declare the package name:
 atlas_subdir( MuonIdHelpers )
 
-# Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
-                          Control/AthenaBaseComps
-                          Control/CLIDSvc
-                          Control/SGTools
-                          DetectorDescription/AtlasDetDescr
-                          DetectorDescription/IdDict
-                          DetectorDescription/Identifier
-                          PRIVATE
-                          DetectorDescription/IdDictParser
-                          GaudiKernel )
+# Declare the package's dependencies. In standalone mode this package doesn't
+# depend on anything.
+if( NOT XAOD_STANDALONE )
+   atlas_depends_on_subdirs(
+      PUBLIC
+      Control/AthenaBaseComps
+      Control/CLIDSvc
+      Control/SGTools
+      DetectorDescription/AtlasDetDescr
+      DetectorDescription/IdDict
+      DetectorDescription/Identifier
+      PRIVATE
+      DetectorDescription/IdDictParser
+      GaudiKernel )
+endif()
 
-# External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+# Decide on the sources/libraries to use based on the build environment:
+if( NOT XAOD_STANDALONE )
+   set( extra_sources src/*.cxx )
+   set( extra_libraries
+      LINK_LIBRARIES AthenaBaseComps SGTools AtlasDetDescr IdDict Identifier
+      PRIVATE_LINK_LIBRARIES IdDictParser GaudiKernel )
+endif()
 
-# Component(s) in the package:
+# The main library of the package:
 atlas_add_library( MuonIdHelpersLib
-                   Root/*.cxx
-                   src/*.cxx
-                   PUBLIC_HEADERS MuonIdHelpers
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                   LINK_LIBRARIES AthenaBaseComps SGTools AtlasDetDescr IdDict Identifier
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} IdDictParser GaudiKernel )
+   MuonIdHelpers/*.h Root/*.cxx ${extra_sources}
+   PUBLIC_HEADERS MuonIdHelpers
+   ${extra_libraries} )
 
-atlas_add_component( MuonIdHelpers
-                     src/components/*.cxx
-                     INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps SGTools AtlasDetDescr IdDict Identifier IdDictParser GaudiKernel MuonIdHelpersLib )
+# These are only needed with Athena present:
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( MuonIdHelpers
+      src/components/*.cxx
+      LINK_LIBRARIES MuonIdHelpersLib )
 
-atlas_add_dictionary( MuonIdHelpersDict
-                      MuonIdHelpers/MuonIdHelpersDict.h
-                      MuonIdHelpers/selection.xml
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps SGTools AtlasDetDescr IdDict Identifier IdDictParser GaudiKernel MuonIdHelpersLib )
+   atlas_add_dictionary( MuonIdHelpersDict
+      MuonIdHelpers/MuonIdHelpersDict.h
+      MuonIdHelpers/selection.xml
+      LINK_LIBRARIES MuonIdHelpersLib )
 
-atlas_add_executable( test_muon_id
-                      test/test_muon_id.cxx
-                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps SGTools AtlasDetDescr IdDict Identifier IdDictParser GaudiKernel MuonIdHelpersLib )
-
+   atlas_add_executable( test_muon_id
+      test/test_muon_id.cxx
+      LINK_LIBRARIES Identifier IdDictParser GaudiKernel MuonIdHelpersLib )
+endif()
