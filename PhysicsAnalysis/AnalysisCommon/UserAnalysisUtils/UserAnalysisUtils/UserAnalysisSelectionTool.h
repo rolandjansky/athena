@@ -1,7 +1,10 @@
+// Dear emacs, this is -*- c++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+// $Id: UserAnalysisSelectionTool.h 773457 2016-09-15 13:17:29Z krasznaa $
 #ifndef USERANALYSISUTILS_USERANALYSISSELECTIONTOOL_H  
 #define USERANALYSISUTILS_USERANALYSISSELECTIONTOOL_H 
 
@@ -16,70 +19,60 @@ Purpose : User tools for analyis preparation on ESD/AOD/DPD in Athena - selectio
           - if passed selection put containee in a new container  
 *****************************************************************************/
 
-//#include "GaudiKernel/AlgTool.h"
-//#include "GaudiKernel/MsgStream.h"
-//#include "StoreGate/StoreGateSvc.h"
+// System include(s):
+#include <string>
 
+// Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgTool.h"
 
-#include "VxVertex/VxContainer.h"
-#include "Particle/TrackParticleContainer.h"
-#include "CaloEvent/CaloClusterContainer.h"
-#include "TrkSegment/SegmentCollection.h"
-
-#include "muonEvent/MuonContainer.h"
-#include "egammaEvent/ElectronContainer.h"
-#include "egammaEvent/PhotonContainer.h"
-#include "tauEvent/TauJetContainer.h"
-#include "JetEvent/JetCollection.h"
-#include "MissingETEvent/MissingET.h"
-
-#include "NavFourMom/IParticleContainer.h"
-#include "NavFourMom/INavigable4MomentumCollection.h"
-
-#include <string>
-#include <map>
-#include <vector>
-
-class MsgStream;
+// Forward declaration(s):
+namespace Analysis {
+   class Electron;
+   class Photon;
+   class Muon;
+   class TauJet;
+}
+namespace Rec {
+   class TrackParticle;
+}
+class Jet;
+class CaloCluster;
 
 /** Interface ID */  
-static const InterfaceID IID_UserAnalysisSelectionTool("UserAnalysisSelectionTool", 1, 0);
+static const InterfaceID
+IID_UserAnalysisSelectionTool( "UserAnalysisSelectionTool", 1, 0 );
 
 class UserAnalysisSelectionTool : public AthAlgTool {
 
 public:
+   /** Standard Constructor */
+   UserAnalysisSelectionTool( const std::string& type, const std::string& name,
+                              const IInterface* parent );
 
-  /** Standard Constructor */
-  UserAnalysisSelectionTool(const std::string& type, const std::string& name,
-	                    const IInterface* parent);
+   /** AlgTool and IAlgTool interface methods */
+   static const InterfaceID& interfaceID() {
+      return IID_UserAnalysisSelectionTool;
+   }
 
-  /** AlgTool and IAlgTool interface methods */
-  static const InterfaceID& interfaceID() { return IID_UserAnalysisSelectionTool; };
+   /** Overriding initialize */
+   virtual StatusCode initialize();
 
-  /** Overriding initialize, finalize, and execute */
-  virtual StatusCode initialize();
-  virtual StatusCode finalize();
+   /// @name Pre-selections
+   /// @{
 
-  /** pre-selections */
-  bool isSelected( const Analysis::Electron * electron ) const;
-  bool isSelected( const Analysis::Photon * photon ) const;
-  bool isSelected( const Analysis::Muon * muon ) const;
-  bool isSelected( const Analysis::TauJet * tauJet ) const;
-  bool isSelected( const Jet* jet ) const;
-  bool isSelected( const Rec::TrackParticle * trackParticle ) const;
-  bool isSelected( const CaloCluster* caloCluster ) const;
+   bool isSelected( const Analysis::Electron* electron ) const;
+   bool isSelected( const Analysis::Photon* photon ) const;
+   bool isSelected( const Analysis::Muon* muon ) const;
+   bool isSelected( const Analysis::TauJet* tauJet ) const;
+   bool isSelected( const Jet* jet ) const;
+   bool isSelected( const Rec::TrackParticle* trackParticle ) const;
+   bool isSelected( const CaloCluster* caloCluster ) const;
 
-  bool isBJet( const Jet * jet ) const;
+   bool isBJet( const Jet* jet ) const;
 
-protected:
-
-   /** Standard destructor */
-   virtual ~UserAnalysisSelectionTool();
+   /// @}
 
 private:
-
-
   /** this is Atlfast data */
   bool m_isAtlfast;
 
@@ -130,10 +123,6 @@ private:
   /** TrackParticle selection */
   double m_trackParticlePt;
 
-};
+}; // class UserAnalysisSelectionTool
 
 #endif // USERANALYSISUTILS_USERANALYSISSELECTIONTOOL_H 
-
-
-
-
