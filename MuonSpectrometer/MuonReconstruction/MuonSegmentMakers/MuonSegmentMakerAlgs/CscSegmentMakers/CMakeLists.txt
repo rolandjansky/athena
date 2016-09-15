@@ -23,6 +23,7 @@ atlas_depends_on_subdirs( PUBLIC
                           MuonSpectrometer/MuonReconstruction/MuonRecEvent/MuonRIO_OnTrack
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecHelperTools
                           MuonSpectrometer/MuonReconstruction/MuonRecTools/MuonRecToolInterfaces
+			  MuonSpectrometer/MuonConditions/MuonCondGeneral/MuonCondInterface
                           Tracking/TrkDetDescr/TrkSurfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkRoad

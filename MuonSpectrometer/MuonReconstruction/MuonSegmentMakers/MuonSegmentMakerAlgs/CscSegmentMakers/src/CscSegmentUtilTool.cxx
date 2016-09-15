@@ -104,6 +104,7 @@ CscSegmentUtilTool::CscSegmentUtilTool
     m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
     m_clusterTool("CscClusterUtilTool/CscClusterUtilTool"),
     m_stripFitter("CalibCscStripFitter/CalibCscStripFitter"),
+    m_cscCoolStrSvc("MuonCalib::CscCoolStrSvc", name),
     m_storeGateSvc(0)
 {
   declareInterface<ICscSegmentUtilTool>(this);
@@ -194,6 +195,11 @@ StatusCode CscSegmentUtilTool::initialize()
     return StatusCode::FAILURE;
   }
 
+  if ( m_cscCoolStrSvc.retrieve().isFailure() ) {
+    ATH_MSG_FATAL ( "Unable to retrieve pointer to the CSC COLL Conditions Service" );
+    return StatusCode::FAILURE;
+  }
+
   StatusCode sc = service("StoreGateSvc", m_storeGateSvc);
    if (sc.isFailure()) 
    {
@@ -267,7 +273,7 @@ MuonSegmentCombination* CscSegmentUtilTool::
 get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
                               ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                               ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                              const Amg::Vector3D& lpos000 ) const {
+                              const Amg::Vector3D& lpos000, bool use2Lay, int badLay1, int badLay2 ) const {
   if (! enoughHitLayers(eta_clus, phi_clus) ) {
     ATH_MSG_DEBUG (" Could not find at least two individual layer hits! ");
     MuonSegmentCombination* pcol = 0;
@@ -284,7 +290,7 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
   ICscSegmentFinder::Segments phi_segs;
 
   // get2dSegments does : find_2dsegments -> find_2dseg3hit -> add_2dsegments
-  get2dSegments(eta_id, phi_id, eta_clus, phi_clus, eta_segs, phi_segs, lpos000);  
+  get2dSegments(eta_id, phi_id, eta_clus, phi_clus, eta_segs, phi_segs, lpos000, use2Lay, badLay1, badLay2);
   MuonSegmentCombination::SegmentVec* psegs = new MuonSegmentCombination::SegmentVec;
   for ( ICscSegmentFinder::Segments::const_iterator iseg=eta_segs.begin();
         iseg!=eta_segs.end(); ++iseg ) {
@@ -1719,9 +1725,9 @@ find_2dseg2hit(bool measphi, int station,  int eta, int phi, std::vector<int> la
       const ICscSegmentFinder::TrkClusters& clus2 = chclus[lay1];
       for (icl[1]=clus2.begin(); icl[1]!=clus2.end(); ++icl[1]) {
 
+	// Use these two clusters as a segment.
 	ATH_MSG_DEBUG("got 2 clusters for segment");
 
-	  // Use these three clusters as a segment.
           ICscSegmentFinder::TrkClusters fitclus;
           for (int i=0; i<maxhits; i++) {
             fitclus.push_back(*icl[i]);
@@ -1747,7 +1753,7 @@ find_2dseg2hit(bool measphi, int station,  int eta, int phi, std::vector<int> la
           double local_max_chi =0.;
           if (nunspoil > 2)      local_max_chi =m_max_chisquare_loose;
           else local_max_chi =m_max_chisquare;
-//  tighten chi2 cut
+	  //  tighten chi2 cut
           if(m_TightenChi2) local_max_chi = 1.*m_max_chisquare/3.;
 
           bool keep = true;
@@ -1844,27 +1850,8 @@ get4dMuonSegmentCombination( MuonSegmentCombination* insegs ) const {
     ATH_MSG_ERROR("Could not retrieve event info from TDS.");
     return 0;
   }
-  bool use2LaySegFinding=false;
-  Identifier id=rsegs[0]->rioOnTrack(0)->identify();
-  int station = m_phelper->stationName(id) - 49;
-  int eta     = m_phelper->stationEta(id);
-  int phisec  = m_phelper->stationPhi(id);
-  if(!eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)){
-    if(eventInfo->runNumber()>=300415 && station == 2 && eta < 0 && phisec == 1){
-      ATH_MSG_VERBOSE("2d segment finding for C01 2016");
-      use2LaySegFinding=true;
-    }
-    /*
-    if(eventInfo->runNumber()>=300415 && station == 2 && eta < 0 && phisec == 2){
-      ATH_MSG_VERBOSE("2d segment finding for C03 2016");
-      use2LaySegFinding=true;
-    }
-    */
-    if(eventInfo->runNumber() > 207489 && eventInfo->runNumber() < 217000 && station == 2 && eta < 0 && phisec == 1){
-      use2LaySegFinding=true;
-      ATH_MSG_VERBOSE("2d segment finding for C01 2012");
-    }
-  }
+  //FIXME!
+  bool use2LaySegFinding=insegs->use2LayerSegments();
 
   ICscSegmentFinder::SegmentVec* pnewsegs = new ICscSegmentFinder::SegmentVec;
   for ( ICscSegmentFinder::SegmentVec::const_iterator irsg=rsegs.begin();
@@ -2099,7 +2086,7 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
                           " inbounds " << surf.insideBounds(lpn) << " normals " << std::setprecision(9) << surf.normal().dot(phipold->associatedSurface().normal()) << 
                           " locN " << locNorm.x() << " " << locNorm.y() << " " << locNorm.z()                          
                           );
-      // if(use2LaySegs) std::cout<<"failed to get local position, skip"<<std::endl;
+	  // if(use2LaySegs) std::cout<<"failed to get local position, skip"<<std::endl;
           continue;
         }
 
@@ -2166,7 +2153,6 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
     else{
       if(eta_single!=0){
 	ATH_MSG_DEBUG("eta hit in a 2-layer segment not matched, bailing");
-    // std::cout<<"eta hit in a 2-layer segment not matched, bailing"<<std::endl;
 	delete rios;
 	delete psrf;
 	return 0;
@@ -2190,7 +2176,6 @@ make_4dMuonSegment(const MuonSegment& rsg, const MuonSegment& psg, bool use2LayS
     else{
       if(phi_single!=0){
         ATH_MSG_DEBUG("phi hit in a 2-layer segment not matched, bailing");
-    // std::cout<<"phi hit in a 2-layer segment not matched, bailing"<<std::endl;
         delete rios;
 	delete psrf;
         return 0;
@@ -2241,7 +2226,7 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
                 ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                 ICscSegmentFinder::ChamberTrkClusters& phi_clus,
                 ICscSegmentFinder::Segments& eta_segs, ICscSegmentFinder::Segments& phi_segs,
-                const Amg::Vector3D& lpos000 ) const {
+                const Amg::Vector3D& lpos000, bool use2Lay, int badLay1, int badLay2 ) const {
   
   if( !eta_id.is_valid() && !phi_id.is_valid() ){
     ATH_MSG_WARNING("in get2dSegments: got two invalid identifiers" );
@@ -2253,8 +2238,6 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
   int col_station = m_phelper->stationName(chId) - 49;
   int col_eta     = m_phelper->stationEta(chId);
   int col_phisec  = m_phelper->stationPhi(chId);
-
-  // std::cout<<"get 2d segments for "<<m_idHelper->toString(chId)<<std::endl;
 
   ATH_MSG_DEBUG ( "get2dSegments called  " << eta_id << "  " << phi_id << "  "
                   << col_station << "  " << col_eta <<  " " << col_phisec << "  "
@@ -2269,40 +2252,7 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
   double slope_eta = -999;
   double pos_phi = -999;
   double slope_phi = -999;
- 
-  bool use2LaySegFinding=false;
-  //1=use for 2-layer segment finding, 0=potentially working but don't use for 2-layer segment finding, -1=bad
-  //this way we can reject hits in dead layers due to noise or cross-talk; rejection is done as part of overlap removal
-  std::vector<int> layStat(4,0);
-  const DataHandle<xAOD::EventInfo> eventInfo;
-  StatusCode sc = m_storeGateSvc->retrieve(eventInfo);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Could not retrieve event info from TDS.");
-    return;
-  }
-  if(!eventInfo->eventType(xAOD::EventInfo::IS_SIMULATION)){
-    if(eventInfo->runNumber()>=300415 && col_station == 2 && col_eta < 0 && col_phisec == 1){
-      ATH_MSG_VERBOSE("2d segment finding for C01 2016");
-      use2LaySegFinding=true;
-      //lay0=1; lay1=2; //these are the layers that are still on
-      layStat[0]=-1; layStat[1]=1; layStat[2]=1; layStat[3]=-1;
-    }
-    /*
-    if(eventInfo->runNumber()>=300415 && col_station == 2 && col_eta < 0 && col_phisec == 2){
-      ATH_MSG_VERBOSE("2d segment finding for C03 2016");
-      use2LaySegFinding=true;
-      //lay0=2; lay1=3; //these are the layers that are still on
-      layStat[0]=0; layStat[1]=-1; layStat[2]=1; layStat[3]=1;
-    }
-    */
-    if(eventInfo->runNumber() > 207489 && eventInfo->runNumber() < 217000 && col_station == 2 && col_eta < 0 && col_phisec == 1){
-      use2LaySegFinding=true;
-      ATH_MSG_VERBOSE("2d segment finding for C01 2012");
-      //lay0=0; lay1=1;
-      layStat[0]=1; layStat[1]=1; layStat[2]=-1; layStat[3]=-1;
-    }
-  }
- 
+  
   // Find 2D segments.
   find_2dsegments(false, col_station, col_eta, col_phisec, eta_clus, lpos000, eta_segs, pos_eta, slope_eta);
   find_2dsegments(true,  col_station, col_eta, col_phisec, phi_clus, lpos000, phi_segs, pos_phi, slope_phi);
@@ -2315,7 +2265,14 @@ get2dSegments(  Identifier eta_id, Identifier phi_id,
   add_2dsegments(eta_segs, eta_segs3hit);
   add_2dsegments(phi_segs, phi_segs3hit);
 
-  if(use2LaySegFinding){
+  if(use2Lay){
+    //1=use for 2-layer segment finding, 0=potentially working but don't use for 2-layer segment finding, -1=bad
+    //this way we can reject hits in dead layers due to noise or cross-talk; rejection is done as part of overlap removal
+    std::vector<int> layStat(4,0);
+    for(int i=0;i<4;i++){
+      if(i==badLay1 || i==badLay2) layStat[i]=-1;
+      else layStat[i]=1;
+    }
     // Find 2-hit 2D segments.
     ICscSegmentFinder::Segments eta_segs2hit, phi_segs2hit;
 
@@ -2548,5 +2505,32 @@ double CscSegmentUtilTool::qratio_like(double pdf_sig, double pdf_bkg) const {
   return like;
 }
 
+bool CscSegmentUtilTool::isGood(uint32_t stripHashId) const {
+  //ATH_MSG_VERBOSE ( "The strip hash id is " <<  stripHashId );                                                                                                             
 
+  unsigned int status = stripStatusBit(stripHashId);
+  bool is_good = !( (status & 0x1) || ((status >> 1) & 0x1) ); // test for hot/dead channel                                                                                  
+  return is_good;
+}
+
+int CscSegmentUtilTool::stripStatusBit ( uint32_t stripHashId ) const {
+  uint32_t status = 0x0;
+  if ( !m_cscCoolStrSvc->getStatus(status,stripHashId) ) {
+    ATH_MSG_WARNING ( " failed to access CSC conditions database - status - "
+                      << "strip hash id = " << stripHashId );
+
+    uint8_t status2 = 0x0;
+    if ( (m_cscCoolStrSvc->getStatus(status2,stripHashId)).isFailure() ) {
+      ATH_MSG_WARNING ( " failed to access CSC conditions database old way - status - "
+                        << "strip hash id = " << stripHashId );
+    }else{
+      ATH_MSG_INFO ( " Accessed CSC conditions database old way - status - "
+                     << "strip hash id = " << stripHashId );
+    }
+  } else {
+    ATH_MSG_VERBOSE ( "The status word is " << std::hex << status
+                      << " for strip hash = " << std::dec << stripHashId );
+  }
+  return status;
+}
 

@@ -13,6 +13,7 @@
 #include "MuonRIO_OnTrack/CscClusterOnTrack.h"
 #include "CscSegmentMakers/ICscSegmentUtilTool.h"
 #include "CscClusterization/ICscClusterUtilTool.h"
+#include "MuonCondInterface/CscICoolStrSvc.h"
 //#include "CscClusterization/CalibCscStripFitter.h"
 //#include "CscClusterization/ICscStripFitter.h"
 
@@ -75,7 +76,7 @@ public:
   get2dMuonSegmentCombination(Identifier eta_id, Identifier phi_id,
                               ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                               ICscSegmentFinder::ChamberTrkClusters& phi_clus,
-                              const Amg::Vector3D& lpos000 ) const;
+                              const Amg::Vector3D& lpos000, bool use2Lay=false, int badLay1=-1, int badLay2=-1 ) const;
 
   
   // Return the counts of spoiled and unspoiled measurements from a list
@@ -120,6 +121,7 @@ private:  // data
   ToolHandle<Muon::MuonIdHelperTool> m_idHelper;
   ToolHandle<ICscClusterUtilTool> m_clusterTool;
   ToolHandle<ICscStripFitter>   m_stripFitter;
+  ServiceHandle<MuonCalib::CscICoolStrSvc> m_cscCoolStrSvc;
 
   StoreGateSvc* m_storeGateSvc;
 
@@ -173,7 +175,7 @@ private:  // data
                       ICscSegmentFinder::ChamberTrkClusters& eta_clus,
                       ICscSegmentFinder::ChamberTrkClusters& phi_clus,
                       ICscSegmentFinder::Segments& etasegs, ICscSegmentFinder::Segments& phisegs,
-                      const Amg::Vector3D& lpos000 ) const;
+                      const Amg::Vector3D& lpos000, bool use2Lay=false, int badLay1=-1, int badLay2=-1 ) const;
 
   Muon::MuonSegment* make_4dMuonSegment(const Muon::MuonSegment& rsg, const Muon::MuonSegment& psg, bool use2LaySegs) const;
 
@@ -229,6 +231,8 @@ private:  // data
   // Likelihood function = psig/(psig +pbkg)
   double qratio_like(double pdf_sig, double pdf_bkg) const;
 
+  bool isGood(uint32_t stripHashId) const;
+  int stripStatusBit(uint32_t stripHashId) const;
 
 };
 
