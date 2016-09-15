@@ -27,12 +27,6 @@ def defineCaloLhrPdf(rootFileName, streamName=""):
            raise ValueError("in CaloTrkMuIdTools_jobOptions.py: defineCaloLhrPdf(...): rootFileName: " + rootFileName + " is not an expected value (should be CaloMuonLikelihood.PDF.xx.root).")
    return [streamName + " DATAFILE='" + str(rootFile) + "' TYP='ROOT' OPT='READ'"]
 
-def defineCaloTagCut(rootFileName, streamName="CaloTag"):
-   import os
-   from AthenaCommon.Utils.unixtools import FindFile
-   rootFile = FindFile(filename=rootFileName, pathlist=os.environ['DATAPATH'].split(os.pathsep), access=os.R_OK)
-   return [streamName + " DATAFILE='" + str(rootFile) + "' TYP='ROOT' OPT='READ'"]
-
 ### Track Selector for CaloTrkMuIdAlg
 def CaloTrkMuIdAlgTrackSelectorTool( name='CaloTrkMuIdAlgTrackSelectorTool', **kwargs ):
     import MuonCombinedRecExample.CombinedMuonTrackSummary
@@ -57,23 +51,11 @@ def TrackDepositInCaloTool( name ='TrackDepositInCaloTool', **kwargs ):
     return CfgMgr.TrackDepositInCaloTool(name,**kwargs)
 
 def CaloMuonTagLoose( name='CaloMuonTagLoose', **kwargs ):
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.isOnline == False:
-       from AthenaCommon.AppMgr import ServiceMgr
-       if not hasattr(ServiceMgr, 'THistSvc'):
-          ServiceMgr += CfgMgr.THistSvc()
-       ServiceMgr.THistSvc.Input += defineCaloTagCut("CaloTag.LooseCut.root","CaloTagLoose");
-    kwargs.setdefault("RootFileNames","/CaloTagLoose/")
+    kwargs.setdefault("TagMode","Loose")
     return CfgMgr.CaloMuonTag(name,**kwargs)
 
 ### Configure CaloMuonTag (tight is default) ###
 def CaloMuonTag( name='CaloMuonTag', **kwargs ):
-    from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-    if athenaCommonFlags.isOnline == False:
-       from AthenaCommon.AppMgr import ServiceMgr
-       if not hasattr(ServiceMgr, 'THistSvc'):
-          ServiceMgr += CfgMgr.THistSvc()
-       ServiceMgr.THistSvc.Input += defineCaloTagCut("CaloTag.TightCut.root","CaloTagTight");
     return CfgMgr.CaloMuonTag(name,**kwargs)
 
 def CaloMuonLikelihoodTool(name='CaloMuonLikelihoodTool', **kwargs ):
