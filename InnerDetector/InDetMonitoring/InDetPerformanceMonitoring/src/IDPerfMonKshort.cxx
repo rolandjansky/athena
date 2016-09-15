@@ -66,21 +66,21 @@ IDPerfMonKshort::~IDPerfMonKshort() { }
 
 StatusCode IDPerfMonKshort::initialize()
 {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort initialize() started"<< endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort initialize() started"<< endmsg;
 
    m_histosBooked = 0;
 
 //   // Get StoreGate
 //   if ( service("StoreGateSvc",m_storeGate).isFailure() ) {
-//     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Unable to get pointer to StoreGateSvc" << endreq;
+//     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Unable to get pointer to StoreGateSvc" << endmsg;
 //     return StatusCode::FAILURE;
 //   }
 
-  if (m_tracksName.empty())     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << " no track collection given"<<endreq;
+  if (m_tracksName.empty())     if(msgLvl(MSG::ERROR)) msg(MSG::ERROR) << " no track collection given"<<endmsg;
 
   StatusCode sc;
   sc = ManagedMonitorToolBase::initialize();
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort initialize() finished"<< endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort initialize() finished"<< endmsg;
   if(!sc.isSuccess()) return StatusCode::SUCCESS;
 
 //   if (m_Ntuple) {
@@ -95,7 +95,7 @@ StatusCode IDPerfMonKshort::initialize()
 
 StatusCode IDPerfMonKshort::bookHistograms()
 {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort bookHistograms() started"<< endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort bookHistograms() started"<< endmsg;
 
   Double_t myPi = TMath::Pi();
 
@@ -358,7 +358,7 @@ StatusCode IDPerfMonKshort::bookHistograms()
     m_Nevents = new TH1F("Nevents","Number of events processed",1,-.5,.5);
     RegisterHisto(al_kshort_mon,m_Nevents);
 
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort bookHistograms done"<< endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "IDPerfMonKshort bookHistograms done"<< endmsg;
 
     m_histosBooked++;
 
@@ -367,7 +367,7 @@ StatusCode IDPerfMonKshort::bookHistograms()
 //   if (m_Ntuple) {
 //   StatusCode sc = al_kshort_mon.regTree(NtupleMaker.makeTree());
 //   if (sc.isFailure()){
-//    msg(MSG::WARNING) << "Cannot book TTree" << endreq;
+//    msg(MSG::WARNING) << "Cannot book TTree" << endmsg;
 //    m_Ntuple=false;
 //   }
 //   }
@@ -376,46 +376,46 @@ StatusCode IDPerfMonKshort::bookHistograms()
 }
 
 void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TH1* histo) {
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endmsg;
 
   histo->Sumw2();
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot book TH1 Histogram:" << endreq;
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot book TH1 Histogram:" << endmsg;
   }
 }
 
 void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TProfile* histo) {
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endmsg;
 
   StatusCode sc = mon.regHist(histo);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot book TProfile Histogram:" << endreq;
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot book TProfile Histogram:" << endmsg;
   }
 }
 
 void IDPerfMonKshort::RegisterHisto(MonGroup& mon, TGraph* graph) {
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort RegisterHisto() started"<< endmsg;
 
   StatusCode sc = mon.regGraph(graph);
   if (sc.isFailure() ) {
-    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot book TGraph:" << endreq;
+    if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Cannot book TGraph:" << endmsg;
   }
 }
 
 
 StatusCode IDPerfMonKshort::fillHistograms()
 {
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort fillHistogram() started"<< endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort fillHistogram() started"<< endmsg;
 
   Double_t myPi = TMath::Pi();
   const xAOD::TrackParticleContainer* tracks(0);
   StatusCode sc = evtStore()->retrieve(tracks,m_tracksName);
   if (sc.isFailure()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name "<<m_tracksName<<" found in StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No Collection with name "<<m_tracksName<<" found in StoreGate" << endmsg;
     return StatusCode::SUCCESS;
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name "<<m_tracksName<<" found in StoreGate" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name "<<m_tracksName<<" found in StoreGate" << endmsg;
   }
 
   const xAOD::VertexContainer* PrimVxContainer(0);
@@ -562,11 +562,11 @@ const xAOD::VertexContainer* SecVxContainer(0);
 
     int selectorValue = 0;
 
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksTau = " << properDecayTime << " Lxy = " <<transverseFlightDistance<< " cosTheta = " << cosThetaPointing <<endreq;
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trackPos nSVThits = " << trackPos_nSVTHits << " trackNeg nSVThits = " << trackNeg_nSVTHits <<endreq;
-    // if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksMass = " << ksMass<< " ksMassConstrained = " << ksMassConstrained << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksTau = " << properDecayTime << " Lxy = " <<transverseFlightDistance<< " cosTheta = " << cosThetaPointing <<endmsg;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trackPos nSVThits = " << trackPos_nSVTHits << " trackNeg nSVThits = " << trackNeg_nSVTHits <<endmsg;
+    // if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksMass = " << ksMass<< " ksMassConstrained = " << ksMassConstrained << endmsg;
 
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksPt = " << ksPt <<endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksPt = " << ksPt <<endmsg;
 
 
     double secVertex_radius = secVx_elem->auxdata< float >("Rxy");
@@ -616,9 +616,9 @@ const xAOD::VertexContainer* SecVxContainer(0);
     m_mass->Fill(ksMass/1000.);
 
 
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksMass = " << ksMass<< " ksMassConstrained = " << ksMassConstrained <<endreq;
+    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksMass = " << ksMass<< " ksMassConstrained = " << ksMassConstrained <<endmsg;
 
-    //   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksPt = " << ksPt <<endreq;
+    //   if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "ksPt = " << ksPt <<endmsg;
     double ksEta = ksMomentumVector.pseudoRapidity();
     //    double ksEta = myV0Tools->V04Momentum(theVxCandidate,ksMassPDG).PseudoRapidity();
     double ksPhi = ksMomentumVector.phi();
@@ -641,9 +641,9 @@ const xAOD::VertexContainer* SecVxContainer(0);
     m_eta->Fill(ksEta);
     m_phi->Fill(ksPhi);
 
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "piEta = " << piEta <<endreq;
+    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "piEta = " << piEta <<endmsg;
     Float_t curvatureDiff = (1./(piPlusPt)) - (1./(piMinusPt));
-    //    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "curvatureDiff = " << curvatureDiff <<endreq;
+    //    if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "curvatureDiff = " << curvatureDiff <<endmsg;
 
     if( curvatureDiff <= -0.0008) m_massVCurvatureDiffBinHistos[0]->Fill(ksMass/1000.);
     if( curvatureDiff >  -0.0008 && curvatureDiff <= -0.0004) m_massVCurvatureDiffBinHistos[1]->Fill(ksMass/1000.);
@@ -682,15 +682,15 @@ const xAOD::VertexContainer* SecVxContainer(0);
     if (ksPt > 5000) ksPt = 5000;
     if(ksPt < 500) ksPt = 500;
     Int_t quickBin = (Int_t)ksPt;
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endreq;
+    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endmsg;
     quickBin -= quickBin%100;
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endreq;
+    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endmsg;
     quickBin -= 500;
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endreq;
+    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endmsg;
     quickBin /= 100;
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endreq;
+    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "quickBin = " << quickBin <<endmsg;
     m_massVPtBinHistos[quickBin]->Fill(ksMass/1000.);
-    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "histo[" << quickBin << "]->GetEntries() = " << m_massVPtBinHistos[quickBin]->GetEntries() << endreq;
+    //    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "histo[" << quickBin << "]->GetEntries() = " << m_massVPtBinHistos[quickBin]->GetEntries() << endmsg;
 
     double radius = secVx_elem->auxdata< float >("Rxy");;
 
@@ -754,7 +754,7 @@ const xAOD::VertexContainer* SecVxContainer(0);
 
 StatusCode IDPerfMonKshort::procHistograms()
 {
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort procHistograms() started"<< endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "IDPerfMonKshort procHistograms() started"<< endmsg;
 
   Double_t myPi = TMath::Pi();
 

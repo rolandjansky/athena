@@ -66,7 +66,7 @@ StatusCode PerfMonServices::InitialiseServices( ISvcLocator* pxSvcLocator )
   {
     //log << MSG::WARNING
     //<< "Problem starting at least one of the Athena services : this may be cause problems downstream"
-    //<< endreq;
+    //<< endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -115,13 +115,13 @@ bool PerfMonServices::CheckServiceInit( const StatusCode& xSC, bool bNullPointer
   {
     //log << MSG::WARNING
     //<< "Problem starting " << sType << " service : Error Code."
-    //<< endreq;
+    //<< endmsg;
   }
   if ( bNullPointer )
   {
     //log << MSG::WARNING
     //<< "Problem starting " << sType << " service : NULL pointer."
-    //<< endreq;
+    //<< endmsg;
   }
   return ( xSC.isSuccess() && !bNullPointer ) ? true : false;
 }
