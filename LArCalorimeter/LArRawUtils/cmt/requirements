@@ -19,7 +19,7 @@ use AthenaBaseComps AthenaBaseComps-* Control
 private
 use AtlasDetDescr AtlasDetDescr-* DetectorDescription
 use CaloTriggerTool CaloTriggerTool-* Calorimeter
-use LArTools LArTools-* LArCalorimeter
+use LArCabling LArCabling-* LArCalorimeter
 end_private
 
 

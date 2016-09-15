@@ -71,9 +71,9 @@ class LArRoI_Map : public AthAlgTool,
    * return TrigTowerID for various queries. 
    */
 
-  TT_ID  TrigTowerID (const Identifier& channel_id  ) const throw (LArID_Exception) ; 
+  TT_ID  TrigTowerID (const Identifier& channel_id  ) const;
 
-  TT_ID  TrigTowerID (const HWIdentifier& id  ) const throw (LArID_Exception) ; 
+  TT_ID  TrigTowerID (const HWIdentifier& id  ) const;
 
   /** reserve lookup. given RoI, get CollectionID 
   */ 
