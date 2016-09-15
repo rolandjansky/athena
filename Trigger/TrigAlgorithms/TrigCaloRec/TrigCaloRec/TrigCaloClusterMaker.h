@@ -61,9 +61,7 @@ class TrigCaloClusterMaker : public HLT::FexAlgo {
   std::vector<CaloClusterCollectionProcessor*> m_clusterMakerPointers;      //pointers to tools
   std::vector<CaloClusterProcessor*>           m_clusterCorrectionPointers; //pointers to tools
   xAOD::CaloClusterContainer* m_pCaloClusterContainer;
-  TrigCaloQuality*      pTrigCaloQuality;
-
-  double m_ClusterContainerSize;
+  TrigCaloQuality*      m_pTrigCaloQuality;
 
 //   double m_Eta;
 //   double m_Phi;
@@ -76,19 +74,20 @@ class TrigCaloClusterMaker : public HLT::FexAlgo {
 //   double m_EMFraction;
 //   double m_EdRFraction;
 
-  float m_L2Eta;
-  float m_L2Phi;
+  // monitored variables 
+  unsigned int  m_container_size;
+  float         m_algorithm_time;
   
-  float m_eneFracMax;
-  float m_clusterTime;
-  long m_containBadCells;
-
-  std::vector<float> m_Eta;
-  std::vector<float> m_Phi;
-  std::vector<float> m_Et;
-  std::vector<float> m_EtaEFvsL2;
-  std::vector<float> m_PhiEFvsL2;
-
+  // monitored variables 
+  std::vector<double>       m_et;
+  std::vector<double>       m_eta;
+  std::vector<double>       m_phi;
+  std::vector<unsigned int> m_clusterSize;
+  std::vector<int>          m_signalState;
+  std::vector<unsigned int> m_size;  
+  std::vector<double>       m_N_BAD_CELLS;
+  std::vector<double>       m_ENG_FRAC_MAX;
+  
 public:
 
   inline xAOD::CaloClusterContainer* GetClusterContainer() const {return m_pCaloClusterContainer;}
