@@ -47,6 +47,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
                                           const IInterface*  p )
   : AthAlgTool(t,n,p),
     m_useMT(false),
+    m_pRunMgr(nullptr),
     m_UASvc("",n),
     m_userActionSvc("",n),
     m_rndmGenSvc("AtDSFMTGenSvc",n),
@@ -56,7 +57,7 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
     m_physListTool("PhysicsListToolBase"),
     m_mcEventCollectionName("TruthEvent"),
     m_quasiStableParticlesIncluded(false),
-    m_worldSolid(0)
+    m_worldSolid(nullptr)
 {
 
   declareInterface<ITransportTool>(this);
@@ -86,23 +87,6 @@ iGeant4::G4TransportTool::G4TransportTool(const std::string& t,
   // Multi-threading specific settings
   declareProperty("MultiThreading", m_useMT=false);
 
-  // get G4AtlasRunManager
-  ATH_MSG_DEBUG("initialize G4AtlasRunManager");
-
-  if (m_g4RunManagerHelper.retrieve().isSuccess())
-    ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
-  else {
-    ATH_MSG_FATAL("Could not get "<<m_g4RunManagerHelper);
-  }
-
-  //p_runMgr = G4AtlasRunManager::GetG4AtlasRunManager();    // clashes with use of G4HadIntProcessor
-  p_runMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : 0;
-
-  if(m_physListTool.retrieve().isFailure())
-    {
-      ATH_MSG_FATAL("Could not get PhysicsListToolBase");
-    }
-  m_physListTool->SetPhysicsList();
 }
 
 //________________________________________________________________________
@@ -113,6 +97,24 @@ iGeant4::G4TransportTool::~G4TransportTool()
 StatusCode iGeant4::G4TransportTool::initialize()
 {
   ATH_MSG_VERBOSE("initialize");
+
+  // get G4AtlasRunManager
+  ATH_MSG_DEBUG("initialize G4AtlasRunManager");
+
+  if (m_g4RunManagerHelper.retrieve().isSuccess())
+    ATH_MSG_DEBUG("retrieved "<<m_g4RunManagerHelper);
+  else {
+    ATH_MSG_FATAL("Could not get "<<m_g4RunManagerHelper);
+  }
+
+  //m_pRunMgr = G4AtlasRunManager::GetG4AtlasRunManager();    // clashes with use of G4HadIntProcessor
+  m_pRunMgr = m_g4RunManagerHelper ? m_g4RunManagerHelper->g4RunManager() : 0;
+
+  if(m_physListTool.retrieve().isFailure())
+    {
+      ATH_MSG_FATAL("Could not get PhysicsListToolBase");
+    }
+  m_physListTool->SetPhysicsList();
 
   // retrieve BarcodeSvc
   if ( m_barcodeSvc.retrieve().isFailure() ) {
@@ -148,7 +150,7 @@ StatusCode iGeant4::G4TransportTool::initialize()
   // V2 user action service
   if( !m_userActionSvc.name().empty() ) {
     ATH_CHECK( m_userActionSvc.retrieve() );
-    p_runMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
+    m_pRunMgr->SetUserActionSvc( m_userActionSvc.typeAndName() );
   }
 
   if(m_useMT) {
@@ -183,11 +185,11 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ui->ApplyCommand("/MagneticField/Initialize");
   }
 
-  p_runMgr->SetReleaseGeo( m_releaseGeoModel );
-  p_runMgr->SetRecordFlux( m_recordFlux );
+  m_pRunMgr->SetReleaseGeo( m_releaseGeoModel );
+  m_pRunMgr->SetRecordFlux( m_recordFlux );
 
   // *AS* TEST:
-  // *AS* p_runMgr->Initialize();
+  // *AS* m_pRunMgr->Initialize();
   // *AS* but this is a good place
 
 
@@ -220,7 +222,7 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ATH_MSG_FATAL("Could not get "<<m_particleBroker);
     return StatusCode::FAILURE;
     }
-    //p_runMgr->setParticleBroker(&m_particleBroker);
+    //m_pRunMgr->setParticleBroker(&m_particleBroker);
 
     if (m_particleHelper.retrieve().isSuccess())
     ATH_MSG_DEBUG("retrieved "<<m_particleHelper);
@@ -228,7 +230,7 @@ StatusCode iGeant4::G4TransportTool::initialize()
     ATH_MSG_FATAL("Could not get "<<m_particleHelper);
     return StatusCode::FAILURE;
     }
-    //p_runMgr->setParticleHelper(&m_particleHelper);
+    //m_pRunMgr->setParticleHelper(&m_particleHelper);
     */
   /*
     if (m_configTool.retrieve().isSuccess())
@@ -248,7 +250,7 @@ StatusCode iGeant4::G4TransportTool::finalize()
 
   ATH_MSG_DEBUG("\t terminating the current G4 run");
 
-  p_runMgr->RunTermination();
+  m_pRunMgr->RunTermination();
 
   return StatusCode::SUCCESS;
 }
@@ -263,7 +265,7 @@ StatusCode iGeant4::G4TransportTool::process(const ISF::ISFParticle& isp)
   G4Event* inputEvent=ISF_to_G4Event(isp);
   if (inputEvent) {
 
-    bool abort = p_runMgr->ProcessEvent(inputEvent);
+    bool abort = m_pRunMgr->ProcessEvent(inputEvent);
 
     if (abort) {
       ATH_MSG_WARNING("Event was aborted !! ");
@@ -301,7 +303,7 @@ StatusCode iGeant4::G4TransportTool::processVector(const ISF::ConstISFParticleVe
 
   G4Event* inputEvent = ISF_to_G4Event(ispVector);
   if (inputEvent) {
-    bool abort = p_runMgr->ProcessEvent(inputEvent);
+    bool abort = m_pRunMgr->ProcessEvent(inputEvent);
 
     if (abort) {
       ATH_MSG_WARNING("Event was aborted !! ");
