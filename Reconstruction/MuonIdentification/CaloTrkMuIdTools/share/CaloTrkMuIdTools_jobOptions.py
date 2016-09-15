@@ -26,12 +26,7 @@ def defineCaloLhrPdf(rootFileName, streamName=""):
        else:
            raise ValueError("in CaloTrkMuIdTools_jobOptions.py: defineCaloLhrPdf(...): rootFileName: " + rootFileName + " is not an expected value (should be CaloMuonLikelihood.PDF.xx.root).")
    return [streamName + " DATAFILE='" + str(rootFile) + "' TYP='ROOT' OPT='READ'"]
-
-def defineCaloTagCut(rootFileName, streamName="CaloTag"):
-   import os
-   from AthenaCommon.Utils.unixtools import FindFile
-   rootFile = FindFile(filename=rootFileName, pathlist=os.environ['DATAPATH'].split(os.pathsep), access=os.R_OK)
-   return [streamName + " DATAFILE='" + str(rootFile) + "' TYP='ROOT' OPT='READ'"]    
+ 
 ###############################################################################
 ## jobOptions
 ###############################################################################
@@ -80,8 +75,6 @@ if athenaCommonFlags.isOnline == False:
     ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C0.root");            ### PDFs for endcap region low pT
     ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C1.root");            ### PDFs for endcap region medium pT
     ServiceMgr.THistSvc.Input += defineCaloLhrPdf("CaloMuonLikelihood.PDF.C2.root");            ### PDFs for endcap region high pT
-    ServiceMgr.THistSvc.Input += defineCaloTagCut("CaloTag.LooseCut.root","CaloTagLoose");      ### Cut definition for CaloTag (Loose)
-    ServiceMgr.THistSvc.Input += defineCaloTagCut("CaloTag.TightCut.root","CaloTagTight");      ### Cut definition for CaloTag (Tight)
 
 ### Configure TrackEnergyInCaloTool ###
 from CaloTrkMuIdTools.CaloTrkMuIdToolsConf import TrackEnergyInCaloTool as ConfiguredTrackEnergyInCaloTool
