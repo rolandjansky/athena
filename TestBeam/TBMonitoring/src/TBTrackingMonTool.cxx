@@ -18,11 +18,20 @@
 TBTrackingMonTool::TBTrackingMonTool(const std::string & type, 
 				 const std::string & name,
 				 const IInterface* parent)
-  : MonitorToolBase(type, name, parent)
+  : MonitorToolBase(type, name, parent),
+    m_isBooked(false),
+    m_histo_track_chi2(nullptr),
+    m_histo_track_angle(nullptr),
+    m_histo_track_Uslope(nullptr),
+    m_histo_track_Vslope(nullptr),
+    m_histo_track_Ucryo(nullptr),
+    m_histo_track_Vcryo(nullptr),
+    m_histo_track_Wcryo(nullptr)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
-  declareProperty("histoPathBase",m_path = "/stat");
+  //declareProperty("histoPathBase",m_path = "/stat");
+  m_path = "/stat";
   declareProperty("MonitorTrack",m_monitor_track=true);
 
   declareProperty("TestTrackingMonTool",m_testTool=false);

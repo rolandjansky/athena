@@ -49,7 +49,7 @@ class TBADCRawMonTool: public MonitorToolBase
 
  private:
 
-  std::string m_path;
+  //std::string m_path;
 
   //Declared properties
   bool m_monitor_adc;

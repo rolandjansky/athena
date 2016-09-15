@@ -50,7 +50,8 @@ class TBBPCMonTool: public MonitorToolBase
   //StatusCode execute();
 
  private:
-  std::string m_path,m_SGkeybpc,m_SGkeybpcraw;
+  //std::string m_path;
+  std::string m_SGkeybpc,m_SGkeybpcraw;
   std::vector<std::string> m_bpc_names;
   std::vector<short> m_bpc_map;
 

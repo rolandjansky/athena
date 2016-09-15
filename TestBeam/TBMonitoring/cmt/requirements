@@ -13,11 +13,12 @@ use  TBUtils                    TBUtils-*                       TestBeam
 use  CaloGeoHelpers             CaloGeoHelpers-*                Calorimeter
 private
 use  AtlasCLHEP                 AtlasCLHEP-*                    External
+use  AthenaKernel               AthenaKernel-*                  Control
 use  CaloEvent                  CaloEvent-*                     Calorimeter
 use  CaloUtils                  CaloUtils-*                     Calorimeter
 use  EventInfo                  EventInfo-*                     Event
 use  LArIdentifier              LArIdentifier-*                 LArCalorimeter
-use  LArTools                   LArTools-*                      LArCalorimeter
+use  LArCabling                 LArCabling-*                    LArCalorimeter
 end_private
 
 apply_pattern declare_joboptions files="*.txt *.py"

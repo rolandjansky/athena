@@ -45,7 +45,7 @@ class TBTDCRawMonTool: public MonitorToolBase
   void FillRandomDetect();
 
  private:
-  std::string m_path;
+  //std::string m_path;
 
   //Declared properties
   bool m_monitor_tdc;

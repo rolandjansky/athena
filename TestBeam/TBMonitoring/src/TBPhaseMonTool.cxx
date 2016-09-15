@@ -27,7 +27,7 @@
 // #include "CaloUtils/CaloSamplingHelper.h"
 
 #include "LArIdentifier/LArOnlineID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 #include "TBEvent/TBTDCRaw.h"
 #include "TBEvent/TBTDCRawCont.h"
@@ -41,6 +41,11 @@
 
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
+#include "AthenaKernel/Units.h"
+
+
+namespace Units = Athena::Units;
+
 
 /////////////////////////////////
 // Constructors and Destructor //
@@ -50,6 +55,8 @@ TBPhaseMonTool::TBPhaseMonTool(const std::string& type,
 			       const std::string& name,
 			       const IInterface* parent)
   : MonitorToolBase(type,name,parent)
+    , m_cablingService("LArCablingService", "TBPhaseMonTool")
+    , m_onlineHelper(nullptr)
     , m_tdcContainerName("TDCRawCont")
     , m_caloCellName("AllCalo")
     , m_TBPhaseName("TBPhase")
@@ -64,7 +71,13 @@ TBPhaseMonTool::TBPhaseMonTool(const std::string& type,
     , m_phaseLow(-10.*CLHEP::ns), m_phaseHigh(35.*CLHEP::ns)
     , m_tUnit(CLHEP::ns)
     , m_dTtoWACBins(700)
-    , m_dTtoWACLow(-350.), m_dTtoWACHigh(350.)
+    , m_dTtoWACLow(-350.), m_dTtoWACHigh(350.),
+    m_tdcDelta(nullptr),
+    m_tdcDeltaRight(nullptr),
+    m_tdcDeltaLeft(nullptr),
+    m_tdcCorrelation(nullptr),
+    m_phase(nullptr),
+    m_dTtoWAC(nullptr)
 {
   declareInterface<IMonitorToolBase>(this);
   // default lists
@@ -106,49 +119,16 @@ TBPhaseMonTool::~TBPhaseMonTool()
 StatusCode TBPhaseMonTool::initialize() {
   // messaging
   MsgStream report(msgSvc(),name());
-  report << MSG::DEBUG << "TBPhaseMonTool::initialize()" << endreq;
-  StatusCode sc;
+  report << MSG::DEBUG << "TBPhaseMonTool::initialize()" << endmsg;
 
-  // allocate eventStore
-  sc = service("StoreGateSvc", m_eventStore);
-  if (sc.isFailure()) {
-    report << MSG::ERROR << "cannot allocate StoreGateSvc" << endreq;
-    return sc;
-  }
-
-  // allocate detectorStore
-  sc = service("DetectorStore", m_detectorStore);
-  if (sc.isFailure()) {
-    report << MSG::ERROR << "cannot allocate DetectorStore" << endreq;
-    return sc;
-  }
-
-  // allocate ToolSvc
-  sc = service("ToolSvc", m_toolSvc);
-  if (sc.isFailure()) {
-    report << MSG::ERROR << "cannot allocate ToolSvc" << endreq;
-    return sc;
-  }
-
-  // allocate LArCablingService
-  sc = m_toolSvc->retrieveTool("LArCablingService", m_cablingService);
-  if (sc.isFailure()){
-    report << MSG::ERROR << "cannot allocate LArCablingService" << endreq;
-    return sc;
-  }
-
-  // get LArOnlineID helper
-  sc = m_detectorStore->retrieve(m_onlineHelper, "LArOnlineID");
-  if (sc.isFailure()) {
-    report << MSG::ERROR << "Could not get LArOnlineID" << endreq;
-    return sc;
-  }
+  ATH_CHECK( m_cablingService.retrieve() );
+  ATH_CHECK( detStore()->retrieve(m_onlineHelper, "LArOnlineID") );
 
   // 
   if ((int)m_tdcNames.size() == 0) {
     report << MSG::ERROR 
            << "Empty list of TDC names" 
-           << endreq ;
+           << endmsg ;
     return StatusCode::FAILURE;
   }
 
@@ -156,7 +136,7 @@ StatusCode TBPhaseMonTool::initialize() {
   if ((this->setupLookupTables()).isFailure()) {
     report << MSG::ERROR
            << "problems performing setup of module and sampling lookup tables"
-           << endreq;
+           << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -171,7 +151,7 @@ StatusCode TBPhaseMonTool::initialize() {
              << "\042 ";
     }
   }
-  report << MSG::INFO << endreq;
+  report << MSG::INFO << endmsg;
 
   // get an idCalo keyed map of vectors of idSample for the requested samplings
   for (std::vector<CaloSampling::CaloSample>::iterator sample = m_samplingIndices.begin(); sample != m_samplingIndices.end(); sample++) {
@@ -200,7 +180,7 @@ StatusCode TBPhaseMonTool::initialize() {
              << m_samplingToNameLookup[*sample]
              << "\042";
     }
-    report << MSG::INFO << endreq;
+    report << MSG::INFO << endmsg;
   }
   
   // booking flag
@@ -220,47 +200,19 @@ StatusCode TBPhaseMonTool::fillHists() {
   ////////////////////
 
   MsgStream report(msgSvc(),name());
-  StatusCode sc;
 
   /////////////////
   // Data Access //
   /////////////////
 
-  // CaloCells
-  const CaloCellContainer* cellContainer;
-  sc = m_eventStore->retrieve(cellContainer, m_caloCellName);
-  if (sc.isFailure()) {
-    report << MSG::ERROR
-           << "cannot allocate CaloCellContainer with key <"
-           << m_caloCellName
-           << ">"
-           << endreq;
-    return sc;
-  }
+  const CaloCellContainer* cellContainer = nullptr;
+  ATH_CHECK( evtStore()->retrieve(cellContainer, m_caloCellName) );
 
-  // TDC data
-  const TBTDCRawCont* tdcContainer;
-  sc = m_eventStore->retrieve(tdcContainer, m_tdcContainerName);
-  if (sc.isFailure()) {
-    report << MSG::ERROR
-           << "cannot allocate TBTDCRawContainer with key <"
-           << m_tdcContainerName
-           << ">"
-           << endreq;
-    return sc;
-  }
+  const TBTDCRawCont* tdcContainer = nullptr;
+  ATH_CHECK( evtStore()->retrieve(tdcContainer, m_tdcContainerName) );
 
-  // TBPhase 
-  const TBPhase* theTBPhase;
-  sc = m_eventStore->retrieve(theTBPhase, m_TBPhaseName);
-  if (sc.isFailure()) {
-    report << MSG::ERROR
-           << "cannot allocate TBPhase with key <"
-           << m_TBPhaseName
-           << ">"
-           << endreq;
-    return sc;
-  }
+  const TBPhase* theTBPhase = nullptr;
+  ATH_CHECK( evtStore()->retrieve(theTBPhase, m_TBPhaseName) );
   
   
   ////////////////////////
@@ -305,14 +257,14 @@ StatusCode TBPhaseMonTool::fillHists() {
       os << std::hex << *it_febID;
       report << MSG::INFO << " \042" << os.str() << "\042";
     }
-    report << MSG::INFO << endreq;
+    report << MSG::INFO << endmsg;
 
     // book "static" histograms
     this->SetBookStatus( this->bookMyHists() == StatusCode::SUCCESS );
     if ( this->histsNotBooked() ) {
       report << MSG::ERROR
 	     << "cannot book common histograms"
-	     << endreq;
+	     << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -339,7 +291,7 @@ StatusCode TBPhaseMonTool::fillHists() {
              << "TDC name found \042"
              << tdcName 
              << "\042"
-             << endreq;
+             << endmsg;
       tdcFound++;
       if (tdcRaw->isUnderThreshold()) {
         m_tdcHMap[tdcName]->fill(underValue, 1.);
@@ -388,7 +340,7 @@ StatusCode TBPhaseMonTool::fillHists() {
            << "Looping over CaloCells of calorimeter : \042"
            << m_caloToNameLookup[idCalo]
            << "\042"
-           << endreq;
+           << endmsg;
     std::vector<CaloSampling::CaloSample> samplingV = it->second;
 
     // loop over the corresponding CaloCell's
@@ -415,7 +367,7 @@ StatusCode TBPhaseMonTool::fillHists() {
 
         double energy = (*cell)->e();
         double time = (*cell)->time();
-        if (fabs(time/CLHEP::ns - float(int(time/CLHEP::ns/25.)*25.)) > 0.001 && energy > m_energyCut) {
+        if (fabs(time/Units::ns - float(int(time*(1./(Units::ns*25.)))*25.)) > 0.001 && energy > m_energyCut) {
 
           sumEPerSampling[idSample] += energy;
           sumETimePerSampling[idSample] += energy * time;
@@ -424,9 +376,9 @@ StatusCode TBPhaseMonTool::fillHists() {
           sumETimePerFeb[febID] += energy * time;
 
           report << MSG::DEBUG
-                 << "cell time = " << time/CLHEP::ns << " CLHEP::ns"
-                 << "; energy = " << energy/CLHEP::GeV << " CLHEP::GeV"
-                 << endreq;
+                 << "cell time = " << time/Units::ns << " CLHEP::ns"
+                 << "; energy = " << energy/Units::GeV << " CLHEP::GeV"
+                 << endmsg;
         }
       }
     }
@@ -441,10 +393,10 @@ StatusCode TBPhaseMonTool::fillHists() {
     m_cubicTimeVsPhasePerSampling[idSample]->fill((theTBPhase->getPhase())/m_tUnit, peakTime/m_tUnit, 1.);
     report << MSG::DEBUG
            << "\042" << m_samplingToNameLookup[idSample] << "\042" 
-           << ": peaktime = " << peakTime/CLHEP::ns << " CLHEP::ns"
-           << ": sumETime = " << sumETimePerSampling[idSample]/CLHEP::GeV/CLHEP::ns << " CLHEP::GeV*CLHEP::ns"
-           << ": sumE = " << sumEPerSampling[idSample]/CLHEP::GeV << " CLHEP::GeV"
-           << endreq;
+           << ": peaktime = " << peakTime/Units::ns << " CLHEP::ns"
+           << ": sumETime = " << sumETimePerSampling[idSample]/Units::GeV/Units::ns << " CLHEP::GeV*CLHEP::ns"
+           << ": sumE = " << sumEPerSampling[idSample]/Units::GeV << " CLHEP::GeV"
+           << endmsg;
 
     // loop over tdc
     // fill energy weighted cubic peaking time for each requested sampling vs tdc
@@ -458,7 +410,7 @@ StatusCode TBPhaseMonTool::fillHists() {
                << "\042: TDC name found \042"
                << tdcName 
                << "\042"
-               << endreq;
+               << endmsg;
         if (tdcRaw->isUnderThreshold()) {
           m_cubicTimeVsTDCPerSampling[idSample][tdcName]->fill(underValue, peakTime/m_tUnit, 1.);
         } else if (tdcRaw->isOverflow()) {
@@ -480,10 +432,10 @@ StatusCode TBPhaseMonTool::fillHists() {
     m_cubicTimeVsPhasePerFeb[febID]->fill((theTBPhase->getPhase())/m_tUnit, peakTime/m_tUnit, 1.);
     report << MSG::DEBUG
            << "\042FEB" << febID << "\042"   // takes too much time to get the febIDName
-           << ": peaktime = " << peakTime/CLHEP::ns << " CLHEP::ns"
-           << ": sumETime = " << sumETimePerFeb[febID]/CLHEP::GeV/CLHEP::ns << " CLHEP::GeV*CLHEP::ns"
-           << ": sumE = " << sumEPerFeb[febID]/CLHEP::GeV << " CLHEP::GeV"
-           << endreq;
+           << ": peaktime = " << peakTime/Units::ns << " CLHEP::ns"
+           << ": sumETime = " << sumETimePerFeb[febID]/Units::GeV/Units::ns << " CLHEP::GeV*CLHEP::ns"
+           << ": sumE = " << sumEPerFeb[febID]/Units::GeV << " CLHEP::GeV"
+           << endmsg;
 
     // loop over tdc
     // fill energy weighted cubic peaking time for each requested FEB vs tdc
@@ -495,7 +447,7 @@ StatusCode TBPhaseMonTool::fillHists() {
         report << MSG::DEBUG
                << "\042FEB" << febID << "\042"   // takes too much time to get the febIDName
                << ": TDC name found \042" << tdcName << "\042"
-               << endreq;
+               << endmsg;
         if (tdcRaw->isUnderThreshold()) {
           m_cubicTimeVsTDCPerFeb[febID][tdcName]->fill(underValue, peakTime/m_tUnit, 1.);
         } else if (tdcRaw->isOverflow()) {
@@ -526,7 +478,7 @@ StatusCode TBPhaseMonTool::bookHists() {
   MsgStream report(msgSvc(),name());
   report << MSG::INFO
 	 << "no event independent histograms to book"
-	 << endreq;
+	 << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -536,14 +488,12 @@ StatusCode TBPhaseMonTool::bookMyHists() {
 
   //Get Run number
   std::stringstream rn_stream;
-  EventID *thisEvent;           //EventID is a part of EventInfo
   const EventInfo* thisEventInfo;
-  StatusCode sc=m_eventStore->retrieve(thisEventInfo);
+  StatusCode sc=evtStore()->retrieve(thisEventInfo);
   if (sc!=StatusCode::SUCCESS)
-    report << MSG::WARNING << "No EventInfo object found! Can't read run number!" << endreq;
+    report << MSG::WARNING << "No EventInfo object found! Can't read run number!" << endmsg;
   else {
-    thisEvent=thisEventInfo->event_ID();
-    rn_stream << "Run " << thisEvent->run_number() << " ";
+    rn_stream << "Run " << thisEventInfo->event_ID()->run_number() << " ";
   }
   const std::string runnumber=rn_stream.str();
 
@@ -552,7 +502,7 @@ StatusCode TBPhaseMonTool::bookMyHists() {
   report << MSG::INFO
 	 << "TDC distributions                   min/max/#bins "
 	 << m_tdcLow << "/" << m_tdcHigh << "/" << m_tdcBins
-	 << endreq;
+	 << endmsg;
 
   std::vector<std::string>::iterator it_tdcName = m_tdcNames.begin();
   for (; it_tdcName != m_tdcNames.end(); it_tdcName++) {
@@ -564,7 +514,7 @@ StatusCode TBPhaseMonTool::bookMyHists() {
     m_tdcHMap[tdcName] = H;
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
   }
 
   // if more than one tdc requested, book histo relating the first two
@@ -572,46 +522,46 @@ StatusCode TBPhaseMonTool::bookMyHists() {
     report << MSG::INFO
            << "Delta TDC distributions             min/max/#bins "
            << m_tdcLow << "/" << m_tdcHigh << "/" << m_tdcBins
-           << endreq;
+           << endmsg;
     report << MSG::INFO
            << "Delta TDC distributions high values min/max/#bins "
            << m_tdcRightLow << "/" << m_tdcRightHigh << "/" << m_tdcBins
-           << endreq;
+           << endmsg;
     report << MSG::INFO
            << "Delta TDC distributions low values  min/max/#bins "
            << m_tdcLeftLow << "/" << m_tdcLeftHigh << "/" << m_tdcBins
-           << endreq;
+           << endmsg;
     std::string histoTitle = "TDC1-TDC0";
     std::string pathName   = m_path + "/" + "DeltaTDC"; 
     m_tdcDelta = ToolHistoSvc()->book(pathName, runnumber + histoTitle, m_tdcBins, m_tdcLeftLow, m_tdcRightHigh);
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
     histoTitle = "TDC1-TDC0 high values";
     pathName   = m_path + "/" + "DeltaTDCRight"; 
     m_tdcDeltaRight = ToolHistoSvc()->book(pathName, runnumber + histoTitle, m_tdcBins, m_tdcRightLow, m_tdcRightHigh);
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
     histoTitle = "TDC1-TDC0 low values";
     pathName   = m_path + "/" + "DeltaTDCLeft"; 
     m_tdcDeltaLeft = ToolHistoSvc()->book(pathName,  runnumber +histoTitle, m_tdcBins, m_tdcLeftLow, m_tdcLeftHigh);
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
     histoTitle = "TDC1 vs TDC0";
     pathName   = m_path + "/" + "TDCCorrelation"; 
     m_tdcCorrelation = ToolHistoSvc()->book(pathName, runnumber + histoTitle, m_tdcBins, m_tdcLow, m_tdcHigh, m_tdcBins, m_tdcLow, m_tdcHigh);
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
   }
 
   // book histos for cubic energy weighted peaking time per sampling 
   report << MSG::INFO
 	 << "Peaking time distributions          min/max/#bins "
-	 << m_timeLow/CLHEP::ns << "ns/" << m_timeHigh/CLHEP::ns << "ns/" << m_timeBins
-	 << endreq;
+	 << m_timeLow/Units::ns << "ns/" << m_timeHigh/Units::ns << "ns/" << m_timeBins
+	 << endmsg;
 
   // book histos for cubic energy weighted peaking time per sampling 
   for (std::vector<std::string>::const_iterator sampling = m_samplingNames.begin(); sampling != m_samplingNames.end(); sampling++) {
@@ -623,21 +573,21 @@ StatusCode TBPhaseMonTool::bookMyHists() {
     m_cubicTimePerSampling[idSample] = H1;
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
     histoTitle = samplingName + ": phase corrected " + m_recoName + " time";
     pathName   = m_path + "/" + samplingName + "_phasetime"; 
     H1 = ToolHistoSvc()->book(pathName, runnumber + histoTitle, m_timeBins, m_timeLow/m_tUnit, m_timeHigh/m_tUnit);
     m_cubicPhaseTimePerSampling[idSample] = H1;
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
     histoTitle = samplingName + ": " + m_recoName + " time vs phase";
     pathName   = m_path + "/" + samplingName + "_phase"; 
     IHistogram2D* H2 = ToolHistoSvc()->book(pathName, runnumber + histoTitle, m_phaseBins, m_phaseLow/m_tUnit, m_phaseHigh/m_tUnit, m_timeBins, m_timeLow/m_tUnit, m_timeHigh/m_tUnit);
     m_cubicTimeVsPhasePerSampling[idSample] = H2;
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
 
     // loop over tdc's
     // book histos for cubic energy weighted peaking time per sampling vs tdc
@@ -650,7 +600,7 @@ StatusCode TBPhaseMonTool::bookMyHists() {
       m_cubicTimeVsTDCPerSampling[idSample][tdcName] = H2;
       report << MSG::DEBUG
              << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-             << endreq;
+             << endmsg;
     }
   }
 
@@ -675,21 +625,21 @@ StatusCode TBPhaseMonTool::bookMyHists() {
     m_cubicTimePerFeb[febID] = H1;
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
     histoTitle = febIDName + ": phase corrected " + m_recoName + " time";
     pathName   = m_path + "/" + febIDName + "_phasetime"; 
     H1 = ToolHistoSvc()->book(pathName, runnumber + histoTitle, m_timeBins, m_timeLow/m_tUnit, m_timeHigh/m_tUnit);
     m_cubicPhaseTimePerFeb[febID] = H1;
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
     histoTitle = febIDName + ": " + m_recoName + " time vs phase";
     pathName   = m_path + "/" + febIDName + "_phase"; 
     IHistogram2D* H2 = ToolHistoSvc()->book(pathName,  runnumber +histoTitle, m_phaseBins, m_phaseLow/m_tUnit, m_phaseHigh/m_tUnit, m_timeBins, m_timeLow/m_tUnit, m_timeHigh/m_tUnit);
     m_cubicTimeVsPhasePerFeb[febID] = H2;
     report << MSG::DEBUG
            << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-           << endreq;
+           << endmsg;
 
     // loop over tdc's
     // book histos for cubic energy weighted peaking time per FEB vs tdc
@@ -702,7 +652,7 @@ StatusCode TBPhaseMonTool::bookMyHists() {
       m_cubicTimeVsTDCPerFeb[febID][tdcName] = H2;
       report << MSG::DEBUG
              << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-             << endreq;
+             << endmsg;
     }
   }
 
@@ -712,7 +662,7 @@ StatusCode TBPhaseMonTool::bookMyHists() {
   m_phase = ToolHistoSvc()->book(pathName, runnumber + histoTitle, m_phaseBins, m_phaseLow/m_tUnit, m_phaseHigh/m_tUnit);
   report << MSG::DEBUG
          << "Histogram <" << pathName << ">, title \042" << histoTitle << "\042"
-         << endreq;
+         << endmsg;
   
   std::string histoTitledTtoWAC = "Absolute distance to WAC in TDC counts";
   std::string pathNamedTtoWAC   = m_path + "/dTtoWAC";

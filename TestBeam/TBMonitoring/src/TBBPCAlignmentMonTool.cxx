@@ -29,10 +29,24 @@
 TBBPCAlignmentMonTool::TBBPCAlignmentMonTool(const std::string & type, 
                                  const std::string & name,
                                  const IInterface* parent)
-  : MonitorToolBase(type, name, parent)
+  : MonitorToolBase(type, name, parent),
+    m_runnumber(0),
+    m_bpcnum(0),
+    m_isBooked(false),
+    m_chi2x(0),
+    m_chi2y(0),
+    m_Qx(0),
+    m_Qy(0),
+    m_histo_bpcX_res(nullptr),
+    m_histo_bpcY_res(nullptr),
+    m_histo_chi2x(nullptr),
+    m_histo_chi2y(nullptr),
+    m_histo_Qx(nullptr),
+    m_histo_Qy(nullptr)
 {
   declareInterface<IMonitorToolBase>(this);
-  declareProperty("histoPathBase",m_path = "/stat/BeamDetectors/BPC/Alignment/");
+  //declareProperty("histoPathBase",m_path = "/stat/BeamDetectors/BPC/Alignment/");
+  m_path = "/stat/BeamDetectors/BPC/Alignment/";
   declareProperty("MonitorBPCCalib",m_monitor_bpccalib=true);
   declareProperty("SGTrackkey", m_SGkeytrack = "BPCTrack");
   declareProperty("SGBPCkey", m_SGkeybpc = "BPCCont");
@@ -127,7 +141,6 @@ StatusCode TBBPCAlignmentMonTool::fillHists()
   // get run number 
 
   unsigned int thisrun=0;
-  EventID *thisEvent;           //EventID is a part of EventInfo
   const EventInfo* thisEventInfo;
   StatusCode sc1 = evtStore()->retrieve(thisEventInfo);
   if (sc1!=StatusCode::SUCCESS){
@@ -137,8 +150,7 @@ StatusCode TBBPCAlignmentMonTool::fillHists()
   }
   else
     {
-      thisEvent=thisEventInfo->event_ID();
-      thisrun = thisEvent->run_number();
+      thisrun = thisEventInfo->event_ID()->run_number();
     }
 
 

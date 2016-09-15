@@ -29,11 +29,14 @@
 TBBPCMonTool::TBBPCMonTool(const std::string & type, 
 				 const std::string & name,
 				 const IInterface* parent)
-  : MonitorToolBase(type, name, parent)
+  : MonitorToolBase(type, name, parent),
+    m_isBooked(false),
+    m_bpcnum(0)
 /*---------------------------------------------------------*/
 {
   declareInterface<IMonitorToolBase>(this);
-  declareProperty("histoPathBase",m_path = "/stat");
+  //declareProperty("histoPathBase",m_path = "/stat");
+  m_path = "/stat";
   declareProperty("histoPath",m_histoPath = "/BeamDetectors/BPC/");
 
   declareProperty("SGBPCkey",m_SGkeybpc = "BPCCont");
@@ -204,14 +207,12 @@ StatusCode TBBPCMonTool::mybookHists()
 
  //Get Run number
   std::stringstream rn_stream;
-  EventID *thisEvent;           //EventID is a part of EventInfo
   const EventInfo* thisEventInfo;
   StatusCode sc=evtStore()->retrieve(thisEventInfo);
   if (sc!=StatusCode::SUCCESS)
     ATH_MSG_WARNING ( "No EventInfo object found! Can't read run number!" );
-  else
-    {thisEvent=thisEventInfo->event_ID();
-     rn_stream << "Run " << thisEvent->run_number() << " ";
+  else {
+     rn_stream << "Run " << thisEventInfo->event_ID()->run_number() << " ";
     }
 
   const std::string runnumber=rn_stream.str();

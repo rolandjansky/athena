@@ -22,6 +22,7 @@
 #include "CaloIdentifier/CaloCell_ID.h"
 
 #include "Identifier/HWIdentifier.h"
+#include "GaudiKernel/ServiceHandle.h"
 
 #include "AIDA/IHistogram1D.h"
 #include "AIDA/IHistogram2D.h"
@@ -57,10 +58,7 @@ class TBPhaseMonTool: public MonitorToolBase
 
  protected:
 
-  StoreGateSvc* m_eventStore;
-  StoreGateSvc* m_detectorStore;
-  IToolSvc* m_toolSvc;
-  LArCablingService* m_cablingService;
+  ServiceHandle<LArCablingService> m_cablingService;
   const LArOnlineID* m_onlineHelper;
 
   /*! \brief properties */
