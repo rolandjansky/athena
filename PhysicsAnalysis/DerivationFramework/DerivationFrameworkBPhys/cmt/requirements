@@ -1,0 +1,49 @@
+package DerivationFrameworkBPhys
+author James Catmore <james.catmore@cern.ch>
+
+#################################################################
+# public use statements
+use AtlasPolicy                   AtlasPolicy-*
+use AthenaBaseComps               AthenaBaseComps-*               Control
+use AtlasBoost                    AtlasBoost-*                    External
+use DataModel                   DataModel-*                   Control
+use HepPDT                      *                             LCG_Interfaces
+use InDetConversionFinderTools  InDetConversionFinderTools-*  InnerDetector/InDetRecTools
+use TrkVKalVrtFitter            TrkVKalVrtFitter-*            Tracking/TrkVertexFitter
+use xAODMuon                    xAODMuon-*                    Event/xAOD
+use DerivationFrameworkInterfaces DerivationFrameworkInterfaces-* PhysicsAnalysis/DerivationFramework
+use JpsiUpsilonTools              JpsiUpsilonTools-*              PhysicsAnalysis
+use xAODTracking                  xAODTracking-*                  Event/xAOD
+use xAODBPhys                     xAODBPhys-*                     Event/xAOD
+use IOVDbMetaDataTools            IOVDbMetaDataTools-*            Database
+use AthenaKernel		  AthenaKernel-*		  Control
+use RecoToolInterfaces            RecoToolInterfaces-*            Reconstruction/RecoTools
+use ITrackToVertex		  ITrackToVertex-*		  Reconstruction/RecoTools
+use EventPrimitives               EventPrimitives-*               Event
+
+private
+use AtlasROOT                     AtlasROOT-*                     External 
+use GaudiInterface                GaudiInterface-*                External
+use TrkVertexAnalysisUtils        TrkVertexAnalysisUtils-*        Tracking/TrkVertexFitter
+use xAODEventInfo                 xAODEventInfo-*                 Event/xAOD
+use AthenaPoolUtilities           AthenaPoolUtilities-*           Database/AthenaPOOL
+use xAODPrimitives                xAODPrimitives-*                  Event/xAOD
+use CaloEvent			  CaloEvent-*			    Calorimeter
+use CaloInterface                 CaloInterface-*	            Calorimeter
+use TrackToCalo	                  TrackToCalo-*	                    Reconstruction/RecoTools
+use TrkCaloExtension		  TrkCaloExtension-*		  Tracking/TrkEvent
+use TrkV0Fitter                   TrkV0Fitter-*                 Tracking/TrkVertexFitter
+use TrkToolInterfaces             TrkToolInterfaces-*           Tracking/TrkTools
+use TrkVertexFitterInterfaces     TrkVertexFitterInterfaces-*   Tracking/TrkVertexFitter
+use InDetBeamSpotService          InDetBeamSpotService-*        InnerDetector/InDetConditions
+
+#################################################################
+#
+public
+
+## declare the directories CMT should know about
+branches python share src
+
+apply_pattern dual_use_library files= " *.cxx "
+apply_pattern declare_joboptions files=" *.py"
+apply_pattern declare_python_modules files="*.py"
