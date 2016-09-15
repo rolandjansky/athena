@@ -3,29 +3,23 @@
 */
 
 #include "CaloTrkMuIdTools/CaloMuonTag.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/IToolSvc.h"
-#include "GaudiKernel/ListItem.h"
-#include "GaudiKernel/AlgTool.h"
-#include "GaudiKernel/Algorithm.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "TFile.h"
 #include "TH2F.h"
-
+#include "PathResolver/PathResolver.h"
 ///////////////////////////////////////////////////////////////////////////////
 // Constructor 
 ///////////////////////////////////////////////////////////////////////////////
 CaloMuonTag::CaloMuonTag(const std::string& type, const std::string& name, const IInterface*  pInterface) :
 AthAlgTool(type, name, pInterface),
 m_hist(0),
-m_histSvc("THistSvc/THistSvc", name),
 m_numCuts(0),
 m_numPtBins(0),
 m_numTagged(0),
 m_numRejected(0)
 {
 	declareInterface<ICaloMuonTag>(this);
-	declareProperty("RootFileNames", m_fileNames = "/CaloTagTight/");
+	declareProperty("TagMode", m_tagMode = "Tight");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,17 +38,9 @@ StatusCode CaloMuonTag::initialize()
 		} */
 
 	// Retrieve histogram
-	const std::string& fileName = m_fileNames;
-	TList histList;
-	if (m_histSvc->getTHists(fileName, histList).isFailure()) {
-		ATH_MSG_FATAL("Could not retrieve histogram stream" << fileName);
-		return StatusCode::FAILURE;
-	}
-	m_hist = dynamic_cast<TH2F*>(histList.At(0));
-	if (!m_hist) {
-		ATH_MSG_FATAL("Could not retrieve histograms");
-		return StatusCode::FAILURE;
-	}
+	std::string rootFilePath = PathResolver::find_file("CaloTag.CutConfig.root","DATAPATH");
+	TFile* rootFile = TFile::Open(rootFilePath.c_str(), "READ");
+	ATH_CHECK(getHist(rootFile, m_tagMode.c_str(), m_hist));
 	// Read cut names from histogram
 	m_numCuts = m_hist->GetYaxis()->GetNbins();
 	if (m_numCuts == 0) {
@@ -74,6 +60,24 @@ StatusCode CaloMuonTag::initialize()
 		m_vecPtBins.push_back(atoi(m_hist->GetXaxis()->GetBinLabel(i)));
 	}
 	ATH_MSG_DEBUG("initialize() successful in " << name());
+	return StatusCode::SUCCESS;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// getHist
+///////////////////////////////////////////////////////////////////////////////
+StatusCode CaloMuonTag::getHist(TFile* file, const char* histName, TH2F*& hist){
+	if (!file) {
+		ATH_MSG_ERROR("NULL TFile");
+		return StatusCode::FAILURE;
+	}
+	hist = dynamic_cast<TH2F*>(file->Get(histName));
+	if (!hist){
+		ATH_MSG_ERROR("Cannot retrieve histogram: " << histName);
+		return StatusCode::FAILURE;
+	}
+	hist->SetDirectory(0);
+	ATH_MSG_INFO("Successfully retrieved histogram: " << histName);
 	return StatusCode::SUCCESS;
 }
 

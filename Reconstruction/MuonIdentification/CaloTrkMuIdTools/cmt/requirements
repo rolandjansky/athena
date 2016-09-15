@@ -41,7 +41,7 @@ apply_pattern component_library
 library CaloTrkMuIdTools *.cxx components/*.cxx
 
 apply_pattern declare_joboptions files="*.py"
-apply_pattern declare_runtime files="CaloMuonLikelihood.PDF.A0.root CaloMuonLikelihood.PDF.A1.root CaloMuonLikelihood.PDF.A2.root CaloMuonLikelihood.PDF.B0.root CaloMuonLikelihood.PDF.B1.root CaloMuonLikelihood.PDF.B2.root CaloMuonLikelihood.PDF.C0.root CaloMuonLikelihood.PDF.C1.root CaloMuonLikelihood.PDF.C2.root CaloTag.TightCut.root CaloTag.LooseCut.root"
+apply_pattern declare_runtime files="CaloMuonLikelihood.PDF.A0.root CaloMuonLikelihood.PDF.A1.root CaloMuonLikelihood.PDF.A2.root CaloMuonLikelihood.PDF.B0.root CaloMuonLikelihood.PDF.B1.root CaloMuonLikelihood.PDF.B2.root CaloMuonLikelihood.PDF.C0.root CaloMuonLikelihood.PDF.C1.root CaloMuonLikelihood.PDF.C2.root CaloTag.CutConfig.root"
 
 #private
 #macro cppdebugflags '$(cppdebugflags_s)'

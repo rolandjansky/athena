@@ -6,11 +6,8 @@
 #define CALOTRKMUIDTOOLS_CALOMUONTAG_H
 
 #include "ICaloTrkMuIdTools/ICaloMuonTag.h"
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/ToolHandle.h"
-#include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 
 class TFile;
@@ -59,9 +56,10 @@ private:
 	int getPtBinLow(double pt) const;
 	int getCutBin(std::string cutName) const;
 
+
 	TH2F* m_hist;
-	std::string  m_fileNames;
-	ServiceHandle<ITHistSvc>  m_histSvc;
+	std::string m_tagMode;
+	StatusCode getHist(TFile* file, const char* histName, TH2F*& hist);
 
 	std::vector < std::string > m_vecCutNames;
 	std::vector < int > m_vecPtBins;
