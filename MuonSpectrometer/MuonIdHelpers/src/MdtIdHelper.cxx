@@ -49,11 +49,11 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   // Check whether this helper should be reinitialized
   if (!reinitialize(dict_mgr)) {
-    (*m_Log) << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endreq;
+    (*m_Log) << MSG::INFO << "Request to reinitialize not satisfied - tags have not changed" << endmsg;
     return (0);
   }
   else {
-    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "(Re)initialize" << endreq;
+    if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG << "(Re)initialize" << endmsg;
   }
 
   /// init base object
@@ -69,7 +69,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     {
       (*m_Log) << MSG::ERROR 
 	       << " initialize_from_dict - cannot access MuonSpectrometer dictionary "
-	       << endreq;
+	       << endmsg;
       return 1;
     }
 
@@ -88,7 +88,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     {
       (*m_Log) << MSG::ERROR
 	       << "initLevelsFromDict - unable to find 'multiLayer' field " 	
-	       << endreq;
+	       << endmsg;
       status = 1;
     }
 
@@ -100,7 +100,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   else
     {
       (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'tubeLayer' field " 	
-	       << endreq;
+	       << endmsg;
       status = 1;
     }
 
@@ -112,7 +112,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   else
     {
       (*m_Log) << MSG::ERROR << "initLevelsFromDict - unable to find 'tube' field " 	
-	       << endreq;
+	       << endmsg;
       status = 1;
     }
 
@@ -121,7 +121,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   IdDictGroup* mdtGroup =  m_dict->find_group ("mdt");
   if (!mdtGroup)
     {
-      (*m_Log) << MSG::ERROR << "Cannot find mdt group" << endreq;
+      (*m_Log) << MSG::ERROR << "Cannot find mdt group" << endmsg;
     }
   else
     {
@@ -136,15 +136,15 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   m_lay_impl  = region.m_implementation[m_TUBELAYER_INDEX]; 
   m_tub_impl  = region.m_implementation[m_CHANNEL_INDEX]; 
 
-  (*m_Log) << MSG::DEBUG << " MDT decode index and bit fields for each level: "  << endreq;
-  (*m_Log) << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endreq;
-  (*m_Log) << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endreq;
-  (*m_Log) << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()  << endreq;
-  (*m_Log) << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()  << endreq; 
-  (*m_Log) << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()  << endreq; 
-  (*m_Log) << MSG::DEBUG << " multilayer  "  << m_mla_impl.show_to_string()  << endreq; 
-  (*m_Log) << MSG::DEBUG << " layer       "  << m_lay_impl.show_to_string()  << endreq; 
-  (*m_Log) << MSG::DEBUG << " tube        "  << m_tub_impl.show_to_string()  << endreq; 
+  (*m_Log) << MSG::DEBUG << " MDT decode index and bit fields for each level: "  << endmsg;
+  (*m_Log) << MSG::DEBUG << " muon        "  << m_muon_impl.show_to_string() << endmsg;
+  (*m_Log) << MSG::DEBUG << " station     "  << m_sta_impl.show_to_string()  << endmsg;
+  (*m_Log) << MSG::DEBUG << " eta         "  << m_eta_impl.show_to_string()  << endmsg;
+  (*m_Log) << MSG::DEBUG << " phi         "  << m_phi_impl.show_to_string()  << endmsg; 
+  (*m_Log) << MSG::DEBUG << " technology  "  << m_tec_impl.show_to_string()  << endmsg; 
+  (*m_Log) << MSG::DEBUG << " multilayer  "  << m_mla_impl.show_to_string()  << endmsg; 
+  (*m_Log) << MSG::DEBUG << " layer       "  << m_lay_impl.show_to_string()  << endmsg; 
+  (*m_Log) << MSG::DEBUG << " tube        "  << m_tub_impl.show_to_string()  << endmsg; 
  
   /**
    * Build multirange for the valid set of identifiers
@@ -159,7 +159,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
       (*m_Log) << MSG::ERROR
 	       << "Could not get value for label 'MuonSpectrometer' of field "
 	       << "'subdet' in dictionary " << atlasDict->m_name
-	       << endreq;
+	       << endmsg;
       return (1);
     }
 
@@ -173,11 +173,11 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
     {
       (*m_Log) << MSG::INFO
 	       << "MultiRange built successfully to Technology: " 
-	       << "MultiRange size is " << muon_range.size() << endreq;
+	       << "MultiRange size is " << muon_range.size() << endmsg;
     }
   else
     {
-      (*m_Log) << MSG::ERROR << "Muon MultiRange is empty" << endreq;
+      (*m_Log) << MSG::ERROR << "Muon MultiRange is empty" << endmsg;
     }
 
   // Build MultiRange down to "detector element" for all mdt regions
@@ -189,11 +189,11 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   if (muon_detectorElement_range.size() > 0 )
     {
       (*m_Log) << MSG::INFO << "MultiRange built successfully to detector element: " 
-	       << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endreq;
+	       << "Multilayer MultiRange size is " << muon_detectorElement_range.size() << endmsg;
     }
   else
     {
-      (*m_Log) << MSG::ERROR << "Muon MDT detector element MultiRange is empty" << endreq;
+      (*m_Log) << MSG::ERROR << "Muon MDT detector element MultiRange is empty" << endmsg;
     }
     
   // Build MultiRange down to "tube" for all mdt regions
@@ -206,11 +206,11 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
   if (muon_channel_range.size() > 0 )
     {
       (*m_Log) << MSG::INFO << "MultiRange built successfully to tube: " 
-	       << "MultiRange size is " << muon_channel_range.size() << endreq;
+	       << "MultiRange size is " << muon_channel_range.size() << endmsg;
     }
   else
     {
-      (*m_Log) << MSG::ERROR << "Muon MDT channel MultiRange is empty" << endreq;
+      (*m_Log) << MSG::ERROR << "Muon MDT channel MultiRange is empty" << endmsg;
     }
     
 
@@ -236,7 +236,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	      m_full_module_range.add(range);
 	      if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG
 						       << "module field size is " << (int) range.cardinality() 
-						       << " field index = " << i << endreq;
+						       << " field index = " << i << endmsg;
             }
         }
     }
@@ -252,7 +252,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	      m_full_detectorElement_range.add(range);
 	      if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG
 						       << "detector element field size is " << (int) range.cardinality() 
-						       << " field index = " << j << endreq;
+						       << " field index = " << j << endmsg;
             }
         }
     }
@@ -268,7 +268,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 	      m_full_channel_range.add(range);
 	      if (m_Log->level()<=MSG::DEBUG) (*m_Log) << MSG::DEBUG
 						       << "channel field size is " << (int) range.cardinality() 
-						       << " field index = " << k << endreq;
+						       << " field index = " << k << endmsg;
             }
         }
     }
@@ -277,7 +277,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   if (m_full_module_range.size() == 0)
     {
-      (*m_Log) << MSG::ERROR << "MDT MultiRange ID is empty for modules" << endreq;
+      (*m_Log) << MSG::ERROR << "MDT MultiRange ID is empty for modules" << endmsg;
       status = 1;
     }
 
@@ -285,7 +285,7 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   if (m_full_detectorElement_range.size() == 0)
     {
-      (*m_Log) << MSG::ERROR << "MDT MultiRange ID is empty for detector elements" << endreq;
+      (*m_Log) << MSG::ERROR << "MDT MultiRange ID is empty for detector elements" << endmsg;
       status = 1;
     }
 
@@ -293,20 +293,20 @@ int MdtIdHelper::initialize_from_dictionary(const IdDictMgr& dict_mgr)
 
   if (m_full_channel_range.size() == 0)
     {
-      (*m_Log) << MSG::ERROR << "MDT MultiRange ID is empty for channels" << endreq;
+      (*m_Log) << MSG::ERROR << "MDT MultiRange ID is empty for channels" << endmsg;
       status = 1;
     }
 
   // Setup the hash tables for MDT
 
-  (*m_Log) << MSG::INFO << "Initializing MDT hash indices ... " << endreq;
+  (*m_Log) << MSG::INFO << "Initializing MDT hash indices ... " << endmsg;
   status = init_hashes();
   status = init_detectorElement_hashes();
   status = init_id_to_hashes();
 
   // Setup hash tables for finding neighbors
 
-  (*m_Log) << MSG::INFO << "Initializing MDT hash indices for finding neighbors ... " << endreq;
+  (*m_Log) << MSG::INFO << "Initializing MDT hash indices for finding neighbors ... " << endmsg;
   status = init_neighbors();
 
   return (status);
@@ -709,7 +709,7 @@ bool MdtIdHelper::valid(const Identifier& id) const
 	       << "Invalid multilayer=" << mlayer
 	       << " multilayerMin=" << multilayerMin(id)
 	       << " multilayerMax=" << multilayerMax(id)
-	       << endreq;
+	       << endmsg;
       return false;
     }
 
@@ -721,7 +721,7 @@ bool MdtIdHelper::valid(const Identifier& id) const
 	       << "Invalid tubeLayer=" << layer
 	       << " tubeLayerMin=" << tubeLayerMin(id)
 	       << " tubeLayerMax=" << tubeLayerMax(id)
-	       << endreq;
+	       << endmsg;
       return false;
     }
 
@@ -733,7 +733,7 @@ bool MdtIdHelper::valid(const Identifier& id) const
 	       << "Invalid tube=" << tb
 	       << " tubeMin=" << tubeMin(id)
 	       << " tubeMax=" << tubeMax(id)
-	       << endreq;
+	       << endmsg;
       return false;
     }
   return true;
@@ -751,7 +751,7 @@ bool MdtIdHelper::validElement(const Identifier& id) const
     {
       (*m_Log) << MSG::WARNING
 	       << "Invalid stationName=" << name
-	       << endreq;
+	       << endmsg;
       return false;
     }
 
@@ -764,7 +764,7 @@ bool MdtIdHelper::validElement(const Identifier& id) const
 	       << " for stationName=" << name
 	       << " stationEtaMin=" << stationEtaMin(id)
 	       << " stationEtaMax=" << stationEtaMax(id)
-	       << endreq;
+	       << endmsg;
       return false;
     }
 
@@ -777,7 +777,7 @@ bool MdtIdHelper::validElement(const Identifier& id) const
 	       << " for stationName=" << name
 	       << " stationPhiMin=" << stationPhiMin(id)
 	       << " stationPhiMax=" << stationPhiMax(id)
-	       << endreq;
+	       << endmsg;
       return false;
     }
   return true;
@@ -796,7 +796,7 @@ bool MdtIdHelper::validElement(const Identifier& id, int stationName,
     {
       (*m_Log) << MSG::WARNING
 	       << "Invalid stationName=" << name
-	       << endreq;
+	       << endmsg;
       return false;
     }
   if (stationEta < stationEtaMin(id) ||
@@ -807,7 +807,7 @@ bool MdtIdHelper::validElement(const Identifier& id, int stationName,
 	       << " for stationName=" << name
 	       << " stationEtaMin=" << stationEtaMin(id)
 	       << " stationEtaMax=" << stationEtaMax(id)
-	       << endreq;
+	       << endmsg;
       return false;
     }
   if ((stationPhi < stationPhiMin(id)) ||
@@ -818,7 +818,7 @@ bool MdtIdHelper::validElement(const Identifier& id, int stationName,
 	       << " for stationName=" << name
 	       << " stationPhiMin=" << stationPhiMin(id)
 	       << " stationPhiMax=" << stationPhiMax(id)
-	       << endreq;
+	       << endmsg;
       return false;
     }
   return true;
@@ -839,7 +839,7 @@ bool MdtIdHelper::validChannel(const Identifier& id, int stationName,
 	       << "Invalid multilayer=" << multilayer
 	       << " multilayerMin=" << multilayerMin(id)
 	       << " multilayerMax=" << multilayerMax(id)
-	       << endreq;
+	       << endmsg;
       return false;
     }
   if ((tubeLayer < tubeLayerMin(id)) ||
@@ -849,7 +849,7 @@ bool MdtIdHelper::validChannel(const Identifier& id, int stationName,
 	       << "Invalid tubeLayer=" << tubeLayer
 	       << " tubeLayerMin=" << tubeLayerMin(id)
 	       << " tubeLayerMax=" << tubeLayerMax(id)
-	       << endreq;
+	       << endmsg;
       return false;
     }
   if ((tube < tubeMin(id)) ||
@@ -859,7 +859,7 @@ bool MdtIdHelper::validChannel(const Identifier& id, int stationName,
 	       << "Invalid tube=" << tube
 	       << " tubeMin=" << tubeMin(id)
 	       << " tubeMax=" << tubeMax(id)
-	       << endreq;
+	       << endmsg;
       return false;
     }
   return true;

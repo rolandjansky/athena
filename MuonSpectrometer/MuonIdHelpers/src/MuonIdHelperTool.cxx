@@ -59,7 +59,7 @@ namespace Muon {
       if( name == "MM" )   m_technologies.push_back(MuonStationIndex::MM);
       if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << ", " << tech << " " << name;
     }
-    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << endreq;
+    if( msgLvl(MSG::DEBUG) ) msg(MSG::DEBUG) << endmsg;
     unsigned int nstationsNames = m_mdtIdHelper->stationNameIndexMax()+1;
     m_stationNameData.resize(nstationsNames);
     for( int i=0; i <= m_mdtIdHelper->stationNameIndexMax(); ++i){
@@ -129,7 +129,7 @@ namespace Muon {
 	if( data.isSmall )  msg(MSG::DEBUG) << " Small, ";
 	else                msg(MSG::DEBUG) << " Large, ";
 
-	msg(MSG::DEBUG) << MuonStationIndex::chName(data.chIndex) << "  " << MuonStationIndex::stName(data.stIndex) << endreq;
+	msg(MSG::DEBUG) << MuonStationIndex::chName(data.chIndex) << "  " << MuonStationIndex::stName(data.stIndex) << endmsg;
       }
     }
     return StatusCode::SUCCESS;
