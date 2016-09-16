@@ -294,14 +294,14 @@ class TestEgammaCalibrationAndSmearingTool(unittest.TestCase):
 
                 spamwriter.writerow(args + [calibrated_energy])
 
-    @unittest.expectedFailure  # FIXME: the problem is in the factory
+    @unittest.skip("ATLASG-694")  # FIXME: the problem is in the factory
     def test_MVA_all_simulation(self):
         for particle in 'electron', 'photon':
             self._test_MVA('es2015PRE', particle, False)
             self._test_MVA('es2015cPRE', particle, False)
             self._test_MVA('es2012c', particle, False)
 
-    @unittest.expectedFailure  # FIXME: the problem is in the factory
+    @unittest.skip("ATLASG-694")  # FIXME: the problem is in the factory
     def test_MVA_all_data(self):
         for particle in 'electron', 'photon':
             self._test_MVA('es2015PRE', particle, True)

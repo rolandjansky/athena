@@ -40,11 +40,11 @@ class get_MaterialResolutionEffect {
  private:
 
   // histograms to store resolution parameters
-  TH1D* hSystPeak[4][8][3];
-  TH1D* hSystResol[4][8][3];
-  std::unique_ptr <TFile> file0;
-  const TArrayD* etaBins;
-  const TArrayD* etBins;
+  TH1D* m_hSystPeak[4][8][3];
+  TH1D* m_hSystResol[4][8][3];
+  std::unique_ptr <TFile> m_file0;
+  //const TArrayD* m_etaBins;
+  const TArrayD* m_etBins;
 
 };
 

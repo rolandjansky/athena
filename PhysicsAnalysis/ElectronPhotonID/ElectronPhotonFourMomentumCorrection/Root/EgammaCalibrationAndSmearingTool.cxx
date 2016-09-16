@@ -233,7 +233,8 @@ EgammaCalibrationAndSmearingTool::EgammaCalibrationAndSmearingTool(const std::st
   declareProperty("use_full_statistical_error", m_use_full_statistical_error=false);
   declareProperty("use_temp_correction201215", m_use_temp_correction201215=AUTO);
   declareProperty("use_uA2MeV_2015_first2weeks_correction", m_use_uA2MeV_2015_first2weeks_correction=AUTO);
-  declareProperty("useAFII", m_use_AFII = false, "This will be set automatically for you if using athena");
+  // this is the user input, it is never changed by the tool. The tool uses m_simulation.
+  declareProperty("useAFII", m_use_AFII = AUTO, "This will be set automatically for you if using athena, (int)0=full sim, (int)1=fast sim");
   m_use_mapping_correction = false;
 }
 
@@ -278,8 +279,10 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_use_AFII) { m_simulation = PATCore::ParticleDataType::Fast; }
-  else { m_simulation = PATCore::ParticleDataType::Full; }
+  if (m_use_AFII == 1) { m_simulation = PATCore::ParticleDataType::Fast; }
+  else if (m_use_AFII == 0) { m_simulation = PATCore::ParticleDataType::Full; }
+  // this is needed for tests where only applyCorrection is called without beginInputFile or beginEvent
+  else if (m_use_AFII == AUTO) { m_simulation = PATCore::ParticleDataType::Full; }
 
   // configure decorrelation model, translate string property to internal class enum
   /*    S R SR
@@ -498,27 +501,40 @@ StatusCode EgammaCalibrationAndSmearingTool::get_simflavour_from_metadata(PATCor
 
 StatusCode EgammaCalibrationAndSmearingTool::beginInputFile()
 {
-  PATCore::ParticleDataType::DataType result;
-  const StatusCode status = get_simflavour_from_metadata(result);
-  if (status == StatusCode::SUCCESS) {
-    m_metadata_retrieved = true;
+  // if the user has set a preference (m_use_AFII != AUTO) set it
+  if (m_use_AFII == 0) { m_simulation = PATCore::ParticleDataType::Full; }
+  else if (m_use_AFII == 1) { m_simulation = PATCore::ParticleDataType::Fast; }
 
-    if (result != PATCore::ParticleDataType::Data) {
-      m_simulation = result;
-      if (m_simulation == PATCore::ParticleDataType::Full and m_use_AFII) {
-        // inform the user only in this case (since m_use_AFII is false by default)
-        ATH_MSG_WARNING("data is full sim, but you asked for AFII -> using full sim");
+  PATCore::ParticleDataType::DataType data_flavour_metadata;
+  const StatusCode status_metadata = get_simflavour_from_metadata(data_flavour_metadata);
+  if (status_metadata == StatusCode::SUCCESS) {
+    m_metadata_retrieved = true;
+    ATH_MSG_DEBUG("metadata from new file: " << (data_flavour_metadata == PATCore::ParticleDataType::Data ? "data" : (data_flavour_metadata == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));
+
+    if (data_flavour_metadata != PATCore::ParticleDataType::Data) {
+      if (m_use_AFII == AUTO) { m_simulation = data_flavour_metadata; }
+      else { // user set a preference
+        // check if the preference is consistent and warning
+        if (m_use_AFII == 1 and data_flavour_metadata == PATCore::ParticleDataType::Full) {
+          ATH_MSG_WARNING("data is full sim, but you asked for AFII");
+        }
+        else if (m_use_AFII == 0 and data_flavour_metadata == PATCore::ParticleDataType::Fast) {
+          ATH_MSG_WARNING("data is fast sim, but you asked for full sim");
+        }
       }
     }
-    ATH_MSG_DEBUG("metadata from new file: " << (result == PATCore::ParticleDataType::Data ? "data" : (result == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));
   }
-  else {
+  else { // not able to retrieve metadata
     m_metadata_retrieved = false;
-    ATH_MSG_WARNING("not possible to retrieve simulation flavor automatically, use fastsim = " << m_use_AFII);
-    if (m_use_AFII) { m_simulation = PATCore::ParticleDataType::Fast; }
-    else { m_simulation = PATCore::ParticleDataType::Full; }
+
+    if (m_use_AFII == AUTO) {
+      ATH_MSG_WARNING("not able to retrieve metadata and use_AFII not specified -> set simulation flavour to full simulation");
+      // do not error since it can be real data, but we don't know, need to check later (beginEvent)
+    }
   }
-  return status;
+
+//  return status_metadata;  // since several times it is not possible to retrieve metadata
+  return StatusCode::SUCCESS;
 }
 
 StatusCode EgammaCalibrationAndSmearingTool::endInputFile() {
@@ -534,8 +550,12 @@ StatusCode EgammaCalibrationAndSmearingTool::beginEvent() {
   ATH_CHECK(evtStore()->retrieve(evtInfo, "EventInfo"));
   if (evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
     // redundant, already done in beginInputFile
-    if (m_use_AFII) { m_simulation = PATCore::ParticleDataType::Fast; }
-    else { m_simulation = PATCore::ParticleDataType::Full; }
+    if (m_use_AFII == 1) { m_simulation = PATCore::ParticleDataType::Fast; }
+    else if (m_use_AFII == 0) { m_simulation = PATCore::ParticleDataType::Full; }
+    else { // AUTO
+      // do not warning since it is annoying for every event, the warning is in beginInputFile
+      m_simulation = PATCore::ParticleDataType::Full;
+    }
   }
   return StatusCode::SUCCESS;
 }
@@ -759,13 +779,13 @@ double EgammaCalibrationAndSmearingTool::getElectronMomentum(const xAOD::Electro
   const xAOD::TrackParticle* eTrack = el->trackParticle();
 
   // track momentum and eta
-  const float m_el_tracketa = eTrack->eta();
-  const float m_el_trackmomentum = eTrack->pt() * cosh(el->eta());
+  const float el_tracketa = eTrack->eta();
+  const float el_trackmomentum = eTrack->pt() * cosh(el->eta());
 
   return m_rootTool->getCorrectedMomentum(dataType,
 					  PATCore::ParticleType::Electron,
-					  m_el_trackmomentum,
-					  m_el_tracketa,
+					  el_trackmomentum,
+					  el_tracketa,
 					  oldtool_scale_flag_this_event(*el, *event_info),
 					  m_varSF);
 }
