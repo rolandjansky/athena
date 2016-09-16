@@ -52,7 +52,7 @@ namespace PanTau {
         
         //member variables 
         ToolHandle<PanTau::ITool_InformationStore>   m_Tool_InformationStore;
-
+	std::string m_Tool_InformationStoreName;//optional
         
         virtual bool       passesPreselectionEnergy(double itsEnergy) const;
         
@@ -66,6 +66,10 @@ namespace PanTau {
         std::vector<double>  m_Config_CellBased_EtaBinned_Pi0MVACut_1prong;
         std::vector<double>  m_Config_CellBased_EtaBinned_Pi0MVACut_3prong;
        
+	bool m_init=false;
+  public:
+	inline bool isInitialized(){return m_init;}
+
     }; //end class ConstituentGetter
 
 

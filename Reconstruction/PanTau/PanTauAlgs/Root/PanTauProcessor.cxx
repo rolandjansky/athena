@@ -21,6 +21,7 @@
 #include "PanTauAlgs/Tool_InformationStore.h"
 
 #include "PanTauAlgs/TauConstituent.h"
+#include "PanTauAlgs/HelperFunctions.h"
 #include "PanTauAlgs/PanTauSeed.h"
 
 
@@ -49,6 +50,14 @@ PanTau::PanTauProcessor::PanTauProcessor(const std::string& name)
     declareProperty("Tool_FeatureExtractor",        m_Tool_FeatureExtractor,        "Tool handle to Tool_FeatureExtractor");
     declareProperty("Tool_DecayModeDeterminator",   m_Tool_DecayModeDeterminator,   "Tool handle to Tool_DecayModeDeterminator");
     declareProperty("Tool_DetailsArranger",         m_Tool_DetailsArranger,         "Tool handle to Tool_DetailsArranger");
+
+    declareProperty("Tool_InformationStoreName",        m_Tool_InformationStoreName="",        "Tool handle to Tool_InformationStore");
+    declareProperty("Tool_TauConstituentGetterName",    m_Tool_TauConstituentGetterName="",    "Tool handle to Tool_TauConstituentGetter");
+    declareProperty("Tool_TauConstituentSelectorName",  m_Tool_TauConstituentSelectorName="",  "Tool handle to Tool_TauConstituentSelector");
+    declareProperty("Tool_FeatureExtractorName",        m_Tool_FeatureExtractorName="",        "Tool handle to Tool_FeatureExtractor");
+    declareProperty("Tool_DecayModeDeterminatorName",   m_Tool_DecayModeDeterminatorName="",   "Tool handle to Tool_DecayModeDeterminator");
+    declareProperty("Tool_DetailsArrangerName",         m_Tool_DetailsArrangerName="",         "Tool handle to Tool_DetailsArranger");
+
 }
 
 
@@ -68,6 +77,15 @@ StatusCode PanTau::PanTauProcessor::initialize() {
     
     ATH_MSG_INFO(name() << " initialize()");
     
+    // retrieve StoreGate Service and the tools
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_InformationStore, m_Tool_InformationStoreName ) );
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_TauConstituentGetter, m_Tool_TauConstituentGetterName ) );
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_TauConstituentSelector, m_Tool_TauConstituentSelectorName ) );
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_FeatureExtractor, m_Tool_FeatureExtractorName ) );
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_DecayModeDeterminator, m_Tool_DecayModeDeterminatorName ) );
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_DetailsArranger, m_Tool_DetailsArrangerName ) );
+
+
     // retrieve StoreGate Service and the tools
     ATH_CHECK( m_Tool_InformationStore.retrieve() );
     ATH_CHECK( m_Tool_TauConstituentGetter.retrieve() );
@@ -129,6 +147,7 @@ StatusCode      PanTau::PanTauProcessor::execute(xAOD::TauJet& pTau) {
 
     fillDefaultValuesToTau(curTauJet);
 
+
     //keep track of the technical quality of the pantau seed to be created
     std::vector<int> pantauSeed_TechnicalQuality = std::vector<int>((unsigned int)PanTau::PanTauSeed2::t_nTechnicalQualities, 0);
     
@@ -144,6 +163,7 @@ StatusCode      PanTau::PanTauProcessor::execute(xAOD::TauJet& pTau) {
     //these vectors will be owned by the PanTauSeed2 object.
     std::vector<TauConstituent2*> l_List_TauConstituents = std::vector<TauConstituent2*>(0);
     std::vector<TauConstituent2*> l_List_SelectedTauConstituents = std::vector<TauConstituent2*>(0);
+
     
     if(pantauSeed_TechnicalQuality.at((int)PanTau::PanTauSeed2::t_NoValidInputTau) == 0) {
       // Get the constituents for the current tau
@@ -152,7 +172,6 @@ StatusCode      PanTau::PanTauProcessor::execute(xAOD::TauJet& pTau) {
 	pantauSeed_TechnicalQuality.at((int)PanTau::PanTauSeed2::t_NoConstituentsAtAll) = 1;
 	ATH_MSG_DEBUG("Seed has no associated constituents!");
       }
-      
       
       // Call the TauConstituentSelector tool to throw out bad constituents
       ATH_CHECK(m_Tool_TauConstituentSelector->SelectTauConstituents(l_List_TauConstituents, l_List_SelectedTauConstituents) );
@@ -184,7 +203,7 @@ StatusCode      PanTau::PanTauProcessor::execute(xAOD::TauJet& pTau) {
     
     //check for the pT flag
     double tauJet_pT = curTauJet->ptIntermediateAxis();
-    if(tauJet_pT < m_Config_MinPt || tauJet_pT > m_Config_MaxPt) {
+    if(tauJet_pT < m_Config_MinPt || tauJet_pT > m_Config_MaxPt) {      
       pantauSeed_TechnicalQuality.at((int)PanTau::PanTauSeed2::t_BadPtValue) = 1;
     }
     

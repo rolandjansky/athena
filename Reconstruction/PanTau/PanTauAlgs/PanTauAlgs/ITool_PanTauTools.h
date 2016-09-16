@@ -42,6 +42,7 @@ namespace PanTau {
 
         public:
 
+    virtual bool isInitialized() = 0;
             // used in Tool_FeatureExtractor, Tool_DecayModeDeterminator and Tool_DetailsArranger:
             virtual StatusCode execute(PanTau::PanTauSeed2* inSeed) = 0;
 

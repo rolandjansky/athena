@@ -53,6 +53,7 @@ class Tool_TauConstituentSelector : public asg::AsgTool, virtual public PanTau::
         
         //member variables 
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
+	std::string  m_Tool_InformationStoreName;
         
         double                  m_MaxEta;
         std::vector<double>     m_BinEdges_Eta;
@@ -63,6 +64,10 @@ class Tool_TauConstituentSelector : public asg::AsgTool, virtual public PanTau::
         std::vector<double>     m_Selection_OutChrg_EtaBinned_EtCut;
         std::vector<double>     m_Selection_NeutLowA_EtaBinned_EtCut;
         std::vector<double>     m_Selection_NeutLowB_EtaBinned_EtCut;
+
+	bool m_init=false;
+  public:
+	inline bool isInitialized(){return m_init;}
         
     }; //end class ConstituentGetter
 

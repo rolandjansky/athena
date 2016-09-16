@@ -59,7 +59,14 @@ class Tool_TauConstituentGetter : public asg::AsgTool, virtual public PanTau::IT
         PanTau::HelperFunctions   m_HelperFunctions;
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
         ToolHandle<PanTau::ITool_InputConverter>    m_Tool_InputConverter;
-        
+
+	std::string m_Tool_InformationStoreName;
+	std::string m_Tool_InputConverterName;
+
+
+	bool m_init=false;
+  public:
+	inline bool isInitialized(){return m_init;}
         
     }; //end class ConstituentGetter
 
