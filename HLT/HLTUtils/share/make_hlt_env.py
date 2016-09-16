@@ -61,6 +61,7 @@ class Config:
    symbolicVars = ['ATLAS_EXTERNAL',
                    'ATLAS_BASE',
                    'JAVA_SUBDIR',
+                   'ATLASMKLLIBDIR_PRELOAD'
                    ]
 
    # Always add these to the Parameters set (in addition to symbolicVars)
@@ -77,8 +78,7 @@ class Config:
                ]
 
    # Possible description for OKS variables
-   doc = {'HLT_VERBOSE' : 'If set, print environment in wrapper script'}
-
+   doc = {}
    
 def ignoreVar(var):
    """Should we ignore this variable?"""
@@ -282,7 +282,10 @@ def main():
 
    parser.add_option('--asetupargs', action='store', type='string',
                      help='Extra arguments passed to asetup')   
-   
+
+   parser.add_option('--asetuphome', action='store', type='string',
+                     help='AtlasSetup location (automatically locate if not provided)')
+      
    parser.add_option('--prefix', action='store', type='string', default='HLT',
                      help='Prefix for OKS variables (default: %default)')
 
@@ -339,18 +342,24 @@ def main():
 
    if opt.asetupargs!=None:
       asetup_opts += ' '+opt.asetupargs
+
+   if opt.asetuphome==None:
+      asetup = getAtlasSetup()
+   else:
+      asetup = opt.asetuphome
       
-   asetup = getAtlasSetup()         
    hltenv = getHltEnv(asetup, asetup_opts)   
 
    # This will point one directory below the project, e.g.: /afs/cern.ch/atlas/software/builds
    hltenv['ATLAS_BASE'] = hltenv['AtlasArea'].split(hltenv['AtlasProject'])[0].rstrip('/')
-   hltenv['HLT_VERBOSE'] = '1'
    # Use tcmalloc
    hltenv['LD_LIBRARY_PATH'] += os.pathsep+hltenv['TCMALLOCDIR']
    if hltenv['CMTCONFIG'].startswith('i686'):  # need both 64 and 32 bit version on a x86 host
       hltenv['LD_LIBRARY_PATH'] += os.pathsep+hltenv['TCMALLOCDIR'].replace('i686','x86_64')
-   hltenv['HLT_PRELOAD'] = 'libtcmalloc_minimal.so'
+
+   # Preload tcmalloc and intel math libraries (ATR-14499)
+   hltenv['LD_PRELOAD'] = 'libtcmalloc_minimal.so'
+   hltenv['LD_PRELOAD'] += ':${ATLASMKLLIBDIR_PRELOAD}/libimf.so:${ATLASMKLLIBDIR_PRELOAD}/libintlc.so.5'
 
    symbolicReplace(hltenv)
 

@@ -34,20 +34,6 @@ onlineRep  = rep.getObject('SW_Repository', 'Online')
 hlt_env = pm.project.Project('daq/segments/%s-Environment.data.xml' % prefix)
 
 apps = [
-    dal.Script('l2pu_main_wrapper%s' % modifier,
-               BinaryName='l2pu_main_wrapper',
-               Description='L2PU wrapper',
-               ProcessEnvironment=[hlt_env.getObject('VariableSet', '%s-Environment' % prefix)],           
-               Authors=['Andre.dos.Anjos@cern.ch', 'Werner.Wiedenmann@cern.ch']
-               ),
-    
-    dal.Script('pt_main_wrapper%s' % modifier,
-               BinaryName='pt_main_wrapper',
-               Description='PT wrapper',
-               ProcessEnvironment=[hlt_env.getObject('VariableSet', '%s-Environment' % prefix)],
-               Authors=['Serge.Shuskov@cern.ch', 'Andrea.Negri@cern.ch']
-               ),
-    
     dal.Script('athena_wrapper%s' % modifier,
                BinaryName='athena_wrapper',
                Description='athena.py wrapper',
@@ -63,6 +49,9 @@ vars = [
     dal.SW_PackageVariable('DATAPATH%s' % modifier,
                            Name='DATAPATH',
                            Suffix="share"),
+    dal.SW_PackageVariable('CALIBPATH%s' % modifier,
+                           Name='CALIBPATH',
+                           Suffix="share"),                           
     dal.SW_PackageVariable('JOBOPTSEARCHPATH%s' % modifier,
                            Name='JOBOPTSEARCHPATH',
                            Suffix="jobOptions"),
