@@ -1204,12 +1204,12 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   if(Model < 1 || Model > 2) return; 
 
   double q = fabs(Tp.par()[4]);
-  double s = fabs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]);
-  s  < .05 ? s = 20. : s = 1./s; 
+  double s = fabs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]); s  < .05 ? s = 20. : s = 1./s; 
+  double d = (1.-m_A[2])*(1.+m_A[2]);   if(d < 1.e-5) d = 1.e-5;
 
   m_radlengthN = s*m_radlength; 
   double covariancePola = (134.*m_radlengthN)*(q*q);
-  double covarianceAzim = covariancePola/((1.-m_A[2])*(1.+m_A[2]));
+  double covarianceAzim = covariancePola/d;
   double covarianceIMom,correctionIMom;
 
   if(Model==1) {
@@ -1639,19 +1639,12 @@ bool  InDet::SiTrajectoryElement_xk::rungeKuttaToPlane
 
     double A00 = A[0], A11=A[1], A22=A[2];
 
-    A[0] = 2.*A3+(A0+A5+A6); 
-    A[1] = 2.*B3+(B0+B5+B6); 
-    A[2] = 2.*C3+(C0+C5+C6);
-    
-    double D = (A[0]*A[0]+A[1]*A[1])+(A[2]*A[2]-9.);
-    D        = (1./3.)-((1./648.)*D)*(12.-D)       ;
-
-    R[0]+=(A2+A3+A4)*S3;
-    R[1]+=(B2+B3+B4)*S3;
-    R[2]+=(C2+C3+C4)*S3;
-    A[0]*=D            ;
-    A[1]*=D            ;
-    A[2]*=D            ;
+    R[0]+=(A2+A3+A4)*S3; A[0] = ((A0+2.*A3)+(A5+A6))*(1./3.);
+    R[1]+=(B2+B3+B4)*S3; A[1] = ((B0+2.*B3)+(B5+B6))*(1./3.);
+    R[2]+=(C2+C3+C4)*S3; A[2] = ((C0+2.*C3)+(C5+C6))*(1./3.);
+	
+    double D   = 1./sqrt(A[0]*A[0]+A[1]*A[1]+A[2]*A[2]);
+    A[0]*=D; A[1]*=D; A[2]*=D;
 
     if(Jac) {
 
