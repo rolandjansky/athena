@@ -43,25 +43,25 @@ Trk::CloseComponentsMultiStateMerger::~CloseComponentsMultiStateMerger()
 StatusCode Trk::CloseComponentsMultiStateMerger::initialize()
 {
 
-  msg(MSG::VERBOSE) << "Initialising Close Components Merger" << endreq;
+  msg(MSG::VERBOSE) << "Initialising Close Components Merger" << endmsg;
 
   // Request the Chrono Service
   if ( m_chronoSvc.retrieve().isFailure() ) {
-   msg(MSG::FATAL) << "Failed to retrieve service " << m_chronoSvc << endreq;
+   msg(MSG::FATAL) << "Failed to retrieve service " << m_chronoSvc << endmsg;
    return StatusCode::FAILURE;
 	} else 
-   msg(MSG::INFO) << "Retrieved service " << m_chronoSvc << endreq;
+   msg(MSG::INFO) << "Retrieved service " << m_chronoSvc << endmsg;
 
   // Retrieve the distance tool
   if ( m_distance.retrieve().isFailure() ){
     msg(MSG::FATAL)
-  			<< "Could not retrieve component distance AlgTool ... Exiting!" << endreq;
+  			<< "Could not retrieve component distance AlgTool ... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Request an instance of the MultiComponentStateCombiner
   if ( m_stateCombiner.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve an instance of the multi-component state combiner... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Could not retrieve an instance of the multi-component state combiner... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -69,11 +69,11 @@ StatusCode Trk::CloseComponentsMultiStateMerger::initialize()
 
   // Request an instance of the MultiComponentStateAssembler
   if ( m_stateAssembler.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve an instance of the mutli-component state assembler... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Could not retrieve an instance of the mutli-component state assembler... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "Initialisation of " << type() << " under instance " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << type() << " under instance " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -82,7 +82,7 @@ StatusCode Trk::CloseComponentsMultiStateMerger::initialize()
 StatusCode Trk::CloseComponentsMultiStateMerger::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << type() << " under instance " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << type() << " under instance " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -95,7 +95,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
   m_chronoSvc->chronoStart("MS::scan");
 
  
-  if (msgLvl(MSG::VERBOSE)) msg() << "Merging state with " << unmergedState.size() << " components" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Merging state with " << unmergedState.size() << " components" << endmsg;
 
   bool componentWithoutMeasurement = false;
 
@@ -111,7 +111,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
   }
 
   if ( componentWithoutMeasurement ){
-    if (msgLvl(MSG::DEBUG)) msg() << "A track parameters object is without measurement... reducing state to single component" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "A track parameters object is without measurement... reducing state to single component" << endmsg;
 
     const Trk::TrackParameters* combinedState = m_stateCombiner->combine( unmergedState );
 
@@ -128,22 +128,22 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
   bool isAssemblerReset = m_stateAssembler->reset();
 
   if ( !isAssemblerReset ){
-    msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endreq;
+    msg(MSG::ERROR) << "Could not reset the state assembler... returning 0" << endmsg;
     return 0;
   }
 
   if ( unmergedState.empty() ){
-    msg(MSG::ERROR) << "Attempting to merge multi-state with zero components" << endreq;
+    msg(MSG::ERROR) << "Attempting to merge multi-state with zero components" << endmsg;
     return 0;
   }
 
   if ( m_maximumNumberOfComponents <= 0 ){
-    msg(MSG::ERROR) << "Attempting to merge multi-state into zero components... stop being silly!" << endreq;
+    msg(MSG::ERROR) << "Attempting to merge multi-state into zero components... stop being silly!" << endmsg;
     return 0;
   }
 
   if (unmergedState.size() <= m_maximumNumberOfComponents){
-    if (msgLvl(MSG::VERBOSE)) msg() << "State is already sufficiently small... no component reduction required" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "State is already sufficiently small... no component reduction required" << endmsg;
     return unmergedState.clone();
   }
 
@@ -206,7 +206,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
   else{
 
-    if (msgLvl(MSG::DEBUG)) msg() << "Component will be removed from state because it could not be reduced" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Component will be removed from state because it could not be reduced" << endmsg;
 
     delete (unmergedComponentsMap.begin()->second).first;
 
@@ -216,7 +216,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
   // Decrement the number of components
     --numberOfComponents;
-    if (msgLvl(MSG::VERBOSE)) msg() << "Number of components: " << numberOfComponents << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Number of components: " << numberOfComponents << endmsg;
 
       } // end if number of unmerged components > 1 clause
 
@@ -253,7 +253,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
     bool componentAdded = m_stateAssembler->addComponent(mapComponent->second);
 
     if ( !componentAdded )
-      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
 
     // Free up memory from track parameters in unmerged components map
     delete mapComponent->second.first;
@@ -268,7 +268,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
     bool componentAdded = m_stateAssembler->addComponent(mapComponent->second);
 
     if ( !componentAdded )
-      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
 
     // Free up memory from track parameters in unmerged components map
     delete mapComponent->second.first;
@@ -277,7 +277,7 @@ const Trk::MultiComponentState* Trk::CloseComponentsMultiStateMerger::merge(cons
 
   const Trk::MultiComponentState* mergedState = m_stateAssembler->assembledState();
 
-  if (msgLvl(MSG::VERBOSE)) msg() << "Number of components in merged state: " << mergedState->size() << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Number of components in merged state: " << mergedState->size() << endmsg;
 
   // Memory clean up
   clonedUnmergedState->clear();
@@ -292,7 +292,7 @@ const std::pair<const Trk::ComponentParameters, Trk::CloseComponentsMultiStateMe
 Trk::CloseComponentsMultiStateMerger::pairWithMinimumDistance(Trk::CloseComponentsMultiStateMerger::MultiComponentStateMap& unmergedComponentsMap) const
 {
 
-  // msg(MSG::VERBOSE) << "Calculating pair with minimum distance from state of size: " << unmergedComponentsMap.size() << endreq;
+  // msg(MSG::VERBOSE) << "Calculating pair with minimum distance from state of size: " << unmergedComponentsMap.size() << endmsg;
 
   double minimumDistance = 10e10;
 
@@ -308,7 +308,7 @@ Trk::CloseComponentsMultiStateMerger::pairWithMinimumDistance(Trk::CloseComponen
       double distance = (*m_distance)(unmergedComponentsMap.begin()->second, component->second);
 
       if (distance < minimumDistance){
-        // msg(MSG::VERBOSE) << "New minimum distance set" << endreq;
+        // msg(MSG::VERBOSE) << "New minimum distance set" << endmsg;
         minimumDistance = distance;
         minimumDistanceMarker = component;
         minimumDistanceSet = true;
@@ -317,7 +317,7 @@ Trk::CloseComponentsMultiStateMerger::pairWithMinimumDistance(Trk::CloseComponen
   }
 
   if ( !minimumDistanceSet ){
-    if (msgLvl(MSG::DEBUG)) msg() << "Minimum distance cannot be found" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg() << "Minimum distance cannot be found" << endmsg;
     return 0;
   }
 

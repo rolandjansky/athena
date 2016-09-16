@@ -32,7 +32,7 @@ Trk::MultiStateMaterialEffects::weights ( const Trk::ComponentParameters& compon
 {
   // Check for new arguments to avoid computation if necessary
   if ( this->isReset() ){
-    if (msgLvl(MSG::VERBOSE)) msg() << "Calculating weights" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Calculating weights" << endmsg;
     compute(componentParameters, materialProperties, pathLength, direction, particleHypothesis);
     m_isReset = false;
   }
@@ -50,7 +50,7 @@ Trk::MultiStateMaterialEffects::deltaPs ( const Trk::ComponentParameters& compon
 {
   // Check for new arguments to avoid computation if necessary
   if ( this->isReset() ){
-    if (msgLvl(MSG::VERBOSE)) msg() << "Calculating deltaP" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Calculating deltaP" << endmsg;
     compute(componentParameters, materialProperties, pathLength, direction, particleHypothesis);
     m_isReset = false;
   }
@@ -69,7 +69,7 @@ Trk::MultiStateMaterialEffects::deltaCovariances ( const Trk::ComponentParameter
   
   // Check for new arguments to avoid computation if necessary
   if ( this->isReset() ){
-    if (msgLvl(MSG::VERBOSE)) msg() << "Calculating delta Covariance" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Calculating delta Covariance" << endmsg;
     compute(componentParameters, materialProperties, pathLength, direction, particleHypothesis);
     m_isReset = false;
   }
@@ -81,7 +81,7 @@ Trk::MultiStateMaterialEffects::deltaCovariances ( const Trk::ComponentParameter
 void Trk::MultiStateMaterialEffects::reset() const
 {
   
-  if (msgLvl(MSG::VERBOSE)) msg() << "Resetting the material effects " << name() << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Resetting the material effects " << name() << endmsg;
 
   m_weights.clear();
   m_deltaPs.clear();

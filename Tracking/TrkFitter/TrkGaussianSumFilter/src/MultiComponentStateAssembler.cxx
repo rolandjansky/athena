@@ -43,7 +43,7 @@ StatusCode Trk::MultiComponentStateAssembler::initialize(){
   m_outputlevel = msg().level()-MSG::DEBUG;   // save the threshold for debug printout in private member
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Initialisation of " << name() << " successful" << endreq;
+    msg(MSG::VERBOSE) << "Initialisation of " << name() << " successful" << endmsg;
   
   return StatusCode::SUCCESS;
 }
@@ -53,7 +53,7 @@ StatusCode Trk::MultiComponentStateAssembler::finalize(){
   delete m_multiComponentState;
  
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Finalisation of " << name() << " successful" << endreq;
+    msg(MSG::VERBOSE) << "Finalisation of " << name() << " successful" << endmsg;
   
   return StatusCode::SUCCESS;
   
@@ -63,7 +63,7 @@ bool Trk::MultiComponentStateAssembler::reset()
 {
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Resetting the MultiComponentStateAssembler: " << name() << endreq;
+    msg(MSG::VERBOSE) << "Resetting the MultiComponentStateAssembler: " << name() << endmsg;
 
   m_assemblyDone = false;
 
@@ -102,17 +102,17 @@ void Trk::MultiComponentStateAssembler::status() const
 bool Trk::MultiComponentStateAssembler::addComponent (const ComponentParameters& componentParameters){
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Adding single component to mixture" << endreq;
+    msg(MSG::VERBOSE) << "Adding single component to mixture" << endmsg;
 
   if ( m_assemblyDone ){
-    msg(MSG::WARNING) << "Trying to add state after assembly... returning false" << endreq;
+    msg(MSG::WARNING) << "Trying to add state after assembly... returning false" << endmsg;
     return false;
   }
   
   const Trk::ComponentParameters* clonedComponentParameters = new Trk::ComponentParameters( (componentParameters.first)->clone(), componentParameters.second);
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Creating multiple component state from single component. Weight of state is: " << componentParameters.second << endreq;
+    msg(MSG::VERBOSE) << "Creating multiple component state from single component. Weight of state is: " << componentParameters.second << endmsg;
 
   Trk::MultiComponentState* singleComponentList = new Trk::MultiComponentState(*clonedComponentParameters);
   this->addComponentsList(singleComponentList);
@@ -126,10 +126,10 @@ bool Trk::MultiComponentStateAssembler::addComponent (const ComponentParameters&
 bool Trk::MultiComponentStateAssembler::addMultiState (const MultiComponentState& multiComponentState){
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Adding multiple component state to mixture" << endreq;
+    msg(MSG::VERBOSE) << "Adding multiple component state to mixture" << endmsg;
 
   if ( m_assemblyDone ){
-    msg(MSG::WARNING) << "Trying to add state after assembly... returning false" << endreq;
+    msg(MSG::WARNING) << "Trying to add state after assembly... returning false" << endmsg;
     return false;
   }
   
@@ -144,7 +144,7 @@ bool Trk::MultiComponentStateAssembler::addMultiState (const MultiComponentState
 bool Trk::MultiComponentStateAssembler::addInvalidComponentWeight (const double& invalidComponentWeight){
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Adding the weight of an invalid state to the mixture" << endreq;
+    msg(MSG::VERBOSE) << "Adding the weight of an invalid state to the mixture" << endmsg;
 
   m_invalidWeightSum += invalidComponentWeight;
 
@@ -155,10 +155,10 @@ bool Trk::MultiComponentStateAssembler::addInvalidComponentWeight (const double&
 void Trk::MultiComponentStateAssembler::addComponentsList (const MultiComponentState* multiComponentState){
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Add multiple component state to exisiting mixture" << endreq;
+    msg(MSG::VERBOSE) << "Add multiple component state to exisiting mixture" << endmsg;
 
   if ( m_assemblyDone ){
-    msg(MSG::WARNING) << "Trying to add state after assembly" << endreq;
+    msg(MSG::WARNING) << "Trying to add state after assembly" << endmsg;
     return;
   }
   
@@ -174,19 +174,19 @@ void Trk::MultiComponentStateAssembler::addComponentsList (const MultiComponentS
   m_validWeightSum += sumW;
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Successfully inserted state" << endreq;
+    msg(MSG::VERBOSE) << "Successfully inserted state" << endmsg;
 
 }
 
 bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (){
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Preparing state for assembly" << endreq;
+    msg(MSG::VERBOSE) << "Preparing state for assembly" << endmsg;
 
   // Protect against empty state
   if ( !isStateValid () ){
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "State is not valid... returning false" << endreq;
+      msg(MSG::DEBUG) << "State is not valid... returning false" << endmsg;
     return false;
   }
   
@@ -195,14 +195,14 @@ bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (){
 
   if (m_invalidWeightSum > 0. && validWeightFraction < m_minimumValidFraction){
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Insufficient valid states in the state... returning false" << endreq;
+      msg(MSG::DEBUG) << "Insufficient valid states in the state... returning false" << endmsg;
     return false;
   }
 
   // Check to see assembly has not already been done
   if ( m_assemblyDone ){
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Assembly of state already complete... returning true" << endreq;
+      msg(MSG::VERBOSE) << "Assembly of state already complete... returning true" << endmsg;
     return true;
   }
 
@@ -212,7 +212,7 @@ bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (){
   // Now recheck to make sure the state is now still valid
   if ( !isStateValid () ){
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "After removal of small weights, state is invalid... returning false" << endreq;
+      msg(MSG::DEBUG) << "After removal of small weights, state is invalid... returning false" << endmsg;
     return false;
   }
   
@@ -223,7 +223,7 @@ bool Trk::MultiComponentStateAssembler::prepareStateForAssembly (){
   m_assemblyDone = true;
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "State is prepared for assembly... returning true" << endreq;
+    msg(MSG::VERBOSE) << "State is prepared for assembly... returning true" << endmsg;
 
   return true;
 }
@@ -232,20 +232,20 @@ const Trk::MultiComponentState*
 Trk::MultiComponentStateAssembler::assembledState () {
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Finalising assembly... no specified reweighting" << endreq;
+    msg(MSG::VERBOSE) << "Finalising assembly... no specified reweighting" << endmsg;
 
   if ( !prepareStateForAssembly() ) {
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Unable to prepare state for assembly... returning 0" << endreq;
+      msg(MSG::DEBUG) << "Unable to prepare state for assembly... returning 0" << endmsg;
     return 0;
   }
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Successful preparation for assembly" << endreq;
+    msg(MSG::VERBOSE) << "Successful preparation for assembly" << endmsg;
   
   if ( m_invalidWeightSum > 0. || m_validWeightSum <= 0.) {
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Assembling state with invalid weight components" << endreq;
+      msg(MSG::VERBOSE) << "Assembling state with invalid weight components" << endmsg;
     double totalWeight = m_validWeightSum + m_invalidWeightSum;
     const Trk::MultiComponentState* stateAssembly = doStateAssembly(totalWeight);
     return stateAssembly;
@@ -263,11 +263,11 @@ const Trk::MultiComponentState*
 Trk::MultiComponentStateAssembler::assembledState (const double& newWeight) {
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Finalising assembly with reweighting of components" << endreq;
+    msg(MSG::VERBOSE) << "Finalising assembly with reweighting of components" << endmsg;
 
   if ( !prepareStateForAssembly() ) {
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Unable to prepare state for assembly... returing 0" << endreq;
+      msg(MSG::DEBUG) << "Unable to prepare state for assembly... returing 0" << endmsg;
     return 0;
   }
   
@@ -280,11 +280,11 @@ const Trk::MultiComponentState*
 Trk::MultiComponentStateAssembler::doStateAssembly (const double& newWeight) {
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Do state assembly" << endreq;
+    msg(MSG::VERBOSE) << "Do state assembly" << endmsg;
   
   if ( !isStateValid() ) {
     if (m_outputlevel < 0) 
-      msg(MSG::VERBOSE) << "Cached state is empty... returning 0" << endreq;
+      msg(MSG::VERBOSE) << "Cached state is empty... returning 0" << endmsg;
     return 0;
   }
   
@@ -315,13 +315,13 @@ Trk::MultiComponentStateAssembler::doStateAssembly (const double& newWeight) {
 void Trk::MultiComponentStateAssembler::removeSmallWeights () {
   
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Removing small weights" << endreq;
+    msg(MSG::VERBOSE) << "Removing small weights" << endmsg;
 
   double totalWeight( m_validWeightSum + m_invalidWeightSum );
   
   if ( totalWeight == 0. ) {
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "Total weight of state is zero... exiting" << endreq;
+      msg(MSG::DEBUG) << "Total weight of state is zero... exiting" << endmsg;
     return;
   }
   
@@ -338,7 +338,7 @@ void Trk::MultiComponentStateAssembler::removeSmallWeights () {
         delete component->first;
         m_multiComponentState->erase(component);
         if (m_outputlevel <= 0) 
-          msg(MSG::DEBUG) << "State with weight " << (*component).second << " has been removed from mixture" << endreq;
+          msg(MSG::DEBUG) << "State with weight " << (*component).second << " has been removed from mixture" << endmsg;
         continueToRemoveComponents = true;
         break;
       } // end if

@@ -32,7 +32,7 @@ Trk::PosteriorWeightsCalculator::PosteriorWeightsCalculator(const std::string& t
 StatusCode Trk::PosteriorWeightsCalculator::initialize() 
 {
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq; 
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg; 
 
   return StatusCode::SUCCESS;
 
@@ -41,7 +41,7 @@ StatusCode Trk::PosteriorWeightsCalculator::initialize()
 StatusCode Trk::PosteriorWeightsCalculator::finalize() 
 {
 
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -50,14 +50,14 @@ StatusCode Trk::PosteriorWeightsCalculator::finalize()
 const Trk::MultiComponentState*
 Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedState, const MeasurementBase& measurement ){
   
-  if (msgLvl(MSG::VERBOSE)) msg() << "Calculating Posterior Weights" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Calculating Posterior Weights" << endmsg;
   
   if ( predictedState.empty() ) {
-    msg(MSG::WARNING) << "Predicted state is empty... Exiting!" << endreq;
+    msg(MSG::WARNING) << "Predicted state is empty... Exiting!" << endmsg;
     return 0;
   }
   
-  if (msgLvl(MSG::VERBOSE)) msg() << "State for update is valid!" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "State for update is valid!" << endmsg;
     
   Trk::MultiComponentState* returnMultiComponentState = new Trk::MultiComponentState();
   
@@ -75,18 +75,18 @@ Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedS
     const Trk::TrackParameters* componentTrackParameters = (*component).first;
 
     if ( !componentTrackParameters ) {
-      if (msgLvl(MSG::DEBUG)) msg() << "Component in the state prepared for update is invalid... Ignoring!" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << "Component in the state prepared for update is invalid... Ignoring!" << endmsg;
       continue;
     }
     
     const AmgSymMatrix(5)* predictedCov = componentTrackParameters->covariance();
     
     if (!predictedCov){
-      msg(MSG::WARNING) << "No measurement associated with track parameters... Ignoring!" << endreq;
+      msg(MSG::WARNING) << "No measurement associated with track parameters... Ignoring!" << endmsg;
       continue;
     }
 
-    if (msgLvl(MSG::VERBOSE)) msg() << "Component for update is valid!" << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "Component for update is valid!" << endmsg;
     
     // Extract the LocalParameters from the MeasurementBase
     const Trk::LocalParameters& measurementLocalParameters = measurement.localParameters();
@@ -110,7 +110,7 @@ Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedS
     double determinantR = R.determinant();
 
     if (determinantR==0){
-      msg(MSG::WARNING) << "Determinant is 0, cannot invert matrix... Ignoring component" << endreq;
+      msg(MSG::WARNING) << "Determinant is 0, cannot invert matrix... Ignoring component" << endmsg;
       continue;
     }
     // Compute Chi2
@@ -118,7 +118,7 @@ Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedS
 
     double chi2 = (1./size)*((r.transpose() * R.inverse() * r)(0,0));
  
-    if (msgLvl(MSG::VERBOSE)) msg() << "determinant R / chiSquared: " << determinantR << '\t' << chi2 << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg() << "determinant R / chiSquared: " << determinantR << '\t' << chi2 << endmsg;
 
     componentDeterminantR.push_back(determinantR);
     componentChi2.push_back(chi2);
@@ -129,7 +129,7 @@ Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedS
   } // end loop over components
   
   if ( componentDeterminantR.size() != predictedState.size() || componentChi2.size() != predictedState.size() ){
-    msg(MSG::WARNING) << "Inconsistent number of components in chi2 and detR vectors... Exiting!" << endreq;
+    msg(MSG::WARNING) << "Inconsistent number of components in chi2 and detR vectors... Exiting!" << endmsg;
     return 0;
   }
   
@@ -164,7 +164,7 @@ Trk::PosteriorWeightsCalculator::weights ( const MultiComponentState& predictedS
   }
   
   if ( returnMultiComponentState->size() != predictedState.size() ){
-    msg(MSG::WARNING) << "Inconsistent number of components between initial and final states... Exiting!" << endreq;
+    msg(MSG::WARNING) << "Inconsistent number of components between initial and final states... Exiting!" << endmsg;
     return 0;
   }
   

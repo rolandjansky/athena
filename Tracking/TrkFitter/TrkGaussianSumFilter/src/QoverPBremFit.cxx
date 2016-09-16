@@ -190,14 +190,14 @@ void Trk::QoverPBremFit::FillVariables(const DataVector <const Trk::TrackStateOn
 void Trk::QoverPBremFit::FindPotentials()
 {
   double width;
-  double m_1overPgradient;
+  double oneoverPgradient;
 
   //Search for potential brem locations
   for (int datapoint=0; datapoint < m_surfaceCounter-1; datapoint++) {
     //Calculates gradient between adajacent points
-    m_1overPgradient=(1 - (*m_1overPvalue)[datapoint]/(*m_1overPvalue)[datapoint+1])/((*m_FitValue)[datapoint+1]-(*m_FitValue)[datapoint]);
+    oneoverPgradient=(1 - (*m_1overPvalue)[datapoint]/(*m_1overPvalue)[datapoint+1])/((*m_FitValue)[datapoint+1]-(*m_FitValue)[datapoint]);
 
-    if (m_1overPgradient > POTENTIAL_BREM_THRESHOLD) {
+    if (oneoverPgradient > POTENTIAL_BREM_THRESHOLD) {
       
       m_potentialvalue->push_back(((*m_FitValue)[datapoint+1]+(*m_FitValue)[datapoint])/2);
       width=((*m_FitValue)[datapoint+1]-(*m_FitValue)[datapoint])/2;

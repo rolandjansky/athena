@@ -44,7 +44,7 @@ StatusCode Trk::MultiComponentStateModeCalculator::initialize()
   m_NoErrorMatrix = 0;
   m_MixtureSizeZero = 0;
   
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -53,14 +53,14 @@ StatusCode Trk::MultiComponentStateModeCalculator::initialize()
 StatusCode Trk::MultiComponentStateModeCalculator::finalize()
 {
 
-  msg(MSG::INFO) << "-----------------------------------------------"<< endreq;
-  msg(MSG::INFO) << "         GSF ModeCalulator Statistics          "<< endreq;
-  msg(MSG::INFO) << "-----------------------------------------------"<< endreq;
-  msg(MSG::INFO) << "Number of Calls    " << m_NumberOfCalls          << endreq;
-  msg(MSG::INFO) << "No Error Matrix    " << m_NoErrorMatrix          << endreq;
-  msg(MSG::INFO) << "MixtureSize = Zero " << m_MixtureSizeZero        << endreq;
-  msg(MSG::INFO) << "Failed to converge " << m_ConverganceFilures     << endreq;
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "-----------------------------------------------"<< endmsg;
+  msg(MSG::INFO) << "         GSF ModeCalulator Statistics          "<< endmsg;
+  msg(MSG::INFO) << "-----------------------------------------------"<< endmsg;
+  msg(MSG::INFO) << "Number of Calls    " << m_NumberOfCalls          << endmsg;
+  msg(MSG::INFO) << "No Error Matrix    " << m_NoErrorMatrix          << endmsg;
+  msg(MSG::INFO) << "MixtureSize = Zero " << m_MixtureSizeZero        << endmsg;
+  msg(MSG::INFO) << "Failed to converge " << m_ConverganceFilures     << endmsg;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
  
   return StatusCode::SUCCESS;
 

@@ -48,23 +48,23 @@ StatusCode Trk::GsfMaterialMixtureConvolution::initialize()
   m_outputlevel = msg().level()-MSG::DEBUG;   // save the threshold for debug printout in private member
   
   if ( m_updator.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve the material effects updator instance " << m_updator.typeAndName() << "... Exiting" << endreq;
+    msg(MSG::FATAL) << "Could not retrieve the material effects updator instance " << m_updator.typeAndName() << "... Exiting" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Retrieve the multi-state combiner
   if ( m_stateCombiner.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve the multi-component state combiner... Exiting" << endreq;
+    msg(MSG::FATAL) << "Could not retrieve the multi-component state combiner... Exiting" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Retrieve the state assembler ( a new instance )
   if ( m_stateAssembler.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Could not retrieve the multi-component state assembler... Exiting" << endreq;
+    msg(MSG::FATAL) << "Could not retrieve the multi-component state assembler... Exiting" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -73,7 +73,7 @@ StatusCode Trk::GsfMaterialMixtureConvolution::initialize()
 StatusCode Trk::GsfMaterialMixtureConvolution::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -89,7 +89,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::update( cons
                       Trk::ParticleHypothesis particleHypothesis ) const
 {
 
-  if (m_outputlevel < 0) msg(MSG::VERBOSE) << "Applying full material effects" << endreq;
+  if (m_outputlevel < 0) msg(MSG::VERBOSE) << "Applying full material effects" << endmsg;
 
 
   const Trk::MaterialProperties* materialProperties = layer.fullUpdateMaterialProperties( *(multiComponentState.begin()->first) );
@@ -106,13 +106,13 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::update( cons
   bool isAssemblerReset = m_stateAssembler->reset();
 
   if ( !isAssemblerReset ){
-    msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endreq;
+    msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endmsg;
     return multiComponentState.clone();
   }
   
   // Check the multi-component state is populated
   if ( multiComponentState.empty() ){
-    if (m_outputlevel <= 0) msg(MSG::DEBUG) << "Multi component state passed to extrapolateInsideVolume is not populated... returning 0" << endreq;
+    if (m_outputlevel <= 0) msg(MSG::DEBUG) << "Multi component state passed to extrapolateInsideVolume is not populated... returning 0" << endmsg;
     return 0;
   }
   
@@ -124,7 +124,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::update( cons
     const Trk::MultiComponentState* updatedState = m_updator->updateState( *component, layer, direction, particleHypothesis );
 
     if ( !updatedState ){
-      //msg(MSG::WARNING) << "Material effects update failed... returning 0" << endreq;
+      //msg(MSG::WARNING) << "Material effects update failed... returning 0" << endmsg;
       continue;
     }
 
@@ -134,7 +134,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::update( cons
     delete updatedState;
 
     if ( !componentAdded )
-      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
     
   }
   
@@ -179,13 +179,13 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::preUpdate( c
   bool isAssemblerReset = m_stateAssembler->reset();
 
   if ( !isAssemblerReset ){
-    msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endreq;
+    msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endmsg;
     return multiComponentState.clone();
   }
   
   // Check the multi-component state is populated
   if ( multiComponentState.empty() ){
-    if (m_outputlevel <= 0) msg(MSG::DEBUG) << "Multi component state passed to extrapolateInsideVolume is not populated... returning 0" << endreq;
+    if (m_outputlevel <= 0) msg(MSG::DEBUG) << "Multi component state passed to extrapolateInsideVolume is not populated... returning 0" << endmsg;
     return 0;
   }
   
@@ -197,7 +197,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::preUpdate( c
     const Trk::MultiComponentState* updatedState = m_updator->preUpdateState( *component, layer, direction, particleHypothesis );
      
     if ( !updatedState ){
-      //msg(MSG::WARNING) << "Material effects update failed... returning 0" << endreq;
+      //msg(MSG::WARNING) << "Material effects update failed... returning 0" << endmsg;
       continue;
     }
 
@@ -207,7 +207,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::preUpdate( c
     delete updatedState;
 
     if ( !componentAdded )
-      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
     
   }
   
@@ -237,7 +237,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::postUpdate( 
 {
 
   if (m_outputlevel < 0)
-    msg(MSG::VERBOSE) << "Applying post-propagation material effects" << endreq;
+    msg(MSG::VERBOSE) << "Applying post-propagation material effects" << endmsg;
 
 
   const Trk::MaterialProperties* materialProperties = layer.fullUpdateMaterialProperties( *(multiComponentState.begin()->first) );
@@ -252,13 +252,13 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::postUpdate( 
   bool isAssemblerReset = m_stateAssembler->reset();
 
   if ( !isAssemblerReset ){
-    msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endreq;
+    msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endmsg;
     return multiComponentState.clone();
   }
   
   // Check the multi-component state is populated
   if ( multiComponentState.empty() ){
-    if (m_outputlevel <= 0) msg(MSG::DEBUG) << "Multi component state passed to extrapolateInsideVolume is not populated... returning 0" << endreq;
+    if (m_outputlevel <= 0) msg(MSG::DEBUG) << "Multi component state passed to extrapolateInsideVolume is not populated... returning 0" << endmsg;
     return 0;
   }
   
@@ -270,7 +270,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::postUpdate( 
     const Trk::MultiComponentState* updatedState = m_updator->postUpdateState( *component, layer, direction, particleHypothesis );
     
     if ( !updatedState ){
-      //msg(MSG::WARNING) << "Material effects update failed... returning 0" << endreq;
+      //msg(MSG::WARNING) << "Material effects update failed... returning 0" << endmsg;
       continue;
     }
 
@@ -280,7 +280,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::postUpdate( 
     delete updatedState;
 
     if ( !componentAdded )
-      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
     
   }
   
@@ -309,7 +309,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::simpliedMate
 {
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Simplifed material effects update" << endreq;
+    msg(MSG::VERBOSE) << "Simplifed material effects update" << endmsg;
 
   /* -------------------------------------
      Preliminary checks
@@ -319,14 +319,14 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::simpliedMate
   bool isAssemblerReset = m_stateAssembler->reset();
 
   if ( !isAssemblerReset ){
-    msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endreq;
+    msg(MSG::ERROR) << "Could not reset the state assembler... returning clone of original state" << endmsg;
     return multiComponentState.clone();
   }
   
   // Check the multi-component state is populated
   if ( multiComponentState.empty() ){
     if (m_outputlevel <= 0)
-      msg(MSG::DEBUG) << "Multi component state passed to extrapolateInsideVolume is not populated... returning 0" << endreq;
+      msg(MSG::DEBUG) << "Multi component state passed to extrapolateInsideVolume is not populated... returning 0" << endmsg;
     return 0;
   }
 
@@ -349,11 +349,11 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::simpliedMate
   // No hardwired material effects in the TRT - too hard
   else if ( globalPosition.x() >= 1200. )
     if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "Extrapolating in the TRT... turining material effects off" << endreq;
+      msg(MSG::VERBOSE) << "Extrapolating in the TRT... turining material effects off" << endmsg;
 
   if ( !materialProperties ){
     if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "No MaterialProperties associated with surface" << endreq;
+      msg(MSG::VERBOSE) << "No MaterialProperties associated with surface" << endmsg;
     return multiComponentState.clone();
   }
 
@@ -363,7 +363,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::simpliedMate
     
   if ( perigeeSurface ){
     if (m_outputlevel < 0)
-      msg(MSG::VERBOSE) << "Material effects excluded at perigee surface" << endreq;
+      msg(MSG::VERBOSE) << "Material effects excluded at perigee surface" << endmsg;
     delete materialProperties;
     return multiComponentState.clone();
   }
@@ -384,7 +384,7 @@ const Trk::MultiComponentState* Trk::GsfMaterialMixtureConvolution::simpliedMate
       componentAdded = m_stateAssembler->addMultiState( *updatedState );
     
     if ( !componentAdded )
-      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endreq;
+      msg(MSG::WARNING) << "Component could not be added to the state in the assembler" << endmsg;
     
     // Clean up memory allocated in the material effects updator
     delete updatedState;
