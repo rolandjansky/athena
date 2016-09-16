@@ -109,7 +109,8 @@ public:
   virtual const InDet::PixelClusterOnTrack* correct
     (const Trk::PrepRawData&, const Trk::TrackParameters&, 
      const InDet::PixelClusterStrategy) const;
-     
+
+  virtual void twoDimToThreeDim(Trk::LocalParameters& lpar, Amg::MatrixX& cov, const InDet::PixelCluster& pix) const;
 
   ///////////////////////////////////////////////////////////////////
   // Private methods:
@@ -185,6 +186,10 @@ public:
 	
 	/** Enable different treatment of  cluster errors based on NN information (do only if TIDE ambi is run) **/
   bool                      m_usingTIDE_Ambi;
+  
+  bool                      m_useCentroidPosition;
+  bool                      m_correctLorentzShift;
+  bool                      m_enableTheta;
 
 };
 

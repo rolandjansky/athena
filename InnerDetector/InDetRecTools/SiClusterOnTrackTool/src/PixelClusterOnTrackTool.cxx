@@ -25,6 +25,7 @@
 #include "EventPrimitives/EventPrimitives.h"
 #include "PixelGeoModel/IBLParameterSvc.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "EventPrimitives/EventPrimitivesHelpers.h"
 
 using CLHEP::mm;
 using CLHEP::micrometer;
@@ -79,7 +80,10 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_splitClusterMapName("SplitClusterAmbiguityMap"),
   m_doNotRecalibrateNN(false),
   m_noNNandBroadErrors(false),
-  m_usingTIDE_Ambi(false)
+  m_usingTIDE_Ambi(false),
+  m_useCentroidPosition(false),
+  m_correctLorentzShift(true),
+  m_enableTheta(false)
 {
   declareInterface<IRIO_OnTrackCreator>(this);
   
@@ -91,14 +95,17 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("Release13like",            m_rel13like, "Activate release-13 like settigs");
   declareProperty("PixelOfflineCalibSvc",     m_calibSvc, "Offline calibration svc");
   declareProperty("applyNNcorrection",        m_applyNNcorrection);
-  declareProperty("NNIBLcorrection",        m_NNIBLcorrection);
-  declareProperty("EventStore",              m_storeGate );
-  declareProperty("IncidentService",         m_incidentSvc );
-  declareProperty("NnClusterizationFactory", m_NnClusterizationFactory);
+  declareProperty("NNIBLcorrection",          m_NNIBLcorrection);
+  declareProperty("EventStore",               m_storeGate );
+  declareProperty("IncidentService",          m_incidentSvc );
+  declareProperty("NnClusterizationFactory",  m_NnClusterizationFactory);
   declareProperty("SplitClusterAmbiguityMap", m_splitClusterMapName);
   declareProperty("doNotRecalibrateNN",       m_doNotRecalibrateNN);
   declareProperty("m_noNNandBroadErrors",     m_noNNandBroadErrors);
-  declareProperty("RunningTIDE_Ambi",     m_usingTIDE_Ambi);
+  declareProperty("RunningTIDE_Ambi",         m_usingTIDE_Ambi);
+  declareProperty("UseCentroidPosition",      m_useCentroidPosition);
+  declareProperty("CorrectLorentzShift",      m_correctLorentzShift);
+  declareProperty("EnableTheta",              m_enableTheta);
 
 }
 
@@ -259,6 +266,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correct
  */
 const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
 (const Trk::PrepRawData& rio,const Trk::TrackParameters& trackPar) const{
+  
   //  const InDet::SiCluster* SC = dynamic_cast<const InDet::SiCluster*> (&rio);
   const InDet::PixelCluster* pix = 0;
   if(!(pix = dynamic_cast<const InDet::PixelCluster*>(&rio))) return 0;
@@ -297,7 +305,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
   
   double errphi = -1; 
   double erreta = -1; 
-
+  
   if(pix->rdoList().size() <=0) {
     ATH_MSG_WARNING ("Pixel RDO-list size is 0, check integrity of pixel clusters! stop ROT creation.");
     return NULL;
@@ -320,7 +328,7 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     
     float tanl = element->getTanLorentzAnglePhi();
     int readoutside = element->design().readoutSide();
-   
+
     // map the angles of inward-going tracks onto [-PI/2, PI/2]
     if(bowphi > M_PI/2) bowphi -= M_PI;
     if(bowphi < -M_PI/2) bowphi += M_PI;
@@ -351,7 +359,12 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     InDetDD::SiLocalPosition meanpos(0,0,0);
     int rowmin=9999; int rowmax=-9999;
     int colmin=9999; int colmax=-9999;
-    for(; oneRDO != rdos.end(); oneRDO++){
+    int i = 0;
+    float totalChargeNorm = 0.;
+    const std::vector<int>& chListRecreated = pix->totList();
+    for(; oneRDO != rdos.end(); oneRDO++, i++){
+      float charge = m_useCentroidPosition ? chListRecreated[i] : 0.;
+      totalChargeNorm += charge;
       Identifier rId = *oneRDO;
       int row = m_pixelid->phi_index(rId);
       int col = m_pixelid->eta_index(rId);
@@ -359,9 +372,9 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
       if(rowmax < row) rowmax = row;
       if(colmin > col) colmin = col;
       if(colmax < col) colmax = col;
-      meanpos += design->positionFromColumnRow(col,row);
+      meanpos += m_useCentroidPosition ? design->positionFromColumnRow(col,row)*charge : design->positionFromColumnRow(col,row);
     }
-    meanpos = meanpos/rdos.size();
+    meanpos = m_useCentroidPosition ? meanpos/totalChargeNorm : meanpos/rdos.size();
     InDetDD::SiLocalPosition pos1 = 
          design->positionFromColumnRow(colmin,rowmin);
     InDetDD::SiLocalPosition pos2 = 
@@ -372,14 +385,13 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
          design->positionFromColumnRow(colmax,rowmax);
 
     InDetDD::SiLocalPosition centroid = 0.25*(pos1+pos2+pos3+pos4); 
-    double shift = element->getLorentzCorrection();
+    double shift = m_correctLorentzShift ? element->getLorentzCorrection() : 0.;
     int nrows = rowmax-rowmin+1;
     int ncol = colmax-colmin+1;
     double ang = 999.;
     double eta = 999.;
 
-    //    ATH_MSG_VERBOSE ( << "Position strategy = " 
-    //    << m_positionStrategy << "omegaphi = " << omegaphi )
+    // ATH_MSG_VERBOSE ( << "Position strategy = " << m_positionStrategy << "omegaphi = " << omegaphi );
 
     // TOT interpolation for collision data    
     // Force IBL to use digital clustering and broad errors.
@@ -487,55 +499,187 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
        erreta = (width.z()/ncol)*TOPHAT_SIGMA;
     }
     else if( m_errorStrategy == 2 ){
-     
-       if(element->isBarrel()){
-
-           if ( m_IBLAbsent || !blayer ) errphi = m_calibSvc->getBarrelNewErrorPhi(ang,nrows);
-     else {    //special calibration for IBL
-       if ( angle<phix[0] || angle>phix[nbinphi] ) 
+      if(element->isBarrel()){
+	
+	if ( m_IBLAbsent || !blayer ) errphi = m_calibSvc->getBarrelNewErrorPhi(ang,nrows);
+	else {    //special calibration for IBL
+	  if ( angle<phix[0] || angle>phix[nbinphi] ) 
          errphi = width.phiR()*TOPHAT_SIGMA;
-       else{
-         int bin=-1;//cannot be used as array index, which will happen if angle<phix[bin+1]
-         while ( angle>phix[bin+1] ) bin++;
-         if ((bin >=0)  and (bin<nbinphi)){
-            if ( nrows==1 ) errphi = calerrphi[bin][0];
-            else if ( nrows==2 ) errphi = calerrphi[bin][1];
-            else errphi=calerrphi[bin][2];
-         } else {
-           ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
-         }
-       }
-     }
+	  else{
+	    int bin=-1;//cannot be used as array index, which will happen if angle<phix[bin+1]
+	    while ( angle>phix[bin+1] ) bin++;
+	    if ((bin >=0)  and (bin<nbinphi)){
+	      if ( nrows==1 ) errphi = calerrphi[bin][0];
+	      else if ( nrows==2 ) errphi = calerrphi[bin][1];
+	      else errphi=calerrphi[bin][2];
+	    } else {
+	      ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
+	    }
+	  }
+	}
+	
+	if(m_rel13like){
+	  erreta = m_calibSvc->getBarrelErrorEta(eta,ncol,nrows);
+	}
+	else if ( m_IBLAbsent || !blayer ) {
+	  erreta =  m_calibSvc->getBarrelNewErrorEta(fabs(etatrack),nrows,ncol);
+	} else {    //special calibration for IBL
+	  double etaloc = fabs(etatrack);
+	  if ( etaloc<etax[0] || etaloc>etax[nbineta] ) 
+	    erreta = width.z()*TOPHAT_SIGMA;
+	  else{
+	    int bin = 0;
+	    while ( etaloc>etax[bin+1] ) ++bin;
+	    if (bin>=nbineta){
+	      ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
+	    } else {
+	      if ( ncol==bin ) erreta = calerreta[bin][0];
+	      else if ( ncol==bin+1 ) erreta = calerreta[bin][1];
+	      else if ( ncol==bin+2 ) erreta = calerreta[bin][2];
+	      else erreta = width.z()*TOPHAT_SIGMA;
+	    }
+	  }
+	}
+      }else{
+	errphi = m_calibSvc->getEndCapErrorPhi(ncol,nrows);
+	erreta = m_calibSvc->getEndCapErrorEta(ncol,nrows);
+      }       
+      if (errphi>erreta) erreta = width.z()*TOPHAT_SIGMA;
 
-     if(m_rel13like){
-             erreta = m_calibSvc->getBarrelErrorEta(eta,ncol,nrows);
-     }
-     else if ( m_IBLAbsent || !blayer ) {
-       erreta =  m_calibSvc->getBarrelNewErrorEta(fabs(etatrack),nrows,ncol);
-     } else {    //special calibration for IBL
-       double etaloc = fabs(etatrack);
-       if ( etaloc<etax[0] || etaloc>etax[nbineta] ) 
-         erreta = width.z()*TOPHAT_SIGMA;
-       else{
-         int bin = 0;
-         while ( etaloc>etax[bin+1] ) ++bin;
-         if (bin>=nbineta){
-           ATH_MSG_ERROR("bin out of range in line "<<__LINE__<<" of PixelClusterOnTrackTool.cxx.");
-         } else {
-           if ( ncol==bin ) erreta = calerreta[bin][0];
-           else if ( ncol==bin+1 ) erreta = calerreta[bin][1];
-           else if ( ncol==bin+2 ) erreta = calerreta[bin][2];
-           else erreta = width.z()*TOPHAT_SIGMA;
-         }
-       }
-     }
-    }else{
-      errphi = m_calibSvc->getEndCapErrorPhi(ncol,nrows);
-      erreta = m_calibSvc->getEndCapErrorEta(ncol,nrows);
-    }       
-    if (errphi>erreta) erreta = width.z()*TOPHAT_SIGMA;
-  }
- 
+    } else if (m_errorStrategy == 55) { // ErrorStrategy for the centroid method
+
+      double eta = fabs(PixTrkEta);
+      ATH_MSG_DEBUG ( "Track eta = " << eta );
+      std::vector < double > etas =             {0.,   0.8,   1.6,   2.4,   3.2,   4.0};
+      
+      // get the needed bin in eta
+      unsigned bin = 0;
+      if (eta>etas.back()) bin = 4;
+      else {
+	for (;bin<etas.size();bin++) 
+	  if (eta>etas.at(bin) and eta<etas.at(bin+1))
+	    break;
+      }
+            
+      std::vector < double > onehitx_errx_barrel  = {12.64, 13.01, 14.06, 19.38, 19.38};
+      std::vector < double > onehity_errx_barrel  = {12.58, 12.58, 12.58, 12.58, 12.58};
+
+      std::vector < double > onehitx_errx_endcap  = {14.47, 14.47, 14.47, 15.51, 17.13};
+      std::vector < double > onehity_errx_endcap  = {14.47, 14.47, 14.47, 15.51, 17.13};
+
+      std::vector < double > onehitx_erry_barrel  = { 9.35, 11.17, 19.87, 43.40, 43.40};
+      std::vector < double > onehity_erry_barrel  = {12.58, 12.58, 12.58, 12.58, 12.58};
+      
+      std::vector < double > onehitx_erry_endcap  = { 8.89,  8.89,  8.89, 10.77, 14.44};
+      std::vector < double > onehity_erry_endcap  = { 8.89,  8.89,  8.89, 10.77, 14.44};
+
+      std::vector < double > twohitx_errx_barrel  = {15.25, 14.13, 16.46, 20.37, 20.37};
+      std::vector < double > twohity_errx_barrel  = {13.69, 13.15, 14.97, 19.80, 19.80};
+
+      std::vector < double > twohitx_errx_endcap  = {26.47, 26.47, 26.47, 26.47, 26.47};
+      std::vector < double > twohity_errx_endcap  = {15.57, 15.57, 15.57, 17.20, 20.82};
+
+      std::vector < double > twohitx_erry_barrel  = {12.64, 18.01, 31.26, 33.23, 33.23};
+      std::vector < double > twohity_erry_barrel  = { 9.33, 13.43, 24.79, 24.80, 24.80};
+      
+      std::vector < double > twohitx_erry_endcap  = {24.56, 24.56, 24.56, 24.56, 24.56};
+      std::vector < double > twohity_erry_endcap  = { 9.56,  9.56,  9.56, 13.11, 15.38};
+      
+      if (element->isBarrel()) {
+	if (ncol==1 and nrows==1) { 
+	  errphi = 0.55*sqrt((0.001*onehitx_errx_barrel.at(bin))*(0.001*onehitx_errx_barrel.at(bin))+
+			(0.001*onehity_errx_barrel.at(bin))*(0.001*onehity_errx_barrel.at(bin)));
+	  erreta = 0.4*sqrt((0.001*onehitx_erry_barrel.at(bin))*(0.001*onehitx_erry_barrel.at(bin))+
+			(0.001*onehity_erry_barrel.at(bin))*(0.001*onehity_erry_barrel.at(bin)));	    
+	} else if (ncol==1) {
+	  errphi = 0.55*sqrt((0.001*twohitx_errx_barrel.at(bin))*(0.001*twohitx_errx_barrel.at(bin))+
+			(0.001*onehity_errx_barrel.at(bin))*(0.001*onehity_errx_barrel.at(bin)));
+	  erreta = 0.4*sqrt((0.001*twohitx_erry_barrel.at(bin))*(0.001*twohitx_erry_barrel.at(bin))+
+			(0.001*onehity_erry_barrel.at(bin))*(0.001*onehity_erry_barrel.at(bin)));	    	  
+	} else if (nrows==1) {
+	  errphi = 0.55*sqrt((0.001*onehitx_errx_barrel.at(bin))*(0.001*onehitx_errx_barrel.at(bin))+
+			(0.001*twohity_errx_barrel.at(bin))*(0.001*twohity_errx_barrel.at(bin)));
+	  erreta = 0.25*sqrt((0.001*onehitx_erry_barrel.at(bin))*(0.001*onehitx_erry_barrel.at(bin))+
+			(0.001*twohity_erry_barrel.at(bin))*(0.001*twohity_erry_barrel.at(bin)));	    
+	} else {
+	  errphi = 0.55*sqrt((0.001*twohitx_errx_barrel.at(bin))*(0.001*twohitx_errx_barrel.at(bin))+
+			(0.001*twohity_errx_barrel.at(bin))*(0.001*twohity_errx_barrel.at(bin)));
+	  erreta = 0.25*sqrt((0.001*twohitx_erry_barrel.at(bin))*(0.001*twohitx_erry_barrel.at(bin))+
+			(0.001*twohity_erry_barrel.at(bin))*(0.001*twohity_erry_barrel.at(bin)));	    
+	}
+      } else {
+	if (ncol==1 and nrows==1) { 
+	  errphi = 0.62*sqrt((0.001*onehitx_errx_endcap.at(bin))*(0.001*onehitx_errx_endcap.at(bin))+
+			(0.001*onehity_errx_endcap.at(bin))*(0.001*onehity_errx_endcap.at(bin)));
+	  erreta = 0.58*sqrt((0.001*onehitx_erry_endcap.at(bin))*(0.001*onehitx_erry_endcap.at(bin))+
+			(0.001*onehity_erry_endcap.at(bin))*(0.001*onehity_erry_endcap.at(bin)));	    
+	} else if (ncol==1) {
+	  errphi = 0.62*sqrt((0.001*twohitx_errx_endcap.at(bin))*(0.001*twohitx_errx_endcap.at(bin))+
+			(0.001*onehity_errx_endcap.at(bin))*(0.001*onehity_errx_endcap.at(bin)));
+	  erreta = 0.58*sqrt((0.001*twohitx_erry_endcap.at(bin))*(0.001*twohitx_erry_endcap.at(bin))+
+			(0.001*onehity_erry_endcap.at(bin))*(0.001*onehity_erry_endcap.at(bin)));	    	  
+	} else if (nrows==1) {
+	  errphi = 0.62*sqrt((0.001*onehitx_errx_endcap.at(bin))*(0.001*onehitx_errx_endcap.at(bin))+
+			(0.001*twohity_errx_endcap.at(bin))*(0.001*twohity_errx_endcap.at(bin)));
+	  erreta = 0.58*sqrt((0.001*onehitx_erry_endcap.at(bin))*(0.001*onehitx_erry_endcap.at(bin))+
+			(0.001*twohity_erry_endcap.at(bin))*(0.001*twohity_erry_endcap.at(bin)));	    
+	} else {
+	  errphi = 0.62*sqrt((0.001*twohitx_errx_endcap.at(bin))*(0.001*twohitx_errx_endcap.at(bin))+
+			(0.001*twohity_errx_endcap.at(bin))*(0.001*twohity_errx_endcap.at(bin)));
+	  erreta = 0.58*sqrt((0.001*twohitx_erry_endcap.at(bin))*(0.001*twohitx_erry_endcap.at(bin))+
+			(0.001*twohity_erry_endcap.at(bin))*(0.001*twohity_erry_endcap.at(bin)));	    
+	}
+      }
+    }  else if (m_errorStrategy == 56) { // ErrorStrategy for the digital clustering for extended
+      
+      float resixerrPhiEta[3][20] = { { 12.8155, 12.4459, 11.8122, 11.3227, 11.6338,  11.969, 11.6714, 11.4465, 11.9577, 13.3711, 12.1114,  13.653, 14.0032, 17.1381, 17.7182,  23.757,  27.102, 35.4813, 41.7938 }, 
+				      { 8.50122, 8.88776, 9.34805, 8.33644, 8.20739, 7.79424,  8.4458, 8.22095, 8.19467,  8.5154,  8.3079, 9.94034, 9.33012, 10.4806, 13.5793, 19.0882, 23.3954,  30.473, 40.8789 }, 
+				      { 38.3358, 37.6715, 36.8202, 31.8976, 25.1102, 22.4736, 23.4847, 18.5858,  18.073, 12.9081, 13.5599, 17.9827, 14.1882, 14.0561, 16.4488, 20.7201, 26.3962, 35.4345, 41.0186 }  };
+      float resiyerrPhiEta[3][20] = { { 12.1206, 12.9119, 22.2239, 24.2145, 26.1517, 28.3423,  29.572, 33.0003, 35.2121, 36.7793, 36.7461, 38.6023, 41.9922,  44.336, 47.8194, 55.2781, 60.6739,  67.178, 59.8876 }, 
+				      { 10.9868, 12.7898, 19.9045, 23.8799, 25.5273, 29.5437, 31.3188, 33.1777, 36.6881, 39.9433, 38.1606, 44.1598, 47.7479, 49.9697, 56.8268, 64.4802,  73.852, 78.5667, 77.4028 }, 
+				      { 9.6642,  18.4506, 30.5653, 49.0731, 54.1141, 47.7152, 53.8129, 37.0657, 44.6385, 52.8298,  44.955, 31.8936, 55.2857, 52.1608, 57.3309, 71.8902, 73.1629, 76.9447, 78.2209 }  };
+      
+      const InDet::SiWidth width = pix->width();
+      int iphi = int(width.colRow().x())-1;
+      int ieta = int(width.colRow().y())-1;
+      
+      if(iphi > 2) iphi = 3;
+      if(ieta > 50) ieta = 19;
+      else if(ieta > 30) ieta = 18;
+      else if(ieta > 25) ieta = 17;
+      else if(ieta > 20) ieta = 16;
+      else if(ieta > 15) ieta = 15;
+      
+      errphi = (0.001*resixerrPhiEta[iphi][ieta]);
+      erreta = (0.001*resiyerrPhiEta[iphi][ieta]);
+
+    } else if (m_errorStrategy == 57) { // ErrorStrategy for the digital clustering for inclined
+      
+      float resixerrPhiEta[3][20] = { {14.7267, 12.978, 11.8348, 12.9027, 13.0772, 13.4423, 13.8713, 13.0597, 14.4129, 13.6007, 14.3261, 14.8391, 15.3077, 14.589, 14.7879, 12.0581, 12.0581, 12.0581, },
+					{11.5659, 11.7667, 12.195, 12.7977, 12.4252, 11.5971, 10.4044, 11.5002, 11.9504, 12.2448, 11.6027, 12.4971, 13.5084, 12.7884, 11.8548, 10.0407, 10.0407, 10.0407, },
+					{25.9162, 29.4513, 27.5037, 28.5633, 27.4287, 30.7974, 30.9356, 35.0998, 32.3591, 33.8183, 15.2461, 39.1667, 35.2378, 18.0494, 25.0996, 56.6821, 56.6821, 56.6821, },};
+					
+	float resiyerrPhiEta[3][20] = { {11.3189, 7.03764, 4.1913, 6.84301, 9.40462, 10.252, 14.9464, 15.281, 16.3515, 14.8884, 16.8228, 18.1884, 18.7202, 15.5909, 20.1345, 18.3459, 18.3459, 18.3459, },
+					{11.3641, 6.00973, 6.39404, 15.9256, 17.6599, 19.7328, 18.5501, 20.0178, 20.2986, 21.2614, 22.8865, 19.9454, 26.7562, 21.626, 34.1667, 29.2284, 29.2284, 29.2284, },
+					{11.8251, 14.8126, 20.0304, 33.5938, 41.3037, 53.4389, 70.4089, 68.3941, 57.7403, 66.769, 51.7588, 74.5818, 52.4853, 41.3343, 79.2477, 51.9132, 51.9132, 51.9132, },};
+
+
+      const InDet::SiWidth width = pix->width();
+      int iphi = int(width.colRow().x())-1;
+      int ieta = int(width.colRow().y())-1;
+      
+      if(iphi > 2) iphi = 3;
+      if(ieta > 50) ieta = 19;
+      else if(ieta > 30) ieta = 18;
+      else if(ieta > 25) ieta = 17;
+      else if(ieta > 20) ieta = 16;
+      else if(ieta > 15) ieta = 15;
+      
+      errphi = (0.001*resixerrPhiEta[iphi][ieta]);
+      erreta = (0.001*resiyerrPhiEta[iphi][ieta]);
+      
+    }
+    
     Amg::Vector2D locpos = Amg::Vector2D(localphi,localeta);  
     if(element->isBarrel() && !m_disableDistortions ) {
       correctBow(element->identify(), locpos, bowphi, boweta);
@@ -569,6 +713,14 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
     delete newCov;
   }
   bool isbroad = (m_errorStrategy==0) ? true : false;
+
+  ATH_MSG_DEBUG ("m_enableTheta, width, isBarrel, layer = " << m_enableTheta << "   -   " << pix->width().colRow()[1] << "   -   " << element->isBarrel() << "   -   " << m_pixelid->layer_disk(element->identify()) );
+  
+  // this works if you have a barrel cluster, m_enableTheta is true and the size of the cluster is > 10 pixels in the z direction
+  if ( m_enableTheta and pix->width().colRow()[1]>10 and element->isBarrel()) twoDimToThreeDim(locpar, cov, *pix);
+  
+  ATH_MSG_DEBUG ("Creating PixelClusterOnTrack with locpar = " << locpar << " and cov = " << cov);
+
   return new InDet::PixelClusterOnTrack(pix,locpar,cov,iH,glob,pix->gangedPixel(),isbroad);
 } 
 
@@ -999,4 +1151,221 @@ bool InDet::PixelClusterOnTrackTool::getErrorsTIDE_Ambi( const InDet::PixelClust
  
   return true;
 
+}
+
+void InDet::PixelClusterOnTrackTool::twoDimToThreeDim(Trk::LocalParameters& lpar, Amg::MatrixX& cov, const InDet::PixelCluster& pix) const 
+{  
+  const InDetDD::SiDetectorElement* element = pix.detectorElement(); 
+  const InDetDD::PixelModuleDesign* design = 
+    dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
+
+  std::vector<Identifier> rdos = pix.rdoList();
+  std::vector<Identifier>::const_iterator oneRDO = rdos.begin();
+  //int rowmin=9999; int rowmax=-9999;
+  int colmin=9999; int colmax=-9999;
+  int colmin_rowmin=9999; int colmax_rowmin=-9999;
+  int colmin_rowmax=9999; int colmax_rowmax=-9999;
+  
+  //  make a copy
+  Trk::LocalParameters oldlpar = lpar;
+  Amg::MatrixX oldcov  = cov;
+
+  // loop the first time:
+  // get the min col and the max col
+  for(std::vector<Identifier>::const_iterator oneRDO = rdos.begin(); oneRDO != rdos.end(); oneRDO++){
+    Identifier rId = *oneRDO;
+    int row = m_pixelid->phi_index(rId);
+    int col = m_pixelid->eta_index(rId);
+    ATH_MSG_DEBUG ( "Looping on (row, col) = (" << row << ", " << col << ")");
+    if(colmin > col) colmin = col;
+    if(colmax < col) colmax = col;   
+  }
+  
+  // loop the second time:
+  //for both min and max col you need to get the min and max row
+  for(std::vector<Identifier>::const_iterator oneRDO = rdos.begin(); oneRDO != rdos.end(); oneRDO++){
+    Identifier rId = *oneRDO;
+    int col = m_pixelid->eta_index(rId);
+    if (col == colmin) {
+      int row = m_pixelid->phi_index(rId);
+      ATH_MSG_DEBUG ( "Looping on (row, col) = (" << row << ", " << col << ")");
+      if(colmin_rowmin > row) colmin_rowmin = row;
+      if(colmax_rowmin < row) colmax_rowmin = row;
+    } 
+    if ( col == colmax) {
+      int row = m_pixelid->phi_index(rId);
+      ATH_MSG_DEBUG ( "Looping on (row, col) = (" << row << ", " << col << ")");
+      if(colmin_rowmax > row) colmin_rowmax = row;
+      if(colmax_rowmax < row) colmax_rowmax = row;
+    }
+  }
+  
+  ATH_MSG_DEBUG ( "Defined colmin, colmax, colmin_rowmin, colmax_rowmin, colmin_rowmax, colmax_rowmax = " << colmin << ", " << colmax << ", " << colmin_rowmin << ", " << colmax_rowmin << ", " << colmin_rowmax << ", " << colmax_rowmax);
+  //ATH_MSG_DEBUG ( "Using pos1  = " << colmin << ", " << floor((colmin_rowmax+colmin_rowmin)/2.));
+  //ATH_MSG_DEBUG ( "Using pos2  = " << colmax << ", " << floor((colmax_rowmax+colmax_rowmin)/2.));
+  
+  // now that you have the min and max rows for both min and max cols you can define the initial position and the last position
+  // since you are only interested in theta you can weight the position between the max and the min rows 
+  
+  double initialLocX = 0.;
+  double initialLocY = 0.;
+  double finalLocX = 0.;
+  double finalLocY = 0.;
+
+  // If the module you have a cluster like this (X are the firing pixels)
+  // Theta is evaluated considering the initial point and the final point in the silicon
+  // To do this I have evaluated the average entry position and the average exit position
+  // y (eta) : is easy since you have the min and the max column
+  // x (phi) is averaged for min col and max col 
+  // this is what is written below (reported in the draw):
+  // pos_1 (colmin, colmin_rowmax) = ( 3, 4)
+  // pos_3 (colmin, colmin_rowmin) = ( 3, 3)
+  // pos_2 (colmax, colmax_rowmax) = (11, 4)
+  // pos_4 (colmax, colmax_rowmin) = (11, 4)
+  //
+  // the average entry is ( 3, average(4,3,4,4)=3.75)
+  // the average exit  is (11, average(4,3,4,4)=3.75)
+  //
+  // entry and exit will be then shifted up and down by 1/2 thickness
+  // --> this requires you know if the cluster in in the positive or negative barrel
+  //     since for negative barrel you need first to swap entry and exit
+  //
+  // positive barrel: entry is shifted down by 1/2 thickness 
+  //                  exit  is shifted   up by 1/2 thickness 
+  // 
+  // positive barrel: swap(entry, exit)
+  //                  entry is shifted down by 1/2 thickness 
+  //                  exit  is shifted   up by 1/2 thickness 
+  //
+  //
+  //     rows (phi)   
+  //              ^ 
+  //              | ____________________________
+  //              | |_|_|_|_|_|_|_|_|_|_|_|_|_|_|
+  //              | |_|_|_|_|_|_|X|X|_|_|_|_|_|_|
+  //              | |_|_|X|X|X|X|X|X|X|X|X|_|_|_|
+  //              | |_|_|X|X|X|X|X|X|X|X|_|_|_|_|
+  //              | |_|_|_|_|X|X|_|_|_|_|_|_|_|_|
+  //              | |_|_|_|_|_|_|_|_|_|_|_|_|_|_|
+  //              |--------------------------------> cols (eta)
+  //
+  //
+  //
+  
+  InDetDD::SiLocalPosition pos_1 = design->positionFromColumnRow(colmin,colmin_rowmax);
+  InDetDD::SiLocalPosition pos_3 = design->positionFromColumnRow(colmin,colmin_rowmin);
+
+  InDetDD::SiLocalPosition pos_2 = design->positionFromColumnRow(colmax,colmax_rowmax);
+  InDetDD::SiLocalPosition pos_4 = design->positionFromColumnRow(colmax,colmax_rowmin);
+
+  double min_x = (pos_1.xPhi()+pos_3.xPhi())*0.5;
+  double max_x = (pos_2.xPhi()+pos_4.xPhi())*0.5;
+
+  InDetDD::SiLocalPosition pos1(pos_1.xEta(),(min_x+max_x)*0.5);
+  InDetDD::SiLocalPosition pos2(pos_2.xEta(),(min_x+max_x)*0.5);
+  
+  if (element->center().z()>0.) { // positive region on the barrel
+    initialLocX = pos1.xPhi();
+    initialLocY = pos1.xEta();
+    finalLocX = pos2.xPhi();
+    finalLocY = pos2.xEta();  
+  } else {  // negative region on the barrel
+    initialLocX = pos2.xPhi();
+    initialLocY = pos2.xEta();
+    finalLocX = pos1.xPhi();
+    finalLocY = pos1.xEta();  
+  }
+
+  // shift the initial and the final positions accordingly  
+  // initial is shifted down pf half thickness
+  // final is shifted up pf half thickness
+  Amg::Vector3D initial_loc(initialLocX, initialLocY, -0.5*element->thickness());
+  Amg::Vector3D final_loc(finalLocX, finalLocY, 0.5*element->thickness());
+
+  ATH_MSG_DEBUG ( "initial_local = " << initial_loc );
+  ATH_MSG_DEBUG ( "final_local = " << final_loc );
+  
+  // converting to global coordinates
+  Amg::Vector3D initial_global = element->globalPosition(initial_loc);
+  Amg::Vector3D final_global   = element->globalPosition(final_loc);
+
+  ATH_MSG_DEBUG ( "initial_global = " << initial_global );
+  ATH_MSG_DEBUG ( "final_global = " << final_global );
+
+  // using the global of the track
+  Amg::Vector3D global = final_global - initial_global;
+
+  ATH_MSG_DEBUG ( "global = " << global );
+
+  double theta = global.theta();
+  double phi = global.phi();
+
+  ATH_MSG_DEBUG ( "Track Info (theta, phi) = " << theta << " " << phi );
+
+  // to evaluate the error on theta you can move entry and exit of 1/2 pixel in eta
+  // CASE A: is the nominal value
+  // CASE B: theta increase
+  // CASE C: theta decrease
+  //
+  //                                   BAC 
+  // __________________________________|||_____________
+  // |_|_|_|_|X|X|X|X|X|X|X|X|X|X|X|X|X|X|_|_|_|_|_|_|
+  //         |||
+  //         CAB
+  //
+  // sigma_theta = delta_theta = max (fabs(theta_A-theta_B),fabs(theta_A-theta_C))
+  // 
+  //
+  
+
+  // this applies on theta  --> shiftig the local Y +/- half pixel
+  // CASE B
+  Amg::Vector3D initial_loc_halfLess_theta(initialLocX, initialLocY-design->length()/design->columns()*0.5, -0.5*element->thickness());
+  Amg::Vector3D final_loc_halfLess_theta(finalLocX, finalLocY+design->length()/design->columns()*0.5, 0.5*element->thickness());
+  Amg::Vector3D initial_global_halfLess_theta = element->globalPosition(initial_loc_halfLess_theta);
+  Amg::Vector3D final_global_halfLess_theta   = element->globalPosition(final_loc_halfLess_theta);
+  Amg::Vector3D global_halfLess_theta = final_global_halfLess_theta - initial_global_halfLess_theta;
+  double theta_halfLess = global_halfLess_theta.theta();
+  
+  //CASE C
+  Amg::Vector3D initial_loc_halfMore_theta(initialLocX, initialLocY+design->length()/design->columns()*0.5, -0.5*element->thickness());
+  Amg::Vector3D final_loc_halfMore_theta(finalLocX, finalLocY-design->length()/design->columns()*0.5, 0.5*element->thickness());
+  Amg::Vector3D initial_global_halfMore_theta = element->globalPosition(initial_loc_halfMore_theta);
+  Amg::Vector3D final_global_halfMore_theta   = element->globalPosition(final_loc_halfMore_theta);
+  Amg::Vector3D global_halfMore_theta = final_global_halfMore_theta - initial_global_halfMore_theta;
+  double theta_halfMore = global_halfMore_theta.theta();
+    
+  // sigma_theta = delta_theta = max (fabs(theta_A-theta_B),fabs(theta_A-theta_C))
+  double delta_theta = std::max(fabs(theta_halfLess-theta),fabs(theta_halfMore-theta));
+  
+  ATH_MSG_DEBUG ( "Track Info (delta_theta) = " << delta_theta );
+  
+  // calculate your global phi/theta and sigmas of it
+  double theta_lc       = theta;
+  double sigma_theta_lc = delta_theta;
+  
+  // now create new ones which are 3-Dim
+  
+  // (1) local parameters
+  std::vector<Trk::DefinedParameter> dPars;
+  // first copy over
+  dPars.push_back(Trk::DefinedParameter(oldlpar.get(Trk::locX), Trk::locX)); // copy the local x parameter
+  dPars.push_back(Trk::DefinedParameter(oldlpar.get(Trk::locY), Trk::locY)); // copy the local y parameter
+  // now add
+  dPars.push_back(Trk::DefinedParameter(theta_lc, Trk::theta)); // add the global theta parameter
+  
+  // set to the new one
+  lpar = Trk::LocalParameters(dPars);
+
+  // (2) covariance
+  Amg::MatrixX  newcov(3,3);
+  newcov.setZero();
+  // first copy over
+  (newcov)(Trk::locX,Trk::locX) = (oldcov)(Trk::locX,Trk::locX); // copy the local x parameter
+  (newcov)(Trk::locY,Trk::locY) = (oldcov)(Trk::locY,Trk::locY); // copy the local x parameter
+  // now add 
+  (newcov)(2,2) = sigma_theta_lc*sigma_theta_lc;
+  
+  // memory cleanup
+  cov = newcov;
 }
