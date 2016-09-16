@@ -14,16 +14,12 @@
 #include "ISF_Event/ISFParticleContainer.h"
 #include "ISF_Event/ISFBenchmarkHelper.h"
 
-#include "ISF_Interfaces/IStackFiller.h"
 #include "ISF_Interfaces/IEntryLayerTool.h"
 #include "ISF_Interfaces/IGeoIDSvc.h"
 #include "ISF_Interfaces/SimulationFlavor.h"
 
 // DetectorDescription
 #include "AtlasDetDescr/AtlasRegionHelper.h"
-
-// barcode utils
-#include "BarcodeServices/BitCalculator.h"
 
 // Benchmarking
 #include "PmbCxxUtils/CustomBenchmark.h"
@@ -40,11 +36,9 @@
 /** Constructor **/
 ISF::ParticleBrokerDynamicOnReadIn::ParticleBrokerDynamicOnReadIn(const std::string& name,ISvcLocator* svc) :
   AthService(name,svc),
-  m_particleStackFiller("ISF::ISF_GenEventStackFiller/StackFiller"),
   m_entryLayerTool("iGeant4::EntryLayerTool/ISF_EntryLayerTool"),
-  m_entryLayerToolQuick(0),
   m_orderingTool(""),
-  m_orderingToolQuick(0),
+  m_hasOrderingTool(false),
   m_geoIDSvc("", name),
   m_geoIDSvcQuick(0),
   m_forceGeoIDSvc(false),
@@ -54,7 +48,6 @@ ISF::ParticleBrokerDynamicOnReadIn::ParticleBrokerDynamicOnReadIn(const std::str
   m_simSelector(),
   m_simSelectorSet(),
   m_screenOutputPrefix("isf >> "),
-  m_screenEmptyPrefix(),
   m_barcodeSvc("", name),
   m_doSelectorCPUMon(false),
   m_benchPDGCode(0),
@@ -68,11 +61,8 @@ ISF::ParticleBrokerDynamicOnReadIn::ParticleBrokerDynamicOnReadIn(const std::str
   m_val_p(0.),
   m_val_x(0.),
   m_val_y(0.),
-  m_val_z(0.),
-  m_simflavor(ISF::UndefinedSim)
+  m_val_z(0.)
 {
-  // the particle stack filler tool
-  declareProperty("StackFiller"                , m_particleStackFiller  );
   // the entry layer tool to write TrackRecordCollections
   declareProperty("EntryLayerTool"             , m_entryLayerTool       );
   // particle ing tool
@@ -83,8 +73,6 @@ ISF::ParticleBrokerDynamicOnReadIn::ParticleBrokerDynamicOnReadIn(const std::str
   declareProperty("ValidateGeoIDs"             , m_validateGeoID        );
   // collect and print cpu monitoring information
   declareProperty("SimSelectorCPUMonitoring"   , m_doSelectorCPUMon     );
-  // refine the screen output for debugging
-  declareProperty("ScreenOutputPrefix"         , m_screenOutputPrefix   );
   // The Particle/Vertex BarcodeService used in ISF to store barcode info
   declareProperty("BarcodeService"             , m_barcodeSvc,
                   "The Particle/Vertex BarcodeService used in ISF" );
@@ -109,46 +97,33 @@ ISF::ParticleBrokerDynamicOnReadIn::~ParticleBrokerDynamicOnReadIn()
 /** framework methods */
 StatusCode ISF::ParticleBrokerDynamicOnReadIn::initialize()
 {
-
-  // Screen output
-  for (size_t prl = 0; prl < m_screenOutputPrefix.size(); ++prl) m_screenEmptyPrefix += " ";
-  ATH_MSG_DEBUG ( m_screenOutputPrefix << "--------------------------------------------------------");
-
-  // retrieve the particle stack filler tool
-  if ( m_particleStackFiller.retrieve().isFailure() ){
-    ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve ParticleStack Filler. Abort.");
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_INFO( m_screenEmptyPrefix <<  "- StackFiller      : " << m_particleStackFiller.typeAndName() );
+  ATH_MSG_INFO("initialize() ...");
 
   // retrieve the entry layer tool
   if ( m_entryLayerTool.retrieve().isFailure() ){
-    ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve EntryLayer Tool. Abort.");
+    ATH_MSG_FATAL("Could not retrieve EntryLayer Tool. Abort.");
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO( m_screenEmptyPrefix <<  "- EntryLayerTool   : " << m_entryLayerTool.typeAndName() );
-    // store a quick-access-pointer (removes GaudiOverhead)
-    m_entryLayerToolQuick = &(*m_entryLayerTool);
+    ATH_MSG_INFO( "- EntryLayerTool   : " << m_entryLayerTool.typeAndName() );
   }
 
   // retrieve the particle ing tool if given
   if ( ! m_orderingTool.empty()) {
     if ( m_orderingTool.retrieve().isFailure() ){
-      ATH_MSG_FATAL( m_screenOutputPrefix <<  "Could not retrieve ParticleOrderingTool. Abort.");
+      ATH_MSG_FATAL("Could not retrieve ParticleOrderingTool. Abort.");
       return StatusCode::FAILURE;
     } else {
-      ATH_MSG_INFO( m_screenEmptyPrefix <<  "- Particel OrderingTool   : " << m_orderingTool.typeAndName() );
-      // store a quick-access-pointer (removes GaudiOverhead)
-      m_orderingToolQuick = &(*m_orderingTool);
+      ATH_MSG_INFO( "- Particel OrderingTool   : " << m_orderingTool.typeAndName() );
+      m_hasOrderingTool = true;
     }
   }
 
   // retrieve the geo identification decision tool
   if ( m_geoIDSvc.retrieve().isFailure()){
-    ATH_MSG_FATAL( m_screenOutputPrefix << "Could not retrieve GeometryIdentifier Service. Abort.");
+    ATH_MSG_FATAL("Could not retrieve GeometryIdentifier Service. Abort.");
     return StatusCode::FAILURE;
   } else {
-    ATH_MSG_INFO( m_screenEmptyPrefix <<  "- GeoIDSvc         : "
+    ATH_MSG_INFO( "- GeoIDSvc         : "
                   << (m_geoIDSvc.empty() ? "<not configured>" : m_geoIDSvc.typeAndName()) );
     // store a quick-access-pointer (removes GaudiOverhead)
     m_geoIDSvcQuick = &(*m_geoIDSvc);
@@ -192,7 +167,7 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::initialize()
     // error when trying to retrieve the THistSvc
     else {
       // -> turn off validation output
-      ATH_MSG_ERROR( m_screenOutputPrefix << "Validation mode turned on but unable to retrieve THistService. Will not write out ROOT histograms/Trees.");
+      ATH_MSG_ERROR("Validation mode turned on but unable to retrieve THistService. Will not write out ROOT histograms/Trees.");
       m_validationOutput = false;
     }
 
@@ -206,7 +181,7 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::initialize()
 /** framework methods */
 StatusCode ISF::ParticleBrokerDynamicOnReadIn::finalize()
 {
-  ATH_MSG_INFO ( m_screenOutputPrefix << "finalize() successful");
+  ATH_MSG_INFO("finalize() ...");
   return StatusCode::SUCCESS;
 }
 
@@ -278,15 +253,9 @@ void ISF::ParticleBrokerDynamicOnReadIn::fillPosValTree( TTree *tree,
 
 /** update all SimulationSelectors in the routing chain with the given particle */
 void ISF::ParticleBrokerDynamicOnReadIn::updateAllSelectors(const ISFParticle &particle) {
-
-  // update all simSelectors with the given (new) particle
-
-  // iterators used to loop over all sim Selectors
-  SimSelectorSet::iterator  simSelectorIter    = m_simSelectorSet.begin();
-  SimSelectorSet::iterator  simSelectorIterEnd = m_simSelectorSet.end();
-
-  for ( ; simSelectorIter != simSelectorIterEnd; ++simSelectorIter)
-    (*simSelectorIter)->update( particle);
+  for ( const auto& simSelector : m_simSelectorSet ) {
+    simSelector->update(particle);
+  }
 }
 
 
@@ -307,14 +276,10 @@ void ISF::ParticleBrokerDynamicOnReadIn::selectAndStore( ISF::ISFParticle* p)
     // register the SimulatorID to the particle
     p->setNextSimID( selectedSimID);
 
-    // record the simulation flavor in the particle's extra barcode
-    storeSimulationFlavor( p );
+    if (m_hasOrderingTool) m_orderingTool->setOrder(*p);
 
-    // set particle order
-    if (m_orderingToolQuick) m_orderingToolQuick->setOrder( *p);
-
-    // push the particle onto the particle container
-    m_particles.push( p);
+    // store particle locally
+    m_particles.push(p);
 
     // no simulator could be found
     //   -> drop particle
@@ -332,19 +297,6 @@ void ISF::ParticleBrokerDynamicOnReadIn::selectAndStore( ISF::ISFParticle* p)
     delete p;
   }
 }
-
-
-/** store the simulation flavor of SimulationSelector that has selected the particle */
-void ISF::ParticleBrokerDynamicOnReadIn::storeSimulationFlavor( ISF::ISFParticle* p )
-{
-  // m_simflavor has been identified in identifySimID()
-  if ( m_barcodeSvc->hasBitCalculator() ) {
-    Barcode::ParticleBarcode extrabc = p->getExtraBC();
-    m_barcodeSvc->getBitCalculator()->SetSimulator(extrabc,m_simflavor);
-    p->setExtraBC( extrabc );
-  }
-}
-
 
 /** go through the chain of SimulationSelectors and return the SimulatoID of the first
     SimulationSelector that selects the particle */
@@ -382,39 +334,13 @@ ISF::SimSvcID ISF::ParticleBrokerDynamicOnReadIn::identifySimID( const ISF::ISFP
   // determine the simulator ID
   ISF::SimSvcID simID = selected ? (*--selectorIt)->simSvcID() : ISF::SimSvcID(ISF::fUndefinedSimID);
 
-  // reset simulation flavor -> stored in setSimulationFlavor();
-  m_simflavor = ISF::UndefinedSim;
-
-  if (selected) {
-    std::string simulatorType("none");
-    ServiceHandle<ISimulationSvc>* hsimulator = (*selectorIt)->simulator();
-    if ( hsimulator!=0 ) {
-      //if ( simulator.retrieve().isSuccess() ) {
-      //if ( (*(*--selectorIt)->simulator()) != 0 ) {
-      simulatorType = (*hsimulator).type();
-      //}
-    }
-    std::transform(simulatorType.begin(), simulatorType.end(), simulatorType.begin(), ::tolower);
-
-    if      (simulatorType.find("fatras")!=std::string::npos)   { m_simflavor = ISF::FatrasSim; }
-    else if (simulatorType.find("g4")!=std::string::npos)       { m_simflavor = ISF::Geant4Sim; }
-    else if (simulatorType.find("geant")!=std::string::npos)    { m_simflavor = ISF::Geant4Sim; }
-    else if (simulatorType.find("full")!=std::string::npos)     { m_simflavor = ISF::Geant4Sim; }
-    else if (simulatorType.find("fastcalo")!=std::string::npos) { m_simflavor = ISF::FastCaloSim; }
-    else    { m_simflavor = ISF::UndefinedSim; } // = 0
-
-    ATH_MSG_DEBUG( "simulation flavor : " << m_simflavor << " " << simulatorType );
-
-  }
-
   return simID;
 }
 
 
 /** Initialize the stackSvc and the truthSvc */
-StatusCode ISF::ParticleBrokerDynamicOnReadIn::initializeEvent()
+StatusCode ISF::ParticleBrokerDynamicOnReadIn::initializeEvent(ISFParticleContainer&& simParticles)
 {
-
   ATH_MSG_DEBUG( m_screenOutputPrefix << "Initializing particle stack");
 
   // fill set of simulation selectors once per job
@@ -431,60 +357,33 @@ StatusCode ISF::ParticleBrokerDynamicOnReadIn::initializeEvent()
   }
 
   // call beginEvent() for all selectors registerd to the ParticleBroker:
-  //   iterators used to loop over all sim Selectors
-  SimSelectorSet::iterator  simSelectorIter    = m_simSelectorSet.begin();
-  SimSelectorSet::iterator  simSelectorIterEnd = m_simSelectorSet.end();
-  for ( ; simSelectorIter != simSelectorIterEnd; ++simSelectorIter)
-    (*simSelectorIter)->beginEvent(); // call beginEvent() on current selector
-
-  // read particles from EvGen
-  ISFParticleContainer initContainer;
-  if ( m_particleStackFiller->fillStack( initContainer).isFailure() ){
-    ATH_MSG_FATAL (  m_screenOutputPrefix << "Could not fill initial particle container. Abort." );
-    return StatusCode::FAILURE;
-  } else
-    ATH_MSG_VERBOSE ( m_screenOutputPrefix << "Initial particle container filled, initial size: " << initContainer.size() );
+  for ( const auto& simSelector : m_simSelectorSet ) {
+    simSelector->beginEvent();
+  }
 
   // update the routing chain selectors with the particles in the initial stack
-  ISFParticleContainer::iterator particleIter    = initContainer.begin();
-  ISFParticleContainer::iterator particleIterEnd = initContainer.end();
-  for ( ; particleIter != particleIterEnd; ++particleIter) {
+  for ( auto& particlePointer : simParticles ) {
+    auto& particle = *particlePointer;
 
     // identify the geoID of the particle
-    m_geoIDSvcQuick->identifyAndRegNextGeoID(**particleIter);
+    m_geoIDSvcQuick->identifyAndRegNextGeoID(particle);
     // the geoID at this point better makes sense :)
-    assertAtlasRegion( (**particleIter).nextGeoID() );
+    assertAtlasRegion( particle.nextGeoID() );
 
     // update all registered selectors (in all geoIDs) with this particle
-    updateAllSelectors( **particleIter);
+    updateAllSelectors(particle);
 
-    // inform the entry layer tool about this particle
-    ISF::EntryLayer layer = m_entryLayerToolQuick->registerParticle( **particleIter);
-
-    // if validation mode: fill the corresponding entry layer ROOT tree
-    if ( m_validationOutput && validEntryLayer(layer) ) {
-      fillPosValTree( m_t_entryLayerPos[layer], **particleIter);
-    }
-
+    m_entryLayerTool->registerParticle(particle);
   }
 
-  // move the particles from the initial stack to the different geoID stacks
-  particleIter    = initContainer.begin();
-  particleIterEnd = initContainer.end();
-  int iparticle=initContainer.size();
-  for ( ; particleIter != particleIterEnd; ++particleIter,iparticle--) {
-    //       - if a Selector selects a particle -> it is pushed onto the active stack
-    //       - if it is not selected -> pushed onto the hold stack
-    selectAndStore( *particleIter);
-    if (!m_orderingToolQuick) {
-      (*particleIter)->setOrder(iparticle);
-    }
-  }
+  size_t order = simParticles.size(); // FIXME: ugly hack to keep bit-wise identical output with prior FullG4 implementation :(
 
-  // empty initial stack
-  //  (don't delete the pointers, since they are now used in the local
-  //   particle container: m_particles)
-  initContainer.clear();
+  for ( auto& particlePtr: simParticles ) {
+    // FIXME: ugly hack to keep bit-wise identical output with prior FullG4 implementation :(
+    if (!m_hasOrderingTool) particlePtr->setOrder(order--); 
+
+    selectAndStore(particlePtr);
+  }
 
   return StatusCode::SUCCESS;
 }
@@ -511,8 +410,8 @@ void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particlePtr, const I
   ISFParticle &particle = *particlePtr;
 
   if (parentPtr) {
-    Barcode::ParticleBarcode extrabc = parentPtr->getExtraBC();
-    particle.setExtraBC( extrabc );
+    int bcid = parentPtr->getBCID();
+    particle.setBCID(bcid);
   }
 
   // get the particle's next geoID
@@ -524,7 +423,7 @@ void ISF::ParticleBrokerDynamicOnReadIn::push( ISFParticle *particlePtr, const I
     geoID = m_geoIDSvcQuick->identifyAndRegNextGeoID(particle);
   }
   // inform the entry layer tool about this particle
-  ISF::EntryLayer layer = m_entryLayerToolQuick->registerParticle( particle );
+  ISF::EntryLayer layer = m_entryLayerTool->registerParticle( particle );
 
   // ---> if validation mode: fill the corresponding entry layer ROOT tree
   if ( m_validationOutput ) {
@@ -587,7 +486,7 @@ const ISF::ConstISFParticleVector& ISF::ParticleBrokerDynamicOnReadIn::popVector
 
       // if this particle has a different order or the maximum size of the return vector is reached
       //   -> don't add any more particles to the m_popParticles std::vector
-      if (  m_orderingToolQuick && ((curOrder != returnOrder) || (m_popParticles.size()>=maxVectorSize) ) ) break;
+      if ( m_hasOrderingTool && ((curOrder != returnOrder) || (m_popParticles.size()>=maxVectorSize) ) ) break;
 
       // add this particle to the, later returned, m_popParticles std::vector
       m_popParticles.push_back( curParticle);
