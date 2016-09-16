@@ -27,8 +27,8 @@ corr_HV_EMBPS::corr_HV_EMBPS(){
       for (int igap=0;igap<2;igap++) {
 	char name[4];
 	snprintf(name,4,"h%d%d",iperiod+1,igap);
-	hHV[iperiod][igap]=(TProfile2D*) (m_file->Get(name));
-	if (not hHV[iperiod][igap]) {
+	m_hHV[iperiod][igap]=(TProfile2D*) (m_file->Get(name));
+	if (not m_hHV[iperiod][igap]) {
 	  std::cerr << "FATAL: cannot find " << name << std::endl;
 	}
       }
@@ -57,14 +57,14 @@ float corr_HV_EMBPS::getCorr(int run, float eta,float phi) const
 
    int  ieta=(int)((eta+1.6)/0.4);
    if (ieta<0 || ieta>7) return 1.;
-   if (phi<0.) phi=phi+6.283185;
-   int iphi=(int)((phi/6.283185)*32);
+   if (phi<0.) phi=phi+2*M_PI;
+   int iphi=(int)(phi*(32./(2*M_PI)));
    if (iphi<0) iphi=0;
    if (iphi>31) iphi=31;
    //std::cout << " ieta,iphi " << ieta << " " << iphi << std::endl;
 
-   float hv1 = hHV[iperiod][0]->GetBinContent(ieta+1,iphi+1);
-   float hv2 = hHV[iperiod][1]->GetBinContent(ieta+1,iphi+1);
+   float hv1 = m_hHV[iperiod][0]->GetBinContent(ieta+1,iphi+1);
+   float hv2 = m_hHV[iperiod][1]->GetBinContent(ieta+1,iphi+1);
 
    float c1= getRecoCorrection(hv1,eta);
    float c2= getRecoCorrection(hv2,eta);
