@@ -1,0 +1,17 @@
+package HLTUtils
+
+author Reiner.Hauser@cern.ch
+author Frank Winklmeier
+
+use AtlasPolicy    AtlasPolicy-* 
+
+apply_pattern declare_scripts files="hlt_relocate.sh \
+                                     hlt_postinstall.sh \
+                                     make_hlt_env.py \
+                                     make_hlt_rep.py \
+                                     make_coralServer_rep.py \
+                                     make_hlt_patch.py \
+                                     pt_main_wrapper \
+                                     athena_wrapper"
+
+apply_pattern declare_python_modules files="*.py"
