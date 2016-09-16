@@ -647,16 +647,6 @@ class RecordFlux(JobProperty):
     allowedTypes = ['bool']
     StoredValue = False
 
-class UseV2UserActions(JobProperty):
-    """
-    Migration version of the user actions. This should only be used by experts!
-    - V1 corresponds to JIRA ATLASSIM-1752
-    - V2 corresponds to JIRA ATLASSIM-2226
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = True
-
 class OptionalUserActionList(JobProperty):
     """Configuration for Optional UserActions
       The name of the action must be a name retrievable through the ConfigurableFactory"""
@@ -704,6 +694,13 @@ class UserActionConfig(JobProperty):
         else:
             self.StoredValue[actionTool]={prop:value}
 
+class specialConfiguration(JobProperty):
+    """ contains information on configuring simulation for special physics models.
+        Populated, if possible, by evgen file metadata.
+    """
+    statusOn=False
+    allowedTypes=['dict']
+    StoredValue=dict()
 
 
 ## Definition and registration of the simulation flag container
