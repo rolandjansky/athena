@@ -11,10 +11,10 @@
 namespace CP {
 
   IsolationCorrectionTool::IsolationCorrectionTool( const std::string &name )
-    : asg::AsgTool(name), m_apply_dd(false), m_systDDonoff("PH_Iso_DDonoff")
+    : asg::AsgTool(name), m_systDDonoff("PH_Iso_DDonoff")
   {
     declareProperty("CorrFile",                    m_corr_file                    = "IsolationCorrections/isolation_ptcorrections_rel20_2.root");
-    declareProperty("CorrFile_ddshift_2015",       m_corr_ddshift_2015_file       = "IsolationCorrections/isolation_ddcorrection_shift_2015_v2.root");
+    declareProperty("CorrFile_ddshift_2015",       m_corr_ddshift_2015_file       = "IsolationCorrections/isolation_ddcorrection_shift_2015_v3.root");
     declareProperty("CorrFile_ddshift",            m_corr_ddshift_file            = "IsolationCorrections/isolation_ddcorrection_shift.root");
     declareProperty("CorrFile_ddsmearing",         m_corr_ddsmearing_file         = "IsolationCorrections/isolation_ddcorrection_smearing.root");
     declareProperty("ToolVer",                     m_tool_ver_str                 = "REL20_2");
@@ -23,12 +23,14 @@ namespace CP {
     declareProperty("DataDrivenVer",               m_ddVersion                    = "2015");
     declareProperty("Correct_etcone",              m_correct_etcone               = false);
     declareProperty("Trouble_categories",          m_trouble_categories           = true);
+    declareProperty("Apply_ddshifts",              m_apply_dd                     = true);
     m_isol_corr = new IsolationCorrection(name);
-    m_isol_corr->msg().setLevel(this->msg().level());
   }
 
   StatusCode IsolationCorrectionTool::initialize() {
     ATH_MSG_INFO( "in initialize of " << name() << "..." );
+
+    m_isol_corr->msg().setLevel(this->msg().level());
 
     CP::IsolationCorrection::Version tool_ver;
 
@@ -51,7 +53,7 @@ namespace CP {
     }
 
     m_isol_corr->SetDataMC(m_is_mc);
-    m_isol_corr->SetCorrectionFile(m_corr_file,m_corr_ddshift_file,m_corr_ddsmearing_file, m_corr_ddshift_2015_file);
+    m_isol_corr->SetCorrectionFile(m_corr_file, m_corr_ddshift_file, m_corr_ddsmearing_file, m_corr_ddshift_2015_file);
     m_isol_corr->SetToolVer(tool_ver);
     m_isol_corr->SetAFII(m_AFII_corr);
     m_isol_corr->SetTroubleCategories(m_trouble_categories);
@@ -115,7 +117,11 @@ namespace CP {
   }
 
   CP::CorrectionCode IsolationCorrectionTool::applyCorrection(xAOD::Egamma &eg) {
-    std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
+
+    static SG::AuxElement::Decorator<float> decDDcor20("topoetcone20_DDcorr");
+    static SG::AuxElement::Decorator<float> decDDcor40("topoetcone40_DDcorr");
+	
+    static const std::vector<xAOD::Iso::IsolationType> topoisolation_types = {xAOD::Iso::topoetcone20,
 								 xAOD::Iso::topoetcone30,
 								 xAOD::Iso::topoetcone40};
     for (auto type : topoisolation_types) {
@@ -125,17 +131,20 @@ namespace CP {
       bool gotIso   = eg.isolationValue(oldiso,type);
       if (!gotIso) continue;
       if (eg.pt() > 25e3) 
-	ATH_MSG_DEBUG("pt = " << eg.pt() << " eta = " << eg.eta() << ", def Iso " << xAOD::Iso::toString(type) << " = " << oldiso
+        ATH_MSG_DEBUG("pt = " << eg.pt() << " eta = " << eg.eta() << ", def Iso " << xAOD::Iso::toString(type) << " = " << oldiso
 		      << " old leak = " << oldleak << " new leak = " << newleak);
       float iso     = oldiso + (oldleak-newleak);
       float ddcorr  = 0;
-      if (m_is_mc) {
-	if (m_apply_dd)
-	  ddcorr = this->GetDDCorrection(eg,type);
-	iso += ddcorr;
+      if (m_is_mc && m_apply_dd && type != xAOD::Iso::topoetcone30) {
+        ddcorr = this->GetDDCorrection(eg,type);
+        if (type == xAOD::Iso::topoetcone20)
+          decDDcor20(eg) = ddcorr;
+        else if (type == xAOD::Iso::topoetcone40)
+          decDDcor40(eg) = ddcorr;
+        iso += ddcorr;
       }
       if (eg.pt() > 25e3) 
-	ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso);
+        ATH_MSG_DEBUG("ddcor = " << ddcorr << " new Iso = " << iso << "\n");
       bool setIso = eg.setIsolationValue(iso,type);
       setIso = (setIso && eg.setIsolationCaloCorrection(newleak-ddcorr,type,xAOD::Iso::ptCorrection));
       if (!setIso) {
@@ -202,12 +211,10 @@ namespace CP {
   }
 
   CP::SystematicCode IsolationCorrectionTool::applySystematicVariation( const CP::SystematicSet& systConfig ) {
-
     if (systConfig.find(m_systDDonoff) != systConfig.end())
-      m_apply_dd = true;
-    else
       m_apply_dd = false;
-
+    else
+      m_apply_dd = true;
     return CP::SystematicCode::Ok;
   }
 

@@ -15,9 +15,10 @@
 
 #include <map>
 #include <memory>
-using std::make_pair;
 
 #include "PathResolver/PathResolver.h"
+
+using std::make_pair;
 
 namespace CP{
 

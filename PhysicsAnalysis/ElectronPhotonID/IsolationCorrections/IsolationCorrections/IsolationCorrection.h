@@ -40,7 +40,7 @@ class IsolationCorrection : public asg::AsgMessaging{
     float GetPtCorrectedIsolation(const xAOD::Egamma&, const xAOD::Iso::IsolationType);
     float GetPtCorrection(const xAOD::Egamma&, const xAOD::Iso::IsolationType);
     float GetDDCorrection(const xAOD::Egamma&);
-    float GetDDCorrection_2015(const xAOD::Egamma&, const xAOD::Iso::IsolationType);
+    float GetDDCorrection_2015(const xAOD::Egamma&, const xAOD::Iso::IsolationType) const;
 
     float GetEtaPointing(const xAOD::Egamma*);
 
@@ -68,6 +68,10 @@ class IsolationCorrection : public asg::AsgMessaging{
     std::string m_corr_ddshift_file;
     std::string m_corr_ddsmearing_file;
 
+    // for v3 DD : absolute eta
+    unsigned int m_nBinsfEtaDD_2015;
+    std::vector<float> m_feta_bins_dd_2015;
+    
     bool m_is_mc;
     bool m_AFII_corr;
     bool m_set_mc;
@@ -76,6 +80,10 @@ class IsolationCorrection : public asg::AsgMessaging{
     bool m_trouble_categories;
 
     CP::ShowerDepthTool* m_shower;
+
+    // booleans for helping with versions
+    bool m_isv2;
+    bool m_isv3;
 
     template <class T> void FreeClear( T & cntr );
 
@@ -171,64 +179,52 @@ class IsolationCorrection : public asg::AsgMessaging{
     // corrections recomputed for topological isolation, 0.4/0.2 cone. special eta binning -------
     // ------------------------- -----------------------------------------------------------------
 
-    std::vector<TGraph*> graph_dd_2015_cone40_unconv_photon_shift;
-    std::vector<TGraph*> graph_dd_2015_cone40_conv_photon_shift;
-    std::vector<TGraph*> graph_dd_2015_cone20_unconv_photon_shift;
-    std::vector<TGraph*> graph_dd_2015_cone20_conv_photon_shift;
+    std::vector<TGraph*> m_graph_dd_2015_cone40_unconv_photon_shift;
+    std::vector<TGraph*> m_graph_dd_2015_cone40_conv_photon_shift;
+    std::vector<TGraph*> m_graph_dd_2015_cone20_unconv_photon_shift;
+    std::vector<TGraph*> m_graph_dd_2015_cone20_conv_photon_shift;
 
     // -------------------------------------------------------------------------------------------
     // ------------- data-driven corrections based on 2012 inclusive photon sample ---------------
     // corrections recomputed for topological isolation, 0.4 cone. special eta binning -----------
     // ------------------------- https://cds.cern.ch/record/2008664 ------------------------------
 
-    std::vector<TF1*> graph_dd_cone40_photon_shift;
-    std::vector<TF1*> graph_dd_cone40_photon_smearing;
+    std::vector<TF1*> m_graph_dd_cone40_photon_shift;
+    std::vector<TF1*> m_graph_dd_cone40_photon_smearing;
 
     // -------------------------------------------------------------------------------------------
     // ------------- full 2015 (rel 20_2) leakage corrections --------------------------------------
     // corrections recomputed for topological isolation: fine grained in eta, derived from MC15
 
-    //---- Rel 20_2 pT leakage correction file
-    std::vector<TF1*> function_2015_cone40_photon_unconverted;
-    std::vector<TF1*> function_2015_cone30_photon_unconverted;
-    std::vector<TF1*> function_2015_cone20_photon_unconverted;
+    //---- Rel 20_2 pT leakage correction file : all categories
+    std::vector<TF1*> m_function_2015_cone40_photon_unconverted;
+    std::vector<TF1*> m_function_2015_cone30_photon_unconverted;
+    std::vector<TF1*> m_function_2015_cone20_photon_unconverted;
 
-    std::vector<TF1*> function_2015_cone40_photon_converted_ok;
-    std::vector<TF1*> function_2015_cone30_photon_converted_ok;
-    std::vector<TF1*> function_2015_cone20_photon_converted_ok;
+    std::vector<TF1*> m_function_2015_cone40_photon_converted_ok;
+    std::vector<TF1*> m_function_2015_cone30_photon_converted_ok;
+    std::vector<TF1*> m_function_2015_cone20_photon_converted_ok;
 
-    std::vector<TF1*> function_2015_cone40_photon_converted_trouble;
-    std::vector<TF1*> function_2015_cone30_photon_converted_trouble;
-    std::vector<TF1*> function_2015_cone20_photon_converted_trouble;
+    std::vector<TF1*> m_function_2015_cone40_photon_converted_trouble;
+    std::vector<TF1*> m_function_2015_cone30_photon_converted_trouble;
+    std::vector<TF1*> m_function_2015_cone20_photon_converted_trouble;
 
-    std::vector<TF1*> function_2015_cone40_author_1_electron;
-    std::vector<TF1*> function_2015_cone30_author_1_electron;
-    std::vector<TF1*> function_2015_cone20_author_1_electron;
+    std::vector<TF1*> m_function_2015_cone40_author_1_electron;
+    std::vector<TF1*> m_function_2015_cone30_author_1_electron;
+    std::vector<TF1*> m_function_2015_cone20_author_1_electron;
 
-    std::vector<TF1*> function_2015_cone40_author_16_electron;
-    std::vector<TF1*> function_2015_cone30_author_16_electron;
-    std::vector<TF1*> function_2015_cone20_author_16_electron;
+    std::vector<TF1*> m_function_2015_cone40_author_16_electron;
+    std::vector<TF1*> m_function_2015_cone30_author_16_electron;
+    std::vector<TF1*> m_function_2015_cone20_author_16_electron;
 
-    //---- Rel 20_2 pT leakage correction with histogram mean file
-    std::vector<TGraph*> graph_histoMean_2015_cone40_photon_unconverted;
-    std::vector<TGraph*> graph_histoMean_2015_cone30_photon_unconverted;
-    std::vector<TGraph*> graph_histoMean_2015_cone20_photon_unconverted;
+    //---- Rel 20_2 pT leakage correction with histogram mean file : for "trouble categories", below pT threshold
+    std::vector<TGraph*> m_graph_histoMean_2015_cone40_photon_converted_trouble;
+    std::vector<TGraph*> m_graph_histoMean_2015_cone30_photon_converted_trouble;
+    std::vector<TGraph*> m_graph_histoMean_2015_cone20_photon_converted_trouble;
 
-    std::vector<TGraph*> graph_histoMean_2015_cone40_photon_converted_ok;
-    std::vector<TGraph*> graph_histoMean_2015_cone30_photon_converted_ok;
-    std::vector<TGraph*> graph_histoMean_2015_cone20_photon_converted_ok;
-
-    std::vector<TGraph*> graph_histoMean_2015_cone40_photon_converted_trouble;
-    std::vector<TGraph*> graph_histoMean_2015_cone30_photon_converted_trouble;
-    std::vector<TGraph*> graph_histoMean_2015_cone20_photon_converted_trouble;
-
-    std::vector<TGraph*> graph_histoMean_2015_cone40_author_1_electron;
-    std::vector<TGraph*> graph_histoMean_2015_cone30_author_1_electron;
-    std::vector<TGraph*> graph_histoMean_2015_cone20_author_1_electron;
-
-    std::vector<TGraph*> graph_histoMean_2015_cone40_author_16_electron;
-    std::vector<TGraph*> graph_histoMean_2015_cone30_author_16_electron;
-    std::vector<TGraph*> graph_histoMean_2015_cone20_author_16_electron;
+    std::vector<TGraph*> m_graph_histoMean_2015_cone40_author_16_electron;
+    std::vector<TGraph*> m_graph_histoMean_2015_cone30_author_16_electron;
+    std::vector<TGraph*> m_graph_histoMean_2015_cone20_author_16_electron;
 
 
     // -------------------------------------------------------------------------------------------
@@ -236,107 +232,67 @@ class IsolationCorrection : public asg::AsgMessaging{
     // corrections recomputed for topological isolation: fine grained in eta, derived from MC12
 
     //---- Rel 17.2 pT leakage correction file
-    std::vector<TGraph*> graph_cone40_photon_unconverted;
-    std::vector<TGraph*> graph_cone30_photon_unconverted;
-    std::vector<TGraph*> graph_cone20_photon_unconverted;
+    std::vector<TGraph*> m_graph_cone40_photon_unconverted;
+    std::vector<TGraph*> m_graph_cone30_photon_unconverted;
+    std::vector<TGraph*> m_graph_cone20_photon_unconverted;
 
-    std::vector<TGraph*> graph_cone40_photon_converted;
-    std::vector<TGraph*> graph_cone30_photon_converted;
-    std::vector<TGraph*> graph_cone20_photon_converted;
+    std::vector<TGraph*> m_graph_cone40_photon_converted;
+    std::vector<TGraph*> m_graph_cone30_photon_converted;
+    std::vector<TGraph*> m_graph_cone20_photon_converted;
 
-    std::vector<TGraph*> graph_cone40_electron;
-    std::vector<TGraph*> graph_cone30_electron;
-    std::vector<TGraph*> graph_cone20_electron;
+    std::vector<TGraph*> m_graph_cone40_electron;
+    std::vector<TGraph*> m_graph_cone30_electron;
+    std::vector<TGraph*> m_graph_cone20_electron;
 
-    // ----------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------
 
-    // -------------------------------------------------------------------------------------------
-    // ------------- full 2011 (rel 17) leakage corrections --------------------------------------
-    // CURRENT isolation corrections: fine grained in eta, derived from MC11
-    std::vector<float> mc_rel17_leakage_correction_slopes_electron_15;
-    std::vector<float> mc_rel17_leakage_correction_slopes_electron_20;
-    std::vector<float> mc_rel17_leakage_correction_slopes_electron_25;
-    std::vector<float> mc_rel17_leakage_correction_slopes_electron_30;
-    std::vector<float> mc_rel17_leakage_correction_slopes_electron_35;
-    std::vector<float> mc_rel17_leakage_correction_slopes_electron_40;
-    std::vector<float> mc_rel17_leakage_correction_slopes_electron_tp20;
-    std::vector<float> mc_rel17_leakage_correction_slopes_electron_tp30;
-    std::vector<float> mc_rel17_leakage_correction_slopes_electron_tp40;
+    // ---------------------------------------------------------------------------
+    // ------------- full 2011 (rel 17) etcone leakage corrections ---------------
+    // 
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_electron_15;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_electron_20;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_electron_25;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_electron_30;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_electron_35;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_electron_40;
 
-    std::vector<float> mc_rel17_leakage_correction_offsets_electron_15;
-    std::vector<float> mc_rel17_leakage_correction_offsets_electron_20;
-    std::vector<float> mc_rel17_leakage_correction_offsets_electron_25;
-    std::vector<float> mc_rel17_leakage_correction_offsets_electron_30;
-    std::vector<float> mc_rel17_leakage_correction_offsets_electron_35;
-    std::vector<float> mc_rel17_leakage_correction_offsets_electron_40;
-    std::vector<float> mc_rel17_leakage_correction_offsets_electron_tp20;
-    std::vector<float> mc_rel17_leakage_correction_offsets_electron_tp30;
-    std::vector<float> mc_rel17_leakage_correction_offsets_electron_tp40;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_electron_15;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_electron_20;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_electron_25;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_electron_30;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_electron_35;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_electron_40;
 
     // photons: last eta bin isn't used
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_converted_15;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_converted_20;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_converted_25;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_converted_30;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_converted_35;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_converted_40;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_converted_tp20;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_converted_tp30;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_converted_tp40;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_converted_15;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_converted_20;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_converted_25;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_converted_30;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_converted_35;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_converted_40;
+ 
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_converted_15;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_converted_20;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_converted_25;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_converted_30;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_converted_35;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_converted_40;
 
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_converted_15;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_converted_20;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_converted_25;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_converted_30;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_converted_35;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_converted_40;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_converted_tp20;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_converted_tp30;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_converted_tp40;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_unconverted_15;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_unconverted_20;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_unconverted_25;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_unconverted_30;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_unconverted_35;
+    std::vector<float> m_mc_rel17_leakage_correction_slopes_photon_unconverted_40;
 
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_unconverted_15;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_unconverted_20;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_unconverted_25;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_unconverted_30;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_unconverted_35;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_unconverted_40;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_unconverted_tp20;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_unconverted_tp30;
-    std::vector<float> mc_rel17_leakage_correction_slopes_photon_unconverted_tp40;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_unconverted_15;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_unconverted_20;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_unconverted_25;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_unconverted_30;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_unconverted_35;
+    std::vector<float> m_mc_rel17_leakage_correction_offsets_photon_unconverted_40;
 
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_unconverted_15;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_unconverted_20;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_unconverted_25;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_unconverted_30;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_unconverted_35;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_unconverted_40;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_unconverted_tp20;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_unconverted_tp30;
-    std::vector<float> mc_rel17_leakage_correction_offsets_photon_unconverted_tp40;
-    // ------------------------------------------------------------------------------------------
-    // -------------------------------------------------------------------------------------------
-
-    // -------------------------------------------------------------------------------------------
-    // ------------- full 2011 (rel 17) pileup corrections --------------------------------------
-    // all corrections use >= 2 tracks/vertex
-
-    // linear corrections from Zee rel 17 full 2011 data
-    // - not used in favor of quadratic corrections below
-    //     std::vector<float> rel17_npv_correction_slopes_20;
-    //     std::vector<float> rel17_npv_correction_slopes_30;
-    //     std::vector<float> rel17_npv_correction_slopes_40;
-
-    // quadratic corrections from rel 17 full 2011 data
-    std::vector<float> rel17_npv_correction_slopes_20;
-    std::vector<float> rel17_npv_correction_slopes_30;
-    std::vector<float> rel17_npv_correction_slopes_40;
-
-    std::vector<float> rel17_npv_correction_quads_20;
-    std::vector<float> rel17_npv_correction_quads_30;
-    std::vector<float> rel17_npv_correction_quads_40;
-
-    // -------------------------------------------------------------------------------------------
-  };
+};
 
 }
 
