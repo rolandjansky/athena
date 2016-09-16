@@ -60,7 +60,7 @@ class QZeroMonitoring(TrigGenericMonitoringToolConfig):
 _EtCuts_v2=[ x*1e-3 for x in reversed(range(300, 6050, 50)) ] # equidistant bins
 _EtCuts_v3=[ x*1e-3 for x in reversed(range(400, 6050, 50)) ]
 
-_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(400, 2050, 50))]
+_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(100, 300, 50))]
 
 ########################################################################################
 # V2
@@ -89,6 +89,8 @@ V2_th16.QyShifts=[q2yshift]
 def generateVnThresholds(a,b,c, etbins):
     return [ a - b*et +c*pow(et, 2)  for et in etbins]
     
+def generateAssymVnThresholds(a,b,c,d, etbins):
+    return [ a + b*et +c*pow(et, 2) +d for et in etbins]
 # thresholds mappint
 #      %v2     %v3
 #15    2.5     2.5
@@ -159,6 +161,41 @@ V2A_th3.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
 V2A_thresholds = {1: V2A_th1, 2: V2A_th2, 3: V2A_th3}
 
 
+V2A_th0p = V2HypoAssym("V2A_th0p", "A")
+V2A_th0p.QThresholds = generateAssymVnThresholds( 10, 0, 0, 0, _EtCuts_v2_assym)
+
+V2A_th005p = V2HypoAssym("V2A_th005p", "A")
+V2A_th005p.QThresholds = generateAssymVnThresholds( 0.671805, -0.00848271, 5.1144e-05, -1.03468e-07, _EtCuts_v2_assym)
+
+V2A_th01p = V2HypoAssym("V2A_th01p", "A")
+V2A_th01p.QThresholds = generateAssymVnThresholds( 0.5051, -0.00547545, 3.18733e-05, -6.31319e-08, _EtCuts_v2_assym)
+
+V2A_th025p = V2HypoAssym("V2A_th025p", "A")
+V2A_th025p.QThresholds = generateAssymVnThresholds( 0.355451, -0.0030147, 1.65811e-05, -3.19174e-08, _EtCuts_v2_assym)
+
+V2A_th05p = V2HypoAssym("V2A_th05p", "A")
+V2A_th05p.QThresholds = generateAssymVnThresholds(  0.333727, -0.00299038, 1.67039e-05, -3.23019e-08, _EtCuts_v2_assym)
+
+V2A_th10p = V2HypoAssym("V2A_th10p", "A")
+V2A_th10p.QThresholds = generateAssymVnThresholds(  0.28111, -0.00239508, 1.3197e-05, -2.53084e-08, _EtCuts_v2_assym)
+
+V2A_th15p = V2HypoAssym("V2A_th15p", "A")
+V2A_th15p.QThresholds = generateAssymVnThresholds( 0.241106, -0.00189997, 1.02592e-05, -1.94606e-08, _EtCuts_v2_assym)
+
+V2A_th20p = V2HypoAssym("V2A_th20p", "A")
+V2A_th20p.QThresholds = generateAssymVnThresholds(  0.222785, -0.00177955, 9.73365e-06, -1.86627e-08, _EtCuts_v2_assym)
+
+
+
+V2A_thresholds = {"1": V2A_th1, "2": V2A_th2, "3": V2A_th3, 
+                  "0p": V2A_th0p,
+                  "005p": V2A_th005p, "01p": V2A_th01p,
+                  "025p": V2A_th025p, "05p": V2A_th05p,
+                  "10p": V2A_th10p,   "15p": V2A_th15p,
+                  "20p": V2A_th20p}
+
+
+
 V2C_th1 = V2HypoAssym("V2C_th1", "C")
 V2C_th1.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
 
@@ -168,9 +205,37 @@ V2C_th2.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
 V2C_th3 = V2HypoAssym("V2C_th3", "C")
 V2C_th3.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
         
-V2C_thresholds = {1: V2C_th1, 2: V2C_th2, 3: V2C_th3}
+V2C_th0p = V2HypoAssym("V2C_th0p", "C")
+V2C_th0p.QThresholds = generateAssymVnThresholds( 10, 0, 0, 0, _EtCuts_v2_assym)
 
 
+V2C_th005p = V2HypoAssym("V2C_th005p", "C")
+V2C_th005p.QThresholds = generateAssymVnThresholds( 0.628789, -0.00758789, 4.56162e-05, -9.31571e-08, _EtCuts_v2_assym)
+
+V2C_th01p = V2HypoAssym("V2C_th01p", "C")
+V2C_th01p.QThresholds = generateAssymVnThresholds(  0.452976, -0.00440765, 2.51445e-05, -5.00672e-08, _EtCuts_v2_assym)
+
+V2C_th025p = V2HypoAssym("V2C_th025p", "C")
+V2C_th025p.QThresholds = generateAssymVnThresholds( 0.304252, -0.00197356, 1.00126e-05, -1.89781e-08, _EtCuts_v2_assym)
+
+V2C_th05p = V2HypoAssym("V2C_th05p", "C")
+V2C_th05p.QThresholds = generateAssymVnThresholds(  0.224585, -0.000791821, 2.58771e-06, -3.27433e-09, _EtCuts_v2_assym)
+
+V2C_th10p = V2HypoAssym("V2C_th10p", "C")
+V2C_th10p.QThresholds = generateAssymVnThresholds( 0.172777, -0.000209044, -9.24903e-07, 3.99128e-09, _EtCuts_v2_assym)
+
+V2C_th15p = V2HypoAssym("V2C_th15p", "C")
+V2C_th15p.QThresholds = generateAssymVnThresholds( 0.164259, -0.000349901, 2.53182e-07, 1.26982e-09,  _EtCuts_v2_assym)
+
+V2C_th20p = V2HypoAssym("V2C_th20p", "C")
+V2C_th20p.QThresholds = generateAssymVnThresholds( 0.139387, -9.5269e-05, -1.15158e-06, 3.88736e-09, _EtCuts_v2_assym)
+
+V2C_thresholds = {"1": V2C_th1, "2": V2C_th2, "3": V2C_th3, 
+                  "0p": V2C_th0p,
+                  "005p": V2C_th005p, "01p": V2C_th01p,
+                  "025p": V2C_th025p, "05p": V2C_th05p,
+                  "10p": V2C_th10p,   "15p": V2C_th15p,
+                  "20p": V2C_th20p}
 
 def V2Assym(threshold, side):
     if side == "A":

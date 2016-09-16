@@ -4,5 +4,6 @@ __all__ = ['MinBias.py',
            'TrigHIHypoConfig.py',
            'TrigHIHypoMonitoring.py',
            'UE.py',
-           'VnHypos.py'
+           'VnHypos.py',
+           'GapHypos.py'
           ]
