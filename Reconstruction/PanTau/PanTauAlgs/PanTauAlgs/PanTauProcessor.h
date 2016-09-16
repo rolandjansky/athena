@@ -79,6 +79,18 @@ namespace PanTau
         //Tools used in seed finalizing
         ToolHandle<PanTau::ITool_PanTauTools>               m_Tool_DecayModeDeterminator;
         ToolHandle<PanTau::ITool_PanTauTools>               m_Tool_DetailsArranger;
+
+        //Tools used in seed building
+        std::string          m_Tool_InformationStoreName;
+        std::string          m_Tool_TauConstituentGetterName;
+        std::string          m_Tool_TauConstituentSelectorName;
+        std::string          m_Tool_FeatureExtractorName;
+        
+        //Tools used in seed finalizing
+        std::string               m_Tool_DecayModeDeterminatorName;
+        std::string               m_Tool_DetailsArrangerName;
+
+	
         
         std::vector<double>                                 m_Config_PtBins;
         double                                              m_Config_MinPt;

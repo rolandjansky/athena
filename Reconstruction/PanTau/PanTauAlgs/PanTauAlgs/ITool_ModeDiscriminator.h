@@ -28,6 +28,7 @@ namespace PanTau {
 
         public:
 
+    virtual bool isInitialized() = 0;
             //virtual double getModeLikeliness(PanTau::PanTauSeed2* inSeed, bool& wasSuccessful) = 0;
             virtual double getResponse(PanTau::PanTauSeed2* inSeed, bool& isOK) = 0;
     };

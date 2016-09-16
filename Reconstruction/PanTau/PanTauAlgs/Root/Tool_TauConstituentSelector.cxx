@@ -7,6 +7,7 @@
 #include "PanTauAlgs/Tool_TauConstituentSelector.h"
 
 #include "PanTauAlgs/TauConstituent.h"
+#include "PanTauAlgs/HelperFunctions.h"
 #include "PanTauAlgs/Tool_InformationStore.h"
 
 #include <math.h>
@@ -18,6 +19,7 @@ PanTau::Tool_TauConstituentSelector::Tool_TauConstituentSelector(
         m_Tool_InformationStore("PanTau::Tool_InformationStore/Tool_InformationStore")
 {
     declareProperty("Tool_InformationStore",    m_Tool_InformationStore,   "Link to tool with all information");
+    declareProperty("Tool_InformationStoreName",    m_Tool_InformationStoreName,   "Link to tool with all information");
 }
 
 PanTau::Tool_TauConstituentSelector::~Tool_TauConstituentSelector() {
@@ -26,7 +28,9 @@ PanTau::Tool_TauConstituentSelector::~Tool_TauConstituentSelector() {
 StatusCode PanTau::Tool_TauConstituentSelector::initialize() {
 
     ATH_MSG_INFO(" initialize()");
+    m_init=true;
     
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_InformationStore, m_Tool_InformationStoreName ) );
     ATH_CHECK( m_Tool_InformationStore.retrieve() );
     
     ATH_CHECK( m_Tool_InformationStore->getInfo_Double("TauConstituents_MaxEta", m_MaxEta) );

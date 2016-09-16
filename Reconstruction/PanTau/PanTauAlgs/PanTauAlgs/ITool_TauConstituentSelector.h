@@ -25,6 +25,7 @@ namespace PanTau {
     ASG_TOOL_INTERFACE(ITool_TauConstituentSelector)
 
         public:
+    virtual bool isInitialized() = 0;
             virtual StatusCode SelectTauConstituents(std::vector<TauConstituent2*> inputList,
                                                      std::vector<TauConstituent2*>& outputList) const = 0;
         protected:

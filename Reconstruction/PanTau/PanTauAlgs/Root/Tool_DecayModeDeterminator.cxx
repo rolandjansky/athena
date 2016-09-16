@@ -7,6 +7,7 @@
 #include "PanTauAlgs/Tool_DecayModeDeterminator.h"
 
 #include "PanTauAlgs/PanTauSeed.h"
+#include "PanTauAlgs/HelperFunctions.h"
 #include "PanTauAlgs/TauClassificationTypes.h"
 
 #include "xAODTau/TauDefs.h"
@@ -26,6 +27,12 @@ PanTau::Tool_DecayModeDeterminator::Tool_DecayModeDeterminator(
     declareProperty("Tool_ModeDiscriminator_1p0n_vs_1p1n",    m_Tool_ModeDiscriminator_1p0n_vs_1p1n,    "Handle to the ModeDiscriminator tool for 1p0n_vs_1p1n");
     declareProperty("Tool_ModeDiscriminator_1p1n_vs_1pXn",    m_Tool_ModeDiscriminator_1p1n_vs_1pXn,    "Handle to the ModeDiscriminator tool for 1p1n_vs_1pXn");
     declareProperty("Tool_ModeDiscriminator_3p0n_vs_3pXn",    m_Tool_ModeDiscriminator_3p0n_vs_3pXn,    "Handle to the ModeDiscriminator tool for 3p0n_vs_3pXn");
+
+    declareProperty("Tool_InformationStoreName",          m_Tool_InformationStoreName="",          "Tool handle to the information store tool");
+    declareProperty("Tool_ModeDiscriminator_1p0n_vs_1p1nName",    m_Tool_ModeDiscriminator_1p0n_vs_1p1nName="",    "Handle to the ModeDiscriminator tool for 1p0n_vs_1p1n");
+    declareProperty("Tool_ModeDiscriminator_1p1n_vs_1pXnName",    m_Tool_ModeDiscriminator_1p1n_vs_1pXnName="",    "Handle to the ModeDiscriminator tool for 1p1n_vs_1pXn");
+    declareProperty("Tool_ModeDiscriminator_3p0n_vs_3pXnName",    m_Tool_ModeDiscriminator_3p0n_vs_3pXnName="",    "Handle to the ModeDiscriminator tool for 3p0n_vs_3pXn");
+
 }
 
 
@@ -37,7 +44,13 @@ PanTau::Tool_DecayModeDeterminator::~Tool_DecayModeDeterminator() {
 
 StatusCode PanTau::Tool_DecayModeDeterminator::initialize() {
     ATH_MSG_INFO( name() << " initialize()" );
-    
+    m_init=true;
+
+    ATH_CHECK( HelperFunctions::bindToolHandle(m_Tool_InformationStore, m_Tool_InformationStoreName) );
+    ATH_CHECK( HelperFunctions::bindToolHandle(m_Tool_ModeDiscriminator_1p0n_vs_1p1n, m_Tool_ModeDiscriminator_1p0n_vs_1p1nName) );
+    ATH_CHECK( HelperFunctions::bindToolHandle(m_Tool_ModeDiscriminator_1p1n_vs_1pXn, m_Tool_ModeDiscriminator_1p1n_vs_1pXnName) );
+    ATH_CHECK( HelperFunctions::bindToolHandle(m_Tool_ModeDiscriminator_3p0n_vs_3pXn, m_Tool_ModeDiscriminator_3p0n_vs_3pXnName) );
+
     //get the discri tools
     ATH_CHECK(m_Tool_ModeDiscriminator_1p0n_vs_1p1n.retrieve());
     ATH_CHECK(m_Tool_ModeDiscriminator_1p1n_vs_1pXn.retrieve());
@@ -80,7 +93,8 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
     bool    noValidInput        = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoValidInputTau);
     bool    noAnyConstituents   = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoConstituentsAtAll);
     bool    noSelConstituents   = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoSelectedConstituents);
-    bool    invalidForDecayMode = (noValidInput || noAnyConstituents || noSelConstituents);
+    bool    badPt               = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_BadPtValue);
+    bool    invalidForDecayMode = (noValidInput || noAnyConstituents || noSelConstituents || badPt);
     if(invalidForDecayMode) {
         ATH_MSG_DEBUG("Seed has no constituents assigned and/or input seed has no substructure info - use NotSet mode for this");
         features->addFeature(inAlgName + "_" + m_varTypeName_Prefix_Basic + "_RecoMode_PanTau", xAOD::TauJetParameters::Mode_NotSet);

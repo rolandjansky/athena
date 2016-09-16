@@ -76,6 +76,7 @@ namespace PanTau {
         StoreGateSvc*                                       m_sgSvc;
         
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
+	std::string m_Tool_InformationStoreName;
         
         void                        addPanTauDetailToTauJet(PanTauSeed2*                            inSeed,
                                                             std::string                            featName,
@@ -131,6 +132,10 @@ namespace PanTau {
         std::string m_varTypeName_Basic;
         std::string m_varTypeName_PID;
         std::string m_varTypeName_Shots;
+
+	bool m_init=false;
+  public:
+	inline bool isInitialized(){return m_init;}
         
     };
 } // end of namespace PanTau

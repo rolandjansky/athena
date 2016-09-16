@@ -7,6 +7,7 @@
 #include "PanTauAlgs/Tool_TauConstituentGetter.h"
 
 #include "PanTauAlgs/TauConstituent.h"
+#include "PanTauAlgs/HelperFunctions.h"
 #include "PanTauAlgs/Tool_InformationStore.h"
 #include "PanTauAlgs/Tool_InputConverter.h"
 //#include "TVector3.h"
@@ -26,6 +27,8 @@ PanTau::Tool_TauConstituentGetter::Tool_TauConstituentGetter(
 {
     declareProperty("Tool_InformationStore",    m_Tool_InformationStore,   "Link to tool with all information");
     declareProperty("Tool_InputConverter",      m_Tool_InputConverter,     "Link to tool to convert into TauConstituents");
+    declareProperty("Tool_InformationStoreName",    m_Tool_InformationStoreName,   "Link to tool with all information");
+    declareProperty("Tool_InputConverterName",      m_Tool_InputConverterName,     "Link to tool to convert into TauConstituents");
 }
 
 PanTau::Tool_TauConstituentGetter::~Tool_TauConstituentGetter() {
@@ -34,6 +37,10 @@ PanTau::Tool_TauConstituentGetter::~Tool_TauConstituentGetter() {
 StatusCode PanTau::Tool_TauConstituentGetter::initialize() {
 
     ATH_MSG_INFO(" initialize()");
+    m_init=true;
+
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_InformationStore, m_Tool_InformationStoreName ) );
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_InputConverter, m_Tool_InputConverterName ) );
     
     ATH_CHECK( m_Tool_InformationStore.retrieve() );
     ATH_CHECK( m_Tool_InputConverter.retrieve() );

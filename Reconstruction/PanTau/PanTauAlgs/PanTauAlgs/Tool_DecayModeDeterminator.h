@@ -73,6 +73,13 @@ namespace PanTau {
         ToolHandle<PanTau::ITool_ModeDiscriminator> m_Tool_ModeDiscriminator_1p0n_vs_1p1n;
         ToolHandle<PanTau::ITool_ModeDiscriminator> m_Tool_ModeDiscriminator_1p1n_vs_1pXn;
         ToolHandle<PanTau::ITool_ModeDiscriminator> m_Tool_ModeDiscriminator_3p0n_vs_3pXn;
+
+
+	std::string m_Tool_InformationStoreName;
+
+	std::string m_Tool_ModeDiscriminator_1p0n_vs_1p1nName;
+	std::string m_Tool_ModeDiscriminator_1p1n_vs_1pXnName;
+	std::string m_Tool_ModeDiscriminator_3p0n_vs_3pXnName;
         
         
         //configurables to be retrieved from information store
@@ -87,7 +94,10 @@ namespace PanTau {
         double           m_BDTCutValue_R1XX_CellBased;
         double           m_BDTCutValue_R30X_CellBased;
         double           m_BDTCutValue_R3XX_CellBased;
-        
+
+	bool m_init=false;
+  public:
+	inline bool isInitialized(){return m_init;}
 };
 
 

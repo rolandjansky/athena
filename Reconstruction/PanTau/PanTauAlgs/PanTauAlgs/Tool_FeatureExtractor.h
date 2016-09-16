@@ -61,6 +61,7 @@ namespace PanTau {
         //handle to the helper function
         PanTau::HelperFunctions   m_HelperFunctions;
         ToolHandle<PanTau::ITool_InformationStore>  m_Tool_InformationStore;
+	std::string m_Tool_InformationStoreName;
 	//ToolHandle<Reco::ITrackToVertex> m_trackToVertexTool;
         
         //map containing different methods to calc seed et
@@ -138,6 +139,10 @@ namespace PanTau {
         std::string m_varTypeName_ImpactParams;
         std::string m_varTypeName_Basic;
         std::string m_varTypeName_PID;
+
+	bool m_init=false;
+  public:
+	inline bool isInitialized(){return m_init;}
 };
 
 } // end of namespace PanTau
