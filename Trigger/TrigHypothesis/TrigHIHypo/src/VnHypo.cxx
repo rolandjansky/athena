@@ -96,7 +96,7 @@ HLT::ErrorCode VnHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pas
   }
   
   m_icent=m_helper.getCentBin(m_Tot_Et);
-  if(m_icent==-1) return HLT::OK;
+  if(m_icent == -1) return HLT::OK;
 
   m_qnx /= m_Tot_Et;
   m_qny /= m_Tot_Et;

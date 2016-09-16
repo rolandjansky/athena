@@ -15,6 +15,8 @@ UltraCentralHypo::UltraCentralHypo(const std::string& name, ISvcLocator* pSvcLoc
 
   declareProperty("FcalEtUpperBound",     m_FcalEt_max=1.e10, "Upper bound of passing values, negative means +inf.");
   declareProperty("FcalEtLowerBound",     m_FcalEt_min=-1.e10, "Lower bound of passing values, negative means -inf.");
+  declareProperty("EtaMin",               m_Eta_min=-3.25, "Lower bound of slice taken into calculation");
+  declareProperty("EtaMax",               m_Eta_max=3.25, "Upper bound of slice taken into calculation");
 
 }
 
@@ -52,8 +54,10 @@ HLT::ErrorCode UltraCentralHypo::hltExecute(const HLT::TriggerElement* outputTE,
     float Et     =  sh->et();
     if(Et==0) continue;
     
-    float eta=(sh->etaMin()+sh->etaMax())/2.0;
-    if(fabs(eta)<3.2) continue;//FCal Only
+    if ( sh->etaMin() < m_Eta_min ) continue;
+    if ( sh->etaMax() > m_Eta_max ) continue;
+    //    float eta=(sh->etaMin()+sh->etaMax())/2.0;
+    //    if(fabs(eta)<3.2) continue;//FCal Only
     
     m_Tot_Et+=Et;
   }
