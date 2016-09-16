@@ -7,17 +7,18 @@
 //  Storage and manipulation of matrices during track fitting
 //  (note the actual matrices are structs (FitMatrix.h) to give faster execution)
 //
-//  Given matrix of measurement derivatives wrt fit parameters (D)
+//  Given matrix of measurement derivatives wrt fit parameters (DerivativeMatrix DM)
 //  and vector of differences between measurements and fitted trajectory,
 //  solve for:
-//   parameter weight matrix = (covariance)-1 = DT.D
-//   parameter change        = (DT.D)-1 * (DT.differ)
+//   parameter weight matrix = (covariance)-1 = DMtranspose.DM
+//   parameter change        = (DMtranspose.DM)-1 * (DMtranspose.differences)
 //
 //  NOTE:
-//  covariances, derivatives etc, use d0, z0, phi, theta, qOverP as parameters
-//  distinguish: full covariance with all parameters (incl scattering and energy loss)
-//               5*5 final covariance with external contribution representing
-//               leading material and field gradient effects
+//  covariances, derivatives etc, use d0, z0, phi, cot(theta), qOverPt as first 5 parameters
+//  distinguish: full covariance with all parameters:
+//			includes misalignments, scattering and energy loss
+//               5*5 final covariance with possible external contribution representing
+//               	leading material and field gradient effects
 //
 //  (c) ATLAS tracking software
 //////////////////////////////////////////////////////////////////////////////
@@ -28,6 +29,8 @@
 #include <iostream>
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkAlgebraUtils/AlSpaMat.h"
+#include "TrkAlgebraUtils/AlSymMat.h"
+#include "TrkAlgebraUtils/AlVec.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkiPatFitterUtils/FitMatrices.h"
 #include "TrkiPatFitterUtils/FitMatrix.h"
@@ -39,35 +42,44 @@
 namespace Trk{
     
 FitMatrices::FitMatrices(void)
-    :	m_columns			(mxparam),	// reserve at maximum size
+    :	m_columnsDM			(mxparam),	// reserve at maximum size
 	m_covariance			(0),
 	m_finalCovariance		(0),
 	m_largePhiWeight		(10000.),	// arbitrary - equiv to 10um
 	m_matrixFromCLHEP		(false),
+	m_measurements			(0),
 	m_numberDoF			(0),
 	m_numberDriftCircles		(0),
 	m_numberPerigee			(5),
+	m_optimizeMatrixPrecision	(false),
 	m_parameters			(0),
 	m_perigee			(0),
 	m_perigeeDifference		(Amg::MatrixX(1,m_numberPerigee)),
 	m_perigeeWeight			(0),
 	m_residuals			(0),
-	m_rows				(0),
+	m_rowsDM			(0),
 	m_usePerigee			(false),
 	m_weight			(0),
 	// m_weightCLHEP		(0),
-	m_weightedDifference		(0)
-	// m_weightedDifferenceCLHEP	(0)
+	m_weight***REMOVED***			(0),
+	m_weightedDifference		(0),
+	// m_weightedDifferenceCLHEP	(0),
+	m_weightedDifference***REMOVED***	(0)
 {
     if (m_matrixFromCLHEP)
     {
 	// m_weightCLHEP		= new CLHEP::HepSymMatrix(mxparam);
 	// m_weightedDifferenceCLHEP	= new CLHEP::HepVector(mxparam);
     }
+    else if (m_optimizeMatrixPrecision)
+    {
+	m_weight***REMOVED***			= new AlSpaMat(mxparam);
+	m_weightedDifference***REMOVED***	= new AlVec(mxparam);
+    }
     else
     {
-	m_weight			= new AlSpaMat(mxparam);
-	m_weightedDifference		= new AlVec(mxparam);
+	m_weight			= new Amg::MatrixX(mxparam,mxparam);
+	m_weightedDifference		= new Amg::VectorX(mxparam);
     }
 }
 
@@ -78,8 +90,10 @@ FitMatrices::~FitMatrices(void)
     delete m_residuals;
     delete m_weight;
     // delete m_weightCLHEP;
+    delete m_weight***REMOVED***;
     delete m_weightedDifference;
     // delete m_weightedDifferenceCLHEP;
+    delete m_weightedDifference***REMOVED***;
 }
 
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
@@ -89,9 +103,7 @@ FitMatrices::chiSquaredChange (void) const
 {
     // not applicable when matrix has been inverted already
     if (! m_numberDoF || ! m_weight || m_covariance) return 0.;
-    AlVec diffAl	= m_parameters->differences();
-    Amg::VectorX diff(m_columns);
-    for (int i = 0; i != m_columns; ++i) diff[i] = diffAl[i];
+    Amg::VectorX diff = m_parameters->differences();
     if (m_matrixFromCLHEP)
     {
 	// return m_weightCLHEP->similarity(diff)/static_cast<double>(m_numberDoF);
@@ -99,12 +111,7 @@ FitMatrices::chiSquaredChange (void) const
     }
     else
     {
-	Amg::MatrixX weight(m_columns,m_columns);
-	for (int i = 0; i != m_columns; ++i)
-	{
-	    for (int j = 0; j != m_columns; ++j) weight(i,j) = (*m_weight)[j][i];
-	}
-	return (diff * weight * diff.transpose())(0,0) / static_cast<double>(m_numberDoF);
+	return (diff * (*m_weight) * diff.transpose())(0,0) / static_cast<double>(m_numberDoF);
     }
 }
 
@@ -113,7 +120,7 @@ FitMatrices::fullCovariance (void)
 {
     // return result if matrix already inverted
     if (m_covariance)	return m_covariance;
-    m_covariance	= new Amg::MatrixX(m_columns,m_columns);
+    m_covariance	= new Amg::MatrixX(m_columnsDM,m_columnsDM);
 
     // fix weighting
     if (m_parameters->phiInstability()) solveEquations();
@@ -125,7 +132,7 @@ FitMatrices::fullCovariance (void)
     // CLHEP method
     if (m_matrixFromCLHEP)
     {
-        // for (int i = 0; i != m_columns; ++i)
+        // for (int i = 0; i != m_columnsDM; ++i)
         // {
         //     for (int j = 0; j <= i; ++j)     covariance[i][j] = (*m_weightCLHEP)[i][j];
         // }
@@ -136,17 +143,7 @@ FitMatrices::fullCovariance (void)
         // avoid singularity through ill-defined momentum
         avoidMomentumSingularity();
 
-        // copy to AlSymMat for inversion
-        AlSymMat weight(m_columns);
-        for (int i = 0; i != m_columns; ++i)
-        {
-            for (int j = 0; j <= i; ++j)		weight[i][j] = (*m_weight)[i][j];
-        }
-        failure = weight.invert();
-        for (int i = 0; i != m_columns; ++i)
-        {
-            for (int j = 0; j != m_columns; ++j)	covariance(j,i) = weight[i][j];
-        }
+	covariance = m_weight->inverse();
     }   
 
     // trap singular matrix
@@ -162,7 +159,7 @@ FitMatrices::fullCovariance (void)
     {
         // transform to MeV
         double d4               =  1./Gaudi::Units::TeV;
-        for (int row = 0; row < m_columns; ++row)
+        for (int row = 0; row < m_columnsDM; ++row)
 	{
 	    covariance(4,row)	*= d4;
 	    covariance(row,4)	=  covariance(4,row);
@@ -173,7 +170,7 @@ FitMatrices::fullCovariance (void)
         if (m_parameters->fitEnergyDeposit())
         {
             double d5           =  1./Gaudi::Units::TeV;
-            for (int row = 0; row < m_columns; ++row)
+            for (int row = 0; row < m_columnsDM; ++row)
 	    {
 		covariance(5,row)	*= d5;
 		covariance(row,5)	=  covariance(5,row);
@@ -205,43 +202,190 @@ FitMatrices::perigeeChiSquared (void)
     return (m_perigeeDifference * (*m_perigeeWeight) * m_perigeeDifference.transpose())(0,0);
 } 
 
+void
+FitMatrices::printDerivativeMatrix (void)
+{
+    std::cout << "DerivativeMatrix:  rows * columns " << m_rowsDM << " * "
+	      << m_columnsDM << "  numberDoF " << m_numberDoF << std::endl;
+
+    int firstCol	= 0;
+    int lastCol		= 0;
+    if (! m_measurements)		return;
+    std::list<FitMeasurement*>::iterator m = m_measurements->begin();
+    FitMeasurement* fm	= *m;
+    bool singleRow	= true;
+    
+    for (int row = 0; row < m_rowsDM; ++row)
+    {
+	// get corresponding FitMeasurement
+	if (singleRow)
+	{
+	    while (m !=  m_measurements->end() && ! (**m).numberDoF()) ++m;
+	    if (m !=  m_measurements->end())
+	    {
+		fm	= *m;
+	    }
+
+	    firstCol	= fm->firstParameter();
+	    lastCol	= fm->lastParameter() - 1;
+	    std::cout << std::endl << std::setiosflags(std::ios::fixed);
+	    if (fm->isPositionMeasurement())
+	    {
+		std::cout << "measurement";
+	    }
+	    else if (fm->isScatterer())
+	    {
+		std::cout << "scatterer  ";
+	    }
+	    else if (fm->isEnergyDeposit())
+	    {
+		std::cout << "energyDepos";
+	    }
+	    else
+	    {
+		std::cout << "   ??      ";
+	    }
+	    if (fm->is2Dimensional())
+	    {
+		singleRow = false;
+	    }
+	    else
+	    {
+		if (m !=  m_measurements->end()) ++m;
+	    }
+	    std::cout << " row " << std::setw(3) << row << " col  0     ";
+	}
+	else
+	{
+	    if (m !=  m_measurements->end()) ++m;
+	    singleRow = true;
+	    std::cout << std::endl  << std::setiosflags(std::ios::fixed)
+		      << "            row " << std::setw(3) << row << " col  0     ";
+	}
+	for (int col = 0; col < m_columnsDM; ++col)
+	{
+	    if (col < firstCol || col > lastCol)	// m_firstRowForParameter[row])
+	    {
+	    	if (fitMatrix.derivative[row][col] == 0.)
+	    	{
+	    	    std::cout << "            ";
+	    	}
+	    	else
+	    	{
+	    	    // flag out-of-order
+	    	    std::cout << std::setiosflags(std::ios::scientific) << std::setbase(10)
+	    		      << "<" <<std::setw(10) << fitMatrix.derivative[row][col] << ">";
+	    	}
+	    }
+	    else
+	    {
+		std::cout << std::setiosflags(std::ios::scientific) << std::setbase(10)
+			  << std::setw(10) << fitMatrix.derivative[row][col] << "  ";
+	    }
+	    
+	    if ((col+1)%12 == 0 && col+1 < m_columnsDM)
+		std::cout << std::endl << std::setiosflags(std::ios::fixed)
+			  << "                    col " << std::setw(3) << col+1 << "    ";
+	}
+    }
+    std::cout << std::endl;
+}
+
+void
+FitMatrices::printWeightMatrix (void)
+{
+    std::cout << std::endl << "WeightMatrix:  symmetric with rank " << m_columnsDM;
+
+    for (int row = 0; row < m_columnsDM; ++row)
+    {
+	std::cout << std::endl << std::setiosflags(std::ios::fixed)
+		  << " row " << std::setw(3) << row << " col  0     ";
+	for (int col = 0; col <= row; ++col)
+	{
+	    std::cout << std::setiosflags(std::ios::scientific) << std::setbase(10)
+		      << std::setw(10) << (*m_weight)(row,col) << "  ";
+	    
+	    if ((col+1)%13 == 0 && col < row)
+		std::cout << std::endl << std::setiosflags(std::ios::fixed)
+			  << "         col " << std::setw(3) << col+1 << "    ";
+	}
+    }
+    std::cout << std::endl;	
+}
+    
 int
 FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 			    FitParameters*		parameters)
 {
+    // keep pointer for debug purposes
+    m_measurements		= &measurements;
+    
     // only use perigee on request (from special fit types)
     m_usePerigee		= false;
 
-    // count rows and scatterers from loop over FitMeasurements
+    // count rows, misalignments and scatterers from loop over FitMeasurements
     m_firstRowForParameter.clear();
-    m_firstRowForParameter.reserve(40);
+    m_firstRowForParameter.reserve(120);
+    m_lastRowForParameter.clear();
+    m_lastRowForParameter.reserve(120);
     m_parameters		= parameters;
     delete m_residuals;
     m_residuals			= new std::vector<double>(2*measurements.size(), 0.);
     m_numberDriftCircles	= 0;
     bool haveMeasurement	= false;
+    bool haveVertex		= false;
     int numberParameters	= 5;
     int numberScatterers	= 0;
     int row			= 0;
-    for (std::list<FitMeasurement*>::iterator m = measurements.begin();
-         m != measurements.end();
-	 ++m)
+    
+    // keep first row with measurements up to each number of parameters
+    m_firstRowForParameter	= std::vector<int>(numberParameters,-1);
+    std::list<FitMeasurement*>::iterator m = measurements.begin();
+    if ((**m).isVertex())
     {
+	haveVertex			= true;
+	m_firstRowForParameter[row]	= row;
+
+	// set pointers into big matrix
+	(**m).derivative(&fitMatrix.derivative[row][0]);
+	(**m).residual(row+m_residuals->begin());
+	++row;
+	if ((**m).is2Dimensional())
+	{
+	    m_firstRowForParameter[row] = row;
+	    (**m).derivative2(&fitMatrix.derivative[row][0]);
+	    ++row;
+	}
+	++m;
+    }
+
+    // allocate rows to fitted measurements (DoF > 0)
+    for ( ; m != measurements.end(); ++m)
+    {
+	if (! (**m).numberDoF())		continue;
+
 	// identify leading material
 	if (! haveMeasurement)
 	{
-	    if ((**m).isScatterer())
+	    if ((**m).isPositionMeasurement())
+	    {
+		haveMeasurement			= true;
+		for (int i = 0; i < numberParameters; ++i)
+		    if (m_firstRowForParameter[i] < 0) m_firstRowForParameter[i] = row;
+	    }
+	    else if (! haveVertex && (**m).isScatterer())
 	    {
 		(**m).numberDoF(0);
+		continue;
 	    }
-	    else if ((**m).isPositionMeasurement())
+	    else
 	    {
-		haveMeasurement = true;
+		// row	+= (**m).numberDoF();
 	    }
-	}
+        }
 
-	// only allocate rows to fitted measurements (DoF > 0)
-	if (! (**m).numberDoF()) continue;
+	// // only allocate rows to fitted measurements (DoF > 0)
+	// if (! (**m).numberDoF()) continue;
 	if ((**m).isDrift()) ++m_numberDriftCircles;
 
 	// fit energyDeposit unless momentum fixed or near infinite
@@ -254,8 +398,13 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 	    }
 	    else
 	    {
-		++numberParameters;
+		if (m_firstRowForParameter.back() < 0)
+		    m_firstRowForParameter.back() = row;
+		
+		// m_firstRowForParameter[numberParameters-1] = row;
+		m_firstRowForParameter.push_back(row);
 		m_parameters->fitEnergyDeposit((**m).minEnergyDeposit());
+		++numberParameters;
 	    }
 	}
 	if ((**m).isScatterer()) ++numberScatterers;
@@ -271,21 +420,11 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 	}
     }
 
-    // keep first row with measurements up to each number of parameters
-    if (measurements.front()->isVertex())
-    {
-	m_firstRowForParameter = std::vector<int>(numberParameters,1);
-	m_firstRowForParameter[0] = 0;
-    }
-    else
-    {
-	m_firstRowForParameter = std::vector<int>(numberParameters,0);
-    }
-
     parameters->numberScatterers(numberScatterers);
     bool afterCalo	= false;
-    m_rows		= 0;
-    for (std::list<FitMeasurement*>::iterator m = measurements.begin();
+    int lastRow		= 0;
+    m_rowsDM		= 0;
+    for (m = measurements.begin();
          m != measurements.end();
 	 ++m)
     {
@@ -297,21 +436,47 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 	    }
 	    else if ((**m).isScatterer())
 	    {
-		m_firstRowForParameter.push_back(m_rows);
-		m_firstRowForParameter.push_back(m_rows);
+		m_firstRowForParameter.push_back(m_rowsDM++);
+		m_firstRowForParameter.push_back(m_rowsDM++);
 		parameters->addScatterer((**m).scattererPhi(),(**m).scattererTheta());
+		(**m).lastParameter(m_firstRowForParameter.size(), afterCalo);
+		continue;
 	    }
-	    m_rows += (**m).numberDoF();
+	    m_rowsDM	+= (**m).numberDoF();
+	    lastRow	=  m_rowsDM;
 	}
 	(**m).lastParameter(m_firstRowForParameter.size(), afterCalo);
     }
 
-    // initialize number of parameters (including scatterers)
+    // second loop puts any alignment info into the final rows (and trailing scatterers)
+    numberParameters		= m_firstRowForParameter.size();
+    m_lastRowForParameter	= std::vector<int>(numberParameters,lastRow);
+    for (m = measurements.begin();
+         m != measurements.end();
+	 ++m)
+    {
+	if (! (**m).numberDoF())	continue;
+	if ((**m).isEnergyDeposit())
+	{
+	    afterCalo = true;
+	    m_lastRowForParameter[4]	= m_firstRowForParameter[5] + 1;
+	}
+    }
+
+    // TODO::   !!!!
+    // take care of first and last rows for alignment parameters (and last for trailing scatterers)
+    if (m_rowsDM > lastRow)
+    {
+	for (int i = numberParameters - m_rowsDM + lastRow; i < numberParameters; ++i)
+	    m_lastRowForParameter[i] = m_firstRowForParameter[i] + 1;
+    }
+    
+    // initialize number of parameters (including alignments and scatterers)
     numberParameters		= m_firstRowForParameter.size();
     parameters->numberParameters(numberParameters);
 
     // and degrees of freedom
-    m_numberDoF	= m_rows - numberParameters;
+    m_numberDoF	= m_rowsDM - numberParameters;
 
     // make some checks: return fitCode in case of problem
     int fitCode	= 0;
@@ -322,8 +487,8 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
     if (fitCode) return fitCode;
     
     // reserve derivatives for jacobian propagation to 'non-measurements'
-    row	= m_rows;
-    for (std::list<FitMeasurement*>::iterator m = measurements.begin();
+    row	= m_rowsDM;
+    for (m = measurements.begin();
          m != measurements.end();
 	 ++m)
     {
@@ -341,7 +506,7 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
     }
 
     // update partitioning of fit matrices
-    for (int row = 0; row < m_rows; ++row)
+    for (int row = 0; row < m_rowsDM; ++row)
     {
 	for (int param = 0; param < numberParameters; ++param)
 	{
@@ -359,22 +524,33 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
     m_finalCovariance	= 0;
     
     // reallocate to get correct matrix sizes 
-    if (numberParameters != m_columns)
+    if (numberParameters != m_columnsDM)
     {
-	m_columns			= numberParameters;
+	m_columnsDM			= numberParameters;
+	delete m_weight;
+	m_weight			= new Amg::MatrixX(m_columnsDM,m_columnsDM);
+	delete m_weightedDifference;
+	m_weightedDifference		= new Amg::VectorX(m_columnsDM);
 	if (m_matrixFromCLHEP)
 	{
 	    // delete m_weightCLHEP;
-	    // m_weightCLHEP		= new CLHEP::HepSymMatrix(m_columns);
+	    // m_weightCLHEP		= new CLHEP::HepSymMatrix(m_columnsDM);
 	    // delete m_weightedDifferenceCLHEP;
-	    // m_weightedDifferenceCLHEP	= new CLHEP::HepVector(m_columns);
+	    // m_weightedDifferenceCLHEP	= new CLHEP::HepVector(m_columnsDM);
 	}
-	else
+	else if (m_optimizeMatrixPrecision)
 	{
-	    delete m_weight;
-	    m_weight			= new AlSpaMat(m_columns);
-	    delete m_weightedDifference;
-	    m_weightedDifference	= new AlVec(m_columns);
+	    delete m_weight***REMOVED***;
+	    m_weight***REMOVED***		= new AlSpaMat(m_columnsDM);
+	    delete m_weightedDifference***REMOVED***;
+	    m_weightedDifference***REMOVED***	= new AlVec(m_columnsDM);
+	}
+	else	// FIXME:: won't be needed after Eigen migration
+	{
+	    delete m_weight***REMOVED***;
+	    m_weight***REMOVED***		= new AlSpaMat(m_columnsDM);
+	    delete m_weightedDifference***REMOVED***;
+	    m_weightedDifference***REMOVED***	= new AlVec(m_columnsDM);
 	}
     }
     
@@ -389,9 +565,13 @@ FitMatrices::solveEquations(void)
     {
 	return solveEquationsCLHEP();
     }
+    else if (m_optimizeMatrixPrecision)
+    {
+	return solveEquationsPrecise();
+    }
     else
     {
-	return solveEquationsAlMat();
+	return solveEquationsFast();
     }
 }
 
@@ -430,72 +610,25 @@ void
 FitMatrices::avoidMomentumSingularity(void)
 {
     // fix momentum if line-fit or fit attempted with negligible field integral
-    AlSpaMat& weight		= *m_weight;
-    if (m_parameters->fitEnergyDeposit() && weight[5][5] < 1./Gaudi::Units::TeV)
+    Amg::MatrixX& weight	= *m_weight;
+    if (m_parameters->fitEnergyDeposit() && weight(5,5) < 1./Gaudi::Units::TeV)
     {
-	for (int i = 0; i != m_columns; ++i)
+	for (int i = 0; i != m_columnsDM; ++i)
 	{
-	    weight[i][5]	=  0.;
-	    weight[5][i]	=  0.;
+	    weight(i,5)	=  0.;
+	    weight(5,i)	=  0.;
 	}
-	weight[5][5]	+= 1./Gaudi::Units::TeV;
+		weight(5,5)	+= 1./Gaudi::Units::TeV;
     }
-    if (! m_parameters->fitMomentum() || weight[4][4] < 1./Gaudi::Units::TeV)
+	if (! m_parameters->fitMomentum() || weight(4,4) < 1./Gaudi::Units::TeV)
     {  
 	m_parameters->fitMomentum(false);
-	for (int i = 0; i != m_columns; ++i)
+	for (int i = 0; i != m_columnsDM; ++i)
 	{
-	    weight[i][4]	=  0.;
-	    weight[4][i]	=  0.;
+	    weight(i,4)	=  0.;
+	    weight(4,i)	=  0.;
 	}
-	weight[4][4]	+= 1./Gaudi::Units::TeV;
-    }
-}
-
-bool
-FitMatrices::solveEquationsAlMat(void)
-{
-    // otherwise using alignment matrix package
-    //  Note: multiplication using for loops is much faster than CLHEP ...
-    //        and fastest of all using an array from a struct !
-    AlSpaMat& weight		= *m_weight;
-    AlVec& weightedDifference	= *m_weightedDifference;
-    for (int row = 0; row < m_columns; ++row)
-    {
-	for (int col = 0; col <= row; ++col)
-	{
-	    double element = 0.;
-	    for (int i = m_firstRowForParameter[row]; i < m_rows; ++i)
-		element += fitMatrix.derivative[i][row] * fitMatrix.derivative[i][col];
-	    weight[row][col] = element;
-	}
-    }
-    
-    for (int row = 0; row < m_columns; ++row)
-    {
-	double element = 0.;
-	for (int i = m_firstRowForParameter[row]; i < m_rows; ++i)
-	    element += (*m_residuals)[i] * fitMatrix.derivative[i][row];
-	weightedDifference[row] = element;
-    }
-
-    if (m_parameters->phiInstability()) weight[0][0] += m_largePhiWeight;
-
-    // avoid some possible singularities in matrix inversion
-    avoidMomentumSingularity();
-    
-    // solve is faster than inverse: wait for explicit request for covariance before inversion
-    // checked with O(50) param   (SA OK with invert; ***REMOVED*** much faster for CB)
-    // trap singular matrix
-    int failure		= weight.***REMOVED***Solve(weightedDifference);
-    if (failure)
-    {
-	return false;
-    }
-    else
-    {
-	m_parameters->update(weightedDifference);
-	return true;
+	weight(4,4)	+= 1./Gaudi::Units::TeV;
     }
 }
 
@@ -508,21 +641,21 @@ FitMatrices::solveEquationsCLHEP(void)
 //     //        and fastest of all using an array from a struct !
 //     CLHEP::HepSymMatrix& weight			= *m_weightCLHEP;
 //     CLHEP::HepVector& weightedDifference	= *m_weightedDifferenceCLHEP;
-//     for (int row = 0; row < m_columns; ++row)
+//     for (int row = 0; row < m_columnsDM; ++row)
 //     {
 // 	for (int col = 0; col <= row; ++col)
 // 	{
 // 	    double element = 0.;
-// 	    for (int i = m_firstRowForParameter[row]; i < m_rows; ++i)
+// 	    for (int i = m_firstRowForParameter[row]; i < m_rowsDM; ++i)
 // 		element += fitMatrix.derivative[i][row] * fitMatrix.derivative[i][col];
 // 	    weight[row][col] = element;
 // 	}
 //     }
     
-//     for (int row = 0; row < m_columns; ++row)
+//     for (int row = 0; row < m_columnsDM; ++row)
 //     {
 // 	double element = 0.;
-// 	for (int i = m_firstRowForParameter[row]; i < m_rows; ++i)
+// 	for (int i = m_firstRowForParameter[row]; i < m_rowsDM; ++i)
 // 	    element += (*m_residuals)[i] * fitMatrix.derivative[i][row];
 // 	weightedDifference[row] = element;
 //     }
@@ -554,10 +687,131 @@ FitMatrices::solveEquationsCLHEP(void)
 //     CLHEP::HepVector diff	=  solve(weight,weightedDifference);
 
 //     // copy to alignment vector for parameter update
-//     AlVec diffAl(m_columns);
-//     for (int i = 0; i != m_columns; ++i) diffAl[i] = diff[i];
+//     AlVec diffAl(m_columnsDM);
+//     for (int i = 0; i != m_columnsDM; ++i) diffAl[i] = diff[i];
 //     m_parameters->update(diffAl);
     return true;
+}
+
+bool
+FitMatrices::solveEquationsFast(void)
+{
+    // FIXME:: convert to Eigen solve equivalent
+    //  Note: matrix multiplication uses for loops from struct
+    //        with indices optimised for sparse DerivativeMatrix
+    // FIXME:  test this works for alignment development
+    Amg::MatrixX& weight		= *m_weight;
+    Amg::VectorX& weightedDifference	= *m_weightedDifference;
+    for (int row = 0; row < m_columnsDM; ++row)
+    {
+	for (int col = 0; col < row; ++col)
+	{
+	    double element = 0.;
+	    int iBegin	= m_firstRowForParameter[col];
+	    if (iBegin	< m_firstRowForParameter[row]) iBegin	= m_firstRowForParameter[row];
+	    int iEnd	= m_lastRowForParameter[col];
+	    if (iEnd	> m_lastRowForParameter[row]) iEnd	= m_lastRowForParameter[row];
+	    for (int i = iBegin; i < iEnd; ++i)
+		element += fitMatrix.derivative[i][row] * fitMatrix.derivative[i][col];
+	    weight(row,col) = element;
+	    weight(col,row) = element;
+	}
+    }
+    
+    for (int row = 0; row < m_columnsDM; ++row)
+    {
+	double element	= 0.;
+	double residual	= 0.;
+	for (int i = m_firstRowForParameter[row]; i < m_lastRowForParameter[row]; ++i)
+	{
+	    element	+= fitMatrix.derivative[i][row] * fitMatrix.derivative[i][row];
+	    residual	+= (*m_residuals)[i] * fitMatrix.derivative[i][row];
+	}
+	weight(row,row)		= element;
+	weightedDifference(row) = residual;
+    }
+
+    if (m_parameters->phiInstability()) weight(0,0) += m_largePhiWeight;
+
+    // avoid some possible singularities in matrix inversion
+    avoidMomentumSingularity();
+    
+    // solve is faster than inverse: wait for explicit request for covariance before inversion
+    *m_weightedDifference = weight.colPivHouseholderQr().solve(weightedDifference);
+    bool failure = false;
+    if (failure)
+    {
+    	return false;
+    }
+    else
+    {
+	m_parameters->update(*m_weightedDifference);
+	return true;
+    }
+}
+
+bool
+FitMatrices::solveEquationsPrecise(void)
+{
+    // currently using alignment matrix package ***REMOVED***
+    //  Note: matrix multiplication uses for loops from struct
+    //        with indices optimised for sparse DerivativeMatrix
+    AlSpaMat& weight		= *m_weight***REMOVED***;
+    AlVec& weightedDifference	= *m_weightedDifference***REMOVED***;
+    for (int row = 0; row < m_columnsDM; ++row)
+    {
+	for (int col = 0; col <= row; ++col)
+	{
+	    double element = 0.;
+	    // FIXME:  disable smart pointers during alignment development
+	    // for (int i = m_firstRowForParameter[row]; i < m_rowsDM; ++i)
+	    for (int i = 0; i < m_rowsDM; ++i)	
+		element += fitMatrix.derivative[i][row] * fitMatrix.derivative[i][col];
+	    weight[row][col] = element;
+	}
+    }
+    
+    for (int row = 0; row < m_columnsDM; ++row)
+    {
+	double element = 0.;
+	// FIXME:  disable smart pointers during alignment development
+	// for (int i = m_firstRowForParameter[row]; i < m_rowsDM; ++i)
+	for (int i = 0; i < m_rowsDM; ++i)
+	    element += (*m_residuals)[i] * fitMatrix.derivative[i][row];
+	weightedDifference[row] = element;
+    }
+
+    if (m_parameters->phiInstability()) weight[0][0] += m_largePhiWeight;
+
+    // avoid some possible singularities in matrix inversion
+    // copy AlignMat to Eigen weight matrix
+    for (int i = 0; i != m_columnsDM; ++i)
+    {
+	for (int j = 0; j != m_columnsDM; ++j) (*m_weight)(i,j) = weight[j][i];
+    }
+    avoidMomentumSingularity();
+    
+
+    // solve is faster than inverse: wait for explicit request for covariance before inversion
+    // checked with O(50) param   (SA ~OK with invert but ***REMOVED*** much faster for CB)
+    // trap singular matrix
+    int failure		= weight.***REMOVED***Solve(weightedDifference);
+    if (failure)
+    {
+	return false;
+    }
+    else
+    {
+	// copy AlVec to Eigen VectorX
+	// for (int i = 0; i != m_columnsDM; ++i)
+	// {
+	//     for (int j = 0; j != m_columnsDM; ++j) (*m_weight)(i,j) = weight[j][i];
+	//     (*m_weightedDifference)(i) = weightedDifference[i];
+	// }
+	for (int i = 0; i != m_columnsDM; ++i) (*m_weightedDifference)(i) = weightedDifference[i];
+	m_parameters->update(*m_weightedDifference);
+	return true;
+    }
 }
 
 }	// end of namespace

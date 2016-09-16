@@ -108,7 +108,7 @@ FitParameters::FitParameters (double			d0,
 }
 
 FitParameters::FitParameters (const FitParameters&	parameters)
-    :  m_cosPhi         	       	(parameters.m_cosPhi),
+    :  m_cosPhi 			(parameters.m_cosPhi),
        m_cosPhi1			(parameters.m_cosPhi1),
        m_cosTheta			(parameters.m_cosTheta),
        m_cosTheta1			(parameters.m_cosTheta1),
@@ -116,32 +116,32 @@ FitParameters::FitParameters (const FitParameters&	parameters)
        m_d0				(parameters.m_d0),
        m_differences			(0),
        m_extremeMomentum		(parameters.m_extremeMomentum),
-       m_finalCovariance	       	(parameters.m_finalCovariance),
+       m_finalCovariance		(parameters.m_finalCovariance),
        m_firstScatteringParameter	(parameters.m_firstScatteringParameter),
        m_fitEnergyDeposit		(parameters.m_fitEnergyDeposit),
        m_fitMomentum			(parameters.m_fitMomentum),
-       m_fullCovariance	       		(parameters.m_fullCovariance),
+       m_fullCovariance 		(parameters.m_fullCovariance),
        m_minEnergyDeposit		(parameters.m_minEnergyDeposit),
        m_numberOscillations		(parameters.m_numberOscillations),
-       m_numberParameters       	(parameters.m_numberParameters),
+       m_numberParameters		(parameters.m_numberParameters),
        m_numberScatterers		(parameters.m_numberScatterers),
        m_oldDifference			(parameters.m_oldDifference),
        m_perigee			(parameters.m_perigee),
        m_phiInstability			(parameters.m_phiInstability),
        m_position			(parameters.m_position),
        m_qOverP				(parameters.m_qOverP),
-       m_qOverP1        	       	(parameters.m_qOverP1),
+       m_qOverP1			(parameters.m_qOverP1),
        m_scattererPhi			(parameters.m_scattererPhi),
        m_scattererTheta			(parameters.m_scattererTheta),
-       m_sinPhi         	       	(parameters.m_sinPhi),
+       m_sinPhi 			(parameters.m_sinPhi),
        m_sinPhi1			(parameters.m_sinPhi1),
        m_sinTheta			(parameters.m_sinTheta),
        m_sinTheta1			(parameters.m_sinTheta1),
-       m_surface	       		(parameters.m_surface),
-       m_vertex		       		(parameters.m_vertex),
+       m_surface			(parameters.m_surface),
+       m_vertex 			(parameters.m_vertex),
        m_z0				(parameters.m_z0)
 {
-    if (parameters.m_differences) m_differences = new AlVec(*parameters.m_differences);
+    if (parameters.m_differences) m_differences = new Amg::VectorX(*(parameters.m_differences));
 }
 
 FitParameters::~FitParameters (void)
@@ -154,8 +154,8 @@ FitParameters::~FitParameters (void)
 void
 FitParameters::addScatterer (double phi, double theta)
 {
-    m_scattererPhi[m_numberScatterers]	= phi;
-    m_scattererTheta[m_numberScatterers]= theta;
+    m_scattererPhi[m_numberScatterers]  	= phi;
+    m_scattererTheta[m_numberScatterers]	= theta;
     ++m_numberScatterers;
 }
 
@@ -248,22 +248,22 @@ FitParameters::performCutStep (double cutStep)
     //std::cout << " before cutstep " << std::endl;
     // revert parameters to previous parameter change with cutStep*value
     // i.e. 0 < cutstep < 1 such that cutStep = 0 gives complete reversion
-    AlVec cutDifferences(*m_differences);
+    Amg::VectorX cutDifferences(*m_differences);
     cutDifferences	*= (cutStep - 1.);
-    AlVec oldDifferences(*m_differences);
+    Amg::VectorX oldDifferences(*m_differences);
     oldDifferences	*= cutStep;
 
     // leave phi alone when unstable
     if (m_phiInstability)
     {
-	cutDifferences[2] = 0.;
-	oldDifferences[2] = (*m_differences)[2];
+	cutDifferences(2) = 0.;
+	oldDifferences(2) = (*m_differences)(2);
     }
 
     // apply cut
     update(cutDifferences);
     delete m_differences;
-    m_differences		= new AlVec(oldDifferences);
+    m_differences		= new Amg::VectorX(oldDifferences);
     m_numberOscillations	= 0;
     m_oldDifference		= 0.;
     //std::cout << " after cutstep " << std::endl;
@@ -357,25 +357,25 @@ FitParameters::printVerbose (MsgStream& log) const
     log << std::endl;
     if (m_differences && m_differences->size())
     {
-	const AlVec& differences = *m_differences;
+	const Amg::VectorX& differences = *m_differences;
 	log << "      dParams ===="        
 	    << std::setiosflags(std::ios::fixed)
-	    << std::setw(10) << std::setprecision(4) << differences[0]
-	    << " [0] "
-	    << std::setw(10) << std::setprecision(4) << differences[1]
-	    << " [1] "                                                          
-	    << std::setw(10) << std::setprecision(5) << differences[2]
-	    << " [2] "                          
-	    << std::setw(10) << std::setprecision(5) << differences[3]
-	    << " [3] "                     
+	    << std::setw(10) << std::setprecision(4) << differences(0)
+	    << " (0) "
+	    << std::setw(10) << std::setprecision(4) << differences(1)
+	    << " (1) "                                                          
+	    << std::setw(10) << std::setprecision(5) << differences(2)
+	    << " (2) "                          
+	    << std::setw(10) << std::setprecision(5) << differences(3)
+	    << " (3) "                     
 	    << std::setw(13) << std::setprecision(9)
-	    << differences[4]*Gaudi::Units::GeV/Gaudi::Units::TeV	<< " [4] ";
+	    << differences(4)*Gaudi::Units::GeV/Gaudi::Units::TeV	<< " (4) ";
 	if (m_fitEnergyDeposit)
 	    log << std::setiosflags(std::ios::fixed)
 		<< std::setw(13) << std::setprecision(9)
-		<< differences[5]*Gaudi::Units::GeV/Gaudi::Units::TeV	<< " [5] ";
+		<< differences(5)*Gaudi::Units::GeV/Gaudi::Units::TeV	<< " (5) ";
 	log << std::endl;
-	    
+
 	if (m_numberScatterers)
 	{
 	    log << "        dScat ==== ";
@@ -460,6 +460,7 @@ FitParameters::reset (const FitParameters& parameters)
     m_extremeMomentum		= parameters.m_extremeMomentum;
     m_finalCovariance	       	= parameters.m_finalCovariance;
     m_firstScatteringParameter	= parameters.m_firstScatteringParameter;
+    m_firstScatteringParameter	= parameters.m_firstScatteringParameter;
     m_fitEnergyDeposit		= parameters.m_fitEnergyDeposit;
     m_fitMomentum		= parameters.m_fitMomentum;
     m_fullCovariance	       	= parameters.m_fullCovariance;
@@ -489,11 +490,11 @@ FitParameters::reset (const FitParameters& parameters)
     delete m_differences;
     if (parameters.m_differences)
     {
-	m_differences		= new AlVec(*parameters.m_differences);
+	m_differences		= new Amg::VectorX(*parameters.m_differences);
     }
     else
     {
-	m_differences		= new AlVec(m_numberParameters);
+	m_differences		= new Amg::VectorX(m_numberParameters);
     }
     m_numberOscillations	= 0;
     m_oldDifference		= 0.;
@@ -550,14 +551,14 @@ FitParameters::trackParameters (MsgStream&		log,
     //   1) a Surface is required
     if (! measurement.surface())
     {
-	log << MSG::WARNING << "FitParameters::trackParameters - measurement lacks Surface" << endreq;
+	log << MSG::WARNING << "FitParameters::trackParameters - measurement lacks Surface" << endmsg;
 	return 0;
     }
 
     //   2) a SurfaceIntersection is required
     if (! measurement.hasIntersection(FittedTrajectory))
     {
-	log << MSG::WARNING << "FitParameters::trackParameters - invalid measurement" << endreq;
+	log << MSG::WARNING << "FitParameters::trackParameters - invalid measurement" << endmsg;
 	return 0;
     }
 	
@@ -568,7 +569,7 @@ FitParameters::trackParameters (MsgStream&		log,
 					       intersection.direction(),
 					       localPos))
     {
-	log << MSG::WARNING << "FitParameters::trackParameters - globalToLocal failure" << endreq;
+	log << MSG::WARNING << "FitParameters::trackParameters - globalToLocal failure" << endmsg;
 	return 0;
     }
 	
@@ -727,16 +728,16 @@ FitParameters::trackParameters (MsgStream&		log,
 	return parameters;
     }
     
-    log << MSG::WARNING << "FitParameters::trackParameters - unrecognized surface" << endreq;
+    log << MSG::WARNING << "FitParameters::trackParameters - unrecognized surface" << endmsg;
     delete covMatrix;
     return 0;
 }
 
 void
-FitParameters::update (const AlVec& differences)
+FitParameters::update (const Amg::VectorX& differences)
 {
     // keep update values in case of cutStep procedure
-    if (m_numberOscillations && m_oldDifference*differences[4] < 0.)
+    if (m_numberOscillations && m_oldDifference*differences(4) < 0.)
     {
 	++m_numberOscillations;
     }
@@ -745,8 +746,8 @@ FitParameters::update (const AlVec& differences)
 	m_numberOscillations = 1;
     }
     delete m_differences;
-    m_differences 	= new AlVec(differences);
-    m_oldDifference	= differences[4];
+    m_differences 	= new Amg::VectorX(differences);
+    m_oldDifference	= differences(4);
 
     // scattering angles
     std::vector<double>::iterator p = m_scattererPhi.begin();
@@ -754,18 +755,18 @@ FitParameters::update (const AlVec& differences)
     int scat = m_firstScatteringParameter;
     for (int i = 0; i != m_numberScatterers; ++i)
     {
-	(*p++) += differences[++scat];
-	(*t++) += differences[++scat];
+	(*p++) += differences(++scat);
+	(*t++) += differences(++scat);
     }
     
     // qOverP, cotTheta
-    if (m_fitMomentum)		m_qOverP += differences[4]/Gaudi::Units::TeV;
-    m_cotTheta	-= differences[3]/(m_sinTheta*m_sinTheta);
-    
+    if (m_fitMomentum)		m_qOverP += differences(4)/Gaudi::Units::TeV;
+    m_cotTheta	-= differences(3)/(m_sinTheta*m_sinTheta);
+        
     // impose charge conservation and decreasing energy
     if (m_fitEnergyDeposit)
     {	
-	m_qOverP1 += differences[5]/Gaudi::Units::TeV;
+	m_qOverP1 += differences(5)/Gaudi::Units::TeV;
 	double deposit = 1./std::abs(m_qOverP) - 1./std::abs(m_qOverP1);
 	if (std::abs(deposit) < std::abs(m_minEnergyDeposit)
 	    || deposit*m_minEnergyDeposit < 0.
@@ -777,7 +778,7 @@ FitParameters::update (const AlVec& differences)
     }
     
     // protect phi against some rounding instabilities
-    double sinDPhi	=  differences[2];
+    double sinDPhi	=  differences(2);
     double cosDPhi	=  0.;
     if (std::abs(sinDPhi) < 1.0)
     {
@@ -798,8 +799,8 @@ FitParameters::update (const AlVec& differences)
     double cosPhi      	=  m_cosPhi*cosDPhi - m_sinPhi*sinDPhi;
     m_sinPhi		=  m_sinPhi*cosDPhi + m_cosPhi*sinDPhi;
     m_cosPhi		=  cosPhi;
-    m_z0		+= differences[1];
-    m_d0		+= differences[0];
+    m_z0		+= differences(1);
+    m_d0		+= differences(0);
     m_sinTheta		=  1./std::sqrt(1. + m_cotTheta*m_cotTheta);
     m_cosTheta		=  m_cotTheta*m_sinTheta;
     m_position		=  Amg::Vector3D(m_vertex.x() - m_d0*m_sinPhi,

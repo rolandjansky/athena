@@ -15,7 +15,6 @@
 
 #include <vector>
 #include "EventPrimitives/EventPrimitives.h"
-#include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
 #include "TrkiPatFitterUtils/MeasurementType.h"
@@ -97,6 +96,8 @@ public:
     double				d0 (void) const;
     double				energyLoss (void) const;
     double				energyLossSigma (void) const;
+    unsigned	       			firstParameter (void) const;
+    void		       		firstParameter (unsigned value);
     void				flipDriftDirection (void);
     int					hitIndex (void) const;
     HitOnTrack*				hitOnTrack (void) const;
@@ -186,6 +187,7 @@ private:
     double*				m_derivative2;
     double				m_d0;
     double				m_energyLoss;
+    unsigned				m_firstParameter;
     bool				m_flippedDriftDistance;
     int					m_hitIndex;
     HitOnTrack*				m_hitOnTrack;
@@ -265,6 +267,14 @@ FitMeasurement::energyLoss (void) const
 inline double
 FitMeasurement::energyLossSigma (void) const
 { return m_sigma; }
+
+inline unsigned
+FitMeasurement::firstParameter (void) const
+{ return m_firstParameter; }
+
+inline void
+FitMeasurement::firstParameter (unsigned value)
+{ m_firstParameter	= value; }
 
 inline void
 FitMeasurement::flipDriftDirection (void)
@@ -494,6 +504,20 @@ FitMeasurement::setSigmaMinus (void)
 inline void
 FitMeasurement::setSigmaPlus (void)
 { m_weight = 1./m_sigmaPlus; }
+
+inline double
+FitMeasurement::sigma (void) const
+{
+    if (! m_weight) return 0;
+    return 1./m_weight;
+}
+
+inline double
+FitMeasurement::sigma2 (void) const
+{
+    if (! m_weight2) return 0;
+    return 1./m_weight2;
+}
 
 inline double
 FitMeasurement::signedDriftDistance (void) const

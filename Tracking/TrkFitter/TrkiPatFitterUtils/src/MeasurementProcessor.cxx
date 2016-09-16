@@ -64,7 +64,7 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
     // bool haveDrift		= false;
     int numberPositionMeas	= 0;
     // int numberPseudo		= 0;
-    m_scatterers.reserve(20);
+    m_scatterers.reserve(100);
     
     for (std::list<FitMeasurement*>::iterator m = m_measurements.begin();
 	 m != m_measurements.end();
@@ -480,7 +480,7 @@ MeasurementProcessor::fieldIntegralUncertainty (MsgStream& log, Amg::MatrixX& co
 		<< "   diff "
 		<< std::setw(8) << std::setprecision(4) << deltaPhi
 		<< std::setw(8) << std::setprecision(4) << deltaTheta
-		<< endreq;
+		<< endmsg;
 	    return;
 	}
     }
@@ -533,7 +533,7 @@ MeasurementProcessor::fieldIntegralUncertainty (MsgStream& log, Amg::MatrixX& co
 		<< "   diff "
 		<< std::setw(8) << std::setprecision(4) << deltaPhi
 		<< std::setw(8) << std::setprecision(4) << deltaTheta
-		<< endreq;
+		<< endmsg;
 	}
     }
 }

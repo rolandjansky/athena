@@ -7,17 +7,18 @@
 //  Storage and manipulation of matrices during track fitting
 //  (note the actual matrices are structs (FitMatrix.h) to give faster execution)
 //
-//  Given matrix of measurement derivatives wrt fit parameters (D)
+//  Given matrix of measurement derivatives wrt fit parameters (DerivativeMatrix DM)
 //  and vector of differences between measurements and fitted trajectory,
 //  solve for:
-//   parameter weight matrix = (covariance)-1 = DT.D
-//   parameter change        = (DT.D)-1 * (DT.differ)
+//   parameter weight matrix = (covariance)-1 = DMtranspose.DM
+//   parameter change        = (DMtranspose.DM)-1 * (DMtranspose.differences)
 //
 //  NOTE:
-//  covariances, derivatives etc, use d0, z0, phi, cot(theta), qOverPt as parameters
-//  distinguish: full covariance with all parameters (incl scattering and energy loss)
-//               5*5 final covariance with external contribution representing
-//               leading material and field gradient effects
+//  covariances, derivatives etc, use d0, z0, phi, cot(theta), qOverPt as first 5 parameters
+//  distinguish: full covariance with all parameters:
+//			includes misalignments, scattering and energy loss
+//               5*5 final covariance with possible external contribution representing
+//               	leading material and field gradient effects
 //
 //  (c) ATLAS tracking software
 //////////////////////////////////////////////////////////////////////////////
@@ -76,6 +77,10 @@ namespace Trk
      // chiSquared contribution from perigee measurement
      double			perigeeChiSquared (void);
 
+     // debugging aids (n.b. using std::cout)
+     void			printDerivativeMatrix (void);
+     void			printWeightMatrix (void);
+
      // initialize matrices - set appropriate dimensions for a given set of measurements 
      int	       		setDimensions (std::list<FitMeasurement*>&	measurements,
 					       FitParameters*			parameters);
@@ -92,30 +97,35 @@ namespace Trk
      // fix for momentum singularity
      void			avoidMomentumSingularity (void);     
      // implementation of matrix equation solution
-     bool			solveEquationsAlMat (void);	// using alignment matrix pkg
-     bool			solveEquationsCLHEP (void);	// using CLHEP
+     bool			solveEquationsCLHEP (void);	// using CLHEP (no longer activated)
+     bool			solveEquationsFast (void);	// will use Eigen (in preparation)
+     bool			solveEquationsPrecise (void);	// using alignment matrix pkg ***REMOVED***
     
-     int		       	m_columns;
-     Amg::MatrixX*		m_covariance;
-     Amg::MatrixX*	   	m_finalCovariance;
-     std::vector<int>       	m_firstRowForParameter;
-     double			m_largePhiWeight;
-     bool			m_matrixFromCLHEP;
-     int		       	m_numberDoF;
-     int		       	m_numberDriftCircles;
-     int		       	m_numberPerigee;
-     FitParameters*		m_parameters;
-     const Amg::VectorX*   	m_perigee;
-     Amg::MatrixX	    	m_perigeeDifference;
-     const Amg::MatrixX*	m_perigeeWeight;
-     std::vector<double>*	m_residuals;
-     int		       	m_rows;
-     bool       	       	m_usePerigee;
-     AlSpaMat*			m_weight;
+     int		       		m_columnsDM;
+     Amg::MatrixX*			m_covariance;
+     Amg::MatrixX*		   	m_finalCovariance;
+     std::vector<int>       		m_firstRowForParameter;
+     double				m_largePhiWeight;
+     std::vector<int>       		m_lastRowForParameter;
+     bool				m_matrixFromCLHEP;
+     std::list<FitMeasurement*>*	m_measurements;
+     int			       	m_numberDoF;
+     int		       		m_numberDriftCircles;
+     int		      	 	m_numberPerigee;
+     bool				m_optimizeMatrixPrecision;
+     FitParameters*			m_parameters;
+     const Amg::VectorX*   		m_perigee;
+     Amg::MatrixX	    		m_perigeeDifference;
+     const Amg::MatrixX*		m_perigeeWeight;
+     std::vector<double>*		m_residuals;
+     int				m_rowsDM;
+     bool       			m_usePerigee;
+     Amg::MatrixX*			m_weight;
      // CLHEP::HepSymMatrix*		m_weightCLHEP;
-     AlVec*	       		m_weightedDifference;
+     AlSpaMat*				m_weight***REMOVED***;
+     Amg::VectorX*			m_weightedDifference;
      // CLHEP::HepVector*	       	m_weightedDifferenceCLHEP;
-     
+     AlVec*	       			m_weightedDifference***REMOVED***;
 };   
 
 //<<<<<< INLINE MEMBER FUNCTIONS                                        >>>>>>

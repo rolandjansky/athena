@@ -2,9 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-/***************************************************************************
+/************************************************************************************
  local parameter values used during fitter iterations
- ***************************************************************************/
+ note the extra parameters for handling detector misalignment and Coulomb scattering
+ for brevity (mis-)named alignment and scatterer
+*************************************************************************************/
 
 #ifndef TRKIPATFITTERUTILS_FITPARAMETERS_H
 # define TRKIPATFITTERUTILS_FITPARAMETERS_H
@@ -14,8 +16,6 @@
 #include <vector>
 #include "EventPrimitives/EventPrimitives.h"
 #include "GeoPrimitives/GeoPrimitives.h"
-#include "TrkAlgebraUtils/AlSymMat.h"
-#include "TrkAlgebraUtils/AlVec.h"
 #include "TrkParameters/TrackParameters.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
@@ -56,7 +56,7 @@ public:
     double			d0 (void) const;
     void			d0 (double value);
     double			difference (int param) const;
-    const AlVec&		differences (void) const;
+    const Amg::VectorX&  	differences (void) const;
     Amg::Vector3D		direction (void) const;
     bool			extremeMomentum (void) const;
     void			extremeMomentum (bool value);
@@ -100,7 +100,7 @@ public:
     const TrackParameters*	trackParameters (MsgStream&		log,
 						 const FitMeasurement&	measurement,
 						 bool			withCovariance=false) const;
-    void			update (const AlVec&			differences);
+    void			update (const Amg::VectorX&		differences);
     void			update (Amg::Vector3D			position,
 					Amg::Vector3D			direction,
 					double				qOverP,
@@ -111,14 +111,14 @@ public:
 private:
     // assignment: no semantics, no implementation
     FitParameters &operator= (const FitParameters&);
-    
+
     double			m_cosPhi;
     mutable double		m_cosPhi1;
     double			m_cosTheta;
     mutable double		m_cosTheta1;
     double			m_cotTheta;
     double			m_d0;
-    AlVec*			m_differences;
+    Amg::VectorX*		m_differences;
     bool			m_extremeMomentum;
     Amg::MatrixX*		m_finalCovariance;
     int				m_firstScatteringParameter;
@@ -172,7 +172,7 @@ FitParameters::difference (int param) const
     return (*m_differences)[param];
 }
 
-inline const AlVec&
+inline const Amg::VectorX&
 FitParameters::differences (void) const
 { return *m_differences; }
 

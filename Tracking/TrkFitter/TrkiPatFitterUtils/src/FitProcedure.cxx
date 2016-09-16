@@ -115,12 +115,12 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
     unsigned size = measurements.size() + 1;
     if (leadingTSOS) size += leadingTSOS->size();
     trackStateOnSurfaces->reserve(size);
-    const FitMeasurement*	fitMeasurement	= measurements.front();
-    const FitQualityOnSurface*	fitQoS		= 0;
-    const MaterialEffectsBase*	materialEffects	= 0;
-    const MeasurementBase*	measurementBase	= 0;
-    const Surface*		surface		= 0;
-    const TrackParameters*	trackParameters	= 0;
+    const FitMeasurement*		fitMeasurement		= measurements.front();
+    const FitQualityOnSurface*  	fitQoS			= 0;
+    const MaterialEffectsBase*  	materialEffects		= 0;
+    const MeasurementBase*		measurementBase		= 0;
+    const Surface*			surface			= 0;
+    const TrackParameters*		trackParameters		= 0;
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> defaultPattern;
     std::bitset<TrackStateOnSurface::NumberOfTrackStateOnSurfaceTypes> typePattern = defaultPattern;
 
@@ -170,7 +170,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 			*m_log << MSG::DEBUG << " skip empty TSOS# " << tsos + 1;
 			if ((**m).materialEffects()) *m_log << " with material";
 			(**m).print(*m_log);
-			*m_log << endreq;
+			*m_log << endmsg;
 		    }
 		}
 		else
@@ -184,7 +184,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 		    {
 			*m_log << MSG::WARNING
 			       << " fail track with incomplete return TSOS: no trackParameters"
-			       << endreq;
+			       << endmsg;
 			delete trackStateOnSurfaces;
 			return 0;
 		    }
@@ -207,7 +207,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	else
 	{
 	    fitMeasurement	= *m;
-	    if (m_verbose) *m_log << MSG::VERBOSE << " tsos# " << tsos << " shared surface" << endreq;
+	    if (m_verbose) *m_log << MSG::VERBOSE << " tsos# " << tsos << " shared surface" << endmsg;
 	}
 
 	// it's a measurement
@@ -226,7 +226,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 		{
 		    *m_log << MSG::WARNING
 			   << " fail track with incomplete return TSOS: no trackParameters"
-			   << endreq;
+			   << endmsg;
 		    delete trackStateOnSurfaces;
 		    return 0;
 		}
@@ -237,10 +237,10 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 									materialEffects,
 									typePattern));
 		++tsos;
-		fitMeasurement	= *m;
-		fitQoS		= 0;
-		materialEffects	= 0;
-		typePattern	= defaultPattern;
+		fitMeasurement		= *m;
+		fitQoS			= 0;
+		materialEffects		= 0;
+		typePattern		= defaultPattern;
 	    }
 	    
 	    measurementBase	= (**m).measurementBase()->clone();
@@ -315,7 +315,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	    }
 	    else
 	    {
-		*m_log << MSG::WARNING <<" deprecated TrackStateOnSurface::InertMaterial" << endreq;
+		*m_log << MSG::WARNING <<" deprecated TrackStateOnSurface::InertMaterial" << endmsg;
 		materialEffects	= (**m).materialEffects()->clone();
 		typePattern.set(TrackStateOnSurface::InertMaterial);
 	    }
@@ -326,7 +326,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 	{
 	    typePattern.set(TrackStateOnSurface::Perigee);
 	}
-	
+
 	// passive types: hole for now
 	else if ((**m).isPassive())
 	{
@@ -341,7 +341,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
     {
 	*m_log << MSG::WARNING
 	       << " fail track with incomplete return TSOS: no trackParameters"
-	       << endreq;
+	       << endmsg;
 	delete trackStateOnSurfaces;
 	return 0;
     }
@@ -359,7 +359,7 @@ FitProcedure::constructTrack (const std::list<FitMeasurement*>&			measurements,
 				    trackStateOnSurfaces,
 				    new FitQuality(chiSquared,m_numberDoF));
 
-    if (m_verbose) *m_log << MSG::VERBOSE << " track with " << tsos << " TSOS " << endreq;
+    if (m_verbose) *m_log << MSG::VERBOSE << " track with " << tsos << " TSOS " << endmsg;
     return track;
 }
 
@@ -384,7 +384,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	if (m_log->level() < MSG::DEBUG)  m_verbose = true;
 	*m_log << MSG::DEBUG << "parameter start values:  ";
 	parameters->print(*m_log);
-	*m_log << endreq;
+	*m_log << endmsg;
     }
 	
     // choose appropriate intersector
@@ -441,11 +441,12 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    m_convergence	= true;
 	    m_cutStep		= false;
 	    if (m_verbose)
-		*m_log << MSG::VERBOSE << " convergence problem: accept after max iter " << endreq;
+		*m_log << MSG::VERBOSE << " convergence problem: accept after max iter " << endmsg;
 	}
-	else if (! m_cutStep) 
+	else if (! m_cutStep)
 	{
 	    //  solve equations and update parameters
+	    if (m_verbose && ! m_iteration) m_fitMatrices->printDerivativeMatrix();
 	    if (! m_fitMatrices->solveEquations())
 	    {
 		fitCode			= 11;	// fails matrix inversion
@@ -454,7 +455,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		     && ! parameters->extremeMomentum()
 		     && std::abs(parameters->qOverP()) < m_extremeOneOverP)
 	    {
-		if (m_debug) *m_log << MSG::DEBUG << " extremeMomentum " << endreq;
+		if (m_debug) *m_log << MSG::DEBUG << " extremeMomentum " << endmsg;
 		parameters->extremeMomentum(true);
 		delete bestParameters;
 		fitCode			= m_fitMatrices->setDimensions(measurements,parameters);
@@ -467,6 +468,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		m_driftSumLast		= 0.;
 		m_numberParameters	= parameters->numberParameters();
 	    }
+	    if (m_verbose && ! m_iteration) m_fitMatrices->printWeightMatrix();
 	}
 	++m_iteration;
 	
@@ -529,7 +531,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		
 		if (m_debug)
 		{
-		    if (m_verbose) *m_log << endreq;
+		    if (m_verbose) *m_log << endmsg;
 		    reportQuality(measurements,*parameters);
 		}
 		return *m_fitQuality;
@@ -564,7 +566,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 				   << m_iteration
 				   << "  chi2Ratio " << m_chRatio1
 				   << "   driftSum " << m_driftSum << " prev " << m_driftSumLast
-				   << "   " << cutStep << endreq;
+				   << "   " << cutStep << endmsg;
 		    }
 		    else if (parameters->numberOscillations() > 2)
 		    {
@@ -574,7 +576,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 			    *m_log << MSG::VERBOSE
 				   << " take cutStep as oscillating, iteration "
 				   << m_iteration << ", numberOscillations "
-				   << parameters->numberOscillations() << endreq;
+				   << parameters->numberOscillations() << endmsg;
 		    }
 		    
 		    // perform cutstep
@@ -590,7 +592,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 			    if (m_verbose) *m_log << "   after cutStep: "
 						  << "  chi2Ratio " << m_chRatio1
 						  << "   driftSum " << m_driftSum
-						  << endreq;
+						  << endmsg;
 			}
 		    }
 		}
@@ -633,7 +635,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		}
 	    }
 	}	// if (std::abs(ptInv0) > ptInvCut)
-	if (m_verbose) *m_log << endreq;
+	if (m_verbose) *m_log << endmsg;
 
 	// try to rescue phi instability failures
 	if (fitCode
@@ -642,7 +644,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 	    && ! parameters->phiInstability()
 	    && (**(measurements.rbegin())).position().perp() > m_largeRadius)
 	{
-	    if (m_verbose) *m_log << MSG::VERBOSE << " phi instability " << endreq;
+	    if (m_verbose) *m_log << MSG::VERBOSE << " phi instability " << endmsg;
 	    parameters->reset(*bestParameters);
 	    parameters->setPhiInstability();
 	    m_cutStep		= true;
@@ -697,7 +699,7 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 		*m_log << MSG::VERBOSE << " fit converged";
 		if (m_chiSqWorst > 6.25) *m_log << " with possible outlier #" << m_worstMeasurement
 						<< " (residual " << std::sqrt(m_chiSqWorst) << ")";
-		*m_log << endreq;
+		*m_log << endmsg;
 	    }
 	}
 	else
@@ -915,7 +917,7 @@ FitProcedure::calculateChiSq(std::list<FitMeasurement*>& measurements)
 	else
 	{	    
 	    m_nearConvergence = true;
-	    if (m_verbose) *m_log << MSG::VERBOSE << " near convergence " << endreq;
+	    if (m_verbose) *m_log << MSG::VERBOSE << " near convergence " << endmsg;
 	}
     }
     else
@@ -1038,17 +1040,17 @@ FitProcedure::reportQuality(const std::list<FitMeasurement*>&	measurements,
 	default:
 	    break;
 	};
-	*m_log << std::endl << endreq;
+	*m_log << std::endl << endmsg;
     }
     else
     {
 	*m_log << MSG::DEBUG << "fitted parameter values: ";
 	parameters.print(*m_log);
-	*m_log << endreq;
+	*m_log << endmsg;
 	*m_log << MSG::DEBUG;
 	m_fitQuality->print(*m_log);
 	parameters.printCovariance(*m_log);
-	*m_log << endreq;
+	*m_log << endmsg;
     }
 }
 

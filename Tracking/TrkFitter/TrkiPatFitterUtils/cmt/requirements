@@ -8,6 +8,7 @@ author			Alan Poppleton <Alan.Poppleton@cern.ch>
 
 private
 use AtlasCLHEP		       AtlasCLHEP-*                  External
+use TrkAlgebraUtils	       TrkAlgebraUtils-*	     Tracking/TrkAlignment
 use TrkExInterfaces	       TrkExInterfaces-*	     Tracking/TrkExtrapolation
 use TrkExUtils		       TrkExUtils-*		     Tracking/TrkExtrapolation
 use TrkGeometry		       TrkGeometry-*		     Tracking/TrkDetDescr
@@ -23,7 +24,6 @@ use DataModel		       DataModel-*		     Control
 use EventPrimitives	       EventPrimitives-*	     Event
 use GaudiInterface	       GaudiInterface-*		     External
 use GeoPrimitives	       GeoPrimitives-*		     DetectorDescription
-use TrkAlgebraUtils	       TrkAlgebraUtils-*	     Tracking/TrkAlignment
 use TrkEventPrimitives	       TrkEventPrimitives-*	     Tracking/TrkEvent
 use TrkParameters	       TrkParameters-*		     Tracking/TrkEvent
 			
