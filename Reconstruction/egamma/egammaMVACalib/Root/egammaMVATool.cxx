@@ -5,20 +5,15 @@
 #include "egammaMVACalib/egammaMVATool.h"
 #include "egammaMVACalib/egammaMVACalib.h"
 #include "egammaMVACalib/egammaMVATree.h"
-
-#include "egammaRecEvent/egammaRec.h"
-
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaDefs.h"
 #include "xAODEgamma/Electron.h"
 #include "xAODEgamma/Photon.h"
 #include "xAODCaloEvent/CaloCluster.h"
 #include "xAODEgamma/EgammaxAODHelpers.h"
-
 #include "xAODTracking/Vertex.h"
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackingPrimitives.h"
-
 #include "PathResolver/PathResolver.h"
 #include "CxxUtils/make_unique.h"
 
@@ -188,13 +183,12 @@ StatusCode egammaMVATool::execute(xAOD::CaloCluster* cluster,const xAOD::Egamma*
   return StatusCode::SUCCESS;
 }
 
-StatusCode egammaMVATool::execute(xAOD::CaloCluster* cluster,const egammaRec* eg,
-				  xAOD::EgammaParameters::EgammaType egType){
-  if (!eg || !cluster) {
+StatusCode egammaMVATool::execute(xAOD::CaloCluster* cluster, const xAOD::EgammaParameters::EgammaType egType){
+  if (!cluster) {
     ATH_MSG_ERROR("Invalid Pointer to egamma or cluster object");
     return StatusCode::FAILURE;
   }
-  double mvaE = getEnergy(cluster, eg, egType);
+  double mvaE = getEnergy(cluster, egType);
   ATH_MSG_DEBUG( "Calculated MVA calibrated energy = " << mvaE );
   if (mvaE > 0) {
     cluster->setCalE(mvaE);
@@ -245,8 +239,6 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const std::stri
     }
     return 0;
   }
-
-
   getClusterVariables(cluster);
 
   if(egType == "Electron"){
@@ -331,7 +323,6 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Ele
     ATH_MSG_ERROR("No electron passed");
     return 0;
   }
-
   if (m_new_version) {
     ATH_MSG_DEBUG("updating variables electron");
     m_MVATreeElectron->update(el, cluster);
@@ -339,7 +330,6 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Ele
   }
   else {
     getClusterVariables(cluster);
-
     return m_mvaElectron->getMVAEnergyElectron(m_rawcl_Es0,
 					       m_rawcl_Es1,
 					       m_rawcl_Es2,
@@ -402,11 +392,8 @@ float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::Pho
   }
 }
 
-float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const egammaRec*,
-			       xAOD::EgammaParameters::EgammaType)
-{
-  // placeholder
-  return cluster->e();
+float egammaMVATool::getEnergy(const xAOD::CaloCluster* cluster, const xAOD::EgammaParameters::EgammaType egType){
+  return  ( (egType==xAOD::EgammaParameters::electron) ?  getEnergy(cluster, "Electron") : getEnergy(cluster, "Photon") );
 }
 
 bool egammaMVATool::getClusterVariables(const xAOD::CaloCluster* cluster){
