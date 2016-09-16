@@ -229,8 +229,9 @@ namespace Trk {
       // Public methods for Trk::PatternTrackParameters (from IPattern'Propagator)
       /////////////////////////////////////////////////////////////////////////////////
 
-      /** Main propagation mehtod */
+      /** Main propagation method */
 
+      using IPropagator::propagate;
       bool propagate
 	(PatternTrackParameters         &,
 	 const Surface                  &,

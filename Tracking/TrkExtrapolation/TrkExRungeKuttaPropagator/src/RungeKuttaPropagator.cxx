@@ -58,7 +58,7 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
   ATH_MSG_DEBUG("Retrieved " << m_fieldServiceHandle );
   m_fieldService = &*m_fieldServiceHandle;
 
-  msg(MSG::INFO) << name() <<" initialize() successful" << endreq;
+  msg(MSG::INFO) << name() <<" initialize() successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -68,7 +68,7 @@ StatusCode Trk::RungeKuttaPropagator::initialize()
 
 StatusCode  Trk::RungeKuttaPropagator::finalize()
 {
-  msg(MSG::INFO) << name() <<" finalize() successful" << endreq;
+  msg(MSG::INFO) << name() <<" finalize() successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -178,12 +178,15 @@ const Trk::TrackParameters* Trk::RungeKuttaPropagator::propagate
   Trk::RungeKuttaUtils utils;
 
   double Po[45],Pn[45]; 
-  if(!utils.transformLocalToGlobal(useJac,Tp,Po)) return 0; Po[42]=Po[43]=Po[44]=0.;
+  if(!utils.transformLocalToGlobal(useJac,Tp,Po)) return 0;
+  Po[42]=Po[43]=Po[44]=0.;
 
   // Straight line track propagation for small step
   //
   if(D!=0) {
-    double S= m_straightStep; if(D < 0) S = -S; S = straightLineStep(useJac,S,Po);
+    double S= m_straightStep;
+    if(D < 0) S = -S;
+    S = straightLineStep(useJac,S,Po);
   }
 
   double Wmax  = 50000.    ; // Max pass
@@ -1549,7 +1552,8 @@ double Trk::RungeKuttaPropagator::stepEstimatorWithCurvature
 
   double PN[6] = {P[0],P[1],P[2],Ax*As,Ay*As,Az*As};
   double StepN = utils.stepEstimator(kind,Su,PN,Q); if(!Q) {Q = true; return Step;}
-  if(fabs(StepN) < AStep) return StepN; return Step;
+  if(fabs(StepN) < AStep) return StepN;
+  return Step;
 } 
 
 /////////////////////////////////////////////////////////////////////////////////
@@ -1626,7 +1630,8 @@ void Trk::RungeKuttaPropagator::globalOneSidePositions
       // Test perigee 
       //
       if((p[0]*p[3]+p[1]*p[4])*Dir < 0.) {
-	if(s) break; per = true;
+	if(s) break;
+        per = true;
       }
     }
   }
