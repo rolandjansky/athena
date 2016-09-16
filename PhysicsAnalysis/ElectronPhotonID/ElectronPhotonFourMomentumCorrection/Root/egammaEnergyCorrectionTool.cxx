@@ -12,6 +12,8 @@
 #include <iomanip>
 #include <ios>
 
+#include <boost/format.hpp>
+
 #include "ElectronPhotonFourMomentumCorrection/egammaEnergyCorrectionTool.h"
 #include "ElectronPhotonFourMomentumCorrection/GainTool.h"
 #include "ElectronPhotonFourMomentumCorrection/eg_resolution.h"
@@ -225,6 +227,8 @@ namespace AtlasRoot {
       return 0;
       }
     */
+
+    ATH_MSG_DEBUG("initialize internal tool");
 
     // Load the ROOT file
     const char* fname(gSystem->ExpandPathName( m_rootFileName.c_str() ));
@@ -995,7 +999,7 @@ namespace AtlasRoot {
     if ( scaleVar == egEnergyCorr::Scale::None && resVar == egEnergyCorr::Resolution::None )
       return fullyCorrectedEnergy;
 
-    ATH_MSG_DEBUG("after sim fl = " << fullyCorrectedEnergy);
+    ATH_MSG_DEBUG("after sim fl = " << boost::format("%.2f") % fullyCorrectedEnergy);
 
     // main E-scale corrections
 
@@ -1004,7 +1008,7 @@ namespace AtlasRoot {
       if( scaleVar == egEnergyCorr::Scale::Nominal ) {
         double alpha = getAlphaValue(runnumber, cl_eta, cl_etaCalo, fullyCorrectedEnergy, energyS2, eraw, ptype, scaleVar, varSF);
         fullyCorrectedEnergy /= (1 + alpha);
-        ATH_MSG_DEBUG("after alpha = " << fullyCorrectedEnergy);
+        ATH_MSG_DEBUG("after alpha = " << boost::format("%.2f") % fullyCorrectedEnergy);
       }
 
     } else { // ... MC
@@ -1015,14 +1019,14 @@ namespace AtlasRoot {
         double deltaAlpha = getAlphaUncertainty(runnumber, cl_eta, cl_etaCalo, fullyCorrectedEnergy, energyS2, eraw, ptype, scaleVar, varSF );
         ATH_MSG_DEBUG("alpha sys " << variationName(scaleVar) << " = " << deltaAlpha);
         fullyCorrectedEnergy *= ( 1 + deltaAlpha );
-        ATH_MSG_DEBUG("after mc alpha = " << fullyCorrectedEnergy);
+        ATH_MSG_DEBUG("after mc alpha = " << boost::format("%.2f") % fullyCorrectedEnergy);
       }
 
       // Do the resolution correction
       if ( resVar != egEnergyCorr::Resolution::None )
       fullyCorrectedEnergy *= getSmearingCorrection(cl_eta, cl_etaCalo, fullyCorrectedEnergy, ptype, dataType, resVar, resType);
 
-      ATH_MSG_DEBUG("after res = " << fullyCorrectedEnergy);
+      ATH_MSG_DEBUG("after resolution correction = " << boost::format("%.2f") % fullyCorrectedEnergy);
     }
 
     return fullyCorrectedEnergy;
@@ -1198,8 +1202,7 @@ namespace AtlasRoot {
 
   // returns alpha_var - alpha_nom, for systematic variations.
 
-  double egammaEnergyCorrectionTool::getAlphaUncertainty(
-							 long int runnumber,
+  double egammaEnergyCorrectionTool::getAlphaUncertainty(long int runnumber,
 							 double cl_eta,
 							 double cl_etaCalo,
 							 double energy,
@@ -1219,26 +1222,29 @@ namespace AtlasRoot {
     else if (var == egEnergyCorr::Scale::AllUp) {
       for (egEnergyCorr::Scale::Variation ivar = egEnergyCorr::Scale::ZeeStatUp;
            ivar < egEnergyCorr::Scale::AllUp;
-           ivar = egEnergyCorr::Scale::Variation(ivar+2)) {
-        if( ivar==egEnergyCorr::Scale::ZeeAllUp ) continue;
+           ivar = egEnergyCorr::Scale::Variation(ivar + 2)) {
+        if (ivar == egEnergyCorr::Scale::ZeeAllUp) continue;
         const double v = getAlphaValue(runnumber, cl_eta, cl_etaCalo, energy, energyS2, eraw, ptype, ivar, varSF) - alphaNom;
+        ATH_MSG_DEBUG("computing ALLUP, adding " << variationName(ivar) << ": " << v);
         alphaVar += pow(v, 2);
       }
       alphaVar = sqrt(alphaVar);
     }
-    else if( var == egEnergyCorr::Scale::AllDown ) {
-      for (egEnergyCorr::Scale::Variation v = egEnergyCorr::Scale::ZeeStatDown;
-           v < egEnergyCorr::Scale::AllDown;
-           v = egEnergyCorr::Scale::Variation(v+2)) {
-             if( v==egEnergyCorr::Scale::ZeeAllDown ) continue;
-             alphaVar += pow( getAlphaValue(runnumber, cl_eta, cl_etaCalo, energy, eraw, energyS2, ptype, v, varSF) - alphaNom, 2 );
+    else if (var == egEnergyCorr::Scale::AllDown) {
+      for (egEnergyCorr::Scale::Variation ivar = egEnergyCorr::Scale::ZeeStatDown;
+           ivar < egEnergyCorr::Scale::AllDown;
+           ivar = egEnergyCorr::Scale::Variation(ivar + 2)) {
+	if (ivar == egEnergyCorr::Scale::ZeeAllDown) continue;
+        const double v = getAlphaValue(runnumber, cl_eta, cl_etaCalo, energy, energyS2, eraw, ptype, ivar, varSF) - alphaNom;
+        ATH_MSG_DEBUG("computing ALLDOWN, adding " << variationName(ivar) << ": " << v);
+	alphaVar += pow(v, 2);
       }
       alphaVar = -sqrt(alphaVar);
     }
     else if (var == egEnergyCorr::Scale::AllCorrelatedUp) {
       for (egEnergyCorr::Scale::Variation ivar = egEnergyCorr::Scale::ZeeStatUp;
            ivar < egEnergyCorr::Scale::AllUp;
-	         ivar = egEnergyCorr::Scale::Variation(ivar+2)) {
+	   ivar = egEnergyCorr::Scale::Variation(ivar+2)) {
         if (ivar == egEnergyCorr::Scale::ZeeAllUp or
             ivar == egEnergyCorr::Scale::LArCalibExtra2015PreUp or
             ivar == egEnergyCorr::Scale::LArTemperature2015PreUp or
@@ -1251,15 +1257,15 @@ namespace AtlasRoot {
     }
     else if (var == egEnergyCorr::Scale::AllCorrelatedDown) {
       for (egEnergyCorr::Scale::Variation ivar = egEnergyCorr::Scale::ZeeStatDown;
-	   ivar < egEnergyCorr::Scale::AllDown;
-	   ivar = egEnergyCorr::Scale::Variation(ivar+2)) {
-	if (ivar == egEnergyCorr::Scale::ZeeAllDown or
-	    ivar == egEnergyCorr::Scale::LArCalibExtra2015PreDown or
-	    ivar == egEnergyCorr::Scale::LArTemperature2015PreDown or
-      ivar == egEnergyCorr::Scale::LArTemperature2016PreDown or
-	    ivar == egEnergyCorr::Scale::E4ScintillatorDown) continue;
-	const double v = getAlphaValue(runnumber, cl_eta, cl_etaCalo, energy, energyS2, eraw, ptype, ivar, varSF) - alphaNom;
-	alphaVar += pow(v, 2);
+           ivar < egEnergyCorr::Scale::AllDown;
+           ivar = egEnergyCorr::Scale::Variation(ivar+2)) {
+        if (ivar == egEnergyCorr::Scale::ZeeAllDown or
+            ivar == egEnergyCorr::Scale::LArCalibExtra2015PreDown or
+            ivar == egEnergyCorr::Scale::LArTemperature2015PreDown or
+            ivar == egEnergyCorr::Scale::LArTemperature2016PreDown or
+            ivar == egEnergyCorr::Scale::E4ScintillatorDown) continue;
+        const double v = getAlphaValue(runnumber, cl_eta, cl_etaCalo, energy, energyS2, eraw, ptype, ivar, varSF) - alphaNom;
+        alphaVar += pow(v, 2);
       }
       alphaVar = -sqrt(alphaVar);
     }
@@ -1369,16 +1375,11 @@ namespace AtlasRoot {
   // constant term fitted in data (long range)
 
   double egammaEnergyCorrectionTool::dataConstantTerm( double eta ) const {
-
     return std::max(0., m_resNom->GetBinContent(m_resNom->FindBin(eta)));
-
   }
 
-
   double egammaEnergyCorrectionTool::dataConstantTermError( double eta ) const {
-
     return m_resSyst->GetBinContent(m_resSyst->FindBin(eta));
-
   }
 
 
@@ -1442,9 +1443,25 @@ namespace AtlasRoot {
       return -1;
 
     int isys=0;
-    double sign=1.;
     if (value==egEnergyCorr::Resolution::AllUp || value==egEnergyCorr::Resolution::AllDown) {
+      // old code, seems to do a linear sum, Guillaume email 1 Jul 2016
       isys=0xFFFF;
+      /*const std::vector<egEnergyCorr::Resolution::Variation> list_up = { egEnergyCorr::Resolution::ZSmearingUp, egEnergyCorr::Resolution::SamplingTermUp,
+                                                                    egEnergyCorr::Resolution::MaterialIDUp, egEnergyCorr::Resolution::MaterialCaloUp,
+                                                                    egEnergyCorr::Resolution::MaterialGapUp, egEnergyCorr::Resolution::MaterialCryoUp,
+                                                                    egEnergyCorr::Resolution::PileUpUp };
+      const std::vector<egEnergyCorr::Resolution::Variation> list_down = { egEnergyCorr::Resolution::ZSmearingDown, egEnergyCorr::Resolution::SamplingTermDown,
+                                                                    egEnergyCorr::Resolution::MaterialIDDown, egEnergyCorr::Resolution::MaterialCaloDown,
+                                                                    egEnergyCorr::Resolution::MaterialGapDown, egEnergyCorr::Resolution::MaterialCryoDown,
+                                                                    egEnergyCorr::Resolution::PileUpDown };
+      const std::vector<egEnergyCorr::Resolution::Variation> list_sys_loop = value == egEnergyCorr::Resolution::AllUp ? list_up : list_down;
+      double acc_sys = 0.;
+      for (const auto var : list_sys_loop) {
+        acc_sys += std::pow(getResolutionError(energy, eta, etaCalo, ptype, var, resType), 2);
+      }
+      acc_sys = std::sqrt(acc_sys);
+      if (value == egEnergyCorr::Resolution::AllDown) return -acc_sys;
+      else return acc_sys;*/
     }
     if (value==egEnergyCorr::Resolution::ZSmearingUp || value==egEnergyCorr::Resolution::ZSmearingDown) {
       isys=0x1;
@@ -1467,6 +1484,8 @@ namespace AtlasRoot {
     if (value==egEnergyCorr::Resolution::PileUpUp || value==egEnergyCorr::Resolution::PileUpDown) {
       isys=0x40;
     }
+
+    double sign = 1.;
     if (value==egEnergyCorr::Resolution::AllDown ||  value==egEnergyCorr::Resolution::ZSmearingDown ||
         value==egEnergyCorr::Resolution::SamplingTermDown ||  value==egEnergyCorr::Resolution::MaterialIDDown ||
         value==egEnergyCorr::Resolution::MaterialGapDown || value==egEnergyCorr::Resolution::MaterialCaloDown ||
@@ -1528,30 +1547,27 @@ namespace AtlasRoot {
 
   // total resolution (fractional)
 
-  double egammaEnergyCorrectionTool::resolution( double energy, double cl_eta, double cl_etaCalo,
-						 PATCore::ParticleType::Type ptype,
-						 bool withCT,
-						 bool fast,
-                                                 egEnergyCorr::Resolution::resolutionType resType ) const {
-
+  double egammaEnergyCorrectionTool::resolution(double energy, double cl_eta, double cl_etaCalo,
+						                                    PATCore::ParticleType::Type ptype,
+						                                    bool withCT,
+						                                    bool fast,
+                                                egEnergyCorr::Resolution::resolutionType resType) const
+{
     int eg_resolution_ptype;
-    if( ptype==PATCore::ParticleType::Electron )
-      eg_resolution_ptype = 0;
-    else if( ptype==PATCore::ParticleType::UnconvertedPhoton )
-      eg_resolution_ptype = 1;
-    else if( ptype==PATCore::ParticleType::ConvertedPhoton )
-      eg_resolution_ptype = 2;
-    else
+    if (ptype == PATCore::ParticleType::Electron) eg_resolution_ptype = 0;
+    else if (ptype==PATCore::ParticleType::UnconvertedPhoton) eg_resolution_ptype = 1;
+    else if (ptype==PATCore::ParticleType::ConvertedPhoton) eg_resolution_ptype = 2;
+    else {
+      ATH_MSG_FATAL("cannot understand particle type");
       return -1;
+    }
 
     double sig2 = 0.;
 
-    if ( m_use_new_resolution_model ) {
-
-      sig2=pow(m_resolution_tool->getResolution(eg_resolution_ptype, energy, cl_eta, resType), 2);
-      double et = energy/cosh(cl_eta);
-      sig2 += pow(pileUpTerm(cl_eta,eg_resolution_ptype)/et,2);
-
+    if (m_use_new_resolution_model) {
+      sig2 = pow(m_resolution_tool->getResolution(eg_resolution_ptype, energy, cl_eta, resType), 2);
+      const double et = energy / cosh(cl_eta);
+      sig2 += pow(pileUpTerm(cl_eta, eg_resolution_ptype) / et, 2);  // TODO: why et and not E?
     } else { // OLD model
 
       double energyGeV = energy/GeV;
@@ -1564,7 +1580,7 @@ namespace AtlasRoot {
 
     if (withCT and fast) {
       throw std::runtime_error("It doesn't make sense to ask resolution fast sim + additional CT."
-			       " The resolution on data is FULL sim resolution + CT");
+			                         " The resolution on data is FULL sim resolution + CT");
     }
 
     if (fast and std::abs(cl_eta) < 2.5) {
@@ -1577,25 +1593,10 @@ namespace AtlasRoot {
       sig2 /= ratio_IQR_full_fast * ratio_IQR_full_fast;
     }
 
-
-    if( withCT )
-      sig2 += pow(dataConstantTerm( m_use_etaCalo_scales ? cl_etaCalo : cl_eta ), 2);
-
-    /*
-      double sig2_bis=0;
-      double a = mcSamplingTerm( cl_eta );
-      double b = mcNoiseTerm( cl_eta );
-      double c = mcConstantTerm( cl_eta );
-      sig2_bis = a*a/energy + b*b/energy/energy + c*c;
-      if( withCT )
-      sig2_bis += pow(dataConstantTerm( cl_eta ), 2);
-      //std::cout << std::endl << "MC12ab sig2 = " << sig2_bis << std::endl;
-
-      std::cout << std::endl << " sig2 relative diff (%) = " << (fabs(sig2_bis-sig2)/sig2)*100 << std::endl;
-    */
+    // add the additional constant term from the Zee data/MC measurement
+    if (withCT) sig2 += pow(dataConstantTerm(m_use_etaCalo_scales ? cl_etaCalo : cl_eta), 2);  // TODO: is it correct? Or should be += -c**2 + (c + deltac) ** 2 ?
 
     return sqrt(sig2);
-
   }
 
 
@@ -1622,17 +1623,17 @@ namespace AtlasRoot {
                                                            egEnergyCorr::Resolution::Variation value,
                                                            egEnergyCorr::Resolution::resolutionType resType) const {
 
-    assert (dataType != PATCore::ParticleDataType::Data);
+    if (dataType == PATCore::ParticleDataType::Data) { ATH_MSG_FATAL("Trying to compute smearing correction on data"); }
 
-    if (value == egEnergyCorr::Resolution::None || energy<=0.) return 1.0;
+    if (value == egEnergyCorr::Resolution::None || energy <= 0.) return 1.0;
 
-    double energyGeV = energy/GeV;
+    const double energyGeV = energy / GeV;
 
-    double resMC, resData;
-    resMC   = resolution( energy, cl_eta, cl_etaCalo, ptype, false, // no additional CT
-			  dataType == PATCore::ParticleDataType::Fast, resType);
-    resData = resolution( energy, cl_eta, cl_etaCalo, ptype, true,  // with additional CT
-			  false, resType);  // on top of Full simulation
+    // relative resolutions
+    const double resMC = resolution(energy, cl_eta, cl_etaCalo, ptype, false, // no additional CT
+			                              dataType == PATCore::ParticleDataType::Fast, resType);
+    double resData = resolution(energy, cl_eta, cl_etaCalo, ptype, true,  // with additional CT
+		                            false, resType);  // on top of Full simulation
 
     if (m_use_new_resolution_model) {
       resData *= 1 + getResolutionError(energy, cl_eta, cl_etaCalo, ptype, value, resType);
@@ -1647,20 +1648,22 @@ namespace AtlasRoot {
       }
     }
 
-    double sigma2 = std::pow( resData*energyGeV, 2 ) - std::pow( resMC*energyGeV, 2 );
+    const double sigma2 = std::pow(resData * energyGeV, 2 ) - std::pow(resMC * energyGeV, 2);
+    // TODO: for nominal case it can be simplified to:
+    // const double sigma = dataConstantTerm(m_use_etaCalo_scales ? cl_etaCalo : cl_eta) * energyGeV;
+    // which is just the additional constant term
+    if (sigma2 <= 0) { return 1; }
 
-    if (sigma2<=0) { return 1; }
-
-    double sigma = sqrt(sigma2);
+    const double sigma = sqrt(sigma2);
 
     ATH_MSG_DEBUG("seed before = " << m_random3.GetSeed());
 
-    double DeltaE0 = m_random3.Gaus(0,sigma);
-    double cor0=(energyGeV+DeltaE0)/energyGeV;
+    const double DeltaE0 = m_random3.Gaus(0, sigma);
+    const double cor0 = (energyGeV + DeltaE0) / energyGeV;
 
     ATH_MSG_DEBUG("sigma|DeltaE0|cor0|seed = " << sigma << "|" << DeltaE0 << "|" << cor0 << "|" << m_random3.GetSeed());
 
-    return cor0;
+    return cor0;  // TODO: why not returning DeltaE0 and apply E -> E + DeltaE0 ?
 
   }
 
@@ -1855,9 +1858,9 @@ namespace AtlasRoot {
              m_use_temp_correction201516)
     {
       // special case for es2016PRE (extrapolation from 2015)
-      const double sign = (var == egEnergyCorr::Scale::LArTemperature2016PreUp) ? 1 : -1;
-      // temp + pileup
-      value += qsum(0.02, 0.02) * sign; // Guillaume email 23/05/2016 + 26/5/2013
+        const double sign = (var == egEnergyCorr::Scale::LArTemperature2016PreUp) ? 1 : -1;
+        // temp + pileup
+        value += qsum(0.05E-2, 0.02E-2) * sign; // Guillaume email 23/05/2016 + 26/5/2016
     }
 
 
@@ -2548,6 +2551,7 @@ namespace AtlasRoot {
 	  sigma2up = d1;
 	  sigma2down = -d2;
 	  sigma2 = d;
+    ATH_MSG_DEBUG(boost::format("sys resolution Zsmearing: %.7f %.7f %.7f") % sigma2 % sigma2up % sigma2down);
 	}
 
 	// systematics on intrinsic resolution
@@ -2559,6 +2563,7 @@ namespace AtlasRoot {
 	  deltaSigma2 = (0.9*resolutionZ)*(0.9*resolutionZ)-resolutionZ*resolutionZ;
 	  sigma2down= (0.9*resolution1)*(0.9*resolution1)-resolution1*resolution1-deltaSigma2;
 	  sigma2 = 0.5*(sigma2up-sigma2down);
+    ATH_MSG_DEBUG(boost::format("sys resolution intrinsic: %.7f %.7f %.7f") % sigma2 % sigma2up % sigma2down);
 	}
 
 	// systematics from configA ID material
@@ -2567,6 +2572,7 @@ namespace AtlasRoot {
 	  sigma2 = sigmaA*sigmaA;
 	  sigma2up = sigma2;
 	  sigma2down = -1.*sigma2;
+    ATH_MSG_DEBUG(boost::format("sys resolution configA ID material: %.7f %.7f %.7f") % sigma2 % sigma2up % sigma2down);
 	}
 
 	// systematics from material presampler-layer 1 in barrel (based on half config M )
@@ -2577,6 +2583,7 @@ namespace AtlasRoot {
 	  } else sigma2=0.;
 	  sigma2up = sigma2;
 	  sigma2down = -1.*sigma2;
+    ATH_MSG_DEBUG(boost::format("sys resolution presampler-layer1: %.7f %.7f %.7f") % sigma2 % sigma2up % sigma2down);
 	}
 
 	// systematic from material in barrel-endcap gap (using full config X for now)
@@ -2587,7 +2594,7 @@ namespace AtlasRoot {
 	  } else sigma2=0.;
 	  sigma2up = sigma2;
 	  sigma2down = -1.*sigma2;
-
+    ATH_MSG_DEBUG(boost::format("sys resolution barrel-endcap gap: %.7f %.7f %.7f") % sigma2 % sigma2up % sigma2down);
 	}
 
 	// systematics from material in cryostat area (using half config EL, FIXME: could use clever eta dependent scaling)
@@ -2596,6 +2603,7 @@ namespace AtlasRoot {
 	  sigma2 = 0.5*sigmaEL*sigmaEL;
 	  sigma2up = sigma2;
 	  sigma2down = -1.*sigma2;
+    ATH_MSG_DEBUG(boost::format("sys resolution cryostat area: %.7f %.7f %.7f") % sigma2 % sigma2up % sigma2down);
 	}
 
 	// systematics from pileup noise  on total noise (200 MeV in quadrature, somewhat conservative)
@@ -2610,11 +2618,12 @@ namespace AtlasRoot {
 	  sigma2=sigmaPileUp*sigmaPileUp-sigmaZ*sigmaZ;
 	  sigma2up = sigma2;
 	  sigma2down = -1.*sigma2;
+    ATH_MSG_DEBUG(boost::format("sys resolution pileup noise: %.7f %.7f %.7f") % sigma2 % sigma2up % sigma2down);
 	}
 
-	double rr1 = sqrt(resolution2+sigma2);
+	double rr1 = sqrt(resolution2+sigma2);   // nominal (data) + average error
 	double rr2=0.;
-	if((resolution2-sigma2) > 0.) rr2 = sqrt(resolution2-sigma2);
+	if((resolution2-sigma2) > 0.) rr2 = sqrt(resolution2-sigma2);  // max(0, nominal (data) - average error)
 	double deltaSigma_sys;
 	if ((rr1-resolution) > (resolution-rr2) ) deltaSigma_sys = rr1-resolution;
 	else deltaSigma_sys = resolution-rr2;
@@ -2711,8 +2720,9 @@ namespace AtlasRoot {
     case egEnergyCorr::Scale::LArTemperature2015PreDown: return "LArTemperature2015PreDown";
     case egEnergyCorr::Scale::LArTemperature2016PreUp: return "LArTemperature2016PreUp";
     case egEnergyCorr::Scale::LArTemperature2016PreDown: return "LArTemperature2016PreDown";
+    case egEnergyCorr::Scale::E4ScintillatorUp: return "E4ScintillatorUp";
+    case egEnergyCorr::Scale::E4ScintillatorDown: return "E4ScintillatorDown";
     case egEnergyCorr::Scale::LastScaleVariation: return "LastScaleVariation";
-
     default: return "Unknown";
     }
   }

@@ -76,11 +76,13 @@ class EgammaCalibrationAndSmearingTool : virtual public IEgammaCalibrationAndSme
 
 public:
 
+	enum class ScaleDecorrelation {FULL, ONENP, FULL_ETA_CORRELATED, ONENP_PLUS_UNCONR};
+	enum class ResolutionDecorrelation {FULL, ONENP};
   static const int AUTO = 2;  // this is used as a third state for boolean propertis (true/false/automatic)
   typedef unsigned int RandomNumber;
   typedef std::function<int(const EgammaCalibrationAndSmearingTool&, const xAOD::Egamma&, const xAOD::EventInfo&)> IdFunction;
   typedef std::function<bool(const xAOD::Egamma&)> EgammaPredicate;
-  
+
   EgammaCalibrationAndSmearingTool(const std::string& name);
   ~EgammaCalibrationAndSmearingTool();
 
@@ -121,6 +123,10 @@ private:
   bool m_metadata_retrieved = false;
   std::string m_ESModel;
   std::string m_decorrelation_model_name;
+	std::string m_decorrelation_model_scale_name;
+	std::string m_decorrelation_model_resolution_name;
+	ScaleDecorrelation m_decorrelation_model_scale = ScaleDecorrelation::FULL;
+	ResolutionDecorrelation m_decorrelation_model_resolution = ResolutionDecorrelation::FULL;
   egEnergyCorr::ESModel m_TESModel;
   int m_doScaleCorrection;
   int m_doSmearing;
@@ -128,7 +134,7 @@ private:
   double m_varSF;
   std::string m_ResolutionType;
   egEnergyCorr::Resolution::resolutionType m_TResolutionType;
-  bool m_use_AFII;
+  int m_use_AFII;
   PATCore::ParticleDataType::DataType m_simulation = PATCore::ParticleDataType::Full;
   //flags duplicated from the underlying ROOT tool
   int m_useLayerCorrection;
@@ -149,12 +155,24 @@ private:
 
   StatusCode get_simflavour_from_metadata(PATCore::ParticleDataType::DataType& result) const;
 
+	// this is needed (instead of a simpler lambda since a clang bug, see https://its.cern.ch/jira/browse/ATLASG-688)
+	struct AbsEtaCaloPredicate
+  {
+		AbsEtaCaloPredicate(double eta_min, double eta_max) : m_eta_min(eta_min), m_eta_max(eta_max) {}
+    bool operator()(const xAOD::Egamma& p) {
+      const double aeta = std::abs(xAOD::get_eta_calo(*p.caloCluster()));
+      return (aeta >= m_eta_min and aeta < m_eta_max);
+    }
+  private:
+    float m_eta_min, m_eta_max;
+  };
 
   const EgammaPredicate AbsEtaCaloPredicateFactory(double eta_min, double eta_max) const
 	{
-		return [eta_min, eta_max](const xAOD::Egamma& p) {
+		/*return [eta_min, eta_max](const xAOD::Egamma& p) {
 			const double aeta = std::abs(xAOD::get_eta_calo(*p.caloCluster()));
-			return (aeta >= eta_min and aeta < eta_max); };
+			return (aeta >= eta_min and aeta < eta_max); };*/
+		return AbsEtaCaloPredicate(eta_min, eta_max);
 	}
 
 	const EgammaPredicate AbsEtaCaloPredicateFactory(std::pair<double, double> edges) const
@@ -184,7 +202,7 @@ private:
 		}
 		return result;
 	}
-  
+
   PATCore::ParticleType::Type xAOD2ptype(const xAOD::Egamma& particle) const;
 public:
   virtual double getEnergy(xAOD::Egamma*, const xAOD::EventInfo*);

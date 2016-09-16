@@ -211,7 +211,9 @@ EgammaCalibrationAndSmearingTool::EgammaCalibrationAndSmearingTool(const std::st
                              return 1 + static_cast<RandomNumber>(std::abs(egamma.phi()) * 1E6 + std::abs(egamma.eta()) * 1E3 + ei.eventNumber()); })
 {
   declareProperty("ESModel", m_ESModel = "");
-  declareProperty("decorrelationModel", m_decorrelation_model_name = "FULL_v1");
+  declareProperty("decorrelationModel", m_decorrelation_model_name = "");
+  declareProperty("decorrelationModelScale", m_decorrelation_model_scale_name = "");
+  declareProperty("decorrelationModelResolution", m_decorrelation_model_resolution_name = "");
   declareProperty("ResolutionType", m_ResolutionType = "SigmaEff90");
   declareProperty("varSF", m_varSF = 1.0);
   declareProperty("doScaleCorrection", m_doScaleCorrection = AUTO);
@@ -231,7 +233,8 @@ EgammaCalibrationAndSmearingTool::EgammaCalibrationAndSmearingTool(const std::st
   declareProperty("use_full_statistical_error", m_use_full_statistical_error=false);
   declareProperty("use_temp_correction201215", m_use_temp_correction201215=AUTO);
   declareProperty("use_uA2MeV_2015_first2weeks_correction", m_use_uA2MeV_2015_first2weeks_correction=AUTO);
-  declareProperty("useAFII", m_use_AFII = false, "This will be set automatically for you if using athena");
+  // this is the user input, it is never changed by the tool. The tool uses m_simulation.
+  declareProperty("useAFII", m_use_AFII = AUTO, "This will be set automatically for you if using athena, (int)0=full sim, (int)1=fast sim");
   m_use_mapping_correction = false;
 }
 
@@ -245,7 +248,7 @@ EgammaCalibrationAndSmearingTool::~EgammaCalibrationAndSmearingTool() {
 StatusCode EgammaCalibrationAndSmearingTool::initialize() {
   ATH_MSG_INFO("Initialization");
 
-  if (m_ESModel == "es2015XX") { ATH_MSG_WARNING("es2015XX is deprecated. Use es2015PRE"); }
+  if (m_ESModel == "es2015XX") { ATH_MSG_ERROR("es2015XX is deprecated. Use es2015PRE"); }
 
   if (m_ESModel == "es2010") { m_TESModel = egEnergyCorr::es2010; }           // legacy
   else if (m_ESModel == "es2011c") { m_TESModel = egEnergyCorr::es2011c; }    // mc11c : faulty G4; old geometry
@@ -276,8 +279,88 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
     return StatusCode::FAILURE;
   }
 
-  if (m_use_AFII) { m_simulation = PATCore::ParticleDataType::Fast; }
-  else { m_simulation = PATCore::ParticleDataType::Full; }
+  if (m_use_AFII == 1) { m_simulation = PATCore::ParticleDataType::Fast; }
+  else if (m_use_AFII == 0) { m_simulation = PATCore::ParticleDataType::Full; }
+  // this is needed for tests where only applyCorrection is called without beginInputFile or beginEvent
+  else if (m_use_AFII == AUTO) { m_simulation = PATCore::ParticleDataType::Full; }
+
+  // configure decorrelation model, translate string property to internal class enum
+  /*    S R SR
+    0.  0 0 0     WARNING Full, Full (this is the default without configuration)
+    1.  0 0 1     SR
+    2.  0 1 0     FATAL
+    3.  0 1 1     WARNING SR then R
+    4.  1 0 0     FATAL
+    5.  1 0 1     WARNING SR then S
+    6.  1 1 0     S, R
+    7.  1 1 1     FATAL
+  */
+  if (m_decorrelation_model_name.empty() and
+      m_decorrelation_model_scale_name.empty() and
+      m_decorrelation_model_resolution_name.empty()) {
+    // case 0
+    ATH_MSG_WARNING("no decorrelation model specified, assuming full model");
+    m_decorrelation_model_scale = ScaleDecorrelation::FULL;
+    m_decorrelation_model_resolution = ResolutionDecorrelation::FULL;
+    m_decorrelation_model_name = "FULL_v1";
+  }
+  else if (not m_decorrelation_model_name.empty() and
+           not m_decorrelation_model_scale_name.empty() and
+           not m_decorrelation_model_resolution_name.empty()) {
+    // case 7
+    ATH_MSG_FATAL("too many flags for the decorrelation model");
+    return StatusCode::FAILURE;
+  }
+  else {
+    // set scale decorrelation model
+    if (not m_decorrelation_model_scale_name.empty()) {  // case 4, 5, 6, (7)
+      if (not m_decorrelation_model_name.empty()) { ATH_MSG_WARNING("flag decorrelation model ignored for scale decorrelation model"); } // case 5
+      if (m_decorrelation_model_scale_name == "1NP_v1") m_decorrelation_model_scale = ScaleDecorrelation::ONENP;
+      else if (m_decorrelation_model_scale_name == "FULL_ETACORRELATED_v1") m_decorrelation_model_scale = ScaleDecorrelation::FULL_ETA_CORRELATED;
+      else if (m_decorrelation_model_scale_name == "1NPCOR_PLUS_UNCOR") m_decorrelation_model_scale = ScaleDecorrelation::ONENP_PLUS_UNCONR;
+      else if (m_decorrelation_model_scale_name == "FULL_v1") m_decorrelation_model_scale = ScaleDecorrelation::FULL;
+      else {
+        ATH_MSG_FATAL("cannot understand the scale decorrelation model '" << m_decorrelation_model_scale_name << "'(typo?)");
+        return StatusCode::FAILURE;
+       }
+    }
+    else if (not m_decorrelation_model_name.empty()) { // case 1, 3
+      if (m_decorrelation_model_name == "1NP_v1") m_decorrelation_model_scale = ScaleDecorrelation::ONENP;
+      else if (m_decorrelation_model_name == "FULL_ETACORRELATED_v1") m_decorrelation_model_scale = ScaleDecorrelation::FULL_ETA_CORRELATED;
+      else if (m_decorrelation_model_name == "1NPCOR_PLUS_UNCOR") m_decorrelation_model_scale = ScaleDecorrelation::ONENP_PLUS_UNCONR;
+      else if (m_decorrelation_model_name == "FULL_v1") m_decorrelation_model_scale = ScaleDecorrelation::FULL;
+      else {
+        ATH_MSG_FATAL("cannot understand the decorrelation model '" << m_decorrelation_model_name << "'(typo?)");
+        return StatusCode::FAILURE;
+       }
+    }
+    else {  // case 2, (7)
+      ATH_MSG_FATAL("not information how to initialize the scale decorrelation model");
+      return StatusCode::FAILURE;
+    }
+
+    // set resolution decorralation model
+    if (not m_decorrelation_model_resolution_name.empty()) { // case 2, 3, 6, (7)
+      if (not m_decorrelation_model_name.empty()) { ATH_MSG_WARNING("flag decorrelation model ignored for resolution decorrelation model"); } // case 3
+      if (m_decorrelation_model_resolution_name == "1NP_v1") m_decorrelation_model_resolution = ResolutionDecorrelation::ONENP;
+      else if (m_decorrelation_model_resolution_name == "FULL_v1") m_decorrelation_model_resolution = ResolutionDecorrelation::FULL;
+      else {
+        ATH_MSG_FATAL("cannot understand the resolution decorrelation model '" << m_decorrelation_model_resolution_name << "'(typo?)");
+        return StatusCode::FAILURE;
+       }
+    }
+    else if (not m_decorrelation_model_name.empty()) { // case 1, 5
+      if (m_decorrelation_model_name == "1NP_v1") m_decorrelation_model_resolution = ResolutionDecorrelation::ONENP;
+      else if (m_decorrelation_model_name == "FULL_ETACORRELATED_v1") m_decorrelation_model_resolution = ResolutionDecorrelation::FULL;
+      else if (m_decorrelation_model_name == "1NPCOR_PLUS_UNCOR") m_decorrelation_model_resolution = ResolutionDecorrelation::ONENP;
+      else if (m_decorrelation_model_name == "FULL_v1") m_decorrelation_model_resolution = ResolutionDecorrelation::FULL;
+      else {
+        ATH_MSG_FATAL("cannot understand the decorrelation model '" << m_decorrelation_model_name << "'(typo?)");
+        return StatusCode::FAILURE;
+       }
+    }
+  }
+
 
   // create correction tool
   ATH_MSG_DEBUG("creating internal correction tool");
@@ -293,18 +376,21 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
 
 
   // configure MVA tool
-  ATH_MSG_DEBUG("creating MVA calibration tool (if needed)");
-  if (m_MVAfolder == "")  {  // automatically configure MVA tool
-    m_mva_tool = egammaMVAToolFactory(m_TESModel).release();
-    if (!m_mva_tool) { ATH_MSG_INFO("not using MVA calibration"); }
-  }
-  else {
-    m_mva_tool = new egammaMVATool("egammaMVATool");
-    ATH_CHECK(m_mva_tool->setProperty("folder", m_MVAfolder));
-  }
-  if (m_mva_tool) {
-    m_mva_tool->msg().setLevel(this->msg().level());
-    ATH_CHECK(m_mva_tool->initialize());
+  if (m_use_mva_calibration != 0)
+  {
+    ATH_MSG_DEBUG("creating MVA calibration tool (if needed)");
+    if (m_MVAfolder == "")  {  // automatically configure MVA tool
+      m_mva_tool = egammaMVAToolFactory(m_TESModel).release();
+      if (!m_mva_tool) { ATH_MSG_INFO("not using MVA calibration"); }
+    }
+    else {
+      m_mva_tool = new egammaMVATool("egammaMVATool");
+      ATH_CHECK(m_mva_tool->setProperty("folder", m_MVAfolder));
+    }
+    if (m_mva_tool) {
+      m_mva_tool->msg().setLevel(this->msg().level());
+      ATH_CHECK(m_mva_tool->initialize());
+    }
   }
 
   // configure layer recalibration tool
@@ -320,7 +406,7 @@ StatusCode EgammaCalibrationAndSmearingTool::initialize() {
 
   if (m_use_temp_correction201215 != AUTO) m_rootTool->use_temp_correction201215(m_use_temp_correction201215);
   if (m_use_uA2MeV_2015_first2weeks_correction != AUTO) m_rootTool->use_uA2MeV_2015_first2weeks_correction(m_use_uA2MeV_2015_first2weeks_correction);
-  if (not m_use_full_statistical_error and m_decorrelation_model_name == "FULL_v1") { m_rootTool->useStatErrorScaling(true); }
+  if (not m_use_full_statistical_error and m_decorrelation_model_scale == ScaleDecorrelation::FULL) { m_rootTool->useStatErrorScaling(true); }
 
   if (m_use_ep_combination) {
     ATH_MSG_ERROR("ep combination not supported yet");
@@ -395,41 +481,60 @@ StatusCode EgammaCalibrationAndSmearingTool::get_simflavour_from_metadata(PATCor
 
     std::string simType("");
     const bool s = fmd->value(xAOD::FileMetaData::simFlavour, simType);
-    if (!s) { //no simFlavour metadata, so must be Data
+    if (!s) {
+      ATH_MSG_DEBUG("no sim flavour from metadata: must be data");
       result = PATCore::ParticleDataType::Data;
       return StatusCode::SUCCESS;
     }
     else {
+      ATH_MSG_DEBUG("sim type = " + simType);
       result = simType == "FullSim" ? PATCore::ParticleDataType::Full : PATCore::ParticleDataType::Fast;
       return StatusCode::SUCCESS;
     }
   }
-  return StatusCode::SUCCESS;
+  else {  // no metadata in the file
+    ATH_MSG_DEBUG("no metadata found in the file");
+    return StatusCode::FAILURE;
+  }
 #endif
 }
 
 StatusCode EgammaCalibrationAndSmearingTool::beginInputFile()
 {
-  PATCore::ParticleDataType::DataType result;
-  const StatusCode status = get_simflavour_from_metadata(result);
-  if (status == StatusCode::SUCCESS) {
-    if (result == PATCore::ParticleDataType::Fast) {
-      m_use_AFII = true;
-      ATH_MSG_DEBUG("setting use fast sim");
-    }
-    else if (result == PATCore::ParticleDataType::Full) {
-      m_use_AFII = false;
-      ATH_MSG_DEBUG("setting not use fast sim");
-    }
-    ATH_MSG_INFO("use AFII = " << m_use_AFII);
+  // if the user has set a preference (m_use_AFII != AUTO) set it
+  if (m_use_AFII == 0) { m_simulation = PATCore::ParticleDataType::Full; }
+  else if (m_use_AFII == 1) { m_simulation = PATCore::ParticleDataType::Fast; }
+
+  PATCore::ParticleDataType::DataType data_flavour_metadata;
+  const StatusCode status_metadata = get_simflavour_from_metadata(data_flavour_metadata);
+  if (status_metadata == StatusCode::SUCCESS) {
     m_metadata_retrieved = true;
-    ATH_MSG_DEBUG("metadata from new file: " << (result == PATCore::ParticleDataType::Data ? "data" : (result == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));
+    ATH_MSG_DEBUG("metadata from new file: " << (data_flavour_metadata == PATCore::ParticleDataType::Data ? "data" : (data_flavour_metadata == PATCore::ParticleDataType::Full ? "full simulation" : "fast simulation")));
+
+    if (data_flavour_metadata != PATCore::ParticleDataType::Data) {
+      if (m_use_AFII == AUTO) { m_simulation = data_flavour_metadata; }
+      else { // user set a preference
+        // check if the preference is consistent and warning
+        if (m_use_AFII == 1 and data_flavour_metadata == PATCore::ParticleDataType::Full) {
+          ATH_MSG_WARNING("data is full sim, but you asked for AFII");
+        }
+        else if (m_use_AFII == 0 and data_flavour_metadata == PATCore::ParticleDataType::Fast) {
+          ATH_MSG_WARNING("data is fast sim, but you asked for full sim");
+        }
+      }
+    }
   }
-  else {
-    ATH_MSG_WARNING("not possible to retrieve simulation flavor automatically, use faststim = " << m_use_AFII);
+  else { // not able to retrieve metadata
     m_metadata_retrieved = false;
+
+    if (m_use_AFII == AUTO) {
+      ATH_MSG_WARNING("not able to retrieve metadata and use_AFII not specified -> set simulation flavour to full simulation");
+      // do not error since it can be real data, but we don't know, need to check later (beginEvent)
+    }
   }
-  return status;
+
+//  return status_metadata;  // since several times it is not possible to retrieve metadata
+  return StatusCode::SUCCESS;
 }
 
 StatusCode EgammaCalibrationAndSmearingTool::endInputFile() {
@@ -444,23 +549,13 @@ StatusCode EgammaCalibrationAndSmearingTool::beginEvent() {
   const xAOD::EventInfo* evtInfo = 0;
   ATH_CHECK(evtStore()->retrieve(evtInfo, "EventInfo"));
   if (evtInfo->eventType(xAOD::EventInfo::IS_SIMULATION)) {
-    m_metadata_retrieved = true;
-    PATCore::ParticleDataType::DataType result;
-    const StatusCode s = get_simflavour_from_metadata(result);
-    if (s == StatusCode::SUCCESS) {
-      if (result == PATCore::ParticleDataType::Fast) {
-        m_use_AFII = true;
-        ATH_MSG_DEBUG("setting use fast sim");
-      }
-      else {
-        m_use_AFII = false;
-        ATH_MSG_DEBUG("setting not use fast sim");
-      }
+    // redundant, already done in beginInputFile
+    if (m_use_AFII == 1) { m_simulation = PATCore::ParticleDataType::Fast; }
+    else if (m_use_AFII == 0) { m_simulation = PATCore::ParticleDataType::Full; }
+    else { // AUTO
+      // do not warning since it is annoying for every event, the warning is in beginInputFile
+      m_simulation = PATCore::ParticleDataType::Full;
     }
-    else {
-      ATH_MSG_WARNING("not possible to retrieve simulation flavor automatically, use faststim = " << m_use_AFII);
-    }
-    return s;
   }
   return StatusCode::SUCCESS;
 }
@@ -684,13 +779,13 @@ double EgammaCalibrationAndSmearingTool::getElectronMomentum(const xAOD::Electro
   const xAOD::TrackParticle* eTrack = el->trackParticle();
 
   // track momentum and eta
-  const float m_el_tracketa = eTrack->eta();
-  const float m_el_trackmomentum = eTrack->pt() * cosh(el->eta());
+  const float el_tracketa = eTrack->eta();
+  const float el_trackmomentum = eTrack->pt() * cosh(el->eta());
 
   return m_rootTool->getCorrectedMomentum(dataType,
 					  PATCore::ParticleType::Electron,
-					  m_el_trackmomentum,
-					  m_el_tracketa,
+					  el_trackmomentum,
+					  el_tracketa,
 					  oldtool_scale_flag_this_event(*el, *event_info),
 					  m_varSF);
 }
@@ -711,12 +806,12 @@ CP::SystematicSet EgammaCalibrationAndSmearingTool::affectingSystematics() const
 void EgammaCalibrationAndSmearingTool::setupSystematics() {
   const EgammaPredicate always = [](const xAOD::Egamma&) { return true; };
 
-  if (m_decorrelation_model_name == "1NP_v1") {
+  if (m_decorrelation_model_scale == ScaleDecorrelation::ONENP) {
     // TODO: independet implementation of ALL UP looping on all the variations
     m_syst_description[CP::SystematicVariation("EG_SCALE_ALL", +1)] = SysInfo{always, egEnergyCorr::Scale::AllUp};
     m_syst_description[CP::SystematicVariation("EG_SCALE_ALL", -1)] = SysInfo{always, egEnergyCorr::Scale::AllDown};
   }
-  else if (m_decorrelation_model_name == "FULL_ETACORRELATED_v1") {
+  else if (m_decorrelation_model_scale == ScaleDecorrelation::FULL_ETA_CORRELATED) {
     // all the physical effects separately, considered as fully correlated in eta
     #define SYSMACRO(name, fullcorrelated, decorrelation, flagup, flagdown)                \
       m_syst_description[CP::SystematicVariation(#name, +1)] = SysInfo{always, flagup};    \
@@ -745,7 +840,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
       m_syst_description[CP::SystematicVariation("EG_SCALE_LARTEMPERATURE_EXTRA2016PRE", -1)] = SysInfo{always, egEnergyCorr::Scale::LArTemperature2016PreDown};
     }
   }
-  else if (m_decorrelation_model_name == "1NPCOR_PLUS_UNCOR") {
+  else if (m_decorrelation_model_scale == ScaleDecorrelation::ONENP_PLUS_UNCONR) {
       // qsum of all variations correlated 8/13 TeV + uncorrelated (additional systematics for 2015PRE or 2016)
       // all the physical effects separately, considered as fully correlated in eta
       #define SYSMACRO(name, fullcorrelated, decorrelation, flagup, flagdown)                \
@@ -754,7 +849,7 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
       #include "ElectronPhotonFourMomentumCorrection/systematics_1NPCOR_PLUS_UNCOR.def"
       #undef SYSMACRO
   }
-  else if (m_decorrelation_model_name == "FULL_v1") {
+  else if (m_decorrelation_model_scale == ScaleDecorrelation::FULL) {
     typedef std::vector<std::pair<double, double>> pairvector;
     const pairvector decorrelation_bins_BE = {{0., 1.45}, {1.52, 2.5}};
     const std::vector<double> decorrelation_edges_TWELVE = {0., 0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2, 2.4};
@@ -832,15 +927,15 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
 
   }
   else {
-    ATH_MSG_ERROR("decorrelation model invalid");
+    ATH_MSG_FATAL("scale decorrelation model invalid");
   }
 
   // resolution systematics
-  if (m_decorrelation_model_name == "1NP_v1" or m_decorrelation_model_name == "1NPCOR_PLUS_UNCOR") {
+  if (m_decorrelation_model_resolution == ResolutionDecorrelation::ONENP) {
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_ALL", +1)] = egEnergyCorr::Resolution::AllUp;
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_ALL", -1)] = egEnergyCorr::Resolution::AllDown;
   }
-  else {
+  else if (m_decorrelation_model_resolution == ResolutionDecorrelation::FULL){
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_ZSMEARING", +1)] = egEnergyCorr::Resolution::ZSmearingUp;
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_ZSMEARING", -1)] = egEnergyCorr::Resolution::ZSmearingDown;
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_SAMPLINGTERM", +1)] = egEnergyCorr::Resolution::SamplingTermUp;
@@ -855,6 +950,9 @@ void EgammaCalibrationAndSmearingTool::setupSystematics() {
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_MATERIALCRYO", -1)] = egEnergyCorr::Resolution::MaterialCryoDown;
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_PILEUP", +1)] = egEnergyCorr::Resolution::PileUpUp;
     m_syst_description_resolution[CP::SystematicVariation("EG_RESOLUTION_PILEUP", -1)] = egEnergyCorr::Resolution::PileUpDown;
+  }
+  else {
+    ATH_MSG_FATAL("resolution decorrelation model invalid");
   }
 
   // ep combination systematics
