@@ -30,7 +30,7 @@ Trk::MultiStateMaterialEffectsAdapter::~MultiStateMaterialEffectsAdapter()
 StatusCode Trk::MultiStateMaterialEffectsAdapter::initialize()
 {
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
   return StatusCode::SUCCESS;
 
 }
@@ -38,7 +38,7 @@ StatusCode Trk::MultiStateMaterialEffectsAdapter::initialize()
 StatusCode Trk::MultiStateMaterialEffectsAdapter::finalize()
 {
   
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
   return StatusCode::SUCCESS;
 
 }
@@ -50,7 +50,7 @@ void Trk::MultiStateMaterialEffectsAdapter::compute ( const ComponentParameters&
                   ParticleHypothesis particleHypothesis ) const
 {
 
-  if (msgLvl(MSG::VERBOSE)) msg() << "Running adapter to bring standard energy loss effects to multiple component state reigeme: " << name() << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Running adapter to bring standard energy loss effects to multiple component state reigeme: " << name() << endmsg;
 
   // Reset the cashe
   this->reset(); 

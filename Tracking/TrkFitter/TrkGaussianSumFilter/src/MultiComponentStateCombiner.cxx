@@ -46,7 +46,7 @@ StatusCode Trk::MultiComponentStateCombiner::initialize()
 
    // Request the mode calculator
   if ( m_modeCalculator.retrieve().isFailure() ){
-    msg(MSG::FATAL) << "Unable to retrieve the mode calculator... Exiting!" << endreq;
+    msg(MSG::FATAL) << "Unable to retrieve the mode calculator... Exiting!" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -62,7 +62,7 @@ StatusCode Trk::MultiComponentStateCombiner::initialize()
     m_fractionPDFused = 1;   
   }
   
-  if (msgLvl(MSG::VERBOSE)) msg() << "Initialisation of " << name() << " was successful" << endreq;
+  if (msgLvl(MSG::VERBOSE)) msg() << "Initialisation of " << name() << " was successful" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -71,11 +71,11 @@ StatusCode Trk::MultiComponentStateCombiner::initialize()
 StatusCode Trk::MultiComponentStateCombiner::finalize()
 {
 
-  msg(MSG::INFO) << "-----------------------------------------------"<< endreq;
-  msg(MSG::INFO) << "         GSF MCS Combiner  Statistics          "<< endreq;
-  msg(MSG::INFO) << "-----------------------------------------------"<< endreq;
-  msg(MSG::INFO) << "Number of Calls    " << m_NumberOfCalls          << endreq;
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "-----------------------------------------------"<< endmsg;
+  msg(MSG::INFO) << "         GSF MCS Combiner  Statistics          "<< endmsg;
+  msg(MSG::INFO) << "-----------------------------------------------"<< endmsg;
+  msg(MSG::INFO) << "Number of Calls    " << m_NumberOfCalls          << endmsg;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
   
   return StatusCode::SUCCESS;
 
@@ -102,7 +102,7 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
 {
   ++m_NumberOfCalls;
   if ( uncombinedState->empty() ){
-    msg(MSG::WARNING) << "Trying to collapse state with zero components" << endreq;
+    msg(MSG::WARNING) << "Trying to collapse state with zero components" << endmsg;
     return 0;
   }
 
@@ -226,7 +226,7 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
       modes = m_modeCalculator->calculateMode( *uncombinedState );
 
       if (  msgLvl(MSG::VERBOSE) && modes[4] )
-        msg(MSG::VERBOSE) << "Calculated mode q/p is: " << modes[4] << endreq;
+        msg(MSG::VERBOSE) << "Calculated mode q/p is: " << modes[4] << endmsg;
   
       //  Replace mean with mode if qOverP mode is not 0
       if (modes[4] != 0){
@@ -293,7 +293,7 @@ const Trk::ComponentParameters* Trk::MultiComponentStateCombiner::compute( const
       }
     } else {
 
-      if (msgLvl(MSG::DEBUG)) msg() << " Dimension != 5 not updating q/p to mode q/p"<< endreq;
+      if (msgLvl(MSG::DEBUG)) msg() << " Dimension != 5 not updating q/p to mode q/p"<< endmsg;
 
     }
 

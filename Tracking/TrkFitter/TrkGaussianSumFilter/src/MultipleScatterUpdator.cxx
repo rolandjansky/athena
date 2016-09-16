@@ -60,7 +60,7 @@ StatusCode Trk::MultipleScatterUpdator::initialize()
     ATH_MSG_INFO( "Retrieved tool " << m_msUpdator );
 
   
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
   return StatusCode::SUCCESS;
 
 }
@@ -68,7 +68,7 @@ StatusCode Trk::MultipleScatterUpdator::initialize()
 StatusCode Trk::MultipleScatterUpdator::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
   return StatusCode::SUCCESS;
 
 }
@@ -81,7 +81,7 @@ const Trk::TrackParameters* Trk::MultipleScatterUpdator::update( const Trk::Trac
 {
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Performing multiple scatter update using layer information" << endreq;
+    msg(MSG::VERBOSE) << "Performing multiple scatter update using layer information" << endmsg;
 
 
 
@@ -113,14 +113,14 @@ const Trk::TrackParameters* Trk::MultipleScatterUpdator::update( const Trk::Trac
   materialProperties = materialProperties ? materialProperties : layer.fullUpdateMaterialProperties( *trackParameters );
 
   if ( !materialProperties ) {
-    msg(MSG::DEBUG) << "No material properties associated with layer... returning original parameters" << endreq;
+    msg(MSG::DEBUG) << "No material properties associated with layer... returning original parameters" << endmsg;
     return trackParameters->clone();
   }
 
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters->covariance();
 
   if (!measuredTrackCov){
-    msg(MSG::DEBUG) << "No measured track parameters for multiple scatter... returning original parameters" << endreq;
+    msg(MSG::DEBUG) << "No measured track parameters for multiple scatter... returning original parameters" << endmsg;
     return trackParameters->clone();
   }
   
@@ -145,12 +145,12 @@ Trk::MultipleScatterUpdator::update( const Trk::TrackParameters& trackParameters
 {
 
   if (m_outputlevel < 0) 
-    msg(MSG::VERBOSE) << "Updating multiple scatter effects based on material properties and path length" << endreq;
+    msg(MSG::VERBOSE) << "Updating multiple scatter effects based on material properties and path length" << endmsg;
 
   const AmgSymMatrix(5)* measuredTrackCov = trackParameters.covariance();
 
   if (!measuredTrackCov){
-    msg(MSG::DEBUG) << "No measurement associated with track parameters... returning original parameters" << endreq;
+    msg(MSG::DEBUG) << "No measurement associated with track parameters... returning original parameters" << endmsg;
     return trackParameters.clone();
   }
 
@@ -167,7 +167,7 @@ Trk::MultipleScatterUpdator::update( const Trk::TrackParameters& trackParameters
   
 
   if (m_outputlevel <= 0) 
-    msg(MSG::DEBUG) << "Sigma squared multiple scattering: " << angularVariation << endreq;
+    msg(MSG::DEBUG) << "Sigma squared multiple scattering: " << angularVariation << endmsg;
   
   AmgSymMatrix(5)* cov_out = new AmgSymMatrix(5)(*measuredTrackCov);
  

@@ -56,7 +56,7 @@ StatusCode Trk::GsfEnergyLossUpdator::initialize()
     ATH_MSG_INFO( "Retrieved tool " << m_EnergyLossUpdator );
 
 
-  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Initialisation of " << name() << " was successful" << endmsg;
   return StatusCode::SUCCESS;
 
 }
@@ -64,7 +64,7 @@ StatusCode Trk::GsfEnergyLossUpdator::initialize()
 StatusCode Trk::GsfEnergyLossUpdator::finalize()
 {
 
-  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endreq;
+  msg(MSG::INFO) << "Finalisation of " << name() << " was successful" << endmsg;
   return StatusCode::SUCCESS;
 
 }
@@ -80,7 +80,7 @@ const Trk::TrackParameters* Trk::GsfEnergyLossUpdator::update( const Trk::TrackP
 
   if (!measuredCov){
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "No measurement on track parameters... returning original track parameters" << endreq;
+      msg(MSG::DEBUG) << "No measurement on track parameters... returning original track parameters" << endmsg;
     return trackParameters->clone();
   }
   
@@ -102,13 +102,13 @@ const Trk::TrackParameters* Trk::GsfEnergyLossUpdator::update( const TrackParame
                                                                ParticleHypothesis particle,
                                                                Trk::MaterialUpdateMode) const
 {
-  if (m_outputlevel < 0) msg(MSG::VERBOSE) << "Updating energy loss effects using material properties and path length" << endreq;
+  if (m_outputlevel < 0) msg(MSG::VERBOSE) << "Updating energy loss effects using material properties and path length" << endmsg;
 
   const AmgSymMatrix(5)* measuredCov = trackParameters.covariance();
 
   if (!measuredCov){
     if (m_outputlevel <= 0) 
-      msg(MSG::DEBUG) << "No measurement on track parameters... returning original track parameters" << endreq;
+      msg(MSG::DEBUG) << "No measurement on track parameters... returning original track parameters" << endmsg;
     return trackParameters.clone();
   }
 
