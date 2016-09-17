@@ -28,8 +28,8 @@
 
 
 #define SIDSTATIONID 4
-#define MAXCHI2HIT 2.0
-#define MAXCHI2TRK 2.0
+#define MAXCHI2HIT 3.0
+#define MAXCHI2TRK 3.0
 #define MAXSHAREDHITS 2
 
 using namespace std;

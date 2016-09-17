@@ -48,12 +48,27 @@ AFP_SIDBasicKalman::~AFP_SIDBasicKalman()
 
 StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const list<SIDHIT> &ListSIDHits, Float_t fsSID[SIDSTATIONID][SIDCNT], Float_t fxSID[SIDSTATIONID][SIDCNT], Float_t fySID[SIDSTATIONID][SIDCNT], Float_t fzSID[SIDSTATIONID][SIDCNT])
 {
-	m_AmpThresh = (float)fAmpThresh;
+
+      	m_AmpThresh = (float)fAmpThresh;
+        m_AmpThresh = 1000;
 	m_iDataType = iDataType;
 	m_ListSIDHits = ListSIDHits;
 	
 	Float_t delta_pixel_x = 0.050*CLHEP::mm; // size of pixel along x, in mm
 	Float_t delta_pixel_y = 0.250*CLHEP::mm; // size of pixel along y, in mm
+
+        Float_t interPlaneX[4][4] ={0,0,0,0,
+                                    0,0,0,0,
+                                    0,-0.187358,-0.127971,0,
+                                    0,-0.101478,-0.0661546,-0.0675869};
+        Float_t interPlaneY[4][4] ={0,0,0,0,
+                                    0,0,0,0,
+                                    0,-0.134756, -0.204807,0,
+                                    0, -0.155841, -0.334444,-0.341143};
+        Float_t Alpha[4][4] ={0,0,0,0,
+                                    0,0,0,0, 
+                                    0.2443461,0.253198,0.227862,0, 
+                                    0.2443461,0.250661,0.252849,0.247896};
 
 	
 	// x-y-z map of all pixels
@@ -61,14 +76,24 @@ StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const
 	{				
 		for (Int_t nPlateID = 0; nPlateID < SIDCNT; nPlateID++)
 		{
+
+                        if ( iDataType == 1) fsSID[nStationID][nPlateID] = Alpha[nStationID][nPlateID];
+
 			for (Int_t nPixel_x = 0; nPixel_x < 336; nPixel_x++)
 			{	
 				for (Int_t nPixel_y = 0; nPixel_y < 80; nPixel_y++)
-				{			
-				fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fxSID[nStationID][nPlateID]+(delta_pixel_x*nPixel_x)*cos(fsSID[nStationID][nPlateID]);		//sign changed!	
+				{	                                 		
+				fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fxSID[nStationID][nPlateID]+(delta_pixel_x*(nPixel_x-168))*cos(fsSID[nStationID][nPlateID]);		//sign changed!	
 				fyMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fySID[nStationID][nPlateID]+(delta_pixel_y*nPixel_y); //sign changed!
-				fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fzSID[nStationID][nPlateID] - ((nStationID<2)?1.:-1.)*(delta_pixel_x*nPixel_x)*sin(fsSID[nStationID][nPlateID]); //sign changed!
-				}
+				fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] = fzSID[nStationID][nPlateID] - ((nStationID<2)?1.:-1.)*(delta_pixel_x*(nPixel_x-168))*sin(fsSID[nStationID][nPlateID]); //sign changed!
+			        if( iDataType == 1) {
+                                fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += interPlaneX[nStationID][nPlateID] + 168*delta_pixel_x*cos(fsSID[nStationID][0]);
+                                fyMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += interPlaneY[nStationID][nPlateID];
+                                fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += -168*((nStationID<2)?1.:-1.)*delta_pixel_x*sin(fsSID[nStationID][0]); }
+                                else {
+                                fxMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += 168*delta_pixel_x*cos(fsSID[nStationID][0]);
+                                fzMapSID[nStationID][nPlateID][nPixel_x][nPixel_y] += -168*((nStationID<2)?1.:-1.)*delta_pixel_x*sin(fsSID[nStationID][0]); } 
+                               }
 			}
 		}
 	}
@@ -77,7 +102,7 @@ StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const
 	list<SIDHIT>::const_iterator iter;
 	for (iter=ListSIDHits.begin(); iter!=ListSIDHits.end(); iter++)
 	{
-		if ((*iter).fADC > m_AmpThresh)
+         	if ((*iter).fADC > m_AmpThresh)
 		{
 			FillSIDHITPOS(*iter, m_MapSIDHitPos);
 			
@@ -116,12 +141,12 @@ StatusCode AFP_SIDBasicKalman::Initialize(float fAmpThresh, int iDataType, const
 	
 	C0 = CLHEP::HepMatrix(4, 4, 0);
 	C0[0][0] = delta_pixel_x*delta_pixel_x/3.;
-	C0[1][1] = delta_pixel_x*delta_pixel_x/NOMINALSIDSPACING/NOMINALSIDSPACING/3.;
+	C0[1][1] = delta_pixel_x*delta_pixel_x/SID_NOMINALSPACING/SID_NOMINALSPACING/3.;
 	//C0[1][0] = 0;
 	//C0[0][1] = 0;
 	
 	C0[2][2] = delta_pixel_y*delta_pixel_y/3.;
-	C0[3][3] = delta_pixel_y*delta_pixel_y/NOMINALSIDSPACING/NOMINALSIDSPACING/3.;
+	C0[3][3] = delta_pixel_y*delta_pixel_y/SID_NOMINALSPACING/SID_NOMINALSPACING/3.;
 	//C0[3][2] = 0;
 	//C0[2][3] = 0;
 		
@@ -134,10 +159,11 @@ StatusCode AFP_SIDBasicKalman::Execute()
 {
 	MsgStream LogStream(Athena::getMessageSvc(), "AFP_SIDBasicKalman::Execute()");
 	
-	/*
+//	/*
 	map<Int_t, SIDHITPOS>::const_iterator iter0;
 	for (iter0=m_MapSIDHitPos.begin(); iter0!=m_MapSIDHitPos.end(); iter0++)
 	{
+                /*
 		if( (*iter0).second.nStationID==1 )      
 		{	
 			histS1_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixX/CLHEP::mm);
@@ -148,8 +174,9 @@ StatusCode AFP_SIDBasicKalman::Execute()
 			histS2_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixX/CLHEP::mm);
 			histS4_PixMap->Fill((*iter0).second.fPixZ/CLHEP::mm, (*iter0).second.fPixY/CLHEP::mm);
 		}
+               */
 	}
-	*/
+//	*/
 
 
 	////////////////////////
@@ -158,57 +185,63 @@ StatusCode AFP_SIDBasicKalman::Execute()
 
 	vector<SIDHITSEED>::const_iterator iter1;
 	for (iter1= pTrkSeeds.begin(); iter1!= pTrkSeeds.end(); iter1++)
-	{		
+	{
+                 		
 		ClearMatrix();
 		
 		Int_t LastPlate = (*iter1).nLastPlate;
-		
+                Int_t DoubleHole1=1;
+                Int_t DoubleHole2=0;
+
 		if ( FillTrkPropagators(*iter1, ++LastPlate) )
 		{
 			++LastPlate;
-			Int_t DoubleHole=0;
+			DoubleHole1=0;
 			for (Int_t i=LastPlate; i<SIDCNT; i++)
 			{
 				if ( FillTrkPropagators((*iter1).nStationID, i) )
 				{
-					if(DoubleHole==1) DoubleHole=0;
+					if(DoubleHole1==1) DoubleHole1=0;
 				}
 				else
 				{
-					++DoubleHole;
+					++DoubleHole1;
 				}
-				if(DoubleHole==2) break;
+				if(DoubleHole1==2) break;
 				
 			}	
-			if(DoubleHole==2) continue;	
+			if(DoubleHole1==2) continue;	
 		}
 		
 		else if ( FillTrkPropagators(*iter1, ++LastPlate) )
 		{
 			++LastPlate;
-			Int_t DoubleHole=0;
+			DoubleHole2=0;
 			for (Int_t i=LastPlate; i<SIDCNT; i++)
 			{
 				if ( FillTrkPropagators((*iter1).nStationID, i) )
 				{
-					if(DoubleHole==1) DoubleHole=0;
+					if(DoubleHole2==1) DoubleHole2=0;
 				}
 				else
 				{
-					++DoubleHole;
+					++DoubleHole2;
 				}
-				if(DoubleHole==2) break;
+				if(DoubleHole2==2) break;
 				
 			}	
-			if(DoubleHole==2) continue;		
+			if(DoubleHole2==2) continue;		
 		}
 		
 		else continue; // double hole after the seed pixels
-		
+	
+                if( DoubleHole1 > 1 || DoubleHole2 != 0) continue ;
+	
+
 		LogStream << MSG::DEBUG << "Found new track candidate with parameters:" << endreq;
 		LogStream << MSG::DEBUG << "Hit ID's : ";
 		vector<Int_t>::const_iterator iter2;
-		for (iter2= HID.begin(); iter2!= HID.end(); iter2++) LogStream << MSG::DEBUG << (*iter2) << "\t";		
+		for (iter2= HID.begin(); iter2!= HID.end(); iter2++) LogStream << MSG::DEBUG << (*iter2) << "\t";
 		LogStream << endreq;
 		
 		LogStream << MSG::DEBUG << "Filtered parameters : X, DX, Y, DY, chi2" << endreq;
@@ -217,11 +250,11 @@ StatusCode AFP_SIDBasicKalman::Execute()
 			LogStream << MSG::DEBUG << (*iter1).fSeedX << "\t" << (*iter1).fSeedDX << "\t" << (*iter1).fSeedY << "\t" << (*iter1).fSeedDY << "\t" << 0 << endreq;
 		for (iter3=xk.begin(); iter3!= xk.end(); iter3++)
 		{
-			LogStream << MSG::DEBUG << (*iter3)[0] << "\t" << (*iter3)[1] << "\t" << (*iter3)[2] << "\t" << (*iter3)[3] << "\t" << (*iter4) << endreq;		
+			LogStream << MSG::DEBUG << (*iter3)[0] << "\t" << (*iter3)[1] << "\t" << (*iter3)[2] << "\t" << (*iter3)[3] << "\t" << (*iter4) << endreq;
 			iter4++;
 		}
 
-		
+                		
 		////////////
 		Smooth();
 		////////////				
@@ -258,6 +291,7 @@ StatusCode AFP_SIDBasicKalman::Execute()
 		//////////////////////////////////////////
 	}
 	
+        
 	//////////////////////
 	FilterTrkCollection();
 	//////////////////////
@@ -291,10 +325,17 @@ StatusCode AFP_SIDBasicKalman::Finalize(list<SIDRESULT>* pListResults)
 void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPOS> &MapSIDHitPos)
 {
 	SIDHITPOS SIDHitPos;
-	Int_t nStID    = SIDHit.nStationID;
+
+
+        Int_t nStID    = SIDHit.nStationID; 
 	Int_t nPlID    = SIDHit.nDetectorID;
 	Int_t nPixCol  = SIDHit.nPixelCol;
 	Int_t nPixRow  = SIDHit.nPixelRow;
+
+   // if ( m_iDataType ==1 ) {
+   //   nPixCol  = 336-SIDHit.nPixelRow;
+   //   nPixRow  = SIDHit.nPixelCol;
+   // }
 		
 	SIDHitPos.nStationID  = nStID;
 	SIDHitPos.nPlateID    = nPlID;
@@ -304,8 +345,8 @@ void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPO
 	SIDHitPos.fAmp	      = SIDHit.fADC;
 		
 	Int_t HitID = nStID*1000000+nPlID*100000+nPixCol*100+nPixRow;
-	
 	// Remove close hit pixel in X wrt signal amplitude
+        // Actually do simple clustering
 	map<Int_t, SIDHITPOS>::iterator iter0 = MapSIDHitPos.find(HitID-100);
 	map<Int_t, SIDHITPOS>::iterator iter1 = MapSIDHitPos.find(HitID+100);
 	
@@ -316,20 +357,41 @@ void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPO
 	
 	else if( iter0!=MapSIDHitPos.end() )
 	{
-		if ( (*iter0).second.fAmp < SIDHitPos.fAmp )
-		{
+//		if ( (*iter0).second.fAmp < SIDHitPos.fAmp )
+//		{
+
+
+                SIDHitPos.fPixX = SIDHitPos.fPixX*SIDHitPos.fAmp + (*iter0).second.fPixX*(*iter0).second.fAmp;
+                SIDHitPos.fPixY = SIDHitPos.fPixY*SIDHitPos.fAmp + (*iter0).second.fPixY*(*iter0).second.fAmp;
+                SIDHitPos.fPixZ = SIDHitPos.fPixZ*SIDHitPos.fAmp + (*iter0).second.fPixZ*(*iter0).second.fAmp;
+
+                SIDHitPos.fAmp += (*iter0).second.fAmp;
+                SIDHitPos.fPixX /=SIDHitPos.fAmp;
+                SIDHitPos.fPixY	/=SIDHitPos.fAmp;
+                SIDHitPos.fPixZ	/=SIDHitPos.fAmp;                
+
 		MapSIDHitPos.erase(iter0);
 		MapSIDHitPos.insert(pair<Int_t, SIDHITPOS>(HitID, SIDHitPos));
-		}
+//		}
 	}
 	
 	else
 	{
-		if ( (*iter1).second.fAmp < SIDHitPos.fAmp )
-		{
+//		if ( (*iter1).second.fAmp < SIDHitPos.fAmp )
+//		{
+
+                SIDHitPos.fPixX = SIDHitPos.fPixX*SIDHitPos.fAmp + (*iter1).second.fPixX*(*iter1).second.fAmp;
+                SIDHitPos.fPixY = SIDHitPos.fPixY*SIDHitPos.fAmp + (*iter1).second.fPixY*(*iter1).second.fAmp;
+                SIDHitPos.fPixZ = SIDHitPos.fPixZ*SIDHitPos.fAmp + (*iter1).second.fPixZ*(*iter1).second.fAmp;
+
+      	        SIDHitPos.fAmp += (*iter1).second.fAmp;
+               	SIDHitPos.fPixX	/=SIDHitPos.fAmp;
+       	       	SIDHitPos.fPixY /=SIDHitPos.fAmp;
+       	       	SIDHitPos.fPixZ /=SIDHitPos.fAmp;
+
 		MapSIDHitPos.erase(iter1);
 		MapSIDHitPos.insert(pair<Int_t, SIDHITPOS>(HitID, SIDHitPos));
-		}
+//		}
 	}
 
 }
@@ -344,7 +406,7 @@ void AFP_SIDBasicKalman::GetTrkSeeds()
 	{
 		if ((*iter).fADC > m_AmpThresh && (*iter).nDetectorID == 0)
 		{
-			FillSIDHITPOS(*iter, MapSIDHitPosSeed0);
+			FillSIDHITPOS(*iter, MapSIDHitPosSeed0); 
 		}
 		
 		else if ((*iter).fADC > m_AmpThresh && (*iter).nDetectorID == 1)
@@ -384,6 +446,11 @@ void AFP_SIDBasicKalman::GetTrkSeeds()
 
 bool AFP_SIDBasicKalman::FillTrkPropagators(const SIDHITSEED &SIDHitSeed, Int_t plateF)
 {
+        // This sensoor is not active
+
+        if( SIDHitSeed.nStationID == 2 && plateF==3) return 0;
+
+        HID.clear();
 	HID.push_back(SIDHitSeed.nHitID1);
 	HID.push_back(SIDHitSeed.nHitID2);
 	
@@ -469,6 +536,9 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(Int_t stID, Int_t plateF)
 {
 	Float_t Zdist = (fzMapSID[stID][plateF][1][0] - fzMapSID[stID][plateF][0][0])/(fxMapSID[stID][plateF][1][0] - fxMapSID[stID][plateF][0][0])*(xk.back()[0] - fxMapSID[stID][plateF][0][0]) + fzMapSID[stID][plateF][0][0] - zk.back();
 	
+        // This sensor is not active
+        if( stID == 2 && plateF == 3) return 0;
+
 	CLHEP::HepMatrix Fi(4, 4, 1);
 	Fi[0][1] = Zdist;
 	Fi[2][3] = Zdist;
@@ -494,6 +564,8 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(Int_t stID, Int_t plateF)
 			HitID = (*iter).first;
 		}
 	}
+
+
 	/////////////////////////
 	if (HitID == -1) return 0;  // no hits in layer
 	/////////////////////////
@@ -512,11 +584,11 @@ bool AFP_SIDBasicKalman::FillTrkPropagators(Int_t stID, Int_t plateF)
 	//chi2 statistics to remove fakes
 	CLHEP::HepVector chii = ri.T()*qr_inverse(Ri)*ri;
 	
+
 	//////////////////////////////
 	if (chii[0]>MAXCHI2HIT) return 0; // no good hit in layer
 	//////////////////////////////
 	
-	//cout<<Ck.back()*Fi.T()*qr_inverse(CiP)<<endl;
 	
 	Fk.push_back(Fi);
 	CkP.push_back(CiP);
@@ -538,6 +610,8 @@ void AFP_SIDBasicKalman::Smooth()
 	CLHEP::HepVector xiS;
 	CLHEP::HepMatrix CiS;
 
+
+        if( xk.size() > 1) {
 	for (Int_t i=(xk.size()-2); i>=0; i--)
 	{
 		if(i==(xk.size()-2))
@@ -571,15 +645,35 @@ void AFP_SIDBasicKalman::Smooth()
 		CkS.push_back(CiiS);
 		chikS.push_back(chiiS[0]);
 	}
+        }
+        else if (xk.size() > 0) {
+                        xiS = xk[xk.size()-1];  // !!!!!!!!!
+                        CiS = Ck[xk.size()-1];  // !!!!!!!!!
 
-	
+                        xkS.push_back(xiS);
+                        CkS.push_back(CiS);
+                        CLHEP::HepVector riiS = mk[xk.size()-1] - Hk*xiS;
+                        CLHEP::HepMatrix RiiS = Vk - Hk*CiS*Hk.T();
+                        CLHEP::HepVector chiiS = riiS.T()*qr_inverse(RiiS)*riiS;
+                        chikS.push_back(chiiS[0]);
+
+
+        }
+        
+
+
+
 	//CLHEP::HepMatrix Ai = qr_inverse(Fk[0]); // when Qk == 0
 	CLHEP::HepMatrix Ai = C0*Fk[0].T()*qr_inverse(CkP[0]);
+
 	CLHEP::HepVector xiiS = x0 + Ai*( xkS.back() - xkP[0] );		
+
 	CLHEP::HepMatrix CiiS = C0 + Ai*( CkS.back() - CkP[0] )*Ai.T();
 		
 	CLHEP::HepVector riiS = m0 - Hk*xiiS;
 	CLHEP::HepMatrix RiiS = Vk - Hk*CiiS*Hk.T();
+
+
 	CLHEP::HepVector chiiS = riiS.T()*qr_inverse(RiiS)*riiS;
 	
 	CkS.push_back(CiiS);
@@ -587,7 +681,7 @@ void AFP_SIDBasicKalman::Smooth()
 	chikS.push_back(chiiS[0]);
 
 	
-	
+
 	// first hit !!!!!!!!!!
 	CLHEP::HepMatrix Fi(4, 4, 1);
 	Fi[0][1] = (*m_MapSIDHitPos.find(HID[1])).second.fPixZ - (*m_MapSIDHitPos.find(HID[0])).second.fPixZ;

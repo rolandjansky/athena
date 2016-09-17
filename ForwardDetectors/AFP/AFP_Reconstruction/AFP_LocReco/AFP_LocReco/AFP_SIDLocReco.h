@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-	#ifndef AFP_SIDLOCRECO_h
+#ifndef AFP_SIDLOCRECO_h
 #define AFP_SIDLOCRECO_h
 
 #include <iostream>
@@ -58,6 +58,8 @@
 #include "HepMC/GenVertex.h"
 #include "HepMC/GenParticle.h"
 
+// xAOD 
+#include "xAODForward/AFPTrackContainer.h"
 
 
 using namespace std;
@@ -120,7 +122,7 @@ class AFP_SIDLocReco : public AthAlgorithm
 		StatusCode AFPCollectionReading(list<SIDHIT> &ListSIDHits);	
 
 		StatusCode RecordSIDCollection();
-		StatusCode ExecuteRecoMethod(const string strAlgo, const list<SIDHIT> &ListSIDHits);
+  StatusCode ExecuteRecoMethod(const string strAlgo, const list<SIDHIT> &ListSIDHits, xAOD::AFPTrackContainer* resultContainer);
 };
 
 #endif	//AFP_TDLOCRECO_h
