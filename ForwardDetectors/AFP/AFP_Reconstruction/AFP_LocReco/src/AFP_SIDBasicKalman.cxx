@@ -357,8 +357,8 @@ void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPO
 	
 	else if( iter0!=MapSIDHitPos.end() )
 	{
-		if ( (*iter0).second.fAmp < SIDHitPos.fAmp )
-		{
+//		if ( (*iter0).second.fAmp < SIDHitPos.fAmp )
+//		{
 
 
                 SIDHitPos.fPixX = SIDHitPos.fPixX*SIDHitPos.fAmp + (*iter0).second.fPixX*(*iter0).second.fAmp;
@@ -372,13 +372,13 @@ void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPO
 
 		MapSIDHitPos.erase(iter0);
 		MapSIDHitPos.insert(pair<Int_t, SIDHITPOS>(HitID, SIDHitPos));
-		}
+//		}
 	}
 	
 	else
 	{
-		if ( (*iter1).second.fAmp < SIDHitPos.fAmp )
-		{
+//		if ( (*iter1).second.fAmp < SIDHitPos.fAmp )
+//		{
 
                 SIDHitPos.fPixX = SIDHitPos.fPixX*SIDHitPos.fAmp + (*iter1).second.fPixX*(*iter1).second.fAmp;
                 SIDHitPos.fPixY = SIDHitPos.fPixY*SIDHitPos.fAmp + (*iter1).second.fPixY*(*iter1).second.fAmp;
@@ -391,7 +391,7 @@ void AFP_SIDBasicKalman::FillSIDHITPOS(const SIDHIT &SIDHit, map<Int_t, SIDHITPO
 
 		MapSIDHitPos.erase(iter1);
 		MapSIDHitPos.insert(pair<Int_t, SIDHITPOS>(HitID, SIDHitPos));
-		}
+//		}
 	}
 
 }
