@@ -141,12 +141,12 @@ StatusCode SpecialPixelMapSvc::initialize()
     return StatusCode::FAILURE;
   }
   if (m_IBLParameterSvc.retrieve().isFailure()) {
-    msg(MSG::WARNING) << "Could not retrieve IBLParameterSvc" << endreq;
+    msg(MSG::WARNING) << "Could not retrieve IBLParameterSvc" << endmsg;
   }
   else {
-    bool m_useSpecialPixelMap=true;
-    m_IBLParameterSvc->setBoolParameters(m_useSpecialPixelMap,"EnableSpecialPixels");
-    if (!m_useSpecialPixelMap) return StatusCode::SUCCESS; //to prevent error during initialization
+    bool useSpecialPixelMap=true;
+    m_IBLParameterSvc->setBoolParameters(useSpecialPixelMap,"EnableSpecialPixels");
+    if (!useSpecialPixelMap) return StatusCode::SUCCESS; //to prevent error during initialization
   }
   
   ModuleSpecialPixelMap::m_markSpecialRegions = m_markSpecialRegions;
@@ -179,11 +179,11 @@ StatusCode SpecialPixelMapSvc::initialize()
   // 
   // determine if ITK is present
   if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
     return (StatusCode::FAILURE);
   }
   if(m_geoModelSvc->geoConfig()!=GeoModel::GEO_RUN1 && m_geoModelSvc->geoConfig()!=GeoModel::GEO_TESTBEAM)isIBL=true; 
-
+  if(!isIBL)isIBL = m_geoModelSvc->geoConfig()==GeoModel::GEO_RUN1 && m_pixelID->wafer_hash_max()==2048; // second chance !
   m_chips.clear(); 
   ATH_MSG_DEBUG( "ModuleHashMax: "<<m_pixelID->wafer_hash_max()<<" isIBL "<<isIBL );
   // Check all detector elements in the present geometry setup 
@@ -900,49 +900,53 @@ StatusCode SpecialPixelMapSvc::createFromDetectorStore(const std::string condAtt
 			   << " until " << range.stop().run() << " " << range.stop().event() );
 	}
 	
-	const unsigned int moduleID = static_cast<unsigned int>((*attrList).second["moduleID"].data<const int>());
-	unsigned int idhash; 
-	if (m_forceNewDBContent) idhash = IdentifierHash(moduleID);
-	else if(isIBL){ 
-	  if(m_dummy){
-	    //	    continue (useful to transport the old DB to new DB with IBL!;
-	    int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
-	    unsigned int layer = (moduleID & (3 << 23)) / 8388608  ;
-	    if(component==0)layer +=1; // shift layer
-	    unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
-	    int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
-	    Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
-	    idhash =  m_pixelID->wafer_hash(id);
-	  }
-	  else{
-	    idhash = IdentifierHash(moduleID);
-	  }
-	}
-	else {
-	  int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
-	  unsigned int layer = (moduleID & (3 << 23)) / 8388608 ;
-	  unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
-	  int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
-	  Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
-	  idhash =  m_pixelID->wafer_hash(id);
-	}
-	if( idhash < m_pixelID->wafer_hash_max()){
-	
-	  coral::AttributeList::const_iterator attribute = (*attrList).second.begin();
-	  ++attribute;
-	  if( (*attribute).specification().typeName() == "blob" ){
+  const unsigned int moduleID = static_cast<unsigned int>((*attrList).second["moduleID"].data<const int>());
+  unsigned int idhash; 
+  if (m_forceNewDBContent) idhash = IdentifierHash(moduleID);
+  else if(isIBL){ 
+    if(m_dummy || IdentifierHash(moduleID)>2048){
+      //	    continue (useful to transport the old DB to new DB with IBL!;
+      int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
+      unsigned int layer = (moduleID & (3 << 23)) / 8388608  ;
+      if(component==0)layer +=1; // shift layer
+      unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
+      int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
+      Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
+      idhash =  m_pixelID->wafer_hash(id);
+    }
+    else{
+      idhash = IdentifierHash(moduleID);
+    }
+  }
+  else {
+    int component = static_cast<int>((moduleID & (3 << 25)) / 33554432) * 2 - 2;
+    unsigned int layer = (moduleID & (3 << 23)) / 8388608 ;
+    unsigned int phi = (moduleID & (63 << 17)) / 131072 ;
+    int eta = static_cast<int>((moduleID & (15 << 13)) / 8192) - 6 ;
+    Identifier id = m_pixelID->wafer_id( component, layer, phi, eta );
+    idhash =  m_pixelID->wafer_hash(id);
+  }
+  if( idhash < m_pixelID->wafer_hash_max()){
 
-	    const coral::Blob& blob = (*attrList).second["SpecialPixelMap"].data<const coral::Blob>();
-            delete (*spm)[idhash];
-            (*spm)[idhash] = new ModuleSpecialPixelMap(blob, getChips(idhash) );
-	  }
-	  else{
+    coral::AttributeList::const_iterator attribute = (*attrList).second.begin();
+    ++attribute;
+    if( (*attribute).specification().typeName() == "blob" ){
 
-	    const std::string& clob = (*attrList).second["ModuleSpecialPixelMap_Clob"].data<const std::string>();
-            delete (*spm)[idhash];
-            (*spm)[idhash] = new ModuleSpecialPixelMap(clob, getChips(idhash) );
-	  }
-	}
+      const coral::Blob& blob = (*attrList).second["SpecialPixelMap"].data<const coral::Blob>();
+      delete (*spm)[idhash];
+      (*spm)[idhash] = new ModuleSpecialPixelMap(blob, getChips(idhash) );
+    }
+    else{
+
+      const std::string& clob = (*attrList).second["ModuleSpecialPixelMap_Clob"].data<const std::string>();
+      delete (*spm)[idhash];
+      (*spm)[idhash] = new ModuleSpecialPixelMap(clob, getChips(idhash) );
+    }
+  }
+  else{
+    ATH_MSG_FATAL( "Module hashID out of range: " << idhash );
+    return StatusCode::FAILURE;
+  }
       }
     }
   }
@@ -1125,6 +1129,10 @@ StatusCode SpecialPixelMapSvc::createFromTextfiles( bool fillMissing ) const{
             else{
               (*spm)[idhash] = new ModuleSpecialPixelMap((mydir+filename).c_str(), getChips(idhash) );
             }
+	  }
+	  else{
+	    ATH_MSG_FATAL( "Reading file: Module hashID out of range: " << idhash );
+	    return StatusCode::FAILURE;
 	  }
         }
 	//

@@ -14,9 +14,7 @@
 
 PixelRunConditionsDbSvc::PixelRunConditionsDbSvc(const std::string& name, ISvcLocator* sl):
   AthService(name, sl),
-  m_detStore("DetectorStore", name),
-  calback_calls(0),
-  print(0),
+  m_callback_calls(0),
   m_connTag(""),
   m_key("/PIXEL/SOR_Params")
   {
@@ -46,22 +44,13 @@ StatusCode PixelRunConditionsDbSvc::initialize(){
 
   ATH_MSG_INFO("Initializing PixelRunConditionsDbSvc");
 
-  StatusCode sc = m_detStore.retrieve();
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to retrieve detector store");
-    return StatusCode::FAILURE;
-  }
-
   //whenever the CondAttrListCollection is updated from the Database  
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", name());
+  ATH_CHECK( detStore.retrieve() );
   const DataHandle<AthenaAttributeList> attrList;
-  sc = m_detStore->regFcn(&IPixelRunConditionsDbSvc::IOVCallBack,
-			  dynamic_cast<IPixelRunConditionsDbSvc*>(this),
-			  attrList, m_key);
-
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to register callback");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore->regFcn(&IPixelRunConditionsDbSvc::IOVCallBack,
+                              dynamic_cast<IPixelRunConditionsDbSvc*>(this),
+                              attrList, m_key) );
 
   return StatusCode::SUCCESS;
 }
@@ -74,25 +63,23 @@ StatusCode PixelRunConditionsDbSvc::finalize(){
 
 StatusCode PixelRunConditionsDbSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
 
-  calback_calls++;
+  m_callback_calls++;
 
   ATH_MSG_INFO("                     -----   in  Callback   -----");
   for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
     ATH_MSG_INFO("HEEEEY! IOVCALLBACK for key " << *key << " number " << I<<"\n\t\t\t\t\t-----mtst-----\n");
 
-  bool contains_key = m_detStore->contains<AthenaAttributeList>(m_key);
-  std::cout << "contains_key? " << contains_key << std::endl;
+  ServiceHandle<StoreGateSvc> detStore ("DetectorStore", name());
+  ATH_CHECK( detStore.retrieve() );
+  //bool contains_key = detStore()->contains<AthenaAttributeList>(m_key);
+  //std::cout << "contains_key? " << contains_key << std::endl;
   const AthenaAttributeList* attrlist = 0;
-  StatusCode sc = m_detStore->retrieve(attrlist, m_key);
-  if(!sc.isSuccess()){
-    ATH_MSG_FATAL("Unable to retrieve AthenaAttributeList");
-    return StatusCode::FAILURE;
-  }
+  ATH_CHECK( detStore->retrieve(attrlist, m_key) );
 
   m_connTag=(*attrlist)["connTag"].data<std::string>();
   ATH_MSG_INFO( "                     -----   conntag "<< m_connTag  <<"  -----" );
 
-  ATH_MSG_INFO("                     -----   DONE  Callback "<<calback_calls<<"  -----");
+  ATH_MSG_INFO("                     -----   DONE  Callback "<<m_callback_calls<<"  -----");
 
   return StatusCode::SUCCESS;
 }
