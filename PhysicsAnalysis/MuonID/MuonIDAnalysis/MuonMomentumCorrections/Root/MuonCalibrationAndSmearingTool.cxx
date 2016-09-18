@@ -10,6 +10,7 @@
 
 // Local include(s):
 #include "MuonMomentumCorrections/MuonCalibrationAndSmearingTool.h"
+#include <cmath>
 
 namespace CP {
 
@@ -17,7 +18,9 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const std::strin
   asg::AsgTool( name ),
 
   m_smearDeltaMS( 0. ), m_smearDeltaID( 0. ), m_smearDeltaCB( 0. ),
-  m_Tsmear( 0 ), m_Tdet( 0 ), m_Tdata( 0 ), m_Trel( 0 ), m_Talgo( 0 ), m_detRegion( 0 ),
+  m_Tsmear( 0 ),
+  //m_Tdet( 0 ),
+  m_Tdata( 0 ), m_Trel( 0 ), m_Talgo( 0 ), m_detRegion( 0 ),
 
   m_useNsigmaForICombine( 0. ),
 
@@ -50,7 +53,7 @@ MuonCalibrationAndSmearingTool::MuonCalibrationAndSmearingTool( const MuonCalibr
   m_smearDeltaID( tool.m_smearDeltaID ),
   m_smearDeltaCB( tool.m_smearDeltaCB ),
   m_Tsmear( tool.m_Tsmear ),
-  m_Tdet( tool.m_Tdet ),
+  //m_Tdet( tool.m_Tdet ),
   m_Tdata( tool.m_Tdata ),
   m_Trel( tool.m_Trel ),
   m_Talgo( tool.m_Talgo ),
@@ -346,7 +349,7 @@ CorrectionCode MuonCalibrationAndSmearingTool::applyCorrection( xAOD::Muon& mu )
     //::: Get Event Number:
     const unsigned long long eventNumber = evtInfo ? evtInfo->eventNumber() : 0;
     //::: Construct a seed for the random number generator:
-    const UInt_t seed = 1 + abs( mu.phi() ) * 1E6 + std::abs( mu.eta() ) * 1E3 + eventNumber;
+    const UInt_t seed = 1 + std::abs( mu.phi() ) * 1E6 + std::abs( mu.eta() ) * 1E3 + eventNumber;
     m_random3.SetSeed( seed );
     //m_random3.SetSeed(0);
   }
@@ -1082,12 +1085,12 @@ int MuonCalibrationAndSmearingTool::GetScaleRegion( xAOD::Muon& mu ) {
   if( m_scaleBins.empty() ) {
     return -1;
   }
-  double _min = m_scaleBins[0];
-  double _max = m_scaleBins[m_scaleBins.size()-1];
-  if( mu.eta()<_min ) {
+  double min = m_scaleBins[0];
+  double max = m_scaleBins[m_scaleBins.size()-1];
+  if( mu.eta()<min ) {
     return 0;
   }
-  if( mu.eta()>=_max ) {
+  if( mu.eta()>=max ) {
     return m_scaleBins.size() - 1;
   }
 
@@ -1114,8 +1117,8 @@ double MuonCalibrationAndSmearingTool::GetSmearing( int DetType, xAOD::Muon& mu 
   else if( DetType == MCAST::DetectorType::ID ) {
     if( m_Trel >= MCAST::Release::Rec_2015_11_15 ) {
       float additional_weight = 1.;
-      ATH_MSG_VERBOSE( "mu.eta() = " << mu.eta() << ",  abs( mu.eta() ) = " << abs( mu.eta() ) << ",  fabs( mu.eta() ) = " << fabs( mu.eta() ) );  
-      ATH_MSG_VERBOSE( "Case 0: useTan2 && abs( mu.eta() ) > 2 = " << useTan2 << " && " << ( abs( mu.eta() ) > 2 ) );  
+      ATH_MSG_VERBOSE( "mu.eta() = " << mu.eta() << ",  abs( mu.eta() ) = " << std::abs( mu.eta() ) << ",  fabs( mu.eta() ) = " << fabs( mu.eta() ) );  
+      ATH_MSG_VERBOSE( "Case 0: useTan2 && abs( mu.eta() ) > 2 = " << useTan2 << " && " << ( std::abs( mu.eta() ) > 2 ) );  
       if ( useTan2 && fabs( mu.eta() ) > 2 ) {
         ATH_MSG_VERBOSE( "Case 1: Using p1ID = " << m_p1_ID[m_detRegion] << " and p2ID = " << m_p2_ID[m_detRegion] );
         additional_weight = sinh( mu.eta() ) * sinh( mu.eta() );

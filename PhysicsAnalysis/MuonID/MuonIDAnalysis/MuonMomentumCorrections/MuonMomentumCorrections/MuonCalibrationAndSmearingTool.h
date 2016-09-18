@@ -117,7 +117,7 @@ protected:
   std::string m_FilesPath;
   bool m_toroidOff;
   int m_Tsmear;
-  int m_Tdet;
+  //int m_Tdet;
   int m_Tdata;
   int m_Trel;
   int m_Talgo;
