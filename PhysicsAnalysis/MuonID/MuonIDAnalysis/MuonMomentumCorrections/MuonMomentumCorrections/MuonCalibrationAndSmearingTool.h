@@ -30,9 +30,9 @@ namespace CP {
 
 namespace MCAST {
 
-  namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4 }; }
+  namespace DataType { enum { Data10 = 1, Data11 = 2, Data12 = 3, Data15 = 4, Data16=5}; }
   namespace AlgoType { enum { Muid = 1, Staco = 2, Muons = 3 }; }
-  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8 }; }
+  namespace Release { enum { Rel16_6 = 1, Rel17 = 2, Rel17_2 = 3, Rel17_2_Repro = 4, Rel17_2_Sum13 = 5, PreRec = 6, PreRec_2015_06_22  = 7, PreRec_2015_08_06  = 8, Rec_2015_11_15 = 9, Rec_2016_01_13 = 10, Rec_2016_01_19 = 11, PreRec_2016_05_23 = 12 , Recs2016_08_07=13 , Recs2016_15_07}; }
   namespace SmearingType { enum { Pt = 1, QoverPt = 2 }; }
   namespace DetectorType { enum { MS = 1, ID = 2, CB = 3 }; }
   namespace SystVariation { enum { Default = 0, Down = -1, Up = 1 }; }
@@ -70,6 +70,8 @@ public:
   virtual SystematicCode applySystematicVariation ( const SystematicSet& systConfig );
   // Set seed for the random number generator
   void setRandomSeed( unsigned seed = 0 ) { m_random3.SetSeed( seed ); m_useExternalSeed = true;}
+  double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
+  double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
 
 protected:
   //::: Regions helpers 
@@ -94,15 +96,13 @@ protected:
   void CollectMacroRegionsSL_UpDn();//Small,Large,Up,Down regions are collected together
   void CollectMacroRegionsSL_SplitBAR();//Large,Small sectors split plus Feet(12+14) and 11+15 sector split in Barrel
   void CollectSectors();
-  double ExpectedResolution( const std::string& DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
-  double ExpectedResolution( const int DetType, xAOD::Muon& mu, const bool mc = false ) const; //!< Expected resolution in data (or unsmeard MC if second argument is true)
 
   StatusCode SetData( std::string );
   StatusCode SetAlgorithm( std::string );
   StatusCode SetRelease( std::string );
   StatusCode SetType( std::string );
 
-private:
+//private:
   //::: fake assignment operator missing actual implementation
   MuonCalibrationAndSmearingTool& operator=(const MuonCalibrationAndSmearingTool& );
   struct ParameterSet { 
@@ -117,7 +117,7 @@ private:
   std::string m_FilesPath;
   bool m_toroidOff;
   int m_Tsmear;
-  int m_Tdet;
+  //int m_Tdet;
   int m_Tdata;
   int m_Trel;
   int m_Talgo;

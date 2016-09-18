@@ -1,6 +1,6 @@
 import sys
 # Set up the file reading:
-fileName = '/afs/cern.ch/work/g/gartoni/work/FilesDiLepton/mc15_13TeV.301223.Pythia8EvtGen_A14NNPDF23LO_Zprime_NoInt_mumu_E6Chi5000.merge.DAOD_EXOT0.e3795_s2608_s2183_r6630_r6264_p2353_tid05541666_00/DAOD_EXOT0.05541666._000001.pool.root.1'
+fileName = '/data/atlas/atlasdata/artoni/mcp/rel_20_7/valid1.147407.PowhegPythia8_AZNLO_Zmumu.recon.AOD.e3099_s2578_r7534_tid07542054_00/AOD.07542054._000068.pool.root.1'
 print 'File Name: ', fileName
 
 import AthenaPoolCnvSvc.ReadAthenaPool
