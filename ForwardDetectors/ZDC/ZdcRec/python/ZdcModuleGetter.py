@@ -53,11 +53,11 @@ class ZdcModuleGetter ( Configured ) :
 
 
         try:
-            from ZdcRec.ZdcRecConf import ZdcRecV2
+            from ZdcRec.ZdcRecConf import ZdcRecV3
             mlog.info("got ZdcRecV2")
-            self._zdcRecHandle = ZdcRecV2()
+            self._zdcRecHandle = ZdcRecV3()
         except Exception:
-            mlog.error("could not get handle to ZdcRecV2")
+            mlog.error("could not get handle to ZdcRecV3")
             print traceback.format_exc()
             return False
 
@@ -75,7 +75,7 @@ class ZdcModuleGetter ( Configured ) :
         from AthenaCommon.AlgSequence import AlgSequence
         topSequence = AlgSequence()
         topSequence += self.zdcRecHandle()
-        mlog.info("added ZdcRecV2")
+        mlog.info("added ZdcRecV3")
 
         return True
 
