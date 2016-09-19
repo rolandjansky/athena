@@ -26,10 +26,13 @@ int main()
   CHECK( xAOD::Init(appName) );
 
   // Try to create and initialize each tool with the AnaToolHandle
-  asg::AnaToolHandle<IJERTool> jerHandle("JERTool");
-  CHECK( jerHandle.initialize() );
-  asg::AnaToolHandle<IJERSmearingTool> smearHandle("JERSmearingTool");
-  CHECK( smearHandle.initialize() );
+  asg::AnaToolHandle<IJERTool> jerHandle("");
+  jerHandle.setTypeAndName("JERTool/TheJERTool");
+  CHECK( jerHandle.retrieve() );
+  asg::AnaToolHandle<IJERSmearingTool> smearHandle("");
+  smearHandle.setTypeAndName("JERSmearingTool/TheJERSmearingTool");
+  CHECK( smearHandle.setProperty("JERTool", jerHandle.getHandle() ) );
+  CHECK( smearHandle.retrieve() );
 
   return 0;
 }
