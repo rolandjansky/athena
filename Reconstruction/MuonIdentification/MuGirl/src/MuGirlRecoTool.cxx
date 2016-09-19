@@ -390,6 +390,8 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList)
         else
             if (m_doANNSelection) ANNaccept = generateMuGirl(*summary);
 
+	if(pParticle->pInDetCandidate->isSiliconAssociated()) summary->isSiliconAssociated=true;
+
         const Trk::Track* RefittedTrack = NULL;
 
         if ((m_doANNSelection && ANNaccept) || !(m_doANNSelection)) {
@@ -530,7 +532,10 @@ bool MuGirlRecoTool::RunFromID(MuGirlNS::CandidateSummaryList& summaryList)
             ATH_MSG_DEBUG("RunFromID: delivering the muon pTrkRefitted track to the MuGirl tag");
             std::vector<const Muon::MuonSegment*> muonSegmentList = summary->muonSegmentList;
             MuonCombined::MuGirlTag* tag = 0;
-            if (summary->pTrkRefitted == NULL) tag = new MuonCombined::MuGirlTag(muonSegmentList);
+            if (summary->pTrkRefitted == NULL){
+	      if(summary->isSiliconAssociated) continue;
+	      tag = new MuonCombined::MuGirlTag(muonSegmentList);
+	    }
             else tag = new MuonCombined::MuGirlTag(summary->pTrkRefitted, muonSegmentList);
 	    tag->setUpdatedExtrapolatedTrack(std::move(summary->pTrkMSRefitted));
             pParticle->pInDetCandidate->addTag(*tag);
