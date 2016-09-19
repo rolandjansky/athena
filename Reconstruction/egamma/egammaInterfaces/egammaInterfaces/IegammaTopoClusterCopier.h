@@ -7,7 +7,6 @@
 
 #include "egammaInterfaces/IegammaBaseTool.h"
 #include "xAODCaloEvent/CaloCluster.h" // cannot use CaloClusterFwd b/c of ClusterSize
-#include "xAODEgamma/EgammaEnums.h"
 
 /**
    @class IegammaTopoClusterCopier
