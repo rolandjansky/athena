@@ -30,9 +30,9 @@
 ///
 /// @author Steve Farrell <steven.farrell@cern.ch>
 ///
-class JERSmearingTool : public IJERSmearingTool,
-                        public CP::CorrectionTool<xAOD::JetContainer>,
-                        public asg::AsgTool
+class JERSmearingTool : public asg::AsgTool,
+                        public IJERSmearingTool,
+                        public CP::CorrectionTool<xAOD::JetContainer>
 {
 
     /// Proper constructor for Athena
