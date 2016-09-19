@@ -85,6 +85,7 @@ public:
     double lhr;
     int saveAnn;
     int saveStau;
+    bool isSiliconAssociated;
     StauRpcHitsLists* rpcHitsLists;
 
     CandidateSummary()
@@ -134,6 +135,7 @@ public:
           lhr(-999.),
           saveAnn(-1),
           saveStau(-1),
+          isSiliconAssociated(false),
           rpcHitsLists(NULL)
     {
     }
