@@ -470,7 +470,7 @@ Muon::MooSegmentCombinationFinder::extractSegmentCollection( const MuonSegmentCo
 
   // store single segments per chamber layer
   typedef std::vector<const Muon::MuonSegment*> SegVec;
-  typedef SegVec::iterator SegVecIt;
+  //typedef SegVec::iterator SegVecIt;
   typedef std::map<Muon::MuonStationIndex::ChIndex, SegVec > RSMap;
   typedef RSMap::iterator RSMapIt;
   RSMap segMap;

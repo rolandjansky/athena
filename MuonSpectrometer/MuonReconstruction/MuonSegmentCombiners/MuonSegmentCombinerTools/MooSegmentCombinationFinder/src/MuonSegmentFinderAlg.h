@@ -66,8 +66,8 @@ class MuonSegmentFinderAlg : public AthAlgorithm
 
   std::string m_segmentCollectionName;
   
-  void createSegmentsWithMDTs(Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs );
-  void createSegmentsFromClusters(Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs);
+  void createSegmentsWithMDTs(const Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs );
+  void createSegmentsFromClusters(const Muon::MuonPatternCombination* patt,std::vector<const Muon::MuonSegment*>& segs);
 
   bool m_printSummary;
   bool m_useNSWMode;
