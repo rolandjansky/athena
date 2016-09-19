@@ -29,7 +29,7 @@
 using namespace std;
 
 
-const short N_ROBID_BITS(24);  // 3 bytes for ROB ID
+//const short N_ROBID_BITS(24);  // 3 bytes for ROB ID
 
 unsigned int DetectorTimingAlgo::getBitMaskValue( const unsigned int uintValue,
 						  const unsigned int mask ) {
@@ -48,12 +48,11 @@ unsigned int DetectorTimingAlgo::getBitMaskValue( const unsigned int uintValue,
 
 DetectorTimingAlgo::DetectorTimingAlgo(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
-    m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc",name),
-    m_trigMuonRoITool( "TrigMuonRoITool" ),
-    m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
     m_rpcDataPreparator("TrigL2MuonSA::RpcDataPreparator/RpcDataPreparator"),
-    m_dummypatfinder("TrigL2MuonSA::RpcPatFinder")
-  
+    m_trigMuonRoITool( "TrigMuonRoITool" ),
+    m_dummypatfinder("TrigL2MuonSA::RpcPatFinder"),
+    m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
+    m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc",name)
 {
   m_caloCluster=0;
 
@@ -83,25 +82,25 @@ DetectorTimingAlgo::DetectorTimingAlgo(const std::string& name, ISvcLocator* pSv
   // declareMonitoredStdContainer("EF_rpcphi_matched_outtimeroi",  m_rpcphi_matched_outtimeroi, AutoClear);
    
   ////////TriggerTowers/////////
-  declareMonitoredVariable("EF_TT_mean",TT_mean,-50);
-  declareMonitoredVariable("EF_TT_sigma",TT_sigma,-1);
-  declareMonitoredVariable("EF_TT_nEM",TT_nEM,0);
-  declareMonitoredVariable("EF_TT_nHad",TT_nHad,0);
-  declareMonitoredVariable("EF_TT_total",TT_total,0);
+  declareMonitoredVariable("EF_TT_mean",m_TT_mean,-50);
+  declareMonitoredVariable("EF_TT_sigma",m_TT_sigma,-1);
+  declareMonitoredVariable("EF_TT_nEM",m_TT_nEM,0);
+  declareMonitoredVariable("EF_TT_nHad",m_TT_nHad,0);
+  declareMonitoredVariable("EF_TT_total",m_TT_total,0);
 
-  declareMonitoredVariable("EF_ObjAlg_accept_symmetric",ObjAlg_accept_symmetric,0);
+  declareMonitoredVariable("EF_ObjAlg_accept_symmetric",m_ObjAlg_accept_symmetric,0);
 
-  declareMonitoredStdContainer("EF_TT_timings",TT_timings, AutoClear);
+  declareMonitoredStdContainer("EF_TT_timings",m_TT_timings, AutoClear);
 
  
 
-  declareMonitoredStdContainer("EF_Obj_timings",combinedObjects_timings, AutoClear);
-  declareMonitoredVariable("EF_Obj_mean",combinedObjects_mean,-50);
-  declareMonitoredVariable("EF_Obj_sigma",combinedObjects_sigma,-1);
+  declareMonitoredStdContainer("EF_Obj_timings",m_combinedObjects_timings, AutoClear);
+  declareMonitoredVariable("EF_Obj_mean",m_combinedObjects_mean,-50);
+  declareMonitoredVariable("EF_Obj_sigma",m_combinedObjects_sigma,-1);
 
-  declareMonitoredStdContainer("EF_mu_timings",mu_timings, AutoClear);
-  declareMonitoredVariable("EF_mu_mean",mu_mean,-50);
-  declareMonitoredVariable("EF_mu_sigma",mu_sigma,-1);
+  declareMonitoredStdContainer("EF_mu_timings",m_mu_timings, AutoClear);
+  declareMonitoredVariable("EF_mu_mean",m_mu_mean,-50);
+  declareMonitoredVariable("EF_mu_sigma",m_mu_sigma,-1);
 }
 
 
@@ -115,13 +114,13 @@ HLT::ErrorCode DetectorTimingAlgo::hltInitialize()
 
 
   if (  m_rpcDataPreparator.retrieve().isFailure() ) {
-    msg() << MSG::ERROR << "Could not retrieve " << m_rpcDataPreparator << endreq;
+    msg() << MSG::ERROR << "Could not retrieve " << m_rpcDataPreparator << endmsg;
     return HLT::BAD_JOB_SETUP;
   }                    
   m_rpcDataPreparator->setRoIBasedDataAccess(false);
 
   if (  m_dummypatfinder.retrieve().isFailure() ) {
-    msg() << MSG::ERROR << "Could not retrieve " << m_dummypatfinder << endreq;
+    msg() << MSG::ERROR << "Could not retrieve " << m_dummypatfinder << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
   
@@ -180,24 +179,24 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
   //  int nclus_10=0;
 
 
-  summed_L1AClusterE=0;
-  weighted_L1AClusterTime=0;
+  m_summed_L1AClusterE=0;
+  m_weighted_L1AClusterTime=0;
 
-  max_L1AClusterTime_2=-30;
-  max_L1AClusterTime_10=-30;
+  m_max_L1AClusterTime_2=-30;
+  m_max_L1AClusterTime_10=-30;
 
-  closest_L1AClusterTime=0;
-  accept=0;
+  m_closest_L1AClusterTime=0;
+  m_accept=0;
   m_clustertime_10_sigma=0;
   
-  L1ACluster_E.clear();
-  L1ACluster_eta.clear();
-  L1ACluster_phi.clear();
-  L1ACluster_t.clear();
+  m_L1ACluster_E.clear();
+  m_L1ACluster_eta.clear();
+  m_L1ACluster_phi.clear();
+  m_L1ACluster_t.clear();
 
-  L1ACluster_eta_funnypeak.clear();
-  L1ACluster_phi_funnypeak.clear();
-  L1ACluster_t_funnypeak.clear();
+  m_L1ACluster_eta_funnypeak.clear();
+  m_L1ACluster_phi_funnypeak.clear();
+  m_L1ACluster_t_funnypeak.clear();
 
   //std::cout<<" ------ start event --------- " << std::endl;
 
@@ -212,7 +211,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
     
     for (HLT::TEVec::const_iterator it = tes_in[0].begin(); it != tes_in[0].end(); ++it) {
       const xAOD::TrigCompositeContainer * passBitContainer ;   
-      HLT::ErrorCode status = getFeature(  (*it) , passBitContainer);
+      /*HLT::ErrorCode status =*/ getFeature(  (*it) , passBitContainer);
       for (xAOD::TrigCompositeContainer::const_iterator it = passBitContainer->begin(); it != passBitContainer->end(); ++it ){
 	(*it)->getDetail("beforeafterflag",beforeafterflag);
 	(*it)->getDetail("l1a_type",l1accept_type);
@@ -387,8 +386,8 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 
 	if(beforeafterflag>-2){
 	  m_rpctime_matched_intimeroi_averaged.push_back(avgtime);
-	  mu_timings.push_back(avgtime);
-	  combinedObjects_timings.push_back(avgtime);
+	  m_mu_timings.push_back(avgtime);
+	  m_combinedObjects_timings.push_back(avgtime);
 	}
 	// if(beforeafterflag<-1)
 	//   m_rpctime_matched_intimeroi_averaged_NOL1BC.push_back(avgtime);
@@ -419,8 +418,8 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 	avgtime=avgtime/ tmp_rpctime_matched.size() ;
 	if(beforeafterflag>-2){
 	  m_rpctime_matched_outtimeroi_averaged.push_back(avgtime);
-	  mu_timings.push_back(avgtime);
-	  combinedObjects_timings.push_back(avgtime);
+	  m_mu_timings.push_back(avgtime);
+	  m_combinedObjects_timings.push_back(avgtime);
 	}
 	//	if(beforeafterflag<-1)
 	// m_rpctime_matched_outtimeroi_averaged_NOL1BC.push_back(avgtime);
@@ -466,21 +465,21 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
     // 	    if(L1RoiMatch ){
     // 	      //std::cout << "Matched cluster E, eta, phi, time: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi()<<", "<< (*it)->time() << std::endl;	      
     // 	      // Record some properties:
-    // 	      L1ACluster_E.push_back((*it)->e());
-    // 	      L1ACluster_t.push_back((*it)->time());
-    // 	      L1ACluster_eta.push_back((*it)->eta());
-    // 	      L1ACluster_phi.push_back((*it)->phi());
-    // 	      summed_L1AClusterE+=(*it)->e();
+    // 	      m_L1ACluster_E.push_back((*it)->e());
+    // 	      m_L1ACluster_t.push_back((*it)->time());
+    // 	      m_L1ACluster_eta.push_back((*it)->eta());
+    // 	      m_L1ACluster_phi.push_back((*it)->phi());
+    // 	      m_summed_L1AClusterE+=(*it)->e();
 
-    // 	      if( (*it)->e()>10000 && (*it)->time() > max_L1AClusterTime_10 )
-    // 		max_L1AClusterTime_10 = (*it)->time();
-    // 	      if( (*it)->e()>2000 && (*it)->time() > max_L1AClusterTime_2 )
-    // 		max_L1AClusterTime_2 = (*it)->time();
+    // 	      if( (*it)->e()>10000 && (*it)->time() > m_max_L1AClusterTime_10 )
+    // 		m_max_L1AClusterTime_10 = (*it)->time();
+    // 	      if( (*it)->e()>2000 && (*it)->time() > m_max_L1AClusterTime_2 )
+    // 		m_max_L1AClusterTime_2 = (*it)->time();
 	      
     // 	      // if( (*it)->time() > 6 &&  (*it)->time() <16 ){
-    // 	      // 	L1ACluster_t_funnypeak.push_back((*it)->time());
-    // 	      // 	L1ACluster_eta_funnypeak.push_back((*it)->eta());
-    // 	      // 	L1ACluster_phi_funnypeak.push_back((*it)->phi());
+    // 	      // 	m_L1ACluster_t_funnypeak.push_back((*it)->time());
+    // 	      // 	m_L1ACluster_eta_funnypeak.push_back((*it)->eta());
+    // 	      // 	m_L1ACluster_phi_funnypeak.push_back((*it)->phi());
 
     // 	      // }
     // 	    }
@@ -524,7 +523,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 
 	    
     // 	    //std::cout << " Cluster E, eta, phi, time: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi()<<", "<< (*it)->time() << std::endl;
-    // 	    //msg() << MSG::INFO << " Cluster E, eta, phi, time: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi()<<", "<< (*it)->time() << endreq;   
+    // 	    //msg() << MSG::INFO << " Cluster E, eta, phi, time: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi()<<", "<< (*it)->time() << endmsg;   
     //       }
     //   }
       
@@ -540,66 +539,66 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 	//std::cout<<"This TE has no TriggerTowers"<< std::endl;
       } 
       else {     
-	TT_timings.clear();
+	m_TT_timings.clear();
 	int threshold=72;
-	TT_nEM=0;
-	TT_nHad=0;
-	TT_total=0;
-	TTAlg_accept=0;
+	m_TT_nEM=0;
+	m_TT_nHad=0;
+	m_TT_total=0;
+	m_TTAlg_accept=0;
 	const xAOD::TriggerTowerContainer* container(0);
 	if ( getFeature((*it),container) != HLT::OK ) {
-	  msg() << MSG::WARNING << " Failed to get TT collection." << endreq;
+	  msg() << MSG::WARNING << " Failed to get TT collection." << endmsg;
 	  return HLT::ERROR;
 	}
 	
 	for (xAOD::TriggerTowerContainer::const_iterator eIt = m_TriggerTowers->begin(); eIt!=m_TriggerTowers->end(); ++eIt) {
-	  eta=(*eIt)->eta();
-	  readout=0;
-	  readout = (*eIt)->adc().size();
-	  if(readout==5){
-	    y0=(*eIt)->adc()[0];
-	    y1=(*eIt)->adc()[1];
-	    y2=(*eIt)->adc()[2];
-	    y3=(*eIt)->adc()[3];
-	    y4=(*eIt)->adc()[4];
+	  m_eta=(*eIt)->eta();
+	  m_readout=0;
+	  m_readout = (*eIt)->adc().size();
+	  if(m_readout==5){
+	    m_y0=(*eIt)->adc()[0];
+	    m_y1=(*eIt)->adc()[1];
+	    m_y2=(*eIt)->adc()[2];
+	    m_y3=(*eIt)->adc()[3];
+	    m_y4=(*eIt)->adc()[4];
 	  }
-	  else if(readout==7){
-	    y0=(*eIt)->adc()[1];
-	    y1=(*eIt)->adc()[2];
-	    y2=(*eIt)->adc()[3];
-	    y3=(*eIt)->adc()[4];
-	    y4=(*eIt)->adc()[5];
+	  else if(m_readout==7){
+	    m_y0=(*eIt)->adc()[1];
+	    m_y1=(*eIt)->adc()[2];
+	    m_y2=(*eIt)->adc()[3];
+	    m_y3=(*eIt)->adc()[4];
+	    m_y4=(*eIt)->adc()[5];
 	  }
-	  else if(readout==15){
-	    y0=(*eIt)->adc()[3];
-	    y1=(*eIt)->adc()[5];
-	    y2=(*eIt)->adc()[7];
-	    y3=(*eIt)->adc()[9];
-	    y4=(*eIt)->adc()[11];
+	  else if(m_readout==15){
+	    m_y0=(*eIt)->adc()[3];
+	    m_y1=(*eIt)->adc()[5];
+	    m_y2=(*eIt)->adc()[7];
+	    m_y3=(*eIt)->adc()[9];
+	    m_y4=(*eIt)->adc()[11];
 	  }
-	  x0=-50.;
-	  x1=-25.;
-	  x2=0.;
-	  x3=25.;
-	  x4=50.;
-	  if(y0>=1020 || y1>=1020 || y2>=1020 || y3>=1020 || y4>=1020){
+	  m_x0=-50.;
+	  m_x1=-25.;
+	  m_x2=0.;
+	  m_x3=25.;
+	  m_x4=50.;
+	  if(m_y0>=1020 || m_y1>=1020 || m_y2>=1020 || m_y3>=1020 || m_y4>=1020){
 	    continue;
 	  }
-	  if(y2>threshold && y2>=y1 && y2>=y3){
-	    xv = time(x1,x2,x3,y1,y2,y3);
-	    if((*eIt)->sampling()==1 && fabs(eta)>1.3 && fabs(eta)<1.6 && y2>750){
+	  if(m_y2>threshold && m_y2>=m_y1 && m_y2>=m_y3){
+	    m_xv = time(m_x1,m_x2,m_x3,m_y1,m_y2,m_y3);
+	    if((*eIt)->sampling()==1 && fabs(m_eta)>1.3 && fabs(m_eta)<1.6 && m_y2>750){
 	      continue;
 	    }
 	  }
-	  else if(y1>threshold && y1>y2 && y1>=y0){
-	    xv = time(x0,x1,x2,y0,y1,y2);
-	    if((*eIt)->sampling()==1 && fabs(eta)>1.3 && fabs(eta)<1.6 && y1>750){
+	  else if(m_y1>threshold && m_y1>m_y2 && m_y1>=m_y0){
+	    m_xv = time(m_x0,m_x1,m_x2,m_y0,m_y1,m_y2);
+	    if((*eIt)->sampling()==1 && fabs(m_eta)>1.3 && fabs(m_eta)<1.6 && m_y1>750){
 	      continue;
 	    }
 	  }
-	  else if(y3>threshold && y3>y2 && y3>=y4){
-	    xv = time(x2,x3,x4,y2,y3,y4);
-	    if((*eIt)->sampling()==1 && fabs(eta)>1.3 && fabs(eta)<1.6 && y3>750){
+	  else if(m_y3>threshold && m_y3>m_y2 && m_y3>=m_y4){
+	    m_xv = time(m_x2,m_x3,m_x4,m_y2,m_y3,m_y4);
+	    if((*eIt)->sampling()==1 && fabs(m_eta)>1.3 && fabs(m_eta)<1.6 && m_y3>750){
 	      continue;
 	    }
 	  }
@@ -607,15 +606,15 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 	    continue;
 	  }
 	  if((*eIt)->sampling()==0){
-	    TT_nEM++;
-	    TT_total++;
+	    m_TT_nEM++;
+	    m_TT_total++;
 	  }
 	  else if((*eIt)->sampling()==1){
-	    TT_nHad++;
-	    TT_total++;
+	    m_TT_nHad++;
+	    m_TT_total++;
 	  }
-	  TT_timings.push_back(xv);
-	  combinedObjects_timings.push_back(xv);
+	  m_TT_timings.push_back(m_xv);
+	  m_combinedObjects_timings.push_back(m_xv);
 
 	  
 				
@@ -648,26 +647,26 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
   // // m_itfrac = (float)(nclus_it_5)/ nclus_5;
   
   
-  // for (unsigned int ic=0; ic< L1ACluster_E.size(); ic++){
-  //   weighted_L1AClusterTime +=  L1ACluster_t[ic] * L1ACluster_E[ic]/summed_L1AClusterE;    
+  // for (unsigned int ic=0; ic< m_L1ACluster_E.size(); ic++){
+  //   m_weighted_L1AClusterTime +=  m_L1ACluster_t[ic] * m_L1ACluster_E[ic]/m_summed_L1AClusterE;    
   // }
 
 
-  //  if( weighted_L1AClusterTime > 19 || max_L1AClusterTime_10  > 21 || max_L1AClusterTime_10  < -29 ){
-  //   accept=1; 
+  //  if( m_weighted_L1AClusterTime > 19 || m_max_L1AClusterTime_10  > 21 || m_max_L1AClusterTime_10  < -29 ){
+  //   m_accept=1; 
   // }
 
-  //  //  if( weighted_L1AClusterTime < 19 || max_L1AClusterTime_10  < 19 ){
+  //  //  if( m_weighted_L1AClusterTime < 19 || m_max_L1AClusterTime_10  < 19 ){
   //   //    std::cout<<" ------ this event has average matched cluster time < 19 ns --------- " << std::endl;
-  //   // std::cout<<" avg. weighted time: " << weighted_L1AClusterTime << " max. time 10: "<<max_L1AClusterTime_10<<"  max. time 2: "<<max_L1AClusterTime_2  <<std::endl;
+  //   // std::cout<<" avg. weighted time: " << m_weighted_L1AClusterTime << " max. time 10: "<<m_max_L1AClusterTime_10<<"  max. time 2: "<<m_max_L1AClusterTime_2  <<std::endl;
   //  //  }
   // //  std::cout<<" ------ end event --------- " << std::endl;
 
-   int size = TT_timings.size();
+   int size = m_TT_timings.size();
    if(size==0){
-     TT_median=-50;
-     TT_mean=-50;
-     TT_sigma=-1;
+     m_TT_median=-50;
+     m_TT_mean=-50;
+     m_TT_sigma=-1;
    }
    else{
     
@@ -675,52 +674,52 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
      float n = 0;
      float tot = 0, tot2 =0, adouble;
      for(int i=0; i<size; i++){
-       adouble=TT_timings[i];
+       adouble=m_TT_timings[i];
        tot += adouble; tot2 += adouble*adouble;
        ++n;
      }
      float n1 = 1./n;
-     TT_mean = tot*n1;
-     TT_sigma = sqrt(fabs(tot2*n1 -TT_mean*TT_mean));
+     m_TT_mean = tot*n1;
+     m_TT_sigma = sqrt(fabs(tot2*n1 -m_TT_mean*m_TT_mean));
    }
 
  
 
-   size = mu_timings.size();
+   size = m_mu_timings.size();
    if(size==0){
-     mu_mean=-50;
-     mu_sigma=-1;
+     m_mu_mean=-50;
+     m_mu_sigma=-1;
    }
    else{
      float n = 0;
      float tot = 0, tot2 =0, adouble;
      for(int i=0; i<size; i++){
-       adouble=mu_timings[i];
+       adouble=m_mu_timings[i];
        tot += adouble; tot2 += adouble*adouble;
        ++n;
      }
      float n1 = 1./n;
-     mu_mean = tot*n1;
-     mu_sigma = sqrt(fabs(tot2*n1 -mu_mean*mu_mean));
+     m_mu_mean = tot*n1;
+     m_mu_sigma = sqrt(fabs(tot2*n1 -m_mu_mean*m_mu_mean));
    }
 
-   size = combinedObjects_timings.size();
+   size = m_combinedObjects_timings.size();
    if(size==0){
-     combinedObjects_mean=-50;
-     combinedObjects_sigma=-1;
+     m_combinedObjects_mean=-50;
+     m_combinedObjects_sigma=-1;
    }
    else{
      float n = 0;
      float tot = 0, tot2 =0, adouble;
      for(int i=0; i<size; i++){
-       adouble=combinedObjects_timings[i];
+       adouble=m_combinedObjects_timings[i];
        tot += adouble; tot2 += adouble*adouble;
        ++n;
      }
      
      float n1 = n>0 ? 1./n : 0;
-     combinedObjects_mean = tot*n1;
-     combinedObjects_sigma = sqrt(fabs(tot2*n1 -combinedObjects_mean*combinedObjects_mean));
+     m_combinedObjects_mean = tot*n1;
+     m_combinedObjects_sigma = sqrt(fabs(tot2*n1 -m_combinedObjects_mean*m_combinedObjects_mean));
    }
      
    
@@ -733,7 +732,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
    //  }
 
    // TTAlg_accept=0;
-   // if(combinedObjects_mean>22 && combinedObjects_sigma<4){
+   // if(m_combinedObjects_mean>22 && m_combinedObjects_sigma<4){
    //   TTAlg_accept=1;
    //   std::vector<HLT::TriggerElement*> empty_seed;
    //   HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
@@ -741,16 +740,16 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
    // }
 
 
-   ObjAlg_accept_symmetric = 0;
-   if(combinedObjects_mean>-45 && fabs(combinedObjects_mean)>22 && combinedObjects_sigma<4){
-     ObjAlg_accept_symmetric=1;
+   m_ObjAlg_accept_symmetric = 0;
+   if(m_combinedObjects_mean>-45 && fabs(m_combinedObjects_mean)>22 && m_combinedObjects_sigma<4){
+     m_ObjAlg_accept_symmetric=1;
      std::vector<HLT::TriggerElement*> empty_seed;
      HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
      te->setActiveState(true);
    }
 
    // std::cout<<"---  Decision of timingalg: ---"<<std::endl;
-   // std::cout<<"Dec: "<<ObjAlg_accept_symmetric <<" TTAlg accept: " << TTAlg_accept<<" nEM:" <<TT_nEM << " obj timing mean: " <<combinedObjects_mean <<" sigma: "<<combinedObjects_sigma <<std::endl;
+   // std::cout<<"Dec: "<<m_ObjAlg_accept_symmetric <<" TTAlg accept: " << TTAlg_accept<<" nEM:" <<TT_nEM << " obj timing mean: " <<m_combinedObjects_mean <<" sigma: "<<m_combinedObjects_sigma <<std::endl;
 
    afterExecMonitors().ignore();
 

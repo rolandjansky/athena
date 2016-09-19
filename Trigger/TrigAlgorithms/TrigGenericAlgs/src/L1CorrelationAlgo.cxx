@@ -36,7 +36,7 @@
 #include "TrigConfL1Data/TriggerItem.h"
 using namespace std;
 
-const short N_ROBID_BITS(24);  // 3 bytes for ROB ID
+//const short N_ROBID_BITS(24);  // 3 bytes for ROB ID
 
 unsigned int getBitMaskValue( const unsigned int uintValue,
                             const unsigned int mask ) {
@@ -304,7 +304,7 @@ loop over bc
 
 if two successive non-0 say OK 
 */
-HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed, unsigned int output)
+HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& /*fake_seed*/, unsigned int output)
 {
 
 
@@ -331,15 +331,17 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
   const eformat::ROBFragment<const uint32_t*>* rbf = robFragments[0];
 
   // 
+#if 0  
   uint32_t ctpFormatVersion = CTPfragment::ctpFormatVersion(robFragments[0]);
 
-  
+
   int m_nitems(0);
   if (ctpFormatVersion < 4) {
     m_nitems = (CTPdataformat::TBPwords_v0)*32;
   } else {
     m_nitems = (CTPdataformat::TBPwords_v4)*32;
   }
+#endif
 
 
   std::vector<uint32_t>::reverse_iterator tbp_it;
@@ -478,7 +480,7 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
       
       if ( hltStatus != HLT::OK ) {
 	msg() << MSG::ERROR << "Write of TrigCompositeContainer feature into outputTE failed"
-	      << endreq;
+	      << endmsg;
 	return hltStatus;
       }
       
@@ -505,10 +507,10 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
 	// if ( !((*it).first).getCandidateIsHighestPt() ) continue;
 	
 	if(debugoutput){
-	  std::cout <<  "RoIB word               : 0x" << MSG::hex << ((*it).first).roIWord() << MSG::dec << std::endl;
+	  std::cout <<  "RoIB word               : 0x" << std::hex << ((*it).first).roIWord() << std::dec << std::endl;
 	  std::cout <<  "Threshold               :  pt" << ((*it).first).pt() << std::endl;
 	  std::cout <<  "Sector ID               :  " << ((*it).first).getSectorID() << std::endl;
-	  std::cout <<  "Sector addr             :  0x" << MSG::hex << ((*it).first).getSectorAddress() << MSG::dec << std::endl;
+	  std::cout <<  "Sector addr             :  0x" << std::hex << ((*it).first).getSectorAddress() << std::dec << std::endl;
 	  std::cout <<  "Sector overflow         :  " << ((*it).first).getSectorOverflow() << std::endl;
 	  std::cout <<  "RoI overflow            :  " << ((*it).first).getRoiOverflow() << std::endl;
 	  std::cout <<  "RoI number              :  " << ((*it).first).getRoiNumber() << std::endl;
@@ -595,7 +597,7 @@ HLT::ErrorCode L1CorrelationAlgo::hltExecute(std::vector<HLT::TEVec>& fake_seed,
     compObj->setDetail( "other_type", m_other_type);
     compObj->setDetail( "beforeafterflag", m_beforeafterflag);
     
-    HLT::ErrorCode hltStatus = attachFeature(te, m_passBitContainer , "mistimemon_L1Dec");
+    /*HLT::ErrorCode hltStatus =*/ attachFeature(te, m_passBitContainer , "mistimemon_L1Dec");
     
     
   }
