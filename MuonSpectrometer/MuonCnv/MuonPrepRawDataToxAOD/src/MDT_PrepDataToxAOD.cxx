@@ -37,6 +37,8 @@ void MDT_PrepDataToxAOD::addPRD_TechnologyInformation( xAOD::TrackMeasurementVal
   xprd.auxdata<int>("adc") = prd.adc();
   xprd.auxdata<int>("status") = prd.status();
   xprd.auxdata<unsigned int>("collectionHash") = prd.collectionHash();
+  xprd.auxdata<float>("driftRadius") = prd.localPosition()[Trk::locR];
+  xprd.auxdata<float>("driftError") = prd.localCovariance()(0,0);  
 }
 
 void MDT_PrepDataToxAOD::addSDO_TechnologyInformation( xAOD::TrackMeasurementValidation& xprd, const Muon::MdtPrepData& prd, const MuonSimData* sdo ) const {
