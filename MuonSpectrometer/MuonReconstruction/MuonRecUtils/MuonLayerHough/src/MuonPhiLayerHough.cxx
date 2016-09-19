@@ -54,7 +54,8 @@ namespace MuonHough {
       // if we get to the next layer process the current one and fill the Hough space
       if( prevlayer != (*it)->layer ) {
         for( int i=0;i<m_nbins;++i ) {
-          m_histo[i] += layerCounts[i];
+          if( subtract && -layerCounts[i] >= static_cast<int>(m_histo[i]) ) m_histo[i] = 0; 
+          else                                                              m_histo[i] += layerCounts[i];
           //if( m_debug && layerCounts[i] != 0 ) std::cout << " filling layer " << prevlayer << " bin " << i << std::endl;
           layerCounts[i] = 0; // reset bin
         }
