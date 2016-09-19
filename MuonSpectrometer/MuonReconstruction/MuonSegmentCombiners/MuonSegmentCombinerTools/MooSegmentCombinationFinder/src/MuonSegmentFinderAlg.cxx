@@ -229,7 +229,7 @@ StatusCode MuonSegmentFinderAlg::execute()
   }
 
   if( m_printSummary || msgLvl(MSG::DEBUG) ){
-    msg() << msg().level() << "Number of segments found " << resolvedSegments.size() << std::endl << m_printer->print(resolvedSegments) << endreq;
+    msg() << msg().level() << "Number of segments found " << resolvedSegments.size() << std::endl << m_printer->print(resolvedSegments) << endmsg;
   }
   
   //Add the segments to store gate
@@ -247,7 +247,7 @@ StatusCode MuonSegmentFinderAlg::finalize()
   return AthAlgorithm::finalize();
 }
 
-void MuonSegmentFinderAlg::createSegmentsFromClusters(Muon::MuonPatternCombination* patt, std::vector<const Muon::MuonSegment*>& segments ) {
+void MuonSegmentFinderAlg::createSegmentsFromClusters(const Muon::MuonPatternCombination* patt, std::vector<const Muon::MuonSegment*>& segments ) {
   //turn the PRD into MuonCluster
   std::map<int,std::vector<const Muon::MuonClusterOnTrack*> > clustersPerSector;
   std::vector< Muon::MuonPatternChamberIntersect >::const_iterator it = patt->chamberData().begin();
@@ -285,7 +285,7 @@ void MuonSegmentFinderAlg::createSegmentsFromClusters(Muon::MuonPatternCombinati
 }
 
 
-void MuonSegmentFinderAlg::createSegmentsWithMDTs(Muon::MuonPatternCombination* patcomb, std::vector<const Muon::MuonSegment*>& segments ) { 
+void MuonSegmentFinderAlg::createSegmentsWithMDTs(const Muon::MuonPatternCombination* patcomb, std::vector<const Muon::MuonSegment*>& segments ) { 
 
   if( m_useNSWMode ){
 
