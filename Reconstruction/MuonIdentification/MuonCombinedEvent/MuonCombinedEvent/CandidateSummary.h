@@ -27,8 +27,9 @@ namespace MuGirlNS
 //typedef std::vector<const Muon::MuonSegment*> MuonSegmentList;
 class Intersection;
 
-struct CandidateSummary
+class CandidateSummary
 {
+public:
     bool startFromMF;
     bool startFromEF;
     bool startFromBetaRefit;
@@ -84,6 +85,7 @@ struct CandidateSummary
     double lhr;
     int saveAnn;
     int saveStau;
+    bool isSiliconAssociated;
     StauRpcHitsLists* rpcHitsLists;
 
     CandidateSummary()
@@ -133,6 +135,7 @@ struct CandidateSummary
           lhr(-999.),
           saveAnn(-1),
           saveStau(-1),
+          isSiliconAssociated(false),
           rpcHitsLists(NULL)
     {
     }
