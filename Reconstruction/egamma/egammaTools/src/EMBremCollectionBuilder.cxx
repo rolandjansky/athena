@@ -402,7 +402,7 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
   }
 
   //Save perigee eta, phi for later usage in supercluster algorithm.
-  std::vector<float> perigeeExtrapEta, perigeeExtrapPhi;
+  float perigeeExtrapEta(-999.), perigeeExtrapPhi(-999.);
   if (trk_refit) {
     auto tsos = trk_refit->trackStateOnSurfaces()->begin();
     for (;tsos != trk_refit->trackStateOnSurfaces()->end(); ++tsos) {
@@ -420,13 +420,12 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
 	//Do the straight-line extrapolation.	  
 	bool hitEM2 = m_extrapolationTool->getEtaPhiAtCalo(pTrkPar.get(), &extrapEta, &extrapPhi);
 	if (hitEM2) {
-	  perigeeExtrapEta.push_back(extrapEta);
-	  perigeeExtrapPhi.push_back(extrapPhi);
+	  perigeeExtrapEta = extrapEta;
+	  perigeeExtrapPhi = extrapPhi;
 	} else {
-	  ATH_MSG_INFO("Extrapolation to EM2 failed!");
-	  perigeeExtrapEta.push_back(-999.);
-	  perigeeExtrapPhi.push_back(-999.);
-	}	
+	  ATH_MSG_WARNING("Extrapolation to EM2 failed!");
+	}
+	break;
       }
     }
   }
@@ -456,10 +455,10 @@ StatusCode EMBremCollectionBuilder::refitTrack(const xAOD::TrackParticle* tmpTrk
     aParticle->setTrackLink( trackLink );     
     aParticle->setVertexLink(tmpTrkPart->vertexLink());     
 
-    static const SG::AuxElement::Accessor< std::vector<float> > pgExtrapEta ("perigeeExtrapEta");
+    static const SG::AuxElement::Accessor<float> pgExtrapEta ("perigeeExtrapEta");
     pgExtrapEta(*aParticle) = perigeeExtrapEta;    
 
-    static const SG::AuxElement::Accessor<std::vector<float> > pgExtrapPhi ("perigeeExtrapPhi");
+    static const SG::AuxElement::Accessor<float> pgExtrapPhi ("perigeeExtrapPhi");
     pgExtrapPhi(*aParticle) = perigeeExtrapPhi;
     
     //Add qoverP for the last measurement

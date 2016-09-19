@@ -9,7 +9,6 @@
 
 #include "egammaUtils/ParameterDownWeighter.h"
 #include "egammaUtils/WeightedMeanCalc.h"
-#include "egammaUtils/EMConversionUtils.h"
 #include "CaloUtils/CaloVertexedCluster.h"
 
 //NEW xAOD INCLUDES.

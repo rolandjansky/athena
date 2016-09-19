@@ -126,15 +126,8 @@ StatusCode EMShowerBuilder::initialize()
       }
     }
   }
-  
-  // Pointer to Tool Service
-  IToolSvc* p_toolSvc = 0;
-  StatusCode sc = service("ToolSvc", p_toolSvc);
-  if (sc.isFailure()) {
-    ATH_MSG_FATAL(" Tool Service not found ");
-    return StatusCode::FAILURE;
-  } 
 
+  StatusCode sc = StatusCode::SUCCESS;
   //Retrieve shower shape Tool 
   if (m_UseShowerShapeTool) { 
     if ((sc = RetrieveShowerShapeTool()).isFailure()) { 

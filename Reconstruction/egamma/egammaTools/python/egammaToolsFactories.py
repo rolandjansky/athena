@@ -11,7 +11,7 @@ from RecExConfig.RecFlags import rec
 
 def configureClusterCorrections(swTool):
   "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
-  from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
+  from CaloClusterCorrection.CaloSwCorrections import *
   from CaloRec.CaloRecMakers import _process_tools
   
   clusterTypes = dict(
@@ -29,10 +29,30 @@ def configureClusterCorrections(swTool):
       cells_name=egammaKeys.caloCellKey() )
     setattr(swTool, x, _process_tools (swTool, y) )
 
+  #Super cluster position only corrections
+  if jobproperties.egammaRecFlags.doSuperclusters():
+    clusterTypesSuper = dict(Ele55='ele55', Ele37='ele37',
+                             Gam55='gam55_unconv',Gam37='gam37_unconv',
+                             Econv55='gam55_conv', Econv37='gam37_conv'
+                             )
+    
+    for attrName, clName in clusterTypes.iteritems():
+      x = 'ClusterCorrectionToolsSuperCluster' + attrName
+      if not hasattr(swTool, x) or getattr(swTool, x):
+        continue
+      
+      superclusterCorr= make_CaloSwCorrections(clName, suffix ='EGSuperCluster',
+                                              corrlist=[  [rfac,'v5'],[etaoff_b1,'v5'],[etaoff_e1,  'v5'],
+                                                          [etaoff_b2,'v5'],[etaoff_e2,'v5'], [phioff_b2,  'v5data'], 
+                                                          [phioff_e2,  'v5data'], [update], [time], [listBadChannel]],
+                                              cells_name=egammaKeys.caloCellKey())
+      setattr(swTool, x ,_process_tools (swTool, superclusterCorr) )
+    #End of super cluster position only corrections
+      
 #-------------------------
 
 egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
-  postInit=[configureClusterCorrections])
+                           postInit=[configureClusterCorrections])
 
 from egammaMVACalib import egammaMVACalibConf 
 egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool,
@@ -45,6 +65,7 @@ EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             PhotonContainerName = egammaKeys.outputPhotonKey(),
                             ClusterCorrectionToolName = FullNameWrapper(egammaSwTool),
                             doSuperCluster = jobproperties.egammaRecFlags.doSuperclusters(),
+                            applyMVAToSuperCluster=False,  
                             MVACalibTool= egammaMVATool
 )
 
@@ -87,24 +108,31 @@ egammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
                                      IsHadronic = True
                                      )
 
-
 electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
                                            name = 'electronSuperClusterBuilder',
-                                           ExtrapolationTool=EMExtrapolationTools,
-                                           UseBremFinder=False,
-                                           MVACalibTool= egammaMVATool,
-                                           TopoWindowEtaCells = 5,
-                                           TopoWindowPhiCells = 7
+                                           ClusterCorrectionTool=egammaSwTool,
+                                           CorrectClusters=True,
+                                           MVACalibTool=egammaMVATool,
+                                           CalibrateClusters=False,                   
+                                           EtThresholdCut=1000, 
+                                           AddCellsWindowEtaCellsBarrel=3,
+                                           AddCellsWindowPhiCellsBarrel=999,
+                                           AddCellsWindowEtaCellsEndcap=5,
+                                           AddCellsWindowPhiCellsEndcap=999
                                          )
 
 
 photonSuperClusterBuilder = ToolFactory( egammaToolsConf.photonSuperClusterBuilder,
                                          name = 'photonSuperClusterBuilder',
-                                         MVACalibTool= egammaMVATool
+                                         ClusterCorrectionTool=egammaSwTool,
+                                         CorrectClusters=True,
+                                         MVACalibTool= egammaMVATool,
+                                         CalibrateClusters=False,                   
+                                         AddCellsWindowEtaCellsBarrel=3,
+                                         AddCellsWindowPhiCellsBarrel=999,
+                                         AddCellsWindowEtaCellsEndcap=5,
+                                         AddCellsWindowPhiCellsEndcap=999
                                          )
-
-egammaTopoClusterMap = ToolFactory( egammaToolsConf.egammaTopoClusterMap,
-                                    name = 'egammaTopoClusterMap' )
 
 #End of super clustering
 
