@@ -20,6 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetTrackingGeometryUtils
+			  Tools/PathResolver
+			  DetectorDescription/GeoModelXml
                           Tracking/TrkDetDescr/TrkDetElementBase
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkGeometryAlpine )
@@ -38,7 +40,7 @@ atlas_add_component( InDetTrackingGeometryXML
                      LINK_LIBRARIES ${Boost_LIBRARIES} ${XERCESC_LIBRARIES} ${ROOT_LIBRARIES} ${EIGEN_LIBRARIES}
 		     AthenaBaseComps AthenaKernel AtlasDetDescr GeoPrimitives StoreGateLib SGtests
 		     PRIVATE_LINK_LIBRARIES GaudiKernel InDetIdentifier TrkDetDescrInterfaces TrkDetDescrUtils TrkSurfaces 
-		     InDetReadoutGeometry InDetTrackingGeometryUtils TrkDetElementBase TrkGeometry TrkGeometryAlpine )
+		     InDetReadoutGeometry InDetTrackingGeometryUtils PathResolver GeoModelXml TrkDetElementBase TrkGeometry TrkGeometryAlpine )
 
 # Install files from the package:
 atlas_install_headers( InDetTrackingGeometryXML )

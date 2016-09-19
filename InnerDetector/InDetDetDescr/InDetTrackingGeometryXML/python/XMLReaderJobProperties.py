@@ -110,8 +110,8 @@ class XMLReaderFlags_JobProperties(JobPropertyContainer):
         if kwargs.has_key("readXMLfromDB"): self.readXMLfromDB = kwargs["readXMLfromDB"]
 
     def dump(self):
-        print "Pixel = ", self.PixelBarrelLayout()," ", self.PixelEndcapLayout()
-        print "SCT   = ", self.SCTBarrelLayout()," ", self.SCTEndcapLayout()
+        print "Pixel = ", self.PixelBarrelLayout(), " ", self.PixelEndcapLayout()
+        print "SCT   = ", self.SCTBarrelLayout(), " ", self.SCTEndcapLayout()
         print "ID    =>  doPixel ", self.doPix,"  doSCT ",self.doSCT, "  isGMX ",self.isGMX
         print "splitBarrel  : ", self.splitBarrelLayers()
         print "isRingLayout : ", self.isRingLayout()

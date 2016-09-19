@@ -893,13 +893,12 @@ void InDet::XMLReaderSvc::writeDictionary(std::string filename)
   openDictFile(file,filename);
   writePixBarrelDict(file);
   writePixEndcapDict(file);
-  if (m_isGMX)
-    writeSctGMXDict(file);
-  else {
+
+  if (m_doSCT and !m_isGMX) {
     writeSctBarrelDict(file);
     writeSctEndcapDict(file);
   }
-  writeTrtDict(file);
+
   closeDictFile(file);
 }
 
@@ -943,7 +942,8 @@ void InDet::XMLReaderSvc::openDictFile(std::ofstream& file,std::string filename)
 
 void InDet::XMLReaderSvc::closeDictFile(std::ofstream& file) const
 {
-  file << "</IdDictionary>" << std::endl;
+  if (!m_isGMX)
+    file << "</IdDictionary>" << std::endl;
   file.close();
 }
 

@@ -25,6 +25,9 @@ use TrkGeometryAlpine           TrkGeometryAlpine-*           Tracking/TrkDetDes
 use InDetReadoutGeometry        InDetReadoutGeometry-*        InnerDetector/InDetDetDescr
 use InDetTrackingGeometryUtils  InDetTrackingGeometryUtils-*  InnerDetector/InDetDetDescr
 
+use PathResolver                PathResolver-*                Tools
+use GeoModelXml			GeoModelXml-*		      DetectorDescription
+
 public
 library InDetTrackingGeometryXML *.cxx components/*.cxx
 apply_pattern installed_library
