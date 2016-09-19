@@ -5,6 +5,7 @@
 #include "MuonLayerHough/MuonLayerHoughSelector.h"
 #include <iostream>
 #include <algorithm>
+#include <cmath>
 
 namespace MuonHough {
 
@@ -27,7 +28,7 @@ namespace MuonHough {
 
   float MuonLayerHoughSelector::getCutValue(float position) const 
   {
-    const float pos = fabs(position);
+    const float pos = std::abs(position);
     for (const auto& cut : m_cutValues) 
     {
       if (cut.first < pos) return cut.second;//notice the array is already sorted

@@ -522,5 +522,80 @@ namespace MuonHough {
     return std::make_pair<int,int>(floor((zmin-m_descriptor.yMinRange)*m_invbinsize), floor((zmax-m_descriptor.yMinRange)*m_invbinsize));//convert the output to bins
   }
 
-
+  float extrapolate(const MuonLayerHough::Maximum& ref, const MuonLayerHough::Maximum& ex, bool doparabolic){
+    //z is always the precision plane. r is the reference plane, simple and robust
+    double ref_z = ref.getGlobalZ();
+    double ref_r = ref.getGlobalR();
+    double ex_z  = ex.getGlobalZ();
+    double ex_r  = ex.getGlobalR();
+    float theta_ref = ref.getGlobalTheta();
+    if (!doparabolic || ref_z == 0 || theta_ref == 0){//do linear extrapolation
+      if (!ex.isEndcap()){//if extrapolate to barell
+        return ex_z - ex_r / ref_r * ref_z;
+      }
+      else{//if extrapolate to endcap
+        return ex_r - ex_z * ref_r / ref_z;
+      }
+    }
+    else{//do parabolic
+      float expected = 0;
+      float extrapolated_diff = 9999;
+      float tan_theta_ref = tan(theta_ref);
+      float invtan_theta_ref = 1./tan(theta_ref);
+      float r_start = ref.hough->m_descriptor.chIndex%2 > 0? 4900.:5200.; //start of barrel B field; values could be further optimized; 5500.:6500.
+      float z_start = 8500.; //start of endcap B field; used to be 6500; should start at 8500
+      float z_end   = 12500.;  //end of endcap B field; used to be 12000; should end at 12500
+      float r_SL = ref_r + (ex_z-ref_z) * tan_theta_ref;
+      float z_SL = ref_z + (ex_r-ref_r) * invtan_theta_ref;
+      //start extrapolation
+      if (!ref.isEndcap()){//this is starting with barrel chamber; BEE is 6
+        float rgeo    = ref_r*ref_r - r_start*r_start;
+        float rhoInv  = (invtan_theta_ref*ref_r - ref_z)/rgeo;
+        if (!ex.isEndcap()){//this ends with barrel chamber; BEE is 6
+          expected          = ref_z + (ex_r-ref_r) * invtan_theta_ref + (ex_r-ref_r)*(ex_r-ref_r)*rhoInv;
+          extrapolated_diff =  ex_z - expected;
+        }//end with barrel to barrel extrapolation
+        else{//this is a barrel to endcap extrapolation, mostly in the transition region
+          //recalculate z start
+          z_start           = ref_z + (r_start-ref_r) * invtan_theta_ref + (r_start-ref_r)*(r_start-ref_r)*rhoInv;
+          float zgeo        = ref_z*ref_z - z_start*z_start;
+          float rho         = (tan_theta_ref*ref_z - ref_r)/zgeo;
+          expected          = ref_r + (ex_z-ref_z) * tan_theta_ref + (ex_z-ref_z)*(ex_z-ref_z)*rho;
+          extrapolated_diff = ex_r - expected;
+        }
+      }
+      else{//this starts with endcap chamber;
+        //swap the starting position if on the other side
+        if(tan_theta_ref < 0){
+          z_start = - z_start;
+          z_end = - z_end;
+        }
+        if (ex.isEndcap()){//extrapolate to endcap
+          if (std::abs(ref_z) < std::abs(z_end)){//extrapolate from EI or EE, have to use linear
+            expected = r_SL;
+          }
+          else{// from EM or EO or EE
+            if (std::abs(ex_z) > std::abs(z_start)){//extrapolate to EM or EO
+              //extrapolate to outer layer, just using theta of the middle measurement; only works if the theta measurement is correct
+              //can extrapolate with either the outside theta or middle theta; outside theta is better; farther away from the B field
+              expected = r_SL;
+            }
+            else{//to EI
+              float r_end    = ref_r + (z_end-ref_z)*tan_theta_ref;
+              float zgeo     = z_start * z_start - z_end * z_end;
+              float rhoInv   = (r_end - z_end*tan_theta_ref) / zgeo;
+              float tantheta = tan_theta_ref - 2*(z_end - z_start)*rhoInv;
+              expected       = ex_z*tantheta + (ex_z-z_start)*(ex_z-z_start)*rhoInv;
+            }
+          }
+          extrapolated_diff = ex_r - expected;
+        }
+        else{//exrapolate to barrel; again verly likely to be in transition region, complicated B field; just use linear
+          expected = z_SL;
+          extrapolated_diff = ex_z - expected;
+        }
+      }
+      return extrapolated_diff;
+    }//end of parabolic extrapolation
+  }
 }

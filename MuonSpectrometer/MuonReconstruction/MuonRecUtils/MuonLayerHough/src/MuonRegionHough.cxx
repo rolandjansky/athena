@@ -7,7 +7,7 @@
 
 namespace MuonHough {
 
-  MuonSectorHough::MuonSectorHough( int sector, const MuonDetectorDescription& regionDescriptions ) : m_sector(sector) {
+  MuonSectorHough::MuonSectorHough( int sector, const MuonDetectorDescription& regionDescriptions ) {
     m_transforms.resize(Muon::MuonStationIndex::sectorLayerHashMax(),0);
     
     // loop over regions and layers of the detector and build the transforms

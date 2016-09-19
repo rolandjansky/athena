@@ -66,8 +66,11 @@ namespace MuonHough {
       const MuonLayerHough* hough;  // pointer to the corresponding hough
 
       bool isEndcap() const{   
-        Muon::MuonStationIndex::DetectorRegionIndex region = hough->m_descriptor.region;;
-        if (region != Muon::MuonStationIndex::Barrel) {return true;}
+        // refers to the chamber orientation!!!! so BEE is a barell in this def
+        Muon::MuonStationIndex::DetectorRegionIndex region = hough->m_descriptor.region;
+        Muon::MuonStationIndex::ChIndex chIndex = hough->m_descriptor.chIndex;
+        //need to make sure BEE's reference plane is the same as barrel
+        if (region != Muon::MuonStationIndex::Barrel && chIndex != Muon::MuonStationIndex::BEE) {return true;}
         return false;
       };
       float getGlobalR() const{
@@ -195,5 +198,7 @@ namespace MuonHough {
     fill(hit.x,hit.ymin,hit.w);
   }
 
+  //function for linear/parabolic extrapolation from maxima to maxima in a different station
+  float extrapolate(const MuonLayerHough::Maximum& ref, const MuonLayerHough::Maximum& ex, bool doparabolic=false);
 }
 #endif 

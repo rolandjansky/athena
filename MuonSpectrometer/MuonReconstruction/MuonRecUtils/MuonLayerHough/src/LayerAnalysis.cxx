@@ -50,7 +50,7 @@ namespace MuonHough {
     m_ncalls = 0;
     std::cout << " analysing events " << nentries << std::endl;
     m_ntuple.initForRead(*m_tree);
-    if (DEBUG_seg){std::cout << " here " << nentries << std::endl; m_ntuple.initForReadseg(*m_tree);}
+    if (m_DEBUG_seg){std::cout << " here " << nentries << std::endl; m_ntuple.initForReadseg(*m_tree);}
     std::cout << " after initialize events " << nentries << std::endl;
 
     m_selectors.resize(Muon::MuonStationIndex::ChIndexMax);//initialzie all the selectors
@@ -70,7 +70,7 @@ namespace MuonHough {
     m_selectors[Muon::MuonStationIndex::EES] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)});
     m_selectors[Muon::MuonStationIndex::EEL] = MuonHough::MuonLayerHoughSelector({std::make_pair(0,1.9)});
 
-    if (DEBUG) nentries = 200;//for debugging purpose
+    if (m_DEBUG) nentries = 200;//for debugging purpose
     for( Long64_t evt=0; evt<nentries; ++evt ){
     //std::cout << "event: " << evt << std::endl;
       if (evt % 1000 == 0) std::cout << "event: " << evt << std::endl;
@@ -80,8 +80,8 @@ namespace MuonHough {
 	    m_muons.clear();
       m_segs.clear();
       if(!m_ntuple.read(m_event,m_muons)) {std::cout << "oops bad event: " << evt << std::endl; continue;}
-      if (DEBUG_seg && !m_ntuple.readseg(m_segs)) {std::cout << "oops bad segment: " << evt << std::endl; continue;}
-      if (DEBUG_seg){
+      if (m_DEBUG_seg && !m_ntuple.readseg(m_segs)) {std::cout << "oops bad segment: " << evt << std::endl; continue;}
+      if (m_DEBUG_seg){
         for (auto seg = m_segs.begin(); seg != m_segs.end(); seg++){
           TVector3 globalPos(seg->sposx, seg->sposy, seg->sposz);
           TVector3 globalDir(seg->sdirx, seg->sdiry, seg->sdirz);
@@ -94,7 +94,7 @@ namespace MuonHough {
         }
       } 
 
-      if (DEBUG) std::cout << "DEBUG: start analyse event evt " << evt << std::endl;
+      if (m_DEBUG) std::cout << "DEBUG: start analyse event evt " << evt << std::endl;
       analysis( m_event.sectors );
       ++m_ncalls;
     }
@@ -103,8 +103,8 @@ namespace MuonHough {
 
   void LayerAnalysis::initialize(){
     SetStyle();
-    h_dtheta = new TH1F("dtheta", "RMS of the #Delta #theta for each clutser; #theta RMS", 315, -0.01, 3.14);
-    h_dtheta_truth = new TH1F("dtheta_truth", "RMS of the #Delta #theta for each truth clutser; #theta RMS", 315, -3.14, 3.14);
+    m_h_dtheta = new TH1F("dtheta", "RMS of the #Delta #theta for each clutser; #theta RMS", 315, -0.01, 3.14);
+    m_h_dtheta_truth = new TH1F("dtheta_truth", "RMS of the #Delta #theta for each truth clutser; #theta RMS", 315, -3.14, 3.14);
     m_hMaximaHeightPerChIndex.resize(Muon::MuonStationIndex::ChIndexMax);
     m_hMaximaHeightPerChIndex[Muon::MuonStationIndex::BIS] = new Plots("max_BIS", /* 20, 0, 10000,*/ 16, 0, 3.2, 15, 0, 15);
     m_hMaximaHeightPerChIndex[Muon::MuonStationIndex::BIL] = new Plots("max_BIL", /* 20, 0, 10000,*/ 16, 0, 3.2, 15, 0, 15);
@@ -123,37 +123,37 @@ namespace MuonHough {
     m_hMaximaHeightPerChIndex[Muon::MuonStationIndex::EEL] = new Plots("max_EEL", /*100, 0, 40000,*/ 16, 0, 3.2, 25, 0, 25);
     
     float diffbins = 800; float diffxmax = 3000;
-    h_diff_MI_e = new TH1F("h_diff_MI_endcap", "h_diff_MI_endcap; diff, mm", diffbins, -diffxmax, diffxmax);
-    h_diff_MO_e = new TH1F("h_diff_MO_endcap", "h_diff_MO_endcap; diff, mm", diffbins, -diffxmax, diffxmax);
-    h_diff_MI_b = new TH1F("h_diff_MI_barrel", "h_diff_MI_barrel; diff, mm", diffbins, -diffxmax, diffxmax);
-    h_diff_MO_b = new TH1F("h_diff_MO_barrel", "h_diff_MO_barrel; diff, mm", diffbins, -diffxmax, diffxmax);
-    h_diff_MI_e_truth = new TH1F("h_diff_MI_endcap_truth", "h_diff_MI_endcap_truth; diff, mm", diffbins, -diffxmax, diffxmax);
-    h_diff_MO_e_truth = new TH1F("h_diff_MO_endcap_truth", "h_diff_MO_endcap_truth; diff, mm", diffbins, -diffxmax, diffxmax);
-    h_diff_MI_b_truth = new TH1F("h_diff_MI_barrel_truth", "h_diff_MI_barrel_truth; diff, mm", diffbins, -diffxmax, diffxmax);
-    h_diff_MO_b_truth = new TH1F("h_diff_MO_barrel_truth", "h_diff_MO_barrel_truth; diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_diff_MI_e = new TH1F("h_diff_MI_endcap", "h_diff_MI_endcap; diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_diff_MO_e = new TH1F("h_diff_MO_endcap", "h_diff_MO_endcap; diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_diff_MI_b = new TH1F("h_diff_MI_barrel", "h_diff_MI_barrel; diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_diff_MO_b = new TH1F("h_diff_MO_barrel", "h_diff_MO_barrel; diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_diff_MI_e_truth = new TH1F("h_diff_MI_endcap_truth", "h_diff_MI_endcap_truth; diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_diff_MO_e_truth = new TH1F("h_diff_MO_endcap_truth", "h_diff_MO_endcap_truth; diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_diff_MI_b_truth = new TH1F("h_diff_MI_barrel_truth", "h_diff_MI_barrel_truth; diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_diff_MO_b_truth = new TH1F("h_diff_MO_barrel_truth", "h_diff_MO_barrel_truth; diff, mm", diffbins, -diffxmax, diffxmax);
     //exptaploated plots
     //diffbins = 100; diffxmax = 0.5;
-    h_expt_MI_e = new TH1F("h_expt_MI_endcap", "h_expt_MI_endcap; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
-    h_expt_MO_e = new TH1F("h_expt_MO_endcap", "h_expt_MO_endcap; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
-    h_expt_MI_b = new TH1F("h_expt_MI_barrel", "h_expt_MI_barrel; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
-    h_expt_MO_b = new TH1F("h_expt_MO_barrel", "h_expt_MO_barrel; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
-    h_expt_MI_e_truth = new TH1F("h_expt_MI_endcap_truth", "h_expt_MI_endcap_truth; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
-    h_expt_MO_e_truth = new TH1F("h_expt_MO_endcap_truth", "h_expt_MO_endcap_truth; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
-    h_expt_MI_b_truth = new TH1F("h_expt_MI_barrel_truth", "h_expt_MI_barrel_truth; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
-    h_expt_MO_b_truth = new TH1F("h_expt_MO_barrel_truth", "h_expt_MO_barrel_truth; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_expt_MI_e = new TH1F("h_expt_MI_endcap", "h_expt_MI_endcap; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_expt_MO_e = new TH1F("h_expt_MO_endcap", "h_expt_MO_endcap; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_expt_MI_b = new TH1F("h_expt_MI_barrel", "h_expt_MI_barrel; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_expt_MO_b = new TH1F("h_expt_MO_barrel", "h_expt_MO_barrel; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_expt_MI_e_truth = new TH1F("h_expt_MI_endcap_truth", "h_expt_MI_endcap_truth; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_expt_MO_e_truth = new TH1F("h_expt_MO_endcap_truth", "h_expt_MO_endcap_truth; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_expt_MI_b_truth = new TH1F("h_expt_MI_barrel_truth", "h_expt_MI_barrel_truth; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
+    m_h_expt_MO_b_truth = new TH1F("h_expt_MO_barrel_truth", "h_expt_MO_barrel_truth; extrapolated diff, mm", diffbins, -diffxmax, diffxmax);
     //compare the two extrapolations
     float compbins = 800; float compxmax = 1500;
-    h_comp_MI_e = new TH1F("h_comp_MI_endcap", "h_comp_MI_endcap; two extrapolation diff, mm", compbins, -compxmax, compxmax);
-    h_comp_MO_e = new TH1F("h_comp_MO_endcap", "h_comp_MO_endcap; two extrapolation diff, mm", compbins, -compxmax, compxmax);
-    h_comp_MI_b = new TH1F("h_comp_MI_barrel", "h_comp_MI_barrel; two extrapolation diff, mm", compbins, -compxmax, compxmax);
-    h_comp_MO_b = new TH1F("h_comp_MO_barrel", "h_comp_MO_barrel; two extrapolation diff, mm", compbins, -compxmax, compxmax);
-    h_comp_MI_e_truth = new TH1F("h_comp_MI_endcap_truth", "h_comp_MI_endcap_truth; two extrapolation diff, mm", compbins, -compxmax, compxmax);
-    h_comp_MO_e_truth = new TH1F("h_comp_MO_endcap_truth", "h_comp_MO_endcap_truth; two extrapolation diff, mm", compbins, -compxmax, compxmax);
-    h_comp_MI_b_truth = new TH1F("h_comp_MI_barrel_truth", "h_comp_MI_barrel_truth; two extrapolation diff, mm", compbins, -compxmax, compxmax);
-    h_comp_MO_b_truth = new TH1F("h_comp_MO_barrel_truth", "h_comp_MO_barrel_truth; two extrapolation diff, mm", compbins, -compxmax, compxmax);
+    m_h_comp_MI_e = new TH1F("h_comp_MI_endcap", "h_comp_MI_endcap; two extrapolation diff, mm", compbins, -compxmax, compxmax);
+    m_h_comp_MO_e = new TH1F("h_comp_MO_endcap", "h_comp_MO_endcap; two extrapolation diff, mm", compbins, -compxmax, compxmax);
+    m_h_comp_MI_b = new TH1F("h_comp_MI_barrel", "h_comp_MI_barrel; two extrapolation diff, mm", compbins, -compxmax, compxmax);
+    m_h_comp_MO_b = new TH1F("h_comp_MO_barrel", "h_comp_MO_barrel; two extrapolation diff, mm", compbins, -compxmax, compxmax);
+    m_h_comp_MI_e_truth = new TH1F("h_comp_MI_endcap_truth", "h_comp_MI_endcap_truth; two extrapolation diff, mm", compbins, -compxmax, compxmax);
+    m_h_comp_MO_e_truth = new TH1F("h_comp_MO_endcap_truth", "h_comp_MO_endcap_truth; two extrapolation diff, mm", compbins, -compxmax, compxmax);
+    m_h_comp_MI_b_truth = new TH1F("h_comp_MI_barrel_truth", "h_comp_MI_barrel_truth; two extrapolation diff, mm", compbins, -compxmax, compxmax);
+    m_h_comp_MO_b_truth = new TH1F("h_comp_MO_barrel_truth", "h_comp_MO_barrel_truth; two extrapolation diff, mm", compbins, -compxmax, compxmax);
     //set basic settings
-    DEBUG=false;//for understanding output
-    DEBUG_seg=false;//for more debug output
+    m_DEBUG=false;//for understanding output
+    m_DEBUG_seg=false;//for more debug output
   }
 
   void LayerAnalysis::analysis( std::map<int,SectorData>& data ) {
@@ -165,9 +165,9 @@ namespace MuonHough {
     std::vector<std::vector<MuonLayerHough::Maximum>> plotMaximum;//save the maximum information here
     std::vector<std::vector<MuonLayerHough::Maximum>> plotMaximum_truth;//save the maximum information here
     std::set<int> maxset;
-    if (DEBUG) std::cout << "DEBUG: the size of this data event(ROI) " << data.size() << std::endl;
+    if (m_DEBUG) std::cout << "DEBUG: the size of this data event(ROI) " << data.size() << std::endl;
     for(std::map<int,SectorData>::const_iterator it = data.begin() ;it != data.end();++it ){//looping through region?
-      if (DEBUG) std::cout << "DEBUG: the size of the hit clusters in this ROI is " << it->second.size() << std::endl;
+      if (m_DEBUG) std::cout << "DEBUG: the size of the hit clusters in this ROI is " << it->second.size() << std::endl;
       std::vector<MuonLayerHough::Maximum> plotMaximum_roi;
       std::vector<MuonLayerHough::Maximum> plotMaximum_roi_truth;
       for(SectorData::const_iterator sit = it->second.begin(); sit != it->second.end(); ++sit ){//looping the dataindex--first, hitlist--second
@@ -184,7 +184,7 @@ namespace MuonHough {
         // else if (sit->first.sector()%2 == 0){ LayerIndexMax_temp = 5;}//small sectors
         // else if (sit->first.sector()%2 != 0){ LayerIndexMax_temp = 4;}//large sectors
 
-        if (DEBUG) std::cout << "DEBUG: start new cluster; position: sector " << sit->first.sector() << " region(A/B/C) " 
+        if (m_DEBUG) std::cout << "DEBUG: start new cluster; position: sector " << sit->first.sector() << " region(A/B/C) " 
         << region << " layer: " << layer  << " chindex: " << chIndex << 
         " && number of the hits in this cluster is " << sit->second.size() << std::endl;
         //start to looping over layers for this sector
@@ -258,7 +258,7 @@ namespace MuonHough {
       prefix += "_Layer_";
       prefix += index.layer();
 
-      if (DEBUG){
+      if (m_DEBUG){
         std::cout << "DEBUG " << prefix.Data() << std::endl;
         hough.rootHistos(prefix.Data());
         drawSector(index.region(),index.sector(),data[index.sector()],detectorHough,detectorHoughTruth);
@@ -274,13 +274,13 @@ namespace MuonHough {
         //std::cout << "DEBUG: check !!! maximum found : size " << plotMaximum[i][j].theta << std::endl;
         h_dtheta_temp->Fill(plotMaximum[i][j].theta);
       }
-      // if (DEBUG) std::cout << "DEBUG: check !!! maximum found " << " pulled mean " << h_dtheta_temp->GetMean()
+      // if (m_DEBUG) std::cout << "DEBUG: check !!! maximum found " << " pulled mean " << h_dtheta_temp->GetMean()
       // << " pulled mean error" << h_dtheta_temp->GetMeanError()
       // << " pulled RMS" << h_dtheta_temp->GetRMS()
       // << " pulled RMS error " << h_dtheta_temp->GetRMSError()
       // << std::endl;
 
-      h_dtheta->Fill(h_dtheta_temp->GetRMS());//the rms of dthetas
+      m_h_dtheta->Fill(h_dtheta_temp->GetRMS());//the rms of dthetas
       delete h_dtheta_temp;//remove the pinter
 
       //linear extrapolation
@@ -291,7 +291,7 @@ namespace MuonHough {
       double expt_MI = 0; 
       double expt_MO = 0;
 
-      if (!DEBUG){
+      if (!m_DEBUG){
         diff_MI = linear_extrapolate(plotMaximum[i][1], plotMaximum[i][0]);
         diff_MO = linear_extrapolate(plotMaximum[i][1], plotMaximum[i][2]);
         expt_MI = parab_extrapolate(plotMaximum[i][1], plotMaximum[i][0]);
@@ -299,20 +299,20 @@ namespace MuonHough {
 
         if(plotMaximum[i][1].refregion == 1) { 
 
-          h_diff_MI_b->Fill(diff_MI);
-          h_diff_MO_b->Fill(diff_MO);
-          h_expt_MI_b->Fill(expt_MI);
-          h_expt_MO_b->Fill(expt_MO);
-          h_comp_MI_b->Fill(fabs(diff_MI) - fabs(expt_MI));
-          h_comp_MO_b->Fill(fabs(diff_MO) - fabs(expt_MO));
+          m_h_diff_MI_b->Fill(diff_MI);
+          m_h_diff_MO_b->Fill(diff_MO);
+          m_h_expt_MI_b->Fill(expt_MI);
+          m_h_expt_MO_b->Fill(expt_MO);
+          m_h_comp_MI_b->Fill(fabs(diff_MI) - fabs(expt_MI));
+          m_h_comp_MO_b->Fill(fabs(diff_MO) - fabs(expt_MO));
         }
         else{ 
-          h_diff_MI_e->Fill(diff_MI);
-          h_diff_MO_e->Fill(diff_MO);
-          h_expt_MI_e->Fill(expt_MI);
-          h_expt_MO_e->Fill(expt_MO);
-          h_comp_MI_e->Fill(fabs(diff_MI) - fabs(expt_MI));
-          h_comp_MO_e->Fill(fabs(diff_MO) - fabs(expt_MO));
+          m_h_diff_MI_e->Fill(diff_MI);
+          m_h_diff_MO_e->Fill(diff_MO);
+          m_h_expt_MI_e->Fill(expt_MI);
+          m_h_expt_MO_e->Fill(expt_MO);
+          m_h_comp_MI_e->Fill(fabs(diff_MI) - fabs(expt_MI));
+          m_h_comp_MO_e->Fill(fabs(diff_MO) - fabs(expt_MO));
         }
       }
     }
@@ -323,10 +323,10 @@ namespace MuonHough {
     for(int i=0; i < int(plotMaximum_truth.size()); i++){
       //std::cout << "DEBUG: check !!! maximum found : size " << plotMaximum[i].size() << std::endl;
       TH1F* h_dtheta_temp = new TH1F("thetavalues", "theta values of this current cluster", 628, -3.14, 3.14);
-      if (DEBUG) std::cout << "DEBUG: maximum found ! " << std::endl;
+      if (m_DEBUG) std::cout << "DEBUG: maximum found ! " << std::endl;
       for(int j=0; j < int(plotMaximum_truth[i].size()); j++){
         //std::cout << "DEBUG: check !!! maximum found : size " << plotMaximum[i][j].theta << std::endl;
-        if (DEBUG) std::cout << "DEBUG: maximum " << j << " theta " << plotMaximum_truth[i][j].getGlobalTheta() << " max " << plotMaximum_truth[i][j].max 
+        if (m_DEBUG) std::cout << "DEBUG: maximum " << j << " theta " << plotMaximum_truth[i][j].getGlobalTheta() << " max " << plotMaximum_truth[i][j].max 
             << " pos " << plotMaximum_truth[i][j].pos  << " refpos " << plotMaximum_truth[i][j].refpos  << " refchIndex " << plotMaximum_truth[i][j].refchIndex << " binpos " << plotMaximum_truth[i][j].binpos
             << " binposmin " << plotMaximum_truth[i][j].binposmin  << " binposmax " << plotMaximum_truth[i][j].binposmax
             << std::endl;
@@ -341,34 +341,35 @@ namespace MuonHough {
       double expt_MI_truth = 0; 
       double expt_MO_truth = 0;
       if (true){//fill the truth informations; always for now
+        if (plotMaximum_truth[i][1].hough->m_descriptor.chIndex < 2){continue;}//this is extrapolating from BI outwards, won't work
         diff_MI_truth = linear_extrapolate(plotMaximum_truth[i][1], plotMaximum_truth[i][0]);
         diff_MO_truth = linear_extrapolate(plotMaximum_truth[i][1], plotMaximum_truth[i][2]);
         expt_MI_truth = parab_extrapolate(plotMaximum_truth[i][1], plotMaximum_truth[i][0]);
         expt_MO_truth = parab_extrapolate(plotMaximum_truth[i][1], plotMaximum_truth[i][2]);
         if(plotMaximum_truth[i][1].refregion == 1) { //all in barrel
           
-          h_diff_MI_b_truth->Fill(diff_MI_truth);
-          h_diff_MO_b_truth->Fill(diff_MO_truth);
-          h_expt_MI_b_truth->Fill(expt_MI_truth);
-          h_expt_MO_b_truth->Fill(expt_MO_truth);
-          h_comp_MI_b_truth->Fill(fabs(diff_MI_truth) - fabs(expt_MI_truth));
-          h_comp_MO_b_truth->Fill(fabs(diff_MO_truth) - fabs(expt_MO_truth));
+          m_h_diff_MI_b_truth->Fill(diff_MI_truth);
+          m_h_diff_MO_b_truth->Fill(diff_MO_truth);
+          m_h_expt_MI_b_truth->Fill(expt_MI_truth);
+          m_h_expt_MO_b_truth->Fill(expt_MO_truth);
+          m_h_comp_MI_b_truth->Fill(fabs(diff_MI_truth) - fabs(expt_MI_truth));
+          m_h_comp_MO_b_truth->Fill(fabs(diff_MO_truth) - fabs(expt_MO_truth));
         }
         else{ //all not in barrel
-          h_diff_MI_e_truth->Fill(diff_MI_truth);
-          h_diff_MO_e_truth->Fill(diff_MO_truth);
-          h_expt_MI_e_truth->Fill(expt_MI_truth);
-          h_expt_MO_e_truth->Fill(expt_MO_truth);
-          h_comp_MI_e_truth->Fill(fabs(diff_MI_truth) - fabs(expt_MI_truth));
-          h_comp_MO_e_truth->Fill(fabs(diff_MO_truth) - fabs(expt_MO_truth));
+          m_h_diff_MI_e_truth->Fill(diff_MI_truth);
+          m_h_diff_MO_e_truth->Fill(diff_MO_truth);
+          m_h_expt_MI_e_truth->Fill(expt_MI_truth);
+          m_h_expt_MO_e_truth->Fill(expt_MO_truth);
+          m_h_comp_MI_e_truth->Fill(fabs(diff_MI_truth) - fabs(expt_MI_truth));
+          m_h_comp_MO_e_truth->Fill(fabs(diff_MO_truth) - fabs(expt_MO_truth));
         }
       }
-      if (DEBUG) std::cout << "**** compare two extrapolations! inner region: " << plotMaximum_truth[i][0].refregion 
+      if (m_DEBUG) std::cout << "**** compare two extrapolations! inner region: " << plotMaximum_truth[i][0].refregion 
       << " parabolic: " << expt_MI_truth
       << " linear: " << diff_MI_truth
       << std::endl;
 
-      if (DEBUG) std::cout << "**** compare two extrapolations! outer region: " << plotMaximum_truth[i][2].refregion 
+      if (m_DEBUG) std::cout << "**** compare two extrapolations! outer region: " << plotMaximum_truth[i][2].refregion 
       << " parabolic: " << expt_MO_truth
       << " linear: " << diff_MO_truth
       << std::endl;
@@ -579,37 +580,37 @@ namespace MuonHough {
     TCanvas c1("c1","c1",800,700);
     c1.SetLogy();
     c1.cd();
-    h_dtheta->Draw();
-    h_dtheta->Write();
-    h_dtheta_truth->SetLineColor(2);
-    h_dtheta_truth->Draw("SAME");
-    h_dtheta_truth->Write();
+    m_h_dtheta->Draw();
+    m_h_dtheta->Write();
+    m_h_dtheta_truth->SetLineColor(2);
+    m_h_dtheta_truth->Draw("SAME");
+    m_h_dtheta_truth->Write();
     //gPad->SaveAs("../Output/"+ TString(h_dtheta->GetName()) + ".pdf");
 
-    finishplot(h_diff_MI_e);
-    finishplot(h_diff_MO_e);
-    finishplot(h_diff_MI_b);
-    finishplot(h_diff_MO_b);
-    finishplot(h_diff_MI_e_truth);
-    finishplot(h_diff_MO_e_truth);
-    finishplot(h_diff_MI_b_truth);
-    finishplot(h_diff_MO_b_truth);
-    finishplot(h_expt_MI_e);
-    finishplot(h_expt_MO_e);
-    finishplot(h_expt_MI_b);
-    finishplot(h_expt_MO_b);
-    finishplot(h_expt_MI_e_truth);
-    finishplot(h_expt_MO_e_truth);
-    finishplot(h_expt_MI_b_truth);
-    finishplot(h_expt_MO_b_truth);
-    finishplot(h_comp_MI_e);
-    finishplot(h_comp_MO_e);
-    finishplot(h_comp_MI_b);
-    finishplot(h_comp_MO_b);
-    finishplot(h_comp_MI_e_truth);
-    finishplot(h_comp_MO_e_truth);
-    finishplot(h_comp_MI_b_truth);
-    finishplot(h_comp_MO_b_truth);
+    finishplot(m_h_diff_MI_e);
+    finishplot(m_h_diff_MO_e);
+    finishplot(m_h_diff_MI_b);
+    finishplot(m_h_diff_MO_b);
+    finishplot(m_h_diff_MI_e_truth);
+    finishplot(m_h_diff_MO_e_truth);
+    finishplot(m_h_diff_MI_b_truth);
+    finishplot(m_h_diff_MO_b_truth);
+    finishplot(m_h_expt_MI_e);
+    finishplot(m_h_expt_MO_e);
+    finishplot(m_h_expt_MI_b);
+    finishplot(m_h_expt_MO_b);
+    finishplot(m_h_expt_MI_e_truth);
+    finishplot(m_h_expt_MO_e_truth);
+    finishplot(m_h_expt_MI_b_truth);
+    finishplot(m_h_expt_MO_b_truth);
+    finishplot(m_h_comp_MI_e);
+    finishplot(m_h_comp_MO_e);
+    finishplot(m_h_comp_MI_b);
+    finishplot(m_h_comp_MO_b);
+    finishplot(m_h_comp_MI_e_truth);
+    finishplot(m_h_comp_MO_e_truth);
+    finishplot(m_h_comp_MI_b_truth);
+    finishplot(m_h_comp_MO_b_truth);
   }
 
   void LayerAnalysis::calculateVariables(Plots* Plot){
@@ -700,18 +701,23 @@ namespace MuonHough {
 
     h->Draw();
     h->Write();
-    if(DEBUG) gPad->SaveAs("../Output/"+ TString(h->GetName()) + ".png");
+    if(m_DEBUG) gPad->SaveAs("../Output/"+ TString(h->GetName()) + ".png");
     delete h;
   }
 
 
   float LayerAnalysis::linear_extrapolate(MuonLayerHough::Maximum ref, MuonLayerHough::Maximum ex){
     //z is always the precision plane. r is the reference plane, simple and robust
-    double ref_z = ref.pos;
-    double ref_r = ref.refpos;
-    double ex_z  = ex.pos;
-    double ex_r  = ex.refpos;
-    return ex_z - ex_r / ref_r * ref_z;
+    double ref_z = ref.getGlobalZ();
+    double ref_r = ref.getGlobalR();
+    double ex_z  = ex.getGlobalZ();
+    double ex_r  = ex.getGlobalR();
+    if (ex.hough->m_descriptor.chIndex <= 6){
+      return ex_z - ex_r / ref_r * ref_z;
+    }
+    else{
+      return ex_r - ex_z * ref_r / ref_z;
+    }
   }
 
   float LayerAnalysis::parab_extrapolate(MuonLayerHough::Maximum ref, MuonLayerHough::Maximum ex){
@@ -734,11 +740,11 @@ namespace MuonHough {
     if (z_segment == 0){ return extrapolated_diff;}//this is out of range
     if (theta_segment == 0){ return extrapolated_diff;}//this is out of range
     //for debug popose
-    if (DEBUG) std::cout << "DEBUG!!! refregion " << ref_region << " chIndex " << ref_chIndex << " ref_r " << r_segment << " ref_z " << z_segment << " ref_theta " 
+    if (m_DEBUG) std::cout << "DEBUG!!! refregion " << ref_region << " chIndex " << ref_chIndex << " ref_r " << r_segment << " ref_z " << z_segment << " ref_theta " 
       << theta_segment  << " angle diff " << theta_segment - atan2(r_segment, z_segment)
       << " theta binstep " << ref.hough->m_descriptor.thetaStep << " theta bin " << ref.bintheta << std::endl;
 
-    if (DEBUG) std::cout << "DEBUG!!! exregion " << ex_region << " chIndex " << ex_chIndex << " ex_r " << r_extrapolated << " ex_z " << z_extrapolated << " ex_theta " 
+    if (m_DEBUG) std::cout << "DEBUG!!! exregion " << ex_region << " chIndex " << ex_chIndex << " ex_r " << r_extrapolated << " ex_z " << z_extrapolated << " ex_theta " 
       << theta_extrapolated  << " angle diff " << theta_extrapolated - atan2(r_extrapolated, z_extrapolated)
       << " theta binstep " << ex.hough->m_descriptor.thetaStep << " theta bin " << ex.bintheta << std::endl;
     //for real extrapolation
@@ -775,18 +781,18 @@ namespace MuonHough {
         double z_SL = z_segment + (r_extrapolated-r_segment) * 1.0 / tan(theta_segment);
 
         if (ex_chIndex >= 7){//extrapolate to endcap
-          if (abs(z_segment) < z_end){//extrapolate from EI or EE, have to use linear
+          if (std::abs(z_segment) < std::abs(z_end)){//extrapolate from EI or EE, have to use linear
             expected = r_SL;
             extrapolated_diff =  r_extrapolated - expected;
           }
           else{// from EM or EO
-            if (abs(z_extrapolated) > z_end){//to EM or EO
+            if (std::abs(z_extrapolated) > std::abs(z_end)){//to EM or EO
               //extrapolate to outer layer, just using theta of the middle measurement; only works if the theta measurement is correct
               //can extrapolate with either the outside theta or middle theta; outside theta is better; father away from the B field
               expected = r_SL;
               extrapolated_diff =  r_extrapolated - expected;
             }
-            else if (abs(z_segment) > abs(z_extrapolated)){//to EI or EE
+            else if (std::abs(z_segment) > std::abs(z_extrapolated)){//to EI or EE
               double r_end = r_segment + (z_end-z_segment)*tan(theta_segment);
               double zgeo = (z_end-z_start)*(z_end-z_start) -2*z_end*(z_end-z_start);
               double rhoInv = (r_end - z_end*tan(theta_segment)) / zgeo;
@@ -802,8 +808,36 @@ namespace MuonHough {
           extrapolated_diff = z_extrapolated - expected;
         }
     }
-    //if (DEBUG) std::cout << "DEBUG!!! extrapolated difference " << extrapolated_diff << std::endl;
-    return extrapolated_diff;
+    //if (m_DEBUG) std::cout << "DEBUG!!! extrapolated difference " << extrapolated_diff << std::endl;
+    //return extrapolated_diff;
+    //float new_linear = MuonHough::extrapolate(ref, ex, false);
+    float new_parabolic = MuonHough::extrapolate(ref, ex, true);
+
+    // if (fabs(new_parabolic) - fabs(new_linear)  >= 100){
+    //   if (fabs(new_linear) < 1000 && fabs(new_parabolic) > 1000){//more conditions for detailed debugging; in this case, there should be improvements
+    //     std::cout << "GOOD!!! " << extrapolated_diff << " new linear: " << new_linear << " new para: " << new_parabolic << std::endl;
+    //     std::cout << "GOOD!!! refregion " << ref_region << " chIndex " << ref_chIndex << " ref_r " << r_segment << " ref_z " << z_segment << " ref_theta " 
+    //     << theta_segment  << " angle diff " << theta_segment - atan2(r_segment, z_segment)
+    //     << " theta binstep " << ref.hough->m_descriptor.thetaStep << " theta bin " << ref.bintheta << std::endl;
+
+    //     std::cout << "GOOD!!! exregion " << ex_region << " chIndex " << ex_chIndex << " ex_r " << r_extrapolated << " ex_z " << z_extrapolated << " ex_theta " 
+    //     << theta_extrapolated  << " angle diff " << theta_extrapolated - atan2(r_extrapolated, z_extrapolated)
+    //     << " theta binstep " << ex.hough->m_descriptor.thetaStep << " theta bin " << ex.bintheta << std::endl;
+    //   }
+    // }
+    // if (fabs(new_parabolic) - fabs(extrapolated_diff) >= 100 ){
+    //   if (fabs(extrapolated_diff) < 1000 && fabs(new_parabolic) > 1000){//more conditions for detailed debugging; in this case, there should be improvements
+    //     std::cout << "DEBUG!!! " << extrapolated_diff << " new linear: " << new_linear << " new para: " << new_parabolic << std::endl;
+    //     std::cout << "DEBUG!!! refregion " << ref_region << " chIndex " << ref_chIndex << " ref_r " << r_segment << " ref_z " << z_segment << " ref_theta " 
+    //     << theta_segment  << " angle diff " << theta_segment - atan2(r_segment, z_segment)
+    //     << " theta binstep " << ref.hough->m_descriptor.thetaStep << " theta bin " << ref.bintheta << std::endl;
+
+    //     std::cout << "DEBUG!!! exregion " << ex_region << " chIndex " << ex_chIndex << " ex_r " << r_extrapolated << " ex_z " << z_extrapolated << " ex_theta " 
+    //     << theta_extrapolated  << " angle diff " << theta_extrapolated - atan2(r_extrapolated, z_extrapolated)
+    //     << " theta binstep " << ex.hough->m_descriptor.thetaStep << " theta bin " << ex.bintheta << std::endl;
+    //   }
+    // }
+    return new_parabolic;
   }
 
   int LayerAnalysis::getMaxLayers(Muon::MuonStationIndex::DetectorRegionIndex region, int sector) {

@@ -48,7 +48,7 @@ namespace MuonHough {
 
   private:
     std::vector< MuonLayerHough* > m_transforms; /// Hough transforms for all regions
-    int m_sector;                                /// sector number
+    //int m_sector;                                /// sector number
   };
 
   /** class managing all Hough transforms in the detector */
