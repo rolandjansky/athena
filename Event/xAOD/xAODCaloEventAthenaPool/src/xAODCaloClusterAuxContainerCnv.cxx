@@ -2,14 +2,20 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCaloClusterAuxContainerCnv.cxx 635808 2014-12-12 22:19:18Z ssnyder $
+// $Id: xAODCaloClusterAuxContainerCnv.cxx 773852 2016-09-19 14:08:20Z krasznaa $
 
 // System include(s):
 #include <exception>
 #include <memory>
 
+// Infrastucture include(s):
+#ifndef XAOD_ANALYSIS
+#   include "CaloInterface/IxAODClusterCompressor.h"
+#endif
+
 // EDM include(s):
 #include "xAODCaloEvent/versions/CaloClusterAuxContainer_v1.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 // Local include(s):
 #include "xAODCaloClusterAuxContainerCnv.h"
@@ -17,8 +23,25 @@
 #include "AthContainers/tools/copyThinned.h"
 #include "AthenaKernel/IThinningSvc.h"
 
-xAODCaloClusterAuxContainerCnv::xAODCaloClusterAuxContainerCnv( ISvcLocator* svcLoc )
-   : xAODCaloClusterAuxContainerCnvBase( svcLoc ) {
+xAODCaloClusterAuxContainerCnv::
+xAODCaloClusterAuxContainerCnv( ISvcLocator* svcLoc )
+   : xAODCaloClusterAuxContainerCnvBase( svcLoc )
+#ifndef XAOD_ANALYSIS
+   , m_compressor( "xAODClusterCompressor" )
+#endif
+   , m_doCompression( false )
+{
+
+#ifndef XAOD_ANALYSIS
+   if( m_compressor.retrieve().isSuccess() ) {
+      m_doCompression = true;
+      ATH_MSG_INFO("Retrieved compression tool");
+   } else {
+      m_doCompression = false;
+      ATH_MSG_WARNING( "Failed to retrieve compression tool. "
+                       "Will store uncompressed cluster" );
+   }
+#endif
 
 }
 
@@ -27,10 +50,27 @@ xAODCaloClusterAuxContainerCnv::
 createPersistent( xAOD::CaloClusterAuxContainer* trans ) {
 
    // Create a copy of the container:
-   return SG::copyThinned (*trans, IThinningSvc::instance());
+   xAOD::CaloClusterAuxContainer* result =
+         SG::copyThinned( *trans, IThinningSvc::instance() );
+
+#ifndef XAOD_ANALYSIS
+   // Compress it if possible:
+   if( m_doCompression ) {
+      xAOD::CaloClusterContainer helper;
+      for( size_t i = 0; i < result->size(); ++i ) {
+         helper.push_back( new xAOD::CaloCluster() );
+      }
+      helper.setStore( result );
+      m_compressor->compress( &helper );
+   }
+#endif
+
+   // Return the object to be written:
+   return result;
 }
 
-xAOD::CaloClusterAuxContainer* xAODCaloClusterAuxContainerCnv::createTransient() {
+xAOD::CaloClusterAuxContainer*
+xAODCaloClusterAuxContainerCnv::createTransient() {
 
    // The known ID(s) of this container:
    static const pool::Guid v1_guid( "CE498B3B-A32D-43A3-B9B3-C13D136BACFC" );
