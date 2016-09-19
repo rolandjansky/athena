@@ -13,13 +13,13 @@
 #include "GaudiKernel/IToolSvc.h"
 #include "GaudiKernel/ToolHandle.h"
 //
-#include  "VxVertex/VxCandidate.h"
+//#include  "VxVertex/VxCandidate.h"
 #include  "xAODTracking/Vertex.h" 
 #include  "xAODTracking/NeutralParticleContainer.h" 
 #include  "xAODTracking/TrackParticleContainer.h" 
 #include  "TrkParameters/TrackParameters.h" 
 #include  "TrkNeutralParameters/NeutralParameters.h"
-#include  "VxVertex/ExtendedVxCandidate.h"
+//#include  "VxVertex/ExtendedVxCandidate.h"
 #include  "MagFieldInterfaces/IMagFieldSvc.h"
 //
 // Interfaces
@@ -33,7 +33,7 @@ class IMagFieldAthenaSvc;
 
 namespace Trk{
 
-  static const int m_NTrMaxVFit=300;
+  static const int NTrMaxVFit=300;
   typedef std::vector<double> dvect;
   class VKalAtlasMagFld;
   class IExtrapolator;
@@ -80,49 +80,49 @@ namespace Trk{
 //
 // IVertexFitter interface
 //
-        VxCandidate * fit(const std::vector<const Track*> & vectorTrk,
-                                  const Vertex& startingPoint);
+        xAOD::Vertex * fit(const std::vector<const Track*> & vectorTrk,
+                                  const Amg::Vector3D& startingPoint);
 
-        VxCandidate * fit(const std::vector<const Track*>& vectorTrk,
-                                  const RecVertex& constraint);
+        xAOD::Vertex * fit(const std::vector<const Track*>& vectorTrk,
+                                  const xAOD::Vertex& constraint);
 
-        VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
-                                  const Vertex& startingPoint);
+        xAOD::Vertex * fit(const std::vector<const TrackParameters*> & perigeeList,
+                                  const Amg::Vector3D& startingPoint);
 
-        VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
+        xAOD::Vertex * fit(const std::vector<const TrackParameters*> & perigeeList,
 			  const std::vector<const NeutralParameters*> & /*neutralPerigeeList*/,
-			  const Vertex& startingPoint);
+			  const Amg::Vector3D& startingPoint);
  
-        VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
-                                  const RecVertex& constraint);
+        xAOD::Vertex * fit(const std::vector<const TrackParameters*> & perigeeList,
+                                  const xAOD::Vertex& constraint);
 
-        VxCandidate * fit(const std::vector<const TrackParameters*> & perigeeList,
+        xAOD::Vertex * fit(const std::vector<const TrackParameters*> & perigeeList,
 			  const std::vector<const NeutralParameters*> & /*neutralPerigeeList*/,
-			  const RecVertex& constraint);
+			  const xAOD::Vertex& constraint);
 
         /*--------------   Interface for xAOD    -------------*/ 
         xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
-                                 const Vertex& startingPoint); 
+                                 const Amg::Vector3D& startingPoint); 
         xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>& vectorTrk, 
-                                 const RecVertex& constraint); 
+                                 const xAOD::Vertex& constraint); 
 
         xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>   & vectorTrk,
 			   const std::vector<const xAOD::NeutralParticle*> & vectorNeu, 
-			   const Vertex& startingPoint);
+			   const Amg::Vector3D& startingPoint);
         xAOD::Vertex * fit(const std::vector<const xAOD::TrackParticle*>   & vectorTrk, 
 			   const std::vector<const xAOD::NeutralParticle*> & vectorNeu, 
-			   const RecVertex& constraint);
+			   const xAOD::Vertex& constraint);
 
 
-        VxCandidate * fit(const std::vector<const TrackParticleBase*> & vectorTrk,
-	                          const Vertex & startingPoint);
+        xAOD::Vertex * fit(const std::vector<const TrackParticleBase*> & vectorTrk,
+	                          const Amg::Vector3D & startingPoint);
 
-        VxCandidate * fit(const std::vector<const TrackParticleBase*>& vectorTrk,
-	                          const RecVertex& constraint);
+        xAOD::Vertex * fit(const std::vector<const TrackParticleBase*>& vectorTrk,
+	                          const xAOD::Vertex& constraint);
 
-        VxCandidate * fit(const std::vector<const TrackParameters*> & );
-        VxCandidate * fit(const std::vector<const TrackParameters*> &, const std::vector<const Trk::NeutralParameters*> & );
-        VxCandidate * fit(const std::vector<const Track*>& );
+        xAOD::Vertex * fit(const std::vector<const TrackParameters*> & );
+        xAOD::Vertex * fit(const std::vector<const TrackParameters*> &, const std::vector<const Trk::NeutralParameters*> & );
+        xAOD::Vertex * fit(const std::vector<const Track*>& );
 
 //
 //  Cascade fitter interface
@@ -204,9 +204,9 @@ namespace Trk{
         StatusCode VKalGetMassError( std::vector<int> ListOfTracks , 
                                    double& Mass, double& MassError);
         int VKalGetNDOF();
-        VxCandidate * makeVxCandidate( int ,
-                const Amg::Vector3D& , const std::vector<double> & , 
-	        const std::vector<double> & ,  const std::vector< std::vector<double> >& , double ); 
+//        VxCandidate * makeVxCandidate( int ,
+//                const Amg::Vector3D& , const std::vector<double> & , 
+//	        const std::vector<double> & ,  const std::vector< std::vector<double> >& , double ); 
         xAOD::Vertex * makeXAODVertex( int ,
                 const Amg::Vector3D& , const std::vector<double> & , 
 	        const std::vector<double> & ,  const std::vector< std::vector<double> >& , double ); 
@@ -220,7 +220,7 @@ namespace Trk{
         void setCascadeCnstPrec(double);
         void setCnstType(int);
         void setIterations(int, double);
-        void setVertexForConstraint(const RecVertex & );
+        void setVertexForConstraint(const xAOD::Vertex & );
         void setVertexForConstraint(double,double,double);
         void setCovVrtForConstraint(double,double,double,
                                   double,double,double);
@@ -279,8 +279,8 @@ namespace Trk{
       SimpleProperty<bool>   m_firstMeasuredPointLimit;
       SimpleProperty<bool>   m_makeExtendedVertex;
 
-      bool isAtlasField;
-      bool isFieldInitialized;
+      bool m_isAtlasField;
+      bool m_isFieldInitialized;
 
       bool m_useAprioriVertex ;
       bool m_useThetaCnst;
@@ -347,13 +347,13 @@ namespace Trk{
 //
 // Arrays needed for fitting kernel
 //
-      double m_par0[m_NTrMaxVFit][3];   //used only for fit preparation
-      double m_apar[m_NTrMaxVFit][5];   //used only for fit preparation
-      double m_awgt[m_NTrMaxVFit][15];  //used only for fit preparation
-      long int m_ich[m_NTrMaxVFit];
-      double m_chi2tr[m_NTrMaxVFit];
-      double m_parfs[m_NTrMaxVFit][3];
-      double m_wm[m_NTrMaxVFit];
+      double m_par0[NTrMaxVFit][3];   //used only for fit preparation
+      double m_apar[NTrMaxVFit][5];   //used only for fit preparation
+      double m_awgt[NTrMaxVFit][15];  //used only for fit preparation
+      long int m_ich[NTrMaxVFit];
+      double m_chi2tr[NTrMaxVFit];
+      double m_parfs[NTrMaxVFit][3];
+      double m_wm[NTrMaxVFit];
       double m_VrtCst[3];
       double m_CovVrtCst[6];
 

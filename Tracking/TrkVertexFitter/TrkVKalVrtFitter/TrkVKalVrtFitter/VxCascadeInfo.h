@@ -13,16 +13,16 @@
     changes: new!
 
  Base VxSecVertexInfo class contains a vector of pointers
- to VxCandidates of cascade vertices. There all tracking 
+ to xAOD::Vertex's of cascade vertices. There all tracking 
  information is kept. VxCascadeInfo class itself contains physics
  momenta and their covariances of particles and pseudoparticles
  in each cascade vertex. Structure of cascade (order of vertices) 
- is the same in vector<VxCandidate*>, vector<vector<TLorentzVector> and
+ is the same in vector<xAOD::Vertex*>, vector<vector<TLorentzVector> and
  vector< Amg::MatrixX >.
  
    For vertex iv in VxCascadeInfo:
   
-  vxCandidate[iv]  - VxCandidate of fitted vertex
+  vertices[iv]     - xAOD::Vertex of fitted vertex
   momenta[iv][...] - TLorentzVectors for all particles in vertex (real+pseudotracks from cascade vertices)
   covariance[iv]   - Amg::MatrixX for given vertex in form (Vx,Vy,Vz,Px1,Py1,Pz1,.....Pxn,Pyn,Pzn)
   
@@ -54,7 +54,7 @@ namespace Trk {
     /* constructor */
     VxCascadeInfo(const std::vector<xAOD::Vertex*> & vertices,
                   const std::vector<std::vector<TLorentzVector> > & moms,
-                              const std::vector< Amg::MatrixX >     & covs,
+                              const std::vector< Amg::MatrixX >   & covs,
 			       int nDoF, double Chi2);
 
 

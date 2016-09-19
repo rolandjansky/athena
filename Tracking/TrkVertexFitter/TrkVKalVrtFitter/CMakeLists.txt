@@ -18,12 +18,11 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkParticleBase
                           Tracking/TrkEvent/TrkTrack
                           Tracking/TrkEvent/VxSecVertex
-                          Tracking/TrkEvent/VxVertex
-                          Tracking/TrkExtrapolation/TrkExInterfaces
                           Tracking/TrkVertexFitter/TrkVKalVrtCore
                           Tracking/TrkVertexFitter/TrkVertexFitterInterfaces
                           PRIVATE
                           Tracking/TrkDetDescr/TrkSurfaces )
+                          #Tracking/TrkEvent/VxVertex
 
 # External dependencies:
 find_package( CLHEP )

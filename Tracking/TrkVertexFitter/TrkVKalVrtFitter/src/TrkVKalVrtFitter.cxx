@@ -137,15 +137,15 @@ TrkVKalVrtFitter:: TrkVKalVrtFitter(const std::string& type,
     m_fitPropagator = 0;
     m_InDetExtrapolator = 0;
 
-    isAtlasField       = false;   // To allow callback and then field first call only at execute stage
-    isFieldInitialized = false;   //
+    m_isAtlasField       = false;   // To allow callback and then field first call only at execute stage
+    m_isFieldInitialized = false;   //
 }
 
 
 //Destructor---------------------------------------------------------------
 TrkVKalVrtFitter::~TrkVKalVrtFitter(){
-    //log << MSG::DEBUG << "TrkVKalVrtFitter destructor called" << endreq;
-    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"TrkVKalVrtFitter destructor called" << endreq;
+    //log << MSG::DEBUG << "TrkVKalVrtFitter destructor called" << endmsg;
+    if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"TrkVKalVrtFitter destructor called" << endmsg;
     delete m_fitField;
     delete m_fitRotatedField;
     if(m_fitPropagator) delete m_fitPropagator;
@@ -156,21 +156,22 @@ TrkVKalVrtFitter::~TrkVKalVrtFitter(){
 
 StatusCode TrkVKalVrtFitter::finalize()
 {
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     if(m_timingProfile)m_timingProfile->chronoPrint("Trk_VKalVrtFitter");
-    if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"TrkVKalVrtFitter finalize() successful" << endreq;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"TrkVKalVrtFitter finalize() successful" << endmsg;
     return StatusCode::SUCCESS;
 }
 
 
 void TrkVKalVrtFitter::setInitializedField() {
-  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Execute() time magnetic field setting is called" << endreq;
-  if(isAtlasField){
+  if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Execute() time magnetic field setting is called" << endmsg;
+  if(m_isAtlasField){
       MagField::IMagFieldSvc* mtmp =   & (*m_magFieldAthenaSvc);
       setAthenaField(mtmp);
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "MagFieldAthenaSvc is initialized and used" << endreq;  
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "MagFieldAthenaSvc is initialized and used" << endmsg;  
   }
-  isFieldInitialized = true;   //  to signal end of mag.field init procedure 
+  m_isFieldInitialized = true;   //  to signal end of mag.field init procedure 
   return;
 }
 
@@ -208,30 +209,30 @@ StatusCode TrkVKalVrtFitter::initialize()
 //    if( m_Constraint == 12) { m_usePhiCnst = true; m_useThetaCnst = true;}
 //    setCnstType((int)m_Constraint);
     if( m_Constraint ){
-       if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"jobOption Constraint is obsolte now! Use the following jobO instead:"<< endreq;
-       if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"       useAprioriVertexCnst,useThetaCnst,usePhiCnst,usePointingCnst"<<endreq;
-       if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"       useZPointingCnst,usePassNearCnst,usePassWithTrkErrCnst"<<endreq;
+       if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"jobOption Constraint is obsolte now! Use the following jobO instead:"<< endmsg;
+       if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"       useAprioriVertexCnst,useThetaCnst,usePhiCnst,usePointingCnst"<<endmsg;
+       if(msgLvl(MSG::INFO))msg(MSG::INFO)<<"       useZPointingCnst,usePassNearCnst,usePassWithTrkErrCnst"<<endmsg;
        m_Constraint=0;
     }
 
     StatusCode sc=m_magFieldAthenaSvc.retrieve();
     if (sc.isFailure() ){
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Could not find MagFieldAthenaSvc"<< endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Could not find MagFieldAthenaSvc"<< endmsg;
     }else{
-	isAtlasField = true;
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "MagFieldAthenaSvc is retrieved" << endreq;  
+	m_isAtlasField = true;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "MagFieldAthenaSvc is retrieved" << endmsg;  
     }
 //
 //
 //
     if (m_extPropagator.name() == "DefaultVKalPropagator" ){
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator is not supplied - use internal one"<<endreq;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator is not supplied - use internal one"<<endmsg;
     }else{
       if (m_extPropagator.retrieve().isFailure()) {
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Could not find external propagator=" <<m_extPropagator<<endreq;
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "TrkVKalVrtFitter will uses internal propagator" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "Could not find external propagator=" <<m_extPropagator<<endmsg;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "TrkVKalVrtFitter will uses internal propagator" << endmsg;
       }else{
-        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator="<<m_extPropagator<<" retrieved" << endreq;
+        if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<< "External propagator="<<m_extPropagator<<" retrieved" << endmsg;
         const IExtrapolator * tmp =& (*m_extPropagator);
         setAthenaPropagator(tmp);
       }
@@ -240,44 +241,44 @@ StatusCode TrkVKalVrtFitter::initialize()
     m_timingProfile=0;
     sc = service("ChronoStatSvc", m_timingProfile);
     if ( sc.isFailure() || 0 == m_timingProfile) {
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Can not find ChronoStatSvc name="<<m_timingProfile << endreq;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Can not find ChronoStatSvc name="<<m_timingProfile << endmsg;
     }
 
 //    m_PropagatorType=1;  //Just for technical checks
 //
     m_ErrMtx=0;            // pointer to double array for error matrix
 //
-    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "TrkVKalVrtFitter initialize() successful" << endreq;
+    if(msgLvl(MSG::INFO))msg(MSG::INFO)<< "TrkVKalVrtFitter initialize() successful" << endmsg;
     if(msgLvl(MSG::DEBUG)){
-       msg(MSG::DEBUG)<< "TrkVKalVrtFitter configuration:" << endreq;
-       msg(MSG::DEBUG)<< "   A priori vertex constraint:           "<< m_useAprioriVertex <<endreq;
-       msg(MSG::DEBUG)<< "   Angle dTheta=0 constraint:            "<< m_useThetaCnst <<endreq;
-       msg(MSG::DEBUG)<< "   Angle dPhi=0 constraint:              "<< m_usePhiCnst <<endreq;
-       msg(MSG::DEBUG)<< "   Pointing to other vertex constraint:  "<< m_usePointingCnst <<endreq;
-       msg(MSG::DEBUG)<< "   ZPointing to other vertex constraint: "<< m_useZPointingCnst <<endreq;
-       msg(MSG::DEBUG)<< "   Comb. particle pass near other vertex:"<< m_usePassNear <<endreq;
-       msg(MSG::DEBUG)<< "   Pass near with comb.particle errors:  "<< m_usePassWithTrkErr <<endreq;
+       msg(MSG::DEBUG)<< "TrkVKalVrtFitter configuration:" << endmsg;
+       msg(MSG::DEBUG)<< "   A priori vertex constraint:           "<< m_useAprioriVertex <<endmsg;
+       msg(MSG::DEBUG)<< "   Angle dTheta=0 constraint:            "<< m_useThetaCnst <<endmsg;
+       msg(MSG::DEBUG)<< "   Angle dPhi=0 constraint:              "<< m_usePhiCnst <<endmsg;
+       msg(MSG::DEBUG)<< "   Pointing to other vertex constraint:  "<< m_usePointingCnst <<endmsg;
+       msg(MSG::DEBUG)<< "   ZPointing to other vertex constraint: "<< m_useZPointingCnst <<endmsg;
+       msg(MSG::DEBUG)<< "   Comb. particle pass near other vertex:"<< m_usePassNear <<endmsg;
+       msg(MSG::DEBUG)<< "   Pass near with comb.particle errors:  "<< m_usePassWithTrkErr <<endmsg;
        if(m_MassForConstraint>0){ 
-         msg(MSG::DEBUG)<< "   Mass constraint M="<< m_MassForConstraint <<endreq; 
+         msg(MSG::DEBUG)<< "   Mass constraint M="<< m_MassForConstraint <<endmsg; 
          msg(MSG::DEBUG)<< " with particles M=";
          for(int i=0; i<(int)m_MassInputParticles.size(); i++) msg(MSG::DEBUG)<<m_MassInputParticles[i]<<", ";
-         msg(MSG::DEBUG)<<endreq; ;
+         msg(MSG::DEBUG)<<endmsg; ;
        }
 
-       if(isAtlasField){ msg(MSG::DEBUG)<< " ATLAS magnetic field is used!"<<endreq;	}
-       else            { msg(MSG::DEBUG)<< " Constant magnetic field is used! B="<<m_BMAG<<endreq;	}
+       if(m_isAtlasField){ msg(MSG::DEBUG)<< " ATLAS magnetic field is used!"<<endmsg;	}
+       else            { msg(MSG::DEBUG)<< " Constant magnetic field is used! B="<<m_BMAG<<endmsg;	}
 
-       if(m_InDetExtrapolator){ msg(MSG::DEBUG)<< " InDet extrapolator is used!"<<endreq; }
-       else { msg(MSG::DEBUG)<< " Internal VKalVrt extrapolator is used!"<<endreq;}
+       if(m_InDetExtrapolator){ msg(MSG::DEBUG)<< " InDet extrapolator is used!"<<endmsg; }
+       else { msg(MSG::DEBUG)<< " Internal VKalVrt extrapolator is used!"<<endmsg;}
 
-       if(m_Robustness) { msg(MSG::DEBUG)<< " VKalVrt uses robust algorithm! Type="<<m_Robustness<<" with Scale="<<m_RobustScale<<endreq; }
+       if(m_Robustness) { msg(MSG::DEBUG)<< " VKalVrt uses robust algorithm! Type="<<m_Robustness<<" with Scale="<<m_RobustScale<<endmsg; }
 
-       if(m_firstMeasuredPoint){ msg(MSG::DEBUG)<< " VKalVrt will use FirstMeasuredPoint strategy in fits with InDetExtrapolator"<<endreq; }
-       else                    { msg(MSG::DEBUG)<< " VKalVrt will use Perigee strategy in fits with InDetExtrapolator"<<endreq; }
-       if(m_firstMeasuredPointLimit){ msg(MSG::DEBUG)<< " VKalVrt will use FirstMeasuredPointLimit strategy "<<endreq; }
+       if(m_firstMeasuredPoint){ msg(MSG::DEBUG)<< " VKalVrt will use FirstMeasuredPoint strategy in fits with InDetExtrapolator"<<endmsg; }
+       else                    { msg(MSG::DEBUG)<< " VKalVrt will use Perigee strategy in fits with InDetExtrapolator"<<endmsg; }
+       if(m_firstMeasuredPointLimit){ msg(MSG::DEBUG)<< " VKalVrt will use FirstMeasuredPointLimit strategy "<<endmsg; }
        if(m_useMagFieldRotation){ 
-                 msg(MSG::DEBUG)<< " VKalVrt will use ROTATION to magnetic field direction. NO pointing constraints are allowed "<<endreq;
-                 msg(MSG::DEBUG)<< "        The only function fit(Trk::TrackParameters trk, Trk::Vertex vrt) is allowed for the moment "<<endreq;
+                 msg(MSG::DEBUG)<< " VKalVrt will use ROTATION to magnetic field direction. NO pointing constraints are allowed "<<endmsg;
+                 msg(MSG::DEBUG)<< "        The only function fit(Trk::TrackParameters trk, Trk::Vertex vrt) is allowed for the moment "<<endmsg;
        }
     }
 
@@ -292,34 +293,35 @@ StatusCode TrkVKalVrtFitter::initialize()
 
    /** Interface for Track with starting point */
 
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk,
-                                    const Vertex& firstStartingPoint)
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk,
+                                    const Amg::Vector3D & firstStartingPoint)
 {
 //    m_fitSvc->setDefault();
     if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<< " fit(Track trk, Vertex vrt) is not allowed with  useMagFieldRotation jobO"<<endreq;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endreq;
+       msg(MSG::WARNING)<< " fit(Track trk, Vertex vrt) is not allowed with  useMagFieldRotation jobO"<<endmsg;
+       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endmsg;
        return 0;
     }
     m_globalFirstHit = 0;
-    setApproximateVertex(firstStartingPoint.position().x(),
-                         firstStartingPoint.position().y(),
-                         firstStartingPoint.position().z());
+    setApproximateVertex(firstStartingPoint.x(),
+                         firstStartingPoint.y(),
+                         firstStartingPoint.z());
     setMomCovCalc(1);
     StatusCode sc=VKalVrtFit( vectorTrk,
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
 
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeVxCandidate( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
-      std::vector<VxTrackAtVertex*> * vxavList=tmpVertex->vxTrackAtVertex();
-      for(int it=0; it<(int)vxavList->size(); it++){
+      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
+      for(int it=0; it<(int)vxavList.size(); it++){
           LinkToTrack * linkTT = new LinkToTrack();
           linkTT->setElement( vectorTrk.at(it) );
-          (*vxavList)[it]->setOrigTrack(linkTT);           //pointer to initial Track
+          vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
       }
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
@@ -329,34 +331,35 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk,
 
 
 
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*> & vectorTrk,
-                                    const Vertex& firstStartingPoint)
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*> & vectorTrk,
+                                    const Amg::Vector3D & firstStartingPoint)
 {
 //    m_fitSvc->setDefault();
     if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(TrackParticleBase trk, Vertex vrt) is not allowed with  useMagFieldRotation jobO"<<endreq;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endreq;
+       msg(MSG::WARNING)<<"fit(TrackParticleBase trk, Vertex vrt) is not allowed with  useMagFieldRotation jobO"<<endmsg;
+       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endmsg;
        return 0;
     }
     m_globalFirstHit = 0;
-    setApproximateVertex(firstStartingPoint.position().x(),
-                         firstStartingPoint.position().y(),
-                         firstStartingPoint.position().z());
+    setApproximateVertex(firstStartingPoint.x(),
+                         firstStartingPoint.y(),
+                         firstStartingPoint.z());
     setMomCovCalc(1);
     StatusCode sc=VKalVrtFit( vectorTrk,
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
 
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeVxCandidate( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
-      std::vector<VxTrackAtVertex*> * vxavList=tmpVertex->vxTrackAtVertex();
-      for(int it=0; it<(int)vxavList->size(); it++){
+      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
+      for(int it=0; it<(int)vxavList.size(); it++){
         ElementLink<TrackParticleBaseCollection> TEL;  TEL.setElement( vectorTrk.at(it) );
         LinkToTrackParticleBase * ITL = new LinkToTrackParticleBase(TEL); 
-        (*vxavList)[it]->setOrigTrack(ITL);              //pointer to initial TrackParticle(Base)
+        vxavList[it].setOrigTrack(ITL);              //pointer to initial TrackParticle(Base)
       }
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
@@ -373,15 +376,15 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*> 
     /** the position of the constraint is ALWAYS the starting point */
  
 
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
-                                                 const RecVertex& firstStartingPoint)
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
+                                                 const xAOD::Vertex& firstStartingPoint)
 {   
     if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(Track trk, RecVertex vrt) is not allowed with  useMagFieldRotation jobO"<<endreq;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endreq;
+       msg(MSG::WARNING)<<"fit(Track trk, xAOD::Vertex vrt) is not allowed with  useMagFieldRotation jobO"<<endmsg;
+       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Amg::Vector3D vrt) instead"<<endmsg;
        return 0;
     }
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is added to VKalVrt fitter!" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is added to VKalVrt fitter!" << endmsg;
 //    m_fitSvc->setDefault();
     m_globalFirstHit = 0;
     Amg::Vector3D VertexIni(0.,0.,0.);
@@ -408,17 +411,18 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
     sc=VKalVrtFit( vectorTrk,
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
 
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeVxCandidate( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
-      std::vector<VxTrackAtVertex*> * vxavList=tmpVertex->vxTrackAtVertex();
-      for(int it=0; it<(int)vxavList->size(); it++){
+      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
+      for(int it=0; it<(int)vxavList.size(); it++){
           LinkToTrack * linkTT = new LinkToTrack();
           linkTT->setElement( vectorTrk.at(it) );
-          (*vxavList)[it]->setOrigTrack(linkTT);           //pointer to initial Track
+          vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
       }
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_useAprioriVertex=false;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
@@ -426,15 +430,15 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const Track*>& vectorTrk,
 
 //    return  new VxCandidate(*m_tmpRecV,*m_tmpVTAV);
 }
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>& vectorTrk,
-                                    const RecVertex& firstStartingPoint)
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>& vectorTrk,
+                                    const xAOD::Vertex & firstStartingPoint)
 {   
     if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(TrackParticleBase trk, RecVertex vrt) is not allowed with  useMagFieldRotation jobO"<<endreq;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endreq;
+       msg(MSG::WARNING)<<"fit(TrackParticleBase trk, xAOD::Vertex vrt) is not allowed with  useMagFieldRotation jobO"<<endmsg;
+       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Amg::Vector3D vrt) instead"<<endmsg;
        return 0;
     }
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is added to VKalVrt fitter!" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is added to VKalVrt fitter!" << endmsg;
 //    m_fitSvc->setDefault();
     m_globalFirstHit = 0;
     Amg::Vector3D VertexIni(0.,0.,0.);
@@ -461,17 +465,18 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParticleBase*>&
     sc=VKalVrtFit( vectorTrk,
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
 
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeVxCandidate( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
-      std::vector<VxTrackAtVertex*> * vxavList=tmpVertex->vxTrackAtVertex();
-      for(int it=0; it<(int)vxavList->size(); it++){
+      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
+      for(int it=0; it<(int)vxavList.size(); it++){
         ElementLink<TrackParticleBaseCollection> TEL;  TEL.setElement( vectorTrk.at(it) );
         LinkToTrackParticleBase * ITL = new LinkToTrackParticleBase(TEL); 
-        (*vxavList)[it]->setOrigTrack(ITL);              //pointer to initial TrackParticle(Base)
+        vxavList[it].setOrigTrack(ITL);              //pointer to initial TrackParticle(Base)
       }
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_useAprioriVertex=false;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
@@ -518,46 +523,48 @@ VxCandidate * TrkVKalVrtFitter::fit(const vector<const ParametersBase*> & perige
 }*/
 
      /** Interface for MeasuredPerigee with starting point */
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & perigeeListC,
-                                    const Vertex& startingPoint)
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & perigeeListC,
+                                    const Amg::Vector3D & startingPoint)
 {
     m_globalFirstHit = 0;
-    setApproximateVertex(startingPoint.position().x(),
-                         startingPoint.position().y(),
-                         startingPoint.position().z());
+    setApproximateVertex(startingPoint.x(),
+                         startingPoint.y(),
+                         startingPoint.z());
     setMomCovCalc(1);
     std::vector<const NeutralParameters*> perigeeListN(0);
     StatusCode sc=VKalVrtFit( perigeeListC, perigeeListN,
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
 
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeVxCandidate( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
 
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>   & perigeeListC,
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>   & perigeeListC,
                                     const std::vector<const NeutralParameters*> & perigeeListN,
-                                    const Vertex& startingPoint)
+                                    const Amg::Vector3D & startingPoint)
 {
     m_globalFirstHit = 0;
-    setApproximateVertex(startingPoint.position().x(),
-                         startingPoint.position().y(),
-                         startingPoint.position().z());
+    setApproximateVertex(startingPoint.x(),
+                         startingPoint.y(),
+                         startingPoint.z());
     setMomCovCalc(1);
     StatusCode sc=VKalVrtFit( perigeeListC,perigeeListN,
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
 
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeVxCandidate( (int)perigeeListN.size() , m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( (int)perigeeListN.size() , m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
@@ -570,10 +577,10 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>   
 
      /** Interface for MeasuredPerigee with vertex constraint */
      /** the position of the constraint is ALWAYS the starting point */
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & perigeeListC,
-                                    const RecVertex& constraint)
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & perigeeListC,
+                                    const xAOD::Vertex & constraint)
 {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
     m_globalFirstHit = 0;
     Amg::Vector3D VertexIni(0.,0.,0.);
     StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni); 
@@ -600,11 +607,12 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & 
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
 
 
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeVxCandidate( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_useAprioriVertex=false;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
@@ -612,11 +620,11 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*> & 
 }
 
 
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>   & perigeeListC,
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>   & perigeeListC,
                                     const std::vector<const NeutralParameters*> & perigeeListN,
-                                    const RecVertex& constraint)
+                                    const xAOD::Vertex & constraint)
 {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
     m_globalFirstHit = 0;
     Amg::Vector3D VertexIni(0.,0.,0.);
     StatusCode sc=VKalVrtFitFast(perigeeListC, VertexIni); 
@@ -642,11 +650,12 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>   
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
 
 
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-      tmpVertex = makeVxCandidate( (int)perigeeListN.size(), m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      tmpVertex = makeXAODVertex( (int)perigeeListN.size(), m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_useAprioriVertex=false;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
@@ -657,13 +666,13 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const TrackParameters*>   
 
      /** Interface for xAOD::TrackParticle with starting point */
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
-                                     const Vertex& startingPoint)
+                                     const Amg::Vector3D & startingPoint)
 {
     m_globalFirstHit = 0;
     xAOD::Vertex * tmpVertex = 0;
-    setApproximateVertex(startingPoint.position().x(),
-                         startingPoint.position().y(),
-                         startingPoint.position().z());
+    setApproximateVertex(startingPoint.x(),
+                         startingPoint.y(),
+                         startingPoint.z());
     setMomCovCalc(1);
     std::vector<const xAOD::NeutralParticle*> xtpListN(0);
     StatusCode sc=VKalVrtFit( xtpListC, xtpListN,
@@ -679,7 +688,8 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        }
     }
 
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
 
@@ -688,13 +698,13 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*>   & xtpListC,
                                      const std::vector<const xAOD::NeutralParticle*> & xtpListN,
-                                     const Vertex& startingPoint)
+                                     const Amg::Vector3D & startingPoint)
 {
     m_globalFirstHit = 0;
     xAOD::Vertex * tmpVertex = 0;
-    setApproximateVertex(startingPoint.position().x(),
-                         startingPoint.position().y(),
-                         startingPoint.position().z());
+    setApproximateVertex(startingPoint.x(),
+                         startingPoint.y(),
+                         startingPoint.z());
     setMomCovCalc(1);
     StatusCode sc=VKalVrtFit( xtpListC, xtpListN,
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
@@ -715,7 +725,8 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        }
     }
 
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
 
@@ -725,9 +736,9 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
      /** Interface for xAOD::TrackParticle with vertex constraint */
      /** the position of the constraint is ALWAYS the starting point */
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*> & xtpListC,
-                                     const RecVertex& constraint)
+                                     const xAOD::Vertex & constraint)
 {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
     m_globalFirstHit = 0;
     xAOD::Vertex * tmpVertex = 0;
     setApproximateVertex(constraint.position().x(), constraint.position().y(),constraint.position().z());
@@ -756,7 +767,8 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        }
     }
 
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_useAprioriVertex=false;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
@@ -766,9 +778,9 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 
 xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle*>   & xtpListC,
                                      const std::vector<const xAOD::NeutralParticle*> & xtpListN,
-                                     const RecVertex& constraint)
+                                     const xAOD::Vertex & constraint)
 {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<< "A priori vertex constraint is activated in VKalVrt fitter!" << endmsg;
     m_globalFirstHit = 0;
     xAOD::Vertex * tmpVertex = 0;
     setApproximateVertex(constraint.position().x(), constraint.position().y(),constraint.position().z());
@@ -802,7 +814,8 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
        }
     }
 
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_useAprioriVertex=false;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
@@ -816,11 +829,11 @@ xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const xAOD::TrackParticle
 
 
 
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk)
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk)
 {
     if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(Track trk) is not allowed with  useMagFieldRotation jobO"<<endreq;
-       msg(MSG::WARNING)<<"Use fit(ParametersBase trk, Vertex vrt) instead"<<endreq;
+       msg(MSG::WARNING)<<"fit(Track trk) is not allowed with  useMagFieldRotation jobO"<<endmsg;
+       msg(MSG::WARNING)<<"Use fit(ParametersBase trk, Amg::Vector3D vrt) instead"<<endmsg;
        return 0;
     }
     Amg::Vector3D VertexIni(0.,0.,0.);
@@ -835,26 +848,27 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const Track*> & vectorTrk)
 
     }
     
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()){
-      tmpVertex = makeVxCandidate( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
-      std::vector<VxTrackAtVertex*> * vxavList=tmpVertex->vxTrackAtVertex();
-      for(int it=0; it<(int)vxavList->size(); it++){
+      tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+      std::vector<VxTrackAtVertex> & vxavList=tmpVertex->vxTrackAtVertex();
+      for(int it=0; it<(int)vxavList.size(); it++){
           LinkToTrack * linkTT = new LinkToTrack();
           linkTT->setElement( vectorTrk.at(it) );
-          (*vxavList)[it]->setOrigTrack(linkTT);           //pointer to initial Track
+          vxavList[it].setOrigTrack(linkTT);           //pointer to initial Track
       }
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> & perigeeListC)
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> & perigeeListC)
 {
     if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(TrackParameters trk) is not allowed with  useMagFieldRotation jobO"<<endreq;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endreq;
+       msg(MSG::WARNING)<<"fit(TrackParameters trk) is not allowed with  useMagFieldRotation jobO"<<endmsg;
+       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endmsg;
        return 0;
     }
     m_globalFirstHit = 0;
@@ -866,22 +880,23 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*> &
     sc=VKalVrtFit( perigeeListC, perigeeListN,
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
 
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-       tmpVertex = makeVxCandidate( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+       tmpVertex = makeXAODVertex( 0, m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
 }
 
-VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*>   & perigeeListC,
+xAOD::Vertex * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*>   & perigeeListC,
                                     const std::vector<const  NeutralParameters*> & perigeeListN)
 {
     if(m_useMagFieldRotation){ 
-       msg(MSG::WARNING)<<"fit(TrackParameters trk) is not allowed with  useMagFieldRotation jobO"<<endreq;
-       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endreq;
+       msg(MSG::WARNING)<<"fit(TrackParameters trk) is not allowed with  useMagFieldRotation jobO"<<endmsg;
+       msg(MSG::WARNING)<<"Use fit(TrackParameters trk, Vertex vrt) instead"<<endmsg;
        return 0;
     }
     m_globalFirstHit = 0;
@@ -892,11 +907,12 @@ VxCandidate * TrkVKalVrtFitter::fit(const std::vector<const  TrackParameters*>  
     sc=VKalVrtFit( perigeeListC, perigeeListN,
                m_Vertex, m_Momentum, m_Charge, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
 
-    VxCandidate * tmpVertex = 0;
+    xAOD::Vertex * tmpVertex = 0;
     if(sc.isSuccess()) {
-       tmpVertex = makeVxCandidate( (int)perigeeListN.size(), m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
+       tmpVertex = makeXAODVertex( (int)perigeeListN.size(), m_Vertex, m_ErrorMatrix, m_Chi2PerTrk, m_TrkAtVrt, m_Chi2 );
     }
-    if(m_ErrMtx)delete[] m_ErrMtx; m_ErrMtx=0;
+    if(m_ErrMtx)delete[] m_ErrMtx;
+    m_ErrMtx=0;
     m_planeCnstNDOF = 0;       // No plane constraint by default
     setMomCovCalc(0);          // No full covariance by default
     return tmpVertex;
@@ -974,7 +990,7 @@ void TrkVKalVrtFitter::clearMemory()
 }
 
 
-
+/*-------------  End of VxCandidate lifetime
 VxCandidate * TrkVKalVrtFitter::makeVxCandidate( int Neutrals,
         const Amg::Vector3D& Vertex, const std::vector<double> & fitErrorMatrix, 
 	const std::vector<double> & Chi2PerTrk,  const std::vector< std::vector<double> >& TrkAtVrt,
@@ -1031,6 +1047,7 @@ VxCandidate * TrkVKalVrtFitter::makeVxCandidate( int Neutrals,
     delete tmpRecV; delete tmpVTAV;
     return tmpVertex;
 }
+*/
 
 
 xAOD::Vertex * TrkVKalVrtFitter::makeXAODVertex( int Neutrals,
