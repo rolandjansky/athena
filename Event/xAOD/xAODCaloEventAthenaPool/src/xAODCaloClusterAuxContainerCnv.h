@@ -4,15 +4,19 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCaloClusterAuxContainerCnv.h 628099 2014-11-13 09:30:05Z krasznaa $
+// $Id: xAODCaloClusterAuxContainerCnv.h 757270 2016-06-23 13:52:41Z krasznaa $
 #ifndef XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERAUXCONTAINERCNV_H
 #define XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERAUXCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
+#include "GaudiKernel/ToolHandle.h"
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
 
 // EDM include(s):
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
+
+// Forward declaration(s):
+class IxAODClusterCompressor;
 
 /// Base class for the converter
 typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterAuxContainer,
@@ -28,8 +32,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterAuxContainer,
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 628099 $
- * $Date: 2014-11-13 10:30:05 +0100 (Thu, 13 Nov 2014) $
+ * $Revision: 757270 $
+ * $Date: 2016-06-23 15:52:41 +0200 (Thu, 23 Jun 2016) $
  */
 class xAODCaloClusterAuxContainerCnv : public xAODCaloClusterAuxContainerCnvBase {
 
@@ -45,6 +49,15 @@ protected:
    createPersistent( xAOD::CaloClusterAuxContainer* trans );
    /// Function reading in the object from the input file
    virtual xAOD::CaloClusterAuxContainer* createTransient();
+
+private:
+#ifndef XAOD_ANALYSIS
+  /// AlgTool compressing the cluster for storage on disk
+  ToolHandle<IxAODClusterCompressor> m_compressor;
+#endif
+
+  /// Flag set to false if the retrieval of the compression tool failed
+  bool m_doCompression;
 
 }; // class xAODCaloClusterAuxContainerCnv
 

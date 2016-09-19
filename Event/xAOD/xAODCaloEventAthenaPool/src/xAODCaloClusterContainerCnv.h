@@ -4,20 +4,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODCaloClusterContainerCnv.h 636751 2014-12-18 14:50:06Z will $
+// $Id: xAODCaloClusterContainerCnv.h 757270 2016-06-23 13:52:41Z krasznaa $
 #ifndef XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERCONTAINERCNV_H
 #define XAODCALOEVENTATHENAPOOL_XAODCALOCLUSTERCONTAINERCNV_H
 
 // Gaudi/Athena include(s):
 #include "AthenaPoolCnvSvc/T_AthenaPoolCustomCnv.h"
-#include "GaudiKernel/ToolHandle.h"
 
 // EDM include(s):
 #include "xAODCaloEvent/CaloClusterContainer.h"
-
-#ifndef XAOD_ANALYSIS
-class IxAODClusterCompressor;
-#endif
 
 /// Type definition for the converter's base
 typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterContainer,
@@ -32,8 +27,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::CaloClusterContainer,
  *
  * @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
  *
- * $Revision: 636751 $
- * $Date: 2014-12-18 15:50:06 +0100 (Thu, 18 Dec 2014) $
+ * $Revision: 757270 $
+ * $Date: 2016-06-23 15:52:41 +0200 (Thu, 23 Jun 2016) $
  */
 class xAODCaloClusterContainerCnv : public xAODCaloClusterContainerCnvBase {
 
@@ -59,14 +54,6 @@ private:
 
    /// StoreGate key of the container just being created
    std::string m_key;
-
-#ifndef XAOD_ANALYSIS
-  /// AlgTool compressing the cluster for storage on disk
-  ToolHandle<IxAODClusterCompressor> m_compressor;
-#endif
-
-  /// Flag set to false if the retrieval of the compression tool failed
-  bool m_doCompression;
 
 }; // class xAODCaloClusterContainerCnv
 
