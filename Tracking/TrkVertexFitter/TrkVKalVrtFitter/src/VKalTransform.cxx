@@ -29,11 +29,11 @@ namespace Trk{
        //----- Check perigee covarince matrix for safety
        double DET=AmgMtx->determinant();
        if( DET!=DET ) {
-          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" NaN in Perigee covariance is detected! Stop fit."<<endreq;
+          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" NaN in Perigee covariance is detected! Stop fit."<<endmsg;
 	  return false;
        }
        if( fabs(DET) < 1000.*std::numeric_limits<double>::min()) {
-          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Zero Perigee covariance DET is detected! Stop fit."<<endreq;
+          if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<"Zero Perigee covariance DET is detected! Stop fit."<<endmsg;
           return false;
        }
 //std::cout.setf(std::ios::scientific); std::cout<<"VKMINNUMB="<<std::numeric_limits<double>::min()<<", "<<DET<<'\n';
@@ -56,12 +56,12 @@ namespace Trk{
        return true;
  }
  
- void TrkVKalVrtFitter::VKalTransform(double m_BMAG_FIXED,
+ void TrkVKalVrtFitter::VKalTransform(double BMAG_FIXED,
      double A0V,double ZV,double PhiV,double ThetaV,double  PInv,double CovTrk[15],
      long int & Charge, double VTrkPar[5], double VTrkCov[15])
  {
      int i,j,ii,jj;
-     double CnvCst=m_CNVMAG*m_BMAG_FIXED;
+     double CnvCst=m_CNVMAG*BMAG_FIXED;
      double  sinT = sin(ThetaV);
      double  cosT = cos(ThetaV);
  
