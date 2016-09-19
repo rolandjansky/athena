@@ -19,7 +19,7 @@ use FourMomUtils               FourMomUtils-*          Event
 use EventPrimitives            EventPrimitives-*       Event
 use AthContainers              AthContainers-*         Control
 use LArRecConditions           LArRecConditions-*      LArCalorimeter 
-use LArTools                   LArTools-*              LArCalorimeter 
+use LArCabling                 LArCabling-*            LArCalorimeter 
 
 use LumiBlockComps 	       LumiBlockComps-*        LumiBlock
 

@@ -87,7 +87,7 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
                                             const xAOD::CaloCluster::ClusterSize&) const ;
 
   /** @brief creation of new super cluster based on existing one */
-  xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster) const ;  
+  xAOD::CaloCluster* makeNewSuperCluster(const xAOD::CaloCluster& cluster, xAOD::Egamma *eg) const ;  
 
   /** @brief Name of the output cluster container **/
   std::string m_outputClusterContainerName;
@@ -110,8 +110,11 @@ class EMClusterTool : public egammaBaseTool, virtual public IEMClusterTool {
   /** @brief Name of tool for cluster corrections */
   std::string            m_ClusterCorrectionToolName;
   
-  /** @brief Call CaloClusterStoreHelper::finalizeClusters ? **/ 
+  /** @brief do super clusters **/ 
   bool m_doSuperClusters;
+
+  /** @brief flag to protect against applying the MVA to super Clusters **/ 
+  bool m_applySuperClusters;
 
   /** @brief Position in Calo frame**/  
   std::unique_ptr<CaloCellDetPos> m_caloCellDetPos;

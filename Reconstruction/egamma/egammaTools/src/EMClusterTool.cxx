@@ -36,6 +36,8 @@ EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, c
     "Name of the input photon container");
   declareProperty("doSuperCluster", m_doSuperClusters = false, 
     "Do Super Cluster Reco");
+  declareProperty("applyMVAToSuperCluster", m_applySuperClusters = true, 
+    "Protection to not do anything for superClusters");
 
 
   declareInterface<IEMClusterTool>(this);
@@ -164,7 +166,7 @@ void EMClusterTool::setNewCluster(xAOD::Egamma *eg,
   } // Doing superClusters
   else if ( m_doSuperClusters){
     //copy over for super clusters 
-    cluster = makeNewSuperCluster(*(eg->caloCluster()));
+    cluster = makeNewSuperCluster(*(eg->caloCluster()),eg);
   }
   else {
     cluster = makeNewCluster(*(eg->caloCluster()), eg, egType);
@@ -242,28 +244,17 @@ xAOD::CaloCluster* EMClusterTool::makeNewCluster(const xAOD::CaloCluster& cluste
 
   return newClus;
 }
-xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster) const {
+xAOD::CaloCluster* EMClusterTool::makeNewSuperCluster(const xAOD::CaloCluster& cluster,xAOD::Egamma *eg) const {
   //
   xAOD::CaloCluster* newClus = new xAOD::CaloCluster(cluster);
-  //
-  //Here we could apply corrections
-  //
-  //Fill position in calo frame
-  // fillPositionsInCalo(newClus);
-  //Fill the raw state using the original super cluster
-  // newClus->setRawE(cluster.e());
-  // newClus->setRawEta(cluster.eta());
-  // newClus->setRawPhi(cluster.phi());
-  // Now we decided that Alt* values are the seed values, and they are already set
-  // by the supercluster builder, so don't overwrite
-  // newClus->setAltE(cluster.e());
-  // newClus->setAltEta(cluster.eta());
-  // newClus->setAltPhi(cluster.phi());
-  //Here is should be a call to MVA calib, now again copy over
-  // newClus->setCalE(cluster.e());
-  // newClus->setCalEta(cluster.eta());
-  // newClus->setCalPhi(cluster.phi());
-  ////
+  if(m_applySuperClusters){ 
+    if (newClus && m_MVACalibTool->execute(newClus,eg).isFailure()){
+      ATH_MSG_ERROR("Problem executing MVA cluster tool");
+    }
+  }
+ 
+  ATH_MSG_DEBUG("Cluster Energy after final calibration: "<<newClus->e());
+
   return newClus;
 }
 // ==========================================================================
