@@ -126,8 +126,11 @@ void BeamCondSvc::initCache(int status, float x, float y, float z,
   beamerr.fillSymmetric(0,2,tan(tx)*sz*sz);
   beamerr.fillSymmetric(1,2,tan(ty)*sz*sz);
   beamerr.fillSymmetric(2,2,sz*sz);
+
+#ifndef SIMULATIONBASE
   // fill in RecVertex information, ndof and chisq are set to 0 by default
   m_vertex=Trk::RecVertex(m_beampos,beamerr);
+#endif
 }
 
 bool BeamCondSvc::fillRec() const {
