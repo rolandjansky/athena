@@ -162,7 +162,7 @@ void MuonHoughPatternTool::makePatterns(const MuonHoughHitContainer* hitcontaine
   if( msgLvl(MSG::VERBOSE) ) {
     msg(MSG::VERBOSE) << "Event Info";
   
-    msg(MSG::VERBOSE) << "Size: " << m_event->size() << endreq;
+    msg(MSG::VERBOSE) << "Size: " << m_event->size() << endmsg;
     
     for (unsigned int i=0; i<m_event->size(); i++) {
       msg(MSG::VERBOSE) << m_event->getHit(i)->getHitx() << " " 
@@ -173,7 +173,7 @@ void MuonHoughPatternTool::makePatterns(const MuonHoughHitContainer* hitcontaine
 			<< m_event->getHit(i)->getProbability() <<  " "
 			<< m_event->getHit(i)->getWeight() <<  " "
 			<< m_event->getHit(i)->getAssociated() <<
-	endreq;
+	endmsg;
     }
   }
 
@@ -205,7 +205,7 @@ void MuonHoughPatternTool::makePatterns(int id_number)
   MuonHoughHitContainer* event_for_association = whichEventAssociation(id_number, m_event);
 
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "Size event fill: " << event_for_hough->size() << endreq;
+    msg(MSG::VERBOSE) << "Size event fill: " << event_for_hough->size() << endmsg;
     for (unsigned int i=0; i<event_for_hough->size(); i++) {
       msg(MSG::VERBOSE) << event_for_hough->getHit(i)->getHitx() << " " 
 			<< event_for_hough->getHit(i)->getHity() << " " 
@@ -215,11 +215,11 @@ void MuonHoughPatternTool::makePatterns(int id_number)
 			<< event_for_hough->getHit(i)->getProbability() <<  " "
 			<< event_for_hough->getHit(i)->getWeight() <<  " "
 			<< event_for_hough->getHit(i)->getAssociated() <<
-	endreq;
+	endmsg;
     }
 
     if( msgLvl(MSG::VERBOSE) ) {
-      msg(MSG::VERBOSE) << "Size event association: " << event_for_association->size() << endreq;
+      msg(MSG::VERBOSE) << "Size event association: " << event_for_association->size() << endmsg;
       for (unsigned int i=0; i<event_for_association->size(); i++) {
 	msg(MSG::VERBOSE) << event_for_association->getHit(i)->getHitx() << " " 
 			  << event_for_association->getHit(i)->getHity() << " " 
@@ -229,7 +229,7 @@ void MuonHoughPatternTool::makePatterns(int id_number)
 			  << event_for_association->getHit(i)->getProbability() <<  " "
 			  << event_for_association->getHit(i)->getWeight() <<  " "
 			  << event_for_association->getHit(i)->getAssociated() <<
-	  endreq;
+	  endmsg;
       }
     }
   }
@@ -1658,7 +1658,7 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternToCleanPhiPattern(MuonHo
 			<< houghpattern->getHit(i)->getMeasuresPhi() << " " 
 			<< houghpattern->getHit(i)->getWhichDetector() <<  " "
 			<< houghpattern->getHit(i)->getWeight() <<  " "
-			<< houghpattern->getHit(i)->getAssociated() << endreq;
+			<< houghpattern->getHit(i)->getAssociated() << endmsg;
     }
   }
 
@@ -1745,7 +1745,7 @@ Muon::MuonPrdPattern* MuonHoughPatternTool::houghPatternToCleanPhiPattern(MuonHo
   ATH_MSG_DEBUG("END Clean Phi hits " << newsize << " theta " << thetanew);
   
   if (msgLvl(MSG::VERBOSE)) {
-    msg(MSG::VERBOSE) << "cleaned pattern: " << endreq;
+    msg(MSG::VERBOSE) << "cleaned pattern: " << endmsg;
     printPattern(muonpattern);
   }
 
