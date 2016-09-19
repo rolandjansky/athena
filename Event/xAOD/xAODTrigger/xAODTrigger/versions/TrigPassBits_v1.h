@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigPassBits_v1.h 704009 2015-10-28 08:32:05Z krasznaa $
+// $Id: TrigPassBits_v1.h 773869 2016-09-19 15:27:05Z krasznaa $
 #ifndef XAODTRIGGER_VERSIONS_TRIGPASSBITS_V1_H
 #define XAODTRIGGER_VERSIONS_TRIGPASSBITS_V1_H
 
@@ -14,6 +14,7 @@ extern "C" {
 }
 #include <vector>
 #include <memory>
+#include <string>
 
 // EDM include(s):
 #include "AthContainers/AuxElement.h"
@@ -31,14 +32,17 @@ namespace xAOD {
    /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
    /// @author Tomasz Bold <Tomasz.Bold@cern.ch>
    ///
-   /// $Revision: 704009 $
-   /// $Date: 2015-10-28 09:32:05 +0100 (Wed, 28 Oct 2015) $
+   /// $Revision: 773869 $
+   /// $Date: 2016-09-19 17:27:05 +0200 (Mon, 19 Sep 2016) $
    ///
    class TrigPassBits_v1 : public SG::AuxElement {
 
    public:
       /// Default constructor
       TrigPassBits_v1();
+
+      /// Default hashed container key, in case no explicit value was specified
+      static const uint32_t DEFAULT_KEY = 0xffff;
 
       /// @name Helper functions for easier usage
       /// @{
@@ -58,7 +62,18 @@ namespace xAOD {
       template< class OBJ, class CONT >
       bool isPassing( const OBJ* obj, const CONT* container ) const;
       /// Check if an element of a container is passing/failing
+      template< class OBJ, class CONT >
+      bool isPassing( const OBJ* obj, const CONT* container,
+                      uint32_t containerKey ) const;
+      /// Check if an element of a container is passing/failing
+      template< class OBJ, class CONT >
+      bool isPassing( const OBJ* obj, const CONT* container,
+                      const std::string& containerKey ) const;
+      /// Check if an element of a container is passing/failing
       bool isPassing( size_t index ) const;
+
+      /// Function calculating a "hash" out of a string
+      static uint32_t hash( const std::string& key );
 
       /// @}
 
@@ -96,7 +111,13 @@ namespace xAOD {
    /// Helper function creating a new object to describe a target container
    template< class CONT >
    std::unique_ptr< TrigPassBits_v1 >
-   makeTrigPassBits( const CONT* container, uint32_t containerKey = 0xffff );
+   makeTrigPassBits( const CONT* container, uint32_t containerKey =
+         xAOD::TrigPassBits_v1::DEFAULT_KEY );
+
+   /// Helper function creating a new object to describe a target container
+   template< class CONT >
+   std::unique_ptr< TrigPassBits_v1 >
+   makeTrigPassBits( const CONT* container, const std::string& containerKey );
 
 } // namespace xAOD
 

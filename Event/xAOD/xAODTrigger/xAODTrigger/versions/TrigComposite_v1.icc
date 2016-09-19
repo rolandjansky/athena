@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigComposite_v1.icc 632693 2014-12-01 15:54:08Z stelzer $
+// $Id: TrigComposite_v1.icc 761887 2016-07-14 13:16:16Z tbold $
 #ifndef XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_ICC
 #define XAODTRIGGER_VERSIONS_TRIGCOMPOSITE_V1_ICC
 
@@ -20,7 +20,7 @@
 namespace xAOD {
 
    template< typename TYPE >
-   bool TrigComposite_v1::hasDetail( const std::string& name ) {
+   bool TrigComposite_v1::hasDetail( const std::string& name ) const {
 
       // Object used to check for the existence of an object:
       Accessor< TYPE > acc( name );
@@ -28,6 +28,22 @@ namespace xAOD {
       // Use the Accessor object for the check:
       return acc.isAvailable( *this );
    }
+
+   template<>     
+   bool TrigComposite_v1::hasDetail<unsigned int>( const std::string& name ) const;
+
+   template<>     
+   bool TrigComposite_v1::hasDetail<std::vector<unsigned int>>( const std::string& name ) const;
+
+
+  template< typename TYPE >
+  TYPE TrigComposite_v1::getDetail( const std::string& name ) const {
+   TYPE temp;
+   if ( getDetail(name, temp) == false ) 
+     throw std::runtime_error( "xAOD::TrigComposite::getDetail<TYPE>("+name+") encountered missing detail"); 
+   return temp; // RVO
+  }
+
 
    template< class CONTAINER >
    bool
