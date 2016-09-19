@@ -13,9 +13,11 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGate.h"
 
+#ifndef SIMULATIONBASE
 namespace Trk {
   class RecVertex;
 }
+#endif
 
 class BeamCondSvc : public virtual IBeamCondSvc, public virtual AthService
 {
@@ -34,8 +36,9 @@ public:
   virtual float beamSigmaXY() const;
   virtual float beamTilt(int i) const;
   virtual int beamStatus() const;
+#ifndef SIMULATIONBASE
   virtual const Trk::RecVertex& beamVtx() const;
-
+#endif
   virtual bool fillRec() const;
 
   virtual StatusCode initialize();
@@ -67,7 +70,9 @@ private:
   int m_status;
   Amg::Vector3D m_beampos;
   float m_errpar[6];
+#ifndef SIMULATIONBASE
   Trk::RecVertex m_vertex;
+#endif
 };
 
 // inline implementations of access functions
@@ -81,8 +86,8 @@ inline float BeamCondSvc::beamSigmaXY() const { return m_errpar[5]; }
 inline float BeamCondSvc::beamTilt(int i) const { return m_errpar[3+i]; }
 
 inline int BeamCondSvc::beamStatus() const { return m_status; }
-
+#ifndef SIMULATIONBASE
 inline const Trk::RecVertex& BeamCondSvc::beamVtx() const { return m_vertex; }
-
+#endif
 #endif // InDetBeamSpotService_BEAMCOND_H
 

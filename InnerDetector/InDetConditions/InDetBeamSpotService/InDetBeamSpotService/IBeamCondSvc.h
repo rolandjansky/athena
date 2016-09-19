@@ -9,7 +9,9 @@
 
 #include "GaudiKernel/IInterface.h"
 #include "GeoPrimitives/GeoPrimitives.h"
+#ifndef SIMULATIONBASE
 #include "VxVertex/RecVertex.h"
+#endif
 
 class IBeamCondSvc : virtual public IInterface {
 
@@ -35,7 +37,9 @@ class IBeamCondSvc : virtual public IInterface {
   // return the beamspot centroid as a RecVertex, ready for use in fitting
   // this takes into account the position, RMS width and tilts
 
+#ifndef SIMULATIONBASE
   virtual const Trk::RecVertex& beamVtx() const =0;
+#endif
 
   // fill the beamspot record in the TDS for (not to be used)
   virtual bool fillRec() const =0;
