@@ -1,6 +1,6 @@
 package TrigTauEmulation
 author Quentin Buat <quentin.buat@no.spam.cern.ch>
-
+author Geert-Jan Besjes <geert-jan.besjes@no.spam.cern.ch>
 
 public 
 
@@ -19,6 +19,8 @@ use xAODTracking        xAODTracking-*          Event/xAOD
 use xAODEventInfo       xAODEventInfo-*         Event/xAOD
 
 private
+use xAODBase            xAODBase-*              Event/xAOD
+use xAODCore            xAODCore-*              Event/xAOD
 use xAODJet             xAODJet-*               Event/xAOD
 end_private
 
