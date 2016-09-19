@@ -21,18 +21,21 @@
 
 //!< Trigger specific stuff
 #include "TrigInterfaces/FexAlgo.h"
+#include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
+//class TrigRoiDescriptor;
 
 namespace PESA
 
 {
 
-  class TrigRoiUpdater : public HLT::FexAlgo {
+  class TrigRoiUpdater : public HLT::FexAlgo, virtual public IIncidentListener {
   public:
     TrigRoiUpdater(const std::string &name, ISvcLocator *pSvcLocator);
     virtual ~TrigRoiUpdater();
     HLT::ErrorCode hltBeginRun();
     HLT::ErrorCode hltInitialize();
+    virtual void handle(const Incident& inc); 
     HLT::ErrorCode hltExecute(const HLT::TriggerElement* input, HLT::TriggerElement* output);
     HLT::ErrorCode hltFinalize();
     HLT::ErrorCode hltEndRun();
@@ -48,6 +51,12 @@ namespace PESA
     float m_inpEtaMinus,m_inpEtaPlus, m_inpEtaSize;
     float m_PhiMinus,m_PhiPlus, m_PhiSize;
     float m_EtaMinus,m_EtaPlus, m_EtaSize;
+
+    //monitoring of multiple execution
+    bool m_monitorDuplicateRoIs;
+    std::vector<TrigRoiDescriptor>      m_rois;
+    uint64_t     m_invocations;
+    uint64_t     m_duplicateRoIs;
   };
 
 }

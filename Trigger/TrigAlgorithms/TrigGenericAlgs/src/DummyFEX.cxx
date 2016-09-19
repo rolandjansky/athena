@@ -24,7 +24,7 @@ HLT::ErrorCode DummyFEX::hltExecute(const HLT::TriggerElement* te_in,
 {
   if ( msgLvl() <= MSG::DEBUG ) 
     msg() << MSG::DEBUG << "Executing this DummyFEX " << name() << " for types "
-	  << te_in->getId() << " -> " << te_out->getId() << endreq;
+	  << te_in->getId() << " -> " << te_out->getId() << endmsg;
 
   return HLT::OK;
 }

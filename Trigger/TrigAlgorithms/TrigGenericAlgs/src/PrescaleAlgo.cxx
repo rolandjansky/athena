@@ -24,7 +24,7 @@ HLT::ErrorCode PrescaleAlgo::hltInitialize() {
   StatusCode rndmStatus = service("AtRanluxGenSvc", p_AtRndmGenSvc, true);
   
   if ( !rndmStatus.isSuccess() || 0 == p_AtRndmGenSvc ) {
-    msg() << MSG::ERROR << " Could not initialize Random Number Service" << endreq;
+    msg() << MSG::ERROR << " Could not initialize Random Number Service" << endmsg;
     return HLT::ERROR;
   }
 
@@ -39,7 +39,7 @@ HLT::ErrorCode PrescaleAlgo::hltExecute(std::vector<std::vector<HLT::TriggerElem
   // check missonfiguration
   if ( input.size() != 1 ) {
     msg() << MSG::ERROR << "Missconfiguration of the " << name() << "  to many/to few input types: "
-	  << input.size() << " while expecting only 1" << endreq;
+	  << input.size() << " while expecting only 1" << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
   

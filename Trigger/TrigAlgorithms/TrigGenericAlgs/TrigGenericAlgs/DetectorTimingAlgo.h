@@ -70,10 +70,10 @@ public:
   // ToolHandle<ITrigMuonBackExtrapolator> m_backExtrapolatorTool;
 private:
   const xAOD::CaloClusterContainer *m_caloCluster;
-  const TrigRoiDescriptor* m_roiDescriptor;
+  //const TrigRoiDescriptor* m_roiDescriptor;
   std::vector<const TrigRoiDescriptor*> m_roiDescriptorVector;
 
-  const xAOD::L2StandAloneMuonContainer *m_muonColl;
+  //const xAOD::L2StandAloneMuonContainer *m_muonColl;
     
    /* ToolHandle<ITrigMuonRoITool> m_trigMuonRoITool; */
   ServiceHandle<LVL1::RecMuonRoiSvc> m_recRPCRoiSvc; 
@@ -118,30 +118,30 @@ private:
   std::vector<float> m_rpctime_intimemuonl1;
   std::vector<float> m_rpctime_othermuonl1;
   
-  float m_ootfrac_bc;
-  float m_ootfrac_bc_10;
-  float m_ootfrac_bc_25;
-  float m_ootfrac_bc_50;
-  float m_ootfrac;
-  float m_itfrac;
-  int accept;
-  double weighted_L1AClusterEta;
-  double weighted_L1AClusterTime;
+  //float m_ootfrac_bc;
+  //float m_ootfrac_bc_10;
+  //float m_ootfrac_bc_25;
+  //float m_ootfrac_bc_50;
+  //float m_ootfrac;
+  //float m_itfrac;
+  int m_accept;
+  //double m_weighted_L1AClusterEta;
+  double m_weighted_L1AClusterTime;
 
-  double max_L1AClusterTime_10;
-  double max_L1AClusterTime_2;
-  double closest_L1AClusterTime;
+  double m_max_L1AClusterTime_10;
+  double m_max_L1AClusterTime_2;
+  double m_closest_L1AClusterTime;
 
-  double summed_L1AClusterE;
+  double m_summed_L1AClusterE;
 
-  std::vector<double> L1ACluster_E;
-  std::vector<double> L1ACluster_eta;
-  std::vector<double> L1ACluster_phi;
-  std::vector<double> L1ACluster_t;
+  std::vector<double> m_L1ACluster_E;
+  std::vector<double> m_L1ACluster_eta;
+  std::vector<double> m_L1ACluster_phi;
+  std::vector<double> m_L1ACluster_t;
 
-  std::vector<double> L1ACluster_eta_funnypeak;
-  std::vector<double> L1ACluster_phi_funnypeak;
-  std::vector<double> L1ACluster_t_funnypeak;
+  std::vector<double> m_L1ACluster_eta_funnypeak;
+  std::vector<double> m_L1ACluster_phi_funnypeak;
+  std::vector<double> m_L1ACluster_t_funnypeak;
 
   /* TrigL2MuonSA::MuonRoad     m_muonRoad; */
   /* TrigL2MuonSA::RpcHits      m_rpcHits; */
@@ -156,34 +156,34 @@ private:
   /*  float m_scaleRoadBarrelOuter; */
 
   const xAOD::TriggerTowerContainer *m_TriggerTowers;
-  float TT_median;
-  float TT_mean;
-  float TT_sigma;
-  int TT_nHad;
-  int TT_nEM;
-  int TT_total;
-  std::vector<float> TT_timings;
-  std::vector<float> TT_timings_noFCAL;
-  std::vector<float> TT_timings_RoI;
-  std::vector<float> deltaR;
+  float m_TT_median;
+  float m_TT_mean;
+  float m_TT_sigma;
+  int m_TT_nHad;
+  int m_TT_nEM;
+  int m_TT_total;
+  std::vector<float> m_TT_timings;
+  std::vector<float> m_TT_timings_noFCAL;
+  std::vector<float> m_TT_timings_RoI;
+  std::vector<float> m_deltaR;
 
-  int y0, y1, y2, y3, y4;
-  float x0, x1, x2, x3, x4;
-  float eta, xv;
-  int readout, TTAlg_accept;
-  int  ObjAlg_accept_symmetric;
-  float TT_median_noFCAL, TT_median_RoI;
-  float TT_mean_noFCAL, TT_mean_RoI;
-  float TT_sigma_noFCAL, TT_sigma_RoI;
+  int m_y0, m_y1, m_y2, m_y3, m_y4;
+  float m_x0, m_x1, m_x2, m_x3, m_x4;
+  float m_eta, m_xv;
+  int m_readout, m_TTAlg_accept;
+  int  m_ObjAlg_accept_symmetric;
+  //float m_TT_median_noFCAL, m_TT_median_RoI;
+  //float m_TT_mean_noFCAL, m_TT_mean_RoI;
+  //float m_TT_sigma_noFCAL, m_TT_sigma_RoI;
 
 
-  float combinedObjects_mean;
-  float combinedObjects_sigma;
-  std::vector<float> combinedObjects_timings;
+  float m_combinedObjects_mean;
+  float m_combinedObjects_sigma;
+  std::vector<float> m_combinedObjects_timings;
 
-  float mu_mean;
-  float mu_sigma;
-  std::vector<float> mu_timings;
+  float m_mu_mean;
+  float m_mu_sigma;
+  std::vector<float> m_mu_timings;
 };
 
 #endif
