@@ -67,6 +67,8 @@ namespace TrigTauEmul {
 
     m_HLTTriggerCondition = other.m_HLTTriggerCondition;
     m_L1TriggerCondition = other.m_L1TriggerCondition;
+    
+    m_matching_tool = new HltL1MatchingTool(other.name() + "_matching_copy");
   
   }
 
@@ -94,7 +96,16 @@ namespace TrigTauEmul {
     }
 
     m_l1_emulation_tool->GetChains();
-    auto registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+
+    // This is a fallback initialization mostly meant for athena running - in RootCore, TriggerValidation does this already
+    //auto registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    ToolsRegistry *registry = nullptr;
+    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
+      registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    } else {
+      registry = new ToolsRegistry("ToolsRegistry");
+    }
+
     //m_hlt_tau_tools = registry->GetHltTauTools();
 
     // Build the list of l1 tools 
@@ -211,7 +222,12 @@ namespace TrigTauEmul {
     reset_tau_decision();
     clearL1Decision();
     
-    auto registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    ToolsRegistry *registry = nullptr;
+    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
+      registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    } else {
+      registry = new ToolsRegistry("ToolsRegistry");
+    }
     
     for (const auto hlt_tau : hlt_taus) {
       //for (auto it: m_hlt_tau_tools) {

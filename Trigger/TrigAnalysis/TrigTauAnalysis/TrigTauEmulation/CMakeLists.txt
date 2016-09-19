@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740790 2016-04-16 14:46:57Z krasznaa $
+# $Id: CMakeLists.txt 770884 2016-08-30 18:04:17Z gbesjes $
 ################################################################################
 # Package: TrigTauEmulation
 ################################################################################
@@ -20,6 +20,8 @@ atlas_depends_on_subdirs(
   PRIVATE
   Control/AthContainers
   Control/AthenaBaseComps
+  Event/xAOD/xAODBase
+  Event/xAOD/xAODCore
   Event/xAOD/xAODJet
   GaudiKernel )
 
@@ -32,7 +34,7 @@ atlas_add_component( TrigTauEmulation
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTau
   xAODTracking xAODTrigger PATCoreLib PATInterfaces TrigDecisionToolLib
-  AthContainers AthenaBaseComps xAODJet GaudiKernel )
+  AthContainers AthenaBaseComps xAODJet xAODBase xAODCore GaudiKernel )
 
 atlas_add_dictionary( TrigTauEmulationDict
   TrigTauEmulation/TrigTauEmulationDict.h
@@ -40,7 +42,7 @@ atlas_add_dictionary( TrigTauEmulationDict
   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
   LINK_LIBRARIES ${ROOT_LIBRARIES} AsgTools xAODEventInfo xAODTau
   xAODTracking xAODTrigger PATCoreLib PATInterfaces TrigDecisionToolLib
-  AthContainers AthenaBaseComps xAODJet GaudiKernel )
+  AthContainers AthenaBaseComps xAODJet xAODBase xAODCore GaudiKernel )
 
 # Install files from the package:
 atlas_install_headers( TrigTauEmulation )

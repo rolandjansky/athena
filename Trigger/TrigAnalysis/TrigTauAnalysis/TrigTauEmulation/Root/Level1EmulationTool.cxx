@@ -13,6 +13,10 @@
 #include "TrigTauEmulation/MsgStream.h"
 #include "TrigTauEmulation/Utils.h"
 
+#include "xAODCore/ShallowCopy.h"
+#include "xAODCore/ShallowAuxContainer.h"
+#include "xAODBase/IParticleHelpers.h"
+
 namespace TrigTauEmul {
   // Default constructor
   Level1EmulationTool::Level1EmulationTool(const std::string& name): 
@@ -25,6 +29,7 @@ namespace TrigTauEmul {
   {
 
     declareProperty("l1_chains", m_l1_chains_vec, "Vector of the L1 chains to be evaluated");
+    declareProperty("useShallowCopies", m_useShallowCopies=true, "Internally use shallow copies of the objects");
 
     //declareProperty("JetTools", m_l1jet_tools);
     //declareProperty("EmTauTools", m_l1tau_tools);
@@ -51,6 +56,13 @@ namespace TrigTauEmul {
     m_name_parser = new Parser(other.name() + "_ChainParser_copy");
     m_l1orl_tool = new TrigTauORLTool(other.name() + "_orl_tool_copy");
     m_l1topo_tool = new Level1TopoSelectionTool(other.name() + "_topo_tool_copy");    
+    
+    // This is a fallback initialization mostly meant for athena running - in RootCore, TriggerValidation does this already
+    if(Utils::toolStoreContains<ToolsRegistry>("ToolsRegistry")) {
+      m_registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+    } else {
+      m_registry = new ToolsRegistry("ToolsRegistry");
+    } 
   }
 
   void Level1EmulationTool::GetChains() {
@@ -194,17 +206,47 @@ namespace TrigTauEmul {
   // Event calculate -- The meaty part of this algorithm
   // I'm gonna try to keep it as small as possible
   // and write the actual implementations elsewhere but ...
-  StatusCode Level1EmulationTool::calculate(const xAOD::EmTauRoIContainer* l1taus, 
-      const xAOD::JetRoIContainer* l1jets,
-      const xAOD::MuonRoIContainer* l1muons,
-      const xAOD::EnergySumRoI* l1xe)
+  StatusCode Level1EmulationTool::calculate(const xAOD::EmTauRoIContainer* _l1taus, 
+      const xAOD::JetRoIContainer* _l1jets,
+      const xAOD::MuonRoIContainer* _l1muons,
+      const xAOD::EnergySumRoI* _l1xe)
   {
     // Reset the counters to 0;
     reset_counters();
     //auto registry = asg::ToolStore::get<ToolsRegistry>("ToolsRegistry");
+      
+    const xAOD::EmTauRoIContainer* l1taus = _l1taus; 
+    const xAOD::JetRoIContainer* l1jets = _l1jets; 
+    const xAOD::MuonRoIContainer* l1muons = _l1muons;
+    const xAOD::EnergySumRoI* l1xe = _l1xe;
+
+    xAOD::ShallowAuxContainer* l1taus_aux = nullptr; 
+    xAOD::ShallowAuxContainer* l1jets_aux = nullptr; 
+    xAOD::ShallowAuxContainer* l1muons_aux = nullptr; 
+    xAOD::ShallowAuxInfo* l1xe_aux = nullptr;
+
+    // Build some shallow copies if needed
+    if(m_useShallowCopies) { 
+      std::pair<xAOD::EmTauRoIContainer*, xAOD::ShallowAuxContainer*> taus_copy = xAOD::shallowCopyContainer(*_l1taus);
+      l1taus = taus_copy.first;
+      l1taus_aux = taus_copy.second;
+      
+      std::pair<xAOD::JetRoIContainer*, xAOD::ShallowAuxContainer*> jets_copy = xAOD::shallowCopyContainer(*_l1jets);
+      l1jets = jets_copy.first;
+      l1jets_aux = jets_copy.second;
+
+      std::pair<xAOD::MuonRoIContainer*, xAOD::ShallowAuxContainer*> muons_copy = xAOD::shallowCopyContainer(*_l1muons);
+      l1muons = muons_copy.first;
+      l1muons_aux = muons_copy.second;
+      
+      std::pair<xAOD::EnergySumRoI*, xAOD::ShallowAuxInfo*> xe_copy = xAOD::shallowCopyObject(*_l1xe);
+      l1xe = xe_copy.first;
+      l1xe_aux = xe_copy.second;
+    }
+
+    // Now actually do something
 
     for (const auto l1tau : *l1taus) {
-      //for (auto it: m_l1tau_tools) {
       for (auto it: m_registry->selectTools<EmTauSelectionTool*>()){
         MY_MSG_DEBUG("testing L1 tau tool on EmTauRoIContainer " << it->name());
         l1tau->auxdecor<bool>(it->name()) = false;
@@ -227,7 +269,6 @@ namespace TrigTauEmul {
     }
 
     for (const auto l1jet : *l1jets) {
-      //for (auto it: m_l1jet_tools) {
       for (auto it: m_registry->selectTools<JetRoISelectionTool*>()){
         l1jet->auxdecor<bool>(it->name()) = false;
         if (it->accept(*l1jet)) {
@@ -242,7 +283,6 @@ namespace TrigTauEmul {
     }
 
     for (const auto l1muon : *l1muons) {
-      //for (auto it: m_l1muon_tools) {
       for (auto it: m_registry->selectTools<MuonRoISelectionTool*>()){
         l1muon->auxdecor<bool>(it->name()) = false;
         if (it->accept(*l1muon)) {
@@ -256,7 +296,6 @@ namespace TrigTauEmul {
       }
     }
 
-    //for (auto it: m_l1xe_tools) {
     for (auto it: m_registry->selectTools<EnergySumSelectionTool*>()){
       l1xe->auxdecor<bool>(it->name()) = false;
       if (it->accept(*l1xe)) {
@@ -333,6 +372,19 @@ namespace TrigTauEmul {
 
       }
     }
+    
+    // Now clean up our shallow copies
+    if(m_useShallowCopies) { 
+      delete l1taus;
+      delete l1taus_aux;
+      delete l1jets;
+      delete l1jets_aux;
+      delete l1muons;
+      delete l1muons_aux;
+      delete l1xe;
+      delete l1xe_aux;
+    }
+    
     return StatusCode::SUCCESS;
   }
 

@@ -81,7 +81,7 @@ namespace TrigTauEmul {
     template<typename T> ToolHandleArray<T> removeTools(const ToolHandleArray<T>& tools, const std::set<std::string>& usedTools);
 
     std::vector<std::string> m_l1_chains_vec;
-
+    bool m_useShallowCopies;
     std::map<std::string, int> m_counters;
 
     void reset_counters();
