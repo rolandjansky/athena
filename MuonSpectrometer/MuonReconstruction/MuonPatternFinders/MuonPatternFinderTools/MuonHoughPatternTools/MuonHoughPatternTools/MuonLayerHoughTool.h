@@ -276,6 +276,8 @@ namespace Muon {
     bool m_onlyUseCurrentBunch;
     bool m_doTruth;
     bool m_debugHough;
+    bool m_doParabolicExtrapolation; // if true, do parabolic; if false, do linear extrapolation
+    float m_extrapolationDistance; // default value is 1500
     
     unsigned int m_ntechnologies;
     CollectionsPerSectorVec m_collectionsPerSector;
@@ -338,8 +340,9 @@ namespace Muon {
       sublayer = m_idHelper->tgcIdHelper().gasGap(id)-1;
       Muon::MuonStationIndex::StIndex stIndex = m_idHelper->stationIndex(id);
       if( stIndex == Muon::MuonStationIndex::EM ) {
-
+       //T1 gets +3; T2 gets +3+3; T3 gets +3+6; T4 gets0 (because it is also EI)
 	Muon::MuonStationIndex::PhiIndex phiIndex = m_idHelper->phiIndex(id);
+       sublayer += 3;
 	if( phiIndex == Muon::MuonStationIndex::T2 )       sublayer += 3;
 	else if( phiIndex == Muon::MuonStationIndex::T3 )  sublayer += 6;
 	// float fz = fabs(z);
