@@ -75,15 +75,15 @@ MsgStream& Rec::operator << ( MsgStream& sl, const MuonOverlapDescriptor& itself
 // if namespace, need to use MsgStream& Rec::operator :-(
 { 
   if (itself.hasOverlap()) {
-    sl <<"Muon overlap desriptor: "<< endreq;
+    sl <<"Muon overlap desriptor: "<< endmsg;
     sl <<"ID pointers: " << (itself.sharesIndetTrack()? "identical":"different")
        <<",  MS pointers: " << (itself.sharesSpectroTrack()? "identical" : "different")
-       <<endreq;
+       <<endmsg;
     sl <<"MS hits: " << itself.nSharedPrecisionHits() << " shared prec. hits of "
-       << itself.nTotalPrecisionHits()<<" total." << endreq;
+       << itself.nTotalPrecisionHits()<<" total." << endmsg;
     sl <<"         " << itself.nSharedSpectroPhiHits() << " shared phi hits of "
-       << itself.nTotalSpectroPhiHits()<<" totoal."<<endreq;
-  } else sl<<"Muon overlap desriptor: no Overlap."<<endreq;
+       << itself.nTotalSpectroPhiHits()<<" totoal."<<endmsg;
+  } else sl<<"Muon overlap desriptor: no Overlap."<<endmsg;
   return sl; 
 }
 
