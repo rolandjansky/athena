@@ -20,7 +20,8 @@ namespace MuonHough {
   static const int UNINITIALIZED = -99999;
   /// struct containing additional debug information on the hits that is not needed for the actual alg
   /// but very useful for debugging
-  struct HitDebugInfo {
+  class HitDebugInfo {
+  public:
     HitDebugInfo();
 
     HitDebugInfo( int type_, int sector_, Muon::MuonStationIndex::DetectorRegionIndex region_,
@@ -51,7 +52,8 @@ namespace MuonHough {
 
 
   /// struct containing all hit information needed for the Hough transform
-  struct Hit {
+  class Hit {
+  public:
     
     /// constructor, takes ownership of the HitDebugInfo pointer
     Hit( int layer_, float x_, float ymin_, float ymax_, float w_, HitDebugInfo* d_ = 0, 
