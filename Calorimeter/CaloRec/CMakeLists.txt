@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 732265 2016-03-24 16:27:05Z ssnyder $
+# $Id: CMakeLists.txt 773815 2016-09-19 09:09:41Z krasznaa $
 ################################################################################
 # Package: CaloRec
 ################################################################################
@@ -71,7 +71,7 @@ atlas_add_test( CaloClusterProcessor_test
 
 atlas_add_test( CaloCellFastCopyTool_test
    SOURCES test/CaloCellFastCopyTool_test.cxx
-   LINK_LIBRARIES CaloRecLib CaloEvent CaloDetDescr CaloIdentifier
+   LINK_LIBRARIES CaloRecLib CaloEvent CaloDetDescrLib CaloIdentifier
    IdDictParser AthenaBaseComps StoreGateLib CxxUtils GaudiKernel
    EXTRA_PATTERNS "Retrieved const handle|Service base class initialized|DEBUG Property update for OutputLevel" )
 
