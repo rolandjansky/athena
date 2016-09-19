@@ -22,7 +22,6 @@
   <class name="IegammaTrkRefitterTool" />
   <class name="Iegammaqweta1c" />
   <class name="Iegammaqweta2c" />
-  <class name="IegammaTopoClusterMap" />
   <class name="IelectronSuperClusterBuilder" />
   <class name="IphotonSuperClusterBuilder" />
   <class name="IegammaTopoClusterCopier" />
