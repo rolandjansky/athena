@@ -24,15 +24,15 @@ HLT::ErrorCode ReverseRoI::hltExecute(const HLT::TriggerElement* /* te_in */,
 				     HLT::TriggerElement* te_out)
 {
   if ( msgLvl() <= MSG::DEBUG ) 
-    msg() << MSG::DEBUG << "Executing ReverseRoI " << name()<< endreq;
+    msg() << MSG::DEBUG << "Executing ReverseRoI " << name()<< endmsg;
   
   const TrigRoiDescriptor* roiDescriptor = 0;
   HLT::ErrorCode hltStatus = getFeature(te_out, roiDescriptor, m_input_label);
   
   if ( hltStatus == HLT::OK && roiDescriptor !=0 ) {
-    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: original RoI " << *roiDescriptor << endreq;
+    if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: original RoI " << *roiDescriptor << endmsg;
   } else {
-    msg() <<  MSG::WARNING << " No RoI Descriptor for this Trigger Element! " << endreq;
+    msg() <<  MSG::WARNING << " No RoI Descriptor for this Trigger Element! " << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
   
@@ -71,10 +71,10 @@ HLT::ErrorCode ReverseRoI::hltExecute(const HLT::TriggerElement* /* te_in */,
   hltStatus = attachFeature(te_out, newRoiDescriptor, m_output_label);
   if (hltStatus != HLT::OK){
     msg() << MSG::ERROR << "Write of newRoiDescriptor into outputTE failed"
-	  << endreq;
+	  << endmsg;
     return hltStatus;
   }  
-  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: reversed RoI " << * newRoiDescriptor << endreq;
+  if (msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST: reversed RoI " << * newRoiDescriptor << endmsg;
  
  
  return HLT::OK;

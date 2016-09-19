@@ -21,73 +21,86 @@
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
+#include "TrigT1Result/RoIBResult.h"
+#include "TrigT1Interfaces/RecMuonRoI.h"
 
+#include "xAODTrigger/TrigCompositeContainer.h"
 
 using namespace std;
 
 
+//const short N_ROBID_BITS(24);  // 3 bytes for ROB ID
+
+unsigned int DetectorTimingAlgo::getBitMaskValue( const unsigned int uintValue,
+						  const unsigned int mask ) {
+  unsigned int result;
+  unsigned int maskcopy;
+  maskcopy = mask;
+  result = uintValue & mask;
+  if ( mask != 0 ) {
+    while ( ( maskcopy & 0x00000001 ) == 0 ) {
+      maskcopy = maskcopy >> 1;
+      result = result >> 1;
+    }
+  }
+  return result;
+}
 
 DetectorTimingAlgo::DetectorTimingAlgo(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator),
+    m_rpcDataPreparator("TrigL2MuonSA::RpcDataPreparator/RpcDataPreparator"),
+    m_trigMuonRoITool( "TrigMuonRoITool" ),
+    m_dummypatfinder("TrigL2MuonSA::RpcPatFinder"),
+    m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
     m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc",name)
-    // m_dataPreparator("TrigL2MuonSA::MuFastDataPreparator"),
-    //    m_backExtrapolatorTool("TrigMuonBackExtrapolator")
-    // m_robDataProviderSvc("ROBDataProviderSvc", name),
-    // m_trigMuonRoITool( "TrigMuonRoITool" ),
-    // m_recRPCRoiSvc("LVL1RPC::RPCRecRoiSvc",""),
-    // m_recTGCRoiSvc("LVL1TGC::TGCRecRoiSvc",""),
 {
   m_caloCluster=0;
-  //  m_muonColl=0;
-  // declareProperty("noMuon",   m_nomuon = false, "no muon in the list of items to be correlated");
-  // declareProperty("m_l1itemlist",   m_l1itemlist = {"L1_EM22VHI","L1_J400","L1_MU20"}, "list of l1 items to be used");
-  //  declareProperty("DataPreparator",    m_dataPreparator,    "data preparator");
-  // declareMonitoredVariable("EF_ootfrac_bc", m_ootfrac_bc, 0);
-  //  declareMonitoredVariable("EF_ootfrac_bc_10", m_ootfrac_bc_10, 0);
-  // declareMonitoredVariable("EF_ootfrac_bc_25", m_ootfrac_bc_25, 0);
-  // declareMonitoredVariable("EF_ootfrac_bc_50", m_ootfrac_bc_50, 0);
-  // declareMonitoredVariable("EF_ootfrac", m_ootfrac, 0);
-  // declareMonitoredVariable("EF_itfrac", m_itfrac, 0);
-
-  // declareMonitoredVariable("EF_L1AClusterTime_weighted", weighted_L1AClusterTime, 0);
-  // declareMonitoredVariable("EF_L1AClusterTime_max_2", max_L1AClusterTime_2, -30);
-  // declareMonitoredVariable("EF_L1AClusterTime_max_10", max_L1AClusterTime_10, -30);
-  // declareMonitoredVariable("EF_L1AClusterTime_closest", closest_L1AClusterTime, -30);
-  // declareMonitoredVariable("EF_L1AClusterTime_accept", accept, 0);
-
-  // declareMonitoredStdContainer("EF_clustertime_10", m_clustertime_10, AutoClear);
-  // declareMonitoredStdContainer("EF_rpctime_15", m_rpctime_15, AutoClear);
-
-  // declareMonitoredVariable("EF_clustertime_10_sigma", m_clustertime_10_sigma, 0);
-
-  // declareMonitoredStdContainer("EF_L1ACluster_eta", L1ACluster_eta, AutoClear);
-  // declareMonitoredStdContainer("EF_L1ACluster_phi", L1ACluster_phi, AutoClear);
-  // declareMonitoredStdContainer("EF_L1ACluster_t", L1ACluster_t, AutoClear);
-
 
  
+  // declareMonitoredStdContainer("EF_clustertime_10", m_clustertime_10, AutoClear);
+
+  // declareMonitoredStdContainer("EF_rpctime_intime", m_rpctime_intimemuonl1, AutoClear);
+  // declareMonitoredStdContainer("EF_rpctime_other", m_rpctime_othermuonl1, AutoClear);
+
+  declareMonitoredStdContainer("EF_muonroi_intime_eta",  m_muonroi_intime_eta, AutoClear);
+  declareMonitoredStdContainer("EF_muonroi_intime_phi",  m_muonroi_intime_phi, AutoClear);
+  declareMonitoredStdContainer("EF_muonroi_outtime_eta",  m_muonroi_outtime_eta, AutoClear);
+  declareMonitoredStdContainer("EF_muonroi_outtime_phi",  m_muonroi_outtime_phi, AutoClear);
+
+  declareMonitoredStdContainer("EF_rpctime_matched_intimeroi",  m_rpctime_matched_intimeroi, AutoClear);
+  declareMonitoredStdContainer("EF_rpctime_matched_outtimeroi",  m_rpctime_matched_outtimeroi, AutoClear);
+
+  declareMonitoredStdContainer("EF_rpctime_matched_intimeroi_averaged",  m_rpctime_matched_intimeroi_averaged, AutoClear);
+  declareMonitoredStdContainer("EF_rpctime_matched_outtimeroi_averaged",  m_rpctime_matched_outtimeroi_averaged, AutoClear);
+
+  // declareMonitoredStdContainer("EF_rpctime_matched_intimeroi_averaged_NOL1BC",  m_rpctime_matched_intimeroi_averaged_NOL1BC, AutoClear);
+  // declareMonitoredStdContainer("EF_rpctime_matched_outtimeroi_averaged_NOL1BC",  m_rpctime_matched_outtimeroi_averaged_NOL1BC, AutoClear);
+
+  // declareMonitoredStdContainer("EF_rpceta_matched_intimeroi",  m_rpceta_matched_intimeroi, AutoClear);
+  // declareMonitoredStdContainer("EF_rpcphi_matched_intimeroi",  m_rpcphi_matched_intimeroi, AutoClear);
+  // declareMonitoredStdContainer("EF_rpceta_matched_outtimeroi",  m_rpceta_matched_outtimeroi, AutoClear);
+  // declareMonitoredStdContainer("EF_rpcphi_matched_outtimeroi",  m_rpcphi_matched_outtimeroi, AutoClear);
+   
   ////////TriggerTowers/////////
-  //  declareMonitoredVariable("EF_TT_median",TT_median,-50);
-  declareMonitoredVariable("EF_TT_mean",TT_mean,-50);
-  declareMonitoredVariable("EF_TT_sigma",TT_sigma,-1);
-  declareMonitoredVariable("EF_TT_nEM",TT_nEM,0);
-  declareMonitoredVariable("EF_TT_nHad",TT_nHad,0);
-  declareMonitoredVariable("EF_TT_total",TT_total,0);
-  declareMonitoredVariable("EF_TTAlg_accept",TTAlg_accept,0);
-  //  declareMonitoredStdContainer("EF_deltaR",deltaR,AutoClear);
+  declareMonitoredVariable("EF_TT_mean",m_TT_mean,-50);
+  declareMonitoredVariable("EF_TT_sigma",m_TT_sigma,-1);
+  declareMonitoredVariable("EF_TT_nEM",m_TT_nEM,0);
+  declareMonitoredVariable("EF_TT_nHad",m_TT_nHad,0);
+  declareMonitoredVariable("EF_TT_total",m_TT_total,0);
 
-  declareMonitoredStdContainer("EF_TT_timings",TT_timings, AutoClear);
-  //  declareMonitoredStdContainer("EF_TT_timings_noFCAL",TT_timings_noFCAL, AutoClear);
-  //  declareMonitoredStdContainer("EF_TT_timings_RoI",TT_timings_RoI, AutoClear);
+  declareMonitoredVariable("EF_ObjAlg_accept_symmetric",m_ObjAlg_accept_symmetric,0);
 
-  //  declareMonitoredVariable("EF_TT_median_noFCAL",TT_median_noFCAL,-50);
-  // declareMonitoredVariable("EF_TT_mean_noFCAL",TT_mean_noFCAL,-50);
-  // declareMonitoredVariable("EF_TT_sigma_noFCAL",TT_sigma_noFCAL,-1);
-  // declareMonitoredVariable("EF_TT_median_RoI",TT_median_RoI,-50);
-  // declareMonitoredVariable("EF_TT_mean_RoI",TT_mean_RoI,-50);
-  // declareMonitoredVariable("EF_TT_sigma_RoI",TT_sigma_RoI,-1);
-  /////////////////////////////
-  
+  declareMonitoredStdContainer("EF_TT_timings",m_TT_timings, AutoClear);
+
+ 
+
+  declareMonitoredStdContainer("EF_Obj_timings",m_combinedObjects_timings, AutoClear);
+  declareMonitoredVariable("EF_Obj_mean",m_combinedObjects_mean,-50);
+  declareMonitoredVariable("EF_Obj_sigma",m_combinedObjects_sigma,-1);
+
+  declareMonitoredStdContainer("EF_mu_timings",m_mu_timings, AutoClear);
+  declareMonitoredVariable("EF_mu_mean",m_mu_mean,-50);
+  declareMonitoredVariable("EF_mu_sigma",m_mu_sigma,-1);
 }
 
 
@@ -98,33 +111,36 @@ HLT::ErrorCode DetectorTimingAlgo::hltInitialize()
     ATH_MSG_ERROR("Cannot retrieve " << m_configSvc);
     return HLT::BAD_JOB_SETUP;
   }
-  // if ( m_backExtrapolatorTool.retrieve().isFailure() ) {
-  //   msg() << MSG::ERROR << "Could not retrieve " << m_backExtrapolatorTool << endreq;
-  //   return HLT::BAD_JOB_SETUP;
-  // }
 
-  // if (m_dataPreparator.retrieve().isFailure()) {
-  //   msg() << "Cannot retrieve Tool DataPreparator" << endreq;
-  //   return HLT::BAD_JOB_SETUP;
-  // }
+
+  if (  m_rpcDataPreparator.retrieve().isFailure() ) {
+    msg() << MSG::ERROR << "Could not retrieve " << m_rpcDataPreparator << endmsg;
+    return HLT::BAD_JOB_SETUP;
+  }                    
+  m_rpcDataPreparator->setRoIBasedDataAccess(false);
+
+  if (  m_dummypatfinder.retrieve().isFailure() ) {
+    msg() << MSG::ERROR << "Could not retrieve " << m_dummypatfinder << endmsg;
+    return HLT::BAD_JOB_SETUP;
+  }
   
-  // m_dataPreparator->setExtrapolatorTool(&m_backExtrapolatorTool);
   
-  // // set road width in case TGC/RPC readout failure
-  // m_dataPreparator->setRoadWidthForFailure(400, 200);
+  // Retrieve the MuonRoITool
+  StatusCode sc = m_trigMuonRoITool.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR( "Could not retrieve " << m_trigMuonRoITool );
+    return HLT::ERROR;
+  } else {
+    ATH_MSG_INFO("Retrieved tool " << m_trigMuonRoITool);
+  }
+  sc = m_recRPCRoiSvc.retrieve();
+  if ( sc.isFailure() ) {
+    ATH_MSG_ERROR( "Couldn't connect to " << m_recRPCRoiSvc );
+    return HLT::ERROR;
+  } else {
+   ATH_MSG_INFO( "Retrieved Service " << m_recRPCRoiSvc );
+  }
   
-  // //StatusCode sc;
-  
-  // m_dataPreparator->setRpcGeometry(1);
-  // m_dataPreparator->setMdtDataCollection(1);
-  // m_dataPreparator->setRoIBasedDataAccess(1,1,1,1);
-  
-  // // set data or MC flag
-  // StatusCode sc = m_dataPreparator->setMCFlag(0);
-  // if (!sc.isSuccess()) {
-  //   msg() << MSG::ERROR << "Failed to set MC flag to DataPreparator" << endreq;
-  //   return HLT::ERROR;
-  // }
 
    return HLT::OK;
 }
@@ -150,7 +166,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 {
   m_caloCluster=0;
   //  m_muonColl=0;
-  m_roiDescriptor = 0;
+  //  m_roiDescriptor = 0;
 
   beforeExecMonitors().ignore();
 
@@ -163,37 +179,53 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
   //  int nclus_10=0;
 
 
-  summed_L1AClusterE=0;
-  weighted_L1AClusterTime=0;
+  m_summed_L1AClusterE=0;
+  m_weighted_L1AClusterTime=0;
 
-  max_L1AClusterTime_2=-30;
-  max_L1AClusterTime_10=-30;
+  m_max_L1AClusterTime_2=-30;
+  m_max_L1AClusterTime_10=-30;
 
-  closest_L1AClusterTime=0;
-  accept=0;
+  m_closest_L1AClusterTime=0;
+  m_accept=0;
   m_clustertime_10_sigma=0;
   
-  L1ACluster_E.clear();
-  L1ACluster_eta.clear();
-  L1ACluster_phi.clear();
-  L1ACluster_t.clear();
+  m_L1ACluster_E.clear();
+  m_L1ACluster_eta.clear();
+  m_L1ACluster_phi.clear();
+  m_L1ACluster_t.clear();
 
-  L1ACluster_eta_funnypeak.clear();
-  L1ACluster_phi_funnypeak.clear();
-  L1ACluster_t_funnypeak.clear();
+  m_L1ACluster_eta_funnypeak.clear();
+  m_L1ACluster_phi_funnypeak.clear();
+  m_L1ACluster_t_funnypeak.clear();
 
   //std::cout<<" ------ start event --------- " << std::endl;
 
   // Below all functionality about caloclusters and L1 ROI retrival is only commented out.
   // We might want to reconsider our choices later.
   // For now use TT only
+  int beforeafterflag=0;
+  int l1accept_type=0;
+  int other_type=0;
   
   if(tes_in.size()>0){
+    
+    for (HLT::TEVec::const_iterator it = tes_in[0].begin(); it != tes_in[0].end(); ++it) {
+      const xAOD::TrigCompositeContainer * passBitContainer ;   
+      /*HLT::ErrorCode status =*/ getFeature(  (*it) , passBitContainer);
+      for (xAOD::TrigCompositeContainer::const_iterator it = passBitContainer->begin(); it != passBitContainer->end(); ++it ){
+	(*it)->getDetail("beforeafterflag",beforeafterflag);
+	(*it)->getDetail("l1a_type",l1accept_type);
+	(*it)->getDetail("other_type",other_type);
+      }
+      
+    } // retrieve the encoded info from the L1Correlation algo
 
+    //std::cout<< "I retrieved the following info: beforeafter:"<< beforeafterflag<< " l1at:"<< l1accept_type<<" othertype:"<< other_type<<std::endl;
+    
     // Retrieve ROIS
 
-    m_roiDescriptor=0;
-    m_roiDescriptorVector.clear();
+    // m_roiDescriptor=0;
+    // m_roiDescriptorVector.clear();
 
     // // [2] EM ROI : 
     // for (HLT::TEVec::const_iterator it = tes_in[2].begin(); it != tes_in[2].end(); ++it) {
@@ -229,38 +261,181 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
     //   }
       
     // }
+
     
-    // m_roiDescriptor=0;
-    // m_roiDescriptorVector.clear();
-    // // retrieve muon descriptor if its there
-    // // [4] Muon ROI :
-    // if (tes_in.size()>4) {
-    //   for (HLT::TEVec::const_iterator it = tes_in[4].begin(); it != tes_in[4].end(); ++it) {
+    if ( (l1accept_type==2 ||  l1accept_type==4 || l1accept_type==6 || l1accept_type==7) || ( other_type==2 ||  other_type==4 || other_type==6 || other_type==7) ){
 
-    // 	HLT::ErrorCode status = getFeature(  (*it) , m_muonColl );
+      // now get a list of the in and out of time muon ROIS:
+      if( (l1accept_type==2 ||  l1accept_type==4 || l1accept_type==6 || l1accept_type==7) ){
+	for  (std::vector< ROIB::MuCTPIRoI >::const_iterator it = m_trigMuonRoITool->begin_InTimeRoIs();
+	      it != m_trigMuonRoITool->end_InTimeRoIs(); ++it) {
 
-    // 	//	HLT::ErrorCode status = getFeatures(  (*it) , m_roiDescriptorVector );
+	  if ( ((*it).pt() <6  )) continue;
 
-    // 	// Feature Key: "MuonL2SAInfo"
-
-    // 	if(status!=HLT::OK ||  !m_muonColl) {
-    // 	}else{
+	  //// need to reject the long L1 signals.. reject rois which are the same as in the BCID before:
+	  bool overlapsintime=false;
+	  for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator itoot = m_trigMuonRoITool->begin_OutOfTimeRoIs();
+		itoot != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++itoot) {
+	    if ( (*itoot).second != -1 ) continue; // if its not one BCID before continue
+	    if( ((*itoot).first).getSectorID() == (*it).getSectorID() &&
+		((*itoot).first).getSectorAddress() == (*it).getSectorAddress() ){
+	      overlapsintime=true;
+	      break;
+	    }
+	  }  
+	  if(overlapsintime) continue;
 	  
-    // 	  for (xAOD::L2StandAloneMuonContainer::const_iterator it = m_muonColl->begin(); it != m_muonColl->end(); ++it ){
-    // 	    std::cout<<"We got a muon! eta:"<<(*it)->eta() <<" phi:"<<(*it)->phi() << " pt:"<<(*it)->pt() <<std::endl;
-    // 	    if ((*it)->pt() > 6){
-    // 	      for(unsigned int ih=0; ih< ((*it)-> rpcHitTime()).size(); ih++ ){
-    // 		m_rpctime_15.push_back(  ((*it)-> rpcHitTime())[ih]  );
-    // 		std::cout<<"    - rpchit time:"<<  ((*it)-> rpcHitTime())[ih] <<std::endl;
-    // 	      }
-    // 	    }
-    // 	  }
-    // 	}
-    //   }// the 4th input (Muons)
+	  unsigned int temp_sysID = getBitMaskValue(((*it)).getSectorAddress(), LVL1::SysIDMask );
+	  unsigned int sysID = 0;                // Barrel
+	  if( temp_sysID & 0x2 ) sysID = 1;      // Endcap
+	  else if( temp_sysID & 0x1 ) sysID = 2; // Forward
+
+     
+	  
+	  if( sysID == 0 ) {  // only if its in the RPC domain.. we are not interested in the other detectors
+	    m_recRPCRoiSvc->reconstruct( ((*it)).roIWord() );
+	    float eta = m_recRPCRoiSvc->eta();
+	    float phi = m_recRPCRoiSvc->phi();
+
+	    m_muonroi_intime_eta.push_back( eta );
+	    m_muonroi_intime_phi.push_back( phi );
+	  }
+	}
+      }/// in the current BCID we found a muon ROI
+
+      
+      if ( other_type==2 ||  other_type==4 || other_type==6 || other_type==7){
+	
+	for  (std::vector< std::pair<ROIB::MuCTPIRoI,int> >::const_iterator it = m_trigMuonRoITool->begin_OutOfTimeRoIs();
+	      it != m_trigMuonRoITool->end_OutOfTimeRoIs(); ++it) {
+	  if (abs((*it).second) !=1) continue;
+	  if ( ((*it).first).pt() < 6 ) continue;
+
+	  //// need to reject the long L1 signals.. reject rois which are the same as in the central BCID:
+	  if( (*it).second == +1 ) { // if this ROI is actually a late ROI.. for early ones we don't do anything
+	    bool overlapsintime=false;
+	    for  (std::vector< ROIB::MuCTPIRoI >::const_iterator itintime = m_trigMuonRoITool->begin_InTimeRoIs();
+		  itintime != m_trigMuonRoITool->end_InTimeRoIs(); ++itintime) {
+	      if( ((*it).first).getSectorID() == (*itintime).getSectorID() &&
+		  ((*it).first).getSectorAddress() == (*itintime).getSectorAddress() ){
+		overlapsintime=true;
+		break;
+	      }
+	    }
+	    if(overlapsintime) continue;
+	  }
+	  unsigned int temp_sysID = getBitMaskValue(((*it).first).getSectorAddress(), LVL1::SysIDMask );
+	  unsigned int sysID = 0;                // Barrel
+	  if( temp_sysID & 0x2 ) sysID = 1;      // Endcap
+	  else if( temp_sysID & 0x1 ) sysID = 2; // Forward
+	  
+	  if( sysID == 0 ) {  // only if its in the RPC domain.. we are not interested in the other detectors
+	    m_recRPCRoiSvc->reconstruct( ((*it).first).roIWord() );
+	    float eta = m_recRPCRoiSvc->eta();
+	    float phi = m_recRPCRoiSvc->phi();
+	     
+	    m_muonroi_outtime_eta.push_back( eta );
+	    m_muonroi_outtime_phi.push_back( phi );
+	  }
+	  
+	}// out of time muon rois
+      }// we found a muon L1 in a neihgbouring BC
+
+      
+      /////// retrieve all the rpc hits
+      
+      TrigRoiDescriptor DummyRoiDescriptor;
+      TrigL2MuonSA::RpcHits   rpcHits;
+      m_dummypatfinder->clear();
+      m_rpcDataPreparator->prepareData(&DummyRoiDescriptor ,
+				       0  , /// dummy roiword
+				       rpcHits ,
+				       &m_dummypatfinder
+				       );
+
+
+      // new solution: loop over all rois then over all hits
+      // for (TrigL2MuonSA::RpcHits::const_iterator it = rpcHits.begin(); it!=rpcHits.end(); ++it) {
+      // 	m_rpctime_all.push_back( (*it).time );
+      // 	m_rpctime_eta.push_back( (*it).eta );
+      // 	m_rpctime_phi.push_back( (*it).phi );
+      // }
+      
+      for (unsigned int irois=0; irois<m_muonroi_intime_eta.size(); irois++ ){
+	std::vector<float> tmp_rpctime_matched;
+	
+	for (TrigL2MuonSA::RpcHits::const_iterator it = rpcHits.begin(); it!=rpcHits.end(); ++it) {
+	  float deta = fabs( (*it).eta- m_muonroi_intime_eta[irois]);
+	  float dphi = fabs( (*it).phi- m_muonroi_intime_phi[irois] );
+	  if (dphi > 3.14159){
+	    dphi = fabs(dphi - 2*3.14159);
+	  }
+	  if( deta*deta + dphi*dphi < 0.0025){
+	    m_rpctime_matched_intimeroi.push_back( (*it).time );
+	    tmp_rpctime_matched.push_back( (*it).time );
+	    // m_rpcphi_matched_intimeroi.push_back( (*it).phi );
+	    // m_rpceta_matched_intimeroi.push_back( (*it).eta );
+	  }
+	  
+	}// all rpc hits
+	float avgtime=0.;
+	for (unsigned int itimes=0; itimes< tmp_rpctime_matched.size(); itimes++){
+	  avgtime+= tmp_rpctime_matched[itimes];
+	}
+	avgtime=avgtime/ tmp_rpctime_matched.size() ;
+
+	if(beforeafterflag>-2){
+	  m_rpctime_matched_intimeroi_averaged.push_back(avgtime);
+	  m_mu_timings.push_back(avgtime);
+	  m_combinedObjects_timings.push_back(avgtime);
+	}
+	// if(beforeafterflag<-1)
+	//   m_rpctime_matched_intimeroi_averaged_NOL1BC.push_back(avgtime);
+	
+      } // intime rois
+
+      for (unsigned int irois=0; irois<m_muonroi_outtime_eta.size(); irois++ ){
+	std::vector<float> tmp_rpctime_matched;
+
+	for (TrigL2MuonSA::RpcHits::const_iterator it = rpcHits.begin(); it!=rpcHits.end(); ++it) {
+	  float deta = fabs( (*it).eta- m_muonroi_outtime_eta[irois]);
+	  float dphi = fabs( (*it).phi- m_muonroi_outtime_phi[irois] );
+	  if (dphi > 3.14159){
+	    dphi = fabs(dphi - 2*3.14159);
+	  }
+	  if( deta*deta + dphi*dphi < 0.0025){
+	    tmp_rpctime_matched.push_back( (*it).time );
+	    m_rpctime_matched_outtimeroi.push_back( (*it).time );
+	    m_rpcphi_matched_outtimeroi.push_back( (*it).phi );
+	    m_rpceta_matched_outtimeroi.push_back( (*it).eta );
+	  }
+	  
+	}// all rpc hits
+	float avgtime=0.;
+	for (unsigned int itimes=0; itimes< tmp_rpctime_matched.size(); itimes++){
+	  avgtime+= tmp_rpctime_matched[itimes];
+	}
+	avgtime=avgtime/ tmp_rpctime_matched.size() ;
+	if(beforeafterflag>-2){
+	  m_rpctime_matched_outtimeroi_averaged.push_back(avgtime);
+	  m_mu_timings.push_back(avgtime);
+	  m_combinedObjects_timings.push_back(avgtime);
+	}
+	//	if(beforeafterflag<-1)
+	// m_rpctime_matched_outtimeroi_averaged_NOL1BC.push_back(avgtime);
+
+      }  // outime rois 
+
+      /// If no muon ROI was found in the RPC coverage reject the event
+      if( other_type==2 && m_rpctime_matched_outtimeroi_averaged.size()==0) return HLT::OK;
+      if( l1accept_type==2 && m_rpctime_matched_intimeroi_averaged.size()==0) return HLT::OK; 
+    } /// the first algorithm found muons
     
-    // }// no 4th input TE
-    // ---- muon retrieval
+    ////////
     
+
+    
+  
     // // loop over caloclusters
     // for (HLT::TEVec::const_iterator it = tes_in[0].begin(); it != tes_in[0].end(); ++it) {
 
@@ -290,21 +465,21 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
     // 	    if(L1RoiMatch ){
     // 	      //std::cout << "Matched cluster E, eta, phi, time: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi()<<", "<< (*it)->time() << std::endl;	      
     // 	      // Record some properties:
-    // 	      L1ACluster_E.push_back((*it)->e());
-    // 	      L1ACluster_t.push_back((*it)->time());
-    // 	      L1ACluster_eta.push_back((*it)->eta());
-    // 	      L1ACluster_phi.push_back((*it)->phi());
-    // 	      summed_L1AClusterE+=(*it)->e();
+    // 	      m_L1ACluster_E.push_back((*it)->e());
+    // 	      m_L1ACluster_t.push_back((*it)->time());
+    // 	      m_L1ACluster_eta.push_back((*it)->eta());
+    // 	      m_L1ACluster_phi.push_back((*it)->phi());
+    // 	      m_summed_L1AClusterE+=(*it)->e();
 
-    // 	      if( (*it)->e()>10000 && (*it)->time() > max_L1AClusterTime_10 )
-    // 		max_L1AClusterTime_10 = (*it)->time();
-    // 	      if( (*it)->e()>2000 && (*it)->time() > max_L1AClusterTime_2 )
-    // 		max_L1AClusterTime_2 = (*it)->time();
+    // 	      if( (*it)->e()>10000 && (*it)->time() > m_max_L1AClusterTime_10 )
+    // 		m_max_L1AClusterTime_10 = (*it)->time();
+    // 	      if( (*it)->e()>2000 && (*it)->time() > m_max_L1AClusterTime_2 )
+    // 		m_max_L1AClusterTime_2 = (*it)->time();
 	      
     // 	      // if( (*it)->time() > 6 &&  (*it)->time() <16 ){
-    // 	      // 	L1ACluster_t_funnypeak.push_back((*it)->time());
-    // 	      // 	L1ACluster_eta_funnypeak.push_back((*it)->eta());
-    // 	      // 	L1ACluster_phi_funnypeak.push_back((*it)->phi());
+    // 	      // 	m_L1ACluster_t_funnypeak.push_back((*it)->time());
+    // 	      // 	m_L1ACluster_eta_funnypeak.push_back((*it)->eta());
+    // 	      // 	m_L1ACluster_phi_funnypeak.push_back((*it)->phi());
 
     // 	      // }
     // 	    }
@@ -348,7 +523,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 
 	    
     // 	    //std::cout << " Cluster E, eta, phi, time: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi()<<", "<< (*it)->time() << std::endl;
-    // 	    //msg() << MSG::INFO << " Cluster E, eta, phi, time: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi()<<", "<< (*it)->time() << endreq;   
+    // 	    //msg() << MSG::INFO << " Cluster E, eta, phi, time: " << (*it)->e()<<", "<< (*it)->eta()<<", "<< (*it)->phi()<<", "<< (*it)->time() << endmsg;   
     //       }
     //   }
       
@@ -356,7 +531,7 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 
 
     //    loop over TriggerTowers
-    for (HLT::TEVec::const_iterator it = tes_in[0].begin(); it != tes_in[0].end(); ++it) {
+    for (HLT::TEVec::const_iterator it = tes_in[1].begin(); it != tes_in[1].end(); ++it) {
       /////////////////////////Trigger Tower Code/////////////////////////////
       HLT::ErrorCode status = getFeature(  (*it) , m_TriggerTowers );
       
@@ -364,66 +539,66 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 	//std::cout<<"This TE has no TriggerTowers"<< std::endl;
       } 
       else {     
-	TT_timings.clear();
+	m_TT_timings.clear();
 	int threshold=72;
-	TT_nEM=0;
-	TT_nHad=0;
-	TT_total=0;
-	TTAlg_accept=0;
+	m_TT_nEM=0;
+	m_TT_nHad=0;
+	m_TT_total=0;
+	m_TTAlg_accept=0;
 	const xAOD::TriggerTowerContainer* container(0);
 	if ( getFeature((*it),container) != HLT::OK ) {
-	  msg() << MSG::WARNING << " Failed to get TT collection." << endreq;
+	  msg() << MSG::WARNING << " Failed to get TT collection." << endmsg;
 	  return HLT::ERROR;
 	}
 	
 	for (xAOD::TriggerTowerContainer::const_iterator eIt = m_TriggerTowers->begin(); eIt!=m_TriggerTowers->end(); ++eIt) {
-	  eta=(*eIt)->eta();
-	  readout=0;
-	  readout = (*eIt)->adc().size();
-	  if(readout==5){
-	    y0=(*eIt)->adc()[0];
-	    y1=(*eIt)->adc()[1];
-	    y2=(*eIt)->adc()[2];
-	    y3=(*eIt)->adc()[3];
-	    y4=(*eIt)->adc()[4];
+	  m_eta=(*eIt)->eta();
+	  m_readout=0;
+	  m_readout = (*eIt)->adc().size();
+	  if(m_readout==5){
+	    m_y0=(*eIt)->adc()[0];
+	    m_y1=(*eIt)->adc()[1];
+	    m_y2=(*eIt)->adc()[2];
+	    m_y3=(*eIt)->adc()[3];
+	    m_y4=(*eIt)->adc()[4];
 	  }
-	  else if(readout==7){
-	    y0=(*eIt)->adc()[1];
-	    y1=(*eIt)->adc()[2];
-	    y2=(*eIt)->adc()[3];
-	    y3=(*eIt)->adc()[4];
-	    y4=(*eIt)->adc()[5];
+	  else if(m_readout==7){
+	    m_y0=(*eIt)->adc()[1];
+	    m_y1=(*eIt)->adc()[2];
+	    m_y2=(*eIt)->adc()[3];
+	    m_y3=(*eIt)->adc()[4];
+	    m_y4=(*eIt)->adc()[5];
 	  }
-	  else if(readout==15){
-	    y0=(*eIt)->adc()[3];
-	    y1=(*eIt)->adc()[5];
-	    y2=(*eIt)->adc()[7];
-	    y3=(*eIt)->adc()[9];
-	    y4=(*eIt)->adc()[11];
+	  else if(m_readout==15){
+	    m_y0=(*eIt)->adc()[3];
+	    m_y1=(*eIt)->adc()[5];
+	    m_y2=(*eIt)->adc()[7];
+	    m_y3=(*eIt)->adc()[9];
+	    m_y4=(*eIt)->adc()[11];
 	  }
-	  x0=-50.;
-	  x1=-25.;
-	  x2=0.;
-	  x3=25.;
-	  x4=50.;
-	  if(y0>=1020 || y1>=1020 || y2>=1020 || y3>=1020 || y4>=1020){
+	  m_x0=-50.;
+	  m_x1=-25.;
+	  m_x2=0.;
+	  m_x3=25.;
+	  m_x4=50.;
+	  if(m_y0>=1020 || m_y1>=1020 || m_y2>=1020 || m_y3>=1020 || m_y4>=1020){
 	    continue;
 	  }
-	  if(y2>threshold && y2>=y1 && y2>=y3){
-	    xv = time(x1,x2,x3,y1,y2,y3);
-	    if((*eIt)->sampling()==1 && fabs(eta)>1.3 && fabs(eta)<1.6 && y2>750){
+	  if(m_y2>threshold && m_y2>=m_y1 && m_y2>=m_y3){
+	    m_xv = time(m_x1,m_x2,m_x3,m_y1,m_y2,m_y3);
+	    if((*eIt)->sampling()==1 && fabs(m_eta)>1.3 && fabs(m_eta)<1.6 && m_y2>750){
 	      continue;
 	    }
 	  }
-	  else if(y1>threshold && y1>y2 && y1>=y0){
-	    xv = time(x0,x1,x2,y0,y1,y2);
-	    if((*eIt)->sampling()==1 && fabs(eta)>1.3 && fabs(eta)<1.6 && y1>750){
+	  else if(m_y1>threshold && m_y1>m_y2 && m_y1>=m_y0){
+	    m_xv = time(m_x0,m_x1,m_x2,m_y0,m_y1,m_y2);
+	    if((*eIt)->sampling()==1 && fabs(m_eta)>1.3 && fabs(m_eta)<1.6 && m_y1>750){
 	      continue;
 	    }
 	  }
-	  else if(y3>threshold && y3>y2 && y3>=y4){
-	    xv = time(x2,x3,x4,y2,y3,y4);
-	    if((*eIt)->sampling()==1 && fabs(eta)>1.3 && fabs(eta)<1.6 && y3>750){
+	  else if(m_y3>threshold && m_y3>m_y2 && m_y3>=m_y4){
+	    m_xv = time(m_x2,m_x3,m_x4,m_y2,m_y3,m_y4);
+	    if((*eIt)->sampling()==1 && fabs(m_eta)>1.3 && fabs(m_eta)<1.6 && m_y3>750){
 	      continue;
 	    }
 	  }
@@ -431,40 +606,21 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
 	    continue;
 	  }
 	  if((*eIt)->sampling()==0){
-	    TT_nEM++;
-	    TT_total++;
+	    m_TT_nEM++;
+	    m_TT_total++;
 	  }
 	  else if((*eIt)->sampling()==1){
-	    TT_nHad++;
-	    TT_total++;
+	    m_TT_nHad++;
+	    m_TT_total++;
 	  }
-	  TT_timings.push_back(xv);
-	  // if(fabs(eta)<3.1){
-	  //   TT_timings_noFCAL.push_back(xv);
-	  // }
-	  // for(unsigned int ic=0; ic<m_l1roi_phi.size(); ic++ ){
-	  //   float phi = (*eIt)->phi();
-	  //   if(phi > 3.14159){
-	  //     phi = phi - 2*3.14159;
-	  //   }
-	  //   float deta = fabs( eta - m_l1roi_eta[ic] );
-	  //   float dphi = fabs( phi- m_l1roi_phi[ic] );
-	  //   if (dphi > 3.14159){
-	  //     dphi = fabs(dphi - 2*3.14159);
-	  //   }
-	  //   if( sqrt(deta*deta + dphi*dphi) < 0.2)
-	  //     {
-	  // 	TT_timings_RoI.push_back(xv);
-	  // 	break;
-	  //     }
-	  //   else{
-	  //     //deltaR.push_back(sqrt(deta*deta + dphi*dphi));
-	  //   }
-	  // }
+	  m_TT_timings.push_back(m_xv);
+	  m_combinedObjects_timings.push_back(m_xv);
+
+	  
 				
 	}
       }
-    }// the 0st input (TT)
+    }// the 1st input (TT)
     
   }else{
     //std::cout << " input TE size =0" <<std::endl;
@@ -491,111 +647,110 @@ HLT::ErrorCode DetectorTimingAlgo::hltExecute(std::vector<HLT::TEVec>& tes_in, u
   // // m_itfrac = (float)(nclus_it_5)/ nclus_5;
   
   
-  // for (unsigned int ic=0; ic< L1ACluster_E.size(); ic++){
-  //   weighted_L1AClusterTime +=  L1ACluster_t[ic] * L1ACluster_E[ic]/summed_L1AClusterE;    
+  // for (unsigned int ic=0; ic< m_L1ACluster_E.size(); ic++){
+  //   m_weighted_L1AClusterTime +=  m_L1ACluster_t[ic] * m_L1ACluster_E[ic]/m_summed_L1AClusterE;    
   // }
 
 
-  //  if( weighted_L1AClusterTime > 19 || max_L1AClusterTime_10  > 21 || max_L1AClusterTime_10  < -29 ){
-  //   accept=1; 
+  //  if( m_weighted_L1AClusterTime > 19 || m_max_L1AClusterTime_10  > 21 || m_max_L1AClusterTime_10  < -29 ){
+  //   m_accept=1; 
   // }
 
-  //  //  if( weighted_L1AClusterTime < 19 || max_L1AClusterTime_10  < 19 ){
+  //  //  if( m_weighted_L1AClusterTime < 19 || m_max_L1AClusterTime_10  < 19 ){
   //   //    std::cout<<" ------ this event has average matched cluster time < 19 ns --------- " << std::endl;
-  //   // std::cout<<" avg. weighted time: " << weighted_L1AClusterTime << " max. time 10: "<<max_L1AClusterTime_10<<"  max. time 2: "<<max_L1AClusterTime_2  <<std::endl;
+  //   // std::cout<<" avg. weighted time: " << m_weighted_L1AClusterTime << " max. time 10: "<<m_max_L1AClusterTime_10<<"  max. time 2: "<<m_max_L1AClusterTime_2  <<std::endl;
   //  //  }
   // //  std::cout<<" ------ end event --------- " << std::endl;
 
-   int size = TT_timings.size();
-   //std::sort(TT_timings.begin(), TT_timings.end() );
+   int size = m_TT_timings.size();
    if(size==0){
-     TT_median=-50;
-     TT_mean=-50;
-     TT_sigma=-1;
+     m_TT_median=-50;
+     m_TT_mean=-50;
+     m_TT_sigma=-1;
    }
    else{
-     // if(size%2==0){
-     //   TT_median = (TT_timings[size/2 -1]+TT_timings[size/2])/2;
-     // }
-     // else{
-     //   TT_median = TT_timings[ ((size-1)/2) ];
-     // }
+    
 
      float n = 0;
      float tot = 0, tot2 =0, adouble;
      for(int i=0; i<size; i++){
-       adouble=TT_timings[i];
+       adouble=m_TT_timings[i];
        tot += adouble; tot2 += adouble*adouble;
        ++n;
      }
      float n1 = 1./n;
-     TT_mean = tot*n1;
-     TT_sigma = sqrt(fabs(tot2*n1 -TT_mean*TT_mean));
+     m_TT_mean = tot*n1;
+     m_TT_sigma = sqrt(fabs(tot2*n1 -m_TT_mean*m_TT_mean));
    }
 
-   // size = TT_timings_noFCAL.size();
-   // std::sort(TT_timings_noFCAL.begin(), TT_timings_noFCAL.end() );
-   // if(size==0){
-   //   TT_median_noFCAL=-50;
-   //   TT_mean_noFCAL=-50;
-   //   TT_sigma_noFCAL=-1;
-   // }
-   // else{
-   //   if(size%2==0){
-   //     TT_median_noFCAL = (TT_timings_noFCAL[size/2 -1]+TT_timings_noFCAL[size/2])/2;
-   //   }
-   //   else{
-   //     TT_median_noFCAL = TT_timings_noFCAL[ ((size-1)/2) ];
-   //   }
+ 
 
-   //   float n = 0;
-   //   float tot = 0, tot2 =0, adouble;
-   //   for(int i=0; i<size; i++){
-   //     adouble=TT_timings_noFCAL[i];
-   //     tot += adouble; tot2 += adouble*adouble;
-   //     ++n;
-   //   }
-   //   float n1 = 1./n;
-   //   TT_mean_noFCAL = tot*n1;
-   //   TT_sigma_noFCAL = sqrt(fabs(tot2*n1 -TT_mean*TT_mean));
-   // }
+   size = m_mu_timings.size();
+   if(size==0){
+     m_mu_mean=-50;
+     m_mu_sigma=-1;
+   }
+   else{
+     float n = 0;
+     float tot = 0, tot2 =0, adouble;
+     for(int i=0; i<size; i++){
+       adouble=m_mu_timings[i];
+       tot += adouble; tot2 += adouble*adouble;
+       ++n;
+     }
+     float n1 = 1./n;
+     m_mu_mean = tot*n1;
+     m_mu_sigma = sqrt(fabs(tot2*n1 -m_mu_mean*m_mu_mean));
+   }
 
-   // size = TT_timings_RoI.size();
-   // std::sort(TT_timings_RoI.begin(), TT_timings_RoI.end() );
-   // if(size==0){
-   //   TT_median_RoI=-50;
-   //   TT_mean_RoI=-50;
-   //   TT_sigma_RoI=-1;
-   // }
-   // else{
-   //   if(size%2==0){
-   //     TT_median_RoI = (TT_timings_RoI[size/2 -1]+TT_timings_RoI[size/2])/2;
-   //   }
-   //   else{
-   //     TT_median_RoI = TT_timings_RoI[ ((size-1)/2) ];
-   //   }
-
-   //   float n = 0;
-   //   float tot = 0, tot2 =0, adouble;
-   //   for(int i=0; i<size; i++){
-   //     adouble=TT_timings_RoI[i];
-   //     tot += adouble; tot2 += adouble*adouble;
-   //     ++n;
-   //   }
-   //   float n1 = 1./n;
-   //   TT_mean_RoI = tot*n1;
-   //   TT_sigma_RoI = sqrt(fabs(tot2*n1 -TT_mean*TT_mean));
-   // }
-
-
+   size = m_combinedObjects_timings.size();
+   if(size==0){
+     m_combinedObjects_mean=-50;
+     m_combinedObjects_sigma=-1;
+   }
+   else{
+     float n = 0;
+     float tot = 0, tot2 =0, adouble;
+     for(int i=0; i<size; i++){
+       adouble=m_combinedObjects_timings[i];
+       tot += adouble; tot2 += adouble*adouble;
+       ++n;
+     }
+     
+     float n1 = n>0 ? 1./n : 0;
+     m_combinedObjects_mean = tot*n1;
+     m_combinedObjects_sigma = sqrt(fabs(tot2*n1 -m_combinedObjects_mean*m_combinedObjects_mean));
+   }
+     
    
-   TTAlg_accept=0;
-   if(TT_mean>22 && TT_nEM>1 && TT_sigma<4){
-     TTAlg_accept=1;
+   //   TTAlg_accept=0;
+   // if(TT_mean>22 && TT_nEM>1 && TT_sigma<4){
+   //  TTAlg_accept=1;
+     // std::vector<HLT::TriggerElement*> empty_seed;
+     // HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
+     // te->setActiveState(true);
+   //  }
+
+   // TTAlg_accept=0;
+   // if(m_combinedObjects_mean>22 && m_combinedObjects_sigma<4){
+   //   TTAlg_accept=1;
+   //   std::vector<HLT::TriggerElement*> empty_seed;
+   //   HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
+   //   te->setActiveState(true);
+   // }
+
+
+   m_ObjAlg_accept_symmetric = 0;
+   if(m_combinedObjects_mean>-45 && fabs(m_combinedObjects_mean)>22 && m_combinedObjects_sigma<4){
+     m_ObjAlg_accept_symmetric=1;
      std::vector<HLT::TriggerElement*> empty_seed;
      HLT::TriggerElement* te = config()->getNavigation()->addNode(empty_seed, output);
      te->setActiveState(true);
    }
+
+   // std::cout<<"---  Decision of timingalg: ---"<<std::endl;
+   // std::cout<<"Dec: "<<m_ObjAlg_accept_symmetric <<" TTAlg accept: " << TTAlg_accept<<" nEM:" <<TT_nEM << " obj timing mean: " <<m_combinedObjects_mean <<" sigma: "<<m_combinedObjects_sigma <<std::endl;
+
    afterExecMonitors().ignore();
 
    return HLT::OK;

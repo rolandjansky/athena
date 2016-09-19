@@ -21,10 +21,10 @@ HLT::ErrorCode AcceptWhenInputMissing::hltExecute(std::vector<std::vector<HLT::T
 
   if (count) {
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "Not creating output because " <<  count << " input TEs present" << endreq;    
+      msg() << MSG::DEBUG << "Not creating output because " <<  count << " input TEs present" << endmsg;    
   } else {
     if ( msgLvl() <= MSG::DEBUG )
-      msg() << MSG::DEBUG << "Creating output TE" << endreq;      
+      msg() << MSG::DEBUG << "Creating output TE" << endmsg;      
     HLT::TriggerElement* te = config()->getNavigation()->addNode(fake_seed, output);
     te->setActiveState(true);
   }

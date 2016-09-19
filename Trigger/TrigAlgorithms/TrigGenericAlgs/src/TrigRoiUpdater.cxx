@@ -4,6 +4,7 @@
 
 #include "TrigRoiUpdater.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/IIncidentSvc.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
 namespace PESA
@@ -14,10 +15,14 @@ namespace PESA
     : HLT::FexAlgo (name, pSvcLocator),
       m_etaHalfWidth(0.),
       m_phiHalfWidth(0.),
-      m_zHalfWidth(0.)
+      m_zHalfWidth(0.),
+      m_monitorDuplicateRoIs(true),
+      m_invocations(0),
+      m_duplicateRoIs(0)
   {
     declareProperty("EtaHalfWidth",           m_etaHalfWidth);
     declareProperty("PhiHalfWidth",           m_phiHalfWidth);
+    declareProperty("MonitorDuplicateRoIs",   m_monitorDuplicateRoIs);
 
     m_inpPhiMinus = m_inpPhiPlus = m_inpPhiSize = 0.;
     m_inpEtaMinus = m_inpEtaPlus = m_inpEtaSize = 0.;
@@ -56,8 +61,24 @@ namespace PESA
     }
 
 
+    IIncidentSvc* pIncsvc;
+    if ( serviceLocator()->service("IncidentSvc", pIncsvc).isSuccess() ) {
+      int priority = 100;
+      pIncsvc->addListener( this, "BeginEvent", priority);
+    } else {
+      msg(MSG::ERROR) << "No connection to incidentSvc used for cleanup" << endreq;
+      return StatusCode::FAILURE;
+    }
 
     return HLT::OK;
+  }
+
+
+  void TrigRoiUpdater::handle(const Incident& inc) {
+    if (inc.type() == "BeginEvent") {
+      //cleanup stored RoIs
+      m_rois.clear();
+    }  
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -89,6 +110,7 @@ namespace PESA
 	break;
       }
     }
+
 
     if (roi->composite()){
       ATH_MSG_DEBUG("Not touching a composite RoI");
@@ -148,6 +170,9 @@ namespace PESA
       outroi = new TrigRoiDescriptor(*roi);
     }
 
+    //optional RoI monitoring
+    bool thesameroi = false;
+
     ATH_MSG_DEBUG("Input RoI " << *roi);
 
     if ( HLT::OK !=  attachFeature(outputTE, outroi, roiName) ) {
@@ -158,6 +183,33 @@ namespace PESA
       ATH_MSG_DEBUG("REGTEST: attached RoI " << roiName << *outroi);
     }
 
+    //check whether we are attaching the same RoI again (this execution could be cache)
+    if (m_monitorDuplicateRoIs){
+      for (auto it = m_rois.begin(); it != m_rois.end(); it++) {
+	TrigRoiDescriptor r = (*it);
+	if (fabs(r.etaMinus()-outroi->etaMinus())<0.001 &&
+	    fabs(r.etaPlus()-outroi->etaPlus())<0.001 &&
+	    fabs(r.zedMinus()-outroi->zedMinus())<0.1 &&
+	    fabs(r.zedPlus()-outroi->zedPlus())<0.1 &&
+	    fabs(r.phiMinus()-outroi->phiMinus())<0.001 &&
+	    fabs(r.phiPlus()-outroi->phiPlus())<0.001){
+	  ATH_MSG_DEBUG("This RoI was already processed by the same instance of ID tracking");
+	  ATH_MSG_DEBUG(*outroi);
+	  ATH_MSG_DEBUG(r);
+	  thesameroi=true;
+	} 
+      }
+
+      if (!thesameroi){
+	m_rois.push_back(*outroi);
+	ATH_MSG_DEBUG("Registering RoI " << *outroi);
+      } else {
+	m_duplicateRoIs++;
+      }
+
+    }
+
+    m_invocations++;
     return HLT::OK;
   }
   ///////////////////////////////////////////////////////////////////
@@ -167,6 +219,7 @@ namespace PESA
   HLT::ErrorCode TrigRoiUpdater::hltFinalize() {
 
     ATH_MSG_DEBUG("finalize() success");
+    ATH_MSG_INFO("Invoked " << m_invocations << " with " << m_duplicateRoIs << " duplicate RoIs processed ");
     return HLT::OK;
   }
 

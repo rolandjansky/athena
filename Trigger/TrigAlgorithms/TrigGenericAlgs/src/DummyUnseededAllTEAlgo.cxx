@@ -31,7 +31,7 @@ HLT::ErrorCode DummyUnseededAllTEAlgo::hltInitialize(){
 
   if ( (serviceLocator()->service( m_regionSelectorName, m_regionSelector)).isFailure() ) {
     msg() << MSG::FATAL 
-	  << "Unable to retrieve RegionSelector Service  " << m_regionSelectorName << endreq;
+	  << "Unable to retrieve RegionSelector Service  " << m_regionSelectorName << endmsg;
     return HLT::BAD_JOB_SETUP;
   };
 
@@ -55,7 +55,7 @@ HLT::ErrorCode DummyUnseededAllTEAlgo::hltExecute(std::vector<std::vector<HLT::T
   if ( msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Executing DummyUnseededAllTEAlgo (" << name()
 	  << "). This is an unseeded algorithm that will produce exactly "
-	  << m_numberOfOutputTEs << " output TEs." << endreq;
+	  << m_numberOfOutputTEs << " output TEs." << endmsg;
   }
 
 

@@ -37,7 +37,7 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltInitialize(){
 
   if ( (serviceLocator()->service( m_regionSelectorName, m_regionSelector)).isFailure() ) {
     msg() << MSG::FATAL 
-	  << "Unable to retrieve RegionSelector Service  " << m_regionSelectorName << endreq;
+	  << "Unable to retrieve RegionSelector Service  " << m_regionSelectorName << endmsg;
     return HLT::BAD_JOB_SETUP;
   };
 
@@ -61,7 +61,7 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltExecute(std::vector<std::vector<HLT::
   if ( msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Executing SeededSuperRoiAllTEAlgo (" << name()
 	  << "). This is an seeded algorithm that will produce exactly "
-	  << m_numberOfOutputTEs << " output TEs." << endreq;
+	  << m_numberOfOutputTEs << " output TEs." << endmsg;
   }
 
 
@@ -92,10 +92,10 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltExecute(std::vector<std::vector<HLT::
       /// what does this do ?? is it really needed ?? I don;t think so if you 
       /// use the addRoi method later
       //  if ((getUniqueKey( m_superRoi, m_superRoIUniqueKey, m_superRoIOutputKey )) != HLT::OK) {
-      //	(*m_log) << MSG::DEBUG << "Unable to retrieve the superRoI unique key" << endreq;
+      //	(*m_log) << MSG::DEBUG << "Unable to retrieve the superRoI unique key" << endmsg;
       //  }
       //  if (evtStore()->record(m_superRoi, m_superRoIUniqueKey).isFailure()) {
-      //	(*m_log) << MSG::DEBUG << "Unable to record the superRoI with the key - " << m_superRoIUniqueKey << endreq;
+      //	(*m_log) << MSG::DEBUG << "Unable to record the superRoI with the key - " << m_superRoIUniqueKey << endmsg;
       //  }
       
       
@@ -106,7 +106,7 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltExecute(std::vector<std::vector<HLT::
 	const HLT::TriggerElement* inputTe = tev[iTe];
 	
 	if(!inputTe){
-	  msg() << MSG::ERROR << "Invalid TriggerElement pointer = "<< inputTe << endreq;
+	  msg() << MSG::ERROR << "Invalid TriggerElement pointer = "<< inputTe << endmsg;
 	  return HLT::ERROR;
 	} // end if(!inputTe)
 	
@@ -114,7 +114,7 @@ HLT::ErrorCode SeededSuperRoiAllTEAlgo::hltExecute(std::vector<std::vector<HLT::
 	const TrigRoiDescriptor* roiDescriptor = 0;
 	HLT::ErrorCode hltStatus = getFeature(inputTe, roiDescriptor);
 	if( hltStatus != HLT::OK ){
-	  msg()<<MSG::ERROR<<" Failed to find RoiDescriptor "<<endreq;
+	  msg()<<MSG::ERROR<<" Failed to find RoiDescriptor "<<endmsg;
 	  return hltStatus;
 	} 
 	
