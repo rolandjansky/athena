@@ -24,7 +24,7 @@ StatusCode FastPhysMonToolBase::initialize() {
   //Register Incident-handler
   ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",this->name());
   if (incSvc.retrieve().isFailure()) {
-    msg(MSG::ERROR) << "Can't retrieve IIncidentSvc" << endreq;
+    msg(MSG::ERROR) << "Can't retrieve IIncidentSvc" << endmsg;
     return StatusCode::FAILURE;
   }
  
@@ -41,7 +41,7 @@ void FastPhysMonToolBase::handle(const Incident&) {
   ATH_MSG_DEBUG("In incident handler...");
   const EventInfo* eventInfo;
   if (evtStore()->retrieve(eventInfo).isFailure()) {
-    msg(MSG::ERROR) << "Can't retrieve EventInfo object" << endreq;
+    msg(MSG::ERROR) << "Can't retrieve EventInfo object" << endmsg;
     return;
   }
 
@@ -71,7 +71,7 @@ StatusCode  FastPhysMonToolBase::regFPMTree(TTree* tree,const std::string& syste
   ATH_MSG_DEBUG("Registering FPM Tree with name " << tree->GetName() << " with system name " << systemName);
 
   if (ManagedMonitorToolBase::regTree(tree,systemName,all, ManagedMonitorToolBase::ATTRIB_UNMANAGED, chain, merge).isFailure()) {
-    msg(MSG::ERROR) << "Failed to register Tree with name " << tree->GetName() << " with system name " << systemName << endreq;
+    msg(MSG::ERROR) << "Failed to register Tree with name " << tree->GetName() << " with system name " << systemName << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -89,7 +89,7 @@ StatusCode  FastPhysMonToolBase::bookHistograms() {
   
   StatusCode sc=this->bookNtuple();
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "bookNtuple method failed!" << endreq;
+    msg(MSG::ERROR) << "bookNtuple method failed!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -100,6 +100,6 @@ StatusCode  FastPhysMonToolBase::bookHistograms() {
 
 
 StatusCode  FastPhysMonToolBase::bookNtuple() {
-  msg(MSG::ERROR) << "No bookNtuple() method implemented for this FastPhysMonTool!" << endreq;
+  msg(MSG::ERROR) << "No bookNtuple() method implemented for this FastPhysMonTool!" << endmsg;
   return StatusCode::FAILURE;
 }
