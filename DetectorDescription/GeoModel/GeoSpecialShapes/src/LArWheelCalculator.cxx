@@ -120,15 +120,15 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
   MsgStream msg(msgSvc, "LArWheelCalculator");
   msg << MSG::VERBOSE << "LArWheelCalculator constructor at " << this
       << " (type " << LArWheelCalculatorTypeString(m_type)
-      << "):" << endreq;
+      << "):" << endmsg;
 
 #ifdef LARWC_DTNF_NEW
-  msg << MSG::VERBOSE << "compiled with new DTNF" << endreq;
+  msg << MSG::VERBOSE << "compiled with new DTNF" << endmsg;
 #endif
 
   // Access source of detector parameters.
   msg << MSG::VERBOSE
-      << "initializing data members from DB..." << endreq;
+      << "initializing data members from DB..." << endmsg;
 
   IGeoModelSvc *geoModel;
   IRDBAccessSvc* rdbAccess;
@@ -204,11 +204,11 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
       << "m_zShift               : " << m_zShift / cm << " [cm]" << std::endl
       << "Phi rotation           : " << (m_phiRotation? "true": "false") << std::endl
       << "eta wheels limits      : " << m_eta_low << ", " << m_eta_mid << ", " << m_eta_hi
-      << endreq;
+      << endmsg;
   msg << MSG::VERBOSE << "hardcoded constants: " << std::endl
       << "m_WheelThickness       : " << m_WheelThickness / cm << " [cm]" << std::endl
       << "m_dWRPtoFrontFace      : " << m_dWRPtoFrontFace / cm << " [cm]"
-      << endreq;
+      << endmsg;
 
   // Constructor initializes the geometry.
 
@@ -305,16 +305,16 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
   // value read above
   // std::string sagging_opt_value = (*DB_EMECParams)[0]->getString("SAGGING");
 
-    msg << MSG::VERBOSE << "SAGGING value = " << sagging_opt_value << endreq;
+    msg << MSG::VERBOSE << "SAGGING value = " << sagging_opt_value << endmsg;
 
   // the same condition is in DistanceCalculatorFactory::Create
   m_SaggingOn = (sagging_opt_value != "" && sagging_opt_value != "off")? true: false;
 
   m_distanceCalcImpl = LArWheelCalculator_Impl::DistanceCalculatorFactory::Create(sagging_opt_value, this, rdbAccess, larVersionKey);
   if (m_SaggingOn) {
-    msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOn = "  << this << ',' << m_distanceCalcImpl << endreq;
+    msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOn = "  << this << ',' << m_distanceCalcImpl << endmsg;
   } else {
-    msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOff = " << this << ',' << m_distanceCalcImpl << endreq;
+    msg << MSG::VERBOSE << "Creating DistanceCalculatorSaggingOff = " << this << ',' << m_distanceCalcImpl << endmsg;
   }
 
   m_fanCalcImpl = LArWheelCalculator_Impl::FanCalculatorFactory::Create(m_SaggingOn, m_isModule, this, rdbAccess, larVersionKey);
@@ -334,7 +334,7 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
     EMECParams_recs.param(slant_params,  "OUTERSLANTPARAM");
   }
 
-  msg << (m_isInner?" InnerWheel ":" OuterWheel ") << slant_params << endreq;
+  msg << (m_isInner?" InnerWheel ":" OuterWheel ") << slant_params << endmsg;
 
            if(slant_params != "" && slant_params != "default"){
              double a, b, c, d, e;
@@ -343,7 +343,7 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
                    << "LArWheelCalculator: ERROR: wrong value(s) "
                    << "for EMEC slant angle parameters: "
                    << slant_params << ", "
-                   << "defaults are used" << endreq;
+                   << "defaults are used" << endmsg;
              } else {
                m_slant_parametrization[0] = a;
                m_slant_parametrization[1] = b;
@@ -356,7 +356,7 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
 
   fill_sincos_parameterization(); // initialize sin&cos parameterization
 
-  msg << MSG::VERBOSE << "All params initialized. Print some internal variables" << endreq;
+  msg << MSG::VERBOSE << "All params initialized. Print some internal variables" << endmsg;
 
   msg << MSG::VERBOSE << "Data members:" << std::endl
       << "m_AtlasZside              = " << m_AtlasZside << std::endl
@@ -372,14 +372,14 @@ LArWheelCalculator::LArWheelCalculator(LArWheelCalculator_t a_wheelType, int zsi
       << "SaggingOn                 = " << (m_SaggingOn? "true": "false") << std::endl
       << "Slant parameters          : ";
   for(int i = 0; i < 5; i ++) msg << " " << m_slant_parametrization[i];
-  msg << endreq;
+  msg << endmsg;
 
   if(m_isModule){
     msg << MSG::VERBOSE
         << "module_init: FirstFan = " << m_FirstFan
         << ", LastFan = " << m_LastFan
         << ", ZeroFanPhi = " << m_ZeroFanPhi
-        << endreq;
+        << endmsg;
   }
 
   //m_fan_number = -1000;
