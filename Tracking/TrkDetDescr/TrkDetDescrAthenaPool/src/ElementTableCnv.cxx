@@ -33,7 +33,7 @@ StatusCode ElementTableCnv::initialize()
 {
   if (ElementTableCnvBase::initialize().isFailure() )
   {
-    m_log << MSG::FATAL << "Could not initialize ElementTableCnvBase" << endreq;
+    m_log << MSG::FATAL << "Could not initialize ElementTableCnvBase" << endmsg;
     return StatusCode::FAILURE;
   }
   
