@@ -11,8 +11,7 @@
 //    flags & 1? xml
 //    flags & 2? compressed xml
 //
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/dom/DOMLSParser.hpp>
+#include "GeoModelXml/createdomdocument.h"
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMImplementationLS.hpp>

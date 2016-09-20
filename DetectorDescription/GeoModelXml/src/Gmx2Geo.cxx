@@ -22,11 +22,10 @@
 #include "GeoModelXml/ElementProcessor.h"
 #include "GeoModelXml/GmxUtil.h"
 #include "GeoModelXml/GmxInterface.h"
+#include "GeoModelXml/createdomdocument.h"
 
 using namespace std;
 using namespace xercesc;
-
-DOMDocument *createDOMDocument(const string filename, DOMLSParser *parser, unsigned int flags = 0);
 
 Gmx2Geo::Gmx2Geo(const string xmlFile, GeoPhysVol *addHere, GmxInterface &gmxInterface, unsigned int flags) {
 //
