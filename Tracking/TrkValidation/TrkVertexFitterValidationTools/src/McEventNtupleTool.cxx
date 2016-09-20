@@ -71,7 +71,7 @@ StatusCode Trk::McEventNtupleTool::initialize() {
     status=service("THistSvc",hist_svc);
     if(status.isFailure())
     {
-	    msg(MSG::ERROR) << "Could not find HistService" << endreq;
+	    msg(MSG::ERROR) << "Could not find HistService" << endmsg;
 	    return status;
     }
 
@@ -80,7 +80,7 @@ StatusCode Trk::McEventNtupleTool::initialize() {
     std::string fullMcNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleMcTreeName;
     status = hist_svc->regTree(fullMcNtupleName, vtx_tree);
     if (status.isFailure()) {
-	   msg(MSG::ERROR) << "Unable to register TTree : " << fullMcNtupleName << endreq;
+	   msg(MSG::ERROR) << "Unable to register TTree : " << fullMcNtupleName << endmsg;
 	   return status;
     }
 
@@ -105,7 +105,7 @@ StatusCode Trk::McEventNtupleTool::initialize() {
 ///////////////////////////////////////
 StatusCode Trk::McEventNtupleTool::finalize() {
 
-    msg(MSG::DEBUG) << "start finalize() in " << name() << endreq;
+    msg(MSG::DEBUG) << "start finalize() in " << name() << endmsg;
     return StatusCode::SUCCESS;
 }
 

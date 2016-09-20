@@ -74,7 +74,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
     status=service("THistSvc",hist_svc);
     if(status.isFailure())
     {
-	    msg (MSG::ERROR) <<  "Could not find HistService" << endreq;
+	    msg (MSG::ERROR) <<  "Could not find HistService" << endmsg;
 	    return status;
     }
 
@@ -83,7 +83,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
     std::string fullNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTreeName;
     status = hist_svc->regTree(fullNtupleName, tree);
     if (status.isFailure()) {
-	     msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endreq;
+	     msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
 	     return status;
     }
     //registering the vtx tree --> VxCandidate info
@@ -91,7 +91,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
     std::string fullVtxNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleVtxTreeName;
     status = hist_svc->regTree(fullVtxNtupleName, vtx_tree);
     if (status.isFailure()) {
-	    msg(MSG::ERROR) << "Unable to register TTree : " << fullVtxNtupleName << endreq;
+	    msg(MSG::ERROR) << "Unable to register TTree : " << fullVtxNtupleName << endmsg;
 	    return status;
     }
     //registering the true trackAtVertex tree
@@ -99,7 +99,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
     std::string fullTrkAtVxNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTrkAtVxTreeName;
     status = hist_svc->regTree(fullTrkAtVxNtupleName, trk_at_vxtree);
     if (status.isFailure()) {
-	    msg(MSG::ERROR) << "Unable to register TTree : " << fullTrkAtVxNtupleName << endreq;
+	    msg(MSG::ERROR) << "Unable to register TTree : " << fullTrkAtVxNtupleName << endmsg;
 	    return status;
     }
     //event info tree
@@ -200,7 +200,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::initialize() {
 ///////////////////////////////////////
 StatusCode Trk::BasicVtxValidationNtupleTool::finalize() {
 
-    msg(MSG::DEBUG) << "start finalize() in " << name() << endreq;
+    msg(MSG::DEBUG) << "start finalize() in " << name() << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -210,7 +210,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::finalize() {
 
 StatusCode Trk::BasicVtxValidationNtupleTool::fillVxCandidateData (const Trk::VxCandidate& vxCandidate) const {
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "in fillVxCandidateData(vxCandidate)"  << endreq;
+    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "in fillVxCandidateData(vxCandidate)"  << endmsg;
     //vertex position & errors
     m_x = vxCandidate.recVertex().position()[0];
     m_y = vxCandidate.recVertex().position()[1];
@@ -314,7 +314,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillVxCandidateData (const Trk::Vx
 
 StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Trk::VxCandidate& vxCandidate, const TrackCollection& trk_coll, const TrackTruthCollection& trk_true_coll) const {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillTrueTrackAtVertexInfo(VxCandidate)"  << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillTrueTrackAtVertexInfo(VxCandidate)"  << endmsg;
 
     StatusCode status;
 
@@ -338,7 +338,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
         const ElementLink<TrackCollection> tracklink2=tracklink;
         TrackTruthCollection::const_iterator found = trk_true_coll.find(tracklink2);
         if (found == trk_true_coll.end()) {
-          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " truth is missing" << endreq;
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " truth is missing" << endmsg;
         }
         else { 
             TrackTruth trk_truth=found->second;
@@ -360,7 +360,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillTrueTrackAtVertexInfo(const Tr
       }// loop over all tracks
       m_vxnum_trks = numTracksPerVertex;
     } else { 
-       if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "VxCandidate without tracks!!" << endreq; 
+       if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "VxCandidate without tracks!!" << endmsg; 
        return 0; 
     }
     
@@ -382,7 +382,7 @@ StatusCode Trk::BasicVtxValidationNtupleTool::fillEventInfo(int& numRecVtx) cons
     // reset Vtx counter if new event
    const xAOD::EventInfo* eventInfo;
    if ((evtStore()->retrieve(eventInfo)).isFailure()) { 
-     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve event info" << endreq; }
+     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Could not retrieve event info" << endmsg; }
 
    if (m_lastEventNumber!=eventInfo->eventNumber())  m_lastEventNumber = eventInfo->eventNumber();
    m_eventNumber = eventInfo->eventNumber();

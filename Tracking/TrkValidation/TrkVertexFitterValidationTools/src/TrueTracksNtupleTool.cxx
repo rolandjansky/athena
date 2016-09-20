@@ -62,7 +62,7 @@ StatusCode Trk::TrueTracksNtupleTool::initialize() {
     status=service("THistSvc",hist_svc);
     if(status.isFailure())
     {
-	     msg(MSG::ERROR) << "Could not find HistService" << endreq;
+	     msg(MSG::ERROR) << "Could not find HistService" << endmsg;
 	     return status;
     }
 
@@ -71,7 +71,7 @@ StatusCode Trk::TrueTracksNtupleTool::initialize() {
     std::string fullNtupleName = m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleTreeName;
     status = hist_svc->regTree(fullNtupleName, tree);
     if (status.isFailure()) {
-	      msg (MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endreq;
+	      msg (MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
 	      return status;
     }
 
@@ -100,7 +100,7 @@ StatusCode Trk::TrueTracksNtupleTool::initialize() {
 ///////////////////////////////////////
 StatusCode Trk::TrueTracksNtupleTool::finalize() {
 
-    msg(MSG::DEBUG) << "start finalize() in " << name() << endreq;
+    msg(MSG::DEBUG) << "start finalize() in " << name() << endmsg;
     return StatusCode::SUCCESS;
 }
 
@@ -110,7 +110,7 @@ StatusCode Trk::TrueTracksNtupleTool::finalize() {
 
 StatusCode Trk::TrueTracksNtupleTool::fillTrueTracksInfo(const TrackCollection& trk_coll, const TrackTruthCollection& trk_true_coll) const {
 
-    if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "in fillTrueTracksInfo(vxTrackAtVertex)"  << endreq;
+    if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "in fillTrueTracksInfo(vxTrackAtVertex)"  << endmsg;
 
     StatusCode status;
    //fill track info
@@ -125,7 +125,7 @@ StatusCode Trk::TrueTracksNtupleTool::fillTrueTracksInfo(const TrackCollection& 
          const ElementLink<TrackCollection> tracklink2=tracklink;
          TrackTruthCollection::const_iterator found = trk_true_coll.find(tracklink2);
          if (found == trk_true_coll.end()) {
-            if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << " truth is missing" << endreq;
+            if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << " truth is missing" << endmsg;
          } else {  
              TrackTruth trk_truth=found->second;
              const HepMC::GenParticle * particle;
@@ -143,7 +143,7 @@ StatusCode Trk::TrueTracksNtupleTool::fillTrueTracksInfo(const TrackCollection& 
 
        }//end loop over tracks
    } else {
-     if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "No tracks in the Track Collection!!" << endreq;
+     if (msgLvl(MSG::DEBUG)) msg (MSG::DEBUG) << "No tracks in the Track Collection!!" << endmsg;
    }
    
    tree->Fill();
