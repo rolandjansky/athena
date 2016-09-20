@@ -73,31 +73,31 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
 {
    if (m_usePixel) {
       if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
-         msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+         msg(MSG::ERROR) << "Could not get PixelID helper !" << endmsg;
          return StatusCode::FAILURE;
       }
    }
 
    if (m_useSCT) {
       if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
-         msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endreq;
+         msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endmsg;
          return StatusCode::FAILURE;
       }
    }
 
    if (m_useTRT) {
       if (detStore()->retrieve(m_trtId, "TRT_ID").isFailure()) {
-         msg(MSG::ERROR) << "Could not get TRT_ID helper !" << endreq;
+         msg(MSG::ERROR) << "Could not get TRT_ID helper !" << endmsg;
          return StatusCode::FAILURE;
       }
    }
 
    if (m_doSharedHits) {
       if ( m_assoTool.retrieve().isFailure() ) {
-         msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endreq;
+         msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endmsg;
          return StatusCode::FAILURE;
       } else {
-         msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
+         msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
       }
    }
 
@@ -106,14 +106,14 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
       ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
       return StatusCode::FAILURE;
    } else {
-      if ( !m_pixeldedxtool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_pixeldedxtool << endreq;
+      if ( !m_pixeldedxtool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_pixeldedxtool << endmsg;
    }
 
    if ( m_holeSearchTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_holeSearchTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_holeSearchTool << endmsg;
       return StatusCode::FAILURE;
    } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_holeSearchTool << endmsg;
    }
 
    if ( !m_testBLayerTool.empty() && m_testBLayerTool.retrieve().isFailure() ) {
@@ -121,7 +121,7 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
       ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
       return StatusCode::FAILURE;
    } else {
-      if ( !m_testBLayerTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_pixeldedxtool << endreq;
+      if ( !m_testBLayerTool.empty()) msg(MSG::INFO) << "Retrieved tool " << m_pixeldedxtool << endmsg;
    }
 
 
@@ -130,12 +130,12 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
       ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
       return StatusCode::FAILURE;
    } else {
-      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
+      if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endmsg;
    }
 
 
 
-   msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+   msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
 
    return StatusCode::SUCCESS;
 }
@@ -189,7 +189,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
 	   // check to see if there's an ambiguity with the ganged cluster.
 	   const PixelClusterOnTrack* pix = dynamic_cast<const PixelClusterOnTrack*>(rot);
 	   if ( !pix ) {
-	     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast pixel RoT to PixelClusterOnTrack!"<<endreq;
+	     if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast pixel RoT to PixelClusterOnTrack!"<<endmsg;
 	   } else {
 	     const InDet::PixelCluster* pixPrd = pix->prepRawData();
 	     if ( pixPrd && pixPrd->isSplit() ){ information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
@@ -222,18 +222,18 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
            if( !(m_runningTIDE_Ambi && hitIsSplit) ){
              // used in more than one track ?
              if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
-               if (msgLvl(MSG::DEBUG)) msg() << "shared Pixel hit found" << endreq;
+               if (msgLvl(MSG::DEBUG)) msg() << "shared Pixel hit found" << endmsg;
                information[Trk::numberOfPixelSharedHits]++;
                if ( (m_pixelId->is_blayer(id) ) ) {
-                 if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in b-layer" << endreq;
+                 if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in b-layer" << endmsg;
                  information[Trk::numberOfBLayerSharedHits]++;        
                }
 	       if ( (m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0) ) {
-                 if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in innermost layer" << endreq;
+                 if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in innermost layer" << endmsg;
                  information[Trk::numberOfInnermostPixelLayerSharedHits]++;        
                } 
 	       if ( (m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1) ) {
-                 if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in next to innermost layer" << endreq;
+                 if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in next to innermost layer" << endmsg;
                  information[Trk::numberOfNextToInnermostPixelLayerSharedHits]++;        
                }
              }
@@ -252,7 +252,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
          information[Trk::numberOfSCTHits]++;
          const InDet::SCT_ClusterOnTrack *sctclus=dynamic_cast<const InDet::SCT_ClusterOnTrack *>(rot);
          if ( !sctclus ) {
-            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast SCT RoT to SCT_ClusterOnTrack!"<<endreq;
+            if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast SCT RoT to SCT_ClusterOnTrack!"<<endmsg;
          } else {
             if (sctclus->isBroadCluster()) information[Trk::numberOfSCTSpoiltHits]++;
          }
@@ -268,7 +268,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
          if (m_doSharedHits) {
             // used in more than one track ?
             if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
-               if (msgLvl(MSG::DEBUG)) msg() << "shared SCT hit found" << endreq;
+               if (msgLvl(MSG::DEBUG)) msg() << "shared SCT hit found" << endmsg;
                information[Trk::numberOfSCTSharedHits]++;
             }
          }
@@ -302,7 +302,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
        const InDet::TRT_DriftCircleOnTrack* trtDriftCircle 
          = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
        if ( !trtDriftCircle ) {
-         if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endreq;
+         if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endmsg;
        } else {
          if ( trtDriftCircle->highLevel()==true && !isArgonStraw && !isKryptonStraw ) information[Trk::numberOfTRTHighThresholdOutliers]++;
        }
@@ -316,7 +316,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
        const InDet::TRT_DriftCircleOnTrack* trtDriftCircle 
          = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
        if ( !trtDriftCircle ) {
-         if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endreq;
+         if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast TRT RoT to TRT_DriftCircleOnTrack!"<<endmsg;
        } else {
          if ( trtDriftCircle->highLevel()==true ) {
            if ( !isArgonStraw && !isKryptonStraw ) information[Trk::numberOfTRTHighThresholdHits]++;
@@ -330,7 +330,7 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
    if (m_doSharedHitsTRT) {
             // used in more than one track ?
      if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
-       if (msgLvl(MSG::DEBUG)) msg() << "shared TRT hit found" << endreq;
+       if (msgLvl(MSG::DEBUG)) msg() << "shared TRT hit found" << endmsg;
        information[Trk::numberOfTRTSharedHits]++;
      }
    }
@@ -356,8 +356,8 @@ void InDet::InDetTrackSummaryHelperTool::searchForHoles(const Trk::Track& track,
    // ME: this is a temporary change for getting the blayer info into the summary 
    //if (msgLvl(MSG::WARNING))
    //{
-   //  msg(MSG::WARNING) << "You are accessing the hole search through the InDetTrackSummaryHelperTool." << endreq;
-   //  msg(MSG::WARNING) << "This will soon be disabled. Please access the HoleSearchTool directly!" << endreq;
+   //  msg(MSG::WARNING) << "You are accessing the hole search through the InDetTrackSummaryHelperTool." << endmsg;
+   //  msg(MSG::WARNING) << "This will soon be disabled. Please access the HoleSearchTool directly!" << endmsg;
    // }
  
    ATH_MSG_DEBUG("Do hole search within HELPER, PLEASE FIX THIS AFTER 16.0.X");
@@ -446,7 +446,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
 
     const DataVector<const Trk::MeasurementBase>* measurements = track.measurementsOnTrack();               
     if (measurements){
-        for (auto& ms : *measurements){
+        for (const auto& ms : *measurements){
             const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(ms);
             // check if it's a rot
             if (rot){
@@ -491,7 +491,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
                 } else if ( m_doSharedHits && m_useSCT && m_sctId->is_sct(id) ){
                     // used in more than one track ?
                     if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
-                       if (msgLvl(MSG::DEBUG)) msg() << "shared SCT hit found" << endreq;
+                       if (msgLvl(MSG::DEBUG)) msg() << "shared SCT hit found" << endmsg;
                        summary.m_information[Trk::numberOfSCTSharedHits]++;
                     }
                 }
@@ -499,7 +499,7 @@ void InDet::InDetTrackSummaryHelperTool::updateSharedHitCount(const Trk::Track &
 		if (m_doSharedHitsTRT && m_useTRT && m_trtId->is_trt(id)) {
 		  // used in more than one track ?
 		  if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
-		    if (msgLvl(MSG::DEBUG)) msg() << "shared TRT hit found" << endreq;
+		    if (msgLvl(MSG::DEBUG)) msg() << "shared TRT hit found" << endmsg;
 		    summary.m_information[Trk::numberOfTRTSharedHits]++;
 		  }
 		}
