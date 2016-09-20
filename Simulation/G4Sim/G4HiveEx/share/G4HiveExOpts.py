@@ -34,7 +34,6 @@ svcMgr.MessageSvc.Format = msgFmt
 # svcMgr.ForwardSchedulerSvc.MaxEventsInFlight = numStores
 # svcMgr.ForwardSchedulerSvc.MaxAlgosInFlight = numAlgsInFlight
 
-
 # Thread pool service and initialization
 from GaudiHive.GaudiHiveConf import ThreadPoolSvc
 svcMgr += ThreadPoolSvc("ThreadPoolSvc")
@@ -63,10 +62,12 @@ svcMgr += AlgResourcePool( OutputLevel = INFO );
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
 athenaCommonFlags.PoolEvgenInput = [
     '/afs/cern.ch/user/z/zmarshal/public/ForSteve/mc15_13TeV.424000.ParticleGun_single_mu_Pt100.evgen.EVNT.e3580/EVNT.04922446._000001.pool.root.1',
+    #'/afs/cern.ch/atlas/offline/ProdData/16.6.X/16.6.7.Y/ttbar_muplusjets-pythia6-7000.evgen.pool.root',
 ]
 
-#theApp.EvtMax = -1
-evtMax = 1000
+# Dirty way to set number of events via command line
+if 'evtMax' in dir(): pass
+else: evtMax = -1
 
 # check to see if we're running hybrid mp/mt
 nProc = jp.ConcurrencyFlags.NumProcs()
@@ -136,9 +137,6 @@ simFlags.MagneticField.set_On()
 #from G4AtlasApps import callbacks
 #simFlags.InitFunctions.add_function("postInit", callbacks.use_simplerunge_stepper)
 #simFlags.InitFunctions.add_function("preInitG4", callbacks.use_verbose_tracking)
-
-# Activate new user actions for multithreading
-simFlags.UseV2UserActions = True
 
 # Debug output
 #CfgGetter.getPublicTool('G4UA::AthenaTrackingActionTool').OutputLevel = DEBUG
