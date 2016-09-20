@@ -32,7 +32,7 @@ namespace Trk {
     }//end of initialize method
 
     StatusCode TrkPriVxPurityTool::finalize() {
-        msg(MSG::INFO)  << "Finalize successful" << endreq;
+        msg(MSG::INFO)  << "Finalize successful" << endmsg;
         return StatusCode::SUCCESS;
     }
 
@@ -71,8 +71,8 @@ namespace Trk {
                 StatusCode sc = evtStore()->retrieve ( mcCollection, m_mc_collection_name );
                 if ( sc.isFailure() ) {
                     if (msgLvl(MSG::DEBUG))                                      {
-                        msg() << "Unable to retrieve MC collection: " << m_mc_collection_name << endreq;
-                        msg() << "Zero pointer returned." << endreq;
+                        msg() << "Unable to retrieve MC collection: " << m_mc_collection_name << endmsg;
+                        msg() << "Zero pointer returned." << endmsg;
                     }
                     return 0;
                 }
@@ -132,8 +132,8 @@ namespace Trk {
 
                 if ( sc.isFailure() ) {
                     if (msgLvl(MSG::DEBUG)) {
-                        msg() << "Cannot retrieve " << m_trackParticleTruthCollName << endreq;
-                        msg() << "Zero pointer returned" << endreq;
+                        msg() << "Cannot retrieve " << m_trackParticleTruthCollName << endmsg;
+                        msg() << "Zero pointer returned" << endmsg;
                     }
                     return 0;
                 }
@@ -242,8 +242,8 @@ namespace Trk {
 // this track has no production vertex. Whatever it is, it does not
 // come from the primary interaction, consider as pileup
                                                 if (msgLvl(MSG::INFO)) {
-                                                    msg() <<"A truth particle with no production vertex found."<<endreq;
-                                                    msg() <<"Since it does not come from PV, consider as PileUp"<<endreq;
+                                                    msg() <<"A truth particle with no production vertex found."<<endmsg;
+                                                    msg() <<"Since it does not come from PV, consider as PileUp"<<endmsg;
                                                 }
                                                 pu_weights.push_back ( ( *vt )->weight() );
                                             } //end of particle link without production vertex check.
@@ -260,11 +260,11 @@ namespace Trk {
                                     }//end of genParticle check 
                                 }//end of search for correspondance in the trurth   collection
                             }else{
-                                if (msgLvl(MSG::DEBUG)) msg() <<"This track at vertex has no valid link to its original trackparticle "<<endreq;
+                                if (msgLvl(MSG::DEBUG)) msg() <<"This track at vertex has no valid link to its original trackparticle "<<endmsg;
                                 ++ n_failed;
                             }//end of search for the truth link
                         }else{
-                            if (msgLvl(MSG::DEBUG)) msg() <<"There is an empty pointer in the vector<VxTrackAtVertex *> for this vertex"<<endreq;
+                            if (msgLvl(MSG::DEBUG)) msg() <<"There is an empty pointer in the vector<VxTrackAtVertex *> for this vertex"<<endmsg;
                             ++n_failed;
                         }
                     }//end of valid link check
@@ -283,8 +283,8 @@ namespace Trk {
             } // end of if tracks != 0
         }else{
             if (msgLvl(MSG::ERROR)) {
-                msg()<<"Empty vertex pointer received"<<endreq;
-                msg()<<"Empty pointer returned."<<endreq;
+                msg()<<"Empty vertex pointer received"<<endmsg;
+                msg()<<"Empty pointer returned."<<endmsg;
             }
             return 0;
         }//end of empty vertex check
