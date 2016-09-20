@@ -1124,7 +1124,7 @@ MaterialAllocator::addSpectrometerDelimiters (std::list<FitMeasurement*>&	measur
 // 	if (preBreak) msg() << " preBreak ";
 // 	if (postBreak) msg() << " postBreak ";
 // 	if ((**m).isDrift()) msg() << " isDrift ";
-// 	msg() << endreq;
+// 	msg() << endmsg;
 // 	///////
 	
 	if (postBreak && previous)
@@ -1511,6 +1511,8 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 
     // secondly: insert remaining material between measurement layers
     m = measurements.begin();
+    int im = 0;
+    ATH_MSG_VERBOSE(" measurements.size() " << measurements.size() << " surfaces.size() " <<  surfaces.size() <<  " indetMaterial->size() " << indetMaterial->size());
     std::vector<const Surface*>::const_iterator r = surfaces.begin();
     for (s = indetMaterial->begin(); s != indetMaterialEnd; ++s)
     {
@@ -1523,19 +1525,39 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	    ++r;
 	    continue;
 	}
-		
+
 	double distance = startDirection.dot((**s).trackParameters()->position() - startPosition);
+
+	ATH_MSG_VERBOSE("	startPosition " << startPosition.perp() << " z " << startPosition.z());
+	ATH_MSG_VERBOSE("	(**m).intersection(FittedTrajectory).position() measurement position r " << (**m).intersection(FittedTrajectory).position().perp() << " z " << (**m).intersection(FittedTrajectory).position().z() );
+	ATH_MSG_VERBOSE("	(**s).trackParameters()->position() material surface position r " << (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z());
+	ATH_MSG_VERBOSE(" distance material surface " <<  distance);
+ 
+        bool endIndet = false; 	
 	while (distance > startDirection.dot((**m).intersection(FittedTrajectory).position() - startPosition))
 	{
 	    if (*m == endIndetMeasurement)
 	    {
-		if (*m != measurements.back()) ++m;
+		if (*m != measurements.back()) {
+                  ++m;
+                  ++im;
+                  ATH_MSG_VERBOSE(" measurements.back() im " << im);
+                }
+                ATH_MSG_VERBOSE(" break im " << im);
+                endIndet = true;
 		break;
 	    }
-	    ++m;
+	    if (*m != measurements.back()) {
+	      ++m;
+              ++im;
+              ATH_MSG_VERBOSE(" loop im " << im << "	(**m).intersection(FittedTrajectory).position() measurement position r " << (**m).intersection(FittedTrajectory).position().perp() << " z " << (**m).intersection(FittedTrajectory).position().z() );
+            } else {
+              break;
+            } 
 	}
-	
-	
+	ATH_MSG_VERBOSE(" im " << im << " distance measurement " <<  startDirection.dot((**m).intersection(FittedTrajectory).position() - startPosition) );
+	ATH_MSG_VERBOSE(" (**m).intersection(FittedTrajectory).position() measurement position r " << (**m).intersection(FittedTrajectory).position().perp() << " z " << (**m).intersection(FittedTrajectory).position().z() ); 	
+
 	m = measurements.insert(m,new FitMeasurement((**s).materialEffectsOnTrack(),
 						     ParticleMasses().mass[particleHypothesis],
 						     (**s).trackParameters()->position()));
@@ -1545,7 +1567,20 @@ MaterialAllocator::indetMaterial (std::list<FitMeasurement*>&	measurements,
 	    0.);
 	(**m).intersection(FittedTrajectory,intersection);
 	(**m).qOverP((**s).trackParameters()->parameters()[Trk::qOverP]);
+        ATH_MSG_VERBOSE(" successfull insertion ");
+        if(endIndet) --m; 
     }
+
+    m = measurements.begin();
+    im = 0;
+    for (; m != measurements.end(); ++m)
+      {
+	if (! leadingDelimiter && (**m).isOutlier())		continue;
+	
+	Amg::Vector3D position		= (**m).intersection(FittedTrajectory).position();
+        ++im;
+        ATH_MSG_VERBOSE(" im " << im << " position R " << position.perp() << " z " << position.z());  
+      }
 
     // memory management
     deleteMaterial(indetMaterial);
@@ -1660,7 +1695,7 @@ MaterialAllocator::materialAggregation (const std::vector<const TrackStateOnSurf
 // 		if (distance2 > distance || distance1 < 0.)
 // 		{
 // 		    // 		    msg() << "  distance out of bounds: range " << distance
-// 		    // 			   << " to " << 0. << endreq;
+// 		    // 			   << " to " << 0. << endmsg;
 // 		}
 // 		else
 // 		{
@@ -1918,7 +1953,7 @@ MaterialAllocator::materialAggregation (std::list<FitMeasurement*>&	measurements
 		if (distance2 > distance || distance1 < 0.)
 		{
 // 		    msg() << "  distance out of bounds: range " << distance
-// 			  << " to " << 0. << endreq;
+// 			  << " to " << 0. << endmsg;
 		}
 		else
 		{
@@ -1979,7 +2014,7 @@ MaterialAllocator::materialAggregation (std::list<FitMeasurement*>&	measurements
 // 					  << fractionBefore
 // 					  << "   fraction after "
 // 					  << std::setw(6) << std::setprecision(2)
-// 					  << fractionAfter << endreq );
+// 					  << fractionAfter << endmsg );
 			    position			=
 				fractionBefore*before->intersection(FittedTrajectory).position() +
 				fractionAfter*after->intersection(FittedTrajectory).position();
@@ -2138,7 +2173,7 @@ MaterialAllocator::materialAggregation (std::list<FitMeasurement*>&	measurements
 		      << std::setw(9)  << std::setprecision(4) << (**m).position().phi()
 		      << std::setw(10) << std::setprecision(1) << (**m).position().z();
 	    }
-	    msg() << endreq;
+	    msg() << endmsg;
 	}
     }
 
@@ -2274,14 +2309,14 @@ MaterialAllocator::printMeasurements(std::list<FitMeasurement*>&	measurements) c
 		  << (**m).intersection(FittedTrajectory).direction().phi()
 		  << std::setw(9)  << std::setprecision(4)
 		  << (**m).intersection(FittedTrajectory).direction().theta()
-		  << endreq;
+		  << endmsg;
 	}
 	else
 	{
 	    msg() << std::setprecision(1) << (**m).position().perp()
 		  << std::setw(9)  << std::setprecision(4) << (**m).position().phi()
 		  << std::setw(10) << std::setprecision(1) << (**m).position().z()
-		  << std::setw(5)  << (**m).numberDoF() << endreq;
+		  << std::setw(5)  << (**m).numberDoF() << endmsg;
 	}
     }
 

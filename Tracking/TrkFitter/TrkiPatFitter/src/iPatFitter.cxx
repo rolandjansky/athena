@@ -55,11 +55,12 @@ iPatFitter::iPatFitter (const std::string&	type,
     :	AthAlgTool			(type, name, parent),
 	m_fitProcedure			(0),
 	m_globalFit			(false),
+	m_iterations			(0),
 	m_measurements			(0),
 	m_parameters			(0),
 	m_aggregateMaterial		(true),
 	m_asymmetricCaloEnergy		(true),
-	m_extendedDebug			(false),
+	m_fastMatrixTreatment		(false),
 	m_fullCombinedFit		(true),
 	m_lineFit			(false),
 	m_lineMomentum			(100.*Gaudi::Units::GeV),
@@ -70,17 +71,24 @@ iPatFitter::iPatFitter (const std::string&	type,
 	m_trackingVolumesSvc		("TrackingVolumesSvc/TrackingVolumesSvc",name),
  	m_orderingTolerance		(1.*Gaudi::Units::mm),
 	m_maxWarnings			(10),
+	m_constrainedAlignmentEffects	(false),
+	m_extendedDebug			(false),
+	m_forcedRefitsForValidation	(0),
 	m_calorimeterVolume		(0),
 	m_indetVolume			(0),
 	m_countFitAttempts		(0),
 	m_countGoodFits			(0),
 	m_countIterations		(0),
+	m_countRefitAttempts		(0),
+	m_countGoodRefits		(0),
+	m_countRefitIterations		(0),
 	m_messageHelper			(0)
 {
     m_messageHelper	= new MessageHelper(*this);
     declareInterface<ITrackFitter>(this);
     declareProperty("AggregateMaterial",	       	m_aggregateMaterial);
     declareProperty("AsymmetricCaloEnergy",	       	m_asymmetricCaloEnergy);
+    declareProperty("FastMatrixTreatment",		m_fastMatrixTreatment);
     declareProperty("FullCombinedFit",			m_fullCombinedFit);
     declareProperty("LineFit",				m_lineFit);
     declareProperty("LineMomentum",			m_lineMomentum);
@@ -88,10 +96,15 @@ iPatFitter::iPatFitter (const std::string&	type,
     declareProperty("RungeKuttaIntersector",		m_rungeKuttaIntersector);
     declareProperty("SolenoidalIntersector",		m_solenoidalIntersector);
     declareProperty("StraightLineIntersector",		m_straightLineIntersector);
-    declareProperty("OrderingTolerance",       		m_orderingTolerance);
+    declareProperty("TrackingVolumesSvc",		m_trackingVolumesSvc);
+    declareProperty("OrderingTolerance",		m_orderingTolerance);
     declareProperty("MaxNumberOfWarnings",		m_maxWarnings,
 		    "Maximum number of permitted WARNING messages per message type.");
-    declareProperty("TrackingVolumesSvc",		m_trackingVolumesSvc);
+
+    // validation options
+    declareProperty("ConstrainedAlignmentEffects",	m_constrainedAlignmentEffects);
+    declareProperty("ExtendedDebug",			m_extendedDebug);
+    declareProperty("ForcedRefitsForValidation",	m_forcedRefitsForValidation);
 }
 
 iPatFitter::~iPatFitter (void)
@@ -103,15 +116,21 @@ StatusCode
 iPatFitter::initialize()
 {
     // print name and package version
+    if (! msgLvl(MSG::DEBUG)) m_extendedDebug = false;
     ATH_MSG_INFO( "iPatFitter::initialize() - package version " << PACKAGE_VERSION );
     msg(MSG::INFO) << " with options: ";
-    if (m_aggregateMaterial)	msg() << " AggregateMaterial";
-    if (m_asymmetricCaloEnergy)	msg() << " AsymmetricCaloEnergy";
-    if (m_fullCombinedFit)	msg() << " FullCombinedFit";
-    if (m_globalFit)		msg() << " GlobalFitter";
-    if (m_lineFit)		msg() << " LineFit with p = "
-				      << m_lineMomentum/Gaudi::Units::GeV << " GeV";
-    msg() << endreq;
+    if (m_aggregateMaterial)		msg() << " AggregateMaterial";
+    if (m_asymmetricCaloEnergy) 	msg() << " AsymmetricCaloEnergy";
+    if (m_fastMatrixTreatment)		msg() << " FastMatrixTreatment";
+    if (m_fullCombinedFit)		msg() << " FullCombinedFit";
+    if (m_globalFit)			msg() << " GlobalFitter";
+    if (m_lineFit)			msg() << " LineFit with p = "
+					      << m_lineMomentum/Gaudi::Units::GeV << " GeV";
+    if (m_constrainedAlignmentEffects)	msg() << " ConstrainedAlignmentEffects";
+    if (m_extendedDebug)		msg() << " ExtendedDebug";
+    if (m_forcedRefitsForValidation)	msg() << " ForcedRefitsForValidation = "
+					      << m_forcedRefitsForValidation;
+    msg() << endmsg;
   
     // fill WARNING messages
     m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings);
@@ -197,7 +216,10 @@ iPatFitter::initialize()
     }
 
     // can now create FitProcedure class
-    m_fitProcedure = new FitProcedure(m_lineFit,
+    m_fitProcedure = new FitProcedure(m_constrainedAlignmentEffects,
+				      m_extendedDebug,
+				      m_fastMatrixTreatment,
+				      m_lineFit,
 				      m_rungeKuttaIntersector,
 				      m_solenoidalIntersector,
 				      m_straightLineIntersector,
@@ -223,7 +245,23 @@ iPatFitter::finalize()
 		  << "% converged, taking an average "
 		  << std::setw(5) << std::setprecision(2) << iterations
 		  << " iterations" );
-
+    if (m_forcedRefitsForValidation)
+    {
+	double refits		= static_cast<double>(m_countRefitAttempts);
+	double goodRefit	= 0.;
+	double refitIterations	= 0.;
+	if (m_countRefitAttempts) goodRefit	= static_cast<double>(100*m_countGoodRefits) / refits;
+	if (m_countGoodRefits) refitIterations	= static_cast<double>(m_countRefitIterations) /
+						  static_cast<double>(m_countGoodRefits);
+	ATH_MSG_INFO( std::setiosflags(std::ios::fixed)
+		      << "finalized after " << m_countRefitAttempts
+		      << "     refits attempted, out of which "
+		      << std::setw(5) << std::setprecision(1) << goodRefit
+		      << "% converged, taking an average "
+		      << std::setw(5) << std::setprecision(2) << refitIterations
+		      << " iterations" );
+    }
+    
     m_messageHelper->printSummary();
 
     // delete all objects owned by class
@@ -313,7 +351,12 @@ iPatFitter::fit	(const Track&			track,
     {
 	delete perigeeSurface;
 	delete perigee;
-    } 
+    }
+
+    // validation
+    for (int i = 0; i < m_forcedRefitsForValidation; ++i)
+	if (fittedTrack) refit(*fittedTrack,runOutlier,particleHypothesis);
+    
     return fittedTrack;	
 }
 
@@ -535,7 +578,13 @@ iPatFitter::fit	(const Track&			indetTrack,
     trackInfo.addPatternReco(spectrometerTrack.info());
     if (m_fullCombinedFit)
     {
-	return performFit(measurements, m_parameters, particleHypothesis, trackInfo);
+	Trk::Track* fittedTrack =  performFit(measurements, m_parameters, particleHypothesis, trackInfo);
+	
+	// validation
+	for (int i = 0; i < m_forcedRefitsForValidation; ++i)
+	    if (fittedTrack) refit(*fittedTrack,runOutlier,particleHypothesis);
+	
+	return fittedTrack;
     }
     else	// hybrid fit
     {
@@ -547,12 +596,18 @@ iPatFitter::fit	(const Track&			indetTrack,
 	}
 	measurements->push_front(new FitMeasurement(*indetPerigee));
 	FitParameters measuredParameters(*indetPerigee);
-	return performFit(measurements,
-			  &measuredParameters,
-			  particleHypothesis,
-			  trackInfo,
-			  indetTrack.trackStateOnSurfaces(),
-			  indetTrack.fitQuality());
+	Trk::Track* fittedTrack = performFit(measurements,
+					     &measuredParameters,
+					     particleHypothesis,
+					     trackInfo,
+					     indetTrack.trackStateOnSurfaces(),
+					     indetTrack.fitQuality());
+		
+	// validation
+	for (int i = 0; i < m_forcedRefitsForValidation; ++i)
+	    if (fittedTrack) refit(*fittedTrack,runOutlier,particleHypothesis);
+	
+	return fittedTrack;
     }
 }
 
@@ -620,27 +675,34 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 			     const DataVector<const TrackStateOnSurface>& trackStateOnSurfaces) const
 {
     // create vector of any TSOS'es which require fitted alignment corrections
-//    std::vector<const TrackStateOnSurface*> misAlignedTSOS;
     std::vector<Identifier> misAlignedTSOS;
     std::vector<int> misAlignmentNumbers;
-    int	misAlignmentNumber				= 0;
-//  BUG that shifts ...   misAlignmentNumbers.push_back(misAlignmentNumber);
+    int	misAlignmentNumber		= 0;
+    int	tsos				= 0;
+    //  BUG that shifts ...   misAlignmentNumbers.push_back(misAlignmentNumber);
     for (DataVector<const TrackStateOnSurface>::const_iterator
 	     r = trackStateOnSurfaces.begin();
-	     r != trackStateOnSurfaces.end();
-	     ++r)
+	 r != trackStateOnSurfaces.end();
+	 ++r, ++tsos)
     {
 	if (! (**r).alignmentEffectsOnTrack() || ! (**r).trackParameters()) continue;
+	const AlignmentEffectsOnTrack& AEOT	= *(**r).alignmentEffectsOnTrack();
 	++misAlignmentNumber;
 	for (std::vector<Identifier>::const_iterator
-		 a = (**r).alignmentEffectsOnTrack()->vectorOfAffectedTSOS().begin();
-	         a != (**r).alignmentEffectsOnTrack()->vectorOfAffectedTSOS().end();
+		 a = AEOT.vectorOfAffectedTSOS().begin();
+	     a != AEOT.vectorOfAffectedTSOS().end();
 	     ++a)
 	{
 	    misAlignedTSOS.push_back(*a);
 	    misAlignmentNumbers.push_back(misAlignmentNumber);
-            std::cout << " misAlignedTSOS.size() " << misAlignedTSOS.size()  << " misAlignmentNumber " << misAlignmentNumber << " tsos " << *a << std::endl; 
 	}
+	if (m_extendedDebug) ATH_MSG_DEBUG( " tsos " << tsos
+					    << " misAlignedTSOS.size() "	<< misAlignedTSOS.size()
+					    << "        misAlignmentNumber "	<< misAlignmentNumber
+					    << "  offset "			<< AEOT.deltaTranslation()
+					    << " +- "				<< AEOT.sigmaDeltaTranslation()
+					    << "  rotation "			<< AEOT.deltaAngle()
+					    << " +- "				<< AEOT.sigmaDeltaAngle() );
     }
     
     // create ordered list of FitMeasurements	    
@@ -657,10 +719,11 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
     bool measurementsFlipped				= false;
     double qOverP					= parameters.qOverP();
     ExtrapolationType type				= FittedTrajectory;
+    tsos						= 0;
     for (DataVector<const TrackStateOnSurface>::const_iterator
 	     s = trackStateOnSurfaces.begin();
 	 s != trackStateOnSurfaces.end();
-	 ++s, ++hit)
+	 ++s, ++hit, ++tsos)
     {
 	FitMeasurement* measurement1	= 0;
 	FitMeasurement* measurement2	= 0;
@@ -736,33 +799,46 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 //
 //	    Peter 
 //	    measurement2->alignmentParameter(0);
-	    if (misAlignmentNumber) {
-               const Trk::MeasurementBase* meas = (**s).measurementOnTrack();
-               Identifier id = Identifier();
-               if(meas) {
-                 const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
-                 if(rot) {
-                   id = rot->identify();
-                 } else {
-                    const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
-                    if(crot&&!crot->containedROTs().empty()&&crot->containedROTs().front()) {
-                       id = crot->containedROTs().front()->identify();
-                    }
-                  }
-               }
-               for (unsigned int im = 0; im < misAlignedTSOS.size(); im++) {
-                  if(misAlignedTSOS[im]==id) {
-                    std::cout << "  misAlignmentNumber " << misAlignmentNumbers[im] << " tsos " << *s << std::endl;
-                    measurement2->alignmentParameter(misAlignmentNumbers[im]);
-                    if(measurement2->isDrift()) {
-                        std::cout << " Drift Measurement im " << im << "  with misAlignmentNumber " << misAlignmentNumbers[im] << " tsos " << *s << std::endl;
-                    } else { 
-                        std::cout << " No Drift Measurement im " << im << " with misAlignmentNumber " << misAlignmentNumbers[im] << " tsos " << *s << std::endl;
-                    }
-                  }
-               }
-            }
-
+	    if (misAlignmentNumber)
+	    {
+		const Trk::MeasurementBase* meas = (**s).measurementOnTrack();
+		Identifier id = Identifier();
+		if(meas) {
+		    const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*>(meas);
+		    if(rot) {
+			id = rot->identify();
+		    } else {
+			const Muon::CompetingMuonClustersOnTrack* crot = dynamic_cast<const Muon::CompetingMuonClustersOnTrack*>(meas);
+			if(crot&&!crot->containedROTs().empty()&&crot->containedROTs().front()) {
+			    id = crot->containedROTs().front()->identify();
+			}
+		    }
+		}
+		for (unsigned int im = 0; im < misAlignedTSOS.size(); ++im)
+		{
+		    if (misAlignedTSOS[im] != id)	continue;
+		    measurement2->alignmentParameter(misAlignmentNumbers[im]);
+		}
+		if (m_extendedDebug)
+		{
+		    for (unsigned int im = 0; im < misAlignedTSOS.size(); ++im)
+		    {
+			if (misAlignedTSOS[im] != id)	continue;
+			if (measurement2->isDrift())
+			{
+			    ATH_MSG_DEBUG( " tsos "				<< tsos
+					   << "   Drift Measurement im "	<< im
+					   << "  with misAlignmentNumber "	<< misAlignmentNumbers[im] );
+			}
+			else
+			{ 
+			    ATH_MSG_DEBUG( " tsos "				<< tsos
+					   << " Cluster Measurement im "	<< im
+					   << "  with misAlignmentNumber "	<< misAlignmentNumbers[im] );
+			}
+		    }
+		}
+	    }
 	}
 	else if (! measurement1 && (**s).trackParameters())
 	{
@@ -1128,7 +1204,7 @@ iPatFitter::performFit(std::list<FitMeasurement*>*			measurements,
 		}
 	    
 		if (! indet && ! spect) msg() << "    0 scatterers - no tracking material";
-		msg() << endreq;
+		msg() << endmsg;
 	    }
 	}
     }
@@ -1158,7 +1234,7 @@ iPatFitter::printTSOS (const Track& track) const
 {
     // debugging aid
     MsgStream log(msgSvc(), name());
-    msg(MSG::INFO) << " track with " << track.trackStateOnSurfaces()->size() << " TSOS " << endreq;
+    msg(MSG::INFO) << " track with " << track.trackStateOnSurfaces()->size() << " TSOS " << endmsg;
     int tsos = 0;
     for (DataVector<const TrackStateOnSurface>::const_iterator t = track.trackStateOnSurfaces()->begin();
 	 t !=  track.trackStateOnSurfaces()->end();
@@ -1199,8 +1275,92 @@ iPatFitter::printTSOS (const Track& track) const
 	{
 	    msg() << "       ";
 	}
-	msg() << (**t).dumpType() << endreq;
+	msg() << (**t).dumpType() << endmsg;
     }
 }
+ 
+void
+iPatFitter::refit(const Track&			track,
+		  const RunOutlierRemoval	runOutlier,
+		  const ParticleHypothesis	particleHypothesis) const
+{
+    ATH_MSG_VERBOSE( " refit " );
+    unsigned countGoodFits	=  m_countGoodFits;
+    unsigned countIterations	=  m_countIterations;
+    ++m_countRefitAttempts;
+    // outlier removal not implemented
+    if (runOutlier) m_messageHelper->printWarning(0);    
+
+    // create Perigee if starting parameters are for a different surface type
+    const Perigee* perigee		= track.perigeeParameters();
+    PerigeeSurface* perigeeSurface	= 0;
+    if (! perigee)
+    {
+	DataVector<const TrackStateOnSurface>::const_iterator s = track.trackStateOnSurfaces()->begin();
+	while (s != track.trackStateOnSurfaces()->end() && ! (**s).trackParameters()) ++s;
+	if (! (**s).trackParameters())
+	{
+	    // input track without parameters
+	    m_messageHelper->printWarning(1);
+	    m_countGoodRefits		+= m_countGoodFits - countGoodFits;
+	    m_countGoodFits		=  countGoodFits;
+	    m_countRefitIterations	+= m_countIterations - countIterations;
+	    m_countIterations		=  countIterations;
+	    return;
+	}
+	
+	Amg::Vector3D origin((**s).trackParameters()->position());
+	perigeeSurface	= new PerigeeSurface(origin);
+	perigee		= new Perigee((**s).trackParameters()->position(),
+				      (**s).trackParameters()->momentum(),
+				      (**s).trackParameters()->charge(),
+				      *perigeeSurface);
+    }
+
+    delete m_parameters;
+    m_parameters	= new FitParameters(*perigee);
     
+    // set up the measurements
+    if (! track.trackStateOnSurfaces())
+    {
+	// input track without trackStateOnSurfaces
+	m_messageHelper->printWarning(2);
+	m_countGoodRefits	+= m_countGoodFits - countGoodFits;
+	m_countGoodFits		=  countGoodFits;
+	m_countRefitIterations	+= m_countIterations - countIterations;
+	m_countIterations	=  countIterations;
+	return;
+    }
+    
+    std::list<FitMeasurement*>* measurements = measurementList();
+    bool haveMaterial = addMeasurements(*measurements,
+					*m_parameters,
+					particleHypothesis,
+					*track.trackStateOnSurfaces());
+
+    // allocate material
+    if (! haveMaterial && particleHypothesis != Trk::nonInteracting)
+    {
+	m_materialAllocator->allocateMaterial(*measurements,
+					      particleHypothesis,
+					      *m_parameters,
+					      *perigee);
+    }
+
+    // perform fit and return fitted track
+    TrackInfo trackInfo(TrackInfo::iPatTrackFitter,particleHypothesis);
+    trackInfo.addPatternReco(track.info());
+    Trk::Track* fittedTrack = performFit(measurements, m_parameters, particleHypothesis, trackInfo);
+    if (perigeeSurface)
+    {
+	delete perigeeSurface;
+	delete perigee;
+    }
+    m_countGoodRefits		+= m_countGoodFits - countGoodFits;
+    m_countGoodFits		=  countGoodFits;
+    m_countRefitIterations	+= m_countIterations - countIterations;
+    m_countIterations		=  countIterations;
+    delete fittedTrack;	
+}
+
 } // end of namespace
