@@ -347,6 +347,17 @@ CaloNoiseToolDB::updateCache()
 
   // total number of cells in calorimeter
   m_ncell=m_calo_id->calo_cell_hash_max();
+  
+  int hgtdCaloID = m_calo_id->GetSubCaloName("HGTD");
+  if ( hgtdCaloID !=  CaloCell_Base_ID::NOT_VALID ) {
+    int hgtdNcells = m_calo_id->cell_end(hgtdCaloID) - m_calo_id->cell_begin(hgtdCaloID);
+    if ( hgtdNcells > 0 ) {
+      //      m_ncell = 187652;
+      // subtract the HGTD cells from the total
+      m_ncell = m_ncell - hgtdNcells;
+      msg(MSG::WARNING) << "HGTD sets the hash_max in the noiseTool  to " << m_ncell << endreq;
+    }
+  }
 
   // Number of cells per system in EM Barrel and EndCap (indexed by SYSTEM, only first NUM_EM_SYS SYSTEMs)
   // This is not used later, only for printing
