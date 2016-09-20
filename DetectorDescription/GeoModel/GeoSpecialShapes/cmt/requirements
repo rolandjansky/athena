@@ -32,3 +32,4 @@ apply_tag ROOTMathLibs
 # Make dict for LArGeoChecker
 use AtlasReflex  AtlasReflex-* External -no_auto_imports
 apply_pattern lcgdict dict=LArGeoChecker selectionfile=selection.xml headerfiles="../GeoSpecialShapes/LArGeoCheckerDict.h"
+
