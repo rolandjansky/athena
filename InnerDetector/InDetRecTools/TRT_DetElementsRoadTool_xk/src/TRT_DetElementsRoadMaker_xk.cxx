@@ -77,7 +77,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
   const InDetDD::TRT_DetectorManager*  trtmgr = 0;
   sc = detStore()->retrieve(trtmgr,m_trt);
   if (sc.isFailure() || !trtmgr) {
-    msg(MSG::FATAL)<<"Could not get TRT DetectorManager  !"<<endreq; 
+    msg(MSG::FATAL)<<"Could not get TRT DetectorManager  !"<<endmsg; 
     return StatusCode::FAILURE;
   }
  
@@ -96,10 +96,10 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
   // Get propagator tool
   //
   if (m_proptool.retrieve().isFailure() ) {
-    msg(MSG::FATAL)<< "Failed to retrieve tool " << m_proptool << endreq;
+    msg(MSG::FATAL)<< "Failed to retrieve tool " << m_proptool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
   }
 
   // get the key -- from StoreGate (DetectorStore)
@@ -108,10 +108,10 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
   std::string tagInfoKey = "";
 
   if(tagInfoKeys.size()==0)
-    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endreq;
+    msg(MSG::WARNING) << " No TagInfo keys in DetectorStore "<< endmsg;
    else {
      if(tagInfoKeys.size() > 1) {
-       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endreq;
+       msg(MSG::WARNING) <<"More than one TagInfo key in the DetectorStore, using the first one "<< endmsg;
      }
      tagInfoKey = tagInfoKeys[0];
    }
@@ -126,10 +126,10 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
   sc = detStore()->regFcn(&InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction,
 			  this,tagInfoH,m_callbackString);
   if (sc.isFailure()) {
-    msg(MSG::FATAL)<< "Failed to register the callback " << m_proptool << endreq;
+    msg(MSG::FATAL)<< "Failed to register the callback " << m_proptool << endmsg;
   }
   else {
-    msg(MSG::INFO) << "Register the callback" << m_proptool << endreq;
+    msg(MSG::INFO) << "Register the callback" << m_proptool << endmsg;
   }
   
   
@@ -141,9 +141,9 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::initialize()
     sc = detStore()->regFcn(&InDet::TRT_DetElementsRoadMaker_xk::magneticFieldInit,this,currentHandle,folder);
     
     if(sc==StatusCode::SUCCESS) {
-      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endreq;
+      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
     } else {
-      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endreq;
+      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -174,7 +174,8 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::finalize()
 MsgStream& InDet::TRT_DetElementsRoadMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -384,7 +385,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 
   if(m_outputlevel<0) {
     m_sizeroad = R.size();
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -400,7 +401,7 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementsRoad
 
  if(m_outputlevel<0) {
    m_sizeroad = R.size();
-   m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+   m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
  }
 
  std::list<const InDetDD::TRT_BaseElement*>::const_iterator r=RE.begin(),re=RE.end();
@@ -631,7 +632,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
   StatusCode sc = detStore()->retrieve(trtmgr,m_trt);
 
   if (sc.isFailure() || !trtmgr) {
-    msg(MSG::FATAL)<<"Could not get TRT DetectorManager  !"<<endreq; 
+    msg(MSG::FATAL)<<"Could not get TRT DetectorManager  !"<<endmsg; 
     return StatusCode::FAILURE;
   }
 
@@ -811,7 +812,7 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::mapDetectorElementsProduction
   m_bounds  = CB;
 
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -948,9 +949,12 @@ void InDet::TRT_DetElementsRoadMaker_xk::detElementInformation
     double r = sqrt(x[i]*x[i]+y[i]*y[i]);
     double f = atan2(y[i],x[i])-P[2]; if(f<-pi) f+=pi2; else if(f>pi) f-=pi2;
     double zf= z[i];
-    if(r <rmin) rmin= r; if(r >rmax) rmax= r;
-    if(zf<zmin) zmin=zf; if(zf>zmax) zmax=zf;
-    if(f <fmin) fmin= f; if(f >fmax) fmax= f;
+    if(r <rmin) rmin= r;
+    if(r >rmax) rmax= r;
+    if(zf<zmin) zmin=zf;
+    if(zf>zmax) zmax=zf;
+    if(f <fmin) fmin= f;
+    if(f >fmax) fmax= f;
   }
   P[ 9]    = rmin;
   P[10]    = rmax;
@@ -1023,7 +1027,8 @@ StatusCode InDet::TRT_DetElementsRoadMaker_xk::magneticFieldInit(IOVSVC_CALLBACK
 {
   // Build MagneticFieldProperties 
   //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField";
+  magneticFieldInit();
   return StatusCode::SUCCESS;
 }
 
