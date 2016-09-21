@@ -65,7 +65,7 @@ Herwigpp::Herwigpp(const string& name, ISvcLocator* pSvcLocator) :
 {
   declareProperty("Commands", m_herwigCommandVector);
   declareProperty("RunName", m_runname="Atlas");
-  declareProperty("InFileDump", m_infiledump="");
+  declareProperty("InFileDump", m_infiledump="herwigInfileDump.in");
   declareProperty("CrossSectionScaleFactor", m_xsscale=1.0);
   declareProperty("doAlpgen",m_doAlpgen=false);
   declareProperty("useTwoLoopAlphas",m_useTwoLoopAlphas=true);
