@@ -56,31 +56,31 @@ class HIMonitoringMuonsTool : public ManagedMonitorToolBase
 
       /// histograms 
     
-      TH1D_LW* h_FCalEt; 
+      TH1D* h_FCalEt; 
 	
-      TH1D_LW* h_Auth_fcal0; 
-      TH1D_LW* h_Auth_fcal1; 
-      TH1D_LW* h_Auth_fcal2;
+      TH1D* h_Auth_fcal0; 
+      TH1D* h_Auth_fcal1; 
+      TH1D* h_Auth_fcal2;
 
-      TH1D_LW* h_Type_fcal0; 
-      TH1D_LW* h_Type_fcal1; 
-      TH1D_LW* h_Type_fcal2;  
+      TH1D* h_Type_fcal0; 
+      TH1D* h_Type_fcal1; 
+      TH1D* h_Type_fcal2;  
 
-      TH1D_LW* h_Chi2ndf_fcal0; 
-      TH1D_LW* h_Chi2ndf_fcal1; 
-      TH1D_LW* h_Chi2ndf_fcal2;
+      TH1D* h_Chi2ndf_fcal0; 
+      TH1D* h_Chi2ndf_fcal1; 
+      TH1D* h_Chi2ndf_fcal2;
 
-      TH1D_LW* h_Chi2ndfID_fcal0; 
-      TH1D_LW* h_Chi2ndfID_fcal1; 
-      TH1D_LW* h_Chi2ndfID_fcal2; 
+      TH1D* h_Chi2ndfID_fcal0; 
+      TH1D* h_Chi2ndfID_fcal1; 
+      TH1D* h_Chi2ndfID_fcal2; 
 
-      TH1D_LW* h_Chi2ndfME_fcal0; 
-      TH1D_LW* h_Chi2ndfME_fcal1; 
-      TH1D_LW* h_Chi2ndfME_fcal2;  
+      TH1D* h_Chi2ndfME_fcal0; 
+      TH1D* h_Chi2ndfME_fcal1; 
+      TH1D* h_Chi2ndfME_fcal2;  
 
-      TH1D_LW* h_Chi2ndfMS_fcal0; 
-      TH1D_LW* h_Chi2ndfMS_fcal1; 
-      TH1D_LW* h_Chi2ndfMS_fcal2;  
+      TH1D* h_Chi2ndfMS_fcal0; 
+      TH1D* h_Chi2ndfMS_fcal1; 
+      TH1D* h_Chi2ndfMS_fcal2;  
 };
 
 #endif

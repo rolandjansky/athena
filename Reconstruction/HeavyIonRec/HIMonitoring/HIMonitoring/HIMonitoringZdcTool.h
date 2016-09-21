@@ -64,12 +64,12 @@ class HIMonitoringZdcTool : public ManagedMonitorToolBase
 
 		/// histograms 
 
-	TH1D_LW* hamp[Nmod][Nside];
-		TH1D_LW* hampG0[Nmod][Nside];
-		TH1D_LW* hampG1[Nmod][Nside];
-		TH1D_LW* hSumSideAmp[Nside];
-		TH1D_LW* hSumSideAmpG0[Nside];
-		TH1D_LW* hSumSideAmpG1[Nside];
+	TH1D* hamp[Nmod][Nside];
+		TH1D* hampG0[Nmod][Nside];
+		TH1D* hampG1[Nmod][Nside];
+		TH1D* hSumSideAmp[Nside];
+		TH1D* hSumSideAmpG0[Nside];
+		TH1D* hSumSideAmpG1[Nside];
 		TH2D_LW* hEM_HAD1[Nside];
 		TH2D_LW* hHAD1_HAD2[Nside];
 		TH2D_LW* hHAD2_HAD3[Nside];
