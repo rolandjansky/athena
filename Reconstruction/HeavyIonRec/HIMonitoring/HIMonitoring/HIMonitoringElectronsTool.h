@@ -21,7 +21,7 @@
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
 
 
-class TH1D_LW;
+class TH1D;
 class TH2D_LW;
 class TProfile_LW;
 
@@ -54,13 +54,13 @@ class HIMonitoringElectronsTool : public ManagedMonitorToolBase
 	  double m_FCalEt;
 	   
 	  /// histograms 
-	  TH1D_LW* h_FCalEt_looseCB;
-	  TH1D_LW* h_FCalEt_looseLH;
-	  TH1D_LW* h_FCalEt_mediumCB;
-	  TH1D_LW* h_FCalEt_mediumLH;
+	  TH1D* h_FCalEt_looseCB;
+	  TH1D* h_FCalEt_looseLH;
+	  TH1D* h_FCalEt_mediumCB;
+	  TH1D* h_FCalEt_mediumLH;
 
 	  TH2D_LW* h_electron_eta_phi;
-	  TH1D_LW* h_electron_z0sintheta;
+	  TH1D* h_electron_z0sintheta;
 
 	  TH2D_LW* h_electron_fcal_etcone20_looseCB;
 	  TH2D_LW* h_electron_fcal_etcone20_looseLH;

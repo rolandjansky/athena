@@ -20,9 +20,9 @@ HIMonitoringElectronsTool( const std::string & type, const std::string & name,
 const IInterface* parent ): ManagedMonitorToolBase( type, name, parent )   	     	  
 {
 	m_FCalEt=0;  
-	m_FCalEt_nbins=70; 
-	m_low_FCalEt=-0.5; 
-	m_high_FCalEt=6.5; 
+	m_FCalEt_nbins=95;
+	m_low_FCalEt=-0.15;
+	m_high_FCalEt=0.8;
 
 	m_eta_nbins = 60;
 	m_low_eta = -3.0;
@@ -335,7 +335,11 @@ StatusCode HIMonitoringElectronsTool::procHistograms( )
 
 	if( endOfRun ) 
 	{
-   
+        h_FCalEt_looseCB->Scale(1./h_FCalEt_looseCB->GetEntries());
+        h_FCalEt_looseLH->Scale(1./h_FCalEt_looseLH->GetEntries());
+        h_FCalEt_mediumCB->Scale(1./h_FCalEt_mediumCB->GetEntries());
+        h_FCalEt_mediumLH->Scale(1./h_FCalEt_mediumLH->GetEntries());
+        h_electron_z0sintheta->Scale(1./h_electron_z0sintheta->GetEntries());
 	}
 
 	return StatusCode::SUCCESS;
@@ -347,13 +351,13 @@ void HIMonitoringElectronsTool::book_hist()
 	std::string path = "HeavyIon/Electrons"; 
 	
 	//FCal sum Et
-	h_FCalEt_looseCB = TH1D_LW::create( "h_FCalEt_looseCB", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
+	h_FCalEt_looseCB = new TH1D( "h_FCalEt_looseCB", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
 	regHist(h_FCalEt_looseCB, path, run).ignore();
-	h_FCalEt_looseLH= TH1D_LW::create( "h_FCalEt_looseLH", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
+	h_FCalEt_looseLH= new TH1D( "h_FCalEt_looseLH", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
 	regHist(h_FCalEt_looseLH, path, run).ignore();
-	h_FCalEt_mediumCB = TH1D_LW::create( "h_FCalEt_mediumCB", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
+	h_FCalEt_mediumCB = new TH1D( "h_FCalEt_mediumCB", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
 	regHist(h_FCalEt_mediumCB, path, run).ignore();
-	h_FCalEt_mediumLH= TH1D_LW::create( "h_FCalEt_mediumLH", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
+	h_FCalEt_mediumLH= new TH1D( "h_FCalEt_mediumLH", "; FCal #Sigma E_{T} [TeV]; entries", m_FCalEt_nbins, m_low_FCalEt, m_high_FCalEt); 
 	regHist(h_FCalEt_mediumLH, path, run).ignore();
 
 	//eta vs phi
@@ -361,7 +365,7 @@ void HIMonitoringElectronsTool::book_hist()
 	regHist(h_electron_eta_phi, path, run).ignore();
 
 	//eta vs phi
-	h_electron_z0sintheta = TH1D_LW::create( "h_electron_z0sintheta", "; z0 sin#theta [mm]; entries", m_z0sintheta_nbins, m_low_z0sintheta, m_high_z0sintheta); 
+	h_electron_z0sintheta = new TH1D( "h_electron_z0sintheta", "; z0 sin#theta [mm]; entries", m_z0sintheta_nbins, m_low_z0sintheta, m_high_z0sintheta); 
 	regHist(h_electron_z0sintheta, path, run).ignore();
 
 	//isolation vs centrality
