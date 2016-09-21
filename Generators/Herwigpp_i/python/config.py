@@ -270,9 +270,6 @@ set /Herwig/Shower/KinematicsReconstructor:InitialInitialBoostOption LongTransBo
 create ThePEG::FixedCMSLuminosity /Herwig/Generators/FCMSLuminosity
 set /Herwig/EventHandlers/LHEHandler:LuminosityFunction /Herwig/Generators/FCMSLuminosity
 
-# Turn on QED radiation
-insert /Herwig/EventHandlers/LHEHandler:PostSubProcessHandlers[0] /Herwig/QEDRadiation/QEDRadiationHandler
-
 ## Set the PDF for the LHE reader.
 set /Herwig/EventHandlers/LHEReader:PDFA /Herwig/Partons/AtlasPDFset{pdfsubname}
 set /Herwig/EventHandlers/LHEReader:PDFB /Herwig/Partons/AtlasPDFset{pdfsubname}
@@ -515,8 +512,6 @@ cd /Herwig/EventHandlers
 ########################################################### 
 #Include spin effects
 set /Herwig/EventHandlers/theLHReader:IncludeSpin Yes
-#Turn on QED radiation
-insert /Herwig/EventHandlers/theLesHouchesHandler:PostSubProcessHandlers[0] /Herwig/QEDRadiation/QEDRadiationHandler
 #Avoid error message about event handler not having a luminosity function - these lines should not influence results!
 #create ThePEG::LuminosityFunction /Herwig/Generators/LuminosityFunction
 #set /Herwig/EventHandlers/theLesHouchesHandler:LuminosityFunction /Herwig/Generators/LuminosityFunction
@@ -585,11 +580,6 @@ set /Herwig/Decays/DecayHandler:MaxLifeTime 10*mm
 set /Herwig/Cuts/JetKtCut:MinKT 20.0*GeV
 set /Herwig/Cuts/LeptonKtCut:MinKT 0.0*GeV
 
-## Set QED pT cutoffs to match PHOTOS
-# Enabled by default from H++ 2.4.0
-set /Herwig/QEDRadiation/QEDRadiationHandler:RadiationGenerator:FFDipole:MinimumEnergyRest 10.0*MeV
-set /Herwig/QEDRadiation/QEDRadiationHandler:RadiationGenerator:IFDipole:MinimumEnergyRest 10.0*MeV
-
 # Turn off intermediate photons inserted explicitly into the event record with an incorrect life length in the pi0 -> e+e-e+e- decay mode 
 # This is the default from H++ 2.6.1
 set /Herwig/Decays/PScalar4f:GenerateIntermediates 0
@@ -609,9 +599,6 @@ set /Herwig/Decays/PScalar4f:GenerateIntermediates 0
 ## To turn off hadronization, put this into your JO:
 #set /Herwig/EventHandlers/LHCHandler:HadronizationHandler NULL
 #set /Herwig/Analysis/Basics:CheckQuark No
-
-## To turn off QED radiation, put this into your JO:
-#erase /Herwig/EventHandlers/LHCHandler:PostSubProcessHandlers[0]
 
 ## To turn off decays, put this into your JO:
 #set /Herwig/EventHandlers/LHCHandler:DecayHandler NULL
