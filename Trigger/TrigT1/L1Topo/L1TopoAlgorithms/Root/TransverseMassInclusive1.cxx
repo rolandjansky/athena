@@ -136,20 +136,16 @@ TCS::TransverseMassInclusive1::processBitCorrect( const std::vector<TCS::TOBArra
 	       unsigned int tmass2 = calcTMassBW( *tob1, *tob2 );
 
 
-               bool accept[6];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-
-		  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-
-                  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-
-                  accept[i] = tmass2 >= p_TMassMin[i] ; // 
-                  if( accept[i] ) {
-                     decison.setBit(i, true);  
-                     output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
-                  }
-                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " tmass2 = " << tmass2);
-
+                   bool accept = false;
+                   if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                   if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+                   accept = tmass2 >= p_TMassMin[i] ; // 
+                   if(accept) {
+                       decison.setBit(i, true);  
+                       output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+                   }
+                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " tmass2 = " << tmass2);
                }
             }
          }
