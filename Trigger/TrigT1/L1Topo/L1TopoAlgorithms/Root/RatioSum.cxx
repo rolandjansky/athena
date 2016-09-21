@@ -3,10 +3,13 @@
  * Created by Joerg Stelzer on 11/16/12.
  * Copyright (c) 2012 Joerg Stelzer. All rights reserved.
  *
- * @brief algorithm calculates the phi-distance between one or two lists and applies delta-phi criteria
+ * @brief algorithm to select W tag-and-probe events using MET/sumET
  *
- * @param NumberLeading
-**********************************/
+ * In addition, also apply cuts on Ht and MET.
+ * For a more detailed description, see Sec. 4.3.2 of
+ * ATL-COM-DAQ-2014-005 and the references therein.
+ *
+ **********************************/
 
 #include <cmath>
 
@@ -123,21 +126,17 @@ TCS::RatioSum::process( const std::vector<TCS::TOBArray const *> & input,
    if(input.size()!=3) {
       TCS_EXCEPTION("RatioSum alg must have exactly 3 input lists, but got " << input.size());
    }
-
+   // Note (from Murrough, ATR-14913, 2016-08-25):
+   // summing Et in ints so it might be losing 0.5 GeV counts from EM/Tau lists
    unsigned int sumET = 0;
    unsigned int sumET2 = 0;   
-   unsigned int nLeadingele = p_NumberLeading2;
-
-
+   unsigned int nLeadingele = p_NumberLeading3;
 
    const TCS::GenericTOB & met = (*input[0])[0];
-   
 
    // loop over all jets
-
    unsigned int objC(0);
    for( TCS::GenericTOB * tob : *input[1]) {
-      
 
       if( parType_t(fabs(tob->eta())) > p_EtaMax2 ) continue; // Eta cut
       if( parType_t(fabs(tob->eta())) < p_EtaMin2 ) continue; // Eta cut
@@ -150,9 +149,8 @@ TCS::RatioSum::process( const std::vector<TCS::TOBArray const *> & input,
    }
  
    sumET = sumET2;
-   
 
-
+   // loop over the third collection (EM/tau)
    for( TOBArray::const_iterator tob1 = input[2]->begin(); 
            tob1 != input[2]->end() && distance( input[2]->begin(), tob1) < nLeadingele;
            ++tob1) 
@@ -164,13 +162,14 @@ TCS::RatioSum::process( const std::vector<TCS::TOBArray const *> & input,
           sumET += (*tob1)->Et() ;
 
    }
-   
-   
 
    for(unsigned int i=0; i<numberOutputBits(); ++i) {
 
-
-    bool accept = objC!=0 && met.Et() > p_MinMET && sumET!=sumET2 && sumET2 > p_HT && sumET > p_SUM && 10*met.Et() >= p_Ratio[i]*sumET;
+       bool accept = (objC!=0 && met.Et() > p_MinMET &&
+                      sumET!=sumET2 && // in practice, require an EM TOB with Et > 0 (see ATR-14913)
+                      sumET2 > p_HT &&
+                      sumET > p_SUM &&
+                      10*met.Et() >= p_Ratio[i]*sumET);
 
     decision.setBit( i, accept );
 

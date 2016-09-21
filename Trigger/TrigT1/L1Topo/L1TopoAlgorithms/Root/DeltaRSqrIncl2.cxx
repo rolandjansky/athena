@@ -120,37 +120,27 @@ TCS::DeltaRSqrIncl2::processBitCorrect( const std::vector<TCS::TOBArray const *>
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
          {
-
-
-            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
-                 tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
-                 ++tob2) {
-
-
-               // test DeltaR2Min, DeltaR2Max
-               unsigned int deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
-
-               TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", deltaR2 = " << deltaR2);
-
-               bool accept[3];
-               for(unsigned int i=0; i<numberOutputBits(); ++i) {
-		  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-                  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-
-                  accept[i] = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
-                  if( accept[i] ) {
-                     decison.setBit(i, true);
-                     output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
-                  }
-                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR2 = " << deltaR2);
-               }
-            }
+             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
+                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
+                  ++tob2) {
+                 // test DeltaR2Min, DeltaR2Max
+                 unsigned int deltaR2 = calcDeltaR2BW( *tob1, *tob2 );
+                 TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", deltaR2 = " << deltaR2);
+                 for(unsigned int i=0; i<numberOutputBits(); ++i) {
+                   bool accept = false;
+                   if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                   if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+                   accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
+                   if( accept ) {
+                       decison.setBit(i, true);
+                       output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+                   }
+                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
+                 }
+             }
          }
-
    } else {
-
-      TCS_EXCEPTION("DeltaRSqrIncl2 alg must have  2 inputs, but got " << input.size());
-
+       TCS_EXCEPTION("DeltaRSqrIncl2 alg must have  2 inputs, but got " << input.size());
    }
    return TCS::StatusCode::SUCCESS;
 }
@@ -178,26 +168,21 @@ TCS::DeltaRSqrIncl2::process( const std::vector<TCS::TOBArray const *> & input,
                unsigned int deltaR2 = calcDeltaR2( *tob1, *tob2 );
 
                TRG_MSG_DEBUG("Jet1 = " << **tob1 << ", Jet2 = " << **tob2 << ", deltaR2 = " << deltaR2);
-
-               bool accept[3];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-		  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-                  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-
-                  accept[i] = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
-                  if( accept[i] ) {
-                     decison.setBit(i, true);
-                     output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
-                  }
-                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR2 = " << deltaR2);
+                   bool accept = false;
+               if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+               if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+               accept = deltaR2 >= p_DeltaRMin[i] && deltaR2 <= p_DeltaRMax[i];
+               if( accept ) {
+                   decison.setBit(i, true);
+                   output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+               }
+               TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR2 = " << deltaR2);
                }
             }
          }
-
    } else {
-
       TCS_EXCEPTION("DeltaRSqrIncl2 alg must have  2 inputs, but got " << input.size());
-
    }
    return TCS::StatusCode::SUCCESS;
 }

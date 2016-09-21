@@ -49,8 +49,7 @@ TCS::ClusterSelect::sort(const InputTOBArray & input, TOBArray & output) {
       if( parType_t((*cl)->Et()) <= m_et ) continue; // ET cut
       // isolation cut
       if (m_iso != 0 ) {
-       unsigned int isobit(0x1 << (m_iso-1));
-       if((parType_t((*cl)->isolation()) & isobit) != isobit ) continue;
+          if((parType_t((*cl)->isolation()) & m_iso) != m_iso ) continue;
       }
       // eta cut
       if (parType_t(std::abs((*cl)-> eta())) < m_minEta) continue; 
