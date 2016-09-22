@@ -109,10 +109,10 @@ namespace JiveXML {
     if (found!=std::string::npos){ // User selected a Rec::TrackParticle Collection
       if (evtStore()->retrieve(tracks, m_trackCollection).isFailure()){
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve track collection"
-                                                  << m_trackCollection << " for association "<< endreq;
+                                                  << m_trackCollection << " for association "<< endmsg;
       } else {
          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved " << 
-	     m_trackCollection << endreq;
+	     m_trackCollection << endmsg;
 
          Rec::TrackParticleContainer::const_iterator track;
          for(track=tracks->begin();track!=tracks->end();++track) {
@@ -122,14 +122,14 @@ namespace JiveXML {
          }
       }
     }else{ // it's a Trk::Tracks collection
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " User selected a Trk::Track collection ! " << endreq; 
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " User selected a Trk::Track collection ! " << endmsg; 
 
       if (evtStore()->retrieve(trktracks, m_trackCollection).isFailure()){
         if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Unable to retrieve track collection"
-                                                  << m_trackCollection << " for association "<< endreq;
+                                                  << m_trackCollection << " for association "<< endmsg;
       } else {
         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved " << 
-	    m_trackCollection << endreq;
+	    m_trackCollection << endmsg;
         TrackCollection::const_iterator track;
         for(track=trktracks->begin();track!=trktracks->end();++track) {
           const Trk::Perigee* trackPerigee = (*track)->perigeeParameters();
@@ -156,23 +156,23 @@ namespace JiveXML {
     //return if there are none
     const DataHandle<VxContainer> vtxCollectionItr, vtxCollectionsEnd;
     if (evtStore()->retrieve(vtxCollectionItr,vtxCollectionsEnd).isFailure()) {
-      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "No VxContainer containers found in this event" << endreq;
+      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "No VxContainer containers found in this event" << endmsg;
       return StatusCode::SUCCESS;
     }
 
     //See if we can find the requested secondary vertex collection
     const VxContainer* secondaryVtxCollection;
     if (evtStore()->retrieve(secondaryVtxCollection,m_secondaryVertexKey).isFailure()) {
-      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "No Secondary vertex container found at SecVertices" << endreq;
+      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "No Secondary vertex container found at SecVertices" << endmsg;
     }else{
-      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "Secondary vertex container size: " << secondaryVtxCollection->size() << endreq;
+      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "Secondary vertex container size: " << secondaryVtxCollection->size() << endmsg;
     } 
 
     //See if we can find the requested primary vertex collection
     const VxContainer* primaryVtxCollection;
     if ( evtStore()->retrieve(primaryVtxCollection,m_primaryVertexKey).isFailure()) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Primary vertex container "
-          << m_primaryVertexKey << " not found" << endreq;
+          << m_primaryVertexKey << " not found" << endmsg;
     }
 
     //Declare all the data vectors we want to retrieve
@@ -194,7 +194,7 @@ namespace JiveXML {
 
       //Check whether we should ignore HLTAutoKey collections
       if ( (!m_doWriteHLT) && ( vtxCollectionItr.key().find("HLT") != std::string::npos)){
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT collection " << vtxCollectionItr.key() << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT collection " << vtxCollectionItr.key() << endmsg;
         continue;
       }
 
@@ -203,7 +203,7 @@ namespace JiveXML {
 
       //Be a bit verbose
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading vertex container " << vtxCollectionItr.key() 
-                                              << " with " << NVtx << " entries" << endreq;
+                                              << " with " << NVtx << " entries" << endmsg;
       
       //Declare all the data vectors we want to retrieve and reserve space
       x.reserve(x.size()+NVtx);
@@ -219,7 +219,7 @@ namespace JiveXML {
       StatusCode sc = fillPerigeeList();
       if (!sc.isFailure()) {
          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Perigee list filled with " << perigeeVector.size()
-                          << " entries " << endreq;
+                          << " entries " << endmsg;
       }    
 
       //Loop over vertices
@@ -228,7 +228,7 @@ namespace JiveXML {
 ///////// read all vertex collections again, but make chi2 cut on ConversionCandidate
 //       if ( m_doWritePrimAndSecVertexOnly && vtxCollectionItr.key() == m_conversionVertexKey ){
 //         if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << " DoWritePrimAndSecVertexOnly switch true - skipping " 
-//	     << vtxCollectionItr.key() << endreq; }
+//	     << vtxCollectionItr.key() << endmsg; }
 //          continue; } 
 /////////
         /**
@@ -255,7 +255,7 @@ namespace JiveXML {
         if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << " Collection: " << vtxCollectionItr.key() 
             << ", m_chi2: " << m_chi2 << " - chi2: " << fitQuality.chiSquared() 
 //            << " ," << (*vertexItr)->recVertex().position().x()/10. << " ," << (*vertexItr)->recVertex().position().x()*CLHEP::cm 
-            << ", R: " << R << endreq; }
+            << ", R: " << R << endmsg; }
 
         chi2.push_back(DataType( m_chi2 ));
         x.push_back(DataType( m_x ));
@@ -265,7 +265,7 @@ namespace JiveXML {
         // from: Tracking/TrkEvent/TrkEventPrimitives/VertexType.h
 	const Trk::VertexType vtx_type = (*vertexItr)->vertexType();
         vertexType.push_back(DataType( vtx_type )); 
-	if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << " collection " << vtxCollectionItr.key() << ": VertexType: " << vtx_type << endreq; }
+	if (msgLvl(MSG::DEBUG)){ msg(MSG::DEBUG) << " collection " << vtxCollectionItr.key() << ": VertexType: " << vtx_type << endmsg; }
 
         //Store primary vertex candidate flag
         if ( vtxCollectionItr == primaryVtxCollection ){
@@ -301,7 +301,7 @@ namespace JiveXML {
 
     std::vector<Trk::VxTrackAtVertex*>* trklist = (*vertexItr)->vxTrackAtVertex();
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks at vertex: " << trklist->size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Tracks at vertex: " << trklist->size() << endmsg;
 
     numTracks.push_back(DataType( trklist->size() ) );
     sgkey.push_back(DataType( m_trackCollection )); // sgkey in current scheme is _not_ a multiple !

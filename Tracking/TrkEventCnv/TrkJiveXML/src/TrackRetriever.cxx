@@ -337,7 +337,8 @@ namespace JiveXML {
 		TrackRetriever::TrackRetriever(const std::string& type,const std::string& name,const IInterface* parent):
 		  AthAlgTool(type,name,parent),
 		  typeName("Track"),
-		  m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator") {
+		  m_residualPullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator"),
+		  m_idHelper(nullptr) {
 				//Declare the interface
 				declareInterface<IDataRetriever>(this);
 				m_trackSumTool = ToolHandle<Trk::ITrackSummaryTool>("Trk::TrackSummaryTool/InDetTrackSummaryTool");
@@ -361,7 +362,7 @@ namespace JiveXML {
 		StatusCode TrackRetriever::initialize() {
 			//Set up ATLAS ID helper to be able to identify the RIO's det-subsystem.
 			if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-			  msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+			  msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
 			return StatusCode::FAILURE;
 			}
 			// try to retrieve residual-pull calculation only if requested
@@ -380,7 +381,7 @@ namespace JiveXML {
 			if ( m_trackSumTool.retrieve().isFailure() ) {
 			  ATH_MSG_WARNING(  "Failed to retrieve tool " << m_trackSumTool );
 			} else {
-			  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endreq;
+			  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieved tool " << m_trackSumTool << endmsg;
 			}
 			return StatusCode::SUCCESS;
 		}
@@ -395,7 +396,7 @@ namespace JiveXML {
 		*/
 		StatusCode TrackRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 			//be verbose
-			if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endreq; 
+			if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() << endmsg; 
 			//Generate a list of requested track collections
 			typedef std::pair< TrackCollection , std::string > tracksNamePair;
 			std::vector< tracksNamePair > requestedTrackColls;
@@ -695,7 +696,7 @@ namespace JiveXML {
 			//Be verbose
 			if (msgLvl(MSG::DEBUG)) {
 				msg(MSG::DEBUG) << dataTypeName() << " collection " << collectionName;
-				msg(MSG::DEBUG) << " retrieved with " << id.size() << " entries"<< endreq;
+				msg(MSG::DEBUG) << " retrieved with " << id.size() << " entries"<< endmsg;
 			}
 
 		} //loop over track collections
