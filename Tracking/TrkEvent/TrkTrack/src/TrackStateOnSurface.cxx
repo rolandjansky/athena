@@ -238,26 +238,26 @@ TrackStateOnSurface::isSane() const {
 MsgStream& operator << ( MsgStream& sl, const TrackStateOnSurface& tsos)
 { 
     std::string name("TrackStateOnSurface: ");
-    sl <<name<<"\t of type : "<<tsos.dumpType()<<endreq;
+    sl <<name<<"\t of type : "<<tsos.dumpType()<<endmsg;
     //write out "type" of object
     
     if (sl.level()<MSG::INFO) 
     {
-        sl<<name<<"Detailed dump of contained objects follows:"<<endreq;
+        sl<<name<<"Detailed dump of contained objects follows:"<<endmsg;
         if ( tsos.fitQualityOnSurface()!=0) 
-            sl << *(tsos.fitQualityOnSurface() )<<endreq<<" (end of FitQualityOnSurface dump)"<<endreq;
+            sl << *(tsos.fitQualityOnSurface() )<<"\n (end of FitQualityOnSurface dump)"<<endmsg;
     
         if ( tsos.trackParameters() !=0) 
-            sl << *(tsos.trackParameters() )<<endreq<<" (end of TrackParameters dump)"<<endreq;
+            sl << *(tsos.trackParameters() )<<"\n (end of TrackParameters dump)"<<endmsg;
     
         if ( tsos.measurementOnTrack()!=0) 
-            sl << *(tsos.measurementOnTrack() )<<endreq<<" (end of MeasurementBase dump"<<endreq;
+            sl << *(tsos.measurementOnTrack() )<<"\n (end of MeasurementBase dump"<<endmsg;
     
         if (tsos.materialEffectsOnTrack()!=0) 
-            sl << *(tsos.materialEffectsOnTrack() )<<endreq<<" (end of MaterialEffectsBase dump)"<<endreq;
+            sl << *(tsos.materialEffectsOnTrack() )<<"\n (end of MaterialEffectsBase dump)"<<endmsg;
         
         if (tsos.alignmentEffectsOnTrack()!=0) 
-            sl << *(tsos.alignmentEffectsOnTrack() )<<endreq<<" (end of AlignmentEffectsOnTrack dump)"<<endreq;
+            sl << *(tsos.alignmentEffectsOnTrack() )<<"\n (end of AlignmentEffectsOnTrack dump)"<<endmsg;
     }
     return sl; 
 }
