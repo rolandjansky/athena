@@ -14,7 +14,7 @@ VnHypo::VnHypo(const std::string& name, ISvcLocator* pSvcLocator)
 
 
   declareMonitoredVariable("TotalEt"        , m_Tot_Et            ,  0.);
-  declareMonitoredVariable("TotalEtPassing" , m_Tot_Et_passing    , -1.);
+  declareMonitoredVariable("TotalEtPassing" , m_Tot_Et_passing    , -1.);  
   declareMonitoredVariable("icent"          , m_icent             , -1 );
   declareMonitoredVariable("icentPassing"   , m_icent_passing     , -1.);
   declareMonitoredVariable("qnx"            , m_qnx              , -1);
@@ -29,6 +29,8 @@ VnHypo::VnHypo(const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty("QyShifts",  m_helper.qyshifts, "Values of q shifts along the y coordinate");
   declareProperty("FlowHarmonic"  , m_FlowHarmonic  =2                     , "The Order of the flow harmonic (2/3)");
   declareProperty("UpperLimit", m_upperLimit=false, "Apply q < threshold if true");
+  declareProperty("MinEta", m_minEta=-5, "Minimum eta requires from ES shape slice to be included");
+  declareProperty("MaxEta", m_maxEta=5,   "Maximum eta requires from ES shape slice to be included");
 }
 
 HLT::ErrorCode VnHypo::hltInitialize() {
@@ -81,7 +83,9 @@ HLT::ErrorCode VnHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pas
     if(Et==0) continue;
 
     float eta=(sh->etaMin()+sh->etaMax())*0.5;
-    if(std::fabs(eta)<3.2) continue;//FCal Only
+    if ( std::fabs(eta)<3.2 ) continue;//FCal Only
+    if ( eta < m_minEta ) continue; // relevant for assumetric cuts only
+    if ( eta > m_maxEta ) continue; // relevant for assumetric cuts only
 
     const std::vector<float> &c1=sh->etCos();
     const std::vector<float> &s1=sh->etSin();
@@ -92,7 +96,7 @@ HLT::ErrorCode VnHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pas
   }
   
   m_icent=m_helper.getCentBin(m_Tot_Et);
-  if(m_icent==-1) return HLT::OK;
+  if(m_icent == -1) return HLT::OK;
 
   m_qnx /= m_Tot_Et;
   m_qny /= m_Tot_Et;

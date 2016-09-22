@@ -11,11 +11,11 @@ class VnMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('TotalEt',
                                              type='TH1F',
                                              title="Total ET; ET [MeV]",
-                                             xbins = 100, xmin=0.0, xmax=6.5*TeV)]
+                                             xbins = 100, xmin=0.0, xmax=2.5*TeV)]
         self.Histograms += [ defineHistogram('TotalEtPassing',
                                              type='TH1F',
                                              title="Total ET for passing events; ET [MeV]",
-                                             xbins = 100, xmin=0.0, xmax=6.5*TeV)]
+                                             xbins = 100, xmin=0.0, xmax=2.5*TeV)]
 
 
         self.Histograms += [ defineHistogram('q',
@@ -43,7 +43,7 @@ class VnBootstrap(TrigGenericMonitoringToolConfig):
         self.Histograms += [ defineHistogram('TotalEt, q',
                                              type='TH2F',
                                              title="q%d vs Fcal of all events" % harmonic,
-                                             xbins=100, xmin=200*GeV, xmax=5.*TeV,
+                                             xbins=100, xmin=200*GeV, xmax=2.5*TeV,
                                              ybins=100, ymin=0, ymax=0.2) ]            
 
 class QZeroMonitoring(TrigGenericMonitoringToolConfig):
@@ -53,25 +53,14 @@ class QZeroMonitoring(TrigGenericMonitoringToolConfig):
 
 #        self.Histograms += [ defineHistogram('TotalEt, qnx', type="TH2F", title="TotalEt[TeV];q_{%d x 0};q_{x0}" % harmonic, xbins=100, xmin=0, xmax=4.5*TeV, ybins=30, ymin=-qmax, ymax=qmax) ]
 #        self.Histograms += [ defineHistogram('TotalEt, qny', type="TH2F", title="TotalEt[TeV];q_{%d y 0};q_{y0}" % harmonic, xbins=100, xmin=0, xmax=4.5*TeV, ybins=30, ymin=-qmax, ymax=qmax) ]
-        self.Histograms += [ defineHistogram('TotalEt, qnx', type="TProfile", title="FCal Event q0x;TotalEt[TeV];q_{%d x 0}" % harmonic, xbins=100, xmin=0, xmax=6.5*TeV) ]
-        self.Histograms += [ defineHistogram('TotalEt, qny', type="TProfile", title="FCal Event q0y;TotalEt[TeV];q_{%d y 0}" % harmonic, xbins=100, xmin=0, xmax=6.5*TeV) ]
+        self.Histograms += [ defineHistogram('TotalEt, qnx', type="TProfile", title="FCal Event q0x;TotalEt[TeV];q_{%d x 0}" % harmonic, xbins=100, xmin=0, xmax=2.5*TeV) ]
+        self.Histograms += [ defineHistogram('TotalEt, qny', type="TProfile", title="FCal Event q0y;TotalEt[TeV];q_{%d y 0}" % harmonic, xbins=100, xmin=0, xmax=2.5*TeV) ]
 
-# _EtCuts=[
-#     3.4432, 3.2977, 3.1648, 3.0400, 2.9222, 2.8101, 2.7033, 2.6014, 2.5038, 2.4104, 
-#     2.3208, 2.2343, 2.1516, 2.0715, 1.9941, 1.9194, 1.8473, 1.7776, 1.7100, 1.6448, 
-#     1.5815, 1.5203, 1.4610, 1.4034, 1.3479, 1.2939, 1.2417, 1.1910, 1.1418, 1.0942, 
-#     1.0482, 1.0036, 0.9604, 0.9185, 0.8780, 0.8388, 0.8009, 0.7642, 0.7288, 0.6946, 
-#     0.6615, 0.6295, 0.5987, 0.5689, 0.5401, 0.5126, 0.4859, 0.4604, 0.4357, 0.4120, 
-#     0.3892, 0.3674, 0.3465, 0.3265, 0.3073, 0.2889, 0.2714, 0.2546, 0.2387, 0.2235,
-#     0.2090, 0.1953, 0.1822, 0.1698, 0.1582, 0.1471, 0.1366, 0.1268, 0.1175, 0.1088] 
-# #    0.1005, 0.0928, 0.0856, 0.0789, 0.0725, 0.0666, 0.0611, 0.0559, 0.0511, 0.0467, 
-# #    0.0425, 0.0386, 0.0350, 0.0316, 0.0285, 0.0256, 0.0229, 0.0203, 0.0180, 0.0158, 
-# #    0.0137, 0.0118, 0.0100, 0.0083, 0.0067, 0.0051, 0.0033, -0.0085,    -1,     -2 ]
-    
+
 _EtCuts_v2=[ x*1e-3 for x in reversed(range(300, 6050, 50)) ] # equidistant bins
 _EtCuts_v3=[ x*1e-3 for x in reversed(range(400, 6050, 50)) ]
 
-
+_EtCuts_v2_assym = [ x*1e-3 for x in reversed(range(100, 300, 50))]
 
 ########################################################################################
 # V2
@@ -100,6 +89,8 @@ V2_th16.QyShifts=[q2yshift]
 def generateVnThresholds(a,b,c, etbins):
     return [ a - b*et +c*pow(et, 2)  for et in etbins]
     
+def generateAssymVnThresholds(a,b,c,d, etbins):
+    return [ a + b*et +c*pow(et, 2) +d for et in etbins]
 # thresholds mappint
 #      %v2     %v3
 #15    2.5     2.5
@@ -134,6 +125,124 @@ V2_th1_veto = V2Hypo("V2_th1_veto")
 V2_th1_veto.UpperLimit=True
 V2_th1_veto.QThresholds = generateVnThresholds(0.0330088, -0.00256366, -0.00233638, _EtCuts_v2)
 
+
+
+
+class V2HypoAssym(VnHypo):
+    __slots__ = []
+    def __init__(self, name, side):
+        super( VnHypo, self ).__init__( name )
+        self.FlowHarmonic = 2
+        self.CentralityBins = _EtCuts_v2_assym 
+        if side == "A":
+            self.MinEta=3.2 
+            self.QxShifts = [0]*len(_EtCuts_v2_assym)
+            self.QyShifts = [0]*len(_EtCuts_v2_assym)
+
+        elif side == "C":
+            self.MaxEta=-3.2
+            self.QxShifts = [0]*len(_EtCuts_v2_assym)
+            self.QyShifts = [0]*len(_EtCuts_v2_assym)
+        else:
+            raise 'The V2 hypothesis algorithm is insufficiently configured, no FCal side specified '
+
+        self.AthenaMonTools += [VnMonitoring(name="VnMonitoring", harmonic=self.FlowHarmonic)]
+    
+
+V2A_th1 = V2HypoAssym("V2A_th1", "A")
+V2A_th1.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
+
+V2A_th2 = V2HypoAssym("V2A_th2", "A")
+V2A_th2.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
+
+V2A_th3 = V2HypoAssym("V2A_th3", "A")
+V2A_th3.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
+
+V2A_thresholds = {1: V2A_th1, 2: V2A_th2, 3: V2A_th3}
+
+
+V2A_th0p = V2HypoAssym("V2A_th0p", "A")
+V2A_th0p.QThresholds = generateAssymVnThresholds( 10, 0, 0, 0, _EtCuts_v2_assym)
+
+V2A_th005p = V2HypoAssym("V2A_th005p", "A")
+V2A_th005p.QThresholds = generateAssymVnThresholds( 0.671805, -0.00848271, 5.1144e-05, -1.03468e-07, _EtCuts_v2_assym)
+
+V2A_th01p = V2HypoAssym("V2A_th01p", "A")
+V2A_th01p.QThresholds = generateAssymVnThresholds( 0.5051, -0.00547545, 3.18733e-05, -6.31319e-08, _EtCuts_v2_assym)
+
+V2A_th025p = V2HypoAssym("V2A_th025p", "A")
+V2A_th025p.QThresholds = generateAssymVnThresholds( 0.355451, -0.0030147, 1.65811e-05, -3.19174e-08, _EtCuts_v2_assym)
+
+V2A_th05p = V2HypoAssym("V2A_th05p", "A")
+V2A_th05p.QThresholds = generateAssymVnThresholds(  0.333727, -0.00299038, 1.67039e-05, -3.23019e-08, _EtCuts_v2_assym)
+
+V2A_th10p = V2HypoAssym("V2A_th10p", "A")
+V2A_th10p.QThresholds = generateAssymVnThresholds(  0.28111, -0.00239508, 1.3197e-05, -2.53084e-08, _EtCuts_v2_assym)
+
+V2A_th15p = V2HypoAssym("V2A_th15p", "A")
+V2A_th15p.QThresholds = generateAssymVnThresholds( 0.241106, -0.00189997, 1.02592e-05, -1.94606e-08, _EtCuts_v2_assym)
+
+V2A_th20p = V2HypoAssym("V2A_th20p", "A")
+V2A_th20p.QThresholds = generateAssymVnThresholds(  0.222785, -0.00177955, 9.73365e-06, -1.86627e-08, _EtCuts_v2_assym)
+
+
+
+V2A_thresholds = {"1": V2A_th1, "2": V2A_th2, "3": V2A_th3, 
+                  "0p": V2A_th0p,
+                  "005p": V2A_th005p, "01p": V2A_th01p,
+                  "025p": V2A_th025p, "05p": V2A_th05p,
+                  "10p": V2A_th10p,   "15p": V2A_th15p,
+                  "20p": V2A_th20p}
+
+
+
+V2C_th1 = V2HypoAssym("V2C_th1", "C")
+V2C_th1.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
+
+V2C_th2 = V2HypoAssym("V2C_th2", "C")
+V2C_th2.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
+
+V2C_th3 = V2HypoAssym("V2C_th3", "C")
+V2C_th3.QThresholds = generateVnThresholds(0,0,0, _EtCuts_v2_assym)
+        
+V2C_th0p = V2HypoAssym("V2C_th0p", "C")
+V2C_th0p.QThresholds = generateAssymVnThresholds( 10, 0, 0, 0, _EtCuts_v2_assym)
+
+
+V2C_th005p = V2HypoAssym("V2C_th005p", "C")
+V2C_th005p.QThresholds = generateAssymVnThresholds( 0.628789, -0.00758789, 4.56162e-05, -9.31571e-08, _EtCuts_v2_assym)
+
+V2C_th01p = V2HypoAssym("V2C_th01p", "C")
+V2C_th01p.QThresholds = generateAssymVnThresholds(  0.452976, -0.00440765, 2.51445e-05, -5.00672e-08, _EtCuts_v2_assym)
+
+V2C_th025p = V2HypoAssym("V2C_th025p", "C")
+V2C_th025p.QThresholds = generateAssymVnThresholds( 0.304252, -0.00197356, 1.00126e-05, -1.89781e-08, _EtCuts_v2_assym)
+
+V2C_th05p = V2HypoAssym("V2C_th05p", "C")
+V2C_th05p.QThresholds = generateAssymVnThresholds(  0.224585, -0.000791821, 2.58771e-06, -3.27433e-09, _EtCuts_v2_assym)
+
+V2C_th10p = V2HypoAssym("V2C_th10p", "C")
+V2C_th10p.QThresholds = generateAssymVnThresholds( 0.172777, -0.000209044, -9.24903e-07, 3.99128e-09, _EtCuts_v2_assym)
+
+V2C_th15p = V2HypoAssym("V2C_th15p", "C")
+V2C_th15p.QThresholds = generateAssymVnThresholds( 0.164259, -0.000349901, 2.53182e-07, 1.26982e-09,  _EtCuts_v2_assym)
+
+V2C_th20p = V2HypoAssym("V2C_th20p", "C")
+V2C_th20p.QThresholds = generateAssymVnThresholds( 0.139387, -9.5269e-05, -1.15158e-06, 3.88736e-09, _EtCuts_v2_assym)
+
+V2C_thresholds = {"1": V2C_th1, "2": V2C_th2, "3": V2C_th3, 
+                  "0p": V2C_th0p,
+                  "005p": V2C_th005p, "01p": V2C_th01p,
+                  "025p": V2C_th025p, "05p": V2C_th05p,
+                  "10p": V2C_th10p,   "15p": V2C_th15p,
+                  "20p": V2C_th20p}
+
+def V2Assym(threshold, side):
+    if side == "A":
+        return V2A_thresholds[threshold]
+    if side == "C":
+        return V2C_thresholds[threshold]
+    raise "Side of the detector has to be either A or C"
 
 ########################################################################################
 # V3
