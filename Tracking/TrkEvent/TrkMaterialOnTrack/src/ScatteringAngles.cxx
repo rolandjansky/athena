@@ -33,10 +33,10 @@ Trk::ScatteringAngles::~ScatteringAngles()
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::ScatteringAngles& saos)
 {
 	std::string name("ScatteringAngles: ");
-	sl << name<<"deltaPhi        : " << saos.deltaPhi()<<endreq;
-	sl << name<<"deltaTheta      : " << saos.deltaTheta() <<endreq;
-	sl << name<<"sigmaDeltaPhi   : " << saos.sigmaDeltaPhi()<<endreq;
-	sl << name<<"sigmaDeltaTheta : " << saos.sigmaDeltaTheta() <<endreq;
+	sl << name<<"deltaPhi        : " << saos.deltaPhi()<<endmsg;
+	sl << name<<"deltaTheta      : " << saos.deltaTheta() <<endmsg;
+	sl << name<<"sigmaDeltaPhi   : " << saos.sigmaDeltaPhi()<<endmsg;
+	sl << name<<"sigmaDeltaTheta : " << saos.sigmaDeltaTheta() <<endmsg;
 	return sl; 
 }
 // Overload of << operator for std::ostream for debug output
