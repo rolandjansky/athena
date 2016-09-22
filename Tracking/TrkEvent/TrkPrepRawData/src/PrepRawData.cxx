@@ -153,7 +153,7 @@ namespace Trk{
 
     MsgStream& PrepRawData::dump( MsgStream&    stream) const
     {
-        stream << "PrepRawData object"<<endreq;
+        stream << "PrepRawData object"<<endmsg;
         stream << "Identifier = ("<<this->identify().getString()<<"), ";
 
         stream << "Local Position = (";
@@ -174,7 +174,7 @@ namespace Trk{
           stream<<rdoIt->getString()<<", ";
         stream << "], ";
 
-        stream<<"}"<<endreq;        
+        stream<<"}"<<endmsg;        
         return stream;
     }
 
