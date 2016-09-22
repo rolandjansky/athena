@@ -23,7 +23,7 @@ if rec.doTrigger() == False:
 # Set the data type based on beamType/HI flag
 if globalflags.DataSource.get_Value() == 'geant4':
    DQMonFlags.monManDataType = 'monteCarlo'
-elif rec.doHeavyIon():
+elif (rec.doHeavyIon() or rec.doHIP()):
    DQMonFlags.monManDataType = 'heavyioncollisions'
    DQMonFlags.doHIMon = True
 elif jobproperties.Beam.beamType()   == 'cosmics':

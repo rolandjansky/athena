@@ -218,6 +218,16 @@ if DQMonFlags.doMonitoring():
       except Exception:
          treatException("DataQualitySteering_jobOptions.py: exception when setting up LUCID monitoring")
 
+   #------------------#                                                                                                                       
+   # AFP monitoring   #                                                                                                                       
+   #------------------#                                                                                                                       
+   if DQMonFlags.doAFPMon():
+      try:
+         include("AFP_Monitoring/AFPMonitoring_jobOptions.py")
+      except Exception:
+         treatException("DataQualitySteering_jobOptions.py: exception when setting up AFP monitoring")
+
+
    #---------------------#
    # HeavyIon monitoring #
    #---------------------#

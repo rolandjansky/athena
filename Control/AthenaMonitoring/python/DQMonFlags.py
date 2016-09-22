@@ -223,6 +223,13 @@ class doLucidMon(JobProperty):
     StoredValue=True
 list+=[doLucidMon]
 
+class doAFPMon(JobProperty):
+    """Switch for AFP monitoring"""
+    statusOn=True
+    allowedTypes=['bool']
+    StoredValue=False
+list+=[doAFPMon]
+
 class doHIMon(JobProperty):
     """ Switch for dedicated Heavy Ion monitoring """
     statusOn=True
