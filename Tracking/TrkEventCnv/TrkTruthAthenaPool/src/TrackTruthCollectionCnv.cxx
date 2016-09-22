@@ -29,8 +29,8 @@ TrackTruthCollectionCnv::TrackTruthCollectionCnv(ISvcLocator* svcLoc) :
 
 //================================================================
 TrackTruthCollectionPERS* TrackTruthCollectionCnv::createPersistent(TrackTruthCollection* trans) {
-  MsgStream log(messageService(), "TrackTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing TrackTruthCollection_p1"<<endreq;
+  MsgStream log(msgSvc(), "TrackTruthCollectionCnv");
+  log<<MSG::DEBUG<<"Writing TrackTruthCollection_p1"<<endmsg;
   TrackTruthCollectionPERS* pers=new TrackTruthCollectionPERS();
   m_converter_p1.transToPers(trans,pers,log); 
   return pers;
@@ -38,24 +38,24 @@ TrackTruthCollectionPERS* TrackTruthCollectionCnv::createPersistent(TrackTruthCo
 
 //================================================================
 TrackTruthCollection* TrackTruthCollectionCnv::createTransient() {
-  MsgStream log(messageService(), "TrackTruthCollectionCnv" );
+  MsgStream log(msgSvc(), "TrackTruthCollectionCnv" );
   std::auto_ptr<TrackTruthCollection> trans(new TrackTruthCollection());
   
   if (compareClassGuid(p1_guid)) {
-    log<<MSG::DEBUG<<"Read TrackTruthCollection_p1. GUID="<<m_classID.toString()<<endreq;
+    log<<MSG::DEBUG<<"Read TrackTruthCollection_p1. GUID="<<m_classID.toString()<<endmsg;
     Trk::TrackTruthCollection_p1* pers=poolReadObject<Trk::TrackTruthCollection_p1>();
     m_converter_p1.persToTrans(pers, trans.get(), log);
     delete pers;
   }
   else if (compareClassGuid(p0_guid)) {
-    log<<MSG::DEBUG<<"Read version p0 of TrackTruthCollection. GUID="<<m_classID.toString()<<endreq;
+    log<<MSG::DEBUG<<"Read version p0 of TrackTruthCollection. GUID="<<m_classID.toString()<<endmsg;
     TrackTruthVector *pers = poolReadObject<TrackTruthVector>();
     m_converter_p0.persToTrans(pers, trans.get(), log);
     delete pers;
   }
   else {
     log<<MSG::ERROR<<"Unsupported persistent version of TrackTruthCollection. GUID="
-       <<m_classID.toString()<<endreq;
+       <<m_classID.toString()<<endmsg;
     throw std::runtime_error("Unsupported persistent version of Data Collection");
   }
   

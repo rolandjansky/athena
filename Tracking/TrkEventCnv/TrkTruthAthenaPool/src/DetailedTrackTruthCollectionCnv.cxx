@@ -28,8 +28,8 @@ DetailedTrackTruthCollectionCnv::DetailedTrackTruthCollectionCnv(ISvcLocator* sv
 
 //================================================================
 DetailedTrackTruthCollectionPERS* DetailedTrackTruthCollectionCnv::createPersistent(DetailedTrackTruthCollection* trans) {
-  MsgStream log(messageService(), "DetailedTrackTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing DetailedTrackTruthCollection_p2"<<endreq;
+  MsgStream log(msgSvc(), "DetailedTrackTruthCollectionCnv");
+  log<<MSG::DEBUG<<"Writing DetailedTrackTruthCollection_p2"<<endmsg;
 
   //orig: return new DetailedTrackTruthCollectionPERS( *reinterpret_cast<DetailedTrackTruthCollectionPERS*>(trans) );
 
@@ -40,26 +40,26 @@ DetailedTrackTruthCollectionPERS* DetailedTrackTruthCollectionCnv::createPersist
 
 //================================================================
 DetailedTrackTruthCollection* DetailedTrackTruthCollectionCnv::createTransient() {
-  MsgStream log(messageService(), "DetailedTrackTruthCollectionCnv" );
+  MsgStream log(msgSvc(), "DetailedTrackTruthCollectionCnv" );
   DetailedTrackTruthCollection *trans(0);
   
   if (compareClassGuid(p2_guid)) {
     trans = new DetailedTrackTruthCollection();
-    log<<MSG::DEBUG<<"Read DetailedTrackTruthCollection_p2. GUID="<<m_classID.toString()<<endreq;
+    log<<MSG::DEBUG<<"Read DetailedTrackTruthCollection_p2. GUID="<<m_classID.toString()<<endmsg;
     Trk::DetailedTrackTruthCollection_p2* pers=poolReadObject<Trk::DetailedTrackTruthCollection_p2>();
     m_converter_p2.persToTrans(pers, trans, log);
     delete pers;
   }
   else if (compareClassGuid(p1_guid)) {
     trans = new DetailedTrackTruthCollection();
-    log<<MSG::DEBUG<<"Read DetailedTrackTruthCollection_p1. GUID="<<m_classID.toString()<<endreq;
+    log<<MSG::DEBUG<<"Read DetailedTrackTruthCollection_p1. GUID="<<m_classID.toString()<<endmsg;
     Trk::DetailedTrackTruthCollection_p1* pers=poolReadObject<Trk::DetailedTrackTruthCollection_p1>();
     m_converter_p1.persToTrans(pers, trans, log);
     delete pers;
   }
   else {
     std::string info("Unsupported persistent version of DetailedTrackTruthCollection. GUID=" + m_classID.toString());
-    log<<MSG::FATAL<<info<<endreq;
+    log<<MSG::FATAL<<info<<endmsg;
     throw std::runtime_error(info);
   }
   

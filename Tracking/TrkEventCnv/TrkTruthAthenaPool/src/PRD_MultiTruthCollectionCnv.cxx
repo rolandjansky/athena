@@ -20,8 +20,8 @@ PRD_MultiTruthCollectionCnv::PRD_MultiTruthCollectionCnv(ISvcLocator* svcLoc) :
 
 //================================================================
 PRD_MultiTruthCollectionPERS* PRD_MultiTruthCollectionCnv::createPersistent(PRD_MultiTruthCollection* trans) {
-  MsgStream log(messageService(), "PRD_MultiTruthCollectionCnv");
-  log<<MSG::DEBUG<<"Writing PRD_MultiTruthCollection_p2"<<endreq;
+  MsgStream log(msgSvc(), "PRD_MultiTruthCollectionCnv");
+  log<<MSG::DEBUG<<"Writing PRD_MultiTruthCollection_p2"<<endmsg;
   PRD_MultiTruthCollectionPERS* pers=new PRD_MultiTruthCollectionPERS();
   m_converter_p2.transToPers(trans,pers,log);
   return pers;
@@ -29,28 +29,28 @@ PRD_MultiTruthCollectionPERS* PRD_MultiTruthCollectionCnv::createPersistent(PRD_
 
 //================================================================
 PRD_MultiTruthCollection* PRD_MultiTruthCollectionCnv::createTransient() {
-  MsgStream log(messageService(), "PRD_MultiTruthCollectionCnv" );
+  MsgStream log(msgSvc(), "PRD_MultiTruthCollectionCnv" );
   std::auto_ptr<PRD_MultiTruthCollection> trans(new PRD_MultiTruthCollection());
   
   if (compareClassGuid(p2_guid)) {
-    log<<MSG::DEBUG<<"Read PRD_MultiTruthCollection_p2. GUID="<<m_classID.toString()<<endreq;
+    log<<MSG::DEBUG<<"Read PRD_MultiTruthCollection_p2. GUID="<<m_classID.toString()<<endmsg;
     Trk::PRD_MultiTruthCollection_p2* pers=poolReadObject<Trk::PRD_MultiTruthCollection_p2>();
     m_converter_p2.persToTrans(pers, trans.get(), log);
     delete pers;
   }
   else if (compareClassGuid(p1_guid)) {
-    log<<MSG::DEBUG<<"Read PRD_MultiTruthCollection_p1. GUID="<<m_classID.toString()<<endreq;
+    log<<MSG::DEBUG<<"Read PRD_MultiTruthCollection_p1. GUID="<<m_classID.toString()<<endmsg;
     Trk::PRD_MultiTruthCollection_p1* pers=poolReadObject<Trk::PRD_MultiTruthCollection_p1>();
     m_converter_p1.persToTrans(pers, trans.get(), log);
     delete pers;
   }
   else if (compareClassGuid(p0_guid)) {
-    log<<MSG::DEBUG<<"Read version p0 of PRD_MultiTruthCollection. GUID="<<m_classID.toString()<<endreq;
+    log<<MSG::DEBUG<<"Read version p0 of PRD_MultiTruthCollection. GUID="<<m_classID.toString()<<endmsg;
     trans.reset(poolReadObject<PRD_MultiTruthCollection>());
   }
   else {
     log<<MSG::ERROR<<"Unsupported persistent version of PRD_MultiTruthCollection. GUID="
-       <<m_classID.toString()<<endreq;
+       <<m_classID.toString()<<endmsg;
     throw std::runtime_error("Unsupported persistent version of Data Collection");
   }
   
