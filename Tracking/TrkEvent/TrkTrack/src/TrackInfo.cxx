@@ -180,6 +180,7 @@ std::string Trk::TrackInfo::dumpInfo() const
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::SiSpacePointsSeedMaker_VeryLowMomentum)  	       ? "SiSpacePointsSeedMaker_VeryLowMomentum; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::SiSpacePointsSeedMaker_SLHCConversionTracks)                 ? "SiSpacePointsSeedMaker_SLHCConversionTracks; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::SiSpacePointsSeedMaker_LargeD0)  	       ? "SiSpacePointsSeedMaker_LargeD0; ": "");
+     authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::Pseudotracking		)  	       ? "Pseudotracking; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::MuidMuonRecoveryTool)  	       ? "MuidMuonRecoveryTool; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::MuidStandaloneRefit)  	       ? "MuidStandaloneRefit; ": "");
      authorInfo<< (m_patternRecognition.test(Trk::TrackInfo::TrackInCaloROI)  	               ? "TrackInCaloROI; ": "");
@@ -207,7 +208,7 @@ std::ostream& Trk::operator << ( std::ostream& sl, const Trk::TrackInfo& info)
 
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::TrackInfo& info)
 {
-    sl <<info.dumpInfo()<<endreq;
+    sl <<info.dumpInfo()<<endmsg;
     return sl;
 }
 

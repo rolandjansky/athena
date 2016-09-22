@@ -59,12 +59,12 @@ MsgStream& Trk::operator << ( MsgStream& sl, const Trk::AlignmentEffectsOnTrack&
 {  
   if (sl.level()<MSG::INFO) 
   {
-      sl<<"AlignmentEffectsOnTrack:"<<endreq;
-      sl <<"deltaTranslation = "<<aeot.deltaTranslation()<<endreq;
-      sl <<"sigmaDeltaTranslation = "<<aeot.deltaTranslation()<<endreq;
-      sl <<"deltaAngle = "<<aeot.deltaAngle()<<endreq;
-      sl <<"sigmaDeltaAngle = "<<aeot.sigmaDeltaAngle()<<endreq;
-      sl <<"surface = "<<aeot.associatedSurface()<<endreq;
+      sl<<"AlignmentEffectsOnTrack:"<<endmsg;
+      sl <<"deltaTranslation = "<<aeot.deltaTranslation()<<endmsg;
+      sl <<"sigmaDeltaTranslation = "<<aeot.deltaTranslation()<<endmsg;
+      sl <<"deltaAngle = "<<aeot.deltaAngle()<<endmsg;
+      sl <<"sigmaDeltaAngle = "<<aeot.sigmaDeltaAngle()<<endmsg;
+      sl <<"surface = "<<aeot.associatedSurface()<<endmsg;
   }
   return sl;  
 }

@@ -271,13 +271,13 @@ unsigned int Trk::Track::numberOfInstantiations()
 MsgStream& Trk::operator << ( MsgStream& sl, const Trk::Track& track)
 { 
     std::string name("Track ");
-    sl <<name<<"Author = "<<track.info().dumpInfo()<<endreq;
-    if (track.fitQuality()!=0) sl << *(track.fitQuality() )<<endreq;
-    if (track.trackSummary()!=0) sl << *(track.trackSummary())<<endreq;
-    else sl << "No TrackSummary available in this track."<<endreq;
+    sl <<name<<"Author = "<<track.info().dumpInfo()<<endmsg;
+    if (track.fitQuality()!=0) sl << *(track.fitQuality() )<<endmsg;
+    if (track.trackSummary()!=0) sl << *(track.trackSummary())<<endmsg;
+    else sl << "No TrackSummary available in this track."<<endmsg;
     if (track.trackStateOnSurfaces() !=0)
     { 
-        sl << name <<"has " << (track.trackStateOnSurfaces()->size()) << " trackStateOnSurface(s)" << endreq;
+        sl << name <<"has " << (track.trackStateOnSurfaces()->size()) << " trackStateOnSurface(s)" << endmsg;
 
         //level()sh shows the output level, currentLevel() 
         //shows what the stream is set to	
@@ -288,9 +288,9 @@ MsgStream& Trk::operator << ( MsgStream& sl, const Trk::Track& track)
             int num=0;
             for (;it!=track.trackStateOnSurfaces()->end();++it)
             {
-                sl<< " --------- Start of TrackStateOnSurface \t"<<num<<"\t-------"<<endreq;
+                sl<< " --------- Start of TrackStateOnSurface \t"<<num<<"\t-------"<<endmsg;
                 sl<<(**it);
-                sl<< " ---------   End of TrackStateOnSurface \t"<<num++<<"\t-------"<<endreq;
+                sl<< " ---------   End of TrackStateOnSurface \t"<<num++<<"\t-------"<<endmsg;
             }
         }
     }
