@@ -182,25 +182,25 @@ namespace Trk
     MsgStream& TrackParticleBase::dump( MsgStream& sl ) const
     {       
         // DO NOT specificy an output level like MSG::VERBOSE (should be done by the caller)
-        sl << "Printing TrackParticle. OriginType: " << this->particleOriginType() << endreq;
+        sl << "Printing TrackParticle. OriginType: " << this->particleOriginType() << endmsg;
         if (this->trackElementLink()->isValid())
         {
-          sl << "The ElementLink<TrackCollection> is valid." << endreq;
+          sl << "The ElementLink<TrackCollection> is valid." << endmsg;
         } else
         {
-          sl << "The ElementLink<TrackCollection> is NOT valid." << endreq;
+          sl << "The ElementLink<TrackCollection> is NOT valid." << endmsg;
         }
-        if ( this->fitQuality() !=0 )          sl << * ( this->fitQuality() ) <<endreq;
-        if ( this->trackSummary() !=0 )        sl << * ( this->trackSummary() ) <<endreq;
+        if ( this->fitQuality() !=0 )          sl << * ( this->fitQuality() ) <<endmsg;
+        if ( this->trackSummary() !=0 )        sl << * ( this->trackSummary() ) <<endmsg;
         // vertex EL should alwasy be there as it is in ESD and AOD
-        if ( this->reconstructedVertex() !=0 ) sl << ( this->reconstructedVertex()->recVertex() ) <<endreq;
+        if ( this->reconstructedVertex() !=0 ) sl << ( this->reconstructedVertex()->recVertex() ) <<endmsg;
         const std::vector<const TrackParameters*> trackParameters = this->trackParameters();
-        sl << "TrackParticle has " << trackParameters.size() << " track parameters. Printing them:" << endreq;
+        sl << "TrackParticle has " << trackParameters.size() << " track parameters. Printing them:" << endmsg;
         for (std::vector<const TrackParameters*>::const_iterator itr = trackParameters.begin() ; itr != trackParameters.end() ; ++itr)
         {
-          sl << (**itr) << endreq;
+          sl << (**itr) << endmsg;
         }
-	sl<<"TrackInfo inherited from original Track comes below:"<<endreq;
+	sl<<"TrackInfo inherited from original Track comes below:"<<endmsg;
 	sl<<m_trackInfo.dumpInfo();          
         return sl;
     }
