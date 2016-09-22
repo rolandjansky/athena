@@ -104,14 +104,14 @@ Trk::MaterialEffectsOnTrack::~MaterialEffectsOnTrack()
 // Overload of << operator for MsgStream for debug output
 MsgStream& Trk::MaterialEffectsOnTrack::dump ( MsgStream& sl ) const
 {
-  sl << "MaterialEffectsOnTrack based on" << endreq;
+  sl << "MaterialEffectsOnTrack based on" << endmsg;
   Trk::MaterialEffectsBase::dump(sl);
   sl <<"MaterialEffects, Scatterer? : "
-     << (scatteringAngles()?"yes:":"none")<<endreq;
-  if (scatteringAngles()) sl << *scatteringAngles() << endreq;
+     << (scatteringAngles()?"yes:":"none")<<endmsg;
+  if (scatteringAngles()) sl << *scatteringAngles() << endmsg;
   sl <<"MaterialEffects, E-loss ?   : "
-     << (energyLoss()?"yes:":"none") <<endreq;
-  if (energyLoss()) sl << *energyLoss() << endreq;
+     << (energyLoss()?"yes:":"none") <<endmsg;
+  if (energyLoss()) sl << *energyLoss() << endmsg;
   return sl; 
 }
 //Overload of << operator for std::ostream for debug output

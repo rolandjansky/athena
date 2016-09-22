@@ -59,12 +59,12 @@ Trk::EstimatedBremOnTrack::~EstimatedBremOnTrack()
 // Overload of << operator for MsgStream for debug output
 MsgStream& Trk::EstimatedBremOnTrack::dump ( MsgStream& sl ) const
 {
-  sl << "EstimatedBremOnTrack based on" << endreq;
+  sl << "EstimatedBremOnTrack based on" << endmsg;
   Trk::MaterialEffectsBase::dump(sl);
-  sl <<"EstBremOT retained p fraction z: " <<retainedEnFraction()<<endreq;
-  sl <<"EstBremOT sigma(z)             : " <<sigmaRetainedEnFraction()<<endreq;
-  sl <<"EstBremOT q/p noise term to cov: " <<sigmaQoverPsquared()<<endreq;
-  sl <<"EstBremOT brem search direction: " <<searchDirection()<<endreq;
+  sl <<"EstBremOT retained p fraction z: " <<retainedEnFraction()<<endmsg;
+  sl <<"EstBremOT sigma(z)             : " <<sigmaRetainedEnFraction()<<endmsg;
+  sl <<"EstBremOT q/p noise term to cov: " <<sigmaQoverPsquared()<<endmsg;
+  sl <<"EstBremOT brem search direction: " <<searchDirection()<<endmsg;
   return sl; 
 }
 //Overload of << operator for std::ostream for debug output
