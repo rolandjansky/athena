@@ -612,12 +612,12 @@ StatusCode InDet::SiResidualValidationNtupleHelper::fillMeasurementData (
 		const int& detectorType, const bool& isOutlier) const{
 
 
-        const xAOD::EventInfo* m_eventInfo;
-	StatusCode status = evtStore()->retrieve(m_eventInfo);
+        const xAOD::EventInfo* eventInfo;
+	StatusCode status = evtStore()->retrieve(eventInfo);
 	if (status.isFailure())
 		ATH_MSG_ERROR( "Could not retrieve event info" );
 
-	m_lvl1TriggerType = m_eventInfo->level1TriggerType();
+	m_lvl1TriggerType = eventInfo->level1TriggerType();
 	ATH_MSG_DEBUG(m_lvl1TriggerType );
 
 
@@ -1019,16 +1019,16 @@ StatusCode InDet::SiResidualValidationNtupleHelper::fillHoleData (
 		float   LocYClNearst  = -40;
 		float   GloZNearst  = -1000;
 	
-		const InDet::PixelClusterContainer *m_riocontainer=0;
-		StatusCode sc = evtStore()->retrieve(m_riocontainer, "PixelClusters");
+		const InDet::PixelClusterContainer *riocontainer=0;
+		StatusCode sc = evtStore()->retrieve(riocontainer, "PixelClusters");
 		if(sc.isFailure()) {
 			ATH_MSG_WARNING("Could not get PrepRawDataContainer");
 			return sc;
 		}
 		
 
-		InDet::PixelClusterContainer::const_iterator rioItr = m_riocontainer->begin();
-		for( ; rioItr != m_riocontainer->end(); rioItr++){ // loop1
+		InDet::PixelClusterContainer::const_iterator rioItr = riocontainer->begin();
+		for( ; rioItr != riocontainer->end(); rioItr++){ // loop1
 			const PixelClusterCollection *colNext=(*rioItr);
 			if (!colNext) continue;
 			if (detHoleId == colNext->identify()){ // if H==C

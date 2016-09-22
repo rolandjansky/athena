@@ -47,7 +47,7 @@ InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(cons
         m_riocontainer(0),
         //m_inputTrackCollection("Tracks")
         //        m_fullNtupleName("/NTUPLES/FILE1/FitterValidation/TrackStatistics"),
-        mjo_riocontainername("SCT_Clusters"),
+        m_jo_riocontainername("SCT_Clusters"),
         m_dataObjectName("SCT_RDOs"),
 	m_spacePointContainerName("SCT_SpacePoints"),
 	m_inputTrackCollection("CombinedInDetTracks"),
@@ -105,7 +105,7 @@ InDet::SCT_ClusterValidationNtupleWriter::SCT_ClusterValidationNtupleWriter(cons
 	m_scterr_type(0)
 
 {
-    declareProperty("SCT_ClusterContainer", mjo_riocontainername);
+    declareProperty("SCT_ClusterContainer", m_jo_riocontainername);
     declareProperty("SCT_RDOContainer", m_dataObjectName);
     declareProperty("SCT_SpacePointContainer", m_spacePointContainerName);
     declareProperty("SCT_InputTrackCollection", m_inputTrackCollection);
@@ -347,11 +347,11 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
     // Container with SCT RIOs
     m_riocontainer = 0;
     if ( m_fillCluster) {
-      if(!evtStore()->contains<SCT_ClusterContainer>(mjo_riocontainername)){
+      if(!evtStore()->contains<SCT_ClusterContainer>(m_jo_riocontainername)){
 	ATH_MSG_DEBUG("No PrepRawDataContainer in StoreGate");
       }
       else {
-	sc = evtStore()->retrieve(m_riocontainer, mjo_riocontainername);
+	sc = evtStore()->retrieve(m_riocontainer, m_jo_riocontainername);
 	if(sc.isFailure()) {
 	  ATH_MSG_DEBUG("Could not get PrepRawDataContainer");
 	}
@@ -585,7 +585,7 @@ StatusCode InDet::SCT_ClusterValidationNtupleWriter::execute() {
           m_sct_barrelec->push_back(thisBec);
           m_sct_numHitsInWafer->push_back(totalNumberOfStrips);
           m_sct_waferHash->push_back(theHashOfTheRDOCollection);
-	  SCT3_RawData* rdo3 = dynamic_cast<SCT3_RawData*>(*p_rdo);
+	  const SCT3_RawData* rdo3 = dynamic_cast<const SCT3_RawData*>(*p_rdo);
 	  if (rdo3!=0) {
 	    m_sct_tbin->push_back(rdo3->getTimeBin());
 	  } else {

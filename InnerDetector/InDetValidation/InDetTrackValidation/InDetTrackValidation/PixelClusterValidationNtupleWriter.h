@@ -22,10 +22,10 @@
 #include <string>
 
 // Constants to deal with diffenrent geometries.
-#define ATLAS 0
-#define IBL   1
-#define SLHC  2
-#define SLHC2  3
+#define GEO_ATLAS 0
+#define GEO_IBL   1
+#define GEO_SLHC  2
+#define GEO_SLHC2  3
 
 #define ATLASPITCHY  0.4
 #define SLHCPITCHY  0.25
@@ -110,17 +110,17 @@ private:
     const InDet::PixelClusterContainer*  m_riocontainer; //!< container of RIOs
     const SiHitCollection* 	 	 m_hitcontainer; //!< container of HITs
     const PixelRDO_Container* 		 m_rdocontainer; //!< container of RDOs
-    std::string mjo_riocontainername;   		 //!< jobOption: name of container with RIOs
-    std::string mjo_hitcontainername;   		 //!< jobOption: name of container with HITs
-    std::string mjo_rdocontainername;  			 //!< jobOption: name of container with RDOs
-    std::string	mjo_trackCollectionName;                 //!< jobOption: name of container with Tracks
-    bool mjo_Hits;					 //!< jobOption: fill Pixel Geant4 hits information
-    bool mjo_MC;					 //!< jobOption: associate Pixel Geant4 hits to clusters
-    bool mjo_NotAssociated;				 //!< jobOption: fill not associated Pixel Geant4 hits info
-    bool mjo_WriteDetailedPixelInformation;              //!< jobOption: fill pixel info: ToT, Charge, eta, phi, LVL1A
-    bool mjo_NN;			 	   	 //!< jobOption: Write training NN ntuple 
-    bool mjo_ToT;			 	   	 //!< jobOption: Write ToT instead of charge to the NN training ntuple 
-    bool mjo_onTrack;                                    //!< jobOption: fill only for cluster on track
+    std::string m_jo_riocontainername;   		 //!< jobOption: name of container with RIOs
+    std::string m_jo_hitcontainername;   		 //!< jobOption: name of container with HITs
+    std::string m_jo_rdocontainername;  			 //!< jobOption: name of container with RDOs
+    std::string	m_jo_trackCollectionName;                 //!< jobOption: name of container with Tracks
+    bool m_jo_Hits;					 //!< jobOption: fill Pixel Geant4 hits information
+    bool m_jo_MC;					 //!< jobOption: associate Pixel Geant4 hits to clusters
+    bool m_jo_NotAssociated;				 //!< jobOption: fill not associated Pixel Geant4 hits info
+    bool m_jo_WriteDetailedPixelInformation;              //!< jobOption: fill pixel info: ToT, Charge, eta, phi, LVL1A
+    bool m_jo_NN;			 	   	 //!< jobOption: Write training NN ntuple 
+    bool m_jo_ToT;			 	   	 //!< jobOption: Write ToT instead of charge to the NN training ntuple 
+    bool m_jo_onTrack;                                    //!< jobOption: fill only for cluster on track
     mutable const TrackCollection*        m_trackCollection;
     bool                              m_IBLAbsent;
     ServiceHandle<IBLParameterSvc>    m_IBLParameterSvc; 
@@ -139,12 +139,12 @@ private:
     TTree* m_nnt;
 
     // --- Contans Geometry
-    int _geoId;    //!< Geometry ID (see defines in header).
-    float _pitchY; //!< default y pitch.
+    int m_geoId;    //!< Geometry ID (see defines in header).
+    float m_pitchY; //!< default y pitch.
     // Number of layers to flip in SLHC 
-    int _slhc_layer_flip_1;
-    int _slhc_layer_flip_2;
-    int _slhc_layer_flip_3;
+    int m_slhc_layer_flip_1;
+    int m_slhc_layer_flip_2;
+    int m_slhc_layer_flip_3;
 
     // --- ntuple items ---
     long m_eventNumber;      //!< current event number
