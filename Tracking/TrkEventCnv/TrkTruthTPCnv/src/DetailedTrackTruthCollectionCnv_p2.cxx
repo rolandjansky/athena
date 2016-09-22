@@ -27,7 +27,7 @@ void DetailedTrackTruthCollectionCnv_p2::persToTrans( const Trk::DetailedTrackTr
 						      DetailedTrackTruthCollection* trans, 
 						      MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p2::persToTrans(): PERS size = "<<pers->m_entries.size()<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p2::persToTrans(): PERS size = "<<pers->m_entries.size()<<endmsg;
   
   trans->clear();
 
@@ -39,15 +39,15 @@ void DetailedTrackTruthCollectionCnv_p2::persToTrans( const Trk::DetailedTrackTr
     trans->insert(trans->end(), std::make_pair(i->key.m_index, dt) );
   }
 
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p2::persToTrans() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p2::persToTrans() DONE"<<endmsg;
 }
 
 void DetailedTrackTruthCollectionCnv_p2::transToPers( const DetailedTrackTruthCollection* trans, 
 						      Trk::DetailedTrackTruthCollection_p2* pers, 
 						      MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p2::transToPers()"<<endreq;
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p2::transToPers(): input size = "<<trans->size()<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p2::transToPers()"<<endmsg;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p2::transToPers(): input size = "<<trans->size()<<endmsg;
   
   dataLinkConverter.transToPers(trans->trackCollectionLink(), pers->m_trackCollectionLink, msg);
 
@@ -60,5 +60,5 @@ void DetailedTrackTruthCollectionCnv_p2::transToPers( const DetailedTrackTruthCo
     detailedTruthConverter.transToPers(&itrans->second, &current.detailedTruth, msg);
   }
 
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p2::transToPers() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p2::transToPers() DONE"<<endmsg;
 }

@@ -21,7 +21,7 @@ void PRD_MultiTruthCollectionCnv_p2::persToTrans( const Trk::PRD_MultiTruthColle
 						  PRD_MultiTruthCollection* trans, 
 						  MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p2::persToTrans()"<<endreq;
+  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p2::persToTrans()"<<endmsg;
   
   for(Trk::PRD_MultiTruthCollection_p2::CollectionType::const_iterator i=pers->m_entries.begin(); i!=pers->m_entries.end(); i++) {
     HepMcParticleLink link;
@@ -29,14 +29,14 @@ void PRD_MultiTruthCollectionCnv_p2::persToTrans( const Trk::PRD_MultiTruthColle
     trans->insert(trans->end(), std::make_pair(Identifier(i->id), link) );
   }
 
-  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p2::persToTrans() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p2::persToTrans() DONE"<<endmsg;
 }
 
 void PRD_MultiTruthCollectionCnv_p2::transToPers( const PRD_MultiTruthCollection* trans, 
 						  Trk::PRD_MultiTruthCollection_p2* pers, 
 						  MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p2::transToPers()"<<endreq;
+  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p2::transToPers()"<<endmsg;
 
   pers->m_entries.reserve(trans->size());
 
@@ -46,5 +46,5 @@ void PRD_MultiTruthCollectionCnv_p2::transToPers( const PRD_MultiTruthCollection
     pers->m_entries.push_back(Trk::PRD_MultiTruthCollection_p2::Entry(i->first.get_compact(), link));
   }
 
-  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p2::transToPers() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p2::transToPers() DONE"<<endmsg;
 }
