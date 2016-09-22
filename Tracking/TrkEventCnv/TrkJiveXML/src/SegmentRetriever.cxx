@@ -38,12 +38,12 @@ namespace JiveXML {
   StatusCode SegmentRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
     //be verbose
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endreq; 
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Retrieving " << dataTypeName() <<endmsg; 
 
     //Get an iterator over all segement collections
     const DataHandle<Trk::SegmentCollection> CollectionItr, CollectionsEnd;
     if ((evtStore()->retrieve(CollectionItr, CollectionsEnd)).isFailure()){
-      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Unable to retrieve iterator for Segment collection" << endreq;
+      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR) << "Unable to retrieve iterator for Segment collection" << endmsg;
       return StatusCode::RECOVERABLE;
     }
 
@@ -124,7 +124,7 @@ namespace JiveXML {
       //Be verbose
       if (msgLvl(MSG::DEBUG)) {
         msg(MSG::DEBUG) << dataTypeName() << " collection " << CollectionItr.key();
-        msg(MSG::DEBUG) << " retrieved with " << NSegs << " entries"<< endreq;
+        msg(MSG::DEBUG) << " retrieved with " << NSegs << " entries"<< endmsg;
       }
 
     }//Loop over segment collections
