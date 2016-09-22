@@ -254,8 +254,12 @@ the track and determine this for yourself (especially as not all Track builders 
 /** SLHCConversion Track flag */
      SiSpacePointsSeedMaker_SLHCConversionTracks = 50,
 
+/** Pseudo-tracking flag */
+     Pseudotracking				= 51,
+
+
 /**  Maximum number of enums */   
-     NumberOfTrackRecoInfo                      = 51
+     NumberOfTrackRecoInfo                      = 52
     };
     
     TrackInfo (); //!<needed by POOL. DO NOT USE YOURSELF! 
