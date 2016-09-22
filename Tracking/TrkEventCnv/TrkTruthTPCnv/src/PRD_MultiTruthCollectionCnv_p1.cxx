@@ -23,7 +23,7 @@ void PRD_MultiTruthCollectionCnv_p1::persToTrans( const Trk::PRD_MultiTruthColle
 						  PRD_MultiTruthCollection* trans, 
 						  MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p1::persToTrans()"<<endreq;
+  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p1::persToTrans()"<<endmsg;
   
   for(Trk::PRD_MultiTruthCollection_p1::CollectionType::const_iterator i=pers->m_entries.begin(); i!=pers->m_entries.end(); i++) {
     HepMcParticleLink link;
@@ -32,7 +32,7 @@ void PRD_MultiTruthCollectionCnv_p1::persToTrans( const Trk::PRD_MultiTruthColle
 
     if(!m_isInitialized) {
       if (this->initialize(msg) != StatusCode::SUCCESS) {
-	msg << MSG::FATAL << "Could not initialize PRD_MultiTruthCollectionCnv_p1 " << endreq;
+	msg << MSG::FATAL << "Could not initialize PRD_MultiTruthCollectionCnv_p1 " << endmsg;
       }
     }
 
@@ -46,14 +46,14 @@ void PRD_MultiTruthCollectionCnv_p1::persToTrans( const Trk::PRD_MultiTruthColle
     trans->insert(trans->end(), std::make_pair(chanId, link) );
   }
 
-  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p1::persToTrans() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p1::persToTrans() DONE"<<endmsg;
 }
 
 void PRD_MultiTruthCollectionCnv_p1::transToPers( const PRD_MultiTruthCollection* trans, 
 						  Trk::PRD_MultiTruthCollection_p1* pers, 
 						  MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p1::transToPers()"<<endreq;
+  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p1::transToPers()"<<endmsg;
 
   pers->m_entries.reserve(trans->size());
 
@@ -63,7 +63,7 @@ void PRD_MultiTruthCollectionCnv_p1::transToPers( const PRD_MultiTruthCollection
     pers->m_entries.push_back(Trk::PRD_MultiTruthCollection_p1::Entry(i->first.get_compact(), link));
   }
 
-  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p1::transToPers() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"PRD_MultiTruthCollectionCnv_p1::transToPers() DONE"<<endmsg;
 }
 
 StatusCode PRD_MultiTruthCollectionCnv_p1::initialize(MsgStream &log) {
@@ -75,7 +75,7 @@ StatusCode PRD_MultiTruthCollectionCnv_p1::initialize(MsgStream &log) {
    // get StoreGate service
    StatusCode sc = svcLocator->service("StoreGateSvc", m_storeGate);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "StoreGate service not found !" << endreq;
+      log << MSG::FATAL << "StoreGate service not found !" << endmsg;
       return StatusCode::FAILURE;
    }
 
@@ -83,21 +83,21 @@ StatusCode PRD_MultiTruthCollectionCnv_p1::initialize(MsgStream &log) {
    StoreGateSvc *detStore;
    sc = svcLocator->service("DetectorStore", detStore);
    if (sc.isFailure()) {
-      log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+      log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
       return StatusCode::FAILURE;
    } 
    //   else {
-   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endreq;
+   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Found DetectorStore." << endmsg;
    //   }
 
    // Get the sct helper from the detector store
    sc = detStore->retrieve(m_pixId, "PixelID");
    if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not get PixelID helper !" << endreq;
+      log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
       return StatusCode::FAILURE;
    } 
 
 
-   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endreq;
+   //    if (log.level() <= MSG::DEBUG) log << MSG::DEBUG << "Converter initialized." << endmsg;
    return StatusCode::SUCCESS;
 }

@@ -27,7 +27,7 @@ void DetailedTrackTruthCollectionCnv_p1::persToTrans( const Trk::DetailedTrackTr
 						      DetailedTrackTruthCollection* trans, 
 						      MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p1::persToTrans(): PERS size = "<<pers->m_entries.size()<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p1::persToTrans(): PERS size = "<<pers->m_entries.size()<<endmsg;
   
   trans->clear();
 
@@ -39,7 +39,7 @@ void DetailedTrackTruthCollectionCnv_p1::persToTrans( const Trk::DetailedTrackTr
     trans->insert(trans->end(), std::make_pair(i->key.m_index, dt) );
   }
 
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p1::persToTrans() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCollectionCnv_p1::persToTrans() DONE"<<endmsg;
 }
 
 void DetailedTrackTruthCollectionCnv_p1::transToPers( const DetailedTrackTruthCollection*,
@@ -47,6 +47,6 @@ void DetailedTrackTruthCollectionCnv_p1::transToPers( const DetailedTrackTruthCo
 						      MsgStream& msg ) 
 {
   const char* info = "DetailedTrackTruthCollectionCnv_p1::transToPers()";
-  msg<<MSG::FATAL<<info<<endreq;
+  msg<<MSG::FATAL<<info<<endmsg;
   throw std::runtime_error(info);
 }

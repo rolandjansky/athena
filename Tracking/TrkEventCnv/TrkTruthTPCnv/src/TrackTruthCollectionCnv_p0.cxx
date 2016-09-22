@@ -26,10 +26,10 @@ void TrackTruthCollectionCnv_p0::persToTrans( const Trk::TrackTruthCollection_p0
 					      TrackTruthCollection* trans, 
 					      MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"TrackTruthCollectionCnv_p0::persToTrans(): PERS size = "<<pers->size()<<endreq;
+  msg<<MSG::DEBUG<<"TrackTruthCollectionCnv_p0::persToTrans(): PERS size = "<<pers->size()<<endmsg;
 
   if(pers->empty()) {
-    msg<<MSG::WARNING<<"persToTrans(): can't find out the corresponding TrackCollection for the empty TrackTruthCollection_p0 (old-format)"<<endreq;
+    msg<<MSG::WARNING<<"persToTrans(): can't find out the corresponding TrackCollection for the empty TrackTruthCollection_p0 (old-format)"<<endmsg;
   }
   else {
     TrackTruthCollectionAccessor::trackCollectionLink(trans) = (*pers)[0].first.getStorableObjectPointer();
@@ -39,7 +39,7 @@ void TrackTruthCollectionCnv_p0::persToTrans( const Trk::TrackTruthCollection_p0
     }
   }
 
-  msg<<MSG::DEBUG<<"TrackTruthCollectionCnv_p0::persToTrans() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"TrackTruthCollectionCnv_p0::persToTrans() DONE"<<endmsg;
 }
 
 void TrackTruthCollectionCnv_p0::transToPers( const TrackTruthCollection* /*trans*/, 

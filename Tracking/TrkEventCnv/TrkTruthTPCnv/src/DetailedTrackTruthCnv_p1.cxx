@@ -26,19 +26,19 @@ void DetailedTrackTruthCnv_p1::persToTrans( const Trk::DetailedTrackTruth_p1* pe
 					    DetailedTrackTruth* trans, 
 					    MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p1::persToTrans()"<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p1::persToTrans()"<<endmsg;
 
   static bool s_firsttime = true;
   if(s_firsttime) {
     s_firsttime = false;
-    msg<<MSG::WARNING<<"Reading DetailedTrackTruth in the old format, statsTruth() info will not be available."<<endreq;
+    msg<<MSG::WARNING<<"Reading DetailedTrackTruth in the old format, statsTruth() info will not be available."<<endmsg;
   }
   
   subDetHitStatConverter.persToTrans(&pers->m_hitsCommon, &TrackTruthCollectionAccessor::statsCommon(trans), msg);
   subDetHitStatConverter.persToTrans(&pers->m_hitsTrack, &TrackTruthCollectionAccessor::statsTrack(trans), msg);
   truthTrajConverter.persToTrans(&pers->m_trajectory, &TrackTruthCollectionAccessor::trajectory(trans), msg);
   
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p1::persToTrans() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p1::persToTrans() DONE"<<endmsg;
 }
 
 void DetailedTrackTruthCnv_p1::transToPers( const DetailedTrackTruth*,
@@ -46,6 +46,6 @@ void DetailedTrackTruthCnv_p1::transToPers( const DetailedTrackTruth*,
 					    MsgStream& msg ) 
 {
   const char *info = "DetailedTrackTruthCnv_p1::transToPers(): THIS OLD CONVERTER SHOLD NOT GET CALLED!";
-  msg<<MSG::FATAL<<info<<endreq;
+  msg<<MSG::FATAL<<info<<endmsg;
   throw std::runtime_error(info);
 }

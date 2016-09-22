@@ -24,26 +24,26 @@ void DetailedTrackTruthCnv_p2::persToTrans( const Trk::DetailedTrackTruth_p2* pe
 					    DetailedTrackTruth* trans, 
 					    MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p2::persToTrans()"<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p2::persToTrans()"<<endmsg;
   
   subDetHitStatConverter.persToTrans(&pers->m_hitsCommon, &TrackTruthCollectionAccessor::statsCommon(trans), msg);
   subDetHitStatConverter.persToTrans(&pers->m_hitsTrack, &TrackTruthCollectionAccessor::statsTrack(trans), msg);
   subDetHitStatConverter.persToTrans(&pers->m_hitsTruth, &TrackTruthCollectionAccessor::statsTruth(trans), msg);
   truthTrajConverter.persToTrans(&pers->m_trajectory, &TrackTruthCollectionAccessor::trajectory(trans), msg);
   
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p2::persToTrans() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p2::persToTrans() DONE"<<endmsg;
 }
 
 void DetailedTrackTruthCnv_p2::transToPers( const DetailedTrackTruth* trans, 
 					    Trk::DetailedTrackTruth_p2* pers, 
 					    MsgStream& msg ) 
 {
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p2::transToPers()"<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p2::transToPers()"<<endmsg;
 
   subDetHitStatConverter.transToPers(&trans->statsCommon(), &pers->m_hitsCommon, msg);
   subDetHitStatConverter.transToPers(&trans->statsTrack(),  &pers->m_hitsTrack,  msg);
   subDetHitStatConverter.transToPers(&trans->statsTruth(),  &pers->m_hitsTruth,  msg);
   truthTrajConverter.transToPers(&trans->trajectory(),      &pers->m_trajectory, msg);
 
-  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p2::transToPers() DONE"<<endreq;
+  msg<<MSG::DEBUG<<"DetailedTrackTruthCnv_p2::transToPers() DONE"<<endmsg;
 }
