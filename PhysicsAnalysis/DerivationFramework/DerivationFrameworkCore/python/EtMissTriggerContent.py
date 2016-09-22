@@ -2,7 +2,9 @@
 
 EtMissTriggerContent = [
 "HLT_xAOD__TrigMissingETContainer_TrigEFMissingET",
-"HLT_xAOD__TrigMissingETContainer_TrigEFMissingETAux.ex.ey.ez.sumE.sumEt"
+"HLT_xAOD__TrigMissingETContainer_TrigEFMissingETAux.ex.ey.ez.sumE.sumEt",
+"HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mht",
+"HLT_xAOD__TrigMissingETContainer_TrigEFMissingET_mhtAux.ex.ey.ez.sumE.sumEt"
 #"LVL1EnergySumRoI",
 #"LVL1EnergySumRoIAux.roiWord0.roiWord1.roiWord2.thrNames.energyX.energyY.energyT"
 #"LVL1EnergySumRoI",

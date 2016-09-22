@@ -683,6 +683,19 @@ class WriteDAOD_STDM8Stream (JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM8Stream)
 listAODtoDPD.append(WriteDAOD_STDM8Stream.StreamName)
 
+class WriteDAOD_STDM9Stream (JobProperty):
+    """STDM Heavy ION Derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_STDM9'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkSM/STDM9.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_STDM9Stream)
+listAODtoDPD.append(WriteDAOD_STDM9Stream.StreamName)
+
 
 
 #################################
@@ -1180,6 +1193,31 @@ class WriteDAOD_EXOT18Stream(JobProperty):
 jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT18Stream)
 listAODtoDPD.append(WriteDAOD_EXOT18Stream.StreamName)
 
+class WriteDAOD_EXOT19Stream(JobProperty):
+    """EXOT19 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT19'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT19.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT19Stream)
+listAODtoDPD.append(WriteDAOD_EXOT19Stream.StreamName)
+
+class WriteDAOD_EXOT20Stream(JobProperty):
+    """EXOT20 derivation"""
+    statusOn = True
+    allowedTypes = ['bool']
+    StoredValue = False
+    StreamName = 'StreamDAOD_EXOT20'
+    FileName = ''
+    isVirtual = False
+    DPDMakerScript = "DerivationFrameworkExotics/EXOT20.py"
+    pass
+jobproperties.DerivationFrameworkProdFlags.add_JobProperty(WriteDAOD_EXOT20Stream)
+listAODtoDPD.append(WriteDAOD_EXOT20Stream.StreamName)
 
 #################################
 # Defined by the Jet/MET group

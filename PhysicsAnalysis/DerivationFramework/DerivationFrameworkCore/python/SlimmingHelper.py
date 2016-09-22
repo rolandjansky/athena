@@ -228,8 +228,14 @@ class SlimmingHelper:
                         if item in theDictionary.keys():
                                 if (theDictionary[item]=='xAOD::JetAuxContainer'):
                                         entry = "xAOD::JetAuxContainer#"+item+"." 
+                                elif (theDictionary[item]=='xAOD::ShallowAuxContainer'):
+                                        entry = "xAOD::ShallowAuxContainer#"+item+"."
+                                elif ("AuxInfo" in theDictionary[item]):
+                                        entry = "xAOD::AuxInfoBase#"+item+"."
+                                elif (theDictionary[item]=='xAOD::MissingETAuxAssociationMap'):
+                                        entry = "xAOD::MissingETAuxAssociationMap#"+item+"."
                                 else:
-                                        entry = "xAOD::AuxContainerBase#"+item+"."
+                                        entry = "xAOD::AuxContainerBase#"+item+"."   
                                 for element in auxEntries[item]:
                                         length = len(auxEntries[item])
                                         if (element==(auxEntries[item])[length-1]):
