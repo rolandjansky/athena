@@ -141,7 +141,8 @@ InDetFlags.doPixelClusterNtuple = False
 ###################################
 InDetFlags.doBremRecovery = True
 InDetFlags.doCaloSeededBrem = False
-InDetFlags.doForwardTracks = True
+if not InDetFlags.useInDetDynamicCuts(): # because InDetDynamicCuts covers whole eta region
+   InDetFlags.doForwardTracks = True
 ###################################
 
 # activate the print InDetXYZAlgorithm statements

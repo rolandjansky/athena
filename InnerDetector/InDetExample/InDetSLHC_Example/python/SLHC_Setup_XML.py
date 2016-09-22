@@ -131,7 +131,6 @@ class SLHC_Setup_XMLReader :
                 f.write(v[clobIndex])
                 f.close()
 
-            
             ###### Setup XML files for Material ######
             xmlReader.XML_Materials         = pathName+"/Materials.xml"
 
@@ -152,3 +151,12 @@ class SLHC_Setup_XMLReader :
         svcMgr += xmlReader
         theApp.CreateSvc.insert(0,"InDet::XMLReaderSvc/InDetXMLReaderSvc")
 #        print svcMgr
+
+        
+        from AthenaCommon.AppMgr import theApp
+        from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+        from InDetTrackingGeometryXML.InDetTrackingGeometryXMLConf import InDet__GMXReaderSvc
+        gmxReader = InDet__GMXReaderSvc(name='InDetGMXReaderSvc')
+        gmxReader.dictionaryFileName=xmlReader.dictionaryFileName
+        svcMgr += gmxReader
+        theApp.CreateSvc.insert(1,"InDet::GMXReaderSvc/InDetGMXReaderSvc")
