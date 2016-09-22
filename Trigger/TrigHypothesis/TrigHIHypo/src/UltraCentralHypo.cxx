@@ -34,7 +34,7 @@ HLT::ErrorCode UltraCentralHypo::hltExecute(const HLT::TriggerElement* outputTE,
   pass = false;
   
   m_Tot_Et = 0; // this must be 0 because our loop starts from it
-  m_Tot_Et_passing = -1; // this will only get assigned when we pass
+  m_Tot_Et_passing = -1e6; // this will only get assigned when we pass
   
   const xAOD::HIEventShapeContainer* evtShape;
   ///*
@@ -51,11 +51,14 @@ HLT::ErrorCode UltraCentralHypo::hltExecute(const HLT::TriggerElement* outputTE,
   int size=evtShape->size();
   for(int i=0;i<size;i++){
     const xAOD::HIEventShape *sh=evtShape->at(i);
-    float Et     =  sh->et();
+    const float Et     =  sh->et();
+    const float etaMin =  sh->etaMin();
+    const float etaMax =  sh->etaMax();
+    //    ATH_MSG_WARNING("ET " << Et << " etaMin " << etaMin << " etaMax " << etaMax);
     if(Et==0) continue;
     
-    if ( sh->etaMin() < m_Eta_min ) continue;
-    if ( sh->etaMax() > m_Eta_max ) continue;
+    if ( etaMin < m_Eta_min ) continue;
+    if ( etaMax > m_Eta_max ) continue;
     //    float eta=(sh->etaMin()+sh->etaMax())/2.0;
     //    if(fabs(eta)<3.2) continue;//FCal Only
     

@@ -19,9 +19,9 @@ class GapHypoMonitoring(TrigGenericMonitoringToolConfig):
 
 
 
-ttFgapA = UltraCentralHypo("TTFgapA", EtaMin=3.2, EtaMax=5., FcalEtUpperBound=2*GeV)
+ttFgapA = UltraCentralHypo("TTFgapA", EtaMin=3.1, EtaMax=5., FcalEtUpperBound=2*GeV)
 ttFgapA.AthenaMonTools += [ GapHypoMonitoring(name="GapHypoMonitoring")]
-ttFgapC = UltraCentralHypo("TTFgapC", EtaMin=-5, EtaMax=-3.2,  FcalEtUpperBound=2*GeV)
+ttFgapC = UltraCentralHypo("TTFgapC", EtaMin=-5, EtaMax=-3.1,  FcalEtUpperBound=2*GeV)
 ttFgapC.AthenaMonTools += [ GapHypoMonitoring(name="GapHypoMonitoring")]
 
 cellFgapA = UltraCentralHypo("CellsFgapA", EtaMin=3.2, EtaMax=5., FcalEtUpperBound=2*GeV)
