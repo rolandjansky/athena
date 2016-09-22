@@ -6,7 +6,6 @@
 // CETmaterial.cxx, (c) ATLAS Detector software
 ///////////////////////////////////////////////////////////////////
 
-#include <iostream>
 #include <fstream>
 
 // Tracking
@@ -190,42 +189,29 @@ StatusCode Trk::CETmaterial::execute()
     // the initial perigee
     double z0 = m_minZ0 + (m_maxZ0-m_minZ0)/m_numScan *it;
     phi += 1*Gaudi::Units::deg; if (phi>M_PI) phi -=2*M_PI;
-    //double phi = m_minPhi + (m_maxPhi-m_minPhi)/m_numScan *it;
-    //phi += M_PI/180.; if (phi>M_PI) phi -=2*M_PI;
-    //double theta = m_minTheta +  m_flatDist->shoot()*(m_maxTheta-m_minTheta);
+
     double theta = m_minTheta + (m_maxTheta-m_minTheta)/m_numScan*it;
     double p = m_minP + (m_maxP-m_minP)/m_numScan *it;
     Trk::PerigeeSurface surface( Amg::Vector3D(0.,0.,0.));
     Trk::Perigee initialPerigee(0., z0, phi, theta, m_charge/p, surface);
-    // cosmics!
-    //Trk::GlobalPosition pos(0.,0.,z0);
-    //Trk::GlobalDirection mom(sin(theta)*cos(phi),sin(theta)*sin(phi),cos(theta));
-    //Trk::Perigee initialPerigee( pos,mom,m_charge/p,pos);
-    //std::cout << "theta,phi,pos:" << theta << "," << phi << "," << initialPerigee.position() << std::endl;
+
     const Trk::TrackParameters* seed = initialPerigee.clone();
     const Trk::PerigeeSurface& pSf = initialPerigee.associatedSurface();
-    //const Trk::MeasuredTrackParameters* measIn = dynamic_cast<const Trk::MeasuredTrackParameters*> (seed);
-    //if (measIn) std::cout << "input covariance:" << measIn->localErrorMatrix().covariance() << std::endl;
     material.clear();  matPrec.clear();
     const Trk::TrackParameters* currPar = seed;
     const Trk::TrackParameters* precPar = seed;
-    //const Trk::Layer* layPrec = 0;
     if (m_domsentry) {
       if (!m_msentry) {
-        //m_msentry = m_trackingGeometry->trackingVolume("MuonSpectrometerEntrance");
         m_msentry = m_trackingGeometry->trackingVolume("Calo::Containers::Calorimeter");
-        //std::cout << "msentry volume?" << m_msentry << std::endl;
       }
       if (m_msentry) {
         const Trk::TrackParameters* msEntry = m_extrapolator->extrapolateToVolume(*currPar,*m_msentry,Trk::alongMomentum,
                                                                                   (Trk::ParticleHypothesis)m_particleType);
         if (msEntry) {
-          //std::cout << theta << "," << phi << ": MS entrance reached at:" << msEntry->position() << "," << msEntry->momentum().mag() << std::endl;
            printMat(theta,phi,
                   currPar->momentum().mag()-msEntry->momentum().mag(),
                   Amg::error(msEntry->covariance()->inverse().eval(),Trk::theta),
                   Amg::error(msEntry->covariance()->inverse().eval(),Trk::phi));
-          //if (meas) std::cout << "errors:" << meas->localErrorMatrix().error(Trk::theta) << "," << meas->localErrorMatrix().error(Trk::phi) << std::endl;
 
           const std::vector<const Trk::TrackStateOnSurface*>* mmsentry = m_extrapolator->extrapolateM(*currPar,
                                                                                                     msEntry->associatedSurface(),
@@ -233,12 +219,10 @@ StatusCode Trk::CETmaterial::execute()
                                                                                                     false,
                                                                                                     (Trk::ParticleHypothesis)m_particleType);
           if (mmsentry ) {
-            //std::cout << "material scan:forward:" << std::endl;
-            //if (mmsentry) std::cout << "trPar vector size:" << mmsentry->size() << std::endl;
             for (unsigned int i=0; i< mmsentry->size(); i++)
                 if ((*mmsentry)[i])
-                    std::cout << "position:eloss:" << i << "," << (*mmsentry)[i]->trackParameters()->position() << ":"
-                        << (*mmsentry)[i]->trackParameters()->momentum().mag()-currPar->momentum().mag() << std::endl;
+                    ATH_MSG_DEBUG( "position:eloss:" << i << "," << (*mmsentry)[i]->trackParameters()->position() << ":"
+                        << (*mmsentry)[i]->trackParameters()->momentum().mag()-currPar->momentum().mag());
             currPar = (mmsentry->back()) ?  mmsentry->back()->trackParameters() : msEntry;
 
             const std::vector<const Trk::TrackStateOnSurface*>* peri = m_extrapolator->extrapolateM(*currPar,
@@ -246,12 +230,12 @@ StatusCode Trk::CETmaterial::execute()
                                                                                                     Trk::oppositeMomentum,
                                                                                                     false,
                                                                                                     (Trk::ParticleHypothesis)m_particleType);
-            std::cout << "material scan:backward:" << std::endl;
-            if (peri) std::cout << "trPar vector size:" << peri->size() << std::endl;
+            ATH_MSG_INFO ( "material scan:backward:" );
+            if (peri) ATH_MSG_DEBUG ("trPar vector size:" << peri->size() );
             for (unsigned int i=0; i< peri->size(); i++)
                 if ((*peri)[i] && (*peri)[i]->trackParameters())
-                    std::cout << "position:eloss:" << i << "," << (*peri)[i]->trackParameters()->position() << ":"
-                        << (*peri)[i]->trackParameters()->momentum().mag()-msEntry->momentum().mag() << std::endl;
+                    ATH_MSG_DEBUG( "position:eloss:" << i << "," << (*peri)[i]->trackParameters()->position() << ":"
+                        << (*peri)[i]->trackParameters()->momentum().mag()-msEntry->momentum().mag() );
 
             if (peri->back() && peri->back()->trackParameters()) {
               ATH_MSG_INFO( "extrapolation to perigee:input: "
@@ -289,7 +273,6 @@ StatusCode Trk::CETmaterial::execute()
                                                 material,
                                                 (Trk::ParticleHypothesis)m_particleType);
 
-        //if (next.first) std::cout << "precise extrapolation to:" << next.first->position() << "," << next.second << std::endl;
 
         const Trk::TrackParameters* nextPar = next.first;
         const Trk::Layer* lay = next.second;
@@ -301,8 +284,6 @@ StatusCode Trk::CETmaterial::execute()
                                                     Trk::alongMomentum,
                                                     false,
                                                     (Trk::ParticleHypothesis)m_particleType);
-          //if (nextPrec && nextPrec->size() && nextPrec->back()->trackParameters())
-          //  std::cout << "approx. extrapolation to:" << nextPrec->back()->trackParameters()->position() << std::endl;
           delete precPar;
           // collect material
           if (nextPrec) {
@@ -311,7 +292,6 @@ StatusCode Trk::CETmaterial::execute()
               const Trk::TrackParameters* trPar = (*nextPrec)[i]->trackParameters();
               if (mEff && trPar) {
                 matApp += mEff->thicknessInX0();
-                //std::cout << "mat approx:" << mEff->associatedSurface().center() << "," << mEff->thicknessInX0() << std::endl;
               }
             }
           }
@@ -324,24 +304,23 @@ StatusCode Trk::CETmaterial::execute()
           }
           if ( precPar ) printMatComp(theta,phi,currPar,lay->enclosingDetachedTrackingVolume()->name(),mat,matApp,currPar->parameters()[0]-precPar->parameters()[0],
                       currPar->parameters()[1]-precPar->parameters()[1]);
-          else if (currPar) std::cout << "expected layer not reached:" << currPar->position() << "," << precPar->position() << std::endl;
+          else if (currPar) {
+            //precPar is nullptr here
+            ATH_MSG_INFO( "expected layer not reached:" << currPar->position() );
+          }
         }
         if (nextPar && m_printActive) {
-          //std::vector<const Trk::DetachedTrackingVolume*>* detVols = m_extrapolator->trackingGeometry()->lowestDetachedTrackingVolumes(nextPar->position());
           int id = 0;
           if (lay) id = lay->layerType();
           double matc=0.;
           if (material.size()) for (unsigned int i=0; i< material.size(); i++) {
             if (material[i]->materialEffectsOnTrack()) matc += material[i]->materialEffectsOnTrack()->thicknessInX0();
           }
-          //else ATH_MSG_INFO( "par && cov matrix:" << nextPar->parameters()[Trk::locY] << "," << mdest->localErrorMatrix().error(Trk::locY) );
           else ATH_MSG_INFO( "mat & error:" << theta << "," << phi << "," << matc << ","
                   << Amg::error(nextPar->covariance()->inverse().eval(),Trk::theta) << ","
                   << Amg::error(nextPar->covariance()->inverse().eval(),Trk::phi) );
 
           printMatPrec(theta,phi,nextPar,nextPar,matc,id,"unknown");
-          //if (material.back()->materialEffectsOnTrack())
-          //  printMatPrec(theta,phi,nextPar,mdest,material.back()->materialEffectsOnTrack()->thicknessInX0(),id,(*detVols)[0]->name());
         }
         if (!lay) break;
       }
@@ -349,13 +328,10 @@ StatusCode Trk::CETmaterial::execute()
         double mat=0.;
         if (material.size()) for (unsigned int i=0; i< material.size(); i++) {
           if (material[i]->materialEffectsOnTrack()) {
-            //std::cout << "material surface prec:" << material[i]->materialEffectsOnTrack()->associatedSurface().center() << ","
-            //    << material[i]->materialEffectsOnTrack()->thicknessInX0() << std::endl;
             mat += material[i]->materialEffectsOnTrack()->thicknessInX0();
           }
         }
         printMat(theta,phi,mat);
-        //std::cout << "material difference:prec,approx:" << mat << "," << matApp << std::endl;
       }
     } else {
       const std::vector<const Trk::TrackStateOnSurface*>* destParameters = m_extrapolator->extrapolateM(*currPar,
@@ -403,7 +379,6 @@ StatusCode Trk::CETmaterial::execute()
                                                                                               Trk::oppositeMomentum,
                                                                                               false,
                                                                                               (Trk::ParticleHypothesis)m_particleType);
-          //std::cout << "material scan:backward:"<<it <<","<<destParameters->size() << std::endl;
 
           if (peri) {
               ATH_MSG_INFO( "trPar vector size:" << peri->size() );
@@ -450,9 +425,7 @@ void Trk::CETmaterial::printMatPrec(double theta, double phi, const Trk::TrackPa
 
   if (name=="") {}; // dummy to get rid of warning message (unused variable name)
   std::ofstream myfilemat;
-  //std::cout << "opening output file" << std::endl;
   myfilemat.open(m_matActiveFile,std::ios::app);
-  //std::cout << "opened:" << nextPar << "," << mdest << std::endl;
 
   if (!m_th && !m_ph) {
     m_th = theta;
