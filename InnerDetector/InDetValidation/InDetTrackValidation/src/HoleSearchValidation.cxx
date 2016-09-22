@@ -205,7 +205,7 @@ StatusCode HoleSearchValidation::execute() {
 
 
     // remve some hits from track
-    //msg(MSG::VERBOSE)<<"Copying all but "<<m_numberHitsToRemove <<" into new track"<<endreq;    
+    //msg(MSG::VERBOSE)<<"Copying all but "<<m_numberHitsToRemove <<" into new track"<<endmsg;    
     DataVector<const Trk::TrackStateOnSurface>* vecTsos 
       = new DataVector<const Trk::TrackStateOnSurface>();
     
@@ -449,11 +449,11 @@ StatusCode HoleSearchValidation::execute() {
     ATH_MSG_DEBUG(  "Removed total of " << nRemoved << " TSoS on track." ) ;
 
     Trk::Track* newTrack = new Trk::Track(track.info(), vecTsos, 0 );
-    msg(MSG::VERBOSE)<<"New Track ("<< newTrack <<") has "<< vecTsos->size() <<"\t track states"<<endreq;
+    msg(MSG::VERBOSE)<<"New Track ("<< newTrack <<") has "<< vecTsos->size() <<"\t track states"<<endmsg;
     ATH_MSG_VERBOSE(  "Perform hole search on new track:" ) ;
     // perform hole search
     unsigned int newHoles = doHoleSearch( newTrack );
-    unsigned int foundHoles = abs(newHoles - oldHoles);
+    unsigned int foundHoles = abs(static_cast<int>(newHoles) - static_cast<int>(oldHoles));
     
     if ( foundHoles == nRemoved ) 
       ATH_MSG_DEBUG(  "== OK      : "<< nRemoved <<" generated holes out of which all were found" ) ;

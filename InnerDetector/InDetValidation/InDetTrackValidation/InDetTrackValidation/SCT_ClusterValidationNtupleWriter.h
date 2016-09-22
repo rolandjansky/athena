@@ -52,7 +52,7 @@ private:
 
     const SCT_ID*       m_sctid;                   //!< SCT ID helper
     const InDet::SCT_ClusterContainer*  m_riocontainer; //!< container of RIOs
-    std::string mjo_riocontainername; //!< jobOption: name of container with RIOs
+    std::string m_jo_riocontainername; //!< jobOption: name of container with RIOs
     std::string m_dataObjectName;     //!< Data object name: for the SCT this is "SCT_RDOs"
     std::string m_spacePointContainerName;//!< SpacePoint container name: for the SCT this is "SCT_SpacePoints"
     std::string m_inputTrackCollection; //! TrackCollection name, needed for hits-on-tracks, default is "CombinedInDetTracks"

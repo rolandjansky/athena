@@ -51,19 +51,18 @@ InDet::PixelClusterValidationNtupleWriter::PixelClusterValidationNtupleWriter(co
   m_riocontainer(0),
   m_hitcontainer(0),
   m_rdocontainer(0),
-  //       m_inputTrackCollection("Tracks")
-  //m_fullNtupleName("/NTUPLES/FILE1/FitterValidation/TrackStatistics"),
-  mjo_riocontainername("PixelClusters"),
-  mjo_hitcontainername("PixelHits"),
-  mjo_rdocontainername("PixelRDOs"),
-  mjo_trackCollectionName("CombinedInDetTracks"),
-  mjo_Hits(false),
-  mjo_MC(false),
-  mjo_NotAssociated(false),
-  mjo_WriteDetailedPixelInformation(false),
-  mjo_NN(false),
-  mjo_ToT(false),
-  mjo_onTrack(false),
+  m_jo_riocontainername("PixelClusters"),
+  m_jo_hitcontainername("PixelHits"),
+  m_jo_rdocontainername("PixelRDOs"),
+  m_jo_trackCollectionName("CombinedInDetTracks"),
+  m_jo_Hits(false),
+  m_jo_MC(false),
+  m_jo_NotAssociated(false),
+  m_jo_WriteDetailedPixelInformation(false),
+  m_jo_NN(false),
+  m_jo_ToT(false),
+  m_jo_onTrack(false),
+  m_trackCollection(nullptr),
   m_IBLAbsent(true),
   m_IBLParameterSvc("IBLParameterSvc",name),
   m_pixelCalib("PixelOfflineCalibSvc",name),
@@ -115,6 +114,7 @@ InDet::PixelClusterValidationNtupleWriter::PixelClusterValidationNtupleWriter(co
   m_PixClusIsSplit(0),
   m_PixClusSplitProb1(0),
   m_PixClusSplitProb2(0),
+  m_pixHitsNum(0),
   m_PixHitXstartpos(0),
   m_PixHitYstartpos(0),
   m_PixHitZstartpos(0),
@@ -134,8 +134,8 @@ InDet::PixelClusterValidationNtupleWriter::PixelClusterValidationNtupleWriter(co
   m_PixHitTime(0),
   m_PixHitPDGParticle(0),
   m_PixHitFlag(0),
-  //    m_PixHitEtaIndex_delta(0),
-  //    m_PixHitPhiIndex_delta(0),
+  m_PixHitBarcode(0),
+  m_PixHitParticleP(0),
   m_MC_Xpos(0),
   m_MC_Ypos(0),
   m_MC_IncidentAngle(0),
@@ -145,6 +145,8 @@ InDet::PixelClusterValidationNtupleWriter::PixelClusterValidationNtupleWriter(co
   m_MC_Time(0),
   m_MC_PDGParticle(0),
   m_MC_Flag(0),
+  m_MC_Barcode(0),
+  m_MC_Momentum(0),
   m_NotAssociated_Xpos(0),
   m_NotAssociated_Ypos(0),
   m_NotAssociated_BarrelEndcap(0),
@@ -180,18 +182,18 @@ InDet::PixelClusterValidationNtupleWriter::PixelClusterValidationNtupleWriter(co
   m_NN_theta(0),
   m_NN_phi(0)
 {
-  declareProperty("PixelClusterContainer", mjo_riocontainername);
-  declareProperty("SiHitCollection",    mjo_hitcontainername);
-  declareProperty("PixelRDOCollection", mjo_rdocontainername);
-  declareProperty("TrackCollection", mjo_trackCollectionName);
-  declareProperty("DoHits", mjo_Hits);
-  declareProperty("DoMC", mjo_MC);
-  declareProperty("WriteNNTraining", mjo_NN);
-  declareProperty("UseToT", mjo_ToT);
-  declareProperty("OnlyClusterOnTrack", mjo_onTrack);
+  declareProperty("PixelClusterContainer", m_jo_riocontainername);
+  declareProperty("SiHitCollection",    m_jo_hitcontainername);
+  declareProperty("PixelRDOCollection", m_jo_rdocontainername);
+  declareProperty("TrackCollection", m_jo_trackCollectionName);
+  declareProperty("DoHits", m_jo_Hits);
+  declareProperty("DoMC", m_jo_MC);
+  declareProperty("WriteNNTraining", m_jo_NN);
+  declareProperty("UseToT", m_jo_ToT);
+  declareProperty("OnlyClusterOnTrack", m_jo_onTrack);
   declareProperty("NtupleNNTreeName", m_ntupleNNTreeName);
-  declareProperty("WriteDetailedPixelInformation", mjo_WriteDetailedPixelInformation);
-  declareProperty("FindNotAssociatedParticle", mjo_NotAssociated);
+  declareProperty("WriteDetailedPixelInformation", m_jo_WriteDetailedPixelInformation);
+  declareProperty("FindNotAssociatedParticle", m_jo_NotAssociated);
   declareProperty("NtupleFileName", m_ntupleFileName);
   declareProperty("NtupleDirectoryName", m_ntupleDirName);
   declareProperty("NtupleTreeName", m_ntupleTreeName);
@@ -235,7 +237,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::initialize() {
   }
 
   
-  if(mjo_NN){    
+  if(m_jo_NN){    
     m_nnt = new TTree(TString(m_ntupleNNTreeName), "NNtraining");
     // NB: we must not delete the tree, this is done by THistSvc
     std::string fullNtupleName =  "/"+m_ntupleFileName+"/"+m_ntupleDirName+"/"+m_ntupleNNTreeName;
@@ -250,7 +252,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::initialize() {
 
   if (m_iBeamCondSvc.retrieve().isFailure())
   {
-    msg(MSG::ERROR) << "Could not find BeamCondSvc." << endreq;
+    msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
     return StatusCode::FAILURE;
   }
     
@@ -262,9 +264,9 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::initialize() {
   } 
     
     
-  _slhc_layer_flip_1 = -1;
-  _slhc_layer_flip_2 = -1;
-  _slhc_layer_flip_3 = -1;  
+  m_slhc_layer_flip_1 = -1;
+  m_slhc_layer_flip_2 = -1;
+  m_slhc_layer_flip_3 = -1;  
     
     
   // ----------------------------
@@ -273,32 +275,32 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::initialize() {
 
   if ( !m_IBLAbsent ) {
     ATH_MSG_INFO("Found IBL+Atlas"  );
-    _geoId = IBL;
-    _pitchY = ATLASPITCHY; //nb. only the inner layer has a different _pitchY, This case is tested later
+    m_geoId = GEO_IBL;
+    m_pitchY = ATLASPITCHY; //nb. only the inner layer has a different _pitchY, This case is tested later
   }
   //
   //// Cartigny Layout
   else if (m_geoModel->atlasVersion().find("ATLAS-SLHC-01-02")!=std::string::npos) {
     ATH_MSG_INFO("Found ATLAS SLHC Cartigny/LoI Layout: " << m_geoModel->atlasVersion() );
-    _geoId = SLHC2;
-    _pitchY = SLHCPITCHY; // Def to .25, if layer <0 pitch to .15 (see below L1916) 
+    m_geoId = GEO_SLHC2;
+    m_pitchY = SLHCPITCHY; // Def to .25, if layer <0 pitch to .15 (see below L1916) 
     // In ATLAS_SLHC_01-02-01 layers 0, 2 & 4, Odd eta modules are fliped.
-    _slhc_layer_flip_1 = 0;
-    _slhc_layer_flip_2 = 2;
-    _slhc_layer_flip_3 = 4;  
-   
+    m_slhc_layer_flip_1 = 0;
+    m_slhc_layer_flip_2 = 2;
+    m_slhc_layer_flip_3 = 4;  
+
   } else if (m_geoModel->atlasVersion().find("SLHC")!=std::string::npos) {
     ATH_MSG_INFO("Found SLHC Atlas Version from geomodel: " << m_geoModel->atlasVersion() );
-    _geoId = SLHC;
-    _pitchY = SLHCPITCHY;
+    m_geoId = GEO_SLHC;
+    m_pitchY = SLHCPITCHY;
     // In layers 0,1 and 5, Odd eta modules are fliped.
-    _slhc_layer_flip_1 = 0;
-    _slhc_layer_flip_2 = 1;
-    _slhc_layer_flip_3 = 5;  
+    m_slhc_layer_flip_1 = 0;
+    m_slhc_layer_flip_2 = 1;
+    m_slhc_layer_flip_3 = 5;  
   }else {
     ATH_MSG_INFO("No UPGRADE Geometry Version found from geomodel: " << m_geoModel->atlasVersion() << " Assuming Run1 Geometry" );
-    _geoId = ATLAS;
-    _pitchY = ATLASPITCHY;
+    m_geoId = GEO_ATLAS;
+    m_pitchY = ATLASPITCHY;
   }
 
 
@@ -306,7 +308,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::initialize() {
 
 
   // if you want to write the NN input you also need pixel detailed info 
-  // if(mjo_NN){   mjo_Hits = true; mjo_MC = true;  mjo_NotAssociated= true; }
+  // if(m_jo_NN){   m_jo_Hits = true; m_jo_MC = true;  m_jo_NotAssociated= true; }
   
   
   if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()) {
@@ -409,7 +411,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::initialize() {
   m_nt->Branch("PixClusErrY", &m_PixClusErrY);
 
 
-  if ( mjo_WriteDetailedPixelInformation ){
+  if ( m_jo_WriteDetailedPixelInformation ){
     ATH_MSG_INFO("Creating branches for detailed pixel information");
     m_nt->Branch("PixClusEtaIndex",&m_PixClusEtaIndex) ;
     m_nt->Branch("PixClusPhiIndex",&m_PixClusPhiIndex) ;
@@ -511,7 +513,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::initialize() {
   m_NN_distanceY = new std::vector<std::vector<float> > ();
 
 
-  if (mjo_NN==true) {
+  if (m_jo_NN==true) {
     m_nnt->Branch("NN_sizeX", &m_NN_sizeX);
     m_nnt->Branch("NN_sizeY", &m_NN_sizeY);
     m_nnt->Branch("NN_matrixOfToT", &m_NN_matrixOfToT);
@@ -544,7 +546,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::initialize() {
 
   }
     
-  if (mjo_Hits==true) {
+  if (m_jo_Hits==true) {
     m_nt->Branch("PixelHitsNum", &m_pixHitsNum, "number_hits_per_event/I") ; // number of hits per event
     m_nt->Branch("PixHitXstartpos", &m_PixHitXstartpos);
     m_nt->Branch("PixHitYstartpos", &m_PixHitYstartpos);
@@ -569,7 +571,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::initialize() {
     m_nt->Branch("PixHitParticleP", &m_PixHitParticleP);
   }
 
-  if (mjo_MC==true) {
+  if (m_jo_MC==true) {
     m_nt->Branch("MC_Xpos", &m_MC_Xpos);
     m_nt->Branch("MC_Ypos", &m_MC_Ypos);
     m_nt->Branch("MC_IncidentAngle", &m_MC_IncidentAngle);
@@ -590,7 +592,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::initialize() {
     m_nt->Branch("MultipleAssociatedIndex",&m_MultipleAssociated_Index);
   }
 
-  if (mjo_NotAssociated==true) {
+  if (m_jo_NotAssociated==true) {
     m_nt->Branch("NotAssociated_Xpos", &m_NotAssociated_Xpos);
     m_nt->Branch("NotAssociated_Ypos", &m_NotAssociated_Ypos);
     m_nt->Branch("NotAssociated_BarrelEndcap", &m_NotAssociated_BarrelEndcap);
@@ -615,34 +617,34 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::execute() {
   // get the container with Pixel RIOs and HITs
   // ----------------------------
   m_riocontainer = 0;
-  StatusCode sc = evtStore()->retrieve(m_riocontainer, mjo_riocontainername);
+  StatusCode sc = evtStore()->retrieve(m_riocontainer, m_jo_riocontainername);
   if (sc.isFailure()) {
     ATH_MSG_ERROR( "Could not get PrepRawDataContainer" );
     return StatusCode::FAILURE;
   }
 
   m_hitcontainer = 0;
-  if ( mjo_Hits || mjo_MC || mjo_NotAssociated || mjo_NN) {
-    sc = evtStore()->retrieve(m_hitcontainer, mjo_hitcontainername);
+  if ( m_jo_Hits || m_jo_MC || m_jo_NotAssociated || m_jo_NN) {
+    sc = evtStore()->retrieve(m_hitcontainer, m_jo_hitcontainername);
     if (sc.isFailure()) {
       ATH_MSG_ERROR( "Could not get SiHitCollection" );
       return StatusCode::FAILURE;
     }
   }
 
-  if ( mjo_WriteDetailedPixelInformation ) {
-    sc = evtStore()->retrieve(m_rdocontainer, mjo_rdocontainername);
+  if ( m_jo_WriteDetailedPixelInformation ) {
+    sc = evtStore()->retrieve(m_rdocontainer, m_jo_rdocontainername);
     if ( sc.isFailure() ) {
-      ATH_MSG_WARNING( "Could not find container " << mjo_rdocontainername <<" : disabling detailed information output" );
+      ATH_MSG_WARNING( "Could not find container " << m_jo_rdocontainername <<" : disabling detailed information output" );
       m_rdocontainer = 0;
-      mjo_WriteDetailedPixelInformation = false;
+      m_jo_WriteDetailedPixelInformation = false;
     }
   }
   m_trackCollection=0;
-  if( mjo_onTrack){
-    sc = evtStore()->retrieve(m_trackCollection,mjo_trackCollectionName);
+  if( m_jo_onTrack){
+    sc = evtStore()->retrieve(m_trackCollection,m_jo_trackCollectionName);
     if ( sc.isFailure() ){
-      ATH_MSG_ERROR("Could not retrieve TrackCollection '" << mjo_trackCollectionName << "'.");
+      ATH_MSG_ERROR("Could not retrieve TrackCollection '" << m_jo_trackCollectionName << "'.");
       return StatusCode::FAILURE;
     }
   }
@@ -795,7 +797,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::execute() {
   // ----------------------------
 
 
-  if(!mjo_onTrack){
+  if(!m_jo_onTrack){
       
     InDet::PixelClusterContainer::const_iterator containerIterator = m_riocontainer->begin();
     for ( ; containerIterator != m_riocontainer->end(); containerIterator++) { // loop1
@@ -859,7 +861,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::execute() {
   // ----------------------------
   // get all the SiHITs_Collections in the container
   // ----------------------------
-  if ( mjo_Hits || mjo_MC ||  mjo_NotAssociated || mjo_NN ) {
+  if ( m_jo_Hits || m_jo_MC ||  m_jo_NotAssociated || m_jo_NN ) {
     SiHitCollection::const_iterator collectionIterator = m_hitcontainer->begin();
     ATH_MSG_DEBUG( "Found " << m_hitcontainer->size() << " SiHit " );
     int k=0;
@@ -982,7 +984,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::execute() {
       // Geometry transformations 
       //
       // SLHC
-      if(_geoId==SLHC || _geoId==SLHC2){
+      if(m_geoId==GEO_SLHC || m_geoId==GEO_SLHC2){
         ATH_MSG_DEBUG(" SLHC geo transform.");
         // Odd eta modules in end caps are flipped.
         int layer = (*m_PixHitLayerDisk)[HITindex];
@@ -991,7 +993,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::execute() {
         if (ecBarrel!=0){
           // if(layer==0 || layer==1 || layer==5 ){ // SLHC-01-00-00 - UTOPIA
           // if(layer==0 || layer==2 || layer==4 ){ // SLHC-01-20-01 - Cartigny
-          if(layer==_slhc_layer_flip_1  || layer==_slhc_layer_flip_2 || layer==_slhc_layer_flip_3 ){    
+          if(layer==m_slhc_layer_flip_1  || layer==m_slhc_layer_flip_2 || layer==m_slhc_layer_flip_3 ){    
             if(etaMod%2!=0){
               (*m_PixHitYstartpos)[HITindex]*=(-1.);
               (*m_PixHitYendpos)[HITindex]*=(-1.);
@@ -1091,7 +1093,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::execute() {
   
       ATH_MSG_VERBOSE("Particles found: " << MultiplePart.size() );
 
-      if(mjo_NN){
+      if(m_jo_NN){
 
         // a vector of positions because there is more than one particle, 
 
@@ -1342,7 +1344,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::execute() {
     
   m_nt->Fill();
    
-  if(mjo_NN) { m_nnt->Fill(); }
+  if(m_jo_NN) { m_nnt->Fill(); }
 
 
   return StatusCode::SUCCESS;
@@ -1398,14 +1400,14 @@ const SiHit * InDet::PixelClusterValidationNtupleWriter::FindNextHit(const SiHit
 }
 
 //----------------------------- PixelClusterValidationNtupleWriter::FindAssociatedParticle ----
-int InDet::PixelClusterValidationNtupleWriter::FindAssociatedParticle(int cl, int m_pixHitsNum, int hit) {
+int InDet::PixelClusterValidationNtupleWriter::FindAssociatedParticle(int cl, int pixHitsNum, int hit) {
   int ht=-1;
-  for (int i=0; i<m_pixHitsNum; i++) {
+  for (int i=0; i<pixHitsNum; i++) {
     if ((*m_PixHitBarrelEndcap)[i]==(*m_PixECBarrel)[cl]&& (*m_PixHitLayerDisk)[i]==(*m_PixClusLayer)[cl] &&
           (*m_PixHitEtaModule)[i]==(*m_PixEtaModule)[cl] && (*m_PixHitPhiModule)[i]==(*m_PixPhiModule)[cl]) {
       for (int j=0; j< hit; j++) {
-        if (fabs((*m_PixClusEtaIndex)[cl][j]-(*m_PixHitEtaIndex)[i])<=1 &&
-                fabs((*m_PixClusPhiIndex)[cl][j]-(*m_PixHitPhiIndex)[i])<=1 ) {
+        if (std::abs((*m_PixClusEtaIndex)[cl][j]-(*m_PixHitEtaIndex)[i])<=1 &&
+            std::abs((*m_PixClusPhiIndex)[cl][j]-(*m_PixHitPhiIndex)[i])<=1 ) {
 //          if(fabs((*m_PixClusEtaIndex)[cl][j]-(*m_PixHitEtaIndex)[i])<=((((*m_PixHitEtaIndex_delta)[i]/2)+2)) &&
 //         fabs((*m_PixClusPhiIndex)[cl][j]-(*m_PixHitPhiIndex)[i])<=((((*m_PixHitPhiIndex_delta)[i]/2)+2))){
           ht = i;
@@ -1421,15 +1423,15 @@ int InDet::PixelClusterValidationNtupleWriter::FindAssociatedParticle(int cl, in
 
 
 //----------------------------- PixelClusterValidationNtupleWriter::FindMultipleAssociatedParticle ----
-std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociatedParticle(int cl, int m_pixHitsNum, int hit) {
+std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociatedParticle(int cl, int pixHitsNum, int hit) {
   std::vector<int> ht;
   
-  for (int i=0; i<m_pixHitsNum; i++) {
+  for (int i=0; i<pixHitsNum; i++) {
     if ((*m_PixHitBarrelEndcap)[i]==(*m_PixECBarrel)[cl]&& (*m_PixHitLayerDisk)[i]==(*m_PixClusLayer)[cl] &&
         (*m_PixHitEtaModule)[i]==(*m_PixEtaModule)[cl] && (*m_PixHitPhiModule)[i]==(*m_PixPhiModule)[cl]) {
       for (int j=0; j< hit; j++) {
-        if (fabs((*m_PixClusEtaIndex)[cl][j]-(*m_PixHitEtaIndex)[i])<=1 &&
-            fabs((*m_PixClusPhiIndex)[cl][j]-(*m_PixHitPhiIndex)[i])<=1 ) {
+        if (std::abs((*m_PixClusEtaIndex)[cl][j]-(*m_PixHitEtaIndex)[i])<=1 &&
+            std::abs((*m_PixClusPhiIndex)[cl][j]-(*m_PixHitPhiIndex)[i])<=1 ) {
 
 
           //          if(fabs((*m_PixClusEtaIndex)[cl][j]-(*m_PixHitEtaIndex)[i])<=((((*m_PixHitEtaIndex_delta)[i]/2)+2)) &&
@@ -1460,7 +1462,7 @@ std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociat
         int sizeY)
 {
 
-  //% if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Starting creating input from cluster " << endreq;
+  //% if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Starting creating input from cluster " << endmsg;
   ATH_MSG_VERBOSE( " Starting creating input from cluster "   );
 
   const InDetDD::SiDetectorElement* element=pCluster.detectorElement();
@@ -1493,7 +1495,7 @@ std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociat
   //  const InDet::PixelCluster* pCluster  = pcot->prepRawData();
   const std::vector<Identifier>& rdos  = pCluster.rdoList();  
   
-  //  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Number of RDOs: " << rdos.size()  << endreq;
+  //  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Number of RDOs: " << rdos.size()  << endmsg;
   ATH_MSG_VERBOSE( "Number of RDOs: " << rdos.size() );
   //const std::vector<float>& chList     = pCluster.chargeList();
   //const std::vector<int>&  totList     = pCluster.totList(); 
@@ -1510,10 +1512,10 @@ std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociat
   std::vector<Identifier>::const_iterator rdosBegin = rdos.begin();
   std::vector<Identifier>::const_iterator rdosEnd = rdos.end();
 
-  // Set chargeOrToT vecor based on mjo_ToT flag.
+  // Set chargeOrToT vecor based on m_jo_ToT flag.
   // Exit with error if the used vector is empty.
   std::vector<float> chargeOrToTList;// = pCluster.chargeList();
-  if(mjo_ToT){
+  if(m_jo_ToT){
     const std::vector<int>&  totList = pCluster.totList(); 
     if(totList.empty()){
       ATH_MSG_ERROR(" List of cluster ToT is empty. Try using charge -set \"UseToT=false\"-" );
@@ -1556,7 +1558,7 @@ std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociat
     
     if(msgLvl(MSG::VERBOSE)) { 
       msg(MSG::VERBOSE) << " Adding pixel row: " << row << " col: " << col 
-       << " Charge/ToT: " << *chargeOrToT <<" ("<<mjo_ToT<<")"<< endreq;
+       << " Charge/ToT: " << *chargeOrToT <<" ("<<m_jo_ToT<<")"<< endmsg;
     }
     InDetDD::SiLocalPosition siLocalPosition
       (design->positionFromColumnRow(col,row)); 
@@ -1582,7 +1584,7 @@ std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociat
   }
   sumOfWeightedPositions /= sumOfTot;
   
-  // if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Weighted position: (" << sumOfWeightedPositions << ")" << endreq;
+  // if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Weighted position: (" << sumOfWeightedPositions << ")" << endmsg;
   // what you want to know is simple:
   // just the row and column of this average position!
   
@@ -1590,7 +1592,7 @@ std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociat
   
   if (!cellIdWeightedPosition.isValid())
   {
-    msg(MSG::ERROR) << "Weighted position is on invalid CellID." << endreq;
+    msg(MSG::ERROR) << "Weighted position is on invalid CellID." << endmsg;
   }
   
   int columnWeightedPosition=cellIdWeightedPosition.etaIndex();
@@ -1637,7 +1639,7 @@ std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociat
   chargeOrToT = chargeOrToTList.begin();
   
   if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Putting together the n. " << rdos.size() 
-          << " rdos into a matrix." << endreq;
+          << " rdos into a matrix." << endmsg;
   
   //  int totIdx=0;
   for (; rdosBegin!= rdosEnd; ++rdosBegin, ++chargeOrToT)
@@ -1648,7 +1650,7 @@ std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociat
     
     if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " phi Index: " << pixelID.phi_index(rId) 
      << " absrow: " << absrow << " eta Idx: " << pixelID.eta_index(rId) 
-     << " abscol: " << abscol << " tot " << *chargeOrToT << endreq;
+     << " abscol: " << abscol << " tot " << *chargeOrToT << endmsg;
 
     if (absrow <0 || absrow > sizeX)
     {
@@ -1680,9 +1682,9 @@ std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociat
   input->ClusterPixLayer=(int)pixelID.layer_disk(pixidentif);
   input->ClusterPixBarrelEC=(int)pixelID.barrel_ec(pixidentif);
   
-  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " eta module: " << input->etaModule << endreq;
+  if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " eta module: " << input->etaModule << endmsg;
   if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Layer number: " << input->ClusterPixLayer 
-          << " Barrel / endcap: " << input->ClusterPixBarrelEC << endreq;
+          << " Barrel / endcap: " << input->ClusterPixBarrelEC << endmsg;
 
   ATH_MSG_VERBOSE( " End RDO LOOP " );
           
@@ -1713,7 +1715,7 @@ std::vector<int> InDet::PixelClusterValidationNtupleWriter::FindMultipleAssociat
 
   input->phi=angle;
 
-  //  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Angle theta bef corr: " << boweta << endreq;
+  //  if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << " Angle theta bef corr: " << boweta << endmsg;
   ATH_MSG_VERBOSE( " Angle theta bef corr: " << boweta );
   if (boweta>TMath::Pi()/2.) boweta-=TMath::Pi();
   if (boweta<-TMath::Pi()/2.) boweta+=TMath::Pi();
@@ -1866,7 +1868,7 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::fillClusterVector( const I
     m_PixClusEtaIndex->push_back(*eta);
     m_PixClusPhiIndex->push_back(*phi);
     
-    if ( mjo_WriteDetailedPixelInformation ){
+    if ( m_jo_WriteDetailedPixelInformation ){
 
       PixelRDO_Container::const_iterator rdo_collection; 
       if ( m_rdocontainer ) {
@@ -1913,13 +1915,13 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::fillClusterVector( const I
         m_PixClusToTList->push_back(*ToTList);
         m_PixClusChargeList->push_back(*ChargeList);
       } 
-    }else{  if ( mjo_WriteDetailedPixelInformation ) ATH_MSG_DEBUG("Cannot find RDO: Detailed Pixel Information  cannot be written" ); }
+    }else{  if ( m_jo_WriteDetailedPixelInformation ) ATH_MSG_DEBUG("Cannot find RDO: Detailed Pixel Information  cannot be written" ); }
   }
   
   
   // Writing output for NN training
   
-  if(mjo_NN){
+  if(m_jo_NN){
     
     ATH_MSG_DEBUG( "Writing output for NN training" );
     
@@ -1936,16 +1938,16 @@ StatusCode InDet::PixelClusterValidationNtupleWriter::fillClusterVector( const I
     
     //      ATH_MSG_VERBOSE( "Clustersize is: " << l_sizeX << " and " << l_sizeY   );
     
-    double pitch_y = _pitchY;
+    double pitch_y = m_pitchY;
     
-    if (_geoId==IBL) {
+    if (m_geoId==GEO_IBL) {
       if (m_pixelid->barrel_ec(clId) == 0) {
         if (m_pixelid->layer_disk(clId) == 0) {
           pitch_y = IBLPITCHY;
           ATH_MSG_VERBOSE( "USING THE IBL ZERO LAYER." );
         }
       }
-    } else if(_geoId==SLHC2) {
+    } else if(m_geoId==GEO_SLHC2) {
       if (m_pixelid->barrel_ec(clId) == 0) {
         if (m_pixelid->layer_disk(clId) < 2) {
           pitch_y = SLHC2_PITCHY_A;

@@ -45,7 +45,7 @@ private:
     /**  holds the names the output track collection written to store gate*/
     std::string                            m_OutputTrackCol;
     /** flag for using TRT standalone tracks **/
-    bool                                   m_makeTRTStandaloneTracks;
+    //bool                                   m_makeTRTStandaloneTracks;
     /** flag for using si only tracks **/
     bool                                   m_makeSiOnlyTracks;
     /** flag to accept the upper segment **/

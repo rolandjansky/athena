@@ -38,7 +38,7 @@ StatusCode InDet::InDetSplittedTracksCreator::initialize(){
    if (m_trackSplitterTool.empty()) {
       ATH_MSG_DEBUG("No track splitter tool configured");
    } else if (m_trackSplitterTool.retrieve().isFailure()) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)<< "Could not retrieve InDetTrackSplitterTool" << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING)<< "Could not retrieve InDetTrackSplitterTool" << endmsg; 
    } else{ 
       ATH_MSG_VERBOSE ("Retrieved tool InDetTrackSplitterTool");
    }
@@ -128,7 +128,7 @@ void InDet::InDetSplittedTracksCreator::copyTrackCollection(const TrackCollectio
     
     // loop over tracks
     TrackCollection::const_iterator rfU,rfeU=inputTrackCol_upper->end();
-    TrackCollection::const_iterator rfL,rfeL=inputTrackCol_lower->end();
+    TrackCollection::const_iterator rfL;//,rfeL=inputTrackCol_lower->end();
     
     for(rfU=inputTrackCol_upper->begin(),rfL=inputTrackCol_lower->begin();rfU!=rfeU; ++rfU,++rfL){
       
