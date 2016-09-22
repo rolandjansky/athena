@@ -35,8 +35,12 @@ IntersectorWrapper::IntersectorWrapper	(const std::string& type,
     :	AthAlgTool		(type, name, parent),
 	m_intersector		("Trk::RungeKuttaIntersector/RungeKuttaIntersector"),
 	m_linePropagator	(""),
-	m_intersection		(0),
-	m_parameters		(0)
+	m_charge{},
+	m_intersection		(nullptr),
+	m_momentum{},
+	m_parameters		(nullptr),
+	m_position{},
+	m_qOverP{}
 {
     declareInterface<Trk::IPropagator>(this);
     declareProperty("Intersector",	m_intersector);
@@ -49,24 +53,11 @@ IntersectorWrapper::~IntersectorWrapper	(void)
 //<<<<<< PUBLIC MEMBER FUNCTION DEFINITIONS                             >>>>>>
 
 StatusCode
-IntersectorWrapper::initialize()
-{
-
+IntersectorWrapper::initialize(){
     // get the Tools
-    if (m_intersector.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_intersector );
-        return StatusCode::FAILURE;
-    }
-    else
-    {
-        ATH_MSG_INFO( "Retrieved tool " << m_intersector );
-    }
-    if (!m_linePropagator.empty() && m_linePropagator.retrieve().isFailure())
-    {
-        ATH_MSG_FATAL( "Failed to retrieve tool " << m_linePropagator );
-        return StatusCode::FAILURE;
-    }      
+    ATH_CHECK(m_intersector.retrieve());
+    ATH_MSG_VERBOSE( "Retrieved tool " << m_intersector );
+    if (!m_linePropagator.empty()) ATH_CHECK( m_linePropagator.retrieve()); 
     return StatusCode::SUCCESS;
 }
  

@@ -177,10 +177,12 @@ public:
 private:
     
     // private methods
-    void			createParameters (const Surface&	surface,
+    void			
+    createParameters (const Surface&	surface,
 						  BoundaryCheck		boundsCheck,
 						  bool			curvilinear) const;
-    void			findIntersection (const TrackParameters& parameters,
+    void			
+    findIntersection (const TrackParameters& parameters,
 						  const Surface&	surface,
 						  PropDirection		dir = Trk::anyDirection) const;
         

@@ -71,8 +71,22 @@ RungeKuttaIntersector::RungeKuttaIntersector (const std::string&	type,
 	m_toroidZ6		(11400.0*Gaudi::Units::mm),	// endcap toroid central field - outer z
 	m_toroidZ7		(12900.0*Gaudi::Units::mm),	// toroid exit fringe fields
 	m_toroidZ8		(14000.0*Gaudi::Units::mm),	// essentially out of any toroid fields
+	m_cOverP{},
+	m_direction{},
+	m_distance{},
+	m_fieldValue{},
 	m_intersectionNumber	(0),
+	m_maxSteps{},
+	m_pathLength{},
+	m_position{},
+	m_previousDistance{},
+	m_qOverP{},
+	m_rCurrent{},
+	m_rStart{},
+	m_sinTheta{},
+	m_stepLength{},
 	m_trapped		(false),
+	m_zStart{},
 	m_countExtrapolations	(0),
 	m_countShortStep	(0),
 	m_countStep		(0),
@@ -87,40 +101,28 @@ RungeKuttaIntersector::~RungeKuttaIntersector (void)
 {}
  
 StatusCode
-RungeKuttaIntersector::initialize()
-{
+RungeKuttaIntersector::initialize(){
     // print name and package version
-    ATH_MSG_INFO( "RungeKuttaIntersector::initialize()"
-		  << " - package version " << PACKAGE_VERSION );
+    ATH_MSG_DEBUG( "RungeKuttaIntersector::initialize()" << " - package version " << PACKAGE_VERSION );
 
     // initialize base class
     if (StatusCode::SUCCESS != AlgTool::initialize()) return StatusCode::FAILURE;
 
     // retrieve MagneticFieldTool and StraightLineIntersector
-    if (! m_magFieldSvc.empty())
-    {
-	if (m_magFieldSvc.retrieve().isFailure())
-	{
-	    ATH_MSG_FATAL( "Failed to retrieve service " << m_magFieldSvc );
-	    return StatusCode::FAILURE;
-	}
-	else
-	{
-	    ATH_MSG_INFO( "Retrieved service " << m_magFieldSvc );
-	}
-    }
-
+    if (! m_magFieldSvc.empty()) ATH_CHECK(m_magFieldSvc.retrieve());
+	
+	  ATH_MSG_INFO( "Retrieved service " << m_magFieldSvc );
+	
     // productionMode gives steplengths tuned for use in production (adequate precision),
     // otherwise take very small steps for maximum precision but with a heavy execution penalty
-    if (! m_productionMode)
-    {
-	m_shortStepMax		= 500.*Gaudi::Units::nanometer;
-	m_stepMax0		= 1.8*Gaudi::Units::mm;
-	m_stepMax1		= 1.8*Gaudi::Units::mm;
-	m_stepMax2		= 1.8*Gaudi::Units::mm;
-	m_stepMax3		= 1.8*Gaudi::Units::mm;
-	m_stepMax4		= 1.8*Gaudi::Units::mm;
-	m_stepsUntilTrapped	= 20000;
+    if (! m_productionMode){
+      m_shortStepMax		= 500.*Gaudi::Units::nanometer;
+      m_stepMax0		= 1.8*Gaudi::Units::mm;
+      m_stepMax1		= 1.8*Gaudi::Units::mm;
+      m_stepMax2		= 1.8*Gaudi::Units::mm;
+      m_stepMax3		= 1.8*Gaudi::Units::mm;
+      m_stepMax4		= 1.8*Gaudi::Units::mm;
+      m_stepsUntilTrapped	= 20000;
     }
     
     return StatusCode::SUCCESS;
@@ -142,7 +144,7 @@ RungeKuttaIntersector::finalize()
 			 << norm*static_cast<double>(m_countShortStep)
 			 << " short final steps";
     }
-    msg(MSG::INFO)   << endreq;
+    msg(MSG::INFO)   << endmsg;
 
     return StatusCode::SUCCESS;
 }
@@ -660,7 +662,7 @@ RungeKuttaIntersector::debugFailure (const Surface& surface)
 	    << std::setw(5) << std::setprecision(2) << m_direction.eta();
     }
     // if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
-    log << MSG::DEBUG << endreq;
+    log << MSG::DEBUG << endmsg;
     
     if (dynamic_cast<const PlaneSurface*>(&surface))
     {
@@ -670,7 +672,7 @@ RungeKuttaIntersector::debugFailure (const Surface& surface)
 	    << std::setw(7) << std::setprecision(0) << surface.center().z()
 	    << "  at line distance " << std::setw(9) << std::setprecision(1) << m_stepLength;
 	// if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
-	log << MSG::DEBUG << endreq;
+	log << MSG::DEBUG << endmsg;
     }
     else if (dynamic_cast<const CylinderSurface*>(&surface))
     {
@@ -684,7 +686,7 @@ RungeKuttaIntersector::debugFailure (const Surface& surface)
 		<< "  closest approach to CylinderSurface at radius "
 		<< std::setw(9) << std::setprecision(4) << rCurrent
 		<< " mm.  Cylinder radius " << std::setw(9) << std::setprecision(4) << cylinderRadius << " mm"
-		<< endreq;
+		<< endmsg;
 	}
 	else
 	{
@@ -693,7 +695,7 @@ RungeKuttaIntersector::debugFailure (const Surface& surface)
 		<< "  rCurrent " << std::setw(6) << std::setprecision(1) << rCurrent
 		<< "  distance " << std::setw(6) << std::setprecision(1) << m_stepLength;
 	    if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
-	    log << MSG::DEBUG << endreq;
+	    log << MSG::DEBUG << endmsg;
 	}
     }
     else if (dynamic_cast<const DiscSurface*>(&surface))
@@ -704,19 +706,19 @@ RungeKuttaIntersector::debugFailure (const Surface& surface)
 	    << std::setw(7) << std::setprecision(0) << surface.center().z()
 	    << "  at line distance " << std::setw(9) << std::setprecision(1) << m_stepLength;
 	if (m_trapped) log << MSG::DEBUG << " looping in mag field ";
-	log << MSG::DEBUG << endreq;
+	log << MSG::DEBUG << endmsg;
     }
     else if (dynamic_cast<const PerigeeSurface*>(&surface))
     {
 	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right) << "   PerigeeSurface  "
-	    << endreq;
+	    << endmsg;
     }
     else if (dynamic_cast<const StraightLineSurface*>(&surface))
     {
 	log << MSG::DEBUG << std::setiosflags(std::ios::fixed|std::ios::right) << "   StraightLineSurface  "
-	    << endreq;
+	    << endmsg;
     }
-    log << MSG::DEBUG << endreq;
+    log << MSG::DEBUG << endmsg;
 }
 
 bool
