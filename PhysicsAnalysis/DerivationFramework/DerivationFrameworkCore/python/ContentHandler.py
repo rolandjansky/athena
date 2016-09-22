@@ -55,7 +55,7 @@ class ContentHandler:
 					mainOutput.append(mainItem)
 			if len(components)>1:
 				# Deal with Aux containers
-				if (mainItem.split('#')[0]!='xAOD::JetAuxContainer'):
+				if ((mainItem.split('#')[0]!='xAOD::JetAuxContainer') and (mainItem.split('#')[0]!='xAOD::ShallowAuxContainer') and (mainItem.split('#')[0]!='xAOD::MissingETAuxAssociationMap') ):
 					# expand to dynamic, not needed for jets as dynamic already
 					self.expandAuxStore(components[0])
 				if (components[0]+"." in wholeContentList):
