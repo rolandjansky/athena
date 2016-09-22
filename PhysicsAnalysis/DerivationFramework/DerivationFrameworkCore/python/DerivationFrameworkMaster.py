@@ -8,10 +8,7 @@
 #-------------------------------------------------------------
 
 from AthenaCommon.AppMgr import ToolSvc
-# Output file name handling
-from D2PDMaker.D2PDFlags import D2PDFlags
-from D2PDMaker.D2PDHelpers import buildFileName
-from PrimaryDPDMaker.PrimaryDPDFlags import primDPD
+from AthenaCommon.AppMgr import theApp
 # Derivation names and locations of job options
 from DerivationFrameworkCore.DerivationFrameworkProdFlags import derivationFlags
 # Multiple stream manager
@@ -22,6 +19,17 @@ from AthenaCommon import CfgMgr
 from AthenaCommon.AlgSequence import AlgSequence 
 from JetRec.JetRecFlags import jetFlags 
 from AthenaCommon.GlobalFlags  import globalflags
+from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+# AODFix object, for checking whether it ran or not
+
+import os
+if "AthAnalysisBase" not in os.environ.get("CMTEXTRATAGS",""):
+  from AODFix.AODFix import *
+
+# Trap for ROOT6 errors
+theApp.CreateSvc += ["AthROOTErrorHandlerSvc"]
+
+
 # Trigger navigation slimming
 #from TrigNavTools.TrigNavToolsConf import HLT__TrigNavigationSlimmingTool, TrigNavigationThinningTool, HLT__StreamTrigNavSlimming
 #from TrigNavTools.TrigNavToolsConfig import navigationSlimming
@@ -33,26 +41,25 @@ AuxStoreWrapperSequence = CfgMgr.AthSequencer("AuxStoreWrapperSequence")
 DerivationFrameworkJob = AlgSequence()
 DerivationFrameworkJob += AuxStoreWrapperSequence
 
-from AthenaCommon.AppMgr import ServiceMgr as svcMgr
+# Special sequence run after the algsequence
+# Being used here to reset ElementLinks
 
-###ON HOLD FOR NOW
-##use pileupreweighting provider to generate a df.metadata.root prw config file
-##only to run if the input file is post-digitization (i.e. dont run this on EVNT)
-#from RecExConfig.InputFilePeeker import inputFileSummary
-#if 'metadata' in inputFileSummary and '/Digitization/Parameters' in inputFileSummary['metadata']:
-#  DerivationFrameworkJob += CfgMgr.CP__PileupReweightingProvider(ConfigOutputStream="DFMETADATA")
-#  if not hasattr(svcMgr,'THistSvc'):
-#    svcMgr += CfgMgr.THistSvc()
-#  svcMgr.THistSvc.Output += ["DFMETADATA DATAFILE='df.metadata.root' OPT='RECREATE'"]
+# Commenting out for branch at 00-03-56
+#if AODFix_willDoAODFix():
+#if True: # Temporary replacment for above line, while this function makes it into release 20.7
+#	athOutSeq = CfgMgr.AthSequencer("AthOutSeq")
+#	athOutSeq += CfgMgr.xAODMaker__ElementLinkResetAlg( "ELReset" )
 
 from RecExConfig.InputFilePeeker import inputFileSummary
-if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
-	svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
+if inputFileSummary is not None:
+	if (inputFileSummary['evt_type'][0] == 'IS_SIMULATION') and (inputFileSummary['stream_names'][0] != 'StreamEVGEN'):
+		svcMgr.IOVDbSvc.Folders += ['/Simulation/Parameters']
 	
 # Set up the metadata tool:
-ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
-						      OutputLevel = 2 )
-svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
+if not globalflags.InputFormat=="bytestream":
+	ToolSvc += CfgMgr.xAODMaker__FileMetaDataCreatorTool( "FileMetaDataCreatorTool",
+							      OutputLevel = 2 )
+	svcMgr.MetaDataSvc.MetaDataTools += [ ToolSvc.FileMetaDataCreatorTool ]
 
 # Set up stream auditor
 if not hasattr(svcMgr, 'DecisionSvc'):
@@ -60,11 +67,13 @@ if not hasattr(svcMgr, 'DecisionSvc'):
 svcMgr.DecisionSvc.CalcStats = True
 
 # Trigger decision tool
-from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
-cfg = TriggerConfigGetter('ReadPool')
-from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-tdt = Trig__TrigDecisionTool("TrigDecisionTool")
-ToolSvc += tdt
+# SUPERFLUOUS
+#if rec.doTrigger() or TriggerFlags.doTriggerConfigOnly():
+#    from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
+#    cfg = TriggerConfigGetter('ReadPool')
+#    from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+#    tdt = Trig__TrigDecisionTool("TrigDecisionTool")
+#    ToolSvc += tdt
 
 # Centrally setting  flags
 jetFlags.useTracks = True
@@ -79,4 +88,6 @@ if globalflags.DataSource()=='geant4':
         DerivationFrameworkSimBarcodeOffset = int(inputFileSummary['metadata']['/Simulation/Parameters']['SimBarcodeOffset'])
     except:
         print 'Could not retrieve SimBarcodeOffset from /Simulation/Parameters, leaving at 200k'
-    
+
+def buildFileName(derivationStream):
+    return derivationStream.FileName    

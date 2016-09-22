@@ -15,6 +15,8 @@ JetTriggerContent = [
 "HLT_xAOD__JetContainer_a10tcemsubFSAux.pt.eta.phi.m",
 "HLT_xAOD__JetContainer_a10tclcwsubFS",
 "HLT_xAOD__JetContainer_a10tclcwsubFSAux.pt.eta.phi.m",
+"HLT_xAOD__JetContainer_a10tclcwsubjesFS",
+"HLT_xAOD__JetContainer_a10_tclcwsubjesFSAux.pt.eta.phi.m",
 "LVL1JetRoIs",
 "LVL1JetRoIsAux."
 ]
