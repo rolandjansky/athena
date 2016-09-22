@@ -96,21 +96,21 @@ StatusCode Trk::ExtrapolatorTest::initialize()
 {
   // Code entered here will be executed once at program start.
   
-  msg(MSG::INFO) << " initialize()" << endreq;
+  msg(MSG::INFO) << " initialize()" << endmsg;
 
   // Get Extrapolator from ToolService   
   if (m_extrapolator.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve Tool " << m_extrapolator << ". Exiting."<<endreq;
+        msg(MSG::FATAL) << "Could not retrieve Tool " << m_extrapolator << ". Exiting."<<endmsg;
         return StatusCode::FAILURE;
   }
   // Get Propagator from ToolService    
   if (m_propagator.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve Tool " << m_propagator << ". Exiting."<<endreq;
+        msg(MSG::FATAL) << "Could not retrieve Tool " << m_propagator << ". Exiting."<<endmsg;
         return StatusCode::FAILURE;
   }
 
   if (m_magFieldSvc.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve Tool " << m_magFieldSvc << ". Exiting."<<endreq;
+        msg(MSG::FATAL) << "Could not retrieve Tool " << m_magFieldSvc << ". Exiting."<<endmsg;
         return StatusCode::FAILURE;
   }
   m_magFieldProperties = new Trk::MagneticFieldProperties();
@@ -142,7 +142,7 @@ StatusCode Trk::ExtrapolatorTest::initialize()
   m_gaussDist = new Rndm::Numbers(randSvc(), Rndm::Gauss(0.,1.));
   m_flatDist  = new Rndm::Numbers(randSvc(), Rndm::Flat(0.,1.));
 
-  msg(MSG::INFO) << "initialize() successful in " << endreq;
+  msg(MSG::INFO) << "initialize() successful in " << endmsg;
 
   if( m_eventsPerExecute > 0 ){
     m_perigees.reserve(m_eventsPerExecute);
@@ -222,12 +222,12 @@ void Trk::ExtrapolatorTest::runTest( const Trk::Perigee& initialPerigee ) {
 				 *m_magFieldProperties,
 				 (Trk::ParticleHypothesis)m_particleType);
 
-       if (destParameters && outputLevel() <= MSG::VERBOSE) {
+       if (destParameters) {
            // global position parameter
-           const Amg::Vector3D& gp = destParameters->position();
+           //const Amg::Vector3D& gp = destParameters->position();
 
            // intersection output
-           ATH_MSG_VERBOSE(" [ intersection ] with surface at (x,y,z) = " << gp.x() << ", " << gp.y() << ", " << gp.z() );           
+           ATH_MSG_VERBOSE(" [ intersection ] with surface at (x,y,z) = " << destParameters->position().x() << ", " << destParameters->position().y() << ", " << destParameters->position().z() );           
 
        } else if (!destParameters)
            ATH_MSG_DEBUG(" Extrapolation not successful! " );
