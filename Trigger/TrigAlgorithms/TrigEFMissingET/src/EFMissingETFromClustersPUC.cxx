@@ -35,10 +35,12 @@ EFMissingETFromClustersPUC::EFMissingETFromClustersPUC(const std::string& type,
   declareProperty("SaveUncalibrated", m_saveuncalibrated = false ,"save uncalibrated topo. clusters");
   declareProperty("SubtractPileup", m_subtractpileup = true ,"use fit based pileup subtraction");
   declareProperty("towerWidthInput", m_towerwidthinput = 0.7 ," ");
-  declareProperty("EtaRange", m_etarange = 3.0 ,"eta cut");
-  declareProperty("ptmin", m_ptmin = 45000 ,"tower pt threshold in MeV");
-  declareProperty("aveEclusPU", m_aveecluspu = 4000.0 ,"sets scale for variance of masked regions in MeV; not to be interpreted literally as the average PU cluster energy");
+  declareProperty("EtaRange", m_etarange = 5.0 ,"eta cut");
+  //  declareProperty("ptmin", m_ptmin = 45000 ,"tower pt threshold in MeV");
+  declareProperty("aveEclusPU", m_aveecluspu = 10000.0 ,"sets scale for variance of masked regions in MeV; not to be interpreted literally as the average PU cluster energy");
   declareProperty("resE", m_rese = 15.81 ,"calo energy resoln in sqrt(MeV)");
+  declareProperty("nSigma", m_nsigma = 3.2 ,"tower ET significance");
+  declareProperty("varRhoScale", m_varrhoscale = 4.0 ,"adjustment factor for weighting rho errors in fit");
   
   // declare configurables
   
@@ -145,11 +147,14 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
 
   // Variables
   double MExEta = 0, MEyEta = 0, MEzEta = 0, MExFull = 0, MEyFull = 0, MEzFull = 0, METEta = 0, MET = 0;
-  vector<double> v_clMETCorrFit, v_clMETCorrGlob, v_clMETAll, v_METTruth;
 
   double sumEtEta = 0, sumEtFull = 0, sumEEta = 0, sumEFull = 0;
-  vector<double> etaTower(m_ntowers,0), ExTower(m_ntowers,0), EyTower(m_ntowers,0), EtTower(m_ntowers,0);
-  vector<double> ExInMask, EyInMask, EtInMask, AreaInMask, EtaInMask;
+  vector<double> ExTower(m_ntowers,0), EyTower(m_ntowers,0), EtTower(m_ntowers,0);
+  vector<double> ExTower1(m_ntowers,0), EyTower1(m_ntowers,0), EtTower1(m_ntowers,0);
+  vector<double> ExTower2(m_ntowers,0), EyTower2(m_ntowers,0), EtTower2(m_ntowers,0);
+  vector<double> ExTower3(m_ntowers,0), EyTower3(m_ntowers,0), EtTower3(m_ntowers,0);
+  vector<double> ExInMask, EyInMask, EtInMask, AreaInMask;
+  vector<int> indexOfMask;
 
   // Calculate initial energy
   for (xAOD::CaloClusterContainer::const_iterator it = caloCluster->begin(); it != caloCluster->end(); ++it ) {
@@ -165,10 +170,48 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
        int binEta = (eta + m_etarange)/(2*m_etarange)*m_netabins, 
            binPhi = (fmod(phi+TMath::TwoPi(),TMath::TwoPi()) / TMath::TwoPi())*m_nphibins,
            index = binEta*m_nphibins + binPhi;
+       int binEta1 = (fmod(eta + m_etarange*(1+0.5/m_netabins),2*m_etarange))/(2*m_etarange)*m_netabins, 
+	   binPhi1 = (fmod(phi+TMath::TwoPi()*(1+0.5/m_nphibins),TMath::TwoPi()) / TMath::TwoPi())*m_nphibins,
+           index1 = binEta1*m_nphibins + binPhi,
+           index2 = binEta *m_nphibins + binPhi1,
+           index3 = binEta1*m_nphibins + binPhi1;
        ExTower[index] += Ex; EyTower[index] += Ey; EtTower[index] += Et;
+       ExTower1[index1] += Ex; EyTower1[index1] += Ey; EtTower1[index1] += Et;
+       ExTower2[index2] += Ex; EyTower2[index2] += Ey; EtTower2[index2] += Et;
+       ExTower3[index3] += Ex; EyTower3[index3] += Ey; EtTower3[index3] += Et;
       }
    } // end topo. loop.   
+  double varEtOneTowerNow = m_aveecluspu*sumEtEta/m_ntowers * 2;
+  double threshEtOneTowerNow = sumEtEta/m_ntowers + m_nsigma*sqrt(abs(varEtOneTowerNow));
 
+  // find binning that gives largest sumEt from bins above threshold
+  std::vector<double> EtMaxSumT(4,0);
+  std::vector<int> aboveNowT(4,0);
+  for(uint k=0; k<ExTower.size(); k++) {
+    if ( EtTower[k]   > threshEtOneTowerNow ) { EtMaxSumT[0] += EtTower[k];  aboveNowT[0]++; }
+    if ( EtTower1[k]  > threshEtOneTowerNow ) { EtMaxSumT[1] += EtTower1[k]; aboveNowT[1]++; }
+    if ( EtTower2[k]  > threshEtOneTowerNow ) { EtMaxSumT[2] += EtTower2[k]; aboveNowT[2]++; }
+    if ( EtTower3[k]  > threshEtOneTowerNow ) { EtMaxSumT[3] += EtTower3[k]; aboveNowT[3]++; }
+  }
+  std::vector<double>::iterator itmax;
+  itmax = std::max_element(EtMaxSumT.begin(), EtMaxSumT.end());
+  int iTmax = std::distance(EtMaxSumT.begin(), itmax);
+  int aboveNow = aboveNowT[iTmax];
+  double EtMaxSumNow = EtMaxSumT[iTmax];
+  // select Tower bins to correspond to iTmax
+  if (iTmax == 1) {
+    EtTower = EtTower1; ExTower = ExTower1; EyTower = EyTower1;
+  } else if (iTmax == 2) {
+    EtTower = EtTower2; ExTower = ExTower2; EyTower = EyTower2;
+  } else if (iTmax == 3) {
+    EtTower = EtTower3; ExTower = ExTower3; EyTower = EyTower3;
+  }
+
+  // remove current bins above ptmin from sumEtEta and recalculate
+  // threshold to reduce sensitivity to high_pt
+  double varEtOneTower = m_aveecluspu*(sumEtEta-EtMaxSumNow)/(m_ntowers-aboveNow) * 2;
+  double threshEtOneTower = (sumEtEta-EtMaxSumNow)/(m_ntowers-aboveNow) + m_nsigma*sqrt(abs(varEtOneTower));
+  
   // Missing transverse energy from fixed position tower
   METEta = sqrt(MExEta*MExEta + MEyEta*MEyEta); MET = sqrt(MExFull*MExFull + MEyFull*MEyFull);
 
@@ -177,7 +220,8 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
   if (m_subtractpileup) {
 
    for(unsigned int k=0; k<ExTower.size(); k++)
-     if (EtTower[k] > m_ptmin) {
+     //     if (EtTower[k] > m_ptmin) {
+     if (EtTower[k] > threshEtOneTower) {
         ExInMask.push_back(ExTower[k]); EyInMask.push_back(EyTower[k]); EtInMask.push_back(EtTower[k]);
         AreaInMask.push_back(2*m_etarange/m_netabins*TMath::TwoPi()/m_nphibins);
      }
@@ -223,7 +267,8 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
     vector<double> varRhoA;
     for (int k1 = 0; k1<nummasks; k1++) {
         double aratio = AreaInMask[k1]/areaobs;
-        varRhoA.push_back((varsumEtobs*aratio*aratio + m_aveecluspu*sumEtobs*aratio * 2));
+	//        varRhoA.push_back((varsumEtobs*aratio*aratio + m_aveecluspu*sumEtobs*aratio * 2));
+	varRhoA.push_back((varsumEtobs*aratio*aratio + m_varrhoscale*m_aveecluspu*sumEtobs*aratio * 2));
         double ET1inv = 1/EtInMask[k1];
         double cosphi1 = ExInMask[k1]*ET1inv;
         double sinphi1 = EyInMask[k1]*ET1inv;
@@ -243,12 +288,36 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
      }
      TMatrixD covFit(dXdEab); covFit.Invert(); TMatrixD Evals(covFit*dXdEa);
      TMatrixD ETobscor(Etmasked), ETfitcor(Etmasked);
+     //     double evalsx = 0, evalsy = 0;
      for (int k=0; k<nummasks; k++) {
-        double cosphi1 = ExInMask[k]/EtInMask[k], sinphi1 = EyInMask[k]/EtInMask[k];
+       double cosphi1 = ExInMask[k]/EtInMask[k], sinphi1 = EyInMask[k]/EtInMask[k];
         ETfitcor[0][0] -= Evals[k][0]*cosphi1;
         ETfitcor[1][0] -= Evals[k][0]*sinphi1;
+	//	evalsx += Evals[k][0]*cosphi1; evalsy += Evals[k][0]*sinphi1;
       }
       double METfitcor = sqrt(ETfitcor[0][0]*ETfitcor[0][0]+ETfitcor[1][0]*ETfitcor[1][0]);
+      // // calculate chi2
+      // chi2 += covEtobsinv[0][0]*(Etobs[0][0]+evalsx)*(Etobs[0][0]+evalsx)
+      // 	    + covEtobsinv[1][0]*(Etobs[0][0]+evalsx)*(Etobs[1][0]+evalsy)
+      // 	    + covEtobsinv[0][1]*(Etobs[1][0]+evalsy)*(Etobs[0][0]+evalsx)
+      // 	    + covEtobsinv[1][1]*(Etobs[1][0]+evalsy)*(Etobs[1][0]+evalsy);
+      // for (int k=0; k<nummasks; k++) {
+      // 	chi2 += (AreaInMask[k]*rhoobs-Evals[k][0])*(AreaInMask[k]*rhoobs-Evals[k][0])/varRhoA[k];
+      // }
+
+      // //calculate significance of MET in high-pt regions (relative to MET=0)
+      // TMatrixD dMETdEval(nummasks,1);  TMatrixD dMETdphi(nummasks,1);
+      // for (int k=0; k<nummasks; k++) {
+      // 	double cosphi1 = ExInMask[k]/EtInMask[k];  double sinphi1 = EyInMask[k]/EtInMask[k];
+      // 	dMETdEval[k][0] = 1/METfitcor*( 
+      // 	  ETfitcor[0][0]*(-cosphi1) + ETfitcor[1][0]*(-sinphi1) );
+      // 	dMETdphi[k][0] = 1/METfitcor*(					
+      // 	  ETfitcor[0][0]*(+Evals[k][0]*sinphi1) + ETfitcor[1][0]*(-Evals[k][0]*cosphi1) );
+      // }      
+      // double varMET = ((covFit*dMETdEval).T()*dMETdEval)[0][0];
+      // double varPhi = TMath::TwoPi()/nPhiBins*TMath::TwoPi()/nPhiBins/12;
+      // for (int k=0; k<nummasks; k++) { varMET += dMETdphi[k][0]*dMETdphi[k][0]*varPhi; }
+      // signif = sqrt(METfitcor*METfitcor/varMET);
 
       msg() << MSG::DEBUG << " METEta = " << METEta << "\t METfitcor = " << METfitcor << "\t MET= " << MET << endreq;
 

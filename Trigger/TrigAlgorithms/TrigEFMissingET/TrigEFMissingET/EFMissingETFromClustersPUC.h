@@ -54,9 +54,11 @@ class EFMissingETFromClustersPUC : public EFMissingETBaseTool
     bool  m_subtractpileup;
     double m_towerwidthinput;
     double m_etarange; //the eta range (-m_etarange,+m_etarange) over which towers are defined
-    double m_ptmin; //the tower Et threshold
+    //    double m_ptmin; //the tower Et threshold
     double m_aveecluspu; //a parameter (in MeV) that determines the variance assigned to masked-off regions
     double m_rese; //the resolution (in units of sqrt(MeV))
+    double m_nsigma; //tower ET significance
+    double m_varrhoscale; //adjustment factor for weighting rho errors in fit
 
     int m_nphibins;
     int m_netabins;

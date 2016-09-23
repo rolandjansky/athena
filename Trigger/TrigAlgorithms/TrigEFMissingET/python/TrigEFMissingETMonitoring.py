@@ -11,7 +11,7 @@ compNames = [ "PreSamplB", "EMB1", "EMB2", "EMB3",   # LAr barrel
               "TileBar0", "TileBar1", "TileBar2",    # Tile barrel
               "TileGap1", "TileGap2", "TileGap3",    # Tile gap (ITC & scint)
               "TileExt0", "TileExt1", "TileExt2",    # Tile extended barrel
-              "FCalEM",   "FCalHad1", "FCalHad2",    # Forward cal endcap
+              "FCalEM",   "FCalHad2", "FCalHad3",    # Forward cal endcap
               "TCLCW", "TCLCWB1", "TCLCWB2",         # TC em, Tile barrel 
               "TCLCWE1", "TCLCWE2",                  # Forward endcap
               "TCEM", "TCEMB1", "TCEMB2",            # TC LC, Tile barrel
@@ -176,6 +176,26 @@ class TrigEFMissingETValidationMonitoring(TrigGenericMonitoringToolConfig):
         self.Histograms += [ hTotalTimeEM, hTotalTimeHEC,    hTotalTimeTile ]
 
 
+class TrigEFMissingETValidationMonitoring_alt(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigEFMissingETValidationMonitoring_alt"):
+        super(TrigEFMissingETValidationMonitoring_alt, self).__init__(name)
+        self.defineTarget("Validation")
+        # measurement
+        self.Histograms += [ hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log ]
+        self.Histograms += [ hMET_lin, hMETStatus ]
+        self.Histograms += [ hMETPhi ]
+
+
+class TrigEFMissingETValidationMonitoring_other(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigEFMissingETValidationMonitoring_other"):
+        super(TrigEFMissingETValidationMonitoring_other, self).__init__(name)
+        self.defineTarget("Validation")
+        # measurement
+        self.Histograms += [ hMET_log, hSumEt_log ]
+        self.Histograms += [ hMET_lin ]
+        self.Histograms += [ hMETPhi ]
+
+
 class TrigEFMissingETOnlineMonitoring(TrigGenericMonitoringToolConfig):
     def __init__ (self, name="TrigEFMissingETOnlineMonitoring"):
         """ defines histograms for online """
@@ -184,13 +204,35 @@ class TrigEFMissingETOnlineMonitoring(TrigGenericMonitoringToolConfig):
         # measurement
         self.Histograms  = [ hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log ]
         self.Histograms += [ hMET_lin, hSumEt_lin ]
-        self.Histograms += [ hMETPhi, hMETStatus]
+        self.Histograms += [ hXS, hMETPhi, hMETStatus]
         self.Histograms += [ hCompEx, hCompEy, hCompEz, hCompEt, hCompSumEt, hCompSumE ]
         self.Histograms += [ hCompEt_lin, hCompSumEt_lin ]
         # timers
 #         self.Histograms += [ hTotalTime,   hTotalTimeRegSel, hTotalTimeLoadCol, hTotalTimeLoop ]
         self.Histograms += [ hTotalTimeRegSel, hTotalTimeLoadCol, hTotalTimeLoop ]
         self.Histograms += [ hTotalTimeEM, hTotalTimeHEC,    hTotalTimeTile ]
+
+
+class TrigEFMissingETOnlineMonitoring_alt(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigEFMissingETOnlineMonitoring_alt"):
+        """ defines histograms for online """
+        super(TrigEFMissingETOnlineMonitoring_alt, self).__init__(name)
+        self.defineTarget("Online")
+        # measurement
+        self.Histograms  = [ hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log ]
+        self.Histograms += [ hMET_lin, hMETStatus ]
+        self.Histograms += [ hMETPhi ]
+
+
+class TrigEFMissingETOnlineMonitoring_other(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigEFMissingETOnlineMonitoring_other"):
+        """ defines histograms for online """
+        super(TrigEFMissingETOnlineMonitoring_other, self).__init__(name)
+        self.defineTarget("Online")
+        # measurement
+        self.Histograms  = [ hMET_log, hSumEt_log ]
+        self.Histograms += [ hMET_lin ]
+        self.Histograms += [ hMETPhi ]
 
 
 class TrigEFMissingETCosmicMonitoring(TrigGenericMonitoringToolConfig):
@@ -208,4 +250,25 @@ class TrigEFMissingETCosmicMonitoring(TrigGenericMonitoringToolConfig):
 #         self.Histograms += [ hTotalTime,   hTotalTimeRegSel, hTotalTimeLoadCol, hTotalTimeLoop ]
         self.Histograms += [ hTotalTimeRegSel, hTotalTimeLoadCol, hTotalTimeLoop ]
         self.Histograms += [ hTotalTimeEM, hTotalTimeHEC,    hTotalTimeTile ]
+
+
+class TrigEFMissingETCosmicMonitoring_alt(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigEFMissingETCosmicMonitoring_alt"):
+        """ defines histograms for cosmic """
+        super(TrigEFMissingETCosmicMonitoring_alt, self).__init__(name)
+        self.defineTarget("Cosmic")
+        # measurement
+        self.Histograms  = [ hEx_log, hEy_log, hEz_log, hMET_log, hSumEt_log ]
+        self.Histograms += [ hMET_lin ]
+        self.Histograms += [ hMETPhi, hMETStatus ]
+
+class TrigEFMissingETCosmicMonitoring_other(TrigGenericMonitoringToolConfig):
+    def __init__ (self, name="TrigEFMissingETCosmicMonitoring_other"):
+        """ defines histograms for cosmic """
+        super(TrigEFMissingETCosmicMonitoring_other, self).__init__(name)
+        self.defineTarget("Cosmic")
+        # measurement
+        self.Histograms  = [ hMET_log, hSumEt_log ]
+        self.Histograms += [ hMET_lin ]
+        self.Histograms += [ hMETPhi ]
 
