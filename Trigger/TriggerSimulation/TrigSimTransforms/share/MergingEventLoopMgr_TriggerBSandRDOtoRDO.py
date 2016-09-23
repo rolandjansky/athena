@@ -65,6 +65,11 @@ include("RecExCond/AllDet_detDescr.py")
 svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
 import MuonCnvExample.MuonCablingConfig
+
+# PixelLorentzAngleSvc and SCTLorentzAngleSvc (see JIRA ATR-15109/ATEAM-339)
+from InDetRecExample.InDetJobProperties import InDetFlags
+include("InDetRecExample/InDetRecConditionsAccess.py")
+
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
