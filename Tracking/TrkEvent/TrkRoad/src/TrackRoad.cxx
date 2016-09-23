@@ -30,7 +30,7 @@ namespace Trk
 
     MsgStream& TrackRoad::dump(MsgStream& stream) const
     {
-        stream << MSG::DEBUG << "TrackRoad " << toString() << endreq;
+        stream << MSG::DEBUG << "TrackRoad " << toString() << endmsg;
         return stream;
     }
 
