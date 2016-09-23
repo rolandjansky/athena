@@ -44,16 +44,16 @@ StatusCode Trk::TrackSlimmer::initialize()
 {
   // Code entered here will be executed once at program start.
 
-  msg(MSG::INFO) << name() << " initialize()" << endreq;
+  msg(MSG::INFO) << name() << " initialize()" << endmsg;
 
   if ( m_slimTool.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retrieve TrkTrackSlimmingTool tool "<< m_slimTool << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve TrkTrackSlimmingTool tool "<< m_slimTool << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_slimTool << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_slimTool << endmsg;
   }
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -61,7 +61,7 @@ StatusCode Trk::TrackSlimmer::initialize()
 
 StatusCode Trk::TrackSlimmer::finalize()
 {
-  msg(MSG::INFO) << "Produced "<< m_numSlimmedTracks<<" slimmed tracks from "<<m_numOriginalTracks<<" original tracks"<<endreq;
+  msg(MSG::INFO) << "Produced "<< m_numSlimmedTracks<<" slimmed tracks from "<<m_numOriginalTracks<<" original tracks"<<endmsg;
   // Code entered here will be executed once at the end of the program run.
   return StatusCode::SUCCESS;
 }
@@ -98,8 +98,8 @@ StatusCode Trk::TrackSlimmer::execute()
                 {
 		  Track* slimmed = m_slimTool->slim(**it);
 		  slimmedTracks->push_back(slimmed);
-            //m_log<<MSG::INFO<<"Original Track"<<(**it)<<endreq;
-            //m_log<<MSG::INFO<<"Slimmed Track"<<(*slimmed)<<endreq;
+            //m_log<<MSG::INFO<<"Original Track"<<(**it)<<endmsg;
+            //m_log<<MSG::INFO<<"Slimmed Track"<<(*slimmed)<<endmsg;
                 } else {
 		  if (params!=0 && params->size()>0) numTracksFailingPtCut++;
                 }
@@ -112,13 +112,13 @@ StatusCode Trk::TrackSlimmer::execute()
             m_numOriginalTracks+=container->size();
 
             if (sc.isFailure())
-	      msg(MSG::ERROR) << "Could not record tracks" << endreq;
+	      msg(MSG::ERROR) << "Could not record tracks" << endmsg;
             else
 	      if (msgLvl(MSG::VERBOSE)) 
                 msg(MSG::VERBOSE) << "Saved "<<slimmedTracks->size()<<" slimmed tracks (to "<<*slimmedTrackLoc
 		                  <<"), from input ("<<*trackLoc<<") of "<<container->size()<<" original tracks (which makes "
 			          << m_numSlimmedTracks<<"/"<<m_numOriginalTracks<<" so far). "
-				  << numTracksFailingPtCut<<" tracks failed pT cut of "<<m_ptCut<<endreq; 
+				  << numTracksFailingPtCut<<" tracks failed pT cut of "<<m_ptCut<<endmsg; 
         }
     }
   return StatusCode::SUCCESS;
