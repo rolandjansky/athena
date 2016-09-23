@@ -14,6 +14,9 @@
 #include "TGraph2D.h"
 #include "TF1.h"
 
+using namespace std;
+
+
 void findBadNodes(Node* node, vector<Node*>& badNodes)
 {
     if (!node) return;
@@ -245,27 +248,27 @@ Node* TreeReader::readTree(
 	    if(variable == GRAPH2D){ //deal with MultivariateSlidingCut2D separately here
 	      //this is going to be messy...
 	      if(variableTypeList[varX] == 'F'){
-		map<string,const float*>::const_iterator it1(floatVariables->find(variableList[varX]));
-		if(it1 == floatVariables->end()){
+		map<string,const float*>::const_iterator it1(m_floatVariables->find(variableList[varX]));
+		if(it1 == m_floatVariables->end()){
 		  ATH_MSG_VERBOSE("Did not find variable "+variableList[varX]+" in float variables");
 		  return 0;
 		}
 		if(variableTypeList[varY] == 'F'){
-		  map<string,const float*>::const_iterator it2(floatVariables->find(variableList[varY]));
-		  if(it2 == floatVariables->end()){
+		  map<string,const float*>::const_iterator it2(m_floatVariables->find(variableList[varY]));
+		  if(it2 == m_floatVariables->end()){
 		    ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in float variables");
 		    return 0;
 		  }
 		  if(variableTypeList[varZ] == 'F'){
-		    map<string,const float*>::const_iterator it3(floatVariables->find(variableList[varZ]));
-		    if(it3 == floatVariables->end()){
+		    map<string,const float*>::const_iterator it3(m_floatVariables->find(variableList[varZ]));
+		    if(it3 == m_floatVariables->end()){
 		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in float variables");
 		      return 0;
 		    }
 		    node = new MultivariateSlidingCut2D<float, TGraph2D, float, float>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
 		  }else if(variableTypeList[varZ] == 'I'){
-		    map<string,const int*>::const_iterator it3(intVariables->find(variableList[varZ]));
-		    if(it3 == intVariables->end()){
+		    map<string,const int*>::const_iterator it3(m_intVariables->find(variableList[varZ]));
+		    if(it3 == m_intVariables->end()){
 		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in int variables");
 		      return 0;
 		    }
@@ -275,21 +278,21 @@ Node* TreeReader::readTree(
 		    return 0;
 		  }
 		}else if(variableTypeList[varY] == 'I'){
-		  map<string,const int*>::const_iterator it2(intVariables->find(variableList[varY]));
-		  if(it2 == intVariables->end()){
+		  map<string,const int*>::const_iterator it2(m_intVariables->find(variableList[varY]));
+		  if(it2 == m_intVariables->end()){
 		    ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in int variables");
 		    return 0;
 		  }
 		  if(variableTypeList[varZ] == 'F'){
-		    map<string,const float*>::const_iterator it3(floatVariables->find(variableList[varZ]));
-		    if(it3 == floatVariables->end()){
+		    map<string,const float*>::const_iterator it3(m_floatVariables->find(variableList[varZ]));
+		    if(it3 == m_floatVariables->end()){
 		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in float variables");
 		      return 0;
 		    }
 		    node = new MultivariateSlidingCut2D<float, TGraph2D, float, int>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
 		  }else if(variableTypeList[varZ] == 'I'){
-		    map<string,const int*>::const_iterator it3(intVariables->find(variableList[varZ]));
-		    if(it3 == intVariables->end()){
+		    map<string,const int*>::const_iterator it3(m_intVariables->find(variableList[varZ]));
+		    if(it3 == m_intVariables->end()){
 		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in int variables");
 		      return 0;
 		    }
@@ -303,27 +306,27 @@ Node* TreeReader::readTree(
 		  return 0;
 		}
 	      }else if(variableTypeList[varX] == 'I'){
-		map<string,const int*>::const_iterator it1(intVariables->find(variableList[varX]));
-		if(it1 == intVariables->end()){
+		map<string,const int*>::const_iterator it1(m_intVariables->find(variableList[varX]));
+		if(it1 == m_intVariables->end()){
 		  ATH_MSG_VERBOSE("Did not find variable "+variableList[varX]+" in int variables");
 		  return 0;
 		}
 		if(variableTypeList[varY] == 'F'){
-		  map<string,const float*>::const_iterator it2(floatVariables->find(variableList[varY]));
-		  if(it2 == floatVariables->end()){
+		  map<string,const float*>::const_iterator it2(m_floatVariables->find(variableList[varY]));
+		  if(it2 == m_floatVariables->end()){
 		    ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in float variables");
 		    return 0;
 		  }
 		  if(variableTypeList[varZ] == 'F'){
-		    map<string,const float*>::const_iterator it3(floatVariables->find(variableList[varZ]));
-		    if(it3 == floatVariables->end()){
+		    map<string,const float*>::const_iterator it3(m_floatVariables->find(variableList[varZ]));
+		    if(it3 == m_floatVariables->end()){
 		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in float variables");
 		      return 0;
 		    }
 		    node = new MultivariateSlidingCut2D<float, TGraph2D, int, float>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
 		  }else if(variableTypeList[varZ] == 'I'){
-		    map<string,const int*>::const_iterator it3(intVariables->find(variableList[varZ]));
-		    if(it3 == intVariables->end()){
+		    map<string,const int*>::const_iterator it3(m_intVariables->find(variableList[varZ]));
+		    if(it3 == m_intVariables->end()){
 		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in int variables");
 		      return 0;
 		    }
@@ -333,21 +336,21 @@ Node* TreeReader::readTree(
 		      return 0;
 		    }
 		  }else if(variableTypeList[varY] == 'I'){
-		    map<string,const int*>::const_iterator it2(intVariables->find(variableList[varY]));
-		    if(it2 == intVariables->end()){
+		    map<string,const int*>::const_iterator it2(m_intVariables->find(variableList[varY]));
+		    if(it2 == m_intVariables->end()){
 		      ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in int variables");
 		      return 0;
 		    }
 		    if(variableTypeList[varZ] == 'F'){
-		      map<string,const float*>::const_iterator it3(floatVariables->find(variableList[varZ]));
-		      if(it3 == floatVariables->end()){
+		      map<string,const float*>::const_iterator it3(m_floatVariables->find(variableList[varZ]));
+		      if(it3 == m_floatVariables->end()){
 			ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in float variables");
 			return 0;
 		      }
 		      node = new MultivariateSlidingCut2D<float, TGraph2D, int, int>(it3->second, static_cast<TGraph2D*>(graph), it1->second, it2->second);
 		    }else if(variableTypeList[varZ] == 'I'){
-		      map<string,const int*>::const_iterator it3(intVariables->find(variableList[varZ]));
-		      if(it3 == intVariables->end()){
+		      map<string,const int*>::const_iterator it3(m_intVariables->find(variableList[varZ]));
+		      if(it3 == m_intVariables->end()){
 			ATH_MSG_VERBOSE("Did not find variable "+variableList[varZ]+" in int variables");
 			return 0;
 		      }
@@ -367,14 +370,14 @@ Node* TreeReader::readTree(
 	    }
             else if (variableTypeList[varX] == 'F' && variableTypeList[varY] == 'I')
             {
-                map<string,const float*>::const_iterator it1(floatVariables->find(variableList[varX]));
-                if (it1 == floatVariables->end())
+                map<string,const float*>::const_iterator it1(m_floatVariables->find(variableList[varX]));
+                if (it1 == m_floatVariables->end())
                 {
                     ATH_MSG_VERBOSE("A Did not find variable "+variableList[varX]+" in booked float variables!");
                     return 0;
                 }
-                map<string,const int*>::const_iterator it2(intVariables->find(variableList[varY]));
-                if (it2 == intVariables->end())
+                map<string,const int*>::const_iterator it2(m_intVariables->find(variableList[varY]));
+                if (it2 == m_intVariables->end())
                 {
                     ATH_MSG_VERBOSE("B Did not find variable "+variableList[varY]+" in booked float variables!");
                     return 0;
@@ -394,14 +397,14 @@ Node* TreeReader::readTree(
             }
             else if (variableTypeList[varX] == 'I' && variableTypeList[varY] == 'F')
             { 
-                map<string,const int*>::const_iterator it1(intVariables->find(variableList[varX]));
-                if (it1 == intVariables->end())
+                map<string,const int*>::const_iterator it1(m_intVariables->find(variableList[varX]));
+                if (it1 == m_intVariables->end())
                 {
                     ATH_MSG_VERBOSE("Did not find variable "+variableList[varX]+" in booked int variables!");
                     return 0;
                 }
-                map<string,const float*>::const_iterator it2(floatVariables->find(variableList[varY]));
-                if (it2 == floatVariables->end())
+                map<string,const float*>::const_iterator it2(m_floatVariables->find(variableList[varY]));
+                if (it2 == m_floatVariables->end())
                 {
                     ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in booked int variables!");
                     return 0;
@@ -421,14 +424,14 @@ Node* TreeReader::readTree(
             }
             else if (variableTypeList[varX] == 'F' && variableTypeList[varY] == 'F')
             { 
-                map<string,const float*>::const_iterator it1(floatVariables->find(variableList[varX]));
-                if (it1 == floatVariables->end())
+                map<string,const float*>::const_iterator it1(m_floatVariables->find(variableList[varX]));
+                if (it1 == m_floatVariables->end())
                 {
                     ATH_MSG_VERBOSE("D Did not find variable "+variableList[varX]+" in booked float variables!");
                     return 0;
                 }
-                map<string,const float*>::const_iterator it2(floatVariables->find(variableList[varY]));
-                if (it2 == floatVariables->end())
+                map<string,const float*>::const_iterator it2(m_floatVariables->find(variableList[varY]));
+                if (it2 == m_floatVariables->end())
                 {
                     ATH_MSG_VERBOSE("E Did not find variable "+variableList[varY]+" in booked float variables!");
                     return 0;
@@ -448,14 +451,14 @@ Node* TreeReader::readTree(
             }
             else if (variableTypeList[varX] == 'I' && variableTypeList[varY] == 'I')
             {
-                map<string,const int*>::const_iterator it1(intVariables->find(variableList[varX]));
-                if (it1 == intVariables->end())
+                map<string,const int*>::const_iterator it1(m_intVariables->find(variableList[varX]));
+                if (it1 == m_intVariables->end())
                 {
                     ATH_MSG_VERBOSE("Did not find variable "+variableList[varX]+" in booked int variables!");
                     return 0;
                 }
-                map<string,const int*>::const_iterator it2(intVariables->find(variableList[varY]));
-                if (it2 == intVariables->end())
+                map<string,const int*>::const_iterator it2(m_intVariables->find(variableList[varY]));
+                if (it2 == m_intVariables->end())
                 {
                     ATH_MSG_VERBOSE("Did not find variable "+variableList[varY]+" in booked int variables!");
                     return 0;
@@ -499,8 +502,8 @@ Node* TreeReader::readTree(
         { // parsing internal node
             if (variableTypeList[variable] == 'F')\
             { // internal node cuts on float
-                map<string,const float*>::const_iterator it(floatVariables->find(variableList[variable]));
-                if (it == floatVariables->end())
+                map<string,const float*>::const_iterator it(m_floatVariables->find(variableList[variable]));
+                if (it == m_floatVariables->end())
                 {
                     ATH_MSG_VERBOSE("F Did not find variable "+variableList[variable]+" in booked float variables!");
                     return 0;
@@ -514,8 +517,8 @@ Node* TreeReader::readTree(
             }
             else if (variableTypeList[variable] == 'I')
             { // internal node cuts on int
-                map<string,const int*>::const_iterator it(intVariables->find(variableList[variable]));
-                if (it == intVariables->end())
+                map<string,const int*>::const_iterator it(m_intVariables->find(variableList[variable]));
+                if (it == m_intVariables->end())
                 {
                     ATH_MSG_VERBOSE("Did not find variable "+variableList[variable]+" in booked int variables!");
                     return 0;
@@ -596,8 +599,8 @@ Node* TreeReader::readTree(
 TreeReader::TreeReader(const string& filename):
   AsgMessaging("TauDiscriminant:TreeReader"),
   m_fileName(filename),
-  floatVariables(nullptr),
-  intVariables(nullptr),
+  m_floatVariables(nullptr),
+  m_intVariables(nullptr),
   m_treeInfo(nullptr),
   m_treeFile(),
   m_treeString()

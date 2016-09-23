@@ -17,7 +17,7 @@
 #include "TauDiscriminant/Node.h"
 #include "TauDiscriminant/TreeVector.h"
 
-using namespace std;
+//using namespace std;
 
 class CutsDecisionTree: public TreeVector {
 

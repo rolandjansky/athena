@@ -21,9 +21,9 @@ TauEleOLRDecorator::TauEleOLRDecorator(const std::string& name):
   m_sElectronContainerName("Electrons"),
   m_bElectonsAvailable(true),
   m_sEleOLRFilePath("eveto_cutvals.root"),
-  m_hCutValues(nullptr),
-  m_bEleOLRMatchAvailable(false),
-  m_bEleOLRMatchAvailableChecked(false)
+  m_hCutValues(nullptr)
+  //m_bEleOLRMatchAvailable(false),
+  //m_bEleOLRMatchAvailableChecked(false)
 {
   declareProperty("ElectronContainerName", m_sElectronContainerName);
   declareProperty("EleOLRFile", m_sEleOLRFilePath);

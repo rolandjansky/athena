@@ -11,56 +11,60 @@
 #include "TauDiscriminant/TauEleBDT.h"
 #include "TH2F.h"
 
+using std::string;
+using TauID::MethodBDT;
+using TauID::MethodCuts;
+
 StatusCode TauEleBDT::initialize()
 {
-    if (this->eleBDTFile != "")
+    if (this->m_eleBDTFile != "")
     {
-        string eleBDTPath = find_calibFile(this->eleBDTFile);
+        std::string eleBDTPath = find_calibFile(this->m_eleBDTFile);
         if(eleBDTPath == "")
         {
-	  ATH_MSG_FATAL("File: " << this->eleBDTFile << " not found! ");
+	  ATH_MSG_FATAL("File: " << this->m_eleBDTFile << " not found! ");
 	  return StatusCode::FAILURE;
         }
          
-        this->eleBDT = new MethodBDT("TauBDT:EleBDT");
+        this->m_eleBDT = new MethodBDT("TauBDT:EleBDT");
         
-        if (!this->eleBDT->build(eleBDTPath))
+        if (!this->m_eleBDT->build(eleBDTPath))
         {
 	  ATH_MSG_FATAL("Loading electron BDT file " << eleBDTPath << " failed!");
 	  return StatusCode::FAILURE;
         }
         
-        if (this->eleBitsFile != "")
+        if (this->m_eleBitsFile != "")
         {
-            string eleBitsPath = find_calibFile(this->eleBitsFile);
+            string eleBitsPath = find_calibFile(this->m_eleBitsFile);
             if(eleBitsPath == "")
             {
-	      ATH_MSG_FATAL("File: " << this->eleBitsFile << " not found! ");
+	      ATH_MSG_FATAL("File: " << this->m_eleBitsFile << " not found! ");
 	      return StatusCode::FAILURE;
             }
 
-            this->eleBits = new MethodCuts("TauBDT:EleBits");
+            this->m_eleBits = new MethodCuts("TauBDT:EleBits");
 
-            if (!this->eleBits->build(eleBitsPath))
+            if (!this->m_eleBits->build(eleBitsPath))
             {
 	      ATH_MSG_FATAL("Loading ele bits file " << eleBitsPath << " failed!");
 	      return StatusCode::FAILURE;
             }
         }
-	if(this->eleBitsRootFile != ""){
-		string eleBitsRootPath = find_calibFile(this->eleBitsRootFile);
+	if(this->m_eleBitsRootFile != ""){
+		string eleBitsRootPath = find_calibFile(this->m_eleBitsRootFile);
         	if(eleBitsRootPath == "")
 	        {
-		  ATH_MSG_FATAL("File: " << this->eleBitsRootFile << " not found! ");
+		  ATH_MSG_FATAL("File: " << this->m_eleBitsRootFile << " not found! ");
 		  return StatusCode::FAILURE;
         	}
 
 
-		this->cutsFile = new TFile(eleBitsRootPath.c_str());	
-		if(this->cutsFile){
-		        this->hloose  = (TH2F*)this->cutsFile->Get("h2_BDTEleDecision_pteta_loose");
-		       	this->hmedium = (TH2F*)this->cutsFile->Get("h2_BDTEleDecision_pteta_medium");
-               		this->htight  = (TH2F*)this->cutsFile->Get("h2_BDTEleDecision_pteta_tight");
+		this->m_cutsFile = new TFile(eleBitsRootPath.c_str());	
+		if(this->m_cutsFile){
+		        this->m_hloose  = (TH2F*)this->m_cutsFile->Get("h2_BDTEleDecision_pteta_loose");
+		       	this->m_hmedium = (TH2F*)this->m_cutsFile->Get("h2_BDTEleDecision_pteta_medium");
+               		this->m_htight  = (TH2F*)this->m_cutsFile->Get("h2_BDTEleDecision_pteta_tight");
 		}
 
 	}
@@ -98,31 +102,31 @@ StatusCode TauEleBDT::execute(xAOD::TauJet& tauJet)
     
 
     // Set the response of the electron BDT
-    if (this->eleBDT)
+    if (this->m_eleBDT)
     {
-        this->eleScore = this->eleBDT->response(tauJet);
-	ATH_MSG_VERBOSE("BDTEleScore: " << this->eleScore);
-        if (this->eleScore < 0. || this->eleScore > 1.)
+        this->m_eleScore = this->m_eleBDT->response(tauJet);
+	ATH_MSG_VERBOSE("BDTEleScore: " << this->m_eleScore);
+        if (this->m_eleScore < 0. || this->m_eleScore > 1.)
         {
 	  ATH_MSG_ERROR("Error in computing BDTElecScore!");
         }
-        tauJet.setDiscriminant(xAOD::TauJetParameters::BDTEleScore, this->eleScore);
+        tauJet.setDiscriminant(xAOD::TauJetParameters::BDTEleScore, this->m_eleScore);
     }
 
-    // if (this->eleBDT && this->eleBits) SL: comment out, set bits by hand
-    if (this->eleBDT)
+    // if (this->m_eleBDT && this->m_eleBits) SL: comment out, set bits by hand
+    if (this->m_eleBDT)
     {
         
         // SL: set bits by hand, do not use bits file
-        //tauJetID->setIsTau(TauJetParameters::EleBDTLoose, this->eleBits->response(0));
-        //tauJetID->setIsTau(TauJetParameters::EleBDTMedium, this->eleBits->response(1));
-        //tauJetID->setIsTau(TauJetParameters::EleBDTTight, this->eleBits->response(2));
+        //tauJetID->setIsTau(TauJetParameters::EleBDTLoose, this->m_eleBits->response(0));
+        //tauJetID->setIsTau(TauJetParameters::EleBDTMedium, this->m_eleBits->response(1));
+        //tauJetID->setIsTau(TauJetParameters::EleBDTTight, this->m_eleBits->response(2));
 
       if (tauJet.nTracks() == 1){
 	double eta = fabs(tauJet.track(0)->eta());
 	double pt = tauJet.pt();
 
-	if(!this->cutsFile) {
+	if(!this->m_cutsFile) {
 	  ATH_MSG_ERROR("Cannot open EleBDT cut file");
 	  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTLoose,  0 );
 	  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTMedium, 0 );
@@ -131,7 +135,7 @@ StatusCode TauEleBDT::execute(xAOD::TauJet& tauJet)
 	  return StatusCode::SUCCESS;
 	}
 
-	if(!hloose || !hmedium || !htight){
+	if(!m_hloose || !m_hmedium || !m_htight){
 	  ATH_MSG_ERROR("Cannot get EleBDT cut histograms");
 	  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTLoose,  0 );
 	  tauJet.setIsTau(xAOD::TauJetParameters::EleBDTMedium, 0 );
@@ -144,14 +148,14 @@ StatusCode TauEleBDT::execute(xAOD::TauJet& tauJet)
 	if(pt/1000. > 799) pt = 799*1000.0;
 	if(eta > 2.99) eta = 2.99;
 
-	float score_loose = hloose->GetBinContent(hloose->FindBin(pt/1000.,eta));
-	bool failed_loose =  this->eleScore < score_loose;
+	float score_loose = m_hloose->GetBinContent(m_hloose->FindBin(pt/1000.,eta));
+	bool failed_loose =  this->m_eleScore < score_loose;
 
-	float score_medium = hmedium->GetBinContent(hmedium->FindBin(pt/1000.,eta));
-	bool failed_medium =  this->eleScore < score_medium;
+	float score_medium = m_hmedium->GetBinContent(m_hmedium->FindBin(pt/1000.,eta));
+	bool failed_medium =  this->m_eleScore < score_medium;
 
-	float score_tight = htight->GetBinContent(htight->FindBin(pt/1000.,eta));
-	bool failed_tight =  this->eleScore < score_tight;
+	float score_tight = m_htight->GetBinContent(m_htight->FindBin(pt/1000.,eta));
+	bool failed_tight =  this->m_eleScore < score_tight;
 
 	tauJet.setIsTau(xAOD::TauJetParameters::EleBDTLoose,  failed_loose );
         tauJet.setIsTau(xAOD::TauJetParameters::EleBDTMedium, failed_medium );
@@ -182,15 +186,15 @@ StatusCode TauEleBDT::execute(xAOD::TauJet& tauJet)
 
 StatusCode TauEleBDT::finalize()
 {
-    if(this->cutsFile){
-	this->cutsFile->Close();
-	delete this->cutsFile;
-	//delete this->hloose;
-	//delete this->hmedium;
-	//delete this->htight;
+    if(this->m_cutsFile){
+	this->m_cutsFile->Close();
+	delete this->m_cutsFile;
+	//delete this->m_hloose;
+	//delete this->m_hmedium;
+	//delete this->m_htight;
     }
         
-    delete this->eleBDT;
-    delete this->eleBits;
+    delete this->m_eleBDT;
+    delete this->m_eleBits;
     return StatusCode::SUCCESS;
 }

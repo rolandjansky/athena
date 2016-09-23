@@ -14,8 +14,8 @@ float CutsDecisionTree::response(unsigned int level) const {
 
     DecisionNode* decision = 0;
     LeafNode<float>* leafNode = 0;
-    if (level >= this->trees.size()) return false;
-    Node* currentNode = this->trees[level].first;
+    if (level >= this->m_trees.size()) return false;
+    Node* currentNode = this->m_trees[level].first;
     while (!currentNode->isLeaf()) {
         decision = static_cast<DecisionNode*>(currentNode);
         if (decision->goRight()) {

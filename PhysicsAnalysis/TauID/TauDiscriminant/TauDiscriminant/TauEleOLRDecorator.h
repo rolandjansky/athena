@@ -44,8 +44,8 @@ class TauEleOLRDecorator: virtual public TauDiscriToolBase
   bool m_bElectonsAvailable;
   std::string m_sEleOLRFilePath;
   std::unique_ptr<TH2D> m_hCutValues;
-  bool m_bEleOLRMatchAvailable;
-  bool m_bEleOLRMatchAvailableChecked;
+  //bool m_bEleOLRMatchAvailable;
+  //bool m_bEleOLRMatchAvailableChecked;
   
  private:
   float getCutVal(float fEta, float fPt);
