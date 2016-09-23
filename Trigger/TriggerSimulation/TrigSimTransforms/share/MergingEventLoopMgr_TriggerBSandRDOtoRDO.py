@@ -4,6 +4,7 @@ SKIPEVENTS = 0
 from AthenaCommon.AppMgr import theApp, ServiceMgr, ToolSvc
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+from AthenaCommon.GlobalFlags import globalflags
 from StoreGate.StoreGateConf import StoreGateSvc
 from StoreGate.StoreGateConf import ActiveStoreSvc
 from SGComps.SGCompsConf import ProxyProviderSvc
@@ -32,6 +33,8 @@ logger = logging.getLogger("MergingTest")
 # Needed for muon cabling config / athfile - atleast for the import below
 athenaCommonFlags.FilesInput = athenaCommonFlags.PoolRDOInput()
 
+globalflags.DetDescrVersion.set_Value_and_Lock(runArgs.geometryVersion)
+globalflags.ConditionsTag.set_Value_and_Lock(runArgs.conditionsTag)
 
 
 #-------------------------------------------------------------------------------
@@ -58,9 +61,15 @@ DetFlags.readRDOBS.LVL1_setOn()
 DetFlags.readRIOBS.LVL1_setOn()
 
 include("RecExCond/AllDet_detDescr.py")
-svcMgr.GeoModelSvc.AutomaticGeometryVersion = True
+# svcMgr.GeoModelSvc.AutomaticGeometryVersion = True
+svcMgr.GeoModelSvc.IgnoreTagDifference = True
 
 import MuonCnvExample.MuonCablingConfig
+
+# PixelLorentzAngleSvc and SCTLorentzAngleSvc (see JIRA ATR-15109/ATEAM-339)
+from InDetRecExample.InDetJobProperties import InDetFlags
+include("InDetRecExample/InDetRecConditionsAccess.py")
+
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -174,7 +183,7 @@ svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "DEFAULT_BUFFERSIZE = '32000'" ]
 svcMgr.AthenaPoolCnvSvc.PoolAttributes += [ "ContainerName = 'TTree=POOLContainer'; TREE_AUTO_FLUSH = '0'" ]
 
 svcMgr.AthenaSealSvc.CheckDictionary = True
-svcMgr.AthenaSealSvc.CheckDictAtInit = True
+#svcMgr.AthenaSealSvc.CheckDictAtInit = True
 
 
 from OutputStreamAthenaPool.OutputStreamAthenaPool import AthenaPoolOutputStream

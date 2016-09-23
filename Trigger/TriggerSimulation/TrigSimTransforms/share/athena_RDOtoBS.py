@@ -96,7 +96,6 @@ from TrigSimTransforms.rdo2bs_rodversion_setup import rod_version_setup
 rod_version_setup("17.1.3.4")
 
 
-
 # Blacklist the following modules, they are not wanted at this point
 _blacklist =  []
 #_blacklist += [ "CTP_RDO#*", "MuCTPI_RDO#*", "HLT::HLTResult#*", "ROIB::RoIBResult#*", ]
@@ -125,11 +124,12 @@ _blacklist =  []
 ## _blacklist += [ "MuCTPI_RDO#*" ]
 ## _blacklist += [ "ROIB::RoIBResult#*" ]
 
-StreamBSFileOutput.ItemList = [f for f in StreamBSFileOutput.ItemList if f not in _blacklist] #+ [ "TileTTL1Container#TileTTL1Cnt", "LArTTL1Container#LArTTL1EM", "LArTTL1Container#LArTTL1HAD" ]
+StreamBSFileOutput.ItemList = [f for f in StreamBSFileOutput.ItemList if f not in _blacklist]
+# + [ "TileTTL1Container#TileTTL1Cnt", "LArTTL1Container#LArTTL1EM", "LArTTL1Container#LArTTL1HAD" ]
 
 StreamBSFileOutput.ItemList += [ "TileRawChannelContainer#*" ]
-StreamBSFileOutput.ItemList += [ "TileTTL1Container#*" ]
-StreamBSFileOutput.ItemList += [ "LVL1::MbtsCTP#*" ]
+# StreamBSFileOutput.ItemList += [ "TileTTL1Container#*" ]
+# StreamBSFileOutput.ItemList += [ "LVL1::MbtsCTP#*" ]
 del _blacklist
 
 print "JOERG These collections are in StreamBSFileOutput"
@@ -170,5 +170,6 @@ topSequence = AlgSequence()
 print "Algorithms"
 import AthenaCommon.Configurable as Configurable
 Configurable.log.setLevel( INFO )
+print svcMgr
 print topSequence
 
