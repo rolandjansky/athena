@@ -47,20 +47,20 @@ StatusCode Trk::TrackCollectionMerger::initialize()
   ATH_MSG_DEBUG("Initializing TrackCollectionMerger");
 
   if ( m_assoTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_assoTool << endmsg;
     return StatusCode::FAILURE;
   } else
     ATH_MSG_INFO("Retrieved tool " << m_assoTool);
 
   if (m_trkSummaryTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
     return StatusCode::FAILURE;
   } else 
     ATH_MSG_INFO("Retrieved tool " << m_trkSummaryTool);
 
   if( m_updateSharedHitsOnly &&  m_updateAdditionalInfo){
-    msg(MSG::WARNING) << "Both UpdateAdditionalInfo and UpdateSharedHitsOnly set true - UpdateAdditionalInfo includes a shared hits update. " << endreq;
-    msg(MSG::WARNING) << " If you *only* want to update shared hits, set UpdateAdditionalInfo=False and UpdateSharedHitsOnly=True" << endreq;
+    msg(MSG::WARNING) << "Both UpdateAdditionalInfo and UpdateSharedHitsOnly set true - UpdateAdditionalInfo includes a shared hits update. " << endmsg;
+    msg(MSG::WARNING) << " If you *only* want to update shared hits, set UpdateAdditionalInfo=False and UpdateSharedHitsOnly=True" << endmsg;
   }
   
   return StatusCode::SUCCESS;
@@ -216,7 +216,7 @@ StatusCode Trk::TrackCollectionMerger::mergeTrack(const TrackCollection* trackCo
       outputCol->push_back(newTrack);
       // add tracks into PRD tool
       if (m_assoTool->addPRDs(*newTrack).isFailure())
-	      msg(MSG::WARNING) << "Failed to add PRDs to map" << endreq;
+	      msg(MSG::WARNING) << "Failed to add PRDs to map" << endmsg;
     }
   }
 
