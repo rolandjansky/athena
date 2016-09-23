@@ -182,7 +182,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
       }
    } // end topo. loop.   
   double varEtOneTowerNow = m_aveecluspu*sumEtEta/m_ntowers * 2;
-  double threshEtOneTowerNow = sumEtEta/m_ntowers + m_nsigma*sqrt(varEtOneTowerNow);
+  double threshEtOneTowerNow = sumEtEta/m_ntowers + m_nsigma*sqrt(abs(varEtOneTowerNow));
 
   // find binning that gives largest sumEt from bins above threshold
   std::vector<double> EtMaxSumT(4,0);
@@ -210,7 +210,7 @@ StatusCode EFMissingETFromClustersPUC::execute(xAOD::TrigMissingET * /* met */ ,
   // remove current bins above ptmin from sumEtEta and recalculate
   // threshold to reduce sensitivity to high_pt
   double varEtOneTower = m_aveecluspu*(sumEtEta-EtMaxSumNow)/(m_ntowers-aboveNow) * 2;
-  double threshEtOneTower = (sumEtEta-EtMaxSumNow)/(m_ntowers-aboveNow) + m_nsigma*sqrt(varEtOneTower);
+  double threshEtOneTower = (sumEtEta-EtMaxSumNow)/(m_ntowers-aboveNow) + m_nsigma*sqrt(abs(varEtOneTower));
   
   // Missing transverse energy from fixed position tower
   METEta = sqrt(MExEta*MExEta + MEyEta*MEyEta); MET = sqrt(MExFull*MExFull + MEyFull*MEyFull);
