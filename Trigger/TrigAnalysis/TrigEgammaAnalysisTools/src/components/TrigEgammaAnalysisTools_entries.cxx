@@ -2,12 +2,12 @@
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "../TrigEgammaMonTool.h"
 #include "../TrigEgammaPhysValMonTool.h"
-#include "TrigEgammaAnalysisTools/TrigEgammaNavTPNtuple.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavBaseTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavAnalysisTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavTPBaseTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavTPAnalysisTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaNavNtuple.h"
+#include "TrigEgammaAnalysisTools/TrigEgammaNavTPNtuple.h"
 #include "TrigEgammaAnalysisTools/EfficiencyTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaResolutionTool.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaDistTool.h"
@@ -18,7 +18,6 @@
 DECLARE_TOOL_FACTORY(TrigEgammaAnalysisBaseTool)
 DECLARE_TOOL_FACTORY(TrigEgammaMonTool)
 DECLARE_TOOL_FACTORY(TrigEgammaPhysValMonTool)
-DECLARE_TOOL_FACTORY(TrigEgammaNavBaseTool)
 DECLARE_TOOL_FACTORY(TrigEgammaNavTPBaseTool)
 DECLARE_TOOL_FACTORY(TrigEgammaNavTPNtuple)
 DECLARE_TOOL_FACTORY(TrigEgammaNavAnalysisTool)

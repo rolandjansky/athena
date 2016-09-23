@@ -12,6 +12,7 @@
 #include "GaudiKernel/IInterface.h"
 #include "TrigHLTMonitoring/IHLTMonTool.h"
 #include "TrigEgammaAnalysisTools/ITrigEgammaPlotTool.h"
+#include "TrigEgammaEmulationTool/ITrigEgammaEmulationTool.h"
 
 //#include "StoreGate/StoreGateSvc.h"
 
@@ -37,7 +38,11 @@ public:
   virtual void setPlotTool(ToolHandle<ITrigEgammaPlotTool>)=0;
   virtual void setDetail(bool)=0;
   virtual void setTP(bool)=0;
+  virtual void setEmulation(bool)=0;
+  virtual void setEmulationTool(ToolHandle<Trig::ITrigEgammaEmulationTool>)=0;
   virtual void setAvgMu(const float, const float)=0;
+  virtual void setPVertex(const float, const float)=0;
+  
   virtual StatusCode childInitialize(){return StatusCode::SUCCESS;};
   virtual StatusCode childBook(){return StatusCode::SUCCESS;};
   virtual StatusCode childExecute(){return StatusCode::SUCCESS;};

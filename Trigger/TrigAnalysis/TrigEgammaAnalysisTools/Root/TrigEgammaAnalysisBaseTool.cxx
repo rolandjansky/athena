@@ -23,7 +23,6 @@
 #include "TTree.h"
 #include "TProfile.h"
 #include "TProfile2D.h"
-
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -35,6 +34,7 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigEgammaAnalysisTools/TrigEgammaAnalysisBaseTool.h"
 #include "TrigEgammaAnalysisTools/ValidationException.h"
+#include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
@@ -51,12 +51,13 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     m_lumiBlockMuTool("LumiBlockMuTool/LumiBlockMuTool") //offline mu
 {
     declareProperty("MatchTool",m_matchTool);
+    declareProperty("EmulationTool",m_emulationTool);
+    declareProperty("doEmulation", m_doEmulation=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateEmulation,this);
     declareProperty("PlotTool",m_plot);
     declareProperty("Tools", m_tools);
     declareProperty("ElectronKey",m_offElContKey="Electrons");
     declareProperty("PhotonKey",m_offPhContKey="Photons");
     declareProperty("File",m_file="");
-    declareProperty("UseLuminosityTool", m_useLumiTool=true);
     declareProperty("LuminosityTool", m_lumiBlockMuTool, "Luminosity Tool Online");
     declareProperty("LuminosityToolOnline", m_lumiTool, "Luminosity Tool");
     declareProperty("DetailedHistograms", m_detailedHists=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateDetail,this);
@@ -65,6 +66,7 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     declareProperty("TPTrigger",m_tp=false)->declareUpdateHandler(&TrigEgammaAnalysisBaseTool::updateTP,this);
     declareProperty("isEMResultNames",m_isemname,"isEM");
     declareProperty("LHResultNames",m_lhname,"LH");
+
     m_storeGate = nullptr;
     m_histsvc = nullptr;
     m_parent = nullptr;
@@ -77,13 +79,12 @@ TrigEgammaAnalysisBaseTool( const std::string& myname )
     bool b1 = ancestorPassed<xAOD::ElectronContainer>(t);
     (void)a; (void)b;
     (void)a1; (void)b1;
+    
     // Coverity fix
-    m_nGoodVtx=0;
-    m_nPileupPrimaryVtx=0;
+    m_nGoodVertex=0;
+    m_nPVertex=0;
     m_offmu=0.;
     m_onlmu=0.;
-
-    
 }
 
 void TrigEgammaAnalysisBaseTool::updateDetail(Property& /*p*/){
@@ -97,10 +98,20 @@ void TrigEgammaAnalysisBaseTool::updateDetail(Property& /*p*/){
 void TrigEgammaAnalysisBaseTool::updateAltBinning(Property& /*p*/){
     plot()->setAltBinning(m_doJpsiee);
 }
+
 void TrigEgammaAnalysisBaseTool::updateTP(Property& /*p*/){
     plot()->setTP(m_tp);
     for( const auto& tool : m_tools) {
-        tool->setTP(m_tp); 
+        tool->setTP(m_tp);
+    }
+}
+
+void TrigEgammaAnalysisBaseTool::updateEmulation(Property& /*p*/){
+    plot()->setEmulation(m_doEmulation);
+    for( const auto& tool : m_tools) {
+        tool->setEmulation(m_doEmulation);
+        ATH_MSG_INFO("updateEmulation() property for tool with name: " << tool->name());
+        tool->setEmulationTool(m_emulationTool);
     }
 }
 
@@ -121,7 +132,6 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     if( sc.isFailure() ) {
         ATH_MSG_ERROR("Unable to locate Service THistSvc");
         return sc;
-
     }
     
     if (m_lumiTool.retrieve().isFailure()) {
@@ -143,6 +153,7 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     //Enable expert methods
     m_trigdec->ExperimentalAndExpertMethods()->enable();
 
+
     //TrigEgammaPlotTool
     if(m_parent) m_plot->setParent(m_parent);
     /*sc = m_plot->initialize();
@@ -160,6 +171,14 @@ StatusCode TrigEgammaAnalysisBaseTool::initialize() {
     } catch(...) {
         ATH_MSG_ERROR("Unknown exception caught, while initializing");
         return StatusCode::FAILURE;
+    }
+
+    // propagate the emulation tool for all tools
+    if( m_doEmulation ){
+      for( const auto& tool : m_tools) {
+        ATH_MSG_INFO("Propagate emulation tool handler to: " << tool->name() );
+        tool->setEmulationTool(m_emulationTool);  
+      }
     }
 
     /*for( const auto& tool : m_tools) {
@@ -723,8 +742,8 @@ float TrigEgammaAnalysisBaseTool::getAvgMu(){
         return m_offmu; 
     } 
     else if(m_onlmu==0. && m_offmu==0.){
-        ATH_MSG_DEBUG("Average Pileup 0., no Lumi info");
-        return 0.;
+        ATH_MSG_DEBUG("Average Pileup 0.0 , no Lumi info.");
+        return 0.0;
     }
     return 0.;
 }
@@ -860,14 +879,14 @@ GETTER(deltaPhiRescaled3)
     std::string TrigEgammaAnalysisBaseTool::getProbePid(const std::string pidtype){
     static std::map<std::string,std::string> m_PidMap; //no longer class member but static
     if(m_PidMap.empty()){
-        m_PidMap["vloose"]="Loose";
+        m_PidMap["vloose"]="VLoose";
         m_PidMap["loose"]="Loose";
         m_PidMap["medium"]="Medium";
         m_PidMap["tight"]="Tight";
         m_PidMap["loose1"]="Loose";
         m_PidMap["medium1"]="Medium";
         m_PidMap["tight1"]="Tight";
-        m_PidMap["lhvloose"]="LHLoose";
+        m_PidMap["lhvloose"]="LHVLoose";
         m_PidMap["lhloose"]="LHLoose";
         m_PidMap["lhmedium"]="LHMedium";
         m_PidMap["lhtight"]="LHTight";
@@ -918,29 +937,31 @@ bool TrigEgammaAnalysisBaseTool::getTrigCaloRings( const xAOD::TrigEMCluster *em
   return false;
 }
 
+bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron * /*el*/, std::vector<float> & /*ringsE*/ ){
 
-bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron *el, std::vector<float> &ringsE ){
+  /*
   if(!el) return false;
   ringsE.clear();
-  
-  /*auto m_ringsELReader = xAOD::getCaloRingsReader();
+    
+  auto m_ringsELReader = xAOD::getCaloRingsReader();
 
   // First, check if we can retrieve decoration: 
-  const xAOD::CaloRingsELVec *caloRingsELVec(nullptr); 
+  const xAOD::CaloRingsLinks *caloRingsLinks(nullptr);
   try { 
-    caloRingsELVec = &(m_ringsELReader->operator()(*el)); 
+    caloRingsLinks = &(m_ringsELReader->operator()(*el)); 
   } catch ( const std::exception &e) { 
     ATH_MSG_WARNING("Couldn't retrieve CaloRingsELVec. Reason: " << e.what()); 
+    return false;
   } 
 
-  if ( caloRingsELVec->empty() ){ 
+  if ( caloRingsLinks->empty() ){ 
     ATH_MSG_WARNING("Particle does not have CaloRings decoratorion.");
     return false;
   }
 
 
   // For now, we are using only the first cluster 
-  const xAOD::CaloRings *clrings = *(caloRingsELVec->at(0));
+  const xAOD::CaloRings *clrings = *(caloRingsLinks->at(0));
   // For now, we are using only the first cluster 
   
   if(clrings) clrings->exportRingsTo(ringsE);
@@ -948,46 +969,14 @@ bool TrigEgammaAnalysisBaseTool::getCaloRings( const xAOD::Electron *el, std::ve
     ATH_MSG_WARNING("There is a problem when try to attack the rings vector using exportRigsTo() method.");
     return false;
   }
-  */
+  */  
   return true;
-}
-
-const xAOD::TruthParticle* TrigEgammaAnalysisBaseTool::matchTruth(const xAOD::TruthParticleContainer *truthContainer, 
-                                                                  const xAOD::Egamma *eg,
-                                                                  bool &Zfound,
-                                                                  bool &Wfound)
-{ 
-  // find MC particle
-  if(truthContainer){
-    TLorentzVector elp; elp.SetPtEtaPhiE(eg->pt(),eg->eta(),eg->phi(),eg->e());
-    for(const auto& mc : *truthContainer ){
-      Zfound = false;
-      Wfound = false;
-      if(mc->isElectron()){
-        size_t nParents = mc->nParents();
-        for(size_t iparent = 0; iparent < nParents; ++iparent){
-          if((mc->parent(iparent))->isZ()){
-            Zfound = true;     
-          }
-          if((mc->parent(iparent))->isW()){
-            Wfound = true;     
-          }
-        }
-      }
-      TLorentzVector mcp;
-      mcp.SetPtEtaPhiE(mc->pt(), mc->eta(), mc->phi(), mc->e() );
-      if(mcp.DeltaR(elp) < 0.07){
-        return mc;
-      }
-    }
-  }
-  return nullptr;
 }
 
 
 void TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex(){
   // pileup calculation
-  m_nGoodVtx = 0; m_nPileupPrimaryVtx = 0;
+  m_nGoodVertex = 0.0; m_nPVertex = 0.0;
   if( m_storeGate->contains<xAOD::VertexContainer>("PrimaryVertices")) {
      const xAOD::VertexContainer* vxContainer(0);
      if ( m_storeGate->retrieve(vxContainer, "PrimaryVertices").isFailure() ) {
@@ -995,16 +984,80 @@ void TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex(){
      }else{
        for(unsigned ivx = 0; ivx < vxContainer->size(); ++ivx){
          int nTrackParticles = vxContainer->at(ivx)->nTrackParticles();
-         if (nTrackParticles >= 4) m_nGoodVtx++;
+         if (nTrackParticles >= 4) m_nGoodVertex++;
          if ( (nTrackParticles >= 4 && vxContainer->at(ivx)->vertexType() == xAOD::VxType::PriVtx) ||
             (nTrackParticles >= 2 && vxContainer->at(ivx)->vertexType() == xAOD::VxType::PileUp) )
-           m_nPileupPrimaryVtx++;
+           m_nPVertex++;
        }// loop over vertexs
      } 
    }// protection
-   ATH_MSG_DEBUG("calculatePileupPrimaryVertex(): nPileupPrimaryVtx = " << m_nPileupPrimaryVtx);
-
+   ATH_MSG_DEBUG("calculatePileupPrimaryVertex(): nPileupPrimaryVtx = " << m_nPVertex);
 }
+
+
+
+
+MonteCarlo::PDGID TrigEgammaAnalysisBaseTool::pdgid(const xAOD::Egamma *eg, const xAOD::TruthParticleContainer* truthContainer,
+                                                                            const xAOD::TruthParticle *&mc_match )
+{
+  bool Z(false),W(false),e(false),g(false);
+
+  if(truthContainer){
+    TLorentzVector elp; elp.SetPtEtaPhiE(eg->pt(),eg->eta(),eg->phi(),eg->e());
+    for(const auto& mc : *truthContainer ){
+      Z = false;
+      W = false;
+      if(mc->isElectron()){
+        e=true;
+        size_t nParents = mc->nParents();
+        for(size_t iparent = 0; iparent < nParents; ++iparent){
+          if((mc->parent(iparent))->isZ())  Z = true;     
+          if((mc->parent(iparent))->isW())  W = true;     
+        }
+      }else if(mc->isPhoton()){
+        g=true;
+      }
+
+      TLorentzVector mcp;
+      mcp.SetPtEtaPhiE(mc->pt(), mc->eta(), mc->phi(), mc->e() );
+      if(mcp.DeltaR(elp) < 0.07){
+        mc_match = mc;
+        break;
+      }
+
+    }//loop over mc objects
+  }
+
+  if(mc_match){// Correct pdgid selection
+    if(!(e  && (Z||W))){
+      return MonteCarlo::PDGID::EnhancedBias;
+    }else if(e && Z){
+      return MonteCarlo::PDGID::ZMother;
+    }else if(e && W){
+      return MonteCarlo::PDGID::WMother;
+    }else if(e && !(Z||W)){      
+      return MonteCarlo::PDGID::Electron;
+    }else if(g){      
+      return MonteCarlo::PDGID::Photon;
+    }else{
+      return MonteCarlo::PDGID::Unknown;
+    }
+  }
+  return MonteCarlo::PDGID::Unknown;
+}
+
+bool TrigEgammaAnalysisBaseTool::write_trigger_list( const std::vector<std::string>  &triggerList ){
+  
+  std::ofstream ofile("HLTTriggerList.txt");
+  if (!ofile.is_open()) return false;
+  ofile << "=================> List of triggers <==================\n";
+  for (const auto &trigger : triggerList) {
+    ofile << trigger << "\n";
+  }
+  ofile.close();
+  return true;
+}
+
 
 // definitions
 const std::vector<std::string> TrigEgammaAnalysisBaseTool::m_trigLevel = {"L1Calo","L2Calo","L2","EFCalo","EFTrack","HLT"};

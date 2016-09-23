@@ -12,7 +12,7 @@ use TrigConfHLTData             TrigConfHLTData-*               Trigger/TrigConf
 use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent
 use     TrigHLTMonitoring       TrigHLTMonitoring-*             Trigger/TrigMonitoring
 use LumiBlockComps          LumiBlockComps-*             LumiBlock
-
+use PATCore                     PATCore-*                       PhysicsAnalysis/AnalysisCommon
 use xAODTrigger                 xAODTrigger-*                   Event/xAOD
 use xAODEgamma                  xAODEgamma-*                    Event/xAOD
 use xAODTrigEgamma              xAODTrigEgamma-*                Event/xAOD
@@ -23,6 +23,7 @@ use xAODCaloEvent               xAODCaloEvent-*                 Event/xAOD
 use ElectronPhotonSelectorTools ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
 use egammaMVACalib              egammaMVACalib-*                Reconstruction/egamma
 use TrigEgammaMatchingTool      TrigEgammaMatchingTool-*        Trigger/TrigAnalysis/
+use TrigEgammaEmulationTool     TrigEgammaEmulationTool-*       Trigger/TrigAnalysis/
 use xAODEventInfo               xAODEventInfo-*                 Event/xAOD
 use xAODTruth                   xAODTruth-*                     Event/xAOD
 use xAODTrigRinger              xAODTrigRinger-*                Event/xAOD

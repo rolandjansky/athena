@@ -46,7 +46,6 @@ TrigEgammaNavTPBaseTool( const std::string& myname )
   declareProperty("ForceProbePid", m_forceProbePid=false); // new
   declareProperty("OppositeCharge",m_oppositeCharge=true);
   declareProperty("OfflineTagMinEt",m_tagMinEt=25);
-  declareProperty("OfflineProbeMinEt",m_probeMinEt=24); // new
   declareProperty("TagTriggerList", m_tagTrigList);
   declareProperty("TriggerList",m_trigInputList);
   declareProperty("CategoryList",m_categories);
@@ -54,18 +53,19 @@ TrigEgammaNavTPBaseTool( const std::string& myname )
   declareProperty("OfflineProbeIsolation", m_offProbeIsolation="Loose");
   declareProperty("ForceProbeIsolation", m_forceProbeIsolation=false);
 
+  // Maps should be static
   m_PidToolMap["Tight"]=0;
   m_PidToolMap["Medium"]=1;
   m_PidToolMap["Loose"]=2;
+  m_PidToolMap["VLoose"]=3;
 
   m_offElectrons=nullptr;
   m_jets=nullptr;
   m_eventInfo=nullptr;
   m_truthContainer=nullptr;
   m_applyJetNearProbeSelection=true; 
-  // Maps should be static
-  // Make a wrapper function to set map and return value
-    
+  m_skipTrigger=false; 
+  
 }
 
 //**********************************************************************
@@ -89,6 +89,7 @@ StatusCode TrigEgammaNavTPBaseTool::childFinalize() {
 //**********************************************************************
 StatusCode
 TrigEgammaNavTPBaseTool::childInitialize() {
+
     ATH_MSG_VERBOSE( "child Initialize tool " << name() );
     if ( (m_electronIsEMTool.retrieve()).isFailure() ){
         ATH_MSG_ERROR( "Could not retrieve Selector Tool! Can't work");
@@ -108,6 +109,13 @@ StatusCode TrigEgammaNavTPBaseTool::childBook() {
 bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
 
     ATH_MSG_DEBUG("Apply EventWise selection");
+    
+    // disable trigger tag if there is no trigger in tag list.
+    // This will be used to the offline tag and probe analysis
+    if(m_tagTrigList.empty()){
+      m_skipTrigger=true; 
+      ATH_MSG_INFO("Disable trigger tags because trigger tags list is empty.");
+    }
 
     m_eventInfo=0;
     m_offElectrons = 0;
@@ -157,7 +165,10 @@ bool TrigEgammaNavTPBaseTool::EventWiseSelection(){
 
     ATH_MSG_DEBUG("Total container size  " << m_offElectrons->size());
 
-    TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();    
+    TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();   
+
+    //Skip the trigger minimal requirement
+    if(m_skipTrigger)  return true;
 
     // missing more selections
     // check Minimal Trigger Requirements
@@ -312,6 +323,12 @@ bool TrigEgammaNavTPBaseTool::isTagElectron(const xAOD::Electron *el){
     if (!el->isGoodOQ(xAOD::EgammaParameters::BADCLUSELECTRON)) return false;
     hist1(m_anatype+"_TagCutCounter")->Fill("IsGoodOQ",1);
 
+    
+    if(m_skipTrigger){
+      ATH_MSG_DEBUG("Found a tag electron"); 
+      return true;
+    }
+
     ATH_MSG_DEBUG("Selecting Tag Electron Decision");
     // Check matching to a given trigger
     // The statement below is more general
@@ -456,6 +473,7 @@ bool TrigEgammaNavTPBaseTool::passedTrigger(const HLT::TriggerElement* obj){
     if ( obj->getActiveState() ) passed = true;
     return passed;
 }
+
 float TrigEgammaNavTPBaseTool::GetPseudoLifetime(const xAOD::Electron *el1,const xAOD::Electron *el2){
 
   TLorentzVector el1track;
@@ -478,6 +496,7 @@ float TrigEgammaNavTPBaseTool::GetPseudoLifetime(const xAOD::Electron *el1,const
   return lxy*3096.916/(0.299792458*m_ptEECalo);
 
 }
+
 double TrigEgammaNavTPBaseTool::simple_lxy(int flag,   double d1,  double d2, double phi1, double phi2, double pt1, double pt2, double vx, double vy)
 {
   double simple = -99999.;

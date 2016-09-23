@@ -60,21 +60,11 @@ protected:
   bool EventWiseSelection();
   /*! navigation method called by derived classes */
   StatusCode executeNavigation(const TrigInfo);
+
   /*! Tag Electron selection */
   bool passedTrigger(const HLT::TriggerElement* obj); 
   /*! Rerun offline selection */
   bool ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname);
-
-
-
-  /* This method is used to select events using pid or truth selection. if there is
-   * an ! in pidname, the anwer will be a inverse [not]. This method accept:
-   * Loose, Medium, Tight, LHLoose, LHMedium, LHTight, Truth,
-   * !Loose, !Medium, !Tight, !LHLoose, !LHMedium, !LHTight and !Truth*/
-  bool ApplyElectronFilter(const xAOD::Electron *eg, std::string pidname);
-
-
-
   /*! Clears list of probes after each trigger item per event */
   void clearList(); 
   /*! vector of offline object and matched TE */
@@ -98,21 +88,20 @@ protected:
   const xAOD::TruthParticleContainer* m_truthContainer;
 
 private:
-  
+ 
   /*! navigation method called by executeNavigation */
   StatusCode executeElectronNavigation(const std::string trigItem,float,std::string); 
   /*! navigation method called by executeNavigation */
   StatusCode executePhotonNavigation(const std::string trigItem,float); 
+ 
   // ToolHandles
-  //
-  //Offline ++ selectors
+  // Offline ++ selectors
   // In python order will matter. Should always be tight, medium, loose
   // Order no longer important since using a map
   ///*! Offline isEM Selectors */
   ToolHandleArray<IAsgElectronIsEMSelector> m_electronIsEMTool;
   /*! Offline LH Selectors */
   ToolHandleArray<IAsgElectronLikelihoodTool> m_electronLHTool; 
-
   /*! Event Wise offline ElectronContainer Access and end iterator */
   const xAOD::ElectronContainer* m_offElectrons;
   /*! Event Wise offline PhotonContainer Access and end iterator */
@@ -142,7 +131,7 @@ protected:/// Protect type is used here becouse this can be access by inheritanc
   /*! force pid and crack selection into electron navigation */
   bool m_forcePidSelection;
   /* force experimentalSelection selection*/
-  bool m_forceFilterSelection;
+  bool m_forceMCEnhancedBias;
   /* force et cluster cut*/
   bool m_forceEtThr;
    /*! Remove crack region for Probe default True */

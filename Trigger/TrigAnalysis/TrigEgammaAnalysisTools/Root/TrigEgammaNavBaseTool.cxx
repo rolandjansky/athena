@@ -33,19 +33,17 @@ TrigEgammaNavBaseTool( const std::string& myname )
     m_dir(myname)
 {
   declareProperty("Analysis",m_anatype="Analysis");
-  declareProperty("ElectronIsEMSelector"      , m_electronIsEMTool          );
-  declareProperty("ElectronLikelihoodTool"    , m_electronLHTool            );
-  declareProperty("TriggerList"               , m_trigInputList             );
-  declareProperty("PhotonPid"                 , m_photonPid = "Tight"       );
-  declareProperty("doUnconverted"             , m_doUnconverted=false       );
-  declareProperty("OfflineProbeIsolation"     , m_offProbeIsolation="Loose" );
+  declareProperty("ElectronIsEMSelector"      , m_electronIsEMTool            );
+  declareProperty("ElectronLikelihoodTool"    , m_electronLHTool              );
+  declareProperty("TriggerList"               , m_trigInputList               );
+  declareProperty("PhotonPid"                 , m_photonPid = "Tight"         );
+  declareProperty("doUnconverted"             , m_doUnconverted=false         );
+  declareProperty("OfflineProbeIsolation"     , m_offProbeIsolation="Loose"   );
   declareProperty("RemoveCrack"               , m_rmCrack=true                ); 
   declareProperty("ForceProbeIsolation"       , m_forceProbeIsolation=false   );
   declareProperty("ForcePidSelection"         , m_forcePidSelection=true      );
-  declareProperty("ForceEtThreshold"          , m_forceEtThr=true             ); //new
-  declareProperty("ForceFilterSelection"      , m_forceFilterSelection=false  ); //new
-  declareProperty("ElectronFilterType"        , m_electronFilterType="Loose"  ); //new
-  declareProperty("PhotonFilterType"          , m_photonFilterType="Loose"    ); //new
+  declareProperty("ForceEtThreshold"          , m_forceEtThr=true             ); 
+  declareProperty("ForceMCEnhancedBias"       , m_forceMCEnhancedBias=false   ); //new
 
   m_offElectrons=nullptr;
   m_offPhotons=nullptr;
@@ -134,7 +132,8 @@ bool TrigEgammaNavBaseTool::EventWiseSelection( ){
         if(ApplyElectronPid(eg,"LHMedium")) hist1(m_anatype+"_electrons")->AddBinContent(5);
         if(ApplyElectronPid(eg,"LHTight")) hist1(m_anatype+"_electrons")->AddBinContent(6); 
     }
-    
+   
+    //Calculate number of vertex 
     TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();   
 
     return true; 
@@ -153,79 +152,41 @@ StatusCode TrigEgammaNavBaseTool::executeNavigation( const TrigInfo info ){
 }
 
 bool TrigEgammaNavBaseTool::ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname){
-  ATH_MSG_DEBUG("Apply Pid " << pidname);
-  if (pidname == "Tight"){
-    return m_electronIsEMTool[0]->accept(eg);
-  }
-  else if (pidname == "Medium"){
-    return m_electronIsEMTool[1]->accept(eg);
-  }
-  else if (pidname == "Loose"){
-    return m_electronIsEMTool[2]->accept(eg);
-  }
-  else if (pidname == "LHTight"){
-    return m_electronLHTool[0]->accept(eg);
-  }
-  else if (pidname == "LHMedium"){
-    return m_electronLHTool[1]->accept(eg);
-  }
-  else if (pidname == "LHLoose"){
-    return m_electronLHTool[2]->accept(eg);
-  }else ATH_MSG_DEBUG("No Pid tool, continue without PID");
-  return false;
-}
-
-bool TrigEgammaNavBaseTool::ApplyElectronFilter(const xAOD::Electron *eg, std::string pidname){
-  
-  bool isBackground=false;
-
-  ATH_MSG_DEBUG("Filter selection with pidname = "<< pidname);
-  ///check if is background selection data
-  if(boost::contains(pidname,"!")){
-    isBackground=true;
-    ATH_MSG_DEBUG("background selection is on");
-    pidname.erase(0,1); ///remove [!] 
-  }
-
-  if(pidname == "Truth"){///Monte Carlo selection
-    bool Zfound(false),Wfound(false),isElectron(false);///only for electrons 
-    ATH_MSG_DEBUG("Monte Carlo Selection");
-    if(m_truthContainer){
-      auto mc = matchTruth(m_truthContainer, eg, Zfound, Wfound);
-      if(mc){
-        ATH_MSG_DEBUG("has MC particle");
-        if(mc->isElectron()){
-          isElectron=true;
-        }
-      }//protection
-    }//protection
-
-    ATH_MSG_DEBUG("Monte Carlo flags: isBackground="<<int(isBackground) << ", isElectron="<< int(isElectron)<< ", isZ="<<int(Zfound));
-    if(isBackground && !(isElectron  && (Zfound||Wfound))){
-      return true;
-    }else if (!isBackground && isElectron && Zfound){/// Zee decay
-      return true;
-    }else{
-      return false;
+    
+    if (pidname == "Tight"){
+        const Root::TAccept& accept=m_electronIsEMTool[0]->accept(eg);
+        return static_cast<bool>(accept);
     }
-
-  }else{///Offline selection
-    ATH_MSG_DEBUG("Offline Selection");
-    if(isBackground){
-      return !ApplyElectronPid(eg, pidname);   
-    }else{
-      return ApplyElectronPid(eg, pidname);    
+    else if (pidname == "Medium"){
+        const Root::TAccept& accept=m_electronIsEMTool[1]->accept(eg);
+        return static_cast<bool>(accept);
     }
-  }
-  return false;
+    else if (pidname == "Loose"){
+        const Root::TAccept& accept=m_electronIsEMTool[2]->accept(eg);
+        return static_cast<bool>(accept);
+    }
+    else if (pidname == "LHTight"){
+        const Root::TAccept& accept=m_electronLHTool[0]->accept(eg);
+        return static_cast<bool>(accept);
+    }
+    else if (pidname == "LHMedium"){
+        const Root::TAccept& accept=m_electronLHTool[1]->accept(eg);
+        return static_cast<bool>(accept);
+    }
+    else if (pidname == "LHLoose"){
+        const Root::TAccept& accept=m_electronLHTool[2]->accept(eg);
+        return static_cast<bool>(accept);
+    }
+    else ATH_MSG_DEBUG("No Pid tool, continue without PID");
+    return false;
 }
-
 
 
 StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigItem,float etthr,std::string pidname ){
 
   clearList(); //Clear Probe list before each execution -- not in derived class
   ATH_MSG_DEBUG("Apply navigation selection "); 
+
 
   const std::string decor="is"+pidname;
   for(const auto& eg : *m_offElectrons ){
@@ -255,19 +216,28 @@ StatusCode TrigEgammaNavBaseTool::executeElectronNavigation( std::string trigIte
         if (!isIsolated(eg, m_offProbeIsolation))  continue;///default is Loose
       }
       
-      if(m_forceFilterSelection){///default is false
-        if(!ApplyElectronFilter(eg, m_electronFilterType))  continue;
+      if(m_forceMCEnhancedBias){///default is false
+        if(m_truthContainer){//Monte Carlo
+          const xAOD::TruthParticle *mc=nullptr;
+          if( pdgid(eg,m_truthContainer,mc) != MonteCarlo::PDGID::EnhancedBias)  continue;
+        }else{//Data: if reproved by loose, its possible to be a background (not electron)
+          if(ApplyElectronPid(eg,"LHLoose"))  continue;
+        }
       }
+
       xAOD::Electron *el = new xAOD::Electron(*eg);
       el->auxdecor<bool>(decor)=static_cast<bool>(true);
-      if ( match()->match(el, trigItem, te)){
-          std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
-          m_objTEList.push_back(pair);
+      
+
+      if (match()->match(el, trigItem, te)){
+         std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,te);
+         m_objTEList.push_back(pair);
       }
       else {
           std::pair< const xAOD::Electron*, const HLT::TriggerElement* > pair(el,nullptr);
           m_objTEList.push_back(pair);
       }
+
   }
 
   ATH_MSG_DEBUG("BaseTool::Electron TEs " << m_objTEList.size() << " found.");
@@ -280,7 +250,6 @@ StatusCode TrigEgammaNavBaseTool::executePhotonNavigation( std::string trigItem,
   ATH_MSG_DEBUG("Apply navigation selection");
  
   const std::string decor="is"+m_photonPid;
-
 
   for(const auto& eg : *m_offPhotons ){
       const HLT::TriggerElement *te = nullptr;

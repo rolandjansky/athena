@@ -81,6 +81,7 @@ StatusCode TrigEgammaPlotTool::initialize() {
         TH1::SetDefaultSumw2();
         TH2::SetDefaultSumw2();
     }
+    
     m_label_trigstep.push_back("L2CaloCont");
     m_label_trigstep.push_back("L2Calo");
     m_label_trigstep.push_back("L2Cont"); 
@@ -92,7 +93,6 @@ StatusCode TrigEgammaPlotTool::initialize() {
     m_label_trigstep.push_back("EFTrack");
     m_label_trigstep.push_back("HLTCont");
     m_label_trigstep.push_back("HLT");
-
 
    
     m_label_hltobj.push_back("ClusterCont");
@@ -161,6 +161,22 @@ void TrigEgammaPlotTool::setBinning(){
         20,20.5,21,21.5,22,22.5,23,23.5,24,24.5,
         25,25.5};
 
+    /* Ringer bins pdfs for each layer */
+    float minBin_ringer[100]={-500 ,-500 ,-1000,-1500,-1500,-1000,-1000,-1000,-500 ,-500 ,-500 ,-500 ,-500 ,-500 ,-500 ,-800,
+                                -800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800,
+                                -800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800,
+                                -800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800,
+                                -800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-800 ,-500 ,-500 ,-500 ,-500 ,-1000,-1000,-1000,-500,
+                                -500 ,-500 ,-500 ,-500 ,-500 ,-500 ,-500 ,-500 ,-600 ,-1000,-1500,-2000,-400 ,-1000,-1500,-1500,
+                                -1000,-2000,-2000,-2000};
+    float maxBin_ringer[100]={9000 , 7000, 2000, 2000, 2000, 2000, 2000, 2000, 20000, 20000, 6000, 4000, 3000, 2000, 2000, 800,
+                                800  , 800 , 800 , 800 , 800 , 800 , 800 , 800 , 800  , 800  , 800 , 800 , 800 , 800 , 800 , 800,
+                                800  , 800 , 800 , 800 , 800 , 800 , 800 , 800 , 800  , 800  , 800 , 800 , 800 , 800 , 800 , 800,
+                                800  , 800 , 800 , 800 , 800 , 800 , 800 , 800 , 800  , 800  , 800 , 800 , 800 , 800 , 800 , 800,
+                                800  , 800 , 800 , 800 , 800 , 800 , 800 , 800 , 40000, 40000, 6000, 4000, 2000, 2000, 2000, 2000,
+                                500  , 500 , 500 , 500 , 500 , 500  ,500  , 500 , 3000 , 3000 , 3000 ,3000, 2000, 2000, 2000, 2000,
+                                8000, 5000 ,4000 ,3000};
+
     if(m_doJpsiee){
         m_nEtbins=51;
         //copyArrayToVector(m_etbins,etbins_Jpsiee,m_nEtbins+1);
@@ -186,6 +202,8 @@ void TrigEgammaPlotTool::setBinning(){
     m_defaultEtabins.insert(m_defaultEtabins.end(), &default_eta_bins[0], &default_eta_bins[m_ndefaultEtabins+1]);
     m_coarseEtbins.insert(m_coarseEtbins.end(), &coarse_et_bins[0], &coarse_et_bins[m_ncoarseEtbins+1]);
     m_coarseEtabins.insert(m_coarseEtabins.end(), &coarse_eta_bins[0], &coarse_eta_bins[m_ncoarseEtabins+1]);
+    m_minBin_ringer.insert(m_minBin_ringer.end(), &minBin_ringer[0], &minBin_ringer[100+1]);
+    m_maxBin_ringer.insert(m_maxBin_ringer.end(), &maxBin_ringer[0], &maxBin_ringer[100+1]);
 }
 
 StatusCode TrigEgammaPlotTool::book(std::map<std::string,TrigInfo> trigInfo){
@@ -201,9 +219,9 @@ StatusCode TrigEgammaPlotTool::book(std::map<std::string,TrigInfo> trigInfo){
         }
         m_trigInfo.insert(info);
         ATH_MSG_INFO("Book " << info.first);
-        if(info.second.trigL1)
+        if(info.second.trigL1){
             bookL1Histos(info.second);
-        else if(m_tp) { //For TP triggers just monitor the distributions
+        }else if(m_tp) { //For TP triggers just monitor the distributions
             const std::string basePath=m_baseDir+"/Expert/"+info.first;
             std::vector<std::string> dirnames;
             dirnames.push_back(basePath + "/Distributions/Offline");
@@ -1038,17 +1056,17 @@ void TrigEgammaPlotTool::bookElectronDistributionHistos(const std::string direct
 void TrigEgammaPlotTool::bookEfficiency2DHistos(const std::string directory){
     cd(directory);
     
-    addHistogram(new TH2D("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",
+    addHistogram(new TH2F("match_coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",
                 m_ncoarseEtbins, m_coarseEtbins.data(), m_ncoarseEtabins, m_coarseEtabins.data())); 
-    addHistogram(new TH2D("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",
+    addHistogram(new TH2F("coarse_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",
                 m_ncoarseEtbins, m_coarseEtbins.data(), m_ncoarseEtabins, m_coarseEtabins.data())); 
     addHistogram(new TProfile2D("eff_coarse_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",
                 m_ncoarseEtbins, m_coarseEtbins.data(), m_ncoarseEtabins, m_coarseEtabins.data())); 
     
     if(m_detailedHists){
-        addHistogram(new TH2D("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",
+        addHistogram(new TH2F("match_et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",
                     m_ndefaultEtbins, m_defaultEtbins.data(), m_ndefaultEtabins, m_defaultEtabins.data())); 
-        addHistogram(new TH2D("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",
+        addHistogram(new TH2F("et_eta","Trigger Matched Offline #eta vs et; E_{T} GeV ;#eta; Count",
                     m_ndefaultEtbins, m_defaultEtbins.data(), m_ndefaultEtabins, m_defaultEtabins.data())); 
         addHistogram(new TProfile2D("eff_et_eta","#epsilon(#eta,E_{T}); E_{T} GeV ;#eta; Count",
                     m_ndefaultEtbins, m_defaultEtbins.data(), m_ndefaultEtabins, m_defaultEtabins.data())); 
@@ -1064,6 +1082,9 @@ void TrigEgammaPlotTool::bookEfficiencyTProfile(const std::string directory){
     addHistogram(new TProfile("eff_eta", "#epsilon(#eta); #eta ; Efficiency", m_nEtabins, m_etabins.data()));
     addHistogram(new TProfile("eff_phi", "#epsilon(#phi); #phi ; Efficiency", 20, -3.2, 3.2));
     addHistogram(new TProfile("eff_mu", "#epsilon(<#mu>); <#mu> ; Efficiency", 16, 0, 80));
+
+    if(m_detailedHists)
+      addHistogram(new TProfile("eff_npvtx", "#epsilon(npvtx); npvtx ; Efficiency", 16, 0, 80));
 }
 
 void TrigEgammaPlotTool::bookEfficiencyHistos(const std::string directory){ 
@@ -1076,7 +1097,9 @@ void TrigEgammaPlotTool::bookEfficiencyHistos(const std::string directory){
     addHistogram(new TH1F("match_eta", "Trigger Matched Offline #eta; #eta ; Count",m_nEtabins,m_etabins.data()));
     addHistogram(new TH1F("match_phi", "Trigger Matched #phi; #phi ; Count", 20, -3.2, 3.2));
     addHistogram(new TH1F("match_mu", "Trigger Matched <#mu>; <#mu> ; Count", 16, 0, 80));
-    
+    if(m_detailedHists)
+      addHistogram(new TH1F("match_npvtx", "Trigger Matched npvtx; npvtx ; Count", 16, 0, 80));
+
     // Denominator
     addHistogram(new TH1F("pt", "Offline p_{T}; p_{T} [GeV] ; Count",m_nEtbins,m_etbins.data())); 
     addHistogram(new TH1F("et", "Offline E_{T}; E_{T} [GeV] ; Count", m_nEtbins,m_etbins.data())); 
@@ -1084,15 +1107,26 @@ void TrigEgammaPlotTool::bookEfficiencyHistos(const std::string directory){
     addHistogram(new TH1F("eta", "Offline #eta; #eta ; Count", m_nEtabins,m_etabins.data())); 
     addHistogram(new TH1F("phi", "Offline #phi; #phi ; Count", 20, -3.2, 3.2));
     addHistogram(new TH1F("mu", "<#mu>; <#mu> ; Count", 16, 0, 80));
+    if(m_detailedHists)
+      addHistogram(new TH1F("npvtx", "npvtx; npvtx ; Count", 16, 0, 80));
 }
 
 void TrigEgammaPlotTool::bookL1Histos(TrigInfo trigInfo){
     const std::string basePath=m_baseDir+"/Expert/"+trigInfo.trigName;
     std::vector <std::string> dirnames;
+    
     std::string dirname=basePath + "/Efficiency/L1Calo";
     addDirectory(dirname);
     bookEfficiencyHistos(dirname);
     bookEfficiency2DHistos(dirname);
+    
+    if (m_doEmulation){
+      dirname=basePath + "/Emulation/L1Calo";
+      addDirectory(dirname);
+      bookEfficiencyHistos(dirname);
+      bookEfficiency2DHistos(dirname);
+    }//book emulation
+
     dirname=basePath + "/Distributions/L1Calo";
     addDirectory(dirname);
     addHistogram(new TH1F("energy", "Cluster Energy; E [GeV] ; Count", 100, 0., 200.));
@@ -1138,25 +1172,7 @@ void TrigEgammaPlotTool::bookL1Histos(TrigInfo trigInfo){
 }
 
 void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
-    const std::string basePath=m_baseDir+"/Expert/"+trigInfo.trigName;
-    if(m_detailedHists) bookL1Histos(trigInfo);
-    std::vector <std::string> dirnames;
-    std::string dirname=basePath + "/Efficiency/HLT";
-    addDirectory(dirname);
-    bookEfficiencyHistos(dirname);
-    bookEfficiency2DHistos(dirname);
     
-    dirnames.push_back(basePath + "/Efficiency/L2Calo");
-    dirnames.push_back(basePath + "/Efficiency/L2");
-    dirnames.push_back(basePath + "/Efficiency/EFCalo");
-
-    for (const auto dir:dirnames) {
-        addDirectory(dir);
-        bookEfficiencyHistos(dir);
-        if ( m_detailedHists ) 
-            bookEfficiency2DHistos(dir);
-    }
-
     // Labels
     std::vector<std::string> label_isem {"ClusterEtaRange","ConversionMatch",
         "ClusterHadronicLeakage","ClusterMiddleEnergy","ClusterMiddleEratio37","ClusterMiddleEratio33","ClusterMiddleWidth",
@@ -1171,57 +1187,89 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
 
     std::vector<std::string> label_isem2 {"ShowerShape","TrkClus","Track","TRT","Track + TRT","TrkClus+Trk+TRT","Isolation","IsEM||Iso",
         "Track+Cluster","Track Only","Cluster","Photon+Cluster","No Object","Some Object","Unknown","Total"};
-    dirnames.clear();
-    dirname=basePath + "/Efficiency/HLT";
-    cd(dirname);
-    if(trigInfo.trigType=="electron"){
-        addHistogram(new TProfile("eff_triggerstep","eff_triggerstep",11,0,11));
-        addHistogram(new TProfile("eff_hltreco","eff_hltreco",12,0,12));
 
-        addHistogram(new TH1F("IsEmFailLoose","IsEmFailLoose",36,0,36));
-        addHistogram(new TH1F("IsEmFailMedium","IsEmFailMedium",36,0,36));
-        addHistogram(new TH1F("IsEmFailTight","IsEmFailTight",36,0,36));
-        addHistogram(new TProfile("IneffIsEmLoose","IsEmLoose",16,0,16));
-        addHistogram(new TProfile("IneffIsEmMedium","IsEmMedium",16,0,16));
-        addHistogram(new TProfile("IneffIsEmTight","IsEmTight",16,0,16));
-        setLabels(hist1("eff_triggerstep"),m_label_trigstep);
-        setLabels(hist1("eff_hltreco"),m_label_hltobj);
-        setLabels(hist1("IsEmFailLoose"),label_isem);
-        setLabels(hist1("IsEmFailMedium"),label_isem);
-        setLabels(hist1("IsEmFailTight"),label_isem);
-        setLabels(hist1("IneffIsEmLoose"),label_isem2);
-        setLabels(hist1("IneffIsEmMedium"),label_isem2);
-        setLabels(hist1("IneffIsEmTight"),label_isem2);
-        addHistogram(new TH1F("IsEmLHFailLoose","IsEmLHFailLoose",15,0,15));
-        addHistogram(new TH1F("IsEmLHFailMedium","IsEmLHFailMedium",15,0,15));
-        addHistogram(new TH1F("IsEmLHFailTight","IsEmLHFailTight",15,0,15));
-        setLabels(hist1("IsEmLHFailLoose"),label_islh);
-        setLabels(hist1("IsEmLHFailMedium"),label_islh);
-        setLabels(hist1("IsEmLHFailTight"),label_islh);
-    }
 
-    if ( m_detailedHists ) {
-        std::vector<std::string> effdirs;
-        effdirs.push_back(basePath + "/Efficiency/HLT/Loose");
-        effdirs.push_back(basePath + "/Efficiency/HLT/Medium");
-        effdirs.push_back(basePath + "/Efficiency/HLT/Tight");
-        effdirs.push_back(basePath + "/Efficiency/HLT/LHLoose");
-        effdirs.push_back(basePath + "/Efficiency/HLT/LHMedium");
-        effdirs.push_back(basePath + "/Efficiency/HLT/LHTight");
-        effdirs.push_back(basePath + "/Efficiency/HLT/LooseIso");
-        effdirs.push_back(basePath + "/Efficiency/HLT/MediumIso");
-        effdirs.push_back(basePath + "/Efficiency/HLT/TightIso");
-        effdirs.push_back(basePath + "/Efficiency/HLT/LHLooseIso");
-        effdirs.push_back(basePath + "/Efficiency/HLT/LHMediumIso");
-        effdirs.push_back(basePath + "/Efficiency/HLT/LHTightIso");
-        for (const auto effdir:effdirs) {
-            addDirectory(effdir);
-            bookEfficiencyHistos(effdir);
-            bookEfficiency2DHistos(effdir);
-        }
-    }
+    const std::string basePath=m_baseDir+"/Expert/"+trigInfo.trigName;
+    std::string dirname;
+    std::vector <std::string> dirnames;
 
-    dirnames.clear();
+    if(m_detailedHists) bookL1Histos(trigInfo);
+    
+    std::vector <std::string> algnames;
+    algnames.push_back("Efficiency"); // Default
+    if(m_doEmulation)  algnames.push_back("Emulation");
+
+    // Loop over sub directorys
+    for ( auto algname : algnames){
+
+      dirname=basePath + "/"+algname+"/HLT";
+      addDirectory(dirname);
+      bookEfficiencyHistos(dirname);
+      bookEfficiency2DHistos(dirname);
+      dirnames.push_back(basePath + "/"+algname+"/L2Calo");
+      dirnames.push_back(basePath + "/"+algname+"/L2");
+      dirnames.push_back(basePath + "/"+algname+"/EFCalo");
+
+      for (const auto dir:dirnames) {
+          addDirectory(dir);
+          bookEfficiencyHistos(dir);
+          if ( m_detailedHists ) 
+              bookEfficiency2DHistos(dir);
+      }
+
+      dirnames.clear();
+      dirname=basePath + "/"+algname+"/HLT";
+      cd(dirname);
+      if(trigInfo.trigType=="electron"){
+          addHistogram(new TProfile("eff_triggerstep","eff_triggerstep",11,0,11));
+          addHistogram(new TProfile("eff_hltreco","eff_hltreco",12,0,12));
+          addHistogram(new TH1F("IsEmFailLoose","IsEmFailLoose",36,0,36));
+          addHistogram(new TH1F("IsEmFailMedium","IsEmFailMedium",36,0,36));
+          addHistogram(new TH1F("IsEmFailTight","IsEmFailTight",36,0,36));
+          addHistogram(new TProfile("IneffIsEmLoose","IsEmLoose",16,0,16));
+          addHistogram(new TProfile("IneffIsEmMedium","IsEmMedium",16,0,16));
+          addHistogram(new TProfile("IneffIsEmTight","IsEmTight",16,0,16));
+          setLabels(hist1("eff_triggerstep"),m_label_trigstep);
+          setLabels(hist1("eff_hltreco"),m_label_hltobj);
+          setLabels(hist1("IsEmFailLoose"),label_isem);
+          setLabels(hist1("IsEmFailMedium"),label_isem);
+          setLabels(hist1("IsEmFailTight"),label_isem);
+          setLabels(hist1("IneffIsEmLoose"),label_isem2);
+          setLabels(hist1("IneffIsEmMedium"),label_isem2);
+          setLabels(hist1("IneffIsEmTight"),label_isem2);
+          addHistogram(new TH1F("IsEmLHFailLoose","IsEmLHFailLoose",15,0,15));
+          addHistogram(new TH1F("IsEmLHFailMedium","IsEmLHFailMedium",15,0,15));
+          addHistogram(new TH1F("IsEmLHFailTight","IsEmLHFailTight",15,0,15));
+          setLabels(hist1("IsEmLHFailLoose"),label_islh);
+          setLabels(hist1("IsEmLHFailMedium"),label_islh);
+          setLabels(hist1("IsEmLHFailTight"),label_islh);
+      }
+
+      if ( m_detailedHists ) {
+          std::vector<std::string> effdirs;
+          effdirs.push_back(basePath + "/"+algname+"/HLT/Loose");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/Medium");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/Tight");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/LHLoose");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/LHMedium");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/LHTight");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/LooseIso");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/MediumIso");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/TightIso");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/LHLooseIso");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/LHMediumIso");
+          effdirs.push_back(basePath + "/"+algname+"/HLT/LHTightIso");
+          for (const auto effdir:effdirs) {
+              addDirectory(effdir);
+              bookEfficiencyHistos(effdir);
+              bookEfficiency2DHistos(effdir);
+          }
+      }// detailerhistos
+      
+      dirnames.clear();
+    }// loop over Efficiency (and or) Emulation
+
+
     dirnames.push_back(basePath + "/Distributions/Offline");
     dirnames.push_back(basePath + "/Distributions/HLT");
     for (const auto dir:dirnames){
@@ -1267,8 +1315,9 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
     if(boost::contains(trigInfo.trigName,"ringer") || trigInfo.trigEtcut || trigInfo.trigPerf){ 
         addHistogram(new TH1F("ringer_nnOutput", "Discriminator distribution; nnOutput ; Count", 100, -1, 1));
         addHistogram(new TH2F("ringer_etVsEta", "ringer count as function of #eta and E_{t}; #eta; E_{t} [GeV]; Count",
-                    m_ndefaultEtabins,m_defaultEtabins.data(), m_ndefaultEtbins, m_defaultEtbins.data() ));
+                     m_ndefaultEtabins,m_defaultEtabins.data(), m_ndefaultEtbins, m_defaultEtbins.data() ));
         if(m_detailedHists){
+            unsigned rCount=0; 
             for(unsigned layer =0; layer < 7; ++layer){
                 unsigned minRing, maxRing;  std::string strLayer;
                 parseCaloRingsLayers( layer, minRing, maxRing, strLayer );
@@ -1276,7 +1325,8 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
                 for(unsigned r=minRing; r<=maxRing; ++r){
                     std::stringstream ss_title, ss;
                     ss_title << "ringer_ring#" << r;  ss << "L2Calo ringer ("<< strLayer <<"); ring#" << r << " E [MeV]; Count";
-                    addHistogram(new TH1F(ss_title.str().c_str(), ss.str().c_str(), 52, -20, 50000.));
+                    addHistogram(new TH1F(ss_title.str().c_str(), ss.str().c_str(), 100, m_minBin_ringer[rCount], m_maxBin_ringer[rCount]));
+                    rCount++;
                 }
             }///Loop for each calo layers    
         }
@@ -1323,3 +1373,4 @@ void TrigEgammaPlotTool::bookExpertHistos(TrigInfo trigInfo){
     bookResolutionHistos(dirname);
     if(m_detailedHists) bookExpertL2CaloResolutionHistos(dirname);
 }
+
