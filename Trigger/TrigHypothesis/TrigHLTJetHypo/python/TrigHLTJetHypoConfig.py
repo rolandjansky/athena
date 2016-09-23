@@ -1,0 +1,44 @@
+# Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
+
+# from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigHLTJetHypo
+import  TrigHLTJetHypoConf
+
+from TrigHLTJetHypo.TrigHLTJetHypoMonitoring import (
+    TrigHLTJetHypoValidationMonitoring,
+    TrigHLTJetHypoOnlineMonitoring,
+    TrigHLTJetHypoCosmicMonitoring)
+
+from TrigHLTJetHypo.TrigHLTJetHypo2Monitoring import (
+    TrigHLTJetHypo2ValidationMonitoring,
+    TrigHLTJetHypo2OnlineMonitoring,
+    TrigHLTJetHypo2CosmicMonitoring)
+
+from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
+
+class TrigHLTJetHypo (TrigHLTJetHypoConf.TrigHLTJetHypo):
+    __slots__ = []
+    def __init__(self, name, **kwargs):
+        super( TrigHLTJetHypo, self ).__init__( name, **kwargs )
+        
+        validation = TrigHLTJetHypoValidationMonitoring()
+        online = TrigHLTJetHypoOnlineMonitoring()
+        cosmic = TrigHLTJetHypoCosmicMonitoring()
+        
+        time = TrigTimeHistToolConfig("HLTJetHypo_Time")
+        
+        self.AthenaMonTools = [ time, validation, online, cosmic ]
+
+
+
+class TrigHLTJetHypo2 (TrigHLTJetHypoConf.TrigHLTJetHypo2):
+    __slots__ = []
+    def __init__(self, name, **kwargs):
+        super( TrigHLTJetHypo2, self ).__init__( name, **kwargs )
+        
+        validation = TrigHLTJetHypo2ValidationMonitoring()
+        online = TrigHLTJetHypo2OnlineMonitoring()
+        cosmic = TrigHLTJetHypo2CosmicMonitoring()
+        
+        time = TrigTimeHistToolConfig("HLTJetHypo2_Time")
+        
+        self.AthenaMonTools = [ time, validation, online, cosmic ]
