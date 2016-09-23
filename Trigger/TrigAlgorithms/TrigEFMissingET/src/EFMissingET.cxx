@@ -97,7 +97,7 @@ EFMissingET::EFMissingET(const std::string & name, ISvcLocator* pSvcLocator):
   declareMonitoredVariable("TotalLoopTime",    m_tool_time_Loop);
 
   // helper object
-  unsigned char N=38; // number of components   
+  unsigned char N=42; // number of components   
   m_met_help = new TrigEFMissingEtHelper(N);
   m_flags.reserve(N);  
   m_calib0.reserve(N);
@@ -543,7 +543,7 @@ HLT::ErrorCode EFMissingET::makeMissingET(std::vector<std::vector<HLT::TriggerEl
   if(m_doTopoClusters == false && m_doJets == false && m_doJets == false) 
      n_sizePers = 25;
    else if(m_doJets == true)
-     n_sizePers = 2;   
+     n_sizePers = 6;   
    else if(m_doPUC == true)
      n_sizePers = 3;
    else  

@@ -165,6 +165,8 @@ class EFMissingET_Fex_allCells (EFMissingETBase):
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Jet
+        self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]       
         self.ComponentFlags += [ 0 ]       # PUC
         self.ComponentFlags += [ 0 ]       # PUC prior correction
         self.ComponentFlags += [ 0 ]       # Muons
@@ -184,6 +186,8 @@ class EFMissingET_Fex_allCells (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
+        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -203,6 +207,8 @@ class EFMissingET_Fex_allCells (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # Jet
+        self.ComponentCalib1 += [ 1.00,1.00 ]
+        self.ComponentCalib1 += [ 1.00,1.00 ]      
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
@@ -355,6 +361,8 @@ class EFMissingET_Fex_noiseSupp (EFMissingETBase):
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Jet
+        self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]   
         self.ComponentFlags += [ 0 ]       # PUC
         self.ComponentFlags += [ 0 ]       # PUC prior correction
         self.ComponentFlags += [ 0 ]       # Muons
@@ -374,6 +382,8 @@ class EFMissingET_Fex_noiseSupp (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
+        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]        
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -393,6 +403,8 @@ class EFMissingET_Fex_noiseSupp (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # Jet
+        self.ComponentCalib1 += [ 1.00,1.00 ]
+        self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
@@ -544,6 +556,8 @@ class EFMissingET_Fex_2sidednoiseSupp (EFMissingETBase):
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Jet
+        self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # PUC
         self.ComponentFlags += [ 0 ]       # PUC prior correction
         self.ComponentFlags += [ 0 ]       # Muons
@@ -563,6 +577,8 @@ class EFMissingET_Fex_2sidednoiseSupp (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
+        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]     
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -582,6 +598,8 @@ class EFMissingET_Fex_2sidednoiseSupp (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # Jet
+        self.ComponentCalib1 += [ 1.00,1.00 ]
+        self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
@@ -755,6 +773,8 @@ class EFMissingET_Fex_FEB (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
+        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -774,6 +794,8 @@ class EFMissingET_Fex_FEB (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # Jet
+        self.ComponentCalib1 += [ 1.00,1.00 ]
+        self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
@@ -915,6 +937,8 @@ class EFMissingET_Fex_topoClusters (EFMissingETBase):
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Jet
+        self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # PUC
         self.ComponentFlags += [ 0 ]       # PUC prior correction
         self.ComponentFlags += [ 0 ]       # Muons
@@ -934,6 +958,8 @@ class EFMissingET_Fex_topoClusters (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
+        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -953,6 +979,8 @@ class EFMissingET_Fex_topoClusters (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # Jet
+        self.ComponentCalib1 += [ 1.00,1.00 ]
+        self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
@@ -1093,6 +1121,8 @@ class EFMissingET_Fex_topoClustersPS (EFMissingETBase):
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Jet
+        self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # PUC
         self.ComponentFlags += [ 0 ]       # PUC prior correction
         self.ComponentFlags += [ 0 ]       # Muons
@@ -1112,6 +1142,8 @@ class EFMissingET_Fex_topoClustersPS (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
+        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -1131,6 +1163,8 @@ class EFMissingET_Fex_topoClustersPS (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # Jet
+        self.ComponentCalib1 += [ 1.00,1.00 ]
+        self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
@@ -1168,9 +1202,11 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         clusterTool.SubtractPileup = True
         clusterTool.towerWidthInput = 0.7
         clusterTool.EtaRange = 5.0
-        clusterTool.ptmin = 45000.0
-        clusterTool.aveEclusPU = 4000.0
+#        clusterTool.ptmin = 45000.0
+        clusterTool.aveEclusPU = 10000.0
         clusterTool.resE = 15.81
+        clusterTool.nSigma = 3.2
+        clusterTool.varRhoScale = 4.0
 
         # fraction of energy deposited in EM samplings
         flagTool.MaxEMfraction = 1.0
@@ -1274,6 +1310,8 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # Jet
+        self.ComponentFlags += [ 0,0 ]
+        self.ComponentFlags += [ 0,0 ]
         self.ComponentFlags += [ 0 ]       # PUC
         self.ComponentFlags += [ 0 ]       # PUC prior correction
         self.ComponentFlags += [ 0 ]       # Muons
@@ -1293,6 +1331,8 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # Jet
+        self.ComponentCalib0 += [ 0, 0 ]
+        self.ComponentCalib0 += [ 0, 0 ]
         self.ComponentCalib0 += [ 0 ]       # PUC
         self.ComponentCalib0 += [ 0 ]       # PUC prior correction
         self.ComponentCalib0 += [ 0 ]       # Muons
@@ -1312,6 +1352,8 @@ class EFMissingET_Fex_topoClustersPUC (EFMissingETBase):
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # Jet
+        self.ComponentCalib1 += [ 1.00,1.00 ]
+        self.ComponentCalib1 += [ 1.00,1.00 ]
         self.ComponentCalib1 += [ 1.00 ]                # PUC
         self.ComponentCalib1 += [ 1.00 ]                # PUC prior correction
         self.ComponentCalib1 += [ 1.00 ]                # Muons
@@ -1335,8 +1377,7 @@ class EFMissingET_Fex_Jets (EFMissingETBase):
         # name of TrigMissingET object
         self.MissingETOutputKey = "TrigEFMissingET_mht"
         self.doJets = True
-        # self.doAntiKtJets = True
-
+                
         # tools
         febTool    = EFMissingETFromFEBHeader("TheFEBTool") 
         jetTool    = EFMissingETFromJets("TheJetTool")
@@ -1348,7 +1389,12 @@ class EFMissingET_Fex_Jets (EFMissingETBase):
         flagTool.ParentFexName = name
         helperTool.ParentFexName = name
         #
-
+        
+        ## Configuration of jet fex
+        jetTool.EtaSeparation = 2.2
+        jetTool.CentralpTCut = 0.0
+        jetTool.ForwardpTCut = 0.0
+        
         ## chain of tools
         self.Tools = []
         self.Tools += [ jetTool ]

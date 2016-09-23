@@ -36,12 +36,14 @@ EFMissingETFromJets::EFMissingETFromJets(const std::string& type,
     const IInterface* parent) :
   EFMissingETBaseTool(type, name, parent)
 {
-  // declareProperty("SaveUncalibrated", m_saveuncalibrated = false ,"save uncalibrated topo. clusters");
+  declareProperty("EtaSeparation", m_etacut = 2.2 ,"Cut to split into forward and central jets -- needs to be positive");
+  declareProperty("CentralpTCut", m_central_ptcut = 0.0 ,"pT Cut for central jets");
+  declareProperty("ForwardpTCut", m_forward_ptcut = 0.0 ,"pT Cut for forward jets");
   // declare configurables
+    
+  _fextype = FexType::JET; m_etacut = fabs(m_etacut);
   
-  _fextype = FexType::JET;
-  
-  m_methelperposition = 4;
+  m_methelperposition = 8;
 }
 
 
@@ -89,6 +91,7 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
 					const xAOD::CaloClusterContainer * /* caloCluster */,
 					const xAOD::JetContainer *MHTJetContainer)
 {
+
   if(msgLvl(MSG::DEBUG)) 
     msg(MSG::DEBUG) << "called EFMissingETFromJets::execute()" << endreq; // EFMissingET_Fex_Jets 
 
@@ -106,20 +109,60 @@ StatusCode EFMissingETFromJets::execute(xAOD::TrigMissingET *,
   std::vector<const xAOD::Jet*> MHTJetsVec(MHTJetContainer->begin(), MHTJetContainer->end());
 
   msg(MSG::DEBUG) << "num of jets: " << MHTJetsVec.size() << endreq; 
+
+ //--- fetching the topo. cluster component
+ float upperlim[4] = {m_etacut,0,5,-m_etacut}; float lowerlim[4] = {0,-m_etacut,m_etacut,-5};
+  
+ for(int i = 0; i < 5; i++) {
+
+  metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition + i); // fetch Cluster component
     
   for (const xAOD::Jet* aJet : MHTJetsVec) {
-    metComp->m_ex -= aJet->px();
-    metComp->m_ey -= aJet->py();
-    metComp->m_ez -= aJet->pz();
-    metComp->m_sumEt += aJet->pt();
-    metComp->m_sumE  += aJet->e(); 
-    metComp->m_usedChannels += 1;
-    metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,aJet->pt())+0.5));              	
+
+    if(i == 0) {
+    	
+          metComp->m_ex -= aJet->px();
+          metComp->m_ey -= aJet->py();
+          metComp->m_ez -= aJet->pz();
+          metComp->m_sumEt += aJet->pt();
+          metComp->m_sumE  += aJet->e(); 
+          metComp->m_usedChannels += 1;
+          metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,aJet->pt())+0.5));              	
+ 
+           	
+    } else if (i > 0) { 
+
+       float eta = aJet->eta(); float ptCut = 0.;
+       
+       // Set pT cut depending on region
+       if(i == 1 || i == 2) ptCut = m_central_ptcut;
+        else ptCut = m_forward_ptcut;
+       
+       // only sum jets that have a pt above the cut value 
+       if(aJet->pt() < ptCut) continue;
+       
+       if( eta >= lowerlim[i-1] && eta <= upperlim[i-1]) {
+          metComp->m_ex -= aJet->px();
+          metComp->m_ey -= aJet->py();
+          metComp->m_ez -= aJet->pz();
+          metComp->m_sumEt += aJet->pt();
+          metComp->m_sumE  += aJet->e(); 
+          metComp->m_usedChannels += 1;
+          metComp->m_sumOfSigns += static_cast<short int>(floor(copysign(1.0,aJet->pt())+0.5));       
+       }
+          
+     }
+  
+    } // End loop over all jets
+           	
     // move from "processing" to "processed" state
     metComp->m_status ^= m_maskProcessing; // switch off bit
     metComp->m_status |= m_maskProcessed;  // switch on bit
-   }  
-
+ 
+  } 
+   
+  metComp = metHelper->GetComponent(metHelper->GetElements() - m_methelperposition); // fetch Cluster component
+      
   msg(MSG::DEBUG) << " calculated MET: " << sqrt((metComp->m_ex)*(metComp->m_ex)+(metComp->m_ey)*(metComp->m_ey)) << endreq;    
 
 
