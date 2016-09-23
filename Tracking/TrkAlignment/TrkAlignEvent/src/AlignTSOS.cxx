@@ -165,8 +165,8 @@ namespace Trk {
     // << std::setw(11) << std::showpos<< std::scientific
     // <<"\tres[0]="<<atsos.residual(0)<<", err[0]="<<atsos.residualErrorSq(0)
     // <<", dchi2="<<std::noshowpos
-    // <<atsos.residual(0)*atsos.residual(0)/atsos.residualErrorSq(0)<<endreq;
-    sl <<"\t"<<atsos.dumpType()<<" ("<<atsos.dumpMeasType()<<", direction "<<atsos.dumpMeasDir()<<")"<<endreq;
+    // <<atsos.residual(0)*atsos.residual(0)/atsos.residualErrorSq(0)<<endmsg;
+    sl <<"\t"<<atsos.dumpType()<<" ("<<atsos.dumpMeasType()<<", direction "<<atsos.dumpMeasDir()<<")"<<endmsg;
     sl << "          -->  ";
 
     int ires(0);
@@ -176,7 +176,7 @@ namespace Trk {
       double resnorm = itRes->residualNorm();
       if(ires){ 
         std::ios_base::fmtflags f(sl.stream().flags());  
-        sl << endreq << "          -->  ";
+        sl << endmsg << "          -->  ";
         sl << ires << ": res="
            << std::setw(11)     << std::showpos << std::scientific
            << itRes->residual() <<"  res/err="<<resnorm

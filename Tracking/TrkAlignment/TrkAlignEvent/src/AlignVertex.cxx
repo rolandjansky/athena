@@ -235,11 +235,11 @@ namespace Trk {
   //________________________________________________________________________
   void AlignVertex::dump(MsgStream& msg) 
   {
-    msg<<"dumping AlignVertex:  "<<endreq;
+    msg<<"dumping AlignVertex:  "<<endmsg;
 
-    msg<<" vertex Position:    "<< (*m_position) << endreq;
-    msg<<" vertex Covariance:  "<< (*m_covariance) << endreq;
-    msg<< endreq;
+    msg<<" vertex Position:    "<< (*m_position) << endmsg;
+    msg<<" vertex Covariance:  "<< (*m_covariance) << endmsg;
+    msg<< endmsg;
 
   }
 
