@@ -11,7 +11,8 @@
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
 //#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
-
+//#include "egammaInterfaces/IEMFourMomBuilder.h"
+//#include "egammaInterfaces/IEMShowerBuilder.h"
 #include <vector>
 
 namespace Trig{
@@ -30,12 +31,15 @@ class TrigEgammaEFCaloSelectorTool:
     StatusCode initialize();
     StatusCode finalize(); 
 
-    bool emulation( const xAOD::IParticleContainer*, bool&, const std::string&);
+    bool emulation( const xAOD::IParticleContainer*, bool&, const Trig::Info &);
 
 
   private:
 
-    bool ApplyElectronCaloPid(const xAOD::Electron *eg, const std::string pidname);
+    bool ApplyCaloPid(const xAOD::Egamma *, const std::string, double);
+    bool ApplyCaloPid(const xAOD::Egamma *eg, const std::string pidname){
+      return ApplyCaloPid(eg,pidname,-99);
+    }
 
     // ToolHandles
     // In python order will matter. Should always be tight, medium, loose
@@ -44,8 +48,12 @@ class TrigEgammaEFCaloSelectorTool:
     ToolHandleArray<IAsgElectronIsEMSelector>   m_electronCaloIsEMTool;
     /*! Offline LH Selectors */
     ToolHandleArray<IAsgElectronLikelihoodTool> m_electronCaloLHTool; 
-    
+
     std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
+    //ToolHandle<IEMFourMomBuilder> m_fourMomBuilder;
+    //ToolHandle<IEMShowerBuilder> m_showerBuilder;
+    
+    std::string m_lhinfo;
 
 };
 

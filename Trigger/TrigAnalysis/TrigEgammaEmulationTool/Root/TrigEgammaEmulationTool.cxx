@@ -26,14 +26,14 @@
 #include "boost/algorithm/string.hpp"
 #include <boost/tokenizer.hpp>
 #include <boost/foreach.hpp>
+#include <boost/dynamic_bitset.hpp>
 #include "StoreGate/StoreGateSvc.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEmulationTool.h"
 #include "TrigSteeringEvent/TrigPassBits.h"
 #include "TrigSteeringEvent/TrigPassBitsCollection.h"
 #include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
-
-
+//**********************************************************************
 using namespace std;
 using namespace Trig;
 //**********************************************************************
@@ -46,13 +46,15 @@ TrigEgammaEmulationTool( const std::string& myname )
     m_matchTool("Trig::TrigEgammaMatchingTool/TrigEgammaMatchingTool")
 
 {
+    declareProperty("TriggerList"             , m_trigList                );
+    declareProperty("ElectronKey"             , m_offElContKey="Electrons");
     declareProperty("MatchTool"               , m_matchTool               );
+    
     declareProperty("L1SelectorTool"          , m_l1Selector              );
     declareProperty("L2SelectorTool"          , m_l2Selector              );
     declareProperty("EFCaloSelectorTool"      , m_efCaloSelector          );
-    declareProperty("EFElectronSelectorTool"  , m_efElectronSelector      );
-    declareProperty("EFPhotonSelectorTool"    , m_efPhotonSelector        );
-    declareProperty("ElectronKey"             , m_offElContKey="Electrons");
+    declareProperty("EFElectronSelectorTools" , m_efElectronSelector      );
+    declareProperty("EFPhotonSelectorTools"   , m_efPhotonSelector        );
 
     m_offElectrons   =nullptr;
     m_onlElectrons   =nullptr;
@@ -119,11 +121,12 @@ StatusCode TrigEgammaEmulationTool::initialize() {
         return sc;
       }
     }
+   
 
     ATH_MSG_INFO("Initialising EF Electron Selectors tool...");
-    if(m_efElectronSelector){
-      m_efElectronSelector->setParents(m_trigdec, m_storeGate);
-      sc = m_efElectronSelector->initialize();
+    for(auto& tool : m_efElectronSelector){
+      tool->setParents(m_trigdec, m_storeGate);
+      sc = tool->initialize();
       if(sc.isFailure()){
         ATH_MSG_ERROR( "Unable to initialize EF Electron selector tool." );
         return sc;
@@ -131,27 +134,33 @@ StatusCode TrigEgammaEmulationTool::initialize() {
     }
 
     ATH_MSG_INFO("Initialising EF Photon Selectors tool...");
-    if(m_efPhotonSelector){
-      m_efPhotonSelector->setParents(m_trigdec, m_storeGate);
-      sc = m_efPhotonSelector->initialize();
+    for(auto& tool : m_efPhotonSelector){
+      tool->setParents(m_trigdec, m_storeGate);
+      sc = tool->initialize();
       if(sc.isFailure()){
         ATH_MSG_ERROR( "Unable to initialize EF Photon selector tool." );
         return sc;
       }
     }
-    
+
+   
+    ATH_MSG_INFO("Initialising accept...");
     //add cuts into TAccept
-    m_accept.addCut("EmTauRoi"             , "Trigger L1Calo step"     );
-    m_accept.addCut("TrigEMCluster"        , "Trigger L2Calo step"     );
-    m_accept.addCut("TrigElectronContainer", "Trigger L2Electron step" );
-    m_accept.addCut("TrigPhotonContainer"  , "Trigger L2Photon step"   );
-    m_accept.addCut("CaloClusterContainer" , "Trigger EFCalo step"     );
-    m_accept.addCut("ElectronContainer"    , "Trigger EFElectron step" );
-    m_accept.addCut("PhotonContainer"      , "Trigger EFPhoton step"   );
-    m_accept.addCut("HLT"                  , "Trigger HLT decision"    );
+    m_accept.addCut("L1Calo"  , "Trigger L1Calo step"     );
+    m_accept.addCut("L2Calo"  , "Trigger L2Calo step"     );
+    m_accept.addCut("L2"      , "Trigger L2Electron step" );
+    m_accept.addCut("EFCalo"  , "Trigger EFCalo step"     );
+    m_accept.addCut("EFTrack" , "Trigger EFTrack step"    );
+    m_accept.addCut("HLT"     , "Trigger HLT decision"    );
      
-
-
+    ATH_MSG_INFO("Initialising trigMap...");
+    for(const auto trigName : m_trigList){
+      ATH_MSG_DEBUG("Trigger " << trigName <<" to TrigInfo");
+      if(m_trigInfo.count(trigName) != 0){
+      }else{
+        setTrigInfo(trigName);
+      }
+    }//Loop over trigger list
     return sc;
 }
 //!==========================================================================
@@ -185,21 +194,22 @@ StatusCode TrigEgammaEmulationTool::finalize() {
         return sc;
       }
     }
-    if(m_efElectronSelector){
-      sc = m_efElectronSelector->finalize();
+
+    for(auto& tool : m_efElectronSelector){
+      sc = tool->finalize();
       if(sc.isFailure()){
         ATH_MSG_ERROR( "Unable to finalize EF Electron selector tool." );
         return sc;
       }
     }
-    if(m_efPhotonSelector){
-      sc = m_efPhotonSelector->finalize();
+
+    for(auto& tool : m_efPhotonSelector){
+      sc = tool->finalize();
       if(sc.isFailure()){
         ATH_MSG_ERROR( "Unable to finalize EF Photon selector tool." );
         return sc;
       }
     }
-
 
     return StatusCode::SUCCESS;
 }
@@ -248,19 +258,14 @@ bool TrigEgammaEmulationTool::EventWiseContainer(){
       return false;
   }else ATH_MSG_DEBUG("TrigEMCluser size " << m_trigEMClusters->size());
 
-  
-
-
   return true;
 }
 //!==========================================================================
 //! Emulation from Egamma Offline object. Must be a match between online and offline.
 const Root::TAccept& TrigEgammaEmulationTool::executeTool(const xAOD::Egamma *eg, const std::string &trigger, const std::string &fctrigger) {
-  std::string trigItem = fctrigger;
   m_accept.clear();
   const HLT::TriggerElement *finalFC = NULL;
-  if(!boost::contains(trigItem,"HLT")) trigItem = "HLT_"+trigItem;
-  m_matchTool->match(eg,trigItem,finalFC);
+  m_matchTool->match(eg,fctrigger,finalFC);
 
   if (!finalFC) {
     ATH_MSG_DEBUG("TE is NULL");
@@ -273,54 +278,84 @@ const Root::TAccept& TrigEgammaEmulationTool::executeTool(const xAOD::Egamma *eg
 const Root::TAccept& TrigEgammaEmulationTool::executeTool(const HLT::TriggerElement *te, const std::string &trigger) {
   ATH_MSG_DEBUG("TrigEgammaEmulationTool::executeTool(te, trigger)");
   m_accept.clear(); 
-  std::string trigItem = trigger;
-  bool pass = false;
-  std::string type = "Electron"; //electron type as default
-  std::vector<std::string> strs;
-  if(boost::contains(trigItem,"HLT")) trigItem.erase(0,4);
-  if(boost::contains(trigItem,"L1")) trigItem.erase(0,4);
-  boost::split(strs,trigItem,boost::is_any_of("_"));
-  if (boost::contains(strs.at(0),"e")) type = "Electron";
-  if (boost::contains(strs.at(0),"g")) type = "Photon";
-  bool passedL1Calo = false;  
-  bool passedL2Calo = false; 
-  bool passedEFCalo = false; 
-  bool passedL2     = false;
-  bool passedEF     = false;
-  ATH_MSG_DEBUG("getFeatures from TE...");
-  const auto* l1            = getFeature<xAOD::EmTauRoI>(te);
-  const auto* emCluster     = getFeature<xAOD::TrigEMCluster>(te);
-  const auto* trigElCont    = getFeature<xAOD::TrigElectronContainer>(te);
-  //const auto* clusCont    = getFeature<xAOD::CaloClusterContainer>(te);
-  const auto* elCont        = getFeature<xAOD::ElectronContainer>(te);
-  //const auto* phCont        = getFeature<xAOD::PhotonContainer>(te);
-  m_l1Selector->emulation( l1, passedL1Calo ,trigger);
-  m_l2Selector->emulation( emCluster, passedL2Calo ,trigger);
-  m_efCaloSelector->emulation( elCont, passedEFCalo, trigger);
-  m_accept.setCutResult("EmTauRoI"            , passedL1Calo);
-  m_accept.setCutResult("TrigEMCluster"       , passedL2Calo);
-  m_accept.setCutResult("CaloClusterContainer", passedEFCalo);
-  //execute object reconstructions combined (calo+ID)
-  if (type == "Electron") {
-    m_l2Selector->emulation( trigElCont, passedL2, trigger);
-    m_efElectronSelector->emulation( elCont, passedEF, trigger);
-    m_accept.setCutResult("TrigElectronContainer", passedL2);
-    m_accept.setCutResult("ElectronContainer"    , passedEF);
+  
+  if(m_trigInfo.count(trigger) != 0){
+    Trig::Info info     = getTrigInfo(trigger);
+    bool passedL1Calo = false;  
+    bool passedL2Calo = false; 
+    bool passedL2     = false;
+    bool passedEFCalo = false; 
+    bool passedEFTrack= false; 
+    bool passedHLT    = false;
+
+    ATH_MSG_DEBUG("getFeatures from TE...");
+    const auto* l1            = getFeature<xAOD::EmTauRoI>(te);
+    const auto* emCluster     = getFeature<xAOD::TrigEMCluster>(te);
+    const auto* trigElCont    = getFeature<xAOD::TrigElectronContainer>(te);
+    //const auto* clusCont    = getFeature<xAOD::CaloClusterContainer>(te);
+    const auto* elCont        = getFeature<xAOD::ElectronContainer>(te);
+    //const auto* phCont        = getFeature<xAOD::PhotonContainer>(te);
+
+    for(auto& tool : m_efElectronSelector) 
+      tool->setTe(te); //Must be passed to config track isolation
+
+    //Level 1
+    m_l1Selector->emulation( l1, passedL1Calo , info);
+    m_accept.setCutResult("L1Calo", passedL1Calo);
+
+    if(passedL1Calo){
+
+      if(info.ringer || info.perf){//bypass L2 Electron/Photon Level
+        passedL2Calo=true;     
+        m_accept.setCutResult("L2Calo", passedL2Calo);
+      }else{
+        m_l2Selector->emulation( emCluster, passedL2Calo , info);
+        m_accept.setCutResult("L2Calo", passedL2Calo);
+      }//bypass L2Calo
+
+      if(passedL2Calo){
+        
+        if(info.ringer || info.perf){//bypass L2 Electron/Photon Level
+          passedL2=true;
+          m_accept.setCutResult("L2", passedL2);
+        }else{
+          if (info.type == "electron") {
+            m_l2Selector->emulation( trigElCont, passedL2, info);
+            m_accept.setCutResult("L2", passedL2);
+          }
+          else if (info.type == "photon") {
+            //m_l2Selector->emulation( trigPhCont, passedL2, trigger);
+            //m_efPhotonSelector->emulation( phCont, passedEF, trigger);
+            m_accept.setCutResult("L2", passedL2);
+          }
+        }//bypass L2
+
+        if (passedL2){
+          m_efCaloSelector->emulation( elCont, passedEFCalo, info);
+          m_accept.setCutResult("EFCalo", passedEFCalo);
+          
+          if(passedEFCalo){
+            //TODO: running EF track
+            passedEFTrack=true;
+            m_accept.setCutResult("EFTrack"    , passedEFTrack);
+
+            if(passedEFTrack){
+              if(!emulationHLT(elCont, passedHLT, info)){
+                m_accept.clear();
+                return m_accept;
+              }else{
+                m_accept.setCutResult("HLT"    , passedHLT);
+              }
+            }//EFTrack
+          }//EFCalo 
+        }//L2
+      }//L2Calo
+    }//L1Calo
+
+
+  }else{
+    ATH_MSG_WARNING("Can not emulate " << trigger << ". This chain must be added into trigList before the creation.");
   }
-  else if (type == "Photon") {
-    //m_l2Selector->emulation( trigPhCont, passedL2, trigger);
-    //m_efPhotonSelector->emulation( phCont, passedEF, trigger);
-    m_accept.setCutResult("TrigPhotonContainer", passedL2);
-    m_accept.setCutResult("PhotonContainer"    , passedEF);
-  }
-  else {
-    ATH_MSG_DEBUG("Type (e/g) not found from " << trigger);
-    m_accept.clear();
-    return m_accept;
-  }
-  // if(passedL1Calo && passedL2Calo && passedL2 && passedEFCalo && passedEF) pass = true;
-  if (passedL1Calo && passedEFCalo && passedEF) pass = true;
-  m_accept.setCutResult("HLT", pass);
   return m_accept;
 }
 //!==========================================================================
@@ -328,89 +363,320 @@ const Root::TAccept& TrigEgammaEmulationTool::executeTool(const HLT::TriggerElem
 const Root::TAccept& TrigEgammaEmulationTool::executeTool(const std::string &trigger) {
   clearDecorations();
   m_accept.clear();
-  std::string trigItem = trigger;
-  bool pass=false;
-  std::string type = "Electron";//electron type as default
-  std::vector<std::string> strs;
-  if(boost::contains(trigItem,"HLT")) trigItem.erase(0,4);
-  if(boost::contains(trigItem,"L1")) trigItem.erase(0,4);
-  boost::split(strs,trigItem,boost::is_any_of("_"));
-  if (boost::contains(strs.at(0),"e")) type = "Electron";
-  if (boost::contains(strs.at(0),"g")) type = "Photon";
-  bool passedL1Calo = false;  
-  bool passedL2Calo = false; 
-  bool passedEFCalo = false; 
-  bool passedL2     = false;
-  bool passedEF     = false;
-  //loop over objects
-  for(const auto& l1 : *m_emTauRois) {
-    m_l1Selector->emulation(l1, passedL1Calo ,trigger);
-    //ATH_MSG_DEBUG("L1 decoration is : " << int(l1->auxdecor<bool>(trigger)) );
-    if(passedL1Calo)  break;
+  
+  if( m_trigInfo.count(trigger) != 0){
+    Trig::Info info     = getTrigInfo(trigger);
+    bool passedL1Calo = false;  
+    bool passedL2Calo = false; 
+    bool passedL2     = false;
+    bool passedEFCalo = false; 
+    bool passedEFTrack= false; 
+    bool passedHLT    = false;
+
+    boost::dynamic_bitset<> bitL1Accept(m_emTauRois->size());
+    boost::dynamic_bitset<> bitL2CaloAccept(m_trigEMClusters->size());
+
+    //loop over objects
+    unsigned bit=0;  bool pass=false;
+    for(const auto& l1 : *m_emTauRois) {
+      m_l1Selector->emulation(l1, pass, info);
+      bitL1Accept.set(bit, pass);
+      bit++;
+    }
+    if(bitL1Accept.count()>0)  passedL1Calo=true;
+    m_accept.setCutResult("L1Calo", passedL1Calo);
+
+    if(passedL1Calo){
+      bit=0; pass=false;
+      //loop over objects
+      for(const auto& emCluster : *m_trigEMClusters){
+        m_l2Selector->emulation(emCluster, pass, info);
+        bitL2CaloAccept.set(bit, pass);
+        bit++;
+      }
+  
+      if(bitL2CaloAccept.count()>0)  passedL2Calo=true;
+      m_accept.setCutResult("L2Calo", passedL2Calo);
+      
+      if(passedL2Calo) {
+
+        if(info.ringer || info.perf){//bypass L2 Electron/Photon Level
+          passedL2=true;
+          m_accept.setCutResult("L2", passedL2);
+        }else{
+          if (info.type == "electron") {
+            m_l2Selector->emulation(m_trigElectrons, passedL2, info);
+            m_accept.setCutResult("L2", passedL2);
+          }
+          else if (info.type == "photon") {
+            //m_l2Selector->emulation( trigPhCont, passedL2, trigger);
+            //m_efPhotonSelector->emulation( phCont, passedEF, trigger);
+            m_accept.setCutResult("L2", passedL2);
+          }
+        }//bypass L2
+
+        if (passedL2){
+
+          m_efCaloSelector->emulation(m_onlElectrons, passedEFCalo, info);
+          m_accept.setCutResult("EFCalo", passedEFCalo);
+          
+          if(passedEFCalo){
+
+            //TODO: running the EF track step
+            passedEFTrack=true;
+            m_accept.setCutResult("EFTrack", passedEFTrack);
+            
+            if(passedEFTrack){
+              if(!emulationHLT(m_onlElectrons, passedHLT, info)){
+                m_accept.clear();
+                return m_accept;
+              }else{
+                m_accept.setCutResult("HLT"    , passedHLT);
+              }
+            }//EFTrack
+
+          }//EFCalo 
+        }//L2
+      }//L2Calo
+    }//L1Calo
+
+  }else{
+    ATH_MSG_WARNING("Can not emulate. Trigger not configurated");
   }
-  //loop over objects
-  for(const auto& emCluster : *m_trigEMClusters){
-    m_l2Selector->emulation(emCluster, passedL2Calo ,trigger);
-    if(passedL2Calo)  break;
-  }
-  m_efCaloSelector->emulation(m_onlElectrons, passedEFCalo, trigger);
-  m_accept.setCutResult("EmTauRoI"            , passedL1Calo);
-  m_accept.setCutResult("TrigEMCluster"       , passedL2Calo);
-  m_accept.setCutResult("CaloClusterContainer", passedEFCalo);
-  //execute object reconstructions combined (calo+ID)
-  if (type == "Electron") {
-    m_l2Selector->emulation(m_trigElectrons, passedL2, trigger);
-    m_efElectronSelector->emulation(m_onlElectrons, passedEF, trigger);
-    m_accept.setCutResult("TrigElectronContainer", passedL2);
-    m_accept.setCutResult("ElectronContainer"    , passedEF);
-  }
-  else if (type == "Photon") {
-    //m_l2Selector->emulation( trigPhCont, passedL2, trigger);
-    //m_efPhotonSelector->emulation( phCont, passedEF, trigger);
-    m_accept.setCutResult("TrigPhotonContainer", passedL2);
-    m_accept.setCutResult("PhotonContainer"    , passedEF);
-  }
-  else {
-    ATH_MSG_DEBUG("Type (e/g) not found from " << trigger);
-    m_accept.clear();
-    return m_accept;
-  }
-  // if(passedL1Calo && passedL2Calo && passedL2 && passedEFCalo && passedEF) pass = true;
-  if (passedL1Calo && passedEFCalo && passedEF) pass = true;
-  m_accept.setCutResult("HLT", pass);
   return m_accept;
 }
 
+
 //!==========================================================================
 bool TrigEgammaEmulationTool::isPassed(const std::string &trigger) {
-  Root::TAccept accept = executeTool(trigger);
-  return accept.getCutResult("HLT");
+  m_accept.clear();
+  m_accept = executeTool(trigger);
+  ATH_MSG_DEBUG("Trigger = "<< trigger );
+  ATH_MSG_DEBUG("isPassed()::L1Calo = " << m_accept.getCutResult("L1"));
+  ATH_MSG_DEBUG("isPassed()::L2Calo = " << m_accept.getCutResult("L2Calo"));
+  ATH_MSG_DEBUG("isPassed()::L2     = " << m_accept.getCutResult("L2"));
+  ATH_MSG_DEBUG("isPassed()::EFCalo = " << m_accept.getCutResult("EFCalo"));
+  ATH_MSG_DEBUG("isPassed()::EFTrack= " << m_accept.getCutResult("EFTrack"));
+  ATH_MSG_DEBUG("isPassed()::HLT    = " << m_accept.getCutResult("HLT"));
+  return m_accept.getCutResult("HLT");
 }
 
 //!==========================================================================
 bool TrigEgammaEmulationTool::isPassed(const std::string &trigger, const std::string &fctrigger) {
-  bool pass = false;
-  std::string trigItem = fctrigger;
+  m_accept.clear();
   const HLT::TriggerElement *finalFC = NULL;
-  if(!boost::contains(trigItem,"HLT")) trigItem = "HLT_"+trigItem;
-  auto fc = m_trigdec->features(trigItem, TrigDefs::alsoDeactivateTEs);
+  auto fc = m_trigdec->features(fctrigger, TrigDefs::alsoDeactivateTEs);
   auto vec = fc.get<xAOD::ElectronContainer>();
+  boost::dynamic_bitset<> bitAccept(vec.size());
+  unsigned bit=0;
+  ATH_MSG_DEBUG("isPassed(trigger,fc)::ElectronContainer->size() = " << vec.size());
   for (const auto &feat : vec) {
+    bit++;
     finalFC = feat.te();
     if (!finalFC) continue;
-    Root::TAccept accept = executeTool(finalFC, trigger);
-    pass = accept.getCutResult("HLT");
-    if (pass == true) break;
+    m_accept = executeTool(finalFC, trigger);
+    if(m_accept.getCutResult("HLT"))  bitAccept.set(bit-1,true);
+    ATH_MSG_DEBUG("isPassed()::L1Calo = " << m_accept.getCutResult("L1"));
+    ATH_MSG_DEBUG("isPassed()::L2Calo = " << m_accept.getCutResult("L2Calo"));
+    ATH_MSG_DEBUG("isPassed()::L2     = " << m_accept.getCutResult("L2"));
+    ATH_MSG_DEBUG("isPassed()::EFCalo = " << m_accept.getCutResult("EFCalo"));
+    ATH_MSG_DEBUG("isPassed()::EFTrack= " << m_accept.getCutResult("EFTrack"));
+    ATH_MSG_DEBUG("isPassed()::HLT    = " << m_accept.getCutResult("HLT")); 
   }
+  bool pass=false;
+  if(bitAccept.count()>0)  pass=true;
+
   return pass;
 }
 
 //!==========================================================================
 void TrigEgammaEmulationTool::clearDecorations(){
+  /*
   m_offElectrons->clearDecorations();  //Offline
   m_onlElectrons->clearDecorations();  //EFElectron
   m_caloClusters->clearDecorations();  //EFCalo
   m_trigElectrons->clearDecorations(); //L2Electron
   m_trigEMClusters->clearDecorations();//L2Calo
   m_emTauRois->clearDecorations();     //L1
+  */
 }
+
+//!==========================================================================
+bool TrigEgammaEmulationTool::emulationHLT(const xAOD::IParticleContainer *container, bool &pass, const Trig::Info &info){
+ 
+  if(info.type == "electron"){
+    for( auto& tool : m_efElectronSelector){
+      if( tool->emulation(container, pass, info) )
+        break;
+    }// Loop over electron tools
+  }else if(info.type == "photon"){
+    for(auto& tool : m_efPhotonSelector){
+      if( tool->emulation(container, pass, info) )
+        break;
+    }// Loop ever Photon tools
+  }else{
+    ATH_MSG_WARNING("Type (e/g) not found from " << info.trigName);
+    return false;
+  }
+  return true;
+}
+
+//!==========================================================================
+void TrigEgammaEmulationTool::setTrigInfo(const std::string trigger){
+  ATH_MSG_DEBUG("setTrigInfo::trigger = "<< trigger);
+  std::string type="";
+  bool isL1=false;
+  float etthr=0;
+  float l1thr=0;
+  std::string l1type="";
+  std::string pidname="";
+  std::string lhinfo;
+  bool perf=false;
+  bool idperf=false;
+  bool etcut=false;
+  bool isolation=false;
+  bool hltcalo=false;
+  bool ringer=false;
+  parseTriggerName(trigger,"Loose",isL1,type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger
+  std::string l1item = "";
+  if(isL1) l1item=trigger;
+  else getL1Item(trigger);
+  std::string decorator="is"+pidname; 
+  if (boost::contains(trigger,"iloose") ) isolation = true;
+  if (boost::contains(trigger,"idperf") ) idperf    = true;
+  if (boost::contains(trigger,"HLTCalo")) hltcalo   = true;
+  if (boost::contains(trigger,"ringer") ) ringer    = true;
+
+  //Likelihood special tunings
+  if (boost::contains(trigger,"nod0"))                lhinfo = "nod0";
+  else if(boost::contains(trigger, "cutd0dphideta"))  lhinfo = "cutd0dphideta";
+  else if(boost::contains(trigger, "nodeta"))         lhinfo = "nodeta";
+  else if(boost::contains(trigger, "nodphires"))      lhinfo = "nodphires";
+  else if(boost::contains(trigger, "smooth"))         lhinfo = "smooth";
+  else{
+    lhinfo="";
+  }
+
+  if(isL1) etthr=l1thr; // Should be handled elsewhere
+  std::string strEtthr = boost::lexical_cast<std::string>(etthr);
+  Trig::Info info{trigger,type,strEtthr,l1item,l1type,pidname,decorator,lhinfo,isolation,isL1,perf,idperf,hltcalo,ringer,etcut,etthr,l1thr};
+  m_trigInfo.insert(std::pair<std::string,Trig::Info>(trigger, info));
+  ATH_MSG_DEBUG("Inserting trigger: " << trigger << ", completed.");
+}
+
+//!==========================================================================
+
+Trig::Info TrigEgammaEmulationTool::getTrigInfo(const std::string &trigger){
+  return m_trigInfo[trigger];
+}
+//!==========================================================================
+void TrigEgammaEmulationTool::parseTriggerName(const std::string trigger, std::string defaultPid,bool &isL1,std::string &type,
+        float &threshold, float &l1threshold, std::string &l1type, std::string &pidname, bool &etcut, bool &perf){
+  
+
+  // Analyze L1 or HLT item
+  bool result = boost::starts_with( trigger , "L1" );
+  if (result) {
+      std::string l1info = trigger;
+      l1info.erase(0,4);
+      l1type = boost::trim_copy_if(l1info, boost::is_digit());
+      std::string l1cut = boost::trim_copy_if(l1info, !boost::is_digit());
+      l1threshold = atof(l1cut.c_str());
+      threshold = l1threshold;
+      isL1=true;
+      pidname = defaultPid;
+      type = "electron"; // for now only electron L1 studies
+  }
+  else {
+      std::string hltinfo=trigger;
+      if(boost::contains(hltinfo,"HLT")) hltinfo.erase(0,4);
+      std::string l1item = getL1Item(trigger);
+      ATH_MSG_DEBUG("Trigger L1item " << trigger << " " << l1item << " " << hltinfo);
+      std::vector<std::string> strs;
+      boost::split(strs,hltinfo,boost::is_any_of("_"));
+      for (std::vector<std::string>::iterator it = strs.begin(); it != strs.end(); ++it)
+      {
+          ATH_MSG_DEBUG("Trigger parse "  << *it);
+      }
+      // Set probe Pid from second part of trigger name
+      // Non pid triggers use default Probe which is set as a property
+
+
+      if(boost::contains(strs.at(0),"e")) type = "electron";
+      else if(boost::contains(strs.at(0),"g")) type = "photon";
+      else ATH_MSG_ERROR("Cannot set trigger type from name");
+      if(boost::contains(strs.at(1),"perf")){
+          //pidname = defaultPid;
+          pidname = "";
+          perf=true;
+          ATH_MSG_DEBUG("Perf " << perf << " " << pidname );
+      }
+      else if(boost::contains(strs.at(1),"L2Star")){
+          pidname = defaultPid;
+          perf=true;
+          ATH_MSG_DEBUG("L2Star " << perf << " " << pidname );
+      }
+      else if(boost::contains(strs.at(1),"hiptrt")){
+          pidname = defaultPid;
+          perf=true;
+          ATH_MSG_DEBUG("hiptrt " << perf << " " << pidname );
+      }
+      else if( strs.at(1)== "etcut"){
+          pidname = defaultPid;
+          etcut=true;
+      }
+      else pidname = getPid(strs.at(1));
+
+      //Get the L1 information
+
+      if(boost::contains(strs.back(),"L1")){
+          std::string l1info = strs.back();
+          l1info.erase(0,4);
+          l1type = boost::trim_copy_if(l1info, boost::is_digit());
+          std::string l1cut = boost::trim_copy_if(l1info, !boost::is_digit());
+          l1threshold = atof(l1cut.c_str());
+
+          ATH_MSG_DEBUG("L1 item " << l1info << " " << l1threshold << " " << l1type);
+      }
+
+      // Get the threshold
+      std::string str_thr = strs.at(0);
+      str_thr.erase( 0, 1);
+      threshold = atof(str_thr.c_str());
+
+      isL1=false;
+      ATH_MSG_DEBUG(trigger << " " << type << " " << pidname << " " << threshold);
+  }
+
+}
+//!==========================================================================
+std::string TrigEgammaEmulationTool::getL1Item(std::string trigger){
+    auto trig_conf = m_trigdec->ExperimentalAndExpertMethods()->getChainConfigurationDetails(trigger);
+    std::string L1_seed = "";
+    if(trig_conf != NULL){
+        ATH_MSG_DEBUG("TrigConf available");
+        L1_seed = trig_conf->lower_chain_name(); //L1 trigger seed             
+    }
+    return L1_seed;
+}
+
+//!==========================================================================
+std::string TrigEgammaEmulationTool::getPid(const std::string pidtype){
+  static std::map<std::string,std::string> PidMap; //no longer class member but static
+  if(PidMap.empty()){
+      PidMap["vloose"]="VLoose";
+      PidMap["loose"]="Loose";
+      PidMap["medium"]="Medium";
+      PidMap["tight"]="Tight";
+      PidMap["loose1"]="Loose";
+      PidMap["medium1"]="Medium";
+      PidMap["tight1"]="Tight";
+      PidMap["lhvloose"]="LHVLoose";
+      PidMap["lhloose"]="LHLoose";
+      PidMap["lhmedium"]="LHMedium";
+      PidMap["lhtight"]="LHTight";
+  }
+  return PidMap[pidtype];
+}
+//!==========================================================================
+

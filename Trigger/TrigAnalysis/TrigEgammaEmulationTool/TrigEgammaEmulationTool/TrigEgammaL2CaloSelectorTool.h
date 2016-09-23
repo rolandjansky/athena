@@ -28,12 +28,12 @@ class TrigEgammaL2CaloSelectorTool:
 
     StatusCode initialize();
     StatusCode finalize(); 
-    bool emulation( const xAOD::TrigEMCluster*, bool &, const std::string&);
+    bool emulation( const xAOD::TrigEMCluster*, bool &, const Trig::Info &);
 
   private:
 
-    bool is_correct_trigger(const std::string&);
     bool emulationL2( const xAOD::TrigEMCluster*, bool &);
+    void setEtThr( float et ){m_eTthr=et;};
 
     const xAOD::EmTauRoIContainer *m_emTauRois; 
 
@@ -44,16 +44,17 @@ class TrigEgammaL2CaloSelectorTool:
  
     //Calorimeter electron ID  cuts
     std::vector<float> m_etabin;
-    std::vector<float> m_eTthr;
-    std::vector<float> m_eT2thr;
     std::vector<float> m_hadeTthr;
-    std::vector<float> m_hadeT2thr;
     std::vector<float> m_carcorethr;
     std::vector<float> m_caeratiothr;
-    std::vector<float> m_F1thr;
-    std::vector<float> m_WETA2thr;
-    std::vector<float> m_WSTOTthr;
-    std::vector<float> m_F3thr;
+    
+    float m_hadeT2thr;
+    float m_eTthr;
+    float m_eT2thr;
+    float m_F1thr;
+    float m_WETA2thr;
+    float m_WSTOTthr;
+    float m_F3thr;
     float m_detacluster;
     float m_dphicluster;
 };

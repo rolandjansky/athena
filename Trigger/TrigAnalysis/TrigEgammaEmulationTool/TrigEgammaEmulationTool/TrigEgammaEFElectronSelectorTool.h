@@ -38,19 +38,18 @@ class TrigEgammaEFElectronSelectorTool:
     StatusCode initialize();
     StatusCode finalize(); 
 
-    bool emulation( const xAOD::IParticleContainer*, bool&, const std::string&);
+    bool emulation( const xAOD::IParticleContainer*, bool&, const Trig::Info &);
   
   private:
 
-    bool ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname);
-    bool ApplyOnlElectronPid(const xAOD::Electron *eg, const std::string pidname);
-    bool emulatePidSelection(const HLT::TriggerElement *te, const std::string pidname);
-    bool emulateIsolation(const HLT::TriggerElement *te);
+    bool ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname, double avgmu);
+    bool ApplyIsolation(const xAOD::Electron *);
 
     // ToolHandles
-    // In python order will matter. Should always be tight, medium, loose
-    // Order no longer important since using a map
-    ///*! Offline isEM Selectors */
+    /* In python order will matter. Should always be tight, medium, loose
+       Order no longer important since using a map */
+    std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
+    /*! Offline isEM Selectors */
     ToolHandleArray<IAsgElectronIsEMSelector>   m_electronOnlIsEMTool;
     /*! Offline LH Selectors */
     ToolHandleArray<IAsgElectronLikelihoodTool> m_electronOnlLHTool;
@@ -59,7 +58,7 @@ class TrigEgammaEFElectronSelectorTool:
     /*! Track Isolation Tool */ 
     ToolHandle<xAOD::ITrackIsolationTool> m_trackIsolationTool;
     
-    std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
+    std::string m_lhinfo;
 
 };
 

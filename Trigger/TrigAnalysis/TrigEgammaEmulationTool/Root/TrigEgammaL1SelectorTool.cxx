@@ -20,6 +20,7 @@ using namespace std;
 using namespace Trig;
 //**********************************************************************
 
+
 TrigEgammaL1SelectorTool::
 TrigEgammaL1SelectorTool( const std::string& myname )
     : TrigEgammaSelectorBaseTool(myname)
@@ -27,15 +28,22 @@ TrigEgammaL1SelectorTool( const std::string& myname )
 }
 //**********************************************************************
 StatusCode TrigEgammaL1SelectorTool::initialize() {
-    return StatusCode::SUCCESS;
+
+  StatusCode sc = TrigEgammaSelectorBaseTool::initialize();
+  if(sc.isFailure()){
+    ATH_MSG_WARNING("TrigEgammaSelectorBaseTool::initialize() failed");
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 //!==========================================================================
 StatusCode TrigEgammaL1SelectorTool::finalize() {
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 //!==========================================================================
-bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, const std::string &trigger){
+bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, const Trig::Info &info){
 
   pass=false;
   if(!l1){
@@ -43,17 +51,14 @@ bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, 
     return false;
   }
 
-  std::string L1Item = getL1Item(trigger);
-  L1Item.erase(0, 5); //Removes L1EM prefix from name
-  std::string l1type = boost::trim_copy_if(L1Item, boost::is_digit());
-  std::string l1cut = boost::trim_copy_if(L1Item, !boost::is_digit());
-  float l1threshold = atof(l1cut.c_str()); // Is the L1 threshold +1 GeV
-  ATH_MSG_DEBUG("L1 Emulation for " << trigger);
-  ATH_MSG_DEBUG("L1 chain       = " << trigger);
-  ATH_MSG_DEBUG("L1 item        = " << L1Item);
+  //Retrieve L1 informations
+  std::string l1type = info.L1Type;
+  std::string L1Item = info.L1Item;
+  float l1threshold = info.thrL1; // Is the L1 threshold +1 GeV
+  ATH_MSG_DEBUG("L1 Emulation for " << info.trigName);
   ATH_MSG_DEBUG("L1 threshold   = " << l1threshold);
   ATH_MSG_DEBUG("L1 type        = " << l1type);
-  ATH_MSG_DEBUG("L1 cut         = " << l1cut);
+
   // float hadCoreCut = 0.0;
   float hadCoreCutMin = 1.0; // This could be defined somewhere else
   float hadCoreCutOff = -0.2;
@@ -68,7 +73,7 @@ bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, 
   float hadCore = 0.0;
   float eta = 0.0;
     
-  dressDecision(l1, trigger, pass); 
+  dressDecision(l1, info.trigName, pass); 
   //for(const auto& l1 : *l1Cont){
   if (l1->roiType() != xAOD::EmTauRoI::EMRoIWord) return true;
   emE     = l1->emClus()/1.e3;   // Cluster energy
@@ -111,8 +116,8 @@ bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, 
   }
   pass = true;
    
-  dressDecision(l1, trigger, pass); 
-  ATH_MSG_DEBUG("Emulation L1 Finished " << trigger);
+  dressDecision(l1, info.trigName, pass); 
+  ATH_MSG_DEBUG("Emulation L1 Finished " << info.trigName);
   return true;
 }
 //!==========================================================================

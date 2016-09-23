@@ -41,18 +41,24 @@ TrigEgammaL2CaloRingerSelectorTool( const std::string& myname )
   declareProperty("EtaBins"           , m_etaBins                             );
   declareProperty("EtBins"            , m_etBins                              );
 
-
   m_nDiscr    = 0;
   m_nPreproc  = 0;
 }
 //**********************************************************************
 StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
 
+  StatusCode sc = TrigEgammaSelectorBaseTool::initialize();
+  if(sc.isFailure()){
+    ATH_MSG_WARNING("TrigEgammaSelectorBaseTool::initialize() failed");
+    return StatusCode::FAILURE;
+  }
+
+
   boost::algorithm::to_lower(m_signature);
   //What is the number of discriminators?
   m_nDiscr   = m_nodes.size()/SIZEOF_NODES;
   m_nPreproc = m_normRings.size()/SIZEOF_RINGSETS;
-  m_str_etthr = boost::lexical_cast<std::string>(m_etCut/1e-3);
+  m_str_etthr = boost::lexical_cast<std::string>(m_etCut*1e-3);
 
   ///check configuration
   if(m_weights.size() != m_nDiscr){
@@ -74,8 +80,6 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
     ATH_MSG_ERROR("Threshold list dont match with the number of discriminators found" );
     return StatusCode::FAILURE;
   }
-
-
  
   if(m_nRings.size() != m_normRings.size()){
     ATH_MSG_ERROR("Preproc nRings list dont match with the number of discriminators found" );
@@ -86,7 +90,6 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::initialize() {
     ATH_MSG_ERROR("Preproc section rings list dont match with the number of discriminators found" );
     return StatusCode::FAILURE;
   }
- 
 
   ///Initialize all discriminators
   for(unsigned i=0; i<m_nDiscr; ++i)
@@ -170,31 +173,8 @@ StatusCode TrigEgammaL2CaloRingerSelectorTool::finalize() {
 }
 
 //!==========================================================================
-bool TrigEgammaL2CaloRingerSelectorTool::is_correct_trigger(const std::string &trigger){
-  
-  std::string trigItem = trigger;
-  trigItem.erase(0, 4); //Removes HLT_ prefix from name
-  bool isL1 = false;
-  bool perf = false;
-  bool etcut = false;
-  bool ringer=false;
-  float etthr = 0;
-  float l1thr = 0;
-  std::string type = "";
-  std::string l1type = "";
-  std::string pidname = "";
-  if (boost::contains(trigItem,"ringer")) ringer = true;
-  if(!ringer)  return false;
-  parseTriggerName(trigItem,"Loose",isL1,type,etthr,l1thr,l1type,pidname,etcut,perf); 
-  boost::algorithm::to_lower(pidname);
-  std::string str_etthr = boost::lexical_cast<std::string>(etthr);
-  if(m_str_etthr != str_etthr)  return false;
-  if(pidname != m_pidname)  return false;
-  if(type != m_signature)  return false;
-  return true;
-}
-//!==========================================================================
-bool TrigEgammaL2CaloRingerSelectorTool::emulation(const xAOD::TrigEMCluster* emCluster, bool &pass, const std::string &trigger)
+
+bool TrigEgammaL2CaloRingerSelectorTool::emulation(const xAOD::TrigEMCluster* emCluster, bool &pass, const Trig::Info &info)
 {
   pass = false;
 
@@ -203,11 +183,6 @@ bool TrigEgammaL2CaloRingerSelectorTool::emulation(const xAOD::TrigEMCluster* em
     return false;
   }
 
-  if(!is_correct_trigger(trigger)){
-    return false;
-  }//is good tool?
-
-  //for(const auto emCluster : *container){
   //retrieve rings
   const xAOD::TrigRingerRings *ringer = getTrigCaloRings(emCluster);
   
@@ -216,6 +191,7 @@ bool TrigEgammaL2CaloRingerSelectorTool::emulation(const xAOD::TrigEMCluster* em
     return false;
   }//protection
 
+  setEtThr((info.thrHLT-5)*1e-3);
   m_output = 999;
 
   ///It's ready to select the correct eta/et bin
@@ -226,7 +202,7 @@ bool TrigEgammaL2CaloRingerSelectorTool::emulation(const xAOD::TrigEMCluster* em
   if(eta>2.50) eta=2.50;///fix for events out of the ranger
   float et  = emCluster->et()*1e-3; ///in GeV
 
-  if(et < m_etCut){
+  if(et < m_etCut*1e-3){
     ATH_MSG_DEBUG("Event reproved by Et threshold. Et = " << et << ", EtCut = "<< m_etCut);
     return true;
   }
