@@ -30,10 +30,15 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     
     /* Dump trigger and offline probe object */
     bool executeProbesDump();
+    bool executeProbesSupportDump();
+    bool executeProbesItemDump();
+
 
     /* helper function */ 
     template <class T> void InitBranch(TTree* fChain, std::string branch_name, T* param, bool message = true);
 
+    unsigned count_HLT_objects(const HLT::TriggerElement *);
+    
     /* Create branches */
     void bookEventBranches( TTree *t );
     void bookElectronBranches( TTree *t );
@@ -55,11 +60,12 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     bool fillElectron     ( const xAOD::Electron      *el );
     //bool fillPhoton       ( const xAOD::Photon        *ph );
 
-    bool fillCaloRings    ( const xAOD::Electron      *el );
-    bool fillTrigCaloRings( const xAOD::TrigEMCluster *emCluster );
-    bool fillEmTauRoI     ( const xAOD::EmTauRoI *emTauRoI        );
+    bool fillCaloRings    ( const xAOD::Electron      *el         );
+    bool fillTrigCaloRings( const xAOD::TrigEMCluster *emCluster  );
+    bool fillEmTauRoI     ( const xAOD::EmTauRoI      *emTauRoI   );
     bool fillTrigEMCluster( const xAOD::TrigEMCluster *emCluster  );
-    bool fillTrigElectron ( const xAOD::TrigElectron *trigEl      );
+    bool fillTrigElectron ( const xAOD::TrigElectron  *trigEl     );
+    bool fillCaloCluster  ( const xAOD::CaloCluster   *cluster    );
 
 
     /* Space memory manager */
@@ -67,7 +73,15 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     void release_space();
     void clear();
 
+
   private:
+
+    
+    /* Offline variables only */
+    bool  m_doOfflineDump;
+    /* Support triggers dump */
+    bool  m_doSupport;
+    float m_probeMinEt;
 
      /* Branch variables */
     uint32_t            m_runNumber{};
@@ -177,7 +191,11 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
     bool                m_trig_L2_el_accept{};
     // Level EF
     bool                m_trig_EF_calo_accept{};
+    std::vector<float> *m_trig_EF_calo_et;
+    std::vector<float> *m_trig_EF_calo_eta;
     bool                m_trig_EF_el_accept{};
+
+
     // Monte Carlo
     bool                m_mc_hasMC{}     ;
     float               m_mc_pt{}        ;
@@ -196,4 +214,7 @@ class TrigEgammaNavTPNtuple : public TrigEgammaNavTPBaseTool,
 
   
 };
+
+
+
 #endif
