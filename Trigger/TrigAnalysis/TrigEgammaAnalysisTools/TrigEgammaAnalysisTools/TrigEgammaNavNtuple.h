@@ -34,11 +34,16 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
     /* Dump offline electrons */
     bool executeElectronDump();
     /* Dump Trigger, electron and photons matched with the trigger object */
-    bool executeTrigEgammaDump();
+    bool executeTrigItemDump();
+    /* Dump using trigger supports */
+    bool executeTrigSupportDump();
+
 
     /* helper function */ 
     template <class T> void InitBranch(TTree* fChain, std::string branch_name, T* param, bool message = true);
-    
+   
+    unsigned count_HLT_objects(const HLT::TriggerElement *);
+
     /* Create branches */
     void bookEventBranches( TTree *t );
     void bookElectronBranches( TTree *t );
@@ -60,21 +65,27 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
     bool fillElectron     ( const xAOD::Electron      *el );
     //bool fillPhoton       ( const xAOD::Photon        *ph );
     
-    bool fillCaloRings    ( const xAOD::Electron      *el );
-    bool fillTrigCaloRings( const xAOD::TrigEMCluster *emCluster );
-    bool fillEmTauRoI     ( const xAOD::EmTauRoI *emTauRoI        );
+    bool fillCaloRings    ( const xAOD::Electron      *el         );
+    bool fillTrigCaloRings( const xAOD::TrigEMCluster *emCluster  );
+    bool fillEmTauRoI     ( const xAOD::EmTauRoI      *emTauRoI   );
     bool fillTrigEMCluster( const xAOD::TrigEMCluster *emCluster  );
-    bool fillTrigElectron ( const xAOD::TrigElectron *trigEl      );
+    bool fillTrigElectron ( const xAOD::TrigElectron  *trigEl     );
+    bool fillCaloCluster  ( const xAOD::CaloCluster   *cluster    );
 
     /* Space memory manager */
     void alloc_space();
     void release_space();
     void clear();
 
+
+
   private:
 
-    bool m_doOfflineDump;
-    std::string m_offDir;
+    /* Offline variables only */
+    bool  m_doOfflineDump;
+    bool  m_doSupport;
+    bool  m_forceMCMatch;
+    float m_minEt; // default is -1 
     
     /* Branch variables */
     uint32_t            m_runNumber{};
@@ -180,11 +191,14 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
     std::vector<float> *m_trig_L2_el_etOverPt;          
     std::vector<float> *m_trig_L2_el_trkClusDeta; 
     std::vector<float> *m_trig_L2_el_trkClusDphi;
-
     bool                m_trig_L2_el_accept{};
     // Level EF
     bool                m_trig_EF_calo_accept{};
+    std::vector<float> *m_trig_EF_calo_et;
+    std::vector<float> *m_trig_EF_calo_eta;
     bool                m_trig_EF_el_accept{};
+
+
     // Monte Carlo
     bool                m_mc_hasMC{}     ;
     float               m_mc_pt{}        ;
@@ -202,4 +216,6 @@ class TrigEgammaNavNtuple : public TrigEgammaNavBaseTool,
     bool                m_mc_hasWMother{};
 
 };
+
+
 #endif
