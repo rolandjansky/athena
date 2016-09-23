@@ -15,6 +15,7 @@
 #include "xAODTrigCalo/TrigEMCluster.h"
 #include "xAODTrigCalo/TrigEMClusterContainer.h"
 #include "xAODTrigRinger/TrigRingerRings.h"
+#include "xAODTrigRinger/TrigRNNOutput.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/EgammaContainer.h"
@@ -27,7 +28,9 @@
 //#include "xAODCaloRings/CaloRingsContainer.h"
 //#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
 
+#include "TrigEgammaEmulationTool/TrigEgammaInfo.h"
 #include <string>
+
 
 namespace Trig{
     class ITrigEgammaSelectorBaseTool : public virtual asg::IAsgTool {
@@ -37,10 +40,11 @@ namespace Trig{
             virtual StatusCode initialize()=0;
             virtual StatusCode finalize()=0;
 
-            virtual bool emulation(const xAOD::EmTauRoI               * , bool&, const std::string&)=0;
-            virtual bool emulation(const xAOD::TrigEMCluster          * , bool&, const std::string&)=0;
-            virtual bool emulation(const xAOD::IParticleContainer     * , bool&, const std::string&)=0;
-            
+            virtual bool emulation(const xAOD::EmTauRoI               * , bool&, const Trig::Info &)=0;
+            virtual bool emulation(const xAOD::TrigEMCluster          * , bool&, const Trig::Info &)=0;
+            virtual bool emulation(const xAOD::IParticleContainer     * , bool&, const Trig::Info &)=0;
+           
+            virtual void setTe(const HLT::TriggerElement *)=0; 
             virtual void setParents(ToolHandle<Trig::TrigDecisionTool> &, StoreGateSvc *)=0;
             virtual void setParents(Trig::TrigDecisionTool *, StoreGateSvc *)=0;
 

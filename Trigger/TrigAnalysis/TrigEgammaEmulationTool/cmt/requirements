@@ -13,8 +13,10 @@ use TrigConfHLTData             TrigConfHLTData-*               Trigger/TrigConf
 use TrigSteeringEvent           TrigSteeringEvent-*             Trigger/TrigEvent
 use TrigMultiVarHypo            TrigMultiVarHypo-*              Trigger/TrigHypothesis
 #use TrigHLTMonitoring           TrigHLTMonitoring-*             Trigger/TrigMonitoring
-#use LumiBlockComps              LumiBlockComps-*                LumiBlock
+use LumiBlockComps              LumiBlockComps-*                LumiBlock
 use PATCore                     PATCore-*                       PhysicsAnalysis/AnalysisCommon
+
+
 
 use xAODBase                    xAODBase-*                      Event/xAOD
 use xAODTrigger                 xAODTrigger-*                   Event/xAOD
@@ -51,9 +53,6 @@ use AthenaBaseComps             AthenaBaseComps-*               Control
 use GaudiInterface              GaudiInterface-*                External
 use AtlasBoost                  AtlasBoost-*                    External
 use StoreGate                   StoreGate-*                     Control
-
-#use TrigConfxAOD                TrigConfxAOD-*                  Trigger/TrigConfiguration
-#use AthenaMonitoring            AthenaMonitoring-*              Control
 
 
 end_private

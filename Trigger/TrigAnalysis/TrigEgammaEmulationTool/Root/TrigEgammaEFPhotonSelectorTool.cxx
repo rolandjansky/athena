@@ -34,8 +34,15 @@ TrigEgammaEFPhotonSelectorTool( const std::string& myname )
 //**********************************************************************
 StatusCode TrigEgammaEFPhotonSelectorTool::initialize() {
 
+  StatusCode sc = TrigEgammaSelectorBaseTool::initialize();
+  if(sc.isFailure()){
+    ATH_MSG_WARNING("TrigEgammaSelectorBaseTool::initialize() failed");
+    return StatusCode::FAILURE;
+  }
+
+ 
   if (m_photonOnlIsEMTool.retrieve().isFailure() ) {
-    std::cout << "retrieve failed for tools" << std::endl;
+    ATH_MSG_WARNING("retrieve failed for tools");
   }
 
   return StatusCode::SUCCESS;
@@ -46,7 +53,7 @@ StatusCode TrigEgammaEFPhotonSelectorTool::finalize() {
     return StatusCode::SUCCESS;
 }
 //!==========================================================================
-bool TrigEgammaEFPhotonSelectorTool::emulation( const xAOD::IParticleContainer *container, bool &pass, const std::string &trigger)
+bool TrigEgammaEFPhotonSelectorTool::emulation( const xAOD::IParticleContainer *container, bool &pass, const Trig::Info &info)
 {
   //apply pids here
   //check if is etcut, perf, etc
@@ -55,24 +62,7 @@ bool TrigEgammaEFPhotonSelectorTool::emulation( const xAOD::IParticleContainer *
     ATH_MSG_WARNING("Can not emulate EF photon step. Container is null");
     return false;
   }
-  std::string trigItem = trigger;
-  trigItem.erase(0, 4); //Removes HLT_ prefix from name
-  bool isL1 = false;
-  bool perf = false;
-  bool etcut = false;
-  //bool isolation = false;  
-  //bool idperf = false;
-  //bool hltcalo = false;
-  float etthr = 0;
-  float l1thr = 0;
-  std::string type = "";
-  std::string l1type = "";
-  std::string pidname = "";
-  //if (boost::contains(trigItem,"iloose"))  isolation = true;
-  //if (boost::contains(trigItem,"idperf"))  idperf = true;
-  //if (boost::contains(trigItem,"HTLcalo")) hltcalo = true;
-  parseTriggerName(trigItem,"Loose",isL1,type,etthr,l1thr,l1type,pidname,etcut,perf); // Determines probe PID from trigger 
-  if (boost::contains(pidname,"1")) return false; // Not emulating Run1
+  if (boost::contains(info.pidname,"1")) return false; // Not emulating Run1
 
   /*
      if(!found && pass){
