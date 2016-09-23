@@ -60,6 +60,7 @@ StatusCode TrigEgammaNavAnalysisTool::childBook(){
     for (const auto trigger: m_trigList)
             setTrigInfo(trigger);
 
+    plot()->setEmulation(getEmulation()); 
     if(plot()->book(getTrigInfoMap()).isFailure()) {
         ATH_MSG_ERROR("Unable to book histos for " << m_dir); 
         return StatusCode::FAILURE;
@@ -78,8 +79,6 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
         ATH_MSG_DEBUG("Fails EventWise selection");
         return StatusCode::SUCCESS; //return nicely
     }
-
-    TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();
 
     // Check HLTResult
     if(tdt()->ExperimentalAndExpertMethods()->isHLTTruncated()){
@@ -104,6 +103,8 @@ StatusCode TrigEgammaNavAnalysisTool::childExecute(){
             // Set detail level from analysis tool each time
             tool->setDetail(getDetail()); 
             tool->setTP(getTP()); 
+            tool->setEmulation(getEmulation());
+            tool->setPVertex(getNPVtx(), getNGoodVertex());
             tool->setAvgMu(getAvgOnlineMu(),getAvgOfflineMu());
             if(tool->toolExecute(m_dir+"/Expert",info,m_objTEList).isFailure())
                 ATH_MSG_DEBUG("TE Tool Fails");// Requires offline match

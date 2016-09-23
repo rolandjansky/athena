@@ -107,7 +107,8 @@ StatusCode TrigEgammaNavTPAnalysisTool::childBook(){
     // Book the histograms per signature
     for (int i = 0; i < (int) m_trigList.size(); i++)
         setTrigInfo(m_trigList[i]);
-  
+ 
+    plot()->setEmulation(getEmulation()); 
     if(plot()->book(getTrigInfoMap()).isFailure()){
         ATH_MSG_ERROR("Unable to book histos for " << m_dir); 
         return StatusCode::FAILURE;
@@ -135,7 +136,6 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
         ATH_MSG_DEBUG("Fails EventWise selection");
         return StatusCode::SUCCESS;
     }
-    TrigEgammaAnalysisBaseTool::calculatePileupPrimaryVertex();
     // Event Wise Selection (independent of the required signatures)
     hist1(m_anatype+"_CutCounter")->Fill("EventWise",1);
     // Select TP Pairs
@@ -166,6 +166,8 @@ StatusCode TrigEgammaNavTPAnalysisTool::childExecute()
         for( const auto& tool : m_tools) {
             tool->setDetail(getDetail()); 
             tool->setTP(getTP()); 
+            tool->setEmulation(getEmulation());
+            tool->setPVertex(getNPVtx(), getNGoodVertex());
             tool->setAvgMu(getAvgOnlineMu(),getAvgOfflineMu());
             if(tool->toolExecute(m_dir+"/Expert",info,m_pairObj).isFailure())
                 ATH_MSG_DEBUG("TE Tool Fails");// Requires offline match

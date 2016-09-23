@@ -163,6 +163,7 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                 const auto *cont = getFeature<xAOD::CaloClusterContainer>(feat.te());
                 const auto *bits = getFeature<TrigPassBits>(feat.te());
                 if(cont==nullptr) continue;
+                if(bits==nullptr) continue;
                 cd(dir+"HLT");
                 if(ancestorPassed<xAOD::CaloClusterContainer>(feat.te()))
                     hist1("rejection")->Fill("EFCalo",1);
@@ -171,7 +172,6 @@ StatusCode TrigEgammaDistTool::toolExecute(const std::string basePath,TrigInfo i
                     if(bits!=nullptr)
                         if(!HLT::isPassing(bits,clus,cont) ) continue;
                         //if(!bits->isPassing(clus,cont)) continue;
-                    
                     fillEFCalo(dir+"EFCalo",clus);           
                 }
             }
