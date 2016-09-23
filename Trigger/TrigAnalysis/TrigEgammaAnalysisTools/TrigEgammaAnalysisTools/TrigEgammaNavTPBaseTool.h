@@ -155,6 +155,8 @@ private:
   bool m_forceProbeIsolation;
   /*! Define isolation working point for Probe electron */
   std::string m_offProbeIsolation;
+  /*! skip trigger for offline Tag and Probe analysis */
+  bool m_skipTrigger;
 
 };
 

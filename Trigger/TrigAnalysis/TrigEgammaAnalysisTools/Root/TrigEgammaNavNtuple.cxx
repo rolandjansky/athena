@@ -8,9 +8,12 @@ using namespace std;
 
 TrigEgammaNavNtuple::TrigEgammaNavNtuple( const std::string& myname ): TrigEgammaNavBaseTool(myname) 
 {
-  declareProperty("DirectoryPath",          m_dir="NavNtuple"                 );
-  declareProperty("DoOfflineDump",          m_doOfflineDump=false             ); 
-  declareProperty("OfflineDirectoryPath",   m_offDir = "Offline/Egamma/Ntuple");
+  declareProperty("Analysis",               m_anatype="NavNtuple"             );
+  declareProperty("doOfflineDump",          m_doOfflineDump=false             ); 
+  declareProperty("DoSupportTrigger",       m_doSupport=true                  );
+  declareProperty("ForceMCMatch",           m_forceMCMatch=true               );
+  declareProperty("OfflineMinEtThreshold",  m_minEt=-1                        );
+
   ///Set base tool configuration
   m_forcePidSelection=false;
   
@@ -29,6 +32,9 @@ TrigEgammaNavNtuple::TrigEgammaNavNtuple( const std::string& myname ): TrigEgamm
   m_trig_L2_el_etOverPt=nullptr;
   m_trig_L2_el_trkClusDeta=nullptr;
   m_trig_L2_el_trkClusDphi=nullptr;
+  m_trig_EF_calo_et=nullptr;
+  m_trig_EF_calo_eta=nullptr;
+
 }
 
 
@@ -39,10 +45,30 @@ StatusCode TrigEgammaNavNtuple::childInitialize(){
 
 StatusCode TrigEgammaNavNtuple::childBook(){
 
+  ATH_MSG_DEBUG("Now configuring chains for analysis");
+  //Set the base directory from the plot()
+  m_dir=plot()->getBasePath();
+  std::vector<std::string> chains  = tdt()->getListOfTriggers("HLT_e.*, L1_EM.*, HLT_g.*");
+
+  TrigEgammaAnalysisBaseTool::write_trigger_list(chains);
+  
+  for(const auto trigName:m_trigInputList){ 
+    if (std::find(chains.begin(), chains.end(), trigName) != chains.end()) {
+      if(plot()->getTrigInfoMap().count(trigName) != 0)
+          ATH_MSG_WARNING("Trigger already booked, removing from trigger list " << trigName);
+      else 
+          m_trigList.push_back(trigName);
+    }
+  }
+
+
   // Container level kinematic histograms
-  addDirectory(m_dir+"/Counters");
+  ATH_MSG_DEBUG("cd in: " << m_dir <<"/Expert/Event");
+  addDirectory(m_dir+"/Expert/Event");
   const int nTrigger = (int) m_trigList.size();
-  addHistogram(new TH1F("electrons", "Offline Electrons; ; N_{electrons}", 6, 1, 6));   
+   
+  std::string histname=m_anatype+"_electrons";
+  addHistogram(new TH1F(histname.c_str(), "Offline Electrons; ; N_{electrons}", 6, 1., 6));  
   std::vector<std::string> el_labels;
   el_labels.push_back("loose");
   el_labels.push_back("medium");
@@ -50,79 +76,56 @@ StatusCode TrigEgammaNavNtuple::childBook(){
   el_labels.push_back("lhloose");
   el_labels.push_back("lhmedium");
   el_labels.push_back("lhtight");
-  setLabels(hist1("electrons"),el_labels); 
+  setLabels(hist1(histname),el_labels); 
 
-
-  //addDirectory(m_dir);
-  ATH_MSG_DEBUG("Now configuring chains for analysis");
-  std::vector<std::string> selectElectronChains  = tdt()->getListOfTriggers("HLT_e.*");
-  for (int j = 0; j < (int) selectElectronChains.size(); j++) {
-    ATH_MSG_DEBUG("Electron trigger " << selectElectronChains[j]);
-  }
-  std::vector<std::string> selectPhotonChains  = tdt()->getListOfTriggers("HLT_g.*");
-
-  for (int i = 0; i < (int) m_trigInputList.size(); i++) {
-    std::string trigname = "HLT_"+m_trigInputList[i];
-    ATH_MSG_DEBUG("trigger: " << trigname);
-    for (int j = 0; j < (int) selectElectronChains.size(); j++) {
-      size_t found = trigname.find(selectElectronChains[j]);
-      if(found != std::string::npos) {
-        ATH_MSG_DEBUG("trigger: " << trigname << " found!");
-        m_trigList.push_back(m_trigInputList[i]);
-        break;
-      }
-    }
-    for (int j = 0; j < (int) selectPhotonChains.size(); j++) {
-      std::string trigname = "HLT_"+m_trigInputList[i];
-      ATH_MSG_DEBUG("trigger: " << trigname);
-      size_t found = trigname.find(selectPhotonChains[j]);
-      if(found != std::string::npos) {
-        ATH_MSG_DEBUG("trigger: " << trigname << " found!");
-        m_trigList.push_back(m_trigInputList[i]);
-        break;
-      }
-    }
-  }  
-
-  addHistogram(new TH1F("trigger_counts", "Trigger Counts; Trigger ; Count", nTrigger, 1, nTrigger));
-  setLabels(hist1("trigger_counts"),m_trigList);
-
-  
-  addDirectory(m_dir);
-  for (int i = 0; i < (int) m_trigList.size(); i++) {      
-      setTrigInfo(m_trigList[i]);
-      std::string trigItem = m_trigList[i];
-      TTree *t = new TTree( (trigItem).c_str(), "tree of trigger, egamma and monte carlo information");
-      bookEventBranches( t );
-      bookElectronBranches( t );
-      //bookPhotonBranches( t );
-      bookTriggerBranches( t );
-      bookMonteCarloBranches( t );
-      ATH_MSG_DEBUG("Already to attach the tree: " << trigItem);
-      addTree(t, m_dir);
-      //string name = trigItem+"_monitoring";
-      //addHistogram(new TH1F(name.c_str(), "Monitoring; status; Count", 3, 0., 3.));
+  histname=m_anatype+"_trigger_counts";
+  if(nTrigger>0) {
+    addHistogram(new TH1F(histname.c_str(), "Trigger Counts; Trigger ; Count", nTrigger, 1, nTrigger));
+    setLabels(plot()->hist1(m_anatype+"_trigger_counts"),m_trigList);
   }
 
   ///Only offline egamma ntuple
   if(m_doOfflineDump){
     ATH_MSG_DEBUG("Now configuting only the egamma analysis");
-    addDirectory(m_offDir);
-
+    addDirectory(m_dir+"/Expert/Offline");
     TTree *t_el = new TTree("electron", "tree of egamma and monte carlo information");
     TTree *t_ph = new TTree("photons", "tree of egamma and monte carlo information");
-
     bookEventBranches( t_ph );
     //bookPhotonBranches( t_ph );
     bookMonteCarloBranches( t_ph );
     bookEventBranches( t_el );
     bookElectronBranches( t_el );
     bookMonteCarloBranches( t_el );
+    addTree( t_el, m_dir+"/Expert/Offline" );
+    addTree( t_ph, m_dir+"/Expert/Offline" );
+  }else if(m_doSupport){// all support trigger in one
+    addDirectory(m_dir+"/Expert/support");
+    TTree *t = new TTree( "trigger", "support trigger");
+    bookEventBranches( t );
+    bookElectronBranches( t );
+    //bookPhotonBranches( t );
+    bookTriggerBranches( t );
+    bookMonteCarloBranches( t );
+    for(auto& trigItem : m_trigList)
+      setTrigInfo(trigItem);
+    addTree(t, m_dir+"/Expert/support");
+  }else{// each trigger
+    for (int i = 0; i < (int) m_trigList.size(); i++) {      
+        std::string trigItem = m_trigList[i];
+        addDirectory(m_dir+"/Expert/"+trigItem);
 
-    addTree( t_el, m_offDir );
-    addTree( t_ph, m_offDir );
+        TTree *t = new TTree( "trigger", "tree of trigger, egamma and monte carlo information");
+        bookEventBranches( t );
+        bookElectronBranches( t );
+        //bookPhotonBranches( t );
+        bookTriggerBranches( t );
+        bookMonteCarloBranches( t );
+        ATH_MSG_DEBUG("Already to attach the tree: " << trigItem);
+        setTrigInfo(trigItem);
+        addTree(t, m_dir+"/Expert/"+trigItem);
+    }
   }
-
+  
   // alloc memory to vector branchs
   alloc_space();
 
@@ -133,22 +136,26 @@ StatusCode TrigEgammaNavNtuple::childExecute(){
 
   m_eventCounter++;
 
-
-  ATH_MSG_DEBUG("===> 1 PILEUP = " << m_nPileupPrimaryVtx);
-  cd(m_dir+"/Counters");
+  m_dir=plot()->getBasePath();
+  
+  cd(m_dir+"/Expert/Event");
   if( !EventWiseSelection() ) {
     ATH_MSG_DEBUG("Unable to retrieve offline containers");
     return StatusCode::FAILURE;
   }
 
-  ATH_MSG_DEBUG("===> 1.1 PILEUP = " << m_nPileupPrimaryVtx);
-  cd(m_dir);
-  if(!executeTrigEgammaDump())  return StatusCode::FAILURE;
+  cd(m_dir+"/Expert");
+
 
   /// Egamma ntuple mode
   if(m_doOfflineDump){
+    cd(m_dir+"/Expert/Offline");
     if(!executeElectronDump())  return StatusCode::FAILURE;
     if(!executePhotonDump())    return StatusCode::FAILURE;
+  }else if(m_doSupport){
+    if(!executeTrigSupportDump())  return StatusCode::FAILURE;
+  }else{
+    if(!executeTrigItemDump())  return StatusCode::FAILURE;
   }
 
   return StatusCode::SUCCESS;
@@ -171,7 +178,7 @@ bool TrigEgammaNavNtuple::executeElectronDump(){
     return false;
   }
 
-  TTree *t = tree( "electron" , m_offDir );
+  TTree *t = tree( "electron" , m_dir+"/Expert/Offline" );
   if(!t){
     ATH_MSG_ERROR("Can no get the ttree pointer into the store.");
     return false;
@@ -180,22 +187,33 @@ bool TrigEgammaNavNtuple::executeElectronDump(){
   linkEventBranches(t); 
   linkElectronBranches(t);
   linkMonteCarloBranches(t);
-  
-  for(const auto& eg : *offElectrons ){
-    
+   
+  for (const auto &eg : *offElectrons){
+    clear();  
     if(!eg->trackParticle()){
-      ATH_MSG_DEBUG("No track Particle");
-      continue;
+        ATH_MSG_DEBUG("No track Particle");
+        continue;
     }
     if(!eg->caloCluster()){
-      ATH_MSG_DEBUG("No caloCluster");
-      continue;
+        ATH_MSG_DEBUG("No caloCluster");
+        continue;
     }
 
-    //if ( (fabs(eg->eta())>1.37 && fabs(eg->eta())<1.52) || fabs(eg->eta())>2.47 )
-    //  continue;
+    if(m_rmCrack){///default is true
+      if ( (fabs(eg->eta())>1.37 && fabs(eg->eta())<1.52) || fabs(eg->eta())>2.47 )  continue; 
+    }
 
-    clear();  
+    if (m_forceProbeIsolation) {///default is false
+      if (!isIsolated(eg, "Loose"))  continue;///default is Loose
+    }
+    
+    if(m_forceMCEnhancedBias){///default is false
+      const xAOD::TruthParticle *mc=nullptr;
+      if( pdgid(eg,m_truthContainer,mc) != MonteCarlo::PDGID::EnhancedBias)  continue;
+    }
+
+    const xAOD::Electron* el =static_cast<const xAOD::Electron*> (el);
+      
     fillEvent();
     fillElectron( eg );
     
@@ -215,19 +233,19 @@ bool TrigEgammaNavNtuple::executePhotonDump(){
 }
 
 
+bool TrigEgammaNavNtuple::executeTrigItemDump(){
 
-bool TrigEgammaNavNtuple::executeTrigEgammaDump(){
-
-  ATH_MSG_DEBUG("===> 2 PILEUP = " << m_nPileupPrimaryVtx);
 
   for(unsigned int ilist = 0; ilist != m_trigList.size(); ilist++) {
+
     std::string trigItem = m_trigList.at(ilist);
     const TrigInfo info = getTrigInfo(trigItem);
     if ( executeNavigation(info).isFailure() ){
       ATH_MSG_DEBUG("executeNavigation failure! continue...");
       return StatusCode::FAILURE;
     }
-    TTree *t = tree( trigItem, m_dir);
+
+    TTree *t = tree( "trigger", m_dir+"/Expert/"+trigItem);
     linkEventBranches(t); 
     linkElectronBranches(t);
     //linkPhotonBranches(t);
@@ -271,10 +289,11 @@ bool TrigEgammaNavNtuple::executeTrigEgammaDump(){
         //const xAOD::TrigRNNOutput *rnnOutput=getFeature<xAOD::TrigRNNOutput>(feat);
         //if(rnnOutput)  m_trig_L2_calo_rnnOutput = rnnOutput->rnnDecision().at(0);
 
-
+        //if(TrigEgammaAnalysisBaseTool::getTrigCaloRings(emCluster, ringsContainer ,*m_trig_L2_calo_rings)){
         if(!fillTrigCaloRings( emCluster )){
           ATH_MSG_WARNING("Cound not attach the trigCaloRinger information into the tree.");
         }
+
       }///cluster protection
 
  
@@ -288,24 +307,155 @@ bool TrigEgammaNavNtuple::executeTrigEgammaDump(){
         }// loop over all trigElectrons for this feat
       }
 
-      m_trig_L1_accept       = ancestorPassed<xAOD::EmTauRoI>(feat);
-      m_trig_L2_calo_accept  = ancestorPassed<xAOD::TrigEMCluster>(feat);
-      m_trig_L2_el_accept    = ancestorPassed<xAOD::TrigElectronContainer>(feat); 
-      m_trig_EF_calo_accept  = ancestorPassed<xAOD::CaloClusterContainer>(feat);
-      m_trig_EF_el_accept    = ancestorPassed<xAOD::ElectronContainer>(feat);
+      const xAOD::CaloClusterContainer *caloCont = getFeature<xAOD::CaloClusterContainer>(feat);
+      if(caloCont){
+        for(const auto& cl : *caloCont){
+          if(!fillCaloCluster(cl)){
+            ATH_MSG_WARNING("Cound not attach the CaloCluster information into the tree.");
+          }
+        }// loop over calo cluster
+      }
+
+      setAccept(feat,info);
+      m_trig_L1_accept       = getAccept().getCutResult("L1Calo"); 
+      m_trig_L2_calo_accept  = getAccept().getCutResult("L2Calo"); 
+      m_trig_L2_el_accept    = getAccept().getCutResult("L2"); 
+      m_trig_EF_calo_accept  = getAccept().getCutResult("EFCalo");  
+      m_trig_EF_el_accept    = getAccept().getCutResult("HLT");  
       
       ATH_MSG_DEBUG("L1Calo: "  << int(m_trig_L1_accept)); 
       ATH_MSG_DEBUG("L2Calo: "  << int(m_trig_L2_calo_accept));
-      ATH_MSG_DEBUG("L2ID: "    << int(m_trig_L2_el_accept));
+      ATH_MSG_DEBUG("L2    : "  << int(m_trig_L2_el_accept));
       ATH_MSG_DEBUG("EFCalo: "  << int(m_trig_EF_calo_accept));
-      ATH_MSG_DEBUG("EFID: "    << int(m_trig_EF_el_accept));          
-      ATH_MSG_DEBUG("Record information into the ttree.");
+      ATH_MSG_DEBUG("HLT   : "  << int(m_trig_EF_el_accept));          
 
+      ATH_MSG_DEBUG("Record information into the ttree.");
       t->Fill();// save information
     }// loop
   } // End loop over trigger
   return true;
 }
+
+
+bool TrigEgammaNavNtuple::executeTrigSupportDump(){
+  
+  double GeV=1000.;
+  // Just do this to retrieve all offline electrons, dummy trigItem!
+  const TrigInfo info = getTrigInfo(m_trigList[0]);
+  if ( executeNavigation(info).isFailure() ){
+    ATH_MSG_DEBUG("executeNavigation failure! continue...");
+    return false;
+  }//executeNavigation to collect electron
+
+  std::vector<const HLT::TriggerElement *> vec_feat;
+
+
+  cd(m_dir+"/Expert/support");
+  TTree *t = tree( "trigger", m_dir+"/Expert/support");
+  linkEventBranches(t); 
+  linkElectronBranches(t); 
+  linkTriggerBranches(t); 
+  linkMonteCarloBranches(t); 
+
+  // Loop over all good offline objects
+  for(const auto& eg : m_objTEList){
+
+    // Get the good electron
+    const xAOD::Electron* el =static_cast<const xAOD::Electron*> (eg.first);
+    // Force Et cut 
+    if(m_minEt > 0.0){
+      if( !( getEt(el)  > (m_minEt)*GeV) ) continue;
+    }
+    // Clear the vector
+    vec_feat.clear();
+    // Loop over support triggers
+    for(auto& trigItem : m_trigList){
+      const HLT::TriggerElement *feat;
+      // Trigger match using Matching tool
+      match()->match(el, trigItem, feat);
+      if(feat){// If has a match!
+        for(unsigned i=0; i < vec_feat.size(); ++i){
+          if(getFeature<xAOD::EmTauRoI>(vec_feat[i])->roiWord() == getFeature<xAOD::EmTauRoI>(feat)->roiWord()){
+            if(count_HLT_objects(feat) > count_HLT_objects(vec_feat[i])){
+              vec_feat.erase(vec_feat.begin() + i); // Erase the trigger element lowest than the new feature
+              vec_feat.push_back(feat); // attach the new trigger element
+              break;
+            }
+          }// The same region in L1Calo trigger
+        }
+        if(vec_feat.empty())  vec_feat.push_back(feat);
+      }
+    }// Loop over support trigger
+
+    ATH_MSG_DEBUG("Attach " << vec_feat.size() << " features ");
+    for(auto& feat : vec_feat){
+      
+      clear();
+      fillEvent();
+      fillElectron( el );  
+
+      if(!fillMonteCarlo( el ) ){
+        ATH_MSG_WARNING("Cound not found any TruthParticle for this Electron");
+        if(m_forceMCMatch)  continue;
+      }
+ 
+      ///Start trigger analisys...
+      const xAOD::EmTauRoI *emTauRoI = getFeature<xAOD::EmTauRoI>(feat);
+      if(emTauRoI){
+        fillEmTauRoI( emTauRoI ); 
+      }else{ 
+        ATH_MSG_WARNING("Cound not found EmTauRoI in this TriggerElement..");
+      }
+    
+      const xAOD::TrigEMCluster *emCluster = getFeature<xAOD::TrigEMCluster>(feat);
+      if(emCluster){
+        //ATH_MSG_INFO("AKI: Et = " << emCluster->et()*1e-3); 
+        //if(emCluster->et()*1e-3 < 20){
+        //  continue;
+        //}
+        if(!fillTrigEMCluster( emCluster )){
+          ATH_MSG_WARNING("Cound not attach the trigEMCluster information into the tree.");
+        }
+    
+        //if(TrigEgammaAnalysisBaseTool::getTrigCaloRings(emCluster, ringsContainer ,*m_trig_L2_calo_rings)){
+        if(!fillTrigCaloRings( emCluster )){
+          ATH_MSG_WARNING("Cound not attach the trigCaloRinger information into the tree.");
+        }
+      }///cluster protection
+    
+    
+      const xAOD::TrigElectronContainer *trigElCont = getFeature<xAOD::TrigElectronContainer>(feat);
+      // Level 2 ID+Calo
+      if(trigElCont){
+        for(const auto& trigEl : *trigElCont){
+          if(!fillTrigElectron(trigEl)) {
+            ATH_MSG_WARNING("Cound not attach the trigElectron information into the tree.");
+          }    
+        }// loop over all trigElectrons for this feat
+      }
+       
+      const xAOD::CaloClusterContainer *caloCont = getFeature<xAOD::CaloClusterContainer>(feat);
+      if(caloCont){
+        for(const auto& cl : *caloCont){
+          if(!fillCaloCluster(cl)){
+            ATH_MSG_WARNING("Cound not attach the CaloCluster information into the tree.");
+          }
+        }// loop over calo cluster
+      }
+
+      ATH_MSG_DEBUG("record trigger information into the file.");
+      t->Fill();
+    }//loop over trigger objects
+
+  }// Loop over electrons
+  return true;
+}
+
+
+
+
+
+
 
 bool TrigEgammaNavNtuple::fillEmTauRoI( const xAOD::EmTauRoI *emTauRoI ){
   
@@ -318,6 +468,13 @@ bool TrigEgammaNavNtuple::fillEmTauRoI( const xAOD::EmTauRoI *emTauRoI ){
   for(unsigned i=0; i < emTauRoI->thrNames().size();++i)  m_trig_L1_thrNames->push_back(emTauRoI->thrNames().at(i));
   return true;
 } 
+
+bool TrigEgammaNavNtuple::fillCaloCluster( const xAOD::CaloCluster *cluster){
+
+  m_trig_EF_calo_et->push_back(cluster->et());
+  m_trig_EF_calo_eta->push_back(cluster->eta());
+  return true;
+}
 
 bool TrigEgammaNavNtuple::fillTrigEMCluster( const xAOD::TrigEMCluster *emCluster ){
   
@@ -356,6 +513,7 @@ bool TrigEgammaNavNtuple::fillTrigElectron( const xAOD::TrigElectron *trigEl ){
    m_trig_L2_el_trkClusDeta ->push_back(trigEl->trkClusDeta());  
    m_trig_L2_el_pt          ->push_back(trigEl->pt());
    m_trig_L2_el_phi         ->push_back(trigEl->phi());  
+   m_trig_L2_el_eta         ->push_back(trigEl->eta());  
    m_trig_L2_el_etOverPt    ->push_back(trigEl->etOverPt());          
    m_trig_L2_el_nTRTHits    ->push_back(trigEl->nTRTHits());        
    m_trig_L2_el_nTRTHiThresholdHits->push_back(trigEl->nTRTHiThresholdHits());
@@ -369,7 +527,7 @@ bool TrigEgammaNavNtuple::fillEvent(){
   ///Event information
   m_runNumber               = m_eventInfo->runNumber();
   m_eventNumber             = m_eventInfo->eventNumber();
-  if(m_lumiTool)    m_avgmu = m_lumiTool->lbAverageInteractionsPerCrossing();
+  m_avgmu=getAvgMu();
   return true;
 }
 
@@ -453,9 +611,8 @@ bool TrigEgammaNavNtuple::fillElectron( const xAOD::Electron *el ){
   m_calo_eta                = getCluster_eta( el );
   m_calo_phi                = getCluster_phi( el );
   ///Extra information about pileup
-  m_el_nGoodVtx             = m_nGoodVtx;
-  m_el_nPileupPrimaryVtx    = m_nPileupPrimaryVtx;
-  ATH_MSG_DEBUG("===>3  PILEUP = " << m_nPileupPrimaryVtx);
+  m_el_nGoodVtx             = getNGoodVertex();
+  m_el_nPileupPrimaryVtx    = getNPVtx();
 
 
   if(!fillCaloRings( el )){
@@ -472,9 +629,10 @@ bool TrigEgammaNavNtuple::fillElectron( const xAOD::Electron *el ){
 
 bool TrigEgammaNavNtuple::fillMonteCarlo(const xAOD::Egamma *eg){
 
-  bool Zfound,Wfound = false;
   if(m_truthContainer){
-    auto mc = matchTruth(m_truthContainer,eg,Zfound, Wfound);
+    ATH_MSG_DEBUG("TruthParticle container size is: " << m_truthContainer->size());
+    const xAOD::TruthParticle *mc=nullptr;
+    MonteCarlo::PDGID pdg = pdgid(eg, m_truthContainer,mc);
     if(mc){
       m_mc_hasMC        = true;
       m_mc_pt           = mc->pt();
@@ -488,8 +646,8 @@ bool TrigEgammaNavNtuple::fillMonteCarlo(const xAOD::Egamma *eg){
       m_mc_isMuon       = mc->isMuon();
       m_mc_isPhoton     = mc->isPhoton();
       m_mc_isElectron   = mc->isElectron();
-      m_mc_hasZMother   = Zfound;
-      m_mc_hasWMother   = Wfound;
+      if(pdg == MonteCarlo::PDGID::ZMother)  m_mc_hasZMother   = true;
+      if(pdg == MonteCarlo::PDGID::WMother)  m_mc_hasWMother   = true;
       return true;
     }//has match
   }//has truth container
@@ -572,6 +730,8 @@ void TrigEgammaNavNtuple::bookTriggerBranches(TTree *t){
   t->Branch( "trig_L2_el_trkClusDphi" ,        &m_trig_L2_el_trkClusDphi );
   t->Branch( "trig_L2_el_accept",       &m_trig_L2_el_accept );
   t->Branch( "trig_EF_calo_accept",     &m_trig_EF_calo_accept);
+  t->Branch( "trig_EF_calo_et",         &m_trig_EF_calo_et);
+  t->Branch( "trig_EF_calo_eta",        &m_trig_EF_calo_eta);
   t->Branch( "trig_EF_el_accept",       &m_trig_EF_el_accept);
 }
 
@@ -774,6 +934,8 @@ void TrigEgammaNavNtuple::linkTriggerBranches( TTree *t ){
   InitBranch(t, "trig_L2_el_accept",       &m_trig_L2_el_accept );
   InitBranch(t, "trig_EF_el_accept",       &m_trig_EF_el_accept );
   InitBranch(t, "trig_EF_calo_accept",     &m_trig_EF_calo_accept );
+  InitBranch(t, "trig_EF_calo_et",         &m_trig_EF_calo_et );
+  InitBranch(t, "trig_EF_calo_eta",        &m_trig_EF_calo_eta );
  
 }
 
@@ -919,6 +1081,7 @@ void TrigEgammaNavNtuple::clear(){
   m_trig_L2_el_nTRTHits            ->clear();       
   m_trig_L2_el_nTRTHiThresholdHits ->clear();       
   m_trig_L2_el_charge              ->clear();     
+  m_trig_EF_calo_et                ->clear();     
 }
 
 void TrigEgammaNavNtuple::alloc_space(){
@@ -938,6 +1101,8 @@ void TrigEgammaNavNtuple::alloc_space(){
   m_trig_L2_el_nTRTHits             = new std::vector<float>();         
   m_trig_L2_el_nTRTHiThresholdHits  = new std::vector<float>();         
   m_trig_L2_el_charge               = new std::vector<float>();       
+  m_trig_EF_calo_et                 = new std::vector<float>();       
+  m_trig_EF_calo_eta                = new std::vector<float>();       
   
 }
 
@@ -957,6 +1122,17 @@ void TrigEgammaNavNtuple::release_space(){
   delete m_trig_L2_el_etOverPt    ;           
   delete m_trig_L2_el_trkClusDeta ;
   delete m_trig_L2_el_trkClusDphi ;
+  delete m_trig_EF_calo_et        ;
+  delete m_trig_EF_calo_eta       ;
 }
 
-
+unsigned TrigEgammaNavNtuple::count_HLT_objects( const HLT::TriggerElement *feat )
+{
+  unsigned nobj=0;
+  if(getFeature<xAOD::ElectronContainer>(feat)    ) nobj++; // HLT
+  if(getFeature<xAOD::CaloClusterContainer>(feat) ) nobj++; // EFCalo
+  if(getFeature<xAOD::TrigElectronContainer>(feat)) nobj++; // L2
+  if(getFeature<xAOD::TrigEMCluster>(feat)        ) nobj++; // L2Calo
+  ATH_MSG_DEBUG("Number of objects counted in this feature: " << nobj);
+  return nobj;
+}

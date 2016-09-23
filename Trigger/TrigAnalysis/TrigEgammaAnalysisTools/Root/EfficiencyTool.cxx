@@ -394,6 +394,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
     float phi = eg->phi();
     float pt = eg->pt();
     float avgmu=getAvgMu();
+    float npvtx=getNPVtx();
     ATH_MSG_DEBUG("Mu " << avgmu << " " << getAvgOnlineMu() << " "  << getAvgOfflineMu()); 
     ATH_MSG_DEBUG("PID decision efficiency " << eg->auxdecor<bool>(pidword));
     if(pid){
@@ -408,6 +409,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
                 if(m_detailedHists) hist2("et_eta")->Fill(et,eta);
                 hist2("coarse_et_eta")->Fill(et,eta);
             }
+            if(m_detailedHists)  hist1("npvtx")->Fill(npvtx);
         }
         if(isPassed) {
             hist1("match_et")->Fill(et);
@@ -421,6 +423,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
                     if(m_detailedHists) hist2("match_et_eta")->Fill(et,eta);
                     hist2("match_coarse_et_eta")->Fill(et,eta);
                 }
+                if(m_detailedHists)  hist1("match_npvtx")->Fill(npvtx);
 
             }
             hist1("eff_et")->Fill(et,1);
@@ -434,6 +437,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
                     if(m_detailedHists) hist2("eff_et_eta")->Fill(et,eta,1);
                     hist2("eff_coarse_et_eta")->Fill(et,eta,1);
                 }
+                if(m_detailedHists)  hist1("eff_npvtx")->Fill(npvtx,1);
             }
         } // Passes Trigger selection
         else {
@@ -448,6 +452,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
                     if(m_detailedHists) hist2("eff_et_eta")->Fill(et,eta,0);
                     hist2("eff_coarse_et_eta")->Fill(et,eta,0);
                 }
+                if(m_detailedHists)  hist1("eff_npvtx")->Fill(npvtx,0);
             }
         } // Fails Trigger selection
     } // Passes offline pid, fill histograms
@@ -455,6 +460,7 @@ void EfficiencyTool::fillEfficiency(const std::string dir,bool isPassed,const fl
 
 StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo info,
         std::vector<std::pair< const xAOD::Egamma*,const HLT::TriggerElement*>> pairObjs){
+
     if(m_tp) return StatusCode::SUCCESS;
     
     // Removing Prescale check, in reprocessing L1AfterPrescale always false
@@ -463,7 +469,7 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
         ATH_MSG_DEBUG(info.trigName << " prescaled, skipping");
         return StatusCode::SUCCESS; 
     }*/
-
+    
     const std::string dir = basePath+"/"+info.trigName;
     const float etthr = info.trigThrHLT;
     const std::string pidword = info.trigPidDecorator;
@@ -481,37 +487,65 @@ StatusCode EfficiencyTool::toolExecute(const std::string basePath,const TrigInfo
             float et = getCluster_et(pairObj.first)/1e3;
             if(et < info.trigThrHLT-5.0) continue; // return StatusCode::SUCCESS;
         } // Offline photon
+
+
         ATH_MSG_DEBUG("Fill probe histograms");
-        setAccept(pairObj.second,info); //Sets the trigger accepts
-        if (pairObj.second!=nullptr) {
-            // Inefficiency analysis
-            if(!info.trigL1){
-                if(pairObj.first->type()==xAOD::Type::Electron){
-                    if(!pairObj.first->auxdecor<bool>(info.trigPidDecorator)) continue;
-                    inefficiency(dir+"/Efficiency/HLT",etthr,pairObj);
-                }
-            }
-        } // Features
-        if(info.trigL1)
-            this->fillEfficiency(dir+"/Efficiency/L1Calo",getAccept().getCutResult("L1Calo"),etthr,pidword,pairObj.first);
-        else {
-            this->fillEfficiency(dir+"/Efficiency/HLT",getAccept().getCutResult("HLT"),etthr,pidword,pairObj.first);
-            this->fillEfficiency(dir+"/Efficiency/L2Calo",getAccept().getCutResult("L2Calo"),etthr,pidword,pairObj.first,m_detailedHists); 
-            this->fillEfficiency(dir+"/Efficiency/L2",getAccept().getCutResult("L2"),etthr,pidword,pairObj.first,m_detailedHists);
-            this->fillEfficiency(dir+"/Efficiency/EFCalo",getAccept().getCutResult("EFCalo"),etthr,pidword,pairObj.first,m_detailedHists);
-            if(m_detailedHists){
-                this->fillEfficiency(dir+"/Efficiency/L1Calo",getAccept().getCutResult("L1Calo"),etthr,pidword,pairObj.first);
-                for(const auto pid : m_isemname) {
-                    this->fillEfficiency(dir+"/Efficiency/HLT/"+pid,getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
-                    if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(dir+"/Efficiency/HLT/"+pid+"Iso",getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
-                }
-                for(const auto pid : m_lhname) {
-                    this->fillEfficiency(dir+"/Efficiency/HLT/"+pid,getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
-                    if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(dir+"/Efficiency/HLT/"+pid+"Iso",getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
-                }
-            }
-            ATH_MSG_DEBUG("Complete efficiency");
-        }
-    }
+        
+        std::vector<std::string> algnames;
+        algnames.push_back("Efficiency");
+        if( m_doEmulation ) algnames.push_back("Emulation");
+        
+        unsigned ialg=0;
+        for (auto algname : algnames){
+          
+          // ialg = 0 is decision from TDT tool (Efficency dir) [default]
+          // ialg = 1 is decision from emulator tool (Emulation dir)
+          if(ialg==0){
+            setAccept(pairObj.second,info); //Sets the trigger accepts
+          }else{// ialg==1
+            ATH_MSG_DEBUG("Fill efficiency from Emulation tool");
+            setAccept(emulation()->executeTool(pairObj.second, info.trigName));
+          }
+
+          if (pairObj.second!=nullptr) {
+              // Inefficiency analysis
+              if(!info.trigL1){
+                  if(pairObj.first->type()==xAOD::Type::Electron){
+                      if(!pairObj.first->auxdecor<bool>(info.trigPidDecorator)) continue;
+                      inefficiency(dir+"/"+algname+"/HLT",etthr,pairObj);
+                  }
+              }
+          } // Features
+
+          if(info.trigL1)
+              this->fillEfficiency(dir+"/"+algname+"/L1Calo",getAccept().getCutResult("L1Calo"),etthr,pidword,pairObj.first);
+          else {
+              this->fillEfficiency(dir+"/"+algname+"/HLT",getAccept().getCutResult("HLT"),etthr,pidword,pairObj.first);
+              this->fillEfficiency(dir+"/"+algname+"/L2Calo",getAccept().getCutResult("L2Calo"),etthr,pidword,pairObj.first,m_detailedHists); 
+              this->fillEfficiency(dir+"/"+algname+"/L2",getAccept().getCutResult("L2"),etthr,pidword,pairObj.first,m_detailedHists);
+              this->fillEfficiency(dir+"/"+algname+"/EFCalo",getAccept().getCutResult("EFCalo"),etthr,pidword,pairObj.first,m_detailedHists);
+              if(m_detailedHists){
+                  this->fillEfficiency(dir+"/"+algname+"/L1Calo",getAccept().getCutResult("L1Calo"),etthr,pidword,pairObj.first);
+                  for(const auto pid : m_isemname) {
+                      this->fillEfficiency(dir+"/"+algname+"/HLT/"+pid,getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
+                      if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(dir+"/"+algname+"/HLT/"+pid+"Iso",
+                          getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
+                  }
+                  for(const auto pid : m_lhname) {
+                      this->fillEfficiency(dir+"/"+algname+"/HLT/"+pid,getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
+                      if( pairObj.first->auxdecor<bool>("Isolated") ) fillEfficiency(dir+"/"+algname+"/HLT/"+pid+"Iso",
+                          getAccept().getCutResult("HLT"),etthr,"is"+pid,pairObj.first);
+                  }
+              }
+              ATH_MSG_DEBUG("Complete efficiency");
+          }
+          
+          ialg++;
+        }// Loop over efficiency (and or) Emulation
+
+   
+    }// Loop over trigger electrons pairs
+
+
     return StatusCode::SUCCESS;
 }
