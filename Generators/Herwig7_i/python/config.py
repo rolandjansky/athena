@@ -355,8 +355,8 @@ set /Herwig/Decays/PScalar4f:GenerateIntermediates 0
 ## Corresponding defaults:   2.0    1.18       1.52
 ## Keeping as default for now
 
-## To turn off MPI, put this into your JO:
-#set /Herwig/EventHandlers/LHCHandler:MultipleInteractionHandler NULL
+## To turn off the underlying event (MPI), put this into your JO:
+# set /Herwig/Shower/ShowerHandler:MPIHandler NULL
 
 ## To turn off the shower, put this into your JO:
 #set /Herwig/EventHandlers/LHCHandler:CascadeHandler NULL
