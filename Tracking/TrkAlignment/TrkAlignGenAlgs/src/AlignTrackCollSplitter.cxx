@@ -67,10 +67,10 @@ StatusCode AlignTrackCollSplitter::execute()
       ++m_nRetrievalErrors;
       if(m_nRetrievalErrors>=m_maxRetrievalErrors) {
         msg(MSG::FATAL)<<"Input track collection \'"<<m_inputCol<<"\' not found in first "
-                       <<m_nRetrievalErrors<<" events. Aborting."<<endreq;
+                       <<m_nRetrievalErrors<<" events. Aborting."<<endmsg;
         msg(MSG::FATAL)<<"Maximum allowed number of events without the track collection "
                        <<"can be changed using the \'MaxRetrievalErrors\' option (-1 for infinite)."
-                       <<endreq;
+                       <<endmsg;
         return StatusCode::FAILURE;
       }
     }
@@ -106,7 +106,7 @@ StatusCode AlignTrackCollSplitter::execute()
     AlignTrack * alignTrack = dynamic_cast<AlignTrack*>(*it);
     if(!alignTrack) {
       msg(MSG::FATAL)<<"Track is not an AlignTrack. The code only works with TrackCollection"
-                     <<" filled with AlignTracks."<<endreq;
+                     <<" filled with AlignTracks."<<endmsg;
       return StatusCode::FAILURE;
     }
 

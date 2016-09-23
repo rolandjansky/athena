@@ -32,8 +32,8 @@ AlignAlg::AlignAlg(const std::string& name, ISvcLocator* pSvcLocator)
   , m_alignTool("Trk::GlobalChi2AlignTool",this)
   , m_geometryManagerTool("Muon::MuonGeometryManagerTool") // use as public tool
   , m_trkAlignDBTool("Trk::TrkAlignDBTool", this)
-  , m_nDoF(-1)
   , m_fillNtupleTool("",this)
+  , m_nDoF(-1)
   , m_ntuple(0)
   , m_logStream(0)
   , m_nevents(0)
@@ -104,7 +104,7 @@ StatusCode AlignAlg::initialize()
   // Get GeometryManagerTool
   if ( m_geometryManagerTool.retrieve().isFailure() ) {
     msg(MSG::FATAL)<<"Failed to retrieve tool " << m_geometryManagerTool
-	   << endreq;
+	   << endmsg;
     return StatusCode::FAILURE;
   }
   else
@@ -117,7 +117,7 @@ StatusCode AlignAlg::initialize()
     if (m_trackCollectionProvider.retrieve().isSuccess())
       ATH_MSG_INFO("Retrieved " << m_trackCollectionProvider);
     else{
-      msg(MSG::FATAL) << "Could not get " << m_trackCollectionProvider << endreq; 
+      msg(MSG::FATAL) << "Could not get " << m_trackCollectionProvider << endmsg; 
       return StatusCode::FAILURE;
     }
 
@@ -125,13 +125,13 @@ StatusCode AlignAlg::initialize()
     if (m_alignTrackPreProcessor.retrieve().isSuccess())
       ATH_MSG_INFO("Retrieved " << m_alignTrackPreProcessor);
     else{
-      msg(MSG::FATAL) << "Could not get " << m_alignTrackPreProcessor << endreq; 
+      msg(MSG::FATAL) << "Could not get " << m_alignTrackPreProcessor << endmsg; 
       return StatusCode::FAILURE;
     }
 
     // Get AlignTrackCreator tool
     if ( m_alignTrackCreator.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<<m_alignTrackCreator<<endreq;
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<<m_alignTrackCreator<<endmsg;
       return StatusCode::FAILURE;
     } 
     else
@@ -139,7 +139,7 @@ StatusCode AlignAlg::initialize()
 
     // Get AlignTrackDresser tool
     if ( m_alignTrackDresser.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<<m_alignTrackDresser<<endreq;
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<<m_alignTrackDresser<<endmsg;
       return StatusCode::FAILURE;
     } 
     else
@@ -148,7 +148,7 @@ StatusCode AlignAlg::initialize()
     // Get TrkAlign::FillTrack
     if (m_writeNtuple) {
       if ( m_fillNtupleTool.retrieve().isFailure() ) {
-        msg(MSG::FATAL)<<"Failed to retrieve tool "<<m_fillNtupleTool<<endreq;
+        msg(MSG::FATAL)<<"Failed to retrieve tool "<<m_fillNtupleTool<<endmsg;
         return StatusCode::FAILURE;
       }
       else
@@ -158,7 +158,7 @@ StatusCode AlignAlg::initialize()
   
   // Get AlignTool tool
   if ( m_alignTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<<m_alignTool<<endreq;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<<m_alignTool<<endmsg;
     return StatusCode::FAILURE;
   } 
   else
@@ -166,7 +166,7 @@ StatusCode AlignAlg::initialize()
 
   // Get TrkAlignDataBaseTool  
   if ( m_trkAlignDBTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL)<<"Failed to retrieve tool "<<m_trkAlignDBTool<<endreq;
+    msg(MSG::FATAL)<<"Failed to retrieve tool "<<m_trkAlignDBTool<<endmsg;
     return StatusCode::FAILURE;
   } 
   else
@@ -175,7 +175,7 @@ StatusCode AlignAlg::initialize()
   // Alignment Level
   // Number of layers in the superstructures
   if (m_alignSolveLevel>3 || m_alignSolveLevel<1) {
-    msg(MSG::FATAL)<<"AlignSolveLevel could be 1, 2 or 3"<<endreq;
+    msg(MSG::FATAL)<<"AlignSolveLevel could be 1, 2 or 3"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -184,7 +184,7 @@ StatusCode AlignAlg::initialize()
     std::ostream  * out   = &std::cout;
     std::ofstream * ofile = new std::ofstream(m_logfileName.c_str());
     if(!ofile->is_open()) {
-      msg(MSG::ERROR)<<"Couldn't open logfile. Writing to standard output."<<endreq;
+      msg(MSG::ERROR)<<"Couldn't open logfile. Writing to standard output."<<endmsg;
       delete ofile;
     }
     else
@@ -237,7 +237,7 @@ StatusCode AlignAlg::start()
   StatusCode sc = m_alignTool->firstEventInitialize();
 
   if (sc != StatusCode::SUCCESS) {
-    msg(MSG::FATAL)<<"problem with alignTool->firstEventInitialize()"<<endreq;
+    msg(MSG::FATAL)<<"problem with alignTool->firstEventInitialize()"<<endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -262,8 +262,8 @@ StatusCode AlignAlg::execute()
       return StatusCode::SUCCESS;    
     else { 
       // return FAILURE to make sure that the job ends after 1st event
-      msg(MSG::INFO)<<"Only doing the solving. Aborting event processing after first event."<<endreq;
-      msg(MSG::INFO)<<"Following ERROR message is not a problem..."<<endreq;
+      msg(MSG::INFO)<<"Only doing the solving. Aborting event processing after first event."<<endmsg;
+      msg(MSG::INFO)<<"Following ERROR message is not a problem..."<<endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -314,7 +314,7 @@ StatusCode AlignAlg::execute()
     AlignTrack * alignTrack = dynamic_cast<AlignTrack*>(*it);
     if(!alignTrack) {
       msg(MSG::FATAL)<<"Track is not an AlignTrack. PreProcessor returns TrackCollection but"
-                     <<"it has to be filled with AlignTracks. Otherwise the code doesn't work."<<endreq;
+                     <<"it has to be filled with AlignTracks. Otherwise the code doesn't work."<<endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -359,7 +359,7 @@ StatusCode AlignAlg::execute()
     AlignTrack * alignTrack = dynamic_cast<AlignTrack*>(*it);
     if(!alignTrack) {
       msg(MSG::FATAL)<<"Track is not an AlignTrack. PreProcessor returns TrackCollection but"
-                     <<"it has to be filled with AlignTracks. Otherwise the code doesn't work."<<endreq;
+                     <<"it has to be filled with AlignTracks. Otherwise the code doesn't work."<<endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -441,42 +441,42 @@ StatusCode AlignAlg::stop()
   if (m_writeNtuple) {
     ATH_MSG_INFO("calling alignTool->fillNtuple()");
     if(m_alignTool->fillNtuple().isFailure()) {
-      msg(MSG::ERROR)<<"problem with alignTool fillNtuple()!"<<endreq;
+      msg(MSG::ERROR)<<"problem with alignTool fillNtuple()!"<<endmsg;
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("calling fillNtupleTool->fillNtuple()");
     if(m_fillNtupleTool->fillNtuple().isFailure()) {
-      msg(MSG::ERROR)<<"problem with fillNtupleTool fillNtuple()!"<<endreq;
+      msg(MSG::ERROR)<<"problem with fillNtupleTool fillNtuple()!"<<endmsg;
       return StatusCode::FAILURE;
     }
 
     ATH_MSG_INFO("calling alignTrackPreProcessor->fillNtuple()");
     if(m_alignTrackPreProcessor->fillNtuple().isFailure()) {
-       msg(MSG::ERROR)<<"problem with alignTrackPreProcessor fillNtuple()!"<<endreq;
+       msg(MSG::ERROR)<<"problem with alignTrackPreProcessor fillNtuple()!"<<endmsg;
        return StatusCode::FAILURE;
     }
 
     ATH_MSG_INFO("calling trackCollectionProvider->fillNtuple()");
     if(m_trackCollectionProvider->fillNtuple().isFailure()) {
-       msg(MSG::ERROR)<<"problem with trackCollectionProvider fillNtuple()!"<<endreq;
+       msg(MSG::ERROR)<<"problem with trackCollectionProvider fillNtuple()!"<<endmsg;
        return StatusCode::FAILURE;
     }
   }
   
   if(!m_solveOnly && m_ntracksSel==0) {
-    msg(MSG::WARNING)<<"No tracks passed track selection. No solving."<<endreq;
+    msg(MSG::WARNING)<<"No tracks passed track selection. No solving."<<endmsg;
     return StatusCode::SUCCESS;
   }
 
   ATH_MSG_INFO("calling trkAlignDBTool->preSolve()");
   if (m_trkAlignDBTool->preSolve().isFailure()) {
-    msg(MSG::FATAL)<<"failure in ITrkAlignDBTool->preSolve()"<<endreq;
+    msg(MSG::FATAL)<<"failure in ITrkAlignDBTool->preSolve()"<<endmsg;
     return StatusCode::FAILURE;
   }
 
   ATH_MSG_INFO("calling alignTool->solve()");
   if (m_alignTool->solve().isFailure()) {
-    msg(MSG::FATAL)<<"failure in IAlignTool->solve()"<<endreq;
+    msg(MSG::FATAL)<<"failure in IAlignTool->solve()"<<endmsg;
     return StatusCode::FAILURE;
   }
 

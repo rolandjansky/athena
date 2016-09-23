@@ -56,21 +56,21 @@ namespace Trk {
   
     // Get GeometryManagerTool
     if ( m_geometryManagerTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool " << m_geometryManagerTool << endreq;
+      msg(MSG::FATAL)<<"Failed to retrieve tool " << m_geometryManagerTool << endmsg;
       return StatusCode::FAILURE;
     } 
     else ATH_MSG_DEBUG("Retrieved tool " << m_geometryManagerTool); 
     
     // Get AlignTool tool
     if ( m_alignTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool " << m_alignTool << endreq;
+      msg(MSG::FATAL)<<"Failed to retrieve tool " << m_alignTool << endmsg;
       return StatusCode::FAILURE;
     } 
     else ATH_MSG_DEBUG("Retrieved tool " << m_alignTool); 
   
     // Get TrkAlignDataBaseTool  
     if ( m_trkAlignDBTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool " << m_trkAlignDBTool<<endreq;
+      msg(MSG::FATAL)<<"Failed to retrieve tool " << m_trkAlignDBTool<<endmsg;
       return StatusCode::FAILURE;
     } 
     else ATH_MSG_INFO("Retrieved tool " << m_trkAlignDBTool);
@@ -79,7 +79,7 @@ namespace Trk {
     // Alignment Level
     // Number of layers in the superstructures
     if (m_alignSolveLevel>3 || m_alignSolveLevel<1) {
-      msg(MSG::FATAL)<<"AlignSolveLevel could be 1, 2 or 3"<<endreq;
+      msg(MSG::FATAL)<<"AlignSolveLevel could be 1, 2 or 3"<<endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -93,7 +93,7 @@ namespace Trk {
       std::ostream  * out   = &std::cout;
       std::ofstream * ofile = new std::ofstream(m_logfileName.c_str());
       if(!ofile->is_open()) {
-        msg(MSG::ERROR)<<"Couldn't open logfile. Writing to standard output."<<endreq;
+        msg(MSG::ERROR)<<"Couldn't open logfile. Writing to standard output."<<endmsg;
         delete ofile;
       }
       else
@@ -122,7 +122,7 @@ namespace Trk {
     ATH_MSG_DEBUG("initializing AlignTool and TrkAlignDBTool");
     StatusCode sc = m_alignTool->firstEventInitialize();
     if (sc != StatusCode::SUCCESS) {
-      msg(MSG::FATAL)<<"problem with alignTool->firstEventInitialize()"<<endreq;
+      msg(MSG::FATAL)<<"problem with alignTool->firstEventInitialize()"<<endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -147,13 +147,13 @@ namespace Trk {
 
     StatusCode sc = m_trkAlignDBTool->preSolve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL)<<"failure in preSolve in trkAlignDBTool"<<endreq;
+      msg(MSG::FATAL)<<"failure in preSolve in trkAlignDBTool"<<endmsg;
       return StatusCode::FAILURE;
     }
 
     sc = m_alignTool->solve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL)<<"failure in solve in alignTool"<<endreq;
+      msg(MSG::FATAL)<<"failure in solve in alignTool"<<endmsg;
       return StatusCode::FAILURE;
     }
 
