@@ -745,13 +745,13 @@ namespace HLT
 			const std::string& label, 
 			HLT::Navigation::MemoryManagement mm) {    
     if (!feature) {
-      msg() << MSG::FATAL << "Cannot attach null feature!" << endreq;
+      msg() << MSG::FATAL << "Cannot attach null feature!" << endmsg;
       return HLT::FATAL;
     }
     
     if (!m_config || !m_config->getNavigation() ||
 	!m_config->getNavigation()->attachFeature(te, feature, mm, key, label)) {
-      msg() << MSG::ERROR << "Failed to attach feature!" << endreq;
+      msg() << MSG::ERROR << "Failed to attach feature!" << endmsg;
       return HLT::NAV_ERROR;
     }
     
