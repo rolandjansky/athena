@@ -53,15 +53,15 @@ class TauJetBDT: virtual public TauDiscriToolBase
 
     private:
 
-        float jetScore;                     //!< Holds the current jet score which is used by a MethodCuts instance to determine if it passes loose, medium, or tight.
+        float m_jetScore;                     //!< Holds the current jet score which is used by a MethodCuts instance to determine if it passes loose, medium, or tight.
 
-	std::string jetBDTFile;                  //!< The @c string name of the bdt file for jet rejection.
-	std::string jetSigBitsFile;              //!< The @c string name of the file used to define the loose, medium, and tight cuts on the signal taus for jet rejection.
-	std::string jetSigTransFile;
+	std::string m_jetBDTFile;                  //!< The @c string name of the bdt file for jet rejection.
+	std::string m_jetSigBitsFile;              //!< The @c string name of the file used to define the loose, medium, and tight cuts on the signal taus for jet rejection.
+	std::string m_jetSigTransFile;
 
-	TauID::MethodBDT* jetBDT;                  //!< A pointer to the @c MethodBDT used to construct and evaluate BDTs used for jet discrimination.
-	TauID::MethodCuts* jetSigBits;             //!< A pointer to the @c MethodCuts used to determine whether the current jet BDT score passes loose, medium, or tight signal cut.
-	TauID::MethodTransform* jetSigTrans;
+	TauID::MethodBDT* m_jetBDT;                  //!< A pointer to the @c MethodBDT used to construct and evaluate BDTs used for jet discrimination.
+	TauID::MethodCuts* m_jetSigBits;             //!< A pointer to the @c MethodCuts used to determine whether the current jet BDT score passes loose, medium, or tight signal cut.
+	TauID::MethodTransform* m_jetSigTrans;
 
 };
 

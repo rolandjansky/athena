@@ -24,7 +24,7 @@
 #include "TFile.h"
 #include "AsgTools/AsgMessaging.h"
 
-using namespace std;
+//using namespace std;
 
 enum Format {
     ASCII,
@@ -47,56 +47,56 @@ class TreeReader : public asg::AsgMessaging {
 
     public:
 
-        TreeReader(const string& filename);
+        TreeReader(const std::string& filename);
 
         ~TreeReader(){}
 
-        void setVariables(const map<string, const float*>* _floatVariables,
-                          const map<string, const int*>* _intVariables)
+        void setVariables(const std::map<std::string, const float*>* floatVariables,
+                          const std::map<std::string, const int*>* intVariables)
         {
-            this->floatVariables = _floatVariables;
-            this->intVariables = _intVariables;
+            this->m_floatVariables = floatVariables;
+            this->m_intVariables = intVariables;
         }
 
         Node* build(bool checkTree = false);
 
-        vector<string> getRequiredVariables(char type);
+        std::vector<std::string> getRequiredVariables(char type);
 	
     private:
 
-        Node* readTree(istream& treeFile,
+        Node* readTree(std::istream& treeFile,
                        TFile* rootFile,
                        Format format,
-                       vector<string>& variableList,
-                       vector<char>& variableTypeList,
+                       std::vector<std::string>& variableList,
+                       std::vector<char>& variableTypeList,
                        unsigned int& numNodes);
-        const string m_fileName;
-        const map<string, const float*>* floatVariables;
-        const map<string, const int*>* intVariables;
+        const std::string m_fileName;
+        const std::map<std::string, const float*>* m_floatVariables;
+        const std::map<std::string, const int*>* m_intVariables;
         Format m_format = UNKNOWN;
         int m_catTreePos = -1;
-        istream* m_treeInfo;
+        std::istream* m_treeInfo;
         bool m_constructionFinished = false;
-        vector<string> m_binningVariableList;
-        vector<char> m_binningVariableTypeList;
-        vector<string> m_variableList;
-        vector<char> m_variableTypeList;
+        std::vector<std::string> m_binningVariableList;
+        std::vector<char> m_binningVariableTypeList;
+        std::vector<std::string> m_variableList;
+        std::vector<char> m_variableTypeList;
         TFile* m_file = nullptr;
-        ifstream m_treeFile;
-        istringstream m_treeString;
+        std::ifstream m_treeFile;
+        std::istringstream m_treeString;
 };
 
 /** This templated class is used to convert a string to various data types.
 This is used when tokenizing the BDT input file to build the boosted decision trees.*/
 template <class T>
-inline bool from_string(T& t, const string& s) {
-    istringstream ss(s);
+inline bool from_string(T& t, const std::string& s) {
+    std::istringstream ss(s);
     return !(ss >> t).fail();
 }
 
 template <class T>
-inline string to_string (const T& t) {
-    stringstream ss;
+inline std::string to_string (const T& t) {
+    std::stringstream ss;
     ss << t;
     return ss.str();
 }
