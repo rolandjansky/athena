@@ -70,7 +70,7 @@ namespace Trk {
     
     setGlobalFrameToAlignFrameTransform(transform);
     
-    *m_log<<MSG::INFO<<"done with c'tor"<<endreq;
+    *m_log<<MSG::INFO<<"done with c'tor"<<endmsg;
   }
 
   
@@ -159,7 +159,7 @@ namespace Trk {
                                   const Identifier id)
   {
     *m_log << MSG::DEBUG << "adding detElement "<<det->identify()
-           <<", detType "<<detType<<endreq;
+           <<", detType "<<detType<<endmsg;
     if (!m_detelements[detType]) 
       m_detelements[detType]=new DetElementCollection; 
     
@@ -171,14 +171,14 @@ namespace Trk {
       m_detIdentifiers[detType]->push_back(id);
     }
 
-    *m_log << MSG::DEBUG<<"adding transform"<<endreq;
+    *m_log << MSG::DEBUG<<"adding transform"<<endmsg;
     if (!m_alignModuleToDetElementTransforms[detType])
       m_alignModuleToDetElementTransforms[detType]=new std::vector<Amg::Transform3D>;
     
     m_alignModuleToDetElementTransforms[detType]->push_back(transform); 
   
 
-    *m_log<<MSG::DEBUG<<"done adding transform"<<endreq;
+    *m_log<<MSG::DEBUG<<"done adding transform"<<endmsg;
     return;
   }
 
@@ -240,7 +240,7 @@ namespace Trk {
   MsgStream& operator << (MsgStream& sl, const AlignModule& alignModule)
   {
     sl << "AlignModule \'"<<alignModule.name()<<"\' ID: "<<alignModule.identify()
-       <<"  IDHash: "<<alignModule.identifyHash()<< endreq;
+       <<"  IDHash: "<<alignModule.identifyHash()<< endmsg;
     return sl;
   }
   
@@ -270,7 +270,7 @@ namespace Trk {
         sumRy += trans[4];
         sumRz += trans[5];
         *m_log << MSG::DEBUG  << n << " " << trans[0] << "  "<< trans[1] << "  " << trans[2]
-               << "  "<< trans[3] << "  " << trans[4] << "  "<< trans[5] << endreq; 
+               << "  "<< trans[3] << "  " << trans[4] << "  "<< trans[5] << endmsg; 
         ++n;
          
 //         Amg::Translation3D surfaceCentre( trans[0],trans[1],trans[2] );
@@ -304,7 +304,7 @@ namespace Trk {
     double oneOnN = 1./(double)n;
   
     *m_log << MSG::DEBUG << " SUM  " << oneOnN << "  "  << sumx*oneOnN << "  "<< sumy*oneOnN 
-                         << "  " << sumz*oneOnN << "  "<< sumRx*oneOnN << "  " << sumRy*oneOnN << "  "<< sumRz*oneOnN << endreq; 
+                         << "  " << sumz*oneOnN << "  "<< sumRx*oneOnN << "  " << sumRy*oneOnN << "  "<< sumRz*oneOnN << endmsg; 
   
     
     Amg::Translation3D surfaceCentre( sumx*oneOnN, sumy*oneOnN, sumz*oneOnN );
@@ -340,7 +340,7 @@ namespace Trk {
         double trans[6];
         decomposeTransform( (*m_alignModuleToDetElementTransforms[i])[j] , trans);
         *m_log << MSG::DEBUG << j << " " << trans[0] << "  "<< trans[1] << "  " << trans[2] 
-                                  << "  "<< trans[3] << "  " << trans[4] << "  "<< trans[5] << endreq; 
+                                  << "  "<< trans[3] << "  " << trans[4] << "  "<< trans[5] << endmsg; 
       } 
     } 
   }
