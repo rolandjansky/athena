@@ -9,7 +9,6 @@
 #ifndef GeantFollower_H
 #define GeantFollower_H
 
-#include "G4AtlasTools/UserActionBase.h"
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkG4UserActions/IGeantFollowerHelper.h"
 #include <string>
@@ -25,29 +24,6 @@ namespace Trk {
 }
 
 class StoreGateSvc;
-
-class GeantFollower final: public UserActionBase {
-
-  public:
-    /** Standard UsesAction */
-    GeantFollower(const std::string& type, const std::string& name, const IInterface* parent);
-
-    /** All G4 interface methods */
-    virtual void BeginOfEvent(const G4Event*) override;
-    virtual void EndOfEvent(const G4Event*) override;
-    virtual void Step(const G4Step*) override;
-
-    virtual StatusCode queryInterface(const InterfaceID&, void**) override;
-    virtual StatusCode initialize() override;
-
-  private:
-    std::string                                  m_name;
-    ToolHandle<Trk::IGeantFollowerHelper>     m_helper;
-    mutable const Trk::IGeantFollowerHelper*  m_helperPointer;
-    
-
-};
-
 
 #include "G4AtlasInterfaces/IBeginEventAction.h"
 #include "G4AtlasInterfaces/IEndEventAction.h"

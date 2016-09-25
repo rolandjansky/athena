@@ -5,7 +5,7 @@
 #		of the ATLAS detector and the GeantinoMapping.
 #		It can be run using athena.py
 #
-__version__="$Revision: 562193 $"
+__version__="$Revision: 754932 $"
 #==============================================================
 
 
@@ -52,7 +52,7 @@ print 'Random seeds and offset as calcluated by jobOptions ', myRandomSeed1, ' '
 
 # Set everything to ATLAS
 DetFlags.ID_setOn()
-DetFlags.Calo_setOn()
+DetFlags.Calo_setOff()
 DetFlags.Muon_setOff()
 # the global flags
 globalflags.ConditionsTag = 'OFLCOND-SIM-00-00-00'
@@ -76,16 +76,14 @@ myMaxEta =  6.0
 
 myPDG    = 999   # 999 = Geantinos, 13 = Muons
 
-## Run ParticleGenerator
-import AthenaCommon.AtlasUnixGeneratorJob
-spgorders = [ 'pdgcode:' + ' constant ' + str(myPDG),
-              'vertX:'   + ' constant 0.0',
-              'vertY:'   + ' constant 0.0',
-              'vertZ:'   + ' constant 0.0',
-              't:'       + ' constant 0.0',
-              'eta:'     + ' flat ' + str(myMinEta) + ' ' + str(myMaxEta),
-              'phi:'     + ' flat  0 6.2831853',
-              myPt + ':' + ' constant ' + str(myMomentum) ]
+
+
+include("GeneratorUtils/StdEvgenSetup.py")
+import ParticleGun as PG
+pg = PG.ParticleGun(randomSvcName=SimFlags.RandomSvc.get_Value(), randomStream="SINGLE")
+pg.sampler.pid = myPDG
+pg.sampler.mom = PG.EEtaMPhiSampler(energy=10000, eta=[myMinEta,myMaxEta])
+topSeq += pg
 
 SimFlags.RandomSeedOffset = myRandomOffset
 
@@ -99,27 +97,14 @@ myAtRndmGenSvc.OutputLevel 	= VERBOSE
 myAtRndmGenSvc.EventReseeding   = False
 ServiceMgr += myAtRndmGenSvc
 
-from ParticleGenerator.ParticleGeneratorConf import ParticleGenerator
-topSeq += ParticleGenerator()
-topSeq.ParticleGenerator.AtRndmGenSvc = myAtRndmGenSvc 
-topSeq.ParticleGenerator.orders = sorted(spgorders)
+## add the material step recording action
+SimFlags.UseV2UserActions = True
+SimFlags.OptionalUserActionList.addAction('G4UA::MaterialStepRecorderTool',['BeginOfRun','BeginOfEvent','EndOfEvent','Step'])
 
+#SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','verboseLevel',1)
+#SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','recordELoss',1)
+#SimFlags.UserActionConfig.addConfig('G4UA::MaterialStepRecorderTool','recordMSc',1)
 
-
-## Add an action
-def geantino_action():
-    from G4AtlasApps import AtlasG4Eng,PyG4Atlas
-    GeantinoAction = PyG4Atlas.UserAction('TrkG4UserActions','MaterialStepRecorder', ['BeginOfRun','EndOfRun','BeginOfEvent','EndOfEvent','Step'])
-    GeantinoAction.set_Properties({ "verboseLevel" : "1",
-                                    "recordELoss"  : "1",
-                                    "recordMSc"    : "1" })
-    AtlasG4Eng.G4Eng.menu_UserActions.add_UserAction(GeantinoAction)
-
-SimFlags.InitFunctions.add_function('preInitG4', geantino_action)
-
-# suppress the enormous amount of MC output
-from TruthExamples.TruthExamplesConf import DumpMC
-DumpMC.VerboseOutput = False
 
 
 ############### The Material hit collection ##################
@@ -132,9 +117,13 @@ ServiceMgr.AthenaPoolCnvSvc.OutputLevel = DEBUG
 ServiceMgr.AthenaPoolCnvSvc.CommitInterval = 10
 MaterialStream              = AthenaPoolOutputStream ( 'MaterialStream' )
 MaterialStream.OutputFile   =   "MaterialStepFile.root" 
-MaterialStream.ItemList    += [ 'MaterialStepVector#*']
+MaterialStream.ItemList    += [ 'Trk::MaterialStepCollection#*']
 
 ##############################################################
+
+# Add the beam effects algorithm
+from AthenaCommon.CfgGetter import getAlgorithm
+topSeq += getAlgorithm("BeamEffectsAlg", tryDefaultConfigurable=True)
 
 ## Populate alg sequence
 from G4AtlasApps.PyG4Atlas import PyG4AtlasAlg
