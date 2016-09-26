@@ -30,7 +30,7 @@
 #include "LArRecConditions/ILArBadChannelMasker.h"
 #include "CaloInterface/ICalorimeterNoiseTool.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/LArEM_ID.h"

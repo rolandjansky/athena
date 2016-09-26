@@ -51,10 +51,6 @@ class CaloTransverseBalanceVecMon : public ManagedMonitorToolBase {
    virtual StatusCode procHistograms();
 
  private:
-
-   /// a handle on Store Gate 
-   StoreGateSvc* m_storeGate;
-   IToolSvc* m_toolSvc;
    ToolHandle<Trig::TrigDecisionTool> m_trigDec;  
    // time granularity
   std::string m_timeGran;
