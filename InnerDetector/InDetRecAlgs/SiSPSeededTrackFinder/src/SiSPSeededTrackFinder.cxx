@@ -91,10 +91,10 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   // Get tool for space points seed maker
   //
   if ( m_seedsmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedsmaker << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedsmaker << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_seedsmaker << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_seedsmaker << endmsg;
   }
 
   if(m_useZvertexTool) {
@@ -102,20 +102,20 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
     // Get tool for z-coordinates ptimary vertices search
     //
     if ( m_zvertexmaker.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_zvertexmaker << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_zvertexmaker << endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_zvertexmaker << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_zvertexmaker << endmsg;
     }
   }
 
   // Get track-finding tool
   //
   if ( m_trackmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackmaker << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_trackmaker << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trackmaker << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_trackmaker << endmsg;
   }
 
   if(m_useNewStrategy && m_beamconditions=="") {m_useNewStrategy = false; m_useZBoundaryFinding = false;}
@@ -131,10 +131,10 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
       // Get RungeKutta propagator tool
       //
       if ( m_proptool.retrieve().isFailure() ) {
-	msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endreq;
+	msg(MSG::FATAL) << "Failed to retrieve tool " << m_proptool << endmsg;
 	return StatusCode::FAILURE;
       } else {
-	msg(MSG::INFO) << "Retrieved tool " << m_proptool << endreq;
+	msg(MSG::INFO) << "Retrieved tool " << m_proptool << endmsg;
       }
       
       // Setup for magnetic field
@@ -156,7 +156,7 @@ StatusCode InDet::SiSPSeededTrackFinder::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   m_nseedsTotal    = 0;
   m_ntracksTotal   = 0;
@@ -258,7 +258,7 @@ StatusCode InDet::SiSPSeededTrackFinder::oldStrategy()
   // Print common event information
   //
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -369,7 +369,7 @@ StatusCode InDet::SiSPSeededTrackFinder::newStrategy()
   // Print common event information
   //
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -384,7 +384,7 @@ StatusCode InDet::SiSPSeededTrackFinder::finalize()
   if(m_zhistogram) delete [] m_zhistogram;
   if(m_phistogram) delete [] m_phistogram;
 
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endreq;
+  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -415,7 +415,8 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::SiSPSeededTrackFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -524,7 +525,7 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() {
     for(; spc!=spce; ++spc) nsp+=(*spc)->size();
 
     if(int(nsp) > m_maxPIXsp) {
-      msg(MSG::WARNING)<<"Found more than "<<m_maxPIXsp<<" pixels space points in background event. Skip track finding"<<endreq;
+      msg(MSG::WARNING)<<"Found more than "<<m_maxPIXsp<<" pixels space points in background event. Skip track finding"<<endmsg;
       return false;
     }
   }
@@ -541,7 +542,7 @@ bool InDet::SiSPSeededTrackFinder::isGoodEvent() {
     for(; spc!=spce; ++spc) nsp+=(*spc)->size();
 
     if(int(nsp) > m_maxSCTsp) {
-      msg(MSG::WARNING)<<"Found more than "<<m_maxSCTsp<<" sct space points in background event. Skip track finding"<<endreq;
+      msg(MSG::WARNING)<<"Found more than "<<m_maxSCTsp<<" sct space points in background event. Skip track finding"<<endmsg;
       return false;
     }
   }
@@ -571,7 +572,8 @@ double InDet::SiSPSeededTrackFinder::trackQuality(const Trk::Track* Tr)
    double q;
    if(fq->numberDoF() == 2) q = (1.2*(W-x2*.5)); 
    else                     q =      (W-x2    );
-   if(q < 0.) q = 0.; quality+=q;
+   if(q < 0.) q = 0.;
+   quality+=q;
  }
  if( Tr->info().trackProperties(Trk::TrackInfo::BremFit) ) quality*=.7;
  return quality;
@@ -608,7 +610,8 @@ void InDet::SiSPSeededTrackFinder::filterSharedTracks
     }
 
     if(nf >= m_nfreeCut || nf==nc) {
-      for(int n=0; n!=nf; ++n) clusters.insert(prd[n]); ++q;
+      for(int n=0; n!=nf; ++n) clusters.insert(prd[n]);
+      ++q;
     } 
     else  {
       delete (*q).second; QT.erase(q++);
