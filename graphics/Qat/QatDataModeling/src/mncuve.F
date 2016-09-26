@@ -33,7 +33,7 @@ CC
       IF (ISW(2) .LT. 3)  THEN
          CALL MNHESS(FCN,FUTIL)
          IF (ISW(2) .LT. 1)  THEN
-            CALL MNWARN('W',CFROM,'NO ERROR MATRIX.  WILL IMPROVISE.')
+            CALL MNWARN('W',CFROM,'NO Error Matrix.  WILL IMPROVISE.')
             DO 555 I=1,NPAR
               NDEX = I*(I-1)/2
               DO 554 J=1,I-1
