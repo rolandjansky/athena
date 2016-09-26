@@ -4,8 +4,6 @@
 
 #include "TrkVertexTools/TruthVertexSelectionTool.h"
 #include "TrkEventPrimitives/ParamDefs.h"
-#include "VxVertex/VxCandidate.h"
-#include "VxVertex/VxContainer.h"
 #include "CLHEP/Random/RandFlat.h"
 #include "GeneratorObjects/McEventCollection.h"
 #include "HepMC/SimpleVector.h"
@@ -28,7 +26,7 @@ namespace Trk{
 //initialize
   StatusCode TruthVertexSelectionTool::initialize()
   {
-     msg(MSG::INFO) << "Initialization successful" << endreq;
+     msg(MSG::INFO) << "Initialization successful" << endmsg;
      
     return StatusCode::SUCCESS;
   }///EndOfInitialize
@@ -38,7 +36,7 @@ namespace Trk{
      return StatusCode::SUCCESS;
   }
 
-  unsigned int TruthVertexSelectionTool::findVertexInContainer(const VxContainer * vxContainer ) const
+  unsigned int TruthVertexSelectionTool::findVertexInContainer(const xAOD::VertexContainer * vertexContainer ) const
   {
    const McEventCollection* mcCollptr;
    if ( evtStore()->retrieve( mcCollptr, m_mcContainerName ).isFailure() ) 
@@ -52,7 +50,7 @@ namespace Trk{
    McEventCollection::const_iterator itr = mcCollptr->begin();   
   
 //and the first vertex in its respective collection
-   HepMC::GenEvent *evt = (*itr);
+   const HepMC::GenEvent *evt = (*itr);
 
 //protection   
    if(!evt) return 0;
@@ -68,18 +66,18 @@ namespace Trk{
 //selecting the container vertex closest in Z to the truth one
    unsigned int res_pos = 0;
   
-   if(vxContainer)
+   if(vertexContainer)
    {
-    unsigned int cont_size = vxContainer->size(); 
+    unsigned int cont_size = vertexContainer->size(); 
     if(cont_size>1)
     {
      float z_sim = vxGenPos.z();
         
-     float significance = fabs(z_sim - (*vxContainer)[0]->recVertex().position().z());//start with the pv value
+     float significance = fabs(z_sim - (*vertexContainer)[0]->position().z());//start with the pv value
      for(unsigned int i = 1; i < cont_size; ++i)
      {
-      Trk::RecVertex reco_vrt = (*vxContainer)[i]->recVertex();
-      float loc_significance =  fabs(z_sim - reco_vrt.position().z())/Amg::error(reco_vrt.covariancePosition(), Trk::z);
+      const xAOD::Vertex * vrt = (*vertexContainer)[i];
+      float loc_significance =  fabs(z_sim - vrt->position().z())/Amg::error(vrt->covariancePosition(), Trk::z);
       if(loc_significance < significance)
       {
        significance = loc_significance;

@@ -9,7 +9,6 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkVertexFitterInterfaces/IVertexSelectionTool.h"
 
-
  /**
   * @class Trk::TruthVertexSelectionTool 
   *
@@ -20,9 +19,16 @@
   * vertex as primary and thus corrects the reconstructuon.
   * So far, the closet vertex to the truth position  is
   * selected as the best one.
+  *
+  * ---------------------------------------------------
+  * Changes:
+  *
+  * David Shope <david.richard.shope@cern.ch> (2016-06-01)
+  *
+  *   EDM Migration to xAOD - replace VxContainer with xAOD::VertexContainer
+  *
   */
  
- class VxContainer;
  namespace Trk
  {
     
@@ -45,7 +51,7 @@
      
     virtual ~TruthVertexSelectionTool();
     
-    virtual unsigned int findVertexInContainer(const VxContainer * ) const;
+    virtual unsigned int findVertexInContainer(const xAOD::VertexContainer * ) const;
     
              
   private:

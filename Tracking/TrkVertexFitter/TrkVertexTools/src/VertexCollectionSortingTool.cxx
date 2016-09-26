@@ -5,35 +5,23 @@
 #include "TrkVertexTools/VertexCollectionSortingTool.h"
 #include "TrkVertexFitterInterfaces/IVertexWeightCalculator.h" 
 #include "VxVertex/VxTrackAtVertex.h"
-#include "VxVertex/VxCandidate.h"
-#include "VxVertex/VxContainer.h"
 #include <vector> 
 
 
  
 namespace {
  
- struct VxCandidates_pair
- {
-   double first;
-   Trk::VxCandidate* second;
-   VxCandidates_pair(double p1, Trk::VxCandidate* p2)
-     : first (p1), second (p2) {}
-   bool operator< (const VxCandidates_pair& other) const
-   { return first > other.first; }
- };
-
  struct Vertex_pair
  {
    double first;
-   xAOD::Vertex* second;
-   Vertex_pair(double p1, xAOD::Vertex* p2)
+   const xAOD::Vertex* second;
+   Vertex_pair(double p1, const xAOD::Vertex* p2)
      : first (p1), second (p2) {}
    bool operator< (const Vertex_pair& other) const
    { return first > other.first; }
  };
 
- } // anonymous namespace
+} // anonymous namespace
 
 
 namespace Trk{
@@ -55,11 +43,11 @@ namespace Trk{
   {
     if ( m_iVertexWeightCalculator.retrieve().isFailure() )
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexWeightCalculator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexWeightCalculator << endmsg;
       return StatusCode::FAILURE;
     }
  
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }///EndOfInitialize
 
@@ -67,52 +55,6 @@ namespace Trk{
   {
     return StatusCode::SUCCESS;
   }
-
-  VxContainer* VertexCollectionSortingTool::sortVxContainer( const VxContainer& MyVxCont)
-  { 
-    std::vector<VxCandidates_pair> MyVxCandidate_pairs;
-    
-    VxContainer::const_iterator beginIter = MyVxCont.begin();
-    VxContainer::const_iterator endIter = MyVxCont.end();
-
-    for(VxContainer::const_iterator i = beginIter; i!=endIter; i++) 
-      {
-        // do not weight dummy!!! (do not delete it either! it is deleted when the original MyVxContainer is deleted in InDetPriVxFinder.cxx)
-        if ((*i)->vertexType() != Trk::NoVtx)
-          {
-            double Weight =m_iVertexWeightCalculator->estimateSignalCompatibility(**i);
-            MyVxCandidate_pairs.push_back(VxCandidates_pair(Weight,(*i)));
-            //std::cout << "Weight before sorting: " << Weight << std::endl;
-          } 
-      }
-
-    if (MyVxCandidate_pairs.size()>0)
-      {
-        std::sort (MyVxCandidate_pairs.begin(), MyVxCandidate_pairs.end());
-      }
-
-    VxContainer *NewContainer = new VxContainer(SG::OWN_ELEMENTS);
-    
-    unsigned int vtxCount(1);
-    for (std::vector<VxCandidates_pair>::const_iterator iter = MyVxCandidate_pairs.begin() ; iter != MyVxCandidate_pairs.end(); iter++ )
-      {
-        //std::cout << "Weight after sorting: " << (*iter).first << std::endl;
-        Trk::VxCandidate* vxCand = (*iter).second->clone();
-        if (vtxCount == 1) { vxCand->setVertexType(Trk::PriVtx); vtxCount++; }
-        else { vxCand->setVertexType(Trk::PileUp); }
-        NewContainer->push_back(vxCand);
-      }
-
-    // add dummy at position of first vertex
-    Trk::VxCandidate * primaryVtx = NewContainer->front();
-    Trk::VxCandidate * dummyVxCandidate = new Trk::VxCandidate ( primaryVtx->recVertex(),
-                                                                 std::vector<Trk::VxTrackAtVertex*>());
-    dummyVxCandidate->setVertexType(Trk::NoVtx);
-    NewContainer->push_back ( dummyVxCandidate );
-
-    return NewContainer;
-  }   
-
 
   std::pair<xAOD::VertexContainer*,xAOD::VertexAuxContainer*> VertexCollectionSortingTool::sortVertexContainer( const xAOD::VertexContainer& MyVxCont)
   { 
