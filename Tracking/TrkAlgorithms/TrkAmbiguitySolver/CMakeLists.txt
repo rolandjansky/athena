@@ -8,7 +8,7 @@ atlas_subdir( TrkAmbiguitySolver )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
                           Control/AthenaBaseComps
-                          Control/DataModel
+                          Control/AthContainers
                           GaudiKernel
                           Tracking/TrkEvent/TrkTrack
                           PRIVATE
@@ -19,7 +19,7 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_component( TrkAmbiguitySolver
                      src/*.cxx
                      src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps DataModel GaudiKernel TrkTrack StoreGateLib SGtests TrkToolInterfaces )
+                     LINK_LIBRARIES AthenaBaseComps AthContainers GaudiKernel TrkTrack StoreGateLib SGtests TrkToolInterfaces )
 
 # Install files from the package:
 atlas_install_headers( TrkAmbiguitySolver )
