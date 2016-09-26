@@ -147,16 +147,13 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase( Trk::Track const * tra
   
   double windowCenter = 0;
   for (int itr = 0; itr != m_nIterations; ++itr) {
-    std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateItr = track->trackStateOnSurfaces()->begin();
-    std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateEnd = track->trackStateOnSurfaces()->end();
-
     timeresidualsum = 0;
     ntrthits = 0;
     
-    for ( ; trackStateItr!= trackStateEnd; ++trackStateItr ) {
-      Trk::MeasurementBase const * mesb = (*trackStateItr)->measurementOnTrack();
+    for (Trk::TrackStateOnSurface const* state : *track->trackStateOnSurfaces()) {
+      Trk::MeasurementBase const * mesb = state->measurementOnTrack();
       if(  !mesb
-	   || !(*trackStateItr)->type(Trk::TrackStateOnSurface::Measurement) 
+	   || !state->type(Trk::TrackStateOnSurface::Measurement) 
 	   ) 
 	continue;
       
@@ -184,7 +181,7 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhase( Trk::Track const * tra
       if (m_gett0)
 	rtr = m_trtconddbsvc->getRtRelation(ident) ;
       
-      Trk::TrackParameters const * tparp=((*trackStateItr)->trackParameters());
+      Trk::TrackParameters const * tparp=state->trackParameters();
       if( !tparp )
 	continue;
 
@@ -295,14 +292,12 @@ double InDet::InDetSlidingWindowTrackTimeTool::findPhaseFromTE(Trk::Track const 
   
   double timeresidualsum = 0;
   size_t ntrthits = 0;  
-  
-  std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateItr = track->trackStateOnSurfaces()->begin();
-  std::vector<Trk::TrackStateOnSurface const *>::const_iterator trackStateEnd = track->trackStateOnSurfaces()->end();
-  for( ; trackStateItr!= trackStateEnd; ++trackStateItr)
+
+  for (Trk::TrackStateOnSurface const* state : *track->trackStateOnSurfaces())
     {
-      Trk::MeasurementBase const * mesb=(*trackStateItr)->measurementOnTrack();
+      Trk::MeasurementBase const * mesb=state->measurementOnTrack();
       if(  !mesb 
-	|| !(*trackStateItr)->type(Trk::TrackStateOnSurface::Measurement)
+	|| !state->type(Trk::TrackStateOnSurface::Measurement)
 	) 
 	continue;
       
