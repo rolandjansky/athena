@@ -79,7 +79,7 @@ std::ostream& Trk::operator<<( std::ostream& out, const MuonTrackSummary& trackS
 MsgStream& Trk::operator<<( MsgStream& out, const MuonTrackSummary& trackSum )
 {
   out<<"MuonTrackSummary: Hits: eta " << trackSum.netaHits() << " phi " << trackSum.nphiHits() << " holes " << trackSum.nholes() << " outliers " << trackSum.noutliers()
-     << " close hits " << trackSum.ncloseHits() << endreq;
+     << " close hits " << trackSum.ncloseHits() << endmsg;
   if( out.level() <= MSG::VERBOSE ){
     std::vector<MuonTrackSummary::ChamberHitSummary>::const_iterator it = trackSum.chamberHitSummary().begin();
     std::vector<MuonTrackSummary::ChamberHitSummary>::const_iterator it_end = trackSum.chamberHitSummary().end();
