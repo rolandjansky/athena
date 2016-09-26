@@ -43,18 +43,18 @@ StatusCode InDet::TRT_TrackExtensionAlg::initialize()
   //
   if( m_trtExtension.retrieve().isFailure()) {
 
-    msg(MSG::FATAL)<< "Failed to retrieve tool " << m_trtExtension << endreq;
+    msg(MSG::FATAL)<< "Failed to retrieve tool " << m_trtExtension << endmsg;
     return StatusCode::FAILURE;
   } 
   else {
-    msg(MSG::INFO) << "Retrieved tool " << m_trtExtension << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_trtExtension << endmsg;
   }
 
   // Get output print level
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   m_nTracksTotal         = 0;
   m_nTracksExtendedTotal = 0;
@@ -76,7 +76,7 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute()
   StatusCode sc	= evtStore()->retrieve(inputTracks, m_tracksLocation);
   if (sc.isFailure() || !inputTracks) {
 
-    if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;}
+    if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;}
     return StatusCode::SUCCESS;
   }
 
@@ -89,7 +89,8 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute()
  
   for (t=inputTracks->begin(); t!=te; ++t) {
 
-    if(!(*t)) continue; ++m_nTracks;
+    if(!(*t)) continue;
+    ++m_nTracks;
          
     std::vector<const Trk::MeasurementBase*>& tn = m_trtExtension->extendTrack(*(*t));
     if(!tn.size()) continue;
@@ -103,13 +104,13 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute()
   //
   sc = evtStore()->record(extendedTracks,m_extendedTracksLocation,false);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR)<<"Could not save converted extended to TRT tracks"<<endreq;
+    msg(MSG::ERROR)<<"Could not save converted extended to TRT tracks"<<endmsg;
     return sc;
   }
 
   // Print common event information
   //
-  if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;}
+  if(m_outputlevel<=0) {m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;}
   return StatusCode::SUCCESS;
 }
 
@@ -119,7 +120,7 @@ StatusCode InDet::TRT_TrackExtensionAlg::execute()
 
 StatusCode InDet::TRT_TrackExtensionAlg::finalize() 
 {
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endreq;
+  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -150,7 +151,8 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::TRT_TrackExtensionAlg::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
