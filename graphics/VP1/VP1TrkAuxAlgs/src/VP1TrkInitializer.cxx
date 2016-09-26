@@ -30,12 +30,12 @@ VP1TrkInitializer::~VP1TrkInitializer()
 //____________________________________________________________________
 StatusCode VP1TrkInitializer::initialize()
 {
-  msg(MSG::INFO) << " in initialize() " << endreq;
+  msg(MSG::INFO) << " in initialize() " << endmsg;
 
   //ToolSvc
   StatusCode status = service("ToolSvc",m_toolSvc);
   if (status.isFailure()||!m_toolSvc) {
-    msg(MSG::ERROR) << " Unable to get ToolSvc!" << endreq;
+    msg(MSG::ERROR) << " Unable to get ToolSvc!" << endmsg;
     return status;
   }
 
@@ -62,14 +62,14 @@ StatusCode VP1TrkInitializer::initialize()
 //____________________________________________________________________
 StatusCode VP1TrkInitializer::execute()
 {
-  msg(MSG::DEBUG) <<" in execute() " << endreq;
+  msg(MSG::DEBUG) <<" in execute() " << endmsg;
   return StatusCode::SUCCESS;
 }
 
 //____________________________________________________________________
 StatusCode VP1TrkInitializer::finalize()
 {
-  msg(MSG::INFO) <<" in finalize() " << endreq;
+  msg(MSG::INFO) <<" in finalize() " << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -85,10 +85,10 @@ void VP1TrkInitializer::initTools(QStringList& toolTypes, QString env)
   foreach (QString key,VP1QtUtils::environmentVariableValue(env).split(';',QString::SkipEmptyParts)) {
     if (existingTools.contains(key))
       continue;
-    msg(MSG::DEBUG) << "Attempting creation of fittertool with tooltype/key " << key.toStdString() << endreq;
+    msg(MSG::DEBUG) << "Attempting creation of fittertool with tooltype/key " << key.toStdString() << endmsg;
     T* tool = toolAccessHelper.getToolPointer<T>(key,false/*silent*/,true/*create if not exists*/);
     if (!tool) {
-      msg(MSG::WARNING) << "Could not create tool with type/key " << key.toStdString() << endreq;
+      msg(MSG::WARNING) << "Could not create tool with type/key " << key.toStdString() << endmsg;
     }
   }
 }
