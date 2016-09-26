@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigPassBitsContainerCnv.h 755818 2016-06-17 14:51:59Z krasznaa $
+// $Id: xAODTrigPassBitsContainerCnv.h 775158 2016-09-26 13:50:45Z krasznaa $
 #ifndef XAODTRIGGERATHENAPOOL_XAODTRIGPASSBITSCONTAINERCNV_H
 #define XAODTRIGGERATHENAPOOL_XAODTRIGPASSBITSCONTAINERCNV_H
 
@@ -39,8 +39,8 @@ typedef T_AthenaPoolCustomCnv< xAOD::TrigPassBitsContainer,
 ///
 /// @author Attila Krasznahorkay <Attila.Krasznahorkay@cern.ch>
 ///
-/// $Revision: 755818 $
-/// $Date: 2016-06-17 16:51:59 +0200 (Fri, 17 Jun 2016) $
+/// $Revision: 775158 $
+/// $Date: 2016-09-26 15:50:45 +0200 (Mon, 26 Sep 2016) $
 ///
 class xAODTrigPassBitsContainerCnv : public xAODTrigPassBitsContainerCnvBase {
 

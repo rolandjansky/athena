@@ -2,14 +2,17 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigNavigationAuxInfoCnv.cxx 675923 2015-06-17 11:21:49Z tbold $
+// $Id: xAODTrigNavigationAuxInfoCnv.cxx 710840 2015-11-26 08:45:42Z will $
 
 // System include(s):
 #include <stdexcept>
 
 // Core include(s):
 #include "AthenaKernel/IThinningSvc.h"
-#include "TrigNavTools/ITrigNavigationThinningSvc.h"
+
+#ifndef XAOD_ANALYSIS
+#include "TrigNavTools/ITrigNavigationThinningSvc.h" //thinning only possible in full athena
+#endif
 
 // EDM include(s):
 #include "AthContainers/tools/copyAuxStoreThinned.h"
@@ -26,7 +29,7 @@ xAODTrigNavigationAuxInfoCnv( ISvcLocator* svcLoc )
 
 }
 
-
+#ifndef XAOD_ANALYSIS
 ITrigNavigationThinningSvc* iface_cast(IThinningSvc* base)  {
   ITrigNavigationThinningSvc* isvc(0);
   if ( base->queryInterface(ITrigNavigationThinningSvc::interfaceID(), (void**)&isvc).isFailure() ) {
@@ -34,7 +37,7 @@ ITrigNavigationThinningSvc* iface_cast(IThinningSvc* base)  {
   }
   return isvc;
 }
-
+#endif
 
 xAOD::TrigNavigationAuxInfo*
 xAODTrigNavigationAuxInfoCnv::
@@ -42,6 +45,7 @@ createPersistent( xAOD::TrigNavigationAuxInfo* trans ) {
 
   // see if the ThinningSvc implements an interface capable of slimming the navation 
   xAOD::TrigNavigationAuxInfo* result = new xAOD::TrigNavigationAuxInfo();
+#ifndef XAOD_ANALYSIS
   ITrigNavigationThinningSvc* thinningSvc = dynamic_cast<ITrigNavigationThinningSvc*>(IThinningSvc::instance());//iface_cast(IThinningSvc::instance());
   if ( thinningSvc ) {
     ATH_MSG_DEBUG("ThinningSvc is o type TrigNavigationThinningSvc, will request slimmed navigation from it");
@@ -57,6 +61,11 @@ createPersistent( xAOD::TrigNavigationAuxInfo* trans ) {
     ATH_MSG_DEBUG("Default ThinningSvc, just copy");
     *result = *trans;
   }
+#else
+  //no navigation thinning in analysis releases
+  *result = *trans;
+#endif
+
   return result;
 }
 

@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: xAODTrigPassBitsContainerCnv.cxx 755818 2016-06-17 14:51:59Z krasznaa $
+// $Id: xAODTrigPassBitsContainerCnv.cxx 775158 2016-09-26 13:50:45Z krasznaa $
 
 // System include(s):
 #include <memory>
