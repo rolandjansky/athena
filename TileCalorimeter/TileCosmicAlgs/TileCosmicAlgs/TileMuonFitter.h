@@ -49,7 +49,7 @@ class TileDetDescrManager;
 #include <string>
 #include <algorithm>
 
-using namespace ROOT::Minuit2;
+//using namespace ROOT::Minuit2;
 
 // Auxiliar class to save info about each cell
 // used in Hough Transform computation
@@ -198,7 +198,7 @@ class TileMuonFitter: public AthAlgorithm {
 
     /** Auxiliary class representing the function to be minimized - weighted sum of
      squares of orthogonal distances from track to cells)*/
-    TileMuonTrackDistance* m_theTrack;
+    ROOT::Minuit2::TileMuonTrackDistance* m_theTrack;
 
     /** Cell energy threshold */
     double m_eThreshold;
