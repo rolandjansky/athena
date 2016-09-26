@@ -123,10 +123,10 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::initialize()
   // Get DriftFunction tool
   //
   if ( m_driftFunctionTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() << endreq;
+    ATH_MSG_FATAL(m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type());
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type() << endreq;
+    ATH_MSG_INFO(m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type());
   }
 
 
@@ -135,8 +135,8 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::initialize()
   sc = AthAlgTool::detStore()->retrieve(m_trt_mgr, m_trt_mgr_location);
   if (sc.isFailure() || !m_trt_mgr)
   {
-    msg(MSG::FATAL) << "Could not find TRT_DetectorManager: "
-       	  << m_trt_mgr_location << " !" << endreq;
+    ATH_MSG_FATAL("Could not find TRT_DetectorManager: "
+		  << m_trt_mgr_location << " !");
     return sc;
   }
   // Get TRT ID helper
@@ -148,10 +148,10 @@ StatusCode InDet::TRT_DriftCircleToolCosmics::initialize()
 
   if(m_useConditionsStatus){
     if ( m_ConditionsSummary.retrieve().isFailure() ) {
-      msg(MSG::FATAL) <<"Failed to retrieve "<< m_ConditionsSummary << endreq;
+      ATH_MSG_FATAL("Failed to retrieve "<< m_ConditionsSummary);
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved service " << m_ConditionsSummary << endreq;
+      ATH_MSG_INFO( "Retrieved service " << m_ConditionsSummary);
     }
   }
   return sc;
@@ -210,10 +210,10 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 
   if ( evtStore()->retrieve(theComTime,m_comTimeName)) {
     timecor = theComTime->getTime() + m_global_offset;
-    if(msgLvl(MSG::VERBOSE)) msg() << "Retrieved ComTime object with name "
-                                 << m_comTimeName<<" found! Time="<<timecor<<endreq;
+    ATH_MSG_VERBOSE("Retrieved ComTime object with name "
+		    << m_comTimeName<<" found! Time="<<timecor);
   }else{
-    if(msgLvl(MSG::VERBOSE)) msg() << "ComTime object not found with name "<<m_comTimeName<<"!!!" << endreq;
+    ATH_MSG_VERBOSE("ComTime object not found with name "<<m_comTimeName<<"!!!");
     timecor=m_global_offset; // cannot correct drifttime
     //return rio;
   }
@@ -233,7 +233,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
       //   perform initial loop to find the trigger pll in first layer
        for(r=rb; r!=re; ++r) {
           // skip if rdo is not testbeam or cosmic flavor
-          const TRT_TB04_RawData* tb_rdo = dynamic_cast<TRT_TB04_RawData*>(*r);
+          const TRT_TB04_RawData* tb_rdo = dynamic_cast<const TRT_TB04_RawData*>(*r);
           if(tb_rdo) {
             Identifier   id  = tb_rdo->identify();
             // skip if not first layer
@@ -244,7 +244,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
        }
     }
 
-    if(msgLvl(MSG::VERBOSE)) msg() << " choose timepll for rdo collection: " << m_coll_pll << endreq;
+    ATH_MSG_VERBOSE( " choose timepll for rdo collection: " << m_coll_pll);
 
     // Loop through all RDOs in the collection
     //
@@ -262,7 +262,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 
       // Fix hardware bug in testbeam
       if(m_driftFunctionTool->isTestBeamData()) {
-        const TRT_TB04_RawData* tb_rdo = dynamic_cast<TRT_TB04_RawData*>(*r);
+        const TRT_TB04_RawData* tb_rdo = dynamic_cast<const TRT_TB04_RawData*>(*r);
         if(tb_rdo) timepll = tb_rdo->getTrigType();
         if(m_coll_pll) {
           newtdcvalue = tdcvalue - timepll/2 + m_coll_pll/2;
@@ -306,12 +306,12 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
       else word |= 0x08000000;
 
       //std::vector<Identifier>    dvi // we dont need this                                   ;
-      if(msgLvl(MSG::VERBOSE)) msg() << " id " << m_trtid->layer_or_wheel(id)
+      ATH_MSG_VERBOSE( " id " << m_trtid->layer_or_wheel(id)
 	  << " " << m_trtid->straw_layer(id)
 	  << " " << m_trtid->straw(id)
           << " new time bin  " << newtdcvalue << " old bin " << (*r)->driftTimeBin()
           << " timecor " << timecor
-          << " old timepll " << timepll  << " new time " << rawTime  << endreq;
+	  << " old timepll " << timepll  << " new time " << rawTime );
          
 
       double error=0;
@@ -319,9 +319,9 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleToolCosmics::convert(int
 	error = m_driftFunctionTool->errorOfDriftRadius(driftTime,id)         ;
       }
 
-      if(msgLvl(MSG::VERBOSE)) msg() << "   hit OK " << isOK << " t0 " << t0
+      ATH_MSG_VERBOSE("   hit OK " << isOK << " t0 " << t0
             << " drifttime " << driftTime
-	    << " radius " << radius << " error " << error << endreq;
+	    << " radius " << radius << " error " << error);
 
       if( !isOK || (error==0.&&Mode<2) ) //Drifttime out of range. Make wirehit
 	{
