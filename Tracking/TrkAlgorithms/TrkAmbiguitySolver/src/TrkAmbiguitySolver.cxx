@@ -37,7 +37,7 @@ Trk::TrkAmbiguitySolver::initialize()
   else {
     // Get Tools sevices
     if (m_ambiTool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ambiTool << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_ambiTool << endmsg;
       return StatusCode::FAILURE;
     } else
       ATH_MSG_INFO( "Retrieved tool " << m_ambiTool );
@@ -55,7 +55,7 @@ Trk::TrkAmbiguitySolver::execute()
 
   if ( loadedTracks.isFailure() )
     {
-      msg(MSG::ERROR) << "TrkAmbiguitySolver could not find any tracks. Aborting." << endreq;
+      msg(MSG::ERROR) << "TrkAmbiguitySolver could not find any tracks. Aborting." << endmsg;
       return StatusCode::SUCCESS;
     }
 	
@@ -92,7 +92,7 @@ StatusCode Trk::TrkAmbiguitySolver::getTracks(){
       const TrackCollection * tmpTracks=0;    
       StatusCode sc = sgSvc()->retrieve(tmpTracks, *it);// load tracks    
       if (sc.isFailure())    
-	msg(MSG::WARNING) << "Could not retrieve tracks from "<< *it << endreq;    
+	msg(MSG::WARNING) << "Could not retrieve tracks from "<< *it << endmsg;    
       else
 	{      
 	  ATH_MSG_VERBOSE ("Successfully retrieved "<<tmpTracks->size()
@@ -109,7 +109,7 @@ void Trk::TrkAmbiguitySolver::saveTracks() const
   StatusCode sc = sgSvc()->record(m_tracks, m_resolvedTracksLocation,false);
 
   if (sc.isFailure())
-    msg(MSG::ERROR) << "Could not record tracks" << endreq;
+    msg(MSG::ERROR) << "Could not record tracks" << endmsg;
   else
     ATH_MSG_VERBOSE ("Saved "<<m_tracks->size()<<" tracks");
   
@@ -126,7 +126,7 @@ void Trk::TrkAmbiguitySolver::resolveTracks()
       ATH_MSG_VERBOSE ("TrkAmbiguitySolver::resolveTracks() resolving "
 		      << m_oldTracks.size()<<"  tracks" );
       m_trackInCount += m_oldTracks.size();
-      m_tracks = m_ambiTool->process( &m_oldTracks );
+      m_tracks = m_ambiTool->process( m_oldTracks.asDataVector() );
       m_trackOutCount += m_tracks->size(); 
     }
   else
