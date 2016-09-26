@@ -1,18 +1,19 @@
 ### usually ATN tests runs with following RDO input:
 
-from RecExConfig.RecFlags import rec
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 
+#from AthenaCommon.AthenaCommonFlags import athenaCommonFlags as acf
 #acf.FilesInput=["/afs/cern.ch/atlas/offline/ReleaseData/v19/testfile/mc12_8TeV.105200.McAtNloJimmy_CT10_ttbar_LeptonFilter.digit.RDO.e1513_s1499_s1504_d700_10evt.pool.root"]
 #["/afs/cern.ch/atlas/offline/data/testfile/calib1_csc11.005200.T1_McAtNlo_Jimmy.digit.RDO.v12000301_tid003138._00016_extract_10evt.pool.root"] 
 #DetDescrVersion="ATLAS-CSC-01-02-00"
-acf.BSRDOOutput="raw.data"
+jp.AthenaCommonFlags.BSRDOOutput="raw.data"
 
-if not acf.EvtMax.is_locked():
-    acf.EvtMax=5
+if not jp.AthenaCommonFlags.EvtMax.is_locked():
+    jp.AthenaCommonFlags.EvtMax=5
+
+from RecExConfig.RecFlags import rec
 if not ('OutputLevel' in dir()):
-    rec.OutputLevel=DEBUG
-#    rec.OutputLevel=INFO
+#    rec.OutputLevel=DEBUG
+    rec.OutputLevel=INFO
 #scan for RTT files (only if dsName and fileRange set)
 include("TriggerTest/TrigScanFiles.py")
 ###############################
