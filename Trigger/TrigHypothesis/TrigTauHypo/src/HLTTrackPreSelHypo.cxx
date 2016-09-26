@@ -168,16 +168,16 @@ HLT::ErrorCode HLTTrackPreSelHypo::hltExecute(const HLT::TriggerElement* inputTE
   // Retrieve last container to be appended
   foundTracks = vectorFoundTracks.back();
 
-  msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+  if(foundTracks) msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
 
-  if(m_rejectNoTracks && foundTracks->size() == 0)
+  if(foundTracks) if(m_rejectNoTracks && foundTracks->size() == 0)
     {
       msg() << MSG::DEBUG << "No Tracks in Input Collection: reject TE" << endreq;
       pass = false;
       return HLT::OK;
     }
   
-  if(m_rejectNoTracks && foundTracks->size())
+  if(foundTracks) if(m_rejectNoTracks && foundTracks->size())
     { 
       msg() << MSG::DEBUG << "Tracks in Input Collection: accept TE" << endreq;
       pass = true;

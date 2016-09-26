@@ -2,6 +2,9 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
+#include <cmath>
+
 #include "TrigTauHypo/HLTTauTrackRoiUpdater.h"
 
 #include "GaudiKernel/MsgStream.h"
@@ -22,7 +25,8 @@ HLTTauTrackRoiUpdater::HLTTauTrackRoiUpdater(const std::string & name, ISvcLocat
   declareProperty("z0HalfWidth",          m_z0HalfWidth = 0.4);
   declareProperty("nHitPix",              m_nHitPix = 2);
   declareProperty("nSiHoles",             m_nSiHoles = 2);
-
+  declareProperty("UpdateEta",            m_updateEta = false);
+  declareProperty("UpdatePhi",            m_updatePhi = false);
 }
 
 HLTTauTrackRoiUpdater::~HLTTauTrackRoiUpdater()
@@ -33,11 +37,14 @@ HLTTauTrackRoiUpdater::~HLTTauTrackRoiUpdater()
 HLT::ErrorCode HLTTauTrackRoiUpdater::hltInitialize()
 {
 
-  msg() << MSG::DEBUG << "in initialize()" << endreq;
-  msg() << MSG::DEBUG << " REGTEST: HLTTauTrackRoiUpdater parameters " << endreq;
-  msg() << MSG::DEBUG << " REGTEST: Input Track Collection " << m_InputTrackColl << endreq;
-  msg() << MSG::DEBUG << " REGTEST: z0HalfWidth            " << m_z0HalfWidth << endreq;
-
+  msg() << MSG::INFO << "in initialize()" << endreq;
+  msg() << MSG::INFO << " REGTEST: HLTTauTrackRoiUpdater parameters 	" 	<< endreq;
+  msg() << MSG::INFO << " REGTEST: Input Track Collection 		" 	<< m_InputTrackColl << endreq;
+  msg() << MSG::INFO << " REGTEST: z0HalfWidth            		" 	<< m_z0HalfWidth << endreq;
+  msg() << MSG::INFO << " REGTEST: nHitPix            			" 	<< m_nHitPix << endreq;
+  msg() << MSG::INFO << " REGTEST: nSiHoles            		        " 	<< m_nSiHoles << endreq;
+  msg() << MSG::INFO << " REGTEST: UpdateEta            		" 	<< m_updateEta << endreq;
+  msg() << MSG::INFO << " REGTEST: UpdatePhi            		" 	<< m_updatePhi << endreq;
   return HLT::OK;
 
 }
@@ -64,7 +71,9 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
     return status;
   }
 
-  float leadTrkZ0 = roiDescriptor->zed();
+  double leadTrkZ0  = roiDescriptor->zed();
+  double leadTrkEta = roiDescriptor->eta();
+  double leadTrkPhi = roiDescriptor->phi();
 
 
   //look at fast-tracks
@@ -87,14 +96,15 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   // Retrieve last container to be appended
   foundTracks = vectorFoundTracks.back();
 
-  msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+  if(foundTracks) msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
+  else msg() << MSG::DEBUG << " Input track collection not found " << endreq;  
 
+  const Trk::Track *leadTrack = 0;
+  const Trk::Perigee *trackPer = 0;
+  const Trk::TrackSummary* summary = 0;
+  double trkPtMax = 0;
+  
   if(foundTracks){
-
-    const Trk::Track *leadTrack = 0;
-    const Trk::Perigee *trackPer = 0;
-    const Trk::TrackSummary* summary = 0;
-    float trkPtMax = 0;
     
     TrackCollection::const_iterator it = foundTracks->begin();
     TrackCollection::const_iterator itEnd = foundTracks->end();
@@ -170,18 +180,52 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
     else msg() << MSG::DEBUG << " no leading track pT found " << endreq;
     
     if(leadTrack){
-      leadTrkZ0 = leadTrack->perigeeParameters()->parameters()[Trk::z0];
+      leadTrkZ0  = leadTrack->perigeeParameters()->parameters()[Trk::z0];
+      leadTrkEta = leadTrack->perigeeParameters()->eta();
+      leadTrkPhi = leadTrack->perigeeParameters()->parameters()[Trk::phi0];
     }
     
   }
   
-  float z0Min = leadTrkZ0 - m_z0HalfWidth;
-  float z0Max = leadTrkZ0 + m_z0HalfWidth;
+  /// always update z
+  double z0Min = leadTrkZ0 - m_z0HalfWidth;
+  double z0Max = leadTrkZ0 + m_z0HalfWidth;
+
+
+  /// update eta if required (by default)
+  double eta      = roiDescriptor->eta();
+  double etaMinus = roiDescriptor->etaMinus();
+  double etaPlus  = roiDescriptor->etaPlus();
+
+  if ( leadTrack && m_updateEta ) { 
+    eta      = leadTrkEta;
+    etaMinus = leadTrkEta - (roiDescriptor->eta() - roiDescriptor->etaMinus() );
+    etaPlus  = leadTrkEta + (roiDescriptor->etaPlus() - roiDescriptor->eta() );
+  }
+
+
+  /// update phi if required
+  double phi      = roiDescriptor->phi();
+  double phiMinus = roiDescriptor->phiMinus();
+  double phiPlus  = roiDescriptor->phiPlus();
 
   
+  if ( leadTrack && m_updatePhi ) { 
+    phi      = leadTrkPhi;
+    /// FIXME: This attempts to handle the phi wrapping correctly across the phi = pi boundary
+    ///        but the values themselves would still need to be wrapped - the RoiDescriptor
+    ///        should do it in the constructor, but even so, this calculation should still 
+    ///        be checked before use  
+    if ( roiDescriptor->phi()>=roiDescriptor->phiMinus() ) phiMinus = leadTrkPhi - (roiDescriptor->phi() - roiDescriptor->phiMinus() );
+    else                                                   phiMinus = leadTrkPhi - (roiDescriptor->phi() - roiDescriptor->phiMinus() + 2*M_PI );
+    
+    if ( roiDescriptor->phiPlus()>=roiDescriptor->phi() ) phiPlus  = leadTrkPhi + (roiDescriptor->phiPlus() - roiDescriptor->phi() );
+    else                                                  phiPlus  = leadTrkPhi + (roiDescriptor->phiPlus() - roiDescriptor->phi() + 2*M_PI );
+  }
+  
   TrigRoiDescriptor *outRoi = new TrigRoiDescriptor(roiDescriptor->roiWord(), roiDescriptor->l1Id(), roiDescriptor->roiId(),
-						    roiDescriptor->eta(), roiDescriptor->etaMinus(), roiDescriptor->etaPlus(),
-						    roiDescriptor->phi(), roiDescriptor->phiMinus(), roiDescriptor->phiPlus(),
+						    eta, etaMinus, etaPlus,
+						    phi, phiMinus, phiPlus,
 						    leadTrkZ0, z0Min, z0Max);
   
   ATH_MSG_DEBUG("Input RoI " << *roiDescriptor);

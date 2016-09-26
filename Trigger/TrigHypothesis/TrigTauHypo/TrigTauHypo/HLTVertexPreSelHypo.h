@@ -42,6 +42,11 @@ class HLTVertexPreSelHypo : public HLT::HypoAlgo
 		@return the z0 of the leading track as a @c float
 	*/
 	float findLeadingTrackZ0(size_t numberOfTracks, const xAOD::TauJet* tauJet);
+
+	// monitoring
+	int m_cutCounter;
+	float m_Z0DistanceAll;
+	float m_Z0DistanceAccepted;
 };
 #endif
 
