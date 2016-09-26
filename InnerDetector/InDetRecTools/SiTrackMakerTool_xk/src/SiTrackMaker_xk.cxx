@@ -154,19 +154,19 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   // Get detector elements road maker tool
   //
   if ( m_roadmaker.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_roadmaker << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_roadmaker << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_roadmaker << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_roadmaker << endmsg;
   }
 
   // Get combinatorial track finder tool
   //
   if ( m_tracksfinder.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_tracksfinder << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_tracksfinder << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_tracksfinder << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_tracksfinder << endmsg;
   }
 
   // Get seed to track conversion tool
@@ -174,11 +174,11 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   if(m_seedsegmentsWrite) {
 
     if(m_seedtrack.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedtrack << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedtrack << endmsg;
       return StatusCode::FAILURE;
 
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_seedtrack << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_seedtrack << endmsg;
     }
   }
 
@@ -204,6 +204,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
   else if(m_patternName == "SiSpacePointsSeedMaker_LargeD0"    )  {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_LargeD0    );
   } 
+  else if(m_patternName == "SiSpacePointsSeedMaker_SLHCConversionTracks")  {
+    m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSpacePointsSeedMaker_SLHCConversionTracks);
+  }
   else                                                            {
     m_trackinfo.setPatternRecognitionInfo(Trk::TrackInfo::SiSPSeededFinder                  );
   } 
@@ -219,9 +222,9 @@ StatusCode InDet::SiTrackMaker_xk::initialize()
     StatusCode  sc = detStore()->regFcn(&InDet::SiTrackMaker_xk::magneticFieldInit,this,currentHandle,folder);
     
     if(sc==StatusCode::SUCCESS) {
-      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endreq;
+      msg(MSG::INFO) << "Registered callback from MagneticFieldSvc for " << name() << endmsg;
     } else {
-      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endreq;
+      msg(MSG::ERROR) << "Could not book callback from MagneticFieldSvc for " << name () << endmsg;
       return StatusCode::FAILURE;
     }
   } 
@@ -250,7 +253,8 @@ StatusCode InDet::SiTrackMaker_xk::finalize()
 MsgStream&  InDet::SiTrackMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumpconditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -481,8 +485,8 @@ void InDet::SiTrackMaker_xk::endEvent()
  
   // Print event information 
   //
-  if (outputLevel()<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+  if (msgLevel()<=0) {
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -852,7 +856,8 @@ StatusCode InDet::SiTrackMaker_xk::magneticFieldInit(IOVSVC_CALLBACK_ARGS)
 {
   // Build MagneticFieldProperties 
   //
-  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField"; magneticFieldInit();
+  if(!m_fieldService->solenoidOn()) m_fieldmode ="NoField";
+  magneticFieldInit();
   return StatusCode::SUCCESS;
 }
 
