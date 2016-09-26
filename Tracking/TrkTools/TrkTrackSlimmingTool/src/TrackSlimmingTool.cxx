@@ -30,7 +30,8 @@ Trk::TrackSlimmingTool::TrackSlimmingTool(const std::string& t,
 AthAlgTool(t,n,p),
   m_keepCaloDeposit(true),
   m_keepOutliers(false),
-  m_keepParameters(false)     
+  m_keepParameters(false),
+  m_detID{} 
 {
   declareInterface<ITrackSlimmingTool>(this);
 
@@ -63,7 +64,7 @@ StatusCode Trk::TrackSlimmingTool::initialize()
     ATH_MSG_DEBUG ("Found AtlasDetectorID");
   }
 
-  msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
+  msg(MSG::INFO) << "initialize() successful in " << name() << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -82,7 +83,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
   const DataVector<const TrackStateOnSurface>* oldTrackStates = track.trackStateOnSurfaces();
   if (oldTrackStates == 0)
   {
-    msg(MSG::WARNING) << "Track has no TSOS vector! Skipping track, returning 0." << endreq;
+    msg(MSG::WARNING) << "Track has no TSOS vector! Skipping track, returning 0." << endmsg;
     return 0;
   }
   // create vector for new TSOS (the ones which are kept)
@@ -211,7 +212,7 @@ Trk::Track* Trk::TrackSlimmingTool::slim(const Trk::Track& track)
              new (copiedIDtsosWithMeas) Trk::TrackStateOnSurface(copiedIDtsosWithMeas->measurementOnTrack(), lastIDMeasTSOS->trackParameters()->clone(),0, 0,copiedIDtsosWithMeas->types());
         } else {
           ATH_MSG_DEBUG("Last ID measurement didn't have a track parameter!");
-          msg(MSG::DEBUG)<<*lastIDMeasTSOS<<endreq;
+          msg(MSG::DEBUG)<<*lastIDMeasTSOS<<endmsg;
         }        
       }
     **/
