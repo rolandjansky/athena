@@ -20,6 +20,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigAnalysis/TrigMuonMatching
                           PRIVATE
+                          Event/xAOD/xAODEventInfo
                           GaudiKernel )
 
 # Component(s) in the package:
@@ -27,11 +28,11 @@ atlas_add_library( MuonResonanceToolsLib
                    Root/*.cxx
                    PUBLIC_HEADERS MuonResonanceTools
                    LINK_LIBRARIES AsgTools EventPrimitives xAODBase xAODMuon xAODTracking PATInterfaces MuonPerformanceHistUtils MuonEfficiencyCorrectionsLib MuonMomentumCorrectionsLib MuonSelectorToolsLib TrigDecisionToolLib TrigMuonMatchingLib
-                   PRIVATE_LINK_LIBRARIES GaudiKernel )
+                   PRIVATE_LINK_LIBRARIES xAODEventInfo GaudiKernel )
 
 atlas_add_component( MuonResonanceTools
                      src/components/*.cxx
-                     LINK_LIBRARIES AsgTools EventPrimitives xAODBase xAODMuon xAODTracking PATInterfaces MuonEfficiencyCorrectionsLib MuonMomentumCorrectionsLib MuonPerformanceHistUtils MuonSelectorToolsLib TrigDecisionToolLib TrigMuonMatchingLib GaudiKernel MuonResonanceToolsLib )
+                     LINK_LIBRARIES AsgTools EventPrimitives xAODBase xAODMuon xAODTracking PATInterfaces MuonEfficiencyCorrectionsLib MuonMomentumCorrectionsLib MuonPerformanceHistUtils MuonSelectorToolsLib TrigDecisionToolLib TrigMuonMatchingLib xAODEventInfo GaudiKernel MuonResonanceToolsLib )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )

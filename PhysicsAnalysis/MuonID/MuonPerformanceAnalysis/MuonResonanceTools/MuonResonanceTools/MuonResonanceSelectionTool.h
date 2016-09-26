@@ -41,6 +41,7 @@ class MuonResonanceSelectionTool
   bool IDTrk(const xAOD::Muon& mu) const;
   void applySF(const xAOD::Muon& mu, bool isMC) const;
   xAOD::Muon* copy(const xAOD::Muon& mu) const;
+  bool hasPassedGRL (void) const;
   bool isTriggered (void) const;
   void applyTriggerMatch(xAOD::Muon& mu) const; 
 
