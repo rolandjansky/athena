@@ -828,10 +828,10 @@ void TileMuonFitter::buildTileCosmicMuonAtZequal0(int fitok) {
 void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<double> & lbot,
     int index) {
 
-  double p0 = m_linePar[index][0];
-  double p1 = m_linePar[index][1];
-  double p2 = m_linePar[index][2];
-  double p3 = m_linePar[index][3];
+  const double p0 = m_linePar[index][0];
+  const double p1 = m_linePar[index][1];
+  const double p2 = m_linePar[index][2];
+  const double p3 = m_linePar[index][3];
 
   ATH_MSG_DEBUG( "Starting TrackIntersection: " );
   int is, ip;
@@ -882,14 +882,15 @@ void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<d
   for (ip = 0; ip < 6; ip++)
     plane[ip].set(0, 0, 0);
   if (p3 != 0) {
+    const double inv_p3 = 1. / p3;
     for (ip = 0; ip < 2; ip++) {
-      plane[ip].set((m_tileDD_zLB[ip] - p2) / p3, p0 + p1 * (m_tileDD_zLB[ip] - p2) / p3,
+      plane[ip].set((m_tileDD_zLB[ip] - p2) * inv_p3, p0 + p1 * (m_tileDD_zLB[ip] - p2) * inv_p3,
           m_tileDD_zLB[ip]);
 
-      plane[ip + 2].set((m_tileDD_zEBA[ip] - p2) / p3, p0 + p1 * (m_tileDD_zEBA[ip] - p2) / p3,
+      plane[ip + 2].set((m_tileDD_zEBA[ip] - p2) * inv_p3, p0 + p1 * (m_tileDD_zEBA[ip] - p2) * inv_p3,
           m_tileDD_zEBA[ip]);
 
-      plane[ip + 4].set((m_tileDD_zEBC[ip] - p2) / p3, p0 + p1 * (m_tileDD_zEBC[ip] - p2) / p3,
+      plane[ip + 4].set((m_tileDD_zEBC[ip] - p2) * inv_p3, p0 + p1 * (m_tileDD_zEBC[ip] - p2) * inv_p3,
           m_tileDD_zEBC[ip]);
 
       for (is = 0; is < 3; is++) {
@@ -910,8 +911,9 @@ void TileMuonFitter::trackIntersection(std::vector<double> & ltop, std::vector<d
   uint16_t idx_hor = 99;
   uint16_t i, j, k, jmax;
   if (p1 != 0) {
+    const double inv_p1 = 1. / p1;
     /**check intersection with horizontal plane*/
-    horizontalPlane.set(-1.0 * p0 / p1, 0, p2 - p3 * p0 / p1);
+    horizontalPlane.set(-1.0 * p0 * inv_p1, 0, p2 - p3 * p0 * inv_p1);
     if (checkLBz(horizontalPlane.z()) && checkLBr(horizontalPlane.x())) {
       for (i = 0; i < 3; i++)
         if (checkLBr(horizontalPlane.x(), i)) idx_hor = i;
@@ -1372,7 +1374,7 @@ int TileMuonFitter::whichModule(Hep3Vector tempvec) {
   if (phi > 2.0 * pi)
     mod = -1;
   else
-    mod = int(phi / (2.0 * pi) * 64.0);
+    mod = int(phi * (64.0 / (2.0 * pi)));
   return mod;
 }
 // ********************************************************************
@@ -1794,16 +1796,11 @@ void TileMuonFitter::doHough(double &rxy, double &axy, double &rzy, double &azy)
     }
   }
 
-// 	float inv_aw = 1.0F / aw;
-// 	rxy = arxy * inv_aw;
-// 	axy = aaxy * inv_aw;
-// 	rzy = arzy * inv_aw;
-// 	azy = aazy * inv_aw;
-
-  rxy = arxy / aw;
-  axy = aaxy / aw;
-  rzy = arzy / aw;
-  azy = aazy / aw;
+  const double inv_aw = 1. / aw;
+  rxy = arxy * inv_aw;
+  axy = aaxy * inv_aw;
+  rzy = arzy * inv_aw;
+  azy = aazy * inv_aw;
 }
 
 int TileMuonFitter::houghTrack() {
