@@ -26,6 +26,7 @@
 #include "QatDataModeling/ObjectiveFunction.h"
 #include "QatDataModeling/minuit.h"
 #include <stdexcept>
+#include <cstring>
 typedef void   (*minuitCallback) (int    & npar,           // which par is changing?
 				  double * gradient,       // my gradient calculation
 				  double & functionValue,  // the function value
@@ -87,7 +88,7 @@ void MinuitMinimizer::minimize() {
   int fInputUnit=0,fOutputUnit=0,fSaveUnit=0;
   const char * title = "Embedded minimizer";
   mninit_(fInputUnit,fOutputUnit, fSaveUnit);
-  mnseti_((char *) title, sizeof(title));
+  mnseti_((char *) title, std::strlen(title));
   if (!_verbose) {
     const char *printLevelCommand="SET PRINT -1";
     mncomd_(_worldWideCallback,(char *) printLevelCommand, status, 0,12 );
@@ -132,7 +133,7 @@ void MinuitMinimizer::minimize() {
   }
   const char *minimizeCommand=_minimizeCommand.c_str();
   
-  mncomd_(_worldWideCallback,(char *) minimizeCommand, status, 0, sizeof(minimizeCommand));
+  mncomd_(_worldWideCallback,(char *) minimizeCommand, status, 0, std::strlen(minimizeCommand));
   if (MINUITERROR) {
     MINUITERROR=false;
     throw std::runtime_error("MINUIT ERROR (INFINITE LIKELIHOOD?) ");

@@ -42,7 +42,7 @@ MinuitMeasurement getMeasurement(const HistogramManager *input, const std::strin
   
   unsigned int    index;  indices->read(0,parName,index);
   double          value;  parameters->read(index,"Value", value);
-  unsigned int I,J;
+  unsigned int I(0),J(0);
   double CIJ;
   for (unsigned int i=0;i<covariance->numTuples();i++) {
     covariance->read(i,"I", I);

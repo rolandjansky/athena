@@ -6,7 +6,7 @@
 atlas_subdir( QatDataModeling )
 
 # Declare the package's dependencies:
-atlas_depends_on_subdirs( PUBLIC
+atlas_depends_on_subdirs( PRIVATE
                           graphics/Qat/QatDataAnalysis )
 
 # External dependencies:
@@ -20,5 +20,6 @@ atlas_add_library( QatDataModeling
                    PUBLIC_HEADERS QatDataModeling
                    INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
                    DEFINITIONS ${CLHEP_DEFINITIONS}
-                   LINK_LIBRARIES ${CLHEP_LIBRARIES} QatDataAnalysis )
+                   LINK_LIBRARIES ${CLHEP_LIBRARIES}
+                   PRIVATE_LINK_LIBRARIES QatDataAnalysis )
 

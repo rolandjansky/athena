@@ -308,7 +308,7 @@ C                                         . . apparent convergence
       IF (ITAUR .EQ. 0) THEN
         IF (ISTRAT .GE. 2 .OR. (ISTRAT.EQ.1.AND.ISW(2).LT.3)) THEN
            IF (ISW(5) .GE. 0)  WRITE (ISYSWR, '(/A)')
-     +      ' MIGRAD WILL VERIFY CONVERGENCE AND ERROR MATRIX.'
+     +      ' MIGRAD WILL VERIFY CONVERGENCE AND Error Matrix.'
            CALL MNHESS(FCN,FUTIL)
            CALL MNWERR
            NPSDF = 0

@@ -24,7 +24,7 @@ CC        to be called by user, who must dimension EMAT at (NDIM,NDIM)
 #include "QatDataModeling/d506cm.inc"
       IF (ISW(2) .LT. 1)  RETURN
       IF (ISW(5) .GE. 2)  WRITE (ISYSWR,'(/A,I4,A,I3,A,G10.3)')
-     +    ' EXTERNAL ERROR MATRIX.    NDIM=',NDIM,'    NPAR=',NPAR,
+     +    ' EXTERNAL Error Matrix.    NDIM=',NDIM,'    NPAR=',NPAR,
      +    '    ERR DEF=',UP
 C                    size of matrix to be printed
       NPARD = NPAR
