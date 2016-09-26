@@ -121,18 +121,18 @@ StatusCode InDet::TRT_DriftCircleTool::initialize()
   // Get DriftFunction tool servise
   //
   if ( m_driftFunctionTool.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() << endreq;
+    ATH_MSG_FATAL(  m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() );
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type() << endreq;
+    ATH_MSG_INFO(  m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type() );
   }
 
   if(m_useConditionsStatus || m_useConditionsHTStatus){
     if ( m_ConditionsSummary.retrieve().isFailure() ) {
-      msg(MSG::FATAL) <<"Failed to retrieve "<< m_ConditionsSummary << endreq;
+    ATH_MSG_FATAL( "Failed to retrieve "<< m_ConditionsSummary);
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_ConditionsSummary << endreq;
+      ATH_MSG_INFO( "Retrieved tool " << m_ConditionsSummary);
     }
   }
 
@@ -141,8 +141,8 @@ StatusCode InDet::TRT_DriftCircleTool::initialize()
   sc = AthAlgTool::detStore()->retrieve(m_trt_mgr, m_trt_mgr_location);
   if (sc.isFailure() || !m_trt_mgr)
   {
-    msg(MSG::FATAL) << "Could not find TRT_DetectorManager: "
-       	  << m_trt_mgr_location << " !" << endreq;
+    ATH_MSG_FATAL( "Could not find TRT_DetectorManager: "
+		   << m_trt_mgr_location << " !" );
     return sc;
   }
   // Get TRT ID helper
@@ -223,7 +223,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
       //   perform initial loop to find the trigger pll in first layer
        for(r=rb; r!=re; ++r) {
           // skip if rdo is not testbeam or cosmic flavor
-          const TRT_TB04_RawData* tb_rdo = dynamic_cast<TRT_TB04_RawData*>(*r);
+          const TRT_TB04_RawData* tb_rdo = dynamic_cast<const TRT_TB04_RawData*>(*r);
           if(tb_rdo) {
             Identifier   id  = tb_rdo->identify();
             // skip if not first layer
@@ -234,7 +234,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
        }
     }
 
-    if(msgLvl(MSG::VERBOSE)) msg() << " choose timepll for rdo collection: " << m_coll_pll << endreq;
+    ATH_MSG_VERBOSE( " choose timepll for rdo collection: " << m_coll_pll);
 
     bool reject_from_neighboring_BC = false;
     bool isArgonStraw = false;
@@ -255,7 +255,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
 
       // Fix hardware bug in testbeam
       if(m_driftFunctionTool->isTestBeamData()) {
-        const TRT_TB04_RawData* tb_rdo = dynamic_cast<TRT_TB04_RawData*>(*r);
+        const TRT_TB04_RawData* tb_rdo = dynamic_cast<const TRT_TB04_RawData*>(*r);
         if(tb_rdo) timepll = tb_rdo->getTrigType();
         if(m_coll_pll) {
           newtdcvalue = tdcvalue - timepll/2 + m_coll_pll/2;
@@ -398,7 +398,7 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
            if(tdc) {
              tdc->setHashAndIndex(rio->identifyHash(), rio->size());
              rio->push_back(tdc);
-             if(msgLvl(MSG::VERBOSE)) msg() << " accept hit id "
+             ATH_MSG_VERBOSE( " accept hit id "
   		  << m_trtid->barrel_ec(id) << " " 
                   << m_trtid->layer_or_wheel(id) << " "
                   << m_trtid->phi_module(id) << " "  
@@ -407,14 +407,14 @@ InDet::TRT_DriftCircleCollection* InDet::TRT_DriftCircleTool::convert(int Mode,c
                   << " data word " << MSG::hex<<tdc->getWord() <<MSG::dec
                   << " data word raw " << MSG::hex<<(*r)->getWord() <<MSG::dec 
                   << " radius " << radius
-		  << " err " << error << endreq;
+			       << " err " << error);
 
-	    if(msgLvl(MSG::VERBOSE)) msg() << " driftTime "
+	     ATH_MSG_VERBOSE( " driftTime "
                   << tdc->rawDriftTime() << " t0 " << t0
                   << " raw time " << (0.5+tdcvalue)*3.125
                   << " ToT " << tdc->timeOverThreshold()  
                   << " OK? " << isOK << " Noise? " 
-                  << tdc->isNoise() << " isArgon? " << isArgonStraw << endreq;
+			      << tdc->isNoise() << " isArgon? " << isArgonStraw);
 	   } else{
              ATH_MSG_ERROR("Could not create InDet::TRT_DriftCircle object !");
            }
