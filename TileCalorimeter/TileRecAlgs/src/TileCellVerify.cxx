@@ -33,9 +33,9 @@
 
 using namespace std;
 
-class CompCell: public binary_function<CaloCell*, CaloCell*, bool> {
+class CompCell: public binary_function<const CaloCell*, const CaloCell*, bool> {
   public:
-    bool operator()(CaloCell* p1, CaloCell* p2) {
+    bool operator()(const CaloCell* p1, const CaloCell* p2) {
       return p1->energy() < p2->energy();
     }
 };
@@ -97,8 +97,8 @@ StatusCode TileCellVerify::execute() {
   }
 
   // step3: to sort the cells in the container read above by energy
-  vector<CaloCell*> v1;
-  vector<CaloCell*> v2;
+  vector<const CaloCell*> v1;
+  vector<const CaloCell*> v2;
   const CaloCell* pCell1;
   const CaloCell* pCell2;
   if (m_sortFlag) {

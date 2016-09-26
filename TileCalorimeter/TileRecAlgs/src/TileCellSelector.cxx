@@ -1057,7 +1057,7 @@ StatusCode TileCellSelector::execute() {
 
           for(; chItr!=lastCh; ++chItr) {
 
-            TileRawChannel * pCh = (*chItr);
+            const TileRawChannel * pCh = (*chItr);
             HWIdentifier adcId = pCh->adc_HWID();
             HWIdentifier chId = m_tileHWID->channel_id(adcId);
             m_tileHWID->get_hash(chId, hash, &chan_context);
@@ -1273,7 +1273,7 @@ StatusCode TileCellSelector::execute() {
 
           ++nChTot;
 
-          TileDigits * pDig = (*digitItr);
+          const TileDigits * pDig = (*digitItr);
           HWIdentifier adcId = pDig->adc_HWID();
           HWIdentifier chId = m_tileHWID->channel_id(adcId);
           m_tileHWID->get_hash(chId, hash, &chan_context);
@@ -1637,7 +1637,7 @@ StatusCode TileCellSelector::execute() {
 
             for (; digitItr != lastDigit; ++digitItr) {
 
-              TileDigits * pDig = (*digitItr);
+              const TileDigits * pDig = (*digitItr);
               HWIdentifier adcId = pDig->adc_HWID();
               HWIdentifier chId = m_tileHWID->channel_id(adcId);
               m_tileHWID->get_hash(chId, hash, &chan_context);

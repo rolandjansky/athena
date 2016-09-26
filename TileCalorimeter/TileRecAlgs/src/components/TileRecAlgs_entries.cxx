@@ -14,6 +14,7 @@
 #include "TileRecAlgs/TileCellToTTL1.h"
 #include "TileRecAlgs/TileRawChannelToHit.h"
 #include "TileRecAlgs/TileDigitsFilter.h"
+#include "TileRecAlgs/TileDigitsThresholdFilter.h"
 #include "TileRecAlgs/MBTSTimeDiffEventInfoAlg.h"
 #include "TileRecAlgs/TileMuonReceiverReadCnt.h"
 
@@ -26,6 +27,7 @@ DECLARE_ALGORITHM_FACTORY( TileRawChannelToTTL1 )
 DECLARE_ALGORITHM_FACTORY( TileDigitsToTTL1 )
 DECLARE_ALGORITHM_FACTORY( TileRawChannelToHit )
 DECLARE_ALGORITHM_FACTORY( TileDigitsFilter )
+DECLARE_ALGORITHM_FACTORY( TileDigitsThresholdFilter )
 DECLARE_ALGORITHM_FACTORY( TileCellToTTL1 )
 DECLARE_ALGORITHM_FACTORY( MBTSTimeDiffEventInfoAlg )
 DECLARE_ALGORITHM_FACTORY( TileMuonReceiverReadCnt )
