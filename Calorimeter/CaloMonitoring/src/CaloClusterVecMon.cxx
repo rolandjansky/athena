@@ -50,8 +50,20 @@ namespace GetSort{
 
 CaloClusterVecMon::CaloClusterVecMon(const std::string& type, const std::string& name, const IInterface* parent) :
   CaloMonToolBase(type, name, parent),
-  m_caloMgr(0),
-  m_caloCellHelper(0)
+  m_caloMgr(nullptr),
+  m_caloCellHelper(nullptr),
+  m_cluscount(0),
+  m_cluscount_top(0),
+  m_cluscount_bot(0),
+  m_maxclusindex_top(0),
+  m_maxclusindex_bot(0),
+  m_maxclusene_top(0),
+  m_maxclusene_bot(0),
+  m_EMenergy(0),
+  m_EMenergy_abs(0),
+  m_EMet(0),
+  m_EMeta(0),
+  m_EMphi(0)
 {
   declareInterface<IMonitorToolBase>(this);
 
@@ -87,69 +99,69 @@ CaloClusterVecMon::~CaloClusterVecMon() {
 void CaloClusterVecMon::initHists(){
  // cell hists 
  m_eventsCounter = 0; // km add
- m_nCells=0;
- m_maxEcellToEclusterRatio=0;
- m_dominantCellOccupancy_etaphi=0;
- m_dominantCellAverageEnergy_etaphi=0; 
- m_nCellInCluster_etaphi=0;
- m_clusterTimeVsEnergy=0;
- m_clusterTime=0;
- m_cellTime=0;
- m_cellvsclust_time=0; 
+ m_nCells=nullptr;
+ m_maxEcellToEclusterRatio=nullptr;
+ m_dominantCellOccupancy_etaphi=nullptr;
+ m_dominantCellAverageEnergy_etaphi=nullptr; 
+ m_nCellInCluster_etaphi=nullptr;
+ m_clusterTimeVsEnergy=nullptr;
+ m_clusterTime=nullptr;
+ m_cellTime=nullptr;
+ m_cellvsclust_time=nullptr; 
 
  // mult-threshold cluster hists
  for (int iE=0; iE<MAX_E; iE++){
-   m_clus_etaphi_Et_thresh[iE]=0;
-   m_etaphi_thresh_avgEt[iE]=0;
+   m_clus_etaphi_Et_thresh[iE]=nullptr;
+   m_etaphi_thresh_avgEt[iE]=nullptr;
 //   m_EMclus_etaphi_Et_thresh[iE]=0;
 //   m_EMclus_etaVsPhi[iE]=0;
-   m_clus_eta[iE]=0;
-   m_clus_eta_Et[iE]=0;  // km add
+   m_clus_eta[iE]=nullptr;
+   m_clus_eta_Et[iE]=nullptr;  // km add
    for(int j_plot=0; j_plot<3; j_plot++){
-   m_clus_phi[iE][j_plot]=0;
-   m_clus_phi_Et[iE][j_plot]=0;} // km add
-   m_etaVsPhi[iE]=0;
-   m_etaphi_thresh_avgenergy[iE]=0;
-   m_etaphi_thresh_Totalenergy[iE]=0;
+   m_clus_phi[iE][j_plot]=nullptr;
+   m_clus_phi_Et[iE][j_plot]=nullptr;} // km add
+   m_etaVsPhi[iE]=nullptr;
+   m_etaphi_thresh_avgenergy[iE]=nullptr;
+   m_etaphi_thresh_Totalenergy[iE]=nullptr;
   }
 
  // negative energy cluster hists 
-  m_etaVsPhiNegEn=0;
-  m_averageNegativeEnergy_etaphi=0;
+  m_etaVsPhiNegEn=nullptr;
+  m_averageNegativeEnergy_etaphi=nullptr;
 
   // no threshold cluster hists
-  m_averageEnergy_phi=0;
-  m_averageEnergy_eta=0;
+  m_averageEnergy_phi=nullptr;
+  m_averageEnergy_eta=nullptr;
 
-  m_clusterEnergyVsEta_barrel=0;
-  m_clusterEnergyVsEta_endcap=0;
-  m_clusterEnergyVsEta_hecfcal=0;
-  m_clusterEtVsEta_barrel=0; // for non-cosmics
-  m_clusterEtVsEta_endcap=0; // for non-cosmics
-  m_clusterEtVsEta_hecfcal=0; // for non-cosmics
+  m_clusterEnergyVsEta_barrel=nullptr;
+  m_clusterEnergyVsEta_endcap=nullptr;
+  m_clusterEnergyVsEta_hecfcal=nullptr;
+  m_clusterEtVsEta_barrel=nullptr; // for non-cosmics
+  m_clusterEtVsEta_endcap=nullptr; // for non-cosmics
+  m_clusterEtVsEta_hecfcal=nullptr; // for non-cosmics
 
   // energy > 500GeV cluster hists
-  m_averageEtOver500_etaphi=0; // for non-cosmics
+  m_averageEtOver500_etaphi=nullptr; // for non-cosmics
 
   // cluster stat hists
-  m_nClusters=0;
-  m_nClustersBottomVsTop=0;
-  m_averageEnergy_etaphi_maxEclusters=0;
-  m_dEtaVsdPhi_maxEclustersTopVsBottom=0; // for cosmics 
+  m_nClusters=nullptr;
+  m_nClustersBottomVsTop=nullptr;
+  m_averageEnergy_etaphi_maxEclusters=nullptr;
+  m_dEtaVsdPhi_maxEclustersTopVsBottom=nullptr; // for cosmics 
 
   // tile hists 
-  m_clustersCellsRatioEta=0;
-  m_clustersCellsRatioPhi=0;
-  m_clustersCellsRatioE=0;
+  m_clustersCellsRatioEta=nullptr;
+  m_clustersCellsRatioPhi=nullptr;
+  m_clustersCellsRatioE=nullptr;
  
-  m_clustersE=0;
-  m_clustersEta=0;
-  m_clustersPhi=0;
-  m_clustersEtaPhi=0;
+  m_clustersE=nullptr;
+  m_clustersEta=nullptr;
+  m_clustersPhi=nullptr;
+  m_clustersEtaPhi=nullptr;
 
-  m_clustersCellsEta=0;
-  m_clustersCellsPhi=0;
-  m_clustersCellsE=0;
+  m_clustersCellsEta=nullptr;
+  m_clustersCellsPhi=nullptr;
+  m_clustersCellsE=nullptr;
 }
 
 ////////////////////////////////////////////////////////////////////////////
@@ -692,7 +704,7 @@ StatusCode CaloClusterVecMon::fillHistograms() {
   sc = checkFilters(ifPass);
   if(sc.isFailure() || !ifPass) return StatusCode::SUCCESS;
 
-  const xAOD::CaloClusterContainer* clusterCont = 0;
+  const xAOD::CaloClusterContainer* clusterCont = nullptr;
   sc=evtStore()->retrieve( clusterCont, m_clusterContainerName);
   if( sc.isFailure()  ||  !clusterCont ) {
     ATH_MSG_WARNING( "No CaloCluster container found in TDS");
@@ -746,13 +758,13 @@ void CaloClusterVecMon::fillCellHist(const CaloCluster* clus){
 
   const CaloClusterCellLink* cellLinks=clus->getCellLinks();
   if (!cellLinks) {
-    msg(MSG::DEBUG) << "No cell links for this cluster" << endreq;
+    ATH_MSG_DEBUG( "No cell links for this cluster"  );
     return;
   }
 
   const CaloCellContainer* cellCont=cellLinks->getCellContainer();
   if (!cellCont) {
-    msg(MSG::DEBUG) << "DataLink to cell container is broken" << endreq;
+    ATH_MSG_DEBUG( "DataLink to cell container is broken"  );
     return;
   }
 
@@ -884,8 +896,8 @@ void CaloClusterVecMon::fillClusterHist(const CaloCluster* clus){
     float EtClus = clus->et();
     float EClus = clus->e();
 
-    TH1F* tmp_clusterEtVsEta_sub=0;
-    TH1F* tmp_clusterEnergyVsEta_sub=0;
+    TH1F* tmp_clusterEtVsEta_sub=nullptr;
+    TH1F* tmp_clusterEnergyVsEta_sub=nullptr;
     if( (fabs(EtaClus)<m_etaMin[1]) && (fabs(EtaClus)>=m_etaMin[0]) ){
       tmp_clusterEtVsEta_sub = m_clusterEtVsEta_barrel;
       tmp_clusterEnergyVsEta_sub = m_clusterEnergyVsEta_barrel;
@@ -1038,13 +1050,13 @@ void CaloClusterVecMon::fillTileHist(const xAOD::CaloClusterContainer* clusterCo
 
      const CaloClusterCellLink* cellLinks=cluster_ptr->getCellLinks();
      if (!cellLinks) {
-       msg(MSG::DEBUG) << "No cell links for this cluster" << endreq;
+       ATH_MSG_DEBUG( "No cell links for this cluster"  );
        return;
      }
 
      const CaloCellContainer* cellCont=cellLinks->getCellContainer();
      if (!cellCont) {
-       msg(MSG::DEBUG) << "DataLink to cell container is broken" << endreq;
+       ATH_MSG_DEBUG( "DataLink to cell container is broken"  );
        return;
      }
 

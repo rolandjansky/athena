@@ -18,9 +18,10 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           LArCalorimeter/LArIdentifier
                           LArCalorimeter/LArRecConditions
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           Reconstruction/MissingETEvent
                           Reconstruction/egamma/egammaEvent
+                          PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
                           Tools/LWHists
                           Trigger/TrigAnalysis/TrigDecisionTool
                           PRIVATE
@@ -40,7 +41,7 @@ atlas_add_component( CaloMonitoring
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloIdentifier CommissionEvent AthenaMonitoringLib StoreGateLib SGtests Identifier xAODCaloEvent GaudiKernel LArIdentifier LArRecConditions LArToolsLib MissingETEvent egammaEvent LWHists TrigDecisionToolLib CaloDetDescrLib CaloGeoHelpers AthenaKernel xAODEventInfo LArRecEvent JetEvent RecBackgroundEvent )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} CaloEvent CaloIdentifier CommissionEvent AthenaMonitoringLib StoreGateLib SGtests Identifier xAODCaloEvent GaudiKernel LArIdentifier LArRecConditions LArCablingLib MissingETEvent egammaEvent ElectronPhotonSelectorTools LWHists TrigDecisionToolLib CaloDetDescrLib CaloGeoHelpers AthenaKernel xAODEventInfo LArRecEvent JetEvent RecBackgroundEvent )
 
 # Install files from the package:
 atlas_install_headers( CaloMonitoring )
