@@ -214,6 +214,7 @@ void DerivationFramework::EgammaTrackParticleThinning::setPhotonMasks(std::vecto
         const xAOD::Photon* photon = dynamic_cast<const xAOD::Photon*>(*egIt);
 	if(!photon){
 	  ATH_MSG_ERROR("Did not get a photon object in EgammaTrackParticleThinning::setPhotonMasks");
+	  return;
 	}
         if (m_coneSize>0.0) {
 		trIC.select(photon,m_coneSize,tps,mask); // check InDet tracks in a cone around the e-gammas
@@ -252,6 +253,7 @@ void DerivationFramework::EgammaTrackParticleThinning::setPhotonMasks(std::vecto
         const xAOD::Photon* photon = dynamic_cast<const xAOD::Photon*>(*egIt);
 	if(!photon){
 	  ATH_MSG_ERROR("Did not get a photon object in EgammaTrackParticleThinning::setPhotonMasks");
+	  return;
 	}
         if (m_coneSize>0.0){ trIC.select(photon,m_coneSize,tps,mask);} // check InDet tracks in a cone around the e-gammas
         std::vector< ElementLink< xAOD::VertexContainer > > vertexLinks= photon->vertexLinks();
@@ -287,6 +289,7 @@ void DerivationFramework::EgammaTrackParticleThinning::setElectronMasks(std::vec
         const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(*egIt);
 	if(!electron){
 	  ATH_MSG_ERROR("Did not get an electron object in EgammaTrackParticleThinning::setElectronMasks");
+	  return;
 	}
 	if (m_coneSize>0.0) trIC.select(electron,m_coneSize,tps,mask); // check InDet tracks in a cone around the e-gammas
         unsigned int nGSFLinks = 1;
@@ -318,6 +321,7 @@ void DerivationFramework::EgammaTrackParticleThinning::setElectronMasks(std::vec
         const xAOD::Electron* electron = dynamic_cast<const xAOD::Electron*>(*egIt);
 	if(!electron){
 	  ATH_MSG_ERROR("Did not get an electron object in EgammaTrackParticleThinning::setElectronMasks");
+	  return;
 	}
 	if (m_coneSize>0.0) trIC.select(electron,m_coneSize,tps,mask); // check InDet tracks in a cone around the e-gammas
         if (!bestMatchOnly) nGSFLinks = electron->nTrackParticles();
