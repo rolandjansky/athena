@@ -72,6 +72,7 @@ void InDet::SiDetElementLink_xk::intersect
   O[1]           = m_bound[1][0]*d0+m_bound[1][1]*d1-m_bound[1][2]    ;
   float  drz     = m_bound[3][0]*d0+m_bound[3][1]*d1-m_bound[3][2]    ;
   if(O[0] < daz) O[0] = daz; 
-  if(O[1] < drz) O[1] = drz;  O[2] = S;
+  if(O[1] < drz) O[1] = drz;
+  O[2] = S;
   return;
 }
