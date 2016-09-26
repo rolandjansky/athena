@@ -31,13 +31,13 @@ namespace Trk{
   {
     
     if ( m_iVertexFitter.retrieve().isFailure() ) {
-      msg(MSG::ERROR) << "Failed to retrieve tool " << m_iVertexFitter << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve tool " << m_iVertexFitter << endmsg;
       return StatusCode::FAILURE;
     } 
     
     if (m_iBeamCondSvc.retrieve().isFailure())
     {
-      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endreq;
+      msg(MSG::ERROR) << "Could not find BeamCondSvc." << endmsg;
       return StatusCode::FAILURE;
     }
     

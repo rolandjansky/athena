@@ -14,8 +14,8 @@ namespace {
  struct Vertex_pair
  {
    double first;
-   xAOD::Vertex* second;
-   Vertex_pair(double p1, xAOD::Vertex* p2)
+   const xAOD::Vertex* second;
+   Vertex_pair(double p1, const xAOD::Vertex* p2)
      : first (p1), second (p2) {}
    bool operator< (const Vertex_pair& other) const
    { return first > other.first; }
@@ -43,11 +43,11 @@ namespace Trk{
   {
     if ( m_iVertexWeightCalculator.retrieve().isFailure() )
     {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexWeightCalculator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_iVertexWeightCalculator << endmsg;
       return StatusCode::FAILURE;
     }
  
-    msg(MSG::INFO) << "Initialization successful" << endreq;
+    msg(MSG::INFO) << "Initialization successful" << endmsg;
     return StatusCode::SUCCESS;
   }///EndOfInitialize
 

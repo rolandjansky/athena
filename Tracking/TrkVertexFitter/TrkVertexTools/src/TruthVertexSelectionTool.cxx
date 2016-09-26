@@ -26,7 +26,7 @@ namespace Trk{
 //initialize
   StatusCode TruthVertexSelectionTool::initialize()
   {
-     msg(MSG::INFO) << "Initialization successful" << endreq;
+     msg(MSG::INFO) << "Initialization successful" << endmsg;
      
     return StatusCode::SUCCESS;
   }///EndOfInitialize
@@ -50,7 +50,7 @@ namespace Trk{
    McEventCollection::const_iterator itr = mcCollptr->begin();   
   
 //and the first vertex in its respective collection
-   HepMC::GenEvent *evt = (*itr);
+   const HepMC::GenEvent *evt = (*itr);
 
 //protection   
    if(!evt) return 0;

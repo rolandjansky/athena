@@ -24,7 +24,7 @@ namespace Trk{
 //initialize
   StatusCode DummyVertexSelectionTool::initialize()
   {
-     msg(MSG::INFO) << "Initialization successful" << endreq;
+     msg(MSG::INFO) << "Initialization successful" << endmsg;
    
 // Random number service
     if ( m_randomSvc.retrieve().isFailure() ) 
