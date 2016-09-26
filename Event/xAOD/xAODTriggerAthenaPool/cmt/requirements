@@ -17,7 +17,8 @@ use AthenaPoolUtilities AthenaPoolUtilities-* Database/AthenaPOOL
 use xAODTrigger         xAODTrigger-*         Event/xAOD
 use AthenaKernel        AthenaKernel-*        Control
 use AthContainers       AthContainers-*       Control
-use TrigNavTools        TrigNavTools-*        Trigger/TrigEvent
+#use TrigNavTools        TrigNavTools-*        Trigger/TrigEvent
+use_ifndef pplist="XAOD_ANALYSIS" pkg="Trigger/TrigEvent/TrigNavTools"
 
 # Declare the pool converter(s):
 apply_pattern poolcnv typesWithNamespace="xAOD::MuonRoIContainer \
