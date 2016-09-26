@@ -86,7 +86,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
 	m_magFieldSvc			("AtlasFieldSvc",name),
 	m_materialAllocator		(""),
 	m_mdtRotCreator			(""),
-  	m_muonScaledErrorOptimizer	("Muon::MuonErrorOptimisationTool/MuidAlignmentErrorOptimisationTool"),   // was MuidScaledErrorOptimisationTool
+  	m_muonScaledErrorOptimizer	("Muon::MuonErrorOptimisationTool/MuidScaledErrorOptimisationTool"), // overwritten 
 	m_muonAlignmentErrorOptimizer	("Muon::MuonErrorOptimisationTool/MuidAlignmentErrorOptimisationTool"),
 	m_muonHoleRecovery		("Muon::MuonChamberHoleRecoveryTool/MuonChamberHoleRecoveryTool"),
 	m_propagator            	("Trk::IntersectorWrapper/IntersectorWrapper"),
@@ -161,7 +161,7 @@ CombinedMuonTrackBuilder::CombinedMuonTrackBuilder (const std::string&type,
     declareProperty("Intersector",			m_intersector);
     declareProperty("MaterialAllocator",		m_materialAllocator);
     declareProperty("MdtRotCreator",			m_mdtRotCreator);
-    declareProperty("MuonScaledErrorOptimizer",		m_muonScaledErrorOptimizer);
+    declareProperty("MuonScaledErrorOptimizer",		m_muonScaledErrorOptimizer); // overwritten
     declareProperty("MuonAlignmentErrorOptimizer",	m_muonAlignmentErrorOptimizer);
     declareProperty("MuonHoleRecovery",			m_muonHoleRecovery);
     declareProperty("Propagator",			m_propagator);
@@ -216,7 +216,10 @@ CombinedMuonTrackBuilder::~CombinedMuonTrackBuilder (void)
 StatusCode
 CombinedMuonTrackBuilder::initialize()
 {
-  
+
+// use only m_muonAlignmentErrorOptimizer 
+  m_muonScaledErrorOptimizer = m_muonAlignmentErrorOptimizer;
+ 
   if( !AthAlgTool::initialize() ) return StatusCode::FAILURE;
 
     ATH_MSG_DEBUG( "Initializing CombinedMuonTrackBuilder"
@@ -1648,7 +1651,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	       && ! (**s).type(Trk::TrackStateOnSurface::Perigee))  ++s;
 	if ((**s).type(Trk::TrackStateOnSurface::Perigee)) ++s;
 	for ( ; s != prefit->trackStateOnSurfaces()->end(); ++s)
-	if(!(**s).alignmentEffectsOnTrack())  spectrometerTSOS->push_back((**s).clone());
+	  spectrometerTSOS->push_back((**s).clone());
     }
     
     // update rot's (but not from trigger chambers) using TrackParameters
@@ -1733,7 +1736,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 						    0,
 						    type) );
 	    for ( ++s; s != badfit->trackStateOnSurfaces()->end(); ++s)
-	      if(!(**s).alignmentEffectsOnTrack()) trackStateOnSurfaces->push_back((**s).clone());
+	      trackStateOnSurfaces->push_back((**s).clone());
 
 	    Trk::Track* track	= new Trk::Track(spectrometerTrack.info(),trackStateOnSurfaces,0);
  	    extrapolated	= fit(*track,m_cleanStandalone,particleHypothesis);
@@ -1753,7 +1756,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 		while (m_calorimeterVolume->inside((**s).trackParameters()->position())
 		       || (**s).type(Trk::TrackStateOnSurface::Perigee)) ++s;
 		for ( ; s != prefit->trackStateOnSurfaces()->end(); ++s)
-		  if(!(**s).alignmentEffectsOnTrack()) spectrometerTSOS->push_back((**s).clone());
+		  spectrometerTSOS->push_back((**s).clone());
 		delete extrapolated;
 
 		ATH_MSG_VERBOSE( "Calling createExtrapolatedTrack from " << __func__<<" at line "<<__LINE__ );
@@ -1850,7 +1853,7 @@ CombinedMuonTrackBuilder::standaloneFit	(const Trk::Track&	inputSpectrometerTrac
 	     s != extrapolated->trackStateOnSurfaces()->end();
 	     ++s)
 	{
-	    if (! (**s).type(Trk::TrackStateOnSurface::Perigee)&& !(**s).alignmentEffectsOnTrack())
+	    if (! (**s).type(Trk::TrackStateOnSurface::Perigee))
 		spectrometerTSOS->push_back((**s).clone());
 	}
 
@@ -2592,7 +2595,6 @@ CombinedMuonTrackBuilder::fit (const Trk::Track&		track,
 	     s != track.trackStateOnSurfaces()->end();
 	     ++s)
 	{
-            if((**s).alignmentEffectsOnTrack()) continue; 
 	    if (caloAssociated)
 	    {
 		combinedTSOS->push_back((**s).clone());
@@ -3180,8 +3182,8 @@ CombinedMuonTrackBuilder::appendSelectedTSOS(
     {
 	// AEOTs are skipped here
         if((**s).alignmentEffectsOnTrack()) {
-		  ATH_MSG_VERBOSE( "appendSelectedTSOS:: skip alignmentEffectsOnTrack " );
-          continue;
+		  ATH_MSG_VERBOSE( "appendSelectedTSOS:: alignmentEffectsOnTrack " );
+//          continue;
         }  
 	// skip non-understood features in iPatFitter
 	if (! (**s).measurementOnTrack() && ! (**s).materialEffectsOnTrack())
@@ -3593,8 +3595,6 @@ CombinedMuonTrackBuilder::createExtrapolatedTrack(
 
     // append the remaining spectrometer TSOS
     for (s = spectrometerTSOS.begin(); s != spectrometerTSOS.end(); ++s){
-// skip AEOTs  
-        if((**s).alignmentEffectsOnTrack()) continue;
 	if (! (**s).type(Trk::TrackStateOnSurface::Perigee)) trackStateOnSurfaces->push_back(*s);
         if( (**s).measurementOnTrack() && dynamic_cast<const Trk::PseudoMeasurementOnTrack*>((**s).measurementOnTrack()) ) ATH_MSG_VERBOSE(" MS Pseudo");
     }    
@@ -3693,6 +3693,9 @@ CombinedMuonTrackBuilder::createMuonTrack(
     DataVector<const Trk::TrackStateOnSurface>::const_iterator	end,
     unsigned							size) const
 {
+
+  countAEOTs(&muonTrack, " createMuonTrack ");
+
   // set iterator to current TSOS on input track to be after the indet
   const Trk::TrackParameters* lastIDtp = 0;	
   DataVector<const Trk::TrackStateOnSurface>::const_iterator s = begin;
@@ -3756,8 +3759,10 @@ CombinedMuonTrackBuilder::createMuonTrack(
       // start with the calo TSOS
       for (std::vector<const Trk::TrackStateOnSurface*>::const_iterator t = caloTSOS->begin();
 	   t != caloTSOS->end();
-	   ++t)
-	trackStateOnSurfaces->push_back(*t);
+	   ++t) {
+ 	      trackStateOnSurfaces->push_back(*t);
+//              std::cout << " caloTSOS " <<  " r " << (*t)->trackParameters()->position().perp() << " z " << (*t)->trackParameters()->position().z() << std::endl; 
+      }
       delete caloTSOS;
     }
   else
@@ -3775,6 +3780,7 @@ CombinedMuonTrackBuilder::createMuonTrack(
       trackStateOnSurfaces->push_back(TSOS);
       ++s;
       
+//      std::cout << " TSOS " <<  " r " << TSOS->trackParameters()->position().perp() << " z " << TSOS->trackParameters()->position().z() << std::endl; 
       // create MEOT owning CaloEnergy
       if ((**s).trackParameters()
 	  && m_calorimeterVolume->inside((**s).trackParameters()->position()))
@@ -3798,6 +3804,7 @@ CombinedMuonTrackBuilder::createMuonTrack(
 						    materialEffects,
 						    type);
 	  trackStateOnSurfaces->push_back(TSOS);
+//          std::cout << " caloTSOS " <<  " r " << TSOS->trackParameters()->position().perp() << " z " << TSOS->trackParameters()->position().z() << std::endl; 
 	  ++s;
 	}
       else
@@ -3807,39 +3814,64 @@ CombinedMuonTrackBuilder::createMuonTrack(
 	  delete caloEnergy;
 	}
     }
+
+//   std::cout << " before m_perigeeAtSpectrometerEntrance " << std::endl;
   
   // MS entrance perigee
+
+  bool  hasAlreadyPerigee = false;
   if (m_perigeeAtSpectrometerEntrance)
     {
+//      std::cout << " inside m_perigeeAtSpectrometerEntrance " << std::endl;
       // copy calorimeter TSOS
       while ((**s).trackParameters()
 	     && m_calorimeterVolume->inside((**s).trackParameters()->position()))
 	{
+//          std::cout << " loop inside Calorimeter " <<  " r " << (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z() << std::endl; 
+          
 	  if (! (**s).type(Trk::TrackStateOnSurface::Perigee))
 	    {
 	      const Trk::TrackStateOnSurface* TSOS =
 		const_cast<const Trk::TrackStateOnSurface*>((**s).clone());
 	      trackStateOnSurfaces->push_back(TSOS);
+//              std::cout << " again caloTSOS " <<  " r " << TSOS->trackParameters()->position().perp() << " z " << TSOS->trackParameters()->position().z() << std::endl; 
 	    }
 	  ++s;
 	}
-      
-      // add entrance TSOS
+      // add entrance TSOS if not already present 
+      if( (**s).trackParameters()) {
+//        std::cout << " in perigeeAtSpectrometerEntrance " <<  " r " << (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z() << std::endl; 
+      } else {
+//        std::cout << " in perigeeAtSpectrometerEntrance no track parameters " << std::endl;
+      }
       const Trk::TrackStateOnSurface*	entranceTSOS	= 0;
-      if ((**s).trackParameters())
-	{
-	  entranceTSOS	= entrancePerigee((**s).trackParameters());
-	}
-      else
-	{
-	  entranceTSOS	= entrancePerigee(trackStateOnSurfaces->back()->trackParameters());
-	} 
-      if (entranceTSOS) trackStateOnSurfaces->push_back(entranceTSOS);
+      if ((**s).type(Trk::TrackStateOnSurface::Perigee)) hasAlreadyPerigee = true;
+
+      if(!hasAlreadyPerigee&&(**s).trackParameters()) { 
+//        std::cout << " add entrancePerigee " << std::endl;
+        if ((**s).trackParameters())
+	 {
+	   entranceTSOS	= entrancePerigee((**s).trackParameters());
+	 }
+         else
+	 {
+	   entranceTSOS	= entrancePerigee(trackStateOnSurfaces->back()->trackParameters());
+	 } 
+         if(entranceTSOS) {  
+            double distance = (entranceTSOS->trackParameters()->position() - (**s).trackParameters()->position()).mag();
+//            std::cout << " Muon Entrance " <<  " r " << entranceTSOS->trackParameters()->position().perp() << " z " << entranceTSOS->trackParameters()->position().z() << " track pars r " <<  (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z() << std::endl;; 
+            if(distance>2000) ATH_MSG_WARNING(" WRONG Muon Entrance " <<  " r " << entranceTSOS->trackParameters()->position().perp() << " z " << entranceTSOS->trackParameters()->position().z() << " track pars r " <<  (**s).trackParameters()->position().perp() << " z " << (**s).trackParameters()->position().z()); 
+            trackStateOnSurfaces->push_back(entranceTSOS);
+         }
+//         std::cout << " end  perigeeAtSpectrometerEntrance " << std::endl; 
+      }
     }
+//  std::cout << " appendSelectedTSOS start " << std::endl; 
   
   // then append selected TSOS from the extrapolated or spectrometer track
   appendSelectedTSOS(*trackStateOnSurfaces,s,end);
-  
+ 
+//  std::cout << " appendSelectedTSOS finished " << std::endl; 
   Trk::Track* newMuonTrack = new Trk::Track(muonTrack.info(),trackStateOnSurfaces,0);
   
   // Updates the calo TSOS with the ones from TG+corrections (if needed)
@@ -3847,7 +3879,7 @@ CombinedMuonTrackBuilder::createMuonTrack(
     ATH_MSG_VERBOSE( "Updating Calorimeter TSOS in CreateMuonTrack ..." );
     m_materialUpdator->updateCaloTSOS(*newMuonTrack, parameters);
   }
-  
+
   return newMuonTrack;
 }
     
@@ -4822,6 +4854,28 @@ CombinedMuonTrackBuilder::vertexOnTrack(const Trk::TrackParameters&	parameters,
       if(m->alignmentEffectsOnTrack()) naeots++;
     }
      ATH_MSG_DEBUG(" count AEOTs " << txt << " "  << naeots);
+
+// add VEBOSE for checking TSOS order
+
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator it = track->trackStateOnSurfaces()->begin(); 
+    DataVector<const Trk::TrackStateOnSurface>::const_iterator it_end = track->trackStateOnSurfaces()->end();
+    int tsos = 0;
+    int nperigee = 0;
+    for (; it!=it_end; ++it) {
+      tsos++;
+      if((*it)->type(Trk::TrackStateOnSurface::Perigee)) nperigee++;
+      if((*it)->trackParameters()) {
+        ATH_MSG_VERBOSE(" check tsos " << tsos << " TSOS tp " <<  " r " << (*it)->trackParameters()->position().perp() << " z " << (*it)->trackParameters()->position().z()); 
+      } else if ((*it)->measurementOnTrack()) {
+        ATH_MSG_VERBOSE(" check tsos " << tsos << " TSOS mst " <<  " r " << (*it)->measurementOnTrack()->associatedSurface().center().perp() << " z " << (*it)->measurementOnTrack()->associatedSurface().center().z());
+      } else if ((*it)->materialEffectsOnTrack()) {
+        ATH_MSG_VERBOSE(" check tsos " << tsos << " TSOS mat " <<  " r " << (*it)->materialEffectsOnTrack()->associatedSurface().globalReferencePoint().perp() << " z " << (*it)->materialEffectsOnTrack()->associatedSurface().globalReferencePoint().z());
+      } else {
+        ATH_MSG_VERBOSE(" check tsos other than above " << tsos ); 
+      }
+    }
+    ATH_MSG_VERBOSE(" track with number of TSOS perigees " << nperigee); 
+
     return naeots;
   } 
 
