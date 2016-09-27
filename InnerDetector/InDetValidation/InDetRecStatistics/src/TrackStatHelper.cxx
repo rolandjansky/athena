@@ -74,7 +74,7 @@ void InDet::TrackStatHelper::SetCuts(struct cuts ct)
 }
 
 void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTracks, 
-				      std::vector <Trk::Track *>         & rec, 
+				      std::vector <const Trk::Track *>   & rec, 
 				      std::vector <std::pair<HepMC::GenParticle *,int> > & gen, 
 				      const TrackTruthCollection         * truthMap, 
 				      const AtlasDetectorID              * const idHelper, 
@@ -86,7 +86,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 				      unsigned int                       * inTimeEnd)
 {
 
-  rttMap.clear();
+  m_rttMap.clear();
   
   recoToTruthMap::const_iterator imap;
   
@@ -98,16 +98,16 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
   int recoClassification = 0;
 
   // ------------ reconstructed tracks -----------------
-  for (std::vector <Trk::Track *>::const_iterator track = rec.begin(); track != rec.end();  ++track) {
+  for (const Trk::Track* track : rec) {
 
-    const Trk::TrackParameters* para = (*track)->trackParameters()->front();    
+    const Trk::TrackParameters* para = track->trackParameters()->front();    
     recoClassification = -999;
     int thisEventIndex = -999;
     
-    Author = (*track)->info().trackFitter();
-    if (Author > 0 && Author < Trk::TrackInfo::NumberOfTrackFitters && !author_found[Author]){
-      author_found[Author]  = true;
-      author_string[Author] = (*track)->info().dumpInfo();
+    Author = track->info().trackFitter();
+    if (Author > 0 && Author < Trk::TrackInfo::NumberOfTrackFitters && !m_author_found[Author]){
+      m_author_found[Author]  = true;
+      m_author_string[Author] = track->info().dumpInfo();
     }
     else {
       //FIX author_problem++;
@@ -139,7 +139,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     }
     else {
       ElementLink<TrackCollection> tracklink;
-      tracklink.setElement(const_cast<Trk::Track*>(*track));
+      tracklink.setElement(const_cast<Trk::Track*>(track));
       tracklink.setStorableObject(*recTracks);
       const ElementLink<TrackCollection> tracklink2=tracklink;
       
@@ -148,7 +148,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	trtruth=found->second;
 	HepMcParticleLink hmpl = trtruth.particleLink();
 	thisEventIndex = hmpl.eventIndex();
-	rttMap.insert(std::pair<HepMcParticleLink,float>(hmpl,trtruth.probability()));
+	m_rttMap.insert(std::pair<HepMcParticleLink,float>(hmpl,trtruth.probability()));
 	// ME: remember prob
 	trprob = trtruth.probability();
       }
@@ -172,7 +172,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     const Trk::TrackSummary* summary = NULL;
     
     if (useTrackSummary) {
-      summary = trkSummaryTool->createSummary(**track);
+      summary = trkSummaryTool->createSummary(*track);
 	
       if (summary)
 	{
@@ -294,10 +294,9 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     if (summary) delete summary;
     // ------------------ hits on reconstructed tracks ---------------
       
-    for(std::vector<const Trk::TrackStateOnSurface*>::const_iterator ihit= (*track)->trackStateOnSurfaces()->begin(); 
-	ihit!=(*track)->trackStateOnSurfaces()->end(); ++ihit){
-      if((*ihit)){ 
-	const Trk::MeasurementBase* mesh =(*ihit)->measurementOnTrack();
+    for (const Trk::TrackStateOnSurface* hit : *track->trackStateOnSurfaces()) {
+      if(hit){ 
+	const Trk::MeasurementBase* mesh =hit->measurementOnTrack();
 	if (mesh) {
 	  const Trk::RIO_OnTrack* rio = dynamic_cast<const Trk::RIO_OnTrack*>(mesh);
 	  if (!rio) {
@@ -312,7 +311,7 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
 	    
 	  if (rio) {
 	    // skip outliers
-	    if (!(*ihit)->type(Trk::TrackStateOnSurface::Measurement)) 
+	    if (!hit->type(Trk::TrackStateOnSurface::Measurement)) 
 	      continue;
 	      
 	    m_hits_rec[HIT_ALL][Region]++;
@@ -484,9 +483,9 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
     int nmatched = 0;
     
     HepMcParticleLink hmpl2(particle,truth->second);
-    recoToTruthMap::iterator rttIter=rttMap.find(hmpl2);
-    if(rttIter != rttMap.end()){
-      for(imap = rttMap.lower_bound(hmpl2); imap !=rttMap.upper_bound(hmpl2); ++imap){
+    recoToTruthMap::iterator rttIter=m_rttMap.find(hmpl2);
+    if(rttIter != m_rttMap.end()){
+      for(imap = m_rttMap.lower_bound(hmpl2); imap !=m_rttMap.upper_bound(hmpl2); ++imap){
 	if(imap->second > m_cuts.matchTrackCut){
 	  matched = true;
 	  nmatched++;
@@ -571,9 +570,9 @@ void InDet::TrackStatHelper::addEvent(const TrackCollection              * recTr
       int nmatched = 0;
       
       HepMcParticleLink hmpl2(particle,truth->second);
-      recoToTruthMap::iterator rttIter=rttMap.find(hmpl2);
-      if(rttIter != rttMap.end()){
-	for(imap = rttMap.lower_bound(hmpl2); imap !=rttMap.upper_bound(hmpl2); ++imap){
+      recoToTruthMap::iterator rttIter=m_rttMap.find(hmpl2);
+      if(rttIter != m_rttMap.end()){
+	for(imap = m_rttMap.lower_bound(hmpl2); imap !=m_rttMap.upper_bound(hmpl2); ++imap){
 	  if(imap->second > m_cuts.matchTrackCut){
 	    matched = true;
 	    nmatched++;
@@ -635,7 +634,7 @@ void InDet::TrackStatHelper::reset(){
 
   
   for (int i=0; i<Trk::TrackInfo::NumberOfTrackFitters; i++)
-    author_found[i] = false;
+    m_author_found[i] = false;
 
   m_truthMissing=false;
 }
@@ -662,8 +661,8 @@ void InDet::TrackStatHelper::print(){
   if (m_events > 0) {
     std::cout << "(TrackAuthors:";
     for (int i=0; i<Trk::TrackInfo::NumberOfTrackFitters; i++){
-      if (author_found[i]){
-	std::cout << " " << author_string[i];
+      if (m_author_found[i]){
+	std::cout << " " << m_author_string[i];
       }
     }
     std::cout << " )" << std::endl
@@ -861,8 +860,8 @@ void InDet::TrackStatHelper::printSecondary(){
   if (m_events > 0) {
     std::cout << "(TrackAuthors:";
     for (int i=0; i<Trk::TrackInfo::NumberOfTrackFitters; i++){
-      if (author_found[i]){
-	std::cout << " " << author_string[i];
+      if (m_author_found[i]){
+	std::cout << " " << m_author_string[i];
       }
     }
     std::cout << " )" << std::endl

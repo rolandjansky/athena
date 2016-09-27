@@ -76,8 +76,8 @@ namespace InDet {
       /** Classify truth tracks as primary, secondary or truncated */
     /**Select for analysis reconstructed tracks passing Pt and eta cuts*/
       void          selectRecSignal     (const TrackCollection*,  
-					 std::vector <Trk::Track *> & , 
-					 std::vector <Trk::Track *> &);
+					 std::vector <const Trk::Track *> & , 
+					 std::vector <const Trk::Track *> &);
       /** Print track statistics for all and low proability tracks */
       void          printTrackSummary   (enum eta_region ); 
       
