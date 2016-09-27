@@ -71,16 +71,16 @@
 #include "IdDictDetDescr/IdDictManager.h" 
 
 
-static const int s_n_maxPrimVertex= 1500;
-static const int s_n_maxtracksRec = 100000;
-static const int s_n_maxtracksMC  = 100000;
-static const int s_n_maxHits      = 500000;
-static const int s_n_maxEventHits = 1000000;
-static const int s_n_maxMatches   = 100;
+//static const int s_n_maxPrimVertex= 1500;
+//static const int s_n_maxtracksRec = 100000;
+//static const int s_n_maxtracksMC  = 100000;
+//static const int s_n_maxHits      = 500000;
+//static const int s_n_maxEventHits = 1000000;
+//static const int s_n_maxMatches   = 100;
 
 static const char *s_linestr  = "----------------------------------------------------------------------------------------------------------------------------------------------";
 static const char *s_linestr2 = "..............................................................................................................................................";
-static const int s_ERRORVALUE = -999999;
+//static const int s_ERRORVALUE = -999999;
 
 InDet::InDetRecStatisticsAlg::InDetRecStatisticsAlg(const std::string& name, ISvcLocator* pSvcLocator) :
   AthAlgorithm(name, pSvcLocator), 
@@ -383,7 +383,7 @@ StatusCode InDet::InDetRecStatisticsAlg::execute() {
 	}
       }
       
-      std::vector <Trk::Track *>          RecTracks, RecSignal;    
+      std::vector <const Trk::Track *>          RecTracks, RecSignal;    
       selectRecSignal                     (RecCollection, RecTracks,RecSignal);
 
       ATH_MSG_DEBUG( 
@@ -474,11 +474,11 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
    //get Pixel, SCT, TRT managers and helpers
  
    if (detStore()->retrieve(m_pixelID, "PixelID").isFailure()) {
-     msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+     msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
      return StatusCode::FAILURE;
    }
    if (detStore()->retrieve(m_sctID, "SCT_ID").isFailure()) {
-     msg(MSG::FATAL) << "Could not get SCT ID helper" << endreq;
+     msg(MSG::FATAL) << "Could not get SCT ID helper" << endmsg;
      return StatusCode::FAILURE;
    }
 
@@ -499,7 +499,7 @@ StatusCode InDet :: InDetRecStatisticsAlg :: getServices ()
 
    if(!isSLHC){
      if (detStore()->retrieve(m_trtID, "TRT_ID").isFailure()) {
-       msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
+       msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
        return StatusCode::FAILURE;
      }
    }
@@ -599,8 +599,8 @@ StatusCode InDet :: InDetRecStatisticsAlg :: resetStatistics() {
 }
 
 void InDet::InDetRecStatisticsAlg::selectRecSignal(const TrackCollection* RecCollection, 
-						   std::vector <Trk::Track *> & RecTracks ,
-						   std::vector <Trk::Track *> & RecSignal){
+						   std::vector <const Trk::Track *> & RecTracks ,
+						   std::vector <const Trk::Track *> & RecSignal){
   
   int trkInd = 0;
   int nSigtrks = 0;

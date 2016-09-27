@@ -146,7 +146,7 @@ namespace InDet {
     void     SetCuts(struct cuts);
     /** Adds hit, track and matching information for each event.  Called at each event*/
     void     addEvent   (const TrackCollection *, 
-			       std::vector<Trk::Track *> &, 
+			       std::vector<const Trk::Track *> &, 
 			       std::vector <std::pair<HepMC::GenParticle *,int> > &,   
 			       const TrackTruthCollection *, 
 			       const AtlasDetectorID * const, 
@@ -188,8 +188,8 @@ namespace InDet {
 
     std::string  m_TrackCollectionKey;//!< StoreGate Track Collection Key
     std::string  m_TrackTruthCollectionKey;  //!< StoreGate Track Truth Collection Key
-    bool         author_found [Trk::TrackInfo::NumberOfTrackFitters]; //!<Number of tracking authors found 
-    std::string  author_string[Trk::TrackInfo::NumberOfTrackFitters];//!< Names of tracking authors
+    bool         m_author_found [Trk::TrackInfo::NumberOfTrackFitters]; //!<Number of tracking authors found 
+    std::string  m_author_string[Trk::TrackInfo::NumberOfTrackFitters];//!< Names of tracking authors
     long  m_events;//!< Number of events
     long  m_tracks_rec[N_TRACKTYPES][N_ETAREGIONS];//!< number of reconstructed tracks for a given type and eta region
     long  m_tracks_gen[N_TRACKTYPES][N_ETAREGIONS];//!< number of generated tracks for a given type and eta region, looping over genevents to include possible pileup
@@ -205,7 +205,7 @@ namespace InDet {
     struct cuts m_cuts;
     
     typedef std::multimap<HepMcParticleLink,float> recoToTruthMap;//!< map containing reco track and matched truth track barcode
-    recoToTruthMap rttMap;
+    recoToTruthMap m_rttMap;
   };
     
 
