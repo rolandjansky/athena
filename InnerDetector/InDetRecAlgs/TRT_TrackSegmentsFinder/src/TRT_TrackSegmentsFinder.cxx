@@ -53,26 +53,26 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
   //
   IToolSvc* toolSvc;
   if ((sc=service("ToolSvc", toolSvc)).isFailure())  {
-    msg(MSG::FATAL)<<"Toll service not found !"<<endreq; return sc;
+    msg(MSG::FATAL)<<"Toll service not found !"<<endmsg; return sc;
   }
 
   // Get tool for drift circles seeds maker
   //
   if(m_segmentsMakerTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_segmentsMakerTool<< endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_segmentsMakerTool<< endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_segmentsMakerTool  << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_segmentsMakerTool  << endmsg;
   }
   
   if( m_useCaloSeeds) {
     // Get detector elements road maker tool
     //
     if(m_roadtool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_roadtool <<endreq;
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_roadtool <<endmsg;
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_roadtool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_roadtool << endmsg;
     }
   } 
 
@@ -81,7 +81,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   m_nsegmentsTotal = 0;
   return StatusCode::SUCCESS;
@@ -96,7 +96,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
   StatusCode s = m_foundSegments.record( CxxUtils::make_unique<Trk::SegmentCollection>());
   
   if (s.isFailure() || !m_foundSegments.isValid() ) {
-    msg(MSG::ERROR)<<"Could not save TRT segments" <<endreq;
+    msg(MSG::ERROR)<<"Could not save TRT segments" <<endmsg;
     return s;
   }  
   
@@ -156,7 +156,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
 	}
       }
     }else{
-        msg(MSG::WARNING)<<"Could not find TRT segments in container " << m_calo.name() <<endreq;
+        msg(MSG::WARNING)<<"Could not find TRT segments in container " << m_calo.name() <<endmsg;
         
     }
   }
@@ -169,7 +169,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
   // Print common event information
   //
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -180,7 +180,7 @@ StatusCode InDet::TRT_TrackSegmentsFinder::execute()
 
 StatusCode InDet::TRT_TrackSegmentsFinder::finalize() 
 {
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endreq;
+  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -211,7 +211,8 @@ std::ostream& InDet::operator <<
 MsgStream& InDet::TRT_TrackSegmentsFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
