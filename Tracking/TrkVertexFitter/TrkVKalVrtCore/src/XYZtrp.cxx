@@ -56,7 +56,8 @@ void  xyztrp(long int *ich, double *vrt0, double *pv0, double *covi, double *par
     par[0] = 0.;                    /*            (-Yv*cos + Xv*sin) */
     par[1] = 0.;                    /*  Zv - cotth*(Xv*cos + Yv*sin) */
     par[2] = acos(pv0[2] / sqrt(pp));
-    if(par[2]<1.e-5)par[2]=1.e-5; if(par[2]>3.141592653-1.e-5) par[2]=3.141592653-1.e-5;
+    if(par[2]<1.e-5)par[2]=1.e-5;
+    if(par[2]>M_PI-1.e-5) par[2]=M_PI-1.e-5;
     par[3] = atan2(pv0[1], pv0[0]);
     par[4] = rho;
     if ((*ich) == 0)par[4] = const__ / pt;
@@ -152,7 +153,8 @@ void  combinedTrack(long int ICH, double *vrt0, double *pv0, double *covi, doubl
     par[0] = 0.;                    /*            (-Yv*cos + Xv*sin) */
     par[1] = 0.;                    /*  Zv - cotth*(Xv*cos + Yv*sin) */
     par[2] = acos(pv0[2] / sqrt(pp));
-    if(par[2]<1.e-5)par[2]=1.e-5; if(par[2]>3.141592653-1.e-5) par[2]=3.141592653-1.e-5;
+    if(par[2]<1.e-5)par[2]=1.e-5;
+    if(par[2]>M_PI-1.e-5) par[2]=M_PI-1.e-5;
     par[3] = atan2(pv0[1], pv0[0]);
     par[4] = rho;
     if ( ICH==0 )par[4] = const__ / pt;

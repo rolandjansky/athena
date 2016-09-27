@@ -39,8 +39,8 @@ double cfchi2(double *xyzt, long int *ich, double *part,
     d3 = par0[2] - part[1];
     d4 = par0[3] - phif;
     d5 = par0[4] - part[3];
-    while(d4 >  3.141592653589)d4-=2.*3.141592653589;
-    while(d4 < -3.141592653589)d4+=2.*3.141592653589;
+    while(d4 >  M_PI)d4-=2.*M_PI;
+    while(d4 < -M_PI)d4+=2.*M_PI;
 // -----------------------Check of propagation
 //    double paro[5],parn[5],s,ref[3],peri[3];
 //    paro[0]=0.; paro[1]=0.; paro[2]=part[1]; paro[3]=part[2]; paro[4]=part[3];
@@ -90,8 +90,8 @@ double cfchi2(double *vrtt, double * part, VKTrack * trk)
     d3 = theta_f - trk->Perig[2];
     d4 = phif    - trk->Perig[3];
     d5 = invR_f  - trk->Perig[4];
-    if(d4 >  3.141592653589)d4-=2.*3.141592653589;
-    if(d4 < -3.141592653589)d4+=2.*3.141592653589;
+    if(d4 >  M_PI)d4-=2.*M_PI;
+    if(d4 < -M_PI)d4+=2.*M_PI;
     res = trk->WgtM[0] * (d1*d1) 
         + trk->WgtM[2] * (d2*d2) 
         + trk->WgtM[5] * (d3*d3) 
@@ -311,22 +311,22 @@ void cfTrkCovarCorr(double *cov){
 //        ", "<<cov[13]*cov[13]/cov[9]/cov[14]<<'\n';
    double Lim=0.99; double Lim2=Lim*Lim;
    bool i0,i1,i2,i3,i4; i0=i1=i2=i3=i4=false;
-   if( fabs(cov[1]*cov[1])/cov[0]/cov[2] > Lim2 ) i0=true; i1=true;
-   if( fabs(cov[3]*cov[3])/cov[0]/cov[5] > Lim2 ) i0=true; i2=true;
-   if( fabs(cov[4]*cov[4])/cov[2]/cov[5] > Lim2 ) i1=true; i2=true;
-   if( fabs(cov[6]*cov[6])/cov[0]/cov[9] > Lim2 ) i0=true; i3=true;
-   if( fabs(cov[7]*cov[7])/cov[2]/cov[9] > Lim2 ) i1=true; i3=true;
-   if( fabs(cov[8]*cov[8])/cov[5]/cov[9] > Lim2 ) i2=true; i3=true;
-   if( fabs(cov[10]*cov[10])/cov[0]/cov[14] > Lim2 ) i0=true; i4=true;
-   if( fabs(cov[11]*cov[11])/cov[2]/cov[14] > Lim2 ) i1=true; i4=true;
-   if( fabs(cov[12]*cov[12])/cov[5]/cov[14] > Lim2 ) i2=true; i4=true;
-   if( fabs(cov[13]*cov[13])/cov[9]/cov[14] > Lim2 ) i3=true; i4=true;
+   if( fabs(cov[1]*cov[1])/cov[0]/cov[2] > Lim2 ){ i0=true; i1=true;}
+   if( fabs(cov[3]*cov[3])/cov[0]/cov[5] > Lim2 ){ i0=true; i2=true;}
+   if( fabs(cov[4]*cov[4])/cov[2]/cov[5] > Lim2 ){ i1=true; i2=true;}
+   if( fabs(cov[6]*cov[6])/cov[0]/cov[9] > Lim2 ){ i0=true; i3=true;}
+   if( fabs(cov[7]*cov[7])/cov[2]/cov[9] > Lim2 ){ i1=true; i3=true;}
+   if( fabs(cov[8]*cov[8])/cov[5]/cov[9] > Lim2 ){ i2=true; i3=true;}
+   if( fabs(cov[10]*cov[10])/cov[0]/cov[14] > Lim2 ){ i0=true; i4=true;}
+   if( fabs(cov[11]*cov[11])/cov[2]/cov[14] > Lim2 ){ i1=true; i4=true;}
+   if( fabs(cov[12]*cov[12])/cov[5]/cov[14] > Lim2 ){ i2=true; i4=true;}
+   if( fabs(cov[13]*cov[13])/cov[9]/cov[14] > Lim2 ){ i3=true; i4=true;}
 
-   if(i0)               cov[1]*=Lim;  cov[3]*=Lim;  cov[6]*=Lim;  cov[10]*=Lim; 
-   if(i1) cov[1]*=Lim;                cov[4]*=Lim;  cov[7]*=Lim;  cov[11]*=Lim; 
-   if(i2) cov[3]*=Lim;  cov[4]*=Lim;                cov[8]*=Lim;  cov[12]*=Lim; 
-   if(i3) cov[6]*=Lim;  cov[7]*=Lim;  cov[8]*=Lim;                cov[13]*=Lim; 
-   if(i4) cov[10]*=Lim; cov[11]*=Lim; cov[12]*=Lim; cov[13]*=Lim; 
+   if(i0){               cov[1]*=Lim;  cov[3]*=Lim;  cov[6]*=Lim;  cov[10]*=Lim; }
+   if(i1){ cov[1]*=Lim;                cov[4]*=Lim;  cov[7]*=Lim;  cov[11]*=Lim; }
+   if(i2){ cov[3]*=Lim;  cov[4]*=Lim;                cov[8]*=Lim;  cov[12]*=Lim; }
+   if(i3){ cov[6]*=Lim;  cov[7]*=Lim;  cov[8]*=Lim;                cov[13]*=Lim; }
+   if(i4){ cov[10]*=Lim; cov[11]*=Lim; cov[12]*=Lim; cov[13]*=Lim;               }
 }
 
 } /*End of namespace */

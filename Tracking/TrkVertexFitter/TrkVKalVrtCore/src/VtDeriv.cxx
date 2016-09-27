@@ -96,7 +96,8 @@ void vpderiv(bool UseTrackErr, long int Charge, double *pari0, double *covi, dou
 	par[0] = 0.;
 	par[1] = 0.;
 	par[2] = acos(pari[5] / sqrt(pp));
-        if(par[2]<1.e-5) par[2]=1.e-5; if(par[2]>3.141592653-1.e-5) par[2]=3.141592653-1.e-5;
+        if(par[2]<1.e-5) par[2]=1.e-5;
+        if(par[2]>M_PI-1.e-5) par[2]=M_PI-1.e-5;
 	par[3] = atan2(pari[4], pari[3]);
 	par[4] = rho;
 	if (Charge == 0)  par[4] = constB / pt;

@@ -23,7 +23,6 @@ void calcPhiConstraint( VKPhiConstraint * cnst)
     VKVertex * vk=cnst->getOriginVertex();
     int NTRK = vk->TrackList.size();
     int i,j;
-    double cPi=3.141592653589;
     double Scale=1.;   // Scaling for better precision VK 28.03.2011 Wrong for error matrix!!! Should always be 1.!!!
  
     double diff=0., aa=0;
@@ -31,8 +30,8 @@ void calcPhiConstraint( VKPhiConstraint * cnst)
     for(i=0; i<NTRK-1; i++){
        for(j=i+1; j<NTRK; j++){  
           diff  = vk->TrackList[i]->cnstP[1] - vk->TrackList[j]->cnstP[1];
-          while(diff >  cPi) diff -= 2.*cPi;
-          while(diff < -cPi) diff += 2.*cPi;
+          while(diff >  M_PI) diff -= 2.*M_PI;
+          while(diff < -M_PI) diff += 2.*M_PI;
           aa       += diff*Scale;
 	  deriv[i] +=      Scale;
 	  deriv[j] -=      Scale;

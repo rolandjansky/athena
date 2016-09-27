@@ -400,7 +400,8 @@ int fitVertexCascade( VKVertex * vk, int Pointing)
      }
      if( (Chi2Cur>1.e8 && Iter>0) || IERR){
        delete[] fullMatrix; delete[] fullLSide; delete[] tmpLSide; delete[] iniCovMatrix;
-       if(Chi2Cur>1.e8) return -1;   return IERR;
+       if(Chi2Cur>1.e8) return -1;
+       return IERR;
      }
 //
 //--- Attempt to dump oscillations by returning to good position
@@ -786,7 +787,8 @@ void getFittedCascade( std::vector< Vect3DF > & cVertices,
      cascadeCovar.push_back( transformCovar(DIM, Deriv, cascadeCovarFit[iv] ) );  //Transform covariance and save it
      for(int kk=0; kk<6; kk++) tmpCov[kk]=cascadeCovar[iv][kk];
      covVertices.push_back(tmpCov);
-     for(it=0; it<DIM; it++) delete[]Deriv[it];     delete[]Deriv;
+     for(it=0; it<DIM; it++) delete[]Deriv[it];
+     delete[]Deriv;
    }
 //
 // Get full physics covariance 
@@ -799,7 +801,8 @@ void getFittedCascade( std::vector< Vect3DF > & cVertices,
         fullCovar[it*(it+1)/2+jt]=tmp; // symmetrical index formula works ONLY if it>=jt!!!
      }
    }
-   for(it=0; it<PDIM; it++) delete[]DPhys[it];     delete[]DPhys;
+   for(it=0; it<PDIM; it++) delete[]DPhys[it];
+   delete[]DPhys;
 //
    cleanCascade();
    return;
