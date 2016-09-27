@@ -236,8 +236,8 @@ extern DerivT derivt_;
 	       dzp[kt] -= zp; dphi[kt] -= phip;
         zp   += xyz[2];   //To gain precision
 	phip += phi_ini;  //To gain precision
-        while(dphi[kt] >  3.141592653589)dphi[kt]-=2.*3.141592653589;
-        while(dphi[kt] < -3.141592653589)dphi[kt]+=2.*3.141592653589;
+        while(dphi[kt] >  M_PI)dphi[kt]-=2.*M_PI;
+        while(dphi[kt] < -M_PI)dphi[kt]+=2.*M_PI;
 //std::cout.precision(11);
 //std::cout<<" newpar="<<deps[kt]<<", "<<dzp[kt]<<", "<<dtet[kt]<<", "<<dphi[kt]<<", "<<drho[kt]<<", "<<trk->Id<<'\n';
 
@@ -525,7 +525,7 @@ extern DerivT derivt_;
     for (kt = 0; kt < NTRK; ++kt) {                    /*   variation on PAR is  WCI * TT - (WBCI)t * DXYZ */
         for( int tpn=0; tpn<9; tpn++){
           if(tpn<6)twci[tpn]  = vk->tmpArr[kt]->wci[tpn];
-                   twbci[tpn] = vk->tmpArr[kt]->wbci[tpn];
+          twbci[tpn] = vk->tmpArr[kt]->wbci[tpn];
         }
         double tt1=vk->tmpArr[kt]->tt[0];
         double tt2=vk->tmpArr[kt]->tt[1];
@@ -792,7 +792,8 @@ extern DerivT derivt_;
 //Having 3 points (0,-0.02,0.02) find a pabolic minimum
 	if (j == 6) {  bet = finter(chi2t[4], chi2t[3], chi2t[5], -0.02, 0., 0.02);
 	               if (chi2t[3] == chi2t[4] && chi2t[4] == chi2t[5])  bet = 0.;
-	               if (bet >0.3)bet = 0.3;if (bet <-0.3)bet = -0.3;
+	               if (bet >0.3)bet = 0.3;
+                       if (bet <-0.3)bet = -0.3;
 	}
 //Check if minimum is really a minimum. Otherwise use bet=0. point
 	if (j == 7 &&  ContribC[6]>ContribC[3]) { bet = 0.; j--; /*repeat step 7*/}   

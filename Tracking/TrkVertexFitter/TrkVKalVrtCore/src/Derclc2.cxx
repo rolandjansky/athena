@@ -51,7 +51,8 @@ void  calcPointConstraint( VKPointConstraint * cnst )
     double mom= sqrt(ptot[2]*ptot[2] + Pt*Pt) ;
     double phi=atan2(ptot[1],ptot[0]);
     double theta=acos( ptot[2]/mom );
-    if(theta<1.e-5) theta=1.e-5; if(theta>3.141592653-1.e-5) theta=3.141592653-1.e-5;
+    if(theta<1.e-5) theta=1.e-5;
+    if(theta>M_PI-1.e-5) theta=M_PI-1.e-5;
     double invR = magConst / Pt; if(Charge) invR *= Charge;   
 //
 // Fitted vertex position in global reference frame

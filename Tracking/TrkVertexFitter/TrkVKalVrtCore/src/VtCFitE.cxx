@@ -203,8 +203,10 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double *verr)
 	  delete[] tv; delete[] tr; delete[] tw;	
 	  IERR=0; //return IERR;
         }
- 	for (i=1; i<=NVar; ++i) for (j = 1; j<=NVar; ++j) ader_ref(i,j)*=Scale[i-1]*Scale[j-1]; delete[] Scale; //Restore scale
-        for(i=0; i<NVar+1; i++) delete[] ta[i]; delete[] ta;                 //Clean memory
+ 	for (i=1; i<=NVar; ++i) for (j = 1; j<=NVar; ++j) ader_ref(i,j)*=Scale[i-1]*Scale[j-1];
+        delete[] Scale; //Restore scale
+        for(i=0; i<NVar+1; i++) delete[] ta[i];
+        delete[] ta;                 //Clean memory
 /* ---------------------------------------- */
     } else {
 /* ---------------------------------------- */
@@ -356,8 +358,10 @@ int getFullVrtCov(VKVertex * vk, double *ader, double *dcv, double *verr)
 	   }
 	 }
 // Delete temporary matrices
-         for(ic=0; ic<totNC; ic++) delete[]  R[ic]; delete[] R;
-         for(ic=0; ic<totNC; ic++) delete[] RC[ic]; delete[] RC;
+         for(ic=0; ic<totNC; ic++) delete[]  R[ic];
+         delete[] R;
+         for(ic=0; ic<totNC; ic++) delete[] RC[ic];
+         delete[] RC;
 	 delete[] RCRt;
 //for(int ii=1; ii<=9; ii++)std::cout<<ader_ref(ii,ii)<<", "; std::cout<<" avery full m NEW"<<'\n';        
        }  //end of Avery matrix
