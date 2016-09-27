@@ -10,7 +10,7 @@
 #            d) Jet / HLT trigger object matching
 #            e) Trigger efficiency estimation 
 #
-#  author(s) : Lee Sawyer (lee.sawyer@cern.ch)
+#  author(s) : Lee Sawyer (lee.sawyer@cern.ch), Giulio Cornelio Grossi
 #################################################################################################
 
 import math
@@ -120,7 +120,7 @@ of_DijetChains  = ['AntiKt4EMTopoJets']
 
 if (pp):
 
-  hlt_JetKeys = { "a10tcemsubFS"    : "HLT_xAOD__JetContainer_a10tcemsubFS",
+  hlt_JetKeys = { "a10tclcwsubFS"    : "HLT_xAOD__JetContainer_a10tclcwsubFS",
                   "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
                   "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
                   "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
@@ -173,7 +173,7 @@ if (pp):
                                      'j260':150.,
                                      'j360':250.,
                                      'j460':250.,
-                                     'j460_a10_sub_L1J100':350.,
+                                     'j460_a10_lcw_sub_L1J100':350.,
                                      'j80_xe80':50.,
                                      '4j45':20.,
                                      '6j60':20.,
@@ -200,7 +200,7 @@ if (pp):
                                      'j260':3.2, 
                                      'j360':3.2, 
                                      'j460':3.2, 
-                                     'j460_a10_sub_L1J100':3.2,
+                                     'j460_a10_lcw_sub_L1J100':3.2,
                                      'j80_xe80':3.2,
                                      '4j45':3.2,
                                      '6j60':3.2,
@@ -226,7 +226,7 @@ if (pp):
                                      'j260':0.,   
                                      'j360':0.,  
                                      'j460':0.,  
-                                     'j460_a10_sub_L1J100':0.,
+                                     'j460_a10_lcw_sub_L1J100':0.,
                                      'j80_xe80':0.,
                                      '4j45':0.,
                                      '6j60':0.,
@@ -253,7 +253,7 @@ if (pp):
                                      'j260':1,   
                                      'j360':1,  
                                      'j460':1,
-                                     'j460_a10_sub_L1J100':1,
+                                     'j460_a10_lcw_sub_L1J100':1,
                                      'j80_xe80':1,
                                      '4j45':4,
                                      '6j60':6,
@@ -280,7 +280,7 @@ if (pp):
                                     'j260':'a4tcemsubjesFS',
                                     'j360':'a4tcemsubjesFS',
                                     'j460':'a4tcemsubjesFS',
-                                    'j460_a10_sub_L1J100':'a10tcemsubFS',
+                                    'j460_a10_lcw_sub_L1J100':'a10tclcwsubFS',
                                     'j80_xe80':'a4tcemsubjesFS',
                                     '4j45':'a4tcemsubjesFS',
                                     '6j60':'a4tcemsubjesFS',
@@ -309,7 +309,7 @@ if (pp):
                                      'j260':150.,
                                      'j360':250.,
                                      'j460':250.,
-                                     'j460_a10_sub_L1J100':350.,
+                                     'j460_a10_lcw_sub_L1J100':350.,
                                      'j80_xe80':50.,
                                      '4j45':20.,
                                      '6j60':20.,
@@ -336,7 +336,7 @@ if (pp):
   
 if (hi) or (pPb):
 
-  hlt_JetKeys = { "a10tcemsubFS"    : "HLT_xAOD__JetContainer_a10tcemsubFS",
+  hlt_JetKeys = { "a10tclcwsubFS"    : "HLT_xAOD__JetContainer_a10tclcwsubFS",
                   "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
                   "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
                   "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
@@ -384,7 +384,7 @@ if (hi) or (pPb):
                                      'j200_jes_PS':100.,
                                      'j260':150.,
                                      'j360':250.,
-                                     'j460_a10_sub_L1J100':350.,
+                                     'j460_a10_lcw_sub_L1J100':350.,
                                      'j80_xe80':50.,
                                      '4j45':20.,
                                      '6j60':20.,
@@ -408,7 +408,7 @@ if (hi) or (pPb):
                                      'j60_320eta490':4.9,
                                      'j200_jes_PS':3.2,'j260':3.2, 
                                      'j260_320eta490':4.9,'j360':3.2, 
-                                     'j460_a10_sub_L1J100':3.2,
+                                     'j460_a10_lcw_sub_L1J100':3.2,
                                      'j80_xe80':3.2,
                                      '4j45':3.2,
                                      '6j60':3.2,
@@ -433,7 +433,7 @@ if (hi) or (pPb):
                                      'j200_jes_PS':0.,
                                      'j260':0.,   
                                      'j360':0.,  
-                                     'j460_a10_sub_L1J100':0.,
+                                     'j460_a10_lcw_sub_L1J100':0.,
                                      'j80_xe80':0.,
                                      '4j45':0.,
                                      '6j60':0.,
@@ -459,7 +459,7 @@ if (hi) or (pPb):
                                      'j200_jes_PS':1,
                                      'j260':1,   
                                      'j360':1,  
-                                     'j460_a10_sub_L1J100':1,
+                                     'j460_a10_lcw_sub_L1J100':1,
                                      'j80_xe80':1,
                                      '4j45':4,
                                      '6j60':6,
@@ -485,7 +485,7 @@ if (hi) or (pPb):
                                     'j200_jes_PS':'a4tcemjesPS',
                                     'j260':'a4tcemsubjesFS',
                                     'j360':'a4tcemsubjesFS',
-                                    'j460_a10_sub_L1J100':'a10tcemsubFS',
+                                    'j460_a10_lcw_sub_L1J100':'a10tclcwsubFS',
                                     'j80_xe80':'a4tcemsubjesFS',
                                     '4j45':'a4tcemsubjesFS',
                                     '6j60':'a4tcemsubjesFS',
@@ -511,7 +511,7 @@ if (hi) or (pPb):
                                      'j200_jes_PS':100.,
                                      'j260':150.,
                                      'j360':250.,
-                                     'j460_a10_sub_L1J100':350.,
+                                     'j460_a10_lcw_sub_L1J100':350.,
                                      'j80_xe80':50.,
                                      '4j45':20.,
                                      '6j60':20.,
@@ -541,7 +541,7 @@ if (hi) or (pPb):
 
 if (cosmics):
 
-  hlt_JetKeys = { "a10tcemsubFS"    : "HLT_xAOD__JetContainer_a10tcemsubFS",
+  hlt_JetKeys = { "a10tclcwsubFS"    : "HLT_xAOD__JetContainer_a10tclcwsubFS",
                   "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
                   "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
                   "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",

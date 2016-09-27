@@ -158,6 +158,8 @@ class HLTJetMonTool : public IHLTMonTool {
     std::vector<int> v_L1index;
     std::vector<int> v_OFindex;
 
+    std::vector<double> v_offline_eta, v_offline_pt;
+
     int n_index = 0;
 
     double lumi_weight = 0;
@@ -248,7 +250,7 @@ class HLTJetMonTool : public IHLTMonTool {
     //bool evtSelTriggersPassed();
 
     TLorentzVector DeltaRMatching(const xAOD::Jet *jet, const std::string &ChainName, const std::string &ContainerName, const std::string& level, double thrHLT, float DRCut, bool& Pass);
-    bool   isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer *jetcoll,double EtaLow, double EtaHigh, int Jetn);
+    bool   isLeadingJet(const xAOD::Jet *jet,int collection_index, double EtaLow, double EtaHigh, int Jetn);
     bool   isChainActive(const std::string& theChain );
     double signed_delta_phi(double ph11, double phi2);
     double delta_r(double eta1, double phi1, double eta2, double phi2);
