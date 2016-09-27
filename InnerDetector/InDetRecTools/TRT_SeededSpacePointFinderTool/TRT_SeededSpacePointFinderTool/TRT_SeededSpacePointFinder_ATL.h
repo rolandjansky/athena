@@ -43,9 +43,9 @@ namespace InDet{
 
   /** Sorting function according to space point radial position */
   class MyNewDataSortPredicate
-    : public std::binary_function<std::pair<Trk::SpacePoint*,int>, std::pair<Trk::SpacePoint*,int>, bool> {
+    : public std::binary_function<std::pair<const Trk::SpacePoint*,int>, std::pair<const Trk::SpacePoint*,int>, bool> {
     public:
-    bool operator()(std::pair<Trk::SpacePoint*,int> sp1, std::pair<Trk::SpacePoint*,int> sp2) const
+    bool operator()(std::pair<const Trk::SpacePoint*,int> sp1, std::pair<const Trk::SpacePoint*,int> sp2) const
       {return (sp1.first)->r() > (sp2.first)->r();}
   };
 }
@@ -153,9 +153,9 @@ namespace InDet{
       ///////////////////////////////////////////////////////////////////
      
       int r_size                                                     ;
-      std::list<Trk::SpacePoint*>*                r_Sorted           ;
-      std::list<std::pair<Trk::SpacePoint*,int> > rf_Sorted[530]     ;
-      std::list<std::pair<Trk::SpacePoint*,int> > newRfi_Sorted      ;
+      std::list<const Trk::SpacePoint*>*          r_Sorted           ;
+      std::list<std::pair<const Trk::SpacePoint*,int> > rf_Sorted[530]     ;
+      std::list<std::pair<const Trk::SpacePoint*,int> > newRfi_Sorted      ;
 
       int m_ns                                                       ;
       int m_fNmax                                                    ;

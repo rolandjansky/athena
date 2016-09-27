@@ -93,7 +93,7 @@ StatusCode InDet::SimpleTRT_SeededSpacePointFinder_ATL::initialize()
       sc = m_assoTool.retrieve(); 
       if(sc.isFailure()) 
 	{
-	  msg(MSG::FATAL)<<"Could not get "<<m_assoTool<<endreq; 
+	  msg(MSG::FATAL)<<"Could not get "<<m_assoTool<<endmsg; 
 	  return StatusCode::FAILURE;
 	}
       else
@@ -111,14 +111,14 @@ StatusCode InDet::SimpleTRT_SeededSpacePointFinder_ATL::initialize()
   sc = detStore()->retrieve(m_sctId, "SCT_ID");
   if (sc.isFailure())
     {
-      msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endreq;
+      msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endmsg;
       return StatusCode::FAILURE;
     }
 
   sc = detStore()->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure())
     {
-      msg(MSG::ERROR) << "Could not get TRT_ID helper !" << endreq;
+      msg(MSG::ERROR) << "Could not get TRT_ID helper !" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -171,8 +171,8 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters&
   */			   
 
 
-  msg(MSG::VERBOSE) << "Enter getListOfSpacePointPairs, TrackParameter given is: " << endreq;
-  msg(MSG::VERBOSE) << directionTRT << endreq;
+  msg(MSG::VERBOSE) << "Enter getListOfSpacePointPairs, TrackParameter given is: " << endmsg;
+  msg(MSG::VERBOSE) << directionTRT << endmsg;
 
   // clear output buffer
   m_listOfSpacePointPairsBuffer.clear();
@@ -184,7 +184,7 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters&
     {
       // fill IdHashes in ROI
       getHashesInROI(directionTRT,setOfSCT_Hashes);
-      msg(MSG::VERBOSE) << "Retrieved " << setOfSCT_Hashes.size() << " potentially interesting detector elements." << endreq;
+      msg(MSG::VERBOSE) << "Retrieved " << setOfSCT_Hashes.size() << " potentially interesting detector elements." << endmsg;
     }
 
   if ( !m_useROI || setOfSCT_Hashes.size()>0)
@@ -196,7 +196,7 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters&
       int modulTRT = TRT_Module(directionTRT);
       getSpacePointsInROI(setOfSCT_Hashes, modulTRT, relevantSpacePoints);
 
-      msg(MSG::VERBOSE) << "Retrieved " << relevantSpacePoints.size() << " potentially interesting SpacePoints" << endreq;
+      msg(MSG::VERBOSE) << "Retrieved " << relevantSpacePoints.size() << " potentially interesting SpacePoints" << endmsg;
 
       // build pairs of the relevant SP according to the look-up table
       combineSpacePoints(relevantSpacePoints, directionTRT, modulTRT);
@@ -205,28 +205,28 @@ InDet::SimpleTRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters&
        */
       Amg::Vector3D r0 = directionTRT.position();
       Amg::Vector3D v0(directionTRT.momentum());
-      msg(MSG::VERBOSE) << "------------------------------------------------------------------------------------------" << endreq;
-      msg(MSG::VERBOSE) << "Final SpacePoint pairs: " << m_listOfSpacePointPairsBuffer.size() << endreq;
-      msg(MSG::VERBOSE) << "   Position of initial vector:  ( " << r0.x() << ", " << r0.y() << ", "<< r0.z() << " ) " << endreq;
+      msg(MSG::VERBOSE) << "------------------------------------------------------------------------------------------" << endmsg;
+      msg(MSG::VERBOSE) << "Final SpacePoint pairs: " << m_listOfSpacePointPairsBuffer.size() << endmsg;
+      msg(MSG::VERBOSE) << "   Position of initial vector:  ( " << r0.x() << ", " << r0.y() << ", "<< r0.z() << " ) " << endmsg;
       msg(MSG::VERBOSE) << "   Direction of initial vector:  ( " << v0.unit().x() << ", " << v0.unit().y() << ", "<< v0.unit().z() << " ) , phi = " 
-	    << v0.phi() <<  "   theta = " << v0.theta() << "    eta = "<< v0.eta() << endreq;
-      msg(MSG::VERBOSE) << "------------------------------------------------------------------------------------------" << endreq;
-      msg(MSG::VERBOSE) << "   Direction of space Point vectors: "<< endreq;
-      msg(MSG::VERBOSE) << ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . " << endreq;
+	    << v0.phi() <<  "   theta = " << v0.theta() << "    eta = "<< v0.eta() << endmsg;
+      msg(MSG::VERBOSE) << "------------------------------------------------------------------------------------------" << endmsg;
+      msg(MSG::VERBOSE) << "   Direction of space Point vectors: "<< endmsg;
+      msg(MSG::VERBOSE) << ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . " << endmsg;
       for (std::list<std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*> >::iterator it = m_listOfSpacePointPairsBuffer.begin();
 	   it != m_listOfSpacePointPairsBuffer.end(); ++it)
 	{
 	  Amg::Vector3D s1 = it->first->globalPosition();
 	  Amg::Vector3D s2 = it->second->globalPosition();
 	  Amg::Vector3D s1s2 = s2-s1;  // vector from s1 to s2
-	  msg(MSG::VERBOSE) << "   Positions:  ( " << s1.x() << " , "<< s1.y() << " , "<< s1.z() << " ) " << endreq;
-	  msg(MSG::VERBOSE) << "               ( " << s2.x() << " , "<< s2.y() << " , "<< s2.z() << " ) " << endreq;
+	  msg(MSG::VERBOSE) << "   Positions:  ( " << s1.x() << " , "<< s1.y() << " , "<< s1.z() << " ) " << endmsg;
+	  msg(MSG::VERBOSE) << "               ( " << s2.x() << " , "<< s2.y() << " , "<< s2.z() << " ) " << endmsg;
 	  msg(MSG::VERBOSE) << "   direction:  ( " 
 		<< s1s2.unit().x() << ", " << s1s2.unit().y() << ", " << s1s2.unit().z() <<" ) , phi = "
-		<< s1s2.phi() <<  "   theta = " << s1s2.theta() << "    eta = "<< s1s2.eta() << endreq;
-	  msg(MSG::VERBOSE) << ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . " << endreq;
+		<< s1s2.phi() <<  "   theta = " << s1s2.theta() << "    eta = "<< s1s2.eta() << endmsg;
+	  msg(MSG::VERBOSE) << ". . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . " << endmsg;
 	}
-      msg(MSG::VERBOSE) << "------------------------------------------------------------------------------------------" << endreq;
+      msg(MSG::VERBOSE) << "------------------------------------------------------------------------------------------" << endmsg;
     }
 
   return &m_listOfSpacePointPairsBuffer;
@@ -257,9 +257,9 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getHashesInROI(const Trk::Trac
   std::vector<IdentifierHash> listOfSCT_Hashes;
 
   //// AAAARGH!!! No checking that you are within the correct phi range???
-  RoiDescriptor _roi(  eta-deltaEta, eta+deltaEta, phi-deltaPhi, phi+deltaPhi);
+  RoiDescriptor roi(  eta-deltaEta, eta+deltaEta, phi-deltaPhi, phi+deltaPhi);
 
-  m_pRegionSelector->DetHashIDList(SCT, _roi, listOfSCT_Hashes);
+  m_pRegionSelector->DetHashIDList(SCT, roi, listOfSCT_Hashes);
 
   // copy Hashes into Set to be able to search them
   for (std::vector<IdentifierHash>::const_iterator it = listOfSCT_Hashes.begin();
@@ -331,7 +331,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 		}
 	      else
 		{
-		  msg(MSG::VERBOSE) << "detRegionIndex " << detRegionIndex << " recieved. " << endreq;
+		  msg(MSG::VERBOSE) << "detRegionIndex " << detRegionIndex << " recieved. " << endmsg;
 		  acceptCollection = false;
 		}
 	    }
@@ -345,7 +345,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 		}
 	      else
 		{
-		  msg(MSG::WARNING) << "Received TRTmodul number " << modulTRT << endreq;
+		  msg(MSG::WARNING) << "Received TRTmodul number " << modulTRT << endmsg;
 		  acceptCollection = false;
 		}
 	    }
@@ -364,7 +364,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 		    msg(MSG::VERBOSE) << "Added SpacePoint for layer " << SCT_LayerNumber << " at  ( " 
 			  << (*itColl)->globalPosition().x() << " , " 
 			  << (*itColl)->globalPosition().y() << " , " 
-			  << (*itColl)->globalPosition().z() << " ) " << endreq; 
+			  << (*itColl)->globalPosition().z() << " ) " << endmsg; 
 		  }
 	    }
 	}
@@ -417,13 +417,13 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::getSpacePointsInROI(std::set<I
 		    msg(MSG::VERBOSE) << "Added OverlapSpacePoint for layer " << detLayerSign*(detLayerIndex+detLayerOffset) << " at  ( " 
 			  << (*itColl)->globalPosition().x() << " , " 
 			  << (*itColl)->globalPosition().y() << " , " 
-			  << (*itColl)->globalPosition().z() << " ) " << endreq; 
+			  << (*itColl)->globalPosition().z() << " ) " << endmsg; 
 		  }
 		else
-		  msg(MSG::VERBOSE) << "detRegionIndex " << detRegionIndex << " recieved. " << endreq;
+		  msg(MSG::VERBOSE) << "detRegionIndex " << detRegionIndex << " recieved. " << endmsg;
 	      }
 	    else
-	      msg(MSG::DEBUG) << "Invalid Id from OverlapCollection recieved. " << endreq;
+	      msg(MSG::DEBUG) << "Invalid Id from OverlapCollection recieved. " << endmsg;
 	  }
 	}
     }
@@ -468,7 +468,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::combineSpacePoints(const std::
       modulLookupTable::const_iterator endTable = m_modulLookupTable[modulNumber+SIMPLE_TRT_INDEX_OFFSET].end();
       for ( ; itTable != endTable ; ++itTable)
 	{
-	  msg(MSG::VERBOSE) << " Combining Space Poinst from modules " << itTable->first << " and " << itTable->second << endreq; 
+	  msg(MSG::VERBOSE) << " Combining Space Poinst from modules " << itTable->first << " and " << itTable->second << endmsg; 
 	  // SPs from SCT layer 1
 	  std::pair< std::multimap<int,const Trk::SpacePoint*>::const_iterator,
 	    std::multimap<int,const Trk::SpacePoint*>::const_iterator  >  
@@ -492,7 +492,7 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::combineSpacePoints(const std::
 	}
     }
   else
-    msg(MSG::WARNING) << "TRT module not in look-up table --> no SP pairs formed" << endreq;
+    msg(MSG::WARNING) << "TRT module not in look-up table --> no SP pairs formed" << endmsg;
 
 }
 //=====================================================================================================
@@ -515,7 +515,7 @@ bool InDet::SimpleTRT_SeededSpacePointFinder_ATL::pairIsOk(const Trk::SpacePoint
   Amg::Vector3D s1s2 = s2-s1;  // vector from s1 to s2
   
   msg(MSG::VERBOSE) << "Checking Space Point Pair at ( "<< s1.x() << ", " << s1.y() << ", " << s1.z()
-	<< " )  and  ( "<< s2.x() << ", " << s2.y() << ", " << s2.z() << " )" << endreq;
+	<< " )  and  ( "<< s2.x() << ", " << s2.y() << ", " << s2.z() << " )" << endmsg;
 
   // Cut on closest approach to z-axis
   double t = ( s1.x()-s2.x() )*( s1.x()-s2.x() ) + ( s1.y()-s2.y() )*( s1.y()-s2.y() ) ;
@@ -523,10 +523,10 @@ bool InDet::SimpleTRT_SeededSpacePointFinder_ATL::pairIsOk(const Trk::SpacePoint
     {
       t =  ( s1.x()*(s2.x()-s1.x()) + s1.y()*(s2.y()-s1.y()) ) / t;
       Amg::Vector3D perigee = s1 + t*(s1-s2);
-      msg(MSG::VERBOSE) << " closest approach to beam-pipe at ( "<< perigee.x() << ", " << perigee.y() << ", " << perigee.z() << " )    transversal: " << perigee.perp()<<endreq;
+      msg(MSG::VERBOSE) << " closest approach to beam-pipe at ( "<< perigee.x() << ", " << perigee.y() << ", " << perigee.z() << " )    transversal: " << perigee.perp()<<endmsg;
       if (perigee.perp() > m_perigeeCut ) return false;
     }
-  msg(MSG::VERBOSE) << " Passed cut on r-phi impact parameter" <<endreq;
+  msg(MSG::VERBOSE) << " Passed cut on r-phi impact parameter" <<endmsg;
 
 
   // Cut on angle between s1-s2 and parameter direction
@@ -534,14 +534,14 @@ bool InDet::SimpleTRT_SeededSpacePointFinder_ATL::pairIsOk(const Trk::SpacePoint
 
   if (diffPhi > CLHEP::pi ) diffPhi = 2.*CLHEP::pi - diffPhi;
   if (diffPhi > CLHEP::pi/2. ) diffPhi = CLHEP::pi - diffPhi;
-  msg(MSG::VERBOSE) << "Phi directions differ by "<< diffPhi << endreq;
+  msg(MSG::VERBOSE) << "Phi directions differ by "<< diffPhi << endmsg;
   if ( diffPhi > m_directionPhiCut ) return false;
 
-  msg(MSG::VERBOSE) << " Passed cut on direction phi deviation" <<endreq;
+  msg(MSG::VERBOSE) << " Passed cut on direction phi deviation" <<endmsg;
 
   // cut on eta deviation
   //if (fabs(s1s2.eta()-v0.eta()) > m_directionEtaCut) return false;
-  //msg(MSG::VERBOSE) << " Passed cut on direction eta deviation" <<endreq;
+  //msg(MSG::VERBOSE) << " Passed cut on direction eta deviation" <<endmsg;
 
 
   /*
@@ -550,20 +550,20 @@ bool InDet::SimpleTRT_SeededSpacePointFinder_ATL::pairIsOk(const Trk::SpacePoint
   if (cosAng)
     {
       cosAng = fabs(v0.dot(s1s2)/cosAng);
-      msg(MSG::VERBOSE) << "Cosine of angle between SP-extrap. and momentum is " << cosAng << endreq;
+      msg(MSG::VERBOSE) << "Cosine of angle between SP-extrap. and momentum is " << cosAng << endmsg;
       if ( cosAng < cosAngleCut ) return false;
     }
-  msg(MSG::VERBOSE) << " Passed cut on direction deviation" <<endreq;
+  msg(MSG::VERBOSE) << " Passed cut on direction deviation" <<endmsg;
   */
 
   /*
   // Cut on closest approach to parameter position
   Trk::GlobalPosition s1r0 = r0-s1;  // vector from s1 to r0
   Trk::GlobalPosition h = s1r0 - s1r0.dot(s1s2)/s1s2.mag();  // the part of s1r0 perp. to s1s2
-  msg(MSG::VERBOSE) << "closest approach to Parameter Position is ( " << h.x() << ", "<< h.y() << ", " << h.z() << " )"<<endreq; 
+  msg(MSG::VERBOSE) << "closest approach to Parameter Position is ( " << h.x() << ", "<< h.y() << ", " << h.z() << " )"<<endmsg; 
   if (h.x()*h.x() + h.y()*h.y() > positionPhiCutSquared || fabs(h.z()) > positionZ_Cut) return false;
   
-  msg(MSG::VERBOSE) << " Passed cut on extrapolation to TRT" <<endreq;
+  msg(MSG::VERBOSE) << " Passed cut on extrapolation to TRT" <<endmsg;
   */
   return true;
 }
@@ -835,27 +835,27 @@ void InDet::SimpleTRT_SeededSpacePointFinder_ATL::printLookupTable()
   /** This method provides a printout of the look-up table for debugging purposes. It is called in the setup. */
 
 
-  msg(MSG::VERBOSE) << "=====================================================================================================================" << endreq;
-  msg(MSG::VERBOSE) << "  Module Lookup table: " << endreq;
-  msg(MSG::VERBOSE) << "---------------------------------------------------------------------------------------------------------------------" << endreq;
+  msg(MSG::VERBOSE) << "=====================================================================================================================" << endmsg;
+  msg(MSG::VERBOSE) << "  Module Lookup table: " << endmsg;
+  msg(MSG::VERBOSE) << "---------------------------------------------------------------------------------------------------------------------" << endmsg;
   for (int i = -14; i<15 ; ++i)
     {
-      msg(MSG::VERBOSE) << "Module "<< i << "  : " << endreq;
+      msg(MSG::VERBOSE) << "Module "<< i << "  : " << endmsg;
       std::list<std::pair<int,int> >::const_iterator  itList = m_modulLookupTable[i+SIMPLE_TRT_INDEX_OFFSET].begin();
       std::list<std::pair<int,int> >::const_iterator endList = m_modulLookupTable[i+SIMPLE_TRT_INDEX_OFFSET].end();
       for ( ; itList != endList ; ++itList )
 	msg(MSG::VERBOSE) << " (" << itList->first << ", " << itList->second << ") " ; 
-      msg(MSG::VERBOSE) << "  " << endreq;
+      msg(MSG::VERBOSE) << "  " << endmsg;
       std::set<int>::const_iterator  itIndex = m_modulLookupTableIndex[i+SIMPLE_TRT_INDEX_OFFSET].begin();
       std::set<int>::const_iterator endIndex = m_modulLookupTableIndex[i+SIMPLE_TRT_INDEX_OFFSET].end();
       msg(MSG::VERBOSE) << "Needs Layers: { " ;
       for ( ; itIndex != endIndex ; ++ itIndex )
 	msg(MSG::VERBOSE) << *itIndex << ", " ;
-      msg(MSG::VERBOSE) << " } " << endreq;
-      msg(MSG::VERBOSE) << "...................................................................................................................." << endreq;
+      msg(MSG::VERBOSE) << " } " << endmsg;
+      msg(MSG::VERBOSE) << "...................................................................................................................." << endmsg;
 
     }
-  msg(MSG::VERBOSE) << "=====================================================================================================================" << endreq;
+  msg(MSG::VERBOSE) << "=====================================================================================================================" << endmsg;
 
 }
 
@@ -874,7 +874,7 @@ int InDet::SimpleTRT_SeededSpacePointFinder_ATL::TRT_Module(const Trk::TrackPara
  
   if (!id.is_valid())
     {
-      msg(MSG::WARNING) << " Id not valid "<<endreq;
+      msg(MSG::WARNING) << " Id not valid "<<endmsg;
       return -999;
     }
   int modulNumber;
@@ -888,7 +888,7 @@ int InDet::SimpleTRT_SeededSpacePointFinder_ATL::TRT_Module(const Trk::TrackPara
     }
   else
     {
-      msg(MSG::WARNING) << "TRT barrel-endcap id not in {-2;-1;1;2}" << endreq;
+      msg(MSG::WARNING) << "TRT barrel-endcap id not in {-2;-1;1;2}" << endmsg;
       return -999;
     }
 
