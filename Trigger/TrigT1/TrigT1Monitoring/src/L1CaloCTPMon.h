@@ -186,7 +186,14 @@ private:
    TH1F_LW* m_h_ctp_1d_HitNoTIPMismatch;   ///< L1Calo Hit but no CTP TIP Mismatches
    TH1F_LW* m_h_ctp_1d_TIPNoHitMismatch;   ///< CTP TIP but no L1Calo Hit Mismatches
    TH2I_LW* m_h_ctp_2d_MismatchEvents;     ///< Transmission Errors between L1Calo and CTP Event Numbers
-
+   TH1F_LW* m_h_ctp_1d_EM_HitNoTIPMismatch;  ///< L1Calo hit but no CTP TIP mismatches (EM thresholds
+   TH1F_LW* m_h_ctp_1d_TAU_HitNoTIPMismatch; ///< L1Calo hit but no CTP TIP mismatches (TAU thresholds)
+   TH1F_LW* m_h_ctp_1d_JET_HitNoTIPMismatch; ///< L1Calo hit but no CTP TIP mismatches (JET thresholds)
+   TH1F_LW* m_h_ctp_1d_TE_HitNoTIPMismatch;  ///< L1Calo hit but no CTP TIP mismatches (TE thresholds)
+   TH1F_LW* m_h_ctp_1d_XE_HitNoTIPMismatch;  ///< L1Calo hit but no CTP TIP mismatches (XE thresholds)
+   TH1F_LW* m_h_ctp_1d_XS_HitNoTIPMismatch;  ///< L1Calo hit but no CTP TIP mismatches (XS thresholds)
+   
+   
 };
 // ============================================================================
 }  // end namespace

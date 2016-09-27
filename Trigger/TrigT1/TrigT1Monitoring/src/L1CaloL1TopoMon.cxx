@@ -15,7 +15,8 @@
 
 #include <map>
 #include <utility>
-
+#include <set>
+#include <tuple>
 #include <algorithm>
 #include <vector>
 #include <iomanip>
@@ -37,6 +38,7 @@
 #include "TrigT1Interfaces/TrigT1StoreGateKeys.h"
 
 #include "xAODTrigL1Calo/CMXJetTobContainer.h"
+#include "xAODTrigL1Calo/CMXCPTobContainer.h"
 #include "TrigT1Result/CTP_RDO.h"
 #include "TrigT1Result/CTP_Decoder.h"
 #include "TrigT1Result/RoIBResult.h"
@@ -88,8 +90,8 @@ L1CaloL1TopoMon::L1CaloL1TopoMon( const std::string & type,
     m_h_l1topo_1d_CMXTobs(0),
     m_h_l1topo_1d_Simulation(0),
     m_h_l1topo_1d_JetTobs_EnergyLg(0),
-    m_h_l1topo_2d_JetTobs_Hitmap_mismatch(0),
-    m_h_l1topo_2d_JetTobs_Hitmap_match(0),
+    m_h_l1topo_2d_Tobs_Hitmap_mismatch{},
+    m_h_l1topo_2d_Tobs_Hitmap_match{},
     m_h_l1topo_1d_Errors(0),
     m_h_l1topo_1d_DAQTobs(0),
     m_h_l1topo_1d_DAQJetTobs(0),
@@ -99,8 +101,10 @@ L1CaloL1TopoMon::L1CaloL1TopoMon( const std::string & type,
     m_h_l1topo_1d_DAQTriggerBits(0),
     m_h_l1topo_1d_DAQMismatchTriggerBits(0),
     m_h_l1topo_1d_DAQOverflowBits(0),
-    m_h_l1topo_1d_ROITobs(0)
-
+    m_h_l1topo_1d_ROITobs(0),
+    m_h_l1topo_2d_ItemsBC{},
+    m_h_l1topo_2d_ItemsBC_ratio{}
+  
 
     /*---------------------------------------------------------*/
 {
@@ -112,6 +116,8 @@ L1CaloL1TopoMon::L1CaloL1TopoMon( const std::string & type,
 		   m_PathInRootFile= "LVL1_Interfaces/L1Topo");
   declareProperty( "CMXJetTobLocation", m_CMXJetTobLocation
 		   = LVL1::TrigT1CaloDefs::CMXJetTobLocation);
+  declareProperty( "CMXCPTobLocation", m_CMXCPTobLocation
+		   = LVL1::TrigT1CaloDefs::CMXCPTobLocation);
   declareProperty( "TopoCTPLocation", m_topoCTPLoc
 		   = LVL1::DEFAULT_L1TopoCTPLocation, 
 		   "StoreGate location of topo inputs" );
@@ -210,13 +216,41 @@ StatusCode L1CaloL1TopoMon::bookHistogramsRecurrent()
       m_histTool->book1F("l1topo_1d_Simulation",
 			 "Simulated L1Topo trigger bits", 128, 0, 128);
 
-    m_h_l1topo_2d_JetTobs_Hitmap_mismatch = m_histTool->
-      bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetTobs_Hitmap_mismatch",
-				   "Mismatched L1Topo-Jet TOBs Hit Map");
-    m_h_l1topo_2d_JetTobs_Hitmap_match = m_histTool->
-      bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetTobs_Hitmap_match",
-				   "CMX-matched L1Topo-Jet TOBs Hit Map");
-
+    m_h_l1topo_2d_Tobs_Hitmap_mismatch[JETS_TOB] = m_histTool->
+      bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetSTobs_Hitmap_mismatch",
+				   "CMX-L1Topo mismatched small jet TOBs hit map");
+    m_h_l1topo_2d_Tobs_Hitmap_match[JETS_TOB] = m_histTool->
+      bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetSTobs_Hitmap_match",
+				   "CMX-L1Topo matched small jet TOBs hit map");
+    
+    m_h_l1topo_2d_Tobs_Hitmap_mismatch[JETL_TOB] = m_histTool->
+      bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetLTobs_Hitmap_mismatch",
+				   "CMX-L1Topo mismatched large jet TOBs hit map");
+    m_h_l1topo_2d_Tobs_Hitmap_match[JETL_TOB] = m_histTool->
+      bookJEMCrateModuleVsFrameLoc("l1topo_2d_JetLTobs_Hitmap_match",
+				   "CMX-L1Topo matched large jet TOBs hit map");
+    
+    m_h_l1topo_2d_Tobs_Hitmap_mismatch[TAU_TOB] = m_histTool->
+      bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_TauTobs_Hitmap_mismatch",
+					    "CMX-L1Topo mismatched tau TOBs hit map");
+    m_h_l1topo_2d_Tobs_Hitmap_match[TAU_TOB] = m_histTool->
+      bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_TauTobs_Hitmap_match",
+					    "CMX-L1Topo matched tau TOBs hit map");
+    
+    m_h_l1topo_2d_Tobs_Hitmap_mismatch[EM_TOB] = m_histTool->
+      bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_EMTobs_Hitmap_mismatch",
+					    "CMX-L1Topo mismatched EM TOBs hit map");
+    m_h_l1topo_2d_Tobs_Hitmap_match[EM_TOB] = m_histTool->
+      bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_EMTobs_Hitmap_match",
+					    "CMX-L1Topo matched EM TOBs hit map");
+    
+    m_h_l1topo_2d_Tobs_Hitmap_mismatch[MU_TOB] = m_histTool->
+      bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_MuTobs_Hitmap_mismatch",
+					    "CMX-L1Topo mismatched muon TOBs hit map");
+    m_h_l1topo_2d_Tobs_Hitmap_match[MU_TOB] = m_histTool->
+      bookCPMCrateModuleVsTobChipLocalCoord("l1topo_2d_MuTobs_Hitmap_match",
+					    "CMX-L1Topo matched muon TOBs hit map");
+    
     m_h_l1topo_1d_JetTobs_EnergyLg = m_histTool->
       book1F("l1topo_1d_JetTobs_EnergyLg",
 	     "L1Topo-Jet TOB Energy Large Window Size", 256, 0., 1024);
@@ -336,8 +370,10 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 
   StatusCode sc = StatusCode::SUCCESS;
 
-  std::vector<xAOD::CMXJetTob*> cmxtobs;  
-
+  typedef std::tuple<int,int,int> TobKey;
+  std::set<TobKey> cmxKeys[TOB_TYPES],topoKeys[TOB_TYPES],
+    keyDiff[TOB_TYPES],keyIntersect[TOB_TYPES];
+    
   // Validate properly unpacked input from L1Calo
   if (m_errorTool->corrupt() || m_errorTool->robOrUnpackingError()) {
     if (m_debug) msg(MSG::DEBUG) << "Corrupt L1Calo event" << endreq;
@@ -393,8 +429,34 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     }
   }
   
-  // Retrieve CMX tobs
-  bool cmx_ematch=true;
+  // Retrieve CMX CP tobs
+  const DataHandle<xAOD::CMXCPTobContainer> cmxcptob = 0;
+  sc = evtStore()->retrieve(cmxcptob);
+  if (sc.isFailure() || !cmxcptob) {
+    ATH_MSG_DEBUG ("No CMX CP tobs found in TES");
+    //m_h_l1topo_1d_Errors->Fill(NO_CMX_CP);
+  }   
+  else {
+    ATH_MSG_DEBUG( "Found CMXCPTobCollection, looping on TOBs ..." );
+    for (auto & t : *cmxcptob) {
+      if (t->energy()) {
+	const int x = t->crate()*14 + t->cpm()-1;
+	const int y = t->chip()*4 + t->location();
+	// 0=Left, 1=Right  (Assumed in Sim to be Left Tau, Right EM)
+	const int cmx = t->cmx();
+	const int e = t->energy();
+	//const int i = t->isolation();
+	if (cmx==0)
+	  cmxKeys[TAU_TOB].insert(std::make_tuple(x,y,e));
+	else
+	  cmxKeys[EM_TOB].insert(std::make_tuple(x,y,e));
+      }
+    }
+    //m_h_l1topo_1d_CMXCPTobs->Fill(std::min((int)cmxtobs.size(),MAXTOBS-1));
+  }
+  
+  std::vector<xAOD::CMXJetTob*> cmxtobs;  
+  // Retrieve CMX jet tobs
   const DataHandle<xAOD::CMXJetTobContainer> cmxtob = 0;
   sc = evtStore()->retrieve(cmxtob);
   if (sc.isFailure() || !cmxtob) {
@@ -403,15 +465,20 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
   }   
   else {
     ATH_MSG_DEBUG( "Found CMXJetTobCollection, looping on TOBs ..." );
-    for (auto & tob : *cmxtob) {
-      if (tob->energyLarge()) {
-	cmxtobs.push_back(tob);
+    for (auto & t : *cmxtob) {
+      const int cmx_x = t->crate()*16 + t->jem();
+      const int cmx_y = t->frame()*4 + t->location();
+      if (t->energyLarge()) {
+	cmxtobs.push_back(t);
+	cmxKeys[JETL_TOB].insert(std::make_tuple(cmx_x,cmx_y,t->energyLarge()));
+      }
+      if (t->energySmall()) {
+	cmxKeys[JETS_TOB].insert(std::make_tuple(cmx_x,cmx_y,t->energySmall()));
       }
     }
     m_h_l1topo_1d_CMXTobs->Fill(std::min((int)cmxtobs.size(),MAXTOBS-1));
-    
   }
-
+  
   // Retrieve L1Topo CTP simulted decision if present
   if (!evtStore()->contains<LVL1::FrontPanelCTP>(m_topoCTPLoc.value())){
     ATH_MSG_INFO("Could not retrieve LVL1::FrontPanelCTP with key "
@@ -554,59 +621,68 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
 	case L1Topo::BlockTypes::JET1_TOB:
 	case L1Topo::BlockTypes::JET2_TOB:
 	  {
-	    if (header.bcn_offset()==0){
+	    if (header.bcn_offset()==0) {
 	      const int crate    = (word >> 28) & 0x1;
 	      const int jem      = (word >> 24) & 0xF;
 	      const int frame    = (word >> 21) & 0x7;
 	      const int location = (word >> 19) & 0x3;
+	      const int energyS  = (word >> 10) & 0x1FF;
 	      const int energyL  = (word & 0x3FF);
 	      const int x = crate*16 + jem;
 	      const int y = frame*4 + location;
-	      //auto tob = L1Topo::JetTOB(word);
-	      //daqJetTobs.push_back(tob);
-	      int tob = 1; // Fake object until defined
 	      if (energyL) {
+		topoKeys[JETL_TOB].insert(std::make_tuple(x,y,energyL));
+		//auto tob = L1Topo::JetTOB(word);
+		int tob = 1; // Fake object until defined
 		daqJetTobs.push_back(tob);
 		m_h_l1topo_1d_JetTobs_EnergyLg->Fill(energyL,1./NFPGA);
-		bool match=false;
-		bool ematch=false;
-		for (auto & t : cmxtobs) {
-		  const int cmx_x = t->crate()*16 + t->jem();
-		  const int cmx_y = t->frame()*4 + t->location();
-		  if (x==cmx_x && y==cmx_y && energyL==t->energyLarge())
-		    match=true;
-		  if (energyL==t->energyLarge())
-		    ematch=true;
-		}
-		if (!ematch) cmx_ematch=false;
-		if (match)
-		  m_h_l1topo_2d_JetTobs_Hitmap_match->Fill(x, y, 1./NFPGA);
-		else
-		  m_h_l1topo_2d_JetTobs_Hitmap_mismatch->Fill(x, y, 1./NFPGA);
+	      }
+	      if (energyS) {
+		topoKeys[JETS_TOB].insert(std::make_tuple(x,y,energyS));
 	      }
 	    }
 	    break;
 	  }
-
-
 	case L1Topo::BlockTypes::TAU_TOB:
-    {
-      if (header.bcn_offset()==0){
-        int tob = 1; // Fake object until defined
-        daqTauTobs.push_back(tob);
-      }
-      break;
-    }
-
-  case L1Topo::BlockTypes::EM_TOB:
-    {
-      if (header.bcn_offset()==0){
-        int tob = 1; // Fake object until defined
-        daqEMTobs.push_back(tob);
-      }
-      break;
-    }
-
+	  {
+	    if (header.bcn_offset()==0){
+	      int tob = 1; // Fake object until defined
+	      daqTauTobs.push_back(tob);
+	      const int crate    = (word >> 26) & 0x3;
+	      const int cpm      = (word >> 20) & 0xF;
+	      const int chip     = (word >> 15) & 0xF;
+	      const int location = (word >> 13) & 0x3;
+	      const int energy   = (word & 0xFF);
+	      const int x = crate*14 + cpm - 1;
+	      const int y = chip*4 + location;
+	      if (energy) {
+		topoKeys[TAU_TOB].insert(std::make_tuple(x,y,energy));
+	      }
+	      //ATH_MSG_DEBUG("#// Crate: " << crate);
+	      //ATH_MSG_DEBUG("#// Cpm  : " << cpm);
+	      //ATH_MSG_DEBUG("#// Chip : " << chip);
+	      //ATH_MSG_DEBUG("#// Loca : " << location);
+	    }
+	    break;
+	  }	  
+	case L1Topo::BlockTypes::EM_TOB:
+	  {
+	    if (header.bcn_offset()==0) {
+	      int tob = 1; // Fake object until defined
+	      daqEMTobs.push_back(tob);
+	      const int crate    = (word >> 26) & 0x3;
+	      const int cpm      = (word >> 20) & 0xF;
+	      const int chip     = (word >> 15) & 0xF;
+	      const int location = (word >> 13) & 0x3;
+	      const int energy   = (word & 0xFF);
+	      const int x = crate*14 + cpm - 1;
+	      const int y = chip*4 + location;
+	      if (energy) {
+		topoKeys[EM_TOB].insert(std::make_tuple(x,y,energy));
+	      }
+	    }
+	    break;
+	  }
 	case L1Topo::BlockTypes::MUON_TOB:
 	  {
 	    if (header.bcn_offset()==0){
@@ -686,16 +762,35 @@ StatusCode L1CaloL1TopoMon::fillHistograms()
     }
   }
   m_h_l1topo_1d_ROITobs->Fill(std::min((int)roiTobs.size(),19));
-
+  
   for (unsigned int i=1; i<=128;++i) {
     float diff=fabs(m_h_l1topo_1d_DAQTriggerBits->GetBinContent(i)-
 		    m_h_l1topo_1d_Simulation->GetBinContent(i));
     if (diff>0.1)
       m_h_l1topo_1d_DAQMismatchTriggerBits->SetBinContent(i,diff);
   }
-
-  if (!cmx_ematch) m_h_l1topo_1d_Errors->Fill(CMX_EMATCH);
-
+  
+  // look in both directions for CMX and Topo TOBs (mis)matches
+  for (int t=0; t<TOB_TYPES; ++t) { 
+    set_symmetric_difference(cmxKeys[t].begin(),cmxKeys[t].end(),
+			     topoKeys[t].begin(),topoKeys[t].end(),
+			     inserter(keyDiff[t],keyDiff[t].begin()));
+    if (t==JETL_TOB && keyDiff[t].size()>0) m_h_l1topo_1d_Errors->Fill(CMX_MATCH);
+    for (auto& tob : keyDiff[t]) {
+      int x=std::get<0>(tob);
+      int y=std::get<1>(tob);
+      m_h_l1topo_2d_Tobs_Hitmap_mismatch[t]->Fill(x,y);
+    }
+    set_intersection(cmxKeys[t].begin(),cmxKeys[t].end(),
+		     topoKeys[t].begin(),topoKeys[t].end(),
+		     inserter(keyIntersect[t],keyIntersect[t].begin()));
+    for (auto& tob : keyIntersect[t]) {
+      int x=std::get<0>(tob);
+      int y=std::get<1>(tob);
+      m_h_l1topo_2d_Tobs_Hitmap_match[t]->Fill(x,y);
+    }
+  }
+  
   return StatusCode::SUCCESS;
 }
 
