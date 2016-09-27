@@ -66,7 +66,7 @@ void robtest(VKVertex * vk, long int ifl)
 	return;
     }
 /* -- */
-    double    halfPi=3.141592653589/2.;
+    double    halfPi=M_PI/2.;
     for (it = 0; it < NTRK; ++it) {
         VKTrack *trk=vk->TrackList[it];
         if(trk->Id < 0) continue;  // Not a real track

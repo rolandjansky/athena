@@ -145,7 +145,8 @@ void vkvFastV(double *p1, double *p2, double* vRef, double dbmag, double *out)
           double dir1=ptmp[0]*(cross_ref(1,1)-vRef[0])+ptmp[1]*(cross_ref(2,1)-vRef[1]);
           double dir2=ptmp[0]*(cross_ref(1,2)-vRef[0])+ptmp[1]*(cross_ref(2,2)-vRef[1]);
           if(dir1*dir2<0){   // points are on different sides of ref. vertex
-            if(dir1<0) dz1+=1000.; if(dir2<0) dz2+=1000.;
+            if(dir1<0) dz1+=1000.;
+            if(dir2<0) dz2+=1000.;
           }
         }
 /* - choice of best dz */
