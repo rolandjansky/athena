@@ -5,9 +5,6 @@ manager Rodrigo Coura Torres <Rodrigo.Torres@cern.ch>
 
 # General
 use 	AtlasPolicy         	AtlasPolicy-*
-#use 	AtlasAIDA 		AtlasAIDA-* 		External
-#use 	CLIDSvc CLIDSvc-* 	Control
-#use 	StoreGate       	StoreGate-*             Control
 
 # Trigger 
 #use    TrigT1Interfaces    	  TrigT1Interfaces-*      Trigger/TrigT1
@@ -21,8 +18,7 @@ use     xAODTrigCalo            xAODTrigCalo-*          Event/xAOD
 
 public
 
-apply_pattern dual_use_library files=*.cxx components/*.cxx
-apply_pattern declare_runtime
+apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_python_modules files="*.py"
 
 private
