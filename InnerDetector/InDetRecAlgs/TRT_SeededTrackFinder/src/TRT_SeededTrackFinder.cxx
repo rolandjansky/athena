@@ -80,23 +80,23 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
 {
   StatusCode  sc;
 
-  msg(MSG::DEBUG) << "Initializing TRT_SeededTrackFinder" << endreq;
+  msg(MSG::DEBUG) << "Initializing TRT_SeededTrackFinder" << endmsg;
 
   //Get the TRT seeded track maker tool
   //
   if(m_trackmaker.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_trackmaker << endreq; return StatusCode::FAILURE;
+    msg(MSG::FATAL) << "Could not get " << m_trackmaker << endmsg; return StatusCode::FAILURE;
   }else{
-    msg(MSG::INFO) << "Got track maker tool " << m_trackmaker << endreq;
+    msg(MSG::INFO) << "Got track maker tool " << m_trackmaker << endmsg;
   }
 
   //Get the refitting tool
   //
   if(m_doRefit){
     if(m_fitterTool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_fitterTool << endreq; return StatusCode::FAILURE;
+      msg(MSG::FATAL) << "Could not get " << m_fitterTool << endmsg; return StatusCode::FAILURE;
     }else{
-      msg(MSG::INFO) << "Got refitting tool " << m_fitterTool << endreq;
+      msg(MSG::INFO) << "Got refitting tool " << m_fitterTool << endmsg;
     }
   }
 
@@ -104,15 +104,15 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
     // get extrapolator
     sc = m_extrapolator.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
       return StatusCode::FAILURE;
     } else 
-      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_extrapolator << endmsg;
 
     // get beam spot service
     sc = m_iBeamCondSvc.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::INFO) << "Could not find BeamCondSvc." << endreq;
+      msg(MSG::INFO) << "Could not find BeamCondSvc." << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -121,16 +121,16 @@ StatusCode InDet::TRT_SeededTrackFinder::initialize()
   //
   if(m_doExtension){
     if( m_trtExtension.retrieve().isFailure()) {
-      msg(MSG::FATAL)<< "Could not get " << m_trtExtension << endreq; return StatusCode::FAILURE;
+      msg(MSG::FATAL)<< "Could not get " << m_trtExtension << endmsg; return StatusCode::FAILURE;
     } 
     else {
-      msg(MSG::INFO) << "Retrieved tool " << m_trtExtension << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_trtExtension << endmsg;
     }
   }
 
   // Get output print level
   //
-  if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endreq;}
+  if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;}
 
   //Global counters. See the include file for definitions
   m_nTrtSegTotal      = 0;
@@ -325,7 +325,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 
 	      const Trk::Perigee*extrapolatedPerigee = dynamic_cast<const Trk::Perigee*> (parm ); 
 	      if (!extrapolatedPerigee) {
-	        msg(MSG::WARNING) << "Extrapolation of perigee failed, this should never happen" << endreq;
+	        msg(MSG::WARNING) << "Extrapolation of perigee failed, this should never happen" << endmsg;
 	        // cleanup
 	        // delete *itt;
 	        delete parm;
@@ -493,7 +493,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 
   //Print common event information
   if(msgLvl(MSG::DEBUG)){
-    m_nprint=1; msg(MSG::DEBUG) << (*this) << endreq;
+    m_nprint=1; msg(MSG::DEBUG) << (*this) << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -505,7 +505,7 @@ StatusCode InDet::TRT_SeededTrackFinder::execute()
 
 StatusCode InDet::TRT_SeededTrackFinder::finalize()
 {
-  m_nprint=2; msg(MSG::INFO)<<(*this)<<endreq;
+  m_nprint=2; msg(MSG::INFO)<<(*this)<<endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -517,7 +517,8 @@ StatusCode InDet::TRT_SeededTrackFinder::finalize()
 MsgStream&  InDet::TRT_SeededTrackFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -740,9 +741,9 @@ Trk::Track* InDet::TRT_SeededTrackFinder::segToTrack(const Trk::TrackSegment& tS
 
   std::unique_ptr<const Trk::TrackParameters> segPar( surf->createParameters<5,Trk::Charged>(p(0),p(1),p(2),p(3),p(4),ep) );
   if(segPar){
-    if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Initial TRT Segment Parameters for refitting " << (*segPar) << endreq;}
+    if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Initial TRT Segment Parameters for refitting " << (*segPar) << endmsg;}
   }else{
-    if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Could not get initial TRT segment parameters! " << endreq;}
+    if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Could not get initial TRT segment parameters! " << endmsg;}
     return 0;
   }
 
@@ -850,7 +851,7 @@ mergeExtension(const Trk::Track& tT, std::vector<const Trk::MeasurementBase*>& t
 void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC)
 {
 
-  if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Analyzing tracks..." << endreq;}
+  if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Analyzing tracks..." << endmsg;}
 
   if(msgLvl(MSG::DEBUG)) {msg(MSG::DEBUG) << "Number of back tracks " << (tC->size()) << endl;}
   int tc = 0; //Track counter
@@ -895,8 +896,8 @@ void InDet::TRT_SeededTrackFinder::Analyze(TrackCollection* tC)
     //cout << "HITS IN TRACK " << nhits << " OUTLIERS " << noutl << " HOLES " << nholes << endl;
   }
   if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG)<<"Total hits on 1st SCT: "<<nsctTot1<<" 2nd SCT: "<<nsctTot2<<" 3rd SCT: "<<nsctTot3<<" 4th SCT: "<<nsctTot4<<endreq;
-    msg(MSG::DEBUG)<<"Total hits on 1st Pixel: "<<npixTot1<<" 2nd Pixel: "<<npixTot2<<" 3rd Pixel: "<<npixTot3<<endreq;
+    msg(MSG::DEBUG)<<"Total hits on 1st SCT: "<<nsctTot1<<" 2nd SCT: "<<nsctTot2<<" 3rd SCT: "<<nsctTot3<<" 4th SCT: "<<nsctTot4<<endmsg;
+    msg(MSG::DEBUG)<<"Total hits on 1st Pixel: "<<npixTot1<<" 2nd Pixel: "<<npixTot2<<" 3rd Pixel: "<<npixTot3<<endmsg;
   }
 
 }
