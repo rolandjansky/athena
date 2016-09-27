@@ -45,7 +45,8 @@ namespace Trk {
     inline void addStave(AlpineStave *stave) { m_staves.push_back(stave); }
     inline std::vector<AlpineStave *> &getStaves() { return m_staves; }
     std::vector<const Surface*>& getSurfaces();
-
+    inline void fillSurfaceArray(Trk::SurfaceArray* surfaceArray) { m_surfaceArray=surfaceArray; }
+      
     // 2D root file dump
     void dump2D(std::ofstream &fout);
 
