@@ -41,7 +41,6 @@ class TTree;
 namespace ISF {
 
   class IGeoIDSvc;
-  class IStackFiller;
   class IEntryLayerTool;
   class ISimulationSelector;
 
@@ -70,7 +69,7 @@ namespace ISF {
       StatusCode  finalize();
 
       /** Initialize the particle broker */
-      StatusCode initializeEvent();
+      StatusCode initializeEvent(ISFParticleContainer&& simParticles);
 
       /** Finalize the event in the broker service */
       virtual StatusCode finalizeEvent();
@@ -122,19 +121,12 @@ namespace ISF {
           SimulationSelector that selects the particle */
       ISF::SimSvcID identifySimID( const ISF::ISFParticle* p);
 
-      /** store the simulation flavor of SimulationSelector that has selected the particle */
-      void storeSimulationFlavor( ISF::ISFParticle* p );
-
-      /** AthenaTool for reading in the initial (eg. EvGen)_particle list */
-      ToolHandle<IStackFiller>                  m_particleStackFiller;
-
       /** AthenaTool responsible for writing Calo/Muon Entry/Exit Layer collection */
       ToolHandle<IEntryLayerTool>               m_entryLayerTool;
-      IEntryLayerTool                          *m_entryLayerToolQuick;   //!< minimize Gaudi overhead
 
       /** AthenaTool responsible for proritizing the particles and determine their simulation order */
       ToolHandle<IParticleOrderingTool>         m_orderingTool;
-      IParticleOrderingTool                    *m_orderingToolQuick;//!< minimize Gaudi overhead
+      bool                                      m_hasOrderingTool;
 
       /** the geo identifier service used to route the particle into the right
           SimulationSelector chain */
@@ -180,8 +172,6 @@ namespace ISF {
       int                                       m_val_pdg;
       float                                     m_val_p;
       float                                     m_val_x, m_val_y, m_val_z;
-
-      ISF::SimulationFlavor                     m_simflavor;
   };
 
   /** Get the current stack size */
