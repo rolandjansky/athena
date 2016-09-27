@@ -86,7 +86,7 @@ namespace InDet{
       
       //StoreGateSvc*                          m_storeGate             ; 
       ToolHandle<Trk::IPRD_AssociationTool>  m_assoTool              ;  //Association tool
-      int                                    m_outputlevel           ;
+      //int                                    m_outputlevel           ;
 
       /** Controls, if SP have to be checked with the AssociationTool of the
           forward tracking and to avoid double use of measurements.

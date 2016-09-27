@@ -132,7 +132,7 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::initialize()
   //
   if(m_useasso){
     if(m_assotool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Could not get "<<m_assotool<<endreq; return StatusCode::FAILURE;
+      msg(MSG::FATAL)<<"Could not get "<<m_assotool<<endmsg; return StatusCode::FAILURE;
     }
   }
 
@@ -140,7 +140,7 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::initialize()
 
   sc = detStore()->retrieve(m_sctId, "SCT_ID");
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "Could not get SCT_ID helper !" << endreq;
+    msg(MSG::FATAL) << "Could not get SCT_ID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -150,7 +150,7 @@ StatusCode InDet::TRT_SeededSpacePointFinder_ATL::initialize()
 
   // Get output print level
   //
-  if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endreq;}
+  if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;}
 
   return sc;
 }
@@ -193,7 +193,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
 	  double r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
 	  int   ir = int(r*irstep); 
-	  Trk::SpacePoint* sps = (*sp); 
+	  const Trk::SpacePoint* sps = (*sp); 
           r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
@@ -227,7 +227,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
         if(!m_loadFull) r_rmin=m_r2min;
  	double r = (*sp)->r(); if(r<r_rmin || r>=r_rmax) continue;
 	int   ir = int(r*irstep); 
-	Trk::SpacePoint* sps = (*sp); 
+	const Trk::SpacePoint* sps = (*sp); 
         r_Sorted[ir].push_back(sps); ++r_map[ir];
 	if(r_map[ir]==1) r_index[m_nr++] = ir;
 	++m_ns;
@@ -255,7 +255,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newEvent ()
 
       double r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
       int   ir = int(r*irstep); 
-      Trk::SpacePoint* sps = (*sp); 
+      const Trk::SpacePoint* sps = (*sp); 
       r_Sorted[ir].push_back(sps); ++r_map[ir];
       if(r_map[ir]==1) r_index[m_nr++] = ir;
       ++m_ns;
@@ -301,7 +301,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
 
 	  double r = (*sp)->r(); if(r<0. || r>=r_rmax) continue;
 	  int   ir = int(r*irstep); 
-	  Trk::SpacePoint* sps = (*sp); 
+	  const Trk::SpacePoint* sps = (*sp); 
           r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
@@ -344,7 +344,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::newRegion
           if(!m_loadFull) r_rmin=m_r2min;
  	  double r = (*sp)->r(); if(r<r_rmin || r>=r_rmax) continue;
 	  int   ir = int(r*irstep); 
-	  Trk::SpacePoint* sps = (*sp); 
+	  const Trk::SpacePoint* sps = (*sp); 
           r_Sorted[ir].push_back(sps); ++r_map[ir];
 	  if(r_map[ir]==1) r_index[m_nr++] = ir;
 	  ++m_ns;
@@ -372,13 +372,17 @@ InDet::TRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& tP)
   double F = 0.;
   double GPx=tP.position().x(); double GPy=tP.position().y();
   F=atan2(GPy,GPx); if(F<0.) F+=pi2;
-  int f = int(F*m_sF); f<0 ? f+=m_fNmax : f>m_fNmax ? f-=m_fNmax : f=f;
+  int f = int(F*m_sF);
+  if (f < 0)
+    f += m_fNmax;
+  else if (f > m_fNmax)
+    f -= m_fNmax;
 
 
   production2Spb (tP,f); //Get a list of SP pairs.
 
   if(msgLvl(MSG::DEBUG)) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 
   if(m_outputListBuffer.size()>10000.) m_outputListBuffer.clear();
@@ -393,7 +397,8 @@ InDet::TRT_SeededSpacePointFinder_ATL::find2Sp(const Trk::TrackParameters& tP)
 MsgStream& InDet::TRT_SeededSpacePointFinder_ATL::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -557,7 +562,7 @@ void InDet::TRT_SeededSpacePointFinder_ATL::buildFrameWork()
   // Build radius sorted containers
   //
   r_size = int((r_rmax+.1)/r_rstep);
-  r_Sorted = new std::list<Trk::SpacePoint*>[r_size];
+  r_Sorted = new std::list<const Trk::SpacePoint*>[r_size];
   r_index  = new int[r_size];
   r_map    = new int[r_size];  
   m_nr   = 0; for(int i=0; i!=r_size; ++i) {r_index[i]=0; r_map[i]=0;}
@@ -580,17 +585,22 @@ void InDet::TRT_SeededSpacePointFinder_ATL::buildFrameWork()
 void InDet::TRT_SeededSpacePointFinder_ATL::fillLists() 
 {
   const double pi2 = 2.*M_PI;
-  std::list<Trk::SpacePoint*>::iterator r;
+  std::list<const Trk::SpacePoint*>::iterator r;
   
   for(int i=0; i!= r_size;  ++i) {
-    if(!r_map[i]) continue; r = r_Sorted[i].begin();
+    if(!r_map[i]) continue;
+    r = r_Sorted[i].begin();
 
     while(r!=r_Sorted[i].end()) {
 
       // Azimuthal angle sort
       //
       double F = (*r)->phi(); if(F<0.) F+=pi2;
-      int   f = int(F*m_sF); f<0 ? f+=m_fNmax : f>m_fNmax ? f-=m_fNmax : f=f;
+      int   f = int(F*m_sF);
+      if (f < 0) 
+        f += m_fNmax;
+      else if (f > m_fNmax)
+        f -= m_fNmax;
       int isBRL = 1000; int isLYR = 1000; int DD = 1000;
  
       geoInfo((*r),isBRL,isLYR);
@@ -745,7 +755,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
   H[1] *= 10000;
   H[2] *= 10000;
 
-  std::list<std::pair<Trk::SpacePoint*,int> >::iterator r0,r0e,r,re, rb;
+  std::list<std::pair<const Trk::SpacePoint*,int> >::iterator r0,r0e,r,re, rb;
   const Trk::SpacePoint* SpToPair = 0;
 
   int m_nri = 0;
@@ -807,7 +817,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
   re = newRfi_Sorted.end();
 
   prod_bypass = new bypass_struct[spcount];
-  Trk::SpacePoint **vrp = new Trk::SpacePoint *[spcount];
+  Trk::SpacePoint const**vrp = new Trk::SpacePoint const*[spcount];
   double *rk = new double[spcount];
   long *geo_info = new long[spcount];
   double *zSP = new double[spcount];
@@ -816,7 +826,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 
     // // // // // // <Fill prod_bypass and the local array // // // //
     for (long i = 0; r != re; i++, r++) {
-      Trk::SpacePoint *vrpi = (*r).first;
+      const Trk::SpacePoint *vrpi = (*r).first;
 
       geo_info[i] = (*r).second;
       vrp[i] = vrpi;
@@ -854,9 +864,9 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
     if (m_doCosmics) { // no need to check this every time in the loop
       for (long i = 0; i < (long)spcount; i++) {
 	SpToPair = 0;
-	Trk::SpacePoint *up = vrp[i];
+	const Trk::SpacePoint *up = vrp[i];
 	for (long j = i + 1; j < (long)spcount; j++) {
-	  Trk::SpacePoint *bp = vrp[j];
+	  const Trk::SpacePoint *bp = vrp[j];
 	  SpToPair = bp;
 	  m_outputListBuffer.push_back(std::make_pair(up, SpToPair));
 	}
@@ -868,7 +878,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
     else { // (!m_doCosmics)
       for (long i = 0; i < (long)spcount; i++) {
 	SpToPair = 0;
-	Trk::SpacePoint *up = vrp[i];
+	const Trk::SpacePoint *up = vrp[i];
 	double R = rk[i];
 	if(R<m_r12min) {
 	  continue;
@@ -879,7 +889,7 @@ InDet::TRT_SeededSpacePointFinder_ATL::production2Spb(const Trk::TrackParameters
 	int eleU = geoi & 15;
     
 	for (long j = i + 1; j < (long)spcount; j++) {
-	  Trk::SpacePoint *bp = vrp[j];
+	  const Trk::SpacePoint *bp = vrp[j];
 	  double Zb = zSP[j];
 	  double Rb = rk[j];
 	  long geoj = geo_info[j];
