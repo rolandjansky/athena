@@ -26,7 +26,13 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     # setup fallback BeamPipeEnvelope
     BeamPipe = Volume()
     BeamPipe.addRZ(   34.3,   3475.0 )
-    BeamPipe.addRZ(  120.0,   3475.0 )
+    from AthenaCommon.DetFlags import DetFlags
+    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
+        BeamPipe.addRZ(   47.0,   3475.0 )
+        BeamPipe.addRZ(   47.0,   3535.0 )
+        BeamPipe.addRZ(  120.0,   3535.0 )
+    else:
+        BeamPipe.addRZ(  120.0,   3475.0 )
     BeamPipe.addRZ(  120.0,   4185.0 )
     BeamPipe.addRZ(   41.0,   4185.0 )
     BeamPipe.addRZ(   41.0,   6783.0 )
@@ -55,7 +61,13 @@ def getEnvelopeDefSvc(name="AtlasGeometry_EnvelopeDefSvc", **kwargs):
     # setup fallback CaloEnvelope
     Calo = Volume()
     Calo.addRZ( 1148.0,  3475.0 )
-    Calo.addRZ(  120.0,  3475.0 )
+    from AthenaCommon.DetFlags import DetFlags
+    if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
+        Calo.addRZ(   47.0,  3475.0 )
+        Calo.addRZ(   47.0,  3535.0 )
+        Calo.addRZ(  120.0,  3535.0 )
+    else:
+        Calo.addRZ(  120.0,  3475.0 )
     Calo.addRZ(  120.0,  4185.0 )
     Calo.addRZ(   41.0,  4185.0 )
     Calo.addRZ(   41.0,  6783.0 )
