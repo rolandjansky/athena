@@ -149,7 +149,7 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::initialize()
 {
   StatusCode sc = AthAlgTool::initialize(); 
 
-  msg(MSG::DEBUG)<< "Initializing TRT_SeededTrackFinder_ATL" << endreq;
+  msg(MSG::DEBUG)<< "Initializing TRT_SeededTrackFinder_ATL" << endmsg;
 
   // Get magnetic field service
   if(m_fieldmode != "NoField" ) {
@@ -167,41 +167,41 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::initialize()
   // Get propagator tool
   //
   if(m_proptool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_proptool << endreq; return StatusCode::FAILURE;
+    msg(MSG::FATAL) << "Could not get " << m_proptool << endmsg; return StatusCode::FAILURE;
   }else{
-    msg(MSG::INFO) << "Got the propagator tool " << m_proptool << endreq;
+    msg(MSG::INFO) << "Got the propagator tool " << m_proptool << endmsg;
   }
 
   // Get updator tool
   //
   if(m_updatorTool.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_updatorTool << endreq; return StatusCode::FAILURE;
+    msg(MSG::FATAL) << "Could not get " << m_updatorTool << endmsg; return StatusCode::FAILURE;
   }else{
-    msg(MSG::INFO) << "Got the updator tool " << m_updatorTool << endreq;
+    msg(MSG::INFO) << "Got the updator tool " << m_updatorTool << endmsg;
   }
 
   // Get detector elements road maker tool
   //
   if(m_roadmaker.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_roadmaker << endreq; return StatusCode::FAILURE;
+    msg(MSG::FATAL) << "Could not get " << m_roadmaker << endmsg; return StatusCode::FAILURE;
   }else{
-    msg(MSG::INFO) << "Got the detector elements road tool " << m_roadmaker << endreq;
+    msg(MSG::INFO) << "Got the detector elements road tool " << m_roadmaker << endmsg;
   }
 
   // Get seeds maker tool
   //
   if(m_seedmaker.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not get " << m_seedmaker << endreq; return StatusCode::FAILURE;
+    msg(MSG::FATAL) << "Could not get " << m_seedmaker << endmsg; return StatusCode::FAILURE;
   }else{
-    msg(MSG::INFO) << "Got the seed tool " << m_seedmaker << endreq;
+    msg(MSG::INFO) << "Got the seed tool " << m_seedmaker << endmsg;
   }
 
   // Get combinatorial track finder tool
   //
   if ( m_tracksfinder.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_tracksfinder << endreq; return StatusCode::FAILURE;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_tracksfinder << endmsg; return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_tracksfinder << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_tracksfinder << endmsg;
   }
 
   // Set track quality cuts for track finding tool
@@ -211,19 +211,19 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::initialize()
   StoreGateSvc* detStore = 0;
   sc = service( "DetectorStore", detStore );
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "Could not get DetectorStore"<<endreq;
+    msg(MSG::FATAL) << "Could not get DetectorStore"<<endmsg;
     return sc;
   }
 
   sc = detStore->retrieve(m_trtId, "TRT_ID");
   if (sc.isFailure()){
-    msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endreq;
+    msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
 
   // Get output print level
   //
-  if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endreq;}
+  if(msgLvl(MSG::DEBUG)){m_nprint=0; msg(MSG::DEBUG) << (*this) << endmsg;}
 
   return sc;
 
@@ -245,7 +245,8 @@ StatusCode InDet::TRT_SeededTrackFinder_ATL::finalize()
 MsgStream&  InDet::TRT_SeededTrackFinder_ATL::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumpconditions(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumpconditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -371,7 +372,7 @@ void InDet::TRT_SeededTrackFinder_ATL::newEvent()
   // Print event information 
   //
   if(msgLvl(MSG::DEBUG)) {
-    m_nprint=1; msg(MSG::DEBUG) << (*this) << endreq;
+    m_nprint=1; msg(MSG::DEBUG) << (*this) << endmsg;
   }
 
 
@@ -420,7 +421,7 @@ const std::vector<IdentifierHash>& listOfSCTIds)
   // Print event information
   //
   if(msgLvl(MSG::DEBUG)) {
-    m_nprint=1; msg(MSG::DEBUG) << (*this) << endreq;
+    m_nprint=1; msg(MSG::DEBUG) << (*this) << endmsg;
   }
 
 }
@@ -451,7 +452,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::Tra
 
   // protection for having the expected type of segment parameters
   if ( tS.localParameters().parameterKey() != 31 ){
-    msg(MSG::WARNING) << "Wrong type of TRT segment, rejected !" << endreq;
+    msg(MSG::WARNING) << "Wrong type of TRT segment, rejected !" << endmsg;
     return aSiTrack;
   }
 
@@ -471,22 +472,22 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::Tra
   std::unique_ptr<const Trk::TrackParameters> newPerPar( surf->createTrackParameters(Vp.get(Trk::loc1),Vp.get(Trk::loc2),Vp.get(Trk::phi),Vp.get(Trk::theta),Vp.get(Trk::qOverP),ie) );
 
   if(newPerPar){
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters created from TRT segment, " << endreq;
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*newPerPar) << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters created from TRT segment, " << endmsg;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*newPerPar) << endmsg;
   }else{
-    msg(MSG::WARNING) << "Could not get initial TRT track parameters, rejected! " << endreq;
+    msg(MSG::WARNING) << "Could not get initial TRT track parameters, rejected! " << endmsg;
     return aSiTrack;
   }
 
   //Do the actual tracking and smoothing and get the Si track states on surface
   if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "==============================================================" << endreq;
-    msg(MSG::DEBUG) << "Start initial search with 3-4 SCT layer combinations " << endreq;
+    msg(MSG::DEBUG) << "==============================================================" << endmsg;
+    msg(MSG::DEBUG) << "Start initial search with 3-4 SCT layer combinations " << endmsg;
   }
 
   // aalonso
   if (  m_searchInCaloROI && !isCaloCompatible( *newPerPar )) {
-//   	msg(MSG::WARNING) << " Track Segment not asociated to a calo clustes!!!! " << endreq;
+//   	msg(MSG::WARNING) << " Track Segment not asociated to a calo clustes!!!! " << endmsg;
     	return aSiTrack;
 
   }
@@ -495,21 +496,21 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::getTrack(const Trk::Tra
   aSiTrack = findTrack(newPerPar.get(),tS);
   if((aSiTrack.size()==0)&&(m_bremCorrect)){
     if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "==============================================================" << endreq;
-      msg(MSG::DEBUG) << "Could not create track states on surface for this track!Try to add brem correction." << endreq;
+      msg(MSG::DEBUG) << "==============================================================" << endmsg;
+      msg(MSG::DEBUG) << "Could not create track states on surface for this track!Try to add brem correction." << endmsg;
     }
     const Trk::TrackParameters* modTP = modifyTrackParameters(*newPerPar,0);
     if(msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "Modified TRT Track Parameters for brem. " << endreq;
-      msg(MSG::VERBOSE) << (*modTP) << endreq;
+      msg(MSG::VERBOSE) << "Modified TRT Track Parameters for brem. " << endmsg;
+      msg(MSG::VERBOSE) << (*modTP) << endmsg;
     }
     aSiTrack = findTrack(modTP,tS);
     delete modTP;
     if(aSiTrack.size()==0){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not create track states on surface for this track after all!"<<endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Could not create track states on surface for this track after all!"<<endmsg;
       return aSiTrack;
     }
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "==============================================================" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "==============================================================" << endmsg;
   }
 
   //Return list of tracks (by value !?)
@@ -532,7 +533,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
   std::list<std::pair<const Trk::SpacePoint*,const Trk::SpacePoint*> >* SpE;
   SpE = m_seedmaker->find2Sp(*initTP);                //Get a list of SP pairs
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "---------------> SP SEED LIST SIZE " << SpE->size() << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "---------------> SP SEED LIST SIZE " << SpE->size() << endmsg;
   if(SpE->size()==0){return associatedSiTrack;}
 
   //
@@ -554,13 +555,13 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     //Get the track parameters to use to get the detector elements for each SP pair
     std::pair<const Trk::SpacePoint*, const Trk::SpacePoint*>& pSP = *r;
     if (pSP.first != pSP.second){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "----> Seed Pair: SP 1 " << (pSP.first)->r() << " SP 2 " << (pSP.second)->r() << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "----> Seed Pair: SP 1 " << (pSP.first)->r() << " SP 2 " << (pSP.second)->r() << endmsg;
     }else {
       if(msgLvl(MSG::DEBUG)) {
-	msg(MSG::DEBUG) << "----> Seed Single: SP 1 " << (pSP.first)->r() << endreq;
-	msg(MSG::DEBUG) << "      Will not process for the time being ! A special module is needed" << endreq; 
-	msg(MSG::DEBUG) << "      to deal with late conversion (no search and stablized input fit )." << endreq; 
-	msg(MSG::DEBUG) << "      Current version is unstable in the SP updates and gets unpredictable results." << endreq; 
+	msg(MSG::DEBUG) << "----> Seed Single: SP 1 " << (pSP.first)->r() << endmsg;
+	msg(MSG::DEBUG) << "      Will not process for the time being ! A special module is needed" << endmsg; 
+	msg(MSG::DEBUG) << "      to deal with late conversion (no search and stablized input fit )." << endmsg; 
+	msg(MSG::DEBUG) << "      Current version is unstable in the SP updates and gets unpredictable results." << endmsg; 
       }
       continue;
     }
@@ -569,11 +570,11 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     std::list<const Trk::SpacePoint*> SpList;
     SpList.push_back(pSP.second); SpList.push_back(pSP.first);
     if(!newClusters(SpList)) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Seed SPs already used by a single track. Ignore..." << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Seed SPs already used by a single track. Ignore..." << endmsg; 
       continue;
     }
     if(!newSeed(SpList)) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Seed SPs already used by other tracks. Ignore..." << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Seed SPs already used by other tracks. Ignore..." << endmsg; 
       continue;
     }
 
@@ -584,7 +585,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     if(m_fieldService->solenoidOn()){
       bool seedGood = checkSeed(SpList,tS,initTP);
       if(!seedGood && m_propR) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Seed not consistent with TRT segment. Ignore..." << endreq; 
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Seed not consistent with TRT segment. Ignore..." << endmsg; 
 	continue;
       }
     }
@@ -592,7 +593,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     //
     // ----------------Get new better track parameters using the SP seed
     //
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Get better track parameters using the seed" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Get better track parameters using the seed" << endmsg;
     double newTheta = getNewTheta(SpList);
 
     const AmgVector(5)& iv = initTP->parameters();
@@ -606,7 +607,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     if     (newPhi > pi) newPhi = fmod(newPhi+pi,pi2)-pi;
     else if(newPhi <-pi) newPhi = fmod(newPhi-pi,pi2)+pi;
     if(newTheta<0.27) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pseudorapidity greater than 2.Ignore" << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Pseudorapidity greater than 2.Ignore" << endmsg; 
       continue;
     }
 
@@ -632,47 +633,47 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     const Trk::TrackParameters* niTP = initTP->associatedSurface().createTrackParameters(iv[0],iv[1],newPhi,newTheta,iv[4],nvCM);
 
     if(niTP){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters created and scaled from TRT segment, " << endreq;
-      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*niTP) << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters created and scaled from TRT segment, " << endmsg;
+      if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*niTP) << endmsg;
     }else{
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not get initial TRT track parameters! " << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Could not get initial TRT track parameters! " << endmsg;
       continue;
     }
     
     //
     // ----------------Propagate through the SP seed
     //
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagating through the seed" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Propagating through the seed" << endmsg;
     bool outl = false;
     
     //update with first SP 
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Update with 1st SP from seed" << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Update with 1st SP from seed" << endmsg;
     const Trk::TrackParameters* upTP = getTP(pSP.first,niTP,outl);
     //If no track parameters are found, go to the next seed
     if(!upTP){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolation through seed failed!Seed bogus.Move to next seed" << endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolation through seed failed!Seed bogus.Move to next seed" << endmsg; 
       delete niTP; continue;
     }
     //Not good if SP pair has outliers. Clean up the memory and move to next seed
     if(outl){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Seed with outliers. Will not process!"<<endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Seed with outliers. Will not process!"<<endmsg;
       delete niTP; delete upTP; continue;
     }
     
     //update with second SP ? 
     if (pSP.first != pSP.second) {
       //update with second SP 
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Update with 2nd SP from seed" << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Update with 2nd SP from seed" << endmsg;
       const Trk::TrackParameters* newTP = getTP(pSP.second,upTP,outl);
       delete upTP;
       //If no track parameters are found, go to the next seed
       if(!newTP){
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolation through seed failed!Seed bogus.Move to next seed" << endreq; 
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolation through seed failed!Seed bogus.Move to next seed" << endmsg; 
 	delete niTP; continue;
       }
       //Not good if SP pair has outliers. Clean up the memory and move to next seed
       if(outl){
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Seed with outliers.Will not process!"<<endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Seed with outliers.Will not process!"<<endmsg;
 	delete niTP; delete newTP; continue;
       }
       // copy the newTP to upTP
@@ -681,7 +682,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
 
     //Protect the road maker tool when the momentum is too low since the particle will spiral inside the tracker
     if(upTP->momentum().perp()<m_pTmin){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Low pT.Stop! "<<endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Low pT.Stop! "<<endmsg;
       delete niTP; delete upTP; continue;
     }
 
@@ -693,13 +694,13 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     //Get track parameters at the end of SCT to start backwards propagation
     const Trk::TrackParameters* per   = m_proptool->propagate(*upTP,persurf,Trk::oppositeMomentum,false,m_fieldprop,Trk::nonInteracting); //Propagate 
     if(!per){
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No extrapolated track parameters!"<<endreq; 
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No extrapolated track parameters!"<<endmsg; 
       delete niTP; delete upTP; continue;
     }
 
     if(msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE) << "Perigee after SP updates at same surface" << endreq;
-      msg(MSG::VERBOSE) << *per << endreq;
+      msg(MSG::VERBOSE) << "Perigee after SP updates at same surface" << endmsg;
+      msg(MSG::VERBOSE) << *per << endmsg;
     }
 
     //Get list of InDet Elements
@@ -707,7 +708,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     m_roadmaker->detElementsRoad(*per,Trk::alongMomentum,DE);
     delete per;
     if( int(DE.size()) < m_nclusmin){ //Not enough detector elements to satisfy the minimum number of clusters requirement. Stop
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Too few detector elements, not expected" << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Too few detector elements, not expected" << endmsg;
       delete niTP; delete upTP; continue;
     }
     //std::list<const InDetDD::SiDetectorElement*>::iterator ir,ire=DE.end();
@@ -739,8 +740,8 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
       mesTP = upTP->associatedSurface().createTrackParameters(piv[0],piv[1],piv[2],piv[3],piv[4],pnvCM);
 
       if(mesTP){
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters at 1st SP created and scaled from TRT segment, " << endreq;
-	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*mesTP) << endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Initial Track Parameters at 1st SP created and scaled from TRT segment, " << endmsg;
+	if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << (*mesTP) << endmsg;
       }else{
 	delete niTP; delete upTP; continue;
       }
@@ -754,7 +755,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::findTrack
     std::list<Amg::Vector3D> Gp;
     aTracks = m_tracksfinder->getTracks(*mesTP,SpList,Gp,DE,m_trackquality);
     if(int(aTracks.size())==0) {
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No tracks found by the combinatorial track finder!"<<endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"No tracks found by the combinatorial track finder!"<<endmsg;
     }
 
     //
@@ -799,8 +800,8 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(const Trk::SpacePoint* SP, const Trk::Tr
 
   if(!eTP){  
 
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolation to Si element failed"<< endreq;
-    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << surf << endreq;
+    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Extrapolation to Si element failed"<< endmsg;
+    if(msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << surf << endmsg;
     return 0;
 
   }else{
@@ -813,7 +814,7 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(const Trk::SpacePoint* SP, const Trk::Tr
 
     if(!uTP) { //The updator failed
       if (sct_fitChi2) {
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Updator returned no update, but a DitQuality object, a leak !"<< endreq; 
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Updator returned no update, but a DitQuality object, a leak !"<< endmsg; 
 	delete sct_fitChi2;
       }
       m_noise.production(-1,1,*eTP);
@@ -822,7 +823,7 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(const Trk::SpacePoint* SP, const Trk::Tr
       double covIMom=m_noise.covarianceIMom();
       double corIMom=m_noise.correctionIMom();
       iTP = addNoise(covAzim,covPola,covIMom,corIMom,eTP,0);
-      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"The updator failed! Count an outlier "<<endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"The updator failed! Count an outlier "<<endmsg;
       delete eTP; 
       //if (uTP) {delete uTP; delete sct_fitChi2;}
       outl = true;
@@ -832,7 +833,7 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(const Trk::SpacePoint* SP, const Trk::Tr
       float outlierCut = m_outlierCut;
       if(!m_fieldServiceHandle->solenoidOn()) outlierCut = 1000000.; // Increase the outlier chi2 cut if solenoid field is OFF
       if( sct_fitChi2->chiSquared() < outlierCut && fabs(uTP->parameters()[Trk::theta]) > 0.17 ){
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Update worked, will update return track parameters, chi2: "<<(sct_fitChi2->chiSquared())<<endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Update worked, will update return track parameters, chi2: "<<(sct_fitChi2->chiSquared())<<endmsg;
 	m_noise.production(-1,1,*uTP);
 	double covAzim=m_noise.covarianceAzim();
 	double covPola=m_noise.covariancePola();
@@ -840,7 +841,7 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(const Trk::SpacePoint* SP, const Trk::Tr
 	double corIMom=m_noise.correctionIMom();
 	iTP = addNoise(covAzim,covPola,covIMom,corIMom,uTP,0); 
       }else{
-	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Outlier, did not satisfy cuts, chi2: "<<(sct_fitChi2->chiSquared())<<" "<<fabs(uTP->parameters()[Trk::theta])<<endreq;
+	if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)<<"Outlier, did not satisfy cuts, chi2: "<<(sct_fitChi2->chiSquared())<<" "<<fabs(uTP->parameters()[Trk::theta])<<endmsg;
 	m_noise.production(-1,1,*eTP);
 	double covAzim=m_noise.covarianceAzim();
 	double covPola=m_noise.covariancePola();
@@ -865,7 +866,7 @@ InDet::TRT_SeededTrackFinder_ATL::getTP(const Trk::SpacePoint* SP, const Trk::Tr
 const Trk::TrackParameters* InDet::TRT_SeededTrackFinder_ATL::addNoise 
     (double covAzim, double covPola, double covIMom, double corIMom, const Trk::TrackParameters* P1, int isSmooth) 
 {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding noise to track parameters... " << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Adding noise to track parameters... " << endmsg;
   const Trk::TrackParameters* noiseTP = 0;  //Initialize the sum of track parameters
 
   //Get the noise augmented parameters and the 15 lower half covariance matrix elements from the first input track parameters
@@ -1092,7 +1093,8 @@ bool InDet::TRT_SeededTrackFinder_ATL::newClusters(const std::list<const Trk::Sp
   int m = 0;
   for(; t[0]!=te; ++t[0]) {
     if (m==30) return false;
-    if( (*t[0]).first != prd[0] ) break; trk[0][m++] = (*t[0]).second; 
+    if( (*t[0]).first != prd[0] ) break;
+    trk[0][m++] = (*t[0]).second; 
     if(m==200) break;
   } 
 
@@ -1150,7 +1152,8 @@ bool InDet::TRT_SeededTrackFinder_ATL::newSeed(const std::list<const Trk::SpaceP
 
     int m = 0;
     for(tt=t[0]; tt!=te; ++tt) {
-      if( (*tt).first != prd[0] ) break; trk[0][m++] = (*tt).second; 
+      if( (*tt).first != prd[0] ) break;
+      trk[0][m++] = (*tt).second; 
       if(m==200) break;
     } 
     
@@ -1181,8 +1184,8 @@ bool InDet::TRT_SeededTrackFinder_ATL::newSeed(const std::list<const Trk::SpaceP
       if((*tt).second->trackStateOnSurfaces()->size() >= 10) {++h; break;}
     }
   }
-  if(h) return false; return true;
-
+  if(h) return false;
+  return true;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -1254,7 +1257,7 @@ std::list<Trk::Track*> InDet::TRT_SeededTrackFinder_ATL::cleanTrack
       if(clus && ((*itp)->type(Trk::TrackStateOnSurface::Measurement))){  //Count the number of hits used in the track
         const InDet::SiCluster* RawDataClus=dynamic_cast<const InDet::SiCluster*>(clus->prepRawData());
         if(RawDataClus==0){
-	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Cluster without PrepRawData!!!" << endreq;
+	  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Si Cluster without PrepRawData!!!" << endmsg;
           continue;
         }
         if(RawDataClus->detectorElement()->isPixel()){
@@ -1308,17 +1311,17 @@ bool InDet::TRT_SeededTrackFinder_ATL::isCaloCompatible(const Trk::TrackParamete
   const AmgVector(5)& Vp = Tp.parameters(); 
 
   double F = Vp[2]; 
-//    	msg(MSG::WARNING) << "CheckCal dedf \t" << F << "\t" << E << endreq;
+//    	msg(MSG::WARNING) << "CheckCal dedf \t" << F << "\t" << E << endmsg;
 
 
   for(; f!=fe; ++f) {
     double df = fabs(F-(*f));
     if(df > pi        ) df = fabs(pi2-df);
-  //  	msg(MSG::WARNING) << "CheckCal df \t" << df << endreq;
+  //  	msg(MSG::WARNING) << "CheckCal df \t" << df << endmsg;
 
     if(df < m_phiWidth) {
    //   double de = fabs(E-(*e));
-    //	msg(MSG::WARNING) << "CheckCal de \t" << de << endreq;
+    //	msg(MSG::WARNING) << "CheckCal de \t" << de << endmsg;
 //      if(de < m_etaWidth) return true;
 	return true;
     }
