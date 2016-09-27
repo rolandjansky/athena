@@ -205,10 +205,12 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
   if(lastIDwP == inputTSOS->end() && !startParameters) {
     ATH_MSG_WARNING("Unable to find starting parameters for extrapolation");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
+    /** deprecated outputLevel()
     if(outputLevel() >= MSG::VERBOSE) {
       for(auto m : *inputTSOS)
-	printTSOS(m, "DEBUG-TSOS");
+	      printTSOS(m, "DEBUG-TSOS");
     }
+    **/
     return;
   }
   if(firstCALO == inputTSOS->end()) {
@@ -218,10 +220,12 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& track, const Trk::
   if(firstMS == inputTSOS->end()) {
     ATH_MSG_WARNING("Unable to find first MS TSOS");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
+    /**
     if(outputLevel() >= MSG::VERBOSE) {
       for(auto m : *inputTSOS)
-	printTSOS(m, "DEBUG-TSOS");
+	    printTSOS(m, "DEBUG-TSOS");
     }
+    **/
     return;
   }
 
@@ -330,19 +334,23 @@ void Trk::TrkMaterialProviderTool::updateCaloTSOS(Trk::Track& idTrack, Trk::Trac
   if(lastIDwP == inputTSOS_ID->end()) {
     ATH_MSG_WARNING("Unable to find last ID TSOS with Track Parameters");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS" );
+    /** deprecated outputLevel()
     if(outputLevel() >= MSG::VERBOSE) {
       for(auto m : *inputTSOS_ID)
-	printTSOS(m, "DEBUG-ID-TSOS");
+	      printTSOS(m, "DEBUG-ID-TSOS");
     }
+    **/
     return;
   }
   if(firstMS == inputTSOS_MS->end()) {
     ATH_MSG_WARNING("Unable to find first MS TSOS!");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
+    /** deprecated outputLevel()
     if(outputLevel() >= MSG::VERBOSE) {
       for(auto m : *inputTSOS_MS)
-	printTSOS(m, "DEBUG-MS-TSOS");
+	      printTSOS(m, "DEBUG-MS-TSOS");
     }
+    **/
     return;
   }
 
@@ -454,19 +462,23 @@ void Trk::TrkMaterialProviderTool::getCaloMEOT(const Trk::Track& idTrack, const 
   if(lastIDwP == inputTSOS_ID->end()) {
     ATH_MSG_WARNING("Unable to find last ID TSOS with Track Parameters");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
+    /** deprecated outputLevel()
     if(outputLevel() >= MSG::VERBOSE) {
       for(auto m : *inputTSOS_ID)
-	printTSOS(m, "DEBUG-ID-TSOS");
+	      printTSOS(m, "DEBUG-ID-TSOS");
     }    
+    **/
     return;
   }
   if(firstMS == inputTSOS_MS->end()) {
     ATH_MSG_WARNING("Unable to find first MS TSOS");    
     ATH_MSG_WARNING("Unable to update Calorimeter TSOS");
+    /** deprecated outputLevel()
     if(outputLevel() >= MSG::VERBOSE) {
       for(auto m : *inputTSOS_MS)
-	printTSOS(m, "DEBUG-MS-TSOS");
+	       printTSOS(m, "DEBUG-MS-TSOS");
     }
+    **/
     return;
   }
 
@@ -682,11 +694,11 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm, con
         if(m_infoExtrapolation) {
           ATH_MSG_INFO(" getCaloTSOS: Previous solution had Eloss " << Eloss_previous << " latest " << Eloss);
           if(parms) ATH_MSG_INFO(" parms position radius " << parms->position().perp() << " z " << parms->position().z());
-          if(&surface) ATH_MSG_INFO(" destination surface position radius " << surface.center().perp() << " z " << surface.center().z());
+          /*if(&surface)*/ ATH_MSG_INFO(" destination surface position radius " << surface.center().perp() << " z " << surface.center().z());
         } else {
           ATH_MSG_DEBUG(" getCaloTSOS: Previous solution had Eloss " << Eloss_previous << " latest " << Eloss);
           if(parms) ATH_MSG_DEBUG(" parms position radius " << parms->position().perp() << " z " << parms->position().z());
-          if(&surface) ATH_MSG_DEBUG(" destination surface position radius " << surface.center().perp() << " z " << surface.center().z());
+          /*if(&surface)*/ ATH_MSG_DEBUG(" destination surface position radius " << surface.center().perp() << " z " << surface.center().z());
         } 
         for(unsigned int i=0; i<caloTSOSdv->size(); ++i)
   	  caloTSOS->push_back(caloTSOSdv->get(i));
@@ -974,11 +986,9 @@ Trk::TrkMaterialProviderTool::getCaloTSOS (const Trk::TrackParameters&	parm,
 
 CaloEnergy* Trk::TrkMaterialProviderTool::getParamCaloELoss(Trk::Track* track)
 {
-  std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = track->trackStateOnSurfaces()->begin();
-  std::vector<const Trk::TrackStateOnSurface*>::const_iterator itEnd = track->trackStateOnSurfaces()->end();
-  for (; it != itEnd; ++it) {
-    if((*it)->materialEffectsOnTrack()) {
-      const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>((*it)->materialEffectsOnTrack());
+  for (const Trk::TrackStateOnSurface* tsos : *track->trackStateOnSurfaces()) {
+    if(tsos->materialEffectsOnTrack()) {
+      const Trk::MaterialEffectsOnTrack* meot = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(tsos->materialEffectsOnTrack());
       if(meot) {
 	const Trk::EnergyLoss* energyLoss = meot->energyLoss();
 	if (energyLoss) {
@@ -1073,11 +1083,11 @@ void Trk::TrkMaterialProviderTool::removeOutOfCalo(std::vector<const Trk::TrackS
   // and group all other track states at the  beginning of the vector.
   // finally erase from the vector all track state pointer of the 
   // deleted objects, which are after remove_if at the end of the vector.
-  const TrkMaterialProviderTool *_this=this;
+  const TrkMaterialProviderTool *this_=this;
   caloTSOS->erase( std::remove_if(caloTSOS->begin(), 
                                   caloTSOS->end(),
-                                  [_this](const Trk::TrackStateOnSurface *&state) {                                  
-                                    if (state && _this->getVolumeByGeo(state)!=2) {
+                                  [this_](const Trk::TrackStateOnSurface *&state) {                                  
+                                    if (state && this_->getVolumeByGeo(state)!=2) {
                                       delete state;
                                       state=nullptr;
                                       return true;
@@ -1097,11 +1107,11 @@ void Trk::TrkMaterialProviderTool::removeMS(std::vector<const Trk::TrackStateOnS
   // and group all other track states at the  beginning of the vector.
   // finally erase from the vector all track state pointer of the 
   // deleted objects, which are after remove_if at the end of the vector.
-  const TrkMaterialProviderTool *_this=this;
+  const TrkMaterialProviderTool *this_=this;
   caloTSOS->erase( std::remove_if(caloTSOS->begin(), 
                                   caloTSOS->end(),
-                                  [_this](const Trk::TrackStateOnSurface *&state) {                                  
-                                    if (state && _this->getVolumeByGeo(state)==3) {
+                                  [this_](const Trk::TrackStateOnSurface *&state) {                                  
+                                    if (state && this_->getVolumeByGeo(state)==3) {
                                       delete state;
                                       state=nullptr;
                                       return true;
