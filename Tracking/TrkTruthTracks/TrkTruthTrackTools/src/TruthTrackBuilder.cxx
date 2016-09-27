@@ -72,12 +72,12 @@ StatusCode  Trk::TruthTrackBuilder::initialize()
 {
     ATH_MSG_VERBOSE("Initializing ...");
     if (m_rotcreator.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_rotcreator.type() << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_rotcreator.type() << endmsg;
       return StatusCode::FAILURE; 
     }
 
     if (m_rotcreatorbroad.retrieve().isFailure()) { 
-      msg(MSG::FATAL) << "Could not get " << m_rotcreatorbroad.type() << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_rotcreatorbroad.type() << endmsg;
       return StatusCode::FAILURE; 
     }
 
@@ -295,5 +295,8 @@ Trk::Track* Trk::TruthTrackBuilder::createTrack(const PRD_TruthTrajectory& prdTr
     else 
         ATH_MSG_VERBOSE("Track fit of truth trajectory NOT successful, NO track created. ");
     // return what you have
+    // Before returning, fix the creator
+    refittedtrack2 ->  info().setPatternRecognitionInfo( Trk::TrackInfo::Pseudotracking);
+
     return refittedtrack2;
 }
