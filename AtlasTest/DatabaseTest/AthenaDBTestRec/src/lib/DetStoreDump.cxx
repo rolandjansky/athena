@@ -27,8 +27,8 @@ StatusCode DetStoreDump::initialize() {
   ATH_MSG_INFO("Initialise - mode " << m_mode);
 
   msg(MSG::INFO) << "Dump of complete detector store at initialize"
-	<< detStore()->dump() << endreq;
-  msg(MSG::INFO) << "Dump finished" << endreq;
+	<< detStore()->dump() << endmsg;
+  msg(MSG::INFO) << "Dump finished" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -37,8 +37,8 @@ StatusCode DetStoreDump::execute() {
   if (m_first && m_mode>0) {
     msg(MSG::INFO) << 
      "Dump of complete detector store at first event execute"
-	  << detStore()->dump() << endreq;
-    msg(MSG::INFO) << "Dump finished" << endreq;
+	  << detStore()->dump() << endmsg;
+    msg(MSG::INFO) << "Dump finished" << endmsg;
   }
   m_first=false;
   return StatusCode::SUCCESS;
