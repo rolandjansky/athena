@@ -1414,14 +1414,14 @@ StatusCode HLTJetMonTool::fillJetHists() {
   //  ATH_MSG_DEBUG("lbLumiWeight() = "<<lbLumiWeight()<<" lumi_weight = "<<lumi_weight<<" LumiBlock = "<<m_lumiBlock<<" first v_lb = "<<v_lbn.front()<<" last v_lbn = "<<v_lbn.back());
   
   StatusCode sc = StatusCode::SUCCESS;
-  /*
+  
   sc = fillBasicHists();
   if (sc.isFailure()) {
     ATH_MSG_WARNING ( "HLTJetMonTool::fillBasicHists() failed" );
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG ( "HLTJetMonTool::fillBasicHists() returned success" );
-  */
+  
   // fill offline jet and trigger eff hists
  
   if(m_doOFJets) {
@@ -1432,7 +1432,7 @@ StatusCode HLTJetMonTool::fillJetHists() {
     }
     ATH_MSG_DEBUG ( "HLTJetMonTool::fillOfflineHists() returned success" );    
   }
-  /* 
+   
 // fill dijet monitoring hists
     sc = fillDiJetHists();
     if (sc.isFailure()) {
@@ -1440,7 +1440,7 @@ StatusCode HLTJetMonTool::fillJetHists() {
       return StatusCode::SUCCESS;
     }
     ATH_MSG_DEBUG ( "HLTJetMonTool::fillDiJetHists() returned success" );    
-  */
+  
   return StatusCode::SUCCESS;
 
 } // end fillJetHists

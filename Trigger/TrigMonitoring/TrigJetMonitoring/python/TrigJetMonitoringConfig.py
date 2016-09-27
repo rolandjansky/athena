@@ -10,7 +10,7 @@
 #            d) Jet / HLT trigger object matching
 #            e) Trigger efficiency estimation 
 #
-#  author(s) : Lee Sawyer (lee.sawyer@cern.ch)
+#  author(s) : Lee Sawyer (lee.sawyer@cern.ch), Giulio Cornelio Grossi
 #################################################################################################
 
 import math
