@@ -2,8 +2,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef __HIEVENTSHAPEFILLERTOOL_H__
-#define __HIEVENTSHAPEFILLERTOOL_H__
+#ifndef HIGLOBAL_HIEVENTSHAPEFILLERTOOL_H
+#define HIGLOBAL_HIEVENTSHAPEFILLERTOOL_H
 
 #include "AsgTools/AsgTool.h"
 #include "HIGlobal/IHIEventShapeFiller.h"
@@ -28,11 +28,11 @@ class HIEventShapeFillerTool : public asg::AsgTool, virtual public IHIEventShape
   virtual StatusCode FillCollectionFromTowerContainer(const INavigable4MomentumCollection* navInColl);
   virtual StatusCode FillCollectionFromCellContainer(const CaloCellContainer* CellContainer);
 
-   virtual const xAOD::HIEventShapeContainer* GetHIEventShapeContainer()  {return evtShape;} 
+   virtual const xAOD::HIEventShapeContainer* GetHIEventShapeContainer()  {return m_evtShape;} 
    virtual StatusCode  SetNumOrders(int Norders);   
 
    private:
-   xAOD::HIEventShapeContainer *evtShape      ;
+   xAOD::HIEventShapeContainer *m_evtShape      ;
    int m_NumOrders;// The number of flow harmonics to store in the Q-vectors
    const HIEventShapeIndex* m_index;
   void UpdateShape(xAOD::HIEventShapeContainer* shape, const HIEventShapeIndex* index, const CaloCell* theCell, float geoWeight, float eta0, float phi0, bool isNeg=false) const;

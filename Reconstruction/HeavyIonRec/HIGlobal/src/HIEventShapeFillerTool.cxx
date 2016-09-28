@@ -10,7 +10,7 @@
 #include "HIEventUtils/HIEventShapeMap.h"
 
 HIEventShapeFillerTool::HIEventShapeFillerTool(const std::string& myname)  : asg::AsgTool(myname),
-									     evtShape(nullptr),
+									     m_evtShape(nullptr),
 									     m_NumOrders(7),
 									     m_index(nullptr)
 {
@@ -26,8 +26,8 @@ StatusCode  HIEventShapeFillerTool::SetNumOrders(int Norders)
 StatusCode HIEventShapeFillerTool::InitializeCollection(xAOD::HIEventShapeContainer *evtShape_)
 {
 
-   //change evtShape to m_evtShape
-   evtShape=evtShape_;
+   //change m_evtShape to m_evtShape
+   m_evtShape=evtShape_;
 
    //tool is initialized only once
    if(!m_index)
@@ -39,7 +39,7 @@ StatusCode HIEventShapeFillerTool::InitializeCollection(xAOD::HIEventShapeContai
    //fix this to have proper name passing
 
    //use tool to initialize event shape object
-   m_index->initializeEventShapeContainer(evtShape,m_NumOrders);
+   m_index->initializeEventShapeContainer(m_evtShape,m_NumOrders);
 
    return StatusCode::SUCCESS;
 }
@@ -71,7 +71,7 @@ StatusCode HIEventShapeFillerTool::FillCollectionFromTowerContainer(const INavig
 
     if ( cellToken.size() == 0 ) continue;
     for(NavigationToken<CaloCell,double,CaloCellIDFcn>::const_iterator cellItr = cellToken.begin();
-	cellItr != cellToken.end(); cellItr++ ) UpdateShape(evtShape,m_index,*cellItr,cellToken.getParameter(*cellItr),eta0,phi0);
+	cellItr != cellToken.end(); cellItr++ ) UpdateShape(m_evtShape,m_index,*cellItr,cellToken.getParameter(*cellItr),eta0,phi0);
   }//end tower loop
   return StatusCode::SUCCESS;
 }
@@ -95,7 +95,7 @@ StatusCode HIEventShapeFillerTool::FillCollectionFromCellContainer(const CaloCel
 {
    ATH_MSG_DEBUG("INSIDE FillCollectionFromCellContainer");
    //loop on Cells
-   for(const auto cellItr : *CellContainer) UpdateShape(evtShape,m_index,cellItr,1.,cellItr->eta(),cellItr->phi());
+   for(const auto cellItr : *CellContainer) UpdateShape(m_evtShape,m_index,cellItr,1.,cellItr->eta(),cellItr->phi());
    return StatusCode::SUCCESS;
 } 
 
