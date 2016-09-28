@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpotImpl.cxx 744847 2016-05-04 15:12:00Z smh $
+// $Id: T2VertexBeamSpotImpl.cxx 761239 2016-07-12 09:01:27Z hartj $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -1135,14 +1135,34 @@ T2VertexBeamSpotImpl::reconstructSplitVertices( TrackCollection& myFullTrackColl
 void
 T2VertexBeamSpotImpl::createOutputTEs( TrigVertexCollection& myVertexCollection,
                                        DataVector< TrigVertexCollection >& mySplitVertexCollections,
-                                       unsigned int type_out )
+                                       unsigned int type_out ,  const vector<vector<HLT::TriggerElement*> >& tes_in )
 {
   T2Timer t( m_timer[allOutput] );
 
   //--------------------------------------------------
   //  create TEVec for creating output TE if necessary
   //--------------------------------------------------
-  HLT::TEVec allTEs;
+  // JK 7/7/16 Need to use input TE
+  // HLT::TEVec allTEs;
+
+      if (tes_in.size() != 1 ) {
+	msg() << MSG::ERROR << "Number of input TE vectors expected to be 1, is  " << tes_in.size() << endreq;
+	return;
+      }
+
+
+      vector<vector<HLT::TriggerElement*> >::const_iterator iTE = tes_in.begin();
+      vector<vector<HLT::TriggerElement*> >::const_iterator iTE_end = tes_in.end();
+      HLT::TEVec allTEs= *iTE;
+
+      for (;iTE!=iTE_end; ++iTE) {
+	HLT::TEVec::const_iterator inner_itEnd = (*iTE).end();
+	HLT::TEVec::const_iterator inner_it = (*iTE).begin();
+	for (;inner_it != inner_itEnd ; ++inner_it) {
+	  allTEs.push_back(*inner_it);
+	}
+      }
+
 
   // Save all events, or only those events which pass the Npv cuts (if activated)!
   if ( m_activateAllTE )

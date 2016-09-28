@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpot.cxx 723137 2016-02-10 15:52:24Z fwinkl $
+// $Id: T2VertexBeamSpot.cxx 760210 2016-07-07 09:33:44Z hartj $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -428,7 +428,8 @@ T2VertexBeamSpot::hltExecute( std::vector<std::vector<HLT::TriggerElement*> >& t
   //------------------------------------
 
   // Add output TEs and attach vertex collections as features if requested
-  impl->createOutputTEs( myVertexCollection, mySplitVertexCollections, type_out );
+  // JKirk 7/7/16 Need to attach to input TEs
+  impl->createOutputTEs( myVertexCollection, mySplitVertexCollections, type_out , tes_in );
 
   // Stop monitoring
   afterExecMonitors().ignore();

@@ -1,7 +1,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 #
-# $Id: T2VertexBeamSpotConfig.py 708692 2015-11-18 13:29:32Z baines $
+# $Id: T2VertexBeamSpotConfig.py 775663 2016-09-28 15:46:56Z masik $
 #
 
 from TrigT2BeamSpot.TrigT2BeamSpotConf import PESA__T2VertexBeamSpot
@@ -55,7 +55,7 @@ class T2VertexBeamSpot_Fex ( PESA__T2VertexBeamSpot ) :
         self.TrackMinQual        = 0.0      # Minimum track chi^2/NDF to be considered for vertexing
         self.TrackMaxQual        = 10.0     # Maximum track chi^2/NDF to be considered for vertexing
         self.TrackMinChi2Prob    = -10.0    # Minimum track cumulative chi2 probability, from CLHEP/GenericFunctions/CumulativeChiSquare.hh 
-        self.TrackMinSiHits      = 0        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
+        self.TrackMinSiHits      = 7        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
         self.TrackMinPIXHits     = 0        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
         self.TrackMinSCTHits     = 0        # Minimum # track silicon (PIX + SCT) hits to be considered for vertexing
         self.TrackMinTRTHits     = -10      # Minimum # track TRT hits to be considered for vertexing

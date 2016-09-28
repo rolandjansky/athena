@@ -4,7 +4,7 @@
 
 ///============================================================
 ///
-/// $Id: T2VertexBeamSpotImpl.h 704927 2015-10-30 17:01:06Z smh $
+/// $Id: T2VertexBeamSpotImpl.h 760210 2016-07-07 09:33:44Z hartj $
 ///
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
 ///
@@ -29,7 +29,7 @@
  * @author David W. Miller    <David.W.Miller@cern.ch>     - SLAC, Stanford University
  *
  * File and Version Information:
- * $Id: T2VertexBeamSpotImpl.h 704927 2015-10-30 17:01:06Z smh $
+ * $Id: T2VertexBeamSpotImpl.h 760210 2016-07-07 09:33:44Z hartj $
  **********************************************************************************/
 
 #ifndef TRIGT2BEAMSPOT_T2VERTEXBEAMSPOTIMPL_H
@@ -186,7 +186,7 @@ namespace PESA {
 
     void createOutputTEs( TrigVertexCollection& myVertexCollection,
                           DataVector< TrigVertexCollection >& mySplitVertexCollections,
-                          unsigned int type_out );
+                          unsigned int type_out, const std::vector<std::vector<HLT::TriggerElement*> >& tes_in  );
 
     bool isGoodTrack     ( const T2Track & track  ) const;
     bool isGoodVertex    ( const T2Vertex& vertex ) const;
