@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionTool.h 740675 2016-04-15 16:45:37Z lheinric $
+// $Id: TrigDecisionTool.h 775686 2016-09-28 16:26:51Z lheinric $
 #ifndef TrigDecision_TrigDecisionTool_h
 #define TrigDecision_TrigDecisionTool_h
 /**********************************************************************************
@@ -120,6 +120,7 @@ namespace Trig {
     #endif
     HLT::TrigNavStructure* m_navigation;
     
+    bool m_acceptMultipleInstance;
     bool m_useAODDecision;
     std::string m_decisionKey;
 
