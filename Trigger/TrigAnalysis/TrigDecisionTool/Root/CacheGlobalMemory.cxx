@@ -38,6 +38,7 @@
 #endif
 
 #include "xAODTrigger/TrigDecision.h"
+#include "xAODTrigger/TrigCompositeContainer.h"
 #include "TrigDecisionTool/DecisionUnpackerStandalone.h"
 
 #ifdef ASGTOOL_ATHENA
@@ -53,6 +54,7 @@ Trig::CacheGlobalMemory::CacheGlobalMemory() :
   m_navigation(0),
   m_confItems(0),  
   m_confChains(0), 
+  m_expressStreamContainer(0), 
   m_bgCode(0)
 {}
 
@@ -181,7 +183,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
              m_streams[stream->stream()].push_back(ch->chain_name());
           }
           if( msgLvl( MSG::DEBUG ) ) {
-	    msg() << endreq;
+	    msg() << endmsg;
 	  }
       }
       if ( ( ch->level() == "EF" || ch->level() == "HLT") && ch->groups().size()>0 ) {
@@ -194,7 +196,7 @@ void Trig::CacheGlobalMemory::update(const TrigConf::HLTChainList* confChains,
 	    m_groups[group].push_back(ch->chain_name());
           }
 	  if( msgLvl( MSG::DEBUG ) ) {
-	    msg() << endreq;
+	    msg() << endmsg;
 	  }
       }
     }
@@ -309,7 +311,15 @@ const LVL1CTP::Lvl1Item* Trig::CacheGlobalMemory::item(const std::string& name) 
    return 0;
 }
 
-
+const xAOD::TrigCompositeContainer* Trig::CacheGlobalMemory::expressStreamContainer() const {
+  if(!m_expressStreamContainer){
+    StatusCode sc = store()->retrieve(m_expressStreamContainer, "HLT_Express_stream_HLT");
+    if(sc.isFailure()){
+      ATH_MSG_WARNING("could not retrieve express stream container");
+    }
+  }
+  return m_expressStreamContainer;
+}
 
 bool Trig::CacheGlobalMemory::assert_decision() {
 

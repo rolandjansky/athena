@@ -36,27 +36,27 @@ Trig::TrigDecisionTool::TrigDecisionTool(const std::string& name) :
   asg::AsgMetadataTool(name),
   m_configKeysCache(),
   m_configKeysCached( false )
+  ,m_configTool("TrigConf::xAODConfigTool")
 #ifndef XAOD_ANALYSIS
-  ,m_configSvc("TrigConf::TrigConfigSvc/TrigConfigSvc", name)
+  ,m_configSvc("", name) //defaults to empty, which will make full athena use configTool ... only works with xAOD
   ,m_fullNavigation("HLT::Navigation/Navigation", this)
   ,m_navigation(0) //should initialize it... it's dangerous not to
 #else
-  ,m_configTool("TrigConf::xAODConfigTool")
   ,m_navigation(new HLT::StandaloneNavigation())
 #endif
 {
    declareProperty( "TrigDecisionKey", m_decisionKey="xTrigDecision", "StoreGate key of TrigDecision object. Consult checkSG.py for the actual name.");
    declareProperty( "PublicChainGroups", m_publicChainGroups, "Pre-created chain groups");
    declareProperty( "UseAODDecision", m_useAODDecision = false );
+   declareProperty( "AcceptMultipleInstance", m_acceptMultipleInstance = false );
 
    //full Athena env
 #ifndef XAOD_ANALYSIS
    declareProperty( "TrigConfigSvc", m_configSvc, "Trigger Config Service");
    declareProperty( "Navigation", m_fullNavigation); 
    m_navigation = &*m_fullNavigation; 
-#else
-   declareProperty( "ConfigTool", m_configTool);
 #endif
+   declareProperty( "ConfigTool", m_configTool);
 
 
 #ifndef XAOD_STANDALONE
@@ -96,9 +96,13 @@ Trig::TrigDecisionTool::initialize() {
    TrigDecisionToolCore::initialize().ignore();
 
    s_instances.push_back(name());
-   if ( s_instances.size() > 1 ) {
-     ATH_MSG_WARNING("Several TrigDecisionTool instances" );
-     ATH_MSG_WARNING("This not to efficent from performance perspective. Access of the same EDM objects will give warnings. Continues anyway ..." );      
+   if ( s_instances.size() > 1) {
+       ATH_MSG_WARNING("Several TrigDecisionTool instances" );
+       ATH_MSG_WARNING("This not to efficent from performance perspective. Access of the same EDM objects will give warnings. Continues anyway ..." );      
+       if (!m_acceptMultipleInstance){
+	 ATH_MSG_ERROR("Will not accept multiple instances. If you really want to have some, use 'AcceptMultipleInstance' property" );
+	 return StatusCode::FAILURE;
+       }
    }
 
    ATH_MSG_INFO("Initializing Trig::TrigDecisionTool (standalone version even for athena)");
@@ -107,6 +111,11 @@ Trig::TrigDecisionTool::initialize() {
    //This is the full Athena Environment
    //we setup the full TrigConfigSvc
    
+   if(m_configSvc.empty()) {
+     ATH_MSG_DEBUG("No TrigConfigSvc provided. Using ConfigTool instead...");
+     CHECK( m_configTool.retrieve()); //use configTool if no configSvc available
+   } else {
+
    StatusCode sc = m_configSvc.retrieve();
    if ( sc.isFailure() ) {
      ATH_MSG_FATAL("Unable to get pointer to TrigConfigSvc");
@@ -116,9 +125,10 @@ Trig::TrigDecisionTool::initialize() {
    if ( m_configSvc->chainList() || m_configSvc->ctpConfig() ) {
       configurationUpdate( m_configSvc->chainList(), m_configSvc->ctpConfig() );
    }
+   }
 
 
-   sc = m_fullNavigation.retrieve();
+   StatusCode sc = m_fullNavigation.retrieve();
    if ( sc.isFailure() ) {
      ATH_MSG_FATAL( "Unable to get Navigation tool");
      return sc;
@@ -171,9 +181,12 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
   }
  
 
-#ifdef XAOD_ANALYSIS
+#ifndef XAOD_ANALYSIS
+  if(m_configSvc.empty()) {
+#endif
   //for analysis releases we check whether we need to update the config
-  ATH_MSG_DEBUG("beginEvent: check if config update is nessecary (via config Tool)");
+    //we also do this in full athena, in the case where there was no configSvc provided
+  ATH_MSG_VERBOSE("beginEvent: check if config update is nessecary (via config Tool)");
   
   bool keysMatch = configKeysMatch(m_configTool->masterKey(),m_configTool->lvl1PrescaleKey(),m_configTool->hltPrescaleKey());
   if(!m_configKeysCached || !keysMatch){
@@ -187,7 +200,9 @@ StatusCode Trig::TrigDecisionTool::beginEvent() {
     configurationUpdate( m_configTool->chainList(), m_configTool->ctpConfig() );
   }
   else{
-    ATH_MSG_DEBUG("keysmatch: " << keysMatch << " cached: " << m_configKeysCached);
+    ATH_MSG_VERBOSE("keysmatch: " << keysMatch << " cached: " << m_configKeysCached);
+  }
+#ifndef XAOD_ANALYSIS
   }
 #endif
   return StatusCode::SUCCESS;
