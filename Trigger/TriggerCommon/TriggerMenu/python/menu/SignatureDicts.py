@@ -63,7 +63,8 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       '7invm9', 'noos', 'noid', 'novtx',
                       '11invm60','18invm60', 'bUpsi',
                       'Trkloose', 'Zmumu', 'noL2', 'noEFbph',
-                      'noinvm', 'ss', 'BpmumuKp', 'Taumumux',
+                      'noinvm', 'ss', 'BpmumuKp', 'Taumumux', 'Dsmumux', 
+                      'trkTau', 'bTauTrk', 'bDsPhiX', 'bPhi','bDsPhiXtight',
                       '11invm24', '24invm60',
                       'tightChi2', 'Lxy0', 'Ftk','legacyVtx',
                       'BsmumuPhi', 'BsJpsiPhi']
@@ -477,17 +478,18 @@ MinBiasChainParts = {
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in', 'ion', 'ncb', 'blayer'], #ncb = non collision background, blayer = only sum innermost pix layer
+    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer'], #ncb = non collision background, blayer = only sum innermost pix layer
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
-    'hypoL2Info'     : ['sp2', 'sp3', 'sp5', 'sp10', 'sp15', 'sp300', 'sp400', 'sp500', 'sp600', 'sp700', 'sp800', 'sp900',
+    'hypoL2Info'     : ['sp2', 'sp3', 'sp5', 'sp10', 'sp15', 'sp100', 'sp300', 'sp400', 'sp500', 'sp600', 'sp700', 'sp800', 'sp900',
                         'sp1000', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800', 
-                        'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2900', 'sp3000', ],
+                        'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2800', 'sp2900', 'sp3000',
+                        'sp3100', 'sp3500', 'sp4100', 'sp4500', 'sp4800', 'sp5000', 'sp5200',],
     'pileupInfo'     : ['pusup350', 'pusup400', 'pusup450', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800', 'pusup900',
                         'pusup1000', 'pusup1100', 'pusup1200', 'pusup1300', 'pusup1400', 'pusup1500',],
-    'hypoEFInfo'     : ['trk3','trk5','trk10','trk15', 'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
-                        'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 
+    'hypoEFInfo'     : ['trk3','trk5','trk10','trk15',  'trk20',  'trk30',  'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
+                        'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280',      
                         'pt2', 'pt4', 'pt6', 'pt8', ],
     'hypoEFsumEtInfo': ['sumet40', 'sumet50', 'sumet60', 'sumet70', 'sumet80', 'sumet90', 'sumet110', 'sumet150',],
     'recoAlg'        : ['mbts', 'sptrk', 'sp', 'noalg', 'perf', 'hmt', 'hmtperf', 'idperf', 'zdcperf'],
@@ -524,7 +526,9 @@ HeavyIonChainParts = {
     'multiplicity'   : '',
     'trigType'       : ['hi'],
     'threshold'      : '',
-    'extra'          : ['th1', 'th2', 'th3', 'th4', 'th5', 'th6', 'th7', 'th8', 'th9', 'th10', 'th11', 'th12', 'th13', 'th14', 'th15', 'th16', 'perf', 'perfzdc'],
+    'extra'          : ['th1', 'th2', 'th3', 'th4', 'th5', 'th6', 'th7', 'th8', 'th9', 'th10', 'th11', 'th12', 'th13', 'th14', 'th15', 'th16', 
+                        'th0p', 'th005p', 'th01p', 'th025p', 'th05p', 'th10p', 'th15p', 'th20p',
+                        'perf', 'perfzdc'],
     'IDinfo'         : [],
     'trkInfo'        : [],
     'eventShape'     : ['v2', 'v3', 'v23', 'v2A', 'v2C'],    
@@ -535,6 +539,7 @@ HeavyIonChainParts = {
     'hypoEFsumEtInfo': ['fcalet3000', 'fcalet3306', 'fcalet3391', 'fcalet3516',],
     'recoAlg'        : ['ucc', 'upc'],
     'addInfo'        : [ ],
+    'gap'            : [ 'FgapA', 'FgapC', 'FgapAC',   'L2FgapA', 'L2FgapC', 'L2FgapAC',   'EFFgapA', 'EFFgapC', 'EFFgapAC' ],
     }
 
 # ---- HeavyIonDictinary of default Values ----
@@ -556,6 +561,7 @@ HeavyIonChainParts_Default = {
     'hypoEFsumEtInfo': '',    
     'recoAlg'        : [],
     'addInfo'        : [],
+    'gap'            : ''
     }
 
 

@@ -6,6 +6,7 @@ log = logging.getLogger( 'TriggerMenu.menu.StreamInfo' )
 monStreams = ['monitoring_random', 
               'CSC',
               'IDMonitoring',
+              'MetRateStudies',
               ]
 
 physicsStreams = ['Main',

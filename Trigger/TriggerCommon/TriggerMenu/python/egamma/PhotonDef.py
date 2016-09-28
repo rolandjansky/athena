@@ -37,6 +37,7 @@ from TrigMultiVarHypo.TrigL2CaloRingerHypoConfig import (TrigL2CaloRingerFexHypo
 
 from TrigT2CaloEgamma.TrigT2CaloEgammaConfig import T2CaloEgamma_eGamma, T2CaloEgamma_Ringer
 
+from TriggerMenu.commonUtils.makeCaloSequences import fullScanTopoClusterSequence, EgammaSlwClusterSequence, EnergyDensitySequence, getFullScanTopoClusterEDSequences
 
 ##################
 #
@@ -187,7 +188,7 @@ class L2EFChain_g(L2EFChainDef):
         else :
             theTrigEgammaFex = self.theTrigEgammaRec_NoIDEF_eGamma
 
-
+        caloseq = EgammaSlwClusterSequence('L2_g_step2','EF_g_step1')
         ########### Sequences ###########
         if ( disableMon ) : theL2CaloHypo.AthenaMonTools=DisableMonitoringButValAndTime(theL2CaloHypo.AthenaMonTools)
         
@@ -204,9 +205,11 @@ class L2EFChain_g(L2EFChainDef):
                                  [self.theL2PhotonFex, theL2PhotonHypo], 
                                  'L2_g_step2']]
         
-        self.EFsequenceList += [[['L2_g_step2'], 
-                                 [self.theTrigCaloCellMaker_eGamma, self.theTrigCaloTowerMaker_eGamma, self.theTrigCaloClusterMaker_slw], 
-                                 'EF_g_step1']]
+        #self.EFsequenceList += [[['L2_g_step2'], 
+        #                         [self.theTrigCaloCellMaker_eGamma, self.theTrigCaloTowerMaker_eGamma, self.theTrigCaloClusterMaker_slw], 
+        #                         'EF_g_step1']]
+        
+        self.EFsequenceList += [caloseq]
         
         #if ( disableMon ) : self.theTrigEFCaloCalibFex.AthenaMonTools=DisableMonitoringButValAndTime(self.theTrigEFCaloCalibFex.AthenaMonTools)
         if ( disableMon ) : theTrigEFCaloHypo.AthenaMonTools=DisableMonitoringButValAndTime(theTrigEFCaloHypo.AthenaMonTools)
@@ -291,13 +294,11 @@ class L2EFChain_g(L2EFChainDef):
         theTrigEgammaFex = self.theTrigEgammaRec_Iso_eGamma
 
         cell_maker_fullcalo_topo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo_egamma",doNoise=0, AbsE=True, doPers=True)
-        fullClusterMaker = TrigCaloClusterMaker_topo('TrigCaloClusterMaker_topo_fullscan_egamma')
+        fullClusterMaker = TrigCaloClusterMaker_topo('TrigCaloClusterMaker_topo')
         DummyMergerAlgo = PESA__DummyCombineAlgo("DummyMergerAlgo")
         theDummyRoiCreator = DummyAlgo('RoiCreatorEl')
 
-        from TriggerMenu.egamma.EgammaEDConfig import TrigHLTEnergyDensityCentral, TrigHLTEnergyDensityForward
-        ED_Central = TrigHLTEnergyDensityCentral("TrigHLTEnergyDensityCentral");
-        ED_Forward = TrigHLTEnergyDensityForward("TrigHLTEnergyDensityForward");
+        fullScanTopoEDSequences =  getFullScanTopoClusterEDSequences()
 
 
         ########### Sequences ###########
@@ -330,11 +331,12 @@ class L2EFChain_g(L2EFChainDef):
         #if ( disableMon ) : theTrigEgammaFex.AthenaMonTools=DisableMonitoringButValAndTime(theTrigEgammaFex.AthenaMonTools)
         if ( disableMon ) : theEFPhotonHypo.AthenaMonTools=DisableMonitoringButValAndTime(theEFPhotonHypo.AthenaMonTools)
         
-        self.EFsequenceList += [[ '',[theDummyRoiCreator],'EF_InputRoI']]
-        self.EFsequenceList += [[ ['EF_InputRoI'], [cell_maker_fullcalo_topo, fullClusterMaker], 'EF_TopoClustersFromFullCalo' ]]
-        self.EFsequenceList += [[ ['EF_TopoClustersFromFullCalo'], [ED_Central, ED_Forward], 'EF_TopoClustersFromFullCaloED' ]]
+        #self.EFsequenceList += [[ '',[theDummyRoiCreator],'EF_InputRoI']]
+        #self.EFsequenceList += [[ ['EF_InputRoI'], [cell_maker_fullcalo_topo, fullClusterMaker], 'EF_TopoClustersFromFullCalo' ]]
+        self.EFsequenceList += [fullScanTopoEDSequences[0]]
+        self.EFsequenceList += [fullScanTopoEDSequences[1]]
 
-        self.EFsequenceList += [[ ['EF_g_step2','EF_TopoClustersFromFullCaloED'],
+        self.EFsequenceList += [[ ['EF_g_step2',fullScanTopoEDSequences[1][-1]],
                                      [DummyMergerAlgo],
                                       'EF_gCache_step2']]
 

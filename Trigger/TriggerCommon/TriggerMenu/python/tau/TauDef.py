@@ -243,7 +243,7 @@ class L2EFChain_tau(L2EFChainDef):
 
         #ftracks = trkcore+[tauRoiUpdater]+trkiso
         if not idperf:
-            ftracks = trkcore+[tauRejectEmpty, tauRoiUpdater]+trkiso
+            ftracks = trkcore + [tauRoiUpdater, tauRejectEmpty] + trkiso
         else :
             ftracks = trkcore+[tauRoiUpdater]+trkiso
 
