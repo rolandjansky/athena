@@ -75,25 +75,25 @@ ObjectThinner::~ObjectThinner() {}
 StatusCode ObjectThinner::initialize() {
 
   /** Message log */
-  MsgStream log( messageService(), name() );
+  MsgStream log( msgSvc(), name() );
   log << MSG::INFO 
        << "Initializing ObjectThinner" 
-       << endreq;
+       << endmsg;
 
   // Get pointer to IThinningSvc and cache it :
   if ( !m_thinningSvc.retrieve().isSuccess() ) {
      log << MSG::ERROR         
          << "Unable to retrieve pointer to IThinningSvc"
-         << endreq;
+         << endmsg;
      return StatusCode::FAILURE;
   }
    
   if ( m_analysisSelectionTool.retrieve().isFailure() ) {
-      log << MSG::ERROR << "Can't get handle on analysis selection tool" << endreq;
+      log << MSG::ERROR << "Can't get handle on analysis selection tool" << endmsg;
      return StatusCode::FAILURE;
   }
 
-  log << MSG::INFO << "Done Initializing ..." << endreq;
+  log << MSG::INFO << "Done Initializing ..." << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -112,10 +112,10 @@ StatusCode ObjectThinner::finalize() {
 StatusCode ObjectThinner::execute() {
 
   /** Message log */
-  MsgStream log( messageService(), name() );
+  MsgStream log( msgSvc(), name() );
   log << MSG::DEBUG 
        << "Executing ObjectThinner" 
-       << endreq;
+       << endmsg;
 
   /** now do the Inner Detector TrackParticles. This one goes through the Thinning Service */
   std::vector<bool> selectedInDetTracks;
@@ -124,7 +124,7 @@ StatusCode ObjectThinner::execute() {
   if( sc.isFailure()  ||  !trackTES ) {
      log << MSG::WARNING
          << "No InDet container found in TDS : "
-         << m_inDetTrackParticleContainerName << endreq;
+         << m_inDetTrackParticleContainerName << endmsg;
   }
   if ( trackTES ) selectedInDetTracks.resize( trackTES->size(), false );
 
@@ -135,7 +135,7 @@ StatusCode ObjectThinner::execute() {
   if( sc.isFailure()  ||  !clusterTES ) {
      log << MSG::WARNING
          << "No AOD egamma cluster container found in TDS : "
-         << m_clusterContainerNames[0] << endreq;
+         << m_clusterContainerNames[0] << endmsg;
      return StatusCode::SUCCESS;
   }
   if ( clusterTES ) selectedegClusters.resize( clusterTES->size(), false );
@@ -143,7 +143,7 @@ StatusCode ObjectThinner::execute() {
   /** do the photon thinning */
   if ( m_doThinning[0] ) {
     if ( this->photonContainerThinning(selectedInDetTracks, selectedegClusters).isFailure() ) {
-       log << MSG::WARNING<< "Failed to thin photon container and associated TrackParticle and CaloCluster containers " << endreq;
+       log << MSG::WARNING<< "Failed to thin photon container and associated TrackParticle and CaloCluster containers " << endmsg;
     }
   }
 
@@ -151,7 +151,7 @@ StatusCode ObjectThinner::execute() {
   unsigned int selectedElectrons = 0;
   if ( m_doThinning[1] ) {
     if ( this->electronContainerThinning(selectedInDetTracks, selectedegClusters, selectedElectrons).isFailure() ) {
-       log << MSG::WARNING<< "Failed to thin electron container and associated TrackParticle and CaloCluster containers " << endreq;
+       log << MSG::WARNING<< "Failed to thin electron container and associated TrackParticle and CaloCluster containers " << endmsg;
     }
   }
 
@@ -159,21 +159,21 @@ StatusCode ObjectThinner::execute() {
   unsigned int selectedMuons = 0;
   if ( m_doThinning[2] ) {
     if ( this->muonContainerThinning(selectedInDetTracks, selectedMuons).isFailure() ) {
-       log << MSG::WARNING<< "Failed to thin muon container and associated TrackParticle and CaloCluster containers " << endreq;
+       log << MSG::WARNING<< "Failed to thin muon container and associated TrackParticle and CaloCluster containers " << endmsg;
     }
   }
 
   /** do the taujet thinning */
   if ( m_doThinning[3] ) {
     if ( this->taujetContainerThinning(selectedInDetTracks).isFailure() ) {
-       log << MSG::WARNING<< "Failed to thin taujet container and associated TrackParticle and CaloCluster containers " << endreq;
+       log << MSG::WARNING<< "Failed to thin taujet container and associated TrackParticle and CaloCluster containers " << endmsg;
     }
   }
 
   /** do the jet thinning */
   if ( m_doThinning[4] ) {
     if ( this->jetContainerThinning().isFailure() ) {
-       log << MSG::WARNING<< "Failed to thin jet container " << endreq;
+       log << MSG::WARNING<< "Failed to thin jet container " << endmsg;
     }
   }
 
@@ -186,20 +186,20 @@ StatusCode ObjectThinner::execute() {
      else setFilterPassed(false);
   }
 
-  log << MSG::DEBUG << "Nelectrons and Nmuons = " << selectedElectrons << " " << selectedMuons << endreq; 
+  log << MSG::DEBUG << "Nelectrons and Nmuons = " << selectedElectrons << " " << selectedMuons << endmsg; 
 
   /** do the thinning - for the Inner Detector tracks 
       Use the Operator::Or - container may have been thinned already by EgammaRec or TauRec
       The Muon results should be merged with those, thus the "or" operator */  
   if ( trackTES ) sc = m_thinningSvc->filter( *trackTES, selectedInDetTracks, IThinningSvc::Operator::Or );
-  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin InDet Tracks associated to Muons " << endreq;
+  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin InDet Tracks associated to Muons " << endmsg;
  
   /** do the thinning - for the egClusters 
       Use the Operator::Or - for electrons or photons */
   if ( clusterTES ) sc = m_thinningSvc->filter( *clusterTES, selectedegClusters, IThinningSvc::Operator::Or );
-  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin egamma clusters associated to Electrons or Photons " << endreq;
+  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin egamma clusters associated to Electrons or Photons " << endmsg;
  
-  log << MSG::DEBUG << "done execute() - success" << endreq;
+  log << MSG::DEBUG << "done execute() - success" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -210,15 +210,15 @@ StatusCode ObjectThinner::electronContainerThinning ( std::vector<bool>& selecte
                                                       unsigned int& selectedElectrons) {
 
   /** Message log */
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG << "starting ObjectThinner() - in electrons" << endreq;
+  MsgStream log( msgSvc(), name() );
+  log << MSG::DEBUG << "starting ObjectThinner() - in electrons" << endmsg;
 
   const ElectronContainer* electronTES=0;
   StatusCode sc=evtStore()->retrieve( electronTES, m_containerNames[1]);
   if( sc.isFailure()  ||  !electronTES ) {
      log << MSG::WARNING
           << "No AOD electron container found in TDS"
-          << endreq;
+          << endmsg;
      return StatusCode::SUCCESS;
 
   }
@@ -234,7 +234,7 @@ StatusCode ObjectThinner::electronContainerThinning ( std::vector<bool>& selecte
   if( sc.isFailure()  ||  !clusterTES ) {
      log << MSG::WARNING
          << "No AOD softe cluster container found in TDS : "
-         << m_clusterContainerNames[2] << endreq;
+         << m_clusterContainerNames[2] << endmsg;
   }
 
   unsigned int max = selectedInDetTracks.size();
@@ -259,7 +259,7 @@ StatusCode ObjectThinner::electronContainerThinning ( std::vector<bool>& selecte
           if ( index<max && max>0 ) selectedInDetTracks[index] = true;
           else log << MSG::WARNING << "Track not in Container: index = " << index
                    << " container size = " << max
-                   << " container name is " << m_inDetTrackParticleContainerName << endreq;
+                   << " container name is " << m_inDetTrackParticleContainerName << endmsg;
        }
 
        /** do the caloclusters associated to electrons - these are the ones to keep */
@@ -271,13 +271,13 @@ StatusCode ObjectThinner::electronContainerThinning ( std::vector<bool>& selecte
              else log << MSG::WARNING << "Electron Cluster not in Container: index = " << index
                       << " container size = " << maxCluster
                       << " container name is "  
-                      << key << endreq;
+                      << key << endmsg;
           } else if ( key==m_clusterContainerNames[2] ) { 
              if ( index<maxSofteCluster && maxSofteCluster>0 ) selectedseClusters[index] = true;
              else log << MSG::WARNING << "Soft Electron Cluster not in Container: index = " << index
                       << " container size = " << maxSofteCluster
                       << " container name is " 
-                      << key << endreq;
+                      << key << endmsg;
           }
 
        }
@@ -288,14 +288,14 @@ StatusCode ObjectThinner::electronContainerThinning ( std::vector<bool>& selecte
 
   /** thin the softe calo cluster container */
   if ( clusterTES ) sc = m_thinningSvc->filter( *clusterTES, selectedseClusters, IThinningSvc::Operator::Or );
-  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin softe CaloClusters associated to Electrons " << endreq;
+  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin softe CaloClusters associated to Electrons " << endmsg;
 
   /** do the thinning - for the Electrons themselves/ 
       Use the Operator::Or - for electrons */
   if ( electronTES ) sc = m_thinningSvc->filter( *electronTES, selElectrons, IThinningSvc::Operator::Or );
-  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin electrons " << endreq;
+  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin electrons " << endmsg;
 
-  log << MSG::DEBUG << "done electronContainerThinning()" << endreq;
+  log << MSG::DEBUG << "done electronContainerThinning()" << endmsg;
 
   return StatusCode::SUCCESS;
 
@@ -306,15 +306,15 @@ StatusCode ObjectThinner::photonContainerThinning ( std::vector<bool>& selectedI
                                                                       std::vector<bool>& selectedegClusters ) {
 
   /** Message log */
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG << "starting ObjectThinner() - in photons" << endreq;
+  MsgStream log( msgSvc(), name() );
+  log << MSG::DEBUG << "starting ObjectThinner() - in photons" << endmsg;
 
   const PhotonContainer* photonTES=0;
   StatusCode sc=evtStore()->retrieve( photonTES, m_containerNames[0]);
   if( sc.isFailure()  ||  !photonTES ) {
      log << MSG::WARNING
           << "No AOD photon container found in TDS"
-          << endreq;
+          << endmsg;
      return StatusCode::SUCCESS;
 
   }
@@ -341,7 +341,7 @@ StatusCode ObjectThinner::photonContainerThinning ( std::vector<bool>& selectedI
              if ( index<max && max>0 ) selectedInDetTracks[index] = true;
              else log << MSG::WARNING << "Track not in Container: index = " << index
                       << " container size = " << max
-                     << " container name is " << m_inDetTrackParticleContainerName << endreq;
+                     << " container name is " << m_inDetTrackParticleContainerName << endmsg;
           }
        }
 
@@ -353,7 +353,7 @@ StatusCode ObjectThinner::photonContainerThinning ( std::vector<bool>& selectedI
           else log << MSG::WARNING << "Photon Cluster not in Container: index = " << index
                    << " container size = " << maxCluster
                    << " container name is " <<  m_clusterContainerNames[0] 
-                   << " it should be = " << key << endreq;
+                   << " it should be = " << key << endmsg;
        }
     }
     iPhoton++;
@@ -362,9 +362,9 @@ StatusCode ObjectThinner::photonContainerThinning ( std::vector<bool>& selectedI
   /** do the thinning - for the Photons themselves/ 
       Use the Operator::Or - for photons */
   if ( photonTES ) sc = m_thinningSvc->filter( *photonTES, selPhotons, IThinningSvc::Operator::Or );
-  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin Photons " << endreq;
+  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin Photons " << endmsg;
 
-  log << MSG::DEBUG << "done photonContainerThinning()" << endreq;
+  log << MSG::DEBUG << "done photonContainerThinning()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -373,8 +373,8 @@ StatusCode ObjectThinner::photonContainerThinning ( std::vector<bool>& selectedI
 StatusCode ObjectThinner::jetContainerThinning () {
 
   /** Message log */
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG << "starting ObjectThinner() - jets" << endreq;
+  MsgStream log( msgSvc(), name() );
+  log << MSG::DEBUG << "starting ObjectThinner() - jets" << endmsg;
 
   /** retrieve the AOD jet container */
   const JetCollection* jetTES=0;
@@ -382,7 +382,7 @@ StatusCode ObjectThinner::jetContainerThinning () {
   if( sc.isFailure()  ||  !jetTES ) {
      log << MSG::WARNING
          << "No AOD jet container found in TDS : "
-         << m_containerNames[4] << endreq;
+         << m_containerNames[4] << endmsg;
      return StatusCode::SUCCESS;
   }
 
@@ -403,9 +403,9 @@ StatusCode ObjectThinner::jetContainerThinning () {
   /** do the thinning - for the Jets themselves/ 
       Use the Operator::Or - for Jet */
   if ( jetTES ) sc = m_thinningSvc->filter( *jetTES, selJets, IThinningSvc::Operator::Or );
-  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin Jets " << endreq;
+  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin Jets " << endmsg;
 
-  log << MSG::DEBUG << "done jetContainerThinning()" << endreq;
+  log << MSG::DEBUG << "done jetContainerThinning()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -415,8 +415,8 @@ StatusCode ObjectThinner::jetContainerThinning () {
 StatusCode ObjectThinner::taujetContainerThinning ( std::vector<bool>& selectedInDetTracks ) {
 
   /** Message log */
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG << "starting ObjectThinner() - taujets" << endreq;
+  MsgStream log( msgSvc(), name() );
+  log << MSG::DEBUG << "starting ObjectThinner() - taujets" << endmsg;
 
   /** retrieve the AOD taujet container */
   const TauJetContainer* taujetTES=0;
@@ -424,7 +424,7 @@ StatusCode ObjectThinner::taujetContainerThinning ( std::vector<bool>& selectedI
   if( sc.isFailure()  ||  !taujetTES ) {
      log << MSG::WARNING
          << "No AOD taujet container found in TDS : "
-         << m_containerNames[3] << endreq;
+         << m_containerNames[3] << endmsg;
      return StatusCode::SUCCESS;
   }
 
@@ -434,7 +434,7 @@ StatusCode ObjectThinner::taujetContainerThinning ( std::vector<bool>& selectedI
   if( sc.isFailure()  ||  !clusterTES ) {
      log << MSG::WARNING
          << "No AOD taujet cluster container found in TDS : "
-         << m_clusterContainerNames[4] << endreq;
+         << m_clusterContainerNames[4] << endmsg;
   }
 
   unsigned int clusMax = 0;
@@ -464,7 +464,7 @@ StatusCode ObjectThinner::taujetContainerThinning ( std::vector<bool>& selectedI
              if ( index<max && max>0 ) selectedInDetTracks[index] = true;
              else log << MSG::WARNING << "Track not in Container: index = " << index
                       << " container size = " << max
-                     << " container name is " << m_inDetTrackParticleContainerName << endreq;
+                     << " container name is " << m_inDetTrackParticleContainerName << endmsg;
           }
        }
 
@@ -476,7 +476,7 @@ StatusCode ObjectThinner::taujetContainerThinning ( std::vector<bool>& selectedI
           else log << MSG::WARNING << "Cluster not in Container: index = " << index
                    << " container size = " << clusMax
                    << " container name is " << m_clusterContainerNames[4] 
-                   << " should be = " << key << endreq;
+                   << " should be = " << key << endmsg;
        }
 
     }
@@ -485,14 +485,14 @@ StatusCode ObjectThinner::taujetContainerThinning ( std::vector<bool>& selectedI
 
   /** thin the taujet calo cluster container */
   if ( clusterTES ) sc = m_thinningSvc->filter( *clusterTES, selClusters, IThinningSvc::Operator::Or );
-  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin CaloClusters associated to TauJets " << endreq;
+  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin CaloClusters associated to TauJets " << endmsg;
 
   /** do the thinning - for the TauJets themselves/ 
       Use the Operator::Or - for TauJet */
   if ( taujetTES ) sc = m_thinningSvc->filter( *taujetTES, selTaujets, IThinningSvc::Operator::Or );
-  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin TauJets " << endreq;
+  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin TauJets " << endmsg;
 
-  log << MSG::DEBUG << "done taujetContainerThinning()" << endreq;
+  log << MSG::DEBUG << "done taujetContainerThinning()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -503,8 +503,8 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
                                                  unsigned int& selectedMuons ) { 
 
   /** Message log */
-  MsgStream log( messageService(), name() );
-  log << MSG::DEBUG << "starting ObjectThinner() - in muons" << endreq;
+  MsgStream log( msgSvc(), name() );
+  log << MSG::DEBUG << "starting ObjectThinner() - in muons" << endmsg;
 
   /** retrieve the AOD muon container and build the slim tracks */ 
   const MuonContainer* muonTES=0;
@@ -512,7 +512,7 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
   if( sc.isFailure()  ||  !muonTES ) {
      log << MSG::WARNING
          << "No AOD muon container found in TDS : "
-         << m_containerNames[2] << endreq; 
+         << m_containerNames[2] << endmsg; 
      return StatusCode::SUCCESS;
   }  
 
@@ -522,7 +522,7 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
   if( sc.isFailure()  ||  !clusterTES ) {
      log << MSG::WARNING
          << "No AOD muon cluster container found in TDS : "
-         << m_clusterContainerNames[2] << endreq;
+         << m_clusterContainerNames[2] << endmsg;
   }
 
   unsigned int clusMax = 0;
@@ -550,7 +550,7 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
       if ( sc.isFailure()  ||  !tpTES ) {
          log << MSG::WARNING
              << "No AOD muon TrackParticle container found in TDS : "
-             << m_muontpContainerNames[i] << endreq;
+             << m_muontpContainerNames[i] << endmsg;
          continue;
       }
 
@@ -571,7 +571,7 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
           if ( index<max && max>0 ) selectedInDetTracks[index] = true;
           else log << MSG::WARNING << "Track not in Container: index = " << index
                    << " container size = " << max
-                   << " container name is " << m_inDetTrackParticleContainerName << endreq;
+                   << " container name is " << m_inDetTrackParticleContainerName << endmsg;
        }
 
        /** do calo cluster associated to Muons first - these are the ones to keep */
@@ -582,7 +582,7 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
           else log << MSG::WARNING << "Cluster not in Container: index = " << index
                    << " container size = " << clusMax
                    << " container name is " << m_clusterContainerNames[3] 
-                   << " it should be " << key << endreq;
+                   << " it should be " << key << endmsg;
        }
 
        /** now select the muon spectrometer trackParticles to keep */
@@ -619,19 +619,19 @@ StatusCode ObjectThinner::muonContainerThinning( std::vector<bool>& selectedInDe
   for ( unsigned int i=0; i<m_muontpContainerNames.size(); ++i) {
       /** do the thinning - for the Inner Detector tracks */ 
      if ( tpContainers[i] ) sc = m_thinningSvc->filter( *(tpContainers[i]), muonTracks[i], IThinningSvc::Operator::Or );
-     if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin MS TrackParticles associated to Muons " << endreq;
+     if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin MS TrackParticles associated to Muons " << endmsg;
   }
 
   /** thin the muon calo cluster container */
   if ( clusterTES ) sc = m_thinningSvc->filter( *clusterTES, selClusters, IThinningSvc::Operator::Or );
-  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin CaloClusters associated to Muons " << endreq;
+  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin CaloClusters associated to Muons " << endmsg;
 
   /** do the thinning - for the Muons themselves/ 
       Use the Operator::Or - for muons */
   if ( muonTES ) sc = m_thinningSvc->filter( *muonTES, selMuons, IThinningSvc::Operator::Or );
-  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin Muons " << endreq;
+  if ( sc.isFailure() ) log << MSG::WARNING << "Failed to thin Muons " << endmsg;
 
-  log << MSG::DEBUG << "done muonContainerThinning()" << endreq;
+  log << MSG::DEBUG << "done muonContainerThinning()" << endmsg;
   return StatusCode::SUCCESS;
 }
 

@@ -67,23 +67,17 @@ class DPDPhotonFilter : public AthAlgorithm
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
  protected: 
-  int All;
-  int pass;
+  int m_All;
+  int m_pass;
  
   /////////////////////////////////////////////////////////////////// 
   // Protected data: 
   /////////////////////////////////////////////////////////////////// 
  protected: 
-  int EventCounter;
-  //Services
-  MsgStream mLog;
-  StoreGateSvc* m_storeGate;
+  int m_EventCounter;
   
   //Collection Names
   std::string m_PhotonCollectionName;
-
-  //Collection
-  const PhotonContainer* photTES;
 
   //cuts
   double m_PhotonEtCut;
@@ -91,7 +85,7 @@ class DPDPhotonFilter : public AthAlgorithm
   long m_PhotonTightness;
   std::string m_PhotonType;
 
-  IThinningSvc* m_ThinningSvc;
+  ServiceHandle<IThinningSvc> m_ThinningSvc;
 
   std::vector<std::string> m_TriggerSignatures;
   std::string m_TriggerChain;
