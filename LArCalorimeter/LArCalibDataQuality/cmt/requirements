@@ -9,7 +9,7 @@ use GaudiInterface    GaudiInterface-*        External
 use CaloIdentifier   CaloIdentifier-*         Calorimeter
 use LArRawConditions LArRawConditions-*       LArCalorimeter
 use LArRecConditions LArRecConditions-*       LArCalorimeter
-use LArTools         LArTools-*               LArCalorimeter
+use LArCabling       LArCabling-*             LArCalorimeter
 use StoreGate        StoreGate-*              Control
 use AthenaBaseComps  AthenaBaseComps-*        Control
 

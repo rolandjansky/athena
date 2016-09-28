@@ -161,7 +161,7 @@ bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArC
   if (fabs(TmaxVal-TmaxRef)> TMaxshift && m_timeShift==true) {
     retval=false;
     if (m_nFailedValidation<m_maxmessages)
-      msg() << m_myMsgLvl << "Shifted! " << channelDescription(chid,gain)  << " Tmax: " << TmaxVal << " ( " << TmaxRef << " ) " << endreq;
+      msg() << m_myMsgLvl << "Shifted! " << channelDescription(chid,gain)  << " Tmax: " << TmaxVal << " ( " << TmaxRef << " ) " << endmsg;
 
   }
 
@@ -173,12 +173,12 @@ bool LArCaliWaveValidationAlg::validateChannel(const LArCondObj& ref, const LArC
       msg().setf(std::ios::fixed,std::ios::floatfield); 
       msg() <<  this->m_myMsgLvl << "Deviating! " << channelDescription(chid,gain) << " Amp: " << ampVal << "( " << ampRef 
 	       << ", " << 100.*(ampVal-ampRef)/ampRef << " %)" 
-	       << " FWHM: " << fwhmVal << " ( " << fwhmRef << ", " << 100*(fwhmVal-fwhmRef)/fwhmVal << " %)" << endreq;
+	       << " FWHM: " << fwhmVal << " ( " << fwhmRef << ", " << 100*(fwhmVal-fwhmRef)/fwhmVal << " %)" << endmsg;
       ATH_MSG_DEBUG ( "Amplitude FEB tolerance: " << ampTolerance << ", FWHM FEB tolerance: " << fwhmTolerance ) ;
     }
   }
   if (!retval && m_nFailedValidation==m_maxmessages)
-    msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
+    msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endmsg;
   
   return retval;
 }
@@ -207,7 +207,7 @@ bool LArCaliWaveValidationAlg::febSummary() {
     if (fabs(dataPerFeb.ampVal-dataPerFeb.ampRef)/dataPerFeb.ampRef*1000>ampToleranceFEB  ||  
 	fabs(dataPerFeb.fwhmVal-dataPerFeb.fwhmRef)/dataPerFeb.fwhmRef*1000>fwhmToleranceFEB) {
       msg() << m_myMsgLvl << "Deviating! " <<channelDescription(dataPerFeb.febid,dataPerFeb.gain,true)<< "Average Amp: " << dataPerFeb.ampVal << " (" << dataPerFeb.ampRef << ")" 
-	       << " FWHM: " << dataPerFeb.fwhmVal << " (" << dataPerFeb.fwhmRef << ")" << endreq;
+	       << " FWHM: " << dataPerFeb.fwhmVal << " (" << dataPerFeb.fwhmRef << ")" << endmsg;
       ++nBadFebs;
       ATH_MSG_DEBUG ( "Amplitude FEB tolerance: " << ampToleranceFEB << ", FWHM FEB tolerance: " << fwhmToleranceFEB ) ;
     }

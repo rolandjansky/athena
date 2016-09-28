@@ -173,7 +173,7 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::stop() {
 	  continue;
 	}
       }
-      //(*m_log) << MSG::INFO << "Working on " << channelDescription(chid,gain) << endreq;
+      //ATH_MSG_INFO( "Working on " << channelDescription(chid,gain)  );
       const LArCondObj& val=*it;
       const LArCondObj& ref=m_reference->get(chid,igain);
       //Check if we actually got a reference channel. 
@@ -234,7 +234,7 @@ StatusCode LArCalibValidationAlg<CONDITIONSCONTAINER>::summary() {
     ATH_MSG_ERROR ( "No reference found for " << m_nNoReference << " channels" ) ;
 
   if (m_nFailedValidation) 
-    msg() << m_myMsgLvl << "Found " << m_nFailedValidation << " channels with calibration deviating significantly from reference" << endreq;
+    msg() << m_myMsgLvl << "Found " << m_nFailedValidation << " channels with calibration deviating significantly from reference" << endmsg;
 
   if (m_nNoReference==0 && m_nFailedValidation==0)
     ATH_MSG_INFO ( "All " << m_nValidated << " Channels passed the validation criteria" ) ;
@@ -293,7 +293,7 @@ void LArCalibValidationAlg<CONDITIONSCONTAINER>::findFailedPatterns() {
       const float badFrac=float(itFEB->second.second)/(itFEB->second.first+itFEB->second.second);
       febOutput(itFEB->first,gain, itFEB->second.first,itFEB->second.second);
       if (m_printFailedPattern && badFrac>0.2)
-	msg() <<  m_myMsgLvl << channelDescription(itFEB->first,gain,true) << " has " << badFrac*100 << "% suspicious channels" << endreq;
+	msg() <<  m_myMsgLvl << channelDescription(itFEB->first,gain,true) << " has " << badFrac*100 << "% suspicious channels" << endmsg;
     }
     
 
@@ -305,7 +305,7 @@ void LArCalibValidationAlg<CONDITIONSCONTAINER>::findFailedPatterns() {
       for (;itCalibLine!=itCalibLine_e;++itCalibLine) {
 	if (itCalibLine->second.second>=itCalibLine->second.first) {//if at least half of the readout channels belonging to a calib-line are suspicious..
 	  (*m_log) << m_myMsgLvl << channelDescription(itCalibLine->first,gain) <<": " << itCalibLine->second.second 
-		   << " channels out of " << itCalibLine->second.first+itCalibLine->second.second << " are suspicious." << endreq;
+		   << " channels out of " << itCalibLine->second.first+itCalibLine->second.second << " are suspicious." << endmsg;
 	}
       }
     }
@@ -452,7 +452,7 @@ bool LArCalibValidationAlg<CONDITIONSCONTAINER>::checkCoolChannelCompleteness() 
       msg() << MSG::INFO <<  "Artificially inserted correction subsets in COOL channels" ;
       for(size_t j=0;j<completedChans.size();++j) 
 	msg() << MSG::INFO << " " << completedChans[j];
-      msg() << MSG::INFO << endreq;
+      msg() << MSG::INFO << endmsg;
     }
   }
   if (retVal) 
