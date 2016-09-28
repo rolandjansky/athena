@@ -184,5 +184,6 @@ int AmdcAline::Getjtyp() const {
  if ( m_StationType == "CSS" ) return 51;
  if ( m_StationType == "CSL" ) return 52;
  if ( m_StationType == "BIM" ) return 53;
+ if ( m_StationType == "BMG" ) return 54;
  return -1;
 }
