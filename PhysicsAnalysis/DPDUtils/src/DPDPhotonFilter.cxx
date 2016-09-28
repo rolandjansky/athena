@@ -30,8 +30,14 @@
 ////////////////
 
 DPDPhotonFilter::DPDPhotonFilter( const std::string& name,ISvcLocator* pSvcLocator ) : 
-    AthAlgorithm (name, pSvcLocator), mLog( msgSvc(),name ), m_storeGate(0),
-    m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool")
+    AthAlgorithm (name, pSvcLocator),
+    m_All(0),
+    m_pass(0),
+    m_EventCounter(0),
+    m_PhotonTightness(0),
+    m_ThinningSvc ("ThinningSvc", name),
+    m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
+    m_gTrig(nullptr)
 {
   //
   // Property declaration
@@ -58,44 +64,18 @@ DPDPhotonFilter::~DPDPhotonFilter()
 StatusCode DPDPhotonFilter::initialize()
 {
 
-  All=0;
-  pass=0;
-  StatusCode  sc;
+  m_All=0;
+  m_pass=0;
   
-  sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) 
-    {
-      ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
-      return sc;
-    }
-  
-  if ( !evtStore().retrieve().isSuccess() ) 
-    {
-      ATH_MSG_ERROR ("Unable to retrieve evtStore");
-      return StatusCode::FAILURE;
-    }
- 
-  sc = service("ThinningSvc", m_ThinningSvc);
-  if (!sc.isSuccess()) {
-    ATH_MSG_ERROR("ThinningSvc not found");
-    return sc;
-  }
-   
-  ATH_MSG_INFO("... seeking TrigDecisionTool");
-  sc = m_trigDecisionTool.retrieve();
-  if ( StatusCode::SUCCESS != sc ||  m_trigDecisionTool == 0 ) {
-     ATH_MSG_ERROR("Can't get handle on TrigDecsiionTool");
-     return StatusCode::FAILURE;
-  };
-
-  ATH_MSG_INFO("Setting photon tightness ");
+  ATH_CHECK( m_ThinningSvc.retrieve() );
+  ATH_CHECK(  m_trigDecisionTool.retrieve() );
 
   if ( m_PhotonType == "loose" ) {
-     m_PhotonTightness=egammaPID::PhotonLoose ;
+     m_PhotonTightness=egammaPIDObs::PhotonLoose ;
   } else if ( m_PhotonType == "tight" ){
-     m_PhotonTightness=egammaPID::PhotonTight ;
+     m_PhotonTightness=egammaPIDObs::PhotonTight ;
   } else {
-     m_PhotonTightness=egammaPID::PhotonLoose ;
+     m_PhotonTightness=egammaPIDObs::PhotonLoose ;
   }
 
   ATH_MSG_INFO( m_PhotonType << " photon selected : setting isem to " <<  m_PhotonTightness );      
@@ -106,7 +86,7 @@ StatusCode DPDPhotonFilter::initialize()
 
 StatusCode DPDPhotonFilter::finalize()
 {
-  ATH_MSG_DEBUG("DPDPhotonFilter PASSED "<<pass<<" FROM "<< All);
+  ATH_MSG_DEBUG("DPDPhotonFilter PASSED "<<m_pass<<" FROM "<< m_All);
   return StatusCode::SUCCESS;
 }
 
@@ -114,8 +94,7 @@ StatusCode DPDPhotonFilter::finalize()
 StatusCode DPDPhotonFilter::execute()
 {  
 
-  All++;
-  StatusCode sc = StatusCode::SUCCESS;
+  m_All++;
   unsigned int photonCounter=0;
   std::vector<bool> vbool;
 
@@ -147,41 +126,37 @@ if (m_UseTriggerSelection){
 ///////////////////////////////////////////////////////////////////////////////
   
   /// read the AOD photon container from persistecy storage
-  photTES=0;
-  sc = evtStore()->retrieve( photTES, m_PhotonCollectionName);
-  if( sc.isFailure()  ||  !photTES ) {
-     ATH_MSG_ERROR("No AOD photon container found in TDS");
-     return sc;
-  }
+  const PhotonContainer* photTES=0;
+  ATH_CHECK(  evtStore()->retrieve( photTES, m_PhotonCollectionName) );
   ATH_MSG_DEBUG("PhotonContainer successfully retrieved");
   ATH_MSG_DEBUG("Applying DPDPhotonFilter .... ");
 
   for(unsigned int i=0;i<photTES->size();++i) {
 
-      ATH_MSG_DEBUG("Found a photon -->>>"<<photTES->at(i)->isem()<<"  "<<photTES->at(i)->et()<<" and  "<<fabs(photTES->at(i)->eta() )) ;
+    ATH_MSG_DEBUG("Found a photon -->>>"<<photTES->at(i)->isem()<<"  "<<photTES->at(i)->et()<<" and  "<<fabs(photTES->at(i)->eta() )) ;
 
-      if ( (photTES->at(i)->author(egammaParameters::AuthorPhoton) || (photTES->at(i)->author(egammaParameters::AuthorRConv) ) ) 
-	  &&photTES->at(i)->et()>m_PhotonEtCut && fabs(photTES->at(i)->eta() ) < m_PhotonEtaCut
-          &&photTES->at(i)->isem(m_PhotonTightness)==0) {
-		  vbool.push_back(true);
-		  photonCounter++;
-      }else{
-	  vbool.push_back(false);
-      }
-   }
-
+    if ( (photTES->at(i)->author(egammaParameters::AuthorPhoton) || (photTES->at(i)->author(egammaParameters::AuthorRConv) ) ) 
+         &&photTES->at(i)->et()>m_PhotonEtCut && fabs(photTES->at(i)->eta() ) < m_PhotonEtaCut
+         &&photTES->at(i)->isem(m_PhotonTightness)==0) {
+      vbool.push_back(true);
+      photonCounter++;
+    }else{
+      vbool.push_back(false);
+    }
   }
 
-  if(photonCounter>0) {
-      ATH_MSG_DEBUG("Filter Passed");
-      setFilterPassed(true);
-      pass++;
-  } else {
-      ATH_MSG_DEBUG("Filter Failed");
-      setFilterPassed(false);
-  }
+}
+
+if(photonCounter>0) {
+  ATH_MSG_DEBUG("Filter Passed");
+  setFilterPassed(true);
+  m_pass++;
+} else {
+  ATH_MSG_DEBUG("Filter Failed");
+  setFilterPassed(false);
+}
     
-//  if (m_ThinningSvc->filter(*photTES, vbool) != StatusCode::SUCCESS) {
+//  if (m_ThinningSvc->filter(*m_photTES, vbool) != StatusCode::SUCCESS) {
 //    ATH_MSG_ERROR("Error in Thinning");
 //  }
 

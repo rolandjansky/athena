@@ -4,13 +4,6 @@
 
 #include "DPDUtils/DPDTagTool.h"
 
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Property.h"
-#include "GaudiKernel/IAlgManager.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/AlgFactory.h"
-#include "GaudiKernel/Algorithm.h"
-
 #include "CLHEP/Units/SystemOfUnits.h"
 #include "AthenaBaseComps/FilteredAlgorithm.h"
 
@@ -38,21 +31,8 @@ DPDTagTool::~DPDTagTool() {}
 StatusCode DPDTagTool::initialize() {
 
   ATH_MSG_DEBUG("in initialize()");
-
-  sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    ATH_MSG_ERROR("Unable to retrieve pointer to StoreGateSvc");
-    return (StatusCode::FAILURE);
-  }
-
-  sc = m_pMetaDataStore.retrieve();
-  if (sc.isFailure() || 0 == m_pMetaDataStore ) {
-     ATH_MSG_ERROR("Could not find metadata store, MetaDataStore");
-     return(StatusCode::FAILURE);
-  }
-
-  return sc;
-
+  ATH_CHECK( m_pMetaDataStore.retrieve() );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -79,11 +59,7 @@ StatusCode DPDTagTool::execute(TagFragmentCollection& dpdTagColl, const int){
 
   // Get DESD container
   const SkimDecisionCollection* aSkimDecisionContainer(0) ;
-  sc = m_storeGate->retrieve(aSkimDecisionContainer, m_desdskimdecisioncontainer);
-  if (!sc.isSuccess() || (0 == aSkimDecisionContainer) ) {
-    ATH_MSG_WARNING("Could not find DESD SkimDecisionContainer " << m_desdskimdecisioncontainer);
-    return(StatusCode::SUCCESS);
-  }
+  ATH_CHECK( evtStore()->retrieve(aSkimDecisionContainer, m_desdskimdecisioncontainer) );
 
   //Fill DESD 
   unsigned int tempDesd = 0x0;
@@ -106,8 +82,8 @@ StatusCode DPDTagTool::execute(TagFragmentCollection& dpdTagColl, const int){
   // StreamAOD_SkimDecisionsContainer is removed from AOD (DAODWord removed from autumn 2010 reprocessing)
 /*
   const SkimDecisionCollection* aodSkimDecisionContainer(0) ;
-  sc = m_storeGate->retrieve(aodSkimDecisionContainer, m_daodskimdecisioncontainer);
-  if (!sc.isSuccess() || (0 == aodSkimDecisionContainer) ) {
+  m_sc = m_storeGate->retrieve(aodSkimDecisionContainer, m_daodskimdecisioncontainer);
+  if (!m_sc.isSuccess() || (0 == aodSkimDecisionContainer) ) {
     ATH_MSG_WARNING("Could not find DAOD SkimDecisionContainer " << m_daodskimdecisioncontainer);
     return(StatusCode::SUCCESS);
   }
@@ -137,8 +113,7 @@ StatusCode DPDTagTool::execute(TagFragmentCollection& dpdTagColl, const int){
 
 StatusCode DPDTagTool::finalize() {
 
-  MsgStream log(msgSvc(),name());
-  log << MSG::DEBUG << "In finalize()" << endreq;
+  ATH_MSG_DEBUG( "In finalize()"  );
 
   return StatusCode::SUCCESS;
 
@@ -174,7 +149,7 @@ StatusCode DPDTagTool::stop() {
   CollectionMetadata* newmap = new CollectionMetadata(bitmap); 
   bitmaplist->push_back(newmap);
 
-  sc = m_pMetaDataStore->record(bitmaplist,"DPDTagTool");
+  StatusCode sc = m_pMetaDataStore->record(bitmaplist,"DPDTagTool");
   if (!sc.isSuccess()) {
       //ATH_MSG_ERROR("Unable to store DAOD & DESD maps to CollectionMetadataContainer" );
       ATH_MSG_ERROR("Unable to store DESD maps to CollectionMetadataContainer" );

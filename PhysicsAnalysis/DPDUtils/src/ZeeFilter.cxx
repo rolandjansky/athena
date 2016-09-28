@@ -107,7 +107,7 @@ StatusCode ZeeFilter::execute()
     {
       if (elecTES->at(i)->author(egammaParameters::AuthorElectron)
 	  &&elecTES->at(i)->et()>m_ElectronEtCut && fabs(elecTES->at(i)->eta() ) < m_ElectronEtaCut
-	  &&elecTES->at(i)->isem(egammaPID::ElectronLoose)==0)
+	  &&elecTES->at(i)->isem(egammaPIDObs::ElectronLoose)==0)
 	{
 	  electronCounter++;
 	  vbool.at(i)=true;

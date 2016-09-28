@@ -49,8 +49,6 @@ class DPDTagTool : public AthAlgTool {
   virtual ~DPDTagTool();
 
  private:
-  StatusCode sc;
-  StoreGateSvc *m_storeGate;
   ServiceHandle<StoreGateSvc> m_pMetaDataStore;
 
   std::string m_desdskimdecisioncontainer;
