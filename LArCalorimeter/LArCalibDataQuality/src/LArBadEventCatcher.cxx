@@ -11,7 +11,7 @@
 #include "xAODEventInfo/EventInfo.h"
 #include "LArIdentifier/LArOnlineID.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 LArBadEventCatcher::LArBadEventCatcher(const std::string & name, ISvcLocator * pSvcLocator) : 
   AthAlgorithm(name,pSvcLocator), 
@@ -177,10 +177,10 @@ StatusCode LArBadEventCatcher::execute() {
 	}
 	const HWIdentifier fId(it->first);
 	msg() << msglvl << eventDetails() << "FEB 0x" << std::hex << it->first << " reports the following error(s): " 
-		 << decipherFebError(it->second) << endreq; 
-	msg() << msglvl << "Feb location: " << m_onlineID->channel_name(fId) << endreq;
+		 << decipherFebError(it->second) << endmsg; 
+	msg() << msglvl << "Feb location: " << m_onlineID->channel_name(fId) << endmsg;
 
-	if (m_thisSize>0) msg() << msglvl << "This event carries data" << endreq;
+	if (m_thisSize>0) msg() << msglvl << "This event carries data" << endmsg;
 	
 	if (m_stopJob && m_stopOnError)
 	  return StatusCode::FAILURE;

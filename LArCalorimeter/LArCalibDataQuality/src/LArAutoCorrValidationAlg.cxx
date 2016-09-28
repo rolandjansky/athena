@@ -71,7 +71,7 @@ if (gain<0 || gain>2) {
   }
 
   if (val.m_vAutoCorr.size()==0) {
-    msg() <<  this->m_myMsgLvl << "Empty! No AC found for " << channelDescription(chid,gain) << endreq;
+    msg() <<  this->m_myMsgLvl << "Empty! No AC found for " << channelDescription(chid,gain) << endmsg;
     return false;
   }
   if (ref.m_vAutoCorr.size()==0) {
@@ -107,11 +107,11 @@ if (gain<0 || gain>2) {
     const float covVal_i=val.m_vAutoCorr[i];
     if (fabs(covVal_i)>1.0) {
       msg() <<  this->m_myMsgLvl << "Unphysical! " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " 
-	       <<  std::setprecision(4) << covVal_i << endreq;
+	       <<  std::setprecision(4) << covVal_i << endmsg;
       return false;
     }
     if (m_checkFifthSample and i==5 and fabs(covVal_i)>0.13) {
-      msg() <<  this->m_myMsgLvl << "LARGE Autocorr sample 5 " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " << covVal_i << endreq;
+      msg() <<  this->m_myMsgLvl << "LARGE Autocorr sample 5 " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " << covVal_i << endmsg;
       return false;
     }
     if (i<m_nSamplesToCheck && i<sr) {
@@ -122,11 +122,11 @@ if (gain<0 || gain>2) {
 	  devMsg.setf(std::ios::fixed,std::ios::floatfield);
 	  devMsg <<  "Deviating! " << channelDescription(chid,gain) << " AutoCorr[" << i << "]: " << std::setprecision(4) << covVal_i
 		 <<" (" << covRef_i << ", " << std::setprecision(2) << ((covVal_i-covRef_i)/covRef_i)*100 << "%)";
-	  msg() << this->m_myMsgLvl << devMsg.str() << endreq;
+	  msg() << this->m_myMsgLvl << devMsg.str() << endmsg;
 	  ATH_MSG_DEBUG ( "Covariance Tolerance: " <<  covTolerance ) ;
 	}
 	if (m_nFailedValidation==m_maxmessages)
-	  msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
+	  msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endmsg;
 	return false;
       }//end if > tolerance
     }//end if nSamplesToCheck
@@ -146,20 +146,20 @@ bool LArAutoCorrValidationAlg::febSummary() {
     DataPerFEB& dataPerFeb=*it;
     dataPerFeb.covVal/=dataPerFeb.nEntries;
     dataPerFeb.covRef/=dataPerFeb.nEntries;
-    //(*m_log) << MSG::INFO << " nb of channels = "  <<dataPerFeb.nEntries << " for " << channelDescription(dataPerFeb.febid, dataPerFeb.gain, true) << endreq;  
+    //(*m_log) << MSG::INFO << " nb of channels = "  <<dataPerFeb.nEntries << " for " << channelDescription(dataPerFeb.febid, dataPerFeb.gain, true) << endmsg;  
 
     const Identifier id=m_larCablingSvc->cnvToIdentifier(dataPerFeb.chid);
     const float& covToleranceFEB=m_covToleranceFEB.valuesForCell(id)[dataPerFeb.gain];
 
     if (fabs(dataPerFeb.covVal-dataPerFeb.covRef)>covToleranceFEB){
       msg() << m_myMsgLvl << "Deviating!" << channelDescription(dataPerFeb.febid,dataPerFeb.gain,true) << "Average AutoCorr: " 
-            << dataPerFeb.covVal << " (" << dataPerFeb.covRef << ")" << endreq;
+            << dataPerFeb.covVal << " (" << dataPerFeb.covRef << ")" << endmsg;
       ++nBadFebs;
     }
   }
 
   if (nBadFebs) {
-    msg() << m_myMsgLvl << "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() << " FEBs devating from reference" << endreq;
+    msg() << m_myMsgLvl << "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() << " FEBs deviating from reference" << endmsg;
     return false;
   }
   else {

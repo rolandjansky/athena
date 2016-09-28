@@ -141,12 +141,12 @@ bool LArPedestalValidationAlg::validateChannel(const LArCondObj& ref, const LArC
       msg() <<  this->m_myMsgLvl << "Deviating! " << channelDescription(chid,gain) << " Ped: " << val.m_Pedestal 
             << " (" << ref.m_Pedestal << ", " << val.m_Pedestal-ref.m_Pedestal  << " ADC)" 
             << " RMS: " << val.m_PedestalRMS << " (" << ref.m_PedestalRMS << ", " 
-            << ((val.m_PedestalRMS-ref.m_PedestalRMS)/ref.m_PedestalRMS)*100 << "%)" << endreq;
+            << ((val.m_PedestalRMS-ref.m_PedestalRMS)/ref.m_PedestalRMS)*100 << "%)" << endmsg;
     
       ATH_MSG_DEBUG ( "Pedestal Tolerance: " <<  pedTolerance << " RMS Tolerance:" <<  rmsTolerance ) ;
     }
     if (m_nFailedValidation==m_maxmessages)
-      msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endreq;
+      msg() <<  this->m_myMsgLvl << "Channel deviation message has already been printed " << m_maxmessages << " times. Now silent..." << endmsg;
     return false;
   }
   else
@@ -180,14 +180,14 @@ bool LArPedestalValidationAlg::febSummary() {
    
       msg() <<  m_myMsgLvl << "Deviating!" <<channelDescription(dataPerFeb.febid, dataPerFeb.gain, true)
             << "Average Ped: " << dataPerFeb.pedVal << " (" << dataPerFeb.pedRef << ")" 
-            << " RMS: " << dataPerFeb.rmsVal << " (" << dataPerFeb.rmsRef << ")" << endreq;
+            << " RMS: " << dataPerFeb.rmsVal << " (" << dataPerFeb.rmsRef << ")" << endmsg;
       ATH_MSG_DEBUG ( "Pdestal FEB Tolerance: " <<  pedToleranceFEB << " RMS FEB Tolerance:" <<  rmsToleranceFEB ) ;
       ++nBadFebs;
     }
   }
 
   if (nBadFebs) {
-    msg() <<  m_myMsgLvl << "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() << " FEBs devating from reference" << endreq;
+    msg() <<  m_myMsgLvl << "Found " << nBadFebs << " out of " << m_vDataPerFEB.size() << " FEBs devating from reference" << endmsg;
     return false;
   }
   else {

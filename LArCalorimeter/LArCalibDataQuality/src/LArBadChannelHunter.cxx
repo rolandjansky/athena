@@ -10,7 +10,7 @@
 #include "LArRawConditions/LArWave.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/CaloCell_ID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArRecConditions/LArBadChanBitPacking.h"
 #include "StoreGate/StoreGateSvc.h"
 
@@ -335,7 +335,7 @@ StatusCode LArBadChannelHunter::stop() {
 //            log << MSG::INFO << my_status << channelDescription(chid,0) << " Tmax: " << tmax << " ( " << avreg.m_avTmax[0] << " , " 
 //	    	<< float(int(10000*(tmax-avreg.m_avTmax[0])/avreg.m_avTmax[0]))/100 << " %) "
 //            	<< " #Sig:" << float(int(100*(tmax-avreg.m_avTmax[0])/avreg.m_avTmaxSD[0]))/100 
-//		<< " ( " << avreg.m_avTmaxSD[0] << " ) " << endreq;
+//		<< " ( " << avreg.m_avTmaxSD[0] << " ) " << endmsg;
 	  }
 	  /// channel information output
 //	  if (fabs(ampl-avreg.m_avAmpl[0])>lowCut_amp || fabs(wid-avreg.m_avWid[0])>lowCut_wid) {
@@ -406,9 +406,9 @@ StatusCode LArBadChannelHunter::stop() {
 	const HWIdentifier chid=bcvit->first;
 	const LArBadChannel bc=bcvit->second;
 	const HWIdentifier cLid=m_larCablingSvc->calibSlotLine(chid)[0];
-	const LArBadChannel m_bc=m_badChannelTool->status(chid);
-	std::string my_ps=(m_bc.good())? "NEW " : "BC ";
-	if (!m_bc.good()&&m_outOnlyNew) continue; // just new
+	const LArBadChannel bc2=m_badChannelTool->status(chid);
+	std::string my_ps=(bc2.good())? "NEW " : "BC ";
+	if (!bc2.good()&&m_outOnlyNew) continue; // just new
 	  outfile << m_onlineId->barrel_ec(chid) << " " 
 	  	  << m_onlineId->pos_neg(chid) << " "
 		  << m_onlineId->feedthrough(chid) << " "
