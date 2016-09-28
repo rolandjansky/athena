@@ -98,9 +98,9 @@ def MuonCombinedTool(name="MuonCombinedTool",**kwargs):
 
 def MuonCombinedFitTagTool(name="MuonCombinedFitTagTool",**kwargs):
     kwargs.setdefault("TrackBuilder",         getPublicTool("CombinedMuonTrackBuilder") )
-    kwargs.setdefault("OutwardsTrackBuilder", getPublicTool("OutwardsCombinedMuonTrackBuilder") )
+    # kwargs.setdefault("OutwardsTrackBuilder", getPublicTool("OutwardsCombinedMuonTrackBuilder") )
     kwargs.setdefault("TrackQuery",           getPublicTool("MuonTrackQuery") )
-    kwargs.setdefault("MuonRecovery",         getPublicTool("MuidMuonRecovery") )
+    # kwargs.setdefault("MuonRecovery",         getPublicTool("MuidMuonRecovery") )
     kwargs.setdefault("MatchQuality",         getPublicTool("MuonMatchQuality") )
     return CfgMgr.MuonCombined__MuonCombinedFitTagTool(name,**kwargs)
                          
