@@ -28,7 +28,7 @@ InDet::SiZvertexMaker_xk::SiZvertexMaker_xk
   m_nspoint   =  2                                   ;
   m_histsize  =  500                                 ;  
   m_histogram =  0                                   ;  
-  z_histogram =  0                                   ;
+  m_z_histogram =  0                                   ;
   m_zmin      = -250.                                ;
   m_zmax      = +250.                                ;
   m_ratio     = .25                                  ;
@@ -53,7 +53,7 @@ InDet::SiZvertexMaker_xk::SiZvertexMaker_xk
 InDet::SiZvertexMaker_xk::~SiZvertexMaker_xk()
 {
   if(m_histogram) delete [] m_histogram;
-  if(z_histogram) delete [] z_histogram;
+  if(m_z_histogram) delete [] m_z_histogram;
 }
 
 ///////////////////////////////////////////////////////////////////
@@ -66,17 +66,17 @@ StatusCode InDet::SiZvertexMaker_xk::initialize()
   // Get tool for seed generator
   //
   if ( m_seedsgenerator.retrieve().isFailure() ) {
-    msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedsgenerator << endreq;
+    msg(MSG::FATAL) << "Failed to retrieve tool " << m_seedsgenerator << endmsg;
     return StatusCode::FAILURE;
   } else {
-    msg(MSG::INFO) << "Retrieved tool " << m_seedsgenerator << endreq;
+    msg(MSG::INFO) << "Retrieved tool " << m_seedsgenerator << endmsg;
   }
 
   // Get output print level
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -97,7 +97,7 @@ void InDet::SiZvertexMaker_xk::newEvent()
 {
   if(!m_histogram) {
     m_histogram = new int   [m_histsize+1];
-    z_histogram = new double[m_histsize+1];
+    m_z_histogram = new double[m_histsize+1];
   }
   m_vertex.erase(m_vertex.begin(),m_vertex.end());
   m_seedsgenerator->newEvent();
@@ -113,7 +113,7 @@ void InDet::SiZvertexMaker_xk::newRegion
 {
   if(!m_histogram) {
     m_histogram = new int   [m_histsize+1];
-    z_histogram = new double[m_histsize+1];
+    m_z_histogram = new double[m_histsize+1];
   }
   m_vertex.erase(m_vertex.begin(),m_vertex.end());
   m_seedsgenerator->newRegion(vPixel,vSCT);
@@ -129,7 +129,7 @@ void InDet::SiZvertexMaker_xk::newRegion
 {
   if(!m_histogram) {
     m_histogram = new int   [m_histsize+1];
-    z_histogram = new double[m_histsize+1];
+    m_z_histogram = new double[m_histsize+1];
   }
   m_vertex.erase(m_vertex.begin(),m_vertex.end());
   m_seedsgenerator->newRegion(vPixel,vSCT,PhEt);
@@ -152,7 +152,7 @@ const std::list<Trk::Vertex>&  InDet::SiZvertexMaker_xk::getVertices ()
 void InDet::SiZvertexMaker_xk::production() 
 {
   double sZ = double(m_histsize)/(m_zmax-m_zmin);
-  for(int i=0; i<=m_histsize; ++i) {m_histogram[i]=0; z_histogram[i]=0.;}
+  for(int i=0; i<=m_histsize; ++i) {m_histogram[i]=0; m_z_histogram[i]=0.;}
 
   std::list<int>    NMAX;
   std::list<double> ZMAX;
@@ -194,7 +194,7 @@ void InDet::SiZvertexMaker_xk::production()
   std::list<int>   ::iterator m,me=NMAX.end();
   std::list<double>::iterator z = ZMAX.begin();
   for(m=NMAX.begin(); m!=me; ++m) {
-    ++m_histogram[(*m)]; z_histogram[(*m)]+=(*z++); 
+    ++m_histogram[(*m)]; m_z_histogram[(*m)]+=(*z++); 
   }
    
   // Max. content seach and output bank Z coordinates of vertices production
@@ -216,11 +216,11 @@ void InDet::SiZvertexMaker_xk::production()
   if(im==0 || HiZm < m_mincontent) {
 
     if(m_outputlevel<=0) {
-      m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+      m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
     }
     return;
   }
-  double zv = (z_histogram[im]+z_histogram[im-1]+z_histogram[im+1])/double(HiZm);
+  double zv = (m_z_histogram[im]+m_z_histogram[im-1]+m_z_histogram[im+1])/double(HiZm);
   ver.insert(std::make_pair(-HiZm,zv));
 
   // Z-vertex coordinates 
@@ -233,7 +233,7 @@ void InDet::SiZvertexMaker_xk::production()
 
       int H3 = m_histogram[i-1]+m_histogram[i]+m_histogram[i+1]; 
       if(H3>=HiZm) {
-	zv = (z_histogram[i]+z_histogram[i-1]+z_histogram[i+1])/double(H3);
+	zv = (m_z_histogram[i]+m_z_histogram[i-1]+m_z_histogram[i+1])/double(H3);
 	ver.insert(std::make_pair(-H3,zv));
      }
       if(++i==m_histsize) break;
@@ -251,7 +251,7 @@ void InDet::SiZvertexMaker_xk::production()
   }
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -263,7 +263,8 @@ void InDet::SiZvertexMaker_xk::production()
 MsgStream& InDet::SiZvertexMaker_xk::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpEvent(out); return dumpConditions(out);
+  if(m_nprint)  return dumpEvent(out);
+  return dumpConditions(out);
 }
 
 ///////////////////////////////////////////////////////////////////
