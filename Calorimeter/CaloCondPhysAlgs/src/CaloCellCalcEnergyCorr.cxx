@@ -69,11 +69,11 @@ CaloCellCalcEnergyCorr::~CaloCellCalcEnergyCorr()
 StatusCode CaloCellCalcEnergyCorr::initialize()
 {
   if(m_calosample.size() != m_value.size() ) {
-     msg(MSG::ERROR) << "CaloSamples and SampleValues vectors not equal length !!! " << endreq;
+     ATH_MSG_ERROR( "CaloSamples and SampleValues vectors not equal length !!! "  );
      return StatusCode::FAILURE;
   }
   if(m_hvlines.size() != m_hvvalue.size() ) {
-     msg(MSG::ERROR) << "HVLines and HVvalues vectors not equal length !!! " << endreq;
+     ATH_MSG_ERROR( "HVLines and HVvalues vectors not equal length !!! "  );
      return StatusCode::FAILURE;
   }
 
@@ -128,20 +128,23 @@ StatusCode CaloCellCalcEnergyCorr::stop()
         if (std::find(m_calosample.begin(), m_calosample.end(), i) != m_calosample.end()) maxsubcalo = CaloCell_ID::TILE;
      }
      if(maxsubcalo < 0 ) {
-        msg(MSG::ERROR) << "Wrong CaloSamples vector " << m_calosample << endreq;
+        ATH_MSG_ERROR( "Wrong CaloSamples vector " << m_calosample  );
         return StatusCode::FAILURE;
      } else {
         calocell_id->calo_cell_hash_range(maxsubcalo, hashMin,hashMax);
      }
   }
 
-  msg(MSG::INFO) << "Working on hash range 0 to " << hashMax << endreq;
+  ATH_MSG_INFO( "Working on hash range 0 to " << hashMax  );
 
   coral::AttributeListSpecification* spec = new coral::AttributeListSpecification();
   spec->extend("CaloCondBlob16M","blob");// , cool::StorageType::Blob16M);
   AthenaAttributeList* attrList=new AthenaAttributeList(*spec);
   coral::Blob& blob=(*attrList)["CaloCondBlob16M"].data<coral::Blob>();
   CaloCondBlobFlt* flt= CaloCondBlobFlt::getInstance(blob);
+  spec->release(); // deletes spec
+  // cppcheck-suppress memleak
+  spec = nullptr;
 
   //Blob Defintion Vector
   std::vector<std::vector<float> > defVec;
@@ -186,8 +189,8 @@ StatusCode CaloCellCalcEnergyCorr::stop()
     flt->setData(h,0,setVec);
   }//end loop over hash
 
-  msg(MSG::INFO) << "Found " << nSet << " channels which have a sample correction. " << endreq;
-  msg(MSG::INFO) << "Found " << nSetHV << " channels which have a HV correction. " << endreq;
+  ATH_MSG_INFO( "Found " << nSet << " channels which have a sample correction. "  );
+  ATH_MSG_INFO( "Found " << nSetHV << " channels which have a HV correction. "  );
   
   return StatusCode::SUCCESS;
 }
