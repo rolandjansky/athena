@@ -36,7 +36,7 @@
  DATA NOMA/ 18 /
  DATA COMA/ '*','W','D','P','H','M','E','N','V','A','B','C','R',   &
             'X', 'Q', 'L', 'I' , 'F'/
- DATA NTYP/ 53 /
+ DATA NTYP/ 54 /
  DATA CTYP/ 'BIL','BIS','BML','BMS','BOL','BOS','BEE',             &
             'BIR',      'BMF',      'BOF','BOG',                   &
             'BME',                                                 &
@@ -53,7 +53,7 @@
             'T2F','T2E',                                           &
             'T3F','T3E',                                           &
             'T4F','T4E',      'EIS',                               &
-            'CSS','CSL',      'BIM',                    7*'XXX' /
+            'CSS','CSL',      'BIM','BMG',              6*'XXX' /
  DATA NTEC/ 11 /
  DATA CTEC/ 'MDT','RPC','TGC','CSC','SPA','DED','SUP','CHV',       &
             'CMI','CRO','LB ',                          9*'XXX' /
