@@ -54,12 +54,12 @@ StatusCode LArAutoCorrBuilder::stop() {
   // Initialize LArAutoCorrComplete 
   StatusCode sc=larAutoCorrComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArAutoCorrComplete object" << endreq;
+    msg(MSG::ERROR) << "Failed to set groupingType for LArAutoCorrComplete object" << endmsg;
     return sc;
   }
   sc=larAutoCorrComplete->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArAutoCorrComplete object" << endreq;
+    msg(MSG::ERROR) << "Failed initialize LArAutoCorrComplete object" << endmsg;
     return sc;
   }
 
@@ -93,32 +93,32 @@ StatusCode LArAutoCorrBuilder::stop() {
       NAutoCorr++;
     }//end loop over all cells
 
-    msg(MSG::DEBUG) << "Gain " << gain << " Number of cells with 0 events to compute autocorr: " <<  n_zero << endreq;
-    msg(MSG::DEBUG) << "Gain " << gain << " Minimum number of events to compute autocorr: " <<  n_min << endreq;
-    msg(MSG::DEBUG) << "Gain " << gain << " Maximum number of events to compute autocorr: " <<  n_max << endreq;
+    msg(MSG::DEBUG) << "Gain " << gain << " Number of cells with 0 events to compute autocorr: " <<  n_zero << endmsg;
+    msg(MSG::DEBUG) << "Gain " << gain << " Minimum number of events to compute autocorr: " <<  n_min << endmsg;
+    msg(MSG::DEBUG) << "Gain " << gain << " Maximum number of events to compute autocorr: " <<  n_max << endmsg;
   }//end loop over gains
 
-  //msg(MSG::INFO << " Summary : Number of cells with a autocorr value computed : " << larAutoCorrComplete->totalNumberOfConditions()  << endreq;
-  msg(MSG::INFO) << " Summary : Number of cells with a autocorr value computed : " << NAutoCorr  << endreq;
-  msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected):  31872+3456 = 35328 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endreq;
+  //msg(MSG::INFO << " Summary : Number of cells with a autocorr value computed : " << larAutoCorrComplete->totalNumberOfConditions()  << endmsg;
+  msg(MSG::INFO) << " Summary : Number of cells with a autocorr value computed : " << NAutoCorr  << endmsg;
+  msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected):  31872+3456 = 35328 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endmsg;
   
   // Record LArAutoCorrComplete
   sc = detStore()->record(larAutoCorrComplete,m_acContName);
   if (sc != StatusCode::SUCCESS) { 
-    msg(MSG::ERROR)  << " Cannot store LArAutoCorrComplete in TDS "<< endreq;
+    msg(MSG::ERROR)  << " Cannot store LArAutoCorrComplete in TDS "<< endmsg;
     delete larAutoCorrComplete;
     return sc;
   }
   else
-    msg(MSG::INFO) << "Recorded LArAutCorrComplete object with key " << m_acContName << endreq;
+    msg(MSG::INFO) << "Recorded LArAutCorrComplete object with key " << m_acContName << endmsg;
   // Make symlink
   sc = detStore()->symLink(larAutoCorrComplete, (ILArAutoCorr*)larAutoCorrComplete);
   if (sc != StatusCode::SUCCESS)  {
-    msg(MSG::ERROR)  << " Cannot make link for Data Object " << endreq;
+    msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
     return sc;
   }
    

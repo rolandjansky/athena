@@ -37,25 +37,25 @@ StatusCode LArAutoCorrDecoderTool::initialize()
   
   StatusCode sc = detStore()->retrieve(m_onlineID,"LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve  LArOnlineID from DetectorStore" << endreq;
+    msg(MSG::ERROR) << "Unable to retrieve  LArOnlineID from DetectorStore" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if(m_cablingService.retrieve().isFailure()){
-    msg(MSG::ERROR) << "Unable to get CablingService " << endreq;
+    msg(MSG::ERROR) << "Unable to get CablingService " << endmsg;
     return StatusCode::FAILURE;
   }
 
 
   sc=detStore()->regHandle(m_autoCorr,m_keyAutoCorr);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to register Datahandle<ILArAutoCorr> to SG key " << m_keyAutoCorr << endreq;
+    msg(MSG::ERROR) << "Failed to register Datahandle<ILArAutoCorr> to SG key " << m_keyAutoCorr << endmsg;
     return sc;
   }
 
 
   if (m_alwaysHighGain)
-    msg(MSG::INFO) << "Will always return HIGH gain autocorrelation matrix for EM calo, MEDIUM for HEC and FCAL" << endreq;
+    msg(MSG::INFO) << "Will always return HIGH gain autocorrelation matrix for EM calo, MEDIUM for HEC and FCAL" << endmsg;
 
   ATH_MSG_DEBUG("LArAutoCorrDecoderTool initialize() end");
   return StatusCode::SUCCESS;
@@ -93,11 +93,11 @@ const Eigen::MatrixXd LArAutoCorrDecoderTool::ACDiagonal( const HWIdentifier&  C
     ILArAutoCorr::AutoCorrRef_t dbcorr = m_autoCorr->autoCorr(CellID,gain);
 
     if ( dbcorr.size()== 0 ) { // empty AutoCorr for given channel
-      msg(MSG::WARNING) << "Empty AutoCorr vector for channel " <<  m_onlineID->channel_name(CellID) << " in Gain = " << gain<< endreq;
+      msg(MSG::WARNING) << "Empty AutoCorr vector for channel " <<  m_onlineID->channel_name(CellID) << " in Gain = " << gain<< endmsg;
       nSamples=0;
     }
     else if (dbcorr.size() < nSamples-1 ) {
-      msg(MSG::WARNING) << "Not enough samples in AutoCorr vector for channel " <<  m_onlineID->channel_name(CellID) << " in Gain = " << gain<< endreq;
+      msg(MSG::WARNING) << "Not enough samples in AutoCorr vector for channel " <<  m_onlineID->channel_name(CellID) << " in Gain = " << gain<< endmsg;
       nSamples=1+dbcorr.size(); //The remaining values of the eigen matrix are left to 0.0
     } 
   
@@ -110,7 +110,7 @@ const Eigen::MatrixXd LArAutoCorrDecoderTool::ACDiagonal( const HWIdentifier&  C
     }
   }//else if m_autoCorr
   else { // no LArAutoCorrComplete loaded in DetStore (e.g. DB problem) :-(
-    msg(MSG::WARNING) << "No valid AutoCorr object loaded from DetStore" << endreq;
+    msg(MSG::WARNING) << "No valid AutoCorr object loaded from DetStore" << endmsg;
   }
 
   ATH_MSG_DEBUG("AutoCorr matrix for channel " <<  m_onlineID->channel_name(CellID) 
@@ -138,12 +138,12 @@ const Eigen::MatrixXd LArAutoCorrDecoderTool::ACPhysics( const HWIdentifier&  Ce
     ILArAutoCorr::AutoCorrRef_t corrdb = m_autoCorr->autoCorr(CellID,gain);
    
     if ( corrdb.size()== 0 ) { // empty AutoCorr for given channel
-      msg(MSG::WARNING) << "Empty AutoCorr vector for channel " << m_onlineID->channel_name(CellID) << " in Gain = " << gain<< endreq;
+      msg(MSG::WARNING) << "Empty AutoCorr vector for channel " << m_onlineID->channel_name(CellID) << " in Gain = " << gain<< endmsg;
       nSamples=0; //return all-zero matrix
     }
     else  if ( corrdb.size() < nSamples*(nSamples+1)/2 ) {
       msg(MSG::WARNING) << "Not enough samples in AutoCorr vector for channel " <<  m_onlineID->channel_name(CellID) 
-			<< "in Gain = " << gain << " for AC Physics mode"<< endreq;
+			<< "in Gain = " << gain << " for AC Physics mode"<< endmsg;
       nSamples=0;//return all-zero matrix 
     } 
 
@@ -160,7 +160,7 @@ const Eigen::MatrixXd LArAutoCorrDecoderTool::ACPhysics( const HWIdentifier&  Ce
     }
   } //end if m_autoCorr 
   else { // no LArAutoCorrComplete loaded in DetStore (e.g. DB problem) :-(
-    msg(MSG::WARNING) << "No valid AutoCorr object loaded from DetStore" << endreq;
+    msg(MSG::WARNING) << "No valid AutoCorr object loaded from DetStore" << endmsg;
   }
    
   ATH_MSG_DEBUG("AutoCorr matrix for channel " <<  m_onlineID->channel_name(CellID) 

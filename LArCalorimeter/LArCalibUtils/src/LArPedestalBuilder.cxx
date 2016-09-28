@@ -45,14 +45,14 @@ LArPedestalBuilder::~LArPedestalBuilder()
 StatusCode LArPedestalBuilder::initialize()
 {
   StatusCode sc;
-  msg(MSG::INFO) << ">>> Initialize" << endreq;
+  msg(MSG::INFO) << ">>> Initialize" << endmsg;
 
   //m_mean.resize(1);
   //m_rms.resize(1);  
   
   sc = detStore()->retrieve(m_onlineHelper, "LArOnlineID");
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endreq;
+    msg(MSG::ERROR) << "Could not get LArOnlineID helper !" << endmsg;
     return StatusCode::FAILURE;
   }
   
@@ -71,7 +71,7 @@ StatusCode LArPedestalBuilder::initialize()
  m_accu.setGroupingType(LArConditionsContainerBase::SingleGroup);
  m_accu.initialize(); 
  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArConditionsContainer 'm_accu'" << endreq;
+    msg(MSG::ERROR) << "Failed initialize LArConditionsContainer 'm_accu'" << endmsg;
     return sc;
   }
  return StatusCode::SUCCESS;
@@ -86,7 +86,7 @@ StatusCode LArPedestalBuilder::execute()
   StatusCode sc;
   ++m_event_counter;
   if (m_keylist.size()==0) {
-    msg(MSG::ERROR) << "Key list is empty! No containers processed!" << endreq;
+    msg(MSG::ERROR) << "Key list is empty! No containers processed!" << endmsg;
     return StatusCode::FAILURE;
   } 
   
@@ -95,13 +95,13 @@ StatusCode LArPedestalBuilder::execute()
   if (evtStore()->contains<LArFebErrorSummary>("LArFebErrorSummary")) {
     sc=evtStore()->retrieve(febErrSum);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Failed to retrieve FebErrorSummary object!" << endreq;
+      msg(MSG::ERROR) << "Failed to retrieve FebErrorSummary object!" << endmsg;
       return sc;
     }
   }
   else
     if (m_event_counter==1)
-      msg(MSG::WARNING) << "No FebErrorSummaryObject found! Feb errors not checked!" << endreq;
+      msg(MSG::WARNING) << "No FebErrorSummaryObject found! Feb errors not checked!" << endmsg;
  
 
 
@@ -141,7 +141,7 @@ StatusCode LArPedestalBuilder::execute()
 	  if (febid!=lastFailedFEB) {
 	    lastFailedFEB=febid;
 	    msg(MSG::ERROR) << "Event " << m_event_counter << " Feb " <<  m_onlineHelper->channel_name(febid) 
-		<< " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." << endreq;
+		<< " reports error(s):" << febErrSum->error_to_string(febErrs) << ". Data ignored." << endmsg;
 	  }
 	  continue;
 	} //end if fatal feb error
@@ -151,7 +151,7 @@ StatusCode LArPedestalBuilder::execute()
 
       LArAccumulatedDigit& accDg=m_accu.get(chid,gain);
       if (!accDg.setAddSubStep(*dg)) 
-	msg(MSG::ERROR) << "Failed to accumulate sub-steps! Inconsistent number of ADC samples" << endreq;
+	msg(MSG::ERROR) << "Failed to accumulate sub-steps! Inconsistent number of ADC samples" << endmsg;
     } //end loop over input container
   }//end loop over keys
   return StatusCode::SUCCESS;
@@ -165,12 +165,12 @@ StatusCode LArPedestalBuilder::execute()
   // Initialize LArPedestalComplete 
   StatusCode sc=larPedestalComplete->setGroupingType(m_groupingType,msg());
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed to set groupingType for LArPedestalComplete object" << endreq;
+    msg(MSG::ERROR) << "Failed to set groupingType for LArPedestalComplete object" << endmsg;
     return sc;
   }
   sc=larPedestalComplete->initialize(); 
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Failed initialize LArPedestalComplete object" << endreq;
+    msg(MSG::ERROR) << "Failed initialize LArPedestalComplete object" << endmsg;
     return sc;
   }
 
@@ -201,33 +201,33 @@ StatusCode LArPedestalBuilder::execute()
       NPedestal++;
     }//end loop over all cells
 
-    msg(MSG::DEBUG) << "Gain " << gain << " Number of cells with 0 events to compute pedestal: " <<  n_zero << endreq;
-    msg(MSG::DEBUG) << "Gain " << gain << " Minimum number of events*samples to compute pedestal: " <<  n_min << endreq;
-    msg(MSG::DEBUG) << "Gain " << gain << " Maximum number of events*samples to compute pedestal: " <<  n_max << endreq;
+    msg(MSG::DEBUG) << "Gain " << gain << " Number of cells with 0 events to compute pedestal: " <<  n_zero << endmsg;
+    msg(MSG::DEBUG) << "Gain " << gain << " Minimum number of events*samples to compute pedestal: " <<  n_min << endmsg;
+    msg(MSG::DEBUG) << "Gain " << gain << " Maximum number of events*samples to compute pedestal: " <<  n_max << endmsg;
   }// End loop over all containers
   
-  //msg(MSG::INFO) << " Summary : Number of cells with a pedestal value computed : " << larPedestalComplete->totalNumberOfConditions()  << endreq;
-  msg(MSG::INFO) << " Summary : Number of cells with a pedestal value computed : " << NPedestal  << endreq;
-  msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected):  31872+3456 = 35328 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 " << endreq;
-  msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endreq;
+  //msg(MSG::INFO) << " Summary : Number of cells with a pedestal value computed : " << larPedestalComplete->totalNumberOfConditions()  << endmsg;
+  msg(MSG::INFO) << " Summary : Number of cells with a pedestal value computed : " << NPedestal  << endmsg;
+  msg(MSG::INFO) << " Summary : Number of Barrel PS cells side A or C (connected+unconnected):   3904+ 192 =  4096 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of Barrel    cells side A or C (connected+unconnected):  50944+2304 = 53248 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of EMEC      cells side A or C (connected+unconnected):  31872+3456 = 35328 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of HEC       cells side A or C (connected+unconnected):   2816+ 256 =  3072 " << endmsg;
+  msg(MSG::INFO) << " Summary : Number of FCAL      cells side A or C (connected+unconnected):   1762+  30 =  1792 " << endmsg;
     
   // Record LArPedestalComplete
   sc = detStore()->record(larPedestalComplete,m_pedContName);
   if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR)	 << " Cannot store LArPedestalComplete in TDS " << endreq;
+    msg(MSG::ERROR)	 << " Cannot store LArPedestalComplete in TDS " << endmsg;
     delete larPedestalComplete;
     return sc;
   }
   else
-    msg(MSG::INFO) << "Recorded LArPedestalComplete object with key " << m_pedContName << endreq;
+    msg(MSG::INFO) << "Recorded LArPedestalComplete object with key " << m_pedContName << endmsg;
     
   // Make symlink
   sc = detStore()->symLink(larPedestalComplete, (ILArPedestal*)larPedestalComplete);
   if (sc != StatusCode::SUCCESS) {
-    msg(MSG::ERROR)  << " Cannot make link for Data Object " << endreq;
+    msg(MSG::ERROR)  << " Cannot make link for Data Object " << endmsg;
     return sc;
   }
   

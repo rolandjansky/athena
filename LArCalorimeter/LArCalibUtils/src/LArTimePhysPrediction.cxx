@@ -476,7 +476,7 @@ StatusCode LArTimePhysPrediction::stop()
        {
        log << MSG::ERROR	
        << " Cannot store LArPhysCaliTdiffComplete in TDS " 
-       << endreq;
+       << endmsg;
        return sc;
        }
        // Make symlink
@@ -485,7 +485,7 @@ StatusCode LArTimePhysPrediction::stop()
        {
        log << MSG::ERROR 
        << " Cannot make link for Data Object "
-       << endreq;
+       << endmsg;
        return sc;
        }*/ 
     

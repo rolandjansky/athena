@@ -17,7 +17,7 @@
 #include <Eigen/Dense>
 
 #include "StoreGate/DataHandle.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 
 #include "LArRawConditions/LArConditionsContainer.h"

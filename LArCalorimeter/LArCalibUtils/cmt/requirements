@@ -11,7 +11,7 @@ use AtlasTBB 		AtlasTBB-* 		External
 
 use LArRawEvent      LArRawEvent-*           LArCalorimeter 
 use LArRawConditions LArRawConditions-*      LArCalorimeter
-use LArTools         LArTools*            LArCalorimeter
+use LArCabling       LArCabling-)*        LArCalorimeter
 use LArElecCalib     LArElecCalib-*       LArCalorimeter
 use LArIdentifier    LArIdentifier-*      LArCalorimeter
 use LArRawUtils      LArRawUtils-*        LArCalorimeter

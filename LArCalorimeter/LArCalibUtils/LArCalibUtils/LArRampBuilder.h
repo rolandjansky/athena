@@ -37,7 +37,7 @@
 #include "LArRecUtils/LArShapePeakRecoTool.h"
 #include "LArRecUtils/LArOFPeakRecoTool.h"
 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 
 #include "LArElecCalib/ILArPedestal.h"
