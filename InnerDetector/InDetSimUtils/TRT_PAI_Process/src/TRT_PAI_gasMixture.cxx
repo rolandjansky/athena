@@ -10,13 +10,12 @@
 
 //____________________________________________________________________________
 
-void TRT_PAI_gasMixture::addComponent(TRT_PAI_gasComponent* pgc,
-				      double frac) {
+void TRT_PAI_gasMixture::addComponent(TRT_PAI_gasComponent* pgc, double frac) {
   if ( m_gasFrozen ) {
     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
       << "gasMixture::addComponent: "
       << "cannot add new gasComponent - gas already frozen"
-      << endreq;
+      << endmsg;
     return;
   }
 
@@ -37,7 +36,7 @@ void TRT_PAI_gasMixture::freezeGas() {
       if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
 	<< "gasMixture::freezeGas: "
 	<< "A gasComponent has non-positive fraction"
-	<< endreq;
+	<< endmsg;
       return;
     }
     wtot += m_compFracs[j];
@@ -48,7 +47,7 @@ void TRT_PAI_gasMixture::freezeGas() {
       << "gasMixture::freezeGas: "
       << "Gas fractions do not add to unity but " << wtot
       << ". Re-normalizing!!"
-      << endreq;
+      << endmsg;
   }
 
   for (int j=0; j<nComp; ++j ) {
@@ -91,13 +90,13 @@ void TRT_PAI_gasMixture::showStructure() {
     if (msgLevel(MSG::WARNING)) msg(MSG::WARNING)
       << "gasMixture::showStructure: "
       << "Showing structure of non-frozen gas"
-      << endreq;
+      << endmsg;
   }
 
   if (msgLevel(MSG::INFO)) msg(MSG::INFO)
     << "The gas named '" << m_name
     << "' has the following components:"
-    << endreq;
+    << endmsg;
   for (unsigned int i=0; i<m_compFracs.size(); i++) {
     if (msgLevel(MSG::INFO)) msg(MSG::INFO)
       << " - " << m_compFracs[i]*100. << " percent "
@@ -108,7 +107,7 @@ void TRT_PAI_gasMixture::showStructure() {
 	<< " " << m_pcomp[i]->getElementMultiplicity(j)
 	<< " atoms " << m_pcomp[i]->getElement(j)->getName();
     }
-    if (msgLevel(MSG::INFO)) msg(MSG::INFO) << endreq;
+    if (msgLevel(MSG::INFO)) msg(MSG::INFO) << endmsg;
   }
   return;
 }
@@ -120,7 +119,7 @@ TRT_PAI_gasComponent* TRT_PAI_gasMixture::getComponent(unsigned int n) {
   if ( n >= m_pcomp.size() ) {
     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
       << "gasMixture::getComponent: out of bounds"
-      << endreq;
+      << endmsg;
     return m_pcomp[0];
   };
 
@@ -134,7 +133,7 @@ double TRT_PAI_gasMixture::getCompFraction(unsigned int n) {
   if ( n >= m_compFracs.size() ) {
     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
       << "gasMixture::getCompFraction: out of bounds"
-      << endreq;
+      << endmsg;
     return m_compFracs[0];
   }
 
@@ -148,7 +147,7 @@ TRT_PAI_element* TRT_PAI_gasMixture::getElement(unsigned int n) {
   if ( n >= m_pelem.size() ) {
     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
       << "TRT_PAI_gasMixture::getElement: out of bounds"
-      << endreq;
+      << endmsg;
     return m_pelem[0];
   };
 
@@ -162,7 +161,7 @@ double TRT_PAI_gasMixture::getElemWeight(unsigned int n) {
   if ( n >= m_elemWeights.size() ) {
     if (msgLevel(MSG::ERROR)) msg(MSG::ERROR)
       << "gasMixture::getElemFraction:Error:out of bounds"
-      << endreq;
+      << endmsg;
     return 0;
   };
 
@@ -171,22 +170,17 @@ double TRT_PAI_gasMixture::getElemWeight(unsigned int n) {
 
 //____________________________________________________________________________
 
-
-
-void
-TRT_PAI_gasMixture::display (const std::string& msg, int lvl) const
+void TRT_PAI_gasMixture::display (const std::string& msg, int lvl) const
 {
-  this->msg() << static_cast<MSG::Level>(lvl) << msg << endreq;
+  this->msg() << static_cast<MSG::Level>(lvl) << msg << endmsg;
 }
 
-void 
-TRT_PAI_gasMixture::setLvl (int lvl)
+void TRT_PAI_gasMixture::setLvl (int lvl)
 {
   msg().setLevel ((MSG::Level)lvl);
 }
 
-void 
-TRT_PAI_gasMixture::setLvl (const std::string& lvl)
+void TRT_PAI_gasMixture::setLvl (const std::string& lvl)
 {
   MSG::Level new_lvl = MSG::INFO;
   if (lvl=="debug")          { new_lvl = MSG::DEBUG;
@@ -194,7 +188,7 @@ TRT_PAI_gasMixture::setLvl (const std::string& lvl)
   } else if (lvl=="warning") { new_lvl = MSG::WARNING;
   } else if (lvl=="error")   { new_lvl = MSG::ERROR;
   } else {
-    msg() << MSG::WARNING << "lvl [" << lvl << "] UNKNOWN !" << endreq;
+    msg() << MSG::WARNING << "lvl [" << lvl << "] UNKNOWN !" << endmsg;
     return;
   }
   msg().setLevel (new_lvl);

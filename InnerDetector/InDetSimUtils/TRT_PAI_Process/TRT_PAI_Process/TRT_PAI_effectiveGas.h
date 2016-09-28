@@ -44,7 +44,7 @@ public:
 	      std::vector<float>& dndx);
   
   MsgStream& msg (MSG::Level lvl) const { return m_msg << lvl; }
-  bool msgLevel (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
+  bool msgLvl (MSG::Level lvl)    { return m_msg.get().level() <= lvl; }
 
 private:
   double XSigma(double lnE, double dummy);
