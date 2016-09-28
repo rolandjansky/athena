@@ -4,7 +4,7 @@
 
 ///============================================================
 ///
-/// $Id: T2VertexBeamSpotImpl.h 760208 2016-07-07 09:31:28Z hartj $
+/// $Id: T2VertexBeamSpotImpl.h 760210 2016-07-07 09:33:44Z hartj $
 ///
 /// Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
 ///
@@ -29,7 +29,7 @@
  * @author David W. Miller    <David.W.Miller@cern.ch>     - SLAC, Stanford University
  *
  * File and Version Information:
- * $Id: T2VertexBeamSpotImpl.h 760208 2016-07-07 09:31:28Z hartj $
+ * $Id: T2VertexBeamSpotImpl.h 760210 2016-07-07 09:33:44Z hartj $
  **********************************************************************************/
 
 #ifndef TRIGT2BEAMSPOT_T2VERTEXBEAMSPOTIMPL_H

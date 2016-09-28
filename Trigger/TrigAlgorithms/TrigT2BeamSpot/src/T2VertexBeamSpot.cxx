@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpot.cxx 760208 2016-07-07 09:31:28Z hartj $
+// $Id: T2VertexBeamSpot.cxx 760210 2016-07-07 09:33:44Z hartj $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot

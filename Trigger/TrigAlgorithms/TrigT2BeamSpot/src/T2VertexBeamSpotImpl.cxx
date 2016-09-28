@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpotImpl.cxx 760208 2016-07-07 09:31:28Z hartj $
+// $Id: T2VertexBeamSpotImpl.cxx 761239 2016-07-12 09:01:27Z hartj $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -1149,9 +1149,19 @@ T2VertexBeamSpotImpl::createOutputTEs( TrigVertexCollection& myVertexCollection,
 	msg() << MSG::ERROR << "Number of input TE vectors expected to be 1, is  " << tes_in.size() << endreq;
 	return;
       }
+
+
       vector<vector<HLT::TriggerElement*> >::const_iterator iTE = tes_in.begin();
+      vector<vector<HLT::TriggerElement*> >::const_iterator iTE_end = tes_in.end();
       HLT::TEVec allTEs= *iTE;
 
+      for (;iTE!=iTE_end; ++iTE) {
+	HLT::TEVec::const_iterator inner_itEnd = (*iTE).end();
+	HLT::TEVec::const_iterator inner_it = (*iTE).begin();
+	for (;inner_it != inner_itEnd ; ++inner_it) {
+	  allTEs.push_back(*inner_it);
+	}
+      }
 
 
   // Save all events, or only those events which pass the Npv cuts (if activated)!
