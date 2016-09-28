@@ -142,7 +142,7 @@ StatusCode LArCalibDigitMaker::execute()
      calibDigitContainer->push_back(calibDigit);
    } //End iteration to build calibDigits
    ATH_CHECK( evtStore()->record(calibDigitContainer,*key_it) );
-   //log << MSG::DEBUG << "LArCalibDigitContainer recorded to StoreGate. key=" << m_key << endreq;
+   //log << MSG::DEBUG << "LArCalibDigitContainer recorded to StoreGate. key=" << m_key << endmsg;
  } //End loop key list
  return StatusCode::SUCCESS;
 }

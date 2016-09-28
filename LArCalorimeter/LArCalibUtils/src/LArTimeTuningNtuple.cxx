@@ -3,13 +3,7 @@
 */
 
 #include "LArCalibUtils/LArTimeTuningNtuple.h"
-
-#include "GaudiKernel/Algorithm.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ToolHandle.h"
-
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/CaloIdManager.h"
 

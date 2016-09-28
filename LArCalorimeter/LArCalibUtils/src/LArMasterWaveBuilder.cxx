@@ -5,7 +5,7 @@
 #include "LArCalibUtils/LArMasterWaveBuilder.h"
 
 #include "GaudiKernel/ToolHandle.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArRawConditions/LArCaliWaveContainer.h"
 #include "CaloIdentifier/CaloIdManager.h"
 #include "CaloIdentifier/CaloGain.h"
@@ -144,17 +144,17 @@ StatusCode LArMasterWaveBuilder::stop()
 
   msg() << MSG::INFO << "Check on ADC saturation: " ;
   if ( m_ADCsatur > 0 ) {
-    msg() << "absolute maximum less than " << m_ADCsatur << endreq ;
+    msg() << "absolute maximum less than " << m_ADCsatur << endmsg ;
   } else if ( m_ADCsatur < 0 ) {
-    msg() << "maximum relative to sample 0 less than " << -m_ADCsatur << endreq ;
+    msg() << "maximum relative to sample 0 less than " << -m_ADCsatur << endmsg ;
   } else {
-    msg() << "none!" << endreq ;
+    msg() << "none!" << endmsg ;
   }
   msg() << MSG::INFO << "Check on mimimum DAC value: " ;
   if ( m_DACmin > 0 ) {
-    msg() << m_DACmin << endreq ;
+    msg() << m_DACmin << endmsg ;
   } else {
-    msg() << "none!" << endreq ;
+    msg() << "none!" << endmsg ;
   }
   if ( m_normalize ) {
     ATH_MSG_INFO ( "Master Waveforms will be normalized" );
@@ -257,7 +257,7 @@ StatusCode LArMasterWaveBuilder::stop()
       msg() << MSG::DEBUG << "DAC list: " ;
       for ( unsigned i=0 ; i<nDACs ; i++ ) 
         msg() << vCaliWaves[i].getDAC() << " " ;
-      msg() << endreq ;
+      msg() << endmsg ;
       
       long layer  = -1; 
       long region = -1;
