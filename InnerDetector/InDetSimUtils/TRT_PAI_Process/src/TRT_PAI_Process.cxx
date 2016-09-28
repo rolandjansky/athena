@@ -34,18 +34,21 @@
 TRT_PAI_Process::TRT_PAI_Process( const std::string& type,
                                   const std::string& name,
                                   const IInterface* parent )
-  : AthAlgTool( type, name, parent ),
-    m_nTabulatedGammaValues( 56 ),
-    m_gamExpMin( -2. ),
-    m_gamExpMax(  5. ),
-    m_deltaGamExp( (m_gamExpMax-m_gamExpMin)/m_nTabulatedGammaValues ),
-    m_pAtRndmGenSvc ("AtRndmGenSvc", name)
+  : AthAlgTool( type, name, parent )
+  , m_nTabulatedGammaValues( 56 )
+  , m_gamExpMin( -2. )
+  , m_gamExpMax(  5. )
+  , m_deltaGamExp( (m_gamExpMax-m_gamExpMin)/m_nTabulatedGammaValues )
+  , m_trtgas(nullptr)
+  , m_gasType("Auto")
+  , m_pHRengine(nullptr)
+  , m_pAtRndmGenSvc ("AtRndmGenSvc", name)
 {
   // declare special interface
   declareInterface<ITRT_PAITool>(this);
 
   //Properties:
-  declareProperty( "GasType", m_gasType = "Auto", "Gas Type" );
+  declareProperty( "GasType", m_gasType, "Gas Type" );
   declareProperty( "RndServ", m_pAtRndmGenSvc, "Random Number Service for TRT_PAI_Process" );
 
 }

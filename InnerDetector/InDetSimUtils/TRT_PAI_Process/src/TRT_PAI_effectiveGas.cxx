@@ -55,12 +55,12 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
   m_S1  = mb/(2.*M_PI*M_PI*r0*he*Zeff);  // x-section to F.osc
   m_S2  = 2.*M_PI*r0*m_ne*Qe*Qe/erg;   // dN/dx scale
 
-//if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Gas density          " << rho << endreq;
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "effectiveGas: Electron density     " << m_ne  << endreq;
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "effectiveGas: Plasma freq**2 {eV}  " << m_Wp2 << endreq;
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "effectiveGas: x-section to F.osc   " << m_S1  << endreq;
-  if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "effectiveGas: dN/dx scale          " << m_S2  << endreq;
-//if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "effectiveGas: Zeff= " << Zeff << ", Aeff= " << Aeff << endreq;
+// ATH_MSG_DEBUG ( "Gas density          " << rho );
+  ATH_MSG_DEBUG ( "effectiveGas: Electron density     " << m_ne );
+  ATH_MSG_DEBUG ( "effectiveGas: Plasma freq**2 {eV}  " << m_Wp2 );
+  ATH_MSG_DEBUG ( "effectiveGas: x-section to F.osc   " << m_S1 );
+  ATH_MSG_DEBUG ( "effectiveGas: dN/dx scale          " << m_S2 );
+// ATH_MSG_DEBUG ( "effectiveGas: Zeff= " << Zeff << ", Aeff= " << Aeff );
 
   // Merge all energy levels into ELvls
   std::vector<float> tempv;
@@ -91,7 +91,7 @@ TRT_PAI_effectiveGas::TRT_PAI_effectiveGas(TRT_PAI_gasMixture * gm,
 
   int NLvls = m_lnELvls.size();
 
-  // if (msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "NLvls= " << NLvls << endreq;
+  // ATH_MSG_DEBUG( "NLvls= " << NLvls );
 
   // Expand vectors to correct dimension
   m_lnFosc.resize(NLvls);
@@ -223,9 +223,7 @@ double TRT_PAI_effectiveGas::XGInt( double (TRT_PAI_effectiveGas::*pt2Func)(doub
     result = OTB;
     N *= 2;
     if ( N>100000 ) {
-      if (msgLevel(MSG::WARNING)) msg(MSG::WARNING)
-	<< "effectiveGas::XGInt: integrate Divergence !!!"
-	<< endreq;
+      ATH_MSG_WARNING( "effectiveGas::XGInt: integrate Divergence! " << std::abs(OTB-Y) << " " << std::abs(eps*OTB) );
       break;
     }
   } while ( (std::abs(OTB-Y) > std::abs(eps*OTB)) && (eps>0) );
