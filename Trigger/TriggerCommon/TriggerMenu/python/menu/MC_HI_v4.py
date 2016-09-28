@@ -96,8 +96,8 @@ Prescales.HLTPrescales.update({})
 Prescales.L1Prescales_tight_mc_prescale  = deepcopy(Prescales.L1Prescales)
 Prescales.HLTPrescales_tight_mc_prescale = deepcopy(Prescales.HLTPrescales)
 Prescales.HLTPrescales_tight_mc_prescale.update({
-        'mb_idperf_ion_L1MBTS_1'          : [    -1,    0,   -1],     
-        'mb_idperf_ion_L1MBTS_1_1'        : [    -1,    0,   -1],
+        #'mb_idperf_ion_L1MBTS_1'          : [    -1,    0,   -1],     
+        #'mb_idperf_ion_L1MBTS_1_1'        : [    -1,    0,   -1],
         ##'2e10_loose_ion'                  : [    -1,    0,   -1],
         'e10_etcut_ion'                   : [    -1,    0,   -1],
         'e10_etcut'                       : [    -1,    0,   -1],

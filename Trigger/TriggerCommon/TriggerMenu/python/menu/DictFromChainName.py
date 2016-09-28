@@ -58,10 +58,24 @@ class DictFromChainName(object):
                             logDict.error("Merging strategy %s is not known.", m_mergingStrategy)
                         m_mergingOffset = chainInfo[i][1]
                         m_mergingOrder = chainInfo[i][2]
-                        
+                        if(len(chainInfo[i]) >3):
+                            m_preserveL2EFOrder = chainInfo[i][3]
+                            #print "Setting m_preserveL2EFOrder to " + str(chainInfo[i][3] )
+                        else:
+                            m_preserveL2EFOrder = True
+                            #print "Setting m_preserveL2EFOrder to True"
+                            
+                        # if(len(chainInfo[i]) >4):
+                        #     m_noTEreplication = chainInfo[i][4]
+                        # else:
+                        #     m_noTEreplication = False
+                            
                         chainProp['mergingStrategy'] = m_mergingStrategy
                         chainProp['mergingOffset'] = m_mergingOffset
                         chainProp['mergingOrder'] = m_mergingOrder
+                        chainProp['mergingPreserveL2EFOrder'] = m_preserveL2EFOrder
+                      #  chainProp['mergingNoTEreplication'] = m_noTEreplication
+
                         mergingInfoFilled = True
                     else: logDict.error("Something went wrong here....topoStartFrom has already been filled!")                  
 
@@ -445,9 +459,9 @@ class DictFromChainName(object):
                             chainProperties[prop] = part
                         matchedparts.append(part)
                         
-            logDict.debug("matched parts %s", matchedparts)
+            logDict.info("matched parts %s", matchedparts)
             leftoverparts = set(parts)-set(matchedparts)
-            logDict.debug('leftoverparts %s', leftoverparts)
+            logDict.info('leftoverparts %s', leftoverparts)
             for pindex, part in enumerate(leftoverparts):
                 for prop, allowedValues in allowedSignaturePropertiesAndValues.items():
                     if prop in chainProperties.keys():  continue

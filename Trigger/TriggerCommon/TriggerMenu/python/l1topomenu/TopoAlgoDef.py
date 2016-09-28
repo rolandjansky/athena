@@ -1111,8 +1111,8 @@ class TopoAlgoDef:
 
         # LAR  0<eta<1.4 and 9/16pi<phi<11/16pi for FE crate IO6 
         for x in [     
-            {"minEta": 0, "maxEta": 15, "minPhi": 15, "maxPhi": 22, "otype" : "EM", "ocut" : 20, "inputwidth": HW.OutputWidthSortEM},
-            {"minEta": 0, "maxEta": 14, "minPhi": 15, "maxPhi": 22, "otype" : "J", "ocut" : 100, "inputwidth": HW.OutputWidthSortJET}, 
+            {"minEta": 0, "maxEta": 15, "minPhi": 16, "maxPhi": 23, "otype" : "EM", "ocut" : 20, "inputwidth": HW.OutputWidthSortEM},
+            {"minEta": 0, "maxEta": 14, "minPhi": 16, "maxPhi": 23, "otype" : "J", "ocut" : 100, "inputwidth": HW.OutputWidthSortJET}, 
             ]:
 
             for k in x:

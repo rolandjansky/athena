@@ -156,56 +156,66 @@ def _replicateMissingSignatures(listOfChainDefs,unevenSigs,level):
 
 
 
-def mergeChainDefs(listOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=False,doTopo=True,chainDicts=''):
+def mergeChainDefs(listOfChainDefs,strategy="parallel",offset=-1,preserveL2EFOrder=True,removeDuplicateTEs=False,doTopo=True,chainDicts='',noTEreplication=False):
 
     log.debug("Combine using %s  merging", strategy)
 
     if strategy=="parallel":
         return _mergeChainDefsParallel(listOfChainDefs,offset,removeDuplicateTEs)
     elif strategy=="serial":
-        return _mergeChainDefsSerial(chainDicts,listOfChainDefs,offset,doTopo=doTopo)
+        return _mergeChainDefsSerial(chainDicts,listOfChainDefs,offset,preserveL2EFOrder=preserveL2EFOrder,doTopo=doTopo,noTEreplication=noTEreplication)
     else:
         log.error("Merging failed for chain %s. Merging strategy '%s' not known." % (level, chainDef.chain_name))
         return -1
 
 
 
-def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=True,doTopo=True):
+def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=True,doTopo=True,noTEreplication=False):
 
     """
     serial merging of chain def objects for combined chains
     """
 
     
-    noTEreplication=False
+    #noTEreplication=False
     #Add few exception to the replication of the TE
     jet_count=0
     met_count=0
     ht_count=0
+    other_count=0
     try:
+        if 'upc' in ChainDicts[0]['chainName'] :
+            noTEreplication=True  
+        
         for chainDict in ChainDicts:
             if (chainDict["signature"] == "Jet"):
                 jet_count+=1
                 #print "BETTA: adding one jet count: ",chainDict
-            if (chainDict["signature"] == "HT"):
+            elif (chainDict["signature"] == "HT"):
                 ht_count+=1
                 #print "BETTA: adding one ht count: ",chainDict            
-            if (chainDict["signature"] == "MET"):
+            elif (chainDict["signature"] == "MET"):
                 for chainpart in chainDict["chainParts"]:
                     if 'xe' in chainpart['trigType'] and 'cell' not in chainpart['EFrecoAlg']:
                         met_count+=1
+                        #print "BETTA: adding one met count: ",chainDict            
+            else:
+                #print "BETTA-adding ",chainDict["signature"]
+                other_count+=1
+
+        
     except:
         pass
 
-    #print "BETTA Total count: jet-", jet_count, " HT-", ht_count, " xe-", met_count, 
+    #print "BETTA Total count: jet-", jet_count, " HT-", ht_count, " xe-", met_count, "other:-", other_count
     if jet_count > 0 and met_count > 0:
         noTEreplication=True        
     if jet_count > 1:
         noTEreplication=True        
     if met_count > 1:
         noTEreplication=True        
-    #if jet_count > 0 and ht_count > 0:
-    #    noTEreplication=True        
+    if jet_count > 0 and ht_count > 0:
+        noTEreplication=True        
 
 
     listOfChainDefs = deepcopy(listOfChainDefs) 
@@ -224,6 +234,8 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
     listOfChainDefs.pop(0)
     
     # Loop remaining chain defs to be merged
+    #doTopo=False
+    #preserveL2EFOrder=False
 
     
     for chainDef in listOfChainDefs:
@@ -235,7 +247,7 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
         for signatureIdx,signature in enumerate(chainDef.signatureList):
             # if a topo is appended after the chain merging, or in same special cases, the replication of the last TEs is not necessary
             if noTEreplication:
-                #print "Removing replication of the TE for chain: ",chainDef.chain_name
+                print "Removing replication of the TE for chain: ",chainDef.chain_name
                 log.info("Removing replication of the TE for chain: %s" %(chainDef.chain_name))
                 signatureToAdd = signature['listOfTriggerElements'] 
             else:

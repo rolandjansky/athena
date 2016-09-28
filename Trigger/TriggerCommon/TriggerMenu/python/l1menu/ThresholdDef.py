@@ -274,7 +274,7 @@ class ThresholdDef:
 
         
         # TE
-        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 40, 45, 50, 55, 60, 65, 70, 100, 200, 300, 2000, 4000, 10000, 12000, 14000]:
+        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 40, 45, 50, 55, 60, 65, 70, 100, 140, 200, 280, 300, 360, 2000, 4000, 10000, 12000, 14000]:
             tc.registerThr('TE%i' % thrV, 'TE').addThrValue(thrV)
 
         # XE
@@ -287,7 +287,7 @@ class ThresholdDef:
 
         # Restricted range TE |eta|<2.4
         etamax = 24
-        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 40, 45, 50, 55, 60, 65, 70, 1000, 2000]:
+        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 40, 45, 50, 55, 60, 65, 70, 110, 150, 180, 1000, 2000, 5000, 6500, 8000, 9000]:
             tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
         
         # RXE (restriced range ET miss)

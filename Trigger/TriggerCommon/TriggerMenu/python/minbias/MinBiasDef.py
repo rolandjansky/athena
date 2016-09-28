@@ -145,12 +145,16 @@ class L2EFChain_MB(L2EFChainDef):
         if 'blayer' in  self.chainPart['extra']:
             doBLayer=True
 
+        doVetoSp=False
+        if 'vetosp' in self.chainPart['extra']:
+            doVetoSp=True
+
         doSptrk=False
         if "sptrk" in self.chainPart['recoAlg']: #do EFID
             doSptrk=True
 
         doMbtsVeto=False
-        if "vetombts2in" in self.chainPart['extra']: #do EFID
+        if "vetombts2in" in self.chainPart['extra'] or "vetospmbts2in" in self.chainPart['extra']: #do EFID
             doMbtsVeto=True
             theL2MbtsFex=L2MbMbtsFex
             theL2MbtsHypo=MbMbtsHypo("L2MbMbtsHypo_1_1_inn_veto")
@@ -177,6 +181,8 @@ class L2EFChain_MB(L2EFChainDef):
             theL2Fex  = L2MbSpFex
             if doSptrk:
                 chainSuffix = "sptrk"
+            elif doVetoSp:
+                chainSuffix = "sp_vetosp"
             else:
                 chainSuffix = "sp"
         
@@ -186,10 +192,15 @@ class L2EFChain_MB(L2EFChainDef):
             if "vetombts1side2in" in self.chainPart['extra']:
                 chainSuffix = chainSuffix+"_vetombts1side2in"
 
+        if doMbtsVeto and doVetoSp: # this will never be done w tracks
+            chainSuffix = "sp_vetospmbts2in"
+
         if doSpNcb:
             theL2Hypo = L2MbSpHypo_ncb
         elif doBLayer:
             theL2Hypo = L2MbSpHypo_blayer
+        elif doVetoSp:
+            theL2Hypo = L2MbSpHypo_veto
         else:
             theL2Hypo = L2MbSpHypo
 

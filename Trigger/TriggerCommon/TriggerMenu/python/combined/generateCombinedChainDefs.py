@@ -349,8 +349,20 @@ def _addTauMass(theChainDef,chainDicts,listOfChainDefs):
 
 def _addMVis(theChainDef,chainDicts,listOfChainDefs):
 
-    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']           
+    ## that was it previously, just grabbing the last outputTE:
+    #inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']           
 
+    # rather get the last outputTE named EF_g and EF_tau
+    inputTEsEF=[]
+    inputTE_tau=''
+    inputTE_photon=''
+
+    for iS in range(0, len(theChainDef.signatureList) ):
+        for TE in theChainDef.signatureList[iS]['listOfTriggerElements'] :
+            if 'EF_g' in TE: inputTE_photon=TE
+            if 'EF_tau' in TE: inputTE_tau=TE
+    inputTEsEF=[inputTE_tau,inputTE_photon ]
+        
     maxMvis=-1
     minMvis=-1
     for topo_item in chainDicts[0]['topo']:

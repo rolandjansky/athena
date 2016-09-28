@@ -7,7 +7,7 @@ class TrigHLTEnergyDensityCentral(TrigHLTEnergyDensity):
     def __init__(self, name="TrigHLTEnergyDensityCentral",
                             toolname_stub="jetTriggerEnergyDensityTool_Central",
                             ed_merge_param=0.5, AbsRapidityMax=1.5,
-                            caloClusterContainerSGKey="TrigCaloClusterMaker_topo_fullscan_egamma",
+                            caloClusterContainerSGKey="TopoCaloClusterMaker_topo_FS",
                             eventShapeSGKey="HLTTopoClusterIsoCentralEventShape") :
           super(TrigHLTEnergyDensityCentral, self).__init__(name=name,
                             toolname_stub=toolname_stub,
@@ -22,7 +22,7 @@ class TrigHLTEnergyDensityForward(TrigHLTEnergyDensity):
     def __init__(self, name="TrigHLTEnergyDensityForward",
                             toolname_stub="jetTriggerEnergyDensityTool_Forward",
                             ed_merge_param=0.5, AbsRapidityMin=1.5, AbsRapidityMax=3.0,
-                            caloClusterContainerSGKey="TrigCaloClusterMaker_topo_fullscan_egamma",
+                            caloClusterContainerSGKey="TopoCaloClusterMaker_topo_FS",
                             eventShapeSGKey="HLTTopoClusterIsoForwardEventShape") :
           super(TrigHLTEnergyDensityForward, self).__init__(name=name,
                             toolname_stub=toolname_stub,
