@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpotImpl.cxx 704927 2015-10-30 17:01:06Z smh $
+// $Id: T2VertexBeamSpotImpl.cxx 744847 2016-05-04 15:12:00Z smh $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -833,6 +833,8 @@ T2VertexBeamSpotImpl::reconstructVertices( TrackCollection& mySelectedTrackColle
       if ( ! primaryVertex )
         { 
           if (msgLvl()<=MSG::DEBUG) msg() << MSG::DEBUG << "Vertex fit failed" << endreq; 
+          delete vertexTracks;
+          vertexTracks = nullptr;
           continue; 
         }
       

@@ -4,7 +4,7 @@
 
 //============================================================
 //
-// $Id: T2VertexBeamSpot.cxx 702277 2015-10-22 10:33:51Z smh $
+// $Id: T2VertexBeamSpot.cxx 723137 2016-02-10 15:52:24Z fwinkl $
 //
 // T2VertexBeamSpot.cxx, (c) ATLAS Detector software
 // Trigger/TrigAlgorithms/TrigT2BeamSpot/T2VertexBeamSpot
@@ -24,7 +24,6 @@
 #include "T2VertexBeamSpotImpl.h"
 #include "T2TrackClusterer.h"
 #include "T2Timer.h"
-#include "version.h"
 
 // General ATHENA/Trigger stuff
 #include "GaudiKernel/IToolSvc.h"
@@ -227,7 +226,6 @@ HLT::ErrorCode
 T2VertexBeamSpot::hltInitialize()
 {
   StatusCode sc;
-  msg() << MSG::INFO << "Initializing T2VertexBeamSpot. Version: " << TrigT2BeamSpot_version()() << endreq;
   
   // Vertex fitting tool
   sc = toolSvc()->retrieveTool( "TrigPrimaryVertexFitter", "TrigPrimaryVertexFitter", impl->m_primaryVertexFitter );

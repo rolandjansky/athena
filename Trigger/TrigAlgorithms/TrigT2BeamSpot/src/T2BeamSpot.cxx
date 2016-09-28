@@ -3,12 +3,10 @@
 */
 
 //
-// $Id: T2BeamSpot.cxx 361213 2011-04-23 18:26:44Z bartoldu $
+// $Id: T2BeamSpot.cxx 744847 2016-05-04 15:12:00Z smh $
 //
 
 #include "T2BeamSpot.h"
-
-using std::ostream;
 
 namespace PESA
 {
