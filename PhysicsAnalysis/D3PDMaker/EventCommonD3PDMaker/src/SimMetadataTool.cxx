@@ -72,9 +72,9 @@ void SimMetadataTool::getValueMap(const std::string &metadataPath, const std::ve
 {
   const DataHandle<IOVMetaDataContainer> param;
   if (m_metaDataStore->retrieve(param, metadataPath).isFailure()) {
-    msg() << MSG::WARNING << "Couldn't retrieve " << metadataPath << endreq;
+    ATH_MSG_WARNING( "Couldn't retrieve " << metadataPath  );
   } else {
-    msg() << MSG::INFO << "Retrieved " << metadataPath << endreq;
+    ATH_MSG_INFO( "Retrieved " << metadataPath  );
     const IOVPayloadContainer *payloadCont = param->payloadContainer();
     
     // As far as I can see, all these elements are the same...
@@ -105,9 +105,9 @@ void SimMetadataTool::printMap(const std::vector<std::string> &intendedKeys, con
   std::vector<std::string>::const_iterator itvEnd = intendedKeys.end();
   for (; itv != itvEnd; ++itv) {
     if (arg.count(*itv) == 0) {
-      msg() << MSG::WARNING << *itv << " was not retrieved!" << endreq;
+      ATH_MSG_WARNING( *itv << " was not retrieved!"  );
     } else {
-      msg() << MSG::INFO << *itv << ": " << arg.find(*itv)->second << endreq;
+      ATH_MSG_INFO( *itv << ": " << arg.find(*itv)->second  );
     }
   }
 }
@@ -118,11 +118,11 @@ StatusCode SimMetadataTool::addMapToD3PD(ID3PD *d3pd, const std::vector<std::str
   std::vector<std::string>::const_iterator itvEnd = intendedKeys.end();
   for (; itv != itvEnd; ++itv) {
     if (arg.count(*itv) == 0) {
-      msg() << MSG::INFO << "Adding: " << *itv << " " << endreq;
+      ATH_MSG_INFO( "Adding: " << *itv << " "  );
 
       CHECK( d3pd->addMetadata (m_metakey+"_"+*itv, new TString("")) );
     } else {
-      msg() << MSG::INFO << "Adding: " << *itv << ": " << arg.find(*itv)->second << endreq;
+      ATH_MSG_INFO( "Adding: " << *itv << ": " << arg.find(*itv)->second  );
 
       TString value(arg.find(*itv)->second);
       CHECK( d3pd->addMetadata (m_metakey+"_"+*itv, &value) );
@@ -181,7 +181,7 @@ StatusCode SimMetadataTool::writeMetadata (ID3PD* d3pd)
 
   // If we're in data, bail out now!
   if (inData) {
-    msg() << MSG::INFO << "In data! Quitting..." << endreq;
+    ATH_MSG_INFO( "In data! Quitting..."  );
     return StatusCode::SUCCESS;
   }
 
@@ -197,7 +197,7 @@ StatusCode SimMetadataTool::writeMetadata (ID3PD* d3pd)
     } else if (simMap["LArParameterization"] == "3" && digiMap["IOVDbGlobalTag"] != "OFLCOND-SDR-BS7T-05-22" && digiMap["IOVDbGlobalTag"] != "OFLCOND-SDR-BS7T-05-17") {
       simType = "FullSimulation+FCalFrozenShowers";
     }
-    msg() << MSG::INFO << "Deduced SimType: " << simType << endreq;
+    ATH_MSG_INFO( "Deduced SimType: " << simType  );
     simMap["SimulationFlavour"] = simType;
   }
   
@@ -225,7 +225,7 @@ StatusCode SimMetadataTool::writeMetadata (ID3PD* d3pd)
   if (inputFileTypes.size() > 0)
     inputFileTypes = inputFileTypes.substr(0, inputFileTypes.size()-1);
 
-  msg() << MSG::INFO << "InputFileTypes: " << inputFileTypes << endreq;
+  ATH_MSG_INFO( "InputFileTypes: " << inputFileTypes  );
 
   // Build a new digiMap without N_*, and with InputFileTypes
   std::map<std::string, std::string> newDigiMap;
