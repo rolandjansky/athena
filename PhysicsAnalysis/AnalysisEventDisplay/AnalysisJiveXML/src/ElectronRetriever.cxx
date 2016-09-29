@@ -157,37 +157,37 @@ namespace JiveXML {
       // code from https://twiki.cern.ch/twiki/bin/view/Atlas/ElectronReconstruction#isEM_flag
       // New PP Ids: PhysicsAnalysis/D3PDMaker/TrigEgammaD3PDMaker/python/EFElectronD3PDObject.py
 
-      if ( (*elItr)->isem(egammaPID::ElectronLoose)==0){ 
+      if ( (*elItr)->isem(egammaPIDObs::ElectronLoose)==0){ 
             electronLabel += "_Loose"; 
             electronIsEMString = "Loose"; // assume that hierarchy is obeyed !
       } 
-      if ( (*elItr)->isem(egammaPID::ElectronMedium)==0){ 
+      if ( (*elItr)->isem(egammaPIDObs::ElectronMedium)==0){ 
             electronLabel += "_Medium"; 
             electronIsEMString = "Medium"; // assume that hierarchy is obeyed !
       }   
-      if ( (*elItr)->isem(egammaPID::ElectronTight)==0){ 
+      if ( (*elItr)->isem(egammaPIDObs::ElectronTight)==0){ 
             electronLabel += "_Tight"; 
             electronIsEMString = "Tight"; // assume that hierarchy is obeyed !
       }     
-      if ( (*elItr)->isem(egammaPID::ElectronTightPP)==0){ 
+      if ( (*elItr)->isem(egammaPIDObs::ElectronTightPP)==0){ 
             electronLabel += "_TightPP"; 
             electronIsEMString = "TightPP"; // last entry overwrites all others ! 
       }     
-      if ( (*elItr)->isem(egammaPID::ElectronMediumPP)==0){ 
+      if ( (*elItr)->isem(egammaPIDObs::ElectronMediumPP)==0){ 
             electronLabel += "_MediumPP"; 
 //            electronIsEMString = "MediumNoIso"; // would need AtlantisJava changes
       }     
 
-      if ( (*elItr)->isem(egammaPID::ElectronMediumNoIso)==0){ 
+      if ( (*elItr)->isem(egammaPIDObs::ElectronMediumNoIso)==0){ 
             electronLabel += "_MediumNoIso"; 
 //            electronIsEMString = "MediumNoIso"; // would need AtlantisJava changes
       }     
-      if ( (*elItr)->isem(egammaPID::ElectronTightTRTNoIso)==0){ 
+      if ( (*elItr)->isem(egammaPIDObs::ElectronTightTRTNoIso)==0){ 
             electronLabel += "_TightTRTNoIso"; 
 //            electronIsEMString = "TightTRTNoIso"; // would need AtlantisJava changes
       }     
       // Tight but without the use of isolation criteria:   
-      if ( (*elItr)->isem(egammaPID::ElectronTightNoIsolation)==0){ 
+      if ( (*elItr)->isem(egammaPIDObs::ElectronTightNoIsolation)==0){ 
             electronLabel += "_TightNoIsolation"; 
 //            electronIsEMString = "_TightNoIsolation"; // would need AtlantisJava changes
       }     
