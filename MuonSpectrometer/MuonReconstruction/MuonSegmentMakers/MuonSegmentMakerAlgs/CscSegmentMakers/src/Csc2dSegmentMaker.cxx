@@ -205,6 +205,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
   int stationPhi=detEl->getStationPhi();
   int chamberLayer=detEl->ChamberLayer();
   std::string stationName=detEl->getStationName();
+  std::string redName=stationName.substr(0,3); //CSS or CSL, all that the CscIdHelper wants
   std::string isPhi;
   ATH_MSG_DEBUG("in station "<<stationName<<" eta "<<stationEta<<", phi "<<stationPhi<<", chamber layer "<<chamberLayer);
   int badLay1=-1,badLay2=-1;
@@ -218,7 +219,7 @@ MuonSegmentCombination* Csc2dSegmentMaker::findSegmentCombination(const CscPrepD
       //ATH_MSG_DEBUG("get hashes for "<<detEl->maxNumberOfStrips(iPhi)<<" strips ");
       for(int iStrip=0;iStrip<detEl->maxNumberOfStrips(iPhi);iStrip++){
 	ATH_MSG_DEBUG("get strip quality for "<<isPhi<<" layer "<<iLay<<" strip "<<iStrip);
-	Identifier stripId=m_phelper->channelID(stationName,stationEta,stationPhi,chamberLayer,iLay+1,iPhi,iStrip+1);
+	Identifier stripId=m_phelper->channelID(redName,stationEta,stationPhi,chamberLayer,iLay+1,iPhi,iStrip+1);
 	//ATH_MSG_DEBUG("just-constructed id corresponds to chamberLayer "<<m_phelper->chamberLayer(stripId)<<", wire layer "<<m_phelper->wireLayer(stripId)<<", strip "<<m_phelper->strip(stripId));
 	IdentifierHash hashID;
 	m_phelper->get_channel_hash(stripId,hashID);
