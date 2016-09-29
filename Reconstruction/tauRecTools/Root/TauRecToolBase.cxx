@@ -63,7 +63,6 @@ StatusCode TauRecToolBase::readConfig() {
   for( Int_t i = 0; lList && i < lList->GetEntries(); ++i )
   {
     StatusCode sc;
-    std::string name = lList->At( i )->GetName();
     // types of properties are handled differently as well 
 #ifdef ASGTOOL_ATHENA
     // get type of variable with the entry name

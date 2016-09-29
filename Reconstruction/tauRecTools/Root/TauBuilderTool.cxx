@@ -25,7 +25,8 @@ TauBuilderTool::TauBuilderTool(const std::string& type) :
   m_seedContainerName(""),
   m_maxEta(2.5),
   m_minPt(10000),
-  m_doCreateTauContainers(false)
+  m_doCreateTauContainers(false),
+  m_data()
 {
   declareProperty("TauContainer", m_tauContainerName);
   declareProperty("TauAuxContainer", m_tauAuxContainerName);
@@ -69,6 +70,7 @@ StatusCode TauBuilderTool::initialize(){
     sc = itT->retrieve();
     if (sc.isFailure()) {
       ATH_MSG_WARNING("Cannot find tool named <" << *itT << ">");
+      return StatusCode::FAILURE;
     } else {
       ++tool_count;
       //ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());

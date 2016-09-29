@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 //-----------------------------------------------------------------------------
 // file:        TauPi0Selector.cxx
 // package:     Reconstruction/tauRec
@@ -168,3 +169,4 @@ TLorentzVector TauPi0Selector::getP4(const xAOD::TauJet& pTau)
     return p4;
 }
 
+#endif

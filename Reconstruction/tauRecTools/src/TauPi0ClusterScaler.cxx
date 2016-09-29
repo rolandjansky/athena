@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 //-----------------------------------------------------------------------------
 // file:        TauPi0ClusterScaler.cxx
 // package:     Reconstruction/tauRec
@@ -383,3 +384,4 @@ vector<double> TauPi0ClusterScaler::getEstEcalEnergy(
     return E_ests;
 }
 
+#endif

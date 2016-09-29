@@ -67,25 +67,29 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   xAOD::JetConstituentVector vec = jet_seed->getConstituents();
   xAOD::JetConstituentVector::iterator it = vec.begin();
   xAOD::JetConstituentVector::iterator itE = vec.end();
-  for( ; it!=itE; it++){
+  for( ; it!=itE; ++it){
     // ----DeltaR selection
     TLorentzVector cluster_P4;
     cluster_P4.SetPtEtaPhiM(1,(*it)->Eta(),(*it)->Phi(),1);
     if(LC_P4.DeltaR(cluster_P4)>0.2) continue;
     
     // ----retrieve CaloCluster moments
-    const xAOD::CaloCluster* cl = dynamic_cast<const xAOD::CaloCluster *>( (*it)->rawConstituent() );
-    cl->retrieveMoment(xAOD::CaloCluster_v1::MomentType::CENTER_LAMBDA,center_lambda);
-    cl->retrieveMoment(xAOD::CaloCluster_v1::MomentType::FIRST_ENG_DENS,first_eng_dens);
-    cl->retrieveMoment(xAOD::CaloCluster_v1::MomentType::EM_PROBABILITY,em_probability);
-    cl->retrieveMoment(xAOD::CaloCluster_v1::MomentType::SECOND_LAMBDA,second_lambda);
+    const xAOD::CaloCluster* cl = dynamic_cast<const xAOD::CaloCluster *>( (*it)->rawConstituent() );        
     
     clE = cl->calE();
     Etot += clE;
-    mean_center_lambda += clE*center_lambda;
-    mean_first_eng_dens += clE*first_eng_dens;
-    mean_em_probability += clE*em_probability;
-    mean_second_lambda += clE*second_lambda;
+    if(cl->retrieveMoment(xAOD::CaloCluster_v1::MomentType::CENTER_LAMBDA,center_lambda))
+      mean_center_lambda += clE*center_lambda;
+    else ATH_MSG_WARNING("Failed to retrieve moment: CENTER_LAMBDA");
+    if(cl->retrieveMoment(xAOD::CaloCluster_v1::MomentType::FIRST_ENG_DENS,first_eng_dens))
+      mean_first_eng_dens += clE*first_eng_dens;
+    else ATH_MSG_WARNING("Failed to retrieve moment: FIRST_ENG_DENS");
+    if(cl->retrieveMoment(xAOD::CaloCluster_v1::MomentType::EM_PROBABILITY,em_probability))
+      mean_em_probability += clE*em_probability;
+    else ATH_MSG_WARNING("Failed to retrieve moment: EM_PROBABILITY");
+    if(cl->retrieveMoment(xAOD::CaloCluster_v1::MomentType::SECOND_LAMBDA,second_lambda))
+      mean_second_lambda += clE*second_lambda;
+    else ATH_MSG_WARNING("Failed to retrieve moment: SECOND_LAMBDA");
     mean_presampler_frac += (cl->eSample(CaloSampling::PreSamplerB) + cl->eSample(CaloSampling::PreSamplerE));
   }
   

@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 #include "TrkToolInterfaces/ITrackSelectorTool.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
@@ -679,3 +680,4 @@ bool TauTrackFinder::retrieveTool(T & tool) {
     }
     return true;
 }
+#endif
