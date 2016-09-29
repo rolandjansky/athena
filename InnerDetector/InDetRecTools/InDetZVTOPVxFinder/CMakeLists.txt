@@ -35,7 +35,7 @@ atlas_add_component( InDetZVTOPVxFinder
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${HEPMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel InDetRecToolInterfaces VxVertex Particle TrkParticleBase TrkParameters xAODTracking DataModel InDetBeamSpotService TrkExInterfaces TrkSurfaces TrkVertexFitterInterfaces VxSecVertex EventPrimitives TrkVxEdmCnvLib )
+                     LINK_LIBRARIES ${HEPMC_LIBRARIES} AthenaBaseComps GaudiKernel InDetRecToolInterfaces VxVertex Particle TrkParticleBase TrkParameters xAODTracking DataModel TrkExInterfaces TrkSurfaces TrkVertexFitterInterfaces VxSecVertex EventPrimitives TrkVxEdmCnvLib )
 
 # Install files from the package:
 atlas_install_headers( InDetZVTOPVxFinder )
