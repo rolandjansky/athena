@@ -14,16 +14,7 @@ use GaudiInterface              GaudiInterface-*         External
 # private use statements
 private
 use AthenaBaseComps             AthenaBaseComps-*        Control
-use AthenaKernel                AthenaKernel-*           Control
-use AtlasCLHEP                  AtlasCLHEP-*             External
-use AtlasCLHEP_RandomGenerators AtlasCLHEP_RandomGenerators-* Simulation/Tools
 use AtlasHepMC                  AtlasHepMC-*             External
-use BarcodeInterfaces           BarcodeInterfaces-*      Simulation/Barcode
-use BarcodeServices             BarcodeServices-*        Simulation/Barcode
-use EventInfo                   EventInfo-*              Event
-use GeneratorObjects            GeneratorObjects-*       Generators
-use HepPDT                      *                        LCG_Interfaces
-use InDetBeamSpotService        InDetBeamSpotService-*   InnerDetector/InDetConditions
 use ISF_Interfaces              ISF_Interfaces-*         Simulation/ISF/ISF_Core
 use ISF_Event                   ISF_Event-*              Simulation/ISF/ISF_Core
 use ISF_HepMC_Interfaces        ISF_HepMC_Interfaces-*   Simulation/ISF/ISF_HepMC
