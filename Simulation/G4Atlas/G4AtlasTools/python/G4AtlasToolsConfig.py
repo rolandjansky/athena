@@ -98,7 +98,8 @@ def generateCaloSensitiveDetectorList():
                                    'LArHECSensitiveDetector','LArMiniFCALSensitiveDetector']
         if hasattr(DetFlags.simulate, 'HGTD_on') and DetFlags.simulate.HGTD_on():
             SensitiveDetectorList += [ 'HGTDSensorSD' ]
-        SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
+        else:
+            SensitiveDetectorList += [ 'MinBiasScintillatorSD' ]
         from G4AtlasApps.SimFlags import simFlags
         if simFlags.CalibrationRun.get_Value() in ['LAr', 'LAr+Tile']:
             SensitiveDetectorList += [ 'LArDeadSensitiveDetector','LArInactiveSensitiveDetector','LArActiveSensitiveDetector' ]
