@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740784 2016-04-16 13:40:59Z krasznaa $
+# $Id: CMakeLists.txt 768718 2016-08-19 08:25:34Z elmsheus $
 ################################################################################
 # Package: JetSubStructureMomentTools
 ################################################################################
@@ -37,5 +37,16 @@ atlas_add_component( JetSubStructureMomentTools
   src/components/*.cxx
   LINK_LIBRARIES JetSubStructureMomentToolsLib )
 
+atlas_add_dictionary( JetSubStructureMomentToolsDict
+		      JetSubStructureMomentTools/JetSubStructureMomentToolsDict.h
+                      JetSubStructureMomentTools/selection.xml
+                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+		      LINK_LIBRARIES AsgTools xAODCaloEvent xAODJet 
+		      JetInterface JetRecLib ${ROOT_LIBRARIES} 
+		      ${FASTJET_LIBRARIES} xAODMuon
+  		      JetEDM JetSubStructureUtils GaudiKernel 
+		      JetSubStructureMomentToolsLib )		
+
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
+atlas_install_headers( JetSubStructureMomentTools )

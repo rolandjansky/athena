@@ -1,5 +1,5 @@
 package JetSubStructureMomentTools
-# $Id: requirements 740784 2016-04-16 13:40:59Z krasznaa $
+# $Id: requirements 768718 2016-08-19 08:25:34Z elmsheus $
 
 author Miles Wu
 
@@ -11,6 +11,7 @@ use  xAODJet                    xAODJet-*                       Event/xAOD
 use  JetInterface               JetInterface-*                  Reconstruction/Jet
 use  JetRec                     JetRec-*                        Reconstruction/Jet
 use  AtlasROOT                  AtlasROOT-*                     External
+use AtlasReflex         	AtlasReflex-*           	External
 
 private
 use  GaudiInterface             GaudiInterface-*                External
@@ -42,3 +43,8 @@ apply_pattern dual_use_library files="../Root/NSubjettinessTool.cxx \
 ../Root/BoostedXbbTagTool.cxx"
 
 apply_pattern declare_python_modules files="*.py"
+
+apply_pattern lcgdict dict=JetSubStructureMomentToolsDict \
+	                   selectionfile=selection.xml \
+	                   headerfiles="../JetSubStructureMomentTools/JetSubStructureMomentToolsDict.h"
+

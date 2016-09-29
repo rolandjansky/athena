@@ -12,7 +12,7 @@
 #include "JetRec/JetModifierBase.h"
 #include <vector>
 
-using namespace std;
+//using namespace std;
 
 namespace fastjet {
   class PseudoJet;
