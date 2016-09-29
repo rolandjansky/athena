@@ -14,9 +14,9 @@ BoostedXbbTagTool::BoostedXbbTagTool(std::string name) :
 {
   declareProperty("WorkingPoint", m_working_point               = "medium");
 #ifdef ROOTCORE
-  declareProperty("RecommendationsFile", m_recommendations_file = "$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_Htagging_MC15_Prerecommendations_20150812.dat");
+  declareProperty("RecommendationsFile", m_recommendations_file = "$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_Htagging_MC15c_77WP_20160522.dat");
 #else
-  declareProperty("RecommendationsFile", m_recommendations_file =  "JetSubStructureUtils/data/config_13TeV_Htagging_MC15_Prerecommendations_20150812.dat");
+  declareProperty("RecommendationsFile", m_recommendations_file =  "JetSubStructureUtils/data/config_13TeV_Htagging_MC15c_77WP_20160522.dat");
 #endif
   declareProperty("BosonType", m_boson_type                     = "Higgs");
   declareProperty("JetAlgorithmName", m_algorithm_name          = "AK10LCTRIMF5R20");
