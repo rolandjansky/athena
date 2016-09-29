@@ -55,6 +55,7 @@ StatusCode TauProcessorAlg::initialize() {
         sc = itT->retrieve();
         if (sc.isFailure()) {
             ATH_MSG_WARNING("Cannot find tool named <" << *itT << ">");
+	    return StatusCode::FAILURE;
         } else {
             ++tool_count;
             ATH_MSG_INFO((*itT)->type() << " - " << (*itT)->name());
