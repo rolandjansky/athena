@@ -28,9 +28,9 @@ namespace JetSubStructureUtils {
       // standard tool constructor
       BoostedXbbTag(std::string working_point           = "medium",
 #ifdef ROOTCORE
-                    std::string recommendations_file    = "$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_Htagging_MC15_Prerecommendations_20150812.dat",
+                    std::string recommendations_file    = "$ROOTCOREBIN/data/JetSubStructureUtils/config_13TeV_Htagging_MC15c_77WP_20160522.dat",
 #else
-                    std::string recommendations_file    = "JetSubStructureUtils/data/config_13TeV_Htagging_MC15_Prerecommendations_20150812.dat",
+                    std::string recommendations_file    = "JetSubStructureUtils/data/config_13TeV_Htagging_MC15c_77WP_20160522.dat",
 #endif
                     std::string boson_type              = "Higgs",
                     std::string algorithm_name          = "AK10LCTRIMF5R20",
@@ -72,6 +72,7 @@ namespace JetSubStructureUtils {
            m_verbose;
 
       float m_bTagCut,
+            m_bTagCutCharm,
             m_massMin,
             m_massMax;
       std::vector<float> m_D2_params;

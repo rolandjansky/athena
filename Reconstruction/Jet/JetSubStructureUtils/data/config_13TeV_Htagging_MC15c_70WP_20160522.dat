@@ -1,0 +1,29 @@
+﻿############################################################################################################################################################
+#ERASE THESE LINES (JUST FOR REFERENCE)
+#Working points considered
+#   B-tagging is MV2c10 70% track jets R=0.2
+# Single:        No mass cut,     1 b-tag
+# Single loose:  90% mass window, 1 b-tag
+# Single medium: 68% mass window, 1 b-tag
+# Veryloose:     No mass cut,     2 b-tag
+# Loose:         90% mass window, 2 b-tag
+# Medium:        68% mass window, 2 b-tag
+# Tight:         68% mass window, 2 b-tag, D2 pT dependent cut (4th degree polynomial fit)  <==  SUBSTRUCTURE NEEDS UPDATING
+#
+#BOSON	WP	  JET ALGORITHM		#bjets	B-TAG	 B-TAG-CHARM	M_min	M_max	D2_a0		D2_a1		D2_a2		D2_a3		D2_a4		Sense of the cut
+
+Higgs	single        AK10LCTRIMF5R20	1	 0.6455	 -1.		0.0	7000.	0		0		0		0		0		NONE
+Higgs	single_loose  AK10LCTRIMF5R20	1	 0.6455	 -1.		76.0	146.0	0		0		0		0		0		NONE
+Higgs	single_medium AK10LCTRIMF5R20	1	 0.6455	 -1.		93.0	134.0	0		0		0		0		0		NONE
+Higgs	veryloose AK10LCTRIMF5R20	2	 0.6455	 -1.		0.0	7000.	0		0		0		0		0		NONE
+Higgs	loose     AK10LCTRIMF5R20	2	 0.6455	 -1.		76.0	146.0	0		0		0		0		0		NONE
+Higgs	medium    AK10LCTRIMF5R20	2	 0.6455	 -1.		93.0	134.0  	0		0		0		0		0		NONE
+Higgs	tight     AK10LCTRIMF5R20	2	 0.6455	 -1.		93.0	134.0  	11.3684217088  	-0.0834101931325	0.000244968552399	-3.09799473883e-07	1.44703493877e-10	RIGHT
+
+#Higgs	dbtag30	  AK10LCTRIMF5R20	2	 0.9951	 -1.		0.0	7000.	0		0		0		0		0		NONE
+#Higgs	dbtag50	  AK10LCTRIMF5R20	2	 0.9452	 -1.		0.0	7000.	0		0		0		0		0		NONE
+#Higgs	dbtag60	  AK10LCTRIMF5R20	2	 0.8529	 -1.		0.0	7000.	0		0		0		0		0		NONE
+#Higgs	dbtag70	  AK10LCTRIMF5R20	2	 0.6455	 -1.		0.0	7000.	0		0		0		0		0		NONE
+#Higgs	dbtag77	  AK10LCTRIMF5R20	2	 0.3706	 -1.		0.0	7000.	0		0		0		0		0		NONE
+#Higgs	dbtag85	  AK10LCTRIMF5R20	2	-0.1416	 -1.		0.0	7000.	0		0		0		0		0		NONE
+
