@@ -189,11 +189,12 @@ float InDet::TRT_ElectronPidToolRun2::HTcalculator::getProbHT(
   // Jared - Temporarily disable ZR corrections, reproducibility issues with calibration
   //correctionZR = 1.0;
 
-  parent.msg(MSG::DEBUG) << "check       "
-                         << "  GammaOccupan: " << correctionPGOG
-                         << "  correctionSL: " << correctionSL
-                         << "  correctionZR: " << correctionZR
-                         << "  correctionTW: " << correctionTW << endmsg;
+  ATH_MSG_DEBUG( "check       "
+		 << "  GammaOccupan: " << correctionPGOG
+		 << "  correctionSL: " << correctionSL
+		 << "  correctionZR: " << correctionZR
+		 << "  correctionTW: " << correctionTW 
+		 );
   
   // Jared - Development output 
   //std::cout  << "check       "
@@ -250,16 +251,16 @@ float InDet::TRT_ElectronPidToolRun2::HTcalculator::pHTvsPGOG(int TrtPart, int G
 
 
 StatusCode InDet::TRT_ElectronPidToolRun2::HTcalculator::ReadVectorDB( const DataHandle<CondAttrListVec> channel_values){
-   parent.msg(MSG::INFO) << "Set TRT HT PID Parameters from the Vector Database "<<endmsg;
+  ATH_MSG_INFO( "Set TRT HT PID Parameters from the Vector Database ");
    if ( channel_values->size() < 1){
-          parent.msg(MSG::ERROR) << "There are no channels available!!" << endmsg;
+     ATH_MSG_ERROR( "There are no channels available!!");
           return StatusCode::FAILURE;
    }
 
    CondAttrListVec::const_iterator first_channel = channel_values->begin();
    CondAttrListVec::const_iterator last_channel  = channel_values->end();
 
-   parent.msg(MSG::DEBUG) << "There are " << channel_values->size() << "  Channels " << endmsg;
+   ATH_MSG_DEBUG( "There are " << channel_values->size() << "  Channels " );
    int inichan = 0;
    for (; first_channel != last_channel; ++first_channel) {
      switch(first_channel->first){
@@ -597,8 +598,8 @@ StatusCode InDet::TRT_ElectronPidToolRun2::HTcalculator::ReadVectorDB( const Dat
 	}
     }
 
-   parent.msg(MSG::DEBUG) << "We have read " << inichan << " good channels" << endmsg;
-   parent.msg(MSG::DEBUG) << m_par_pHTvsPGOG_new [0][0].GetBinValue(0) << "\t" << m_par_pHTvsPGOG_new [0][0].GetBinValue(1) << " " << m_par_pHTvsPGOG_new [0][0].GetBinValue(2) << endmsg;
+   ATH_MSG_DEBUG( "We have read " << inichan << " good channels" );
+   ATH_MSG_DEBUG( m_par_pHTvsPGOG_new [0][0].GetBinValue(0) << "\t" << m_par_pHTvsPGOG_new [0][0].GetBinValue(1) << " " << m_par_pHTvsPGOG_new [0][0].GetBinValue(2) );
 
 
    for (int i = 0 ; i < N_DET; i++) {
@@ -618,7 +619,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::HTcalculator::ReadVectorDB( const Dat
    HasBeenInitialized=1;
    UpperLimit=1.0;
    LowerLimit=0.0;
-   parent.msg(MSG::INFO) <<  "TRT PID HT Vector DB loaded: " << endmsg;
+   ATH_MSG_INFO(  "TRT PID HT Vector DB loaded: ");
    return StatusCode::SUCCESS;
 }
 
@@ -642,7 +643,7 @@ void InDet::TRT_ElectronPidToolRun2::HTcalculator::setDefaultCalibrationConstant
   \*****************************************************************************/
 	//FIXME
   if (m_datainplace) return;  // Just to load 1 time
-  parent.msg(MSG::ERROR) << "Looks like HT PID DB is NOT available, so lets set hard-coded PID calibration constants. Derived from Run1 Data Zee and Zmumu 50 ns. FIXME!!"<<endmsg;
+  ATH_MSG_ERROR( "Looks like HT PID DB is NOT available, so lets set hard-coded PID calibration constants. Derived from Run1 Data Zee and Zmumu 50 ns. FIXME!!");
   HasBeenInitialized=1;
 
   UpperLimit=1.0;

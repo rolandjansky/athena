@@ -126,7 +126,7 @@ StatusCode InDet::TRT_ElectronPidToolRun2::initialize()
     ATH_MSG_ERROR ("configure as 'None' to avoid its loading.");
     return sc;
   } else {
-    if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
+    if ( !m_TRTStrawSummarySvc.empty()) ATH_MSG_INFO( "Retrieved tool " << m_TRTStrawSummarySvc);
   }
 
   ATH_MSG_INFO ("initialize() successful in " << name());
