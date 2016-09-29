@@ -16,12 +16,15 @@ namespace JetSubStructureUtils {
 
       using SubstructureCalculator::result;
       virtual std::vector<fastjet::PseudoJet> result(const fastjet::PseudoJet &jet) const;
+      
+      virtual void setCOM(bool doCOM){ m_doCOM = doCOM;}
 
     private:
       fastjet::JetAlgorithm m_fj_jetalg;
       float m_jetrad;
       float m_ptmin;
-      int m_exclusivenjets;
+      int m_exclusivenjets; 
+      bool m_doCOM;
   };
 }
 

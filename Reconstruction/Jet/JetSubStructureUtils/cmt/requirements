@@ -23,4 +23,4 @@ apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Matrix Roo
 library JetSubStructureUtils ../Root/*.cxx
 apply_pattern installed_library
 # Specify the pattern for JetSubStructureUtils/data/*.config files to be accessed via JetSubStructureUtils/data/someFile.config
-apply_pattern generic_declare_for_link kind=xmls files='-s=../data *.dat' prefix=XML/JetSubStructureUtils/data name=data
+apply_pattern declare_calib files="-s=../data *.*"
