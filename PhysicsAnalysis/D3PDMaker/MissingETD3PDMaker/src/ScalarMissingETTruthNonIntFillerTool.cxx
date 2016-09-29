@@ -30,7 +30,6 @@ ScalarMissingETTruthNonIntFillerTool::ScalarMissingETTruthNonIntFillerTool (cons
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingEtTruth> (type, name, parent)
-  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -51,15 +50,9 @@ StatusCode ScalarMissingETTruthNonIntFillerTool::book()
 
 StatusCode ScalarMissingETTruthNonIntFillerTool::fill (const MissingEtTruth& p)
 {
-
   float tempx = p.exTruth(MissingEtTruth::NonInt);
   float tempy = p.eyTruth(MissingEtTruth::NonInt);
- 
- 
   *m_et    = sqrt(pow(tempx, 2) + pow(tempy, 2));
-  
-  mLog << MSG::DEBUG << "MissingETD3PDMaker::ScalarMissingETTruthNonIntFillerTool - Non-Interacting Truth written to D3PD" << endreq;
-
   return StatusCode::SUCCESS;
 }
 

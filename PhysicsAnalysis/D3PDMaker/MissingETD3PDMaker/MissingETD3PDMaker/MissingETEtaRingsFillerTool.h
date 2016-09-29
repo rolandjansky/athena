@@ -66,12 +66,8 @@ public:
   virtual StatusCode fill (const CaloCellContainer& p);
   std::vector<double> etaRingVector(int index, std::string axis, bool doCut);
 
-protected:
-  MsgStream mLog;
-
 private:
-
-  ToolHandle<MissingETData>                       _data;
+  ToolHandle<MissingETData>                       m_data;
  
   bool m_doNoiseCut;
 

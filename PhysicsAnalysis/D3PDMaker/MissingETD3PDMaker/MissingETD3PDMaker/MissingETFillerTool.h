@@ -56,18 +56,12 @@ public:
    */
   virtual StatusCode fill (const MissingET& p);
 
-protected:
- MsgStream mLog;
-
 private:
-  
   /// Variable: x component.
   float* m_etx;
 
   /// Variable: y component.
   float* m_ety;
-
- 
 };
 
 

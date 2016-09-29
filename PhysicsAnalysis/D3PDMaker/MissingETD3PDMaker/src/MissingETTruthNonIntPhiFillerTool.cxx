@@ -30,7 +30,6 @@ MissingETTruthNonIntPhiFillerTool::MissingETTruthNonIntPhiFillerTool (const std:
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingEtTruth> (type, name, parent)
-  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -51,14 +50,9 @@ StatusCode MissingETTruthNonIntPhiFillerTool::book()
 
 StatusCode MissingETTruthNonIntPhiFillerTool::fill (const MissingEtTruth& p)
 {
-
   float tempx = p.exTruth(MissingEtTruth::NonInt);
   float tempy = p.eyTruth(MissingEtTruth::NonInt);
- 
   *m_phi   = atan2(tempy,tempx);
-
-  mLog << MSG::DEBUG << "MissingETD3PDMaker::MissingETTruthNonIntPhiFillerTool - Non-Interacting Truth written to D3PD" << endreq;
-
   return StatusCode::SUCCESS;
 }
 

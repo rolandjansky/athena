@@ -30,7 +30,6 @@ SumETTruthNonIntFillerTool::SumETTruthNonIntFillerTool (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingEtTruth> (type, name, parent)
-  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -51,15 +50,7 @@ StatusCode SumETTruthNonIntFillerTool::book()
 
 StatusCode SumETTruthNonIntFillerTool::fill (const MissingEtTruth& p)
 {
-
-  
-  float tempsum = p.etSumTruth(MissingEtTruth::NonInt);
-  
-  *m_sumet = tempsum;
- 
-
-  mLog << MSG::DEBUG << "MissingETD3PDMaker::SumETTruthNonIntFillerTool - Non-Interacting Truth written to D3PD" << endreq;
-
+  *m_sumet = p.etSumTruth(MissingEtTruth::NonInt);
   return StatusCode::SUCCESS;
 }
 

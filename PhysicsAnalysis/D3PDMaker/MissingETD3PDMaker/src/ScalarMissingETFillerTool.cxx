@@ -29,7 +29,6 @@ ScalarMissingETFillerTool::ScalarMissingETFillerTool (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingET> (type, name, parent)
-  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -49,11 +48,7 @@ StatusCode ScalarMissingETFillerTool::book()
 
 StatusCode ScalarMissingETFillerTool::fill (const MissingET& p)
 {
-  
   *m_et    = p.et();
- 
-  mLog << MSG::DEBUG << "MissingETD3PDMaker::ScalarMissingETFillerTool -- MET filled" << endreq;
-
   return StatusCode::SUCCESS;
 }
 

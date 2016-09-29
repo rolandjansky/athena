@@ -68,9 +68,6 @@ namespace D3PD {
      */
     virtual StatusCode fill (const MissingET& p);
 
-   protected:
-    MsgStream m_log;
-
    private:
 
     std::vector<int*>    m_pintVec;
@@ -85,7 +82,7 @@ namespace D3PD {
     std::vector<TString> m_qualifierList;
 
     /// reference to MET Goodies map for storing derived met goodness quantities
-    static MET::Goodies& goodies;
+    static MET::Goodies& s_goodies;
 
     int       m_dummyi;
     double    m_dummyd;

@@ -70,15 +70,11 @@ public:
   virtual StatusCode fill (const JetCollection& jets);
   
 
-protected:
-  MsgStream mLog;
-
-
 private:
   std::string m_trackContainerKey;
 
   /// Variable JetPtWeightedEventEMFraction
-  ToolHandle<JetVariablesTool> _jetVariables;
+  ToolHandle<JetVariablesTool> m_jetVariables;
 
   float* m_ev_emf;
   float* m_ev_jetsize;
