@@ -13,7 +13,7 @@
 // Local include(s):
 #include "ClusterFilter.h"
 
-#include "DataModel/ConstDataVector.h"
+#include "AthContainers/ConstDataVector.h"
 
 ClusterFilter::ClusterFilter( const std::string& name, 
                               ISvcLocator* pSvcLocator)

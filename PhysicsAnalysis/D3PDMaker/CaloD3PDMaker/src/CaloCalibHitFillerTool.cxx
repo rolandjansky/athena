@@ -157,7 +157,7 @@ StatusCode CaloCalibHitFillerTool::fill (const CaloCalibrationHit& p)
 
   // Check if we have good ID
   if(m_isDM && (! (m_dmid->is_lar(id) || m_dmid->is_tile(id)))) {
-     log << MSG::ERROR << "Should be DM calibration hit, but do not have DM identifier: "<<id.getString()<<endreq;
+     ATH_MSG_ERROR( "Should be DM calibration hit, but do not have DM identifier: "<<id.getString() );
      return StatusCode::FAILURE;
   }
   //bool fcal = m_tileid->is_lar_fcal(id); 
