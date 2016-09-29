@@ -22,18 +22,10 @@ JetTagPixelModuleGetterTool::JetTagPixelModuleGetterTool
 
 StatusCode JetTagPixelModuleGetterTool::initialize()
 {
-  
-CHECK( Base::initialize() );
-
- if(StatusCode::SUCCESS !=detStore()->retrieve(m_pixMan, "Pixel") || m_pixMan==0){
-    msg(MSG::FATAL) << "Could not find Pixel manager "<<endreq; 
-    return StatusCode::FAILURE; 
-  }
-  msg(MSG::INFO)  << "Pixel manager  retrieved" << endreq;
-
- 
+  ATH_CHECK( Base::initialize() );
+  ATH_CHECK( detStore()->retrieve(m_pixMan, "Pixel") );
+  ATH_MSG_INFO( "Pixel manager  retrieved"  );
   return StatusCode::SUCCESS;
-
 }
 
 

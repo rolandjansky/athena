@@ -1,5 +1,5 @@
 #include "../JetTagBTagWeightsFillerTool.h"
-#include "../JetTagJetTrackAssociationTool.h"
+//#include "../JetTagJetTrackAssociationTool.h"
 #include "../JetTagJetNavigable4MomentumAssociationTool.h"
 #include "../JetTagMuonInJetGetterTool.h"
 #include "../JetTagInfoBaseFillerTool.h"
@@ -21,7 +21,7 @@
 #include "../JetTagPhotonInJetGetterTool.h"
 #include "../JetTagJetPhotonAssociationTool.h"
 #include "../JetTagVxOnJetAxisFillerTool.h"
-#include "../JetTagJetJFTwoTrackVertexAssociationTool.h"
+//#include "../JetTagJetJFTwoTrackVertexAssociationTool.h"
 #include "../JetTagTwoTrackVertexFillerTool.h"
 #include "../JetTagVxOnJetAxisTrackAssociationTool.h"
 #include "../JetTagTwoTrackVertexTrackAssociationTool.h"
@@ -41,7 +41,7 @@
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagBTagWeightsFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagJetTrackAssociationTool)
+//DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagJetTrackAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagJetNavigable4MomentumAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagMuonInJetGetterTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagInfoBaseFillerTool)
@@ -62,7 +62,7 @@ DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagSoftElecInfoegammaAssociationTo
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagPhotonInJetGetterTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagJetPhotonAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagVxOnJetAxisFillerTool)
-DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagJetJFTwoTrackVertexAssociationTool)
+//DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagJetJFTwoTrackVertexAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagTwoTrackVertexFillerTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagVxOnJetAxisTrackAssociationTool)
 DECLARE_NAMESPACE_TOOL_FACTORY      (D3PD, JetTagTwoTrackVertexTrackAssociationTool)
@@ -85,7 +85,7 @@ DECLARE_NAMESPACE_ALGORITHM_FACTORY (D3PD, JetTagJetFilterAlg)
 
 DECLARE_FACTORY_ENTRIES(JetTagD3PDMaker) {
   DECLARE_NAMESPACE_TOOL      (D3PD, JetTagBTagWeightsFillerTool) 
-  DECLARE_NAMESPACE_TOOL      (D3PD, JetTagJetTrackAssociationTool) 
+  //DECLARE_NAMESPACE_TOOL      (D3PD, JetTagJetTrackAssociationTool) 
   DECLARE_NAMESPACE_TOOL      (D3PD, JetTagJetNavigable4MomentumAssociationTool)
   DECLARE_NAMESPACE_TOOL      (D3PD, JetTagMuonInJetGetterTool) 
   DECLARE_NAMESPACE_TOOL      (D3PD, JetTagInfoBaseFillerTool) 
@@ -106,7 +106,7 @@ DECLARE_FACTORY_ENTRIES(JetTagD3PDMaker) {
   DECLARE_NAMESPACE_TOOL      (D3PD, JetTagPhotonInJetGetterTool)
   DECLARE_NAMESPACE_TOOL      (D3PD, JetTagJetPhotonAssociationTool)
   DECLARE_NAMESPACE_TOOL      (D3PD, JetTagVxOnJetAxisFillerTool)
-  DECLARE_NAMESPACE_TOOL      (D3PD, JetTagJetJFTwoTrackVertexAssociationTool)
+  //DECLARE_NAMESPACE_TOOL      (D3PD, JetTagJetJFTwoTrackVertexAssociationTool)
   DECLARE_NAMESPACE_TOOL      (D3PD, JetTagTwoTrackVertexFillerTool)
   DECLARE_NAMESPACE_TOOL      (D3PD, JetTagVxOnJetAxisTrackAssociationTool)
   DECLARE_NAMESPACE_TOOL      (D3PD, JetTagTwoTrackVertexTrackAssociationTool)
