@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EgammaDefs.h 671120 2015-05-30 18:53:01Z christos $
+// $Id: EgammaDefs.h 775814 2016-09-29 12:14:38Z ludovica $
 #ifndef XAODEGAMMA_EGAMMADEFS_H
 #define XAODEGAMMA_EGAMMADEFS_H
 
@@ -106,7 +106,9 @@ namespace xAOD {
     /** @brief Dead cell in the Tile Calorimeter S0 affecting the hadronic leakage calculation*/
     DeadCellTileS0=28,
     /** @brief Dead cell in the Tile Calorimeter S1,2,3 affecting the hadronic leakage calculation*/
-    DeadCellTileS1S2=29
+    DeadCellTileS1S2=29,
+    /** @brief High R_cell ----> Energy of the most energetic cell / total energy of the cluster */
+    HighRcell =30
   };
 
   /** @brief */
