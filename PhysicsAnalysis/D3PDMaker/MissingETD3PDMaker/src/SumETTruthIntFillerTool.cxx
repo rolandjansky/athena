@@ -30,7 +30,6 @@ SumETTruthIntFillerTool::SumETTruthIntFillerTool (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingEtTruth> (type, name, parent)
-  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -90,9 +89,6 @@ StatusCode SumETTruthIntFillerTool::fill (const MissingEtTruth& p)
  
   *m_muons_sumet = tempsum;
   
-
-  mLog << MSG::DEBUG << "MissingETD3PDMaker::SumETTruthIntFillerTool -- Interacting Truth Filled" << endreq;
-
   return StatusCode::SUCCESS;
 }
 

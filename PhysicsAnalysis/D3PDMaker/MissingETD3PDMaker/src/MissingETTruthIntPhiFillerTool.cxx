@@ -30,7 +30,6 @@ MissingETTruthIntPhiFillerTool::MissingETTruthIntPhiFillerTool (const std::strin
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingEtTruth> (type, name, parent)
-  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -92,9 +91,6 @@ StatusCode MissingETTruthIntPhiFillerTool::fill (const MissingEtTruth& p)
   tempy = p.eyTruth(MissingEtTruth::Muons);
  
   *m_muons_phi   = atan2(tempy,tempx);
-
-  mLog << MSG::DEBUG << "MissingETD3PDMaker::MissingETTruthIntPhiFillerTool -- Interacting Truth Filled" << endreq;
-
   return StatusCode::SUCCESS;
 }
 

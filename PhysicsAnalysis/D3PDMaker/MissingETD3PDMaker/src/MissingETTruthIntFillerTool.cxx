@@ -30,7 +30,6 @@ MissingETTruthIntFillerTool::MissingETTruthIntFillerTool (const std::string& typ
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingEtTruth> (type, name, parent)
-  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -68,38 +67,21 @@ StatusCode MissingETTruthIntFillerTool::book()
 
 StatusCode MissingETTruthIntFillerTool::fill (const MissingEtTruth& p)
 {
-  float tempx = p.exTruth(MissingEtTruth::Int);
-  float tempy = p.eyTruth(MissingEtTruth::Int);
-  
-  *m_int_etx   = tempx;
-  *m_int_ety   = tempy;
+  *m_int_etx   = p.exTruth(MissingEtTruth::Int);
+  *m_int_ety   = p.eyTruth(MissingEtTruth::Int);
  
-  tempx = p.exTruth(MissingEtTruth::IntCentral);
-  tempy = p.eyTruth(MissingEtTruth::IntCentral);
-  
-  *m_intcentral_etx   = tempx;
-  *m_intcentral_ety   = tempy;
+  *m_intcentral_etx   = p.exTruth(MissingEtTruth::IntCentral);
+  *m_intcentral_ety   = p.eyTruth(MissingEtTruth::IntCentral);
  
-  tempx = p.exTruth(MissingEtTruth::IntFwd);
-  tempy = p.eyTruth(MissingEtTruth::IntFwd);
+  *m_intfwd_etx   = p.exTruth(MissingEtTruth::IntFwd);
+  *m_intfwd_ety   = p.eyTruth(MissingEtTruth::IntFwd);
   
-  *m_intfwd_etx   = tempx;
-  *m_intfwd_ety   = tempy;
-  
- tempx = p.exTruth(MissingEtTruth::IntOutCover);
-  tempy = p.eyTruth(MissingEtTruth::IntOutCover);
-  
-  *m_intoutcover_etx   = tempx;
-  *m_intoutcover_ety   = tempy;
+  *m_intoutcover_etx   = p.exTruth(MissingEtTruth::IntOutCover);
+  *m_intoutcover_ety   = p.eyTruth(MissingEtTruth::IntOutCover);
  
-  tempx = p.exTruth(MissingEtTruth::Muons);
-  tempy = p.eyTruth(MissingEtTruth::Muons);
-  
-  *m_muons_etx   = tempx;
-  *m_muons_ety   = tempy;
+  *m_muons_etx   = p.exTruth(MissingEtTruth::Muons);
+  *m_muons_ety   = p.eyTruth(MissingEtTruth::Muons);
  
-  mLog << MSG::DEBUG << "MissingETD3PDMaker::MissingETTruthIntFillerTool -- Interacting Truth Filled" << endreq;
-
   return StatusCode::SUCCESS;
 }
 

@@ -28,8 +28,7 @@ namespace D3PD {
 							    const std::string& name,
 							    const IInterface* parent) 
     :BlockFillerTool<CaloCellContainer> (type, name, parent)
-    ,   mLog(msgSvc(), name )
-    ,   _data ( "MissingETData" )
+    ,   m_data ( "MissingETData" )
   {
     declareProperty("DoNoiseCut", m_doNoiseCut = false);
 
@@ -127,10 +126,9 @@ namespace D3PD {
 
 StatusCode MissingETEtaRingsFillerTool::fill (const CaloCellContainer& p)
 {
-  _data->setAllCaloCells(&p);
-  _data->setCaloCellsExist(true);
-  _data->fillEtaRings();
-  mLog << MSG::DEBUG << "In MissingETD3PDMaker::MissingETEtaRingsFillerTool the toolMissingETPerformance::MissingETData::fillEtaRings has been executed" << endreq;
+  m_data->setAllCaloCells(&p);
+  m_data->setCaloCellsExist(true);
+  m_data->fillEtaRings();
   m_MET_EtaRings->reserve(100);
  
   for(int i = 0; i < 100; ++i){
@@ -218,8 +216,6 @@ StatusCode MissingETEtaRingsFillerTool::fill (const CaloCellContainer& p)
   *m_MET_FCAL1EtaRings_sumet = etaRingVector(CaloCell_ID::FCAL1, "set", m_doNoiseCut);
   *m_MET_FCAL2EtaRings_sumet = etaRingVector(CaloCell_ID::FCAL2, "set", m_doNoiseCut);
 
-  mLog << MSG::DEBUG << "MissingETD3PDMaker::MissingETEtaRingsFillerTool -- Eta Rings filled" << endreq;
-
   return StatusCode::SUCCESS;
 }
 
@@ -229,23 +225,23 @@ StatusCode MissingETEtaRingsFillerTool::fill (const CaloCellContainer& p)
     std::vector<double> temp;
     for(int i = 0; i < 100; ++i){
       if(!doCut){
-	if(index == 25 && axis == "x") temp.push_back(_data->eta_rings_all_samples(i)->etx());
-	else if (index == 25 && axis == "y")  temp.push_back(_data->eta_rings_all_samples(i)->ety());
-	else if (index == 25 && axis == "set")  temp.push_back(_data->eta_rings_all_samples(i)->sumet());
+	if(index == 25 && axis == "x") temp.push_back(m_data->eta_rings_all_samples(i)->etx());
+	else if (index == 25 && axis == "y")  temp.push_back(m_data->eta_rings_all_samples(i)->ety());
+	else if (index == 25 && axis == "set")  temp.push_back(m_data->eta_rings_all_samples(i)->sumet());
 	else{
-	  if(axis == "x") temp.push_back(_data->eta_rings_by_sample(index,i)->etx());
-	  else if(axis == "y") temp.push_back(_data->eta_rings_by_sample(index,i)->ety());
-	  else if(axis == "set") temp.push_back(_data->eta_rings_by_sample(index,i)->sumet());
+	  if(axis == "x") temp.push_back(m_data->eta_rings_by_sample(index,i)->etx());
+	  else if(axis == "y") temp.push_back(m_data->eta_rings_by_sample(index,i)->ety());
+	  else if(axis == "set") temp.push_back(m_data->eta_rings_by_sample(index,i)->sumet());
 	}//end of no cut
       }//end of not do cut
       else {
-	if(index == 25 && axis == "x") temp.push_back(_data->eta_rings_all_samples_nsigma(i)->etx());
-	else if (index == 25 && axis == "y")  temp.push_back(_data->eta_rings_all_samples_nsigma(i)->ety());
-	else if (index == 25 && axis == "set")  temp.push_back(_data->eta_rings_all_samples_nsigma(i)->sumet());
+	if(index == 25 && axis == "x") temp.push_back(m_data->eta_rings_all_samples_nsigma(i)->etx());
+	else if (index == 25 && axis == "y")  temp.push_back(m_data->eta_rings_all_samples_nsigma(i)->ety());
+	else if (index == 25 && axis == "set")  temp.push_back(m_data->eta_rings_all_samples_nsigma(i)->sumet());
 	else{
-	  if(axis == "x") temp.push_back(_data->eta_rings_by_sample_nsigma(index,i)->etx());
-	  else if(axis == "y") temp.push_back(_data->eta_rings_by_sample_nsigma(index,i)->ety());
-	  else if(axis == "set") temp.push_back(_data->eta_rings_by_sample_nsigma(index,i)->sumet());
+	  if(axis == "x") temp.push_back(m_data->eta_rings_by_sample_nsigma(index,i)->etx());
+	  else if(axis == "y") temp.push_back(m_data->eta_rings_by_sample_nsigma(index,i)->ety());
+	  else if(axis == "set") temp.push_back(m_data->eta_rings_by_sample_nsigma(index,i)->sumet());
 	}//end of do cut
     
       }//end of else

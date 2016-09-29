@@ -29,7 +29,6 @@ MissingETPhiFillerTool::MissingETPhiFillerTool (const std::string& type,
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingET> (type, name, parent)
-  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -48,11 +47,7 @@ StatusCode MissingETPhiFillerTool::book()
 
 StatusCode MissingETPhiFillerTool::fill (const MissingET& p)
 {
- 
   *m_phi   = p.phi();
-
-  mLog << MSG::DEBUG << "MissingETD3PDMaker::MissingETPhiFillerTool -- MET filled" << endreq;
-
   return StatusCode::SUCCESS;
 }
 

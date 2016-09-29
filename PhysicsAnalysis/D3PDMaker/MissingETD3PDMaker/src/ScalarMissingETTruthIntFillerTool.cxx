@@ -30,7 +30,6 @@ ScalarMissingETTruthIntFillerTool::ScalarMissingETTruthIntFillerTool (const std:
                                           const std::string& name,
                                           const IInterface* parent)
   : BlockFillerTool<MissingEtTruth> (type, name, parent)
-  ,   mLog(msgSvc(), name )
 {
   book().ignore(); // Avoid coverity warning.
 }
@@ -96,8 +95,6 @@ StatusCode ScalarMissingETTruthIntFillerTool::fill (const MissingEtTruth& p)
  
   *m_muons_et    = sqrt(pow(tempx, 2) + pow(tempy, 2));
   
-  mLog << MSG::DEBUG << "MissingETD3PDMaker::ScalarMissingETTruthIntFillerTool -- Interacting Truth Filled" << endreq;
-
   return StatusCode::SUCCESS;
 }
 
