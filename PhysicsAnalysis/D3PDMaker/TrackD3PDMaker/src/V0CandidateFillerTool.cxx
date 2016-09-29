@@ -122,10 +122,10 @@ StatusCode V0CandidateFillerTool::fill (const Trk::V0Candidate& /*theV0Candidate
   const VxContainer* vertices = 0;
   StatusCode scv = evtStore()->retrieve(vertices,"VxPrimaryCandidate");
   if (scv.isFailure()) {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No VxPrimaryCandidate Collection found in StoreGate" << endreq;
+    ATH_MSG_DEBUG( "No VxPrimaryCandidate Collection found in StoreGate"  );
     return StatusCode::SUCCESS;
   } else {
-    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Collection with name VxPrimaryCandidate found in StoreGate" << endreq;
+    ATH_MSG_DEBUG( "Collection with name VxPrimaryCandidate found in StoreGate"  );
   }
  
   const Trk::RecVertex *primaryVertex=&((*(vertices->begin()))->recVertex());

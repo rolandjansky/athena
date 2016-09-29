@@ -73,7 +73,7 @@ namespace D3PD {
     StatusCode sc = evtStore()->retrieve(eventInfo);
     if (sc.isFailure())
       {
-	REPORT_MESSAGE  (MSG::ERROR) << "Could not retrieve event info" << endreq;
+	REPORT_MESSAGE  (MSG::ERROR) << "Could not retrieve event info";
 	return 0;
       }
     int eventNumber = (int)eventInfo->eventNumber();
