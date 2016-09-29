@@ -32,7 +32,7 @@ apply_pattern lcgdict dict=xAODTau selectionfile=selection.xml \
 		      extralibfiles=../Root/dict/*.cxx
 
 apply_pattern lcgdict dict=xAODTau_c selectionfile=selection_c.xml \
-                      headerfiles="../xAODTau/xAODTau_cDict.h" \
+                      headerfiles="../xAODTau/xAODTau_cDict.h"
 
 use TestTools TestTools-* AtlasTest
 apply_pattern UnitTest_run unit_test=xAODTau_TauJet
