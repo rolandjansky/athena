@@ -485,7 +485,7 @@ def getPi0ScoreCalculator():
     from tauRecTools.tauRecToolsConf import TauPi0ScoreCalculator
     TauPi0ScoreCalculator = TauPi0ScoreCalculator(name = _name,
         ReaderOption = 'Silent:!Color',
-        BDTWeightFile = 'TauPi0BDTWeights.xml',
+        BDTWeightFile = 'TauPi0BDTWeights.root',
         )
 
     cached_instances[_name] = TauPi0ScoreCalculator
@@ -789,7 +789,7 @@ def getMvaTESEvaluator():
     _name = sPrefix + 'MvaTESEvaluator'
     from tauRecTools.tauRecToolsConf import MvaTESEvaluator
     MvaTESEvaluator = MvaTESEvaluator(name = _name,
-                                      WeightFileName = 'LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.xml')
+                                      WeightFileName = 'LC.pantau.interpolPt250GeV_mediumTaus_BDTG.weights.root')
     cached_instances[_name] = MvaTESEvaluator
     return MvaTESEvaluator
 
@@ -822,7 +822,7 @@ def getTauTrackClassifier():
     # =========================================================================
     _BDT_TTCT_ITFT_0 = TrackMVABDT(name = _name + "_0",
                                                 #InputWeightsPath = "/home/duschi/workspace/TauRec/InstallArea/share/tauRecTools/00-00-00/TMVAClassification_BDT.weights.xml",
-                                                InputWeightsPath = "tauRecTools/00-00-00/TMVAClassification_BDT.weights.xml",
+                                                InputWeightsPath = "TMVAClassification_BDT.weights.root",
                                                 Threshold      = -0.005,
                                                 # ExpectedFlag   = 9, # unclassified
                                                 # SignalType     = 5, # charged
@@ -836,7 +836,7 @@ def getTauTrackClassifier():
     
     _BDT_TTCT_ITFT_0_0 = TrackMVABDT(name = _name + "_0_0",
                                                   #InputWeightsPath = "/home/duschi/workspace/TauRec/InstallArea/share/tauRecTools/00-00-00/TMVAClassification_BDT_0.weights.xml",
-                                                  InputWeightsPath = "tauRecTools/00-00-00/TMVAClassification_BDT_0.weights.xml",
+                                                  InputWeightsPath = "TMVAClassification_BDT_0.weights.root",
                                                   Threshold      = -0.0074,
                                                   # ExpectedFlag   = 5, # charged
                                                   # SignalType     = 5, # charged
@@ -850,7 +850,7 @@ def getTauTrackClassifier():
     
     _BDT_TTCT_ITFT_0_1 = TrackMVABDT(name = _name + "_0_1",
                                                   #InputWeightsPath = "/home/duschi/workspace/TauRec/InstallArea/share/tauRecTools/00-00-00/TMVAClassification_BDT_1.weights.xml",
-                                                  InputWeightsPath = "tauRecTools/00-00-00/TMVAClassification_BDT_1.weights.xml",
+                                                  InputWeightsPath = "TMVAClassification_BDT_1.weights.root",
                                                   Threshold      = 0.0005,
                                                   # ExpectedFlag   = 7, # isolation
                                                   # SignalType     = 7, # isolation
