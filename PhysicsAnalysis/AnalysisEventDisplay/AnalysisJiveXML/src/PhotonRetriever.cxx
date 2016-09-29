@@ -130,24 +130,24 @@ namespace JiveXML {
       if (( (*photonItr)->author()) == 0x8){ photonAuthor = "forward"; photonLabel += "_forward"; }
       if (( (*photonItr)->author()) == 0x10){ photonAuthor = "rconv"; photonLabel += "_recoveredconversion"; }
       if (( (*photonItr)->author()) == 0x4){ photonAuthor = "photon"; photonLabel += "_photon"; }
-      if ( (*photonItr)->isem(egammaPID::PhotonLoose)==0){
+      if ( (*photonItr)->isem(egammaPIDObs::PhotonLoose)==0){
 	  photonLabel += "_Loose";
 	  photonIsEMString = "Loose"; // assume that hierarchy is obeyed !
       }  
-      if ( (*photonItr)->isem(egammaPID::PhotonTight)==0){
+      if ( (*photonItr)->isem(egammaPIDObs::PhotonTight)==0){
 	  photonLabel += "_Tight";
 	  photonIsEMString = "Tight"; // assume that hierarchy is obeyed !
       }  
-      if ( (*photonItr)->isem(egammaPID::PhotonLooseAR)==0){
+      if ( (*photonItr)->isem(egammaPIDObs::PhotonLooseAR)==0){
 	  photonLabel += "_LooseAR";
       }  
-      if ( (*photonItr)->isem(egammaPID::PhotonTightAR)==0){
+      if ( (*photonItr)->isem(egammaPIDObs::PhotonTightAR)==0){
 	  photonLabel += "_TightAR";
       }  
-      if ( (*photonItr)->isem(egammaPID::PhotonTightARIso)==0){
+      if ( (*photonItr)->isem(egammaPIDObs::PhotonTightARIso)==0){
 	  photonLabel += "_TightARIso";
       }  
-      if ( (*photonItr)->isem(egammaPID::PhotonTightIso)==0){
+      if ( (*photonItr)->isem(egammaPIDObs::PhotonTightIso)==0){
 	  photonLabel += "_TightIso";
       }  
 
