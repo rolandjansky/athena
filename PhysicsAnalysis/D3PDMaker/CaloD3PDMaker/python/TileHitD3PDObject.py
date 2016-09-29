@@ -35,3 +35,6 @@ TileHitD3PDObject = D3PDObject (makeTileHitD3PDObject, 'TileHit_', 'TileHitD3PDO
 
 TileHitD3PDObject.defineBlock (0, 'TileHitDetails',
                                 CaloD3PDMaker.TileHitFillerTool)
+MBTSHitD3PDObject = D3PDObject (makeTileHitD3PDObject, 'MBTSHit_', 'MBTSHitD3PDObject', None, 'MBTSHits')
+MBTSHitD3PDObject.defineBlock (0, 'MBTSHitDetails',CaloD3PDMaker.TileHitFillerTool)
+

@@ -10,12 +10,9 @@
  */
 
 #include "LArRawChannelFillerTool.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/StatusCode.h"
-#include "GaudiKernel/MsgStream.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "AthenaKernel/errorcheck.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 
 namespace D3PD {
 
@@ -50,8 +47,7 @@ namespace D3PD {
     }
 
     StatusCode LArRawChannelFillerTool::fill(const LArRawChannel& p){
-        MsgStream log(msgSvc(), name());
-        log << MSG::DEBUG << " in LArRawChannelFillerTool::fill()" << endmsg;
+        ATH_MSG_DEBUG( " in LArRawChannelFillerTool::fill()"  );
 	
         const LArRawChannel* larR=&p;
 	if ( larR ) {

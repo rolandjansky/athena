@@ -16,19 +16,16 @@
 #include "LArDigitFillerTool.h"
 
 #include "StoreGate/StoreGateSvc.h"
-#include "GaudiKernel/AlgFactory.h"
 #include "LArRawEvent/LArDigit.h"
 #include "GaudiKernel/IToolSvc.h"
 #include "CaloIdentifier/CaloIdManager.h"
-#include "GaudiKernel/INTupleSvc.h"
-#include "GaudiKernel/MsgStream.h"
 #include "LArRawEvent/LArFebHeaderContainer.h"
 #include "LArRawEvent/LArOFIterResultsContainer.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloIdentifier/LArEM_ID.h"
 #include "CaloIdentifier/LArHEC_ID.h"
 #include "CaloIdentifier/LArFCAL_ID.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include <vector>
 
 #include "AthenaKernel/errorcheck.h"
@@ -119,11 +116,7 @@ LArDigitFillerTool::LArDigitFillerTool
  */
 StatusCode LArDigitFillerTool::book()
 {
-
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG
-      << "in book()"
-      << endreq;
+  ATH_MSG_DEBUG( "in book()" );
 
   const CaloIdManager *caloIdMgr=CaloIdManager::instance() ;
   m_emId=caloIdMgr->getEM_ID();
@@ -202,11 +195,7 @@ StatusCode LArDigitFillerTool::book()
 
 StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
 {
-
-  /// Print an informative message:
-  MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG
-      << "in fill()"       << endreq;
+  ATH_MSG_DEBUG( "in fill()"        );
 
   //if (m_NEvents!=-1 && ++m_count>m_NEvents ) return StatusCode::SUCCESS;
 
@@ -214,7 +203,7 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
   if (m_savesca == true){
     StatusCode sc = evtStore()->retrieve(larFebHeaderContainer);
     if (sc.isFailure() || !larFebHeaderContainer) {
-      log << MSG::DEBUG << "Cannot read LArFebHeaderContainer from StoreGate! SCA address not saved." << endreq;
+      ATH_MSG_DEBUG( "Cannot read LArFebHeaderContainer from StoreGate! SCA address not saved."  );
       larFebHeaderContainer=NULL;
     }
   }
@@ -223,10 +212,10 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
   if (m_dumpIter) {
     StatusCode sc =evtStore()->retrieve(larOFIterCont);
     if (sc.isFailure()) {
-      log << MSG::DEBUG << "Can't retrieve LArOFIterResultsContainer from StoreGate." << endreq;
+      ATH_MSG_DEBUG( "Can't retrieve LArOFIterResultsContainer from StoreGate."  );
       larOFIterCont=NULL;
     }
-    log << MSG::DEBUG << "Got LArOFIterResultsContainer from StoreGate." << endreq;
+    ATH_MSG_DEBUG( "Got LArOFIterResultsContainer from StoreGate."  );
   }
 
 
@@ -259,7 +248,7 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
   const std::vector<short>& vSamples=digit.samples();
   size_t n=vSamples.size();
   if ((long)n!=nsamples) {
-    log << MSG::WARNING << "Inconsistent number of ADC samples found!" << endreq;
+    ATH_MSG_WARNING( "Inconsistent number of ADC samples found!"  );
     if (n==0) continue;
   }
 
@@ -281,7 +270,7 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
   size_t n=vSamples.size();
   int nsamples=vSamples.size();
   const bool connected=m_larCablingSvc->isOnlineConnected(chid);
-  log << MSG::DEBUG << " is connected " <<connected<< endreq;
+  ATH_MSG_DEBUG( " is connected " <<connected );
 
 
   if (m_savedigit){
@@ -317,9 +306,9 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
 	*m_layer = m_fcalId->module(id);
       }
       else {
-	log << MSG::WARNING << "LArDigit Id "<< MSG::hex << id.get_compact() << MSG::dec
-	    << " (FT: " << m_onlineHelper->feedthrough(chid) << " FEBSlot: " << m_onlineHelper->slot(chid) << " Chan: " << m_onlineHelper->channel(chid)
-	    << ") appears to be neither EM nor HEC nor FCAL." << endreq;
+	ATH_MSG_WARNING( "LArDigit Id "<< MSG::hex << id.get_compact() << MSG::dec
+                         << " (FT: " << m_onlineHelper->feedthrough(chid) << " FEBSlot: " << m_onlineHelper->slot(chid) << " Chan: " << m_onlineHelper->channel(chid)
+                         << ") appears to be neither EM nor HEC nor FCAL."  );
 	*m_calo = -998;
       }
     }
@@ -341,7 +330,7 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
     m_cellIndex++;
   }
 
-  log << MSG::DEBUG << " m_savesca and FebHead, OFIterCont " << m_savesca <<" " << larFebHeaderContainer << " " <<larOFIterCont << endreq;
+  ATH_MSG_DEBUG( " m_savesca and FebHead, OFIterCont " << m_savesca <<" " << larFebHeaderContainer << " " <<larOFIterCont  );
 
   //Add SCA info if needed
   if (m_savesca)
@@ -359,7 +348,7 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
 	const std::vector<unsigned short>& sca=larFebHeaderContainer->at(febHeaderContIdx)->SCA();
 	n=sca.size();
 	if ((long)n!=nsamples){
-	  log << MSG::WARNING << "Inconsistent number of SCA entries" << std::endl;
+	  ATH_MSG_WARNING( "Inconsistent number of SCA entries"  );
 	}
 
 	/* addSamples.resize(n);
@@ -376,8 +365,8 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
 
       }
       else {
-    	log << MSG::ERROR << "LArDigitContainer and LArFebHeaderContainer out of sync!" << endreq;
-	log << MSG::WARNING << "Can't find FEB  with id = "<< std::hex << chanFebId.get_compact() << std::dec << endreq;
+    	ATH_MSG_ERROR( "LArDigitContainer and LArFebHeaderContainer out of sync!"  );
+	ATH_MSG_WARNING( "Can't find FEB  with id = "<< std::hex << chanFebId.get_compact() << std::dec  );
       }
      }
      else
@@ -387,7 +376,7 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
     }
 
   // Add OFC Iter results if needed
-  log << MSG::DEBUG << " m_dumpIter, OFIterCont " << m_dumpIter<< " " << larOFIterCont << endreq;
+  ATH_MSG_DEBUG( " m_dumpIter, OFIterCont " << m_dumpIter<< " " << larOFIterCont  );
   if (m_dumpIter) {
     if (larOFIterCont) {
 
@@ -401,8 +390,8 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
       // Check No Missing Iteration Result
       if( ofcIterContIdx>=iterRes_s) {// && (ofcIterContIdx - ofcIterContIdx_temp)!=1){
 
-	log << MSG::DEBUG << "Could not get iteration results for channel with id " << chid.get_compact() << std::dec
- 	    <<" in LArOFIterResultsContainer. CellIndex="<< m_cellIndex << endreq;
+	ATH_MSG_DEBUG( "Could not get iteration results for channel with id " << chid.get_compact() << std::dec
+                       <<" in LArOFIterResultsContainer. CellIndex="<< m_cellIndex  );
 
 	ofcIterContIdx = ofcIterContIdx_temp;
 	*m_Itervalid=  0 ;
@@ -419,7 +408,7 @@ StatusCode LArDigitFillerTool::fill ( const LArDigit& digit)
 	const LArOFIterResults& iterRes=larOFIterCont->at(ofcIterContIdx);
 	//std::cout << chid << "\t" << iterRes.getChannelID() << std::endl;
 	if (chid!=iterRes.getChannelID()) {
-	  log << MSG::ERROR << "Channel IDs don't match" << endreq;
+	  ATH_MSG_ERROR( "Channel IDs don't match"  );
 	  return StatusCode::FAILURE;
 	}
 	*m_Itervalid= iterRes.getValid();

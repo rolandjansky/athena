@@ -11,8 +11,7 @@
 
 #include <sstream>
 
-#include "GaudiKernel/MsgStream.h"
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 #include "LArIdentifier/LArOnlineID.h"
 #include "CaloEvent/CaloCell.h"
 #include "CaloEvent/CaloCellContainer.h"

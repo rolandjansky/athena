@@ -94,8 +94,6 @@ StatusCode CaloInfoFillerTool::book()
  */
 StatusCode CaloInfoFillerTool::fill (const CaloCellContainer& cellCont)
 {
-
-  MsgStream log(msgSvc(), name());
   *m_Nh_EM=0 ;
   *m_Nh_HAD=0 ;
   *m_Nh_PresB=0 ;
@@ -247,15 +245,13 @@ StatusCode CaloInfoFillerTool::fill (const CaloCellContainer& cellCont)
       }
     }
 
-  log<<MSG::DEBUG<<" EM Cell hits: "<< *m_Nh_EM <<endreq;
-  log<<MSG::DEBUG<<" total energy in EM: "<< *m_Eh_EM <<endreq;
-  log<<MSG::DEBUG<<" total energy in EM barrel PS: "<< (*m_Eh_PresB)[0] <<endreq;
-  log<<MSG::DEBUG<<" total energy in EM endcap PS "<< (*m_Eh_PresE)[0] <<endreq;
+  ATH_MSG_DEBUG(" EM Cell hits: "<< *m_Nh_EM  );
+  ATH_MSG_DEBUG(" total energy in EM: "<< *m_Eh_EM  );
+  ATH_MSG_DEBUG(" total energy in EM barrel PS: "<< (*m_Eh_PresB)[0]  );
+  ATH_MSG_DEBUG(" total energy in EM endcap PS "<< (*m_Eh_PresE)[0]  );
 
-  log<<MSG::DEBUG<<" HAD Cell hits: "<< *m_Nh_HAD <<endreq;
-  log<<MSG::DEBUG<<" total energy in HAD: "<< *m_Eh_HAD <<endreq;
-
-
+  ATH_MSG_DEBUG(" HAD Cell hits: "<< *m_Nh_HAD  );
+  ATH_MSG_DEBUG(" total energy in HAD: "<< *m_Eh_HAD  );
   
   return StatusCode::SUCCESS;
 }

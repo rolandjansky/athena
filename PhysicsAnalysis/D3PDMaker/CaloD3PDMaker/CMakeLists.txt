@@ -19,7 +19,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Control/AthContainers
                           Control/AthenaBaseComps
                           Control/AthenaKernel
-                          Control/DataModel
                           Control/Navigation
                           Control/SGTools
                           Control/StoreGate
@@ -31,7 +30,7 @@ atlas_depends_on_subdirs( PRIVATE
                           LArCalorimeter/LArRawEvent
                           LArCalorimeter/LArRecEvent
                           LArCalorimeter/LArSimEvent
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           PhysicsAnalysis/D3PDMaker/D3PDMakerInterfaces
                           PhysicsAnalysis/D3PDMaker/D3PDMakerUtils
                           PhysicsAnalysis/PrimaryDPDMaker
@@ -49,7 +48,7 @@ atlas_add_component( CaloD3PDMaker
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloDetDescrLib CaloDmDetDescr CaloEvent CaloGeoHelpers CaloIdentifier CaloSimEvent CaloUtilsLib AthContainers AthenaBaseComps AthenaKernel DataModel Navigation SGTools StoreGateLib SGtests Identifier xAODCaloEvent GaudiKernel LArIdentifier LArRawEvent LArRecEvent LArSimEvent LArToolsLib D3PDMakerUtils PrimaryDPDMakerLib JetEvent TileConditionsLib TileEvent TileIdentifier TileSimEvent )
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} CaloConditions CaloDetDescrLib CaloDmDetDescr CaloEvent CaloGeoHelpers CaloIdentifier CaloSimEvent CaloUtilsLib AthContainers AthenaBaseComps AthenaKernel Navigation SGTools StoreGateLib SGtests Identifier xAODCaloEvent GaudiKernel LArIdentifier LArRawEvent LArRecEvent LArSimEvent LArCablingLib D3PDMakerUtils PrimaryDPDMakerLib JetEvent TileConditionsLib TileEvent TileIdentifier TileSimEvent )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

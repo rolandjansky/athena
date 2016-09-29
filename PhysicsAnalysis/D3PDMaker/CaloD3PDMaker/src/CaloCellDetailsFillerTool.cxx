@@ -15,7 +15,6 @@
 #include "CaloCellDetailsFillerTool.h"
 
 #include "GaudiKernel/StatusCode.h" 
-#include "GaudiKernel/MsgStream.h"
 #include "CLHEP/Units/SystemOfUnits.h"
 
 #include "CaloConditions/ICaloBadChanTool.h"
@@ -108,10 +107,8 @@ StatusCode CaloCellDetailsFillerTool::book()
      if(!m_noise_tool.empty()){
        CHECK (m_noise_tool.retrieve() );
     } else {
-      MsgStream log(msgSvc(), name());
-      log << MSG::ERROR << "CellFillerTool::book() : m_noise_tool empty."
-           << "Information on cell noise will not be stored" 
-           << endreq;
+       ATH_MSG_ERROR( "CellFillerTool::book() : m_noise_tool empty."
+                      << "Information on cell noise will not be stored" );
       m_useNoiseTool = false;
     }
   }
