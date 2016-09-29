@@ -8,12 +8,9 @@
 // tauRecTools include(s)
 #include "tauRecTools/TauRecToolBase.h"
 
+#include "MVAUtils/BDT.h"
 
-// TMVA include(s)
-#if not defined(__CINT__) || defined(__MAKECINT__)
-#include "TMVA/Tools.h"
-#include "TMVA/Reader.h"
-#endif
+#include <map>
 
 class MvaTESEvaluator
 : public TauRecToolBase
@@ -33,10 +30,11 @@ class MvaTESEvaluator
   // Configurable properties
   std::string m_sWeightFileName;
 
-  // TMVA reader
-  TMVA::Reader *reader; //!
+  MVAUtils::BDT *reader; //!
+
+  std::map<TString, float*> m_availableVars; //!< addresses of the floats below
     
-  // TMVA input variables (provide all variables in float)
+  // MVA input variables (provide all variables in float)
   float mu; //!
   float nVtx; //!
     

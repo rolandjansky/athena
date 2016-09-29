@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 //#include "CLHEP/Vector/LorentzVector.h"
 //#include "CLHEP/Units/SystemOfUnits.h"
 //#include "FourMomUtils/P4Helpers.h"
@@ -166,3 +167,4 @@ StatusCode TauAxisSetter::finalize()
 {
     return StatusCode::SUCCESS;
 }
+#endif

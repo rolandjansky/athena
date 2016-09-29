@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 
 //#include "Particle/TrackParticle.h"
 #include "Particle/TrackParticleContainer.h"
@@ -240,6 +241,7 @@ StatusCode TauVertexVariables::execute(xAOD::TauJet& pTau) {
     if (xAODvertex && !inTrigger) {
       ATH_MSG_VERBOSE("using new xAOD API: Secondary Vertex found and recorded! x="<<xAODvertex->position().x()<< ", y="<<xAODvertex->position().y()<<", perp="<<xAODvertex->position().perp());
       m_pSecVtxContainer->push_back(xAODvertex);
+      xAODvertex->setVertexType(xAOD::VxType::NotSpecified);
     }
     //  }
   // else { // use standard AOD-style API of VertexFitter
@@ -338,3 +340,4 @@ double TauVertexVariables::trFlightPathSig(const xAOD::TauJet& pTau, const xAOD:
   return sign * fpt / sigma_fpt;
 }
 
+#endif

@@ -15,9 +15,11 @@ use  AthLinks                   AthLinks-*                      Control
 use  CaloUtils                  CaloUtils-*                     Calorimeter
 use  CxxUtils                   CxxUtils-*                      Control
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+use  MVAUtils                   MVAUtils-*                      Reconstruction
 
 private
 use  xAODJet                    xAODJet-*                       Event/xAOD
+use  xAODEgamma                 xAODEgamma-*                    Event/xAOD
 use  AthContainers              AthContainers-*                 Control
 use  PathResolver               PathResolver-*                  Tools
 use  GaudiInterface             GaudiInterface-*                External
@@ -57,13 +59,12 @@ use InDetTrackSelectionTool InDetTrackSelectionTool-* InnerDetector/InDetRecTool
 
 
 # Specify the required ROOT components for cmake (transparent to CMT)
-apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS TMVA)"
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS)"
 
  
 public
 
 #macro_append tauRec_shlibflags "-L$(ROOTSYS)/lib -lCore -lCint -lHist -lGraf -lGraf3d -lGpad -lTree -lRint -lPostscript -lMatrix -lPhysics -lm -ldl -lpthread -rdynamic"
-#macro_append ROOT_linkopts " -lTMVA"
 
 apply_pattern dual_use_library files="*.cxx *.c ../Root/*.cxx"
 
@@ -76,4 +77,3 @@ apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_calib files="../share/00-00-00/* ../share/*"
 
 apply_tag ROOTTMVALibs 
-

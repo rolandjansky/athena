@@ -31,7 +31,7 @@ struct TauConversion {
   xAOD::TauJetParameters::Detail detailUncorr;
   xAOD::TauJetParameters::Detail detailCorr;
   
-  TauConversion();
+  TauConversion(){ };
 TauConversion(std::string name, xAOD::TauJetParameters::Detail detail1, xAOD::TauJetParameters::Detail detail2)
 : detailName(name), detailUncorr(detail1), detailCorr(detail2)
   { }

@@ -9,7 +9,7 @@
 #include "GaudiKernel/ToolHandle.h"
 #include "xAODTracking/VertexContainer.h"
 #include "JetEDM/TrackVertexAssociation.h"
-#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
+#include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 /////////////////////////////////////////////////////////////////////////////
 

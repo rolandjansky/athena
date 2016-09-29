@@ -21,7 +21,13 @@
 
 //_____________________________________________________________________________
 CombinedP4FromRecoTaus::CombinedP4FromRecoTaus(const std::string& name) : 
-  TauRecToolBase(name)
+  TauRecToolBase(name),
+  // move these to another file? :
+  m_weight(-1111.),
+  m_combined_res(-1111.),
+  m_sigma_tauRec(-1111.),
+  m_sigma_constituent(-1111.),
+  m_corrcoeff(-1111.)
 {
   declareProperty( "WeightFileName", m_sWeightFileName = "");
   declareProperty( "addCalibrationResultVariables", m_addCalibrationResultVariables=false);
@@ -42,8 +48,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
   std::string calibFilePath = find_file(m_sWeightFileName);
   TFile * file = TFile::Open(calibFilePath.c_str(), "READ");
 
-  TH1F* histogram;
-  TObject* obj;
+  TH1F* histogram(0);
   std::string histname="";
 
 
@@ -55,14 +60,12 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
     //Get m_resHists_tauRec
     //histname="ConstituentEt/CorrelationCoeff_ConstituentEt_" + m_modeNames[imode];
     histname="CorrelationCoeff_tauRec_" + m_modeNames[imode];
-    obj = file->Get(histname.c_str());
-    if(obj) histogram = dynamic_cast<TH1F*>(obj);
+    histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
     if(histogram){
       m_correlationHists.push_back(histogram);
       ATH_MSG_DEBUG("Adding corr hist: "); 
       //histogram->Print("all"); 
     }
-
   }
 
       
@@ -76,8 +79,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
       
       //Get m_resHists_tauRec
       histname = "tauRec/ResolutionEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
-      obj = file->Get(histname.c_str());
-      if(obj) histogram = dynamic_cast<TH1F*>(obj);
+      histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
       if(histogram){
 	m_resHists_tauRec[ietaBin].push_back(histogram);
 	ATH_MSG_DEBUG("Adding hist: ");
@@ -89,8 +91,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 
       //Get m_meanHists_tauRec
       histname = "tauRec/MeanEt_tauRec_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
-      obj = file->Get(histname.c_str());
-      if(obj) histogram = dynamic_cast<TH1F*>(obj);
+      histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
       if(histogram) {
 	m_meanHists_tauRec[ietaBin].push_back(histogram);
 	ATH_MSG_DEBUG("Adding hist: ");
@@ -102,8 +103,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
       
       //Get m_resHists_CellBased2PanTau
       histname = "ConstituentEt/ResolutionEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
-      obj = file->Get(histname.c_str());
-      if(obj) histogram = dynamic_cast<TH1F*>(obj);
+      histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
       if(histogram){
 	m_resHists_CellBased2PanTau[ietaBin].push_back(histogram);
 	ATH_MSG_DEBUG("Adding hist: ");
@@ -115,8 +115,7 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
       
       //Get m_meanHists_CellBased2PanTau
       histname = "ConstituentEt/MeanEt_ConstituentEt_" + m_modeNames[imode] + "_" + m_etaBinNames[ietaBin];
-      obj = file->Get(histname.c_str());
-      if(obj) histogram = dynamic_cast<TH1F*>(obj);
+      histogram = dynamic_cast<TH1F*> (file->Get(histname.c_str()));
       if(histogram){
 	m_meanHists_CellBased2PanTau[ietaBin].push_back(histogram);
 	ATH_MSG_DEBUG("Adding hist: ");
@@ -138,24 +137,35 @@ StatusCode CombinedP4FromRecoTaus::initialize() {
 //_____________________________________________________________________________
 StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   xAOD::TauJet* Tau = &xTau;
-  int tmpDecayModeProto;
-  xTau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayModeProto, tmpDecayModeProto);
-  if(tmpDecayModeProto>xAOD::TauJetParameters::Mode_3pXn){
-    xTau.auxdecor<float>("pt_combined")  = 1.;    
+  int tmpDecayMode;
+  static SG::AuxElement::Decorator<float> decPtCombined("pt_combined");
+  static SG::AuxElement::Decorator<float> decEtaCombined("eta_combined");
+  static SG::AuxElement::Decorator<float> decPhiCombined("phi_combined");
+  static SG::AuxElement::Decorator<float> decMCombined("m_combined");
+
+  decPtCombined(xTau) = 0;
+  decEtaCombined(xTau) = 0;
+  decPhiCombined(xTau) = 0;
+  decMCombined(xTau) = 0;
+  
+  xTau.panTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayMode, tmpDecayMode);
+  if(tmpDecayMode>xAOD::TauJetParameters::Mode_3pXn){
     return StatusCode::SUCCESS;
   }
-  
+
+  if (xTau.ptPanTauCellBased() < 0)
+  {
+    ATH_MSG_DEBUG("ptPanTauCellBased is less than 0!");
+    return StatusCode::SUCCESS;
+  }
 
   TLorentzVector substructureP4 = getCombinedP4(Tau);
 
   // create xAOD variables and fill:
-  xTau.auxdecor<float>("pt_combined")  = substructureP4.Pt();
-  // xTau.auxdecor<float>("eta_combined") = substructureP4.Eta();
-  // xTau.auxdecor<float>("phi_combined") = substructureP4.Phi();
-  // xTau.auxdecor<float>("m_combined")   = substructureP4.M();  
-
-
-
+  decPtCombined(xTau) = substructureP4.Pt();
+  decPtCombined(xTau) = substructureP4.Eta();
+  decPtCombined(xTau) = substructureP4.Phi();
+  decPtCombined(xTau) = substructureP4.M();  
 
   // move these to another file? :
   m_weight = -1111.;
@@ -164,30 +174,47 @@ StatusCode CombinedP4FromRecoTaus::execute(xAOD::TauJet& xTau) {
   m_sigma_constituent = -1111.;
   m_corrcoeff = -1111.;
 
-  if (m_addCalibrationResultVariables==true){
+  if (m_addCalibrationResultVariables){
     substructureP4 = getCalibratedConstituentP4(Tau);
-    xTau.auxdecor<float>("pt_constituent")  = substructureP4.Pt(); 
-    xTau.auxdecor<float>("eta_constituent") = substructureP4.Eta();
-    xTau.auxdecor<float>("phi_constituent") = substructureP4.Phi();
-    xTau.auxdecor<float>("m_constituent")   = substructureP4.M();  
-    
+    static SG::AuxElement::Decorator<float> decPtConstituent("pt_constituent");
+    static SG::AuxElement::Decorator<float> decEtaConstituent("eta_constituent");
+    static SG::AuxElement::Decorator<float> decPhiConstituent("phi_constituent");
+    static SG::AuxElement::Decorator<float> decMConstituent("m_constituent");
+    decPtConstituent(xTau)  = substructureP4.Pt(); 
+    decEtaConstituent(xTau) = substructureP4.Eta();
+    decPhiConstituent(xTau) = substructureP4.Phi();
+    decMConstituent(xTau)   = substructureP4.M();  
+
     substructureP4 = getCalibratedTauRecP4(Tau);
-    xTau.auxdecor<float>("pt_tauRecCalibrated")  = substructureP4.Pt(); 
-    xTau.auxdecor<float>("eta_tauRecCalibrated") = substructureP4.Eta();
-    xTau.auxdecor<float>("phi_tauRecCalibrated") = substructureP4.Phi();
-    xTau.auxdecor<float>("m_tauRecCalibrated")   = substructureP4.M();  
-  
+    static SG::AuxElement::Decorator<float> decPtTauRecCalibrated("pt_tauRecCalibrated");
+    static SG::AuxElement::Decorator<float> decEtaTauRecCalibrated("eta_tauRecCalibrated");
+    static SG::AuxElement::Decorator<float> decPhiTauRecCalibrated("phi_tauRecCalibrated");
+    static SG::AuxElement::Decorator<float> decMTauRecCalibrated("m_tauRecCalibrated");
+    decPtTauRecCalibrated(xTau)  = substructureP4.Pt(); 
+    decEtaTauRecCalibrated(xTau) = substructureP4.Eta();
+    decPhiTauRecCalibrated(xTau) = substructureP4.Phi();
+    decMTauRecCalibrated(xTau)   = substructureP4.M();  
+
     substructureP4 = getWeightedP4(Tau);
-    xTau.auxdecor<float>("pt_weighted")  = substructureP4.Pt(); 
-    xTau.auxdecor<float>("eta_weighted") = substructureP4.Eta();
-    xTau.auxdecor<float>("phi_weighted") = substructureP4.Phi();
-    xTau.auxdecor<float>("m_weighted")   = substructureP4.M();  
-    
-    xTau.auxdecor<float>("weight_weighted") = m_weight; 
-    xTau.auxdecor<float>("sigma_combined") = m_combined_res;
-    xTau.auxdecor<float>("sigma_tauRec") = m_sigma_tauRec;
-    xTau.auxdecor<float>("sigma_constituent") = m_sigma_constituent;
-    xTau.auxdecor<float>("correlation_coefficient") = m_corrcoeff;
+    static SG::AuxElement::Decorator<float> decPtWeighted("pt_weighted");
+    static SG::AuxElement::Decorator<float> decEtaWeighted("eta_weighted");
+    static SG::AuxElement::Decorator<float> decPhiWeighted("phi_weighted");
+    static SG::AuxElement::Decorator<float> decMWeighted("m_weighted");
+    decPtWeighted(xTau)  = substructureP4.Pt(); 
+    decEtaWeighted(xTau) = substructureP4.Eta();
+    decPhiWeighted(xTau) = substructureP4.Phi();
+    decMWeighted(xTau)   = substructureP4.M();  
+
+    static SG::AuxElement::Decorator<float> decWeightWeighted("weight_weighted");
+    static SG::AuxElement::Decorator<float> decSigmaCombined("sigma_combined");
+    static SG::AuxElement::Decorator<float> decSigmaTaurec("sigma_tauRec");
+    static SG::AuxElement::Decorator<float> decSigmaConstituent("sigma_constituent");    
+    static SG::AuxElement::Decorator<float> decCorrelationCoefficient("correlation_coefficient");    
+    decWeightWeighted(xTau)         = m_weight; 
+    decSigmaCombined(xTau)          = m_combined_res;
+    decSigmaTaurec(xTau)            = m_sigma_tauRec;
+    decSigmaConstituent(xTau)       = m_sigma_constituent;
+    decCorrelationCoefficient(xTau) = m_corrcoeff;
   }
 
   return StatusCode::SUCCESS;

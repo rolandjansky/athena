@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+#ifndef XAOD_ANALYSIS
 //-----------------------------------------------------------------------------
 // file:        TauPi0ClusterCreator.cxx
 // package:     Reconstruction/tauEvent
@@ -574,3 +575,4 @@ bool TauPi0ClusterCreator::setHadronicClusterPFOs(
     return true;
 }
 
+#endif
