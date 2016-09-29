@@ -257,7 +257,7 @@ int InDet::TRT_ElectronPidTool::ToTcalculator::resolveIndex(int BEC, int Layer, 
   if(abs(BEC)==1) {
      if (Layer > 2) {
         offset = Strawlayer; 
-        parent.msg(MSG::WARNING) << "WARNING Something went wrong! For barrel, got Layer == " << Layer << " which is greater than 2"<<endmsg;
+	ATH_MSG_WARNING( "WARNING Something went wrong! For barrel, got Layer == " << Layer << " which is greater than 2");
      }
      else {offset = Strawlayer + strawsBeforeBarrelLayer[Layer];}
   }
@@ -273,8 +273,8 @@ int InDet::TRT_ElectronPidTool::ToTcalculator::resolveIndex(int BEC, int Layer, 
   offset+=startOfModule[BEC+2];
 
   if( not (offset < N_TOT_CONSTANTS ) ){
-    parent.msg(MSG::ERROR)<<"In ToTcalculator: something must have gone wrong with the index resolver, found an index that is larger than  N_TOT_CONSTANTS"<<endmsg;
-    parent.msg(MSG::ERROR)<<"BEC="<<BEC<<", Layer="<<Layer<<", Strawlayer="<<Strawlayer<<" resolved to "<<offset<<" which is outside of "<<int(N_TOT_CONSTANTS)<<endmsg;
+    ATH_MSG_ERROR("In ToTcalculator: something must have gone wrong with the index resolver, found an index that is larger than  N_TOT_CONSTANTS");
+    ATH_MSG_ERROR("BEC="<<BEC<<", Layer="<<Layer<<", Strawlayer="<<Strawlayer<<" resolved to "<<offset<<" which is outside of "<<int(N_TOT_CONSTANTS));
     return 0;
   }
 

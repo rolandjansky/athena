@@ -647,7 +647,6 @@ StatusCode InDet::TRT_ElectronPidTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) 
       }
       
     } else {
-      // m_log << MSG::ERROR << "Problem reading condDB object." << endreq;
       ATH_MSG_ERROR ("Problem reading condDB object. -"<<calcName[ic]);
       //return StatusCode::FAILURE;
     }

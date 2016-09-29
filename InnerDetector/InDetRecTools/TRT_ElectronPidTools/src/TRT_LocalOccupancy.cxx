@@ -92,18 +92,18 @@ StatusCode TRT_LocalOccupancy::initialize()
   // The TRT helper: 
   StatusCode sc = detStore()->retrieve(m_TRTHelper, "TRT_ID");
   if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Unable to retrieve TRT ID Helper." << endreq;
+    ATH_MSG_ERROR( "Unable to retrieve TRT ID Helper." );
     return sc;       
   } else {
-    msg(MSG::DEBUG) << "retrieved m_TRTHelper " << m_TRTHelper << endreq; 
+    ATH_MSG_DEBUG( "retrieved m_TRTHelper " << m_TRTHelper ); 
   }
 
   if (m_T0Shift) {
     if ( m_driftFunctionTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL) << m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() << endreq;
+      ATH_MSG_FATAL( m_driftFunctionTool.propertyName() << ": Failed to retrieve tool " << m_driftFunctionTool.type() );
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type() << endreq;
+      ATH_MSG_INFO( m_driftFunctionTool.propertyName() << ": Retrieved tool " << m_driftFunctionTool.type());
     }
   }
   else { //use wider validity gate if no T0 shift
@@ -111,7 +111,7 @@ StatusCode TRT_LocalOccupancy::initialize()
     m_highGate = m_highWideGate ;
   }  
   if( m_TRTStrawStatusSummarySvc.retrieve().isFailure() ) {
-    msg(MSG::ERROR) << " Can't do a dynamic cast to TRTStrawStatusSummaryTool" << endreq;
+    ATH_MSG_ERROR( " Can't do a dynamic cast to TRTStrawStatusSummaryTool" );
     return StatusCode::FAILURE;
   }
   
