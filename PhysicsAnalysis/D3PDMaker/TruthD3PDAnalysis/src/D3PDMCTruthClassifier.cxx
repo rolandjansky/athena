@@ -185,10 +185,8 @@ bool D3PDMCTruthClassifier::get_tptruth_name (const std::string& tp_name,
     const TrackParticleTruthCollection* tptc = 0;
     if (m_sg->retrieve (tptc, keys[i]).isFailure() || !tptc)
     {
-      MsgStream mlog(  msgSvc() , name() );
-      mlog << MSG::WARNING
-           << "Can't retrieve TrackParticleTruthCollection/"
-           << keys[i] << endreq;
+      ATH_MSG_WARNING( "Can't retrieve TrackParticleTruthCollection/"
+                       << keys[i]  );
       continue;
     }
     tptruth_name = keys[i];
