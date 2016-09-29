@@ -142,7 +142,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::initialize() {
     // Get  TRT identifier:
     // First get TRT manager
     if (detStore()->retrieve(m_trtID, "TRT_ID").isFailure()) {
-        msg(MSG::FATAL) << "Could not get TRT ID helper" << endreq;
+        msg(MSG::FATAL) << "Could not get TRT ID helper" << endmsg;
         return StatusCode::FAILURE;
     }
     // ----------------------------
@@ -673,7 +673,7 @@ StatusCode InDet::TRT_TrackExtensionTool_DAF::groupedBarrelExtension(int beginIn
     // the vector for grouped RIOs with the minimal distances to the secant
     std::vector< double > groupedRIOsMinDistance( trackGlobalPos.size() );
     // the vector for grouped RIOs with the pointer to the RIO with the minimal distance
-    std::vector< InDet::TRT_DriftCircle* > minDistanceRIO( trackGlobalPos.size(), 0 );
+    std::vector< const InDet::TRT_DriftCircle* > minDistanceRIO( trackGlobalPos.size(), 0 );
 
     ATH_MSG_DEBUG("looping over detElements to get the DriftCircles" );
     int createdGroupCounter=0;
