@@ -10,7 +10,8 @@
 class CmdParser
 {
   public:
-    CmdParser(){};
+    CmdParser()
+      : m_isInitialized(false) {};
     ~CmdParser(){};
 
     Int_t countLeading(const TString& text, const TString& characters, Int_t nMax) {
