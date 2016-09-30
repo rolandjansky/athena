@@ -205,7 +205,7 @@ int Root::TElectronLikelihoodTool::initialize()
 
   //Load the histograms
   for(unsigned int varIndex = 0; varIndex < fnVariables; varIndex++){
-    std::string vstr = fVariables[varIndex];
+    const std::string& vstr = fVariables[varIndex];
     // Skip the loading of PDFs for variables we don't care about for this operating point.
     // If the string is empty (which is true in the default 2012 case), load all of them.
     if(VariableNames.find(vstr) == std::string::npos && !VariableNames.empty()){
@@ -636,35 +636,39 @@ double Root::TElectronLikelihoodTool::EvaluateLikelihood(std::vector<double> var
   
   double SigmaS = 1.;
   double SigmaB = 1.;
+
+  // define some string constants
+  const std::string TRT_string = "TRT";
+  const std::string el_f3_string = "el_f3";
+  const std::string el_TRT_PID_string = "el_TRT_PID";
+
   for(unsigned int var = 0; var < fnVariables; var++){
     
-    std::string varstr = fVariables[var];
+    const std::string& varstr = fVariables[var];
     
     // Skip variables that are masked off (not used) in the likelihood
     if (!(m_variableBitMask & (0x1 << var))){
       continue;
     }
     // Don't use TRT for outer eta bins (2.01,2.37)
-    if (((etabin == 8) || (etabin == 9)) && (varstr.find("TRT") != std::string::npos)){
+    if (((etabin == 8) || (etabin == 9)) && (varstr.find(TRT_string) != std::string::npos)){
       continue;
     }
     // Don't use f3 for outer eta bin (2.37)
-    if ((etabin == 9) && (varstr.find("el_f3") != std::string::npos)){
+    if ((etabin == 9) && (varstr.find(el_f3_string) != std::string::npos)){
       continue;
     }
     // Don't use f3 for high et (>80 GeV)
-    if (doRemoveF3AtHighEt && (et > thresholdForRemovingF3*GeV) && (varstr.find("el_f3") != std::string::npos)){
+    if (doRemoveF3AtHighEt && (et > thresholdForRemovingF3*GeV) && (varstr.find(el_f3_string) != std::string::npos)){
         continue;
     }
     // Don't use TRTPID for high et (>80 GeV)
     // Note this flag is currently always set to false!
-    if (doRemoveTRTPIDAtHighEt && (et > thresholdForRemovingF3*GeV) && (varstr.find("el_TRT_PID") != std::string::npos)){
+    if (doRemoveTRTPIDAtHighEt && (et > thresholdForRemovingF3*GeV) && (varstr.find(el_TRT_PID_string) != std::string::npos)){
         continue;
     }
     for (unsigned int s_or_b=0; s_or_b<2;s_or_b++) {
       
-      std::string sig_bkg = (s_or_b==0) ? "sig" : "bkg" ;
-
       int bin = fPDFbins[s_or_b][ipbin][etbin][etabin][var]->FindBin(varVector[var]);
 
       double prob = 0;
@@ -991,20 +995,22 @@ double Root::TElectronLikelihoodTool::InterpolatePdfs(unsigned int s_or_b,unsign
 //----------------------------------------------------------------------------------------
 
 // These are the variables availalble in the likelihood.
-const char* Root::TElectronLikelihoodTool::fVariables[fnVariables] = {"el_d0significance"
-							     ,"el_eratio"
-							     ,"el_deltaeta1"
-							     ,"el_f1"
-							     ,"el_f3"
-							     ,"el_reta"
-							     ,"el_rhad"
-							     ,"el_rphi"
-							     ,"el_trackd0pvunbiased"
-							     ,"el_TRTHighTOutliersRatio"
-							     ,"el_weta2"
-							     ,"el_DeltaPoverP"
-							     ,"el_deltaphiRescaled"
-							     ,"el_TRT_PID"};
+const std::string Root::TElectronLikelihoodTool::fVariables[fnVariables] = {
+   "el_d0significance"
+  ,"el_eratio"
+  ,"el_deltaeta1"
+  ,"el_f1"
+  ,"el_f3"
+  ,"el_reta"
+  ,"el_rhad"
+  ,"el_rphi"
+  ,"el_trackd0pvunbiased"
+  ,"el_TRTHighTOutliersRatio"
+  ,"el_weta2"
+  ,"el_DeltaPoverP"
+  ,"el_deltaphiRescaled"
+  ,"el_TRT_PID"
+};
 //,"el_ws3"
 //,"el_ptcone20pt"
 //,"el_deltaphi2"
