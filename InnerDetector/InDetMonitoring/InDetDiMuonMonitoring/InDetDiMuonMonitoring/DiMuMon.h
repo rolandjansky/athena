@@ -24,8 +24,8 @@
 
 
 class TH1;
-class TH1D;
-class TH2D;
+class TH1F;
+class TH2F;
 class TProfile;
 class TCanvas;
 class TPostScript;
@@ -55,7 +55,7 @@ class DiMuMon : public ManagedMonitorToolBase
   double getEta(const xAOD::TrackParticle* id1, const xAOD::TrackParticle* id2 ) const;
   double getPhi(const xAOD::TrackParticle* id1, const xAOD::TrackParticle* id2 ) const;
   double getPt(const xAOD::TrackParticle* id1, const xAOD::TrackParticle* id2 ) const;
-  void iterativeGausFit(TH2D* hin, std::vector<TH1D*> hout, int mode);
+  void iterativeGausFit(TH2F* hin, std::vector<TH1F*> hout, int mode);
   bool trackQuality(const xAOD::TrackParticle *idTrk);
 
 
@@ -97,13 +97,13 @@ class DiMuMon : public ManagedMonitorToolBase
   std::map< std::string, double > m_varValues;
   std::map< std::string, std::string > m_varLabels;
 
-  TH1D* m_chi2;
-  TH1D* m_stat;
-  std::map< std::string, TH1D* > m_invmass;
-  std::map< std::string, std::map< std::string, TH2D*> > m_2DinvmassVSx;
-  std::map< std::string, std::map< std::string, TH1D*> > m_invmassVSx;
-  std::map< std::string, std::map< std::string, TH1D*> > m_widthVSx;
-  std::map< std::string, std::map< std::string, TH1D*> > m_xDistr;
+  TH1F* m_chi2;
+  TH1F* m_stat;
+  std::map< std::string, TH1F* > m_invmass;
+  std::map< std::string, std::map< std::string, TH2F*> > m_2DinvmassVSx;
+  std::map< std::string, std::map< std::string, TH1F*> > m_invmassVSx;
+  std::map< std::string, std::map< std::string, TH1F*> > m_widthVSx;
+  std::map< std::string, std::map< std::string, TH1F*> > m_xDistr;
 
 };
 
