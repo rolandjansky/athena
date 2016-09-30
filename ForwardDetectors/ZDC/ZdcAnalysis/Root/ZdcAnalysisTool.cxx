@@ -509,13 +509,18 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
 
       float calibEnergy = m_zdcDataAnalyzer->GetModuleCalibAmplitude(side, mod);
       zdcModule->auxdecor<float>("CalibEnergy") = calibEnergy;
-      const ZDCPulseAnalyzer* pulseAna_p = m_zdcDataAnalyzer->GetPulseAnalyzer(side, mod);
-      zdcModule->auxdecor<unsigned int>("Status") = pulseAna_p->GetStatusMask();
-      zdcModule->auxdecor<float>("Amp") = pulseAna_p->GetAmplitude();
-      zdcModule->auxdecor<float>("FitT0") = pulseAna_p->GetFitT0();
-      zdcModule->auxdecor<float>("T0Corr") = pulseAna_p->GetT0Corr();
-      zdcModule->auxdecor<float>("FitChisq") = pulseAna_p->GetChisq();
+      zdcModule->auxdecor<float>("CalibTime") = m_zdcDataAnalyzer->GetModuleCalibTime(side, mod);
+      zdcModule->auxdecor<unsigned int>("Status") = m_zdcDataAnalyzer->GetModuleStatus(side, mod);
+      zdcModule->auxdecor<float>("Amplitude") = m_zdcDataAnalyzer->GetModuleAmplitude(side, mod);
+      zdcModule->auxdecor<float>("Time") = m_zdcDataAnalyzer->GetModuleTime(side, mod);
 
+      const ZDCPulseAnalyzer* pulseAna_p = m_zdcDataAnalyzer->GetPulseAnalyzer(side, mod);
+      zdcModule->auxdecor<float>("Chisq") = pulseAna_p->GetChisq();      
+      zdcModule->auxdecor<float>("FitAmp") = pulseAna_p->GetFitAmplitude();
+      zdcModule->auxdecor<float>("FitAmpError") = pulseAna_p->GetAmpError();
+      zdcModule->auxdecor<float>("FitT0") = pulseAna_p->GetFitT0();
+      zdcModule->auxdecor<float>("BkgdMaxFraction") = pulseAna_p->GetBkgdMaxFraction();
+      
       /*      
       std::cout << "side = " << side << " module=" << zdcModule->zdcModule() << " CalibEnergy=" << zdcModule->auxdecor<float>("CalibEnergy") 
 		<< " should be " << m_zdcDataAnalyzer->GetModuleCalibAmplitude(side,mod) << std::endl;
