@@ -357,7 +357,10 @@ namespace Muon {
   
     if( settings.refit ){
       ATH_MSG_DEBUG("Original track" << m_printer->print(*&track) );
-      Trk::Track* refittedTrack = m_trackFitter->fit(*newTrack,false,Trk::muon);
+
+// do not put AEOTs on extremely bad chi2 tracks and do not refit them 
+
+      Trk::Track* refittedTrack = track.fitQuality()&&track.fitQuality()->chiSquared()<10000*track.fitQuality()->numberDoF() ? m_trackFitter->fit(*newTrack,false,Trk::muon) : 0 ;
       if( !refittedTrack ){
 	ATH_MSG_DEBUG("Failed to refit track");
 	++m_failedRefit;
