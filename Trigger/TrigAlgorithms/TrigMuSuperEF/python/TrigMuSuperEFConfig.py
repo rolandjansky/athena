@@ -124,6 +124,7 @@ def TrigMuSuperEF_MGonly(name="TrigMuSuperEF_MGonly",**kwargs):
     kwargs.setdefault("doInsideOut", True)
     kwargs.setdefault("doOutsideIn", False)
     kwargs.setdefault("UseL2Info",False)
+    kwargs.setdefault("DoCache", False)
     return TrigMuSuperEFConfig(name,**kwargs)
 
 
