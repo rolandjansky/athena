@@ -85,7 +85,7 @@ class TrigMuSuperEF: public virtual HLT::FexAlgo {
   HLT::ErrorCode runCombinerOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
 
   // run in caloTag mode
-  HLT::ErrorCode runCaloTagOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout);
+  HLT::ErrorCode runCaloTagOnly(const HLT::TriggerElement* inputTE, HLT::TriggerElement* TEout, std::unique_ptr<xAOD::MuonContainer>& muonContainerOwn);
 
   // run the MS+CB reconstruction of TrigMuonEF
   HLT::ErrorCode runMSCBReconstruction(const IRoiDescriptor* muonRoI,
