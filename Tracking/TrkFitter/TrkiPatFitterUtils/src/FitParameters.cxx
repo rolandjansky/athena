@@ -112,42 +112,44 @@ FitParameters::FitParameters (double			d0,
 }
 
 FitParameters::FitParameters (const FitParameters&	parameters)
-    :  m_alignmentAngle			(parameters.m_alignmentAngle),
-       m_alignmentOffset		(parameters.m_alignmentOffset),
-       m_cosPhi         	       	(parameters.m_cosPhi),
-       m_cosPhi1			(parameters.m_cosPhi1),
-       m_cosTheta			(parameters.m_cosTheta),
-       m_cosTheta1			(parameters.m_cosTheta1),
-       m_cotTheta			(parameters.m_cotTheta),
-       m_d0				(parameters.m_d0),
-       m_differences			(0),
-       m_extremeMomentum		(parameters.m_extremeMomentum),
-       m_finalCovariance	       	(parameters.m_finalCovariance),
-       m_firstAlignmentParameter	(parameters.m_firstAlignmentParameter),
-       m_firstScatteringParameter	(parameters.m_firstScatteringParameter),
-       m_fitEnergyDeposit		(parameters.m_fitEnergyDeposit),
-       m_fitMomentum			(parameters.m_fitMomentum),
-       m_fullCovariance	       		(parameters.m_fullCovariance),
-       m_minEnergyDeposit		(parameters.m_minEnergyDeposit),
-       m_numberAlignments		(parameters.m_numberAlignments),
-       m_numberOscillations		(parameters.m_numberOscillations),
-       m_numberParameters       	(parameters.m_numberParameters),
-       m_numberScatterers		(parameters.m_numberScatterers),
-       m_oldDifference			(parameters.m_oldDifference),
-       m_perigee			(parameters.m_perigee),
-       m_phiInstability			(parameters.m_phiInstability),
-       m_position			(parameters.m_position),
-       m_qOverP				(parameters.m_qOverP),
-       m_qOverP1        	       	(parameters.m_qOverP1),
-       m_scattererPhi			(parameters.m_scattererPhi),
-       m_scattererTheta			(parameters.m_scattererTheta),
-       m_sinPhi         	       	(parameters.m_sinPhi),
-       m_sinPhi1			(parameters.m_sinPhi1),
-       m_sinTheta			(parameters.m_sinTheta),
-       m_sinTheta1			(parameters.m_sinTheta1),
-       m_surface	       		(parameters.m_surface),
-       m_vertex		       		(parameters.m_vertex),
-       m_z0				(parameters.m_z0)
+    : m_alignmentAngle 			(parameters.m_alignmentAngle),
+      m_alignmentAngleConstraint	(parameters.m_alignmentAngleConstraint),
+      m_alignmentOffset			(parameters.m_alignmentOffset),
+      m_alignmentOffsetConstraint	(parameters.m_alignmentOffsetConstraint),
+      m_cosPhi         	       		(parameters.m_cosPhi),
+      m_cosPhi1				(parameters.m_cosPhi1),
+      m_cosTheta			(parameters.m_cosTheta),
+      m_cosTheta1			(parameters.m_cosTheta1),
+      m_cotTheta			(parameters.m_cotTheta),
+      m_d0				(parameters.m_d0),
+      m_differences			(0),
+      m_extremeMomentum			(parameters.m_extremeMomentum),
+      m_finalCovariance	       		(parameters.m_finalCovariance),
+      m_firstAlignmentParameter		(parameters.m_firstAlignmentParameter),
+      m_firstScatteringParameter	(parameters.m_firstScatteringParameter),
+      m_fitEnergyDeposit		(parameters.m_fitEnergyDeposit),
+      m_fitMomentum			(parameters.m_fitMomentum),
+      m_fullCovariance 			(parameters.m_fullCovariance),
+      m_minEnergyDeposit		(parameters.m_minEnergyDeposit),
+      m_numberAlignments		(parameters.m_numberAlignments),
+      m_numberOscillations		(parameters.m_numberOscillations),
+      m_numberParameters       		(parameters.m_numberParameters),
+      m_numberScatterers		(parameters.m_numberScatterers),
+      m_oldDifference			(parameters.m_oldDifference),
+      m_perigee				(parameters.m_perigee),
+      m_phiInstability 			(parameters.m_phiInstability),
+      m_position			(parameters.m_position),
+      m_qOverP 				(parameters.m_qOverP),
+      m_qOverP1        	       		(parameters.m_qOverP1),
+      m_scattererPhi			(parameters.m_scattererPhi),
+      m_scattererTheta 			(parameters.m_scattererTheta),
+      m_sinPhi         	       		(parameters.m_sinPhi),
+      m_sinPhi1				(parameters.m_sinPhi1),
+      m_sinTheta			(parameters.m_sinTheta),
+      m_sinTheta1			(parameters.m_sinTheta1),
+      m_surface	       			(parameters.m_surface),
+      m_vertex 	       			(parameters.m_vertex),
+      m_z0				(parameters.m_z0)
 {
     if (parameters.m_differences) m_differences = new AlVec(*parameters.m_differences);
 }
@@ -160,10 +162,15 @@ FitParameters::~FitParameters (void)
 //<<<<<< MEMBER FUNCTION DEFINITIONS                                    >>>>>>
 
 void
-FitParameters::addAlignment (double angle, double offset)
+FitParameters::addAlignment (bool constrained, double angle, double offset)
 {
     m_alignmentAngle[m_numberAlignments]	= angle;
     m_alignmentOffset[m_numberAlignments]	= offset;
+    if (constrained)
+    {
+	m_alignmentAngleConstraint[m_numberAlignments]	= angle;
+	m_alignmentOffsetConstraint[m_numberAlignments]	= offset;
+    }	
     ++m_numberAlignments;
 }
 
@@ -233,7 +240,9 @@ FitParameters::numberAlignments (int numberAlignments)
     m_numberAlignments		= 0;
     if (! numberAlignments) return;
     m_alignmentAngle		= std::vector<double>(numberAlignments,0.);
+    m_alignmentAngleConstraint	= std::vector<double>(numberAlignments,0.);
     m_alignmentOffset		= std::vector<double>(numberAlignments,0.);
+    m_alignmentOffsetConstraint	= std::vector<double>(numberAlignments,0.);
 }
 
 void
@@ -546,8 +555,10 @@ FitParameters::reset (const FitParameters& parameters)
     m_z0			= parameters.m_z0;
     for (int s = 0; s != m_numberAlignments; ++s)
     {
-	m_alignmentAngle[s]	= parameters.m_alignmentAngle[s];
-	m_alignmentOffset[s]	= parameters.m_alignmentOffset[s];
+	m_alignmentAngle[s]		= parameters.m_alignmentAngle[s];
+	m_alignmentAngleConstraint[s]	= parameters.m_alignmentAngleConstraint[s];
+	m_alignmentOffset[s]		= parameters.m_alignmentOffset[s];
+	m_alignmentOffsetConstraint[s]	= parameters.m_alignmentOffsetConstraint[s];
     }
     for (int s = 0; s != m_numberScatterers; ++s)
     {
@@ -620,14 +631,14 @@ FitParameters::trackParameters (MsgStream&		log,
     //   1) a Surface is required
     if (! measurement.surface())
     {
-	log << MSG::WARNING << "FitParameters::trackParameters - measurement lacks Surface" << endreq;
+	log << MSG::WARNING << "FitParameters::trackParameters - measurement lacks Surface" << endmsg;
 	return 0;
     }
 
     //   2) a SurfaceIntersection is required
     if (! measurement.hasIntersection(FittedTrajectory))
     {
-	log << MSG::WARNING << "FitParameters::trackParameters - invalid measurement" << endreq;
+	log << MSG::WARNING << "FitParameters::trackParameters - invalid measurement" << endmsg;
 	return 0;
     }
 	
@@ -638,7 +649,7 @@ FitParameters::trackParameters (MsgStream&		log,
 					       intersection.direction(),
 					       localPos))
     {
-	log << MSG::WARNING << "FitParameters::trackParameters - globalToLocal failure" << endreq;
+	log << MSG::WARNING << "FitParameters::trackParameters - globalToLocal failure" << endmsg;
 	return 0;
     }
 	
@@ -797,7 +808,7 @@ FitParameters::trackParameters (MsgStream&		log,
 	return parameters;
     }
     
-    log << MSG::WARNING << "FitParameters::trackParameters - unrecognized surface" << endreq;
+    log << MSG::WARNING << "FitParameters::trackParameters - unrecognized surface" << endmsg;
     delete covMatrix;
     return 0;
 }

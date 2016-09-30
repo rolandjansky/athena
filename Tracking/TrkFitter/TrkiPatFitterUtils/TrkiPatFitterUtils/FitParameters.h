@@ -48,12 +48,12 @@ public:
     
     ~FitParameters (void);	       			// destructor
 
-    void			addAlignment (double localAngle, double localOffset);
+    void			addAlignment (bool constrained, double localAngle, double localOffset);
     void			addScatterer (double phi, double theta);
-    double		       	alignmentAngle (int alignment) const;
-    double		       	alignmentOffset (int alignment) const;
-    // const AlignmentParameters*	alignmentParameters (const FitMeasurement& fitMeasurement,
-    // 						     int alignment = -1) const;
+    double			alignmentAngle (int alignment) const;
+    double			alignmentAngleConstraint (int alignment) const;
+    double			alignmentOffset (int alignment) const;
+    double			alignmentOffsetConstraint (int alignment) const;
     const Surface*		associatedSurface (void) const;	
     double			cosPhi (void) const;
     double			cosTheta (void) const;
@@ -76,15 +76,15 @@ public:
     void			fitEnergyDeposit (double minEnergyDeposit);
     bool			fitMomentum (void) const;
     void			fitMomentum (bool value);
-    const Amg::MatrixX*		fullCovariance (void) const;
-    void			numberAlignments (int numberAlignments);
-    void			numberParameters (int numberParameters);
-    void			numberScatterers (int numberScatterers);
+    const Amg::MatrixX* 	fullCovariance (void) const;
     TrackSurfaceIntersection*	intersection (void) const;
-    int				numberAlignments (void) const;
-    int				numberOscillations (void) const;
-    int				numberParameters (void) const;
-    int				numberScatterers (void) const;
+    int 			numberAlignments (void) const;
+    void			numberAlignments (int numberAlignments);
+    int 			numberOscillations (void) const;
+    int 			numberParameters (void) const;
+    void			numberParameters (int numberParameters);
+    int 			numberScatterers (void) const;
+    void			numberScatterers (int numberScatterers);
     void			performCutStep (double cutStep);
     bool			phiInstability (void) const;
     double			ptInv0 (void) const;
@@ -123,8 +123,10 @@ private:
     // assignment: no semantics, no implementation
     FitParameters &operator= (const FitParameters&);
 
-    std::vector<double>		m_alignmentAngle;
-    std::vector<double>		m_alignmentOffset;
+    std::vector<double> 	m_alignmentAngle;
+    std::vector<double> 	m_alignmentAngleConstraint;
+    std::vector<double> 	m_alignmentOffset;
+    std::vector<double> 	m_alignmentOffsetConstraint;
     double			m_cosPhi;
     mutable double		m_cosPhi1;
     double			m_cosTheta;
@@ -169,8 +171,16 @@ FitParameters::alignmentAngle (int alignment) const
 { return m_alignmentAngle[alignment]; }
 
 inline double
+FitParameters::alignmentAngleConstraint (int alignment) const
+{ return m_alignmentAngleConstraint[alignment]; }
+
+inline double
 FitParameters::alignmentOffset (int alignment) const
 { return m_alignmentOffset[alignment]; }
+
+inline double
+FitParameters::alignmentOffsetConstraint (int alignment) const
+{ return m_alignmentOffsetConstraint[alignment]; }
 
 inline double
 FitParameters::cosPhi (void) const

@@ -39,12 +39,12 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 	m_derivQOverP1			(0.),
 	m_energyResidual		(0.),
 	m_firstScatteringParameter      (parameters->firstScatteringParameter()),
-	m_havePhiPseudo			(false),
+        //m_havePhiPseudo			(false),
 	m_intersector			(intersector),
 	m_largeDeltaD0			(50.*Gaudi::Units::mm),
 	m_largeDeltaPhi0		(0.05),	
 	m_measurements			(measurements),
-	m_minDistanceForAngle		(2.*Gaudi::Units::mm),
+        //m_minDistanceForAngle		(2.*Gaudi::Units::mm),
 	m_numericDerivatives		(false),
 	m_parameters			(parameters),
 	m_phiInstability		(false),
@@ -53,12 +53,12 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 	m_rungeKuttaIntersector		(rungeKuttaIntersector),
 	m_sinPhi0			(parameters->sinPhi()),
 	m_sinTheta0			(parameters->sinTheta()),
-	m_toroidTurn			(0.1),
+        //m_toroidTurn			(0.1),
 	m_vertexIntersect		(0),
 	m_x0				(parameters->position().x()),
 	m_y0				(parameters->position().y()),
-	m_z0				(parameters->position().z()),
-	m_zInstability			(false)
+	m_z0				(parameters->position().z())
+        //m_zInstability			(false)
 {
     m_alignments.reserve(10);
     m_intersectStartingValue	= m_parameters->intersection();
@@ -359,8 +359,10 @@ MeasurementProcessor::calculateResiduals(void)
 	    }
 	    else if ((**m).isAlignment())	// alignment uncertainties
 	    {
-		(**m).residual(-(**m).weight()*m_parameters->alignmentAngle(nAlign));
-		(**m).residual2(-(**m).weight2()*m_parameters->alignmentOffset(nAlign));
+		(**m).residual(-(**m).weight()   * (m_parameters->alignmentAngle(nAlign) -
+						  m_parameters->alignmentAngleConstraint(nAlign)));
+		(**m).residual2(-(**m).weight2() * (m_parameters->alignmentOffset(nAlign) -
+						    m_parameters->alignmentOffsetConstraint(nAlign)));
 		++nAlign;
 	    }
 	    else if ((**m).isEnergyDeposit())
@@ -575,7 +577,7 @@ MeasurementProcessor::fieldIntegralUncertainty (MsgStream& log, Amg::MatrixX& co
 		<< "   diff "
 		<< std::setw(8) << std::setprecision(4) << deltaPhi
 		<< std::setw(8) << std::setprecision(4) << deltaTheta
-		<< endreq;
+		<< endmsg;
 	    return;
 	}
     }
@@ -628,7 +630,7 @@ MeasurementProcessor::fieldIntegralUncertainty (MsgStream& log, Amg::MatrixX& co
 		<< "   diff "
 		<< std::setw(8) << std::setprecision(4) << deltaPhi
 		<< std::setw(8) << std::setprecision(4) << deltaTheta
-		<< endreq;
+		<< endmsg;
 	}
     }
 }
@@ -939,14 +941,14 @@ MeasurementProcessor::driftDerivatives(int derivativeFlag, const FitMeasurement&
 	    // offset derivative: barrel (endcap) projection factor onto the surface plane in the z (r) direction
 	    double projection;
 	    const Surface& surface	= *fm->surface();
-	    if (surface.normal().dot(surface.center().unit()) < 0.5)
+	    if (std::abs(surface.normal().z()) > 0.5)
 	    {
-		projection	= driftDirection.z();
+		projection = (driftDirection.x()*surface.center().x() + driftDirection.y()*surface.center().y()) /
+			     surface.center().perp();
 	    }
 	    else
 	    {
-		projection =	(driftDirection.x()*surface.center().x() + driftDirection.y()*surface.center().y()) /
-				surface.center().perp();
+		projection = driftDirection.z();
 	    }
 	    measurement.derivative(++param, weight*projection);
 	     
@@ -1080,7 +1082,7 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
     {
 	if ((**m).afterCalo())
 	{
-	    if (type == DeltaQOverP0)	break;
+	    if (type == DeltaQOverP0)	continue;
 	}
 	else if (type == DeltaQOverP1)
 	{

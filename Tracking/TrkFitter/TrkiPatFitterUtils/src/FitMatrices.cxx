@@ -39,9 +39,11 @@
 
 namespace Trk{
     
-FitMatrices::FitMatrices(void)
+FitMatrices::FitMatrices(bool constrainedAlignmentEffects, bool /*fastMatrixTreatment*/)
     :	m_columns			(mxparam),	// reserve at maximum size
+	m_constrainedAlignmentEffects	(constrainedAlignmentEffects),
 	m_covariance			(0),
+	//m_fastMatrixTreatment		(fastMatrixTreatment),
 	m_finalCovariance		(0),
 	m_largePhiWeight		(10000.),	// arbitrary - equiv to 10um
 	m_matrixFromCLHEP		(false),
@@ -381,7 +383,8 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
 	// fit energyDeposit unless momentum fixed or near infinite
 	if ((**m).isEnergyDeposit())
 	{
-	    if (! m_parameters->fitMomentum() || m_parameters->extremeMomentum())
+//	    if (! m_parameters->fitMomentum() || m_parameters->extremeMomentum())
+	    if (! m_parameters->fitMomentum())
 	    {
 		(**m).numberDoF(0);
 		continue;
@@ -473,7 +476,9 @@ FitMatrices::setDimensions (std::list<FitMeasurement*>&	measurements,
     {
 	if ((**m).isEnergyDeposit())	afterCalo = true;
 	if (! (**m).isAlignment() || ! (**m).numberDoF())	continue;
-	parameters->addAlignment((**m).alignmentAngle(),(**m).alignmentOffset());
+	parameters->addAlignment(m_constrainedAlignmentEffects,
+				 (**m).alignmentAngle(),
+				 (**m).alignmentOffset());
 	m_firstRowForParameter.push_back(m_rows);
 	m_firstRowForParameter.push_back(m_rows);
 	(**m).firstParameter(numberParameters);

@@ -44,7 +44,7 @@ namespace Trk
  class FitMatrices
  {
  public:
-     FitMatrices (void);
+     FitMatrices (bool constrainedAlignmentEffects, bool fastMatrixTreatment);
      
      ~FitMatrices (void);
      
@@ -100,13 +100,14 @@ namespace Trk
      bool			solveEquationsCLHEP (void);	// using CLHEP
     
      int		       		m_columns;
+     bool				m_constrainedAlignmentEffects;
      Amg::MatrixX*			m_covariance;
+     //bool				m_fastMatrixTreatment;
      Amg::MatrixX*		   	m_finalCovariance;
      std::vector<int>       		m_firstRowForParameter;
      double				m_largePhiWeight;
      bool				m_matrixFromCLHEP;
      std::list<FitMeasurement*>*	m_measurements;
-     
      int			       	m_numberDoF;
      int		       		m_numberDriftCircles;
      int		      	 	m_numberPerigee;

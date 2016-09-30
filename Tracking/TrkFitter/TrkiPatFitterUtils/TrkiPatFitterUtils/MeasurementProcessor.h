@@ -62,13 +62,13 @@ private:
     double				m_derivQOverP1;
     double				m_energyResidual;
     int					m_firstScatteringParameter;
-    bool				m_havePhiPseudo;
+    //bool				m_havePhiPseudo;
     const TrackSurfaceIntersection*	m_intersectStartingValue;
     const ToolHandle<IIntersector>&	m_intersector;
     double				m_largeDeltaD0;
     double				m_largeDeltaPhi0;
     std::list<FitMeasurement*>&		m_measurements;
-    double				m_minDistanceForAngle;
+    //double				m_minDistanceForAngle;
     bool				m_numericDerivatives;
     FitParameters*			m_parameters;
     bool				m_phiInstability;
@@ -79,12 +79,12 @@ private:
     std::vector<FitMeasurement*>	m_scatterers;
     double				m_sinPhi0;
     double				m_sinTheta0;
-    double				m_toroidTurn;
+    //double				m_toroidTurn;
     const TrackSurfaceIntersection*	m_vertexIntersect;
     double				m_x0;
     double				m_y0;
     double				m_z0;
-    bool				m_zInstability;
+    //bool				m_zInstability;
 };
 
 }	// end of namespace
