@@ -13,14 +13,14 @@ atlas_depends_on_subdirs( PUBLIC
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           PhysicsAnalysis/AnalysisCommon/PATInterfaces
                           PRIVATE
+			  Tools/PathResolver
                           Control/AthenaBaseComps
                           Control/CxxUtils
                           Event/xAOD/xAODCaloEvent
                           Event/xAOD/xAODCore
                           Event/xAOD/xAODEventInfo
                           Event/xAOD/xAODTracking
-                          GaudiKernel
-                          Tools/PathResolver )
+                          GaudiKernel )
 
 # External dependencies:
 find_package( Boost COMPONENTS filesystem thread system )
@@ -50,5 +50,5 @@ atlas_add_dictionary( ElectronEfficiencyCorrectionDict
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_data( data/*.root )
+atlas_install_data( data/*.root data/*.txt )
 

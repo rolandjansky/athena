@@ -11,19 +11,16 @@ use AtlasROOT                   AtlasROOT-*             External
 use PATCore                     PATCore-*               PhysicsAnalysis/AnalysisCommon
 use PATInterfaces               PATInterfaces-*         PhysicsAnalysis/AnalysisCommon
 use AsgTools                    AsgTools-*              Control/AthToolSupport
-use  AthContainers              AthContainers-*         Control
+use AthContainers              AthContainers-*         Control
 use xAODEgamma                  xAODEgamma-*            Event/xAOD
 use AtlasBoost                  AtlasBoost-*            External
-
 
 ## put here your package dependencies...
 private
 use  GaudiInterface             GaudiInterface-*                External
 use  xAODEventInfo              xAODEventInfo-*                 Event/xAOD
+use CxxUtils    		CxxUtils-*                      Control
 use  PathResolver               PathResolver-*                  Tools
-use CxxUtils    		CxxUtils-*              Control
-
-#new
 use  AthenaBaseComps            AthenaBaseComps-*               Control
 use  xAODCore                   xAODCore-*                      Event/xAOD
 #next two are needed to get checkreq to shhh about the util stuff... this is annoying, but that's life! (will@cern)
@@ -52,8 +49,9 @@ apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions files="*.py"
 
 ## install the ROOT files (in the data/ directory)
-apply_pattern declare_calib files="../data/*.root" 
+apply_pattern declare_calib files="../data/*.root ../data/*.txt"  
 
 ## For reflex dictionary generation
 use AtlasReflex   AtlasReflex-*   External -no_auto_imports
 apply_pattern lcgdict dict=ElectronEfficiencyCorrection selectionfile=selection.xml headerfiles="..\/ElectronEfficiencyCorrection/ElectronEfficiencyCorrectionDict.h"
+

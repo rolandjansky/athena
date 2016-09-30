@@ -32,20 +32,12 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TRandom3.h"
-
 // Include the return object and the base class
 #include "PATCore/TResult.h"
 #include "PATCore/TCalculatorToolBase.h"
 #include "PATCore/PATCoreEnums.h"
 #include "AsgTools/AsgMessaging.h"
 
-template <class T>
-inline std::string toString(const T& in)
-{
-  std::stringstream stream;
-  stream << in;
-  return stream.str();
-}
 
 namespace Root {
   class TElectronEfficiencyCorrectionTool : public Root::TCalculatorToolBase,public asg::AsgMessaging
@@ -122,6 +114,7 @@ namespace Root {
       int setupHistogramsInFolder( TObjArray* dirNameArray, int lastIdx );
 
       void calcDetailLevels(TH1D *eig) ;
+
       std::vector<TObjArray*> *buildToyMCTable(TObjArray *sf, TObjArray *eig, TObjArray* stat, TObjArray* uncorr, std::vector<TObjArray*> *corr);
       std::vector<TH2D*> *buildSingleToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, TObjArray *corr);
       TH2D *buildSingleCombToyMC(TH2D *sf, TH2D* stat, TH2D* uncorr, TObjArray *corr);
@@ -153,6 +146,8 @@ namespace Root {
       bool m_doToyMC;
       bool m_doCombToyMC;
       int m_nToyMC;
+      //These are pointers to vectors  of vector pointers to TobjectArray pointers ...
+      //Nighmare to delete 
       std::vector< std::vector<TObjArray*> *> *m_uncorrToyMCSystFull, *m_uncorrToyMCSystFast;
 
       int m_sLevel[3];
@@ -179,11 +174,11 @@ namespace Root {
     
     
       /// List of histograms for full Geant4 simulation
-      std::map<TString, std::vector< TObjArray* > > m_histList;
+      std::map<int, std::vector< TObjArray* > > m_histList;
       std::vector< std::vector< TObjArray* > > m_sysList;
 
       /// List of histograms for fast simulation
-      std::map<TString, std::vector< TObjArray* > > m_fastHistList;
+      std::map<int, std::vector< TObjArray* > > m_fastHistList;
       std::vector< std::vector< TObjArray* > > m_fastSysList;
 
 
@@ -222,14 +217,7 @@ namespace Root {
       /// The position of the efficiency scale factor uncorrelated systematic uncertainty in the result
       int m_position_globalBinNumber; 
 
-      std::vector<std::string> m_keys;
-
-      int m_runnumberIndex;
-      unsigned int m_last_runnumber;
-      PATCore::ParticleDataType::DataType m_last_dataType;
-      std::map<std::string, const TH1*> *m_last_hist;
-      std::map<std::string, const TObjArray*> *m_last_hists;
-    
+      std::vector<int> m_keys;
     
     }; // End: class definition
   
