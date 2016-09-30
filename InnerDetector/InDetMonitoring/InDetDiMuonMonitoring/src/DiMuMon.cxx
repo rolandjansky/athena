@@ -194,11 +194,11 @@ StatusCode DiMuMon::bookHistograms()
 
      //   if( isNewRun ) {
 
-     m_chi2 = new TH1D("chi2","chi2",100,0.,10.);
+     m_chi2 = new TH1F("chi2","chi2",100,0.,10.);
      RegisterHisto(dimuMonObj_expert,m_chi2);
 
      const int nCuts = 8;
-     m_stat = new TH1D("statistics","Statistics",nCuts, 0., double(nCuts));
+     m_stat = new TH1F("statistics","Statistics",nCuts, 0., double(nCuts));
      TString binLabels[] ={"MuonIdTrk","TrkIsoPt40/Pt<.2","CombMuon","MCPgoodTrk","MuPtOK","eta<2.5","OppChargePair","InvMassOK"};
      for(int ilabel=0;ilabel<nCuts;ilabel++){
        m_stat->GetXaxis()->SetBinLabel(ilabel+1,binLabels[ilabel]);
@@ -231,7 +231,7 @@ StatusCode DiMuMon::bookHistograms()
        //mass plots
        TString hname = m_resonName + "_invmass_" + *ireg;
        TString htitle = hname + "; Invmass[GeV/c^{2}]";
-       m_invmass[*ireg] = new TH1D(hname, htitle, m_nMassBins, m_minInvmass, m_maxInvmass);
+       m_invmass[*ireg] = new TH1F(hname, htitle, m_nMassBins, m_minInvmass, m_maxInvmass);
        RegisterHisto(dimuMonObj_shift,m_invmass[*ireg]);
 
        //for each var vs mass plot
@@ -239,12 +239,12 @@ StatusCode DiMuMon::bookHistograms()
        for (ivarM=m_varsVSmean.begin(); ivarM!=m_varsVSmean.end();ivarM++){
 	 hname = m_resonName + "_2DinvmassVS" + *ivarM + "_" + *ireg;
 	 htitle = hname + ";" + m_varLabels[*ivarM] + ";Invmass[GeV/c^{2}]";
-	 m_2DinvmassVSx[*ireg][*ivarM] = new TH2D(hname, htitle ,m_nVarBins,m_varRanges[*ivarM].first, m_varRanges[*ivarM].second, m_nMassBins, m_minInvmass, m_maxInvmass);
+	 m_2DinvmassVSx[*ireg][*ivarM] = new TH2F(hname, htitle ,m_nVarBins,m_varRanges[*ivarM].first, m_varRanges[*ivarM].second, m_nMassBins, m_minInvmass, m_maxInvmass);
 	 RegisterHisto(dimuMonObj_shift,m_2DinvmassVSx[*ireg][*ivarM]);
 
 	 hname = m_resonName + "_invmassVS" + *ivarM + "_" + *ireg;
 	 htitle = hname + ";" + m_varLabels[*ivarM] + ";Invmass[GeV/c^{2}]";
-	 m_invmassVSx[*ireg][*ivarM] = new TH1D(hname, htitle, m_nVarBins,m_varRanges[*ivarM].first, m_varRanges[*ivarM].second);
+	 m_invmassVSx[*ireg][*ivarM] = new TH1F(hname, htitle, m_nVarBins,m_varRanges[*ivarM].first, m_varRanges[*ivarM].second);
 	 RegisterHisto(dimuMonObj_shift,m_invmassVSx[*ireg][*ivarM]);
        }
 
@@ -255,13 +255,13 @@ StatusCode DiMuMon::bookHistograms()
 	 if (m_2DinvmassVSx[*ireg].find(*ivarW)==m_2DinvmassVSx[*ireg].end()){
 	   hname = m_resonName + "_2DinvmassVS" + *ivarW + "_" + *ireg;
 	   htitle = hname + ";" + m_varLabels[*ivarW] + ";Invmass[GeV/c^{2}]";
-	   m_2DinvmassVSx[*ireg][*ivarW] = new TH2D(hname, htitle ,m_nVarBins, m_varRanges[*ivarW].first, m_varRanges[*ivarW].second, m_nMassBins, m_minInvmass, m_maxInvmass);
+	   m_2DinvmassVSx[*ireg][*ivarW] = new TH2F(hname, htitle ,m_nVarBins, m_varRanges[*ivarW].first, m_varRanges[*ivarW].second, m_nMassBins, m_minInvmass, m_maxInvmass);
 	   RegisterHisto(dimuMonObj_shift,m_2DinvmassVSx[*ireg][*ivarW]);
 	 }
 
 	 hname = m_resonName + "_widthVS" + *ivarW + "_" + *ireg;
 	 htitle = hname + ";" + m_varLabels[*ivarW] + ";Width[GeV/c^{2}]";
-	 m_widthVSx[*ireg][*ivarW] = new TH1D(hname,htitle ,m_nVarBins,m_varRanges[*ivarW].first, m_varRanges[*ivarW].second);
+	 m_widthVSx[*ireg][*ivarW] = new TH1F(hname,htitle ,m_nVarBins,m_varRanges[*ivarW].first, m_varRanges[*ivarW].second);
 	 RegisterHisto(dimuMonObj_expert,m_widthVSx[*ireg][*ivarW]);
 
        }
@@ -272,13 +272,13 @@ StatusCode DiMuMon::bookHistograms()
 	 hname = m_resonName + "_" + *ivarD + "_" + *ireg;
 	 htitle = hname + ";" + m_varLabels[*ivarD];
 	 if (*ivarD == "eta" || *ivarD == "etaAll" || *ivarD == "etaPos" || *ivarD == "etaNeg" ){
-	   m_xDistr[*ireg][*ivarD] = new TH1D(hname, htitle, m_nEtaBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
+	   m_xDistr[*ireg][*ivarD] = new TH1F(hname, htitle, m_nEtaBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
 	 } else if (*ivarD == "pt" || *ivarD == "ptAll" || *ivarD == "ptPos" || *ivarD == "ptNeg" ){
-	   m_xDistr[*ireg][*ivarD] = new TH1D(hname, htitle, m_nPtBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
+	   m_xDistr[*ireg][*ivarD] = new TH1F(hname, htitle, m_nPtBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
 	 } else if (*ivarD == "phi" || *ivarD == "phiAll" || *ivarD == "phiPos" || *ivarD == "phiNeg" ){
-	   m_xDistr[*ireg][*ivarD] = new TH1D(hname, htitle, m_nPhiBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
+	   m_xDistr[*ireg][*ivarD] = new TH1F(hname, htitle, m_nPhiBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
 	 } else {
-	   m_xDistr[*ireg][*ivarD] = new TH1D(hname, htitle, m_nVarBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
+	   m_xDistr[*ireg][*ivarD] = new TH1F(hname, htitle, m_nVarBins, m_varRanges[*ivarD].first, m_varRanges[*ivarD].second);
 	 }
 	 RegisterHisto(dimuMonObj_expert,m_xDistr[*ireg][*ivarD]);
        }
@@ -427,14 +427,14 @@ StatusCode DiMuMon::fillHistograms()
 
 	//fill 2D histos
 	//first, retrieve the overlap of the width and mean variable lists which by construction is the list of vars in the 2D histos map
-	std::map<std::string, TH2D*>* allVars = 0;
+	std::map<std::string, TH2F*>* allVars = 0;
 	if (fillAll){
 	  allVars = &m_2DinvmassVSx["All"];
 	} else {  //fillReg=true
 	  allVars = &m_2DinvmassVSx[region];
 	}
 
-	std::map<std::string, TH2D*>::iterator ivar2D = allVars->begin();
+	std::map<std::string, TH2F*>::iterator ivar2D = allVars->begin();
 	for (ivar2D = allVars->begin();ivar2D != allVars->end(); ivar2D++){
 	  if ((*ivar2D).first!="etaAll" && (*ivar2D).first!="phiAll" && (*ivar2D).first!="ptAll"){
 	    if (fillAll) m_2DinvmassVSx["All"][(*ivar2D).first]->Fill(m_varValues[(*ivar2D).first],invmass);
@@ -524,10 +524,10 @@ StatusCode DiMuMon::procHistograms()
    if(endOfRun && m_doFits) {
      std::vector<std::string> ::iterator ireg = m_regions.begin();
      for (ireg = m_regions.begin(); ireg != m_regions.end(); ireg++){
-       std::map<std::string, TH2D*>::iterator ivar2D = m_2DinvmassVSx[*ireg].begin();
+       std::map<std::string, TH2F*>::iterator ivar2D = m_2DinvmassVSx[*ireg].begin();
        for (ivar2D = m_2DinvmassVSx[*ireg].begin();ivar2D != m_2DinvmassVSx[*ireg].end(); ivar2D++){
 	 int mode = 999.; //0 = both, 1 = mean only, 2 = wdth only
-	 std::vector<TH1D*> hout;//1D histograms for fit results
+	 std::vector<TH1F*> hout;//1D histograms for fit results
 	 if (m_invmassVSx[*ireg].find((*ivar2D).first)!=m_invmassVSx[*ireg].end()){
 	   if (m_widthVSx[*ireg].find((*ivar2D).first)!=m_widthVSx[*ireg].end()) {
 	     mode =0;
@@ -549,7 +549,7 @@ StatusCode DiMuMon::procHistograms()
 }
 
 
-void DiMuMon::iterativeGausFit (TH2D* hin, std::vector<TH1D*> hout, int mode){
+void DiMuMon::iterativeGausFit (TH2F* hin, std::vector<TH1F*> hout, int mode){
   // a canvas may be needed when implmenting this into the post-processing file
   TString hname =  hin->GetName();
   TString psName = hname + m_triggerChainName + ".ps";
@@ -562,7 +562,7 @@ void DiMuMon::iterativeGausFit (TH2D* hin, std::vector<TH1D*> hout, int mode){
   for (int i=0; i<nbins;i++){
     std::ostringstream o; o<<i;
     TString projName = hname + o.str();
-    TH1D* htemp = (TH1D*) (hin->ProjectionY(projName,i+1,i+1)->Clone());
+    TH1F* htemp = (TH1F*) (hin->ProjectionY(projName,i+1,i+1)->Clone());
     htemp->SetTitle(projName);
     htemp->Sumw2();
     if (htemp->GetEntries()>50){
