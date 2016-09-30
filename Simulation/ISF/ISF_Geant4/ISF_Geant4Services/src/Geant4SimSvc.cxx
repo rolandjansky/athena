@@ -21,6 +21,8 @@
 
 // Geant4 classes
 #include "G4Timer.hh"
+#include "G4SDManager.hh"
+
 
 /** Constructor **/
 iGeant4::Geant4SimSvc::Geant4SimSvc(const std::string& name,ISvcLocator* svc) :
@@ -134,6 +136,9 @@ StatusCode iGeant4::Geant4SimSvc::setupEvent()
 
   m_nrOfEntries++;
   if (m_doTiming) m_eventTimer->Start();
+
+  // make sure SD collections are properly initialized in every Athena event
+  G4SDManager::GetSDMpointer()->PrepareNewEvent();
 
   return StatusCode::SUCCESS;
 }
