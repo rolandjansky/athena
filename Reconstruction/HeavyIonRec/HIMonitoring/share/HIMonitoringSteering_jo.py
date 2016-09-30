@@ -54,7 +54,7 @@ name           = "HIElectronsMonTool",
 
 
 
-if DQMonFlags.monManEnvironment == 'tier0ESD': 
+if DQMonFlags.monManEnvironment == 'tier0ESD' or DQMonFlags.monManEnvironment == 'tier0': 
     ToolSvc += HIEventShapeMonTool
     HIEventShapeMonMan = AthenaMonManager( "HIEventShapeManager",
                                    FileKey             = DQMonFlags.monManFileKey(),             #"GLOBAL" #"stat"
