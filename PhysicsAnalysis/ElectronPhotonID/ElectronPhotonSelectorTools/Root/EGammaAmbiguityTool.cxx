@@ -52,7 +52,8 @@ EGammaAmbiguityTool::EGammaAmbiguityTool(std::string myname) :
     "Electron container name");
   declareProperty("PhotonContainerName", m_photonContainerName = "Photons",
     "Photon container name");
-
+  declareProperty("useLargeD0Author", m_doLargeD0=false, "Flag to use large d0 Electron Ambiguity in displaced vertex analyis");
+ 
 }
 
 
@@ -172,6 +173,20 @@ unsigned int EGammaAmbiguityTool::ambiguityResolve(const xAOD::CaloCluster* clus
       (trkHasInnermostHit && (!vxDoubleSi || nTrkVxWithInnermostHit == 1 || !passDeltaR_innermost(*vx))) )
   {
     ATH_MSG_DEBUG("Returning Electron");
+
+    // code for Large d0 Electron in displaced vertex analyis 
+    if (m_doLargeD0 && tp) {
+      auto id_tp = xAOD::EgammaHelpers::getOriginalTrackParticleFromGSF(tp);
+      if (id_tp) {
+	auto tr_pattern = id_tp->patternRecoInfo();
+	
+	if (tr_pattern.test(xAOD::SiSpacePointsSeedMaker_LargeD0)) {
+	  ATH_MSG_DEBUG("Returning Ambiguous due to large d0 track");
+	  return xAOD::EgammaParameters::AuthorAmbiguous;
+	}
+      }
+    }
+
     return xAOD::EgammaParameters::AuthorElectron;
   }
 

@@ -91,6 +91,8 @@ private:
   std::string m_electronContainerName;
   /** @brief Photon container name */
   std::string m_photonContainerName;
+  /** @brief flag for large d0 author*/
+  bool m_doLargeD0; 
   
   /** Retrieve from StoreGate and return electron (if electronContainer=True) 
     * or photon container **/

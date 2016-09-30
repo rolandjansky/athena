@@ -542,7 +542,7 @@ namespace Root {
     static const unsigned int  fnEtaBins        = 10;
     static const unsigned int  fnVariables      = 14;
     TElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_BINS][fnEtBinsHist][fnEtaBins][fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
-    static const char*  fVariables                      [fnVariables]; 
+    static const std::string  fVariables                [fnVariables];
 
     static const double Disc_VeryLoose[90];
     static const double Disc_LooseRelaxed[90];
