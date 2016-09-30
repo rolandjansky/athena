@@ -153,7 +153,7 @@ TRTDigitizationTool::~TRTDigitizationTool() {
 StatusCode TRTDigitizationTool::initialize()
 {
 
-  ATH_MSG_INFO ( "TRTDigitization::initialize() KryptonDev" );
+  //ATH_MSG_INFO ( "TRTDigitization::initialize()" );
   ATH_MSG_DEBUG ( "TRTDigitization::initialize() begin" );
 
   // Get the TRT Detector Manager
@@ -945,7 +945,7 @@ StatusCode TRTDigitizationTool::update( IOVSVC_CALLBACK_ARGS_P(I,keys) ) {
     std::list<std::string>::const_iterator itr;
     if (msgLvl(MSG::INFO)) {
       for( itr=keys.begin(); itr !=keys.end(); ++itr) {
-	msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endreq;
+	msg(MSG::INFO)<< "IOVCALLBACK for key "<< *itr << " number " << I << endmsg;
       }
     }
     m_dig_vers_from_condDB =(*atrlist)["TRT_Dig_Vers"].data<int>();
@@ -963,7 +963,7 @@ int TRTDigitizationTool::StrawGasType(Identifier& TRT_Identifier) const {
   // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
   // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
 
-  int strawGasType=-1;
+  int strawGasType=99;
 
   if (m_UseGasMix==0) { // use StatusHT
     int stat =  m_sumSvc->getStatusHT(TRT_Identifier);

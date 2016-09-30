@@ -53,7 +53,7 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
     m_UseGasMix(UseGasMix),
     m_sumSvc(sumSvc)
 {
-  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Constructor begin" << endreq; }
+  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Constructor begin" << endmsg; }
 
   m_noise_randengine = atRndmGenSvc->GetEngine("TRT_Noise");
 
@@ -62,13 +62,13 @@ TRTNoise::TRTNoise( const TRTDigSettings* digset,
   if ( m_settings->noiseInSimhits() )
     m_pElectronicsNoise->reinitElectronicsNoise( 1000 );
 
-  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "Constructor done" << endreq; }
+  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "Constructor done" << endmsg; }
 }
 
 //_____________________________________________________________________________
 TRTNoise::~TRTNoise() {
 
-  if (msgLevel(MSG::VERBOSE)) {msg(MSG::VERBOSE) << "TRTNoise::Destructor" << endreq; }
+  if (msgLevel(MSG::VERBOSE)) {msg(MSG::VERBOSE) << "TRTNoise::Destructor" << endmsg; }
 }
 
 //_____________________________________________________________________________
@@ -94,7 +94,7 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
   // through the straws and set LT_i and NA_i.                       //
   /////////////////////////////////////////////////////////////////////
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE)
-    << "TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool Begin" << endreq;
+    << "TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool Begin" << endmsg;
   }
 
   ///////////////////////////////////////////////////////////////////
@@ -105,8 +105,8 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
   std::vector<float> maxLTOverNoiseAmp;
   m_pElectronicsNoise->getSamplesOfMaxLTOverNoiseAmp(maxLTOverNoiseAmp,10000);
 
-  sort(    maxLTOverNoiseAmp.begin(), maxLTOverNoiseAmp.end() );
-  reverse( maxLTOverNoiseAmp.begin(), maxLTOverNoiseAmp.end() );
+  std::stable_sort( maxLTOverNoiseAmp.begin(), maxLTOverNoiseAmp.end() );
+  reverse(          maxLTOverNoiseAmp.begin(), maxLTOverNoiseAmp.end() );
 
   // If we have LT event-event fluctuations, we need to include that effect in the curve
 
@@ -238,21 +238,21 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
 
     if (nstraws_Xe) {
       msg(MSG::INFO) << "Xe Average LT is " << sumLT_Xe/nstraws_Xe/CLHEP::eV << " eV, with an RMS of "
-      << sqrt((sumLTsq_Xe/nstraws_Xe)-(sumLT_Xe/nstraws_Xe)*(sumLT_Xe/nstraws_Xe))/CLHEP::eV << " eV" << endreq;
+      << sqrt((sumLTsq_Xe/nstraws_Xe)-(sumLT_Xe/nstraws_Xe)*(sumLT_Xe/nstraws_Xe))/CLHEP::eV << " eV" << endmsg;
       msg(MSG::INFO) << "Xe Average NA is " << sumNA_Xe/nstraws_Xe/CLHEP::eV << " eV, with an RMS of "
-      << sqrt((sumNAsq_Xe/nstraws_Xe)-(sumNA_Xe/nstraws_Xe)*(sumNA_Xe/nstraws_Xe))/CLHEP::eV << " eV" << endreq;
+      << sqrt((sumNAsq_Xe/nstraws_Xe)-(sumNA_Xe/nstraws_Xe)*(sumNA_Xe/nstraws_Xe))/CLHEP::eV << " eV" << endmsg;
     }
     if (nstraws_Kr) {
       msg(MSG::INFO) << "Kr Average LT is " << sumLT_Kr/nstraws_Kr/CLHEP::eV << " eV, with an RMS of "
-      << sqrt((sumLTsq_Kr/nstraws_Kr)-(sumLT_Kr/nstraws_Kr)*(sumLT_Kr/nstraws_Kr))/CLHEP::eV << " eV" << endreq;
+      << sqrt((sumLTsq_Kr/nstraws_Kr)-(sumLT_Kr/nstraws_Kr)*(sumLT_Kr/nstraws_Kr))/CLHEP::eV << " eV" << endmsg;
       msg(MSG::INFO) << "Kr Average NA is " << sumNA_Kr/nstraws_Kr/CLHEP::eV << " eV, with an RMS of "
-      << sqrt((sumNAsq_Kr/nstraws_Kr)-(sumNA_Kr/nstraws_Kr)*(sumNA_Kr/nstraws_Kr))/CLHEP::eV << " eV" << endreq;
+      << sqrt((sumNAsq_Kr/nstraws_Kr)-(sumNA_Kr/nstraws_Kr)*(sumNA_Kr/nstraws_Kr))/CLHEP::eV << " eV" << endmsg;
     }
     if (nstraws_Ar) {
       msg(MSG::INFO) << "Ar Average LT is " << sumLT_Ar/nstraws_Ar/CLHEP::eV << " eV, with an RMS of "
-      << sqrt((sumLTsq_Ar/nstraws_Ar)-(sumLT_Ar/nstraws_Ar)*(sumLT_Ar/nstraws_Ar))/CLHEP::eV << " eV" << endreq;
+      << sqrt((sumLTsq_Ar/nstraws_Ar)-(sumLT_Ar/nstraws_Ar)*(sumLT_Ar/nstraws_Ar))/CLHEP::eV << " eV" << endmsg;
       msg(MSG::INFO) << "Ar Average NA is " << sumNA_Ar/nstraws_Ar/CLHEP::eV << " eV, with an RMS of "
-      << sqrt((sumNAsq_Ar/nstraws_Ar)-(sumNA_Ar/nstraws_Ar)*(sumNA_Ar/nstraws_Ar))/CLHEP::eV << " eV" << endreq;
+      << sqrt((sumNAsq_Ar/nstraws_Ar)-(sumNA_Ar/nstraws_Ar)*(sumNA_Ar/nstraws_Ar))/CLHEP::eV << " eV" << endmsg;
     }
 
   }
@@ -265,7 +265,7 @@ void TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool() {
     ProduceNoiseDigitPool( actual_LTs, actual_noiseamps, strawTypes );
   }
   if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE)
-      << "TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool Done" << endreq;
+      << "TRTNoise::InitThresholdsAndNoiseAmplitudes_and_ProduceNoiseDigitPool Done" << endmsg;
   }
   return;
 }
@@ -278,7 +278,7 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
   unsigned int nstraw = lowthresholds.size();
   unsigned int istraw;
 
-  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Producing noise digit pool" << endreq; }
+  if (msgLevel(MSG::VERBOSE)) { msg(MSG::VERBOSE) << "TRTNoise::Producing noise digit pool" << endmsg; }
 
   m_digitPool.resize( m_digitPoolLength );
 
@@ -321,12 +321,12 @@ void TRTNoise::ProduceNoiseDigitPool( const std::vector<float>& lowthresholds,
 
   if (msgLevel(MSG::VERBOSE)) {
     if(0==ntries) {
-      if (msgLevel(MSG::FATAL)) { msg(MSG::FATAL) << "ntries==0 this should not be possible!" << endreq; }
+      if (msgLevel(MSG::FATAL)) { msg(MSG::FATAL) << "ntries==0 this should not be possible!" << endmsg; }
       throw std::exception();
     }
     msg(MSG::VERBOSE)
     << "Produced noise digit pool of size " << m_digitPool.size()
-    << " (efficiency was " << static_cast<double>(m_digitPool.size())/ntries << ")" << endreq;
+    << " (efficiency was " << static_cast<double>(m_digitPool.size())/ntries << ")" << endmsg;
   }
 
   m_digitPoolLength_nextaccessindex = 0;
@@ -397,7 +397,7 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
 	  case -1:  barrel_endcap = 0; isneg = 0; break;
 	  case  1:  barrel_endcap = 0; isneg = 1; break;
 	  default:
-	    if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTNoise - identifier problems - skipping detector element!!" <<  endreq; }
+	    if (msgLevel(MSG::WARNING)) {msg(MSG::WARNING) << "TRTDigitization::TRTNoise - identifier problems - skipping detector element!!" <<  endmsg; }
 	    continue;
 	  }
 	  const int ringwheel(m_id_helper->layer_or_wheel(CrossTalkIds[i]));
@@ -424,7 +424,7 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
 	  case -1:  barrel_endcap = 0; isneg = 0; break;
 	  case  1:  barrel_endcap = 0; isneg = 1; break;
 	  default:
-	    if (msgLevel(MSG::WARNING)) { msg(MSG::WARNING) << "TRTDigitization::TRTNoise - identifier problems - skipping detector element!!" <<  endreq; }
+	    if (msgLevel(MSG::WARNING)) { msg(MSG::WARNING) << "TRTDigitization::TRTNoise - identifier problems - skipping detector element!!" <<  endmsg; }
 	    continue;
 	    }
 
@@ -449,7 +449,7 @@ void TRTNoise::appendCrossTalkNoiseToProperDigits(std::vector<TRTDigit>& digitVe
 
 void TRTNoise::sortDigits(std::vector<TRTDigit>& digitVect)
 {
-  std::sort(digitVect.begin(), digitVect.end(), TRTDigitSorterObject);
+  std::stable_sort(digitVect.begin(), digitVect.end(), TRTDigitSorterObject);
   return;
 }
 
@@ -619,7 +619,7 @@ Identifier TRTNoise::getStrawIdentifier ( int hitID )
       msg(MSG::ERROR) << "Could not find detector element for barrel identifier with "
 		      << "(ipos,iring,imod,ilayer,istraw) = ("
 		      << trtID << ", " << ringID << ", " << moduleID << ", "
-		      << layerID << ", " << strawID << ")" << endreq;
+		      << layerID << ", " << strawID << ")" << endmsg;
     }
   } else {                           // endcap
     strawID   = hitID & mask;
@@ -644,11 +644,11 @@ Identifier TRTNoise::getStrawIdentifier ( int hitID )
       msg(MSG::ERROR) << "Could not find detector element for endcap identifier with "
 		      << "(ipos,iwheel,isector,iplane,istraw) = ("
 		      << trtID << ", " << wheelID << ", " << sectorID << ", "
-		      << planeID << ", " << strawID << ")" << endreq;
+		      << planeID << ", " << strawID << ")" << endmsg;
       msg(MSG::ERROR) << "If this happens very rarely, don't be alarmed "
-		      << "(it is a Geant4 'feature')" << endreq;
+		      << "(it is a Geant4 'feature')" << endmsg;
       msg(MSG::ERROR) << "If it happens a lot, you probably have misconfigured geometry "
-		      << "in the sim. job." << endreq;
+		      << "in the sim. job." << endmsg;
     }
 
   }
@@ -664,7 +664,7 @@ int TRTNoise::StrawGasType(Identifier TRT_Identifier) {
   // The m_UseGasMix default behaviour (0) is to use TRT/Cond/StatusHT, other values can be set to force
   // the whole detector to (1)Xenon, (2)Krypton, (3)Argon:
 
-  int strawGasType=-1;
+  int strawGasType=99;
 
   if (m_UseGasMix==0) { // use StatusHT
     int stat =  m_sumSvc->getStatusHT(TRT_Identifier);

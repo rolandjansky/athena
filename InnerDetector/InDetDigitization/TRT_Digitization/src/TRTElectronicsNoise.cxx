@@ -23,7 +23,7 @@ TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
     m_msg("TRTElectronicsNoise")
 {
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsNoise::Constructor begin"  << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsNoise::Constructor begin"  << endmsg;
 
   //Need to initialize the signal shaping first as it is used in tabulateNoiseSignalShape()!
   this->InitializeNoiseShaping();
@@ -42,7 +42,7 @@ TRTElectronicsNoise::TRTElectronicsNoise(const TRTDigSettings* digset,
   const double binwidth(m_settings->timeInterval()/m_settings->numberOfBins());
   m_nbins_periodic = static_cast<int>(slowPeriod/binwidth + 0.5);
 
-  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsNoise::Constructor done"   << endreq;
+  if (msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "TRTElectronicsNoise::Constructor done"   << endmsg;
 }
 
 //_____________________________________________________________________________
