@@ -9,6 +9,7 @@ atlas_subdir( AssociationComps )
 atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloEvent
                           Control/AthenaBaseComps
+                          Control/AthenaKernel
                           Control/AthContainers
                           Control/AthLinks
                           Control/Navigation
@@ -36,7 +37,7 @@ atlas_add_component( AssociationComps
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaBaseComps AthContainers AthLinks Navigation StoreGateLib SGtests EventKernel FourMomUtils NavFourMom GaudiKernel AssociationKernel JetEvent muonEvent egammaEvent tauEvent TrigObjectMatchingLib TrigCaloEvent TrigMuonEvent TrigParticle )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} CaloEvent AthenaKernel AthenaBaseComps AthContainers AthLinks Navigation StoreGateLib SGtests EventKernel FourMomUtils NavFourMom GaudiKernel AssociationKernel JetEvent muonEvent egammaEvent tauEvent TrigObjectMatchingLib TrigCaloEvent TrigMuonEvent TrigParticle )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
