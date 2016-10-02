@@ -11,8 +11,8 @@
 #include <stdexcept>
 
 // initialize class members
-int TagBuilderBase::maxNumOfBuilder = 0;
-int TagBuilderBase::numOfBuilder    = 0;
+int TagBuilderBase::s_maxNumOfBuilder = 0;
+int TagBuilderBase::s_numOfBuilder    = 0;
 
 AthenaAttributeListSpecification* TagBuilderBase::m_attribListSpec = 0;
 
@@ -36,22 +36,22 @@ TagBuilderBase::TagBuilderBase() : m_check(false)
 
 void TagBuilderBase::incMaxNumOfBuilder()
 {
-  ++maxNumOfBuilder;
+  ++s_maxNumOfBuilder;
 }
 
 void TagBuilderBase::setNumOfBuilderToMax()
 {
-  numOfBuilder = maxNumOfBuilder;
+  s_numOfBuilder = s_maxNumOfBuilder;
 }
 
 void TagBuilderBase::decNumOfBuilder()
 {
-  --numOfBuilder;
+  --s_numOfBuilder;
 }
 
 bool TagBuilderBase::lastBuilder()
 {
-  return (numOfBuilder>0) ? false : true;
+  return (s_numOfBuilder>0) ? false : true;
 }
 
 /** fill the list of tag attributes with data */
