@@ -26,6 +26,7 @@ namespace DerivationFramework {
     m_expression(""),
     m_2ndExpression(""),
     m_parser(0),
+    m_parser2(0),
     m_sgName(""),
     m_containerName(""),
     m_2ndContainerName("")
