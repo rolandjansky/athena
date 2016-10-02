@@ -87,19 +87,19 @@ StatusCode AssociationAlgorithm::initialize()
   // Print the used configuration
   if (msgLvl(MSG::INFO))
     {
-      msg(MSG::INFO) << "==> initialize " << name() << "..." << endreq ;
+      msg(MSG::INFO) << "==> initialize " << name() << "..." << endmsg ;
       
       // Print out the used configuration
-      msg(MSG::INFO) << " using inputCollection                = " << m_matchFromCollKey << endreq;
+      msg(MSG::INFO) << " using inputCollection                = " << m_matchFromCollKey << endmsg;
 
-      msg(MSG::INFO) << " using outputAssociationContainerList = " << m_outCollKeys << endreq;
+      msg(MSG::INFO) << " using outputAssociationContainerList = " << m_outCollKeys << endmsg;
 
-      msg(MSG::INFO) << " using associationTools               = " << m_assoTools << endreq;
+      msg(MSG::INFO) << " using associationTools               = " << m_assoTools << endmsg;
 
-      msg(MSG::INFO) << " using minNumberPassed                = " << m_minNumberPassed << endreq;
-      msg(MSG::INFO) << " using maxNumberPassed                = " << m_maxNumberPassed << endreq;
+      msg(MSG::INFO) << " using minNumberPassed                = " << m_minNumberPassed << endmsg;
+      msg(MSG::INFO) << " using maxNumberPassed                = " << m_maxNumberPassed << endmsg;
 
-      msg(MSG::INFO) << " using dumpStoreGate                  = " << m_dumpStoreGate << endreq;
+      msg(MSG::INFO) << " using dumpStoreGate                  = " << m_dumpStoreGate << endmsg;
     }
 
    
@@ -116,7 +116,7 @@ StatusCode AssociationAlgorithm::initialize()
         {
           msg(MSG::ERROR)
             << "Unable to retrieve all AssociationTools."
-            << endreq;
+            << endmsg;
         }
       return sc ;
     }
@@ -133,7 +133,7 @@ StatusCode AssociationAlgorithm::initialize()
             << "Empty input collection! Please configure it properly!"
             << " This has to be a collection that inherits from INavigable4Momentum, "
             << "i.e., pretty much any offline object collection." 
-            << endreq;
+            << endmsg;
         }
       sc = StatusCode::FAILURE ;
       problemFound = true;
@@ -147,7 +147,7 @@ StatusCode AssociationAlgorithm::initialize()
             << " and the associationTools has size = " << m_assoTools.size()
             << " but they have to have the same size!"
             << " Please configure it properly..."
-            << endreq;
+            << endmsg;
         }
       sc = StatusCode::FAILURE ;
       problemFound = true;
@@ -191,7 +191,7 @@ StatusCode AssociationAlgorithm::execute()
       msg(MSG::DEBUG) 
         << "==> execute " << name() 
         << " on " << m_nEventsProcessed << ". event..."
-        << endreq ;
+        << endmsg ;
     }
 
 
@@ -215,7 +215,7 @@ StatusCode AssociationAlgorithm::execute()
               msg(MSG::WARNING) 
                 << "Input MatchFrom collection = '" << m_matchFromCollKey
                 << "' could not be retrieved from StoreGate! "
-                << endreq;
+                << endmsg;
             }
           sc = StatusCode::SUCCESS;
           return sc ;
@@ -227,7 +227,7 @@ StatusCode AssociationAlgorithm::execute()
               msg(MSG::DEBUG) 
                 << "Input MatchFrom collection = '" << m_matchFromCollKey
                 << "' retrieved from StoreGate" 
-                << endreq ;
+                << endmsg ;
             } 
         }
     }
@@ -239,7 +239,7 @@ StatusCode AssociationAlgorithm::execute()
             << "No collection that inherits from INavigable4MomentumCollection with key = '"
             << m_matchFromCollKey
             << "' could be found in StoreGate! "
-            << endreq;
+            << endmsg;
         }
       sc = StatusCode::FAILURE;
       return sc ;
@@ -270,7 +270,7 @@ StatusCode AssociationAlgorithm::execute()
                   msg(MSG::WARNING)
                     << "Output association map collection = '" << m_outCollKeys[toolIdx]
                     << "' could not be recorded into StoreGate! "
-                    << endreq;
+                    << endmsg;
                 }
               sc = StatusCode::SUCCESS;
               return sc ;
@@ -282,7 +282,7 @@ StatusCode AssociationAlgorithm::execute()
                   msg(MSG::DEBUG)
                     << "Output association map collection = '" << m_outCollKeys[toolIdx]
                     << "' recorded into StoreGate" 
-                    << endreq ;
+                    << endmsg ;
                 }
             } // End: if/else sc failure
         } // End: if ( m_outCollKey != "" )
@@ -318,7 +318,7 @@ StatusCode AssociationAlgorithm::execute()
                         << "The calculateAssociations method of the AssociationBaseTool"
                         << m_assoTools[toolIdx]->name()
                         << " returned " << sc
-                        << endreq;
+                        << endmsg;
                     }
                   return sc ;
                 } 
@@ -330,7 +330,7 @@ StatusCode AssociationAlgorithm::execute()
                         << "The calculateAssociations method of the AssociationBaseTool"
                         << m_assoTools[toolIdx]->name()
                         << " returned " << sc
-                        << endreq ;
+                        << endmsg ;
                     }
                 } // End: if/else StatusCode Failure
 
@@ -362,7 +362,7 @@ StatusCode AssociationAlgorithm::execute()
                   msg(MSG::WARNING)
                     << "Output association map collection = '" << m_outCollKeys[toolIdx]
                     << "' could not be set to const in StoreGate! "
-                    << endreq;
+                    << endmsg;
                 }
               return sc ;
             }
@@ -373,7 +373,7 @@ StatusCode AssociationAlgorithm::execute()
                   msg(MSG::DEBUG)
                     << "Output association map collection = '" << m_outCollKeys[toolIdx]
                     << "' set to const in StoreGate" 
-                    << endreq ;
+                    << endmsg ;
                 }
             } // End: if/else sc failure
         } // End: Loop over all association maps and set them as const in StoreGate
@@ -395,7 +395,7 @@ StatusCode AssociationAlgorithm::execute()
             << " objects and found " << nObjectsWithMatch
             << " objects with a successful match. Required were minNumber=" << m_minNumberPassed
             << " and maxNumber=" << m_maxNumberPassed
-            << endreq;
+            << endmsg;
         }
       setFilterPassed(true);
     }
@@ -409,7 +409,7 @@ StatusCode AssociationAlgorithm::execute()
             << " objects and found " << nObjectsWithMatch
             << " objects with a successful match. Required were minNumber=" << m_minNumberPassed
             << " and maxNumber=" << m_maxNumberPassed
-            << endreq;
+            << endmsg;
         }
       setFilterPassed(false);
     }
@@ -423,7 +423,7 @@ StatusCode AssociationAlgorithm::execute()
           msg(MSG::INFO)
             << "StoreGateDump: \n"
             << evtStore()->dump()
-            << endreq ;
+            << endmsg ;
         }
     } // End: if ( m_dumpStoreGate )
 
@@ -450,7 +450,7 @@ StatusCode AssociationAlgorithm::finalize()
     {
       msg(MSG::INFO)
         << "FINALIZING AFTER ALL EVENTS ARE PROCESSED"
-        << endreq;
+        << endmsg;
     }
 
   return sc;

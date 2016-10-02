@@ -107,9 +107,9 @@ StatusCode AssocDumper::initialize()
   setupOutputStream( m_outputStreamName );
 
   ATH_MSG_INFO
-    ("Configured properties: " << endreq
+    ("Configured properties: " << endmsg
      << " - INav4MomAssocs: " << m_inav4MomAssocsName.value()
-     << endreq
+     << endmsg
      << " - OutputStream  : " << m_outputStreamName.value());
 
   return StatusCode::SUCCESS;
