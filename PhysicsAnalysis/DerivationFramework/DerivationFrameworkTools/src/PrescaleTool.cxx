@@ -18,7 +18,8 @@ namespace DerivationFramework {
       const std::string& n,
       const IInterface* p) : 
     AthAlgTool(t,n,p),
-    m_prescale(1)
+    m_prescale(1),
+    m_eventCounter(0)
   {
     declareInterface<DerivationFramework::ISkimmingTool>(this);
     declareProperty("Prescale", m_prescale);

@@ -23,6 +23,7 @@ DerivationFramework::GenericObjectThinning::GenericObjectThinning(const std::str
                                                                   const IInterface* p ) :
 AthAlgTool(t,n,p),
 m_thinningSvc("ThinningSvc",n),
+m_parser(0),
 m_selectionString(""),
 m_ntot(0),
 m_npass(0),
