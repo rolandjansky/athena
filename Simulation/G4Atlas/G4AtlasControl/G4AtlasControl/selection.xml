@@ -11,7 +11,7 @@
    <class name="Gnavigator"/>
    <class name="Tracking"/>
    <class name="Estack"/>
-   <class name="Event"/>
+   <class name="G4Command::Event"/>
    <class name="Run"/>
    <class name="Random"/>
    <class name="Particle"/>

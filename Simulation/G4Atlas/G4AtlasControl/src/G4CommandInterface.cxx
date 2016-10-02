@@ -307,6 +307,7 @@ void Estack::clear(int i)
   UI->ApplyCommand(oss.str());
 }
 
+namespace G4Command {
 Event::Event()
 {
 }
@@ -323,6 +324,7 @@ void Event::verbose(int i)
   oss<<"/event/verbose "<<i;
   G4UImanager *UI=G4UImanager::GetUIpointer();
   UI->ApplyCommand(oss.str());
+}
 }
 
 

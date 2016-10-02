@@ -99,12 +99,14 @@ struct Estack {
 };
 
 /// @todo NEEDS DOCUMENTATION
+namespace G4Command {
 struct Event {
   Event();
   static void abort();
   static void verbose(int);
   Estack stack;
 };
+}
 
 /// @todo NEEDS DOCUMENTATION
 struct Run {
@@ -167,7 +169,7 @@ struct G4Commands {
   Vis vis;
   Geometry geometry;
   Tracking tracking;
-  Event event;
+  G4Command::Event event;
   Run run;
   Random random;
   Particle particle;
