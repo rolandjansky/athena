@@ -1,0 +1,6 @@
+2016-10-03 Shaun Roe
+	* Create Changelog
+	* fix coverity:
+16353 09/07/2014 (Medium) Dereference after null check :/graphics/Qat/QatSystemInterfaces/src/Serializer.cpp in function "restore"
+	* tag as QatSystemInterfaces-00-00-07
+
