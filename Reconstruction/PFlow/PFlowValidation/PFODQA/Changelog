@@ -1,3 +1,12 @@
+3 October 2016 Mark Hodgkinson
+src/PhysValCluster.cxx,PhysValPFO.cxx: endreq -> endmsg
+ATLJETMET-630
+Tag as PFODQA-00-00-12	
+
+29 June 2016 Mark Hodgkinson
+Update to use PFOAlgPropertyPlots
+Tag as PFODQA-00-00-11
+
 11 May 2015 Mark Hodgkinson
 Fix Coverity issues 17432, 16380	
 Tag as PFODQA-00-00-10
