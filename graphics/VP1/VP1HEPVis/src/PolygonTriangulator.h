@@ -38,8 +38,9 @@ public:
   //When constructed it automatically performs the triangulation.
   PolygonTriangulator(const std::vector<double>& polygon_xcoords,
 		      const std::vector<double>& polygon_ycoords);
-
-
+		      
+  PolygonTriangulator(const PolygonTriangulator&) = delete;
+  PolygonTriangulator & operator=(const PolygonTriangulator&) = delete;
   // Access the result with this
   const Triangles* triangles() const;
 
