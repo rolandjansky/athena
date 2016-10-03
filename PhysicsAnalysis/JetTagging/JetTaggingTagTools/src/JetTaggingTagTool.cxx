@@ -41,7 +41,7 @@ JetTaggingTagTool::JetTaggingTagTool (const std::string& type, const std::string
 /** initialization - called once at the begginning */
 StatusCode JetTaggingTagTool::initialize() {
   MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in intialize()" << endreq;
+  mLog << MSG::DEBUG << "in intialize()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -51,7 +51,7 @@ StatusCode JetTaggingTagTool::attributeSpecification(std::map<std::string,Athena
                                                      const int max) {
 
   MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in attributeSpecification()" << endreq;
+  mLog << MSG::DEBUG << "in attributeSpecification()" << endmsg;
 
   /** specifiy the Jet Tagging the attributes */
 
@@ -67,7 +67,7 @@ StatusCode JetTaggingTagTool::attributeSpecification(std::map<std::string,Athena
 StatusCode JetTaggingTagTool::execute(TagFragmentCollection& jetTagCol, const int max) {
 
   MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in execute()" << endreq;
+  mLog << MSG::DEBUG << "in execute()" << endmsg;
 
   /** fill the JetTagging analysis tag */
 
@@ -83,7 +83,7 @@ StatusCode JetTaggingTagTool::execute(TagFragmentCollection& jetTagCol, const in
 /** finialize - called once at the end */
 StatusCode JetTaggingTagTool::finalize() {
   MsgStream mLog(msgSvc(), name());
-  mLog << MSG::DEBUG << "in finalize()" << endreq;
+  mLog << MSG::DEBUG << "in finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }
 
