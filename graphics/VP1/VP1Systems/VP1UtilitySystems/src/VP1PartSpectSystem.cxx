@@ -260,7 +260,7 @@ void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
   PlotHist1D::Properties* prop = new PlotHist1D::Properties();
   prop->pen.setColor(QColor("darkRed"));
   prop->pen.setWidth(3);
-  pHist->setProperties(*prop);
+  pHist->setProperties(*prop); //const reference, but does not take possession of pointer
     
   // Make a plot
   QRectF rect = pHist->rectHint();
@@ -312,6 +312,8 @@ void VP1PartSpectSystem::plotSpectrum(QStack<QString>& path, int copyNumber)
   // Show this view
 
   d->PlotMainWindow->show();
+  delete prop;
+  prop=nullptr;
   // ___________ Plotting _______________
 }
 
