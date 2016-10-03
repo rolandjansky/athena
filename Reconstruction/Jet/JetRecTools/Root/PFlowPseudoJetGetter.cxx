@@ -28,7 +28,7 @@ namespace PFlowPJHelper{
 
     int fill(const xAOD::PFO* pfo, const TLorentzVector& p4) const {
       //This check MUST be on pfo, not p4 - p4 cannot return -ve energies, pfo can.
-      if((m_skipNegE) && (pfo->e()<=0) ) return 0;
+      if((m_skipNegE) && (pfo->e()<-1*FLT_MIN) ) return 0;
       if(std::isnan(p4.E()) ) return 0;
 
       fastjet::PseudoJet psj(p4);
