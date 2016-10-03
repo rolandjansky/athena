@@ -107,7 +107,7 @@ JetTagMonitoring::~JetTagMonitoring() {}
 
 StatusCode JetTagMonitoring::registerHist(MonGroup& theGroup, TH1* h1) {
 
-    // msg(MSG::VERBOSE) << "in JetTagMonitoring::registerHist " << h1->GetName() << endreq;
+    // msg(MSG::VERBOSE) << "in JetTagMonitoring::registerHist " << h1->GetName() << endmsg;
     ATH_MSG_VERBOSE("in JetTagMonitoring::registerHist " << h1->GetName());
 
     StatusCode sc = theGroup.regHist(h1);
