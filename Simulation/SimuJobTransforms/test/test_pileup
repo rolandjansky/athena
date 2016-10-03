@@ -21,7 +21,7 @@ LUMI=Test
 DBRELEASETARBALL=NONE
 
 MINBIASFILE=$TESTDATA/minbias_Inelastic-pythia8-7000_${GEOMETRY}.hits.pool.root
-CAVERNFILE=$TESTDATA/cavernbg-pythia8-7000_${GEOMETRY}.hits.pool.root
+#CAVERNFILE=$TESTDATA/cavernbg-pythia8-7000_${GEOMETRY}.hits.pool.root
 
 TRF=Digi_tf.py
 which $TRF
@@ -29,6 +29,6 @@ if [[ $? -ne 0 ]]; then
   echo "ERROR: $TRF not found"
   exit 2
 fi
-cmd="$TRF --inputHITSFile $INPUTFILE --outputRDOFile $RDOFILE --maxEvents 10 --skipEvents 0 --geometryVersion $GEOMETRY --digiSeedOffset1 $DIGIOFFSET1 --digiSeedOffset2 $DIGIOFFSET2 --inputLowPtMinbiasHitsFile $MINBIASFILE --inputCavernHitsFile $CAVERNFILE --numberOfCavernBkg 1 --numberOfLowPtMinBias 1.0 --bunchSpacing 450 --pileupInitialBunch -1 --pileupFinalBunch 1 --conditionsTag $IOVDBGLOBALTAG --DataRunNumber $DATARUNNUMBER $ARGS"
+cmd="skip_if_AthSimulation.sh $TRF --inputHITSFile $INPUTFILE --outputRDOFile $RDOFILE --maxEvents 10 --skipEvents 0 --geometryVersion $GEOMETRY --digiSeedOffset1 $DIGIOFFSET1 --digiSeedOffset2 $DIGIOFFSET2 --inputLowPtMinbiasHitsFile $MINBIASFILE --numberOfLowPtMinBias 1.0 --bunchSpacing 450 --pileupInitialBunch -1 --pileupFinalBunch 1 --conditionsTag $IOVDBGLOBALTAG --DataRunNumber $DATARUNNUMBER $ARGS"
 echo $cmd
 $cmd
