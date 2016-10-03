@@ -41,7 +41,7 @@ StatusCode PhysValCluster::fillHistograms(){
   ATH_CHECK( evtStore()->retrieve(theClusterContainer,m_clusterContainerName) );
 
   if (!theClusterContainer){
-    if (msgLvl(MSG::WARNING))  msg(MSG::WARNING) << " Have NULL pointer to xAOD::PFOContainer " << endreq;
+    if (msgLvl(MSG::WARNING))  msg(MSG::WARNING) << " Have NULL pointer to xAOD::PFOContainer " << endmsg;
     return StatusCode::SUCCESS;
   }
   
