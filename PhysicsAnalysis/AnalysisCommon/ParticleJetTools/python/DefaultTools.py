@@ -32,7 +32,7 @@ def declareDefaultTools():
                                    MCTruthClassifier=truthClassifier)
       jtm += CopyTruthJetParticles("truthpartcopywz", OutputName="JetInputTruthParticlesNoWZ",
                                    MCTruthClassifier=truthClassifier,
-                                   IncludeWZLeptons=False, #IncludeTauLeptons=False,
+                                   IncludePromptLeptons=False,
                                    IncludeMuons=True,IncludeNeutrinos=True)
 
   # Truth.

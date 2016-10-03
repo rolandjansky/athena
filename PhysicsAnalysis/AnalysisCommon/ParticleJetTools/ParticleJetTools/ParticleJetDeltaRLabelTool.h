@@ -29,6 +29,7 @@ protected:
 
   /// Name of jet label attributes
   std::string m_labelname;
+  std::string m_doublelabelname;
   std::string m_taulabelname;
   std::string m_bottomlabelname;
   std::string m_charmlabelname;

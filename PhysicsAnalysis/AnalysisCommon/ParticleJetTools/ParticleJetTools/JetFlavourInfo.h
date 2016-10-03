@@ -27,8 +27,9 @@ namespace xAOD {
 
   int ConeFinalPartonFlavourLabel (const xAOD::Jet* jet);
   int ExclusiveConeHadronFlavourLabel (const xAOD::Jet* jet);
+  int ExclusiveConeDoubleHadronFlavourLabel (const xAOD::Jet* jet);
 
-  enum JetFlavourLabelType { GAFinalHadron, GAInitialHadron, GAFinalParton, ConeFinalParton, ExclConeHadron };
+  enum JetFlavourLabelType { GAFinalHadron, GAInitialHadron, GAFinalParton, ConeFinalParton, ExclConeHadron, ExclConeDoubleHadron };
 
   // Provide a unified interface to all methods
   int jetFlavourLabel (const xAOD::Jet* jet, JetFlavourLabelType = ExclConeHadron);
