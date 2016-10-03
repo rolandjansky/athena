@@ -1210,6 +1210,7 @@ namespace internal_poltrig {
     //constructors and destructor
     Pointbase() :id(0),x(0),y(0),type(UNKNOWN),left(true) {}
     Pointbase(const Pointbase& pb);
+    Pointbase & operator=(const Pointbase &) = default;
 
     Pointbase(const double& xx, const double& yy)
       :id(0), x(xx), y(yy), type(UNKNOWN), left(true) { }
@@ -1247,6 +1248,7 @@ namespace internal_poltrig {
     Linebase();
     Linebase(Pointbase* ep1, Pointbase* ep2, const Type& type,long int & l_id);
     Linebase(const Linebase& line);
+    Linebase & operator=(const Linebase& ) = delete;
     ~Linebase() {};
 
     unsigned int id() const { return _id; }
@@ -1298,7 +1300,7 @@ namespace internal_poltrig {
   //-------------------------------------------------------------------------/
 
 
-  //Jonathan schewchuk's exact arithmetic code, see predicates.cc for detais;
+  //Jonathan schewchuk's exact arithmetic code, see predicates.cc for details;
   extern double orient2d(double* pa, double* pb, double* pc);
 
   //----------------------------------------------------------------------------

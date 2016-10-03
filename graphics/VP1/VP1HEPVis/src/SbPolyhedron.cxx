@@ -1786,9 +1786,14 @@ SbPolyhedronTorus::SbPolyhedronTorus(double rmin,
   int np1 = GetNumberOfRotationSteps();
   int np2 = rmin < perMillion ? 1 : np1;
 
-  double *zz, *rr;
-  zz = new double[np1+np2];
-  rr = new double[np1+np2];
+  //double *zz(nullptr), *rr;
+  const auto totNumPts = np1+np2;
+  auto zz = new double[totNumPts]{};
+  auto rr = new double[totNumPts]{};
+  for (unsigned int i(0);i!=(unsigned int) totNumPts;++i){
+    rr[i]=0.0;
+    zz[i]=0.0;
+  }
 
   double a = 2*M_PI/np1;
   double cosa, sina;

@@ -3311,7 +3311,7 @@ static void gl2psPrintTeXFooter(void)
 
 static void gl2psPrintTeXBeginViewport(GLint viewport[4])
 {
-  GLint a = viewport[0]; a = 0; //get rid of warning
+  GLint a  __attribute__((unused)) = viewport[0];
   glRenderMode(GL_FEEDBACK);
 
   if(gl2ps->header){
