@@ -21,6 +21,7 @@ tool1.METMaker = mettool
 museltool = CfgMgr.CP__MuonSelectionTool("MuonSelectionTool",
                                        MuQuality=1, # Medium
                                        MaxEta=2.4)
+museltool.TurnOffMomCorr = True
 ToolSvc += museltool
 tool1.MuonSelectionTool = museltool
 
