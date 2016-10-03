@@ -50,8 +50,12 @@ def getmodule(modname):
           or modname.endswith('_tilecomm')):
         from . import base_data_cos; return base_data_cos
 
-    # Does it look like datann?
     import re
+    # Does it look like datann_hip?
+    m = re.match('data\d{2}_hip', modname)
+    if m:
+        from . import base_data_hi; return base_data_hi
+    # Does it look like datann?
     m = re.match('data\d{2}$', modname)
     if m:
         from . import base_data; return base_data
