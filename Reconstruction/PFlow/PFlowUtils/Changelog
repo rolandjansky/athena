@@ -1,3 +1,9 @@
+2016-10-03 Teng Jian Khoo <khoo@cern.ch>
+	* Use a small weight that's not indistinguishable from 0
+	* Tagging as PFlowUtils-00-00-11
+	* Option to turn off E/P weight and only remove calo contribution
+	* Tagging as PFlowUtils-00-00-12
+
 2016-09-12 Teng Jian Khoo <khoo@cern.ch>
 	* Reorganise the weight method and fix the 60 GeV track case again
 	* Tagging as PFlowUtils-00-00-10

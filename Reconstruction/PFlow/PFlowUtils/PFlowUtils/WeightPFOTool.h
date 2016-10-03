@@ -29,6 +29,8 @@ namespace CP {
 
   private:
 
+    bool m_doEoverPweight;
+
   };
 
 }
