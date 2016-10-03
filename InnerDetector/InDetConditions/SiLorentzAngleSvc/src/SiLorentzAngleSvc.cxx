@@ -71,7 +71,7 @@ SiLorentzAngleSvc::~SiLorentzAngleSvc() {
 
 StatusCode SiLorentzAngleSvc::initialize() { 
 
-  ATH_MSG_INFO( "SiLorentzAngleSvc Initialized" );
+  ATH_MSG_DEBUG( "SiLorentzAngleSvc Initialized" );
 
   // Detector store
   CHECK(m_detStore.retrieve());
@@ -93,8 +93,7 @@ StatusCode SiLorentzAngleSvc::initialize() {
   // MagneticFieldSvc handles updates itself
   if (!m_useMagFieldSvc) {
     ATH_MSG_DEBUG("Not using MagneticFieldSvc - Will be using Nominal Field!");
-  }
-  else if (m_magFieldSvc.retrieve().isFailure()) {
+  } else if (m_magFieldSvc.retrieve().isFailure()) {
     ATH_MSG_WARNING("Could not retrieve MagneticFieldSvc - Will be using Nominal Field!");
     m_useMagFieldSvc = false;
     //return StatusCode::FAILURE;
@@ -104,8 +103,7 @@ StatusCode SiLorentzAngleSvc::initialize() {
   if (m_corrDBFolder.size()>0) {
     ATH_MSG_INFO("Loading lorentz angle correction value from database folder " << m_corrDBFolder);
     CHECK(m_detStore->regFcn(&SiLorentzAngleSvc::corrFolderCallBack,this,m_dbData,m_corrDBFolder));
-  }
-  else {
+  } else {
     ATH_MSG_INFO("No database folder set for lorentz angle correction. Use value from jobOptions");
   }
 
@@ -344,10 +342,10 @@ void SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Am
   if (!useLocPos) m_cacheValid[elementHash] = true;
   const InDetDD::SiDetectorElement * element = m_detManager->getDetectorElement(elementHash);
 
-  double temperature;
-  double deplVoltage;
-  double biasVoltage;
-  double forceLorentzToZero = 1.0;
+  double temperature{0.0};
+  double deplVoltage{0.0};
+  double biasVoltage{0.0};
+  double forceLorentzToZero{1.0};
 
   // SCT
   if (!m_isPixel) {
@@ -367,41 +365,40 @@ void SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Am
   // Pixel
   if (m_isPixel) {
     const InDetDD::PixelModuleDesign* p_design = dynamic_cast<const InDetDD::PixelModuleDesign*>(&element->design());
-    if (m_pixelDefaults) {
-      temperature = m_temperaturePix + 273.15;
-      if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-        if (p_design->numberOfCircuits()==2) {       // IBL planar
-          deplVoltage = 40.0*CLHEP::volt; 
-          biasVoltage = m_biasVoltageIBLPl*CLHEP::volt; 
+    if (p_design){
+      if (m_pixelDefaults) {
+        temperature = m_temperaturePix + 273.15;
+        if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
+          if (p_design->numberOfCircuits()==2) {       // IBL planar
+            deplVoltage = 40.0*CLHEP::volt; 
+            biasVoltage = m_biasVoltageIBLPl*CLHEP::volt; 
+          }
+          else if (p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
+            deplVoltage =  10.0*CLHEP::volt; 
+            biasVoltage = m_biasVoltageIBL3D*CLHEP::volt; 
+            forceLorentzToZero = 0.0;
+          }
+        }else {
+          deplVoltage = m_deplVoltage*CLHEP::volt;
+          biasVoltage = m_biasVoltage*CLHEP::volt;
         }
-        else if (p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
-          deplVoltage =  10.0*CLHEP::volt; 
-          biasVoltage = m_biasVoltageIBL3D*CLHEP::volt; 
-          forceLorentzToZero = 0.0;
+        ATH_MSG_DEBUG("Pixel Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
+      }else {
+        temperature = m_siConditionsSvc->temperature(elementHash)+273.15;
+        deplVoltage = m_siConditionsSvc->depletionVoltage(elementHash)*CLHEP::volt;
+        biasVoltage = m_siConditionsSvc->biasVoltage(elementHash)*CLHEP::volt;
+        if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
+          if (p_design->numberOfCircuits()==2) {        // IBL planar (this classification is a bit ugly since there is no method to choose sensor technology.)
+            deplVoltage = 40.0*CLHEP::volt; 
+          }else if (p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
+            deplVoltage = 10.0*CLHEP::volt; 
+            forceLorentzToZero = 0.0;
+          }
         }
+        ATH_MSG_DEBUG("Pixel Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
       }
-      else {
-        deplVoltage = m_deplVoltage*CLHEP::volt;
-        biasVoltage = m_biasVoltage*CLHEP::volt;
-      }
-      ATH_MSG_DEBUG("Pixel Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
-    }
-    else {
-      temperature = m_siConditionsSvc->temperature(elementHash)+273.15;
-      deplVoltage = m_siConditionsSvc->depletionVoltage(elementHash)*CLHEP::volt;
-      biasVoltage = m_siConditionsSvc->biasVoltage(elementHash)*CLHEP::volt;
-      if (p_design->getReadoutTechnology()==InDetDD::PixelModuleDesign::FEI4) {
-        if (p_design->numberOfCircuits()==2) {        // IBL planar (this classification is a bit ugly since there is no method to choose sensor technology.)
-          deplVoltage = 40.0*CLHEP::volt; 
-        }
-        else if (p_design->numberOfCircuits()==1 && p_design->rowsPerCircuit()>100) {  // IBL 3D
-          deplVoltage = 10.0*CLHEP::volt; 
-          forceLorentzToZero = 0.0;
-        }
-      }
-      ATH_MSG_DEBUG("Pixel Hash = " << elementHash << " Temperature = " << temperature << " BiasV = " << biasVoltage << " DeplV = " << deplVoltage);
-    }
-  }
+    }//if p_design
+  } //if m_isPixel
 
 
   // Protect against invalid temperature
@@ -416,6 +413,7 @@ void SiLorentzAngleSvc::updateCache(const IdentifierHash & elementHash, const Am
   // the detector is not fully depleted and we need to take this into account.
   // We take absolute values just in case voltages are signed .  
   double depletionDepth = element->thickness();
+  if (deplVoltage==0.0) ATH_MSG_WARNING("Depletion voltage in "<<__FILE__<<" is zero, which might be a bug.");
   if (std::abs(biasVoltage) < std::abs(deplVoltage)) {
     depletionDepth *= sqrt(std::abs(biasVoltage / deplVoltage));
   }
