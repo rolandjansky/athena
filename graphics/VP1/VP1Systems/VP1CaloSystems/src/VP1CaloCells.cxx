@@ -116,8 +116,10 @@ VP1CC_LAr::VP1CC_LAr(const CaloCell* _caloCell):
   m_hit(0),
   m_helper(0)
 {
+/** _caloCell was already dereferenced at this point by VP1CaloCell, so cannot be null
   if(!_caloCell)
     throw std::runtime_error("VP1CC_LAr: 0 pointer to CaloCell");
+**/
 }
 
 VP1CC_LAr::~VP1CC_LAr()
@@ -470,9 +472,11 @@ VP1CC_TileBarEc::VP1CC_TileBarEc(const CaloCell* _caloCell,
   m_hitUp(0),
   m_hitDown(0)
 {
+/**
+//_caloCell was already dereferenced in the initialiser list, so this is redundant: you've already crashed.
   if(!_caloCell)
     throw std::runtime_error("VP1CC_TileBarEc: 0 pointer to CaloCell");
-
+**/
   if(!_separators)
     throw std::runtime_error("VP1CC_TileBarEc: 0 pointer to VP1CC Separator Map");
 
@@ -535,10 +539,10 @@ VP1CC_TileBarEc::~VP1CC_TileBarEc()
 
 std::vector<std::string> VP1CC_TileBarEc::ToString(const CaloCell_ID*, const std::string& extrainfos)
 {
-
-  const TileCell* tile_cell = dynamic_cast<const TileCell*>(m_caloCell);
-  Identifier cellid = m_caloCell->ID();
   std::vector<std::string> result;
+  const TileCell* tile_cell = dynamic_cast<const TileCell*>(m_caloCell);
+  if (not tile_cell) return result;
+  Identifier cellid = m_caloCell->ID();
 
   double total_energy = m_caloCell->energy();
   double total_time = m_caloCell->time();
@@ -607,6 +611,7 @@ void VP1CC_TileBarEc::build3DObjects(VP1CC_SoNode2CCMap* _node2cc,
   }
 
   const TileCell* tile_cell = dynamic_cast<const TileCell*>(m_caloCell);
+  if (not tile_cell) return;
   double energy1 = (_useEt ? energyToTransverse(tile_cell->ene1()) : tile_cell->ene1());
   double energy2 = (_useEt ? energyToTransverse(tile_cell->ene2()) : tile_cell->ene2());
 
@@ -748,15 +753,13 @@ std::string VP1CC_TileBarEc::id2name(Identifier& id)
 }
 
 // ************  TileCrack  ***************
-VP1CC_TileCrack::VP1CC_TileCrack(const CaloCell* _caloCell,
-					 const TileID* tile_id,
-					 const VP1CC_SeparatorMap* _separators):
-  VP1CC_Tile(_caloCell,tile_id),
-  m_hit(0)
-{
+VP1CC_TileCrack::VP1CC_TileCrack(const CaloCell* _caloCell,const TileID* tile_id,
+  const VP1CC_SeparatorMap* _separators):VP1CC_Tile(_caloCell,tile_id), m_hit(0){
+  /**
+  VP1CC_Tile has already dereferenced _caloCell at this point, so it can't be zero anyway
   if(!_caloCell)
     throw std::runtime_error("VP1CC_TileCrack: 0 pointer to CaloCell");
-
+  **/
   if(!_separators)
     throw std::runtime_error("VP1CC_TileCrack: 0 pointer to VP1CC Separator Map");
 
