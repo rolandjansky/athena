@@ -13,7 +13,6 @@
 
 // ONLINE INFRASTRUCTURE
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h" // TO BE REMOVED
 
 // BEAMSPOT
 #include "InDetBeamSpotService/IBeamCondSvc.h"

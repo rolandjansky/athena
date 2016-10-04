@@ -16,7 +16,7 @@
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 
-#include "TrigSteeringEvent/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBits.h"
 
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
@@ -94,7 +94,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   // AcceptAll declare property setting 
   if (m_acceptAll) {
     if (msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST: AcceptAll property is set: taking all events and applying the selection only for saving the TrigPassBits" << endmsg;
+      msg() << MSG::DEBUG << "REGTEST: AcceptAll property is set: taking all events and applying the selection only to save the TrigPassBits" << endmsg;
   } else 
     if (msgLvl() <= MSG::DEBUG)
       msg() << MSG::DEBUG << "REGTEST: AcceptAll property not set: applying the selection and saving the TrigPassBits" << endmsg;
@@ -152,7 +152,7 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   bool result = false;
 
   // Define TrigPassBits for b-jets 
-  TrigPassBits *bitsEF=0;
+  //TrigPassBits *bitsEF=0;
 
   // Retrieve xAOD b-jet object 
   const xAOD::BTaggingContainer* trigBTaggingContainer=0;
@@ -176,8 +176,9 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   }
 
   // Add TrigPassBits for EF b-jets 
-  bitsEF = HLT::makeTrigPassBits(trigBTaggingContainer);
-  
+  //bitsEF = HLT::makeTrigPassBits(trigBTaggingContainer);
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<xAOD::BTaggingContainer>(trigBTaggingContainer);
+
   // to separate bad input TE and true behaviour 
   m_cutCounter=1;
   
@@ -193,8 +194,9 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
 
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "MV2c20 x =  " << x;
       if(x>m_xcutMV2c20) {
-	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
-	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
+	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+      if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
 	result = true;
       }
       else {
@@ -209,7 +211,8 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if(w/(1+w)<1) x=-1.0*TMath::Log10(1-(w/(1+w)));
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "COMB x =  " << x;
       if(x>m_xcutCOMB) {
-	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
 	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
 	result = true;
       }
@@ -225,7 +228,8 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if(w>0) x=TMath::Log10(w);
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "IP3D x =  " << x;
       if(x>m_xcutIP3D) {
-	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+        xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
 	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
 	result = true;
       }
@@ -241,7 +245,8 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
       if(w>0) x=TMath::Log10(w);
       if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "IP2D x =  " << x;
       if(x>m_xcutIP2D) {
-	HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+	//HLT::markPassing(bitsEF, (*trigBTagging), trigBTaggingContainer);
+        xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
 	if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << " ==> Passed " << endmsg;
 	result = true;
       }
@@ -268,16 +273,25 @@ HLT::ErrorCode TrigBjetHypo::hltExecute(const HLT::TriggerElement* outputTE, boo
   else if (m_methodTag == "IP3D") m_monitorMethod = 2;
   else if (m_methodTag == "COMB") m_monitorMethod = 3;
 
-  // Print TrigPassBits to outputTE 
-  if (attachBits(outputTE, bitsEF, "EFBjets") != HLT::OK) {
-    msg() << MSG::ERROR << "Problem attaching TrigPassBits for b-jets" << endmsg;
-  }
- 
   if (m_acceptAll) {
     m_cutCounter = 2;
     pass = true;
-    return HLT::OK;
+    //xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
+    //return HLT::OK;
+    for ( ; trigBTagging != trigBTaggingEnd; trigBTagging++)
+      xBits->markPassing((*trigBTagging),trigBTaggingContainer,true);
   }
+
+  // Print TrigPassBits to outputTE 
+  //if (attachBits(outputTE, bitsEF, "EFBjets") != HLT::OK) {
+  //  msg() << MSG::ERROR << "Problem attaching TrigPassBits for b-jets" << endmsg;
+  //}
+   if(attachFeature(outputTE, xBits.release(),"passbits") != HLT::OK)
+    ATH_MSG_ERROR("Could not store TrigPassBits! ");
+
+   if (msgLvl() <= MSG::DEBUG)
+      msg() << MSG::DEBUG << "TrigPassBits was saved" << endmsg; 
+
 
   return HLT::OK;
 }

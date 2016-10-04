@@ -20,7 +20,6 @@
 #include "TrigBjetHypo/TrigSuperRoiBuilderAllTE.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigSuperRoi.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigNavigation/TriggerElement.h"
 
 #include "JetEvent/Jet.h"
@@ -170,25 +169,6 @@ HLT::ErrorCode TrigSuperRoiBuilderAllTE::hltExecute(std::vector<std::vector<HLT:
     msg() << MSG::DEBUG << "Adding ROI descriptor to superROI!" << endmsg;
     superRoi->push_back( roi );
 
-//     // for checking Et and eta of jets in hypos later
-//     TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
-//     trigInfoJetEt->set("EFJetEt", jetEt);
-//     HLT::ErrorCode hltEtStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
-//     if (hltEtStatus != HLT::OK) {
-//       msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet Et) as feature" << endmsg;
-//       return hltEtStatus;
-//     }
-
-//     TrigOperationalInfo* trigInfoJetEta = new TrigOperationalInfo();
-//     trigInfoJetEta->set("EFJetEta", jetEta);
-//     HLT::ErrorCode hltEtaStatus = attachFeature(outputTE, trigInfoJetEta, "EFJetInfo"); 
-//     if (hltEtaStatus != HLT::OK) {
-//       msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet eta) as feature" << endmsg;
-//       return hltEtaStatus;
-//     }
-
-    // Ideally would have liked to attach a view container
-    // but these cannot be persistified at the moment...
     // ConstDataVector<xAOD::JetContainer>* jc = new ConstDataVector<xAOD::JetContainer>(SG::VIEW_ELEMENTS);
     // jc->clear(SG::VIEW_ELEMENTS); 
     // jc->push_back ( *jetitr );

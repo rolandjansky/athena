@@ -25,7 +25,6 @@
 #include "xAODJet/JetContainer.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigNavigation/TriggerElement.h"
 #include "TrigSteeringEvent/PhiHelper.h"
 
@@ -261,23 +260,6 @@ HLT::ErrorCode TrigFarawayJetFinderAllTE::hltExecute(std::vector<std::vector<HLT
 	TrigRoiDescriptor* roi =  new TrigRoiDescriptor(jetEta,   etaMinus, etaPlus, 
 							jetPhi,   phiMinus, phiPlus);
 
-	// for checking Et and eta of jets in hypos later
-	TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
-	trigInfoJetEt->set("EFJetEt", jetEt);
-	HLT::ErrorCode hltEtStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
-	if (hltEtStatus != HLT::OK) {
-	  msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet Et) as feature" << endmsg;
-	  return hltEtStatus;
-	}
-	
-	TrigOperationalInfo* trigInfoJetEta = new TrigOperationalInfo();
-	trigInfoJetEta->set("EFJetEta", jetEta);
-	HLT::ErrorCode hltEtaStatus = attachFeature(outputTE, trigInfoJetEta, "EFJetInfo"); 
-	if (hltEtaStatus != HLT::OK) {
-	  msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet eta) as feature" << endmsg;
-	  return hltEtaStatus;
-	}
-	
 	HLT::ErrorCode hltStatus = attachFeature(outputTE, roi, m_jetOutputKey);
 	if ( hltStatus != HLT::OK ) {
 	  msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature " << *roi << endmsg;

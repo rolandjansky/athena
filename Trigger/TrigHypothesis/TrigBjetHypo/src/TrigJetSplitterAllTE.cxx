@@ -14,7 +14,6 @@
 
 #include "TrigBjetHypo/TrigJetSplitterAllTE.h"
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigNavigation/TriggerElement.h"
 
 #include "JetEvent/Jet.h"
@@ -269,24 +268,7 @@ HLT::ErrorCode TrigJetSplitterAllTE::hltExecute(std::vector<std::vector<HLT::Tri
     xAOD::JetContainer* jc = new xAOD::JetContainer;
     jc->setStore(&trigJetTrigAuxContainer);
     jc->push_back ( new xAOD::Jet(**jetitr) );
-/*    
-    // for checking Et and eta of jets in hypos later
-    TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
-    trigInfoJetEt->set("EFJetEt", jetEt);
-    HLT::ErrorCode hltEtStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
-    if (hltEtStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet Et) as feature" << endmsg;
-      return hltEtStatus;
-    }
-
-    TrigOperationalInfo* trigInfoJetEta = new TrigOperationalInfo();
-    trigInfoJetEta->set("EFJetEta", jetEta);
-    HLT::ErrorCode hltEtaStatus = attachFeature(outputTE, trigInfoJetEta, "EFJetInfo"); 
-    if (hltEtaStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo (jet eta) as feature" << endmsg;
-      return hltEtaStatus;
-    }
-*/  
+    
     hltStatus = attachFeature(outputTE, jc, m_jetOutputKey); 
     if (hltStatus != HLT::OK) {
       msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer (" << m_jetOutputKey << ") as feature jet eta, phi " << jet->eta() << ", " << jet->phi() << endmsg;
