@@ -19,7 +19,7 @@ public:
   bool isAccepted (const Analysis::Electron &e)
   {
     MsgStream log(Athena::getMessageSvc(), "MyCutClass");
-    log << MSG::DEBUG << e.pt() << endreq;
+    log << MSG::DEBUG << e.pt() << endmsg;
     if (e.pt() > m_Thr) return true;
     return false;
   }
