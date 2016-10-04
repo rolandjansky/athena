@@ -9,12 +9,13 @@
  **   Description: Monitoring algorithm for ID T&P Z->ee candidates
  **                
  **
- **   Author: Sebastian Sanchez Herrera
- **           Johnny Raine <johnny.raine@cern.ch
- **   Modified by: Jonathon Langford
+ **   Author: Jonathon Langford <jonathon.langford@cern.ch>
+ **           ATLAS Summer Student - private email: jonno_1995@hotmail.co.uk
+ **                                  (for queries after my CERN account has been closed)
  **
- **   Created:   19.01.2015
- **   Modified:  05.07.2016
+ ** 
+ **   Created:   04.07.2016
+ **   Modified:  25.08.2016
  **
  **
  ***************************************************************************/
@@ -24,7 +25,7 @@
 
 
 #include "TrigInterfaces/FexAlgo.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <string>
@@ -48,35 +49,18 @@ class TrigIDTPMonitorElectron: public HLT::FexAlgo{
   double TrackInvMass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2);
   double ClusterInvMass(double ptTag, double pxTag, double pyTag, double pzTag, double ptCluster, double pxCluster, double pyCluster, double pzCluster);
   double ClusterTagTrackInvMass(const xAOD::TrackParticle* tag, double ptCluster, double pxCluster, double pyCluster, double pzCluster);
-  // double compatibleIDTrack(const xAOD::TrackParticle* tag, const xAOD::TrackParticle* probe, const xAOD::TrackParticle* IDtrack);
-  
-  //variables
-  //double m_mumuMass;
-
-  //cuts
-  //double m_massAcceptanceTP;
-  //double m_massAcceptanceTID;
-  //double m_lowerPtCutP;
-  //double m_lowerPtCutT;
-  //double m_lowerPtCutID;
-  //double m_etaUpperCut;
   
   //monitored containers
-  //  std::vector<double> m_trackInvMass;
-
   std::vector<double> m_PTinv;
   std::vector<double> m_FTFinv;
   std::vector<double> m_PTOptinv;
   std::vector<double> m_FTFOptinv;
   std::vector<double> m_PTinvTrack;
   std::vector<double> m_FTFinvTrack;
-  //std::vector<double> m_PTinvTrack_before_cuts;
-  //std::vector<double> m_FTFinvTrack_before_cuts;
   std::vector<double> m_invCluster;
   std::vector<double> m_invCluster_before_cuts;
   std::vector<double> m_invClusterTagTrack;
   std::vector<double> m_invClusterTagTrack_before_cuts;
-  //std::vector<double> m_invTrial;
   std::vector<double> m_clusterPT;
   std::vector<double> m_clusterPhi;
   std::vector<double> m_clusterEta;
@@ -89,33 +73,16 @@ class TrigIDTPMonitorElectron: public HLT::FexAlgo{
   std::vector<double> m_clusterPy;
   std::vector<double> m_clusterPz;
   std::vector<double> m_PTdeltaR;  
+  std::vector<double> m_FTFdeltaR;
   std::vector<double> m_PTOptDeltaR;
+  std::vector<double> m_FTFOptDeltaR;
+  std::vector<double> m_tagClusterEta;
+  std::vector<double> m_tagClusterPhi;
+  std::vector<double> m_tagClusterEta_before_cuts;
+  std::vector<double> m_tagClusterPhi_before_cuts;
+  std::vector<double> m_dZ0;
 
-  std::vector<int> m_PTnumber;
-  std::vector<int> m_FTFnumber;
 
-
-  //std::vector<double> m_lines;
-  /*
-  std::vector<double> m_invTP;
-  std::vector<double> m_linesTP;
- 
-  std::vector<double> m_pt;
-  std::vector<double> m_linespt;
- 
-  std::vector<double> m_eta;
-  std::vector<double> m_lineseta;
- 
-  std::vector<double> m_d0;
-  std::vector<double> m_linesd0;
- 
-  std::vector<double> m_phi;
-  std::vector<double> m_linesphi;
- 
-  std::vector<double> m_eff;
- 
-  std::vector<double> m_usedTracks;
-  */
   //monitored values
   double m_PTOptInv;
   double m_FTFOptInv;
@@ -132,8 +99,8 @@ class TrigIDTPMonitorElectron: public HLT::FexAlgo{
   double m_tagExpectedDeltaPhi;
   double m_tagPoverE;
   double m_tagZ0;
-  double m_dZ0;
-
+  double m_PTeta;
+  double m_PTphi;
   double m_ptEfficiencyProfile;
   double m_invMassEfficiencyProfile;
   double m_phiEfficiencyProfile;
@@ -142,35 +109,18 @@ class TrigIDTPMonitorElectron: public HLT::FexAlgo{
   double m_PTfoundAlt;
   double m_PTfoundCombined;
   double m_FTFfound;
-  int m_PTnumberTracks;
-  int m_FTFnumberTracks;
-  int m_PTnumberCuts;
-  int m_FTFnumberCuts;
-
   int m_PTnumberOfPixelHits;
   int m_PTnumberOfSCTHits;
   int m_PTnumberOfTRTHits;
+  double m_PTpixelFound;
+  double m_PTpixelNextToFound;
 
-    /*     
-  double m_invBS; //Invariant mass from TrigEFBPhys object before selection
-  double m_invD; //Invariant mass from TrigEFBPhys object
-  double m_invN; //Invariant mass from TrigEFBPhys object (if ID Track)
-  double m_invTPD; //Invariant mass calculated from Tag and Probe Tracks
-  double m_invTPN; //Difference between m_inv and m_invC
-  double m_ptD; //pT of the Probe Muon
-  double m_ptN; //pT of the Probe Muon (if ID Track)
-  double m_etaD; //eta of the Probe Muon
-  double m_etaN; //eta of the Probe Muon (if ID Track)
-  double m_d0D; //d0 of the Probe Muon
-  double m_d0N; //d0 of the Probe Muon (if ID Track)
-  double m_phiD;//phi of the Probe Muon
-  double m_phiN;//phi of the Probe Muon(if ID Track)
-  double m_IDTmass; //Inveriant mass calculated from ID track and CombMuon
-  double m_massDiff;//Difference between invariant masses
-  double m_PTfound; //found probe PT track
-  double m_FTFfound; //found probe FTF tack
-  */
 };
 
 
 #endif
+  //temporary fix
+  //double m_PTphiNextToInnermost;
+  //double m_PTetaNextToInnermost;
+  //double m_FTFphiEfficiencyProfile;
+  //double m_FTFetaEfficiencyProfile;

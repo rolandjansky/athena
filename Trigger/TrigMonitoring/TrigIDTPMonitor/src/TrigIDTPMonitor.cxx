@@ -20,8 +20,6 @@
 
 #include "TrigIDTPMonitor.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"

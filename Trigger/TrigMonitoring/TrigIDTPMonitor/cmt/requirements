@@ -7,8 +7,6 @@ use AtlasPolicy		AtlasPolicy-*
 private
 use GaudiInterface      GaudiInterface-*        External
 use EventInfo		EventInfo-*		Event
-use StoreGate		StoreGate-*		Control
-use DataModel		DataModel-*		Control
 use AthLinks		AthLinks-*		Control
 
 use TrigSteeringEvent	TrigSteeringEvent-*	Trigger/TrigEvent
