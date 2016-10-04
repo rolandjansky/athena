@@ -15,7 +15,6 @@
 #include "TrigBjetHypo/TrigBjetEtHypo.h"
 
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
 
 #include "xAODCore/ShallowCopy.h"
 #include "xAODJet/Jet.h"
@@ -81,41 +80,6 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << "Executing TrigBjetEtHypo in its version " << m_version << endmsg;
 
-
-
-//  //* Get RoI descriptor *//
-//  const TrigRoiDescriptor* roiDescriptor = 0;
-//  HLT::ErrorCode stat = getFeature(outputTE, roiDescriptor, "");
-//  
-////  if (stat == HLT::OK) {
-//    if (msgLvl() <= MSG::DEBUG) {
-//      msg() << MSG::DEBUG << "Using outputTE: ROI: " << &roiDescriptor << endmsg;
-//    }
-//  } 
-//  else {
-//    if (msgLvl() <= MSG::WARNING) 
-//      msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endmsg;
-//    
-//    //return HLT::NAV_ERROR;
-//  }
-//
-  
-  // Get TrigOperationalInfo 
-  std::vector<const TrigOperationalInfo*> m_vectorOperationalInfo;
-  if (getFeatures(outputTE, m_vectorOperationalInfo, "EFJetInfo") != HLT::OK) {
-    if (msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigOperationalInfo" << endmsg;
-    }
-    return HLT::MISSING_FEATURE;
-  } 
-  else {
-    if (msgLvl() <= MSG::DEBUG) {
-      msg() << MSG::DEBUG << "Number of TrigOperationalInfo objects: " << m_vectorOperationalInfo.size() << endmsg;
-    }
-  }
-
-  pass = false;
-
   const xAOD::JetContainer* jets(0);
   HLT::ErrorCode ec = getFeature(outputTE, jets, m_jetKey);
     
@@ -127,7 +91,9 @@ HLT::ErrorCode TrigBjetEtHypo::hltExecute(const HLT::TriggerElement* outputTE, b
   }
     
   msg() << MSG::DEBUG << "pass Hypo  " << &jets << endmsg;
-    
+  
+  pass = false;
+  
   if(jets == 0){
     ATH_MSG_WARNING("Jet collection pointer is 0");
     return HLT::ERROR;

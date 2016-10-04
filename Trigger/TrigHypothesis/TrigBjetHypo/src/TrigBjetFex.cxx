@@ -30,8 +30,6 @@
 
 #include "TrigParticle/TrigEFBjetContainer.h"
 
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
-
 #include "InDetBeamSpotService/IBeamCondSvc.h"
 
 #include "TrigInDetEvent/TrigVertex.h"
@@ -860,49 +858,9 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     return HLT::NAV_ERROR;
   }
 
-  // -----------------------------------
-  // Get EF jets 
-  // -----------------------------------
-  float m_et_EFjet = 0;
-  if (m_retrieveHLTJets && m_instance == "EF") {
-    std::vector<const TrigOperationalInfo*> m_vectorOperationalInfo;
-    if (getFeatures(outputTE, m_vectorOperationalInfo, "EFJetInfo") != HLT::OK) {
-      if (msgLvl() <= MSG::WARNING) {
-        msg() << MSG::WARNING << "Failed to get TrigOperationalInfo" << endmsg;
-      }
-      return HLT::MISSING_FEATURE;
-    } 
-    else {
-      if (msgLvl() <= MSG::DEBUG) {
-        msg() << MSG::DEBUG << "Number of TrigOperationalInfo objects: " << m_vectorOperationalInfo.size() << endmsg;
-      }
-    }
-
-    // -----------------------------------
-    // Get operational info
-    // -----------------------------------
-    std::vector<const TrigOperationalInfo*>::const_iterator m_operationalInfo;
-    for (m_operationalInfo=m_vectorOperationalInfo.begin(); m_operationalInfo!=m_vectorOperationalInfo.end(); ++m_operationalInfo) {    
-      
-      if ((*m_operationalInfo)->defined("EFJetEt")==1) {
-	
-        unsigned int m_etSize = (*m_operationalInfo)->infos().first.size();    
-        if (m_etSize!=1) {
-          if (msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "More than one Et threshold associated to the same EF jet" << endmsg;
-          return HLT::NAV_ERROR;
-        }
-    
-        m_et_EFjet = (*m_operationalInfo)->get("EFJetEt");
-      }
-    }
-  }
-
-  m_trigBjetJetInfo->setEtaPhiJet(roiDescriptor->eta(), m_taggerHelper->phiCorr(roiDescriptor->phi()));
-  m_trigBjetJetInfo->setEtaPhiRoI(roiDescriptor->eta(), m_taggerHelper->phiCorr(roiDescriptor->phi()));
-  m_trigBjetJetInfo->setEtJet(m_et_EFjet);
-
   //xAOD jets from TE
 
+  float m_et_EFjet = 0;
  
   msg() << MSG::DEBUG << "pass 1 " << m_et_EFjet << endmsg;
 
@@ -944,9 +902,15 @@ HLT::ErrorCode TrigBjetFex::hltExecute(const HLT::TriggerElement* /*inputTE*/, H
     double etjet = aJet->p4().Et();
     double etajet = aJet->p4().Eta();
 
-    msg() << MSG::DEBUG << "et  " << etjet << " and eta " << etajet << endmsg;
+    m_et_EFjet = aJet->p4().Et()*0.001;
+
+    msg() << MSG::DEBUG << "et  " << etjet << " and eta " << etajet << " Et EFjet " << m_et_EFjet << endmsg;
 
   }
+
+    m_trigBjetJetInfo->setEtaPhiJet(roiDescriptor->eta(), m_taggerHelper->phiCorr(roiDescriptor->phi()));
+    m_trigBjetJetInfo->setEtaPhiRoI(roiDescriptor->eta(), m_taggerHelper->phiCorr(roiDescriptor->phi()));
+    m_trigBjetJetInfo->setEtJet(m_et_EFjet);
 
   // -----------------------------------
   // Retrieve beamspot information

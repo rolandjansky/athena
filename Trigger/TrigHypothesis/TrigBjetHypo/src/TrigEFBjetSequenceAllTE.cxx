@@ -18,7 +18,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigSuperRoi.h"
 #include "TrigSteeringEvent/PhiHelper.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigNavigation/TriggerElement.h"
 
 #include "AthContainers/ConstDataVector.h"
@@ -172,16 +171,6 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       msg() << MSG::DEBUG << "Adding ROI descriptor to superROI - ta da!!" << endmsg;
       superRoi->push_back( newRoiDescriptor );
 
-      // is this only needed if we break the jets up into separate trigger elements?
-      TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
-	
-      trigInfoJetEt->set("EFJetEt", jet_Et);
-	
-      HLT::ErrorCode hltStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
-      if (hltStatus != HLT::OK) {
-	msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo as feature" << endmsg;
-	return hltStatus;
-      }
     }
     
     msg() << MSG::DEBUG << "Attaching feature" << endmsg;
@@ -242,16 +231,6 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
 	return hltStatus;
       }
       
-      TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
-      trigInfoJetEt->set("EFJetEt", jet_Et);
-
-      hltStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo");
-
-      if (hltStatus != HLT::OK) {
-	msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo as feature" << endmsg;
-	return hltStatus;
-      }
-
       // Make a deep copy of the jet, because can't persistify view containers at the moment
       xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
       xAOD::JetContainer* trigJetContainer = new xAOD::JetContainer();
