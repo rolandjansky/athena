@@ -23,7 +23,7 @@
 
 
 #include "TrigInterfaces/FexAlgo.h"
-#include "DataModel/ElementLink.h"
+#include "AthLinks/ElementLink.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include <string>

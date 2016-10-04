@@ -10,17 +10,17 @@
  **
  **
  **   Author: Jonathon Langford <jonathon.langford@cern.ch>
+ **           ATLAS Summer Student - private email: jonno_1995@hotmail.co.uk
+ **                                  (for queries after my CERN account has been closed)
  **
  **   Created:   05.07.2016
- **   Modified:  12.07.2016
+ **   Modified:  25.08.2016
  **
  **
  ***************************************************************************/
 
 #include "TrigIDTPMonitorElectron.h"
 
-#include "StoreGate/StoreGateSvc.h"
-#include "StoreGate/DataHandle.h"
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "TrigConfHLTData/HLTTriggerElement.h"
@@ -32,6 +32,7 @@
 #include "xAODTracking/TrackParticle.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackingPrimitives.h"
+#include "xAODCaloEvent/CaloClusterContainer.h"
 
 #include "xAODEgamma/ElectronContainer.h"
 #include "xAODEgamma/Electron.h"
@@ -46,8 +47,6 @@ TrigIDTPMonitorElectron::TrigIDTPMonitorElectron(const std::string& name, ISvcLo
   declareMonitoredStdContainer("FTFInvMass",  m_FTFinv,      AutoClear);
   declareMonitoredStdContainer("PTOptInvMass",   m_PTOptinv,   AutoClear);
   declareMonitoredStdContainer("FTFOptInvMass",   m_FTFOptinv,   AutoClear);
-  //declareMonitoredStdContainer("PTInvMassTrack_before_cuts",  m_PTinvTrack_before_cuts,      AutoClear);
-  //declareMonitoredStdContainer("FTFInvMassTrack_before_cuts",  m_FTFinvTrack_before_cuts,      AutoClear);
   declareMonitoredStdContainer("PTInvMassTrack",  m_PTinvTrack,      AutoClear);
   declareMonitoredStdContainer("FTFInvMassTrack",  m_FTFinvTrack,      AutoClear);
   declareMonitoredStdContainer("InvMassCluster",  m_invCluster,      AutoClear);
@@ -57,15 +56,15 @@ TrigIDTPMonitorElectron::TrigIDTPMonitorElectron(const std::string& name, ISvcLo
   declareMonitoredStdContainer("clusterPT",  m_clusterPT,      AutoClear);
   declareMonitoredStdContainer("clusterPhi",  m_clusterPhi,      AutoClear);
   declareMonitoredStdContainer("clusterEta",  m_clusterEta,      AutoClear);
-  declareMonitoredStdContainer("deltaPhi",  m_deltaPhi,      AutoClear);
   declareMonitoredStdContainer("clusterPT_before_cuts",  m_clusterPT_before_cuts,      AutoClear);
   declareMonitoredStdContainer("clusterPhi_before_cuts",  m_clusterPhi_before_cuts,      AutoClear);
   declareMonitoredStdContainer("clusterEta_before_cuts",  m_clusterEta_before_cuts,      AutoClear);
+  declareMonitoredStdContainer("deltaPhi",  m_deltaPhi,      AutoClear);
   declareMonitoredStdContainer("deltaPhi_before_cuts",  m_deltaPhi_before_cuts,      AutoClear);
-  declareMonitoredStdContainer("PTnumberTracks",  m_PTnumber,      AutoClear);
-  declareMonitoredStdContainer("FTFnumberTracks",  m_FTFnumber,      AutoClear);
   declareMonitoredStdContainer("PTdeltaR",   m_PTdeltaR,    AutoClear);
   declareMonitoredStdContainer("PTOptdeltaR",   m_PTOptDeltaR,    AutoClear);
+  declareMonitoredStdContainer("FTFdeltaR",   m_PTdeltaR,    AutoClear);
+  declareMonitoredStdContainer("FTFOptdeltaR",  m_FTFOptDeltaR,   AutoClear);
   declareMonitoredVariable("PTClusterDeltaEta",   m_PTdeltaEta,   -999);
   declareMonitoredVariable("FTFClusterDeltaEta",  m_FTFdeltaEta,  -999);
   declareMonitoredVariable("TagDeltaEta",  m_tagDeltaEta,  -999);
@@ -79,10 +78,14 @@ TrigIDTPMonitorElectron::TrigIDTPMonitorElectron(const std::string& name, ISvcLo
   declareMonitoredVariable("tagZ0",   m_tagZ0,    10000);
   declareMonitoredVariable("tagTrackpT", m_tagTrackpT,   -1);
   declareMonitoredVariable("tagPoverE",   m_tagPoverE,   -1);
+  declareMonitoredStdContainer("tagClusterEta_before_cuts",   m_tagClusterEta_before_cuts,   AutoClear);
+  declareMonitoredStdContainer("tagClusterPhi_before_cuts",   m_tagClusterPhi_before_cuts,   AutoClear);
+  declareMonitoredStdContainer("tagClusterEta",   m_tagClusterEta,   AutoClear);
+  declareMonitoredStdContainer("tagClusterPhi",   m_tagClusterPhi,   AutoClear);
   declareMonitoredVariable("PTnumberOfPixelHits",   m_PTnumberOfPixelHits,    -10);
   declareMonitoredVariable("PTnumberOfSCTHits",   m_PTnumberOfSCTHits,    -10);
   declareMonitoredVariable("PTnumberOfTRTHits",   m_PTnumberOfTRTHits,    -10);
-  declareMonitoredVariable("PTEfficientDeltaZ0",    m_dZ0,    -999);
+  declareMonitoredStdContainer("PTEfficientCombDeltaZ0",    m_dZ0,    AutoClear);
 
   //For profile histograms
   declareMonitoredVariable("probePtEfficiency",   m_ptEfficiencyProfile,   -1);
@@ -93,12 +96,11 @@ TrigIDTPMonitorElectron::TrigIDTPMonitorElectron(const std::string& name, ISvcLo
   declareMonitoredVariable("FTFfound",    m_FTFfound,     -1);
   declareMonitoredVariable("PTfoundAlt", m_PTfoundAlt,     -1);
   declareMonitoredVariable("PTfoundCombined", m_PTfoundCombined,    -1);
-
-  //Set number of events and cuts to zero in constructor
-  m_PTnumberTracks=0;
-  m_FTFnumberTracks=0;
-  m_PTnumberCuts=0;
-  m_FTFnumberCuts=0;
+  //for IBL Monitoring
+  declareMonitoredVariable("PTeta", m_PTeta,   -999);
+  declareMonitoredVariable("PTphi", m_PTphi,   -999);
+  declareMonitoredVariable("PTpixelFound", m_PTpixelFound, -1);
+  declareMonitoredVariable("PTpixelNextToFound", m_PTpixelNextToFound, -1);
 }
 
 TrigIDTPMonitorElectron::~TrigIDTPMonitorElectron(){ }
@@ -131,9 +133,6 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
   ATH_MSG_DEBUG( "Input TE: " << *inputTE );
   ATH_MSG_DEBUG( "Output TE: " << *outputTE );
 
-  //CHANGE TO TEST SVN STUFF
-
-  //Retrieve event info ->See notepad.cxx
 
   //Define constants
   const double Zmass=91187.6;//MeV
@@ -199,17 +198,18 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
   bool tag1probe2=false;
   bool tag2probe1=false;
 
-
   //Vectors of combined tracks
+  //Define tag tracks
   std::vector<const xAOD::TrackParticle*> tagTracks;
   //Define 2 probe tracks one for PT and one for FTF 
   std::vector<const xAOD::TrackParticle*> PTprobeTracks;
   std::vector<const xAOD::TrackParticle*> FTFprobeTracks;
 
-
-  //CHECK THE CHAIN NAME!! IS IT e26
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //TRIGGER IS HARD CODED!!!!!! - Needs to be changed to allow monitoring on other triggers
   std::string tagname = "EF_e26_lhtight_nod0_L1_EM22VHI";
   std::string probename = "EF_e15_etcut_L1EM7_L1_EM7";
+  //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   //Now must see which is tag and which is probe, therefore compare the ID label to tagname and probename, and change bool operator accordingly
   if(teInLabel1.compare(tagname) == 0 && teInLabel2.compare(probename) == 0){
@@ -221,7 +221,7 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     tag2probe1 = true;
   }
 
-  //Get features from electron containers, depending on which is tag and which is probe will need front or back trigger element
+  //Get features from containers, depending on which is tag and which is probe will need front or back trigger element
   //Enter for first electron tag and second probe
   if(tag1probe2){
     //TAG1:Electron Container
@@ -296,19 +296,21 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
   }
 
 
-  //TAG
-  //Declare variables to store tag info
+
+  //TAG - extract information from fully reconstructed electron. 
+  
+  //Declare variables to store topological info of the tag electron
   double tagpT=0, tagPhi=0, tagEta=0, tagPx=0, tagPy=0, tagPz=0, tagd0=0, tagCharge=100, tagZ0=-999;
-  double tagTrackEta=0, tagTrackPhi=0, tagClusterEta=-999, tagClusterPhi=-999;
-  double tagTrackpT=0, tagTrackPz=0;
-  //Check TAG has combined tracks and if this is so -> Add it to vector of combined tracks (tagTracks)
-  //Loop over tag electrons
+  //Declare variables to store topological info of the tag track and tag cluster only
+  double tagTrackEta=0, tagTrackPhi=0, tagTrackpT=0, tagTrackPz=0, tagClusterEta=-999, tagClusterPhi=-999;
+
+  //Loop over tag electrons (should be just one fully reconstructed electron in RoI)
   for (auto electronIterator: *ec1){
     if (electronIterator == NULL){
       ATH_MSG_WARNING("Non initialised electron in first ROI... Leaving!");
       return HLT::OK;
     }
-    //For combined (track and cluster) information (straight from electronIterator
+    //Extract tag electron topological info
     tagpT=electronIterator->pt();
     tagPhi=electronIterator->phi();
     tagEta=electronIterator->eta();
@@ -316,18 +318,22 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     tagPy=electronIterator->p4().Py();
     tagPz=electronIterator->p4().Pz();
 
-    //For tracking information...
+    //Looking at tag tracks 
+    //Note this is not required by algorithm. Check for effects of bremstrahlung (i.e. the difference between the tag electron and the tag track)
+    //Accessing tag track
     const xAOD::TrackParticle* electronTrack= electronIterator->trackParticle();
     //Check if electronTrack is NULL pointer
     if (electronTrack == NULL){
       ATH_MSG_DEBUG("Tag electron returns null TrackParticleLink");
       return HLT::OK;
     }
-    //Otherwise check the charge is NOT equal to 0 and if so add tag track to the vector of combined tagTracks
-    if (abs(electronTrack->charge())>0){//possibly needs || true ->ASK JIRI WHAT THIS MEANS
+    //Check track corresponds to a particle with charge
+    if(abs(electronTrack->charge())>0){
+      //if so add to vector of tag tracks
       tagTracks.push_back(electronTrack);
       ATH_MSG_DEBUG("Tag track added to vector!");
     }
+    //extract tag track topological info
     tagd0=electronTrack->d0();
     tagZ0=electronTrack->z0();
     tagCharge=electronTrack->charge();
@@ -336,22 +342,30 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     tagTrackEta=electronTrack->eta();
     tagTrackPhi=electronTrack->phi();
   }
+
   //Calculate E(tagElectron)/P(tagTrack) and store in monitored variable
   m_tagPoverE=(sqrt(tagTrackpT*tagTrackpT+tagTrackPz*tagTrackPz))/(sqrt(tagpT*tagpT+tagPz*tagPz+0.261121));
 
-  //For tag cluster information...
+  //Looking at tag cluster
+  //Note this is also not required by algorithm. Again used to check for effects of brem.
   for(auto clusterIterator: *tagClusterCont){
     if(clusterIterator == NULL){
       ATH_MSG_WARNING( "Not initialised in relevant roi, leaving!" );
       return HLT::OK;
     }
+    //extract tag cluster topological info
     tagClusterEta=clusterIterator->eta();
     tagClusterPhi=clusterIterator->phi();
+    //push back to store in monitored variables
+    m_tagClusterEta_before_cuts.push_back(clusterIterator->eta());
+    m_tagClusterPhi_before_cuts.push_back(clusterIterator->phi());
   }
 
+  //IF fully reconstructed electron is triggered then the following checks should never be entered (as electron requires both cluster and track)
+  //Therefore if either track or cluster not there then leave as must be a problem
   //Check if tagTracks is empty
   if(tagTracks.size() == 0){
-    ATH_MSG_DEBUG( "Empty Tag vector, nothing to analyse, leaving" );
+    ATH_MSG_DEBUG( "Empty Tag vector, leaving" );
     return HLT::OK;
   }
   //Check if tagCluster is empty
@@ -360,63 +374,72 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
    return HLT::OK;
   }
 
-  //Determine deltaEta and deltaPhi (to be histogrammed)
+  //Checking the effect of Bremstrahlung by alignment of tagTrack and tagCluster
+  //Determine deltaEta and deltaPhi
   m_tagDeltaEta=tagClusterEta-tagTrackEta;
   m_tagDeltaPhi=tagClusterPhi-tagTrackPhi;
-  m_tagExpectedDeltaPhi=-acos(((tagTrackpT/600)-(588/tagTrackpT))/(tagTrackpT/600));
+  //Calculate the expected deltaPhi due to bending from magnets alone. Derivation in logbook
+  m_tagExpectedDeltaPhi=-acos(((tagpT/600)-(588/tagpT))/(tagpT/600));
   //multiply by -1 for positrons
   if(tagCharge==1){
     m_tagExpectedDeltaPhi=-1*m_tagExpectedDeltaPhi;
   }
 
-  //TAG SELECTION CUTS
-  //eta: exclude electrons in crack region between barrel and end-cap (1.37-1.52)
+  //IMPLEMENT SELECTION CUTS ON TAGS
+  //exclude electrons in crack region of calorimeter between barrel and end-cap (1.37-1.52)
   if((tagEta>1.37&&tagEta<1.52)||(tagEta>-1.52&&tagEta<-1.37)){
     //Leave
     ATH_MSG_DEBUG("TAG:::Eta outside of desired range: "<<tagEta);
     return HLT::OK;
   }
 
+  //FILLING OF MONITORED VARIABLES FOR HISTOGRAMMING
   //declare monitored variables for histogram filling
   m_tagEta=tagEta;
   m_tagpT=tagpT;
   m_tagTrackpT=tagTrackpT;
 
-  //LOOP OVER PROBE CLUSTER CANDIDATES - extract variables and store in a vector
-  //Define temporary floats to hold variables
+
+
+  //PROBE CLUSTER - extract information from probe cluster. Make selection cuts to exclude candidates which are not Z->ee
+  //CHECK - may get more than one cluster for same region of interest. Therefor loop over clusters in container and then choose optimal cluster for tag-electron probe-cluster Minv closest to Zmass
+
+  //declare variables to store topological info of all clusters (temporary). These will be stored in monitored variables with names: before_cuts
   double tempPT=0, tempPHI=0, tempETA=0, tempPx=0, tempPy=0, tempPz=0, tempInvMass=0, tempClusterTagTrackInvMass=0;
-  double CLUSTEROptInvMass=0, CLUSTEROptPT=0, CLUSTEROptPhi=0, CLUSTEROptEta=0, CLUSTEROptTagTrackInvMass=0;;
+  //declare variables to store the topological info for optimal cluster
+  double CLUSTEROptInvMass=0, CLUSTEROptPT=0, CLUSTEROptPhi=0, CLUSTEROptEta=0, CLUSTEROptTagTrackInvMass=0;
+  //declare variables to store the difference in phi between the tag and probe -> Expect to be ~pi since electrons produced back to back
   double tempDeltaPhi=0, CLUSTEROptDeltaPhi=0;
+  
+  //loop over clusters in container
   for(auto clusterIterator: *clusterCont){
     //If not initialised in ROI then leave
     if(clusterIterator == NULL){
       ATH_MSG_WARNING( "Not initialised in relevant roi, leaving!" );
       return HLT::OK;
     }
-    //Extract cluster tranverse momentum/phi/eta/4-momentum and store in temporary floats
+    //Extract cluster topological info
     tempPT=clusterIterator->pt();
     tempPHI=clusterIterator->phi();
     tempETA=clusterIterator->eta();
     tempPx=clusterIterator->p4().Px();
     tempPy=clusterIterator->p4().Py();
     tempPz=clusterIterator->p4().Pz();
+    //Calculate invariant mass of tag-electron probe-cluster pair
+    tempInvMass=ClusterInvMass(tagpT,tagPx,tagPy,tagPz,tempPT,tempPx,tempPy,tempPz);
 
-    //pushback pT, phi and eta onto vectors before cuts
+    //pushback pT, phi, eta and Minv onto vectors: before_cuts
     m_clusterPT_before_cuts.push_back(tempPT);
     m_clusterPhi_before_cuts.push_back(tempPHI);
     m_clusterEta_before_cuts.push_back(tempETA);
-
-    //Calculate invariant mass of cluster
-    tempInvMass=ClusterInvMass(tagpT,tagPx,tagPy,tagPz,tempPT,tempPx,tempPy,tempPz);
-    //pushback onto invariant mass vector before cuts
     m_invCluster_before_cuts.push_back(tempInvMass);
 
-    //Calculate invariant mass of cluster from TAG TRACK only
-    //loop over tag Tracks->SHOULD ONLY BE ONE, if there is more than one will have to adapt code as takes last tagTrack invariant mass
-    for(auto tagTrack:tagTracks){
-    tempClusterTagTrackInvMass=ClusterTagTrackInvMass(tagTrack,tempPT,tempPx,tempPy,tempPz);;
-    //pushback onto vector
-    m_invClusterTagTrack_before_cuts.push_back(tempClusterTagTrackInvMass);
+    //Calculate invariant mass of tag-TRACK probe-cluster pair
+    //NOTE: this is not required by algorithm, check for effects of bremstrahlung. Remove when algorithm implemented online
+    for(auto tagTrack:tagTracks){//only one track for fully reconstructed tag
+      tempClusterTagTrackInvMass=ClusterTagTrackInvMass(tagTrack,tempPT,tempPx,tempPy,tempPz);;
+      //pushback onto vector
+      m_invClusterTagTrack_before_cuts.push_back(tempClusterTagTrackInvMass);
     }
 
     //Calculate delta phi for cluster and tag track
@@ -424,8 +447,9 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     //push back onto vector before cuts
     m_deltaPhi_before_cuts.push_back(tempDeltaPhi);
 
-    //ONLY SELECT CLUSTER WITH InvMASS CLOSEST TO ZMASS
+    //Find optimal cluster in container by selecting cluster with Minv closest to Zmass
     if(fabs(Zmass-tempInvMass)<fabs(Zmass-CLUSTEROptInvMass)){
+      //set optimal cluster topological info
       CLUSTEROptInvMass=tempInvMass;
       CLUSTEROptTagTrackInvMass=tempClusterTagTrackInvMass;
       CLUSTEROptPT=tempPT;
@@ -435,8 +459,9 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     }
   }
 
-  //Selection Cuts to isolate Z->ee candidates
-  //On cluster mass -> If CLUSTEROptInvMass not inside window then leave event
+  //IMPLEMENT SELECTION CUTS ON TAG-PROBE CANDIDATES - isolate Z->ee events
+  //On Minv (of tag-electron probe-cluster)-> If CLUSTEROptInvMass not inside window then leave
+  //NOTE value of 6.8GeV from running on MC samples (2sigma for Minv distribution)
   if(fabs(CLUSTEROptInvMass-Zmass)>6800){
     ATH_MSG_DEBUG("CUT:::Invariant mass outside of Zmass window");
     return HLT::OK;
@@ -447,23 +472,27 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     return HLT::OK;
   }
   //on deltaPhi
-  /*if(CLUSTERtopDeltaPhi<3||CLUSTERtopDeltaPhi>3.25){
-    ATH_MSG_DEBUG("Cluster delta phi outside accepted range");
+  if(CLUSTEROptDeltaPhi<2.5||CLUSTEROptDeltaPhi>3.7){
+    ATH_MSG_DEBUG("CUT:::Tag-probe delta phi outside accepted range of 2.5-3.7");
     return HLT::OK;
-    }*/
-  //On transverse momentum 
+  } 
 
-  //Push back the values for the optimum cluster onto the vectors                                                                                                                                                                             
+  //FILLING OF MONITORED VARIABLES FOR HISTOGRAMS
+  //Push back the values for the optimum cluster onto monitored containers                                                                                                                                                                            
   m_deltaPhi.push_back(CLUSTEROptDeltaPhi);
   m_invCluster.push_back(CLUSTEROptInvMass);
   m_clusterPT.push_back(CLUSTEROptPT);
   m_clusterPhi.push_back(CLUSTEROptPhi);
   m_clusterEta.push_back(CLUSTEROptEta);
   m_invClusterTagTrack.push_back(CLUSTEROptTagTrackInvMass);
+  //Push back values for tagCluster:eta and phi after cuts
+  m_tagClusterEta.push_back(tagClusterEta);
+  m_tagClusterPhi.push_back(tagClusterPhi);
 
 
 
-  //LOOP OVER PROBE Tracking CANDIDATES for precision tracker
+  //ACCESS PROBE TRACKS FROM CONTAINER AND STORE IN VECTORS
+  //PRECISION TRACKER
   for(auto probeIterator: *PTTrkContainerElectron){
     //If not initialised in ROI, leave
     if(probeIterator == NULL){
@@ -472,17 +501,15 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     }
     //define tempProbeTrack from iterator
     const xAOD::TrackParticle* tempProbeTrack= probeIterator;//->trackParticle();    
-    //auto tempProbeTrack=*probeIterator;
 
     //Check track corresponds to a particle with charge
     if(abs(tempProbeTrack->charge())>0){
-      //And probe track to vector of combined tracks
+      //Add probe track to vector of combined tracks
       PTprobeTracks.push_back(tempProbeTrack);
       ATH_MSG_DEBUG("Probe track added to PT vector!");
     }
   }
-
-  //LOOP OVER PROBE Tracking CANDIDATES for FTF tracker                                                                                                                                                                                               
+  //FAST TRACK FINDER                                                                                                                                                                                               
   for(auto probeIterator: *FTFTrkContainerElectron){
     //If not initialised in ROI, leave                                                                                                                                                                                                                      
     if(probeIterator == NULL){
@@ -501,68 +528,90 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
 
 
 
-  //INVARIANT MASS CALCULATION FROM TAG COMBINED and probe track
-  //declare variable
-  double m_InvMass, m_deltaR, OptProbeCharge=999;//deltaR defined as the quadrature sum of deltaEta and deltaPhi
-  //declare variables to store optimal InvMass
-  double PTOptInvMass=0; double FTFOptInvMass=0; int PTOptIterator=-1; /*int FTFOptIterator=-1*/; int PTOptIteratorAlt=-1;
-  double dZ0=-999;
-  double PTOptDeltaR=999; //double FTFOptDeltaR=999
+  //INVARIANT MASS CALCULATION - from tag "electron" - probe track pair
+  //This section of code determines inv mass and deltaR for all tracks in probe region (PT and FTF). Then implements two independent methods for finding the optimum track...
+  //1)Probe track with invariant mass of tag electron-probe track pair closest to the Zmass
+  //2)Probe track with the smallest value of deltaR (gives quantitative measure of the cluster-track alignment)
+  
+  //declare variables to temporarily store invariant mass and deltaR of all tracks
+  double m_InvMass, m_deltaR=9999;
+  //declare variables to store optimal track Minv for both PT and FTF. Also define ints to store iterator value of the optimal tracks (used for DEBUG messages at end of code)
+  double PTOptInvMass=0, FTFOptInvMass=0; int PTOptIterator=-1, PTOptIteratorAlt=-1, FTFOptIterator=-1, FTFOptIteratorAlt=-1;
+  //declare variables to store the difference in Z0 between tag and probe tracks for both methods
+  double InvMasscriteriadZ0=-999, dRcriteriadZ0=-999;
+  //declare variable to store the charge of the optimum track
+  double OptProbeCharge=999;
+  //declare  variables to store optimal track deltaR (PT and FTF)
+  double PTOptDeltaR=999; double FTFOptDeltaR=999;
+  //declare unsigned 8 bit integers to access trackSummary information of the optimum track found by the Invariant mass condition
   uint8_t numberOfPixelHits, numberOfSCTHits, numberOfTRTHits;
+  //declare unsigned 8 bit integers to access trackSummary information for innermost detector monitoring (and next to innermost)
+  uint8_t expectInnermostPixelLayerHit, numberOfInnermostPixelLayerHits, expectNextToInnermostPixelLayerHit, numberOfNextToInnermostPixelLayerHits;
   int p=0;
 
+  //PRECISION TRACKER
   //iterate over probe tracks
-  //PT
   for(auto probeTrack:PTprobeTracks){
     //Check probeTrack and tag have opposite charge, if not then exit iteration (track)
     if(tagCharge*probeTrack->charge()!=-1){
+      p++;
       continue;
     }
     //Calculate invariant mass and delta R
     m_InvMass=CombinedInvMass(tagpT,tagPx,tagPy,tagPz,probeTrack);
     m_deltaR=sqrt((CLUSTEROptEta-probeTrack->eta())*(CLUSTEROptEta-probeTrack->eta())+(CLUSTEROptPhi-probeTrack->phi())*(CLUSTEROptPhi-probeTrack->phi()));
-    //push back invariant mass onto vector
+    //push back invariant mass onto vector (this stores Minv of all tracks in probe region (not just the optimal ones))
     m_PTinv.push_back(m_InvMass);
-
-    //Find optimal track ->
-    //METHOD1: Probe track corresponding to Minv closest to Zmass
+    m_PTdeltaR.push_back(m_deltaR);
+    
+    //Finding the optimal track
+    //1)Probe track with Minv closest to Zmass
     if(fabs(m_InvMass-Zmass)<fabs(PTOptInvMass-Zmass)){
       //Set new optimal track
       PTOptInvMass=m_InvMass;
       PTOptIterator=p;
-      //Determine delta eta and delta phi between cluster and track and store in monitored variable
+
+      //Determine delta eta and delta phi between cluster and track and store in monitored variable to be histogrammed
       m_PTdeltaEta=CLUSTEROptEta-probeTrack->eta();
       m_PTdeltaPhi=CLUSTEROptPhi-probeTrack->phi();
-
+      //Define charge of optimum track
       OptProbeCharge=probeTrack->charge();
+      //For IBL monitoring: store eta and phi of opimum probe track, and define hit expectations and measurements
+      m_PTeta=probeTrack->eta();
+      m_PTphi=probeTrack->phi();
+      probeTrack->summaryValue(expectInnermostPixelLayerHit,xAOD::expectInnermostPixelLayerHit);
+      probeTrack->summaryValue(numberOfInnermostPixelLayerHits,xAOD::numberOfInnermostPixelLayerHits);
+      probeTrack->summaryValue(expectNextToInnermostPixelLayerHit,xAOD::expectNextToInnermostPixelLayerHit);
+      probeTrack->summaryValue(numberOfNextToInnermostPixelLayerHits,xAOD::numberOfNextToInnermostPixelLayerHits);
+      //m_PTetaNextToInnermost=probeTrack->eta();
+      //m_PTphiNextToInnermost=probeTrack->phi();
 
+      //Determine hits information for optimum track
       probeTrack->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits);
       probeTrack->summaryValue(numberOfSCTHits,xAOD::numberOfSCTHits);
       probeTrack->summaryValue(numberOfTRTHits,xAOD::numberOfTRTHits);
 
-      //determine difference in z0 between tag and probe (PT) track
-      dZ0=tagZ0-probeTrack->z0();
+      //determine difference in z0 between tag and probe (PT) track for Minv method
+      InvMasscriteriadZ0=tagZ0-probeTrack->z0();
     }
     //METHOD2: Minimum deltaR
-    if((m_deltaR<PTOptDeltaR)&&(fabs(CLUSTEROptPhi-probeTrack->phi())>0.005)){
+    if(m_deltaR<PTOptDeltaR){
       //Set new optimum track deltaR
       PTOptDeltaR=m_deltaR;
       PTOptIteratorAlt=p;
-      //Set invariant mass
-      //PTOptInvMass=m_InvMass;
-      //PTOptIterator=p;
-      //Determine delta eta and delta phi between cluster and track and store in monitored variable 
-      //m_PTdeltaEta=CLUSTEROptEta-probeTrack->eta();
-      //m_PTdeltaPhi=CLUSTEROptPhi-probeTrack->phi();
+
+      //determine difference in z0 between tag and probe (PT) track for deltaR method
+      dRcriteriadZ0=tagZ0-probeTrack->z0();
       }
     p++;
   }  
 
+  //FAST TRACK FINDER
   p=0;
-  //FTF
   for(auto probeTrack:FTFprobeTracks){
     //Check probeTrack and tag have opposite charge, if not then exit iteration (track)                                                                                                                                                                     
     if(tagCharge*probeTrack->charge()!=-1){
+      p++;
       continue;
     }
     //Calc inv mass
@@ -570,136 +619,114 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     m_deltaR=sqrt((CLUSTEROptEta-probeTrack->eta())*(CLUSTEROptEta-probeTrack->eta())+(CLUSTEROptPhi-probeTrack->phi())*(CLUSTEROptPhi-probeTrack->phi()));
     //push back onto vector
     m_FTFinv.push_back(m_InvMass);
-    m_PTdeltaR.push_back(m_deltaR);
-    //Selection Cuts
-    //...
-    //...
+    m_FTFdeltaR.push_back(m_deltaR);
+    
     //Find optimal track -> 
     //METHOD!: Probe track corresponding to Minv closest to Zmass                                                                                                                                                                              
     if(fabs(m_InvMass-Zmass)<fabs(FTFOptInvMass-Zmass)){
+
       //Set new optimal track                                                                                                                                                                                                                               
       FTFOptInvMass=m_InvMass;
-      //FTFOptIterator=p;
-      //Determine delta eta and delta phi between cluster and track and store in monitored variable                                                                                                                                                         
-      m_FTFdeltaEta=CLUSTEROptEta-probeTrack->eta();
-      m_FTFdeltaPhi=CLUSTEROptPhi-probeTrack->phi();
+      FTFOptIterator=p;
     }
-    /*//METHOD2: Minimum deltaR
+    //METHOD2: Minimum deltaR
     if(m_deltaR<FTFOptDeltaR){
       //Set new optimum track deltaR                                                                                                                                                                                                                        
       FTFOptDeltaR=m_deltaR;
-      //Set invariant mass                                                                                                                                                                                                                                  
-      FTFOptInvMass=m_InvMass;
-      FTFOptIterator=p;
-      //Determine delta eta and delta phi between cluster and track and store in monitored variable
-      m_FTFdeltaEta=CLUSTEROptEta-probeTrack->eta();
-      m_FTFdeltaPhi=CLUSTEROptPhi-probeTrack->phi();
-    }*/
+      FTFOptIteratorAlt=p;
+    }
     p++;
   }
 
-  //fill histograms by declaring monitored variables 
-  m_PTOptinv.push_back(PTOptInvMass);
-  m_PTOptDeltaR.push_back(PTOptDeltaR);
-  m_FTFOptinv.push_back(FTFOptInvMass);
-  m_tagZ0=tagZ0;
 
-  //fill monitored variables for number of hits in pixel, SCT and TRT
-  if(m_PTinv.size()!=0){
+
+  //FILLING OF MONITORED VARIABLES FOR HISTOGRAMS
+  //push back optimum track invariant mass and deltaR onto monitored containers 
+  if(PTOptInvMass != 0){
+  m_PTOptinv.push_back(PTOptInvMass);
+  }
+  if(PTOptDeltaR != 999){
+  m_PTOptDeltaR.push_back(PTOptDeltaR);
+  }
+  if(FTFOptInvMass != 0){
+  m_FTFOptinv.push_back(FTFOptInvMass);
+  }
+  if(FTFOptDeltaR != 999){
+    m_FTFOptDeltaR.push_back(FTFOptDeltaR);
+  }
+  //Declare monitored variable for the longitudinal impact parameter of tag
+  m_tagZ0=tagZ0; 
+  //monitored variables for number of hits in pixel, SCT and TRT by converting from unsigned 8 bit integer to type int
+  if(m_PTOptinv.size()!=0){
     m_PTnumberOfPixelHits=static_cast<int>(numberOfPixelHits);
     m_PTnumberOfSCTHits=static_cast<int>(numberOfSCTHits);
     m_PTnumberOfTRTHits=static_cast<int>(numberOfTRTHits);
-    ATH_MSG_DEBUG("PIXEL: "<<m_PTnumberOfPixelHits<<", SCT: "<<m_PTnumberOfSCTHits<<", TRT: "<<m_PTnumberOfTRTHits);
+    //filling 2D histogram of PTinvMass vs deltaPhi for positron only 
+    if(OptProbeCharge==1){
+      m_PTdeltaPhiPositron=m_PTdeltaPhi;
+    }
   }
-  //filling 2D histogram of PTinvMass vs deltaPhi for positron only 
-  if(OptProbeCharge==1){
-    m_PTdeltaPhiPositron=m_PTdeltaPhi;
-  }
+  
 
-  //INVARIANT MASS CALCULATION FROM TAG TRACK and probe track
+
+  
+  //INVARIANT MASS CALCULATION - from tag "track" - probe track pair 
+  //Note this is NOT required by algorithm. Used as a check for effect of bremstrahlung on the track variables. Remove when running in the online.
   //declare monitored variable
   double m_trackInvMass;
   //iterate over tag and probe pairs
   for(auto tagTrack:tagTracks){
-    ATH_MSG_DEBUG("TAG TRACK:::pT: "<<tagTrack->pt()<<", phi: "<<tagTrack->phi()<<", eta: "<<tagTrack->eta());
     for(auto probeTrack:PTprobeTracks){
-      //Display the transverse momentum, phi and eta values of the tracks                                                                                                                                                                                  
-      ATH_MSG_DEBUG("PT:Probe pT: "<<probeTrack->pt()<<"   Phi: "<<probeTrack->phi()<<"   Eta: "<<probeTrack->eta()<<"    D0: "<<probeTrack->d0()<<"    Z0: "<<probeTrack->z0());
-      //if(probeTrack->summaryValue(numberOfPixelHits,xAOD::numberOfPixelHits)){
-      //	ATH_MSG_DEBUG("Successfully recieved number of pixel hits="<<static_cast<int>(numberOfPixelHits));
-      //      } 
-
-      //Add one to track iterator
-      m_PTnumberTracks++;
       //Check if tag and probe track have opposite charge. If they do then calc invariant mass and pushback onto vector
       if(tagTrack->charge()*probeTrack->charge()!=-1){
-        //ATH_MSG_DEBUG("PT Tracks have same charge");
-	//Add one to number of cut
-	m_PTnumberCuts++;
-      }
-      //Check if tag and probe tracks have high pT
-      else if(tagTrack->pt()<10000||probeTrack->pt()<10000){
-	//ATH_MSG_DEBUG("PT Too small transverse momentum");
-	m_PTnumberCuts++;
+	continue;
       }
       else{
 	//Calc inv mass
 	m_trackInvMass=TrackInvMass(tagTrack,probeTrack);
 	//push back onto m_PTinvTrack to fill histogram...
 	m_PTinvTrack.push_back(m_trackInvMass);	
-	//Display the transverse momentum, phi and eta values of the tracks
-        //ATH_MSG_DEBUG("PT:Tag PT: "<<tagTrack->pt()<<"   Tag Phi: "<<tagTrack->phi()<<"   Tag Eta: "<<tagTrack->eta());
-        //ATH_MSG_DEBUG("PT:Probe PT: "<<probeTrack->pt()<<"   Probe Phi: "<<probeTrack->phi()<<"   Probe Eta: "<<probeTrack->eta());
       }
     }
     //FTF
     for(auto probeTrack:FTFprobeTracks){
-      //Display the transverse momentum, phi and eta values of the tracks 
-      ATH_MSG_DEBUG("FTF:Probe pT: "<<probeTrack->pt()<<"   Phi: "<<probeTrack->phi()<<"   Eta: "<<probeTrack->eta()<<"    D0: "<<probeTrack->d0()<<"    Z0: "<<probeTrack->z0());
-      //Add one to track iterator
-      m_FTFnumberTracks++;
       //Check if tag and probe track have opposite charge. If they do then calc inv mass and pushback onto vector
       if(tagTrack->charge()*probeTrack->charge()!=-1){
-        //ATH_MSG_DEBUG("FTF Tracks have same charge");
-        //Add one to number of cut                                                                                                                                                                                                                          
-        m_FTFnumberCuts++;
-      }
-      //Check if tag and probe tracks have high pT                                                                                                                                                                                                          
-      else if(tagTrack->pt()<10000||probeTrack->pt()<10000){
-        //ATH_MSG_DEBUG("FTF Too small transverse momentum");
-        m_FTFnumberCuts++;
+	continue;
       }
       else{
 	//Calc inv mass                                   
 	m_trackInvMass=TrackInvMass(tagTrack,probeTrack);
 	//push back onto m_FTFinvTrack to fill histogram...                                                                                                                                                                                                 
 	m_FTFinvTrack.push_back(m_trackInvMass);
-	//Display the transverse momentum, phi and eta values of the tracks                                   
-	//ATH_MSG_DEBUG("FTF:Tag PT: "<<tagTrack->pt()<<"   Tag Phi: "<<tagTrack->phi()<<"   Tag Eta: "<<tagTrack->eta());                                                                                                                                  
-	//ATH_MSG_DEBUG("FTF:Probe PT: "<<probeTrack->pt()<<"   Probe Phi: "<<probeTrack->phi()<<"   Probe Eta: "<<probeTrack->eta());
       }
     }
   }
 
 
 
-  //NEW CODE FOR EFFICIENCY PROFILES
-  m_ptEfficiencyProfile=CLUSTEROptPT;                                                                                                                                                                                                                
+
+  //ELECTRON TRACKING EFFICICIENCY 
+
+  //define monitored variables for efficiency profiles
+  m_ptEfficiencyProfile=CLUSTEROptPT;  
   m_invMassEfficiencyProfile=CLUSTEROptInvMass;                                                                                                                                                                                                             
   m_phiEfficiencyProfile=CLUSTEROptPhi;
   m_etaEfficiencyProfile=CLUSTEROptEta;
 
+  //PRECISION TRACKER - EFFICIENCY
+  //Three sets of efficiency criteria defined in code
+  //1) Invariant mass: 40 GeV < minv < 200 GeV
+  //2) deltaR between probe cluster and track: deltaR < 0.1
+  //3) A combination of the two (if just one of the conditions satisfied then efficient)
+
+  //1)INVARIANT MASS CRITERIA
   if(m_PTOptinv.size()!=0){
-    //Efficiency condition
-    if(PTOptInvMass>40000&&PTOptInvMass<200000){//InvMass
-    //if(m_PTdeltaEta<0.02){//deltaEta between cluster and track
-    //if((fabs(PTOptInvMass-Zmass)<20000)&&(m_PTdeltaEta<0.02)){//COMBINED: InvMass and deltaEta
-      //set numerator of profile histogram to one
+    //If efficiency condition satisfied then set numerator equal to one
+    if(PTOptInvMass>40000&&PTOptInvMass<200000){
       m_PTfound=1;
       ATH_MSG_DEBUG("PT:::efficient event with inv mass: "<<PTOptInvMass);
-      //event is efficient so store dZ0 in monitored variable to be histogrammed
-      m_dZ0=dZ0;
-    }else{
+    }else{//If not then set numerator equal to zero
       m_PTfound=0;
       ATH_MSG_DEBUG("PT:::inefficient event with inv mass: "<<PTOptInvMass);
     }
@@ -708,113 +735,219 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
     //No track found -> Inefficient event
     m_PTfound=0;
     ATH_MSG_DEBUG("PT:::inefficient event - No track found");
-  }
-
-  if(m_FTFOptinv.size()!=0){
-    //Efficinecy condition
-    if(FTFOptInvMass>40000&&FTFOptInvMass<200000){//InvMass
-    //if(m_FTFdeltaEta<0.02){//deltaEta between cluster and track
-    //if((fabs(FTFOptInvMass-Zmass)<20000)&&(m_FTFdeltaEta<0.02)){//COMBINED: InvMass and deltaEta
-      //set numerator of profile histogram to one
-      m_FTFfound=1;
-      ATH_MSG_DEBUG("FTF:::efficient event with inv mass: "<<FTFOptInvMass);
-    }else{
-      m_FTFfound=0;
-      ATH_MSG_DEBUG("FTF:::inefficient event with inv mass: "<<FTFOptInvMass);
     }
-  }
-  else{
-    //No track found -> Inefficient event                                                                                                                                                                                                                   
-    m_FTFfound=0;
-    ATH_MSG_DEBUG("FTF:::inefficient event - No track found");
-  }
-
-  //Alternative criteria...
-  if(m_PTOptinv.size()!=0){
-    //Efficiency criteria
+  
+  //2)DETLAR CRITERIA
+  if(m_PTOptDeltaR.size()!=0){
+    //If efficiency criteria satisfied then set numerator equal to one
     if(PTOptDeltaR<0.1){
       m_PTfoundAlt=1;
-      //track matched to cluster
       ATH_MSG_DEBUG("PTAlt:::efficient event with dR: "<<PTOptDeltaR);
     }
-    else{
+    else{//If not then set numerator equal to zero
       m_PTfoundAlt=0;
-      ATH_MSG_DEBUG("PTAlt:::inefficient event with dEta: "<<PTOptDeltaR);
+      ATH_MSG_DEBUG("PTAlt:::inefficient event with dR: "<<PTOptDeltaR);
     }
   }
   else{
     //No track found -> Inefficient event
     m_PTfoundAlt=0;
     ATH_MSG_DEBUG("PTAlt:::inefficent event - No track found");
-  }
+    }
 
-  //Combined Criteria of Minv and deltaR
-  if(m_PTOptinv.size()!=0){
+  //3)COMBINED CRITERIA
+  if(m_PTOptinv.size()!=0 || m_PTOptDeltaR.size()!=0){
+    //If efficiency criteria satisfied then set numerator equal to one
     if((PTOptInvMass>40000&&PTOptInvMass<200000)||PTOptDeltaR<0.1){
-      //event is efficient
       m_PTfoundCombined=1;
-      //track matched to cluster
       ATH_MSG_DEBUG("PTCombined:::efficient event");
-    }else{
+      //z0 Monitoring of efficient tracks
+      //fill Z0 monitored container for efficient events, depending on which criteria was satisfied
+      //if both... then choose smallest dZ0 to fill histogram
+      if((PTOptInvMass>40000&&PTOptInvMass<200000)&&PTOptDeltaR<0.1){
+	if(InvMasscriteriadZ0<dRcriteriadZ0){
+	  m_dZ0.push_back(InvMasscriteriadZ0);
+	}else{
+	  m_dZ0.push_back(dRcriteriadZ0);
+	}
+      }
+      //if invMass criteria
+      else if(PTOptDeltaR>=0.1){
+	m_dZ0.push_back(InvMasscriteriadZ0);
+      }
+      //if dR criteria
+      else{
+	m_dZ0.push_back(dRcriteriadZ0);
+      }
+    }else{//If not then set numerator equal to zero
       m_PTfoundCombined=0;
       ATH_MSG_DEBUG("PTCombined:::inefficient event");
     }
   }
   else{
-    //No track found 
+    //No track found -> Inefficient event
     m_PTfoundCombined=0;
     ATH_MSG_DEBUG("PTCombined:::inefficient event - No track found");
   }
 
-  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  //DEBUG MESSAGES AT THE END
-  ATH_MSG_DEBUG("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~DEBUG~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");  
+  //FAST TRACK FINDER - EFFICIENCY
+  //Only one efficiency criteria implemented in code
+  //1) Combined criteria of: 40 GeV < Minv < 200 GeV OR deltaR < 0.1
+  
+  //1)COMBINED CRITERIA
+  if(m_FTFOptinv.size()!=0 || m_FTFOptDeltaR.size()!=0){
+    //If efficiency criteria satisfied then set numerator equal to one
+    if((FTFOptInvMass>40000&&FTFOptInvMass<200000)||FTFOptDeltaR<0.1){
+      m_FTFfound=1;
+      ATH_MSG_DEBUG("FTFCombined:::efficient event");
+    }else{//If not then set numerator equal to zero
+      m_FTFfound=0;
+      ATH_MSG_DEBUG("FTFCombined:::inefficient event");
+    }
+  }
+  else{
+    //No track found -> Inefficient event
+    m_FTFfound=0;
+    ATH_MSG_DEBUG("FTFCombined:::inefficient event - No track found");
+  }
 
-  //int numberPTTracks=PTprobeTracks.size();
-  //int numberFTFTracks=FTFprobeTracks.size();
-  //m_PTnumber.push_back(numberPTTracks);
-  //m_FTFnumber.push_back(numberFTFTracks);
-  //Display the delta phi of cluster and the corresponding number of tracks -> Looking for correlation-maybe deltaPhi~2 are jets with large number of tracks                                                                                                
-  //ATH_MSG_DEBUG("DELTA_PHI: "<<CLUSTEROptDeltaPhi<<", Number of PT Tracks: "<<numberPTTracks<<", Number of FTF Tracks: "<<numberFTFTracks);
 
+
+
+  //MONITORING EFFICIENCY OF INNERMOST AND NEXT TO INNERMOST LAYERS
+  int expectInnermost, numberInnermost, expectNextToInnermost, numberNextToInnermost;
+  if( m_PTOptinv.size()!=0 ){
+    //Convert unsigned 8bit integers to type int
+    expectInnermost = static_cast<int>(expectInnermostPixelLayerHit);
+    numberInnermost = static_cast<int>(numberOfInnermostPixelLayerHits);
+    expectNextToInnermost = static_cast<int>(expectNextToInnermostPixelLayerHit);
+    numberNextToInnermost = static_cast<int>(numberOfNextToInnermostPixelLayerHits);
+    //If we expect to see a hit in the innermost layer...
+    if( expectInnermost == 1 ){
+      //Check if we observe a number of hits in pixel detector
+      if( numberInnermost>0 ){
+        //Set profile variable: m_PTpixelFound equal to 1
+        m_PTpixelFound=1;
+      }else{
+        //Set profile variable: m_PTpixelFound equal to 0
+        m_PTpixelFound=0;
+      }
+    }
+    //If we expect to see a hit in the next to innermost layer...
+    if( expectNextToInnermost == 1 ){
+      //Check if we observe a number of hits in pixel detector
+      if( numberNextToInnermost>0 ){
+        //Set profile variable: m_PTpixelFound equal to 1
+        m_PTpixelNextToFound=1;
+      }else{
+        //Set profile variable: m_PTpixelFound equal to 0
+        m_PTpixelNextToFound=0;
+      }
+    }
+  }
+
+
+
+  //DEBUG MESSAGES - These remain in code as checks. Will be removed before implementing in the online run.
+ //DEBUG messages for IBL Monitoring
+ ATH_MSG_DEBUG("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Innermost-Detector~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+ if( m_PTOptinv.size()!=0 ){ 
+   ATH_MSG_DEBUG("PT-optimum-track filled...");
+   if( expectInnermost == 1){
+     ATH_MSG_DEBUG("Track is expected to have hits in the innermost layer of pixel detector -> expectInnermost = "<<expectInnermost);
+   }else{
+     ATH_MSG_DEBUG("Track is NOT expected to have hits in the innermost layer of pixel detector -> expectInnermost = "<<expectInnermost);
+   }
+   ATH_MSG_DEBUG("Track has "<<numberInnermost<<" in the innermost layer of detector -> m_PTpixelFound = "<<m_PTpixelFound);
+   if(m_PTpixelFound == 1){
+     ATH_MSG_DEBUG("Innermost detector working as expected");
+   }else if(m_PTpixelFound == 0){
+     ATH_MSG_DEBUG("PROBLEM with innermost layer");
+   }
+ }
+
+ ATH_MSG_DEBUG("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Next-To-Innermost-Detector~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+ if( m_PTOptinv.size()!=0 ){ 
+   ATH_MSG_DEBUG("PT-optimum-track filled...");
+   if( expectNextToInnermost == 1){
+     ATH_MSG_DEBUG("Track is expected to have hits in the next to innermost layer of pixel detector -> expectNextToInnermost = "<<expectNextToInnermost);
+   }else{
+     ATH_MSG_DEBUG("Track is NOT expected to have hits in the next to innermost layer of pixel detector -> expectNextToInnermost = "<<expectNextToInnermost);
+   }
+   ATH_MSG_DEBUG("Track has "<<numberNextToInnermost<<" in the next to innermost layer of detector -> m_PTpixelNextToFound = "<<m_PTpixelNextToFound);
+   if(m_PTpixelNextToFound == 1){
+     ATH_MSG_DEBUG("Innermost detector working as expected");
+   }else if(m_PTpixelFound == 0){
+     ATH_MSG_DEBUG("PROBLEM with the next to innermost layer");
+   }
+ }
+
+  //DEBUG messages for tag and probe event
+  ATH_MSG_DEBUG("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Tag-and-Probe-Method~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");  
   //Display topological info for cluster and probe track and tag combined
   int y=0; int z=0;
   ATH_MSG_DEBUG("CLUSTER:::Minv: "<<CLUSTEROptInvMass<<"pT: "<<CLUSTEROptPT<<", eta: "<<CLUSTEROptEta<<", phi: "<<CLUSTEROptPhi<<", dPhi: "<<CLUSTEROptDeltaPhi);
+  
   if(PTOptIterator==PTOptIteratorAlt){
-    ATH_MSG_DEBUG("Both methods have found the SAME OPTIMUM TRACK!");
+    ATH_MSG_DEBUG("PT:::Both methods have found the SAME OPTIMUM TRACK!");
   }else{
-    ATH_MSG_DEBUG("Methods have found DIFFERENT OPTIMUM TRACK!");
+    ATH_MSG_DEBUG("PT:::Methods have found DIFFERENT OPTIMUM TRACK!");
   }
+  if(FTFOptIterator==FTFOptIteratorAlt){
+    ATH_MSG_DEBUG("FTF:::Both methods have found the SAME OPTIMUM TRACK!");
+  }else{
+    ATH_MSG_DEBUG("FTF:::Methods have found DIFFERENT OPTIMUM TRACK!");
+  }
+
   for(auto probeTrack: PTprobeTracks){
     if(y==PTOptIterator){
       if(m_PTfound==0){
-	ATH_MSG_DEBUG("Minv Criteria: This event was found to be INEFFICIENT");
+	ATH_MSG_DEBUG("PT:::1)INVARIANT MASS CRITERIA: This candidate was found to be INEFFICIENT");
       }
       if(m_PTfound==1){
-        ATH_MSG_DEBUG("Minv Criteria: This event was found to be !EFFICIENT");
+        ATH_MSG_DEBUG("PT:::1)INVARIANT MASS CRITERIA: This candidate was found to be !EFFICIENT");
       }
       ATH_MSG_DEBUG("PT:::Minv: "<<PTOptInvMass<<", pT: "<<probeTrack->pt()<<", eta: "<<probeTrack->eta()<<", phi: "<<probeTrack->phi()<<", d0: "<<probeTrack->d0()<<", z0: "<<probeTrack->z0());
     }
     if(z==PTOptIteratorAlt){
       if(m_PTfoundAlt==0){
-        ATH_MSG_DEBUG("dR Criteria: This event was found to be INEFFICIENT");
+        ATH_MSG_DEBUG("PTAlt:::2)DELTAR CRITERIA: This candidate was found to be INEFFICIENT");
       }
       if(m_PTfoundAlt==1){
-        ATH_MSG_DEBUG("dR Criteria: This event was found to be !EFFICIENT");
+        ATH_MSG_DEBUG("PTAlt:::2)DELTRAR CRITERIA: This candidate was found to be !EFFICIENT");
       }
       ATH_MSG_DEBUG("PTAlt:::dR: "<<PTOptDeltaR<<", pT: "<<probeTrack->pt()<<", eta: "<<probeTrack->eta()<<", phi: "<<probeTrack->phi()<<", d0: "<<probeTrack->d0()<<", z0: "<<probeTrack->z0());
     }   
     y++; z++;
   }
-  //y=0;
-  /*for(auto probeTrack: FTFprobeTracks){
+
+  if(m_PTfoundCombined==0){
+    ATH_MSG_DEBUG("PTCombined:::3)COMBINED CRITERIA: This candidate was found to be INEFFICIENT");
+  }
+  if(m_PTfoundCombined==1){
+    ATH_MSG_DEBUG("PTCombined:::3)COMBINED CRITERIA: This candidate was found to be !EFFICIENT");
+  }
+
+  y=0; z=0;
+  for(auto probeTrack: FTFprobeTracks){
     if(y==FTFOptIterator){
       ATH_MSG_DEBUG("FTF:::Minv: "<<FTFOptInvMass<<", pT: "<<probeTrack->pt()<<", eta: "<<probeTrack->eta()<<", phi: "<<probeTrack->phi()<<", d0: "<<probeTrack->d0()<<", z0: "<<probeTrack->z0());
     }
+    if(z==FTFOptIterator){
+      ATH_MSG_DEBUG("FTF:::dR: "<<FTFOptDeltaR<<", pT: "<<probeTrack->pt()<<", eta: "<<probeTrack->eta()<<", phi: "<<probeTrack->phi()<<", d0: "<<probeTrack->d0()<<", z0: "<<probeTrack->z0());
+    }
     y++;
-    }*/
+  }
+  if(m_FTFfound){
+    ATH_MSG_DEBUG("FTF:::1)COMBINED CRITERIA: This candidate was found to be INEFFICIENT");
+  }
+  if(m_FTFfound==1){
+    ATH_MSG_DEBUG("FTF:::1)COMBINED CRITERIA: This candidate was found to be !EFFICIENT");
+  }
+
+ 
   ATH_MSG_DEBUG("TAG:::pT: "<<tagpT<<", eta: "<<tagEta<<", phi: "<<tagPhi<<", d0: "<<tagd0<<", z0: "<<m_tagZ0);
-  ATH_MSG_DEBUG("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
+  ATH_MSG_DEBUG("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
 
   //END OF ALGORITHM
@@ -825,8 +958,9 @@ HLT::ErrorCode TrigIDTPMonitorElectron::hltExecute(const HLT::TriggerElement* in
 
 
 
+
 //FUNCTIONS
-//1)To calculate invariant mass from combined tag adn probe track
+//1)To calculate invariant mass from tag electron and probe track
 double TrigIDTPMonitorElectron::CombinedInvMass(double ptTag, double pxTag, double pyTag, double pzTag, const xAOD::TrackParticle* probe){
   double ptProbe=probe->pt();
   double pxProbe=probe->p4().Px();
@@ -846,7 +980,7 @@ double TrigIDTPMonitorElectron::CombinedInvMass(double ptTag, double pxTag, doub
   return sqrt(invmass2);
 }
  
-//2)Calculate invariant mass from tag track and probe cluster...
+//2)Calculate invariant mass from tag electron and probe cluster
 double TrigIDTPMonitorElectron::ClusterInvMass(double ptTag, double pxTag, double pyTag, double pzTag, double ptCluster, double pxCluster, double pyCluster, double pzCluster){
 
   double pX = pxTag+pxCluster;
@@ -862,7 +996,7 @@ double TrigIDTPMonitorElectron::ClusterInvMass(double ptTag, double pxTag, doubl
   return sqrt(invmass2);
 }
 
-//3)To calculate invariant mass of two tracks...                                                                                                                                                                                                            
+//3)To calculate invariant mass of tag track and probe track                                                                                                                                                                                                
 double TrigIDTPMonitorElectron::TrackInvMass(const xAOD::TrackParticle* track1, const xAOD::TrackParticle* track2){
 
   double pt1 = track1->pt();
@@ -888,7 +1022,7 @@ double TrigIDTPMonitorElectron::TrackInvMass(const xAOD::TrackParticle* track1, 
   return sqrt(invmass2);
 }
 
-//4)To calculate invariant mass of Tag track and probe cluster
+//4)To calculate invariant mass of tag track and probe cluster
 double TrigIDTPMonitorElectron::ClusterTagTrackInvMass(const xAOD::TrackParticle* tag, double ptCluster, double pxCluster, double pyCluster, double pzCluster){
 
   double ptTag = tag->pt();
