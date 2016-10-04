@@ -13,9 +13,11 @@ author Maria Smizanska <maria.smizanska@cern.ch>
 author James Catmore <james.catmore@cern.ch>
 author Marjorie Shapiro <mdshapiro@lbl.gov>
 
-macro Evtgen_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(LCG_config_version)/evtgen"
-macro EVTGen_native_version "1.2.0"
-macro EvtGen_native_version "$(EVTGen_native_version)_lcgcmt$(LCG_config_version)" 
+macro myLCG_config_version "67c"
+#macro Evtgen_home "$(LCG_external)/MCGenerators/evtgen"
+macro Evtgen_home "$(LCG_ROOT)/external/MCGenerators_lcgcmt$(myLCG_config_version)/evtgen"
+macro EVTGen_native_version "1.6.0"
+macro EvtGen_native_version "$(EVTGen_native_version)_lcgcmt$(myLCG_config_version)" 
 
 macro EvtGen_system "$(LCG_ext_system)"
 
