@@ -199,7 +199,7 @@ StatusCode PhysValTau::fillHistograms()
 	    for (size_t iRecTau = 0 ; iRecTau < taus->size(); iRecTau++) {
 		bool alreadymatched = false;
 		if(m_matched_itr.size()>0)
-		    for (int i = 0; i<m_matched_itr.size(); i++)
+		    for (size_t i = 0; i<m_matched_itr.size(); i++)
 			if(m_matched_itr.at(i) == iRecTau) alreadymatched = true;
 		if(alreadymatched)continue;
 		const xAOD::TauJet *recTau = taus->at(iRecTau);
