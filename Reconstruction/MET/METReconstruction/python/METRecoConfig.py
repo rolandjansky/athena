@@ -31,7 +31,7 @@ defaultInputKey = {
    'SoftClus' :'CaloCalTopoClusters',
    'SoftPFlow':'JetETMissNeutralParticleFlowObjects',
    'PrimaryVx':'PrimaryVertices',
-   'Truth'    :'TruthParticles',
+   'Truth'    :'TruthEvents',
    'Calo'     :'AllCalo',
    'LCOCSoftClus':'LCOriginTopoClusters',
    'EMOCSoftClus':'EMOriginTopoClusters',

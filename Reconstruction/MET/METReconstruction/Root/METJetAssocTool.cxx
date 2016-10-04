@@ -39,7 +39,6 @@ namespace met {
     AsgTool(name),
     METAssociator(name)
   {
-    declareProperty( "IgnoreJetConst",    m_skipconst = false               );
     declareProperty( "MatchRadius",       m_matchRadius = 0.4               );
   }
 

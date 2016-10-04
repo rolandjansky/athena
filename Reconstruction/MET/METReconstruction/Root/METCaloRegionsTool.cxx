@@ -33,8 +33,8 @@ namespace met {
   using xAOD::MissingET;
   using xAOD::MissingETContainer;
 
-  // Initialize CaloRegionNames
-  const std::string METCaloRegionsTool::CaloRegionNames[METCaloRegionsTool::REGIONS_TOTAL] = 
+  // Initialize s_CaloRegionNames
+  const std::string METCaloRegionsTool::s_CaloRegionNames[METCaloRegionsTool::REGIONS_TOTAL] = 
   {
     "EMB",
     "EME",
@@ -127,7 +127,7 @@ namespace met {
         metCont->push_back( new MissingET(0.,0.,0.) ); 
       }
       // Set Name and Source
-      metCont->at(i)->setName( CaloRegionNames[i] );      
+      metCont->at(i)->setName( s_CaloRegionNames[i] );      
       metCont->at(i)->setSource( source );      
     }
     // The last term is Trigger MET if asked for by the user

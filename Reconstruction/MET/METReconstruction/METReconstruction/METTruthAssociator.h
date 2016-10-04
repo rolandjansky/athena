@@ -91,7 +91,7 @@ namespace met{
     std::string m_recoMuKey;
     std::string m_recoGamKey;
     std::string m_recoTauKey;
-    std::string m_truthPartKey;
+    std::string m_truthEventKey;
  
     /// Default constructor: 
     METTruthAssociator();
