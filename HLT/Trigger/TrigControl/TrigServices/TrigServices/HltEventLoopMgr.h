@@ -245,9 +245,7 @@ private:
   /// Set the xAOD::EventInfo in the event store
   StatusCode prepXAODEventInfo() const;
   /// Update the magnet field from IS when necessary and possible
-  StatusCode updMagField() const;
-  /// Set magnetic field from IS
-  StatusCode setMagFieldFromIS() const;
+  StatusCode updMagField(const boost::property_tree::ptree& pt) const;
   /// Reset selected proxies / IOV folders
   StatusCode resetCoolValidity();
   /// Helper to log a message with some details when ready to run
@@ -366,15 +364,19 @@ private:
   TH1F*                     m_hist_num_partial_eb_SubDetectors; //!< Number of SubDetectors for partial event building from HLT 
   TH1F*                     m_hist_partial_eb_SubDetectors_ROBs;//!< SubDetectors for partial event building derived from ROB list
   TH1F*                     m_hist_partial_eb_SubDetectors_SDs; //!< SubDetectors for partial event building derived from SubDetector list
-
+  TH1F*                     m_hist_Hlt_result_size_physics;           //!< size of HLT result in physics Main
+  TH1F*                     m_hist_Hlt_result_size_express;           //!< size of HLT result in express stream
+  TH1F*                     m_hist_Hlt_result_size_DataScouting;      //!< size of HLT result in express stream
+  TProfile*                 m_hist_HltResultSizes_Stream_physics;     //!< HLT Result sizes for physiscs streams
+  TProfile*                 m_hist_HltResultSizes_Stream_DataScouting;//!< HLT Result sizes for DataScouting streams
   TProfile*                 m_hist_HltEdmSizes_No_Truncation;   //!< HLT EDM sizes for all events without a truncated HLT result 
   TProfile*                 m_hist_HltEdmSizes_With_Truncation; //!< HLT EDM sizes for all events with a truncated HLT result 
   TProfile*                 m_hist_HltEdmSizes_TruncatedResult_Retained_Collections; //!< HLT EDM sizes for all collections which were retained in a truncated HLT result
   TProfile*                 m_hist_HltEdmSizes_TruncatedResult_Truncated_Collections;//!< HLT EDM sizes for all collections which were truncated in a truncated HLT result
   // --------------------------- Properties -------------------------------------
-  BooleanProperty           m_setMagFieldFromIS; //!< Read magnet currents from IS
-  StringProperty            m_applicationName;   //!< Application Name (="None" or "athenaHLT" for simulated data, "HLTMPPU-xx"? in online environment) */
-  StringProperty            m_partitionName;     //!< Partition Name (="None" for offline, real partion name in online environment)
+  BooleanProperty           m_setMagFieldFromPtree; //!< Read magnet currents from ptree
+  StringProperty            m_applicationName;      //!< Application Name (="None" or "athenaHLT" for simulated data, "HLTMPPU-xx"? in online environment) */
+  StringProperty            m_partitionName;        //!< Partition Name (="None" for offline, real partion name in online environment)
   BooleanProperty           m_forceHltReject;      // force reject of all events 
   BooleanProperty           m_forceHltAccept;      // force accept of all events
   StringProperty            m_HltResultName;       // name of HLT result in StoreGate
@@ -402,6 +404,9 @@ private:
   int                       m_failed_evt;
   int                       m_invalid_lvl1_result;
   int                       m_invalid_hlt_result;
+  int                       m_truncated_hlt_result;
+  int                       m_truncated_hlt_result_to_debug;
+  int                       m_truncated_hlt_result_not_to_debug;
 
   // for CTP Lvl1 Rob
   std::vector<uint32_t>     m_ctpRobIdVec ;
@@ -437,6 +442,15 @@ private:
 
   /// Monitoring
   TH1F*                     m_hist_l1_robs;
+
+  /// Flag to write events with truncated HLT result to a special debug stream
+  BooleanProperty           m_writeHltTruncationToDebug ;
+  /// Debug stream name for events with a truncated HLT result 
+  StringProperty            m_HltTruncationDebugStreamName; 
+  /// Stream names for which events should be not send to the debug stream even when the HLT result is truncated
+  StringArrayProperty       m_excludeFromHltTruncationDebugStream; 
+  /// Monitoring histogram for truncated HLT results
+  TH1F*                     m_hist_Hlt_truncated_result;
 
   /// we need this maintain the data
   uint32_t                  m_status_words[3];

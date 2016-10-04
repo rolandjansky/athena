@@ -54,6 +54,7 @@ static std::string CMT_PACKAGE_VERSION = PACKAGE_VERSION;
 // TDAQ includes
 #include "ers/ers.h"
 #include "eformat/eformat.h"
+#include "eformat/write/ROBFragment.h"
 #include "TTCInfo/LumiBlock.h"
 #include "ddc/DdcFloatInfoNamed.h"
 #include "hltinterface/HLTInterface.h"
@@ -300,6 +301,11 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_hist_num_partial_eb_SubDetectors(0),
   m_hist_partial_eb_SubDetectors_ROBs(0),
   m_hist_partial_eb_SubDetectors_SDs(0),
+  m_hist_Hlt_result_size_physics(0),
+  m_hist_Hlt_result_size_express(0),
+  m_hist_Hlt_result_size_DataScouting(0),
+  m_hist_HltResultSizes_Stream_physics(0),
+  m_hist_HltResultSizes_Stream_DataScouting(0),
   m_hist_HltEdmSizes_No_Truncation(0),
   m_hist_HltEdmSizes_With_Truncation(0),
   m_hist_HltEdmSizes_TruncatedResult_Retained_Collections(0),
@@ -314,6 +320,9 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_failed_evt(0),
   m_invalid_lvl1_result(0),
   m_invalid_hlt_result(0),
+  m_truncated_hlt_result(0),
+  m_truncated_hlt_result_to_debug(0),
+  m_truncated_hlt_result_not_to_debug(0),
   m_lvl1id(0),
   m_run_no(0),
   m_bunch_crossing_id(0),
@@ -323,14 +332,15 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   m_l1_Status_Element(0),
   m_l1_Trigger_Type(0),
   m_l1_detev_type(0),
-  m_hist_l1_robs(0)
+  m_hist_l1_robs(0),
+  m_hist_Hlt_truncated_result(0)
 {
   // General properties for event loop managers
   declareProperty("predefinedLumiBlock",      m_predefinedLumiBlock=0);
   declareProperty("Lvl1CTPROBid",             m_lvl1CTPROBid=0x770001);
   declareProperty("ApplicationName",          m_applicationName="None");
   declareProperty("PartitionName",            m_partitionName="None");
-  declareProperty("setMagFieldFromIS",        m_setMagFieldFromIS=false);
+  declareProperty("setMagFieldFromPtree",     m_setMagFieldFromPtree=false);
   declareProperty("enabledROBs",              m_enabledROBs);
   declareProperty("enabledSubDetectors",      m_enabledSubDetectors);
   declareProperty("MandatoryL1ROBs",          m_mandatoryL1ROBs, "List of mandatory ROB IDs coming from the RoIB (must come in L1R seed)");
@@ -350,6 +360,9 @@ HltEventLoopMgr::HltEventLoopMgr(const std::string& nam,
   declareProperty("CoolUpdateTool",           m_coolHelper);
   declareProperty("maxPrepareForRunSleepSec", m_prepareForRunSleep = 0, "Max number of seconds to sleep at the beginning of prepareForRun");
   declareProperty("Lvl1CTPROBcheck",          m_lvl1CTPROBcheck=true);
+  declareProperty("WriteTruncatedHLTtoDebug", m_writeHltTruncationToDebug=true);
+  declareProperty("HltTruncationDebugStreamName",  m_HltTruncationDebugStreamName ="TruncatedHLTResult");
+  declareProperty("ExcludeFromHltTruncationDebugStream",  m_excludeFromHltTruncationDebugStream ={"CostMonitoring"});
 }
 
 //=========================================================================
@@ -529,6 +542,10 @@ StatusCode HltEventLoopMgr::initialize()
     logStream() << MSG::INFO << " +------------------------------------------+ "  << endreq ;
   }
 
+  logStream() << MSG::INFO << " ---> Write events with truncated HLT result to debug stream  = " << m_writeHltTruncationToDebug << endreq;
+  logStream() << MSG::INFO << " ---> Debug stream name for events with truncated HLT result  = " << m_HltTruncationDebugStreamName << endreq;
+  logStream() << MSG::INFO << " ---> Stream names of events with a truncated HLT result which will not be send to the debug stream  = " << m_excludeFromHltTruncationDebugStream << endreq;
+
   //-------------------------------------------------------------------------
   // Setup the StoreGateSvc
   //-------------------------------------------------------------------------
@@ -661,20 +678,19 @@ StatusCode HltEventLoopMgr::initialize()
 //-------------------------------------------------------------------------
 // Reset counters
 //-------------------------------------------------------------------------
-  m_total_evt              = 0;
-  m_failed_evt             = 0;
-  m_invalid_lvl1_result    = 0;
-  m_invalid_hlt_result    = 0;
+  m_total_evt                         = 0;
+  m_failed_evt                        = 0;
+  m_invalid_lvl1_result               = 0;
+  m_invalid_hlt_result                = 0;
+  m_truncated_hlt_result              = 0;
+  m_truncated_hlt_result_to_debug     = 0;
+  m_truncated_hlt_result_not_to_debug = 0;
 
 //--------------------------------------------------------------------------
 // Setup the HLT Histogram Service when configured
 //--------------------------------------------------------------------------
   if ( &*m_THistSvc ) {
-#ifdef ATLAS_GAUDI_V21
     m_hltTHistSvc = SmartIF<IHltTHistSvc>( &*m_THistSvc );
-#else
-    m_hltTHistSvc = SmartIF<IHltTHistSvc>( IID_IHltTHistSvc, &*m_THistSvc );
-#endif
     if (m_hltTHistSvc.isValid()) {
       logStream() << MSG::INFO << "A THistSvc implementing the HLT interface IHltTHistSvc was found."
     << endreq;
@@ -688,11 +704,7 @@ StatusCode HltEventLoopMgr::initialize()
 // Setup the HLT ROB Data Provider Service when configured
 //--------------------------------------------------------------------------
   if ( &*m_robDataProviderSvc ) {
-#ifdef ATLAS_GAUDI_V21
     m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-#else
-    m_hltROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( IID_ITrigROBDataProviderSvc, &*m_robDataProviderSvc );
-#endif
     if (m_hltROBDataProviderSvc.isValid()) {
       logStream() << MSG::INFO << "A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found."
     << endreq;
@@ -725,16 +737,17 @@ StatusCode HltEventLoopMgr::finalize()
 {
   MsgStream log(msgSvc(), name());
   log << MSG::INFO << " ---> HltEventLoopMgr = " << name() << " finalize " << endreq;
-  log << MSG::INFO << " Total number of events processed :       " << m_total_evt << endreq;
-  log << MSG::INFO << "    Events with error in event processing " << m_failed_evt << endreq;
-  log << MSG::INFO << "    Events with invalid Lvl1 Result       " << m_invalid_lvl1_result << endreq;
-  log << MSG::INFO << "    Events with invalid Hlt Result       " << m_invalid_hlt_result << endreq;
+  log << MSG::INFO << " Total number of events processed :                                     " << m_total_evt << endreq;
+  log << MSG::INFO << "    Events with error in event processing                               " << m_failed_evt << endreq;
+  log << MSG::INFO << "    Events with invalid Lvl1 Result                                     " << m_invalid_lvl1_result << endreq;
+  log << MSG::INFO << "    Events with invalid Hlt Result                                      " << m_invalid_hlt_result << endreq;
+  log << MSG::INFO << "    Events with truncated Hlt Result payload                            " << m_truncated_hlt_result << endreq;   
+  log << MSG::INFO << "    Events with truncated Hlt Result payload (send to debug stream)     " << m_truncated_hlt_result_to_debug << endreq;   
+  log << MSG::INFO << "    Events with truncated Hlt Result payload (not send to debug stream) " << m_truncated_hlt_result_not_to_debug << endreq;   
 
-#ifdef ATLAS_GAUDI_V21
   // Need to release now. Automatic release in destructor is too late since services are already gone.
   m_hltTHistSvc.reset();
   m_hltROBDataProviderSvc.reset();
-#endif
 
   StatusCode sc = MinimalEventLoopMgr::finalize();
   if (sc.isFailure()) {
@@ -779,10 +792,13 @@ StatusCode HltEventLoopMgr::reinitialize()
 //-------------------------------------------------------------------------
 // Reset counters
 //-------------------------------------------------------------------------
-  m_total_evt              = 0;
-  m_failed_evt             = 0;
-  m_invalid_lvl1_result    = 0;
-  m_invalid_hlt_result     = 0;
+  m_total_evt                         = 0;
+  m_failed_evt                        = 0;
+  m_invalid_lvl1_result               = 0;
+  m_invalid_hlt_result                = 0;
+  m_truncated_hlt_result              = 0;
+  m_truncated_hlt_result_to_debug     = 0;
+  m_truncated_hlt_result_not_to_debug = 0;
 
   StatusCode sc = MinimalEventLoopMgr::reinitialize();
   if (sc.isFailure()) {
@@ -1029,7 +1045,7 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
     updMetadaStore(soral);  // update metadata store
 
     const EventInfo * evinfo;
-    if(updMagField().isFailure() ||       // update mag field when appropriate
+    if(updMagField(pt).isFailure() ||     // update mag field when appropriate
        updHLTConfigSvc().isFailure() ||   // update config svc when appropriate
        resetCoolValidity().isFailure() || // reset selected proxies/IOV folders
        prepXAODEventInfo().isFailure() || // update xAOD event data in SG
@@ -1039,10 +1055,7 @@ StatusCode HltEventLoopMgr::prepareForRun(const ptree & pt)
     bookAllHistograms();
 
     if(prepareAlgs(*evinfo).isSuccess())
-    {
-      readyMsg(); // The event processing will start now
       return StatusCode::SUCCESS;
-    }
   }
   catch(const ptree_bad_path & e)
   {
@@ -1080,6 +1093,8 @@ StatusCode HltEventLoopMgr::hltUpdateAfterFork(const ptree & pt)
   int worker_id  = atoi( (pt.get_child("workerId").data()).c_str() );
   int process_id = getpid();
   m_incidentSvc->fireIncident(HLT::Incidents::UpdateAfterFork(worker_id,process_id,name()));
+
+  readyMsg(); // The event processing will start now
 
   return StatusCode::SUCCESS;
 }
@@ -1842,6 +1857,55 @@ hltonl::PSCErrorCode HltEventLoopMgr::HltResultROBs(
                             bunch_crossing_id, l1_Trigger_Type, l1_detev_type);
       if(!ecode)
         recordEDMSizeInfo(dobj->getNavigationResult().size(), serializationOk);
+
+      // The HLT result got truncated, put the event on a special debug stream if requested 
+      if (!serializationOk) {
+	m_truncated_hlt_result++;
+	if (m_hist_Hlt_truncated_result) {
+	  scoped_lock_histogram lock;
+	  m_hist_Hlt_truncated_result->Fill(1.);
+	}
+ 	if ((!m_HltTruncationDebugStreamName.value().empty()) &&
+	    (m_writeHltTruncationToDebug.value())) {
+      	  // check if event should be not send to the debug stream (e.g. Cost Monitoring)
+	  bool sendToDebug(true);
+	  for (auto it_st : hlt_result.stream_tag) {
+	    auto p = std::find(m_excludeFromHltTruncationDebugStream.value().begin(), 
+			       m_excludeFromHltTruncationDebugStream.value().end(),
+			       (it_st).name);
+	    if (p != m_excludeFromHltTruncationDebugStream.value().end()) sendToDebug=false;
+	  }
+	  if (sendToDebug) {
+	    m_truncated_hlt_result_to_debug++;	 
+	    if (m_hist_Hlt_truncated_result) {
+	      scoped_lock_histogram lock;
+	      m_hist_Hlt_truncated_result->Fill(2.);
+	    }
+	    hlt_result.stream_tag.clear();
+	    addDebugStreamTag(hlt_result, m_HltTruncationDebugStreamName);
+	    logStream() << MSG::ERROR << ST_WHERE
+			<< "HLTResult was truncated. Event send to debug stream  = "
+			<< m_HltTruncationDebugStreamName << endreq;
+	  } else {
+	    m_truncated_hlt_result_not_to_debug++;	 
+	    if (m_hist_Hlt_truncated_result) {
+	      scoped_lock_histogram lock;
+	      m_hist_Hlt_truncated_result->Fill(3.);
+	    }
+	    logStream() << MSG::WARNING << ST_WHERE
+			<< "HLTResult was truncated. Event was NOT send to debug stream  = "
+			<< m_HltTruncationDebugStreamName
+			<< " because an exclusion stream tag name matched from = " << m_excludeFromHltTruncationDebugStream.value()  
+			<< endreq;
+	  }
+	} else {
+	  m_truncated_hlt_result_not_to_debug++;
+	  if (m_hist_Hlt_truncated_result) {
+	    scoped_lock_histogram lock;
+	    m_hist_Hlt_truncated_result->Fill(3.);
+	  }
+	}
+      }
     }
   }
 
@@ -1962,6 +2026,75 @@ void HltEventLoopMgr::bookHistograms()
       }
     }
     regHistsTH1F.push_back(&m_hist_Hlt_result_status);
+  }
+
+  // *-- HLT result truncation
+  uint32_t n_bins_ResultTruncation = 3;
+  m_hist_Hlt_truncated_result =    new TH1F ("HltResultTruncation",
+      "HltResultTruncation;;entries", n_bins_ResultTruncation, 0.5, n_bins_ResultTruncation+0.5);
+
+  if (m_hist_Hlt_truncated_result) {
+    m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 1, std::string("Truncated HLT result").c_str() );
+    m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 2, std::string("Truncated HLT result (send to debug stream)").c_str() );
+    m_hist_Hlt_truncated_result->GetXaxis()->SetBinLabel( 3, std::string("Truncated HLT result (not send to debug stream)").c_str() );
+    regHistsTH1F.push_back(&m_hist_Hlt_truncated_result);
+  }
+
+  // *-- HLT result size plot (Stream Physiscs Main)
+  m_hist_Hlt_result_size_physics = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (Main,physiscs))").c_str(),
+      (m_histProp_Hlt_result_size.value().title() + "-(StreamType Physiscs)" + ";words;entries").c_str(),
+      m_histProp_Hlt_result_size.value().bins(),
+      m_histProp_Hlt_result_size.value().lowEdge(),
+      m_histProp_Hlt_result_size.value().highEdge());
+  if (m_hist_Hlt_result_size_physics) {
+    CAN_REBIN(m_hist_Hlt_result_size_physics);
+    regHistsTH1F.push_back(&m_hist_Hlt_result_size_physics);
+  }
+
+  // *-- HLT result size plot (Stream Express)
+  m_hist_Hlt_result_size_express = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (express,express))").c_str(),
+      (m_histProp_Hlt_result_size.value().title() + "-(StreamType Express)" + ";words;entries").c_str(),
+      m_histProp_Hlt_result_size.value().bins(),
+      m_histProp_Hlt_result_size.value().lowEdge(),
+      m_histProp_Hlt_result_size.value().highEdge());
+  if (m_hist_Hlt_result_size_express) {
+    CAN_REBIN(m_hist_Hlt_result_size_express);
+    regHistsTH1F.push_back(&m_hist_Hlt_result_size_express);
+  }
+
+  // *-- HLT result size plot (Stream calibration, DataScouting results)
+  m_hist_Hlt_result_size_DataScouting = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Streams (DataScouting_*,calibration))").c_str(),
+      (m_histProp_Hlt_result_size.value().title() + "-(StreamType Calibration, DataScouting)" + ";words;entries").c_str(),
+      m_histProp_Hlt_result_size.value().bins(),
+      m_histProp_Hlt_result_size.value().lowEdge(),
+      m_histProp_Hlt_result_size.value().highEdge());
+  if (m_hist_Hlt_result_size_DataScouting) {
+    CAN_REBIN(m_hist_Hlt_result_size_DataScouting);
+    regHistsTH1F.push_back(&m_hist_Hlt_result_size_DataScouting);
+  }
+
+  // *-- HLT result size profile plot for all stream types "physiscs"
+  m_hist_HltResultSizes_Stream_physics = new TProfile( std::string("Average Hlt Result size for physics streams").c_str(),
+						       std::string("Stream Name;;Average size in words").c_str(),
+						       1,
+						       (double) 0., (double) 1.,
+						       (double) 0., (double) 3000000.);
+  if (m_hist_HltResultSizes_Stream_physics) {
+    m_hist_HltResultSizes_Stream_physics->GetXaxis()->SetBinLabel(1,std::string("NoTag").c_str() );
+    CAN_REBIN(m_hist_HltResultSizes_Stream_physics);
+    regHistsTProfile.push_back(&m_hist_HltResultSizes_Stream_physics);
+  }
+
+  // *-- HLT result size profile plot for all stream names "DataScouting"
+  m_hist_HltResultSizes_Stream_DataScouting = new TProfile( std::string("Average Hlt Result size for data scouting streams").c_str(),
+						       std::string("Stream Name;;Average size in words").c_str(),
+						       1,
+						       (double) 0., (double) 1.,
+						       (double) 0., (double) 3000000.);
+  if (m_hist_HltResultSizes_Stream_DataScouting) {
+    m_hist_HltResultSizes_Stream_DataScouting->GetXaxis()->SetBinLabel(1,std::string("NoTag").c_str() );
+    CAN_REBIN(m_hist_HltResultSizes_Stream_DataScouting);
+    regHistsTProfile.push_back(&m_hist_HltResultSizes_Stream_DataScouting);
   }
 
   //     +-----------------------+
@@ -2223,12 +2356,43 @@ void HltEventLoopMgr::fillHltResultHistograms(const hltinterface::HLTResult& hlt
   //     +-----------------------+
   if ( (hlt_result.fragment_pointer != 0) && ( (*hlt_result.fragment_pointer) != 0 ) ) {
     eformat::ROBFragment<uint32_t*> hltrob(hlt_result.fragment_pointer);
+    uint16_t hltrob_moduleID = eformat::helper::SourceIdentifier( hltrob.rob_source_id() ).module_id();
 
-    // *-- HLT result size plot
-    if (m_hist_Hlt_result_size) lock_histogram_operation<TH1F>(m_hist_Hlt_result_size)->Fill( (float) hltrob.fragment_size_word() ) ;
+    // *-- HLT result size plots
+    if ((m_hist_Hlt_result_size) && (hltrob_moduleID == 0)) lock_histogram_operation<TH1F>(m_hist_Hlt_result_size)->Fill( (float) hltrob.fragment_size_word() ) ;
+
+    if ( (m_hist_Hlt_result_size_physics) || (m_hist_Hlt_result_size_express) || (m_hist_Hlt_result_size_DataScouting) ||
+	 (m_hist_HltResultSizes_Stream_physics) || (m_hist_HltResultSizes_Stream_DataScouting) ) {
+      scoped_lock_histogram lock;
+      for(std::vector<eformat::read::ROBFragment>::const_iterator it_rob = hlt_result.hltResult_robs.begin(); it_rob != hlt_result.hltResult_robs.end(); it_rob++) {
+	uint16_t moduleID = eformat::helper::SourceIdentifier( (*it_rob).rob_source_id() ).module_id();
+	for(std::vector<eformat::helper::StreamTag>::const_iterator it = hlt_result.stream_tag.begin(); it != hlt_result.stream_tag.end(); it++) {
+          // only normal HLT Results
+	  if (moduleID == 0) {
+	    if ((*it).type == "physics") {
+	      if (((*it).name == "Main") && (m_hist_Hlt_result_size_physics)) m_hist_Hlt_result_size_physics->Fill( (float) (*it_rob).fragment_size_word() ) ;
+	      if (m_hist_HltResultSizes_Stream_physics) m_hist_HltResultSizes_Stream_physics->Fill( ((*it).name).c_str(), (double) (*it_rob).fragment_size_word() ) ;
+	    }
+	    if ((*it).type == "express") {
+	      if (m_hist_Hlt_result_size_express) m_hist_Hlt_result_size_express->Fill( (float) (*it_rob).fragment_size_word() ) ;
+	    }
+	  }
+	  // DataScouting HLT ROBs
+	  if (moduleID != 0) {
+	    if (((*it).type == "calibration") && (((*it).name).find("DataScouting_") != std::string::npos)) {
+	      if (m_hist_Hlt_result_size_DataScouting) m_hist_Hlt_result_size_DataScouting->Fill( (float) (*it_rob).fragment_size_word() ) ;
+	      if (m_hist_HltResultSizes_Stream_DataScouting) m_hist_HltResultSizes_Stream_DataScouting->Fill( ((*it).name).c_str(), (double) (*it_rob).fragment_size_word() ) ;
+	    }
+	  }
+	}
+      }
+      // deflate bins for profile histograms
+      m_hist_HltResultSizes_Stream_physics->LabelsDeflate("X");
+      m_hist_HltResultSizes_Stream_DataScouting->LabelsDeflate("X");
+    }
 
     // *-- HLT result status codes
-    if ((hltrob.nstatus() > 1) && (m_hist_Hlt_result_status)) {
+    if ((hltrob.nstatus() > 1) && (m_hist_Hlt_result_status) && (hltrob_moduleID == 0)) {
       scoped_lock_histogram lock;
       const uint32_t* it;
       hltrob.status(it);
@@ -2583,15 +2747,6 @@ HltEventLoopMgr::getSorAttrList(const SOR * sor) const
 }
 
 //=========================================================================
-namespace {
-  /* Helper for setMagFieldFromIS */
-  struct ddcvalue {
-    template <class T, class R>
-    void operator()(const T& t, R& r) { r = t.value; }
-  };
-}
-
-//=========================================================================
 StatusCode HltEventLoopMgr::updHLTConfigSvc()
 {
   // Get HLTConfigSvc if available and do sanity check
@@ -2674,59 +2829,57 @@ StatusCode HltEventLoopMgr::prepXAODEventInfo() const
 }
 
 //=========================================================================
-StatusCode HltEventLoopMgr::updMagField() const
+StatusCode HltEventLoopMgr::updMagField(const ptree& pt) const
 {
-  if ( m_setMagFieldFromIS && validPartition() ) {
-    logStream() << MSG::DEBUG << ST_WHERE
-                << "Reading magnetic fields from IS" << endreq;
+  if(m_setMagFieldFromPtree && validPartition())
+  {
+    try
+    {
+      auto tor_cur = pt.get<float>("Magnets.ToroidsCurrent.value");
+      auto sol_cur = pt.get<float>("Magnets.SolenoidCurrent.value");
 
-    if ( setMagFieldFromIS().isFailure() ) {
+      IProperty* magfsvc(0);
+      service("AtlasFieldSvc", magfsvc, /*createIf=*/false).ignore();
+      if ( magfsvc==0 ) {
+        logStream() << MSG::ERROR << ST_WHERE
+                    << "Cannot retrieve AtlasFieldSvc" << endreq;
+        return StatusCode::FAILURE;
+      }
+
+      auto sc = Gaudi::Utils::setProperty(magfsvc, "UseSoleCurrent", sol_cur);
+      if ( sc.isFailure() ) {
+        logStream() << MSG::ERROR << ST_WHERE
+                    << "Cannot set property AtlasFieldSvc.UseSoleCurrent"
+                    << endreq;
+        return StatusCode::FAILURE;
+      }
+
+      sc = Gaudi::Utils::setProperty(magfsvc, "UseToroCurrent", tor_cur);
+      if ( sc.isFailure() ) {
+        logStream() << MSG::ERROR << ST_WHERE
+                    << "Cannot set property AtlasFieldSvc.UseToroCurrent"
+                    << endreq;
+        return StatusCode::FAILURE;
+      }
+
+      logStream() << MSG::INFO << "*****************************************" << endreq;
+      logStream() << MSG::INFO << "  Auto-configuration of magnetic field:  " << endreq;
+      logStream() << MSG::INFO << "    solenoid current from IS = " << sol_cur << endreq;
+      logStream() << MSG::INFO << "     torroid current from IS = " << tor_cur << endreq;
+      logStream() << MSG::INFO << "*****************************************" << endreq;
+    }
+    catch(ptree_bad_path& e)
+    {
       logStream() << MSG::ERROR << ST_WHERE
-                  << "Magnet auto-configuration failed" << endreq;
-
+                  << "Magnet auto-configuration failed: " << e.what() << endreq;
       return StatusCode::FAILURE;
     }
   }
-
-  return StatusCode::SUCCESS;
-}
-
-//=========================================================================
-StatusCode HltEventLoopMgr::setMagFieldFromIS() const
-{
-  float solCur(-100);
-  float torCur(-100);
-  StatusCode sc = m_isHelper->findValue<ddc::DdcFloatInfoNamed>(TrigISHelper::SolenoidCurrent,
-      solCur, ddcvalue());
-  if ( sc.isFailure() ) return sc;
-
-  sc = m_isHelper->findValue<ddc::DdcFloatInfoNamed>(TrigISHelper::ToroidCurrent,
-      torCur, ddcvalue());
-  if ( sc.isFailure() ) return sc;
-
-  IProperty* magFieldSvc(0);
-  service("AtlasFieldSvc", magFieldSvc, /*createIf=*/false).ignore();
-  if ( magFieldSvc==0 ) {
-    logStream() << MSG::ERROR << "Cannot retrieve AtlasFieldSvc" << endreq;
-    return StatusCode::FAILURE;
+  else
+  {
+    logStream() << MSG::DEBUG << ST_WHERE
+                << "Magnetic fields not available" << endreq;
   }
-
-  sc = Gaudi::Utils::setProperty(magFieldSvc, "UseSoleCurrent", solCur);
-  if ( sc.isFailure() ) {
-    logStream() << MSG::ERROR << "Cannot set property AtlasFieldSvc.UseSoleCurrent" << endreq;
-    return StatusCode::FAILURE;
-  }
-  sc = Gaudi::Utils::setProperty(magFieldSvc, "UseToroCurrent", torCur);
-  if ( sc.isFailure() ) {
-    logStream() << MSG::ERROR << "Cannot set property AtlasFieldSvc.UseToroCurrent" << endreq;
-    return StatusCode::FAILURE;
-  }
-
-  logStream() << MSG::INFO << "*****************************************" << endreq;
-  logStream() << MSG::INFO << "  Auto-configuration of magnetic field:  " << endreq;
-  logStream() << MSG::INFO << "    solenoid current from IS = " << solCur << endreq;
-  logStream() << MSG::INFO << "     torroid current from IS = " << torCur << endreq;
-  logStream() << MSG::INFO << "*****************************************" << endreq;
 
   return StatusCode::SUCCESS;
 }
