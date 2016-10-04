@@ -129,24 +129,19 @@ TCS::DisambiguationDRIncl2::processBitCorrect( const std::vector<TCS::TOBArray c
             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
                  ++tob2) {
-
-
-               // test DeltaR2Min, DeltaR2Max
-               unsigned int deltaR2Cut = calcDeltaR2BW( *tob1, *tob2 );
+                // test DeltaR2Min, DeltaR2Max
+                unsigned int deltaR2Cut = calcDeltaR2BW( *tob1, *tob2 );
+                for(unsigned int i=0; i<numberOutputBits(); ++i) {
+                    bool accept = false;
+                    if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                    if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+                    accept = deltaR2Cut > p_DRCutMin[i] && deltaR2Cut <= p_DRCutMax[i] ;
                
-
-               bool accept[3];
-               for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                     if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-		     if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-
-                     accept[i] = deltaR2Cut > p_DRCutMin[i] && deltaR2Cut <= p_DRCutMax[i] ;
-               
-                     if( accept[i] ) {
+                     if( accept ) {
                        decision.setBit(i, true);
                        output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
                      }
-	             TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR = " << deltaR2Cut );
+	             TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR = " << deltaR2Cut );
 
 
                }
@@ -180,43 +175,26 @@ TCS::DisambiguationDRIncl2::process( const std::vector<TCS::TOBArray const *> & 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
          {
-
-
-            for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
-                 tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
-                 ++tob2) {
-
-
-               // test DeltaR2Min, DeltaR2Max
-               unsigned int deltaR2Cut = calcDeltaR2( *tob1, *tob2 );
-               
-
-               bool accept[3];
-               for(unsigned int i=0; i<numberOutputBits(); ++i) {
+             for( TCS::TOBArray::const_iterator tob2 = input[1]->begin(); 
+                  tob2 != input[1]->end() && distance(input[1]->begin(), tob2) < p_NumberLeading2;
+                  ++tob2) {
+                 // test DeltaR2Min, DeltaR2Max
+                 unsigned int deltaR2Cut = calcDeltaR2( *tob1, *tob2 );
+                 for(unsigned int i=0; i<numberOutputBits(); ++i) {
+                     bool accept = false;
                      if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-		     if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-
-                     accept[i] = deltaR2Cut > p_DRCutMin[i] && deltaR2Cut <= p_DRCutMax[i] ;
-               
-                     if( accept[i] ) {
-                       decision.setBit(i, true);
-                       output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
+                     if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+                     accept = deltaR2Cut > p_DRCutMin[i] && deltaR2Cut <= p_DRCutMax[i] ;
+                     if( accept ) {
+                         decision.setBit(i, true);
+                         output[i]->push_back(TCS::CompositeTOB(*tob1, *tob2));
                      }
-	             TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " deltaR = " << deltaR2Cut );
-
-
-               }
- 
-            }
-
-
-            
-      }
-
+                     TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " deltaR = " << deltaR2Cut );
+                 }
+             }
+         }
    } else {
-
       TCS_EXCEPTION("DisambiguationDRIncl2 alg must have  2 inputs, but got " << input.size());
-
    }
    return TCS::StatusCode::SUCCESS;
 }

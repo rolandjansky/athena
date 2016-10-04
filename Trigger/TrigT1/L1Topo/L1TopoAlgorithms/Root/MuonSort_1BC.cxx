@@ -56,8 +56,8 @@ TCS::MuonSort_1BC::sort(const InputTOBArray & input, TOBArray & output) {
     //if( parType_t((*lm)->Et()) <= m_et ) continue; // ET cut
     
     // eta cut
-    if (parType_t(fabs((*lm)-> eta())) < m_minEta) continue; 
-    if (parType_t(fabs((*lm)-> eta())) > m_maxEta) continue;  
+    if (parType_t(std::abs((*lm)-> eta())) < m_minEta) continue; 
+    if (parType_t(std::abs((*lm)-> eta())) > m_maxEta) continue;  
 
     output.push_back( gtob );
   }

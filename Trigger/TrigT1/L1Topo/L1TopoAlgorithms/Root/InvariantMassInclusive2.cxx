@@ -135,7 +135,6 @@ TCS::InvariantMassInclusive2::processBitCorrect( const std::vector<TCS::TOBArray
 
       
    if( input.size() == 2) {
-      
       for( TOBArray::const_iterator tob1 = input[0]->begin(); 
            tob1 != input[0]->end() && distance(input[0]->begin(), tob1) < p_NumberLeading1;
            ++tob1)
@@ -152,26 +151,19 @@ TCS::InvariantMassInclusive2::processBitCorrect( const std::vector<TCS::TOBArray
 	       unsigned int invmass2 = calcInvMassBW( *tob1, *tob2 );
 
 
-               bool accept[6];
                for(unsigned int i=0; i<numberOutputBits(); ++i) {
-                  if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
-                  if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
-
-               
-                  accept[i] = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; 
-                  if( accept[i] ) {
-                     decison.setBit(i, true);
-                     output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
-                  }
-                  TRG_MSG_DEBUG("Decision " << i << ": " << (accept[i]?"pass":"fail") << " invmass2 = " << invmass2);
-
+                   bool accept = false;
+                   if( parType_t((*tob1)->Et()) <= p_MinET1[i]) continue; // ET cut
+                   if( parType_t((*tob2)->Et()) <= p_MinET2[i]) continue; // ET cut
+                   accept = invmass2 >= p_InvMassMin[i] && invmass2 <= p_InvMassMax[i]; 
+                   if( accept ) {
+                       decison.setBit(i, true);
+                       output[i]->push_back( TCS::CompositeTOB(*tob1, *tob2) );
+                   }
+                   TRG_MSG_DEBUG("Decision " << i << ": " << (accept?"pass":"fail") << " invmass2 = " << invmass2);
                }
-  
-
-
-	    }
+            }
          }
-
    } else {
 
       TCS_EXCEPTION("InvariantMassInclusive2 alg must have  2 inputs, but got " << input.size());

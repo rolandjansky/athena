@@ -44,7 +44,7 @@ TCS::MuonAbbreviated::sort(const InputTOBArray & input, TOBArray & output) {
    for(const MuonTOB* muon : muons ) {
       const GenericTOB gtob(*muon);
 
-      parType_t muonAbsEta = (parType_t) fabs( muon->eta() );
+      parType_t muonAbsEta = (parType_t) std::abs( muon->eta() );
 
       // eta cut
       bool passEta = (muonAbsEta >= m_minEta) && (muonAbsEta <= m_maxEta);
