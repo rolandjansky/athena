@@ -38,6 +38,7 @@ AthAlgorithm(name, svcLocator),
 //  m_timeStamp(0),
 //  m_humanTimestamp(""),
 m_evtInfoDone(false),
+eventInfo{},
 m_nEvent(0),
 m_indexFile(0),
 m_lastIndexFile(0),
@@ -60,7 +61,7 @@ VP1BatchOnLatestEvent::~VP1BatchOnLatestEvent()
 
 StatusCode VP1BatchOnLatestEvent::initialize()
 {
-	msg(MSG::INFO) << " in initialize() " << endreq;
+	msg(MSG::INFO) << " in initialize() " << endmsg;
 
 	StatusCode result = StatusCode::SUCCESS;
 
@@ -69,21 +70,21 @@ StatusCode VP1BatchOnLatestEvent::initialize()
 	StatusCode status = service("IncidentSvc", incsvc, true);
 
 	if(status.isFailure() || incsvc==0)
-		msg(MSG::WARNING) << "Unable to get IncidentSvc!" << endreq;
+		msg(MSG::WARNING) << "Unable to get IncidentSvc!" << endmsg;
 	else
 		incsvc->addListener(this, "BeginEvent", 0);
 
 	// get hold of the PoolSvc
 	status = m_poolSvc.retrieve();
 	if(status.isFailure())
-		msg(MSG::WARNING) << "Unable to get PoolSvc" << endreq;
+		msg(MSG::WARNING) << "Unable to get PoolSvc" << endmsg;
 
 	return result;
 }
 
 StatusCode VP1BatchOnLatestEvent::execute()
 {
-	msg(MSG::DEBUG) <<" in execute() " << endreq;
+	msg(MSG::DEBUG) <<" in execute() " << endmsg;
 
 
 
@@ -104,14 +105,14 @@ StatusCode VP1BatchOnLatestEvent::execute()
 		m_evtInfoDone = true;
 	}
 
-	getEventDetails();
+	if (eventInfo) getEventDetails();
 
 	return StatusCode::SUCCESS;
 }
 
 StatusCode VP1BatchOnLatestEvent::finalize()
 {
-	msg(MSG::INFO) <<"in finalize() " << endreq;
+	msg(MSG::VERBOSE) <<"in finalize() " << endmsg;
 
 	// Let VP1FileUtilities handle the output of the last event
 	if(m_nEvent) {
@@ -124,14 +125,14 @@ StatusCode VP1BatchOnLatestEvent::finalize()
 
 void VP1BatchOnLatestEvent::handle(const Incident& inc)
 {
-	msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" <<  endreq;
+	msg(MSG::INFO) << "Handling incident '" << inc.type() << "'" <<  endmsg;
 
 	const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
 	if(eventInc == 0) {
-		msg(MSG::WARNING) << " Unable to cast incident type" << endreq;
+		msg(MSG::WARNING) << " Unable to cast incident type" << endmsg;
 		return;
 	} else {
-		msg(MSG::DEBUG) << " Event incident casting successful" << endreq;
+		msg(MSG::DEBUG) << " Event incident casting successful" << endmsg;
 	}
 
 	// Let VP1FileUtilities handle the output of the previous event
@@ -149,12 +150,12 @@ void VP1BatchOnLatestEvent::makeEventDisplay() {
 	if (m_isGetRandomFile) {
 		msg(MSG::INFO)
 				<< "--> RANDOM MODE: Using a random VP1 configuration file..."
-				<< endreq;
+				<< endmsg;
 		m_inputVP1CfgFile = getRandomConfigFile();
 	}
 
 	msg(MSG::INFO) << "--> Input VP1 Configuration file: " << m_inputVP1CfgFile
-			<< endreq;
+			<< endmsg;
 
 	// LAUNCH VP1-Batch on the latest-produced ESD file
 	std::string commandStr = "vp1 -batch";
@@ -162,22 +163,22 @@ void VP1BatchOnLatestEvent::makeEventDisplay() {
 	// add custom output folder, if user specified it
 	if (m_destinationDir != "") {
 		msg(MSG::INFO) << " --> Using user-defined output folder: "
-				<< m_destinationDir << endreq;
+				<< m_destinationDir << endmsg;
 		commandStr += " -batch-output-folder=" + m_destinationDir;
 	}
 
 	commandStr += " `cat latest_vp1event` " + m_inputVP1CfgFile;
 
 	bool vp1OK = false;
-	msg(MSG::INFO) << " ===> launching VP1-Batch: " << commandStr << endreq;
+	msg(MSG::INFO) << " ===> launching VP1-Batch: " << commandStr << endmsg;
 	try {
 		system(commandStr.c_str());
 		vp1OK = true;
 	} catch (std::runtime_error& err) {
-		msg(MSG::WARNING) << "Exception caught: " << err.what() << endreq;
+		msg(MSG::WARNING) << "Exception caught: " << err.what() << endmsg;
 		msg(MSG::WARNING)
 				<< "Unable to launch VP1-Batch on the latest-produced event file"
-				<< endreq;
+				<< endmsg;
 	}
 	if (vp1OK) {
 		// Overlay the ATLAS logo to the image
@@ -191,7 +192,7 @@ void VP1BatchOnLatestEvent::makeEventDisplay() {
 
 std::string VP1BatchOnLatestEvent::getRandomConfigFile()
 {
-	msg(MSG::DEBUG) <<" in getRandomConfigFile() " << endreq;
+	msg(MSG::DEBUG) <<" in getRandomConfigFile() " << endmsg;
 
 
 	std::string configFile;
@@ -208,7 +209,7 @@ std::string VP1BatchOnLatestEvent::getRandomConfigFile()
 	configFiles.push_back("vp1_conf_ATLASatHOME_truth_event_wGeo_frontView.vp1");
 
 	int nConfigFiles = configFiles.size();
-	msg(MSG::DEBUG) << " ===> # config files: " << nConfigFiles << endreq;
+	msg(MSG::DEBUG) << " ===> # config files: " << nConfigFiles << endmsg;
     int nPositions = nConfigFiles - 1;
 
 	// setup random generator in [0, nConfigFiles]
@@ -221,11 +222,11 @@ std::string VP1BatchOnLatestEvent::getRandomConfigFile()
 	while ( m_indexFile == m_lastIndexFile )
 		m_indexFile = randomDist();
 	m_lastIndexFile = m_indexFile;
-	msg(MSG::DEBUG) << " ===> random index: " << m_indexFile << endreq;
+	msg(MSG::DEBUG) << " ===> random index: " << m_indexFile << endmsg;
 
 	//std::string configFile = "vp1_conf_ATLASatHOME_truth_event_wTRTGeo.vp1";
 	configFile = configFiles[m_indexFile];
-	msg(MSG::DEBUG) << " ===> random file: " << configFile << endreq;
+	msg(MSG::DEBUG) << " ===> random file: " << configFile << endmsg;
 
 	return configFile;
 
@@ -238,12 +239,12 @@ void VP1BatchOnLatestEvent::overlayATLASlogo()
 	//std::string commandStr =  "convert -composite `cat latest_vp1image` $TestArea/InstallArea/share/ATLAS-Logo-New_300pixels.png -geometry +10+10 -depth 8 test.png"; // this uses the original logo size and it draws it at (10,10)px
 	std::string commandStr = "convert -composite `cat latest_vp1image` $TestArea/InstallArea/share/ATLAS-Logo-New_300pixels.png -geometry +10+10 -depth 8 `cat latest_vp1image`";
 
-	msg(MSG::DEBUG) << " ===> overlay the ATLAS logo: " << commandStr << endreq;
+	msg(MSG::DEBUG) << " ===> overlay the ATLAS logo: " << commandStr << endmsg;
 	try {
 		system(commandStr.c_str());
 	} catch (std::runtime_error& err) {
-		msg(MSG::WARNING) << "Exception caught: " << err.what() << endreq;
-		msg(MSG::WARNING) << "Unable to run 'convert'!" << endreq;
+		msg(MSG::WARNING) << "Exception caught: " << err.what() << endmsg;
+		msg(MSG::WARNING) << "Unable to run 'convert'!" << endmsg;
 	}
 }
 
@@ -288,7 +289,8 @@ void VP1BatchOnLatestEvent::overlayEventDetails()
 			//+  "-interline-spacing 4 " // additional number of pixels between lines of text (only with ImageMagik >= 6.5.5-8!!! Lxplus has 6.7 but not all SLC6 machines...)
 
 			//+  "caption:'Run number: ${nRun}' " // set the caption text
-			+  (m_timeStamp > 0 ? "caption:'Run number: '${nRun}'\\nEvent number: '${nEvent}'\\n'${timestamp} " : "caption:'Run number: '${nRun}'\\nEvent number: '${nEvent}'\\n'${timestamp} ") // set the caption text; '\n' needs to be double-escaped while passed to system()
+			//+  (m_timeStamp > 0 ? "caption:'Run number: '${nRun}'\\nEvent number: '${nEvent}'\\n'${timestamp} " : "caption:'Run number: '${nRun}'\\nEvent number: '${nEvent}'\\n'${timestamp} ") // set the caption text; '\n' needs to be double-escaped while passed to system()
+			+  "caption:'Run number: '${nRun}'\\nEvent number: '${nEvent}'\\n'${timestamp} " // set the caption text; '\n' needs to be double-escaped while passed to system()
 
 			+  "${img} "             // imput image
 			+  "+swap "
@@ -297,12 +299,12 @@ void VP1BatchOnLatestEvent::overlayEventDetails()
 			+  "${img}";              // output image: here we replace the original image
 
 
-	msg(MSG::DEBUG) << " ===> overlay the event details: " << commandStr << endreq;
+	msg(MSG::DEBUG) << " ===> overlay the event details: " << commandStr << endmsg;
 	try {
 		system(commandStr.c_str());
 	} catch (std::runtime_error& err) {
-		msg(MSG::WARNING) << "Exception caught: " << err.what() << endreq;
-		msg(MSG::WARNING) << "Unable to run 'convert'!" << endreq;
+		msg(MSG::WARNING) << "Exception caught: " << err.what() << endmsg;
+		msg(MSG::WARNING) << "Unable to run 'convert'!" << endmsg;
 	}
 }
 
@@ -310,7 +312,7 @@ void VP1BatchOnLatestEvent::overlayEventDetails()
 void VP1BatchOnLatestEvent::getEventDetails()
 {
 	// Update run_number/event_number/time_stamp
-	msg(MSG::DEBUG) << "getEventDetails()" << endreq;
+	msg(MSG::DEBUG) << "getEventDetails()" << endmsg;
 
 	if(m_evtInfoDone) {
 
@@ -337,7 +339,7 @@ void VP1BatchOnLatestEvent::getEventDetails()
 
 
 	if (!m_evtInfoDone) {
-		msg(MSG::ERROR) << " Unable to retrieve EventInfo (or McEventInfo) from StoreGate!!!" << endreq;
+		msg(MSG::ERROR) << " Unable to retrieve EventInfo (or McEventInfo) from StoreGate!!!" << endmsg;
 		m_eventNumber = 0;
 		m_runNumber = 0;
 		m_timeStamp = 0;
@@ -357,7 +359,7 @@ void VP1BatchOnLatestEvent::getHumanReadableTimestamp()
 			<< " - " << "Month: "<< 1 + ltm->tm_mon<< " - "  // tm_mon is in the range [0, 11], so 1 must be added to get real months
 			<< "Day: "<<  ltm->tm_mday
 			<< " - " "Time: "<< ltm->tm_hour << ":" << ltm->tm_min << ":" << ltm->tm_sec // << "CEST" FIXME: check if time zone is available on data file
-			<< endreq;
+			<< endmsg;
 
 	std::ostringstream ostri;
 	ostri  << 1900 + ltm->tm_year
@@ -366,6 +368,6 @@ void VP1BatchOnLatestEvent::getHumanReadableTimestamp()
 			<< "T" << ltm->tm_hour << "-" << ltm->tm_min << "-" << ltm->tm_sec; // << "CEST"; FIXME: check if time zone is available on data file
 
 	m_humanTimestamp = ostri.str();
-	msg(MSG::DEBUG) << "'human readable' timestamp: " << m_humanTimestamp << endreq;
+	msg(MSG::DEBUG) << "'human readable' timestamp: " << m_humanTimestamp << endmsg;
 }
 
