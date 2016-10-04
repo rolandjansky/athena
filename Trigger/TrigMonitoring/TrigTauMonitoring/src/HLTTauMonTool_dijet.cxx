@@ -33,7 +33,7 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
   const float 		dRCut = 0.2;
   const float 		dRL1Cut = 0.3;
   const float 		dPhiCut = 2.5;
-  const float 		dPtBalancingCut = 0.3;
+  const float 		dPtBalancingCut = 999.;
   const float 		offlineTauPtCut = 150000.;
   const float 		offlineTauEtaCut = 2.5;
   const std::string	offlineTauIDCut = "";//"loose" "medium" "tight"
@@ -125,7 +125,7 @@ StatusCode HLTTauMonTool::dijetFakeTausEfficiency()
           dR=temp_dR;
         }
     }
-  if( dR > dRCut ) 
+  if( dR > dRCut || theOfflineTau==0 ) 
     {
       ATH_MSG_DEBUG("No matching tau found. Exiting");
       return StatusCode::SUCCESS;
