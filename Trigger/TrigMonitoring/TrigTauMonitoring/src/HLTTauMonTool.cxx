@@ -148,6 +148,7 @@ HLTTauMonTool::HLTTauMonTool(const std::string & type, const std::string & n, co
     m_HLTTriggerCondition = 0;
     m_mu_offline = 0.;
     m_mu_online = 0;
+    m_tauCont = 0;
 }
 ///////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////
@@ -323,20 +324,20 @@ StatusCode HLTTauMonTool::fill() {
 	ATH_MSG_WARNING("Failed to retrieve TauJets container. Exiting!");
 	return StatusCode::FAILURE;
     }	
-    xAOD::TauJetContainer::const_iterator CI,offlinetau_end = m_tauCont->end();
-    for(CI=m_tauCont->begin();CI!=offlinetau_end; ++CI){
-	if((*CI)){
-		TLorentzVector TauTLV = (*CI)->p4();
+    xAOD::TauJetContainer::const_iterator offlinetau,offlinetau_end = m_tauCont->end();
+    for(offlinetau=m_tauCont->begin();offlinetau!=offlinetau_end; ++offlinetau){
+	if((*offlinetau)){
+		TLorentzVector TauTLV = (*offlinetau)->p4();
 		double eta_Tau = TauTLV.Eta();
 		if(fabs(eta_Tau) > 2.47) continue;
 		double pt_Tau = TauTLV.Pt();
 		if(pt_Tau<m_effOffTauPtCut) continue;
-		int ntrack_TAU = (*CI)->nTracks();
+		int ntrack_TAU = (*offlinetau)->nTracks();
 		if(ntrack_TAU!=1 && ntrack_TAU!=3) continue;
-		bool good_tau = (*CI)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
+		bool good_tau = (*offlinetau)->isTau(xAOD::TauJetParameters::JetBDTSigMedium);
 		if(m_selection_BDT && !good_tau) continue;		
-		if(!Selection(*CI)) continue;
-		m_taus.push_back( *CI );
+		if(!Selection(*offlinetau)) continue;
+		m_taus.push_back( *offlinetau );
 	}
     }
 
@@ -383,15 +384,15 @@ StatusCode HLTTauMonTool::fill() {
                 std::vector<float> v_eta, v_phi, v_pt;
                 for(;comb!=combEnd;++comb){
                         const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
-                        std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator CI = vec_HLTtau.begin(), CI_e = vec_HLTtau.end();
-                        if(CI==CI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << chain);
-                        ATH_MSG_DEBUG("Item "<< chain << ": " << vec_HLTtau.size() << " " << CI->label() << " containers");
-                        for(; CI != CI_e; ++CI){
-                                if(CI->cptr()){
-                                        if(CI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< chain << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-                                        ATH_MSG_DEBUG("item "<< chain << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-                                        xAOD::TauJetContainer::const_iterator tauItr = CI->cptr()->begin();
-                                        xAOD::TauJetContainer::const_iterator tauEnd = CI->cptr()->end();
+                        std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator topoTau = vec_HLTtau.begin(), topoTau_e = vec_HLTtau.end();
+                        if(topoTau==topoTau_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << chain);
+                        ATH_MSG_DEBUG("Item "<< chain << ": " << vec_HLTtau.size() << " " << topoTau->label() << " containers");
+                        for(; topoTau != topoTau_e; ++topoTau){
+                                if(topoTau->cptr()){
+                                        if(topoTau->cptr()->size()==0) ATH_MSG_DEBUG("item "<< chain << ": TauJetContainer with " << topoTau->cptr()->size() << " TauJets");
+                                        ATH_MSG_DEBUG("item "<< chain << ": TauJetContainer with " << topoTau->cptr()->size() << " TauJets");
+                                        xAOD::TauJetContainer::const_iterator tauItr = topoTau->cptr()->begin();
+                                        xAOD::TauJetContainer::const_iterator tauEnd = topoTau->cptr()->end();
                                         for(; tauItr != tauEnd; ++tauItr){
                                                 v_eta.push_back((*tauItr)->eta()); v_phi.push_back((*tauItr)->phi()); v_pt.push_back((*tauItr)->pt());
                                         }
@@ -720,15 +721,15 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
          }              
 
          const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
-         std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator CI = vec_HLTtau.begin(), CI_e = vec_HLTtau.end();
-         if(CI==CI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF); 
-         ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << CI->label() << " containers");
-         for(; CI != CI_e; ++CI){
-           if(CI->cptr()){
-             if(CI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-             ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-             xAOD::TauJetContainer::const_iterator tauItr = CI->cptr()->begin();
-             xAOD::TauJetContainer::const_iterator tauEnd = CI->cptr()->end();
+         std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator efCI = vec_HLTtau.begin(), efCI_e = vec_HLTtau.end();
+         if(efCI==efCI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF); 
+         ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << efCI->label() << " containers");
+         for(; efCI != efCI_e; ++efCI){
+           if(efCI->cptr()){
+             if(efCI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << efCI->cptr()->size() << " TauJets");
+             ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << efCI->cptr()->size() << " TauJets");
+             xAOD::TauJetContainer::const_iterator tauItr = efCI->cptr()->begin();
+             xAOD::TauJetContainer::const_iterator tauEnd = efCI->cptr()->end();
 
              for(; tauItr != tauEnd; ++tauItr) {
      		if(!Selection(*tauItr)) continue;
@@ -761,15 +762,15 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 	        std::vector<float> v_eta, v_phi;
                 for(;comb!=combEnd;++comb){
          		const std::vector< Trig::Feature<xAOD::TauJetContainer> > vec_HLTtau = comb->get<xAOD::TauJetContainer>("TrigTauRecMerged",m_HLTTriggerCondition);
-         		std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator CI = vec_HLTtau.begin(), CI_e = vec_HLTtau.end();
-         		if(CI==CI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF);
-         		ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << CI->label() << " containers");
-         		for(; CI != CI_e; ++CI){
-           			if(CI->cptr()){
-             				if(CI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-             				ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << CI->cptr()->size() << " TauJets");
-             				xAOD::TauJetContainer::const_iterator tauItr = CI->cptr()->begin();
-             				xAOD::TauJetContainer::const_iterator tauEnd = CI->cptr()->end();
+         		std::vector<Trig::Feature<xAOD::TauJetContainer> >::const_iterator ditauCI = vec_HLTtau.begin(), ditauCI_e = vec_HLTtau.end();
+         		if(ditauCI==ditauCI_e) ATH_MSG_DEBUG("TrigTauMerged TauJet container EMPTY in " << trig_item_EF);
+         		ATH_MSG_DEBUG("Item "<< trigItem << ": " << vec_HLTtau.size() << " " << ditauCI->label() << " containers");
+         		for(; ditauCI != ditauCI_e; ++ditauCI){
+           			if(ditauCI->cptr()){
+             				if(ditauCI->cptr()->size()==0) ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << ditauCI->cptr()->size() << " TauJets");
+             				ATH_MSG_DEBUG("item "<< trigItem << ": TauJetContainer with " << ditauCI->cptr()->size() << " TauJets");
+             				xAOD::TauJetContainer::const_iterator tauItr = ditauCI->cptr()->begin();
+             				xAOD::TauJetContainer::const_iterator tauEnd = ditauCI->cptr()->end();
 					for(; tauItr != tauEnd; ++tauItr){				
 						v_eta.push_back((*tauItr)->eta()); v_phi.push_back((*tauItr)->phi());
 					}
@@ -788,7 +789,7 @@ StatusCode HLTTauMonTool::fillHistogramsForItem(const std::string & trigItem){
 			int pass(0);
 		        std::string chain = "HLT_"+m_topo_chains.at(i);	
                         if(getTDT()->isPassed(chain)) pass = 1;
-			profile("TProfRecoL1_dREfficiency")->Fill(min_dR,pass);
+			profile("TProfRecoL1_dREfficiency")->Fill(min_dR,pass);	
     		}
 
      }
