@@ -1,17 +1,17 @@
-prefix = /usr/local
-rootsys= $(prefix)/root
+prefix = `pwd`/../../../local
+
 targetdir = ../tmp
 
 
-TMCPPFILES           =  $(shell find -name "*.cpp" )
+TMCPPFILES           =  $(shell find ../src -name "*.cpp" )
 MYCPPFILES           =  $(patsubst ./%,   %,   $(TMCPPFILES))
-MYOFILES             =  $(patsubst %.cpp, %.o, $(MYCPPFILES))
+MYOFILES             =  $(patsubst ../src/%.cpp, %.o, $(MYCPPFILES))
 DSOFILES             =  $(patsubst %.cpp, $(targetdir)/IODriver/%.so, $(MYCPPFILES))
 
 
-override CXXFLAGS  +=  -g -O0 -fPIC -I/usr/include/root -I../..   
+override CXXFLAGS  +=  -g -O0 -fPIC -I$(ROOTSYS)/include -I/usr/include/root -I../../QatDataAnalysis/ -I../../../CLHEP/GenericFunctions
 
-%.cpp.%.o:
+%.o:../src/%.cpp
 	$(CXX) -c $< -o $@ $(CXXFLAGS) $(CPPFLAGS)
 
 all : $(targetdir)/IODriver/libQoot.so 
@@ -20,7 +20,7 @@ $(targetdir)/IODriver/libQoot.so : RootDriver.o
 	mkdir -p $(targetdir)/IODriver
 	mkdir -p $(targetdir)/IODriver/`dirname $<`
 	cp $< $(targetdir)/IODriver/`dirname $<`
-	g++ --shared   $< -L$(prefix)/lib -lQatDataAnalysis   -lHist -lMatrix -lTree -lRIO -lNet -lMathCore -lCore -lCint -o $@
+	g++ --shared   $< -L$(prefix)/lib -lQatDataAnalysis -lCLHEP-GenericFunctions-2.1.3.1 -L$(ROOTSYS)/lib -lHist -lMatrix -lTree -lRIO -lNet -lMathCore -lCore -lCint -o $@
 	rm -f $(targetdir)/IODriver/$<
 
 

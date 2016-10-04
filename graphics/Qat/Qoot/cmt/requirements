@@ -10,6 +10,9 @@ private
 use AtlasROOT       AtlasROOT-*        External
 use QatDataAnalysis QatDataAnalysis-*  graphics/Qat
 
+# Specify the required ROOT components for cmake (transparent to CMT)
+apply_pattern cmake_add_command command="find_package(ROOT COMPONENTS Hist Tree RIO)"
+
 library Qoot *.cpp
 
 path_remove DYLD_LIBRARY_PATH "" host-darwin "$(<package>_cmtpath)/InstallArea/${CMTCONFIG}/lib/qatplugins" ; \
