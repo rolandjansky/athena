@@ -371,7 +371,7 @@ QString VP1EventDisplayEditor::getEventDetailsLabel()
 
 	QString evtstr = "Run: "+QString::number(_runNumber)+"\n"
 			+ "Event: "+QString::number(_eventNumber)+"\n"
-			+ QString(time>0 ? QDateTime::fromTime_t(_eventTimestamp).toString(Qt::ISODate).replace('T',' ')+ " CEST" : "");
+			+ QString(QDateTime::fromTime_t(_eventTimestamp).toString(Qt::ISODate).replace('T',' ')+ " CEST" );
 
 	//VP1Msg::messageVerbose(evtstr);
 
