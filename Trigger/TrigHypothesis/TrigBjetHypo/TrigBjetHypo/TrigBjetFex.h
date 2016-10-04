@@ -19,7 +19,7 @@
 
 #include "TrigInterfaces/FexAlgo.h"
 
-#include "TrigBjetHypo/TrigBjetTagger.h"
+// #include "TrigBjetHypo/TrigBjetTagger.h"
 #include "TrigBjetHypo/TuningLikelihood.h"
 #include "TrigBjetHypo/TrigBjetDataHelper.h"
 
@@ -102,7 +102,7 @@ class TrigBjetFex: public HLT::FexAlgo {
   /** @brief Pointer to TrigEFBjet collection. */
   TrigEFBjetContainer* m_trigEFBjetColl;
   /** @brief Pointer to xAOD::BTaggingContainer. */
-  xAOD::BTaggingContainer* m_trigBTaggingContainer;
+  xAOD::BTaggingContainer* m_trigBTaggingContainer = nullptr;
 
   /** @brief Pointer to TaggerHelper class. */ 
   TaggerHelper* m_taggerHelper;
@@ -209,7 +209,7 @@ class TrigBjetFex: public HLT::FexAlgo {
   float m_mon_tag_IP3D;
   float m_mon_tag_SV1;
   float m_mon_tag_IP3DSV1;
-  float m_mon_tag_MV1;
+  // float m_mon_tag_MV1;
   float m_mon_tag_MV2c00;
   float m_mon_tag_MV2c10;
   float m_mon_tag_MV2c20;

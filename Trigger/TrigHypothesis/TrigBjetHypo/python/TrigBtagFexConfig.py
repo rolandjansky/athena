@@ -108,6 +108,8 @@ class BtagFexSplit (TrigBtagFex):
             instance = "EF"
         
         self.PriVtxKey = "xPrimVx" #"EFHistoPrmVtx"
+        self.UsePriVtxKeyBackup = True
+        self.PriVtxKeyBackup = "EFHistoPrmVtx"
         self.TrackKey  = "InDetTrigTrackingxAODCnv_Bjet_IDTrig"
         
         # IMPORT OFFLINE TOOLS

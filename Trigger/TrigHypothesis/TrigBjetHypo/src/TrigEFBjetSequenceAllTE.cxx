@@ -18,7 +18,6 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigSteeringEvent/TrigSuperRoi.h"
 #include "TrigSteeringEvent/PhiHelper.h"
-#include "TrigSteeringEvent/TrigOperationalInfo.h"
 #include "TrigNavigation/TriggerElement.h"
 
 #include "AthContainers/ConstDataVector.h"
@@ -53,19 +52,19 @@ TrigEFBjetSequenceAllTE::TrigEFBjetSequenceAllTE(const std::string & name, ISvcL
 HLT::ErrorCode TrigEFBjetSequenceAllTE::hltInitialize() {
 
   if (msgLvl() <= MSG::INFO) 
-    msg() << MSG::INFO << "Initializing TrigEFBjetSequenceAllTE, version " << PACKAGE_VERSION << endreq;
+    msg() << MSG::INFO << "Initializing TrigEFBjetSequenceAllTE, version " << PACKAGE_VERSION << endmsg;
 
   //* declareProperty overview *//
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "declareProperty review:" << endreq;
-    msg() << MSG::DEBUG << " JetInputKey = "  << m_jetInputKey  << endreq; 
-    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endreq; 
-    msg() << MSG::DEBUG << " UseSuperRoi  = " << m_useSuperRoi  << endreq;
-    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endreq; 
-    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endreq; 
+    msg() << MSG::DEBUG << "declareProperty review:" << endmsg;
+    msg() << MSG::DEBUG << " JetInputKey = "  << m_jetInputKey  << endmsg; 
+    msg() << MSG::DEBUG << " JetOutputKey = " << m_jetOutputKey << endmsg; 
+    msg() << MSG::DEBUG << " UseSuperRoi  = " << m_useSuperRoi  << endmsg;
+    msg() << MSG::DEBUG << " EtaHalfWidth = " << m_etaHalfWidth << endmsg; 
+    msg() << MSG::DEBUG << " PhiHalfWidth = " << m_phiHalfWidth << endmsg; 
   }
 
-  msg() << MSG::INFO << " UseSuperRoi  = " << m_useSuperRoi  << endreq;
+  msg() << MSG::INFO << " UseSuperRoi  = " << m_useSuperRoi  << endmsg;
 
   return HLT::OK;
 }
@@ -83,12 +82,12 @@ TrigEFBjetSequenceAllTE::~TrigEFBjetSequenceAllTE(){}
 HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::TriggerElement*> >& inputTEs, unsigned int output) {
   
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Running TrigEFBjetSequenceAllTE::hltExecute" << endreq;
+    msg() << MSG::DEBUG << "Running TrigEFBjetSequenceAllTE::hltExecute" << endmsg;
   
   beforeExecMonitors().ignore();
   
   if (inputTEs.size() != 1) {
-    msg() << MSG::WARNING << "Got more than one inputTE" << endreq;
+    msg() << MSG::WARNING << "Got more than one inputTE" << endmsg;
     afterExecMonitors().ignore();
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
@@ -96,13 +95,13 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
   std::vector<HLT::TriggerElement*>& inputTE = inputTEs.at(0);
   
   if (inputTE.size() == 0) {
-    msg() << MSG::WARNING << "Got an empty inputTE" << endreq;
+    msg() << MSG::WARNING << "Got an empty inputTE" << endmsg;
     afterExecMonitors().ignore();
     return HLT::MISSING_FEATURE; 
   }
   
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() << endreq;
+    msg() << MSG::DEBUG << " inputTEs.size() " << inputTEs.size() << " inputTE.size() " << inputTE.size() << endmsg;
   }
   
   const xAOD::JetContainer* m_jets_EF = 0;
@@ -111,19 +110,19 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
   
   if (statusJets != HLT::OK) {
     if (msgLvl() <= MSG::WARNING) { 
-      msg() << MSG::WARNING << "Failed to retrieve features" << endreq;
+      msg() << MSG::WARNING << "Failed to retrieve features" << endmsg;
     }
     return HLT::NAV_ERROR;
   } 
   
   if(m_jets_EF==0) {
     if (msgLvl() <= MSG::WARNING)
-      msg() << MSG::WARNING << "Missing feature." << endreq;
+      msg() << MSG::WARNING << "Missing feature." << endmsg;
     return HLT::MISSING_FEATURE;
   }
   
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endreq; 
+    msg() << MSG::DEBUG << "Found " << jets->size() << " jets, creating corresponding RoIs" << endmsg; 
   
   HLT::TriggerElement* outputTE = 0;
   std::string key = "";
@@ -132,7 +131,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
   if ( m_useSuperRoi ) {
     
     if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Using super ROI" << endreq;
+	  msg() << MSG::DEBUG << "Using super ROI" << endmsg;
     
     TrigRoiDescriptor* superRoi = new TrigRoiDescriptor();
     superRoi->setComposite(true);
@@ -150,12 +149,12 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       
       if (jet_Et < 15) {
 	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << " below the 15 GeV threshold; Et " << jet_Et << "; skipping this jet." << endreq;
+	  msg() << MSG::DEBUG << "Jet "<< i << " below the 15 GeV threshold; Et " << jet_Et << "; skipping this jet." << endmsg;
 	continue;
       }
       
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << endreq;
+	msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << endmsg;
 
       std::cout << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << std::endl;
       
@@ -169,25 +168,15 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       TrigRoiDescriptor* newRoiDescriptor =  new TrigRoiDescriptor((*jet)->eta(), etaMin, etaMax, 
 								   (*jet)->phi(), phiMin, phiMax );
       
-      msg() << MSG::DEBUG << "Adding ROI descriptor to superROI - ta da!!" << endreq;
+      msg() << MSG::DEBUG << "Adding ROI descriptor to superROI - ta da!!" << endmsg;
       superRoi->push_back( newRoiDescriptor );
 
-      // is this only needed if we break the jets up into separate trigger elements?
-      TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
-	
-      trigInfoJetEt->set("EFJetEt", jet_Et);
-	
-      HLT::ErrorCode hltStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo"); 
-      if (hltStatus != HLT::OK) {
-	msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo as feature" << endreq;
-	return hltStatus;
-      }
     }
     
-    msg() << MSG::DEBUG << "Attaching feature" << endreq;
+    msg() << MSG::DEBUG << "Attaching feature" << endmsg;
     HLT::ErrorCode hltStatus = attachFeature(outputTE, superRoi, m_jetOutputKey);
     if (hltStatus != HLT::OK) {
-      msg() << MSG::ERROR << "Failed to attach SuperRoi as feature" << endreq;
+      msg() << MSG::ERROR << "Failed to attach SuperRoi as feature" << endmsg;
       return hltStatus;
     }
     
@@ -195,7 +184,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
     const TrigSuperRoi* newSuperRoi;
     if (getFeature(outputTE, newSuperRoi) != HLT::OK) {
       if (msgLvl() <= MSG::WARNING) 
-	msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endreq;
+	msg() <<  MSG::WARNING << "No RoI for this Trigger Element " << endmsg;
       
       return HLT::NAV_ERROR;
     }
@@ -204,7 +193,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
   else {
     
     if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Using normal ROI" << endreq;
+	  msg() << MSG::DEBUG << "Using normal ROI" << endmsg;
 
     unsigned int i = 0;
     for (xAOD::JetContainer::const_iterator jet = jets->begin(); jet != jets->end(); jet++){
@@ -214,12 +203,12 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       
       if (jet_Et < 15) {
 	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Jet "<< i << " below the 15 GeV threshold; Et " << jet_Et << "; skipping this jet." << endreq;
+	  msg() << MSG::DEBUG << "Jet "<< i << " below the 15 GeV threshold; Et " << jet_Et << "; skipping this jet." << endmsg;
 	continue;
       }
       
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << endreq;
+	msg() << MSG::DEBUG << "Jet "<< i << "; Et " << jet_Et << "; eta "<< (*jet)->eta() << "; phi " << (*jet)->phi() << endmsg;
       
       // Create an output TE seeded by an empty vector
       HLT::TriggerElement* initialTE = config()->getNavigation()->getInitialNode();
@@ -238,20 +227,10 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
       
       HLT::ErrorCode hltStatus = attachFeature(outputTE, newRoiDescriptor, m_jetOutputKey);
       if ( hltStatus != HLT::OK ) {
-	msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature" << endreq;
+	msg() << MSG::ERROR << "Failed to attach TrigRoiDescriptor as feature" << endmsg;
 	return hltStatus;
       }
       
-      TrigOperationalInfo* trigInfoJetEt = new TrigOperationalInfo();
-      trigInfoJetEt->set("EFJetEt", jet_Et);
-
-      hltStatus = attachFeature(outputTE, trigInfoJetEt, "EFJetInfo");
-
-      if (hltStatus != HLT::OK) {
-	msg() << MSG::ERROR << "Failed to attach TrigOperationalInfo as feature" << endreq;
-	return hltStatus;
-      }
-
       // Make a deep copy of the jet, because can't persistify view containers at the moment
       xAOD::JetTrigAuxContainer trigJetTrigAuxContainer;
       xAOD::JetContainer* trigJetContainer = new xAOD::JetContainer();
@@ -261,7 +240,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
 
       hltStatus = attachFeature(outputTE, trigJetContainer, "EFJet"); 
       if (hltStatus != HLT::OK) {
-        msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer as feature" << endreq;
+        msg() << MSG::ERROR << "Failed to attach xAOD::JetContainer as feature" << endmsg;
         return hltStatus;
       }
     }
@@ -279,7 +258,7 @@ HLT::ErrorCode TrigEFBjetSequenceAllTE::hltExecute(std::vector<std::vector<HLT::
 HLT::ErrorCode TrigEFBjetSequenceAllTE::hltFinalize() {
 
   if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    msg() << MSG::INFO << "in finalize()" << endmsg;
 
   return HLT::OK;
 }
