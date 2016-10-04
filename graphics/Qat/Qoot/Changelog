@@ -1,0 +1,5 @@
+2016-10-04 Shaun Roe
+	* Created Changelog
+	* Fix coverity:
+16916 09/07/2014 (Medium) Uninitialized scalar field :/graphics/Qat/Qoot/src/RootDriver.cpp in function "RootIOStore"
+	* tag as Qoot-00-00-07

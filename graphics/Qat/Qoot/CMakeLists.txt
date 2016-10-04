@@ -10,7 +10,7 @@ atlas_depends_on_subdirs( PRIVATE
                           graphics/Qat/QatDataAnalysis )
 
 # External dependencies:
-find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
+find_package( ROOT COMPONENTS Hist Tree RIO Core MathCore pthread )
 
 # this line failed automatic conversion in cmt2cmake :
 # path_remove DYLD_LIBRARY_PATH "" host-darwin "$(<package>_cmtpath)/InstallArea/${CMTCONFIG}/lib/qatplugins" ;  path_append DYLD_LIBRARY_PATH "" host-darwin "$(<package>_cmtpath)/InstallArea/${CMTCONFIG}/lib/qatplugins"
