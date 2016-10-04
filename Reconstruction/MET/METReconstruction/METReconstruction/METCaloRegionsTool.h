@@ -113,7 +113,7 @@ namespace met{
       REGIONS_TOTAL
     };
     // CaloRegions human-readable names for enums
-    const static std::string CaloRegionNames[];
+    const static std::string s_CaloRegionNames[];
     
   private:
     // Default constructor: 

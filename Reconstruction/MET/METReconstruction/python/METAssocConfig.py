@@ -25,7 +25,7 @@ defaultInputKey = {
    'ClusColl'  :'CaloCalTopoClusters',
    'TrkColl'   :'InDetTrackParticles',
    'PrimVxColl':'PrimaryVertices',
-   'Truth'     :'TruthParticles',
+   'Truth'     :'TruthEvents',
    'LCOCClusColl':'LCOriginTopoClusters',
    'EMOCClusColl':'EMOriginTopoClusters',
    }
