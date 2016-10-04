@@ -25,14 +25,20 @@
 //____________________________________________________________________
 class VP1Gui::Imp {
 public:
-  Imp() : the_scheduler(0) {}
+  Imp() : the_scheduler(nullptr), sg(nullptr), detstore(nullptr),
+    svclocator(nullptr), toolSvc(nullptr),
+    initialvp1files{},
+    initialCruiseSeconds{},
+    localFileCacheLimit{}{
+    //nop
+  }
   VP1ExecutionScheduler * the_scheduler;
 
   //We hold the arguments here until init is called:
-  StoreGateSvc* sg;
-  StoreGateSvc* detstore;
-  ISvcLocator* svclocator;
-  IToolSvc*toolSvc;
+  StoreGateSvc * sg;
+  StoreGateSvc * detstore;
+  ISvcLocator * svclocator;
+  IToolSvc * toolSvc;
   QStringList initialvp1files;
   QString initialCruiseMode;
   unsigned initialCruiseSeconds;

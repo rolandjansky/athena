@@ -53,7 +53,9 @@ class VP1TabManager::Imp {
 public:
   //Constructor, tabwidget & channel manager:
   Imp(VP1TabManager*tm,VP1TabWidget* tw, VP1ChannelManager* cm)
-    : tabmanager(tm), tabwidget(tw),channelmanager(cm),selecteddockwidget(0),
+    : tabmanager(tm), tabwidget(tw),channelmanager(cm),
+      dontEmitVisibilityChanges{},
+      selecteddockwidget(0),
       fullscreen_dockwidget(0),fullscreen_channelwidget(0),
       fullscreen_tabindex(-1),fullscreen_tab(0),tabcruisemode(false) {}
 
@@ -130,12 +132,10 @@ VP1TabManager::~VP1TabManager(){
 
 
 //___________________________________________________________________________________
-void  VP1TabManager::launchStereoEditorCurrentTab()
-{
+void  VP1TabManager::launchStereoEditorCurrentTab(){
 	VP1Msg::messageVerbose("VP1TabManager::launchStereoEditorCurrentTab()");
-
-	if (dynamic_cast<IVP13DStandardChannelWidget*>(selectedChannelWidget()) ) {
-		IVP13DStandardChannelWidget* channel = dynamic_cast<IVP13DStandardChannelWidget*>(selectedChannelWidget());
+  IVP13DStandardChannelWidget* channel = dynamic_cast<IVP13DStandardChannelWidget*>(selectedChannelWidget());
+	if (channel ) {
 		channel->launchStereoEditor();
 	}
 }
