@@ -320,6 +320,8 @@ if primDPDAlignTrigMu.ApplySkimming():
 #AlignmentTriggerMuonStream.Stream.TakeItemsFromInput = True
 from PrimaryDPDMaker import PrimaryDPD_OutputDefinitions as dpdOutput
 
+trackParticleAuxExclusions="-caloExtension.-cellAssociation.-clusterAssociation.-trackParameterCovarianceMatrices.-parameterX.-parameterY.-parameterZ.-parameterPX.-parameterPY.-parameterPZ.-parameterPosition"
+
 #General
 AlignmentTriggerMuonStream.AddItem(["xAOD::EventInfo#*"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::EventAuxInfo#*"])
@@ -328,11 +330,11 @@ AlignmentTriggerMuonStream.AddItem(["xAOD::MuonAuxContainer#MuonsAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::MuonSegmentContainer#MuonSegments"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::MuonSegmentAuxContainer#MuonSegmentsAux."])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#MuonSpectrometerTrackParticles"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux."])
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#MuonSpectrometerTrackParticlesAux."+trackParticleAuxExclusions])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#CombinedMuonTrackParticles"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux."])
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#CombinedMuonTrackParticlesAux."+trackParticleAuxExclusions])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#ExtrapolatedMuonTrackParticles"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#ExtrapolatedMuonTrackParticlesAux."])
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#ExtrapolatedMuonTrackParticlesAux."+trackParticleAuxExclusions])
 
 #Trigger General
 AlignmentTriggerMuonStream.AddItem(["xAOD::TrigNavigation#TrigNavigation"])
@@ -348,7 +350,7 @@ AlignmentTriggerMuonStream.AddItem(["Muon::MdtPrepDataContainer#*"])
 #Alignment
 AlignmentTriggerMuonStream.AddItem(["Trk::SegmentCollection#MuonSegments"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::VertexContainer#PrimaryVertices"])
-AlignmentTriggerMuonStream.AddItem(["xAOD::VertexAuxContainer#PrimaryVerticesAux."])
+AlignmentTriggerMuonStream.AddItem(["xAOD::VertexAuxContainer#PrimaryVerticesAux.-vxTrackAtVertex"])
 AlignmentTriggerMuonStream.AddItem(["TrackCollection#MuonSpectrometerTracks"])
 AlignmentTriggerMuonStream.AddItem(["TrackCollection#CombinedMuonTracks"])
 #AlignmentTriggerMuonStream.AddItem(["TrackCollection#Tracks"])
@@ -364,8 +366,8 @@ AlignmentTriggerMuonStream.AddItem(["Muon::TgcCoinDataContainer#TrigT1CoinDataCo
 AlignmentTriggerMuonStream.AddItem(["Muon::TgcCoinDataContainer#TrigT1CoinDataCollection"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TruthParticleContainer#MuonTruthParticles"])
 AlignmentTriggerMuonStream.AddItem(["xAOD::TruthParticleAuxContainer#MuonTruthParticlesAux."])
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#InDetTrackParticles"]) #Really want to skim/slim this guy
-AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."]) #Really want to skim/slim this guy
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleContainer#InDetTrackParticles"+trackParticleAuxExclusions]) #Really want to skim/slim this guy
+AlignmentTriggerMuonStream.AddItem(["xAOD::TrackParticleAuxContainer#InDetTrackParticlesAux."+trackParticleAuxExclusions]) #Really want to skim/slim this guy
 AlignmentTriggerMuonStream.AddItem(["TileDigitsContainer#MuRcvDigitsCnt"])
 AlignmentTriggerMuonStream.AddItem(["TileRawChannelContainer#MuRcvRawChCnt"])
 AlignmentTriggerMuonStream.AddItem(["TileMuonReceiverContainer#TileMuRcvCnt"])

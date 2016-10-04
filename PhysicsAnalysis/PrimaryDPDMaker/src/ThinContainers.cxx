@@ -101,7 +101,33 @@ ThinContainers::ThinContainers(const std::string& name, ISvcLocator* pSvcLocator
   AthAlgorithm(name, pSvcLocator),
   m_thinningSvc( "ThinningSvc",  name ),
   m_trtID(0),
-  m_regionSelector("RegSelSvc", name) 
+  m_regionSelector("RegSelSvc", name),
+  m_nClustersKept(0),
+  m_nClustersRemoved(0),
+  m_nPixelCollectionsProcessed(0),
+  m_nPixelCollectionsKept(0),
+  m_nPixelCollectionsRemoved(0),
+  m_nPixelClustersProcessed(0),
+  m_nPixelClustersKept(0),
+  m_nPixelClustersRemoved(0),
+  m_nSCTClusterCollectionsProcessed(0),
+  m_nSCTClusterCollectionsKept(0),
+  m_nSCTClusterCollectionsRemoved(0),
+  m_nSCTClustersProcessed(0),
+  m_nSCTClustersKept(0),
+  m_nSCTClustersRemoved(0),
+  m_nTRTDriftCircleCollectionsProcessed(0),
+  m_nTRTDriftCircleCollectionsKept(0),
+  m_nTRTDriftCircleCollectionsRemoved(0),
+  m_nTRTDriftCirclesProcessed(0),
+  m_nTRTDriftCirclesKept(0),
+  m_nTRTDriftCirclesRemoved(0),
+  m_nTrackParticlesProcessed(0),
+  m_nTrackParticlesKept(0),
+  m_nTrackParticlesRemoved(0),
+  m_nTracksProcessed(0),
+  m_nTracksKept(0),
+  m_nTracksRemoved(0)
 {
   // Properties go here
   declareProperty("RegionSelectorTool",      m_regionSelector);		
@@ -251,73 +277,73 @@ StatusCode ThinContainers::initialize()
     {
       msg(MSG::DEBUG) 
         << "==> initialize " << name() << "..."
-        << endreq;
+        << endmsg;
       
       // Print out the used configuration
-      msg(MSG::DEBUG) << " using thinCaloCells                   = " << m_thinCaloCells << endreq;
-      msg(MSG::DEBUG) << " using thinPixelClusters               = " << m_thinPixelClusters << endreq;
-      msg(MSG::DEBUG) << " using thinSCTClusters                 = " << m_thinSCTClusters << endreq;
-      msg(MSG::DEBUG) << " using thinTRTDriftCircles             = " << m_thinTRTDriftCircles << endreq;
-      msg(MSG::DEBUG) << " using thinTrackParticles              = " << m_thinTrackParticles << endreq;
-      msg(MSG::DEBUG) << " using thinTracks                      = " << m_thinTracks << endreq;
-      msg(MSG::DEBUG) << " using caloCellCollectionName          = " << m_caloCellKey << endreq;
-      msg(MSG::DEBUG) << " using pixelClusterCollectionName      = " << m_pixelClusterKey << endreq;
-      msg(MSG::DEBUG) << " using sctClusterCollectionName        = " << m_sctClusterKey << endreq;
-      msg(MSG::DEBUG) << " using trtDriftCirclesCollectionName   = " << m_trtDriftCircleKey << endreq;
-      msg(MSG::DEBUG) << " using trackParticleCollectionName     = " << m_trackParticleKey << endreq;
-      msg(MSG::DEBUG) << " using Lvl1RoiNames                    = " << m_Lvl1Items << endreq;
-      msg(MSG::DEBUG) << " using keepObjectsNearLvl1Rois         = " << m_keepNearLvl1Roi << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaRLvl1RoiObject          = " << m_maxDeltaRLvl1Roi << endreq;
-      msg(MSG::DEBUG) << " using useDeltaEtaPhiLvl1Roi           = " << m_useDeltaEtaPhiLvl1Roi << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaEtaLvl1RoiObject        = " << m_maxDeltaEtaLvl1Roi << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaPhiLvl1RoiObject        = " << m_maxDeltaPhiLvl1Roi << endreq;
-      msg(MSG::DEBUG) << " using electronCollectionName          = " << m_electronKey << endreq;
-      msg(MSG::DEBUG) << " using photonCollectionName            = " << m_photonKey << endreq;
-      msg(MSG::DEBUG) << " using muonCollectionNames             = " << m_muonKeys << endreq;
-      msg(MSG::DEBUG) << " using tauCollectionName               = " << m_tauKey << endreq;
-      msg(MSG::DEBUG) << " using jetCollectionNames              = " << m_jetKeys << endreq;
-      msg(MSG::DEBUG) << " using keepObjectsNearElectrons        = " << m_keepNearElectron << endreq;
-      msg(MSG::DEBUG) << " using keepObjectsNearPhotons          = " << m_keepNearPhoton << endreq;
-      msg(MSG::DEBUG) << " using keepObjectsNearMuons            = " << m_keepNearMuon << endreq;
-      msg(MSG::DEBUG) << " using keepObjectsNearTaus             = " << m_keepNearTau << endreq;
-      msg(MSG::DEBUG) << " using keepObjectsNearJets             = " << m_keepNearJet << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaRElectronObject         = " << m_maxDeltaRElectron << endreq;
-      msg(MSG::DEBUG) << " using useDeltaEtaPhiElectron          = " << m_useDeltaEtaPhiElectron << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaEtaElectronObject       = " << m_maxDeltaEtaElectron << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaPhiElectronObject       = " << m_maxDeltaPhiElectron << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaRPhotonObject           = " << m_maxDeltaRPhoton << endreq;
-      msg(MSG::DEBUG) << " using useDeltaEtaPhiPhoton            = " << m_useDeltaEtaPhiPhoton << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaEtaPhotonObject         = " << m_maxDeltaEtaPhoton << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaPhiPhotonObject         = " << m_maxDeltaPhiPhoton << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaRMuonObject             = " << m_maxDeltaRMuon << endreq;
-      msg(MSG::DEBUG) << " using useDeltaEtaPhiMuon              = " << m_useDeltaEtaPhiMuon << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaEtaMuonObject           = " << m_maxDeltaEtaMuon << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaPhiMuonObject           = " << m_maxDeltaPhiMuon << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaRTauObject              = " << m_maxDeltaRTau << endreq;
-      msg(MSG::DEBUG) << " using useDeltaEtaPhiTau               = " << m_useDeltaEtaPhiTau << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaEtaTauObject            = " << m_maxDeltaEtaTau << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaPhiTauObject            = " << m_maxDeltaPhiTau << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaRJetObject              = " << m_maxDeltaRJet << endreq;
-      msg(MSG::DEBUG) << " using useDeltaEtaPhiJet               = " << m_useDeltaEtaPhiJet << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaEtaJetObject            = " << m_maxDeltaEtaJet << endreq;
-      msg(MSG::DEBUG) << " using maxDeltaPhiJetObject            = " << m_maxDeltaPhiJet << endreq;
-      msg(MSG::DEBUG) << " using minEtElectron                   = " << m_minEtElectron << endreq;
-      msg(MSG::DEBUG) << " using minEtPhoton                     = " << m_minEtPhoton << endreq;
-      msg(MSG::DEBUG) << " using minEtMuon                       = " << m_minEtMuon << endreq;
-      msg(MSG::DEBUG) << " using minEtTau                        = " << m_minEtTau << endreq;
-      msg(MSG::DEBUG) << " using minEtJet                        = " << m_minEtJet << endreq;
-      msg(MSG::DEBUG) << " using keepPRDFromTracks               = " << m_keepPRDFromTracks << endreq;
-      msg(MSG::DEBUG) << " using trackContainerNamesForPRD       = " << m_trackForPRDKeys << endreq;
-      msg(MSG::DEBUG) << " using keepCellsFromLinkContainers     = " << m_keepCellsFromLinkContainers << endreq;
-      msg(MSG::DEBUG) << " using cellLinkContainerNames          = " << m_cellLinkKeys << endreq;
-      msg(MSG::DEBUG) << " using useEGammaClusterPosition        = " << m_useEGammaClusterPosition << endreq;
-      msg(MSG::DEBUG) << " using treatBadTracks                  = " << m_treatBadTracks << endreq;
-      msg(MSG::DEBUG) << " using wideDeltaEtaForBadTracks        = " << m_wideDeltaEtaForBadTracks << endreq;
-      msg(MSG::DEBUG) << " using keepForwardElectronCells        = " << m_keepForwardElectronCells << endreq;
-      msg(MSG::DEBUG) << " using keepOnlyForwardElectronClusters = " << m_keepOnlyForwardElectronClusters << endreq;
-      msg(MSG::DEBUG) << " using caloClusterContainerKey         = " << m_caloClusterKey << endreq;
-      msg(MSG::DEBUG) << " using useCaloCellEnergyCut            = " << m_useCaloCellEnergyCut << endreq;
-      msg(MSG::DEBUG) << " using minCaloCellEnergy               = " << m_minCaloCellEnergy << endreq;
+      msg(MSG::DEBUG) << " using thinCaloCells                   = " << m_thinCaloCells << endmsg;
+      msg(MSG::DEBUG) << " using thinPixelClusters               = " << m_thinPixelClusters << endmsg;
+      msg(MSG::DEBUG) << " using thinSCTClusters                 = " << m_thinSCTClusters << endmsg;
+      msg(MSG::DEBUG) << " using thinTRTDriftCircles             = " << m_thinTRTDriftCircles << endmsg;
+      msg(MSG::DEBUG) << " using thinTrackParticles              = " << m_thinTrackParticles << endmsg;
+      msg(MSG::DEBUG) << " using thinTracks                      = " << m_thinTracks << endmsg;
+      msg(MSG::DEBUG) << " using caloCellCollectionName          = " << m_caloCellKey << endmsg;
+      msg(MSG::DEBUG) << " using pixelClusterCollectionName      = " << m_pixelClusterKey << endmsg;
+      msg(MSG::DEBUG) << " using sctClusterCollectionName        = " << m_sctClusterKey << endmsg;
+      msg(MSG::DEBUG) << " using trtDriftCirclesCollectionName   = " << m_trtDriftCircleKey << endmsg;
+      msg(MSG::DEBUG) << " using trackParticleCollectionName     = " << m_trackParticleKey << endmsg;
+      msg(MSG::DEBUG) << " using Lvl1RoiNames                    = " << m_Lvl1Items << endmsg;
+      msg(MSG::DEBUG) << " using keepObjectsNearLvl1Rois         = " << m_keepNearLvl1Roi << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaRLvl1RoiObject          = " << m_maxDeltaRLvl1Roi << endmsg;
+      msg(MSG::DEBUG) << " using useDeltaEtaPhiLvl1Roi           = " << m_useDeltaEtaPhiLvl1Roi << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaEtaLvl1RoiObject        = " << m_maxDeltaEtaLvl1Roi << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaPhiLvl1RoiObject        = " << m_maxDeltaPhiLvl1Roi << endmsg;
+      msg(MSG::DEBUG) << " using electronCollectionName          = " << m_electronKey << endmsg;
+      msg(MSG::DEBUG) << " using photonCollectionName            = " << m_photonKey << endmsg;
+      msg(MSG::DEBUG) << " using muonCollectionNames             = " << m_muonKeys << endmsg;
+      msg(MSG::DEBUG) << " using tauCollectionName               = " << m_tauKey << endmsg;
+      msg(MSG::DEBUG) << " using jetCollectionNames              = " << m_jetKeys << endmsg;
+      msg(MSG::DEBUG) << " using keepObjectsNearElectrons        = " << m_keepNearElectron << endmsg;
+      msg(MSG::DEBUG) << " using keepObjectsNearPhotons          = " << m_keepNearPhoton << endmsg;
+      msg(MSG::DEBUG) << " using keepObjectsNearMuons            = " << m_keepNearMuon << endmsg;
+      msg(MSG::DEBUG) << " using keepObjectsNearTaus             = " << m_keepNearTau << endmsg;
+      msg(MSG::DEBUG) << " using keepObjectsNearJets             = " << m_keepNearJet << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaRElectronObject         = " << m_maxDeltaRElectron << endmsg;
+      msg(MSG::DEBUG) << " using useDeltaEtaPhiElectron          = " << m_useDeltaEtaPhiElectron << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaEtaElectronObject       = " << m_maxDeltaEtaElectron << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaPhiElectronObject       = " << m_maxDeltaPhiElectron << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaRPhotonObject           = " << m_maxDeltaRPhoton << endmsg;
+      msg(MSG::DEBUG) << " using useDeltaEtaPhiPhoton            = " << m_useDeltaEtaPhiPhoton << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaEtaPhotonObject         = " << m_maxDeltaEtaPhoton << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaPhiPhotonObject         = " << m_maxDeltaPhiPhoton << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaRMuonObject             = " << m_maxDeltaRMuon << endmsg;
+      msg(MSG::DEBUG) << " using useDeltaEtaPhiMuon              = " << m_useDeltaEtaPhiMuon << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaEtaMuonObject           = " << m_maxDeltaEtaMuon << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaPhiMuonObject           = " << m_maxDeltaPhiMuon << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaRTauObject              = " << m_maxDeltaRTau << endmsg;
+      msg(MSG::DEBUG) << " using useDeltaEtaPhiTau               = " << m_useDeltaEtaPhiTau << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaEtaTauObject            = " << m_maxDeltaEtaTau << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaPhiTauObject            = " << m_maxDeltaPhiTau << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaRJetObject              = " << m_maxDeltaRJet << endmsg;
+      msg(MSG::DEBUG) << " using useDeltaEtaPhiJet               = " << m_useDeltaEtaPhiJet << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaEtaJetObject            = " << m_maxDeltaEtaJet << endmsg;
+      msg(MSG::DEBUG) << " using maxDeltaPhiJetObject            = " << m_maxDeltaPhiJet << endmsg;
+      msg(MSG::DEBUG) << " using minEtElectron                   = " << m_minEtElectron << endmsg;
+      msg(MSG::DEBUG) << " using minEtPhoton                     = " << m_minEtPhoton << endmsg;
+      msg(MSG::DEBUG) << " using minEtMuon                       = " << m_minEtMuon << endmsg;
+      msg(MSG::DEBUG) << " using minEtTau                        = " << m_minEtTau << endmsg;
+      msg(MSG::DEBUG) << " using minEtJet                        = " << m_minEtJet << endmsg;
+      msg(MSG::DEBUG) << " using keepPRDFromTracks               = " << m_keepPRDFromTracks << endmsg;
+      msg(MSG::DEBUG) << " using trackContainerNamesForPRD       = " << m_trackForPRDKeys << endmsg;
+      msg(MSG::DEBUG) << " using keepCellsFromLinkContainers     = " << m_keepCellsFromLinkContainers << endmsg;
+      msg(MSG::DEBUG) << " using cellLinkContainerNames          = " << m_cellLinkKeys << endmsg;
+      msg(MSG::DEBUG) << " using useEGammaClusterPosition        = " << m_useEGammaClusterPosition << endmsg;
+      msg(MSG::DEBUG) << " using treatBadTracks                  = " << m_treatBadTracks << endmsg;
+      msg(MSG::DEBUG) << " using wideDeltaEtaForBadTracks        = " << m_wideDeltaEtaForBadTracks << endmsg;
+      msg(MSG::DEBUG) << " using keepForwardElectronCells        = " << m_keepForwardElectronCells << endmsg;
+      msg(MSG::DEBUG) << " using keepOnlyForwardElectronClusters = " << m_keepOnlyForwardElectronClusters << endmsg;
+      msg(MSG::DEBUG) << " using caloClusterContainerKey         = " << m_caloClusterKey << endmsg;
+      msg(MSG::DEBUG) << " using useCaloCellEnergyCut            = " << m_useCaloCellEnergyCut << endmsg;
+      msg(MSG::DEBUG) << " using minCaloCellEnergy               = " << m_minCaloCellEnergy << endmsg;
     }
 
   // The standard status code
@@ -764,16 +790,15 @@ StatusCode ThinContainers::execute()
 
 
   //Retrieve the vertex container to get the position of the vertex
-  const Trk::Vertex* vertex=0;
   const VxContainer* importedVxContainer = 0;
-  static const std::string m_containerName = "VxPrimaryCandidate";
+  static const std::string containerName = "VxPrimaryCandidate";
   Hep3Vector VertexPos(0.0,0.0,0.0);
-  if ( evtStore()->contains<VxContainer>(m_containerName))
+  if ( evtStore()->contains<VxContainer>(containerName))
     {
-      if ( StatusCode::SUCCESS != evtStore()->retrieve(importedVxContainer,m_containerName))
+      if ( StatusCode::SUCCESS != evtStore()->retrieve(importedVxContainer,containerName))
         {
           // in general this means this container won't be around at all for this run
-          ATH_MSG_WARNING( "No " << m_containerName
+          ATH_MSG_WARNING( "No " << containerName
                            << " found in StoreGate."
                            << " Will use the default 0,0,0 vertex position instead!" );
           sc = StatusCode::SUCCESS;
@@ -781,10 +806,10 @@ StatusCode ThinContainers::execute()
       else
         {
           //Get the primary vertex 
-          vertex = new Trk::RecVertex(importedVxContainer->at(0)->recVertex());
-          VertexPos.setX(vertex->position().x());
-          VertexPos.setY(vertex->position().y());
-          VertexPos.setZ(vertex->position().z());
+          const Trk::Vertex& vertex = importedVxContainer->at(0)->recVertex();
+          VertexPos.setX(vertex.position().x());
+          VertexPos.setY(vertex.position().y());
+          VertexPos.setZ(vertex.position().z());
         }
     }
   
@@ -1136,7 +1161,7 @@ StatusCode ThinContainers::execute()
                 }
               if ( m_thinTracks )
                 {
-                  if ( m_nEventsProcessed < 10 ) msg(MSG::DEBUG) << "Thin tracks with Taus" << endreq;
+                  if ( m_nEventsProcessed < 10 ) msg(MSG::DEBUG) << "Thin tracks with Taus" << endmsg;
                   ATH_CHECK( findGoodTracks(trackCollection, (*tauItr)->hlv(), m_maxDeltaRTau,
                                             m_useDeltaEtaPhiTau, m_maxDeltaEtaTau, m_maxDeltaPhiTau) );
                 }
@@ -1540,13 +1565,13 @@ StatusCode ThinContainers::finalize()
         {
           msg(MSG::DEBUG) 
             << " Number of " << key[i] << " " << object[i] << " processed:                   " << nProcessed[i]
-            << endreq;
+            << endmsg;
           msg(MSG::DEBUG) 
             << " Number of " << key[i] << " " << object[i] << " kept:                        " << nKept[i]
-            << endreq;
+            << endmsg;
           msg(MSG::DEBUG) 
             << " Number of " << key[i] << " " << object[i] << " removed:                     " << nRemoved[i]
-            << endreq;
+            << endmsg;
         }
 
       if ( m_nEventsProcessed != 0 )
@@ -1556,15 +1581,15 @@ StatusCode ThinContainers::finalize()
               msg(MSG::DEBUG) 
                 << " Average per event number of " << key[i] << " " << object[i] << " processed: "
                 << format("%6.3f", nProcessed[i]/(double)m_nEventsProcessed)
-                << endreq;
+                << endmsg;
               msg(MSG::DEBUG) 
                 << " Average per event number of " << key[i] << " " << object[i] << " kept:      "
                 << format("%6.3f", nKept[i]/(double)m_nEventsProcessed)
-                << endreq;
+                << endmsg;
               msg(MSG::DEBUG) 
                 << " Average per event number of " << key[i] << " " << object[i] << " removed:   "
                 << format("%6.3f", nRemoved[i]/(double)m_nEventsProcessed)
-                << endreq;
+                << endmsg;
             }
         }
        
@@ -1575,11 +1600,11 @@ StatusCode ThinContainers::finalize()
               msg(MSG::DEBUG) 
                 << " Average percent of " << key[i] << " " << object[i] << " (collections) kept:               "
                 << format("%6.3f", 100.0*nKept[i]/(double)nProcessed[i])
-                << endreq;
+                << endmsg;
               msg(MSG::DEBUG) 
                 << " Average percent of " << key[i] << " " << object[i] << " (collections) removed:               "
                 << format("%6.3f", 100.0*nRemoved[i]/(double)nProcessed[i])
-                << endreq;
+                << endmsg;
             }
           if ( nClustersProcessed[i] != 0 )
             {
@@ -1588,11 +1613,11 @@ StatusCode ThinContainers::finalize()
                   msg(MSG::DEBUG) 
                     << " Average percent of " << key[i] << " " << object[i] << " clusters kept:               "
                     << format("%6.3f", 100.0*nClustersKept[i]/(double)nClustersProcessed[i])
-                    << endreq;
+                    << endmsg;
                   msg(MSG::DEBUG) 
                     << " Average percent of " << key[i] << " " << object[i] << " clusters removed:               "
                     << format("%6.3f", 100.0*nClustersRemoved[i]/(double)nClustersProcessed[i])
-                    << endreq;
+                    << endmsg;
                 }
             }
         }
@@ -1678,18 +1703,18 @@ StatusCode ThinContainers::findGoodIDObjects(DETID detectorID,
                                              double maxDeltaEta, double maxDeltaPhi, double maxDeltaZ)
 {
 	
-  std::vector<IdentifierHash>* m_listOfHashIDs;
+  std::vector<IdentifierHash>* listOfHashIDs;
 
   switch(detectorID)
     {
     case PIXEL:
-      m_listOfHashIDs = &m_goodPixelIDs;
+      listOfHashIDs = &m_goodPixelIDs;
       break;
     case SCT:
-      m_listOfHashIDs = &m_goodSCTClusterIDs;
+      listOfHashIDs = &m_goodSCTClusterIDs;
       break;
     case TRT:
-      m_listOfHashIDs = &m_goodTRTDriftCircleIDs; /// what is this?? The RegionSelector does not return a list of "DriftCircleIDs"
+      listOfHashIDs = &m_goodTRTDriftCircleIDs; /// what is this?? The RegionSelector does not return a list of "DriftCircleIDs"
       break;
     default: // everything else
       ATH_MSG_ERROR( "Invalid Detector ID." );
@@ -1718,15 +1743,15 @@ StatusCode ThinContainers::findGoodIDObjects(DETID detectorID,
   while ( roiPhiMin<-M_PI ) roiPhiMin += 2*M_PI;
   while ( roiPhiMin> M_PI ) roiPhiMin -= 2*M_PI;
 
-  while ( roiPhiMax<-M_PI ) roiPhiMin += 2*M_PI;
-  while ( roiPhiMax> M_PI ) roiPhiMin -= 2*M_PI;
+  while ( roiPhiMax<-M_PI ) roiPhiMax += 2*M_PI;
+  while ( roiPhiMax> M_PI ) roiPhiMax -= 2*M_PI;
 
 
-  RoiDescriptor _roi( candHepLorentz.eta(), roiEtaMin, roiEtaMax, 
+  RoiDescriptor roi( candHepLorentz.eta(), roiEtaMin, roiEtaMax, 
 		      roiPhi, roiPhiMin, roiPhiMax, 
 		      primaryVertex.z(), roiZMin, roiZMax );
 
-  m_regionSelector->DetHashIDList( detectorID, _roi, *m_listOfHashIDs);
+  m_regionSelector->DetHashIDList( detectorID, roi, *listOfHashIDs);
 
   return StatusCode::SUCCESS;
 }
