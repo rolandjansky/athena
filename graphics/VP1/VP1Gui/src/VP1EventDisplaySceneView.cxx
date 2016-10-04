@@ -37,9 +37,10 @@ void GraphicsView::wheelEvent(QWheelEvent *e)
 }
 
 VP1EventDisplaySceneView::VP1EventDisplaySceneView(const QString &name, bool preview, QWidget *parent)
-: QFrame(parent)
+: QFrame(parent),_frame(nullptr),_line(nullptr)
 {
 	_preview = preview;
+	
 
 	setFrameStyle(Sunken | StyledPanel);
 

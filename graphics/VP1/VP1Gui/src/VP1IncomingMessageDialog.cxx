@@ -23,7 +23,13 @@
 //____________________________________________________________________
 class VP1IncomingMessageDialog::Imp {
 public:
-  Imp(const VP1ExternalRequest& r) : request(r) {}
+  Imp(const VP1ExternalRequest& r) : tabmanager{}, channelmanager{}, requestqueue{},request(r),
+    lcdNumber_pending{}, lcdNumber_pendingsender{}, lcdNumber_pendingexactsame{},
+    blockallmessages{}, pushButton_allclear{}, pushButton_senderclear{},
+    pushButton_messageclear{}, messages_blockedsenders{}, messages_blockedexactmessages{}
+  {
+   //nop
+  }
   VP1TabManager* tabmanager;
   VP1ChannelManager* channelmanager;
   QQueue<VP1ExternalRequest>* requestqueue;

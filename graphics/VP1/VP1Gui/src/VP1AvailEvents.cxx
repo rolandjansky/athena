@@ -52,7 +52,8 @@ public:
     }
 
     EventID & operator= (const EventID & o )
-    {
+    { 
+      if (&o == this) return *this;
       eventNumber = o.eventNumber;
       runNumber = o.runNumber;
       return *this;
