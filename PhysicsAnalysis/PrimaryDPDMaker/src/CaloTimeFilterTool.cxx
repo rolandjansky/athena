@@ -35,7 +35,7 @@ CaloTimeFilterTool::~CaloTimeFilterTool()
 {
    if (msgLvl(MSG::DEBUG))
       {
-         msg(MSG::DEBUG) << "CaloTimeFilter destructor called" << endreq;
+         msg(MSG::DEBUG) << "CaloTimeFilter destructor called" << endmsg;
       }
 }
 
@@ -45,7 +45,7 @@ CaloTimeFilterTool::initialize()
 {
    if (msgLvl(MSG::INFO))
       {
-         msg(MSG::INFO)  <<"CaloTimeFilter initialize()" << endreq;
+         msg(MSG::INFO)  <<"CaloTimeFilter initialize()" << endmsg;
       }
 
    //-----------------------------------------
@@ -65,7 +65,7 @@ CaloTimeFilterTool::getTimeDifference(bool& passCut, double& timeDiff, double& t
    //.............................................
    if (msgLvl(MSG::DEBUG))
       {
-         msg(MSG::DEBUG) << "CaloTimeFilter execute()" << endreq;
+         msg(MSG::DEBUG) << "CaloTimeFilter execute()" << endmsg;
       }
 
    m_nevt++;
@@ -77,7 +77,7 @@ CaloTimeFilterTool::getTimeDifference(bool& passCut, double& timeDiff, double& t
             {
                msg(MSG::INFO)
                   << " Could not get pointer to LArCollisionTime "
-                  << endreq;
+                  << endmsg;
             }
          return StatusCode::SUCCESS;
       }
@@ -108,7 +108,7 @@ CaloTimeFilterTool::finalize()
 {
    if (msgLvl(MSG::DEBUG))
       {
-         msg(MSG::DEBUG) <<"CaloTimeFilter finalize()" << endreq;
+         msg(MSG::DEBUG) <<"CaloTimeFilter finalize()" << endmsg;
       }
    return StatusCode::SUCCESS; 
 }
