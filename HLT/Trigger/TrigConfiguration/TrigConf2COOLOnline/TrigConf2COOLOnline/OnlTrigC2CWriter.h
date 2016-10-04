@@ -41,15 +41,17 @@ public:
    /**@brief:constructor.
     * @parameter name: this is the named published in IPC (required)
     */
-   OnlTrigC2CWriter(const std::string & partitionName, const std::string & cooldb, bool l1is, bool l1cool);
-
-
+   OnlTrigC2CWriter(const std::string & partitionName, const std::string & cooldb, const std::string& triggerdb, bool l1is, bool l1cool, bool mckcool = false );
+   OnlTrigC2CWriter(const OnlTrigC2CWriter&) = delete;
+   OnlTrigC2CWriter& operator=(OnlTrigC2CWriter const&) = delete;
+  
    virtual ~OnlTrigC2CWriter() noexcept;
    virtual void configure    (const daq::rc::TransitionCmd&);
    virtual void connect      (const daq::rc::TransitionCmd&);     //< connect to COOL and to TriggerDB
    virtual void prepareForRun(const daq::rc::TransitionCmd&);
    virtual void unconfigure  (const daq::rc::TransitionCmd&);
    virtual void user         (const daq::rc::UserCmd& usrCmd);
+   virtual void stopArchiving(const daq::rc::TransitionCmd& cmd) override;
 
    TC2CConfig& conf() { return fJobConfig; }
 
@@ -71,12 +73,14 @@ private:
 
    TC2CConfig                       fJobConfig; // object to hold different configuration parameters
    TrigConf::TrigConfCoolWriter*    fConf2Cool; // the class that does all the work
+   std::string                      fTriggerDB;
    ISInfoReceiver*                  fInfoRec;
    IPCPartition*                    fIPCPartition; // the ipc partition object
 
    TrigConf::HLTFrame*              fHLTFrame;  // pointer to the HLTFrame (could be skipped at the moment since it is still a singleton)
    TrigConf::CTPConfig*             fCTPConfig; // the pointer to the lvl1 ctpc;
-
+   bool m_forceTriggerDBReadAtPrepareForRun { false };
+    
 };
 
 #endif

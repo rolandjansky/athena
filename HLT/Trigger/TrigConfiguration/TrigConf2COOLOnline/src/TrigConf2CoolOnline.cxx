@@ -13,6 +13,7 @@
  *
  */
 
+#undef PACKAGE_VERSION
 
 #include "TrigConf2COOLOnline/OnlTrigC2CWriter.h"
 
@@ -72,9 +73,11 @@ int main (int argc, char **argv) {
    desc.add_options()
       ("help,h", "print usage and exit")
       ("cooldb",  po::value<string>(), "COOL db connection tech://schema=;dbname=\nsqlite://;schema=trigconf.db;dbname=TRIGCONF")
+      ("triggerdb",  po::value<string>(), "TriggerDB connection alias")
       ("l1is",  "if set L1 key is written to IS")
       ("l1cool", "if set L1 information is written to COOL")
       ("name,n",  po::value<string>(), "application name")
+      ("mckcool", "if set MCK is written to COOL")
       ;
   
    // Get commandline parameters
@@ -93,13 +96,14 @@ int main (int argc, char **argv) {
    }
    bool l1is = vm.count("l1is")>0;
    bool l1cool = vm.count("l1cool")>0;
-
+   bool mckcool = vm.count("mckcool")>0;
+   string triggerdb( vm.count("triggerdb") ? vm["triggerdb"].as<string>() : string("") );
 
    rc::CmdLineParser cmdParser(argc, argv, true);
 
    try {
       rc::ItemCtrl itemCtrl(cmdParser,
-                            shared_ptr<rc::Controllable>(new OnlTrigC2CWriter(cmdParser.partitionName(), cooldb, l1is, l1cool)));
+                            shared_ptr<rc::Controllable>(new OnlTrigC2CWriter(cmdParser.partitionName(), cooldb, triggerdb, l1is, l1cool, mckcool)));
       itemCtrl.init();
       itemCtrl.run();
    }

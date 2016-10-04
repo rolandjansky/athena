@@ -43,6 +43,13 @@ public:
    bool&            L1toCOOL()             { return fL1toCOOL; }
 
    void             TriggerDbConnectionParams(std::string& conn, std::string& user, std::string& pw);
+    
+   bool&                MCKtoCOOL() { return fMCKtoCOOL; }
+    
+   unsigned long&       DBMCK() { return fDBMCK; }
+   std::string&         DBMCKrelease() { return fDBMCKrelease; }
+   std::string&         DBMCKinfo() { return fDBMCKinfo; }
+
 
 private:
    std::string        fPartitionName {""};
@@ -66,6 +73,12 @@ private:
    bool               fTriggerDBconnStat {false};
    bool               fL1toIS {false};
    bool               fL1toCOOL {false};
+    
+    bool                fMCKtoCOOL {false};
+    
+    unsigned long       fDBMCK {0};
+    std::string         fDBMCKrelease {""};
+    std::string         fDBMCKinfo {""};
 
 };
 #endif																																											
