@@ -121,7 +121,22 @@ VP1BPhysSystem::VP1BPhysSystem()
 	: IVP13DSystemSimple("BPhys",
 			     "VP1BPhysSystem",
 			     "daniel.scheirich@cern.ch") ,
-		c(new Clockwork)
+	m_vertexStyle{},
+  m_showVertices{},
+  m_vertexSwitches{},
+
+  m_showAll{},
+  m_showSignal{},
+  m_showNeutral{},
+  m_showRefitted{},
+
+  m_trackSwitches{},
+  m_overlapSwitches{},
+  m_signalSwitches{},
+  m_neutralSwitches{},
+  m_refittedSwitches{},
+  m_br{},    
+	c(new Clockwork)
 {
 	messageDebug("in BPhysSystem");
 
