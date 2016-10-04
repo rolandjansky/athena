@@ -108,8 +108,8 @@ Bool_t Reader::Process( Long64_t entry ) {
   Neg.SetPtEtaPhiM( Neg_ID_Pt, Neg_Eta, Neg_Phi, MuonMass );
   Pair = Pos + Neg;
   Float_t TempPairMass = Pair.M();
-  Float_t TempPairPt = Pair.Pt();
-  Float_t TempPairY = Pair.Rapidity();
+  //Float_t TempPairPt = Pair.Pt();
+  //Float_t TempPairY = Pair.Rapidity();
   Float_t Pos_Pt = Pos_ME_Pt; 
   Float_t Neg_Pt = Neg_ME_Pt; 
   if( m_detector ) {
