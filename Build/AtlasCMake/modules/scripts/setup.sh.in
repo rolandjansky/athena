@@ -1,4 +1,4 @@
-# $Id: setup.sh.in 740257 2016-04-14 12:22:22Z krasznaa $
+# $Id: setup.sh.in 769400 2016-08-23 08:33:18Z krasznaa $
 #
 # Script providing a functional build and runtime environment for project
 # @CMAKE_PROJECT_NAME@ when sourced from either BASH or ZSH.
@@ -47,7 +47,7 @@ remove_duplicates() {
             # Decide whether to add it to the environment or not:
             case ${envval}: in
                 *:"$x":*) ;;
-                *) eval "${envname}=\$$envname:$x";;
+                *) eval "${envname}=${envval}:$x";;
             esac
         fi
         # Or if it begins with "http"...
@@ -57,7 +57,7 @@ remove_duplicates() {
             # Decide whether to add it to the environment or not:
             case ${envval}: in
                 *:"$x":*) ;;
-                *) eval "${envname}=\$$envname:$x";;
+                *) eval "${envname}=${envval}:$x";;
             esac
         fi
         # Remove the element from the list:
