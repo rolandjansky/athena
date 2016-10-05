@@ -38,6 +38,7 @@ class TrigTrackCounterHypo: public HLT::HypoAlgo {
   float m_max_eta;
   unsigned int m_required_ntrks;
   int m_max_required_ntrks; // to select events with only few tracks
+  bool m_cutMinAndMax; // Flag to apply both lower and uper boundary requirements
 
   /** Flag used to bypass hypo selection criteria. */
   bool m_acceptAll;
