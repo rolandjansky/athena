@@ -197,22 +197,37 @@ namespace TrigCostRootAnalysis {
 
     // Do we have a target mu?
     if ( !isZero(Config::config().getFloat(kTargetPeakMuAverage)) && Config::config().getIsSet(kOnlinePeakMuAverage) ) {
+      Bool_t _doExponentialMu =  Config::config().getInt(kDoExponentialMu);
+
       Float_t _lumiScaling = _predictionLumi / _runLumi;
+
       Float_t _targetMu = Config::config().getFloat(kTargetPeakMuAverage);
       Float_t _onlineMu = Config::config().getFloat(kOnlinePeakMuAverage);
+
       Float_t _expoRateScaleModifierL1  = Config::config().getFloat(kExpoRateScaleModifierL1);
       Float_t _expoRateScaleModifierHLT = Config::config().getFloat(kExpoRateScaleModifierHLT);
+
       Float_t _lumiMuScaling = _targetMu / _onlineMu;
       Float_t _lumiBunchScaling = _lumiScaling / _lumiMuScaling;
+
       Float_t _lumiMuScalingExpoL1  = TMath::Exp((_targetMu - _onlineMu) * _expoRateScaleModifierL1);
       Float_t _lumiMuScalingExpoHLT = TMath::Exp((_targetMu - _onlineMu) * _expoRateScaleModifierHLT);
+
+      if (_doExponentialMu == kFALSE) {
+        _lumiMuScalingExpoL1 = _lumiMuScaling;
+        _lumiMuScalingExpoHLT = _lumiMuScaling;
+      }
+
       Float_t _lumiScalingExpoL1  = _lumiBunchScaling * _lumiMuScalingExpoL1;
       Float_t _lumiScalingExpoHLT = _lumiBunchScaling * _lumiMuScalingExpoHLT;
+
       Int_t _maxBunches = Config::config().getInt(kMaxBunches);
       Int_t _maxBCIDs = Config::config().getInt(kMaxBCIDs);
       Int_t _targetBunches = (Int_t) std::round(m_bunchGroupXML[1].second * _lumiBunchScaling);
-      Info("TrigXMLService::getLumiExtrapWeight", "Using targetMu setting %.2f. <mu> scaling factor: %.2f->%.2f = %.2f. Bunch scaling factor: %i->%i = %.2f. Lumi scaling factor, reg. = %.2f, expo. <mu> L1 = %.2f, expo. mu HLT %.2f",
-        _targetMu, _onlineMu, _targetMu, _lumiMuScaling, m_bunchGroupXML[1].second, _targetBunches, _lumiBunchScaling, _lumiScaling, _lumiScalingExpoL1, _lumiScalingExpoHLT);
+      Info("TrigXMLService::getLumiExtrapWeight", "Using targetMu setting %.2f. <mu> scaling factor: %.2f->%.2f = %.2f. Expo. L1 = %.2f. Expo. HLT = %.2f",
+        _targetMu, _onlineMu, _targetMu, _lumiMuScaling, _lumiMuScalingExpoL1, _lumiMuScalingExpoHLT);
+      Info("TrigXMLService::getLumiExtrapWeight", "Bunch scaling factor: %i->%i = %.2f",
+        m_bunchGroupXML[1].second, _targetBunches, _lumiBunchScaling);
       Info("TrigXMLService::getLumiExtrapWeight", "Online deadtime was %.2f%%, including deadtime - the final lumi scaling factors are: linear = %.2f, expo. in <mu> L1 = %.2f, expo. in <mu> HLT = %.2f, bunch only = %.2f, mu only = %.2f",
         _onlineDeadtime*100., _lumiScaling * (1 + _onlineDeadtime), _lumiScalingExpoL1 * (1 + _onlineDeadtime), _lumiScalingExpoHLT * (1 + _onlineDeadtime), _lumiBunchScaling * (1 + _onlineDeadtime), _lumiMuScaling * (1 + _onlineDeadtime) );
       Info("TrigXMLService::getLumiExtrapWeight", "PredictionLumi taken from %s.", _predFrom.c_str());
@@ -227,6 +242,7 @@ namespace TrigCostRootAnalysis {
       Int_t _targetEmptyBunches = std::max(0, _maxBCIDs - _targetBunches);
       Float_t _emptyExtrap = 0.;
       if (_currentEmptyBunches > 0) _emptyExtrap = _targetEmptyBunches / (Float_t)_currentEmptyBunches;
+
       // Write info
       Config::config().set(kDoAdvancedLumiScaling, 1, "DoAdvancedLumiScaling");
       Config::config().setFloat(kPredictionLumiFinalMuComponent, _lumiMuScaling, "PredictionLumiFinalMuComponent");
@@ -237,10 +253,13 @@ namespace TrigCostRootAnalysis {
       Config::config().setFloat(kPredictionLumiFinalExpoHLT, _lumiScalingExpoHLT, "PredictionLumiFinalExponentialMuHLT");
       Config::config().setFloat(kEmptyBunchgroupExtrapolaion, _emptyExtrap, "EmptyBunchgroupExtrapolation");
       Config::config().set(kTargetPairedBunches, _targetBunches, "TargetPairedBunches");
+
     } else {
+
       // This is the old-style message, only show it now if doing basic extrapolation mode
       Info("TrigXMLService::getLumiExtrapWeight","Predictions will be scaled by %.4f from EB RunLumi %.2e to "
         "PredictionLumi %.2e. Including a %.2f%% correction for online deadtime. PredictionLumi taken from %s.", _scalingFactor, _runLumi, _predictionLumi, _onlineDeadtime*100., _predFrom.c_str());
+    
     }
 
     Config::config().setFloat(kLumiExtrapWeight, _scalingFactor, "FinalLumiExtrapWeight", kLocked); // Keep a note of this factor
@@ -970,8 +989,30 @@ namespace TrigCostRootAnalysis {
    */
   Float_t TrigXMLService::getEventWeight(UInt_t _eventNumber, UInt_t _lb, UInt_t _pass) {
 
-// HACK, 
-   // return 1.;
+    static Int_t _runNum = Config::config().getInt(kRunNumber);
+    static std::string _bgString = "BunchGroup";
+    static std::string _ebString = "EventEBWeight";
+    static std::string _rdString = "RandomOnline";
+
+
+    // // Special case for pb-p
+    // if (_runNum == 218048) {
+    //   Float_t _eventWeight = 0;
+
+    //   if      (_lb >= 1016) _eventWeight = 7650.;
+    //   else if (_lb >= 874) _eventWeight = 9560.;
+    //   else if (_lb >= 753) _eventWeight = 11500.;
+    //   else if (_lb >= 620) _eventWeight = 15300.;
+    //   else if (_lb >= 560) _eventWeight = 19100.;
+    //   else if (_lb >= 558) _eventWeight = 28700.;
+    //   else if (_lb >= 557) _eventWeight = 19100.;
+    //   else if (_lb >= 529) _eventWeight = 28700.;
+
+    //   Config::config().set(kCurrentEventBunchGroupID, 1, _bgString, kUnlocked); // only filled
+    //   Config::config().setFloat(kCurrentEventEBWeight, _eventWeight, _ebString, kUnlocked);
+    //   Config::config().set(kCurrentEventWasRandomOnline, 1, _rdString, kUnlocked); // As "minbias"
+    // }
+
 
     // if (Config::config().getInt(kDoEBWeighting) == kFALSE) return 1.;
     if (m_weightsServiceEnabled == kFALSE) parseEnhancedBiasXML();
@@ -996,9 +1037,6 @@ namespace TrigCostRootAnalysis {
       if (_eventBG != 1) _eventWeight = 0.;
     }
 
-    static std::string _bgString = "BunchGroup";
-    static std::string _ebString = "EventEBWeight";
-    static std::string _rdString = "RandomOnline";
 
     // Store the event BG
     Config::config().set(kCurrentEventBunchGroupID, _eventBG, _bgString, kUnlocked);
@@ -1007,7 +1045,7 @@ namespace TrigCostRootAnalysis {
     // Store if the event was unbiased online (triggered by random).
     // In run 2 wedo something more fancy
     Int_t _isRandom = 0;
-    if ( Config::config().getInt(kRunNumber) > 266000 ) {
+    if ( _runNum > 266000 ) {
       _isRandom = m_idToUnbiased[_weightID];
     } else {
       if ( _eventWeight > Config::config().getFloat(kUnbiasedWeightThreshold) ) _isRandom = 1;

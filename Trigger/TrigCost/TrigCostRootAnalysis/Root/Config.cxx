@@ -133,6 +133,8 @@ namespace TrigCostRootAnalysis {
     static Int_t _useDefaultLumiScalingExceptions = kFALSE;
     static Int_t _useDefaultExponentialScalingList = kFALSE;
     static Int_t _upgradeMergeTOBOverlap = kFALSE;
+    static Int_t _doExponentialMu = kFALSE;
+
 
     // User options
     std::vector< std::string > _inputFiles;
@@ -167,7 +169,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-09-33";
+    std::string _version = "TrigCostRootAnalysis-00-09-35";
     std::string _upgradeScenario = "";
     std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
@@ -277,6 +279,7 @@ namespace TrigCostRootAnalysis {
         {"useDefaultLumiScalingExceptions", no_argument, &_useDefaultLumiScalingExceptions,1},
         {"useDefaultExponentialScalingList", no_argument, &_useDefaultExponentialScalingList,1},
         {"upgradeMergeTOBOverlap", no_argument,       &_upgradeMergeTOBOverlap, 1},
+        {"doExponentialMu",        no_argument,       &_doExponentialMu,        1},
         {"treeName",               required_argument, 0,                      't'},
         {"prescaleXML",            required_argument, 0,                      'M'},
         {"prescaleXML1",           required_argument, 0,                      'g'},
@@ -360,7 +363,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "\t~~~~~~~~~~~~~~~ OPERATING MODE ALIASES ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--costMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryAll --monitorAllChainSeqAlgs --monitorAllROS --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --monitorSliceCPU --ignoreNonPhyBunchGroups --outputModeStandard" << std::endl;
           std::cout << "--onlineMode\t\t\t\t\tAlias for: --cleanAll --summaryPerHLTConfig --summaryPerLumiBlock --monitorAllChainSeqAlg --monitorROS --monitorROBIN --monitorROI --monitorGlobals --monitorFullEvent --monitorEventProfile --monitorSliceCPU --outputModeStandard" << std::endl;
-          std::cout << "--ratesMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryPerHLTConfig --monitorRates --useEBWeight --matchL1RandomToOnline --doCPS --useDefaultLumiScalingExceptions --useDefaultExponentialScalingList --nLbPerHLTConfig=9999 --outputModeStandard" << std::endl;
+          std::cout << "--ratesMode\t\t\t\t\tAlias for: --cleanAll --doHLT --summaryAll --monitorRates --useEBWeight --matchL1RandomToOnline --doCPS --doExponentialMu --useDefaultLumiScalingExceptions --useDefaultExponentialScalingList --outputModeStandard" << std::endl;
           std::cout << "--outputModeStandard\t\t\t\tAlias for: --doOutputHist --doOutputCSV --doOutputRatesGraph --doOutputRatesXML --doOutputMenus" << std::endl;
           std::cout << "\t~~~~~~~~~~~~~~~ HLT LEVELS TO PROCESS ~~~~~~~~~~~~~~~" << std::endl;
           std::cout << "--doL2\t\t\t\t\t\tProcess just Level 2 cost data if present in ntuple." << std::endl;
@@ -444,6 +447,7 @@ namespace TrigCostRootAnalysis {
           std::cout << "--forceAllPass\t\t\t\t\tForce all L1 and HLT chains to pass-raw in every event. Use to isolate the effect of prescales." << std::endl;
           std::cout << "--doUniqueRates\t\t\t\t\tCalculate unique rates for chains. Warning, this is slow." << std::endl;
           std::cout << "--doCPS\t\t\t\t\t\tEnable special treatment for chains in coherent prescale groups." << std::endl;
+          std::cout << "--doExponentialMu\t\t\t\t\t\tSwitch on exponential in <mu> dependence for some chains." << std::endl;
           std::cout << "--expoRateScaleModifierL1 " << _expoRateScaleModifierL1 << "\t\t\tMultiplier to exponent for L1 exponential in <mu> rates extrapolation." << std::endl;
           std::cout << "--expoRateScaleModifierHLT " << _expoRateScaleModifierHLT << "\t\t\tMultiplier to exponent for HLT exponential in <mu> rates extrapolation." << std::endl;
           std::cout << "--patternsUnique patt1 patt2 ...\t\tPatterns to match in names doing unique rates, recommended to use this rather than doing unique for all." << std::endl;
@@ -854,16 +858,16 @@ namespace TrigCostRootAnalysis {
       Info("Config::parseCLI","Setting up default options for a rates prediction job.");
       _cleanAll = 1;
       _doHLT = 1;
-      _summaryPerHLTConfig = 1;
+      _summaryAll = 1;
       if (_ratesMode) _monitorRates = 1;
       if (_ratesUpgradeMode) _monitorRatesUpgrade = 1;
       _doEBWeighting = 1;
       _matchL1RandomToOnline = 1;
-      _nLbPerHLTConfig = INT_MAX;
       _outputModeStandard = 1;
       _doCPS = 1;
       _useDefaultLumiScalingExceptions = 1;
       _useDefaultExponentialScalingList = 1;
+      _doExponentialMu = 1;
     }
 
     if (_costMode == kTRUE) {
@@ -1254,6 +1258,8 @@ namespace TrigCostRootAnalysis {
     setFloat(kExpoRateScaleModifierL1, _expoRateScaleModifierL1, "ExpoRateScaleModifierL1");
     setFloat(kExpoRateScaleModifierHLT, _expoRateScaleModifierHLT, "ExpoRateScaleModifierHLT");
     set(kUpgradeMergeTOBOverlap, _upgradeMergeTOBOverlap, "UpgradeMergeTOBOverlap");
+    set(kDoExponentialMu, _doExponentialMu, "DoExponentialMu");
+
 
     set(kMaxMultiSeed, _maxMultiSeed, "MaxMultiSeed");
     if (_runNumber != 0) set(kRunNumber, _runNumber, "RunNucmber");
