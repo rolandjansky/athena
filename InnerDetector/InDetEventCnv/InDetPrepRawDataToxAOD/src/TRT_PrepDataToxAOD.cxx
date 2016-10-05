@@ -208,9 +208,9 @@ StatusCode TRT_PrepDataToxAOD::execute()
       
       const Amg::MatrixX& localCov = prd->localCovariance();
       if(localCov.size() == 1){
-        xprd->setLocalPositionError( localCov(0,0), 0., 0. ); 
+        xprd->setLocalPositionError( sqrt(localCov(0,0)), 0., 0. ); 
       } else if(localCov.size() == 2){
-        xprd->setLocalPositionError( localCov(0,0), localCov(1,1), localCov(0,1) );     
+        xprd->setLocalPositionError( sqrt(localCov(0,0)), sqrt(localCov(1,1)), sqrt(localCov(0,1)) );     
       } else {
         xprd->setLocalPositionError(0.,0.,0.);
       }

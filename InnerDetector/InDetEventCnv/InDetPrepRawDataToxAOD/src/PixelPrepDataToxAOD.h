@@ -54,22 +54,23 @@ public:
 
 private:
 
-  void  addSDOInformation( xAOD::TrackMeasurementValidation* xprd,
-                           const InDet::PixelCluster* prd,
-                           const InDetSimDataCollection* sdoCollection ) const;
+  std::vector< std::vector< int > >  addSDOInformation( xAOD::TrackMeasurementValidation* xprd,
+							const InDet::PixelCluster* prd,
+							const InDetSimDataCollection* sdoCollection ) const;
 
 
   void  addSiHitInformation( xAOD::TrackMeasurementValidation* xprd, 
                              const InDet::PixelCluster* prd,
-                             const SiHitCollection* collection) const;
+                             const std::vector<SiHit> & matchingHits ) const;
   
   std::vector<SiHit>  findAllHitsCompatibleWithCluster(const InDet::PixelCluster* prd,
-                                                       const SiHitCollection* collection) const;
+                                                       const SiHitCollection* collection,
+						       std::vector< std::vector< int > > & trkBCs) const;
 
 
   void  addNNTruthInfo( xAOD::TrackMeasurementValidation* xprd,
                         const InDet::PixelCluster* prd, 
-                        const SiHitCollection* collection ) const;
+                        const std::vector<SiHit> & matchingHits ) const;
 
   void  addNNInformation( xAOD::TrackMeasurementValidation* xprd, 
                          const InDet::PixelCluster* pixelCluster, 
@@ -99,6 +100,7 @@ private:
   bool  m_writeSiHits;
   bool  m_writeNNinformation;
   bool  m_writeRDOinformation;
+  bool m_useSiHitsGeometryMatching;
 
   ServiceHandle<IPixelCalibSvc> m_calibSvc;
   ServiceHandle<IPixelDCSSvc> m_pixelDCSSvc;

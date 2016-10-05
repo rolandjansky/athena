@@ -47,11 +47,13 @@ PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *p
   m_pixelDCSSvc("PixelDCSSvc", name),
   m_pixelBSErrorsSvc("PixelByteStreamErrorsSvc", name),
   m_PixelHelper(0),
-  m_firstEventWarnings(true)
+  m_firstEventWarnings(true),
+  m_useSiHitsGeometryMatching(true)
 { 
   // --- Steering and configuration flags
  
   declareProperty("UseTruthInfo", m_useTruthInfo=false);
+  declareProperty("UseSiHitsGeometryMatching", m_useSiHitsGeometryMatching=true);
   declareProperty("WriteSDOs", m_writeSDOs = true);
   declareProperty("WriteSiHits", m_writeSiHits = true);
   declareProperty("WriteNNinformation", m_writeNNinformation = true);
@@ -213,7 +215,7 @@ StatusCode PixelPrepDataToxAOD::execute()
         //May want to addinformation about the individual hits here
       }
       xprd->setRdoIdentifierList(rdoIdentifierList);
-   
+
       //Add pixel cluster properties
       xprd->auxdata<int>("bec")          =   m_PixelHelper->barrel_ec(clusterId)   ;
       xprd->auxdata<int>("layer")        =   m_PixelHelper->layer_disk(clusterId)  ;   
@@ -280,23 +282,75 @@ StatusCode PixelPrepDataToxAOD::execute()
         }
         xprd->auxdata< std::vector<int> >("truth_barcode") = barcodes;
       }
-
+      
+      std::vector< std::vector< int > > sdo_tracks;
       // Use the SDO Collection to get a list of all true particle contributing to the cluster per readout element
       //  Also get the energy deposited by each true particle per readout element   
       if( sdoCollection ){
-        addSDOInformation( xprd, prd,sdoCollection);
+	  sdo_tracks = addSDOInformation( xprd, prd,sdoCollection);
       }
     
       // Now Get the most detailed truth from the SiHits
       // Note that this could get really slow if there are a lot of hits and clusters
       if(  sihitCollection  ){
-        if(m_writeSiHits)
-          addSiHitInformation( xprd, prd, sihitCollection); 
-        if(m_writeNNinformation)
-          addNNTruthInfo(  xprd, prd, sihitCollection );
+	  const std::vector<SiHit> matched_hits = findAllHitsCompatibleWithCluster(  prd, sihitCollection, sdo_tracks );
+	  
+	  if(m_writeSiHits)
+	  {
+	      if ( ! sdoCollection )
+		  ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!" );
+	      addSiHitInformation( xprd, prd, matched_hits ); 
+	  }
+	  if(m_writeNNinformation)
+	  {
+	      if ( ! sdoCollection )
+		  ATH_MSG_WARNING("Si hit truth information requested, but SDO collection not available!" );
+	      addNNTruthInfo(  xprd, prd, matched_hits );
+	  }
       }
     }
   }
+
+  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ )
+      (*clusItr)->auxdata<char>("broken") = false;
+
+  for ( auto clusItr = xaod->begin(); clusItr != xaod->end(); clusItr++ )
+  {
+      auto pixelCluster = *clusItr;
+      int layer = pixelCluster->auxdata< int >("layer");
+      std::vector<int> barcodes = pixelCluster->auxdata< std::vector< int > >("sihit_barcode");
+
+      for ( auto clusItr2 = clusItr + 1; clusItr2 != xaod->end(); clusItr2++ )
+      {
+	  auto pixelCluster2 = *clusItr2;
+	  if ( pixelCluster2->auxdata< int >("layer") != layer )
+	      continue;
+	  if ( pixelCluster->auxdata< int >("eta_module") != pixelCluster2->auxdata< int >("eta_module") )
+	      continue;
+	  if ( pixelCluster->auxdata< int >("phi_module") != pixelCluster2->auxdata< int >("phi_module") )
+	      continue;
+
+	  std::vector<int> barcodes2 = pixelCluster2->auxdata< std::vector< int > >("sihit_barcode");
+	  
+	  bool broken = false;
+	  for ( auto bc : barcodes )
+	  {
+	      for ( auto bc2 : barcodes2 )
+	      {
+		  if ( bc2 == bc )
+		  {
+		      broken = true;
+		      pixelCluster->auxdata<char>("broken")  = true;
+		      pixelCluster2->auxdata<char>("broken") = true;
+		      break;
+		  }
+	      }
+	      if ( broken ) 
+		  break;
+	  }
+      }
+  }
+
   ATH_MSG_DEBUG( " recorded PixelPrepData objects: size " << xaod->size() );
 
   m_firstEventWarnings = false;
@@ -305,9 +359,9 @@ StatusCode PixelPrepDataToxAOD::execute()
 }
 
 
-void PixelPrepDataToxAOD::addSDOInformation( xAOD::TrackMeasurementValidation* xprd,
-                                            const InDet::PixelCluster* prd,
-                                            const InDetSimDataCollection* sdoCollection ) const
+std::vector< std::vector< int > > PixelPrepDataToxAOD::addSDOInformation( xAOD::TrackMeasurementValidation* xprd,
+									  const InDet::PixelCluster* prd,
+									  const InDetSimDataCollection* sdoCollection ) const
 {
   std::vector<int> sdo_word;
   std::vector< std::vector< int > > sdo_depositsBarcode;
@@ -336,18 +390,16 @@ void PixelPrepDataToxAOD::addSDOInformation( xAOD::TrackMeasurementValidation* x
   xprd->auxdata< std::vector<int> >("sdo_words")  = sdo_word;
   xprd->auxdata< std::vector< std::vector<int> > >("sdo_depositsBarcode")  = sdo_depositsBarcode;
   xprd->auxdata< std::vector< std::vector<float> > >("sdo_depositsEnergy") = sdo_depositsEnergy;
+  
+  return sdo_depositsBarcode;
 }
 
 
 
 void  PixelPrepDataToxAOD::addSiHitInformation( xAOD::TrackMeasurementValidation* xprd, 
-                                               const InDet::PixelCluster* prd,
-                                               const SiHitCollection* sihitCollection) const
-                             
-                             
+						const InDet::PixelCluster* prd,
+						const std::vector<SiHit> & matchingHits ) const
 {
-
-  std::vector<SiHit> matchingHits = findAllHitsCompatibleWithCluster(  prd, sihitCollection );
 
   int numHits = matchingHits.size();
 
@@ -415,7 +467,8 @@ void  PixelPrepDataToxAOD::addSiHitInformation( xAOD::TrackMeasurementValidation
 
 
 std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const InDet::PixelCluster* prd, 
-                                                                          const SiHitCollection* collection) const
+                                                                          const SiHitCollection* collection,
+									  std::vector< std::vector< int > > & trkBCs ) const
 {
   ATH_MSG_VERBOSE( "Got " << collection->size() << " SiHits to look through" );
   std::vector<SiHit>  matchingHits;
@@ -431,7 +484,7 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
     // Check if it is a Pixel hit
     if( !siHit.isPixel() )
       continue;
-     
+    
     //Check if it is on the correct module
     Identifier clusterId = prd->identify();
   
@@ -445,26 +498,43 @@ std::vector<SiHit> PixelPrepDataToxAOD::findAllHitsCompatibleWithCluster( const 
     // Must be within +/- 1 hits of any hit in the cluster to be included
     ATH_MSG_DEBUG("Hit is on the same module");
     
-    HepGeom::Point3D<double>  averagePosition =  siHit.localStartPosition() + siHit.localEndPosition();
-    averagePosition *= 0.5;
-    Amg::Vector2D pos = de->hitLocalToLocal( averagePosition.z(), averagePosition.y() );
-    InDetDD::SiCellId diode = de->cellIdOfPosition(pos);
-   
-    for( const auto &hitIdentifier : prd->rdoList() ){
-
-      ATH_MSG_DEBUG("Truth Phi " <<  diode.phiIndex() << " Cluster Phi " <<   m_PixelHelper->phi_index( hitIdentifier ) );
-      ATH_MSG_DEBUG("Truth Eta " <<  diode.etaIndex() << " Cluster Eta " <<   m_PixelHelper->eta_index( hitIdentifier ) );
-
-      if( abs( int(diode.etaIndex()) - m_PixelHelper->eta_index( hitIdentifier ) ) <=1  
-       && abs( int(diode.phiIndex()) - m_PixelHelper->phi_index( hitIdentifier ) ) <=1 ) 
-      {
-        multiMatchingHits.push_back(&siHit);   
-        break;   
-      }     
+    if ( m_useSiHitsGeometryMatching )
+    {
+	HepGeom::Point3D<double>  averagePosition =  siHit.localStartPosition() + siHit.localEndPosition();
+	averagePosition *= 0.5;
+	Amg::Vector2D pos = de->hitLocalToLocal( averagePosition.z(), averagePosition.y() );
+	InDetDD::SiCellId diode = de->cellIdOfPosition(pos);
+	
+	for( const auto &hitIdentifier : prd->rdoList() ){
+	    ATH_MSG_DEBUG("Truth Phi " <<  diode.phiIndex() << " Cluster Phi " <<   m_PixelHelper->phi_index( hitIdentifier ) );
+	    ATH_MSG_DEBUG("Truth Eta " <<  diode.etaIndex() << " Cluster Eta " <<   m_PixelHelper->eta_index( hitIdentifier ) );
+	    if( abs( int(diode.etaIndex()) - m_PixelHelper->eta_index( hitIdentifier ) ) <=1  
+		&& abs( int(diode.phiIndex()) - m_PixelHelper->phi_index( hitIdentifier ) ) <=1 ) 
+	    {
+		multiMatchingHits.push_back(&siHit);   
+		break;
+	    }
+	}
+    }
+    else
+    {
+	bool foundHit = false;
+	for ( const auto barcodeSDOColl : trkBCs )
+	{
+	    for ( const auto barcode : barcodeSDOColl )
+	    {
+		if ( siHit.particleLink().barcode() == barcode )
+		{
+		    multiMatchingHits.push_back(&siHit);   
+		    foundHit = true;
+		    break;   
+		}
+	    }
+	    if ( foundHit )
+		break;
+	}
     }
   }
-  
-  
   //Now we will now make 1 SiHit for each true particle if the SiHits "touch" other 
   std::vector<const SiHit* >::iterator siHitIter  = multiMatchingHits.begin();
   std::vector<const SiHit* >::iterator siHitIter2 = multiMatchingHits.begin();
@@ -823,10 +893,9 @@ void PixelPrepDataToxAOD::addNNInformation(xAOD::TrackMeasurementValidation* xpr
 
 void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xprd,
                                             const InDet::PixelCluster* pixelCluster, 
-                                            const SiHitCollection* sihitCollection ) const
+                                            const std::vector<SiHit> & matchingHits ) const
 {
 
-  std::vector<SiHit> matchingHits = findAllHitsCompatibleWithCluster(  pixelCluster, sihitCollection );
 
   unsigned int numberOfSiHits = matchingHits.size();
   
@@ -880,7 +949,7 @@ void  PixelPrepDataToxAOD::addNNTruthInfo(  xAOD::TrackMeasurementValidation* xp
 
     if (fabs(YposC)>design->width()/2 && 
         fabs(averagePosition.y())<design->width()/2)
-    {
+   { 
       if (YposC>design->width()/2)
       {
         YposC=design->width()/2-1e-6;
