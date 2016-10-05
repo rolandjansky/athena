@@ -95,12 +95,13 @@ namespace TrigCostRootAnalysis {
     kBG_UNPAIRED_NONISO = 5,
     kBG_FIRSTEMPTY = 6,
     kBG_UNPAIRED = 7, // Not used
-    kBG_UNSET = 8, // Internal default value
-    kEBBunchGroupType_SIZE = 9 //!< Size of this enum, this entry must always come last.
+    kBG_ABORTGAPNOTCALIB = 8,
+    kBG_UNSET = 9, // Internal default value
+    kEBBunchGroupType_SIZE = 10 //!< Size of this enum, this entry must always come last.
   };
 
   const static std::string BunchGroupNameStr[] = {
-    "NONE", "FILLED", "CALREQ", "EMPTY", "UNPAIRED_ISO", "UNPAIRED_NONISO", "FIRSTEMPTY", "UNPAIRED", "UNSET"
+    "NONE", "FILLED", "CALREQ", "EMPTY", "UNPAIRED_ISO", "UNPAIRED_NONISO", "FIRSTEMPTY", "UNPAIRED", "ABORTGAPNOTCALIB", "UNSET"
   };
 
   enum FormatterOption_t {
@@ -171,14 +172,15 @@ namespace TrigCostRootAnalysis {
     kCurrentEventEBWeight,
     kCurrentEventWasRandomOnline, // <BEGIN> Monitors - ORDERING IS IMPORTANT HERE
     kMonitorBegin, //!< This entry must be first (used in loops elsewhere). The rest of the monitors can technically come in any order, and new ones may be added
-    kDoRatesMonitor, //<! Keep me first, breaks the partitioning (to be fixed :( ) but other monitors can read from this one
     kDoRatesUpgradeMonitor,
+    kDoRatesMonitor, //<! Keep RATES first, breaks the partitioning (to be fixed :( ) but other monitors can read from this one. TODO - this is no longer true?
     kDoChainMonitor,
     kDoChainAlgorithmMonitor,
     kDoSequenceMonitor,
     kDoSequenceAlgorithmMonitor,
     kDoAlgorithmMonitor,
     kDoAlgorithmClassMonitor,
+    kDoSliceCPUMonitor,
     kDoROSMonitor,
     kDoROBINMonitor,
     kDoROSAlgorithmMonitor,
@@ -194,6 +196,14 @@ namespace TrigCostRootAnalysis {
     kPatternsUnique,
     kPatternsExclude,
     kPatternsOverlap,
+    kPatternsNoLumiWeight,
+    kPatternsNoMuLumiWeight,
+    kPatternsNoBunchLumiWeight,
+    kPatternsExpoMuLumiWeight,
+    kListOfNoLumiWeightChains,
+    kListOfNoMuLumiWeightChains,
+    kListOfNoBunchLumiWeightChains,
+    kListOfExpoMuLumiWeightChains,
     kOutputPng,
     kOutputPdf,
     kOutputImage,
@@ -225,6 +235,8 @@ namespace TrigCostRootAnalysis {
     kNBunchGroups,
     kDoEBWeighting,
     kDoCPS,
+    kIgnoreNonPhysBunchGroups,
+    kNoLBRescaling,
     kPatternsInvert,
     kDirectlyApplyPrescales,
     kNoUpgradePileupScaling,
@@ -234,6 +246,8 @@ namespace TrigCostRootAnalysis {
     kUpgradeJetLargeWindow,
     kNoOnlineDeadtimeCorrection,
     kOnlineDeadtime,
+    kExpoRateScaleModifierL1,
+    kExpoRateScaleModifierHLT,
     kDeadtimeScalingFinal, // Final scaling factor used for online deadtime
     kDoUniqueRates,
     kRatesOnly,
@@ -245,17 +259,29 @@ namespace TrigCostRootAnalysis {
     kPredictionLumiRunXML, // From the EB XML (prioirty 3)
     kPredictionLumiMenuXML, // From the prescales XML (priority 2)
     kPredictionLumiFinal, // The value actually chosen to be used
+    kPredictionLumiFinalExpoL1, // The final value with exponential mu extrapolation
+    kPredictionLumiFinalExpoHLT, // The final value with exponential mu extrapolation
+    kPredictionLumiFinalMuComponent, // What part of PredictionLumiFinal is due to increased mu
+    kPredictionLumiFinalMuExpoL1Component, // What mu extrapolation chains with an exponential mu dependence should get
+    kPredictionLumiFinalMuExpoHLTComponent, // What mu extrapolation chains with an exponential mu dependence should get
+    kPredictionLumiFinalBunchComponent, // What part of PredictionLumiFinal is due to extra bunches
+    kEmptyBunchgroupExtrapolaion, // How much we extrapolate empty items
+    kDoAdvancedLumiScaling,
     kTargetPeakMuAverage,
     kTargetPairedBunches,
-    kDoNotLumiWeightUnbiased,
+    kPatternsExactMatch,
     kJIRA,
     kRunLumi,
     kRunLumiXML,
+    kDoExponentialMu,
     kDebug, 
     kNPasses,
+    kUpgradeMergeTOBOverlap,
     kCurrentPass,
     kMessageWait,
     kCleanAll,
+    kMaxBunches,
+    kMaxBCIDs,
     kSloppyExit,
     kROSXMLPath,
     kROSXMLName,
@@ -300,6 +326,7 @@ namespace TrigCostRootAnalysis {
     kRateGlobalL2String,
     kRateGlobalL1String,
     kRateGlobalL0String,
+    kRateExpressString,
     kRateUniqueString,
     kRateFallbackPrescaleL1,
     kRateFallbackPrescaleHLT,
@@ -317,6 +344,8 @@ namespace TrigCostRootAnalysis {
     kJetEtString,
     kEnergyString,
     kMissingEnergyString,
+    kHTString,
+    kMHTString,
     kROBINString,
     kROSString,
     kAlwaysPassString,
@@ -324,8 +353,18 @@ namespace TrigCostRootAnalysis {
     kEventsProcessed,
     kEventsSkipped,
     kRunNumber,
+    kFarmXML,
     kVersionString,
+    kLBPerKeyset,
     kVarTime,     // Study Variable ENUMs
+    kVarSteeringTimeCPUType1,
+    kVarSteeringTimeCPUType2,
+    kVarSteeringTimeCPUType3,
+    kVarSteeringTimeCPUType4,
+    kVarEventsCPUType1,
+    kVarEventsCPUType2,
+    kVarEventsCPUType3,
+    kVarEventsCPUType4,
     kVarRerunTime,
     kVarPassTime,
     kVarTimeExec,
@@ -348,6 +387,11 @@ namespace TrigCostRootAnalysis {
     kVarROBNotOK,
     kVarROBUnclassified,
     kVarROBPrefetched,
+    kVarTrigCostTime,
+    kVarTexecTime,
+    kVarChainExecTime,
+    kVarResultBuildingTime,
+    kVarMonitoringTime,
     kVarCalls,
     kVarCallsRaw,
     kVarCallsSlow,
@@ -361,12 +405,21 @@ namespace TrigCostRootAnalysis {
     kVarUnbiasedRun,
     kVarEventsPassRawStat,
     kVarEventsRunRawStat,
+    kVarEventsPassedExpress,
     kVarEventsSlow,
     kVarTotalPrescale,
     kVarL1PassEvents,
     kVarHLTEvents,
     kVarHLTPassEvents,
     kVarHLTPUs,
+    kVarJetEta,
+    kVarMuEta,
+    kVarEmEta,
+    kVarTauEta,
+    kVarJetNThresh,
+    kVarMuNThresh,
+    kVarEmNThresh,
+    kVarTauNThresh,
     kVarROI,
     kVarType,
     kVarEta,
@@ -384,20 +437,25 @@ namespace TrigCostRootAnalysis {
     kDecROSString,
     kDecAlgClassName,
     kDecCounterClassification,
-    kDecChainName,
+    kDecChainName, 
     kDecSeqName,
     kDecLbLength,
     kDecType,
     kDecID,
+    kDecComment,
     kDecIsCPS,
+    kDecDoExpressChain,
     kDecElapsedTime,
     kDecRatesGroupName,
+    kDecGroupName,
     kDecPrescaleStr,
     kDecPrescaleVal,
     kDecPrescaleValOnlineL1,
     kDecUniqueRate,
     kDecUniqueFraction,
+    kDecExpressRate,
     kDecMyROS,
+    kDecInputRate,
     kMsgNonPhysics,     // Error message suppression ENUM
     kMsgDivZero,
     kMsgRoISize,
@@ -410,6 +468,7 @@ namespace TrigCostRootAnalysis {
     kMsgXMLWeight,
     kMsgXMLPrescale,
     kMsgUnknownDecoration,
+    kMsgDupeTOB,
     kMsgIllegalCharacters,
     kMsgZeroRate,
     kMsgLargeSteerTime,
@@ -419,6 +478,8 @@ namespace TrigCostRootAnalysis {
     kMsgNewUniqueCounter,
     kMsgLumiScaling,
     kMsgNoTETOB,
+    kMsgNoGroup,
+    kMsgTOBMerge,
     kConfKey_SIZE //!<  END of config. ENUM keysNumber of configuration keys - keep me as last entry
   };
 
@@ -428,6 +489,8 @@ namespace TrigCostRootAnalysis {
   typedef IntStringMap_t::const_iterator      IntStringMapIt_t;
   typedef std::map< Int_t, Int_t>             IntIntMap_t;
   typedef IntIntMap_t::const_iterator         IntIntMapIt_t;
+  typedef std::map< UInt_t, UInt_t>           UIntUIntMap_t;
+  typedef UIntUIntMap_t::const_iterator       UIntUIntMapIt_t;
   typedef std::map< Int_t, Float_t>           IntFloatMap_t;
   typedef IntFloatMap_t::const_iterator       IntFloatMapIt_t;
   typedef std::map< Float_t, Int_t>           FloatIntMap_t;
@@ -479,6 +542,8 @@ namespace TrigCostRootAnalysis {
 
   typedef std::map< ConfKey_t, DataVariable* >::const_iterator VariableMapIt_t; //!< Internal use name to DataVariable pointer iterator typedef.
 
+  typedef std::map< CounterMap_t*, ConfKey_t > CounterMapType_t; // We iterate over a set of CounterMap_t, nice to know what kind of collection it was from
+
   typedef std::set<CounterBaseRates*>           CounterBaseRatesSet_t;
   typedef CounterBaseRatesSet_t::const_iterator CounterBaseRatesSetIt_t;
 
@@ -497,6 +562,9 @@ namespace TrigCostRootAnalysis {
   typedef std::set< Int_t >        IntSet_t;
   typedef IntSet_t::const_iterator IntSetIt_t;
 
+  typedef std::set< std::string >     StringSet_t;
+  typedef StringSet_t::const_iterator StringSetIt_t;
+
   typedef std::map< std::string, IntSet_t > StringIntSetMap_t;
   typedef StringIntSetMap_t::const_iterator StringIntSetMapIt_t;
   typedef StringIntSetMap_t::iterator       StringIntSetMapNonConstIt_t;
@@ -510,10 +578,15 @@ namespace TrigCostRootAnalysis {
   Bool_t checkPatternUnique( const std::string& _patternName, Bool_t _invert );
   Bool_t checkPatternOverlap( const std::string& _patternName, Bool_t _invert );
   Bool_t checkPatternInternal( const std::string& _counterName, ConfKey_t _list, Bool_t _invert );
+  Bool_t checkPatternNoLumiWeight( const std::string& _counterName);
+  Bool_t checkPatternNoMuLumiWeight( const std::string& _counterName);
+  Bool_t checkPatternNoBunchLumiWeight( const std::string& _counterName);
+  Bool_t checkPatternExponentialWithMu( const std::string& _counterName);
 
   Int_t stringToInt(const std::string &_i);
   Float_t stringToFloat(const std::string &_i);
   Double_t stringToDouble(const std::string &_i);
+  std::string intToString(Long64_t _i, UInt_t _pad = 0);
   std::string intToString(Int_t _i, UInt_t _pad = 0);
   std::string intToString(UInt_t _i, UInt_t _pad = 0);
   std::string floatToString(Float_t _f, Int_t _precision = 4);
@@ -523,8 +596,9 @@ namespace TrigCostRootAnalysis {
   Bool_t isZero(Float_t _float, Float_t _precision = 0.00000001);
   Bool_t isEqual(Float_t _float1, Float_t _float2, Float_t _precision = 0.00000001);
   ConfVariableOptionPair_t makePair(ConfKey_t _name, VariableOption_t _vo);
-  Int_t stringToIntHash( std::string );
+  UInt_t stringToIntHash( std::string& s );
   const std::string& getLevelString(UInt_t _level);
+  Float_t deltaR(Float_t _phi1, Float_t _phi2, Float_t _eta1, Float_t _eta2);
 
   class JsonExport {
   public:

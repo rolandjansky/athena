@@ -58,6 +58,7 @@ namespace TrigCostRootAnalysis {
     const std::string& getStr( ConfKey_t _key );
     const std::string& getName( ConfKey_t _key );
     Int_t              getInt( ConfKey_t _key );
+    Long64_t           getLong( ConfKey_t _key );
     Float_t            getFloat( ConfKey_t _key );
     UInt_t             getVecSize( ConfKey_t _key );
     const std::string& getVecEntry( ConfKey_t _key, UInt_t );
@@ -74,6 +75,7 @@ namespace TrigCostRootAnalysis {
     void               set( ConfKey_t _key, const Int_t _value, LockStatus_t _lock = kLocked );
     void               setDisplayMsg( ConfKey_t _key, const Int_t _value, const std::string _name = "" );
     void               setFloat( ConfKey_t _key, const Float_t _value, const std::string _name = "", LockStatus_t _lock = kLocked );
+    void               setLong( ConfKey_t _key, const Long64_t _value, const std::string _name = "", LockStatus_t _lock = kLocked );
     void               set( ConfKey_t _key, const std::vector< std::string > _value, const std::string _name = "", LockStatus_t _lock = kLocked );
     void               set( ConfKey_t _key, const std::vector< Int_t > _value, const std::string _name = "", LockStatus_t _lock = kLocked );
     void               set( ConfKey_t _key, const std::string _value, const std::string _name = "", LockStatus_t _lock = kLocked );
@@ -93,6 +95,7 @@ namespace TrigCostRootAnalysis {
     std::map<ConfKey_t, std::vector<std::string> > m_settingsVecStr; //!< Vector of Strings settings map
     std::map<ConfKey_t, std::vector<Int_t> > m_settingsVecInt; //!< Vector of Int settings map
     std::map<ConfKey_t, Int_t>   m_settingsInt;   //!< Int_t settings map
+    std::map<ConfKey_t, Long64_t>   m_settingsLong;   //!< Long int settings map
     std::map<ConfKey_t, Float_t> m_settingsFloat; //!< Float_t settings map
     std::map<ConfKey_t, Int_t> m_settingsMaxCalls;   //!< Holds how many times an error message can been accessed, for supression purposes
     std::map<ConfKey_t, LockStatus_t> m_settingsLock; //!< Holds lock status for settings

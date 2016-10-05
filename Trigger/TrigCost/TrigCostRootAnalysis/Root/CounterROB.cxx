@@ -89,41 +89,95 @@ namespace TrigCostRootAnalysis {
     _weight *= getPrescaleFactor( _e );
     if (isZero(_weight) == kTRUE) return;
 
-    Float_t _retSize = 0., _reqSize = 0.;
-    Bool_t _isBad = kFALSE, _isIgnored = kFALSE, _isUnclassified = kFALSE;
-    Bool_t _isPrefetched = kFALSE, _isDisabled = kFALSE, _isRet = kFALSE, _isReq = kFALSE;
-    IntSet_t _ROBINs;
+   
+    Bool_t _isBad = kFALSE;
+    
+    IntSet_t* _ROBsForCounter(nullptr);
 
     // Collect data to fill. This depends on if we are looking at a ROBIN or a ROS
+
+    /*
+    switch (getStrDecoration(kDecType)) {
+
+        case Config::config().getStr(kROSString):    //Monitoring a ROS, collate all ROBINs in request
+            MonitorROSCommon* _parent = (MonitorROSCommon*) getParent();;
+            _ROBINs = _parent->getROSMapping(_e).find( getStrDecoration(kDecMyROS) )->second;
+            break;
+
+        case Config::config().getStr(kROBINString):  //Monitoring a ROBIN, collate all ROBs in request
+            MonitorROSCommon* _ROBINparent = (MontiorROSCommon*) getParent();
+            _ROBINs = _ROBINparent->getROBINMapping(_e).find( getStrDecoration(kDecMyROBIN) )->second;
+            break;
+
+        default:
+            _ROBINs.insert( _f);
+
+	    } */
+
     if (getStrDecoration(kDecType) == Config::config().getStr(kROSString)) {
       // I'm monitoring a ROS. I need to collate all my ROBINs in this request
       MonitorROSCommon* _parent = (MonitorROSCommon*) getParent(); // Up-cast
-      _ROBINs = _parent->getROSMapping(_e).find( getStrDecoration(kDecMyROS) )->second; // Get my mapping
-    } else {
-      // Else we're just monitoring a ROBIN hence it's only me!
-      _ROBINs.insert( _f );
+      _ROBsForCounter =&( _parent->getROSMapping(_e).find( getStrDecoration(kDecMyROS) )->second); // Get my mapping
+    } 
+    
+    else if (getStrDecoration(kDecType) == Config::config().getStr(kROBINString)) {
+      //Monitoring a ROBIN, need to collate all ROBS
+      MonitorROSCommon* _ROBINparent = (MonitorROSCommon*) getParent();
+      _ROBsForCounter = &(_ROBINparent->getROBINMapping(_e).find( getStrDecoration(kDecMyROS) )->second); //Get ROBIN mapping
     }
 
-    Int_t _nROBINS = _ROBINs.size();
+    else {
+      // Else we're just monitoring a ROBIN hence it's only me!
+      //_ROBsForCounter.insert( _f );
+      Error("CounterROB::processEventCounter", "Does not match ROS or ROBIN");
+    }
+
+    // Put nullptr check here so covertiry sees it
+    if (_ROBsForCounter == nullptr) return;
+
+    Int_t _nROBSForCounter = _ROBsForCounter->size();
 
     // Loop over the ROBINs in this ROS request
-    for (IntSetIt_t _it = _ROBINs.begin(); _it != _ROBINs.end(); ++_it) {
-      UInt_t _ROBINLocation = (*_it);
-      if (m_costData->getIsROBDataRetrieved(_e, _ROBINLocation)) {
-        _retSize += m_costData->getROBDataSize(_e, _ROBINLocation);
+    for (IntSetIt_t _it = _ROBsForCounter->begin(); _it != _ROBsForCounter->end(); ++_it) {
+      UInt_t _ROBIndex = (*_it);
+
+      /*
+      if (m_costData->getIsROBDataRetrieved(_e, _ROBIndex)) {
+        _retSize += m_costData->getROBDataSize(_e, _ROBIndex);
         _isRet = kTRUE;
-      }
-      if (m_costData->getIsROBDataCached(_e, _ROBINLocation)) {
-        _reqSize += m_costData->getROBDataSize(_e, _ROBINLocation);
+	} */
+
+      m_dataStore.store(kVarROBRets, m_costData->getIsROBDataRetrieved(_e, _ROBIndex), _weight);
+      if (m_costData->getIsROBDataRetrieved(_e, _ROBIndex)) m_dataStore.store(kVarROBRetSize, m_costData->getROBDataSize(_e, _ROBIndex) , _weight);
+
+      /*
+      if (m_costData->getIsROBDataCached(_e, _ROBIndex)) {
+        _reqSize += m_costData->getROBDataSize(_e, _ROBIndex);
         _isReq = kTRUE;
       }
-      if (m_costData->getIsROBDataUnclassified(_e, _ROBINLocation)) _isUnclassified = kTRUE;
-      if (m_costData->getIsROBDataIgnored(_e, _ROBINLocation)) _isIgnored = kTRUE;
-      if (m_costData->getIsROBDataStatusOK(_e, _ROBINLocation) == kFALSE) _isBad = kTRUE;
-      if (m_costData->getIsROBDataDisabled(_e, _ROBINLocation)) _isDisabled = kTRUE;
-      if (m_costData->getIsROBDataStatusPrefetched(_e, _ROBINLocation)) _isPrefetched = kTRUE;
+      */
+
+      m_dataStore.store(kVarROBReqs, m_costData->getIsROBDataCached(_e, _ROBIndex) , _weight);
+      if (m_costData->getIsROBDataCached(_e, _ROBIndex) ) m_dataStore.store(kVarROBReqSize, m_costData->getROBDataSize(_e, _ROBIndex), _weight);
+
+      m_dataStore.store(kVarROBUnclassified, m_costData->getIsROBDataUnclassified(_e, _ROBIndex), _weight);
+      m_dataStore.store(kVarROBPrefetched, m_costData->getIsROBDataStatusPrefetched(_e, _ROBIndex), _weight);
+      m_dataStore.store(kVarROBIgnored, m_costData->getIsROBDataIgnored(_e, _ROBIndex), _weight);
+      m_dataStore.store(kVarROBDisabled, m_costData->getIsROBDataDisabled(_e, _ROBIndex), _weight);
+			
+			/*
+      if (m_costData->getIsROBDataUnclassified(_e, _ROBIndex)) _isUnclassified = kTRUE;
+      if (m_costData->getIsROBDataIgnored(_e, _ROBIndex)) _isIgnored = kTRUE;
+      if (m_costData->getIsROBDataStatusOK(_e, _ROBIndex)) == kFALSE) _isBad = kTRUE;
+      if (m_costData->getIsROBDataDisabled(_e, _ROBIndex)) _isDisabled = kTRUE;
+      if (m_costData->getIsROBDataStatusPrefetched(_e, _ROBIndex)) _isPrefetched = kTRUE;
+
+			*/
+
+      if (m_costData->getIsROBDataStatusOK(_e, _ROBIndex) == kFALSE) _isBad = kTRUE;
+      m_dataStore.store(kVarROBNotOK, (int)_isBad, _weight);
       if (_isBad == kTRUE && Config::config().getDisplayMsg(kMsgBadROB) == kTRUE) {
-        Warning("CounterROB::processEventCounter","ROB data from %s (ID 0x%x) is flagged as NOT OK.", getName().c_str(), m_costData->getROBDataID(_e, _ROBINLocation));
+        Warning("CounterROB::processEventCounter","ROB data from %s (ID 0x%x) is flagged as NOT OK.", getName().c_str(), m_costData->getROBDataID(_e, _ROBIndex));
       }
     }
 
@@ -132,9 +186,10 @@ namespace TrigCostRootAnalysis {
     // We divide this time evenly to all ROBINs which were part of this request
     Float_t _rosReqTime = m_costData->getROBTimer(_e); // Total time
     _rosReqTime /= (Float_t) m_costData->getROBDataN( _e ); // Time per ROBIN
-    _rosReqTime *= _nROBINS; // ROBINs in this request
+    _rosReqTime *= _nROBSForCounter; // ROBINs in this request
     m_dataStore.store(kVarTime, _rosReqTime, _weight);
 
+    /*
     if ( _isRet ) {
       m_dataStore.store(kVarROBRets, 1., _weight);
       m_dataStore.store(kVarROBRetSize, _retSize, _weight);
@@ -149,8 +204,10 @@ namespace TrigCostRootAnalysis {
     if ( _isPrefetched )  m_dataStore.store(kVarROBPrefetched, 1., _weight);
     if ( _isIgnored )  m_dataStore.store(kVarROBIgnored, 1., _weight);
     if ( _isDisabled )  m_dataStore.store(kVarROBDisabled, 1., _weight);
+    */
 
     if ( Config::config().debug() ) debug(_e, _f);
+
   }
 
   /**

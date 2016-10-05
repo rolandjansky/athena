@@ -42,6 +42,7 @@ namespace TrigCostRootAnalysis {
 
   DBKey TrigConfInterface::m_key(0, 0, 0);
   std::set<DBKey> TrigConfInterface::m_seenKeys;
+  std::map<UInt_t, DBKey> TrigConfInterface::m_lumiToKeyMap;
 
   /**
    * Link tool to trigger meta data. Call once per chain.
@@ -127,14 +128,50 @@ namespace TrigCostRootAnalysis {
   /**
    * Check if we have seen this configuration before - and if we need to dump it
    */
-  void TrigConfInterface::newEvent() {
-    bool _seen = (m_seenKeys.count( getCurrentDBKey() ) == 1);
+  void TrigConfInterface::newEvent(UInt_t _lb) {
+    Bool_t _seen = (m_seenKeys.count( getCurrentDBKey() ) == 1);
+    if (m_lumiToKeyMap.count(_lb) == 0) m_lumiToKeyMap[ _lb ] = getCurrentDBKey();
     if (_seen) return;
     m_seenKeys.insert( getCurrentDBKey() );
     if ( Config::config().getInt(kOutputMenus) == kTRUE) {
       Info("TrigConfInterface::newEvent", "Exporting trigger configuration JSON file for %s", getCurrentDBKey().name().c_str() );
       TrigConfInterface::dump();
     }
+  }
+
+  /**
+   * Look at which LB each keyset was being used in 
+   */
+  void TrigConfInterface::populateLBPerKeysetStrings() {
+    for (const auto _keyset : m_seenKeys) {
+      // Set of my LB
+      std::set<UInt_t> _myLB;
+      for (const auto _it : m_lumiToKeyMap) {
+        if (_it.second == _keyset) {
+          _myLB.insert(_it.first);
+        } 
+      }
+      // Now have a set of all LB, need to make a nice string
+      std::stringstream _ss;
+      _ss << _keyset.name() << ":";
+      Int_t _previous = -1;
+      Bool_t _chainInProgress = kFALSE;
+      for (const auto _lumiBlock : _myLB) {
+        if (_lumiBlock == (UInt_t)(_previous + 1)) { // Chain
+          _chainInProgress = kTRUE;
+        } else if (_chainInProgress == kTRUE) { // Chain has just ended
+          _chainInProgress = kFALSE;
+          _ss << "-" << _previous << ", " << _lumiBlock;
+        } else {
+          if (_previous != -1) _ss << ", ";
+          _ss << _lumiBlock;
+        }
+        _previous = _lumiBlock;
+      }
+      if (_chainInProgress == kTRUE) _ss << "-" << _previous;
+      Config::config().addVecEntry(kLBPerKeyset, _ss.str());
+    }
+    return;
   }
 
   /**
@@ -337,6 +374,7 @@ namespace TrigCostRootAnalysis {
    */
   Float_t TrigConfInterface::getPrescale( std::string _chainName ) {
     if ( getUsingNtuplePrescales() == kTRUE ) {
+      if (_chainName == Config::config().getStr(kAlwaysPassString)) return 1.;
       return getTCT()->GetPrescale( _chainName );
     } else {
       Error("TrigConfInterface::getPrescale", "XML based menu navigation not yet included.");
@@ -647,25 +685,32 @@ namespace TrigCostRootAnalysis {
     return getTCT()->GetChainStreamName(_c, _g);
   }
 
-  std::vector<std::string> TrigConfInterface::getChainRatesGroupNames(UInt_t _c) {
-    std::vector<std::string> _groups;
-    for (UInt_t _group = 0; _group < getTCT()->GetChainGroupNameSize(_c); ++_group) {
-      std::string _groupName = getTCT()->GetChainGroupName(_c, _group);
-      if (_groupName.find("Rate:") != std::string::npos || _groupName.find("RATE:") != std::string::npos) {
-        // Veto CPS groups - these have their own system
-        if (_groupName.find("CPS") != std::string::npos) continue;
-        std::replace( _groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming structure. "_" is safe.
-        _groups.push_back(_groupName);
+  const std::vector<std::string>& TrigConfInterface::getChainRatesGroupNames(UInt_t _c) { // Now with caching
+    static std::map<UInt_t, std::vector<std::string> > _groups;
+    static std::vector<std::string> _emptyVector;
+    if (_groups.count(_c) == 0) { // Populate
+      _groups[_c] = std::vector<std::string>();
+      for (UInt_t _group = 0; _group < getTCT()->GetChainGroupNameSize(_c); ++_group) {
+        std::string _groupName = getTCT()->GetChainGroupName(_c, _group);
+        if (_groupName.find("Rate:") != std::string::npos || _groupName.find("RATE:") != std::string::npos) {
+          // Veto CPS groups - these have their own system
+          if (_groupName.find("CPS") != std::string::npos) continue;
+          std::replace( _groupName.begin(), _groupName.end(), ':', '_'); // A ":" can cause issues in TDirectory naming structure. "_" is safe.
+          _groups[_c].push_back(_groupName);
+        }
       }
     }
-    return _groups;
+    return _groups[_c]; 
   }
 
   std::vector<std::string> TrigConfInterface::getChainStreamNames(UInt_t _c) {
     std::vector<std::string> _streams;
     for (UInt_t _stream = 0; _stream < getTCT()->GetChainStreamNameSize(_c); ++_stream) {
-      std::string _streamName = getTCT()->GetChainStreamName(_c, _stream);
-      _streams.push_back(_streamName);
+      if (getTCT()->GetChainStreamName(_c, _stream) == "Main") continue; // These are handled on their own
+      if (getTCT()->GetChainStreamName(_c, _stream) == "express") continue;
+      std::stringstream _streamName;
+      _streamName << "STREAM_" << getTCT()->GetChainStreamName(_c, _stream);
+      _streams.push_back(_streamName.str());
     }
     return _streams;
   }

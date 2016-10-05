@@ -36,6 +36,7 @@ namespace TrigCostRootAnalysis {
   class DBKey {
 
    public:
+    DBKey() : m_SMK(-1), m_L1PSK(-1), m_HLTPSK(-1), m_keyString() {}
     DBKey(Int_t _SMK, Int_t _L1PSK, Int_t _HLTPSK) : m_SMK(-1), m_L1PSK(-1), m_HLTPSK(-1), m_keyString()  {
       set(_SMK, _L1PSK, _HLTPSK);
     }
@@ -90,7 +91,7 @@ namespace TrigCostRootAnalysis {
    public:
 
     static Bool_t configure( TChain* _chain );
-    static void newEvent();
+    static void newEvent(UInt_t _lb);
     static Int_t getCurrentSMK();
     static Int_t getCurrentL1PSK();
     static Int_t getCurrentHLTPSK();
@@ -114,6 +115,7 @@ namespace TrigCostRootAnalysis {
     static std::string getMetaStringVal(UInt_t _m);
     static std::string getMetaStringVal(std::string _key);
     static StringIntMap_t getBunchGroupSetup();
+    static void populateLBPerKeysetStrings();
 
 
     static Bool_t getUsingNtupleMetadata() {
@@ -139,7 +141,7 @@ namespace TrigCostRootAnalysis {
     static std::string getChainEBHypoName(UInt_t _c, UInt_t _h);
     static UInt_t      getChainGroupsNameSize(UInt_t _c);
     static std::string getChainGroupName(UInt_t _c, UInt_t _g);
-    static std::vector<std::string> getChainRatesGroupNames(UInt_t _c);
+    static const std::vector<std::string>& getChainRatesGroupNames(UInt_t _c);
     static std::string getChainCPSGroup(UInt_t _c);
     static UInt_t      getChainStreamNameSize(UInt_t _c);
     static std::string getChainStreamName(UInt_t _c, UInt_t _g);
@@ -191,6 +193,7 @@ namespace TrigCostRootAnalysis {
     static DBKey m_key; //!< HLT keyset of current event
 
     static std::set<DBKey> m_seenKeys; //!< Set of keys which we have seen in the processing
+    static std::map<UInt_t, DBKey> m_lumiToKeyMap; //!< Which LB are using which keys
 
 
   }; //class TrigConfInterface

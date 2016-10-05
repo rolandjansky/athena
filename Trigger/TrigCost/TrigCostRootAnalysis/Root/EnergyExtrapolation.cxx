@@ -26,7 +26,9 @@ namespace TrigCostRootAnalysis {
   /**
    * Construct singleton, 
    */
-  EnergyExtrapolation::EnergyExtrapolation() {
+  EnergyExtrapolation::EnergyExtrapolation()
+    : m_13To5 (kFALSE)
+  {
     // We currently only have one possible mode so...
 
     if (Config::config().getInt(kExtrapolate8To13) == kTRUE || Config::config().getInt(kExtrapolate13To5) == kTRUE ) {

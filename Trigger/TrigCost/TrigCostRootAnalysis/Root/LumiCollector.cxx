@@ -104,7 +104,7 @@ namespace TrigCostRootAnalysis {
 
     assert(_lumiBlock >= 0);
 
-    if (TrigXMLService::trigXMLService().getParsedRunXML() == kFALSE) {
+    if (TrigXMLService::trigXMLService().getParsedRunXML() == kFALSE || Config::config().getInt(kNoLBRescaling) == kTRUE) {
 
       // Basic mode. No partial-run scaling
       if ( m_lumiLength.count(_lumiBlock) == 1 ) {
@@ -130,7 +130,7 @@ namespace TrigCostRootAnalysis {
   }
 
   Float_t LumiCollector::getTotalLumiBlockTime() {
-    if (TrigXMLService::trigXMLService().getParsedRunXML() == kFALSE) {
+    if (TrigXMLService::trigXMLService().getParsedRunXML() == kFALSE || Config::config().getInt(kNoLBRescaling) == kTRUE) {
       // Basic mode?
       return m_totalLumiLength;
     } else {
