@@ -162,7 +162,7 @@ StatusCode METMonTool::initialize()
     m_ContainerWarnings_metKeys.resize(m_metKeys.size(), 0);
 
     if (!service("THistSvc", m_thistSvc).isSuccess()) {
-    //	m_log << MSG::ERROR << "Unable to locate THistSvc" << endreq;
+    //	m_log << MSG::ERROR << "Unable to locate THistSvc" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -185,7 +185,7 @@ StatusCode METMonTool::bookHistograms()
     //msg_info// ATH_MSG_INFO("METMonTool::165");
     //msg_info// ATH_MSG_INFO("METMonTool::165");
 
-    ATH_MSG_DEBUG("in bookHistograms()");//msg(MSG::DEBUG) << "in bookHistograms()" << endreq;
+    ATH_MSG_DEBUG("in bookHistograms()");//msg(MSG::DEBUG) << "in bookHistograms()" << endmsg;
 
     // If m_metFinKey is not empty then append it to m_metKeys
     if (m_metFinKey != "")
@@ -954,7 +954,7 @@ StatusCode METMonTool::fillSourcesHistograms()
 
     ATH_MSG_DEBUG("in fillSourcesHistograms()");
 
-    const xAOD::Jet* xjet = 0;
+    //const xAOD::Jet* xjet = 0;
     const xAOD::JetContainer* xJetCollection = 0;
     if (m_jetColKey != "")
     {
