@@ -243,12 +243,6 @@ else:
 
 include("ISF_Config/ISF_ConfigJobInclude.py")
 
-## check to see if  pileup emulation is being used, if so do post-ISF-config
-## actions to enable simulation of pileup collection
-if 'AthSequencer/EvgenGenSeq' in topSeq.getSequence():
-    fast_chain_log.info("Pileup emulation enabled - setup GenEventStackFiller")
-    include("FastChainPileup/FastPileupSimConfig.py")
-
 ## Add AMITag MetaData to TagInfoMgr
 if hasattr(runArgs, 'AMITag'):
     if runArgs.AMITag != "NONE":
