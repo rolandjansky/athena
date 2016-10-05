@@ -268,13 +268,9 @@ topo_ungroomed_modifiers += [jtm.constfourmom]
 
 # Modifiers for calibrated topo jets.
 calib_topo_ungroomed_modifiers = []
-if jetFlags.useTracks():
-  tmp_topo_ungroomed_modifiers = filterout(["jetens"], topo_ungroomed_modifiers)
-  calib_topo_ungroomed_modifiers += [jtm.jetens, "calib", jtm.jetsorter]
-  calib_topo_ungroomed_modifiers += tmp_topo_ungroomed_modifiers
-else:
-  calib_topo_ungroomed_modifiers += topo_ungroomed_modifiers
-  
+tmp_topo_ungroomed_modifiers = filterout(["jetens"], topo_ungroomed_modifiers)
+calib_topo_ungroomed_modifiers += [jtm.jetens, "calib", jtm.jetsorter]
+calib_topo_ungroomed_modifiers += tmp_topo_ungroomed_modifiers  
 
 # Add Btagging.
 btags = ["btag"]

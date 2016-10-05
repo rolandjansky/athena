@@ -459,6 +459,7 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
   jtm += ParticleJetDeltaRLabelTool(
     "jetdrlabeler",
     LabelName = "HadronConeExclTruthLabelID",
+    DoubleLabelName = "HadronConeExclExtendedTruthLabelID",
     BLabelName = "ConeExclBHadronsFinal",
     CLabelName = "ConeExclCHadronsFinal",
     TauLabelName = "ConeExclTausFinal",
@@ -475,6 +476,7 @@ if jetFlags.useTruth and jtm.haveParticleJetTools:
   jtm += ParticleJetDeltaRLabelTool(
     "trackjetdrlabeler",
     LabelName = "HadronConeExclTruthLabelID",
+    DoubleLabelName = "HadronConeExclExtendedTruthLabelID",
     BLabelName = "ConeExclBHadronsFinal",
     CLabelName = "ConeExclCHadronsFinal",
     TauLabelName = "ConeExclTausFinal",
