@@ -306,8 +306,10 @@ SoNode* HitsSoNodeManager::getShapeNode_Strip( double length, double width, doub
     cube->ref();
     return cube;
   }
+  /** Can never reach this line (coverity 31149)
   std::cout << "Returning zero!" << std::endl;
   return 0;
+  **/
 }
 
 //____________________________________________________________________
