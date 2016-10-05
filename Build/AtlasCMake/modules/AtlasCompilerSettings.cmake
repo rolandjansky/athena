@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: AtlasCompilerSettings.cmake 766879 2016-08-08 09:10:26Z krasznaa $
+# $Id: AtlasCompilerSettings.cmake 776624 2016-10-05 12:49:54Z krasznaa $
 #
 # This file collects settings fine-tuning all the compiler and linker options
 # used in an ATLAS build in one place. It is included by default when using
