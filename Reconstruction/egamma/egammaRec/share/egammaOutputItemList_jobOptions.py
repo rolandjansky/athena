@@ -1,11 +1,8 @@
 __doc__ = "Add containers to ESD/AOD ItemList using the definitions from egammaKeys"
-
 from egammaRec import egammaKeys
 from egammaRec.egammaKeys import egammaKeysDict
 from AthenaCommon.Logging import logging
 from RecExConfig.RecFlags import rec
-from egammaRec import egammaRecFlags as egRecFlags
-egammaRecFlags = egRecFlags.jobproperties.egammaRecFlags
 
 
 def getItem(cType, cKey):
@@ -35,17 +32,13 @@ def addAuxContainer(outputList, cType, cKey, auxOption=''):
 # List for of keys to be written to AOD. 
 # All egammaKeys.outputs but EgammaRec and TopoSeededCellLink
 AOD_outputs = [i for i,j in egammaKeysDict.outputs.items() 
-               if i not in ('EgammaRec', 'TopoSeededCellLink','FwdClusterCellLink','TopoSeededCluster')]
-
-#Check if we want the topo seeded
-if egammaRecFlags.doTopoCaloSeeded() and not egammaRecFlags.doSuperclusters():
-  AOD_outputs.append('TopoSeededCluster')
+               if i not in ('EgammaRec', 'TopoSeededCellLink','FwdClusterCellLink')]
 
 # Define egammaAODList in the proper format (<type>#<key><option>),
 # including aux containers
 egammaAODList = []
-for _ in AOD_outputs:
-  cType, cKey, auxOption = egammaKeysDict.outputs[_]
+for i in AOD_outputs:
+  cType, cKey, auxOption = egammaKeysDict.outputs[i]
 
   # Skip truth if doTruth = False
   if not rec.doTruth() and 'Truth' in cKey:
@@ -64,10 +57,7 @@ for _ in AOD_outputs:
 egammaESDList = list(egammaAODList)
 egammaESDList.append( getItem(egammaKeys.outputTrackType(), egammaKeys.outputTrackKey()) )
 egammaESDList.append( getItem(egammaKeys.outputFwdClusterCellLinkType(), egammaKeys.outputFwdClusterCellLinkKey()) )
-
-#Check if we want the topo seeded
-if egammaRecFlags.doTopoCaloSeeded() and not egammaRecFlags.doSuperclusters():
-  egammaESDList.append( getItem(egammaKeys.outputTopoSeededCellLinkType(), egammaKeys.outputTopoSeededCellLinkKey()))
+egammaESDList.append( getItem(egammaKeys.outputTopoSeededCellLinkType(), egammaKeys.outputTopoSeededCellLinkKey()))
 
 # Remove auxOption from TopoSeeded and Forward Clusters ==> keep cellLink 
 for index, item in enumerate(egammaESDList):
