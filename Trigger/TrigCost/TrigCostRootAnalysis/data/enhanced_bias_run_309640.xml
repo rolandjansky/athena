@@ -1,0 +1,264 @@
+<?xml version="1.0" ?>
+<trigger>
+  <lumivalues>
+    <lumivalues_data>11e+33</lumivalues_data>
+    <lumivalues_pred>11e+33</lumivalues_pred>
+    <deadtime>0.046</deadtime>
+    <peak_mu_av>31.66</peak_mu_av>
+  </lumivalues>
+  <bunchgroups>
+    <bunchgroup id="0" name="BCRVeto">3543</bunchgroup>
+    <bunchgroup id="1" name="Paired">2208</bunchgroup>
+    <bunchgroup id="2" name="CalReq">70</bunchgroup> 
+    <bunchgroup id="3" name="Empty">818</bunchgroup>
+    <bunchgroup id="4" name="IsolatedUnpaired">10</bunchgroup>
+    <bunchgroup id="5" name="NonIsolatedUnpaired">14</bunchgroup>
+    <bunchgroup id="6" name="EmptyBeforeAfterPaired">414</bunchgroup>
+    <bunchgroup id="7" name="InTrain">1932</bunchgroup>
+    <bunchgroup id="8" name="AbortGapNotCalReq">29</bunchgroup>
+    <bunchgroup id="9" name="AfterGlow">0</bunchgroup>
+    <bunchgroup id="10" name="ALFA">4</bunchgroup>
+    <bunchgroup id="11" name="EmptyBeforePaired">46</bunchgroup>
+    <bunchgroup id="12" name="AllWithoutCalreq">3473</bunchgroup>
+    <bunchgroup id="13" name="BG13">0</bunchgroup>
+    <bunchgroup id="14" name="BG14">0</bunchgroup>
+    <bunchgroup id="15" name="BG15">0</bunchgroup>
+  </bunchgroups>
+  <lb_list>
+    <lb id="600" lumi="12260" mu="35.3" flag="bad">19161</lb>
+    <lb id="601" lumi="12240" mu="35.2" flag="bad">21243</lb>
+    <lb id="602" lumi="12200" mu="35.1" flag="bad">0</lb>
+    <lb id="603" lumi="12170" mu="35.1" flag="bad">0</lb>
+    <lb id="604" lumi="12130" mu="34.9" flag="bad">0</lb>
+    <lb id="605" lumi="12110" mu="34.9" flag="bad">0</lb>
+    <lb id="606" lumi="12090" mu="34.8" flag="bad">0</lb>
+    <lb id="607" lumi="12050" mu="34.7" flag="bad">0</lb>
+    <lb id="608" lumi="12020" mu="34.6" flag="bad">0</lb>
+    <lb id="609" lumi="0" mu="0" flag="bad">0</lb>
+    <lb id="610" lumi="0" mu="0" flag="bad">0</lb>
+    <lb id="611" lumi="11950" mu="34.4" flag="bad">0</lb>
+    <lb id="612" lumi="11940" mu="34.4" flag="bad">0</lb>
+    <lb id="613" lumi="11930" mu="34.3" flag="bad">0</lb>
+    <lb id="614" lumi="11890" mu="34.2" flag="bad">0</lb>
+    <lb id="615" lumi="11870" mu="34.2" flag="bad">0</lb>
+    <lb id="616" lumi="11840" mu="34.1" flag="bad">0</lb>
+    <lb id="617" lumi="11810" mu="34.0" flag="bad">0</lb>
+    <lb id="618" lumi="11780" mu="33.9" flag="bad">0</lb>
+    <lb id="619" lumi="11750" mu="33.8" flag="bad">0</lb>
+    <lb id="620" lumi="11730" mu="33.8" flag="bad">0</lb>
+    <lb id="621" lumi="11690" mu="33.7" flag="bad">0</lb>
+    <lb id="622" lumi="11660" mu="33.6" flag="bad">0</lb>
+    <lb id="623" lumi="11650" mu="33.6" flag="bad">0</lb>
+    <lb id="624" lumi="11640" mu="33.5" flag="bad">0</lb>
+    <lb id="625" lumi="11320" mu="32.6" flag="bad">0</lb>
+    <lb id="626" lumi="11380" mu="32.8" flag="bad">0</lb>
+    <lb id="627" lumi="11020" mu="31.7">21150</lb>
+    <lb id="628" lumi="11670" mu="33.6">22133</lb>
+    <lb id="629" lumi="11690" mu="33.7">22416</lb>
+    <lb id="630" lumi="11670" mu="33.6">21936</lb>
+    <lb id="631" lumi="11650" mu="33.5">22371</lb>
+    <lb id="632" lumi="11630" mu="33.5">21997</lb>
+    <lb id="633" lumi="11600" mu="33.4">21726</lb>
+    <lb id="634" lumi="11590" mu="33.4">3625</lb>
+    <lb id="635" lumi="11590" mu="33.4">21410</lb>
+    <lb id="636" lumi="11570" mu="33.3">21967</lb>
+    <lb id="637" lumi="11540" mu="33.2">22101</lb>
+    <lb id="638" lumi="11520" mu="33.2">22512</lb>
+    <lb id="639" lumi="11500" mu="33.1" flag="bad">3615</lb>
+    <lb id="640" lumi="11490" mu="33.1">21911</lb>
+    <lb id="641" lumi="11470" mu="33.0">21611</lb>
+    <lb id="642" lumi="0" mu="0" flag="bad">21479</lb>
+    <lb id="643" lumi="0" mu="0" flag="bad">3728</lb>
+    <lb id="644" lumi="11420" mu="32.9">21395</lb>
+    <lb id="645" lumi="11400" mu="32.8">22022</lb>
+    <lb id="646" lumi="11390" mu="32.8" flag="bad">12681</lb>
+    <lb id="647" lumi="11370" mu="32.7">21760</lb>
+    <lb id="648" lumi="11340" mu="32.7">21861</lb>
+    <lb id="649" lumi="11330" mu="32.6">21823</lb>
+    <lb id="650" lumi="11310" mu="32.6">21235</lb>
+    <lb id="651" lumi="11300" mu="32.5">21311</lb>
+    <lb id="652" lumi="11280" mu="32.5">21432</lb>
+    <lb id="653" lumi="11260" mu="32.4">21379</lb>
+    <lb id="654" lumi="11240" mu="32.4">21266</lb>
+    <lb id="655" lumi="11220" mu="32.3">21425</lb>
+    <lb id="656" lumi="11200" mu="32.2">21269</lb>
+    <lb id="657" lumi="11180" mu="32.2">21345</lb>
+    <lb id="658" lumi="11160" mu="32.1">21398</lb>
+    <lb id="659" lumi="11150" mu="32.1">21362</lb>
+    <lb id="660" lumi="11130" mu="32.0">20829</lb>
+    <lb id="661" lumi="11110" mu="32.0" flag="bad">13418</lb>
+    <lb id="662" lumi="11080" mu="31.9">21065</lb>
+    <lb id="663" lumi="11070" mu="31.9">21027</lb>
+    <lb id="664" lumi="11050" mu="31.8">20936</lb>
+    <lb id="665" lumi="11040" mu="31.8">21153</lb>
+    <lb id="666" lumi="11010" mu="31.7">21366</lb>
+    <lb id="667" lumi="0" mu="0" flag="bad">14674</lb>
+    <lb id="668" lumi="0" mu="0" flag="bad">0</lb>
+    <lb id="669" lumi="10980" mu="31.6" flag="bad">0</lb>
+    <lb id="670" lumi="10990" mu="31.6">3393</lb>
+    <lb id="671" lumi="10970" mu="31.6">20343</lb>
+    <lb id="672" lumi="10950" mu="31.5">20906</lb>
+    <lb id="673" lumi="10920" mu="31.5">20475</lb>
+    <lb id="674" lumi="10900" mu="31.4">20586</lb>
+    <lb id="675" lumi="10890" mu="31.4">20583</lb>
+    <lb id="676" lumi="10830" mu="31.2">20484</lb>
+    <lb id="677" lumi="10820" mu="31.2">20532</lb>
+    <lb id="678" lumi="10780" mu="31.1" flag="bad">37368</lb>
+    <lb id="679" lumi="10760" mu="31.0">20510</lb>
+    <lb id="680" lumi="10750" mu="31.0">20830</lb>
+    <lb id="681" lumi="10710" mu="30.8">20296</lb>
+    <lb id="682" lumi="10710" mu="30.8">20708</lb>
+    <lb id="683" lumi="10690" mu="30.8">20363</lb>
+    <lb id="684" lumi="10660" mu="30.7">20350</lb>
+    <lb id="685" lumi="10650" mu="30.7">20425</lb>
+    <lb id="686" lumi="10630" mu="30.6">20438</lb>
+    <lb id="687" lumi="10630" mu="30.6">20357</lb>
+    <lb id="688" lumi="10610" mu="30.6">20360</lb>
+    <lb id="689" lumi="10590" mu="30.5">20243</lb>
+    <lb id="690" lumi="10590" mu="30.5">19797</lb>
+    <lb id="691" lumi="10550" mu="30.4">19819</lb>
+    <lb id="692" lumi="10530" mu="30.3">19969</lb>
+    <lb id="693" lumi="10520" mu="30.3">20032</lb>
+    <lb id="694" lumi="10480" mu="30.2">19555</lb>
+    <lb id="695" lumi="10490" mu="30.2">19663</lb>
+    <lb id="696" lumi="10470" mu="30.1">19653</lb>
+    <lb id="697" lumi="10460" mu="30.1">19844</lb>
+    <lb id="698" lumi="10440" mu="30.1">19887</lb>
+    <lb id="699" lumi="0" mu="0" flag="bad">20223</lb>
+    <lb id="700" lumi="0" mu="0" flag="bad">3341</lb>
+    <lb id="701" lumi="10400" mu="30.0">19532</lb>
+    <lb id="702" lumi="10380" mu="29.9">19837</lb>
+    <lb id="703" lumi="10100" mu="29.1">19290</lb>
+    <lb id="704" lumi="9857 " mu="28.4">19141</lb>
+    <lb id="705" lumi="10430" mu="30.0">19769</lb>
+    <lb id="706" lumi="10420" mu="30.0">13217</lb>
+  </lb_list>
+  <filters>
+    <filter>
+      <eb_hlt_chains>
+        <eb_hlt_name>HLT_eb_low_L1RD2_FILLED</eb_hlt_name>
+        <lv1_ebtrigs>L1_MU6</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_EM10VH</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_J30.0ETA49_2J20.0ETA49</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_TAU12</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_MU4_J12</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_2EM7</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_J15</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_2MU4</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_XS30</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_ZB</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_DETA-JJ</lv1_ebtrigs>
+      </eb_hlt_chains>
+      <eb_hlt_chains>
+        <eb_hlt_name>HLT_eb_high_L1RD2_FILLED</eb_hlt_name>
+        <lv1_ebtrigs>L1_3J15</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_EM18VH</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_EM20VHI</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_2EM10VH</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_J50</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_TAU30</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_MU15</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_TAU20_2TAU12</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_XE35</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_MU6_2MU4</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_MU6_J20</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_EM7_MU10</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_EM15VH_3EM7</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_3MU4</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_2EM15</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_EM15I_MU4</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_TAU20_2TAU12_XE35</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_DR-TAU20ITAU12I</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_DY-BOX-2MU4</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_DY-DR-2MU4</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_2MU4-B</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_2MU4-BO</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_BTAG-MU4J15</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_MJJ-100</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_J4-MATCH</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_HT190-J15.ETA21</lv1_ebtrigs>
+        <lv1_ebtrigs>L1_2MU6</lv1_ebtrigs>
+      </eb_hlt_chains>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1PhysicsLow_noPS</filter_name>
+      <lv1_filter>L1_MU6_3MU4</lv1_filter>
+      <lv1_filter>L1_2EM8VH_MU10</lv1_filter>
+      <lv1_filter>L1_2J15_XE55</lv1_filter>
+      <lv1_filter>L1_4J15</lv1_filter>
+      <lv1_filter>L1_EM15HI_2TAU12IM_J25_3J12</lv1_filter>
+      <lv1_filter>L1_EM15HI_2TAU12IM_XE35</lv1_filter>
+      <lv1_filter>L1_EM15HI_TAU40_2TAU15</lv1_filter>
+      <lv1_filter>L1_EM15VH_MU10</lv1_filter>
+      <lv1_filter>L1_EM22VHI</lv1_filter>
+      <lv1_filter>L1_MU10_TAU12IM_J25_2J12</lv1_filter>
+      <lv1_filter>L1_MU10_TAU12IM_XE35</lv1_filter>
+      <lv1_filter>L1_MU10_TAU20IM</lv1_filter>
+      <lv1_filter>L1_MU20</lv1_filter>
+      <lv1_filter>L1_MU6_J30.0ETA49_2J20.0ETA49</lv1_filter>
+      <lv1_filter>L1_TAU20IM_2J20_XE45</lv1_filter>
+      <lv1_filter>L1_TAU20IM_2TAU12IM_J25_2J20_3J12</lv1_filter>
+      <lv1_filter>L1_TAU20IM_2TAU12IM_XE35</lv1_filter>
+      <lv1_filter>L1_TAU60</lv1_filter>
+      <lv1_filter>L1_XE50</lv1_filter>
+      <lv1_filter>L1_MU10_3J20</lv1_filter>
+      <lv1_filter>L1_J40.0ETA25_2J15.31ETA49</lv1_filter>
+      <lv1_filter>L1_3MU6</lv1_filter>
+      <lv1_filter>L1_MU10_2J15_J20</lv1_filter>
+      <lv1_filter>L1_J40.0ETA25_2J25_J20.31ETA49</lv1_filter>
+      <lv1_filter>L1_2MU6_3MU4</lv1_filter>
+      <lv1_filter>L1_MU11_2MU6</lv1_filter>     
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1PhysicsHigh_noPS</filter_name>
+      <lv1_filter>L1_J100.31ETA49</lv1_filter>
+      <lv1_filter>L1_J400</lv1_filter>
+      <lv1_filter>L1_XE80</lv1_filter>
+      <lv1_filter>L1_6J15</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1EMPTY_noPS</filter_name>
+      <lv1_filter>L1_J12_EMPTY</lv1_filter>
+      <lv1_filter>L1_MU11_EMPTY</lv1_filter>
+      <lv1_filter>L1_TAU8_EMPTY</lv1_filter>
+      <lv1_filter>L1_EM7_EMPTY</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1FIRSTEMPTY_noPS</filter_name>
+      <lv1_filter>L1_J12_FIRSTEMPTY</lv1_filter>
+      <lv1_filter>L1_MU20_FIRSTEMPTY</lv1_filter>
+      <lv1_filter>L1_TAU8_FIRSTEMPTY</lv1_filter>
+      <lv1_filter>L1_EM7_FIRSTEMPTY</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1UNPAIRED_ISO_noPS</filter_name>
+      <lv1_filter>L1_BCM_AC_UNPAIRED_ISO</lv1_filter>
+      <lv1_filter>L1_BCM_CA_UNPAIRED_ISO</lv1_filter>
+      <lv1_filter>L1_BCM_Wide_UNPAIRED_ISO</lv1_filter>
+      <lv1_filter>L1_J12_UNPAIRED_ISO</lv1_filter>
+      <lv1_filter>L1_J15.31ETA49_UNPAIRED_ISO</lv1_filter>
+      <lv1_filter>L1_MU4_UNPAIRED_ISO</lv1_filter>
+      <lv1_filter>L1_EM7_UNPAIRED_ISO</lv1_filter>
+      <lv1_filter>L1_TAU8_UNPAIRED_ISO</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1UNPAIRED_NONISO_noPS</filter_name>
+      <lv1_filter>L1_BCM_AC_UNPAIRED_NONISO</lv1_filter>
+      <lv1_filter>L1_BCM_CA_UNPAIRED_NONISO</lv1_filter>
+      <lv1_filter>L1_BCM_Wide_UNPAIRED_NONISO</lv1_filter>
+      <lv1_filter>L1_J12_UNPAIRED_NONISO</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1ABORTGAPNOTCALIB_noPS</filter_name>
+      <lv1_filter>L1_J12_ABORTGAPNOTCALIB</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1RD3_FILLED</filter_name>
+      <lv1_filter>L1_RD3_FILLED</lv1_filter>
+    </filter>
+    <filter>
+      <filter_name>HLT_noalg_eb_L1RD3_EMPTY</filter_name>
+      <lv1_filter>L1_RD3_EMPTY</lv1_filter>
+    </filter>
+  </filters>
+</trigger>

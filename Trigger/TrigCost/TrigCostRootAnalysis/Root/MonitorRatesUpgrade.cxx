@@ -329,7 +329,7 @@ namespace TrigCostRootAnalysis {
       //_L1Chain->setAdvancedLumiScaling(kFALSE);
       _L1Chain->addL1Item( _chainItemL1 ); // Link it to where it'll be getting its pass/fail info
       (*_counterMap)[_chainName] = static_cast<CounterBase*>(_L1Chain); // Insert into the counterMap
-      Info("MonitorRatesUpgrade::createL1Counters","Made a L1 counter for: %s", _L1Chain->getName().c_str() );
+      //Info("MonitorRatesUpgrade::createL1Counters","Made a L1 counter for: %s", _L1Chain->getName().c_str() );
 
       //Add to global L1 counter
       m_globalRateL1Counter->addL1Item( _chainItemL1 );
@@ -341,7 +341,7 @@ namespace TrigCostRootAnalysis {
       } else {
         // We need a new group counter, this should be of type Union
         CounterRatesUnion* _ratesGroup = new CounterRatesUnion(m_costData, _group, 0, 10, (MonitorBase*)this); // Mint new counter
-        Info("MonitorRatesUpgrade::createL1Counters","Made a L1 Group counter for: %s", _ratesGroup->getName().c_str() );
+        //Info("MonitorRatesUpgrade::createL1Counters","Made a L1 Group counter for: %s", _ratesGroup->getName().c_str() );
         _ratesGroup->decorate(kDecPrescaleStr, Config::config().getStr(kMultipleString));
         _ratesGroup->decorate(kDecPrescaleVal, (Float_t)0.);
         _ratesGroup->decorate(kDecRatesGroupName, _item.m_group);
@@ -366,7 +366,7 @@ namespace TrigCostRootAnalysis {
       // Find the ChainItem for this chain
       ChainItemMapIt_t _it = m_chainItemsL2.find( _chainName );
       if (_it == m_chainItemsL2.end()) {
-        Warning("MonitorRatesUpgrade::createL2Counters","Cannot find L2 item: %s", _chainName.c_str() );
+        //Warning("MonitorRatesUpgrade::createL2Counters","Cannot find L2 item: %s", _chainName.c_str() );
         continue;
       }
       RatesChainItem* _chainItemL2 = _it->second;
@@ -574,9 +574,12 @@ namespace TrigCostRootAnalysis {
     static Int_t _tobDebug = 20;
     if (++_tobDebug < 20) Info("MonitorRatesUpgrade::newEvent", " *******************************************");
     TOBAccumulator* _thisEvent = getEventTOBs();
-    m_eventsToMix += m_pileupFactor - 1; // -1 because the "main" event has pileup too
+    m_eventsToMix += m_pileupFactor - 1.; // -1 because the "main" event has pileup too
+    if ( fabs( m_eventsToMix - round(m_eventsToMix) ) <  0.1) m_eventsToMix = round(m_eventsToMix);
+    static Int_t _debug2 = 0;
+    if (++_debug2 < 20) Info("MonitorRatesUpgrade::newEvent", "Mixing %i events (f %f)", (Int_t) round(m_eventsToMix), m_eventsToMix);
     // Add pileup
-    for (Int_t _pu = 0; _pu < (Int_t)m_eventsToMix; ++_pu) { // Cast to int rounds down
+    for (Int_t _pu = 0; _pu <  (Int_t) round(m_eventsToMix); ++_pu) { // Cast to int rounds down
       UInt_t _pileupLottery = m_R3.Integer( m_pileupDatabase.size() );
       _thisEvent->add( m_pileupDatabase.at( _pileupLottery ) ); 
     }

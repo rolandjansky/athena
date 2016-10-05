@@ -273,6 +273,7 @@ namespace TrigCostRootAnalysis {
     kJIRA,
     kRunLumi,
     kRunLumiXML,
+    kDoExponentialMu,
     kDebug, 
     kNPasses,
     kUpgradeMergeTOBOverlap,

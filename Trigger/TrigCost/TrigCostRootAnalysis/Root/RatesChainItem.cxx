@@ -125,9 +125,6 @@ namespace TrigCostRootAnalysis {
       m_iAmRandom = kFALSE;
     }
 
-    // HACK HACK
-    //m_iAmRandom = kTRUE;
-
     if (m_advancedLumiScaling == kFALSE) { // Just do linear extrapolation
 
       m_lumiExtrapolationFactor = Config::config().getFloat(kLumiExtrapWeight); // Linear (including deadtime)
