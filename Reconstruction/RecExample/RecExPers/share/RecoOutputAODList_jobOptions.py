@@ -293,7 +293,7 @@ if rec.doWriteCalibHits():
 
 
 # Heavy Ion:
-if rec.doHeavyIon():
+if rec.doHeavyIon() or rec.doHIP():
     try:
         include ("HIRecExample/HIRecOutputAODList_jobOptions.py")
         fullAODList += CfgItemList( "HeavyIonsAod", items = HIAODItemList )
