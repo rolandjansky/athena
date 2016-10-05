@@ -118,13 +118,14 @@ StatusCode JetRecTool::initialize() {
     if ( m_hpjr.retrieve().isSuccess() ) {
       m_ppjr = &*m_hpjr;
     } else {
+      ATH_MSG_ERROR("Unable to retrieve requested pseudojet retriever: " << m_hpjr.name());
+    }
+  } else {
 #ifdef ROOTCORE
       m_ppjr = new JetPseudojetRetriever(name()+"_retriever");
 #else
       m_ppjr = nullptr;
-      ATH_MSG_ERROR("Unable to retrieve requested pseudojet retriever: " << m_hpjr.name());
 #endif 
-    }
   }
   ATH_MSG_INFO("Jet reconstruction mode: " << mode);
   // Check/set the input jet collection name.
