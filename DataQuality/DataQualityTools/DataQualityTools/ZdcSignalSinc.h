@@ -28,16 +28,16 @@ class ZdcSignalSinc {
   double getAmp();
 
  private:
-  const   int    n_Slices;
+  const   int    m_n_Slices;
   const   double m_AmpThresh;
-  const   double tClock;
-  const   double Pi;
+  const   double m_tClock;
+  const   double m_Pi;
   double  m_Time;
   double  m_Amp;
   int     m_Err;
   int     m_Warn;
 
-  bool    m_CorrFlag;
+  //bool    m_CorrFlag;
 
   double *m_buf;
 
@@ -48,8 +48,8 @@ class ZdcSignalSinc {
   double  findpeak();
   double  fraction(double,double);
 
-  double  tim[3],wfm[3],dt;
-  int AAAA;    
+  double  m_tim[3],m_wfm[3],m_dt;
+  //int AAAA;    
 
 
 };

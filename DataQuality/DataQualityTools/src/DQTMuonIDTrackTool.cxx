@@ -132,6 +132,11 @@ DQTMuonIDTrackTool::DQTMuonIDTrackTool(const std::string & type,
    , m_nMinSCTHits(5)
    , m_minPtCut(4000)
    , m_muonPtCut(6000)
+   , m_JPsiCounter(0)
+   , m_printedErrorID(false)
+   , m_printedErrorMuon(false)
+   , m_printedErrorCombined(false)
+   , m_printedErrorMuonColl(false)
 
 //----------------------------------------------------------------------------------
 
@@ -147,10 +152,10 @@ DQTMuonIDTrackTool::DQTMuonIDTrackTool(const std::string & type,
    declareProperty("MinSCTHits", m_nMinSCTHits);
    declareProperty("MinPtCut", m_minPtCut);
    declareProperty("muonPtCut", m_muonPtCut);
-   declareProperty("doRunCosmics", m_doRunCosmics = 1);
-   declareProperty("doRunBeam", m_doRunBeam = 1);  
-   declareProperty("doOfflineHists", m_doOfflineHists = 1);
-   declareProperty("doOnlineHists", m_doOnlineHists = 1);
+   //declareProperty("doRunCosmics", m_doRunCosmics = 1);
+   //declareProperty("doRunBeam", m_doRunBeam = 1);  
+   //declareProperty("doOfflineHists", m_doOfflineHists = 1);
+   //declareProperty("doOnlineHists", m_doOnlineHists = 1);
    declareInterface<IMonitorToolBase>(this);
    m_path = "GLOBAL/DQTMuonIDTrack";
 
@@ -169,15 +174,15 @@ StatusCode DQTMuonIDTrackTool::bookHistograms( )
 //----------------------------------------------------------------------------------
 {
    bool failure(false);
-   printedErrorID = false;
-   printedErrorMuon = false;
-   printedErrorCombined = false;
-   printedErrorMuonColl = false;
+   m_printedErrorID = false;
+   m_printedErrorMuon = false;
+   m_printedErrorCombined = false;
+   m_printedErrorMuonColl = false;
 
    //if (newRun) {
       MsgStream log(msgSvc(), name());
-      log << MSG::DEBUG << "in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam << endreq;
-      log << MSG::DEBUG << "Using base path " << m_path << endreq;
+      log << MSG::DEBUG << "in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam << endmsg;
+      log << MSG::DEBUG << "Using base path " << m_path << endmsg;
       
       failure = bookMuons();
    //}
@@ -201,7 +206,7 @@ bool DQTMuonIDTrackTool::bookMuons()
 
    StatusCode sc = m_extrapolator.retrieve();
    if(sc.isFailure()) {
-      log << MSG::FATAL << "Could not get " << m_extrapolator.type() << endreq;
+      log << MSG::FATAL << "Could not get " << m_extrapolator.type() << endmsg;
       return sc;
    }
 
@@ -316,7 +321,7 @@ bool DQTMuonIDTrackTool::bookMuons()
    }
       
    if (failure) {
-      log << MSG::ERROR << "Error Booking histograms " << endreq;
+      log << MSG::ERROR << "Error Booking histograms " << endmsg;
    }
    return failure;
 
@@ -329,7 +334,7 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
 {
    MsgStream log(msgSvc(), name());
 
-   log << MSG::DEBUG << "in fillHists()" << endreq;
+   log << MSG::DEBUG << "in fillHists()" << endmsg;
    StatusCode sc;
    sc.setChecked();
 
@@ -338,18 +343,18 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
    const xAOD::MuonContainer* muons = 0;
    //if(evtStore()->contains< const xAOD::MuonContainer >( "Muons" )){
    if(evtStore()->retrieve(muons, "Muons" ).isFailure()){
-         if (!printedErrorMuonColl) log << MSG::WARNING << "No Container with name " << "Muons" << " found in evtStore" << endreq;
-         printedErrorMuonColl = true;
+         if (!m_printedErrorMuonColl) log << MSG::WARNING << "No Container with name " << "Muons" << " found in evtStore" << endmsg;
+         m_printedErrorMuonColl = true;
          return StatusCode::SUCCESS;
    } 
    // If successful at retrieving container, shouldn't fail!
    // } else {
-   //    if (!printedErrorMuonColl) log << MSG::WARNING << "evtStore does not contain Container with name " << "Muons" << endreq;
-   //    printedErrorMuonColl = true;
+   //    if (!m_printedErrorMuonColl) log << MSG::WARNING << "evtStore does not contain Container with name " << "Muons" << endmsg;
+   //    m_printedErrorMuonColl = true;
    //    return StatusCode::SUCCESS;
    // }
 
-   log << MSG::DEBUG << "Muons" << " Collection size : " << muons->size() << endreq;
+   log << MSG::DEBUG << "Muons" << " Collection size : " << muons->size() << endmsg;
   
 
    // iterators over the muon container and retrieve ID tracks only
@@ -384,14 +389,14 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
           << (*muonItr)->muonSpectrometerTrackParticleLink().isValid()  << " " 
           << (*muonItr)->combinedTrackParticleLink().isValid()  << " " 
           << (*muonItr)->clusterLink().isValid() << " " 
-          << endreq;
+          << endmsg;
 
       uint8_t NumOfPixHits = 0;
       uint8_t NumOfSCTHits = 0;
       if ((*muonItr)->summaryValue(NumOfSCTHits, xAOD::numberOfSCTHits) )
-          log << MSG::DEBUG << "Could not retrieve number of SCT hits"<< endreq;
+          log << MSG::DEBUG << "Could not retrieve number of SCT hits"<< endmsg;
       if ((*muonItr)->summaryValue(NumOfPixHits, xAOD::numberOfPixelHits) )
-          log << MSG::DEBUG << "Could not retrieve number of Pixel hits"<< endreq;
+          log << MSG::DEBUG << "Could not retrieve number of Pixel hits"<< endmsg;
 
       if ((*muonItr)->combinedTrackParticleLink().isValid() &&
           (*muonItr)->inDetTrackParticleLink().isValid()    &&
@@ -459,7 +464,7 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
 	measPerigee = m_extrapolator->extrapolate(**muontracksItr,(idPerigee->associatedSurface()),Trk::anyDirection,true,Trk::pion);
 	   ATH_MSG_WARNING("measPerigee? " << measPerigee);
          if (!measPerigee) {            
-            log << MSG::WARNING << "Extrapolation failed 1!!" << endreq;
+            log << MSG::WARNING << "Extrapolation failed 1!!" << endmsg;
          } 
       }
      
@@ -491,7 +496,7 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
                if (measPerigee2) {
                   measPerigee2 = dynamic_cast<const Trk::Perigee*>(m_extrapolator->extrapolate(*measPerigee2,(idPerigee2->associatedSurface()),Trk::anyDirection,false,Trk::muon));
                   if (!measPerigee2) {
-                     log << MSG::WARNING << "Extrapolation failed 2!!" << endreq;
+                     log << MSG::WARNING << "Extrapolation failed 2!!" << endmsg;
                   } 
                }
                
@@ -519,8 +524,8 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
                      Float_t diffd0ID = TMath::Abs(idPerigee->parameters()[Trk::d0]-idPerigee2->parameters()[Trk::d0]);
                      Float_t diffd0Muon = TMath::Abs(measPerigee->parameters()[Trk::d0]-measPerigee2->parameters()[Trk::d0]);
                      
-                     log << MSG::DEBUG << " diffz0id = " << diffz0ID << " diffz0Muon = " << diffz0Muon << endreq;
-                     log << MSG::DEBUG << " diffd0id = " << diffz0ID << " diffd0Muon = " << diffz0Muon << endreq;
+                     log << MSG::DEBUG << " diffz0id = " << diffz0ID << " diffz0Muon = " << diffz0Muon << endmsg;
+                     log << MSG::DEBUG << " diffd0id = " << diffz0ID << " diffd0Muon = " << diffz0Muon << endmsg;
                      
                      CLHEP::HepLorentzVector xvec;
                      
@@ -594,22 +599,22 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
 
          log << MSG::DEBUG << idPerigee->parameters()[Trk::theta]  << " " 
              << measTheta 
-             << endreq;
+             << endmsg;
          log << MSG::DEBUG << idPerigee->parameters()[Trk::phi0]   << " " 
              << measPhi 
-             << endreq;
+             << endmsg;
          log << MSG::DEBUG << idPerigee->parameters()[Trk::d0]     << " " 
              << measPerigee->parameters()[Trk::d0] 
-             << endreq;
+             << endmsg;
          log << MSG::DEBUG << idPerigee->parameters()[Trk::z0]     << " " 
              << measPerigee->parameters()[Trk::z0] 
-             << endreq;
+             << endmsg;
          log << MSG::DEBUG << idPerigee->parameters()[Trk::qOverP] << " " 
              << measPerigee->parameters()[Trk::qOverP] 
-             << endreq;
+             << endmsg;
          log << MSG::DEBUG << idPerigee->momentum().perp() << " "
              << measPerigee->momentum().perp() 
-             << endreq;
+             << endmsg;
 
          m_trkEtasGM->Fill(idPerigee->eta(),measEta);
          m_trkThetasGM->Fill(idPerigee->parameters()[Trk::theta],measTheta);
@@ -688,9 +693,9 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
       uint8_t RPCphiLayers = 0;
       uint8_t MDTLayers = 0;
       if ((*MSMuonsItr)->summaryValue(RPCphiLayers, xAOD::numberOfPhiLayers) )
-          log << MSG::DEBUG << "Could not retrieve number of (RPC) Phi layers with a trigger phi hit"<< endreq;
+          log << MSG::DEBUG << "Could not retrieve number of (RPC) Phi layers with a trigger phi hit"<< endmsg;
       if ((*MSMuonsItr)->summaryValue(MDTLayers, xAOD::numberOfPrecisionLayers) )
-          log << MSG::DEBUG << "Could not retrieve number of MDT layers with at least 3 hits"<< endreq;
+          log << MSG::DEBUG << "Could not retrieve number of MDT layers with at least 3 hits"<< endmsg;
 
       for (IDMuonsItr  = IDMuons.begin(); IDMuonsItr  != IDMuonsItrE; ++IDMuonsItr)
       {
@@ -726,9 +731,9 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
       uint8_t TRThits = 0;
       uint8_t SCThits = 0;
       if ((*IDMuonsItr)->summaryValue(SCThits, xAOD::numberOfSCTHits) )
-          log << MSG::DEBUG << "Could not retrieve number of SCT hits"<< endreq;
+          log << MSG::DEBUG << "Could not retrieve number of SCT hits"<< endmsg;
       if ((*IDMuonsItr)->summaryValue(TRThits, xAOD::numberOfTRTHits) )
-          log << MSG::DEBUG << "Could not retrieve number of TRT hits"<< endreq;
+          log << MSG::DEBUG << "Could not retrieve number of TRT hits"<< endmsg;
 
       for ( MSMuonsItr = MSMuons.begin(); MSMuonsItr != MSMuonsItrE; ++MSMuonsItr)
       {
@@ -760,36 +765,36 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
    if (evtStore()->contains<TrackCollection>(m_CombinedInDetTracksName)) {
       sc = evtStore()->retrieve(id_tracks, m_CombinedInDetTracksName);
       if ( sc.isFailure()) {
-         if (!printedErrorID) 
-	        log << MSG::DEBUG <<"No combined in.det. tracks in evtStore"<<endreq;
-         printedErrorID = true;
+         if (!m_printedErrorID) 
+	        log << MSG::DEBUG <<"No combined in.det. tracks in evtStore"<<endmsg;
+         m_printedErrorID = true;
       } 
 	  else 
-         log << MSG::DEBUG <<"found in.det. tracks in evtStore " <<m_CombinedInDetTracksName<<" "<<id_tracks->size()<<endreq;
+         log << MSG::DEBUG <<"found in.det. tracks in evtStore " <<m_CombinedInDetTracksName<<" "<<id_tracks->size()<<endmsg;
    }
   
    const TrackCollection *muon_tracks = 0;
    if ( evtStore()->contains<TrackCollection>(m_MooreTracksName) ) {
       sc = evtStore()->retrieve(muon_tracks, m_MooreTracksName);
       if ( sc.isFailure() ) { 
-         if (!printedErrorMuon) 
-		    log << MSG::DEBUG <<"No muon tracks in evtStore"<<endreq;
-         printedErrorMuon = true;
+         if (!m_printedErrorMuon) 
+		    log << MSG::DEBUG <<"No muon tracks in evtStore"<<endmsg;
+         m_printedErrorMuon = true;
       } 
 	  else 
-         log << MSG::DEBUG <<"found muon tracks in evtStore " <<m_MooreTracksName<<" "<<muon_tracks->size()<<endreq;
+         log << MSG::DEBUG <<"found muon tracks in evtStore " <<m_MooreTracksName<<" "<<muon_tracks->size()<<endmsg;
    }
   
    const TrackCollection *combined_tracks = 0;
    if ( evtStore()->contains<TrackCollection>(m_CombinedTracksName) ) {
       sc=evtStore()->retrieve(combined_tracks,m_CombinedTracksName);
       if ( sc.isFailure()) {
-         if (!printedErrorCombined) 
-            log << MSG::DEBUG <<"No combined tracks in evtStore " << m_CombinedTracksName<<endreq; 
-         printedErrorCombined = true;
+         if (!m_printedErrorCombined) 
+            log << MSG::DEBUG <<"No combined tracks in evtStore " << m_CombinedTracksName<<endmsg; 
+         m_printedErrorCombined = true;
       } 
 	  else                  
-         log << MSG::DEBUG <<"found combined tracks in evtStore " << m_CombinedTracksName << " " <<combined_tracks->size() << endreq;
+         log << MSG::DEBUG <<"found combined tracks in evtStore " << m_CombinedTracksName << " " <<combined_tracks->size() << endmsg;
    }
   
 */
@@ -825,13 +830,13 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
    316         nSiHits=(*track)->siSpacePoints()->size();   
    317         (this)->fillHitPattern((*track)->siSpacePoints());
    318 
-   319         (*m_log) << MSG::DEBUG << " Track " << m_nTracks  << " contains " << (*track)->siSpacePoints()->size() << " TrigSiSpacePoint " << endreq;
+   319         (*m_log) << MSG::DEBUG << " Track " << m_nTracks  << " contains " << (*track)->siSpacePoints()->size() << " TrigSiSpacePoint " << endmsg;
    320         if (m_doTruth && m_gotTruthMap) (this)->kineAssoc(*track);
    321         
    322       } else {
    323         
    324         (*m_log) << MSG::DEBUG << " No spacepoint info for track " << m_nTracks << 
-   325           " algorithm ID " << *(m_algo->end()) << endreq;
+   325           " algorithm ID " << *(m_algo->end()) << endmsg;
    326       }
    327       
    328     } else if ((*track)->algorithmId() ==  TrigInDetTrack::TRTXKID) {
@@ -859,7 +864,7 @@ StatusCode DQTMuonIDTrackTool::fillHistograms()
    274                                                            etac);
    275       if(sc.isFailure())
    276         {
-   277           (*m_log) << MSG::DEBUG << " extrapolateToCalo failed" << endreq;
+   277           (*m_log) << MSG::DEBUG << " extrapolateToCalo failed" << endmsg;
    278           phic=0.0;etac=0.0;
    279         }
    280 
@@ -888,10 +893,10 @@ StatusCode DQTMuonIDTrackTool::procHistograms( )
 //----------------------------------------------------------------------------------
 {
    //if ( endOfEventsBlock || endOfLumiBlock || endOfRun ) {
-   if ( endOfLumiBlock || endOfRun ) {
+  if ( endOfLumiBlockFlag() || endOfRunFlag() ) {
       MsgStream log(msgSvc(), name());
 
-      log << MSG::DEBUG << "in finalHists()" << endreq;
+      log << MSG::DEBUG << "in finalHists()" << endmsg;
    }
 
    return StatusCode::SUCCESS;
@@ -903,7 +908,7 @@ StatusCode DQTMuonIDTrackTool::checkHists(bool /* fromFinalize */)
 {
    MsgStream log(msgSvc(), name());
 
-   log << MSG::DEBUG << "in checkHists()" << endreq;
+   log << MSG::DEBUG << "in checkHists()" << endmsg;
 
    return StatusCode::SUCCESS;
 }

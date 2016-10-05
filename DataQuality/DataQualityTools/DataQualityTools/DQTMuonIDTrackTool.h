@@ -166,10 +166,10 @@ private:
   TH1F_LW* m_JPsiCounter;
 
   // so we don't print out endless messages
-  bool printedErrorID;
-  bool printedErrorMuon;
-  bool printedErrorCombined;    
-  bool printedErrorMuonColl;
+  bool m_printedErrorID;
+  bool m_printedErrorMuon;
+  bool m_printedErrorCombined;    
+  bool m_printedErrorMuonColl;
 };
 
 #endif
