@@ -125,7 +125,7 @@ void TrackHandle_SimulationTrack::Imp::ensureInitTrkTracks()
 		    +QString::number(theclass->pdgCode())+").");//Fixme: I guess we could show non-extrapolated version?
     return;
   }
-  const double charge = theclass->charge();
+  //const double charge = theclass->charge(); unused
 
   DataVector<const Trk::TrackStateOnSurface>* trackStateOnSurfaces = new DataVector<const Trk::TrackStateOnSurface>;
 

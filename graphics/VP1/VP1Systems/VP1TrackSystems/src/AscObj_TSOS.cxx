@@ -289,6 +289,7 @@ double AscObj_TSOS::deviationFromMeasurement(const bool& absolute)
     const Trk::TrackParameters* trackParams = m_tsos->trackParameters();
     const Trk::TrackParameters * meas = dynamic_cast<const Trk::TrackParameters *>(trackParams);
     const Trk::AtaStraightLine * atas = dynamic_cast<const Trk::AtaStraightLine *>(meas);
+    if (not atas) return std::nan("");
     const Amg::Vector2D& localposMeas = atas->localPosition();
     paramValue = fabs(localposMeas[Trk::locR]);
 
@@ -338,6 +339,7 @@ void AscObj_TSOS::addDeviationFromMeasurementInfoToShapes( SoSeparator*&shape_si
     if (isTRT)
     {
       const InDet::TRT_DriftCircleOnTrack * dcot = dynamic_cast<const InDet::TRT_DriftCircleOnTrack *>(rio);
+      if (not dcot) return;
       if (dcot->side()!=Trk::NONE)
       {
         SoSeparator * sep = new SoSeparator;
@@ -351,9 +353,9 @@ void AscObj_TSOS::addDeviationFromMeasurementInfoToShapes( SoSeparator*&shape_si
         shape_detailed->addChild(sep);
         return;
       }
-    } else if (isMDT)
-    {
+    } else if (isMDT){
       const Muon::MdtDriftCircleOnTrack * dcot = dynamic_cast<const Muon::MdtDriftCircleOnTrack *>(rio);
+      if (not dcot) return;
       if (dcot->side()!=Trk::NONE)
       {
         SoSeparator * sep = new SoSeparator;
@@ -637,16 +639,19 @@ void AscObj_TSOS::addMaterialEffectsToShapes( SoSeparator*&shape_simple, SoSepar
     matSepDetailed->addChild(point);
   } else {
     const Trk::MaterialEffectsBase* matEff = m_tsos->materialEffectsOnTrack();
-    const double absDeltaE = fabs(dynamic_cast<const Trk::MaterialEffectsOnTrack*>(matEff)->energyLoss()->deltaE());
-    const double radius(absDeltaE > 1*CLHEP::eV ? 5.0*exp(log(absDeltaE/CLHEP::MeV)/3.0) : 0);//\propto cube root
-    //TK: radius used to be: 5.0*sqrt(absDE), but we want sphere volume \propto deltaE
-    const double scale = common()->controller()->materialEffectsOnTrackScale();
-    if (scale * radius > 0.1) {
-      SoSphere * meotSphere = new SoSphere;
-      meotSphere->radius.setValue( scale * radius  );
-      matSepDetailed->addChild(meotSphere);
-    } else {
-      matSepDetailed->addChild(point);
+    const Trk::MaterialEffectsOnTrack* matEffOnTrk = dynamic_cast<const Trk::MaterialEffectsOnTrack*>(matEff);
+    if (matEffOnTrk){
+      const double absDeltaE = fabs(matEffOnTrk->energyLoss()->deltaE());
+      const double radius(absDeltaE > 1*CLHEP::eV ? 5.0*exp(log(absDeltaE/CLHEP::MeV)/3.0) : 0);//\propto cube root
+      //TK: radius used to be: 5.0*sqrt(absDE), but we want sphere volume \propto deltaE
+      const double scale = common()->controller()->materialEffectsOnTrackScale();
+      if (scale * radius > 0.1) {
+        SoSphere * meotSphere = new SoSphere;
+        meotSphere->radius.setValue( scale * radius  );
+        matSepDetailed->addChild(meotSphere);
+      } else {
+        matSepDetailed->addChild(point);
+      }
     }
   }
 
@@ -822,7 +827,7 @@ void AscObj_TSOS::addCompetingRIO_OnTrackInfoToShapes( SoSeparator*&shape_simple
     shape_detailed->addChild( transparent );
 
     const Trk::RIO_OnTrack* rot = &(crio->rioOnTrack(maxProb));
-    if (rot==0 || rot == NULL) { VP1Msg::message("WARNING: cROT max prob ROT is NULL. Aborting."); return;}
+    //if (rot==0 || rot == NULL) { VP1Msg::message("WARNING: cROT max prob ROT is NULL. Aborting."); return;}
     if (!rot) { VP1Msg::message("WARNING: cROT has empty max prob ROT. Aborting."); return;}
     // Now, last position drawn was that of strip pos for most probable ROT. So take this as basis.
     if (!rot->detectorElement()) { VP1Msg::message("WARNING: most prob ROT from cROT has empty DE. Aborting."); return;}
@@ -1050,14 +1055,15 @@ void AscObj_TSOS::buildShapes(SoSeparator*&shape_simple,
   
   //Currently this doesn't do much as rio->globalPosition() returns a position
   //along the axis!
-  bool showDeviationsFromMeasurements = false;//Fixme (and see below)
+  /**bool showDeviationsFromMeasurements = false;//Fixme (and see below)
   if ( showDeviationsFromMeasurements
        && hasParameters()
        && rioOnTrack()
        && dynamic_cast<const Trk::TrackParameters *>(m_tsos->trackParameters()) )
     addDeviationFromMeasurementInfoToShapes(shape_simple,shape_detailed);
+  **/
   VP1Msg::messageVerbose("AscObj_TSOS::buildShapes() end");
-
+  
 }
 
 //____________________________________________________________________

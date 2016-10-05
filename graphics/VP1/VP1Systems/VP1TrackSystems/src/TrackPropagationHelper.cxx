@@ -77,16 +77,17 @@ public:
                 Trk::ParticleHypothesis hypo,
                 const double& dist );
   //Granularity:
-  double maxPointDistSq(const Amg::Vector3D& p )
-  {
+  double maxPointDistSq(const Amg::Vector3D& /* p */){
       //Vertex region:
+    /** all paths return the same number
     const double absz(fabs(p.z())), absrsq(p.perp2());
-    if (absz<2.75*CLHEP::m&&absrsq<(1.2*CLHEP::m)*(1.2*CLHEP::m)) {
-      if (absz<0.67*CLHEP::m&&absrsq<(0.16*CLHEP::m)*(0.16*CLHEP::m)) {
+    if ( (absz<2.75*CLHEP::m) and (absrsq<(1.2*CLHEP::m)*(1.2*CLHEP::m)) ) {
+      if ( (absz<0.67*CLHEP::m) and (absrsq<(0.16*CLHEP::m)*(0.16*CLHEP::m)) ) {
         return 2*CLHEP::cm;//inside pixel
       }
       return 2*CLHEP::cm;//ID outside pixel
     }
+    **/
     return 2*CLHEP::cm;//Outside ID
   }
   
@@ -131,7 +132,8 @@ void TrackPropagationHelper::Imp::movePoint1ToInfiniteCylinderAndPoint2( Amg::Ve
   double t(1.0-s);
   // p1.set( p1.x()*t + p2.x()*s, p1.y()*t + p2.y()*s, p1.z()*t + p2.z()*s );
   p1[0]= p1.x()*t + p2.x()*s;
-  p1[1]= p2.y()*s, p1.z()*t;
+  //p1[1]= p2.y()*s, p1.z()*t; original
+  p1[1]= p1.y()*t + p2.y()*s; //sroe, compiler warning fix
   p1[2]= p1.z()*t + p2.z()*s;
 }
 

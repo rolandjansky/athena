@@ -32,7 +32,7 @@
 
 class SimHitHandleBase {
 public:
-  SimHitHandleBase() : m_pdgId(SimBarCode::unknownPDG), m_fakemom(-2), m_charge(-99999.0) {}
+  SimHitHandleBase() : m_trackPars(nullptr),m_pdgId(SimBarCode::unknownPDG), m_fakemom(-2), m_charge(-99999.0) {}
   virtual ~SimHitHandleBase(){}
   virtual QString type() const = 0;
 

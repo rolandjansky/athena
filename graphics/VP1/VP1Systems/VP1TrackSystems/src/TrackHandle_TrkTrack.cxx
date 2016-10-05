@@ -67,7 +67,7 @@ QStringList TrackHandle_TrkTrack::clicked() const
   l << TrackHandleBase::baseInfo();
   if (m_trk->fitQuality()) 
     l << "Fit quality [Chi^2, nDoF] = ["+QString::number(m_trk->fitQuality()->chiSquared())+", "+QString::number(m_trk->fitQuality()->doubleNumberDoF())+"]. ";
-  if (m_trk&&common()->controller()->printVerboseInfoOnSingleSelection()) {
+  if (common()->controller()->printVerboseInfoOnSingleSelection()) {
     l << " ===== dump =====";
     std::ostringstream s;
     s << *m_trk;
