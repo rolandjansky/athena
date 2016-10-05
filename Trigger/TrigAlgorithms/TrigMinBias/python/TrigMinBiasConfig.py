@@ -198,10 +198,31 @@ MbTrkHypo_1 = MbTrkHypo  # remove once cosmic clice migrated
 # create HYPOs
 EFMbTrkHypo = MbTrkHypo("EFMbTrkHypo")
 EFMbTrkHypo.AcceptAll_EF = False
+EFMbTrkHypo.CutMinAndMax = False
 EFMbTrkHypo.Max_z0 = 401.#disable by setting to value higher than trkZ0Max
 EFMbTrkHypo.Min_pt = 0.2
 EFMbTrkHypo.Required_ntrks = 1
 hypos["EFMbTrkHypo"] = EFMbTrkHypo
+
+# Loose exclusive requirement
+EFMbTrkHypoExclusiveLoose = MbTrkHypo("EFMbTrkHypoExclusiveLoose")
+EFMbTrkHypoExclusiveLoose.AcceptAll_EF = False
+EFMbTrkHypoExclusiveLoose.CutMinAndMax = True
+EFMbTrkHypoExclusiveLoose.Max_z0 = 401.#disable by setting to value higher than trkZ0Max
+EFMbTrkHypoExclusiveLoose.Min_pt = 0.2
+EFMbTrkHypoExclusiveLoose.Required_ntrks = 2
+EFMbTrkHypoExclusiveLoose.MaxRequired_ntrks = 5
+hypos["EFMbTrkHypoExclusiveLoose"] = EFMbTrkHypoExclusiveLoose
+
+# Tigheter exclusive requirement
+EFMbTrkHypoExclusiveTight = MbTrkHypo("EFMbTrkHypoExclusiveTight")
+EFMbTrkHypoExclusiveTight.AcceptAll_EF = False
+EFMbTrkHypoExclusiveTight.CutMinAndMax = True
+EFMbTrkHypoExclusiveTight.Max_z0 = 401.#disable by setting to value higher than trkZ0Max
+EFMbTrkHypoExclusiveTight.Min_pt = 0.2
+EFMbTrkHypoExclusiveTight.Required_ntrks = 2
+EFMbTrkHypoExclusiveTight.MaxRequired_ntrks = 4
+hypos["EFMbTrkHypoExclusiveTight"] = EFMbTrkHypoExclusiveTight
 
 #..and PT versions
 EFMbTrkHypo_PT = MbTrkHypo("EFMbTrkHypo_PT")
