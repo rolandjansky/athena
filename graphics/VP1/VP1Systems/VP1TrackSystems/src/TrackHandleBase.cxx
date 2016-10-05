@@ -485,8 +485,9 @@ void TrackHandleBase::update3DObjects( bool invalidatePropagatedPoints, float ma
     d->tempMaxPropRadius=maxR;
   }
   if ( invalidatePropagatedPoints) {
-    if (d->points_propagated != d->points_raw) // might be same underlying vector
+    if (d->points_propagated != d->points_raw) {
       delete d->points_propagated;d->points_propagated = 0;
+    }
     delete d->points_raw;d->points_raw = 0;   
     if (d->points_propagated_id_projections) { delete d->points_propagated_id_projections; d->points_propagated_id_projections = 0; }
     if (d->points_propagated_muon_projections) { delete d->points_propagated_muon_projections; d->points_propagated_muon_projections = 0; }
@@ -972,6 +973,7 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
   if (pathInfo_TrkTrack) {
     const VP1TrackSanity * sanity = theclass->common()->trackSanityHelper();
     Amg::Vector3D * firstmomentum(0);
+    //Amg::Vector3D vect3d{0.,0.,0.};
     if (pathInfo_TrkTrack->trackParameters())
       points_raw->reserve(pathInfo_TrkTrack->trackParameters()->size());
     bool unsafeparts(false);
@@ -994,8 +996,8 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
         trackParam->position();//test
         points_raw->push_back( trackParam->position() );
         if (!firstmomentum) {
-        	Amg::Vector3D vect3d = trackParam->momentum();
-        	firstmomentum = &vect3d;
+        	//vect3d = 
+        	firstmomentum = new Amg::Vector3D(trackParam->momentum());
         }
       }
     }
@@ -1017,10 +1019,9 @@ void TrackHandleBase::Imp::ensureInitPointsRaw()
       theclass->collHandle()->systemBase()->message("TrackHandleBase ERROR: No points on track.");
     }
     
-    std:: cout << "firstmomentum: " << firstmomentum << std::endl;
-    firstmomentum = 0;
+    //std:: cout << "firstmomentum: " << firstmomentum << std::endl;
     delete firstmomentum;
-    
+    firstmomentum = 0;
     return;
   }
   if (pathInfo_Points)
@@ -1220,7 +1221,9 @@ void TrackHandleBase::Imp::ensureInitPointsProjections_Muon( bool raw )
         if ( proj2.empty() ) {
           proj2.push_back(secondEndWall_pointA); proj2.push_back(secondEndWall_pointB);
         } else {
-          if ( proj2[proj2.size()-1] == firstEndWall_pointA ) {
+        // unsure about this change...coverity 16206, sroe
+        // if ( proj2[proj2.size()-1] == firstEndWall_pointA ) {
+          if ( proj2[proj2.size()-1] == secondEndWall_pointA ) {
             proj2.push_back(secondEndWall_pointB);//Keep adding to line part
           } else {
       //Start new line.
@@ -1539,6 +1542,7 @@ QStringList TrackHandleBase::baseInfo() const
     +"], MDT["+QString::number(getNMDTHits())+"], RPC["+QString::number(getNRPCHits())+"], TGC["+QString::number(getNTGCHits())+"], CSC["+QString::number(getNCSCHits())+"].";
 
   return l;
+  /** coverity 17186: this code is unreachable
   int pdg = pdgCode();
   if (pdg) {
     bool ok;
@@ -1550,6 +1554,7 @@ QStringList TrackHandleBase::baseInfo() const
   }
 
   return l;
+  **/
 }
 
 //____________________________________________________________________

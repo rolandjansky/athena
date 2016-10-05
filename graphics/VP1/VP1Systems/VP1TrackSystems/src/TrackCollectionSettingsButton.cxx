@@ -28,7 +28,12 @@
 //____________________________________________________________________
 class TrackCollectionSettingsButton::Imp {
 public:
-  Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0){}
+  Imp():theclass(0),editwindow(0),matButton(0), trackDrawStyle(0), trackLightModel(0),
+  last_trackTubeRadius(0.0),last_cutTruthFromIROnly{}, last_cutExcludeBarcodeZero{}, 
+  last_cutTruthExcludeNeutrals{},last_cutOnlyVertexAssocTracks{},last_useDefaultCuts{},
+  dim(0){
+    //nop
+  }
   TrackCollectionSettingsButton * theclass;
   QWidget * editwindow;
   Ui::TrackCollectionSettingsForm editwindow_ui;
