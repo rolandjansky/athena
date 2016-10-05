@@ -34,7 +34,7 @@ DQTLumiMonTool::DQTLumiMonTool(const std::string & type,
 		   const std::string & name,
 		   const IInterface* parent)
   : DataQualityFatherMonTool(type, name, parent),
-    failedBooking(false),
+    m_failedBooking(false),
     m_VertexContainerKey(""),
     m_aveMu_vs_LB(nullptr),
     m_nLooseVtx_vs_LB(nullptr),
@@ -78,7 +78,7 @@ DQTLumiMonTool::~DQTLumiMonTool(){
 // StatusCode DQTLumiMonTool::bookHistograms( bool /*isNewEventsBlock*/, bool /*isNewLumiBlock*/, bool isNewRun ){ // avoid compilation warnings
 StatusCode DQTLumiMonTool::bookHistograms( ){ // avoid compilation warnings
   //if(newRun){
-  failedBooking = false
+  m_failedBooking = false
     || registerHist(m_path, m_aveMu_vs_LB = new TProfile("aveMu_vs_LB", "Number of interactions per event;LB;<#mu>_{LB}", 200, 0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
     || registerHist(m_path, m_nLooseVtx_vs_LB = new TProfile("nLooseVtx_vs_LB", "Number of loose vertices per event;LB;<NlooseVtx/event>_{LB}", 200, 0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
     || registerHist(m_path, m_nTightVtx_vs_LB = new TProfile("nTightVtx_vs_LB", "Number of tight vertices per event;LB;<NtightVtx/event>_{LB}", 200, 0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
@@ -88,7 +88,7 @@ StatusCode DQTLumiMonTool::bookHistograms( ){ // avoid compilation warnings
     || registerHist(m_path, m_nTightVtx_vs_aveMu = new TProfile("nTightVtx_vs_aveMu", "Number of tight vertices per event;#mu;NtightVtx/event", 250, 0, 25)).isFailure();
   m_aveMu_vs_LB->SetCanExtend(TH1::kXaxis);
   if ( m_environment != AthenaMonManager::AOD ) {
-    failedBooking |= 
+    m_failedBooking |= 
       ( registerHist(m_path, m_nClustersAll_vs_LB = new TProfile("nClustersAll_vs_LB", "Number of pixel clusters per event, all;LB;<NclustersAll/event>_{LB}", 200, 0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
 	|| registerHist(m_path, m_nClustersECA_vs_LB = new TProfile("nClustersECA_vs_LB", "Number of pixel clusters per event, endcap A;LB;<NlustersECA/event>_{LB}", 200, 0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
 	|| registerHist(m_path, m_nClustersECC_vs_LB = new TProfile("nClustersECC_vs_LB", "Number of pixel clusters per event, endcap C;LB;<NclustersECC/event>_{LB}", 200, 0.5, 200.5), run, ATTRIB_X_VS_LB, "merge").isFailure()
@@ -121,8 +121,8 @@ StatusCode DQTLumiMonTool::bookHistograms( ){ // avoid compilation warnings
 	);
   }
   
-  if(failedBooking){
-    msg(MSG::WARNING) << "Could not book all histograms, will not fill any histogram!" << endreq;
+  if(m_failedBooking){
+    msg(MSG::WARNING) << "Could not book all histograms, will not fill any histogram!" << endmsg;
   }
   //}
   return StatusCode::SUCCESS;
@@ -133,12 +133,12 @@ bool DQTLumiMonTool::bookDQTLumiMonTool(){
 }
 
 StatusCode DQTLumiMonTool::fillHistograms(){
-  if(failedBooking) return StatusCode::SUCCESS;
+  if(m_failedBooking) return StatusCode::SUCCESS;
 
   const xAOD::EventInfo* thisEventInfo;
   StatusCode sc = evtStore()->retrieve(thisEventInfo);
   if(sc.isFailure()  || !thisEventInfo){
-    msg(MSG::WARNING) << "Could not retreive EventInfo from evtStore" << endreq;
+    msg(MSG::WARNING) << "Could not retreive EventInfo from evtStore" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -172,7 +172,7 @@ StatusCode DQTLumiMonTool::fillHistograms(){
   // Get vertex related info
   const xAOD::VertexContainer* vertices(0);
   if(evtStore()->retrieve(vertices, m_VertexContainerKey).isFailure() || !vertices){
-    msg(MSG::WARNING) << "Could not retrieve " <<m_VertexContainerKey<< " from evtStore" << endreq;
+    msg(MSG::WARNING) << "Could not retrieve " <<m_VertexContainerKey<< " from evtStore" << endmsg;
   }else{
     int nVtxLoose = 0;
     int nVtxTight = 0;
@@ -201,9 +201,9 @@ StatusCode DQTLumiMonTool::fillHistograms(){
     const InDet::PixelClusterContainer* pixelClContainer = 0;
     const PixelID* pixelId = 0;
     if(evtStore()->retrieve(pixelClContainer, m_PixelClustersKey).isFailure() || !pixelClContainer){
-      msg(MSG::WARNING) << "Could not retrieve " <<m_PixelClustersKey<< " from evtStore" << endreq;
+      msg(MSG::WARNING) << "Could not retrieve " <<m_PixelClustersKey<< " from evtStore" << endmsg;
     }else if(m_detStore->retrieve(pixelId, m_PixelIDKey).isFailure() || !pixelId){
-      msg(MSG::WARNING) << "Could not retrieve " <<m_PixelIDKey<< " from DetStore" << endreq;
+      msg(MSG::WARNING) << "Could not retrieve " <<m_PixelIDKey<< " from DetStore" << endmsg;
     }else{
       int nClustersAll = 0;
       int nClustersECA = 0;

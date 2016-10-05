@@ -128,7 +128,7 @@ StatusCode DQTBackgroundMon::bookHistograms()
   MsgStream log(msgSvc(), name());
 
   //if (newRun) {
-    log << MSG::INFO << "In bookHistograms(): " <<  "m_doRunCosmics = " << m_doRunCosmics << "; m_doRunBeam = "<< m_doRunBeam << "; m_doMuons = "<< m_doMuons << endreq;
+    log << MSG::INFO << "In bookHistograms(): " <<  "m_doRunCosmics = " << m_doRunCosmics << "; m_doRunBeam = "<< m_doRunBeam << "; m_doMuons = "<< m_doMuons << endmsg;
     //This will do the real booking
     failure = bookDQTBackgroundMon();
   //}
@@ -370,14 +370,14 @@ if (m_doMuons==true){
 
 
   if (failure) {
-    log << MSG::ERROR << "Error Booking histograms " << endreq;
+    log << MSG::ERROR << "Error Booking histograms " << endmsg;
     return failure;
   }
 
   if(!m_HistBitSet->GetXaxis()||!m_HistBitSet_UnpairIso->GetXaxis()||!m_HistBitSet_UnpairNonIso->GetXaxis())
-    log << MSG::WARNING << " At least one background word histogram returned NULL pointer to X axis, labels will not be set!" << endreq;
+    log << MSG::WARNING << " At least one background word histogram returned NULL pointer to X axis, labels will not be set!" << endmsg;
   else{
-    log << MSG::DEBUG << "Setting bin labels for background word histograms" << endreq;
+    log << MSG::DEBUG << "Setting bin labels for background word histograms" << endmsg;
     for(int i=0; i<EventInfo::NBackgroundWords; ++i){
       m_HistBitSet->GetXaxis()->SetBinLabel(i+1,labels[i].c_str());
       m_HistBitSet_UnpairIso->GetXaxis()->SetBinLabel(i+1,labels[i].c_str());
@@ -389,7 +389,7 @@ if (m_doMuons==true){
 //     !m_HistPixSPHuge->GetXaxis()||!m_HistPixSPHuge_Filled->GetXaxis()||!m_HistPixSPHuge_Empty->GetXaxis()||!m_HistPixSPHuge_UnpairIso->GetXaxis()||!m_HistPixSPHuge_UnpairNonIso->GetXaxis())
   if(!m_HistPixSP->GetXaxis()||!m_HistPixSP_UnpairIso->GetXaxis()||!m_HistPixSP_UnpairNonIso->GetXaxis()||
      !m_HistPixSPHuge->GetXaxis()||!m_HistPixSPHuge_UnpairIso->GetXaxis()||!m_HistPixSPHuge_UnpairNonIso->GetXaxis())
-    log << MSG::WARNING << "At least one Pixel SP histogram returned NULL pointer to X axis, axis titles will not be set!" << endreq;
+    log << MSG::WARNING << "At least one Pixel SP histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
   else{
     m_HistPixSP->GetXaxis()->SetTitle("Number of Pixel SPs");
 //    m_HistPixSP_Filled->GetXaxis()->SetTitle("Number of Pixel SPs");
@@ -403,7 +403,7 @@ if (m_doMuons==true){
 
   if(!m_HistSctSP->GetXaxis()||!m_HistSctSP_UnpairIso->GetXaxis()||!m_HistSctSP_UnpairNonIso->GetXaxis()||
      !m_HistSctSPHuge->GetXaxis()||!m_HistSctSPHuge_UnpairIso->GetXaxis()||!m_HistSctSPHuge_UnpairNonIso->GetXaxis())
-    log << MSG::WARNING << "At least one SCT SP histogram returned NULL pointer to X axis, axis titles will not be set!" << endreq;
+    log << MSG::WARNING << "At least one SCT SP histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
   else{
     m_HistSctSP->GetXaxis()->SetTitle("Number of SCT SPs");
     m_HistSctSP_UnpairIso->GetXaxis()->SetTitle("Number of SCT SPs");
@@ -415,25 +415,25 @@ if (m_doMuons==true){
 
   //if(!m_HistLArTimeDiff->GetXaxis()||!m_HistLArTimeDiff_Filled->GetXaxis()||!m_HistLArTimeDiff_Empty->GetXaxis()||!m_HistLArTimeDiff_UnpairIso->GetXaxis()||!m_HistLArTimeDiff_UnpairNonIso->GetXaxis())
   if(!m_HistLArTimeDiff->GetXaxis())
-    log << MSG::WARNING << "At least one LAr time difference histogram returned NULL pointer to X axis, axis titles will not be set!" << endreq;
+    log << MSG::WARNING << "At least one LAr time difference histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
   else{
     m_HistLArTimeDiff->GetXaxis()->SetTitle("<t_{A}>-<t_{C}> [ns]");
   }
 
   if(!m_HistMBTSTimeDiff->GetXaxis())
-    log << MSG::WARNING << "At least one MBTS time difference histogram returned NULL pointer to X axis, axis titles will not be set!" << endreq;
+    log << MSG::WARNING << "At least one MBTS time difference histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
   else{
     m_HistMBTSTimeDiff->GetXaxis()->SetTitle("<t_{A}>-<t_{C}> [ns]");
   }
 
   if(!m_HistMBTSVetoHits->GetXaxis())
-    log << MSG::WARNING << "At least one MBTS hit histogram returned NULL pointer to X axis, axis titles will not be set!" << endreq;
+    log << MSG::WARNING << "At least one MBTS hit histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
   else{
     m_HistMBTSVetoHits->GetXaxis()->SetTitle("Number of MBTS 'veto' hits");
   }
 
   if(!m_HistLucidHits->GetXaxis())
-    log << MSG::WARNING << "At least one LUCID hit histogram returned NULL pointer to X axis, axis titles will not be set!" << endreq;
+    log << MSG::WARNING << "At least one LUCID hit histogram returned NULL pointer to X axis, axis titles will not be set!" << endmsg;
   else{
     m_HistLucidHits->GetXaxis()->SetTitle("Number of LUCID 'veto' hits");
   }
@@ -446,9 +446,9 @@ if (m_doMuons==true){
     StatusCode sctdt = StatusCode::SUCCESS;
     sctdt = m_trigDec.retrieve();
     if ( sctdt.isFailure() ){
-    log << MSG::ERROR << "Can't get handle on TrigDecisionTool" << endreq;
+    log << MSG::ERROR << "Can't get handle on TrigDecisionTool" << endmsg;
     } else {
-    log << MSG::DEBUG << "Got handle on TrigDecisionTool" << endreq;
+    log << MSG::DEBUG << "Got handle on TrigDecisionTool" << endmsg;
     }
   }  
 
@@ -464,43 +464,43 @@ StatusCode DQTBackgroundMon::fillHistograms()
 
   StatusCode sc;// = service("StoreGateSvc", m_eventStore);
   //if (sc.isFailure()) {
-  //  log<< MSG::FATAL << "Unable to locate Service StoreGateSvc" << endreq;
+  //  log<< MSG::FATAL << "Unable to locate Service StoreGateSvc" << endmsg;
   //  return sc;
   //}
 
-  bg=999;
-  filled=false;
-  empty=false;
-  unpairiso=false;
-  unpairnoniso=false;
+  m_bg=999;
+  m_filled=false;
+  m_empty=false;
+  m_unpairiso=false;
+  m_unpairnoniso=false;
 
 // retrieve the TrigDecisionTool
 //  if ( m_trigDec.retrieve().isFailure() ) {
-//    log <<MSG::WARNING << "Could not retrieve TrigDecisionTool, BG specific histograms will not be filled for this event!" << endreq;
+//    log <<MSG::WARNING << "Could not retrieve TrigDecisionTool, BG specific histograms will not be filled for this event!" << endmsg;
 //  }
 //  else{
   if(m_doTrigger){
-    log << MSG::DEBUG << " doTrigger = true" << endreq;
-    bg = (unsigned char)m_trigDec->getBGCode();
-    log << MSG::DEBUG << "BG code is " << bg <<endreq;
-    if( bg & (0x1<<m_FilledBG)){
-      log << MSG::DEBUG << "Filled Bunch Group" << endreq;
-      filled=true;
+    log << MSG::DEBUG << " doTrigger = true" << endmsg;
+    m_bg = (unsigned char)m_trigDec->getBGCode();
+    log << MSG::DEBUG << "BG code is " << m_bg <<endmsg;
+    if( m_bg & (0x1<<m_FilledBG)){
+      log << MSG::DEBUG << "Filled Bunch Group" << endmsg;
+      m_filled=true;
     }
-    if( bg & (0x1<<m_EmptyBG)){
-      log << MSG::DEBUG << "Emtpy Bunch Group" << endreq;
-      empty=true;
+    if( m_bg & (0x1<<m_EmptyBG)){
+      log << MSG::DEBUG << "Emtpy Bunch Group" << endmsg;
+      m_empty=true;
     }
-    if( bg & (0x1<<m_UnpairIsoBG)){
-      log << MSG::DEBUG << "Unpair Isolated Bunch Group" << endreq;
-      unpairiso=true;
+    if( m_bg & (0x1<<m_UnpairIsoBG)){
+      log << MSG::DEBUG << "Unpair Isolated Bunch Group" << endmsg;
+      m_unpairiso=true;
     }
-    if( bg & (0x1<<m_UnpairNonIsoBG)){
-      log << MSG::DEBUG << "Unpair Non-Isolated Bunch Group" << endreq;
-      unpairnoniso=true;
+    if( m_bg & (0x1<<m_UnpairNonIsoBG)){
+      log << MSG::DEBUG << "Unpair Non-Isolated Bunch Group" << endmsg;
+      m_unpairnoniso=true;
     }
   } else {
-    log << MSG::WARNING << " doTrigger = false" << endreq;
+    log << MSG::WARNING << " doTrigger = false" << endmsg;
   }
   //}
 
@@ -509,7 +509,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
   // this events background word
   const EventInfo * eventInfo_c = 0;
   if (evtStore()->retrieve( eventInfo_c ).isFailure() ) {
-    log << MSG::WARNING << "  Could not retrieve non-const EventInfo object, background word histograms will not be filled for this event!" << endreq;
+    log << MSG::WARNING << "  Could not retrieve non-const EventInfo object, background word histograms will not be filled for this event!" << endmsg;
   }
   else{
     EventInfo* eventInfo = const_cast<EventInfo*>(eventInfo_c);
@@ -518,15 +518,15 @@ StatusCode DQTBackgroundMon::fillHistograms()
       if(! (eventInfo->eventFlags(EventInfo::Background) & 0x1<<bkg_i)){
         continue;
       }
-      log << MSG::DEBUG<< " Background word is " << eventInfo->eventFlags(EventInfo::Background) << endreq;
+      log << MSG::DEBUG<< " Background word is " << eventInfo->eventFlags(EventInfo::Background) << endmsg;
       m_HistBitSet->Fill(bkg_i);
-      if(filled)
+      if(m_filled)
         m_HistBitSet_Filled->Fill(bkg_i);
-      else if(empty)
+      else if(m_empty)
         m_HistBitSet_Empty->Fill(bkg_i);
-      else if(unpairiso)
+      else if(m_unpairiso)
         m_HistBitSet_UnpairIso->Fill(bkg_i);
-      else if(unpairnoniso)
+      else if(m_unpairnoniso)
         m_HistBitSet_UnpairNonIso->Fill(bkg_i);
     }
   }
@@ -537,36 +537,36 @@ StatusCode DQTBackgroundMon::fillHistograms()
     const RawInfoSummaryForTag* rawinfo=0;
     sc = evtStore()->retrieve( rawinfo );
     if (sc.isFailure()) {
-      log << MSG::WARNING << "Cannot get raw summary info from storegate, SP histograms will not be filled for this event!" << endreq;
+      log << MSG::WARNING << "Cannot get raw summary info from storegate, SP histograms will not be filled for this event!" << endmsg;
     } else {
       float pixSPs=(float)rawinfo->getNpixSPs();
       float sctSPs=(float)rawinfo->getNsctSPs();
 
       m_HistSctSPHuge->Fill(sctSPs);
-      if(unpairiso)
+      if(m_unpairiso)
         m_HistSctSPHuge_UnpairIso->Fill(sctSPs);
-      else if(unpairnoniso)
+      else if(m_unpairnoniso)
         m_HistSctSPHuge_UnpairNonIso->Fill(sctSPs);
 
       if(sctSPs<m_Up_SctSP){
         m_HistSctSP->Fill(sctSPs);
-        if(unpairiso)
+        if(m_unpairiso)
           m_HistSctSP_UnpairIso->Fill(sctSPs);
-        else if(unpairnoniso)
+        else if(m_unpairnoniso)
           m_HistSctSP_UnpairNonIso->Fill(sctSPs);
       }
 
       m_HistPixSPHuge->Fill(pixSPs);
-      if(unpairiso)
+      if(m_unpairiso)
         m_HistPixSPHuge_UnpairIso->Fill(pixSPs);
-      else if(unpairnoniso)
+      else if(m_unpairnoniso)
         m_HistPixSPHuge_UnpairNonIso->Fill(pixSPs);
 
       if(pixSPs<m_Up_PixSP){
         m_HistPixSP->Fill(pixSPs);
-      if(unpairiso)
+      if(m_unpairiso)
         m_HistPixSP_UnpairIso->Fill(pixSPs);
-      else if(unpairnoniso)
+      else if(m_unpairnoniso)
         m_HistPixSP_UnpairNonIso->Fill(pixSPs);
       }
     }
@@ -582,7 +582,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
         m_HistLArTimeDiff->Fill(LArECtimeDiff);
       } // enough hits per side
     } else {
-      log << MSG::WARNING << "Failed to retrieve LArCollisionTime object, LAr EC time difference histograms will not be filled for this event!" << endreq;
+      log << MSG::WARNING << "Failed to retrieve LArCollisionTime object, LAr EC time difference histograms will not be filled for this event!" << endmsg;
     }
   }// LAr time SG veto
 
@@ -596,7 +596,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
         m_HistMBTSTimeDiff->Fill(MBTStimeDiff);
       } //enough hits per side
     } else {
-      log << MSG::WARNING << "Failed to retrieve MBTSCollisionTime object, MBTS time difference histograms will not be filled for this event!" << endreq;
+      log << MSG::WARNING << "Failed to retrieve MBTSCollisionTime object, MBTS time difference histograms will not be filled for this event!" << endmsg;
     }
   } //MBTS time SG veto
 
@@ -606,7 +606,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
     const TileCellContainer *tileCellCnt = 0;
     int MBTScount(0);
     if (evtStore()->retrieve(tileCellCnt, m_mbtsContainerName).isFailure()) {
-      log << MSG::WARNING << "Error retrieving " << m_mbtsContainerName  << ", MBTS hit histogram will not be filled for this event!"<< endreq;
+      log << MSG::WARNING << "Error retrieving " << m_mbtsContainerName  << ", MBTS hit histogram will not be filled for this event!"<< endmsg;
     } else {
       TileCellContainer::const_iterator itr = tileCellCnt->begin();
       TileCellContainer::const_iterator itr_end = tileCellCnt->end();
@@ -614,7 +614,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
         if ((*itr)->energy()<m_MBTS_ThresholdCut) continue;
         const uint8_t qbit1=(*itr)->qbit1();
         if ((qbit1 & m_MBTS_mask) != m_MBTS_pattern) {
-          log<<MSG::DEBUG << "Rejected based on quality bits" << endreq;
+          log<<MSG::DEBUG << "Rejected based on quality bits" << endmsg;
           continue;
         }
         if (fabs((*itr)->time())<m_MBTS_TimeCut) MBTScount++;
@@ -628,7 +628,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
     // this events Lucid hit count
     const LUCID_RawDataContainer* LUCID_RawDataContainer;
     if (evtStore()->retrieve(LUCID_RawDataContainer, "Lucid_RawData").isFailure() ) {
-      log << MSG::WARNING << "  Could not retrieve Lucid_RawData, LUCID hit histograms will not be filled for this event!" << endreq;
+      log << MSG::WARNING << "  Could not retrieve Lucid_RawData, LUCID hit histograms will not be filled for this event!" << endmsg;
     }
     else {
       LUCID_RawDataContainer::const_iterator LUCID_RawData_itr = LUCID_RawDataContainer->begin();
@@ -652,7 +652,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
     if( evtStore()->contains<Trk::SegmentCollection>("ConvertedMBoySegments") ){
       const Trk::SegmentCollection* segmentContainer;
       if (evtStore()->retrieve(segmentContainer, "ConvertedMBoySegments").isFailure() ) {
-        log << MSG::WARNING << "  Could not retrieve ConvertedMBoySegments, histograms will not be filled for this event!" << endreq;
+        log << MSG::WARNING << "  Could not retrieve ConvertedMBoySegments, histograms will not be filled for this event!" << endmsg;
       } else {
         for(unsigned int i=0; i<segmentContainer->size(); i++) {
           const xAOD::MuonSegment* seg = dynamic_cast<const xAOD::MuonSegment*>(segmentContainer->at(i));
@@ -695,7 +695,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
     if( evtStore()->contains<BeamBackgroundData>("BeamBackgroundData") ){
       const BeamBackgroundData* beamBackgroundData;
       if (evtStore()->retrieve(beamBackgroundData, "BeamBackgroundData").isFailure() ) {
-        log << MSG::WARNING << "  Could not retrieve BeamBackgroundData, histograms will not be filled for this event!" << endreq;
+        log << MSG::WARNING << "  Could not retrieve BeamBackgroundData, histograms will not be filled for this event!" << endmsg;
       }
       else {
         for(int i=0; i<beamBackgroundData->GetNumSegment(); i++) {
@@ -724,7 +724,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
         }
 
         for(int i=0; i<beamBackgroundData->GetNumMatched(); i++) {
-          const CaloCluster* clus = beamBackgroundData->GetIndexClus(i);
+          const xAOD::CaloCluster* clus = beamBackgroundData->GetIndexClus(i);
 
           double energy = clus->e();
           double eta = clus->eta();
@@ -739,7 +739,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
 
         if( beamBackgroundData->GetNumNoTimeTight() ) {       // GetNumTwoSided, GetNumTwoSidedNoTime or GetNumNoTimeTight
           for(int i=0; i<beamBackgroundData->GetNumJet(); i++) {
-            const Jet* jet = beamBackgroundData->GetIndexJet(i);
+            const xAOD::Jet* jet = beamBackgroundData->GetIndexJet(i);
             int index = beamBackgroundData->GetIndexJet(jet);
 
             m_HistFakeJetIndex->Fill(index);
@@ -799,9 +799,9 @@ StatusCode DQTBackgroundMon::fillHistograms()
     else {
       int numVertex = vxContainer->size() - 1;  // exclude dummy vertex
       m_HistNumVertex->Fill(numVertex);
-      if(unpairiso)
+      if(m_unpairiso)
         m_HistNumVertex_UnpairIso->Fill(numVertex);
-      else if(unpairnoniso)
+      else if(m_unpairnoniso)
         m_HistNumVertex_UnpairNonIso->Fill(numVertex);
     }
   }
@@ -812,7 +812,7 @@ StatusCode DQTBackgroundMon::fillHistograms()
 
     const JetContainer* jettContainer;
     if (evtStore()->retrieve(jetContainer, "AntiKt4TopoEMJets").isFailure() ) {
-      log << MSG::WARNING << "  Could not retrieve AntiKt4TopoEMJets, histograms will not be filled for this event!" << endreq;
+      log << MSG::WARNING << "  Could not retrieve AntiKt4TopoEMJets, histograms will not be filled for this event!" << endmsg;
     }
     else {
 
@@ -834,7 +834,7 @@ StatusCode DQTBackgroundMon::procHistograms( )
 //----------------------------------------------------------------------------------
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "In procHists()" << endreq;
+  log << MSG::DEBUG << "In procHists()" << endmsg;
   //if ( isEndOfEventsBlock || isEndOfLumiBlock || isEndOfRun ) {
 
   //}
@@ -847,6 +847,6 @@ StatusCode DQTBackgroundMon::checkHists(bool /* fromFinalize */)
 //----------------------------------------------------------------------------------
 {
   MsgStream log(msgSvc(), name());
-  log << MSG::DEBUG << "In checkHists()" << endreq;
+  log << MSG::DEBUG << "In checkHists()" << endmsg;
   return StatusCode::SUCCESS;
 }

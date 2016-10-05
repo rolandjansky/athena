@@ -119,13 +119,13 @@ StatusCode DQTCaloClusterTool::bookHistograms( )
 
 //   if ( sc.isFailure() ){
 
-//     log << MSG::ERROR << "Unable to retrieve TrigDecisionTool!" << endreq;
+//     log << MSG::ERROR << "Unable to retrieve TrigDecisionTool!" << endmsg;
 //     return sc;
 //   }
  
   //if (newRun) {
-    log << MSG::DEBUG << "in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam << endreq;
-    log << MSG::DEBUG << "Using base path " << m_path << endreq;
+    log << MSG::DEBUG << "in bookHistograms() and m_doRunCosmics = " << m_doRunCosmics << " and m_doRunBeam = " << m_doRunBeam << endmsg;
+    log << MSG::DEBUG << "Using base path " << m_path << endmsg;
   
     failure = bookDQTCaloCluster();
   //}
@@ -149,7 +149,7 @@ bool DQTCaloClusterTool::bookDQTCaloCluster()
 
   StatusCode sc = m_trackToCalo.retrieve();
   if (sc.isFailure()) {
-     log << MSG::ERROR << "Cannot get ExtrapolTrackToCaloTool" << endreq;
+     log << MSG::ERROR << "Cannot get ExtrapolTrackToCaloTool" << endmsg;
      return StatusCode::FAILURE;    
   }
  
@@ -221,7 +221,7 @@ bool DQTCaloClusterTool::bookDQTCaloCluster()
 
   if (failure) 
     {
-      log << MSG::ERROR << "Error Booking histograms " << endreq;
+      log << MSG::ERROR << "Error Booking histograms " << endmsg;
     }
   return failure;
 
@@ -250,15 +250,15 @@ StatusCode DQTCaloClusterTool::fillHistograms()
 //         if (!*aItem) continue;
 //         if ((*aItem)->name()=="") continue;
 //         if ((*aItem)->isPassed()) {
-//            log << MSG::DEBUG << " L1 trig number " << L1_bin_Nr << " Passed!" << endreq;
+//            log << MSG::DEBUG << " L1 trig number " << L1_bin_Nr << " Passed!" << endmsg;
 //         }
 //         else {
-// //           log << MSG::DEBUG << " L1 number " << L1_bin_Nr << " Did NOT Pass!" << endreq;
+// //           log << MSG::DEBUG << " L1 number " << L1_bin_Nr << " Did NOT Pass!" << endmsg;
 //         }
 //         L1_bin_Nr++;
 //      }    
 //   } else {
-//     if (!printedErrorL1Item) log << MSG::WARNING << "Could not retrive L1 item" << endreq;
+//     if (!printedErrorL1Item) log << MSG::WARNING << "Could not retrive L1 item" << endmsg;
 //     printedErrorL1Item = true;
 //   }
 
@@ -269,12 +269,12 @@ StatusCode DQTCaloClusterTool::fillHistograms()
   if ( evtStore()->contains<xAOD::CaloClusterContainer>(m_EMClusterName) ) {
      
      if(evtStore()->retrieve(cluster_container,m_EMClusterName).isFailure()) {
-        if (!printedErrorEMCluster) log << MSG::WARNING << " cannot retrieve " << m_EMClusterName << endreq;
+        if (!printedErrorEMCluster) log << MSG::WARNING << " cannot retrieve " << m_EMClusterName << endmsg;
         printedErrorEMCluster = true;
      }  
      else  {   
         xAOD::CaloClusterContainer::const_iterator clus_iter;
-        log << MSG::DEBUG << " start loop over em clusters " << endreq;
+        log << MSG::DEBUG << " start loop over em clusters " << endmsg;
         for(clus_iter=cluster_container->begin();
             clus_iter != cluster_container->end();clus_iter++) {        
            const xAOD::CaloCluster* clus = (*clus_iter);
@@ -288,7 +288,7 @@ StatusCode DQTCaloClusterTool::fillHistograms()
      }
   }
   else {
-     if (!printedErrorEMCluster) log << MSG::WARNING << " cannot retrieve " << m_EMClusterName << endreq;
+     if (!printedErrorEMCluster) log << MSG::WARNING << " cannot retrieve " << m_EMClusterName << endmsg;
      printedErrorEMCluster = true;
 
   }
@@ -296,14 +296,14 @@ StatusCode DQTCaloClusterTool::fillHistograms()
   if ( evtStore()->contains<xAOD::CaloClusterContainer>(m_DQTCaloClusterName) ) {
      
      if(evtStore()->retrieve(cluster_container,m_DQTCaloClusterName).isFailure()) {
-        if (!printedErrorDQTCaloCluster) log << MSG::WARNING << " cannot retrieve " << m_DQTCaloClusterName << endreq;
+        if (!printedErrorDQTCaloCluster) log << MSG::WARNING << " cannot retrieve " << m_DQTCaloClusterName << endmsg;
         printedErrorDQTCaloCluster = true;
         
 //     return StatusCode::SUCCESS;
      }  
      else  {   
         xAOD::CaloClusterContainer::const_iterator clus_iter;
-        log << MSG::DEBUG << " start loop over calo clusters " << endreq;
+        log << MSG::DEBUG << " start loop over calo clusters " << endmsg;
         for(clus_iter=cluster_container->begin();
             clus_iter != cluster_container->end();clus_iter++) {        
            const xAOD::CaloCluster* clus = (*clus_iter);
@@ -317,7 +317,7 @@ StatusCode DQTCaloClusterTool::fillHistograms()
      }
   }
   else {
-     if (!printedErrorDQTCaloCluster) log << MSG::WARNING << " cannot retrieve " << m_DQTCaloClusterName << endreq;
+     if (!printedErrorDQTCaloCluster) log << MSG::WARNING << " cannot retrieve " << m_DQTCaloClusterName << endmsg;
      printedErrorDQTCaloCluster = true;
   }
 
@@ -326,13 +326,13 @@ StatusCode DQTCaloClusterTool::fillHistograms()
 
   if ( evtStore()->contains<xAOD::CaloClusterContainer>(m_HadClusterName) ) {
      if(evtStore()->retrieve(cluster_container,m_HadClusterName).isFailure()) {
-        if (!printedErrorHadCluster) log << MSG::WARNING << " cannot retrieve " << m_HadClusterName << endreq;
+        if (!printedErrorHadCluster) log << MSG::WARNING << " cannot retrieve " << m_HadClusterName << endmsg;
         printedErrorHadCluster = true;
 //     return StatusCode::SUCCESS;
      }  
      else  {   
         xAOD::CaloClusterContainer::const_iterator clus_iter;
-        log << MSG::DEBUG << " start loop over tile clusters " << endreq;
+        log << MSG::DEBUG << " start loop over tile clusters " << endmsg;
         for(clus_iter=cluster_container->begin();
             clus_iter != cluster_container->end();clus_iter++) {        
            const xAOD::CaloCluster* clus = (*clus_iter);
@@ -346,7 +346,7 @@ StatusCode DQTCaloClusterTool::fillHistograms()
      }
   }
   else {
-     if (!printedErrorHadCluster) log << MSG::WARNING << " cannot retrieve " << m_HadClusterName << endreq;
+     if (!printedErrorHadCluster) log << MSG::WARNING << " cannot retrieve " << m_HadClusterName << endmsg;
      printedErrorHadCluster = true;
 
   }
@@ -370,7 +370,7 @@ StatusCode DQTCaloClusterTool::fillHistograms()
   //if ( evtStore()->contains<xAOD::MissingEtCalo>(m_METTopoName) ) {
   //   if ( (evtStore()->retrieve(metCal,m_METTopoName)).isFailure() ) {
   //      if (!printedErrorMetTopo) 
-  //         log << MSG::WARNING << "Cannot retrieve " << m_METTopoName << endreq;
+  //         log << MSG::WARNING << "Cannot retrieve " << m_METTopoName << endmsg;
   //      printedErrorMetTopo = true;
   ////     return StatusCode::SUCCESS;
   //   } else {
@@ -386,14 +386,14 @@ StatusCode DQTCaloClusterTool::fillHistograms()
   //}
   //else {
   //   if (!printedErrorMetTopo) 
-  //      log << MSG::WARNING << "Cannot retrieve " << m_METTopoName << endreq;
+  //      log << MSG::WARNING << "Cannot retrieve " << m_METTopoName << endmsg;
   //   printedErrorMetTopo = true;
   //}
 
   if ( evtStore()->contains<xAOD::MissingET>(m_METName) ) {
      if ( (evtStore()->retrieve(missET,m_METName)).isFailure() ) {
         if (!printedErrorMet)
-           log << MSG::WARNING << "Cannot retrieve " << m_METName << endreq;
+           log << MSG::WARNING << "Cannot retrieve " << m_METName << endmsg;
         printedErrorMet = true;
 //     return StatusCode::SUCCESS;
      }
@@ -404,7 +404,7 @@ StatusCode DQTCaloClusterTool::fillHistograms()
   }
   else {
      if (!printedErrorMet)
-        log << MSG::WARNING << "Cannot retrieve " << m_METName << endreq;
+        log << MSG::WARNING << "Cannot retrieve " << m_METName << endmsg;
      printedErrorMet = true;
   }
 
@@ -422,7 +422,7 @@ StatusCode DQTCaloClusterTool::fillHistograms()
      sc = evtStore()->retrieve(roi,"LVL1_ROI"); 
      if (sc.isFailure()) {
         if (!printedErrorROI)
-           log << MSG::WARNING << "No LVL1_ROI found"  << endreq;
+           log << MSG::WARNING << "No LVL1_ROI found"  << endmsg;
         printedErrorROI = true;
 //     return StatusCode::SUCCESS;
      } 
@@ -452,7 +452,7 @@ StatusCode DQTCaloClusterTool::fillHistograms()
   }
   else {
      if (!printedErrorROI)
-        log << MSG::WARNING << "No LVL1_ROI found"  << endreq;
+        log << MSG::WARNING << "No LVL1_ROI found"  << endmsg;
      printedErrorROI = true;
      
   }
@@ -494,25 +494,25 @@ StatusCode DQTCaloClusterTool::fillHistograms()
       sc = evtStore()->retrieve(trt_tracks, m_trackIDName);
       if  ( sc.isFailure()) { 
          if (!printedErrorTrackID) 
-            log << MSG::WARNING <<"Cannot retrieve" << m_trackIDName << " in evtStore " << endreq;
+            log << MSG::WARNING <<"Cannot retrieve" << m_trackIDName << " in evtStore " << endmsg;
          printedErrorTrackID = true;
 //         return StatusCode::SUCCESS;
       } else {        
-         log << MSG::DEBUG <<"found TRT segments in evtStore " << endreq;
+         log << MSG::DEBUG <<"found TRT segments in evtStore " << endmsg;
 
          UInt_t ipointer = 0;
          for(TrackCollection::const_iterator itrt = trt_tracks->begin(); itrt != trt_tracks->end(); ++itrt) {
             ipointer++;
             const Trk::Track *trt_track=(*itrt);      
             if (!trt_track) {
-               log << MSG::DEBUG <<"not a track! " << endreq;
+               log << MSG::DEBUG <<"not a track! " << endmsg;
                continue;
             }
             //REL19 
             const Trk::Perigee *perigee = ((**itrt).perigeeParameters());
             //REL18 const Trk::MeasuredPerigee *perigee = dynamic_cast<const Trk::MeasuredPerigee *>((**itrt).perigeeParameters());
             if (!perigee) {
-               log << MSG::DEBUG <<"no perigee! " << endreq;
+               log << MSG::DEBUG <<"no perigee! " << endmsg;
                continue;
             }
 
@@ -585,17 +585,17 @@ StatusCode DQTCaloClusterTool::fillHistograms()
                   if( p_sc == StatusCode :: SUCCESS ) {
                      etaTrackAtCalo = p_local.eta();
                      phiTrackAtCalo = p_local.phi();
-                     log << MSG::DEBUG <<"FOUND Match to cal! Eta = " << etaTrackAtCalo << " and Phi = " << phiTrackAtCalo << endreq;                                    
+                     log << MSG::DEBUG <<"FOUND Match to cal! Eta = " << etaTrackAtCalo << " and Phi = " << phiTrackAtCalo << endmsg;                                    
                   }
                }
             }
          }
-         log << MSG::DEBUG <<"We found " << ipointer << " numer of tracks" << endreq;
+         log << MSG::DEBUG <<"We found " << ipointer << " numer of tracks" << endmsg;
       }     
    }                
    else {
       if (!printedErrorTrackFound)
-         log << MSG::WARNING <<"Could not find " << m_trackIDName << endreq;              
+         log << MSG::WARNING <<"Could not find " << m_trackIDName << endmsg;              
       printedErrorTrackFound = true;
    }
 
@@ -643,7 +643,7 @@ StatusCode DQTCaloClusterTool::procHistograms( )
   if (  endOfLumiBlock || endOfRun ) {
   MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << "in finalHists()" << endreq;
+  log << MSG::DEBUG << "in finalHists()" << endmsg;
   }
   return StatusCode::SUCCESS;
 }
@@ -654,7 +654,7 @@ StatusCode DQTCaloClusterTool::checkHists(bool /* fromFinalize */)
 {
   MsgStream log(msgSvc(), name());
 
-  log << MSG::DEBUG << "in checkHists()" << endreq;
+  log << MSG::DEBUG << "in checkHists()" << endmsg;
 
   return StatusCode::SUCCESS;
 }

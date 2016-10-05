@@ -72,8 +72,8 @@ private:
       TH1F_LW *m_Z_Q_ele;
       TH1F_LW *m_Z_Q_mu;
 
-      TH1F_LW *m_Z_ee_mass_lb;
-      TH1F_LW *m_Z_mm_mass_lb;
+      //TH1F_LW *m_Z_ee_mass_lb;
+      //TH1F_LW *m_Z_mm_mass_lb;
       TProfile *m_livetime_lb;
       TProfile *m_lblength_lb;
       TProfile *m_mu_lb;
@@ -86,9 +86,9 @@ private:
       TH1F_LW *m_ele_Eta;
 
       //Resonance Counters
-      float minLumiBlock;
-      float maxLumiBlock;
-      float numBins;
+      float m_minLumiBlock;
+      float m_maxLumiBlock;
+      float m_numBins;
 
       TH1F_LW *m_JPsiCounter_Mu;
       TH1F_LW *m_UpsilonCounter_Mu;
@@ -96,22 +96,22 @@ private:
       TH1F_LW *m_ZBosonCounter_Mu;
       
       //Second component of counter array is for trigger aware counter
-      int JPsiCounterSBG[2];
-      int JPsiCounter2BG[2];
-      int JPsiCounterSignal[2];
+      int m_JPsiCounterSBG[2];
+      int m_JPsiCounter2BG[2];
+      int m_JPsiCounterSignal[2];
 
-      int UpsilonCounterSBG[2];
-      int UpsilonCounterBG[2];
-      int UpsilonCounterSignal[2];
+      int m_UpsilonCounterSBG[2];
+      int m_UpsilonCounterBG[2];
+      int m_UpsilonCounterSignal[2];
 
-      int ZBosonCounterSBG_El[2];
-      int ZBosonCounterSBG_Mu[2];
+      int m_ZBosonCounterSBG_El[2];
+      int m_ZBosonCounterSBG_Mu[2];
 
       //uint32_t lumiBlock;
       //uint32_t eventNumber;
 
-      int this_lb; //remove _t
-      int eventNumber; //remove _t
+      int m_this_lb; //remove _t
+      int m_eventNumber; //remove _t
       
       std::string m_electronContainerName;
       std::string m_egDetailContainerName;
@@ -134,10 +134,10 @@ private:
 
             
       // to guard against endless messages 
-      bool printedErrorEleContainer;
-      bool printedErrorMuColl;
-      bool printedErrorMet;
-      bool printedErrorTrackContainer;
+      bool m_printedErrorEleContainer;
+      bool m_printedErrorMuColl;
+      bool m_printedErrorMet;
+      bool m_printedErrorTrackContainer;
 
       std::vector<std::string> m_Jpsi_mm_trigger;
       std::vector<std::string> m_Z_mm_trigger;
