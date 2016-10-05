@@ -1,5 +1,5 @@
 package Rivet_i
-
+  
 author James Monk <jmonk@cern.ch>
 author Andy Buckley <andy.buckley@cern.ch>
 
@@ -33,3 +33,4 @@ end_private
 ## Athena stuff
 apply_pattern named_dual_use_library library="Rivet_i" files="*.cxx"
 apply_pattern declare_joboptions files="*.py"
+

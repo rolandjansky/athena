@@ -105,6 +105,9 @@ private:
   /// The cross section for this run of events, set from the job properties.
   double m_crossSection;
 
+  /// The name of the weight to use in case the input HepMC contains multiple weights
+  std::string m_weightName;
+  
   /// Flag to determine whether Rivet init has already happened (in execute())
   bool m_init;
 
