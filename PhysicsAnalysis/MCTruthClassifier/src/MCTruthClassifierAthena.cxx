@@ -22,12 +22,14 @@
 #include "TrkEventPrimitives/PropDirection.h"
 #include "TrkParametersIdentificationHelpers/TrackParametersIdHelper.h"
 #include "RecoToolInterfaces/IParticleCaloExtensionTool.h"
+#include "AthenaKernel/Units.h"
 //
 //std includes
 #include <cmath>
 
-using CLHEP::GeV;
+using Athena::Units::GeV;
 using namespace MCTruthPartClassifier;
+using std::abs;
 
 //Old EDM interface, just for Athena version
 //---------------------------------------------------------------------------------------

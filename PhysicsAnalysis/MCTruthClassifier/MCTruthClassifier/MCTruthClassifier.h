@@ -107,7 +107,7 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
    float rCone (float x, float y ){return sqrt(x*x + y*y);}
    //
    MCTruthPartClassifier::ParticleType    defTypeOfElectron(MCTruthPartClassifier::ParticleOrigin);
-   MCTruthPartClassifier::ParticleOrigin  defOrigOfElectron(const xAOD::TruthParticleContainer* m_xTruthParticleContainer ,const xAOD::TruthParticle*);
+   MCTruthPartClassifier::ParticleOrigin  defOrigOfElectron(const xAOD::TruthParticleContainer* xTruthParticleContainer ,const xAOD::TruthParticle*);
    MCTruthPartClassifier::ParticleOutCome defOutComeOfElectron(const xAOD::TruthParticle*);
    //
    MCTruthPartClassifier::ParticleType    defTypeOfMuon(MCTruthPartClassifier::ParticleOrigin);
@@ -158,7 +158,6 @@ class MCTruthClassifier : virtual public IMCTruthClassifier , public asg::AsgToo
    int   m_NumOfDaug;
 
    const xAOD::TruthVertex*  m_MothOriVert;
-   const xAOD::TruthVertex*  m_partOriVert;
 
    bool m_isPrompt;
 
