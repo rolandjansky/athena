@@ -22,7 +22,7 @@ StatusCode DumpDecisions::initialize() {
 
 StatusCode DumpDecisions::execute() {
   if ( not m_decisions.isValid() ) {
-    ATH_MSG_WARNING("No decisions object");
+    ATH_MSG_WARNING("No decisions object " <<  m_decisions.name());
     return StatusCode::RECOVERABLE;
   }
 
