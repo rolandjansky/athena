@@ -718,7 +718,10 @@ std::string DbDatabaseObj::cntName(const Token& token) {
       }
       if ( lnk < int(m_linkVec.size()) )   {
 	DbToken* link = m_linkVec[lnk];
-        return link != 0 ? link->contID() : ""; // in ##Links
+        if ( link != 0 ) {
+          if ( token.contID().empty() ) const_cast<Token*>(&token)->setCont(link->contID());
+          return link->contID(); // in ##Links
+        }
       }
     }
   }
