@@ -17,7 +17,7 @@
 namespace ZDC
 {
 
-ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name), m_init(false), m_zdcTriggerEfficiency(0)
+  ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name), m_init(false), m_splines{0,0,0,0,0,0,0,0}, m_zdcTriggerEfficiency(0)
 {
 
 #ifndef XAOD_STANDALONE
@@ -359,7 +359,7 @@ StatusCode ZdcAnalysisTool::initializeTool()
   ATH_MSG_INFO("ZDC energy calibration filename " << m_zdcEnergyCalibFileName);
   m_zdcTimeCalibFileName = std::string(env.GetValue("ZdcTimeCalibFileName","ZdcTimeCalibrations_v1.root"));
   ATH_MSG_INFO("ZDC time calibration filename " << m_zdcTimeCalibFileName);
-  m_zdcTriggerEffParamsFileName = std::string(env.GetValue("ZdcTriggerEffFileName", "ZdcTriggerEffParameters_v3.root"));
+  m_zdcTriggerEffParamsFileName = std::string(env.GetValue("ZdcTriggerEffFileName", "ZdcTriggerEffParameters_v4.root"));
   ATH_MSG_INFO("ZDC trigger efficiencies filename " << m_zdcTriggerEffParamsFileName);
   
   initialize80MHz();
@@ -555,8 +555,8 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
       zdc_sum->auxdecor<unsigned int>("ModuleMask") = (getModuleMask()>>(4*iside)) & 0xF;
     }
 
-  ATH_CHECK( evtStore()->record( std::move(newModuleContainer) , "ZdcSums") ) ;
-  ATH_CHECK( evtStore()->record( std::move(newModuleAuxContainer) , "ZdcSumsAux.") );
+  ATH_CHECK( evtStore()->record( newModuleContainer.release() , "ZdcSums") ) ;
+  ATH_CHECK( evtStore()->record( newModuleAuxContainer.release() , "ZdcSumsAux.") );
 
   return StatusCode::SUCCESS;
 }
@@ -582,6 +582,7 @@ void ZdcAnalysisTool::setEnergyCalibrations()
       for(int imod=0;imod<4;imod++)
 	{
 	  // need to delete old splines
+	  //std::cout << "m_splines[iside][imod] = " << m_splines[iside][imod] << std::endl;
 	  SafeDelete( m_splines[iside][imod] );
 
 	  sprintf(name,"ZDC_Gcalib_run%d_s%d_m%d",m_runNumber,iside,imod);
@@ -593,7 +594,6 @@ void ZdcAnalysisTool::setEnergyCalibrations()
 	      m_doCalib = false;
 	    }
 
-	  TSpline3* spline = 0;
 	  if (g)
 	    {
 	      m_splines[iside][imod] = new TSpline3(name,g);
