@@ -23,6 +23,7 @@ use EventPrimitives             EventPrimitives-*             Event
 use TrkToolInterfaces           TrkToolInterfaces-*           Tracking/TrkTools
 use TrkParametersBase           TrkParametersBase-*           Tracking/TrkEvent
 use VxVertex                    VxVertex-*                    Tracking/TrkEvent
+use xAODBPhys                   xAODBPhys-*                   Event/xAOD
 
 #macro cppdebugflags '$(cppdebugflags_s)'
 #macro_remove componentshr_linkopts "-Wl,-s"
@@ -30,4 +31,3 @@ use VxVertex                    VxVertex-*                    Tracking/TrkEvent
 public
 apply_pattern dual_use_library files=*.cxx
 apply_pattern declare_joboptions files=" *.py"
-

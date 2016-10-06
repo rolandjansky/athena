@@ -13,6 +13,7 @@
 // ****************************************************************************
 
 #include "JpsiUpsilonTools/JpsiFinder.h"
+#include "xAODBPhys/BPhysHelper.h"
 //#include "Particle/TrackParticle.h"
 //#include "muonEvent/MuonContainer.h"
 //#include "VxVertex/VxContainer.h"
@@ -492,61 +493,23 @@ namespace Analysis {
             std::vector<const xAOD::TrackParticle*> theTracks; theTracks.clear();
             theTracks.push_back((*jpsiItr).trackParticle1);
             theTracks.push_back((*jpsiItr).trackParticle2);
-            xAOD::Vertex* myVxCandidate = fit(theTracks); // This line actually does the fitting and object making
+            xAOD::Vertex* myVxCandidate = fit(theTracks,importedTrackCollection); // This line actually does the fitting and object making
             if (myVxCandidate != 0) {
                 // Chi2 cut if requested
                 double chi2 = myVxCandidate->chiSquared();
                 ATH_MSG_DEBUG("chi2 is: " << chi2);
-                if (m_Chi2Cut == 0.0 || chi2 <= m_Chi2Cut) {
-                    vxContainer->push_back(myVxCandidate);
-                    
-                    // store refitted tracks in persistifiable format
-                    static SG::AuxElement::Decorator< std::vector<float> > refTrackPxDecor("RefTrackPx");
-                    static SG::AuxElement::Decorator< std::vector<float> > refTrackPyDecor("RefTrackPy");
-                    static SG::AuxElement::Decorator< std::vector<float> > refTrackPzDecor("RefTrackPz");
-                    std::vector<float> refTrackPx;
-                    std::vector<float> refTrackPy;
-                    std::vector<float> refTrackPz;
-                    
-                    // loop over refitted tracks at vertex
-                    for(uint i=0; i<myVxCandidate->vxTrackAtVertex().size(); ++i) {
-                      TVector3 refTrackP = trackMomentum(myVxCandidate, i);
-                      
-                       // three-component vector of refitted parameters
-                      refTrackPx.push_back( refTrackP.Px() ); // NOTE: vector components are rounded to floats!
-                      refTrackPy.push_back( refTrackP.Py() );
-                      refTrackPz.push_back( refTrackP.Pz() );        
-                      
-                    } // end of loop over refitted tracks
-                    
-                    // store in the auxiliary store
-                    refTrackPxDecor(*myVxCandidate) = refTrackPx;
-                    refTrackPyDecor(*myVxCandidate) = refTrackPy;
-                    refTrackPzDecor(*myVxCandidate) = refTrackPz;
-                    
-                    // create links to the original muons
-                    if(m_mumu || m_mutrk) {
-                      ElementLink<xAOD::MuonContainer> muLink1;
-                      ElementLink<xAOD::MuonContainer> muLink2;
-                      if((*jpsiItr).muon1 != NULL) {
-                        muLink1.setElement((*jpsiItr).muon1);
-                        muLink1.setStorableObject(*importedMuonCollection);
-                      }
-                      if((*jpsiItr).muon2 != NULL) {
-                        muLink2.setElement((*jpsiItr).muon2);
-                        muLink2.setStorableObject(*importedMuonCollection);
-                      }
-                      // NOTE: we have to store links event if they are invalid to preserve muon <--> track correspondence 
-                      //       In case muAndTrack method is used, one has to check explicitly if links are valid in the analysis code.
-                      std::vector< ElementLink<xAOD::MuonContainer> >muLinks;
-                      muLinks.push_back(muLink1); 
-                      muLinks.push_back(muLink2);
-                      
-                      // create decoration of the xAOD::Vertex
-                      static SG::AuxElement::Decorator< std::vector< ElementLink<xAOD::MuonContainer> > > muonLinksDecor("MuonLinks");
-                      muonLinksDecor(*myVxCandidate) = muLinks;
-                    }
-                    
+                if (m_Chi2Cut == 0.0 || chi2 <= m_Chi2Cut) {             
+                	// decorate the candidate with refitted tracks and muons via the BPhysHelper
+                	xAOD::BPhysHelper jpsiHelper(myVxCandidate);
+                	jpsiHelper.setRefTrks();
+                	if (m_mumu || m_mutrk) {
+                	     std::vector<const xAOD::Muon*> theStoredMuons;
+                	     theStoredMuons.push_back((*jpsiItr).muon1);
+                	     if (m_mumu) theStoredMuons.push_back((*jpsiItr).muon2);
+                	     jpsiHelper.setMuons(theStoredMuons,importedMuonCollection);
+                	}
+                	// Retain the vertex
+                    vxContainer->push_back(myVxCandidate);       
                 } else { // chi2 cut failed
                     delete myVxCandidate;
                 }
@@ -568,7 +531,7 @@ namespace Analysis {
     // fit - does the fit
     // ---------------------------------------------------------------------------------
     
-    xAOD::Vertex* JpsiFinder::fit(std::vector<const xAOD::TrackParticle*> inputTracks) {
+    xAOD::Vertex* JpsiFinder::fit(std::vector<const xAOD::TrackParticle*> inputTracks,const xAOD::TrackParticleContainer* importedTrackCollection) {
         
         Trk::TrkV0VertexFitter* concreteVertexFitter=0;
         if (m_useV0Fitter) {
@@ -586,15 +549,45 @@ namespace Analysis {
         int errorcode = 0;
         Amg::Vector3D startingPoint = m_vertexEstimator->getCirclesIntersectionPoint(&aPerigee1,&aPerigee2,sflag,errorcode);
         if (errorcode != 0) {startingPoint(0) = 0.0; startingPoint(1) = 0.0; startingPoint(2) = 0.0;}
-        Trk::Vertex vertex(startingPoint);
         if (m_useV0Fitter) {
-            xAOD::Vertex* myVxCandidate = concreteVertexFitter->fit(inputTracks, vertex);
+            xAOD::Vertex* myVxCandidate = concreteVertexFitter->fit(inputTracks, startingPoint);
+
+            // Added by ASC
+            if(myVxCandidate != 0){
+            std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
+            for(unsigned int i=0; i< myVxCandidate->trackParticleLinks().size(); i++)
+            { ElementLink<DataVector<xAOD::TrackParticle> > mylink=myVxCandidate->trackParticleLinks()[i]; //makes a copy (non-const) 
+            mylink.setStorableObject(*importedTrackCollection, true); 
+            newLinkVector.push_back( mylink ); }
+            
+            myVxCandidate->clearTracks();
+            myVxCandidate->setTrackParticleLinks( newLinkVector );
+            }
+            
+
+
             return myVxCandidate;
         } else {
-            xAOD::Vertex* myVxCandidate = m_iVertexFitter->fit(inputTracks, vertex);
+            xAOD::Vertex* myVxCandidate = m_iVertexFitter->fit(inputTracks, startingPoint);
+
+            // Added by ASC
+            if(myVxCandidate != 0){
+            std::vector<ElementLink<DataVector<xAOD::TrackParticle> > > newLinkVector;
+            for(unsigned int i=0; i< myVxCandidate->trackParticleLinks().size(); i++)
+            { ElementLink<DataVector<xAOD::TrackParticle> > mylink=myVxCandidate->trackParticleLinks()[i]; //makes a copy (non-const) 
+            mylink.setStorableObject(*importedTrackCollection, true); 
+            newLinkVector.push_back( mylink ); }
+            
+            myVxCandidate->clearTracks();
+            myVxCandidate->setTrackParticleLinks( newLinkVector );
+            }
+
+
             return myVxCandidate;
         }
       
+
+
         return NULL;
         
     } // End of fit method

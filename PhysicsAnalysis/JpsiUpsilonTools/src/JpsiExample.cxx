@@ -34,8 +34,8 @@ JpsiExample::JpsiExample(const std::string& name, ISvcLocator* pSvcLocator) :
   declareProperty("JpsiCandidates"  ,m_JpsiCandidatesKey = "JpsiCandidates");
 
   // Global Counters; for truth statistics
-  eventCntr = 0;
-  jpsiCntr = 0;
+  m_eventCntr = 0;
+  m_jpsiCntr = 0;
 
   m_jpsiMass = 0;
   m_jpsiMassError = 0;
@@ -64,8 +64,8 @@ JpsiExample::JpsiExample(const std::string& name, ISvcLocator* pSvcLocator) :
   m_trkOrigPy2 = 0;
   m_trkOrigPz2 = 0;
 
-  outputFile = 0;
-  auxTree = 0;
+  m_outputFile = 0;
+  m_auxTree = 0;
 }
 
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * 
@@ -76,41 +76,41 @@ StatusCode JpsiExample::initialize(){
   ATH_MSG_DEBUG("in initialize()");
 
   // Open n-tuple file
-  outputFile = new TFile(m_userFName.c_str(),"recreate");
+  m_outputFile = new TFile(m_userFName.c_str(),"recreate");
   // Auxiliary n-tuples not covered by the automatic n-tuple makers
   // Decay angles
   initializeBranches(); // 
-  auxTree = new TTree("AUX","AUX");
-  auxTree->Branch("jpsiMass", &m_jpsiMass);
-  auxTree->Branch("jpsiMassError", &m_jpsiMassError);
-  auxTree->Branch("jpsiMassRec", &m_jpsiMassRec);
-  auxTree->Branch("jpsiMassPullRec", &m_jpsiMassPullRec);
-  auxTree->Branch("jpsiMassPullMC", &m_jpsiMassPullMC);
-  auxTree->Branch("jpsiChi2", &m_jpsiChi2);
+  m_auxTree = new TTree("AUX","AUX");
+  m_auxTree->Branch("jpsiMass", &m_jpsiMass);
+  m_auxTree->Branch("jpsiMassError", &m_jpsiMassError);
+  m_auxTree->Branch("jpsiMassRec", &m_jpsiMassRec);
+  m_auxTree->Branch("jpsiMassPullRec", &m_jpsiMassPullRec);
+  m_auxTree->Branch("jpsiMassPullMC", &m_jpsiMassPullMC);
+  m_auxTree->Branch("jpsiChi2", &m_jpsiChi2);
   
-//  auxTree->Branch("trkRefitCharge1",  &m_trkRefitCharge1);
-  auxTree->Branch("trkRefitPx1",  &m_trkRefitPx1);
-  auxTree->Branch("trkRefitPy1", &m_trkRefitPy1);
-  auxTree->Branch("trkRefitPz1", &m_trkRefitPz1);
-//  auxTree->Branch("trkRefitCharge2",  &m_trkRefitCharge2);
-  auxTree->Branch("trkRefitPx2",  &m_trkRefitPx2);
-  auxTree->Branch("trkRefitPy2", &m_trkRefitPy2);
-  auxTree->Branch("trkRefitPz2", &m_trkRefitPz2);
+//  m_auxTree->Branch("trkRefitCharge1",  &m_trkRefitCharge1);
+  m_auxTree->Branch("trkRefitPx1",  &m_trkRefitPx1);
+  m_auxTree->Branch("trkRefitPy1", &m_trkRefitPy1);
+  m_auxTree->Branch("trkRefitPz1", &m_trkRefitPz1);
+//  m_auxTree->Branch("trkRefitCharge2",  &m_trkRefitCharge2);
+  m_auxTree->Branch("trkRefitPx2",  &m_trkRefitPx2);
+  m_auxTree->Branch("trkRefitPy2", &m_trkRefitPy2);
+  m_auxTree->Branch("trkRefitPz2", &m_trkRefitPz2);
 
-  auxTree->Branch("vx",m_vx);
-  auxTree->Branch("vy",m_vy);
-  auxTree->Branch("vz",m_vz);
+  m_auxTree->Branch("vx",m_vx);
+  m_auxTree->Branch("vy",m_vy);
+  m_auxTree->Branch("vz",m_vz);
 
-  auxTree->Branch("trkOrigCharge1",  &m_trkOrigCharge1);
-  auxTree->Branch("trkOrigPx1",  &m_trkOrigPx1);
-  auxTree->Branch("trkOrigPy1", &m_trkOrigPy1);
-  auxTree->Branch("trkOrigPz1", &m_trkOrigPz1);
-  auxTree->Branch("trkOrigCharge2",  &m_trkOrigCharge2);
-  auxTree->Branch("trkOrigPx2",  &m_trkOrigPx2);
-  auxTree->Branch("trkOrigPy2", &m_trkOrigPy2);
-  auxTree->Branch("trkOrigPz2", &m_trkOrigPz2);
+  m_auxTree->Branch("trkOrigCharge1",  &m_trkOrigCharge1);
+  m_auxTree->Branch("trkOrigPx1",  &m_trkOrigPx1);
+  m_auxTree->Branch("trkOrigPy1", &m_trkOrigPy1);
+  m_auxTree->Branch("trkOrigPz1", &m_trkOrigPz1);
+  m_auxTree->Branch("trkOrigCharge2",  &m_trkOrigCharge2);
+  m_auxTree->Branch("trkOrigPx2",  &m_trkOrigPx2);
+  m_auxTree->Branch("trkOrigPy2", &m_trkOrigPy2);
+  m_auxTree->Branch("trkOrigPz2", &m_trkOrigPz2);
 
-//  auxTree->Branch("rxyError", &m_rxyError);
+//  m_auxTree->Branch("rxyError", &m_rxyError);
 
   return StatusCode::SUCCESS;
   
@@ -135,14 +135,14 @@ StatusCode JpsiExample::execute() {
     ATH_MSG_DEBUG("Obtained jpsiContainer");
   }
   ATH_MSG_DEBUG("number of jpsi candidates " << jpsiContainer->size());
-  jpsiCntr += jpsiContainer->size(); // Count the Jpsis
+  m_jpsiCntr += jpsiContainer->size(); // Count the Jpsis
 
 
   // Set the auxilliary branches of the ntuple to zero
   // to avoid accumulation 
   clearBranches();
 
-  ++eventCntr;     // Increment event counter
+  ++m_eventCntr;     // Increment event counter
 
   // Extract information from the Jpsi candidates 
   for ( xAOD::VertexContainer::const_iterator vxcItr = jpsiContainer->begin() ; vxcItr != jpsiContainer->end() ; vxcItr++ ) {
@@ -192,7 +192,7 @@ StatusCode JpsiExample::execute() {
   }
      
   // Write all data to the nTuple
-  auxTree->Fill();
+  m_auxTree->Fill();
 
   // END OF ANALYSIS
   return StatusCode::SUCCESS;
@@ -208,14 +208,14 @@ StatusCode JpsiExample::finalize() {
   std::cout << "SUMMARY OF ANALYSIS" << std::endl;
   std::cout << "===================" << std::endl;
   std::cout << " " << std::endl;
-  std::cout << "Total number of events analysed: " << eventCntr << std::endl;
-  std::cout << "Total number of jpsi candidates: " << jpsiCntr << std::endl;
+  std::cout << "Total number of events analysed: " << m_eventCntr << std::endl;
+  std::cout << "Total number of jpsi candidates: " << m_jpsiCntr << std::endl;
   // Save auxiliary n-tuple
-  outputFile->cd();
-  auxTree->Write();
-  auxTree->Print(); 
+  m_outputFile->cd();
+  m_auxTree->Write();
+  m_auxTree->Print(); 
   // Close file
-  outputFile->Close();
+  m_outputFile->Close();
   return StatusCode::SUCCESS;
 }
 
