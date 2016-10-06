@@ -111,10 +111,7 @@ class ConfiguredTrackingGeometrySvc( Trk__TrackingGeometrySvc ) :
         # check whether the material retrieval is ment to be from COOL
         if TrkDetFlags.MaterialSource() is 'COOL':
             # the material provider
-            if TrkDetFlags.ISF_FatrasCustomGeometry() :
-                from ISF_FatrasDetDescrTools.ISF_FatrasDetDescrToolsConf import iFatras__LayerMaterialProvider as LayerMaterialProvider
-            else:
-                from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerMaterialProvider as LayerMaterialProvider
+            from TrkDetDescrTools.TrkDetDescrToolsConf import Trk__LayerMaterialProvider as LayerMaterialProvider
             AtlasMaterialProvider = LayerMaterialProvider('AtlasMaterialProvider')
             AtlasMaterialProvider.OutputLevel           = TrkDetFlags.ConfigurationOutputLevel()
             AtlasMaterialProvider.LayerMaterialMapName  = TrkDetFlags.MaterialStoreGateKey()
