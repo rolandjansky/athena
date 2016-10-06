@@ -65,7 +65,7 @@ namespace Analysis {
     }
     
     JpsiPlus2Tracks::JpsiPlus2Tracks(const std::string& t, const std::string& n, const IInterface* p)  : AthAlgTool(t,n,p),
-    m_particleDataTable(0),
+                                                                                    //m_particleDataTable(0),
     m_pipiMassHyp(true),
     m_kkMassHyp(true),
     m_kpiMassHyp(true),
@@ -503,7 +503,6 @@ namespace Analysis {
         for(unsigned int i=0; i< theResult->trackParticleLinks().size(); i++)
         { ElementLink<DataVector<xAOD::TrackParticle> > mylink=theResult->trackParticleLinks()[i]; //makes a copy (non-const) 
         mylink.setStorableObject(*importedTrackCollection, true); 
-        mylink.index(); // Use index (should be faster) 
         newLinkVector.push_back( mylink ); }
         
         theResult->clearTracks();

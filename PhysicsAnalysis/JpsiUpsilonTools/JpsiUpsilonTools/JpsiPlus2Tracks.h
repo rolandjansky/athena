@@ -66,7 +66,7 @@ namespace Analysis {
         //-------------------------------------------------------------------------------------
         
     private:
-        const HepPDT::ParticleDataTable *m_particleDataTable;
+        //const HepPDT::ParticleDataTable *m_particleDataTable;
         bool m_pipiMassHyp;
         bool m_kkMassHyp;
         bool m_kpiMassHyp;

@@ -558,7 +558,6 @@ namespace Analysis {
             for(unsigned int i=0; i< myVxCandidate->trackParticleLinks().size(); i++)
             { ElementLink<DataVector<xAOD::TrackParticle> > mylink=myVxCandidate->trackParticleLinks()[i]; //makes a copy (non-const) 
             mylink.setStorableObject(*importedTrackCollection, true); 
-            mylink.index(); // Use index (should be faster) 
             newLinkVector.push_back( mylink ); }
             
             myVxCandidate->clearTracks();
@@ -577,7 +576,6 @@ namespace Analysis {
             for(unsigned int i=0; i< myVxCandidate->trackParticleLinks().size(); i++)
             { ElementLink<DataVector<xAOD::TrackParticle> > mylink=myVxCandidate->trackParticleLinks()[i]; //makes a copy (non-const) 
             mylink.setStorableObject(*importedTrackCollection, true); 
-            mylink.index(); // Use index (should be faster) 
             newLinkVector.push_back( mylink ); }
             
             myVxCandidate->clearTracks();
