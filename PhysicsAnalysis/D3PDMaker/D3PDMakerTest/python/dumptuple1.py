@@ -20,6 +20,16 @@ import ROOT
 import cppyy
 from D3PDMakerTest.Treereader import treereader
 
+# Touch these types early, before dictionaries are loaded,
+# to prevent spurious error messages from ROOT.
+# See ATLASRECTS-3486.
+getattr(cppyy.gbl, 'vector<char>')
+getattr(cppyy.gbl, 'vector<unsigned char>')
+getattr(cppyy.gbl, 'vector<float>')
+getattr(cppyy.gbl, 'vector<short>')
+getattr(cppyy.gbl, 'map<string,string>')
+
+
 from RootUtils import PyROOTFixes
 PyROOTFixes.enable_tree_speedups()
 

@@ -7,6 +7,12 @@
 # Purpose: Test D3PD making.
 #
 
+# Touch these types early, before dictionaries are loaded,
+# to prevent spurious error messages from ROOT.
+# See ATLASRECTS-3486.
+import cppyy
+getattr(cppyy.gbl, 'map<string,string>')
+
 ## basic job configuration
 import AthenaCommon.AtlasUnixGeneratorJob
 
