@@ -6,6 +6,7 @@
 
 #include "ElectronPhotonShowerShapeFudgeTool/FudgeMCTool.h"
 #include "TMath.h"
+#include <iostream>
 
 static const double GeV = 1.e+3;
 
@@ -11524,7 +11525,117 @@ void FudgeMCTool::LoadFFsDummy()
 
 }
 
-	//Get graph of FFs
+TH2D* FudgeMCTool::GetFFTH2D(int var, int isConv, int preselection){
+
+  // read the FFs
+  if((preselection>=0 && preselection != m_preselection) || (isConv>=0 && isConv!=m_conv))
+	  this->LoadFFs(isConv,preselection);
+
+  // create the histogram
+  const int ptbins = m_rhad1_ff.GetPtBins()+1;
+  double *ptarray = m_rhad1_ff.GetPtArray();
+  const int etabins = m_rhad1_ff.GetEtaBins()+1;
+  double *etaarray = m_rhad1_ff.GetEtaArray();
+  //std::cout << ptbins << " " << etabins << std::endl;
+  double x[100];
+  double y[100];
+  
+  for (int i=0; i<ptbins; i++){
+    if(i==0)
+      x[0]=0.;
+    else
+      x[i] = ptarray[i-1];
+    //std::cout << i << " " << x[i] << std::endl;
+  }    
+  for (int i=0; i<etabins; i++){
+    if(i==0)
+      y[0]=0.;
+    else
+      y[i] = etaarray[i-1];
+    //std::cout << i << " " << y[i] << std::endl;
+  }    
+
+
+  
+  TH2D* hff = new TH2D("hff","hff",ptbins-1,x,etabins-1,y);
+  hff->GetXaxis()->SetTitle("p_{T} [MeV]");
+  hff->GetYaxis()->SetTitle("|#eta_{S2}|");
+  
+  // fill the histogram
+  double pt, eta;
+  for (int i=1; i<ptbins; i++){
+    pt = hff->GetXaxis()->GetBinCenter(i);
+    for (int j=1; j<etabins; j++){
+      eta = hff->GetYaxis()->GetBinCenter(j);      
+      //std::cout << "pT = " << pt << ", eta = " << eta << std::endl;
+
+      double ff, fferr;
+      
+      switch (var) {
+      case IDVAR::RHAD1:
+	ff    = GetFF_Rhad1( pt, eta );
+	fferr = GetFFerr_Rhad1( pt, eta );
+	break;
+      case IDVAR::RHAD:
+	ff    = GetFF_Rhad( pt, eta );
+	fferr = GetFFerr_Rhad( pt, eta );
+	break;
+      case IDVAR::E277:
+	ff    = GetFF_E277( pt, eta );
+	fferr = GetFFerr_E277( pt, eta );
+	break;
+      case IDVAR::RETA:
+	ff    = GetFF_Reta( pt, eta );
+	fferr = GetFFerr_Reta( pt, eta );
+	break;
+      case IDVAR::RPHI:
+	ff    = GetFF_Rphi( pt, eta );
+	fferr = GetFFerr_Rphi( pt, eta );
+	break;
+      case IDVAR::WETA2:
+	ff    = GetFF_Weta2( pt, eta );
+	fferr = GetFFerr_Weta2( pt, eta );
+	break;
+      case IDVAR::F1:
+	ff    = GetFF_F1( pt, eta );
+	fferr = GetFFerr_F1( pt, eta );
+	break;
+      case IDVAR::FSIDE:
+	ff    = GetFF_Fside( pt, eta );
+	fferr = GetFFerr_Fside( pt, eta );
+	break;
+      case IDVAR::WTOT:
+	ff    = GetFF_Wtot( pt, eta );
+	fferr = GetFFerr_Wtot( pt, eta );
+	break;
+      case IDVAR::W1:
+	ff    = GetFF_W1( pt, eta );
+	fferr = GetFFerr_W1( pt, eta );
+	break;
+      case IDVAR::DE:
+	ff    = GetFF_DE( pt, eta );
+	fferr = GetFFerr_DE( pt, eta );
+	break;
+      case IDVAR::ERATIO:
+	ff    = GetFF_Eratio( pt, eta );
+	fferr = GetFFerr_Eratio( pt, eta );
+	break;
+      default:
+	ff = 0.;
+	fferr = 0.;
+	break;
+      }
+      //std::cout << "FF = " << ff << " +- " << fferr << std::endl;
+      hff->SetBinContent(i,j,ff);
+      hff->SetBinError(i,j,fferr);
+    }
+  }
+  
+  // return the histogram
+  return hff;
+}
+
+//Get graph of FFs
 TGraphErrors* FudgeMCTool::GetFFmap(int var, double eta, int isConv, int preselection ){
 	if((preselection>=0 && preselection != m_preselection) || (isConv>=0 && isConv!=m_conv))
 		this->LoadFFs(isConv,preselection);
