@@ -534,7 +534,7 @@ void AnalysisConfig_Jpsi::loop() {
               const Analysis::Electron* temp = *elecItr;
               /*cout << "isem(0) = " << temp->isem(egammaPID::ElectronMediumPP) << "  passID(1) = "
                    << temp->passID(egammaPID::ElectronIDMediumPP) << endl;*/
-              if(temp->isem(egammaPID::ElectronMediumPP)==0 || 1==temp->passID(egammaPID::ElectronIDMediumPP)) {
+              if(temp->isem(egammaPIDObs::ElectronMediumPP)==0 || 1==temp->passID(egammaPIDObs::ElectronIDMediumPP)) {
               //if(temp->isem(egammaPID::ElectronTightPP)==0 || 1==temp->passID(egammaPID::ElectronIDTightPP)) {
                 //if(TMath::Abs(temp->eta())<1.37 || TMath::Abs(temp->eta())>1.52) {
                   m_provider->msg(MSG::DEBUG) << "OFFLINE -- electron passed [ pT = " << temp->pt()
