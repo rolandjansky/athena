@@ -28,6 +28,8 @@ TrigMuonEFCombinerMultiHypo::TrigMuonEFCombinerMultiHypo(const std::string & nam
   declareProperty("PtBins", m_ptBins=def_bins);
   declareProperty("PtThresholds", m_ptThresholds=def_thrs);
   declareProperty("PtMultiplicity", m_ptMultiplicity=def_mult);
+  declareProperty("DoNscan", m_nscan=false);
+  declareProperty("ConeSize", m_conesize=0.3);
   declareMonitoredStdContainer("Pt",  m_fex_pt);
   declareMonitoredStdContainer("Eta", m_fex_eta);
   declareMonitoredStdContainer("Phi", m_fex_phi);
@@ -85,6 +87,8 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltInitialize(){
       return HLT::BAD_JOB_SETUP;
     }
 
+    msg() << MSG::INFO << "DoNscan: "<<m_nscan<<endreq;
+
   }
 
   msg() << MSG::INFO
@@ -113,6 +117,8 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
   m_fex_eta.clear();
   m_fex_phi.clear();
   m_fex_nmuons.clear();
+  m_tmp_eta.clear();
+  m_tmp_phi.clear();
 
   if(m_acceptAll) {
     pass = true;
@@ -220,6 +226,11 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
 	  } // end loop over eta bins for all multiplicities
 	       
 	  hypo_results.push_back( tmp ); // store result
+	  if(m_nscan){
+	    m_tmp_eta.push_back(tr->eta());
+	    m_tmp_phi.push_back(tr->phi());
+	  }
+
 	  ismucomb.push_back(ismuoncomb);
 	  if(debug) msg() << MSG::DEBUG << " REGTEST muon pt is " << tr->pt()/CLHEP::GeV << " GeV "
 			  << " with Charge " << tr->charge()
@@ -271,14 +282,34 @@ HLT::ErrorCode TrigMuonEFCombinerMultiHypo::hltExecute(const HLT::TriggerElement
       tmp_mu[i] = bitsum(hypo_results[i]); // store how many hypo muon candidate satisfies
       for (unsigned int j=0;j<m_Nmult;j++) {
 	if ( m_masks[j] & hypo_results[i] ) {
-	  tmp_hypo[j]++;
+	  if(!m_rejectCBmuons) tmp_hypo[j]++;
 	}
       } 
     }
     // check every partial hypo is satisfied at least once.
     for (unsigned int i=0;i<m_Nmult && pass;i++){
       if (!m_rejectCBmuons && tmp_hypo[i]==0) pass = false;
-      if(m_rejectCBmuons && ismucomb[i]==1) pass=false;
+      if(m_rejectCBmuons && ismucomb[i]==1) pass = false;
+    }
+
+    //check for narrow scan triggers
+    float deta,dphi=10;
+    unsigned int nInCone=0;
+    int npass=0;
+    if(m_nscan && pass){
+      for(unsigned int i=0; i<m_tmp_eta.size(); i++){
+	if(m_rejectCBmuons && ismucomb[i]==1) continue;
+      	nInCone=0;
+      	for(unsigned int j=i+1; j<m_tmp_eta.size(); j++){
+    	  deta = fabs(m_tmp_eta[i]-m_tmp_eta[j]);
+    	  dphi = getdphi(m_tmp_phi[i],m_tmp_phi[j]);
+      	  if(deta<2*m_conesize && dphi<2*m_conesize){
+      	    nInCone++;
+      	  }
+      	}
+      	if(nInCone>=m_Nmult-1) npass++;
+      }
+      if(npass<=0) pass=false;
     }
 
     if (pass) {
@@ -318,3 +349,11 @@ int TrigMuonEFCombinerMultiHypo::bitsum(unsigned long il) {
   }
   return ret;
 }
+
+float TrigMuonEFCombinerMultiHypo::getdphi(float phi1, float phi2){
+  float dphi = phi1-phi2;
+  if(dphi > TMath::Pi()) dphi -= TMath::TwoPi();
+  if(dphi < -1*TMath::Pi()) dphi += TMath::TwoPi();
+  return fabs(dphi);
+}
+
