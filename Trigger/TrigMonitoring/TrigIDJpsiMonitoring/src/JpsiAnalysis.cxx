@@ -448,9 +448,9 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
                            const vector<TIDA::Track*>& testtracks,
                    	       TrackAssociator* matcher=0) {
 
-  m_speaker->msg(MSG::DEBUG) << "Start of JpsiAnalysis execute ..." << endreq;
+  m_speaker->msg(MSG::DEBUG) << "Start of JpsiAnalysis execute ..." << endmsg;
   matcher = 0;
-  if(!matcher)  m_speaker->msg(MSG::DEBUG) << "Matcher not used." << endreq;
+  if(!matcher)  m_speaker->msg(MSG::DEBUG) << "Matcher not used." << endmsg;
 
   // should have these as a class variable   
   static string varName[13] = { "pT", "eta", "phi", "z0", "d0", "a0", 
@@ -512,9 +512,9 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
     else throw std::runtime_error("*** TrigJpsiMonTool *** Probe not casting, aborting!!! *** TrigJpsiMonTool ***");
 
     m_speaker->msg(MSG::DEBUG) << "probe [ pT = " << probe->pT()  << " eta = " << probe->eta()
-                               << " phi = "       << probe->phi() << " ]" << endreq;
+                               << " phi = "       << probe->phi() << " ]" << endmsg;
     m_speaker->msg(MSG::DEBUG) << "tag [ pT = "   << tag->pt()    << " eta = " << tag->eta()
-                               << " phi = "       << tag->phi()   << " ]" << endreq;
+                               << " phi = "       << tag->phi()   << " ]" << endmsg;
     cout << "probe [ pT = " << probe->pT()  << " eta = " << probe->eta()
          << " phi = "       << probe->phi() << " ]" << endl;
     cout << "tag [ pT = "   << tag->pt()    << " eta = " << tag->eta()
@@ -523,13 +523,13 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
     int probeRoiId = probe->getRoiNum();
     int tagRoiId   = tag->roiNum();
     if(probeRoiId == tagRoiId) {
-      m_speaker->msg(MSG::WARNING) << "*** TrigJpsiMonTool *** probe RoI == tag RoI!!! *** TrigJpsiMonTool ***" << endreq;
+      m_speaker->msg(MSG::WARNING) << "*** TrigJpsiMonTool *** probe RoI == tag RoI!!! *** TrigJpsiMonTool ***" << endmsg;
       throw std::runtime_error("*** TrigJpsiMonTool *** probe RoI == tag RoI!!! *** TrigJpsiMonTool ***");
     }
-    else m_speaker->msg(MSG::DEBUG) << "JPsiAnalysis -- probe ROI: " << probeRoiId << "  and tag ROI: " << tagRoiId << endreq;
+    else m_speaker->msg(MSG::DEBUG) << "JPsiAnalysis -- probe ROI: " << probeRoiId << "  and tag ROI: " << tagRoiId << endmsg;
     
     m_speaker->msg(MSG::DEBUG) << "test tracks size: " << testtracks.size()
-                               << " roi size: " << m_trackRois->size() << endreq;
+                               << " roi size: " << m_trackRois->size() << endmsg;
     cout << "test tracks size: " << testtracks.size() << endl;
     //for(unsigned int jj = 0; jj < testtracks.size(); ++jj)  cout << "testtracks - " << jj << " - " << testtracks[jj] << endl;
     //for( std::map<int,int>::iterator ii = m_trackRois->begin(); ii != m_trackRois->end(); ++ii) {
@@ -553,8 +553,8 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
     
     float mu_inTime = 0; //, mu_outOfTime = 0;
     
-    m_speaker->msg(MSG::DEBUG) << "get event info ..." << endreq;
-    if(m_speaker->evtStore()->retrieve(m_eventInfo).isFailure())  m_speaker->msg(MSG::DEBUG) << "Failed to get EventInfo " << endreq;
+    m_speaker->msg(MSG::DEBUG) << "get event info ..." << endmsg;
+    if(m_speaker->evtStore()->retrieve(m_eventInfo).isFailure())  m_speaker->msg(MSG::DEBUG) << "Failed to get EventInfo " << endmsg;
     else {
       mu_inTime    = m_eventInfo->actualInteractionsPerCrossing();
       //mu_outOfTime = m_eventInfo->averageInteractionsPerCrossing();
@@ -587,16 +587,16 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
       if(m_offlineProbes->at(i) && m_offlineTags->at(i))  hmitr->second->Fill( 4.0 );
     }
 
-    m_speaker->msg(MSG::DEBUG) << "require offline matches ..." << endreq;
+    m_speaker->msg(MSG::DEBUG) << "require offline matches ..." << endmsg;
 
     bool matchOffline = m_offlineProbes->at(i) ? true : false;
-    m_speaker->msg(MSG::DEBUG) << "matchOffline probes: " << matchOffline << endreq;
+    m_speaker->msg(MSG::DEBUG) << "matchOffline probes: " << matchOffline << endmsg;
     if(!m_isMuon) {
       matchOffline  = m_offlineTags->at(i) && m_tOffCharge->at(i) * m_pOffCharge->at(i) < 0.0;
-      m_speaker->msg(MSG::DEBUG) << "offTag: " << m_offlineTags->at(i) << endreq;
-      m_speaker->msg(MSG::DEBUG) << "tOffCharge: " << m_tOffCharge->at(i) << endreq;
-      m_speaker->msg(MSG::DEBUG) << "pOffCharge: " << m_pOffCharge->at(i) << endreq;
-      m_speaker->msg(MSG::DEBUG) << "matchOffline tag: " << matchOffline << endreq;
+      m_speaker->msg(MSG::DEBUG) << "offTag: " << m_offlineTags->at(i) << endmsg;
+      m_speaker->msg(MSG::DEBUG) << "tOffCharge: " << m_tOffCharge->at(i) << endmsg;
+      m_speaker->msg(MSG::DEBUG) << "pOffCharge: " << m_pOffCharge->at(i) << endmsg;
+      m_speaker->msg(MSG::DEBUG) << "matchOffline tag: " << matchOffline << endmsg;
     }
 
     if(matchOffline) {
@@ -645,7 +645,7 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
       float vmag = comb4vec.Mag()/GeV;
       // probe mass confirmation cut
       fillOffline  = !(vmag < 0.5);
-      m_speaker->msg(MSG::DEBUG) << "vmag: " << vmag << endreq;
+      m_speaker->msg(MSG::DEBUG) << "vmag: " << vmag << endmsg;
 
       cout << "> HIGH PT INEFFICIENCY DEBUG:" << endl;
       cout << "> probe pT: " << probe->pT() << endl;
@@ -694,7 +694,7 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
         fillOffline &= !(vmag < 0.5);
       }
     }
-    else  m_speaker->msg(MSG::INFO) << "No offline matches. fillOffline = " << fillOffline << endreq;
+    else  m_speaker->msg(MSG::INFO) << "No offline matches. fillOffline = " << fillOffline << endmsg;
     //else  break;    
 
     if(cutflow_check[2] && fillOffline) {
@@ -763,27 +763,27 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
     float minDR = 0., minDR_nocut = 0., etaID = 0.,
           phiID = 0., ptID = 0., maxPt = 0.;
     m_speaker->msg(MSG::DEBUG) << "testtracks size: " << testtracks.size()
-                               << " roi size: " << m_trackRois->size() << endreq;
+                               << " roi size: " << m_trackRois->size() << endmsg;
     for(unsigned int trigind = 0; trigind < testtracks.size(); trigind++) {
       // For electrons, require EQUAL RoIs for ID track and probe cluster
       // For muons, require OPPOSITE RoIs for ID track and probe cluster
       m_speaker->msg(MSG::DEBUG) << "testtrack [ pt = " << testtracks[trigind]->pT()
                                  << " eta = " << testtracks[trigind]->eta()
                                  << " phi = " << testtracks[trigind]->phi()
-                                 << " roi = " << m_trackRois->operator[](trigind) << " ]" << endreq;
+                                 << " roi = " << m_trackRois->operator[](trigind) << " ]" << endmsg;
       m_speaker->msg(MSG::DEBUG) << "track ROI: " << m_trackRois->operator[](trigind)
-                                 << " probeRoiId: " << probeRoiId << endreq;
+                                 << " probeRoiId: " << probeRoiId << endmsg;
       cout << "testtrack [ pt = " << testtracks[trigind]->pT()
            << " eta = " << testtracks[trigind]->eta()
            << " phi = " << testtracks[trigind]->phi()
            << " roi = " << m_trackRois->operator[](trigind) << " ]" << endl;
       m_speaker->msg(MSG::DEBUG) << "track ROI: " << m_trackRois->operator[](trigind)
-                                 << " probeRoiId: " << probeRoiId << endreq;
+                                 << " probeRoiId: " << probeRoiId << endmsg;
       cout << "track ROI: " << m_trackRois->operator[](trigind) << " probeRoiId: " << probeRoiId << endl;
       /*if(      m_isMuon && m_trackRois->operator[](trigind) == tagRoiId)    continue;
       else if(!m_isMuon && m_trackRois->operator[](trigind) != probeRoiId)  continue;*/
       if(m_trackRois->operator[](trigind) != probeRoiId)  continue;
-      m_speaker->msg(MSG::INFO) << "test track passed RoI check!" << endreq;
+      m_speaker->msg(MSG::INFO) << "test track passed RoI check!" << endmsg;
       cout << "test track passed RoI check!" << endl;
 
       TLorentzVector tagVec, trackVec, tagAndTrackPair;
@@ -828,7 +828,7 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
         //if(!minDR || mdR < minDR) {
         //
         /*float mdR = deltaR(probe->eta(), probe->phi(), testtracks[trigind]->eta(), testtracks[trigind]->phi());
-        m_speaker->msg(MSG::DEBUG) << "mdR(probe, track): " << mdR << " cut: 0.4" << endreq;
+        m_speaker->msg(MSG::DEBUG) << "mdR(probe, track): " << mdR << " cut: 0.4" << endmsg;
         if(!minDR_nocut || (minDR_nocut && mdR < minDR_nocut))  minDR_nocut = mdR;
         if(mdR < 0.1) {
           if(!isEfficient || (isEfficient && mdR < minDR)) {*/
@@ -855,7 +855,7 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
           minDR_nocut = mdR;
           isEfficient_nocut = 1; 
         }
-        m_speaker->msg(MSG::DEBUG) << "mdR(off, track): " << mdR << endreq;
+        m_speaker->msg(MSG::DEBUG) << "mdR(off, track): " << mdR << endmsg;
         if(mdR < 0.03) {
           if(!isEfficient || (isEfficient && mdR < minDR)) {
             //etaID = m_etaAtCalo->operator[](trigind);
@@ -879,9 +879,9 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
     if(m_isMuon) {
       double lowerBound = m_isJpsi?  1000. :  50000.;
       double upperBound = m_isJpsi? 20000  : 400000.;
-      m_speaker->msg(MSG::DEBUG) << "mass(ID track, tag): " << ttMass << endreq;
-      m_speaker->msg(MSG::DEBUG) << "massLimitLow:  " << lowerBound << endreq;
-      m_speaker->msg(MSG::DEBUG) << "massLimitHigh: " << upperBound << endreq;
+      m_speaker->msg(MSG::DEBUG) << "mass(ID track, tag): " << ttMass << endmsg;
+      m_speaker->msg(MSG::DEBUG) << "massLimitLow:  " << lowerBound << endmsg;
+      m_speaker->msg(MSG::DEBUG) << "massLimitHigh: " << upperBound << endmsg;
       cout << "mass(ID track, tag): " << ttMass << endl;
       cout << "massLimitLow:  " << lowerBound << endl;
       cout << "massLimitHigh: " << upperBound << endl;
@@ -1283,7 +1283,7 @@ void JpsiAnalysis::execute(const vector<TIDA::Track*>& probeTracks,
       if(hmitr != m_histos.end())  hmitr->second->Fill(minDR_nocut);
     }
   } 
-  m_speaker->msg(MSG::DEBUG) << "... end of JpsiAnalysis execute." << endreq;
+  m_speaker->msg(MSG::DEBUG) << "... end of JpsiAnalysis execute." << endmsg;
 }
 
 // ###########################################################################

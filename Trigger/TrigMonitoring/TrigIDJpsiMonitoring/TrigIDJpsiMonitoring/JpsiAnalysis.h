@@ -154,10 +154,10 @@ public:
   }
 
   TH1F* find( const std::string& n ) {
-    m_speaker->msg(MSG::DEBUG) << "name: " << n << endreq;
+    m_speaker->msg(MSG::DEBUG) << "name: " << n << endmsg;
     std::map<std::string, TH1F*>::iterator hmitr = m_histos.find(n);
     if ( hmitr!=m_histos.end() ) { 
-      m_speaker->msg(MSG::DEBUG) << "hmitr for " << n << ": " << hmitr->second << endreq;
+      m_speaker->msg(MSG::DEBUG) << "hmitr for " << n << ": " << hmitr->second << endmsg;
       return hmitr->second;
     }
     return 0;

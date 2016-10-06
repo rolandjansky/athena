@@ -83,18 +83,18 @@ void AnalysisConfig_Jpsi::loop() {
 
   if( isPassed ) {
     ++m_count_after;
-    m_provider->msg(MSG::INFO) << "EVENT PASSED TRIGGER: " << checkTrigger << endreq;
+    m_provider->msg(MSG::INFO) << "EVENT PASSED TRIGGER: " << checkTrigger << endmsg;
 
     Trig::ExpertMethods* em = (*m_tdt)->ExperimentalAndExpertMethods();
     em->enable();
     bool HLTTruncated = true;
     HLTTruncated = em->isHLTTruncated();
     if(HLTTruncated) {
-      m_provider->msg(MSG::WARNING) << "Incomplete HLT result - ABORTING EVENT." << endreq;
+      m_provider->msg(MSG::WARNING) << "Incomplete HLT result - ABORTING EVENT." << endmsg;
       return;
     }
     else {
-      m_provider->msg(MSG::INFO) << "\033[94;mSTART EVENT -- ALGORITHM: " << m_testChainKey << "\033[m" << endreq;
+      m_provider->msg(MSG::INFO) << "\033[94;mSTART EVENT -- ALGORITHM: " << m_testChainKey << "\033[m" << endmsg;
       makeClean();
       
       //get beam position
@@ -108,7 +108,7 @@ void AnalysisConfig_Jpsi::loop() {
 #ifndef TIDA_NEWTRACKING_H
         HepGeom::Point3D<double> vertex = m_iBeamCondSvc->beamPos();
         //if(fabs(xbeam-vertex.x())>0.1 || fabs(ybeam-vertex.y())>0.1){
-          //m_provider->msg(MSG::INFO) << " using beam position\tx=" << vertex.x() << "\ty=" << vertex.y() << endreq; 
+          //m_provider->msg(MSG::INFO) << " using beam position\tx=" << vertex.x() << "\ty=" << vertex.y() << endmsg; 
         //}
         xbeam = vertex.x();
         ybeam = vertex.y();
@@ -123,7 +123,7 @@ void AnalysisConfig_Jpsi::loop() {
       /*if( m_iOnlineBeamCondSvc ) {
         HepPoint3D vertex = m_iOnlineBeamCondSvc->beamPos();
         //if (fabs(xbeam-vertex.x())>0.1 || fabs(ybeam-vertex.y())>0.1){
-          m_provider->msg(MSG::INFO) << " using online beam position\tx=" << vertex.x() << "\ty=" << vertex.y() << endreq; 
+          m_provider->msg(MSG::INFO) << " using online beam position\tx=" << vertex.x() << "\ty=" << vertex.y() << endmsg; 
         //}
         xbeam_online = vertex.x();
         ybeam_online = vertex.y(); 
@@ -148,7 +148,7 @@ void AnalysisConfig_Jpsi::loop() {
       vector<TIDA::Vertex*> vertices;
       const VxContainer* primaryVtxCollection;
       if(m_provider->evtStore()->retrieve(primaryVtxCollection, "VxPrimaryCandidate").isFailure()) {
-        m_provider->msg(MSG::WARNING) << "Primary vertex container not found" << endreq;
+        m_provider->msg(MSG::WARNING) << "Primary vertex container not found" << endmsg;
       }
       else {
 	VxContainer::const_iterator vtxitr = primaryVtxCollection->begin();
@@ -190,15 +190,15 @@ void AnalysisConfig_Jpsi::loop() {
           StatusCode scm = m_provider->evtStore()->retrieve(truthTracks,m_truthCollection);
           if(scm.isFailure()) {
             if(m_events == 1) {
-              m_provider->msg(MSG::WARNING) <<"No Collection with name "<<m_truthCollection<<" found in StoreGate" << endreq;
+              m_provider->msg(MSG::WARNING) <<"No Collection with name "<<m_truthCollection<<" found in StoreGate" << endmsg;
             }
             else if(m_provider->msgLvl(MSG::DEBUG)) {
-              m_provider->msg(MSG::DEBUG)<< "No Collection with name "<<m_truthCollection<<" found in StoreGate" << endreq;
+              m_provider->msg(MSG::DEBUG)<< "No Collection with name "<<m_truthCollection<<" found in StoreGate" << endmsg;
             }
           }
         } 
         else if (m_provider->msgLvl(MSG::DEBUG)) {
-          m_provider->msg(MSG::DEBUG) << "StoreGate does not contain Collection with name "<<m_truthCollection<<" "<<endreq;
+          m_provider->msg(MSG::DEBUG) << "StoreGate does not contain Collection with name "<<m_truthCollection<<" "<<endmsg;
         }
         if(!m_provider->evtStore()->contains<LVL1_ROI>("LVL1_ROI")) m_useTrigger=false;
         m_selectorJ->selectTracks( truthTracks );
@@ -209,15 +209,15 @@ void AnalysisConfig_Jpsi::loop() {
             StatusCode scm = m_provider->evtStore()->retrieve(Muons,m_muonCollection);
             if(scm.isFailure()) {
               if(m_events == 1) {
-                m_provider->msg(MSG::WARNING) <<"No Collection with name "<<m_muonCollection<<" found in StoreGate" << endreq;
+                m_provider->msg(MSG::WARNING) <<"No Collection with name "<<m_muonCollection<<" found in StoreGate" << endmsg;
               }
               else if(m_provider->msgLvl(MSG::DEBUG)) {
-                m_provider->msg(MSG::DEBUG)<< "No Collection with name "<<m_muonCollection<<" found in StoreGate" << endreq;
+                m_provider->msg(MSG::DEBUG)<< "No Collection with name "<<m_muonCollection<<" found in StoreGate" << endmsg;
               }
             }
           } 
           else if(m_provider->msgLvl(MSG::DEBUG)) {
-            m_provider->msg(MSG::DEBUG) << "StoreGate does not contain Collection with name "<<m_muonCollection<<" "<<endreq;
+            m_provider->msg(MSG::DEBUG) << "StoreGate does not contain Collection with name "<<m_muonCollection<<" "<<endmsg;
           }
           //cout << "serious business below" << endl;
 	  
@@ -385,14 +385,14 @@ void AnalysisConfig_Jpsi::loop() {
             cout << "MC test: END.\n" << endl;
             //return;
 
-            /*m_provider->msg(MSG::DEBUG) << "Get features... " << endreq;
+            /*m_provider->msg(MSG::DEBUG) << "Get features... " << endmsg;
             Trig::FeatureContainer fconto = (*m_tdt)->features(m_refChainName, m_trigDefs);
-            m_provider->msg(MSG::DEBUG) << "Get combinations... " << endreq;
+            m_provider->msg(MSG::DEBUG) << "Get combinations... " << endmsg;
             const vector<Trig::Combination>& combo = fconto.getCombinations();
             vector<Trig::Combination>::const_iterator c_itro = combo.begin();
-            m_provider->msg(MSG::DEBUG) << "combo.end() - combo.begin(): " << (combo.end() - c_itro) << endreq;
+            m_provider->msg(MSG::DEBUG) << "combo.end() - combo.begin(): " << (combo.end() - c_itro) << endmsg;
             if(c_itro == combo.end()) return;
-            m_provider->msg(MSG::DEBUG) << "m_remover->MuonMaker(...)" << endreq;
+            m_provider->msg(MSG::DEBUG) << "m_remover->MuonMaker(...)" << endmsg;
             m_remover->muonMaker(c_itro, m_refChainName, m_tdt, m_trigDefs);
             muonExtrapolatedTracks = m_remover->getExTrks();
             muonCombinedTracks = m_remover->getCbTrks();*/
@@ -405,17 +405,17 @@ void AnalysisConfig_Jpsi::loop() {
             StatusCode scm = m_provider->evtStore()->retrieve(Muons,m_muonCollection);
             if(scm.isFailure()) {
               if(m_events==1) {
-                m_provider->msg(MSG::WARNING) <<"No Collection with name "<<m_muonCollection<<" found in StoreGate" << endreq;
+                m_provider->msg(MSG::WARNING) <<"No Collection with name "<<m_muonCollection<<" found in StoreGate" << endmsg;
               }
               else if(m_provider->msgLvl(MSG::DEBUG)) {
-                m_provider->msg(MSG::DEBUG)<< "No Collection with name "<<m_muonCollection<<" found in StoreGate" << endreq;
+                m_provider->msg(MSG::DEBUG)<< "No Collection with name "<<m_muonCollection<<" found in StoreGate" << endmsg;
               }
 	      Muons = 0;
             }
           } 
           else {
             if(m_provider->msgLvl(MSG::DEBUG)) {
-              m_provider->msg(MSG::DEBUG) << "StoreGate does not contain Collection with name " << m_muonCollection << " " << endreq;
+              m_provider->msg(MSG::DEBUG) << "StoreGate does not contain Collection with name " << m_muonCollection << " " << endmsg;
             }
           }
           if(!m_provider->evtStore()->contains<LVL1_ROI>("LVL1_ROI"))  m_useTrigger = false;
@@ -430,7 +430,7 @@ void AnalysisConfig_Jpsi::loop() {
           ////temp
         }
         else {
-          m_provider->msg(MSG::DEBUG) << "EF_egamma stuff" << endreq;
+          m_provider->msg(MSG::DEBUG) << "EF_egamma stuff" << endmsg;
           Trig::FeatureContainer f = (*m_tdt)->features(m_refChainName, TrigDefs::Physics);
           const vector<Trig::Combination> comb_container_EF = f.getCombinations();
           Trig::FeatureContainer::combination_const_iterator c(comb_container_EF.begin()); 
@@ -447,15 +447,15 @@ void AnalysisConfig_Jpsi::loop() {
                 a = const_cast<HLT::TriggerElement*>(a);
                 string TEName = "";
                 TEName = (Trig::getTEName((*a))).c_str();
-                m_provider->msg(MSG::DEBUG) << "TE Name: " << TEName << endreq;
+                m_provider->msg(MSG::DEBUG) << "TE Name: " << TEName << endmsg;
               }*/
               //const vector<Trig::Feature<CaloClusterContainer> > cluster_cont = my_it->get<CaloClusterContainer>("");
-              m_provider->msg(MSG::DEBUG) << "Get calo cluster..." << endreq;
+              m_provider->msg(MSG::DEBUG) << "Get calo cluster..." << endmsg;
               std::string teName = "";
               //if(m_refChainName.find("Zee") != string::npos)   teName = "EF_e15_NoCutcalo";
               //cout << "try TE name: " << teName << endl;
               const vector<Trig::Feature<CaloClusterContainer> > cluster_cont = my_it->get<CaloClusterContainer>("",TrigDefs::Physics,teName);
-              m_provider->msg(MSG::DEBUG) << "egamma container cluster_cont size: " << cluster_cont.size() << endreq;
+              m_provider->msg(MSG::DEBUG) << "egamma container cluster_cont size: " << cluster_cont.size() << endmsg;
               if(cluster_cont.size() != 0) {
                 vector<Trig::Feature<CaloClusterContainer> >::const_iterator tempEnd = cluster_cont.end();
                 for(vector<Trig::Feature<CaloClusterContainer> >::const_iterator contit = cluster_cont.begin(); contit != tempEnd; ++contit) {
@@ -470,20 +470,20 @@ void AnalysisConfig_Jpsi::loop() {
                       //if(TMath::Abs(tempCalo->eta())<1.37 || TMath::Abs(tempCalo->eta())>1.52) {
                         ClusterContainer_EF.push_back(tempCalo);
                         clusterRoiIDs.push_back(roiId->roiId());
-                        m_provider->msg(MSG::DEBUG) << "cluster egamma roiId: " << roiId->roiId() << endreq;
+                        m_provider->msg(MSG::DEBUG) << "cluster egamma roiId: " << roiId->roiId() << endmsg;
                       //}
                     }
                   }
                 }
               }
               //const vector< Trig::Feature<egammaContainer> > temp = my_it->get<egammaContainer>("");
-              m_provider->msg(MSG::DEBUG) << "calocluster size: " << cluster_cont.size() << endreq;
-              m_provider->msg(MSG::DEBUG) << "get tight electrons ..." << endreq;
+              m_provider->msg(MSG::DEBUG) << "calocluster size: " << cluster_cont.size() << endmsg;
+              m_provider->msg(MSG::DEBUG) << "get tight electrons ..." << endmsg;
               teName = "";
               //if(m_refChainName.find("Zee") != string::npos)  teName = "EF_e24vh_tight1";
               //cout << "try TE name: " << teName << endl;
               const vector<Trig::Feature<egammaContainer> > temp = my_it->get<egammaContainer>("",TrigDefs::Physics,teName);
-              m_provider->msg(MSG::DEBUG) << "egamma container temp size: " << temp.size() << endreq;
+              m_provider->msg(MSG::DEBUG) << "egamma container temp size: " << temp.size() << endmsg;
               if(temp.size() != 0) {
                 vector<Trig::Feature<egammaContainer> >::const_iterator t0 = temp.begin();
                 vector<Trig::Feature<egammaContainer> >::const_iterator tEnd = temp.end();
@@ -499,14 +499,14 @@ void AnalysisConfig_Jpsi::loop() {
                       //if(TMath::Abs(tempEl->eta())<1.37 ||TMath::Abs(tempEl->eta())>1.52) {
                         tightElectrons_EF.push_back(tempEl);
                         tightElecsRoiIDs.push_back(roiId->roiId());
-                        m_provider->msg(MSG::DEBUG) << "tight egamma roiId: " << roiId->roiId() << endreq;
+                        m_provider->msg(MSG::DEBUG) << "tight egamma roiId: " << roiId->roiId() << endmsg;
                         //egamma_tightEl_EF.push_back(tempEl->trackParticle());
                       //}
                     }
                   }
                 }
               }
-              m_provider->msg(MSG::DEBUG) << "tightelectrons size: " << tightElectrons_EF.size() << endreq;
+              m_provider->msg(MSG::DEBUG) << "tightelectrons size: " << tightElectrons_EF.size() << endmsg;
               /*vector< Trig::Feature<Rec::TrackParticleContainer> > feature_EF = my_it->get<Rec::TrackParticleContainer>("InDetTrigParticleCreation_Electron_EFID");
               vector< Trig::Feature<Rec::TrackParticleContainer> >::const_iterator contit    = feature_EF.begin();
               vector< Trig::Feature<Rec::TrackParticleContainer> >::const_iterator contitEnd = feature_EF.end();
@@ -522,24 +522,24 @@ void AnalysisConfig_Jpsi::loop() {
               }*/
             }
           }
-          m_provider->msg(MSG::DEBUG) << "Start offline bit ..." << endreq;
+          m_provider->msg(MSG::DEBUG) << "Start offline bit ..." << endmsg;
           vector<int> tagRoIs;
           const DataHandle<ElectronContainer> ElectronCollection;
           string electronCollection = "ElectronAODCollection";
           StatusCode sc_electrons = m_provider->evtStore()->retrieve( ElectronCollection, electronCollection);
-          if(!sc_electrons.isFailure())  m_provider->msg(MSG::DEBUG) << "OFFLINE -- number of electrons: " << ElectronCollection->size() << endreq;
+          if(!sc_electrons.isFailure())  m_provider->msg(MSG::DEBUG) << "OFFLINE -- number of electrons: " << ElectronCollection->size() << endmsg;
           if(ElectronCollection && ElectronCollection->size() != 0) {
             ElectronContainer::const_iterator elecItrEnd = ElectronCollection->end();
             for(ElectronContainer::const_iterator elecItr = ElectronCollection->begin(); elecItr != elecItrEnd; ++elecItr) { 
               const Analysis::Electron* temp = *elecItr;
               /*cout << "isem(0) = " << temp->isem(egammaPID::ElectronMediumPP) << "  passID(1) = "
                    << temp->passID(egammaPID::ElectronIDMediumPP) << endl;*/
-              if(temp->isem(egammaPID::ElectronMediumPP)==0 || 1==temp->passID(egammaPID::ElectronIDMediumPP)) {
+              if(temp->isem(egammaPIDObs::ElectronMediumPP)==0 || 1==temp->passID(egammaPIDObs::ElectronIDMediumPP)) {
               //if(temp->isem(egammaPID::ElectronTightPP)==0 || 1==temp->passID(egammaPID::ElectronIDTightPP)) {
                 //if(TMath::Abs(temp->eta())<1.37 || TMath::Abs(temp->eta())>1.52) {
                   m_provider->msg(MSG::DEBUG) << "OFFLINE -- electron passed [ pT = " << temp->pt()
                                               << ", eta = " << temp->eta() << ", phi = " << temp->phi()
-                                              << ", charge = " << temp->charge() << " ]" << endreq;
+                                              << ", charge = " << temp->charge() << " ]" << endmsg;
                   cout << "OFFLINE -- electron passed [ pT = " << temp->pt()
                        << ", eta = " << temp->eta() << ", phi = " << temp->phi()
                        << ", charge = " << temp->charge() << " ]" << endl;
@@ -580,13 +580,13 @@ void AnalysisConfig_Jpsi::loop() {
 
           //cout << "AC_Jpsi extrapolated tracks " << muonExtrapolatedTracks.size() << " combined tracks " << muonCombinedTracks.size() << endl;
           vector<DiMuonTool*> mypairs = m_jpsi->execute();
-          m_provider->msg(MSG::DEBUG) << "jpsi candidates: " << mypairs.size() << endreq;
+          m_provider->msg(MSG::DEBUG) << "jpsi candidates: " << mypairs.size() << endmsg;
           /*for(unsigned int q = 0; q < mypairs.size(); q++) {
-            m_provider->msg(MSG::DEBUG) << "pair: " << q << " mypairs[q]: " << mypairs[q] << endreq;
+            m_provider->msg(MSG::DEBUG) << "pair: " << q << " mypairs[q]: " << mypairs[q] << endmsg;
             const Wrapper::MuonTrack *p = mypairs[q]->ProbedTrack();
-            m_provider->msg(MSG::DEBUG) << "probed track -- pt = " << p->pt() << " eta = " << p->eta() << " phi = " << p->phi() << endreq;
+            m_provider->msg(MSG::DEBUG) << "probed track -- pt = " << p->pt() << " eta = " << p->eta() << " phi = " << p->phi() << endmsg;
             const Wrapper::MuonTrack *t = mypairs[q]->TaggedTrack();
-            m_provider->msg(MSG::DEBUG) << "tagged track -- pt = " << t->pt() << " eta = " << t->eta() << " phi = " << t->phi() << endreq;
+            m_provider->msg(MSG::DEBUG) << "tagged track -- pt = " << t->pt() << " eta = " << t->eta() << " phi = " << t->phi() << endmsg;
           }*/
 	        //to protect against > 1 J/Psi's being made with 1 tag and > 1 similar probes
           //take the pair with invariant mass closest to the J/Psi
@@ -615,15 +615,15 @@ void AnalysisConfig_Jpsi::loop() {
             }
           }*/
           m_selectorJ->addJpsi(mypairs);
-          m_provider->msg(MSG::DEBUG) << "Pair added." << endreq;
+          m_provider->msg(MSG::DEBUG) << "Pair added." << endmsg;
           cout << "SKIM CANDIDATES -- event #: " << eventNumber << " run #: " << runNumber << endl;
         } // if( m_jpsi )
       } // end of else -> if( doTruth )
 	  
-      m_provider->msg(MSG::DEBUG) << "Call m_selectorJ->tracks()" << endreq;
+      m_provider->msg(MSG::DEBUG) << "Call m_selectorJ->tracks()" << endmsg;
       vector<TIDA::Track*> probeTracks = m_selectorJ->tracks();
       unsigned int trackSize = probeTracks.size();
-      m_provider->msg(MSG::DEBUG) << "probeTracks size: " << trackSize << endreq;
+      m_provider->msg(MSG::DEBUG) << "probeTracks size: " << trackSize << endmsg;
       
       // perform dR match between offline extrapolated tracks and EF probes
       map<unsigned int, const Rec::TrackParticle*> offlineProbes, offlineTags;
@@ -636,7 +636,7 @@ void AnalysisConfig_Jpsi::loop() {
         tagPtCut = 24000.;
       }
 
-      m_provider->msg(MSG::DEBUG) << "loop over probeTracks." << endreq;
+      m_provider->msg(MSG::DEBUG) << "loop over probeTracks." << endmsg;
       for(unsigned int j=0; j< trackSize; j++) {
 
         const Rec::TrackParticle* closestProbe = 0, *closestTag = 0;
@@ -649,27 +649,27 @@ void AnalysisConfig_Jpsi::loop() {
         pOffDr[j] = tOffDr[j] = pOffDeta[j] = pOffDphi[j] = 0;
         pOffCharge[j] = tOffCharge[j] = pOffEt[j] = 0;
 
-        m_provider->msg(MSG::DEBUG) << "probeTracks[j] --> " << probeTracks[j] << endreq;
+        m_provider->msg(MSG::DEBUG) << "probeTracks[j] --> " << probeTracks[j] << endmsg;
         if(probeTracks[j]) {
-          m_provider->msg(MSG::DEBUG) << "Get probe ..."  << endreq;
+          m_provider->msg(MSG::DEBUG) << "Get probe ..."  << endmsg;
           probe = dynamic_cast<TIDA::JpsiTrack*>(probeTracks[j]);
-          m_provider->msg(MSG::DEBUG) << "probe: " << probe << " and *probe: " << *probe << endreq;
-          m_provider->msg(MSG::DEBUG) << "Get tag ..."  << endreq;
+          m_provider->msg(MSG::DEBUG) << "probe: " << probe << " and *probe: " << *probe << endmsg;
+          m_provider->msg(MSG::DEBUG) << "Get tag ..."  << endmsg;
           tag = probe->getTag();
-          m_provider->msg(MSG::DEBUG) << "tag: " << tag << endreq;
-          m_provider->msg(MSG::DEBUG) << "... done." << endreq;
+          m_provider->msg(MSG::DEBUG) << "tag: " << tag << endmsg;
+          m_provider->msg(MSG::DEBUG) << "... done." << endmsg;
         }
         else throw std::runtime_error("*** TrigJpsiMonTool *** Probe not casting, aborting!!! *** TrigJpsiMonTool ***");
 
 
         float tempP = 999., tempT = 999., detaP = 0., dphiP = 0., etP = 0.;
-        m_provider->msg(MSG::DEBUG) << "Loop over offline objects..." << endreq;
+        m_provider->msg(MSG::DEBUG) << "Loop over offline objects..." << endmsg;
         unsigned int offSize = m_isMuon? offlineInDet.size() : offTightElecs.size();
         for(unsigned int i = 0; i < offSize; i++) {
 
           if(!m_isMuon) {
             unsigned int author = offTightElecs[i]->author();
-            m_provider->msg(MSG::DEBUG) << "author: " << author << endreq;
+            m_provider->msg(MSG::DEBUG) << "author: " << author << endmsg;
             if(author != 1 && author != 3)  continue;
             offClust = offTightElecs[i]->cluster();
             //cout << "off electron pT: " << offTightElecs[i]->pt() << endl;
@@ -682,7 +682,7 @@ void AnalysisConfig_Jpsi::loop() {
           float offPt  = m_isMuon? offlineInDet[i]->pt()  : offClust->pt();
           float deltar = AnalysisConfig_Jpsi::deltaR(offEta, offPhi, probe->eta(), probe->phi());
           m_provider->msg(MSG::DEBUG) << "OFFLINE PROBE [ pt = " <<  offPt << " eta = " << offEta
-                                      << " phi = " << offPhi << " ]" << endreq;
+                                      << " phi = " << offPhi << " ]" << endmsg;
           if(deltar < tempP && offPt > ptCut) {
             tempP = deltar;
             detaP = offEta - probe->eta();
@@ -698,7 +698,7 @@ void AnalysisConfig_Jpsi::loop() {
           }
           deltar = AnalysisConfig_Jpsi::deltaR(offEta, offPhi, tag->eta(), tag->phi());
           m_provider->msg(MSG::DEBUG) << "OFFLINE TAG [ pt = " <<  offPt << " eta = " << offEta
-                                      << " phi = " << offPhi << " ]" << endreq;
+                                      << " phi = " << offPhi << " ]" << endmsg;
           //cout << deltar << endl;
           if(deltar < tempT && offPt > tagPtCut) {
             tempT = deltar;
@@ -739,7 +739,7 @@ void AnalysisConfig_Jpsi::loop() {
         }
       }
 
-      m_provider->msg(MSG::DEBUG) << "Set probes and tags for m_analysisJ..." << endreq;
+      m_provider->msg(MSG::DEBUG) << "Set probes and tags for m_analysisJ..." << endmsg;
       m_analysisJ->setProbeOfflineDr(pOffDr);
       m_analysisJ->setProbeOfflineEt(pOffEt);
       m_analysisJ->setProbeOfflineDEta(pOffDeta);
@@ -752,7 +752,7 @@ void AnalysisConfig_Jpsi::loop() {
 
       // Fill vector of test tracks from the TDT feature 
       vector<int> sizes;
-      m_provider->msg(MSG::DEBUG) << "Start to select tracks with " << m_testChainKey << " / " << m_refChainName << endreq;
+      m_provider->msg(MSG::DEBUG) << "Start to select tracks with " << m_testChainKey << " / " << m_refChainName << endmsg;
       bool check  = m_testChainKey.find("IDSCAN")        != string::npos;
       check      |= m_testChainKey.find("SegmentFinder") != string::npos;
       check      |= m_testChainKey.find("SiTrack_")      != string::npos;
@@ -795,7 +795,7 @@ void AnalysisConfig_Jpsi::loop() {
       const vector<TIDA::Track*> testtracksA = m_trigTracks;
       sizes.push_back(testtracksA.size()); 
 
-      m_provider->msg(MSG::DEBUG) << "... done. Ntracks = " << testtracksA.size() << " ( " << m_testChainKey << " / " << m_refChainName << " )" << endreq;
+      m_provider->msg(MSG::DEBUG) << "... done. Ntracks = " << testtracksA.size() << " ( " << m_testChainKey << " / " << m_refChainName << " )" << endmsg;
 
       m_analysisJ->setTIDARois(m_trackRois);
       //m_analysisJ->setEtaAtCalo(m_etaAtCalo);
@@ -813,13 +813,13 @@ void AnalysisConfig_Jpsi::loop() {
 
       m_analysis->execute(probeTracks, testtracksA, m_associator);
 
-      m_provider->msg(MSG::DEBUG) << "Final clean up ..." << endreq;
+      m_provider->msg(MSG::DEBUG) << "Final clean up ..." << endmsg;
       for(vector<TIDA::Vertex*>::const_iterator it = vertices.begin(); it != vertices.end(); it++)  delete (*it);
       m_analysisJ->clearOffline();
       // m_analysisJ->clearSuper();
       //m_selectorTestB->clear();
       
-      m_provider->msg(MSG::DEBUG) << "END EVENT." << endreq;
+      m_provider->msg(MSG::DEBUG) << "END EVENT." << endmsg;
      }//end of complete result condition
   }//end of trigger condition
 }
@@ -876,25 +876,25 @@ void AnalysisConfig_Jpsi::book() {
   
   ///temp
 
-  if(m_toolSvc.retrieve().isFailure()) m_provider->msg(MSG::FATAL) << "Failed to retrieve service " << m_toolSvc << endreq;
-  else  m_provider->msg(MSG::INFO) << "Retrieved service " << m_toolSvc << endreq;
+  if(m_toolSvc.retrieve().isFailure()) m_provider->msg(MSG::FATAL) << "Failed to retrieve service " << m_toolSvc << endmsg;
+  else  m_provider->msg(MSG::INFO) << "Retrieved service " << m_toolSvc << endmsg;
   
   // get the beam condition services
-  if(m_iBeamCondSvc.retrieve().isFailure())  m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endreq;
-  else  m_provider->msg(MSG::INFO) << " retrieved BeamCondSvc " << endreq;
+  if(m_iBeamCondSvc.retrieve().isFailure())  m_provider->msg(MSG::ERROR) << " failed to retrieve BeamCondSvc " << endmsg;
+  else  m_provider->msg(MSG::INFO) << " retrieved BeamCondSvc " << endmsg;
   
   /*m_iOnlineBeamCondSvc = 0;
   if ( m_provider->service( "InDetBeamSpotOnline", m_iOnlineBeamCondSvc ).isFailure() )  { 
-    m_provider->msg(MSG::ERROR) << " failed to retrieve Online BeamCondSvc" << endreq;
+    m_provider->msg(MSG::ERROR) << " failed to retrieve Online BeamCondSvc" << endmsg;
   }
   else {
-    m_provider->msg(MSG::INFO) << " retrieved OnlineBeamCondSvc " << endreq;
+    m_provider->msg(MSG::INFO) << " retrieved OnlineBeamCondSvc " << endmsg;
   }*/
 
   // get the TriggerDecisionTool
 
   if(m_tdt->retrieve().isFailure()) {
-    m_provider->msg(MSG::ERROR) << "Unable to retrieve the TrigDecisionTool: Please check job options file" << endreq;
+    m_provider->msg(MSG::ERROR) << "Unable to retrieve the TrigDecisionTool: Please check job options file" << endmsg;
     //return StatusCode::FAILURE;
   }
 
