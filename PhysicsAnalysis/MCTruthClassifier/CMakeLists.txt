@@ -19,7 +19,9 @@ atlas_depends_on_subdirs( PUBLIC
                           Reconstruction/RecoTools/ParticlesInConeTools
                           Reconstruction/RecoTools/RecoToolInterfaces
                           Tracking/TrkEvent/TrkEventPrimitives
-                          Tracking/TrkEvent/TrkParametersIdentificationHelpers )
+                          Tracking/TrkEvent/TrkParametersIdentificationHelpers
+                          PRIVATE
+                          Control/AthenaKernel )
 
 # External dependencies:
 find_package( HepMC )

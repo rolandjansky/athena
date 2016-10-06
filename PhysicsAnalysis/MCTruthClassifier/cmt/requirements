@@ -21,6 +21,7 @@ use_ifndef pplist="XAOD_ANALYSIS"   pkg="External/AtlasHepMC"
 use_ifndef pplist="XAOD_ANALYSIS"   pkg="Reconstruction/RecoTools/RecoToolInterfaces"
 use_ifndef pplist="XAOD_ANALYSIS"   pkg="Tracking/TrkEvent/TrkEventPrimitives"
 use_ifndef pplist="XAOD_ANALYSIS"   pkg="Tracking/TrkEvent/TrkParametersIdentificationHelpers"
+use_ifndef pplist="XAOD_ANALYSIS"   pkg="Control/AthenaKernel"
 apply_pattern declare_python_modules files="*.py"
 
 # pattern dual_use_library must be declared public
