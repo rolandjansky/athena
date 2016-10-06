@@ -19,13 +19,11 @@
 #include <iostream>
 #include <stdio.h>
 #include <cmath>
-using std::abs;
+//using std::abs;
 #include "PtEtaCollection.h"
 
-#include "TH1F.h"
-#include "TCanvas.h"
-#include "TGraph.h"
 #include "TGraphErrors.h"
+#include "TH2D.h"
 
 //static int m_dummy;
 namespace IDVAR
@@ -201,7 +199,25 @@ class FudgeMCTool
   double GetFFerr_Fside ();
   double GetFFerr_Wtot  ();
   double GetFFerr_W1    ();
-							    							    
+
+  double GetFF (int var, double pt, double eta2, int conv, int preselection){
+    switch (var) {
+    case IDVAR::RHAD1: return GetFF_Rhad1( pt, eta2, conv, preselection );
+    case IDVAR::RHAD: return GetFF_Rhad( pt, eta2, conv, preselection );
+    case IDVAR::E277: return GetFF_E277( pt, eta2, conv, preselection );
+    case IDVAR::RETA: return GetFF_Reta( pt, eta2, conv, preselection );
+    case IDVAR::RPHI: return GetFF_Rphi( pt, eta2, conv, preselection );
+    case IDVAR::WETA2: return GetFF_Weta2( pt, eta2, conv, preselection );
+    case IDVAR::F1: return GetFF_F1( pt, eta2, conv, preselection );
+    case IDVAR::FSIDE: return GetFF_Fside( pt, eta2, conv, preselection );
+    case IDVAR::WTOT: return GetFF_Wtot( pt, eta2, conv, preselection );
+    case IDVAR::W1: return GetFF_W1( pt, eta2, conv, preselection );
+    case IDVAR::DE: return GetFF_DE( pt, eta2, conv, preselection );
+    case IDVAR::ERATIO: return GetFF_Eratio( pt, eta2, conv, preselection );
+    default: return 0.0;
+    }
+  }
+
   // fudge a specific variable 				    				    
   double Fudge_Rhad1 ( double rhad1,  double pt, double eta2){  return ( rhad1  + m_rhad1_ff.Get(pt, fabs(eta2))  );};
   double Fudge_Rhad  ( double rhad,   double pt, double eta2){  return ( rhad   + m_rhad_ff.Get(pt, fabs(eta2))   );};
@@ -280,7 +296,9 @@ class FudgeMCTool
   TGraphErrors* GetFFmap_W1    ();
   TGraphErrors* GetFFmap_DE    ();
   TGraphErrors* GetFFmap_Eratio();
-	
+
+  TH2D* GetFFTH2D(int var, int isConv, int preselection);
+  
   void LoadFFs(int isConv, int preselection=-1);
 
  private:
@@ -295,17 +313,6 @@ class FudgeMCTool
   // discriminating variables
   double m_pt;
   double m_eta2;
-  double m_rhad1; 
-  double m_rhad; 
-  double m_reta;
-  double m_rphi;
-  double m_weta2;
-  double m_f1;
-  double m_fside;
-  double m_wtot;
-  double m_w1;
-  double m_deltae;
-  double m_eratio;
   int    m_conv;
 
   //shower preselection to extract FFs
@@ -352,19 +359,6 @@ FudgeMCTool::FudgeMCTool(double pt,
   : 
   m_pt(pt),
   m_eta2(fabs(eta2)),
-  //
-  m_rhad1(0.), 
-  m_rhad(0.),
-  m_reta(0.),
-  m_rphi(0.),
-  m_weta2(0.),
-  m_f1(0.),
-  m_fside(0.),
-  m_wtot(0.),
-  m_w1(0.),
-  m_deltae(0.),
-  m_eratio(0.),
-  //
   m_conv(isConv),
   m_preselection(preselection)
 {

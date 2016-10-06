@@ -16,7 +16,11 @@
 */
 // Framework include(s):
 #include "AsgTools/AsgTool.h"
+#ifdef USE_NEW_TOOL
+#include "ElectronPhotonShowerShapeFudgeTool/TPhotonMCShifterTool.h"
+#else
 #include "ElectronPhotonShowerShapeFudgeTool/FudgeMCTool.h"
+#endif
 #include "ElectronPhotonShowerShapeFudgeTool/TElectronMCShifterTool.h"
 #include "ElectronPhotonShowerShapeFudgeTool/IElectronPhotonShowerShapeFudgeTool.h"
 #include "TEnv.h"
@@ -53,7 +57,11 @@ public:
 
 private:
 
+#ifdef USE_NEW_TOOL   
+   TPhotonMCShifterTool* m_ph_rootTool;
+#else
    FudgeMCTool* m_ph_rootTool;
+#endif   
    TElectronMCShifterTool* m_el_rootTool;
 
    int m_preselection;

@@ -11,8 +11,6 @@
 */
 
 #include "ElectronPhotonShowerShapeFudgeTool/ElectronPhotonShowerShapeFudgeTool.h"
-#include "ElectronPhotonShowerShapeFudgeTool/FudgeMCTool.h"
-#include "ElectronPhotonShowerShapeFudgeTool/TElectronMCShifterTool.h"
 
 #include "xAODEgamma/Egamma.h"
 #include "xAODEgamma/Photon.h"
@@ -34,7 +32,11 @@ ElectronPhotonShowerShapeFudgeTool::ElectronPhotonShowerShapeFudgeTool(std::stri
   declareProperty("ConfigFile",m_configFile="","The config file to use for the Electron Shifter");
 
   // Create an instance of the underlying ROOT tool
+#ifdef USE_NEW_TOOL  
+  m_ph_rootTool = new TPhotonMCShifterTool();
+#else
   m_ph_rootTool = new FudgeMCTool();
+#endif
   m_el_rootTool = new TElectronMCShifterTool();
 }
 
@@ -365,8 +367,8 @@ bool ElectronPhotonShowerShapeFudgeTool::strtof(const std::string& input, float&
   else {
     last = (input.find("#",first+1) );
     if (last == std::string::npos) {
-      static asg::AsgMessaging m_msg("Egamma::ElectronPhotonShowerShapeFudgeTool");
-      m_msg.msg(MSG::WARNING)<<" Improper comment format , inline comment should be enclosed between two #  "<<endmsg;
+      static asg::AsgMessaging msg("Egamma::ElectronPhotonShowerShapeFudgeTool");
+      msg.msg(MSG::WARNING)<<" Improper comment format , inline comment should be enclosed between two #  "<<endmsg;
       return false;
     }
     diff = last - first ;
