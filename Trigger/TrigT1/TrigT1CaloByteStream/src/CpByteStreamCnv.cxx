@@ -60,7 +60,7 @@ StatusCode CpByteStreamCnv::initialize()
 {
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
   m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
-                      << PACKAGE_VERSION << endreq;
+                      << PACKAGE_VERSION << endmsg;
 
   StatusCode sc = Converter::initialize();
   if ( sc.isFailure() )
@@ -70,19 +70,19 @@ StatusCode CpByteStreamCnv::initialize()
   sc = m_ByteStreamEventAccess.retrieve();
   if ( sc.isFailure() ) {
     m_log << MSG::ERROR << "Failed to retrieve service "
-          << m_ByteStreamEventAccess << endreq;
+          << m_ByteStreamEventAccess << endmsg;
     return sc;
   } else {
     m_log << MSG::DEBUG << "Retrieved service "
-          << m_ByteStreamEventAccess << endreq;
+          << m_ByteStreamEventAccess << endmsg;
   }
 
   // Retrieve Tool
   sc = m_tool.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endmsg;
     return sc;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endreq;
+  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -92,13 +92,13 @@ StatusCode CpByteStreamCnv::initialize()
 StatusCode CpByteStreamCnv::createRep( DataObject* pObj,
                                         IOpaqueAddress*& pAddr )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createRep() called" << endreq;
+  if (m_debug) m_log << MSG::DEBUG << "createRep() called" << endmsg;
 
   RawEventWrite* re = m_ByteStreamEventAccess->getRawEvent();
 
   LVL1::CPBSCollection* cp = 0;
   if( !SG::fromStorable( pObj, cp ) ) {
-    m_log << MSG::ERROR << " Cannot cast to CPBSCollection" << endreq;
+    m_log << MSG::ERROR << " Cannot cast to CPBSCollection" << endmsg;
     return StatusCode::FAILURE;
   }
 
