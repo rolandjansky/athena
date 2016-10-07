@@ -6,6 +6,7 @@
 //
 #include "CaloUtils/CaloClusterStoreHelper.h"
 #include "CaloUtils/CaloCellList.h"
+#include "CaloUtils/CaloLayerCalculator.h"
 //
 #include "xAODCaloEvent/CaloClusterAuxContainer.h"
 #include "xAODCaloEvent/CaloCluster.h"
@@ -23,6 +24,89 @@
 #include <vector>
 
 using CLHEP::GeV;
+
+namespace {
+  /**
+   * Duplicate code 
+   * @brief Return eta/phi ranges encompassing +- 1 cell.
+   * @param eta Central eta value.
+   * @param phi Central phi value.
+   * @param sampling The sampling to use.
+   * @param[out] deta Range in eta.
+   * @param[out] dphi Range in phi.
+   *
+   * This can be a little tricky due to misalignments and the fact
+   * that cells have different sizes in different regions.  Also,
+   * CaloLayerCalculator takes only a symmetric eta range.
+   * We try to find the neighboring cells by starting from the center
+   * cell and looking a little bit more than half its width in either
+   * direction, and finding the centers of those cells.  Then we use
+   * the larger of these for the symmetric range.
+   */
+  void etaphi_range (double eta,
+		     double phi,
+		     CaloCell_ID::CaloSample sampling,
+		     double& deta,
+		     double& dphi)
+  {
+    deta = 0;
+    dphi = 0;
+    
+    // Get the DD element for the central cell.
+    const CaloDetDescrManager* dd_man = CaloDetDescrManager::instance();
+    const CaloDetDescrElement* elt = dd_man->get_element_raw (sampling, eta, phi);
+    if (!elt) return;
+
+    // Should be smaller than the eta half-width of any cell.
+    const double eps = 0.001;
+
+    // Now look in the negative eta direction.
+    const CaloDetDescrElement* elt_l = dd_man->get_element_raw(sampling,
+							       eta - elt->deta() - eps,
+							       phi);
+    double deta_l = 0; // Eta difference on the low (left) side.
+    if (elt_l){
+      deta_l = std::abs (eta - elt_l->eta_raw()) + eps;
+    }
+    // Now look in the positive eta direction.
+    const CaloDetDescrElement* elt_r = dd_man->get_element_raw(sampling,
+							       eta + elt->deta() + eps,
+							       phi);
+    double deta_r = 0; // Eta difference on the high (right) side.
+    if (elt_r){
+      deta_r = std::abs (eta - elt_r->eta_raw()) + eps;
+    }
+    
+    // Total deta is twice the maximum.
+    deta = 2 * std::max (deta_r, deta_l);
+
+    // Now for the phi variation.
+    // The phi size can change as a function of eta, but not of phi.
+    // Thus we have to look again at the adjacent eta cells, and
+    // take the largest variation.
+
+    // Now look in the negative eta direction.
+    elt_l = dd_man->get_element_raw(sampling,
+				    eta  - elt->deta() - eps,
+				    CaloPhiRange::fix (phi - elt->dphi() - eps));
+    
+    double dphi_l = 0; // Phi difference on the low-eta () side.
+    if (elt_l){
+      dphi_l = std::abs (CaloPhiRange::fix (phi - elt_l->phi_raw())) + eps;
+    }
+    // Now look in the positive eta direction.
+    elt_r = dd_man->get_element_raw(sampling,
+				    eta + elt->deta() + eps,
+				    CaloPhiRange::fix (phi - elt->dphi() - eps));
+    double dphi_r = 0; // Phi difference on the positive (down) side.
+    if (elt_r){
+      dphi_r = std::abs (CaloPhiRange::fix (phi - elt_r->phi_raw())) + eps;
+    }
+    // Total dphi is twice the maximum.
+    dphi = 2 * std::max (dphi_l, dphi_r);
+  }
+}
+
 
 //////////////////////////////////////////////////////////////////////////////
 //Athena interfaces.
@@ -338,6 +422,17 @@ StatusCode egammaSuperClusterBuilder::AddRemainingCellsToCluster(xAOD::CaloClust
 StatusCode egammaSuperClusterBuilder::CalibrateCluster(xAOD::CaloCluster* newCluster,
 						       const xAOD::EgammaParameters::EgammaType egType) 
 {
+
+  ATH_MSG_DEBUG("========== Initial ==== ");
+  ATH_MSG_DEBUG("Cluster Energy Initial: "<<newCluster->e());
+  ATH_MSG_DEBUG("Cluster eta  Initial: "<<newCluster->eta());
+  ATH_MSG_DEBUG("Cluster phi Initial: "<<newCluster->phi());
+  ATH_MSG_DEBUG("Cluster etaBE(1) Initial: "<<newCluster->etaBE(1));
+  ATH_MSG_DEBUG("Cluster phiBE(1) Initial: "<<newCluster->phiBE(1));
+  ATH_MSG_DEBUG("Cluster etaBE(2) Initial: "<<newCluster->etaBE(2));
+  ATH_MSG_DEBUG("Cluster phiBE(2) Initial: "<<newCluster->phiBE(2));
+  //Refine Eta1
+  ATH_CHECK(refineEta1Position(newCluster));
   //Save the state before the corrections
   newCluster->setAltE(newCluster->e());
   newCluster->setAltEta(newCluster->eta());
@@ -346,6 +441,8 @@ StatusCode egammaSuperClusterBuilder::CalibrateCluster(xAOD::CaloCluster* newClu
   ATH_MSG_DEBUG("Cluster Energy no correction/calibration: "<<newCluster->e());
   ATH_MSG_DEBUG("Cluster eta  no correction/calibration: "<<newCluster->eta());
   ATH_MSG_DEBUG("Cluster phi no correction/calibration: "<<newCluster->phi());
+  ATH_MSG_DEBUG("Cluster etaBE(1) no correction/calibration: "<<newCluster->etaBE(1));
+  ATH_MSG_DEBUG("Cluster phiBE(1) no correction/calibration: "<<newCluster->phiBE(1));
   ATH_MSG_DEBUG("Cluster etaBE(2) no correction/calibration: "<<newCluster->etaBE(2));
   ATH_MSG_DEBUG("Cluster phiBE(2) no correction/calibration: "<<newCluster->phiBE(2));
 
@@ -360,6 +457,8 @@ StatusCode egammaSuperClusterBuilder::CalibrateCluster(xAOD::CaloCluster* newClu
   ATH_MSG_DEBUG("Cluster Energy after position corrections: "<<newCluster->e());
   ATH_MSG_DEBUG("Cluster eta  after position corrections: "<<newCluster->eta());
   ATH_MSG_DEBUG("Cluster phi after position corrections: "<<newCluster->phi());
+  ATH_MSG_DEBUG("Cluster etaBE(1) no correction/calibration: "<<newCluster->etaBE(1));
+  ATH_MSG_DEBUG("Cluster phiBE(1) no correction/calibration: "<<newCluster->phiBE(1));
   ATH_MSG_DEBUG("Cluster etaBE(2) after position corrections: "<<newCluster->etaBE(2));
   ATH_MSG_DEBUG("Cluster phiBE(2) after position corrections: "<<newCluster->phiBE(2));
 
@@ -398,5 +497,48 @@ StatusCode egammaSuperClusterBuilder::fillPositionsInCalo(xAOD::CaloCluster* clu
   cluster->insertMoment(xAOD::CaloCluster::ETA1CALOFRAME,eta);
   cluster->insertMoment(xAOD::CaloCluster::PHI1CALOFRAME,phi);
 
+  return StatusCode::SUCCESS;
+}
+
+StatusCode egammaSuperClusterBuilder::refineEta1Position(xAOD::CaloCluster* cluster) const {
+
+  // Now refine the eta position using +-1 strip around hot cell
+  // This only makes sense if eta1 is good
+  if (!cluster->hasSampling(CaloSampling::EMB1) &&  !cluster->hasSampling(CaloSampling::EME1)) {
+    return StatusCode::SUCCESS;
+  }
+  
+  // For some silly reason, we have TWO different sampling enums.
+  // The clusters use one, the detector description uses the other.
+  CaloSampling::CaloSample sample;
+  CaloCell_ID::CaloSample xsample;
+  
+  if (cluster->hasSampling(CaloSampling::EMB1)) {
+    sample = CaloSampling::EMB1;
+    xsample = CaloCell_ID::EMB1;
+  } else {
+    sample = CaloSampling::EME1;
+    xsample = CaloCell_ID::EME1;
+  }
+  
+  double detastr, dphistr;
+  const auto etamax = cluster->etamax(sample);
+  const auto phimax = cluster->phimax(sample);
+  etaphi_range(etamax, phimax,
+	       xsample,
+	       detastr, dphistr);
+  
+  if (detastr > 0 && dphistr > 0) {
+    const auto cellLink = cluster->getCellLinks();
+    if (cellLink) {
+      CaloLayerCalculator calc;
+      calc.fill(cellLink->begin(), cellLink->end(), etamax, phimax, detastr, dphistr, sample);
+
+      const auto eta = calc.etam();
+      if (eta != -999.) {
+	cluster->setEta(sample, eta);
+      }
+    }
+  }
   return StatusCode::SUCCESS;
 }

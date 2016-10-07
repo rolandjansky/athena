@@ -34,7 +34,7 @@ EMClusterTool::EMClusterTool(const std::string& type, const std::string& name, c
     "Name of the input electron container");
   declareProperty("PhotonContainerName", m_photonContainerName, 
     "Name of the input photon container");
-  declareProperty("doSuperCluster", m_doSuperClusters = false, 
+  declareProperty("doSuperCluster", m_doSuperClusters = true, 
     "Do Super Cluster Reco");
   declareProperty("applyMVAToSuperCluster", m_applySuperClusters = true, 
     "Protection to not do anything for superClusters");
@@ -103,8 +103,9 @@ StatusCode EMClusterTool::contExecute()
 
   // Create output cluster container for topo-seeded clusters and register in StoreGate
   // Only if they differ from the main output cluster container
+  // and if we do not do supercluster
   xAOD::CaloClusterContainer* outputTopoSeededClusterContainer = outputClusterContainer;
-  bool doTopoSeededContainer= (m_outputTopoSeededClusterContainerName != m_outputClusterContainerName);
+  bool doTopoSeededContainer= (m_outputTopoSeededClusterContainerName != m_outputClusterContainerName && !m_doSuperClusters);
   if(doTopoSeededContainer){
     outputTopoSeededClusterContainer = CaloClusterStoreHelper::makeContainer(&*evtStore(), 
 									     m_outputTopoSeededClusterContainerName, 

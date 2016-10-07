@@ -79,6 +79,9 @@ private:
   StatusCode fillPositionsInCalo(xAOD::CaloCluster* cluster); 
   // above can't be const because m_caloCellDetPos acceses are not const
 
+  //refine 
+  StatusCode refineEta1Position(xAOD::CaloCluster* cluster) const ;
+
 
 
   // these are calculated window values for the windows in which cells of topoclusters are edded

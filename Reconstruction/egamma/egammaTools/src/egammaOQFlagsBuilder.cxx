@@ -56,6 +56,7 @@ egammaOQFlagsBuilder::egammaOQFlagsBuilder(const std::string& type,
   declareProperty("LArQCut", m_LArQCut = 0.8);
   declareProperty("TCut", m_TCut = 10.0);
   declareProperty("TCutVsE", m_TCutVsE = 2.0);
+  declareProperty("RcellCut", m_RcellCut = 0.8);
   m_affRegVec = 0;
   m_calocellId = 0;
 }
@@ -246,6 +247,7 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
   //Declare totE and badE for LarQ cleaning
   double totE=0;
   double badE=0;
+  double energyCellMax=0;
 
   if (foundCentralCell) {
     //Find the list of neighbours cells, to define the 3x3 cluster core
@@ -266,6 +268,7 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
       //Calculate badE et totE    
       if( (cell->provenance()  & 0x2000) &&!(cell->provenance()  & 0x0800 )) {
 	totE += cell->e();
+	if(cell->e() > energyCellMax ) energyCellMax = cell->e();
 	if(cell->quality() > m_QCellCut ) badE += cell->e(); 
       }       
 
@@ -359,8 +362,16 @@ StatusCode egammaOQFlagsBuilder::execute(xAOD::Egamma* eg)
       iflag |= (0x1 << xAOD::EgammaParameters::LArQCleaning);
     }
     //=========================================//
+    //==== Set HighRcell bit ===============//
+    double ratioCell=0;
+    if(totE !=0) ratioCell=energyCellMax/totE;
+    if(ratioCell>m_RcellCut){
+      iflag |= (0x1 << xAOD::EgammaParameters::HighRcell);
+    }
+    //=========================================//
+    
   } //close if found central cell
-
+  
   //========================= Check the HV components ===================================================//
   float deta=0;
   float dphi=0;

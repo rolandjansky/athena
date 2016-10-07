@@ -31,9 +31,9 @@ def configureClusterCorrections(swTool):
 
   #Super cluster position only corrections
   if jobproperties.egammaRecFlags.doSuperclusters():
-    clusterTypesSuper = dict(Ele55='ele55', Ele37='ele37',
-                             Gam55='gam55_unconv',Gam37='gam37_unconv',
-                             Econv55='gam55_conv', Econv37='gam37_conv'
+    clusterTypesSuper = dict(Ele35='ele35',Ele55='ele55', Ele37='ele37',
+                             Gam35='gam35_unconv',Gam55='gam55_unconv',Gam37='gam37_unconv',
+                             Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
                              )
     
     for attrName, clName in clusterTypes.iteritems():
@@ -42,8 +42,8 @@ def configureClusterCorrections(swTool):
         continue
       
       superclusterCorr= make_CaloSwCorrections(clName, suffix ='EGSuperCluster',
-                                              corrlist=[  [rfac,'v5'],[etaoff_b1,'v5'],[etaoff_e1,  'v5'],
-                                                          [etaoff_b2,'v5'],[etaoff_e2,'v5'], [phioff_b2,  'v5data'], 
+                                              corrlist=[  [rfac,'v5'],[etaoff_b1,'v5'],[etaoff_e1,'v5'],
+                                                          [etaoff_b2,'v5'],[etaoff_e2,'v5'], [phioff_b2, 'v5data'], 
                                                           [phioff_e2,  'v5data'], [update], [time], [listBadChannel]],
                                               cells_name=egammaKeys.caloCellKey())
       setattr(swTool, x ,_process_tools (swTool, superclusterCorr) )
@@ -65,9 +65,8 @@ EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             PhotonContainerName = egammaKeys.outputPhotonKey(),
                             ClusterCorrectionToolName = FullNameWrapper(egammaSwTool),
                             doSuperCluster = jobproperties.egammaRecFlags.doSuperclusters(),
-                            applyMVAToSuperCluster=False,  
                             MVACalibTool= egammaMVATool
-)
+                            )
 
 
 egammaCheckEnergyDepositTool = ToolFactory(egammaToolsConf.egammaCheckEnergyDepositTool,
@@ -86,7 +85,7 @@ EMBremCollectionBuilder = ToolFactory( egammaBremCollectionBuilder,
                                        OutputTrackContainerName=egammaKeys.outputTrackKey(),
                                        ClusterContainerName=egammaKeys.inputClusterKey(),
                                        DoTruth=rec.doTruth()
-)
+                                       )
 
 
 EMConversionBuilder = ToolFactory( egammaToolsConf.EMConversionBuilder,
@@ -111,9 +110,7 @@ egammaTopoClusterCopier = ToolFactory( egammaToolsConf.egammaTopoClusterCopier,
 electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterBuilder,
                                            name = 'electronSuperClusterBuilder',
                                            ClusterCorrectionTool=egammaSwTool,
-                                           CorrectClusters=True,
                                            MVACalibTool=egammaMVATool,
-                                           CalibrateClusters=False,                   
                                            EtThresholdCut=1000, 
                                            AddCellsWindowEtaCellsBarrel=3,
                                            AddCellsWindowPhiCellsBarrel=999,
@@ -125,9 +122,7 @@ electronSuperClusterBuilder = ToolFactory( egammaToolsConf.electronSuperClusterB
 photonSuperClusterBuilder = ToolFactory( egammaToolsConf.photonSuperClusterBuilder,
                                          name = 'photonSuperClusterBuilder',
                                          ClusterCorrectionTool=egammaSwTool,
-                                         CorrectClusters=True,
                                          MVACalibTool= egammaMVATool,
-                                         CalibrateClusters=False,                   
                                          AddCellsWindowEtaCellsBarrel=3,
                                          AddCellsWindowPhiCellsBarrel=999,
                                          AddCellsWindowEtaCellsEndcap=5,

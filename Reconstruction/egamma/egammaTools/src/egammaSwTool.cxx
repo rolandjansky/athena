@@ -48,10 +48,15 @@ egammaSwTool::egammaSwTool(const std::string& type,
   declareProperty("ClusterCorrectionToolsEconv37",m_clusterCorrectionNamesEconv37);
   //
   //SuperCluster
+  declareProperty("ClusterCorrectionToolsSuperClusterEle35",m_clusterCorrectionNamesSuperClusterEle35);
   declareProperty("ClusterCorrectionToolsSuperClusterEle55",m_clusterCorrectionNamesSuperClusterEle55);
   declareProperty("ClusterCorrectionToolsSuperClusterEle37",m_clusterCorrectionNamesSuperClusterEle37);
+  //
+  declareProperty("ClusterCorrectionToolsSuperClusterGam35",m_clusterCorrectionNamesSuperClusterGam35);
   declareProperty("ClusterCorrectionToolsSuperClusterGam55",m_clusterCorrectionNamesSuperClusterGam55);
   declareProperty("ClusterCorrectionToolsSuperClusterGam37",m_clusterCorrectionNamesSuperClusterGam37);
+  //
+  declareProperty("ClusterCorrectionToolsSuperClusterEconv35",m_clusterCorrectionNamesSuperClusterEconv35);
   declareProperty("ClusterCorrectionToolsSuperClusterEconv55",m_clusterCorrectionNamesSuperClusterEconv55);
   declareProperty("ClusterCorrectionToolsSuperClusterEconv37",m_clusterCorrectionNamesSuperClusterEconv37);
 
@@ -82,12 +87,15 @@ StatusCode egammaSwTool::initialize()
   ATH_CHECK(populateTools(m_clusterCorrectionNamesEconv37,m_clusterCorrectionPointersEconv37));
   ATH_CHECK(populateTools(m_clusterCorrectionNamesEconv55,m_clusterCorrectionPointersEconv55));
   //SuperCluster
+  ATH_CHECK(populateTools(m_clusterCorrectionNamesSuperClusterEle35,m_clusterCorrectionPointersSuperClusterEle35));
   ATH_CHECK(populateTools(m_clusterCorrectionNamesSuperClusterEle37,m_clusterCorrectionPointersSuperClusterEle37));
   ATH_CHECK(populateTools(m_clusterCorrectionNamesSuperClusterEle55,m_clusterCorrectionPointersSuperClusterEle55));
   //
+  ATH_CHECK(populateTools(m_clusterCorrectionNamesSuperClusterGam35,m_clusterCorrectionPointersSuperClusterGam35));
   ATH_CHECK(populateTools(m_clusterCorrectionNamesSuperClusterGam37,m_clusterCorrectionPointersSuperClusterGam37));
   ATH_CHECK(populateTools(m_clusterCorrectionNamesSuperClusterGam55,m_clusterCorrectionPointersSuperClusterGam55));
   //
+  ATH_CHECK(populateTools(m_clusterCorrectionNamesSuperClusterEconv35,m_clusterCorrectionPointersSuperClusterEconv35));
   ATH_CHECK(populateTools(m_clusterCorrectionNamesSuperClusterEconv37,m_clusterCorrectionPointersSuperClusterEconv37));
   ATH_CHECK(populateTools(m_clusterCorrectionNamesSuperClusterEconv55,m_clusterCorrectionPointersSuperClusterEconv55));
   return StatusCode::SUCCESS;

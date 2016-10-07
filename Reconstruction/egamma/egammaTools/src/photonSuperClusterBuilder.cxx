@@ -154,7 +154,6 @@ StatusCode photonSuperClusterBuilder::execute(){
     const std::vector<std::size_t> secondaryClusters = 
       SearchForSecondaryClusters(i, egammaRecs, isUsed, nWindowClusters, nExtraClusters);
 
-
     for (auto secClus : secondaryClusters) {
       const auto secRec = egammaRecs->at(secClus);
       accumulatedClusters.push_back(secRec->caloCluster());
