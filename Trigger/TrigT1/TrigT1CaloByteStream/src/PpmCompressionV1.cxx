@@ -434,7 +434,7 @@ bool PpmCompressionV1::unpackV101(PpmSubBlockV1& subBlock)
    int minFadc = 0;
    if (subBlock.unpacker(1)) minFadc = subBlock.unpacker(format * 2);
    else minFadc = subBlock.unpacker(4) + pedestal - s_lowerRange;
-        fadcData.push_back(minFadc);
+   fadcData.push_back(minFadc);
    for (int sl = 1; sl < sliceF; ++sl) {
      int len = 4;
      if (subBlock.unpacker(1)) len = format * 2;
@@ -591,7 +591,7 @@ bool PpmCompressionV1::unpackV104(PpmSubBlockV1& subBlock)
    int minFadc = 0;
    if (subBlock.unpacker(1)) minFadc = subBlock.unpacker(format * 2);
    else minFadc = subBlock.unpacker(4) + fadcBaseline;
-        fadcData.push_back(minFadc);
+   fadcData.push_back(minFadc);
    for (int sl = 1; sl < sliceF; ++sl) {
      int len = 4;
      if (subBlock.unpacker(1)) len = format * 2;

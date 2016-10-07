@@ -87,7 +87,7 @@ CpmErrors::~CpmErrors()
 StatusCode CpmErrors::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endreq;
+                 << /* version() */ PACKAGE_VERSION << endmsg;
 
   // Initialise individual error flags
 
@@ -137,7 +137,7 @@ StatusCode CpmErrors::execute()
     const CpmTowerCollection* cpCollection = 0;
     StatusCode sc = evtStore()->retrieve(cpCollection, m_cpmTowerLocation);
     if (sc.isFailure() || !cpCollection || cpCollection->empty()) {
-      msg() << "No CP Elements found" << endreq;
+      msg() << "No CP Elements found" << endmsg;
       cpCollection = 0;
     }
 
@@ -152,7 +152,7 @@ StatusCode CpmErrors::execute()
 
     sc = evtStore()->record(errCollection, m_cpmTowerLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording CPMTower container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording CPMTower container in TDS " << endmsg;
       return sc;
     }
   }
@@ -164,7 +164,7 @@ StatusCode CpmErrors::execute()
     const CmxCpTobCollection* tobCollection = 0;
     StatusCode sc = evtStore()->retrieve(tobCollection, m_cmxCpTobLocation);
     if (sc.isFailure() || !tobCollection || tobCollection->empty()) {
-      msg() << "No CMX TOBs found" << endreq;
+      msg() << "No CMX TOBs found" << endmsg;
       tobCollection = 0;
     }
 
@@ -179,7 +179,7 @@ StatusCode CpmErrors::execute()
 
     sc = evtStore()->record(errCollection, m_cmxCpTobLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording CMXCPTob container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording CMXCPTob container in TDS " << endmsg;
       return sc;
     }
   }
@@ -191,7 +191,7 @@ StatusCode CpmErrors::execute()
     const CmxCpHitsCollection* hitCollection = 0;
     StatusCode sc = evtStore()->retrieve(hitCollection, m_cmxCpHitsLocation);
     if (sc.isFailure() || !hitCollection || hitCollection->empty()) {
-      msg() << "No CMX Hits found" << endreq;
+      msg() << "No CMX Hits found" << endmsg;
       hitCollection = 0;
     }
 
@@ -206,7 +206,7 @@ StatusCode CpmErrors::execute()
 
     sc = evtStore()->record(errCollection, m_cmxCpHitsLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording CMXCPHits container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording CMXCPHits container in TDS " << endmsg;
       return sc;
     }
   }
@@ -218,7 +218,7 @@ StatusCode CpmErrors::execute()
     const CpmTobRoiCollection* crCollection = 0;
     StatusCode sc = evtStore()->retrieve(crCollection, m_cpmTobRoiLocation);
     if (sc.isFailure() || !jcCollection || crCollection->empty()) {
-      msg() << "No CPM TOB RoIs found" << endreq;
+      msg() << "No CPM TOB RoIs found" << endmsg;
       crCollection = 0;
     }
 
@@ -233,7 +233,7 @@ StatusCode CpmErrors::execute()
 
     sc = evtStore()->record(errCollection, m_cpmTobRoiLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording CPMTobRoI container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording CPMTobRoI container in TDS " << endmsg;
       return sc;
     }
   }
@@ -471,13 +471,13 @@ void CpmErrors::errorMessage(const std::string& errmsg)
   const EventInfo* evInfo = 0;
   StatusCode sc = evtStore()->retrieve(evInfo);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "No EventInfo found" << endreq;
+    msg(MSG::ERROR) << "No EventInfo found" << endmsg;
   } else {
     const EventID* evID = evInfo->event_ID();
     if (evID) eventNumber = evID->event_number();
   }
   msg(MSG::INFO) << "Event " << eventNumber
-                 << " has error " << errmsg << endreq;
+                 << " has error " << errmsg << endmsg;
 }
 
 } // end namespace

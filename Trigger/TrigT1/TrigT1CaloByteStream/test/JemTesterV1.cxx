@@ -82,7 +82,7 @@ JemTesterV1::~JemTesterV1()
 StatusCode JemTesterV1::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endreq;
+                 << /* version() */ PACKAGE_VERSION << endmsg;
 
   m_elementKey = new LVL1::JetElementKey();
 
@@ -103,7 +103,7 @@ StatusCode JemTesterV1::execute()
     const JetElementCollection* jeCollection = 0;
     StatusCode sc = evtStore()->retrieve(jeCollection, m_jetElementLocation);
     if (sc.isFailure() || !jeCollection || jeCollection->empty()) {
-      msg() << "No core Jet Elements found" << endreq;
+      msg() << "No core Jet Elements found" << endmsg;
     } else {
 
       // Order by eta, phi
@@ -124,7 +124,7 @@ StatusCode JemTesterV1::execute()
     StatusCode sc = evtStore()->retrieve(jeCollection,
                                       m_jetElementLocationOverlap);
     if (sc.isFailure() || !jeCollection || jeCollection->empty()) {
-      msg() << "No overlap Jet Elements found" << endreq;
+      msg() << "No overlap Jet Elements found" << endmsg;
     } else {
 
       // Order by eta, phi
@@ -144,7 +144,7 @@ StatusCode JemTesterV1::execute()
     const JetHitsCollection* hitCollection = 0;
     StatusCode sc = evtStore()->retrieve(hitCollection, m_jemHitsLocation);
     if (sc.isFailure() || !hitCollection || hitCollection->empty()) {
-      msg() << "No Jet Hits found" << endreq;
+      msg() << "No Jet Hits found" << endmsg;
     } else {
 
       // Order by crate, module
@@ -164,7 +164,7 @@ StatusCode JemTesterV1::execute()
     const EnergySumsCollection* etCollection = 0;
     StatusCode sc = evtStore()->retrieve(etCollection, m_jemEtSumsLocation);
     if (sc.isFailure() || !etCollection || etCollection->empty()) {
-      msg() << "No Energy Sums found" << endreq;
+      msg() << "No Energy Sums found" << endmsg;
     } else {
 
       // Order by crate, module
@@ -184,7 +184,7 @@ StatusCode JemTesterV1::execute()
     const CmmJetCollection* hitCollection = 0;
     StatusCode sc = evtStore()->retrieve(hitCollection, m_cmmJetLocation);
     if (sc.isFailure() || !hitCollection || hitCollection->empty()) {
-      msg() << "No CMM Hits found" << endreq;
+      msg() << "No CMM Hits found" << endmsg;
     } else {
 
       // Order by crate, dataID
@@ -204,7 +204,7 @@ StatusCode JemTesterV1::execute()
     const CmmEnergyCollection* etCollection = 0;
     StatusCode sc = evtStore()->retrieve(etCollection, m_cmmEnergyLocation);
     if (sc.isFailure() || !etCollection || etCollection->empty()) {
-      msg() << "No CMM Energy Sums found" << endreq;
+      msg() << "No CMM Energy Sums found" << endmsg;
     } else {
 
       // Order by crate, dataID
@@ -224,7 +224,7 @@ StatusCode JemTesterV1::execute()
     const JemRoiCollection* jrCollection = 0;
     StatusCode sc = evtStore()->retrieve(jrCollection, m_jemRoiLocation);
     if (sc.isFailure() || !jrCollection || jrCollection->empty()) {
-      msg() << "No JEM RoIs found" << endreq;
+      msg() << "No JEM RoIs found" << endmsg;
     } else {
 
       // Order by RoI word
@@ -244,7 +244,7 @@ StatusCode JemTesterV1::execute()
     const JemRoiCollection* jrCollection = 0;
     StatusCode sc = evtStore()->retrieve(jrCollection, m_jemRoiLocationRoib);
     if (sc.isFailure() || !jrCollection || jrCollection->empty()) {
-      msg() << "No JEM RoIs from RoIB found" << endreq;
+      msg() << "No JEM RoIs from RoIB found" << endmsg;
     } else {
 
       // Order by RoI word
@@ -267,7 +267,7 @@ StatusCode JemTesterV1::execute()
                                             !crCollection->energyRoiWord0() &&
 					    !crCollection->energyRoiWord1() &&
 					    !crCollection->energyRoiWord2())) {
-      msg() << "No CMM RoIs found" << endreq;
+      msg() << "No CMM RoIs found" << endmsg;
     } else {
 
       // Print the CMM RoIs
@@ -286,7 +286,7 @@ StatusCode JemTesterV1::execute()
                                             !crCollection->energyRoiWord0() &&
 					    !crCollection->energyRoiWord1() &&
 					    !crCollection->energyRoiWord2())) {
-      msg() << "No CMM RoIs from RoIB found" << endreq;
+      msg() << "No CMM RoIs from RoIB found" << endmsg;
     } else {
 
       // Print the CMM RoIs from RoIB
@@ -312,7 +312,7 @@ StatusCode JemTesterV1::finalize()
 void JemTesterV1::printJetElements(const std::string& source) const
 {
   msg() << "Number of " << source << " Jet Elements = "
-        << m_jeMap.size() << endreq;
+        << m_jeMap.size() << endmsg;
   JetElementMap::const_iterator mapIter = m_jeMap.begin();
   JetElementMap::const_iterator mapEnd  = m_jeMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -343,7 +343,7 @@ void JemTesterV1::printJetElements(const std::string& source) const
     printVec(emError);
     printVec(hadError);
     printVec(linkError);
-    msg() << MSG::dec << endreq;
+    msg() << MSG::dec << endmsg;
   }
 }
 
@@ -351,7 +351,7 @@ void JemTesterV1::printJetElements(const std::string& source) const
 
 void JemTesterV1::printJetHits() const
 {
-  msg() << "Number of Jet Hits = " << m_hitsMap.size() << endreq;
+  msg() << "Number of Jet Hits = " << m_hitsMap.size() << endmsg;
   JetHitsMap::const_iterator mapIter = m_hitsMap.begin();
   JetHitsMap::const_iterator mapEnd  = m_hitsMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -386,7 +386,7 @@ void JemTesterV1::printJetHits() const
         msg() << thr;
       }
     }
-    msg() << "/" << endreq;
+    msg() << "/" << endmsg;
   }
 }
 
@@ -394,7 +394,7 @@ void JemTesterV1::printJetHits() const
 
 void JemTesterV1::printEnergySums() const
 {
-  msg() << "Number of Energy Sums = " << m_etMap.size() << endreq;
+  msg() << "Number of Energy Sums = " << m_etMap.size() << endmsg;
   EnergySumsMap::const_iterator mapIter = m_etMap.begin();
   EnergySumsMap::const_iterator mapEnd  = m_etMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -416,7 +416,7 @@ void JemTesterV1::printEnergySums() const
     printVecU(exVec);
     printVecU(eyVec);
     printVecU(etVec);
-    msg() << endreq;
+    msg() << endmsg;
   }
 }
 
@@ -424,7 +424,7 @@ void JemTesterV1::printEnergySums() const
 
 void JemTesterV1::printCmmHits() const
 {
-  msg() << "Number of CMM Hits = " << m_cmmHitsMap.size() << endreq;
+  msg() << "Number of CMM Hits = " << m_cmmHitsMap.size() << endmsg;
   CmmHitsMap::const_iterator mapIter = m_cmmHitsMap.begin();
   CmmHitsMap::const_iterator mapEnd  = m_cmmHitsMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -473,7 +473,7 @@ void JemTesterV1::printCmmHits() const
     std::vector<int> errorVec;
     ModifySlices::data(jh->ErrorVec(), errorVec, slices);
     printVec(errorVec);
-    msg() << MSG::dec << endreq;
+    msg() << MSG::dec << endmsg;
   }
 }
 
@@ -481,7 +481,7 @@ void JemTesterV1::printCmmHits() const
 
 void JemTesterV1::printCmmSums() const
 {
-  msg() << "Number of CMM Energy Sums = " << m_cmmEtMap.size() << endreq;
+  msg() << "Number of CMM Energy Sums = " << m_cmmEtMap.size() << endmsg;
   CmmSumsMap::const_iterator mapIter = m_cmmEtMap.begin();
   CmmSumsMap::const_iterator mapEnd  = m_cmmEtMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -513,7 +513,7 @@ void JemTesterV1::printCmmSums() const
     printVec(exError);
     printVec(eyError);
     printVec(etError);
-    msg() << MSG::dec << endreq;
+    msg() << MSG::dec << endmsg;
   }
 }
 
@@ -522,7 +522,7 @@ void JemTesterV1::printCmmSums() const
 void JemTesterV1::printJemRois(const std::string& source) const
 {
   msg() << "Number of JEM RoIs (" << source << ") = " << m_roiMap.size()
-        << endreq;
+        << endmsg;
   JemRoiMap::const_iterator mapIter = m_roiMap.begin();
   JemRoiMap::const_iterator mapEnd  = m_roiMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -536,7 +536,7 @@ void JemTesterV1::printJemRois(const std::string& source) const
       if (i > 0) msg() << ":";
       msg() << ((hits >> i) & 0x1);
     }
-    msg() << "/" << roi->error() << "/" << endreq;
+    msg() << "/" << roi->error() << "/" << endmsg;
   }
 }
 
@@ -553,7 +553,7 @@ void JemTesterV1::printCmmRois(const std::string& source,
         << roi->missingEtSigHits() << ";" << roi->missingEtSigError() << "/"
         << MSG::dec << roi->ex() << ";" << roi->exError() << "/"
         << roi->ey() << ";" << roi->eyError() << "/"
-        << roi->et() << ";" << roi->etError() << "/" << endreq;
+        << roi->et() << ";" << roi->etError() << "/" << endmsg;
 }
 
 // Print a vector
