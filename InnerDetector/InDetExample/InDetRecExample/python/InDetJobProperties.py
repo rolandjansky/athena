@@ -1789,7 +1789,13 @@ class InDetJobProperties(JobPropertyContainer):
       # switch off brem recovery without field
       # -------------------------------------------------------------------
       if  not self.solenoidOn():
-         self.doBremRecovery = False
+         self.doBremRecovery    = False
+      
+      # -------------------------------------------------------------------
+      # switch off calo seeded brem recovery without calo
+      # -------------------------------------------------------------------
+      if  not DetFlags.detdescr.Calo_allOn():
+         self.doCaloSeededBrem  = False
 
       # -------------------------------------------------------------------
       # some tracking switches
@@ -2160,7 +2166,11 @@ class InDetJobProperties(JobPropertyContainer):
        if self.doPixelClusterSplitting():
           if self.doTIDE_Ambi(): 
             print '* - run TIDE ambi with pixel cluster splitting' 
-            print '*   splitting technique: ', self.pixelClusterSplittingType()
+            if not InDetFlags.doSLHC(): 
+                print '*   splitting technique: ', self.pixelClusterSplittingType()
+            else:
+                pixelClusterSplittingTechnique = "Truth-based Emulation"
+                print '*   splitting technique: ', pixelClusterSplittingTechnique
             print '*   split prob1 cut:     ', self.pixelClusterSplitProb1()
             print '*   split prob2 cut:     ', self.pixelClusterSplitProb2()
             print '*   Min split   pt: [MeV]', self.pixelClusterSplitMinPt() 
