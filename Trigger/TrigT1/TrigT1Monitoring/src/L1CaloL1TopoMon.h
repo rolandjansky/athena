@@ -59,15 +59,25 @@ class TrigT1CaloLWHistogramTool;
 
   enum ERROR_BIT {CALO_CONV=0, NO_CMX, DAQ_CONV, NO_DAQ, ROI_CONV,
 		  NO_ROI, F_OVERFLOW,
-		  F_CRC, PAYL_CRC, CMX_EMATCH, NUMBEROFBITS};
+		  F_CRC, PAYL_CRC, CMX_MATCH, NUMBEROFBITS};
+
+  enum TOB_TYPE {JETL_TOB=0, JETS_TOB, TAU_TOB, EM_TOB, MU_TOB};
   
   std::vector<std::string> ERROR_LABELS{"Calo conv","No CMX","DAQ conv",
       "No DAQ","ROI conv","No ROI","Fibre Overf","Fibre CRC",
-      "Payload CRC","CMX ematch"};
+      "Payload CRC","CMX-Topo match"};
   
  private:
   
-  const int MAXTOBS=30;
+  void jem2Coord(const int crate, const int jem,
+		 const int frame, const int location,
+		 int &x, int &y, double &eta, double &phi);
+  void cpm2Coord(const int crate, const int cpm,
+		 const int chip, const int location,
+		 int &x, int &y, double &eta, double &phi);
+  
+  static const int TOB_TYPES=5;
+  static const int MAXTOBS=30;
   /// Trigger configuration service
    ServiceHandle<TrigConf::ITrigConfigSvc> m_configSvc;
    /// Corrupt events tool
@@ -77,6 +87,7 @@ class TrigT1CaloLWHistogramTool;
    /// Output from L1Topo
    //const DataHandle< LVL1::FrontPanelCTP > m_topoCTP;
    StringProperty m_CMXJetTobLocation;
+   StringProperty m_CMXCPTobLocation;
    StringProperty m_topoCTPLoc;
 
    /// Root directory
@@ -92,8 +103,10 @@ class TrigT1CaloLWHistogramTool;
    TH1F_LW* m_h_l1topo_1d_CMXTobs;
    TH1F_LW* m_h_l1topo_1d_Simulation;
    TH1F_LW* m_h_l1topo_1d_JetTobs_EnergyLg;
-   TH2F_LW* m_h_l1topo_2d_JetTobs_Hitmap_mismatch;
-   TH2F_LW* m_h_l1topo_2d_JetTobs_Hitmap_match;
+   TH2F_LW* m_h_l1topo_2d_Tobs_Hitmap_mismatch[TOB_TYPES];
+   TH2F_LW* m_h_l1topo_2d_Tobs_Hitmap_match[TOB_TYPES];
+   TH2F_LW* m_h_l1topo_2d_Tobs_etaPhi_mismatch[TOB_TYPES];
+   TH2F_LW* m_h_l1topo_2d_Tobs_etaPhi_match[TOB_TYPES];
    TH1F_LW* m_h_l1topo_1d_Errors;
    TH1F_LW* m_h_l1topo_1d_DAQTobs;
    TH1F_LW* m_h_l1topo_1d_DAQJetTobs;
@@ -105,10 +118,10 @@ class TrigT1CaloLWHistogramTool;
    TH1F_LW* m_h_l1topo_1d_DAQOverflowBits;
    TH1F_LW* m_h_l1topo_1d_ROITobs;
    TH2F*    m_h_l1topo_2d_ItemsBC[4];
-   TH2F*    m_h_l1topo_2d_ItemsBC_ratio[4];
+   TH2F*    m_h_l1topo_2d_ItemsBC_ratio[4][2];
 };
-
-// ============================================================================
+ 
+ // ============================================================================
 }  // end namespace
 // ============================================================================
 

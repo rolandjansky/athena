@@ -66,7 +66,13 @@ L1CaloCTPMon::L1CaloCTPMon( const std::string & type, const std::string & name,
     m_h_ctp_1d_TIPMatches(0),
     m_h_ctp_1d_HitNoTIPMismatch(0),
     m_h_ctp_1d_TIPNoHitMismatch(0),
-    m_h_ctp_2d_MismatchEvents(0)
+    m_h_ctp_2d_MismatchEvents(0),
+    m_h_ctp_1d_EM_HitNoTIPMismatch(0),
+    m_h_ctp_1d_TAU_HitNoTIPMismatch(0),
+    m_h_ctp_1d_JET_HitNoTIPMismatch(0),
+    m_h_ctp_1d_TE_HitNoTIPMismatch(0),
+    m_h_ctp_1d_XE_HitNoTIPMismatch(0),
+    m_h_ctp_1d_XS_HitNoTIPMismatch(0)
 /*---------------------------------------------------------*/
 {
   // This is how you declare the parameters to Gaudi so that
@@ -218,7 +224,7 @@ StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
 
         while (true) {
           if ( (*it)->type() == def.emType() ) {
-            if (threshNumber >= def.max_EM_Threshold_Number()/2) {  // Cable EM2; else cable EM1
+            if (threshNumber >= (int)def.max_EM_Threshold_Number()/2) {  // Cable EM2; else cable EM1
               offset += nbits*def.max_EM_Threshold_Number()/2;
               fixedThreshNumber -= def.max_EM_Threshold_Number()/2;
             }
@@ -226,7 +232,7 @@ StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
           }
           offset += nbits*def.max_EM_Threshold_Number(); 
           if ( (*it)->type() == def.tauType() ) {
-            if (threshNumber >= def.max_TAU_Threshold_Number()/2) { // Cable TAU2; else cable TAU1
+            if (threshNumber >= (int)def.max_TAU_Threshold_Number()/2) { // Cable TAU2; else cable TAU1
               offset += nbits*def.max_TAU_Threshold_Number()/2;
               fixedThreshNumber -= def.max_TAU_Threshold_Number()/2;
             }
@@ -234,7 +240,7 @@ StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
           }
           offset += nbits*def.max_TAU_Threshold_Number(); 
           if ( (*it)->type() == def.jetType() ) {
-            if (threshNumber >= max_JET_3bit_Threshold_Number) {   // Cable JET2 (2-bit thresholds); else JET1 (3-bit)
+            if (threshNumber >= (int)max_JET_3bit_Threshold_Number) {   // Cable JET2 (2-bit thresholds); else JET1 (3-bit)
               offset += 3*max_JET_3bit_Threshold_Number;
               fixedThreshNumber -= max_JET_3bit_Threshold_Number;
               nbits--;
@@ -246,7 +252,7 @@ StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
           offset += 2*max_JET_2bit_Threshold_Number;
           nbits--;
           if ( (*it)->type() == def.teType()) {
-            if (threshNumber >= def.max_TE_Threshold_Number()/2) {  // Restricted eta TE threshold: jump to cable EN2
+            if (threshNumber >= (int)def.max_TE_Threshold_Number()/2) {  // Restricted eta TE threshold: jump to cable EN2
               offset += nbits*def.max_TE_Threshold_Number()/2 + nbits*def.max_XE_Threshold_Number()/2 + nbits*def.max_XS_Threshold_Number(); // 8+8+8 bits on cable EN1
               fixedThreshNumber -= def.max_TE_Threshold_Number()/2;
             }
@@ -254,7 +260,7 @@ StatusCode L1CaloCTPMon::bookHistogramsRecurrent()
           }
           offset += nbits*def.max_TE_Threshold_Number()/2; 
           if ( (*it)->type() == def.xeType() ) {
-            if (threshNumber >= def.max_XE_Threshold_Number()/2) { // Restricted eta XE threshold: jump to cable EN2
+            if (threshNumber >= (int)def.max_XE_Threshold_Number()/2) { // Restricted eta XE threshold: jump to cable EN2
               offset += nbits*def.max_TE_Threshold_Number()/2 + nbits*def.max_XE_Threshold_Number()/2 + nbits*def.max_XS_Threshold_Number();
               fixedThreshNumber -= def.max_XE_Threshold_Number()/2;
             }

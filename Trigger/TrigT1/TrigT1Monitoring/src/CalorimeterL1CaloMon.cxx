@@ -1014,10 +1014,10 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
           }
 
           /*if (had_L1CaloE == 0 && had_caloE > 5) {           // KW commenting out for now... will never be filled with new ET cut
-            m_histTool->fillPPMEmEtaVsPhi(m_h_had_Mismatch_etaphi, eta, phi);
+            m_histTool->fillPPMHadEtaVsPhi(m_h_had_Mismatch_etaphi, eta, phi);
           }
           if (had_L1CaloE > 5 && had_caloE == 0) {
-            m_histTool->fillPPMEmEtaVsPhi(m_h_had_Mismatch_etaphi_alt, eta, phi);
+            m_histTool->fillPPMHadEtaVsPhi(m_h_had_Mismatch_etaphi_alt, eta, phi);
           }*/
 
           if (absEta < 0.9) {
@@ -1068,14 +1068,14 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
               m_h_had_profile_Match_CP->Fill(had_L1CaloE_CP, hadRelDiffE_CP);
               m_h_had_profile_etaRegion_CP->Fill(eta, hadRelDiffE_CP);
               m_histTool->fillPPMPhi(m_h_had_profile_phiRegion_CP, eta, phi, hadRelDiffE_CP);
-	      m_histTool->fillPPMEmEtaVsPhi(m_h_average_hadDE_map_CP, eta, phi, hadRelDiffE_CP);
+	      m_histTool->fillPPMHadEtaVsPhi(m_h_average_hadDE_map_CP, eta, phi, hadRelDiffE_CP);
            // }
 	  }  
           /*if (had_L1CaloE_CP == 0 && had_caloE > 5) {     // KW commenting out for now... will never be filled with new ET cut
-            m_histTool->fillPPMEmEtaVsPhi(m_h_had_Mismatch_etaphi_CP, eta, phi);
+            m_histTool->fillPPMHadEtaVsPhi(m_h_had_Mismatch_etaphi_CP, eta, phi);
           }
           if (had_L1CaloE_CP > 5 && had_caloE == 0) {
-            m_histTool->fillPPMEmEtaVsPhi(m_h_had_Mismatch_etaphi_alt_CP, eta, phi);
+            m_histTool->fillPPMHadEtaVsPhi(m_h_had_Mismatch_etaphi_alt_CP, eta, phi);
           }*/
 
           if (absEta < 0.9) {
@@ -1166,7 +1166,7 @@ StatusCode CalorimeterL1CaloMon::fillHistograms()
     m_histTool->fillPPMEmEtaVsPhi(m_h_emTTME_etaphi_CP, eta_max_em_CP, phi_max_em_CP);
   }
   if (eta_max_had_CP != -10) {
-    m_histTool->fillPPMEmEtaVsPhi(m_h_hadTTME_etaphi_CP, eta_max_had_CP, phi_max_had_CP);
+    m_histTool->fillPPMHadEtaVsPhi(m_h_hadTTME_etaphi_CP, eta_max_had_CP, phi_max_had_CP);
   }
 
   return StatusCode::SUCCESS;     
