@@ -56,42 +56,42 @@ TrigT1CaloDataAccess::~TrigT1CaloDataAccess()
 StatusCode TrigT1CaloDataAccess::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << PACKAGE_VERSION << endreq;
+                 << PACKAGE_VERSION << endmsg;
 
   // Retrieve data provider service
 
   StatusCode sc = m_robDataProvider.retrieve();
   if ( sc.isFailure() ) {
     msg(MSG::ERROR) << "Failed to retrieve service " << m_robDataProvider
-                    << endreq;
+                    << endmsg;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved service " << m_robDataProvider << endreq;
+  } else msg(MSG::INFO) << "Retrieved service " << m_robDataProvider << endmsg;
 
   // Retrieve selection tool
 
   sc = m_selectionTool.retrieve();
   if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_selectionTool << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_selectionTool << endmsg;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_selectionTool << endreq;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_selectionTool << endmsg;
 
   // Retrieve PPM converter tool
 
   sc = m_ppmBSConverter.retrieve();
   if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_ppmBSConverter << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_ppmBSConverter << endmsg;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_ppmBSConverter << endreq;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_ppmBSConverter << endmsg;
 
   sc = m_JetConverter.retrieve();
   if ( sc.isFailure() ) {
-    msg(MSG::ERROR) << "Failed to retrieve tool " << m_JetConverter << endreq;
+    msg(MSG::ERROR) << "Failed to retrieve tool " << m_JetConverter << endmsg;
     return sc;
-  } else msg(MSG::INFO) << "Retrieved tool " << m_JetConverter << endreq;
+  } else msg(MSG::INFO) << "Retrieved tool " << m_JetConverter << endmsg;
 
   IIncidentSvc* p_incSvc;
   if ( service("IncidentSvc",p_incSvc, true).isFailure() ) {
-          msg(MSG::ERROR) << "Unable to get the IncidentSvc" << endreq;
+          msg(MSG::ERROR) << "Unable to get the IncidentSvc" << endmsg;
   }else{
   // Will use the new event for caching purposes
   p_incSvc->addListener(this, "BeginEvent",100);
@@ -177,7 +177,7 @@ StatusCode TrigT1CaloDataAccess::loadCollection(
   if ( full ) sc = m_ppmBSConverter->convert(m_robFrags, m_ttCol, m_chanIds_full);
   else sc = m_ppmBSConverter->convert(m_robFrags, m_ttCol, m_chanIds);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "PPM bytestream conversion failed" << endreq;
+    msg(MSG::ERROR) << "PPM bytestream conversion failed" << endmsg;
     m_ttCol->clear();
   }
   beg = m_ttCol->begin();
@@ -203,7 +203,7 @@ StatusCode TrigT1CaloDataAccess::loadCollection(
   m_jetCol->clear();
   StatusCode sc = m_JetConverter->convert(m_robFrags, m_jetCol);
   if (sc.isFailure() ) {
-    msg(MSG::ERROR) << "JET bytestream conversion failed" << endreq;
+    msg(MSG::ERROR) << "JET bytestream conversion failed" << endmsg;
     return sc;
   }
   m_lC_Jet = m_present_event;
