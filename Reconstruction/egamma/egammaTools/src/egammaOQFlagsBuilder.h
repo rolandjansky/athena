@@ -79,7 +79,7 @@ class egammaOQFlagsBuilder : public egammaBaseTool
   double m_LArQCut;
   double m_TCut;
   double m_TCutVsE;
-
+  double m_RcellCut;
 };
 
 #endif

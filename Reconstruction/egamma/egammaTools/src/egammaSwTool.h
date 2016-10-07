@@ -65,9 +65,14 @@ class egammaSwTool : public AthAlgTool, virtual public IegammaSwTool
   std::vector<std::string> m_clusterCorrectionNamesSuperClusterEle37;
   std::vector<std::string> m_clusterCorrectionNamesSuperClusterGam37;
   std::vector<std::string> m_clusterCorrectionNamesSuperClusterEconv37;
+  //
   std::vector<std::string> m_clusterCorrectionNamesSuperClusterEle55;
   std::vector<std::string> m_clusterCorrectionNamesSuperClusterGam55;
   std::vector<std::string> m_clusterCorrectionNamesSuperClusterEconv55;
+  //
+  std::vector<std::string> m_clusterCorrectionNamesSuperClusterEle35;
+  std::vector<std::string> m_clusterCorrectionNamesSuperClusterGam35;
+  std::vector<std::string> m_clusterCorrectionNamesSuperClusterEconv35;
 
   /** @brief the actual list of tools corresponding to above names */
   std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEle55; 
@@ -80,12 +85,18 @@ class egammaSwTool : public AthAlgTool, virtual public IegammaSwTool
   std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEconv35; 
   std::vector<CaloClusterProcessor*>  m_clusterCorrectionPointersEconv37; 
   //SuperCluster
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEle37;
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterGam37;
-  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEconv37;
+  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEle35;
+  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEconv35;
+  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterGam35;
+  //
   std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEle55;
   std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterGam55;
   std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEconv55;
+  //
+  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEle37;
+  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterGam37;
+  std::vector<CaloClusterProcessor*> m_clusterCorrectionPointersSuperClusterEconv37;
+
 };
 
 #endif
