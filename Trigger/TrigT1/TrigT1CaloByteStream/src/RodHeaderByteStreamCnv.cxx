@@ -60,7 +60,7 @@ StatusCode RodHeaderByteStreamCnv::initialize()
 {
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
   m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
-                      << PACKAGE_VERSION << endreq;
+                      << PACKAGE_VERSION << endmsg;
 
   StatusCode sc = Converter::initialize();
   if ( sc.isFailure() )
@@ -69,9 +69,9 @@ StatusCode RodHeaderByteStreamCnv::initialize()
   // Retrieve Tool
   sc = m_tool.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool << endmsg;
     return sc;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endreq;
+  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -81,12 +81,12 @@ StatusCode RodHeaderByteStreamCnv::initialize()
 StatusCode RodHeaderByteStreamCnv::createObj( IOpaqueAddress* pAddr,
                                         DataObject*& pObj )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endreq;
+  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endmsg;
 
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq;
+    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -96,7 +96,7 @@ StatusCode RodHeaderByteStreamCnv::createObj( IOpaqueAddress* pAddr,
                                            new DataVector<LVL1::RODHeader>;
   StatusCode sc = m_tool->convert(nm, rhCollection);
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << " Failed to create Objects   " << nm << endreq;
+    m_log << MSG::ERROR << " Failed to create Objects   " << nm << endmsg;
     delete rhCollection;
     return sc;
   }

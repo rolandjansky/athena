@@ -44,7 +44,7 @@ PpmTester::~PpmTester()
 StatusCode PpmTester::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endreq;
+                 << /* version() */ PACKAGE_VERSION << endmsg;
 
   m_towerKey = new LVL1::TriggerTowerKey();
 
@@ -63,7 +63,7 @@ StatusCode PpmTester::execute()
   const TriggerTowerCollection* ttCollection = 0;
   StatusCode sc = evtStore()->retrieve(ttCollection, m_triggerTowerLocation);
   if (sc.isFailure() || !ttCollection || ttCollection->empty()) {
-    msg() << "No Trigger Towers found" << endreq;
+    msg() << "No Trigger Towers found" << endmsg;
     return StatusCode::SUCCESS;
   }
 
@@ -91,7 +91,7 @@ StatusCode PpmTester::finalize()
 
 void PpmTester::printTriggerTowers() const
 {
-  msg() << "Number of Trigger Towers = " << m_ttMap.size() << endreq;
+  msg() << "Number of Trigger Towers = " << m_ttMap.size() << endmsg;
   TriggerTowerMap::const_iterator mapIter = m_ttMap.begin();
   TriggerTowerMap::const_iterator mapEnd  = m_ttMap.end();
   for (; mapIter != mapEnd; ++mapIter) {
@@ -133,7 +133,7 @@ void PpmTester::printTriggerTowers() const
     printVec(fadc);
     printVec(bcidLut);
     printVec(bcidFadc);
-    msg() << MSG::hex << tt->emError() << MSG::dec << "/" << endreq;
+    msg() << MSG::hex << tt->emError() << MSG::dec << "/" << endmsg;
     msg() << "HAD:key/eta/phi/LUTpeak/FADCpeak/LUT/FADC/bcidLUT/bcidFADC/error: "
           << mapIter->first << "/" << tt->eta() << "/" << tt->phi() << "/"
 	  << hadPeak << "/" << hadADCPeak << "/";
@@ -145,7 +145,7 @@ void PpmTester::printTriggerTowers() const
     printVec(fadc);
     printVec(bcidLut);
     printVec(bcidFadc);
-    msg() << MSG::hex << tt->hadError() << MSG::dec << "/" << endreq;
+    msg() << MSG::hex << tt->hadError() << MSG::dec << "/" << endmsg;
   }
 }
 
