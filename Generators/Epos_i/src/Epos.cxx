@@ -209,7 +209,7 @@ StatusCode Epos::genInitialize()
   long int si1 = sip[0];
   long int si2 = sip[1];
 
-  int iSeed = si1;     // FIXME ?
+  int iSeed = si1%1000000000;     // FIXME ?
 
   // set up initial values
 
@@ -299,6 +299,14 @@ StatusCode Epos::genFinalize()
   
   xsigtot *= 1000000;         // [mb] to [nb] conversion
   cout << "MetaData: cross-section (nb) = " << xsigtot << endl;
+  xsigine *= 1000000;        //[mb] to [nb] conversion
+  cout << "MetaData: cross-section inelastic (cut + projectile diffraction)[nb] = " << xsigine << endl;
+     xsigela *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section elastic (includes target diffraction)[nb] = " << xsigela << endl;
+  xsigdd *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section dd (nb) = " << xsigdd << endl;
+  xsigsd *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section sd (nb) = " << xsigsd << endl;
 
   //  m_eposEventInfo.close();
 
