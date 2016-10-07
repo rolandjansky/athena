@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740810 2016-04-17 06:58:44Z krasznaa $
+# $Id: CMakeLists.txt 777073 2016-10-07 11:51:55Z krasznaa $
 ################################################################################
 # Package: L1TopoSimulation
 ################################################################################
@@ -33,18 +33,19 @@ atlas_disable_as_needed()
 
 # Component(s) in the package:
 atlas_add_library( L1TopoSimulationLib
-   L1TopoSimulation/*.h src/*.cxx
+   L1TopoSimulation/*.h
+   INTERFACE
    PUBLIC_HEADERS L1TopoSimulation
-   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib
+   LINK_LIBRARIES GaudiKernel )
+
+atlas_add_component( L1TopoSimulation
+   src/*.h src/*.cxx src/components/*.cxx
+   INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaMonitoringLib
    TrigInterfacesLib TrigT1CaloEventLib TrigT1CaloUtilsLib
    AthenaBaseComps GaudiKernel TrigConfBase TrigConfL1Data L1TopoConfig
    L1TopoCoreSim L1TopoEvent L1TopoInterfaces L1TopoAlgorithms TrigT1Interfaces
-   TrigT1Result )
-
-atlas_add_component( L1TopoSimulation
-   src/components/*.cxx
-   LINK_LIBRARIES L1TopoSimulationLib GaudiKernel )
+   TrigT1Result TrigConfInterfaces )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )
