@@ -85,7 +85,6 @@ theApp.AuditServices   = True
 # --- Display detailed size and timing statistics for writing and reading
 ServiceMgr.AthenaPoolCnvSvc.UseDetailChronoStat = True
 
-
 #--------------------------------------------------------------
 # ISF input
 #--------------------------------------------------------------
@@ -160,7 +159,9 @@ simFlags.RandomSeedList.printSeeds()
 # Setup the ISF Output
 #--------------------------------------------------------------
 from ISF_Example.ISF_Output import ISF_HITSStream
-
+from ISF_Example.ISF_Metadata import createSimulationParametersMetadata, configureRunNumberOverrides
+createSimulationParametersMetadata()
+configureRunNumberOverrides()
 #--------------------------------------------------------------
 # Post kernel configuration
 #--------------------------------------------------------------
