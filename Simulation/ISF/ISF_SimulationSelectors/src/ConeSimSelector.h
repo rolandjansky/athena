@@ -18,62 +18,64 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/ToolHandle.h"
 
-namespace ISF {
+namespace ISF
+{
 
   // forward delcarations
   class ITrkExtrapolator;
 
   /** @class ConeSimSelector
-  
+
       This SimulationSelector implementation registers cones around particles that
       are given to the updateInsideSubDet(..) or the updateOutsideSubDet(..) method
       and pass certain cuts (pT, pdg, HepMC ancestor). PassSelectorCuts(..) determines
       whether the given particle is inside such a cone or not.
-  
+
       @author Andreas.Salzburger -at- cern.ch , Elmar.Ritsch -at- cern.ch
-     */
-  class ConeSimSelector : public ISimulationSelector, public ConeParticleCuts {
-      
-    public: 
-     /** Constructor with parameters */
-     ConeSimSelector( const std::string& t, const std::string& n, const IInterface* p );
+  */
+  class ConeSimSelector : public ISimulationSelector, public ConeParticleCuts
+  {
 
-     /** Destructor */
-     ~ConeSimSelector();
+  public:
+    /** Constructor with parameters */
+    ConeSimSelector( const std::string& t, const std::string& n, const IInterface* p );
 
-     /** Athena AlgTool initialize */
-     StatusCode  initialize();
+    /** Destructor */
+    ~ConeSimSelector();
 
-     /** Athena AlgTool finalize */
-     StatusCode  finalize();
+    /** Athena AlgTool initialize */
+    StatusCode  initialize() override final;
 
-     /** called at the beginning of each event (used for resetting dynamic selectors) */
-     virtual void beginEvent();
+    /** Athena AlgTool finalize */
+    StatusCode  finalize() override final;
 
-     /** called at the beginning of each event (used for resetting dynamic selectors) */
-     virtual void endEvent();
+    /** called at the beginning of each event (used for resetting dynamic selectors) */
+    virtual void beginEvent() override final;
 
-      /** update internal event representation (create cones in our case)*/
-      virtual void update(const ISFParticle& p );
+    /** called at the beginning of each event (used for resetting dynamic selectors) */
+    virtual void endEvent() override final;
 
-      /** check whether given particle is within any of the registered cones
-          -> will be used for routing decision*/
-      virtual bool passSelectorCuts(const ISFParticle& particle) const;
+    /** update internal event representation (create cones in our case)*/
+    virtual void update(const ISFParticle& p ) override final;
 
-    private:
-      std::vector<int>                          m_absPDGVector;  //!< abs(PDG) for particles to create cones around
-      /** ISFParticle has to have a relative which is in this list to create a cone*/
-      bool                                      m_checkRelatives;//!< on/off for checking relatives
-      std::vector<int>                          m_relativesVec;  //!< Python property
-      std::set<int>                             m_relatives;     //!< used during runtime (faster)
-      
-      /** ISFParticle relation to the given pdg codes */
-      int                                       m_relationProp;  //!< Python property
-      HepMC::IteratorRange                      m_relation;      //!< HepMC
+    /** check whether given particle is within any of the registered cones
+        -> will be used for routing decision*/
+    virtual bool passSelectorCuts(const ISFParticle& particle) const override final;
 
-      /** Track extrapolation to estimate impact point of particle on next sub-detector*/
-      bool                                      m_extrapolateToCalo; //!< enable/disable
-      ToolHandle<ISF::ITrkExtrapolator>         m_extrapolator;      //!< extrapolator tool
+  private:
+    std::vector<int>                          m_absPDGVector;  //!< abs(PDG) for particles to create cones around
+    /** ISFParticle has to have a relative which is in this list to create a cone*/
+    bool                                      m_checkRelatives;//!< on/off for checking relatives
+    std::vector<int>                          m_relativesVec;  //!< Python property
+    std::set<int>                             m_relatives;     //!< used during runtime (faster)
+
+    /** ISFParticle relation to the given pdg codes */
+    int                                       m_relationProp;  //!< Python property
+    HepMC::IteratorRange                      m_relation;      //!< HepMC
+
+    /** Track extrapolation to estimate impact point of particle on next sub-detector*/
+    bool                                      m_extrapolateToCalo; //!< enable/disable
+    ToolHandle<ISF::ITrkExtrapolator>         m_extrapolator;      //!< extrapolator tool
   };
 
 }
