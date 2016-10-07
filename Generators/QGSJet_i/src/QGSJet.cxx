@@ -206,11 +206,15 @@ StatusCode QGSJet::genInitialize()
   long int si1 = sip[0];
   long int si2 = sip[1];
 
-  int iSeed = si1;     // FIXME ?
+  // eA
+
+  std::cout << "eA seed: " << si1 << " " << si2 << std::endl; 
+
+  int iSeed = si1%1000000000;     // FIXME ?
 
   // set up initial values
 
-  //  std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
+  std::cout << "parameters " << m_nEvents << " " << iSeed << " " << m_beamMomentum << " " << m_targetMomentum << " " << m_primaryParticle << " " << m_targetParticle << " " << m_model << " " << m_itab << " " << m_ilheout << " " <<  m_lheout.c_str()<< " " <<  m_paramFile.c_str() << std::endl;
 
   crmc_set_f_(m_nEvents, iSeed, m_beamMomentum, m_targetMomentum, m_primaryParticle, m_targetParticle, m_model, m_itab, m_ilheout,  m_paramFile.c_str() ); 
 
@@ -243,6 +247,8 @@ StatusCode QGSJet::callGenerator()
     // save the random number seeds in the event
     CLHEP::HepRandomEngine* engine = p_AtRndmGenSvcQGSJet->GetEngine( qgsjet_rndm_stream );
    const long *s = engine->getSeeds();
+
+   std:: cout << "eA seed s : " << s[0] << " " << s[1] << std::endl;
   
    m_seeds.clear();
    m_seeds.push_back(s[0]);
@@ -296,6 +302,14 @@ StatusCode QGSJet::genFinalize()
   
   xsigtot *= 1000000;         // [mb] to [nb] conversion
   cout << "MetaData: cross-section (nb) = " << xsigtot << endl;
+  xsigine *= 1000000;        //[mb] to [nb] conversion
+  cout << "MetaData: cross-section inelastic (cut + projectile diffraction)[nb] = " << xsigine << endl;
+     xsigela *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section elastic (includes target diffraction)[nb] = " << xsigela << endl;
+  xsigdd *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section dd (nb) = " << xsigdd << endl;
+  xsigsd *= 1000000;         // [mb] to [nb] conversion
+  cout << "MetaData: cross-section sd (nb) = " << xsigsd << endl;
 
   //  m_qgsjetEventInfo.close();
 
@@ -319,7 +333,6 @@ StatusCode QGSJet::fillEvt( HepMC::GenEvent* evt )
   hepio.fill_next_event(evt);
   // evt->print();
  
-
   evt->set_random_states( m_seeds );
 
   evt->weights().push_back(1.0); 
