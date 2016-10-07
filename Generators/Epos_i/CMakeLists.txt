@@ -13,6 +13,11 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           Generators/TruthUtils )
 
+# Set the version of crmc to use:
+set( CRMC_VERSION 1.5.4 )
+set( CRMC_ROOT
+   ${LCG_RELEASE_DIR}/MCGenerators/crmc/${CRMC_VERSION}/${ATLAS_PLATFORM} )
+
 # External dependencies:
 find_package( CLHEP )
 find_package( Crmc COMPONENTS Epos )
@@ -41,5 +46,6 @@ atlas_add_component( Epos_i
 
 # Install files from the package:
 atlas_install_joboptions( share/*.py )
-atlas_install_runtime( share/epos_crmc.param )
+atlas_install_runtime( share/epos_crmc.param ${CRMC_ROOT}/tabs/epos.inics ${CRMC_ROOT}/tabs/epos.inidi.lhc ${CRMC_ROOT}/tabs/epos.inirj.lhc ${CRMC_ROOT}/tabs/epos.inirj ${CRMC_ROOT}/tabs/epos.iniev ${CRMC_ROOT}/tabs/epos.initl ${CRMC_ROOT}/tabs/dpmjet.dat )
+
 
