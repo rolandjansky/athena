@@ -585,7 +585,7 @@ void HLTXAODBphysMonTool::fillHist(const xAOD::TrigBphys *bphysItem, const std::
 
         const xAOD::TrackParticle * ptl1 = **trkIt;
         if (!ptl1) {
-            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
+            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endmsg;
         }
         
         float phiTrk1    = ptl1->phi();
@@ -615,7 +615,7 @@ void HLTXAODBphysMonTool::fillHist(const xAOD::TrigBphys *bphysItem, const std::
         
         const xAOD::TrackParticle * ptl2 = **trkIt;
         if (!ptl2) {
-            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
+            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endmsg;
         }
         
         float phiTrk2    = ptl2->phi();
@@ -738,7 +738,7 @@ void HLTXAODBphysMonTool::fillHistEff(const xAOD::TrigBphys *bphysItem, const st
         
         const xAOD::TrackParticle * ptl1 = **trkIt;
         if (!ptl1) {
-            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
+            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endmsg;
         }
         
         float phiTrk1    = ptl1->phi();
@@ -771,7 +771,7 @@ void HLTXAODBphysMonTool::fillHistEff(const xAOD::TrigBphys *bphysItem, const st
         
         const xAOD::TrackParticle * ptl2 = **trkIt;
         if (!ptl2) {
-            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endreq;
+            msg() << MSG::WARNING << "TrackParticle with nullptr but valid elementlink" << endmsg;
         }
         
         float phiTrk2    = ptl2->phi();
@@ -855,11 +855,11 @@ StatusCode HLTXAODBphysMonTool::fill()
 {
     ATH_MSG_DEBUG ("Filling... ");
     
-    *m_log << MSG::DEBUG << " ====== Begin fillHists() ====== " << endreq;
+    *m_log << MSG::DEBUG << " ====== Begin fillHists() ====== " << endmsg;
     
     // Loop over a vector of B-physics trigger containers and dump to histograms
     for (auto containerItem : m_containerList){
-        if( fillContainer(containerItem).isFailure() ) *m_log << MSG::ERROR << "Method test failed " << endreq;
+        if( fillContainer(containerItem).isFailure() ) *m_log << MSG::ERROR << "Method test failed " << endmsg;
     }
     
     
@@ -930,7 +930,7 @@ StatusCode HLTXAODBphysMonTool::fillContainer(const std::string& containerItem)
 StatusCode HLTXAODBphysMonTool::fillTriggerChain(const std::string& trigItem, const std::string& monGroup)
 //-----------------------------------------------------------
 {
-    msg(MSG::DEBUG) << "REGTEST ==========START of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    msg(MSG::DEBUG) << "REGTEST ==========START of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     //setCurrentMonGroup("HLT/BphysMon/Trigger");
     setCurrentMonGroup("HLT/BphysMon/Trigger/"+monGroup+"/"+trigItem);
@@ -961,7 +961,7 @@ StatusCode HLTXAODBphysMonTool::fillTriggerChain(const std::string& trigItem, co
     }
     
     
-    msg(MSG::DEBUG) << "REGTEST ==========END of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    msg(MSG::DEBUG) << "REGTEST ==========END of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     
     
@@ -1040,7 +1040,7 @@ StatusCode HLTXAODBphysMonTool::fillTriggerEfficiency()
             }
         }
     }
-    // msg(MSG::DEBUG) << "REGTEST ==========END of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endreq;
+    // msg(MSG::DEBUG) << "REGTEST ==========END of Bphysics EDM/Navigation check for chain " << trigItem << " ===========" << endmsg;
     
     
     
@@ -1226,7 +1226,7 @@ StatusCode HLTXAODBphysMonTool::JpsiFinder()
         float etaTrk1 = -std::log(tan(thetaTrk1/2));
         
         
-        //      msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endreq;
+        //      msg() << MSG::VERBOSE << "track, iterator, pointer " << itrk << " " << *trkIt << " " << *(*trkIt) << endmsg;
         float phiTrk2 = refTrk2.Phi();
         float thetaTrk2 = refTrk2.Theta();
         //float z0Trk2 = 0.;
