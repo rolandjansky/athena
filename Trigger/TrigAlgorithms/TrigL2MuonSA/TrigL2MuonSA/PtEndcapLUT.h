@@ -13,6 +13,9 @@
 
 #include <map>
 #include <cstring>
+#define ETAS1  5
+#define PHIS1  6
+#define PTS1   3
 
 namespace TrigL2MuonSA {
 
@@ -33,12 +36,20 @@ class PtEndcapLUT: public AthAlgTool
     virtual StatusCode finalize  ();
 
     StatusCode readLUT(std::string lut_fileName);
+    StatusCode readLUTSigmaMean(std::string lut_mean, std::string lut_sigma);
 
     double alpha(double z1, double r1, double z2, double r2) const;
     double radius(double z1, double r1, double s1, double z2, double r2, double s2, double deltar) const;
     double lookup(int side, int charge, DataType type, int iEta, int iPhi, double value) const;
-
+    double ptcombined(int iEta, int iPhi, double ApT, double BpT, double &CApT, double &CBpT) const;
 private:
+    double m_meana[ETAS1][PHIS1][PTS1];
+    double m_meanb[ETAS1][PHIS1][PTS1];
+    double m_meanc[ETAS1][PHIS1][PTS1];
+    double m_sigmaa[ETAS1][PHIS1][PTS1];
+    double m_sigmab[ETAS1][PHIS1][PTS1];
+    double m_sigmac[ETAS1][PHIS1][PTS1];
+
     enum sizes { ETAS = 30, PHIS = 12, PHISEE = 192};
 
     struct KeyType
