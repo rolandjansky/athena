@@ -74,6 +74,8 @@ class RpcDataPreparator: public AthAlgTool
 			     TrigL2MuonSA::RpcHits&      rpcHits,
 			     ToolHandle<RpcPatFinder>*   rpcPatFinder);
 
+      bool isFakeRoi() { return m_isFakeRoi; }
+
       void setRoIBasedDataAccess(bool use_RoIBasedDataAccess);
       
  private:
@@ -102,6 +104,7 @@ class RpcDataPreparator: public AthAlgTool
       ToolHandle <Muon::MuonIdHelperTool>  m_idHelperTool;  //!< Pointer to concrete tool
 
       bool m_use_RoIBasedDataAccess;
+      bool m_isFakeRoi;
 };
 
 } // namespace TrigL2MuonSA

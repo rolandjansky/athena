@@ -105,10 +105,14 @@ ReturnCode CscSegmentMaker :: FindSuperPointCsc( const TrigL2MuonSA::CscHits &cs
         int cathodelayer = 2*(cscHit.WireLayer-1)+  cscHit.MeasuresPhi;//cathodelayer is in [0,7]
         int module_hash = m_cscregdict->get_hash(cscHit.StationName, cscHit.StationEta,  cscHit.StationPhi);
         
-        clusters[module_hash][cathodelayer].push_back( cscHit );
+	if( 0<=module_hash && 31>=module_hash ){ 
+	  clusters[module_hash][cathodelayer].push_back( cscHit );        
+	  hash_clusters[module_hash]=1;//set modules to read
+	} else {
+	  continue;
+        }
         
-        hash_clusters[module_hash]=1;//set modules to read
-        
+
       }//for clusters
       
       
@@ -676,7 +680,21 @@ ReturnCode CscSegmentMaker :: display_hits(const std::vector<localCscHit> localH
 
 
 
-CscSegment :: CscSegment(){}
+CscSegment :: CscSegment(){
+
+  m_l1id=0;
+  m_x=0.;
+  m_y=0.;
+  m_z=0.;
+  m_px=0.;
+  m_py=0.;
+  m_pz=0.;
+  m_slopeRZ=0.;
+  m_interceptRZ=0.;
+  m_nhit_eta=0;
+  m_nhit_phi=0;
+
+}
 
 CscSegment :: ~CscSegment(){}
 

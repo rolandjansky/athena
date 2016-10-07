@@ -169,6 +169,7 @@ class MuFastSteering : public HLT::FexAlgo,
   BooleanProperty  m_use_RoIBasedDataAccess_CSC;
   BooleanProperty  m_doCalStream;
   BooleanProperty  m_calDataScouting;
+  BooleanProperty  m_rpcErrToDebugStream;
   
   IntegerProperty m_esd_rpc_size;
   IntegerProperty m_esd_tgc_size;
