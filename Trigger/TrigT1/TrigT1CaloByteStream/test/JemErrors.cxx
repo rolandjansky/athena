@@ -112,7 +112,7 @@ JemErrors::~JemErrors()
 StatusCode JemErrors::initialize()
 {
   msg(MSG::INFO) << "Initializing " << name() << " - package version "
-                 << /* version() */ PACKAGE_VERSION << endreq;
+                 << /* version() */ PACKAGE_VERSION << endmsg;
 
   // Initialise individual error flags
 
@@ -170,7 +170,7 @@ StatusCode JemErrors::execute()
     const JetElementCollection* jeCollection = 0;
     StatusCode sc = evtStore()->retrieve(jeCollection, m_jetElementLocation);
     if (sc.isFailure() || !jeCollection || jeCollection->empty()) {
-      msg() << "No Jet Elements found" << endreq;
+      msg() << "No Jet Elements found" << endmsg;
       jeCollection = 0;
     }
 
@@ -185,7 +185,7 @@ StatusCode JemErrors::execute()
 
     sc = evtStore()->record(errCollection, m_jetElementLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording JetElement container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording JetElement container in TDS " << endmsg;
       return sc;
     }
   }
@@ -197,7 +197,7 @@ StatusCode JemErrors::execute()
     const EnergySumsCollection* etCollection = 0;
     StatusCode sc = evtStore()->retrieve(etCollection, m_jemEtSumsLocation);
     if (sc.isFailure() || !etCollection || etCollection->empty()) {
-      msg() << "No Energy Sums found" << endreq;
+      msg() << "No Energy Sums found" << endmsg;
       etCollection = 0;
     }
 
@@ -212,7 +212,7 @@ StatusCode JemErrors::execute()
 
     sc = evtStore()->record(errCollection, m_jemEtSumsLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording JEMEtSums container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording JEMEtSums container in TDS " << endmsg;
       return sc;
     }
   }
@@ -224,7 +224,7 @@ StatusCode JemErrors::execute()
     const CmxJetTobCollection* tobCollection = 0;
     StatusCode sc = evtStore()->retrieve(tobCollection, m_cmxJetTobLocation);
     if (sc.isFailure() || !tobCollection || tobCollection->empty()) {
-      msg() << "No CMX TOBs found" << endreq;
+      msg() << "No CMX TOBs found" << endmsg;
       tobCollection = 0;
     }
 
@@ -239,7 +239,7 @@ StatusCode JemErrors::execute()
 
     sc = evtStore()->record(errCollection, m_cmxJetTobLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording CMXJetTob container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording CMXJetTob container in TDS " << endmsg;
       return sc;
     }
   }
@@ -251,7 +251,7 @@ StatusCode JemErrors::execute()
     const CmxJetHitsCollection* hitCollection = 0;
     StatusCode sc = evtStore()->retrieve(hitCollection, m_cmxJetHitsLocation);
     if (sc.isFailure() || !hitCollection || hitCollection->empty()) {
-      msg() << "No CMX Hits found" << endreq;
+      msg() << "No CMX Hits found" << endmsg;
       hitCollection = 0;
     }
 
@@ -266,7 +266,7 @@ StatusCode JemErrors::execute()
 
     sc = evtStore()->record(errCollection, m_cmxJetHitsLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording CMXJetHits container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording CMXJetHits container in TDS " << endmsg;
       return sc;
     }
   }
@@ -278,7 +278,7 @@ StatusCode JemErrors::execute()
     const CmxEnergyCollection* etCollection = 0;
     StatusCode sc = evtStore()->retrieve(etCollection, m_cmxEnergyLocation);
     if (sc.isFailure() || !etCollection || etCollection->empty()) {
-      msg() << "No CMX Energy Sums found" << endreq;
+      msg() << "No CMX Energy Sums found" << endmsg;
       etCollection = 0;
     }
 
@@ -293,7 +293,7 @@ StatusCode JemErrors::execute()
 
     sc = evtStore()->record(errCollection, m_cmxEnergyLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording CMXEtSums container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording CMXEtSums container in TDS " << endmsg;
       return sc;
     }
   }
@@ -305,7 +305,7 @@ StatusCode JemErrors::execute()
     const JemRoiCollection* jrCollection = 0;
     StatusCode sc = evtStore()->retrieve(jrCollection, m_jemRoiLocation);
     if (sc.isFailure() || !jrCollection || jrCollection->empty()) {
-      msg() << "No JEM RoIs found" << endreq;
+      msg() << "No JEM RoIs found" << endmsg;
       jrCollection = 0;
     }
 
@@ -320,7 +320,7 @@ StatusCode JemErrors::execute()
 
     sc = evtStore()->record(errCollection, m_jemRoiLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording JEMTobRoI container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording JEMTobRoI container in TDS " << endmsg;
       return sc;
     }
   }
@@ -337,7 +337,7 @@ StatusCode JemErrors::execute()
                                             !crCollection->roiWord(3) &&
                                             !crCollection->roiWord(4) &&
                                             !crCollection->roiWord(5))) {
-      msg() << "No CMX RoIs found" << endreq;
+      msg() << "No CMX RoIs found" << endmsg;
       crCollection = 0;
     }
 
@@ -352,7 +352,7 @@ StatusCode JemErrors::execute()
 
     sc = evtStore()->record(errCollection, m_cmxRoiLocationOut);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Error recording CMXRoI container in TDS " << endreq;
+      msg(MSG::ERROR) << "Error recording CMXRoI container in TDS " << endmsg;
       return sc;
     }
   }
@@ -637,13 +637,13 @@ void JemErrors::errorMessage(const std::string& errmsg)
   const EventInfo* evInfo = 0;
   StatusCode sc = evtStore()->retrieve(evInfo);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "No EventInfo found" << endreq;
+    msg(MSG::ERROR) << "No EventInfo found" << endmsg;
   } else {
     const EventID* evID = evInfo->event_ID();
     if (evID) eventNumber = evID->event_number();
   }
   msg(MSG::INFO) << "Event " << eventNumber
-                 << " has error " << errmsg << endreq;
+                 << " has error " << errmsg << endmsg;
 }
 
 } // end namespace

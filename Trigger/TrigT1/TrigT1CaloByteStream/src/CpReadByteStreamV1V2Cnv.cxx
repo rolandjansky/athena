@@ -64,7 +64,7 @@ StatusCode CpReadByteStreamV1V2Cnv::initialize()
 {
   m_debug = msgSvc()->outputLevel(m_name) <= MSG::DEBUG;
   m_log << MSG::DEBUG << "Initializing " << m_name << " - package version "
-                      << PACKAGE_VERSION << endreq;
+                      << PACKAGE_VERSION << endmsg;
 
   StatusCode sc = Converter::initialize();
   if ( sc.isFailure() )
@@ -73,24 +73,24 @@ StatusCode CpReadByteStreamV1V2Cnv::initialize()
   // Retrieve Tools
   sc = m_tool1.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool1 << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool1 << endmsg;
     return StatusCode::FAILURE;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool1 << endreq;
+  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool1 << endmsg;
   sc = m_tool2.retrieve();
   if ( sc.isFailure() ) {
-    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool2 << endreq;
+    m_log << MSG::ERROR << "Failed to retrieve tool " << m_tool2 << endmsg;
     return StatusCode::FAILURE;
-  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool2 << endreq;
+  } else m_log << MSG::DEBUG << "Retrieved tool " << m_tool2 << endmsg;
 
   // Get ROBDataProvider
   sc = m_robDataProvider.retrieve();
   if ( sc.isFailure() ) {
     m_log << MSG::WARNING << "Failed to retrieve service "
-          << m_robDataProvider << endreq;
+          << m_robDataProvider << endmsg;
     return sc ;
   } else {
     m_log << MSG::DEBUG << "Retrieved service "
-          << m_robDataProvider << endreq;
+          << m_robDataProvider << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -101,18 +101,18 @@ StatusCode CpReadByteStreamV1V2Cnv::initialize()
 StatusCode CpReadByteStreamV1V2Cnv::createObj( IOpaqueAddress* pAddr,
                                                DataObject*& pObj )
 {
-  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endreq;
+  if (m_debug) m_log << MSG::DEBUG << "createObj() called" << endmsg;
 
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress *>( pAddr );
   if ( !pBS_Addr ) {
-    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq;
+    m_log << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg;
     return StatusCode::FAILURE;
   }
 
   const std::string nm = *( pBS_Addr->par() );
 
-  if (m_debug) m_log << MSG::DEBUG << " Creating Objects " << nm << endreq;
+  if (m_debug) m_log << MSG::DEBUG << " Creating Objects " << nm << endmsg;
 
   // get SourceIDs
   const std::vector<uint32_t>& vID1(m_tool1->sourceIDs(nm));
@@ -128,7 +128,7 @@ StatusCode CpReadByteStreamV1V2Cnv::createObj( IOpaqueAddress* pAddr,
   DataVector<LVL1::CPMTower>* const towerCollection = new DataVector<LVL1::CPMTower>;
   if (m_debug) {
     m_log << MSG::DEBUG << " Number of ROB fragments is " << robFrags1.size()
-          << ", " << robFrags2.size() << endreq;
+          << ", " << robFrags2.size() << endmsg;
   }
   if (robFrags1.size() == 0 && robFrags2.size() == 0) {
     pObj = SG::asStorable(towerCollection) ;
@@ -139,7 +139,7 @@ StatusCode CpReadByteStreamV1V2Cnv::createObj( IOpaqueAddress* pAddr,
   if (robFrags1.size() > 0) {
     StatusCode sc = m_tool1->convert(robFrags1, towerCollection);
     if ( sc.isFailure() ) {
-      m_log << MSG::ERROR << " Failed to create Objects   " << nm << endreq;
+      m_log << MSG::ERROR << " Failed to create Objects   " << nm << endmsg;
       delete towerCollection;
       return sc;
     }
@@ -148,7 +148,7 @@ StatusCode CpReadByteStreamV1V2Cnv::createObj( IOpaqueAddress* pAddr,
   if (robFrags2.size() > 0) {
     StatusCode sc = m_tool2->convert(robFrags2, towerCollection);
     if ( sc.isFailure() ) {
-      m_log << MSG::ERROR << " Failed to create Objects   " << nm << endreq;
+      m_log << MSG::ERROR << " Failed to create Objects   " << nm << endmsg;
       delete towerCollection;
       return sc;
     }
