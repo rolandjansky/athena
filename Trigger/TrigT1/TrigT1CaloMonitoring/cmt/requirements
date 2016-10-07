@@ -12,7 +12,8 @@ use Identifier                    Identifier-*                    DetectorDescri
 use xAODJet                       xAODJet-*                       Event/xAOD
 use xAODTrigL1Calo                xAODTrigL1Calo-*                Event/xAOD
 #use AthenaKernel                  AthenaKernel-*                  Control
-
+use xAODEgamma                    xAODEgamma-*                    Event/xAOD
+use TrigConfInterfaces            TrigConfInterfaces-*            Trigger/TrigConfiguration
 
 use StoreGate                     StoreGate-*                     Control
 use SGTools                       SGTools-*                       Control
@@ -28,7 +29,6 @@ use TileConditions                TileConditions-*                TileCalorimete
 use TileEvent                     TileEvent-*                     TileCalorimeter
 use TrigDecisionTool              TrigDecisionTool-*              Trigger/TrigAnalysis
 use VxVertex                      VxVertex-*                      Tracking/TrkEvent
-use egammaEvent                   egammaEvent-*                   Reconstruction/egamma
 use JetInterface                  JetInterface-*                  Reconstruction/Jet
 
 use TrigT1CaloUtils               TrigT1CaloUtils-*               Trigger/TrigT1

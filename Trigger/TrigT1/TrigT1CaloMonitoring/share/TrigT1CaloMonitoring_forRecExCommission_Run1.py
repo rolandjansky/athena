@@ -284,24 +284,24 @@ if l1caloRawMon:
             ToolSvc += L1GlobalMonTool
             L1CaloMan.AthenaMonTools += [ L1GlobalMonTool ]
     
-        if isData and isCalo and Offline and (rec.triggerStream() == "JetTauEtmiss"
-                                           or rec.triggerStream() == "Muons"
-                                           or rec.triggerStream() == "express"):
+        # if isData and isCalo and Offline and (rec.triggerStream() == "JetTauEtmiss"
+        #                                    or rec.triggerStream() == "Muons"
+        #                                    or rec.triggerStream() == "express"):
     
-            #=================================================================================
-            #=============================== EM Efficiencies =================================
-            #=================================================================================
-            trigstring = ['EF_.*']
-            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__EmEfficienciesMonTool
-            L1EmEfficienciesMonTool = LVL1__EmEfficienciesMonTool ( name = "EmEfficienciesMonTool",
-                                                                  TriggerStrings = trigstring
-                                                            )
-            ToolSvc += L1EmEfficienciesMonTool
-            L1CaloMan.AthenaMonTools += [ L1EmEfficienciesMonTool ]
-            if not hasattr( ToolSvc, "TrigDecisionTool" ):
-                from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
-                tdt = Trig__TrigDecisionTool('TrigDecisionTool')
-                ToolSvc += tdt
+        #     #=================================================================================
+        #     #=============================== EM Efficiencies =================================
+        #     #=================================================================================
+        #     trigstring = ['EF_.*']
+        #     from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__EmEfficienciesMonTool
+        #     L1EmEfficienciesMonTool = LVL1__EmEfficienciesMonTool ( name = "EmEfficienciesMonTool",
+        #                                                           TriggerStrings = trigstring
+        #                                                     )
+        #     ToolSvc += L1EmEfficienciesMonTool
+        #     L1CaloMan.AthenaMonTools += [ L1EmEfficienciesMonTool ]
+        #     if not hasattr( ToolSvc, "TrigDecisionTool" ):
+        #         from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+        #         tdt = Trig__TrigDecisionTool('TrigDecisionTool')
+        #         ToolSvc += tdt
     
         if isData and isCalo and Offline and (rec.triggerStream() == "Egamma"
                                            or rec.triggerStream() == "Muons"
