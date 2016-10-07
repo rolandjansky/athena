@@ -277,6 +277,16 @@ if l1caloRawMon:
         # or rec.triggerStream() == "express"):
 
             #==================================================================
+            #===================== Tag & Probe Efficiencies  ==================
+            #==================================================================           
+            
+            from TrigT1CaloMonitoring.TrigT1CaloMonitoringConf import LVL1__TagProbeEfficiencyMon
+            TagProbeEfficiencyMonTool = LVL1__TagProbeEfficiencyMon("TagProbeEfficiencyMonTool")
+            ToolSvc += TagProbeEfficiencyMonTool
+            L1CaloMan.AthenaMonTools += [TagProbeEfficiencyMonTool]
+
+
+            #==================================================================
             #=============================== EM Efficiencies ==================
             #==================================================================
             # trigstring = ['EF_.*']
