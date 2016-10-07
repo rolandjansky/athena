@@ -69,6 +69,13 @@ class TrigT1CaloLWHistogramTool;
   
  private:
   
+  void jem2Coord(const int crate, const int jem,
+		 const int frame, const int location,
+		 int &x, int &y, double &eta, double &phi);
+  void cpm2Coord(const int crate, const int cpm,
+		 const int chip, const int location,
+		 int &x, int &y, double &eta, double &phi);
+  
   static const int TOB_TYPES=5;
   static const int MAXTOBS=30;
   /// Trigger configuration service
@@ -98,6 +105,8 @@ class TrigT1CaloLWHistogramTool;
    TH1F_LW* m_h_l1topo_1d_JetTobs_EnergyLg;
    TH2F_LW* m_h_l1topo_2d_Tobs_Hitmap_mismatch[TOB_TYPES];
    TH2F_LW* m_h_l1topo_2d_Tobs_Hitmap_match[TOB_TYPES];
+   TH2F_LW* m_h_l1topo_2d_Tobs_etaPhi_mismatch[TOB_TYPES];
+   TH2F_LW* m_h_l1topo_2d_Tobs_etaPhi_match[TOB_TYPES];
    TH1F_LW* m_h_l1topo_1d_Errors;
    TH1F_LW* m_h_l1topo_1d_DAQTobs;
    TH1F_LW* m_h_l1topo_1d_DAQJetTobs;
@@ -109,10 +118,10 @@ class TrigT1CaloLWHistogramTool;
    TH1F_LW* m_h_l1topo_1d_DAQOverflowBits;
    TH1F_LW* m_h_l1topo_1d_ROITobs;
    TH2F*    m_h_l1topo_2d_ItemsBC[4];
-   TH2F*    m_h_l1topo_2d_ItemsBC_ratio[4];
+   TH2F*    m_h_l1topo_2d_ItemsBC_ratio[4][2];
 };
-
-// ============================================================================
+ 
+ // ============================================================================
 }  // end namespace
 // ============================================================================
 
