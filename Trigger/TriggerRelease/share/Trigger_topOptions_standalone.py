@@ -270,16 +270,34 @@ if hasattr(ToolSvc,'HLT::RandomScaler'):
 # ----------------------------------------------------------------
 from TrigTimeAlgs.TrigTimeAlgsConf import TrigTimerSvc
 svcMgr += TrigTimerSvc()
-svcMgr.TrigTimerSvc.IncludeName=".*(TrigSteer_HLT:(T|C|M|L|R|S|s|E).+)|ALGO::OPITimer|T2CaloEgamma_(eGamma|Ringer):TotalTime|T2CaloFastJet_.*:(TotalTime|fastjet_time)|T2L1Unpacking_TT:(TotalTime|l1_unpacking_time)|T2AllRoiUnpacking_test:(TotalTime|merge_time)"
+svcMgr.TrigTimerSvc.IncludeName=".*(TrigSteer_HLT:.+)|ALGO::OPITimer|.+:TotalTime"
 
 if TriggerFlags.doHLT():
-    topSequence.TrigSteer_HLT.MonTools['HLTSteeringTime'].NumberOfHistBins = 200
-    topSequence.TrigSteer_HLT.MonTools['HLTSteeringTime'].TimerHistLimits = [0,10000]
-    topSequence.TrigSteer_HLT.MonTools['HLTSteeringTime'].GroupedTimers={
-        "TrigSteer_HLT_Chains": "TrigSteer_HLT_Chain_.+",
-        "TrigSteer_HLT_Sequences": "TrigSteer_HLT_sequence_.+",
-        }
 
+    # Enable timing except for hypos
+    for alg in topSequence.TrigSteer_HLT.getChildren():
+        if not 'forceAccept' in alg.properties(): alg.doTiming = True
+
+    steertime = topSequence.TrigSteer_HLT.MonTools['HLTSteeringTime']
+    steertime.NumberOfHistBins = 200
+    steertime.TimerHistLimits = [0,10000]
+    steertime.Key = "TrigSteer_HLT:.+|.+:TotalTime"
+    steertime.GroupedTimers = {  # captures in (...) will be removed from bin labels
+        "TrigSteer_HLT_Chains": "(TrigSteer_HLT:Chain_).+",
+        "TrigSteer_HLT_Sequences": "(TrigSteer_HLT:sequence_).+",
+        "TrigSteer_HLT_Algorithms": "(?!TrigSteer_HLT:.+).+(:TotalTime)"  # all TotalTime timers except from steering
+    }
+    
+    # In addition create per-LB TProfile histograms for all the grouped timers
+    from TrigSteering.TrigSteeringConfig import SteeringTimingTool
+    lbtime = SteeringTimingTool("HLTSteeringTimeLB")
+    lbtime.GroupedTimers = steertime.GroupedTimers.copy()
+    # only select per-LB timers to avoid duplicate histograms with the other tool
+    lbtime.Key = "TrigSteer_HLT:Chain_.+|TrigSteer_HLT:sequence_.+|(?!TrigSteer_HLT:.+).+(:TotalTime)"
+    lbtime.DoPerLBGroups = True
+    lbtime.LBNHistoryGroup = 2
+    lbtime.LBNHistoryDepth = lbtime.LBNHistoryGroup * 5
+    topSequence.TrigSteer_HLT.MonTools += [lbtime]
 
 # Must make sure that no OutStream's have been declared
 theApp.OutStream = []
