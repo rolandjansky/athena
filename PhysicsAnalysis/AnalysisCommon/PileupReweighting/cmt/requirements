@@ -7,15 +7,19 @@ use AtlasPolicy                 AtlasPolicy-*
 use AtlasROOT                   AtlasROOT-*             External
 use GaudiInterface              GaudiInterface-*        External
 use AsgTools        AsgTools-*        Control/AthToolSupport
-use xAODEventInfo xAODEventInfo-*   Event/xAOD
+
 
 use PATInterfaces  PATInterfaces-*  PhysicsAnalysis/AnalysisCommon
-
-use GoodRunsLists  GoodRunsLists-*  DataQuality
+use AsgAnalysisInterfaces AsgAnalysisInterfaces-* PhysicsAnalysis/Interfaces
+use TrigDecisionInterface TrigDecisionInterface-* Trigger/TrigEvent
 
 private 
+use xAODEventInfo xAODEventInfo-*   Event/xAOD
 use PathResolver PathResolver-*     Tools
 use AthenaBaseComps AthenaBaseComps-* Control
+
+use POOLRootAccess POOLRootAccess-* PhysicsAnalysis
+
 end_private
 
 
@@ -84,5 +88,7 @@ private
 use TestTools      TestTools-*         AtlasTest
 apply_pattern UnitTest_run unit_test=ut_PRWExample
 macro_append ut_PRWExample_test_dependencies " PileupReweighting PileupReweightingMergeComponentsList "
+apply_pattern UnitTest_run unit_test=ut_PRWDataWeightExample
+macro_append ut_PRWDataWeightExample_test_dependencies " PileupReweighting PileupReweightingMergeComponentsList "
 end_private
 
