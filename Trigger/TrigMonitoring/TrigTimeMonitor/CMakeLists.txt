@@ -7,6 +7,7 @@ atlas_subdir( TrigTimeMonitor )
 
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PUBLIC
+                          AtlasPolicy
                           Control/AthenaMonitoring
                           GaudiKernel
                           Trigger/TrigMonitoring/TrigMonitorBase
@@ -18,18 +19,14 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 find_package( tdaq-common )
 
 # Component(s) in the package:
-atlas_add_library( TrigTimeMonitorLib
-                   src/*.cxx
-                   PUBLIC_HEADERS TrigTimeMonitor
-                   INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                   LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} GaudiKernel AthenaMonitoringLib TrigMonitorBaseLib TrigTimeAlgsLib )
-
 atlas_add_component( TrigTimeMonitor
+                     src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${Boost_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${TDAQ-COMMON_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} AthenaMonitoringLib GaudiKernel TrigMonitorBaseLib TrigTimeAlgsLib TrigTimeMonitorLib )
+                     LINK_LIBRARIES ${Boost_LIBRARIES} ${ROOT_LIBRARIES} ${TDAQ-COMMON_LIBRARIES} )
 
 # Install files from the package:
+atlas_install_headers( TrigTimeMonitor )
 atlas_install_python_modules( python/*.py )
 atlas_install_joboptions( share/jobOfragment_TrigTimeMonitor.py )
 
