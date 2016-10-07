@@ -23,44 +23,33 @@ TrigHLTBaseTreeTool::TrigHLTBaseTreeTool(const std::string & type,
 }
 TrigHLTBaseTreeTool::~TrigHLTBaseTreeTool() {}
 
-StatusCode TrigHLTBaseTreeTool::initialize() {
-
-    return StatusCode::SUCCESS;
-}
-
 StatusCode TrigHLTBaseTreeTool::bookHists() {
-  MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "initialize" << endreq;
-  
-    ITHistSvc *rootHistSvc;
-    if (!service("THistSvc", rootHistSvc).isSuccess()) {
-	log << MSG::ERROR << "Unable to locate THistSvc" << endreq;
-	return StatusCode::FAILURE;
-    }
+
+  ITHistSvc *rootHistSvc;
+  ATH_CHECK(service("THistSvc", rootHistSvc));
     
-    // find out for whom we are running (i.e. Algo)    
-    const HLT::Algo *parentAlg = dynamic_cast<const HLT::Algo*>(parent());
-    if ( parentAlg ) {
+  // find out for whom we are running (i.e. Algo)    
+  const HLT::Algo *parentAlg = dynamic_cast<const HLT::Algo*>(parent());
+  if ( parentAlg ) {
 	m_parentName = getGaudiThreadGenericName(parentAlg->name());
 	m_algo = const_cast<HLT::Algo*>(parentAlg);
-    } else {
-	log << MSG::WARNING << "Not a HLT::Algo class" << endreq;
-    }
+  } else {
+	ATH_MSG_WARNING("Not a HLT::Algo class");
+  }
     
-    // book the tree 
-    std::string treeName = m_path + m_parentName;
-    // try to get global tree  make my own tree if can not get global
+  // book the tree 
+  std::string treeName = m_path + m_parentName;
+  // try to get global tree  make my own tree if can not get global
     
-    m_tree = new TTree ( m_parentName.c_str(), "HLT::Alg Tree");    
-    if ( rootHistSvc->regTree(treeName, m_tree).isFailure() ) {
-	log << MSG::WARNING << "Unable to register TTree" << endreq;
-    }
-    m_tree->Branch("PassInfo", &m_pass, "Lvl1Id/I:RoIId/I" );
-    return StatusCode::SUCCESS;
+  m_tree = new TTree ( m_parentName.c_str(), "HLT::Alg Tree");    
+  if ( rootHistSvc->regTree(treeName, m_tree).isFailure() ) {
+	ATH_MSG_WARNING("Unable to register TTree");
+  }
+  m_tree->Branch("PassInfo", &m_pass, "Lvl1Id/I:RoIId/I" );
+  return StatusCode::SUCCESS;
 }
 
 StatusCode TrigHLTBaseTreeTool::fillHists() { 
-    MsgStream log(msgSvc(), name());
     if ( m_algo ) {
       m_pass.Lvl1Id = m_algo->config()->getLvl1Id();
     }

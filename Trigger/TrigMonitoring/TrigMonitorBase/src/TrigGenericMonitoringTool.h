@@ -10,10 +10,10 @@
 #include "TrigMonitorBase/TrigMonitorToolBase.h"
 #include "TrigInterfaces/IMonitoredAlgo.h"
 #include "GaudiKernel/ITHistSvc.h"
-#include "GaudiKernel/MsgStream.h"
 class TH1;
 class TH2;
 class TProfile;
+class TProfile2D;
 
 
 /**
@@ -60,8 +60,6 @@ public:
 			    const IInterface* parent);
   virtual ~TrigGenericMonitoringTool();
   
-  virtual StatusCode initialize();
-  //  virtual StatusCode finalize(); 
   virtual StatusCode bookHists();
 
   virtual StatusCode fillHists();   //!< does histograms filling
@@ -80,17 +78,20 @@ private:
     std::string title;              //!< title of the histogram
     std::string opt;                //!< options
     
-    int xbins;  //!< number of bins in X
-    float xmin; //!< left
-    float xmax; //!< right
+    int xbins{0};  //!< number of bins in X
+    float xmin{0}; //!< left
+    float xmax{0}; //!< right
     
-    int ybins;  //!< number of bins in Y
-    float ymin; //!< bottom
-    float ymax; //!< top
-    
+    int ybins{0};  //!< number of bins in Y
+    float ymin{0}; //!< bottom
+    float ymax{0}; //!< top
 
-    bool  ok;	//!<  good declaration
-    bool  ycut;	//!<  TProfile with cut on y
+    float zmin{0}; //!< in
+    float zmax{0}; //!< out    
+
+    bool  ok{false};	//!<  good declaration
+    bool  ycut{false};	//!<  TProfile with cut on y
+    bool  zcut{false};  //!<  TProfile2D with cut on z
 
     std::vector<std::string> labels; //!< bins labels
   };
@@ -176,7 +177,20 @@ private:
     IMonitoredAlgo::IGetter*  m_variable1;
     IMonitoredAlgo::IGetter*  m_variable2;
   };
-  
+
+  /**
+   * @brief filler for profile 2D histogram
+   */
+  class HistogramFiller2DProfile : public HistogramFiller {
+  public:
+    HistogramFiller2DProfile(TProfile2D* hist, IMonitoredAlgo::IGetter* var1, IMonitoredAlgo::IGetter* var2, IMonitoredAlgo::IGetter* var3);
+    virtual unsigned fill();
+  private:
+    TProfile2D* m_histogram;
+    IMonitoredAlgo::IGetter* m_variable1;
+    IMonitoredAlgo::IGetter* m_variable2;
+    IMonitoredAlgo::IGetter* m_variable3;
+  };  
   
   StatusCode createFiller(const HistogramDef& def); //!< creates filler and adds to the list of active fillers
   //  HistogramDef parseJobOptDefinition(const std::string& conf);
@@ -185,7 +199,6 @@ private:
   const IMonitoredAlgo* m_algo;   //!< ptr to the algorithm to which tool is attached (variables coming from)
   std::string m_parentName;       //!< name of parent algo (used in printouts to help debugging)
   ITHistSvc *m_rootHistSvc;   
-  MsgStream m_log;
   
   std::vector<HistogramFiller*> m_fillers;   //!< list of fillers
 
@@ -202,8 +215,14 @@ private:
   TH1* create1D( TH1*& histo, ITrigLBNHist*& histoLBN,
 		    const HistogramDef& def );
   template<class H> 
+  TH1* createProfile( TProfile*& histo, ITrigLBNHist*& histoLBN,
+		    const HistogramDef& def );
+  template<class H> 
   TH1* create2D( TH2*& histo, ITrigLBNHist*& histoLBN,
 		    const HistogramDef& def );
+  template<class H>
+  TH1* create2DProfile( TProfile2D*& histo, ITrigLBNHist*& histoLBN,
+			const HistogramDef& def );
 };
 
 #endif
