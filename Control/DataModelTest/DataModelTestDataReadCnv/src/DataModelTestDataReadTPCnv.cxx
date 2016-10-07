@@ -21,6 +21,11 @@ DECLARE_TPCNV_FACTORY( DMTest::HVecCnv_v1,
                        DMTest::HVec,
                        DMTest::HVec_v1,
                        Athena::TPCnvVers::Old )
+// Alternate names needed for BS reading.
+DECLARE_TPCNV_FACTORY( DMTest::HVecCnv_v1,
+                       DataVector<DMTest::H>,
+                       DataVector<DMTest::H_v1>,
+                       Athena::TPCnvVers::Old )
 
 DECLARE_TPCNV_FACTORY( DMTest::HAuxContainerCnv_v1,
                        DMTest::HAuxContainer,
