@@ -235,32 +235,32 @@ StatusCode HLTMinBiasMonTool::init()
 
 	sc = service("DetectorStore", m_detStore);
 	if (sc.isFailure()) {
-		(*m_log) << MSG::ERROR << "Unable to get pointer to DetectorStore Service" << endreq;
+		(*m_log) << MSG::ERROR << "Unable to get pointer to DetectorStore Service" << endmsg;
 		return sc;
 	}
 	
 	sc = m_detStore->retrieve(m_tileTBID);
 	if (sc.isFailure()) {
-		(*m_log) << MSG::ERROR << "Unable to retrieve TileTBID helper from DetectorStore" << endreq;
+		(*m_log) << MSG::ERROR << "Unable to retrieve TileTBID helper from DetectorStore" << endmsg;
 		return sc;
 	}
 	
 	sc = m_detStore->retrieve(m_ZdcID);
 	if (sc.isFailure()) {
-		(*m_log) << MSG::ERROR << "Unable to retrieve ZdcID helper from DetectorStore" << endreq;
+		(*m_log) << MSG::ERROR << "Unable to retrieve ZdcID helper from DetectorStore" << endmsg;
 		return sc;
 	}
 	
 	/*sc = m_detStore->retrieve(m_evinfo);
 	if (sc.isFailure()) {
-		(*m_log) << MSG::ERROR << "Unable to retrieve XAOD::EventInfo helper from DetectorStore" << endreq;
+		(*m_log) << MSG::ERROR << "Unable to retrieve XAOD::EventInfo helper from DetectorStore" << endmsg;
 		return sc;
 	}*/
 
 	// retrieve the trigger decision tool
 	/*sc = m_tdthandle.retrieve();
 	if (sc.isFailure()) {
-		*m_log << MSG::ERROR << "Could not retrieve TrigDecisionTool!" << endreq;
+		*m_log << MSG::ERROR << "Could not retrieve TrigDecisionTool!" << endmsg;
 		return sc;
 	}*/
 	
@@ -287,14 +287,14 @@ StatusCode HLTMinBiasMonTool::init()
 	/*
 	 sc = service("THistSvc", m_histsvc);
 	 if( sc.isFailure() ) {
-	 *m_log << MSG::FATAL << "Unable to locate Service THistSvc" << endreq;
+	 *m_log << MSG::FATAL << "Unable to locate Service THistSvc" << endmsg;
 	 return sc;
 	 }
 	 */
 
 	sc = ManagedMonitorToolBase::initialize();
 	if (sc.isFailure()) {
-		*m_log << MSG::ERROR << "Unable to call ManagedMonitoringToolBase::initialize" << endreq;
+		*m_log << MSG::ERROR << "Unable to call ManagedMonitoringToolBase::initialize" << endmsg;
 		return sc;
 	}
 	
@@ -315,7 +315,7 @@ StatusCode HLTMinBiasMonTool::init()
 unsigned HLTMinBiasMonTool::receiveIsPassedCondition(unsigned internalIsPassedCondition)
 {
 	unsigned result(0);
-	//*m_log << MSG::WARNING << "internalIsPassedCondition" << internalIsPassedCondition << endreq;
+	//*m_log << MSG::WARNING << "internalIsPassedCondition" << internalIsPassedCondition << endmsg;
 	if(internalIsPassedCondition == 0)	result += TrigDefs::Physics;
 	if(internalIsPassedCondition == 1)	result += TrigDefs::L1_isPassedBeforePrescale;
 	return result;
@@ -507,7 +507,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 	TH2F *th2f;
 	TProfile *tProf;
 	
-	(*m_log) << MSG::DEBUG << "Booking histograms for " << item << " chain in hisGroups: " << histGroup << endreq; 
+	(*m_log) << MSG::DEBUG << "Booking histograms for " << item << " chain in hisGroups: " << histGroup << endmsg; 
 	
 	if ( (histGroup & MBTS) == MBTS)
  	{
@@ -734,7 +734,7 @@ void HLTMinBiasMonTool::bookHistogramsForItem(const std::string &item, unsigned 
 		addHistogram(new TH1I("NumHitsAtVertexMax", "Max hits at vertex per event;L2 Pileup Suppression Vertex Weight;Entry Rate", 2000, -0.5, 1999.5));
  	}
 	
- 	(*m_log) << MSG::DEBUG << "All histograms booked successfully" << endreq; 
+ 	(*m_log) << MSG::DEBUG << "All histograms booked successfully" << endmsg; 
 }
 
 StatusCode HLTMinBiasMonTool::fill()
@@ -775,7 +775,7 @@ StatusCode HLTMinBiasMonTool::fill()
 			
 			hist((std::string("TriggerEntries")+collectiveHistogramPostfix).c_str(), "HLT/MinBiasMon")->Fill(i.c_str(), 0);
 			
-			(*m_log) << MSG::DEBUG << i << " chain is empty" << endreq; 
+			(*m_log) << MSG::DEBUG << i << " chain is empty" << endmsg; 
 			//if (refTrigPassed && (goodTracks > 1)) fillEfficiencyForItem(i, goodTracks, false);
 		}
 		if (getTDT()->isPassedBits("HLT_" + i) & m_chainProperties[i].isPassedCondition)
@@ -816,9 +816,9 @@ unsigned HLTMinBiasMonTool::howManyGoodTracks(const ToolHandle< InDet::IInDetTra
 	
 	if (sc.isFailure() || tracks->empty()) {
 		if (sc.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve TrackParticleCollection" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve TrackParticleCollection" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "TrackParticleCollection is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "TrackParticleCollection is empty." << endmsg;
 	} else {
 	
 		xAOD::TrackParticleContainer::const_iterator itr = tracks->begin();
@@ -847,9 +847,9 @@ void HLTMinBiasMonTool::fillPurityForItem(const std::string &item, const ToolHan
 	unsigned goodTracks(0);
 	if (sc.isFailure() || tracks->empty()) {
 		if (sc.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve TrackParticleCollection" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve TrackParticleCollection" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "TrackParticleCollection is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "TrackParticleCollection is empty." << endmsg;
 	} else {
 	
 		xAOD::TrackParticleContainer::const_iterator itr = tracks->begin();
@@ -873,7 +873,7 @@ void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned 
 {
 	StatusCode sc = StatusCode::SUCCESS;
 	
-	(*m_log) << MSG::DEBUG << "Currently processing: " << item << " in " << histGroup << endreq;
+	(*m_log) << MSG::DEBUG << "Currently processing: " << item << " in " << histGroup << endmsg;
 	
 	if ( (histGroup & MBTS) == MBTS)
  	{
@@ -881,12 +881,12 @@ void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned 
 		sc = fillMbtsInfo(item);
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Couldn't fill MBTS info properly for: " << item << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill MBTS info properly for: " << item << endmsg;
 		}
 		sc = fillHLTMbtsInfo();
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Couldn't fill HLT MBTS info properly for: " << item << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill HLT MBTS info properly for: " << item << endmsg;
 		}	
  	}
 	
@@ -896,7 +896,7 @@ void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned 
 		sc = fillLUCIDInfo();
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Couldn't fill LUCID info properly for: " << item << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill LUCID info properly for: " << item << endmsg;
 		}
  	}
 	
@@ -906,12 +906,12 @@ void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned 
 		sc = fillSpacePointInfo(item);
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Couldn't fill space point info properly for: " << item << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill space point info properly for: " << item << endmsg;
 		} 
 		sc = fillTrackingInfo();
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Couldn't fill tracking info properly for: " << item << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill tracking info properly for: " << item << endmsg;
 		}
  	}
 	
@@ -921,7 +921,7 @@ void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned 
 		sc = fillZDCInfo();
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Couldn't fill ZDC info properly for: " << item << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill ZDC info properly for: " << item << endmsg;
 		}
  	}
 	
@@ -931,7 +931,7 @@ void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned 
 		sc = fillBCMInfo();
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Couldn't fill BCM info properly for: " << item << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill BCM info properly for: " << item << endmsg;
 		}
  	}
         
@@ -941,26 +941,26 @@ void HLTMinBiasMonTool::fillHistogramsForItem(const std::string &item, unsigned 
 		sc = fillHMTSpacePointsInfo();
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Couldn't fill HMTSpacePoints info properly for: " << item << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill HMTSpacePoints info properly for: " << item << endmsg;
 		}
 		sc = fillHMTVertexCountsInfo();
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Couldn't fill HMTVertexCounts info properly for: " << item << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill HMTVertexCounts info properly for: " << item << endmsg;
 		}
 		sc = fillHMTTrigVertexCollectionInfo();
 		if (sc.isFailure())
 		{
-			(*m_log) << MSG::WARNING << "Couldn't fill HMTTrigVertexCollection info properly for: " << item << endreq;
+			(*m_log) << MSG::WARNING << "Couldn't fill HMTTrigVertexCollection info properly for: " << item << endmsg;
 		}
 	}
 	if (sc.isFailure())
 	{
-		(*m_log) << MSG::WARNING << "Unknown error occurred in FillHistogramsForItem!" << endreq;
+		(*m_log) << MSG::WARNING << "Unknown error occurred in FillHistogramsForItem!" << endmsg;
 	}
 	
 	++m_numberOfEvents;
-	(*m_log) << MSG::DEBUG << "PROCESSED SUCCESSFULLY" << endreq;        
+	(*m_log) << MSG::DEBUG << "PROCESSED SUCCESSFULLY" << endmsg;        
 }
 
 StatusCode HLTMinBiasMonTool::fillZDCInfo()
@@ -1011,9 +1011,9 @@ StatusCode HLTMinBiasMonTool::fillZDCInfo()
 
 	if (sc.isFailure() || zdcChannelCollection->empty()) {
 		if (sc.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve ZdcRawChannelCollection" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve ZdcRawChannelCollection" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "ZdcRawChannelCollection is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "ZdcRawChannelCollection is empty." << endmsg;
 	} else {
 
 		ZdcRawChannelCollection::const_iterator itr = zdcChannelCollection->begin();
@@ -1093,27 +1093,27 @@ StatusCode HLTMinBiasMonTool::fillLUCIDInfo()
 
 	if (sc.isFailure() || m_LUCID_RawDataContainer->empty()) {
 		if (sc.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve LucidMinBiasMonTool for  LUCID_RawDataContainer" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve LucidMinBiasMonTool for  LUCID_RawDataContainer" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "LUCID_RawDataContainer is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "LUCID_RawDataContainer is empty." << endmsg;
 
 	} else {
-		(*m_log) << (MSG::DEBUG) << " LUCID_RawDataContainer is retrived from StoreGate " << endreq;
+		(*m_log) << (MSG::DEBUG) << " LUCID_RawDataContainer is retrived from StoreGate " << endmsg;
 
 		LUCID_RawDataContainer::const_iterator LUCID_RawData_itr = m_LUCID_RawDataContainer->begin();
 		LUCID_RawDataContainer::const_iterator LUCID_RawData_end = m_LUCID_RawDataContainer->end();
 
 		for (; LUCID_RawData_itr != LUCID_RawData_end; LUCID_RawData_itr++) {
 
-			(*m_log) << (MSG::DEBUG) << " word1  : " << (*LUCID_RawData_itr)->getWord0() << endreq << " word2  : "
-					<< (*LUCID_RawData_itr)->getWord1() << endreq << " word3  : " << (*LUCID_RawData_itr)->getWord2() << endreq
-					<< " word4  : " << (*LUCID_RawData_itr)->getWord3() << endreq << " word1p : "
-					<< (*LUCID_RawData_itr)->getWord0p() << endreq << " word2p : " << (*LUCID_RawData_itr)->getWord1p() << endreq
-					<< " word3p : " << (*LUCID_RawData_itr)->getWord2p() << endreq << " word4p : "
-					<< (*LUCID_RawData_itr)->getWord3p() << endreq << " word1n : " << (*LUCID_RawData_itr)->getWord0n() << endreq
-					<< " word2n : " << (*LUCID_RawData_itr)->getWord1n() << endreq << " word3n : "
-					<< (*LUCID_RawData_itr)->getWord2n() << endreq << " word4n : " << (*LUCID_RawData_itr)->getWord3n() << endreq
-					<< " status: " << (*LUCID_RawData_itr)->getStatus() << endreq;
+			(*m_log) << (MSG::DEBUG) << " word1  : " << (*LUCID_RawData_itr)->getWord0() << endmsg << " word2  : "
+					<< (*LUCID_RawData_itr)->getWord1() << endmsg << " word3  : " << (*LUCID_RawData_itr)->getWord2() << endmsg
+					<< " word4  : " << (*LUCID_RawData_itr)->getWord3() << endmsg << " word1p : "
+					<< (*LUCID_RawData_itr)->getWord0p() << endmsg << " word2p : " << (*LUCID_RawData_itr)->getWord1p() << endmsg
+					<< " word3p : " << (*LUCID_RawData_itr)->getWord2p() << endmsg << " word4p : "
+					<< (*LUCID_RawData_itr)->getWord3p() << endmsg << " word1n : " << (*LUCID_RawData_itr)->getWord0n() << endmsg
+					<< " word2n : " << (*LUCID_RawData_itr)->getWord1n() << endmsg << " word3n : "
+					<< (*LUCID_RawData_itr)->getWord2n() << endmsg << " word4n : " << (*LUCID_RawData_itr)->getWord3n() << endmsg
+					<< " status: " << (*LUCID_RawData_itr)->getStatus() << endmsg;
 
 			for (int tub = 0; tub < m_nLucidTubes; tub++)
 				if ((*LUCID_RawData_itr)->isTubeFired(tub, 0))
@@ -1190,11 +1190,11 @@ StatusCode HLTMinBiasMonTool::fillBCMInfo()
 	StatusCode sc_bcm = m_storeGate->retrieve(bcmRDOcont, m_bcmContainerName);
 	if (sc_bcm.isFailure() || (bcmRDOcont->empty())) {
 		if (sc_bcm.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve BcmMinBiasMonTool for BCM_RDO_Container" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve BcmMinBiasMonTool for BCM_RDO_Container" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << " BCM_RDO_Container is empty." << endreq;
+			(*m_log) << MSG::DEBUG << " BCM_RDO_Container is empty." << endmsg;
 	} else {
-		(*m_log) << MSG::DEBUG << " ====== START HLTMinBias MonTool for BCM_RDO_Container ====== " << endreq;
+		(*m_log) << MSG::DEBUG << " ====== START HLTMinBias MonTool for BCM_RDO_Container ====== " << endmsg;
 
 		BCM_RDO_Container::const_iterator bcm_coll_itr = bcmRDOcont->begin();
 		for (; bcm_coll_itr != bcmRDOcont->end(); ++bcm_coll_itr) {
@@ -1205,7 +1205,7 @@ StatusCode HLTMinBiasMonTool::fillBCMInfo()
 				// If we look at InnerDetector/InDetDigitization/BCM_Digitization/src/BCM_Digitization.cxx, we see
 				//  that a new collection is created if you are to insert an RDO in to it.  So we should not see
 				//  empty collections.
-				(*m_log) << MSG::DEBUG << "Encountered an empty BCM_RDO_Collection, skipping it." << endreq;
+				(*m_log) << MSG::DEBUG << "Encountered an empty BCM_RDO_Collection, skipping it." << endmsg;
 			} else {
 
 				//Now we process a non-empty BCM container
@@ -1215,7 +1215,7 @@ StatusCode HLTMinBiasMonTool::fillBCMInfo()
 
 					if (channelID != static_cast<unsigned int> ((*bcm_rdo)->getChannel())) {
 						// This should not happen. (Again see the digitization code mentioned above.)
-						(*m_log) << MSG::WARNING << "Encountered a BCM_RDO in a wrong BCM_RDO_Collection, skipping it." << endreq;
+						(*m_log) << MSG::WARNING << "Encountered a BCM_RDO in a wrong BCM_RDO_Collection, skipping it." << endmsg;
 					} else {
 
 						//if (index != 18) { // we check only 1 BC for data
@@ -1380,11 +1380,11 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 	
 	if (sc.isFailure() || mbTScont->empty()) {
 		if (sc.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "xAOD::TrigT2MbtsBitsContainer is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "xAOD::TrigT2MbtsBitsContainer is empty." << endmsg;
 	} else {
-		(*m_log) << MSG::DEBUG << " ====== START MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer ====== " << endreq;
+		(*m_log) << MSG::DEBUG << " ====== START MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer ====== " << endmsg;
 	
 		// Loop over EF TrigMinBias objects
 		xAOD::TrigT2MbtsBitsContainer::const_iterator mbTS_coll_itr = mbTScont->begin();
@@ -1396,10 +1396,10 @@ StatusCode HLTMinBiasMonTool::fillHLTMbtsInfo()
 			mbtsHitTimes = mbtsFeature->triggerTimes();
 	
 			if (mbtsHitTimes.size() != 32)
-				(*m_log) << MSG::ERROR << "MBTS Cell Times are stored incorrectly. The array should have 32 elements." << endreq;
+				(*m_log) << MSG::ERROR << "MBTS Cell Times are stored incorrectly. The array should have 32 elements." << endmsg;
 	
 			if (mbtsHitEnergies.size() != 32)
-				(*m_log) << MSG::ERROR << "MBTS Cell Energies are stored incorrectly. The array should have 32 elements." << endreq;
+				(*m_log) << MSG::ERROR << "MBTS Cell Energies are stored incorrectly. The array should have 32 elements." << endmsg;
 	
 			//The energy-dependent bitmask is produced below
 			for (std::size_t k = 0; k < mbtsHitEnergies.size() && k < 32; k++)
@@ -1524,11 +1524,11 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 
 	if (sc.isFailure() || mbTScont->empty()) {
 		if (sc.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "xAOD::TrigT2MbtsBitsContainer is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "xAOD::TrigT2MbtsBitsContainer is empty." << endmsg;
 	} else {
-		(*m_log) << MSG::DEBUG << " ====== START MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer ====== " << endreq;
+		(*m_log) << MSG::DEBUG << " ====== START MbtsMinBiasMonTool for xAOD::TrigT2MbtsBitsContainer ====== " << endmsg;
 
 		// Loop over EF TrigMinBias objects
 		xAOD::TrigT2MbtsBitsContainer::const_iterator mbTS_coll_itr = mbTScont->begin();
@@ -1541,11 +1541,11 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 
 			if (mbtsHitTimes.size() != 32)
 				(*m_log) << MSG::ERROR << "MBTS Cell Times are stored incorrectly. The array should have 32 elements."
-						<< endreq;
+						<< endmsg;
 
 			if (mbtsHitEnergies.size() != 32)
 				(*m_log) << MSG::ERROR << "MBTS Cell Energies are stored incorrectly. The array should have 32 elements."
-						<< endreq;
+						<< endmsg;
 
 			//The energy-dependent bitmask is produced below 
 			for (std::size_t k = 0; k < mbtsHitEnergies.size() && k < 32; k++)
@@ -1624,11 +1624,11 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 	if (sc.isFailure() || theMBTScontainer->empty()) {
 		if (sc.isFailure())
 			(*m_log) << MSG::WARNING << "Cannot find TileCellContainer object with name " << m_mbtsContainerName << " in TDS"
-					<< endreq;
+					<< endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "TileCellContainer is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "TileCellContainer is empty." << endmsg;
 	} else {
-		(*m_log) << MSG::VERBOSE << "Retrieval of MBTS container " << m_mbtsContainerName << " succeeded" << endreq;
+		(*m_log) << MSG::VERBOSE << "Retrieval of MBTS container " << m_mbtsContainerName << " succeeded" << endmsg;
 
 		double quality;
 		double energy[32], time[32];
@@ -1664,7 +1664,7 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 
 				//the counter should not go outside of the range: [0,31]
 				if (counter < 0 || counter > 31) {
-					(*m_log) << MSG::WARNING << "MBTS Cell ID is incorrect. The cell is skipped. " << endreq;
+					(*m_log) << MSG::WARNING << "MBTS Cell ID is incorrect. The cell is skipped. " << endmsg;
 					continue;
 				}
 
@@ -1675,10 +1675,10 @@ StatusCode HLTMinBiasMonTool::fillMbtsInfo(const std::string& /*item*/)
 				const char* cell_name = (m_moduleLabel[counter]).data();
 
 				if (msgSvc()->outputLevel(name()) < MSG::DEBUG) {
-					(*m_log) << MSG::VERBOSE << "Counter: " << counter << endreq;
-					(*m_log) << MSG::VERBOSE << "Energy= " << energy[counter] << " pCb" << endreq;
-					(*m_log) << MSG::VERBOSE << "Time= " << time[counter] << endreq;
-					(*m_log) << MSG::VERBOSE << "Quality= " << quality << endreq;
+					(*m_log) << MSG::VERBOSE << "Counter: " << counter << endmsg;
+					(*m_log) << MSG::VERBOSE << "Energy= " << energy[counter] << " pCb" << endmsg;
+					(*m_log) << MSG::VERBOSE << "Time= " << time[counter] << endmsg;
+					(*m_log) << MSG::VERBOSE << "Quality= " << quality << endmsg;
 				}
 
 				hist2("Energy")->Fill(cell_name, energy[counter], 1.0);      
@@ -1748,13 +1748,13 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 
 	if (sc_mbsp.isFailure() || mbSPcont->empty()) {
 		if (sc_mbsp.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve HLT MinBias for xAOD::TrigSpacePointCountsContainer" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve HLT MinBias for xAOD::TrigSpacePointCountsContainer" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "xAOD::TrigSpacePointCountsContainer is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "xAOD::TrigSpacePointCountsContainer is empty." << endmsg;
 	} else {
-		(*m_log) << MSG::DEBUG << " ====== START HLTMinBias MonTool for xAOD::TrigSpacePointCountsContainer ====== " << endreq;
+		(*m_log) << MSG::DEBUG << " ====== START HLTMinBias MonTool for xAOD::TrigSpacePointCountsContainer ====== " << endmsg;
 
-		(*m_log) << MSG::DEBUG << "space point container has " << mbSPcont->size() << " entries." << endreq;
+		(*m_log) << MSG::DEBUG << "space point container has " << mbSPcont->size() << " entries." << endmsg;
 
 		// Loop over TrigMinBias feature objects
 		xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itr = mbSPcont->begin();
@@ -1774,7 +1774,7 @@ StatusCode HLTMinBiasMonTool::fillSpacePointInfo(const std::string &item)
 				hist("PixECC_SP")->Fill(pixSpECC);
 				
 			} else {
-				(*m_log) << MSG::WARNING << "SpacePointCounts is not initialized properly; it has 0 bins in X or Y: "	<< totBins << endreq;
+				(*m_log) << MSG::WARNING << "SpacePointCounts is not initialized properly; it has 0 bins in X or Y: "	<< totBins << endmsg;
 			}
                         
 			sctSpBarr = (int) id_mbFeature->sctSpBarrel();
@@ -1819,12 +1819,12 @@ StatusCode HLTMinBiasMonTool::fillTrackingInfo()
 
 	if (sc_mbtt.isFailure() || mbTTcont->empty()) {
 		if (sc_mbtt.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve HLT MinBias MonTool for xAOD::TrigTrackCountsContainer" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve HLT MinBias MonTool for xAOD::TrigTrackCountsContainer" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "xAOD::TrigTrackCountsContainer is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "xAOD::TrigTrackCountsContainer is empty." << endmsg;
 
 	} else {
-		(*m_log) << MSG::DEBUG << " ====== START HLTMinBias MonTool for xAOD::TrigTrackCountsContainer ====== " << endreq;
+		(*m_log) << MSG::DEBUG << " ====== START HLTMinBias MonTool for xAOD::TrigTrackCountsContainer ====== " << endmsg;
 
 		mbTracks = 0;
 		totpix_spEF = 0;
@@ -1839,7 +1839,7 @@ StatusCode HLTMinBiasMonTool::fillTrackingInfo()
 				mbTracks = (int) (mbTT->z0_ptSumEntries(m_max_z0, m_min_pt, xAOD::TrigHistoCutType::BELOW_X_ABOVE_Y));
 				hist("MinbiasTracks")->Fill(mbTracks);
 			} else {
-				(*m_log) << MSG::WARNING << "The trigger histogram z0_pt is not initialized properly; it has 0 bins in X or Y: " << mbTT->z0Bins()	<< endreq;
+				(*m_log) << MSG::WARNING << "The trigger histogram z0_pt is not initialized properly; it has 0 bins in X or Y: " << mbTT->z0Bins()	<< endmsg;
 			}
 
 		}
@@ -1863,11 +1863,11 @@ StatusCode HLTMinBiasMonTool::fillHMTSpacePointsInfo()
 	
 	if (sc.isFailure() || !mbSPcont) {
 		if (sc.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve TrigSpacePointCountsMonTool for xAOD::TrigSpacePointCounts" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve TrigSpacePointCountsMonTool for xAOD::TrigSpacePointCounts" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "xAOD::TrigSpacePointCounts is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "xAOD::TrigSpacePointCounts is empty." << endmsg;
 	} else {
-		(*m_log) << MSG::DEBUG << " ====== START TrigSpacePointCountsMonTool for xAOD::TrigSpacePointCounts ====== " << endreq;
+		(*m_log) << MSG::DEBUG << " ====== START TrigSpacePointCountsMonTool for xAOD::TrigSpacePointCounts ====== " << endmsg;
 		
 		xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itr = mbSPcont->begin();
 		xAOD::TrigSpacePointCountsContainer::const_iterator mbSP_coll_itrE = mbSPcont->end();
@@ -1942,11 +1942,11 @@ StatusCode HLTMinBiasMonTool::fillHMTVertexCountsInfo()
 
     if (sc.isFailure() || !vcCont) {
 		if (sc.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve TrigVertexCountsMonTool for xAOD::TrigVertexCounts" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve TrigVertexCountsMonTool for xAOD::TrigVertexCounts" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "xAOD::TrigVertexCounts is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "xAOD::TrigVertexCounts is empty." << endmsg;
     } else {
-		(*m_log) << MSG::DEBUG << " ====== START TrigVertexCountsMonTool for xAOD::TrigVertexCounts ====== " << endreq;
+		(*m_log) << MSG::DEBUG << " ====== START TrigVertexCountsMonTool for xAOD::TrigVertexCounts ====== " << endmsg;
 		
 		xAOD::TrigVertexCountsContainer::const_iterator vc_coll_itr = vcCont->begin();
 		xAOD::TrigVertexCountsContainer::const_iterator vc_coll_itrE = vcCont->end();
@@ -1983,11 +1983,11 @@ StatusCode HLTMinBiasMonTool::fillHMTTrigVertexCollectionInfo()
 
 	if (sc.isFailure() || vertexCollection->empty()) {
 		if (sc.isFailure())
-			(*m_log) << MSG::WARNING << "Failed to retrieve VertexCollectionMonTool for TrigVertexCollection" << endreq;
+			(*m_log) << MSG::WARNING << "Failed to retrieve VertexCollectionMonTool for TrigVertexCollection" << endmsg;
 		else
-			(*m_log) << MSG::DEBUG << "TrigVertexCollection is empty." << endreq;
+			(*m_log) << MSG::DEBUG << "TrigVertexCollection is empty." << endmsg;
 	} else {
-		(*m_log) << MSG::DEBUG << " ====== START VertexCollectionMonTool for TrigVertexCollection ====== " << endreq;
+		(*m_log) << MSG::DEBUG << " ====== START VertexCollectionMonTool for TrigVertexCollection ====== " << endmsg;
 		
 		for( /*const auto &i: vertexCollection*/TrigVertexCollection::const_iterator vtxIt = vertexCollection->begin(); vtxIt != vertexCollection->end(); ++vtxIt)
 		{
@@ -2089,9 +2089,9 @@ StatusCode HLTMinBiasMonTool::proc(bool endOfEventsBlock, bool endOfLumiBlock, b
 	   
 				hist("TriggerPurities", "HLT/MinBiasMon")->Divide(hist("TriggerAllTracks", "HLT/MinBiasMon"), hist("TriggerTracksPassed", "HLT/MinBiasMon"), 1.0, 1.0, "B");
 
-				cout << " m_numberOfEvents: " << m_numberOfEvents << " events " << endreq;
+				cout << " m_numberOfEvents: " << m_numberOfEvents << " events " << endmsg;
 
-                msg(MSG::DEBUG) << " m_numberOfEvents: " << m_numberOfEvents << endreq;
+                msg(MSG::DEBUG) << " m_numberOfEvents: " << m_numberOfEvents << endmsg;
               
                // Track efficiency (EF)
                TH1D *SumTrk=(TH1D*)h_mbSpTrk_trkTot_P->Clone(); 
