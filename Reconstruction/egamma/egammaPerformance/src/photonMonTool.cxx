@@ -134,7 +134,7 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   // N
   std::string hname = std::string("photonN") + myHist.m_nameOfPhotonType;
   std::string hlongname =  std::string("Number of photons") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
-  bookTH1F(myHist.m_hN, *m_photonGroup, hname, hlongname, 40, 0.0, 40.0);
+  bookTH1F(myHist.m_hN, *m_photonGroup, hname, hlongname, 20, 0.0, 20.0);
 
   // Et
   hname = std::string("photonEt") + myHist.m_nameOfPhotonType;
@@ -193,7 +193,7 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   // N
   hname = std::string("photonN") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Photon number ; Nel ; Nevents") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
-  bookTH1FperRegion(myHist.m_hvN, *m_photonRegionGroup, hname, hlongname ,40, 0.0, 40.0,start,end);
+  bookTH1FperRegion(myHist.m_hvN, *m_photonRegionGroup, hname, hlongname ,20, 0.0, 20.0,start,end);
 
   // Eta
   hname = std::string("photonEta") + myHist.m_nameOfPhotonType;
@@ -250,7 +250,7 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   // N
   hname = std::string("photonNUnconv") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Number of Unconverted photons") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
-  bookTH1F(myHist.m_hNUnconv, *m_photonUnconvGroup, hname, hlongname, 40, 0.0, 40.0);
+  bookTH1F(myHist.m_hNUnconv, *m_photonUnconvGroup, hname, hlongname, 20, 0.0, 20.0);
 
   // Et
   hname = std::string("photonEtUnconv") + myHist.m_nameOfPhotonType;
@@ -289,7 +289,7 @@ StatusCode photonMonTool::bookHistogramsForOnePhotonType(photonHist& myHist)
   // N
   hname = std::string("photonNConv") + myHist.m_nameOfPhotonType;
   hlongname =  std::string("Number of Converted photons") + std::string (" (") + myHist.m_nameOfPhotonType + std::string (")");
-  bookTH1F(myHist.m_hNConv, *m_photonConvGroup, hname, hlongname, 40, 0.0, 40.0);
+  bookTH1F(myHist.m_hNConv, *m_photonConvGroup, hname, hlongname, 20, 0.0, 20.0);
 
   // Et
   hname = std::string("photonEtConv") + myHist.m_nameOfPhotonType;

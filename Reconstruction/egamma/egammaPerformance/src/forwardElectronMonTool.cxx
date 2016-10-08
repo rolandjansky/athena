@@ -87,14 +87,14 @@ forwardElectronMonTool::forwardElectronMonTool(const std::string & type, const s
      m_hEta(nullptr),
      m_hPhi(nullptr),
      m_hEtaPhi(nullptr),
-     m_hTopoEtCone40(nullptr),
+     //m_hTopoEtCone40(nullptr),
      m_hTime(nullptr),
      m_hTightN(nullptr),
      m_hTightEt(nullptr),
      m_hTightEta(nullptr),
      m_hTightPhi(nullptr),
      m_hTightEtaPhi(nullptr),
-     m_hTightTopoEtCone40(nullptr),
+     //m_hTightTopoEtCone40(nullptr),
      m_hTightTime(nullptr)
 {
   // Name of the electron collection
@@ -124,7 +124,7 @@ StatusCode forwardElectronMonTool::bookHistograms()
   bookTH2F(m_hEtaPhi,       electronGroup, "forwardElectronEtaPhi",      "LOOSE electron #eta,#phi map (candidates with E>10GeV)", 64, -3.2, 3.2, 64, -3.2, 3.2);
   bookTH1F(m_hEta,          electronGroup, "forwardElectronEta",         "LOOSE electron #eta", 64, -5., 5.);
   bookTH1F(m_hPhi,          electronGroup, "forwardElectronPhi",         "LOOSE electron #phi", 64, -3.2, 3.2);
-  bookTH1F(m_hTopoEtCone40, electronGroup, "forwardElectronTopoEtCone40","LOOSE forward electron Isolation Energy TopoEtCone40", 64, -10000., 40000.);
+  //bookTH1F(m_hTopoEtCone40, electronGroup, "forwardElectronTopoEtCone40","LOOSE forward electron Isolation Energy TopoEtCone40", 64, -10000., 40000.);
   bookTH1F(m_hTime,         electronGroup, "forwardElectronTime",        "Time associated with the LOOSE electron cluster [ns]", 90, -30., 60.);
 
   bookTH1F(m_hTightN,            electronGroup, "forwardElectronTightN",           "Number of TIGHT electrons",40, 0.0, 40.0);
@@ -132,7 +132,7 @@ StatusCode forwardElectronMonTool::bookHistograms()
   bookTH2F(m_hTightEtaPhi,       electronGroup, "forwardElectronTightEtaPhi",      "TIGHT electron #eta,#phi map (candidates with E>10GeV)", 64, -5., 5., 64, -3.2, 3.2);
   bookTH1F(m_hTightEta,          electronGroup, "forwardElectronTightEta",         "TIGHT electron #eta", 100, -5., 5.);
   bookTH1F(m_hTightPhi,          electronGroup, "forwardElectronTightPhi",         "TIGHT electron #phi", 64, -3.2, 3.2);
-  bookTH1F(m_hTightTopoEtCone40, electronGroup, "forwardElectronTightTopoEtCone40","TIGHT forward electron Isolation Energy TopoEtCone40", 64, -10000., 40000.);
+  //bookTH1F(m_hTightTopoEtCone40, electronGroup, "forwardElectronTightTopoEtCone40","TIGHT forward electron Isolation Energy TopoEtCone40", 64, -10000., 40000.);
   bookTH1F(m_hTightTime,         electronGroup, "forwardElectronTightTime",        "Time associated with the TIGHT electron cluster [ns]", 90, -30., 60.);
 
   // ID PANEL
@@ -158,14 +158,14 @@ StatusCode forwardElectronMonTool::bookHistograms()
   bookTH1FperRegion(m_hvEt,      electronGroup, "forwardElectronEt", "LOOSE electron transverse energy [MeV]",100, -1000.0, 250000.0,start,end);
   bookTH1FperRegion(m_hvEta,     electronGroup, "forwardElectronEta","LOOSE electron #eta",64, -5., 5.,start,end);
   bookTH1FperRegion(m_hvPhi,     electronGroup, "forwardElectronPhi","LOOSE electron #phi",64, -3.2, 3.2,start,end);
-  bookTH1FperRegion(m_hvTopoEtCone40, electronGroup,"forwardElectronTopoEtCone40", "LOOSE Forward electron Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 40000.,start,end);
+  //bookTH1FperRegion(m_hvTopoEtCone40, electronGroup,"forwardElectronTopoEtCone40", "LOOSE Forward electron Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 40000.,start,end);
   bookTH1FperRegion(m_hvTime,electronGroup,"forwardElectronTime", "LOOSE electron time [ns]",90, -30.0, 60.0,start,end);
 
   bookTH1FperRegion(m_hvTightN,    electronGroup,"forwardElectronTightN",  "Number of TIGHT electrons",40, 0.0, 40.0,start,end);
   bookTH1FperRegion(m_hvTightEt,   electronGroup,"forwardElectronTightEt", "TIGHT electron transverse energy [MeV]",100, -1000.0, 250000.0,start,end);
   bookTH1FperRegion(m_hvTightEta,  electronGroup,"forwardElectronTightEta","TIGHT electron #eta",100, -5., 5.,start,end);
   bookTH1FperRegion(m_hvTightPhi,  electronGroup,"forwardElectronTightPhi","TIGHT electron #phi",64, -3.2, 3.2,start,end);
-  bookTH1FperRegion(m_hvTightTopoEtCone40, electronGroup,"forwardElectronTightTopoEtCone40", "TIGHT Forward electron Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 40000.,start,end);
+  //bookTH1FperRegion(m_hvTightTopoEtCone40, electronGroup,"forwardElectronTightTopoEtCone40", "TIGHT Forward electron Isolation Energy TopoEtCone40 [MeV]", 64, -10000., 40000.,start,end);
   bookTH1FperRegion(m_hvTightTime, electronGroup,"forwardElectronTightTime", "TIGHT electron time [ns]",90, -30.0, 60.0,start,end);
 
   return StatusCode::SUCCESS;
@@ -254,10 +254,10 @@ StatusCode forwardElectronMonTool::fillHistograms()
     fillTH1FperRegion(m_hvPhi,ir,phi);
     
     // Isolation Energy 
-    if( (*e_iter)->isolationValue(topoetcone40,xAOD::Iso::topoetcone40)) {
-      if (m_hTopoEtCone40) m_hTopoEtCone40->Fill(topoetcone40);
-    }
-    fillTH1FperRegion(m_hvTopoEtCone40,ir,topoetcone40);
+    //if( (*e_iter)->isolationValue(topoetcone40,xAOD::Iso::topoetcone40)) {
+    //  if (m_hTopoEtCone40) m_hTopoEtCone40->Fill(topoetcone40);
+    //}
+    //fillTH1FperRegion(m_hvTopoEtCone40,ir,topoetcone40);
     
     // Associated cluster details
     const xAOD::CaloCluster *aCluster = (*e_iter)->caloCluster();
@@ -295,7 +295,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
 	if(m_hTightEta)    m_hTightEta->Fill(eta);
 	if(m_hTightPhi)    m_hTightPhi->Fill(phi);
 	if (m_hTightTime)  m_hTightTime->Fill(time);
-	if (m_hTightTopoEtCone40) m_hTightTopoEtCone40->Fill(topoetcone40);
+	//if (m_hTightTopoEtCone40) m_hTightTopoEtCone40->Fill(topoetcone40);
 	
 	fillTH1FperRegion(m_hvTightEt,ir,et);
 	fillTH1FperRegion(m_hvTightEta,ir,eta);
@@ -309,7 +309,7 @@ StatusCode forwardElectronMonTool::fillHistograms()
 	fillTH1FperRegion(m_hvTightSecondR,ir,secondR);
 	fillTH1FperRegion(m_hvTightCenterL,ir,centerLambda);
 	fillTH1FperRegion(m_hvTightTime,ir,time);
-	fillTH1FperRegion(m_hvTightTopoEtCone40,ir,topoetcone40);
+	//fillTH1FperRegion(m_hvTightTopoEtCone40,ir,topoetcone40);
       }
     } else {
       ATH_MSG_DEBUG( "Electron selection menu Tight is not defined" );

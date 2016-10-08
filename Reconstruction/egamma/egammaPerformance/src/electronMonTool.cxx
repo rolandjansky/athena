@@ -151,23 +151,15 @@ StatusCode electronMonTool::bookHistogramsForOneElectronType(electronHist& myHis
   // MAIN PANEL
   std::string hname = std::string("electronN") + myHist.m_nameOfElectronType;
   std::string hlongname =  std::string("Number of electrons") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
-  bookTH1F(myHist.m_hN, *m_electronGroup, hname, hlongname, 40, 0.0, 40.0);
+  bookTH1F(myHist.m_hN, *m_electronGroup, hname, hlongname, 20, 0.0, 20.0);
 
   hname = std::string("electronEt") + myHist.m_nameOfElectronType;
   hlongname =  std::string("Electron transverse energy [MeV]") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
   bookTH1F(myHist.m_hEt, *m_electronGroup, hname, hlongname, 100, -1000.0, 250000.0);
 
-  hname = std::string("electronEtaPhiPtgt2.5GeV") + myHist.m_nameOfElectronType;
-  hlongname =  std::string("Electron #eta,#phi map  (candidates with Pt>2.5GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
-  bookTH2F(myHist.m_hEtaPhi, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
-
   hname = std::string("electronEtaPhiPtgt4GeV") + myHist.m_nameOfElectronType;
   hlongname =  std::string("Electron #eta,#phi map (candidates with Pt>4GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
   bookTH2F(myHist.m_hEtaPhi4GeV, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
-
-  hname = std::string("electronEtaPhiPtgt20GeV") + myHist.m_nameOfElectronType;
-  hlongname =  std::string("Electron #eta,#phi map (candidates with Pt>20GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
-  bookTH2F(myHist.m_hEtaPhi20GeV, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
 
   hname = std::string("electronEta") + myHist.m_nameOfElectronType;
   hlongname =  std::string("Electron #eta") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
@@ -189,13 +181,23 @@ StatusCode electronMonTool::bookHistogramsForOneElectronType(electronHist& myHis
   hlongname =  std::string("Time associated with electron cluster [ns]") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
   bookTH1F(myHist.m_hTime, *m_electronGroup, hname, hlongname, 90, -30., 60.);
 
+  // EXPERT PANEL
+
+  hname = std::string("electronEtaPhiPtgt2.5GeV") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #eta,#phi map  (candidates with Pt>2.5GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH2F(myHist.m_hEtaPhi, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
+
+  hname = std::string("electronEtaPhiPtgt20GeV") + myHist.m_nameOfElectronType;
+  hlongname =  std::string("Electron #eta,#phi map (candidates with Pt>20GeV)") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
+  bookTH2F(myHist.m_hEtaPhi20GeV, *m_electronGroup, hname, hlongname, 64, -3.2, 3.2, 64, -3.2, 3.2);
+
   // PER REGION IN EXPERT PANEL
 
   if (myHist.m_fullHistoList) {
     
     hname = std::string("electronN") + myHist.m_nameOfElectronType;
     hlongname =  std::string("Electron number ; Nel ; Nevents") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
-    bookTH1FperRegion(myHist.m_hvN, *m_electronGroup, hname, hlongname ,40, 0.0, 40.0,start,end);
+    bookTH1FperRegion(myHist.m_hvN, *m_electronGroup, hname, hlongname ,20, 0.0, 20.0,start,end);
 
     hname = std::string("electronEta") + myHist.m_nameOfElectronType;
     hlongname =  std::string("Electron #eta distribution ; #eta ; Nevents") + std::string (" (") + myHist.m_nameOfElectronType + std::string (")");
