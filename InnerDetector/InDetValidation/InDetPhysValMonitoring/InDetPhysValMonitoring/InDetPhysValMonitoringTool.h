@@ -125,7 +125,7 @@ template<class T>
 	const T* InDetPhysValMonitoringTool::getContainer(const std::string & containerName){
 		const T * ptr = evtStore()->retrieve< const T >( containerName );
     	if (!ptr) {
-        	ATH_MSG_ERROR("Container '"<<containerName<<"' could not be retrieved");
+        	ATH_MSG_WARNING("Container '"<<containerName<<"' could not be retrieved");
     	}
     	return ptr;
 	}

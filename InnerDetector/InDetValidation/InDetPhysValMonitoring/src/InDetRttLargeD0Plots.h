@@ -53,7 +53,7 @@ public:
   // void fill(const xAOD::TrackParticle& particle, const xAOD::TruthParticle& truthParticle); // not used. SC
   ///fill for things needing track only
   void fill(const xAOD::TrackParticle &particle);
-  void fill(const xAOD::TrackParticle &particle, const int barcode);
+  void fill(const xAOD::TrackParticle &particle, const int& barcode, const bool& fake);
   ///fill for things needing truth only
   void fill(const xAOD::TruthParticle &particle);
   ///fill for things needing all truth - not just the ones from the reco tracks
@@ -114,17 +114,15 @@ private:
   Trk::IDHitPlots m_hitsPlots_fake_ld0;
 
   // basic plots
-  InDetBasicPlot m_basicPlot_nonfake_st;
-  InDetBasicPlot m_basicPlot_nonfake_ld0;
-  InDetBasicPlot m_basicPlot_fake_st;
-  InDetBasicPlot m_basicPlot_fake_ld0;
-  InDetBasicPlot m_basicPlot_truth;
-
-  InDetBasicPlot m_basicPlot_primary_truth;
-  InDetBasicPlot m_basicPlot_secondary_truth;
-
-  InDetBasicPlot m_basicPlot_pileup_primary_truth;
-  InDetBasicPlot m_basicPlot_pileup_secondary_truth;
+  InDetBasicPlot m_basicPlot_MatchedPrimary_st;
+  InDetBasicPlot m_basicPlot_MatchedSecondary_st;
+  InDetBasicPlot m_basicPlot_NoTruthLink_st;
+  InDetBasicPlot m_basicPlot_Fake_st;
+  
+  InDetBasicPlot m_basicPlot_MatchedPrimary_ld0;
+  InDetBasicPlot m_basicPlot_MatchedSecondary_ld0;
+  InDetBasicPlot m_basicPlot_NoTruthLink_ld0;
+  InDetBasicPlot m_basicPlot_Fake_ld0;
 
   // pT plots
   InDetPerfPlot_Pt m_ptPlot_nonfake_st;
@@ -148,13 +146,15 @@ private:
   // Fake rate plots.
   InDetPerfPlot_ExtendedFakes m_fakePlots_primary;
   InDetPerfPlot_ExtendedFakes m_fakePlots_secondary;
-  InDetPerfPlot_ExtendedFakes m_fakePlots_noTruth;
-  InDetPerfPlot_ExtendedFakes m_fakePlots_rest;
+  InDetPerfPlot_ExtendedFakes m_fakePlots_linked;
+  InDetPerfPlot_ExtendedFakes m_fakePlots_notruth;
+  InDetPerfPlot_ExtendedFakes m_fakePlots_combined;
 
   InDetPerfPlot_ExtendedFakes m_fakePlots_primary_LRT;
   InDetPerfPlot_ExtendedFakes m_fakePlots_secondary_LRT;
-  InDetPerfPlot_ExtendedFakes m_fakePlots_noTruth_LRT;
-  InDetPerfPlot_ExtendedFakes m_fakePlots_rest_LRT;
+  InDetPerfPlot_ExtendedFakes m_fakePlots_linked_LRT;
+  InDetPerfPlot_ExtendedFakes m_fakePlots_notruth_LRT;
+  InDetPerfPlot_ExtendedFakes m_fakePlots_combined_LRT;
 
   // Efficiency plots
   InDetPerfPlot_Eff m_effPlotsStd;
@@ -205,9 +205,7 @@ private:
   Trk::IDHitPlots m_hitsFakeTracksPlots;
 
   std::string m_trackParticleTruthProbKey;
-  float m_truthProbThreshold;
   float m_truthProbLowThreshold;
-  float m_truthPrimaryEtaCut;
 };
 
 

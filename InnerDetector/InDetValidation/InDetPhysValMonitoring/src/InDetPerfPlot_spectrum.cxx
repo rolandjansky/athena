@@ -8,7 +8,7 @@
  **/
 
 #include "InDetPerfPlot_spectrum.h"
-#include <math.h> // for M_PI
+#include <cmath> // for M_PI
 
 
 InDetPerfPlot_spectrum::InDetPerfPlot_spectrum(InDetPlotBase *pParent, const std::string &sDir) :
@@ -264,28 +264,28 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle &trkprt, Float_t 
   if (trkprt.summaryValue(iSCTDead, xAOD::numberOfSCTDeadSensors)) {
     sctDead = iSCTDead;
   }
-  m_recoMatchProb->Fill(prob);
-  m_recoPt->Fill(pt);
-  m_recoEta->Fill(eta);
-  m_recoPhi->Fill(phi);
-  m_recod0->Fill(d0);
-  m_recoz0->Fill(z0);
-  m_recoz0sin->Fill(z0 * sinth);
+  fillHisto(m_recoMatchProb,prob);
+  fillHisto(m_recoPt,pt);
+  fillHisto(m_recoEta,eta);
+  fillHisto(m_recoPhi,phi);
+  fillHisto(m_recod0,d0);
+  fillHisto(m_recoz0,z0);
+  fillHisto(m_recoz0sin,z0 * sinth);
 
-  m_nSCTHits->Fill(sctHits);
-  m_nPixHits->Fill(pixHits);
-  m_nTotHits->Fill(sctHits + pixHits);
-  m_nSCTDeadSensors->Fill(sctDead);
-  m_nPixDeadSensors->Fill(pixDead);
-  m_nTotDeadSensors->Fill(sctDead + pixDead);
+  fillHisto(m_nSCTHits,sctHits);
+  fillHisto(m_nPixHits,pixHits);
+  fillHisto(m_nTotHits,sctHits + pixHits);
+  fillHisto(m_nSCTDeadSensors,sctDead);
+  fillHisto(m_nPixDeadSensors,pixDead);
+  fillHisto(m_nTotDeadSensors,sctDead + pixDead);
 
 
-  m_nSCTHits_vs_eta->Fill(eta, sctHits);
-  m_nPixHits_vs_eta->Fill(eta, pixHits);
-  m_nTotHits_vs_eta->Fill(eta, sctHits + pixHits);
-  m_nSCTDeadSensors_vs_eta->Fill(eta, sctDead);
-  m_nPixDeadSensors_vs_eta->Fill(eta, pixDead);
-  m_nTotDeadSensors_vs_eta->Fill(eta, sctDead + pixDead);
+  fillHisto(m_nSCTHits_vs_eta,eta, sctHits);
+  fillHisto(m_nPixHits_vs_eta,eta, pixHits);
+  fillHisto(m_nTotHits_vs_eta,eta, sctHits + pixHits);
+  fillHisto(m_nSCTDeadSensors_vs_eta,eta, sctDead);
+  fillHisto(m_nPixDeadSensors_vs_eta,eta, pixDead);
+  fillHisto(m_nTotDeadSensors_vs_eta,eta, sctDead + pixDead);
 }
 
 void
@@ -300,9 +300,9 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TruthParticle &particle) {
 
   double phi = particle.phi();
 
-  m_truthPt->Fill(pt);
-  m_truthEta->Fill(eta);
-  m_truthPhi->Fill(phi);
+  fillHisto(m_truthPt,pt);
+  fillHisto(m_truthEta,eta);
+  fillHisto(m_truthPhi,phi);
 }
 
 void
@@ -317,16 +317,16 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle &trkprt, const xA
 
   double vtxR = sqrt(vtxX * vtxX + vtxY * vtxY);
 
-  m_recod0_TruthVtxR->Fill(d0 - vtxR);
-  m_recoz0_TruthVtxZ->Fill(z0 - vtxZ);
-  m_recoz0_TruthVtxZsin->Fill((z0 - vtxZ) * sinth);
+  fillHisto(m_recod0_TruthVtxR,d0 - vtxR);
+  fillHisto(m_recoz0_TruthVtxZ,z0 - vtxZ);
+  fillHisto(m_recoz0_TruthVtxZsin,(z0 - vtxZ) * sinth);
   //
-  m_TruthVtxX->Fill(vtxX);
-  m_TruthVtxY->Fill(vtxY);
-  m_TruthVtxZ->Fill(vtxZ);
-  m_TruthVtxR->Fill(vtxR);
+  fillHisto(m_TruthVtxX,vtxX);
+  fillHisto(m_TruthVtxY,vtxY);
+  fillHisto(m_TruthVtxZ,vtxZ);
+  fillHisto(m_TruthVtxR,vtxR);
 
-  m_TVR_vs_Z->Fill(vtxZ, vtxR);
+  fillHisto(m_TVR_vs_Z,vtxZ, vtxR);
 
   if (vtxR > 0.1) {
     /*
@@ -335,9 +335,9 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle &trkprt, const xA
        std::cout<<"truth vtx. X/Y/R/Z "<<vtxX<<","<<vtxY<<","<<vtxR<<","<<vtxZ<<std::endl;
        std::cout<<"trk d0/z0 "<<d0<<","<<z0<<std::endl;
      */
-    m_recod0_vs_z0_crazy->Fill(z0, d0);
+    fillHisto(m_recod0_vs_z0_crazy,z0, d0);
   }else {
-    m_recod0_vs_z0_good->Fill(z0, d0);
+    fillHisto(m_recod0_vs_z0_good,z0, d0);
   }
 }
 
@@ -353,17 +353,17 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle &trkprt, const xA
 
   double vtxR = sqrt(vtxX * vtxX + vtxY * vtxY);
 
-  m_recod0_PrimVtxR->Fill(d0 - vtxR);
-  m_recoz0_PrimVtxZ->Fill(z0 - vtxZ);
-  m_recoz0_PrimVtxZsin->Fill((z0 - vtxZ) * sinth);
+  fillHisto(m_recod0_PrimVtxR,d0 - vtxR);
+  fillHisto(m_recoz0_PrimVtxZ,z0 - vtxZ);
+  fillHisto(m_recoz0_PrimVtxZsin,(z0 - vtxZ) * sinth);
   //
   if (fill) {
-    m_PrimVtxX->Fill(vtxX);
-    m_PrimVtxY->Fill(vtxY);
-    m_PrimVtxZ->Fill(vtxZ);
-    m_PrimVtxR->Fill(vtxR);
+    fillHisto(m_PrimVtxX,vtxX);
+    fillHisto(m_PrimVtxY,vtxY);
+    fillHisto(m_PrimVtxZ,vtxZ);
+    fillHisto(m_PrimVtxR,vtxR);
 
-    m_PVR_vs_Z->Fill(vtxZ, vtxR);
+    fillHisto(m_PVR_vs_Z,vtxZ, vtxR);
   }
   if (vtxR > 0.1) {
     /*
@@ -372,9 +372,9 @@ InDetPerfPlot_spectrum::fillSpectrum(const xAOD::TrackParticle &trkprt, const xA
        std::cout<<"truth vtx. X/Y/R/Z "<<vtxX<<","<<vtxY<<","<<vtxR<<","<<vtxZ<<std::endl;
        std::cout<<"trk d0/z0 "<<d0<<","<<z0<<std::endl;
      */
-    m_recod0_vs_z0_crazy->Fill(z0, d0);
+    fillHisto(m_recod0_vs_z0_crazy,z0, d0);
   }else {
-    m_recod0_vs_z0_good->Fill(z0, d0);
+    fillHisto(m_recod0_vs_z0_good,z0, d0);
   }
 }
 
@@ -414,27 +414,27 @@ InDetPerfPlot_spectrum::fillSpectrumUnlinked2(const xAOD::TrackParticle &trkprt,
     SCTSharedHits = iSCTSharedHits;
   }
 
-  m_ptvsEtaUnlinked->Fill(eta, pt);
-  m_probvsSCTUnlinked->Fill(SCTHits, prob);
-  m_probvsPixUnlinked->Fill(pixHits, prob);
-  m_sharedHitsvsPixUnlinked->Fill(pixHits, pixSharedHits + SCTSharedHits);
-  m_sharedHitsvsSCTUnlinked->Fill(SCTHits, pixSharedHits + SCTSharedHits);
-  m_pixholesvsPixUnlinked->Fill(pixHits, pixHoles);
-  m_holesvsPixUnlinked->Fill(pixHits, pixHoles + SCTHoles);
-  m_sctholesvsSCTUnlinked->Fill(SCTHits, SCTHoles);
-  m_holesvsSCTUnlinked->Fill(SCTHits, pixHoles + SCTHoles);
-  m_outliersvsPixUnlinked->Fill(pixHits, pixOutliers + SCTOutliers);
-  m_pixoutliersvsPixUnlinked->Fill(pixHits, pixOutliers);
-  m_outliersvsSCTUnlinked->Fill(SCTHits, pixOutliers + SCTOutliers);
-  m_sctoutliersvsSCTUnlinked->Fill(SCTHits, SCTOutliers);
-  m_hitsvsEtaUnlinked->Fill(eta, pixHits + SCTHits);
-  m_pixHolesvsEtaUnlinked->Fill(eta, pixHoles);
-  m_sctHolesvsEtaUnlinked->Fill(eta, SCTHoles);
-  m_sctHitsvsPixHitsUnlinked->Fill(pixHits, SCTHits);
-  m_sctHitsvsEtaUnlinked->Fill(eta, SCTHits);
-  m_pixHitsvsEtaUnlinked->Fill(eta, pixHits);
-  m_sctOutliersvsEtaUnlinked->Fill(eta, SCTOutliers);
-  m_pixOutliersvsEtaUnlinked->Fill(eta, pixOutliers);
+  fillHisto(m_ptvsEtaUnlinked,eta, pt);
+  fillHisto(m_probvsSCTUnlinked,SCTHits, prob);
+  fillHisto(m_probvsPixUnlinked,pixHits, prob);
+  fillHisto(m_sharedHitsvsPixUnlinked,pixHits, pixSharedHits + SCTSharedHits);
+  fillHisto(m_sharedHitsvsSCTUnlinked,SCTHits, pixSharedHits + SCTSharedHits);
+  fillHisto(m_pixholesvsPixUnlinked,pixHits, pixHoles);
+  fillHisto(m_holesvsPixUnlinked,pixHits, pixHoles + SCTHoles);
+  fillHisto(m_sctholesvsSCTUnlinked,SCTHits, SCTHoles);
+  fillHisto(m_holesvsSCTUnlinked,SCTHits, pixHoles + SCTHoles);
+  fillHisto(m_outliersvsPixUnlinked,pixHits, pixOutliers + SCTOutliers);
+  fillHisto(m_pixoutliersvsPixUnlinked,pixHits, pixOutliers);
+  fillHisto(m_outliersvsSCTUnlinked,SCTHits, pixOutliers + SCTOutliers);
+  fillHisto(m_sctoutliersvsSCTUnlinked,SCTHits, SCTOutliers);
+  fillHisto(m_hitsvsEtaUnlinked,eta, pixHits + SCTHits);
+  fillHisto(m_pixHolesvsEtaUnlinked,eta, pixHoles);
+  fillHisto(m_sctHolesvsEtaUnlinked,eta, SCTHoles);
+  fillHisto(m_sctHitsvsPixHitsUnlinked,pixHits, SCTHits);
+  fillHisto(m_sctHitsvsEtaUnlinked,eta, SCTHits);
+  fillHisto(m_pixHitsvsEtaUnlinked,eta, pixHits);
+  fillHisto(m_sctOutliersvsEtaUnlinked,eta, SCTOutliers);
+  fillHisto(m_pixOutliersvsEtaUnlinked,eta, pixOutliers);
 }
 
 void
@@ -474,25 +474,25 @@ InDetPerfPlot_spectrum::fillSpectrumLinked(const xAOD::TrackParticle &trkprt, co
     SCTSharedHits = iSCTSharedHits;
   }
 
-  m_ptvsEtaLinked->Fill(eta, pt);
-  m_probvsSCTLinked->Fill(SCTHits, prob);
-  m_probvsPixLinked->Fill(pixHits, prob);
-  m_sharedHitsvsPixLinked->Fill(pixHits, pixSharedHits + SCTSharedHits);
-  m_sharedHitsvsSCTLinked->Fill(SCTHits, pixSharedHits + SCTSharedHits);
-  m_pixholesvsPixLinked->Fill(pixHits, pixHoles);
-  m_holesvsPixLinked->Fill(pixHits, pixHoles + SCTHoles);
-  m_sctholesvsSCTLinked->Fill(SCTHits, SCTHoles);
-  m_holesvsSCTLinked->Fill(SCTHits, pixHoles + SCTHoles);
-  m_outliersvsPixLinked->Fill(pixHits, pixOutliers + SCTOutliers);
-  m_pixoutliersvsPixLinked->Fill(pixHits, pixOutliers);
-  m_outliersvsSCTLinked->Fill(SCTHits, pixOutliers + SCTOutliers);
-  m_sctoutliersvsSCTLinked->Fill(SCTHits, SCTOutliers);
-  m_hitsvsEtaLinked->Fill(eta, pixHits + SCTHits);
-  m_sctHitsvsPixHitsLinked->Fill(pixHits, SCTHits);
-  m_pixHolesvsEtaLinked->Fill(eta, pixHoles);
-  m_sctHolesvsEtaLinked->Fill(eta, SCTHoles);
-  m_sctHitsvsEtaLinked->Fill(eta, SCTHits);
-  m_pixHitsvsEtaLinked->Fill(eta, pixHits);
-  m_sctOutliersvsEtaLinked->Fill(eta, SCTOutliers);
-  m_pixOutliersvsEtaLinked->Fill(eta, pixOutliers);
+  fillHisto(m_ptvsEtaLinked,eta, pt);
+  fillHisto(m_probvsSCTLinked,SCTHits, prob);
+  fillHisto(m_probvsPixLinked,pixHits, prob);
+  fillHisto(m_sharedHitsvsPixLinked,pixHits, pixSharedHits + SCTSharedHits);
+  fillHisto(m_sharedHitsvsSCTLinked,SCTHits, pixSharedHits + SCTSharedHits);
+  fillHisto(m_pixholesvsPixLinked,pixHits, pixHoles);
+  fillHisto(m_holesvsPixLinked,pixHits, pixHoles + SCTHoles);
+  fillHisto(m_sctholesvsSCTLinked,SCTHits, SCTHoles);
+  fillHisto(m_holesvsSCTLinked,SCTHits, pixHoles + SCTHoles);
+  fillHisto(m_outliersvsPixLinked,pixHits, pixOutliers + SCTOutliers);
+  fillHisto(m_pixoutliersvsPixLinked,pixHits, pixOutliers);
+  fillHisto(m_outliersvsSCTLinked,SCTHits, pixOutliers + SCTOutliers);
+  fillHisto(m_sctoutliersvsSCTLinked,SCTHits, SCTOutliers);
+  fillHisto(m_hitsvsEtaLinked,eta, pixHits + SCTHits);
+  fillHisto(m_sctHitsvsPixHitsLinked,pixHits, SCTHits);
+  fillHisto(m_pixHolesvsEtaLinked,eta, pixHoles);
+  fillHisto(m_sctHolesvsEtaLinked,eta, SCTHoles);
+  fillHisto(m_sctHitsvsEtaLinked,eta, SCTHits);
+  fillHisto(m_pixHitsvsEtaLinked,eta, pixHits);
+  fillHisto(m_sctOutliersvsEtaLinked,eta, SCTOutliers);
+  fillHisto(m_pixOutliersvsEtaLinked,eta, pixOutliers);
 }

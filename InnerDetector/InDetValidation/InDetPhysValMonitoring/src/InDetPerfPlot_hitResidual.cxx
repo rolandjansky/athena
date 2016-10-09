@@ -20,7 +20,9 @@ InDetPerfPlot_hitResidual::InDetPerfPlot_hitResidual(InDetPlotBase *pParent, con
   m_residualy_2ormorehits{},
   m_residualy{},
   m_residualpullx{},
-  m_residualpully{} {
+  m_residualpully{} ,
+  m_phiWidth{},
+  m_etaWidth{} {
 //
 }
 
@@ -126,14 +128,26 @@ InDetPerfPlot_hitResidual::initializePlots() {
   // book(m_residualpully[SCT][ENDCAP],"residualpully_sct_endcap");
   // book(m_residualpully[TRT][ENDCAP],"residualpully_trt_endcap");
   book(m_residualpully[DBM][1], "residualpully_dbm_endcap");
+  //introduce cluster width histograms
+  book(m_phiWidth[PIXEL][BARREL],"clusterPhiWidth_pixel_barrel");
+  book(m_phiWidth[PIXEL][ENDCAP],"clusterPhiWidth_pixel_endcap");
+  book(m_etaWidth[PIXEL][BARREL],"clusterEtaWidth_pixel_barrel");
+  book(m_etaWidth[PIXEL][ENDCAP],"clusterEtaWidth_pixel_endcap");
+  //
+  book(m_phiWidth[SCT][BARREL],"clusterPhiWidth_sct_barrel");
+  book(m_phiWidth[SCT][ENDCAP],"clusterPhiWidth_sct_endcap");
+  //book(m_etaWidth[SCT][BARREL],"clusterEtaWidth_sct_barrel");
+  //book(m_etaWidth[SCT][ENDCAP],"clusterEtaWidth_sct_endcap");
 }
 
 void
 InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle &trkprt) {
   const bool hitDetailsAvailable = trkprt.isAvailable<std::vector<int> >("measurement_region");
-
+  static int warnCount(0);
   if (!hitDetailsAvailable) {
-    ATH_MSG_WARNING("The hit res plots dont see any data");
+    if (warnCount++<10){
+      ATH_MSG_WARNING("The hit res plots dont see any data (note:only 10 warnings issued)");
+    }
   } else {
     const std::vector<int> &result_det = trkprt.auxdata< std::vector<int> >("measurement_det");
 
@@ -146,6 +160,8 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle &trkprt) {
       const std::vector<float> &result_residualLocY = trkprt.auxdata< std::vector<float> >("hitResiduals_residualLocY");
       const std::vector<float> &result_pullLocY = trkprt.auxdata< std::vector<float> >("hitResiduals_pullLocY");
       const std::vector<int> &result_phiWidth = trkprt.auxdata< std::vector<int> >("hitResiduals_phiWidth");
+      const std::vector<int> &result_etaWidth = trkprt.auxdata< std::vector<int> >("hitResiduals_etaWidth");
+
       // NP: this should be fine... resiudal filled with -1 if not hit
       if (result_det.size() != result_residualLocX.size()) {
         ATH_MSG_WARNING("Vectors of results are not matched in size!");
@@ -159,37 +175,42 @@ InDetPerfPlot_hitResidual::fill(const xAOD::TrackParticle &trkprt) {
         const int region = result_region.at(idx);
         // const int layer = result_iLayer.at(idx);
         const int width = result_phiWidth.at(idx);
+        const int etaWidth = result_etaWidth.at(idx);
         const float residualLocX = result_residualLocX.at(idx);
         const float pullLocX = result_pullLocX.at(idx);
         const float residualLocY = result_residualLocY.at(idx);
         const float pullLocY = result_pullLocY.at(idx);
-        if ((det == INVALID_DETECTOR)or(region == INVALID_REGION)) {
+        if ((det == INVALID_DETECTOR) or(region == INVALID_REGION)) {
           continue;
         }
         if ((region == ENDCAP)and(det == IBL)) {
           continue; // Endcap does not have ibl
         }
         if (width > 0) {
-          (m_residualx[det][region])->Fill(residualLocX);
-          if (not std::isnan(residualLocY) and !(det == SCT || det == TRT)) { // SCT & TRT does not have LocY
-            (m_residualy[det][region])->Fill(residualLocY);
+          //introduce cluster width histograms
+          fillHisto(m_phiWidth[det][region],width);
+          fillHisto(m_etaWidth[det][region],etaWidth);
+          fillHisto(m_residualx[det][region],residualLocX);
+          const bool hasYCoordinate = (det != SCT) and (det != TRT); // SCT & TRT do not have LocY
+          if (hasYCoordinate) { 
+            fillHisto(m_residualy[det][region],residualLocY);
           }
-          (m_residualpullx[det][region])->Fill(pullLocX);
-          if (not std::isnan(pullLocY) and !(det == SCT || det == TRT)) { // SCT & TRT does not have LocY
-            (m_residualpully[det][region])->Fill(pullLocY);
+          fillHisto(m_residualpullx[det][region],pullLocX);
+          if (hasYCoordinate) { // SCT & TRT do not have LocY
+            fillHisto(m_residualpully[det][region],pullLocY);
           }
-          if ((det == TRT)or(det == DBM) or(width < 0)) {
+          if ((det == TRT) or (det == DBM) or(width < 0)) {
             continue;
           }
           if (width == 1) {
-            (m_residualx_1hit[det][region])->Fill(residualLocX);
-            if (not std::isnan(residualLocY) and !(det == SCT || det == TRT)) {
-              (m_residualy_1hit[det][region])->Fill(residualLocY);
+            fillHisto(m_residualx_1hit[det][region],residualLocX);
+            if (hasYCoordinate) {
+              fillHisto(m_residualy_1hit[det][region],residualLocY);
             }
           } else {
-            (m_residualx_2ormorehits[det][region])->Fill(residualLocX);
-            if (not std::isnan(residualLocY) and !(det == SCT || det == TRT)) {
-              (m_residualy_2ormorehits[det][region])->Fill(residualLocY);
+            fillHisto(m_residualx_2ormorehits[det][region],residualLocX);
+            if (hasYCoordinate) {
+              fillHisto(m_residualy_2ormorehits[det][region],residualLocY);
             }
           }
         }

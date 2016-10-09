@@ -14,9 +14,27 @@
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IToolSvc.h"
 // #include <iostream>
-
+#include "TEfficiency.h"
 // to retrieve HistogramDefinitionSvc
 #include "InDetPhysValMonitoring/HistogramDefinitionSvc.h"
+#include <cmath>
+
+namespace {
+  bool
+  validArguments(const float arg){
+    return not (std::isnan(arg));
+  } 
+  bool
+  validArguments(const float arg, const float arg2){
+    return not (std::isnan(arg) or std::isnan(arg2));
+  } 
+  
+  bool
+  validArguments(const float arg, const float arg2, const float arg3){
+    return not (std::isnan(arg) or std::isnan(arg2) or std::isnan(arg3));
+  }
+
+}
 
 
 InDetPlotBase::InDetPlotBase(InDetPlotBase *pParent, const std::string &dirName) :
@@ -26,14 +44,18 @@ InDetPlotBase::InDetPlotBase(InDetPlotBase *pParent, const std::string &dirName)
 
 void
 InDetPlotBase::book(TH1 * &pHisto, const SingleHistogramDefinition &hd) {
-  pHisto = Book1D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, false);
+  if (hd.isValid()) {
+    pHisto = Book1D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, false);
+  }
   return;
 }
 
 void
 InDetPlotBase::book(TProfile * &pHisto, const SingleHistogramDefinition &hd) {
-  pHisto = BookTProfile(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, hd.yAxis.first,
+  if (hd.isValid()) {
+   pHisto = BookTProfile(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, hd.yAxis.first,
                         hd.yAxis.second, false);
+  }
   return;
 }
 
@@ -72,15 +94,19 @@ InDetPlotBase::book(TH2 * &pHisto, const std::string &histoIdentifier, const std
 
 void
 InDetPlotBase::book(TH2 * &pHisto, const SingleHistogramDefinition &hd) {
-  pHisto = Book2D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, hd.nBinsY, hd.yAxis.first,
+  if (hd.isValid()) {
+    pHisto = Book2D(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, hd.nBinsY, hd.yAxis.first,
                   hd.yAxis.second, false);
+  }
   return;
 }
 
 /**/
 void
 InDetPlotBase::book(TEfficiency * &pHisto, const SingleHistogramDefinition &hd) {
-  pHisto = BookTEfficiency(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, false);
+  if (hd.isValid()) {
+    pHisto = BookTEfficiency(hd.name, hd.allTitles, hd.nBinsX, hd.xAxis.first, hd.xAxis.second, false);
+  }
   return;
 }
 
@@ -94,6 +120,53 @@ InDetPlotBase::book(TEfficiency * &pHisto, const std::string &histoIdentifier, c
   book(pHisto, hd);
   return;
 }
+
+void 
+InDetPlotBase::fillHisto(TProfile *pTprofile, const float bin, const float weight ){
+  if (pTprofile and validArguments(bin,weight)) {
+    pTprofile->Fill(bin, weight);
+  }
+}
+//
+void 
+InDetPlotBase::fillHisto(TH1 *pTh1, const float value){
+  if (pTh1 and validArguments(value)) {
+    pTh1->Fill(value);
+  }
+}
+
+void
+InDetPlotBase::fillHisto(TH1 *pTh1, const float value,const float weight){
+  if (pTh1 and validArguments(value)) {
+    pTh1->Fill(value,weight);
+  }
+}
+
+//
+void 
+InDetPlotBase::fillHisto(TH2 *pTh2, const float xval, const float yval){
+  if (pTh2 and validArguments(xval,yval)){
+    pTh2->Fill(xval,yval);
+  }
+}
+
+void 
+InDetPlotBase::fillHisto(TH3 *pTh3, const float xval, const float yval,const float zval){
+  if (pTh3 and validArguments(xval,yval,zval)){
+    pTh3->Fill(xval,yval,zval);
+  }
+}
+
+void 
+InDetPlotBase::fillHisto(TEfficiency *pTeff, const bool accepted, const float value ){
+ if (pTeff and validArguments(value)){
+    pTeff->Fill(accepted,value);
+  }
+
+}
+
+
+
 /**/
 SingleHistogramDefinition
 InDetPlotBase::retrieveDefinition(const std::string &histoIdentifier, const std::string &folder) {
@@ -103,7 +176,8 @@ InDetPlotBase::retrieveDefinition(const std::string &histoIdentifier, const std:
     ISvcLocator *svcLoc = Gaudi::svcLocator();
     StatusCode sc = svcLoc->service("HistogramDefinitionSvc", m_histoDefSvc);
     if (sc.isFailure()) {
-      ATH_MSG_WARNING("failed to retrieve HistogramDefinitionSvc in " << __FILE__);
+      ATH_MSG_FATAL("failed to retrieve HistogramDefinitionSvc in " << __FILE__);
+      throw std::runtime_error("Could initialise the HistogramDefinitionSvc");
       return s;
     }
   }

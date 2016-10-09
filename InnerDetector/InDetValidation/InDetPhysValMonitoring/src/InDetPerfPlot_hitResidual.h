@@ -58,6 +58,8 @@ private:
   //
   TH1 *m_residualpullx[N_SUBDETECTORS][N_REGIONS];
   TH1 *m_residualpully[N_SUBDETECTORS][N_REGIONS];
+  TH1 *m_phiWidth[N_SUBDETECTORS][N_REGIONS];
+  TH1 *m_etaWidth[N_SUBDETECTORS][N_REGIONS];
 };
 
 

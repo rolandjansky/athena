@@ -163,9 +163,9 @@ InDetPerfPlot_duplicate::fillSingleMatch(const xAOD::TrackParticle &trackParticl
     sctShared = iSCTShared;
   }
 
-  m_singleMatchPixelvsSCTShared->Fill(pixShared, sctShared);
+  fillHisto(m_singleMatchPixelvsSCTShared,pixShared, sctShared);
 
-  m_singleMatchPTHoles->Fill(sctHoles + pixHoles);
+  fillHisto(m_singleMatchPTHoles,sctHoles + pixHoles);
 }
 
 void
@@ -225,18 +225,18 @@ InDetPerfPlot_duplicate::fillTwoMatchDuplicate(const float prob1, const float pr
   totalHoles2 = pixHoles2 + sctHoles2;
   if (prob1 == prob2) {
     if (pt1 > pt2) {
-      m_duplicateLPTHoles->Fill(totalHoles2);
-      m_duplicateHPTHoles->Fill(totalHoles1);
-      m_duplicateHPixelvsSCTShared->Fill(pixShared1, sctShared1);
-      m_duplicateLPixelvsSCTShared->Fill(pixShared2, sctShared2);
-      m_duplicateHPTHoles->Fill(totalHoles1);
+      fillHisto(m_duplicateLPTHoles,totalHoles2);
+      fillHisto(m_duplicateHPTHoles,totalHoles1);
+      fillHisto(m_duplicateHPixelvsSCTShared,pixShared1, sctShared1);
+      fillHisto(m_duplicateLPixelvsSCTShared,pixShared2, sctShared2);
+      fillHisto(m_duplicateHPTHoles,totalHoles1);
 
       float deltaPT1 = pt1 - pt2;
       float deltaEta1 = eta1 - eta2;
       float deltaPhi1 = phi1 - phi2;
 
-      m_duplicateDeltaPTvsTruthPT->Fill(truthPt, deltaPT1);
-      m_duplicateDeltaPTvsTruthPTZoomed->Fill(truthPt, deltaPT1);
+      fillHisto(m_duplicateDeltaPTvsTruthPT,truthPt, deltaPT1);
+      fillHisto(m_duplicateDeltaPTvsTruthPTZoomed,truthPt, deltaPT1);
 
       // resolution plots
       float resHPT1 = pt1 - truthPt;
@@ -246,48 +246,48 @@ InDetPerfPlot_duplicate::fillTwoMatchDuplicate(const float prob1, const float pr
       float resLEta1 = eta2 - truthEta;
       float resLPhi1 = phi2 - truthPhi;
 
-      m_duplicateResLPT->Fill(resLPT1);
-      m_duplicateResLEta->Fill(resLEta1);
-      m_duplicateResLPhi->Fill(resLPhi1);
-      m_duplicateResHPT->Fill(resHPT1);
-      m_duplicateResHEta->Fill(resHEta1);
-      m_duplicateResHPhi->Fill(resHPhi1);
+      fillHisto(m_duplicateResLPT,resLPT1);
+      fillHisto(m_duplicateResLEta,resLEta1);
+      fillHisto(m_duplicateResLPhi,resLPhi1);
+      fillHisto(m_duplicateResHPT,resHPT1);
+      fillHisto(m_duplicateResHEta,resHEta1);
+      fillHisto(m_duplicateResHPhi,resHPhi1);
 
 
       // spectrum plots
-      m_duplicateLPT->Fill(pt2);
-      m_duplicateLEta->Fill(eta2);
-      m_duplicateLPhi->Fill(phi2);
-      m_duplicateHPT->Fill(pt1);
-      m_duplicateHEta->Fill(eta1);
-      m_duplicateHPhi->Fill(phi1);
-      m_duplicateTruthPT->Fill(truthPt);
-      m_duplicateTruthEta->Fill(truthEta);
-      m_duplicateTruthPhi->Fill(truthPhi);
+      fillHisto(m_duplicateLPT,pt2);
+      fillHisto(m_duplicateLEta,eta2);
+      fillHisto(m_duplicateLPhi,phi2);
+      fillHisto(m_duplicateHPT,pt1);
+      fillHisto(m_duplicateHEta,eta1);
+      fillHisto(m_duplicateHPhi,phi1);
+      fillHisto(m_duplicateTruthPT,truthPt);
+      fillHisto(m_duplicateTruthEta,truthEta);
+      fillHisto(m_duplicateTruthPhi,truthPhi);
       // delta plots
-      m_duplicateDeltaPt->Fill(deltaPT1);
-      m_duplicateDeltaPtZoomed->Fill(deltaPT1);
-      m_duplicateDeltaEta->Fill(deltaEta1);
-      m_duplicateDeltaPhi->Fill(deltaPhi1);
+      fillHisto(m_duplicateDeltaPt,deltaPT1);
+      fillHisto(m_duplicateDeltaPtZoomed,deltaPT1);
+      fillHisto(m_duplicateDeltaEta,deltaEta1);
+      fillHisto(m_duplicateDeltaPhi,deltaPhi1);
       // lpt vs hpt
 
       // hpt & lpt vs truth
 
-      m_duplicateProbSpectrum->Fill(prob2, prob1);
+      fillHisto(m_duplicateProbSpectrum,prob2, prob1);
     }
     if (pt2 > pt1 || pt1 == pt2) {
-      m_duplicateHPTHoles->Fill(totalHoles2);
-      m_duplicateLPTHoles->Fill(totalHoles1);
-      m_duplicateLPixelvsSCTShared->Fill(pixShared1, sctShared1);
-      m_duplicateHPixelvsSCTShared->Fill(pixShared2, sctShared2);
+      fillHisto(m_duplicateHPTHoles,totalHoles2);
+      fillHisto(m_duplicateLPTHoles,totalHoles1);
+      fillHisto(m_duplicateLPixelvsSCTShared,pixShared1, sctShared1);
+      fillHisto(m_duplicateHPixelvsSCTShared,pixShared2, sctShared2);
       float deltaPT2 = pt2 - pt1;
       float deltaEta2 = eta2 - eta1;
       float deltaPhi2 = phi2 - phi1;
       // pt2 - pt1 vs truth
 
 
-      m_duplicateDeltaPTvsTruthPT->Fill(truthPt, deltaPT2);
-      m_duplicateDeltaPTvsTruthPTZoomed->Fill(truthPt, deltaPT2);
+      fillHisto(m_duplicateDeltaPTvsTruthPT,truthPt, deltaPT2);
+      fillHisto(m_duplicateDeltaPTvsTruthPTZoomed,truthPt, deltaPT2);
 
 
 
@@ -299,44 +299,44 @@ InDetPerfPlot_duplicate::fillTwoMatchDuplicate(const float prob1, const float pr
       float resHPT2 = pt2 - truthPt;
       float resHEta2 = eta2 - truthEta;
       float resHPhi2 = phi2 - truthPhi;
-      m_duplicateResLPT->Fill(resLPT2);
-      m_duplicateResLEta->Fill(resLEta2);
-      m_duplicateResLPhi->Fill(resLPhi2);
-      m_duplicateResHPT->Fill(resHPT2);
-      m_duplicateResHEta->Fill(resHEta2);
-      m_duplicateResHPhi->Fill(resHPhi2);
+      fillHisto(m_duplicateResLPT,resLPT2);
+      fillHisto(m_duplicateResLEta,resLEta2);
+      fillHisto(m_duplicateResLPhi,resLPhi2);
+      fillHisto(m_duplicateResHPT,resHPT2);
+      fillHisto(m_duplicateResHEta,resHEta2);
+      fillHisto(m_duplicateResHPhi,resHPhi2);
 
       // spectrum plots
-      m_duplicateLPT->Fill(pt1);
-      m_duplicateLEta->Fill(eta1);
-      m_duplicateLPhi->Fill(phi1);
-      m_duplicateHPT->Fill(pt2);
-      m_duplicateHEta->Fill(eta2);
-      m_duplicateHPhi->Fill(phi2);
-      m_duplicateTruthPT->Fill(truthPt);
-      m_duplicateTruthEta->Fill(truthEta);
-      m_duplicateTruthPhi->Fill(truthPhi);
+      fillHisto(m_duplicateLPT,pt1);
+      fillHisto(m_duplicateLEta,eta1);
+      fillHisto(m_duplicateLPhi,phi1);
+      fillHisto(m_duplicateHPT,pt2);
+      fillHisto(m_duplicateHEta,eta2);
+      fillHisto(m_duplicateHPhi,phi2);
+      fillHisto(m_duplicateTruthPT,truthPt);
+      fillHisto(m_duplicateTruthEta,truthEta);
+      fillHisto(m_duplicateTruthPhi,truthPhi);
       // delta (hpt - lpt plots) & lpt vs hpt plts
-      m_duplicateDeltaPt->Fill(deltaPT2);
-      m_duplicateDeltaPtZoomed->Fill(deltaPT2);
-      m_duplicateDeltaEta->Fill(deltaEta2);
-      m_duplicateDeltaPhi->Fill(deltaPhi2);
+      fillHisto(m_duplicateDeltaPt,deltaPT2);
+      fillHisto(m_duplicateDeltaPtZoomed,deltaPT2);
+      fillHisto(m_duplicateDeltaEta,deltaEta2);
+      fillHisto(m_duplicateDeltaPhi,deltaPhi2);
 
       // lpt & hpt vs truth
 
-      m_duplicateProbSpectrum->Fill(prob1, prob2);
+      fillHisto(m_duplicateProbSpectrum,prob1, prob2);
     }
   }
   if (prob1 != prob2) {
     if (pt1 > pt2) {
-      m_twoMatchHPixelvsSCTShared->Fill(pixShared1, sctShared1);
-      m_twoMatchLPixelvsSCTShared->Fill(pixShared2, sctShared2);
-      m_duplicateProbSpectrum->Fill(prob2, prob1);
+      fillHisto(m_twoMatchHPixelvsSCTShared,pixShared1, sctShared1);
+      fillHisto(m_twoMatchLPixelvsSCTShared,pixShared2, sctShared2);
+      fillHisto(m_duplicateProbSpectrum,prob2, prob1);
     } else {
-      m_twoMatchLPixelvsSCTShared->Fill(pixShared1, sctShared1);
-      m_twoMatchHPixelvsSCTShared->Fill(pixShared2, sctShared2);
+      fillHisto(m_twoMatchLPixelvsSCTShared,pixShared1, sctShared1);
+      fillHisto(m_twoMatchHPixelvsSCTShared,pixShared2, sctShared2);
 
-      m_duplicateProbSpectrum->Fill(prob1, prob2);
+      fillHisto(m_duplicateProbSpectrum,prob1, prob2);
     }
   }
 }

@@ -1,19 +1,27 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: PhysVal_jobOptions.py 767153 2016-08-10 00:20:04Z mbaugh $
+# $Id: PhysVal_jobOptions.py 772874 2016-09-13 09:10:36Z sroe $
 
 # Set up the reading of the input xAOD:
 import getpass
 FNAME = "AOD.pool.root"
 #FNAME="root://eosatlas//eos/atlas/atlasgroupdisk/perf-idtracking/dq2/rucio/mc15_13TeV/0c/a1/RDO.07497163._000001.pool.root.1"
 if (getpass.getuser())=="mbaugh":
-  FNAME = "../rootfile_storage/ESD.ttbarB.pool.root"
-  #FNAME = "../rootfile_storage/AOD.07275543._000001.pool.root.1"
+  #FNAME = "../rootfile_storage/ESD.ttbarB.pool.root"
   #FNAME = "../rootfile_storage/ESD.kshortBT_large.pool.root"
-  #FNAME = "../rootfile_storage/ESD.05297574._000081.pool.root.1"
-  #FNAME = "../rootfile_storage/ESD.06634780._000015.pool.root.1"
+  FNAME = "../rootfile_storage/ESD.newphoton_OFF.pool.root"
+  '''
+  The following sets an environment variable to enable backtracking debug messages.
+  To use in C++:
+  const char * debugBacktracking = std::getenv("BACKTRACKDEBUG");
+  if (debugBacktracking){
+    std::cout<<"Rey: the number of Inside-Out tracks is "<<nInsideOut<<"\n";
+    std::cout<<"Finn: the number of Outside-In tracks is "<<nOutsideIn<<"\n";
+  }
+  '''
+  os.environ["BACKTRACKDEBUG"] = "1"
+  #
   print " Hello, Max"
-
 include( "AthenaPython/iread_file.py" )
 
 if (getpass.getuser())=="woodsn":
@@ -44,9 +52,9 @@ monMan.LumiBlock           = 1
 monMan.FileKey = "M_output"
 topSequence += monMan
 
-
+#This doesn't work:
 '''
-This doesn't work:
+
 from InDetTrackSelectorTool.InDetTrackSelectorToolConf import InDet__InDetDetailedTrackSelectorTool
 InDetTrackSelectorTool = InDet__InDetDetailedTrackSelectorTool(name = "InDetDetailedTrackSelectionTool",
                                                              TrackSummaryTool = InDetTrackSummaryTool,
@@ -60,6 +68,7 @@ tool1.TrackSelectionTool.TrackSummaryTool = InDetTrackSummaryTool
 tool1.TrackSelectionTool.Extrapolator     = InDetExtrapolator
 '''
 #this works:
+'''
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 InDetTrackSelectorTool = InDet__InDetTrackSelectionTool(name = "InDetTrackSelectorTool",
                                                         CutLevel = InDetPrimaryVertexingCuts.TrackCutLevel(),
@@ -79,23 +88,18 @@ InDetTrackSelectorTool = InDet__InDetTrackSelectionTool(name = "InDetTrackSelect
                                                         minNSiHits = InDetPrimaryVertexingCuts.nHitSi(),
                                                         TrackSummaryTool = InDetTrackSummaryTool,
                                                         Extrapolator = InDetExtrapolator)
-'''
-from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
-InDetTrackSelectorTool = InDet__InDetTrackSelectionTool("InDetTrackSelectorTool")
-InDetTrackSelectorTool.minPt            = 400           # Mev
-InDetTrackSelectorTool.maxD0            = 4             # mm
-InDetTrackSelectorTool.maxZ0            = 1000           # mm
-InDetTrackSelectorTool.minNSiHits       = 6            # Pixel + SCT
-InDetTrackSelectorTool.maxNPixelHoles   = 1             # Pixel only
-'''
-ToolSvc += InDetTrackSelectorTool
 
+
+ToolSvc += InDetTrackSelectorTool
+'''
 #This section should control TTST  7-12-16                                                        
-mode = "Back" #Set this to "Back" for backtracking
+mode = "FWD" #Set this to "Back" for backtracking
 from InDetPhysValMonitoring.InDetPhysValMonitoringConf import TrackTruthSelectionTool
 truthSelection = TrackTruthSelectionTool()
 if mode == "Back":
-  truthSelection.requireDecayBeforePixel = False
+  # max prod. vertex radius for secondaries [mm]
+  # < 0 corresponds to : do not require decay before pixel
+  truthSelection.maxProdVertRadius = -999.9 
   truthSelection.maxBarcode = -1
 
 ToolSvc += truthSelection
@@ -104,8 +108,8 @@ from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValMonito
 tool1 = InDetPhysValMonitoringTool()
 tool1.TruthSelectionTool = truthSelection
 tool1.useTrackSelection = False
-tool1.TrackSelectionTool=InDetTrackSelectorTool
-tool1.FillTrackInJetPlots = True
+#tool1.TrackSelectionTool=InDetTrackSelectorTool
+tool1.FillTrackInJetPlots = False
 
 
 ToolSvc += tool1
@@ -126,4 +130,4 @@ ServiceMgr.MessageSvc.OutputLevel = WARNING
 ServiceMgr.MessageSvc.defaultLimit = 10000
 theApp.EvtMax = -1
 if (getpass.getuser())=="sroe":
-  theApp.EvtMax = 1000
+  theApp.EvtMax = 5

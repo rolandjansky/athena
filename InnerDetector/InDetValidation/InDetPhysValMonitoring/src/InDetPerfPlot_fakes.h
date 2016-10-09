@@ -27,10 +27,9 @@ public:
   };
   InDetPerfPlot_fakes(InDetPlotBase *pParent, const std::string &dirName);
   void fill(const xAOD::TrackParticle &trkprt, const bool isFake, const Category f = ALL);
-  void fillLinked(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &particle, double prob);
-  void fillUnlinked(const xAOD::TrackParticle &trkprt, double prob);
+  void fillLinkedandUnlinked(const xAOD::TrackParticle &trkprt, float Prim_w, float Sec_w, float Unlinked_w);
   void fillIncFakeDenom(const xAOD::TruthParticle &particle);
-  void fillIncFake(int nTracks, double ifr, int nSelected);
+  void fillIncTrkRate(const unsigned int nMuEvents,std::vector<int> incTrkNum, std::vector<int> incTrkDenom);
 private:
   ///fakes Histograms
   TH1 *m_fakepT;
@@ -45,50 +44,41 @@ private:
   TProfile *m_track_fakerate_vs_phi;
   TProfile *m_track_fakerate_vs_d0;
   TProfile *m_track_fakerate_vs_z0;
-  TProfile *m_incFakevsTracks;
-  TH2 *m_selectedTracks_vs_nTracks;
-
-  TH1 *m_fakePtNumPrimary;
-  TH1 *m_fakephiNumPrimary;
-  TH1 *m_fakeetaNumPrimary;
-  TH1 *m_faked0NumPrimary;
-  TH1 *m_fakez0NumPrimary;
-  TH1 *m_fakePtNumSecondary;
-  TH1 *m_fakephiNumSecondary;
-  TH1 *m_fakeetaNumSecondary;
-  TH1 *m_faked0NumSecondary;
-  TH1 *m_fakez0NumSecondary;
-  TH1 *m_fakePtDenom;
-  TH1 *m_fakephiDenom;
-  TH1 *m_fakeetaDenom;
-  TH1 *m_faked0Denom;
-  TH1 *m_fakez0Denom;
-  TH1 *m_fakePtUnlinked;
-  TH1 *m_fakephiUnlinked;
-  TH1 *m_fakeetaUnlinked;
-  TH1 *m_faked0Unlinked;
-  TH1 *m_fakez0Unlinked;
-
-  TH1 *m_fakePtPrimary;
-  TH1 *m_fakephiPrimary;
-  TH1 *m_fakeetaPrimary;
-  TH1 *m_faked0Primary;
-  TH1 *m_fakez0Primary;
-  TH1 *m_fakePtSecondary;
-  TH1 *m_fakephiSecondary;
-  TH1 *m_fakeetaSecondary;
-  TH1 *m_faked0Secondary;
-  TH1 *m_fakez0Secondary;
-  TH1 *m_fakePtUnlinkedFrac;
-  TH1 *m_fakephiUnlinkedFrac;
-  TH1 *m_fakeetaUnlinkedFrac;
-  TH1 *m_faked0UnlinkedFrac;
-  TH1 *m_fakez0UnlinkedFrac;
-
-  TH1 *m_incFakeDenomEta;
-  TH1 *m_incFakeDenomPt;
-  TH1 *m_incFakeEta;
-  TH1 *m_incFakePt;
+  TH1* m_incFakeNum_pt1;
+  TH1* m_incFakeNum_pt2;
+  TH1* m_incFakeNum_pt5;
+  TProfile *m_fakeEtaTotal;
+  TProfile *m_fakePtPrimary;
+  TProfile *m_fakeetaPrimary;
+  TProfile *m_fakePhiPrimary;
+  TProfile *m_faked0Primary;
+  TProfile *m_fakez0Primary;
+  TProfile *m_fakePtSecondary;
+  TProfile *m_fakeetaSecondary;
+  TProfile *m_fakePhiSecondary;
+  TProfile *m_faked0Secondary;
+  TProfile *m_fakez0Secondary;
+  TH1* m_incFakeDenomEta_pt1;
+  TH1* m_incFakeDenomEta_pt2;
+  TH1* m_incFakeDenomEta_pt5;
+  TProfile *m_fakePtUnlinkedFrac;                                                       
+  TProfile *m_fakeetaUnlinkedFrac;
+  TProfile *m_fakePhiUnlinkedFrac;
+  TProfile *m_faked0UnlinkedFrac;                                                        
+  TProfile *m_fakez0UnlinkedFrac;
+  TH1 *m_incFakeEta_pt1;
+  TH1 *m_incFakeEta_pt2;
+  TH1 *m_incFakeEta_pt5;
+  TH1* m_nTracks_vs_mu;
+  TH1* m_nTruth_vs_mu;
+  TH1* m_incTrkRate_vs_mu;
+  TH1* m_nTracks_vs_mu2;
+  TH1* m_nTruth_vs_mu2;
+  TH1* m_incTrkRate_vs_mu2;
+  TH1* m_nTracks_vs_mu3;
+  TH1* m_nTruth_vs_mu3;
+  TH1* m_incTrkRate_vs_mu3;
+  TH1* m_mu;
 
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();

@@ -2,23 +2,27 @@
 
 # $Id: PhysVal_jobOptions.py 714189 2015-12-11 17:33:02Z sroe $
 
+#Set to False if running on AOD or ESD - True for IDTRKVALDAOD
+runDAOD = False
+
 # Set up the reading of the input xAOD:
 import AthenaPoolCnvSvc.ReadAthenaPool
 
 # read single file
-FNAME="AOD.pool.root"
+#FNAME="ESD.pool.root"
 # uncomment this for testing: step 1.2, mu=200 file:
-# FNAME="root://eosatlas//eos/atlas/user/l/lmijovic/shared_atlas/upgrade/inputs/mc15_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.recon.AOD.e1133_s2900_s2904_r7914/AOD.08762005._000011.pool.root.1"
-svcMgr.EventSelector.InputCollections = [ FNAME ] 
+FNAME="root://eosatlas//eos/atlas/user/l/lmijovic/shared_atlas/upgrade/inputs/mc15_14TeV.119995.Pythia8_A2MSTW2008LO_minbias_inelastic_low.recon.AOD.e1133_s2900_s2904_r7914/AOD.08762005._000011.pool.root.1"
+
+#FNAME = "test_pileup100.root"
+
+from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
+svcMgr.EventSelector.InputCollections = [ FNAME ]
+athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
 
 # read multiple files:
 #import glob
 #INFILES=glob.glob('indir/*pool.root*')
 #svcMgr.EventSelector.InputCollections = INFILES
-
-# Set global flags
-from AthenaCommon.AthenaCommonFlags import athenaCommonFlags
-athenaCommonFlags.FilesInput = svcMgr.EventSelector.InputCollections
 
 from AthenaCommon.GlobalFlags import globalflags
 globalflags.DetGeo = 'atlas'
@@ -27,18 +31,32 @@ from RecExConfig.InputFilePeeker import inputFileSummary
 globalflags.DataSource = 'data' if inputFileSummary['evt_type'][0] == "IS_DATA" else 'geant4'
 globalflags.DetDescrVersion = inputFileSummary['geometry']
 
-xmlTags = [ ["ATLAS-P2-ITK-05","ExtBrl_32"],
-            ["ATLAS-P2-ITK-06","ExtBrl_4"],
-            ["ATLAS-P2-ITK-07","IExtBrl_4"],
-            ["ATLAS-P2-ITK-08","InclBrl_4"] ]
+xmlTags = [ ["ATLAS-P2-ITK-05","ExtBrl_32",""],
+            ["ATLAS-P2-SFCAL-01-05-01","ExtBrl_32","GMX"],
+            ["ATLAS-P2-ITK-06","ExtBrl_4",""],
+            ["ATLAS-P2-SFCAL-01-06-01","ExtBrl_4","GMX"],
+            ["ATLAS-P2-ITK-07","IExtBrl_4",""],
+            ["ATLAS-P2-SFCAL-01-07-01","IExtBrl_4","GMX"],
+            ["ATLAS-P2-ITK-08","InclBrl_4",""],
+            ["ATLAS-P2-SFCAL-01-08-01","InclBrl_4","GMX"],
+            ["ATLAS-P2-ITK-10-00-00","InclBrl_4","GMX"],
+            ["ATLAS-P2-ITK-09-00-00","ExtBrl_4","GMX"],]
 
-for geoTag, layoutDescr in xmlTags:
+for geoTag, layoutDescr, gmx in xmlTags:
    if (globalflags.DetDescrVersion().startswith(geoTag)):
       print "preIncludes for ",layoutDescr, " layout"
       from InDetRecExample.InDetJobProperties import InDetFlags
       include('InDetSLHC_Example/preInclude.SLHC.SiliconOnly.Reco.py')
       include('InDetSLHC_Example/preInclude.SLHC_Setup_'+layoutDescr+'.py')
-      include('InDetSLHC_Example/SLHC_Setup_Reco_Alpine.py')
+      if gmx=="GMX":
+         print "preIncludes for GMX strip layout"
+         include('InDetSLHC_Example/preInclude.SLHC_Setup_Strip_GMX.py')
+         if geoTag=="ATLAS-P2-ITK-10-00-00" or geoTag=="ATLAS-P2-ITK-09-00-00" :
+            include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry.py')
+         else:
+            include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry_GMX.py')
+      else : 
+         include('InDetSLHC_Example/SLHC_Setup_Reco_TrackingGeometry.py')
       break
 
 # Just turn on the detector components we need
@@ -51,7 +69,6 @@ DetFlags.detdescr.pixel_setOn()
 # Set up geometry and BField 
 include("RecExCond/AllDet_detDescr.py")
 
-# Set up tracking geometry
 from InDetSLHC_Example.SLHC_JobProperties import SLHC_Flags
 SLHC_Flags.SLHC_Version = ''
 
@@ -59,28 +76,13 @@ SLHC_Flags.SLHC_Version = ''
 from AthenaCommon.GlobalFlags import jobproperties
 DetDescrVersion = jobproperties.Global.DetDescrVersion()
 
-# Set up tracking geometry
-from TrkDetDescrSvc.TrkDetDescrJobProperties import TrkDetFlags
-TrkDetFlags.MaterialStoreGateKey="/GLOBAL/TrackingGeo/LayerMaterialITK"
-TrkDetFlags.MaterialMagicTag = DetDescrVersion
-TrkDetFlags.MaterialVersion=17
-TrkDetFlags.MaterialSubVersion=""
-TrkDetFlags.SLHC_Geometry=True
-
-# Set to True if you use a local geometry file
-TrkDetFlags.MaterialDatabaseLocal=False
-
-if TrkDetFlags.MaterialDatabaseLocal():
-   TrkDetFlags.MaterialDatabaseLocalPath="./"
-   TrkDetFlags.MaterialDatabaseLocalName="AtlasLayerMaterial-"+DetDescrVersion+".db"
-
-for geoTag, layoutDescr in xmlTags:
+for geoTag, layoutDescr,gmx in xmlTags:
    if (globalflags.DetDescrVersion().startswith(geoTag)):
       print "postInclude for ",layoutDescr, " layout"
       include('InDetSLHC_Example/postInclude.SLHC_Setup_'+layoutDescr+'.py')
       break
 
-import TrkDetDescrSvc.AtlasTrackingGeometrySvc
+#import TrkDetDescrSvc.AtlasTrackingGeometrySvc
 
 # Access the algorithm sequence:
 from AthenaCommon.AlgSequence import AlgSequence
@@ -92,9 +94,11 @@ ServiceMgr+=HistogramDefinitionSvc()
 ServiceMgr.HistogramDefinitionSvc.DefinitionSource="../share/ITKHistDef.xml"
 ServiceMgr.HistogramDefinitionSvc.DefinitionFormat="text/xml"
 
-from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
-decorators = InDetPhysValDecoratorAlg()
-topSequence += decorators
+
+if not runDAOD : 
+  from InDetPhysValMonitoring.InDetPhysValMonitoringConf import InDetPhysValDecoratorAlg
+  decorators = InDetPhysValDecoratorAlg()
+  topSequence += decorators
 
 
 from AthenaMonitoring.AthenaMonitoringConf import AthenaMonManager
@@ -113,9 +117,9 @@ topSequence += monMan
 #-------------------------------------------------------------
 from InDetTrackSelectionTool.InDetTrackSelectionToolConf import InDet__InDetTrackSelectionTool
 InDetTrackSelectorTool = InDet__InDetTrackSelectionTool("InDetTrackSelectorTool")
-InDetTrackSelectorTool.minPt            = 900           # Mev
-InDetTrackSelectorTool.maxD0            = 1             # mm
-InDetTrackSelectorTool.maxZ0            = 150           # mm
+InDetTrackSelectorTool.minPt            = 400           # Mev
+InDetTrackSelectorTool.maxD0            = 1              # mm
+InDetTrackSelectorTool.maxZ0            = 150          # mm
 InDetTrackSelectorTool.minNSiHits       = 9            # Pixel + SCT
 InDetTrackSelectorTool.maxNPixelHoles   = 2             # Pixel only
 #eta dependant hit cut below
@@ -137,7 +141,8 @@ TrackTruthSelectionTool.maxBarcode = 200e3
 TrackTruthSelectionTool.pdgId      = -1
 TrackTruthSelectionTool.requireCharged = True
 TrackTruthSelectionTool.requireStatus1 = True
-TrackTruthSelectionTool.requireDecayBeforePixel = True
+TrackTruthSelectionTool.maxProdVertRadius = 260. #max prod. vertex radius of secodaris [mm]
+#TrackTruthSelectionTool.requireDecayBeforePixel = True
 TrackTruthSelectionTool.OutputLevel = DEBUG
 ToolSvc += TrackTruthSelectionTool
 
@@ -166,7 +171,7 @@ svcMgr.THistSvc.Output += ["MyPhysVal DATAFILE='MyPhysVal.root' OPT='RECREATE'"]
 from AthenaCommon.AppMgr import theApp
 ServiceMgr.MessageSvc.OutputLevel = INFO
 ServiceMgr.MessageSvc.defaultLimit = 10000
-#theApp.EvtMax = 50
+theApp.EvtMax = -1
 
 # dump configuration
 from AthenaCommon.ConfigurationShelve import saveToAscii

@@ -6,7 +6,7 @@
 #define INDETPHYSVALMONITORING_InDetPerfPlot_resITk
 /**
  * @file InDetPerfPlot_resITk.h
- * @author shaun roe
+ * @author nora pettersson
  **/
 
 
@@ -43,7 +43,6 @@ public:
     D0, Z0, QOVERP, QOVERPT, THETA, PHI, PT, Z0SIN, NPARAMS
   };
   struct pCfg {
-    pCfg();
     std::string paraName;
     std::string paraLabel;
     std::string paraUnit;
@@ -146,8 +145,14 @@ private:
   TH3 *m_resITk_resHelperetapt[NPARAMS];
 
   TH2 *m_resITk_pullHelperpt[NPARAMS]; // pull width as a function of pT
+  TH2 *m_resITk_pullHelpereta[NPARAMS]; // pull width as a function of pT
+  
   TH1 *m_resITk_pullResolution_vs_pt[NPARAMS][m_nResHist];
+  TH1 *m_resITk_pullResolution_vs_eta[NPARAMS][m_nResHist];
+  
   TH1 *m_resITk_pullProjections_vs_pt[NPARAMS][m_nPtBins];
+  TH1 *m_resITk_pullProjections_vs_eta[NPARAMS][m_nEtaBins];
+
 
   TH1 *m_resITk_Resolution_vs_pt_EtaBin[NPARAMS][4][m_nResHist];
   TH1 *m_resITk_Resolution_vs_eta_PtBin[NPARAMS][4][m_nResHist];
@@ -159,6 +164,32 @@ private:
   TProfile *m_DEBUG_FirstHitR_d0;
   TH1 *m_DEBUG_NOBREM_d0;
   TH1 *m_DEBUG_BREM_d0;
+
+  TH1 *m_trk_chi2ndof;
+  TProfile *m_trk_chi2ndof_vs_eta;
+  TProfile *m_trk_chi2ndof_vs_totHits;
+  TProfile *m_trk_chi2ndof_vs_totHits_prob;
+
+  TH1 *m_trk_chi2;
+  TH1 *m_trk_ndof;
+
+  TH2 *m_significance_d0;
+  TH2 *m_significance_z0;
+
+  TH1 *m_significance_d0_vs_eta;
+  TH1 *m_significance_z0_vs_eta;
+
+  TH1 *m_fix_qoverpt_res[16];
+
+  TH1 *m_fix_qoverptresolutionRMS_vs_eta;
+
+
+  TH1 *m_fix_d0_res[16];
+  TH1 *m_fix_d0resolutionRMS_vs_eta;
+
+  TH1 *m_fix_z0_res[16];
+  TH1 *m_fix_z0resolutionRMS_vs_eta;
+
 };
 
 

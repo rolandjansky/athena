@@ -55,7 +55,7 @@ InDetBasicPlot::fill(const xAOD::TruthParticle &particle) {
       if ((i == 0) and thisParameterValue == 0.) {
         ++m_d0IsExactlyZeroInTruthCounter;
       }
-      (m_basicTruthPlots[i])->Fill(thisParameterValue);
+      fillHisto(m_basicTruthPlots[i],thisParameterValue);
     }
     ++i;
   }
@@ -63,7 +63,7 @@ InDetBasicPlot::fill(const xAOD::TruthParticle &particle) {
   for (const auto &p:m_truthParamNames) {
     if (particle.isAvailable<float>(p)) {
       const auto thisParameterValue = particle.auxdata< float >(p);
-      m_extraTruthPlots[i]->Fill(thisParameterValue);
+      fillHisto(m_extraTruthPlots[i],thisParameterValue);
     }
     ++i;
   }
@@ -84,7 +84,7 @@ InDetBasicPlot::fill(const xAOD::TrackParticle &particle) {
   trkParticleParams[QOVERP] = particle.qOverP();
   for (unsigned int i(0); i < NPARAMS; ++i) {
     const auto &thisParameterValue = trkParticleParams[i];
-    (m_basicTrackPlots[i])->Fill(thisParameterValue);
+    fillHisto(m_basicTrackPlots[i],thisParameterValue);
   }
 }
 

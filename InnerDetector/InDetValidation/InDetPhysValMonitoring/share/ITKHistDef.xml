@@ -140,6 +140,73 @@
   <x title="z0" n="20" lo="-300" hi="300"/>
   <y title="Fake Rate" lo="0" hi="100"/>
 </h>
+<h id="fakeEtaTotal" type="TProfile" title="Fake Rate (primary and secondary)">
+  <x title="#eta" n="40" lo="-4" hi="4"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="fakeetaPrimary" type="TProfile" title="Fake Rate (primary)">
+  <x title="#eta" n="40" lo="-4" hi="4"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h> 
+<h id="fakeetaSecondary" type="TProfile" title="Fake Rate (secondary)">
+  <x title="#eta" n="40" lo="-4" hi="4"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="fakeetaUnlinkedFrac" type="TProfile" title="Fake Rate (unlinked)">
+  <x title="#eta" n="40" lo="-4" hi="4"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+
+<h id="fakePtPrimary" type="TProfile" title="Fake Rate (primary)">
+  <x title="p_{T}" n="100" lo="0" hi="100"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="fakePtSecondary" type="TProfile" title="Fake Rate (secondary)">
+  <x title="p_{T}" n="100" lo="0" hi="100"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="fakePtUnlinkedFrac" type="TProfile" title="Fake Rate (secondary)">
+  <x title="p_{T}" n="100" lo="0" hi="100"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="fakePhiPrimary" type="TProfile" title="Fake Rate (primary)">
+  <x title="#phi" n="50" lo="-&PI;" hi="&PI;"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="fakePhiSecondary" type="TProfile" title="Fake Rate (secondary)">
+  <x title="#phi" n="50" lo="-&PI;" hi="&PI;"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="fakePhiUnlinkedFrac" type="TProfile" title="Fake Rate (unlinked)">
+  <x title="#phi" n="50" lo="-&PI;" hi="&PI;"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="faked0Primary" type="TProfile" title="Fake Rate (primary)">
+  <x title="d_{0}" n="50" lo="-1.5" hi="1.5"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="faked0Secondary" type="TProfile" title="Fake Rate (secondary)">
+  <x title="d_{0}" n="50" lo="-1.5" hi="1.5"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="faked0UnlinkedFrac" type="TProfile" title="Fake Rate (secondary)">
+  <x title="d_{0}" n="50" lo="-1.5" hi="1.5"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="fakez0Primary" type="TProfile" title="Fake Rate (primary)">
+  <x title="z_{0}" n="50" lo="-150" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="fakez0Secondary" type="TProfile" title="Fake Rate (secondary)">
+  <x title="z_{0}" n="50" lo="-150" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+<h id="fakez0UnlinkedFrac" type="TProfile" title="Fake Rate (unlinked)">
+  <x title="z_{0}" n="50" lo="-150" hi="150"/>
+  <y title="Fake Rate" lo="0" hi="1"/>
+</h>
+
+
 <!--  -->
 <!-- efficiency plots -->
 <h id="eff_pt_Numerator" type="TH1F" title="p_{T} of reco-matched truth track (in GeV)">
@@ -737,7 +804,7 @@
   <y title="# total deadsensors" lo="0" hi="20"/>
 </h>
 <h id="recoMatchProbabilitySpectrum" type="TH1F" title="truth match probability spectrum">
-  <x title="truth match probability" n="40" lo="0." hi="1"/>
+  <x title="truth match probability" n="40" lo="0." hi="1.1"/>
   <y title="Entries"/>
 </h>
 <h id="recoEtaSpectrum" type="TH1F" title="reco eta spectrum">
@@ -1139,7 +1206,7 @@
 </h>
 <h id="ptvsEtaLinked_postSelect" type="TH2F" title="PT vs Eta Spectrum">
   <x title="#eta" n="80" lo="-&ETA;" hi="&ETA;"/>
-  <y title="Fake Rate" n="200" lo="0" hi="200"/>
+  <y title="p_{T}" n="200" lo="0" hi="200"/>
 </h>
 <h id="probvsSCTLinked_postSelect" type="TH2F" title="Truth Match Probability vs SCT Hits">
   <x title="SCT Hits" n="20" lo="0" hi="20"/>
