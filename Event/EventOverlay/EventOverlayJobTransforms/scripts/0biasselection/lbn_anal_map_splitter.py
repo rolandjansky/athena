@@ -7,7 +7,10 @@ special_run_lbn = {}
 with open("runs_lbn_files.txt") as f:
     for line in f:
         #print line
-        if not line.startswith("root"): continue
+        if not line.startswith("root"):
+            print "WARNING: line doesn't start with 'root'"
+            print line
+            continue
         filenm=line.rstrip()
         print filenm
         finfo=filenm.split(".")

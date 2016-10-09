@@ -23,7 +23,7 @@ public:
 };
 
 FILE *outfile=fopen("lbn_anal_map.txt","w");
-int debug=0;
+int debug=1;
 
 std::map< int, int > eventcounts;
 void readeventcounts(int run){
@@ -57,9 +57,9 @@ void lbn_analyze(int stream, int nwanted)
    FILE *fp = fopen("lbn","r");
    if (!fp) printf("Failed to open lbn input file!!!\n");
    char *line=new char[500];
-   int run,lbn,L1Acc,beforeps,afterps,L1p,L2p,L3p,valid; 
+   int run,lbn,L1Acc,beforeps,afterps,valid; //L1p,L2p,L3p
    int liveL1,livebp,liveap;
-   float instlumi,dt,avevtperbx,live;
+   float instlumi,dt,avevtperbx,live,L1p,HLTp,LARp;
    //float intlumi,intlumitrig;
    int grun=0;
    float gtotaltotallumi=0,gtotaltotallumiprescaled=0;
@@ -76,10 +76,11 @@ void lbn_analyze(int stream, int nwanted)
    while (fgets(line,480,fp)) {
      if (line[0]!='-') continue;
      
-     int s=sscanf(&line[0],"--- LumiCalculator      : %d[%d]: L1Acc: %d, Livetime trigger L1Acc: %d, InstLumi: %f, deltaT: %f, AvEvtsPerBX: %f, BeforePrescale: %d, AfterPrescale: %d, Livetime trigger BeforePrescale: %d Livetime trigger AfterPrescale: %d, Livefrac: %f, L1Presc: %d, L2Presc: %d, L3Presc: %d, Valid: %d", &run,&lbn,&L1Acc,&liveL1,&instlumi,&dt,&avevtperbx,&beforeps,&afterps,&livebp,&liveap,&live,&L1p,&L2p,&L3p,&valid);
-     
+//   int s=sscanf(&line[0],"--- LumiCalculator      : %d[%d]: L1Acc: %d, Livetime trigger L1Acc: %d, InstLumi: %f, deltaT: %f, AvEvtsPerBX: %f, BeforePrescale: %d, AfterPrescale: %d, Livetime trigger BeforePrescale: %d Livetime trigger AfterPrescale: %d, Livefrac: %f, L1Presc: %d, L2Presc: %d, L3Presc: %d, Valid: %d", &run,&lbn,&L1Acc,&liveL1,&instlumi,&dt,&avevtperbx,&beforeps,&afterps,&livebp,&liveap,&live,&L1p,&L2p,&L3p,&valid);
+     int s=sscanf(&line[0],"--- LumiCalculator      : %d[%d]: L1Acc: %d, Livetime trigger L1Acc: %d, InstLumi: %f, deltaT: %f, AvEvtsPerBX: %f, BeforePrescale: %d, AfterPrescale: %d, Livetime trigger BeforePrescale: %d Livetime trigger AfterPrescale: %d, Livefrac: %f, L1Presc: %f, HLTPresc: %f, Valid: %d, LAr ready fraction: %f", &run,&lbn,&L1Acc,&liveL1,&instlumi,&dt,&avevtperbx,&beforeps,&afterps,&livebp,&liveap,&live,&L1p,&HLTp,&valid,&LARp);
+
      if (s>8){
-       if (debug) printf("- run=%d, lbn=%d, L1Acc=%d, instlumi=%f,L1p=%d, dt=%f, afterps=%d",run,lbn,L1Acc,instlumi,L1p,dt,afterps);
+       if (debug) printf("Got %d values : run=%d, lbn=%d, L1Acc=%d, instlumi=%f, L1p=%f, dt=%f, live=%f, afterps=%d \n",s,run,lbn,L1Acc,instlumi,L1p,dt,live,afterps);
        
        if (run!=grun){
 	 if (grun>0){//change of run
@@ -114,7 +115,7 @@ void lbn_analyze(int stream, int nwanted)
 	 gtotallumiprescaled+= instlumi*dt*live/L1p;
 	 gtotallumi+= instlumi*dt*live;
        }
-       if (debug) printf(", s=%d, grun=%d, gtotallumi=%f, gtotallumiprescaled=%f\n",s,grun,gtotallumi,gtotallumiprescaled);
+       if (debug) printf("grun=%d, gtotallumi=%f, gtotallumiprescaled=%f\n",grun,gtotallumi,gtotallumiprescaled);
      }//good line
    }//loop over lines in file
    
