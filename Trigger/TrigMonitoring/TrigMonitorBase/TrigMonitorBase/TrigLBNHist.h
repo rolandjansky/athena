@@ -99,14 +99,13 @@ class TrigLBNHist : public HTYPE, public ITrigLBNHist {
   virtual Int_t Fill(Double_t x, const char* namey, Double_t w);
   virtual Int_t Fill(const char* namex, Double_t y, Double_t w);
   virtual Int_t Fill(const char* namex, const char* namey, Double_t w);
-
+  virtual Int_t Fill(Double_t x, Double_t y, Double_t z, Double_t w);
 
   void print();
 
   virtual void reg(); //!< needs to be called (done in TrigMonGroup to have summary histogram registred)
   virtual bool lbn( unsigned int lbn );
   virtual bool force( unsigned int lbn );
-  
 
 private:
   HTYPE *fetchHist();

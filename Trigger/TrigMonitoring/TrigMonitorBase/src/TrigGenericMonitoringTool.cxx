@@ -8,6 +8,7 @@
 #include <TH1.h>
 #include <TH2.h>
 #include <TProfile.h>
+#include <TProfile2D.h>
 #include "TrigMonitorBase/TrigLBNHist.h"
 
 #include <boost/tokenizer.hpp>
@@ -130,10 +131,37 @@ TH1* TrigGenericMonitoringTool::create1D( TH1*& histo, ITrigLBNHist*& histoLBN,
 }
 
 template<class H> 
+TH1* TrigGenericMonitoringTool::createProfile( TProfile*& histo, ITrigLBNHist*& histoLBN,
+					     const HistogramDef& def ) {
+  H* htemp = new H( def.alias.c_str(), def.title.c_str(), def.xbins, def.xmin, def.xmax, def.ymin, def.ymax );
+  histo = htemp;
+
+  if ( def.opt.find("kLBN") != std::string::npos ) {
+      TrigLBNHist<H>* lh = new TrigLBNHist<H>(*htemp);
+      delete htemp; histo = lh; histoLBN = lh;
+  }  
+  return histo;
+}
+
+template<class H> 
 TH1* TrigGenericMonitoringTool::create2D( TH2*& histo, ITrigLBNHist*& histoLBN,
 					     const HistogramDef& def ) {
   H* htemp = new H( def.alias.c_str(), def.title.c_str(), 
 		    def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax  );
+  histo = htemp;
+
+  if ( def.opt.find("kLBN") != std::string::npos ) {
+      TrigLBNHist<H>* lh = new TrigLBNHist<H>(*htemp);
+      delete htemp; histo = lh; histoLBN = lh;
+  }  
+  return histo;
+}
+
+template<class H> 
+TH1* TrigGenericMonitoringTool::create2DProfile( TProfile2D*& histo, ITrigLBNHist*& histoLBN,
+					     const HistogramDef& def ) {
+  H* htemp = new H( def.alias.c_str(), def.title.c_str(), 
+  		    def.xbins, def.xmin, def.xmax, def.ybins, def.ymin, def.ymax, def.zmin, def.zmax  );
   histo = htemp;
 
   if ( def.opt.find("kLBN") != std::string::npos ) {
@@ -148,6 +176,7 @@ StatusCode TrigGenericMonitoringTool::createFiller(const HistogramDef& def) {
   TH1* histo1D(0);
   TProfile* histoProfile(0);
   TH2* histo2D(0);
+  TProfile2D* histo2DProfile(0);
   ITrigLBNHist* histoLBN(0);
   // create 1D 
 
@@ -164,8 +193,7 @@ StatusCode TrigGenericMonitoringTool::createFiller(const HistogramDef& def) {
     histo = create1D<TH1I>(histo1D, histoLBN, def );
 
   else if (def.type == "TProfile") {
-    histo = create1D<TProfile>(histo1D, histoLBN, def );
-    histoProfile = dynamic_cast<TProfile*>(histo1D);
+    histo = createProfile<TProfile>(histoProfile, histoLBN, def);
   }
   
 
@@ -179,10 +207,13 @@ StatusCode TrigGenericMonitoringTool::createFiller(const HistogramDef& def) {
   else if (def.type == "TH2I") 
     histo = create2D<TH2I>(histo2D, histoLBN, def );
   
+  else if (def.type == "TProfile2D"){
+    histo = create2DProfile<TProfile2D>(histo2DProfile, histoLBN, def);
+  }
   
   if (histo == 0 ) {
     ATH_MSG_WARNING("Can not create yet histogram of type: " << def.type);
-    ATH_MSG_WARNING("Try one of: TH1F,TH1D,TH1I,TH2F,TH2D,TH2I, TProfile");
+    ATH_MSG_WARNING("Try one of: TH1F,TH1D,TH1I,TH2F,TH2D,TH2I, TProfile, TProfile2D");
     return StatusCode::FAILURE;
   }
 
@@ -246,6 +277,28 @@ StatusCode TrigGenericMonitoringTool::createFiller(const HistogramDef& def) {
       
       return StatusCode::FAILURE;
     }
+
+  } else if ( histo2DProfile ){
+    std::map<std::string, IMonitoredAlgo::IGetter*>::const_iterator var1It, var2It, var3It;
+    var1It = m_algo->variables().find(def.name[0]);
+    var2It = m_algo->variables().find(def.name[1]);
+    var3It = m_algo->variables().find(def.name[2]);
+
+    if ( var1It != m_algo->variables().end() && var2It != m_algo->variables().end() && var3It != m_algo->variables().end() ) {
+      ATH_MSG_DEBUG("Variables: " << def.name[0] << "," << def.name[1] << "," << def.name[2]
+                    << " from parent algorithm: " << m_parentName
+                    << " will be histogrammed in 2D Profile histogram");
+      m_fillers.push_back(new HistogramFiller2DProfile(histo2DProfile, var1It->second, var2It->second, var3It->second));		  
+    }
+    else{
+      ATH_MSG_WARNING("Variables: " << def.name[0] << "," << def.name[1] << "," << def.name[2] << " not exported by parent algorithm: " << m_parentName);
+      for ( var1It = m_algo->variables().begin(); var1It != m_algo->variables().end(); ++var1It) {
+        msg() << MSG::WARNING << var1It->first << " ";	
+      }
+      msg() << MSG::WARNING << endreq;
+      return StatusCode::FAILURE;
+    }
+
   } else if ( histo2D || histoProfile ){
     std::map<std::string, IMonitoredAlgo::IGetter*>::const_iterator var1It, var2It;
     var1It = m_algo->variables().find(def.name[0]);
@@ -260,7 +313,7 @@ StatusCode TrigGenericMonitoringTool::createFiller(const HistogramDef& def) {
       else {       
         m_fillers.push_back(new HistogramFillerProfile(histoProfile, var1It->second, var2It->second));
       }
-    } 
+    }
     else {
       ATH_MSG_WARNING("Variables: " << def.name[0] << "," << def.name[1] << " not exported by parent algorithm: " << m_parentName);
       for ( var1It = m_algo->variables().begin(); var1It != m_algo->variables().end(); ++var1It) {
@@ -357,6 +410,7 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
   const char* warning = " NOT booked: ";
   histPar.ok   = false;
   histPar.ycut = false;
+  histPar.zcut = false;
   
   if (histProperty.size() < 5) return histPar;   
   
@@ -368,6 +422,13 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
   histPar.name.push_back(*itr);
   itr = histProperty.erase(itr);
   if (histPar.type.find("TH2") == 0 || histPar.type == "TProfile") {
+    histPar.name.push_back(*itr);
+    itr = histProperty.erase(itr);
+  }
+  else if (histPar.type == "TProfile2D") {
+    //twice more as there are three variables
+    histPar.name.push_back(*itr);
+    itr = histProperty.erase(itr);
     histPar.name.push_back(*itr);
     itr = histProperty.erase(itr);
   }
@@ -383,6 +444,9 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
     histPar.alias = histPar.name[0];
     if ( histPar.name.size() == 2 ) {
       histPar.alias += "_vs_"+histPar.name[1];
+    }
+    else if (histPar.name.size() == 3 ){
+      histPar.alias += "_vs_"+histPar.name[1]+"_vs_"+histPar.name[2];
     }
   }
 
@@ -466,6 +530,7 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
       return histPar;
     }
   } //-end of TH2
+  //TProfile
   else if (histPar.type == "TProfile" && histProperty.size() >= 2) {
     // limited y-range
     try {
@@ -487,6 +552,68 @@ const TrigGenericMonitoringTool::HistogramDef TrigGenericMonitoringTool::parseJo
     }
     histPar.ybins = 0; // not used
     histPar.ycut = true;
+  }
+  //TProfile2D
+  else if (histPar.type == "TProfile2D"){
+
+    if (histProperty.size() < 2) {
+      ATH_MSG_WARNING(histPar.name[0] << warning << "y-axis definition expected for TProfile2D");
+      return histPar;
+    }
+    
+    try {
+      histPar.ybins = boost::lexical_cast<int>(*itr);
+      itr = histProperty.erase(itr);
+    }
+    catch (boost::bad_lexical_cast&) {
+      ATH_MSG_WARNING(histPar.name[0] << warning << "int expected for ybins");
+      return histPar;
+    }
+    
+    if (histProperty.size() < 2) {
+      ATH_MSG_WARNING(histPar.name[0] << warning << "ymin and ymax expected");
+      return histPar;
+    }
+    
+    try {
+      histPar.ymin = boost::lexical_cast<double>(*itr);
+      itr = histProperty.erase(itr);
+    }
+    catch (boost::bad_lexical_cast&) {
+      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymin");
+      return histPar;
+    }
+    
+    try {
+      histPar.ymax = boost::lexical_cast<double>(*itr);
+      itr = histProperty.erase(itr);
+    }
+    catch (boost::bad_lexical_cast&) {
+      ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for ymax");
+      return histPar;
+    }
+    //For limited z range
+    if(histProperty.size() >= 2){
+      try {
+        histPar.zmin = boost::lexical_cast<double>(*itr);
+        itr = histProperty.erase(itr);
+      }
+      catch (boost::bad_lexical_cast&) {
+        ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for zmin of TProfile2D");
+        return histPar;
+      }
+    
+      try {
+        histPar.zmax = boost::lexical_cast<double>(*itr);
+        itr = histProperty.erase(itr);
+      }
+      catch (boost::bad_lexical_cast&) {
+        ATH_MSG_WARNING(histPar.name[0] << warning << "double expected for zmax of TProfile2D");
+        return histPar;
+      }
+
+      histPar.zcut = true;
+    }
   }
 
   if (itr->find(":") != std::string::npos ) { // it means that last paramater has format str1:str2:str3:str4 which means this are bins labels
@@ -583,6 +710,32 @@ unsigned TrigGenericMonitoringTool::HistogramFillerProfile::fill() {
   
   return i;
 }
+
+TrigGenericMonitoringTool::HistogramFiller2DProfile::HistogramFiller2DProfile(TProfile2D* hist, IMonitoredAlgo::IGetter* var1, 
+									      IMonitoredAlgo::IGetter* var2,
+									      IMonitoredAlgo::IGetter* var3) 
+  : m_histogram(hist), m_variable1(var1), m_variable2(var2), m_variable3(var3) {
+}  
+
+unsigned TrigGenericMonitoringTool::HistogramFiller2DProfile::fill() {
+  if ( !m_histogram )
+    return 0;
+
+  unsigned i(0);
+  /*HERE NEED TO INCLUDE CASE IN WHICH SOME VARIABLES ARE SCALAR AND SOME VARIABLES ARE VECTORS
+  unsigned i(0);
+  if (m_variable1->size() != m_variable2->size() || m_variable1->size() != m_variable3->size() || m_variable2->size() != m_variable3->size() ) {
+
+  }*/
+
+  //For now lets just consider the case in which all variables are of the same length
+  for ( i = 0; i < m_variable1->size() ; ++i )
+    m_histogram->Fill(m_variable1->get(i), m_variable2->get(i), m_variable3->get(i));
+  
+  return i;
+}
+
+
 
 
 TrigGenericMonitoringTool::HistogramFiller2D::HistogramFiller2D(TH2* hist, IMonitoredAlgo::IGetter* var1, 
