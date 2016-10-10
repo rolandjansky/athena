@@ -11,7 +11,7 @@ def printMethod(x):
 def printAmbiguityInfo(egamma, tool, printMethod = printMethod):
   "printAmbiguityInfo(egamma, tool) -> print author and ambiguity result"
   import ROOT
-  eg2 = tool.getOverlappingObject( egamma )
+  eg2 = egamma.ambiguousObject()
   electron, photon = (egamma, eg2) if egamma.type() == ROOT.xAOD.Type.Electron \
     else (eg2, egamma)
   

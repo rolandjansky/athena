@@ -23,7 +23,6 @@
 #include "ElectronPhotonSelectorTools/AsgElectronMultiLeptonSelector.h"
 #include "ElectronPhotonSelectorTools/AsgForwardElectronIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/AsgElectronLikelihoodTool.h"
-#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "ElectronPhotonSelectorTools/EGammaAmbiguityTool.h"
 
 #endif

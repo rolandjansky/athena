@@ -14,7 +14,7 @@
 
 // Include this class's header
 #include "ElectronPhotonSelectorTools/AsgPhotonIsEMSelector.h"
-#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "EGSelectorConfigurationMapping.h"
 #include "ElectronPhotonSelectorTools/egammaPIDdefs.h"
 #include "xAODEgamma/Photon.h"
@@ -401,7 +401,7 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
 
   // protection against null pointer
   if (eg==0) {
-    ATH_MSG_DEBUG("eg == 0");
+    ATH_MSG_ERROR("eg == 0");
     // if object is bad then use the bit for "bad eta"
     iflag = (0x1 << egammaPID::ClusterEtaRange_Photon); 
     m_rootTool->setIsEM(iflag);
@@ -411,7 +411,7 @@ StatusCode AsgPhotonIsEMSelector::execute(const xAOD::Egamma* eg) const
   // protection against bad clusters
   const xAOD::CaloCluster* cluster  = eg->caloCluster(); 
   if ( cluster == 0 ) {
-    ATH_MSG_DEBUG("cluster == " << cluster);
+    ATH_MSG_ERROR("exiting because cluster is NULL " << cluster);
     // if object is bad then use the bit for "bad eta"
     iflag = (0x1 << egammaPID::ClusterEtaRange_Photon); 
     m_rootTool->setIsEM(iflag);

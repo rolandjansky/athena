@@ -121,6 +121,8 @@ private:
   /// Get the number of primary vertices
   unsigned int getNPrimVertices() const;
 
+  /// Get the FCal ET for centrality determination (for HI collisions)
+  double getFcalEt() const;
 
   /// Get the name of the current operating point
 
@@ -152,6 +154,16 @@ private:
 
   /// The primary vertex container name
   std::string m_primVtxContName;
+
+  /// Whether or not to use the CaloSums container in HI events
+  bool m_useCaloSumsCont;
+
+  /// defualt FCal ET (when not using CaloSums container, in HI events)
+  double m_fcalEtDefault;
+
+  /// The CaloSums container name, in HI events
+  std::string m_CaloSumsContName;
+
 
   /// The input ROOT file name that holds the PDFs
   std::string m_pdfFileName;

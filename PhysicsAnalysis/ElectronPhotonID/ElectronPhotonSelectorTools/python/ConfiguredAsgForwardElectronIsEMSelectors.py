@@ -27,7 +27,7 @@ def ConfiguredAsgForwardElectronIsEMSelector( name, quality, menu=forwardelectro
     try:
         ntuple = ForwardElectronIsEMMap(quality, menu)
     except KeyError:
-        sys.stderr.write("Fwd Electron quality not found. Please use an egammaIDQuality (egammaEvent/egammaPIDdefs.h).\n This function only supports standard electron IDs, and not photon or forward IDs\n")
+        sys.stderr.write("Fwd Electron quality not found. Please use an egammaIDQuality (ElectronPhotonSelectorTools/egammaPIDdefs.h).\n This function only supports standard electron IDs, and not photon or forward IDs\n")
         raise
 
     # Get the label for user data
