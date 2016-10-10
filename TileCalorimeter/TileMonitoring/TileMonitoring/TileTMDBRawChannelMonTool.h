@@ -57,10 +57,10 @@ class TileTMDBRawChannelMonTool : public TileFatherMonTool {
     bool m_histogramsNotBooked;
     bool m_isNotDSP;
     bool m_eff;
-    std::vector<float> TMDB_A_D6_amplitude;
-    std::vector<float> TMDB_A_D56_amplitude;
-    std::vector<float> TMDB_C_D6_amplitude;
-    std::vector<float> TMDB_C_D56_amplitude;
+    std::vector<float> m_TMDB_A_D6_amplitude;
+    std::vector<float> m_TMDB_A_D56_amplitude;
+    std::vector<float> m_TMDB_C_D6_amplitude;
+    std::vector<float> m_TMDB_C_D56_amplitude;
     
     
     std::string m_rawChannelContainerName;
@@ -87,8 +87,8 @@ class TileTMDBRawChannelMonTool : public TileFatherMonTool {
     float m_amplitudeThreshold;
 	
 	
-	int thre_a[256];
-	int thre_c[256];
+    int m_thre_a[256];
+    int m_thre_c[256];
 };
 
 #endif
