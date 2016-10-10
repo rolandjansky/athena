@@ -13,7 +13,8 @@
   -->
   
   <var name="ITkOuterRadius"                value="1130."/> <!-- Cryo inner r is 1150. mm, ref. blue book ATLAS exp at LHC -->
-  <var name="ITkHalfLength"                 value="3505."/> <!-- Never used? ITk env. v 1.4 -->
+  <var name="ITkHalfLength"                 value="3475."/> <!-- ITk env. v 1.4 has 3505 but reduced to 3475 to make space for HGTD 
+                                                                 E-mail Simon Viel, 18/10/2016 -->
 
   <!-- E-mail Sabine 2015-10-26 for next three numbers -->
   <var name="StripOuterRadius"              value="ITkOuterRadius"/> 

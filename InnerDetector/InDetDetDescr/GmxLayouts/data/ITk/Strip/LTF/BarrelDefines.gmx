@@ -96,7 +96,7 @@
   <var name="StaveEOS_CFoamL"            value="60.0"/> <!-- Ref: np49-01-141.pdf 1/3/2016 -->
   <var name="StaveEOS_CFoamW"            value="73.5"/> <!-- Ref: np49-01-141.pdf 1/3/2016 -->
 
-  <vector name="N_StavesInCyl"           value="28 40 52 72"/>
+  <vector name="N_StavesInCyl"           value="28 40 56 72"/>
   <vector name="CylRadius"               value="405. 562. 762. 1000."/> 
   <vector name="TiltAngle"               value="0.20071286 0.19198622 0.17453293 0.17453293" /> 
     <!-- 11.5, 11.0, 10.0, 10.0 degrees converted to radians  10/360*2pi =  0.17453293 Upgrade Week Apr 2016, Gregor talk -->
@@ -109,7 +109,7 @@
 
   <var name="StaveSupportCylLength"      value="2. * StaveCoreLength"/>
   <var name="StaveHeightAboveCyl"        value="21."/> <!-- Must not push top-hats inwards beyond inner radius of Strip env. -->
-  <var name="StaveSupportCylThickness"   value="0.5"/>
+  <var name="StaveSupportCylThickness"   value="0.6"/>
   <var name="StaveCylHatThickness"       value="1.0"/>
   <var name="StaveCylHatFootWidth"       value="10."/>
   <var name="StaveCylHatWallHeight"      value="20."/>
