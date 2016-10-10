@@ -69,7 +69,6 @@ typedef struct _USERTRANSFORM
 
 } USERTRANSFORM, *PUSERTRANSFORM;
 
-using namespace std;
 
 #define NSIDE  3
 #define NTRACK 10
@@ -83,7 +82,7 @@ class ActiveStoreSvc;
 class ALFA_LocRec : public AthAlgorithm
 {
 	public:
-		ALFA_LocRec(const string& name, ISvcLocator* pSvcLocator);
+		ALFA_LocRec(const std::string& name, ISvcLocator* pSvcLocator);
 		~ALFA_LocRec();
 
 	private:
@@ -100,7 +99,7 @@ class ALFA_LocRec : public AthAlgorithm
 		ALFA_LocRecODEvent*			m_pLocRecODEvent;
 
 	private:
-		list<eRPotName> m_ListExistingRPots;
+		std::list<eRPotName> m_ListExistingRPots;
 
 		UInt_t m_eventNum;					// real event number
 		Int_t m_iRunNum;
@@ -127,15 +126,15 @@ class ALFA_LocRec : public AthAlgorithm
 		Float_t m_fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT];
 		Float_t m_fzOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT];
 
-		string m_strKeyGeometryForReco;
-		vector<string> m_vecListAlgoMD;
-		vector<string> m_vecListAlgoOD;
-		string m_strAlgoOD;
-		string m_strAlgoMD;
-		string m_strKeyLocRecEvCollection;
-		string m_strKeyLocRecODEvCollection;
-		string m_strCollectionName;
-		string m_strODCollectionName;
+		std::string m_strKeyGeometryForReco;
+		std::vector<std::string> m_vecListAlgoMD;
+		std::vector<std::string> m_vecListAlgoOD;
+		std::string m_strAlgoOD;
+		std::string m_strAlgoMD;
+		std::string m_strKeyLocRecEvCollection;
+		std::string m_strKeyLocRecODEvCollection;
+		std::string m_strCollectionName;
+		std::string m_strODCollectionName;
 
 	public:
 		StatusCode initialize();
@@ -148,11 +147,11 @@ class ALFA_LocRec : public AthAlgorithm
 		void SaveGeometry();
 		void ClearGeometry();
 
-		StatusCode ALFACollectionReading(list<MDHIT> &ListMDHits, list<ODHIT> &ListODHits);	
+		StatusCode ALFACollectionReading(std::list<MDHIT> &ListMDHits, std::list<ODHIT> &ListODHits);	
 
 		StatusCode RecordCollection();
 		StatusCode RecordODCollection();
-		StatusCode ExecuteRecoMethod(const string strAlgo, const eRPotName eRPName, const list<MDHIT> &ListMDHits, const list<ODHIT> &ListODHits);
+		StatusCode ExecuteRecoMethod(const std::string strAlgo, const eRPotName eRPName, const std::list<MDHIT> &ListMDHits, const std::list<ODHIT> &ListODHits);
 };
 
 #endif	//ALFA_LOCREC_h

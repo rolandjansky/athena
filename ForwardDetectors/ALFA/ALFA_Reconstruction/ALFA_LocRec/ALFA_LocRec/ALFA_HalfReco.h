@@ -47,11 +47,11 @@ class ALFA_HalfReco
 
 
 	private:
-		map<int, FIBERS> m_MapLayers;
+		std::map<int, FIBERS> m_MapLayers;
 
 	public:
 		StatusCode Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Int_t iHalf, Int_t fMultiplicityCut, Int_t iUVCut, Float_t fOverlapCut);
-		StatusCode Execute(Int_t iRPot, const list<MDHIT> &ListMDHits);
+		StatusCode Execute(Int_t iRPot, const std::list<MDHIT> &ListMDHits);
 		StatusCode Finalize(Float_t &fRecXPos, Float_t &fRecYPos);
 
 		void GetData(Int_t &iNumU, Int_t &iNumV, Float_t &fOvU, Float_t &fOvV, Int_t (&iFibSel)[ALFALAYERSCNT*ALFAPLATESCNT]);

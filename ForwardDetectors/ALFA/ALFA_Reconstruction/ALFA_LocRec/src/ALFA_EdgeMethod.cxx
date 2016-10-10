@@ -3,7 +3,7 @@
 */
 
 #include "ALFA_LocRec/ALFA_EdgeMethod.h"
-
+using namespace std;
 
 ALFA_EdgeMethod::ALFA_EdgeMethod()
 {
@@ -22,7 +22,7 @@ ALFA_EdgeMethod::~ALFA_EdgeMethod()
 
 }
 
-void ALFA_EdgeMethod::Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], const list<MDHIT> &ListMDHits)
+void ALFA_EdgeMethod::Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], const std::list<MDHIT> &ListMDHits)
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDTracking::Initialize()");
 	ATH_MSG_DEBUG("begin ALFA_EdgeMethod::Initialize()");
@@ -41,7 +41,7 @@ void ALFA_EdgeMethod::Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFALAYERSC
 
 	memset(&m_bFiberHitsMD, 0, sizeof(m_bFiberHitsMD));
 	memset(&m_iMultiMD, 0, sizeof(m_iMultiMD));
-	list<MDHIT>::const_iterator iter;
+	std::list<MDHIT>::const_iterator iter;
 	for (iter=ListMDHits.begin(); iter!=ListMDHits.end(); iter++)
 	{
 		if (iRPot == (*iter).iRPot)
@@ -86,7 +86,7 @@ Bool_t ALFA_EdgeMethod::functionSortTracks( Track track1, Track track2 ){
 	else return  track1.first.second + track1.second.second > track2.first.second + track2.second.second;
 }
 
-void ALFA_EdgeMethod::findEdges( UInt_t no_Detector, UInt_t no_Orient, vector< Edge > &edges)
+void ALFA_EdgeMethod::findEdges( UInt_t no_Detector, UInt_t no_Orient, std::vector< Edge > &edges)
 {
 	ATH_MSG_DEBUG("begin ALFA_EdgeMethod::findEdges()");
 
@@ -111,7 +111,7 @@ void ALFA_EdgeMethod::findEdges( UInt_t no_Detector, UInt_t no_Orient, vector< E
 	}
 }
 
-void ALFA_EdgeMethod::findCorridors(vector< Edge > &edges, vector< Corridor > &corridors)
+void ALFA_EdgeMethod::findCorridors(std::vector< Edge > &edges, std::vector< Corridor > &corridors)
 {
 	ATH_MSG_DEBUG("begin ALFA_EdgeMethod::findCorridors()");
 
@@ -185,11 +185,11 @@ Bool_t ALFA_EdgeMethod::testTrack(/*Corridor corr_U, Corridor corr_V*/)
 	return kTRUE;
 }
 
-Bool_t ALFA_EdgeMethod::iterOne(UInt_t no_Detector, UInt_t no_Orient, vector< Corridor > &corridors )
+Bool_t ALFA_EdgeMethod::iterOne(UInt_t no_Detector, UInt_t no_Orient, std::vector< Corridor > &corridors )
 {
 	ATH_MSG_DEBUG("begin ALFA_EdgeMethod::iterOne()");
 
-	vector< Edge > edges;
+	std::vector< Edge > edges;
 
 	findEdges( no_Detector, no_Orient, edges);
 	if( edges.empty() ) return kFALSE;
@@ -225,15 +225,15 @@ Bool_t ALFA_EdgeMethod::iterOne(UInt_t no_Detector, UInt_t no_Orient, vector< Co
 }
 
 
-Bool_t ALFA_EdgeMethod::iterationOne(UInt_t no_Detector, vector<Track> &tracks )
+Bool_t ALFA_EdgeMethod::iterationOne(UInt_t no_Detector, std::vector<Track> &tracks )
 {
 	ATH_MSG_DEBUG("begin ALFA_EdgeMethod::iterationOne()");
 
 	tracks.clear();
 	readUVONE(no_Detector);
 
-	vector< Corridor > corr_U;
-	vector< Corridor > corr_V;
+	std::vector< Corridor > corr_U;
+	std::vector< Corridor > corr_V;
 	if( !iterOne(no_Detector, 0, corr_U) || !iterOne(no_Detector, 1, corr_V) ) return kFALSE;
 
 	for(UInt_t i = 0; i < corr_U.size(); i++){
@@ -256,11 +256,11 @@ Bool_t ALFA_EdgeMethod::iterNext(UInt_t no_Detector, UInt_t no_Orient, Float_t p
 {
 	ATH_MSG_DEBUG("begin ALFA_EdgeMethod::iterNext()");
 
-	vector< Edge > edges;
+	std::vector< Edge > edges;
 	findEdges( no_Detector, no_Orient, edges);
 	sort( edges.begin(), edges.end(), functionSortEdges );
 
-	vector< Corridor > corridors;
+	std::vector< Corridor > corridors;
 	findCorridors(edges, corridors);
 	if( corridors.empty() ) return kFALSE;
 
@@ -271,7 +271,7 @@ Bool_t ALFA_EdgeMethod::iterNext(UInt_t no_Detector, UInt_t no_Orient, Float_t p
 	return kTRUE;
 }
 
-Bool_t ALFA_EdgeMethod::iterationNext(UInt_t no_Detector, vector<Track> &tracks )
+Bool_t ALFA_EdgeMethod::iterationNext(UInt_t no_Detector, std::vector<Track> &tracks )
 {
 	ATH_MSG_DEBUG("begin ALFA_EdgeMethod::iterationNext()");
 
@@ -294,7 +294,7 @@ Bool_t ALFA_EdgeMethod::iterationNext(UInt_t no_Detector, vector<Track> &tracks 
 	return kTRUE;
 }
 
-Bool_t ALFA_EdgeMethod::EdgeMethod(UInt_t no_Detector, vector<Track> &tracks)
+Bool_t ALFA_EdgeMethod::EdgeMethod(UInt_t no_Detector, std::vector<Track> &tracks)
 {
 	ATH_MSG_DEBUG("begin ALFA_EdgeMethod::EdgeMethod()");
 
@@ -384,7 +384,8 @@ void ALFA_EdgeMethod::selectedFibers(UInt_t no_Detector, Track &track, Int_t * s
 
 		for(UInt_t nL = 0; nL < 16; nL+=2){
 			fLow = selectedFib[nL]%1000;
-			if( fLow > 0 && fLow < 63 && selectedFib[nL] < 8000 && selectedFib[nL+2] > 8000 && selectedFib[nL+4] < 8000  ){
+//			if( fLow > 0 && fLow < 63 && selectedFib[nL] < 8000 && selectedFib[nL+2] > 8000 && selectedFib[nL+4] < 8000  ){
+			if( fLow > 1 && fLow < 62 && selectedFib[nL] < 8000 && selectedFib[nL+2] > 8000 && selectedFib[nL+4] < 8000  ){
 				if( m_uv_geo[no_Detector][nL][fLow] > m_uv_geo[no_Detector][nL+2][fLow] ){
 					if( m_uv_geo[no_Detector][nL][fLow] > m_uv_geo[no_Detector][nL+2][fLow+1] ){
 						fCur = fLow+1;
@@ -419,8 +420,8 @@ void ALFA_EdgeMethod::selectedFibers(UInt_t no_Detector, Track &track, Int_t * s
 
 		for(UInt_t nL = 1; nL < 17; nL+=2){
 			fLow = selectedFib[nL]%1000;
-			if( fLow > 0 && fLow < 63 && selectedFib[nL] < 8000 && selectedFib[nL+2] > 8000 && selectedFib[nL+4] < 8000  ){
-
+//			if( fLow > 0 && fLow < 63 && selectedFib[nL] < 8000 && selectedFib[nL+2] > 8000 && selectedFib[nL+4] < 8000  ){
+			if( fLow > 1 && fLow < 62 && selectedFib[nL] < 8000 && selectedFib[nL+2] > 8000 && selectedFib[nL+4] < 8000  ){
 				if( m_uv_geo[no_Detector][nL][fLow] > m_uv_geo[no_Detector][nL+2][fLow] ){
 					if( m_uv_geo[no_Detector][nL][fLow] > m_uv_geo[no_Detector][nL+2][fLow+1] ){
 						fCur = fLow+1;

@@ -51,16 +51,16 @@ StatusCode ALFA_MDGap::Initialize(Int_t iRPot, Float_t faMD[RPOTSCNT][ALFALAYERS
 	memset(&m_iNU, 0, sizeof(m_iNU));
 	memset(&m_iNV, 0, sizeof(m_iNV));
 	memset(&m_iFibSel, 0, sizeof(m_iFibSel));
-	fill_n(&m_fRecXPos[0], sizeof(m_fRecXPos)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fRecYPos[0], sizeof(m_fRecYPos)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fOvU[0], sizeof(m_fOvU)/sizeof(Float_t), -9999.0);
-	fill_n(&m_fOvV[0], sizeof(m_fOvV)/sizeof(Float_t), -9999.0);
-	fill_n(&m_iFibSel[0], sizeof(m_iFibSel)/sizeof(Int_t), 9999);
+	std::fill_n(&m_fRecXPos[0], sizeof(m_fRecXPos)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fRecYPos[0], sizeof(m_fRecYPos)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fOvU[0], sizeof(m_fOvU)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_fOvV[0], sizeof(m_fOvV)/sizeof(Float_t), -9999.0);
+	std::fill_n(&m_iFibSel[0], sizeof(m_iFibSel)/sizeof(Int_t), 9999);
 
 	return StatusCode::SUCCESS;
 }
 
-StatusCode ALFA_MDGap::Execute(const list<MDHIT> &ListMDHits)
+StatusCode ALFA_MDGap::Execute(const std::list<MDHIT> &ListMDHits)
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_MDGap::Execute()");
 	ATH_MSG_DEBUG("ALFA_MDGap::Execute()");
@@ -68,7 +68,7 @@ StatusCode ALFA_MDGap::Execute(const list<MDHIT> &ListMDHits)
 	FIBERS structFibers;
 	m_MapLayers.clear();
 
-	list<MDHIT>::const_iterator iter;
+	std::list<MDHIT>::const_iterator iter;
 	for (iter=ListMDHits.begin(); iter!=ListMDHits.end(); iter++)
 	{
 		if (m_iRPot == (*iter).iRPot)
@@ -76,7 +76,7 @@ StatusCode ALFA_MDGap::Execute(const list<MDHIT> &ListMDHits)
 			if(m_MapLayers.find((*iter).iPlate)==m_MapLayers.end())
 			{
 				structFibers.ListFibers.clear();
-				m_MapLayers.insert(pair<int, FIBERS>((*iter).iPlate, structFibers));
+				m_MapLayers.insert(std::pair<int, FIBERS>((*iter).iPlate, structFibers));
 				m_MapLayers[(*iter).iPlate].ListFibers.push_back((*iter).iFiber);
 			}
 			else m_MapLayers[(*iter).iPlate].ListFibers.push_back((*iter).iFiber);
@@ -84,13 +84,13 @@ StatusCode ALFA_MDGap::Execute(const list<MDHIT> &ListMDHits)
 	}
 
 	// RECONSTRUCTION
-	vector<Float_t> b_p, b_n;
-	vector<Float_t> Ov_p, Ov_n;
-	vector<int> Num_p, Num_n;
+	std::vector<Float_t> b_p, b_n;
+	std::vector<Float_t> Ov_p, Ov_n;
+	std::vector<int> Num_p, Num_n;
 	Int_t FSel_n[ALFAPLATESCNT], FSel_p[ALFAPLATESCNT];
 	Bool_t FGaps_n[ALFAPLATESCNT], FGaps_p[ALFAPLATESCNT];
 	Int_t Gap_Fib_p[ALFAPLATESCNT][2], Gap_Fib_n[ALFAPLATESCNT][2];
-	vector<Int_t> GapsID;
+	std::vector<Int_t> GapsID;
 
 	Int_t Gaps[2][2];
 //	Int_t Gaps_ID[MAXTRACKNUM];
@@ -169,7 +169,7 @@ void ALFA_MDGap::Proj_Store(Int_t iFiberSide, Int_t (&iOver)[72000], Float_t fbR
 		iOver[iBin]=0;
 	}
 
-	list<int>::iterator intIter;
+	std::list<int>::iterator intIter;
 	int iIndex = 0;
 	for (Int_t iLayer=0; iLayer<ALFAPLATESCNT; iLayer++)
 	{
@@ -198,7 +198,7 @@ void ALFA_MDGap::Proj_Store(Int_t iFiberSide, Int_t (&iOver)[72000], Float_t fbR
 /************************************************/
 void ALFA_MDGap::Find_Proj(Int_t iOver[72000], Float_t fbRef, Float_t &fb, Float_t &fOv, Int_t&iNum)
 {
-	vector<int> iSizePlateau;
+	std::vector<int> iSizePlateau;
 	Int_t iNumFib=0;
 	Int_t p_tmp_min;
 //	Int_t p_tmp_max;
@@ -287,7 +287,7 @@ void ALFA_MDGap::Finding_Fib(Int_t iFiberSide, Float_t fbRef, Float_t fbRec, Int
 	for (Int_t iLayer=0; iLayer<ALFAPLATESCNT; iLayer++) iFSel[iLayer] = 9999;
 
 	//For each layer, we determine the hit fiber which is closest to the track
-	list<int>::iterator intIter;
+	std::list<int>::iterator intIter;
 	int iIndex = 0;
 	for (Int_t iLayer = 0; iLayer<ALFAPLATESCNT; iLayer++)
 	{
@@ -324,11 +324,11 @@ void ALFA_MDGap::Finding_Fib(Int_t iFiberSide, Float_t fbRef, Float_t fbRec, Int
 /*				Finding all tracks				*/
 /************************************************/
 
-void ALFA_MDGap::Reco_Track(vector<Float_t> &b_p, vector<Float_t> &b_n,
-								vector<Float_t> &Ov_p, vector<Float_t> &Ov_n,
-								vector<int> &Num_p, vector<int> &Num_n,
+void ALFA_MDGap::Reco_Track(std::vector<Float_t> &b_p, std::vector<Float_t> &b_n,
+								std::vector<Float_t> &Ov_p, std::vector<Float_t> &Ov_n,
+								std::vector<int> &Num_p, std::vector<int> &Num_n,
 								Int_t (&FSel_n)[ALFAPLATESCNT], Int_t (&FSel_p)[ALFAPLATESCNT],
-								Int_t (&Gaps)[2][2], vector<Int_t> &GapsID, Bool_t (&FGaps_p)[ALFAPLATESCNT], Bool_t (&FGaps_n)[ALFAPLATESCNT],
+								Int_t (&Gaps)[2][2], std::vector<Int_t> &GapsID, Bool_t (&FGaps_p)[ALFAPLATESCNT], Bool_t (&FGaps_n)[ALFAPLATESCNT],
 								Int_t (&Gap_Fib_p)[ALFAPLATESCNT][2], Int_t (&Gap_Fib_n)[ALFAPLATESCNT][2])
 {
 	Int_t Over_p[72000];
@@ -358,8 +358,8 @@ void ALFA_MDGap::Reco_Track(vector<Float_t> &b_p, vector<Float_t> &b_n,
 	memset(&FGaps_p, false, sizeof(Bool_t));
 	memset(&Gap_Fib_n, 0, sizeof(Int_t));
 	memset(&Gap_Fib_p, 0, sizeof(Int_t));
-	fill_n(&Gap_Fib_n[0][0], sizeof(Gap_Fib_n)/sizeof(Int_t), 9999);
-	fill_n(&Gap_Fib_p[0][0], sizeof(Gap_Fib_p)/sizeof(Int_t), 9999);
+	std::fill_n(&Gap_Fib_n[0][0], sizeof(Gap_Fib_n)/sizeof(Int_t), 9999);
+	std::fill_n(&Gap_Fib_p[0][0], sizeof(Gap_Fib_p)/sizeof(Int_t), 9999);
 
 	b_n.clear();
 	b_p.clear();
@@ -611,7 +611,7 @@ Int_t ALFA_MDGap::Active_Gap(Int_t iFiberSide, Int_t (&Over)[72000], Float_t b_r
 	Bool_t bHit[2];
 	Int_t shift;
 
-	list<int>::iterator iHit;
+	std::list<int>::iterator iHit;
 	int iIndex = 0;
 	for(UInt_t iLayer=0; iLayer<ALFAPLATESCNT; iLayer++)
 	{
