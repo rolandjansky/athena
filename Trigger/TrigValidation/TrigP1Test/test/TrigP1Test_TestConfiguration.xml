@@ -14,7 +14,7 @@
  ***************************************************************************
  -->
 <!-- NB validate this file here before commiting to svn:
- /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TrigP1Test_TestConfiguration.xml.autoconf
+ /afs/cern.ch/user/r/rtt/public/xmlvalidate.py TrigP1Test_TestConfiguration.xml
  -->
 
 <unifiedTestConfiguration>
@@ -23,18 +23,30 @@
     <!--
      **************************************************************************
      *
-     * This file defines these test suites   TrigP1HLTcore,TrigP1HLTCOS, TrigP1HLTMC, TrigP1HLTphysv5, TrigP1HLTvarious and TrigP1HLTmenus
+     * This file defines these test suites: 
+     * TP1core 
+     * TP1cos[1-3] (no need for serialiasation) 
+     * TP1mc TP1phys[1-4] (only 1&2 need to be serial) 
+     * TP1hi 
+     * TP1var[1-3]
+     * TP1menu 
+     * TP1menuRL1
+     * TP1pures 
+     * TP1L2EFmerg
      * 
-     * Note that for the summary html table to run  we need to have at least one test for
-     * each suite.   This has been arranged in all projects,  but be carefully when editing 
+     * Note that for the summary html table to run  we need to have at least one test for each suite. 
+     * This has been arranged in all projects,  but be carefully when editing 
+     *
+     * Marked the tests that are effectively off due to the nighly exclude tag set to .* with:  <!- - OFF - -> 
+     * these might go/be deleted during the next cleanup I assume - leave that decision up to Carlos 
      *
      ***************************************************************************
      -->
     
     <atn>
         
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT-->
-        <TEST name="HelloWorldHLT" type="script" suite="TrigP1HLTcore">
+        
+        <TEST name="HelloWorldHLT" type="script" suite="TP1core">
             <options_atn>trigtest.pl --cleardir --test HelloWorldHLT --rundir HelloWorldHLT --conf TrigP1Test.conf</options_atn>
             <timelimit>5</timelimit>
             <expectations>
@@ -42,7 +54,7 @@
             </expectations>
         </TEST>
         
-        <TEST name="HelloWorldHLT_run_stop_run" type="script" suite="TrigP1HLTcore">
+        <TEST name="HelloWorldHLT_run_stop_run" type="script" suite="TP1core">
             <options_atn>trigtest.pl --cleardir --test HelloWorldHLT_run_stop_run --rundir HelloWorldHLT_run_stop_run --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
             <expectations>
@@ -50,7 +62,7 @@
             </expectations>
         </TEST>
         
-        <TEST name="AthenaP1RDOtoBS" type="script" suite="TrigP1HLTcore"> 
+        <TEST name="AthenaP1RDOtoBS" type="script" suite="TP1core"> 
             <options_atn>trigtest.pl --cleardir --test AthenaP1RDOtoBS --rundir AthenaP1RDOtoBS --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
@@ -59,34 +71,7 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="HLT_MC_BSfromRDO" type="script" suite="TrigP1HLTcore">
-            <options_atn>trigtest.pl --cleardir --test HLT_MC_BSfromRDO --rundir HLT_MC_BSfromRDO --conf TrigP1Test.conf</options_atn>
-            <timelimit>20</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        
-        <TEST name="HLT_MC_run_stop_run" type="script" suite="TrigP1HLTcore">
-            <doc>athenaHLT all slices</doc>
-            <options_atn>trigtest.pl --cleardir --test HLT_MC_run_stop_run--rundir HLT_MC_run_stop_run --conf TrigP1Test.conf</options_atn>
-            <timelimit>20</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        
-        <!-- ENABLE-IN-PROJECT-END -->
-        
-        
-
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT--> 
-
-         <TEST name="HLT_HIV3" type="script" suite="TrigP1HLThiV3"> 
+        <TEST name="HLT_HIV3" type="script" suite="TP1hi"> 
             <options_atn>trigtest.pl --cleardir --test HLT_HIV3  --rundir HLT_HIV3 --conf TrigP1Test.conf</options_atn> 
             <timelimit>35</timelimit> 
             <expectations> 
@@ -94,15 +79,11 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST>  
-
-        <!-- ENABLE-IN-PROJECT-END --> 
-        <!-- End of physics Heavy ION menu chain --> 
-
-
-
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT--> 
         
-        <TEST name="HLT_physicsV6_COS" type="script" suite="TrigP1HLTCOS"> 
+        <!-- End of physics Heavy ION menu chain --> 
+        
+        
+        <TEST name="HLT_physicsV6_COS" type="script" suite="TP1cos1"> 
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS --rundir HLT_physicsV6_COS --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
@@ -110,158 +91,51 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST>
-
-        <TEST name="HLT_physicsV6_COS_2012" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2012 --rundir HLT_physicsV6_COS_2012 --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>    
+          
         
-        <TEST name="HLT_physicsV6_COS_2015MUONS" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015MUONS --rundir HLT_physicsV6_COS_2015MUONS --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6_COS_2016MUONS" type="script" suite="TP1cos2"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2016MUONS --rundir HLT_physicsV6_COS_2016MUONS --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST>
-
-        <TEST name="HLT_physicsV6_COS_2015IDCOSMICS" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015IDCOSMICS --rundir HLT_physicsV6_COS_2015IDCOSMICS --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit>  
+        
+        <TEST name="HLT_physicsV6_COS_2016IDCOSMICS" type="script" suite="TP1cos3"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2016IDCOSMICS --rundir HLT_physicsV6_COS_2016IDCOSMICS --conf TrigP1Test.conf</options_atn> 
+            <timelimit>30</timelimit>  
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST>
-
         
-        <TEST name="HLT_physicsV6_COS_2015CALO" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015CALO --rundir HLT_physicsV6_COS_2015CALO   --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>
-
-         <TEST name="HLT_physicsV6_COS_2015MBTS" type="script" suite="TrigP1HLTCOS"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_COS_2015MBTS --rundir HLT_physicsV6_COS_2015MBTS   --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST>
-
         
-        <!-- ENABLE-IN-PROJECT-END --> 
-            
         
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
+        <!-- End of physics COSMICS menu chain --> 
         
-        <TEST name="HLT_mcV6" type="script" suite="TrigP1HLTMC">
+        
+        
+        
+        
+        
+        
+        <TEST name="HLT_mcV6" type="script" suite="TP1mc">
             <options_atn>trigtest.pl --cleardir --test HLT_mcV6 --rundir HLT_mcV6 --conf TrigP1Test.conf</options_atn>
-            <timelimit>40</timelimit>      
+            <timelimit>50</timelimit>      
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-        <TEST name="HLT_mcV6_caf" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir --test HLT_mcV6_caf --rundir HLT_mcV6_caf --conf TrigP1Test.conf</options_atn>
-            <timelimit>30</timelimit>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
         
-        <TEST name="HLT_physicsV6_caf" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_caf --rundir HLT_physicsV6_caf --conf TrigP1Test.conf</options_atn>
-            <timelimit>30</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        
-        <TEST name="PrepareMenuKeys_mcV6_caf" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_mcV6_caf --rundir PrepareMenuKeys_mcV6_caf --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        
-        <TEST name="PrepareMenuKeys_physicsV6_caf" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_physicsV6_caf --rundir PrepareMenuKeys_physicsV6_caf --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-
-        <TEST name="HLT_mcV5" type="script" suite="TrigP1HLTMC">
-            <options_atn>trigtest.pl --cleardir --test HLT_mcV5 --rundir HLT_mcV5 --conf TrigP1Test.conf</options_atn>
-            <timelimit>40</timelimit>      
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        
-        <!-- ENABLE-IN-PROJECT-END -->
         <!-- end of MC chain of tests -->
         
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT--> 
-        <TEST name="HLT_physicsV6" type="script" suite="TrigP1HLTphysv6"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6 --rundir HLT_physicsV6 --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
-
-        <TEST name="HLT_physicsV6_L1Topo_data" type="script" suite="TrigP1HLTphysv6"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_L1Topo_data --rundir HLT_physicsV6_L1Topo_data --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
-
-        <TEST name="HLT_physicsV6_ALFAMon" type="script" suite="TrigP1HLTphysv6"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_ALFAMon --rundir HLT_physicsV6_ALFAMon --conf TrigP1Test.conf</options_atn> 
-            <timelimit>20</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
-
-        <TEST name="HLT_physicsV6_rerunlvl1" type="script" suite="TrigP1HLTphysv6"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerunlvl1 --rundir HLT_physicsV6_rerunlvl1 --conf TrigP1Test.conf</options_atn> 
-            <timelimit>35</timelimit> 
-            <expectations> 
-                <errorMessage>FAILURE </errorMessage> 
-                <returnValue>0</returnValue> 
-            </expectations> 
-        </TEST> 
         
-        <TEST name="RAWtoESD_physicsV6" type="script" suite="TrigP1HLTphysV6"> 
-            <options_atn>trigtest.pl --cleardir  --test RAWtoESD_physicsV6 --rundir RAWtoESD_physicsV6 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6" type="script" suite="TP1phys1"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6 --rundir HLT_physicsV6 --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -269,7 +143,26 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="TrigEDMCheck_physicsV6" type="script" suite="TrigP1HLTphysV6"> 
+        <TEST name="Reco_tf_physicsV6_savedBS" type="script" suite="TP1phys1"> 
+            <options_atn>trigtest.pl --cleardir --test Reco_tf_physicsV6_savedBS --rundir Reco_tf_physicsV6_savedBS --conf TrigP1Test.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="RAWtoESD_physicsV6" type="script" suite="TP1phys1"> 
+            <options_atn>trigtest.pl --cleardir  --test RAWtoESD_physicsV6 --rundir RAWtoESD_physicsV6 --conf TrigP1Test.conf</options_atn> 
+            <timelimit>30</timelimit> 
+            <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="TrigEDMCheck_physicsV6" type="script" suite="TP1phys1"> 
             <options_atn>trigtest.pl --cleardir  --test TrigEDMCheck_physicsV6 --rundir TrigEDMCheck_physicsV6 --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit>           
             <expectations> 
@@ -278,7 +171,7 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="TrigDecTool_physicsV6" type="script" suite="TrigP1HLTphysV6"> 
+        <TEST name="TrigDecTool_physicsV6" type="script" suite="TP1phys1"> 
             <options_atn>trigtest.pl --cleardir  --test TrigDecTool_physicsV6 --rundir TrigDecTool_physicsV6 --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit> 
             <expectations> 
@@ -287,26 +180,8 @@
             </expectations> 
         </TEST> 
         
-        <TEST name="AthenaP1BS_standalone" type="script" suite="TrigP1HLTphysV6">
-            <options_atn>trigtest.pl --cleardir --test AthenaP1BS_standalone  --rundir AthenaP1BS_standalone --conf TrigP1Test.conf</options_atn>
-            <timelimit>30</timelimit>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        
-        <TEST name="HLT_physicsV6_magField_on_off_on" type="script" suite="TrigP1HLTphysV6">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_magField_on_off_on --rundir HLT_physicsV6_magField_on_off_on --conf TrigP1Test.conf</options_atn>
-            <timelimit>35</timelimit> 
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-
-        <TEST name="HLT_physicsV5" type="script" suite="TrigP1HLTphysv6"> 
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV5 --rundir HLT_physicsV5 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="HLT_physicsV6_L1Topo_data" type="script" suite="TP1phys2"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_L1Topo_data --rundir HLT_physicsV6_L1Topo_data --conf TrigP1Test.conf</options_atn> 
             <timelimit>20</timelimit> 
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
@@ -314,22 +189,70 @@
             </expectations> 
         </TEST> 
         
+        <TEST name="HLT_physicsV6_ALFAMon" type="script" suite="TP1phys2"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_ALFAMon --rundir HLT_physicsV6_ALFAMon --conf TrigP1Test.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+
+        <TEST name="HLT_physicsV6_DataScouting" type="script" suite="TP1phys2"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_DataScouting --rundir HLT_physicsV6_DataScouting --conf TrigP1Test.conf</options_atn> 
+            <timelimit>20</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
         
-        <!-- ENABLE-IN-PROJECT-END --> 
-        <!-- End of physics V6 menu chain --> 
+        <TEST name="HLT_physicsV6_rerunlvl1" type="script" suite="TP1phys3"> 
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerunlvl1 --rundir HLT_physicsV6_rerunlvl1 --conf TrigP1Test.conf</options_atn> 
+            <timelimit>45</timelimit> 
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
         
-        <!--  chain of test with various data, menu and detector conditions -->
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT-->
-        <TEST name="HLT_physicsV6_run_stop_run" type="script" suite="TrigP1HLTvarious">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_run_stop_run --rundir HLT_physicsV6_run_stop_run --conf TrigP1Test.conf</options_atn>
-            <timelimit>35</timelimit>
+        <TEST name="AthenaP1BS_standalone" type="script" suite="TP1phys4">
+            <options_atn>trigtest.pl --cleardir --test AthenaP1BS_standalone  --rundir AthenaP1BS_standalone --conf TrigP1Test.conf</options_atn>
+            <timelimit>45</timelimit>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-        <TEST name="HLT_physicsV6_beamspot" type="script" suite="TrigP1HLTvarious">
+        <TEST name="HLT_physicsV6_magField_on_off_on" type="script" suite="TP1phys4">
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_magField_on_off_on --rundir HLT_physicsV6_magField_on_off_on --conf TrigP1Test.conf</options_atn>
+            <timelimit>35</timelimit> 
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <!-- End of physics menu chain --> 
+        
+        
+        
+        
+        
+        
+        <!--  chain of test with various data, menu and detector conditions -->
+        
+        <TEST name="HLT_physicsV6_run_stop_run" type="script" suite="TP1var3">
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_run_stop_run --rundir HLT_physicsV6_run_stop_run --conf TrigP1Test.conf</options_atn>
+            <timelimit>40</timelimit>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="HLT_physicsV6_beamspot" type="script" suite="TP1var3">
             <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_beamspot --rundir HLT_physicsV6_beamspot --conf TrigP1Test.conf</options_atn>
             <timelimit>25</timelimit>
             <expectations>
@@ -339,37 +262,32 @@
         </TEST>
         
         
-        <!-- ENABLE-IN-PROJECT-END -->
+        
+        
         <!-- End of various  data, menu and detector conditions chain -->
         
+        
+        
+        
         <!--  chain of test for automatic menu uploading to trigger DB  -->
-        <!-- ENABLE-IN-PROJECT-BEGIN:  AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
-        <TEST name="HLT_physicsV6_menu" type="script" suite="TrigP1HLTmenus">
+        
+        <TEST name="HLT_physicsV6_menu" type="script" suite="TP1menu">
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_menu --rundir HLT_physicsV6_menu --conf TrigP1Test.conf</options_atn>
-            <timelimit>20</timelimit>
+            <timelimit>40</timelimit>
+            <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-        <TEST name="HLT_physicsV6_rerunLvL1_menu" type="script" suite="TrigP1HLTmenus">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerunLvL1_menu --rundir HLT_physicsV6_rerunLvL1_menu --conf TrigP1Test.conf</options_atn>
-            <timelimit>30</timelimit>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-       
-        <!-- ENABLE-IN-PROJECT-END -->
         
-        <!--  chain of test for automatic menu uploading to trigger DB  -->
-        <!-- ENABLE-IN-PROJECT-BEGIN:  AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
-        
-        <TEST name="UploadMenuKeys" type="script" suite="TrigP1HLTmenus">
+        <TEST name="UploadMenuKeys" type="script" suite="TP1menu">
             <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys --rundir UploadMenuKeys --conf TrigP1Test.conf</options_atn>
-            <timelimit>35</timelimit>
+            <timelimit>40</timelimit>
+            <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
@@ -377,95 +295,47 @@
             </expectations>
         </TEST>
         
-        <TEST name="UploadMenuKeys_rerunLvL1" type="script" suite="TrigP1HLTmenus">
-            <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys_rerunLvL1 --rundir UploadMenuKeys_rerunLvL1 --conf TrigP1Test.conf</options_atn>
-            <timelimit>35</timelimit>
-            <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-
-
-
-        <TEST name="TriggerDBAccessTest" type="script" suite="TrigP1HLTmenus">
-            <options_atn>trigtest.pl --cleardir --test TriggerDBAccessTest --run TriggerDBAccessTest --conf TrigP1Test.conf</options_atn>
-            <timelimit>5</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <!--<mailto>joerg.stelzer@cern.ch</mailto>--> 
-            <!--<platform>opt</platform>--> 
-            
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        
-        <TEST name="HLT_physicsV6_menu_rerundb" type="script" suite="TrigP1HLTmenus">
+        <TEST name="HLT_physicsV6_menu_rerundb" type="script" suite="TP1menu">
             <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_menu_rerundb --rundir HLT_physicsV6_menu_rerundb --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
+            <timelimit>40</timelimit>
+            <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-        <TEST name="HLT_physicsV6_rerunLvL1_menu_rerundb" type="script" suite="TrigP1HLTmenus">
-            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_rerunLvL1_menu_rerundb --rundir HLT_physicsV6_rerunLvL1_menu_rerundb --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
         
-        <TEST name="TrfTestPPV6" type="script" suite="TrigP1HLTmenus">
-            <options_atn>trigtest.pl --cleardir  --test TrfTestPPV6 --rundir TrfTestPPV6 --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        
-        <TEST name="HLT_physicsV6_prescaleChange" type="script" suite="TrigP1HLTmenus">
-            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_prescaleChange --rundir HLT_physicsV6_prescaleChange --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
-            <expectations>
-                <errorMessage>FAILURE </errorMessage>
-                <returnValue>0</returnValue>
-            </expectations>
-        </TEST>
-        
-        <!--  rerun MT and PT on physics_pp_V6 menu and upload to db again (same test, different dir), check same key returned: only in P1 HLT -->
-        
-        <TEST name="HLT_physicsV6_rerun" type="script" suite="TrigP1HLTmenus">
+        <TEST name="HLT_physicsV6_rerun" type="script" suite="TP1menu">
             <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerun --rundir HLT_physicsV6_rerun --conf TrigP1Test.conf</options_atn>
-            <timelimit>20</timelimit>          
+            <timelimit>40</timelimit> 
+            <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-                
-        <TEST name="CheckKeysV6" type="script" suite="TrigP1HLTmenus">
+        <!-- CheckKeysV6 needs HLT_physicsV6_rerun -->
+        <TEST name="CheckKeysV6" type="script" suite="TP1menu">
             <options_atn>trigtest.pl --cleardir  --test CheckKeysV6 --rundir CheckKeysV6 --conf TrigP1Test.conf</options_atn>
-            <timelimit>40</timelimit>     
+            <timelimit>120</timelimit>     
             <mailto>joerg.stelzer@cern.ch</mailto> 
+            <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-        <TEST name="PrepareMenuKeys_p1" type="script" suite="TrigP1HLTmenus">
-            <options_atn>trigtest.pl --cleardir  --test PrepareMenuKeys_p1 --rundir PrepareMenuKeys_p1 --conf TrigP1Test.conf</options_atn>
-            <timelimit>25</timelimit>
-            <nightly_exclude>.*</nightly_exclude>
+        <TEST name="HLT_physicsV6_rerunLvL1_menu" type="script" suite="TP1menuRL1">
+            <options_atn>trigtest.pl --cleardir --test HLT_physicsV6_rerunLvL1_menu --rundir HLT_physicsV6_rerunLvL1_menu --conf TrigP1Test.conf</options_atn>
+            <timelimit>59</timelimit>
+            <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
@@ -473,82 +343,124 @@
         </TEST>
         
         
-        <!-- ENABLE-IN-PROJECT-END -->
+        <TEST name="UploadMenuKeys_rerunLvL1" type="script" suite="TP1menuRL1">
+            <options_atn>trigtest.pl --cleardir  --test UploadMenuKeys_rerunLvL1 --rundir UploadMenuKeys_rerunLvL1 --conf TrigP1Test.conf</options_atn>
+            <timelimit>59</timelimit>
+            <!--<mailto>joerg.stelzer@cern.ch</mailto>-->    
+            <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        <TEST name="HLT_physicsV6_rerunLvL1_menu_rerundb" type="script" suite="TP1menuRL1">
+            <options_atn>trigtest.pl --cleardir  --test HLT_physicsV6_rerunLvL1_menu_rerundb --rundir HLT_physicsV6_rerunLvL1_menu_rerundb --conf TrigP1Test.conf</options_atn>
+            <timelimit>59</timelimit>
+            <platform>opt</platform>
+            <nightly_exclude> MIG LCG EXP CMAKE 22 20.99 </nightly_exclude>
+            <expectations>
+                <errorMessage>FAILURE </errorMessage>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
+        
+        
+        
+        
+        
+        
         <!-- End of menu uploading test chain -->
         
-        <!--  A short chain of tests on data with the T0 reco release -->
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
-                       
-         <TEST name="Trigreco_physicsV6_currentT0" type="script" suite="TrigP1HLTvarious"> 
+        
+        
+        
+        
+        
+        <!--  A "short" chain of tests on data with the T0 reco release -->
+        
+        
+        <TEST name="Trigreco_physicsV6_currentT0" type="script" suite="TP1var1"> 
             <options_atn>trigtest.pl --cleardir --test Trigreco_physicsV6_currentT0 --rundir Trigreco_physicsV6_currentT0 --conf TrigP1Test.conf</options_atn> 
-            <timelimit>35</timelimit> 
+            <timelimit>45</timelimit> 
+            <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST> 
         
-        <TEST name="TrigEDMCheck_physicsV6_currentT0" type="script" suite="TrigP1HLTvarious"> 
-            <options_atn>trigtest.pl --cleardir --test TrigEDMCheck_physicsV6_currentT0 --rundir TrigEDMCheck_physicsV6_currentT0 --conf TrigP1Test.conf</options_atn> 
+        <TEST name="TrigEDMCheck_physicsV6_currentT0_ESD" type="script" suite="TP1var1"> 
+            <options_atn>trigtest.pl --cleardir --test TrigEDMCheck_physicsV6_currentT0_ESD --rundir TrigEDMCheck_physicsV6_currentT0_ESD --conf TrigP1Test.conf</options_atn> 
             <timelimit>10</timelimit> 
+            <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST> 
-
-        <TEST name="Trigreco_dbgstream_T0" type="script" suite="TrigP1HLTvarious"> 
+        
+        <TEST name="TrigEDMCheck_physicsV6_currentT0_AOD" type="script" suite="TP1var1"> 
+            <options_atn>trigtest.pl --cleardir --test TrigEDMCheck_physicsV6_currentT0_AOD --rundir TrigEDMCheck_physicsV6_currentT0_AOD --conf TrigP1Test.conf</options_atn> 
+            <timelimit>10</timelimit> 
+            <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
+            <expectations> 
+                <errorMessage>FAILURE </errorMessage> 
+                <returnValue>0</returnValue> 
+            </expectations> 
+        </TEST> 
+        
+        <TEST name="Trigreco_dbgstream_T0" type="script" suite="TP1var2"> 
             <options_atn>trigtest.pl --cleardir --test Trigreco_dbgstream_T0  --rundir Trigreco_dbgstream_T0 --conf TrigP1Test.conf</options_atn> 
             <timelimit>30</timelimit> 
+            <nightly_exclude> MIG LCG EXP CMAKE 22 21 20.99 </nightly_exclude>
             <expectations> 
                 <errorMessage>FAILURE </errorMessage> 
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST> 
-
-       
         
-              
-                
-        <!-- ENABLE-IN-PROJECT-END -->
+        
+        
+        
+        
         <!-- End of ofline reconstruction chain -->
-
-
+        
+        
+        
+        
         <!--  A short chain of tests onSteering and Data access -->
-        <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT AtlasHLT -->
-
-	<TEST name="pureNewSteering_ecodes" type="script" suite="TrigP1pureNewSteering">
-            <options_atn>trigtest.pl --test pureNewSteering_ecodes --run pureNewSteering_ecodes --conf TrigP1Test.conf</options_atn>
+        
+        
+        <TEST name="pureSteering_ecodes" type="script" suite="TP1pures">
+            <options_atn>trigtest.pl --cleardir --test pureSteering_ecodes --rundir pureSteering_ecodes --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
-            <author>TAPM validation</author>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-        <TEST name="pureNewSteering_prescaling" type="script" suite="TrigP1pureNewSteering">
-            <options_atn>trigtest.pl --test pureNewSteering_prescaling --run pureNewSteering_prescaling --conf TrigP1Test.conf</options_atn>
+        <TEST name="pureSteering_prescaling" type="script" suite="TP1pures">
+            <options_atn>trigtest.pl --cleardir --test pureSteering_prescaling --rundir pureSteering_prescaling --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
-            <author>TAPM validation</author>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-        <TEST name="pureNewSteering_merged" type="script" suite="TrigP1pureNewSteering">
-            <options_atn>trigtest.pl --test pureNewSteering_merged --run pureNewSteering_merged --conf TrigP1Test.conf</options_atn>
+        <TEST name="pureSteering" type="script" suite="TP1pures">
+            <options_atn>trigtest.pl --cleardir --test pureSteering --rundir pureSteering --conf TrigP1Test.conf</options_atn>
             <timelimit>10</timelimit>
-            <author>TAPM validation</author>
             <expectations>
                 <errorMessage>FAILURE </errorMessage>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-       
-        <TEST name="AthenaTrigBS_L2EFMerging" type="script" suite="TrigP1L2EFMerging"> 
+        <TEST name="AthenaTrigBS_L2EFMerging" type="script" suite="TP1L2EFmerg"> 
             <options_atn>trigtest.pl --test AthenaTrigBS_L2EFMerging --run AthenaTrigBS_L2EFMerging --conf TrigP1Test.conf</options_atn> 
             <timelimit>60</timelimit> 
             <author>TAPM validation</author>
@@ -558,46 +470,76 @@
                 <returnValue>0</returnValue> 
             </expectations> 
         </TEST> 
-
-        <!-- ENABLE-IN-PROJECT-END -->
+        
+        
         <!-- End of steering chain -->
-
+        
+        
         
         <!-- End of data chain --> 
         
-        <TEST name="atn_timeline" type="script" suite="TrigP1HLT">
+        <TEST name="atn_timeline" type="script" suite="TP1">
             <doc>ATN timeline</doc>
             <options_atn>atn_timeline.py --atn -p TrigP1Test </options_atn>
             <timelimit>2</timelimit>
             <author>Frank Winklmeier</author>
-            <prerequisite>TrigP1HLTMC</prerequisite>
-            <prerequisite>TrigP1HLTcore</prerequisite>
-             <prerequisite>TrigP1HLTCOS</prerequisite> 
-            <prerequisite>TrigP1HLTphysv6</prerequisite>
-            <prerequisite>TrigP1HLTvarious</prerequisite>
-            <prerequisite>TrigP1HLTmenus</prerequisite>
-            <prerequisite>TrigP1HLThiV3</prerequisite>
+            <prerequisite>TP1mc</prerequisite>
+            <prerequisite>TP1core</prerequisite>
+            <prerequisite>TP1cos1</prerequisite> 
+            <prerequisite>TP1cos2</prerequisite> 
+            <prerequisite>TP1cos3</prerequisite> 
+            <prerequisite>TP1phys1</prerequisite>
+            <prerequisite>TP1phys2</prerequisite>
+            <prerequisite>TP1phys3</prerequisite>
+            <prerequisite>TP1phys4</prerequisite>
+            <prerequisite>TP1var1</prerequisite>
+            <prerequisite>TP1var2</prerequisite>
+            <prerequisite>TP1var3</prerequisite>
+            <prerequisite>TP1menu</prerequisite>
+            <prerequisite>TP1menuRL1</prerequisite>
+            <prerequisite>TP1hi</prerequisite>
+            <prerequisite>TP1pures</prerequisite>
+            <prerequisite>TP1L2EFmerg</prerequisite>
             <expectations>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
-        <TEST name="atn_xml_summary_table" type="script" suite="TrigP1HLT">
+        <TEST name="atn_xml_summary_table" type="script" suite="TP1">
             <doc>Summary table</doc>
             <options_atn>atn_summary.pl</options_atn>
             <timelimit>2</timelimit>
-            <prerequisite>TrigP1HLTMC</prerequisite>
-            <prerequisite>TrigP1HLTcore</prerequisite>
-            <prerequisite>TrigP1HLTCOS</prerequisite>
-            <prerequisite>TrigP1HLTphysv6</prerequisite>
-            <prerequisite>TrigP1HLTvarious</prerequisite>
-            <prerequisite>TrigP1HLTmenus</prerequisite>
-            <prerequisite>TrigP1HLThiV3</prerequisite>
+            <prerequisite>TP1mc</prerequisite>
+            <prerequisite>TP1core</prerequisite>
+            <prerequisite>TP1cos1</prerequisite> 
+            <prerequisite>TP1cos2</prerequisite> 
+            <prerequisite>TP1cos3</prerequisite> 
+            <prerequisite>TP1phys1</prerequisite>
+            <prerequisite>TP1phys2</prerequisite>
+            <prerequisite>TP1phys3</prerequisite>
+            <prerequisite>TP1phys4</prerequisite>
+            <prerequisite>TP1var1</prerequisite>
+            <prerequisite>TP1var2</prerequisite>
+            <prerequisite>TP1var3</prerequisite>
+            <prerequisite>TP1menu</prerequisite>
+            <prerequisite>TP1menuRL1</prerequisite>
+            <prerequisite>TP1hi</prerequisite>
+            <prerequisite>TP1pures</prerequisite>
+            <prerequisite>TP1L2EFmerg</prerequisite>
             <expectations>
                 <returnValue>0</returnValue>
             </expectations>
         </TEST>
         
+        <TEST name="updateATNrefs" type="script" suite="TP1Update">
+            <doc>update ATN references</doc>
+            <options_atn>whoami</options_atn>
+            <timelimit>5</timelimit>
+            <prerequisite>TP1</prerequisite>
+            <expectations>
+                <returnValue>0</returnValue>
+            </expectations>
+        </TEST>
         
     </atn>
     
@@ -622,7 +564,7 @@
                 <displayComponent>Trig-Common</displayComponent>
             </classification>    
             
-            <!-- ENABLE-IN-PROJECT-BEGIN: AtlasHLT AtlasP1HLT AtlasCAFHLT AtlasTestHLT -->
+            
             
             <jobTransform userJobId="All_data_run_stop_run_chain" >
                 <doc>
@@ -649,7 +591,19 @@
                 <queue>long</queue>
             </jobTransform>
             
-            <!-- ENABLE-IN-PROJECT-END -->
+            <jobTransform userJobId="athenaHLT_LatestRun_MCV6">
+                <doc>
+                    athenaHLT on latest available run
+                </doc>
+                <jobTransformJobName>athenaHLT_LatestRun_MCV6</jobTransformJobName>
+                <jobTransformCmd>
+                    trigp1test_athenaHLT.py --nfiles=1 --dir='/eos/atlas/atlastier0/rucio/data16_13TeV/physics_Main/' --modifiers="testMCV6=True;fpeAuditor=True;from PerfMonComps.PerfMonFlags import jobproperties as pmon_properties ; pmon_properties.PerfMonFlags.doSemiDetailedMonitoring=True"
+                </jobTransformCmd>
+                <group>AtlasHLTChainTest</group>
+                <queue>long</queue>
+            </jobTransform>
+            
+            
         </jobList>
         
         <jobGroups>

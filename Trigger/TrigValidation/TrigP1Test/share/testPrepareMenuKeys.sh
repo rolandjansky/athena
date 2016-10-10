@@ -4,6 +4,7 @@ echo 'Preparing SMKey for CAF reprocessing'
 
 #setup the TT
 get_files -data -symlink TriggerTool.jar
+export JAVA_VER="1.8.0"
 source /afs/cern.ch/sw/lcg/external/Java/bin/setup.sh
 export _JAVA_OPTIONS="-Xms256m -Xmx1048m"
 export DBConn="TRIGGERDBREPR"

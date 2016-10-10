@@ -23,6 +23,8 @@ class Config:
                        4:(5,7),
                        6:(6,7)}  
 
+trigbs_replaceLB.Config.eventsPerLB = 5
+
 log = logging.getLogger(__name__)
 log.info('Will perform beamspot udpate on these LBs (LB,status): %s' % sorted(Config.lb_updateBeamspot.values()))
 
@@ -58,7 +60,7 @@ def addFolderUpdate(event):
 
    # Set the CTP extra payload      
    for rob in ctp_robs:
-      x = CTPfragment.getExtraPayloadObject(rob)
+      x = CTPfragment.ExtraPayload()  # start from empty payload object
       for f in folderList: x.updateFolder(f)
       new_ctp_rob = CTPfragment.setHltExtraPayloadWords(rob, [d for d in x.serialize()])
       new_event.append(eformat.write.ROBFragment(new_ctp_rob))

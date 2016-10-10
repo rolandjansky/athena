@@ -4,6 +4,7 @@ echo 'Testing SMKey upload for HIV2 menu'
 
 #setup the TT
 get_files -data -symlink TriggerTool.jar
+export JAVA_VER="1.8.0"
 source /afs/cern.ch/sw/lcg/external/Java/bin/setup.sh
 export _JAVA_OPTIONS="-Xms256m -Xmx1048m"
 export DBConn="TRIGGERDBATN"
@@ -49,7 +50,7 @@ rundate=`date +%F" "%H:%M" "`
 
 # Upload SMK
 
-cmd="java -jar TriggerTool.jar -up -release $p1_rel -l1_menu $l1menu -hlt_menu $hltmenu1 -hlt_l2_setup $l2__setup1 -hlt_ef_setup $ef__setup1 -name $menuname -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" -dbConn $DBConn -w_n 25 -w_t 60" 
+cmd="java -jar TriggerTool.jar -up -release $p1_rel -l1_menu $l1menu -hlt_menu $hltmenu1 -hlt_l2_setup $l2__setup1 -hlt_ef_setup $ef__setup1 -name $menuname -l FINE --SMcomment \"${rundate}${nightly}_${rel}\" -dbConn $DBConn -w_n 50 -w_t 60" 
 echo $cmd
 eval $cmd &> uploadSMK.log
 
