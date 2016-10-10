@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 740762 2016-04-16 08:04:59Z krasznaa $
+# $Id: CMakeLists.txt 776825 2016-10-06 11:22:55Z krasznaa $
 ################################################################################
 # Package: ElectronPhotonSelectorTools
 ################################################################################
@@ -6,20 +6,29 @@
 # Declare the package name:
 atlas_subdir( ElectronPhotonSelectorTools )
 
+# Extra dependencies based on the environment:
+set( extra_dep )
+if( XAOD_STANDALONE )
+   set( extra_dep Control/xAODRootAccess )
+else()
+   set( extra_dep GaudiKernel )
+endif()
+
 # Declare the package's dependencies:
 atlas_depends_on_subdirs(
   PUBLIC
   Control/AthToolSupport/AsgTools
   Event/xAOD/xAODEgamma
   Event/xAOD/xAODTracking
+  Event/xAOD/xAODHIEvent
   PhysicsAnalysis/AnalysisCommon/PATCore
   PRIVATE
   Control/CxxUtils
   Event/FourMomUtils
   Event/xAOD/xAODCaloEvent
   Event/xAOD/xAODCore
-  GaudiKernel
-  Tools/PathResolver )
+  Tools/PathResolver
+  ${extra_dep} )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core MathCore Hist MathMore )
@@ -29,13 +38,15 @@ atlas_add_library( ElectronPhotonSelectorToolsLib
   ElectronPhotonSelectorTools/*.h Root/*.cxx
   PUBLIC_HEADERS ElectronPhotonSelectorTools
   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-  LINK_LIBRARIES AsgTools xAODEgamma xAODTracking PATCoreLib
+  LINK_LIBRARIES AsgTools xAODEgamma xAODTracking xAODHIEvent PATCoreLib
   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} CxxUtils FourMomUtils
-  xAODCaloEvent xAODCore GaudiKernel PathResolver )
+  xAODCaloEvent xAODCore PathResolver )
 
-atlas_add_component( ElectronPhotonSelectorTools
-  src/components/*.cxx
-  LINK_LIBRARIES ElectronPhotonSelectorToolsLib )
+if( NOT XAOD_STANDALONE )
+   atlas_add_component( ElectronPhotonSelectorTools
+      src/components/*.cxx
+      LINK_LIBRARIES GaudiKernel ElectronPhotonSelectorToolsLib )
+endif()
 
 atlas_add_dictionary( ElectronPhotonSelectorToolsDict
   ElectronPhotonSelectorTools/ElectronPhotonSelectorToolsCoreDict.h
@@ -46,6 +57,26 @@ atlas_add_dictionary( ElectronPhotonSelectorToolsPythonDict
   ElectronPhotonSelectorTools/ElectronPhotonSelectorToolsPythonDict.h
   ElectronPhotonSelectorTools/selectionPython.xml
   LINK_LIBRARIES ElectronPhotonSelectorToolsLib )
+
+atlas_add_executable( EGIdentification_mem_check
+   util/EGIdentification_mem_check.cxx
+   LINK_LIBRARIES CxxUtils ElectronPhotonSelectorToolsLib )
+
+if( XAOD_STANDALONE )
+
+   atlas_add_executable( EGIdentification_testEGIdentificationPoints
+      util/testEGIdentificationPoints.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODCore xAODEgamma CxxUtils AsgTools
+      xAODRootAccess ElectronPhotonSelectorToolsLib )
+
+   atlas_add_executable( EGIdentification_testEMAmbiguityResolver
+      util/testEMAmbiguityResolver.cxx
+      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
+      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODEgamma AsgTools xAODRootAccess
+      ElectronPhotonSelectorToolsLib )
+
+endif()
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

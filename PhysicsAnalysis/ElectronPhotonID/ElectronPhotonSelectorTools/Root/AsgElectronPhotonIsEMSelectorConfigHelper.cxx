@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "ElectronPhotonSelectorTools/AsgElectronPhotonIsEMSelectorConfigHelper.h"
+#include "AsgElectronPhotonIsEMSelectorConfigHelper.h"
 #include "AsgTools/AsgMessaging.h"
 #include "TEnv.h"
 #include <iostream>
@@ -13,7 +13,7 @@ namespace AsgConfigHelper{
   std::string  findConfigFile (std::string input, const std::map<std::string,std::string>& configmap){
     auto confFile_itr=configmap.find(input);
     if(confFile_itr == configmap.end()){
-      return 0;
+      return "";
     }
     return confFile_itr->second;
   }

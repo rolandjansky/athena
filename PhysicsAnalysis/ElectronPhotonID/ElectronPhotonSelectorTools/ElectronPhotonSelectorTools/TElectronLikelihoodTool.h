@@ -138,11 +138,8 @@ namespace LikeEnum {
     double eratio;
     double deltaEta; 
     double d0; 
-    double TRratio;
     double d0sigma;
-    //double ptcone20; 
     double rphi; 
-    //double ws3;
     double deltaPoverP;
     double deltaphires;
     double TRT_PID;
@@ -200,12 +197,9 @@ namespace Root {
                                  double wstot, double EoverP, double ip ) const;
     const Root::TResult& calculate(LikeEnum::LHCalcVars_t& vars_struct) const ;
     const Root::TResult& calculate( double eta, double eT,double f3, double rHad, double rHad1,
-                                    double Reta, double w2, double f1, /*double wstot,*/ double eratio,
-                                    double deltaEta, double d0, double TRratio, /*double eOverP,*/
-                                    /*double deltaPhi,*/ double d0sigma, /*double fside,*/
-                                    /*double ptcone20,*/ double rphi, /*double ws3,*/
-                                    double deltaPoverP ,double deltaphires,
-				    double TRT_PID,
+                                    double Reta, double w2, double f1, double eratio,
+                                    double deltaEta, double d0, double d0sigma, double rphi,
+                                    double deltaPoverP ,double deltaphires, double TRT_PID,
                                     double ip) const;
     
 
@@ -288,6 +282,8 @@ namespace Root {
     std::vector<double> CutEoverPAtHighET;
     /** @brief do pileup-dependent transform on discriminant value*/
     bool doPileupTransform;
+    /** @brief do centrality-dependent transform on discriminant value*/
+    bool doCentralityTransform;
     /** @brief cut on likelihood output*/
     std::vector<double> CutLikelihood;
     /** @brief pileup correction factor for cut on likelihood output*/
@@ -300,12 +296,16 @@ namespace Root {
     std::vector<double> DiscHardCutForPileupTransform;
     /** @brief reference slope on disc for very hard cut; used by pileup transform */
     std::vector<double> DiscHardCutSlopeForPileupTransform;
+    /** @brief reference quadratic apr on disc for very hard cut; used by centrality transform */
+    std::vector<double> DiscHardCutQuadForPileupTransform;
     /** @brief reference disc for a pileup independent loose menu; used by pileup transform */
     std::vector<double> DiscLooseForPileupTransform;
     /** @brief reference disc for very hard cut; used by pileup transform - 4-7 GeV */
     std::vector<double> DiscHardCutForPileupTransform4GeV;
     /** @brief reference slope on disc for very hard cut; used by pileup transform - 4-7 GeV */
     std::vector<double> DiscHardCutSlopeForPileupTransform4GeV;
+    /** @brief reference quadratic par on disc for very hard cut; used by centrality transform - 4-7 GeV */
+    std::vector<double> DiscHardCutQuadForPileupTransform4GeV;
     /** @brief reference disc for a pileup independent loose menu; used by pileup transform - 4-7 GeV */
     std::vector<double> DiscLooseForPileupTransform4GeV;
     /** @brief max discriminant for which pileup transform is to be used */
@@ -388,15 +388,15 @@ namespace Root {
     int m_resultPosition_LH;
 
     static const double fIpBounds[IP_BINS+1];
-    static const unsigned int  fnEtBinsHist     = 8;  // number of hists stored for nominal LH (useHighETLHBinning), including 4GeV bin
-    static const unsigned int  fnDiscEtBins     = 33; // number of discs stored for nominal LH (useHighETLHBinning), excluding 4GeV bin
+    static const unsigned int  fnEtBinsHist     = 8;  // number of hists stored for LH with many high ET bins (useHighETLHBinning), including 4GeV bin
+    static const unsigned int  fnDiscEtBins     = 33; // number of discs stored for LH with many high ET bins (useHighETLHBinning), excluding 4GeV bin
     static const unsigned int  fnEtBinsHistOrig = 7;  // number of hists stored for original LH, including 4GeV bin (for backwards compatibility)
     static const unsigned int  fnDiscEtBinsOrig = 9;  // number of discs stored for original LH, excluding 4GeV bin (for backwards compatibility)
-    static const unsigned int  fnDiscEtBinsOneExtra = 10;  // number of discs stored for original LH plus one for HighETBinThreshold (useOneExtraHighETLHBin), excluding 4GeV bin
+    static const unsigned int  fnDiscEtBinsOneExtra = 10; // number of discs stored for original LH plus one for HighETBinThreshold (useOneExtraHighETLHBin), excluding 4GeV bin
     static const unsigned int  fnEtaBins        = 10;
-    static const unsigned int  fnVariables      = 14;
+    static const unsigned int  fnVariables      = 13;
     TElectronLikelihoodTool::SafeTH1*      fPDFbins     [2][IP_BINS][fnEtBinsHist][fnEtaBins][fnVariables]; // [sig(0)/bkg(1)][ip][et][eta][variable]
-    static const char*  fVariables                      [fnVariables]; 
+    static const std::string  fVariables                [fnVariables];
 
     unsigned int getIpBin(double ip) const;
     void getBinName(char* buffer, int etbin,int etabin, int ipbin, std::string iptype) const;

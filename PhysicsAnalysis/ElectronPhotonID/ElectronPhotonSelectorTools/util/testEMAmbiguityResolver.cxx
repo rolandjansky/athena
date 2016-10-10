@@ -119,10 +119,10 @@ int main( int argc, char* argv[] ) {
        MSG_INFO("Electron: " << counter);
        MSG_INFO("Initial Author: " << el->author());
        MSG_INFO("Ambiguity accept result: " << myAmbiguity.accept(*el));
-       const static SG::AuxElement::Decorator<uint8_t> acc("ambiguityType");
+       static const  SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");    
        MSG_INFO("Ambiguity Type: " << static_cast<int> (acc(*el)));
 
-       const static SG::AuxElement::Decorator<ElementLink<xAOD::EgammaContainer> > ELink ("ambigutityElementLink");
+       static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
        if(ELink(*el).isValid()){
 	 const xAOD::Photon* overlapPhoton = static_cast<const xAOD::Photon*> (*ELink(*el));
 	 MSG_INFO("Overlap photon pt: " << overlapPhoton->pt());
@@ -137,10 +137,10 @@ int main( int argc, char* argv[] ) {
 	 MSG_INFO("Photon: " << counter);
 	 MSG_INFO("Initial Author: " << ph->author());
 	 MSG_INFO("Ambiguity accept result: " << myAmbiguity.accept(*ph));
-	 const static SG::AuxElement::Decorator<uint8_t> acc("ambiguityType");
+	 static const  SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");    
 	 MSG_INFO("Ambiguity Type: " << static_cast<int> (acc(*ph)));
 	 
-	 const static SG::AuxElement::Decorator<ElementLink<xAOD::EgammaContainer> > ELink ("ambigutityElementLink");
+	 static const SG::AuxElement::Accessor<ElementLink<xAOD::EgammaContainer> > ELink ("ambiguityLink");
 	 if(ELink(*ph).isValid()){
 	   const xAOD::Electron* overlapElectron = static_cast< const xAOD::Electron*> (*ELink(*ph));
 	   MSG_INFO("Overlap Electron pt: " << overlapElectron->pt());
