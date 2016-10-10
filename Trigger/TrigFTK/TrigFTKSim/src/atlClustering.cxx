@@ -39,7 +39,7 @@ using ftk::NEGEC;
 //#define DEBUG_HITS
 //#define DECODER_INPUT 0
 //#define DECODER_OUTPUT 0
-/////#define CLUSTERING_PRINTOUT 0
+//#define CLUSTERING_PRINTOUT 0
 //#define CENTROID_PRINTOUT 0
 //#define BOUNDING_BOX
 
@@ -299,7 +299,8 @@ void printCentroidList(clustersByModuleMap clustersByModule)
            printf("0x8%.7x\n", hitToModuleId(*hit));
             for (; b != cl->end(); b++) {
                 //printToFile(outcentroid, (*b).clusterEquiv.getHWWord());
-                printf("0x%.8X\n",(*b).clusterEquiv.getHWWord());
+                printf("0x%.8X ",(*b).clusterEquiv.getHWWord());
+                std::cout << (*b).clusterEquiv.getTot() << " " << (*b).clusterEquiv.getEtaStrip() << " " << (*b).clusterEquiv.getPhiSide() << std::endl;
             }
             printf("0x40000000\n");
         }
@@ -878,7 +879,9 @@ void averageCluster(cluster &clu) {
              * In this code I'll use etaTrack instead of pixel eta for simplicity
              */
 
+            //std::cout << "CNTRD: CALCULATE CLUSTER" << std::endl;
             for (p=clu.hitlist.begin(); p!=clu.hitlist.end(); ++p) { //loop over hits in cluster
+                //std::cout << "CNTRD: HIT " << (*p)->getEtaStrip() << " " << (*p)->getPhiSide() << " " << (*p)->getTot()  << std::endl;
                 assert(av.getLayer()==(*p)->getLayer() && av.getPhiModule()==(*p)->getPhiModule() && av.getEtaModule()==(*p)->getEtaModule() );
 
                 if (SAVE_CLUSTER_CONTENT) { // if enabled the cluster also stores also the single channels
@@ -934,6 +937,7 @@ void averageCluster(cluster &clu) {
                     if (orig_col>80) col += pixYScaleFactor*16/10; // add 16/10 of pixel i.e. 400um (450um pixel in col79 and col80)
                     if (orig_col==159) col += pixYScaleFactor/2; // add half pixel (500um pixel in col159)
                 }
+                row *= pixXScaleFactor;
 
                 if (row == rowMin) qRowMin += tot;
                 if (row < rowMin){
@@ -982,7 +986,6 @@ void averageCluster(cluster &clu) {
 	    // New Implementation 
 	   
 	    if (PIXEL_CLUSTERING_MODE == PIXEL_CLUSTERING_HARDWARE) {
-	      phi_average *= pixXScaleFactor; // transform from pixel units to 6.25 microns
 	      float etaRow = -1;
 	      float etaCol = -1;
 	      if(qRowMin+qRowMax > 0) 
@@ -1081,7 +1084,7 @@ void averageCluster(cluster &clu) {
                 //    InDetDD::SiLocalPosition totCorrection(0,0,0);
                 int m_posStrategy = 1; //Same as m_posStrategy == 1 in InDetRecTools/SiClusterizationTool/trunk/src/MergedPixelsTool.cxx#L701
                 if(m_posStrategy == 1 && !hasGanged && etaRow>0 && etaCol > 0){
-		  phi_average += deltax*(etaRow-0.5)/ftk::phiPitch;
+		  phi_average += pixXScaleFactor*deltax*(etaRow-0.5)/ftk::phiPitch;
 		  eta_average += pixYScaleFactor*deltay*(etaCol-0.5)/etaPitch;
                 } 
             }
@@ -1095,12 +1098,12 @@ void averageCluster(cluster &clu) {
                 eta_average = 0;
             }
 
-            if (BarrelEndCap!=0) phi_average += ftk::clustering::pixelEndCapRPhiCorrection;
-            if (isIBLmodule) phi_average += ftk::clustering::pixelIblRPhiCorrection;
+            if (BarrelEndCap!=0) phi_average += ftk::clustering::pixelEndCapRPhiCorrection*pixXScaleFactor;
+            if (isIBLmodule) phi_average += ftk::clustering::pixelIblRPhiCorrection*pixXScaleFactor;
 	    
-	    if (PIXEL_CLUSTERING_MODE == PIXEL_CLUSTERING_HARDWARE) {
+		//if (PIXEL_CLUSTERING_MODE == PIXEL_CLUSTERING_HARDWARE) {
             av.setRowCoordinate( lround(phi_average) );
-	    } else av.setRowCoordinate( lround(phi_average*pixXScaleFactor) );
+		//} else av.setRowCoordinate( lround(phi_average*pixXScaleFactor) );
             av.setColumnCoordinate( lround(eta_average) );
             av.setSplit(false);
 
@@ -1109,6 +1112,7 @@ void averageCluster(cluster &clu) {
             }
 
             eta_average*=numberOfEtaPixelsInModule/lengthOfPixelModuleInUmPixels/pixYScaleFactor;
+            phi_average/=pixXScaleFactor;
             //if (isPixelmodule) {
                 //// rescale full module length 152*400um to the range 0-144
                 //// here 1 units is 400*19/18um (i.e. average 400/600um pixel length)
@@ -1550,8 +1554,7 @@ int gangedPartner(const FTKRawHit &hit) {
  
 double getDeltaX1A(cluster &clu){
   FTKRawHit *first = *(clu.hitlist.begin());
-  int layer = first->getLayer();
-  bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+  bool isIBLmodule  = hitOnIBLmodule(*first);
   float pixXScaleFactor = ftk::clustering::xScaleFactorPixel; ///<multiply by 16 to count in unit of 25um
   float sensorThickness = ftk::sensorThicknessPixel;
   if (isIBLmodule) {
@@ -1562,8 +1565,7 @@ double getDeltaX1A(cluster &clu){
 }
 double getDeltaX2A(cluster &clu){
   FTKRawHit *first = *(clu.hitlist.begin());
-  int layer = first->getLayer();
-  bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+  bool isIBLmodule  = hitOnIBLmodule(*first);
   float sensorThickness = ftk::sensorThicknessPixel;
   float pixXScaleFactor = ftk::clustering::xScaleFactorPixel; 
   if (isIBLmodule) {
@@ -1573,8 +1575,7 @@ double getDeltaX2A(cluster &clu){
 }
 int getDeltaXEC1A(cluster &clu){
   FTKRawHit *first = *(clu.hitlist.begin());
-  int layer = first->getLayer();
-  bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+  bool isIBLmodule  = hitOnIBLmodule(*first);
   float sensorThickness = ftk::sensorThicknessPixel;
   float pixXScaleFactor = ftk::clustering::xScaleFactorPixel; 
   if (isIBLmodule) {
@@ -1584,8 +1585,7 @@ int getDeltaXEC1A(cluster &clu){
 }
 int getDeltaXEC2A(cluster &clu){
   FTKRawHit *first = *(clu.hitlist.begin());
-  int layer = first->getLayer();
-  bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+  bool isIBLmodule  = hitOnIBLmodule(*first);
   float sensorThickness = ftk::sensorThicknessPixel;
   float pixXScaleFactor = ftk::clustering::xScaleFactorPixel; 
   if (isIBLmodule) {
@@ -1595,30 +1595,32 @@ int getDeltaXEC2A(cluster &clu){
 }
 int getDeltaYEC1A(cluster &clu){
   FTKRawHit *first = *(clu.hitlist.begin());
-  int layer = first->getLayer();
-  bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+  bool isIBLmodule  = hitOnIBLmodule(*first);
   float sensorThickness = ftk::sensorThicknessPixel;
+  float etaPitch = ftk::etaPitchPixel;
   float pixYScaleFactor = ftk::clustering::yScaleFactorPixel; 
   if (isIBLmodule) {
     sensorThickness = ftk::sensorThicknessIbl;
+    etaPitch = ftk::etaPitchIbl;
   }
-  return lround(- (32*32*(10*ftk::micrometer*pixYScaleFactor*(sensorThickness/(250*ftk::micrometer))/ftk::etaPitchPixel)/2.)); 
+  return lround(- (32*32*(10*ftk::micrometer*pixYScaleFactor*(sensorThickness/(250*ftk::micrometer))/etaPitch)/2.)); 
 }
 int getDeltaYEC2A(cluster &clu){
   FTKRawHit *first = *(clu.hitlist.begin());
-  int layer = first->getLayer();
-  bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+  bool isIBLmodule  = hitOnIBLmodule(*first);
   float sensorThickness = ftk::sensorThicknessPixel;
+  float etaPitch = ftk::etaPitchPixel;
   float pixYScaleFactor = ftk::clustering::yScaleFactorPixel; 
   if (isIBLmodule) {
     sensorThickness = ftk::sensorThicknessIbl;
+    etaPitch = ftk::etaPitchIbl;
   }
-  return lround(32*(10*ftk::micrometer*pixYScaleFactor*(sensorThickness/(250*ftk::micrometer))/ftk::etaPitchPixel));
+  return lround(32*(10*ftk::micrometer*pixYScaleFactor*(sensorThickness/(250*ftk::micrometer))/etaPitch));
 }
 int getDeltaY1A(cluster &clu){
   FTKRawHit *first = *(clu.hitlist.begin());
   int layer = first->getLayer();
-  bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+  bool isIBLmodule  = hitOnIBLmodule(*first);
   if (FTKSetup::getFTKSetup().getIBLMode()==0)
     layer++; 
   float radius = ftk::clustering::radii[layer];
@@ -1632,6 +1634,7 @@ int getDeltaY1A(cluster &clu){
     moduleActiveLength = ftk::lengthOfIblModuleIn250umPixels*ftk::etaPitchIbl/ftk::micrometer; // planar sensors
     pixYScaleFactor = ftk::clustering::yScaleFactorPixel; ///<multiply by 10 to count in unit of 25um
     etaModule = first->getEtaModule()-8;
+    etaPitch = ftk::etaPitchIbl;
     
   } 
   return lround ( - 32*32*2* pixYScaleFactor*sensorThickness* etaModule*moduleActiveLength/radius /etaPitch/2. ) + lround( 32*32*2* pixYScaleFactor*sensorThickness*moduleActiveLength/radius /etaPitch/2/2);  
@@ -1639,7 +1642,7 @@ int getDeltaY1A(cluster &clu){
 int getDeltaY2A(cluster &clu){
   FTKRawHit *first = *(clu.hitlist.begin());
   int layer = first->getLayer();
-  bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+  bool isIBLmodule  = hitOnIBLmodule(*first);
   if (FTKSetup::getFTKSetup().getIBLMode()==0)
     layer++; 
   float radius = ftk::clustering::radii[layer];
@@ -1653,6 +1656,7 @@ int getDeltaY2A(cluster &clu){
     moduleActiveLength = ftk::lengthOfIblModuleIn250umPixels*ftk::etaPitchIbl/ftk::micrometer; // planar sensors
     pixYScaleFactor = ftk::clustering::yScaleFactorPixel; ///<multiply by 10 to count in unit of 25um
     etaModule = first->getEtaModule()-8;
+    etaPitch = ftk::etaPitchIbl;
   }
   return lround (32*2* pixYScaleFactor*sensorThickness* etaModule*moduleActiveLength/radius /etaPitch) + lround ( - 32*2* pixYScaleFactor*sensorThickness* moduleActiveLength/radius /etaPitch/2.);  
 }
@@ -1660,7 +1664,7 @@ int getDeltaY2A(cluster &clu){
 int getDeltaY1B(cluster &clu){
   FTKRawHit *first = *(clu.hitlist.begin());
   int layer = first->getLayer();
-  bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+  bool isIBLmodule  = hitOnIBLmodule(*first);
   if (FTKSetup::getFTKSetup().getIBLMode()==0)
     layer++; 
   float radius = ftk::clustering::radii[layer];
@@ -1672,13 +1676,14 @@ int getDeltaY1B(cluster &clu){
     sensorThickness = ftk::sensorThicknessIbl;etaPitch = ftk::etaPitchIbl;
     numberOfEtaPixelsInModule = ftk::numberOfEtaPixelsInIblModule;
     moduleActiveLength = ftk::lengthOfIblModuleIn250umPixels*ftk::etaPitchIbl/ftk::micrometer; // planar sensors
+    etaPitch = ftk::etaPitchIbl;
   }
   return  lround ( - 32*32* sensorThickness/numberOfEtaPixelsInModule *moduleActiveLength/radius /etaPitch/2);
 }
 int getDeltaY2B(cluster &clu){
   FTKRawHit *first = *(clu.hitlist.begin());
   int layer = first->getLayer();
-  bool isIBLmodule   = FTKSetup::getFTKSetup().getIBLMode()!=0 && layer==0;
+  bool isIBLmodule  = hitOnIBLmodule(*first);
   if (FTKSetup::getFTKSetup().getIBLMode()==0)
     layer++; 
   float radius = ftk::clustering::radii[layer];
@@ -1690,6 +1695,7 @@ int getDeltaY2B(cluster &clu){
     sensorThickness = ftk::sensorThicknessIbl;etaPitch = ftk::etaPitchIbl;
     numberOfEtaPixelsInModule = ftk::numberOfEtaPixelsInIblModule;
     moduleActiveLength = ftk::lengthOfIblModuleIn250umPixels*ftk::etaPitchIbl/ftk::micrometer; // planar sensors
+    etaPitch = ftk::etaPitchIbl;
   }
   return lround (32 * sensorThickness/numberOfEtaPixelsInModule *moduleActiveLength/radius/etaPitch ) ; 
 }	   

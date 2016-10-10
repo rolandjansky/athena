@@ -19,6 +19,15 @@
 #include <TString.h>
 #include <TRegexp.h>
 
+#include <sys/time.h>
+#include <sys/resource.h>
+static void printVmemUsage(char const *text) {
+   struct rusage usage;
+   getrusage(RUSAGE_SELF,&usage);
+   std::cout<<"VMEM usage "<<text
+            <<" "<<usage.ru_maxrss/1024./1024.<<"G"
+      <<"\n";
+}
 
 /*
   class FTK_CompressedAMBank
@@ -37,6 +46,8 @@
 // #define PRINT_MULTIPLICITY
 // #define WRITE_DEADMODULE_TEMPLATE
 // #define TESTDCSSID 19
+
+#define HW2_USE_TSPMAP
 
 int const FTK_CompressedAMBank::MAX_NROAD=300000;
 
@@ -520,7 +531,7 @@ int FTK_CompressedAMBank::writePCachedBankFile
       for(int i=0;i<getNPlanes();i++) {
          ndc[i]=m_TSPmap->getNBits(i  );
       }
-      for(int i=0;i<sectorWritten.size();i++) {
+      for(size_t i=0;i<sectorWritten.size();i++) {
          sector=sectorWritten[i];
          MAP<int,std::pair<int,int> >::const_iterator isector=
             m_SectorFirstLastPattern.find(sector);
@@ -657,7 +668,6 @@ int FTK_CompressedAMBank::getDCssidSlow
             // PXL case
             getSSMapTSP()->decodeSSxy
                (tspSSID,layer,section,phimod,localX,etacode,localY);
-            
          } else {
             // SCT case
             getSSMapTSP()->decodeSSx
@@ -681,8 +691,12 @@ int FTK_CompressedAMBank::getDCssidSlow
       if((phimod<0)&&(localModuleID<0)) {
          Fatal("getDCssidSlow")
             <<"could not decode TSP-SSID="<<tspSSID
-            <<" layer="<<layer<<" ndim="<<nDim
+            <<" layer="<<layer
+	    <<" ndim="<<nDim
             <<" localModuleID="<<localModuleID
+	    <<" phimod=" << phimod
+	    <<" localModuleID=" << localModuleID
+	    <<" getHWModeSS_tsp()=" << getHWModeSS_tsp()
             <<"\n";
       }
       if (getHWModeSS_dc()==0) {
@@ -712,7 +726,7 @@ int FTK_CompressedAMBank::getDCssidSlow
          if(localModuleID<0) {
             if(m_moduleIdHW2.size()) {
                int moduleID=m_moduleIdHW2[layer][sector];
-               localModuleID=getSSMap()->getRegionMap()
+               localModuleID=getSSMapTSP()->getRegionMap()
                   ->getLocalId(getBankID(),layer,moduleID);
                if(localModuleID<0) {
                   Fatal("getDCssidSlow")
@@ -729,9 +743,29 @@ int FTK_CompressedAMBank::getDCssidSlow
             }
          }
          if (nDim==2) {
-            dcSSID=getSSMap()->compressed_ssid_word_pixel(localModuleID,layer,section,localX,localY);
+#ifdef HW2_USE_TSPMAP
+            getSSMapTSP()->setSSDCX(layer,m_TSPmap->getNBits(layer,0));
+            getSSMapTSP()->setSSDCY(layer,m_TSPmap->getNBits(layer,1));
+            dcSSID=getSSMapTSP()->compressed_ssid_word_pixel
+               (localModuleID,layer,section,localX,localY)
+               >>m_TSPmap->getNBits(layer);
+            getSSMapTSP()->setSSDCX(layer,0);
+            getSSMapTSP()->setSSDCY(layer,0);
+#else
+            dcSSID=getSSMap()->compressed_ssid_word_pixel
+               (localModuleID,layer,section,localX,localY);
+#endif
          } else {
-            dcSSID=getSSMap()->compressed_ssid_word_strip(localModuleID,layer,section,localX);
+#ifdef HW2_USE_TSPMAP
+            getSSMapTSP()->setSSDCX(layer,m_TSPmap->getNBits(layer,0));
+            dcSSID=getSSMapTSP()->compressed_ssid_word_strip
+               (localModuleID,layer,section,localX)
+               >>m_TSPmap->getNBits(layer);
+            getSSMapTSP()->setSSDCX(layer,0);
+#else
+            dcSSID=getSSMap()->compressed_ssid_word_strip
+               (localModuleID,layer,section,localX);
+#endif
          }
       } else {
          Fatal("getDCssidSlow")
@@ -808,13 +842,31 @@ int FTK_CompressedAMBank::getTSPssidSlow
          // here, assume section=0 for encoding/decoding the SSID
          // otherwise it gets ***REALLY** complicated
          if (nDim==2) {
+#ifdef HW2_USE_TSPMAP
+            getSSMapTSP()->setSSDCX(layer,m_TSPmap->getNBits(layer,0));
+            getSSMapTSP()->setSSDCY(layer,m_TSPmap->getNBits(layer,1));
+            getSSMapTSP()->decodeSSTowerXY(dcSSID<<m_TSPmap->getNBits(layer),
+                                           getBankID(),layer,section,
+                                           localModuleID,localX,localY);
+            getSSMapTSP()->setSSDCX(layer,0);
+            getSSMapTSP()->setSSDCY(layer,0);
+#else
             getSSMap()->decodeSSTowerXY(dcSSID,getBankID(),layer,section,
                                         localModuleID,localX,localY);
+#endif
             localX += ix*phissTSP;
             localY += iy*etassTSP;
          } else {
+#ifdef HW2_USE_TSPMAP
+            getSSMapTSP()->setSSDCX(layer,m_TSPmap->getNBits(layer,0));
+            getSSMapTSP()->decodeSSTowerX(dcSSID<<m_TSPmap->getNBits(layer),
+                                          getBankID(),layer,section,
+                                          localModuleID,localX);
+            getSSMapTSP()->setSSDCX(layer,0);
+#else
             getSSMap()->decodeSSTowerX(dcSSID,getBankID(),layer,section,
                                        localModuleID,localX);
+#endif
             localX += ix*phissTSP;
          }
       } else {
@@ -1296,7 +1348,7 @@ void FTK_CompressedAMBank::importDCpatterns
                }
                int const *patternData=patternDataSector+iPattern*offsetSSID;
                // skip pattern if all IDs are invalid
-               int invalid=0;
+               size_t invalid=0;
                for(unsigned iLayer=0;iLayer<compressionHelper.size();iLayer++) {
                   if(patternData[iLayer]==-1) invalid++;
                }
@@ -2637,6 +2689,11 @@ void FTK_CompressedAMBank::insertPatterns
 (int sector,FTKPatternOneSector const *patterns,
  int maxpatts,VECTOR<HitPatternMap_t> &dcPatterns,
  int &nDC,int &nTSP) {
+   /*Info("insertPatterns") << "inserting patterns " << patterns
+                       << " with Npatt=" << patterns->GetNumberOfPatterns()
+                       << ", sector " << sector << " (" << patterns->GetSector() << ")"
+                       << std::endl;
+   */
    HitPatternMap_t &dcList=dcPatterns[sector];
    FTKPatternOneSectorOrdered *tspList=
       patterns->OrderPatterns(FTKPatternOrderByCoverage(0));
@@ -2940,10 +2997,13 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
          // the coverage map holds for each coverage the number of patterns
          // it is used in order to estimate down to which coverage the patterns
          // can be read
+         printVmemUsage("before GetNPatternsByCoverage");
          std::map<int,int> coverageMap;
          reader.GetNPatternsByCoverage(coverageMap);
+         printVmemUsage("after GetNPatternsByCoverage");
          std::map<int,int>::const_reverse_iterator i=coverageMap.rbegin();
          reader.Rewind();
+         printVmemUsage("after Rewind");
          // print bank statistics
          // determine total number of patterns , patterns*coverage, <coverage>
          uint32_t totalPatterns=0;
@@ -2986,7 +3046,7 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
                 sectorPtr!=(*iPartition).fSectorSet.end();sectorPtr++) {
                int sector=*sectorPtr;
                if(loadedSectorList.find(sector)==loadedSectorList.end()) {
-                  if(loadedSectorList.size()>=maxNumSector) continue;
+                  if((int)loadedSectorList.size()>=maxNumSector) continue;
                   loadedSectorList.insert(sector);
                }
                FTKPatternOneSector *patterns=reader.Read(sector,covEnd+1);
@@ -3002,7 +3062,7 @@ int FTK_CompressedAMBank::readPartitionedSectorOrderedBank
                 sectorPtr!=(*iPartition).fSectorSet.end();sectorPtr++) {
                int sector=*sectorPtr;
                if(loadedSectorList.find(sector)==loadedSectorList.end()) {
-                  if(loadedSectorList.size()>=maxNumSector) continue;
+                  if((int)loadedSectorList.size()>=maxNumSector) continue;
                   loadedSectorList.insert(sector);
                }
                FTKPatternOneSector *patterns=reader.Read(sector,covEnd);
@@ -3143,6 +3203,8 @@ void FTK_CompressedAMBank::sort_hits
    int layerMask=FTKSetup::getFTKSetup().getMaskLayers();
 
    std::vector<int> nHit(getNPlanes());
+   int error=0;
+   int expectedNHit=0;
    for(std::vector<FTKHit>::const_iterator ihit = hits.begin();
        ihit!=hits.end();++ihit) {
       // pointer to the hit
@@ -3151,17 +3213,19 @@ void FTK_CompressedAMBank::sort_hits
       int iplane=hit->getPlane();
       // verify the hit according the mask that masks particular logical laeyrs
       if (layerMask&(1<<iplane)) continue; // skip this hit because the layer
-      if (!getSSMap()->getRegionMap()->isHitInRegion(*hit,getBankID()))
+      if (!getSSMapTSP()->getRegionMap()->isHitInRegion(*hit,getBankID()))
          continue; // skip if the is not in this region
       ++nHit[iplane];
       // pointer to the copy
       // get SSID
+      expectedNHit++;
       int tsp_ssid,coded_ssid;
       if (FTKSetup::getFTKSetup().getSectorsAsPatterns()) {
          // Using a dummy pattern bank representing just the number of sectors, the IDs are the module IDs, for historical reason called sector.
          tsp_ssid = hit->getSector();
          coded_ssid = hit->getSector();
       } else {
+         try{
          if (getHWModeSS_tsp()==0) {
             //SS calculated assuming a global SS id
             tsp_ssid =getSSMapTSP()->getSSGlobal(*hit);
@@ -3182,13 +3246,26 @@ void FTK_CompressedAMBank::sort_hits
          } else if (getHWModeSS_dc()==2) {
             // get SSID directly from fine pattern map
             //   coded_ssid = getSSMapTSP()->getSSTower(*hit,getBankID());
+#ifdef HW2_USE_TSPMAP
+            getSSMapTSP()->setSSDCX(iplane,m_TSPmap->getNBits(iplane,0));
+            getSSMapTSP()->setSSDCY(iplane,m_TSPmap->getNBits(iplane,1));
+            coded_ssid = getSSMapTSP()->getSSTower(*hit,getBankID());
+            getSSMapTSP()->setSSDCX(iplane,0);
+            getSSMapTSP()->setSSDCY(iplane,0);
+#else
             coded_ssid = (getSSMap()->getSSTower(*hit,getBankID())
                           <<m_TSPmap->getNBits(iplane))
-               | m_TSPmap->getHighResSSPart(*hit);
+               |  m_TSPmap->getHighResSSPart(*hit);
+#endif
          } else {
             Fatal("sort_hits")
                <<"hardware mode "<<getHWModeSS_dc()
                <<" [DC] not supported\n";
+         }
+         } catch(FTKException &e) {
+            error++;
+            // skip this hit
+            continue;
          }
       }
       // check whether the hit should be skipped (wildcard)
@@ -3216,9 +3293,18 @@ void FTK_CompressedAMBank::sort_hits
       if(tsp_ss_set[iplane].insert(tsp_ssid).second) {
          m_tspSSID[iplane].push_back(tsp_ssid);
       }
-      //std::cout<<"P"<<iplane<<" SSID="<<coded_ssid<<" nhit="
-      //         <<(*ssPtr).second.getNHits()<<"\n";
+      /* std::cout<<"P"<<iplane
+               <<" codedSSID="<<coded_ssid
+               <<" tspSSID="<<tsp_ssid
+               <<" DC="<<(coded_ssid>>m_TSPmap->getNBits(iplane))
+               <<" highres="<<(coded_ssid & ((1<<m_TSPmap->getNBits(iplane))-1))
+               <<" nhit="
+               <<(*ssPtr).second.getNHits()<<"\n"; */
 #endif
+   }
+   if(error) {
+      Error("sort_hits")<<"failed to calculate SSID for "<<error<<"/"
+                        <<expectedNHit<<" FTKHits\n";
    }
    for (int ipl=0;ipl<getNPlanes();++ipl) {
 #ifdef INTERNAL_LIST
@@ -3473,7 +3559,7 @@ void FTK_CompressedAMBank::am_output() {
       int patternID=m_roadCand[iCand].first;
       int sector=m_roadCand[iCand].second;
 
-      const FTKPlaneMap *pmap = getSSMap()->getPlaneMap();
+      const FTKPlaneMap *pmap = getSSMapTSP()->getPlaneMap();
 
       HitPattern_t hitmaskWithWC=m_hitPatterns[patternID];
       HitPattern_t hitmaskNoWC=hitmaskWithWC & ~m_SectorWC[sector];
@@ -3607,7 +3693,7 @@ void FTK_CompressedAMBank::am_output() {
 *******************************************/
 int FTK_CompressedAMBank::informationMatch(FTKRoad *r1,FTKRoad *r2) {
   const FTKSetup &ftkset = FTKSetup::getFTKSetup();
-  const FTKPlaneMap *pmap = getSSMap()->getPlaneMap();
+  const FTKPlaneMap *pmap = getSSMapTSP()->getPlaneMap();
 
   //int nhits1 = hitbit[ibank][NPLANES][patt1];
   //int nhits2 = hitbit[ibank][NPLANES][patt2];
@@ -3675,41 +3761,69 @@ int FTK_CompressedAMBank::informationMatch(FTKRoad *r1,FTKRoad *r2) {
 const std::list<FTKRoad>& FTK_CompressedAMBank::getRoads() {
    // return list of roads
    // construct list of superstrips really used for the roads found
+   int error=0,errorSector=0,errorPattern=0;
    for(std::list<FTKRoad>::iterator iroad = m_roads.begin();
        iroad!=m_roads.end();++iroad) {
       // prepare list of all superstrips attached to any of the roads
+      // DC mask: if bit is set: bit takes value [X]
       int dcMask=(*iroad).getDCBitmask();
+      // HB mask: if bit is set: bit takes value [0|1]
       int hbMask=(*iroad).getHLBitmask();
       for (int ipl=0;(ipl<getNPlanes())&&(!getStoreAllSS());++ipl) {
          int nDCbits=m_TSPmap->getNBits(ipl);
+         // bitMask: set to one for all positions with ternary bits
          int bitMask=(1<<nDCbits)-1;
+         // isHB: set to one if bits is [0|1]
          int isHB=bitMask & ~dcMask;
+         //  hb:  set to one if bit is [1]
          int hb=hbMask & isHB; 
-         int dc_ssid=(*iroad).getSSID(ipl) & ~bitMask;
+         // mask out all ternary bits
+         int nodc_ssid=(*iroad).getSSID(ipl);
          int found=0;
          for(int bits=0;bits<(1<<nDCbits);bits++) {
+            // skip ternary bit combinations if HB bits are not properly set
             if( (bits & isHB) != hb) continue;
             std::unordered_map<int,FTKSS>::iterator item0 =
-               m_FiredSSmap[ipl].find(dc_ssid | bits);
+               m_FiredSSmap[ipl].find(nodc_ssid | bits);
             if (item0==m_FiredSSmap[ipl].end()) 
                continue; // no hits
             // map for this plane
             std::unordered_map<int,FTKSS> &imap = m_UsedSSmap[ipl];
             // find this ss is in the bank
             std::unordered_map<int,FTKSS>::iterator item =
-               imap.find(dc_ssid|bits);
+               imap.find(nodc_ssid|bits);
             if (item==imap.end()) { // not found
-               imap[dc_ssid|bits] = (*item0).second;
+               imap[nodc_ssid|bits] = (*item0).second;
             }
             found++;
          }
          if((*iroad).hasHitOnLayer(ipl) && !found) {
             Error("getRoads")
-               <<"Plane="<<ipl<<" no fired SS found, ssid="<<dc_ssid<<"\n";
+               <<"Plane="<<ipl<<" no fired SS found, ssid="
+               <<(nodc_ssid>>nDCbits)
+               <<" pattern="<<(*iroad).getPatternID()<<"\n";
+            std::vector<int> const &ssid_with_dcbits=getTSPssidVector
+               (ipl,(*iroad).getSectorID(),nodc_ssid>>nDCbits);
+            std::cout<<"DC="<<(nodc_ssid>>nDCbits)<<" -> TSP=[";
+            for(size_t i=0;i<ssid_with_dcbits.size();i++) {
+               std::cout<<" "<<ssid_with_dcbits[i];
+            }
+            std::cout<<"]\n";
+            std::cout<<"nDCbits="<<nDCbits<<" bitMask="<<bitMask
+                     <<" isHB="<<isHB<<" hb="<<hb<<"\n";
+            error++;
+            errorSector=(*iroad).getSectorID();
+            errorPattern=(*iroad).getPatternID();
          }
          dcMask>>=nDCbits;
          hbMask>>=nDCbits;
       } // end loop over the layers
+   }
+   if(error) {
+      printRoads(m_roads,-1);
+      printStrips();
+      printSector(errorSector,2,errorPattern);
+      throw FTKException("FTK_CompressedAMBank::getRoads inconsistency in SSID numbering");
    }
   static int print=PRINT_DETAILS_NEVENT;
   if(print) {
@@ -3738,7 +3852,7 @@ const std::list<FTKRoad>& FTK_CompressedAMBank::getRoads() {
               int moduleID=hit.getIdentifierHash();
               std::cout<<"pl="<<ipl;
               std::cout<<" hash="<<moduleID
-                       <<" localID="<<getSSMap()->getRegionMap()
+                       <<" localID="<<getSSMapTSP()->getRegionMap()
                  ->getLocalId(getBankID(),ipl,moduleID)
                        <<" x="<<hit[0];
               if(ipl<3) std::cout<<" y="<<hit[1];
@@ -3787,19 +3901,7 @@ FTK_CompressedAMBank::getStrips(int plane) {
 #ifdef PRINT_SS
   static int printSS=PRINT_SS;
   if(printSS) {
-     Info("getStrips")<<"plane="<<plane<<" fired="<< m_FiredSSmap[plane].size()
-                      <<" used="<<m_UsedSSmap[plane].size()<<"\n";
-#ifdef DEBUG_SS
-     MAP<int,FTKSS const *> sorted;
-     for(std::unordered_map<int,FTKSS>::const_iterator i=m_UsedSSmap[plane].begin();
-         i!=m_UsedSSmap[plane].end();i++) {
-        sorted[(*i).first]=& (*i).second;
-     }
-     for(MAP<int,FTKSS const *>::const_iterator i=sorted.begin();i!=sorted.end();i++) {
-        std::cout<<" "<<(*i).first;
-     }
-     std::cout<<"\n";
-#endif
+     printStrips(plane);
      printSS--;
   }
 #endif
@@ -3810,6 +3912,81 @@ FTK_CompressedAMBank::getStrips(int plane) {
   }
   return m_UsedSSmap[plane];
 }
+/**
+   printStrips()
+
+   for debugging purposes
+ */
+
+void FTK_CompressedAMBank::printStrips(int printPlane) const {
+   for(int plane=0;plane<getNPlanes();plane++) {
+      if((printPlane>=0)&&(printPlane!=plane)) continue;
+     Info("getStrips")<<"plane="<<plane<<" fired="<< m_FiredSSmap[plane].size()
+                      <<" used="<<m_UsedSSmap[plane].size()<<"\n";
+     MAP<int,std::pair<FTKSS const *,int> > sorted;
+     for(std::unordered_map<int,FTKSS>::const_iterator i=m_UsedSSmap[plane].begin();
+         i!=m_UsedSSmap[plane].end();i++) {
+        std::pair<FTKSS const *,int> &ss=sorted[(*i).first];
+        ss.first = & (*i).second;
+        ss.second |=2;
+     }
+     for(std::unordered_map<int,FTKSS>::const_iterator i=m_FiredSSmap[plane].begin();
+         i!=m_FiredSSmap[plane].end();i++) {
+        std::pair<FTKSS const *,int> &ss=sorted[(*i).first];
+        ss.first = & (*i).second;
+        ss.second |=1;
+     }
+
+     for(MAP<int,std::pair<FTKSS const *,int> >::const_iterator
+            i=sorted.begin();i!=sorted.end();i++) {
+        std::cout<<" "<<(*i).first<<"[";
+        if((*i).second.second & 1)std::cout<<"F";
+        if((*i).second.second & 2)std::cout<<"U";
+        std::cout<<"]";
+     }
+     std::cout<<"\n";
+     for(std::unordered_map<int,FTKSS>::const_iterator 
+            is=m_FiredSSmap[plane].begin();
+         is!=m_FiredSSmap[plane].end();is++) {
+        for(int h=0;h<(*is).second.getNHits();h++) {
+           FTKHit const &hit=(*is).second.getHit(h);
+           int moduleID=hit.getIdentifierHash();
+           std::cout<<"pl="<<plane;
+           std::cout<<" hash="<<moduleID
+                    <<" localID="<<getSSMapTSP()->getRegionMap()
+              ->getLocalId(getBankID(),plane,moduleID)
+                    <<" xHW="<<hit.getHwCoord(0)<<" x="<<hit[0];
+           if(plane<3) std::cout<<" yHW="<<hit.getHwCoord(1)<<" y="<<hit[1];
+           std::cout<<"\n";;
+           for(int imap=0;imap<3;imap++) {
+              FTKSSMap *ssmap=getSSMapTSP();
+              if(imap==2) ssmap=getSSMap();
+              if(imap==1) {
+                 getSSMapTSP()->setSSDCX(plane,m_TSPmap->getNBits(plane,0));
+                 getSSMapTSP()->setSSDCY(plane,m_TSPmap->getNBits(plane,1));
+              }
+              int ssid=ssmap->getSSTower(hit,getBankID());
+              if(imap<2) std::cout<<" SSID(TSP)=";
+              else {
+                 ssid<<=m_TSPmap->getNBits(plane);
+                 std::cout<<" SSID(AM)=";
+              }
+              std::cout<<ssid<<" (0x"<<std::setbase(16)<<ssid<<std::setbase(10)<<")"
+                       <<" ssmap phi="<<ssmap->getSSDCX(plane)
+                       <<"/"<<ssmap->getSSPhiWidth(hit)
+                       <<"/"<<ssmap->getSSPhiSize(hit)
+                       <<" eta="<<ssmap->getSSDCY(plane)
+                       <<"/"<<ssmap->getSSEtaWidth(hit)
+                       <<"/"<<ssmap->getSSEtaSize(hit)<<"\n";
+              if(imap==1) {
+                 getSSMapTSP()->setSSDCX(plane,0);
+                 getSSMapTSP()->setSSDCY(plane,0);
+              }
+           }
+        }
+     }
+   }
+}
 
 /**
    printSector()
@@ -3817,7 +3994,8 @@ FTK_CompressedAMBank::getStrips(int plane) {
    for debugging purposes
  */
 
-void FTK_CompressedAMBank::printSector(int sector,int npattern) {
+void FTK_CompressedAMBank::printSector(int sector,int npattern,
+                                       int ipattern) {
    std::cout<<" FTK_CompressedAMBank::printSector\n";
    MAP<int,std::pair<int,int> >::const_iterator sectorPtr=
       m_SectorFirstLastPattern.find(sector);
@@ -3831,6 +4009,23 @@ void FTK_CompressedAMBank::printSector(int sector,int npattern) {
          i1[0]=i0[0]+npattern/2-1;
          i0[1]=i1[1]-(npattern-npattern/2)+1;
          npart=2;
+      }
+      if(ipattern>=0) {
+         if(((ipattern<i0[0])||(ipattern>i1[0]))&&
+            ((ipattern<i0[1])||(ipattern>i1[1]))) {
+            if((ipattern<i0[0])||(ipattern>i1[1])) {
+               std::cout<<"Error: requested pattern "<<ipattern
+                        <<" is not in sector "<<sector<<"\n";
+            } else {
+               npart=1;
+               i0[0]=ipattern-npattern/2;
+               i1[0]=ipattern+npattern/2;
+               if(i0[0]<(*sectorPtr).second.first)
+                  i0[0]=(*sectorPtr).second.first;
+               if(i1[0]>(*sectorPtr).second.second)
+                  i1[0]=(*sectorPtr).second.second;
+            }
+         }
       }
       std::cout<<"printing patterns "<<i0[0]<<"-"<<i1[0];
       if(npart>1) {

@@ -197,7 +197,7 @@ public:
 
    // encoding step for sct and pixels
    static int getPhiOffset(bool isSCT, bool isITk) {
-     if (isITk) return 1000;
+     if (isITk) return 100000;
      if (isSCT) return 100;
      return 200; // change to 300 if pixel-eta ss<13
    }

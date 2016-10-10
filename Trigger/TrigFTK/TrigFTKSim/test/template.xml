@@ -57,7 +57,7 @@
                 <chaindatasetName>tmp.NTUP_FTKTMP_{{"%02d" % tower}}</chaindatasetName>
                 <dataset_info>
                   <jobTransformData />
-                  <datasetName>/afs/cern.ch/`work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tmp.NTUP_FTKTMP_{{"%02d" % tower}}</datasetName>
+                  <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tmp.NTUP_FTKTMP_{{"%02d" % tower}}</datasetName>
                 </dataset_info>
               </chaindataset_info>
               {% endfor %}
@@ -98,7 +98,7 @@
             <chainElement>
               <jobTransform userJobId="ConsistencyCheck">
                 <jobTransformJobName>OutputConsistencyCheck</jobTransformJobName>
-                <jobTransformCmd>CompareFTKSimDirectories_RTT.py --RefFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root --ChkFile NTUP_FTK.root --PlotTowers</jobTransformCmd>
+                <jobTransformCmd>rtt_compare.py --RefFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root --ChkFile NTUP_FTK.root --PlotTowers</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <chaindataset_info>
                   <jobTransformData />
@@ -133,7 +133,7 @@
             <chainElement>
               <jobTransform userJobId="Dataflow">
                 <jobTransformJobName>Dataflow</jobTransformJobName>
-                <jobTransformCmd>root -q -b -l 'plot_simple_dataflow.C("NTUP_FTK.root",-1)'</jobTransformCmd>
+                <jobTransformCmd>trigftk_dataflow --files NTUP_FTK.root</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <chaindataset_info>
                   <jobTransformData />
@@ -144,7 +144,7 @@
                   </dataset_info>
                 </chaindataset_info>
                 <queue>medium</queue>
-                <auxFilePattern>plot_simple_dataflow.C</auxFilePattern>
+                <auxFilePattern>dataflow.cc</auxFilePattern>
               </jobTransform>
             </chainElement>
             

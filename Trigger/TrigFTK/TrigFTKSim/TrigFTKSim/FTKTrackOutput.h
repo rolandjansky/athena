@@ -53,7 +53,8 @@ public:
   virtual void addNFitsHWRejected(int ib, int v) = 0;
   virtual void addNFitsBadMajority(int ib, int v) = 0;
   virtual void addNFitsHWRejectedMajority(int ib, int v) = 0;
-
+  virtual void addNConnections(int ib, int v) = 0;
+  virtual void addNExtrapolatedTracks(int ib, int v) = 0;
 
   virtual void addTrackI(int, const FTKTrack&) = 0;
   virtual void addNCombsI(int ib, int v) = 0;

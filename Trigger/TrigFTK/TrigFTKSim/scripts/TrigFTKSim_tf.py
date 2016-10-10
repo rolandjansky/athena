@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Transform
-# @version $Id: TrigFTKSim_tf.py 751833 2016-06-02 14:23:13Z jahreda $
+# @version $Id: TrigFTKSim_tf.py 770308 2016-08-26 12:32:36Z vcavalie $
 
 import argparse
 import sys
@@ -132,10 +132,10 @@ def addFTKSimulationArgs(parser):
                         help="Enables the second stage fitter", group='TrigFTKSim')
     parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables firmware-style constants", group='TrigFTKSim')
-
-
+    parser.add_argument('--PrintSSBConstants', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Prints hardware-style SSB constants", group='TrigFTKSim')
     parser.add_argument("--PixelClusteringMode",type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
-        help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKSim")
+                        help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKSim")
     parser.add_argument('--SctClustering',type=trfArgClasses.argFactory(trfArgClasses.argBool,runarg=False),
                                 help="Set the SCT clustering [def: False]", group="TrigFTKSim")
 

@@ -401,11 +401,11 @@ void Process(Long64_t ientry) {
       MultiTruth::Weight tfrac;
       const bool ok = mt.best(tbarcode,tfrac);
       Int_t index(-1), barcode(0);
-      Double_t frac(0.0);
+      //Double_t frac(0.0);
       if( ok ) {
 	index = tbarcode.first;
 	barcode = tbarcode.second;
-	frac = tfrac;
+	//frac = tfrac;
       }
       // printf("mtv_size, index, barcode, frac = %d, %d, %d, %lf\n", mtv.size(), index, barcode, frac);
       ///if (index==0) {

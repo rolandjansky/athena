@@ -25,7 +25,7 @@ import PyJobTransforms.trfExceptions as trfExceptions
 import PyJobTransforms.trfArgClasses as trfArgClasses
 
 ntowers = 64
-subregions = 4
+subregions = 1
 
 from TrigFTKSim.FTKSimOptions import *
 
@@ -61,13 +61,12 @@ def getTransform():
             pos = tower * subregions + subregion
             executorSet.add(
                 athenaExecutor(
-                    name='FTKFullSimulationBank{0:02d}Sub{1}'.format(
-                        tower, subregion),
+                    name='FTKFullSimulationBank{0:02d}'.format(tower),
                     skeletonFile='TrigFTKSim/skeleton.FTKStandaloneSim.py',
-                    substep='FTKTwr{0:02d}Sub{1}'.format(tower, subregion),
+                    substep='FTKTwr{0:02d}'.format(tower),
                     inData=['NTUP_FTKIP', 'TXT_FTKIP'],
-                    inputEventTest = False, disableMP=True,
-                    outData=['NTUP_FTKTMP_{0:02d}_{1}'.format(tower, subregion)],
+                    inputEventTest = False,disableMP=True,
+                    outData=['NTUP_FTKTMP_{0:02d}'.format(tower)],
                     extraRunargs={
                         'bankregion': [tower],
                         'banksubregion': [subregion]},
@@ -84,33 +83,9 @@ def getTransform():
                         'sectorpath':
                             '[runArgs.sectorspath[{0}]]'.format(tower),
                         'outputNTUP_FTKTMPFile':
-                            'runArgs.outputNTUP_FTKTMP_{0:02d}_{1}File'.format(
-                                tower, subregion)}))
-        #TODO: the current scheme hijack the input and output names using the
-        # extraRunargs and runtimeRunargs, this doesn't really allow to change
-        # (not really important) to control what happens to the intermediate
-        # files. To avoid this hack the skeleton should be more flexible and
-        # check for the number of region subregion within the skeleton file
-        executorSet.add(
-            athenaExecutor(
-                name='FTKSimulationMerge{0:02d}'.format(tower),
-                skeletonFile='TrigFTKSim/skeleton.FTKStandaloneMerge.py',
-                substep='FTKMTwr{0:02d}'.format(tower),
-                inputEventTest = False,disableMP=True,
-                inData=[tuple([
-                    'NTUP_FTKTMP_{0:02d}_{1}'.format(tower, subregion)
-                        for subregion in range(subregions)])],
-                outData=['NTUP_FTKTMP_{0:02d}'.format(tower)],
-                extraRunargs={
-                    'inputNTUP_FTKTMPFile': [
-                        'tmp.NTUP_FTKTMP_{0:02d}_{1}'.format(tower, subregion)
-                            for subregion in range(subregions)]},
-                runtimeRunargs={
-                    'MergeRegion': tower,
-                    'FirstRegion': tower,
-                    'outputNTUP_FTKTMPFile':
-                        'runArgs.outputNTUP_FTKTMP_{0:02d}File'.format(tower)}))
+                            'runArgs.outputNTUP_FTKTMP_{0:02d}File'.format(tower)}))
 
+    # NOTE: WE DON'T DO MERGING HERE BECAUSE IT'S ONE SUBREGION! ONLY FINAL MERGE
     # add final merge for all the tower, generating a NTUP_FTK file
     executorSet.add(
         athenaExecutor(name="FTKSimulationMergeFinal",
@@ -126,6 +101,8 @@ def getTransform():
                 'FirstRegion': 0,
                 'TruthTrackTreeName': "'truthtracks'",
                 'EvtInfoTreeName': "'evtinfo'",
+                'UnmergedRoadFormatName': "'FTKRoadsStream%u.'",
+                'UnmergedFormatName': "'FTKTracksStream%u.'",
                 'SaveTruthTree': '1'}))
 
     executorSet.add(

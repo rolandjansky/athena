@@ -7,7 +7,7 @@
 #include <iostream>
 #include <iomanip>
 
-// #define VERBOSE_DEBUG
+//#define VERBOSE_DEBUG
 
 using namespace std;
 
@@ -104,8 +104,13 @@ int FTK_AMsimulation_base::passHits(const vector<FTKHit> &hitlist)
   // check if  the number of patterns is 0
   if (!m_npatterns)
     return 0;
-
+#ifdef VERBOSE_DEBUG
+  std::cout<<"clear()\n";
+#endif
   clear();  
+#ifdef VERBOSE_DEBUG
+  std::cout<<"sort_hits()\n";
+#endif
   sort_hits(hitlist);
     
   //readout_hits();
@@ -116,17 +121,35 @@ int FTK_AMsimulation_base::passHits(const vector<FTKHit> &hitlist)
   FTKSetup &ftkset = FTKSetup::getFTKSetup();
   
   if (ftkset.getEnableFTKSim()) {
+#ifdef VERBOSE_DEBUG
+     std::cout<<"data_organizer()\n";
+#endif
       data_organizer();
+#ifdef VERBOSE_DEBUG
+      std::cout<<"am_in()\n";
+#endif
       am_in();
   }
+#ifdef VERBOSE_DEBUG
+  std::cout<<"am_output()\n";
+#endif
   am_output();
 
-  if (FTKSetup::getFTKSetup().getRoadWarrior()>0)
+  if (FTKSetup::getFTKSetup().getRoadWarrior()>0) {
+#ifdef VERBOSE_DEBUG
+     std::cout<<"road_warrior()\n";
+#endif
     road_warrior();
+  }
 
   addTotStat(getNRoads());
 
-  return getNRoads();
+#ifdef VERBOSE_DEBUG
+  std::cout<<"getNRoads()\n";
+#endif
+  int r=getNRoads();
+  // exit(0);
+  return r;
 }
 
 /**
@@ -345,7 +368,7 @@ void FTK_AMsimulation_base::road_warrior() {
 
 #ifdef VERBOSE_DEBUG
   printf("%d ghosts found, %d roads left\n", totGhosts,
-	 m_roads.size());
+         (int)m_roads.size());
 #endif
 }
 

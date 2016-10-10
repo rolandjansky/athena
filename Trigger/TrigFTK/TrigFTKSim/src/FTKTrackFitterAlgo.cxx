@@ -61,10 +61,12 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   m_trackfilepath("./"), 
   m_trackfilename("ftktracks.root"),
   m_pmap(0x0),m_pmap_path(),m_pmap_complete(0x0),m_pmapcomplete_path(),m_pmap_unused(0x0),m_pmapunused_path(),
-  m_rmap(0x0), m_rmap_unused(0x0),m_modulelut2nd_path(), 
+  m_modulelut2nd_path(),
+  m_rmap(0x0), m_rmap_unused(0x0),
   m_ssmap(0x0), m_ssmap_unused(0x0), 
   m_rmap_path(), m_ssmap_path(), m_ssmapunused_path(),
-  m_AutoDisable(false)
+  m_AutoDisable(false),
+  m_PrintSSBConstants(false)
 {
   declareProperty("SecondStageFit",m_SecondStageFit,"Enable the second-stage fitter code");
   declareProperty("IBLMode",m_IBLMode,"Switch on the IBL layer");
@@ -113,7 +115,7 @@ FTKTrackFitterAlgo::FTKTrackFitterAlgo(const std::string& name, ISvcLocator* pSv
   declareProperty("SSFTRDefn",m_SSF_check_TR_by);
   declareProperty("SSFTRMinEta",m_SSF_TR_min_eta);
   declareProperty("SSFTRMaxEta",m_SSF_TR_max_eta);
-
+  declareProperty("PrintSSBConstants",m_PrintSSBConstants,"Enable SSB constants printing");
 }
 
 FTKTrackFitterAlgo::~FTKTrackFitterAlgo()
@@ -134,15 +136,15 @@ FTKTrackFitterAlgo::~FTKTrackFitterAlgo()
 StatusCode FTKTrackFitterAlgo::initialize(){
   MsgStream log(msgSvc(), name());
   FTKSetup::getFTKSetup().setMsgStream(&log);
-  log << MSG::INFO << "FTKTrackFitterAlgo::initialize()" << endreq;
+  log << MSG::INFO << "FTKTrackFitterAlgo::initialize()" << endmsg;
 
-  log << MSG::INFO << "IBLMode value: " << m_IBLMode << endreq;
+  log << MSG::INFO << "IBLMode value: " << m_IBLMode << endmsg;
   FTKSetup::getFTKSetup().setIBLMode(m_IBLMode);
 
-  log << MSG::INFO << "Fix EndcapL0 value: " << m_fixEndcapL0 << endreq;
+  log << MSG::INFO << "Fix EndcapL0 value: " << m_fixEndcapL0 << endmsg;
   FTKSetup::getFTKSetup().setfixEndcapL0(m_fixEndcapL0);
 
-  log << MSG::INFO << "ITkMode value: " << m_ITkMode << endreq;
+  log << MSG::INFO << "ITkMode value: " << m_ITkMode << endmsg;
   FTKSetup::getFTKSetup().setITkMode(m_ITkMode);
   
    if (m_SecondStageFit) 
@@ -151,15 +153,15 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     m_tfpobj = new TrackFitter;
 
   // Look for the main plane-map and set plane map
-  log << MSG::INFO << "Read the logical layer definitions" << endreq;
+  log << MSG::INFO << "Read the logical layer definitions" << endmsg;
   if (m_pmap_path.empty()) {
-    log << MSG::FATAL << "Main plane map definition missing" << endreq;
+    log << MSG::FATAL << "Main plane map definition missing" << endmsg;
     return StatusCode::FAILURE;
   }
   else {
     m_pmap = new FTKPlaneMap(m_pmap_path.c_str());
     if (!(*m_pmap)) {
-      log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endreq;
+      log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endmsg;
       return StatusCode::FAILURE;
     }
   }
@@ -169,13 +171,13 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   if(m_SecondStageFit){
 
     if (m_pmapunused_path.empty()) {
-      log << MSG::FATAL << "Unused plane map definition missing" << endreq;
+      log << MSG::FATAL << "Unused plane map definition missing" << endmsg;
       return StatusCode::FAILURE;
     }
     else {
       m_pmap_unused = new FTKPlaneMap(m_pmapunused_path.c_str());
       if (!(*m_pmap_unused)) {
-        log << MSG::FATAL << "Error using plane map: " << m_pmapunused_path << endreq;
+        log << MSG::FATAL << "Error using plane map: " << m_pmapunused_path << endmsg;
         return StatusCode::FAILURE;
       }
     }
@@ -184,66 +186,66 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   }
 
 
-  log << MSG::INFO << "Read the pattern matching PMAP file: " << m_pmap_path << endreq;
-  log << MSG::INFO << "Read the unused PMAP file: " << m_pmapunused_path << endreq;
-  log << MSG::INFO << "Read the final PMAP file: " << m_pmapcomplete_path << endreq;
+  log << MSG::INFO << "Read the pattern matching PMAP file: " << m_pmap_path << endmsg;
+  log << MSG::INFO << "Read the unused PMAP file: " << m_pmapunused_path << endmsg;
+  log << MSG::INFO << "Read the final PMAP file: " << m_pmapcomplete_path << endmsg;
 
-  log << MSG::INFO << "Read the tower-map file: " << m_rmap_path << endreq;
-  log << MSG::INFO << "Read the SS definition file  : " << m_ssmap_path << endreq;
-  log << MSG::INFO << "Read the extrapolation window definition: " << m_ssmapunused_path << endreq;
+  log << MSG::INFO << "Read the tower-map file: " << m_rmap_path << endmsg;
+  log << MSG::INFO << "Read the SS definition file  : " << m_ssmap_path << endmsg;
+  log << MSG::INFO << "Read the extrapolation window definition: " << m_ssmapunused_path << endmsg;
 
 
 
 
   if (m_SecondStageFit){
-    log << MSG::INFO << "Read the 11lL pmap  file" << endreq;
+    log << MSG::INFO << "Read the 11lL pmap  file" << endmsg;
     if (m_pmapcomplete_path.empty()) {
-      log << MSG::FATAL << "11L plane map definition missing" << endreq;
+      log << MSG::FATAL << "11L plane map definition missing" << endmsg;
       return StatusCode::FAILURE;
     }
     else {
       m_pmap_complete = new FTKPlaneMap(m_pmapcomplete_path.c_str());
       if (!(*m_pmap_complete)) {
-	log << MSG::FATAL << "Error using 11L plane map: " << m_pmapcomplete_path << endreq;
+	log << MSG::FATAL << "Error using 11L plane map: " << m_pmapcomplete_path << endmsg;
 	return StatusCode::FAILURE;
       }
     }
 
     // Create the region map objects
     if (m_rmap_path.empty()) {
-      log << MSG::FATAL << "Region map file needed" << endreq;
+      log << MSG::FATAL << "Region map file needed" << endmsg;
       return StatusCode::FAILURE;
     }
   
-    log << MSG::INFO << "Creating region map" << endreq;
+    log << MSG::INFO << "Creating region map" << endmsg;
     m_rmap = new FTKRegionMap(m_pmap, m_rmap_path.c_str());
     if (!(*m_rmap)) {
-      log << MSG::FATAL << "Error creating region map from: " << m_rmap_path.c_str() << endreq;
+      log << MSG::FATAL << "Error creating region map from: " << m_rmap_path.c_str() << endmsg;
       return StatusCode::FAILURE;
     }
 
 
     if (m_pmap_complete) {
-      log << MSG::INFO << "Creating region map for the unused layers" << endreq;
+      log << MSG::INFO << "Creating region map for the unused layers" << endmsg;
       m_rmap_unused = new FTKRegionMap(m_pmap_complete, m_rmap_path.c_str());
       if( FTKSetup::getFTKSetup().getHWModeSS()==2) {
 	if (m_modulelut2nd_path.empty()) {
-	  log << MSG::FATAL << "A module LUT is required when HW SS calculation is required" << m_modulelut2nd_path << endreq;
+	  log << MSG::FATAL << "A module LUT is required when HW SS calculation is required" << m_modulelut2nd_path << endmsg;
 	  return StatusCode::FAILURE;
 	}
 	else {
-	  log << MSG::INFO << "Loading module map from: " << m_modulelut2nd_path << endreq;
+	  log << MSG::INFO << "Loading module map from: " << m_modulelut2nd_path << endmsg;
 	  m_rmap_unused->loadModuleIDLUT(m_modulelut2nd_path.c_str()); //"/afs/cern.ch/work/v/vcavalie/HWMODE2/InstallArea/share/ftk_configuration/map_files/raw_12LiblHW_32.moduleidmap");
 	}
       }
     }
 
 
-    log << MSG::INFO << "Read SS configurations" << endreq;
-    log << MSG::INFO << "Read AM SS configuration" << endreq;
+    log << MSG::INFO << "Read SS configurations" << endmsg;
+    log << MSG::INFO << "Read AM SS configuration" << endmsg;
     m_ssmap = new FTKSSMap(m_rmap, m_ssmap_path.c_str(), false);
     if (!m_ssmapunused_path.empty()) {
-      log << MSG::INFO << "Read SS configuration for layer not used in AM" << endreq;
+      log << MSG::INFO << "Read SS configuration for layer not used in AM" << endmsg;
       m_ssmap_unused = new FTKSSMap(m_rmap_unused, m_ssmapunused_path.c_str(), false);
   }
 
@@ -266,8 +268,8 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 
   // set Track Output Module
   if (m_doTrackFile) {
-    log << MSG::INFO << "Write the TF simulation results in an external file: " << m_trackfilename.c_str() << endreq;
-    log << MSG::INFO << "Output Directory :" << m_trackfilepath.c_str() << endreq; // should be impremented -> each region output 0/xxx0.root ,1/xxx1.root,2,3...
+    log << MSG::INFO << "Write the TF simulation results in an external file: " << m_trackfilename.c_str() << endmsg;
+    log << MSG::INFO << "Output Directory :" << m_trackfilepath.c_str() << endmsg; // should be impremented -> each region output 0/xxx0.root ,1/xxx1.root,2,3...
     FTKTrackFileOutput *ftkouttrackmodule = new FTKTrackFileOutput();
     ftkouttrackmodule->setMultiOut(false);
     ftkouttrackmodule->setOutDir(m_trackfilepath.c_str());
@@ -278,11 +280,11 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   else {
     StatusCode sc = m_trackOutputTool.retrieve();
     if (sc.isFailure()) {
-      log << MSG::FATAL << "Could not retrieve FTK_SGTrackOutput tool" << endreq;
+      log << MSG::FATAL << "Could not retrieve FTK_SGTrackOutput tool" << endmsg;
       return StatusCode::FAILURE;
     }
     else {
-      log << MSG::INFO << "Setting FTK_SGTrackOutput tool" << endreq;
+      log << MSG::INFO << "Setting FTK_SGTrackOutput tool" << endmsg;
     }
 
     m_tfpobj->setTrackOutputModule(m_trackOutputTool->reference());
@@ -291,9 +293,9 @@ StatusCode FTKTrackFitterAlgo::initialize(){
 
 
   // set path Hit Warrior configulation 
-  log << MSG::INFO << "Load Hit Warrior Configulation " << endreq;
+  log << MSG::INFO << "Load Hit Warrior Configulation " << endmsg;
   if (m_loadHWConf_path.empty()) {
-    log << MSG::FATAL << "HW Conf definition missing" << endreq;
+    log << MSG::FATAL << "HW Conf definition missing" << endmsg;
     return StatusCode::FAILURE;
   }
   else {
@@ -303,7 +305,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     }else{
       (m_tfpobj)->setNCoordsPlanes(m_pmap->getTotalDim(),m_pmap->getNPlanes());
     }
-    log << MSG::INFO << "Load Hit Warrior Configulation " << endreq; 
+    log << MSG::INFO << "Load Hit Warrior Configulation " << endmsg; 
     m_tfpobj->loadHWConf(m_loadHWConf_path.c_str());
   }
 
@@ -377,10 +379,10 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setTransitionRegionMinEta(m_SSF_TR_min_eta);
     dynamic_cast<TrackFitter711*>(m_tfpobj)->setTransitionRegionMaxEta(m_SSF_TR_max_eta);
 
-    log << MSG::INFO << "SSF allow miss = " << m_SSF_allow_extramiss << endreq;
-    log << MSG::INFO << "SSF check TR by = " << m_SSF_check_TR_by << endreq;
-    log << MSG::INFO << "SSF TR min eta = " << m_SSF_TR_min_eta << endreq;
-    log << MSG::INFO << "SSF TR max eta = " << m_SSF_TR_max_eta << endreq;
+    log << MSG::INFO << "SSF allow miss = " << m_SSF_allow_extramiss << endmsg;
+    log << MSG::INFO << "SSF check TR by = " << m_SSF_check_TR_by << endmsg;
+    log << MSG::INFO << "SSF TR min eta = " << m_SSF_TR_min_eta << endmsg;
+    log << MSG::INFO << "SSF TR max eta = " << m_SSF_TR_max_eta << endmsg;
 
     //std::cout << "m_SSF_multiconn: " << m_SSF_multiconn << std::endl;
     //std::cout << "m_SSF_maxconn: " << m_SSF_maxnconn << std::endl;
@@ -389,20 +391,20 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   m_tfpobj->prepareBanks(m_nbanks,m_nsubregions); //Set the below function ... to set the region Number
 
   if(m_fitconstantspath.size()==0){
-    log << MSG::FATAL << "No Bank for input" << endreq;
+    log << MSG::FATAL << "No Bank for input" << endmsg;
     return StatusCode::FAILURE;
   }
 
   if (m_SecondStageFit){
     if(m_fit711constantspath.size()==0){
-      log << MSG::FATAL << "No 11 L Bank for input" << endreq;
+      log << MSG::FATAL << "No 11 L Bank for input" << endmsg;
       return StatusCode::FAILURE;
     }
 
   }
 
   if (m_nbanks!=m_tfpobj->getNumRegions() || m_nsubregions!=m_tfpobj->getNumSubRegions() ) {
-    log << MSG::FATAL << "Wrong set Region or Subregion in TrackFitter" << endreq;
+    log << MSG::FATAL << "Wrong set Region or Subregion in TrackFitter" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -410,7 +412,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
   unsigned int nbanks = m_fitconstantspath.size(); 
 
   if(nbanks!=m_bankregion.size() || nbanks!=m_banksubregion.size()){
-    log << MSG::FATAL << "Different array property length in bank definitions" << endreq;
+    log << MSG::FATAL << "Different array property length in bank definitions" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -422,11 +424,11 @@ StatusCode FTKTrackFitterAlgo::initialize(){
     int is = m_banksubregion[ibank];
     const string &bankpath8L = m_fitconstantspath[ibank];
     
-    log << MSG::INFO << "*** set bank *** region:" << ir << "\t subregions:" << is << "\t bank path:" << bankpath8L.c_str() << endreq;
+    log << MSG::INFO << "*** set bank *** region:" << ir << "\t subregions:" << is << "\t bank path:" << bankpath8L.c_str() << endmsg;
     if(m_SecondStageFit){
       const string &bankpath11L = m_fit711constantspath[ibank];
       const string &sectorpath_s = m_sectorpath[ibank];
-      log << MSG::INFO << "*** set bank *** region:" << ir << "\t subregions:" << is << "\t bank path:" << bankpath11L.c_str() << endreq;
+      log << MSG::INFO << "*** set bank *** region:" << ir << "\t subregions:" << is << "\t bank path:" << bankpath11L.c_str() << endmsg;
 
       FTKConstantBank* bank8 = new FTKConstantBank(dynamic_cast<TrackFitter711*>(m_tfpobj)->getNCoordsIncomplete(),bankpath8L.c_str());
       bank8->doAuxFW(m_doAuxFW);
@@ -434,6 +436,83 @@ StatusCode FTKTrackFitterAlgo::initialize(){
       FTKConstantBank* bank11 = new FTKConstantBank(dynamic_cast<TrackFitter711*>(m_tfpobj)->getNCoordsComplete(),bankpath11L.c_str());
       FTKSector711DB * sector= new FTKSector711DB(bank8->getNSectors(),m_pmap_complete->getNPlanes()-m_pmap->getNPlanes(),sectorpath_s.c_str());
       dynamic_cast<TrackFitter711*>(m_tfpobj)->setBank(ir,is,bank11,bank8, sector);
+
+      if(m_PrintSSBConstants){
+
+	log << MSG::INFO << "*** Printing EXP and TF constants in a txt file ****" << endreq;
+
+	ofstream myfile;
+	myfile.open (Form("EXPConstants_reg%d.txt",ir));
+
+	ofstream myfileTF;
+	myfileTF.open (Form("TFConstants_reg%d.txt",ir));
+
+	std::vector<map <int, int> > vecOfMapSecID;
+	std::vector<map <int, int> > vecOfMapNconn;
+	vecOfMapSecID.clear();
+	vecOfMapNconn.clear();
+
+	log << MSG::INFO << "*** Reading the connection file and mapping 8L -> 12L " << endreq;
+	vector<vector<int>> moduleIDvec;
+	moduleIDvec.clear();
+
+	for(Int_t isec=0;isec<bank8->getNSectors();isec++){
+
+	  for(Int_t Nconn=0; Nconn< (int)sector->getNSimilarSectors(isec); Nconn++){
+	    if(Nconn >3 ) break;
+	    Int_t TwelveLsecid = sector->getSimilarSecID(isec,Nconn);
+	    std::map<int,int> Map_secid_Nconn;
+	    Map_secid_Nconn[TwelveLsecid] = isec;
+	    std::map<int,int> Map_temp;
+	    Map_temp[TwelveLsecid] = (int)sector->getNSimilarSectors(isec) ;
+	    vecOfMapNconn.push_back(Map_temp);
+	    vecOfMapSecID.push_back(Map_secid_Nconn);
+	    vector<int> module_temp;
+	    module_temp.clear();
+	    for (int ip=0; ip!=(m_pmap_complete->getNPlanes()-m_pmap->getNPlanes()); ++ip) {
+	      module_temp.push_back(sector->getSimilarStereoIDs(isec,Nconn)[ip]);
+	    }
+	    moduleIDvec.push_back(module_temp);
+	  }
+	}
+
+	for(Int_t isec=0;isec<bank11->getNSectors();isec++){
+	  bank11->printTFConstant(isec,myfileTF);
+	  Int_t temp = -9;
+	  Int_t counter=-1;
+	  Int_t index =-9;
+
+	  for(Int_t Nconn=0; Nconn<(int)vecOfMapSecID.size(); Nconn++){
+	    std::map<int,int> &mymap= vecOfMapSecID[Nconn];
+	    std::map<int,int> &mymap_Nconn= vecOfMapNconn[Nconn];
+	    std::map<int,int>::iterator it;
+	    for (std::map<int,int>::iterator it=mymap.begin(); it!=mymap.end(); ++it){
+	      Int_t count_Nconn = mymap_Nconn.find(isec)->second ;
+	      if(count_Nconn >4)count_Nconn =4;
+	      if(it->second != temp) index=-1;
+	      if(index <0){
+		temp  = it->second;
+		index = 1;
+		counter =-1;
+	      }
+	      if(it->second == temp && index>=0)    counter++;
+
+	      if (it->first == isec){
+		bank11->printExtrapolationConstant(isec,moduleIDvec[Nconn],it->second,counter,count_Nconn, myfile);
+		break;
+	      }
+	    }
+	  }
+	}
+
+	myfile.close();
+	myfileTF.close();
+   
+
+      }
+
+
+
     }
     else{
       FTKConstantBank* bank8 = new FTKConstantBank(m_tfpobj->getNCoords(),bankpath8L.c_str());
@@ -451,7 +530,7 @@ StatusCode FTKTrackFitterAlgo::initialize(){
      can be connected at this time */
   if (m_doTrackFile && m_addRoads) {
     // produce a combined outptu file with both roads and tracks in different branches
-    log << MSG::INFO << "The FTK roads will be added" << endreq;
+    log << MSG::INFO << "The FTK roads will be added" << endmsg;
     FTKTrackFileOutput *ftkouttrackmodule = dynamic_cast<FTKTrackFileOutput*>(m_tfpobj->getTrackOutputModule());    
     m_roadMarketTool->ConnectRoads(ftkouttrackmodule->getTree(),"FTKRoadsStream%d.",m_bankregion);
     
@@ -465,11 +544,11 @@ StatusCode FTKTrackFitterAlgo::execute() {
    MsgStream log(msgSvc(), name());
    FTKSetup::getFTKSetup().setMsgStream(&log);
 
-   log << MSG::INFO << "FTKTrackFitterAlgo::execute() start" << endreq;
+   log << MSG::INFO << "FTKTrackFitterAlgo::execute() start" << endmsg;
 
   if (m_AutoDisable) {
     // if AutoDisable feature is found all the execution driven by road-finder
-    log << MSG::INFO << "FTKRoadFinderAlgo auto-disable mode, nothing to do" << endreq;
+    log << MSG::INFO << "FTKRoadFinderAlgo auto-disable mode, nothing to do" << endmsg;
   }
   else {
     // elaborate the next event
@@ -481,7 +560,7 @@ StatusCode FTKTrackFitterAlgo::execute() {
    }
   }
 
-  log << MSG::INFO << "FTKTrackFitterAlgo::execute() end" << endreq;
+  log << MSG::INFO << "FTKTrackFitterAlgo::execute() end" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -490,7 +569,7 @@ StatusCode FTKTrackFitterAlgo::execute() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTKTrackFitterAlgo::finalize() {
     MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "finalize()" << endreq;
+    log << MSG::INFO << "finalize()" << endmsg;
     FTKSetup::getFTKSetup().setMsgStream(&log);
 
     // if the external custom track file is created this has to deleted

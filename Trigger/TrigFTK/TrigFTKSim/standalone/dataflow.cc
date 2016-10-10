@@ -6,6 +6,7 @@
 #include "boost/program_options.hpp"
 #include "boost/filesystem.hpp"
 
+int SIGDIGITS=2;
 
 int main(int argc, char **argv) {
   events = -1;
@@ -19,9 +20,12 @@ int main(int argc, char **argv) {
     desc.add_options()
       ("help,h", "Print this help message")
       ("output,o", po::value<std::string>(&output)->default_value("./output.txt"), "The name of the output file")
+      ("outputTeX,T", po::value<std::string>(&outputTeX)->default_value("./output.tex"), "The name of the output LaTeX file")
+      ("description,d", po::value<std::string>(&description)->default_value(""), "Information to describe this dataflow")
       ("events,e", po::value<int>(&events)->default_value(-1), "The number of events to run over. Set to -1 to use all events")
       ("ntower,n", po::value<int>(&ntower)->default_value(MAXTOWER), "The number of towers")
-      ("files", po::value<std::vector<std::string> >(&files)->multitoken(), "FTK NTUP files");
+      ("files", po::value<std::vector<std::string> >(&files)->multitoken(), "FTK NTUP files")
+      ("sigdigits,s", po::value<int>(&SIGDIGITS)->default_value(2), "The number of significant digits");
 
     po::variables_map vm;
     try
@@ -61,7 +65,26 @@ void Init() {
 
 
   myfile.open (output);
-  
+  myfileTeX.open (outputTeX);
+  std::cout.precision (1) ;
+
+  myfileTeX << "\\documentclass[12pt]{article}" << std::endl;
+  myfileTeX << "\\usepackage[margin=1in]{geometry}" << std::endl;
+  myfileTeX << "\\usepackage{graphicx}" << std::endl;
+  myfileTeX << "\\usepackage{multirow}" << std::endl;
+  myfileTeX << "\\usepackage{multicol}" << std::endl;
+  myfileTeX << "\\begin{document}" << std::endl;
+  myfileTeX << "\\begin{table}" << std::endl;
+  myfileTeX << "\\centering" << std::endl;
+  myfileTeX << "\\begin{tabular}{|c|c|c|c|c|}" << std::endl;
+  myfileTeX << "\\hline" << std::endl;
+  myfileTeX << "& \\multicolumn{2}{|c|}{Barrel} & \\multicolumn{2}{|c|}{Endcap} \\\\" << std::endl;
+  myfileTeX << "\\hline" << std::endl;
+  myfileTeX << "& Average & Max Tower & Average & Max Tower\\\\ " << std::endl;
+  myfileTeX << "\\hline" << std::endl;
+
+  myfile << description << endl;
+
   for (int i=0; i < MAXTOWER; i++) {
     stream[i] = 0;
     trackstream[i] = 0;
@@ -70,6 +93,8 @@ void Init() {
     nFitRecovery[i] = 0;
     nFitRecoveryI[i] = 0;
     nFitMajority[i] = 0;
+    nConn[i] = 0;
+    nExtrapAUX[i]=0;
     nFitMajorityI[i] = 0;
     nFitMajorityPix[i] = 0;
     nFitMajorityPixI[i] = 0;
@@ -132,6 +157,9 @@ void Process(unsigned int ientry) {
 
       nTrackBeforeHW[itower] += ntrackBeforeHW*divide;
 
+      nConn[itower] += trackstream[itower]->getNConn()*divide;
+      nExtrapAUX[itower] += trackstream[itower]->getNExtrapolatedTracks()*divide;
+
       nFitRecoveryI[itower] += trackstream[itower]->getNFitsRecoveryI()*divide;
       nFitRecovery[itower] += trackstream[itower]->getNFitsRecovery()*divide;
 
@@ -153,6 +181,7 @@ void Process(unsigned int ientry) {
 }
 
 void Terminate() {
+
   myfile << "Type\t\tbarrelmean\t\tbarrelmax\t\tendcapmean\t\tendcapmax" << endl;
   myfile << "--------------" << endl;
 
@@ -166,26 +195,36 @@ void Terminate() {
     printinfo (temp, Form("NClusterL%d",i));
     printinfo (temp2, Form("NSSIDL%d",i));
   }
-  myfile << "--------------" << endl;
+  AddBreak();
   printinfo (nRoad, "NRoads");
-  myfile << "--------------" << endl;
+  AddBreak();
   printinfo (nFitI, "NFitAux (8/8 + 7/8)");
   printinfo (nFitRecoveryI, "NFitAux Recovery");
   printinfo (nTrackI, "NTrackAux");
-  myfile << "--------------" << endl;
+  AddBreak();
   printinfo (nFitMajorityI, "NFitAux Majority");
   printinfo (nFitMajoritySCTI, "NFitAux Majority missing SCT");
   printinfo (nFitMajorityPixI, "NFitAux Majority missing Pix");
-  myfile << "--------------" << endl;
+  AddBreak();
   printinfo (nFit, "NFitSSB (12/12 + Recovery)");
   printinfo (nFitRecovery, "NFitSSB Recovery");
   printinfo (nTrack, "NTrackSSB");
   printinfo (nTrackBeforeHW, "NTrackSSB Before HW");
-  myfile << "--------------" << endl;
+  printinfo (nConn, "N Total Connections");
+  printinfo (nExtrapAUX, "N successful extrapolated AUX tracks");
+  AddBreak();
   printinfo (nFitMajority, "NFitSSB Majority");
   printinfo (nFitMajoritySCT, "NFitSSB Majority missing SCT");
   printinfo (nFitMajorityPix, "NFitSSB Majority missing Pix");
   myfile.close();
+
+  myfileTeX << "\\hline" << std::endl;
+  myfileTeX << "\\end{tabular} " << std::endl;
+  myfileTeX << "\\caption{Data flow for " << nloop << " events, using " << ntower << " towers. " << description << "} " << std::endl;
+  myfileTeX << "\\end{table}" << std::endl;
+  myfileTeX << "\\end{document}" << std::endl;
+  myfileTeX.close();
+
 }
 
 
@@ -202,5 +241,32 @@ void printinfo(float towers[MAXTOWER], TString text) {
       barrelmean += towers[i]/(ntower/2.);
     }
   }
+
+  barrelmean = ([barrelmean](int SIGDIGITS)->double{
+      std::stringstream lStream;
+      lStream << std::setprecision(SIGDIGITS) << barrelmean; return std::stod(lStream.str());
+    })(SIGDIGITS);
+  barrelmax = ([barrelmax](int SIGDIGITS)->double{
+      std::stringstream lStream;
+      lStream << std::setprecision(SIGDIGITS) << barrelmax; return std::stod(lStream.str());
+    })(SIGDIGITS);
+  endcapmean = ([endcapmean](int SIGDIGITS)->double{
+      std::stringstream lStream;
+      lStream << std::setprecision(SIGDIGITS) << endcapmean; return std::stod(lStream.str());
+    })(SIGDIGITS);
+  endcapmax = ([endcapmax](int SIGDIGITS)->double{
+      std::stringstream lStream;
+      lStream << std::setprecision(SIGDIGITS) << endcapmax; return std::stod(lStream.str());
+    })(SIGDIGITS);
+
+
   myfile << text << "\t\t" << barrelmean << "\t\t" << barrelmax << "\t\t" << endcapmean << "\t\t" << endcapmax << endl;
+  myfileTeX << text << "&" << barrelmean << "&" << barrelmax << "&" << endcapmean << "&" << endcapmax << " \\\\" << endl;
+}
+
+void AddBreak(int n) {
+  for (int i = 0; i < n; i++)  {
+    myfile << "--------------" << endl;
+    myfileTeX << "\\hline" << std::endl;
+  }
 }
