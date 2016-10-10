@@ -49,10 +49,10 @@ TileTMDBRawChannelMonTool::TileTMDBRawChannelMonTool(const std::string & type, c
   , m_histogramsNotBooked(true)
   , m_isNotDSP(false)
   , m_eff(false)
-  , TMDB_A_D6_amplitude(64,0)
-  , TMDB_A_D56_amplitude(64,0)
-  , TMDB_C_D6_amplitude(64,0)
-  , TMDB_C_D56_amplitude(64,0)
+  , m_TMDB_A_D6_amplitude(64,0)
+  , m_TMDB_A_D56_amplitude(64,0)
+  , m_TMDB_C_D6_amplitude(64,0)
+  , m_TMDB_C_D56_amplitude(64,0)
   , m_partition_amplitude{}
   , m_partition_time{}
   , m_drawer{} //m_drawer[ros][ch][thr]
@@ -112,10 +112,10 @@ StatusCode TileTMDBRawChannelMonTool::fillHistograms() {
 
   ATH_MSG_DEBUG( "in fillHists()" );
 
-    std::fill (TMDB_C_D56_amplitude.begin(),TMDB_C_D56_amplitude.end(),0);
-    std::fill (TMDB_A_D56_amplitude.begin(),TMDB_A_D56_amplitude.end(),0);
-    std::fill (TMDB_C_D6_amplitude.begin(),TMDB_C_D6_amplitude.end(),0);
-    std::fill (TMDB_A_D6_amplitude.begin(),TMDB_A_D6_amplitude.end(),0);
+    std::fill (m_TMDB_C_D56_amplitude.begin(),m_TMDB_C_D56_amplitude.end(),0);
+    std::fill (m_TMDB_A_D56_amplitude.begin(),m_TMDB_A_D56_amplitude.end(),0);
+    std::fill (m_TMDB_C_D6_amplitude.begin(),m_TMDB_C_D6_amplitude.end(),0);
+    std::fill (m_TMDB_A_D6_amplitude.begin(),m_TMDB_A_D6_amplitude.end(),0);
 
   // fill event info like L1 trigger type, run number, etc...
 
@@ -192,12 +192,12 @@ StatusCode TileTMDBRawChannelMonTool::fillHistograms() {
 	  ////////////
 	  if (m_eff == true) {
 		  if(ros == 3 ) {
-		           TMDB_A_D56_amplitude.at(drawer)  += amplitude;
-		           if(channel==2 || channel==3) { TMDB_A_D6_amplitude.at(drawer) += amplitude;}
+		           m_TMDB_A_D56_amplitude.at(drawer)  += amplitude;
+		           if(channel==2 || channel==3) { m_TMDB_A_D6_amplitude.at(drawer) += amplitude;}
 		         }
 		  if(ros == 4 ) {
-		           TMDB_C_D56_amplitude.at(drawer)  += amplitude;
-		           if(channel==2 || channel==3) { TMDB_C_D6_amplitude.at(drawer) += amplitude;}
+		           m_TMDB_C_D56_amplitude.at(drawer)  += amplitude;
+		           if(channel==2 || channel==3) { m_TMDB_C_D6_amplitude.at(drawer) += amplitude;}
 			   }
 	  //////////////////////////
 	  } else {
@@ -265,41 +265,41 @@ StatusCode TileTMDBRawChannelMonTool::fillHistograms() {
 					//m_drawer[ros][ch][thr]
                                   drawerIdx = TileCalibUtils::getDrawerIdx(3, module);
 
-				        if( (TMDB_A_D56_amplitude.at(module) > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D5D6HIGH)  ))
+				        if( (m_TMDB_A_D56_amplitude.at(module) > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D5D6HIGH)  ))
 				          {
 				            m_drawer[3][1][1]->Fill(module+1);
 				          }
-				        if( (TMDB_A_D56_amplitude.at(module) > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D5D6LOW)  ))
+				        if( (m_TMDB_A_D56_amplitude.at(module) > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D5D6LOW)  ))
 				          {
 				            m_drawer[3][1][0]->Fill(module+1);
 				          }
-				        if( (TMDB_A_D6_amplitude.at(module)  > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D6HIGH)  ))
+				        if( (m_TMDB_A_D6_amplitude.at(module)  > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D6HIGH)  ))
 				          {
 				            m_drawer[3][0][1]->Fill(module+1);
 				          }
-				        if( TMDB_A_D6_amplitude.at(module)  > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D6LOW) )
+				        if( m_TMDB_A_D6_amplitude.at(module)  > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D6LOW) )
 				          {
 				            m_drawer[3][0][0]->Fill(module+1);
 				          }
  
                                         drawerIdx = TileCalibUtils::getDrawerIdx(4, module);
 
-				        if( (TMDB_C_D56_amplitude.at(module) > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D5D6HIGH)  ))
+				        if( (m_TMDB_C_D56_amplitude.at(module) > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D5D6HIGH)  ))
 				          {
 				            m_drawer[4][1][1]->Fill(module+1);
 				          }              
  
-				        if( (TMDB_C_D56_amplitude.at(module) > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D5D6LOW) ))
+				        if( (m_TMDB_C_D56_amplitude.at(module) > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D5D6LOW) ))
 				          {
 				            m_drawer[4][1][0]->Fill(module+1);
 				          }
  
-				        if( (TMDB_C_D6_amplitude.at(module)  > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D6HIGH) ))
+				        if( (m_TMDB_C_D6_amplitude.at(module)  > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D6HIGH) ))
 				          {
 				            m_drawer[4][0][1]->Fill(module+1);
 				          }
  
-				        if( (TMDB_C_D6_amplitude.at(module)  > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D6LOW) ))
+				        if( (m_TMDB_C_D6_amplitude.at(module)  > m_tileToolTMDB->getThreshold(drawerIdx, TMDB::D6LOW) ))
 				          {
 				            m_drawer[4][0][0]->Fill(module+1);
 				          }
@@ -630,16 +630,16 @@ void TileTMDBRawChannelMonTool::fillTMDBThresholds() {
 for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
 unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(3, drawer);
     for (int iThreshold = 0; iThreshold < 4; ++iThreshold) {
-	thre_a[4 * drawer + iThreshold] = m_tileToolTMDB->getThreshold(drawerIdx, (TMDB::THRESHOLD) iThreshold);
-	std::cout << "thre_a[" << 4 * drawer + iThreshold << "] = " << thre_a[4 * drawer + iThreshold] << std::endl;
+        m_thre_a[4 * drawer + iThreshold] = m_tileToolTMDB->getThreshold(drawerIdx, (TMDB::THRESHOLD) iThreshold);
+	std::cout << "m_thre_a[" << 4 * drawer + iThreshold << "] = " << m_thre_a[4 * drawer + iThreshold] << std::endl;
     }
 }
 
 for (unsigned int drawer = 0; drawer < TileCalibUtils::MAX_DRAWER; ++drawer) {
 unsigned int drawerIdx = TileCalibUtils::getDrawerIdx(4, drawer);
     for (int iThreshold = 0; iThreshold < 4; ++iThreshold) {
-	thre_c[4 * drawer + iThreshold] = m_tileToolTMDB->getThreshold(drawerIdx, (TMDB::THRESHOLD) iThreshold);
-	std::cout << "thre_c[" << 4 * drawer + iThreshold << "] = " << thre_a[4 * drawer + iThreshold] << std::endl;
+	m_thre_c[4 * drawer + iThreshold] = m_tileToolTMDB->getThreshold(drawerIdx, (TMDB::THRESHOLD) iThreshold);
+	std::cout << "m_thre_c[" << 4 * drawer + iThreshold << "] = " << m_thre_a[4 * drawer + iThreshold] << std::endl;
     }
 }
 
