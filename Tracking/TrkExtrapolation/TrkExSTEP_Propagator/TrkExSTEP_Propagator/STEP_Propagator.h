@@ -29,6 +29,7 @@
 #include "TrkGeometry/BinnedMaterial.h"
 #include "TrkExUtils/MaterialInteraction.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
+#include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkExUtils/ExtrapolationCache.h"
 // Amg
 #include "GeoPrimitives/GeoPrimitives.h"
@@ -271,6 +272,14 @@ namespace Trk {
 		            ParticleHypothesis       particle,
 		 const Trk::TrackingVolume*          tVol = 0) const;       
 
+   /** Intersection and propagation:
+        */
+
+    const TrackSurfaceIntersection* intersectSurface(const Surface&         surface,
+                                                     const TrackSurfaceIntersection*    trackIntersection,
+                                                     const double               qOverP,
+                                                     const MagneticFieldProperties& mft,
+                                                     ParticleHypothesis       particle) const; 
 
     /** Return a list of positions along the track */
     void

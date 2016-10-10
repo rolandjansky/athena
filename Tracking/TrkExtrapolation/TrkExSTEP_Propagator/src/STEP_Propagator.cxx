@@ -28,6 +28,7 @@
 #include "TrkMaterialOnTrack/ScatteringAngles.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
 #include "TrkTrack/TrackStateOnSurface.h"
+#include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkExUtils/ExtrapolationCache.h"
 // CLHEP
 //#include "CLHEP/Units/SystemOfUnits.h"
@@ -117,7 +118,7 @@ Trk::STEP_Propagator::~STEP_Propagator(){}
 // initialize
 StatusCode Trk::STEP_Propagator::initialize()
 {
-  msg(MSG::INFO) << name() <<" STEP_Propagator initialize() successful" << endreq;
+  msg(MSG::INFO) << name() <<" STEP_Propagator initialize() successful" << endmsg;
 
   if (!m_materialEffects) { //override all material interactions
     m_multipleScattering = false;
@@ -172,7 +173,7 @@ StatusCode Trk::STEP_Propagator::initialize()
 // finalize
 StatusCode Trk::STEP_Propagator::finalize()
 {
-  msg(MSG::INFO) << name() <<" finalize() successful" << endreq;
+  msg(MSG::INFO) << name() <<" finalize() successful" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -184,7 +185,7 @@ const Trk::NeutralParameters*
 				         Trk::BoundaryCheck,
 				              bool) const
 {
-  msg(MSG::WARNING) << "[STEP_Propagator] STEP_Propagator does not handle neutral track parameters. Use the StraightLinePropagator instead." << endreq;
+  msg(MSG::WARNING) << "[STEP_Propagator] STEP_Propagator does not handle neutral track parameters. Use the StraightLinePropagator instead." << endmsg;
   return 0;
 }
 
@@ -351,7 +352,7 @@ const Trk::TrackParameters*
 			      particle, solutions, path,returnCurv);  
 
   // update material path
-  if (m_matPropOK && m_material->x0()>0.) pathLim.updateMat( path/m_material->x0(),m_material->averageZ(),0.);   
+  if (m_matPropOK && m_material->x0()>0. && path>0.) pathLim.updateMat( path/m_material->x0(),m_material->averageZ(),0.);   
 
   // return value
   timeLim.time +=m_timeOfFlight;
@@ -637,6 +638,39 @@ const Trk::IntersectionSolution*
   return intersectionSolution;
 }
 
+const Trk::TrackSurfaceIntersection* Trk::STEP_Propagator::intersectSurface(const Trk::Surface&         surface,
+                                                     			    const Trk::TrackSurfaceIntersection*    trackIntersection,
+                                                     		            const double               qOverP,
+                                                     			    const Trk::MagneticFieldProperties& mft,
+                                                     			    ParticleHypothesis       particle) const 
+{
+
+  Amg::Vector3D origin = trackIntersection->position();
+  Amg::Vector3D direction = trackIntersection->direction();
+  
+  PerigeeSurface* perigeeSurface  = new PerigeeSurface(origin);
+  const Trk::TrackParameters* trackParameters = perigeeSurface->createTrackParameters(0.,0.,direction.phi(),direction.theta(),qOverP,0);
+  const Trk::IntersectionSolution* solution = qOverP==0? intersect(*trackParameters,surface,Trk::MagneticFieldProperties(Trk::NoField),particle):intersect(*trackParameters,surface,mft,particle,0);
+
+  delete perigeeSurface;
+  delete trackParameters;
+  if(!solution) return 0;
+
+  Trk::IntersectionSolutionIter output_iter = solution->begin();
+  if(*output_iter) {
+    const Trk::TrackSurfaceIntersection*  result =   new Trk::TrackSurfaceIntersection(*(*output_iter));
+    delete solution;   
+    return result;
+//    output_iter++;
+//    for ( ; output_iter != solution->end(); output_iter++){
+//      delete *output_iter;
+//    }
+//    output_iter = solution->begin();
+//    return *output_iter;  
+  } 
+  delete solution;   
+  return 0;
+}
 
 /////////////////////////////////////////////////////////////////////////////////
 // Global positions calculation inside CylinderBounds
