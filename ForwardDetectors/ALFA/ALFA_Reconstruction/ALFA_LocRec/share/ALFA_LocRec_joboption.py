@@ -14,7 +14,7 @@ alfaLocRec = TopLocRecSeq.ALFA_LocRec
 
 # select reconstruction methods for the MD and the OD
 #alfaLocRec.ListAlgoMD = ["MDMultiple", "HalfReco", "EdgeMethod"]
-alfaLocRec.ListAlgoMD = ["MDMultiple"]
+alfaLocRec.ListAlgoMD = ["EdgeMethod"]
 alfaLocRec.ListAlgoOD = ["ODTracking"]
 
 
