@@ -4,8 +4,8 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ViewAlgs_TestHypoAlg_h
-#define ViewAlgs_TestHypoAlg_h
+#ifndef ViewAlgs_TrackHypoAlg_h
+#define ViewAlgs_TrackHypoAlg_h
 
 #include <string>
 #include "AthenaBaseComps/AthAlgorithm.h"
@@ -13,21 +13,30 @@
 
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
+#include "TrkTrack/TrackCollection.h"
+#include "TrigSteeringEvent/TrigRoiDescriptorCollection.h"
+
 
 //#include "AthViews/View.h"
-#include "./TestHypoTool.h"
+#include "./TrackHypoTool.h"
+#include "./TrackRoIAssocTool.h"
 
 
-class TestHypoAlg : public AthAlgorithm {
+class TrackHypoAlg : public AthAlgorithm {
 public:
-  TestHypoAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  TrackHypoAlg(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
   StatusCode execute();
 
 private:
-  ToolHandleArray<TestHypoTool> m_hypos;
+  ToolHandleArray<TrackHypoTool> m_hypos;
+  ToolHandle <TrackRoIAssocTool> m_assocTool;
   
-  SG::ReadHandle< xAOD::TrigCompositeContainer >     m_inputProxyContainer;
+
+  SG::ReadHandle< TrackCollection >     m_inputTracks;
+  SG::ReadHandle< TrigRoiDescriptorCollection> m_inputRoIs;
+
+
   SG::WriteHandle< xAOD::TrigCompositeContainer >    m_output;
   SG::WriteHandle< xAOD::TrigCompositeAuxContainer > m_outputAux;
 };

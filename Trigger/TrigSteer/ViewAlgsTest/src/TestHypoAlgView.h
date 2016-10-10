@@ -4,23 +4,25 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef ViewAlgs_TestHypoAlg_h
-#define ViewAlgs_TestHypoAlg_h
+#ifndef ViewAlgs_TestHypoAlgView_h
+#define ViewAlgs_TestHypoAlgView_h
 
 #include <string>
-#include "AthenaBaseComps/AthAlgorithm.h"
+#include "AthViews/AthViewAlgorithm.h"
+//#include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
 
 #include "xAODTrigger/TrigCompositeContainer.h"
 #include "xAODTrigger/TrigCompositeAuxContainer.h"
 
-//#include "AthViews/View.h"
+#include "AthViews/View.h"
 #include "./TestHypoTool.h"
 
+namespace AthViews {
 
-class TestHypoAlg : public AthAlgorithm {
+class TestHypoAlgView : public ::AthViewAlgorithm {
 public:
-  TestHypoAlg(const std::string& name, ISvcLocator* pSvcLocator);
+  TestHypoAlgView(const std::string& name, ISvcLocator* pSvcLocator);
   StatusCode initialize();
   StatusCode execute();
 
@@ -32,6 +34,6 @@ private:
   SG::WriteHandle< xAOD::TrigCompositeAuxContainer > m_outputAux;
 };
 
-
+}
 
 #endif

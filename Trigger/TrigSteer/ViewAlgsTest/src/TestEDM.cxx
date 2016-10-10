@@ -38,4 +38,29 @@ namespace TestEDM {
   float getClusterPhi(const TestCluster* c) {
     return get(c, "phi");
   }
+
+
+  void setTrackPt(TestTrack* c, float pt) {
+    set(c, "pt", pt);
+  }
+  float getTrackPt(const TestTrack* c) {
+    return get(c, "pt");  
+  }
+  
+  void setTrackEta(TestTrack* c, float eta) {
+    set(c, "eta", eta);
+  }
+  float getTrackEta(const TestTrack* c) {
+    return get(c, "eta");  
+  }
+  
+  void setTrackPhi(TestTrack* c, float phi) {
+    set(c, "phi", phi);
+  }
+  float getTrackPhi(const TestTrack* c) {
+    return get(c, "phi");  
+  }
+
+
+
 }
