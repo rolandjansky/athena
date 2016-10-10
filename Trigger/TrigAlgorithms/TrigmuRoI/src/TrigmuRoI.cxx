@@ -10,6 +10,7 @@
 #include "TrigSteeringEvent/TrigRoiDescriptor.h"
 #include "TrigmuRoI/TrigmuRoI.h"
 
+#include "TrigSteeringEvent/PhiHelper.h"
 
 unsigned int getBitMaskValue( const unsigned int uintValue,
 	                       const unsigned int mask ) {
@@ -214,13 +215,18 @@ HLT::ErrorCode TrigmuRoI::hltExecute(std::vector<std::vector<HLT::TriggerElement
        double phi = recMuonRoiSvc->phi();
        m_etaOutOfTime.push_back(eta);
        m_phiOutOfTime.push_back(phi);
-      
+     
+       double etamin = eta - 0.2;
+       double etamax = eta + 0.2;
+       double phimin = HLT::wrapPhi(phi - 0.2);
+       double phimax = HLT::wrapPhi(phi + 0.2); 
 
        if ((*it).second >= m_minValueForOutOfTimeBC &&
            (*it).second <= m_maxValueForOutOfTimeBC    ) {
            HLT::TriggerElement* te;
 	   TrigRoiDescriptor* roiDescriptor = 
-	     new TrigRoiDescriptor( ((*it).first).roIWord(), 0, roi_id, eta, phi, 0);
+	     new TrigRoiDescriptor( ((*it).first).roIWord(), 0, roi_id, eta, etamin, etamax, phi, phimin, phimax,0,-255,255);
+
            te = addRoI(type_out, roiDescriptor);
            te->setActiveState(true);
 	   if(m_log.level() <= MSG::DEBUG) {
