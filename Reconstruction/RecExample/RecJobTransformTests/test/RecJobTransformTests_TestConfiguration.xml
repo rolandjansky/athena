@@ -7,6 +7,22 @@
     <!-- ++++++++++++++++++++++++++ Running on Simulated Data  +++++++++++++++++++++++++++++++++++++++++++++ -->
     
     <!-- Nothing -->
+
+    <!-- AODFix on 20.7 AOD (AOD to TAG) -->
+    <TEST name="AODFix_aod_to_tag" type="script" suite="reco_tf">
+      <options_atn>
+        export TRF_ECHO=True; Reco_tf.py '--preExec=rec.doApplyAODFix.set_Value_and_Lock(True);from BTagging.BTaggingFlags import BTaggingFlags;BTaggingFlags.CalibrationTag = "BTagCalibRUN12-08-18" ' '--maxEvents=5' '--inputAODFile=root://eosatlas//eos/atlas/user/m/mdobre/forRTTmc15/MC15_207.AOD.pool.root' '--outputTAGFile=TAG.root'
+      </options_atn>
+      <timelimit>30</timelimit>	
+      <author>Jovan Mitrevski</author>
+      <prescript>rm -f $ATN_WORK_AREA/*</prescript>
+      <expectations>
+        <errorMessage>FAILURE </errorMessage>
+        <returnValue>0</returnValue>
+      </expectations>
+    </TEST>
+
+
     <!-- DC14 type digitization and reconstruction of 8 TeV MC with pileup -->
     <TEST name="RECOSHIFT_RecoTf_DC14_8TeV_pileup" type="script" suite="reco_trf">
       <options_atn>
