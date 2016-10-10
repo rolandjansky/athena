@@ -74,7 +74,7 @@ SCT_DetailedSurfaceChargesGenerator::SCT_DetailedSurfaceChargesGenerator(const s
     m_ExValue150{0.},
     m_EyValue150{0.},
     m_stripCharge{0.},
-    m_distortionsTool("SCT_DistortionsTool"),
+    m_distortionsTool("SCT_DistortionsTool", this),
     m_siConditionsSvc("SCT_SiliconConditionsSvc",name),
     m_siPropertiesSvc("SCT_SiPropertiesSvc",name),
     m_element(0),

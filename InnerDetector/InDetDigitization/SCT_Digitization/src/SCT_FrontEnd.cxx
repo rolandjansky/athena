@@ -37,7 +37,7 @@ SCT_FrontEnd::SCT_FrontEnd(const std::string &type, const std::string &name,
     m_sc(0),
     m_SCTdetMgr(0),
     m_sct_id(0),
-    m_sct_amplifier("SCT_Amp"),
+    m_sct_amplifier("SCT_Amp", this),
     m_ReadCalibChipDataSvc("SCT_ReadCalibChipDataSvc", name),
     m_rndmEngine(nullptr) {
     declareInterface< ISCT_FrontEnd >(this);
