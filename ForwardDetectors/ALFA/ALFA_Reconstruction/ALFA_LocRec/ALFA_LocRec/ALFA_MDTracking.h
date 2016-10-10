@@ -43,11 +43,11 @@ class ALFA_MDTracking
 		Int_t m_iFibSel[ALFALAYERSCNT*ALFAPLATESCNT];
 
 	private:
-		map<int, FIBERS> m_MapLayers;
+		std::map<int, FIBERS> m_MapLayers;
 
 	public:
 		StatusCode Initialize(Float_t faMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Float_t fbMD[RPOTSCNT][ALFALAYERSCNT*ALFAPLATESCNT][ALFAFIBERSCNT], Int_t iMultiplicityCut, Int_t iUVCut, Float_t fOverlapCut);
-		StatusCode Execute(Int_t iRPot, const list<MDHIT> &ListMDHits);
+		StatusCode Execute(Int_t iRPot, const std::list<MDHIT> &ListMDHits);
 		StatusCode Finalize(Float_t &fRecXPos, Float_t &fRecYPos);
 
 		void GetData(Int_t &NumU, Int_t &NumV, Float_t &OL_U, Float_t &OL_V, Int_t (&iFibSel)[ALFALAYERSCNT*ALFAPLATESCNT]);

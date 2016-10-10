@@ -6,8 +6,9 @@
 #include "ALFA_Geometry/ALFA_GeometryReader.h"
 
 #include "AthenaKernel/errorcheck.h"
+using namespace std;
 
-ALFA_LocRec::ALFA_LocRec(const string& name, ISvcLocator* pSvcLocator) :
+ALFA_LocRec::ALFA_LocRec(const std::string& name, ISvcLocator* pSvcLocator) :
 AthAlgorithm(name, pSvcLocator)
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ALFA_LocRec");
@@ -20,63 +21,63 @@ AthAlgorithm(name, pSvcLocator)
 
 	//begin of Geometry properties
 	declareProperty("MetrologyType",m_Config.eRPMetrologyGeoType=EMT_NOMINAL);//EGST_FILE
-	declareProperty("MetrologySource",m_Config.strRPMetrologyConnString=string(""));//"rpmetrology.dat"
+	declareProperty("MetrologySource",m_Config.strRPMetrologyConnString=std::string(""));//"rpmetrology.dat"
 	declareProperty("ShiftToX97Pos",m_Config.bShiftToX97Pos=false);
 
 	declareProperty("B7L1U_PosType",m_Config.CfgRPosParams[0].eRPPosType=ERPPT_ACTIVE);
 	declareProperty("B7L1U_MDGeometryType",m_Config.CfgRPosParams[0].eMDGeoType=EGST_IDEALGEOMETRY);
 	declareProperty("B7L1U_ODGeometryType",m_Config.CfgRPosParams[0].eODGeoType=EGST_IDEALGEOMETRY);
-	declareProperty("B7L1U_MDSource",m_Config.CfgRPosParams[0].strMDConnString=string(""));
-	declareProperty("B7L1U_ODSource",m_Config.CfgRPosParams[0].strODConnString=string(""));
+	declareProperty("B7L1U_MDSource",m_Config.CfgRPosParams[0].strMDConnString=std::string(""));
+	declareProperty("B7L1U_ODSource",m_Config.CfgRPosParams[0].strODConnString=std::string(""));
 //	declareProperty("B7L1U_CurrentLVDT",m_Config.CfgRPosParams[0].fCurrentLVDTmm=7.0*CLHEP::mm);
 
 	declareProperty("B7L1L_PosType",m_Config.CfgRPosParams[1].eRPPosType=ERPPT_ACTIVE);
 	declareProperty("B7L1L_MDGeometryType",m_Config.CfgRPosParams[1].eMDGeoType=EGST_IDEALGEOMETRY);
 	declareProperty("B7L1L_ODGeometryType",m_Config.CfgRPosParams[1].eODGeoType=EGST_IDEALGEOMETRY);
-	declareProperty("B7L1L_MDSource",m_Config.CfgRPosParams[1].strMDConnString=string(""));
-	declareProperty("B7L1L_ODSource",m_Config.CfgRPosParams[1].strODConnString=string(""));
+	declareProperty("B7L1L_MDSource",m_Config.CfgRPosParams[1].strMDConnString=std::string(""));
+	declareProperty("B7L1L_ODSource",m_Config.CfgRPosParams[1].strODConnString=std::string(""));
 //	declareProperty("B7L1L_CurrentLVDT",m_Config.CfgRPosParams[1].fCurrentLVDTmm=7.0*CLHEP::mm);
 
 	declareProperty("A7L1U_PosType",m_Config.CfgRPosParams[2].eRPPosType=ERPPT_ACTIVE);
 	declareProperty("A7L1U_MDGeometryType",m_Config.CfgRPosParams[2].eMDGeoType=EGST_IDEALGEOMETRY);
 	declareProperty("A7L1U_ODGeometryType",m_Config.CfgRPosParams[2].eODGeoType=EGST_IDEALGEOMETRY);
-	declareProperty("A7L1U_MDSource",m_Config.CfgRPosParams[2].strMDConnString=string(string("")));
-	declareProperty("A7L1U_ODSource",m_Config.CfgRPosParams[2].strODConnString=string(string("")));
+	declareProperty("A7L1U_MDSource",m_Config.CfgRPosParams[2].strMDConnString=std::string(""));
+	declareProperty("A7L1U_ODSource",m_Config.CfgRPosParams[2].strODConnString=std::string(""));
 //	declareProperty("A7L1U_CurrentLVDT",m_Config.CfgRPosParams[2].fCurrentLVDTmm=7.0*CLHEP::mm);
 
 	declareProperty("A7L1L_PosType",m_Config.CfgRPosParams[3].eRPPosType=ERPPT_ACTIVE);
 	declareProperty("A7L1L_MDGeometryType",m_Config.CfgRPosParams[3].eMDGeoType=EGST_IDEALGEOMETRY);
 	declareProperty("A7L1L_ODGeometryType",m_Config.CfgRPosParams[3].eODGeoType=EGST_IDEALGEOMETRY);
-	declareProperty("A7L1L_MDSource",m_Config.CfgRPosParams[3].strMDConnString=string(""));
-	declareProperty("A7L1L_ODSource",m_Config.CfgRPosParams[3].strODConnString=string(""));
+	declareProperty("A7L1L_MDSource",m_Config.CfgRPosParams[3].strMDConnString=std::string(""));
+	declareProperty("A7L1L_ODSource",m_Config.CfgRPosParams[3].strODConnString=std::string(""));
 //	declareProperty("A7L1L_CurrentLVDT",m_Config.CfgRPosParams[3].fCurrentLVDTmm=7.0*CLHEP::mm);
 
 	declareProperty("A7R1U_PosType",m_Config.CfgRPosParams[4].eRPPosType=ERPPT_ACTIVE);
 	declareProperty("A7R1U_MDGeometryType",m_Config.CfgRPosParams[4].eMDGeoType=EGST_IDEALGEOMETRY);
 	declareProperty("A7R1U_ODGeometryType",m_Config.CfgRPosParams[4].eODGeoType=EGST_IDEALGEOMETRY);
-	declareProperty("A7R1U_MDSource",m_Config.CfgRPosParams[4].strMDConnString=string(""));
-	declareProperty("A7R1U_ODSource",m_Config.CfgRPosParams[4].strODConnString=string(""));
+	declareProperty("A7R1U_MDSource",m_Config.CfgRPosParams[4].strMDConnString=std::string(""));
+	declareProperty("A7R1U_ODSource",m_Config.CfgRPosParams[4].strODConnString=std::string(""));
 //	declareProperty("A7R1U_CurrentLVDT",m_Config.CfgRPosParams[4].fCurrentLVDTmm=7.0*CLHEP::mm);
 
 	declareProperty("A7R1L_PosType",m_Config.CfgRPosParams[5].eRPPosType=ERPPT_ACTIVE);
 	declareProperty("A7R1L_MDGeometryType",m_Config.CfgRPosParams[5].eMDGeoType=EGST_IDEALGEOMETRY);
 	declareProperty("A7R1L_ODGeometryType",m_Config.CfgRPosParams[5].eODGeoType=EGST_IDEALGEOMETRY);
-	declareProperty("A7R1L_MDSource",m_Config.CfgRPosParams[5].strMDConnString=string(""));
-	declareProperty("A7R1L_ODSource",m_Config.CfgRPosParams[5].strODConnString=string(""));
+	declareProperty("A7R1L_MDSource",m_Config.CfgRPosParams[5].strMDConnString=std::string(""));
+	declareProperty("A7R1L_ODSource",m_Config.CfgRPosParams[5].strODConnString=std::string(""));
 //	declareProperty("A7L1U_CurrentLVDT",m_Config.CfgRPosParams[5].fCurrentLVDTmm=7.0*CLHEP::mm);
 
 	declareProperty("B7R1U_PosType",m_Config.CfgRPosParams[6].eRPPosType=ERPPT_ACTIVE);
 	declareProperty("B7R1U_MDGeometryType",m_Config.CfgRPosParams[6].eMDGeoType=EGST_IDEALGEOMETRY);
 	declareProperty("B7R1U_ODGeometryType",m_Config.CfgRPosParams[6].eODGeoType=EGST_IDEALGEOMETRY);
-	declareProperty("B7R1U_MDSource",m_Config.CfgRPosParams[6].strMDConnString=string(""));
-	declareProperty("B7R1U_ODSource",m_Config.CfgRPosParams[6].strODConnString=string(""));
+	declareProperty("B7R1U_MDSource",m_Config.CfgRPosParams[6].strMDConnString=std::string(""));
+	declareProperty("B7R1U_ODSource",m_Config.CfgRPosParams[6].strODConnString=std::string(""));
 //	declareProperty("B7R1U_CurrentLVDT",m_Config.CfgRPosParams[6].fCurrentLVDTmm=7.0*CLHEP::mm);
 
 	declareProperty("B7R1L_PosType",m_Config.CfgRPosParams[7].eRPPosType=ERPPT_ACTIVE);
 	declareProperty("B7R1L_MDGeometryType",m_Config.CfgRPosParams[7].eMDGeoType=EGST_IDEALGEOMETRY);
 	declareProperty("B7R1L_ODGeometryType",m_Config.CfgRPosParams[7].eODGeoType=EGST_IDEALGEOMETRY);
-	declareProperty("B7R1L_MDSource",m_Config.CfgRPosParams[7].strMDConnString=string(""));
-	declareProperty("B7R1L_ODSource",m_Config.CfgRPosParams[7].strODConnString=string(""));
+	declareProperty("B7R1L_MDSource",m_Config.CfgRPosParams[7].strMDConnString=std::string(""));
+	declareProperty("B7R1L_ODSource",m_Config.CfgRPosParams[7].strODConnString=std::string(""));
 //	declareProperty("B7R1L_CurrentLVDT",m_Config.CfgRPosParams[7].fCurrentLVDTmm=7.0*CLHEP::mm);
 	//end of Geometry properties
 
@@ -204,11 +205,11 @@ StatusCode ALFA_LocRec::execute()
 	ATH_MSG_DEBUG("begin ALFA_LocRec::execute()");
 
 	StatusCode sc;
-	list<eRPotName>::const_iterator iterRPName;
+	std::list<eRPotName>::const_iterator iterRPName;
 	eRPotName eRPName;
 
-	list<MDHIT> ListMDHits;
-	list<ODHIT> ListODHits;
+	std::list<MDHIT> ListMDHits;
+	std::list<ODHIT> ListODHits;
 	ListMDHits.clear();
 	ListODHits.clear();
 
@@ -254,7 +255,7 @@ StatusCode ALFA_LocRec::execute()
 	}
 	else
 	{
-		string strAlgoMD;
+		std::string strAlgoMD;
 		for(unsigned int i=0; i<m_vecListAlgoMD.size(); i++)
 		{
 			strAlgoMD = m_vecListAlgoMD[i];
@@ -273,7 +274,7 @@ StatusCode ALFA_LocRec::execute()
 			}
 		}
 
-		string strAlgoOD;
+		std::string strAlgoOD;
 		for(unsigned int i=0; i<m_vecListAlgoOD.size(); i++)
 		{
 			strAlgoOD = m_vecListAlgoOD[i];
@@ -286,7 +287,7 @@ StatusCode ALFA_LocRec::execute()
 				sc = ExecuteRecoMethod(strAlgoOD, eRPName, ListMDHits, ListODHits);
 				if (sc.isFailure())
 				{
-					ATH_MSG_FATAL("Algorithm " << strAlgoMD << " for the pot " << m_pGeometryReader->GetRPotLabel(eRPName) << " failure!");
+					ATH_MSG_FATAL("Algorithm " << strAlgoOD << " for the pot " << m_pGeometryReader->GetRPotLabel(eRPName) << " failure!");
 					return sc;
 				}
 			}
@@ -355,7 +356,7 @@ void ALFA_LocRec::ClearGeometry()
 	ATH_MSG_DEBUG("end ALFA_LocRec::ClearGeometry()");
 }
 
-StatusCode ALFA_LocRec::ALFACollectionReading(list<MDHIT> &ListMDHits, list<ODHIT> &ListODHits)
+StatusCode ALFA_LocRec::ALFACollectionReading(std::list<MDHIT> &ListMDHits, std::list<ODHIT> &ListODHits)
 {
 	StatusCode sc;
 
@@ -426,7 +427,7 @@ bool ALFA_LocRec::ReadGeometryDetCS()
 	eRPotName eRPName;
 
 	bool bRes=false;
-	list<eRPotName>::const_iterator iterRPName;
+	std::list<eRPotName>::const_iterator iterRPName;
 
 	if((bRes=m_pGeometryReader->Initialize(&m_Config,EFCS_ATLAS))==true)
 	{
@@ -619,7 +620,7 @@ void ALFA_LocRec::SaveGeometry()
 
 	eGeoSourceType eGeoType;
 	char szFilename[64];
-	list<eRPotName>::const_iterator iterRPName;
+	std::list<eRPotName>::const_iterator iterRPName;
 
 	for(iterRPName=m_ListExistingRPots.begin();iterRPName!=m_ListExistingRPots.end();iterRPName++)
 	{
@@ -675,30 +676,30 @@ void ALFA_LocRec::SaveGeometry()
 	ATH_MSG_DEBUG("end ALFA_LocRec::SaveGeometry()");
 }
 
-StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName eRPName, const list<MDHIT> &ListMDHits, const list<ODHIT> &ListODHits)
+StatusCode ALFA_LocRec::ExecuteRecoMethod(const std::string strAlgo, const eRPotName eRPName, const std::list<MDHIT> &ListMDHits, const std::list<ODHIT> &ListODHits)
 {
 	//MsgStream LogStream(Athena::getMessageSvc(), "ALFA_LocRec::ExecuteRecoMethod()");
 	ATH_MSG_DEBUG("begin ALFA_LocRec::ExecuteRecoMethod()");
 
 	StatusCode sc = StatusCode::SUCCESS;
 	ODRESULT ODResults;
-	list<ODRESULT> listODResults;
+	std::list<ODRESULT> listODResults;
 	listODResults.clear();
 	Float_t fRecPosX = -9999.0;
 	Float_t fRecPosY = -9999.0;
 
-	map<string, int> mapRecoMethods;
+	std::map<string, int> mapRecoMethods;
 	mapRecoMethods.clear();
-	mapRecoMethods.insert(pair<string, int>("ODTracking", 1));
-	mapRecoMethods.insert(pair<string, int>("MDTracking", 2));
-	mapRecoMethods.insert(pair<string, int>("MDOverlap", 3));
-	mapRecoMethods.insert(pair<string, int>("CenterGravity", 4));
-	mapRecoMethods.insert(pair<string, int>("MDMultiple", 5));
-	mapRecoMethods.insert(pair<string, int>("HalfReco", 6));
-	mapRecoMethods.insert(pair<string, int>("MDGap", 7));
-	mapRecoMethods.insert(pair<string, int>("EdgeMethod", 8));
+	mapRecoMethods.insert(std::pair<string, int>("ODTracking", 1));
+	mapRecoMethods.insert(std::pair<string, int>("MDTracking", 2));
+	mapRecoMethods.insert(std::pair<string, int>("MDOverlap", 3));
+	mapRecoMethods.insert(std::pair<string, int>("CenterGravity", 4));
+	mapRecoMethods.insert(std::pair<string, int>("MDMultiple", 5));
+	mapRecoMethods.insert(std::pair<string, int>("HalfReco", 6));
+	mapRecoMethods.insert(std::pair<string, int>("MDGap", 7));
+	mapRecoMethods.insert(std::pair<string, int>("EdgeMethod", 8));
 
-	vector<int> vecFibSel;
+	std::vector<int> vecFibSel;
 	vecFibSel.clear();
 
 	switch(mapRecoMethods[strAlgo])
@@ -711,7 +712,7 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 			sc = pODTracking->Execute(eRPName-1, ListODHits, m_faOD, m_fbOD);
 			sc = pODTracking->Finalize(&listODResults);
 
-			list<ODRESULT>::const_iterator iter;
+			std::list<ODRESULT>::const_iterator iter;
 			for(iter=listODResults.begin(); iter!=listODResults.end(); iter++)
 			{
 				ODResults.iSide   = (*iter).iSide;
@@ -722,7 +723,7 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 				if ((ODResults.fRecPos != -9999.0))
 				{
 					Int_t iFibSel[ODSIDESCNT][ODPLATESCNT];
-					fill_n(&iFibSel[0][0], sizeof(iFibSel)/sizeof(Int_t), -9999);
+					std::fill_n(&iFibSel[0][0], sizeof(iFibSel)/sizeof(Int_t), -9999);
 
 					pODTracking->GetData(iFibSel);
 					vecFibSel.clear();
@@ -750,7 +751,7 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 				Int_t iFibSel[ALFALAYERSCNT*ALFAPLATESCNT];
 				Int_t iNumU = 0, iNumV = 0;
 				Float_t fOverlapU = -9999.0, fOverlapV = -9999.0;
-				fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
+				std::fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
 
 				pMDTracking->GetData(iNumU, iNumV, fOverlapU, fOverlapV, iFibSel);
 				vecFibSel.clear();
@@ -776,7 +777,7 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 			Int_t iFibSel[ALFALAYERSCNT*ALFAPLATESCNT];
 			Int_t iNumU = 0, iNumV = 0;
 			Float_t fOverlapU = -9999.0, fOverlapV = -9999.0;
-			fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
+			std::fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
 
 			pMDOverlap->GetData(iFibSel);
 			if (fRecPosX!=-9999 && fRecPosY!=-9999)
@@ -804,7 +805,7 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 			Int_t iFibSel[ALFALAYERSCNT*ALFAPLATESCNT];
 			Int_t iNumU = 0, iNumV = 0;
 			Float_t fOverlapU = -9999.0, fOverlapV = -9999.0;
-			fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
+			std::fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
 
 			pCenterGravity->GetData(iFibSel);
 			if (fRecPosX!=-9999 && fRecPosY!=-9999)
@@ -834,9 +835,9 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 
 			Int_t iNumU[NTRACK], iNumV[NTRACK], iFibSel[NTRACK][ALFALAYERSCNT*ALFAPLATESCNT];
 			Float_t fOverU[NTRACK], fOverV[NTRACK];
-			fill_n(&iFibSel[0][0], sizeof(iFibSel)/sizeof(Int_t), -9999);
-			fill_n(&fOverU[0], sizeof(fOverU)/sizeof(Float_t), -9999.0);
-			fill_n(&fOverV[0], sizeof(fOverV)/sizeof(Float_t), -9999.0);
+			std::fill_n(&iFibSel[0][0], sizeof(iFibSel)/sizeof(Int_t), -9999);
+			std::fill_n(&fOverU[0], sizeof(fOverU)/sizeof(Float_t), -9999.0);
+			std::fill_n(&fOverV[0], sizeof(fOverV)/sizeof(Float_t), -9999.0);
 			memset(&iNumU, 0, sizeof(iNumU));
 			memset(&iNumV, 0, sizeof(iNumV));
 
@@ -873,10 +874,10 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 			Float_t fRecPosY[2] = {-9999, -9999};
 
 			Int_t iFibSel[ALFALAYERSCNT*ALFAPLATESCNT];
-			fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
+			std::fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
 
-			vector<int> vecFibSel0;
-			vector<int> vecFibSel1;
+			std::vector<int> vecFibSel0;
+			std::vector<int> vecFibSel1;
 			vecFibSel0.clear();
 			vecFibSel1.clear();
 
@@ -936,9 +937,9 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 			Int_t iFibSel[ALFALAYERSCNT*ALFAPLATESCNT];
 			Float_t fOverU[NTRACK], fOverV[NTRACK];
 
-			fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
-			fill_n(&fOverU[0], sizeof(fOverU)/sizeof(Float_t), -9999.0);
-			fill_n(&fOverV[0], sizeof(fOverV)/sizeof(Float_t), -9999.0);
+			std::fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
+			std::fill_n(&fOverU[0], sizeof(fOverU)/sizeof(Float_t), -9999.0);
+			std::fill_n(&fOverV[0], sizeof(fOverV)/sizeof(Float_t), -9999.0);
 
 			pMDGap->GetData(iNumU, iNumV, fOverU, fOverV, iFibSel);
 			for (Int_t iTrack=0; iTrack<NTRACK; iTrack++)
@@ -969,12 +970,12 @@ StatusCode ALFA_LocRec::ExecuteRecoMethod(const string strAlgo, const eRPotName 
 			Int_t iFibSel[ALFALAYERSCNT*ALFAPLATESCNT];
 			Float_t fOverU[NTRACK], fOverV[NTRACK];
 
-			fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
-			fill_n(&fOverU[0], sizeof(fOverU)/sizeof(Float_t), -9999.0);
-			fill_n(&fOverV[0], sizeof(fOverV)/sizeof(Float_t), -9999.0);
+			std::fill_n(&iFibSel[0], sizeof(iFibSel)/sizeof(Int_t), -9999);
+			std::fill_n(&fOverU[0], sizeof(fOverU)/sizeof(Float_t), -9999.0);
+			std::fill_n(&fOverV[0], sizeof(fOverV)/sizeof(Float_t), -9999.0);
 
 
-			vector<ALFA_EdgeMethod::Track> tracks;
+			std::vector<ALFA_EdgeMethod::Track> tracks;
 			pEdgeMethod->EdgeMethod(eRPName - 1, tracks);
 
 			for (UInt_t iTrack=0; iTrack<tracks.size(); iTrack++)

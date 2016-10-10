@@ -4,6 +4,8 @@
 
 #include "ALFA_LocRec/ALFA_ODTracking.h"
 
+using namespace std;
+
 ALFA_ODTracking::ALFA_ODTracking()
 {
 	m_listResults.clear();
@@ -14,7 +16,7 @@ ALFA_ODTracking::ALFA_ODTracking()
 	m_iDataType = 0;
 
 	memset(&m_iFibSel, 0, sizeof(m_iFibSel));
-	fill_n(&m_iFibSel[0][0], sizeof(m_iFibSel)/sizeof(Int_t), 9999);
+	std::fill_n(&m_iFibSel[0][0], sizeof(m_iFibSel)/sizeof(Int_t), 9999);
 }
 
 ALFA_ODTracking::~ALFA_ODTracking()
@@ -32,13 +34,13 @@ StatusCode ALFA_ODTracking::Initialize(Int_t iMultiplicityCut, Float_t fDistance
 	return StatusCode::SUCCESS;
 }
 
-StatusCode ALFA_ODTracking::Execute(Int_t iRPot, const list<ODHIT> &ListODHits, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT])
+StatusCode ALFA_ODTracking::Execute(Int_t iRPot, const std::list<ODHIT> &ListODHits, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT])
 {
 	Int_t iLayer;
 	FIBERS structFibers;
-	map<int, FIBERS> MapLayers;
+	std::map<int, FIBERS> MapLayers;
 	MapLayers.clear();
-	list<ODHIT>::const_iterator iter;
+	std::list<ODHIT>::const_iterator iter;
 	for (iter=ListODHits.begin(); iter!=ListODHits.end(); iter++)
 	{
 		if (iRPot == (*iter).iRPot)
@@ -47,7 +49,7 @@ StatusCode ALFA_ODTracking::Execute(Int_t iRPot, const list<ODHIT> &ListODHits, 
 			if(MapLayers.find(iLayer)==MapLayers.end())
 			{
 				structFibers.ListFibers.clear();
-				MapLayers.insert(pair<int, FIBERS>(iLayer, structFibers));
+				MapLayers.insert(std::pair<int, FIBERS>(iLayer, structFibers));
 				MapLayers[iLayer].ListFibers.push_back((*iter).iFiber);
 			}
 			else
@@ -74,14 +76,14 @@ StatusCode ALFA_ODTracking::Execute(Int_t iRPot, const list<ODHIT> &ListODHits, 
 	return StatusCode::SUCCESS;
 }
 
-StatusCode ALFA_ODTracking::Finalize(list<ODRESULT>* pListResults)
+StatusCode ALFA_ODTracking::Finalize(std::list<ODRESULT>* pListResults)
 {
 	*pListResults = m_listResults;
 
 	return StatusCode::SUCCESS;
 }
 
-void ALFA_ODTracking::FiberProjection(Int_t iRPot, map<int, FIBERS> &MapLayers, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT])
+void ALFA_ODTracking::FiberProjection(Int_t iRPot, std::map<int, FIBERS> &MapLayers, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT])
 {
 	const Int_t NBINTOT = 17000;
 	Int_t iSign;
@@ -91,7 +93,7 @@ void ALFA_ODTracking::FiberProjection(Int_t iRPot, map<int, FIBERS> &MapLayers, 
 
 	fFiberXPos = (m_iDataType==1)? 22 : 23;
 
-	list<int>::const_iterator iIter;
+	std::list<int>::const_iterator iIter;
 
 	ODRESULT Results;
 
@@ -128,7 +130,7 @@ void ALFA_ODTracking::FiberProjection(Int_t iRPot, map<int, FIBERS> &MapLayers, 
 		}
 
 		Int_t iNum = 0;
-		vector<int> *vecMaxHit = new vector<int>;
+		std::vector<int> *vecMaxHit = new std::vector<int>;
 
 		//Determining the maximum overlap between fibers
 		for (Int_t iBin=0; iBin<NBINTOT; iBin++)
@@ -216,7 +218,7 @@ void ALFA_ODTracking::FiberProjection(Int_t iRPot, map<int, FIBERS> &MapLayers, 
 	}
 }
 
-void ALFA_ODTracking::FindingPosition(Int_t iRPot, map<int, FIBERS> &MapLayers, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT])
+void ALFA_ODTracking::FindingPosition(Int_t iRPot, std::map<int, FIBERS> &MapLayers, Float_t faOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT], Float_t fbOD[RPOTSCNT][ODPLATESCNT][ODSIDESCNT][ODLAYERSCNT*ODFIBERSCNT])
 {
 	Int_t iSign;
 	Float_t fDistanceA;
@@ -229,12 +231,12 @@ void ALFA_ODTracking::FindingPosition(Int_t iRPot, map<int, FIBERS> &MapLayers, 
 	ODRESULT Results;
 	Results.clear();
 
-//	list<int>::iterator intIter0;
-//	list<int>::iterator intIter1;
-//	list<int>::iterator intIter2;
-	list<int>::const_iterator intIter0;
-	list<int>::const_iterator intIter1;
-	list<int>::const_iterator intIter2;
+//	std::list<int>::iterator intIter0;
+//	std::list<int>::iterator intIter1;
+//	std::list<int>::iterator intIter2;
+	std::list<int>::const_iterator intIter0;
+	std::list<int>::const_iterator intIter1;
+	std::list<int>::const_iterator intIter2;
 
 	for (Int_t iSide=0; iSide<ODSIDESCNT; iSide++)
 	{

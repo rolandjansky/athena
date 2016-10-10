@@ -8,7 +8,6 @@
 #include <iostream>
 #include <list>
 
-using namespace std;
 
 typedef struct _ODHIT
 {
@@ -29,7 +28,7 @@ typedef struct _MDHIT
 
 typedef struct _FIBERS
 {
-	list<int> ListFibers;
+	std::list<int> ListFibers;
 } FIBERS, *PFIBERS;
 
 typedef struct _ODRESULT
