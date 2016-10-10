@@ -1,5 +1,5 @@
 # FTK Simulation Transform Skeleton Job Options
-# $Id: skeleton.FTKStandaloneSim.py 760052 2016-07-06 16:04:21Z gvolpi $
+# $Id: skeleton.FTKStandaloneSim.py 773494 2016-09-15 16:20:40Z jwebster $
 
 from AthenaCommon.AthenaCommonFlags import jobproperties as jp
 from AthenaCommon.Logging import logging
@@ -282,6 +282,34 @@ if (NumberOfSubregions != len(runArgs.bankregion)
 FTKTagOptions = {}
 
 
+FTKTagOptions['SectorsAsPatterns32Tower12L3D'] = {
+    'NBanks': 32, 'NSubRegions': 1,
+    'pmap_path': 'raw_12LiblHW3D.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap',
+    'bankpatterns': [-1]*NumberOfSubregions,
+    'ssmap_path': 'raw_30x64x72Ibl.ss', 'UseTSPBank': False,
+    'loadHWConf_path': 'raw_12L.hw', 'SecondStageFit': False,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 101,
+    'SectorsAsPatterns': 1 , 'SaveRoads': True,
+    'MaxNcomb': 1024,
+    'MaxNhitsPerPlane': 8,
+    'HWModeSS': 2,
+    'ModuleLUTPath': 'raw_8LcIbl123_32.moduleidmap', 'ModuleLUTPath2nd': 'raw_12LiblHW_32.moduleidmap'
+}
+
+FTKTagOptions['SectorsAsPatterns32Tower8L3D'] = {
+    'NBanks': 32, 'NSubRegions': 1,
+    'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap',
+    'bankpatterns': [-1]*NumberOfSubregions,
+    'ssmap_path': 'raw_30x64x72Ibl.ss', 'UseTSPBank': False,
+    'loadHWConf_path': 'raw_12L.hw', 'SecondStageFit': False,
+    'TRACKFITTER_MODE': 1, 'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 101,
+    'SectorsAsPatterns': 1 , 'SaveRoads': True,
+    'MaxNcomb': 1024,
+    'MaxNhitsPerPlane': 8,
+    'HWModeSS': 2,
+    'ModuleLUTPath': 'raw_8LcIbl123_32.moduleidmap'
+}
+
 FTKTagOptions["HWMode2Test32Tower"] = {
     'NBanks': 32, 'NSubRegions': 1,
     'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl32TmodB_3D_t13.tmap',
@@ -308,6 +336,34 @@ FTKTagOptions["HWMode2Test32Tower"] = {
     'MaxMissingSCTPairs': 0,
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
+
+
+FTKTagOptions["HWMode2Test64Tower"] = {
+    'NBanks': 64, 'NSubRegions': 1,
+    'pmap_path': 'raw_8LcIbl3D123.pmap', 'rmap_path': 'raw_12Libl64TmodB_3D_t13.tmap',
+    'ssmap_path': 'raw_30x32x72Ibl.ss',
+    'ssmapunused_path': 'raw_8LcIBL123_unusedmedium.ss',
+    'pmapunused_path': 'raw_8LcIbl123_unused.pmap',
+    'bankpatterns': [16777216]*NumberOfSubregions,
+    'ssmaptsp_path': 'raw_15x16x36Ibl.ss', 
+    'UseTSPBank': False,
+    'UseCompressedBank': True,
+    'ModuleLUTPath': 'raw_8LcIbl3D123.moduleidmap',
+    'ModuleLUTPath2nd': 'raw_12Libl3D.moduleidmap',
+    'DBBankLevel': 1, 'TSPSimulationLevel': 2,
+    'loadHWConf_path': 'raw_12L.hw', 'pmapcomplete_path': 'raw_12LiblHW3D.pmap',
+    'SetAMSize': 2, 'TRACKFITTER_MODE': 3,
+    'SecondStageFit': True,
+    'SSFMultiConnection': True, 'SSFNConnections': 4,
+    'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
+    'SSFTRMinEta': 1.0,
+    'MaxNcomb': 1024,
+    'MaxNhitsPerPlane': 8,
+    'HWModeSS': 2,
+    'FixEndCapL0': True, 'IBLMode': 2, 'PixelClusteringMode': 101,
+    'GangedPatternReco': 0, 'DuplicateGanged': 1
+    }
+
 
 
 FTKTagOptions["TDRv0"] = {
@@ -449,6 +505,7 @@ FTKTagOptions["Run2TempMapv0"] = {
     'SSFMultiConnection': True, 'SSFNConnections': 4,
     'SSFAllowExtraMiss': 1, 'SSFTRDefn': 1, 'SSFTRMaxEta': 1.4,
     'SSFTRMinEta': 1.0,
+    'CachedBank': True,
     'FixEndCapL0': False, 'IBLMode': 2, 'PixelClusteringMode': 1,
     'GangedPatternReco': 0, 'DuplicateGanged': 1
     }
@@ -686,21 +743,54 @@ FTKTagOptions['SectorsAsPatterns8L32bHWMode2'] = {
     }
 
 FTKTagOptions['FitITk'] = {
-    'MaxMissingPlanes': 2,
     'MaxMissingSCTPairs': 0,
-    'MaxNComb': 1000,
+    'MaxNComb': -1,
     'UseTSPBank': False,
     'UseCompressedBank': False,
     'SecondStageFit': False,
     'TRACKFITTER_MODE': 1,
-    'Chi2DofCut': 1000,
+    'Chi2DofCut': 1000000,
     'FixEndCapL0': False, 'IBLMode': 0,
     'ITkMode': True,
-    'bankpatterns': [-1]*NumberOfSubregions,
     'PixelClusteringMode': 1,
     'SectorsAsPatterns': 0,
     'SetAMSplit': 0,
     'SaveRoads': True }
+
+FTKTagOptions['FitITkSaP'] = {
+    'MaxMissingSCTPairs': 0,
+    'MaxNComb': -1,
+    'UseTSPBank': False,
+    'UseCompressedBank': False,
+    'SecondStageFit': False,
+    'TRACKFITTER_MODE': 1,
+    'Chi2DofCut': 1000000,
+    'IBLMode': 0,
+    'ITkMode': True,
+    'PixelClusteringMode': 1,
+    'SectorsAsPatterns': 1,
+    'SetAMSplit': 0,
+    'SaveRoads': True }
+
+FTKTagOptions['FitITkDC'] = {
+    'MaxMissingSCTPairs': 0,
+    'MaxNComb': -1,
+    'UseTSPBank': False,
+    'UseCompressedBank': True,
+    'CachedBank': True,
+    'SecondStageFit': False,
+    'TRACKFITTER_MODE': 1,
+    'Chi2DofCut': 1000000,
+    'IBLMode': 0,
+    'ITkMode': True,
+    'PixelClusteringMode': 1,
+    'SectorsAsPatterns': 0,
+    'SetAMSplit': 0,
+    'SetAMSize': 2,
+    'DBBankLevel': 1,
+    'TSPSimulationLevel': 2,
+    'SaveRoads': True }
+
 
 # enable the "Scenario" runarg that sets other runarg values as consequence
 if hasattr(runArgs, 'FTKSetupTag'):
@@ -852,6 +942,11 @@ if not hasattr(runArgs,'doAuxFW'):
     FTKTrackFitter.doAuxFW = False
 else:
     FTKTrackFitter.doAuxFW = getattr(runArgs,'doAuxFW')
+
+if not hasattr(runArgs,'PrintSSBConstants'):
+    FTKTrackFitter.PrintSSBConstants = False
+else:
+    FTKTrackFitter.PrintSSBConstants = getattr(runArgs,'PrintSSBConstants')
 
 # set the FTKTrackFitter properties
 for runArgName in (runArgsFromTrfMandatory

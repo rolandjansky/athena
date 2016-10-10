@@ -145,7 +145,7 @@ public:
    int compare(FTK_CompressedAMBank const *bank) const;
 
    // print head and tail of one sector of the pattern bank
-   void printSector(int sector,int npattern=10);
+   void printSector(int sector,int npattern=10,int ipattern=-1);
 
    // purely virtual methods from FTK_AMsimulation_base, to be implemented
    virtual const std::unordered_map<int,FTKSS>& getStrips(int plane);
@@ -174,11 +174,14 @@ public:
 
    // translate SSID from DC to TSP and back
    // these functions could possibly be moved elsewhere
-   //   TSPMap???
+   // argument is SSID w/o dc bits
+   // returns vector with dc-bit as index, contains TSP-SSID
+   // (note, the dc-bits possibly are gray-coded)
    std::vector<int> const &getTSPssidVector(int layer,int sector,int dcSSID);
    inline int getTSPssid(int layer,int sector,int dcSSID,int tspXY) {
       return getTSPssidVector(layer,sector,dcSSID)[tspXY];
    }
+   // returns pair(SSID w/o dc bits , dc bits)
    std::pair<int,int> const &getDCssid(int layer,int sector,int tspSSID);
    int getDCssidConst(int layer,int sector,int tspSSID) const;
 
@@ -208,6 +211,8 @@ public:
 
    int readBANKjson(char const *jsonFile);
    int writeBANKjson(char const *jsonFile) const;
+
+   void printStrips(int plane=-1) const;
 
 protected:
    // read root file (pcache)
@@ -343,10 +348,10 @@ protected:
   void insertSSID(int layer,int sector,int tspSSID,int dcSSID);
 
   //
-  // table to convert SSID and tspXY offsets to a TSP SSID
+  // table to convert SSID w/o DC bits and DC bits to a TSP SSID
   VECTOR<MAP<int,MAP<int,std::vector<int> > > > m_DCtoTSP;
   //
-  // table to convert TSP SSID to SSID and index
+  // table to convert TSP SSID to SSID w/o DC bits and dc bits
   VECTOR<MAP<int,MAP<int,std::pair<int,int> > > > m_TSPtoDC;
   //
   // lookup-tables to convert compressed DC bits to subSSmask,DC,HB

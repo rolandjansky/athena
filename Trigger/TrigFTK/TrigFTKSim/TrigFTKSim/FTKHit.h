@@ -115,13 +115,13 @@ public:
 
   int getSector() const { return  m_sector; }
   int getPlane() const { return m_plane; }
-  int getEtaCode() const { return m_sector%1000; }
+  int getEtaCode() const { return m_ITkMode ? (m_sector % 10000) : (m_sector % 1000); }
   int getIsBarrel() const { return m_ITkMode ? ( (m_sector % 100) / 10 == 2 ) : ( m_coord.getDim()!=3? (m_sector%1000 < 20 ? 1 : 0) : 0 ); }
   int getASide() const { return m_ITkMode ? ( (m_sector % 100) / 10 == 4 ) : ( m_coord.getDim()!=3? (m_sector%1000 < 20 ? 0 : (getEtaCode()/10)%2 == 0) : 0 ); }
   int getCSide() const { return m_ITkMode ? ( (m_sector % 100) / 10 == 0 ) : ( m_coord.getDim()!=3? (m_sector%1000 < 20 ? 0 : (getEtaCode()/10)%2 != 0) : 0 ); }
   int getEtaWidth() const { return m_etaWidth; }
   int getPhiWidth() const { return m_phiWidth; }
-  int getEtaModule() const { return m_ITkMode ? ( ((m_sector % 100000) / 100) - 60 ) : ( m_sector%1000 < 20 ? m_sector%1000 : (m_sector%1000)/20 -1 ); }
+  int getEtaModule() const { return m_ITkMode ? ( ((m_sector % 10000) / 100) - 60 ) : ( m_sector%1000 < 20 ? m_sector%1000 : (m_sector%1000)/20 -1 ); }
   int getPhiModule() const { return m_ITkMode ? ( m_sector / 100000 ) : ( m_coord.getDim()!=3 ? m_sector/1000 : m_sector/10000 ); }
   int getSection() const { return m_ITkMode ? ( m_sector % 10 ) : ( m_coord.getDim()!=3 ? (m_sector%1000 < 20 ? 0 : m_sector%10) : 0 ); } // FIXME
   int getDim() const { return m_coord.getDim(); }

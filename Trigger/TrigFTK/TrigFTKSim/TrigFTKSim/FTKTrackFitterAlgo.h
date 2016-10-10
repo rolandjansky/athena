@@ -118,7 +118,7 @@ private:
   std::string m_ssmapunused_path;
 
   bool m_AutoDisable;
-  
+  bool m_PrintSSBConstants;  
 };
 
 #endif // FTKTrackFitterAlgo_h

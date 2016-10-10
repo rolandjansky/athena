@@ -141,13 +141,16 @@ def addTrigFTKSimRFOptions(parser):
                          help="Set the SS format: 0 (def) offline, 1 HW-like used in Vertical Slice, 2 HW-like 2015", group="TrigFTKRoadFinder")
     parser.add_argument('--ModuleLUTPath',type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
                          help="Global to Local module ID LUT used during the road finding stage", group="TrigFTKRoadFinder")
+
+    parser.add_argument('--ModuleLUTPath2nd',type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True), 
+                         help="Global to Local module ID LUT used during the SSB", group="TrigFTKRoadFinder")
     
     parser.add_argument('--DCMatchMethod',type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True), 
                          help="Set the DC matching method", group="TrigFTKRoadFinder") 
     
     parser.add_argument("--PixelClusteringMode",type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKRoadFinder")
-    parser.add_argument('--SctClustering',type=trfArgClasses.argFactory(trfArgClasses.argBool,runarg=False),
+    parser.add_argument('--SctClustering',type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
                         help="Set the SCT clustering [def: False]", group="TrigFTKRoadFinder")
 
     parser.add_argument('--MakeCache', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True), 
@@ -197,6 +200,10 @@ def addTrigFTKSimTFOptions(parser):
 
     parser.add_argument('--SecondStageFit', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables the second stage fitter", group='TrigFTKTrackFitter')
+
+    parser.add_argument('--PrintSSBConstants', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Print SSB Constants in firmware-style", group='TrigFTKTrackFitter')
+
     parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables firmware-style constants", group='TrigFTKSim')
     parser.add_argument('--MaxNcomb', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),

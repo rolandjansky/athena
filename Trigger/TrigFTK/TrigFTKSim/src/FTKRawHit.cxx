@@ -332,7 +332,7 @@ FTKHit FTKRawHit::getFTKHit(const FTKPlaneMap *pmap) const {
     // Working at least for SCT barrel
     // Ranges from dumping detector info --
     //   phi_modules in [0,..,72]
-    //   eta_modules in [-52,..,52]
+    //   eta_modules in [-56,..,56]
     //   m_barrel_ec in [-2,0,2] (C-side,B,A-side)
     sector = (m_phi_module*100000) + ((m_eta_module+60)*100) + ((m_barrel_ec+2)*10) + section;
   }

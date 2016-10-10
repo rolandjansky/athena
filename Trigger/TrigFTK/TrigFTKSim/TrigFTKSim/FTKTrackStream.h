@@ -35,6 +35,9 @@ private:
      to m_nfits-m_nfits_bad-m_nfits_rej */
   
   int m_ntracksI; // number of stored tracks in the intermediate step
+
+  int m_nconn;
+  int m_nextrapolatedTracks;
   TClonesArray *m_tracksI; //-> list of stored tracks in the intermedieate step
 
 
@@ -73,6 +76,9 @@ public:
   FTKTrack* getTrackI(int) const;
   int getNTracksI() const { return m_ntracksI; }
 
+  int getNConn() const {return m_nconn;}
+  int getNExtrapolatedTracks() const {return m_nextrapolatedTracks;}
+
   void addNCombs(int v) { m_ncombs += v; }
   void addNFits(int v) { m_nfits += v; }
   void addNFitsMajority(int v) { m_nfits_maj += v; }
@@ -84,6 +90,8 @@ public:
   void addNFitsHWRejected(int v) { m_nfits_rej += v; }
   void addNFitsBadMajority(int v) { m_nfits_badmaj += v; }
   void addNFitsHWRejectedMajority(int v) { m_nfits_rejmaj += v; }
+  void addNConnections(int v) {m_nconn += v;}
+  void addNExtrapolatedTracks(int v) {m_nextrapolatedTracks += v;}
 
   int getNCombs() const { return m_ncombs; }
   int getNFits() const { return m_nfits; }
@@ -96,6 +104,7 @@ public:
   int getNFitsHWRejected() const { return m_nfits_rej; }
   int getNFitsBadMajority() const { return m_nfits_badmaj; }
   int getNFitsHWRejectedMajority() const { return m_nfits_rejmaj; }
+  int getNConnections() const {return m_nconn;}
 
   void addNCombsI(int v) { m_ncombsI += v; }
   void addNFitsI(int v) { m_nfitsI += v; }
@@ -125,7 +134,7 @@ public:
 
   int Print(int level=0,std::ostream &out=std::cout);
 
-  ClassDef(FTKTrackStream,11)
+  ClassDef(FTKTrackStream,12)
 };
 
 

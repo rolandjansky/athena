@@ -23,6 +23,7 @@ TrackFitter711::TrackFitter711() :
   m_ncoords_incomplete(0),
   m_incomplete_coordsmask(0), m_incomplete_planesmask(0),
   m_extrafits(1), m_max_missing_extraplanes(1), m_nneighbours(3),
+  m_passedExtrapolation(false),
   m_nplanes_ignored(0),
   m_idplanes(0), m_idcoords(0), m_idplanes_or(0),
   m_endcap_inversion(0),
@@ -62,6 +63,8 @@ TrackFitter711::TrackFitter711() :
   m_nfits_rejI(0),
   m_nfits_badmajI(0),
   m_nfits_rejmajI(0),
+  m_nconn(0),
+  m_nextrapolatedTracks(0),
   m_comb_idI(0),
   m_debug_super_extrapolate(0),
   m_section_of_exp_layers(0),
@@ -571,7 +574,8 @@ void TrackFitter711::processor_init(int ibank)
   m_nfits_rejI = 0;
   m_nfits_badmajI = 0;
   m_nfits_rejmajI = 0;
-
+  m_nconn = 0;
+  m_nextrapolatedTracks = 0;
   // diagnostic variables
   if (getDiagnosticMode()) {
     initializeDiagnosticVariables();
@@ -599,6 +603,8 @@ void TrackFitter711::processor_end(int ibank)
   m_trackoutput->addNFitsHWRejectedI(ibank,m_nfits_rejI);
   m_trackoutput->addNFitsBadMajorityI(ibank,m_nfits_badmajI);
   m_trackoutput->addNFitsHWRejectedMajorityI(ibank,m_nfits_rejmajI);
+  m_trackoutput->addNConnections(ibank,m_nconn);
+  m_trackoutput->addNExtrapolatedTracks(ibank,m_nextrapolatedTracks);
 }
 
 
@@ -1483,8 +1489,6 @@ void TrackFitter711::processor_Extrapolate(const FTKRoad &road,
       current_bank_complete->extrapolate_coords(newtrk, conn_sector, m_idcoords_eff, m_idpars);
     else
       current_bank_complete->missing_point_guess(newtrk,conn_sector);
-
-
 
 
     //------------------------------------------------------------
@@ -2594,7 +2598,12 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
 	tmpHit->setIdentifierHash(moduleID);
       }
       if( FTKSetup::getFTKSetup().getHWModeSS()==2) {
-	m_ssid[ip] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
+         try {
+            m_ssid[ip] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
+         } catch(FTKException &e) {
+            cout<<"TrackFitter711::processor_ResolutionMode (1) bug\n";
+            exit(0);
+         }
       }else {
 	m_ssid[ip] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
       }
@@ -2607,29 +2616,49 @@ void TrackFitter711::processor_ResolutionMode(const FTKRoad &road,
         // modify coordinates and get the bounds
         tmpHit->setCoord(0,0);
         tmpHit->setCoord(1,0);
-	if( FTKSetup::getFTKSetup().getHWModeSS()==2)
-	  bounds[ip][0] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
-	else
+	if( FTKSetup::getFTKSetup().getHWModeSS()==2) {
+           try {
+              bounds[ip][0] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
+           } catch(FTKException &e) {
+            cout<<"TrackFitter711::processor_ResolutionMode (2) bug\n";
+            exit(0);
+         }
+	} else
 	  bounds[ip][0] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
         
         tmpHit->setCoord(0,phiwindow);
         tmpHit->setCoord(1,etawindow);
-        if( FTKSetup::getFTKSetup().getHWModeSS()==2)
-	  bounds[ip][1] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
-	else
+        if( FTKSetup::getFTKSetup().getHWModeSS()==2) {
+           try {
+              bounds[ip][1] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
+           } catch(FTKException &e) {
+            cout<<"TrackFitter711::processor_ResolutionMode (3) bug\n";
+            exit(0);
+           }
+        }else
 	  bounds[ip][1] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
 	
       } else if (ndim == 1) {
         // modify coordinates and get the bounds
         tmpHit->setCoord(0,0);      
-	if( FTKSetup::getFTKSetup().getHWModeSS()==2)
-	  bounds[ip][0] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
-	else       bounds[ip][0] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
+	if( FTKSetup::getFTKSetup().getHWModeSS()==2) {
+           try {
+              bounds[ip][0] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
+           } catch(FTKException &e) {
+            cout<<"TrackFitter711::processor_ResolutionMode (4) bug\n";
+            exit(0);
+           }
+	} else       bounds[ip][0] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
 
         tmpHit->setCoord(0,phiwindow); 
-	if( FTKSetup::getFTKSetup().getHWModeSS()==2)
-	  bounds[ip][1] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
-	else       bounds[ip][1] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
+	if( FTKSetup::getFTKSetup().getHWModeSS()==2) {
+           try {
+              bounds[ip][1] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
+           } catch(FTKException &e) {
+              cout<<"TrackFitter711::processor_ResolutionMode (4) bug\n";
+              exit(0);
+           }  
+	} else       bounds[ip][1] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
 
       }
 
@@ -2924,6 +2953,7 @@ void TrackFitter711::processor_SuperExtrapolate(const FTKRoad &road, list<FTKTra
 
   for (;itrack!=road_tracks.end();++itrack) {
     newtrkI = *itrack;
+    m_passedExtrapolation = false; ///reset this
     extrapolateIncompleteTrack(road);
   }
 
@@ -3050,6 +3080,7 @@ void TrackFitter711::extrapolateIncompleteTrack(const FTKRoad &road) {
   gatherConnections();
   printConnections();
   bool * iblhits = new bool[conn_subregs.size()];
+  
   for (setIConn(0); cur_iconn < (int) conn_subregs.size(); setIConn(cur_iconn+1)) {
     prepareTrack();
     performExtrapolation();
@@ -3063,9 +3094,13 @@ void TrackFitter711::extrapolateIncompleteTrack(const FTKRoad &road) {
     fitCompleteTracks(road);
     saveCompleteTracks();
   }
+
+  if (m_passedExtrapolation) m_nextrapolatedTracks++;
+
   if (getDiagnosticMode())
     fillDiagnosticPlotsPerTrack();
   int total = 0;
+  
   for (unsigned iconn = 0; iconn < conn_subregs.size(); ++iconn) {
     if (iblhits[iconn])
       total += 1;
@@ -3208,6 +3243,7 @@ void TrackFitter711::gatherConnections() {
     conn_gcbanks.push_back(tmpcon);
 
   } // Looping over similar sector is done.
+  m_nconn += conn_subregs.size();
 }
 
 void TrackFitter711::printCurCompleteTrack() {
@@ -3255,23 +3291,35 @@ void TrackFitter711::guessedHitsToSSID() {
 
 
     // Alternative way
-    FTKHit* tmpHit = new FTKHit(ndim);
-    tmpHit->setSector(moduleID);
-    for (int i=0;i<ndim;++i)
-      tmpHit->setCoord(i, newtrk.getCoord(m_idcoords_eff[ip]+i));
-    tmpHit->setSector(moduleID);
-    tmpHit->setEtaWidth(etawindow);
-    tmpHit->setPhiWidth(phiwindow);
-    tmpHit->setBankID(m_region_for_superexp);
-    tmpHit->setPlane(m_idplanes_eff[ip]);
+    FTKHit tmphit(ndim);
+    tmphit.setSector(moduleID);
+    double xMax[2];
+    xMax[0]=phiwindow-0.5;
+    xMax[1]=etawindow-0.5;
+    for (int i=0;i<ndim;++i) {
+       double x=newtrk.getCoord(m_idcoords_eff[ip]+i);
+       if(x<0.) x=0.;
+       if(x>xMax[i]) x=xMax[i];
+       tmphit.setCoord(i,x);
+    }
+    tmphit.setEtaWidth(etawindow);
+    tmphit.setPhiWidth(phiwindow);
+    tmphit.setBankID(m_region_for_superexp);
+    tmphit.setPlane(m_idplanes_eff[ip]);
     if( FTKSetup::getFTKSetup().getHWModeSS()==2) {
-      tmpHit->setIdentifierHash(moduleID);
+      tmphit.setIdentifierHash(moduleID);
     }
 
     if( FTKSetup::getFTKSetup().getHWModeSS()==2) {
-      m_ssid[ip] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
+       try {
+          m_ssid[ip] = m_ssmap_complete->getSSTower
+             (tmphit, tmphit.getBankID(),true);
+       } catch(FTKException &e) {
+          cout<<"TrackFitter711::guessedHitsToSSID bug\n";
+          exit(0);
+       }
     }else {
-      m_ssid[ip] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
+      m_ssid[ip] = m_ssmap_complete->getSSGlobal(tmphit, 1);
     }
 
 
@@ -3281,31 +3329,31 @@ void TrackFitter711::guessedHitsToSSID() {
     if (ndim == 2) {
 
       // modify coordinates and get the m_bounds
-      tmpHit->setCoord(0,0);
-      tmpHit->setCoord(1,0);
+      tmphit.setCoord(0,0);
+      tmphit.setCoord(1,0);
       if( FTKSetup::getFTKSetup().getHWModeSS()==2)
-        m_bounds[ip][0] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
+        m_bounds[ip][0] = m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true);
       else
-        m_bounds[ip][0] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
+        m_bounds[ip][0] = m_ssmap_complete->getSSGlobal(tmphit, 1);
 
-      tmpHit->setCoord(0,phiwindow);
-      tmpHit->setCoord(1,etawindow);
+      tmphit.setCoord(0,phiwindow);
+      tmphit.setCoord(1,etawindow);
       if( FTKSetup::getFTKSetup().getHWModeSS()==2)
-        m_bounds[ip][1] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
+        m_bounds[ip][1] = m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true);
       else
-        m_bounds[ip][1] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
+        m_bounds[ip][1] = m_ssmap_complete->getSSGlobal(tmphit, 1);
 
     } else if (ndim == 1) {
       // modify coordinates and get the m_bounds
-      tmpHit->setCoord(0,0);     
+      tmphit.setCoord(0,0);     
       if( FTKSetup::getFTKSetup().getHWModeSS()==2)
-        m_bounds[ip][0] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
-      else       m_bounds[ip][0] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
+        m_bounds[ip][0] = m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true);
+      else       m_bounds[ip][0] = m_ssmap_complete->getSSGlobal(tmphit, 1);
 
-      tmpHit->setCoord(0,phiwindow); 
+      tmphit.setCoord(0,phiwindow); 
       if( FTKSetup::getFTKSetup().getHWModeSS()==2)
-        m_bounds[ip][1] = m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true);
-      else       m_bounds[ip][1] = m_ssmap_complete->getSSGlobal(*tmpHit, 1);
+        m_bounds[ip][1] = m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true);
+      else       m_bounds[ip][1] = m_ssmap_complete->getSSGlobal(tmphit, 1);
 
     }
     if (isDebugSuperExp()) {
@@ -3315,43 +3363,42 @@ void TrackFitter711::guessedHitsToSSID() {
 
 	 if( FTKSetup::getFTKSetup().getHWModeSS()==2) {                                                                                                                         
           // modify coordinates and get the m_bounds                                                                                                                              
-	    tmpHit->setCoord(1,0);                                                                                                                                            
-	    tmpHit->setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(), true) << std::endl;                                                
-  	    tmpHit->setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(), true) << std::endl;                                
-  	    tmpHit->setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(), true) << std::endl;                                               
+	    tmphit.setCoord(1,0);                                                                                                                                            
+	    tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(), true) << std::endl;                                                
+  	    tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(), true) << std::endl;                                
+  	    tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(), true) << std::endl;                                               
 	    // restore the x-coord                                                                                                                                            
-	    tmpHit->setCoord(1,y);                                                                                                                                             
-  	    tmpHit->setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true) << std::endl;                                         
-  	    tmpHit->setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true) << std::endl;                                               
-  	    tmpHit->setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true) << std::endl;                                                 
+	    tmphit.setCoord(1,y);                                                                                                                                             
+  	    tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                         
+  	    tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                               
+  	    tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                                 
 	    // now vary y-cord                                                                                                                                                
-	    tmpHit->setCoord(1,etawindow);                                                                                                                                        
-  	    tmpHit->setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true) << std::endl;                                               
-  	    tmpHit->setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true) << std::endl;                                                  
-  	    tmpHit->setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(*tmpHit, tmpHit->getBankID(),true) << std::endl;                                                 
+	    tmphit.setCoord(1,etawindow);                                                                                                                                        
+  	    tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                               
+  	    tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                                  
+  	    tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSTower(tmphit, tmphit.getBankID(),true) << std::endl;                                                 
 
 	 }                                                                                                                                                                   
 	 else {                                                                                            
 
         // modify coordinates and get the m_bounds
-        tmpHit->setCoord(1,0);
-        tmpHit->setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(*tmpHit, 1) << std::endl;
-        tmpHit->setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(*tmpHit, 1) << std::endl;
-        tmpHit->setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(*tmpHit, 1) << std::endl;
+        tmphit.setCoord(1,0);
+        tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+        tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+        tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
         // restore the x-coord
-        tmpHit->setCoord(1,y);
-        tmpHit->setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(*tmpHit, 1) << std::endl;
-        tmpHit->setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(*tmpHit, 1) << std::endl;
-        tmpHit->setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(*tmpHit, 1) << std::endl;
+        tmphit.setCoord(1,y);
+        tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+        tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+        tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
         // now vary y-cord
-        tmpHit->setCoord(1,etawindow);
-        tmpHit->setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(*tmpHit, 1) << std::endl;
-        tmpHit->setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(*tmpHit, 1) << std::endl;
-        tmpHit->setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(*tmpHit, 1) << std::endl;
+        tmphit.setCoord(1,etawindow);
+        tmphit.setCoord(0,0);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+        tmphit.setCoord(0,x);         std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
+        tmphit.setCoord(0,phiwindow); std::cout << m_ssmap_complete->getSSGlobal(tmphit, 1) << std::endl;
       }
     }
     }
-    delete tmpHit;
   }
 }
 
@@ -3363,6 +3410,7 @@ void TrackFitter711::obtainHitsFromSSIDs() {
 
   //std::cout << "Searching hits ...." << std::endl;
 
+   int nError=0,nTry=0;
   // loop to retrieve the hit lists
   for (int ip=0; ip!=m_nplanes_ignored; ++ip) {
     m_hits_more[ip].clear();
@@ -3378,11 +3426,16 @@ void TrackFitter711::obtainHitsFromSSIDs() {
 	 if( FTKSetup::getFTKSetup().getHWModeSS()==2) {   
 
 	   int phiss =  m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_phiss;	   
+           int phimax=m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_phiwidth;
 	   int etass =  0;
+           int etamax=0;
 	   int section=0;
 	   int localX=0,localY=0;
 	   int localModuleID=-1;
-	   if(ndim ==2)	 {etass =  m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_etass;
+           nTry++;
+	   if(ndim ==2)	 {
+              etass =  m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_etass;
+              etamax=m_ssmap_complete->getMap(m_idplanes_eff[ip], 0, 0).m_etawidth;
 	   //the "official" procedure would involve:
 	   //decode the SSID into the local anc global coordinates
 	   //change the local coordinates as desired
@@ -3390,11 +3443,26 @@ void TrackFitter711::obtainHitsFromSSIDs() {
 	     m_ssmap_complete->decodeSSTowerXY(m_ssid[ip],m_subreg_for_superexp,m_idplanes_eff[ip],section, localModuleID,localX,localY,true);
             localX += ss_shift*phiss;
             localY += ss_shiftEta*etass;
-	    tmpSS =  m_ssmap_complete->compressed_ssid_word_pixel(localModuleID,m_idplanes_eff[ip],section,localX,localY,true);
-	   }else{
+            if((localX<0.)||(localX>=phimax)) continue;
+            if((localY<0.)||(localY>=etamax)) continue;
+            try {
+               tmpSS =  m_ssmap_complete->compressed_ssid_word_pixel(localModuleID,m_idplanes_eff[ip],section,localX,localY,true);
+            } catch(FTKException &e) {
+               // coordinates outside module boundary
+               nError++;
+               continue;
+            }
+           }else{
 	     m_ssmap_complete->decodeSSTowerX(m_ssid[ip],m_subreg_for_superexp,m_idplanes_eff[ip],section, localModuleID,localX,true);
             localX += ss_shift*phiss;
-  	    tmpSS =  m_ssmap_complete->compressed_ssid_word_strip(localModuleID,m_idplanes_eff[ip],section,localX,true);
+            if((localX<0.)||(localX>=phimax)) continue;
+  	    try {
+               tmpSS =  m_ssmap_complete->compressed_ssid_word_strip(localModuleID,m_idplanes_eff[ip],section,localX,true);
+            } catch(FTKException &e) {
+               // coordinates outside module boundary
+               nError++;
+               continue;
+            }
 	   }
 	   //	   tmpSS = m_ssid[ip]+ss_shift*shift+ss_shiftEta;
 	   // std::cout << "tmpSS " << tmpSS << std::endl;
@@ -3433,6 +3501,11 @@ void TrackFitter711::obtainHitsFromSSIDs() {
     }
     //  std::cout << m_hits_more[ip].size() << std::endl;
   } // end loop to retrieve the hit lists
+  if(nError>0) {
+     FTKSetup::PrintMessageFmt
+        (ftk::warn,"obtainHitsFromSSIDs nError=%d nTry=%d\n",
+         nError,nTry);
+  }
 }
 
 void TrackFitter711::fitCompleteTracks(const FTKRoad &road) {
@@ -3491,6 +3564,8 @@ void TrackFitter711::fitCompleteTracks(const FTKRoad &road) {
   int nmissing_more_coord(m_ncoords_ignored-ncoords_more);
 
   if (passedNMissLayerRequirement(nmissing_more)) {
+    m_passedExtrapolation = true;
+
     /*
      * Do additional fits using the hits in the SCT layers not used
      * in the first step
@@ -3534,6 +3609,7 @@ void TrackFitter711::fitCompleteTracks(const FTKRoad &road) {
 	if (missPix) m_nfits_maj_pix += 1;
 	if (missSCT) m_nfits_maj_SCT += 1;
       }
+
 
       // perform the fit
       //newtrk.setTrackID(m_comb_id++);

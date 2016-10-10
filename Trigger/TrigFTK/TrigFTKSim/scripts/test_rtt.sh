@@ -1,0 +1,1 @@
+./rtt_compare.py --RefFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root --ChkFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root --PlotTowers

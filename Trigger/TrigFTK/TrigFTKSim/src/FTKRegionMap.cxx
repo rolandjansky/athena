@@ -828,7 +828,12 @@ bool FTKRegionMap::isHitInRegion_old(const FTKHit &hit,int ID) const
 const FTKRegionMapItem &FTKRegionMap::getRegionMapItem(int ireg, int ipl, int isec) const
 {
    if (ireg<0) {
-      ireg = m_nregions+ireg;
+     if( FTKSetup::getFTKSetup().getITkMode() ) {
+       // JW: Only reg zero is set up correctly at the moment in ITk maps
+       ireg = 0;
+     } else {
+       ireg = m_nregions+ireg;
+     }
    }
 
    if (ipl<0) {

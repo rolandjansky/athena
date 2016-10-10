@@ -18,6 +18,18 @@
 #include <TFile.h>
 #include <TObjString.h>
 
+#ifdef DIAG_VMEM
+#include <sys/time.h>
+#include <sys/resource.h>
+static void printVmemUsage() {
+   struct rusage usage;
+   getrusage(RUSAGE_SELF,&usage);
+   std::cout<<"VMEM usage:"
+            <<" "<<usage.ru_maxrss/1024./1024.<<"G"
+      <<"\n";
+}
+#endif
+
 using namespace std;
 
 static TDirectory *OpenRootFileReadonly(char const *path) {
@@ -227,6 +239,7 @@ void FTKPatternBySectorReader::GetNPatternsByCoverage
       while(reader->ReadNextPattern()) {
          coverageMap[reader->GetPattern().GetCoverage()]++;
       }
+      reader->Rewind();
       reader->ReadCoverageOnly(false);      
    }
 }
@@ -382,7 +395,8 @@ void FTKPatternBySectorBlockReader::Rewind(void) {
        i!=fPatterns.end();i++) {
       FTKPatternRootTreeReader *reader=(*i).second;
       reader->Rewind();
-      /*bool returned =*/ reader->ReadNextPattern();
+      reader->ReadNextPattern();
+      reader->Suspend();
    }
 }
 
@@ -403,6 +417,7 @@ FTKPatternOneSector *FTKPatternBySectorBlockReader::Read
          }
          r->AddPattern(pattern);
       } while( reader->ReadNextPattern());
+      reader->Suspend();
    }
    return r;
 }
@@ -633,23 +648,5 @@ int FTKPatternBySectorWriter::AppendPattern
    }
    error= !patternTree->WritePattern(pattern);
    return error;
-}
-
-//================== class FTKPatternRootTreeReader ================
-
-Long64_t FTKPatternRootTreeReader::SeekBeg(Long64_t position) {
-   if(position>=0) {
-      if(position>0) {
-         Long64_t n=GetNPatterns();
-         if(position>n) position=n;
-      }
-      fPatternNumber=position;
-   }
-   return fPatternNumber;
-}
-
-bool FTKPatternRootTreeReader::HasMorePatterns(void) const {
-   // check whether there are more patterns
-   return fPatternNumber<GetNPatterns();
 }
 

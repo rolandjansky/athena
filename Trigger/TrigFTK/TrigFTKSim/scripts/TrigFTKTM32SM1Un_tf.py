@@ -113,6 +113,15 @@ def getTransform():
             outData=['RDO_FTK'], inputEventTest = False,
             perfMonFile='ntuple_RDOFTKCreator.pmon.gz'))
 
+    executorSet.add(
+        athenaExecutor(
+            name='BSFTKCreator',
+            skeletonFile='TrigFTKSim/skeleton.BS_FTK_Creator.py',
+            substep='bs2bsFTK', inData=[('BS','NTUP_FTK')],
+            outData=['BS_FTK'], inputEventTest = False,
+            perfMonFile='ntuple_BSFTKCreator.pmon.gz'))
+
+
     trf = transform(executor=executorSet,
                     description='FTK simulation for {0} towers, with {1} '
                                 'subregions merge and final merge.'.format(
@@ -172,6 +181,12 @@ def addFTKSimulationArgs(parser):
         type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='input'),
         help='Input RDO file',
         group='Reco Files')
+    # File handling
+    parser.add_argument(
+        '--inputBSFile', nargs='+',
+        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='input'),
+        help='Input BS file',
+        group='BS Files')
     parser.add_argument(
         '--outputNTUP_FTKIPFile',
         type=trfArgClasses.argFactory(
@@ -245,6 +260,12 @@ def addFTKSimulationArgs(parser):
         type=trfArgClasses.argFactory(trfArgClasses.argRDOFile, io='output'),
         help='Output RDO_FTK file',
         group='Reco Files')
+
+    parser.add_argument(
+        '--outputBS_FTKFile','--outputBSFile',
+        type=trfArgClasses.argFactory(trfArgClasses.argBSFile, io='output'),
+        help='Output BS_FTK file',
+        group='BS Files')
 
 if __name__ == '__main__':
     main()

@@ -196,7 +196,7 @@ void FTKSetup::PrintMessage(ftk::message_level_t level, const char *msg)
   else 
     *m_log << MSG::INFO;
 
-  *m_log << msg  << endreq;
+  *m_log << msg  << endmsg;
    } else {
       cout << "(level="<<level<<") "<<msg << endl;
    }

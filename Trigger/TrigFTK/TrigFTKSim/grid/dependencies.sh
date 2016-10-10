@@ -67,12 +67,12 @@ else
     if [ "$#" -gt "0" ]; then exit 2; fi;
 fi;
 
-#if [ "$SITEROOT" == "/afs/cern.ch" ]; then
+#if [ "${SITEROOT}" == "/afs/cern.ch" ]; then
 #    # using a nightly under afs
 #    export EIGENDIR=/afs/cern.ch/atlas/software/builds/nightlies/devval/AtlasCore/rel_0/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/
 #else
 #    # using a release (on CVMFS)
- #   export EIGENDIR=`cd $SITEROOT/AtlasCore/*/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/  && pwd`
+export EIGENDIR=`cd $SITEROOT/AtlasCore/*/External/AtlasEigen/$CMTCONFIG/pkg-build-install-eigen/  && pwd`
 ###fi
 
 export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${EIGENDIR}/Eigen
