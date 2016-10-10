@@ -29,7 +29,7 @@
       <elementref ref='Titanium' fraction='0.185443'/>
     </material>
 
-    <material name='matSV_Barrel23' density='0.243032'>
+    <material name='matSV_Barrel23' density='0.251133'>
       <elementref ref='Aluminium' fraction='0.202615'/>
       <elementref ref='Carbon' fraction='0.319348'/>
       <elementref ref='Copper' fraction='0.110417'/>
@@ -41,7 +41,7 @@
       <elementref ref='Titanium' fraction='0.173120'/>
     </material>
 
-    <material name='matSV_Barrel3Out' density='0.893892'>
+    <material name='matSV_Barrel3Out' density='0.912515'>
       <elementref ref='Aluminium' fraction='0.077111'/>
       <elementref ref='Carbon' fraction='0.151438'/>
       <elementref ref='Copper' fraction='0.042022'/>
@@ -53,7 +53,7 @@
       <elementref ref='Titanium' fraction='0.575745'/>
     </material>
 
-    <material name='matSV_BarrelPastEndcap' density='0.305878'>
+    <material name='matSV_BarrelPastEndcap' density='0.312251'>
       <elementref ref='Aluminium' fraction='0.222475'/>
       <elementref ref='Carbon' fraction='0.345919'/>
       <elementref ref='Copper' fraction='0.121240'/>

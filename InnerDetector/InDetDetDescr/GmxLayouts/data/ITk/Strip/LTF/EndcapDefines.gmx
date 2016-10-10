@@ -20,7 +20,7 @@
     <var name="PetalFaceRotation" value="3.0/PetalCoreOuterRadius"/>
 
     <var name="EC_InnerCylLength" value="2. * StripEC_HalfLength - 2."/>
-    <var name="EC_InnerCylThickness" value="0.4"/>
+    <var name="EC_InnerCylThickness" value="0.6"/>
     <var name="EC_InnerCylInnerR" value="367."/>
     <var name="EC_InnerCylOuterR" value="EC_InnerCylInnerR + EC_InnerCylThickness"/>
 
