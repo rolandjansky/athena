@@ -38,6 +38,7 @@ namespace Trk
     class FitProcedureQuality;
     class FitQuality;
     class IIntersector;
+    class IPropagator;
     class Track;
     class TrackInfo;
     class TrackStateOnSurface;
@@ -53,7 +54,9 @@ public:
 		  const ToolHandle<IIntersector>&	rungeKuttaIntersector,
 		  const ToolHandle<IIntersector>&	solenoidalIntersector,
 		  const ToolHandle<IIntersector>&	straightLineIntersector,
-		  const Volume*				indetVolume = 0);
+		  const ToolHandle<IPropagator>&	stepPropagator, 
+		  const Volume*				indetVolume = 0,
+                  int                                   useStepPropagator = 0);
     
     ~FitProcedure (void);	// destructor
     // forbidden copy constructor
@@ -125,6 +128,8 @@ private:
     double				m_scatteringLogCoeff;
     const ToolHandle<IIntersector>&	m_solenoidalIntersector;
     const ToolHandle<IIntersector>&	m_straightLineIntersector;
+    const ToolHandle<IPropagator>&	m_stepPropagator;
+    int                                 m_useStepPropagator;
     bool				m_verbose;
     int					m_worstMeasurement;
 };

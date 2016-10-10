@@ -13,6 +13,7 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkExInterfaces/IIntersector.h"
+#include "TrkExInterfaces/IPropagator.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkSurfaces/Surface.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
@@ -30,7 +31,9 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 					    const ToolHandle<IIntersector>&	intersector,
 					    std::list<FitMeasurement*>&		measurements,
 					    FitParameters*			parameters,
-					    const ToolHandle<IIntersector>&	rungeKuttaIntersector)
+					    const ToolHandle<IIntersector>&	rungeKuttaIntersector,
+					    const ToolHandle<IPropagator>&	stepPropagator,
+                                            int useStepPropagator)
     :	m_asymmetricCaloEnergy		(asymmetricCaloEnergy),
 	m_caloEnergyMeasurement		(0),
 	m_cosPhi0			(parameters->cosPhi()),
@@ -51,6 +54,8 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
 	m_qOverPbeforeCalo		(0.),
 	m_qOverPafterCalo		(0.),
 	m_rungeKuttaIntersector		(rungeKuttaIntersector),
+	m_stepPropagator		(stepPropagator),
+        m_useStepPropagator             (useStepPropagator),
 	m_sinPhi0			(parameters->sinPhi()),
 	m_sinTheta0			(parameters->sinTheta()),
         //m_toroidTurn			(0.1),
@@ -66,6 +71,11 @@ MeasurementProcessor::MeasurementProcessor (bool				asymmetricCaloEnergy,
     int numberPositionMeas	= 0;
     // int numberPseudo		= 0;
     m_scatterers.reserve(100);
+
+// Field for StepPropagator     
+    m_stepField = Trk::MagneticFieldProperties(Trk::FullField);
+    if(m_useStepPropagator==2)  m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
+
     
     for (std::list<FitMeasurement*>::iterator m = m_measurements.begin();
 	 m != m_measurements.end();
@@ -1068,9 +1078,37 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
     std::list<FitMeasurement*>::iterator m = m_measurements.begin();
     if ((**m).isVertex())
     {
-	intersection	= m_rungeKuttaIntersector->intersectSurface(*(**m).surface(),
-								    intersection,
+        if(m_useStepPropagator==99) {
+          const TrackSurfaceIntersection* newIntersectionSTEP =
+          m_stepPropagator->intersectSurface(*(**m).surface(),
+                                           intersection,
+                                           qOverP,
+                                           m_stepField,
+                                           Trk::muon);
+          double exdist = 0;
+          if(newIntersectionSTEP) exdist = (newIntersectionSTEP->position()-intersection->position()).mag();
+	  intersection	= m_rungeKuttaIntersector->intersectSurface(*(**m).surface(),
+	 							    intersection,
 								    qOverP);
+          if(newIntersectionSTEP) {
+            double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
+            std::cout << " iMeasProc 1 distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
+            if(dist>10.) std::cout << " iMeasProc 1 ALARM distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
+            delete newIntersectionSTEP;
+          } else {
+            if(intersection) std::cout << " iMeasProc 1 ALARM STEP did not intersect! " << std::endl;
+          }
+        } else {
+	  intersection	= m_useStepPropagator==0?
+            m_rungeKuttaIntersector->intersectSurface(*(**m).surface(),
+			  			      intersection,
+						      qOverP):
+            m_stepPropagator->intersectSurface(*(**m).surface(),
+                                               intersection,
+                                               qOverP,
+                                               m_stepField,
+                                               Trk::muon);
+        }
 	surface		= (**m).surface();	
 	if (! intersection)		return false;
 	(**m).intersection(type,intersection);
@@ -1082,7 +1120,7 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
     {
 	if ((**m).afterCalo())
 	{
-	    if (type == DeltaQOverP0)	break;
+	    if (type == DeltaQOverP0)	continue;
 	}
 	else if (type == DeltaQOverP1)
 	{
@@ -1095,10 +1133,39 @@ MeasurementProcessor::extrapolateToMeasurements(ExtrapolationType type)
 	// to avoid rounding: copy intersection if at previous surface 
 	if ((**m).surface() != surface)
 	{
+          if(m_useStepPropagator==99) {
+            const TrackSurfaceIntersection* newIntersectionSTEP =
+            m_stepPropagator->intersectSurface(*(**m).surface(),
+                                           intersection,
+                                           qOverP,
+                                           m_stepField,
+                                           Trk::muon);
+            double exdist = 0;
+            if(newIntersectionSTEP) exdist = (newIntersectionSTEP->position()-intersection->position()).mag();
+
 	    intersection	= m_intersector->intersectSurface(*(**m).surface(),
 								  intersection,
 								  qOverP);
-	    surface		= (**m).surface();
+            if(newIntersectionSTEP) {
+              double dist = 1000.*(newIntersectionSTEP->position()-intersection->position()).mag();
+              std::cout << " iMeasProc 2 distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
+              if(dist>10.) std::cout << " iMeasProc 2 ALARM distance STEP and Intersector " << dist << " ex dist " << exdist << std::endl;
+              delete newIntersectionSTEP;
+            } else {
+              if(intersection) std::cout << " iMeasProc 2 ALARM STEP did not intersect! " << std::endl;
+            }
+          } else {   
+	    intersection	= m_useStepPropagator==0?
+              m_rungeKuttaIntersector->intersectSurface(*(**m).surface(),
+			  			      intersection,
+						      qOverP):
+              m_stepPropagator->intersectSurface(*(**m).surface(),
+                                               intersection,
+                                               qOverP,
+                                               m_stepField,
+                                               Trk::muon);
+          }
+	  surface		= (**m).surface();
 	}
 	else
 	{

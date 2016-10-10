@@ -16,6 +16,7 @@
 #include <vector>
 #include "GaudiKernel/ToolHandle.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h" 
+#include "TrkGeometry/MagneticFieldProperties.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -24,6 +25,7 @@ namespace Trk
     class FitMeasurement;
     class FitParameters;
     class IIntersector;
+    class IPropagator;
     class TrackSurfaceIntersection;
 
 class MeasurementProcessor
@@ -33,8 +35,9 @@ public:
 			  const ToolHandle<IIntersector>&    	intersector,
 			  std::list<FitMeasurement*>&		measurements,
 			  FitParameters*			parameters,
-			  const ToolHandle<IIntersector>&    	rungeKuttaIntersector);
-    
+			  const ToolHandle<IIntersector>&    	rungeKuttaIntersector,
+			  const ToolHandle<IPropagator>&    	stepPropagator,
+                          int                                   useStepPropagator);    
     ~MeasurementProcessor (void);
 
     // implicit copy constructor
@@ -76,6 +79,8 @@ private:
     double				m_qOverPbeforeCalo;
     double				m_qOverPafterCalo;
     const ToolHandle<IIntersector>&	m_rungeKuttaIntersector;
+    const ToolHandle< IPropagator >&    m_stepPropagator;
+    int                                 m_useStepPropagator;
     std::vector<FitMeasurement*>	m_scatterers;
     double				m_sinPhi0;
     double				m_sinTheta0;
@@ -85,6 +90,7 @@ private:
     double				m_y0;
     double				m_z0;
     //bool				m_zInstability;
+    Trk::MagneticFieldProperties        m_stepField; 
 };
 
 }	// end of namespace

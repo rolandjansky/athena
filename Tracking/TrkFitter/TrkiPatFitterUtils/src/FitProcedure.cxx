@@ -24,6 +24,7 @@
 #include "GaudiKernel/SystemOfUnits.h"
 #include "TrkEventPrimitives/FitQuality.h"
 #include "TrkExInterfaces/IIntersector.h"
+#include "TrkExInterfaces/IPropagator.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
 #include "TrkMaterialOnTrack/MaterialEffectsOnTrack.h"
@@ -53,7 +54,9 @@ FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 			    const ToolHandle<IIntersector>&	rungeKuttaIntersector,
 			    const ToolHandle<IIntersector>&	solenoidalIntersector,
 			    const ToolHandle<IIntersector>&	straightLineIntersector,
-			    const Volume*			indetVolume)
+                            const ToolHandle<IPropagator>&      stepPropagator,
+			    const Volume*			indetVolume,
+                            int                                 useStepPropagator)
     :	m_chRatio1			(0.),
 	m_chRatio2			(0.),
 	m_chiSq				(0.),
@@ -90,6 +93,8 @@ FitProcedure::FitProcedure (bool				constrainedAlignmentEffects,
 	m_scatteringLogCoeff		(0.038),			// Coulomb scattering constant
 	m_solenoidalIntersector 	(solenoidalIntersector),
 	m_straightLineIntersector	(straightLineIntersector),
+	m_stepPropagator 	        (stepPropagator),
+        m_useStepPropagator             (useStepPropagator),
 	m_verbose			(false),
 	m_worstMeasurement		(0)
 {}
@@ -443,7 +448,9 @@ FitProcedure::execute(bool				asymmetricCaloEnergy,
 					      intersector,
 					      measurements,
 					      parameters,
-					      m_rungeKuttaIntersector);
+					      m_rungeKuttaIntersector,
+                                              m_stepPropagator,
+                                              m_useStepPropagator);
 
     // perigee or vertex used as measurements in fit
     if (measurements.front()->isPerigee())
