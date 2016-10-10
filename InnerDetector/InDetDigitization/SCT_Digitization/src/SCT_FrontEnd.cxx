@@ -24,6 +24,10 @@
 
 // #define SCT_DIG_DEBUG
 
+#include <iostream>
+using namespace std;
+// ---------------
+
 using namespace InDetDD;
 
 // constructor
@@ -33,7 +37,7 @@ SCT_FrontEnd::SCT_FrontEnd(const std::string &type, const std::string &name,
     m_sc(0),
     m_SCTdetMgr(0),
     m_sct_id(0),
-    m_sct_amplifier("SCT_Amp"),
+    m_sct_amplifier("SCT_Amp", this),
     m_ReadCalibChipDataSvc("SCT_ReadCalibChipDataSvc", name),
     m_rndmEngine(nullptr) {
     declareInterface< ISCT_FrontEnd >(this);
@@ -1342,118 +1346,61 @@ StatusCode SCT_FrontEnd::doThresholdCheckForCrosstalkHits(
     return StatusCode::SUCCESS;
 }
 
-StatusCode SCT_FrontEnd::doClustering(
-    SiChargedDiodeCollection &collection) const {
+StatusCode SCT_FrontEnd::doClustering(SiChargedDiodeCollection &collection)
+  const {
     // ********************************
     // now do clustering
     // ********************************
-    int strip = 0;             // !< at the begining of the collection (SCT
-                               // module)
-    int clusterSize = 0;      // !< Cluster size
-    int numberOfClusters = 0; // !< number of cluster in each the collection
-                              // (SCT module)
-    Identifier hitStrip;        // !< used to find the SiChargeDiode
-                                // corresponding to a strip
+    int strip = 0;             
+    int clusterSize = 0;      
+    int numberOfClusters = 0;
+
+    const SCT_ModuleSideDesign &sctDesign = dynamic_cast<const SCT_ModuleSideDesign &> (collection.design());
+    
+    Identifier hitStrip;        
 
     if (m_data_readout_mode == 0) {
         do {
             if (m_StripHitsOnWafer[strip] > 0) {
                 // ====== First step: Get the cluster size
-                // ================================================================================================
-                int clusterFirstStrip = strip;                                       //
-                                                                                     // !<
-                                                                                     // First
-                                                                                     // strip
-                                                                                     // of
-                                                                                     // the
-                                                                                     // cluster
-                while (strip < m_strip_max - 1 && m_StripHitsOnWafer[strip +
-                                                                     1] > 0) {
-                    ++strip; // !< Find first strip hit and add up the following
-                             // strips
-                }
-                int clusterLastStrip = strip;                                        //
-                                                                                     // !<
-                                                                                     // Last
-                                                                                     // strip
-                                                                                     // of
-                                                                                     // the
-                                                                                     // cluster
-                ++numberOfClusters;                                                  //
-                                                                                     // !<
-                                                                                     // number
-                                                                                     // of
-                                                                                     // cluster
-                                                                                     // in
-                                                                                     // each
-                                                                                     // the
-                                                                                     // collection
-                                                                                     // (SCT
-                                                                                     // module)
-                clusterSize = (clusterLastStrip - clusterFirstStrip) + 1;           //
-                                                                                    // !<
-                                                                                    // Cluster
-                                                                                    // size
+                // ===================================================
+                int clusterFirstStrip = strip;                                       
 
-#ifdef SCT_DIG_DEBUG
-                ATH_MSG_DEBUG("RDO Strip = " << strip <<
-                    ", RDO Cluster size = " << clusterSize <<
-                    ", HitInfoForFirstStrip(1=real, 2=crosstalk, 3=noise): " <<
-                    m_StripHitsOnWafer[strip]);
-#endif
+                // Find end of cluster. In multi-row sensors, cluster cannot span rows.
+                int row = sctDesign.row(strip);
+                if (row < 0) {
+                    row = 0;
+                }
+                int lastStrip1DInRow(0);
+                for (int i = 0; i < row + 1; ++i) {
+                    lastStrip1DInRow += sctDesign.diodesInRow(i);
+                }
+                
+                while (strip < lastStrip1DInRow - 1 && m_StripHitsOnWafer[strip +1] > 0) {
+                    ++strip; // !< Find first strip hit and add up the following strips
+                }
+                int clusterLastStrip = strip;                                        
+                                                                                     
+                ++numberOfClusters;                                                  
+                                                                                     
+                clusterSize = (clusterLastStrip - clusterFirstStrip) + 1;           
 
                 hitStrip = m_sct_id->strip_id(collection.identify(),
                                               clusterFirstStrip);
-                SiChargedDiode &HitDiode = *(collection.find(hitStrip));             //
-                                                                                     // !<
-                                                                                     // Get
-                                                                                     // the
-                                                                                     // diode
-                                                                                     // belonging
-                                                                                     // to
-                                                                                     // the
-                                                                                     // first
-                                                                                     // strip
-                                                                                     // in
-                                                                                     // cluster
-                SiHelper::SetStripNum(HitDiode, clusterSize);                         //
-                                                                                      // !<
-                                                                                      // Mark
-                                                                                      // the
-                                                                                      // first
-                                                                                      // strip
-                                                                                      // in
-                                                                                      // cluster
-                                                                                      // and
-                                                                                      // add
-                                                                                      // clustersize
+                SiChargedDiode &HitDiode = *(collection.find(hitStrip));             
+                                                                                    
+                SiHelper::SetStripNum(HitDiode, clusterSize);                         
+                                                                                      
+                SiChargedDiode *PreviousHitDiode = &HitDiode;
                 for (int i = clusterFirstStrip + 1; i <= clusterLastStrip;
                      ++i) {
                     hitStrip = m_sct_id->strip_id(collection.identify(), i);
-                    SiChargedDiode &HitDiode2 = *(collection.find(hitStrip));          //
-                                                                                       // !<
-                                                                                       // Get
-                                                                                       // the
-                                                                                       // diode
-                                                                                       // belonging
-                                                                                       // to
-                                                                                       // the
-                                                                                       // other
-                                                                                       // strips
-                                                                                       // in
-                                                                                       // cluster
-                    SiHelper::ClusterUsed(HitDiode2, true);                             //
-                                                                                        // !<
-                                                                                        // And
-                                                                                        // mark
-                                                                                        // the
-                                                                                        // other
-                                                                                        // strips
-                                                                                        // as
-                                                                                        // belonging
-                                                                                        // to
-                                                                                        // a
-                                                                                        // cluster
+                    SiChargedDiode &HitDiode2 = *(collection.find(hitStrip));          
+                                                                                       
+                    SiHelper::ClusterUsed(HitDiode2, true);                             
+
+                    PreviousHitDiode->setNextInCluster(&HitDiode2);
+                    PreviousHitDiode = &HitDiode2;
                 }
             }
             ++strip;                // !< This is the starting point of the next
@@ -1465,29 +1412,10 @@ StatusCode SCT_FrontEnd::doClustering(
             if (m_StripHitsOnWafer[strip] > 0) {
                 clusterSize = 1;
                 hitStrip = m_sct_id->strip_id(collection.identify(), strip);
-                SiChargedDiode &HitDiode = *(collection.find(hitStrip));         //
-                                                                                 // !<
-                                                                                 // Get
-                                                                                 // the
-                                                                                 // diode
-                                                                                 // belonging
-                                                                                 // to
-                                                                                 // the
-                                                                                 // first
-                                                                                 // strip
-                                                                                 // in
-                                                                                 // cluster
-                SiHelper::SetStripNum(HitDiode, clusterSize);                     //
-                                                                                  // !<
-                                                                                  // Mark
-                                                                                  // the
-                                                                                  // first
-                                                                                  // strip
-                                                                                  // in
-                                                                                  // cluster
-                                                                                  // and
-                                                                                  // add
-                                                                                  // clustersize
+                SiChargedDiode &HitDiode = *(collection.find(hitStrip));         
+                                                                                 
+                SiHelper::SetStripNum(HitDiode, clusterSize);                     
+                                                                                  
 
 #ifdef SCT_DIG_DEBUG
                 ATH_MSG_DEBUG("RDO Strip = " << strip << ", tbin = " <<

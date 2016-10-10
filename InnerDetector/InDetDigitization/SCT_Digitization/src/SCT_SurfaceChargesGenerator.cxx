@@ -3,7 +3,7 @@
 */
 
 #include "SCT_SurfaceChargesGenerator.h"
-
+#include <cmath>
 // DD
 #include "InDetReadoutGeometry/SiDetectorElement.h"
 #include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
@@ -13,6 +13,7 @@
 #include "AthenaKernel/IAtRndmGenSvc.h"
 #include "CLHEP/Random/RandomEngine.h"
 #include "AtlasCLHEP_RandomGenerators/RandGaussZiggurat.h"
+#include "CLHEP/Random/RandFlat.h"
 
 // CLHEP
 #include "CLHEP/Geometry/Point3D.h"
@@ -40,7 +41,7 @@ using InDetDD::SiDetectorElement;
 using InDetDD::SCT_ModuleSideDesign;
 using InDetDD::SiLocalPosition;
 
-// #define SCT_DIG_DEBUG
+using namespace std;
 
 // constructor
 SCT_SurfaceChargesGenerator::SCT_SurfaceChargesGenerator(const
@@ -86,7 +87,7 @@ parent)
     m_h_mobility_trap(nullptr),
     m_h_trap_pos(nullptr),
     m_hashId(0),
-    m_distortionsTool("SCT_DistortionsTool"),
+    m_distortionsTool("SCT_DistortionsTool", this),
     m_siConditionsSvc("SCT_SiliconConditionsSvc", name),
     m_siPropertiesSvc("SCT_SiPropertiesSvc", name),
     m_radDamageSvc("SCT_RadDamageSummarySvc", name),
@@ -122,6 +123,7 @@ parent)
     declareProperty("SCTDistortionsTool", m_distortionsTool,
                     "Tool to retrieve SCT distortions");
     declareProperty("SCT_RadDamageSummarySvc", m_radDamageSvc);
+    declareProperty("isOverlay", m_isOverlay=false);
 }
 
 // Destructor:
@@ -250,17 +252,6 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
         (m_distHalfInterStrip > 0.0) && (m_distHalfInterStrip <
                                          m_distInterStrip)) {
         m_SurfaceDriftFlag = 1;
-#ifdef SCT_DIG_DEBUG
-        ATH_MSG_INFO("\tsurface drift ON: surface drift time at d=" <<
-            m_distInterStrip << "   (mid strip)    =" << this->SurfaceDriftTime(
-                         m_distInterStrip));
-        ATH_MSG_INFO("\tsurface drift ON: surface drift time at d=" <<
-            m_distHalfInterStrip << " (half way)     =" <<
-        this->SurfaceDriftTime(
-                         m_distHalfInterStrip));
-        ATH_MSG_INFO("\tsurface drift ON: surface drift time at d=0.0" <<
-            " (strip center) =" << this->SurfaceDriftTime(0));
-#endif
     }
     else {
         ATH_MSG_INFO("\tsurface drift still not on, wrong params");
@@ -273,11 +264,6 @@ StatusCode SCT_SurfaceChargesGenerator::initialize() {
             "\tMake sure the two flags are not set simultaneously in jo");
         return StatusCode::FAILURE;
     }
-#ifdef SCT_DIG_DEBUG
-    ATH_MSG_INFO("\tSurfaceChargesGenerator copied");
-    ATH_MSG_INFO("\tn.charg " << m_numberOfCharges);
-    ATH_MSG_INFO("\tdigi steps " << m_smallStepLength << " mm");
-#endif
     return StatusCode::SUCCESS;
 }
 
@@ -321,8 +307,10 @@ float SCT_SurfaceChargesGenerator::DriftTime(float zhit) const {
     float denominator = vdepl + vbias - (2.0 * zhit * vdepl / sensorThickness);
     if (denominator <= 0.0) {
         if (vbias >= vdepl) { // Should not happen
+	  if(!m_isOverlay) {
             ATH_MSG_ERROR("DriftTime: negative argument X for log(X) " << zhit);
-            return -1.0;
+	  }
+	  return -1.0;
         }
         else { // (vbias<vdepl) can happen with underdepleted sensors, lose
                // charges in that volume
@@ -333,11 +321,9 @@ float SCT_SurfaceChargesGenerator::DriftTime(float zhit) const {
     }
 
     float driftTime = log((vdepl + vbias) / denominator);
-    driftTime = driftTime * sensorThickness * sensorThickness / (2.0 *
-                                                                 m_siPropertiesSvc
-                                                                  ->
-                                                                  getSiProperties(
-    m_hashId).holeDriftMobility() * vdepl);
+    driftTime = driftTime * sensorThickness * sensorThickness /
+                (2.0 * m_siPropertiesSvc->getSiProperties(
+                     m_hashId).holeDriftMobility() * vdepl);
     return driftTime;
 }
 
@@ -422,16 +408,12 @@ float SCT_SurfaceChargesGenerator::SurfaceDriftTime(float ysurf) const {
 // create a list of surface charges from a hit - called from
 // SCT_DigitizationTool PileUpTool
 // -------------------------------------------------------------------------------------------
-// void SCT_SurfaceChargesGenerator::processFromTool(const SiHit* phit,
-// std::list<SiSurfaceCharge> &charges, const float p_eventTime, const unsigned
-// short p_eventId) const {
 void SCT_SurfaceChargesGenerator::processFromTool(const SiHit *phit, const
                                                   ISiSurfaceChargesInserter &
                                                   inserter, const float
                                                   p_eventTime, const unsigned
                                                   short p_eventId) const {
     ATH_MSG_VERBOSE("SCT_SurfaceChargesGenerator::processFromTool starts");
-    // processSiHit(*phit,charges,p_eventTime,p_eventId);
     processSiHit(*phit, inserter, p_eventTime, p_eventId);
     return;
 }
@@ -466,10 +448,8 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
                                                inserter, float p_eventTime,
                                                unsigned short
                                                p_eventId) const {
-    const InDetDD::SCT_ModuleSideDesign *p_design = dynamic_cast<const
-                                                                 SCT_ModuleSideDesign
-                                                                 *>(&(m_element
-                                                                       ->design()));
+    const InDetDD::SCT_ModuleSideDesign *p_design =
+      dynamic_cast<const SCT_ModuleSideDesign *>(&(m_element ->design()));
 
     if (!p_design) {
         ATH_MSG_ERROR("SCT_SurfaceChargesGenerator::process can not get " <<
@@ -519,9 +499,6 @@ void SCT_SurfaceChargesGenerator::processSiHit(const SiHit &phit, const
     // get sensor thickness and tg lorentz from SiDetectorDesign
     const float sensorThickness = p_design->thickness();
     const float tanLorentz = m_element->getTanLorentzAnglePhi();
-    // const float coLorentz        = sqrt(1+pow(tanLorentz,2));
-
-    // phit.Print() ; // for debuging
 
     const CLHEP::Hep3Vector pos = phit.localStartPosition();
     const float xEta = pos[SiHit::xEta];

@@ -23,6 +23,7 @@
 // Det Descr includes
 #include "InDetReadoutGeometry/SCT_DetectorManager.h"
 #include "InDetReadoutGeometry/SiDetectorElement.h"
+#include "InDetReadoutGeometry/SCT_ModuleSideDesign.h"
 
 // SCT_Digitization tools
 #include "SCT_Digitization/ISCT_FrontEnd.h"
@@ -52,9 +53,9 @@ SCT_DigitizationTool::SCT_DigitizationTool(const std::string &type,
     m_HardScatterSplittingSkipper(false),
     m_detID(nullptr),
     m_detMgr(nullptr),
-    m_sct_FrontEnd("SCT_FrontEnd"),
-    m_sct_SurfaceChargesGenerator("SCT_SurfaceChargesGenerator"),
-    m_sct_RandomDisabledCellGenerator("SCT_RandomDisabledCellGenerator"),
+    m_sct_FrontEnd("SCT_FrontEnd", this),
+    m_sct_SurfaceChargesGenerator("SCT_SurfaceChargesGenerator", this),
+    m_sct_RandomDisabledCellGenerator("SCT_RandomDisabledCellGenerator", this),
     m_rndmSvc("AtRndmGenSvc", name),
     m_mergeSvc("PileUpMergeSvc", name),
     m_rndmEngine(nullptr),
@@ -176,29 +177,6 @@ void SiDigitizationSurfaceChargeInserter::operator ()
 }
 } // anonymous namespace
 
-StatusCode SCT_DigitizationTool::processAllSubEvents() {
-    if (prepareEvent(0).isFailure()) {
-        return StatusCode::FAILURE;
-    }
-    ATH_MSG_VERBOSE("Begin digitizeAllHits");
-    if (m_enableHits && !getNextEvent().isFailure()) {
-        digitizeAllHits();
-    }
-    else {
-        ATH_MSG_DEBUG("no hits found in event!");
-    }
-    delete chargedDiodes;
-    ATH_MSG_DEBUG("Digitized Elements with Hits");
-    // loop over elements without hits
-    digitizeNonHits();
-
-    ATH_MSG_DEBUG("Digitized Elements without Hits");
-
-
-    ATH_MSG_VERBOSE("Digitize success!");
-    return StatusCode::SUCCESS;
-}
-
 // ----------------------------------------------------------------------
 // Initialise the surface charge generator Tool
 // ----------------------------------------------------------------------
@@ -310,13 +288,33 @@ StatusCode SCT_DigitizationTool::initDisabledCells() {
     m_sct_RandomDisabledCellGenerator->setRandomEngine(m_rndmEngine);
     storeTool(&(*m_sct_RandomDisabledCellGenerator));
 
-    //  m_diodeCollectionTools.push_back( &(*m_sct_RandomDisabledCellGenerator)
-    // ); // retrieve a ref to the from the tool handle, then take its address.
-
     ATH_MSG_INFO("Retrieved the SCT_RandomDisabledCellGenerator tool:" <<
         m_sct_RandomDisabledCellGenerator);
     return sc;
 }
+
+StatusCode SCT_DigitizationTool::processAllSubEvents() {
+    if (prepareEvent(0).isFailure()) {
+        return StatusCode::FAILURE;
+    }
+    ATH_MSG_VERBOSE("Begin digitizeAllHits");
+    if (m_enableHits && !getNextEvent().isFailure()) {
+        digitizeAllHits();
+    }
+    else {
+        ATH_MSG_DEBUG("no hits found in event!");
+    }
+    delete chargedDiodes;
+    ATH_MSG_DEBUG("Digitized Elements with Hits");
+
+    // loop over elements without hits
+    digitizeNonHits();
+    ATH_MSG_DEBUG("Digitized Elements without Hits");
+
+    ATH_MSG_VERBOSE("Digitize success!");
+    return StatusCode::SUCCESS;
+}
+
 
 // ======================================================================
 // prepareEvent
@@ -700,9 +698,6 @@ private:
 // ----------------------------------------------------------------------//
 StatusCode SCT_DigitizationTool::createAndStoreRDO(
     SiChargedDiodeCollection *chDiodeCollection) {
-#ifdef SCT_DIG_DEBUG
-    ATH_MSG_INFO("In SCT_Digitization::createAndStoreRDO()");
-#endif
 
     // Create the RDO collection
     SCT_RDO_Collection *RDOColl(createRDO(chDiodeCollection));
@@ -720,11 +715,6 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(
             delete RDOColl;
             return StatusCode::FAILURE;
         }
-
-#ifdef SCT_DIG_DEBUG
-        ATH_MSG_INFO("Add SCT RDO collection " << m_detID->show_to_string(
-                         RDOColl->identify()) << " to container!");
-#endif
     }
     else {
         ATH_MSG_VERBOSE("Not saving SCT_RDO_Collection: " <<
@@ -739,10 +729,6 @@ StatusCode SCT_DigitizationTool::createAndStoreRDO(
 // ----------------------------------------------------------------------
 SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
     SiChargedDiodeCollection *collection) {
-#ifdef SCT_DIG_DEBUG
-    ATH_MSG_INFO("SCTDigitization::createRDO() Collection" <<
-        m_detID->show_to_string(collection->identify()));
-#endif
 
     // create a new SCT RDO collection
     SCT_RDO_Collection *p_rdocoll = 0;
@@ -761,8 +747,7 @@ SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
     SiChargedDiodeIterator i_chargedDiode = collection->begin();
     SiChargedDiodeIterator i_chargedDiode_end = collection->end();
     // Choice of producing SCT1_RawData or SCT3_RawData
-    if (m_WriteSCT1_RawData.value()
-        ) {
+    if (m_WriteSCT1_RawData.value()) {
         for (; i_chargedDiode != i_chargedDiode_end; ++i_chargedDiode) {
             unsigned int flagmask = (*i_chargedDiode).second.flag() & 0xFE;
 
@@ -773,6 +758,11 @@ SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
                 InDetDD::SiReadoutCellId roCell =
                     (*i_chargedDiode).second.getReadoutCell();
                 int strip = roCell.strip();
+                if (strip > 0xffff) { // In upgrade layouts strip can be bigger
+                                      // than 4000
+                  ATH_MSG_FATAL(
+                    "Strip number too big for SCT1 raw data format.");
+                }
                 const Identifier id_readout = m_detID->strip_id(
                     collection->identify(), strip);
 
@@ -784,9 +774,9 @@ SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
                 int size = SiHelper::GetStripNum((*i_chargedDiode).second);
                 // int groupSize=size;
                 unsigned int size_rdo = (size & 0xFFFF);
-                int cluscounter = 0;
 
                 // TC. Need to check if there are disabled strips in the cluster
+                int cluscounter = 0;
                 if (size > 1) {
                     SiChargedDiodeIterator it2 = i_chargedDiode;
                     ++it2;
@@ -830,15 +820,29 @@ SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
         for (; i_chargedDiode != i_chargedDiode_end; ++i_chargedDiode) {
             unsigned int flagmask = (*i_chargedDiode).second.flag() & 0xFE;
 
-            if (!flagmask) { // now check it wasn't masked:
+            if (!flagmask) { // Check it wasn't masked
                 int tbin = SiHelper::GetTimeBin((*i_chargedDiode).second);
                 // create new SCT RDO
                 InDetDD::SiReadoutCellId roCell =
                     (*i_chargedDiode).second.getReadoutCell();
                 int strip = roCell.strip();
-                const Identifier id_readout = m_detID->strip_id(
-                    collection->identify(), strip);
-
+                const InDetDD::SiDetectorDesign &detDesign =
+                    collection->design();
+                const InDetDD::SCT_ModuleSideDesign &sctDesign =
+                    dynamic_cast<const
+                                 InDetDD::SCT_ModuleSideDesign &> (detDesign);
+                int row2D = sctDesign.row(strip);
+                Identifier id_readout;
+                if (row2D < 0) { // SCT sensors
+                    id_readout = m_detID->strip_id(collection->identify(),
+                                                   strip);
+                }
+                else { // Upgrade sensors
+                    int strip2D = sctDesign.strip(strip);
+                    id_readout = m_detID->strip_id(collection->identify(),
+                                                   row2D, strip2D);
+                }
+                
                 // build word (compatible with
                 // SCT_RawDataByteStreamCnv/src/SCT_RodDecoder.cxx)
                 int size = SiHelper::GetStripNum((*i_chargedDiode).second);
@@ -847,37 +851,41 @@ SCT_RDO_Collection *SCT_DigitizationTool::createRDO(
                 // TC. Need to check if there are disabled strips in the cluster
                 int cluscounter = 0;
                 if (size > 1) {
-                    SiChargedDiodeIterator it2 = i_chargedDiode;
-                    ++it2;
-                    for (; it2 != i_chargedDiode_end; ++it2) {
-                        ++cluscounter;
-                        if (cluscounter >= size) {
-                            break;
-                        }
-                        if (it2->second.flag() & 0xDE) {
-                            int tmp = cluscounter;
-                            while (it2 != i_chargedDiode_end && cluscounter <
-                                   size - 1 && (it2->second.flag() & 0xDE)) {
-                                ++it2;
-                                ++cluscounter;
-                            }
-                            if (it2 != collection->end() &&
-                                !(it2->second.flag() & 0xDE)) {
-                                SiHelper::ClusterUsed(it2->second, false);
-                                SiHelper::SetStripNum(it2->second, size -
-                                                      cluscounter);
-                            }
-                            groupSize = tmp;
-                            break;
-                        }
-                    }
-                }
+		  SiChargedDiode * diode = i_chargedDiode->second.nextInCluster();
+		  while(diode){//check if there is a further strip in the cluster
+		    ++cluscounter;
+		    if (cluscounter >= size) {
+		      ATH_MSG_WARNING("Cluster size reached while neighbouring strips still defined.");
+		      break;
+		    }
+		    if (diode->flag() & 0xDE) {//see if it is disabled/below threshold/disconnected/etc (0xDE corresponds to BT_SET | DISABLED_SET | BADTOT_SET | DISCONNECTED_SET | MASKOFF_SET)
+		      int tmp = cluscounter;
+		      while (cluscounter < size - 1 && (diode->flag() & 0xDE)) { //check its not the end and still disabled
+			diode = diode->nextInCluster();
+			cluscounter++;
+		      }
+		      if (diode &&
+			  !(diode->flag() & 0xDE)) {
+			SiHelper::ClusterUsed(*diode, false);
+			SiHelper::SetStripNum(*diode, size - 
+					      cluscounter);
+		      }
+		      
+		      groupSize = tmp;
+		      break;
+		      
+		    } 
+		    
+		    diode = diode->nextInCluster();                 
+		  }
+		}
+		
                 int stripIn11bits = strip & 0x7ff;
                 if (stripIn11bits != strip) {
                     ATH_MSG_DEBUG("Strip number " << strip <<
                         " doesn't fit into 11 bits - will be truncated");
                 }
-
+                
                 unsigned int SCT_Word = (groupSize | (stripIn11bits << 11) |
                                          (tbin << 22) | (ERRORS << 25));
                 SCT3_RawData *p_rdo = new SCT3_RawData(id_readout, SCT_Word,
@@ -1011,10 +1019,39 @@ void SCT_DigitizationTool::addSDO(SiChargedDiodeCollection *collection) {
 
         // add the simdata object to the map:
         if (real_particle_hit || m_createNoiseSDO) {
-            m_simDataCollMap->insert(
-                std::make_pair(collection->getId((*i_chargedDiode).first),
-                               InDetSimData(deposits,
-                                            (*i_chargedDiode).second.flag())));
+            // m_simDataCollMap->insert(
+                // std::make_pair(collection->getId((*i_chargedDiode).first),
+                               // InDetSimData(deposits,
+                                            // (*i_chargedDiode).second.flag())));
+
+          InDetDD::SiReadoutCellId roCell =
+            (*i_chargedDiode).second.getReadoutCell();
+          
+          int strip = roCell.strip();
+          
+          const InDetDD::SiDetectorDesign &detDesign =
+            collection->design();
+
+          const InDetDD::SCT_ModuleSideDesign &sctDesign =
+            dynamic_cast<const InDetDD::SCT_ModuleSideDesign &> (detDesign);
+
+          int row2D = sctDesign.row(strip);
+          Identifier id_readout;
+          if (row2D < 0) { // SCT sensors
+            id_readout = m_detID->strip_id(collection->identify(),strip);
+          }
+
+          else { // Upgrade sensors
+            int strip2D = sctDesign.strip(strip);
+            id_readout = m_detID->strip_id(collection->identify(),row2D, strip2D);
+          }
+
+          m_simDataCollMap->insert(
+            std::make_pair(id_readout,
+                           InDetSimData(deposits,
+                                        (*i_chargedDiode).second.flag())));
+
+            
         }
     }
 }
