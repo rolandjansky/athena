@@ -16,15 +16,7 @@
 #include "EventInfo/EventType.h"
 #include "eformat/eformat.h"
 #include "eformat/index.h"
-#include <iostream>
-#ifndef HAVE_NEW_IOSTREAMS
-#include <strstream>  /*gnu-specific*/
-typedef strstream __sstream;
-#else
-#include <sstream>
-typedef std::ostringstream __sstream;
-#endif
-#include <iomanip>
+#include <string>
 #include <cassert>
 #include <bitset>
 #include <TH1F.h>
@@ -115,11 +107,7 @@ StatusCode TrigROBMonitor::initialize(){
     return sc;
   } else {
     // Setup the L2 ROB Data Provider Service when configured
-#ifdef ATLAS_GAUDI_V21
     m_trigROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProviderSvc );
-#else
-    m_trigROBDataProviderSvc = SmartIF<ITrigROBDataProviderSvc>( IID_ITrigROBDataProviderSvc, &*m_robDataProviderSvc );
-#endif
     if (m_trigROBDataProviderSvc.isValid()) {
       ATH_MSG_DEBUG( "A ROBDataProviderSvc implementing the Level-2 interface ITrigROBDataProviderSvc was found."
           );
@@ -255,9 +243,7 @@ StatusCode TrigROBMonitor::finalize() {
   // Get the messaging service
   ATH_MSG_INFO( "finalize()" );
 
-#ifdef ATLAS_GAUDI_V21
   m_trigROBDataProviderSvc.reset();
-#endif
     
   return StatusCode::SUCCESS;
 }

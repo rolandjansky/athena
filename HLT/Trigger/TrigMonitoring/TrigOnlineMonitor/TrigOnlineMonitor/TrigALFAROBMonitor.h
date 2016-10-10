@@ -5,9 +5,9 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SmartIF.h"
-#include "GaudiKernel/MsgStream.h"
-#include "ByteStreamData/RawEvent.h"
+#include "GaudiKernel/ITHistSvc.h"
 #include "GaudiKernel/HistoProperty.h"
+#include "ByteStreamData/RawEvent.h"
 #include "eformat/Status.h"
 #include <stdint.h>
 
@@ -16,6 +16,7 @@
 #include "TrigConfInterfaces/ILVL1ConfigSvc.h"
 
 #include "TrigSteeringEvent/Lvl1Result.h"
+#include "TrigSteeringEvent/HLTResult.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -24,7 +25,6 @@ namespace ROIB {
 }
 
 class MuCTPI_RDO;
-class StoreGateSvc;
 class IROBDataProviderSvc;
 class ITrigROBDataProviderSvc;
 
@@ -43,29 +43,18 @@ public:
   StatusCode endRun();
 
 private:
-  /** @brief Pointer to MsgStream.*/
-  MsgStream* m_msg;
-
-  /**
-  * @brief Accessor method for the MsgStream.
-  * @return handle to the MsgStream.
-  */
-  inline MsgStream& logStream() const { return *m_msg; }
 	
   /**
    * @brief Accessor method for the message level variable.
    * @return value of the message level for this algorithm.
    */
-  inline MSG::Level logLevel() const { return  (m_msg != 0) ? m_msg->level() : MSG::NIL; }
 
-  typedef ServiceHandle<StoreGateSvc> StoreGateSvc_t;
   typedef ServiceHandle<TrigConf::ITrigConfigSvc> TrigConfigSvc_t;
   typedef ServiceHandle<TrigConf::ILVL1ConfigSvc> Lvl1ConfigSvc_t;
 
-  /// Reference to StoreGateSvc;
-  StoreGateSvc_t                   m_storeGateSvc;
   TrigConfigSvc_t		   m_configSvc;
   Lvl1ConfigSvc_t		   m_lvl1ConfSvc;
+  ServiceHandle<ITHistSvc>         m_rootHistSvc;
   std::string                      m_keyRBResult;      // Key to retrieve the RoIBResult from SG
   std::string                      m_keyL1Result;      // key to retrieve the L1Result from SG
   
@@ -87,6 +76,8 @@ private:
   BooleanProperty                  m_setDebugStream;
   StringProperty                   m_debugStreamName;
 
+  StringProperty		   m_calibrationStreamName;
+
   /// Switch for ROB checksum test
   BooleanProperty                  m_doROBChecksum;
   TH1F*                            m_hist_failedChecksumForALFAROB;
@@ -99,6 +90,11 @@ private:
   /// Switch for ALFA fast online tracking
   BooleanProperty                  m_doALFATracking;
   TH2F*                            m_hist_ALFA_trig_validated_tracks[12][8]= {{0}}; //12 trigger condition &  8 alfa stations
+  TH2F*                            m_hist_ALFA_trig_validated_tracks_1LB[12][8]= {{0}}; //reset after each LB
+  TH2F*                            m_hist_ALFA_trig_validated_tracks_1LB_current[12][8]= {{0}}; //reset after 60 LB
+  TH2F*                            m_hist_ALFA_trig_validated_tracks_10LB[12][8]= {{0}}; //reset after 10 LBs
+  TH2F*                            m_hist_ALFA_trig_validated_tracks_60LB[12][8]= {{0}}; //reset after 60 LB
+  TH2F*                            m_hist_ALFA_trig_validated_tracks_SB[12][8]= {{0}}; //reset after 60 LB
   BooleanProperty                  m_doPMFMonitoring;
   TH2F*                            m_hist_pmfMonitoring[8]={0};
   BooleanProperty                  m_doDataGoodMonitoring;
@@ -107,7 +103,7 @@ private:
   TH2F*                            m_hist_goodDataLB18;
   BooleanProperty                  m_doODDistance;
   TH1F*                            m_hist_PosDetector[8][2];
-  TH1F*                            m_hist_DistStation[4][2];
+  TH1F*                            m_hist_DistStation[8][2];
 
   bool                             m_FiberHitsODNeg[8][3][30], m_FiberHitsODPos[8][3][30];
 
@@ -118,14 +114,21 @@ private:
   std::map<eformat::GenericStatus, std::string> m_map_GenericStatus;
   std::vector<std::string>                      m_vec_SpecificStatus;
 
+  /// pointers to the CTP and muCTPi result objects
+  ROIB::MuCTPIResult*              m_lvl1muCTPIResult;  // RoIB muCTPi Result
+
+  int m_LB; // luminosity block number
+  int m_previousEventLB; // luminosity block number of the previous events
+  uint32_t m_prescKey; // current hlt prescale key
+
+  BooleanProperty                  m_doTiming;
+  TH1F*                            m_hist_timeALFA;
+  Histo1DProperty                  m_histProp_timeALFA;
+
   /// vectors with CTP and muCTPi ROB Ids
   std::vector<uint32_t> m_ctpRobIds;
   std::vector<uint32_t> m_muCTPiRobIds;
   std::vector<uint32_t> m_ALFARobIds;
-
-  /// pointers to the CTP and muCTPi result objects
-  ROIB::MuCTPIResult*              m_lvl1muCTPIResult;  // RoIB muCTPi Result
-  MuCTPI_RDO*                      m_daqmuCTPIResult;   // DAQ  muCTPi Result  
 
   /// trigger muCTPi RoIs from L1 and DAQ ROB
   std::vector<ROIB::MuCTPIRoI>     m_lvl1muCTPIRoIs;    // RoIs from RoIB muCTPi ROB
@@ -141,17 +144,15 @@ private:
 
   Histo1DProperty                  m_histProp_NumberOfRoIs;
 
-  BooleanProperty                  m_doTiming;
-  TH1F*                            m_hist_timeALFA;
-  Histo1DProperty                  m_histProp_timeALFA;
-
   std::map<std::string, int> m_map_TrgNamesToHistGroups;
   std::map<int, int>         m_map_TrgItemNumbersToHistGroups;
 
   std::map<int, int>  m_triggerHitPatternReady;
   std::map<int, int>  m_triggerHitPattern;
 
-  int m_LB; // luminosity block number
+  std::string m_pathHisto;
+
+  bool m_SBflag;
 
   int m_elast15, m_elast18;     // ctp-items id numbers to select golden alfa trigger for data quality assesment
   int m_nbOfTracksInDetectors[8]; // counters for track candidates - needed in data quality assesment
@@ -183,21 +184,27 @@ int maroc2mapmt[64]={56,32,40,41,24,33,16,25,48,17,57,18,26,43,59,51,35,49,60,58
   std::vector <float> m_pU[8][10];
   std::vector <float> m_pV[8][10];
 
+  float m_y_min[2] = {0.,-35.};
+  float m_y_max[2] = {35.,0.};
+
 bool m_sFiberHitsODPos[8][3][30],  m_sFiberHitsODNeg[8][3][30];
+
+  std::vector<std::string> m_stationNames;
+  std::vector<std::string> m_trigConditions;
 
 
   /// Helper for checksum test
   /// returns true if a ROB checksum failed
-  bool verifyROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
 
-  bool verifyALFAROBChecksum(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  bool verifyALFAROBChecksum(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
 
   /// Helper for status bits test
-  void verifyROBStatusBits(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  void verifyROBStatusBits(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
 
   /// Helper for decoding the ALFA ROB 
-  void decodeALFA(MsgStream& log, OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
-  void decodeRealPMT (MsgStream& log, uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf);
+  void decodeALFA(OFFLINE_FRAGMENTS_NAMESPACE::ROBFragment robFrag);
+  void decodeRealPMT (uint32_t dataWord, uint32_t quarter, uint32_t mbNb, uint32_t pmf);
   uint32_t  decodePMT0 (uint32_t dataWord);
 
   /// find tacks in ALFA detectors
@@ -209,6 +216,13 @@ bool m_sFiberHitsODPos[8][3][30],  m_sFiberHitsODNeg[8][3][30];
   // get lvl1 results to seed track histograms depending on the trigger items
   bool getLvl1Result(LVL1CTP::Lvl1Result &resultL1);
 
+  bool getHLTResult(HLT::HLTResult &resultHLT);
+
   /// Helper to print contents of a muCTPi RoIB data word 
-  void dumpRoIBDataWord(MsgStream& log, uint32_t data_word );
+  void dumpRoIBDataWord(uint32_t data_word );
+
+  // routines to reset selected set of histograms
+  void reset1LBhistos(int lbNumber);
+  void reset10LBhistos(int lbNumber);
+  void reset60LBhistos(int lbNumber);
 };

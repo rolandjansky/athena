@@ -5,7 +5,6 @@
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/SmartIF.h"
-#include "GaudiKernel/MsgStream.h"
 #include "ByteStreamData/RawEvent.h"
 #include "GaudiKernel/HistoProperty.h"
 #include "eformat/Status.h"
@@ -19,7 +18,6 @@ namespace ROIB {
   class MuCTPIResult;
 }
 class MuCTPI_RDO;
-class StoreGateSvc;
 class IROBDataProviderSvc;
 class ITrigROBDataProviderSvc;
 class TH1F;       /// for monitoring purposes
