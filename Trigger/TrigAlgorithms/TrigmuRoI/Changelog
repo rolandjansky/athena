@@ -1,3 +1,11 @@
+2016-10-03 Enrique Kajomovitz <enrique.kajomovitz@cern.ch>
+	* Missing arguments in descriptor constructor
+	* Tag as TrigmuRoI-00-00-07
+
+2015-08-04 Kunihiro Nagano <nagano@mail.cern.ch>
+	* Tag as TrigmuRoI-00-00-06
+	* Update cmt/requriement to avoid warning
+
 2011-07-30 Kunihiro Nagano <nagano@mail.cern.ch>
 	* Tag as TrigmuRoI-00-00-04
 	* Remove CERNLIB dependency from requirements
