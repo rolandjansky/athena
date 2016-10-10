@@ -3,8 +3,8 @@ package TrigmuRoI
 author Alessandro Di Mattia <dimattia@cern.ch>
 
 
-use AtlasPolicy         AtlasPolicy-01-*
-use GaudiInterface      GaudiInterface-01-*      External
+use AtlasPolicy         AtlasPolicy-*
+use GaudiInterface      GaudiInterface-*         External
 
 use TrigT1Interfaces    TrigT1Interfaces-*       Trigger/TrigT1
 use TrigInterfaces      TrigInterfaces-*         Trigger/TrigSteer
@@ -14,7 +14,7 @@ use TrigMuonRoITools	TrigMuonRoITools-*	 Trigger/TrigTools
 
 
 private
-use TrigT1Result        TrigT1Result-00-*        Trigger/TrigT1
+use TrigT1Result        TrigT1Result-*           Trigger/TrigT1
 use TrigNavigation      TrigNavigation-*         Trigger/TrigEvent
 end_private
 
