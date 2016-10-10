@@ -144,7 +144,7 @@ if tileESDMon:
         
         ManagedAthenaTileMon.AthenaMonTools += [ ToolSvc.TileJetMonTool ]
 
-    if not 'doTileTMDBRawChannelMon' in dir() or doTileTMDBRawChannelMon:
+    if (not 'doTileTMDBRawChannelMon' in dir() or doTileTMDBRawChannelMon)  and (DQMonFlags.useTrigger() and rec.doTrigger()):
         from TileConditions.TileCondToolConf import getTileCondToolTMDB
         tileCondToolTMDB = getTileCondToolTMDB('COOL')
         if tileCondToolTMDB:
