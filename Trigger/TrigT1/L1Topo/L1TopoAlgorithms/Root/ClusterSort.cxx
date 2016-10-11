@@ -26,6 +26,8 @@ TCS::ClusterSort::ClusterSort(const std::string & name) : SortingAlg(name) {
    defineParameter( "IsoMask", 0);
    defineParameter( "MinEta", 0);
    defineParameter( "MaxEta", 63);
+   defineParameter( "DoIsoCut", 1);
+   defineParameter( "DoEtaCut", 1);
 }
 
 
@@ -39,6 +41,8 @@ TCS::ClusterSort::initialize() {
    m_iso = parameter("IsoMask").value();
    m_minEta = parameter("MinEta").value();
    m_maxEta = parameter("MaxEta").value();
+   m_doIsoCut = parameter( "DoIsoCut").value();
+   m_doEtaCut = parameter( "DoEtaCut").value();
    return TCS::StatusCode::SUCCESS;
 }
 
@@ -52,12 +56,12 @@ TCS::ClusterSort::sort(const InputTOBArray & input, TOBArray & output) {
    for(ClusterTOBArray::const_iterator cl = clusters.begin(); cl!= clusters.end(); ++cl ) {
       const GenericTOB gtob(**cl);
 
-      if (parType_t(std::abs((*cl)-> eta())) < m_minEta) continue; 
-      if (parType_t(std::abs((*cl)-> eta())) > m_maxEta) continue;
+      if (m_doEtaCut && (parType_t(std::abs((*cl)-> eta())) < m_minEta)) continue; 
+      if (m_doEtaCut && (parType_t(std::abs((*cl)-> eta())) > m_maxEta)) continue;
       // isolation cut
       if (m_iso != 0 ) {
-	unsigned int isobit(0x1 << (m_iso-1));
-        if((parType_t((*cl)->isolation()) & isobit) != isobit ) continue;
+          unsigned int isobit(0x1 << (m_iso-1));
+          if(m_doIsoCut && ((parType_t((*cl)->isolation()) & isobit) != isobit)) continue;
       }
       
       output.push_back( gtob );
