@@ -16,11 +16,11 @@ try:
         simdict = digitizationFlags.specialConfiguration.get_Value()
         doG4SimConfig = False
     else:
-        from G4AtlasApps import AtlasG4Eng
-        simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+        from G4AtlasApps.SimFlags import simFlags
+        simdict = simFlags.specialConfiguration.get_Value()
 except:
-    from G4AtlasApps import AtlasG4Eng
-    simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+    from G4AtlasApps.SimFlags import simFlags
+    simdict = simFlags.specialConfiguration.get_Value()
 
 quirk_mass = float(simdict["MASS"])
 quirk_charge = float(simdict["CHARGE"])
@@ -48,9 +48,5 @@ if doG4SimConfig:
         f.write("0\n")
     f.close()
 
-    def load_quirks_lib():
-        from G4AtlasApps import AtlasG4Eng
-        AtlasG4Eng.G4Eng.load_Lib("Quirks")
-    simFlags.InitFunctions.add_function("preInitPhysics", load_quirks_lib)
-
+    simFlags.PhysicsOptions += ["QuirksPhysicsTool"]
 del quirk_firststring, quirk_maxboost, quirk_maxmerge, quirk_debugenabled, quirk_debugdist, quirk_debugsteps, doG4SimConfig, simdict, f, quirk_mass, quirk_charge, quirk_pdgid, quirk_stringforce

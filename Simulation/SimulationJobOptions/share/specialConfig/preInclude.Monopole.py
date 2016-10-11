@@ -46,12 +46,12 @@ try:
         simdict = digitizationFlags.specialConfiguration.get_Value()
         doG4SimConfig = False
     else:
-        from G4AtlasApps import AtlasG4Eng
-        simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+        from G4AtlasApps.SimFlags import simFlags
+        simdict = simFlags.specialConfiguration.get_Value()
 except:
-    from G4AtlasApps import AtlasG4Eng
-    simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
-    
+    from G4AtlasApps.SimFlags import simFlags
+    simdict = simFlags.specialConfiguration.get_Value()
+
 assert "MASS" in simdict
 assert "GCHARGE" in simdict
 load_files_for_monopole_scenario(simdict["MASS"], simdict["GCHARGE"])
@@ -61,31 +61,29 @@ if doG4SimConfig:
     AtlasG4Eng.G4Eng.log.info("Unlocking simFlags.EquationOfMotion to reset the value for Monopole simulation.")
     from G4AtlasApps.SimFlags import simFlags
     # FIXME ideally would include this file early enough, so that the unlocking is not required
-    simFlags.EquationOfMotion.unlock() 
+    simFlags.EquationOfMotion.unlock()
     simFlags.EquationOfMotion.set_On()
     simFlags.EquationOfMotion.set_Value_and_Lock("MonopoleEquationOfMotion")
+    simFlags.G4Stepper.set_Value_and_Lock('ClassicalRK4')
+    simFlags.PhysicsOptions += ["MonopolePhysicsTool"]
 
-    def monopole_setupg4():
-        from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-        AtlasG4Eng.G4Eng.load_Lib("Monopole")
-
-    simFlags.InitFunctions.add_function("preInitPhysics", monopole_setupg4)
-
-    def setup_stepper_classicalrk4():
-        from G4AtlasApps import AtlasG4Eng
-        AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('ClassicalRK4')
-        AtlasG4Eng.G4Eng._ctrl.fldMenu.UseStepper('IDET::IDET', 'ClassicalRK4')
-
-    simFlags.InitFunctions.add_function("postInit", setup_stepper_classicalrk4)
-
-    # configure the looper killer
-    from G4AtlasServices.G4AtlasUserActionConfig import UAStore
-    from AthenaCommon.CfgGetter import getPublicToolClone
-    # use specific configuration
-    lkAction = getPublicToolClone("LooperKillerMonopole", "LooperKiller", PrintSteps=2, MaxSteps=2000000, VerboseLevel=0)
-    UAStore.addAction(lkAction,['Step'])
-    # add HIP killer
-    UAStore.addAction('HIPKiller',['Step'])
+    try:
+        # MT-compatible UserActions
+        from G4AtlasServices.G4AtlasServicesConfig import addAction
+        addAction("LooperKillerTool",['Step'],False)
+        addAction("HIPKillerTool",['Step'],False)
+    except:
+        # this configures the non-MT UserActions
+        try:
+            from G4AtlasServices.G4AtlasUserActionConfig import UAStore
+        except ImportError:
+            from G4AtlasServices.UserActionStore import UAStore
+            from AthenaCommon.CfgGetter import getPublicToolClone
+        # use specific configuration
+        lkAction = getPublicToolClone("MonopoleLooperKiller", "LooperKiller", PrintSteps=2, MaxSteps=2000000, VerboseLevel=0)
+        UAStore.addAction(lkAction,['Step'])
+        # add HIP killer
+        UAStore.addAction('HIPKiller',['Step'])
 
 
 

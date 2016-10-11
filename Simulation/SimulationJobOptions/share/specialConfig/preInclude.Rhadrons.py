@@ -1,5 +1,5 @@
 #########################################################################
-#	preInclude.Rhadrons.py - Chiara Debenedetti, 3 Jun 2011	#
+#      preInclude.Rhadrons.py - Chiara Debenedetti, 3 Jun 2011 #
 #                              - Andy Haas, 4 Apr 2012
 #########################################################################
 
@@ -86,47 +86,47 @@ def create_rhadron_particles_file(CASE, MASS, MODEL, MASSX):
     "stop" : {
       "generic" :[
         '     1000006  %3.3f   # ~t_1'       % ( MASS + 100.000 ),
-      	'     1000612  %3.3f   # ~T+  '      % ( MASS + 100.325 ),
-      	'     1000622  %3.3f   # ~T0  '      % ( MASS + 100.325 ),
-      	'     1000632  %3.3f   # ~T_s+'      % ( MASS + 100.500 ),
-      	'     1000642  %3.3f   # ~T_c0'      % ( MASS + 101.500 ),
-      	'     1000652  %3.3f   # ~T_b+'      % ( MASS + 104.800 ),
-      	'     1006113  %3.3f   # ~T_dd10'    % ( MASS + 100.650 ),
-      	'     1006211  %3.3f   # ~T_ud0+'    % ( MASS + 100.650 ),
-      	'     1006213  %3.3f   # ~T_ud1+'    % ( MASS + 100.650 ),
-      	'     1006223  %3.3f   # ~T_uu1++ '  % ( MASS + 100.650 ),
-      	'     1006311  %3.3f   # ~T_sd00  '  % ( MASS + 100.825 ),
-      	'     1006313  %3.3f   # ~T_sd10  '  % ( MASS + 100.825 ),
-      	'     1006321  %3.3f   # ~T_su0+  '  % ( MASS + 100.825 ),
-      	'     1006323  %3.3f   # ~T_su1+  '  % ( MASS + 100.825 ),
-      	'     1006333  %3.3f   # ~T_ss10  '  % ( MASS + 101.000 ),
+        '     1000612  %3.3f   # ~T+  '      % ( MASS + 100.325 ),
+        '     1000622  %3.3f   # ~T0  '      % ( MASS + 100.325 ),
+        '     1000632  %3.3f   # ~T_s+'      % ( MASS + 100.500 ),
+        '     1000642  %3.3f   # ~T_c0'      % ( MASS + 101.500 ),
+        '     1000652  %3.3f   # ~T_b+'      % ( MASS + 104.800 ),
+        '     1006113  %3.3f   # ~T_dd10'    % ( MASS + 100.650 ),
+        '     1006211  %3.3f   # ~T_ud0+'    % ( MASS + 100.650 ),
+        '     1006213  %3.3f   # ~T_ud1+'    % ( MASS + 100.650 ),
+        '     1006223  %3.3f   # ~T_uu1++ '  % ( MASS + 100.650 ),
+        '     1006311  %3.3f   # ~T_sd00  '  % ( MASS + 100.825 ),
+        '     1006313  %3.3f   # ~T_sd10  '  % ( MASS + 100.825 ),
+        '     1006321  %3.3f   # ~T_su0+  '  % ( MASS + 100.825 ),
+        '     1006323  %3.3f   # ~T_su1+  '  % ( MASS + 100.825 ),
+        '     1006333  %3.3f   # ~T_ss10  '  % ( MASS + 101.000 ),
         '    -1000006  %3.3f   # ~t_1bar'    % ( MASS + 100.000 ),
-      	'    -1000612  %3.3f   # ~Tbar-  '   % ( MASS + 100.325 ),
-      	'    -1000622  %3.3f   # ~Tbar0  '   % ( MASS + 100.325 ),
-      	'    -1000632  %3.3f   # ~Tbar_s-'   % ( MASS + 100.500 ),
-      	'    -1000642  %3.3f   # ~Tbar_c0'   % ( MASS + 101.500 ),
-      	'    -1000652  %3.3f   # ~Tbar_b-'   % ( MASS + 104.800 ),
-      	'    -1006113  %3.3f   # ~Tbar_dd10' % ( MASS + 100.650 ),
-      	'    -1006211  %3.3f   # ~Tbar_ud0-' % ( MASS + 100.650 ),
-      	'    -1006213  %3.3f   # ~Tbar_ud1-' % ( MASS + 100.650 ),
-      	'    -1006223  %3.3f   # ~Tbar_uu1--'% ( MASS + 100.650 ),
-      	'    -1006311  %3.3f   # ~Tbar_sd00 '% ( MASS + 100.825 ),
-      	'    -1006313  %3.3f   # ~Tbar_sd10 '% ( MASS + 100.825 ),
-      	'    -1006321  %3.3f   # ~Tbar_su0- '% ( MASS + 100.825 ),
-      	'    -1006323  %3.3f   # ~Tbar_su1- '% ( MASS + 100.825 ),
-      	'    -1006333  %3.3f   # ~Tbar_ss10 '% ( MASS + 101.000 ),
+        '    -1000612  %3.3f   # ~Tbar-  '   % ( MASS + 100.325 ),
+        '    -1000622  %3.3f   # ~Tbar0  '   % ( MASS + 100.325 ),
+        '    -1000632  %3.3f   # ~Tbar_s-'   % ( MASS + 100.500 ),
+        '    -1000642  %3.3f   # ~Tbar_c0'   % ( MASS + 101.500 ),
+        '    -1000652  %3.3f   # ~Tbar_b-'   % ( MASS + 104.800 ),
+        '    -1006113  %3.3f   # ~Tbar_dd10' % ( MASS + 100.650 ),
+        '    -1006211  %3.3f   # ~Tbar_ud0-' % ( MASS + 100.650 ),
+        '    -1006213  %3.3f   # ~Tbar_ud1-' % ( MASS + 100.650 ),
+        '    -1006223  %3.3f   # ~Tbar_uu1--'% ( MASS + 100.650 ),
+        '    -1006311  %3.3f   # ~Tbar_sd00 '% ( MASS + 100.825 ),
+        '    -1006313  %3.3f   # ~Tbar_sd10 '% ( MASS + 100.825 ),
+        '    -1006321  %3.3f   # ~Tbar_su0- '% ( MASS + 100.825 ),
+        '    -1006323  %3.3f   # ~Tbar_su1- '% ( MASS + 100.825 ),
+        '    -1006333  %3.3f   # ~Tbar_ss10 '% ( MASS + 101.000 ),
         '     1000039  %3.3f   # ~Gravitino' % ( MASSX ),
         '     1000022  %3.3f   # ~chi_10'    % ( MASSX )
       ],
       "regge" : [
         '     1000006  %3.3f   # ~t_1'       % ( MASS +  100.000 ),
-      	'     1000612  %3.3f   # ~T+  '      % ( MASS +  100.325 ),
-      	'     1000622  %3.3f   # ~T0  '      % ( MASS +  100.325 ),
-      	'     1006211  %3.3f   # ~T_ud0+'    % ( MASS +  100.650 ),
+        '     1000612  %3.3f   # ~T+  '      % ( MASS +  100.325 ),
+        '     1000622  %3.3f   # ~T0  '      % ( MASS +  100.325 ),
+        '     1006211  %3.3f   # ~T_ud0+'    % ( MASS +  100.650 ),
         '    -1000006  %3.3f   # ~t_1bar'    % ( MASS +  100.000 ),
-      	'    -1000612  %3.3f   # ~Tbar-  '   % ( MASS +  100.325 ),
-      	'    -1000622  %3.3f   # ~Tbar0  '   % ( MASS +  100.325 ),
-      	'    -1006211  %3.3f   # ~Tbar_ud0-' % ( MASS +  100.650 ),
+        '    -1000612  %3.3f   # ~Tbar-  '   % ( MASS +  100.325 ),
+        '    -1000622  %3.3f   # ~Tbar0  '   % ( MASS +  100.325 ),
+        '    -1006211  %3.3f   # ~Tbar_ud0-' % ( MASS +  100.650 ),
         '     1000039  %3.3f   # ~Gravitino' % ( MASSX ),
         '     1000022  %3.3f   # ~chi_10'    % ( MASSX )
       ],
@@ -136,13 +136,13 @@ def create_rhadron_particles_file(CASE, MASS, MODEL, MASSX):
       "generic" : [],
       "regge" : [
         '     1000005  %3.3f   # ~b'         % ( MASS + 100.000 ),
-      	'     1000512  %3.3f   # ~B0  '      % ( MASS + 100.325 ),
-      	'     1000522  %3.3f   # ~B-  '      % ( MASS + 100.325 ),
-      	'     1005211  %3.3f   # ~B_ud0'     % ( MASS + 100.650 ),
+        '     1000512  %3.3f   # ~B0  '      % ( MASS + 100.325 ),
+        '     1000522  %3.3f   # ~B-  '      % ( MASS + 100.325 ),
+        '     1005211  %3.3f   # ~B_ud0'     % ( MASS + 100.650 ),
         '    -1000005  %3.3f   # ~bbar'      % ( MASS + 100.000 ),
-      	'    -1000512  %3.3f   # ~Bbar0  '   % ( MASS + 100.325 ),
-      	'    -1000522  %3.3f   # ~Bbar+  '   % ( MASS + 100.325 ),
-      	'    -1005211  %3.3f   # ~Bbar_ud0'  % ( MASS + 100.650 ),
+        '    -1000512  %3.3f   # ~Bbar0  '   % ( MASS + 100.325 ),
+        '    -1000522  %3.3f   # ~Bbar+  '   % ( MASS + 100.325 ),
+        '    -1005211  %3.3f   # ~Bbar_ud0'  % ( MASS + 100.650 ),
         '     1000039  %3.3f   # ~Gravitino' % ( MASSX ),
         '     1000022  %3.3f   # ~chi_10'    % ( MASSX )
         ],
@@ -356,11 +356,11 @@ try:
     simdict = digitizationFlags.specialConfiguration.get_Value()
     doG4SimConfig = False
   else:
-    from G4AtlasApps import AtlasG4Eng
-    simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+    from G4AtlasApps.SimFlags import simFlags
+    simdict = simFlags.specialConfiguration.get_Value()
 except:
-  from G4AtlasApps import AtlasG4Eng
-  simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+  from G4AtlasApps.SimFlags import simFlags
+  simdict = simFlags.specialConfiguration.get_Value()
 
 ## Compulsory keys
 assert "MASS" in simdict
@@ -379,10 +379,7 @@ if simdict.has_key("Mixing"):
 
 if doG4SimConfig:
   from G4AtlasApps.SimFlags import simFlags
-  def rhadrons_setupg4():
-    from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-    AtlasG4Eng.G4Eng.load_Lib("RHadrons")
-  simFlags.InitFunctions.add_function("preInitPhysics", rhadrons_setupg4)
+  simFlags.PhysicsOptions += ["RHadronsPhysicsTool"]
 
 # In case we want to use Pythia for decays in line...
 if simdict.has_key("DECAYS"):
