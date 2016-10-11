@@ -276,7 +276,6 @@ LArHVCorrectionMonTool::fillHistograms()
 {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillHists()" << endmsg;
   
-  static CaloPhiRange m_phiHelper;
   m_eventsCounter++;
   
   if(m_eventsCounter == 1){ // Fill only at the beginning of LB. m_eventsCounter is reset at the begining of each LB.
@@ -293,7 +292,7 @@ LArHVCorrectionMonTool::fillHistograms()
     int lumi_block = thisEventInfo->lumiBlock();
     
     // Counter for deviating channels in each partition
-    float m_nonNominal[] = {0.,0.,0.,0.,0.,0.,0.,0.};
+    float nonNominal[] = {0.,0.,0.,0.,0.,0.,0.,0.};
     
     // Retrieve Raw Channels Container
     const LArRawChannelContainer* pRawChannelsContainer;
@@ -319,17 +318,17 @@ LArHVCorrectionMonTool::fillHistograms()
       
       // Get Physical Coordinates
       float etaChan = 0; float phiChan = 0.;
-      const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
-      if(m_CaloDetElement == 0 ){
+      const CaloDetDescrElement* caloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
+      if(caloDetElement == 0 ){
 	msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	continue; 
       }else{
-	etaChan = m_CaloDetElement->eta_raw();
-	phiChan = m_CaloDetElement->phi_raw();
+	etaChan = caloDetElement->eta_raw();
+	phiChan = caloDetElement->phi_raw();
       }
       
       // Fix phi range in HEC
-      if (m_LArOnlineIDHelper->isHECchannel(id)) phiChan = m_phiHelper.fix(phiChan);
+      if (m_LArOnlineIDHelper->isHECchannel(id)) phiChan = CaloPhiRange::fix(phiChan);
       
       // Retrieve HV correction info
       float hvdev = 0;
@@ -347,39 +346,39 @@ LArHVCorrectionMonTool::fillHistograms()
 	// A-Side
 	if(etaChan >= 0){
 	  if(m_LArOnlineIDHelper->isEMBchannel(id)){
-	    m_nonNominal[0]++;
+	    nonNominal[0]++;
 	    m_hLArHVCorrectionEMB[0]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isEMECchannel(id)){
-	    m_nonNominal[1]++;
+	    nonNominal[1]++;
 	    m_hLArHVCorrectionEMEC[0]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isHECchannel(id)){
-	    m_nonNominal[2]++;
+	    nonNominal[2]++;
 	    m_hLArHVCorrectionHEC[0]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isFCALchannel(id)){
-	    m_nonNominal[3]++;
+	    nonNominal[3]++;
 	    m_hLArHVCorrectionFCAL[0]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  
 	  // C-side
 	} else {
 	  if(m_LArOnlineIDHelper->isEMBchannel(id)){
-	    m_nonNominal[4]++;
+	    nonNominal[4]++;
 	    m_hLArHVCorrectionEMB[1]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isEMECchannel(id)){
-	    m_nonNominal[5]++;
+	    nonNominal[5]++;
 	    m_hLArHVCorrectionEMEC[1]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isHECchannel(id)){
 	    //std::cout << "HECC, hvdev=" << hvdev << ", onlCorr=" << hvonline << ", oflCorr=" << hvcorr << std::endl;
-	    m_nonNominal[6]++;
+	    nonNominal[6]++;
 	    m_hLArHVCorrectionHEC[1]->Fill(etaChan,phiChan, hvdev);
 	  }
 	  if(m_LArOnlineIDHelper->isFCALchannel(id)){
-	    m_nonNominal[7]++;
+	    nonNominal[7]++;
 	    m_hLArHVCorrectionFCAL[1]->Fill(etaChan,phiChan, hvdev);
 	  }
 	}
@@ -387,15 +386,15 @@ LArHVCorrectionMonTool::fillHistograms()
     }// end Raw Channels Loop
     
     // Fill number of problematic cell per LUMI_BLOCK
-    m_hNDeviatingChannelsEMB[0]->Fill(lumi_block,m_nonNominal[0]);
-    m_hNDeviatingChannelsEMEC[0]->Fill(lumi_block,m_nonNominal[1]);
-    m_hNDeviatingChannelsHEC[0]->Fill(lumi_block,m_nonNominal[2]);
-    m_hNDeviatingChannelsFCAL[0]->Fill(lumi_block,m_nonNominal[3]);
+    m_hNDeviatingChannelsEMB[0]->Fill(lumi_block,nonNominal[0]);
+    m_hNDeviatingChannelsEMEC[0]->Fill(lumi_block,nonNominal[1]);
+    m_hNDeviatingChannelsHEC[0]->Fill(lumi_block,nonNominal[2]);
+    m_hNDeviatingChannelsFCAL[0]->Fill(lumi_block,nonNominal[3]);
     
-    m_hNDeviatingChannelsEMB[1]->Fill(lumi_block,m_nonNominal[4]);
-    m_hNDeviatingChannelsEMEC[1]->Fill(lumi_block,m_nonNominal[5]);
-    m_hNDeviatingChannelsHEC[1]->Fill(lumi_block,m_nonNominal[6]);
-    m_hNDeviatingChannelsFCAL[1]->Fill(lumi_block,m_nonNominal[7]);
+    m_hNDeviatingChannelsEMB[1]->Fill(lumi_block,nonNominal[4]);
+    m_hNDeviatingChannelsEMEC[1]->Fill(lumi_block,nonNominal[5]);
+    m_hNDeviatingChannelsHEC[1]->Fill(lumi_block,nonNominal[6]);
+    m_hNDeviatingChannelsFCAL[1]->Fill(lumi_block,nonNominal[7]);
     
   } else {
     

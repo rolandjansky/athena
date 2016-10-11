@@ -603,7 +603,6 @@ LArCoverage::fillHistograms()
 {
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in fillHists()" << endmsg;
 
-  static CaloPhiRange m_phiHelper;
   m_eventsCounter++;
 
   if(m_eventsCounter > m_nevents ) return StatusCode::SUCCESS;
@@ -638,20 +637,20 @@ LArCoverage::fillHistograms()
     
     // Get Physical Coordinates
     float etaChan = 0; float phiChan = 0.;
-    const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
-    if(m_CaloDetElement == 0 ){
+    const CaloDetDescrElement* caloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
+    if(caloDetElement == 0 ){
       msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
       continue; 
     }else{
-      etaChan = m_CaloDetElement->eta_raw();
-      phiChan = m_CaloDetElement->phi_raw();
+      etaChan = caloDetElement->eta_raw();
+      phiChan = caloDetElement->phi_raw();
     }
     
     // Fix phi range in HEC
-    if (m_LArOnlineIDHelper->isHECchannel(id)) phiChan = m_phiHelper.fix(phiChan);
+    if (m_LArOnlineIDHelper->isHECchannel(id)) phiChan = CaloPhiRange::fix(phiChan);
     
     // Retrieve expected noise
-    float noise = m_caloNoiseTool->getNoise(m_CaloDetElement,ICalorimeterNoiseTool::ELECTRONICNOISE);
+    float noise = m_caloNoiseTool->getNoise(caloDetElement,ICalorimeterNoiseTool::ELECTRONICNOISE);
     
     if(m_eventsCounter == 1){
       
@@ -872,7 +871,7 @@ void LArCoverage::SetBadChannelZaxisLabels(TH2I_LW* h){
       h->SetMaximum(10.);
 }
 /*---------------------------------------------------------*/
-void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescrMgr){
+void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* caloDetDescrMgr){
 
   // Loop over all FEBs
   for (std::vector<HWIdentifier>::const_iterator allFeb = m_LArOnlineIDHelper->feb_begin(); 
@@ -910,13 +909,13 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
 	  Identifier offid = m_larCablingService->cnvToIdentifier(chid);
 	  int sampling = m_LArEM_IDHelper->sampling(offid);
           float eta, phi;
-	  const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
-	  if(m_CaloDetElement == 0 ){
+	  const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
+	  if(caloDetElement == 0 ){
 	    msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	    continue; 
 	  }else{
-	    eta = m_CaloDetElement->eta_raw();
-	    phi = m_CaloDetElement->phi_raw();
+	    eta = caloDetElement->eta_raw();
+	    phi = caloDetElement->phi_raw();
 	  }
           int ix = m_hCoverageEMBA[sampling]->GetXaxis()->FindBin(eta); 
           int iy = m_hCoverageEMBA[sampling]->GetYaxis()->FindBin(phi);
@@ -942,13 +941,13 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
 	  Identifier offid = m_larCablingService->cnvToIdentifier(chid);
 	  int sampling = m_LArEM_IDHelper->sampling(offid);
           float eta, phi;
-	  const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
-	  if(m_CaloDetElement == 0 ){
+	  const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
+	  if(caloDetElement == 0 ){
 	    msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	    continue; 
 	  }else{
-	    eta = m_CaloDetElement->eta_raw();
-	    phi = m_CaloDetElement->phi_raw();
+	    eta = caloDetElement->eta_raw();
+	    phi = caloDetElement->phi_raw();
 	  }
           int ix = m_hCoverageEMBC[sampling]->GetXaxis()->FindBin(eta); 
           int iy = m_hCoverageEMBC[sampling]->GetYaxis()->FindBin(phi);
@@ -979,13 +978,13 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
 	    Identifier offid = m_larCablingService->cnvToIdentifier(chid);
 	    int sampling = m_LArEM_IDHelper->sampling(offid);
 	    float eta, phi;
-	    const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
-	    if(m_CaloDetElement == 0 ){
+	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
+	    if(caloDetElement == 0 ){
 	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	      continue; 
 	    }else{
-	      eta = m_CaloDetElement->eta_raw();
-	      phi = m_CaloDetElement->phi_raw();
+	      eta = caloDetElement->eta_raw();
+	      phi = caloDetElement->phi_raw();
 	    }
 	    int ix = m_hCoverageEMECA[sampling]->GetXaxis()->FindBin(eta); 
 	    int iy = m_hCoverageEMECA[sampling]->GetYaxis()->FindBin(phi);
@@ -1011,13 +1010,13 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
 	    Identifier offid = m_larCablingService->cnvToIdentifier(chid);
 	    int sampling = m_LArHEC_IDHelper->sampling(offid);
 	    float eta, phi;
-	    const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
-	    if(m_CaloDetElement == 0 ){
+	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
+	    if(caloDetElement == 0 ){
 	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	      continue; 
 	    }else{
-	      eta = m_CaloDetElement->eta_raw();
-	      phi = m_CaloDetElement->phi_raw();
+	      eta = caloDetElement->eta_raw();
+	      phi = caloDetElement->phi_raw();
 	    }
 	    int ix = m_hCoverageHECA[sampling]->GetXaxis()->FindBin(eta); 
 	    int iy = m_hCoverageHECA[sampling]->GetYaxis()->FindBin(phi);
@@ -1077,13 +1076,13 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
 	    Identifier offid = m_larCablingService->cnvToIdentifier(chid);
 	    int sampling = m_LArEM_IDHelper->sampling(offid);
 	    float eta, phi;
-	    const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
-	    if(m_CaloDetElement == 0 ){
+	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
+	    if(caloDetElement == 0 ){
 	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	      continue; 
 	    }else{
-	      eta = m_CaloDetElement->eta_raw();
-	      phi = m_CaloDetElement->phi_raw();
+	      eta = caloDetElement->eta_raw();
+	      phi = caloDetElement->phi_raw();
 	    }
 	    int ix = m_hCoverageEMECC[sampling]->GetXaxis()->FindBin(eta); 
 	    int iy = m_hCoverageEMECC[sampling]->GetYaxis()->FindBin(phi);
@@ -1109,13 +1108,13 @@ void LArCoverage::FillKnownMissingFEBs(const CaloDetDescrManager* m_CaloDetDescr
 	    Identifier offid = m_larCablingService->cnvToIdentifier(chid);
 	    int sampling = m_LArHEC_IDHelper->sampling(offid);
 	    float eta, phi;
-	    const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offid);
-	    if(m_CaloDetElement == 0 ){
+	    const CaloDetDescrElement* caloDetElement = caloDetDescrMgr->get_element(offid);
+	    if(caloDetElement == 0 ){
 	      msg(MSG::ERROR) << "Cannot retrieve (eta,phi) coordinates for raw channels" << endmsg;
 	      continue; 
 	    }else{
-	      eta = m_CaloDetElement->eta_raw();
-	      phi = m_CaloDetElement->phi_raw();
+	      eta = caloDetElement->eta_raw();
+	      phi = caloDetElement->phi_raw();
 	    }
 	    int ix = m_hCoverageHECC[sampling]->GetXaxis()->FindBin(eta); 
 	    int iy = m_hCoverageHECC[sampling]->GetYaxis()->FindBin(phi);

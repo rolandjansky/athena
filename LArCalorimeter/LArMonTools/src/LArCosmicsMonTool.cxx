@@ -254,8 +254,6 @@ LArCosmicsMonTool::fillHistograms() {
   // Increment event counter
   m_eventsCounter++;
   
-  // to fix HEC phi range
-  static CaloPhiRange m_phiHelper;
   
   
   
@@ -302,7 +300,7 @@ LArCosmicsMonTool::fillHistograms() {
     } 
     
     // Fix phi range in HEC
-    if (m_LArOnlineIDHelper->isHECchannel(id)) phi = m_phiHelper.fix(phi);
+    if (m_LArOnlineIDHelper->isHECchannel(id)) phi = CaloPhiRange::fix(phi);
     
     // Retrieve pedestals 
     CaloGain::CaloGain gain = pLArDigit->gain();
@@ -449,13 +447,13 @@ StatusCode LArCosmicsMonTool::initMonInfo()
 StatusCode LArCosmicsMonTool::returnEtaPhiCoord(Identifier offlineID,float& eta,float& phi)
 {
   // Get Calo detector description element to retrieve true eta/phi
-  const CaloDetDescrElement* m_CaloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
+  const CaloDetDescrElement* caloDetElement = m_CaloDetDescrMgr->get_element(offlineID);
   
-  if(m_CaloDetElement == 0 ){
+  if(caloDetElement == 0 ){
     return StatusCode::FAILURE;
   }else{
-    eta = m_CaloDetElement->eta_raw();
-    phi = m_CaloDetElement->phi_raw();
+    eta = caloDetElement->eta_raw();
+    phi = caloDetElement->phi_raw();
     return StatusCode::SUCCESS;
   }
 }

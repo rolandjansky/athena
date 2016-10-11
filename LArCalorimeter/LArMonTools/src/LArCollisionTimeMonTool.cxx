@@ -49,7 +49,7 @@ LArCollisionTimeMonTool::LArCollisionTimeMonTool(const std::string& type,
     m_timeCut(5.0),
     m_minCells(2),
     m_eWeighted(true),
-    newrun(true),
+    m_newrun(true),
     //m_bunchGroupTool("BunchGroupTool"),
     m_bunchGroupTool("BunchCrossingTool"),
     m_bcid_init(false)
@@ -115,7 +115,7 @@ LArCollisionTimeMonTool::bookHistograms() {
   MonGroup generalGroupShift( this, "/LAr/"+m_histPath+"/", run, ATTRIB_MANAGED);
   MonGroup generalGroupLB( this, "/LAr/"+m_histPath+"/", run, ATTRIB_X_VS_LB, "", "merge");
   //if(isNewRun ){ // Commented by B.Trocme to comply with new ManagedMonitorToolBase
-    newrun=true;
+    m_newrun=true;
     //
     // Create top folder for histos
     //

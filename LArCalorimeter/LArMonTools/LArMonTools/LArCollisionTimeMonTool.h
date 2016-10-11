@@ -103,7 +103,7 @@ class LArCollisionTimeMonTool: public ManagedMonitorToolBase
   float m_timeCut;
   int m_minCells;
   bool m_eWeighted;
-  bool newrun;
+  bool m_newrun;
 
   //ToolHandle<IBunchGroupTool> m_bunchGroupTool;
   ToolHandle<Trig::IBunchCrossingTool> m_bunchGroupTool;
