@@ -342,12 +342,12 @@ bool SCT_DistortionsTool::loadData() const
   // ***** Jap1 *****
   std::string file_name =  PathResolver::find_file(m_textFileNameJ1, "DATAPATH");
   if (file_name.size()==0) {
-    msg(MSG::WARNING) << "Hash file " << m_textFileNameJ1   << " not found! " << endreq; 
+    msg(MSG::WARNING) << "Hash file " << m_textFileNameJ1   << " not found! " << endmsg; 
     return false;
   }
   std::ifstream input(file_name.c_str());
   if ( !input.good() ) {
-    msg(MSG::WARNING) <<"Cannot open " << file_name   << " not found! "  << endreq;
+    msg(MSG::WARNING) <<"Cannot open " << file_name   << " not found! "  << endmsg;
     return false;
   }
   while ( input >> temp ) {
@@ -358,12 +358,12 @@ bool SCT_DistortionsTool::loadData() const
   // ***** Jap2 *****  
   std::string file_name2 =  PathResolver::find_file(m_textFileNameJ2, "DATAPATH");
   if (file_name2.size()==0) {
-    msg(MSG::WARNING) <<"Hash file " << m_textFileNameJ2   << " not found! "  << endreq;
+    msg(MSG::WARNING) <<"Hash file " << m_textFileNameJ2   << " not found! "  << endmsg;
     return false;
   }
   std::ifstream input2(file_name2.c_str());
   if ( !input2.good() ) {
-    msg(MSG::WARNING)<< "Cannot open " << file_name2   << " not found! " << endreq;
+    msg(MSG::WARNING)<< "Cannot open " << file_name2   << " not found! " << endmsg;
     return false;
   }
 
@@ -375,12 +375,12 @@ bool SCT_DistortionsTool::loadData() const
   // ***** UK *****
   std::string file_name3 =  PathResolver::find_file(m_textFileNameUK, "DATAPATH");
   if (file_name3.size()==0) {
-    msg(MSG::WARNING) << "Hash file " << m_textFileNameUK   << " not found! " << endreq;
+    msg(MSG::WARNING) << "Hash file " << m_textFileNameUK   << " not found! " << endmsg;
     return false;
   }
   std::ifstream input3(file_name3.c_str());
   if ( !input3.good() ) {
-    msg(MSG::WARNING) << "Cannot open " << file_name3   << " not found! " << endreq;
+    msg(MSG::WARNING) << "Cannot open " << file_name3   << " not found! " << endmsg;
     return false;
   }
 
@@ -392,12 +392,12 @@ bool SCT_DistortionsTool::loadData() const
   // ***** USA *****
   std::string file_name4 =  PathResolver::find_file(m_textFileNameUSA, "DATAPATH");
   if (file_name4.size()==0) {
-    msg(MSG::WARNING)<< "Hash file " << m_textFileNameUSA   << " not found! " << endreq;
+    msg(MSG::WARNING)<< "Hash file " << m_textFileNameUSA   << " not found! " << endmsg;
     return false;
   }
   std::ifstream input4(file_name4.c_str());
   if ( !input4.good() ) {
-     msg(MSG::WARNING) << "Cannot open " << file_name4   << " not found! " << endreq;
+     msg(MSG::WARNING) << "Cannot open " << file_name4   << " not found! " << endmsg;
     return false;
   }
   while ( input4 >> temp ) {
@@ -408,12 +408,12 @@ bool SCT_DistortionsTool::loadData() const
   // ***** Scand *****
   std::string file_name5 =  PathResolver::find_file(m_textFileNameScand, "DATAPATH");
   if (file_name5.size()==0) {
-     msg(MSG::WARNING) << "Hash file " << m_textFileNameScand   << " not found! " << endreq;
+     msg(MSG::WARNING) << "Hash file " << m_textFileNameScand   << " not found! " << endmsg;
     return false;
   }
   std::ifstream input5(file_name5.c_str());
   if ( !input5.good() ) {
-    msg(MSG::WARNING) << "Cannot open " << file_name5   << " not found! " << endreq;
+    msg(MSG::WARNING) << "Cannot open " << file_name5   << " not found! " << endmsg;
     return false;
   }
   while ( input5 >> temp ) {
@@ -423,11 +423,11 @@ bool SCT_DistortionsTool::loadData() const
 
   std::string pro_file_name =  PathResolver::find_file(m_textFileNameProfiles, "DATAPATH");
   if (pro_file_name.size()==0) {
-    msg(MSG::WARNING) << "Profile file " << m_textFileNameProfiles   << " not found! "  << endreq;
+    msg(MSG::WARNING) << "Profile file " << m_textFileNameProfiles   << " not found! "  << endmsg;
   }
   std::ifstream inputProfile(pro_file_name.c_str());
   if ( !inputProfile.good() ) {
-    msg(MSG::WARNING) <<"Cannot open " << pro_file_name   << " not found! "  << endreq;
+    msg(MSG::WARNING) <<"Cannot open " << pro_file_name   << " not found! "  << endmsg;
   }
  
   for ( int lines = 1; lines < 560; lines++ ) {
