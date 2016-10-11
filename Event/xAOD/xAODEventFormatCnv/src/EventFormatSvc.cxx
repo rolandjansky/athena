@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: EventFormatSvc.cxx 721421 2016-02-02 15:17:05Z krasznaa $
+// $Id: EventFormatSvc.cxx 777715 2016-10-11 16:35:49Z ssnyder $
 
 // System include(s):
 #include <fstream>
@@ -215,13 +215,6 @@ namespace xAODMaker {
          // Retrieve the hash of this name:
          const uint32_t hash = m_eventStore->stringToKey( branchName,
                                                           ( *itr )->clID() );
-
-         // A ViewVector object is actually saved as a vector of ElementLink.
-         if (typeName.substr (0, 11) == "ViewVector<" &&
-             typeName[typeName.size()-1] == '>')
-         {
-           typeName = "std::vector<ElementLink<" + typeName.substr(11, std::string::npos) + " >";
-         }
 
          // Add the info:
          ef.add( xAOD::EventFormatElement( branchName, typeName, "",
