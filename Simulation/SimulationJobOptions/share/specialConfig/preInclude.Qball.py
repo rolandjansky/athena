@@ -48,11 +48,11 @@ try:
         simdict = digitizationFlags.specialConfiguration.get_Value()
         doG4SimConfig = False
     else:
-        from G4AtlasApps import AtlasG4Eng
-        simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+        from G4AtlasApps.SimFlags import simFlags
+        simdict = simFlags.specialConfiguration.get_Value()
 except:
-    from G4AtlasApps import AtlasG4Eng
-    simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+    from G4AtlasApps.SimFlags import simFlags
+    simdict = simFlags.specialConfiguration.get_Value()
 
 assert "MASS" in simdict
 assert "CHARGE" in simdict
@@ -67,18 +67,14 @@ if doG4SimConfig:
     simFlags.EquationOfMotion.set_On()
     simFlags.EquationOfMotion.set_Value_and_Lock("MonopoleEquationOfMotion")
     simFlags.G4Stepper.set_Value_and_Lock('ClassicalRK4')
+    simFlags.PhysicsOptions += ["MonopolePhysicsTool"]
 
-    def monopole_setupg4():
-        from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-        AtlasG4Eng.G4Eng.load_Lib("Monopole")
-    simFlags.InitFunctions.add_function("preInitPhysics", monopole_setupg4)
-
-    if (hasattr(simFlags, 'UseV2UserActions') and simFlags.UseV2UserActions()):
+    try:
         # MT-compatible UserActions
         from G4AtlasServices.G4AtlasServicesConfig import addAction
         addAction("LooperKillerTool",['Step'],False)
         addAction("HIPKillerTool",['Step'],False)
-    else:
+    except:
         # this configures the non-MT UserActions
         try:
             from G4AtlasServices.G4AtlasUserActionConfig import UAStore
