@@ -237,7 +237,7 @@ CLHEP::HepLorentzVector *Simulation::VertexPositionFromFile::generate() const
         }
 
       // read out run/event number
-      EventID *curEventID = eventInfo->event_ID();
+      const EventID *curEventID = eventInfo->event_ID();
       runNumber   = curEventID->run_number();
       eventNumber = curEventID->event_number();
     }

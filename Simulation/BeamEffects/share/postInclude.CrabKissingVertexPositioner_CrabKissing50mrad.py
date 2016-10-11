@@ -1,11 +1,8 @@
 from AthenaCommon.CfgGetter import getPublicTool
 ckvptool = getPublicTool("CrabKissingVertexPositioner")
 # all lengths are in mm
-#ckvptool.SimpleTimeSmearing = True
-ckvptool.BunchShape = "FLAT" # GAUSS or FLAT
+ckvptool.BunchShape = "GAUSS" # GAUSS or FLAT
 ckvptool.BunchLength = 75.
-#ckvptool.TimeType = "GAUSS"
-#ckvptool.TimeWidth = .2 # 0.2ns
 ckvptool.Epsilon = 2.5e-3 # normalized emittance
 ckvptool.BetaStar = 150. #
 ckvptool.AlfaParallel = 50e-3 #40mrad, kissing angle
