@@ -43,8 +43,8 @@ public:
   ///Merge the Truth JetContainers using the PileUpMergeSvc
   virtual StatusCode processAllSubEvents() override final;
 
-  ///implementation of passing filter
-  virtual bool filterPassed() const override final { return (!m_vetoOnInTime || m_filterPassed); }
+  // ///implementation of passing filter
+  // virtual bool filterPassed() const override final { return (!m_vetoOnInTime || m_filterPassed); }
 
   ///implementation of filter reset
   virtual void resetFilter() override final { m_first_event=true; m_signal_max_pT=-1.;  m_pileup_max_pT=-1.; m_filterPassed=true; }
@@ -62,7 +62,7 @@ private:
   std::string m_outOfTimeOutputJetCollKey;
   double m_inTimePtCut;
   double m_outOfTimePtCut;
-  bool m_vetoOnInTime;
+  bool m_activateFilter;
   bool m_includeSignalJets;
   bool m_first_event;
   double m_signal_max_pT;
