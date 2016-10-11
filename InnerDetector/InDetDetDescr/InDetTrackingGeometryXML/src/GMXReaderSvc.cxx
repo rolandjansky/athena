@@ -125,11 +125,10 @@ void InDet::GMXReaderSvc::writeGMXDictionary(std::ofstream& file) {
     ATH_MSG_ERROR("\n\nError in xml file " << gmxInput << "!!!!");
   }
   
-  const DOMElement *root = doc->getDocumentElement();
-  
-  const DOMElement *element = dynamic_cast<const DOMElement*>(root);
-  const XMLCh *attribute = element->getAttribute(translate("name"));
-  cout << translate(attribute) << "\n\n";
+  //const DOMElement *root = doc->getDocumentElement();
+  //const DOMElement *element = dynamic_cast<const DOMElement*>(root);
+  //const XMLCh *attribute = element->getAttribute(translate("name"));
+  //cout << translate(attribute) << "\n\n";
   
   getVariables(doc);
   
@@ -180,7 +179,7 @@ void InDet::GMXReaderSvc::writeGMXDictionary(std::ofstream& file) {
 
 void InDet::GMXReaderSvc::getVariables(DOMDocument *doc) {
   
-  cout << "\n\nDefined constants\n=================\n\n";
+  //cout << "\n\nDefined constants\n=================\n\n";
 
   DOMNodeList *defines = doc->getElementsByTagName(translate("defines"));
   const XMLSize_t nDefines = defines->getLength();
@@ -624,3 +623,5 @@ void InDet::GMXReaderSvc::LinkSensors( std::vector<SensorClass*> sensors, std::m
   for (auto& el: m_tmp_EndcapDiscs)  el->Print();
   
 }
+
+

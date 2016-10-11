@@ -8,7 +8,7 @@
   <Radius> 80. </Radius>
   <RadiusType> Inner </RadiusType>
   <NumberOfSectors> 24 </NumberOfSectors>
-  <RingModuleType> FourChip_RD53_25x100 </RingModuleType>
+  <RingModuleType> FourChip_RD53_25x100_thin </RingModuleType>
   <RingModuleZSeparation> 6. </RingModuleZSeparation>
 </PixelEndcapRing>
 

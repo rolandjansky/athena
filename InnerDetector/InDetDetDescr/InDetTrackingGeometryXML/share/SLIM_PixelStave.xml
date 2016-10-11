@@ -5,7 +5,7 @@
     <Type> LoI</Type>
     <Layer> 0</Layer>
     <NBarrelModules>20</NBarrelModules>
-    <BarrelModuleType>DoubleLength_RD53 </BarrelModuleType>
+    <BarrelModuleType>DoubleLength_RD53_thin </BarrelModuleType>
     <BarrelModuleGap> 0.1</BarrelModuleGap>
     <StaveSupportLength> 490 </StaveSupportLength>
   </PixelStave>
@@ -15,7 +15,7 @@
     <Type> LoI</Type>
     <Layer> 0</Layer>
     <NBarrelModules>20</NBarrelModules>
-    <BarrelModuleType>DoubleLength_RD53 </BarrelModuleType>
+    <BarrelModuleType>DoubleLength_RD53_thin </BarrelModuleType>
     <BarrelModuleGap> 10.1</BarrelModuleGap>
     <BarrelModuleTilt>0.5</BarrelModuleTilt>
     <BarrelModuleAngle>0.</BarrelModuleAngle>

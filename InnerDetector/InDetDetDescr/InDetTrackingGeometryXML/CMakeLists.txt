@@ -16,13 +16,13 @@ atlas_depends_on_subdirs( PUBLIC
                           InnerDetector/InDetDetDescr/InDetIdentifier
                           Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkDetDescr/TrkDetDescrUtils
+			  Tracking/TrkDetDescr/TrkDetElementBase
                           Tracking/TrkDetDescr/TrkSurfaces
                           PRIVATE
                           InnerDetector/InDetDetDescr/InDetReadoutGeometry
                           InnerDetector/InDetDetDescr/InDetTrackingGeometryUtils
 			  Tools/PathResolver
 			  DetectorDescription/GeoModelXml
-                          Tracking/TrkDetDescr/TrkDetElementBase
                           Tracking/TrkDetDescr/TrkGeometry
                           Tracking/TrkDetDescr/TrkGeometryAlpine )
 

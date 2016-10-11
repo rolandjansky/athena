@@ -78,10 +78,9 @@ Trk::AlpineStave *InDet::StaveBuilderXML::createStave(InDet::StaveTmp *staveTmp,
 
   // stuff to compute the identifier
   int brl_ec  = 0; // barrel elements have brl_ec = 0 
-  int iphi    = istave + 1 + nstaves/2;
+  int iphi         = istave + 1 + round(nstaves/2.);
   if(istave*2+4>nstaves) iphi = istave + 1 - nstaves/2;
   double phistep = TMath::Pi()*2.0/nstaves;
-  //double phi = -TMath::Pi()+istave*phistep+phistep/2.0 + phiOffset;
   double phi = -TMath::Pi()+(istave+1)*phistep+phiOffset;
   Identifier id(0);
   IdentifierHash idhash(0);

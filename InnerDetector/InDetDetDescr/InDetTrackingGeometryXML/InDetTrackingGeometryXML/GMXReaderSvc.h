@@ -52,6 +52,7 @@ namespace InDet {
     
     void getInputGMX(std::string& gmxInput);
     void writeGMXDictionary(std::ofstream& file);
+
     void getVariables(DOMDocument *doc);
     std::vector<double> returnVector(char* val);
     double returnDouble(char* val);

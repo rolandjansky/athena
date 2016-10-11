@@ -167,7 +167,14 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
   if(nstaves%nStaveTmp != 0) {
     ATH_MSG_ERROR("Can not build " << nstaves << " staves from " <<  nStaveTmp << " stave templates - not a multiple");
   }
+
+  std::vector<const Trk::TrkDetElementBase*> allElements;  
+  // prepare bin utility in Phi - steering BinUtility vs Phi
+  double halfPhiStep =  TMath::Pi()/nstaves;
+  float phiLowBound = 99999;
+  float phiHighBound = -99999;
   int stave_idx = 0;
+  std::vector< Trk::BinUtility*>* subBinUtilitiesZ = new std::vector<Trk::BinUtility*>;
   for(int istave=0;istave<int(nstaves/nStaveTmp);istave++) {
     zOffset *= -1;
     // Loop over stave templates
@@ -180,14 +187,53 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
       bound_Rmax  = std::max(bound_Rmax,staveTmp->rMax + 0.1);
       bound_Rmin  = std::min(bound_Rmin,staveTmp->rMin - 0.1);
       stave_idx++;
+      
+      std::vector<const Trk::TrkDetElementBase*>  currentElements;
+      for (auto& surf: (staves.back())->getSurfaces()){
+	currentElements.push_back(surf->associatedDetectorElement());
+      }
+
+      std::sort(currentElements.begin(),currentElements.end(),sortElements);
+      
+      //for (unsigned int el = 0; el<currentElements.size(); el++) 
+      //ATH_MSG_INFO("Element :"<< el << "  " << currentElements.at(el)->center().z() <<  "   " << currentElements.at(el)->center().phi());
+      
+      allElements.insert(allElements.end(), currentElements.begin(), currentElements.end());
+
+      // filling z boundaries
+      std::vector<float> z_boundaries;
+      z_boundaries.push_back(-support_halfLength);
+      for (unsigned int el = 0; el<(currentElements.size()-1); el++) {
+	float centerphi =  currentElements.at(el)->center().phi();
+	if( centerphi < phiLowBound ) phiLowBound = centerphi;
+	if( centerphi > phiHighBound ) phiHighBound = centerphi;
+	z_boundaries.push_back(0.5*(currentElements.at(el)->center().z() + currentElements.at(el+1)->center().z()));
+      }
+      z_boundaries.push_back(support_halfLength);
+      
+      // create and save BinUtility vs Z for each stave
+      Trk::BinUtility* tmpBinUtilityZ = new Trk::BinUtility(z_boundaries,
+							    Trk::open,
+							    Trk::binZ);
+      
+      subBinUtilitiesZ->push_back(tmpBinUtilityZ);
+      //ATH_MSG_INFO("Creating z BinUtility :" << *tmpBinUtilityZ);
     }
-  }
+  }  
+  phiLowBound  -= halfPhiStep;
+  phiHighBound += halfPhiStep;
+  
+  Trk::BinUtility* BinUtilityPhi = new Trk::BinUtility(nstaves,
+						       phiLowBound,
+						       phiHighBound,
+						       Trk::closed,
+						       Trk::binPhi);
+
+  //ATH_MSG_INFO("Creating phi BinUtility :" << *BinUtilityPhi);
  
   // compute layer thickness and active layer bounds
   double bound_R     = (bound_Rmax+bound_Rmin)/2.0;
   double layer_thickness = bound_Rmax-bound_Rmin; 
-
-  ATH_MSG_DEBUG("Building AlpineLayer " << layerTmp->name << " R=" << R << " thickness=" << layer_thickness);
 
   // compute and store approach surfaces for plain
   Trk::ApproachSurfaces* aSurfaces = new Trk::ApproachSurfaces();
@@ -218,7 +264,11 @@ Trk::AlpineLayer *InDet::BarrelBuilderXML::createActiveAlpineLayer(unsigned int 
   // register the layer to the surfaces
   const std::vector<const Trk::Surface*>& layerSurfaces     = activeLayer->getSurfaces();
   registerSurfacesToLayer(layerSurfaces,*activeLayer);
-
+  
+  // generic solution: each stave can have a different number of modules: we need 1D1D BinnedArray
+  Trk::BinnedArray<Trk::Surface>* binnedArray = getBinnedArray1D1D(*BinUtilityPhi,*subBinUtilitiesZ,allElements);
+  activeLayer->fillSurfaceArray(binnedArray);
+  
   if (material)
     ATH_MSG_DEBUG("ALPINE Material Properties Input:" <<  *(material) << "  Output: " << *(activeLayer->layerMaterialProperties()) 
 		  << " needs material properties:" << activeLayer->needsMaterialProperties());
@@ -263,7 +313,7 @@ Trk::CylinderLayer *InDet::BarrelBuilderXML::createActiveCylinderLayer(unsigned 
   }    
   // create detector elements - layers bounds computed inside
   // prepare vector to store barrel elements
-  std::vector<Trk::TrkDetElementBase*> allElements;
+  std::vector<const Trk::TrkDetElementBase*> allElements;
   std::vector<Trk::TrkDetElementBase*> currentElements;
   std::vector<Trk::TrkDetElementBase*> prevElementsInPhi;
   std::vector<Trk::TrkDetElementBase*> firstElementsInPhi;
@@ -460,7 +510,7 @@ Trk::TrkDetElementBase* InDet::BarrelBuilderXML::CylinderDetElement(unsigned int
 
   // compute identifier inputs
   int brl_ec       = 0;                       // barrel elements have brl_ec = 0 
-  int iphi         = isector + 1 + nsectors/2;
+  int iphi         = isector + 1 + round(nsectors/2.);
   if(isector*2+4>nsectors) iphi = isector + 1 - nsectors/2;
   double phimin    = -TMath::Pi();
   double phimax    =  TMath::Pi();
@@ -559,14 +609,14 @@ Trk::TrkDetElementBase* InDet::BarrelBuilderXML::CylinderDetElement(unsigned int
 
 Trk::BinnedArray<Trk::Surface>* InDet::BarrelBuilderXML::getBinnedArray1D1D(Trk::BinUtility& steerBinUtility,
 									      std::vector<Trk::BinUtility*>& subBinUtility,  
-									      std::vector<Trk::TrkDetElementBase*>& cElements) const
+									      std::vector<const Trk::TrkDetElementBase*>& cElements) const
 {
   // put surfaces in a vector
   std::vector<Trk::SurfaceOrderPosition> surfaces;
 
   ATH_MSG_DEBUG("Found " << cElements.size() << " elements to store in Binutility1D1D");
 
-  std::vector<Trk::TrkDetElementBase*>::const_iterator Elem_Iter = cElements.begin();
+  std::vector<const Trk::TrkDetElementBase*>::const_iterator Elem_Iter = cElements.begin();
   for ( ; Elem_Iter != cElements.end(); Elem_Iter++) 
     {
       const Trk::Surface* moduleSurface = &((*Elem_Iter)->surface());

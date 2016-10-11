@@ -15,11 +15,11 @@ use TrkDetDescrUtils            TrkDetDescrUtils-*            Tracking/TrkDetDes
 use AthenaKernel                AthenaKernel-*                Control
 use AtlasXercesC                AtlasXercesC-*                External
 use AtlasDetDescr               AtlasDetDescr-*               DetectorDescription
+use TrkDetElementBase           TrkDetElementBase-*           Tracking/TrkDetDescr
                                                               
 private                                                       
 use AtlasROOT                   AtlasROOT-*                   External
 use AtlasBoost		        AtlasBoost-*                  External
-use TrkDetElementBase           TrkDetElementBase-*           Tracking/TrkDetDescr
 use TrkGeometry                 TrkGeometry-*                 Tracking/TrkDetDescr
 use TrkGeometryAlpine           TrkGeometryAlpine-*           Tracking/TrkDetDescr
 use InDetReadoutGeometry        InDetReadoutGeometry-*        InnerDetector/InDetDetDescr
