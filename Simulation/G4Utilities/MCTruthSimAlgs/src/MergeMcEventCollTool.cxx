@@ -450,9 +450,19 @@ StatusCode MergeMcEventCollTool::processEvent(const McEventCollection *pMcEvtCol
   return StatusCode::FAILURE;
 }
 
+StatusCode MergeMcEventCollTool::saveHeavyIonInfo(const McEventCollection *pMcEvtColl)
+{
+  if (m_pOvrlMcEvColl->at(0)->heavy_ion()) return StatusCode::SUCCESS;
+  if (pMcEvtColl->at(0)->heavy_ion())
+    {
+      m_pOvrlMcEvColl->at(0)->set_heavy_ion(*(pMcEvtColl->at(0)->heavy_ion()));
+    }
+  return StatusCode::SUCCESS;
+}
 StatusCode MergeMcEventCollTool::processTruthFilteredEvent(const McEventCollection *pMcEvtColl, const double currentEventTime, const int currentBkgEventIndex) {
   //insert the GenEvent into the overlay McEventCollection.
   ATH_MSG_VERBOSE ( "processTruthFilteredEvent()" );
+  ATH_CHECK(this->saveHeavyIonInfo(pMcEvtColl));
   m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar)=new HepMC::GenEvent(**(pMcEvtColl->begin()));
   HepMC::GenEvent& currentBackgroundEvent(*(m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar)));
   currentBackgroundEvent.set_event_number(currentBkgEventIndex);
@@ -468,6 +478,7 @@ StatusCode MergeMcEventCollTool::processTruthFilteredEvent(const McEventCollecti
 
 StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection *pMcEvtColl, const double currentEventTime, const int currentBkgEventIndex) {
   ATH_MSG_VERBOSE ( "processUnfilteredEvent()" );
+  ATH_CHECK(this->saveHeavyIonInfo(pMcEvtColl));
   HepMC::GenEvent& currentBackgroundEvent(**(pMcEvtColl->begin()));         //background event
   //handle the slimming case
   //ATH_MSG_VERBOSE( "The MB Event Number is " << currentBkgEventIndex << ". m_nBkgEventsReadSoFar = " << m_nBkgEventsReadSoFar );
