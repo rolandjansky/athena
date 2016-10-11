@@ -23,19 +23,20 @@ atlas_depends_on_subdirs( PUBLIC
 find_package( CLHEP )
 find_package( HepMC )
 find_package( GTest )
+find_package( Eigen REQUIRED )
 #find_package( GMock )
 
 atlas_add_test( BeamEffectsAlg_test
                 SOURCES src/*.cxx test/BeamEffectsAlg_test.cxx
-                INCLUDE_DIRS  ${CLHEP_INCLUDE_DIRS} ${HepMC_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS} #${GMOCK_INCLUDE_DIRS}
-                LINK_LIBRARIES  ${CLHEP_LIBRARIES} ${HepMC_LIBRARIES} GaudiKernel TestTools AthenaBaseComps CxxUtils StoreGate EventInfo GeneratorObjects InDetBeamSpotService AtlasCLHEP_RandomGenerators ${GTEST_LIBRARIES} #${GMOCK_LIBRARIES}
+                INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HepMC_INCLUDE_DIRS} ${GTEST_INCLUDE_DIRS} #${GMOCK_INCLUDE_DIRS}
+                LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HepMC_LIBRARIES} GaudiKernel TestTools AthenaBaseComps CxxUtils StoreGateLib EventInfo GeneratorObjects AtlasCLHEP_RandomGenerators ${GTEST_LIBRARIES} #${GMOCK_LIBRARIES}
                  )
 
 atlas_add_component( BeamEffects
                      src/*.cxx
                      src/components/*.cxx
-                     INCLUDE_DIRS ${CLHEP_INCLUDE_DIRS} ${HepMC_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HepMC_LIBRARIES} GaudiKernel AthenaBaseComps CxxUtils StoreGate EventInfo GeneratorObjects InDetBeamSpotService AtlasCLHEP_RandomGenerators )
+                     INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS} ${HepMC_INCLUDE_DIRS}
+                     LINK_LIBRARIES ${CLHEP_LIBRARIES} ${HepMC_LIBRARIES} GaudiKernel AthenaBaseComps CxxUtils StoreGateLib EventInfo GeneratorObjects AtlasCLHEP_RandomGenerators )
 
 # Install files from the package:
 atlas_install_headers( BeamEffects )

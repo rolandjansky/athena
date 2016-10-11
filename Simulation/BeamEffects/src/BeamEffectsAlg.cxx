@@ -55,13 +55,13 @@ StatusCode Simulation::BeamEffectsAlg::execute()
     }
   if (!m_outputMcEventCollection.isValid()) m_outputMcEventCollection = CxxUtils::make_unique<McEventCollection>(*m_inputMcEventCollection);
   // loop over the event in the mc collection
-  for (auto currentGenEvent : *m_outputMcEventCollection)
+  for (const auto& currentGenEvent : *m_outputMcEventCollection)
     {
       // skip empty events
       if ( !currentGenEvent ) continue;
       ATH_CHECK(this->patchSignalProcessVertex(*currentGenEvent));
       // manipulate the GenEvent if needed : validating, filtering, smearing, dispersion, ...
-      for (auto manipulator : m_genEventManipulators)
+      for (const auto& manipulator : m_genEventManipulators)
         {
           // call manipulate(..) in the current GenEventManipulator
           ATH_CHECK(manipulator->manipulate(*currentGenEvent));
