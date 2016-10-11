@@ -5,17 +5,14 @@
 #==============================================================
 
 
-from AthenaCommon.GlobalFlags import GlobalFlags
+from AthenaCommon.GlobalFlags import globalflags
 from AthenaCommon.DetFlags import DetFlags
 
 #from AthenaCommon.AppMgr import ServiceMgr
 
-#GlobalFlags.DetGeo.set_ctbh8()
-GlobalFlags.DetGeo.set_atlas()
-#GlobalFlags.DetGeo.set_commis()
+globalflags.DetGeo.set_Value_and_Lock('atlas')
 
-GlobalFlags.DataSource.set_geant4()
-#GlobalFlags.DataSource.set_data()
+globalflags.DataSource.set_Value_and_Lock('geant4')
 
 # Just the SCT
 #DetFlags.detdescr.pixel_setOn()
@@ -24,8 +21,8 @@ DetFlags.detdescr.SCT_setOn()
 DetFlags.SCT_setOn()
 
 # Select the geometry version.
-from AthenaCommon.GlobalFlags import globalflags
-globalflags.DetDescrVersion='ATLAS-CSC-02-00-00'
+# from AthenaCommon.GlobalFlags import globalflags
+globalflags.DetDescrVersion='ATLAS-R2-2015-03-01-00'
 
 # Initialize geometry
 from AtlasGeoModel import GeoModelInit
@@ -68,7 +65,7 @@ ServiceMgr.THistSvc.Output =["disto DATAFILE='test.root' opt='RECREATE'"];
 IOVDbSvc = Service("IOVDbSvc")
 ##IOVDbSvc.GlobalTag="HEAD"
 #
-IOVDbSvc.GlobalTag="OFLCOND-FDR-01-02-00"
+IOVDbSvc.GlobalTag="OFLCOND-MC15c-SDR-09"
 
 #==============================================================
 #

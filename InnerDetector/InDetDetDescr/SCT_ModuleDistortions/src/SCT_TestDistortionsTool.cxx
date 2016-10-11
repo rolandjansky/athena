@@ -33,7 +33,7 @@
 
 SCT_TestDistortionsTool::SCT_TestDistortionsTool(const std::string& name, ISvcLocator* pSvcLocator): 
   AthAlgorithm(name, pSvcLocator),
-  m_SCTDistoTool("SCT_DistortionsTool"),
+  m_SCTDistoTool("SCT_DistortionsTool", this),
   m_detManager(0),
   m_storeGate(0),
   ZvsX(0),ZvsY(0),XYZ(0),
@@ -69,8 +69,8 @@ SCT_TestDistortionsTool::initialize(){
       return StatusCode::FAILURE;
     }
 
-  if(m_SCTDistoTool.retrieve().isFailure() ) msg(MSG::INFO)<<"Unable to get DistortionsTool"<< endreq;
-  msg(MSG::INFO)<<"Test algorithm for SCT_DistortionsTool"<< endreq;
+  if(m_SCTDistoTool.retrieve().isFailure() ) msg(MSG::INFO)<<"Unable to get DistortionsTool"<< endmsg;
+  msg(MSG::INFO)<<"Test algorithm for SCT_DistortionsTool"<< endmsg;
 
   ZvsX = new TH2F("delZvsX","delZvsX",128,-64,64,100,-0.05,0.15);
   ZvsY = new TH2F("delZvsY","delZvsY",66,-33,33,100,-0.05,0.15);
@@ -86,16 +86,16 @@ SCT_TestDistortionsTool::initialize(){
 StatusCode
 SCT_TestDistortionsTool::execute(){
   IdentifierHash HASH(4744);
-  msg(MSG::INFO)<<" Hash 4744 from region: "<<m_SCTDistoTool->identifyRegion(HASH)<<endreq;
-  msg(MSG::INFO)<<" ******************************************* "<<endreq;
-  msg(MSG::INFO)<<" **           Working so far              ** "<<endreq;
-  msg(MSG::INFO)<<" ******************************************* "<<endreq;
+  msg(MSG::INFO)<<" Hash 4744 from region: "<<m_SCTDistoTool->identifyRegion(HASH)<<endmsg;
+  msg(MSG::INFO)<<" ******************************************* "<<endmsg;
+  msg(MSG::INFO)<<" **           Working so far              ** "<<endmsg;
+  msg(MSG::INFO)<<" ******************************************* "<<endmsg;
   int Side = 0;
   int REGION = m_SCTDistoTool->identifyRegion(HASH);
   float ZData[50];
   const std::vector<float>* ZVec = m_SCTDistoTool->readDistortions(REGION,Side);
-  msg(MSG::INFO)<<" ZVec.size() = "<<ZVec->size() <<endreq;
-  msg(MSG::INFO)<<" **           Working so far              ** "<<endreq;
+  msg(MSG::INFO)<<" ZVec.size() = "<<ZVec->size() <<endmsg;
+  msg(MSG::INFO)<<" **           Working so far              ** "<<endmsg;
 
   std::vector<float>::const_iterator ZVecFirst = ZVec->begin();
   std::vector<float>::const_iterator ZVecLast = ZVec->end();
@@ -105,12 +105,12 @@ SCT_TestDistortionsTool::execute(){
     k++;
   }
 
-  msg(MSG::INFO)<<" **           Working so far              ** "<<endreq;
-  msg(MSG::INFO)<<" ZData[0] = "<< ZData[0]<< endreq;
-  msg(MSG::INFO)<<" ZData[24] = "<< ZData[24]<< endreq;
-  msg(MSG::INFO)<<" ZData[25] = "<< ZData[25]<< endreq;
-  msg(MSG::INFO)<<" ZData[49] = "<< ZData[49]<< endreq;
-  msg(MSG::INFO)<<" **           Working so far              ** "<<endreq;
+  msg(MSG::INFO)<<" **           Working so far              ** "<<endmsg;
+  msg(MSG::INFO)<<" ZData[0] = "<< ZData[0]<< endmsg;
+  msg(MSG::INFO)<<" ZData[24] = "<< ZData[24]<< endmsg;
+  msg(MSG::INFO)<<" ZData[25] = "<< ZData[25]<< endmsg;
+  msg(MSG::INFO)<<" ZData[49] = "<< ZData[49]<< endmsg;
+  msg(MSG::INFO)<<" **           Working so far              ** "<<endmsg;
 
   float xGrid[10];
   float yGrid[5];
@@ -122,14 +122,14 @@ SCT_TestDistortionsTool::execute(){
     double y1 = -30.4;
     double x1 = xGrid[i];
     double z1 = m_SCTDistoTool->zShift(x1, y1, ZVec);
-    msg(MSG::INFO)<<" x = "<<x1<<" y = "<<y1 << " z = "<< z1 <<endreq;
+    msg(MSG::INFO)<<" x = "<<x1<<" y = "<<y1 << " z = "<< z1 <<endmsg;
     outerXedge->Fill(x1,z1);
   }
   for(int i = 0; i<5; i++){
     double y1 = yGrid[i];
     double x1 = -61.9;
     double z1 = m_SCTDistoTool->zShift(x1, y1, ZVec);
-    msg(MSG::INFO)<<" x = "<<x1<<" y = "<<y1 << " z = "<< z1 <<endreq;
+    msg(MSG::INFO)<<" x = "<<x1<<" y = "<<y1 << " z = "<< z1 <<endmsg;
     outerYedge->Fill(y1,z1);
   }
 
@@ -138,7 +138,7 @@ SCT_TestDistortionsTool::execute(){
     for(double y = -320; y<320; y++){
    
       double z =  m_SCTDistoTool->zShift(x/10, y/10, ZVec);
-      //msg(MSG::INFO)<<" x = "<<x/10<<" y = "<<y/10 << " z = "<< z <<endreq;
+      //msg(MSG::INFO)<<" x = "<<x/10<<" y = "<<y/10 << " z = "<< z <<endmsg;
       ZvsX->Fill(x/10,z);
       ZvsY->Fill(y/10,z);
       XYZ->Fill(x/10,y/10,z);
@@ -156,6 +156,6 @@ SCT_TestDistortionsTool::execute(){
 
 StatusCode
 SCT_TestDistortionsTool::finalize(){
-  msg(MSG::INFO)<<"finalize()"<<endreq;;
+  msg(MSG::INFO)<<"finalize()"<<endmsg;;
   return StatusCode::SUCCESS;
 }
