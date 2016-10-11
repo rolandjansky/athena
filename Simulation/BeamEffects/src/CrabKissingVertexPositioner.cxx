@@ -195,14 +195,12 @@ CLHEP::HepLorentzVector *Simulation::CrabKissingVertexPositioner::generate() con
                             CLHEP::Hep3Vector(m_beamCondSvc->beamPos().x(), m_beamCondSvc->beamPos().y(), m_beamCondSvc->beamPos().z())
                             );
 
-  if (msgLvl(MSG::VERBOSE)){
-     msg(MSG::VERBOSE) << "BeamSpotSvc reported beam position as " << m_beamCondSvc->beamPos() << std::endl
-                       << "\tWidth is (" << m_beamCondSvc->beamSigma(0)
-                       << ", " << m_beamCondSvc->beamSigma(1) << ", "
-                       << m_bunchLength << ")" << std::endl
-                       << "\tTilts are " << m_beamCondSvc->beamTilt(0) << " and " << m_beamCondSvc->beamTilt(1) << std::endl
-                       << "\tVertex Position before transform: " << *vertexSmearing << endreq;
-  }
+  ATH_MSG_VERBOSE("BeamSpotSvc reported beam position as " << m_beamCondSvc->beamPos() << std::endl
+                  << "\tWidth is (" << m_beamCondSvc->beamSigma(0)
+                  << ", " << m_beamCondSvc->beamSigma(1) << ", "
+                  << m_bunchLength << ")" << std::endl
+                  << "\tTilts are " << m_beamCondSvc->beamTilt(0) << " and " << m_beamCondSvc->beamTilt(1) << std::endl
+                  << "\tVertex Position before transform: " << *vertexSmearing);
 
   // update with the tilt
   *vertexSmearing = transform * HepGeom::Point3D<double>(*vertexSmearing);
