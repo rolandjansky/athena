@@ -8,6 +8,7 @@ use AsgTools            AsgTools-*          Control/AthToolSupport
 use AthenaBaseComps     AthenaBaseComps-*   Control
 use AthenaKernel        AthenaKernel-*      Control
 use CaloSimEvent        CaloSimEvent-*      Calorimeter
+use CxxUtils            CxxUtils-*          Control
 use GaudiInterface      GaudiInterface-*    External
 use GeneratorObjects    GeneratorObjects-*  Generators
 use JetInterface        JetInterface-*      Reconstruction/Jet
