@@ -52,6 +52,7 @@ const Amg::Vector3D&) const
             addNextInPhiOS(sElement,cSurfaces);
             addNextInEtaOS(sElement,cSurfaces);
             addPrevInPhiOS(sElement,cSurfaces);
+            addPrevInEtaOS(sElement,cSurfaces);
             
             nElement = sElement->nextInPhi();
             addNextInEtaOS(nElement,cSurfaces);
