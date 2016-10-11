@@ -15,11 +15,14 @@ def getVertexPositionFromFile(name="VertexPositionFromFile", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     vtxPosFile = "vtx-pos.txt"
     if simFlags.VertexOverrideFile.statusOn:
-        vtxPosFile = str(simFlags.VertexOverrideEventFile())
+        vtxPosFile = str(simFlags.VertexOverrideFile())
     kwargs.setdefault("VertexPositionsFile"         , vtxPosFile)
     runAndEventNosFile ="run-evt-nums.txt"
     if simFlags.VertexOverrideEventFile.statusOn:
         runAndEventNosFile = str(simFlags.VertexOverrideEventFile())
+    if hasattr(simFlags, 'IsEventOverlayInputSim') and simFlags.IsEventOverlayInputSim():
+        from OverlayCommonAlgs.OverlayFlags import overlayFlags
+        runAndEventNosFile = (overlayFlags.EventIDTextFile())
     kwargs.setdefault("RunAndEventNumbersFile"      , runAndEventNosFile)
     return CfgMgr.Simulation__VertexPositionFromFile(name, **kwargs)
 
@@ -58,10 +61,6 @@ def getGenEventValidityChecker(name="GenEventValidityChecker", **kwargs):
 def getGenEventVertexPositioner(name="GenEventVertexPositioner", **kwargs):
     from G4AtlasApps.SimFlags import simFlags
     readVtxPosFromFile = simFlags.VertexOverrideFile.statusOn or simFlags.VertexOverrideEventFile.statusOn
-    if simFlags.ISFRun():
-        from  ISF_Config.ISF_jobProperties import ISF_Flags
-        readVtxPosFromFile = readVtxPosFromFile or ISF_Flags.VertexPositionFromFile()
-    #FIXME we can probably drop this ISF_Flag as it seems redundant
     if readVtxPosFromFile:
         kwargs.setdefault("VertexShifters"          , [ 'VertexPositionFromFile' ])
     elif simFlags.VertexFromCondDB():

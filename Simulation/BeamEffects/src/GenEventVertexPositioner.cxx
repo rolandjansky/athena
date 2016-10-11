@@ -66,7 +66,7 @@ StatusCode Simulation::GenEventVertexPositioner::manipulate(HepMC::GenEvent& ge)
     }
 
   // loop over all given ILorentzVectorGenerator AlgTools
-  for (const auto vertexShifter : m_vertexShifters)
+  for (const auto& vertexShifter : m_vertexShifters)
     {
 
       // call VertexShifter and let it compute the current shift

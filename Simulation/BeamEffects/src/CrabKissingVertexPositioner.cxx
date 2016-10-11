@@ -113,8 +113,8 @@ StatusCode  Simulation::CrabKissingVertexPositioner::finalize()
 double Simulation::CrabKissingVertexPositioner::beamspotFunction(double displacement, double angle1, double angle2) const
 {
   if ( angle1<1e-10 ) angle1 = 1e-10; // to avoid divide_by_zero errors
-  double temp(1.0-std::abs(displacement)/m_bunchLength);
-  return sqrt(3.1415)/2 * erf(angle1*temp)/angle1 * exp( -pow(angle2*displacement/m_bunchLength, 2) ) * heaviside(temp);
+  double temp(1.0-std::fabs(displacement)/m_bunchLength);
+  return std::sqrt(3.1415)/2 * std::erf(angle1*temp)/angle1 * std::exp( -pow(angle2*displacement/m_bunchLength, 2) ) * heaviside(temp);
 }
 
 double Simulation::CrabKissingVertexPositioner::getDisplacement(double bunchSize, double angle1, double angle2) const
@@ -139,15 +139,15 @@ CLHEP::HepLorentzVector *Simulation::CrabKissingVertexPositioner::generate() con
   // necessary/preferable.
   double vertexX = CLHEP::RandGaussZiggurat::shoot(m_randomEngine)*m_beamCondSvc->beamSigma(0);
   double vertexY = CLHEP::RandGaussZiggurat::shoot(m_randomEngine)*m_beamCondSvc->beamSigma(1);
-  double piwinski_phi = abs(m_thetaX - m_alphaX) * m_bunchLength/sqrt(m_epsilon * m_betaStar);
-  double piwinski_psi = m_alphaPar * m_bunchLength / sqrt( m_epsilon * m_betaStar);
+  double piwinski_phi = std::fabs(m_thetaX - m_alphaX) * m_bunchLength/std::sqrt(m_epsilon * m_betaStar);
+  double piwinski_psi = m_alphaPar * m_bunchLength / std::sqrt( m_epsilon * m_betaStar);
   double vertexZ = 0;
   double vertexT = 0;
   // Time should be set in units of distance, the following methods generate c*t
   if ( m_bunchShape == BunchShape::GAUSS)
     {
-      double zWidth    = m_bunchLength / sqrt(2*(1+pow(piwinski_phi,2)));
-      double timeWidth = m_bunchLength / sqrt(2*(1+pow(piwinski_psi,2)));
+      double zWidth    = m_bunchLength / std::sqrt(2*(1+pow(piwinski_phi,2)));
+      double timeWidth = m_bunchLength / std::sqrt(2*(1+pow(piwinski_psi,2)));
       vertexZ = CLHEP::RandGaussZiggurat::shoot( m_randomEngine , 0., zWidth);
       vertexT = CLHEP::RandGaussZiggurat::shoot( m_randomEngine , 0., timeWidth);
     }
@@ -173,8 +173,8 @@ CLHEP::HepLorentzVector *Simulation::CrabKissingVertexPositioner::generate() con
   const double tx = tan( m_beamCondSvc->beamTilt(1) );
   const double ty = tan( m_beamCondSvc->beamTilt(0) );
 
-  const double sqrt_abc = sqrt(1. + tx*tx + ty*ty);
-  const double sqrt_fgh = sqrt(1. + ty*ty);
+  const double sqrt_abc = std::sqrt(1. + tx*tx + ty*ty);
+  const double sqrt_fgh = std::sqrt(1. + ty*ty);
 
   const double a = ty/sqrt_abc;
   const double b = tx/sqrt_abc;
@@ -195,14 +195,12 @@ CLHEP::HepLorentzVector *Simulation::CrabKissingVertexPositioner::generate() con
                             CLHEP::Hep3Vector(m_beamCondSvc->beamPos().x(), m_beamCondSvc->beamPos().y(), m_beamCondSvc->beamPos().z())
                             );
 
-  if (msgLvl(MSG::VERBOSE)){
-     msg(MSG::VERBOSE) << "BeamSpotSvc reported beam position as " << m_beamCondSvc->beamPos() << std::endl
-                       << "\tWidth is (" << m_beamCondSvc->beamSigma(0)
-                       << ", " << m_beamCondSvc->beamSigma(1) << ", "
-                       << m_bunchLength << ")" << std::endl
-                       << "\tTilts are " << m_beamCondSvc->beamTilt(0) << " and " << m_beamCondSvc->beamTilt(1) << std::endl
-                       << "\tVertex Position before transform: " << *vertexSmearing << endreq;
-  }
+  ATH_MSG_VERBOSE("BeamSpotSvc reported beam position as " << m_beamCondSvc->beamPos() << std::endl
+                  << "\tWidth is (" << m_beamCondSvc->beamSigma(0)
+                  << ", " << m_beamCondSvc->beamSigma(1) << ", "
+                  << m_bunchLength << ")" << std::endl
+                  << "\tTilts are " << m_beamCondSvc->beamTilt(0) << " and " << m_beamCondSvc->beamTilt(1) << std::endl
+                  << "\tVertex Position before transform: " << *vertexSmearing);
 
   // update with the tilt
   *vertexSmearing = transform * HepGeom::Point3D<double>(*vertexSmearing);
