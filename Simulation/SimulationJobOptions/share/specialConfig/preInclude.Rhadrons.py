@@ -356,11 +356,11 @@ try:
     simdict = digitizationFlags.specialConfiguration.get_Value()
     doG4SimConfig = False
   else:
-    from G4AtlasApps import AtlasG4Eng
-    simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+    from G4AtlasApps.SimFlags import simFlags
+    simdict = simFlags.specialConfiguration.get_Value()
 except:
-  from G4AtlasApps import AtlasG4Eng
-  simdict = AtlasG4Eng.G4Eng.Dict_SpecialConfiguration
+  from G4AtlasApps.SimFlags import simFlags
+  simdict = simFlags.specialConfiguration.get_Value()
 
 ## Compulsory keys
 assert "MASS" in simdict
@@ -379,10 +379,7 @@ if simdict.has_key("Mixing"):
 
 if doG4SimConfig:
   from G4AtlasApps.SimFlags import simFlags
-  def rhadrons_setupg4():
-    from G4AtlasApps import PyG4Atlas, AtlasG4Eng
-    AtlasG4Eng.G4Eng.load_Lib("RHadrons")
-  simFlags.InitFunctions.add_function("preInitPhysics", rhadrons_setupg4)
+  simFlags.PhysicsOptions += ["RHadronsPhysicsTool"]
 
 # In case we want to use Pythia for decays in line...
 if simdict.has_key("DECAYS"):
