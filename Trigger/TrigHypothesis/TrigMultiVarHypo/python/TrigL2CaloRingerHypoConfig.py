@@ -75,7 +75,7 @@ class TrigL2CaloRingerHypo_e_ID(TrigL2CaloRingerHypo):
 
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
-    self.EmEtCut    = (float(threshold) - 5)*GeV
+    self.EmEtCut    = (float(threshold) - 2)*GeV
 
     from TrigMultiVarHypo.TrigL2CaloRingerCutDefs import TrigL2CaloRingerCutDefs
     theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,chainName)
@@ -93,7 +93,7 @@ class TrigL2CaloRingerHypo_g_ID(TrigL2CaloRingerHypo):
 
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
-    self.EmEtCut    = (float(threshold) - 5)*GeV
+    self.EmEtCut    = (float(threshold) - 2)*GeV
 
     from TrigMultiVarHypo.TrigL2CaloRingerCutDefs import TrigL2CaloRingerCutDefs
     theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,chainName)
@@ -119,7 +119,7 @@ class TrigL2CaloRingerHypo_EtCut(TrigL2CaloRingerHypo):
     super( TrigL2CaloRingerHypo_EtCut, self ).__init__( name ) 
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
-    self.EmEtCut    = (float(threshold) - 5)*GeV
+    self.EmEtCut    = (float(threshold) - 2)*GeV
 
 
 
@@ -154,24 +154,6 @@ def TrigL2CaloRingerFexHypo_g_EtCut(threshold):
           TrigL2CaloRingerHypo_EtCut("TrigL2CaloRingerHypo_g"+str(threshold)+'_EtCut', threshold)
 
 
-
-
-
-################### functions for T2Calo studies ###################################    
-
-#helper function for combined
-def TrigL2CaloRingerFexHypo_e_ID_for_T2Calo(threshold, IDinfo, chainName):
-  return  TrigL2CaloRingerFex("TrigL2CaloRingerFex_e"+str(threshold)+'_'+IDinfo, 
-                              threshold,IDinfo,chainName+'_L2Calo'),\
-          TrigL2CaloRingerHypo_e_ID("TrigL2CaloRingerHypo_e"+str(threshold)+'_'+str(IDinfo)+'_for_T2Calo', 
-                                    threshold,IDinfo,chainName+'_L2Calo')
-
-#helper function for combined
-def TrigL2CaloRingerFexHypo_g_ID_for_T2Calo(threshold, IDinfo, chainName):
-  return  TrigL2CaloRingerFex("TrigL2CaloRingerFex_g"+str(threshold)+'_'+IDinfo_+'_for_T2Calo', 
-                                    threshold,IDinfo,chainName),\
-          TrigL2CaloRingerHypo_g_ID("TrigL2CaloRingerHypo_g"+str(threshold)+'_'+str(IDinfo)+'_for_T2Calo', 
-                                    threshold,IDinfo,chainName+'_L2Calo')
 
 
 
