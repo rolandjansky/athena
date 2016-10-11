@@ -41,7 +41,8 @@ class LArNoisyROSummaryGetter ( Configured )  :
         theLArNoisyROTool=LArNoisyROTool(PrintSummary=True,
                                          CellQualityCut=larNoisyROFlags.CellQualityCut(),
                                          BadChanPerFEB=larNoisyROFlags.BadChanPerFEB(),
-                                         BadFEBCut=larNoisyROFlags.BadFEBCut()
+                                         BadFEBCut=larNoisyROFlags.BadFEBCut(),
+                                         KnownMNBFEBs=larNoisyROFlags.KnownMNBFEBs()
                                          )
 
 
