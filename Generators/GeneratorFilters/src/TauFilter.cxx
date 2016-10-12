@@ -15,10 +15,19 @@ TauFilter::TauFilter( const std::string& name, ISvcLocator* pSvcLocator)
   declareProperty( "EtaMaxmu", m_etaMaxmu = 2.5 );
   declareProperty( "EtaMaxhad", m_etaMaxhad = 2.5 );
 
-  // pt cuts for a0 -> tau + atau -> l + l + X
   declareProperty( "Ptcute", m_pTmine = 12000.0 );
   declareProperty( "Ptcutmu", m_pTminmu = 12000.0 );
   declareProperty( "Ptcuthad", m_pTminhad = 12000.0 );
+
+  // new options:
+  declareProperty( "UseNewOptions", m_NewOpt = false );
+  declareProperty( "Nhadtaus", m_Nhadtau = 0 );
+  declareProperty( "Nleptaus", m_Nleptau = 0 );
+  declareProperty( "EtaMaxlep", m_etaMaxlep = 2.6 );
+  declareProperty( "Ptcutlep", m_pTminlep = 7000.0 );
+  declareProperty( "Ptcutlep_lead", m_pTminlep_lead = 7000.0 );
+  declareProperty( "Ptcuthad_lead", m_pTminhad_lead = 20000.0 );
+  declareProperty( "ReverseFilter", m_ReverseFilter = false);
 }
 
 
@@ -29,13 +38,29 @@ StatusCode TauFilter::filterInitialize() {
   m_eventseacc = 0;
   m_eventsmuacc = 0;
   m_eventshadacc = 0;
+
+  for(int i=0; i<6; i++) {
+    m_events[i] = 0; m_events_sel[i] = 0;
+  }
+  
   return StatusCode::SUCCESS;
 }
 
 
 StatusCode TauFilter::filterFinalize() {
-  ATH_MSG_INFO(" , e: " << m_eventse << " , mu: " << m_eventsmu << " , had: " << m_eventshad <<
-               " , eacc: " << m_eventseacc << " , muacc: " << m_eventsmuacc << " , hadacc: " << m_eventshadacc);
+  if(m_NewOpt) {
+    ATH_MSG_INFO("Sum of Events total: " << m_events[0] << " , selected: " << m_events_sel[0]);
+    ATH_MSG_INFO("Sum of Events with pos. weights total: " << m_events[1] << " , selected: " << m_events_sel[1]);
+    ATH_MSG_INFO("Sum of Events with neg. weights total: " << m_events[2] << " , selected: " << m_events_sel[2]);
+    ATH_MSG_INFO("Sum of weights total: " << m_events[3] << " , selected: " << m_events_sel[3]);
+    ATH_MSG_INFO("Sum of pos. weights total: " << m_events[4] << " , selected: " << m_events_sel[4]);
+    ATH_MSG_INFO("Sum of neg. weights total: " << m_events[5] << " , selected: " << m_events_sel[5]);
+  }
+  else {
+    ATH_MSG_INFO(" , e: " << m_eventse << " , mu: " << m_eventsmu << " , had: " << m_eventshad <<
+		 " , eacc: " << m_eventseacc << " , muacc: " << m_eventsmuacc << " , hadacc: " << m_eventshadacc);
+  }
+
   return StatusCode::SUCCESS;
 }
 
@@ -67,9 +92,18 @@ StatusCode TauFilter::filterEvent() {
   tau = 0;
   int ntau = 0;
 
+  double ptlep_max = 0;
+  double pthad_max = 0;
+  int ntaulep = 0;
+  int ntauhad = 0;
+  double weight = 1;
+
   McEventCollection::const_iterator itr;
   for (itr = events()->begin(); itr!=events()->end(); ++itr) {
     const HepMC::GenEvent* genEvt = (*itr);
+    HepMC::WeightContainer wgtsC = genEvt->weights();
+    weight = wgtsC.size() > 0 ? wgtsC[0] : 1;
+
     for (HepMC::GenEvent::particle_const_iterator pitr = genEvt->particles_begin(); pitr != genEvt->particles_end(); ++pitr) {
       // Look for the first tau with genstat != 3
       if (abs((*pitr)->pdg_id()) == 15 && (*pitr)->status() != 3) {
@@ -108,28 +142,79 @@ StatusCode TauFilter::filterEvent() {
         ATH_MSG_DEBUG(tauvis.perp() << "\t" << tauvis.eta() << "\t" << tauvis.phi() << "\t" << leptonic);
 
         if ( leptonic == 1 ) {
-          m_eventse++;
-          if ( tauvis.perp() < m_pTmine ) continue;
-          if ( fabs( tauvis.eta() ) > m_etaMaxe ) continue;
-          ntau++;
-          m_eventseacc++;
+	  if(!m_NewOpt) {
+	    m_eventse++;
+	    if ( tauvis.perp() < m_pTmine ) continue;
+	    if ( fabs( tauvis.eta() ) > m_etaMaxe ) continue;
+	    ntau++;
+	    m_eventseacc++;
+	  }
+	  else {
+	    if ( tauvis.perp() < m_pTminlep ) continue;
+	    if ( fabs( tauvis.eta() ) > m_etaMaxlep ) continue;
+	    ntaulep++;
+	    if ( tauvis.perp() >= ptlep_max ) ptlep_max = tauvis.perp();
+	  }
         } else if ( leptonic == 2 ) {
-          m_eventsmu++;
-          if ( tauvis.perp() < m_pTminmu ) continue;
-          if ( fabs( tauvis.eta() ) > m_etaMaxmu ) continue;
-          ntau++;
-          m_eventsmuacc++;
+	  if(!m_NewOpt) {
+	    m_eventsmu++;
+	    if ( tauvis.perp() < m_pTminmu ) continue;
+	    if ( fabs( tauvis.eta() ) > m_etaMaxmu ) continue;
+	    ntau++;
+	    m_eventsmuacc++;
+	  }
+	  else {
+	    if ( tauvis.perp() < m_pTminlep ) continue;
+	    if ( fabs( tauvis.eta() ) > m_etaMaxlep ) continue;
+	    ntaulep++;
+	    if ( tauvis.perp() >= ptlep_max ) ptlep_max = tauvis.perp();
+	  }
         } else if ( leptonic == 0 ) {
           m_eventshad++;
           if ( tauvis.perp() < m_pTminhad ) continue;
           if ( fabs( tauvis.eta() ) > m_etaMaxhad ) continue;
           ntau++;
           m_eventshadacc++;
+
+	  ntauhad++;
+	  if ( tauvis.perp() >= pthad_max ) pthad_max = tauvis.perp();
         }
       }
     }
   }
 
-  setFilterPassed(ntau >= m_Ntau );
+  bool pass = ( ntaulep+ntauhad >= m_Ntau
+		&& ntaulep >= m_Nleptau
+		&& ntauhad >= m_Nhadtau
+		&& (ntaulep<2 || ptlep_max>=m_pTminlep_lead)
+		&& (ntauhad<2 || pthad_max>=m_pTminhad_lead)
+		);
+  pass = m_ReverseFilter ? !pass : pass;
+
+  m_events[0]++;
+  m_events[3] += weight;
+  if(weight>=0) {
+    m_events[1]++;
+    m_events[4] += weight;
+  }
+  else {
+    m_events[2]++;
+    m_events[5] += weight;
+  }
+
+  if(pass) {
+    m_events_sel[0]++;
+    m_events_sel[3] += weight;
+    if(weight>=0) {
+      m_events_sel[1]++;
+      m_events_sel[4] += weight;
+    }
+    else {
+      m_events_sel[2]++;
+      m_events_sel[5] += weight;
+    }
+  }
+
+  setFilterPassed( m_NewOpt ? pass : (ntau >= m_Ntau) );
   return StatusCode::SUCCESS;
 }

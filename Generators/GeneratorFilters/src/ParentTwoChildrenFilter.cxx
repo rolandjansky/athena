@@ -59,22 +59,36 @@ StatusCode ParentTwoChildrenFilter::filterEvent() {
       HepMC::GenVertex::particle_iterator firstChild = (*pitr)->end_vertex()->particles_begin(HepMC::children);
       HepMC::GenVertex::particle_iterator endChild = (*pitr)->end_vertex()->particles_end(HepMC::children);
       HepMC::GenVertex::particle_iterator thisChild = firstChild;
+
+      int neutralPar = 0;
       for(; thisChild != endChild; ++thisChild) {
-        ATH_MSG_DEBUG(" ParentTwoChildrenFilter: parent ==> " <<(*pitr)->pdg_id() << " child ===> "  <<(*thisChild)->pdg_id());
-        for (int i = 0; i < 2; i++) {
-          if ( abs((*thisChild)->pdg_id()) == m_PDGChild[i] ) {
-            int antiparticle = ( MC::PID::charge(m_PDGChild[i]) == 0 ? 1 : -1 ); // assume that zero charge particles are their own anti-particle
-            if ( (*thisChild)->pdg_id() == m_PDGChild[i] ) {
-              if( ((*thisChild)->momentum().perp() >= m_PtMinChild) ) N_Child[i][0]++; 
-            }
-            if ( (*thisChild)->pdg_id() == antiparticle * m_PDGChild[i] ) {
-              if( ((*thisChild)->momentum().perp() >= m_PtMinChild) ) N_Child[i][1]++; 
-            }
-          }
-        }
+	ATH_MSG_DEBUG(" ParentTwoChildrenFilter: parent ==> " <<(*pitr)->pdg_id() << " child ===> "  <<(*thisChild)->pdg_id());
+	for (int i = 0; i < 2; i++) {
+	  if ( abs((*thisChild)->pdg_id()) == m_PDGChild[i]) {
+	    int antiparticle = ( MC::PID::charge(m_PDGChild[i]) == 0 ? 1 : -1 ); // assume that zero charge particles are their own anti-particle
+	    if ( (*thisChild)->pdg_id() == m_PDGChild[i] ) {
+	      if( ((*thisChild)->momentum().perp() >= m_PtMinChild) ) {
+		if(antiparticle == 1) {
+		  neutralPar++;
+		  if(neutralPar == 1) N_Child[i][0]++; 
+		}
+		else N_Child[i][0]++;
+	      }
+	    }
+	    if ( (*thisChild)->pdg_id() == antiparticle * m_PDGChild[i] ) {
+	      if( ((*thisChild)->momentum().perp() >= m_PtMinChild) ) {
+		if(antiparticle == 1){
+		  if (neutralPar == 2) N_Child[i][1]++; 
+		}
+		else N_Child[i][1]++;
+	      }
+	    }
+	  }
+	}
       }
     }
   }
+  
   setFilterPassed(N_Child[0][0] >= 1 && N_Child[0][1] >= 1 && N_Child[1][0] >= 1 && N_Child[1][1] >= 1);
   return StatusCode::SUCCESS;
 }

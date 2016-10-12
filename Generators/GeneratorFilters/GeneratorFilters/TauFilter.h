@@ -31,6 +31,18 @@ private:
   double m_pTminmu;
   double m_pTminhad;
 
+  // new option variables:
+  bool m_NewOpt;
+  int m_Nleptau;
+  int m_Nhadtau;
+  double m_etaMaxlep;
+  double m_pTminlep;
+  double m_pTminlep_lead;
+  double m_pTminhad_lead;
+  bool m_ReverseFilter;
+  double m_events[6];
+  double m_events_sel[6];
+
   //double m_eventsaccepted;
   //double m_eventsrefused;
 
