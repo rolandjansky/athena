@@ -162,20 +162,31 @@ StatusCode TagProbeEfficiencyMon::bookHistogramsRecurrent()
     // Each directory has its own MonGroup
 
     std::string zeeDir(m_rootDir + "/ZeeEfficiencies");
+	std::string AllProbeDir(zeeDir+"/All_Probes");
+	std::string PassProbeDir(zeeDir+"/Passing_Probes");
+	std::string EtEffDir(zeeDir+"/Et_Efficiencies");
+	std::string EtaEffDir(zeeDir+"/Eta_Efficiencies");
+	std::string PhiEffDir(zeeDir+"/Phi_Efficiencies");
     MonGroup monZee(this, zeeDir, run, attr);
+	MonGroup monAllProbe(this,AllProbeDir,run,attr);
+	MonGroup monPassProbe(this,PassProbeDir,run,attr);
+	MonGroup monEtEff(this,EtEffDir,run,attr);
+	MonGroup monEtaEff(this,EtaEffDir,run,attr);
+	MonGroup monPhiEff(this,PhiEffDir,run,attr);
         
     // Book the histograms 
     // Book the Zee efficiency histograms
     
     m_histTool->setMonGroup(&monZee);
     
+	m_h_z_inv_mass = m_histTool->book1F("z_inv_mass","Z Invariant Mass; Z_{ee} Invariant Mass [GeV]; Entries/GeV",40,71,111);
 
     // etc...
-    m_h_probe_eta_tot = m_histTool->book1F("All_Probes/probe_eta_tot", "All Probes Eta;Probe Electron #eta; Entries",probe_eta_bins,probe_eta_min,probe_eta_max);
-    m_h_probe_phi_tot = m_histTool->book1F("All_Probes/probe_phi_tot", "All Probes Phi;Probe Electron #phi; Entries", probe_phi_bins,probe_phi_min,probe_phi_max);
-    m_h_probe_Et_tot = m_histTool->book1F("All_Probes/probe_Et_tot","All Probes Et; Probe Electron E_{T} [GeV]; Entries/5GeV",probe_et_bins,probe_et_min,probe_et_max);
+	m_histTool->setMonGroup(&monAllProbe);
+    m_h_probe_eta_tot = m_histTool->book1F("probe_eta_tot", "All Probes Eta;Probe Electron #eta; Entries",probe_eta_bins,probe_eta_min,probe_eta_max);
+    m_h_probe_phi_tot = m_histTool->book1F("probe_phi_tot", "All Probes Phi;Probe Electron #phi; Entries", probe_phi_bins,probe_phi_min,probe_phi_max);
+    m_h_probe_Et_tot = m_histTool->book1F("probe_Et_tot","All Probes Et; Probe Electron E_{T} [GeV]; Entries/5GeV",probe_et_bins,probe_et_min,probe_et_max);
     
-    m_h_z_inv_mass = m_histTool->book1F("z_inv_mass","Z Invariant Mass; Z_{ee} Invariant Mass [GeV]; Entries/GeV",40,71,111);
 
 
     TrigConf::L1DataDef def;
@@ -186,13 +197,17 @@ StatusCode TagProbeEfficiencyMon::bookHistogramsRecurrent()
       for (it = thresholds.begin(); it!= thresholds.end(); ++it) {
 	if ( (*it)->type() == def.emType() ) {
 	  std::string threshName   = (*it)->name();
-	  int threshNumber = (*it)->thresholdNumber(); 
-	  m_h_probe_eta_pass[threshNumber]=m_histTool->book1F("Passing_Probes/eta_"+threshName,"Passing Probes Eta: "+threshName+";Probe Electron #eta ;Entries", probe_eta_bins,probe_eta_min,probe_eta_max);
-	  m_h_probe_phi_pass[threshNumber]=m_histTool->book1F("Passing_Probes/phi_"+threshName,"Passing Probes Phi: "+ threshName+";Probe Electron #phi ;Entries", probe_phi_bins,probe_phi_min,probe_phi_max);
-	  m_h_probe_Et_pass[threshNumber]=m_histTool->book1F("Passing_Probes/Et_"+threshName,"Passing Probes Et: "+threshName+";Probe Electron E_{T} [GeV];Entries/5GeV", probe_et_bins,probe_et_min,probe_et_max);
-	  m_h_eta_eff[threshNumber]=m_histTool->book1F("Eta_Efficiencies/eff_eta_"+threshName,"Eta Eff: "+threshName+";Probe Electron #eta ;Efficiency",probe_eta_bins,probe_eta_min,probe_eta_max);
-	  m_h_phi_eff[threshNumber]=m_histTool->book1F("Phi_Efficiencies/eff_phi_"+threshName,"Phi Eff: "+threshName+";Probe Electron #phi ;Efficiency",probe_phi_bins,probe_phi_min,probe_phi_max);
-	  m_h_Et_eff[threshNumber]=m_histTool->book1F("Et_Efficiencies/eff_et_"+threshName,"Et Eff: "+threshName+";Probe Electron E_{T} [GeV];Efficiency",probe_et_bins,probe_et_min,probe_et_max);
+	  int threshNumber = (*it)->thresholdNumber();
+	  m_histTool->setMonGroup(&monPassProbe);
+	  m_h_probe_eta_pass[threshNumber]=m_histTool->book1F("eta_"+threshName,"Passing Probes Eta: "+threshName+";Probe Electron #eta ;Entries", probe_eta_bins,probe_eta_min,probe_eta_max);
+	  m_h_probe_phi_pass[threshNumber]=m_histTool->book1F("phi_"+threshName,"Passing Probes Phi: "+ threshName+";Probe Electron #phi ;Entries", probe_phi_bins,probe_phi_min,probe_phi_max);
+	  m_h_probe_Et_pass[threshNumber]=m_histTool->book1F("Et_"+threshName,"Passing Probes Et: "+threshName+";Probe Electron E_{T} [GeV];Entries/5GeV", probe_et_bins,probe_et_min,probe_et_max);
+	  m_histTool->setMonGroup(&monEtaEff);
+	  m_h_eta_eff[threshNumber]=m_histTool->book1F("eff_eta_"+threshName,"Eta Eff: "+threshName+";Probe Electron #eta ;Efficiency",probe_eta_bins,probe_eta_min,probe_eta_max);
+	  m_histTool->setMonGroup(&monPhiEff);
+	  m_h_phi_eff[threshNumber]=m_histTool->book1F("eff_phi_"+threshName,"Phi Eff: "+threshName+";Probe Electron #phi ;Efficiency",probe_phi_bins,probe_phi_min,probe_phi_max);
+	  m_histTool->setMonGroup(&monEtEff);
+	  m_h_Et_eff[threshNumber]=m_histTool->book1F("eff_et_"+threshName,"Et Eff: "+threshName+";Probe Electron E_{T} [GeV];Efficiency",probe_et_bins,probe_et_min,probe_et_max);
 	}       
       } 
     }
