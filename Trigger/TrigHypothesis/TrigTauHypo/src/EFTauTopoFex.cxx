@@ -14,7 +14,11 @@
 #include "TrigTauHypo/EFTauTopoFex.h"
 
 //Constructor
-EFTauTopoFex::EFTauTopoFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){}
+EFTauTopoFex::EFTauTopoFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){
+	
+	m_cont = 0;
+
+}
 
 //Destructor
 EFTauTopoFex::~EFTauTopoFex(){}

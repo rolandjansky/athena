@@ -14,7 +14,12 @@
 #include "TrigTauHypo/L2TauTopoFex.h"
 
 //Constructor
-L2TauTopoFex::L2TauTopoFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){}
+L2TauTopoFex::L2TauTopoFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){
+
+	m_cont = 0;
+	m_dR = -1;
+
+}
 
 //Destructor
 L2TauTopoFex::~L2TauTopoFex(){}
@@ -51,6 +56,9 @@ HLT::ErrorCode L2TauTopoFex::hltFinalize()
 
 HLT::ErrorCode L2TauTopoFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass )
 {
+
+	HLT::ErrorCode status1 = HLT::OK; 
+        HLT::ErrorCode status2 = HLT::OK;
 	pass = false;
 	m_dR = -1.;	
 
@@ -66,8 +74,10 @@ HLT::ErrorCode L2TauTopoFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass )
 
 	const TrigRoiDescriptor* roiDescriptor1 = 0;
         const TrigRoiDescriptor* roiDescriptor2 = 0;
+	status1 = getFeature(te1, roiDescriptor1);
+	status2 = getFeature(te2, roiDescriptor2);	
 
-      	if ( getFeature(te1, roiDescriptor1) != HLT::OK || getFeature(te2, roiDescriptor2) != HLT::OK ){ 
+      	if ( status1 != HLT::OK || roiDescriptor1 == 0 || status2 != HLT::OK || roiDescriptor2 == 0){ 
           	ATH_MSG_WARNING("No RoIDescriptors for this Trigger Elements! ");
 		return HLT::MISSING_FEATURE;
 	} else 

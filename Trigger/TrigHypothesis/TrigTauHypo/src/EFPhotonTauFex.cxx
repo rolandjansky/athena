@@ -20,7 +20,11 @@
 #include "TrigTauHypo/EFPhotonTauFex.h"
 
 //Constructor
-EFPhotonTauFex::EFPhotonTauFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){}
+EFPhotonTauFex::EFPhotonTauFex(const std::string& name, ISvcLocator* pSvcLocator) : HLT::ComboAlgo(name, pSvcLocator){
+
+	m_cont = 0;
+
+}
 
 //Destructor
 EFPhotonTauFex::~EFPhotonTauFex(){}
@@ -74,24 +78,18 @@ HLT::ErrorCode EFPhotonTauFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
 
 	const HLT::TriggerElement* te1 = inputTE[0];
   	const HLT::TriggerElement* te2 = inputTE[1];
-	bool photonFirstTE(true);
 
- 	if ( getFeatures(te1, vectorEgammaContainers) != HLT::OK || getFeatures(te2, vectorTauContainers) != HLT::OK )
-    	 { 
-      		if( getFeatures(te2, vectorEgammaContainers) != HLT::OK || getFeatures(te1, vectorTauContainers) != HLT::OK )
-        	 {
-	    		msg() << MSG::WARNING << "Failed to get xAOD::PhotonContainer and xAOD::TauJetContainer collections" << endreq;	  
-	  		return HLT::MISSING_FEATURE;
-		} else {
-			photonFirstTE = false;
-	  		msg() << MSG::DEBUG  << "xAOD::PhotonContainer collection successfully retrieved from second TE" << endreq; 	
-      		} 
-    	} else {
-      		msg() << MSG::DEBUG  << "xAOD::PhotonContainer collection successfully retrieved from first TE" << endreq; 	
-  	}
+	HLT::ErrorCode status1 = getFeatures(te1, vectorTauContainers);
+	HLT::ErrorCode status2 = getFeatures(te2, vectorEgammaContainers);
+	if (status1 != HLT::OK || status2 != HLT::OK) {
+	  msg() << MSG::WARNING << "Failed to get xAOD::PhotonContainer and xAOD::TauJetContainer collections" << endreq;
+	  return HLT::MISSING_FEATURE;
+	} else {
+	  msg() << MSG::DEBUG << "xAOD::PhotonContainer and xAOD::TauJetContainer collections successfully retrieved" << endreq;
+	}
 
   	if (vectorEgammaContainers.size() < 1 || vectorTauContainers.size() < 1) {
-    		msg() << MSG::DEBUG << " empty xAOD::PhotonContainer or xAOD::TauJetContainer from the trigger elements" << endreq;
+    		msg() << MSG::WARNING << " empty xAOD::PhotonContainer or xAOD::TauJetContainer from the trigger elements" << endreq;
     		return HLT::OK;
   	}  
 
@@ -99,11 +97,12 @@ HLT::ErrorCode EFPhotonTauFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
         const xAOD::TauJetContainer* TauJetContainer1 = vectorTauContainers.back();
 
         const xAOD::TrigPassBits* bits(0);
-        if(photonFirstTE && getFeature(te1, bits, "passbits")!= HLT::OK ){
+	if (getFeature(te2, bits, "passbits") != HLT::OK) {
            ATH_MSG_WARNING(" Failed to get TrigPassBits ");
            return HLT::MISSING_FEATURE;
         }
-	if(!photonFirstTE && getFeature(te2, bits, "passbits")!= HLT::OK ){
+
+	if(bits == 0){
            ATH_MSG_WARNING(" Failed to get TrigPassBits ");
            return HLT::MISSING_FEATURE;
         }
@@ -170,6 +169,7 @@ HLT::ErrorCode EFPhotonTauFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
 			// store vismass in container
 			float mass = tlv_photon_tau.M();
 			m_mvis.push_back(mass);
+			msg() << MSG::DEBUG << " photon+tau mass " << mass <<endreq;
 
 		} // end tau loop
 	} // end photon loop

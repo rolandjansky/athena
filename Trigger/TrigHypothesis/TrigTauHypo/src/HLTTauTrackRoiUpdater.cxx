@@ -17,6 +17,7 @@
 #include "TrkTrack/Track.h"
 #include "TrkTrack/TrackCollection.h"
 #include "TrkTrackSummary/TrackSummary.h"
+#include "xAODTrigger/TrigPassBits.h"
 
 HLTTauTrackRoiUpdater::HLTTauTrackRoiUpdater(const std::string & name, ISvcLocator* pSvcLocator) 
   : HLT::FexAlgo(name, pSvcLocator)
@@ -25,7 +26,7 @@ HLTTauTrackRoiUpdater::HLTTauTrackRoiUpdater(const std::string & name, ISvcLocat
   declareProperty("z0HalfWidth",          m_z0HalfWidth = 0.4);
   declareProperty("nHitPix",              m_nHitPix = 2);
   declareProperty("nSiHoles",             m_nSiHoles = 2);
-  declareProperty("UpdateEta",            m_updateEta = false);
+  declareProperty("UpdateEta",            m_updateEta = true);
   declareProperty("UpdatePhi",            m_updatePhi = false);
 }
 
@@ -79,7 +80,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   //look at fast-tracks
   std::vector<const TrackCollection*> vectorFoundTracks;
   const TrackCollection* foundTracks = 0;
-
+ 
   status = getFeatures(outputTE, vectorFoundTracks);
 
   if (status !=HLT::OK) {
@@ -95,6 +96,8 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 
   // Retrieve last container to be appended
   foundTracks = vectorFoundTracks.back();
+  // add a passbits container
+  std::unique_ptr<xAOD::TrigPassBits> xBits = xAOD::makeTrigPassBits<TrackCollection>(foundTracks);
 
   if(foundTracks) msg() << MSG::DEBUG << " Input track collection has size " << foundTracks->size() << endreq;
   else msg() << MSG::DEBUG << " Input track collection not found " << endreq;  
@@ -164,7 +167,7 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
 		  
 	  leadTrack = (*it);
 	  trkPtMax = trackPt;
-	  
+	  xBits->markPassing(*it, foundTracks, true);
 	}
 	
 	
@@ -240,7 +243,13 @@ HLT::ErrorCode HLTTauTrackRoiUpdater::hltExecute(const HLT::TriggerElement*, HLT
   else {
     ATH_MSG_DEBUG("REGTEST: attached RoI " << roiName << *outRoi);
   }
-  
+
+  if(attachFeature(outputTE, xBits.release(), "passbits") != HLT::OK)   {
+    ATH_MSG_ERROR("Could not attach feature to the TE");
+    return HLT::NAV_ERROR;
+  } else {
+    ATH_MSG_DEBUG("REGTEST: attached bits " << xBits.release());
+  }
   
   return HLT::OK;
   
