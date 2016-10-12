@@ -60,10 +60,10 @@ bool DerivationFramework::DVTracklessJetFilterTool::eventPassesFilter() const
   const xAOD::JetContainer* jetContainer(0);
   StatusCode sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
   if( sc.isFailure()  ||  !jetContainer ) {
-    msg(MSG::WARNING) << "No Jet container found, will skip this event" << endreq;
+    msg(MSG::WARNING) << "No Jet container found, will skip this event" << endmsg;
     return StatusCode::FAILURE;
   } 
-  msg(MSG::DEBUG)<<"size of  Jet container is "<<jetContainer->size()<<endreq;
+  msg(MSG::DEBUG)<<"size of  Jet container is "<<jetContainer->size()<<endmsg;
   
   for (unsigned int i=0; i< jetContainer->size(); ++i) { 
     const xAOD::Jet* jet = jetContainer->at(i);
@@ -72,7 +72,7 @@ bool DerivationFramework::DVTracklessJetFilterTool::eventPassesFilter() const
     std::vector<float> sumPtTrkvec;
     jet->getAttribute(xAOD::JetAttribute::SumPtTrkPt500, sumPtTrkvec);
     if (sumPtTrkvec.size() > 0) {
-      msg(MSG::DEBUG)<<"sumptTrk is "<<sumPtTrkvec.at(0)<<endreq;
+      msg(MSG::DEBUG)<<"sumptTrk is "<<sumPtTrkvec.at(0)<<endmsg;
       if (sumPtTrkvec.at(0) < m_sumPtTrkCut) {
 	nJetsPassed+=1;
       }    
