@@ -157,11 +157,17 @@ StatusCode TrigTestBase::book(bool newEventsBlock, bool newLumiBlock, bool newRu
 
   msg(MSG::INFO) << "TrigTestBase::book() " << gDirectory->GetName() << endreq;
 
+  //  MMTB_DEPRECATED(duff)
+
+
 
 #ifdef ManagedMonitorToolBase_Uses_API_201401
+#if 0
+  // #ifndef ManagedMonitorToolBase_CXX
   bool newEventsBlock = newEventsBlockFlag();
   bool newLumiBlock   = newLumiBlockFlag();
   bool newRun         = newRunFlag();
+#endif
 #endif
 
 
@@ -455,7 +461,10 @@ StatusCode TrigTestBase::proc(bool /*endOfEventsBlock*/, bool /*endOfLumiBlock*/
   // StatusCode TrigTestBase::procHistograms() {
 
 #ifdef ManagedMonitorToolBase_Uses_API_201401
+#if 0
+  // #ifndef ManagedMonitorToolBase_CXX
   bool endOfRun       = endOfRunFlag();
+#endif
 #endif
 
   msg(MSG::INFO) << " ----- enter proc() ----- " << endreq;
