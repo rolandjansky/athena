@@ -78,9 +78,38 @@ L1CALO1SlimmingHelper = SlimmingHelper("L1CALO1SlimmingHelper")
 L1CALO1SlimmingHelper.SmartCollections = ["Electrons",
 					  "Photons",
 					  "PrimaryVertices",
-					  "MET_Reference_AntiKt4EMTopo",
-					  "AntiKt4EMTopoJets",
+#					  "MET_Reference_AntiKt4EMTopo",
+#					  "AntiKt4EMTopoJets",
 					  ]
+L1CALO1SlimmingHelper.ExtraVariables = [
+#AntiKt4EMTopoJets Smart Slimming List:
+					"Kt4EMTopoEventShape",
+					"Kt4EMTopoEventShapeAux.Density",
+					"AntiKt4EMTopoJets",
+					"AntiKt4EMTopoJetsAux.pt.eta.phi.m.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.HECFrac.HECQuality.JVF.LArQuality.NegativeE.NumTrkPt1000.NumTrkPt500.SumPtTrkPt500.Timing.TrackWidthPt1000.Width.ActiveArea4vec_eta.ActiveArea4vec_m.ActiveArea4vec_phi.ActiveArea4vec_pt.AverageLArQF.EMFrac.EnergyPerSampling.FracSamplingMax.GhostMuonSegment.GhostMuonSegmentCount.OriginCorrected.PileupCorrected.DetectorEta.JetOriginConstitScaleMomentum_pt.JetPileupScaleMomentum_pt.JetPileupScaleMomentum_eta.JetPileupScaleMomentum_phi.JetPileupScaleMomentum_m.JetEtaJESScaleMomentum_pt.JetEtaJESScaleMomentum_eta.JetEtaJESScaleMomentum_phi.JetEtaJESScaleMomentum_m.JetGSCScaleMomentum_pt.JetGSCScaleMomentum_eta.JetGSCScaleMomentum_phi.JetGSCScaleMomentum_m.JetInsituScaleMomentum_pt.JetInsituScaleMomentum_eta.JetInsituScaleMomentum_phi.JetInsituScaleMomentum_m.constituentLinks.btaggingLink.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostTrack.GhostTruthAssociationLink.HighestJVFVtx.JetOriginConstitScaleMomentum_eta.JetOriginConstitScaleMomentum_m.JetOriginConstitScaleMomentum_phi.JvtJvfcorr.JvtRpt.Jvt.FracSamplingMaxIndex.LeadingClusterPt.ECPSFraction.N90Constituents.LeadingClusterSecondLambda.LeadingClusterCenterLambda.LeadingClusterSecondR.CentroidR.OotFracClusters5.OotFracClusters10.ConeTruthLabelID.PartonTruthLabelID",
+					"MuonSegments",
+					"MuonSegmentsAux.",
+					"PrimaryVertices",
+					"PrimaryVerticesAux.trackParticleLinks.neutralParticleLinks"
+#MET_Reference_AntiKt4EMTopo SS List:
+					"AntiKt4EMTopoJets",
+					"AntiKt4EMTopoJetsAux.originalObjectLink.pt.eta.phi.m.constituentLinks.JetConstitScaleMomentum_pt.JetConstitScaleMomentum_eta.JetConstitScaleMomentum_phi.JetConstitScaleMomentum_m.btaggingLink.ConeExclBHadronsFinal.ConeExclCHadronsFinal.ConeExclTausFinal.GhostBHadronsFinal.GhostBHadronsInitial.GhostBQuarksFinal.GhostCHadronsFinal.GhostCHadronsInitial.GhostCQuarksFinal.GhostHBosons.GhostPartons.GhostTQuarksFinal.GhostTausFinal.GhostWBosons.GhostZBosons.GhostTruth.OriginVertex.GhostAntiKt3TrackJet.GhostAntiKt4TrackJet.GhostMuonSegment.GhostTrack.GhostTruthAssociationLink.HighestJVFLooseVtx.HighestJVFVtxGhost.AntiKt2TrackJet.GhostAntiKt2TrackJet.HighestJVFVtx.JetLCScaleMomentum_pt.JetLCScaleMomentum_eta.JetLCScaleMomentum_phi.JetLCScaleMomentum_m",
+					"Electrons",
+					"METAssoc_AntiKt4EMTopo",
+					"METAssoc_AntiKt4EMTopoAux.jetLink.objectLinks.calkey.calpx.calpy.calpz.cale.calsumpt.trkkey.trkpx.trkpy.trkpz.trke.trksumpt.jettrkpx.jettrkpy.jettrkpz.jettrke.jettrksumpt.overlapIndices.overlapTypes.isMisc",
+					"MET_Core_AntiKt4EMTopo",
+					"MET_Core_AntiKt4EMTopoAux.name.mpx.mpy.sumet.source",
+					"MET_Reference_AntiKt4EMTopo",
+					"MET_Reference_AntiKt4EMTopoAux.name.mpx.mpy.sumet.source",
+					"MET_Truth",
+					"MET_TruthAux.name.mpx.mpy.sumet.source",
+					"Muons",
+					"MuonsAux.energyLossType.EnergyLoss.ParamEnergyLoss.MeasEnergyLoss.EnergyLossSigma.MeasEnergyLossSigma.ParamEnergyLossSigmaPlus.ParamEnergyLossSigmaMinus.muonType",
+					"Photons",
+					"TauJets",
+					"PrimaryVertices",
+					"PrimaryVerticesAux.vertexType.trackParticleLinks"
+					]
 L1CALO1SlimmingHelper.AllVariables = ["egammaClusters",
 		                      "CaloCalTopoClusters",
 				      "TauPi0Clusters",
