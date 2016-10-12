@@ -1,3 +1,14 @@
+2016-10-11 Mark Hodgkinson
+	* PFlowUtils/WeightPFOTool.h, ROOT/WeightPFOTool.cxx: Add new logic for LC Jets and string property
+	* PFlowUtils/PFODefs.h: Add functionality to convert string into enum
+	* python/DefaultTools.py: Update both LC jet finders to use the new weight tool option
+	* ATLJETMET-619
+	* Tagging PFlowUtils-00-00-14
+	
+2016-10-10  Johannes Elmsheuser  <Johannes.Elmsheuser@cern.ch>
+	* DefaultTools.py: port latest config for JetRecConfig
+	* Tagging PFlowUtils-00-00-13
+
 2016-10-03 Teng Jian Khoo <khoo@cern.ch>
 	* Use a small weight that's not indistinguishable from 0
 	* Tagging as PFlowUtils-00-00-11

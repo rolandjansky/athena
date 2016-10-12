@@ -25,11 +25,12 @@ namespace CP {
     WeightPFOTool(const std::string& name);
 
     // given a PFO, extract weight
-    StatusCode fillWeight( const xAOD::PFO& cpfo, float& weight );
+    StatusCode fillWeight( const xAOD::PFO& cpfo, float& weight);
 
   private:
 
     bool m_doEoverPweight;
+    std::string m_theNeutralPFOScaleString;
 
   };
 
