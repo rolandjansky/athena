@@ -1542,7 +1542,7 @@ void CPSimMon::compare(const CmxCpHitsMap &cmxSimMap,
   const bool total = (selection == xAOD::CMXCPHits::TOTAL);
   const bool topo = (selection == xAOD::CMXCPHits::TOPO_CHECKSUM);
 
-  if (!local && !remote && !total && !topo)
+  if (!local && !remote && !total /* && !topo*/)
     return;
   std::vector<unsigned int> hits0Sim(s_crates * s_cmxs);
   std::vector<unsigned int> hits1Sim(s_crates * s_cmxs);
