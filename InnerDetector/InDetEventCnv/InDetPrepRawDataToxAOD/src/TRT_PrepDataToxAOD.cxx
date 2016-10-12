@@ -37,7 +37,7 @@
 /////////////////////////////////////////////////////////////////////
 TRT_PrepDataToxAOD::TRT_PrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
-  m_driftFunctionTool("TRT_DriftFunctionTool"),
+  m_driftFunctionTool("TRT_DriftFunctionTool", this),
   m_trtcaldbSvc("TRT_CalDbSvc", name),
   m_neighbourSvc("TRT_StrawNeighbourSvc", name),
   m_TRTStrawSummarySvc("InDetTRTStrawStatusSummarySvc",name),

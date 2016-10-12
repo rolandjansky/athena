@@ -42,13 +42,13 @@
 /////////////////////////////////////////////////////////////////////
 PixelPrepDataToxAOD::PixelPrepDataToxAOD(const std::string &name, ISvcLocator *pSvcLocator) :
   AthAlgorithm(name,pSvcLocator),
+  m_PixelHelper(0),
+  m_useSiHitsGeometryMatching(true),
   m_calibSvc("PixelCalibSvc", name),
-  m_lorentzAngleSvc("PixelLorentzAngleSvc", name),
   m_pixelDCSSvc("PixelDCSSvc", name),
   m_pixelBSErrorsSvc("PixelByteStreamErrorsSvc", name),
-  m_PixelHelper(0),
-  m_firstEventWarnings(true),
-  m_useSiHitsGeometryMatching(true)
+  m_lorentzAngleSvc("PixelLorentzAngleSvc", name),
+  m_firstEventWarnings(true)
 { 
   // --- Steering and configuration flags
  
