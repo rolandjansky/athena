@@ -204,6 +204,7 @@ class L2PhotonHypo_g_EtCut (TrigL2PhotonHypoBase):
         super( L2PhotonHypo_g_EtCut, self ).__init__( name ) 
         self.AcceptAll = False
         self.EtCutOnly = True
+        #L2Calo uses 3 GeV below threshold
         self.ETthr          = [(float(threshold)-1.)*GeV]*9
 
 class L2PhotonHypo_g_NoCut (TrigL2PhotonHypoBase):
@@ -220,6 +221,7 @@ class L2PhotonHypo_g_ID (TrigL2PhotonHypoBase):
         super( L2PhotonHypo_g_ID, self ).__init__( name ) 
         self.AcceptAll = False
         self.EtCutOnly = False
+        #Consistent with L2Calo for electrons
         self.ETthr          = [(float(threshold)-3.)*GeV]*9
         self.HADETthr = L2PhotonCutMaps(threshold).MapsHADETthr[IDinfo]
         self.CARCOREthr = L2PhotonCutMaps(threshold).MapsCARCOREthr[IDinfo]

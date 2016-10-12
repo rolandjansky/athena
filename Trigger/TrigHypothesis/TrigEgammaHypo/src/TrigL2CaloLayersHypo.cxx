@@ -35,12 +35,12 @@ TrigL2CaloLayersHypo::TrigL2CaloLayersHypo(const std::string & name, ISvcLocator
   declareProperty("AbsoluteEnergyCut",         m_EnergyAbsCut);
 
   // declare monitoring histograms for all cut variables
-  declareMonitoredVariable("Eta", monEta);
-  declareMonitoredVariable("Phi", monPhi);
+  declareMonitoredVariable("Eta", m_monEta);
+  declareMonitoredVariable("Phi", m_monPhi);
   declareMonitoredVariable("Energy",m_Energy);
   declareMonitoredVariable("PreSampler_Energy",m_preSamp);
   declareMonitoredVariable("PreSampler_fracEnergy",m_preSampFrac);
-  declareMonitoredVariable("CutCounter", PassedCuts);
+  declareMonitoredVariable("CutCounter", m_PassedCuts);
   m_EnergyAbsCut.clear();
   m_EnergyFracCut.clear();
   for(int i=0;i<4;i++){
@@ -108,29 +108,29 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltExecute(const HLT::TriggerElement* outpu
 
   ///////////// get RoI descriptor ///////////////////////////////////////////////////////
   const TrigRoiDescriptor* roiDescriptor = 0;
-  HLT::ErrorCode stat = getFeature(outputTE, roiDescriptor) ;
+  if (getFeature(outputTE, roiDescriptor) != HLT::OK) roiDescriptor = 0;
 
-  if (stat != HLT::OK) {
-    if ( msgLvl() <= MSG::WARNING) {
-      msg() <<  MSG::WARNING << "No RoI for this Trigger Element! " << endreq;
-    }    
-    return stat;
+  if ( !roiDescriptor ) {
+    ATH_MSG_WARNING("No RoI for this Trigger Element! ");
+    return HLT::NAV_ERROR;
   }
+  
+  if ( fabs(roiDescriptor->eta() ) > 2.6 ) {
+      ATH_MSG_DEBUG("The cluster had eta coordinates beyond the EM fiducial volume : " << roiDescriptor->eta() << "; stop the chain now");
+      pass=false; // special case 
+      return HLT::OK; 
+  } 
 
-  if ( msgLvl() <= MSG::DEBUG ){
-    msg() << MSG::DEBUG 
-	<< "Using outputTE("<< outputTE <<")->getId(): " << outputTE->getId()
-	<< "; RoI ID = "   << roiDescriptor->roiId()
-	<< ": Eta = "      << roiDescriptor->eta()
-	<< ", Phi = "      << roiDescriptor->phi()
-	<< endreq;
-  }
+  ATH_MSG_DEBUG( "Using outputTE("<< outputTE <<")->getId(): " << outputTE->getId()
+          << "; RoI ID = "   << roiDescriptor->roiId()
+          << ": Eta = "      << roiDescriptor->eta()
+          << ", Phi = "      << roiDescriptor->phi());
 
   // fill local variables for RoI reference position
   
   // retrieve TrigEMCluster from the TE: must retrieve vector first
   std::vector< const xAOD::TrigEMCluster* > vectorOfClusters;  
-  stat = getFeatures( outputTE, vectorOfClusters );
+  HLT::ErrorCode stat = getFeatures( outputTE, vectorOfClusters );
 
   if ( stat != HLT::OK ) {
     if ( msgLvl() <= MSG::WARNING)
@@ -153,17 +153,17 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltExecute(const HLT::TriggerElement* outpu
 
   // get cluster
   const xAOD::TrigEMCluster* pClus = vectorOfClusters.front();
-  m_preSampFrac=m_preSamp=monEta=monPhi=m_Energy=-9999.0;
+  m_preSampFrac=m_preSamp=m_monEta=m_monPhi=m_Energy=-9999.0;
 
   if ( !pClus && (pClus->energy()>0.1) && (fabsf(pClus->eta())<2.1) ) {
     msg() << MSG::WARNING << "No EM cluster in RoI" << endreq;
     return HLT::OK;
   }
-  monEta = pClus->eta();
-  monPhi = pClus->phi();
+  m_monEta = pClus->eta();
+  m_monPhi = pClus->phi();
 
   // increment event counter 
-  PassedCuts++; //// the ROI at least contais the cluster
+  m_PassedCuts++; //// the ROI at least contais the cluster
 
   std::vector<double> fracs;
   for(int i=0;i<4;i++){
@@ -173,11 +173,11 @@ HLT::ErrorCode TrigL2CaloLayersHypo::hltExecute(const HLT::TriggerElement* outpu
   m_Energy = pClus->energy();
 
   if ( fracs[0] > m_EnergyFracCut[0] ) return HLT::OK;
-  PassedCuts++; //// 
+  m_PassedCuts++; //// 
   m_preSampFrac = fracs[0];
 
   if ( (pClus->energy( ((CaloSampling::CaloSample)0) ) + pClus->energy( ((CaloSampling::CaloSample)4) ) ) > m_EnergyAbsCut[0] ) return HLT::OK;
-  PassedCuts++; //// 
+  m_PassedCuts++; //// 
   m_preSamp = (fracs[0])*pClus->energy();
 
   // got this far => passed!

@@ -8,7 +8,10 @@ class TrigEFDielectronMassFex_Zee ( TrigEFDielectronMassFex ):
     __slots__ = []
     def __init__(self, name="TrigEFDielectronMassFex_Zee"):
         super(TrigEFDielectronMassFex_Zee, self).__init__(name)
-        
+
+        self.useElectronElectron=True        
+        self.useElectronCluster=False
+
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll=False
 
@@ -22,6 +25,43 @@ class TrigEFDielectronMassHypo_Zee ( TrigEFDielectronMassHypo ):
     __slots__ = []
     def __init__(self, name="TrigEFDielectronMassHypo_Zee"):
         super(TrigEFDielectronMassHypo_Zee, self).__init__(name)
+
+        self.useElectronElectron=True
+        self.useElectronCluster=False
+        
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll=False
+                
+        # require invariant mass within window
+        self.LowerMassCut=45.0*GeV
+        self.UpperMassCut=180.0*GeV
+        
+        self.AthenaMonTools = [ TrigEFDielectronMassOnlineMonitoring(), TrigEFDielectronMassValidationMonitoring_Zee() ] 
+
+class TrigEFDielectronMassFexElectronCluster_Zee ( TrigEFDielectronMassFex ):
+    __slots__ = []
+    def __init__(self, name="TrigEFDielectronMassFexElectronCluster_Zee"):
+        super(TrigEFDielectronMassFexElectronCluster_Zee, self).__init__(name)
+
+        self.useElectronElectron=False
+        self.useElectronCluster=True        
+
+        # AcceptAll flag: if true take events regardless of cuts
+        self.AcceptAll=False
+
+        # require invariant mass within window
+        self.LowerMassCut=40.0*GeV
+        self.UpperMassCut=200.0*GeV
+
+        self.AthenaMonTools = [ TrigEFDielectronMassOnlineMonitoring(), TrigEFDielectronMassValidationMonitoring_Zee() ] 
+        
+class TrigEFDielectronMassHypoElectronCluster_Zee ( TrigEFDielectronMassHypo ):
+    __slots__ = []
+    def __init__(self, name="TrigEFDielectronMassHypoElectronCluster_Zee"):
+        super(TrigEFDielectronMassHypoElectronCluster_Zee, self).__init__(name)
+
+        self.useElectronElectron=False
+        self.useElectronCluster=True
         
         # AcceptAll flag: if true take events regardless of cuts
         self.AcceptAll=False

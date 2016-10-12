@@ -250,7 +250,7 @@ HLT::ErrorCode TrigL2ElectronHypoMoni::hltExecute(const HLT::TriggerElement* out
     
     m_dETACLUSTERHist->Fill(dEta);
     m_dPHICLUSTERHist->Fill(dPhi);
-    m_trackPtHist->Fill(trkPt/1.e3);
+    m_trackPtHist->Fill(trkPt*1.e-3);
     m_CaloTrackdETAHist->Fill(dEtaCalo);
     m_CaloTrackdPHIHist->Fill(dPhiCalo);
     m_CaloTrackdEoverPHist->Fill(fabs(eTOverPt));

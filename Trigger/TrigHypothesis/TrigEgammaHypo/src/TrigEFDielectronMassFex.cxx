@@ -208,8 +208,6 @@ void TrigEFDielectronMassFex::processElectronElectron(HLT::TEConstVec& inputTE,
     return;
   }
 
-  xAOD::ElectronContainer::const_iterator p1;
-  xAOD::ElectronContainer::const_iterator p2;
   float mass(0.0);
   for (const auto& p1 : *cont1){
       for (const auto& p2 : *cont2){
@@ -288,8 +286,6 @@ void TrigEFDielectronMassFex::processElectronCluster(HLT::TEConstVec& inputTE,
     return;
   }
 
-  xAOD::ElectronContainer::const_iterator p1;
-  xAOD::CaloClusterContainer::const_iterator p2;
   float mass(0.0);
   for (const auto& p1 : *cont1){
       for (const auto& p2 : *cont2){

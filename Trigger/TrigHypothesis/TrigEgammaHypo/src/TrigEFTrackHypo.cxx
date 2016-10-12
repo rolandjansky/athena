@@ -56,13 +56,13 @@ TrigEFTrackHypo::TrigEFTrackHypo(const std::string& name, ISvcLocator* pSvcLocat
   declareProperty("NumTracks", m_numTracks=1, 
 		  "Number of tracks satisfying the selection");
 
-  declareMonitoredCollection("pt", *dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::pt);
-  declareMonitoredCollection("Phi",*dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::phi);
-  declareMonitoredCollection("Eta",*dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::eta);
-  declareMonitoredCollection("d0", *dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::d0);
-  declareMonitoredCollection("z0", *dvec_cast(&TrkParticleCont), &xAOD::TrackParticle::z0);
+  declareMonitoredCollection("pt", *dvec_cast(&m_TrkParticleCont), &xAOD::TrackParticle::pt);
+  declareMonitoredCollection("Phi",*dvec_cast(&m_TrkParticleCont), &xAOD::TrackParticle::phi);
+  declareMonitoredCollection("Eta",*dvec_cast(&m_TrkParticleCont), &xAOD::TrackParticle::eta);
+  declareMonitoredCollection("d0", *dvec_cast(&m_TrkParticleCont), &xAOD::TrackParticle::d0);
+  declareMonitoredCollection("z0", *dvec_cast(&m_TrkParticleCont), &xAOD::TrackParticle::z0);
   declareMonitoredVariable("numTrkPart",m_numTrkPart);
-  TrkParticleCont=nullptr;
+  m_TrkParticleCont=nullptr;
 }
 
 /////////////////////////////////////////////////////////////////////
@@ -119,7 +119,7 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
 
   // default value, it will be set to true if selection satisfied
   pass = false;
-  TrkParticleCont=0;
+  m_TrkParticleCont=0;
 
   int outputLevel = msgLvl();
 
@@ -144,26 +144,26 @@ HLT::ErrorCode TrigEFTrackHypo::hltExecute(const HLT::TriggerElement* outputTE, 
   //--------------------------------------------------
   bool accepted=false;
 
-  //const Rec::TrackParticleContainer* TrkParticleCont(0);
+  //const Rec::TrackParticleContainer* m_TrkParticleCont(0);
 
-  if ( HLT::OK != getFeature(outputTE, TrkParticleCont) ) {
+  if ( HLT::OK != getFeature(outputTE, m_TrkParticleCont) ) {
     msg() << MSG::ERROR << "Failed to get TrackParticleContainer from the trigger element " << endreq;
     return HLT::NAV_ERROR;
   }
 
-  if ( !TrkParticleCont ) {
+  if ( !m_TrkParticleCont ) {
     msg() << MSG::DEBUG << "No TrackParticleContainer present" << endreq;
     return HLT::OK;
   }
 
   if(outputLevel <= MSG::DEBUG)
-    msg() << MSG::DEBUG << " REGTEST: Got " << TrkParticleCont->size() 
+    msg() << MSG::DEBUG << " REGTEST: Got " << m_TrkParticleCont->size() 
 	<< " TrackParticleContainer's associated to the TE " << endreq;
   
-  m_numTrkPart=TrkParticleCont->size();
+  m_numTrkPart=m_TrkParticleCont->size();
 
   int ntracks=0;
-  for(const auto trkIt : *TrkParticleCont){
+  for(const auto trkIt : *m_TrkParticleCont){
     // apply the cuts
     // ---------------
 

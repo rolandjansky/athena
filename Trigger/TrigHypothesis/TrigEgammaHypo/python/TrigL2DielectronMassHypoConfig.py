@@ -60,7 +60,9 @@ class TrigL2DielectronMassFex_Zee ( TrigL2DielectronMassFex ):
         super(TrigL2DielectronMassFex_Zee, self).__init__(name)
         
         # Use Cluster Mode (use TrigEMCluster as Probe)
-        self.UseClusterAsProbe=False
+        # Change for 20.11.X.Y.Z for 2016
+        # Required to prevent timeouts to use EMCluster
+        self.UseClusterAsProbe=True
         
         # ElectronMass: used in calculation of invariant mass
         self.ElectronMass=0.511
