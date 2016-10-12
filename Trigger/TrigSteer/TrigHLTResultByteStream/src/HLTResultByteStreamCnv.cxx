@@ -67,21 +67,21 @@ StatusCode HLT::HLTResultByteStreamCnv::initialize()
     return sc;
    }
 
-   m_log = new MsgStream(messageService(), "HLTResultByteStreamCnv");
+   m_log = new MsgStream(msgSvc(), "HLTResultByteStreamCnv");
 
-   (*m_log) << MSG::DEBUG << "HLTResultByteStreamCnv in initialize() " <<endreq;
+   (*m_log) << MSG::DEBUG << "HLTResultByteStreamCnv in initialize() " <<endmsg;
 
    //Get ByteStreamCnvSvc
    if ( m_ByteStreamEventAccess.retrieve().isFailure() ) {
      (*m_log) << MSG::FATAL << "failed to retrieve ByteStreamEventAccess service: "
-	      << m_ByteStreamEventAccess << endreq;
+	      << m_ByteStreamEventAccess << endmsg;
      return  StatusCode::FAILURE;
    } else {
      (*m_log) << MSG::DEBUG << "successfully retrieved ByteStreamEventAccess service: "
-	      << m_ByteStreamEventAccess << endreq;
+	      << m_ByteStreamEventAccess << endmsg;
    }
 //    if(StatusCode::SUCCESS != service("ByteStreamCnvSvc",m_ByteStreamEventAccess)){
-//      (*m_log) << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endreq;
+//      (*m_log) << MSG::ERROR << " Can't get ByteStreamEventAccess interface " << endmsg;
 //      return StatusCode::FAILURE;
 //    }
 
@@ -90,40 +90,40 @@ StatusCode HLT::HLTResultByteStreamCnv::initialize()
    // Retrieve Tool
    //   IToolSvc* toolSvc;
    //   if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-   //     (*m_log) << MSG::ERROR << " Can't get ToolSvc " << endreq;
+   //     (*m_log) << MSG::ERROR << " Can't get ToolSvc " << endmsg;
    //     return StatusCode::FAILURE;
    //   }
 
 //    std::string toolType = "HLT::HLTResultByteStreamTool" ;
 //    if(StatusCode::SUCCESS !=toolSvc->retrieveTool(toolType,m_tool))
 //    {
-//      (*m_log) << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
+//      (*m_log) << MSG::ERROR << " Can't get ByteStreamTool " << endmsg;
 //      return StatusCode::FAILURE;
 //    }
    // get the converter tool:
    if ( m_tool.retrieve().isFailure() ) {
      (*m_log) << MSG::FATAL << "failed to retrieve converter tool : "
-	      << m_tool << endreq;
+	      << m_tool << endmsg;
      return  StatusCode::FAILURE;
    } else {
      (*m_log) << MSG::DEBUG << "successfully retrieved converter tool: "
-	      << m_tool << endreq;
+	      << m_tool << endmsg;
    }
 
 
    // Get ROBDataProvider
    if (m_robDataProvider.retrieve().isFailure()) {
     (*m_log) << MSG::FATAL << "failed to retrieve ROBDataProviderSvc service: "
-	     << m_robDataProvider << endreq;
+	     << m_robDataProvider << endmsg;
     return StatusCode::FAILURE;
    }
    (*m_log) << MSG::DEBUG << "successfully retrieved ROBDataProviderSvc service: "
-	    << m_robDataProvider << endreq;
+	    << m_robDataProvider << endmsg;
 
 //    IService* robSvc ;
 //    sc = serviceLocator()->getService("ROBDataProviderSvc", robSvc);
 //    if(sc != StatusCode::SUCCESS ) {
-//      (*m_log)<<MSG::ERROR << " Cant get ROBDataProviderSvc " <<endreq;
+//      (*m_log)<<MSG::ERROR << " Cant get ROBDataProviderSvc " <<endmsg;
 
 //      //DBG:
 //      //     return sc ;
@@ -132,7 +132,7 @@ StatusCode HLT::HLTResultByteStreamCnv::initialize()
 
 //    m_robDataProvider = dynamic_cast<IROBDataProviderSvc*> (robSvc);
 //    if(m_robDataProvider == 0 ) {
-//      (*m_log)<<MSG::ERROR<< " Cant cast to ROBDataProviderSvc " <<endreq;
+//      (*m_log)<<MSG::ERROR<< " Cant cast to ROBDataProviderSvc " <<endmsg;
 //      // return StatusCode::FAILURE ;
 //    }
 
@@ -149,7 +149,7 @@ StatusCode HLT::HLTResultByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
   ByteStreamAddress *pBS_Addr;
   pBS_Addr = dynamic_cast<ByteStreamAddress*>(pAddr);
   if(!pBS_Addr) {
-    (*m_log) << MSG::ERROR << " Can not cast to ByteStreamAddress " << endreq ;
+    (*m_log) << MSG::ERROR << " Can not cast to ByteStreamAddress " << endmsg ;
     return StatusCode::FAILURE;
   }
 
@@ -158,7 +158,7 @@ StatusCode HLT::HLTResultByteStreamCnv::createObj(IOpaqueAddress* pAddr, DataObj
 
   StatusCode sc = m_tool->convert(*m_robDataProvider, result, nm);
   if (sc != StatusCode::SUCCESS) {
-    (*m_log) << MSG::ERROR << "Failed to create object " << nm << endreq;
+    (*m_log) << MSG::ERROR << "Failed to create object " << nm << endmsg;
     return sc;
   }
 
@@ -176,7 +176,7 @@ StatusCode HLT::HLTResultByteStreamCnv::createRep(DataObject* pObj, IOpaqueAddre
    StoreGateSvc::fromStorable(pObj, result);
 
    if (!result) {
-     (*m_log) << MSG::ERROR << " Cannot cast to HLTResult " << endreq ;
+     (*m_log) << MSG::ERROR << " Cannot cast to HLTResult " << endmsg ;
      return StatusCode::FAILURE;
    }
 

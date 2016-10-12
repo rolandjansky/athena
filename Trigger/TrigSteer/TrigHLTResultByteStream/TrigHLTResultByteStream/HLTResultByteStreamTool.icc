@@ -26,7 +26,7 @@ StatusCode HLT::HLTResultByteStreamTool::convert(const ROBF* rob, HLTResult*& re
    if (sc.isFailure())
    {
      (*log) << MSG::ERROR
-	    << "Unable to get pointer to StoreGate Service!" << endreq;
+	    << "Unable to get pointer to StoreGate Service!" << endmsg;
    } else {
      const DataHandle<EventInfo> thisEvent;
      sc = p_StoreGate->retrieve(thisEvent);
@@ -42,7 +42,7 @@ StatusCode HLT::HLTResultByteStreamTool::convert(const ROBF* rob, HLTResult*& re
      // Check the versioning.
      if (formatVersion != EventFormat::DEFAULT_VERSION){
        (*log) << MSG::ERROR << " Wrong format version in BS : "
-	      << formatVersion.full() << endreq;
+	      << formatVersion.full() << endmsg;
      }
 
      EventFormat::SourceID helpHLTResultID(EventFormat::TDAQ_LVL2, EventFormat::ROD_TYPE,0);
@@ -63,12 +63,12 @@ StatusCode HLT::HLTResultByteStreamTool::convert(const ROBF* rob, HLTResult*& re
      result->deserialize(l2ResultContent);
      uint32_t l1id = rob->header().specific_part().lvl1_id();
      result->setl1id(l1id);
-     (*log) << MSG::DEBUG << " ---> Pesa Level 2 result found "  << endreq;
+     (*log) << MSG::DEBUG << " ---> Pesa Level 2 result found "  << endmsg;
    } else {
      result->setBeenCreated(true);
      uint32_t l1id = rob->header().specific_part().lvl1_id();
      result->setl1id(l1id);
-     (*log) << MSG::DEBUG << " ---> Dummy Level 2 result found "  << endreq;
+     (*log) << MSG::DEBUG << " ---> Dummy Level 2 result found "  << endmsg;
    }
 
    return StatusCode::SUCCESS;
