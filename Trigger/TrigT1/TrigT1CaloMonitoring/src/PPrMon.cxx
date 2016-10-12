@@ -1042,17 +1042,27 @@ StatusCode PPrMon::fillHistograms()
       //-------------------- Pedestal Correction Over-/Underflow
       //---------------------
 
-      Peak = (*TriggerTowerIterator)->peak();
+      bool pedCorrOverflow = false;
+      bool pedCorrUnderflow = false;
+
+      const std::size_t nPedCorr = (*TriggerTowerIterator)->correction().size();
+
+      for(std::size_t i = 0; i < nPedCorr; ++i) {
+        if((*TriggerTowerIterator)->correction()[i]>=511){
+          pedCorrOverflow = true;
+        }else if((*TriggerTowerIterator)->correction()[i]<=-512){
+          pedCorrUnderflow = true;
+	      }
+      }
+
       const double eta = (*TriggerTowerIterator)->eta();
 
-      if ((*TriggerTowerIterator)->correction().size() > Peak) {
-        if ((*TriggerTowerIterator)->correction()[Peak] > 510) {
-          m_h_ppm_em_1d_pedOverflow_Eta->Fill(eta, 1);
-        }
+      if(pedCorrOverflow){
+        m_h_ppm_em_1d_pedOverflow_Eta->Fill(eta, 1);
+      }
 
-        if ((*TriggerTowerIterator)->correction()[Peak] < -511) {
-          m_h_ppm_em_1d_pedUnderflow_Eta->Fill(eta, 1);
-        }
+      if(pedCorrUnderflow){
+        m_h_ppm_em_1d_pedUnderflow_Eta->Fill(eta, 1);
       }
     }
 
@@ -1290,16 +1300,27 @@ StatusCode PPrMon::fillHistograms()
       //-------------------- Pedestal Correction Over-/Underflow
       //---------------------
 
-      Peak = (*TriggerTowerIterator)->peak();
-      const double eta = (*TriggerTowerIterator)->eta();
-      if ((*TriggerTowerIterator)->correction().size() > Peak) {
-        if ((*TriggerTowerIterator)->correction()[Peak] > 510) {
-          m_h_ppm_had_1d_pedOverflow_Eta->Fill(eta, 1);
-        }
+      bool pedCorrOverflow = false;
+      bool pedCorrUnderflow = false;
 
-        if ((*TriggerTowerIterator)->correction()[Peak] < -511) {
-          m_h_ppm_had_1d_pedUnderflow_Eta->Fill(eta, 1);
-        }
+      const std::size_t nPedCorr = (*TriggerTowerIterator)->correction().size();
+
+      for(std::size_t i = 0; i < nPedCorr; ++i) {
+        if((*TriggerTowerIterator)->correction()[i]>=511){
+          pedCorrOverflow = true;
+        }else if((*TriggerTowerIterator)->correction()[i]<=-512){
+          pedCorrUnderflow = true;
+	      }
+      }
+
+      const double eta = (*TriggerTowerIterator)->eta();
+
+      if(pedCorrOverflow){
+        m_h_ppm_em_1d_pedOverflow_Eta->Fill(eta, 1);
+      }
+
+      if(pedCorrUnderflow){
+        m_h_ppm_em_1d_pedUnderflow_Eta->Fill(eta, 1);
       }
     }
   }
