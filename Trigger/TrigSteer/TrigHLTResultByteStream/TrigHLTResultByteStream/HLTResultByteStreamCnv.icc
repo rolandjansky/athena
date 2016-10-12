@@ -60,21 +60,21 @@ StatusCode HLT::HLTResultByteStreamCnv<ROBF>::initialize()
     return sc;
    }
 
-   m_log = new MsgStream(messageService(), "HLTResultByteStreamCnv");
-   (*m_log) << MSG::DEBUG<< " initialize " <<endreq;
+   m_log = new MsgStream(msgSvc(), "HLTResultByteStreamCnv");
+   (*m_log) << MSG::DEBUG<< " initialize " <<endmsg;
 
    // Check ByteStreamCnvSvc
    IService* svc ;
    sc = serviceLocator()->getService("ByteStreamCnvSvc", svc);
    if(sc != StatusCode::SUCCESS ) {
-     (*m_log)<<MSG::ERROR << " HLTResultByteStreamCnv: Can't get ByteStreamCnvSvc " <<endreq;
+     (*m_log)<<MSG::ERROR << " HLTResultByteStreamCnv: Can't get ByteStreamCnvSvc " <<endmsg;
      return sc ;
    }
 
 /*
    m_eventAccess = dynamic_cast<IByteStreamEventAccess*> (svc);
    if(m_eventAccess == 0 ) {
-     (*m_log)<<MSG::ERROR<< " HLTResultByteStreamCnv: Can't cast to IByteStreamEventAccess " <<endreq;
+     (*m_log)<<MSG::ERROR<< " HLTResultByteStreamCnv: Can't cast to IByteStreamEventAccess " <<endmsg;
      return StatusCode::FAILURE ;
    }
 */
@@ -83,7 +83,7 @@ StatusCode HLT::HLTResultByteStreamCnv<ROBF>::initialize()
    //IByteStreamEventAccess* m_eventAccess ;
    sc = service("ByteStreamCnvSvc", m_eventAccess);
    if(m_eventAccess==0){
-     (*m_log)<<MSG::ERROR<< "  Cant cast to  IByteStreamEventAccess " <<endreq;
+     (*m_log)<<MSG::ERROR<< "  Cant cast to  IByteStreamEventAccess " <<endmsg;
      return StatusCode::FAILURE ;
    }
 
@@ -92,14 +92,14 @@ StatusCode HLT::HLTResultByteStreamCnv<ROBF>::initialize()
 
    IToolSvc* toolSvc;
    if(StatusCode::SUCCESS != service("ToolSvc",toolSvc)){
-     (*m_log) << MSG::ERROR << " Can't get ToolSvc " << endreq;
+     (*m_log) << MSG::ERROR << " Can't get ToolSvc " << endmsg;
      return StatusCode::FAILURE;
    }
 
    std::string toolType = "HLTResultByteStreamTool" ;
    if(StatusCode::SUCCESS !=toolSvc->retrieveTool(toolType,m_tool))
    {
-     (*m_log) << MSG::ERROR << " Can't get ByteStreamTool " << endreq;
+     (*m_log) << MSG::ERROR << " Can't get ByteStreamTool " << endmsg;
      return StatusCode::FAILURE;
    }
 
@@ -129,7 +129,7 @@ HLT::HLTResultByteStreamCnv<ROBF>::createObj(IOpaqueAddress* pAddr, DataObject*&
   ByteStreamAddressL1R *pAddrL2;
   pAddrL2 = dynamic_cast<ByteStreamAddressL1R*>(pAddr);
   if(!pAddrL2) {
-    (*m_log) << MSG::ERROR << " Cannot cast to ByteStreamAddress " << endreq ;
+    (*m_log) << MSG::ERROR << " Cannot cast to ByteStreamAddress " << endmsg ;
     return StatusCode::FAILURE;
   }
 
@@ -142,7 +142,7 @@ HLT::HLTResultByteStreamCnv<ROBF>::createObj(IOpaqueAddress* pAddr, DataObject*&
   // Convert to Object
   m_tool->convert(rob, result, m_log);
 
-  (*m_log) << MSG::DEBUG<<" Created Objects   "<< *(pAddrL2->par())<<endreq;
+  (*m_log) << MSG::DEBUG<<" Created Objects   "<< *(pAddrL2->par())<<endmsg;
 
   pObj = StoreGateSvc::asStorable( result ) ;
   return StatusCode::SUCCESS;
@@ -162,7 +162,7 @@ HLT::HLTResultByteStreamCnv<ROBF>::createRep(DataObject* pObj, IOpaqueAddress*& 
    HLTResult* result;
    StoreGateSvc::fromStorable(pObj,result);
    if(!result){
-    (*m_log) << MSG::ERROR << " Cannot cast to HLTResult " << endreq ;
+    (*m_log) << MSG::ERROR << " Cannot cast to HLTResult " << endmsg ;
     return StatusCode::FAILURE;
    }
 

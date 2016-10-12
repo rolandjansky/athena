@@ -60,16 +60,16 @@ HLT::HLTResultByteStreamTool::eventAssembler(std::string objName)
 StatusCode HLT::HLTResultByteStreamTool::convert( HLTResult* result, RawEventWrite* re,
                                                   std::string objName)
 {
-  FullEventAssembler<HLTSrcIdMap>* m_fea = eventAssembler(objName);
+  FullEventAssembler<HLTSrcIdMap>* fea = eventAssembler(objName);
   eformat::SubDetector subDet = byteStreamLocation(objName);
 
-  if (!m_fea || subDet == eformat::OTHER) {
+  if (!fea || subDet == eformat::OTHER) {
     ATH_MSG_ERROR("Cannot store object with name " << objName
                   << " in BS: we are expecting only HLTResult_(L2,EF,HLT)");
     return StatusCode::FAILURE;
   }
 
-  m_fea->clear() ;
+  fea->clear() ;
 
   uint32_t module_id(0);
   if (objName.substr(0,s_dataScoutingResultName.length()) == s_dataScoutingResultName) {
@@ -78,11 +78,11 @@ StatusCode HLT::HLTResultByteStreamTool::convert( HLTResult* result, RawEventWri
   eformat::helper::SourceIdentifier helpID(subDet, module_id);
   uint32_t rodIdHLTResult = helpID.code();
 
-  std::vector<uint32_t>* rod = m_fea->getRodData( rodIdHLTResult );
+  std::vector<uint32_t>* rod = fea->getRodData( rodIdHLTResult );
   if (!rod) return StatusCode::FAILURE;
 
   result->serialize( *rod );
-  m_fea->fill(re, msg());
+  fea->fill(re, msg());
 
   ATH_MSG_DEBUG(std::dec << "Serialized HLT Result " << objName << " (" << rod->size()
                 << " words) to location " << subDet);
@@ -122,7 +122,7 @@ StatusCode HLT::HLTResultByteStreamTool::convert(IROBDataProviderSvc& dataProvid
   IROBDataProviderSvc::VROBFRAG robFrags;
   dataProvider.getROBData(vID, robFrags);
 
-  //  (*log) << MSG::DEBUG << "Got ROB fragments: "<< robFrags.size() << endreq;
+  //  (*log) << MSG::DEBUG << "Got ROB fragments: "<< robFrags.size() << endmsg;
 
   for (IROBDataProviderSvc::VROBFRAG::const_iterator rob = robFrags.begin();
        rob != robFrags.end(); ++rob) {
@@ -131,7 +131,7 @@ StatusCode HLT::HLTResultByteStreamTool::convert(IROBDataProviderSvc& dataProvid
 
     //    size_t sourceID = (*rob)->rod_source_id();
     //    (*log) << MSG::DEBUG << "Reading fragment of size " << nData << " from source "
-    //           << sourceID << endreq;
+    //           << sourceID << endmsg;
 
     OFFLINE_FRAGMENTS_NAMESPACE::PointerType rodData = 0;
     (*rob)->rod_data(rodData);
