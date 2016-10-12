@@ -45,7 +45,7 @@ StatusCode RPVLLTestRates::initialize() {
 
   m_myTree= new TTree("myTree","myTree");
   sc = m_tHistSvc->regTree("/AANT/myTree",m_myTree);
-  if (sc.isFailure()) msg(MSG::ERROR)<<"Failed to book TTree"<<endreq;
+  if (sc.isFailure()) msg(MSG::ERROR)<<"Failed to book TTree"<<endmsg;
 
   m_myTree->Branch("RunNumber",&m_runNum,"RunNumber/I");
   m_myTree->Branch("LumiBlock",&m_lumiBlock,"LumiBlock/I");
@@ -71,9 +71,9 @@ StatusCode RPVLLTestRates::execute() {
       m_skimPassHist = new TH1F("skim","skim",SDcoll->size(), 0.,(float)SDcoll->size());
       m_twoDskimHist = new TH2F("skim2D","skim",SDcoll->size(),0.,(float)SDcoll->size(),SDcoll->size(), 0.,(float)SDcoll->size());
       sc = m_tHistSvc->regHist("/AANT/skimPass",m_skimPassHist);
-      if (sc.isFailure()) msg(MSG::ERROR)<<"Failed to book TH1"<<endreq;
+      if (sc.isFailure()) msg(MSG::ERROR)<<"Failed to book TH1"<<endmsg;
       sc = m_tHistSvc->regHist("/AANT/skimPass2D",m_twoDskimHist);
-      if (sc.isFailure()) msg(MSG::ERROR)<<"Failed to book TH1"<<endreq;
+      if (sc.isFailure()) msg(MSG::ERROR)<<"Failed to book TH1"<<endmsg;
       
       m_filterPassed.resize(SDcoll->size());
       for (unsigned int i=0; i< m_filterPassed.size(); ++i) m_filterPassed[i]=0;
@@ -117,7 +117,7 @@ StatusCode RPVLLTestRates::execute() {
       m_skimPassHist->Fill((float)filterCount+0.5,isAc);
       m_filterPassed[filterCount] = isAc;
       std::string name = (*itr)->getName();
-      msg(MSG::INFO) << "SkimDecName = " << name <<" isAccepted: "<< isAc << endreq;
+      msg(MSG::INFO) << "SkimDecName = " << name <<" isAccepted: "<< isAc << endmsg;
       
       if (isAc>0) {
 	int filterCount2=0;
@@ -133,7 +133,7 @@ StatusCode RPVLLTestRates::execute() {
     }
   } 
   else {
-    msg(MSG::WARNING )<< "No SkimDecisionCollection was found: key = DESDM_RPVLL_SkimDecisionsContaine"<< endreq;
+    msg(MSG::WARNING )<< "No SkimDecisionCollection was found: key = DESDM_RPVLL_SkimDecisionsContaine"<< endmsg;
   }
   
   

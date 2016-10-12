@@ -60,10 +60,10 @@ bool DerivationFramework::DVMissingETFilterTool::eventPassesFilter() const
      const xAOD::MissingETContainer* metContainer(0);
      StatusCode sc=evtStore()->retrieve(metContainer,m_metSGKey);
      if( sc.isFailure()  ||  !metContainer ) {
-       msg(MSG::WARNING) << "No MET container found, will skip this event" << endreq;
+       msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
        return StatusCode::FAILURE;
      } 
-     ///  msg(MSG::INFO)<<"size of  MET container is "<<metContainer->size()<<endreq;
+     ///  msg(MSG::INFO)<<"size of  MET container is "<<metContainer->size()<<endmsg;
 
      if (metContainer->size() ==1) {
 	 
@@ -77,7 +77,7 @@ bool DerivationFramework::DVMissingETFilterTool::eventPassesFilter() const
 	 const xAOD::JetContainer* jetContainer(0);
 	 StatusCode sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
 	 if( sc.isFailure()  ||  !jetContainer ) {
-	   msg(MSG::WARNING) << "No jet container found, will skip this event" << endreq;
+	   msg(MSG::WARNING) << "No jet container found, will skip this event" << endmsg;
 	   return StatusCode::FAILURE;
 	 }
 	 if ((jetContainer->size() > 0) && (jetContainer->at(0)->pt() > m_jetPtCut)){
