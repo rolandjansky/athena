@@ -20,14 +20,15 @@ MuonResonanceSelectionTool::MuonResonanceSelectionTool(std::string myname)
     m_seliTool("CP::MuonSelectionTool/MuonSelectionTool", this), 
     m_sfTool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors", this ),
     m_calibTool("CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool", this ),
-    m_matchTool("Trig::TrigMuonMatching/TrigMuonMatching", this),
+    m_matchTool(""),
+    m_trigTool("")
 #else 
     m_seliTool("CP::MuonSelectionTool/MuonSelectionTool"), 
     m_sfTool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors" ),
     m_calibTool("CP::MuonCalibrationAndSmearingTool/MuonCalibrationAndSmearingTool" ),
     m_matchTool("Trig::TrigMuonMatching/TrigMuonMatching"),
-#endif
     m_trigTool("Trig::TrigDecisionTool/TrigDecisionTool")
+#endif
 {
   
   declareProperty("PtCut",          m_ptCut = 20000.0);
@@ -56,8 +57,8 @@ StatusCode MuonResonanceSelectionTool::initialize()
   ATH_CHECK( m_seliTool.retrieve() );
   if (m_doEff) ATH_CHECK( m_sfTool.retrieve() );
   if (m_doCalib) ATH_CHECK( m_calibTool.retrieve() );
-  ATH_CHECK( m_trigTool.retrieve() );
-  ATH_CHECK( m_matchTool.retrieve() ); 
+  if (!m_trigTool.empty()) ATH_CHECK( m_trigTool.retrieve() );
+  if (!m_matchTool.empty()) ATH_CHECK( m_matchTool.retrieve() ); 
 
   ATH_MSG_INFO("Tools initialized:" );
   ATH_MSG_INFO("SelectionTool   :: \t" << m_seliTool );
