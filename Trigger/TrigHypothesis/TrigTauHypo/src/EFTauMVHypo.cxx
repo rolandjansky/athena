@@ -45,8 +45,8 @@ EFTauMVHypo::EFTauMVHypo(const std::string& name,
   declareProperty("EtCalibMin",m_EtCalibMin  = -10000.);
   declareProperty("Level",     m_level       = -1);
   declareProperty("Method",    m_method      = 0);
-  declareProperty("Highpt",    m_highpt      = false);
-  declareProperty("HighptTrkThr", m_highpttrkthr      = 250000.);
+  declareProperty("Highpt",    m_highpt      = true);
+  declareProperty("HighptTrkThr", m_highpttrkthr      = 200000.);
   declareProperty("HighptIDThr", m_highptidthr      = 330000.);
   declareProperty("HighptJetThr", m_highptjetthr      = 410000.); 
 
