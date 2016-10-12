@@ -376,7 +376,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
       if(isRun2) {
 	m_ttTool->simulateChannel(*tt, LutCp, LutJep, BcidR, BcidD);
 	simBcid = BcidR[Peak];
-	if (Slices < 7 || BcidD[Peak]) {
+	if (Slices < 7 || nPedCorr < 3) {
 	  simJep = LutJep[Peak];
 	  simCp = LutCp[Peak];
 	}
@@ -410,7 +410,7 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
     if (datCp || datJep || *std::max_element(std::begin(ADC), std::end(ADC)) >= m_simulationADCCut) {
       std::bitset<3> simBcidBits(simBcid);
       std::bitset<3> datBcidBits(datBcid);
-      if (Slices >= 7) { // compare simulation of peak finder to data (sim not possible in 5+1 readout mode)
+      if ((Slices >= 7) && (nPedCorr >= 3)) { // compare simulation of peak finder to data (sim not possible in 5+1 readout mode)
         if (simBcidBits[2] && datBcidBits[2]) { //non-zero match
           hist1 = m_h_ppm_2d_etaPhi_tt_peakf_NonZeroMatches;
         } else if (!simBcidBits[2] && !datBcidBits[2]) { // zero match
@@ -465,10 +465,12 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
         mismatch = 1;
         if (simCp && datCp) {       // non-zero mis-match
           if (!pedCorrOverflow){		// no pedCorr over- or underflow
-	    hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData;
-          }
+	          hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNeData;
+          }else{
+            mismatch = 0;           //If the pedestal Correction overflows do not fill mismatch Event Histogram
+          }    
         } else if (!datCp) {        // no data
-          if (Slices >= 7) {
+          if ((Slices >= 7) && (nPedCorr >= 3)) {
             hist1 = m_h_ppm_em_2d_etaPhi_tt_lutCp_SimNoData;
           } else mismatch = 0;
         } else {                    // no sim
@@ -487,10 +489,12 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
         mismatch = 1;
         if (simJep && datJep) {       // non-zero mis-match
           if (!pedCorrOverflow){		// no pedCorr over- or underflow
-	     hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData;
+	          hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNeData;
+          }else{
+            mismatch = 0;           //If the pedestal Correction overflows do not fill mismatch Event Histogram
           }
         } else if (!datJep) {        // no data
-          if (Slices >= 7) {
+          if ((Slices >= 7) && (nPedCorr >= 3)) {
             hist1 = m_h_ppm_em_2d_etaPhi_tt_lutJep_SimNoData;
           } else mismatch = 0;
         } else {                    // no sim
@@ -511,10 +515,12 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
         mismatch = 1;
         if (simCp && datCp) {       // non-zero mis-match
            if (!pedCorrOverflow){		// no pedCorr over- or underflow
-              hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNeData;
-           }
+            hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNeData;
+           }else{
+            mismatch = 0;           //If the pedestal Correction overflows do not fill mismatch Event Histogram
+          }
         } else if (!datCp) {        // no data
-          if (Slices >= 7) {
+          if ((Slices >= 7) && (nPedCorr >= 3)) {
             hist1 = m_h_ppm_had_2d_etaPhi_tt_lutCp_SimNoData;
           } else mismatch = 0;
         } else {                    // no sim
@@ -533,10 +539,12 @@ void PPMSimBSMon::simulateAndCompare(const xAOD::TriggerTowerContainer* ttIn)
         mismatch = 1;
         if (simJep && datJep) {       // non-zero mis-match
            if (!pedCorrOverflow){		// no pedCorr over- or underflow
-             hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData;
-           }
+            hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNeData;
+           }else{
+            mismatch = 0;           //If the pedestal Correction overflows do not fill mismatch Event Histogram
+          }
         } else if (!datJep) {        // no data
-          if (Slices >= 7) {
+          if ((Slices >= 7) && (nPedCorr >= 3)) {
             hist1 = m_h_ppm_had_2d_etaPhi_tt_lutJep_SimNoData;
           } else mismatch = 0;
         } else {                    // no sim
