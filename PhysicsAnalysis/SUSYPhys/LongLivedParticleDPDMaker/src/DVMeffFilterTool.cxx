@@ -69,10 +69,10 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
      const xAOD::MissingETContainer* metContainer(0);
      StatusCode sc=evtStore()->retrieve(metContainer,m_metSGKey);
      if( sc.isFailure()  ||  !metContainer ) {
-       msg(MSG::WARNING) << "No MET container found, will skip this event" << endreq;
+       msg(MSG::WARNING) << "No MET container found, will skip this event" << endmsg;
        return StatusCode::FAILURE;
      } 
-     ///     msg(MSG::INFO)<<"size of  MET container is "<<metContainer->size()<<endreq;
+     ///     msg(MSG::INFO)<<"size of  MET container is "<<metContainer->size()<<endmsg;
 
      if (metContainer->size() >= 1) {
        MET = metContainer->at(0)->met();
@@ -81,7 +81,7 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
      const xAOD::JetContainer* jetContainer(0);
      sc=evtStore()->retrieve(jetContainer,m_jetSGKey);
      if( sc.isFailure()  ||  !jetContainer ) {
-       msg(MSG::WARNING) << "No jet container found, will skip this event" << endreq;
+       msg(MSG::WARNING) << "No jet container found, will skip this event" << endmsg;
        return StatusCode::FAILURE;
      }
      for (unsigned int i=0; i< jetContainer->size(); ++i) { 
@@ -98,7 +98,7 @@ bool DerivationFramework::DVMeffFilterTool::eventPassesFilter() const
        passesEvent=true;
        ++m_npass;
      }
-     /// msg(MSG::INFO)<<" MET "<< MET<< " totalJetPT "<<totalJetPT<<" Meff "<<Meff<<" ratio "<< MET/Meff <<" "<<passesEvent<<endreq;
+     /// msg(MSG::INFO)<<" MET "<< MET<< " totalJetPT "<<totalJetPT<<" Meff "<<Meff<<" ratio "<< MET/Meff <<" "<<passesEvent<<endmsg;
 
 
 

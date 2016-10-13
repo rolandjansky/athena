@@ -18,7 +18,7 @@ DerivationFramework::KinkTrkZmumuTagTool::KinkTrkZmumuTagTool(const std::string&
 							    const std::string& n,
 							    const IInterface* p):
   AthAlgTool(t, n, p),
-  m_trigDecisionTool("Trig::TrigDecisionTool"),
+  m_trigDecisionTool("Trig::TrigDecisionTool/TrigDecisionTool"),
   m_trigMatchTool("TrigMatchTool/TrigMatchTool"),
   m_trigNames(std::vector<std::string>()),
   m_trigMatchDeltaR(0.1),
