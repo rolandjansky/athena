@@ -48,8 +48,7 @@ def main():
         # only print the command line, allows stuff like 
         # pathena --trf "`GetTfCommand --AMI q1234 --printOnlyCmdLine` --inputFile bla.input --maxEvents 42"
         trfCmdLine = tag.trfs[0].name + " " + tag.trfs[0]._argsToString(tag.trfs[0].physics)
-        trfCmdLine.replace('"', '\\' + '"')
-        print trfCmdLine
+        print trfCmdLine.replace('"', '\\' + '"')
 
 
 if __name__ == '__main__':
