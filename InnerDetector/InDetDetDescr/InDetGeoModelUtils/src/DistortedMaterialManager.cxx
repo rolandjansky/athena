@@ -21,34 +21,34 @@ DistortedMaterialManager::DistortedMaterialManager()
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
 
   Athena::MsgStreamMember log("ExtraMaterialManager");
-  log << MSG::DEBUG << "Initialized InDet Distorted Material Manager" << endreq;
+  log << MSG::DEBUG << "Initialized InDet Distorted Material Manager" << endmsg;
 
   StoreGateSvc * detStore;
   StatusCode sc;
   sc = svcLocator->service("DetectorStore", detStore );
-  if (sc.isFailure()) log << MSG::FATAL << "Could not locate DetectorStore" << endreq;  
+  if (sc.isFailure()) log << MSG::FATAL << "Could not locate DetectorStore" << endmsg;  
  
   IRDBAccessSvc *rdbSvc;
   sc = svcLocator->service("RDBAccessSvc",rdbSvc);
-  if (sc.isFailure()) log << MSG::FATAL << "Could not locate RDBAccessSvc" << endreq;
+  if (sc.isFailure()) log << MSG::FATAL << "Could not locate RDBAccessSvc" << endmsg;
 
   IGeoModelSvc *geoModel;
   sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) log << MSG::FATAL << "Could not locate GeoModelSvc" << endreq;
+  if (sc.isFailure()) log << MSG::FATAL << "Could not locate GeoModelSvc" << endmsg;
 
   // Get version tag and node for InDet.
   DecodeVersionKey versionKey(geoModel, "InnerDetector");
   std::string detectorKey  = versionKey.tag();
   std::string detectorNode = versionKey.node();
 
-  log << MSG::DEBUG << "Retrieving Record Sets from database ..." << endreq;
-  log << MSG::DEBUG << "Key = " << detectorKey << " Node = " << detectorNode << endreq;
+  log << MSG::DEBUG << "Retrieving Record Sets from database ..." << endmsg;
+  log << MSG::DEBUG << "Key = " << detectorKey << " Node = " << detectorNode << endmsg;
 
   m_xMatTable = rdbSvc->getRecordsetPtr("InDetExtraMaterial", detectorKey, detectorNode);
 
   const StoredMaterialManager * theGeoMaterialManager = 0;
   sc = detStore->retrieve(theGeoMaterialManager, "MATERIALS");
-  if (sc.isFailure()) log << MSG::FATAL << "Could not locate GeoModel Material manager" << endreq;
+  if (sc.isFailure()) log << MSG::FATAL << "Could not locate GeoModel Material manager" << endmsg;
   m_materialManager = theGeoMaterialManager;
   
 }  
