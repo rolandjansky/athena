@@ -9,6 +9,7 @@ use MuonCondInterface      MuonCondInterface-*        MuonSpectrometer/MuonCondi
 private
 use AthenaPoolUtilities    AthenaPoolUtilities-*      Database/AthenaPOOL
 use PathResolver           PathResolver-*             Tools
+use AtlasCOOL              AtlasCOOL-*                External
 
 public
 library TGC_CondCabling  *.cxx components/*.cxx
