@@ -11,7 +11,7 @@ HnlFilterTool = skimtool( name = "HnlFilterTool",
                           Mu2PtMin  = 5*Units.GeV,
                           Mu2Types  = [0,1,2],
                           Mu2IsoCut = 1,
-                          Mu2d0Min  = 1 )
+                          Mu2d0Min  = 0.1 )
 
 ToolSvc += HnlFilterTool
 topSequence += kernel( "RPVLL_HnlFilterKernel",
