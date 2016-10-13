@@ -1,6 +1,6 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: Finddqm-common.cmake 732986 2016-03-30 16:25:54Z krasznaa $
+# $Id: Finddqm-common.cmake 778186 2016-10-13 08:35:27Z alibrari $
 #
 # Try to find DQM-COMMON
 # Defines:
@@ -46,7 +46,7 @@ endif()
 if( DQM-COMMON_FOUND )
    # Set up a dependency on the main dqm-common RPM package:
    set_property( GLOBAL APPEND PROPERTY ATLAS_EXTERNAL_RPMS
-      "dqm-common-${DQM-COMMON_VERSION}_DQMCRelease_${ATLAS_PLATFORM}" )
+      "dqm-common-${DQM-COMMON_VERSION}_${ATLAS_PLATFORM}" )
 
 #   foreach( comp ${dqm-common_FIND_COMPONENTS} )
 #      if( DQM-COMMON_${comp}_FOUND )
