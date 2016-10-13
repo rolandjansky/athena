@@ -17,10 +17,8 @@ try:
 except ImportError:
    pass
 
-import cppyy
-cppyy.loadDict('libPathResolver')
-cppyy.loadDict('libPathResolverDict') #why do we have to load both the library and the dict :-( To be fixed by ROOT...
-FindCalibFile = cppyy.gbl.PathResolverFindCalibFile
-FindCalibDirectory = cppyy.gbl.PathResolverFindCalibDirectory
-SetOutputLevel = cppyy.gbl.PathResolverSetOutputLevel
+import ROOT
+FindCalibFile = ROOT.PathResolver.FindCalibFile
+FindCalibDirectory = ROOT.PathResolver.FindCalibDirectory
+SetOutputLevel = ROOT.PathResolver.SetOutputLevel
 
