@@ -22,7 +22,7 @@ class CTPVersion(JobProperty):
     statusOn = True
     allowedTypes = [int]
     allowedValues = [0,1,2,3,4,5]
-    StoredValue = 3
+    StoredValue = 4
     
     Limits.setLimits(3)
 

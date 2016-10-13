@@ -175,7 +175,7 @@ class ThresholdDef:
 
         ThresholdValue.setDefaults('TAU',{'isobits' : '00000', 'use_relIso' : True })
 
-        for thrV in [6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60]:
+        for thrV in [6, 8, 12, 15, 20, 25, 30, 35, 40, 50, 60,100]:
             tc.registerThr('HA%i' % thrV, 'TAU').addThrValue(thrV)
 
         # beam splashes     
@@ -197,7 +197,7 @@ class ThresholdDef:
             tc.registerThr('HA%iIL' % thrV, 'TAU').addThrValue(thrV)
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00010', 'use_relIso' : True })
-        for thrV in [10,12,20]:
+        for thrV in [12,20]:
             tc.registerThr('HA%iIM' % thrV, 'TAU').addThrValue(thrV)
 
         ThresholdValue.setDefaults('TAU', {'isobits' : '00100', 'use_relIso' : True })
@@ -274,7 +274,7 @@ class ThresholdDef:
 
         
         # TE
-        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 40, 45, 50, 55, 60, 65, 70, 100, 200, 300, 2000, 4000, 10000, 12000, 14000]:
+        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 40, 45, 50, 55, 60, 65, 70, 90, 100, 120, 140, 160, 200, 280, 300, 360, 2000, 4000, 10000, 12000, 14000]:
             tc.registerThr('TE%i' % thrV, 'TE').addThrValue(thrV)
 
         # XE
@@ -287,7 +287,7 @@ class ThresholdDef:
 
         # Restricted range TE |eta|<2.4
         etamax = 24
-        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 40, 45, 50, 55, 60, 65, 70, 1000, 2000]:
+        for thrV in [0, 3, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 80, 110, 150, 180, 1000, 2000, 5000, 6500, 8000, 9000]:
             tc.registerThr('TE%i.0ETA%i' % (thrV, etamax), 'TE').addThrValue(EtSumOff).addThrValue( thrV, etamin = -etamax, etamax = etamax, priority=1)
         
         # RXE (restriced range ET miss)
@@ -365,6 +365,13 @@ class ThresholdDef:
         tc.registerThr('LUCID_COMM', 'LUCID').addThrValue(650)
         tc.registerThr('LUCID_05', 'LUCID').addThrValue(650)
         tc.registerThr('LUCID_06', 'LUCID').addThrValue(650)
+
+        ## AFP
+        tc.registerThr('AFP_NSC', 'NIM', mapping=2).addThrValue(50)
+        tc.registerThr('AFP_FSC', 'NIM', mapping=3).addThrValue(50)
+        tc.registerThr('AFP_NSA', 'NIM', mapping=4).addThrValue(50)
+        tc.registerThr('AFP_FSA', 'NIM', mapping=5).addThrValue(50)
+        
 
         # Diamond beam monitors
         #for i in range(8):

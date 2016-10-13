@@ -12,10 +12,18 @@ def hypo_factory(key, args):
         return JetSingleEtaRegionHypo(args)
     if key == 'HLThypo':
         return JetMaximumBipartiteHypo(args)
+    if key == 'HLThypo2_etaet':
+        return HLThypo2_etaet(args)
     if key == 'ht':
         return HTHypo(args)
+    if key == 'HLThypo2_ht':
+        return HLThypo2_ht(args)
     if key == 'tla':
         return TLAHypo(args)
+    if key == 'HLThypo2_tla':
+        return HLThypo2_tla(args)
+    if key == 'HLThypo2_dimass_deta':
+        return HLThypo2_dimass_deta(args)
 
     raise RuntimeError('hypo_factory: unknown key %s' % key)
 
@@ -44,6 +52,30 @@ class HypoAlg(object):
         s = ['%s: %s' % (k, str(v)) for k, v in self.__dict__.items()]
         return '\n'.join(s)
 
+
+
+def jet_attributes_toString(jet_attributes):
+    """Return a string of form '%d+_%s_%d+' where the digits preceeding the
+    string are multiplicy, the string is the eta range and the digits
+    after the string is the threshold. Used for trigger element and
+    standard jet hypo names."""
+
+    counter = defaultdict(lambda: defaultdict(int))
+
+    def bump(j):
+        counter[j.eta_range][j.threshold] += 1
+
+    [bump(j) for j in jet_attributes]
+
+    def mult_range_thresh(eta_range, thresh_dict, thresh):
+        return '%d_%s_%d' % (thresh_dict[thresh], eta_range, thresh)
+        
+    l = []
+    for eta_range, thresh_dict in counter.items():
+        l.extend([mult_range_thresh(eta_range, thresh_dict, thresh)
+                  for thresh in thresh_dict])
+    l.sort()
+    return '_'.join(l)
 
 
 class JetHypo(HypoAlg):
@@ -80,28 +112,13 @@ class JetHypo(HypoAlg):
                     ja.threshold)
                 raise RuntimeError(m)
 
-    def jet_attributes_tostring(self):
+    def attributes_toString(self):
         """Return a string of form '%d+_%s_%d+' where the digits preceeding the
         string are multiplicy, the string is the eta range and the digits
         after the string is the threshold. Used for trigger element and
         standard jet hypo names."""
 
-        counter = defaultdict(lambda: defaultdict(int))
-
-        def bump(j):
-            counter[j.eta_range][j.threshold] += 1
-
-        [bump(j) for j in self.jet_attributes]
-
-        def mult_range_thresh(eta_range, thresh_dict, thresh):
-            return '%d_%s_%d' % (thresh_dict[thresh], eta_range, thresh)
-        
-        l = []
-        for eta_range, thresh_dict in counter.items():
-            l.extend([mult_range_thresh(eta_range, thresh_dict, thresh)
-                      for thresh in thresh_dict])
-        l.sort()
-        return '_'.join(l)
+        return jet_attributes_toString(self.jet_attributes)
 
 
 class JetStandardHypo(JetHypo):
@@ -139,7 +156,14 @@ class JetMaximumBipartiteHypo(JetHypo):
         JetHypo.__init__(self, ddict)
 
 
-class HTHypo(HypoAlg):
+class HLThypo2_etaet(JetHypo):
+    hypo_type = 'HLThypo2_etaet'
+
+    def __init__(self, ddict):
+        JetHypo.__init__(self, ddict)
+
+
+class HTHypoBase(HypoAlg):
     """ Store paramters for the HT hypoAlg"""
 
     hypo_type = 'HT'
@@ -158,17 +182,34 @@ class HTHypo(HypoAlg):
 
         HypoAlg.check_missing_args(self, must_have, ddict)
 
-    def attributes_to_string(self):
+    def attributes_toString(self):
         return '_'.join(['ht' + str(int(self.ht_threshold)),
                          self.eta_range,
                          'j' + str(int(self.jet_et_threshold))])
-         
 
-class TLAHypo(HypoAlg):
+
+class HTHypo(HTHypoBase):
     """ Store paramters for the HT hypoAlg"""
 
-    hypo_type = 'tla'
+    hypo_type = 'HT'
     
+    def __init__(self, ddict):
+        HTHypoBase.__init__(self, ddict)
+
+
+class HLThypo2_ht(HTHypoBase):
+    """ Store paramters for the HT hypoAlg"""
+
+    hypo_type = 'HLThypo2_ht'
+    
+    def __init__(self, ddict):
+        HTHypoBase.__init__(self, ddict)
+
+
+
+class TLABase(HypoAlg):
+    """ Store paramters for the TLA hypoAlg"""
+
     def __init__(self, ddict):
         HypoAlg.__init__(self, ddict)
 
@@ -181,11 +222,60 @@ class TLAHypo(HypoAlg):
                      'indexlo',
                      'indexhi',
                      'mass_min',
-                     'mass_max')
+                     'mass_max',)
+#                    'ystar_min',
+#                    'ystar_max')
+
 
         HypoAlg.check_missing_args(self, must_have, ddict)
 
-    def attributes_to_string(self):
+    def attributes_toString(self):
         return 'tla_' + self.tla_string
         
 
+class TLAHypo(TLABase):
+    """ Store paramters for the HT hypoAlg"""
+
+    hypo_type = 'tla'
+    
+    def __init__(self, ddict):
+        TLABase.__init__(self, ddict)
+        
+
+class HLThypo2_tla(TLABase):
+    """ Store paramters for the HT hypoAlg"""
+
+    hypo_type = 'HLThypo2_tla'
+    
+    def __init__(self, ddict):
+        TLABase.__init__(self, ddict)
+
+
+class HLThypo2_dimass_deta(HypoAlg):
+    """ Store paramters for the dijet mass DEta hypoAlg"""
+
+    hypo_type = 'HLThypo2_dimass_deta'
+    
+    def __init__(self, ddict):
+        HypoAlg.__init__(self, ddict)
+
+    def _check_args(self, ddict):
+        """check the constructor args"""
+        
+        must_have = ('mass_min',
+                     'dEta_min',)
+
+        HypoAlg.check_missing_args(self, must_have, ddict)
+
+    def attributes_toString(self):
+        # use ints for invm, deta as this string is used
+        # in the Algorithm name, and Gausi does not allow '.'
+        # in names.
+        
+        s = jet_attributes_toString(self.jet_attributes)
+        if self.mass_min is not None:
+            s +=  '_invm_' + str(int(self.mass_min))
+        if self.dEta_min is not None:
+            s +=  '_deta_' + str(int(self.dEta_min))
+
+        return s

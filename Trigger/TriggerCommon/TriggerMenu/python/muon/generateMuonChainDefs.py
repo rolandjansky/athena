@@ -90,6 +90,13 @@ def generateChainDefs(chainDict):
         
     #if chainDict["topo"]:
     #    theChainDef = _addTopoInfo(theChainDef,chainDict)
+        
+    if (len(listOfChainDicts) > 1):
+        nomucomb_asymmetric = True
+        for ii in range(len(listOfChainDicts)):
+            if listOfChainDicts[ii]['chainParts']['reccalibInfo']!='nomucomb':nomucomb_asymmetric=False
+        if nomucomb_asymmetric == True:
+            theChainDef = _AsymmChainConfig(theChainDef,chainDict);
 
     return theChainDef
 
@@ -145,3 +152,59 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
     return theChainDef
 
 
+def _AsymmChainConfig(theChainDef,chainDict):
+    maxL2SignatureIndex = -1
+    for signatureIndex,signature in enumerate(theChainDef.signatureList):
+        print "DEBUG1 : check0 : ", signature;
+        if signature['listOfTriggerElements'][0][0:2] == "L2":
+            maxL2SignatureIndex = max(maxL2SignatureIndex,signatureIndex)
+    
+    inputTEsL2 = theChainDef.signatureList[maxL2SignatureIndex]['listOfTriggerElements'] 
+    inputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
+
+    L2ChainName = "L2_" + chainDict['chainName']
+    EFChainName = "EF_" + chainDict['chainName']
+    HLTChainName = "HLT_" + chainDict['chainName']   
+
+    idmultiArr = []
+    listOfChainDicts = splitChainDict(chainDict)
+    totalmulti = 0
+    for subChainDict in listOfChainDicts:
+        if subChainDict['chainParts']['reccalibInfo'] == "nomucomb":
+            totalmulti += int(subChainDict['chainParts']['multiplicity'])
+            idmultiArr += ["%03i_AA_%03i" % ( int(subChainDict['chainParts']['threshold']) , int(subChainDict['chainParts']['multiplicity']) )]
+
+    idmultiArr.sort()
+    totalmulti_lowest = 0
+    totalmulti_2ndlow = 0
+    for ii in range(len(idmultiArr)):
+        multi = idmultiArr[ii].split("_AA_")[1]
+        totalmulti_lowest += int(multi)
+        if ii > 0: totalmulti_2ndlow += int(multi)
+
+    idmultiArr2 = []
+    for ii in range(len(idmultiArr)):
+        thre = idmultiArr[ii].split("_AA_")[0]
+        multi = idmultiArr[ii].split("_AA_")[1]
+        if ii == 0: idmultiArr2 += [ "%ipt%i" % (totalmulti_lowest,int(thre)) ]
+        if ii == 1: idmultiArr2 += [ "%ipt%i" % (totalmulti_2ndlow,int(thre)) ]
+        if ii == 2: idmultiArr2 += [ "%ipt%i" % (int(multi),int(thre)) ]
+        if ii > 2: print "ERROR : not supported"
+
+    idmulti = "_".join(idmultiArr2)
+
+    from TrigMuonHypo.TrigMuonHypoConfig import TrigMuonIDTrackMultiHypoConfig
+    theTrigMuonIDTrackMultiHypoConfig_FTF = TrigMuonIDTrackMultiHypoConfig( idmulti, "FTF" )
+    theTrigMuonIDTrackMultiHypoConfig_Muon = TrigMuonIDTrackMultiHypoConfig( idmulti, "Muon" )
+
+    L2TEname = "L2_idtrkmulti_" + idmulti + "_nomucomb_" + chainDict['L1item']
+
+    theChainDef.addSequence([theTrigMuonIDTrackMultiHypoConfig_FTF], inputTEsL2, L2TEname)
+    theChainDef.addSignatureL2([L2TEname])
+
+    EFTEname = "EF_mutrkmulti_" + idmulti + "_nomucomb_" + chainDict['L1item']
+    theChainDef.addSequence([theTrigMuonIDTrackMultiHypoConfig_Muon],inputTEsEF, EFTEname);
+    theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFTEname])       
+
+
+    return theChainDef

@@ -28,5 +28,9 @@
     <ex name="HLT_g25_medium_mu24->EM15VH"/>
     <ex name="HLT_2g10_loose_mu20->EM7"/>
     <ex name="HLT_2g10_medium_mu20->EM7"/>
+
+    <ex name="HLT_e24_lhtight_nod0_L1EM20VH_e15_etcut_L1EM7_Zee->EM7"/>
+
+
   </test>
 </exceptions>

@@ -109,20 +109,33 @@ def _addTopoInfo(theChainDef,chainDict,doAtL2AndEF=True):
 
     elif "Zee" in chainDict["topo"]:
 
-        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zee, TrigL2DielectronMassHypo_ZeeTight
-        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zee, TrigEFDielectronMassHypo_ZeeTight
+        from TrigEgammaHypo.TrigL2DielectronMassHypoConfig import TrigL2DielectronMassFex_Zee, TrigL2DielectronMassHypo_ZeeTight, TrigL2DielectronMassHypo_Zee
+        from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFex_Zee, TrigEFDielectronMassHypo_ZeeTight, TrigEFDielectronMassHypo_Zee
 
         L2Fex = TrigL2DielectronMassFex_Zee()
         L2Hypo = TrigL2DielectronMassHypo_ZeeTight()
 
-        EFFex = TrigEFDielectronMassFex_Zee()
-        EFHypo = TrigEFDielectronMassHypo_ZeeTight()
+        if 'etcut' in chainDict['chainName']:
+            from TrigEgammaHypo.TrigEFDielectronMassHypoConfig import TrigEFDielectronMassFexElectronCluster_Zee, TrigEFDielectronMassHypoElectronCluster_Zee
+            EFFex = TrigEFDielectronMassFexElectronCluster_Zee()
+            EFHypo = TrigEFDielectronMassHypoElectronCluster_Zee()
+        else:
+            EFFex = TrigEFDielectronMassFex_Zee()
+            EFHypo = TrigEFDielectronMassHypo_ZeeTight()
+            
 
         theChainDef.addSequence([L2Fex, L2Hypo],inputTEsL2,L2ChainName)
         theChainDef.addSignatureL2([L2ChainName])
 
         theChainDef.addSequence([EFFex, EFHypo],inputTEsEF,EFChainName)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [EFChainName])
+
+        if 'etcut' in chainDict['chainName']:
+             from TrigIDTPMonitor.TrigIDTPMonitorConfig import IDTPMonitorElectron                                                               
+             IDTP = IDTPMonitorElectron()
+             myInputTEsEF = theChainDef.signatureList[-1]['listOfTriggerElements']
+             theChainDef.addSequence([IDTP],myInputTEsEF,EFChainName+"_monit")
+             theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1,[EFChainName+"_monit"])
     
     return theChainDef
 

@@ -24,7 +24,6 @@ class Test_hypo_factory(unittest.TestCase):
             'jet_attributes': [jet_attribute],
             'isCaloFullScan': True,
             'triggertower': False}
-
                 
         self.ht_hypo_args = {
             'chain_name': 'chain_name',
@@ -32,25 +31,39 @@ class Test_hypo_factory(unittest.TestCase):
             'ht_threshold': 250,
             'jet_et_threshold': 30.}
 
+
+                        
+        self.tla_hypo_args = {
+            'chain_name': 'chain_name',
+            'tla_string': '',   # '' for now
+            'indexlo': 0,
+            'indexhi': 2,
+            'mass_min': 0.,
+            'mass_max': 1000.,
+        }
+
     def test_0(self):
         """test factory function"""
 
-        hypo = hypo_factory('standard', self.hypo_args)
+        hypo = hypo_factory('run1hypo', self.hypo_args)
         self.assertTrue(hypo.__class__.__name__ == 'JetStandardHypo')
 
-        hypo = hypo_factory('single_region', self.hypo_args)
+        hypo = hypo_factory('HLTSRhypo', self.hypo_args)
         self.assertTrue(hypo.__class__.__name__ == 'JetSingleEtaRegionHypo')
 
-        hypo = hypo_factory('maximum_bipartite', self.hypo_args)
+        hypo = hypo_factory('HLThypo', self.hypo_args)
         self.assertTrue(hypo.__class__.__name__ == 'JetMaximumBipartiteHypo')
 
         hypo = hypo_factory('ht', self.ht_hypo_args)
         self.assertTrue(hypo.__class__.__name__ == 'HTHypo')
 
+        hypo = hypo_factory('tla', self.tla_hypo_args)
+        self.assertTrue(hypo.__class__.__name__ == 'TLAHypo')
+
     def test_1(self):
         """test HypoAlg construction"""
 
-        hypo = hypo_factory('standard', self.hypo_args)
+        hypo = hypo_factory('run1hypo', self.hypo_args)
 
         self.assertTrue(hypo.__class__.__name__ == 'JetStandardHypo')
         str(hypo)  # exercise string method

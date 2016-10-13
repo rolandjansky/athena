@@ -6,10 +6,12 @@ log = logging.getLogger( 'TriggerMenu.menu.StreamInfo' )
 monStreams = ['monitoring_random', 
               'CSC',
               'IDMonitoring',
+              'MetRateStudies',
               ]
 
 physicsStreams = ['Main',
                   'Physics',
+                  'Background',
                   'DISCARD',
                   'Egamma', 
                   'Bphysics',
@@ -20,7 +22,7 @@ physicsStreams = ['Main',
                   'ZeroBias',
                   'TauOverlay',
                   'Standby', 
-                  'L1Muon', 'L1Calo', 'L1MinBias', 
+                  'L1Muon', 'L1Calo', 'L1MinBias', 'L1Topo',
                   'IDCosmic','CosmicCalo',
                   'HLTPassthrough',
                   'JetTauEtmiss', # needed for LS1menu
@@ -32,9 +34,12 @@ physicsStreams = ['Main',
                   'HardProbes',
                   'MinBiasOverlay',
                   'UPC',
+                  'Mistimed',
+                  'ExoDelayed',
+                  'BphysDelayed',
                   ]
 
-calibStreams = ['Background', 
+calibStreams = [
                 'Tile', 
                 'L1CaloCalib',
                 'LArNoiseBurst',
@@ -53,6 +58,7 @@ calibStreams = ['Background',
                 'IDFwd',
                 'BeamSpot',
                 'zdcCalib',
+                'AFP'
                 ]
 
 ##NOTE: DataScouting_xx_NAME: 
@@ -85,7 +91,7 @@ def getStreamTag(streams):
         if stream in physicsStreams:
             streamTags += [(stream, 'physics', 'yes', '1')]
         elif stream in calibStreams:
-            if 'BeamSpot' in stream or 'Background' in stream or "IDTracks" in stream:
+            if 'BeamSpot' in stream or 'Background' in stream or "IDTracks" in stream or 'VdM' in stream or 'PixelBeam' in stream:
                streamTags += [(stream, 'calibration', 'yes', '1')]
             else: 
                streamTags += [(stream, 'calibration', 'no', '1')]

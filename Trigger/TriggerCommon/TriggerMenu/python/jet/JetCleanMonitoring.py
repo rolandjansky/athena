@@ -14,6 +14,7 @@ JetChainsToKeepMonitoring={
 "ht850",
 "ht850_L1J75",
 "ht850_L1J100",
+"ht1000_L1J100",
 #nice to keep for crosschecks, as used in DQ (offline monitoring):
 "5j60",
 "6j45",
@@ -68,5 +69,21 @@ JetChainsToKeepMonitoring={
 "j85_test1_2j45_test1",
 "j85_test2_2j45_test2",
 "j85_0eta240_test1_j25_240eta490_test1",
-"j85_0eta240_test2_j25_240eta490_test2"
+"j85_0eta240_test2_j25_240eta490_test2",
+#hi jets (these can have different L1 seeds (or be used in combined chains), must include all of them to keep the monitoring)
+"j50_ion_L1TE20",
+"j50_ion_L1TE50",
+"j50_ion_L1J10",
+"j50_ion_L1ZDC_A_C",
+"mu4_j50_ion_dr05",
+"mu4_j50_ion",
+"j75_ion_L1TE50",
+"j75_ion_L1J10",
+"j75_ion_L1ZDC_A_C",
+"j150_ion_L1TE50",
+"j150_ion_L1J10",
+"j50_320eta490_ion_L1TE20",
+"j50_320eta490_ion_L1TE50"
+"j20_ion_L1TE10",
+"j20_L1TE10",
 }

@@ -69,7 +69,7 @@ class ThresholdValue:
             s += 'isobits="%s" ' % self.isobits
         s += 'name="%s" phimin="%i" phimax="%i" priority="%i" thresholdval="%g" type="%s" window="%i"' % (self.name, self.phimin, self.phimax, self.priority, self.value, self.type, self.window)
         if self.type=='JET':
-            s += ' windowSize="%s"' % 'LARGE' # FIX
+            s += ' windowSize="%s"' % ( 'LARGE'  if self.window==8 else 'SMALL' ) 
         s += '/>\n'
         return s
 
@@ -240,7 +240,7 @@ class LVL1TopoInput(LVL1Threshold):
     #    <Signal range_begin="0" range_end="0" clock="0"/>
 
 
-    def __init__(self, triggerlines = None , thresholdName = None , mapping = None , connector = None , firstbit = None , numberOfBits = None , clock = None ):
+    def __init__(self, triggerlines = None , thresholdName = None , mapping = None , connector = None , firstbit = None , numberOfBits = None , clock = None , ttype = 'TOPO' ):
 
         if triggerlines != None :
             # from triggerline
@@ -248,7 +248,7 @@ class LVL1TopoInput(LVL1Threshold):
             if type(triggerlines)==list:
                 # multibit triggerlines
                 (commonNameOfLines, firstbit, numberOfBits, cable, clock, fpga, ordinal) = TriggerLine.checkMultibitConsistency(triggerlines)
-                super(LVL1TopoInput,self).__init__(name=commonNameOfLines, ttype='TOPO', mapping=ordinal)
+                super(LVL1TopoInput,self).__init__(name=commonNameOfLines, ttype=ttype, mapping=ordinal)
 
                 self.cable      = cable           # 0 .. 1
                 self.bitnum     = numberOfBits
@@ -258,7 +258,7 @@ class LVL1TopoInput(LVL1Threshold):
 
             else:
                 triggerline = triggerlines
-                super(LVL1TopoInput,self).__init__(name=triggerline.trigger, ttype='TOPO', mapping=triggerline.ordinal)
+                super(LVL1TopoInput,self).__init__(name=triggerline.trigger, ttype=ttype, mapping=triggerline.ordinal)
                 self.cable      = triggerline.cable      # 0 .. 1
                 self.bitnum     = 1
                 self.bitOnCable = triggerline.bit        # 0 .. 31
@@ -266,7 +266,7 @@ class LVL1TopoInput(LVL1Threshold):
                 self.clock      = triggerline.clock
         else:
             # from XML
-            super(LVL1TopoInput,self).__init__(name=thresholdName, ttype='TOPO', mapping=firstbit)
+            super(LVL1TopoInput,self).__init__(name=thresholdName, ttype=ttype, mapping=mapping)
             self.cable      = int(connector[-1]) # 0 .. 1
             self.bitnum     = numberOfBits
             self.bitOnCable = firstbit           # 0 .. 31
@@ -329,8 +329,8 @@ class LVL1Thresholds:
             return cmp(thr1.ttype,thr2.ttype)
 
         # Second sort by mapping if it's not -1
-        if thr1.mapping >= 0 or thr2.mapping >= 0:
-            return cmp(thr1.mapping,thr2.mapping)
+        if (thr1.mapping >= 0 or thr2.mapping >= 0) and (thr1.mapping != thr2.mapping):
+            return cmp( thr1.mapping, thr2.mapping )
 
         # If both mappings are -1 sort by threshold value and then threshold name
         import re
@@ -382,7 +382,6 @@ class LVL1Thresholds:
 
     def xml(self, ind=1, step=2):
         self.thresholds.sort(LVL1Thresholds.compThreshold)
-        #self.thresholds.sort()
         s = ind * step * ' ' + '<TriggerThresholdList>\n'
         for thr in self.thresholds:
             s += thr.xml(ind+1,step)

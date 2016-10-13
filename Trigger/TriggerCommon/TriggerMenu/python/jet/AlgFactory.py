@@ -115,8 +115,6 @@ class AlgFactory(object):
         # enum?). And thus limited to a finite set of values. "LC" and "EM"
         # are strings in this set.
 
-        self.cluster_calib = "'LC'" if self.cluster_params.do_lc else "'EM'"
-
         self.fex_params = self.menu_data.fex_params
         self.last_fex_params = self.menu_data.last_fex_params
         self.recluster_params = self.menu_data.recluster_params
@@ -133,27 +131,6 @@ class AlgFactory(object):
 
     def fullscan_roi(self):
         return [Alg('DummyAlgo', ('"RoiCreator"',), {})]
-
-    def jetrec(self):
-        """Instantiate a python object for TrigHLTJetRec. Incoming
-        fex_data is of type MenuData"""
-
-        merge_param_str = str(self.fex_params.merge_param).zfill(2)
-    
-        # assign a name which identifies the fex sequence and
-        # the python class to be instantiated.
-        name = "'TrigHLTJetRec_param_%s'" % (self.fex_params.fex_label)
-
-        kwds = {
-            'name': name,
-            'merge_param': "'%s'" % merge_param_str,
-            'jet_calib': "'%s'" % self.fex_params.jet_calib,
-            'cluster_calib': self.cluster_calib,
-            'output_collection_label': "'%s'" % (
-            self.fex_params.fex_label)
-        }
-        
-        return [Alg('TrigHLTJetRec_param', (), kwds)]
 
     def jetrec_triggertowers(self):
         """Instantiate a python object for TrigHLTJetRec that will
@@ -183,7 +160,7 @@ class AlgFactory(object):
             'jet_calib': "'nojcalib'",
             'cluster_calib': "'EM'",
             'output_collection_label': "'tcollection'",
-            'ptMinCut': 20.0
+            'ptMinCut': 20.0  # Note: 20 MeV
         }
 
         return [Alg(factory, (), kwds)]
@@ -202,11 +179,10 @@ class AlgFactory(object):
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
-            'cluster_calib': self.cluster_calib,
+            'cluster_calib': '"%s"' % self.fex_params.cluster_calib_fex,
             'output_collection_label': "'%s'" % (
             self.fex_params.fex_label)
         }
-
         return [Alg(factory, (), kwds)]
 
 
@@ -224,7 +200,7 @@ class AlgFactory(object):
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.recluster_params.jet_calib,
-            'cluster_calib': self.cluster_calib,
+            'cluster_calib': "'%s'" % self.fex_params.cluster_calib_fex,
             'output_collection_label': "'%s'" % (
                 self.recluster_params.fex_label),
             # ptMinCut and etaMaxCut are cuts applied to the
@@ -250,7 +226,7 @@ class AlgFactory(object):
             'name': name,  # instance label
             'merge_param': "'%s'" % merge_param_str,
             'jet_calib': "'%s'" % self.fex_params.jet_calib,
-            'cluster_calib': self.cluster_calib,
+            #'cluster_calib': self.fex_params.cluster_calib_fex,
             'output_collection_label': "'%s'" % (
             self.fex_params.fex_label)
         }
@@ -316,7 +292,7 @@ class AlgFactory(object):
         
         # assert len(self.hypo_params.jet_attributes) > 1
         
-        ja = self.hypo_params.jet_attributes_tostring()
+        ja = self.hypo_params.attributes_toString()
 
         # the hypo instance name is constructed from the
         # last jet fex run.
@@ -324,7 +300,7 @@ class AlgFactory(object):
                                    (ja,
                                     self.last_fex_params.fex_alg_name,
                                     self.last_fex_params.data_type,
-                                    self.cluster_params.cluster_calib,
+                                    self.fex_params.cluster_calib,
                                     self.last_fex_params.jet_calib,
                                     self.menu_data.scan_type)])
         
@@ -351,7 +327,46 @@ class AlgFactory(object):
             kargs)]
 
 
-    def hlt_hypo(self):
+    def etaet_kargs(self, algType):
+
+        ja = self.hypo_params.attributes_toString()
+
+
+        # the hypo instance name is constructed from the
+
+        # last jet fex run.
+        cleaningAlg = self.hypo_params.cleaner
+        matchingAlg = self.hypo_params.matcher
+
+        name_extension = '_'.join([str(e) for  e in
+                                   (ja,
+                                    self.last_fex_params.fex_alg_name,
+                                    self.last_fex_params.data_type,
+                                    self.fex_params.cluster_calib,
+                                    self.last_fex_params.jet_calib,
+                                    self.menu_data.scan_type,
+                                    cleaningAlg,
+                                    matchingAlg
+                                )])
+        
+        name = '"%s_%s"' % (algType, name_extension)
+        hypo = self.menu_data.hypo_params
+
+        eta_mins = [ja.eta_min for ja in hypo.jet_attributes]
+        eta_maxs = [ja.eta_max for ja in hypo.jet_attributes]
+        EtThresholds = [ja.threshold * GeV for ja in hypo.jet_attributes]
+        
+        kargs = {
+            'name': name,
+            'eta_mins': eta_mins,
+            'eta_maxs': eta_maxs,
+            'EtThresholds': EtThresholds,
+            'cleaningAlg': '"%s"' % cleaningAlg, 
+        }
+
+        return kargs
+
+    def hlthypo_EtaEt(self):
         """ method to replace jr_hypo
 
         Skype discussion R Goncalo/P Sherwood
@@ -370,55 +385,39 @@ class AlgFactory(object):
 
         
         # assert len(self.hypo_params.jet_attributes) > 1
-        
-        ja = self.hypo_params.jet_attributes_tostring()
+        algType = 'TrigHLTJetHypo'
+        kargs = self.etaet_kargs(algType)
 
-        cleaningAlg = self.hypo_params.cleaner
         matchingAlg = self.hypo_params.matcher
+        kargs['matchingAlg'] = '"%s"' % matchingAlg
 
-        # the hypo instance name is constructed from the
-        # last jet fex run.
+        return [Alg(algType, (), kargs)]
 
-        name_extension = '_'.join([str(e) for  e in
-                                   (ja,
-                                    self.last_fex_params.fex_alg_name,
-                                    self.last_fex_params.data_type,
-                                    self.cluster_params.cluster_calib,
-                                    self.last_fex_params.jet_calib,
-                                    self.menu_data.scan_type,
-                                    cleaningAlg,
-                                    matchingAlg
-                                )])
+
+    def hlthypo2_EtaEt(self):
+        """ run TrigHLTJetHypo2 with hypoStrategy EtaEt """
+
         
-        name = '"TrigHLTJetHypo_%s"' % name_extension
-        hypo = self.menu_data.hypo_params
+        # assert len(self.hypo_params.jet_attributes) > 1
+        algType = 'TrigHLTJetHypo2'
+        kargs = self.etaet_kargs(algType)
+        kargs['hypoStrategy'] = '"EtaEt"'
+        return [Alg(algType, (), kargs)]
 
-        eta_mins = [ja.eta_min for ja in hypo.jet_attributes]
-        eta_maxs = [ja.eta_max for ja in hypo.jet_attributes]
-        EtThresholds = [ja.threshold * GeV for ja in hypo.jet_attributes]
-        
-        kargs = {
-            'name': name,
-            'eta_mins': eta_mins,
-            'eta_maxs': eta_maxs,
-            'EtThresholds': EtThresholds,
-            'cleaningAlg': '"%s"' % cleaningAlg, 
-            'matchingAlg': '"%s"' % matchingAlg,
-        }
 
-        return [Alg('TrigHLTJetHypo',(), kargs)]
+    def tla_kargs(self, algType):
 
-    def hlt_hypo_tla(self):
-
-        name = '"TrigHLTJetHypo_%s"' % self.hypo_params.tla_string
+        name = '"%s_%s"' % (algType,
+                            self.hypo_params.tla_string)
         hypo = self.menu_data.hypo_params
 
         eta_min = -2.8
         eta_max = 2.8
         eta_mins = [eta_min]
         eta_maxs = [eta_max]
-        ystar_mins = [0.]
-        ystar_maxs = [min(0.5*abs(eta_max-eta_min), 1.2)]
+        ystar_mins = [0]
+        ystar_maxs = [0.65]
+        #ystar_maxs = [min(0.5*abs(eta_max-eta_min), 1.2)]
         mass_mins = [float(hypo.mass_min) * GeV]
         mass_maxs = [float(hypo.mass_max) * GeV]
         indices = [int(hypo.indexlo), int(hypo.indexhi)]
@@ -436,7 +435,47 @@ class AlgFactory(object):
             'jetvec_indices': indices,
         }
 
-        return [Alg('TrigHLTJetHypo',(), kargs)]
+        return kargs
+
+
+    def hlthypo_tla(self):
+        algType = 'TrigHLTJetHypo'
+        kargs = self.tla_kargs(algType)
+        return [Alg(algType,(), kargs)]
+
+
+    def hlthypo2_tla(self):
+
+        algType = 'TrigHLTJetHypo2'
+        kargs = self.tla_kargs(algType)
+        kargs['hypoStrategy'] = '"TLA"'
+        
+        return [Alg(algType,(), kargs)]
+
+
+    def dimass_deta_kargs(self, algType):
+        kargs = self.etaet_kargs(algType)
+        
+        mass_min = self.hypo_params.mass_min
+        if mass_min is not None:
+            kargs['mass_mins'] = [mass_min * GeV]
+        else:
+            kargs['mass_mins'] = []
+
+        dEta_min = self.hypo_params.dEta_min
+        if dEta_min is not None:
+            kargs['dEta_mins'] = [dEta_min]
+        else:
+            kargs['dEta_mins'] = []
+
+        return kargs
+        
+    def hlthypo2_dimass_deta(self):
+
+        algType = 'TrigHLTJetHypo2'
+        kargs = self.dimass_deta_kargs(algType)
+        kargs['hypoStrategy'] = '"DijetMassDEta"'
+        return [Alg(algType,(), kargs)]
 
 
     def hlt_hypo_test1(self):
@@ -454,24 +493,22 @@ class AlgFactory(object):
                               matchingAlg='orderedCollections')
 
 
-    def ht_hypo(self):
+    def ht_kargs(self, algType):
         """set up a HT hypo"""
     
         eta_range = self.hypo_params.eta_range
         name_extension = '_'.join([str(e) for  e in (
-            self.hypo_params.attributes_to_string(),
+            self.hypo_params.attributes_toString(),
             self.last_fex_params.fex_alg_name,
             self.last_fex_params.data_type,
-            self.cluster_params.cluster_calib,
+            self.fex_params.cluster_calib_fex,
             self.last_fex_params.jet_calib,
             self.menu_data.scan_type)])
 
-        name = '"EFHTHypo_%s"' % name_extension
+        # name = '"EFHTHypo_%s"' % name_extension
+        name = '"%s_%s"' % (algType, name_extension)
 
         eta_min, eta_max = eta_string_to_strings(eta_range)
-
-        args = ()
-    
         kargs = {'name': name,
                  'eta_min': eta_min,
                  'eta_max': eta_max,
@@ -479,7 +516,24 @@ class AlgFactory(object):
                  'Et_cut': self.hypo_params.jet_et_threshold * GeV
                  }
                  
-        return [Alg('EFHT', args, kargs)]
+        return kargs
+
+
+    def ht_hypo(self):
+        """set up an HT hypo"""
+
+        algType = 'EFHT'
+        kargs = self.ht_kargs(algType)
+        return [Alg(algType, (), kargs)]
+
+
+    def hlthypo2_ht(self):
+        """set up an HT hypo"""
+
+        algType = 'HLTHypo2_ht'
+        kargs = self.ht_kargs(algType)
+        kargs['hypoStrategy'] = '"HT"'
+        return [Alg(algType, (), kargs)]
 
 
     def superRoIMaker(self):
@@ -534,13 +588,12 @@ class AlgFactory(object):
         # will be placed in and the python class to be instantiated.
 
         class_name = 'TrigCaloClusterMaker_topo'
-        instance_name = '"%s_%s"' % (class_name,
-                                     self.cluster_params.cluster_label)
+        instance_name = '"TrigCaloClusterMaker_topo"'
 
         return [Alg(class_name,
                    (instance_name,),
                    {'doMoments': True,
-                    'doLC': self.cluster_params.do_lc})]
+                    'doLC': True})]
     #HI
     def hiEventShapeMaker(self):
 
@@ -623,7 +676,7 @@ class AlgFactory(object):
 
         kwds = {'name': name,
                 'chain_name': '"%s"' % self.chain_name_esc,
-                'cluster_calib': self.cluster_calib,
+                'cluster_calib': self.fex_params.cluster_calib_fex,
                 'ed_merge_param': ed_merge_param,
             }
         return [Alg(factory, (), kwds)]
@@ -655,14 +708,14 @@ class AlgFactory(object):
         name = '"%s_%s%s"' % (
             factory, 
             str(int(10 * ed_merge_param)).zfill(2),
-            self.cluster_params.cluster_label,
+            self.fex_params.cluster_calib,
         )
 
         # we do not carry the energy density calculation merge_param
         # so hard wire it here (to be fixed). This is not the fex
         # merge param!
         kwds = {'name':  name,
-                'cluster_calib': self.cluster_calib,
+                'cluster_calib': '"%s"' % self.fex_params.cluster_calib_fex,
                 'ed_merge_param': ed_merge_param
             }
     
@@ -703,7 +756,7 @@ class AlgFactory(object):
         object. These arguments arr not provided by the ChainConfig
         object, from which other Alg objects get their parmeters"""
 
-        jetPtThreshold = 0.* GeV
+        jetPtThreshold = 20.* GeV
         maxNJets = -1
         name_frag = ""
         if (maxNJets<0) : 

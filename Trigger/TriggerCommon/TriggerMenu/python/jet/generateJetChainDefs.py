@@ -35,9 +35,9 @@ def generateChainDefs(chainDict):
     
     jetgroup_chain = True
     chainName = chainDict['chainName']
-    print 'processing chain part 1 start', chainName
+    #print 'processing chain part 1 start', chainName
     theChainDef = generateHLTChainDef(chainDict)
-    print 'processing chain part 2 end', chainName
+    #print 'processing chain part 2 end', chainName
 
     listOfChainDicts = splitChainDict(chainDict)
 
@@ -46,7 +46,12 @@ def generateChainDefs(chainDict):
         allTopoAlgs = subCD['chainParts']['topo']
         for ta in allTopoAlgs:
             topoAlgs.append(ta)
-    
+
+    # test new jet algorithm and configuration PS 15/9/2016
+    if b_any(('invm' or 'deta' in x) for x in topoAlgs):
+        if 'test' in chainName:
+            return theChainDef
+
     if ('muvtx' in topoAlgs) or \
             ('llp' in topoAlgs) or \
             (b_any(('invm' or 'deta' in x) for x in topoAlgs)):
@@ -90,6 +95,8 @@ def _addTopoInfo(theChainDef,chainDict, topoAlgs, doAtL2AndEF=True):
     if ('muvtx' in topoAlgs):
        # import pdb;pdb.set_trace()
         theChainDef = generateMuonClusterLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
+    elif ('revllp' in topoAlgs):
+        theChainDef = generateReversedCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif ('llp' in topoAlgs):
         theChainDef = generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs)
     elif b_any(('invm' or 'deta' in x) for x in topoAlgs):
@@ -164,16 +171,20 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
     [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
 
     # calo-ratio
-    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import CaloRatioHypo
-    fex_llp_jet_hypo = CaloRatioHypo('TrigCaloRatioHypo_j30', threshold=30*GeV, logratio=1.2)
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import getCaloRatioHypoInstance
+    fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 30, 1.2, True)
 
     # beam-halo removal
     from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import TrigNewLoFHypoConfig
     hypo_LoF = TrigNewLoFHypoConfig()
 
+    from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import getBHremovalInstance
+    theBHremoval=getBHremovalInstance()
+
     TE_SplitJets = HLTChainName+'_SplitJetTool'
     TE_TrackMuonIsoB = HLTChainName+'_TrkMuIsoB'
     TE_LogRatioCut = HLTChainName+'_LogRatioCut'
+    TE_LogRatioCut_Fcalo = HLTChainName+'_LogRatioCut_Fcalo'
     TE_BeamHaloRemoval = HLTChainName+'_BeamHaloRemoval'
 
     # split into several trigger elements
@@ -189,8 +200,68 @@ def generateCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, to
 
     # adding LoF sequence
     if ('noiso' not in topoAlgs):
-        theChainDef.addSequence([hypo_LoF],TE_LogRatioCut,TE_BeamHaloRemoval)
+        # create a dummy roi and get full calo
+        from TrigGenericAlgs.TrigGenericAlgsConf import PESA__DummyUnseededAllTEAlgo as DummyAlgo
+        theDummyRoiCreator = DummyAlgo('RoiCreator')
+
+        from TrigCaloRec.TrigCaloRecConfig import TrigCaloCellMaker_jet_fullcalo    
+        theTrigCaloCellMaker_jet_fullcalo = TrigCaloCellMaker_jet_fullcalo("CellMakerFullCalo_topo", doNoise=0, AbsE=True, doPers=True)
+
+        theChainDef.addSequence(theDummyRoiCreator,'', 'EF_full_roi')
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, ['EF_full_roi'])
+
+        theChainDef.addSequence(theTrigCaloCellMaker_jet_fullcalo,'EF_full_roi', 'EF_full_cell')
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, ['EF_full_cell'])
+
+        # adding beam halo removal sequence
+        theChainDef.addSequence(theBHremoval, ['EF_full_cell',TE_LogRatioCut],TE_LogRatioCut_Fcalo)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_LogRatioCut_Fcalo])
+
+        theChainDef.addSequence([hypo_LoF], TE_LogRatioCut_Fcalo,TE_BeamHaloRemoval)
         theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_BeamHaloRemoval])
+
+    return theChainDef
+
+
+##########################################################################################
+def generateReversedCaloRatioLLPchain(theChainDef, chainDict, inputTEsL2, inputTEsEF, topoAlgs):
+    HLTChainName = "HLT_" + chainDict['chainName']   
+
+    # jet splitting
+    from TrigL2LongLivedParticles.TrigL2LongLivedParticlesConfig import getJetSplitterInstance_LowLogRatio
+    theJetSplit=getJetSplitterInstance_LowLogRatio()
+
+    # tracking
+    from TrigInDetConf.TrigInDetSequence import TrigInDetSequence
+    [trkcore, trkiso, trkprec] = TrigInDetSequence("Tau", "tau", "IDTrig", "2step").getSequence()
+
+    # reversed calo-ratio
+    from TrigLongLivedParticlesHypo.TrigLongLivedParticlesHypoConfig import getCaloRatioHypoInstance
+    if ('trkiso' in topoAlgs):
+        fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 200, -1.7, True)
+    elif ('230' in HLTChainName):
+        fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 230, -1.7, False)
+    elif ('250' in HLTChainName):
+        fex_llp_jet_hypo = getCaloRatioHypoInstance("TrigCaloRatioHypo", 250, -1.7, False)
+
+    TE_SplitJets = HLTChainName+'_SplitJetTool'
+    TE_TrackMuonIsoB = HLTChainName+'_TrkMuIsoB'
+    TE_LogRatioCut = HLTChainName+'_LogRatioCut'
+
+    # split into several trigger elements
+    theChainDef.addSequence(theJetSplit, inputTEsEF, TE_SplitJets)
+
+    if ('trkiso' in topoAlgs):
+        # adding tracking sequence
+        theChainDef.addSequence(trkiso+trkprec,TE_SplitJets,TE_TrackMuonIsoB)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_TrackMuonIsoB])
+        # adding reversed calo-ratio sequence
+        theChainDef.addSequence(fex_llp_jet_hypo,TE_TrackMuonIsoB,TE_LogRatioCut)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_LogRatioCut])
+    else:
+        # adding reversed calo-ratio sequence
+        theChainDef.addSequence(fex_llp_jet_hypo,TE_SplitJets,TE_LogRatioCut)
+        theChainDef.addSignature(theChainDef.signatureList[-1]['signature_counter']+1, [TE_LogRatioCut])
 
     return theChainDef
 
