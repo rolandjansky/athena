@@ -49,7 +49,7 @@ public:
 
   void serialize(const std::string &nameOfClass, void* instance, std::vector<uint32_t> &v);
 
-  void* deserialize(const std::string &nameOfClass, std::vector<uint32_t>& v);
+  void* deserialize(const std::string &nameOfClass, const std::vector<uint32_t>& v);
   /*
     StatusCode deserialize(const uint32_t *serialized,  const std::string nameOfClass);
   */
