@@ -70,6 +70,7 @@ TauJetTagTool::TauJetTagTool (const std::string& type, const std::string& name,
 /** initialization - called once at the begginning */
 StatusCode  TauJetTagTool::initialize() {
   ATH_MSG_DEBUG( "in intialize()" );
+  ATH_CHECK( m_eleOLR.retrieve() );
   return StatusCode::SUCCESS;
 }
 
