@@ -4,7 +4,7 @@
 #
 # @brief Utilities for handling AthenaMP jobs
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfMPTools.py 750283 2016-05-27 12:30:08Z graemes $
+# @version $Id: trfMPTools.py 772406 2016-09-09 12:10:12Z mavogel $
 # 
 
 __version__ = '$Revision'
@@ -59,11 +59,12 @@ def detectAthenaMPProcs(argdict = {}):
 #  @param dataDictionary This substep's data dictionary, allowing all files to be
 #  updated to the appropriate AthenaMP worker files
 #  @param athenaMPworkers Number of AthenaMP workers
+#  @param skipFileChecks Switches off checks on output files
 #  @return @c None; side effect is the update of the @c dataDictionary
-def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictionary, athenaMPworkers):
+def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictionary, athenaMPworkers, skipFileChecks):
     msg.debug("MP output handler called for report {0} and workers in {1}, data types {2}".format(athenaMPFileReport, athenaMPWorkerTopDir, dataDictionary.keys()))
     outputHasBeenHandled = dict([ (dataType, False) for dataType in dataDictionary.keys() if dataDictionary[dataType] ])
-    
+
     # First, see what AthenaMP told us
     mpOutputs = ElementTree.ElementTree()
     try:
@@ -114,9 +115,13 @@ def athenaMPOutputHandler(athenaMPFileReport, athenaMPWorkerTopDir, dataDictiona
                     continue
                 elif len(possibleOutputs) == 1:
                     fileNameList.append(path.join(entry[0], possibleOutputs[0]))
+                elif skipFileChecks:
+                    pass
                 else:
                     raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Found multiple matching outputs for datatype {0} in {1}: {2}".format(dataType, entry[0], possibleOutputs))
-            if len(fileNameList) != athenaMPworkers:
+            if skipFileChecks:
+                pass
+            elif len(fileNameList) != athenaMPworkers:
                 raise trfExceptions.TransformExecutionException(trfExit.nameToCode("TRF_OUTPUT_FILE_ERROR"), "Found {0} output files for {1}, expected {2} (found: {3})".format(len(fileNameList), dataType, athenaMPworkers, fileNameList))
             
             # Found expected number of files - good!
@@ -139,7 +144,7 @@ def athenaMPoutputsLinkAndUpdate(newFullFilenames, fileArg):
             linkedNameList.append(linkName)
             newFilenameValue.append(linkName)
             fileIndex += 1
-
+            
     for linkname, fname in zip(linkedNameList, newFullFilenames):
         if linkname:
             try:

@@ -3,7 +3,7 @@
 ## @package PyJobTransforms.trfArgClasses
 # @brief Transform argument class definitions
 # @author atlas-comp-transforms-dev@cern.ch
-# @version $Id: trfArgClasses.py 768736 2016-08-19 11:33:00Z mavogel $
+# @version $Id: trfArgClasses.py 770743 2016-08-30 08:44:06Z uworlika $
 
 import argparse
 import bz2
@@ -602,8 +602,6 @@ class argFile(argList):
     #  it can produce multiple output files - this is allowed by setting  <tt>allowMultiOutputs = True</tt>
     #  @note The setter protects against the same file being added multiple times
     def valueSetter(self, value):
-        prodSysPattern = re.compile(r'(?P<prefix>.*)\[(?P<expand>[\d\.,_]+)\](?P<suffix>.*)')
-
         ## @note First do parsing of string vs. lists to get list of files
         if isinstance(value, (list, tuple)):
             if len(value) > 0 and isinstance(value[0], dict): # Tier-0 style expanded argument with metadata
@@ -637,12 +635,7 @@ class argFile(argList):
             return
         else:
             try:
-                # If there is a prodsys glob in the game we turn off splitting
-                prodsysGlob = prodSysPattern.match(value)
-                if prodsysGlob and self._splitter is ',':
-                    msg.debug('Detected prodsys glob - normal splitting is disabled')
-                    self._value = [value]
-                elif value.lower().startswith('lfn'):
+                if value.lower().startswith('lfn'):
                     # Resolve physical filename using pool file catalog.
                     import PyUtils.AthFile as af
                     protocol, pfn = af.fname(value)
@@ -686,34 +679,15 @@ class argFile(argList):
                 msg.debug('Found POSIX filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
-                    ## @note Weird prodsys style globbing...
-                    #  This has the format:
-                    #   @c prefix._[NNN,MMM,OOO,PPP].suffix  (@c NNN, etc. are numbers)
-                    #  However an invisible .N attempt number also needs to be appended before doing real globbing
-                    prodsysGlob = prodSysPattern.match(filename)
-                    if prodsysGlob:
-                        msg.debug('Detected [MMM,NNN,OOO] style prodsys globbing for {0}'.format(filename))
-                        msg.debug('Prefix: {0}; Numerical expansion: {1}; Suffix: {2}'.format(prodsysGlob.group('prefix'), prodsysGlob.group('expand'), prodsysGlob.group('suffix')))
-                        numbers = prodsysGlob.group('expand').split(',')
-                        for number in numbers:
-                            # Add a final '*' to match against the .AttemptNumber invisible extension
-                            globName = prodsysGlob.group('prefix') + str(number) + prodsysGlob.group('suffix') + '*'
-                            msg.debug('Will try globbing against {0}'.format(globName))
-                            globbedNames = glob.glob(globName)
-                            if len(globbedNames) > 1:
-                                msg.warning('Warning - matched multiple filenames ({0}) when adding the .AttemptNumber to {1}'.format(globbedNames, globName))
-                            elif len(globbedNames) == 0:
-                                msg.warning('Warning - matched NO filenames when adding the .AttemptNumber to {0}'.format(globName))
-                            newValue.extend(globbedNames)
-                    else:
-                        # Simple case
-                        globbedFiles = glob.glob(filename)
-                        globbedFiles.sort()
-                        newValue.extend(globbedFiles)
-                if len(self._value) > 0 and len(newValue) is 0:
-                    # Woops - no files!
-                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'), 
-                                                              'Input file argument(s) {0!s} globbed to NO input files - probably the file(s) are missing'.format(self._value))
+                    # Simple case
+                    globbedFiles = glob.glob(filename)
+                    if len(globbedFiles) is 0:          # No files globbed for this 'filename' argument.
+                        raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
+                        'Input file argument {0} globbed to NO input files - probably the file(s) are missing'.format(filename))
+
+                    globbedFiles.sort()
+                    newValue.extend(globbedFiles)
+
                 self._value = newValue
                 msg.debug ('File input is globbed to %s' % self._value)
 
@@ -721,93 +695,55 @@ class argFile(argList):
                 msg.debug('Found root filesystem input - activating globbing')
                 newValue = []
                 for filename in self._value:
-
-                    ## @note Weird prodsys style globbing...
-                    #  This has the format:
-                    #   @c prefix._[NNN,MMM,OOO,PPP].suffix  (@c NNN, etc. are numbers)
-                    #  However an invisible .N attempt number also needs to be appended before doing real globbing
-                    prodsysGlob = prodSysPattern.match(filename)
-                    if prodsysGlob:
-                        theNameList = [filename]
-                        i = 0
-                        msg.debug('Try to split input string if more than one file is given')
-                        if ',root:' in filename:
-                            theNameList = filename.split(',root:')
-                            for name in theNameList:
-                                if not name.startswith('root:'):
-                                    name = 'root:'+name
-                                    theNameList[i] = name
-                                i = i + 1 
-                                
-                            msg.debug('Split input string into files: {0}'.format(theNameList))
-                        for fileName in theNameList:
-                            prodsysGlob = prodSysPattern.match(fileName)
-                            msg.debug('Detected [MMM,NNN,OOO] style prodsys globbing for {0}'.format(fileName))
-                            msg.debug('Prefix: {0}; Numerical expansion: {1}; Suffix: {2}'.format(prodsysGlob.group('prefix'), prodsysGlob.group('expand'), prodsysGlob.group('suffix')))
-                            numbers = prodsysGlob.group('expand').split(',')
-                            for number in numbers:
-                                # Add a final '.*' to match against the .AttemptNumber invisible extension
-                                globName = prodsysGlob.group('prefix') + str(number) + prodsysGlob.group('suffix') 
-                                msg.debug('Will try globbing against {0}'.format(globName))
-                                globbedNames =[globName]# glob.glob(globName)
-                                if len(globbedNames) > 1:
-                                    msg.warning('Warning - matched multiple filenames ({0}) when adding the .AttemptNumber to {1}'.format(globbedNames, globName))
-                                elif len(globbedNames) == 0:
-                                    msg.warning('Warning - matched NO filenames when adding the .AttemptNumber to {0}'.format(globName))
-                                newValue.extend(globbedNames)
-
+                    if not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
+                        msg.debug('Seems that only one file was given: {0}'.format(filename))
+                        newValue.extend(([filename]))
                     else:
-                        # Simple case
-                        if not(str(filename).endswith('/')) and '*' not in filename and '?' not in filename:
-                            msg.debug('Seems that only one file was given: {0}'.format(filename))
-                            newValue.extend(([filename]))
-                        else:
-                            # Hopefully this recognised wildcards...
-                            path = filename
-                            fileMask = ''
-                            if '*' in filename or '?' in filename:
-                                msg.debug('Split input into path for listdir() and a filemask to select available files.')    
-                                path = filename[0:filename.rfind('/')+1]
-                                msg.debug('path: {0}'.format(path))
-                                fileMask = filename[filename.rfind('/')+1:len(filename)]
-                                msg.debug('Will select according to: {0}'.format(fileMask))
+                        # Hopefully this recognised wildcards...
+                        path = filename
+                        fileMask = ''
+                        if '*' in filename or '?' in filename:
+                            msg.debug('Split input into path for listdir() and a filemask to select available files.')
+                            path = filename[0:filename.rfind('/')+1]
+                            msg.debug('path: {0}'.format(path))
+                            fileMask = filename[filename.rfind('/')+1:len(filename)]
+                            msg.debug('Will select according to: {0}'.format(fileMask))
 
-                            msg.debug('eos command is hard coded - check if it is executable')
-                            cmd = ['/afs/cern.ch/project/eos/installation/atlas/bin/eos.select' ]
-                            if not os.access ('/afs/cern.ch/project/eos/installation/atlas/bin/eos.select', os.X_OK ):
+                        cmd = ['/afs/cern.ch/project/eos/installation/atlas/bin/eos.select' ]
+                        if not os.access ('/afs/cern.ch/project/eos/installation/atlas/bin/eos.select', os.X_OK ):
+                            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
+                            'No execute access to "eos.select" - could not glob EOS input files.')
+
+                        cmd.extend(['ls'])
+                        cmd.extend([path])
+
+                        myFiles = []
+                        try:
+                            proc = subprocess.Popen(args = cmd,bufsize = 1, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
+                            rc = proc.wait()
+                            output = proc.stdout.readlines()
+                            if rc!=0:
                                 raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
-                                'No execute access to "eos.select" - could not glob EOS input files.')
+                                                            'EOS list command ("{0!s}") failed: rc {1}, output {2}'.format(cmd, rc, output))
+                            msg.debug("eos returned: {0}".format(output))
+                            for line in output:
+                                if "root" in line:
+                                    myFiles += [str(path)+str(line.rstrip('\n'))]
 
-                            cmd.extend(['ls'])
-                            cmd.extend([path])
-
-                            myFiles = []
-                            try:
-                                proc = subprocess.Popen(args = cmd,bufsize = 1, shell = False, stdout = subprocess.PIPE, stderr = subprocess.STDOUT)
-                                rc = proc.wait()
-                                output = proc.stdout.readlines()
-                                if rc!=0:
-                                    raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
-                                                                'EOS list command ("{0!s}") failed: rc {1}, output {2}'.format(cmd, rc, output))
-                                msg.debug("eos returned: {0}".format(output))
-                                for line in output:
-                                    if "root" in line:
-                                        myFiles += [str(path)+str(line.rstrip('\n'))]
-
-                                patt = re.compile(fileMask.replace('*','.*').replace('?','.'))
-                                for srmFile in myFiles:
-                                    if fileMask is not '':
-                                        if(patt.search(srmFile)) is not None:
-                                        #if fnmatch.fnmatch(srmFile, fileMask):
-                                            msg.debug('match: ',srmFile)
-                                            newValue.extend(([srmFile]))
-                                    else:
+                            patt = re.compile(fileMask.replace('*','.*').replace('?','.'))
+                            for srmFile in myFiles:
+                                if fileMask is not '':
+                                    if(patt.search(srmFile)) is not None:
+                                    #if fnmatch.fnmatch(srmFile, fileMask):
+                                        msg.debug('match: ',srmFile)
                                         newValue.extend(([srmFile]))
+                                else:
+                                    newValue.extend(([srmFile]))
                                 
-                                msg.debug('Selected files: ', newValue)
-                            except (AttributeError, TypeError, OSError):
-                                raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_RUNTIME_ERROR'),
-                                                             'Failed to convert %s to a list' % str(value))
+                            msg.debug('Selected files: ', newValue)
+                        except (AttributeError, TypeError, OSError):
+                            raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_RUNTIME_ERROR'),
+                                                                      'Failed to convert %s to a list' % str(value))
                 if len(self._value) > 0 and len(newValue) is 0:
                     # Woops - no files!
                     raise trfExceptions.TransformArgException(trfExit.nameToCode('TRF_INPUT_FILE_ERROR'),
