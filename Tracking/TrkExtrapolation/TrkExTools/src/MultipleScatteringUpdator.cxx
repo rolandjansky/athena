@@ -35,7 +35,7 @@ double Trk::MultipleScatteringUpdator::s_gausMixEpsilon_a2 =  6.096e-4;
 double Trk::MultipleScatteringUpdator::s_gausMixEpsilon_b0 = -1.908e-2;
 double Trk::MultipleScatteringUpdator::s_gausMixEpsilon_b1 =  1.106e-1;
 double Trk::MultipleScatteringUpdator::s_gausMixEpsilon_b2 = -5.729e-3;
-Trk::MaterialInteraction       m_matInt;
+Trk::MaterialInteraction       matInt;
 
 // constructor
 Trk::MultipleScatteringUpdator::MultipleScatteringUpdator(const std::string& t, const std::string& n, const IInterface* p) :
@@ -123,7 +123,7 @@ double Trk::MultipleScatteringUpdator::sigmaSquare(const MaterialProperties& mat
 
     double sigma2(0.);
 
-    double sigma = m_matInt.sigmaMS(t, p, beta);
+    double sigma = matInt.sigmaMS(t, p, beta);
     sigma2 = sigma*sigma;
 
     if(m_useTrkUtils && particle != Trk::electron) return sigma2;

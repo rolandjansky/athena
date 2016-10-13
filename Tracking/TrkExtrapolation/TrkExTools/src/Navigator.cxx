@@ -403,7 +403,7 @@ const Trk::NavigationCell Trk::Navigator::nextDenseTrackingVolume(
   // propagate
   std::vector<unsigned int> solutions;
   //const Trk::TrackParameters* nextPar = prop.propagate(parms,*surfaces,dir,vol,particle,solutions,path);
-  const Trk::TrackParameters* nextPar = prop.propagate(parms,*surfaces,dir,m_fieldProperties,particle,solutions,path,false,&vol);
+  const Trk::TrackParameters* nextPar = prop.propagate(parms,*surfaces,dir,m_fieldProperties,particle,solutions,path,false,false, &vol);
   //if (nextPar) throwIntoGarbageBin(nextPar);
   if (nextPar) {
     Amg::Vector3D gp = nextPar->position();
