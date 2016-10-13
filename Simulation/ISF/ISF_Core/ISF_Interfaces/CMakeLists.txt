@@ -13,7 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/AtlasDetDescr
                           DetectorDescription/GeoPrimitives
                           GaudiKernel
-                          Simulation/Barcode/BarcodeInterfaces
+                          Simulation/Barcode/BarcodeEvent
                           Simulation/ISF/ISF_Core/ISF_Event )
 
 # External dependencies:

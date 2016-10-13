@@ -19,7 +19,7 @@
 
 // ISF includes
 #include "ISF_Event/SimSvcID.h"
-#include "ISF_Event/ISFParticleVector.h"
+#include "ISF_Event/ISFParticleContainer.h"
 #include "ISF_Event/EntryLayer.h"
 #include "ISF_Interfaces/ISimulationSelector.h"
 
@@ -51,7 +51,7 @@ namespace ISF {
       virtual StatusCode registerSimSelector(SimSelectorToolArray &simSelectorTools, AtlasDetDescr::AtlasRegion geoID) = 0;
 
       /** Initialize the broker */
-      virtual StatusCode initializeEvent() = 0;
+      virtual StatusCode initializeEvent(ISFParticleContainer&& simParticles) = 0;
 
       /** Finalize the event in the broker service */
       virtual StatusCode finalizeEvent() = 0;
