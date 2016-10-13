@@ -39,7 +39,7 @@ public:
    *  std::vector<uint32_t>& v
    *  @return pointer to a deserialized object
    */
-  virtual void* deserialize(const std::string &nameOfClass, std::vector<uint32_t>& v) = 0;
+  virtual void* deserialize(const std::string &nameOfClass, const std::vector<uint32_t>& v) = 0;
 
   /** initialize framework to be ready to serialize a given class
    *  method to be called to prevent delayed initializations on the 
