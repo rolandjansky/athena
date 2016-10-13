@@ -588,10 +588,10 @@ class TrigCaloClusterMaker_slw (TrigCaloClusterMakerBase):
 
         try:
             from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
-            for tool in make_CaloSwCorrections ("ele37",version="v12phiflip_noecorrnogap"):
+            for tool in make_CaloSwCorrections ("ele37"):
                 self += tool
                 self.ClusterCorrectionTools += [tool.getFullName()]
-            for tool in make_CaloSwCorrections ("ele55",version="v12phiflip_noecorrnogap"):
+            for tool in make_CaloSwCorrections ("ele55"):
                 self += tool
                 self.ClusterCorrectionTools += [tool.getFullName()]
         except:
@@ -632,10 +632,10 @@ class TrigCaloClusterMaker_slw_fullcalo (TrigFullCaloClusterMakerBase):
         
         try:
             from CaloClusterCorrection.CaloSwCorrections import make_CaloSwCorrections
-            for tool in make_CaloSwCorrections ("ele37",version="v12phiflip_noecorrnogap"):
+            for tool in make_CaloSwCorrections ("ele37"):
                 self += tool
                 self.ClusterCorrectionTools += [tool.getFullName()]
-            for tool in make_CaloSwCorrections ("ele55",version="v12phiflip_noecorrnogap"):
+            for tool in make_CaloSwCorrections ("ele55"):
                 self += tool
                 self.ClusterCorrectionTools += [tool.getFullName()]
         except:

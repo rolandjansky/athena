@@ -46,7 +46,7 @@ HLT::ErrorCode TrigL1FCALTTSumFex::hltExecute(
 
     const xAOD::TriggerTowerContainer* container(0);
     if ( getFeature(outputTE,container) != HLT::OK ) {
-         msg() << MSG::WARNING << " Failed to get TT collection." << endreq;
+         msg() << MSG::WARNING << " Failed to get TT collection." << endmsg;
          return HLT::ERROR;
     }
 
