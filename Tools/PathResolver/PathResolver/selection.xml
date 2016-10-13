@@ -1,4 +1,4 @@
 <lcgdict>
-  <function name="PathResolverFindCalibFile" />
-  <function name="PathResolverFindCalibDirectory" />
+  <class name="PathResolver"/>
+
 </lcgdict>

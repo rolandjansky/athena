@@ -33,8 +33,10 @@ using namespace std;
 static const char* path_separator = ",:";
 bool PathResolver::m_setLevel=false; 
 
+PathResolver::PathResolver() { }
 
 asg::AsgMessaging& PathResolver::asgMsg() {
+   if(!m_setLevel) setOutputLevel(MSG::INFO);
    static asg::AsgMessaging asgMsg("PathResolver");
    return asgMsg;
 }
@@ -100,12 +102,12 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
       std::string addr = "http://"; addr += itr->substr(6,itr->length());
       bf::path lp = locationToDownloadTo/file;
       bf::path lpd = lp; lpd.remove_filename();
-      msg(MSG::DEBUG) <<"Attempting http download of " << addr << "/" << file.string() << " to " << lp << endreq;
+      msg(MSG::DEBUG) <<"Attempting http download of " << addr << "/" << file.string() << " to " << lp << endmsg;
 
       if(!is_directory(lpd)) {
-         msg(MSG::DEBUG) <<"   Creating directory: " << lpd  << endreq;
+         msg(MSG::DEBUG) <<"   Creating directory: " << lpd  << endmsg;
          if(!boost::filesystem::create_directories(lpd)) {
-            msg(MSG::DEBUG) <<"Unable to create directories to write file to : " << lp << endreq;
+            msg(MSG::DEBUG) <<"Unable to create directories to write file to : " << lp << endmsg;
             continue;
             //throw std::runtime_error("Unable to download calibration file");
          }
@@ -115,9 +117,9 @@ PathResolver::PR_find( const std::string& logical_file_name, const string& searc
       long errLevel = gErrorIgnoreLevel;
       gErrorIgnoreLevel = kError+1;
       if(!TFile::Cp(fileToDownload.c_str(),(locationToDownloadTo+"/"+file.string()).c_str())) {
-         msg(MSG::DEBUG) <<"Unable to download file : " << fileToDownload << endreq;
+         msg(MSG::DEBUG) <<"Unable to download file : " << fileToDownload << endmsg;
       } else {
-         msg(MSG::INFO) <<"Successfully downloaded " << fileToDownload << endreq;
+         msg(MSG::INFO) <<"Successfully downloaded " << fileToDownload << endmsg;
          result = (locationToDownloadTo+"/"+file.string()).c_str();
          gErrorIgnoreLevel=errLevel;
          return true;
@@ -188,7 +190,7 @@ PathResolver::find_file(const std::string& logical_file_name,
 #ifdef XAOD_STANDALONE
    const char* envVarVal = gSystem->Getenv(search_path.c_str());
    if(envVarVal == NULL) {
-      msg(MSG::WARNING) <<search_path.c_str() << " environment variable not defined!" << endreq;
+      msg(MSG::WARNING) <<search_path.c_str() << " environment variable not defined!" << endmsg;
       path_list = ""; //this will allow search in pwd ... maybe we should throw exception though!
    }
    else { path_list = envVarVal; }
@@ -237,7 +239,7 @@ string PathResolver::find_directory (const std::string& logical_file_name,
 #ifdef XAOD_STANDALONE
    const char* envVarVal = gSystem->Getenv(search_path.c_str());
    if(envVarVal == NULL) {
-      msg(MSG::WARNING) <<search_path.c_str() << " environment variable not defined!" << endreq;
+      msg(MSG::WARNING) <<search_path.c_str() << " environment variable not defined!" << endmsg;
       path_list = ""; //this will allow search in pwd ... maybe we should throw exception though!
    }
    else { path_list = envVarVal; }
@@ -307,8 +309,15 @@ std::string PathResolverFindDataFile (const std::string& logical_file_name)
 
 std::string PathResolver::find_calib_file (const std::string& logical_file_name)
 {
-  msg(MSG::DEBUG) << "Trying to locate " << logical_file_name << endreq;
-  if(logical_file_name.find("dev/")==0) msg(MSG::ERROR) << "Locating dev file " << logical_file_name << ". Do not let this propagate to a release" << endreq;
+  msg(MSG::DEBUG) << "Trying to locate " << logical_file_name << endmsg;
+  if(logical_file_name.find("dev/")==0) {
+#ifdef XAOD_ANALYSIS
+    msg(MSG::WARNING)
+#else
+    msg(MSG::ERROR) 
+#endif
+      << "Locating dev file " << logical_file_name << ". Do not let this propagate to a release" << endmsg;
+  }
   //expand filename before finding .. 
   TString tmpString(logical_file_name);
   gSystem->ExpandPathName(tmpString);
@@ -316,21 +325,28 @@ std::string PathResolver::find_calib_file (const std::string& logical_file_name)
    //strip any spaces off of the name
   boost::algorithm::trim(expandedFileName);
   std::string out = PathResolver::find_file (expandedFileName, "CALIBPATH");
-  if(out=="") msg(MSG::WARNING) <<"Could not locate " << logical_file_name << endreq;
+  if(out=="") msg(MSG::WARNING) <<"Could not locate " << logical_file_name << endmsg;
    return out;
 }
 
 std::string PathResolver::find_calib_directory (const std::string& logical_file_name)
 {
-  msg(MSG::DEBUG) <<"Trying to locate " << logical_file_name << endreq;
-  if(logical_file_name.find("dev/")==0) msg(MSG::ERROR) << "Locating dev directory " << logical_file_name << ". Do not let this propagate to a release" << endreq;
+  msg(MSG::DEBUG) <<"Trying to locate " << logical_file_name << endmsg;
+  if(logical_file_name.find("dev/")==0) {
+#ifdef XAOD_ANALYSIS
+    msg(MSG::WARNING)
+#else
+    msg(MSG::ERROR) 
+#endif
+     << "Locating dev directory " << logical_file_name << ". Do not let this propagate to a release" << endmsg;
+  }
   //expand filename before finding 
   TString tmpString(logical_file_name);
   gSystem->ExpandPathName(tmpString);
   std::string expandedFileName(tmpString.Data());
   boost::algorithm::trim(expandedFileName);
   std::string out = PathResolver::find_directory (expandedFileName, "CALIBPATH");
-  if(out=="") msg(MSG::WARNING) <<"Could not locate " << logical_file_name << endreq;
+  if(out=="") msg(MSG::WARNING) <<"Could not locate " << logical_file_name << endmsg;
    return out;
 }
 

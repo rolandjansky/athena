@@ -45,6 +45,7 @@ branches python
 
 apply_pattern declare_python_modules files="*.py"
 
+apply_pattern declare_scripts files=" -s=$(PathResolver_root)/python showReleaseNotes.py"
 
 #Next three lines kept for possible future developments
 #macro_append pp_cppflags " '-DPACKAGE_NAME=$(q2)$(package)$(q2)' '-DPACKAGE_OFFSET=$(q2)$($(package)_offset)$(q2)' "
@@ -55,6 +56,3 @@ private
 use AtlasReflex  AtlasReflex-*  External -no_auto_imports
 apply_pattern lcgdict dict=PathResolver selectionfile=selection.xml headerfiles="../PathResolver/PathResolverDict.h"
 end_private
-
-
-
