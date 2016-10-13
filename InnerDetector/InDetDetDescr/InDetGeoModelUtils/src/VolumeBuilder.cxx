@@ -228,7 +228,7 @@ GeoVPhysVol*  VolumeBuilder::build(int iElement)
 
   if (m_region == "None") 
     {
-      msg(MSG::ERROR) << "No region set. Cannot build services" << endreq;
+      msg(MSG::ERROR) << "No region set. Cannot build services" << endmsg;
       return 0;
     }
 
@@ -254,7 +254,7 @@ GeoVPhysVol*  VolumeBuilder::build(int iElement)
 	  serviceMat = m_matManager->getMaterialForVolume(materialName,volume);
 	} 
       else {
-	msg(MSG::ERROR) << "Material manager not available. Cannot build material."  << endreq;  
+	msg(MSG::ERROR) << "Material manager not available. Cannot build material."  << endmsg;  
 	return 0;
       }  
     } else {
