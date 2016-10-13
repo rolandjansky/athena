@@ -437,7 +437,7 @@ inline const IPropagator* TimedExtrapolator::subPropagator(const Trk::TrackingVo
   const IPropagator* currentPropagator = (tvol.geometrySignature() < m_subPropagators.size()) ?
     m_subPropagators[tvol.geometrySignature()] : 0;
   if (!currentPropagator)
-      msg(MSG::ERROR) << "[!] Configuration problem: no Propagator found for volumeSignature: " << tvol.geometrySignature() << endreq;
+      msg(MSG::ERROR) << "[!] Configuration problem: no Propagator found for volumeSignature: " << tvol.geometrySignature() << endmsg;
   return currentPropagator;         
 }
 

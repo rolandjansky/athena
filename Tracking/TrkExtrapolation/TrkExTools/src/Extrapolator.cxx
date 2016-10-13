@@ -57,7 +57,7 @@
 // "[+] Text describing single parameter  - par = "
 
 // reference surface for Blind extrapolation
-//Trk::PlaneSurface Trk::Extrapolator::s_referenceSurface(new Amg::Transform3D(Trk::s_idTransform), 0.,0.);
+//Trk::PlaneSurface Trk::Extrapolator::m_referenceSurface(new Amg::Transform3D(Trk::s_idTransform), 0.,0.);
 double Trk::Extrapolator::s_distIncreaseTolerance = 100. * Gaudi::Units::millimeter;
 // constructor
 Trk::Extrapolator::Extrapolator(const std::string& t, const std::string& n, const IInterface* p) :
@@ -200,8 +200,8 @@ Trk::Extrapolator::~Extrapolator()
 StatusCode Trk::Extrapolator::initialize()
 {   
 
-    s_referenceSurface=new Trk::PlaneSurface(new Amg::Transform3D(Trk::s_idTransform), 0.,0.);
-    s_referenceSurface->setOwner(Trk::TGOwn);
+    m_referenceSurface=new Trk::PlaneSurface(new Amg::Transform3D(Trk::s_idTransform), 0.,0.);
+    m_referenceSurface->setOwner(Trk::TGOwn);
 
     m_fieldProperties = m_fastField ? Trk::MagneticFieldProperties(Trk::FastField) : Trk::MagneticFieldProperties(Trk::FullField);
     if(m_propagators.size() == 0) m_propagators.push_back("Trk::RungeKuttaPropagator/DefaultPropagator");
@@ -374,7 +374,7 @@ StatusCode Trk::Extrapolator::finalize()
     }
   }  
  
-  delete s_referenceSurface;
+  delete m_referenceSurface;
 
   emptyGarbageBin();
 
@@ -820,7 +820,7 @@ const Trk::TrackParameters*  Trk::Extrapolator::extrapolate(const IPropagator& p
     }
 
    // ----------------- this is the exit of the extrapolateBlindly() call --------------------------------------
-   if ( (&sf) == (s_referenceSurface) ) return returnResult(resultParameters,refParameters);
+   if ( (&sf) == (m_referenceSurface) ) return returnResult(resultParameters,refParameters);
 
    // ---------------- extrapolation inside the Volume ----------------------------------------------------------
    if (nextVolume){ 
@@ -977,7 +977,7 @@ const std::vector<const Trk::TrackParameters*>* Trk::Extrapolator::extrapolateBl
    // create a new internal helper vector
    m_parametersOnDetElements = new std::vector<const Trk::TrackParameters*>;
    // run the extrapolation    
-   const Trk::TrackParameters* parameterOnSf = extrapolate(prop, parm, *s_referenceSurface, dir, bcheck, particle);
+   const Trk::TrackParameters* parameterOnSf = extrapolate(prop, parm, *m_referenceSurface, dir, bcheck, particle);
    // delete them if necessary
    if (parameterOnSf && parameterOnSf != (&parm)) delete parameterOnSf;
    // assign the return parameter and set m_parametersOnDetElements = 0;
@@ -2802,8 +2802,8 @@ const Trk::TrackParameters* Trk::Extrapolator::insideVolumeStaticLayers(
        if (!destinationLayer)     // (2) RECALL (very unlikely) // (3) GLOBAL SEARCH    
           destinationLayer = (m_recallSurface==m_destinationSurface && m_destinationSurface->associatedDetectorElement()) ? 
                               m_recallLayer : tvol.associatedLayer(m_destinationSurface->globalReferencePoint());
-          if (destinationLayer)
-              ATH_MSG_VERBOSE( "  [+] Destination layer found    - with " << layerRZoutput(*destinationLayer) );
+       if (destinationLayer)
+         ATH_MSG_VERBOSE( "  [+] Destination layer found    - with " << layerRZoutput(*destinationLayer) );
     } // destination layer only gather if extrapolation does not go to boundary
     
     // The update on the starting layer if necessary ---------------------------------------------------------
@@ -3420,6 +3420,8 @@ void Trk::Extrapolator::overlapSearch(const IPropagator& prop,
           detParameters = (&parsOnLayer);
        else if (isStartLayer)
       detParameters = (&parm);
+       else if (!detSurface)
+         detParameters = nullptr;
        else        
           //detParameters = prop.propagate(parm, *detSurface, dir, false, tvol, particle);
           detParameters = prop.propagate(parm, *detSurface, dir, false, m_fieldProperties, particle);
@@ -3646,7 +3648,7 @@ Trk::PropDirection Trk::Extrapolator::initializeNavigation(
    // only do it if sf is not the reference Surface   
    ATH_MSG_VERBOSE( "  [I] Starting with destination Volume search: -----------------------------" );   
 
-   if ( (&sf) != (s_referenceSurface) ){ 
+   if ( (&sf) != (m_referenceSurface) ){ 
      // (1) - TRY the association method
      destVolume = (sf.associatedLayer()) ? sf.associatedLayer()->enclosingTrackingVolume() : 0;
      // for the summary output

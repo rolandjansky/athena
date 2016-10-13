@@ -722,7 +722,7 @@ namespace Trk {
     
     // ------------ Re-initialize (depending on volumes)  ----------------------- //    
     mutable const Surface*          m_destinationSurface;                    
-    mutable const Surface*          s_referenceSurface;
+    mutable const Surface*          m_referenceSurface;
 
     // ------------ Recall / Boundary Information ----------------------- //    
     mutable const Volume*           m_boundaryVolume;                 //!< the boundary volume check
@@ -849,7 +849,7 @@ inline const IPropagator* Extrapolator::subPropagator(const Trk::TrackingVolume&
     m_subPropagators[Trk::MS] : 0; 
 
   if (!currentPropagator)
-      msg(MSG::ERROR) << "[!] Configuration problem: no Propagator found for volumeSignature: " << tvol.geometrySignature() << endreq;
+      msg(MSG::ERROR) << "[!] Configuration problem: no Propagator found for volumeSignature: " << tvol.geometrySignature() << endmsg;
   return currentPropagator;         
 }
                                        
