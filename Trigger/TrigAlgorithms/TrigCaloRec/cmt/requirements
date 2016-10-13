@@ -49,7 +49,7 @@ use CaloIdentifier          CaloIdentifier-*             Calorimeter
 #use GeoModelSvc             GeoModelSvc-*                DetectorDescription/GeoModel
 use GeoModelInterfaces      GeoModelInterfaces-*         DetectorDescription/GeoModel
 use LArIdentifier           LArIdentifier-*              LArCalorimeter
-use LArTools                LArTools-*                   LArCalorimeter
+use LArCabling              LArCabling-*                 LArCalorimeter
 use xAODTrigL1Calo	    xAODTrigL1Calo-*		 Event/xAOD
 use xAODTrigCalo	    xAODTrigCalo-*		 Event/xAOD
 use xAODHIEvent             xAODHIEvent-*                Event/xAOD

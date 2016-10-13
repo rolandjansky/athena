@@ -35,7 +35,7 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODHIEvent
                           Event/xAOD/xAODTrigL1Calo
                           LArCalorimeter/LArIdentifier
-                          LArCalorimeter/LArTools
+                          LArCalorimeter/LArCabling
                           Trigger/TrigT1/TrigT1CaloByteStream
                           Trigger/TrigT1/TrigT1Interfaces )
 
@@ -43,12 +43,12 @@ atlas_depends_on_subdirs( PUBLIC
 atlas_add_library( TrigCaloRecLib
                    src/*.cxx
                    PUBLIC_HEADERS TrigCaloRec
-                   LINK_LIBRARIES CaloEvent AthenaBaseComps AthenaKernel SGTools IRegionSelector xAODCaloEvent GaudiKernel TrigCaloEvent TrigSteeringEvent AthenaMonitoringLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloRecLib CaloUtilsLib LArToolsLib
+                   LINK_LIBRARIES CaloEvent AthenaBaseComps AthenaKernel SGTools IRegionSelector xAODCaloEvent GaudiKernel TrigCaloEvent TrigSteeringEvent AthenaMonitoringLib TrigT2CaloCommonLib TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloRecLib CaloUtilsLib LArCablingLib
                    PRIVATE_LINK_LIBRARIES CaloGeoHelpers CaloIdentifier EventKernel NavFourMom xAODTrigCalo xAODHIEvent xAODTrigL1Calo LArIdentifier TrigT1Interfaces )
 
 atlas_add_component( TrigCaloRec
                      src/components/*.cxx
-                     LINK_LIBRARIES CaloEvent AthenaBaseComps AthenaKernel AthenaMonitoringLib SGTools IRegionSelector xAODCaloEvent GaudiKernel TrigT2CaloCommonLib TrigCaloEvent TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloGeoHelpers CaloIdentifier CaloRecLib CaloUtilsLib EventKernel NavFourMom xAODTrigCalo xAODHIEvent xAODTrigL1Calo LArIdentifier LArToolsLib TrigT1Interfaces TrigCaloRecLib )
+                     LINK_LIBRARIES CaloEvent AthenaBaseComps AthenaKernel AthenaMonitoringLib SGTools IRegionSelector xAODCaloEvent GaudiKernel TrigT2CaloCommonLib TrigCaloEvent TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloDetDescrLib CaloGeoHelpers CaloIdentifier CaloRecLib CaloUtilsLib EventKernel NavFourMom xAODTrigCalo xAODHIEvent xAODTrigL1Calo LArIdentifier LArCablingLib TrigT1Interfaces TrigCaloRecLib )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

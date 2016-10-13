@@ -35,7 +35,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 //
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 //#include "GeoModelSvc/IGeoModelSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 //#include "xAODCaloEvent/CaloClusterAuxContainer.h"
