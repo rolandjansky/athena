@@ -109,7 +109,10 @@ class DV_METFilterFlags(JobProperty):
 		          "HLT_xe90_topoclPUC_L1XE50","HLT_xe100_topoclPUC_L1XE50","HLT_xe120_topoclPUC_L1XE50",
 		          "HLT_xe90_topoclPUC_L1XE55","HLT_xe100_topoclPUC_L1XE55","HLT_xe120_topoclPUC_L1XE55",
 	      	    "HLT_xe90_topoclPUC_L1XE60","HLT_xe100_topoclPUC_L1XE60","HLT_xe120_topoclPUC_L1XE60",
-              "HLT_xe130_mht_L1XE50"
+              "HLT_xe130_mht_L1XE50","HLT_xe110_mht_L1XE50_AND_xe65_L1XE50"
+              "HLT_xe110_mht_L1XE50_AND_xe70_L1XE50","HLT_xe110_mht_L1XE50_AND_xe75_L1XE50","HLT_xe110_mht_L1XE50_AND_xe80_L1XE50",
+              "HLT_xe110_mht_L1XE55_AND_xe65_L1XE55","HLT_xe110_mht_L1XE55_AND_xe70_L1XE55","HLT_xe110_mht_L1XE55_AND_xe75_L1XE55",
+              "HLT_xe110_mht_L1XE55_AND_xe80_L1XE55"
 		         ]
     pass
 primRPVLLDESDM.add_JobProperty(DV_METFilterFlags)

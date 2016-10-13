@@ -49,7 +49,7 @@ DerivationFramework::HnlSkimmingTool::HnlSkimmingTool(const std::string& t,
   declareProperty("Mu2IsoType", m_mu2IsoType=14); //ptcone30
   declareProperty("Mu2IsoCutIsRel", m_mu2IsoCutIsRel=1); //Cut is on relative isolation
   declareProperty("Mu2IsoCut", m_mu2IsoCut=1.);
-  declareProperty("Mu2d0Min", m_mu2d0Min=1.);
+  declareProperty("Mu2d0Min", m_mu2d0Min=0.1);
 }
   
 // Destructor
@@ -168,6 +168,7 @@ bool DerivationFramework::HnlSkimmingTool::eventPassesFilter() const
       if(IsGood(*mu)){//if muon has a good chi2/dof
         if(fabs((*mu_itr2)->primaryTrackParticle()->d0())>m_mu2d0Min) passD0cut = true;
       }
+      else{passD0cut = true;}
     }
     if((*mu_itr2)->pt()>m_mu2PtMin && fabs((*mu_itr2)->eta())<m_mu2AbsEtaMax && passTypeCut && isIso && passD0cut){
       muon2passed = true;
