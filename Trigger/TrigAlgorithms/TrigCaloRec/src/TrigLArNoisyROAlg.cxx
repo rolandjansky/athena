@@ -35,7 +35,7 @@
 #include "TrigTimeAlgs/TrigTimerSvc.h"
 //
 #include "LArIdentifier/LArOnlineID.h" 
-#include "LArTools/LArCablingService.h"
+#include "LArCabling/LArCablingService.h"
 //#include "GeoModelSvc/IGeoModelSvc.h"
 #include "GeoModelInterfaces/IGeoModelSvc.h"
 //#include "xAODCaloEvent/CaloClusterAuxContainer.h"
@@ -49,7 +49,7 @@ class ISvcLocator;
 TrigLArNoisyROAlg::TrigLArNoisyROAlg(const std::string& name, ISvcLocator* pSvcLocator)
   : HLT::AllTEAlgo(name, pSvcLocator), 
     m_useCachedResult(false), m_roiEtaLimit(4.8), m_onlineID(0),
-    AllTECaloClusterContainer(NULL)
+    m_AllTECaloClusterContainer(NULL)
 {
 
   declareProperty("roiEtaLimit",m_roiEtaLimit=4.8);
@@ -63,7 +63,7 @@ TrigLArNoisyROAlg::~TrigLArNoisyROAlg()
 
 HLT::ErrorCode TrigLArNoisyROAlg::hltInitialize()
 {
-  msg() << MSG::DEBUG << "in initialize()" << endreq;
+  msg() << MSG::DEBUG << "in initialize()" << endmsg;
   
   // Global timers...
   if (timerSvc()) {
@@ -75,18 +75,18 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltInitialize()
   // Cache pointer to ToolSvc
   IToolSvc* toolSvc = 0;// Pointer to Tool Service
   if (service("ToolSvc", toolSvc).isFailure()) {
-    msg() << MSG::FATAL << " Tool Service not found " << endreq;
+    msg() << MSG::FATAL << " Tool Service not found " << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG
 	  << "Initialization of TrigLArNoisyROAlg completed successfully"
-	  << endreq;
+	  << endmsg;
 
   const IGeoModelSvc *geoModel=0;
   if ( (service("GeoModelSvc", geoModel)).isFailure() ){
-	msg() << MSG::ERROR << "Could not get geoModel" << endreq;
+	msg() << MSG::ERROR << "Could not get geoModel" << endmsg;
 	return HLT::BAD_JOB_SETUP;
   }
   int dummyInt=0;
@@ -95,12 +95,12 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltInitialize()
   else {
 	StoreGateSvc* detStore(0);
         if ( service("DetectorStore", detStore).isFailure() ){
-	   msg(MSG::ERROR) << "Unable to retrieve detStore " << endreq;
+	   msg(MSG::ERROR) << "Unable to retrieve detStore " << endmsg;
            return StatusCode::FAILURE;
 	}
 	if ( (detStore->regFcn(&IGeoModelSvc::geoInit, geoModel,
 		 &TrigLArNoisyROAlg::geoInit,this) ).isFailure() ) {
-		msg() << MSG::ERROR << "Could not register callback" << endreq;
+		msg() << MSG::ERROR << "Could not register callback" << endmsg;
 		return HLT::BAD_JOB_SETUP;
 	}
   }
@@ -112,21 +112,21 @@ StatusCode TrigLArNoisyROAlg::geoInit(IOVSVC_CALLBACK_ARGS){
 /*
 	const  CaloIdManager* caloIdMgr;
 	if ( (detStore()->retrieve(caloIdMgr)).isFailure() ){
-	  msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr" << endreq;
+	  msg(MSG::ERROR) << "Unable to retrieve CaloIdMgr" << endmsg;
 	  return StatusCode::FAILURE;
 	}
 */
 	StoreGateSvc* detStore(0);
         if ( service("DetectorStore", detStore).isFailure() ){
-	   msg(MSG::ERROR) << "Unable to retrieve detStore " << endreq;
+	   msg(MSG::ERROR) << "Unable to retrieve detStore " << endmsg;
            return StatusCode::FAILURE;
 	}
 	if ( (detStore->retrieve(m_onlineID, "LArOnlineID")).isFailure() ){
-	   msg(MSG::ERROR) << "Unable to retrieve LArOnlineID " << endreq;
+	   msg(MSG::ERROR) << "Unable to retrieve LArOnlineID " << endmsg;
            return StatusCode::FAILURE;
 	}
 	if ( m_cablingService.retrieve().isFailure() ){
-	   msg(MSG::ERROR) << "Unable to retrieve LArCablingService " << endreq;
+	   msg(MSG::ERROR) << "Unable to retrieve LArCablingService " << endmsg;
            return StatusCode::FAILURE;
 	}
 	return StatusCode::SUCCESS;
@@ -136,7 +136,7 @@ StatusCode TrigLArNoisyROAlg::geoInit(IOVSVC_CALLBACK_ARGS){
 HLT::ErrorCode TrigLArNoisyROAlg::hltFinalize()
 {
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in finalize()" << endreq;
+    msg() << MSG::DEBUG << "in finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -150,7 +150,7 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltExecute( std::vector<std::vector<HLT::Trigg
   if (timerSvc()) m_timer[0]->start();
 
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in execute()" << endreq;
+    msg() << MSG::DEBUG << "in execute()" << endmsg;
 
   // Monitoring initialization...
 
@@ -165,7 +165,7 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltExecute( std::vector<std::vector<HLT::Trigg
     
     for (HLT::TEVec::const_iterator inner_it = (*it).begin(); inner_it != (*it).end(); ++inner_it) {
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "TE1  feature size "<< (*inner_it)->getFeatureAccessHelpers().size() << endreq;
+	msg() << MSG::DEBUG << "TE1  feature size "<< (*inner_it)->getFeatureAccessHelpers().size() << endmsg;
 
       const TrigRoiDescriptor* roiDescriptor = 0;
       HLT::ErrorCode sc = getFeature(*inner_it, roiDescriptor, "");
@@ -173,24 +173,24 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltExecute( std::vector<std::vector<HLT::Trigg
       if (msgLvl() <= MSG::DEBUG)
         msg() << MSG::DEBUG << " REGTEST: RoI id " << roiDescriptor->roiId()
               << " located at   phi = " <<  roiDescriptor->phi()
-              << ", eta = " << roiDescriptor->eta() << endreq;
+              << ", eta = " << roiDescriptor->eta() << endmsg;
       //get the cluster and tower container names - there should only be one of each
       cellcontname  = retrieveCellContName(*inner_it);
 
       //get the cell container from the previous te to add to the new output tes
       sc = getFeatures((*inner_it), vectorOfCellContainers, "");
       if( sc != HLT::OK ){
-	msg() << MSG::ERROR << "Failed to get TrigCells" << endreq;    
+	msg() << MSG::ERROR << "Failed to get TrigCells" << endmsg;    
 	return sc;
       }
 
       unsigned int n_features1 = 0;
       if (msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "TE  feature size "<< (*inner_it)->getFeatureAccessHelpers().size() << endreq;
+	msg() << MSG::DEBUG << "TE  feature size "<< (*inner_it)->getFeatureAccessHelpers().size() << endmsg;
       for ( std::vector< HLT::TriggerElement::FeatureAccessHelper >::const_iterator itc = (*inner_it)->getFeatureAccessHelpers().begin();
 	    itc != (*inner_it)->getFeatureAccessHelpers().end(); ++itc ) {
 	if (msgLvl() <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "TE  feature clid "<< itc->getCLID() << " feature: "<< n_features1 << endreq;
+	  msg() << MSG::DEBUG << "TE  feature clid "<< itc->getCLID() << " feature: "<< n_features1 << endmsg;
 	n_features1++;
       }
 
@@ -223,7 +223,7 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltExecute( std::vector<std::vector<HLT::Trigg
            msg() << std::hex;
            msg() << "; FEB: 0x" << febid.get_identifier32().get_compact();
            msg() << std::dec;
-           msg() << endreq;
+           msg() << endmsg;
        }
        if ( m_FEB_BadChanCount.find(febid) == m_FEB_BadChanCount.end() ){
 	  // This does not exist in the map
@@ -240,7 +240,7 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltExecute( std::vector<std::vector<HLT::Trigg
 	msg(MSG::DEBUG) << "In FEB ID : " << std::hex 
 	<< ((*itr).first).get_identifier32().get_compact()
 	<< std::dec << " there are : " << (*itr).second
-	<< " bad cells" << endreq;
+	<< " bad cells" << endmsg;
   }
   }
 
@@ -266,31 +266,31 @@ HLT::ErrorCode TrigLArNoisyROAlg::hltExecute( std::vector<std::vector<HLT::Trigg
        msg() << "; NBadFEBEMBC : " << NBadFEBEMBC;
        msg() << "; NBadFEBEMECA : " << NBadFEBEMECA;
        msg() << "; NBadFEBEMECC : " << NBadFEBEMECC;
-       msg() << endreq;
+       msg() << endmsg;
   }
 
-  AllTECaloClusterContainer  = new xAOD::CaloClusterContainer();
+  m_AllTECaloClusterContainer  = new xAOD::CaloClusterContainer();
   xAOD::CaloCluster * pCaloCluster = new xAOD::CaloCluster();
   //xAOD::CaloCluster * pCaloCluster = new xAOD::CaloCluster(0,0);
   pCaloCluster->setE(NBadFEBEMBA);
   pCaloCluster->setM(NBadFEBEMBC);
   pCaloCluster->setRawE(NBadFEBEMECA);
   pCaloCluster->setTime(NBadFEBEMECC);
-  AllTECaloClusterContainer->push_back(pCaloCluster);
+  m_AllTECaloClusterContainer->push_back(pCaloCluster);
   HLT::TriggerElement* AllTEoutputTE = addRoI(type_out,new TrigRoiDescriptor(0., -0.1, 0.1, 0., -0.1, 0.1));
   AllTEoutputTE->setActiveState(true);
   m_config->getNavigation()->copyAllFeatures( (tes_in.front()).front(), AllTEoutputTE);
   std::string AllTEclusterCollKey = "";
   
   xAOD::CaloClusterTrigAuxContainer* aux = new xAOD::CaloClusterTrigAuxContainer();
-  AllTECaloClusterContainer->setStore(aux);
+  m_AllTECaloClusterContainer->setStore(aux);
   
   // Build the "uses" relation for the outputTE to the cell container
   std::string aliasKey = "";
-  if ( recordAndAttachFeature(AllTEoutputTE, AllTECaloClusterContainer, aliasKey, "TrigCaloClusterMaker_slw") != HLT::OK ) {
+  if ( recordAndAttachFeature(AllTEoutputTE, m_AllTECaloClusterContainer, aliasKey, "TrigCaloClusterMaker_slw") != HLT::OK ) {
     msg() << MSG::ERROR
           << "Write of RoI Cluster Container into outputTE failed"
-          << endreq;
+          << endmsg;
     return HLT::NAV_ERROR;
   }
   if (timerSvc()){
@@ -308,15 +308,15 @@ std::string TrigLArNoisyROAlg::retrieveCellContName( HLT::TriggerElement* output
   std::vector<const CaloCellContainer*> vectorOfCellContainers;
 
   if( getFeatures(outputTE, vectorOfCellContainers, "") != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get TrigCells" << endreq;    
+    msg() << MSG::ERROR << "Failed to get TrigCells" << endmsg;    
     return "";
   }
   
-  msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size() << " CellContainers" << endreq;
+  msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size() << " CellContainers" << endmsg;
   
   // if no containers were found, just leave the vector empty and leave
   if ( vectorOfCellContainers.size() < 1) {
-    msg() << MSG::ERROR << "No cells to analyse, leaving!" << endreq;
+    msg() << MSG::ERROR << "No cells to analyse, leaving!" << endmsg;
     return "";
   }
 
@@ -326,13 +326,13 @@ std::string TrigLArNoisyROAlg::retrieveCellContName( HLT::TriggerElement* output
   // All this only to retrieve the key : 
   std::string cellCollKey;
   if ( getStoreGateKey( theCellCont, cellCollKey) != HLT::OK) {
-    msg() << MSG::ERROR << "Failed to get key for TrigCells" << endreq;    
+    msg() << MSG::ERROR << "Failed to get key for TrigCells" << endmsg;    
     return "";
   }
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG  << " REGTEST: Retrieved the cell container in the RoI " << endreq;
-    msg() << MSG::DEBUG << " REGTEST: Retrieved a Cell Container of Size= " << theCellCont->size() << endreq;
+    msg() << MSG::DEBUG  << " REGTEST: Retrieved the cell container in the RoI " << endmsg;
+    msg() << MSG::DEBUG << " REGTEST: Retrieved a Cell Container of Size= " << theCellCont->size() << endmsg;
   }
 
   return cellCollKey;

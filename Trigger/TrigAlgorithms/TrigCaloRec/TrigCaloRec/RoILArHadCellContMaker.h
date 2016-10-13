@@ -49,7 +49,7 @@ class RoILArHadCellContMaker : public IAlgToolEFCalo {
 
            ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
            LArCablingService * m_cablingSvc;
-           int do_LArCells_noise_suppression; //<! 0 (1) -> no (yes)
+           int m_do_LArCells_noise_suppression; //<! 0 (1) -> no (yes)
            float m_cutvalue;
            bool m_absEinSigma;
 

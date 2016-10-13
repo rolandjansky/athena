@@ -47,7 +47,7 @@ class RoITileCellContMaker : public IAlgToolEFCalo {
            //IT2GeometryTool *m_geometryTool;
            ITrigDataAccess *m_data;
            ToolHandle<ICalorimeterNoiseTool> m_noiseTool;
-           int do_TileCells_noise_suppression; //<! 0 (1) -> no (yes)
+           int m_do_TileCells_noise_suppression; //<! 0 (1) -> no (yes)
            float m_cutvalue;
            bool m_absEinSigma;
            bool m_twogaussiannoise;

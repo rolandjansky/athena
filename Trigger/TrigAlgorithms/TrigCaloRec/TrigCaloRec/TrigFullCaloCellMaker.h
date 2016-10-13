@@ -82,7 +82,7 @@ class TrigFullCaloCellMaker : public HLT::AllTEAlgo {
   std::vector<TrigTimer*> m_timer;
 
   /** Produced Calorimeter Cell Container. */
-  CaloCellContainer* pCaloCellContainer;
+  CaloCellContainer* m_pCaloCellContainer;
 
   /** Cell Container size (for monitoring purpouses). */
   double m_CellContainerSize;
@@ -95,7 +95,7 @@ class TrigFullCaloCellMaker : public HLT::AllTEAlgo {
 
 //public:
 //
-//  inline CaloCellContainer* GetCellContainer() const {return pCaloCellContainer;}
+//  inline CaloCellContainer* GetCellContainer() const {return m_pCaloCellContainer;}
 
 };
 #endif

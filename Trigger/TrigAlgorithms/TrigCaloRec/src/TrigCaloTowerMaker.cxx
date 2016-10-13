@@ -59,7 +59,7 @@ TrigCaloTowerMaker::TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSv
   , m_dphi(0.5)
   , m_totalTimer(NULL)
   , m_towerContTimer(NULL)
-  , pCaloTowerContainer(NULL)
+  , m_pCaloTowerContainer(NULL)
   , m_includeFcal(false)
 {
 
@@ -95,12 +95,12 @@ TrigCaloTowerMaker::TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSv
 
     HLT::ErrorCode TrigCaloTowerMaker::hltInitialize()
 {
-  msg() << MSG::DEBUG << "in initialize()" << endreq;
+  msg() << MSG::DEBUG << "in initialize()" << endmsg;
 
   // Cache pointer to ToolSvc
   IToolSvc* toolSvc = 0;// Pointer to Tool Service
   if (service("ToolSvc", toolSvc).isFailure()) {
-    msg() << MSG::FATAL << " Tool Service not found " << endreq;
+    msg() << MSG::FATAL << " Tool Service not found " << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -119,7 +119,7 @@ TrigCaloTowerMaker::TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSv
     if ( (*itrName).find("FC") != std::string::npos ) m_includeFcal=true;
     
     if( toolSvc->retrieveTool(theItem.type(), theItem.name(), algtool,this).isFailure() ) {
-      msg() << MSG::FATAL << "Unable to find tool for " << (*itrName) << endreq;
+      msg() << MSG::FATAL << "Unable to find tool for " << (*itrName) << endmsg;
       return HLT::BAD_JOB_SETUP;
     } else {
       CaloTowerBuilderToolBase* mytool = dynamic_cast<CaloTowerBuilderToolBase*>(algtool);
@@ -128,7 +128,7 @@ TrigCaloTowerMaker::TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSv
 	return HLT::BAD_JOB_SETUP;
       }
       else {
-	msg() << MSG::DEBUG << " set towerSet for this tool " << theItem.name() << endreq;
+	msg() << MSG::DEBUG << " set towerSet for this tool " << theItem.name() << endmsg;
 	mytool->setTowerSeg(theTowerSeg);
 	m_towerMakerPointers.push_back(mytool);
       }
@@ -144,7 +144,7 @@ TrigCaloTowerMaker::TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSv
 
   msg() << MSG::DEBUG
         << "Initialization of TrigCaloTowerMaker completed successfully"
-        << endreq;
+        << endmsg;
 
   return HLT::OK;
 }
@@ -153,7 +153,7 @@ TrigCaloTowerMaker::TrigCaloTowerMaker(const std::string& name, ISvcLocator* pSv
 HLT::ErrorCode TrigCaloTowerMaker::hltFinalize()
 {
 
-  msg() << MSG::DEBUG << "in finalize()" << endreq;
+  msg() << MSG::DEBUG << "in finalize()" << endmsg;
 
   return HLT::OK;
 }
@@ -166,15 +166,15 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
   if (timerSvc()) m_totalTimer->start();    
   
   if (msgLvl() <= MSG::DEBUG)
-    msg() << MSG::DEBUG << "in execute()" << endreq;
+    msg() << MSG::DEBUG << "in execute()" << endmsg;
     
   // Monitoring initialization...
   m_TowerContainerSize = 0.;
 
   // Some debug output:
   if (msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endreq;
-    msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endreq;
+    msg() << MSG::DEBUG << "outputTE->getId(): " << outputTE->getId() << endmsg;
+    msg() << MSG::DEBUG << "inputTE->getId(): " << inputTE->getId() << endmsg;
   }
     
   // Get RoiDescriptor
@@ -189,14 +189,14 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
   if (msgLvl() <= MSG::DEBUG)
     msg() << MSG::DEBUG << " RoI id " << roiDescriptor->roiId()
 	  << " located at   phi = " <<  roiDescriptor->phi()
-	  << ", eta = " << roiDescriptor->eta() << endreq;
+	  << ", eta = " << roiDescriptor->eta() << endmsg;
     
   /// ho hum, this needs a flag for using own wdiths rather than those from the roiDescriptor  
   /// in addition, this will *not* work properly for composite RoIs
     
   if ( roiDescriptor->composite() ) { 
     msg() << MSG::WARNING << " Attempting to use composite RoI as a normal RoI - this is probably *not* what you want to do "
-	  << *roiDescriptor << endreq;
+	  << *roiDescriptor << endmsg;
   }
   
   double   eta0 = roiDescriptor->eta();
@@ -212,12 +212,12 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
 
   if (msgLvl() <= MSG::DEBUG) {
     // set up the sampling windows (only for samp2??):
-    msg() << MSG::DEBUG << " eta0 = "<< eta0 << endreq;
-    msg() << MSG::DEBUG << " phi0 = "<< phi0 << endreq;
-    msg() << MSG::DEBUG << " etamin = "<< etamin << endreq;
-    msg() << MSG::DEBUG << " etamax = "<< etamax << endreq;
-    msg() << MSG::DEBUG << " phimin = "<< phimin << endreq;
-    msg() << MSG::DEBUG << " phimax = "<< phimax << endreq;
+    msg() << MSG::DEBUG << " eta0 = "<< eta0 << endmsg;
+    msg() << MSG::DEBUG << " phi0 = "<< phi0 << endmsg;
+    msg() << MSG::DEBUG << " etamin = "<< etamin << endmsg;
+    msg() << MSG::DEBUG << " etamax = "<< etamax << endmsg;
+    msg() << MSG::DEBUG << " phimin = "<< phimin << endmsg;
+    msg() << MSG::DEBUG << " phimax = "<< phimax << endmsg;
   }
 
   if (timerSvc()) m_towerContTimer->start();  // Measures the time to retrieve the cells in the RoI  
@@ -229,7 +229,7 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
   sc = getFeatures(outputTE, vectorOfCellContainers, "");
   if (sc != HLT::OK) {
     if(msgLvl() <= MSG::WARNING) {
-      msg() << MSG::WARNING << "Failed to get TrigCells" << endreq;
+      msg() << MSG::WARNING << "Failed to get TrigCells" << endmsg;
     }
 
     // return OK anyways, for some reason...
@@ -238,19 +238,19 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
     
   if(msgLvl() <= MSG::DEBUG) {
     msg() << MSG::DEBUG << "Got vector with " << vectorOfCellContainers.size()
-          << " CellContainers" << endreq;
+          << " CellContainers" << endmsg;
   }
     
   // if no containers were found, just leave the vector empty and leave
   if ( vectorOfCellContainers.size() < 1) {
-    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No cells to analyse, leaving!" << endreq;
+    if(msgLvl() <= MSG::DEBUG) msg() << MSG::DEBUG << "No cells to analyse, leaving!" << endmsg;
     return HLT::OK;
   }
     
   // Get the last container in the vector. Should be th one produced by the previous TrigCaloCellMaker.
   const CaloCellContainer* theCellCont = vectorOfCellContainers.back();
   if(!theCellCont){
-    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No Cells found in the RoI" << endreq;
+    if(msgLvl() <= MSG::WARNING) msg() << MSG::WARNING << "No Cells found in the RoI" << endmsg;
     return HLT::OK;
   }
 
@@ -260,8 +260,8 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
     
 
   if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << " REGTEST: Retrieved the cell container in the RoI " << endreq;
-    msg() << MSG::DEBUG << " REGTEST: Retrieved a Cell Container of Size= " << theCellCont->size() << endreq;
+    msg() << MSG::DEBUG << " REGTEST: Retrieved the cell container in the RoI " << endmsg;
+    msg() << MSG::DEBUG << " REGTEST: Retrieved a Cell Container of Size= " << theCellCont->size() << endmsg;
   }
 
   // Now Build the towers -----------------------------------------------------------------
@@ -272,11 +272,11 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
     CaloTowerSeg myseg (m_nEtaTowers,m_nPhiTowers,m_minEta,m_maxEta);
     CaloTowerSeg::SubSeg subseg = myseg.subseg ( roiDescriptor->eta(), m_deta,
 		roiDescriptor->phi(), m_dphi );
-    //CaloTowerContainer* pCaloTowerContainer = new CaloTowerContainer(theTowerSeg);
+    //CaloTowerContainer* m_pCaloTowerContainer = new CaloTowerContainer(theTowerSeg);
     if ( m_includeFcal )
-    pCaloTowerContainer = new CaloTowerContainer(myseg);
+    m_pCaloTowerContainer = new CaloTowerContainer(myseg);
     else
-    pCaloTowerContainer = new CaloTowerContainer( subseg.segmentation() );
+    m_pCaloTowerContainer = new CaloTowerContainer( subseg.segmentation() );
 
 
     std::vector<CaloTowerBuilderToolBase*>::const_iterator itrtwr=m_towerMakerPointers.begin();
@@ -284,60 +284,60 @@ HLT::ErrorCode TrigCaloTowerMaker::hltExecute(const HLT::TriggerElement* inputTE
     int index=0;
     for (; itrtwr!=endtwr; ++itrtwr) {
       //if((*itrtwr)->setProperty( StringProperty("CellContainerName",cellCollKey) ).isFailure()) {
-	//msg() << MSG::ERROR << "ERROR setting the CaloCellContainer name in the offline tool" << endreq;
+	//msg() << MSG::ERROR << "ERROR setting the CaloCellContainer name in the offline tool" << endmsg;
 	//return HLT::TOOL_FAILURE;
       //}
       if ( m_includeFcal ) {
-        if ( (*itrtwr)->execute(pCaloTowerContainer, theCellCont).isFailure() ) {
-         	msg() << MSG::ERROR << "Error executing tool " << m_towerMakerNames[index] << endreq;
+        if ( (*itrtwr)->execute(m_pCaloTowerContainer, theCellCont).isFailure() ) {
+         	msg() << MSG::ERROR << "Error executing tool " << m_towerMakerNames[index] << endmsg;
         } else {
          	if(msgLvl() <= MSG::DEBUG)
-	          msg() << MSG::DEBUG << "Executed tool " << m_towerMakerNames[index] << endreq;
+	          msg() << MSG::DEBUG << "Executed tool " << m_towerMakerNames[index] << endmsg;
         }
       } else {
-        if ( (*itrtwr)->execute(pCaloTowerContainer,theCellCont, &subseg).isFailure() ) {
-         	msg() << MSG::ERROR << "Error executing tool " << m_towerMakerNames[index] << endreq;
+        if ( (*itrtwr)->execute(m_pCaloTowerContainer,theCellCont, &subseg).isFailure() ) {
+         	msg() << MSG::ERROR << "Error executing tool " << m_towerMakerNames[index] << endmsg;
         } else {
          	if(msgLvl() <= MSG::DEBUG)
-	          msg() << MSG::DEBUG << "Executed tool " << m_towerMakerNames[index] << endreq;
+	          msg() << MSG::DEBUG << "Executed tool " << m_towerMakerNames[index] << endmsg;
         }
       }
       ++index;
     }
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " REGTEST: Produced a Tower Container of Size= " << pCaloTowerContainer->size() << endreq;
+      msg() << MSG::DEBUG << " REGTEST: Produced a Tower Container of Size= " << m_pCaloTowerContainer->size() << endmsg;
     
     std::string towerCollKey;
-    sc = recordAndAttachFeature(outputTE, pCaloTowerContainer, towerCollKey, "TrigCaloTowerMaker");
+    sc = recordAndAttachFeature(outputTE, m_pCaloTowerContainer, towerCollKey, "TrigCaloTowerMaker");
     if (sc != HLT::OK) {
-      msg() << MSG::ERROR << "Could not record a tower container in the RoI with key " <<  towerCollKey << endreq;
+      msg() << MSG::ERROR << "Could not record a tower container in the RoI with key " <<  towerCollKey << endmsg;
       return sc;
     } else {
       if(msgLvl() <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " REGTEST: Recorded the Tower container in SG " << endreq;
+	msg() << MSG::DEBUG << " REGTEST: Recorded the Tower container in SG " << endmsg;
       const INavigable4MomentumCollection* theNav4Coll = 0;
 
-      if ((store()->setConst(pCaloTowerContainer)).isSuccess()) {
-	if((store()->symLink(pCaloTowerContainer,theNav4Coll)).isFailure()) {
-	  msg() << MSG::ERROR << "Could not link the Tower Container to the INavigable4MomentumCollection " << endreq;
+      if ((store()->setConst(m_pCaloTowerContainer)).isSuccess()) {
+	if((store()->symLink(m_pCaloTowerContainer,theNav4Coll)).isFailure()) {
+	  msg() << MSG::ERROR << "Could not link the Tower Container to the INavigable4MomentumCollection " << endmsg;
 	  return HLT::NAV_ERROR;
 	}
       } else {
-	msg() << MSG::ERROR << "Could not link the Tower Container to the INavigable4MomentumCollection " << endreq;
+	msg() << MSG::ERROR << "Could not link the Tower Container to the INavigable4MomentumCollection " << endmsg;
 	return HLT::NAV_ERROR;
       }
     }
     
     if(msgLvl() <= MSG::DEBUG){
-      msg() << MSG::DEBUG << " REGTEST: Produced a Tower Container of Size= " << pCaloTowerContainer->size() << endreq;
-      CaloTowerContainer::const_iterator itrTow= pCaloTowerContainer->begin();
-      CaloTowerContainer::const_iterator endTow= pCaloTowerContainer->end();
+      msg() << MSG::DEBUG << " REGTEST: Produced a Tower Container of Size= " << m_pCaloTowerContainer->size() << endmsg;
+      //CaloTowerContainer::const_iterator itrTow= m_pCaloTowerContainer->begin();
+      //CaloTowerContainer::const_iterator endTow= m_pCaloTowerContainer->end();
       /*for (; itrTow!=endTow; ++itrTow) {
-         if((*itrTow)->e()!=0) msg() << MSG::DEBUG << " Tower with energy... " << (*itrTow)->e() << endreq;
+         if((*itrTow)->e()!=0) msg() << MSG::DEBUG << " Tower with energy... " << (*itrTow)->e() << endmsg;
       }*/
     }
 
-    m_TowerContainerSize = (float)pCaloTowerContainer->size() ;
+    m_TowerContainerSize = (float)m_pCaloTowerContainer->size() ;
   }
 
   if (timerSvc()) m_towerContTimer->stop();

@@ -6,7 +6,7 @@
 // Modified for trigger
 //
 // File and Version Information:
-// $Id: TrigCaloCell2ClusterMapper.cxx 542265 2013-03-25 11:54:29Z damazio $
+// $Id: TrigCaloCell2ClusterMapper.cxx 765962 2016-08-02 02:51:36Z ssnyder $
 //
 // Description: see TrigCaloCell2ClusterMapper.h
 // 
@@ -273,7 +273,7 @@ if (msg().level() <= MSG::VERBOSE) {
 	  }
 	}
 	if ( pCell )
-	  msg()<<MSG::VERBOSE << " Cluster with E_clus = " << pClus->e() << " MeV with weight w_cell = " << pClus->getCellWeight(pCell) << endreq;
+	  msg()<<MSG::VERBOSE << " Cluster with E_clus = " << pClus->e() << " MeV with weight w_cell = " << pClus->getCellWeight(pCell) << endmsg;
       }
     }
   }

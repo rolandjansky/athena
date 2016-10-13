@@ -33,7 +33,7 @@ RoITileCellContMaker::RoITileCellContMaker(const std::string & type, const std::
 				   m_data(NULL)
 {
   declareProperty("CheckCellWithinRoI", m_CheckCellWithinRoI = false);
-  declareProperty("DoTileCellsNoiseSuppression", do_TileCells_noise_suppression = 0);
+  declareProperty("DoTileCellsNoiseSuppression", m_do_TileCells_noise_suppression = 0);
   declareProperty("CaloNoiseTool",m_noiseTool,"Tool Handle for noise tool");
   declareProperty("CutValue",m_cutvalue = 2,"Cell accepted if e>m_cutvalue*tilecellnoise");
   declareProperty("AbsEinSigma",m_absEinSigma = 0,"0=asymmetric noise-sigma cut(default)"); 
@@ -50,7 +50,7 @@ StatusCode RoITileCellContMaker::initialize(){
     return StatusCode::FAILURE;
   }
   
-  if (do_TileCells_noise_suppression!=0){
+  if (m_do_TileCells_noise_suppression!=0){
     
     if (m_noiseTool.retrieve().isFailure()) return StatusCode::FAILURE;
 
@@ -80,7 +80,8 @@ StatusCode RoITileCellContMaker::finalize(){
 StatusCode RoITileCellContMaker::execute(CaloCellContainer &pCaloCellContainer,
 					 const IRoiDescriptor& roi ) { 
   // reset error
-  m_error=(EFTILE<<28);
+  //m_error=(EFTILE<<28);
+  m_error=0;
 
   if (m_timersvc) {
     (m_timer.at(0))->start();
@@ -103,7 +104,7 @@ StatusCode RoITileCellContMaker::execute(CaloCellContainer &pCaloCellContainer,
        //return StatusCode::FAILURE;
      }
      if (m_data->report_error()) {
-       m_error=m_data->report_error()+(EFTILE<<28);
+       m_error=m_data->report_error(); //+(EFTILE<<28);
        if (m_timersvc) (m_timer.at(2))->pause();
        //continue;
      }
@@ -112,7 +113,7 @@ StatusCode RoITileCellContMaker::execute(CaloCellContainer &pCaloCellContainer,
      if (m_timersvc) (m_timer.at(3))->resume();
      TileCellCollection::const_iterator it;
 
-     if (do_TileCells_noise_suppression!=0) {
+     if (m_do_TileCells_noise_suppression!=0) {
        for ( it = m_iBegin; it != m_iEnd; ++it) {
          CaloCell* cell = (CaloCell*)(*it);	 
 	 double tilecellnoise = m_twogaussiannoise ? 
