@@ -193,7 +193,7 @@ HLT::ErrorCode MufastHypo::hltExecute(const HLT::TriggerElement* outputTE, bool&
 
    // Check pt threshold for hypothesis, 
    // convert units since Muonfeature is in GeV
-   if ( fabsf(pMuon->pt()) > (threshold/CLHEP::GeV)){
+   if ( std::abs(pMuon->pt()) > (threshold/CLHEP::GeV)){
       // selects only tracks coming from a region around PV
       if( m_selectPV ){
 	 if((fabs(m_x_at_beam)<m_R_PV) && (fabs(m_z_at_beam)<m_Z_PV))

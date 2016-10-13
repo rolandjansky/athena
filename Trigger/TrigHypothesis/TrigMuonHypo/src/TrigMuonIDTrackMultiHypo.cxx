@@ -22,8 +22,6 @@ class ISvcLocator;
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-const float TrigMuonIDTrackMultiHypo::pi = 3.14159265358979323846;
-
 TrigMuonIDTrackMultiHypo::TrigMuonIDTrackMultiHypo(const std::string & name, ISvcLocator* pSvcLocator):
   HLT::AllTEAlgo(name, pSvcLocator)
 {
@@ -105,13 +103,13 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltBeginRun()
 
     msg() << MSG::INFO << "TrkAlg = " << m_TrkAlgo << endreq;
 
-    auto m_bins1 = m_ptBins1.size() - 1;
-    if (m_bins1 != m_ptThresholds1.size()) {
+    auto bins1 = m_ptBins1.size() - 1;
+    if (bins1 != m_ptThresholds1.size()) {
       msg() << MSG::INFO << "bad thresholds setup for #1.... exiting!" << endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }else{
       msg() << MSG::INFO << "track multiplicity for #1 is " << m_Multiplicity1 << endreq;
-      for (std::vector<float>::size_type i = 0; i < m_bins1; ++i) {
+      for (std::vector<float>::size_type i = 0; i < bins1; ++i) {
 	msg() << MSG::INFO
 	      << "bin " << m_ptBins1[i] << " - " <<  m_ptBins1[i + 1]
 	      << " with Pt Threshold of " << (m_ptThresholds1[i]) / CLHEP::GeV
@@ -119,13 +117,13 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltBeginRun()
       }
     }
 
-    auto m_bins2 = m_ptBins2.size() - 1;
-    if (m_bins2 != m_ptThresholds2.size()) {
+    auto bins2 = m_ptBins2.size() - 1;
+    if (bins2 != m_ptThresholds2.size()) {
       msg() << MSG::INFO << "bad thresholds setup for #2.... exiting!" << endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }else{
       msg() << MSG::INFO << "track multiplicity for #2 is " << m_Multiplicity2 << endreq;
-      for (std::vector<float>::size_type i = 0; i < m_bins2; ++i) {
+      for (std::vector<float>::size_type i = 0; i < bins2; ++i) {
 	msg() << MSG::INFO
 	      << "bin " << m_ptBins2[i] << " - " <<  m_ptBins2[i + 1]
 	      << " with Pt Threshold of " << (m_ptThresholds2[i]) / CLHEP::GeV
@@ -133,13 +131,13 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltBeginRun()
       }
     }
     
-    auto m_bins3 = m_ptBins3.size() - 1;
-    if (m_bins3 != m_ptThresholds3.size()) {
+    auto bins3 = m_ptBins3.size() - 1;
+    if (bins3 != m_ptThresholds3.size()) {
       msg() << MSG::INFO << "bad thresholds setup for #3.... exiting!" << endreq;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }else{
       msg() << MSG::INFO << "track multiplicity for #3 is " << m_Multiplicity3 << endreq;
-      for (std::vector<float>::size_type i = 0; i < m_bins3; ++i) {
+      for (std::vector<float>::size_type i = 0; i < bins3; ++i) {
 	msg() << MSG::INFO
 	      << "bin " << m_ptBins3[i] << " - " <<  m_ptBins3[i + 1]
 	      << " with Pt Threshold of " << (m_ptThresholds3[i]) / CLHEP::GeV
@@ -187,8 +185,8 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltExecute(std::vector<std::vector<HLT:
 
   
   // reset monitoring variables
-  bool m_doMonitor = true;
-  if(m_doMonitor){
+  bool doMonitor = true;
+  if(doMonitor){
     beforeExecMonitors().ignore();
     m_mon_nTracks.clear();
     m_mon_TrkPt.clear();
@@ -296,7 +294,7 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltExecute(std::vector<std::vector<HLT:
   
   if( errorWhenGettingELs ) {
     msg() << MSG::WARNING << "error when getting ELs. exitting with all TEs deactive..." << endreq;
-    if(m_doMonitor)afterExecMonitors().ignore();
+    if(doMonitor)afterExecMonitors().ignore();
     for(unsigned i_te=0; i_te<n_allTEs; i_te++) 
       vec_outputTEs[i_te]->setActiveState(false);
     return HLT::ErrorCode(HLT::Action::CONTINUE,HLT::Reason::NAV_ERROR);
@@ -335,14 +333,14 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltExecute(std::vector<std::vector<HLT:
 	float min = (m_MuRoiDrMin>0)?(m_MuRoiDrMin):(0);
 	if( dR < max && dR > min ) dr_ok = true;
 	if(debug) msg() << MSG::DEBUG << "dR check: dR = " << dR << " : requirement=[" << m_MuRoiDrMin << "," << m_MuRoiDrMax << "] pass=" << dr_ok << endreq;
-	if(m_doMonitor)m_mon_MuRoiDr.push_back( dR );	
+	if(doMonitor)m_mon_MuRoiDr.push_back( dR );	
       }
     }
     if( !dr_ok ){
       if(debug) msg() << MSG::DEBUG << "failing dR(two RoIs) requirement [" << m_MuRoiDrMin << "," << m_MuRoiDrMax << "]" << endreq;
       for(unsigned i_te=0; i_te<n_allTEs; i_te++) 
 	vec_outputTEs[i_te]->setActiveState(false);
-      if(m_doMonitor)afterExecMonitors().ignore();
+      if(doMonitor)afterExecMonitors().ignore();
       return HLT::OK;
     }else{
       if(debug) msg() << MSG::DEBUG << "at least one combination of two RoIs has passed dR requirement [" << m_MuRoiDrMin << "," << m_MuRoiDrMax << "]" << endreq;
@@ -352,14 +350,14 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltExecute(std::vector<std::vector<HLT:
   if( (m_Multiplicity1 <= 0 && m_Multiplicity2 <= 0 && m_Multiplicity3 <= 0) || m_UseMuRoiDrOnly ){
     if(debug) msg() << MSG::DEBUG << "no track multiplicity requirement" << endreq;
     if(debug) msg() << MSG::DEBUG << "event passed" << endreq;
-    if(m_doMonitor)afterExecMonitors().ignore();
+    if(doMonitor)afterExecMonitors().ignore();
     return HLT::OK;
   }
   
   int n_tracks = 0;
-  std::vector<float> m_ptOv;
-  std::vector<float> m_etaOv;
-  std::vector<float> m_phiOv;
+  std::vector<float> ptOv;
+  std::vector<float> etaOv;
+  std::vector<float> phiOv;
   int n_pass_pt1 = 0;
   int n_pass_pt2 = 0;
   int n_pass_pt3 = 0;
@@ -425,8 +423,8 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltExecute(std::vector<std::vector<HLT:
 		    " z0=" << trk_z0 <<
 		    " d0=" << trk_d0 << endreq;
 	bool already = false;
-	for(unsigned int i = 0 ; i < m_ptOv.size() ; i++){
-	  double dr = deltaR( m_etaOv.at(i), m_phiOv.at(i), trk_eta, trk_phi);
+	for(unsigned int i = 0 ; i < ptOv.size() ; i++){
+	  double dr = deltaR( etaOv.at(i), phiOv.at(i), trk_eta, trk_phi);
 	  if( dr < 0.001 ){
 	    already = true;
 	    break;
@@ -436,9 +434,9 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltExecute(std::vector<std::vector<HLT:
 	  if(debug) msg() << MSG::DEBUG << "already used" << endreq;
 	  continue;
 	}
-	m_ptOv.push_back(trk_pt);
-	m_etaOv.push_back(trk_eta);
-	m_phiOv.push_back(trk_phi);
+	ptOv.push_back(trk_pt);
+	etaOv.push_back(trk_eta);
+	phiOv.push_back(trk_phi);
 
 	float absEta = fabs(trk_eta);
 	bool pass_this_track = false;
@@ -492,7 +490,7 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltExecute(std::vector<std::vector<HLT:
 	}
 
 	if( pass_this_track ){
-	  if(m_doMonitor)m_mon_TrkPt.push_back( trk_pt / CLHEP::GeV );
+	  if(doMonitor)m_mon_TrkPt.push_back( trk_pt / CLHEP::GeV );
 	  n_tracks++;
 	}
       }
@@ -500,7 +498,7 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltExecute(std::vector<std::vector<HLT:
   }
 
   
-  if(m_doMonitor)m_mon_nTracks.push_back(n_tracks);
+  if(doMonitor)m_mon_nTracks.push_back(n_tracks);
 
   bool pass_multiplicity = true;
   if( n_pass_pt1 < m_Multiplicity1 )pass_multiplicity=false;
@@ -514,7 +512,7 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltExecute(std::vector<std::vector<HLT:
     if(debug) msg() << MSG::DEBUG << "event passed" << endreq;
   }
   if(debug) msg() << MSG::DEBUG << "finish TrigMuonIDTrackMultiHypo" << endreq;
-  if(m_doMonitor)afterExecMonitors().ignore();
+  if(doMonitor)afterExecMonitors().ignore();
   return HLT::OK;
 }  
 
@@ -522,8 +520,8 @@ HLT::ErrorCode TrigMuonIDTrackMultiHypo::hltExecute(std::vector<std::vector<HLT:
 // --------------------------------------------------------------------------------
 float TrigMuonIDTrackMultiHypo::deltaPhi(const float& v1, const float& v2){
   double dPhi = v1 - v2;
-  while(dPhi>pi)  dPhi -= 2.0 * pi;
-  while(dPhi<-pi) dPhi += 2.0 * pi;
+  while(dPhi>M_PI)  dPhi -= 2.0 * M_PI;
+  while(dPhi<-M_PI) dPhi += 2.0 * M_PI;
   dPhi = fabs( dPhi );
   return dPhi;
 }

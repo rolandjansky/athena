@@ -24,8 +24,6 @@ class TrigMuonIDTrackMultiHypo: public HLT::AllTEAlgo
       HLT::ErrorCode hltBeginRun();
 
    private:
-      static const float pi;
-  
       // Properties
       BooleanProperty m_acceptAll;
       BooleanProperty m_UseMuon;

@@ -163,9 +163,9 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   for ( ; pMuonEFInfo != lastMuonEFInfo; pMuonEFInfo++) { 
 
-    TrigMuonEFInfoTrackContainer* m_trigMuonEFInfoTrackContainer = (*pMuonEFInfo)->TrackContainer();
+    const TrigMuonEFInfoTrackContainer* trigMuonEFInfoTrackContainer = (*pMuonEFInfo)->TrackContainer();
 
-    if (!(m_trigMuonEFInfoTrackContainer->size())) {
+    if (!(trigMuonEFInfoTrackContainer->size())) {
 
       if (msgLvl() <= MSG::DEBUG)
 	msg() << MSG::DEBUG << "No TrigMuonEFInfoTrack to analyse" << endreq;
@@ -173,28 +173,28 @@ HLT::ErrorCode TrigMuTagIMOHypo::hltExecute(const HLT::TriggerElement* outputTE,
       continue;
     }
 
-    TrigMuonEFInfoTrack* m_infoTrack = (*m_trigMuonEFInfoTrackContainer->begin());
-    if (m_infoTrack->MuonType() != 9) continue;
+    const TrigMuonEFInfoTrack* infoTrack = (*trigMuonEFInfoTrackContainer->begin());
+    if (infoTrack->MuonType() != 9) continue;
 
-    TrigMuonEFCbTrack* m_combinedTrack = (*pMuonEFInfo)->CombinedTrack();
+    TrigMuonEFCbTrack* combinedTrack = (*pMuonEFInfo)->CombinedTrack();
 
     //* Fill monitoring histos
-    m_pt  = m_combinedTrack->pt()  ? m_combinedTrack->pt()  : -999;
-    m_eta = m_combinedTrack->eta() ? m_combinedTrack->eta() : -999;
-    m_phi = m_combinedTrack->eta() ? m_combinedTrack->phi() : -999;
+    m_pt  = combinedTrack->pt()  ? combinedTrack->pt()  : -999;
+    m_eta = combinedTrack->eta() ? combinedTrack->eta() : -999;
+    m_phi = combinedTrack->eta() ? combinedTrack->phi() : -999;
 
-    double eta=-log(sqrt(1+(m_combinedTrack->cotTh())*(m_combinedTrack->cotTh()))-(m_combinedTrack->cotTh()));
+    double eta=-log(sqrt(1+(combinedTrack->cotTh())*(combinedTrack->cotTh()))-(combinedTrack->cotTh()));
     float absEta = fabs(eta);
 
     for (std::vector<float>::size_type k=0; k<m_bins; ++k)
       if (absEta > m_ptBins[k] && absEta < m_ptBins[k+1])
 	threshold = m_ptThresholds[k]; 
 
-    if (fabs(m_combinedTrack->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)) 
+    if (fabs(combinedTrack->pt())/CLHEP::GeV > (threshold/CLHEP::GeV)) 
       result = true;
 
     if(msgLvl() <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " REGTEST muon pt is " << m_combinedTrack->pt()/CLHEP::GeV << " GeV " << " with Charge " << m_combinedTrack->charge()
+      msg() << MSG::DEBUG << " REGTEST muon pt is " << combinedTrack->pt()/CLHEP::GeV << " GeV " << " with Charge " << combinedTrack->charge()
 	    << " and threshold cut is " << threshold/CLHEP::GeV << " GeV" << " so hypothesis is " << (result?"true":"false") << endreq;
 
   }

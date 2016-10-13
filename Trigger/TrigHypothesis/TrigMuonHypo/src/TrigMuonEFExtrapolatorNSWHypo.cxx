@@ -191,7 +191,7 @@ HLT::ErrorCode TrigMuonEFExtrapolatorNSWHypo::hltExecute(const HLT::TriggerEleme
 
 	 msg() << MSG::DEBUG << "-- MuonSegmentCombination:" << j << " --" << endreq;
 
-	 Muon::MuonSegmentCombination* segCombi = (*segCombiItr);
+	 const Muon::MuonSegmentCombination* segCombi = (*segCombiItr);
 	 if (!segCombi) {
 	    if (debug) msg() << MSG::DEBUG << "No MuonSegmentCombination found." << endreq;
 	    continue;

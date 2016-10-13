@@ -124,6 +124,9 @@ HLT::ErrorCode TrigMuonEFTrackIsolationHypo::hltExecute(const HLT::TriggerElemen
   // loop over objects (muons) in the container
   for(auto muon : *muonContainer) {
     
+    const xAOD::Muon::MuonType muontype = muon->muonType();
+    if(muontype != xAOD::Muon::MuonType::Combined ) continue;
+
     float ptcone20(-1), ptcone30(-1);
     bool res = false; 
     if(m_useVarIso){

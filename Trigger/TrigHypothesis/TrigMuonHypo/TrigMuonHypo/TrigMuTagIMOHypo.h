@@ -46,7 +46,7 @@ class TrigMuTagIMOHypo : public HLT::HypoAlgo {
   float m_eta;
   float m_phi;
 
-  StoreGateSvc* m_storeGate;
+  //StoreGateSvc* m_storeGate;
 
 };
 

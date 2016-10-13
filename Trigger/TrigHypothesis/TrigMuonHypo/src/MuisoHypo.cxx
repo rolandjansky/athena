@@ -101,7 +101,7 @@ HLT::ErrorCode MuisoHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& 
 
 
    //Retrieve combined muon
-   const xAOD::L2IsoMuonContainer* vectorOfMuons(0);
+   const xAOD::L2IsoMuonContainer* vectorOfMuons;
    HLT::ErrorCode status = getFeature(outputTE, vectorOfMuons);
    if (status != HLT::OK) {
       msg() << MSG::ERROR << " getFeature fails to get the L2IsoMuonContainer " << endreq;
