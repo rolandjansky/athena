@@ -211,6 +211,9 @@ namespace MuonGM {
       reLog() << MSG::INFO << sector_l <<"  " << getStationEta() << " " << getStationPhi() << "  " <<m_ml << " "<<sector_l <<endmsg;
     }
 
+    auto tech=stgc->GetTechnology();
+
+
     m_phiDesign = std::vector<MuonChannelDesign>(m_nlayers); 
     m_etaDesign = std::vector<MuonChannelDesign>(m_nlayers); 
     m_padDesign = std::vector<MuonPadDesign>(m_nlayers); 
@@ -249,8 +252,14 @@ namespace MuonGM {
       m_etaDesign[il].inputPitch = 3.2; // parameterBagTech->stripPitch;
       m_etaDesign[il].inputLength = m_etaDesign[il].minYSize;
       m_etaDesign[il].inputWidth = 2.7; // parameterBagTech->stripWidth;
-      m_etaDesign[il].thickness = stgc->Tck();
-      	
+      if (!tech){
+	reLog()<<MSG::ERROR <<"Failed To get Technology for stgc element :" << stgc->GetName() << endmsg;      
+	m_etaDesign[il].thickness = 0;
+      }
+      else{
+	m_etaDesign[il].thickness = stgc->GetTechnology()->gasThickness;//+stgc->GetTechnology()->pcbThickness;
+      }
+	
       // m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*(parameterBagTech->stripPitch);
       m_etaDesign[il].firstPos = -0.5*m_etaDesign[il].xSize + 0.5*(3.2);
       reLog() << MSG::INFO
