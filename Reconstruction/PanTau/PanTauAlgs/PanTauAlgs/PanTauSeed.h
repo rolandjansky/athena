@@ -42,7 +42,23 @@ namespace PanTau {
       t_GoodSeed,
       t_nTechnicalQualities
     };
-        
+    
+    // enumeration to describe extended PanTau decay mode (number of tracks, pi0 tagged neutrals and other neutrals)
+    enum DecayModeExtended {
+      t_ExtMode100 = 1,
+      t_ExtMode10X = 2, 
+      t_ExtMode110 = 3,
+      t_ExtMode11X = 4,
+      t_ExtMode1XX = 5,
+      t_ExtMode300 = 6,
+      t_ExtMode30X = 7,
+      t_ExtMode3XX = 8,
+      t_ExtModeOther = 9,
+      t_ExtModeNotSet = 10,
+      t_ExtModeError = 11,
+      t_ExtMode11shots = 12 // for taus which have been classified as 1p1n but have >2 shots
+    };
+
     static int          getDecayMode(int nCharged, int nNeutral);
     static std::string  getDecayModeName(int decayMode);
         

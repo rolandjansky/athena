@@ -49,7 +49,8 @@ namespace PanTau {
         
         virtual std::string convertNumberToString(double x) const;
         
-        void vertexCorrection_PFOs(const xAOD::TauJet* tauJet, xAOD::PFO* efo) const;
+        // Will: moved to TauPi0ClusterScaler
+        //void vertexCorrection_PFOs(const xAOD::TauJet* tauJet, xAOD::PFO* efo) const;
         
         virtual int getBinIndex(std::vector<double> binEdges, double value) const;
         

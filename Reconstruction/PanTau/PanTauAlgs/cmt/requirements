@@ -16,6 +16,7 @@ use xAODTau                     xAODTau-*                       Event/xAOD
 use xAODPFlow                   xAODPFlow-*                     Event/xAOD
 use tauRecTools                 tauRecTools-*                   Reconstruction
 use AsgTools                    AsgTools-*                      Control/AthToolSupport
+use MVAUtils                    MVAUtils-*                      Reconstruction
 
 use AtlasReflex           AtlasReflex-*             External -no_auto_imports
 use CxxUtils              CxxUtils-*                Control

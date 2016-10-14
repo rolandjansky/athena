@@ -484,7 +484,10 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
       for( uint ipfo = 0; ipfo != vec_pi0pfos.at(itlv).size(); ++ipfo) {
 	pfo_link_vector.push_back(vec_pi0pfos.at(itlv).at(ipfo));
       }
-      p->auxdecor<std::vector< ElementLink< xAOD::PFOContainer > > >("pi0PFOLinks") = pfo_link_vector;
+      //p->auxdecor<std::vector< ElementLink< xAOD::PFOContainer > > >("pi0PFOLinks") = pfo_link_vector;
+      static SG::AuxElement::Accessor<std::vector< ElementLink< xAOD::PFOContainer > > > accPi0PFOLinks("pi0PFOLinks");
+      accPi0PFOLinks(*p) = pfo_link_vector;
+
       ElementLink< xAOD::IParticleContainer > linkToPi0;
       linkToPi0.toContainedElement(*(static_cast<const xAOD::IParticleContainer*>(pi0Container)), dynamic_cast<xAOD::IParticle*> (p));
       tauJet->addPi0Link(linkToPi0);
