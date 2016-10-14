@@ -6,6 +6,7 @@ author Marcin Nowak
 use AtlasPolicy         AtlasPolicy-*
 use AtlasCORAL          AtlasCORAL-*          External
 use POOLCore            POOLCore-*            Database/APR
+use AthenaBaseComps     AthenaBaseComps-*     Control
 
 #=======   LIBRARY
 library FileCatalog *.cpp

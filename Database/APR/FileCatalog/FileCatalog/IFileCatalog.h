@@ -8,12 +8,15 @@
 #include <vector>
 #include "FileCatalog/FCCommon.h"
 
+#include "AthenaBaseComps/AthMessaging.h"
+
 namespace pool{
 #define FCDEFAULT_CACHE_SIZE 1000
   class IFCAction;
   class FCLeaf;
 
-  class IFileCatalog{
+  class IFileCatalog: public AthMessaging
+  {
   public:
     typedef std::vector<FCLeaf*> ReadCatalogs;
     typedef ReadCatalogs::iterator ReadCatalogIterator;
