@@ -30,6 +30,7 @@ use InDetRecToolInterfaces      InDetRecToolInterfaces-*        InnerDetector/In
 use TrkValInterfaces           TrkValInterfaces-*              Tracking/TrkValidation
 use TrkTrack 			TrkTrack-*   			Tracking/TrkEvent
 use TrkRIO_OnTrack       	TrkRIO_OnTrack-*       		Tracking/TrkEvent
+use TrkParameters         TrkParameters-*           Tracking/TrkEvent
 
 apply_pattern component_library
 library InDetAmbiTrackSelectionTool *.cxx components/*.cxx

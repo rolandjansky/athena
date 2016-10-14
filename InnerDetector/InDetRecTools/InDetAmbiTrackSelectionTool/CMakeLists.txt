@@ -26,7 +26,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Tracking/TrkEvent/TrkMeasurementBase
                           Tracking/TrkEvent/TrkPrepRawData
                           Tracking/TrkEvent/TrkPseudoMeasurementOnTrack
-                          Tracking/TrkEvent/TrkTrackSummary )
+                          Tracking/TrkEvent/TrkTrackSummary
+                          Tracking/TrkEvent/TrkParameters )
 
 # External dependencies:
 find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
@@ -36,7 +37,7 @@ atlas_add_component( InDetAmbiTrackSelectionTool
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkRIO_OnTrack TrkTrack TrkToolInterfaces TrkValInterfaces DataModel StoreGateLib SGtests InDetIdentifier InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase TrkSurfaces TrkCaloClusterROI TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkTrackSummary )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} AthenaBaseComps GaudiKernel TrkRIO_OnTrack TrkTrack TrkToolInterfaces TrkValInterfaces DataModel StoreGateLib SGtests InDetIdentifier InDetPrepRawData InDetRecToolInterfaces TrkDetElementBase TrkSurfaces TrkCaloClusterROI TrkMeasurementBase TrkPrepRawData TrkPseudoMeasurementOnTrack TrkTrackSummary TrkParameters )
 
 # Install files from the package:
 atlas_install_headers( InDetAmbiTrackSelectionTool )
