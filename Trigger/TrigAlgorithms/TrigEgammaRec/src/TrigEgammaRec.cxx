@@ -111,7 +111,7 @@ TrigEgammaRec::TrigEgammaRec(const std::string& name,ISvcLocator* pSvcLocator):
     declareProperty("PhotonContainerName",   m_photonContainerName="egamma_Photons");
     // Additional property to retrieve slw and topo containers from TE
     declareProperty("SlwCaloClusterContainerName",m_slwClusterContName="TrigEFCaloCalibFex");
-    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TrigCaloClusterMaker_topo_fullscan_egamma");
+    declareProperty("TopoCaloClusterContainerName",m_topoClusterContName="TopoCaloClusterMaker_topo_FS");
     // ShowerBuilder (trigger specific)
     declareProperty("ShowerBuilderTool",  m_showerBuilder, "Handle to Shower Builder");
     // FourMomBuilder (trigger specific)
