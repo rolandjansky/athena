@@ -47,15 +47,15 @@ private:
   //! jO controllable properties.
   //! "Main" containers are read, have data from "overlay" containers added,
   //! and written out with the original SG keys.
-  bool m_do_TRT;
+  bool m_do_TRT, m_do_TRT_background;
   std::string m_mainInputTRT_Name;
   std::string m_overlayInputTRT_Name;
 
-  bool m_do_SCT;
+  bool m_do_SCT, m_do_SCT_background;
   std::string m_mainInputSCT_Name;
   std::string m_overlayInputSCT_Name;
 
-  bool m_do_Pixel;
+  bool m_do_Pixel, m_do_Pixel_background;
   std::string m_mainInputPixel_Name;
   std::string m_overlayInputPixel_Name;
 
