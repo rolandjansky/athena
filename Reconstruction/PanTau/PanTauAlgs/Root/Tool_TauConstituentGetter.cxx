@@ -114,7 +114,8 @@ StatusCode PanTau::Tool_TauConstituentGetter::GetTauConstituents(const xAOD::Tau
         curNeutPFO = const_cast<xAOD::PFO*>(tauJet->protoNeutralPFO( iNeutPFO ));
         
         // Call vertex correction here
-        m_HelperFunctions.vertexCorrection_PFOs(tauJet, curNeutPFO);
+        // Will: moved to TauPi0ClusterScaler
+        //m_HelperFunctions.vertexCorrection_PFOs(tauJet, curNeutPFO);
         
         //convert to tau constituent
         PanTau::TauConstituent2* curConst = 0;
