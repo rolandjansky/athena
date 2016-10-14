@@ -42,10 +42,7 @@
 MDTCablingDbTool::MDTCablingDbTool (const std::string& type,
                              const std::string& name,
                              const IInterface* parent)
-  : AthAlgTool(type, name, parent), 
-    m_log( msgSvc(), name ),
-    m_debug(false),
-    m_verbose(false)
+  : AthAlgTool(type, name, parent)
 {
 
   declareInterface<IMDTCablingDbTool>(this);
@@ -62,15 +59,11 @@ MDTCablingDbTool::MDTCablingDbTool (const std::string& type,
 //StatusCode MDTCablingDbTool::updateAddress(SG::TransientAddress* tad)
 StatusCode MDTCablingDbTool::updateAddress(StoreID::type /*storeID*/, SG::TransientAddress* tad)
 {
-  m_log.setLevel(outputLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
- 
   CLID clid        = tad->clID();
   std::string key  = tad->name();
   if ( 51038731== clid && m_DataLocation == key)
     {
-      if( m_verbose ) m_log << MSG::VERBOSE << "OK " << endmsg;
+      ATH_MSG_VERBOSE( "OK "  );
       return StatusCode::SUCCESS;
     }
   return StatusCode::FAILURE;
@@ -81,96 +74,50 @@ StatusCode MDTCablingDbTool::updateAddress(StoreID::type /*storeID*/, SG::Transi
 
 StatusCode MDTCablingDbTool::initialize()
 { 
-  m_log.setLevel(outputLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
-
-  if( m_verbose ) m_log << MSG::VERBOSE << "Initializing " << endmsg;
+  ATH_MSG_VERBOSE( "Initializing "  );
  
-  StatusCode sc = serviceLocator()->service("DetectorStore", m_detStore);
-  if ( sc.isSuccess() ) {
-    if( m_verbose ) m_log << MSG::VERBOSE << "Retrieved DetectorStore" << endmsg;
-  }else{
-    m_log << MSG::ERROR << "Failed to retrieve DetectorStore" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( detStore()->retrieve(m_mdtIdHelper, "MDTIDHELPER" ) );
 
-  // retrieve the mdt id helper
-  sc = m_detStore->retrieve(m_mdtIdHelper, "MDTIDHELPER" );
-  if (!sc.isSuccess()) {
-    m_log << MSG::ERROR << "Can't retrieve MdtIdHelper" << endmsg;
-    return sc;
-  }
-
-  // Get interface to IOVSvc
   m_IOVSvc = 0;
   bool CREATEIF(true);
-  sc = service( "IOVSvc", m_IOVSvc, CREATEIF );
-  if ( sc.isFailure() )
-  {
-       m_log << MSG::ERROR << "Unable to get the IOVSvc" << endmsg;
-       return StatusCode::FAILURE;
-  }
+  ATH_CHECK( service( "IOVSvc", m_IOVSvc, CREATEIF ) );
 
-  // Get interface to IOVDbSvc
   m_IOVDbSvc = 0;
-  //  bool CREATEIF(true);
-  sc = service( "IOVDbSvc", m_IOVDbSvc, CREATEIF );
-  if ( sc.isFailure() )
-  {
-       m_log << MSG::ERROR << "Unable to get the IOVDbSvc" << endmsg;
-       return StatusCode::FAILURE;
-  }
+  ATH_CHECK( service( "IOVDbSvc", m_IOVDbSvc, CREATEIF ) );
 
-
-  if(sc.isFailure()) return StatusCode::FAILURE;
-
-
-
-  // initialize the chrono service
-  sc = service("ChronoStatSvc",m_chronoSvc);
-  if (sc != StatusCode::SUCCESS) {
-    m_log << MSG::ERROR << "Could not find the ChronoSvc" << endmsg;
-    return sc;
-  }
+  ATH_CHECK( service("ChronoStatSvc",m_chronoSvc) );
       
   // commented for now
-    m_cablingData = new MuonMDT_CablingMap();
+  m_cablingData = new MuonMDT_CablingMap();
  
-    if( m_verbose ) m_log << MSG::VERBOSE<<" pointer to Map container =<"<<m_cablingData<<endmsg;
+  ATH_MSG_VERBOSE(" pointer to Map container =<"<<m_cablingData );
    
-    sc = m_detStore->record(m_cablingData,m_DataLocation);
-    if (sc == StatusCode::FAILURE) {
-      m_log << MSG::ERROR << "Cannot record cabling container in the detector store"
-	  << endmsg;
-      return sc;
-    }
-    else m_log << MSG::INFO << "Map container recorded in the detector store"<<endmsg;
-
- 
+  ATH_CHECK( detStore()->record(m_cablingData,m_DataLocation) );
+  ATH_MSG_INFO( "Map container recorded in the detector store" );
 
    // Get the TransientAddress from DetectorStore and set "this" as the
    // AddressProvider
 
  
-   SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MuonMDT_CablingMap>::ID(), m_DataLocation);
+   SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<MuonMDT_CablingMap>::ID(), m_DataLocation);
    if (!proxy) {
-     m_log << MSG::ERROR << "Unable to get the proxy for class Cabling Container" << endmsg;
+     ATH_MSG_ERROR( "Unable to get the proxy for class Cabling Container"  );
      return StatusCode::FAILURE;
-   }else m_log << MSG::INFO << "proxy for class Cabling Container found" << endmsg;
+   }
+   else ATH_MSG_INFO( "proxy for class Cabling Container found"  );
 
 
 
    SG::TransientAddress* tad =  proxy->transientAddress();
    if (!tad) {
-     m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
+      ATH_MSG_ERROR( "Unable to get the tad"  );
       return StatusCode::FAILURE;
-   }else m_log << MSG::INFO << "proxy transient Address found" << endmsg;
+   }else ATH_MSG_INFO( "proxy transient Address found"  );
 
    IAddressProvider* addp = this;
    //   tad->setProvider(addp);
    tad->setProvider(addp, StoreID::DETECTOR_STORE);
-   if( m_verbose ) m_log << MSG::VERBOSE << "set address provider for CABLING Container" << endmsg;
+   ATH_MSG_VERBOSE( "set address provider for CABLING Container"  );
     
    return StatusCode::SUCCESS;
 
@@ -179,14 +126,10 @@ StatusCode MDTCablingDbTool::initialize()
 
 StatusCode MDTCablingDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 {
-  StatusCode sc = StatusCode::SUCCESS;
-  m_log.setLevel(outputLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
-  
+  StatusCode sc;
   std::list<std::string>::const_iterator itr;
   for (itr=keys.begin(); itr!=keys.end(); ++itr) {
-    m_log << MSG::INFO << *itr << " I="<<I<<" ";
+    ATH_MSG_INFO( *itr << " I="<<I<<" " );
     if(*itr==m_mapFolder) {
       sc=loadMDTMap(I,keys);
     }
@@ -199,27 +142,15 @@ StatusCode MDTCablingDbTool::loadParameters(IOVSVC_CALLBACK_ARGS_P(I,keys))
 
 StatusCode MDTCablingDbTool::loadMezzanine(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/)) 
 {
-  m_log.setLevel(outputLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
-
-  StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load Mezzanine Type parameters  from DB" << endmsg;
-  return  sc;
- 
-  // maybe not used....
+  ATH_MSG_INFO( "Load Mezzanine Type parameters  from DB"  );
+  return  StatusCode::SUCCESS;
 }
 
 
 
 StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/)) 
 {
-
-  m_log.setLevel(outputLevel());
-  m_debug = m_log.level() <= MSG::DEBUG;
-  m_verbose = m_log.level() <= MSG::VERBOSE;
-  StatusCode sc=StatusCode::SUCCESS;
-  m_log << MSG::INFO << "Load Mezzanine Type parameters  from DB" << endmsg;
+  ATH_MSG_INFO( "Load Mezzanine Type parameters  from DB"  );
 
   m_chrono1 = "loadMDTMap method";
   m_chrono2 = "access only DB and parsing";
@@ -230,20 +161,20 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 
   // retreive the and remove the old collection 
   
-  sc = m_detStore->retrieve( m_cablingData, m_DataLocation );
+  StatusCode sc = detStore()->retrieve( m_cablingData, m_DataLocation );
   if(sc.isSuccess())  {
-    if( m_verbose ) m_log << MSG::VERBOSE << "Cabling Container found " << m_cablingData << endmsg;
-    sc = m_detStore->remove( m_cablingData );
+    ATH_MSG_VERBOSE( "Cabling Container found " << m_cablingData  );
+    sc = detStore()->remove( m_cablingData );
     if (sc.isSuccess()) {
-     if( m_verbose ) m_log << MSG::VERBOSE << "Cabling Container at " << m_cablingData << " removed "<<endmsg;
+      ATH_MSG_VERBOSE( "Cabling Container at " << m_cablingData << " removed " );
     } else{
-      m_log << MSG::WARNING <<"Remove failed for: "<<m_cablingData<<endmsg;
+      ATH_MSG_WARNING("Remove failed for: "<<m_cablingData );
     }
   }
 
   else {
     if (m_cablingData) {
-        if( m_verbose ) m_log << MSG::VERBOSE << "Previous Map Container not in the DetStore but pointer not NULL <" << m_cablingData <<">"<< endmsg;
+        ATH_MSG_VERBOSE( "Previous Map Container not in the DetStore but pointer not NULL <" << m_cablingData <<">" );
         delete m_cablingData;
     }
   }
@@ -256,7 +187,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   
   m_cablingData = new  MuonMDT_CablingMap() ;
   
-  if( m_debug ) m_log << MSG::DEBUG<<"New Map container pointer "<<m_cablingData<<endmsg;
+  ATH_MSG_DEBUG("New Map container pointer "<<m_cablingData );
 
   
   //******************************************************************
@@ -266,16 +197,8 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   m_chronoSvc->chronoStart(m_chrono3); 
   const CondAttrListCollection * atrc;
   
-  sc=m_detStore->retrieve(atrc,m_mezzanineFolder);
-  if(sc.isFailure())  {
-    m_log << MSG::ERROR 
-	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<< m_mezzanineFolder << endmsg;
-    return sc;
-  }
-  
-  else
-       m_log<<MSG::INFO<<" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size() <<endmsg;
+  ATH_CHECK( detStore()->retrieve(atrc,m_mezzanineFolder) );
+  ATH_MSG_INFO(" CondAttrListCollection from DB folder have been obtained with size "<< atrc->size()  );
   
   m_chronoSvc->chronoStop(m_chrono3);
   CondAttrListCollection::const_iterator itr;
@@ -290,17 +213,16 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     layer=*(static_cast<const int*>((atr["Layer"]).addressOfData()));
     sequence=*(static_cast<const int*>((atr["Sequence"]).addressOfData()));
     
-    if( m_verbose ) m_log << MSG::VERBOSE << "Sequence load is " << sequence << " for the mezzanine type =  "<< mezzanine_type<< " for the layer  number  = " <<layer <<endmsg;
+    ATH_MSG_VERBOSE( "Sequence load is " << sequence << " for the mezzanine type =  "<< mezzanine_type<< " for the layer  number  = " <<layer  );
     
     
     // here add the mezzanine type to the cabling class
     bool addLine = m_cablingData->addMezzanineLine(mezzanine_type, layer, sequence);
     if (!addLine) {
-      m_log << MSG::ERROR << "Could not add the mezzanine sequence to the map "
-	  << endmsg;
+      ATH_MSG_ERROR( "Could not add the mezzanine sequence to the map " );
     }
     else {
-      if( m_verbose ) m_log << MSG::VERBOSE << "Sequence added successfully to the map" << endmsg;
+      ATH_MSG_VERBOSE( "Sequence added successfully to the map"  );
     }
     
   }
@@ -310,15 +232,8 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   //*****************************************************************
   
   const CondAttrListCollection * atrc_map;
-  sc=m_detStore->retrieve(atrc_map,m_mapFolder);
-  if(sc.isFailure())  {
-    m_log << MSG::ERROR 
-	<< "could not retreive the CondAttrListCollection from DB folder " 
-	<< m_mapFolder << endmsg;
-    return sc;
-  }
-  else
-    m_log<<MSG::INFO<<" CondAttrListCollection from DB Map folder have been obtained with size "<< atrc->size() <<endmsg;
+  ATH_CHECK( detStore()->retrieve(atrc_map,m_mapFolder) );
+  ATH_MSG_INFO(" CondAttrListCollection from DB Map folder have been obtained with size "<< atrc->size()  );
   
   bool BMGchamberadded = false;
   
@@ -341,8 +256,8 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     mezzanine_type=*(static_cast<const int*>((atr["Mezzanine_Type"]).addressOfData()));
     map=*(static_cast<const std::string*>((atr["Map"]).addressOfData()));
     
-    if( m_verbose ) m_log << MSG::VERBOSE << "Data load is: /n" <<
-      "Chamber_Name = " << chamber_name << " eta= " << eta << "   Phi= " << phi << " sub_id = " <<subdetector_id << "  mrod = " << mrod << " csm = " << csm << "  chan= " << chan << " mezzanine_type= " << mezzanine_type << "  map = " <<map << " FINISHED HERE "<<endmsg;
+    ATH_MSG_VERBOSE( "Data load is: /n" <<
+                     "Chamber_Name = " << chamber_name << " eta= " << eta << "   Phi= " << phi << " sub_id = " <<subdetector_id << "  mrod = " << mrod << " csm = " << csm << "  chan= " << chan << " mezzanine_type= " << mezzanine_type << "  map = " <<map << " FINISHED HERE " );
 
     // convert the string name to index
     std::string stationNameString = chamber_name.substr(0,3);
@@ -352,7 +267,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     }
     if (stationNameString == "BMG") BMGchamberadded = true;    
     int stationIndex = m_mdtIdHelper->stationNameIndex(stationNameString);
-    if( m_verbose ) m_log << MSG::VERBOSE << "station name: " << stationNameString << " index: " << stationIndex << endmsg;
+    ATH_MSG_VERBOSE( "station name: " << stationNameString << " index: " << stationIndex  );
     
     // convert the subdetector id to integer
     int subdetectorId = atoi(subdetector_id.c_str());
@@ -362,7 +277,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 
     MuonCalib::MdtStringUtils::tokenize(map,info_map,delimiter);
     
-    if( m_verbose ) m_log << MSG::VERBOSE << " parsing of the map" << endmsg;
+    ATH_MSG_VERBOSE( " parsing of the map"  );
 
     // this is a loop on the mezzanines, add each mezzanine to the map
     int index=0;
@@ -373,7 +288,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
     int tube = -99;
 
     for(unsigned int i=0; i<info_map.size();i++){
-      if( m_verbose ) m_log<< MSG::VERBOSE << i << "..."<< info_map[i]<< endmsg;
+      ATH_MSG_VERBOSE( i << "..."<< info_map[i] );
       int info = atoi(info_map[i].c_str());
 
       index++;
@@ -393,8 +308,8 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
 	multilayer = (((info-tube)/100)-layer)/10 ;
 	index = 0;
 
-	if( m_verbose ) m_log << MSG::VERBOSE << "Adding new mezzanine: tdcId " << tdcId << " channel " << channelId
-	    << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube << endmsg;
+	ATH_MSG_VERBOSE( "Adding new mezzanine: tdcId " << tdcId << " channel " << channelId
+                         << " station " << stationIndex << " multilayer " << multilayer << " layer " << layer << " tube " << tube  );
 
 	// now this mezzanine can be added to the map:
 	/*bool addMezzanine = */m_cablingData->addMezzanine(mezzanine_type, stationIndex, eta, phi, multilayer,
@@ -410,7 +325,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   }
 
   if(m_mdtIdHelper->stationNameIndex("BMG") != -1 && !BMGchamberadded) {
-    m_log << MSG::WARNING << "Running a layout including BMG chambers, but missing them in cabling from conditions --> hard-coding BMG cabling." << endmsg;
+    ATH_MSG_WARNING( "Running a layout including BMG chambers, but missing them in cabling from conditions --> hard-coding BMG cabling."  );
     int stationIndex = m_mdtIdHelper->stationNameIndex("BMG");
 
     // BMG1A12 ---------------- mezzanine_type, stationIndex, eta, phi, multilayer, layer,   tube, subdetectorId, mrod, csm, tdcId, channelId
@@ -482,26 +397,24 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
    m_chronoSvc->chronoStop(m_chrono2);
   
   
-  if( m_verbose ) m_log << MSG::VERBOSE << "Collection CondAttrListCollection CLID "
-      << atrc_map->clID() << endmsg;
-
- 
+   ATH_MSG_VERBOSE( "Collection CondAttrListCollection CLID "
+                    << atrc_map->clID()  );
 
     
-  sc=m_detStore->record( m_cablingData, m_DataLocation );
+  sc=detStore()->record( m_cablingData, m_DataLocation );
   if (sc==StatusCode::SUCCESS) {
-    m_log << MSG::INFO<<"New Mapcontainer recoded in the DetStore with key "<<m_DataLocation<<endmsg;
+    ATH_MSG_INFO("New Mapcontainer recoded in the DetStore with key "<<m_DataLocation );
   }
 
-  SG::DataProxy* proxy = m_detStore->proxy(ClassID_traits<MuonMDT_CablingMap>::ID(), m_DataLocation);
+  SG::DataProxy* proxy = detStore()->proxy(ClassID_traits<MuonMDT_CablingMap>::ID(), m_DataLocation);
   if (!proxy) {
-    m_log << MSG::ERROR << "Unable to get the proxy for class Cabling Container" << endmsg;
+    ATH_MSG_ERROR( "Unable to get the proxy for class Cabling Container"  );
     return StatusCode::FAILURE;
   }
 
   SG::TransientAddress* tad =  proxy->transientAddress();
   if (!tad) {
-    m_log << MSG::ERROR << "Unable to get the tad" << endmsg;
+    ATH_MSG_ERROR( "Unable to get the tad"  );
     return StatusCode::FAILURE;
   }
   
@@ -509,7 +422,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   IAddressProvider* addp = this;
   //  tad->setProvider(addp);
   tad->setProvider(addp, StoreID::DETECTOR_STORE);
-  if( m_verbose ) m_log << MSG::VERBOSE<< "set address provider for Cabling Container" << endmsg;
+  ATH_MSG_VERBOSE( "set address provider for Cabling Container"  );
  
   //IOVRange range;
   //sc=m_IOVSvc->getRange(1238547719, m_mapFolder, range);
@@ -525,7 +438,7 @@ StatusCode MDTCablingDbTool::loadMDTMap(IOVSVC_CALLBACK_ARGS_P(/*I*/,/*keys*/))
   //m_log << MSG::VERBOSE <<"Container new IOVRange "<<range2<<endmsg;
   
   m_IOVDbSvc->dropObject(m_mapFolder, true);
-  //m_detStore->releaseObject(51038731, "keyMDT"); 
+  //detStore()->releaseObject(51038731, "keyMDT"); 
   m_chronoSvc->chronoStop(m_chrono1);
   
 
