@@ -54,6 +54,13 @@ class HIJetUEMonitoring : public JetHistoBase {
   TH2F * m_2dSubtractedET_Centrality;
   TH2F * m_2dSubtractedET_Expected_Centrality;
 
+  TH2F * m_2dSubtractedET_Expected_eta;
+  TProfile * m_SubtractedET_Expected_eta;
+  TH2F *     m_2dSubtractedET_2Dphi;
+  TProfile * m_SubtractedET_eta;
+  TProfile * m_SubtractedET_pt;
+  TProfile * m_SubtractedET_2Dphi;
+
   //0-10%
   TH1F* m_JetUnsubtractedScaleMomentum_pt_0_10; 
   TH1F* m_JetUnsubtractedScaleMomentum_eta_0_10;
