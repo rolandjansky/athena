@@ -47,7 +47,7 @@ xAOD::TauTrack* xAOD::TauHelpers::tauTrackNonConst( const xAOD::TauJet* tau, xAO
 // ==================================================================
 xAOD::TauTrack* xAOD::TauHelpers::tauTrackNonConstWithMask( const xAOD::TauJet* tau, xAOD::TauTrackContainer* trackCont, int index,  xAOD::TauTrack::TrackFlagType mask ){
   int accepted_track=0;
-  for( ElementLink< xAOD::TauTrackContainer > link : tau->tauTrackLinks() ){
+  for( ElementLink< xAOD::TauTrackContainer > link : tau->allTauTrackLinks() ){
     const xAOD::TauTrack* c_trk(0);
     if(link.isValid()) c_trk = *link;
     if(c_trk==0) continue;
@@ -75,7 +75,7 @@ std::vector<xAOD::TauTrack*> xAOD::TauHelpers::tauTracksNonConst( const xAOD::Ta
 // ==================================================================
 std::vector<xAOD::TauTrack*> xAOD::TauHelpers::tauTracksNonConstWithMask( const xAOD::TauJet* tau, xAOD::TauTrackContainer* trackCont, xAOD::TauTrack::TrackFlagType mask ){
   std::vector<xAOD::TauTrack*> v;
-  for( ElementLink< xAOD::TauTrackContainer > link : tau->tauTrackLinks() ){
+  for( ElementLink< xAOD::TauTrackContainer > link : tau->allTauTrackLinks() ){
     if(link.isValid() && (*link)->flagWithMask(mask) && dynamic_cast<const xAOD::TauTrackContainer*> (link.getStorableObjectPointer()) == trackCont) v.push_back( trackCont->at(link.index()));
   }
   return v;

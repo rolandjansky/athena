@@ -90,6 +90,7 @@ break;
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_DecayMode );
       //Variables used in BDTs
       DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_BDTVar_Basic_NNeutralConsts );
+      DEFINE_TAUJETPARAMETER_ACCESSOR( int, PanTau_DecayModeExtended );
       
     default:
       std::cerr << "xAOD::TauJetParameters ERROR Unknown integer panTau Detail ("

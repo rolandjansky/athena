@@ -147,8 +147,8 @@ namespace xAOD {
 
 
   
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauTrack_v1, float, etaStrip, setEtaStrip)
-  AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauTrack_v1, float, phiStrip, setPhiStrip)
+  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauTrack_v1, float, etaStrip, setEtaStrip)
+  // AUXSTORE_PRIMITIVE_SETTER_AND_GETTER( TauTrack_v1, float, phiStrip, setPhiStrip)
 
   bool TauTrack_v1::detail( TauJetParameters::TrackDetail detail, float& value ) const{
     // Get the detail accessor:

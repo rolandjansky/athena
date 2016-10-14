@@ -40,8 +40,8 @@ namespace xAOD {
     // std::vector< float > rConvII;
     // std::vector< float > dRJetSeedAxis;
 
-    std::vector< float > etaStrip;
-    std::vector< float > phiStrip;
+    // std::vector< float > etaStrip;
+    // std::vector< float > phiStrip;
       
 
     typedef std::vector< ElementLink< TrackParticleContainer > > TrackLinks_t;

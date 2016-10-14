@@ -231,12 +231,16 @@ namespace xAOD {
     //tauTracks
     typedef std::vector< ElementLink< xAOD::TauTrackContainer > >  TauTrackLinks_t;
 
-    const TauTrackLinks_t& tauTrackLinks() const;
+    const TauTrackLinks_t tauTrackLinks(TauJetParameters::TauTrackFlag=TauJetParameters::TauTrackFlag::classifiedCharged) const;
+    const TauTrackLinks_t tauTrackLinksWithMask(unsigned int) const;
     /// In order to sort track links
-    TauTrackLinks_t& tauTrackLinksNonConst();
+    TauTrackLinks_t& allTauTrackLinksNonConst();
     
 
-    void setTauTrackLinks( const TauTrackLinks_t& tauTracks );
+    //retrieve all TauJetAuxContainer::tauTrackLinks, regardless of flags
+    const TauTrackLinks_t& allTauTrackLinks() const;
+    //set all TauJetAuxContainer::tauTrackLinks
+    void setAllTauTrackLinks( const TauTrackLinks_t& tauTracks );
     /// Get the pointer to a given tauTrack associated with this tau /*container index needed by trackNonConst*/
     const TauTrack* track( size_t i, TauJetParameters::TauTrackFlag flag=TauJetParameters::TauTrackFlag::classifiedCharged, int* container_index=0 ) const;
     const TauTrack* trackWithMask( size_t i, unsigned int mask, int* container_index=0 ) const;
