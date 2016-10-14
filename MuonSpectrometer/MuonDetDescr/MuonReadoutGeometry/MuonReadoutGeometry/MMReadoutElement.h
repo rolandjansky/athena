@@ -54,9 +54,10 @@ namespace MuonGM {
 	If the local position is outside the active volume, the function first shift the position back into the active volume */
     int stripNumber( const Amg::Vector2D& pos, const Identifier& id ) const;
 
-    /** strip position 
+    /** strip position -- local or global
 	If the strip number is outside the range of valid strips, the function will return false */
-    bool stripPosition( const Identifier& id, Amg::Vector2D& pos ) const;
+    bool stripPosition(       const Identifier& id, Amg::Vector2D& pos )  const;
+    bool stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const;
 
     /** number of layers in phi/eta projection */
     int numberOfLayers( bool ) const;
@@ -183,6 +184,13 @@ namespace MuonGM {
     const MuonChannelDesign* design = getDesign(id);
     if( !design ) return false;
     return design->channelPosition(manager()->mmIdHelper()->channel(id),pos);
+  }
+
+  inline bool MMReadoutElement::stripGlobalPosition( const Identifier& id, Amg::Vector3D& gpos ) const {
+    Amg::Vector2D lpos(0., 0.);
+    if (!stripPosition(id, lpos)) return false;
+    surface(id).localToGlobal(lpos, Amg::Vector3D(0., 0., 0.), gpos);
+    return true;
   }
 
   inline int MMReadoutElement::numberOfLayers( bool ) const { return m_nlayers; }
