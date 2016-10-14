@@ -37,6 +37,7 @@
 #include "PanTauAlgs/TauConstituent.h"
 #include "PanTauAlgs/PanTauSeed.h"
 #include "PanTauAlgs/TauFeature.h"
+#include "PanTauAlgs/HelperFunctions.h"
 
 
 
@@ -67,6 +68,7 @@ PanTau::Tool_FeatureExtractor::Tool_FeatureExtractor(
     
     //declareProperty("TrackToVertexTool", m_trackToVertexTool);
     declareProperty("Tool_InformationStore",            m_Tool_InformationStore,            "Tool handle to the information store tool");
+    declareProperty("Tool_InformationStoreName",        m_Tool_InformationStoreName,            "Tool handle to the information store tool");
     
 }
 
@@ -75,8 +77,10 @@ PanTau::Tool_FeatureExtractor::Tool_FeatureExtractor(
 StatusCode PanTau::Tool_FeatureExtractor::initialize() {
 
     ATH_MSG_INFO(" initialize()");
+    m_init=true;
     
     //ATH_CHECK( m_trackToVertexTool.retrieve() );
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_InformationStore, m_Tool_InformationStoreName ) );
     ATH_CHECK( m_Tool_InformationStore.retrieve() );
     
     ATH_CHECK( m_Tool_InformationStore->getInfo_String("FeatureExtractor_VarTypeName_varTypeName_Sum",          m_varTypeName_Sum) );

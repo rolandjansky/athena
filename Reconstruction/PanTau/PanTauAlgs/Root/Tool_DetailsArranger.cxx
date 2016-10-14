@@ -25,6 +25,7 @@
 //! PanTau includes
 #include "PanTauAlgs/Tool_DetailsArranger.h"
 #include "PanTauAlgs/PanTauSeed.h"
+#include "PanTauAlgs/HelperFunctions.h"
 
 
 bool sortBDTscore(ElementLink< xAOD::PFOContainer > i, ElementLink< xAOD::PFOContainer > j){
@@ -40,6 +41,7 @@ PanTau::Tool_DetailsArranger::Tool_DetailsArranger(
         m_Tool_InformationStore("PanTau::Tool_InformationStore/Tool_InformationStore")
 {
     declareProperty("Tool_InformationStore",            m_Tool_InformationStore,            "Tool handle to the information store tool");
+    declareProperty("Tool_InformationStoreName",            m_Tool_InformationStoreName,            "Tool handle to the information store tool");
 }
 
 
@@ -52,6 +54,9 @@ PanTau::Tool_DetailsArranger::~Tool_DetailsArranger() {
 StatusCode PanTau::Tool_DetailsArranger::initialize() {
 
     ATH_MSG_DEBUG( name() << " initialize()" );
+    m_init=true;
+
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_InformationStore, m_Tool_InformationStoreName ) );
     
     ATH_CHECK( m_Tool_InformationStore->getInfo_Double("TauConstituents_Types_DeltaRCore",                      m_CoreCone) );
     ATH_CHECK( m_Tool_InformationStore->getInfo_VecDouble("TauConstituents_BinEdges_Eta",                       m_EtaBinEdges) );
@@ -83,7 +88,7 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed2* inSeed) {
     std::string inputAlg = inSeed->getNameInputAlgorithm();
     
   
-    ATH_MSG_DEBUG( "Tool_DetailsArranger::execute called for input seed at: " << inSeed << " from inputalg: " << inputAlg);
+    ATH_MSG_DEBUG("Tool_DetailsArranger::execute called for input seed at: " << inSeed << " from inputalg: " << inputAlg);
     
     bool noAnyConstituents           = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoConstituentsAtAll);
     bool noSelConstituents           = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoSelectedConstituents);
@@ -96,7 +101,7 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed2* inSeed) {
     //if the tau is valid, overwrite with non-default values
     xAOD::TauJet* tauJet = const_cast<xAOD::TauJet*>(inSeed->getTauJet());
     
-    ATH_MSG_DEBUG( "check for bad seed -> isBadSeed = " << isBadSeed);
+    ATH_MSG_DEBUG("check for bad seed -> isBadSeed = " << isBadSeed);
     if(isBadSeed == true) {
         ATH_MSG_DEBUG("This seed is not useable for detail arranging (other than validity flag)");
         tauJet->setPanTauDetail(xAOD::TauJetParameters::PanTau_isPanTauCandidate, 0);
@@ -104,9 +109,10 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed2* inSeed) {
     }
     
     
-    ATH_MSG_DEBUG( "arrange for seed from inputalg: " << inputAlg);
+    ATH_MSG_DEBUG("arrange for seed from inputalg: " << inputAlg);
 
     ATH_CHECK(arrangePFOLinks(inSeed, tauJet));
+
 
     //Basic variables
     addPanTauDetailToTauJet(inSeed, m_varTypeName_Basic + "_isPanTauCandidate",      xAOD::TauJetParameters::PanTau_isPanTauCandidate, PanTau::Tool_DetailsArranger::t_Int);
@@ -141,6 +147,7 @@ StatusCode PanTau::Tool_DetailsArranger::execute(PanTau::PanTauSeed2* inSeed) {
                             xAOD::TauJetParameters::PanTau_BDTVar_Combined_DeltaR1stNeutralTo1stCharged, PanTau::Tool_DetailsArranger::t_Float);
     addPanTauDetailToTauJet(inSeed, "Charged_HLV_SumM",
                             xAOD::TauJetParameters::PanTau_BDTVar_Charged_HLV_SumM, PanTau::Tool_DetailsArranger::t_Float);
+
               
     return StatusCode::SUCCESS;
 }
@@ -209,7 +216,7 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
     std::vector< ElementLink< xAOD::PFOContainer > > preSelected_neutralPFOLinks    = CollectConstituentsAsPFOLinks( inSeed, tauJet->protoNeutralPFOLinks(), PanTau::TauConstituent2::t_Neutral );
 
 
-    //clear the default links, just to be save
+    //clear the default links, just to be safe
     tauJet->clearChargedPFOLinks();
     tauJet->clearNeutralPFOLinks();
     tauJet->clearPi0PFOLinks();
@@ -459,16 +466,17 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
     //#endif //NDEBUG
     
 
-
     // vector of 4-vectors of actual pi0s and a vector with pointers to PFOs:
     std::vector< TLorentzVector > vec_pi04vec;
     std::vector< std::vector< ElementLink<xAOD::PFOContainer> > > vec_pi0pfos;
     createPi0Vectors(tauJet, vec_pi04vec, vec_pi0pfos);
+
     
     xAOD::ParticleContainer* pi0Container=0;
     ATH_CHECK( evtStore()->retrieve(pi0Container, "finalTauPi0s") );
 
-    for(unsigned int itlv=0; itlv!=vec_pi04vec.size(); ++itlv) {
+
+    for(unsigned int itlv=0; itlv!=vec_pi04vec.size(); ++itlv) {      
       xAOD::Particle* p = new xAOD::Particle();
       pi0Container->push_back(p);
       p->setPxPyPzE(vec_pi04vec.at(itlv).Px(), vec_pi04vec.at(itlv).Py(), vec_pi04vec.at(itlv).Pz(), vec_pi04vec.at(itlv).E());
@@ -476,7 +484,10 @@ StatusCode PanTau::Tool_DetailsArranger::arrangePFOLinks(PanTau::PanTauSeed2* in
       for( uint ipfo = 0; ipfo != vec_pi0pfos.at(itlv).size(); ++ipfo) {
 	pfo_link_vector.push_back(vec_pi0pfos.at(itlv).at(ipfo));
       }
-      p->auxdecor<std::vector< ElementLink< xAOD::PFOContainer > > >("pi0PFOLinks") = pfo_link_vector;
+      //p->auxdecor<std::vector< ElementLink< xAOD::PFOContainer > > >("pi0PFOLinks") = pfo_link_vector;
+      static SG::AuxElement::Accessor<std::vector< ElementLink< xAOD::PFOContainer > > > accPi0PFOLinks("pi0PFOLinks");
+      accPi0PFOLinks(*p) = pfo_link_vector;
+
       ElementLink< xAOD::IParticleContainer > linkToPi0;
       linkToPi0.toContainedElement(*(static_cast<const xAOD::IParticleContainer*>(pi0Container)), dynamic_cast<xAOD::IParticle*> (p));
       tauJet->addPi0Link(linkToPi0);
@@ -664,6 +675,7 @@ void PanTau::Tool_DetailsArranger::createPi0Vectors(xAOD::TauJet* tauJet, std::v
   tauJet->panTauDetail(xAOD::TauJetParameters::PanTau_DecayMode, iDecayMode);
 
   if (iDecayMode == xAOD::TauJetParameters::Mode_1p1n && iNumPi0PFO > 1) {
+
     // TODO: find out if the pi0 mass is defined elsewhere in atlas code!
     // float fMassPi0 = 134.98;
     float fMassPi0Squared = MASS_PI0*MASS_PI0;
@@ -702,9 +714,9 @@ void PanTau::Tool_DetailsArranger::createPi0Vectors(xAOD::TauJet* tauJet, std::v
     std::vector< ElementLink<xAOD::PFOContainer> > pfovec;
     pfovec.push_back(tauJet->pi0PFOLinks()[0]);
     vec_pi0pfos.push_back( pfovec );
+    vec_pi0pfos.push_back( pfovec );//fix rare crash?
 
   }  else {
-
     // if it's not any of the special cases above then just collect the PFOs:
     for (size_t iPFO = 0; iPFO < iNumPi0PFO; iPFO++){
       vPi0s.push_back(tauJet->pi0PFO(iPFO)->p4());

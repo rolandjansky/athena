@@ -20,12 +20,13 @@
 #include "PanTauAlgs/Tool_InformationStore.h"
 #include "PanTauAlgs/TauFeature.h"
 #include "PanTauAlgs/PanTauSeed.h"
+#include "PanTauAlgs/HelperFunctions.h"
 
 //! Root
 #include "TString.h"
 #include "TFile.h"
+#include "TTree.h"
 #include "TH1F.h"
-#include "TMVA/Reader.h"
 
 //!Other
 #include "PathResolver/PathResolver.h"
@@ -37,11 +38,12 @@ PanTau::Tool_ModeDiscriminator::Tool_ModeDiscriminator(
         m_Name_InputAlg("InvalidInputAlg"),
         m_Name_ModeCase("InvalidModeCase"),
         m_Tool_InformationStore("PanTau::Tool_InformationStore/Tool_InformationStore"),
-        m_TMVA_ReaderList()
+        m_MVABDT_List()
 {
     declareProperty("Name_InputAlg",            m_Name_InputAlg,            "Name of the input algorithm for this instance");
     declareProperty("Name_ModeCase",            m_Name_ModeCase,            "Name of the two modes to be distinguished for this instance");
     declareProperty("Tool_InformationStore",    m_Tool_InformationStore,    "Handle to the information store tool");
+    declareProperty("Tool_InformationStoreName",m_Tool_InformationStoreName,"Handle to the information store tool");
 }
 
 
@@ -54,10 +56,13 @@ PanTau::Tool_ModeDiscriminator::~Tool_ModeDiscriminator() {
 StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
 
     ATH_MSG_DEBUG( name() << " initialize()" );
+    m_init=true;
     
     ATH_MSG_DEBUG("InputAlg   : "  << m_Name_InputAlg);
     ATH_MSG_DEBUG("Mode Case  : "  << m_Name_ModeCase);
     
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_InformationStore, m_Tool_InformationStoreName ) );
+
     ATH_CHECK(m_Tool_InformationStore.retrieve());
     
     //get the required information from the informationstore tool
@@ -86,9 +91,9 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
     //! ////////////////////////
     //! Create list of BDT variables to link to the reader
     
-    m_List_BDTVariableValues = std::vector<float>(0);
+    m_List_BDTVariableValues = std::vector<float*>(0);
     for(unsigned int iVar=0; iVar<m_List_BDTVariableNames.size(); iVar++) {
-        m_List_BDTVariableValues.push_back(0);
+        m_List_BDTVariableValues.push_back(new float(0));
     }
     
     
@@ -117,9 +122,13 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
         curWeightFile += m_Name_InputAlg + "_";
         curWeightFile += curPtBin + "_";
         curWeightFile += curModeCase + "_";
-        curWeightFile += m_MethodName + ".weights.xml";
-        
-        std::string resolvedWeightFileName = PathResolver::find_file(curWeightFile, "DATAPATH");
+        curWeightFile += m_MethodName + ".weights.root";
+
+	#ifndef XAOD_ANALYSIS
+	std::string resolvedWeightFileName = PathResolver::find_file(curWeightFile, "DATAPATH");
+	#else
+	std::string resolvedWeightFileName = PathResolverFindCalibFile("PanTauAlgs/weights/"+curWeightFile);
+	#endif
         if(resolvedWeightFileName == "") {
             ATH_MSG_ERROR("Weight file " << curWeightFile << " not found!");
             return StatusCode::FAILURE;
@@ -130,22 +139,24 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
         
         //! ////////////////////////
         //! TMVA Readers
-        ATH_MSG_DEBUG("\tCreate TMVA::Readers");
-        TMVA::Reader* curReader = new TMVA::Reader((TString)m_ReaderOption);
-        if(msgLvl(MSG::DEBUG) == true) curReader->SetVerbose(true);
+        ATH_MSG_DEBUG("\tCreate MVAUtils::BDT");
         
         //setup variables for reader
         for(unsigned int iVar=0; iVar<m_List_BDTVariableNames.size(); iVar++) {
             TString variableNameForReader = "tau_pantauFeature_" + m_Name_InputAlg + "_" + m_List_BDTVariableNames[iVar];
-            ATH_MSG_DEBUG("\t\tAdding variable to reader: " << variableNameForReader << " var stored at: " << &(m_List_BDTVariableValues[iVar]));
-            curReader->AddVariable(variableNameForReader, &(m_List_BDTVariableValues[iVar]));
+            ATH_MSG_DEBUG("\t\tAdding variable to reader: " << variableNameForReader << " var stored at: " << (m_List_BDTVariableValues[iVar]));
+            //curReader->AddVariable(variableNameForReader, &(m_List_BDTVariableValues[iVar]));
         }//end loop over variables
+
+	TFile* fBDT = TFile::Open(resolvedWeightFileName.c_str());
+	TTree* tBDT = dynamic_cast<TTree*> (fBDT->Get("BDT"));
+	MVAUtils::BDT* curBDT = new MVAUtils::BDT(tBDT);
+	curBDT->SetPointers(m_List_BDTVariableValues);
         
-        curReader->BookMVA( m_MethodName, resolvedWeightFileName);
-        ATH_MSG_DEBUG("\t\tStoring new TMVA::Reader at " << curReader);
-        m_TMVA_ReaderList.push_back(curReader);
+        ATH_MSG_DEBUG("\t\tStoring new MVAUtils::BDT at " << curBDT);
+        m_MVABDT_List.push_back(curBDT);
         
-    }//end loop over pt bins to get weight files, reference hists and TMVA Readers
+    }//end loop over pt bins to get weight files, reference hists and MVAUtils::BDT objects
     
     return StatusCode::SUCCESS;
 }
@@ -155,11 +166,14 @@ StatusCode PanTau::Tool_ModeDiscriminator::initialize() {
 StatusCode PanTau::Tool_ModeDiscriminator::finalize() {
     
     //delete the readers
-    for(unsigned int iReader=0; iReader<m_TMVA_ReaderList.size(); iReader++) {
-        TMVA::Reader* curReader = m_TMVA_ReaderList[iReader];
-        if(curReader != 0) delete curReader;
+    for(unsigned int iReader=0; iReader<m_MVABDT_List.size(); iReader++) {
+        MVAUtils::BDT* curBDT = m_MVABDT_List[iReader];
+        if(curBDT != 0) delete curBDT;
     }
-    
+    m_MVABDT_List.clear();
+    for( float* f : m_List_BDTVariableValues ) delete f;
+    m_List_BDTVariableValues.clear();
+
     return StatusCode::SUCCESS;
 }
 
@@ -186,7 +200,7 @@ void    PanTau::Tool_ModeDiscriminator::updateReaderVariables(PanTau::PanTauSeed
         }
         
         ATH_MSG_DEBUG("\tUpdate variable " << curVar << " from " << m_List_BDTVariableValues[iVar] << " to " << newValue);
-        m_List_BDTVariableValues[iVar] = (float)newValue;
+        *(m_List_BDTVariableValues[iVar]) = (float)newValue;
     }//end loop over BDT vars for update
     
     return;
@@ -223,9 +237,9 @@ double PanTau::Tool_ModeDiscriminator::getResponse(PanTau::PanTauSeed2* inSeed, 
     }
     
     //get mva response
-    TMVA::Reader*   curReader   = m_TMVA_ReaderList[ptBin];
-    if(curReader == 0) {
-        ATH_MSG_ERROR("TMVA::Reader object for current tau seed points to 0");
+    MVAUtils::BDT*   curBDT   = m_MVABDT_List[ptBin];
+    if(curBDT == 0) {
+        ATH_MSG_ERROR("MVAUtils::BDT object for current tau seed points to 0");
         isOK = false;
         return -2.;
     }
@@ -234,7 +248,7 @@ double PanTau::Tool_ModeDiscriminator::getResponse(PanTau::PanTauSeed2* inSeed, 
 //     ATH_MSG_DEBUG("Values of BDT Variables: ");
 //     for(unsigned int iVar=0; iVar<m_List_BDTVariableNames.size(); iVar++) ATH_MSG_WARNING(m_List_BDTVariableNames.at(iVar) << ": " << m_List_BDTVariableValues.at(iVar) << " (stored at " << &(m_List_BDTVariableValues.at(iVar)) << ")");
     
-    double  mvaResponse     = curReader->EvaluateMVA((TString)m_MethodName);
+    double  mvaResponse     = curBDT->GetGradBoostMVA(m_List_BDTVariableValues);
     ATH_MSG_DEBUG("MVA response from " << m_MethodName << " in " << m_Name_ModeCase << " is " << mvaResponse);
     
     isOK = true;

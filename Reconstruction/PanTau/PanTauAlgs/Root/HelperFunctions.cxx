@@ -71,36 +71,37 @@ std::string PanTau::HelperFunctions::convertNumberToString(double x) const {
 }
 
 
-void PanTau::HelperFunctions::vertexCorrection_PFOs(const xAOD::TauJet* tauJet, xAOD::PFO* pfo) const{
-    
-    const xAOD::Vertex* tauVertex = tauJet->vertexLink().cachedElement();
-    if(tauVertex == 0) {
-        ATH_MSG_WARNING("Did not find tau origin. No vertex correction will be applied to neutral PFO");
-        return;
-    }
-    ATH_MSG_DEBUG("Vtx link x/y/z = " << tauVertex->x() << ", " << tauVertex->y() << ", " << tauVertex->z());
-    ATH_MSG_DEBUG("Old cluster eta/phi: " << pfo->eta() << ", " << pfo->phi() << " CenterMag = " << pfo->centerMag());
-    
-    double clusterEta = pfo->eta();
-    double clusterPhi = pfo->phi();
-    double centerMag = pfo->centerMag();
-
-    double radius = centerMag/cosh(clusterEta);
-
-    double EtaVertexCorr = 0.0;
-    double PhiVertexCorr = 0.0;
-
-    if (radius > 1.0 && centerMag > 1e-3){
-        EtaVertexCorr = (-tauVertex->z()/cosh(clusterEta) + (tauVertex->x()*cos(clusterPhi) + tauVertex->y()*sin(clusterPhi))*tanh(clusterEta))/radius;
-        PhiVertexCorr = (tauVertex->x()*sin(clusterPhi) - tauVertex->y()*cos(clusterPhi))/radius;
-    }
-
-    clusterEta += EtaVertexCorr;
-    clusterPhi += PhiVertexCorr;
-    
-    pfo->setP4(pfo->pt(), clusterEta, clusterPhi, pfo->m());
-    ATH_MSG_DEBUG("New cluster eta/phi: " << clusterEta << ", " << clusterPhi);
-}
+// Will: moved to TauPi0ClusterScaler 
+// void PanTau::HelperFunctions::vertexCorrection_PFOs(const xAOD::TauJet* tauJet, xAOD::PFO* pfo) const{
+//     
+//     const xAOD::Vertex* tauVertex = tauJet->vertexLink().cachedElement();
+//     if(tauVertex == 0) {
+//         ATH_MSG_WARNING("Did not find tau origin. No vertex correction will be applied to neutral PFO");
+//         return;
+//     }
+//     ATH_MSG_DEBUG("Vtx link x/y/z = " << tauVertex->x() << ", " << tauVertex->y() << ", " << tauVertex->z());
+//     ATH_MSG_DEBUG("Old cluster eta/phi: " << pfo->eta() << ", " << pfo->phi() << " CenterMag = " << pfo->centerMag());
+//     
+//     double clusterEta = pfo->eta();
+//     double clusterPhi = pfo->phi();
+//     double centerMag = pfo->centerMag();
+// 
+//     double radius = centerMag/cosh(clusterEta);
+// 
+//     double EtaVertexCorr = 0.0;
+//     double PhiVertexCorr = 0.0;
+// 
+//     if (radius > 1.0 && centerMag > 1e-3){
+//         EtaVertexCorr = (-tauVertex->z()/cosh(clusterEta) + (tauVertex->x()*cos(clusterPhi) + tauVertex->y()*sin(clusterPhi))*tanh(clusterEta))/radius;
+//         PhiVertexCorr = (tauVertex->x()*sin(clusterPhi) - tauVertex->y()*cos(clusterPhi))/radius;
+//     }
+// 
+//     clusterEta += EtaVertexCorr;
+//     clusterPhi += PhiVertexCorr;
+//     
+//     pfo->setP4(pfo->pt(), clusterEta, clusterPhi, pfo->m());
+//     ATH_MSG_DEBUG("New cluster eta/phi: " << clusterEta << ", " << clusterPhi);
+// }
 
 
 

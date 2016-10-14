@@ -37,19 +37,23 @@ namespace PanTau {
     
     ASG_TOOL_CLASS1(Tool_InformationStore, PanTau::ITool_InformationStore)
     
-    typedef std::map<std::string, std::string>                  MapString;
-    typedef std::map<std::string, std::vector<std::string> >    MapVecString;
-    typedef std::map<std::string, int>                          MapInt;
-    typedef std::map<std::string, double>                       MapDouble;
-    typedef std::map<std::string, std::vector<double> >         MapVecDouble;
-    
+   
     
     
     public:
-        
+
+#ifdef XAOD_ANALYSIS
+    inline void setMapString( MapString&v ){ m_Infos_String = v; }
+    inline void setMapVecString( MapVecString&v ){ m_Infos_VecString  = v; }
+    inline void setMapInt( MapInt &v ){ m_Infos_Int = v; }
+    inline void setMapDouble( MapDouble &v ){  m_Infos_Double = v; }
+    inline void setMapVecDouble( MapVecDouble &v ){  m_Infos_VecDouble = v; }
+#endif
+
         Tool_InformationStore(const std::string &name);
         virtual ~Tool_InformationStore ();
         
+	virtual void ABRDefaultInit();
         virtual StatusCode initialize();
 //         virtual StatusCode finalize  ();
         
@@ -76,6 +80,10 @@ namespace PanTau {
         std::string                       m_Name_Container_eflowRec;
         std::string                       m_Name_Container_TauRec;
         std::string                       m_Name_Container_Tracks;
+
+	bool m_init=false;
+  public:
+	inline bool isInitialized(){return m_init;}
         
        
 };

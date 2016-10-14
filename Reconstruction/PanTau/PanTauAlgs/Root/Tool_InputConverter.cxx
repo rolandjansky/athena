@@ -8,6 +8,7 @@
 #include "PanTauAlgs/Tool_InformationStore.h"
 #include "PanTauAlgs/TauConstituent.h"
 #include "PanTauAlgs/PanTauSeed.h"
+#include "PanTauAlgs/HelperFunctions.h"
 
 //! xAOD EDM
 #include "xAODTau/TauJet.h"
@@ -21,6 +22,7 @@ PanTau::Tool_InputConverter::Tool_InputConverter(
         m_Tool_InformationStore("PanTau::Tool_InformationStore/Tool_InformationStore")
 {
     declareProperty("Tool_InformationStore",     m_Tool_InformationStore, "Link to tool with all information");
+    declareProperty("Tool_InformationStoreName", m_Tool_InformationStoreName="", "Optional Name for InformationStore insance in ABR");
 }
 
 PanTau::Tool_InputConverter::~Tool_InputConverter() {
@@ -29,7 +31,10 @@ PanTau::Tool_InputConverter::~Tool_InputConverter() {
 StatusCode PanTau::Tool_InputConverter::initialize() {
 
     ATH_MSG_INFO(" initialize()");
-    
+    m_init=true;
+
+    ATH_CHECK( HelperFunctions::bindToolHandle( m_Tool_InformationStore, m_Tool_InformationStoreName) ); //ABR only
+
     ATH_CHECK( m_Tool_InformationStore.retrieve() );
     
     ATH_CHECK( m_Tool_InformationStore->getInfo_Int("TauConstituents_UsePionMass", m_Config_UsePionMass) );

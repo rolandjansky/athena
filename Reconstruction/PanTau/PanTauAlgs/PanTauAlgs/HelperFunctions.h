@@ -12,6 +12,7 @@
 #include <iostream>
 
 #include "AsgTools/AsgMessaging.h"
+#include "AsgTools/ToolHandle.h"
 
 #include "xAODTau/TauJet.h"
 #include "xAODPFlow/PFO.h"
@@ -48,7 +49,8 @@ namespace PanTau {
         
         virtual std::string convertNumberToString(double x) const;
         
-        void vertexCorrection_PFOs(const xAOD::TauJet* tauJet, xAOD::PFO* efo) const;
+        // Will: moved to TauPi0ClusterScaler
+        //void vertexCorrection_PFOs(const xAOD::TauJet* tauJet, xAOD::PFO* efo) const;
         
         virtual int getBinIndex(std::vector<double> binEdges, double value) const;
         
@@ -63,6 +65,20 @@ namespace PanTau {
         virtual std::vector<double> calcFWMoments(std::vector<TauConstituent2*>* tauConstituents, bool& calcIsValid) const;
         virtual std::vector<double> calcSphericity(std::vector<TauConstituent2*>* tauConstituents, bool& calcIsValid) const;
 
+#ifdef XAOD_ANALYSIS
+	template<class T>
+        static StatusCode bindToolHandle( ToolHandle<T>& handle, std::string tool_name){
+	  T* tool = dynamic_cast<T*> (asg::ToolStore::get(tool_name));
+	  if(!tool->isInitialized())
+	    if (tool->initialize().isFailure())
+	      return StatusCode::FAILURE;
+	  handle = ToolHandle<T>(tool);
+	  return StatusCode::SUCCESS;
+	}
+#else
+	template<class T>
+	static StatusCode bindToolHandle( ToolHandle<T>& , std::string){return StatusCode::SUCCESS;}
+#endif
 
 	std::string getName() const
 	{

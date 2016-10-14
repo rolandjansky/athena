@@ -7,6 +7,7 @@
 #include "PanTauAlgs/Tool_DecayModeDeterminator.h"
 
 #include "PanTauAlgs/PanTauSeed.h"
+#include "PanTauAlgs/HelperFunctions.h"
 #include "PanTauAlgs/TauClassificationTypes.h"
 
 #include "xAODTau/TauDefs.h"
@@ -26,6 +27,12 @@ PanTau::Tool_DecayModeDeterminator::Tool_DecayModeDeterminator(
     declareProperty("Tool_ModeDiscriminator_1p0n_vs_1p1n",    m_Tool_ModeDiscriminator_1p0n_vs_1p1n,    "Handle to the ModeDiscriminator tool for 1p0n_vs_1p1n");
     declareProperty("Tool_ModeDiscriminator_1p1n_vs_1pXn",    m_Tool_ModeDiscriminator_1p1n_vs_1pXn,    "Handle to the ModeDiscriminator tool for 1p1n_vs_1pXn");
     declareProperty("Tool_ModeDiscriminator_3p0n_vs_3pXn",    m_Tool_ModeDiscriminator_3p0n_vs_3pXn,    "Handle to the ModeDiscriminator tool for 3p0n_vs_3pXn");
+
+    declareProperty("Tool_InformationStoreName",          m_Tool_InformationStoreName="",          "Tool handle to the information store tool");
+    declareProperty("Tool_ModeDiscriminator_1p0n_vs_1p1nName",    m_Tool_ModeDiscriminator_1p0n_vs_1p1nName="",    "Handle to the ModeDiscriminator tool for 1p0n_vs_1p1n");
+    declareProperty("Tool_ModeDiscriminator_1p1n_vs_1pXnName",    m_Tool_ModeDiscriminator_1p1n_vs_1pXnName="",    "Handle to the ModeDiscriminator tool for 1p1n_vs_1pXn");
+    declareProperty("Tool_ModeDiscriminator_3p0n_vs_3pXnName",    m_Tool_ModeDiscriminator_3p0n_vs_3pXnName="",    "Handle to the ModeDiscriminator tool for 3p0n_vs_3pXn");
+
 }
 
 
@@ -37,7 +44,13 @@ PanTau::Tool_DecayModeDeterminator::~Tool_DecayModeDeterminator() {
 
 StatusCode PanTau::Tool_DecayModeDeterminator::initialize() {
     ATH_MSG_INFO( name() << " initialize()" );
-    
+    m_init=true;
+
+    ATH_CHECK( HelperFunctions::bindToolHandle(m_Tool_InformationStore, m_Tool_InformationStoreName) );
+    ATH_CHECK( HelperFunctions::bindToolHandle(m_Tool_ModeDiscriminator_1p0n_vs_1p1n, m_Tool_ModeDiscriminator_1p0n_vs_1p1nName) );
+    ATH_CHECK( HelperFunctions::bindToolHandle(m_Tool_ModeDiscriminator_1p1n_vs_1pXn, m_Tool_ModeDiscriminator_1p1n_vs_1pXnName) );
+    ATH_CHECK( HelperFunctions::bindToolHandle(m_Tool_ModeDiscriminator_3p0n_vs_3pXn, m_Tool_ModeDiscriminator_3p0n_vs_3pXnName) );
+
     //get the discri tools
     ATH_CHECK(m_Tool_ModeDiscriminator_1p0n_vs_1p1n.retrieve());
     ATH_CHECK(m_Tool_ModeDiscriminator_1p1n_vs_1pXn.retrieve());
@@ -80,10 +93,12 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
     bool    noValidInput        = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoValidInputTau);
     bool    noAnyConstituents   = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoConstituentsAtAll);
     bool    noSelConstituents   = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_NoSelectedConstituents);
-    bool    invalidForDecayMode = (noValidInput || noAnyConstituents || noSelConstituents);
+    bool    badPt               = inSeed->isOfTechnicalQuality(PanTau::PanTauSeed2::t_BadPtValue);
+    bool    invalidForDecayMode = (noValidInput || noAnyConstituents || noSelConstituents || badPt);
     if(invalidForDecayMode) {
         ATH_MSG_DEBUG("Seed has no constituents assigned and/or input seed has no substructure info - use NotSet mode for this");
         features->addFeature(inAlgName + "_" + m_varTypeName_Prefix_Basic + "_RecoMode_PanTau", xAOD::TauJetParameters::Mode_NotSet);
+        features->addFeature(inAlgName + "_" + m_varTypeName_Prefix_Basic + "_RecoMode_PanTauExtended", PanTau::PanTauSeed2::t_ExtModeNotSet);
         return StatusCode::SUCCESS;
     }
     
@@ -91,7 +106,8 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
     //get the mode as it was determined by the subalgorithm
     int decayMode_SubAlg = inSeed->getDecayModeBySubAlg();
     int decayMode_PanTau = xAOD::TauJetParameters::Mode_NotSet;
-    
+    int decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtModeNotSet;
+ 
     //and calc the number of additional neutrals, not tagged as pi0
     int nCharged_SubAlg     = inSeed->getNumberOfConstituentsOfType(PanTau::TauConstituent2::t_Charged);
     int nPi0Neut_SubAlg     = inSeed->getNumberOfConstituentsOfType(PanTau::TauConstituent2::t_Pi0Neut);
@@ -125,6 +141,7 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
         if(AdditionalNeutrals == 0) {
             ATH_MSG_DEBUG("Set 1p0n because there is only one object");
             decayMode_PanTau = xAOD::TauJetParameters::Mode_1p0n;
+            decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtMode100;
             bdtResponse = -3.;
             
         //if there are neutrals which are not pi0-tagged, check BDT to maybe set 1p1n
@@ -141,12 +158,17 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
             bool    isOK        = false;
             bdtResponse = m_Tool_ModeDiscriminator_1p0n_vs_1p1n->getResponse(inSeed, isOK);
             bdtTest     = t_1p0n_vs_1p1n;
+            decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtMode10X;
             if(isOK == false) {
                 ATH_MSG_WARNING("WARNING: problems getting bdt response for 1p0n + X-neutrals. use subAlg mode");
                 decayMode_PanTau = decayMode_SubAlg;
             } else {
-                if(bdtResponse >  BDTCutValue_R10X) decayMode_PanTau = xAOD::TauJetParameters::Mode_1p0n;
-                if(bdtResponse <= BDTCutValue_R10X) decayMode_PanTau = xAOD::TauJetParameters::Mode_1p1n;
+                if(bdtResponse >  BDTCutValue_R10X) {
+                    decayMode_PanTau = xAOD::TauJetParameters::Mode_1p0n;
+                }
+                if(bdtResponse <= BDTCutValue_R10X) {
+                    decayMode_PanTau = xAOD::TauJetParameters::Mode_1p1n;
+                }
                 ATH_MSG_DEBUG("R10X: Response is: " << bdtResponse << "  Use 1p0n if > " << BDTCutValue_R10X << " -- decision: " << PanTau::PanTauSeed2::getDecayModeName(decayMode_PanTau) );
             }
         }
@@ -166,12 +188,17 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
             bool    isOK        = false;
             bdtResponse = m_Tool_ModeDiscriminator_1p0n_vs_1p1n->getResponse(inSeed, isOK);
             bdtTest     = t_1p0n_vs_1p1n;
+            decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtMode110;
             if(isOK == false) {
                 ATH_MSG_WARNING("WARNING problems getting bdt response for 1p1n + 0-neutrals. use subAlg mode");
                 decayMode_PanTau = decayMode_SubAlg;
             } else {
-                if(bdtResponse <= BDTCutValue_R110) decayMode_PanTau = xAOD::TauJetParameters::Mode_1p1n;
-                if(bdtResponse >  BDTCutValue_R110) decayMode_PanTau = xAOD::TauJetParameters::Mode_1p0n;
+                if(bdtResponse <= BDTCutValue_R110) {
+                    decayMode_PanTau = xAOD::TauJetParameters::Mode_1p1n;
+                }
+                if(bdtResponse >  BDTCutValue_R110) {
+                    decayMode_PanTau = xAOD::TauJetParameters::Mode_1p0n;
+                }
                 ATH_MSG_DEBUG("R110: Response is: " << bdtResponse << "  Use 1p0n if > " << BDTCutValue_R110 << " -- decision: " << PanTau::PanTauSeed2::getDecayModeName(decayMode_PanTau) );
             }
         
@@ -182,12 +209,17 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
             bool    isOK        = false;
             bdtResponse = m_Tool_ModeDiscriminator_1p1n_vs_1pXn->getResponse(inSeed, isOK);
             bdtTest     = t_1p1n_vs_1pXn;
+            decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtMode11X;
             if(isOK == false) {
                 ATH_MSG_WARNING("WARNING problems getting bdt response for 1p1n + X-neutrals. use subAlg mode");
                 decayMode_PanTau = decayMode_SubAlg;
             } else {
-                if(bdtResponse >  BDTCutValue_R11X) decayMode_PanTau = xAOD::TauJetParameters::Mode_1p1n;
-                if(bdtResponse <= BDTCutValue_R11X) decayMode_PanTau = xAOD::TauJetParameters::Mode_1pXn;
+                if(bdtResponse >  BDTCutValue_R11X) {
+                    decayMode_PanTau = xAOD::TauJetParameters::Mode_1p1n;
+                }
+                if(bdtResponse <= BDTCutValue_R11X) {
+                    decayMode_PanTau = xAOD::TauJetParameters::Mode_1pXn;
+                }
                 ATH_MSG_DEBUG("R11X: Response is: " << bdtResponse << "  Use 1p1n if > " << BDTCutValue_R11X << " -- decision: " << PanTau::PanTauSeed2::getDecayModeName(decayMode_PanTau) );
             }
         }
@@ -204,12 +236,17 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
         bool    isOK        = false;
         bdtResponse = m_Tool_ModeDiscriminator_1p1n_vs_1pXn->getResponse(inSeed, isOK);
         bdtTest     = t_1p1n_vs_1pXn;
+        decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtMode1XX;
         if(isOK == false) {
             ATH_MSG_WARNING("WARNING problems getting bdt response for 1p1n + X-neutrals. use subAlg mode");
             decayMode_PanTau = decayMode_SubAlg;
         } else {
-            if(bdtResponse >  BDTCutValue_R1XX) decayMode_PanTau = xAOD::TauJetParameters::Mode_1p1n;
-            if(bdtResponse <= BDTCutValue_R1XX) decayMode_PanTau = xAOD::TauJetParameters::Mode_1pXn;
+            if(bdtResponse >  BDTCutValue_R1XX) {
+                decayMode_PanTau = xAOD::TauJetParameters::Mode_1p1n;
+            }
+            if(bdtResponse <= BDTCutValue_R1XX) {
+                decayMode_PanTau = xAOD::TauJetParameters::Mode_1pXn;
+            }
             ATH_MSG_DEBUG("R1XX: Response is: " << bdtResponse << "  Use 1p1n if > " << BDTCutValue_R1XX << " -- decision: " << PanTau::PanTauSeed2::getDecayModeName(decayMode_PanTau) );
         }
         
@@ -225,6 +262,7 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
         if(AdditionalNeutrals == 0) {
             ATH_MSG_DEBUG("Set 3p0n because there are only charged objects");
             decayMode_PanTau = xAOD::TauJetParameters::Mode_3p0n;
+            decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtMode300;
             bdtResponse = -2.5;
             
         //additional neutrals
@@ -233,12 +271,17 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
             bool    isOK        = false;
             bdtResponse = m_Tool_ModeDiscriminator_3p0n_vs_3pXn->getResponse(inSeed, isOK);
             bdtTest     = t_3p0n_vs_3pXn;
+            decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtMode30X;
             if(isOK == false) {
                 ATH_MSG_WARNING("WARNING problems getting bdt response for 3p0n + X-neutrals. use subAlg mode");
                 decayMode_PanTau = decayMode_SubAlg;
             } else {
-                if(bdtResponse >  BDTCutValue_R30X) decayMode_PanTau = xAOD::TauJetParameters::Mode_3p0n;
-                if(bdtResponse <= BDTCutValue_R30X) decayMode_PanTau = xAOD::TauJetParameters::Mode_3pXn;
+                if(bdtResponse >  BDTCutValue_R30X) {
+                    decayMode_PanTau = xAOD::TauJetParameters::Mode_3p0n;
+                }
+                if(bdtResponse <= BDTCutValue_R30X) {
+                    decayMode_PanTau = xAOD::TauJetParameters::Mode_3pXn;
+                }
                 ATH_MSG_DEBUG("R30X: Response is: " << bdtResponse << "  Use 3p0n if > " << BDTCutValue_R30X << " -- decision: " << PanTau::PanTauSeed2::getDecayModeName(decayMode_PanTau) );
             }
             
@@ -256,12 +299,17 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
         bool    isOK        = false;
         bdtResponse = m_Tool_ModeDiscriminator_3p0n_vs_3pXn->getResponse(inSeed, isOK);
         bdtTest     = t_3p0n_vs_3pXn;
+        decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtMode3XX;
         if(isOK == false) {
             ATH_MSG_WARNING("WARNING problems getting bdt response for 3p0n + X-neutrals. use subAlg mode");
             decayMode_PanTau = decayMode_SubAlg;
         } else {
-            if(bdtResponse >  BDTCutValue_R3XX) decayMode_PanTau = xAOD::TauJetParameters::Mode_3p0n;
-            if(bdtResponse <= BDTCutValue_R3XX) decayMode_PanTau = xAOD::TauJetParameters::Mode_3pXn;
+            if(bdtResponse >  BDTCutValue_R3XX) {
+                decayMode_PanTau = xAOD::TauJetParameters::Mode_3p0n;
+            }
+            if(bdtResponse <= BDTCutValue_R3XX) {
+                decayMode_PanTau = xAOD::TauJetParameters::Mode_3pXn;
+            }
             ATH_MSG_DEBUG("R3XX: Response is: " << bdtResponse << "  Use 3p0n if > " << BDTCutValue_R3XX << " -- decision: " << PanTau::PanTauSeed2::getDecayModeName(decayMode_PanTau) );
         }
         
@@ -274,6 +322,7 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
     else {
         ATH_MSG_DEBUG("WARNING SubAlg mode of tau is not known. set the 'other' mode");
         decayMode_PanTau = xAOD::TauJetParameters::Mode_Other;
+        decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtModeOther;
         bdtResponse = -4;
         bdtTest     = t_UnknownTest;
     }
@@ -303,6 +352,7 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
             if(nPhotons > 2) {
                 decayMode_SubAlg = xAOD::TauJetParameters::Mode_1pXn;
                 decayMode_PanTau = xAOD::TauJetParameters::Mode_1pXn;
+                decayMode_PanTauExtended = PanTau::PanTauSeed2::t_ExtMode11shots;
                 inSeed->setModeHackedByCellBased(true);
                 bdtResponse = -2.;
             }
@@ -312,12 +362,17 @@ StatusCode PanTau::Tool_DecayModeDeterminator::execute(PanTau::PanTauSeed2* inSe
             ATH_MSG_WARNING("Could not find expected CellBased neutral -> don't check for photons in cluster");
         }
     } //end hack check for 1p1n
-    
+
     //update mode of seed and store in features
     ATH_MSG_DEBUG("Storing decay mode in tau and features: SubAlg/PanTau = " << (double)decayMode_SubAlg << " / " << (double)decayMode_PanTau);
     inSeed->setDecayModeByPanTau(decayMode_PanTau);
     features->addFeature(inAlgName + "_" + m_varTypeName_Prefix_Basic + "_RecoMode", (double)decayMode_SubAlg);
     features->addFeature(inAlgName + "_" + m_varTypeName_Prefix_Basic + "_RecoMode_PanTau", (double)decayMode_PanTau);
+    features->addFeature(inAlgName + "_" + m_varTypeName_Prefix_Basic + "_RecoMode_PanTauExtended", (double)decayMode_PanTauExtended);
+
+    xAOD::TauJet* tauJet = const_cast<xAOD::TauJet*>(inSeed->getTauJet());
+    //    tauJet->auxdecor<size_t>("PanTau_DecayModeExtended") = decayMode_PanTauExtended;
+    tauJet->setPanTauDetail(xAOD::TauJetParameters::PanTauDetails::PanTau_DecayModeExtended, decayMode_PanTauExtended);
     
     if(bdtTest == t_1p0n_vs_1p1n) {
         features->addFeature(inAlgName + "_" + m_varTypeName_Prefix_Basic + "_BDTValue_1p0n_vs_1p1n", bdtResponse);

@@ -46,6 +46,8 @@ namespace PanTau {
     ASG_TOOL_INTERFACE(ITool_InputConverter)
 
         public:
+
+    virtual bool isInitialized() = 0;
             
             //PFO Converter (r19+)
             virtual StatusCode ConvertToTauConstituent2(xAOD::PFO* pfo,
