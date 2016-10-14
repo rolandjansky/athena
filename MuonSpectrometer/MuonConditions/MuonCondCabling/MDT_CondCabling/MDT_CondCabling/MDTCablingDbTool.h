@@ -53,7 +53,6 @@ public:
   
       
 
-  StoreGateSvc* m_detStore;
   IIOVSvc* m_IOVSvc;
   IIOVDbSvc* m_IOVDbSvc;
   const MdtIdHelper* m_mdtIdHelper;
@@ -70,10 +69,6 @@ public:
   std::string m_chrono2;
   std::string m_chrono3;
   std::string m_chrono4;
-  MsgStream m_log;
-  bool      m_debug;
-  bool      m_verbose;
-
 };
  
 
