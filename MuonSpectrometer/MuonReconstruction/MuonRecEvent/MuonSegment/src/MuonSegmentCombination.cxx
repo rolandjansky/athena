@@ -10,7 +10,7 @@ namespace Muon {
 
   MuonSegmentCombination::MuonSegmentCombination()
   {
-    use2LayerSegs=false;
+    m_use2LayerSegs=false;
   }
     
   MuonSegmentCombination::~MuonSegmentCombination()
@@ -34,7 +34,7 @@ namespace Muon {
 
   void MuonSegmentCombination::copy( const MuonSegmentCombination& segc )
   {
-    use2LayerSegs=segc.use2LayerSegments();
+    m_use2LayerSegs=segc.use2LayerSegments();
     unsigned int nst( segc.numberOfStations() );
     for( unsigned int i=0;i<nst;++i ){
       SegmentVec::const_iterator vit = segc.stationSegments( i )->begin();
