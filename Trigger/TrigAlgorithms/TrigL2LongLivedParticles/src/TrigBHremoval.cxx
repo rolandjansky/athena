@@ -168,7 +168,7 @@ HLT::ErrorCode TrigBHremoval::hltExecute(std::vector<std::vector<HLT::TriggerEle
     } else {
       jetRatio = 999;
     }
-
+    /*
     if (jetEt < m_minJetEt) {
       if (msgLvl() <= MSG::DEBUG)
 	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minJetEt << " GeV threshold; Et " << jetEt << "; skipping this jet." << endreq;
@@ -184,7 +184,7 @@ HLT::ErrorCode TrigBHremoval::hltExecute(std::vector<std::vector<HLT::TriggerEle
 	msg() << MSG::DEBUG << "Jet "<< i << " below the " << m_minLogRatio << " threshold for the log-ratio cut; logRatio = " << jetRatio << "; skipping this jet." << endreq;
       continue;
     }
-
+    */
     int countCaloCell=0;
 //    float min_dPhi=99;
     //calculate number of cells in line of fire

@@ -32,6 +32,7 @@ class TrigJetSplitter : public HLT::AllTEAlgo {
   double m_minJetEt;
   double m_maxJetEta;
   double m_logRatio;
+  double m_pufixLogRatio;
 
   bool m_reversedCut;
   
