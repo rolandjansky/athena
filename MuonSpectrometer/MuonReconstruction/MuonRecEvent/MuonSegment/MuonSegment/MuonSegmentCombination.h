@@ -64,6 +64,10 @@ namespace Muon {
     /** Number of ambiguities */
     unsigned int numberOfAmbiguities() const;
 
+    void setUse2LayerSegments(bool use2Lay){m_use2LayerSegs=use2Lay;}
+
+    bool use2LayerSegments() const;
+
   private:
     /** clear data */
     void clear();
@@ -72,7 +76,15 @@ namespace Muon {
     void copy( const MuonSegmentCombination& segc );
 
     SegmentVecVec         m_segmentsPerStation;
+
+    //if the station is a CSC station with 2-layer segment finding enabled
+    bool m_use2LayerSegs;
   };
+
+  inline bool MuonSegmentCombination::use2LayerSegments() const
+    {
+      return m_use2LayerSegs;
+    }
 
   inline  bool MuonSegmentCombination::addSegments( SegmentVec* segs )
   {
