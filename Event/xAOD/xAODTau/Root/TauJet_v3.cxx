@@ -427,15 +427,42 @@ namespace xAOD {
 
 
 
-  // setters and getters for the track links
-  AUXSTORE_OBJECT_SETTER_AND_GETTER( TauJet_v3,
-  				     TauJet_v3::TauTrackLinks_t,
-  				     tauTrackLinks,
-  				     setTauTrackLinks )
+  // implementing the functions by hand in order to maintain tauTrackLinks as
+  // persistent name for EL<TauTracks>, but to actually set/retrieve all links using
+  // function with name 'all'TauTrackLinks/set'All'TauTrackLinks
+  // // setters and getters for the track links
+  // AUXSTORE_OBJECT_SETTER_AND_GETTER( TauJet_v3,
+  // 				     TauJet_v3::TauTrackLinks_t,
+  // 				     tauTrackLinks,
+  // 				     setTauTrackLinks )
 
   static SG::AuxElement::Accessor< TauJet_v3::TauTrackLinks_t > tauTrackAcc( "tauTrackLinks" );
 
-  TauJet_v3::TauTrackLinks_t& TauJet_v3::tauTrackLinksNonConst(){
+  const TauJet_v3::TauTrackLinks_t& TauJet_v3::allTauTrackLinks() const {
+    return tauTrackAcc(*this);
+  }
+
+  void TauJet_v3::setAllTauTrackLinks(const TauJet_v3::TauTrackLinks_t& links) {
+    tauTrackAcc(*this) = links;
+    return;
+  }
+
+  const TauJet_v3::TauTrackLinks_t TauJet_v3::tauTrackLinks(TauJetParameters::TauTrackFlag flag/*=TauJetParameters::TauTrackFlag::classifiedCharged*/) const{
+    TauTrack::TrackFlagType mask=1<<flag;
+    return tauTrackLinksWithMask(mask);
+  }
+
+  const TauJet_v3::TauTrackLinks_t TauJet_v3::tauTrackLinksWithMask(unsigned int mask) const{
+    TauJet_v3::TauTrackLinks_t links;
+    for(const ElementLink< xAOD::TauTrackContainer > link : tauTrackAcc(*this) ){
+      if( (*link)->flagWithMask(mask))
+	links.push_back(link);
+    }
+    return links;
+  }
+
+
+  TauJet_v3::TauTrackLinks_t& TauJet_v3::allTauTrackLinksNonConst(){
     return tauTrackAcc(*this);
   }
 

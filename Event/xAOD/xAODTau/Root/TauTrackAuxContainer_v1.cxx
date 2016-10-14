@@ -23,8 +23,8 @@ TauTrackAuxContainer_v1::TauTrackAuxContainer_v1()
    // AUX_VARIABLE( rConvII );
    // AUX_VARIABLE( dRJetSeedAxis );
 
-   AUX_VARIABLE( etaStrip );
-   AUX_VARIABLE( phiStrip );
+   // AUX_VARIABLE( etaStrip );
+   // AUX_VARIABLE( phiStrip );
 
    AUX_VARIABLE( trackLinks );
 
