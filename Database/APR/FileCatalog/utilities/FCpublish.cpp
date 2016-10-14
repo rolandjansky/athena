@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FCpublish.cpp 676790 2015-06-19 17:55:38Z ssnyder $
+//$Id: FCpublish.cpp 676789 2015-06-19 17:55:29Z ssnyder $
 /**FCpublish.cpp -- FileCatalog command line tool to extract a fragment from the source catalog and attach it to the destination catalog 
   @author: Zhen Xie
   @date: 02/03/2005 Z.X.

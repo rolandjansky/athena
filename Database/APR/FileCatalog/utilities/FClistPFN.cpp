@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: FClistPFN.cpp 509054 2012-07-05 13:33:16Z mnowak $
+//$Id: FClistPFN.cpp 778462 2016-10-14 12:29:52Z mnowak $
 /**FClistPFN.cpp -- FileCatalog command line tool to list the PFN entries from the catalog
    @author: Zhen Xie
    @author: Maria Girone
@@ -15,6 +15,7 @@
 #include "FileCatalog/FCException.h"
 #include "FileCatalog/IFCAction.h"
 #include "FileCatalog/IFCContainer.h"
+#include "FileCatalog/FCSystemTools.h"
 #include "POOLCore/Exception.h"
 #include "CoralBase/MessageStream.h"
 #include "CoralBase/MessageStream.h"
@@ -69,7 +70,7 @@ int main(int argc, char** argv)
     if( commands.Exists("u") ){
       myuri=commands.GetByName("u");
     }else{
-      myuri=std::string(::getenv("POOL_CATALOG"));
+      myuri=FCSystemTools::GetEnvStr("POOL_CATALOG");
     }    
     if( commands.Exists("l") ){
       mylfn=commands.GetByName("l");

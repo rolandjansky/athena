@@ -4,13 +4,9 @@
 
 #include "FileCatalog/FCCommon.h"
 #include "FileCatalog/FCLeaf.h"
-//#include "FileCatalog/IFileCatalogPluginFactory.h"
 #include "FileCatalog/FCImpl.h"
 #include "FileCatalog/FCMetaImpl.h"
-//#include "FileCatalog/FCEntry.h"
-//#include "FileCatalog/URIParser.h"
 #include "FileCatalog/IFCAction.h"
-//#include "CoralBase/MessageStream.h"
 
 namespace pool{
   FCLeaf::FCLeaf( const std::string& contact):m_isreadonly(true){
