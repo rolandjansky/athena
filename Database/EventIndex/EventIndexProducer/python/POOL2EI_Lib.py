@@ -146,9 +146,9 @@ class POOL2EI(PyAthena.Alg):
             self.trigDec = PyAthena.py_tool('Trig::TrigDecisionTool/TrigDecisionTool')
             self.trigDec.ExperimentalAndExpertMethods().enable()
             if self.HaveXHlt:
-                self.trigDec.setProperty("TrigDecisionKey","xTrigDecision");
+                self.trigDec.setProperty("TrigDecisionKey","xTrigDecision")
             else:
-                self.trigDec.setProperty("TrigDecisionKey","TrigDecision");
+                self.trigDec.setProperty("TrigDecisionKey","TrigDecision")
         else:
             if self.HaveHlt:
                 _info("Switch HaveHlt to False")
@@ -619,7 +619,7 @@ class POOL2EI(PyAthena.Alg):
             eirec['EFPassedTrigMask'] = trigEF
         
         
-            ## form Metadata
+            ## from Metadata
             SMK = self._iov.get('SMK',(run_number,event_number))
             L1PSK = self._iov.get('L1PSK',(run_number,lumi_block))
             HLTPSK = self._iov.get('HLTPSK',(run_number,lumi_block))
