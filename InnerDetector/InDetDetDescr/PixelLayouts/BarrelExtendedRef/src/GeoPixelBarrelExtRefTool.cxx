@@ -201,12 +201,12 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
     {
       std::ostringstream lname;
       lname << "Layer" << ii;
-
+      
       // Build layer
       GeoPixelLayerExtRef layer(basics, ii);
       GeoAlignableTransform * xform = new GeoAlignableTransform(HepGeom::Transform3D()); 
       GeoVPhysVol* layerphys = layer.getPhysVol();
-
+     
       GeoNameTag *tag = new GeoNameTag(lname.str());         
       barrelPhys->add(tag);
       barrelPhys->add(new GeoIdentifierTag(ii));
@@ -215,8 +215,7 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
       
       // Store the transform (at level 1)
       Identifier id = basics->getIdHelper()->wafer_id(0,ii,0,0);
-      basics->getDetectorManager()->addAlignableTransform(1, id, xform, layerphys);
-      
+      basics->getDetectorManager()->addAlignableTransform(1, id, xform, layerphys);   
     }
 
   // Add services in barrel volume - dynamic only

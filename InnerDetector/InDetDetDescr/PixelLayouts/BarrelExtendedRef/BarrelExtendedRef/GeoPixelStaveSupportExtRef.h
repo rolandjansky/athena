@@ -28,6 +28,7 @@ public:
   virtual double thicknessN() const {return m_thicknessN;}
   virtual double width() const {return m_width; }
   virtual double length() const {return m_length; }
+  virtual std::string routing() const {return m_routing; } 
 
 private:
   GeoPhysVol* m_physVol;
@@ -39,6 +40,7 @@ private:
   double m_thicknessN;
   double m_width;
   double m_length;
+  std::string m_routing; 
 
 };
 

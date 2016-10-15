@@ -1,0 +1,43 @@
+<PixelGeneralData>
+
+  <PixelGeneral>
+     <Barrel>true</Barrel>
+     <EndcapA>true</EndcapA>
+     <EndcapC>true</EndcapC>
+  </PixelGeneral>
+
+  <PixelEnvelope>
+     <RadiusMin> 28.501 </RadiusMin>
+     <RadiusMax> 361.751 </RadiusMax>
+     <HalfLength> 3475. </HalfLength>
+  </PixelEnvelope>
+
+  <PixelCommon>
+     <RadiusMin> 28.501 </RadiusMin>
+     <RadiusMax> 361.751 </RadiusMax>
+     <HalfLength> 3475. </HalfLength>
+  </PixelCommon>
+
+  <PixelBarrelEnvelope>
+     <Name>Barrel</Name>
+     <RadiusMin> 28.501 </RadiusMin>
+     <RadiusMax> 340.99 </RadiusMax>
+     <HalfLength> 792 </HalfLength>
+     <RadiusList> 28.502  149.9 340.99</RadiusList>
+     <HalfLengthList> 1278 745.1 </HalfLengthList>
+  </PixelBarrelEnvelope>
+
+  <PixelEndcapEnvelope>
+     <Name>Endcap</Name>
+     <RadiusMin> 28.501 </RadiusMin>
+     <RadiusMax> 340.99 </RadiusMax>
+     <ZMin> 731.11 </ZMin>
+     <ZMax> 3475. </ZMax>
+     <RadiusList> 28.502  149.9 340.99</RadiusList>
+     <ZMinList> 1278 745.1 </ZMinList>
+  </PixelEndcapEnvelope>
+
+  <PixelLayerEnvelope>
+  </PixelLayerEnvelope>
+
+</PixelGeneralData>

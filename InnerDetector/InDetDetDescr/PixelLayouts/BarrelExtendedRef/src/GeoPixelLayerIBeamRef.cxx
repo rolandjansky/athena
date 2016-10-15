@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "BarrelExtendedRef/GeoPixelLayerExtRef.h"
 #include "BarrelExtendedRef/GeoPixelLayerIBeamRef.h"
 
 #include "InDetGeoModelUtils/ExtraMaterial.h"
@@ -29,9 +28,10 @@
 
 #include <sstream>
 
-GeoPixelLayerExtRef::GeoPixelLayerExtRef(const PixelGeoBuilderBasics* basics, int iLayer):
+GeoPixelLayerIBeamRef::GeoPixelLayerIBeamRef(const PixelGeoBuilderBasics* basics, int iLayer, std::string mode):
   PixelGeoBuilder(basics),								     
   m_layer(iLayer),
+  m_mode(mode),
   m_xmlReader("InDet::XMLReaderSvc/InDetXMLReaderSvc","XMLReaderSvc")
 {
 
@@ -41,89 +41,82 @@ GeoPixelLayerExtRef::GeoPixelLayerExtRef(const PixelGeoBuilderBasics* basics, in
     ATH_MSG_WARNING("ITkXMLReader: Couldn't retrieve " << m_xmlReader );
   }
 
-  m_layerTmp = m_xmlReader->getPixelBarrelLayerTemplate(m_layer);
-
-  if (m_layerTmp->stave_type == "IBeam_Inner") {   // build 
-
-    printf("************** BUILD IBEAM inner LAYER  %d\n", m_layer);
-
-    GeoPixelLayerIBeamRef iblayer(basics, m_layer, "inner");
-    m_physVol = iblayer.getPhysVol();
-  
-  } else if (m_layerTmp->stave_type == "IBeam_Outer") {   // build 
-
-    printf("************** BUILD IBEAM outer LAYER  %d\n", m_layer);
-
-    GeoPixelLayerIBeamRef iblayer(basics, m_layer, "outer");
-    m_physVol = iblayer.getPhysVol();
-
-  } else {
-    m_physVol = Build();
-  }
+  m_physVol = Build();
 }
 
-GeoVPhysVol* GeoPixelLayerExtRef::Build() {
+GeoVPhysVol* GeoPixelLayerIBeamRef::Build() {
 
-  //
-  // create a barrel layer
 
-  //
+  InDet::BarrelLayerTmp *layerTmpIn = m_mode=="inner" ? m_xmlReader->getPixelBarrelLayerTemplate(m_layer):
+                                                        m_xmlReader->getPixelBarrelLayerTemplate(m_layer-1)  ;
+  InDet::BarrelLayerTmp *layerTmpOut = m_mode=="outer" ? m_xmlReader->getPixelBarrelLayerTemplate(m_layer):
+                                                         m_xmlReader->getPixelBarrelLayerTemplate(m_layer+1);
 
-  // retrieve stave template for this layer
-  //  int layerIndex           = m_layerTmp->index;
-  std::string layerName    = m_layerTmp->name;
-  double layerRadius       = m_layerTmp->radius;
-  int    nSectors          = m_layerTmp->stave_n; 
-  double ladderTilt        = m_layerTmp->stave_tilt;
-  //  double staveOffset       = m_layerTmp->stave_zoffset;   
-  std::string staveType    = m_layerTmp->stave_type;
+  InDet::BarrelLayerTmp *layerTmp = m_mode=="inner" ? layerTmpIn : layerTmpOut;
 
-  printf("************** BUILD LAYER  %d\n", m_layer);
+  // retrieve stave template for inner layer
+  std::string layerName      = layerTmp->name;
+  int    nSectors            = layerTmp->stave_n; 
+  double ladderTilt          = layerTmp->stave_tilt;
+  std::string staveType      = layerTmp->stave_type;
+  double layerRadius         = layerTmp->radius;
+
+  double layerRadiusIn       = layerTmpIn->radius;
+  double layerRadiusOut      = layerTmpOut->radius;
 
   double phiOfStaveZero = 0.;
 
-  std::cout<<layerName<<" "<<staveType<<" "<<nSectors<<std::endl;
+  std::cout<<"IBeam layer:" <<layerName<<" "<<staveType<<" "<<nSectors<<std::endl;
   std::cout<<"*****************************************************************************"<<std::endl;
-
+   
   double deltaPhi = 360.*CLHEP::deg/(double)nSectors;
 
   HepGeom::Transform3D transRadiusAndTilt = HepGeom::TranslateX3D(layerRadius)*HepGeom::RotateZ3D(ladderTilt);
+  HepGeom::Transform3D transRadius = HepGeom::TranslateX3D(layerRadius);
 
   std::vector<InDet::StaveTmp*> staveTmp = m_xmlReader->getPixelStaveTemplate(m_layer);
-  GeoPixelLadderExtRef pixelLadder(getBasics(), staveTmp[0], m_layer, transRadiusAndTilt); 
-  ComputeLayerThickness(pixelLadder, ladderTilt, layerRadius);
+
+  // define ladders for stave and modules
+  GeoPixelLadderIBeamRef pixelLadder(getBasics(), staveTmp[0], m_layer, transRadiusAndTilt,m_mode); 
+  std::pair<double,double> lim = ComputeLayerThickness(pixelLadder, ladderTilt, layerRadius);
 
   // Register the number of stave defined for the layer
   getBasics()->getDetectorManager()->numerology().setNumPhiModulesForLayer(m_layer,nSectors);
 
   GeoFullPhysVol* layerPhys = 0;
 
+  double safety = 0.01 * CLHEP::mm;
+  double rmin =  layerRadius - lim.first - safety;
+  double rmax =  layerRadius + lim.second  + safety;
+
+  double rmid = 0.5*( layerRadiusIn + layerRadiusOut );
+
+  if (m_mode=="inner") rmax = rmid;
+  else                 rmin = rmid;
+
+  double ladderLength = pixelLadder.envLength() + 4*epsilon(); // Ladder has length gmt_mgr->PixelLadderLength() +  2*m_epsilon
+
+  // the layer envelope
+  const GeoMaterial* air = matMgr()->getMaterial("std::Air");
+  std::ostringstream lname;
+  lname << "Layer" << m_layer;
+  const GeoTube* layerTube = new GeoTube(rmin,rmax,0.5*ladderLength); //solid
+  const GeoLogVol* layerLog = new GeoLogVol(lname.str(),layerTube,air); //log volume
+  layerPhys = new GeoFullPhysVol(layerLog); // phys vol
+
   // Loop over the sectors and place everything
   //
   for(int ii = 0; ii < nSectors; ii++) {
     //    gmt_mgr->SetPhi(ii);
 
-    // Build ladder
+    // Build ladder taking as input maximal/minimal extension of layer services
+    double rSize = layerRadiusOut-layerRadiusIn;
     pixelLadder.setSector(ii);
+    pixelLadder.setRsize(rSize);
+    pixelLadder.setRmid(rmid);
+    pixelLadder.setTilt(ladderTilt);
     GeoVPhysVol *ladderPhys=pixelLadder.Build();
-
-    if(ii==0){
-
-      double safety = 0.01 * CLHEP::mm;
-      double rmin =  layerRadius-m_layerThicknessN - safety;
-      double rmax =  layerRadius+m_layerThicknessP + safety;
-      double ladderLength = pixelLadder.envLength() + 4*epsilon(); // Ladder has length gmt_mgr->PixelLadderLength() +  2*m_epsilon
-
-      // Now make the layer envelope
-      // 
-      msg(MSG::INFO)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
-      const GeoMaterial* air = matMgr()->getMaterial("std::Air");
-      std::ostringstream lname;
-      lname << "Layer" << m_layer;
-      const GeoTube* layerTube = new GeoTube(rmin,rmax,0.5*ladderLength); //solid
-      const GeoLogVol* layerLog = new GeoLogVol(lname.str(),layerTube,air); //log volume
-      layerPhys = new GeoFullPhysVol(layerLog); // phys vol
-    }
+    GeoVPhysVol *ladderSvc =pixelLadder.getSvcVol();  
 
     double phiOfSector = phiOfStaveZero + ii*deltaPhi;
 
@@ -142,15 +135,25 @@ GeoVPhysVol* GeoPixelLayerExtRef::Build() {
     layerPhys->add(xform);
     layerPhys->add(ladderPhys);   //pixelLadder->Build());
 
-  }
+    // Place services
+    HepGeom::Transform3D svcTransform = HepGeom::RotateZ3D(phiOfSector) * transRadius;
 
+    std::ostringstream svcTag; 
+    svcTag << "Services" << ii;
+    GeoNameTag * nSvc = new GeoNameTag(svcTag.str());
+    GeoTransform* xSvc = new GeoTransform(svcTransform);
+    layerPhys->add(nSvc);
+    layerPhys->add(new GeoIdentifierTag(ii) );
+    layerPhys->add(xSvc);
+    layerPhys->add(ladderSvc);   //pixelLadder->getSvcVol());
+  }
 
   return layerPhys;
 
 }
 
 
-void GeoPixelLayerExtRef::ComputeLayerThickness(const GeoPixelLadderExtRef& pixelLadder, double ladderTilt, double layerRadius)
+std::pair<double,double> GeoPixelLayerIBeamRef::ComputeLayerThickness(const GeoPixelLadderIBeamRef& pixelLadder, double ladderTilt, double layerRadius)
 {
 
   //
@@ -187,19 +190,15 @@ void GeoPixelLayerExtRef::ComputeLayerThickness(const GeoPixelLadderExtRef& pixe
   ladderLowerCorner = HepGeom::TranslateX3D(layerRadius) * HepGeom::RotateZ3D(std::abs(ladderTilt)) * ladderLowerCorner;
   ladderUpperCorner = HepGeom::TranslateX3D(layerRadius) * HepGeom::RotateZ3D(std::abs(ladderTilt)) * ladderUpperCorner;
 
-  m_layerThicknessN = layerRadius - ladderLowerCorner.perp();
-  m_layerThicknessP = ladderUpperCorner.perp() - layerRadius; // Will be recalculated below in case of additional services
-  
-  //  std::cout<<"Max thickness : ladderhick "<<ladderHalfThickN<<"  "<<ladderHalfThickP<<std::endl;
-  //  std::cout<<"Max thickness : layerthick "<<m_layerThicknessN<<"  "<<m_layerThicknessP<<std::endl;
-
-  //std::cout << "Layer Envelope (using ladder corners): "
-  //	    << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP <<std::endl;
+  std::pair<double,double> limits(layerRadius - ladderLowerCorner.perp(),
+				  ladderUpperCorner.perp() - layerRadius);
 
   // If distance of closest approach is within the ladder width we use that instead
   if (distToClosestPoint < ladderHalfWidth) {
-    m_layerThicknessN = layerRadius - radClosest;
+    //m_layerThicknessN = layerRadius - radClosest;
+    limits.first = layerRadius - radClosest;
   }
 
+  return limits;
 }
 

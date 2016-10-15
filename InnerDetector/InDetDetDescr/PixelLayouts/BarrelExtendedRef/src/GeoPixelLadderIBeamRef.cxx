@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#include "BarrelExtendedRef/GeoPixelLadderExtRef.h"
+#include "BarrelExtendedRef/GeoPixelLadderIBeamRef.h"
 #include "BarrelExtendedRef/GeoPixelStaveSupportExtRef.h"
 #include "BarrelExtendedRef/PixelExtRefStaveXMLHelper.h"
 
@@ -29,12 +29,13 @@
 #include "GeoModelKernel/GeoAlignableTransform.h"
 #include "GeoModelKernel/GeoShapeShift.h"
 #include "GeoModelKernel/GeoShapeUnion.h"
+#include "GeoModelKernel/GeoSimplePolygonBrep.h"
 #include "PathResolver/PathResolver.h"
 
 using std::max;
 
-GeoPixelLadderExtRef::GeoPixelLadderExtRef(const PixelGeoBuilderBasics* basics, const InDet::StaveTmp *staveTmp, 
-				     int iLayer, HepGeom::Transform3D trf):
+GeoPixelLadderIBeamRef::GeoPixelLadderIBeamRef(const PixelGeoBuilderBasics* basics, const InDet::StaveTmp *staveTmp, 
+					       int iLayer, HepGeom::Transform3D trf, std::string mode):
   PixelGeoBuilder(basics),							
   m_staveTmp(staveTmp),
   m_layer(iLayer),
@@ -45,7 +46,8 @@ GeoPixelLadderExtRef::GeoPixelLadderExtRef(const PixelGeoBuilderBasics* basics, 
   m_ladderShape(0),
   m_pixelModuleSvc("PixelModuleSvc","PixelModuleSvc"),
   m_pixelDesignSvc("PixelDesignSvc","PixelDesignSvc"),
-  m_IDserviceTool("InDetservicesTool/PixelServicesTool")
+  m_IDserviceTool("InDetservicesTool/PixelServicesTool"),
+  m_mode(mode)
 {
 
   StatusCode sc = m_IDserviceTool.retrieve(); 
@@ -56,7 +58,7 @@ GeoPixelLadderExtRef::GeoPixelLadderExtRef(const PixelGeoBuilderBasics* basics, 
     msg(MSG::INFO) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
   }
 
-  // Build stave support and module
+  // Build stave support and module 
   preBuild();
 }
 
@@ -88,7 +90,7 @@ GeoPixelLadderExtRef::GeoPixelLadderExtRef(const PixelGeoBuilderBasics* basics, 
 //
 
 
-void GeoPixelLadderExtRef::preBuild( ) {
+void GeoPixelLadderIBeamRef::preBuild( ) {
 
   // Get access to the service that defines the modules
   StatusCode sc = m_pixelModuleSvc.retrieve();
@@ -131,8 +133,8 @@ void GeoPixelLadderExtRef::preBuild( ) {
   // ----------------------------------------------------------------------------
   // Stave module service thickness
   // ----------------------------------------------------------------------------
-  m_moduleSvcThickness = .5 * CLHEP::mm;
-
+  m_moduleSvcThickness = fmax(staveDBHelper.getRadialBeamThickness(),0.5*CLHEP::mm);
+  
   // ----------------------------------------------------------------------------
   // Stave support service thickness
   // ----------------------------------------------------------------------------
@@ -145,18 +147,18 @@ void GeoPixelLadderExtRef::preBuild( ) {
   m_width = m_staveSupport->width();
 
   const HepGeom::Transform3D &staveTrf = m_staveSupport->transform();
-  double staveXoffset = staveTrf.getTranslation().x();
+  double staveXoffset = m_mode == "inner" ? staveTrf.getTranslation().x() : - staveTrf.getTranslation().x();
   //  double staveYoffset = staveTrf.getTranslation().y();
 
   m_length = 2.*m_staveTmp->support_halflength;
 
   double thicknessN_tot = m_barrelModule->Thickness()*.5;
-  double thicknessP_tot = m_barrelModule->Thickness()*.5+fabs(staveXoffset)+thicknessN+thicknessP+m_moduleSvcThickness;
+  //double thicknessP_tot = m_barrelModule->Thickness()*.5+staveXoffset+thicknessN+thicknessP+m_moduleSvcThickness;
+  double thicknessP_tot = m_barrelModule->Thickness()*.5+staveXoffset+thicknessN+thicknessP;   // services moved to middle beam
 
   // Defined the ladder box (centered around the point that correspond to the middle of the sensor
   double halfThickness = 0.5*(thicknessP_tot+thicknessN_tot);
-  double shift = 0.5*(thicknessP_tot-thicknessN_tot);
-  if (m_staveSupport->routing()=="inner") shift=-shift;
+  double shift = m_staveSupport->routing()=="outer" ? 0.5*(thicknessP_tot-thicknessN_tot) :  -0.5*(thicknessP_tot-thicknessN_tot) ;
   GeoBox * box = new GeoBox(halfThickness, m_width/2.+.001, m_length/2.);
   const GeoShape & shiftedBox = (*box) << HepGeom::TranslateX3D(shift);
   m_ladderShape = &shiftedBox;  
@@ -183,8 +185,49 @@ void GeoPixelLadderExtRef::preBuild( ) {
 }
 
 
-GeoVPhysVol* GeoPixelLadderExtRef::Build() {
+GeoVPhysVol* GeoPixelLadderIBeamRef::Build() {
 
+  // build service volume
+  double halfSvcThickness = 0.5*m_moduleSvcThickness;
+  // radial extent 
+  double halfSvcRad = 0.5*(0.5*m_rSize-m_thicknessP-m_thicknessN-2*halfSvcThickness*sin(fabs(m_tilt)));
+  double rs = m_thicknessP+m_thicknessN;
+  // 
+  double dr  = halfSvcThickness/m_rMid*halfSvcThickness;
+
+  GeoSimplePolygonBrep *svcLadd = new GeoSimplePolygonBrep(m_length*.5);
+  if (m_staveSupport->routing()=="outer") { 
+    double svc1x = rs+halfSvcThickness*sin(m_tilt),  svc1y = -halfSvcThickness;
+    double svc4x = rs-halfSvcThickness*sin(m_tilt),  svc4y =  halfSvcThickness ;
+    double svc3x = 0.5*m_rSize-dr-0.001,             svc3y =  halfSvcThickness;
+    double svc2x = 0.5*m_rSize-dr-0.001,             svc2y = -halfSvcThickness;
+    // Construct global object 2D envelope
+    svcLadd->addVertex(svc1x,svc1y);
+    svcLadd->addVertex(svc2x,svc2y);
+    svcLadd->addVertex(svc3x,svc3y);
+    svcLadd->addVertex(svc4x,svc4y);
+  } else {
+    dr = 0.;
+    double svc2x = -(rs-halfSvcThickness*sin(m_tilt)),  svc2y = -halfSvcThickness;
+    double svc3x = -(rs+halfSvcThickness*sin(m_tilt)),  svc3y =  halfSvcThickness ;
+    double svc4x = -0.5*m_rSize+0.001,                  svc4y =  halfSvcThickness;
+    double svc1x = -0.5*m_rSize+0.001,                  svc1y = -halfSvcThickness;
+    // Construct global object 2D envelope
+    svcLadd->addVertex(svc1x,svc1y);
+    svcLadd->addVertex(svc2x,svc2y);
+    svcLadd->addVertex(svc3x,svc3y);
+    svcLadd->addVertex(svc4x,svc4y);
+  }
+  const GeoMaterial* air = matMgr()->getMaterial("std::Air");
+  const GeoLogVol* svcVol= new GeoLogVol("SvcLadder",svcLadd,air);
+
+  double svcShift = m_staveSupport->routing()=="outer" ?
+    m_thicknessP+m_thicknessN+halfSvcRad+2*halfSvcThickness*sin(fabs(m_tilt))- 0.5*dr :
+    -(m_thicknessP+m_thicknessN+halfSvcRad+2*halfSvcThickness*sin(fabs(m_tilt))) ;
+
+  m_serviceVol = new GeoPhysVol(svcVol);
+
+  // ladder
   GeoPhysVol* ladderPhys = new GeoPhysVol(m_theLadder);
   int iModuleCmpt = 0; 
 
@@ -257,9 +300,10 @@ GeoVPhysVol* GeoPixelLadderExtRef::Build() {
       // Now store the xform by identifier (alignement studies )
       getBasics()->getDetectorManager()->addAlignableTransform(0,idwafer,xform,modulePhys);
 
-      // Place the stave module service (on the top of the stave support...)
+      // Place the stave module service in the radial beam)
+
       if(m_IDserviceTool->svcRouteAuto()){
-	GeoBox * svcBox = new GeoBox(m_moduleSvcThickness*.5-0.001, m_barrelModule->Width()*.5, m_barrelModule->Length()*.5);
+	GeoBox * svcBox = new GeoBox(halfSvcRad-0.5*dr-0.001, halfSvcThickness-0.001, m_barrelModule->Length()*.5);
 	std::string matName = m_IDserviceTool->getLayerModuleMaterialName(m_layer ,nbSvcModule);   // material name stored in PixelServicesTool (material are built there)
 	std::ostringstream wg_matName;  
 	wg_matName<<matName<<"L"<<m_layer<<"M"<<ii;
@@ -268,43 +312,41 @@ GeoVPhysVol* GeoPixelLadderExtRef::Build() {
 	  svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolumeLength(matName, svcBox->volume(), m_barrelModule->Length(),wg_matName.str()));  // define material
 	else
 	  svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
+
 	GeoLogVol* svcLog = new GeoLogVol("ModuleSvc",svcBox,svcMat);
 	GeoPhysVol* svcPhys = new GeoPhysVol(svcLog);
 	
-	double xPos_svc = m_staveSupport->thicknessP() + m_moduleSvcThickness*.5;
-	if (m_staveSupport->routing()=="inner") xPos_svc = -xPos_svc; 
-
+	double xPos_svc = svcShift; 
 	GeoTransform* xform_svc = new GeoTransform(HepGeom::TranslateX3D(xPos_svc)*HepGeom::Transform3D(rm,modulepos));
-	ladderPhys->add(xform_svc);
-	ladderPhys->add(svcPhys);
+	m_serviceVol->add(xform_svc);
+	m_serviceVol->add(svcPhys);
 
 	//Place first section : from beginning fo stave to first module, last module to end of stave
-	if(ii==0||ii== m_barrelModuleNumber-1) 
-	  {
-	    double z0 = (ii==0)?-m_length*.5:zpos+m_barrelModule->Length()*.5;
-	    double z1 = (ii==0)?zpos-m_barrelModule->Length()*.5:m_length*.5;
-	    double length = z1-z0;
+	if(ii==0||ii== m_barrelModuleNumber-1)  {
+	  double z0 = (ii==0)?-m_length*.5:zpos+m_barrelModule->Length()*.5;
+	  double z1 = (ii==0)?zpos-m_barrelModule->Length()*.5:m_length*.5;
+	  double length = z1-z0;
+	  
+	  if(length>0) {
+	    std::string prefix=(ii==0)?"neg":"pos";
 	    
-	    if(length>0) {
-	      std::string prefix=(ii==0)?"neg":"pos";
-	      
-	      GeoBox * svcBox = new GeoBox(m_moduleSvcThickness*.5-0.001, m_barrelModule->Width()*.5, length*.5);
-	      std::ostringstream wg_matName;  
-	      wg_matName<<matName<<"L"<<m_layer<<"M"<<prefix;
-	      GeoMaterial* svcMat = 0;   // do not redefine material if already done for sector 0
-	      if(m_sector==0)
-		svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolumeLength(matName, svcBox->volume(), length ,wg_matName.str()));  // define material
-	      else
-		svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
-	      GeoLogVol* svcLog = new GeoLogVol("ModuleSvc",svcBox,svcMat);
-	      GeoPhysVol* svcPhys = new GeoPhysVol(svcLog);
-	      
-	      CLHEP::Hep3Vector modulepos_svc(xpos+xposShift,yposShift,(z0+z1)*.5);
-	      GeoAlignableTransform* xform_svc = new GeoAlignableTransform(HepGeom::TranslateX3D(xPos_svc)*HepGeom::Transform3D(rm,modulepos_svc));
-	      ladderPhys->add(xform_svc);
-	      ladderPhys->add(svcPhys);
-	    }
+	    GeoBox * svcBox = new GeoBox(halfSvcRad-0.001, halfSvcThickness-0.001, length*.5);
+	    std::ostringstream wg_matName;  
+	    wg_matName<<matName<<"L"<<m_layer<<"M"<<prefix;
+	    GeoMaterial* svcMat = 0;   // do not redefine material if already done for sector 0
+	    if(m_sector==0)
+	      svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolumeLength(matName, svcBox->volume(), length ,wg_matName.str()));  // define material
+	    else
+	      svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
+	    GeoLogVol* svcLog = new GeoLogVol("ModuleSvc",svcBox,svcMat);
+	    GeoPhysVol* svcPhys = new GeoPhysVol(svcLog);
+	    
+	    CLHEP::Hep3Vector modulepos_svc(xpos+xposShift,yposShift,(z0+z1)*.5);
+	    GeoAlignableTransform* xform_svc = new GeoAlignableTransform(HepGeom::TranslateX3D(svcShift)*HepGeom::Transform3D(rm,modulepos_svc));
+	    m_serviceVol->add(xform_svc);
+	    m_serviceVol->add(svcPhys);
 	  }
+	}
       }
 
       // Increment/decrement the number of module which services run on the top of the stave
@@ -331,7 +373,7 @@ GeoVPhysVol* GeoPixelLadderExtRef::Build() {
 }
 
 
-double GeoPixelLadderExtRef::calcThickness() {
+double GeoPixelLadderIBeamRef::calcThickness() {
   //
   // The module thickness is copied from the module. Should improve this
   // to avoid duplication of code
@@ -368,7 +410,7 @@ double GeoPixelLadderExtRef::calcThickness() {
 }
 
 
-double GeoPixelLadderExtRef::calcWidth() {
+double GeoPixelLadderIBeamRef::calcWidth() {
   //
   // The width is the maximum among the component widths
   //

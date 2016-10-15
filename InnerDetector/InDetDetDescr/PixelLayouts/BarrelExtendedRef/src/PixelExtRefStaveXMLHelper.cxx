@@ -107,3 +107,13 @@ double PixelExtRefStaveXMLHelper::getServiceOffsetY() const
 {
   return getDouble("PixelStaveGeo", m_layerIndices, "ServiceOffsetY");
 }
+
+std::string PixelExtRefStaveXMLHelper::getSvcRoutingPos() const
+{
+  return getString("PixelStaveGeo", m_layerIndices, "ServiceRouting");
+}
+
+double PixelExtRefStaveXMLHelper::getRadialBeamThickness() const
+{
+  return getDouble("PixelStaveGeo", m_layerIndices, "RadialBeamThickness");
+}
