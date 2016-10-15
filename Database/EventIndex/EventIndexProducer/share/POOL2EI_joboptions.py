@@ -149,14 +149,16 @@ except:
 
 if inputFileSummary.has_key('metadata') and inputFileSummary['metadata'].has_key('/TRIGGER/HLT/HltConfigKeys'):
 
-    # we should search for 'xAOD::TrigDecision' in eventdata_items but 'zero events' files do not 
-    # contain eventdata_items, so we look for 'xAOD::TriggerMenuContainer' in metadata_items instead
+    # we should search for 'xAOD::TrigDecision' in eventdata_items but 'zero events' files do not                                                              
+    # contain eventdata_items, so we look also for 'xAOD::TriggerMenuContainer' in metadata_items                                                              
+    job.pool2ei.HaveXHlt = False
+    if inputFileSummary.has_key('eventdata_items') and 'xAOD::TrigDecision' \
+            in [ x[0] for x in inputFileSummary['eventdata_items'] ]:
+        job.pool2ei.HaveXHlt = True
     if inputFileSummary.has_key('metadata_items') and 'xAOD::TriggerMenuContainer' \
             in [ x[0] for x in inputFileSummary['metadata_items'] ]:
         job.pool2ei.HaveXHlt = True
-    else:
-        job.pool2ei.HaveXHlt = False
-        
+
     from TriggerJobOpts.TriggerConfigGetter import TriggerConfigGetter
     cfg = TriggerConfigGetter("ReadPool")
   
