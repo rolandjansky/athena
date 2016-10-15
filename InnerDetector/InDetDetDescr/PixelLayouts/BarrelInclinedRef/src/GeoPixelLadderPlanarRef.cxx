@@ -150,7 +150,7 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
   m_length = 2.*m_staveTmp->support_halflength;
 
   double thicknessN_tot = m_barrelModule->Thickness()*.5+.5;
-  double thicknessP_tot = m_barrelModule->Thickness()*.5+staveXoffset+thicknessN+thicknessP+m_moduleSvcThickness;
+  double thicknessP_tot = m_barrelModule->Thickness()*.5+fabs(staveXoffset)+thicknessN+thicknessP+m_moduleSvcThickness;
 
   //  thicknessN_tot += 5.;
   //  thicknessP_tot += 5.;
@@ -158,6 +158,7 @@ void GeoPixelLadderPlanarRef::preBuild( ) {
   // Defined the ladder box (centered around the point that correspond to the middle of the sensor
   double halfThickness = 0.5*(thicknessP_tot+thicknessN_tot);
   double shift = 0.5*(thicknessP_tot-thicknessN_tot);
+  if (m_staveSupport->getSvcRoutingPos()=="inner") shift=-shift;
   GeoBox * box = new GeoBox(halfThickness, m_width/2.+.001, m_length/2.);
   const GeoShape & shiftedBox = (*box) << HepGeom::TranslateX3D(shift);
   m_ladderShape = &shiftedBox;  
@@ -247,7 +248,9 @@ GeoVPhysVol* GeoPixelLadderPlanarRef::Build() {
       std::ostringstream nameTag; 
       nameTag << "ModuleBrl" << etaModule;
       GeoNameTag * tag = new GeoNameTag(nameTag.str());
-      GeoAlignableTransform* xform = new GeoAlignableTransform(HepGeom::Transform3D(rm,modulepos));
+      HepGeom::Transform3D modTrans = (m_staveSupport->getSvcRoutingPos()=="inner") ? 
+	   HepGeom::RotateZ3D(180.*CLHEP::deg)*HepGeom::Transform3D(rm,modulepos) : HepGeom::Transform3D(rm,modulepos);
+      GeoAlignableTransform* xform = new GeoAlignableTransform(modTrans);
       ladderPhys->add(tag);
       ladderPhys->add(new GeoIdentifierTag(etaModule) );
       ladderPhys->add(xform);
@@ -271,6 +274,8 @@ GeoVPhysVol* GeoPixelLadderPlanarRef::Build() {
 	GeoPhysVol* svcPhys = new GeoPhysVol(svcLog);
 	
 	double xPos_svc = m_staveSupport->thicknessP() + m_moduleSvcThickness*.5; 
+        if (m_staveSupport->getSvcRoutingPos()=="inner") xPos_svc = -xPos_svc;        
+
 	GeoTransform* xform_svc = new GeoTransform(HepGeom::TranslateX3D(xPos_svc)*HepGeom::Transform3D(rm,modulepos));
 	ladderPhys->add(xform_svc);
 	ladderPhys->add(svcPhys);

@@ -79,8 +79,6 @@ void GeoPixelStaveSupportInclRef::preBuild() {
     const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,shape->volume());
     GeoLogVol* logVol = new GeoLogVol("StaveSupport",shape,material);
     
-    m_transform = HepGeom::Translate3D(xOffset,yOffset,0);
-    
     m_thicknessP =  xOffset + 0.5*thickness;
     m_thicknessN =  -xOffset + 0.5*thickness;
     m_length = length;
@@ -91,6 +89,9 @@ void GeoPixelStaveSupportInclRef::preBuild() {
     m_thicknessP_endcap = m_thicknessP;
     m_thicknessN_endcap = m_thicknessN;
 
+    if (m_svcRouting=="inner") xOffset = -xOffset;
+    m_transform = HepGeom::Translate3D(xOffset,yOffset,0);
+    
     msg(MSG::DEBUG)<<"Simple stave sizes LxWxT: "<<m_length<<"  "<<m_width<<"  "<<m_thicknessN+m_thicknessP<<"   "<<matName<<endreq;
     
     m_physVol = new GeoPhysVol(logVol);
@@ -129,12 +130,13 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   loc_xOffset = xOffset+endcapRadialPos*.5;
   zpos = m_barrelZMax+delta+thickness*.5;
 
-  // lateral junction  (between planar and end of stave)
+  //lateral junction  (between planar and end of stave)
   GeoBox* lat_box = new GeoBox(0.5*fabs(endcapRadialPos), 0.5*width, 0.5*thickness);
-  HepGeom::Transform3D latA_trf = HepGeom::Translate3D(loc_xOffset,yOffset,zpos)*HepGeom::RotateZ3D(m_barrelTilt);
+  // HepGeom::Transform3D latA_trf = HepGeom::Translate3D(loc_xOffset,yOffset,zpos)*HepGeom::RotateZ3D(m_barrelTilt);
+  HepGeom::Transform3D latA_trf(HepGeom::Translate3D(loc_xOffset,yOffset,zpos));
   lastShape = addShape(lastShape, lat_box, latA_trf); 
-  HepGeom::Transform3D latC_trf = HepGeom::Translate3D(loc_xOffset,yOffset,-zpos)*HepGeom::RotateZ3D(m_barrelTilt);
-  lastShape = addShape(lastShape, lat_box, latC_trf); 
+  HepGeom::Transform3D latC_trf(HepGeom::Translate3D(loc_xOffset,yOffset,-zpos));
+  lastShape = addShape(lastShape, lat_box, latC_trf);
 
   const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,lastShape->volume());
   GeoLogVol* logVol = new GeoLogVol("StaveSupport",lastShape,material);
@@ -144,13 +146,13 @@ void GeoPixelStaveSupportInclRef::preBuild() {
   m_thicknessN =  -xOffset_stave + 0.5*thickness;
   m_length = staveDBHelper.getStaveSupportLength();
   m_width = width;
-  
+ 
   if(endcapRadialPos>0) m_thicknessP+=(endcapRadialPos);
   m_thicknessP_endcap = m_thicknessP;
   if(endcapRadialPos<0) m_thicknessN+=(-endcapRadialPos);
-
   m_thicknessN_endcap = m_thicknessP_endcap-thickness;
-
+    
+  if (m_svcRouting=="inner") xOffset_stave = -xOffset_stave;
   m_transform = HepGeom::Translate3D(xOffset_stave,yOffset_stave,0);
 
   msg(MSG::DEBUG)<<"Complex stave sizes LxWxT: "<<m_length<<"  "<<m_width<<"  "<<m_thicknessN+m_thicknessP<<"   "<<matName<<endreq;

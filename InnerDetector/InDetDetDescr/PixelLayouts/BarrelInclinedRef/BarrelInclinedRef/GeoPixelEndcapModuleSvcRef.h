@@ -6,6 +6,7 @@
 #define InDet_GeoPixelEndcapModuleSvcRef_H
 
 #include "PixelGeoModel/PixelGeoBuilder.h"
+#include "GeoPixelStaveSupportInclRef.h"
 
 #include "GeoModelKernel/GeoVPhysVol.h"
 #include "GeoModelKernel/GeoPhysVol.h"
@@ -15,7 +16,7 @@ class GeoDetModulePixel;
 class GeoPixelEndcapModuleSvcRef : public PixelGeoBuilder {
  public:
   
-  GeoPixelEndcapModuleSvcRef(const PixelGeoBuilderBasics* basics,
+  GeoPixelEndcapModuleSvcRef(const PixelGeoBuilderBasics* basics, GeoPixelStaveSupportInclRef* staveSupport,
 			   int iLayer, const GeoDetModulePixel* transModule, const GeoDetModulePixel* endcapModule,
 			   double endcapTilt, double transTilt);
 			   
@@ -29,6 +30,7 @@ class GeoPixelEndcapModuleSvcRef : public PixelGeoBuilder {
 
  private:
 
+  GeoPixelStaveSupportInclRef* m_staveSupport;
   int m_layer;
   const GeoDetModulePixel *m_endcapModule;
   const GeoDetModulePixel *m_transModule;
@@ -43,9 +45,14 @@ class GeoPixelEndcapModuleSvcRef : public PixelGeoBuilder {
   double m_FacePlateGlueThick;
   double m_FacePlateGreaseThick;
   double m_FoamBaseThick;
+  double m_FoamBaseThick_t;   // transition
   double m_FoamEdgeThick;
   double m_FoamBaseThickTrans;
   double m_FoamEdgeThickTrans;
+
+  double m_FoamBaseWidth;     // endcap
+  double m_MountainEdge;      
+  double m_svcRouting;
   
   GeoPhysVol *m_endcapFoam;
   GeoPhysVol *m_transFoam;

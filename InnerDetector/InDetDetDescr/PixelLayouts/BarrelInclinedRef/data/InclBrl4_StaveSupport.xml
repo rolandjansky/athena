@@ -7,8 +7,8 @@
     <StaggerDist> 0. </StaggerDist>
     <StaggerSign> 0. </StaggerSign>
     <ModuleCenterShift> 0. </ModuleCenterShift>
+    <MountainEdge> 5. </MountainEdge>
   </PixelStaveGeo>
-
 
   <PixelStaveGeo>
     <Layer>0</Layer>
@@ -56,7 +56,7 @@
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 1559.95 </EnvelopeLength>
     <StaveSupportMaterialGeo>pix::Default_InclBrl4_Stave_Support_L3_Fixed_Weight</StaveSupportMaterialGeo> 
-    <ServiceRouting>outer</ServiceRouting>
+    <ServiceRouting>inner</ServiceRouting>
     <LadderThickness> .25 </LadderThickness>
     <LadderWidth> 13.8 </LadderWidth>
     <ServiceOffsetX> .95 </ServiceOffsetX>

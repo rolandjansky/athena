@@ -35,6 +35,7 @@ class PixelInclRefStaveXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  
   double getServiceECOffsetX() const;
   double getServiceOffsetY() const;
   std::string getSvcRoutingPos() const;
+  double getMountainEdge() const; 
   
  private:
   int m_layer;
