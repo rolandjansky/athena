@@ -79,3 +79,6 @@ if rec.OutputFileNameForRecoStep() == 'ESDtoDPD':
     InDetDxAODFlags.DumpPixelRdoInfo = True
     InDetDxAODFlags.DumpSctInfo = True
     InDetDxAODFlags.DumpSctRdoInfo = True
+    InDetDxAODFlags.ThinHitsOnTrack = False
+    InDetDxAODFlags.ThinTrackSelection = "InDetTrackParticles.pt > 0.0*GeV"
+    InDetDxAODFlags.DumpTriggerInfo = False

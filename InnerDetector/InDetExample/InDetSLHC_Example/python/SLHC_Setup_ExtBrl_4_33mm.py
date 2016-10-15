@@ -5,7 +5,7 @@
 """
 
 __author__ =   "A. Salzburger"
-__version__=   "$Revision: 1.13 $"
+__version__=   "$Revision: 777580 $"
 __doc__    =   "SLHC_PathSetting"
 __all__    = [ "SLHC_PathSetting" ]
 
@@ -22,10 +22,10 @@ class SLHC_Setup_XMLReader :
 
         # XMLReader setup
         from SLHC_Setup_XML import SLHC_Setup_XMLReader
-        SLHC_Setup_XMLReader(PixelLayout = "IExtBrl4Ref",
+        SLHC_Setup_XMLReader(PixelLayout = "ExtBrl4Ref33mm",
                              PixelEndcapLayout = "ECRing4Ref",
                              SCTLayout = "FourLayersNoStub_23-25-dev0",
-                             dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_IExtBrl_4.xml",
+                             dictionaryFileName = "InDetIdDictFiles/IdDictInnerDetector_SLHC_ExtBrl_4.xml",
                              createXML = True,
                              doPix=True,
                              doSCT=True,
@@ -75,20 +75,23 @@ class SLHC_Setup :
 
         else:
             print 'SLHC_Setup: Geometry coming fully from database'
-            
+
+
+#        from GeoModelSvc.GeoModelSvcConf import GeoModelSvc
+#        GeoModelSvc.SCT_VersionOverride="SCT-SLHC-05"
 
         # GeoModelConfiguration 
 
         xmlFileDict={}
         xmlFileDict["Pixel"]={
-            "PIXELGENERAL":"IExtBrl4_PixelGeneral",
-            "PIXELSIMPLESERVICE":"InclBrl_PixelSimpleService",
+            "PIXELGENERAL":"BrlExt4_33mm_PixelGeneral",
+            "PIXELSIMPLESERVICE":"BrlExt_PixelSimpleService",
             "SILICONMODULES":"ITK_PixelModules",
             "SILICONREADOUT":"PixelModuleReadout",
-            "STAVESUPPORT":"IExtBrl4_StaveSupport",
-            "PIXELDISCSUPPORT":"IExtBrl4_DiskSupport",
-            "MATERIAL":"InclBrl_Material",
-            "PIXELROUTINGSERVICE":"IExtBrl4_PixelRoutingService",
+            "STAVESUPPORT":"BrlExt4_33mm_StaveSupport",
+            "PIXELDISCSUPPORT":"BrlExt4_33mm_DiskSupport",
+            "MATERIAL":"BrlExt_Material",
+            "PIXELROUTINGSERVICE":"BrlExt4_33mm_PixelRoutingService",
             }
 
         for subDet in ["Pixel"]:
@@ -97,6 +100,7 @@ class SLHC_Setup :
                 envName=subDet.upper()+"_"+key+"_GEO_XML"
                 os.environ[envName]=fileName
                 print "ENV ",envName," ",fileName
+
 
         print "******************************************************************************************"
         print "PixelGeoModel - import module and design tools"
@@ -109,7 +113,7 @@ class SLHC_Setup :
         from PixelModuleTool.PixelModuleToolConf import PixelDesignBuilder
         moduleDesignBuilder=PixelDesignBuilder(name="PixelDesignSvc")
         svcMgr+=moduleDesignBuilder
-
+                    
         print "******************************************************************************************"
         print "PixelGeoModel - import PixelServiceTool"
         from PixelServicesTool.PixelServicesToolConf import PixelServicesTool
@@ -118,22 +122,11 @@ class SLHC_Setup :
         serviceTool.SvcDynAutomated = False
         serviceTool.BarrelModuleMaterial = True
         toolSvc+=serviceTool
-                    
-        print "******************************************************************************************"
-        print "PixelGeoModel - import GeoPixelLayerInclRefTool"
-        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerInclRefTool
-        geoLayerInnerTool=GeoPixelLayerInclRefTool(name="InnerPixelLayerTool")
-        toolSvc+=geoLayerInnerTool
-        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelLayerPlanarRefTool
-        geoLayerOuterTool=GeoPixelLayerPlanarRefTool(name="OuterPixelLayerTool")
-        toolSvc+=geoLayerOuterTool
 
-        print "PixelGeoModel - import GeoPixelBarrelInclRefTool"
-        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelBarrelInclRefTool
-        geoBarrelTool=GeoPixelBarrelInclRefTool(name="GeoPixelBarrelInclRefTool")
-        geoBarrelTool.InnerPixelLayerTool = geoLayerInnerTool
-        geoBarrelTool.OuterPixelLayerTool = geoLayerOuterTool
-        geoBarrelTool.MaxInnerLayerMax = 2
+        print "******************************************************************************************"
+        print "PixelGeoModel - import GeoPixelBarrelExtRefTool"
+        from BarrelExtendedRef.BarrelExtendedRefConf import GeoPixelBarrelExtRefTool
+        geoBarrelTool=GeoPixelBarrelExtRefTool(name="GeoPixelBarrelExtRefTool")
         geoBarrelTool.PixelServicesTool = serviceTool
         toolSvc+=geoBarrelTool
 
@@ -151,9 +144,9 @@ class SLHC_Setup :
         toolSvc+=geoEndcapTool
 
         print "******************************************************************************************"
-        print "PixelGeoModel - import GeoPixelEnvelopeInclRefTool"
-        from BarrelInclinedRef.BarrelInclinedRefConf import GeoPixelEnvelopeInclRefTool
-        geoEnvelopeTool=GeoPixelEnvelopeInclRefTool(name="GeoPixelEnvelopeInclRefTool")
+        print "PixelGeoModel - import GeoPixelEnvelopeExtRefTool"
+        from BarrelExtendedRef.BarrelExtendedRefConf import GeoPixelEnvelopeExtRefTool
+        geoEnvelopeTool=GeoPixelEnvelopeExtRefTool(name="GeoPixelEnvelopeExtRefTool")
         geoEnvelopeTool.GeoPixelBarrelTool = geoBarrelTool
         geoEnvelopeTool.GeoPixelEndcapTool = geoEndcapTool
         geoEnvelopeTool.PixelServicesTool = serviceTool
@@ -166,7 +159,7 @@ class SLHC_Setup :
         pixelTool.FastBuildGeoModel = True
         pixelTool.ConfigGeoAlgTool = True
         pixelTool.ReadXMLFromDB = bReadXMLfromDB
-        pixelTool.ConfigGeoBase = "GeoPixelEnvelopeInclRefTool"
+        pixelTool.ConfigGeoBase = "GeoPixelEnvelopeExtRefTool"
 
 
     def search_file(self,filename, search_path):
