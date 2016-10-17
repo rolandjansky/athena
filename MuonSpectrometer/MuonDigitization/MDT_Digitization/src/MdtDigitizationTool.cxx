@@ -74,8 +74,12 @@
 MdtDigitizationTool::MdtDigitizationTool(const std::string& type,const std::string& name,const IInterface* pIID)
   : PileUpToolBase(type, name, pIID)
   , m_digitContainer(0)
+  , m_sdoContainer(0)
+  , m_idHelper(0)
+  , muonHelper(0)
   , m_MuonGeoMgr(0)
   , m_digiTool("MDT_Response_DigiTool", this)
+  , m_inv_c_light(1./(CLHEP::c_light))
   , m_thpcMDT(0)
   , m_mergeSvc(0)
   , m_inputObjectName("")
@@ -1037,7 +1041,7 @@ bool MdtDigitizationTool::createDigits(){
       const Amg::Vector3D& tempLocPos = (*(it->simhit))->localPosition();
       Amg::Vector3D p = geo->localToGlobalCoords(tempLocPos,idDigit);
       tempSDO.setPosition(p); 
-      tempSDO.setTime( hit.globalTime() );
+      tempSDO.setTime( hitTime(phit) );
       m_sdoContainer->insert ( std::make_pair ( idDigit, tempSDO ) );
 	
     } else {

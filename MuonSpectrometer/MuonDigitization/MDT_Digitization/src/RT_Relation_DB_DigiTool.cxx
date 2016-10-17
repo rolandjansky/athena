@@ -18,6 +18,8 @@ using namespace std;
 
 RT_Relation_DB_DigiTool::RT_Relation_DB_DigiTool( const std::string& type, const std::string& name, const IInterface* parent ) 
 : AthAlgTool(type,name,parent)
+, m_maxRadius(0)
+, m_muonGeoMgr(0)
 , m_calibDbSvc("MdtCalibrationDbSvc", name)
 , m_rndmEngine(0)
 , m_rndmEngineName("MuonDigitization")

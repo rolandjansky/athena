@@ -25,6 +25,9 @@ RT_Relation_DigiTool::RT_Relation_DigiTool( const std::string& type,
 					    const std::string& name,
 					    const IInterface* parent )
   : AthAlgTool(type,name,parent)
+  , m_maxRadius(0)
+  , m_muonGeoMgr(0)
+  , m_idHelper(0)
 {
   declareInterface<IMDT_DigitizationTool>(this);
   declareProperty("EffectiveRadius",  m_effRadius = 14.4275);
