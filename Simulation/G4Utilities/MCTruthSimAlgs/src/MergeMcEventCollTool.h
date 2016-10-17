@@ -64,6 +64,8 @@ private:
   StatusCode compressOutputMcEventCollection();
   //** Print out detailed debug info if required.
   void printDetailsOfMergedMcEventCollection() const;
+  //** Ensure that any GenEvent::HeavyIon info is stored in the signal GenEvent.
+  StatusCode saveHeavyIonInfo(const McEventCollection *pMcEvtColl);
 
   //** Handle for the PileUpMergeSvc (provides input McEventCollections)
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc;

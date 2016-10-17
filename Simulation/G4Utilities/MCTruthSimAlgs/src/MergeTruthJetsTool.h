@@ -7,8 +7,6 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-#include "AsgTools/AsgTool.h"
-#include "JetInterface/IJetExecuteTool.h"
 #include "xAODJet/JetContainer.h"
 
 #include "GaudiKernel/Property.h"
@@ -42,8 +40,8 @@ public:
   ///Merge the Truth JetContainers using the PileUpMergeSvc
   virtual StatusCode processAllSubEvents() override final;
 
-  ///implementation of passing filter
-  virtual bool filterPassed() const override final { return (!m_vetoOnInTime || m_filterPassed); }
+  // ///implementation of passing filter
+  // virtual bool filterPassed() const override final { return (!m_vetoOnInTime || m_filterPassed); }
 
   ///implementation of filter reset
   virtual void resetFilter() override final { m_first_event=true; m_signal_max_pT=-1.;  m_pileup_max_pT=-1.; m_filterPassed=true; }
@@ -52,7 +50,6 @@ private:
   /// JetContainer Loop
   virtual double processJetContainer(const xAOD::JetContainer* inputJetContainer, xAOD::JetContainer *outputJetContainer, const double& ptCut, const float& timeOfBCID);
   StatusCode record(const xAOD::JetContainer* pjets, std::string jetcontainername) const;
-  ToolHandle<IJetExecuteTool> m_intool;
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
   xAOD::JetContainer *m_inTimeOutputJetContainer;
   xAOD::JetContainer *m_outOfTimeOutputJetContainer;
@@ -61,7 +58,7 @@ private:
   std::string m_outOfTimeOutputJetCollKey;
   double m_inTimePtCut;
   double m_outOfTimePtCut;
-  bool m_vetoOnInTime;
+  bool m_activateFilter;
   bool m_includeSignalJets;
   bool m_first_event;
   double m_signal_max_pT;
