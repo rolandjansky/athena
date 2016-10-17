@@ -132,13 +132,13 @@ void InDet::PixelClusterOnTrack::setValues(const Trk::TrkDetElementBase* detEl, 
 
 MsgStream& InDet::PixelClusterOnTrack::dump( MsgStream& sl ) const
 {
-    sl<<"PixelClusterOnTrack {"<<endreq;
+    sl<<"PixelClusterOnTrack {"<<endmsg;
     InDet::SiClusterOnTrack::dump(sl); // use common dump(...) from SiClusterOnTrack
     sl<<"Ganged cluster ambiguity: "<<hasClusterAmbiguity()
       <<", fake: " << isFake()
       <<", dedX: " << energyLoss()
-      <<endreq;
-    sl<<"}"<<endreq;
+      <<endmsg;
+    sl<<"}"<<endmsg;
     return sl;
 }
 

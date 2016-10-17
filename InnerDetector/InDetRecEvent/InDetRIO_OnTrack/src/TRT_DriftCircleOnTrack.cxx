@@ -196,13 +196,13 @@ MsgStream& InDet::TRT_DriftCircleOnTrack::dump( MsgStream& sl ) const
 {
     Trk::RIO_OnTrack::dump(sl); 
 	std::string name("TRT_DriftCircleOnTrack: ");
-	sl <<name<< "\t  identifier  = "<< identify()<<endreq;
+	sl <<name<< "\t  identifier  = "<< identify()<<endmsg;
         sl <<name<< "\t  time-over-threshold = " << timeOverThreshold()
-           << (highLevel() ? " with TR flag ON":" with TR flag OFF") << endreq;
+           << (highLevel() ? " with TR flag ON":" with TR flag OFF") << endmsg;
 	sl <<name<< "\t  driftradius = (" 
-		 << (localParameters())[Trk::loc1] << ") " <<endreq;
-	sl <<name<< "\t  has Error Matrix: "<<endreq;
-	sl<<localCovariance()<<endreq; 
+		 << (localParameters())[Trk::loc1] << ") " <<endmsg;
+	sl <<name<< "\t  has Error Matrix: "<<endmsg;
+	sl<<localCovariance()<<endmsg; 
 	return sl;
 }
 

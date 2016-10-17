@@ -91,7 +91,7 @@ const Amg::Vector3D& InDet::SiClusterOnTrack::globalPosition() const
 MsgStream& InDet::SiClusterOnTrack::dump( MsgStream& sl ) const
 {
 
-    sl << "SiClusterOnTrack {" << endreq;
+    sl << "SiClusterOnTrack {" << endmsg;
     Trk::RIO_OnTrack::dump(sl); 
 
     sl << "Global position (x,y,z) = (";
@@ -100,11 +100,11 @@ MsgStream& InDet::SiClusterOnTrack::dump( MsgStream& sl ) const
     {
        sl  <<this->globalPosition().x()<<", "
                <<this->globalPosition().y()<<", "
-               <<this->globalPosition().z()<<")"<<endreq;
+               <<this->globalPosition().z()<<")"<<endmsg;
     } else {
-        sl<<"NULL!), "<<endreq;
+        sl<<"NULL!), "<<endmsg;
     }
-    sl<<"}"<<endreq;
+    sl<<"}"<<endmsg;
     return sl;
 }
 
