@@ -4,13 +4,12 @@ author Davide Costanzo
 use AtlasPolicy         AtlasPolicy-*
 
 private
-use AsgTools            AsgTools-*          Control/AthToolSupport
 use AthenaBaseComps     AthenaBaseComps-*   Control
 use AthenaKernel        AthenaKernel-*      Control
 use CaloSimEvent        CaloSimEvent-*      Calorimeter
+use CxxUtils            CxxUtils-*          Control
 use GaudiInterface      GaudiInterface-*    External
 use GeneratorObjects    GeneratorObjects-*  Generators
-use JetInterface        JetInterface-*      Reconstruction/Jet
 use MuonSimEvent        MuonSimEvent-*      MuonSpectrometer
 use PileUpTools         PileUpTools-*       Control
 use RecEvent            RecEvent-*          Reconstruction

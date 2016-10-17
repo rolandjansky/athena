@@ -10,7 +10,8 @@ addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getCalibRange"                  , "
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeCalibHitsTool"             , "MergeCalibHitsTool")
 
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getTruthJetRange"               , "TruthJetRange")
-addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeTruthJetsTool"             , "MergeTruthJetsTool")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getMergeTruthJetsTool"          , "MergeTruthJetsTool")
+addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getMergeTruthJetsFilterTool"    , "MergeTruthJetsFilterTool")
 
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.getTimingObjRange"              , "TimingObjRange")
 addTool("MCTruthSimAlgs.MCTruthSimAlgsConfig.MergeRecoTimingObjTool"         , "MergeRecoTimingObjTool")

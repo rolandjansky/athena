@@ -7,7 +7,9 @@
 
 #include "PileUpTools/PileUpToolBase.h"
 
-#include "GaudiKernel/Property.h"
+#include "GeneratorObjects/HijingEventParams.h"
+#include "StoreGate/WriteHandle.h"
+
 #include "GaudiKernel/ServiceHandle.h"
 
 #include <string>
@@ -46,7 +48,7 @@ public:
   virtual StatusCode processAllSubEvents() override final;
 private:
   ServiceHandle<PileUpMergeSvc> m_pMergeSvc;
-  StringProperty m_key;
+  SG::WriteHandle<HijingEventParams> m_outputObject;
   bool m_firstSubEvent;
 };
 #endif //MCTRUTHSIMALGS_MERGEHIJINGPARSTOOL_H
