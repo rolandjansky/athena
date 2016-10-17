@@ -115,8 +115,8 @@ MsgStream& InDet::CompetingSCT_ClustersOnTrack::dump( MsgStream& out ) const {
                     "over different surfaces") << "  (given prob>cut)" << std::endl;
   Trk::CompetingRIOsOnTrack::dump(out);
   out << "  - GlobalPosition        : ";
-  if (m_globalPosition==NULL) out << "null pointer"<<endreq;
-  else out << *m_globalPosition<<endreq;
+  if (m_globalPosition==NULL) out << "null pointer"<<endmsg;
+  else out << *m_globalPosition<<endmsg;
   return out;
 }
 
