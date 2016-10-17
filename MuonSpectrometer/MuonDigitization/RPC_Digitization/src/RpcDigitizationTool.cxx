@@ -816,7 +816,7 @@ StatusCode RpcDigitizationTool::doDigitization() {
             content.channelId = atlasId;
             content.deposits.push_back(deposit);
             content.gpos = intersection.position;
-            content.simTime = hit.globalTime();
+            content.simTime = hitTime(phit);
             ATH_MSG_VERBOSE("adding SDO entry: r " << content.gpos.perp() << " z " << content.gpos.z() );
           }
         }
