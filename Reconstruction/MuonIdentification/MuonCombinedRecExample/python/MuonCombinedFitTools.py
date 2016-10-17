@@ -32,6 +32,7 @@ mm = 1
 
 def MuidMaterialAllocator( name='MuidMaterialAllocator', **kwargs): 
     kwargs.setdefault("AggregateMaterial",True)
+    kwargs.setdefault("AllowReordering",False)
     kwargs.setdefault("Extrapolator", getPublicTool('AtlasExtrapolator') )
     kwargs.setdefault("SpectrometerExtrapolator", getPublicTool('AtlasExtrapolator'))
     kwargs.setdefault("TrackingGeometrySvc", getService("AtlasTrackingGeometrySvc") )
@@ -242,7 +243,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
     kwargs.setdefault("LineMomentum"                  , muonStandaloneFlags.straightLineFitMomentum() )
     kwargs.setdefault("LowMomentum"                   , 10.*GeV )
     kwargs.setdefault("MinEnergy"                     , 0.3*GeV )
-    kwargs.setdefault("PerigeeAtSpectrometerEntrance" , True )
+    kwargs.setdefault("PerigeeAtSpectrometerEntrance" , False )
     kwargs.setdefault("ReallocateMaterial"            , False )
     kwargs.setdefault("Vertex2DSigmaRPhi"             , 100.*mm )
     kwargs.setdefault("Vertex3DSigmaRPhi"             , 6.*mm )
@@ -276,7 +277,7 @@ def CombinedMuonTrackBuilder( name='CombinedMuonTrackBuilder', **kwargs ):
                                                                   RecreateStartingParameters = False,
                                                                   RefitTool = getPublicToolClone("MuidAlignmentRefitTool",
                                                                                                  "MuonRefitTool",
-                                                                  				 AlignmentErrors = False,
+                                                                  				 AlignmentErrors = True,
                                                                                                  Fitter = getPublicTool("iPatFitter"))))
 
 
