@@ -231,6 +231,9 @@ private: // properties
 private: // internal helper functions
    pool::IFileCatalog* createCatalog();
 
+   // setup APR persistency
+   StatusCode setupPersistencySvc();
+
    /// Get Session and Database handles
    StatusCode getSessionDbHandles(pool::ISession*& sesH,
 	pool::IDatabase*& dbH,
