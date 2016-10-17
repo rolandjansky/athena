@@ -150,15 +150,15 @@ StatusCode HIMonitoringZdcTool::procHistograms( )
 	{
         for(int k = 0; k < Nside; k++)
         {
-            hSumSideAmp[k]->Scale(1./hSumSideAmp[k]->GetEntries());
-            hSumSideAmpG0[k]->Scale(1./hSumSideAmpG0[k]->GetEntries());
-            hSumSideAmpG1[k]->Scale(1./hSumSideAmpG1[k]->GetEntries());
+            if(hSumSideAmp[k]->GetEntries() > 0) hSumSideAmp[k]->Scale(1./hSumSideAmp[k]->GetEntries());
+            if(hSumSideAmpG0[k]->GetEntries() > 0) hSumSideAmpG0[k]->Scale(1./hSumSideAmpG0[k]->GetEntries());
+            if(hSumSideAmpG1[k]->GetEntries() > 0) hSumSideAmpG1[k]->Scale(1./hSumSideAmpG1[k]->GetEntries());
             
             for(int i = 0; i < Nmod; i++)
             {
-                hamp[i][k]->Scale(1./hamp[i][k]->GetEntries());
-                hampG0[i][k]->Scale(1./hampG0[i][k]->GetEntries());
-                hampG1[i][k]->Scale(1./hampG1[i][k]->GetEntries());
+                if(hamp[i][k]->GetEntries() > 0) hamp[i][k]->Scale(1./hamp[i][k]->GetEntries());
+                if(hampG0[i][k]->GetEntries() > 0) hampG0[i][k]->Scale(1./hampG0[i][k]->GetEntries());
+                if(hampG1[i][k]->GetEntries() > 0) hampG1[i][k]->Scale(1./hampG1[i][k]->GetEntries());
             }
         }
 	}

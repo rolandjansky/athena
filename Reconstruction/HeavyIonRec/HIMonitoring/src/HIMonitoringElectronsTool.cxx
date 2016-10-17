@@ -386,16 +386,16 @@ StatusCode HIMonitoringElectronsTool::procHistograms( )
 
 	if( endOfRun ) 
 	{
-          h_FCalEt_looseLH->Scale(1./h_FCalEt_looseLH->GetEntries());
-          h_FCalEt_mediumLH->Scale(1./h_FCalEt_mediumLH->GetEntries());
-          h_FCalEt_tightLH->Scale(1./h_FCalEt_tightLH->GetEntries());
-          h_FCalEt_A_looseLH->Scale(1./h_FCalEt_A_looseLH->GetEntries());
-          h_FCalEt_A_mediumLH->Scale(1./h_FCalEt_A_mediumLH->GetEntries());
-          h_FCalEt_A_tightLH->Scale(1./h_FCalEt_A_tightLH->GetEntries());
-          h_FCalEt_C_looseLH->Scale(1./h_FCalEt_C_looseLH->GetEntries());
-          h_FCalEt_C_mediumLH->Scale(1./h_FCalEt_C_mediumLH->GetEntries());
-          h_FCalEt_C_tightLH->Scale(1./h_FCalEt_C_tightLH->GetEntries());
-          h_electron_z0sintheta->Scale(1./h_electron_z0sintheta->GetEntries());
+          if(h_FCalEt_looseLH->GetEntries() > 0) h_FCalEt_looseLH->Scale(1./h_FCalEt_looseLH->GetEntries());
+          if(h_FCalEt_mediumLH->GetEntries() > 0) h_FCalEt_mediumLH->Scale(1./h_FCalEt_mediumLH->GetEntries());
+          if(h_FCalEt_tightLH->GetEntries() > 0) h_FCalEt_tightLH->Scale(1./h_FCalEt_tightLH->GetEntries());
+          if(h_FCalEt_A_looseLH->GetEntries() > 0) h_FCalEt_A_looseLH->Scale(1./h_FCalEt_A_looseLH->GetEntries());
+          if(h_FCalEt_A_mediumLH->GetEntries() > 0) h_FCalEt_A_mediumLH->Scale(1./h_FCalEt_A_mediumLH->GetEntries());
+          if(h_FCalEt_A_tightLH->GetEntries() > 0) h_FCalEt_A_tightLH->Scale(1./h_FCalEt_A_tightLH->GetEntries());
+          if(h_FCalEt_C_looseLH->GetEntries() > 0) h_FCalEt_C_looseLH->Scale(1./h_FCalEt_C_looseLH->GetEntries());
+          if(h_FCalEt_C_mediumLH->GetEntries() > 0) h_FCalEt_C_mediumLH->Scale(1./h_FCalEt_C_mediumLH->GetEntries());
+          if(h_FCalEt_C_tightLH->GetEntries() > 0) h_FCalEt_C_tightLH->Scale(1./h_FCalEt_C_tightLH->GetEntries());
+          if(h_electron_z0sintheta->GetEntries() > 0) h_electron_z0sintheta->Scale(1./h_electron_z0sintheta->GetEntries());
 	}
 
 	return StatusCode::SUCCESS;
