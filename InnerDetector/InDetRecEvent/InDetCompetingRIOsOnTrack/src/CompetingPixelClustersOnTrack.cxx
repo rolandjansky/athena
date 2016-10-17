@@ -103,7 +103,7 @@ MsgStream& InDet::CompetingPixelClustersOnTrack::dump( MsgStream& out ) const {
   Trk::CompetingRIOsOnTrack::dump(out);
   out << "  - GlobalPosition        : ";
   if (m_globalPosition==NULL) out << "null pointer"<<std::endl;
-  else out << *m_globalPosition<<endreq;
+  else out << *m_globalPosition<<endmsg;
   return out;
 }
 
