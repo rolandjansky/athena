@@ -89,12 +89,48 @@
                             
                         </chainElement>
                         
-                        <!-- Heavy Ion Reconstruction on pp 5 TeV reference run minbias collisions job -->
+                        <!-- Heavy Ion HIP RAWtoALL Reconstruction on 2015 pPb 5 TeV HardProbes stream collisions job -->
                         <chainElement>
                             
-                            <jobTransform userJobId="Run00286411_MinBias_Collisions_HIReco">
-                                <doc>HI RecoTrf on 2015 pp 5 TeV data, MinBias stream (Run286411 LB660)</doc>
-                                <jobTransformJobName>Run00286411_MinBias_Collisions_HIReco</jobTransformJobName>
+                            <jobTransform userJobId="Run00218048_HardProbes_Collisions_HIPReco">
+                                <doc>HIP RecoTrf on 2013 pPb 5 TeV data, HardProbes stream (Run218048 LB1102)</doc>
+                                <jobTransformJobName>Run00218048_HardProbes_Collisions_HIPReco</jobTransformJobName>
+                                <jobTransformCmd>
+                                    tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=100 --trigStream=HardProbes --runnum=00218048 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00218048/physics_HardProbes --lumiblock=1102 --conditionsTag "all:COMCOND-BLKPA-RUN1-09" --geometryVersion "all:ATLAS-R1-2012-02-00-00" --preExec "all:rec.doHIP.set_Value_and_Lock\(True\)\;DQMonFlags.doLVL1CaloMon=False\;DQMonFlags.doCTPMon=False" --steering=doRAWtoALL
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>480</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>Run00218048_HardProbes_Collisions_HIPReco.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                                
+                            </jobTransform>
+                            
+                        </chainElement>
+                        
+
+                        <!-- Heavy Ion HIP Reconstruction on pp 5 TeV reference run minbias collisions job -->
+                        <chainElement>
+                            
+                            <jobTransform userJobId="Run00286411_MinBias_Collisions_HIPReco">
+                                <doc>HIP RecoTrf on 2015 pp 5 TeV data, MinBias stream (Run286411 LB660)</doc>
+                                <jobTransformJobName>Run00286411_MinBias_Collisions_HIPReco</jobTransformJobName>
                                 <jobTransformCmd>
                                     tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=25 --trigStream=MinBias --runnum=00286411 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00286411/physics_MinBias --lumiblock=660
                                 </jobTransformCmd>
@@ -112,7 +148,7 @@
                                     </arg>
                                     <arg>
                                         <argname>outputFile</argname>
-                                        <argvalue>Run00286411_MinBias_Collisions_HIReco.summary.txt</argvalue>
+                                        <argvalue>Run00286411_MinBias_Collisions_HIPReco.summary.txt</argvalue>
                                     </arg>
                                     <arg>
                                         <argname>searchList</argname>
@@ -132,7 +168,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>Run00183904_CosmicCalo_noField</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=CosmicCalo --runnum=00183904 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183904/physics_CosmicCalo --AMI=q205 --lumiblock=6,8 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=CosmicCalo --runnum=00183904 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183904/physics_CosmicCalo --lumiblock=6,8 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -167,7 +203,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>Run00184074_IDCosmic0</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=IDCosmic --runnum=00184074 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184074/physics_IDCosmic --AMI=q205 --lumiblock=100,102 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=IDCosmic --runnum=00184074 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184074/physics_IDCosmic --lumiblock=100,102 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -202,7 +238,7 @@
                                 <doc>RecoTrf with beamType=collisions</doc>
                                 <jobTransformJobName>Run00183021_MinBias0_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=MinBias --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_MinBias --AMI=q205 --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=MinBias --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_MinBias --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -237,7 +273,7 @@
                                 <doc>RecoTrf with beamType=collisions</doc>
                                 <jobTransformJobName>Run00183021_JetTauEtmiss0_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=JetTauEtmiss --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_JetTauEtmiss --AMI=q205 --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=JetTauEtmiss --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_JetTauEtmiss --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -272,7 +308,7 @@
                                 <doc>RecoTrf with beamType=collisions</doc>
                                 <jobTransformJobName>Run00183021_Muons_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Muons --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_Muons --AMI=q205 --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Muons --runnum=00183021 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00183021/physics_Muons --lumiblock=550,552 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -308,7 +344,7 @@
                                 <doc>RecoTrf with beamType=collisions</doc>
                                 <jobTransformJobName>Run00184169_Egamma_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Egamma --runnum=00184169 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184169/physics_Egamma --AMI=q205 --lumiblock=900,902 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --nfiles=3 --maxEvents=500 --trigStream=Egamma --runnum=00184169 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00184169/physics_Egamma --lumiblock=900,902 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -350,7 +386,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>EgammaStream_Run204073_Pileup_30_Collisions</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --jobnum=0 --trigStream=Egamma --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Egamma/ --AMI=q205 --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'" --conditionsTag="COMCOND-BLKPA-RUN1-07"
+                                    tct_recotrf.py --jobnum=0 --trigStream=Egamma --nfiles=2 --maxEvents=300 --runnum=00204073 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00204073/physics_Egamma/ --autoConfiguration=everything --conditionsTag=COMCOND-BLKPA-RUN1-05 --geometryVersion=ATLAS-R1-2012-03-00-00 --lumiblock=144,145 --dropDESDs --dropDRAWs --dropNTUPs --preExec "'rec.doTrigger=False;'"
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
@@ -1155,6 +1191,38 @@
                             </jobTransform>
                             
                         </chainElement>
+
+                        <!-- Standard reco test job with derived outputs  (from f739 for now DAOD_SCTVALID and DAOD_IDNCB are excluded due tothe issue at ATLASRECTS-3427) -->
+                        <chainElement>
+                            <jobTransform userJobId="Reco_with_Derived_Outputs">
+                                <doc>RecoTrf</doc>
+                                <jobTransformJobName>Reco_with_Derived_Outputs</jobTransformJobName>
+                                <jobTransformCmd>
+                                   Reco_tf.py --conditionsTag all:CONDBR2-BLKPA-2016-16 --ignoreErrors 'False' --autoConfiguration='everything' --maxEvents '250' --geometryVersion all:ATLAS-R2-2015-04-00-00 --steering='doRAWtoALL' --inputBSFile 'root://eosatlas.cern.ch//eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/derivedoutputtest/data16_13TeV.00306451.physics_Main.daq.RAW._lb0948._SFO-4._0001.data' --outputDRAW_EGZFile 'myDRAW_EGZ.data' --outputDESDM_IDALIGNFile 'myDESDM_IDALIGN.pool.root' --outputDESDM_SGLELFile 'myDESDM_SGLEL.pool.root' --outputDESDM_SLTTMUFile 'myDESDM_SLTTMU.pool.root' --outputDAOD_IDTRKVALIDFile 'myDAOD_IDTRKVALID.pool.root' --outputDRAW_ZMUMUFile 'myDRAW_ZMUMU.data' --outputAODFile 'myAOD.pool.root' --outputDRAW_TAUMUHFile 'myDRAW_TAUMUH.data' --outputDESDM_EGAMMAFile 'myDESDM_EGAMMA.pool.root' --outputDESDM_MCPFile 'myDESDM_MCP.pool.root' --outputDESDM_CALJETFile 'myDESDM_CALJET.pool.root' --outputDESDM_PHOJETFile 'myDESDM_PHOJET.pool.root' --outputDESDM_TILEMUFile 'myDESDM_TILEMU.pool.root' --outputDRAW_RPVLLFile 'myDRAW_RPVLL.data' --outputDESDM_EXOTHIPFile 'myDESDM_EXOTHIP.pool.root' --outputESDFile 'myESD.pool.root' --outputHISTFile 'myHIST.root' --outputDAOD_IDTIDEFile 'myDAOD_IDTIDE.pool.root' 
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>420</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>Reco_with_Derived_Outputs.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                            </jobTransform>
+                        </chainElement>
+
                         
                         <!-- Reconstruction job, using latest castor collections -->
                         <chainElement>
@@ -1346,7 +1414,7 @@
           		                <testname>FileGrepper</testname>
           		                <arg>
           		                    <argname>inputFile</argname>
-          		                    <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+          		                    <argvalue>log.PhysicsValidation</argvalue> <!-- put this one if you use job log -->
           		                </arg>
           		                <arg>
           		                    <argname>outputFile</argname>
@@ -1618,7 +1686,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>Reco_MC15_13TeV</jobTransformJobName>
                                 <jobTransformCmd>
-                                    Reco_tf.py --inputHITSFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._[000416,000417,000418,000419,000420].pool.root" --AMITag="r6594" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-28" --digiSeedOffset1="64" --digiSeedOffset2="64" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --inputHighPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._[002354,002355,002356,002357,002358,002359,002360,002361,002370,002371,002372,002373,002374,002375,002376,002377,002378,002379,002380,002381,002387,002388,002389,002390,002391].pool.root" --inputLowPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._[002102,002103,002104,002105,002106,002107,002108,002109,002110,002111,002112,002113,002114,002115,002116,002117,002118,002119,002120,002121,002122,002123,002124,002125,002126].pool.root" --jobNumber="64" --maxEvents="150" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputRDOFile="myRDO.pool.root" --outputTAGFile=myTAG.root --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True" "RAWtoESD:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch="1"" "HITtoRDO:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";" "HITtoRDO:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --runNumber="110401" --skipEvents="0" --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --pileupFinalBunch 6
+                                    Reco_tf.py --inputHITSFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._0004*.pool.root*" --AMITag="r6594" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-28" --digiSeedOffset1="64" --digiSeedOffset2="64" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --inputHighPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._0023*.pool.root*" --inputLowPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._0021*.pool.root*" --jobNumber="64" --maxEvents="150" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputRDOFile="myRDO.pool.root" --outputTAGFile=myTAG.root --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True" "RAWtoESD:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch="1"" "HITtoRDO:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v6_loose_mc_prescale\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v6_loose_mc_prescale\";" "HITtoRDO:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --runNumber="110401" --skipEvents="0" --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --pileupFinalBunch 6
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>long</queue>
@@ -1629,7 +1697,7 @@
                                     <testname>FileGrepper</testname>
                                     <arg>
                                         <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                        <argvalue>log.???to*</argvalue> <!-- put this one if you use job log -->
                                     </arg>
                                     <arg>
                                         <argname>outputFile</argname>
@@ -1649,7 +1717,7 @@
                                 <doc>RecoTrf</doc>
                                 <jobTransformJobName>Reco_MC15_13TeV_MP</jobTransformJobName>
                                 <jobTransformCmd>
-                                    Reco_tf.py --athenaopts='--nprocs=2' --inputHITSFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._[000416,000417,000418,000419,000420].pool.root" --AMITag="r6594" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-28" --digiSeedOffset1="64" --digiSeedOffset2="64" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --inputHighPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._[002354,002355,002356,002357,002358,002359,002360,002361,002370,002371,002372,002373,002374,002375,002376,002377,002378,002379,002380,002381,002387,002388,002389,002390,002391].pool.root" --inputLowPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._[002102,002103,002104,002105,002106,002107,002108,002109,002110,002111,002112,002113,002114,002115,002116,002117,002118,002119,002120,002121,002122,002123,002124,002125,002126].pool.root" --jobNumber="64" --maxEvents="150" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputRDOFile="myRDO.pool.root" --outputTAGFile=myTAG.root --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True" "RAWtoESD:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch="1"" "HITtoRDO:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v5_loose_mc_prescale\";" "HITtoRDO:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --runNumber="110401" --skipEvents="0" --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --pileupFinalBunch 6
+                                    Reco_tf.py --athenaopts='--nprocs=2' --inputHITSFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._0004*.pool.root*" --AMITag="r6594" --autoConfiguration="everything" --conditionsTag "default:OFLCOND-RUN12-SDR-28" --digiSeedOffset1="64" --digiSeedOffset2="64" --geometryVersion="default:ATLAS-R2-2015-03-01-00" --inputHighPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361035.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_high.merge.HITS.e3581_s2578_s2169_tid05098387_00/HITS.05098387._0023*.pool.root*" --inputLowPtMinbiasHitsFile="/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/mc15_valid.361034.Pythia8EvtGen_A2MSTW2008LO_minbias_inelastic_low.merge.HITS.e3581_s2578_s2169_tid05098374_00/HITS.05098374._0021*.pool.root*" --jobNumber="64" --maxEvents="150" --numberOfCavernBkg="0" --numberOfHighPtMinBias="0.12268057" --numberOfLowPtMinBias="39.8773194" --outputAODFile="myAOD.pool.root" --outputESDFile="myESD.pool.root" --outputRDOFile="myRDO.pool.root" --outputTAGFile=myTAG.root --postExec "all:CfgMgr.MessageSvc().setError+=[\"HepMcParticleLink\"]" "HITtoRDO:job.StandardPileUpToolsAlg.PileUpTools[\"MergeMcEventCollTool\"].OnlySaveSignalTruth=True" "RAWtoESD:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch="1"" "HITtoRDO:ToolSvc.LArAutoCorrTotalToolDefault.deltaBunch=1" --postInclude "default:RecJobTransforms/UseFrontier.py" --preExec "all:rec.Commissioning.set_Value_and_Lock(True);rec.doTrigger.set_Value_and_Lock(True);from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.numberOfCollisions.set_Value_and_Lock(20.0);from LArROD.LArRODFlags import larRODFlags;larRODFlags.NumberOfCollisions.set_Value_and_Lock(20);larRODFlags.nSamples.set_Value_and_Lock(4);larRODFlags.doOFCPileupOptimization.set_Value_and_Lock(True);larRODFlags.firstSample.set_Value_and_Lock(0);larRODFlags.useHighestGainAutoCorr.set_Value_and_Lock(True)" "RAWtoESD:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v6_loose_mc_prescale\";from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArCellEmMisCalib=False" "ESDtoAOD:TriggerFlags.AODEDMSet=\"AODFULL\"" "RDOtoRDOTrigger:from TriggerJobOpts.TriggerFlags import TriggerFlags;TriggerFlags.triggerMenuSetup=\"MC_pp_v6_loose_mc_prescale\";" "HITtoRDO:from AthenaCommon.BeamFlags import jobproperties;jobproperties.Beam.bunchSpacing.set_Value_and_Lock(50);" --preInclude "HITtoRDO:Digitization/ForceUseOfPileUpTools.py,SimulationJobOptions/preInclude.PileUpBunchTrainsMC15_2015_50ns_Config1.py,RunDependentSimData/configLumi_run222510.py" "RDOtoRDOTrigger:RecExPers/RecoOutputMetadataList_jobOptions.py" --runNumber="110401" --skipEvents="0" --steering "RAWtoESD:in-RDO,in+RDO_TRIG,in-BS" --pileupFinalBunch 6
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>long</queue>
@@ -1674,40 +1742,6 @@
                             </jobTransform>
                         </chainElement>
 			
-			<!-- Trigger+Reconstruction job, using TrigTransform -->
-                        <chainElement>
-                            
-                            <jobTransform userJobId="TrigTransform">
-                                <doc>RecoTrf</doc>
-                                <jobTransformJobName>TrigTransform</jobTransformJobName>
-                                <jobTransformCmd>
-				    Trig_reco_tf.py --inputBS_RDOFile=/afs/cern.ch/atlas/project/trigger/pesa-sw/validation/atn-test/data15_cos.00259424.physics_CosmicMuons.merge.RAW._lb0487._SFO-11._0001.1 --precommand "testPhysicsV5=True;HLTOutputLevel=INFO;doCosmics=True;doValidation=True" --outputHISTFile 'myHIST.root' --outputAODFile 'myAOD.pool.root' --outputESDFile 'myESD.pool.root' --outputNTUP_MUONCALIBFile 'myNTUP_MUONCALIB.root' --asetup b2r:AtlasP1HLT,20.2.0.2 --beamType 'cosmics' --autoConfiguration='everything' --maxEvents '15' --preExec 'r2e:from CaloRec.CaloCellFlags import jobproperties;jobproperties.CaloCellFlags.doLArHVCorr=False;jobproperties.CaloCellFlags.doPileupOffsetBCIDCorr.set_Value_and_Lock(False);from InDetRecExample.InDetJobProperties import InDetFlags;InDetFlags.doInnerDetectorCommissioning.set_Value_and_Lock(True);InDetFlags.useBroadClusterErrors.set_Value_and_Lock(False);DQMonFlags.doStreamAwareMon=False;DQMonFlags.enableLumiAccess=False;from JetRec.JetRecFlags import jetFlags;jetFlags.useTracks=False;DQMonFlags.doCTPMon=False;' --geometryVersion all:ATLAS-R2-2015-02-00-00 --conditionsTag all:CONDBR2-BLKPA-2015-02 --triggerConfig r2e=DATARECO:REPR   
-                                </jobTransformCmd>
-                                <group>TCTTransform</group>
-                                <queue>medium</queue>
-                                <batchWallTime>420</batchWallTime>
-                                <castorSvcClass>t0atlas</castorSvcClass>
-                                
-                                <test>
-                                    <modulename>RttLibraryTools</modulename>
-                                    <testname>FileGrepper</testname>
-                                    <arg>
-                                        <argname>inputFile</argname>
-                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
-                                    </arg>
-                                    <arg>
-                                        <argname>outputFile</argname>
-                                        <argvalue>TrigTransform.summary.txt</argvalue> 
-                                    </arg>
-                                    <arg>
-                                        <argname>searchList</argname>
-                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
-                                    </arg>
-                                </test>
-                                
-                            </jobTransform>
-                            
-                        </chainElement>
 			
                         <sequential> <!-- DigitizationTest, Reconstruct_ttbar_RDO_Collisions -->
                             <!-- Run digitization on a fixed RDO file -->
@@ -1717,7 +1751,7 @@
                                     <doc>Run digitization on a fixed HITS file</doc>
                                     <jobTransformJobName>DigitizationTest</jobTransformJobName>
                                     <jobTransformCmd>
-				        Digi_tf.py --inputHITSFile '/afs/cern.ch/atlas/project/rig/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2082_tid01614220_00/HITS.01614220._000553.pool.root.1' --digiSeedOffset1 '1' --digiSeedOffset2 '2' --geometryVersion 'ATLAS-R2-2015-02-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-22' --DataRunNumber '222525' --maxEvents '50' --outputRDOFile 'MCtest_ttbar.digit.pool.root'
+				        Digi_tf.py --inputHITSFile '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._0004*.pool.root*' --digiSeedOffset1 '1' --digiSeedOffset2 '2' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-28' --DataRunNumber '222525' --maxEvents '50' --outputRDOFile 'MCtest_ttbar.digit.pool.root'
                                     </jobTransformCmd> 
                                     <group>TCTTransform</group>
                                     <queue>short</queue>
@@ -1809,7 +1843,7 @@
                                     </arg>
                                     <arg>
                                         <argname>searchList</argname>
-                                        <argvalue>ErrorCode=0 (OK)</argvalue> <!-- put here the string you should find to mean all ok -->
+                                        <argvalue>ErrorCode=0 \(OK\)</argvalue> <!-- put here the string you should find to mean all ok -->
                                     </arg>
                                 </test>
                                 <testToRemove> <!-- No POOL output produced -->
@@ -1844,7 +1878,7 @@
                                     </arg>
                                     <arg>
                                         <argname>searchList</argname>
-                                        <argvalue>ErrorCode=0 (OK)</argvalue> <!-- put here the string you should find to mean all ok -->
+                                        <argvalue>ErrorCode=0 \(OK\)</argvalue> <!-- put here the string you should find to mean all ok -->
                                     </arg>
                                 </test>
                                 <testToRemove> <!-- No POOL output produced -->
@@ -1912,6 +1946,7 @@
                 <keepFilePattern>*MyCOOL_histo.db</keepFilePattern>
                 <keepFilePattern>*.pickle</keepFilePattern>
                 <keepFilePattern>*.gpickle</keepFilePattern>
+		<keepFilePattern>jobReport*.json</keepFilePattern>
             </jobGroup>
             
         </jobGroups>

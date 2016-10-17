@@ -51,8 +51,7 @@ if __name__ == "__main__":
 <body>
 <h1></h1>
 <p style=\"font-family: monospace;\">
-The results from the Tier0ChainTests are available <a
-href=\"%s\">here</a>
+The results from the Tier0ChainTests are available <a href=\"%s\">here</a>
 <br><br>
 (Note that results may be published on the web with a slight delay)
 </p>
@@ -134,7 +133,7 @@ href=\"%s\">here</a>
 
   ## send emails
   print "Sending email(s) to: " + emailAddresses
-  msg = "From: rtt@mail.cern.ch\nSubject: Finished TCT for nightly: %s\nTo: %s\nContent-Type: text/html\n%s\n" % (release, emailAddresses, msgbody)
+  msg = "From: rtt@mail.cern.ch\nSubject: Finished TCT for nightly: %s\nTo: %s\nContent-Type: text/html\n\n%s\n" % (release, emailAddresses, msgbody)
 
   recipients = emailAddresses.split(',')
   for recipient in recipients:
