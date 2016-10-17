@@ -89,12 +89,48 @@
                             
                         </chainElement>
                         
-                        <!-- Heavy Ion Reconstruction on pp 5 TeV reference run minbias collisions job -->
+                        <!-- Heavy Ion HIP RAWtoALL Reconstruction on 2015 pPb 5 TeV HardProbes stream collisions job -->
                         <chainElement>
                             
-                            <jobTransform userJobId="Run00286411_MinBias_Collisions_HIReco">
-                                <doc>HI RecoTrf on 2015 pp 5 TeV data, MinBias stream (Run286411 LB660)</doc>
-                                <jobTransformJobName>Run00286411_MinBias_Collisions_HIReco</jobTransformJobName>
+                            <jobTransform userJobId="Run00218048_HardProbes_Collisions_HIPReco">
+                                <doc>HIP RecoTrf on 2013 pPb 5 TeV data, HardProbes stream (Run218048 LB1102)</doc>
+                                <jobTransformJobName>Run00218048_HardProbes_Collisions_HIPReco</jobTransformJobName>
+                                <jobTransformCmd>
+                                    tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=100 --trigStream=HardProbes --runnum=00218048 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00218048/physics_HardProbes --lumiblock=1102 --conditionsTag "all:COMCOND-BLKPA-RUN1-09" --geometryVersion "all:ATLAS-R1-2012-02-00-00" --preExec "all:rec.doHIP.set_Value_and_Lock\(True\)\;DQMonFlags.doLVL1CaloMon=False\;DQMonFlags.doCTPMon=False" --steering=doRAWtoALL
+                                </jobTransformCmd>
+                                <group>TCTTransform</group>
+                                <queue>medium</queue>
+                                <batchWallTime>480</batchWallTime>
+                                <castorSvcClass>t0atlas</castorSvcClass>
+                                
+                                <test>
+                                    <modulename>RttLibraryTools</modulename>
+                                    <testname>FileGrepper</testname>
+                                    <arg>
+                                        <argname>inputFile</argname>
+                                        <argvalue>log.???to???</argvalue> <!-- put this one if you use job log -->
+                                    </arg>
+                                    <arg>
+                                        <argname>outputFile</argname>
+                                        <argvalue>Run00218048_HardProbes_Collisions_HIPReco.summary.txt</argvalue>
+                                    </arg>
+                                    <arg>
+                                        <argname>searchList</argname>
+                                        <argvalue>successful run</argvalue> <!-- put here the string you should find to mean all ok -->
+                                    </arg>
+                                </test>
+                                
+                            </jobTransform>
+                            
+                        </chainElement>
+                        
+
+                        <!-- Heavy Ion HIP Reconstruction on pp 5 TeV reference run minbias collisions job -->
+                        <chainElement>
+                            
+                            <jobTransform userJobId="Run00286411_MinBias_Collisions_HIPReco">
+                                <doc>HIP RecoTrf on 2015 pp 5 TeV data, MinBias stream (Run286411 LB660)</doc>
+                                <jobTransformJobName>Run00286411_MinBias_Collisions_HIPReco</jobTransformJobName>
                                 <jobTransformCmd>
                                     tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=25 --trigStream=MinBias --runnum=00286411 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00286411/physics_MinBias --lumiblock=660
                                 </jobTransformCmd>
@@ -112,7 +148,7 @@
                                     </arg>
                                     <arg>
                                         <argname>outputFile</argname>
-                                        <argvalue>Run00286411_MinBias_Collisions_HIReco.summary.txt</argvalue>
+                                        <argvalue>Run00286411_MinBias_Collisions_HIPReco.summary.txt</argvalue>
                                     </arg>
                                     <arg>
                                         <argname>searchList</argname>
@@ -1715,7 +1751,7 @@
                                     <doc>Run digitization on a fixed HITS file</doc>
                                     <jobTransformJobName>DigitizationTest</jobTransformJobName>
                                     <jobTransformCmd>
-				        Digi_tf.py --inputHITSFile '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._[000416,000417,000418,000419,000420].pool.root' --digiSeedOffset1 '1' --digiSeedOffset2 '2' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-28' --DataRunNumber '222525' --maxEvents '50' --outputRDOFile 'MCtest_ttbar.digit.pool.root'
+				        Digi_tf.py --inputHITSFile '/afs/cern.ch/atlas/project/rig/referencefiles/RTTinputFiles/MC15_13TeV/valid1.110401.PowhegPythia_P2012_ttbar_nonallhad.simul.HITS.e3099_s2578_tid04919495_00/HITS.04919495._0004*.pool.root*' --digiSeedOffset1 '1' --digiSeedOffset2 '2' --geometryVersion 'ATLAS-R2-2015-03-01-00' --conditionsTag 'OFLCOND-RUN12-SDR-28' --DataRunNumber '222525' --maxEvents '50' --outputRDOFile 'MCtest_ttbar.digit.pool.root'
                                     </jobTransformCmd> 
                                     <group>TCTTransform</group>
                                     <queue>short</queue>
