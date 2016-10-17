@@ -127,7 +127,7 @@ StatusCode TgcDigitizationTool::initialize()
   m_digitizer = new TgcDigitMaker(m_hitIdHelper, 
 				  m_mdManager,
 				  runperiod);
-  m_digitizer->setMessageLevel(static_cast<MSG::Level>(outputLevel()));
+  m_digitizer->setMessageLevel(static_cast<MSG::Level>(msgLevel()));
   if(!m_rndmSvc.retrieve().isSuccess()) {
     ATH_MSG_FATAL(" Could not initialize Random Number Service");
     return StatusCode::FAILURE;
@@ -466,7 +466,7 @@ StatusCode TgcDigitizationTool::digitizeCore() {
 	  deposits.push_back(deposit);
           MuonSimData simData(deposits,0);
           simData.setPosition(gpos);
-          simData.setTime(hit.globalTime());
+          simData.setTime(hitTime(phit));
 	  m_sdoContainer->insert(std::make_pair(newDigiId, simData));
 	}
 	

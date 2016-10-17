@@ -104,7 +104,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   int         stationEta = m_hitIdHelper->GetStationEta(Id);
   int         stationPhi = m_hitIdHelper->GetStationPhi(Id);
   int         ilyr       = m_hitIdHelper->GetGasGap(Id);
-  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "executeDigi() Got HIT Id." << endreq;
+  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "executeDigi() Got HIT Id." << endmsg;
 
   // Check the chamber is dead or not. 
   if(isDeadChamber(stationName, stationEta, stationPhi, ilyr)) return 0;
@@ -113,11 +113,11 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
   m_timeWindowOffsetStrip = getTimeWindowOffset(stationName, stationEta, 1);
 
   const Identifier elemId = m_idHelper -> elementID(stationName,stationEta,stationPhi);
-  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "executeDigi() - element identifier is: " << m_idHelper->show_to_string(elemId) << endreq;
+  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "executeDigi() - element identifier is: " << m_idHelper->show_to_string(elemId) << endmsg;
 
   const MuonGM::TgcReadoutElement *tgcChamber = m_mdManager->getTgcReadoutElement(elemId);
   if(!tgcChamber) {
-    if(msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "executeDigi() - no ReadoutElement found for " << m_idHelper->show_to_string(elemId) << endreq;
+    if(msgLevel(MSG::WARNING)) msg(MSG::WARNING) << "executeDigi() - no ReadoutElement found for " << m_idHelper->show_to_string(elemId) << endmsg;
     return 0;
   }
 
@@ -138,7 +138,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 						 << "context begin_index = " << tgcContext.begin_index()
 						 << " context end_index  = " << tgcContext.end_index()
 						 << " the identifier is "
-						 << endreq;
+						 << endmsg;
     elemId.show();
   }
   
@@ -208,7 +208,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 						 << " xlocal: " << zLocal 
 						 << " dir cosine: " << direCos[0] << "/" << direCos[1] << "/" << direCos[2]
 						 << " active region: " << height-frameZwidth*2.
-						 << endreq;
+						 << endmsg;
       }
       else if(isQGeometry &&
 	      (stationName.substr(0,2) != "T1" || ilyr != 2) &&
@@ -219,7 +219,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 						 << " iPosition=" << iPosition << " y=" << yLocal 
 						 << " lower edge of strip  1= " << tgcChamber->stripMinX(ilyr,  1, zLocal)
 						 << " Upper edge of strip 32= " << tgcChamber->stripMaxX(ilyr, 32, zLocal)
-						 << endreq;
+						 << endmsg;
 	iWireGroup[iPosition] = -1;
 	posInWireGroup[iPosition] = 0.;
       }
@@ -242,7 +242,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
     int iWG[2] = {iWireGroup[jWG[0]], iWireGroup[jWG[1]]};
     float posInWG[2] = {posInWireGroup[jWG[0]], posInWireGroup[jWG[1]]};
     if(iWG[0]!=iWG[1]) {
-      if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "executeDigi(): Multihits found in WIRE GROUPs:" << iWG[0] << " " << iWG[1] << endreq;
+      if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "executeDigi(): Multihits found in WIRE GROUPs:" << iWG[0] << " " << iWG[1] << endmsg;
     }
 
     for(int iwg=iWG[0]; iwg<=iWG[1]; iwg++) {
@@ -260,7 +260,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	  if(msgLevel(MSG::DEBUG)) {
 	    msg(MSG::DEBUG ) << "WireGroup: digitized time is outside of time window. " << wDigitTime
 			     << " bunchTime: " << bunchTime << " time jitter: " << jitter 
-			     << " propagation time: " << wirePropagationTime*(ySignPhi*yLocal + height/2. + frameXwidth) << endreq;
+			     << " propagation time: " << wirePropagationTime*(ySignPhi*yLocal + height/2. + frameXwidth) << endmsg;
 	  }
 	}
 	else {
@@ -279,13 +279,13 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 						   << wDigitTime << " " << localPos.x() << "/"  << localPos.y() << "/" << localPos.z() << " "
 						   << direCos.x() << "/"  << direCos.y() << "/" << direCos.z() << " "
 						   << height << " " << tgcChamber->getNWires(ilyr,iwg) << " "
-						   << bctag << endreq;
+						   << bctag << endmsg;
 	}
       }
       else {
 	if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Wire Gang id is out of range. id, x/y/z, height: " << iwg
 						  << " " << localPos.x() << "/"  << localPos.y() << "/" << localPos.z() << " " << height
-						  << endreq;
+						  << endmsg;
       }
     }
   } // end of wire group calculation
@@ -314,7 +314,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Strip: Hit position located at outside of a sensitive volume, id, position, xlocal0/1, dir cosine: "
 						 << stationName << "/" << stationEta << "/" << stationPhi << "/" << ilyr
 						 << zPos << " " << zLocal << " " << direCos[0] << "/" << direCos[1] << "/" << direCos[2]
-						 << endreq;
+						 << endmsg;
       }
       else if (zPos > height-frameZwidth*2.) {
 	iStrip[iPosition] =  tgcChamber -> getNStrips(ilyr) + 1;
@@ -322,7 +322,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Strip: Hit position located at outside of a sensitive volume, id, position, active region: "
 						 << stationName << "/" << stationEta << "/" << stationPhi << "/" << ilyr
 						 << zPos << " " << height-frameZwidth*2.
-						 << endreq;
+						 << endmsg;
       }
       else { // sensitive area
 
@@ -344,7 +344,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 
 	  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "dphi, phiLocal, yLocal, zLocall+ height/2.+hmin: "
 						   << dphi << " " << phiLocal << " " << yLocal << " " << zLocal+height/2.+hmin
-						   << endreq;
+						   << endmsg;
 
 	  int istr = 0;
 	  if ((stationEta > 0 && ilyr == 1) ||
@@ -380,7 +380,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 						     << stationName << "/" << stationEta << "/" << stationPhi << "/" << ilyr 
 						     << " iPosition=" << iPosition << " y=" << yLocal 
 						     << " lower edge of strip 1= " << tgcChamber->stripMinX(ilyr, 1, zLocal)
-						     << endreq;
+						     << endmsg;
 	    iStrip[iPosition] = -1;
 	    posInStrip[iPosition] = 0.;
 	  }
@@ -389,7 +389,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 						     << stationName << "/" << stationEta << "/" << stationPhi << "/" << ilyr
 						     << " iPosition=" << iPosition << " y=" << yLocal 
 						     << " Upper edge of strip 32= " << tgcChamber->stripMaxX(ilyr, 32, zLocal)
-						     << endreq;
+						     << endmsg;
 	    iStrip[iPosition] = 34;
 	    posInStrip[iPosition] = 0.;
 	  }
@@ -413,7 +413,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
     int iStr[2] = {iStrip[jStr[0]], iStrip[jStr[1]]};
     float posInStr[2] = {posInStrip[jStr[0]], posInStrip[jStr[1]]};
     if(iStr[0]!=iStr[1]) {
-      if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Multihits found in STRIPs:" << iStr[0] << " " << iStr[1] << endreq;
+      if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Multihits found in STRIPs:" << iStr[0] << " " << iStr[1] << endmsg;
     }
 
     for(int istr=iStr[0]; istr<=iStr[1]; istr++) {
@@ -434,7 +434,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	    msg(MSG::DEBUG) << "Strip: Digitized time is outside of time window. " << sDigitTime
 			    << " bunchTime: " << bunchTime << " time jitter: " << jitter 
 			    << " propagation time: " << stripPropagationTime*(height/2. + frameZwidth + zSignEta*zLocal)
-			    << endreq;
+			    << endmsg;
 	  }
 	}
 	else {
@@ -448,7 +448,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 						   << sDigitTime << " " << localPos.x() << "/" << localPos.y() << "/" << localPos.z() << " " 
 						   << direCos.x() << "/"  << direCos.y() << "/" << direCos.z() << " "
 						   << height/2.+hmin << " "
-						   << bctag << endreq;
+						   << bctag << endmsg;
 
 	  if(istr==iStr[0]) {
 	    randomCrossTalk(elemId, ilyr, isStrip, iStr[0], posInStr[0], sDigitTime);
@@ -456,7 +456,7 @@ TgcDigitCollection* TgcDigitMaker::executeDigi(const TGCSimHit* hit,
 	}
       }
       else {
-	if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Strip id is out of range: gap, id: " << ilyr << " " << istr << endreq;
+	if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "Strip id is out of range: gap, id: " << ilyr << " " << istr << endmsg;
       }
     }
   } // end of strip number calculation
@@ -480,12 +480,12 @@ void TgcDigitMaker::readFileOfTimeJitter()
     ifs.open(fileWithPath.c_str(), std::ios::in);
   }
   else {
-    msg(MSG::FATAL) << "readFileOfTimeJitter(): Could not find file " << fileName << endreq;
+    msg(MSG::FATAL) << "readFileOfTimeJitter(): Could not find file " << fileName << endmsg;
     exit(-1);
   }
 
   if(ifs.bad()){
-    msg(MSG::FATAL) << "readFileOfTimeJitter(): Could not open file "<< fileName << endreq;
+    msg(MSG::FATAL) << "readFileOfTimeJitter(): Could not open file "<< fileName << endmsg;
     exit(-1);
   }
 
@@ -506,7 +506,7 @@ void TgcDigitMaker::readFileOfTimeJitter()
 	if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << "readFileOfTimeJitter(): ";
       if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << prob << " ";
     }
-    if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << endreq;
+    if(msgLevel(MSG::VERBOSE)) msg(MSG::VERBOSE) << endmsg;
     i++;
   }
   ifs.close();
@@ -549,7 +549,7 @@ bool TgcDigitMaker::efficiencyCheck(const int isStrip) const {
   else if(isStrip == 1) { // strip
     if(CLHEP::RandFlat::shoot(m_engine,0.0,1.0) < m_efficiencyOfStrips) return true;
   }
-  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "efficiencyCheck(): Hit removed. isStrip: " << isStrip << endreq;
+  if(msgLevel(MSG::DEBUG)) msg(MSG::DEBUG) << "efficiencyCheck(): Hit removed. isStrip: " << isStrip << endmsg;
   return false;
 }
 //+++++++++++++++++++++++++++++++++++++++++++++++
@@ -647,7 +647,7 @@ void TgcDigitMaker::readFileOfEnergyThreshold() {
   const std::string fileName = "TGC_Digitization_energyThreshold.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath == "") {
-    msg(MSG::FATAL) << "readFileOfEnergyThreshold(): Could not find file " << fileName.c_str() << endreq;
+    msg(MSG::FATAL) << "readFileOfEnergyThreshold(): Could not find file " << fileName.c_str() << endmsg;
     return;
   }
 
@@ -655,7 +655,7 @@ void TgcDigitMaker::readFileOfEnergyThreshold() {
   std::ifstream ifs;
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
-    msg(MSG::FATAL) << "readFileOfEnergyThreshold(): Could not open file " << fileName.c_str() << endreq;
+    msg(MSG::FATAL) << "readFileOfEnergyThreshold(): Could not open file " << fileName.c_str() << endmsg;
     return;
   }
     
@@ -673,7 +673,7 @@ void TgcDigitMaker::readFileOfEnergyThreshold() {
 		      << " gasGap= " << gasGap 
 		      << " isStrip= " << isStrip
 		      << " energyThreshold(MeV)= " << energyThreshold
-		      << endreq;
+		      << endmsg;
     }
 
     // Subtract offsets to use indices of energyThreshold array
@@ -727,7 +727,7 @@ void TgcDigitMaker::readFileOfCrossTalk() {
   const std::string fileName = "TGC_Digitization_crossTalk.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath == "") {
-    msg(MSG::FATAL) << "readFileOfCrossTalk(): Could not find file " << fileName.c_str() << endreq;
+    msg(MSG::FATAL) << "readFileOfCrossTalk(): Could not find file " << fileName.c_str() << endmsg;
     return;
   }
 
@@ -735,7 +735,7 @@ void TgcDigitMaker::readFileOfCrossTalk() {
   std::ifstream ifs;
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
-    msg(MSG::FATAL) << "readFileOfCrossTalk(): Could not open file " << fileName.c_str() << endreq;
+    msg(MSG::FATAL) << "readFileOfCrossTalk(): Could not open file " << fileName.c_str() << endmsg;
     return;
   }
     
@@ -757,7 +757,7 @@ void TgcDigitMaker::readFileOfCrossTalk() {
 		      << " prob(11) " << crossTalk_11
 		      << " prob(20) " << crossTalk_20
 		      << " prob(21) " << crossTalk_21
-		      << endreq;
+		      << endmsg;
     }
 
     // Subtract offsets to use indices of crossTalk array
@@ -811,13 +811,13 @@ void TgcDigitMaker::readFileOfDeadChamber() {
   else if(m_runperiod == 2) fileName = "TGC_Digitization_2016deadChamber.dat";
   else if(m_runperiod == 3) fileName = "TGC_Digitization_NOdeadChamber.dat";
   else {
-    msg(MSG::ERROR) << "Run Period " << m_runperiod << " is unexpected in TgcDigitMaker - using NOdeadChamber configuration." << endreq;
+    msg(MSG::ERROR) << "Run Period " << m_runperiod << " is unexpected in TgcDigitMaker - using NOdeadChamber configuration." << endmsg;
     fileName = "TGC_Digitization_NOdeadChamber.dat";
     return;
   }
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath == "") {
-    msg(MSG::FATAL) << "readFileOfDeadChamber(): Could not find file " << fileName.c_str() << endreq;
+    msg(MSG::FATAL) << "readFileOfDeadChamber(): Could not find file " << fileName.c_str() << endmsg;
     return;
   }
 
@@ -825,7 +825,7 @@ void TgcDigitMaker::readFileOfDeadChamber() {
   std::ifstream ifs;
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
-    msg(MSG::FATAL) << "readFileOfDeadChamber(): Could not open file " << fileName.c_str() << endreq;
+    msg(MSG::FATAL) << "readFileOfDeadChamber(): Could not open file " << fileName.c_str() << endmsg;
     return;
   }
     
@@ -844,7 +844,7 @@ void TgcDigitMaker::readFileOfDeadChamber() {
 		      << " stationPhi= " << stationPhi
 		      << " gasGap= " << gasGap 
 		      << " comment= " << comment
-		      << endreq;
+		      << endmsg;
     }
 
     // Subtract offsets to use indices of isDeadChamber array
@@ -869,7 +869,7 @@ void TgcDigitMaker::readFileOfDeadChamber() {
   // Close the TGC_Digitization_deadChamber.dat file 
   ifs.close();
 
-  if(msgLevel(MSG::INFO)) msg(MSG::INFO) << "TgcDigitMaker::readFileOfDeadChamber: the number of dead chambers = " << nDeadChambers << endreq;
+  if(msgLevel(MSG::INFO)) msg(MSG::INFO) << "TgcDigitMaker::readFileOfDeadChamber: the number of dead chambers = " << nDeadChambers << endmsg;
 }
 
 void TgcDigitMaker::readFileOfTimeWindowOffset() {
@@ -888,7 +888,7 @@ void TgcDigitMaker::readFileOfTimeWindowOffset() {
   const std::string fileName = "TGC_Digitization_timeWindowOffset.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath == "") {
-    msg(MSG::FATAL) << "readFileOfTimeWindowOffset(): Could not find file " << fileName.c_str() << endreq;
+    msg(MSG::FATAL) << "readFileOfTimeWindowOffset(): Could not find file " << fileName.c_str() << endmsg;
     return;
   }
 
@@ -896,7 +896,7 @@ void TgcDigitMaker::readFileOfTimeWindowOffset() {
   std::ifstream ifs;
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
-    msg(MSG::FATAL) << "readFileOfTimeWindowOffset(): Could not open file " << fileName.c_str() << endreq;
+    msg(MSG::FATAL) << "readFileOfTimeWindowOffset(): Could not open file " << fileName.c_str() << endmsg;
     return;
   }
     
@@ -910,7 +910,7 @@ void TgcDigitMaker::readFileOfTimeWindowOffset() {
 		      << " stationEta= " << stationEta 
 		      << " isStrip= " << isStrip
 		      << " timeWindowOffset= " << timeWindowOffset
-		      << endreq;
+		      << endmsg;
     }
 
     // Subtract offsets to use indices of isDeadChamber array
@@ -952,7 +952,7 @@ void TgcDigitMaker::readFileOfAlignment() {
   const std::string fileName = "TGC_Digitization_alignment.dat";
   std::string fileWithPath = PathResolver::find_file(fileName.c_str(), "DATAPATH");
   if(fileWithPath == "") {
-    msg(MSG::FATAL) << "readFileOfAlignment(): Could not find file " << fileName.c_str() << endreq;
+    msg(MSG::FATAL) << "readFileOfAlignment(): Could not find file " << fileName.c_str() << endmsg;
     return;
   }
 
@@ -960,7 +960,7 @@ void TgcDigitMaker::readFileOfAlignment() {
   std::ifstream ifs;
   ifs.open(fileWithPath.c_str(), std::ios::in);
   if(ifs.bad()) {
-    msg(MSG::FATAL) << "readFileOfAlignment(): Could not open file " << fileName.c_str() << endreq;
+    msg(MSG::FATAL) << "readFileOfAlignment(): Could not open file " << fileName.c_str() << endmsg;
     return;
   }
     
@@ -980,7 +980,7 @@ void TgcDigitMaker::readFileOfAlignment() {
 		      << " t[mm]= " << tmpT  
 		      << " s[mm]= " << tmpS
 		      << " ths[rad]= " << tmpTHS  
-		      << endreq;
+		      << endmsg;
     }
 
     // Subtract offsets to use indices of m_alignmentZ, m_alignmentT, m_alignmentTHS arrays
@@ -1037,7 +1037,7 @@ double TgcDigitMaker::getEnergyThreshold(const std::string stationName, int stat
 		      << " gasGap= " << gasGap+OFFSET_GASGAP 
 		      << " isStrip= " << isStrip+OFFSET_ISSTRIP
 		      << " energyThreshold(MeV)= " << energyThreshold
-		      << endreq;
+		      << endmsg;
   }
 
   return energyThreshold;
@@ -1140,7 +1140,7 @@ bool TgcDigitMaker::isDeadChamber(const std::string stationName, int stationEta,
 		      << " stationPhi= " << stationPhi+OFFSET_STATIONPHI
 		      << " gasGap= " << gasGap+OFFSET_GASGAP 
 		      << " isDeadChamber= " << v_isDeadChamber
-		      << endreq;
+		      << endmsg;
   }
 
   return v_isDeadChamber; 
