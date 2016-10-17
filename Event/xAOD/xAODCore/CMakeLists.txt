@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 767089 2016-08-09 14:55:53Z wlampl $
+# $Id: CMakeLists.txt 778387 2016-10-14 00:02:04Z krasznaa $
 ################################################################################
 # Package: xAODCore
 ################################################################################
@@ -32,11 +32,12 @@ atlas_add_root_dictionary( xAODCore
    EXTERNAL_PACKAGES ROOT )
 
 atlas_add_library( xAODCore
-   xAODCore/*.h xAODCore/*.h xAODCore/tools/*.h Root/*.cxx
+   xAODCore/*.h xAODCore/*.icc xAODCore/tools/*.h Root/*.cxx
    ${xAODCoreDictSource}
    PUBLIC_HEADERS xAODCore
    INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks ${extra_libs} )
+   LINK_LIBRARIES ${ROOT_LIBRARIES} AthContainers AthLinks CxxUtils
+   ${extra_libs} )
 
 atlas_add_dictionary( xAODCoreRflxDict
    xAODCore/xAODCoreRflxDict.h
