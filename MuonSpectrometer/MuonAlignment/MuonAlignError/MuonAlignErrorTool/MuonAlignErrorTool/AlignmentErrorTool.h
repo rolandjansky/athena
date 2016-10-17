@@ -22,6 +22,10 @@ namespace Trk {
   class RIO_OnTrack;
 }
 
+namespace Muon {
+  class MuonIdHelperTool;
+}
+
 namespace MuonAlign {
 
   /**
@@ -55,6 +59,7 @@ namespace MuonAlign {
 
     private:
       ToolHandle<MuonCalib::IIdToFixedIdTool> m_idTool;
+      ToolHandle<Muon::MuonIdHelperTool>  m_idHelper; //<! muon id helper
       ServiceHandle<IMuonAlignmentErrorDbSvc> m_pMuonAlignmentErrorDbSvc;
 
       // Struct for per-Station Deviations Information //
@@ -76,6 +81,9 @@ namespace MuonAlign {
         Amg::Vector3D sumU;
         Amg::Vector3D sumV;
         double sumW2;
+
+	enum AliType {UNDEF, BE, SL, IDMS, CH};
+	AliType type;
       };
 
       bool m_read_local_file;

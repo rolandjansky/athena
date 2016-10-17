@@ -18,6 +18,8 @@
 #include "PathResolver/PathResolver.h"
 #include "GeoPrimitives/CLHEPtoEigenConverter.h"
 
+#include "MuonIdHelpers/MuonIdHelperTool.h"
+
 // For the call-back
 #include "MuonCondInterface/IMuonAlignmentErrorDbTool.h"
 #include "StoreGate/StoreGateSvc.h"
@@ -30,12 +32,14 @@ using namespace MuonAlign;
 AlignmentErrorTool::AlignmentErrorTool(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
   m_idTool("MuonCalib::IdToFixedIdTool"),
+  m_idHelper("Muon::MuonIdHelperTool/MuonIdHelperTool"),
   m_pMuonAlignmentErrorDbSvc("MuonAlignmentErrorDbSvc", "MuonAlignmentErrorDbSvc")
 {
   declareInterface<Trk::ITrkAlignmentDeviationTool>(this);
   declareProperty("idTool", m_idTool);
+  declareProperty("IdHelper", m_idHelper );
   declareProperty("read_local_file", m_read_local_file=true);
-  declareProperty("local_input_filename", m_local_input_filename="AlignmentUncertaintiesStart2015.txt");
+  declareProperty("local_input_filename", m_local_input_filename="AlignmentUncertaintiesData2016.txt");
 }
 
 AlignmentErrorTool::~AlignmentErrorTool() {
@@ -45,7 +49,7 @@ AlignmentErrorTool::~AlignmentErrorTool() {
 
 
 AlignmentErrorTool::deviationSummary_t::deviationSummary_t()
-: traslation(0.), rotation(0.), stationName(""), sumP(Amg::Vector3D(0., 0., 0.)), sumU(Amg::Vector3D(0., 0., 0.)), sumV(Amg::Vector3D(0., 0., 0.)), sumW2(0.) { 
+: traslation(0.), rotation(0.), stationName(""), sumP(Amg::Vector3D(0., 0., 0.)), sumU(Amg::Vector3D(0., 0., 0.)), sumV(Amg::Vector3D(0., 0., 0.)), sumW2(0.), type(AliType::UNDEF) { 
 	//i_instance++;
 } //
 AlignmentErrorTool::deviationSummary_t::~deviationSummary_t() {
@@ -57,6 +61,8 @@ StatusCode AlignmentErrorTool::initialize() {
   ATH_MSG_INFO("*****************************************");
   ATH_MSG_INFO("AlignmentErrorTool::initialize()");
 
+  ATH_CHECK( m_idHelper.retrieve() );
+
   // MAP DEVIATION INITIALIZATION
   // from local file
   if ( m_read_local_file ) {
@@ -64,7 +70,8 @@ StatusCode AlignmentErrorTool::initialize() {
      std::string full_input_filename = PathResolver::find_file( m_local_input_filename, "DATAPATH");
      std::ifstream indata(full_input_filename.c_str());
      initializeAlignmentDeviationsList( indata );
-     
+     ATH_MSG_INFO("filename " << m_local_input_filename );
+     ATH_MSG_INFO("*****************************************");     
      //ATH_MSG_DEBUG("###########################################");
      //ATH_MSG_DEBUG("List of deviations updated");
      //ATH_MSG_DEBUG(data.str());
@@ -131,6 +138,57 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
   typedef DataVector< const Trk::TrackStateOnSurface > tsosc_t;
   const tsosc_t* tsosc = track.trackStateOnSurfaces();
 
+  bool isEndcap = false;
+  bool isBarrel = false;
+  bool isSmallChamber = false;
+  bool isLargeChamber = false;
+
+  // LOOP ON HITS ON TRACK TO IDENTIFY BARREL/ENDCAP, SMALL/LARGE OVERLAPS//
+  for (tsosc_t::const_iterator it=tsosc->begin(), end=tsosc->end(); it!=end; it++) {
+
+    const Trk::TrackStateOnSurface* tsos = *it;
+
+    if (tsos->type(Trk::TrackStateOnSurface::Measurement)) {
+
+      const Trk::MeasurementBase* meas = tsos->measurementOnTrack();
+      const Trk::RIO_OnTrack* rot = dynamic_cast<const Trk::RIO_OnTrack*> (meas);
+
+      if (!rot) {
+	const Trk::CompetingRIOsOnTrack* crot = dynamic_cast<const Trk::CompetingRIOsOnTrack*> (meas);
+	if (crot) {
+	  unsigned int index = crot->indexOfMaxAssignProb();
+	  rot = &(crot->rioOnTrack(index));
+	}
+      }
+      if (!rot) continue;
+
+      ::Identifier channelId = rot->identify();
+
+      if(m_idHelper->isCsc(channelId) ) {
+	isEndcap = true;
+	if(m_idHelper->cscIdHelper().sector(channelId) % 2 == 0)
+	  isSmallChamber=true;
+	else
+	  isLargeChamber=true;	  
+	continue;
+      }
+
+      if(!m_idHelper->isMdt(channelId) )
+	continue;
+      
+      if(m_idHelper->isEndcap(channelId)) {
+	isEndcap = true;
+      } else {
+	isBarrel = true;
+      }
+      if(m_idHelper->isSmallChamber(channelId)) {
+	isSmallChamber = true;
+      } else {
+	isLargeChamber = true;
+      }
+    }
+  }
+
   // LOOP ON HITS ON TRACK //
   for (tsosc_t::const_iterator it=tsosc->begin(), end=tsosc->end(); it!=end; it++) {
 
@@ -181,6 +239,14 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
                  //ATH_MSG_DEBUG("Hit in multilayer " << multilayer_sstring << " couldn't match to " << (m_deviationsVec[iDev]->multilayer).str());
                  continue;
               }
+
+	      // Barrel/end-cap misalignment
+	      if( m_deviationsVec[iDev]->type==deviationSummary_t::AliType::BE && !(isBarrel && isEndcap) )  
+		continue;
+	      
+	      // Small/large chamber misalignment
+	      if( m_deviationsVec[iDev]->type==deviationSummary_t::AliType::SL && !(isSmallChamber && isLargeChamber) )
+		continue;
               
               // ASSOCIATE EACH NUISANCE TO A LIST OF HITS
               m_deviationsVec[iDev]->hits.push_back(rot);
@@ -315,13 +381,13 @@ void AlignmentErrorTool::makeAlignmentDeviations (const Trk::Track& track, std::
      sumU *= (1./sumW2);
      sumV *= (1./sumW2);
 
-     if ( traslation > 0.001*Gaudi::Units::mm ) { 
+     if ( traslation >= 0.001*Gaudi::Units::mm ) { 
 
         deviations.push_back(new AlignmentTranslationDeviation(sumU.cross(sumV), traslation*Gaudi::Units::mm, new_deviationsVec[iDev]->hits));
 
         ATH_MSG_DEBUG("A translation along (" << sumU.x() << ", " << sumU.y() << ", " << sumU.z() << ") with sigma=" << traslation*Gaudi::Units::mm << " mm was applied to " << new_deviationsVec[iDev]->hits.size() << " hits matching the station: " << new_deviationsVec[iDev]->stationName.str() << " and the multilayer " << new_deviationsVec[iDev]->multilayer.str());
 
-     } if ( rotation > 0.000001*Gaudi::Units::rad ) {
+     } if ( rotation >= 0.000001*Gaudi::Units::rad ) {
 
         deviations.push_back(new AlignmentRotationDeviation(sumP, sumV, rotation*Gaudi::Units::rad, new_deviationsVec[iDev]->hits));
 
@@ -405,6 +471,12 @@ void AlignmentErrorTool::initializeAlignmentDeviationsList (std::istream& indata
 
       // TEMPORARY PER STATION DEVIATION STRUCT //
       deviationSummary_t* tmp = new deviationSummary_t;
+
+      if(name_sstring == "^B.*") tmp->type=deviationSummary_t::AliType::BE;
+      else if(name_sstring == "^B.[SFG].*") tmp->type=deviationSummary_t::AliType::SL;
+      else if(name_sstring == "^[EC].S.*") tmp->type=deviationSummary_t::AliType::SL;
+      else if(name_sstring == ".*") tmp->type=deviationSummary_t::AliType::IDMS;
+      else tmp->type=deviationSummary_t::AliType::CH;
 
       // SAVING A REGULAR EXPRESSION WITH THE STATION NAME //
       const boost::regex name_regexp(name_sstring);
