@@ -8,9 +8,9 @@ atlas_subdir( MCTruthSimAlgs )
 # Declare the package's dependencies:
 atlas_depends_on_subdirs( PRIVATE
                           Calorimeter/CaloSimEvent
-                          Control/AthToolSupport/AsgTools
                           Control/AthenaBaseComps
                           Control/AthenaKernel
+                          Control/CxxUtils
                           Control/PileUpTools
                           Control/StoreGate
                           Event/xAOD/xAODJet
@@ -18,7 +18,6 @@ atlas_depends_on_subdirs( PRIVATE
                           Generators/GeneratorObjects
                           Generators/TruthUtils
                           MuonSpectrometer/MuonSimEvent
-                          Reconstruction/Jet/JetInterface
                           Reconstruction/RecEvent
                           Simulation/G4Sim/TrackRecord )
 
@@ -27,7 +26,7 @@ atlas_add_component( MCTruthSimAlgs
                      src/*.cxx
                      src/components/MCTruthSimAlgs_entries.cxx
                      src/components/MCTruthSimAlgs_load.cxx
-                     LINK_LIBRARIES CaloSimEvent AsgTools AthenaBaseComps AthenaKernel PileUpToolsLib StoreGateLib SGtests xAODJet GaudiKernel GeneratorObjects TruthUtils MuonSimEvent JetInterface RecEvent )
+                     LINK_LIBRARIES CaloSimEvent AthenaBaseComps AthenaKernel CxxUtils PileUpToolsLib StoreGateLib SGtests xAODJet GaudiKernel GeneratorObjects TruthUtils MuonSimEvent RecEvent )
 
 # Install files from the package:
 atlas_install_python_modules( python/*.py )

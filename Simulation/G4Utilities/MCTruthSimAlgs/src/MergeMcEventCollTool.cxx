@@ -190,7 +190,7 @@ StatusCode MergeMcEventCollTool::prepareEvent(unsigned int nInputEvents) {
     msg(MSG::ERROR)
       << "prepareEvent: TimedTruthList with key "
       << m_truthCollKey.value()
-      << " is empty" << endreq;
+      << " is empty" << endmsg;
     return StatusCode::RECOVERABLE;
   }
   ATH_MSG_DEBUG( "prepareEvent: there are " << m_nInputMcEventColls << " subevents in this event.");
@@ -214,7 +214,7 @@ StatusCode MergeMcEventCollTool::processAllSubEvents() {
   if (!m_pMergeSvc->retrieveSubEvtsData(m_truthCollKey.value(), truthList).isSuccess() ) {
     msg(MSG::ERROR)
       << "execute: Can not find TimedTruthList with key "
-      << m_truthCollKey.value() << endreq;
+      << m_truthCollKey.value() << endmsg;
     return StatusCode::RECOVERABLE;;
   }
 
@@ -227,7 +227,7 @@ StatusCode MergeMcEventCollTool::processAllSubEvents() {
     msg(MSG::ERROR)
       << "execute: TimedTruthList with key "
       << m_truthCollKey.value()
-      << " is empty" << endreq;
+      << " is empty" << endmsg;
     return StatusCode::RECOVERABLE;
   }
   ATH_MSG_DEBUG( "execute: there are " << m_nInputMcEventColls << " subevents in this event.");
@@ -452,9 +452,20 @@ StatusCode MergeMcEventCollTool::processEvent(const McEventCollection *pMcEvtCol
   return StatusCode::FAILURE;
 }
 
+StatusCode MergeMcEventCollTool::saveHeavyIonInfo(const McEventCollection *pMcEvtColl)
+{
+  if (m_pOvrlMcEvColl->at(0)->heavy_ion()) return StatusCode::SUCCESS;
+  if (pMcEvtColl->at(0)->heavy_ion())
+    {
+      m_pOvrlMcEvColl->at(0)->set_heavy_ion(*(pMcEvtColl->at(0)->heavy_ion()));
+    }
+  return StatusCode::SUCCESS;
+}
+
 StatusCode MergeMcEventCollTool::processTruthFilteredEvent(const McEventCollection *pMcEvtColl, const double currentEventTime, const int currentBkgEventIndex) {
   //insert the GenEvent into the overlay McEventCollection.
   ATH_MSG_VERBOSE ( "processTruthFilteredEvent()" );
+  ATH_CHECK(this->saveHeavyIonInfo(pMcEvtColl));
   m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar)=new HepMC::GenEvent(**(pMcEvtColl->begin()));
   HepMC::GenEvent& currentBackgroundEvent(*(m_pOvrlMcEvColl->at(m_startingIndexForBackground+m_nBkgEventsReadSoFar)));
   currentBackgroundEvent.set_event_number(currentBkgEventIndex);
@@ -470,7 +481,8 @@ StatusCode MergeMcEventCollTool::processTruthFilteredEvent(const McEventCollecti
 
 StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection *pMcEvtColl, const double currentEventTime, const int currentBkgEventIndex) {
   ATH_MSG_VERBOSE ( "processUnfilteredEvent()" );
-  HepMC::GenEvent& currentBackgroundEvent(**(pMcEvtColl->begin()));         //background event
+  ATH_CHECK(this->saveHeavyIonInfo(pMcEvtColl));
+  const HepMC::GenEvent& currentBackgroundEvent(**(pMcEvtColl->begin()));         //background event
   //handle the slimming case
   //ATH_MSG_VERBOSE( "The MB Event Number is " << currentBkgEventIndex << ". m_nBkgEventsReadSoFar = " << m_nBkgEventsReadSoFar );
   HepMC::GenVertex *pCopyOfGenVertex(NULL);
@@ -481,8 +493,8 @@ StatusCode MergeMcEventCollTool::processUnfilteredEvent(const McEventCollection 
 
   unsigned int nCollisionVerticesFound(0);
   //loop over vertices in Background GenEvent
-  HepMC::GenEvent::vertex_iterator currentVertexIter(currentBackgroundEvent.vertices_begin());
-  const HepMC::GenEvent::vertex_iterator endOfCurrentListOfVertices(currentBackgroundEvent.vertices_end());
+  HepMC::GenEvent::vertex_const_iterator currentVertexIter(currentBackgroundEvent.vertices_begin());
+  const HepMC::GenEvent::vertex_const_iterator endOfCurrentListOfVertices(currentBackgroundEvent.vertices_end());
   ATH_MSG_VERBOSE( "Starting a vertex loop ... " );
   //cout << "Starting a vertex loop ... " <<endl;
   for (; currentVertexIter != endOfCurrentListOfVertices; ++currentVertexIter) {
