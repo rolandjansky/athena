@@ -96,7 +96,7 @@
                                 <doc>HIP RecoTrf on 2013 pPb 5 TeV data, HardProbes stream (Run218048 LB1102)</doc>
                                 <jobTransformJobName>Run00218048_HardProbes_Collisions_HIPReco</jobTransformJobName>
                                 <jobTransformCmd>
-                                    tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=100 --trigStream=HardProbes --runnum=00218048 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00218048/physics_HardProbes --lumiblock=1102 --conditionsTag "all:COMCOND-BLKPA-RUN1-09" --geometryVersion "all:ATLAS-R1-2012-02-00-00" --preExec "all:rec.doHIP.set_Value_and_Lock(True);DQMonFlags.doLVL1CaloMon=False;DQMonFlags.doCTPMon=False" --steering=doRAWtoALL
+                                    tct_recotrf.py --HIP --jobnum=0 --AMI=q315 --nfiles=1 --maxEvents=100 --trigStream=HardProbes --runnum=00218048 --castordir=/eos/atlas/atlascerngroupdisk/proj-sit/tct/rec_input/00218048/physics_HardProbes --lumiblock=1102 --conditionsTag "all:COMCOND-BLKPA-RUN1-09" --geometryVersion "all:ATLAS-R1-2012-02-00-00" --preExec "all:rec.doHIP.set_Value_and_Lock\(True\)\;DQMonFlags.doLVL1CaloMon=False\;DQMonFlags.doCTPMon=False" --steering=doRAWtoALL
                                 </jobTransformCmd>
                                 <group>TCTTransform</group>
                                 <queue>medium</queue>
