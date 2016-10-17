@@ -169,29 +169,29 @@ StatusCode HIMonitoringMuonsTool::procHistograms( )
 
 	if( endOfRun ) 
 	{
-        h_Auth_fcal0->Scale(1./h_Auth_fcal0->GetEntries());
-        h_Auth_fcal1->Scale(1./h_Auth_fcal1->GetEntries());
-        h_Auth_fcal2->Scale(1./h_Auth_fcal2->GetEntries());
+        if(h_Auth_fcal0->GetEntries() > 0) h_Auth_fcal0->Scale(1./h_Auth_fcal0->GetEntries());
+        if(h_Auth_fcal1->GetEntries() > 0) h_Auth_fcal1->Scale(1./h_Auth_fcal1->GetEntries());
+        if(h_Auth_fcal2->GetEntries() > 0) h_Auth_fcal2->Scale(1./h_Auth_fcal2->GetEntries());
         
-        h_Type_fcal0->Scale(1./h_Type_fcal0->GetEntries());
-        h_Type_fcal1->Scale(1./h_Type_fcal1->GetEntries());
-        h_Type_fcal2->Scale(1./h_Type_fcal2->GetEntries());
+        if(h_Type_fcal0->GetEntries() > 0) h_Type_fcal0->Scale(1./h_Type_fcal0->GetEntries());
+        if(h_Type_fcal1->GetEntries() > 0) h_Type_fcal1->Scale(1./h_Type_fcal1->GetEntries());
+        if(h_Type_fcal2->GetEntries() > 0) h_Type_fcal2->Scale(1./h_Type_fcal2->GetEntries());
         
-        h_Chi2ndf_fcal0->Scale(1./h_Chi2ndf_fcal0->GetEntries());
-        h_Chi2ndf_fcal1->Scale(1./h_Chi2ndf_fcal1->GetEntries());
-        h_Chi2ndf_fcal2->Scale(1./h_Chi2ndf_fcal2->GetEntries());
+        if(h_Chi2ndf_fcal0->GetEntries() > 0) h_Chi2ndf_fcal0->Scale(1./h_Chi2ndf_fcal0->GetEntries());
+        if(h_Chi2ndf_fcal1->GetEntries() > 0) h_Chi2ndf_fcal1->Scale(1./h_Chi2ndf_fcal1->GetEntries());
+        if(h_Chi2ndf_fcal2->GetEntries() > 0) h_Chi2ndf_fcal2->Scale(1./h_Chi2ndf_fcal2->GetEntries());
         
-        h_Chi2ndfID_fcal0->Scale(1./h_Chi2ndfID_fcal0->GetEntries());
-        h_Chi2ndfID_fcal1->Scale(1./h_Chi2ndfID_fcal1->GetEntries());
-        h_Chi2ndfID_fcal2->Scale(1./h_Chi2ndfID_fcal2->GetEntries());
+        if(h_Chi2ndfID_fcal0->GetEntries() > 0) h_Chi2ndfID_fcal0->Scale(1./h_Chi2ndfID_fcal0->GetEntries());
+        if(h_Chi2ndfID_fcal1->GetEntries() > 0) h_Chi2ndfID_fcal1->Scale(1./h_Chi2ndfID_fcal1->GetEntries());
+        if(h_Chi2ndfID_fcal2->GetEntries() > 0) h_Chi2ndfID_fcal2->Scale(1./h_Chi2ndfID_fcal2->GetEntries());
         
-        h_Chi2ndfMS_fcal0->Scale(1./h_Chi2ndfMS_fcal0->GetEntries());
-        h_Chi2ndfMS_fcal1->Scale(1./h_Chi2ndfMS_fcal1->GetEntries());
-        h_Chi2ndfMS_fcal2->Scale(1./h_Chi2ndfMS_fcal2->GetEntries());
+        if(h_Chi2ndfMS_fcal0->GetEntries() > 0) h_Chi2ndfMS_fcal0->Scale(1./h_Chi2ndfMS_fcal0->GetEntries());
+        if(h_Chi2ndfMS_fcal1->GetEntries() > 0) h_Chi2ndfMS_fcal1->Scale(1./h_Chi2ndfMS_fcal1->GetEntries());
+        if(h_Chi2ndfMS_fcal2->GetEntries() > 0) h_Chi2ndfMS_fcal2->Scale(1./h_Chi2ndfMS_fcal2->GetEntries());
         
-        h_Chi2ndfME_fcal0->Scale(1./h_Chi2ndfME_fcal0->GetEntries());
-        h_Chi2ndfME_fcal1->Scale(1./h_Chi2ndfME_fcal1->GetEntries());
-        h_Chi2ndfME_fcal2->Scale(1./h_Chi2ndfME_fcal2->GetEntries());
+        if(h_Chi2ndfME_fcal0->GetEntries() > 0) h_Chi2ndfME_fcal0->Scale(1./h_Chi2ndfME_fcal0->GetEntries());
+        if(h_Chi2ndfME_fcal1->GetEntries() > 0) h_Chi2ndfME_fcal1->Scale(1./h_Chi2ndfME_fcal1->GetEntries());
+        if(h_Chi2ndfME_fcal2->GetEntries() > 0) h_Chi2ndfME_fcal2->Scale(1./h_Chi2ndfME_fcal2->GetEntries());
 	}
 
 	return StatusCode::SUCCESS;

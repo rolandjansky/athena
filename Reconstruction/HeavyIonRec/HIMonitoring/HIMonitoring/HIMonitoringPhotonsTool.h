@@ -117,7 +117,13 @@ class HIMonitoringPhotonsTool : public ManagedMonitorToolBase
 	  // basics 
 	  TH2D_LW* h_photon_pt_eta;
 	  TH2D_LW* h_photon_pt_phi;
+	  TH2D_LW* h_photon_pt_fcal;
 	  TH2D_LW* h_photon_eta_phi_ptCut;
+
+	  TH2D_LW* h_photon_pt_eta_tight;
+	  TH2D_LW* h_photon_pt_phi_tight;
+	  TH2D_LW* h_photon_pt_fcal_tight;
+	  TH2D_LW* h_photon_eta_phi_ptCut_tight;
 
 	  // shower shapes
 	  

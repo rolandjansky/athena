@@ -21,9 +21,9 @@ const IInterface* parent ): ManagedMonitorToolBase( type, name, parent )
 {
 	m_FCalEt=0;  
 
-	m_FCalEt_nbins = 95;
-	m_FCalEt_low = -150;
-	m_FCalEt_high = 800;
+	m_FCalEt_nbins = 50;
+	m_FCalEt_low = -50;
+	m_FCalEt_high = 200;
 
 	m_PhotonPt_nbins = 50;
 	m_PhotonPt_low = 0;
@@ -179,13 +179,28 @@ StatusCode HIMonitoringPhotonsTool::fillHistograms()
 
 	    h_photon_pt_eta->Fill( pt, eta );
 	    h_photon_pt_phi->Fill( pt, phi );
-	    if (pt < 25) continue;
+	    h_photon_pt_fcal->Fill( pt, phi );
 
 	    bool loose_MC15 = m_photonLooseIsEMSelector->accept(*photons_itr);
 	    bool tight_MC15 = m_photonTightIsEMSelector->accept(*photons_itr);
 
+	    if (tight_MC15) {
+
+	      h_photon_pt_eta_tight->Fill( pt, eta );
+	      h_photon_pt_phi_tight->Fill( pt, phi );
+	      h_photon_pt_fcal_tight->Fill( pt, phi );
+	      
+	    }
+
+	    if (pt < 20) continue;
 
 	    h_photon_eta_phi_ptCut->Fill( eta, phi );
+
+	    if (tight_MC15) {
+
+	      h_photon_eta_phi_ptCut_tight->Fill( eta, phi );
+
+	    }
 
 	    float etcone20 = (*photons_itr)->auxdata< float >("etcone20") * 1e-3;
 	    float etcone30 = (*photons_itr)->auxdata< float >("etcone30") * 1e-3;
@@ -195,7 +210,7 @@ StatusCode HIMonitoringPhotonsTool::fillHistograms()
 	    h_photon_fcal_etcone30_ptCut->Fill( m_FCalEt, etcone30 );
 	    h_photon_fcal_etcone40_ptCut->Fill( m_FCalEt, etcone40 );
 
-	    if (m_FCalEt < 50) {
+	    if (m_FCalEt < 20) {
 	      h_photon_pt_etcone40_fcal0->Fill( pt, etcone40 );
 
 	      h_photon_etcone20_ptCut_fcal0->Fill( etcone20 );
@@ -206,7 +221,7 @@ StatusCode HIMonitoringPhotonsTool::fillHistograms()
 	      if (loose_MC15) h_photon_etcone30_ptCut_fcal0_loose->Fill( etcone30 );
 	      if (tight_MC15) h_photon_etcone30_ptCut_fcal0_tight->Fill( etcone30 );
 	    }
-	    if (m_FCalEt > 50 && m_FCalEt < 300) {
+	    if (m_FCalEt > 20 && m_FCalEt < 50) {
 	      h_photon_pt_etcone40_fcal1->Fill( pt, etcone40 );
 
 	      h_photon_etcone20_ptCut_fcal1->Fill( etcone20 );
@@ -217,7 +232,7 @@ StatusCode HIMonitoringPhotonsTool::fillHistograms()
 	      if (loose_MC15) h_photon_etcone30_ptCut_fcal1_loose->Fill( etcone30 );
 	      if (tight_MC15) h_photon_etcone30_ptCut_fcal1_tight->Fill( etcone30 );
 	    }
-	    if (m_FCalEt > 300) {
+	    if (m_FCalEt > 50) {
 	      h_photon_pt_etcone40_fcal2->Fill( pt, etcone40 );
 
 	      h_photon_etcone20_ptCut_fcal2->Fill( etcone20 );
@@ -326,51 +341,51 @@ StatusCode HIMonitoringPhotonsTool::procHistograms( )
 
 	if( endOfRun ) 
 	{
-        h_photon_reta_ptCut_all->Scale(1./h_photon_reta_ptCut_all->GetEntries());
-        h_photon_reta_ptCut_loose->Scale(1./h_photon_reta_ptCut_loose->GetEntries());
-        h_photon_reta_ptCut_tight->Scale(1./h_photon_reta_ptCut_tight->GetEntries());
-        h_photon_rphi_ptCut_all->Scale(1./h_photon_rphi_ptCut_all->GetEntries());
-        h_photon_rphi_ptCut_loose->Scale(1./h_photon_rphi_ptCut_loose->GetEntries());
-        h_photon_rphi_ptCut_tight->Scale(1./h_photon_rphi_ptCut_tight->GetEntries());
-        h_photon_weta2_ptCut_all->Scale(1./h_photon_weta2_ptCut_all->GetEntries());
-        h_photon_weta2_ptCut_loose->Scale(1./h_photon_weta2_ptCut_loose->GetEntries());
-        h_photon_weta2_ptCut_tight->Scale(1./h_photon_weta2_ptCut_tight->GetEntries());
-        h_photon_rhad_ptCut_all->Scale(1./h_photon_rhad_ptCut_all->GetEntries());
-        h_photon_rhad_ptCut_loose->Scale(1./h_photon_rhad_ptCut_loose->GetEntries());
-        h_photon_rhad_ptCut_tight->Scale(1./h_photon_rhad_ptCut_tight->GetEntries());
-        h_photon_wtots1_ptCut_all->Scale(1./h_photon_wtots1_ptCut_all->GetEntries());
-        h_photon_wtots1_ptCut_loose->Scale(1./h_photon_wtots1_ptCut_loose->GetEntries());
-        h_photon_wtots1_ptCut_tight->Scale(1./h_photon_wtots1_ptCut_tight->GetEntries());
-        h_photon_fracs1_ptCut_all->Scale(1./h_photon_fracs1_ptCut_all->GetEntries());
-        h_photon_fracs1_ptCut_loose->Scale(1./h_photon_fracs1_ptCut_loose->GetEntries());
-        h_photon_fracs1_ptCut_tight->Scale(1./h_photon_fracs1_ptCut_tight->GetEntries());
-        h_photon_deltae_ptCut_all->Scale(1./h_photon_deltae_ptCut_all->GetEntries());
-        h_photon_deltae_ptCut_loose->Scale(1./h_photon_deltae_ptCut_loose->GetEntries());
-        h_photon_deltae_ptCut_tight->Scale(1./h_photon_deltae_ptCut_tight->GetEntries());
-        h_photon_eratio_ptCut_all->Scale(1./h_photon_eratio_ptCut_all->GetEntries());
-        h_photon_eratio_ptCut_loose->Scale(1./h_photon_eratio_ptCut_loose->GetEntries());
-        h_photon_eratio_ptCut_tight->Scale(1./h_photon_eratio_ptCut_tight->GetEntries());
-        h_photon_f1_ptCut_all->Scale(1./h_photon_f1_ptCut_all->GetEntries());
-        h_photon_f1_ptCut_loose->Scale(1./h_photon_f1_ptCut_loose->GetEntries());
-        h_photon_f1_ptCut_tight->Scale(1./h_photon_f1_ptCut_tight->GetEntries());
-        h_photon_etcone20_ptCut_fcal0->Scale(1./h_photon_etcone20_ptCut_fcal0->GetEntries());
-        h_photon_etcone20_ptCut_fcal1->Scale(1./h_photon_etcone20_ptCut_fcal1->GetEntries());
-        h_photon_etcone20_ptCut_fcal2->Scale(1./h_photon_etcone20_ptCut_fcal2->GetEntries());
-        h_photon_etcone30_ptCut_fcal0->Scale(1./h_photon_etcone30_ptCut_fcal0->GetEntries());
-        h_photon_etcone30_ptCut_fcal1->Scale(1./h_photon_etcone30_ptCut_fcal1->GetEntries());
-        h_photon_etcone30_ptCut_fcal2->Scale(1./h_photon_etcone30_ptCut_fcal2->GetEntries());
-        h_photon_etcone40_ptCut_fcal0->Scale(1./h_photon_etcone40_ptCut_fcal0->GetEntries());
-        h_photon_etcone40_ptCut_fcal1->Scale(1./h_photon_etcone40_ptCut_fcal1->GetEntries());
-        h_photon_etcone40_ptCut_fcal2->Scale(1./h_photon_etcone40_ptCut_fcal2->GetEntries());
-        h_photon_etcone30_ptCut_fcal0_all->Scale(1./h_photon_etcone30_ptCut_fcal0_all->GetEntries());
-        h_photon_etcone30_ptCut_fcal0_loose->Scale(1./h_photon_etcone30_ptCut_fcal0_loose->GetEntries());
-        h_photon_etcone30_ptCut_fcal0_tight->Scale(1./h_photon_etcone30_ptCut_fcal0_tight->GetEntries());
-        h_photon_etcone30_ptCut_fcal1_all->Scale(1./h_photon_etcone30_ptCut_fcal1_all->GetEntries());
-        h_photon_etcone30_ptCut_fcal1_loose->Scale(1./h_photon_etcone30_ptCut_fcal1_loose->GetEntries());
-        h_photon_etcone30_ptCut_fcal1_tight->Scale(1./h_photon_etcone30_ptCut_fcal1_tight->GetEntries());
-        h_photon_etcone30_ptCut_fcal2_all->Scale(1./h_photon_etcone30_ptCut_fcal2_all->GetEntries());
-        h_photon_etcone30_ptCut_fcal2_loose->Scale(1./h_photon_etcone30_ptCut_fcal2_loose->GetEntries());
-        h_photon_etcone30_ptCut_fcal2_tight->Scale(1./h_photon_etcone30_ptCut_fcal2_tight->GetEntries());
+        if(h_photon_reta_ptCut_all->GetEntries() > 0) h_photon_reta_ptCut_all->Scale(1./h_photon_reta_ptCut_all->GetEntries());
+        if(h_photon_reta_ptCut_loose->GetEntries() > 0) h_photon_reta_ptCut_loose->Scale(1./h_photon_reta_ptCut_loose->GetEntries());
+        if(h_photon_reta_ptCut_tight->GetEntries() > 0) h_photon_reta_ptCut_tight->Scale(1./h_photon_reta_ptCut_tight->GetEntries());
+        if(h_photon_rphi_ptCut_all->GetEntries() > 0) h_photon_rphi_ptCut_all->Scale(1./h_photon_rphi_ptCut_all->GetEntries());
+        if(h_photon_rphi_ptCut_loose->GetEntries() > 0) h_photon_rphi_ptCut_loose->Scale(1./h_photon_rphi_ptCut_loose->GetEntries());
+        if(h_photon_rphi_ptCut_tight->GetEntries() > 0) h_photon_rphi_ptCut_tight->Scale(1./h_photon_rphi_ptCut_tight->GetEntries());
+        if(h_photon_weta2_ptCut_all->GetEntries() > 0) h_photon_weta2_ptCut_all->Scale(1./h_photon_weta2_ptCut_all->GetEntries());
+        if(h_photon_weta2_ptCut_loose->GetEntries() > 0) h_photon_weta2_ptCut_loose->Scale(1./h_photon_weta2_ptCut_loose->GetEntries());
+        if(h_photon_weta2_ptCut_tight->GetEntries() > 0) h_photon_weta2_ptCut_tight->Scale(1./h_photon_weta2_ptCut_tight->GetEntries());
+        if(h_photon_rhad_ptCut_all->GetEntries() > 0) h_photon_rhad_ptCut_all->Scale(1./h_photon_rhad_ptCut_all->GetEntries());
+        if(h_photon_rhad_ptCut_loose->GetEntries() > 0) h_photon_rhad_ptCut_loose->Scale(1./h_photon_rhad_ptCut_loose->GetEntries());
+        if(h_photon_rhad_ptCut_tight->GetEntries() > 0) h_photon_rhad_ptCut_tight->Scale(1./h_photon_rhad_ptCut_tight->GetEntries());
+        if(h_photon_wtots1_ptCut_all->GetEntries() > 0) h_photon_wtots1_ptCut_all->Scale(1./h_photon_wtots1_ptCut_all->GetEntries());
+        if(h_photon_wtots1_ptCut_loose->GetEntries() > 0) h_photon_wtots1_ptCut_loose->Scale(1./h_photon_wtots1_ptCut_loose->GetEntries());
+        if(h_photon_wtots1_ptCut_tight->GetEntries() > 0) h_photon_wtots1_ptCut_tight->Scale(1./h_photon_wtots1_ptCut_tight->GetEntries());
+        if(h_photon_fracs1_ptCut_all->GetEntries() > 0) h_photon_fracs1_ptCut_all->Scale(1./h_photon_fracs1_ptCut_all->GetEntries());
+        if(h_photon_fracs1_ptCut_loose->GetEntries() > 0) h_photon_fracs1_ptCut_loose->Scale(1./h_photon_fracs1_ptCut_loose->GetEntries());
+        if(h_photon_fracs1_ptCut_tight->GetEntries() > 0) h_photon_fracs1_ptCut_tight->Scale(1./h_photon_fracs1_ptCut_tight->GetEntries());
+        if(h_photon_deltae_ptCut_all->GetEntries() > 0) h_photon_deltae_ptCut_all->Scale(1./h_photon_deltae_ptCut_all->GetEntries());
+        if(h_photon_deltae_ptCut_loose->GetEntries() > 0) h_photon_deltae_ptCut_loose->Scale(1./h_photon_deltae_ptCut_loose->GetEntries());
+        if(h_photon_deltae_ptCut_tight->GetEntries() > 0) h_photon_deltae_ptCut_tight->Scale(1./h_photon_deltae_ptCut_tight->GetEntries());
+        if(h_photon_eratio_ptCut_all->GetEntries() > 0) h_photon_eratio_ptCut_all->Scale(1./h_photon_eratio_ptCut_all->GetEntries());
+        if(h_photon_eratio_ptCut_loose->GetEntries() > 0) h_photon_eratio_ptCut_loose->Scale(1./h_photon_eratio_ptCut_loose->GetEntries());
+        if(h_photon_eratio_ptCut_tight->GetEntries() > 0) h_photon_eratio_ptCut_tight->Scale(1./h_photon_eratio_ptCut_tight->GetEntries());
+        if(h_photon_f1_ptCut_all->GetEntries() > 0) h_photon_f1_ptCut_all->Scale(1./h_photon_f1_ptCut_all->GetEntries());
+        if(h_photon_f1_ptCut_loose->GetEntries() > 0) h_photon_f1_ptCut_loose->Scale(1./h_photon_f1_ptCut_loose->GetEntries());
+        if(h_photon_f1_ptCut_tight->GetEntries() > 0) h_photon_f1_ptCut_tight->Scale(1./h_photon_f1_ptCut_tight->GetEntries());
+        if(h_photon_etcone20_ptCut_fcal0->GetEntries() > 0) h_photon_etcone20_ptCut_fcal0->Scale(1./h_photon_etcone20_ptCut_fcal0->GetEntries());
+        if(h_photon_etcone20_ptCut_fcal1->GetEntries() > 0) h_photon_etcone20_ptCut_fcal1->Scale(1./h_photon_etcone20_ptCut_fcal1->GetEntries());
+        if(h_photon_etcone20_ptCut_fcal2->GetEntries() > 0) h_photon_etcone20_ptCut_fcal2->Scale(1./h_photon_etcone20_ptCut_fcal2->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal0->GetEntries() > 0) h_photon_etcone30_ptCut_fcal0->Scale(1./h_photon_etcone30_ptCut_fcal0->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal1->GetEntries() > 0) h_photon_etcone30_ptCut_fcal1->Scale(1./h_photon_etcone30_ptCut_fcal1->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal2->GetEntries() > 0) h_photon_etcone30_ptCut_fcal2->Scale(1./h_photon_etcone30_ptCut_fcal2->GetEntries());
+        if(h_photon_etcone40_ptCut_fcal0->GetEntries() > 0) h_photon_etcone40_ptCut_fcal0->Scale(1./h_photon_etcone40_ptCut_fcal0->GetEntries());
+        if(h_photon_etcone40_ptCut_fcal1->GetEntries() > 0) h_photon_etcone40_ptCut_fcal1->Scale(1./h_photon_etcone40_ptCut_fcal1->GetEntries());
+        if(h_photon_etcone40_ptCut_fcal2->GetEntries() > 0) h_photon_etcone40_ptCut_fcal2->Scale(1./h_photon_etcone40_ptCut_fcal2->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal0_all->GetEntries() > 0) h_photon_etcone30_ptCut_fcal0_all->Scale(1./h_photon_etcone30_ptCut_fcal0_all->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal0_loose->GetEntries() > 0) h_photon_etcone30_ptCut_fcal0_loose->Scale(1./h_photon_etcone30_ptCut_fcal0_loose->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal0_tight->GetEntries() > 0) h_photon_etcone30_ptCut_fcal0_tight->Scale(1./h_photon_etcone30_ptCut_fcal0_tight->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal1_all->GetEntries() > 0) h_photon_etcone30_ptCut_fcal1_all->Scale(1./h_photon_etcone30_ptCut_fcal1_all->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal1_loose->GetEntries() > 0) h_photon_etcone30_ptCut_fcal1_loose->Scale(1./h_photon_etcone30_ptCut_fcal1_loose->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal1_tight->GetEntries() > 0) h_photon_etcone30_ptCut_fcal1_tight->Scale(1./h_photon_etcone30_ptCut_fcal1_tight->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal2_all->GetEntries() > 0) h_photon_etcone30_ptCut_fcal2_all->Scale(1./h_photon_etcone30_ptCut_fcal2_all->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal2_loose->GetEntries() > 0) h_photon_etcone30_ptCut_fcal2_loose->Scale(1./h_photon_etcone30_ptCut_fcal2_loose->GetEntries());
+        if(h_photon_etcone30_ptCut_fcal2_tight->GetEntries() > 0) h_photon_etcone30_ptCut_fcal2_tight->Scale(1./h_photon_etcone30_ptCut_fcal2_tight->GetEntries());
 	}
 
 	return StatusCode::SUCCESS;
@@ -388,8 +403,24 @@ void HIMonitoringPhotonsTool::book_hist()
 	h_photon_pt_phi = TH2D_LW::create( "h_photon_pt_phi", "; photon pT; photon phi", m_PhotonPt_nbins, m_PhotonPt_low, m_PhotonPt_high, m_PhotonPhi_nbins, m_PhotonPhi_low, m_PhotonPhi_high );
 	regHist(h_photon_pt_phi, path0, run).ignore();
 
+	h_photon_pt_fcal = TH2D_LW::create( "h_photon_pt_fcal", "; photon pT; FCal SumET", m_PhotonPt_nbins, m_PhotonPt_low, m_PhotonPt_high,  m_FCalEt_nbins, m_FCalEt_low, m_FCalEt_high );
+	regHist(h_photon_pt_fcal, path0, run).ignore();
+
 	h_photon_eta_phi_ptCut = TH2D_LW::create( "h_photon_eta_phi_ptCut", "; photon eta; photon phi", m_PhotonEta_nbins, m_PhotonEta_low, m_PhotonEta_high, m_PhotonPhi_nbins, m_PhotonPhi_low, m_PhotonPhi_high );
 	regHist(h_photon_eta_phi_ptCut, path0, run).ignore();
+
+	// tight versions
+	h_photon_pt_eta_tight = TH2D_LW::create( "h_photon_pt_eta_tight", "; photon pT; photon eta", m_PhotonPt_nbins, m_PhotonPt_low, m_PhotonPt_high, m_PhotonEta_nbins, m_PhotonEta_low, m_PhotonEta_high );
+	regHist(h_photon_pt_eta_tight, path0, run).ignore();
+
+	h_photon_pt_phi_tight = TH2D_LW::create( "h_photon_pt_phi_tight", "; photon pT; photon phi", m_PhotonPt_nbins, m_PhotonPt_low, m_PhotonPt_high, m_PhotonPhi_nbins, m_PhotonPhi_low, m_PhotonPhi_high );
+	regHist(h_photon_pt_phi_tight, path0, run).ignore();
+
+	h_photon_pt_fcal_tight = TH2D_LW::create( "h_photon_pt_fcal_tight", "; photon pT; FCal SumET", m_PhotonPt_nbins, m_PhotonPt_low, m_PhotonPt_high,  m_FCalEt_nbins, m_FCalEt_low, m_FCalEt_high );
+	regHist(h_photon_pt_fcal_tight, path0, run).ignore();
+
+	h_photon_eta_phi_ptCut_tight = TH2D_LW::create( "h_photon_eta_phi_ptCut_tight", "; photon eta; photon phi", m_PhotonEta_nbins, m_PhotonEta_low, m_PhotonEta_high, m_PhotonPhi_nbins, m_PhotonPhi_low, m_PhotonPhi_high );
+	regHist(h_photon_eta_phi_ptCut_tight, path0, run).ignore();
 
 	std::string path1 = "HeavyIon/Photons/ShowerShapes"; 
 

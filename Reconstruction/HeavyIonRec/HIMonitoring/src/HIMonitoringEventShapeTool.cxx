@@ -130,11 +130,11 @@ StatusCode HIMonitoringEventShapeTool::procHistograms( )
 
 	if( endOfRun ) 
 	{
-        h_FCalEt->Scale(1./h_FCalEt->GetEntries());
+        if(h_FCalEt->GetEntries() > 0) h_FCalEt->Scale(1./h_FCalEt->GetEntries());
         
         for(int i=0; i<2; i++)
         {
-            h_FCalEt_sides[i]->Scale(1./h_FCalEt_sides[i]->GetEntries());
+            if(h_FCalEt_sides[i]->GetEntries() > 0) h_FCalEt_sides[i]->Scale(1./h_FCalEt_sides[i]->GetEntries());
         }
 	}
 
