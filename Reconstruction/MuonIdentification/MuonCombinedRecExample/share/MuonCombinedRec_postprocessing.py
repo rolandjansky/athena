@@ -10,16 +10,16 @@ if rec.doMuonCombined() and muonCombinedRecFlags.doCosmicSplitTracks() and muonC
 if rec.doMuonCombined() and muonRecFlags.doCalibNtuple():
     from MuonCombinedRecExample import MuonCombinedCalibConfig
 
-
 #--------------------------------------------------------------------------
 # Do track truth
 #--------------------------------------------------------------------------
 if rec.doTruth() and muonCombinedRecFlags.doxAOD() and rec.doMuonCombined():
+
     from MuonTruthAlgs.MuonTruthAlgsConf import MuonDetailedTrackTruthMaker
     from TrkTruthAlgs.TrkTruthAlgsConf import TrackTruthSelector
 
-    colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles" ]
-    cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks" ]
+    colsTP = [ "ExtrapolatedMuonTrackParticles", "CombinedMuonTrackParticles", "MSOnlyExtrapolatedMuonTrackParticles" ]
+    cols = [ "ExtrapolatedMuonTracks", "CombinedMuonTracks", "MSOnlyExtrapolatedMuonTracks" ]
     topSequence+= MuonDetailedTrackTruthMaker("MuonCombinedDetailedTrackTruthMaker",
                                               TrackCollectionNames = cols )
         
