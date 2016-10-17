@@ -1041,7 +1041,7 @@ bool MdtDigitizationTool::createDigits(){
       const Amg::Vector3D& tempLocPos = (*(it->simhit))->localPosition();
       Amg::Vector3D p = geo->localToGlobalCoords(tempLocPos,idDigit);
       tempSDO.setPosition(p); 
-      tempSDO.setTime( hit.globalTime() );
+      tempSDO.setTime( hitTime(phit) );
       m_sdoContainer->insert ( std::make_pair ( idDigit, tempSDO ) );
 	
     } else {
