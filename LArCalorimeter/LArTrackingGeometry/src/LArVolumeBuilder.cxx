@@ -17,6 +17,7 @@
 #include "GeoModelKernel/GeoLogVol.h"
 #include "GeoModelKernel/GeoShape.h"
 #include "GeoModelKernel/GeoTubs.h"
+#include "GeoModelKernel/GeoTube.h"
 #include "GeoModelKernel/GeoPcon.h"
 #include "GeoModelKernel/GeoTrd.h"
 #include "GeoModelKernel/GeoMaterial.h"
@@ -66,7 +67,11 @@ LAr::LArVolumeBuilder::LArVolumeBuilder(const std::string& t, const std::string&
   m_useCaloSurfBuilder(true),
   m_lArLayersPerRegion(1),
   m_useCaloTrackingGeometryBounds(true),
-  m_calosurf("CaloSurfaceBuilder")
+  m_mbtsZ(-1.),
+  m_mbts_rmin(0.),
+  m_mbts_rmax(0.),
+  m_calosurf("CaloSurfaceBuilder"),
+  m_scale_HECmaterial(1.1)
 {
   declareInterface<Trk::ITrackingVolumeBuilder>(this);
   // declare the properties via Python
@@ -81,6 +86,7 @@ LAr::LArVolumeBuilder::LArVolumeBuilder(const std::string& t, const std::string&
   declareProperty("LayersPerRegion",                   m_lArLayersPerRegion);
   declareProperty("UseCaloTrackingGeometryBounds",     m_useCaloTrackingGeometryBounds);
   declareProperty("CaloSurfaceBuilder",                m_calosurf);
+  declareProperty("ScaleFactor_HECmaterial",           m_scale_HECmaterial);
 
 }
 
@@ -152,7 +158,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
   Trk::GeoMaterialConverter geoMaterialToMaterialProperties;
   
   Trk::Material dummyMaterial;
-  
+
   // out of couriosity
   unsigned int numTreeTops =  m_lArMgr->getNumTreeTops();
   ATH_MSG_DEBUG( "Retrieved " << numTreeTops << " tree tops from the LArDetDescrManager. " );
@@ -631,6 +637,8 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     }
   GeoFullPhysVol* lArPositiveEndcapPhysVol = storedPV ? storedPV->getPhysVol() : 0;
 
+  const GeoLogVol* lArPositiveEndcapLogVol = lArPositiveEndcapPhysVol ? lArPositiveEndcapPhysVol->getLogVol() : 0;
+
   if(detStore()->contains<StoredPhysVol>("EMEC_NEG"))
     {
       if(detStore()->retrieve(storedPV,"EMEC_NEG")==StatusCode::FAILURE)
@@ -641,7 +649,6 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
     }
   GeoFullPhysVol* lArNegativeEndcapPhysVol = storedPV ? storedPV->getPhysVol() : 0;
 
-  const GeoLogVol* lArPositiveEndcapLogVol = lArPositiveEndcapPhysVol ? lArPositiveEndcapPhysVol->getLogVol() : 0;
   const GeoLogVol* lArNegativeEndcapLogVol = lArNegativeEndcapPhysVol ? lArNegativeEndcapPhysVol->getLogVol() : 0;
   
   // get the material
@@ -663,6 +670,7 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 		      << " (" << poschilds << " childs)." );
      ATH_MSG_VERBOSE( " -> Retrieved GeoModel Volume " << lArNegativeEndcapPhysVol->getAbsoluteName()
          << " (" << negchilds << " childs)." );
+
 
      // and the shapes
      const GeoShape*    lArPositiveEndcapShape  = lArPositiveEndcapLogVol->getShape();
@@ -1446,13 +1454,13 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
    // layer material can be adjusted here
    baseID = Trk::GeometrySignature(Trk::Calo)*1000 + 8;
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(0.13),0));
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecMaterial,baseID));
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(0.93),baseID+1));
+   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(0.13*m_scale_HECmaterial),0));
+   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecMaterial->scale(m_scale_HECmaterial),baseID));
+   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(0.93*m_scale_HECmaterial),baseID+1));
    throwIntoGarbage(matHEC.back()->first);
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(1.09),baseID+2));
+   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(1.09*m_scale_HECmaterial),baseID+2));
    throwIntoGarbage(matHEC.back()->first);
-   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(1.12),baseID+3));
+   matHEC.push_back(new std::pair<const Trk::Material*,int>(lArHecFcalCoverMaterial->scale(1.12*m_scale_HECmaterial),baseID+3));
    throwIntoGarbage(matHEC.back()->first);
 
    // divide the HEC into two parts per EC :
@@ -1696,122 +1704,151 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
    // fill in the inner Gap
    // ST this better to be done by CaloTrackingGeometry ( to glue with BeamPipe )
+   // pass MBTS info to CaloTG 
+  // MBTS
+  const PVConstLink topEC = m_lArMgr->getTreeTop(1U);
+  Amg::Transform3D trIn= Amg::CLHEPTransformToEigen(topEC->getX());   
+  Amg::Transform3D tr2(trIn);   
+  const PVConstLink mbts= getChild(topEC,"MBTS_mother",trIn);
+  if (mbts) {
+    //printChildren(mbts,-1,0,Amg::Transform3D(trIn));
+    const PVConstLink mbts1= getChild(mbts,"MBTS1",trIn);
+    if (mbts1) m_mbtsZ=fabs(trIn.translation().z());
+    if (mbts1) {
+      ATH_MSG_VERBOSE("MBTS1 layer found at z "<<m_mbtsZ);
+      // retrieve Rmin
+      const GeoLogVol* clv = mbts1->getLogVol();
+      const GeoTrd* trd=dynamic_cast<const GeoTrd*> (clv->getShape());
+      if (trd) m_mbts_rmin = trIn.translation().perp()-trd->getZHalfLength();
+    }
+    // retrieve MBTS2 for Rmax
+    const PVConstLink mbts2= getChild(mbts,"MBTS2",tr2);
+    if (mbts2) {
+      const GeoLogVol* clv = mbts2->getLogVol();
+      const GeoTrd* trd=dynamic_cast<const GeoTrd*> (clv->getShape());
+      if (trd) m_mbts_rmax = (tr2.translation().perp()+trd->getZHalfLength())/cos(acos(-1.)/8);
+    }
+    ATH_MSG_VERBOSE("MBTS layer span in R "<<m_mbts_rmin<<","<<m_mbts_rmax);
+     
+  } else {
+    ATH_MSG_VERBOSE("MBTS not found ");    
+  }
   
-   /*
-   if (lArPositiveEndcap && lArPositiveFcalBounds){
-       // create the Bounds
-       Trk::CylinderVolumeBounds* lArNegativeEndcapInnerGapBounds = new Trk::CylinderVolumeBounds(
-                                                                lArPositiveFcalBounds->innerRadius(),
-                                                                lArEndcapInnerRadius,
-                                                                lArEndcapHalfZ );
+  if (m_mbtsZ>0. && m_mbts_rmin>0. && m_mbts_rmax>0.){
+    // create the dummy volume to pass on the MBTS position 
+    //Trk::CylinderVolumeBounds* lArNegativeEndcapInnerGapBounds = new Trk::CylinderVolumeBounds(
+    //								       lArPositiveFcalBounds->innerRadius(),
+    // 								       lArEndcapInnerRadius,
+    //								       10. );
+    Trk::CylinderVolumeBounds* lArNegativeMBTSBounds = new Trk::CylinderVolumeBounds(
+								       m_mbts_rmin,
+								       m_mbts_rmax,
+								       10. );
 
-       ATH_MSG_DEBUG( "Filled in LAr Endcap Inner Gap bounds : " << *lArNegativeEndcapInnerGapBounds );
-       ATH_MSG_DEBUG( "   -> at z-position: +/- " << lArPositiveEndcap->center().z() );
+    ATH_MSG_DEBUG( "Filled in LAr MBTS bounds : " << *lArNegativeMBTSBounds );
+    ATH_MSG_DEBUG( "   -> at z-position: +/- " << m_mbtsZ );
 
  
-       Amg::Vector3D lArEndcapInnerGapPos(0.,0.,lArEndcapZpos);
-       Amg::Vector3D lArEndcapInnerGapNeg(0.,0.,-lArEndcapZpos);
-       Amg::Transform3D* lArPositiveEndcapInnerGapTransform = new Amg::Transform3D(Amg::Translation3D(lArEndcapInnerGapPos));
-       Amg::Transform3D* lArNegativeEndcapInnerGapTransform = new Amg::Transform3D(Amg::Translation3D(lArEndcapInnerGapNeg));
+    Amg::Vector3D lArEndcapInnerGapPos(0.,0., m_mbtsZ);
+    Amg::Vector3D lArEndcapInnerGapNeg(0.,0.,-m_mbtsZ);
+    Amg::Transform3D* lArPositiveMBTSTransform = new Amg::Transform3D(Amg::Translation3D(lArEndcapInnerGapPos));
+    Amg::Transform3D* lArNegativeMBTSTransform = new Amg::Transform3D(Amg::Translation3D(lArEndcapInnerGapNeg));
 
-       // building dense volume here
-       //Trk::MaterialProperties lArEndcapInnerGapMaterial = Trk::MaterialProperties(1., 186./0.19, 0.0065*pow(0.19,3), 59.);
-       Trk::Material lArEndcapInnerGapMaterial = Trk::Material(390., 1223., 18.,8.7, 0.0014);
-       
-       lArPositiveEndcapInnerGap = new Trk::TrackingVolume(lArPositiveEndcapInnerGapTransform,
-							   lArNegativeEndcapInnerGapBounds->clone(),
-							   lArEndcapInnerGapMaterial,
-							   dummyLayers, dummyVolumes,
-							   "Calo::GapVolumes::LAr::PositiveEndcapInnerGap");
+    // building dense volume here
+    
+    lArPositiveEndcapInnerGap = new Trk::TrackingVolume(lArPositiveMBTSTransform,
+							lArNegativeMBTSBounds->clone(),
+							dummyMaterial,
+							dummyLayers, dummyVolumes,
+							"Calo::Detectors::MBTS");
+    
+    lArNegativeEndcapInnerGap = new Trk::TrackingVolume(lArNegativeMBTSTransform,
+							lArNegativeMBTSBounds,
+							dummyMaterial,
+							dummyLayers, dummyVolumes,
+							"Calo::Detectors::MBTS");
+  }
 
-       lArNegativeEndcapInnerGap = new Trk::TrackingVolume(lArNegativeEndcapInnerGapTransform,
-							   lArNegativeEndcapInnerGapBounds,
-							   lArEndcapInnerGapMaterial,
-							   dummyLayers, dummyVolumes,
-							   "Calo::GapVolumes::LAr::NegativeEndcapInnerGap");
-   }
-   */
-
-   if (msgLvl(MSG::DEBUG)) {
-     ATH_MSG_DEBUG( "Checking the existence of all Tracking Volumes:" );
-     ATH_MSG_DEBUG( "   -> Calo::Solenoid                                     ");
-         printCheckResult(msg(MSG::DEBUG), solenoid);
-     ATH_MSG_DEBUG( "   -> Calo::GapVolumes::LAr::SolenoidPresamplerGap       ");
-         printCheckResult(msg(MSG::DEBUG), solenoidLArBarrelGap);
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::BarrelPresampler             ");
-         printCheckResult(msg(MSG::DEBUG), lArBarrelPresampler);
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::Barrel                       ");
-         printCheckResult(msg(MSG::DEBUG), lArBarrel);
-     if (lArPositiveEndcapInnerGap) { 
-       ATH_MSG_DEBUG( "   -> Calo::GapVolumes::LAr::PositiveEndcapInnerGap      ");
-       printCheckResult(msg(MSG::DEBUG), lArPositiveEndcapInnerGap);
-     }
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::PositiveEndcap               ");
-         printCheckResult(msg(MSG::DEBUG), lArPositiveEndcap);
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::PositiveHec                  ");
-         printCheckResult(msg(MSG::DEBUG), lArPositiveHec);
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::PositiveFcal                 ");
-         printCheckResult(msg(MSG::DEBUG), lArPositiveFcal);
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::LArPositiveHecFcalCover      ");
-         printCheckResult(msg(MSG::DEBUG), lArPositiveHecFcalCover);
-     if (lArNegativeEndcapInnerGap) { 
-       ATH_MSG_DEBUG( "   -> Calo::GapVolumes::LAr::NegativeEndcapInnerGap      ");
-       printCheckResult(msg(MSG::DEBUG), lArNegativeEndcapInnerGap);
-     }
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::NegativeEndcap               ");
-         printCheckResult(msg(MSG::DEBUG), lArNegativeEndcap);
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::NegativeHec                  ");
-         printCheckResult(msg(MSG::DEBUG), lArNegativeHec);
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::NegativeFcal                 ");
-         printCheckResult(msg(MSG::DEBUG), lArNegativeFcal);
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::LArNegativeHecFcalCover      ");
-         printCheckResult(msg(MSG::DEBUG), lArNegativeHecFcalCover);
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::LArPositiveECPresampler      ");
-         printCheckResult(msg(MSG::DEBUG), lArPosECPresampler);
-     ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::LArNegativeECPresampler      ");
-         printCheckResult(msg(MSG::DEBUG), lArNegECPresampler);
-    } // end of detailed output
-
-   // check if everything went fine
-   if (solenoid && solenoidLArBarrelGap && lArBarrelPresampler && lArBarrel &&
+  if (msgLvl(MSG::DEBUG)) {
+    ATH_MSG_DEBUG( "Checking the existence of all Tracking Volumes:" );
+    ATH_MSG_DEBUG( "   -> Calo::Solenoid                                     ");
+    printCheckResult(msg(MSG::DEBUG), solenoid);
+    ATH_MSG_DEBUG( "   -> Calo::GapVolumes::LAr::SolenoidPresamplerGap       ");
+    printCheckResult(msg(MSG::DEBUG), solenoidLArBarrelGap);
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::BarrelPresampler             ");
+    printCheckResult(msg(MSG::DEBUG), lArBarrelPresampler);
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::Barrel                       ");
+    printCheckResult(msg(MSG::DEBUG), lArBarrel);
+    if (lArPositiveEndcapInnerGap) { 
+      ATH_MSG_DEBUG( "   -> Calo::GapVolumes::LAr::PositiveEndcapInnerGap      ");
+      printCheckResult(msg(MSG::DEBUG), lArPositiveEndcapInnerGap);
+    }
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::PositiveEndcap               ");
+    printCheckResult(msg(MSG::DEBUG), lArPositiveEndcap);
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::PositiveHec                  ");
+    printCheckResult(msg(MSG::DEBUG), lArPositiveHec);
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::PositiveFcal                 ");
+    printCheckResult(msg(MSG::DEBUG), lArPositiveFcal);
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::LArPositiveHecFcalCover      ");
+    printCheckResult(msg(MSG::DEBUG), lArPositiveHecFcalCover);
+    if (lArNegativeEndcapInnerGap) { 
+      ATH_MSG_DEBUG( "   -> Calo::GapVolumes::LAr::NegativeEndcapInnerGap      ");
+      printCheckResult(msg(MSG::DEBUG), lArNegativeEndcapInnerGap);
+    }
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::NegativeEndcap               ");
+    printCheckResult(msg(MSG::DEBUG), lArNegativeEndcap);
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::NegativeHec                  ");
+    printCheckResult(msg(MSG::DEBUG), lArNegativeHec);
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::NegativeFcal                 ");
+    printCheckResult(msg(MSG::DEBUG), lArNegativeFcal);
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::LArNegativeHecFcalCover      ");
+    printCheckResult(msg(MSG::DEBUG), lArNegativeHecFcalCover);
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::LArPositiveECPresampler      ");
+    printCheckResult(msg(MSG::DEBUG), lArPosECPresampler);
+    ATH_MSG_DEBUG( "   -> Calo::Detectors::LAr::LArNegativeECPresampler      ");
+    printCheckResult(msg(MSG::DEBUG), lArNegECPresampler);
+  } // end of detailed output
+  
+  // check if everything went fine
+  if (solenoid && solenoidLArBarrelGap && lArBarrelPresampler && lArBarrel &&
       lArPositiveEndcap && lArPositiveHec && lArPositiveFcal && lArPositiveHecFcalCover &&
       lArNegativeEndcap && lArNegativeHec && lArNegativeFcal && lArNegativeHecFcalCover){
-
-     // + register color code for displaying
-
+    
+    // + register color code for displaying
+    
     // Barrel Part
     lArTrackingVolumes->push_back(solenoid);                        // 0
-      solenoid->registerColorCode(6);
+    solenoid->registerColorCode(6);
     lArTrackingVolumes->push_back(solenoidLArBarrelGap);            // 1
-      solenoidLArBarrelGap->registerColorCode(21); 
+    solenoidLArBarrelGap->registerColorCode(21); 
     lArTrackingVolumes->push_back(lArBarrelPresampler);             // 2
-      lArBarrelPresampler->registerColorCode(7);
+    lArBarrelPresampler->registerColorCode(7);
     lArTrackingVolumes->push_back(lArBarrel);                       // 3
-      lArBarrel->registerColorCode(3);
+    lArBarrel->registerColorCode(3);
     // Positive Endcap Part
     lArTrackingVolumes->push_back(lArPositiveEndcapInnerGap);       //4
     lArTrackingVolumes->push_back(lArPositiveEndcap);               //5
-      lArPositiveEndcap->registerColorCode(3);
+    lArPositiveEndcap->registerColorCode(3);
     lArTrackingVolumes->push_back(lArPositiveHec);                  //6
-      lArPositiveHec->registerColorCode(9);
+    lArPositiveHec->registerColorCode(9);
     lArTrackingVolumes->push_back(lArPositiveFcal);                 //7
-      lArPositiveFcal->registerColorCode(8);
+    lArPositiveFcal->registerColorCode(8);
     lArTrackingVolumes->push_back(lArPositiveHecFcalCover);         //8
-      lArPositiveHecFcalCover->registerColorCode(9);
+    lArPositiveHecFcalCover->registerColorCode(9);
     // Positive Endcap Part
     lArTrackingVolumes->push_back(lArNegativeEndcapInnerGap);       //9
     lArTrackingVolumes->push_back(lArNegativeEndcap);               //10
-      lArNegativeEndcap->registerColorCode(3);
+    lArNegativeEndcap->registerColorCode(3);
     lArTrackingVolumes->push_back(lArNegativeHec);                  //11
-      lArNegativeHec->registerColorCode(9);
+    lArNegativeHec->registerColorCode(9);
     lArTrackingVolumes->push_back(lArNegativeFcal);                 //12
-      lArNegativeFcal->registerColorCode(8);
+    lArNegativeFcal->registerColorCode(8);
     lArTrackingVolumes->push_back(lArNegativeHecFcalCover);         //13
-      lArNegativeHecFcalCover->registerColorCode(9);
+    lArNegativeHecFcalCover->registerColorCode(9);
     lArTrackingVolumes->push_back(lArPosECPresampler);              //14
-      lArPosECPresampler->registerColorCode(7);
+    lArPosECPresampler->registerColorCode(7);
     lArTrackingVolumes->push_back(lArNegECPresampler);              //15
-      lArNegECPresampler->registerColorCode(7);
+    lArNegECPresampler->registerColorCode(7);
 
    }
    return lArTrackingVolumes;
@@ -1820,8 +1857,8 @@ const std::vector<const Trk::TrackingVolume*>* LAr::LArVolumeBuilder::trackingVo
 
 void LAr::LArVolumeBuilder::printCheckResult(MsgStream& log, const Trk::TrackingVolume* vol) const
 {
-  if (vol) log << "... ok"      << endreq;
-  else     log << "... missing" << endreq;
+  if (vol) log << "... ok"      << endmsg;
+  else     log << "... missing" << endmsg;
 }
 
 
@@ -1955,6 +1992,8 @@ void LAr::LArVolumeBuilder::printInfo(const PVConstLink pv, int gen) const
     if (trd) std::cout<<"trddim:"<< trd->getXHalfLength1()<<","<<trd->getXHalfLength2()<<","<<trd->getYHalfLength1()<<","<<trd->getYHalfLength2()<<","<<trd->getZHalfLength()<< std::endl;
     const GeoTubs* tub=dynamic_cast<const GeoTubs*> (lv->getShape());
     if (tub) std::cout<<"tubdim:"<< tub->getRMin()<<","<<tub->getRMax()<<","<<tub->getZHalfLength()<< std::endl;
+    const GeoTube* tube=dynamic_cast<const GeoTube*> (lv->getShape());
+    if (tube) std::cout<<"tubdim:"<< tube->getRMin()<<","<<tube->getRMax()<<","<<tube->getZHalfLength()<< std::endl;
     const GeoPcon* con=dynamic_cast<const GeoPcon*> (lv->getShape());
     if (con) {
       const unsigned int nPlanes=con->getNPlanes();
@@ -1963,6 +2002,8 @@ void LAr::LArVolumeBuilder::printInfo(const PVConstLink pv, int gen) const
       }
     }
     Amg::Transform3D transf =  Amg::CLHEPTransformToEigen(pv->getX());
+    std::cout << "position:"<< "R:"<<transf.translation().perp()<<",phi:"<< transf.translation().phi()<<",x:"<<transf.translation().x()<<",y:"<<transf.translation().y()<<",z:"<<transf.translation().z()<<std::endl;
+
     int igen = 0;
     printChildren(pv,gen,igen,transf);
 }
@@ -1979,6 +2020,7 @@ void LAr::LArVolumeBuilder::printChildren(const PVConstLink pv,int gen, int igen
  
     //
     //std::cout << " dumping transform to subcomponent" << std::endl;
+    //std::cout << transf.rotation()<< std::endl; 
     //std::cout << transf[0][0]<<"," <<transf[0][1]<<"," <<transf[0][2]<<","<<transf[0][3] << std::endl;
     //std::cout << transf[1][0]<<"," <<transf[1][1]<<"," <<transf[1][2]<<","<<transf[1][3] << std::endl;
     //std::cout << transf[2][0]<<"," <<transf[2][1]<<"," <<transf[2][2]<<","<<transf[2][3] << std::endl;
@@ -1993,6 +2035,8 @@ void LAr::LArVolumeBuilder::printChildren(const PVConstLink pv,int gen, int igen
     if (trd) std::cout<<"trddim:"<< trd->getXHalfLength1()<<","<<trd->getXHalfLength2()<<","<<trd->getYHalfLength1()<<","<<trd->getYHalfLength2()<<","<<trd->getZHalfLength()<< std::endl;
     const GeoTubs* tub=dynamic_cast<const GeoTubs*> (clv->getShape());
     if (tub) std::cout<<"tubdim:"<< tub->getRMin()<<","<<tub->getRMax()<<","<<tub->getZHalfLength()<< std::endl;
+    const GeoTube* tube=dynamic_cast<const GeoTube*> (clv->getShape());
+    if (tube) std::cout<<"tubdim:"<< tube->getRMin()<<","<<tube->getRMax()<<","<<tube->getZHalfLength()<< std::endl;
     const GeoPcon* con=dynamic_cast<const GeoPcon*> (clv->getShape());
     if (con) {
       const unsigned int nPlanes=con->getNPlanes();
@@ -2010,3 +2054,17 @@ void LAr::LArVolumeBuilder::printChildren(const PVConstLink pv,int gen, int igen
    
 }
 
+GeoPVConstLink LAr::LArVolumeBuilder::getChild(GeoPVConstLink mother, std::string name, Amg::Transform3D& trIn) const
+{
+  // subcomponents
+  unsigned int nc = mother->getNChildVols();
+  for (unsigned int ic=0; ic<nc; ic++) {
+    Amg::Transform3D transf = trIn*Amg::CLHEPTransformToEigen(mother->getXToChildVol(ic));
+    GeoPVConstLink cv = mother->getChildVol(ic);
+    const GeoLogVol* clv = cv->getLogVol();
+    if (clv->getName().substr(0,name.size())==name) { trIn = transf; return cv; } 
+    GeoPVConstLink next=getChild(cv,name,transf);
+    if (next) {trIn = transf; return next; }    
+  }
+  return 0;
+}
