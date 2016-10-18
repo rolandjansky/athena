@@ -889,23 +889,6 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
     runcard.close()
 
     if mydict["pdlabel"].replace("'","") == 'lhapdf':
-        pdfid=int(mydict["lhaid"])
-        pdflist = open(LHADATAPATH+'/pdfsets.index','r')
-        for line in pdflist:
-            splitline=line.split()
-            if int(splitline[0]) == pdfid:
-                pdfname=splitline[1]
-                break
-        pdflist.close()
-
-        if pdfname=='':
-            err='Couldn\'t find PDF name associated to ID %i in %s.'%(pdfid,LHADATAPATH+'/pdfsets.index')
-            mglog.error(err)
-            raise RuntimeError(err)
-
-        mglog.info("Found LHAPDF ID=%i, name=%s!"%(pdfid,pdfname))
-
-
         #Make local LHAPDF dir
         mglog.info('creating local LHAPDF dir: MGC_LHAPDF/')
         if os.path.islink('MGC_LHAPDF/'):
@@ -914,10 +897,29 @@ def setupLHAPDF(isNLO, version=None, proc_dir=None, extlhapath=None):
             shutil.rmtree('MGC_LHAPDF/')
 
         mkdir = subprocess.Popen(['mkdir','MGC_LHAPDF'])
-        mkdir.wait()  
+        mkdir.wait()
 
-        mglog.info('linking '+LHADATAPATH+'/'+pdfname+' --> MGC_LHAPDF/'+pdfname)
-        os.symlink(LHADATAPATH+'/'+pdfname,'MGC_LHAPDF/'+pdfname)
+
+        # Error checking
+        for pdfid in [ int(x) for x in mydict['lhaid'].replace(' ',',').split(',') ]:
+            pdflist = open(LHADATAPATH+'/pdfsets.index','r')
+            for line in pdflist:
+                splitline=line.split()
+                if int(splitline[0]) == pdfid:
+                    pdfname=splitline[1]
+                    break
+            pdflist.close()
+    
+            if pdfname=='':
+                err='Couldn\'t find PDF name associated to ID %i in %s.'%(pdfid,LHADATAPATH+'/pdfsets.index')
+                mglog.error(err)
+                raise RuntimeError(err)
+    
+            mglog.info("Found LHAPDF ID=%i, name=%s!"%(pdfid,pdfname))
+
+            mglog.info('linking '+LHADATAPATH+'/'+pdfname+' --> MGC_LHAPDF/'+pdfname)
+            os.symlink(LHADATAPATH+'/'+pdfname,'MGC_LHAPDF/'+pdfname)
+
         mglog.info('linking '+LHADATAPATH+'/pdfsets.index --> MGC_LHAPDF/pdfsets.index')
         os.symlink(LHADATAPATH+'/pdfsets.index','MGC_LHAPDF/pdfsets.index')
         
@@ -1766,7 +1768,7 @@ def build_run_card(run_card_old='run_card.SM.dat',run_card_new='run_card.dat',
             newcard.write(' %3.2f     = alpsfact         ! scale factor for QCD emission vx \n'%(alpsfact))
         else:
             for ak in extras:
-                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact']
+                excludeList=['xqcut','nevents','iseed','ebeam1','ebeam2','scalefact','alpsfact','req_acc']
                 if ak in excludeList:
                     mglog.error('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
                     raise RuntimeError('You are trying to set "%s" with the extras parameter in build_run_card, this must be set in the build_run_card arguments instead.'%ak)
