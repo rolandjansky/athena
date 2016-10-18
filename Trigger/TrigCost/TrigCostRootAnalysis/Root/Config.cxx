@@ -169,7 +169,7 @@ namespace TrigCostRootAnalysis {
     std::string _prescaleXML1 = "";//"cool_208354_366_366.xml"; // This is an old XML for test purposes
     std::string _prescaleXML2 = "";
     std::string _ROSXML = "rob-ros-robin-2015.xml";
-    std::string _version = "TrigCostRootAnalysis-00-09-35";
+    std::string _version = "TrigCostRootAnalysis-00-09-36";
     std::string _upgradeScenario = "";
     std::string _jira = "";
     Int_t _lbBegin = INT_MIN;
