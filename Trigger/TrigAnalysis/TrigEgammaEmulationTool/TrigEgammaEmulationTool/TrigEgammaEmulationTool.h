@@ -24,15 +24,11 @@
 #include "xAODTrigRinger/TrigRingerRings.h"
 #include "xAODTrigRinger/TrigRingerRingsContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
-//#include "xAODCaloRings/RingSetContainer.h"
-//#include "xAODCaloRings/CaloRingsContainer.h"
-//#include "xAODCaloRings/tools/getCaloRingsDecorator.h"
 #include "TrigEgammaEmulationTool/TrigEgammaInfo.h"
 
-#include <string>
-#include <bitset>
 #include <vector>
 #include <map>
+
 
 namespace Trig{
 class TrigEgammaEmulationTool
@@ -49,40 +45,44 @@ class TrigEgammaEmulationTool
     StatusCode initialize();
     StatusCode execute();
     StatusCode finalize();
-   
+
     //execute all emulators
-    bool EventWiseContainer();
     const Root::TAccept& executeTool( const std::string &);
     const Root::TAccept& executeTool( const HLT::TriggerElement *, const std::string &);
-    const Root::TAccept& executeTool( const xAOD::Egamma*, const std::string &, const std::string & );
     
+
+    bool EventWiseContainer();
     bool isPassed(const std::string&);
     bool isPassed(const std::string&, const std::string&);
 
     const Root::TAccept& getAccept(){return m_accept;}
 
+
   private:
-    
-    //****************************************************************************** 
+
+    bool emulationHLT(const xAOD::IParticleContainer *, bool &, const Trig::Info &);
+
+    /* Retrieve features from trigger element */ 
     template<class T> const T* getFeature(const HLT::TriggerElement* te, const std::string key="");
-    //****************************************************************************** 
-    
     /* Set trigInfo into the map*/
-    void setTrigInfo(const std::string &);
+    void setTrigInfo(const std::string );
     /*! get trigInfo obj */
-    TrigInfo getTrigInfo(const std::string &);
-    /*! Simple setter to pick up correct probe PID for given trigger */
-    void parseTriggerName(const std::string,const std::string, bool&, std::string &,
-                          float &, float &, std::string &,std::string &, bool&, bool&);
+    Trig::Info getTrigInfo(const std::string &);
     /*! Creates static map to return L1 item from trigger name */
     std::string getL1Item(std::string trigger);
     /*! Map for pid names */
     std::string getPid(const std::string);
-    //decorations for objects
+    /* decorations for objects */
     void clearDecorations();
+    /*! Simple setter to pick up correct probe PID for given trigger */
+    void parseTriggerName(const std::string,const std::string, bool&, std::string &,
+                          float &, float &, std::string &,std::string &, bool&, bool&);
+ 
 
+    std::string                                   m_offElContKey; 
     std::vector<std::string>                      m_trigList;
-    std::map<std::string, TrigInfo>               m_trigInfo;
+    std::vector<std::string>                      m_supportingTrigList;
+    std::map<std::string, Trig::Info>             m_trigInfo;
 
     Root::TAccept                                 m_accept;
     StoreGateSvc                                 *m_storeGate;
@@ -92,11 +92,11 @@ class TrigEgammaEmulationTool
     ToolHandle<Trig::ITrigEgammaSelectorBaseTool> m_l1Selector;
     ToolHandle<Trig::ITrigEgammaSelectorBaseTool> m_l2Selector;
     ToolHandle<Trig::ITrigEgammaSelectorBaseTool> m_efCaloSelector;
-    ToolHandle<Trig::ITrigEgammaSelectorBaseTool> m_efElectronSelector;
-    ToolHandle<Trig::ITrigEgammaSelectorBaseTool> m_efPhotonSelector;
 
-    //containers
-    std::string m_offElContKey;
+    // EmulationHLT helper function
+    ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_efElectronSelector;
+    ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_efPhotonSelector;
+
     const xAOD::ElectronContainer       *m_offElectrons;
     const xAOD::ElectronContainer       *m_onlElectrons;
     const xAOD::PhotonContainer         *m_onlPhotons;

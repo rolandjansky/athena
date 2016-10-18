@@ -27,20 +27,18 @@ class TrigEgammaL2ElectronSelectorTool:
 
     StatusCode initialize();
     StatusCode finalize(); 
-    bool emulation( const xAOD::IParticleContainer*, bool &, const TrigInfo&);
+    bool emulation( const xAOD::IParticleContainer*, bool &, const Trig::Info&);
 
   private:
 
-    bool is_correct_trigInfo(const TrigInfo&);
+    void setTrackPt( float );
+    unsigned int getTrackAlgoID( const std::string &);
+
 
     const xAOD::EmTauRoIContainer *m_emTauRois; 
 
     //good emulator parameters
     float m_etThr;
-    std::string m_pidname;
-    std::string m_signature;
-    std::string m_str_etthr;
-
     // Properties:
     unsigned int m_trackalgoID; //!<  integer that assigns the tracking algorihtm used
     //tracking cut

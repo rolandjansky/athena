@@ -25,27 +25,32 @@ TrigEgammaL2CaloSelectorTool::
 TrigEgammaL2CaloSelectorTool( const std::string& myname )
     : TrigEgammaSelectorBaseTool(myname)
 {
-  declareProperty("Signature",      m_signature);
-  declareProperty("Pidname",        m_pidname);
-  declareProperty("ETthr",          m_eTthr);
-  declareProperty("EtaBins",        m_etabin);
-  declareProperty("ET2thr",         m_eT2thr);
-  declareProperty("HADETthr",       m_hadeTthr);
-  declareProperty("HADET2thr",      m_hadeT2thr);
-  declareProperty("CARCOREthr",     m_carcorethr);
-  declareProperty("CAERATIOthr",    m_caeratiothr);
-  declareProperty("dETACLUSTERthr", m_detacluster=0.2);
-  declareProperty("dPHICLUSTERthr", m_dphicluster=0.2);
-  declareProperty("F1thr",          m_F1thr); 
-  declareProperty("WETA2thr",       m_WETA2thr);
-  declareProperty("WSTOTthr",       m_WSTOTthr);
-  declareProperty("F3thr",          m_F3thr);
+  // Tight, Medium and Loose pidmap from python config
+  declareProperty("HADETthr",       m_hadeTthr        );
+  declareProperty("CARCOREthr",     m_carcorethr      );
+  declareProperty("CAERATIOthr",    m_caeratiothr     );
+  declareProperty("EtaBins",        m_etabin          );
+  declareProperty("dETACLUSTERthr", m_detacluster=0.1 );
+  declareProperty("dPHICLUSTERthr", m_dphicluster=0.1 );
+  declareProperty("ETthr",          m_eTthr           );
+  declareProperty("ET2thr",         m_eT2thr          );
+  declareProperty("HADET2thr",      m_hadeT2thr=999.0 );
+  declareProperty("F1thr",          m_F1thr=0.005     ); 
+  declareProperty("WETA2thr",       m_WETA2thr=99999. );
+  declareProperty("WSTOTthr",       m_WSTOTthr=99999. );
+  declareProperty("F3thr",          m_F3thr=99999.    );
+
+  m_emTauRois=nullptr;
 }
 //**********************************************************************
 StatusCode TrigEgammaL2CaloSelectorTool::initialize() {
-    m_str_etthr = boost::lexical_cast<std::string>(m_eTthr[0]*1e-3);
-    boost::algorithm::to_lower(m_signature);
-    return StatusCode::SUCCESS;
+
+  StatusCode sc = TrigEgammaSelectorBaseTool::initialize();
+  if(sc.isFailure()){
+    ATH_MSG_WARNING("TrigEgammaSelectorBaseTool::initialize() failed");
+    return StatusCode::FAILURE;
+  }
+  return StatusCode::SUCCESS;
 }
 
 //!==========================================================================
@@ -53,21 +58,7 @@ StatusCode TrigEgammaL2CaloSelectorTool::finalize() {
     return StatusCode::SUCCESS;
 }
 //!==========================================================================
-bool TrigEgammaL2CaloSelectorTool::is_correct_trigInfo(const TrigInfo &info){
-
-
-  ATH_MSG_DEBUG(info.strThrHLT << " != " << m_str_etthr) ;
-  ATH_MSG_DEBUG(info.pidname   << " != " << m_pidname  ) ;
-  ATH_MSG_DEBUG(info.type      << " != " << m_signature) ;
-
-  if(info.strThrHLT != m_str_etthr)  return false;
-  if(info.pidname   != m_pidname  )  return false;
-  if(info.type      != m_signature)  return false;
-  return true;
-
-}
-//!==========================================================================
-bool TrigEgammaL2CaloSelectorTool::emulation(const xAOD::TrigEMCluster *emCluster,  bool &pass, const TrigInfo &info)
+bool TrigEgammaL2CaloSelectorTool::emulation(const xAOD::TrigEMCluster *emCluster,  bool &pass, const Trig::Info &info)
 {
   pass=false;
   ATH_MSG_DEBUG("Emulation L2 Calo step...");
@@ -77,22 +68,19 @@ bool TrigEgammaL2CaloSelectorTool::emulation(const xAOD::TrigEMCluster *emCluste
     return false;
   }
 
-  if(!is_correct_trigInfo(info)){
-    ATH_MSG_DEBUG("Not correct sub selector for this trigger type");
-    return false;
-  }
- 
   m_emTauRois=nullptr; 
   if ((m_storeGate->retrieve(m_emTauRois,"LVL1EmTauRoIs")).isFailure() ) {
       ATH_MSG_ERROR("Failed to retrieve LVL1EmTauRoIs ");
       return false;
   }
- 
+
+  setEtThr( (info.thrHLT - 3) );
   if(!emulationL2(emCluster, pass))  return false;
   
   ATH_MSG_DEBUG("trigger: " << info.trigName << " decision: " << int(pass));
   return true;
 }
+
 //!==========================================================================
 bool TrigEgammaL2CaloSelectorTool::emulationL2(const xAOD::TrigEMCluster *pClus,  bool &pass)
 {
@@ -202,7 +190,7 @@ bool TrigEgammaL2CaloSelectorTool::emulationL2(const xAOD::TrigEMCluster *pClus,
   if ( rCore < m_carcorethr[etaBin] )  return true;
   PassedCuts++; //Rcore
   // Eratio
-  if ( inCrack || F1<m_F1thr[0] ) {
+  if ( inCrack || F1<m_F1thr ) {
     ATH_MSG_DEBUG("TrigEMCluster: InCrack= " << inCrack << " F1=" );
   } else {
     if ( energyRatio < m_caeratiothr[etaBin] ) return true;
@@ -211,13 +199,14 @@ bool TrigEgammaL2CaloSelectorTool::emulationL2(const xAOD::TrigEMCluster *pClus,
   if(inCrack) energyRatio = -1; //Set default value in crack for monitoring.
  
   // ET_em
-  if ( eT_T2Calo < m_eTthr[etaBin]) return true;
+  ATH_MSG_DEBUG("Et_T2Calo = " << eT_T2Calo*1e-3 << " < " << m_eTthr << " GeV");
+  if ( eT_T2Calo*1e-3 < m_eTthr) return true;
   PassedCuts++; // ET_em
  
   float hadET_cut = 0.0; 
   // find which ET_had to apply : this depends on the ET_em and the eta bin
-  if ( eT_T2Calo >  m_eT2thr[etaBin] ) {
-    hadET_cut = m_hadeT2thr[etaBin] ;
+  if ( eT_T2Calo >  m_eT2thr ) {
+    hadET_cut = m_hadeT2thr ;
   } else {
     hadET_cut = m_hadeTthr[etaBin];
   }
@@ -228,13 +217,13 @@ bool TrigEgammaL2CaloSelectorTool::emulationL2(const xAOD::TrigEMCluster *pClus,
   // if ( F1 < m_F1thr[0]) return true;  //(VD) not cutting on this variable, only used to select whether to cut or not on eRatio
   PassedCuts++; //F1
   //Weta2
-  if ( Weta2 > m_WETA2thr[etaBin]) return true;
+  if ( Weta2 > m_WETA2thr) return true;
   PassedCuts++; //Weta2
   //Wstot
-  if ( Wstot >= m_WSTOTthr[etaBin]) return true;
+  if ( Wstot >= m_WSTOTthr) return true;
   PassedCuts++; //Wstot
   //F3
-  if ( F3 > m_F3thr[etaBin]) return true;
+  if ( F3 > m_F3thr) return true;
   PassedCuts++; //F3
   // got this far => passed!
   pass = true;

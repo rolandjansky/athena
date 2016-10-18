@@ -27,7 +27,7 @@ class TrigEgammaL1SelectorTool:
     StatusCode initialize();
     StatusCode finalize(); 
     
-    bool emulation( const xAOD::EmTauRoI*, bool &, const TrigInfo &);
+    bool emulation( const xAOD::EmTauRoI*, bool &, const Trig::Info &);
     
   private:
 

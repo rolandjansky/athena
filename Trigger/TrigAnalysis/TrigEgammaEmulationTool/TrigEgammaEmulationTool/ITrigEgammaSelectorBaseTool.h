@@ -31,6 +31,7 @@
 #include "TrigEgammaEmulationTool/TrigEgammaInfo.h"
 #include <string>
 
+
 namespace Trig{
     class ITrigEgammaSelectorBaseTool : public virtual asg::IAsgTool {
         ASG_TOOL_INTERFACE( Trig::ITrigEgammaSelectorBaseTool )
@@ -39,9 +40,9 @@ namespace Trig{
             virtual StatusCode initialize()=0;
             virtual StatusCode finalize()=0;
 
-            virtual bool emulation(const xAOD::EmTauRoI               * , bool&, const TrigInfo &)=0;
-            virtual bool emulation(const xAOD::TrigEMCluster          * , bool&, const TrigInfo &)=0;
-            virtual bool emulation(const xAOD::IParticleContainer     * , bool&, const TrigInfo &)=0;
+            virtual bool emulation(const xAOD::EmTauRoI               * , bool&, const Trig::Info &)=0;
+            virtual bool emulation(const xAOD::TrigEMCluster          * , bool&, const Trig::Info &)=0;
+            virtual bool emulation(const xAOD::IParticleContainer     * , bool&, const Trig::Info &)=0;
            
             virtual void setTe(const HLT::TriggerElement *)=0; 
             virtual void setParents(ToolHandle<Trig::TrigDecisionTool> &, StoreGateSvc *)=0;

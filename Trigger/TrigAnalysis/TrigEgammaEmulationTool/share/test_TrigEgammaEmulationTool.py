@@ -60,11 +60,15 @@ rec.doWriteTAG.set_Value_and_Lock(False) # uncomment if do not write TAG
 
 # main jobOption
 # triggerList = ['e24_lhmedium_L1EM18VH', 'e24_lhmedium_L1EM20VH']
-validation = ['HLT_e24_lhmedium_L1EM18VH',
-              'HLT_e24_lhmedium_iloose_L1EM18VH',
+validation = [
+              #'HLT_e24_lhmedium_L1EM18VH',
+              #'HLT_e24_lhmedium_iloose_L1EM18VH',
               'HLT_e24_lhmedium_nod0_iloose',
-              'HLT_e17_etcut_L1EM15',
-              'HLT_e0_perf_L1EM15']
+              #'HLT_e28_lhtight_nod0_iloose',
+              #'HLT_e28_lhtight_nod0_ringer_iloose',
+              #'HLT_e17_etcut_L1EM15',
+              #'HLT_e0_perf_L1EM15'
+              ]
 triggerList = validation
 
 include("RecExCommon/RecExCommon_topOptions.py")
@@ -81,17 +85,23 @@ from TrigEgammaMatchingTool.TrigEgammaMatchingToolConf import Trig__TrigEgammaMa
 EgammaMatchTool = Trig__TrigEgammaMatchingTool("MatchingTool")
 ToolSvc += EgammaMatchTool
 
-from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfig import create_egamma_emulation_tool
-emulator = create_egamma_emulation_tool(triggerList, OutputLevel = 1)
+from egammaRec.Factories  import ToolFactory,FcnWrapper,AlgFactory, getPropertyValue
+from TrigEgammaEmulationTool.TrigEgammaEmulationToolConfig import TrigEgammaEmulationTool
 
-from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaEmulationToolAlg
-alg = Trig__TrigEgammaEmulationToolAlg()
-alg.TrigEgammaEmulationTool = emulator
-alg.TrigEgammaMatchingTool  = EgammaMatchTool
-alg.TriggerList             = triggerList
-alg.perfTrigger             = "HLT_e0_perf_L1EM15"
-alg.OutputLevel             = 2
-theJob += alg
+Emulator = TrigEgammaEmulationTool(name = "TrigEgammaEmulationTool", 
+                                   TriggerList = triggerList,
+                                   OutputLevel = 0)
+
+from TrigEgammaEmulationTool.TrigEgammaEmulationToolConf import Trig__TrigEgammaEmulationToolTest
+test = Trig__TrigEgammaEmulationToolTest()
+test.TrigEgammaEmulationTool = Emulator
+test.TrigEgammaMatchingTool  = EgammaMatchTool
+test.TriggerList             = triggerList
+test.OutputLevel             = 1
+theJob += test
+
+
+
 
 from AthenaCommon.AppMgr import ServiceMgr as svcMgr
 svcMgr.MessageSvc.defaultLimit = 9999999
