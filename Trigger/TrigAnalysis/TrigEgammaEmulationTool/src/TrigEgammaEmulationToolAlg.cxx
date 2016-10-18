@@ -25,6 +25,7 @@ TrigEgammaEmulationToolAlg(const std::string& name, ISvcLocator* pSvcLocator )
     declareProperty("TrigEgammaEmulationTool",m_emulationTool);
     declareProperty("TriggerList", m_triggerList);
     declareProperty("perfTrigger", m_perfTrigger = "HLT_e0_perf_L1EM15");
+    m_storeGate=nullptr;
 }
 
 TrigEgammaEmulationToolAlg::~TrigEgammaEmulationToolAlg() { }

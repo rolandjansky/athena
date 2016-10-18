@@ -34,8 +34,15 @@ TrigEgammaEFPhotonSelectorTool( const std::string& myname )
 //**********************************************************************
 StatusCode TrigEgammaEFPhotonSelectorTool::initialize() {
 
+  StatusCode sc = TrigEgammaSelectorBaseTool::initialize();
+  if(sc.isFailure()){
+    ATH_MSG_WARNING("TrigEgammaSelectorBaseTool::initialize() failed");
+    return StatusCode::FAILURE;
+  }
+
+ 
   if (m_photonOnlIsEMTool.retrieve().isFailure() ) {
-    std::cout << "retrieve failed for tools" << std::endl;
+    ATH_MSG_WARNING("retrieve failed for tools");
   }
 
   return StatusCode::SUCCESS;
@@ -46,7 +53,7 @@ StatusCode TrigEgammaEFPhotonSelectorTool::finalize() {
     return StatusCode::SUCCESS;
 }
 //!==========================================================================
-bool TrigEgammaEFPhotonSelectorTool::emulation( const xAOD::IParticleContainer *container, bool &pass, const TrigInfo &info)
+bool TrigEgammaEFPhotonSelectorTool::emulation( const xAOD::IParticleContainer *container, bool &pass, const Trig::Info &info)
 {
   //apply pids here
   //check if is etcut, perf, etc

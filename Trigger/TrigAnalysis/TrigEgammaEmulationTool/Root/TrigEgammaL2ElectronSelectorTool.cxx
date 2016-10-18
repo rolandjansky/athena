@@ -12,9 +12,6 @@ using namespace Trig;
 TrigEgammaL2ElectronSelectorTool::TrigEgammaL2ElectronSelectorTool(const std::string & myname)
 : TrigEgammaSelectorBaseTool(myname)
 {
-
-  declareProperty( "Signature",               m_signature                       );
-  declareProperty( "Pidname",                 m_pidname                         );
   declareProperty( "EtCut",                   m_etThr = 0                       );
   declareProperty( "TrackAlgoId",             m_trackalgoID = 0                 );
   declareProperty( "EtaBins",                 m_etabin                          );
@@ -32,6 +29,9 @@ TrigEgammaL2ElectronSelectorTool::TrigEgammaL2ElectronSelectorTool(const std::st
   declareProperty( "CaloTrackdEoverPLowTRT",  m_calotrackdeoverp_lowTRT         );
   declareProperty( "CaloTrackdEoverPHighTRT", m_calotrackdeoverp_highTRT        );
 
+   
+  m_emTauRois=nullptr;
+
 }
 
 //!================================================================================
@@ -44,8 +44,11 @@ TrigEgammaL2ElectronSelectorTool::~TrigEgammaL2ElectronSelectorTool()
 StatusCode TrigEgammaL2ElectronSelectorTool::initialize()
 {
   ATH_MSG_DEBUG( "Initialization:" );
-  m_str_etthr = boost::lexical_cast<std::string>(m_etThr*1e-3);
-  boost::algorithm::to_lower(m_signature);
+  StatusCode sc = TrigEgammaSelectorBaseTool::initialize();
+  if(sc.isFailure()){
+    ATH_MSG_WARNING("TrigEgammaSelectorBaseTool::initialize() failed");
+    return StatusCode::FAILURE;
+  }
 
   ATH_MSG_DEBUG( "EtaBins                  = " << m_etabin                   );
   ATH_MSG_DEBUG( "TrackPt                  = " << m_trackPtthr               );
@@ -74,14 +77,7 @@ StatusCode TrigEgammaL2ElectronSelectorTool::finalize()
   return StatusCode::SUCCESS;
 }
 //!================================================================================
-bool TrigEgammaL2ElectronSelectorTool::is_correct_trigInfo(const TrigInfo &info){
-  if(info.strThrHLT != m_str_etthr)  return false;
-  if(info.pidname   != m_pidname  )  return false;
-  if(info.type      != m_signature)  return false;
-  return true;
-}
-//!================================================================================
-bool TrigEgammaL2ElectronSelectorTool::emulation(const xAOD::IParticleContainer *container, bool& pass, const TrigInfo &info)
+bool TrigEgammaL2ElectronSelectorTool::emulation(const xAOD::IParticleContainer *container, bool& pass, const Trig::Info &info)
 {
   pass=false;
   if(!container){
@@ -90,10 +86,6 @@ bool TrigEgammaL2ElectronSelectorTool::emulation(const xAOD::IParticleContainer 
   }
 
   m_emTauRois=nullptr;
-  if(!is_correct_trigInfo(info)){
-    ATH_MSG_DEBUG("Not correct sub selector for this trigger type");
-    return false;
-  }
 
   const xAOD::TrigElectronContainer *trigElecColl = static_cast<const xAOD::TrigElectronContainer *>(container);
   if ( trigElecColl->size() == 0 ) {
@@ -105,7 +97,11 @@ bool TrigEgammaL2ElectronSelectorTool::emulation(const xAOD::IParticleContainer 
     ATH_MSG_ERROR("Failed to retrieve LVL1EmTauRoIs ");
     return false;
   }
- 
+
+  setTrackPt( info.thrHLT );
+  m_trackalgoID = getTrackAlgoID(info.trigName);
+
+  
   ATH_MSG_DEBUG( "Got collection with " << trigElecColl->size() << " TrigElectrons" );
 
   // initialize counter after all error conditions checked
@@ -223,5 +219,38 @@ bool TrigEgammaL2ElectronSelectorTool::emulation(const xAOD::IParticleContainer 
   if(bitAccept.count() > 0)  pass=true;
   return true;
 }
-
+//!================================================================================
+void TrigEgammaL2ElectronSelectorTool::setTrackPt( float et ){
+  // hard cuts
+  if(et < 15.){
+    m_trackPtthr=1*1e-3;
+  }else if(et >=15. && et < 20.){
+    m_trackPtthr=2*1e-3;
+  }else if(et >=20. && et < 50.){
+    m_trackPtthr=3*1e-3;
+  }else{// over 50
+    m_trackPtthr=5*1e-3;
+    // Update the track delta values
+    for(unsigned etaBin=0;etaBin<m_calotrackdeta.size();etaBin++){
+      m_calotrackdeta[etaBin]=999.; m_calotrackdphi[etaBin]=999.;
+    }// loop over all bins
+  }
+}
+//!================================================================================
+unsigned int TrigEgammaL2ElectronSelectorTool::getTrackAlgoID( const std::string &trigger ){
+  // [0=All, 3=TRT, 5=SiTrack or IdScan, 6=L2StarB, 7=L2StarC, 8=FTK, 9=Fast]
+  if(boost::contains(trigger,"IdScan") || boost::contains(trigger,"SiTrack"))
+    return 5;
+  else if(boost::contains(trigger,"TRT"))
+    return 3;
+  else if(boost::contains(trigger,"FTK"))
+    return 8;
+  else if(boost::contains(trigger,"L2StarC"))
+    return 7;
+  else if(boost::contains(trigger,"L2StarB"))
+    return 6;
+  else{
+    return 9;
+  }
+}
 //!================================================================================
