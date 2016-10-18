@@ -285,6 +285,7 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
   
 
   MuonSegmentCombination* pcol = new MuonSegmentCombination;
+  if(use2Lay) pcol->setUse2LayerSegments(use2Lay);
   // Find 2D segments.
   ICscSegmentFinder::Segments eta_segs;
   ICscSegmentFinder::Segments phi_segs;
@@ -294,7 +295,7 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
   MuonSegmentCombination::SegmentVec* psegs = new MuonSegmentCombination::SegmentVec;
   for ( ICscSegmentFinder::Segments::const_iterator iseg=eta_segs.begin();
         iseg!=eta_segs.end(); ++iseg ) {
-    MuonSegment* pseg = build_segment(*iseg, false, eta_id); // build_segment does getRios
+    MuonSegment* pseg = build_segment(*iseg, false, eta_id, use2Lay); // build_segment does getRios
     if (pseg) {
       psegs->push_back(pseg);
       ATH_MSG_DEBUG( " =============================> get2dMuonSegmentCombination::  MuonSegment time (eta) from build_segment is " << pseg->time() );
@@ -308,7 +309,7 @@ get2dMuonSegmentCombination(  Identifier eta_id, Identifier phi_id,
   psegs = new MuonSegmentCombination::SegmentVec;
   for ( ICscSegmentFinder::Segments::const_iterator iseg=phi_segs.begin();
         iseg!=phi_segs.end(); ++iseg ) {
-    MuonSegment* pseg = build_segment(*iseg, true, phi_id);
+    MuonSegment* pseg = build_segment(*iseg, true, phi_id, use2Lay);
     if (pseg) {
       psegs->push_back(pseg);
       ATH_MSG_DEBUG( " get2dMuonSegmentCombination::  MuonSegment time (phi) from build_segment is " << pseg->time() );
@@ -943,7 +944,7 @@ StatusCode CscSegmentUtilTool::finalize() {
 // Use 0+/-1000 for the missing position and pi/2+/-1 for the missing direction.
 
 MuonSegment* CscSegmentUtilTool::
-build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid) const {
+build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid, bool use2Lay) const {
   // chid from any last cluster in given chamber
 
   ATH_MSG_DEBUG ( "Building csc segment." );
@@ -1035,6 +1036,7 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
   // Fit quality.
   int ndof = int(prios->size()) - 2;
   if(m_IPconstraint) ndof = ndof + 1;
+  if(use2Lay) ndof=1;
   Trk::FitQuality* pfq = new Trk::FitQuality(seg.chsq, ndof);
   // Build segment.
   // Build position vector.

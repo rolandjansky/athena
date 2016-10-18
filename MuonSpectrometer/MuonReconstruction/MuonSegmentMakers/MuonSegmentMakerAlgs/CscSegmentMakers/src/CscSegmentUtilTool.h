@@ -126,7 +126,7 @@ private:  // data
   StoreGateSvc* m_storeGateSvc;
 
   // Convert a local 2D segment to MuonSegment
-  Muon::MuonSegment*  build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid) const;
+  Muon::MuonSegment*  build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier chid, bool use2Lay) const;
 
   // Fit a list of RIO's to form a 2D segment.
   // The fit is relative to the passsed surface. called by fit_rio_residual
