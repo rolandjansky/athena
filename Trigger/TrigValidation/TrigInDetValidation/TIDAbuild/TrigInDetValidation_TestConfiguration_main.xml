@@ -51,7 +51,7 @@
 <!-- #     include   "TrigInDetValidation_el_ttbar_pu138.xml" -->
 #     include   "TrigInDetValidation_el_ttbar_pu40.xml"
 #     include   "TrigInDetValidation_el_ttbar_pu80.xml"
-#     include   "TrigInDetValidation_el_ttbar_pu100.xml"
+<!-- #     include   "TrigInDetValidation_el_ttbar_pu100.xml" -->
 
 #     include   "TrigInDetValidation_cosmic.xml"
 
@@ -129,6 +129,7 @@
             <keepFilePattern>L2-plots-lowpt/STAR.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots/STAR.p*</keepFilePattern>
             <keepFilePattern>HLTL2-plots-lowpt/STAR.p*</keepFilePattern>
+            <keepFilePattern>HLTL2-vtx/STAR.p*</keepFilePattern>
 
             <keepFilePattern>HLTEF-plots-electron/STAR.p*</keepFilePattern>
             <keepFilePattern>HLTEF-plots-electron-lowpt/STAR.p*</keepFilePattern>
