@@ -20,6 +20,8 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTrigger
                           PhysicsAnalysis/AnalysisCommon/PATCore
                           PhysicsAnalysis/ElectronPhotonID/ElectronPhotonSelectorTools
+                          LumiBlock/LumiBlockComps
+                          InnerDetector/InDetRecTools/InDetTrackSelectionTool
                           Reconstruction/RecoTools/RecoToolInterfaces
                           Trigger/TrigAnalysis/TrigDecisionTool
                           Trigger/TrigConfiguration/TrigConfHLTData
@@ -42,7 +44,8 @@ atlas_add_component( TrigEgammaEmulationTool
                      Root/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AsgTools xAODBase xAODCaloEvent xAODEgamma xAODPrimitives xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger PATCoreLib ElectronPhotonSelectorToolsLib RecoToolInterfaces TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent TrigMultiVarHypoLib AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigEgammaMatchingToolLib )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${Boost_LIBRARIES} ${CLHEP_LIBRARIES} AthContainers AsgTools xAODBase xAODCaloEvent xAODEgamma  xAODTracking xAODTrigCalo xAODTrigEgamma xAODTrigRinger xAODTrigger PATCoreLib ElectronPhotonSelectorToolsLib TrigDecisionToolLib TrigConfHLTData TrigSteeringEvent TrigMultiVarHypoLib AthenaBaseComps StoreGateLib SGtests GaudiKernel TrigEgammaMatchingToolLib LumiBlockCompsLib )
+
 
 # Install files from the package:
 atlas_install_headers( TrigEgammaEmulationTool )

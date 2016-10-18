@@ -32,14 +32,16 @@ class TrigEgammaL2SelectorTool:
     StatusCode initialize();
     StatusCode finalize(); 
     
-    bool emulation( const xAOD::TrigEMCluster         *, bool &, const TrigInfo&);
-    bool emulation( const xAOD::IParticleContainer    *, bool &, const TrigInfo&);
+    bool emulation( const xAOD::TrigEMCluster         *, bool &, const Trig::Info&);
+    bool emulation( const xAOD::IParticleContainer    *, bool &, const Trig::Info&);
 
   private:
 
-    ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_caloSelectors;
+    ToolHandle<Trig::ITrigEgammaSelectorBaseTool>      m_electronSelector;
+    ToolHandle<Trig::ITrigEgammaSelectorBaseTool>      m_photonSelector;
+    ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_caloCutIDSelectors;
     ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_caloRingerSelectors;
-    ToolHandleArray<Trig::ITrigEgammaSelectorBaseTool> m_electronSelectors;
+
 };
 
 }//namespace

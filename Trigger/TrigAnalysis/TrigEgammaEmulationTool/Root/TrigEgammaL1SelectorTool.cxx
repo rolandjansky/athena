@@ -20,6 +20,7 @@ using namespace std;
 using namespace Trig;
 //**********************************************************************
 
+
 TrigEgammaL1SelectorTool::
 TrigEgammaL1SelectorTool( const std::string& myname )
     : TrigEgammaSelectorBaseTool(myname)
@@ -27,15 +28,22 @@ TrigEgammaL1SelectorTool( const std::string& myname )
 }
 //**********************************************************************
 StatusCode TrigEgammaL1SelectorTool::initialize() {
-    return StatusCode::SUCCESS;
+
+  StatusCode sc = TrigEgammaSelectorBaseTool::initialize();
+  if(sc.isFailure()){
+    ATH_MSG_WARNING("TrigEgammaSelectorBaseTool::initialize() failed");
+    return StatusCode::FAILURE;
+  }
+
+  return StatusCode::SUCCESS;
 }
 
 //!==========================================================================
 StatusCode TrigEgammaL1SelectorTool::finalize() {
-    return StatusCode::SUCCESS;
+  return StatusCode::SUCCESS;
 }
 //!==========================================================================
-bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, const TrigInfo &info){
+bool TrigEgammaL1SelectorTool::emulation( const xAOD::EmTauRoI* l1, bool &pass, const Trig::Info &info){
 
   pass=false;
   if(!l1){
