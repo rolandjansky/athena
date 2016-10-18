@@ -1,0 +1,11 @@
+PACKAGE          = DiTauMassTools
+PACKAGE_PRELOAD  = 
+PACKAGE_CXXFLAGS = # tbc -g to have line numbers -O0 to disable optimisation
+PACKAGE_LDFLAGS  = 
+PACKAGE_BINFLAGS = 
+PACKAGE_DEP      = AsgTools PATInterfaces xAODEgamma xAODEventInfo xAODTau xAODMissingET xAODPrimitives xAODMuon
+PACKAGE_NOOPT    = 0
+PACKAGE_NOCC     = 0
+PACKAGE_PEDANTIC = 1
+PACKAGE_REFLEX   = 1
+include $(ROOTCOREDIR)/Makefile-common
