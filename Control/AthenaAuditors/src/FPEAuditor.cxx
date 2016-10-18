@@ -74,7 +74,7 @@ FPEAuditor::FPEAuditor( const std::string& name,
 #include <iomanip>
 FPEAuditor::~FPEAuditor()
 { 
-  //m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  //m_msg << MSG::DEBUG << "Calling destructor" << endmsg;
 }
 
 StatusCode FPEAuditor::initialize()
@@ -277,7 +277,7 @@ FPEAuditor::report_fpe(const std::string& step,
 	      this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
 	      FPEAudit::resolve(FPEAudit::s_array_O[j],this->msg());
 	      FPEAudit::s_array_O[j]=NULL;
-	      this->msg(MSG::INFO) << endreq;
+	      this->msg(MSG::INFO) << endmsg;
 	    }
 	}
     }
@@ -293,7 +293,7 @@ FPEAuditor::report_fpe(const std::string& step,
 	    this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
 	    FPEAudit::resolve(FPEAudit::s_array_I[j],this->msg());
 	    FPEAudit::s_array_I[j]=NULL;
-	    this->msg(MSG::INFO) << endreq;
+	    this->msg(MSG::INFO) << endmsg;
 	  }
       }
     if (raised & FE_DIVBYZERO) {
@@ -307,7 +307,7 @@ FPEAuditor::report_fpe(const std::string& step,
 	      this->msg(MSG::INFO) << "FPE stacktrace " << j << " :\n";
 	      FPEAudit::resolve(FPEAudit::s_array_D[j],this->msg());
 	      FPEAudit::s_array_D[j]=NULL;
-	      this->msg(MSG::INFO) << endreq;
+	      this->msg(MSG::INFO) << endmsg;
 	    }
 	}
     }

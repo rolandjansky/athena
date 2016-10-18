@@ -28,7 +28,7 @@ CoWAuditor::CoWAuditor( const std::string& name,
 
 CoWAuditor::~CoWAuditor()
 { 
-  //m_msg << MSG::DEBUG << "Calling destructor" << endreq;
+  //m_msg << MSG::DEBUG << "Calling destructor" << endmsg;
   delete m_hashTree;
   delete m_snapshotTree;
 }
@@ -239,7 +239,7 @@ bool CoWAuditor::popStats(const std::string& caller){
 	    }
 	  }
 	  msg(MSG::INFO)<<caller<<" : Total libs="<<count<<" stack depth="<<m_detailedStack.size()<<std::endl
-			<<oss.str()<<endreq;
+			<<oss.str()<<endmsg;
 	}
       }
     }else{
@@ -280,7 +280,7 @@ bool CoWAuditor::popStats(const std::string& caller){
 	m_currTime=std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
 	m_snapshotTree->Fill();
 	if(m_dumpInfo){
-	  msg(MSG::INFO)<<caller<<" : "<<delta<<" oldName="<<first->m_libName<<" stack depth="<<m_summaryStack.size()<<endreq;
+	  msg(MSG::INFO)<<caller<<" : "<<delta<<" oldName="<<first->m_libName<<" stack depth="<<m_summaryStack.size()<<endmsg;
 	}
 	
 	auto prev=m_runTotals.find(caller);

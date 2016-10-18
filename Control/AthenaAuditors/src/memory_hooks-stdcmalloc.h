@@ -33,6 +33,11 @@ static std::string name;
 static void printAllocation( void*ptr, size_t n );
 #endif // MYDEBUG
 
+#ifdef __GNUC__
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
 /*  structure of redzones:
     bytes     0- 7: pointer to next
     bytes     8-15: pointer to prev
@@ -277,9 +282,9 @@ my_free_hook (void *ptr, const void* /* caller */)
       np->setNext(nn);
 
 
-      myBlocks_tc* ptr = &*i;
+      myBlocks_tc* bptr = &*i;
       allocset_tc.erase(i);
-      delete ptr;
+      delete bptr;
     }
   else
     {
@@ -355,9 +360,9 @@ my_realloc_hook(void *ptr, size_t size, const void * /* caller */)
       np->setNext(nn);
       
       // remove from list
-      myBlocks_tc* ptr = &*i;
+      myBlocks_tc* ptr1 = &*i;
       allocset_tc.erase(i);
-      delete ptr;
+      delete ptr1;
     }
   
   // call real realloc
@@ -425,9 +430,9 @@ my_realloc_hook(void *ptr, size_t size, const void * /* caller */)
 		    }
 		  
 		  // remove old location from current list 
-                  myBlocks_tc* ptr = &*i;
+                  myBlocks_tc* ptr1 = &*i;
 		  allocset_tc.erase(i);
-		  delete ptr;
+		  delete ptr1;
 		}
 	      else
 		// memory was not with redzones, but stayed at the same place in memory
@@ -478,9 +483,9 @@ my_realloc_hook(void *ptr, size_t size, const void * /* caller */)
       np->setNext(nn);
       
       // remove from list
-      myBlocks_tc* ptr = &*i;
+      myBlocks_tc* ptr1 = &*i;
       allocset_tc.erase(i);
-      delete ptr;
+      delete ptr1;
       
       char* start((char*)result);
       if ( size > deltaLow+deltaHigh )
@@ -917,4 +922,11 @@ my_init_hook (void)
   s_level=1;
 #endif // MYDEBUG
 }
+
+
+#ifdef __GNUC__
+# pragma GCC diagnostic pop
+#endif
+
+
 #endif
