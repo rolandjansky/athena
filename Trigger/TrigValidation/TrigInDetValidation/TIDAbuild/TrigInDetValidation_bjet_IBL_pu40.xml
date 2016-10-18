@@ -49,13 +49,13 @@
                 </arg>
             </action>
 
+
+
 #	  include "TrigInDetValidation_expertMonitoring.xml"
 #	  include "TrigInDetValidation_costMonitoring.xml"
 #         include "TrigInDetValidation_extra.xml"
 
 
-
-        
 
             <testToRemove>
               <jobGroupName>RTT:Top</jobGroupName>

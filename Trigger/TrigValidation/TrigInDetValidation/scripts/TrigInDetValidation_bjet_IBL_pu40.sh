@@ -1,7 +1,7 @@
 #!/bin/sh
 
-get_files -jo TrigInDetValidation_RTT_topOptions_BjetSlice.py
-athena.py  -c 'XMLDataSet="TrigInDetValidation_bjet_IBL_pu40";EventMax=900;runMergedChain=True;globalTag="OFLCOND-RUN12-SDR-17"' TrigInDetValidation_RTT_topOptions_BjetSlice.py 
+get_files -jo TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice.py
+athena.py  -c 'XMLDataSet="TrigInDetValidation_bjet_IBL_pu40";EventMax=900;runMergedChain=True;globalTag="OFLCOND-RUN12-SDR-17"' TrigInDetValidation/TrigInDetValidation_RTT_topOptions_BjetSlice.py 
 
 
 get_files -data TIDAdata11-rtt.dat
@@ -17,7 +17,7 @@ TIDAcomparitor.exe data-bjet-pileup-merging.root data-bjet_IBL_pu40-reference.ro
 get_files -data expert-monitoring-bjet_IBL_pu40-ref.root
 TIDAcpucost.exe expert-monitoring.root expert-monitoring-bjet_IBL_pu40-ref.root --auto -o times
 
-RunTrigCostD3PD.exe -f trig_cost.root --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir
+RunTrigCostD3PD.exe -f trig_cost.root --outputTagFromAthena --monitorAllChainSeqAlg --monitorROI --linkOutputDir --monitorGlobals
 
 TIDAcpucost.exe costMon/TrigCostRoot_Results.root costMon/TrigCostRoot_Results.root -o cost-perCall --auto -d "/Algorithm" -p "_Time_perCall"
 
