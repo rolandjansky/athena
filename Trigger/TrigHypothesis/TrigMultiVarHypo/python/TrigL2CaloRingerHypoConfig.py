@@ -28,12 +28,12 @@ class TrigL2CaloRingerFexBase( TrigL2CaloRingerFex ):
 '''
 class TrigL2CaloRingerFex( TrigL2CaloRingerFexBase ):
   __slots__ = []
-  def __init__(self, name, threshold, IDinfo, chainName):
+  def __init__(self, name, threshold, IDinfo, trigType):
     super( TrigL2CaloRingerFex, self ).__init__( name ) 
 
     from TrigMultiVarHypo.TrigL2CaloRingerCutDefs import TrigL2CaloRingerCutDefs
     #if this is empty, the fex will work like EtCut
-    theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,chainName)
+    theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,trigType)
    
     #Prepoc configuration
     self.NRings             = theRingerConfig.NRings
@@ -70,15 +70,15 @@ class TrigL2CaloRingerFex_Empty( TrigL2CaloRingerFexBase ):
 class TrigL2CaloRingerHypo_e_ID(TrigL2CaloRingerHypo):
   __slots__ = []
 
-  def __init__(self, name, threshold, IDinfo, chainName):
+  def __init__(self, name, threshold, IDinfo, trigType):
     super( TrigL2CaloRingerHypo_e_ID, self ).__init__( name ) 
 
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
-    self.EmEtCut    = (float(threshold) - 5)*GeV
+    self.EmEtCut    = (float(threshold) - 3)*GeV
 
     from TrigMultiVarHypo.TrigL2CaloRingerCutDefs import TrigL2CaloRingerCutDefs
-    theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,chainName)
+    theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,trigType)
 
     #If this is empty, the hypothesis will work like EtCut
     self.Thresholds = theRingerConfig.Thresholds
@@ -88,15 +88,15 @@ class TrigL2CaloRingerHypo_e_ID(TrigL2CaloRingerHypo):
 class TrigL2CaloRingerHypo_g_ID(TrigL2CaloRingerHypo):
   __slots__ = []
 
-  def __init__(self, name, threshold, IDinfo, chainName):
+  def __init__(self, name, threshold, IDinfo, trigType):
     super( TrigL2CaloRingerHypo_g_ID, self ).__init__( name ) 
 
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
-    self.EmEtCut    = (float(threshold) - 5)*GeV
+    self.EmEtCut    = (float(threshold) - 3)*GeV
 
     from TrigMultiVarHypo.TrigL2CaloRingerCutDefs import TrigL2CaloRingerCutDefs
-    theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,chainName)
+    theRingerConfig = TrigL2CaloRingerCutDefs(threshold,IDinfo,trigType)
 
     #If this is empty, the hypothesis will work like EtCut
     self.Thresholds = theRingerConfig.Thresholds
@@ -119,19 +119,19 @@ class TrigL2CaloRingerHypo_EtCut(TrigL2CaloRingerHypo):
     super( TrigL2CaloRingerHypo_EtCut, self ).__init__( name ) 
     self.HltFeature = 'TrigRingerNeuralFex'
     self.AcceptAll  = False
-    self.EmEtCut    = (float(threshold) - 5)*GeV
+    self.EmEtCut    = (float(threshold) - 3)*GeV
 
 
 
 #helper function for combined
-def TrigL2CaloRingerFexHypo_e_ID(threshold, IDinfo, chainName):
-  return  TrigL2CaloRingerFex("TrigL2CaloRingerFex_e"+str(threshold)+'_'+IDinfo, threshold,IDinfo,chainName),\
-          TrigL2CaloRingerHypo_e_ID("TrigL2CaloRingerHypo_e"+str(threshold)+'_'+str(IDinfo), threshold,IDinfo,chainName)
+def TrigL2CaloRingerFexHypo_e_ID(threshold, IDinfo, trigType):
+  return  TrigL2CaloRingerFex("TrigL2CaloRingerFex_e"+str(threshold)+'_'+IDinfo, threshold,IDinfo,trigType),\
+          TrigL2CaloRingerHypo_e_ID("TrigL2CaloRingerHypo_e"+str(threshold)+'_'+str(IDinfo), threshold,IDinfo,trigType)
 
 #helper function for combined
-def TrigL2CaloRingerFexHypo_g_ID(threshold, IDinfo, chainName):
-  return  TrigL2CaloRingerFex("TrigL2CaloRingerFex_g"+str(threshold)+'_'+IDinfo, threshold,IDinfo,chainName),\
-          TrigL2CaloRingerHypo_g_ID("TrigL2CaloRingerHypo_g"+str(threshold)+'_'+str(IDinfo), threshold,IDinfo,chainName)
+def TrigL2CaloRingerFexHypo_g_ID(threshold, IDinfo, trigType):
+  return  TrigL2CaloRingerFex("TrigL2CaloRingerFex_g"+str(threshold)+'_'+IDinfo, threshold,IDinfo,trigType),\
+          TrigL2CaloRingerHypo_g_ID("TrigL2CaloRingerHypo_g"+str(threshold)+'_'+str(IDinfo), threshold,IDinfo,trigType)
 
 #helper function for combined
 def TrigL2CaloRingerFexHypo_e_NoCut(threshold):
@@ -154,24 +154,6 @@ def TrigL2CaloRingerFexHypo_g_EtCut(threshold):
           TrigL2CaloRingerHypo_EtCut("TrigL2CaloRingerHypo_g"+str(threshold)+'_EtCut', threshold)
 
 
-
-
-
-################### functions for T2Calo studies ###################################    
-
-#helper function for combined
-def TrigL2CaloRingerFexHypo_e_ID_for_T2Calo(threshold, IDinfo, chainName):
-  return  TrigL2CaloRingerFex("TrigL2CaloRingerFex_e"+str(threshold)+'_'+IDinfo, 
-                              threshold,IDinfo,chainName+'_L2Calo'),\
-          TrigL2CaloRingerHypo_e_ID("TrigL2CaloRingerHypo_e"+str(threshold)+'_'+str(IDinfo)+'_for_T2Calo', 
-                                    threshold,IDinfo,chainName+'_L2Calo')
-
-#helper function for combined
-def TrigL2CaloRingerFexHypo_g_ID_for_T2Calo(threshold, IDinfo, chainName):
-  return  TrigL2CaloRingerFex("TrigL2CaloRingerFex_g"+str(threshold)+'_'+IDinfo_+'_for_T2Calo', 
-                                    threshold,IDinfo,chainName),\
-          TrigL2CaloRingerHypo_g_ID("TrigL2CaloRingerHypo_g"+str(threshold)+'_'+str(IDinfo)+'_for_T2Calo', 
-                                    threshold,IDinfo,chainName+'_L2Calo')
 
 
 

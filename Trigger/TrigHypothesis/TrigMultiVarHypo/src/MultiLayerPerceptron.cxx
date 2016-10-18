@@ -168,10 +168,10 @@ MultiLayerPerceptron::~MultiLayerPerceptron(){
         if(m_weights[l]){
           if (m_weights[l][i]==nullptr){
             delete m_weights[l][i]; //Deletes null pointer
+          }else{
+            delete[] m_weights[l][i]; //Deletes array of values at third dimension of weights
           }
         }
-      }else{
-        delete[] m_weights[l][i]; //Deletes array of values at third dimension of weights
       }
     }
     if (m_weights){
