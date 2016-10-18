@@ -80,3 +80,4 @@ macro_append exctrace2_utest_dependencies " exctrace1_test "
 macro_append CxxUtils_use_linkopts " $(Boost_linkopts_regex) "
 
 end_private
+
