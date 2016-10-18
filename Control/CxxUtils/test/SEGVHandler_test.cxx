@@ -22,7 +22,7 @@ int main(void) {
   cout << "*** SEGVHandler_test starts ***" <<endl;
   int rc=0;
   struct sigaction sa, stdSEGV;
-  sigaction(SIGSEGV,NULL,&stdSEGV);
+  (void)sigaction(SIGSEGV,NULL,&stdSEGV);
   sa = stdSEGV;
   //  sa.sa_sigaction=trapReads;
   procmaps p;
@@ -71,7 +71,7 @@ int main(void) {
   cout << "reading again double from pair " << pPair->second << endl;
 
   //restore default/old handler
-  sigaction(SIGSEGV,&stdSEGV,NULL);
+  (void)sigaction(SIGSEGV,&stdSEGV,NULL);
   printf("try to read 33\n");
   printf("read %d\n",*pInt);
   PtrAccessSEGVHandler::const_iterator i(h.beginAccessedPtrs()),
