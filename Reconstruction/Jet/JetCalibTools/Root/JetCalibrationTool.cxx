@@ -100,8 +100,8 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   TString calibSeq = m_calibSeq;
   std::string dir = m_dir;
 
-  ATH_MSG_INFO("===================================\n");
-  ATH_MSG_INFO("Initializing the xAOD Jet Calibration Tool for " << jetAlgo << "jets\n");
+  ATH_MSG_INFO("===================================");
+  ATH_MSG_INFO("Initializing the xAOD Jet Calibration Tool for " << jetAlgo << "jets");
 
   //Make sure the necessary properties were set via the constructor or python configuration
   if ( jetAlgo.EqualTo("") || calibSeq.EqualTo("") ) {
@@ -110,7 +110,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   }
 
   if ( config.EqualTo("") || !config ) { ATH_MSG_FATAL("No configuration file specified."); return StatusCode::FAILURE; } 
-  m_calibAreaTag.insert(0,"CalibArea-00-04-67/"); // Hard-coding the CalibArea tag
+  m_calibAreaTag.insert(0,"CalibArea-00-04-71/"); // Hard-coding the CalibArea tag
   if(calibSeq.Contains("DEV")){
     m_devMode = true;
     ATH_MSG_WARNING("Dev Mode is ON!!! \n\n");
@@ -123,7 +123,7 @@ StatusCode JetCalibrationTool::initializeTool(const std::string& name) {
   TString fn =  PathResolverFindCalibFile(configPath);
 
   ATH_MSG_INFO("Reading global JES settings from: " << m_config);
-  ATH_MSG_INFO("resolved in: " << fn << "\n");
+  ATH_MSG_INFO("resolved in: " << fn);
   
   m_globalConfig = new TEnv();
   //int status=m_globalConfig->ReadFile(FindFile(fn),EEnvLevel(0));
@@ -354,6 +354,13 @@ StatusCode JetCalibrationTool::initializeEvent() {
 */
 
 StatusCode JetCalibrationTool::initializeEvent(JetEventInfo& jetEventInfo) const {
+
+  // Check if the tool was initialized
+  if( m_calibClasses.size() == 0 ){
+    ATH_MSG_FATAL("   JetCalibrationTool::initializeEvent : The tool was not initialized.");
+    return StatusCode::FAILURE;
+  }
+
   // static accessor for PV index access
   static SG::AuxElement::ConstAccessor<int> PVIndexAccessor("PVIndex");
   

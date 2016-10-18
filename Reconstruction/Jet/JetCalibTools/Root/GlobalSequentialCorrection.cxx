@@ -166,7 +166,7 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
       ATH_MSG_FATAL("Vector of PunchThrough histograms may be empty. Please check your GSCFactors file: " << GSCFile);
       return StatusCode::FAILURE;
     }
-    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName << "\n");
+    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName);
   }
   else{
     if ( (m_depth & ApplyChargedFraction) && m_respFactorsChargedFraction.size() < 3 ) {
@@ -185,7 +185,7 @@ StatusCode GlobalSequentialCorrection::initializeTool(const std::string&) {
       ATH_MSG_FATAL("Vector of PunchThrough histograms may be empty. Please check your GSCFactors file: " << GSCFile);
       return StatusCode::FAILURE;
     }
-    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName << "\n");
+    else ATH_MSG_INFO("GSC Tool has been initialized with binning and eta fit factors from: " << fileName);
   }
   return StatusCode::SUCCESS;
 
