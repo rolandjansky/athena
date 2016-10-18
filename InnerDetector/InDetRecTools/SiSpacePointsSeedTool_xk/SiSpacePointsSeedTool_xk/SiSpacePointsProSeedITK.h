@@ -138,17 +138,14 @@ namespace InDet {
   inline bool SiSpacePointsProSeedITK::set3(InDet::SiSpacePointsSeed& s)
     {
       
-      bool pixb = !m_s0->spacepoint->clusterList().second;
-      bool pixt = !m_s2->spacepoint->clusterList().second;
-      
-      if(pixb!=pixt) {
+      if(!m_s0->spacepoint->clusterList().second) {
 	if(m_q > m_s0->quality() && m_q > m_s1->quality() && m_q > m_s2->quality()) return false;
       }
-     
+      
       m_s0->setQuality(m_q);
       m_s1->setQuality(m_q);
       m_s2->setQuality(m_q);
-      
+     
       s.erase();
       s.add(m_s0->spacepoint);
       s.add(m_s1->spacepoint);
@@ -164,16 +161,14 @@ namespace InDet {
   inline bool SiSpacePointsProSeedITK::setQuality(float q)
     {
       m_q = q;
-      bool pixb = !m_s0->spacepoint->clusterList().second;
-      bool pixt = !m_s2->spacepoint->clusterList().second;
-      if(pixb==pixt) {
-	m_s0->setQuality(q);
-	m_s1->setQuality(q);
-	m_s2->setQuality(q);
-	return true;
+      
+      if(!m_s0->spacepoint->clusterList().second) {
+	if(q > m_s0->quality() && q > m_s1->quality() && q > m_s2->quality()) return false;
       }
-      if(q < m_s0->quality() || q < m_s1->quality() || q < m_s2->quality()) return true;
-      return false;
+      m_s0->setQuality(m_q);
+      m_s1->setQuality(m_q);
+      m_s2->setQuality(m_q);
+      return true;
     }
 
 } // end of name space

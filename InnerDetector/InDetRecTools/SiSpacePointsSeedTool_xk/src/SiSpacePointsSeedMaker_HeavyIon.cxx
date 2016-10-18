@@ -189,7 +189,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_HeavyIon::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return sc;
 }
@@ -422,7 +422,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::find2Sp(const std::list<Trk::Vertex
   i_seed  = l_seeds.begin();
   
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -454,7 +454,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::find3Sp(const std::list<Trk::Vertex
   i_seed  = l_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -491,7 +491,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::findVSp (const std::list<Trk::Verte
   i_seed  = l_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -1213,6 +1213,8 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
   std::list<InDet::SiSpacePointForSeed*>::iterator r0=rb[0],r;
   if(!m_endlist) {r0 = m_rMin; m_endlist = true;}
 
+    float ipt2K = m_ipt2/(m_K*m_K);
+
   // Loop through all trigger space points
   //
   for(; r0!=rbe[0]; ++r0) {
@@ -1226,8 +1228,6 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
     if(SP0->clusterList().second) break;
 
     const Trk::Surface* sur0 = (*r0)->sur();
-    float               X    = (*r0)->x()  ;
-    float               Y    = (*r0)->y()  ;
     float               Z    = (*r0)->z()  ;
     int                 Nb   = 0           ;
 
@@ -1282,13 +1282,20 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
   breakt:
     if(!(Nt-Nb)) continue;
 
+    float imaxp = m_diver       ;
+    float X     = (*r0)->    x();
+    float Y     = (*r0)->    y();
     float covr0 = (*r0)->covr ();
     float covz0 = (*r0)->covz ();
+    float Ri    = 1./R          ;
+    float ax    = X*Ri          ;
+    float ay    = Y*Ri          ;
+    float VR    = imaxp*Ri*Ri   ;
 
-    float ax   = X/R;
-    float ay   = Y/R;
-    
-    for(int i=0; i!=Nt; ++i) {
+    // Top space points information production
+    //
+    int n = Nb;
+    for(int i=Nb; i!=Nt; ++i) {
 
       InDet::SiSpacePointForSeed* sp = m_SP[i];  
 
@@ -1296,28 +1303,73 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
       float dy  = sp->y()-Y   ;
       float dz  = sp->z()-Z   ;
       float x   = dx*ax+dy*ay ;
-      float y   =-dx*ay+dy*ax ;
+      float y   = dy*ax-dx*ay ;
       float r2  = 1./(x*x+y*y);
-      float dr  = sqrt(r2)    ;
-      float tz  = dz*dr       ; if(i < Nb) tz = -tz;
+      float u   = x*r2        ;
+      float v   = y*r2        ;
+      
+      if(fabs(R*y) > imaxp*x) {
 
-      m_Tz[i]   = tz                                            ;
-      m_Zo[i]   = Z-R*tz                                        ;
-      m_R [i]   = dr                                            ;
-      m_U [i]   = x*r2                                          ;
-      m_V [i]   = y*r2                                          ;
-      m_Er[i]   = (covz0+sp->covz()+tz*tz*(covr0+sp->covr()))*r2;
+	float V0  = VR; if(y > 0.) V0 =-VR   ;
+	float A   = (v-V0)/(u+Ri)            ;
+	float B   = V0+A*Ri                  ;
+	if((B*B) > (ipt2K*(1.+A*A))) continue;
+      }
+      float dr  = sqrt(r2)    ;
+      float tz  = dz*dr       ;
+      m_SP[n  ] = sp          ;
+      m_Tz[n  ] = tz          ;
+      m_Zo[n  ] = Z-R*tz      ;
+      m_R [n  ] = dr          ;
+      m_U [n  ] = u           ;
+      m_V [n  ] = v           ;
+      m_Er[n++] = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;
     }
- 
+    if(n==Nb) continue; Nt = n;
+    
+    // Bottom space points information production
+    //
+    n=0;
+    for(int i=0; i!=Nb; ++i) {
+
+      InDet::SiSpacePointForSeed* sp = m_SP[i];  
+
+      float dx  = sp->x()-X   ; 
+      float dy  = sp->y()-Y   ;
+      float dz  = sp->z()-Z   ;
+      float x   = dx*ax+dy*ay ;
+      float y   = dy*ax-dx*ay ;
+      float r2  = 1./(x*x+y*y);
+      float u   = x*r2        ;
+      float v   = y*r2        ;
+      
+      if(fabs(R*y) > -imaxp*x) {
+
+	float V0  = VR; if(y < 0.) V0 =-VR   ;
+	float A   = (v-V0)/(u+Ri)            ;
+	float B   = V0+A*Ri                  ;
+	if((B*B) > (ipt2K*(1.+A*A))) continue;
+      }
+      float dr  = sqrt(r2)    ;
+      float tz  =-dz*dr       ;
+      m_SP[n  ] = sp          ;
+      m_Tz[n  ] = tz          ;
+      m_Zo[n  ] = Z-R*tz      ;
+      m_R [n  ] = dr          ;
+      m_U [n  ] = u           ;
+      m_V [n  ] = v           ;
+      m_Er[n++] = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;
+    }
+    if(!n) continue; int Nb0 = Nb; Nb = n;
+    
     float imc   = m_diver   ;
     float ipt2  = m_ipt2    ;
     float K     = m_K       ;
     float K2    = K*K       ;
     float COF   = m_COF     ;
-    float ipt2K = ipt2/K2   ;
     float ipt2C = ipt2*COF  ;
     float COFK  = COF*K2    ;  
-    covr0      *= 2.        ;
+    covr0      *= .5        ;
     covz0      *= 2.        ;
 
     //
@@ -1338,7 +1390,7 @@ void InDet::SiSpacePointsSeedMaker_HeavyIon::production3Sp
       float dZ    = dZVertexMin(Zob);
       float Iz    = (dZ*dZ)/Tzb2 ;
 
-      for(int t=Nb;  t!=Nt; ++t) {
+      for(int t=Nb0;  t!=Nt; ++t) {
 	
 	float Ts  = .5*(Tzb+m_Tz[t])                          ;
 	float dt  =     Tzb-m_Tz[t]                           ;

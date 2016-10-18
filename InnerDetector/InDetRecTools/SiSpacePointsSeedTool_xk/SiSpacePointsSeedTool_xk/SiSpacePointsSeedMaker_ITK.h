@@ -378,13 +378,13 @@ namespace InDet {
   // Inline methods
   ///////////////////////////////////////////////////////////////////
 
-  inline const SiSpacePointsSeed* SiSpacePointsSeedMaker_ITK::next()
+   inline const SiSpacePointsSeed* SiSpacePointsSeedMaker_ITK::next()
     {
       if(m_nspoint==3) {
 	do {
-	  if(i_seed==i_seede) {findNext(); if(i_seed==i_seede) return 0;} ++i_seed;
+	  if(i_seed==i_seede) {findNext(); if(i_seed==i_seede) return 0;} 
 	} 
-	while(!(*m_seed++).second->set3(*m_seedOutput));
+	while(!(*i_seed++)->set3(*m_seedOutput));
 	return(m_seedOutput);	
       }
       else             {
@@ -393,7 +393,6 @@ namespace InDet {
       }
       return 0;
     }
-  
 
   inline bool SiSpacePointsSeedMaker_ITK::isZCompatible  
     (float& Zv,float& R,float& T)

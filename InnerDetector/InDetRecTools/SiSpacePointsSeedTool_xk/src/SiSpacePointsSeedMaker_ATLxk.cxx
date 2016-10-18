@@ -205,10 +205,10 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
   //
   if( m_useassoTool ) {
     if( m_assoTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endreq; 
+      msg(MSG::FATAL)<<"Failed to retrieve tool "<< m_assoTool<<endmsg; 
       return StatusCode::FAILURE;
     } else {
-      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endreq;
+      msg(MSG::INFO) << "Retrieved tool " << m_assoTool << endmsg;
     }
   }
   
@@ -221,7 +221,7 @@ StatusCode InDet::SiSpacePointsSeedMaker_ATLxk::initialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=0; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
   return sc;
 }
@@ -576,7 +576,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find2Sp(const std::list<Trk::Vertex>& 
   i_seed  = l_seeds.begin();
   
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -609,7 +609,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(const std::list<Trk::Vertex>& 
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -642,7 +642,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::find3Sp(const std::list<Trk::Vertex>& 
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -677,7 +677,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::findVSp (const std::list<Trk::Vertex>&
   m_seed  = m_seeds.begin();
 
   if(m_outputlevel<=0) {
-    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endreq;
+    m_nprint=1; msg(MSG::DEBUG)<<(*this)<<endmsg;
   }
 }
 
@@ -1454,9 +1454,7 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 
     const Trk::Surface* sur0 = (*r0)->sur();
     const Trk::Surface* surn = (*r0)->sun();
-    float               X    = (*r0)->x()  ;
-    float               Y    = (*r0)->y()  ;
-    float               Z    = (*r0)->z()  ;
+    float               Z    = (*r0)-> z() ;
     int                 Nb   = 0           ;
 
     // Bottom links production
@@ -1513,12 +1511,22 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
     
   breakt:
     if(!(Nt-Nb)) continue;
+
+    float X     = (*r0)->    x();
+    float Y     = (*r0)->    y();
     float covr0 = (*r0)->covr ();
     float covz0 = (*r0)->covz ();
-    float ax    = X/R           ;
-    float ay    = Y/R           ;
+    float Ri    = 1./R          ;
+    float ax    = X*Ri          ;
+    float ay    = Y*Ri          ;
+    float Ima   = imaxp         ; if((*r0)->spacepoint->clusterList().second) Ima = imaxs;
+    float Ri2   = Ri*Ri         ;
+    float VR    = Ima*Ri2       ;
 
-    for(int i=0; i!=Nt; ++i) {
+    // Top space points information production
+    //
+    int n = Nb;
+    for(int i=Nb; i!=Nt; ++i) {
 
       InDet::SiSpacePointForSeed* sp = m_SP[i];  
 
@@ -1528,19 +1536,68 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       float x   = dx*ax+dy*ay ;
       float y   = dy*ax-dx*ay ;
       float r2  = 1./(x*x+y*y);
-      float dr  = sqrt(r2)    ;
-      float tz  = dz*dr       ; if(i < Nb) tz = -tz;
+      float u   = x*r2        ;
+      float v   = y*r2        ;
+      
+      if(fabs(R*y) > Ima*x) {
 
-      m_Tz[i]   = tz                                            ;
-      m_Zo[i]   = Z-R*tz                                        ;
-      m_R [i]   = dr                                            ;
-      m_U [i]   = x*r2                                          ;
-      m_V [i]   = y*r2                                          ;
-      m_Er[i]   = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;
+	float V0  = VR; if(y > 0.) V0 =-VR   ;
+	float A   = (v-V0)/(u+Ri)            ;
+	float B   = V0+A*Ri                  ;
+	if((B*B) > (ipt2K*(1.+A*A))) continue;
+      }
+      float dr  = sqrt(r2)    ;
+      float tz  = dz*dr       ;
+      m_SP[n  ] = sp          ;
+      m_Tz[n  ] = tz          ;
+      m_Zo[n  ] = Z-R*tz      ;
+      m_R [n  ] = dr          ;
+      m_U [n  ] = u           ;
+      m_V [n  ] = v           ;
+      m_Er[n++] = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;
     }
+    if(n==Nb) continue; Nt = n;
+    
+    // Bottom space points information production
+    //
+    n=0;
+    for(int i=0; i!=Nb; ++i) {
+
+      InDet::SiSpacePointForSeed* sp = m_SP[i];  
+
+      float dx  = sp->x()-X   ; 
+      float dy  = sp->y()-Y   ;
+      float dz  = sp->z()-Z   ;
+      float x   = dx*ax+dy*ay ;
+      float y   = dy*ax-dx*ay ;
+      float r2  = 1./(x*x+y*y);
+      float u   = x*r2        ;
+      float v   = y*r2        ;
+
+      sp->spacepoint->clusterList().second ?  Ima = imaxs : Ima = imaxp;
+      
+      if(fabs(R*y) > -Ima*x) {
+
+	float V0  = Ima*Ri2; if(y < 0.) V0 =-V0;
+	float A   = (v-V0)/(u+Ri)              ;
+	float B   = V0+A*Ri                    ;
+	if((B*B) > (ipt2K*(1.+A*A))) continue  ;
+      }
+      float dr  = sqrt(r2)    ;
+      float tz  =-dz*dr       ;
+      m_SP[n  ] = sp          ;
+      m_Tz[n  ] = tz          ;
+      m_Zo[n  ] = Z-R*tz      ;
+      m_R [n  ] = dr          ;
+      m_U [n  ] = u           ;
+      m_V [n  ] = v           ;
+      m_Er[n++] = ((covz0+sp->covz())+(tz*tz)*(covr0+sp->covr()))*r2;
+    }
+    if(!n) continue; int Nb0 = Nb; Nb = n;
+
     covr0      *= .5;
     covz0      *= 2.;
-   
+
     // Three space points comparison
     //
     for(int b=0; b!=Nb; ++b) {
@@ -1557,8 +1614,8 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
       float  CSA  = Tzb2*COFK    ;
       float ICSA  = Tzb2*ipt2C   ;
       float imax  = imaxp        ; if(m_SP[b]->spacepoint->clusterList().second) imax = imaxs;
-  
-      for(int t=Nb;  t!=Nt; ++t) {
+
+      for(int t=Nb0;  t!=Nt; ++t) {
 	
 	float dT  = ((Tzb-m_Tz[t])*(Tzb-m_Tz[t])-m_R[t]*Rb2z-(Erb+m_Er[t]))-(m_R[t]*Rb2r)*((Tzb+m_Tz[t])*(Tzb+m_Tz[t]));
 	if( dT > ICSA) continue;
@@ -1588,7 +1645,6 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::production3Sp
 ///////////////////////////////////////////////////////////////////
 // Production 3 space points seeds in ROI
 ///////////////////////////////////////////////////////////////////
-
  
 void InDet::SiSpacePointsSeedMaker_ATLxk::production3SpTrigger
 ( std::list<InDet::SiSpacePointForSeed*>::iterator* rb ,
@@ -1888,5 +1944,3 @@ void InDet::SiSpacePointsSeedMaker_ATLxk::fillSeeds ()
     m_seeds.insert(std::make_pair(w,s)); ++m_fillOneSeeds;
   }
 }
-
-
