@@ -1,7 +1,7 @@
 ################################################################################
 # Package: MuonTagTools
 ################################################################################
- 
+
 # Declare the package name:
 atlas_subdir( MuonTagTools )
 
@@ -14,10 +14,13 @@ atlas_depends_on_subdirs( PUBLIC
                           GaudiKernel
                           PhysicsAnalysis/AnalysisCommon/IsolationSelection
                           PhysicsAnalysis/EventTag/TagEvent
+			  PhysicsAnalysis/MuonID/MuonIDAnalysis/MuonMomentumCorrections
                           PhysicsAnalysis/MuonID/MuonSelectorTools
                           PRIVATE
                           Control/AthContainers
                           Event/xAOD/xAODTracking
+			  Event/xAOD/xAODCore
+			  Event/xAOD/xAODParticleEvent
                           PhysicsAnalysis/AnalysisCommon/AnalysisUtils )
 
 # Component(s) in the package:

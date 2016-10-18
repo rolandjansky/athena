@@ -18,6 +18,7 @@ Purpose : build the Muon Tag objects - MuonTagCollection.h.
 #include "GaudiKernel/ToolHandle.h"
 #include <inttypes.h>
 #include "xAODMuon/MuonContainer.h"
+#include "MuonMomentumCorrections/IMuonCalibrationAndSmearingTool.h"
 #include "MuonSelectorTools/IMuonSelectionTool.h"
 #include "IsolationSelection/IIsolationSelectionTool.h"
 #include "xAODEventInfo/EventInfo.h"
@@ -57,12 +58,12 @@ class MuonTagTool : public AthAlgTool {
   inline int bit2int(int b) const { return 1<<b; };
   
   /** private function to get impact parameter */
-  void getMuonImpactParameter (const xAOD::Muon*,double& d0, double& z0);
+  void getMuonImpactParameter (const xAOD::Muon*,double& d0, double& z0, double& d0_significance);
   
   /** Properties */
   std::vector<std::string> m_containerNames;
   std::string m_muon_met_container_name;
-  double m_cut_Et;
+  double m_cut_Pt;
   double m_DRcut;
   std::vector<float> m_etconeisocutvalues;
   std::vector<float> m_etconeisorelcutvalues;
@@ -85,6 +86,9 @@ class MuonTagTool : public AthAlgTool {
   std::vector<std::string> m_nphiLayStr;
   std::vector<std::string> m_isoStr;
   
+  /** we need to fix the momentum */
+  ToolHandle<CP::IMuonCalibrationAndSmearingTool> m_muon_calibration_tool;
+
   /** Since release 20.1.6 we use the analysis muon selector tool */
   ToolHandle<CP::IMuonSelectionTool> m_muon_selection_tool;
   
@@ -94,7 +98,8 @@ class MuonTagTool : public AthAlgTool {
   ToolHandle<CP::IIsolationSelectionTool> m_tight_isolation;
   ToolHandle<CP::IIsolationSelectionTool> m_gradient_loose_isolation;
   ToolHandle<CP::IIsolationSelectionTool> m_gradient_isolation;
-
+  ToolHandle<CP::IIsolationSelectionTool> m_fixedcut_tight_trackonly_isolation;
+  ToolHandle<CP::IIsolationSelectionTool> m_fixedcut_loose_isolation;
 
   /** PV StoreGate key */
   std::string m_vxCandidate;
