@@ -89,7 +89,7 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
     ATH_MSG_FATAL("Vector of mass correction histograms may be empty. Please check your mass calibration file: " << JMSFile);
     return StatusCode::FAILURE;
   }
-  else ATH_MSG_INFO("JMS Tool has been initialized with binning and eta fit factors from: " << fileName << "\n");
+  else ATH_MSG_INFO("JMS Tool has been initialized with binning and eta fit factors from: " << fileName);
 
   // Shoulb be applied the mass combination?
   m_combination = m_config->GetValue("Combination",false); // true: turn on combination of calo mass with track-assisted mass
@@ -135,7 +135,7 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
       ATH_MSG_FATAL("Vector of track assisted mass correction histograms may be empty. Please check your track assisted mass calibration file: " << JMSFile);
       return StatusCode::FAILURE;
     }
-    else ATH_MSG_INFO("JMS Tool has been initialized with binning and eta fit factors from: " << file_trkAssisted_Name << "\n");
+    else ATH_MSG_INFO("JMS Tool has been initialized with binning and eta fit factors from: " << file_trkAssisted_Name);
   }
 
   // Combination
@@ -157,7 +157,7 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
     file_combination_Name = PathResolverFindCalibFile(Combination_File.Data());
     inputFile_combination = TFile::Open(file_combination_Name);
     if (!inputFile_combination){
-      ATH_MSG_FATAL("Cannot open Mass Combination Weights file" << fileName);
+      ATH_MSG_FATAL("Cannot open Mass Combination file" << fileName);
       return StatusCode::FAILURE;
     }
 
@@ -181,20 +181,21 @@ StatusCode JMSCorrection::initializeTool(const std::string&) {
     TIter ikeys_combination(keys_combination);
     while ( TKey *iterobj = (TKey*)ikeys_combination() ) {
       TString histoName = iterobj->GetName();
-      if ( histoName.Contains("CaloMass") && histoName.Contains(combObj.Data()) ) m_caloFactorsMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
-      if ( histoName.Contains("TAMass") && histoName.Contains(combObj.Data()) )  m_taFactorsMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
+      if ( histoName.Contains("CaloMass") && histoName.Contains(combObj.Data()) ) m_caloResolutionMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
+      if ( histoName.Contains("TAMass") && histoName.Contains(combObj.Data()) )  m_taResolutionMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
+      if ( histoName.Contains("Correlation") && histoName.Contains(combObj.Data()) )  m_correlationMapMassCombination.push_back( (TH2D*)JetCalibUtils::GetHisto2(inputFile_combination,histoName.Data()) );
     }
 
     //Make sure we put something in the vector of TH2Ds
-    if ( m_caloFactorsMassCombination.size() < 1 ) {
+    if ( m_caloResolutionMassCombination.size() < 1 ) {
       ATH_MSG_FATAL("Vector of mass combination histograms with calo factors may be empty. Please check your mass combination file: " << JMSFile);
       return StatusCode::FAILURE;
     }
-    else if ( m_taFactorsMassCombination.size() < 1 ) {
+    else if ( m_taResolutionMassCombination.size() < 1 ) {
       ATH_MSG_FATAL("Vector of mass combination histograms with trk-assisted factors may be empty. Please check your mass combination file: " << JMSFile);
       return StatusCode::FAILURE;
     }
-    else ATH_MSG_INFO("JMS Tool has been initialized with mass combination weights from: " << file_combination_Name << "\n");
+    else ATH_MSG_INFO("JMS Tool has been initialized with mass combination weights from: " << file_combination_Name);
   }
 
   return StatusCode::SUCCESS;
@@ -233,38 +234,55 @@ float JMSCorrection::getTrackAssistedMassCorr(double pT_uncorr, double m_uncorr,
   return mass_corr;
 }
 
-float JMSCorrection::getCaloFactor(double pT_uncorr, double m_over_pt_uncorr, int etabin) const {
+float JMSCorrection::getRelCalo(double pT_uncorr, double m_over_pt_uncorr, int etabin) const {
 
   // Asymptotic values
-  double pTMax = m_caloFactorsMassCombination[etabin]->GetXaxis()->GetBinLowEdge(m_caloFactorsMassCombination[etabin]->GetNbinsX()+1);
-  double pTMin = m_caloFactorsMassCombination[etabin]->GetXaxis()->GetBinLowEdge(1);
-  double mass_over_pTMax = m_caloFactorsMassCombination[etabin]->GetYaxis()->GetBinLowEdge(m_caloFactorsMassCombination[etabin]->GetNbinsY()+1);
-  double mass_over_pTMin = m_caloFactorsMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
+  double pTMax = m_caloResolutionMassCombination[etabin]->GetXaxis()->GetBinLowEdge(m_caloResolutionMassCombination[etabin]->GetNbinsX()+1);
+  double pTMin = m_caloResolutionMassCombination[etabin]->GetXaxis()->GetBinLowEdge(1);
+  double mass_over_pTMax = m_caloResolutionMassCombination[etabin]->GetYaxis()->GetBinLowEdge(m_caloResolutionMassCombination[etabin]->GetNbinsY()+1);
+  double mass_over_pTMin = m_caloResolutionMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
   if ( m_over_pt_uncorr > mass_over_pTMax ) m_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
   if ( m_over_pt_uncorr < mass_over_pTMin ) m_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
 
-  float wgt = m_caloFactorsMassCombination[etabin]->Interpolate( pT_uncorr, m_over_pt_uncorr );
+  float rel = m_caloResolutionMassCombination[etabin]->Interpolate( pT_uncorr, m_over_pt_uncorr );
 
-  return wgt;
+  return rel;
 }
 
-float JMSCorrection::getTAFactor(double pT_uncorr, double m_over_pt_uncorr, int etabin) const {
+float JMSCorrection::getRelTA(double pT_uncorr, double m_over_pt_uncorr, int etabin) const {
 
   // Asymptotic values
-  double pTMax = m_taFactorsMassCombination[etabin]->GetXaxis()->GetBinLowEdge(m_taFactorsMassCombination[etabin]->GetNbinsX()+1);
-  double pTMin = m_taFactorsMassCombination[etabin]->GetXaxis()->GetBinLowEdge(1);
-  double mass_over_pTMax = m_taFactorsMassCombination[etabin]->GetYaxis()->GetBinLowEdge(m_taFactorsMassCombination[etabin]->GetNbinsY()+1);
-  double mass_over_pTMin = m_taFactorsMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
+  double pTMax = m_taResolutionMassCombination[etabin]->GetXaxis()->GetBinLowEdge(m_taResolutionMassCombination[etabin]->GetNbinsX()+1);
+  double pTMin = m_taResolutionMassCombination[etabin]->GetXaxis()->GetBinLowEdge(1);
+  double mass_over_pTMax = m_taResolutionMassCombination[etabin]->GetYaxis()->GetBinLowEdge(m_taResolutionMassCombination[etabin]->GetNbinsY()+1);
+  double mass_over_pTMin = m_taResolutionMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
   if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
   if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
   if ( m_over_pt_uncorr > mass_over_pTMax ) m_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
   if ( m_over_pt_uncorr < mass_over_pTMin ) m_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
 
-  float wgt = m_taFactorsMassCombination[etabin]->Interpolate( pT_uncorr, m_over_pt_uncorr );
+  float rel = m_taResolutionMassCombination[etabin]->Interpolate( pT_uncorr, m_over_pt_uncorr );
 
-  return wgt;
+  return rel;
+}
+
+float JMSCorrection::getRho(double pT_uncorr, double m_over_pt_uncorr, int etabin) const {
+
+  // Asymptotic values
+  double pTMax = m_correlationMapMassCombination[etabin]->GetXaxis()->GetBinLowEdge(m_correlationMapMassCombination[etabin]->GetNbinsX()+1);
+  double pTMin = m_correlationMapMassCombination[etabin]->GetXaxis()->GetBinLowEdge(1);
+  double mass_over_pTMax = m_correlationMapMassCombination[etabin]->GetYaxis()->GetBinLowEdge(m_correlationMapMassCombination[etabin]->GetNbinsY()+1);
+  double mass_over_pTMin = m_correlationMapMassCombination[etabin]->GetYaxis()->GetBinLowEdge(1);
+  if ( pT_uncorr > pTMax ) pT_uncorr = pTMax-1e-6 ; //so it fits the up-most pt-bin
+  if ( pT_uncorr < pTMin ) pT_uncorr = pTMin+1e-6; //so it fits the low-most pt-bin
+  if ( m_over_pt_uncorr > mass_over_pTMax ) m_over_pt_uncorr = mass_over_pTMax-1e-6; //so it fits the up-most m_over_pt-bin
+  if ( m_over_pt_uncorr < mass_over_pTMin ) m_over_pt_uncorr = mass_over_pTMin+1e-6; //so it fits the low-most m_over_pt-bin
+
+  float rho = m_correlationMapMassCombination[etabin]->Interpolate( pT_uncorr, m_over_pt_uncorr );
+
+  return rho;
 }
 
 
@@ -337,10 +355,14 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
     xAOD::JetConstituentVector constituents = jet.getConstituents();
     int nconstituents = constituents.size();
     float trackSumMass;
-    if( !jet.getAttribute<float>("TrackSumMass",trackSumMass) ) {
+    std::string TrackSumMassStr = "TrackSumMass";
+    if(m_jetAlgo=="AntiKt4EMTopo" || m_jetAlgo=="AntiKt4LCTopo") TrackSumMassStr = "DFCommonJets_TrackSumMass";
+    std::string TrackSumPtStr = "TrackSumPt";
+    if(m_jetAlgo=="AntiKt4EMTopo" || m_jetAlgo=="AntiKt4LCTopo") TrackSumPtStr = "DFCommonJets_TrackSumPt";
+    if( !jet.getAttribute<float>(TrackSumMassStr,trackSumMass) ) {
       if(!m_combination){
         //ATH_MSG_WARNING("Failed to retrieve TrackSumMass! Track Assisted Mass Correction will NOT be applied\n\n");
-        if(m_warning_counter_mTACorr==0) ATH_MSG_WARNING("Failed to retrieve TrackSumMass! Track Assisted Mass Correction will NOT be applied\n\n");
+        if(m_warning_counter_mTACorr==0) ATH_MSG_WARNING("Failed to retrieve TrackSumMass! Track Assisted Mass Correction will NOT be applied");
         m_warning_counter_mTACorr++;
         return StatusCode::SUCCESS;
       } else{
@@ -349,10 +371,10 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       }
     }
     float trackSumPt;
-    if( !jet.getAttribute<float>("TrackSumPt",trackSumPt) ) {
+    if( !jet.getAttribute<float>(TrackSumPtStr,trackSumPt) ) {
       if(!m_combination){
         //ATH_MSG_WARNING("Failed to retrieve TrackSumPt! Track Assisted Mass Correction will NOT be applied\n\n");
-        if(m_warning_counter_mTACorr==0) ATH_MSG_WARNING("Failed to retrieve TrackSumPt! Track Assisted Mass Correction will NOT be applied\n\n");
+        if(m_warning_counter_mTACorr==0) ATH_MSG_WARNING("Failed to retrieve TrackSumPt! Track Assisted Mass Correction will NOT be applied");
         m_warning_counter_mTACorr++;
         return StatusCode::SUCCESS;
       } else{
@@ -414,11 +436,11 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
       else {
         // Determine mass combination eta bin to use
         int etabin=-99;
-        if (m_massCombinationEtaBins.size()==0 || m_caloFactorsMassCombination.size() != m_massCombinationEtaBins.size()-1){
+        if (m_massCombinationEtaBins.size()==0 || m_caloResolutionMassCombination.size() != m_massCombinationEtaBins.size()-1){
 	  ATH_MSG_FATAL("Please check that the mass combination eta binning is properly set in your config file");
 	  return StatusCode::FAILURE;
 	}
-        if (m_massCombinationEtaBins.size()==0 || m_taFactorsMassCombination.size() != m_massCombinationEtaBins.size()-1){
+        if (m_massCombinationEtaBins.size()==0 || m_taResolutionMassCombination.size() != m_massCombinationEtaBins.size()-1){
 	  ATH_MSG_FATAL("Please check that the mass combination eta binning is properly set in your config file");
 	  return StatusCode::FAILURE;
 	}
@@ -431,16 +453,16 @@ StatusCode JMSCorrection::calibrateImpl(xAOD::Jet& jet, JetEventInfo&) const {
 	    ATH_MSG_FATAL("There was a problem determining the eta bin to use for the mass combination");
 	    return StatusCode::FAILURE;
 	  }
-	  const double factorCalo = getCaloFactor( pT_calo/m_GeV, m_calo/pT_calo, etabin );
-	  const double factorTA   = getTAFactor( pT_calo/m_GeV, m_ta/pT_calo, etabin );
+	  const double relCalo = getRelCalo( pT_calo/m_GeV, m_calo/pT_calo, etabin );
+	  const double relTA   = getRelTA( pT_calo/m_GeV, m_ta/pT_calo, etabin );
+	  const double rho     = getRho( pT_calo/m_GeV, m_calo/pT_calo, etabin);
           // Watch for division by zero
-          if (factorCalo+factorTA == 0){
-            ATH_MSG_FATAL("Encountered division by zero when calculating mass combination weights");
+          if (relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA == 0){
+            ATH_MSG_FATAL("Encountered division by zero when calculating mass combination weight");
             return StatusCode::FAILURE;
           }
-	  const double caloWeight = factorCalo/(factorCalo+factorTA);
-	  const double TAWeight   = factorTA/(factorCalo+factorTA);
-  	  m_comb  =  ( m_calo * caloWeight ) + ( m_ta * TAWeight );
+	  const double Weight = ( relTA*relTA - rho *relCalo*relTA ) / ( relCalo*relCalo + relTA*relTA - 2 * rho* relCalo * relTA );
+  	  m_comb  =  ( m_calo * Weight ) + ( m_ta * ( 1 - Weight) );
           if(!m_pTfixed) pT_comb = sqrt(jetStartP4.e()*jetStartP4.e()-m_comb*m_comb)/cosh( jetStartP4.eta() );
         }
       }

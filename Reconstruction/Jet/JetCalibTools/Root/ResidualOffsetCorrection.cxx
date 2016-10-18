@@ -57,7 +57,7 @@ StatusCode ResidualOffsetCorrection::initializeTool(const std::string&) {
   TString offsetName = m_config->GetValue("ResidualOffsetCorrection.Name","");
   m_resOffsetDesc = m_config->GetValue(offsetName+".Description","");
   ATH_MSG_INFO("Reading residual jet-area pile-up correction factors from: " << calibFile);
-  ATH_MSG_INFO("Description: " << m_resOffsetDesc << "\n");
+  ATH_MSG_INFO("Description: " << m_resOffsetDesc);
 
   std::vector<double> offsetEtaBins = JetCalibUtils::VectorizeD( m_config->GetValue(offsetName+".AbsEtaBins","") );
   if (offsetEtaBins.size()<3) { ATH_MSG_FATAL(offsetName << ".AbsEtaBins not specified"); return StatusCode::FAILURE; }
@@ -77,7 +77,7 @@ StatusCode ResidualOffsetCorrection::initializeTool(const std::string&) {
   m_applyNPVBeamspotCorrection = m_config->GetValue("ApplyNPVBeamspotCorrection",false);
   if( m_applyNPVBeamspotCorrection) {
     m_npvBeamspotCorr = new NPVBeamspotCorrection();
-    ATH_MSG_INFO("\n  NPV beamspot correction will be applied.\n");
+    ATH_MSG_INFO("\n  NPV beamspot correction will be applied.");
   }
   return StatusCode::SUCCESS;
 }

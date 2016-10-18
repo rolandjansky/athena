@@ -14,6 +14,10 @@
 
 // This will only run in RootCore
 #ifdef ROOTCORE
+
+// System include(s):
+#include <memory>
+
 #include "AsgTools/ToolHandle.h"
 #include "AsgTools/AsgTool.h"
 
@@ -28,6 +32,7 @@
 #include "xAODRootAccess/TEvent.h"
 #include "xAODRootAccess/TStore.h"
 #include "xAODRootAccess/tools/Message.h"
+#include "xAODRootAccess/tools/ReturnCheck.h"
 #include "xAODCore/tools/IOStats.h"
 #include "xAODCore/tools/ReadStats.h"
 #include "xAODCore/ShallowCopy.h"
@@ -97,51 +102,63 @@ int main(int argc, char* argv[]){
 
   if(sample==""){
     std::cout << "No input xAOD file specified, exiting" << std::endl;
-    return 0;
+    return 1;
   }
   if(jetColl==""){
     std::cout << "No jet collection specified, exiting" << std::endl;
-    return 0;
+    return 1;
   }
   if(jetCalibConfig==""){
     std::cout << "No JetCalibTools config specified, exiting" << std::endl;
-    return 0;
+    return 1;
   }
   if(calibSeq==""){
     std::cout << "No calibration sequence specified, exiting" << std::endl;
-    return 0;
+    return 1;
   }
   if(isData==""){
     std::cout << "isData not specified, exiting" << std::endl;
-    return 0;
+    return 1;
   }
   else if(isData=="TRUE") isCollision = true;
 
   // Set up the job for xAOD access:
-  xAOD::Init().ignore();
+  static const char* APP_NAME = "JetCalibTools_Example";
+  RETURN_CHECK( APP_NAME, xAOD::Init() );
  
   //--------------------
   // Opening input file
   //--------------------
-  std::auto_ptr< TFile > ifile( TFile::Open( sample.c_str(), "READ" ) );
+  std::unique_ptr< TFile > ifile( TFile::Open( sample.c_str(), "READ" ) );
 
   // Create a TEvent object.
-  xAOD::TEvent * event = new xAOD::TEvent( xAOD::TEvent::kClassAccess );
-  event->readFrom( ifile.get(), xAOD::TEvent::kClassAccess  );
+  xAOD::TEvent event( xAOD::TEvent::kClassAccess );
+  RETURN_CHECK( APP_NAME, event.readFrom( ifile.get() ) );
 
   // Create a transient object store. Needed for the tools.
-  xAOD::TStore store ;
-  
+  xAOD::TStore store;
+
   //----------------------------------
   // Initialization of JetCalibTools
   //----------------------------------
   const std::string name_JetCalibTools = "JetCalib_Example";
 
   // Call the constructor
-  JetCalibrationTool *m_JetCalibrationTool = new JetCalibrationTool(name_JetCalibTools.c_str(), jetColl.c_str(), jetCalibConfig.c_str(), calibSeq.c_str(), isCollision);
+  JetCalibrationTool jetCalibrationTool(name_JetCalibTools.c_str());
+  RETURN_CHECK(APP_NAME,
+               jetCalibrationTool.setProperty("JetCollection",
+                                              jetColl.c_str()));
+  RETURN_CHECK(APP_NAME,
+               jetCalibrationTool.setProperty("CalibSequence",
+                                              calibSeq.c_str()));
+  RETURN_CHECK(APP_NAME,
+               jetCalibrationTool.setProperty("ConfigFile",
+                                              jetCalibConfig.c_str()));
+  RETURN_CHECK(APP_NAME,
+               jetCalibrationTool.setProperty("IsData",isCollision));
 
   // Initialize the tool
-  if(!(m_JetCalibrationTool->initializeTool(name_JetCalibTools).isSuccess())){
+  if(!(jetCalibrationTool.initialize().isSuccess())){
     std::cout << "Initialization of JetCalibTools failed, exiting" << std::endl;
     return 0;
   }
@@ -150,83 +167,29 @@ int main(int argc, char* argv[]){
   // Loop over events
   //------------------
 
-  Long64_t nevents = event->getEntries();
+  const Long64_t nevents = event.getEntries();
   for(Long64_t ievent = 0;  ievent < nevents; ++ievent){
- 
+
+     // Load the event:
+     if( event.getEntry( ievent ) < 0 ) {
+        std::cerr << "Failed to load entry " << ievent << std::endl;
+        return 1;
+     }
+
     // Show status
     if(ievent % 100==0) std::cout << "Event " << ievent << " of " << nevents << std::endl;
 
     // Retrieve jet container
     const xAOD::JetContainer* jets = 0;
-    if(jetColl == "AntiKt4EMTopo"){
-      if( !(event->retrieve( jets, "AntiKt4EMTopoJets" ).isSuccess()) ){
-        std::cout << "Failed to retrieve AntiKt4EMTopoJets container. Exiting." << std::endl;
-        return 0;
-      }
-    }
-    else if(jetColl == "AntiKt4EMPFlow"){
-      if( !(event->retrieve( jets, "AntiKt4EMPFlowJets" ).isSuccess()) ){
-        std::cout << "Failed to retrieve AntiKt4EMPFlowJets container. Exiting." << std::endl;
-        return 0;
-      }
-    }
-    else if(jetColl == "AntiKt4LCTopo"){
-      if( !(event->retrieve( jets, "AntiKt4LCTopoJets" ).isSuccess()) ){
-        std::cout << "Failed to retrieve AntiKt4LCTopoJets container. Exiting." << std::endl;
-        return 0;
-      }
-    }
-    else if(jetColl == "AntiKt2LCTopo"){
-      if( !(event->retrieve( jets, "AntiKt2LCTopoJets" ).isSuccess()) ){
-        std::cout << "Failed to retrieve AntiKt2LCTopoJets container. Exiting." << std::endl;
-        return 0;
-      }
-    }
-    else if(jetColl == "AntiKt3LCTopo"){
-      if( !(event->retrieve( jets, "AntiKt3LCTopoJets" ).isSuccess()) ){
-        std::cout << "Failed to retrieve AntiKt3LCTopoJets container. Exiting." << std::endl;
-        return 0;
-      }
-    }
-    else if(jetColl == "AntiKt5LCTopo"){
-      if( !(event->retrieve( jets, "AntiKt5LCTopoJets" ).isSuccess()) ){
-        std::cout << "Failed to retrieve AntiKt5LCTopoJets container. Exiting." << std::endl;
-        return 0;
-      }
-    }
-    else if(jetColl == "AntiKt6LCTopo"){
-      if( !(event->retrieve( jets, "AntiKt6LCTopoJets" ).isSuccess()) ){
-        std::cout << "Failed to retrieve AntiKt6LCTopoJets container. Exiting." << std::endl;
-        return 0;
-      }
-    }
-    else if(jetColl == "AntiKt7LCTopo"){
-      if( !(event->retrieve( jets, "AntiKt7LCTopoJets" ).isSuccess()) ){
-        std::cout << "Failed to retrieve AntiKt7LCTopoJets container. Exiting." << std::endl;
-        return 0;
-      }
-    }
-    else if(jetColl == "AntiKt8LCTopo"){
-      if( !(event->retrieve( jets, "AntiKt8LCTopoJets" ).isSuccess()) ){
-        std::cout << "Failed to retrieve AntiKt8LCTopoJets container. Exiting." << std::endl;
-        return 0;
-      }
-    }
-    else if(jetColl == "AntiKt10LCTopoTrimmedPtFrac5SmallR30"){
-      if( !(event->retrieve( jets, "AntiKt10LCTopoTrimmedPtFrac5SmallR30Jets" ).isSuccess()) ){
-        std::cout << "Failed to retrieve AntiKt10LCTopoTrimmedPtFrac5SmallR30Jets container. Exiting." << std::endl;
-        return 0;
-      }
-    }
+    RETURN_CHECK( APP_NAME, event.retrieve( jets, jetColl + "Jets" ) );
 
     // Shallow copy 
-    std::pair< xAOD::JetContainer*, xAOD::ShallowAuxContainer* > jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
+    auto jets_shallowCopy = xAOD::shallowCopyContainer( *jets );
 
     // Iterate over the shallow copy
-    xAOD::JetContainer::iterator jetSC_itr = (jets_shallowCopy.first)->begin();
-    xAOD::JetContainer::iterator jetSC_end = (jets_shallowCopy.first)->end();
-    for( ; jetSC_itr != jetSC_end; ++jetSC_itr ) {
-      m_JetCalibrationTool->applyCalibration(**jetSC_itr);
+    for( xAOD::Jet* jet : *( jets_shallowCopy.first ) ) {
+       RETURN_CHECK( APP_NAME,
+                     jetCalibrationTool.applyCalibration( *jet ) );
       // Do something
     }
     delete jets_shallowCopy.first;
@@ -234,13 +197,9 @@ int main(int argc, char* argv[]){
   
   }//END: Loop over events
 
-  delete event;
-  delete m_JetCalibrationTool;
-  
   xAOD::IOStats::instance().stats().printSmartSlimmingBranchList();
 
   return 0;
-
 }
 
 #endif
