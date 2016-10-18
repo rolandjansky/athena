@@ -4,7 +4,8 @@
 #include "TrigEgammaEmulationTool/TrigEgammaL1SelectorTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaL2CaloSelectorTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaL2CaloRingerSelectorTool.h"
-#include "TrigEgammaEmulationTool/TrigEgammaL2HelperSelectorTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaL2ElectronSelectorTool.h"
+#include "TrigEgammaEmulationTool/TrigEgammaL2SelectorTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEFCaloSelectorTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEFElectronSelectorTool.h"
 #include "TrigEgammaEmulationTool/TrigEgammaEFPhotonSelectorTool.h"
@@ -14,7 +15,8 @@
 DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEmulationTool)   
 DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaSelectorBaseTool)   
 DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL1SelectorTool)   
-DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL2HelperSelectorTool) 
+DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL2SelectorTool) 
+DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL2ElectronSelectorTool) 
 DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL2CaloSelectorTool) 
 DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaL2CaloRingerSelectorTool) 
 DECLARE_NAMESPACE_TOOL_FACTORY(Trig,TrigEgammaEFCaloSelectorTool)   
@@ -27,7 +29,8 @@ DECLARE_FACTORY_ENTRIES(TrigEgammaEmulationTool) {
   DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaEmulationTool)
   DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaSelectorBaseTool)
   DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL1SelectorTool)
-  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL2HelperSelectorTool)
+  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL2SelectorTool)
+  DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL2ElectronSelectorTool)
   DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL2CaloSelectorTool)
   DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaL2CaloRingerSelectorTool)
   DECLARE_NAMESPACE_TOOL(Trig,TrigEgammaEFCaloSelectorTool)

@@ -12,10 +12,10 @@
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 
 // ******* For track isolation ********************************************
-#include "xAODPrimitives/IsolationType.h"
-#include "xAODPrimitives/IsolationCorrection.h"
-#include "RecoToolInterfaces/IsolationCommon.h"
-#include "RecoToolInterfaces/ITrackIsolationTool.h"
+//#include "xAODPrimitives/IsolationType.h"
+//#include "xAODPrimitives/IsolationCorrection.h"
+//#include "RecoToolInterfaces/IsolationCommon.h"
+//#include "RecoToolInterfaces/ITrackIsolationTool.h"
 //#include "InDetTrackSelectionTool/InDetTrackSelectionTool.h"
 // ************************************************************************
 
@@ -38,28 +38,39 @@ class TrigEgammaEFElectronSelectorTool:
     StatusCode initialize();
     StatusCode finalize(); 
 
-    bool emulation( const xAOD::IParticleContainer*, bool&, const std::string&);
+    bool emulation( const xAOD::IParticleContainer*, bool&, const Trig::Info &);
   
   private:
 
-    bool ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname);
-    bool ApplyOnlElectronPid(const xAOD::Electron *eg, const std::string pidname);
-    bool emulatePidSelection(const HLT::TriggerElement *te, const std::string pidname);
-    bool emulateIsolation(const HLT::TriggerElement *te);
+    bool ApplyElectronPid(const xAOD::Electron *eg, const std::string pidname, double avgmu);
+    bool ApplyIsolation(const xAOD::Electron *, bool);
 
     // ToolHandles
-    // In python order will matter. Should always be tight, medium, loose
-    // Order no longer important since using a map
-    ///*! Offline isEM Selectors */
+    /*! Offline isEM Selectors */
     ToolHandleArray<IAsgElectronIsEMSelector>   m_electronOnlIsEMTool;
     /*! Offline LH Selectors */
     ToolHandleArray<IAsgElectronLikelihoodTool> m_electronOnlLHTool;
     /*! Online LH Selector for emulation*/ 
     ToolHandleArray<IAsgElectronLikelihoodTool>  m_electronTrigOnlLHTool;
     /*! Track Isolation Tool */ 
-    ToolHandle<xAOD::ITrackIsolationTool> m_trackIsolationTool;
-    
-    std::map< std::string, unsigned int > m_PidToolMap; /*! Pass a string to pick up correct selector */
+    //ToolHandle<xAOD::ITrackIsolationTool> m_trackIsolationTool;
+   
+    // Likelihood extra info 
+    std::string m_lhinfo;
+
+    //Isolation
+    bool m_applyIsolation; 
+    unsigned int m_EtConeSizes;
+    unsigned int m_PtConeSizes;
+    bool m_useClusETforCaloIso;
+    bool m_useClusETforTrackIso;
+    std::vector<float> m_RelEtConeCut;
+    std::vector<float> m_EtConeCut;
+    std::vector<float> m_RelPtConeCut;
+    std::vector<float> m_RelPtConeCut_var;
+    std::vector<float> m_PtConeCut;
+    std::map<int, std::string> m_mapEtCone,m_mapPtCone;
+    std::map<int, std::string> m_mapRelEtCone,m_mapRelPtCone;
 
 };
 

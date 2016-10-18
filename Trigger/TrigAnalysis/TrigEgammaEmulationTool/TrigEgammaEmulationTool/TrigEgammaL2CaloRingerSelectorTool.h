@@ -27,12 +27,12 @@ class TrigEgammaL2CaloRingerSelectorTool:
 
     StatusCode initialize();
     StatusCode finalize(); 
-    bool emulation( const xAOD::TrigEMCluster*, bool &, const std::string&);
+    bool emulation( const xAOD::TrigEMCluster*, bool &, const Trig::Info &);
 
   private:
-    //Is good emulator?
-    bool is_correct_trigger(const std::string&);
 
+    void setEtThr( float et ){m_etCut=et;};
+    
     std::string m_pidname;
     std::string m_signature;
     std::string m_str_etthr;

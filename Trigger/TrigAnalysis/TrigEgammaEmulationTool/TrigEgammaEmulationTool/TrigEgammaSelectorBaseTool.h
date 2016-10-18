@@ -8,8 +8,21 @@
 
 #include "AsgTools/AsgTool.h"
 #include "TrigDecisionTool/TrigDecisionTool.h"
+#include "LumiBlockComps/ILumiBlockMuTool.h"
+#include "LumiBlockComps/ILuminosityTool.h"
 #include "AthContainers/AuxElement.h"
 #include "TrigEgammaEmulationTool/ITrigEgammaSelectorBaseTool.h"
+#include <bitset>
+
+
+//define RINGER_OFFLINE_PACKAGES
+#ifdef RINGER_OFFLINE_PACKAGES
+//////////////////////// Ringer Offline //////////////////////////
+#include "xAODCaloRings/RingSetContainer.h"                     //
+#include "xAODCaloRings/CaloRingsContainer.h"                   //
+#include "xAODCaloRings/tools/getCaloRingsDecorator.h"          //
+//////////////////////////////////////////////////////////////////
+#endif
 
 
 namespace Trig{
@@ -21,7 +34,6 @@ namespace Trig{
     public:
 
       //using ITrigEgammaSelectorBaseTool::emulation;
-
       TrigEgammaSelectorBaseTool(const std::string& myname);
       ~TrigEgammaSelectorBaseTool(){;}
 
@@ -31,38 +43,40 @@ namespace Trig{
       //FIXME: static_cast for IParticleContainer to EmTau and emCluster
       //doent work. Because this I add these extra methods. Need to check
       //how generate this for these levels.
-      bool emulation(const xAOD::EmTauRoI               *, bool&, const std::string&){return true;};
-      bool emulation(const xAOD::TrigEMCluster          *, bool&, const std::string&){return true;};
-      //generic method
-      bool emulation(const xAOD::IParticleContainer     *, bool&, const std::string&){return true;};
+      bool emulation(const xAOD::EmTauRoI               *, bool&, const Trig::Info &){return true;};
+      bool emulation(const xAOD::TrigEMCluster          *, bool&, const Trig::Info &){return true;};
+      bool emulation(const xAOD::IParticleContainer     *, bool&, const Trig::Info &){return true;};
 
       //parser TDT tool as a pointer
       void setParents(ToolHandle<Trig::TrigDecisionTool> &t, StoreGateSvc *s){ m_trigdec=&(*t); m_storeGate=s; };
       void setParents(Trig::TrigDecisionTool *t, StoreGateSvc *s){ m_trigdec=t; m_storeGate=s; };
 
+      void setTe(const HLT::TriggerElement *te){m_te=te;}; 
 
     protected:
-      /*! Simple setter to pick up correct probe PID for given trigger */
-      void parseTriggerName(const std::string,const std::string, bool&, std::string &,
-                            float &, float &, std::string &,std::string &, bool&, bool&);
-      /*! Split double object trigger in two simple object trigger */
-      bool splitTriggerName(const std::string, std::string &, std::string &);
-      /*! Creates static map to return L1 item from trigger name */
-      std::string getL1Item(std::string trigger);
-      /*! Map for pid names */
-      std::string getPid(const std::string);
       /* dress decision */
       void dressDecision(const SG::AuxElement*, std::string, bool);
+      /* Offline rings helper method for feature extraction from xaod */
+      bool getCaloRings( const xAOD::Electron *, std::vector<float> & );
+      /* Trigger rings helper method for feature extraction from xaod */
+      const xAOD::TrigRingerRings* getTrigCaloRings( const xAOD::TrigEMCluster * );
+      /* DettaR  */
+      float dR(const float, const float, const float, const float );
 
+      float getOnlAverageMu();
+      float getAverageMu();
+ 
+      //******************************************************************
       template<class T> const T* getFeature(const HLT::TriggerElement* te,const std::string key="");
       template<class T> bool ancestorPassed(const HLT::TriggerElement* te,const std::string key="");
-      /* trig rings and offline rings helper method for feature extraction from xaod */
-      bool getCaloRings( const xAOD::Electron *, std::vector<float> & );
-      const xAOD::TrigRingerRings* getTrigCaloRings( const xAOD::TrigEMCluster * );
-      float dR(const float, const float, const float, const float );
+      //******************************************************************
       
-      StoreGateSvc           *m_storeGate;
-      Trig::TrigDecisionTool *m_trigdec;
+     
+      ToolHandle<ILumiBlockMuTool>     m_lumiBlockMuTool; // This would retrieve the online <mu>
+      ToolHandle<ILuminosityTool>      m_lumiTool; // This would retrieve the offline <mu>
+      StoreGateSvc                    *m_storeGate;
+      Trig::TrigDecisionTool          *m_trigdec;
+      const HLT::TriggerElement       *m_te;
   };
 
 

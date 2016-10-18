@@ -39,11 +39,11 @@ namespace Trig{
             virtual bool EventWiseContainer()=0;
 
             virtual const Root::TAccept& executeTool( const HLT::TriggerElement *, const std::string & )=0;
-            virtual const Root::TAccept& executeTool( const xAOD::Egamma*, const std::string &, const std::string & )=0;
             virtual const Root::TAccept& executeTool( const std::string & )=0;
-
             virtual bool isPassed(const std::string&)=0;
             virtual bool isPassed(const std::string&, const std::string&)=0;
+            virtual const Root::TAccept& getAccept()=0;
+
 
         private:
     };
