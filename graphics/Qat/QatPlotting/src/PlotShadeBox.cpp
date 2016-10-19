@@ -71,7 +71,7 @@ PlotShadeBox::~PlotShadeBox(){
 
 
 
-const QRectF & PlotShadeBox::rectHint() const {
+const QRectF  PlotShadeBox::rectHint() const {
   return c->nRectangle;
 }
 
@@ -162,7 +162,7 @@ void PlotShadeBox::describeYourselfTo(AbsPlotter * plotter) const {
 
 }
 
-const PlotShadeBox::Properties & PlotShadeBox::properties() const { 
+const PlotShadeBox::Properties  PlotShadeBox::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 

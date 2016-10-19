@@ -35,6 +35,7 @@ class AbsFunction;
 #include <vector>
 #include <string>
 #include <limits.h>
+#include <memory>
 
 namespace Genfun {
   class AbsFunction;
@@ -58,13 +59,13 @@ public:
   PlotOrbit(const PlotOrbit &);
 
   // Assignment operator:
-  PlotOrbit & operator=(const PlotOrbit &); 
+  PlotOrbit & operator=(const PlotOrbit &);
 
   // Destructor
   virtual ~PlotOrbit();
 
   // Get the "natural rectangular border"
-  virtual const QRectF & rectHint() const;
+  virtual const QRectF  rectHint() const;
 
   // Describe to plotter, in terms of primitives:
   virtual void describeYourselfTo(AbsPlotter *plotter) const;
@@ -76,12 +77,12 @@ public:
   void resetProperties();
 
   // Get the properties (either default, or specific)
-  const Properties &properties () const;
+  const Properties properties () const;
   
 protected:
 
   class Clockwork;
-  Clockwork *c;
+  std::unique_ptr<Clockwork> c;
   
 
 };

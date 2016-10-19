@@ -42,11 +42,31 @@
 class PlotHist1D::Clockwork {
 public:
   
-  Clockwork() : histogram(nullptr),
-		myProperties(nullptr) {}
+  Clockwork() : histogram(nullptr), nRectangle(),
+		myProperties(nullptr), defaultProperties() {}
 
   ~Clockwork() {delete myProperties;}
-    
+  
+  //copy
+  Clockwork(const Clockwork & other){
+  	histogram = other.histogram;//shared histogram pointer
+  	nRectangle  = other.nRectangle;
+  	myProperties = (other.myProperties)?(new Properties(*(other.myProperties))):nullptr;
+  	defaultProperties=other.defaultProperties;
+  }
+  
+  /**
+  Clockwork & operator=(const Clockwork & other){
+    if (&other !=this){
+			histogram = other.histogram;//shared histogram pointer
+			nRectangle  = other.nRectangle;
+			delete myProperties;
+			myProperties = (other.myProperties)?(new Properties(*(other.myProperties))):nullptr;
+			defaultProperties=other.defaultProperties;
+    }
+    return *this;
+  }
+  **/
   // This is state:
   const Hist1D                          *histogram;         // The histogram
   QRectF                                 nRectangle;        // The "natural" bounding rectangle
@@ -90,39 +110,28 @@ PlotHist1D::PlotHist1D(const Hist1D & histogram):
 
 // Copy constructor:
 PlotHist1D::PlotHist1D(const PlotHist1D & source):
-  Plotable(),c(new Clockwork())
+  Plotable(),c(new Clockwork(*(source.c)))
 {
-  c->histogram=source.c->histogram;
-  c->nRectangle=source.c->nRectangle;
-  if (source.c->myProperties) c->myProperties = new Properties(*source.c->myProperties);
-  
+
 }
 
-// Assignment operator:
+/** Assignment operator:
 PlotHist1D & PlotHist1D::operator=(const PlotHist1D & source)
 {
   if (&source!=this) {
-    c->histogram=source.c->histogram;
-    c->nRectangle=source.c->nRectangle;
-    if (c->myProperties) delete c->myProperties;
-    if (source.c->myProperties) {
-      c->myProperties = new Properties(*source.c->myProperties);
-    }else {
-      c->myProperties=nullptr;
-    }
-    c->defaultProperties = source.c->defaultProperties;
+    c.reset(new Clockwork(*(source.c)));
   }
   return *this;
 } 
-
+**/
 
 // Destructor
 PlotHist1D::~PlotHist1D(){
-  delete c;
+  //delete c;
 }
 
 
-const QRectF & PlotHist1D::rectHint() const {
+const QRectF  PlotHist1D::rectHint() const {
 
   double yMin=FLT_MAX;
   double yMax=FLT_MIN;
@@ -397,20 +406,17 @@ const Hist1D *PlotHist1D::histogram() const {
   return c->histogram;
 }
 
-const PlotHist1D::Properties & PlotHist1D::properties() const { 
+const PlotHist1D::Properties  PlotHist1D::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 
 void PlotHist1D::setProperties(const Properties &  properties) { 
-  if (!c->myProperties) {
-    c->myProperties = new Properties(properties);
-  }
-  else {
-    *c->myProperties=properties;
-  }
+  delete c->myProperties;
+  c->myProperties= new Properties(properties);
 }
 
 void PlotHist1D::resetProperties() {
   delete c->myProperties;
+  c->myProperties=nullptr;
 }
 

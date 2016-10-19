@@ -68,7 +68,7 @@ PlotBox::~PlotBox(){
 
 
 // Get the "natural maximum R"
-const QRectF & PlotBox::rectHint() const {
+const QRectF PlotBox::rectHint() const {
   return c->rectangle;
 }
 
@@ -118,7 +118,7 @@ void PlotBox::describeYourselfTo(AbsPlotter *plotter) const{
 
 
 
-const PlotBox::Properties & PlotBox::properties() const { 
+const PlotBox::Properties  PlotBox::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 

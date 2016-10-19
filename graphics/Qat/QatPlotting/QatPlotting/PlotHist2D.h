@@ -28,10 +28,17 @@
 #ifndef _PLOTHIST2D_H_
 #define _PLOTHIST2D_H_
 #include "QatPlotting/Plotable.h"
-#include "QatPlotting/PlotHist2DProperties.h"
-#include <QtCore/QRectF>
-#include <vector>
+//#include "QatPlotting/PlotHist2DProperties.h"
+//#include <QtCore/QRectF>
+//#include <vector>
+#include <memory>
+
 class Hist2D;
+//class PlotHist2DProperties; < The graphics/Qat/QatPlotWidgets package needs this here
+#include "QatPlotting/PlotHist2DProperties.h"
+class QrectF;
+class AbsPlotter;
+
 class PlotHist2D: public Plotable {
 
 public:
@@ -47,13 +54,13 @@ public:
   PlotHist2D(const PlotHist2D &);
 
   // Assignment operator:
-  PlotHist2D & operator=(const PlotHist2D &); 
+  PlotHist2D & operator=(const PlotHist2D &) = delete;
 
   // Destructor
   virtual ~PlotHist2D();
 
   // Get the "natural rectangular border"
-  virtual const QRectF & rectHint() const;
+  virtual const QRectF  rectHint() const;
 
   // Describe to plotter, in terms of primitives:
   virtual void describeYourselfTo(AbsPlotter *plotter) const;
@@ -68,12 +75,12 @@ public:
   void resetProperties();
 
   // Get the properties (either default, or specific)
-  const Properties &properties () const;
+  const Properties properties () const;
 
 private:
 
   class Clockwork;
-  Clockwork *c;
+  std::unique_ptr<Clockwork> c;
   
 };
 #endif

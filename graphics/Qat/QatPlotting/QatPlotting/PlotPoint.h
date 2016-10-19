@@ -25,6 +25,7 @@
 #include "QatPlotting/Plotable.h"
 #include "QatPlotting/PlotPointProperties.h"
 #include <QtCore/QRectF>
+#include <memory>
 
 class PlotPoint: public Plotable {
 
@@ -40,7 +41,7 @@ public:
   virtual ~PlotPoint();
 
   // Get the "natural rectangular border"
-  virtual const QRectF & rectHint() const;
+  virtual const QRectF  rectHint() const;
 
   // Describe to plotter, in terms of primitives:
   virtual void describeYourselfTo(AbsPlotter *plotter) const;
@@ -52,7 +53,7 @@ public:
   void resetProperties();
 
   // Get the properties (either default, or specific)
-  const Properties &properties () const;
+  const Properties properties () const;
   
   // Copy constructor:
   PlotPoint(const PlotPoint &);
@@ -63,7 +64,7 @@ public:
 private:
 
   class Clockwork;
-  Clockwork *c;
+  std::unique_ptr<Clockwork> c;
 
 };
 #endif

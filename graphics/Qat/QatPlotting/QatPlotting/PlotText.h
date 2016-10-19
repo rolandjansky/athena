@@ -40,7 +40,7 @@ public:
   virtual ~PlotText();
 
   // Get the "natural rectangular border"
-  virtual const QRectF & rectHint() const;
+  virtual const QRectF  rectHint() const;
 
   // Describe to plotter, in terms of primitives:
   virtual void describeYourselfTo(AbsPlotter *plotter) const;

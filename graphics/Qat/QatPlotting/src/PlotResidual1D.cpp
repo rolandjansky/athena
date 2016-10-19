@@ -41,11 +41,37 @@
 
 class PlotResidual1D::Clockwork {
 public:
-  
+  //Clockwork doesn't own the histogram pointer
   Clockwork() : histogram(nullptr), function(nullptr), nRectangle(),
-		myProperties(nullptr), defaultProperties() {}
+    myProperties(nullptr), defaultProperties() {}
 
-  ~Clockwork() {if (myProperties) delete myProperties; myProperties=nullptr; }
+  ~Clockwork() {
+    delete myProperties; 
+    delete function; 
+  }
+  
+  //copy
+  Clockwork(const Clockwork & other){
+    histogram = other.histogram; // same histogram is shared
+    function = other.function->clone();
+    nRectangle = other.nRectangle;
+    myProperties = (other.myProperties)?new Properties(*(other.myProperties)):nullptr;
+    defaultProperties=other.defaultProperties;
+  }
+  
+  //assign
+  Clockwork & operator=(const Clockwork & other){
+    if (&other != this){
+      histogram = other.histogram;
+      delete function;
+      function = other.function->clone();
+      nRectangle = other.nRectangle;
+      delete myProperties;
+      myProperties = (other.myProperties)?new Properties(*(other.myProperties)):nullptr;
+      defaultProperties=other.defaultProperties;
+    }
+    return *this;
+  }
     
   // This is state:
   const Hist1D                          *histogram;         // The histogram
@@ -59,7 +85,6 @@ public:
 PlotResidual1D::PlotResidual1D(const Hist1D & histogram, Genfun::GENFUNCTION function):
   Plotable(),c(new Clockwork())
 {
-
   c->histogram=&histogram;
   c->function = function.clone();
   double yMin=FLT_MAX;
@@ -92,29 +117,17 @@ PlotResidual1D::PlotResidual1D(const Hist1D & histogram, Genfun::GENFUNCTION fun
 
 // Copy constructor:
 PlotResidual1D::PlotResidual1D(const PlotResidual1D & source):
-  Plotable(),c(new Clockwork())
+  Plotable(),c(new Clockwork(*(source.c)))
 {
-  
-  c->histogram=source.c->histogram;
-  c->function = source.c->function->clone();
-  c->nRectangle=source.c->nRectangle;
-  if (source.c->myProperties) c->myProperties = new Properties(*source.c->myProperties);
-  
+ 
 }
 
 // Assignment operator:
 PlotResidual1D & PlotResidual1D::operator=(const PlotResidual1D & source)
 {
   if (&source!=this) {
-    c->histogram=source.c->histogram;
-    if (c->function) delete c->function;
-    c->function = source.c->function->clone();
-    c->nRectangle=source.c->nRectangle;
-    if (c->myProperties) delete c->myProperties;
-    c->myProperties=nullptr;
-    if (source.c->myProperties) {
-      c->myProperties = new Properties(*source.c->myProperties);
-    }
+    Plotable::operator=(source);
+    c.reset(new Clockwork(*(source.c)));
   }
   return *this;
 } 
@@ -122,12 +135,11 @@ PlotResidual1D & PlotResidual1D::operator=(const PlotResidual1D & source)
 
 // Destructor
 PlotResidual1D::~PlotResidual1D(){
-  delete c->function;
-  delete c;
+  //delete c;
 }
 
 
-const QRectF & PlotResidual1D::rectHint() const {
+const QRectF  PlotResidual1D::rectHint() const {
   return c->nRectangle;
 }
 
@@ -143,7 +155,6 @@ void PlotResidual1D::describeYourselfTo(AbsPlotter *plotter) const {
 
   QMatrix m=plotter->matrix(),mInverse=m.inverted();
 
-
   for (unsigned int i=0;i<c->histogram->nBins();i++) {
     double x = plotter->isLogX() ? (*toLogX) (c->histogram->binCenter(i)) : c->histogram->binCenter(i);
     double y = plotter->isLogY() ? (*toLogY) (c->histogram->bin(i)-(*c->function)(x)) : c->histogram->bin(i)-(*c->function)(x);
@@ -152,9 +163,9 @@ void PlotResidual1D::describeYourselfTo(AbsPlotter *plotter) const {
     
     QPointF loc(x, y );
     QSizeF  siz(symbolSize,symbolSize);
-    QPointF ctr(siz.width()/2.0, siz.height()/2.0);
-    QPointF had(siz.width()/2.0, 0);
-    QPointF vad(0,siz.height()/2.0);
+    QPointF ctr(siz.width()*0.5, siz.height()*0.5);
+    QPointF had(siz.width()*0.5, 0);
+    QPointF vad(0,siz.height()*0.5);
     
     QPointF plus(x,ydyp);
     QPointF mnus(x,ydym);
@@ -162,29 +173,29 @@ void PlotResidual1D::describeYourselfTo(AbsPlotter *plotter) const {
     if (plotter->rect()->contains(loc)) {
       QAbstractGraphicsShapeItem *shape=NULL;
       if (symbolStyle==PlotResidual1D::Properties::CIRCLE) {
-	shape = new QGraphicsEllipseItem(QRectF(m.map(loc)-ctr,siz));
+  shape = new QGraphicsEllipseItem(QRectF(m.map(loc)-ctr,siz));
       }
       else if (symbolStyle==PlotResidual1D::Properties::SQUARE) {
-	shape = new QGraphicsRectItem(QRectF(m.map(loc)-ctr,siz));
+  shape = new QGraphicsRectItem(QRectF(m.map(loc)-ctr,siz));
       }
       else if (symbolStyle==PlotResidual1D::Properties::TRIANGLE_U) {
-	QVector<QPointF> points;
-	points.push_back(m.map(loc)-ctr+(QPointF(0,symbolSize)));
-	points.push_back(m.map(loc)-ctr+(QPointF(symbolSize,symbolSize)));
-	points.push_back(m.map(loc)-ctr+(QPointF(symbolSize/2,0)));
-	points.push_back(m.map(loc)-ctr+(QPointF(0,symbolSize)));
-	shape = new QGraphicsPolygonItem(QPolygonF(points));
+				QVector<QPointF> points;
+				points.push_back(m.map(loc)-ctr+(QPointF(0,symbolSize)));
+				points.push_back(m.map(loc)-ctr+(QPointF(symbolSize,symbolSize)));
+				points.push_back(m.map(loc)-ctr+(QPointF(symbolSize*0.5,0)));
+				points.push_back(m.map(loc)-ctr+(QPointF(0,symbolSize)));
+				shape = new QGraphicsPolygonItem(QPolygonF(points));
       }
       else if (symbolStyle==PlotResidual1D::Properties::TRIANGLE_L) {
-	QVector<QPointF> points;
-	points.push_back(m.map(loc)-ctr+(QPointF(0,            0)));
-	points.push_back(m.map(loc)-ctr+(QPointF(symbolSize,   0)));
-	points.push_back(m.map(loc)-ctr+(QPointF(symbolSize/2, symbolSize)));
-	points.push_back(m.map(loc)-ctr+(QPointF(0,            0)));
-	shape = new QGraphicsPolygonItem(QPolygonF(points));
+				QVector<QPointF> points;
+				points.push_back(m.map(loc)-ctr+(QPointF(0,            0)));
+				points.push_back(m.map(loc)-ctr+(QPointF(symbolSize,   0)));
+				points.push_back(m.map(loc)-ctr+(QPointF(symbolSize*0.5, symbolSize)));
+				points.push_back(m.map(loc)-ctr+(QPointF(0,            0)));
+				shape = new QGraphicsPolygonItem(QPolygonF(points));
       }
       else {
-	throw std::runtime_error("In PlotResidual1D:  unknown plot symbol");
+       throw std::runtime_error("In PlotResidual1D:  unknown plot symbol");
       }
       
       shape->setPen(pen);
@@ -193,67 +204,67 @@ void PlotResidual1D::describeYourselfTo(AbsPlotter *plotter) const {
       plotter->group()->addToGroup(shape);
       
       {
-	QLineF  pLine(m.map(loc)-vad, m.map(plus));
-	if (plotter->rect()->contains(plus)) {
-	  QGraphicsLineItem *line=new QGraphicsLineItem(pLine);
-	  line->setPen(pen);
-	  line->setMatrix(mInverse);
-	  plotter->scene()->addItem(line);
-	  plotter->group()->addToGroup(line);
-	  
-	  QGraphicsLineItem *topLine=new QGraphicsLineItem(QLineF(m.map(plus)+had,m.map(plus)-had));
-	  topLine->setPen(pen);
-	  topLine->setMatrix(mInverse);
-	  plotter->scene()->addItem(topLine);
-	  plotter->group()->addToGroup(topLine);
-	  
-	}
-	else {
-	  QPointF intersection;
-	  QLineF bottomLine(plotter->rect()->bottomLeft(),plotter->rect()->bottomRight());
-	  QLineF::IntersectType type=bottomLine.intersect(QLineF(loc,plus),&intersection);
-	  if (type==QLineF::BoundedIntersection) {
-	    QPointF plus=intersection;
-	    QLineF  pLine(m.map(loc)-vad, m.map(plus));
-	    QGraphicsLineItem *line=new QGraphicsLineItem(pLine);
-	    line->setPen(pen);
-	    line->setMatrix(mInverse);
-	    plotter->scene()->addItem(line);
-	    plotter->group()->addToGroup(line);
-	  }
-	}
+  QLineF  pLine(m.map(loc)-vad, m.map(plus));
+  if (plotter->rect()->contains(plus)) {
+    QGraphicsLineItem *line=new QGraphicsLineItem(pLine);
+    line->setPen(pen);
+    line->setMatrix(mInverse);
+    plotter->scene()->addItem(line);
+    plotter->group()->addToGroup(line);
+    
+    QGraphicsLineItem *topLine=new QGraphicsLineItem(QLineF(m.map(plus)+had,m.map(plus)-had));
+    topLine->setPen(pen);
+    topLine->setMatrix(mInverse);
+    plotter->scene()->addItem(topLine);
+    plotter->group()->addToGroup(topLine);
+    
+  }
+  else {
+    QPointF intersection;
+    QLineF bottomLine(plotter->rect()->bottomLeft(),plotter->rect()->bottomRight());
+    QLineF::IntersectType type=bottomLine.intersect(QLineF(loc,plus),&intersection);
+    if (type==QLineF::BoundedIntersection) {
+      QPointF plus=intersection;
+      QLineF  pLine(m.map(loc)-vad, m.map(plus));
+      QGraphicsLineItem *line=new QGraphicsLineItem(pLine);
+      line->setPen(pen);
+      line->setMatrix(mInverse);
+      plotter->scene()->addItem(line);
+      plotter->group()->addToGroup(line);
+    }
+  }
       }
       
       {
-	QLineF  mLine(m.map(loc)+vad, m.map(mnus));
-	if (plotter->rect()->contains(mnus)) {
-	  QGraphicsLineItem *line=new QGraphicsLineItem(mLine);
-	  line->setPen(pen);
-	  line->setMatrix(mInverse);
-	  plotter->scene()->addItem(line);
-	  plotter->group()->addToGroup(line);
-	  
-	  QGraphicsLineItem *bottomLine=new QGraphicsLineItem(QLineF(m.map(mnus)+had,m.map(mnus)-had));
-	  bottomLine->setPen(pen);
-	  bottomLine->setMatrix(mInverse);
-	  plotter->scene()->addItem(bottomLine);
-	  plotter->group()->addToGroup(bottomLine);
-	  
-	}
-	else {
-	  QPointF intersection;
-	  QLineF topLine(plotter->rect()->topLeft(),plotter->rect()->topRight());
-	  QLineF::IntersectType type=topLine.intersect(QLineF(loc,mnus),&intersection);
-	  if (type==QLineF::BoundedIntersection) {
-	    QPointF mnus=intersection;
-	    QLineF  mLine(m.map(loc)+vad, m.map(mnus));
-	    QGraphicsLineItem *line=new QGraphicsLineItem(mLine);
-	    line->setPen(pen);
-	    line->setMatrix(mInverse);
-	    plotter->scene()->addItem(line);
-	    plotter->group()->addToGroup(line);
-	  }
-	}
+  QLineF  mLine(m.map(loc)+vad, m.map(mnus));
+  if (plotter->rect()->contains(mnus)) {
+    QGraphicsLineItem *line=new QGraphicsLineItem(mLine);
+    line->setPen(pen);
+    line->setMatrix(mInverse);
+    plotter->scene()->addItem(line);
+    plotter->group()->addToGroup(line);
+    
+    QGraphicsLineItem *bottomLine=new QGraphicsLineItem(QLineF(m.map(mnus)+had,m.map(mnus)-had));
+    bottomLine->setPen(pen);
+    bottomLine->setMatrix(mInverse);
+    plotter->scene()->addItem(bottomLine);
+    plotter->group()->addToGroup(bottomLine);
+    
+  }
+  else {
+    QPointF intersection;
+    QLineF topLine(plotter->rect()->topLeft(),plotter->rect()->topRight());
+    QLineF::IntersectType type=topLine.intersect(QLineF(loc,mnus),&intersection);
+    if (type==QLineF::BoundedIntersection) {
+      QPointF mnus=intersection;
+      QLineF  mLine(m.map(loc)+vad, m.map(mnus));
+      QGraphicsLineItem *line=new QGraphicsLineItem(mLine);
+      line->setPen(pen);
+      line->setMatrix(mInverse);
+      plotter->scene()->addItem(line);
+      plotter->group()->addToGroup(line);
+    }
+  }
       }
       
       
@@ -263,20 +274,19 @@ void PlotResidual1D::describeYourselfTo(AbsPlotter *plotter) const {
       QLineF bottomLine(plotter->rect()->bottomLeft(),plotter->rect()->bottomRight());
       QLineF::IntersectType type=bottomLine.intersect(QLineF(loc,mnus),&intersection);
       if (type==QLineF::BoundedIntersection) {
-	QPointF loc=intersection;
-	QLineF  mLine(m.map(loc), m.map(mnus));
-	QGraphicsLineItem *line=new QGraphicsLineItem(mLine);
-	line->setPen(pen);
-	line->setMatrix(mInverse);
-	plotter->scene()->addItem(line);
-	plotter->group()->addToGroup(line);
-	
-	QGraphicsLineItem *bottomLine=new QGraphicsLineItem(QLineF(m.map(mnus)+had,m.map(mnus)-had));
-	bottomLine->setPen(pen);
-	bottomLine->setMatrix(mInverse);
-	plotter->scene()->addItem(bottomLine);
-	plotter->group()->addToGroup(bottomLine);
-	
+        QPointF loc=intersection;
+        QLineF  mLine(m.map(loc), m.map(mnus));
+        QGraphicsLineItem *line=new QGraphicsLineItem(mLine);
+        line->setPen(pen);
+        line->setMatrix(mInverse);
+        plotter->scene()->addItem(line);
+        plotter->group()->addToGroup(line);
+  
+        QGraphicsLineItem *bottomLine=new QGraphicsLineItem(QLineF(m.map(mnus)+had,m.map(mnus)-had));
+        bottomLine->setPen(pen);
+        bottomLine->setMatrix(mInverse);
+        plotter->scene()->addItem(bottomLine);
+        plotter->group()->addToGroup(bottomLine);
       }
     }
     else if (plotter->rect()->contains(plus)) {
@@ -284,20 +294,19 @@ void PlotResidual1D::describeYourselfTo(AbsPlotter *plotter) const {
       QLineF topLine(plotter->rect()->topLeft(),plotter->rect()->topRight());
       QLineF::IntersectType type=topLine.intersect(QLineF(loc,plus),&intersection);
       if (type==QLineF::BoundedIntersection) {
-	QPointF loc=intersection;
-	QLineF  pLine(m.map(loc), m.map(plus));
-	QGraphicsLineItem *line=new QGraphicsLineItem(pLine);
-	line->setPen(pen);
-	line->setMatrix(mInverse);
-	plotter->scene()->addItem(line);
-	plotter->group()->addToGroup(line);
-	
-	QGraphicsLineItem *topLine=new QGraphicsLineItem(QLineF(m.map(plus)+had,m.map(plus)-had));
-	topLine->setPen(pen);
-	topLine->setMatrix(mInverse);
-	plotter->scene()->addItem(topLine);
-	plotter->group()->addToGroup(topLine);
-	
+        QPointF loc=intersection;
+        QLineF  pLine(m.map(loc), m.map(plus));
+        QGraphicsLineItem *line=new QGraphicsLineItem(pLine);
+        line->setPen(pen);
+        line->setMatrix(mInverse);
+        plotter->scene()->addItem(line);
+        plotter->group()->addToGroup(line);
+  
+        QGraphicsLineItem *topLine=new QGraphicsLineItem(QLineF(m.map(plus)+had,m.map(plus)-had));
+        topLine->setPen(pen);
+        topLine->setMatrix(mInverse);
+        plotter->scene()->addItem(topLine);
+        plotter->group()->addToGroup(topLine);
       }
     }
   }
@@ -316,23 +325,20 @@ const Hist1D *PlotResidual1D::histogram() const {
 
 // Get the function:
 const Genfun::AbsFunction *PlotResidual1D::function() const {
-  return c->function;
+  return c->function->clone(); //cloned because the raw pointer is owned by this class
 }
 
-const PlotResidual1D::Properties & PlotResidual1D::properties() const { 
+const PlotResidual1D::Properties  PlotResidual1D::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 
 void PlotResidual1D::setProperties(const Properties &  properties) { 
-  if (!c->myProperties) {
-    c->myProperties = new Properties(properties);
-  }
-  else {
-    *c->myProperties=properties;
-  }
+  delete c->myProperties;
+  c->myProperties = new Properties(properties);
 }
 
 void PlotResidual1D::resetProperties() {
   delete c->myProperties;
+  c->myProperties=nullptr;
 }
 

@@ -45,29 +45,17 @@ PlotOrbit::PlotOrbit(const Genfun::AbsFunction & functionX,
 
 // Copy constructor:
 PlotOrbit::PlotOrbit(const PlotOrbit & source):
-  Plotable(),c(new Clockwork())
+  Plotable(),c(new Clockwork(*(source.c)))
 {
-  c->functionX=source.c->functionX->clone();
-  c->functionY=source.c->functionY->clone();
-  c->rect=source.c->rect;
-  c->t0=source.c->t0;
-  c->t1=source.c->t1;
+  
 
 }
 
 // Assignment operator:
 PlotOrbit & PlotOrbit::operator=(const PlotOrbit & source){
   if (&source!=this) {
-    if (c->functionX) delete c->functionX;
-    if (c->functionY) delete c->functionY;
-    if (c->myProperties) delete c->myProperties;
-    c->functionX=source.c->functionX->clone();
-    c->functionY=source.c->functionY->clone();
-    c->rect=source.c->rect;
-    c->t0=source.c->t0;
-    c->t1=source.c->t1;
-    c->myProperties = source.c->myProperties ? new Properties(*source.c->myProperties):nullptr;
-
+    Plotable::operator=(source);
+    c.reset(new Clockwork(*(source.c)));
   }
   return *this;
 } 
@@ -76,12 +64,12 @@ PlotOrbit & PlotOrbit::operator=(const PlotOrbit & source){
 #include <iostream>
 // Destructor
 PlotOrbit::~PlotOrbit(){
-  delete c;
+  //delete c;
 }
 
 
 
-const QRectF & PlotOrbit::rectHint() const {
+const QRectF  PlotOrbit::rectHint() const {
   static const int NSTEPS=500;// Synch to value in describeYourself();
   double interval = (c->t1-c->t0);
   double d=interval/NSTEPS;
@@ -219,19 +207,16 @@ void PlotOrbit::describeYourselfTo(AbsPlotter *plotter) const {
 }
 
 
-const PlotOrbit::Properties & PlotOrbit::properties() const { 
+const PlotOrbit::Properties PlotOrbit::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 
 void PlotOrbit::setProperties(const Properties &  properties) { 
-  if (!c->myProperties) {
-    c->myProperties = new Properties(properties);
-  }
-  else {
-    *c->myProperties=properties;
-  }
+  delete c->myProperties;
+  c->myProperties=new Properties(properties);
 }
 
 void PlotOrbit::resetProperties() {
   delete c->myProperties;
+  c->myProperties=nullptr;
 }

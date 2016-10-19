@@ -38,7 +38,6 @@ PlotFunction1D::PlotFunction1D(const Genfun::AbsFunction & function,
 {
   c->function=function.clone();
   c->rect=naturalRectangle;
-  c->domainRestriction=NULL;
 }
 
 PlotFunction1D::PlotFunction1D(const Genfun::AbsFunction & function,
@@ -53,38 +52,30 @@ PlotFunction1D::PlotFunction1D(const Genfun::AbsFunction & function,
 
 // Copy constructor:
 PlotFunction1D::PlotFunction1D(const PlotFunction1D & source):
-  Plotable(),c(new Clockwork())
+  Plotable(),c(new Clockwork(*(source.c)))
 {
-  c->function=source.c->function->clone();
-  c->rect=source.c->rect;
-  c->domainRestriction=source.c->domainRestriction ? source.c->domainRestriction->clone() : nullptr;
+ 
 }
 
-// Assignment operator:
+ //Assignment operator:
 PlotFunction1D & PlotFunction1D::operator=(const PlotFunction1D & source){
   if (&source!=this) {
-    if (c->function) delete c->function;
-    c->function=source.c->function->clone();
-    c->rect=source.c->rect;
-    if (c->domainRestriction) delete c->domainRestriction; 
-    c->domainRestriction = source.c->domainRestriction ? source.c->domainRestriction->clone() : nullptr;
-    if (c->myProperties) delete c->myProperties; 
-    c->myProperties = source.c->myProperties;
-    c->defaultProperties = source.c->defaultProperties;
+    Plotable::operator=(source);
+ 		c.reset(new Clockwork(*(source.c)));
   }
   return *this;
 } 
- 
+
 
 #include <iostream>
 // Destructor
 PlotFunction1D::~PlotFunction1D(){
-  delete c;
+  //delete c;
 }
 
 
 
-const QRectF & PlotFunction1D::rectHint() const {
+const QRectF  PlotFunction1D::rectHint() const {
   return c->rect;
 }
 
@@ -258,19 +249,16 @@ void PlotFunction1D::describeYourselfTo(AbsPlotter *plotter) const {
 }
 
 
-const PlotFunction1D::Properties & PlotFunction1D::properties() const { 
+const PlotFunction1D::Properties  PlotFunction1D::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 
 void PlotFunction1D::setProperties(const Properties &  properties) { 
-  if (!c->myProperties) {
-    c->myProperties = new Properties(properties);
-  }
-  else {
-    *c->myProperties=properties;
-  }
+  delete c->myProperties;
+  c->myProperties=new Properties(properties);
 }
 
 void PlotFunction1D::resetProperties() {
   delete c->myProperties;
+  c->myProperties=nullptr;
 }

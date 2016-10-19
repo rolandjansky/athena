@@ -40,8 +40,8 @@ class PlotText::Clockwork {
 
   Clockwork():point(),textDocument(nullptr),nRect(nullptr){}
   ~Clockwork() {
-    if (textDocument) delete textDocument; textDocument=nullptr;
-    if (nRect) delete nRect; nRect=nullptr;
+    delete textDocument; textDocument=nullptr;
+    delete nRect; nRect=nullptr;
   }
 
 
@@ -55,16 +55,18 @@ class PlotText::Clockwork {
 PlotText::PlotText (const PlotText & right):Plotable(),c(new Clockwork()){
   c->point=right.c->point;
   c->textDocument=right.c->textDocument->clone();
-  c->nRect=nullptr;
+  delete c->nRect;
+  c->nRect=new QRectF(*(right.c->nRect));
 }
 
 PlotText & PlotText::operator=(const PlotText & right) {
   if (&right!=this) {
+    Plotable::operator=(right);
+    delete c;
+    c=new Clockwork();
     c->point=right.c->point;
-    if (c->textDocument) delete c->textDocument;
-    c->textDocument =  nullptr;
     if (right.c->textDocument) c->textDocument=right.c->textDocument->clone();
-    c->nRect=nullptr;
+    c->nRect=new QRectF(*(right.c->nRect));
   }
   return *this;
 }
@@ -88,7 +90,7 @@ PlotText::~PlotText(){
 
 
 // Get the "natural maximum R"
-const QRectF & PlotText::rectHint() const {
+const QRectF  PlotText::rectHint() const {
   if (!c->nRect) {
     QGraphicsTextItem aux;
     aux.setDocument(c->textDocument);

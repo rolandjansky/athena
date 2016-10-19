@@ -23,30 +23,52 @@
 #include "QatDataAnalysis/Hist2D.h"
 #include "QatPlotting/PlotHist2D.h"
 #include "QatPlotting/AbsPlotter.h"
-#include "QatPlotting/LinToLog.h"
-#include <QtGui/QGraphicsRectItem>
+//#include "QatPlotting/LinToLog.h"
+//#include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsScene>
-#include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsEllipseItem>
 #include <QtGui/QGraphicsPolygonItem>
-#include <QtGui/QGraphicsRectItem>
 #include <QtGui/QGraphicsItemGroup>
 #include <QtGui/QPainterPath>
 #include <QtGui/QGraphicsPathItem>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <cfloat>
+//#include <iostream>
+//#include <iomanip>
+//#include <sstream>
+//#include <cfloat>
+//added, sroe
+//#include "QatPlotting/PlotHist2DProperties.h"
+#include <QtCore/QRectF>
+
 // Constructor
 
 class PlotHist2D::Clockwork {
 public:
   
-  Clockwork() : histogram(nullptr),
-		myProperties(nullptr) {}
+  Clockwork() : histogram(nullptr), nRectangle(),
+		myProperties(nullptr), defaultProperties() {}
 
-  ~Clockwork() {if (myProperties) delete myProperties;}
-    
+  ~Clockwork() {delete myProperties;}
+  
+  //copy
+  Clockwork(const Clockwork & other){
+    histogram = other.histogram; //objects share the pointer
+    nRectangle = other.nRectangle;
+    myProperties= (other.myProperties)?(new Properties(*(other.myProperties))):nullptr;
+    defaultProperties=other.defaultProperties;
+  }
+  
+  /**
+	Clockwork & operator=(const Clockwork & other){
+	  if (&other !=this){
+			histogram = other.histogram; //objects share the pointer
+			nRectangle = other.nRectangle;
+			delete myProperties;
+			myProperties= (other.myProperties)?(new Properties(*(other.myProperties))):nullptr;
+			defaultProperties=other.defaultProperties;
+		}
+		return *this;
+	}
+  **/
   // This is state:
   const Hist2D                          *histogram;         // The histogram
   QRectF                                 nRectangle;        // The "natural" bounding rectangle
@@ -67,40 +89,28 @@ PlotHist2D::PlotHist2D(const Hist2D & histogram):
 
 // Copy constructor:
 PlotHist2D::PlotHist2D(const PlotHist2D & source):
-  Plotable(),c(new Clockwork())
+  Plotable(),c(new Clockwork(*(source.c)))
 {
-  c->histogram=source.c->histogram;
-  c->nRectangle=source.c->nRectangle;
-  if (source.c->myProperties) c->myProperties = new Properties(*source.c->myProperties);
   
 }
 
-// Assignment operator:
+/** Assignment operator:
 PlotHist2D & PlotHist2D::operator=(const PlotHist2D & source)
 {
   if (&source!=this) {
-    c->histogram=source.c->histogram;
-    c->nRectangle=source.c->nRectangle;
-    delete c->myProperties;
-    if (source.c->myProperties) {
-      c->myProperties = new Properties(*source.c->myProperties);
-    }
-    else {
-      c->myProperties=nullptr;
-    }
-    c->defaultProperties = source.c->defaultProperties;
+    c.reset(new Clockwork(*(source.c)));
   }
   return *this;
 } 
-
+**/
 
 // Destructor
 PlotHist2D::~PlotHist2D(){
-  delete c;
+  //delete c;
 }
 
 
-const QRectF & PlotHist2D::rectHint() const {
+const QRectF  PlotHist2D::rectHint() const {
   return c->nRectangle;
 }
 
@@ -114,36 +124,38 @@ void PlotHist2D::describeYourselfTo(AbsPlotter *plotter) const {
   if (plotter->isLogX()) return;
   if (plotter->isLogY()) return;
 
-
-  double max = c->histogram->maxContents(); 
-  for (unsigned int i=0;i<c->histogram->nBinsX();i++) {
-    for (unsigned int j=0;j<c->histogram->nBinsY();j++) {
+  const auto & theHistogram=*(c->histogram);
+  const double max = theHistogram.maxContents(); 
+  const double inverseMax=1.0/max;
+  const double wx = theHistogram.binWidthX();
+  const double wy = theHistogram.binWidthY();
+  for (unsigned int i=0;i<theHistogram.nBinsX();i++) {
+    for (unsigned int j=0;j<theHistogram.nBinsY();j++) {
       
-      double bin = c->histogram->bin(i,j);
+      double bin = theHistogram.bin(i,j);
       if (bin==0) continue;
       
-      double x = c->histogram->binCenterX(i,j);
-      double y = c->histogram->binCenterY(i,j);
-      double wx = c->histogram->binWidthX();
-      double wy = c->histogram->binWidthY();
-      
-      double frac = bin/(max);
-      double sqfrac = sqrt(frac);
-      
-      double minX =  x - wx*sqfrac/2.0;
-      double maxX =  x + wx*sqfrac/2.0;
-      double minY =  y - wy*sqfrac/2.0;
-      double maxY =  y + wy*sqfrac/2.0;
-      
-      if (plotter->rect()->contains(QPointF(minX, minY)) ||
-	  plotter->rect()->contains(QPointF(minX, maxY)) ||
-	  plotter->rect()->contains(QPointF(maxX, maxY)) ||
-	  plotter->rect()->contains(QPointF(maxX, minY)) ) {
+      double x = theHistogram.binCenterX(i,j);
+      double y = theHistogram.binCenterY(i,j);
+
+      const double frac = bin*inverseMax;
+      const double sqfrac = sqrt(frac);
+      const double dx = wx*sqfrac*0.5;
+      const double dy = wy*sqfrac*0.5;
+      double minX =  x - dx;
+      double maxX =  x + dx;
+      double minY =  y - dy;
+      double maxY =  y + dy;
+      const auto & thisRectangle = plotter->rect();
+      if (thisRectangle->contains(QPointF(minX, minY)) ||
+	  thisRectangle->contains(QPointF(minX, maxY)) ||
+	  thisRectangle->contains(QPointF(maxX, maxY)) ||
+	  thisRectangle->contains(QPointF(maxX, minY)) ) {
 	
-	minX = std::max(c->histogram->minX(), minX);
-	minY = std::max(c->histogram->minY(), minY);
-	maxX = std::min(c->histogram->maxX(), maxX);
-	maxY = std::min(c->histogram->maxY(), maxY);
+	minX = std::max(theHistogram.minX(), minX);
+	minY = std::max(theHistogram.minY(), minY);
+	maxX = std::min(theHistogram.maxX(), maxX);
+	maxY = std::min(theHistogram.maxY(), maxY);
 
 	QPainterPath path;
 	path.moveTo(m.map(QPointF(minX,minY)));
@@ -172,20 +184,17 @@ const Hist2D *PlotHist2D::histogram() const {
   return c->histogram;
 }
 
-const PlotHist2D::Properties & PlotHist2D::properties() const { 
+const PlotHist2D::Properties  PlotHist2D::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 
 void PlotHist2D::setProperties(const Properties &  properties) { 
-  if (!c->myProperties) {
-    c->myProperties = new Properties(properties);
-  }
-  else {
-    *c->myProperties=properties;
-  }
+  delete c->myProperties;
+  c->myProperties = new Properties(properties);
 }
 
 void PlotHist2D::resetProperties() {
   delete c->myProperties;
+  c->myProperties=nullptr;
 }
 

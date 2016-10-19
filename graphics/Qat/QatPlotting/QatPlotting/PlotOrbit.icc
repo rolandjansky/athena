@@ -14,19 +14,46 @@ public:
   Clockwork() :
     functionX(nullptr),
     functionY(nullptr),
+    rect(),
     t0(0.0), t1(1.0),
-    myProperties(nullptr) {}
+    myProperties(nullptr),
+    defaultProperties() {}
 
   ~Clockwork() {
-    if (functionX) delete functionX;
-    if (functionY) delete functionY;
-    if (myProperties) delete myProperties;
+    delete functionX;
+    delete functionY;
+    delete myProperties;
+  }
+  
+  //copy
+  Clockwork(const Clockwork & other){
+    functionX=(other.functionX)?(other.functionX->clone()):nullptr;
+    functionY=(other.functionY)?(other.functionY->clone()):nullptr;
+    rect=other.rect;
+    t0=other.t0; t1=other.t1;
+    myProperties=(other.myProperties)?(new Properties(*(other.myProperties))):nullptr;
+    defaultProperties=other.defaultProperties;
+  }
+  
+  //assign
+  Clockwork & operator=(const Clockwork & other){
+    if (&other != this){
+    	delete functionX;
+    	functionX=(other.functionX)?(other.functionX->clone()):nullptr;
+			delete functionY;
+    	functionY=(other.functionY)?(other.functionY->clone()):nullptr;
+    	rect=other.rect;
+    	t0=other.t0; t1=other.t1;
+      delete myProperties;
+      myProperties=(other.myProperties)?(new Properties(*(other.myProperties))):nullptr;
+      defaultProperties=other.defaultProperties;
+    }
+    return *this;
+  
   }
 
 
 public:
-
-
   static bool intersect(const QRectF * rect, const QPointF & p1, const QPointF & p2, QPointF & p) {
     
     double min=rect->top();
@@ -39,12 +66,12 @@ public:
     }
     else if (y1 < min || y2 < min) {
       if (QLineF(p1,p2).intersect(QLineF(rect->topLeft(),rect->topRight()),&p)!=QLineF::BoundedIntersection){
-	return false;
+	    return false;
       }
     }
     else if (y1 > max || y2 > max) {
       if (QLineF(p1,p2).intersect(QLineF(rect->bottomLeft(),rect->bottomRight()),&p)!=QLineF::BoundedIntersection){
-	return false;
+	    return false;
       }
     }
     return true;
@@ -107,7 +134,7 @@ public:
 
 private:
   
-  Clockwork (const Clockwork &);
-  Clockwork & operator=(const Clockwork &);
+  //Clockwork (const Clockwork &);
+  //Clockwork & operator=(const Clockwork &);
   
 };
