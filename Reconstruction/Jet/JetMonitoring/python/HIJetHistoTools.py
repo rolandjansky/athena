@@ -30,16 +30,17 @@ compactSpecification = {
     "HECFrac"          : (("HEC Fraction;HEC fraction;", 50, -0.1, 1.4),  ("HECFrac", "float") ),
     "Timing"           : (("Jet Time info;Time;", 40, -20, 20) ,     ("Timing", "float") ),    
     "LArQuality"       : (("LAr quality;Energy;", 50, -0.4, 1.2),  ("LArQuality", "float") ),
-    
-
+    "ptN"              : (("Jet Pt;Pt [GeV];", 250, 0., 5000.) ,     ("pt","float","gev" ) ), 
+    "SumPtTrkPt1000"   : (("Sum Pt of all tracks above 1GeV:SumPt;", 100,0,200), ("SumPtTrkPt1000", "vector<float>", "gev") ),
     ## Jet Cleaning variables ##
-    "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",50,-0.1, 5.), ("AverageLArQF", "float") ),
+    "AverageLArQF"     : (("Average LAr QF;AverageLArQF;",100,0, 65535), ("AverageLArQF", "float") ),
     "HECQuality"       : (("HEC Quality;HEC Quality;",50,-0.1, 1.4), ("HECQuality", "float") ),
     "FracSamplingMax"  : (("FracSamplingMax; FracSamplingMax;",50,-0.1, 1.2), ("FracSamplingMax", "float") ),
     # binning optimisation from Emma Tolley 
     #"FracSamplingMaxIndex" : (("FracSamplingMaxIndex; FracSamplingMaxIndex;",23,0,23), ("FracSamplingMaxIndex", "int") ),
     "FracSamplingMaxIndex" : (("FracSamplingMaxIndex; FracSamplingMaxIndex;",24,0,24), ("FracSamplingMaxIndex", "int") ),
-    
+    "N90Constituents"  : (("N90Constituents; N90Constituents;",15,0,15), ("N90Constituents", "float") ),
+  
     # 2D Histo format is
     # "histoname" : ( binning, attributeInfo1, attributeInfo2 )
     # where
@@ -154,6 +155,16 @@ jhm.addTool( HIJetUEMonitoring("centrality",
             hdef('2dSubtractedET_Centrality', "UnsubScMomentum-SubScMomentum vs FCalET; FCal ET [TeV]; SubtractedET [GeV]",50,0,10,40,0,200 ),
             
             hdef('2dSubtractedET_Expected_Centrality', "(UnsubScMomentum-SubScMomentum)/Expected vs FCalET; FCal ET [TeV]; (A^{Jet}/A^{FCal})xSubtractedET/FCalET",50,0,10,100,0,5 ),
+
+            hdef('2dSubtractedET_Expected_eta', "(UnsubScMomentum-SubScMomentum)/Expected vs #eta; #eta; (A^{Jet}/A^{FCal})xSubtractedET/FCalET",50,-6,6,100,0,5 ),
+            hdef('SubtractedET_Expected_eta', "(UnsubScMomentum-SubScMomentum)/Expected vs #eta; #eta; (A^{Jet}/A^{FCal})xSubtractedET/FCalET",50,-6,6 ),
+
+            hdef('2dSubtractedET_2Dphi', "UnsubScMomentum-SubScMomentum vs 2|#phi-#Psi_{2}|; 2|#phi-#Psi_{2}|; SubtractedET [GeV]",25,0,3.3, 40,0,200 ),
+
+            hdef('SubtractedET_eta', "UnsubScMomentum-SubScMomentum vs #eta; #eta; SubtractedET [GeV]",50,-6,6 ),
+            hdef('SubtractedET_pt', "UnsubScMomentum-SubScMomentum vs p_{T}; p_{T} [GeV]; SubtractedET [GeV]",100,0,1000 ),
+
+            hdef('SubtractedET_2Dphi', "UnsubScMomentum-SubScMomentum vs 2|#phi-#Psi_{2}|; 2|#phi-#Psi_{2}|; SubtractedET [GeV]",25,0,3.3 ),
 
 # 0-10 %
             hdef('JetUnsubtractedScaleMomentum_pt_0_10', "JetUnsubtractedScaleMomentum p_{T} - 0-10%;p_{T} [GeV]",100,0,300 ),

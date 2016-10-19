@@ -25,10 +25,14 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
         # Draw a set of histo for a particular jet selection :
         selectionAndHistos( "leadingjet" , [ "basickinematics", ] ),
         selectionAndHistos( "subleadingjet" , [ "basickinematics"] ),
-        selectionAndHistos( "60000<pt<100000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_60_100" ),
-        selectionAndHistos( "100000<pt<250000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_100_250" ),
-        selectionAndHistos( "250000<pt<800000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_250_800" ),
-
+        selectionAndHistos( "60000<pt<400000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents", "FracSamplingMax"], "highpt_60_400" ),
+        selectionAndHistos( "400000<pt<1000000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents",  "FracSamplingMax"], "highpt_400_1000" ),
+        selectionAndHistos( "1000000<pt<2500000" , [ "allkinematics", "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF", "N90Constituents",  "FracSamplingMax"], "highpt_1000_2500" ),
+#        selectionAndHistos( "60000<pt<400000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_60_400" ),
+#        selectionAndHistos( "400000<pt<1000000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_400_1000" ),
+#        selectionAndHistos( "1000000<pt<2500000" , [ "allkinematics", "Timing", "EMFrac", "HECFrac", "LArQuality", "AverageLArQF"], "highpt_1000_2500" ),
+        selectionAndHistos( "LooseBadJets" ,  [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematics",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)]),
+        selectionAndHistos( "1.0<eta<1.4" , [  "ptN", "Timing", "EMFrac", "HECFrac", "LArQuality", JetKinematicHistos("kinematicsTileGap",PlotOccupancy=True, PlotAveragePt=True, PlotAverageE=True, PlotNJet=True)], "eta_1_14" ),
         jhm.Width,
 
         # distances between 2 leading jets.
@@ -55,6 +59,8 @@ def commonMonitoringTool(container, refcontainer="", pathSuffix=''):
             jhm.HECQuality,
             jhm.FracSamplingMax,
             jhm.FracSamplingMaxIndex,
+            jhm.N90Constituents,
+            jhm.ptN,
 
             # energy per sampling
             jhm.PreSamplerB,
@@ -138,7 +144,7 @@ if DQMonFlags.useTrigger() :
                                                commonMonitoringTool( "AntiKt4HIJets", pathSuffix='_trig' ),
                                                ] , IntervalType = 6 )
     ToolSvc += athenaMonTool_trig
-    athenaMonTool_trig.TrigDecisionTool =  getattr(ToolSvc, DQMonFlags.nameTrigDecTool().split('/')[-1])
+    athenaMonTool_trig.TrigDecisionTool =  getattr(ToolSvc, DQMonFlags.nameTrigDecTool())
     athenaMonTool_trig.TriggerChain =  "CATEGORY_monitoring_jet"
     #athenaMonTool_trig.TriggerChain =  "HLT_j25,HLT_j60,HLT_j200_jes_PS" 
 #    athenaMonTool_trig.TriggerChain =  "j20 ion"
