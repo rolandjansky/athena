@@ -70,7 +70,7 @@ PlotProfile::~PlotProfile(){
 
 
 
-const QRectF & PlotProfile::rectHint() const {
+const QRectF  PlotProfile::rectHint() const {
   return c->nRectangle;
 }
 
@@ -282,7 +282,7 @@ void PlotProfile::describeYourselfTo(AbsPlotter * plotter) const {
   delete toLogY;
 }
 
-const PlotProfile::Properties & PlotProfile::properties() const { 
+const PlotProfile::Properties  PlotProfile::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 

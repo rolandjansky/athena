@@ -32,6 +32,10 @@
 #include <QtGui/QGraphicsItemGroup>
 #include <QtGui/QPainterPath>
 #include <QtGui/QGraphicsPathItem>
+//added
+#include "QatPlotting/PlotMeasureProperties.h"
+#include <QtCore/QRectF>
+#include <vector>
 
 class PlotMeasure::Clockwork {
 
@@ -70,7 +74,7 @@ PlotMeasure::~PlotMeasure(){
 
 
 
-const QRectF & PlotMeasure::rectHint() const {
+const QRectF  PlotMeasure::rectHint() const {
   return c->nRectangle;
 }
 
@@ -266,7 +270,7 @@ void PlotMeasure::describeYourselfTo(AbsPlotter * plotter) const {
   delete toLogY;
 }
 
-const PlotMeasure::Properties & PlotMeasure::properties() const { 
+const PlotMeasure::Properties  PlotMeasure::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 
@@ -281,5 +285,6 @@ void PlotMeasure::setProperties(const Properties &  properties) {
 
 void PlotMeasure::resetProperties() {
   delete c->myProperties;
+  c->myProperties=nullptr;
 }
 

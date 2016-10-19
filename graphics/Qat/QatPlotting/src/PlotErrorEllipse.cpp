@@ -31,7 +31,7 @@
 #include <sstream>
 namespace{
   const CLHEP::HepVector defaultVector(2);
-};
+}
 
 class PlotErrorEllipse::Clockwork {
 
@@ -150,7 +150,7 @@ PlotErrorEllipse::~PlotErrorEllipse(){
 
 
 // Get the "natural maximum R"
-const QRectF & PlotErrorEllipse::rectHint() const {
+const QRectF  PlotErrorEllipse::rectHint() const {
   return c->nRectangle;
 }
 
@@ -193,7 +193,7 @@ void PlotErrorEllipse::describeYourselfTo(AbsPlotter *plotter) const{
 
 
 
-const PlotErrorEllipse::Properties & PlotErrorEllipse::properties() const { 
+const PlotErrorEllipse::Properties  PlotErrorEllipse::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 

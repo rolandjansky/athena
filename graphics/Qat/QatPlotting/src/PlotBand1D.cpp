@@ -30,6 +30,8 @@
 #include <QtGui/QGraphicsScene>
 #include <stdexcept>
 
+#include "QatPlotting/PlotBand1DProperties.h"
+
 class PlotBand1D::Clockwork {
 
 public:
@@ -39,14 +41,40 @@ public:
     function2(nullptr),
     rect(),
     domainRestriction(nullptr),
-    myProperties(nullptr),defaultProperties() {}
+    myProperties(nullptr),
+    defaultProperties() {}
 
   ~Clockwork() {
-    if (domainRestriction) delete domainRestriction;
-    if (function1) delete function1;
-    if (function2) delete function2;
+    delete function1;
+    delete function2;
+    delete domainRestriction;
+    delete myProperties;
   }
-
+  //copy
+  Clockwork(const Clockwork & other){
+    function1=other.function1->clone();
+    function2=other.function2->clone();
+    rect=other.rect;
+    domainRestriction=other.domainRestriction ? other.domainRestriction->clone() : nullptr;
+    myProperties= (other.myProperties)? (new Properties(*(other.myProperties))) : nullptr;
+    defaultProperties=other.defaultProperties;
+  }
+  
+  /**
+  Clockwork & operator=(const Clockwork& other){
+    if (&other != this){
+			delete function1; function1=other.function1->clone();
+			delete function2;function2=other.function2->clone();
+			rect=other.rect;
+			delete domainRestriction;
+			domainRestriction=other.domainRestriction ? other.domainRestriction->clone() : nullptr;
+			delete myProperties;
+			myProperties= (other.myProperties)? (new Properties(*(other.myProperties))) : nullptr;
+			defaultProperties=other.defaultProperties;
+    }
+    return *this;
+  }
+**/
   static bool intersect(const QRectF * rect, const QPointF & p1, const QPointF & p2, QPointF & p) {
     double min=rect->top();
     double max=rect->bottom();
@@ -121,7 +149,6 @@ PlotBand1D::PlotBand1D(const Genfun::AbsFunction & function1,
   c->function1=function1.clone();
   c->function2=function2.clone();
   c->rect=naturalRectangle;
-  c->domainRestriction=nullptr;
 }
 
 PlotBand1D::PlotBand1D(const Genfun::AbsFunction & function1,
@@ -138,53 +165,38 @@ PlotBand1D::PlotBand1D(const Genfun::AbsFunction & function1,
 
 // Copy constructor:
 PlotBand1D::PlotBand1D(const PlotBand1D & source):
-  Plotable(),c(new Clockwork())
+  Plotable(),c(new Clockwork(*(source.c)))
 {
-  c->function1=source.c->function1->clone();
-  c->function2=source.c->function2->clone();
-  c->rect=source.c->rect;
-  c->domainRestriction=source.c->domainRestriction ? source.c->domainRestriction->clone() : nullptr;
-}
 
+}
+/**
 // Assignment operator:
 PlotBand1D & PlotBand1D::operator=(const PlotBand1D & source){
   if (&source!=this) {
-  //sroe: what should be assigned, and how?
-    if (c->function1) delete c->function1;
-    if (c->function2) delete c->function2;
-    c->function1=source.c->function1->clone();
-    c->function2=source.c->function2->clone();
-    c->rect=source.c->rect;
-    if (c->myProperties) delete c->myProperties;
-    c->myProperties = (source.c->myProperties)? (new Properties(*(source.c->myProperties))) : nullptr;
-    delete c->domainRestriction;
-    c->domainRestriction = (source.c->domainRestriction) ? (source.c->domainRestriction->clone()) : nullptr;
+ 		c.reset(new Clockwork(*(source.c)));
   }
   return *this;
 } 
- 
+ **/
 
 #include <iostream>
 // Destructor
 PlotBand1D::~PlotBand1D(){
-  delete c;
+  //not necessary if using unique_ptr
+  //delete c;
 }
 
 
 
-const QRectF & PlotBand1D::rectHint() const {
+const QRectF  PlotBand1D::rectHint() const {
   return c->rect;
 }
 
 
 // Get the graphic description::
 void PlotBand1D::describeYourselfTo(AbsPlotter *plotter) const {
-  
-
   QPen pen = properties().pen;
   QBrush brush=properties().brush;
-
-
   QMatrix m=plotter->matrix(),mInverse=m.inverted();
 
   {
@@ -336,19 +348,16 @@ void PlotBand1D::describeYourselfTo(AbsPlotter *plotter) const {
 
 
 
-const PlotBand1D::Properties & PlotBand1D::properties() const { 
+const PlotBand1D::Properties PlotBand1D::properties() const { 
   return c->myProperties ? *c->myProperties : c->defaultProperties;
 }
 
 void PlotBand1D::setProperties(const Properties &  properties) { 
-  if (!c->myProperties) {
-    c->myProperties = new Properties(properties);
-  }
-  else {
-    *c->myProperties=properties;
-  }
+  delete c->myProperties;
+  c->myProperties=new Properties(properties);
 }
 
 void PlotBand1D::resetProperties() {
   delete c->myProperties;
+  c->myProperties=nullptr;
 }

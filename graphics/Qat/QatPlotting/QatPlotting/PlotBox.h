@@ -47,7 +47,7 @@ public:
   virtual ~PlotBox();
 
   // Get the "natural rectangular border"
-  virtual const QRectF & rectHint() const;
+  virtual const QRectF  rectHint() const;
 
   // Describe to plotter, in terms of primitives:
   virtual void describeYourselfTo(AbsPlotter *plotter) const;
@@ -60,7 +60,7 @@ public:
   void resetProperties();
 
   // Get the properties (either default, or specific)
-  const Properties &properties () const;
+  const Properties properties () const;
 
 
 private:

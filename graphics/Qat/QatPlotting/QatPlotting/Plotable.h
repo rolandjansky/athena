@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------//
 #ifndef _PLOTABLE_H_
 #define _PLOTABLE_H_
-#include <string>
+
 class QRectF;
 class AbsPlotter;
 class Plotable {
@@ -49,7 +49,7 @@ public:
   virtual ~Plotable();
 
   // Get the "natural rectangular border"
-  virtual const QRectF & rectHint() const=0;
+  virtual const QRectF  rectHint() const=0;
 
   // Describe to plotter, in terms of primitives:
   virtual void describeYourselfTo (AbsPlotter *plotter) const =0;
