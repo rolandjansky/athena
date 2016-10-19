@@ -14,6 +14,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 0 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1.2 y = -2.3 z = 226.6 detector = DummyHitDetector
 ReadData             INFO Hit x = 4.4 y = -8.0 z = 94.7 detector = DummyHitDetector
 ReadData             INFO Hit x = 7.6 y = -13.7 z = 70.2 detector = DummyHitDetector
@@ -35,6 +36,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 6 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 601.2 y = -2.3 z = -373.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 604.4 y = -8.0 z = -505.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 607.6 y = -13.7 z = -529.7 detector = DummyHitDetector
@@ -56,6 +58,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 9 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 901.2 y = -2.3 z = -673.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 904.4 y = -8.0 z = -805.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 907.6 y = -13.7 z = -829.7 detector = DummyHitDetector
@@ -77,6 +80,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 12 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1201.2 y = -2.3 z = -973.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 1204.4 y = -8.0 z = -1105.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 1207.6 y = -13.7 z = -1129.7 detector = DummyHitDetector
@@ -98,6 +102,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 15 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1501.2 y = -2.3 z = -1273.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 1504.4 y = -8.0 z = -1405.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 1507.6 y = -13.7 z = -1429.7 detector = DummyHitDetector
@@ -119,6 +124,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 16 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1601.2 y = -2.3 z = -1373.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 1604.4 y = -8.0 z = -1505.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 1607.6 y = -13.7 z = -1529.7 detector = DummyHitDetector
@@ -140,6 +146,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 18 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1801.2 y = -2.3 z = -1573.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 1804.4 y = -8.0 z = -1705.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 1807.6 y = -13.7 z = -1729.7 detector = DummyHitDetector
@@ -170,6 +177,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 1 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 101.2 y = -2.3 z = 126.6 detector = DummyHitDetector
 ReadData             INFO Hit x = 104.4 y = -8.0 z = -5.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 107.6 y = -13.7 z = -29.7 detector = DummyHitDetector
@@ -200,6 +208,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 2 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 201.2 y = -2.3 z = 26.6 detector = DummyHitDetector
 ReadData             INFO Hit x = 204.4 y = -8.0 z = -105.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 207.6 y = -13.7 z = -129.7 detector = DummyHitDetector
@@ -230,6 +239,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 4 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 401.2 y = -2.3 z = -173.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 404.4 y = -8.0 z = -305.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 407.6 y = -13.7 z = -329.7 detector = DummyHitDetector
@@ -260,6 +270,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 5 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 501.2 y = -2.3 z = -273.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 504.4 y = -8.0 z = -405.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 507.6 y = -13.7 z = -429.7 detector = DummyHitDetector
@@ -290,6 +301,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 7 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 701.2 y = -2.3 z = -473.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 704.4 y = -8.0 z = -605.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 707.6 y = -13.7 z = -629.7 detector = DummyHitDetector
@@ -320,6 +332,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 8 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 801.2 y = -2.3 z = -573.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 804.4 y = -8.0 z = -705.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 807.6 y = -13.7 z = -729.7 detector = DummyHitDetector
@@ -350,6 +363,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 10 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1001.2 y = -2.3 z = -773.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 1004.4 y = -8.0 z = -905.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 1007.6 y = -13.7 z = -929.7 detector = DummyHitDetector
@@ -380,6 +394,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 11 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1101.2 y = -2.3 z = -873.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 1104.4 y = -8.0 z = -1005.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 1107.6 y = -13.7 z = -1029.7 detector = DummyHitDetector
@@ -410,6 +425,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 13 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1301.2 y = -2.3 z = -1073.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 1304.4 y = -8.0 z = -1205.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 1307.6 y = -13.7 z = -1229.7 detector = DummyHitDetector
@@ -440,6 +456,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 14 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1401.2 y = -2.3 z = -1173.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 1404.4 y = -8.0 z = -1305.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 1407.6 y = -13.7 z = -1329.7 detector = DummyHitDetector
@@ -470,6 +487,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 17 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1701.2 y = -2.3 z = -1473.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 1704.4 y = -8.0 z = -1605.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 1707.6 y = -13.7 z = -1629.7 detector = DummyHitDetector
@@ -500,6 +518,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 19 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 1901.2 y = -2.3 z = -1673.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 1904.4 y = -8.0 z = -1805.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 1907.6 y = -13.7 z = -1829.7 detector = DummyHitDetector
@@ -522,6 +541,7 @@ ReadData             INFO EventType: Event type: sim/data -  is sim , testbeam/a
 ReadData             INFO TagInfo: 
 ReadData             INFO EventInfo event: 3 run: 0
 ReadData             INFO Get Smart data ptr 1
+ReadData             INFO Could not find ExampleTrackContainer/MyTracks
 ReadData             INFO Hit x = 301.2 y = -2.3 z = -73.3 detector = DummyHitDetector
 ReadData             INFO Hit x = 304.4 y = -8.0 z = -205.2 detector = DummyHitDetector
 ReadData             INFO Hit x = 307.6 y = -13.7 z = -229.7 detector = DummyHitDetector

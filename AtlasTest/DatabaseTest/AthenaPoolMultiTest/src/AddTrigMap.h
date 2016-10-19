@@ -39,8 +39,5 @@ public:
   virtual StatusCode initialize(); 
   virtual StatusCode execute();
   virtual StatusCode finalize();
-                                                                
-private:
-  StoreGateSvc* m_sGevent;  /// cache for efficiency.
 };
 #endif

@@ -1,0 +1,41 @@
+AthAlgSeq            INFO Member list: AthPoolEx::ReadData/ReadData, RunEventTagWriter, RegistrationStreamDefMeta/DefaultCollMeta
+ReadData            DEBUG Property update for OutputLevel : new value = 2
+ReadData             INFO in initialize()
+EventSelector       DEBUG Property update for OutputLevel : new value = 2
+EventSelector        INFO reinitialization...
+EventSelector        INFO EventSelection with query 
+EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
+EventSelector        INFO Using standard collection ref 
+EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
+ReadData            DEBUG input handles: 0
+ReadData            DEBUG output handles: 0
+ReadData            DEBUG Data Deps for ReadData
+AthRegSeq            INFO Member list: RegistrationStream/FullColl
+FullColl.FullCo...  DEBUG Property update for OutputLevel : new value = 2
+FullColl            DEBUG Property update for OutputLevel : new value = 2
+FullColl            DEBUG In initialize 
+FullColl            DEBUG Found IDecisionSvc.
+DecisionSvc          INFO Inserting stream: FullColl with no Algs
+FullColl            DEBUG End initialize 
+FullColl            DEBUG In initialize 
+FullColl            DEBUG Found  'StoreName':StoreGateSvc store.
+FullColl.Regist...  DEBUG Property update for OutputLevel : new value = 2
+FullColl            DEBUG  Tool initialized
+FullColl            DEBUG Retrieved IncidentSvc
+FullColl            DEBUG Added MetaDataStop listener
+FullColl            DEBUG  Not class requested by Tool, skipping (40774348,"RunEventTag") 
+FullColl            DEBUG  Not class requested by Tool, skipping (222376821,"*") 
+FullColl            DEBUG Adding cmd key Default
+FullColl            DEBUG End initialize 
+FullColl            DEBUG input handles: 0
+FullColl            DEBUG output handles: 0
+FullColl            DEBUG Adding private ToolHandle tool FullColl.RegistrationStreamLCGTool (RegistrationStreamLCGTool)
+FullColl            DEBUG Data Deps for FullColl
+AthenaEventLoopMgr   INFO Setup EventSelector service EventSelector
+EventSelector       DEBUG Try item: "PFN:NullableCollection.root" from the collection list.
+FullColl            DEBUG handle() incident type: MetaDataStop
+FullColl.Regist...   INFO Collection Events output: 0
+ReadData             INFO in finalize()
+ReadData            DEBUG Calling destructor
+FullColl            DEBUG In finalize
+DecisionSvc          INFO List of registered 1 Streams: FullColl 

@@ -34,6 +34,10 @@ if not hasattr(svcMgr,"ByteStreamCnvSvc"):
    from ByteStreamCnvSvc import WriteByteStream
    # Define the output
    StreamBSFileOutput = WriteByteStream.getStream("EventStorage","StreamBSFileOutput")
+   try:
+      os.remove('metatest.data')
+   except OSError:
+      pass
    svcMgr.ByteStreamEventStorageOutputSvc.SimpleFileName = "metatest.data"
    svcMgr.ByteStreamEventStorageOutputSvc.AttributeListKeys = ['RunEventTag']
 

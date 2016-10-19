@@ -80,9 +80,6 @@ class RunEventTagWriter : public AthAlgorithm
     StatusCode fillTag(const EventInfo*, AthenaAttributeList*);
     StatusCode fillTag(const xAOD::EventInfo*, AthenaAttributeList*);
 
-    /// StoreGate service accessor
-    StoreGateSvc* m_storeGateSvc;
-
     /// Specification of the event tag metadata schema
     coral::AttributeListSpecification* m_attribListSpec;
 };

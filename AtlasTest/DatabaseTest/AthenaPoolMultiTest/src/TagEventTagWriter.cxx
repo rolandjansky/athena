@@ -35,7 +35,6 @@
 TagEventTagWriter::TagEventTagWriter(const std::string& name, 
                                ISvcLocator* pSvcLocator) 
     : AthAlgorithm(name, pSvcLocator),
-      m_storeGateSvc(0),
       m_attribListSpec(0),
       m_maxNum(5)
 {
@@ -54,23 +53,12 @@ TagEventTagWriter::~TagEventTagWriter()
 
 StatusCode TagEventTagWriter::initialize() 
 {
-  StatusCode sc = StatusCode::SUCCESS;
   char attribNum[128];
   std::string attribName;
 
-  MsgStream log(messageService(), name());
+  ATH_MSG_DEBUG( "Initializing " << name()  );
 
-  log << MSG::DEBUG << "Initializing " << name() << endreq;
-
-  sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-  {
-    log << MSG::ERROR << "Unable to get pointer to StoreGate service."
-         << endreq;
-    return sc;
-  }
-
-  log << MSG::DEBUG << "Defining the attribute list specification." << endreq;
+  ATH_MSG_DEBUG( "Defining the attribute list specification."  );
   m_attribListSpec = new AthenaAttributeListSpecification;
 
   m_attribListSpec->extend("TestBool", "bool");
@@ -230,20 +218,15 @@ StatusCode TagEventTagWriter::initialize()
     m_attribListSpec->extend(attribName, phystype);
   }
 
-  log << MSG::DEBUG << "Printing out attribute list specification:" << endreq;
-  IMessageSvc* msgSvc;
-  sc = Gaudi::svcLocator()->service("MessageSvc", msgSvc);
-  //if (sc.isSuccess() && msgSvc && (msgSvc->outputLevel() <= MSG::DEBUG))
-  if (sc.isSuccess())
+  ATH_MSG_DEBUG( "Printing out attribute list specification:"  );
   {
-    log << MSG::DEBUG << "Attribute List Specification: " << endreq;
+    ATH_MSG_DEBUG( "Attribute List Specification: "  );
     AthenaAttributeListSpecification::const_iterator first = m_attribListSpec->begin();
     AthenaAttributeListSpecification::const_iterator last  = m_attribListSpec->end();
     for (; first != last; ++first) 
     {
-      log << MSG::DEBUG << " name " << (*first).name() 
-                        << " type " << (*first).typeName() 
-                        << endreq;
+      ATH_MSG_DEBUG( " name " << (*first).name() 
+                     << " type " << (*first).typeName() );
     }
   }
 
@@ -264,32 +247,28 @@ StatusCode TagEventTagWriter::execute()
   Rndm::Numbers vtxDist(randSvc(), Rndm::Gauss(-8.0, 8.0));
   Rndm::Numbers lumDist(randSvc(), Rndm::Flat(10.0e+33, 10.0e+35));
 
-  MsgStream log(messageService(), name());
-
-  log << MSG::DEBUG << "Executing " << name() << endreq;
+  ATH_MSG_DEBUG( "Executing " << name()  );
 
   TagAthenaAttributeList* attribList = 0;
-  log << MSG::DEBUG << "Creating TagAthenaAttributeList object." << endreq;
+  ATH_MSG_DEBUG( "Creating TagAthenaAttributeList object."  );
   try 
   {
     attribList = new TagAthenaAttributeList(*m_attribListSpec);
   } 
   catch (pool::Exception e) 
   {
-    log << MSG::ERROR
-        << "Caught exception during creation of TagAthenaAttributeList object."
-        << "Message: " << e.what() << endreq;
+    ATH_MSG_ERROR( "Caught exception during creation of TagAthenaAttributeList object."
+                   << "Message: " << e.what()  );
     return (StatusCode::FAILURE);
   }
 
   if (!attribList)
   {
-    log << MSG::ERROR << "Attribute list object is NULL." << endreq;
+    ATH_MSG_ERROR( "Attribute list object is NULL."  );
     return (StatusCode::FAILURE);
   }
 
-  log << MSG::DEBUG << "Adding type test data to TagAthenaAttributeList." 
-      << endreq;
+  ATH_MSG_DEBUG( "Adding type test data to TagAthenaAttributeList." );
   bool testBool = true;
   randInt = (int) ( genericDist.shoot() );
   if( randInt%2 ) testBool = false;
@@ -319,28 +298,24 @@ StatusCode TagEventTagWriter::execute()
   } 
   catch (pool::Exception e) 
   {
-    log << MSG::ERROR
-        << "Caught exception from data() when setting type test "
-        << "attributes; Message:" << e.what() 
-        << endreq;
+    ATH_MSG_ERROR( "Caught exception from data() when setting type test "
+                   << "attributes; Message:" << e.what() );
     return (StatusCode::FAILURE);
   }
-  log << MSG::DEBUG << "Finished adding type test data to TagAthenaAttributeList."
-      << endreq;
+  ATH_MSG_DEBUG( "Finished adding type test data to TagAthenaAttributeList." );
 
-  log << MSG::DEBUG << "Retrieving event info from TDS." << endreq;
-  const EventInfo* eventInfo;
-  sc = m_storeGateSvc->retrieve(eventInfo);
+  ATH_MSG_DEBUG( "Retrieving event info from TDS."  );
+  const EventInfo* eventInfo = nullptr;
+  sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) 
   {
-    log << MSG::ERROR << "Could not retrieve event info from TDS." << endreq;
+    ATH_MSG_ERROR( "Could not retrieve event info from TDS."  );
   }
 
   unsigned int runNumber = eventInfo->event_ID()->run_number();
   unsigned int eventNumber = eventInfo->event_ID()->event_number();
 
-  log << MSG::DEBUG << "Adding AOD global data to TagAthenaAttributeList." 
-      << endreq;
+  ATH_MSG_DEBUG( "Adding AOD global data to TagAthenaAttributeList." );
   unsigned short nGlobal = 0;
   float luminosity = (float) ( lumDist.shoot());
   bool goodVertex = true;
@@ -367,17 +342,13 @@ StatusCode TagEventTagWriter::execute()
   } 
   catch (pool::Exception e) 
   {
-    log << MSG::ERROR
-        << "Caught exception from data() when setting AOD global "
-        << "attributes; Message:" << e.what()
-        << endreq;
+    ATH_MSG_ERROR( "Caught exception from data() when setting AOD global "
+                   << "attributes; Message:" << e.what() );
     return (StatusCode::FAILURE);
   }
-  log << MSG::DEBUG << "Finished adding AODglobal data to AthenaAttributeList."
-      << endreq;
+  ATH_MSG_DEBUG( "Finished adding AODglobal data to AthenaAttributeList." );
 
-  log << MSG::DEBUG << "Adding AOD electron data to AthenaAttributeList." 
-      << endreq;  
+  ATH_MSG_DEBUG( "Adding AOD electron data to AthenaAttributeList." );
   unsigned short nEGamma = 0;
   float eEGamma = 0.0;
   float etaEGamma = 0.0;
@@ -402,11 +373,10 @@ StatusCode TagEventTagWriter::execute()
     assert(nEGamma <= m_maxNum);
   }
   (*attribList)["NEGamma"].data<unsigned short>() = nEGamma;
-  log << MSG::DEBUG << "Finished adding AOD electron data to "
-      << "AthenaAttributeList." << endreq;
+  ATH_MSG_DEBUG( "Finished adding AOD electron data to "
+                 << "AthenaAttributeList."  );
 
-  log << MSG::DEBUG << "Adding AOD muon data to AthenaAttributeList." 
-      << endreq;
+  ATH_MSG_DEBUG( "Adding AOD muon data to AthenaAttributeList." );
   unsigned short nMuon = 0;
   float ptMuon = 0.0;
   float cotetaMuon = 0.0;
@@ -427,10 +397,9 @@ StatusCode TagEventTagWriter::execute()
     assert(nMuon <= m_maxNum);
   }
   (*attribList)["NMuon"].data<unsigned short>() = nMuon;
-  log << MSG::DEBUG << "Finished adding AOD muon data to AthenaAttributeList."
-      << endreq;
+  ATH_MSG_DEBUG( "Finished adding AOD muon data to AthenaAttributeList." );
 
-  log << MSG::DEBUG << "Adding AOD tau data to AthenaAttributeList." << endreq;
+  ATH_MSG_DEBUG( "Adding AOD tau data to AthenaAttributeList."  );
   unsigned short nTau = 0;
   float eTau = 0.0;
   float etaTau = 0.0;
@@ -459,11 +428,9 @@ StatusCode TagEventTagWriter::execute()
     assert(nTau <= m_maxNum);
   }
   (*attribList)["NTau"].data<unsigned short>() = nTau;
-  log << MSG::DEBUG << "Finished adding AOD tau data to AthenaAttributeList."
-      << endreq;
+  ATH_MSG_DEBUG( "Finished adding AOD tau data to AthenaAttributeList." );
 
-  log << MSG::DEBUG << "Adding AOD jet data to AthenaAttributeList." 
-      << endreq;
+  ATH_MSG_DEBUG( "Adding AOD jet data to AthenaAttributeList." );
   unsigned short nJet = 0;
   float eJet = 0.0;
   float pxJet = 0.0;
@@ -492,22 +459,11 @@ StatusCode TagEventTagWriter::execute()
     assert(nJet <= m_maxNum);
   }
   (*attribList)["NJet"].data<unsigned short>() = nJet;
-  log << MSG::DEBUG << "Finished adding AOD jet data to AthenaAttributeList."
-      << endreq;
+  ATH_MSG_DEBUG( "Finished adding AOD jet data to AthenaAttributeList." );
 
-  sc = m_storeGateSvc->record(attribList, "SimpleTag");
-  if (sc.isFailure()) 
-  {
-    log << MSG::ERROR << "Could not record AthenaAttributeList object."
-         << endreq;
-    return (StatusCode::FAILURE);
-  }
+  ATH_CHECK( evtStore()->record(attribList, "SimpleTag") );
 
-  log << MSG::DEBUG << "Printing out attribute list:" << endreq;
-  IMessageSvc* msgSvc;
-  sc = Gaudi::svcLocator()->service("MessageSvc", msgSvc);
-  //if (sc.isSuccess() && msgSvc && (msgSvc->outputLevel() <= MSG::DEBUG))
-  if (sc.isSuccess())
+  ATH_MSG_DEBUG( "Printing out attribute list:"  );
   {
     TagAthenaAttributeList::const_iterator first = attribList->begin();
     TagAthenaAttributeList::const_iterator last  = attribList->end();
@@ -516,83 +472,71 @@ StatusCode TagEventTagWriter::execute()
       std::string typeName = (*first).specification().typeName();
       if ( typeName == "bool" ) {
         const bool* value = static_cast<const bool*>( (*first).addressOfData() );
-        log << MSG::DEBUG << " name " << name
-                          << " type " << typeName
-                          << " value " << *value 
-                          << endreq;
+        ATH_MSG_DEBUG( " name " << name
+                       << " type " << typeName
+                       << " value " << *value );
       }
       else if ( typeName == "char" ) {
         const char* value = static_cast<const char*>( (*first).addressOfData() );
-        log << MSG::DEBUG << " name " << name
-                          << " type " << typeName
-                          << " value " << *value 
-                          << endreq;
+        ATH_MSG_DEBUG( " name " << name
+                       << " type " << typeName
+                       << " value " << *value );
       }
       else if ( typeName == "unsigned char" ) {
         const unsigned char* value = 
             static_cast<const unsigned char*>( (*first).addressOfData() );
-        log << MSG::DEBUG << " name " << name
-                          << " type " << typeName
-                          << " value " << *value 
-                          << endreq;
+        ATH_MSG_DEBUG( " name " << name
+                       << " type " << typeName
+                       << " value " << *value );
       }
       else if ( typeName == "short") {
         const short* value = static_cast<const short*>( (*first).addressOfData() );
-        log << MSG::DEBUG << " name " << name
-                          << " type " << typeName
-                          << " value " << *value 
-                          << endreq;
+        ATH_MSG_DEBUG( " name " << name
+                       << " type " << typeName
+                       << " value " << *value );
       }
       else if ( typeName == "unsigned short" ) {
         const unsigned short* value = 
             static_cast<const unsigned short*>( (*first).addressOfData() );
-        log << MSG::DEBUG << " name " << name
-                          << " type " << typeName
-                          << " value " << *value 
-                          << endreq;
+        ATH_MSG_DEBUG( " name " << name
+                       << " type " << typeName
+                       << " value " << *value );
       }
       else if ( typeName == "int" ) {
         const int* value = static_cast<const int*>( (*first).addressOfData() );
-        log << MSG::DEBUG << " name " << name
-                          << " type " << typeName
-                          << " value " << *value 
-                          << endreq;
+        ATH_MSG_DEBUG( " name " << name
+                       << " type " << typeName
+                       << " value " << *value );
       }
       else if ( typeName == "unsigned int" ) {
         const unsigned int* value = 
             static_cast<const unsigned int*>( (*first).addressOfData() );
-        log << MSG::DEBUG << " name " << name
-                          << " type " << typeName
-                          << " value " << *value 
-                          << endreq;
+        ATH_MSG_DEBUG( " name " << name
+                       << " type " << typeName
+                       << " value " << *value );
       }
       else if ( typeName == "float" ) {
         const float* value = static_cast<const float*>( (*first).addressOfData() );
-        log << MSG::DEBUG << " name " << name
-                          << " type " << typeName
-                          << " value " << *value 
-                          << endreq;
+        ATH_MSG_DEBUG( " name " << name
+                       << " type " << typeName
+                       << " value " << *value );
       }
       else if ( typeName == "double" ) {
         const double* value = static_cast<const double*>( (*first).addressOfData() );
-        log << MSG::DEBUG << " name " << name
-                          << " type " << typeName
-                          << " value " << *value 
-                          << endreq;
+        ATH_MSG_DEBUG( " name " << name
+                       << " type " << typeName
+                       << " value " << *value );
       }
       else if ( typeName == "string" ) {
         const std::string* value = 
             static_cast<const std::string*>( (*first).addressOfData() );
-        log << MSG::DEBUG << " name " << name
-                          << " type " << typeName
-                          << " value " << *value 
-                          << endreq;
+        ATH_MSG_DEBUG( " name " << name
+                       << " type " << typeName
+                       << " value " << *value );
       }
       else
       {
-        log << MSG::ERROR 
-            << "Unrecognized attribute type: " << typeName
-            << endreq;
+        ATH_MSG_ERROR( "Unrecognized attribute type: " << typeName );
       }
     }
   }
@@ -603,10 +547,7 @@ StatusCode TagEventTagWriter::execute()
 
 StatusCode TagEventTagWriter::finalize() 
 {
-  MsgStream log(messageService(), name());
-
-  log << MSG::DEBUG << "Finalizing " << name() << endreq;
-
+  ATH_MSG_DEBUG( "Finalizing " << name()  );
   return (StatusCode::SUCCESS);
 }
 

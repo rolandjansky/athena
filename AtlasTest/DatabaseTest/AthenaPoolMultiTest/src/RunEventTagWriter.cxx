@@ -21,11 +21,6 @@
 #include "CoralBase/AttributeListSpecification.h"
 //#include "AthenaPoolUtilities/MinimalEventInfoAttributeList.h"
 
-#include "GaudiKernel/Bootstrap.h"
-#include "GaudiKernel/ISvcLocator.h"
-#include "GaudiKernel/MsgStream.h"
-#include "GaudiKernel/PropertyMgr.h"
-
 #include "POOLCore/Exception.h"
 
 #include <cassert>
@@ -35,7 +30,6 @@
 RunEventTagWriter::RunEventTagWriter(const std::string& name, 
                                      ISvcLocator* pSvcLocator) 
     : AthAlgorithm(name, pSvcLocator),
-      m_storeGateSvc(0),
       m_attribListSpec(0)
 {}
 
@@ -51,45 +45,27 @@ RunEventTagWriter::~RunEventTagWriter()
 
 StatusCode RunEventTagWriter::initialize() 
 {
-  StatusCode sc = StatusCode::SUCCESS;
   std::string attribName;
 
-  MsgStream log(messageService(), name());
+  ATH_MSG_DEBUG( "Initializing " << name()  );
 
-  log << MSG::DEBUG << "Initializing " << name() << endreq;
-
-  sc = service("StoreGateSvc", m_storeGateSvc);
-  if (sc.isFailure()) 
-  {
-    log << MSG::ERROR << "Unable to get pointer to StoreGate service."
-         << endreq;
-    return sc;
-  }
-
-  log << MSG::DEBUG << "Defining the attribute list specification." << endreq;
+  ATH_MSG_DEBUG( "Defining the attribute list specification."  );
   //m_attribListSpec = new AthenaAttributeListSpecification();
   m_attribListSpec = new coral::AttributeListSpecification();
 
   m_attribListSpec->extend("RunNumber", "unsigned int");
   m_attribListSpec->extend("EventNumber", "unsigned int");
 
-  log << MSG::DEBUG << "Printing out attribute list specification:" << endreq;
-  IMessageSvc* msgSvc;
-  sc = Gaudi::svcLocator()->service("MessageSvc", msgSvc);
-  //if (sc.isSuccess() && msgSvc && (msgSvc->outputLevel() <= MSG::DEBUG))
-  if (sc.isSuccess())
+  ATH_MSG_DEBUG( "Printing out attribute list specification:"  );
+  ATH_MSG_DEBUG( "Attribute List Specification: "  );
+  //AthenaAttributeListSpecification::const_iterator first = m_attribListSpec->begin();
+  //AthenaAttributeListSpecification::const_iterator last  = m_attribListSpec->end();
+  coral::AttributeListSpecification::const_iterator first = m_attribListSpec->begin();
+  coral::AttributeListSpecification::const_iterator last  = m_attribListSpec->end();
+  for (; first != last; ++first) 
   {
-    log << MSG::DEBUG << "Attribute List Specification: " << endreq;
-    //AthenaAttributeListSpecification::const_iterator first = m_attribListSpec->begin();
-    //AthenaAttributeListSpecification::const_iterator last  = m_attribListSpec->end();
-    coral::AttributeListSpecification::const_iterator first = m_attribListSpec->begin();
-    coral::AttributeListSpecification::const_iterator last  = m_attribListSpec->end();
-    for (; first != last; ++first) 
-    {
-      log << MSG::DEBUG << " name " << (*first).name() 
-                        << " type " << (*first).typeName() 
-                        << endreq;
-    }
+    ATH_MSG_DEBUG( " name " << (*first).name() 
+                   << " type " << (*first).typeName() );
   }
 
   return (StatusCode::SUCCESS);
@@ -98,87 +74,73 @@ StatusCode RunEventTagWriter::initialize()
 
 StatusCode RunEventTagWriter::execute() 
 {
-  StatusCode sc = StatusCode::SUCCESS;
   std::string attribName;
 
-  MsgStream log(messageService(), name());
-
-  log << MSG::DEBUG << "Executing " << name() << endreq;
+  ATH_MSG_DEBUG( "Executing " << name()  );
 
   AthenaAttributeList* attribList = 0;
-  log << MSG::DEBUG << "Creating AthenaAttributeList object." << endreq;
+  ATH_MSG_DEBUG( "Creating AthenaAttributeList object."  );
   try 
   {
     attribList = new AthenaAttributeList(*m_attribListSpec);
   } 
   catch (pool::Exception e) 
   {
-    log << MSG::ERROR
-        << "Caught exception during creation of AthenaAttributeList object."
-        << "Message: " << e.what() << endreq;
+    ATH_MSG_ERROR( "Caught exception during creation of AthenaAttributeList object."
+                   << "Message: " << e.what()  );
     return (StatusCode::FAILURE);
   }
 
-  log << MSG::DEBUG << "Retrieving event info from TDS." << endreq;
+  ATH_MSG_DEBUG( "Retrieving event info from TDS."  );
   const DataHandle<xAOD::EventInfo> eventInfo;
-  sc = m_storeGateSvc->retrieve(eventInfo);
+  StatusCode sc = evtStore()->retrieve(eventInfo);
   if (sc.isFailure()) 
   {
     const DataHandle<EventInfo> oeventInfo;
-    sc = m_storeGateSvc->retrieve(oeventInfo);
+    sc = evtStore()->retrieve(oeventInfo);
     if (sc.isFailure()) {
-      log << MSG::ERROR << "Could not retrieve event info from TDS." << endreq;
+      ATH_MSG_ERROR( "Could not retrieve event info from TDS."  );
     }
     else {
       if(fillTag(oeventInfo.cptr(),attribList).isFailure()) {
-        log << MSG::ERROR << "Could not build tag from old event info." << endreq;
+        ATH_MSG_ERROR( "Could not build tag from old event info."  );
       }
     }
   }
   else {
     if(fillTag(eventInfo.cptr(),attribList).isFailure()) {
-      log << MSG::ERROR << "Could not build tag from xaod event info." << endreq;
+      ATH_MSG_ERROR( "Could not build tag from xaod event info."  );
     }
   }
 /*
   MinimalEventInfoAttributeList meial;
   meial.init();
   if (meial.fill(eventInfo.cptr()).isFailure()) {
-    log << MSG::ERROR << "Could not build MinimalEventInfoAttributeList" << endreq;
+    log << MSG::ERROR << "Could not build MinimalEventInfoAttributeList" << endmsg;
   }
 */
-  sc = m_storeGateSvc->record(attribList, "RunEventTag");
-  if (sc.isFailure()) 
-  {
-    log << MSG::ERROR << "Could not record AthenaAttributeList object."
-         << endreq;
-    return (StatusCode::FAILURE);
-  }
+  ATH_CHECK( evtStore()->record(attribList, "RunEventTag") );
 
-  log << MSG::DEBUG << "Printing out attribute list:" << endreq;
+  ATH_MSG_DEBUG( "Printing out attribute list:"  );
   std::ostringstream attribListStream;
   attribList->toOutputStream(attribListStream);
-  log << MSG::DEBUG << "Attribute List: " 
-                    << attribListStream.str() 
-                    << endreq;
+  ATH_MSG_DEBUG( "Attribute List: " << attribListStream.str() );
 
   return (StatusCode::SUCCESS);
 }
 
 StatusCode RunEventTagWriter::fillTag(const EventInfo* eInfo, AthenaAttributeList* attribList)
 {
-  MsgStream log(messageService(), name());
-
   unsigned int runNumber = eInfo->event_ID()->run_number();
   unsigned int eventNumber = eInfo->event_ID()->event_number();
 
   if (!attribList)
   {
-    log << MSG::ERROR << "Attribute list object is NULL." << endreq;
+    ATH_MSG_ERROR( "Attribute list object is NULL."  );
     return (StatusCode::FAILURE);
   }
 
-  log << MSG::DEBUG << "About to assign values to Tag Attrib List" << endreq;
+  ATH_MSG_DEBUG( "About to assign values to Tag Attrib List"  );
   try
   {
     (*attribList)["RunNumber"].data<unsigned int>() = runNumber;
@@ -186,14 +148,11 @@ StatusCode RunEventTagWriter::fillTag(const EventInfo* eInfo, AthenaAttributeLis
   } 
   catch (pool::Exception e) 
   {
-    log << MSG::ERROR
-        << "Caught exception from data() when setting AOD global "
-        << "attributes; Message: " << e.what()
-        << endreq;
+    ATH_MSG_ERROR( "Caught exception from data() when setting AOD global "
+                   << "attributes; Message: " << e.what() );
     return (StatusCode::FAILURE);
   }
-  log << MSG::DEBUG << "Finished adding Run,Event data to AthenaAttributeList."
-      << endreq;
+  ATH_MSG_DEBUG( "Finished adding Run,Event data to AthenaAttributeList." );
 
   return StatusCode::SUCCESS;
 
@@ -201,18 +160,16 @@ StatusCode RunEventTagWriter::fillTag(const EventInfo* eInfo, AthenaAttributeLis
 
 StatusCode RunEventTagWriter::fillTag(const xAOD::EventInfo* eventInfo, AthenaAttributeList* attribList)
 {
-  MsgStream log(messageService(), name());
-
   unsigned int runNumber = eventInfo->runNumber();
   unsigned int eventNumber = eventInfo->eventNumber();
 
   if (!attribList)
   {
-    log << MSG::ERROR << "Attribute list object is NULL." << endreq;
+    ATH_MSG_ERROR( "Attribute list object is NULL."  );
     return (StatusCode::FAILURE);
   }
 
-  log << MSG::DEBUG << "About to assign values to Tag Attrib List" << endreq;
+  ATH_MSG_DEBUG( "About to assign values to Tag Attrib List"  );
   try
   {
     (*attribList)["RunNumber"].data<unsigned int>() = runNumber;
@@ -220,14 +177,11 @@ StatusCode RunEventTagWriter::fillTag(const xAOD::EventInfo* eventInfo, AthenaAt
   } 
   catch (pool::Exception e) 
   {
-    log << MSG::ERROR
-        << "Caught exception from data() when setting AOD global "
-        << "attributes; Message: " << e.what()
-        << endreq;
+    ATH_MSG_ERROR( "Caught exception from data() when setting AOD global "
+                   << "attributes; Message: " << e.what() );
     return (StatusCode::FAILURE);
   }
-  log << MSG::DEBUG << "Finished adding Run,Event data to AthenaAttributeList."
-      << endreq;
+  ATH_MSG_DEBUG( "Finished adding Run,Event data to AthenaAttributeList." );
 
   return StatusCode::SUCCESS;
 
@@ -236,9 +190,6 @@ StatusCode RunEventTagWriter::fillTag(const xAOD::EventInfo* eventInfo, AthenaAt
 
 StatusCode RunEventTagWriter::finalize() 
 {
-  MsgStream log(messageService(), name());
-
-  log << MSG::DEBUG << "Finalizing " << name() << endreq;
-
+  ATH_MSG_DEBUG( "Finalizing " << name()  );
   return (StatusCode::SUCCESS);
 }
