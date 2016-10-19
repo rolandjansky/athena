@@ -20,7 +20,13 @@ atlas_depends_on_subdirs( PUBLIC
                           Event/xAOD/xAODTracking
                           Event/xAOD/xAODTrigger
                           GaudiKernel
-                          Trigger/TrigEvent/TrigParticle )
+                          Trigger/TrigEvent/TrigParticle 
+			  External
+			  InnerDetector/InDetDetDescr
+			  InnerDetector/InDetRecEvent	
+			  DetectorDescription
+			  Tracking/TrkEvent
+			  Event/xAOD)
 
 # External dependencies:
 find_package( CLHEP )
@@ -31,7 +37,7 @@ atlas_add_component( TrigLongLivedParticlesHypo
                      src/*.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} ${CLHEP_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloEvent CxxUtils xAODJet xAODTracking xAODTrigger GaudiKernel TrigParticle )
+                     LINK_LIBRARIES ${ROOT_LIBRARIES} ${CLHEP_LIBRARIES} TrigCaloEvent TrigInDetEvent TrigMuonEvent TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib CaloEvent CxxUtils xAODJet xAODTracking xAODTrigger GaudiKernel TrigParticle InDetIdentifier InDetPrepRawData IRegionSelector TrkSpacePoint xAODEventInfo)
 
 # Install files from the package:
 atlas_install_headers( TrigLongLivedParticlesHypo )

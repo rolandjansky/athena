@@ -5,6 +5,7 @@
 #include "TrigLongLivedParticlesHypo/TrigLoFRemovalHypo.h"
 #include "TrigLongLivedParticlesHypo/TrigNewLoFHypo.h"
 #include "TrigLongLivedParticlesHypo/TrigCaloRatioHypo.h"
+#include "TrigLongLivedParticlesHypo/TrigLLPInnerDetectorHypo.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
 

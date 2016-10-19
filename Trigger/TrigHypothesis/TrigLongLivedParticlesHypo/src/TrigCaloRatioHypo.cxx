@@ -67,7 +67,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltInitialize() {
   m_errors=0;
 
   //* declareProperty overview *//
-  if (msgLvl() <= MSG::DEBUG) {
+  if (msgLvl() <= MSG::DEBUG) {  
     msg() << MSG::DEBUG << "declareProperty review:" << endreq;
     msg() << MSG::DEBUG << " EtCut       = " << m_etCut << endreq; 
     msg() << MSG::DEBUG << " LogRatioCut = " << m_logRatioCut << endreq; 
@@ -163,7 +163,7 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
   
   if(!m_reversedCut) {
     
-    if (jetEt > m_etCut && std::fabs(jetEta) <= m_etaCut && jetRatio >= m_logRatioCut) {
+    if (jetEt > m_etCut && std::fabs(jetEta) <= m_etaCut) {
       
       m_jetEt.push_back(jetEt/CLHEP::GeV);
       m_jetEta.push_back(jetEta); 
@@ -237,8 +237,13 @@ HLT::ErrorCode TrigCaloRatioHypo::hltExecute(const HLT::TriggerElement* outputTE
       }
     }
 
-    if(countTracks>m_trackCut)
+    if(countTracks>m_trackCut){
       passCutTrk = false;
+    }
+    else{
+      if(msgLvl() <= MSG::DEBUG)
+	msg() << MSG::DEBUG << "Jet passed tracking isolation" << endreq; 
+    }
   }
 
   if((passCutJet&&passCutTrk) || m_acceptAll) {
