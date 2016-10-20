@@ -1,9 +1,7 @@
 <lcgdict>
-  <namespace name="met"/>
-
-  <class name="met::IMETRecoTool" />
-  <class name="met::IMETToolBase" />
-  <class name="met::IMETAssocToolBase" />
+  <class name="IMETRecoTool" />
+  <class name="IMETToolBase" />
+  <class name="IMETAssocToolBase" />
 
   <!-- Suppress the unwanted classes found by ROOT 6. -->
   <!-- Hopefully we can remove these extra lines at one point... -->

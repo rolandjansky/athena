@@ -27,7 +27,7 @@ class IMETToolBase : virtual public asg::IAsgTool {
 	
   public:
 
-  virtual StatusCode execute(xAOD::MissingET*,xAOD::MissingETComponentMap*) = 0;
+  virtual StatusCode execute(xAOD::MissingET*,xAOD::MissingETComponentMap*) const = 0;
 	
 };
 	
