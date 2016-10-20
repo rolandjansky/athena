@@ -206,7 +206,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent()
     StatusCode sc = evtStore()->retrieve(calo,m_inputHadClusterContainerName);
 
     if(sc == StatusCode::SUCCESS && calo) {
-      for( auto& ccROI : *calo) {
+      for( const auto& ccROI : *calo) {
         m_hadF.push_back( ccROI->globalPosition().phi() );
         m_hadE.push_back( ccROI->globalPosition().eta() );
         m_hadR.push_back( ccROI->globalPosition().perp() );
@@ -226,7 +226,7 @@ void InDet::InDetDenseEnvAmbiTrackSelectionTool::newEvent()
     StatusCode sc = evtStore()->retrieve(calo,m_inputEmClusterContainerName);
 
     if(sc == StatusCode::SUCCESS && calo) {
-      for( auto& ccROI : *calo) {
+      for( const Trk::CaloClusterROI* ccROI : *calo) {
         if( ccROI->energy() * sin(ccROI->globalPosition().theta()) < m_minPtEm){ 
           continue;
         }  

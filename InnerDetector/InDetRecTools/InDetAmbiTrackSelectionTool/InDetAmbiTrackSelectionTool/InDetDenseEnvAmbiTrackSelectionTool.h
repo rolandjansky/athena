@@ -184,7 +184,34 @@ namespace InDet
           std::cout << "Weighted shared " << numWeightedShared << std::endl;
         };
       };
-     
+
+	struct lessTrkTrack {
+          bool operator() (const Trk::Track* x, const Trk::Track* y) const
+          {
+            if(ATH_UNLIKELY(!x and !y))
+              return false;
+            if(ATH_UNLIKELY(!x))
+              return true;
+            if(ATH_UNLIKELY(!y))
+              return false;
+            if(ATH_UNLIKELY(!x->trackParameters()  and !y->trackParameters()))
+              return false;
+            if(ATH_UNLIKELY(!x->trackParameters() && x->trackParameters()->size() <= 0) )
+              return true;
+            if(ATH_UNLIKELY(!y->trackParameters() && y->trackParameters()->size() <= 0) )
+              return false;
+            return fabs( (*x->trackParameters())[0]->parameters()[Trk::qOverP]) < fabs( (*y->trackParameters())[0]->parameters()[Trk::qOverP]) ;
+          }
+      };
+
+
+
+
+
+
+
+
+ 
       struct TSoS_Details
       {
         unsigned int        nTSoS;
@@ -194,8 +221,8 @@ namespace InDet
         std::vector<float>  splitProb1;                             // The Probablilty that the cluster on that surface is from 2 tracks
         std::vector<float>  splitProb2;                             // The Probablilty that the cluster on that surface is from 3 or more tracks
         std::vector<const Trk::RIO_OnTrack*> RIO;                   // The cluster on track
-        std::multimap<const Trk::Track*, int >  overlappingTracks;   // The tracks that overlap with the current track
-        std::multimap< int, const Trk::Track* > tracksSharingHit;    // The tracks that overlap with the current track
+        std::multimap<const Trk::Track*, int, lessTrkTrack >  overlappingTracks;   // The tracks that overlap with the current track
+        std::multimap< int, const Trk::Track*> tracksSharingHit;    // The tracks that overlap with the current track
 
         TSoS_Details()
         {
