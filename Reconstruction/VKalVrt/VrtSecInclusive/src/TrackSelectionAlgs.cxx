@@ -26,8 +26,7 @@ namespace VKalVrtAthena {
   { 
     
     
-    MsgStream mlog( messageService(), name() );
-    mlog << MSG::DEBUG << " > SelGoodTrkParticle: begin" << endreq;
+    ATH_MSG_DEBUG( " > SelGoodTrkParticle: begin"  );
 
     xAOD::TrackParticleContainer *m_selectedBaseTracks ( nullptr );
     ATH_CHECK( evtStore()->retrieve(m_selectedBaseTracks, "VrtSecInclusive_SelectedTrackParticles") );
@@ -206,10 +205,6 @@ namespace VKalVrtAthena {
       trk->auxdecor<bool>("is_selected") = true;
       trk->auxdecor<unsigned long>("selected_trk_id")  = a_trk->index();
       
-      // Also, need to put the element link both sides
-      ElementLink<xAOD::TrackParticleContainer>  trackElementLink( *m_selectedBaseTracks, a_trk->index() );
-      trk->auxdecor<ElementLink<xAOD::TrackParticleContainer> >("selectedTrackLink") = trackElementLink;
-      
       ElementLink<xAOD::TrackParticleContainer>  trackElementLink_orig( *trackParticleContainer, trk->index() );
       a_trk->auxdata<ElementLink<xAOD::TrackParticleContainer> >("recoTrackLink") = trackElementLink_orig;
       
@@ -233,10 +228,10 @@ namespace VKalVrtAthena {
     } // end of track loop
     
     if( m_FillNtuple ) {
-      mlog << MSG::DEBUG << " > SelGoodTrkParticle: Size of Inp Reco / w/barcode = "
-           << trackParticleContainer->size() << "," 
-           << m_ntupleVars->get< vector<int> >( "RecoTrk_barcode" ).size()
-           << endreq; 
+      ATH_MSG_DEBUG( " > SelGoodTrkParticle: Size of Inp Reco / w/barcode = "
+                     << trackParticleContainer->size() << "," 
+                     << m_ntupleVars->get< vector<int> >( "RecoTrk_barcode" ).size()
+                     );
     }
     
     return StatusCode::SUCCESS;
