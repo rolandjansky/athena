@@ -90,7 +90,7 @@ def generateVnThresholds(a,b,c, etbins):
     return [ a - b*et +c*pow(et, 2)  for et in etbins]
     
 def generateAssymVnThresholds(a,b,c,d, etbins):
-    return [ a + b*et +c*pow(et, 2) +d for et in etbins]
+    return [ a + b*et +c*pow(et, 3) +d for et in etbins]
 # thresholds mappint
 #      %v2     %v3
 #15    2.5     2.5
@@ -136,13 +136,13 @@ class V2HypoAssym(VnHypo):
         self.CentralityBins = _EtCuts_v2_assym 
         if side == "A":
             self.MinEta=3.2 
-            self.QxShifts = [0]*len(_EtCuts_v2_assym)
-            self.QyShifts = [0]*len(_EtCuts_v2_assym)
+            self.QxShifts = [0.0008]*len(_EtCuts_v2_assym)
+            self.QyShifts = [-0.004]*len(_EtCuts_v2_assym)
 
         elif side == "C":
             self.MaxEta=-3.2
-            self.QxShifts = [0]*len(_EtCuts_v2_assym)
-            self.QyShifts = [0]*len(_EtCuts_v2_assym)
+            self.QxShifts = [-0.0015]*len(_EtCuts_v2_assym)
+            self.QyShifts = [0.0039]*len(_EtCuts_v2_assym)
         else:
             raise 'The V2 hypothesis algorithm is insufficiently configured, no FCal side specified '
 
