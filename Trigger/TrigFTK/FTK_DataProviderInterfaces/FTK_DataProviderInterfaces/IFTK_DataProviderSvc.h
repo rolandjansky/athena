@@ -30,7 +30,7 @@ namespace Trk {
 class IRoiDescriptor;
 
 namespace ftk{
-    enum FTK_TrackType{RawTrackType, ConvertedTrackType, RefittedTrackType};
+    enum FTK_TrackType{RawTrack, ConvertedTrack, RefittedTrack};
 }
 
 static const InterfaceID IID_IFTK_DataProviderSvc("IFTK_DataProviderSvc",1,0);
@@ -48,11 +48,22 @@ public:
   virtual xAOD::TrackParticleContainer* getTrackParticles(const bool withRefit) = 0;
   virtual xAOD::TrackParticleContainer* getTrackParticlesInRoi(const IRoiDescriptor&, const bool withRefit) = 0;
 
+  virtual xAOD::VertexContainer* getFastVertices(const ftk::FTK_TrackType trackType=ftk::RawTrack) =0;
+
   // methods to create and return a view container. DataProviderSvc retains ownership 
   virtual xAOD::VertexContainer* getVertexContainer(const bool withRefit)=0;
 
   // method to fill container. Ownership passes to caller 
   virtual StatusCode getVertexContainer(xAOD::VertexContainer* vertex, const bool withRefit)=0;
+
+  virtual std::string getTrackParticleCacheName(const bool withRefit)=0;
+
+  virtual std::string getTrackCacheName(const bool withRefit)=0;
+
+  virtual std::string getVertexCacheName(const bool withRefit)=0;
+
+  virtual std::string getFastVertexCacheName(const bool withRefit)=0;
+
 };
 
 #endif
