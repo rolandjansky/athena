@@ -53,7 +53,7 @@ get_files -xmls LVL1config.dtd
 #upload the first key
 echo "upload the first key"
 
-cmd1="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest' -l FINE --dbConn $DBConn -w_n 50 -w_t 60  >& uploadSMK1"
+cmd1="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu1 --hlt_setup $hlt__setup1 --name 'P1HLTtest' -l FINE --dbConn $DBConn -w_n 60 -w_t 60  >& uploadSMK1"
 
 echo $cmd1
 eval $cmd1 &> uploadSMK1.log
@@ -82,7 +82,7 @@ hlt__setup2=ef_Default_setup_rerun.xml
 #upload the second key
 echo "upload the second key"
 
-cmd2="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'P1HLTtest' -l FINE --dbConn $DBConn -w_n 50 -w_t 60  >& uploadSMK2"
+cmd2="java -Duser.timezone=CET -cp TriggerTool.jar:TrigDb.jar triggertool.TriggerTool -up -release 'P1HLT' --l1_menu $l1menu --topo_menu $l1topo -hlt $hltmenu2 --hlt_setup $hlt__setup2 --name 'P1HLTtest' -l FINE --dbConn $DBConn -w_n 60 -w_t 60  >& uploadSMK2"
 
 echo $cmd2
 eval $cmd2 &> uploadSMK2.log
