@@ -1,47 +1,13 @@
-# $Id: ClientCMakeLists.txt.in 751112 2016-05-31 12:00:21Z krasznaa $
-#
-# This is a template for a CMakeLists.txt file that can be used in a client
-# project (work area) to set up building ATLAS packages against the configured
-# release.
-#
+################################################################################
+# Package: RecPerfTests
+################################################################################
 
-# Set the minimum required CMake version:
-cmake_minimum_required( VERSION 3.2 FATAL_ERROR )
+# Declare the package name:
+atlas_subdir( RecPerfTests )
 
-# If there's a directory called AtlasCMake in the project,
-# and the user didn't specify AtlasCMake_DIR yet, then let's
-# give it a default value.
-if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/AtlasCMake AND
-      NOT AtlasCMake_DIR AND NOT ENV{AtlasCMake_DIR} )
-   set( AtlasCMake_DIR ${CMAKE_SOURCE_DIR}/Build/AtlasCMake )
-endif()
+# Declare the package's dependencies:
+atlas_depends_on_subdirs( PUBLIC
+                          TestPolicy )
 
-# If there's a directory called AtlasLCG in the project,
-# and the user didn't specify LCG_DIR yet, then let's
-# give it a default value.
-if( IS_DIRECTORY ${CMAKE_SOURCE_DIR}/Build/AtlasLCG AND
-      NOT LCG_DIR AND NOT ENV{LCG_DIR} )
-   set( LCG_DIR ${CMAKE_SOURCE_DIR}/Build/AtlasLCG )
-endif()
-
-# Pick up a local version of the AtlasCMake code if it exists:
-find_package( AtlasCMake QUIET )
-
-# Find the project that we depend on:
-find_package( AtlasOffline )
-
-# Set up CTest:
-atlas_ctest_setup()
-
-# Set up a work directory project:
-atlas_project( WorkDir 21.0.9
-   USE AtlasOffline 21.0.9
-   FORTRAN )
-
-# Set up the runtime environment setup script(s):
-lcg_generate_env( SH_FILE ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh )
-install( FILES ${CMAKE_BINARY_DIR}/${ATLAS_PLATFORM}/env_setup.sh
-   DESTINATION . )
-
-# Set up CPack:
-atlas_cpack_setup()
+# Install files from the package:
+atlas_install_runtime( test/RecPerfTests_TestConfiguration.xml )

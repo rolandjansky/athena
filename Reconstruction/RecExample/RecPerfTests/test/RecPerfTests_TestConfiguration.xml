@@ -494,6 +494,30 @@
       </jobTransform>
 
 
+      <jobTransform userJobId="analysis_minimal">
+	<doc>Test minimal analysis job</doc>
+	<jobTransformJobName>analysis_minimal</jobTransformJobName>
+	<jobTransformCmd>
+	  source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh AthAnalysisBase,2.4.X,here,latest_copied_release
+	  get_files SUSYTools/minimalExampleJobOptions_mc.py
+	      perl -pi -e "s/400/-1/g;" minimalExampleJobOptions_mc.py  
+	      athena.py --pmon=sdmon minimalExampleJobOptions_mc.py | while read line; do echo "AODtoDAOD "`date +%T`" $line" ; done  | tee  __log.txt; 
+	      echo $? &gt;  __exitcode ; 
+	      touch __done ;
+	      echo "asetup AthAnalysisBase,2.4.X,here,latest_copied_release ; athena.py SUSYTools/minimalExampleJobOptions_mc.py" &gt; __command.sh;
+	      for f in ntuple*.pmon.gz; do if [ -f "$f" ]; then tar xf $f "*.pmonsd.*" ; fi; done ; 
+	      export userJobId="analysis_minimal"; 
+	      export headDir="/afs/cern.ch/atlas/project/pmb/new_pmb/archive/custom";
+	      export OutputDestination=${headDir}/`date +'%d/%m/%Y'`/`basename ${ATLAS_RELEASE_BASE}`/`basename $ROOTSYS`/${userJobId}; 
+	      gzip *txt; 
+	      mkdir -p                       ${OutputDestination} ; 
+	      rsync -avz ntuple*             ${OutputDestination}/. ; 
+	      rsync -avz __*                 ${OutputDestination}/. ; 
+	    </jobTransformCmd>
+	<group>TrfRecPerf</group>
+	<queue>atlasrttperf</queue>
+      </jobTransform>
+
 
 
     
