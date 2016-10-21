@@ -28,8 +28,8 @@ SGDeleteAlg::~SGDeleteAlg()
 StatusCode
 SGDeleteAlg::initialize() {
   StatusCode sc;
-  ATH_MSG_INFO("Initializing " << name() 
-               << " - package version " << PACKAGE_VERSION);
+  ATH_MSG_VERBOSE("Initializing " << name() 
+                  << " - package version " << PACKAGE_VERSION);
   (sc=m_targetStore.retrieve()).isSuccess() &&
     (sc=m_toDelete.retrieve()).isSuccess();
   return sc;

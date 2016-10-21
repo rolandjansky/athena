@@ -28,7 +28,7 @@ StatusCode
 SGAccessAlg::initialize() 
 {
   StatusCode sc;
-  ATH_MSG_INFO("Initializing " << name() 
+  ATH_MSG_VERBOSE("Initializing " << name() 
                << " - package version " << PACKAGE_VERSION);
   (sc=m_targetStore.retrieve()).isSuccess() &&
     (sc=m_toLoad.retrieve()).isSuccess();

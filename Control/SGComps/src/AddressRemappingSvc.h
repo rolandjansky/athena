@@ -17,6 +17,8 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "GaudiKernel/Property.h"  // no forward decl: typedef
 #include "AthenaKernel/IAddressProvider.h"
+#include "AthenaKernel/IInputRename.h"
+#include "AthenaKernel/RCUObject.h"
 #include "AthenaBaseComps/AthService.h"
 #include "SGTools/TransientAddress.h"
 
@@ -26,14 +28,15 @@
 // Forward declarations
 class IClassIDSvc;
 class IProxyDict;
+class IRCUSvc;
 
 //template <class TYPE> class SvcFactory;
 
 /** @class AddressRemappingSvc
  *  @brief This class provides the interface to the LCG POOL persistency software.
  **/
-class AddressRemappingSvc : virtual public IAddressProvider,
-                            public ::AthService
+class AddressRemappingSvc
+  : public extends1<AthService, Athena::IInputRename>, public IAddressProvider
 {
 
 public: 
@@ -46,24 +49,30 @@ public:
 
 public: // Non-static members
    /// Required of all Gaudi services:
-   StatusCode initialize();
+   virtual StatusCode initialize() override;
    /// Required of all Gaudi services:
-   StatusCode finalize();
-   /// Required of all Gaudi services:  see Gaudi documentation for details
-   StatusCode queryInterface(const InterfaceID& riid, void** ppvInterface);
+   virtual StatusCode finalize() override;
 
    /// Get all addresses from provider. Called before begin event.
    /// @param storeID [IN] store ID, this function only preloads detector store addresses.
    /// @param tads [OUT] list of the transient addresses which were preloaded.
-   virtual StatusCode preLoadAddresses(StoreID::type storeID, IAddressProvider::tadList& tads);
+   virtual StatusCode preLoadAddresses(StoreID::type storeID, IAddressProvider::tadList& tads) override;
 
    /// Implementation of the loadAddresses function without any functionality.
-   virtual StatusCode loadAddresses(StoreID::type storeID, IAddressProvider::tadList& tads);
+   virtual StatusCode loadAddresses(StoreID::type storeID, IAddressProvider::tadList& tads) override;
 
    /// Update a transient address. Do mapping from one address to another
    /// @param tad [IN] transient address to be updated.
   virtual StatusCode updateAddress(StoreID::type /*storeID*/,
-				   SG::TransientAddress* pTad);
+				   SG::TransientAddress* pTad) override;
+
+
+  /**
+   * @brief Retrieve a pointer to the input rename map.
+   *
+   * May return null if no renaming is to be done.
+   */
+  virtual const IInputRename::InputRenameRCU_t* inputRenameMap() const override;
 
 private:
    CLID getClid(std::string type) const;
@@ -71,12 +80,42 @@ private:
 private: // Data
    ServiceHandle<IClassIDSvc> m_clidSvc;
    ServiceHandle<IProxyDict> m_proxyDict;
+   ServiceHandle<Athena::IRCUSvc> m_RCUSvc;
 
    /// TypeKeyOverwriteMaps, map for type#key overwrites.
    StringArrayProperty m_overwriteMaps;
    std::vector<SG::TransientAddress> m_oldTads;
    std::vector<SG::TransientAddress> m_newTads;
 
+   /// Property: list of requested input renames.
+   std::vector<std::string> m_typeKeyRenameMaps;
+
+   /// Map of sgkey->sgkey for input renames.
+   /// This object is exported via inputRenameMap and is synchronized
+   /// via RCU.
+   typedef std::unordered_map<SG::sgkey_t, SG::sgkey_t> InputRenameMap_t;
+   typedef Athena::RCUObject<InputRenameMap_t> InputRenameRCU_t;
+   std::unique_ptr<InputRenameRCU_t> m_inputRenames;
+
    bool m_skipBadRemappings;
+
+
+private:
+  /**
+   * @brief Merge in additional input rename mappings.
+   * @param toadd Mappings to add.
+   *
+   * Additional sgkey->sgkey input rename mappings are merged into the rename map,
+   * using RCU synchronization.
+   */
+   void addInputRenames (const InputRenameMap_t& toadd);
+
+
+   /**
+    * @brief Set up input rename mappings during initialization.
+    */
+   StatusCode initInputRenames();
+   StatusCode renameTads (IAddressProvider::tadList& tads);
+
 };
 #endif // !SGCOMPS_ADDRESSREMAPPINGSVC_H

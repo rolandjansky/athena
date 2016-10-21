@@ -46,7 +46,7 @@ SGInputLoader::~SGInputLoader()
 StatusCode 
 SGInputLoader::initialize()
 {
-  ATH_MSG_INFO ("Initializing " << name() << "...");
+  ATH_MSG_VERBOSE ("Initializing " << name() << "...");
 
   StatusCode sc(StatusCode::SUCCESS);
 
