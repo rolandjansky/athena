@@ -42,7 +42,6 @@ if DetFlags.overlay.pixel_on():
    outStream.ItemList += ["InDetBSErrContainer#*"]
 if DetFlags.overlay.SCT_on():
    outStream.ItemList += ["SCT_RDO_Container#*"]
-   outStream.ItemList += ["SCT_RDO_Container#*"]
 if DetFlags.overlay.TRT_on():
    outStream.ItemList += ["TRT_RDO_Container#*"]
    outStream.ItemList += ["TRT_BSIdErrContainer#*"]
