@@ -86,16 +86,6 @@ class TrigEFPhotonHypo : public HLT::HypoAlgo {
   // m_acceptAll = false, selection cuts applied
 
   bool m_acceptAll; //!<  true all events are taken
-  //bool m_acceptLOOSE; //!<  true only events that satisfy ET > ETcut are taken
-  
-  //Calocuts offline
-
-  /** @brief  Luminosity level */
- // std::string m_LumiLevel; replaced with usePhotonCuts
-  bool m_usePhotonCuts;
-
-  std::string m_egammaElectronCutIDToolName;
-  ToolHandle<IAsgElectronIsEMSelector> m_egammaElectronCutIDTool;
 
   std::string m_egammaPhotonCutIDToolName;
   ToolHandle<IAsgPhotonIsEMSelector> m_egammaPhotonCutIDTool;
@@ -122,8 +112,10 @@ class TrigEFPhotonHypo : public HLT::HypoAlgo {
   unsigned int m_EtConeSizes;
   std::vector<float> m_RelEtConeCut;
   std::vector<float> m_EtConeCut;
+  std::vector<float> m_IsoOffset;
   std::map<int, std::string> m_mapEtCone;
   std::map<int, std::string> m_mapRelEtCone;
+  std::map<int, std::string> m_mapIsoOffset;
   
   //std::vector<IHistogram1D*> nCandHistVector;
 
@@ -134,6 +126,7 @@ class TrigEFPhotonHypo : public HLT::HypoAlgo {
   TrigTimer* m_totalTimer, *m_timerPIDTool_Ele, *m_timerPIDTool_Pho;
 
   void prepareMonitoringVars();
+  float getIsolation(const float cone, const float offset, const float et){return (cone-offset)/et;}
 
 };
 #endif

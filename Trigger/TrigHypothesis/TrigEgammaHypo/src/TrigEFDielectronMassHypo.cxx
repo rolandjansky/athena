@@ -20,7 +20,7 @@
 #include "TrigEgammaHypo/TrigEFDielectronMassFex.h"
 
 #include "TrigEgammaHypo/TrigEFDielectronMassHypo.h"
-
+//#include "TrigConfHLTData/HLTTriggerElement.h"
 
 
 class ISvcLocator;
@@ -54,112 +54,139 @@ TrigEFDielectronMassHypo::~TrigEFDielectronMassHypo()
 
 HLT::ErrorCode TrigEFDielectronMassHypo::hltInitialize()
 {
-  
-  if (msgLvl() <= MSG::VERBOSE) {
-    msg() << MSG::DEBUG << "Initialization:" << endreq;
-  }
 
-  
-  if(msgLvl() <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "Initialization completed successfully:" << endreq;
-    msg() << MSG::DEBUG << "AcceptAll            = " 
-	  << (m_acceptAll==true ? "True" : "False") << endreq; 
-    msg() << MSG::DEBUG << "LowerMassCut         = " << m_lowerMassCut << endreq;
-    msg() << MSG::DEBUG << "UpperMassCut         = " << m_upperMassCut << endreq;
-  }
-  
-  return HLT::OK;
+    ATH_MSG_DEBUG("Initialization:");
+
+    ATH_MSG_DEBUG("Initialization completed successfully:");
+    ATH_MSG_DEBUG("AcceptAll            = " 
+            << (m_acceptAll==true ? "True" : "False"));
+    ATH_MSG_DEBUG("LowerMassCut         = " << m_lowerMassCut);
+    ATH_MSG_DEBUG("UpperMassCut         = " << m_upperMassCut);
+
+
+    return HLT::OK;
 }
 
 
 HLT::ErrorCode TrigEFDielectronMassHypo::hltFinalize()
 {
-  if ( msgLvl() <= MSG::INFO )
-    msg() << MSG::INFO << "in finalize()" << endreq;
+    ATH_MSG_INFO("in finalize()");
 
   return HLT::OK;
 }
 
 HLT::ErrorCode TrigEFDielectronMassHypo::hltExecute(const HLT::TriggerElement* outputTE, bool& pass) {
-  pass = false;
-  std::vector<const xAOD::TrigCompositeContainer*> vms;
-  const xAOD::TrigCompositeContainer *cont(0);
-  if (m_useElectronElectron) {
-      if (getFeatures(outputTE, vms, "MassesElectronElectron") != HLT::OK) {
-          ATH_MSG_WARNING("Failed to get TrigCompositeContainer");
-          return HLT::MISSING_FEATURE;
-      } else {
-          ATH_MSG_DEBUG("Number of TrigCompositeContainers " << vms.size());
-      }
-      m_monCut = 1;
+    pass = false;
 
-      cont=vms.back();
-      if(!cont){
-          ATH_MSG_ERROR("REGTEST: Retrieval of TrigCompositeContainer from vector failed");
-          return HLT::OK;
-      }
-      else ATH_MSG_DEBUG("REGTEST: Number of TrigComposites " << cont->size());
-      if (checkAllMasses(cont, m_lowerMassCut, m_upperMassCut)) {
-	pass = true;
-      }
-  }
-  if (m_useElectronCluster) {
-      if (getFeatures(outputTE, vms, "MassesElectronCluster") != HLT::OK) {
-          ATH_MSG_WARNING("Failed to get TrigCompositeContainer");
-          return HLT::MISSING_FEATURE;
-      } else {
-          ATH_MSG_DEBUG("Number of TrigCompositeContainers " << vms.size());
-      }
-      m_monCut = 1;
-      cont=vms.back();
-      if(!cont){
-          ATH_MSG_ERROR("REGTEST: Retrieval of TrigCompositeContainer from vector failed");
-          return HLT::OK;
-      }
-      else ATH_MSG_DEBUG("REGTEST: Number of TrigComposites " << cont->size());
-      if (checkAllMasses(cont, m_lowerMassCut, m_upperMassCut)) {
-	pass = true;
-      }
-  }
- 
+    /*std::string label="";
+    TrigConf::HLTTriggerElement::getLabel (outputTE->getId(), label );
+    ATH_MSG_INFO(" TE Id: "<< outputTE->getId() << " TE label: " << label);*/
 
-  // set output TriggerElement true if good combination
-  ATH_MSG_DEBUG("pass = " << pass);
-  return HLT::OK;    
+    std::vector<const xAOD::TrigCompositeContainer*> vms;
+    const xAOD::TrigCompositeContainer *cont(0);
+    if (getFeatures(outputTE, vms, "") != HLT::OK) {
+        ATH_MSG_WARNING("Failed to get TrigCompositeContainer");
+        return HLT::MISSING_FEATURE;
+    } else {
+        ATH_MSG_DEBUG("Number of TrigCompositeContainers " << vms.size());
+    }
+   
+    cont=vms.back();
+    if(!cont){
+        ATH_MSG_ERROR("REGTEST: Retrieval of TrigCompositeContainer from vector failed");
+        return HLT::OK;
+    }
+    else ATH_MSG_DEBUG("REGTEST: Number of TrigComposites " << cont->size());
+    if(!checkComposites(cont)){
+        ATH_MSG_ERROR("REGTEST: TrigCompositeContainer problem");
+        return HLT::MISSING_FEATURE;
+    }
+    m_monCut = 1;
+    if(m_useElectronElectron){
+        if(checkMasses(cont,"elel",m_lowerMassCut,m_upperMassCut))
+            pass = true;
+    }
+    if(m_useElectronCluster){
+        if(checkMasses(cont,"elcl",m_lowerMassElectronClusterCut,m_upperMassElectronClusterCut))
+            pass = true;
+    }
+    // set output TriggerElement true if good combination
+    ATH_MSG_DEBUG("pass = " << pass);
+    return HLT::OK;    
 }
 
-bool TrigEFDielectronMassHypo::checkAllMasses(const xAOD::TrigCompositeContainer* masses, 
-					      float mass_min, float mass_max) {
-  bool status=false;
-  float mass=-999.;
-  for(const auto &comp:*masses){
-      if(comp->name()!="EFDielectron"){
-          ATH_MSG_WARNING("REGTEST: Not EFDielectron TrigComposite");
-          continue;
-      }
-      if(!comp->getDetail("Mee",mass)){
-          ATH_MSG_ERROR("REGTEST: Cannot retrieve Mee");
-          return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
-      }
-      m_monCut = 2;
-      // apply cut on mass
-      if(mass<mass_min || mass>mass_max) {
-          ATH_MSG_DEBUG("Combination failed mass cut: " 
-                  << mass << " not in [" << m_lowerMassCut << "," << m_upperMassCut << "]");
-      } else {
-          // good combination found
-          status = true;
-          m_monCut = 3;    
-          m_monMassAccepted = mass;
-          ATH_MSG_DEBUG("Combination passed mass cut: " 
-                  << m_lowerMassCut << " < " << mass << " < " 
-                  << m_upperMassCut);
-          ATH_MSG_DEBUG("Good combination found! Mee=" 
-                  << mass << " MeV");
-      }
-  } // End of loop over TrigComposites in EFDielectronInfo   
-  
-  return status;
+bool TrigEFDielectronMassHypo::checkMasses(const xAOD::TrigCompositeContainer* masses, 
+    const std::string &key, const float mass_min, const float mass_max){
+    
+    bool status=false;
+    float mass=-999.;
+    m_monCut = 2;
+    for(const auto &comp:*masses){
+        if(comp->name()==key){
+            if(!comp->getDetail("mass",mass)){
+                ATH_MSG_WARNING("REGTEST: Cannot retrieve mass");
+                return false; 
+            }          
+            // apply cut on mass
+            if(mass<mass_min || mass>mass_max) {
+                ATH_MSG_DEBUG("Combination failed mass cut: " 
+                        << mass << " not in [" << mass_min << "," << mass_max << "]");
+            } else {
+                // good combination found
+                status = true;
+                m_monCut = 3;    
+                m_monMassAccepted = mass;
+                ATH_MSG_DEBUG("Combination passed mass cut: " 
+                        << mass_min << " < " << mass << " < " 
+                        << mass_max);
+                ATH_MSG_DEBUG("Good combination found! Mee=" 
+                        << mass << " MeV");
+            }
+        }
+    }
+    return status;
 }
 
+//Following method for validation purposes
+bool TrigEFDielectronMassHypo::checkComposites(const xAOD::TrigCompositeContainer* masses){
+    float mass=-999.;
+    for(const auto &comp:*masses){
+        if(!comp->getDetail("mass",mass)){
+            ATH_MSG_ERROR("REGTEST: Cannot retrieve mass");
+            return false; 
+        }          
+        const xAOD::Electron *tag=comp->object<xAOD::Electron>("tag");
+        if(tag==nullptr){
+            ATH_MSG_ERROR("REGTEST: Cannot retrieve tag");
+            return false; 
+        }
+        ATH_MSG_DEBUG("Retrieve tag: " << tag->pt());
+        if(comp->name()=="elcl"){
+            const xAOD::CaloCluster *probeClus=comp->object<xAOD::CaloCluster>("probe");
+            if(probeClus==nullptr){
+                ATH_MSG_ERROR("REGTEST:: Cannot retrieve probe cluster");
+                return false;
+            }
+            ATH_MSG_DEBUG("Retrieved probe: " << probeClus->pt());
+
+            TLorentzVector hlv1 = tag->p4();
+            TLorentzVector hlv2 = probeClus->p4();
+            ATH_MSG_DEBUG("Mass from objects:" << (hlv1+hlv2).M()
+                    << " Mass from FEX: " << mass);
+        }
+        if(comp->name()=="elel"){
+            const xAOD::Electron *probeEl=comp->object<xAOD::Electron>("probe");
+            if(probeEl==nullptr){
+                ATH_MSG_ERROR("REGTEST:: Cannot retrieve probe electron");
+                return false;
+            }
+            ATH_MSG_DEBUG("Retrieved probe: " << probeEl->pt());
+            TLorentzVector hlv1 = tag->p4();
+            TLorentzVector hlv2 = probeEl->p4();
+            ATH_MSG_DEBUG("Mass from objects:" << (hlv1+hlv2).M()
+                    << " Mass from FEX: " << mass);
+        }
+    }
+    return true;
+}
 //  LocalWords:  upperMassCut

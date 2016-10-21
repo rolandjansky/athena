@@ -51,14 +51,14 @@ TrigEFCaloHypo::TrigEFCaloHypo(const std::string& name, ISvcLocator* pSvcLocator
   declareProperty("emEt",   m_emEt = -3.*CLHEP::GeV); 
   //isEM offline
   declareProperty("ApplyIsEM",m_applyIsEM = false);
+  declareProperty("ApplyPhotonIsEM",m_applyPhotonIsEM = false);
   declareProperty("ApplyLH",m_applyLH = false);
   declareProperty("IsEMrequiredBits",m_IsEMrequiredBits = 0xF2);
 
   declareProperty("ShowerBuilderTool", m_showerBuilder, "Handle of instance of EMShowerBuilder");
   declareProperty("FourMomBuilderTool", m_fourMomBuilder, "Handle of instance of EMFourBuilder");
-  declareProperty("SelectorTool", m_SelectorTool, "Handle for selector tool");
   declareProperty("SelectorToolName", m_SelectorToolName, "Name for selector tool");
-  declareProperty("LHSelectorTool", m_LHSelectorTool, "Handle for LH selector tool");
+  declareProperty("PhotonSelectorToolName", m_PhSelectorToolName, "Name for selector tool");
   declareProperty("LHSelectorToolName", m_LHSelectorToolName, "Name for LH selector tool");
 
   /** Luminosity tool */
@@ -111,20 +111,46 @@ HLT::ErrorCode TrigEFCaloHypo::hltInitialize()
    m_totalTimer  = addTimer("TrigEFCaloHypoTot");
   } 
 
-  m_SelectorTool=ToolHandle<IAsgElectronIsEMSelector>(m_SelectorToolName);
-  if(m_SelectorTool.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Unable to retrieve " << m_SelectorTool  << " tool ");
-      return HLT::BAD_JOB_SETUP; 
+  if (m_SelectorToolName=="") {
+    ATH_MSG_DEBUG("Electron IsEM PID is disabled, no tool specified "); 
+    m_SelectorTool=ToolHandle<IAsgElectronIsEMSelector>();
   } 
-  else ATH_MSG_DEBUG("Tool " << m_SelectorTool << " retrieved");
-  
-  m_LHSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>(m_LHSelectorToolName);
-  if(m_LHSelectorTool.retrieve().isFailure()) {
-      ATH_MSG_ERROR("Unable to retrieve " << m_LHSelectorTool  << " tool ");
-      return HLT::BAD_JOB_SETUP; 
+  else {
+      m_SelectorTool=ToolHandle<IAsgElectronIsEMSelector>(m_SelectorToolName);
+      if(m_SelectorTool.retrieve().isFailure()) {
+          ATH_MSG_ERROR("Unable to retrieve " << m_SelectorTool  << " tool ");
+          return HLT::BAD_JOB_SETUP; 
+      } 
+      else ATH_MSG_DEBUG("Tool " << m_SelectorTool << " retrieved");
+  }
+ 
+  if (m_PhSelectorToolName=="") {
+    ATH_MSG_DEBUG("Photon IsEM PID is disabled, no tool specified "); 
+    m_PhSelectorTool=ToolHandle<IAsgPhotonIsEMSelector>();
   } 
-  else ATH_MSG_DEBUG("Tool " << m_LHSelectorTool << " retrieved");
+  else {
+      m_PhSelectorTool=ToolHandle<IAsgPhotonIsEMSelector>(m_PhSelectorToolName);
+      if(m_PhSelectorTool.retrieve().isFailure()) {
+          ATH_MSG_ERROR("Unable to retrieve " << m_PhSelectorTool  << " tool ");
+          return HLT::BAD_JOB_SETUP; 
+      } 
+      else ATH_MSG_DEBUG("Tool " << m_PhSelectorTool << " retrieved");
+  }
+ 
+  if (m_LHSelectorToolName=="") {
+    ATH_MSG_DEBUG("Electron LH PID is disabled, no tool specified "); 
+    m_LHSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>();
+  } 
+  else {
+      m_LHSelectorTool=ToolHandle<IAsgElectronLikelihoodTool>(m_LHSelectorToolName);
+      if(m_LHSelectorTool.retrieve().isFailure()) {
+          ATH_MSG_ERROR("Unable to retrieve " << m_LHSelectorTool  << " tool ");
+          return HLT::BAD_JOB_SETUP; 
+      } 
+      else ATH_MSG_DEBUG("Tool " << m_LHSelectorTool << " retrieved");
+  }
   
+
   if (m_showerBuilder.empty()) {
       ATH_MSG_INFO("ShowerBuilder is empty");
       return HLT::BAD_JOB_SETUP;
@@ -147,8 +173,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltInitialize()
   
   // For now, just try to retrieve the lumi tool
   if (m_lumiBlockMuTool.retrieve().isFailure()) {
-      ATH_MSG_DEBUG("Unable to retrieve Luminosity Tool");
-      // 244            return HLT::ERROR;
+      ATH_MSG_WARNING("Unable to retrieve Luminosity Tool");
   } else {
       ATH_MSG_DEBUG("Successfully retrieved Luminosity Tool");
   }
@@ -200,6 +225,15 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
 
   ATH_MSG_DEBUG(": in execute()");
  
+  if(m_applyIsEM)
+      ATH_MSG_DEBUG("Apply Electron isEM PID with tool " << m_SelectorTool);
+
+  else if(m_applyPhotonIsEM)
+      ATH_MSG_DEBUG("Apply Photon isEM PID with tool " << m_PhSelectorTool);
+
+  else if(m_applyLH)
+      ATH_MSG_DEBUG("Apply Electron LH PID with tool " << m_LHSelectorTool);
+      
   // get CaloClusterContainer from the trigger element:
   //--------------------------------------------------
 
@@ -321,6 +355,12 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
               ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
           else isEMTrig = m_SelectorTool->IsemValue();
       }
+      else if(m_applyPhotonIsEM){
+          ATH_MSG_DEBUG("REGTEST: Check Object, eta2 = " << fabsf(eg.caloCluster()->etaBE(2)) << " e = " << eg.caloCluster()->e());
+          if(m_PhSelectorTool->execute(&eg).isFailure())
+              ATH_MSG_DEBUG("REGTEST:: Problem in isEM Selector");
+          else isEMTrig = m_PhSelectorTool->IsemValue();
+      }
       else if(m_applyLH){
           if(useLumiTool){
               const Root::TAccept& acc = m_LHSelectorTool->accept(&eg,avg_mu);
@@ -346,7 +386,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
       m_EBE2.push_back(clus->energyBE(2));
       m_EBE3.push_back(clus->energyBE(3));
       m_Eta.push_back(clus->eta());
-      m_Phi.push_back(clus->eta());
+      m_Phi.push_back(clus->phi());
       double tmpeta = -999.;
       clus->retrieveMoment(xAOD::CaloCluster::ETACALOFRAME,tmpeta);
       double tmpphi = -999.;
@@ -367,7 +407,7 @@ HLT::ErrorCode TrigEFCaloHypo::hltExecute(const HLT::TriggerElement* outputTE,
           m_ERes.push_back(clus->e()-origClus->e());
       }
      
-      if(m_applyIsEM){
+      if(m_applyIsEM || m_applyPhotonIsEM){
           if( (isEMTrig & m_IsEMrequiredBits)!=0 ) {
               ATH_MSG_DEBUG("REGTEST IsEM = " << std::hex << isEMTrig 
                       << " cut not satisfied for pattern:" << std::hex << m_IsEMrequiredBits);

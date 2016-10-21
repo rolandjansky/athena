@@ -38,6 +38,7 @@
 #include "AIDA/IHistogram1D.h"
 
 #include "ElectronPhotonSelectorTools/IAsgElectronIsEMSelector.h"
+#include "ElectronPhotonSelectorTools/IAsgPhotonIsEMSelector.h"
 #include "ElectronPhotonSelectorTools/IAsgElectronLikelihoodTool.h"
 #include "egammaInterfaces/IEMShowerBuilder.h"
 #include "egammaInterfaces/IEMFourMomBuilder.h"
@@ -76,12 +77,15 @@ class TrigEFCaloHypo : public HLT::HypoAlgo {
 
   double     m_emEt;
   bool       m_applyIsEM;  //!< true if isem flag required 
+  bool       m_applyPhotonIsEM;  //!< true if isem flag required 
   bool       m_applyLH; // use LH
   unsigned int        m_IsEMrequiredBits;  //!< isem flag bits required
   // Switch on Monitoring:
   std::string m_SelectorToolName;
+  std::string m_PhSelectorToolName;
   std::string m_LHSelectorToolName;
   ToolHandle<IAsgElectronIsEMSelector> m_SelectorTool;
+  ToolHandle<IAsgPhotonIsEMSelector> m_PhSelectorTool;
   ToolHandle<IAsgElectronLikelihoodTool> m_LHSelectorTool;
   ToolHandle<IEMFourMomBuilder> m_fourMomBuilder;
   ToolHandle<IEMShowerBuilder> m_showerBuilder;

@@ -70,8 +70,12 @@ class L2CaloHypo_NoCut (TrigL2CaloHypoBase):
         self.AcceptAll = True
         # Following just set properties but no cut applied
         self.ETthr          = [float(threshold)*GeV]*9
-        self.CARCOREthr     = [0.92, 0.91, 0.91, 0.91, 0.93, 0.92, 0.92, 0.92, 0.92]
-        self.CAERATIOthr    = [0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60, 0.60]
+        self.dETACLUSTERthr = 9999.
+        self.dPHICLUSTERthr = 9999.
+        self.F1thr          = [0.0]
+        self.HADETthr       = [9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999., 9999.]
+        self.CARCOREthr     = [-9999., -9999., -9999., -9999., -9999., -9999., -9999., -9999., -9999.]
+        self.CAERATIOthr    = [-9999., -9999., -9999., -9999., -9999., -9999., -9999., -9999., -9999.]
 
 # used in W T&P - etcut at L2
 # previously named etcutTrk
@@ -102,10 +106,6 @@ class L2CaloHypo_e_ID (TrigL2CaloHypoBase):
         self.AcceptAll = False
         # 3 GeV within HLT threshold 
         self.ETthr          = [(float(threshold) - 3)*GeV]*9
-        # e24 cuts        
-        self.CAERATIOthr    = [-999., -999., -999., -999., -999., -999., -999., -999., -999.]
-        self.HADETthr       = [0.013, 0.013, 0.013, 0.013, 0.013, 0.023, 0.018, 0.017, 0.017]
-        self.CARCOREthr     = [0.925, 0.925, 0.92, 0.92, 0.6675, 0.91, 0.9025, 0.895, 0.895]
         self.HADETthr = L2CaloCutMaps(threshold).MapsHADETthr[IDinfo]
         self.CARCOREthr = L2CaloCutMaps(threshold).MapsCARCOREthr[IDinfo]
         self.CAERATIOthr =L2CaloCutMaps(threshold).MapsCAERATIOthr[IDinfo]

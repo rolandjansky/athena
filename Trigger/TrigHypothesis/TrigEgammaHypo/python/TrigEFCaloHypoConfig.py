@@ -9,9 +9,8 @@ import traceback
 from TrigEgammaHypo.TrigEgammaHypoConf import TrigEFCaloHypo
 from AthenaCommon.SystemOfUnits import GeV
 
-# Include EGammaPIDdefs for loose,medium,tight definitions
-from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefElectron
-from ElectronPhotonSelectorTools.TrigEGammaPIDdefs import SelectionDefPhoton 
+from TrigEgammaHypo.TrigEgammaPidTools import * 
+
 from egammaTools.egammaToolsFactories import EMFourMomBuilder, EMShowerBuilder 
 TrigEMShowerBuilderTool = EMShowerBuilder(
                 name = "TrigEgammaShowerBuilder",
@@ -46,8 +45,6 @@ class TrigEFCaloHypo_All (TrigEFCaloHypoBase):
         super( TrigEFCaloHypo_All, self ).__init__( name )
         self.emEt = float(threshold)*GeV
         self.AcceptAll = True
-        self.SelectorToolName = "AsgElectronIsEMSelector/AsgElectronIsEMLoose1Selector"
-        self.LHSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseSelector"
 
 class TrigEFCaloHypo_EtCut (TrigEFCaloHypoBase):       
     __slots__ = []
@@ -55,8 +52,6 @@ class TrigEFCaloHypo_EtCut (TrigEFCaloHypoBase):
         super( TrigEFCaloHypo_EtCut, self ).__init__( name )
         self.emEt = float(threshold)*GeV
         self.AcceptAll = False
-        self.SelectorToolName = "AsgElectronIsEMSelector/AsgElectronIsEMLoose1Selector"
-        self.LHSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseSelector"
 
 class TrigEFCaloHypo_e_ID (TrigEFCaloHypoBase):       
     __slots__ = []
@@ -66,25 +61,13 @@ class TrigEFCaloHypo_e_ID (TrigEFCaloHypoBase):
         self.AcceptAll = False
         self.ApplyIsEM = False
         self.ApplyLH = False
-        from TrigEgammaHypo.TrigEgammaPidTools import ElectronCaloToolName
-        from TrigEgammaHypo.TrigEgammaPidTools import ElectronCaloHypoToolName
-        from TrigEgammaHypo.TrigEgammaPidTools import ElectronIsEMBits
-        
         if( 'lh' in IDinfo):
-            self.SelectorToolName = "AsgElectronIsEMSelector/AsgElectronIsEMVLooseCaloSelector"
             self.LHSelectorToolName='AsgElectronLikelihoodTool/'+ElectronCaloToolName[IDinfo]
             self.ApplyLH = True
         else:
             self.ApplyIsEM = True
             self.IsEMrequiredBits =  ElectronIsEMBits[IDinfo]
-            self.LHSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseSelector"
-            if('1' in IDinfo):
-                if( float(threshold) < 20 ):
-                    self.SelectorToolName = 'AsgElectronIsEMSelector/'+ElectronCaloToolName[IDinfo]
-                else:
-                    self.SelectorToolName = 'AsgElectronIsEMSelector/'+ElectronCaloHypoToolName[IDinfo]
-            else:
-                self.SelectorToolName = 'AsgElectronIsEMSelector/'+ElectronCaloToolName[IDinfo]
+            self.SelectorToolName = 'AsgElectronIsEMSelector/'+ElectronCaloToolName[IDinfo]
         
 
 class TrigEFCaloHypo_g_ID (TrigEFCaloHypoBase):       
@@ -93,15 +76,6 @@ class TrigEFCaloHypo_g_ID (TrigEFCaloHypoBase):
         super( TrigEFCaloHypo_g_ID, self ).__init__( name )
         self.emEt = float(threshold)*GeV
         self.AcceptAll = True
-        self.ApplyIsEM = True
-        self.ApplyLH = False
-        
-        from AthenaCommon.AppMgr import ToolSvc           
-        if IDinfo == 'loose1' or IDinfo == 'loose' :
-            self.IsEMrequiredBits = SelectionDefPhoton.PhotonLooseEF #includ Rhad , Reta , Weta2 and Eratio
-            self.SelectorToolName = "AsgElectronIsEMSelector/AsgPhotonIsEMLoose1Selector"
-            self.LHSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHLooseCaloSelector"
-        else: 
-            self.IsEMrequiredBits = SelectionDefPhoton.PhotonMediumEF #includ Rhad , Reta , Weta2 and Eratio
-            self.SelectorToolName = "AsgElectronIsEMSelector/AsgPhotonIsEMMedium1Selector"
-            self.LHSelectorToolName="AsgElectronLikelihoodTool/AsgElectronLHMediumCaloSelector"
+        self.ApplyPhotonIsEM = True
+        self.IsEMrequiredBits =  PhotonIsEMBits[IDinfo]
+        self.PhotonSelectorToolName =  'AsgPhotonIsEMSelector/'+PhotonToolName[IDinfo] 
