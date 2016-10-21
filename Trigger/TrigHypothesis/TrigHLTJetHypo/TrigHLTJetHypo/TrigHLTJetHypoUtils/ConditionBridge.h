@@ -32,7 +32,11 @@ class ConditionBridge{
   bool isSatisfied(const HypoJetVector& ips) const{
     return m_pCondition -> isSatisfied(ips);
   }
-  
+
+  bool operator()(const HypoJetVector& ips) const{
+    return isSatisfied(ips);
+  }
+
   std::string toString() const noexcept{
     return m_pCondition -> toString();
   }

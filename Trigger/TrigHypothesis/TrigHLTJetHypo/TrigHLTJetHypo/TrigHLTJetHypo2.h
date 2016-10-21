@@ -2,11 +2,11 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_H
-#define TRIGHLTJETHYPO_H
+#ifndef TRGHLTJETHYPO2_H
+#define TRIGHLTJETHYPO2_H
 /********************************************************************
  *
- * NAME:     TrigHLTJetHypo.h
+ * NAME:     Trighltjethypo2.h
  * PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
  *
  * AUTHOR:   P. Sherwood
@@ -17,42 +17,62 @@
 
 #include "TrigInterfaces/HypoAlgo.h"
 #include "TrigTimeAlgs/TrigTimerSvc.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerMatcherFactory.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerBridge.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
+#include <memory>
 
 class TriggerElement;
-class CleanerMatcher;
+class TrigHLTJetHypoHelper;
+enum class HypoStrategy;
 
-class TrigHLTJetHypo : public HLT::HypoAlgo {
+class TrigHLTJetHypo2 : public HLT::HypoAlgo {
 
  public:
 
-  TrigHLTJetHypo(const std::string& name, ISvcLocator* pSvcLocator);
-  ~TrigHLTJetHypo();
+  TrigHLTJetHypo2(const std::string& name, ISvcLocator* pSvcLocator);
+  ~TrigHLTJetHypo2();
 
   HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltFinalize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* outputTE, bool& pass);
 
  private:
+  
+  bool checkStrategy(HypoStrategy);
+  bool checkEtaEtStrategy();
+  bool checkTLAStrategy();
+  bool checkDijetMassDEtaStrategy();
+  bool checkHTStrategy();
+
+  void setCleaner();
+
+  bool setConditions(HypoStrategy);
+  bool setEtaEtConditions();
+  bool setTLAConditions();
+  bool setDijetMassDEtaConditions();
+  bool setHTConditions();
+
+  bool setJetGrouper(HypoStrategy);
 
   HLT::ErrorCode checkJets(const xAOD::JetContainer*);
-  void publishResult(const CleanerMatcher &, bool,
+  void publishResult(const TrigHLTJetHypoHelper&, bool,
                      const xAOD::JetContainer*&);
   void bumpCounters(bool, int);
   void monitorLeadingJet(const xAOD::Jet* jet);
   void writeDebug(bool,
                   const HypoJetVector&,
                   const HypoJetVector&,
-		  const CleanerMatcher&) const;
+		  const TrigHLTJetHypoHelper&) const;
 
-  // CleanerMatcher getCleanerMatcher() const;
-  
   HLT::ErrorCode 
-    markAndStorePassingJets(const CleanerMatcher&,
+    markAndStorePassingJets(const TrigHLTJetHypoHelper&,
                             const xAOD::JetContainer*,
                             const HLT::TriggerElement*);
   void resetCounters();
 
+
+  std::string m_chainName;  // used for configuration of dimass chains
   // vectors with Et thresholds, eta nins and eta maxs
   // (thresh, eta min, eta max) triplets will bbe converted to Conditon objs.
   std::vector<double> m_EtThresholds;
@@ -61,14 +81,21 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
 
   // vector of indices find ofssets into the jet vector,
   // and other Condition variables used for TLA style hypos.
-  std::vector<unsigned int> m_jetvec_indices;
   std::vector<double> m_ystarMins;
   std::vector<double> m_ystarMaxs;
   std::vector<double> m_massMins;
   std::vector<double> m_massMaxs;
 
-  // Conditions m_conditions;
-  std::shared_ptr<CleanerMatcherFactory> m_cleanerMatcherFactory;
+  // delta eta cut (DimassDeta strategy)
+  std::vector<double> m_dEtaMins;
+  std::vector<double> m_dEtaMaxs;
+
+  //HT
+  double m_htMin;
+
+  // Dijets
+  /*double m_invm;
+    double m_deta;*/
 
   int m_accepted;
   int m_rejected;
@@ -93,7 +120,14 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
   
   std::string m_cleaningAlg;  // determines cleaner obj
   std::string m_matchingAlg;  // determines matcher obj;
+  std::string m_hypoStrategy; // determines Conditions, jetGrouper
 
+
+  // Jet Grouper parameters:
+  std::vector<unsigned int> m_jetvec_indices; //indexed jets
+  unsigned int m_combinationsSize;  // jet combinations
+
+  // Cleaning parameters
   //basic cleaning
   float m_n90Threshold;
   float m_presamplerThreshold;
@@ -122,15 +156,11 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
   float m_hecqLlpThreshold;
   float m_avLarQFLlpThreshold;
 
-  //Heavy Particle 2016
-  /*double m_innerMassMin0;
-  double m_innerMassMax0;
-  double m_innerMassMin1;
-  double m_innerMassMax1;
-  double m_outerMassMin;
-  double m_outerMassMax;*/
 
-  std::string m_chainName;
+  std::vector<CleanerBridge> m_cleaners;
+  std::shared_ptr<IJetGrouper> m_grouper;
+  Conditions m_conditions;
+    
   // Timing:
 
   ITrigTimerSvc*            m_timersvc;
@@ -138,4 +168,3 @@ class TrigHLTJetHypo : public HLT::HypoAlgo {
 
 };
 #endif
-
