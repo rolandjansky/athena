@@ -12,3 +12,7 @@ TrigHLTJetRecFromTriggerTower::TrigHLTJetRecFromTriggerTower(const std::string& 
   TrigHLTJetRecBase<xAOD::TriggerTowerContainer>(name, pSvcLocator) {}
 
 TrigHLTJetRecFromTriggerTower::~TrigHLTJetRecFromTriggerTower(){}
+
+const xAOD::JetContainer* TrigHLTJetRecFromTriggerTower::build() const{
+  return TrigHLTJetRecBase<xAOD::TriggerTowerContainer>::defaultBuild();
+}

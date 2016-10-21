@@ -164,7 +164,10 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
   m_pseudoJetGetter->print();
 
   ATH_MSG_DEBUG("Executing tool " << m_jetbuildTool->name());
-  auto j_container = m_jetbuildTool->build();
+  // auto j_container = m_jetbuildTool->build();
+  //auto j_container = defaultBuild();
+  auto j_container = build();
+  
 
   if (j_container == nullptr){
     ATH_MSG_ERROR("JetRecTool fail (returned 0 ptr");
@@ -180,10 +183,12 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
                       << " E " 
                       << j->e() << " " 
                       <<j->eta() );
+      /*
       ATH_MSG_VERBOSE("EMScale E " 
-                      << j->getAttribute<xAOD::JetFourMom_t>("JetEMScaleMomentum").E());
+                      << (j->getAttribute<xAOD::JetFourMom_t>("JetEMScaleMomentum")).E());
       ATH_MSG_VERBOSE("Constit E " 
                       << j->getAttribute<xAOD::JetFourMom_t>("JetConstitScaleMomentum").E());
+      */
       ++j_count;
     }
 
@@ -280,4 +285,11 @@ TrigHLTJetRecBase<InputContainer>::getPseudoJets(const InputContainer* ic,
 
   ATH_MSG_DEBUG("No of pseudojets: " << pjv.size());
   return HLT::OK;
+}
+
+template<typename InputContainer>
+const xAOD::JetContainer*
+TrigHLTJetRecBase<InputContainer>::defaultBuild() const{
+  return m_jetbuildTool->build();
+
 }
