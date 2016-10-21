@@ -37,9 +37,8 @@ ProxyProviderSvc::~ProxyProviderSvc() {}
 StatusCode 
 ProxyProviderSvc::initialize() 
 {
-  msg() << MSG::INFO << "Initializing " << name() 
-        << " - package version " << PACKAGE_VERSION 
-        << endreq;
+  ATH_MSG_VERBOSE( "Initializing " << name() 
+                   << " - package version " << PACKAGE_VERSION );
 
   const bool CREATEIF(true);
   // cache pointer to Persistency Service
@@ -61,23 +60,57 @@ ProxyProviderSvc::initialize()
   return StatusCode::SUCCESS;
 }
 
+
+namespace {
+
+
+/// Helper to build posvec
+struct ProxyAccum
+{
+  ProxyAccum() :
+    prev (tList.end())
+  {}
+  ProxyProviderSvc::TAdList tList;
+  std::vector<ProxyProviderSvc::TAdList::iterator> posvec;
+  ProxyProviderSvc::TAdList::iterator prev;
+
+  void accum();
+};
+
+
+void ProxyAccum::accum()
+{
+  if (prev == tList.end())
+    prev = tList.begin();
+  else
+    ++prev;
+  if (prev != tList.end()) {
+    std::replace (posvec.begin(), posvec.end(), tList.end(), prev);
+  }
+
+  prev = tList.end();
+  if (!tList.empty())
+    --prev;
+                          
+  posvec.push_back (tList.end());
+}
+
+
+}
+
+
 ///IProxyProvider interface
 /// add proxies (before Begin Event)
 StatusCode 
 ProxyProviderSvc::preLoadProxies(IProxyRegistry& store)
 {
-  StatusCode sc(StatusCode::SUCCESS);
-  pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
-  while (sc.isSuccess() && (iProvider != iEnd)) {
-    TAdList tList;
-    sc = (**iProvider).preLoadAddresses(store.storeID(), tList);
-    if (sc.isSuccess()) sc = addAddresses(store, *iProvider, tList);
-    ++iProvider;
+  ProxyAccum accum;
+  for (IAddressProvider* provider : m_providers) {
+    ATH_CHECK( provider->preLoadAddresses(store.storeID(), accum.tList) );
+    accum.accum();
   }
-#ifdef DEBUGPPS
-  ATH_MSG_VERBOSE("preLoadProxies returns " << sc);
-#endif
-  return sc;
+  ATH_CHECK( addAddresses (store, accum.tList, accum.posvec) );
+  return StatusCode::SUCCESS;
 }
 
 
@@ -86,19 +119,44 @@ ProxyProviderSvc::preLoadProxies(IProxyRegistry& store)
 StatusCode 
 ProxyProviderSvc::loadProxies(IProxyRegistry& store)
 {
-  StatusCode sc(StatusCode::SUCCESS);
-  pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
-  while (sc.isSuccess() && (iProvider != iEnd)) {
-    TAdList tList;
-    sc = (**iProvider).loadAddresses(store.storeID(), tList);
-    if (sc.isSuccess()) sc = addAddresses(store, *iProvider, tList);
-    ++iProvider;
+  ProxyAccum accum;
+  for (IAddressProvider* provider : m_providers) {
+    ATH_CHECK( provider->loadAddresses(store.storeID(), accum.tList) );
+    accum.accum();
   }
-#ifdef DEBUGPPS
-  ATH_MSG_VERBOSE("loadProxies returns " << sc);
-#endif
-  return sc;
+  ATH_CHECK( addAddresses (store, accum.tList, accum.posvec) );
+  return StatusCode::SUCCESS;
 }
+
+
+/**
+ * @brief Add lists of TADs to the store.
+ * @param store Store to which to add.
+ * @param tList List of TADs from all providers.
+ * @param Iterators giving the end of the TADs for each provider.
+ *
+ * The TADs for provider index i are given by the iterator range
+ * posvec[i-1]..posvec[i] (using tList.begin() for the start for i==0).
+ * We used to do this provider-by-provider, using the addAddresses
+ * implementation below.  However, the renaming functionality
+ * of AddressRemappingSvc requires allowing a provider to edit
+ * TADs made by previous providers.
+ */
+StatusCode ProxyProviderSvc::addAddresses(IProxyRegistry& store, 
+					  TAdList& tList,
+                                          const std::vector<TAdList::iterator>& posvec)
+{
+  assert (m_providers.size() == posvec.size());
+  size_t ipos = 0;
+  for (IAddressProvider* provider : m_providers) {
+    TAdList thislist;
+    thislist.splice (thislist.begin(), tList, tList.begin(), posvec[ipos]);
+    ATH_CHECK( addAddresses (store, provider, thislist) );
+    ++ipos;
+  }
+  return StatusCode::SUCCESS;
+}
+
 
 /// add a list of TADs to store.
 StatusCode ProxyProviderSvc::addAddresses(IProxyRegistry& store, 
@@ -153,10 +211,8 @@ ProxyProviderSvc::addAddress(IProxyRegistry& store,
 
   if (addedProxy) {
     // loop over all alias'
-    SG::TransientAddress::TransientAliasSet persAlias = tAddr->alias();
-    SG::TransientAddress::TransientAliasSet::const_iterator aliasIter = persAlias.begin();
-    for (; aliasIter != persAlias.end(); aliasIter++) {
-      (store.addAlias(*aliasIter, dp)).ignore();
+    for (const std::string& alias : tAddr->alias()) {
+      (store.addAlias(alias, dp)).ignore();
     }
     
     // Add any other allowable conversions.
@@ -215,13 +271,12 @@ ProxyProviderSvc::updateAddress(StoreID::type storeID,
 {
 
   pAPiterator iProvider(m_providers.begin()), iEnd(m_providers.end());
-  for (; iProvider != iEnd; iProvider++) {
+  for (; iProvider != iEnd; ++iProvider) {
     if ( ((*iProvider)->updateAddress(storeID, pTAd)).isSuccess() ) 
     {
       pTAd->setProvider(*iProvider, storeID);
       return StatusCode::SUCCESS;
     }
-    ++iProvider;
   }  
 
   return StatusCode::SUCCESS;

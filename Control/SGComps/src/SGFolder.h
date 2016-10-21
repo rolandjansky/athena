@@ -58,8 +58,8 @@ namespace SG {
     /// \name access the ItemList
     //@{
     typedef IFolder::const_iterator const_iterator;
-    virtual const_iterator begin() const { return m_list.begin(); }
-    virtual const_iterator end() const { return m_list.end(); }
+    virtual const_iterator begin() const override { return m_list.begin(); }
+    virtual const_iterator end() const override { return m_list.end(); }
     //@}
 
     ///add a data object identifier to the list. Notice that if the typename

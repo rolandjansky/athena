@@ -1,0 +1,5 @@
+ApplicationMgr.ExtSvc += { "AddressRemappingSvc/ARSTest1", "AddressRemappingSvc/ARSTest2" };
+ARSTest1.TypeKeyRenameMaps = {"bad1", "bad2", "foo#asdasd->zzz"};
+ARSTest2.TypeKeyRenameMaps = {};
+AddressRemappingSvc.TypeKeyRenameMaps = { "AddressRemappingSvc_test::Foo#foo1->bar1", "874546632#foo2->bar2" };
+

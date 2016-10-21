@@ -96,6 +96,20 @@ protected:
   virtual ~ProxyProviderSvc();
 
 private:
+  /**
+   * @brief Add lists of TADs to the store.
+   * @param store Store to which to add.
+   * @param tList List of TADs from all providers.
+   * @param Iterators giving the end of the TADs for each provider.
+   *
+   * The TADs for provider index i are given by the iterator range
+   * posvec[i-1]..posvec[i] (using tList.begin() for the start for i==0).
+   */
+  StatusCode addAddresses(IProxyRegistry& store, 
+                          TAdList& tList,
+                          const std::vector<TAdList::iterator>& posvec);
+
+  
   /// property: the services declared as providers
   StringArrayProperty m_providerNames;
   /// the handler for m_providerNames
