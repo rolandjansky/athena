@@ -36,8 +36,8 @@
 
 namespace Trk {
 
-  const int MAXNCHAMBERS=50;
-  const int MAXNINDICES =50*6;
+  constexpr int MAXNCHAMBERS=50;
+  constexpr int MAXNINDICES =50*6;
 
   //_______________________________________________________________________
   GlobalChi2AlignTool::GlobalChi2AlignTool(const std::string& type, const std::string& name,
@@ -50,15 +50,30 @@ namespace Trk {
     , m_nhits(0)
     , m_chi2(0.)
     , m_nDoF(0)
-    , m_ntuple(0)
-    , m_tree(0)
+    , m_ntuple(nullptr)
+    , m_tree(nullptr)
+    , m_run{}
+    , m_event{}
+    , m_materialOnTrack{}
+    , m_momentum{}
     , m_nChambers(0)
     , m_chamberIds(new int[MAXNCHAMBERS])
     , m_nMatrixIndices(0)
     , m_matrixIndices(new int[MAXNINDICES])
+    , m_nSecndDeriv(0)
     , m_secndDeriv(new double[MAXNINDICES*MAXNINDICES])
     , m_firstDeriv(new double[MAXNINDICES])
     , m_actualSecndDeriv(new double[MAXNINDICES])
+    , m_eta{}
+    , m_phi{}
+    , m_perigee_x{}, m_perigee_y{}, m_perigee_z{}
+    , m_trackInfo{}
+    , m_bremFit{}
+    , m_bremFitSuccessful{}
+    , m_straightTrack{}
+    , m_slimmedTrack{}
+    , m_hardScatterOrKink{}
+    , m_lowPtTrack{}
     , m_fromFiles(false)
   {      
     declareInterface<IAlignTool>(this);
@@ -79,7 +94,7 @@ namespace Trk {
   //_______________________________________________________________________
   GlobalChi2AlignTool::~GlobalChi2AlignTool()
   {
-    ATH_MSG_INFO("in GlobalChi2AlignTool d'tor");
+    ATH_MSG_DEBUG("in GlobalChi2AlignTool d'tor");
     //delete m_tree;
 
     delete [] m_chamberIds;
@@ -88,27 +103,16 @@ namespace Trk {
     delete [] m_firstDeriv;
     delete [] m_actualSecndDeriv;
 
-    ATH_MSG_INFO("done with GlobalChi2AlignTool d'tor");
+    ATH_MSG_DEBUG("done with GlobalChi2AlignTool d'tor");
   }
 
   //_______________________________________________________________________
   StatusCode GlobalChi2AlignTool::initialize()
   {
     ATH_MSG_DEBUG("initialize() of GlobalChi2AlignTool");  
-    
     // Get MatrixTool  
-    if ( m_matrixTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_matrixTool);
-      return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_INFO("Retrieved tool " << m_matrixTool);
-    
-    if ( m_alignModuleTool.retrieve().isFailure() ) {
-      ATH_MSG_FATAL("Failed to retrieve tool " << m_alignModuleTool);
-      return StatusCode::FAILURE;
-    } 
-    else ATH_MSG_INFO("Retrieved tool " << m_alignModuleTool);
-    
+    ATH_CHECK( m_matrixTool.retrieve() );
+    ATH_CHECK(m_alignModuleTool.retrieve() );
     return StatusCode::SUCCESS;
   }
 
@@ -128,7 +132,7 @@ namespace Trk {
     ATH_MSG_DEBUG("allocating matrix with "<<nDoF<<" degrees of freedom");
 
     if( m_matrixTool->allocateMatrix(nDoF).isFailure()) {
-      msg(MSG::FATAL)<<"Problem with allocateMatrix"<<endreq;
+      msg(MSG::FATAL)<<"Problem with allocateMatrix"<<endmsg;
       return StatusCode::FAILURE;
     }
     ATH_MSG_DEBUG("done with firstEventInitialize()");
@@ -192,11 +196,11 @@ namespace Trk {
 
       // check if pointers are valid
       if ( !ptrPosition || !ptrCovariance || !ptrX || vtxType<AlignVertex::Refitted ) {
-        msg(MSG::ERROR)<<"something missing from alignVertex!"<<endreq;
-        if (!ptrPosition)     msg(MSG::ERROR)<<"no fitted position!"<<endreq;
-        if (!ptrCovariance)   msg(MSG::ERROR)<<"no covariance!"<<endreq;
-        if (!ptrX)            msg(MSG::ERROR)<<"no link to the X object!"<<endreq;
-        if (vtxType<AlignVertex::Refitted) msg(MSG::ERROR)<<"Vertex type = "<< vtxType << endreq;
+        msg(MSG::ERROR)<<"something missing from alignVertex!"<<endmsg;
+        if (!ptrPosition)     msg(MSG::ERROR)<<"no fitted position!"<<endmsg;
+        if (!ptrCovariance)   msg(MSG::ERROR)<<"no covariance!"<<endmsg;
+        if (!ptrX)            msg(MSG::ERROR)<<"no link to the X object!"<<endmsg;
+        if (vtxType<AlignVertex::Refitted) msg(MSG::ERROR)<<"Vertex type = "<< vtxType << endmsg;
         return false;
       }
     }
@@ -215,11 +219,11 @@ namespace Trk {
 
     // check if pointers are valid
     if (!ptrWeights || !ptrWeightsFD || !ptrResiduals || !ptrDerivs) {
-      msg(MSG::ERROR)<<"something missing from alignTrack!"<<endreq;
-      if (!ptrWeights)   msg(MSG::ERROR)<<"no weights!"<<endreq;
-      if (!ptrWeightsFD) msg(MSG::ERROR)<<"no weights for first deriv!"<<endreq;
-      if (!ptrResiduals) msg(MSG::ERROR)<<"no residuals!"<<endreq;
-      if (!ptrDerivs)    msg(MSG::ERROR)<<"no derivatives!"<<endreq;
+      msg(MSG::ERROR)<<"something missing from alignTrack!"<<endmsg;
+      if (!ptrWeights)   msg(MSG::ERROR)<<"no weights!"<<endmsg;
+      if (!ptrWeightsFD) msg(MSG::ERROR)<<"no weights for first deriv!"<<endmsg;
+      if (!ptrResiduals) msg(MSG::ERROR)<<"no residuals!"<<endmsg;
+      if (!ptrDerivs)    msg(MSG::ERROR)<<"no derivatives!"<<endmsg;
       return false;
     }
 
@@ -246,7 +250,7 @@ namespace Trk {
     matrix_F->setZero();
 
     // get all alignPars and all derivatives
-    msg(MSG::DEBUG) << "accumulate: The derivative vector size is  " << derivatives.size() << endreq;
+    msg(MSG::DEBUG) << "accumulate: The derivative vector size is  " << derivatives.size() << endmsg;
     std::vector<AlignModuleDerivatives>::iterator derivIt     = derivatives.begin();
     std::vector<AlignModuleDerivatives>::iterator derivIt_end = derivatives.end();
 
@@ -409,7 +413,7 @@ namespace Trk {
       std::vector<Amg::VectorX*>     vtxDerivatives;
 
       // get all alignPars and all derivatives
-      msg(MSG::DEBUG) << "accumulate: The Vertex derivative vector size is  " << ptrX->size() << endreq;
+      msg(MSG::DEBUG) << "accumulate: The Vertex derivative vector size is  " << ptrX->size() << endmsg;
       std::vector<AlignModuleVertexDerivatives>::iterator XIt     = ptrX->begin();
       std::vector<AlignModuleVertexDerivatives>::iterator XIt_end = ptrX->end();
 
@@ -420,7 +424,7 @@ namespace Trk {
 
         // get alignment parameters
         std::vector<Amg::VectorX>& X_vec = XIt->second;
-        msg(MSG::DEBUG) << "accumulate: The X_vec size is  " << X_vec.size() << endreq;
+        msg(MSG::DEBUG) << "accumulate: The X_vec size is  " << X_vec.size() << endmsg;
         DataVector<AlignPar>* alignPars = m_alignModuleTool->getAlignPars(module);
         int nModPars = alignPars->size();
         if (nModPars != (int)X_vec.size()) {
