@@ -35,7 +35,8 @@ namespace Trk {
                                                    const IInterface  * parent)
     : AthAlgTool(type,name,parent)
     , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
-    , m_idHelper(0)
+    , m_idHelper(nullptr)
+    , m_measTypeIdHelper(nullptr)
     , m_firstEvent(true)
     , m_residualType(HitOnly)
     , m_residualTypeSet(false)
@@ -67,13 +68,13 @@ namespace Trk {
   StatusCode AnalyticalDerivCalcTool::initialize()
   {
     if (m_alignModuleTool.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_alignModuleTool << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_alignModuleTool << endmsg;
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_alignModuleTool);
 
     if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endreq;
+      msg(MSG::FATAL) << "Could not get AtlasDetectorID helper" << endmsg;
       return StatusCode::FAILURE;
     }
     m_measTypeIdHelper = new MeasurementTypeID(m_idHelper);
@@ -175,7 +176,7 @@ namespace Trk {
     ATH_MSG_DEBUG("V inverse (diagonal only):");
     if (msgLvl(MSG::DEBUG)) {
       for (int i=0;i<Vinv->rows();i++) msg()<<(*Vinv)(i,i)<<" ";
-      msg()<<endreq;
+      msg()<<endmsg;
     } 
 
     // ========================
@@ -223,7 +224,7 @@ namespace Trk {
       ATH_MSG_DEBUG("setting local weight matrix W ( "<<W->rows()<<" x "<<W->cols()<<" ) (diagonal only):");
       if (msgLvl(MSG::DEBUG)) {
         for (int i=0;i<W->rows();i++) msg()<<(*W)(i,i)<<" ";
-        msg()<<endreq;
+        msg()<<endmsg;
       } 
       alignTrack->setWeightMatrix(W);
 
@@ -242,7 +243,7 @@ namespace Trk {
     ATH_MSG_DEBUG("V ( "<<V->rows()<<" x "<<V->cols()<<" ) (diagonal only):");
     if (msgLvl(MSG::DEBUG)) {
       for (int i=0;i<V->rows();i++) msg()<<(*V)(i,i)<<" ";
-      msg()<<endreq;
+      msg()<<endmsg;
     } 
 
     const int outputdim = alignTrack->nAlignTSOSMeas();
@@ -280,7 +281,7 @@ namespace Trk {
     ATH_MSG_DEBUG("setting weight for 1st derivatives (diagonal only): ");
     if (msgLvl(MSG::DEBUG)) {
       for (int i=0;i<W1st->rows();i++) msg()<<(*W1st)(i,i)<<" ";
-      msg()<<endreq;
+      msg()<<endmsg;
     }
     alignTrack->setWeightMatrixFirstDeriv(W1st);
 
@@ -552,7 +553,7 @@ namespace Trk {
       Risvalid = Risvalid && R(irow,irow)>0;
       if ( msgLvl(MSG::DEBUG) ) {
         if( !(R(irow,irow)>0) )
-          msg(MSG::DEBUG) << "matrix invalid: (" << irow << "," << irow<<") = " << R(irow,irow) << endreq;
+          msg(MSG::DEBUG) << "matrix invalid: (" << irow << "," << irow<<") = " << R(irow,irow) << endmsg;
       }
       else if (!Risvalid)
         break;
@@ -573,7 +574,7 @@ namespace Trk {
 
     if( !Risvalid ) {
       ATH_MSG_WARNING("Checked matrix is invalid.");
-      ATH_MSG_WARNING("R: "<<endreq<<R);
+      ATH_MSG_WARNING("R: \n"<<R);
     }
     return Risvalid;
   }

@@ -46,7 +46,7 @@ namespace Trk {
   //_______________________________________________________________________
   StatusCode IPCMatrixTool::initialize()
   {
-    msg(MSG::DEBUG) << "initialize() of IPCMatrixTool" << endreq;  
+    msg(MSG::DEBUG) << "initialize() of IPCMatrixTool" << endmsg;  
     
     return StatusCode::SUCCESS;
   }
@@ -54,7 +54,7 @@ namespace Trk {
   //_______________________________________________________________________
   StatusCode IPCMatrixTool::finalize()
   {
-    msg(MSG::DEBUG) << "finalize() of IPCMatrixTool" << endreq;  
+    msg(MSG::DEBUG) << "finalize() of IPCMatrixTool" << endmsg;  
     
     return StatusCode::SUCCESS;    
   }

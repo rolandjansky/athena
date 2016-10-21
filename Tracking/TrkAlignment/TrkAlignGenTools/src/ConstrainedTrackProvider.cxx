@@ -25,6 +25,11 @@ namespace Trk {
     
     : AthAlgTool(type,name,parent)
     , m_trackFitter("Trk::GlobalChi2Fitter/InDetTrackFitter")
+    , m_nRetrievalErrors(0)
+    , m_scalepmaptogev(false)    
+    , m_constrainedTracks(0)
+    , m_passconstrainedRequirements(0)
+    , m_unconstrainedTracks(0)
     , m_inputTrackCollection("Tracks")
     , m_constraintInputFile_P(0)
     , m_etaphiMap_P(0)
@@ -58,7 +63,7 @@ namespace Trk {
     declareProperty("UseConstraintError",         m_useConstraintError = true   ,"Bla bla "   ); 
     declareProperty("ReduceConstraintUncertainty",m_reduceConstraintUncertainty = 1., "Reduce the uncertainty on teh track parmater constraint by this amount"  ); 
     declareProperty("DeltaScaling",               m_deltaScaling = 1.);
-   
+    declareProperty("ScalePMapToGeV"             ,m_scalepmaptogev);
   }
 
   //________________________________________________________________________
@@ -72,7 +77,7 @@ namespace Trk {
   {
     // configure main track fitter
     if(m_trackFitter.retrieve().isFailure()) {
-       msg(MSG::FATAL) << "Could not get " << m_trackFitter << endreq;
+       msg(MSG::FATAL) << "Could not get " << m_trackFitter << endmsg;
        return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_trackFitter);
@@ -250,7 +255,7 @@ namespace Trk {
         constrainedPars.push_back( constrainedqOverP ) ;
         
         Amg::MatrixX constrainedCov( 3,3 ) ;
-	constrainedCov.setZero();
+	      constrainedCov.setZero();
         constrainedCov( 0, 0 )   =  correctedD0Error;
         constrainedCov( 1, 1 )   =  correctedZ0Error;
         constrainedCov( 2, 2 )   =  correctedQoverPError;
@@ -402,6 +407,9 @@ namespace Trk {
 
     double delta = m_etaphiMap_P->GetBinContent(binNumber) * m_deltaScaling;
        
+    if (m_scalepmaptogev)
+      delta = delta * 0.001;
+
     correctedQoverP = measuredPerigee->parameters()[Trk::qOverP] * (1.+ charge *pt *delta );
     correctedQoverPError = perr;
    

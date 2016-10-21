@@ -29,6 +29,9 @@ namespace Trk {
     : AthAlgTool(type,name,parent)    
     , m_pullCalculator("Trk::ResidualPullCalculator/ResidualPullCalculator")
     , m_updator("Trk::KalmanUpdator/TrkKalmanUpdator")
+    , m_qOverP{}
+    , m_previousQOverP{}
+    , m_nDoF{}
     , m_chi2ForMeasType(0)
   {
     declareInterface<IAlignResidualCalculator>(this);
@@ -51,7 +54,7 @@ namespace Trk {
   {  
     // get residual pull calculator
     if (m_pullCalculator.retrieve().isFailure()) {
-      msg(MSG::FATAL) << "Could not get " << m_pullCalculator << endreq; 
+      msg(MSG::FATAL) << "Could not get " << m_pullCalculator << endmsg; 
       return StatusCode::FAILURE;
     }
     ATH_MSG_INFO("Retrieved " << m_pullCalculator);
@@ -59,7 +62,7 @@ namespace Trk {
     // get updator
     if(m_resType==Unbiased) {
       if (m_updator.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not get " << m_updator << endreq; 
+        msg(MSG::FATAL) << "Could not get " << m_updator << endmsg; 
         return StatusCode::FAILURE;
       }
       ATH_MSG_INFO("Retrieved " << m_pullCalculator);

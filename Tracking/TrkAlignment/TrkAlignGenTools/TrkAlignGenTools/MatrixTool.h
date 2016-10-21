@@ -214,8 +214,23 @@ namespace Trk {
     int m_aNDoF;                      //!< number of active DoF (size of m_activeIndices)
 
     int m_maxReadErrors;	//!< maximum number of reading TFile errors 
+
     bool m_AlignIBLbutNotPixel;
     bool m_AlignPixelbutNotIBL;
+
+    bool m_Remove_Pixel_Tx;
+    bool m_Remove_Pixel_Ty;
+    bool m_Remove_Pixel_Tz;
+    bool m_Remove_Pixel_Rx;
+    bool m_Remove_Pixel_Ry;
+    bool m_Remove_Pixel_Rz;
+
+    bool m_Remove_IBL_Tx;
+    bool m_Remove_IBL_Ty;
+    bool m_Remove_IBL_Tz;
+    bool m_Remove_IBL_Rx;
+    bool m_Remove_IBL_Ry;
+    bool m_Remove_IBL_Rz;
 
 
   }; // end of class
