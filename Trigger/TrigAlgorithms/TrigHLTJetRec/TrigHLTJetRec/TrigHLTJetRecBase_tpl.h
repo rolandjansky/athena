@@ -165,7 +165,9 @@ TrigHLTJetRecBase<InputContainer>::hltExecute(const HLT::TriggerElement*
 
   ATH_MSG_DEBUG("Executing tool " << m_jetbuildTool->name());
   // auto j_container = m_jetbuildTool->build();
-  auto j_container = defaultBuild();
+  //auto j_container = defaultBuild();
+  auto j_container = build();
+  
 
   if (j_container == nullptr){
     ATH_MSG_ERROR("JetRecTool fail (returned 0 ptr");

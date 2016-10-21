@@ -13,7 +13,10 @@ public TrigHLTJetRecBase<xAOD::CaloClusterContainer>{
 
  public:
   TrigHLTJetRecFromCluster(const std::string & name, ISvcLocator* pSvcLocator);
-  ~TrigHLTJetRecFromCluster();
+  virtual ~TrigHLTJetRecFromCluster();
+
+
+
  protected:
 
   HLT::ErrorCode getPseudoJets(const xAOD::CaloClusterContainer*,
@@ -22,13 +25,6 @@ public TrigHLTJetRecBase<xAOD::CaloClusterContainer>{
 
 
   const xAOD::JetContainer* build() const override; 
-
- private:
-  bool m_doTrimming{false};
-  //ToolHandle<IJetBuildTool> m_jetTrimmerTool;
-  ToolHandle<JetRecTool> m_jetTrimmerTool; 
-  
-  bool m_doxAODoutPut{false};
 
 }; 
 #endif

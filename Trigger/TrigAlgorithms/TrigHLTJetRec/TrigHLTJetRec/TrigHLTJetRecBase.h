@@ -40,9 +40,9 @@ class TrigHLTJetRecBase: public HLT::FexAlgo {
 
  public:
   TrigHLTJetRecBase(const std::string & name, ISvcLocator* pSvcLocator);
-  ~TrigHLTJetRecBase();
+  virtual ~TrigHLTJetRecBase();
   
-  HLT::ErrorCode hltInitialize();
+  virtual HLT::ErrorCode hltInitialize();
   HLT::ErrorCode hltExecute(const HLT::TriggerElement* inputTE,
                             HLT::TriggerElement* outputTE);
   HLT::ErrorCode hltFinalize();

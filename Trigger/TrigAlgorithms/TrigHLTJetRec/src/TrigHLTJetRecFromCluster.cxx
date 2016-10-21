@@ -22,9 +22,6 @@ using fastjet::PseudoJet;
 TrigHLTJetRecFromCluster::TrigHLTJetRecFromCluster(const std::string& name, 
                                              ISvcLocator* pSvcLocator):
   TrigHLTJetRecBase<xAOD::CaloClusterContainer>(name, pSvcLocator) {
-  declareProperty( "jetTrimmerTool", m_jetTrimmerTool);
-  declareProperty( "doTrimming", m_doTrimming);
-  declareProperty( "doxAODoutPut", m_doxAODoutPut);
 }
 
 TrigHLTJetRecFromCluster::~TrigHLTJetRecFromCluster(){}
@@ -69,18 +66,7 @@ TrigHLTJetRecFromCluster::getPseudoJets(const xAOD::CaloClusterContainer* ic,
 
 }
 
+
 const xAOD::JetContainer* TrigHLTJetRecFromCluster::build() const{
-  auto j_container = 
-    TrigHLTJetRecBase<xAOD::CaloClusterContainer>::defaultBuild();
-  if(!m_doTrimming){return j_container;}
-  // now find out from PA how exactly to use the rimming tool
-  // maybe something like
-  // m_jetTrimTool.setInputContainer(j_container);
-  // m_jetTrimTool.build();
-  // retrun j_container;
-  else{
-    m_jetTrimmerTool->setInputJetContainer(j_container);
-    auto Trimmedj_container = m_jetTrimmerTool->build();
-    return Trimmedj_container;
-  }
+    return TrigHLTJetRecBase<xAOD::CaloClusterContainer>::defaultBuild();
 }
