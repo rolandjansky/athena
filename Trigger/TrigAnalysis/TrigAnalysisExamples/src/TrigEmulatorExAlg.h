@@ -52,7 +52,7 @@ public:
 private:
    // event info
    unsigned int m_eventNr;
-   bool m_doEg;
+   //bool m_doEg;
    
    // job options configurable
    std::vector<std::string> m_l1chainList; // L1 chain of interest, e.g., L1_MU10
@@ -61,11 +61,14 @@ private:
    // Methods to steer the tutorial
    StatusCode collectTriggerStatistics();
    StatusCode EmulationAnalysis();
+   
    // Tools
-   ToolHandle< Trig::TrigDecisionTool > m_trigDec;
-   ToolHandle<Trig::IMatchingTool> m_matchTool;
+   ToolHandle< Trig::TrigDecisionTool > m_triggerDecisionTool;
+   ToolHandle<Trig::IMatchingTool> m_triggerMatchingTool;
+   
    //! Helper class for tutorial, provides an additional layer to illustrate TDT functionality
-   ToolHandle< Trig::TriggerAnalysisHelper > m_tah; 
+   ToolHandle< Trig::TriggerAnalysisHelper > m_triggerAnalysisHelper; 
+   
    // The THistSvc
    ServiceHandle< ITHistSvc > m_histSvc;
    
@@ -76,12 +79,34 @@ private:
    std::map<std::string,int> m_numL1EmulatedEvents; // events emulated at L1 
    std::map<std::string,int> m_numHLTEmulatedEvents; // events emualted at HLT 
 
-
    // Histograms common for each analysis
 
    // Trigger Decision
-   TH1* h_triggerAccepts;
-   TH1* h_emulationAccepts;
+   TH1* m_h_L1TriggerAccepts;
+   TH1* m_h_L1EmulationAccepts;
+   TH1* m_h_HLTTriggerAccepts;
+   TH1* m_h_HLTEmulationAccepts;
+
+   // Internal settings for isolation and leakage methods
+   double m_roi_pt_cut;
+   double m_roi_eta_cut;
+
+   double m_iso_slope;
+   double m_iso_offset;
+   double m_iso_thresh;
+   double m_iso_min;
+
+   double m_had_leak_slope;
+   double m_had_leak_offset;
+   double m_had_leak_thresh;
+   double m_had_leak_min;
+
+   bool m_use_had_core;
+   bool m_use_emclus;
+
+   bool EmulateTauDecision (const xAOD::EmTauRoI& l1tau) const;
+   bool pass_isolation(const xAOD::EmTauRoI& l1tau) const;
+   bool pass_hadronic_leakage(const xAOD::EmTauRoI& l1tau) const;
 
 }; // end of class TrigEmulatorExAlg
 
