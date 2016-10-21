@@ -370,13 +370,13 @@ private:
    // calcualte the chi2 value
    double chiSquared = 0.0;
    if (R.determinant()==0.0) { 
-     msg(MSG::DEBUG) << "matrix inversion not possible, set chi2 to zero" << endreq;
+     msg(MSG::DEBUG) << "matrix inversion not possible, set chi2 to zero" << endmsg;
    } else {
      R = R.inverse();
      chiSquared = r.transpose()*R*r;
      //if (msgLvl(MSG::VERBOSE)) {
      //  msg( MSG::VERBOSE) << "-U- fitQuality of "<< (sign>0?"predicted":"updated")
-     //        <<" state, chi2 :" << chiSquared << " / ndof= 2" << endreq;
+     //        <<" state, chi2 :" << chiSquared << " / ndof= 2" << endmsg;
      //}
    }
    return new FitQualityOnSurface(chiSquared, DIM);

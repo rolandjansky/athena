@@ -183,8 +183,6 @@ private:
     //! job options: initial weight matrix for input pars without error matrix
     std::vector<double> m_weight;
 
-    //! class member version of retrieving MsgStream
-    mutable MsgStream   m_log;
     //! cached log.level()
     int                 m_outputlevel;
 
