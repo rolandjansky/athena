@@ -208,7 +208,7 @@ const Trk::TrackParameters* Trk::KalmanUpdatorAmg::removeFromState (const Trk::T
     if (msgLvl(MSG::VERBOSE)) logStart("removeFromState(TP,LPOS,ERR,FQ)",trkPar.parameters());
     if (fitQoS) {
       msg(MSG::WARNING) << "expect nil FitQuality pointer, refuse operation to"
-            << " avoid mem leak!" << endreq;
+            << " avoid mem leak!" << endmsg;
       return 0;
     } else {
 
@@ -877,12 +877,12 @@ bool Trk::KalmanUpdatorAmg::correctThetaPhiRange_5D(AmgVector(5)& V,AmgSymMatrix
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "-U- phi = " << V(Trk::phi);
     V(Trk::phi) = fmod(V(Trk::phi)+M_PI,2*M_PI)-M_PI;
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " out of range, now "
-					    << "corrected to " << V(Trk::phi) << endreq;
+					    << "corrected to " << V(Trk::phi) << endmsg;
   } else if( (V(Trk::phi)<-M_PI) ) {
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "-U- phi = " << V(Trk::phi);
     V(Trk::phi) = fmod(V(Trk::phi)-M_PI,2*M_PI)+M_PI;
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " out of range, now "
-					    << "corrected to " << V(Trk::phi) << endreq;
+					    << "corrected to " << V(Trk::phi) << endmsg;
   }
   
   return true;
@@ -890,8 +890,8 @@ bool Trk::KalmanUpdatorAmg::correctThetaPhiRange_5D(AmgVector(5)& V,AmgSymMatrix
 
 void Trk::KalmanUpdatorAmg::logStart(const std::string& IDstring, const AmgVector(5)& tp) const
 {
-  msg(MSG::DEBUG)   << "--> entered KalmanUpdatorAmg::" << IDstring << endreq;
-  msg(MSG::VERBOSE) << "-U- TrkPar              = " << '\n' << Amg::toString(tp) << endreq;
+  msg(MSG::DEBUG)   << "--> entered KalmanUpdatorAmg::" << IDstring << endmsg;
+  msg(MSG::VERBOSE) << "-U- TrkPar              = " << '\n' << Amg::toString(tp) << endmsg;
 }
 
 
@@ -899,7 +899,7 @@ void Trk::KalmanUpdatorAmg::logInputCov(const AmgSymMatrix(5)& trkCov, const Amg
 {
   msg(MSG::VERBOSE) << "-U- cov of trkPar       = " << '\n' << Amg::toString(trkCov) << '\n';
   msg(MSG::VERBOSE) << "-U- measurement locPar  = " << '\n' << Amg::toString(rioPar) << '\n';
-  msg(MSG::VERBOSE) << "-U- measurement (err)^2 = " << '\n' << Amg::toString(rioCov) << endreq;
+  msg(MSG::VERBOSE) << "-U- measurement (err)^2 = " << '\n' << Amg::toString(rioCov) << endmsg;
 }
 
 
@@ -908,13 +908,13 @@ void Trk::KalmanUpdatorAmg::logGainForm(const Amg::MatrixX& r, const Amg::Matrix
   // again some verbose debug output showing internals of updating
   msg(MSG::VERBOSE) << "-U- residual            = " << '\n' << Amg::toString(r)  << '\n';
   msg(MSG::VERBOSE) << "-U- inv. sigmaR         = " << '\n' << Amg::toString(R) << '\n';
-  msg(MSG::VERBOSE) << "-U- gain mtx K          = " << '\n' << Amg::toString(K) << endreq;
+  msg(MSG::VERBOSE) << "-U- gain mtx K          = " << '\n' << Amg::toString(K) << endmsg;
 }
 
 void Trk::KalmanUpdatorAmg::logResult(const std::string& methodName, const AmgVector(5)& par, const AmgSymMatrix(5)& covPar) const
 {
     // again some verbose debug output
-    msg(MSG::VERBOSE) << "-U- ==> result for KalmanUpdatorAmg::"<< methodName << endreq;
+    msg(MSG::VERBOSE) << "-U- ==> result for KalmanUpdatorAmg::"<< methodName << endmsg;
     msg(MSG::VERBOSE) << "-U- new par           = " << '\n' << Amg::toString(par)    << '\n';
-    msg(MSG::VERBOSE) << "-U- new cov           = " << '\n' << Amg::toString(covPar) << endreq;
+    msg(MSG::VERBOSE) << "-U- new cov           = " << '\n' << Amg::toString(covPar) << endmsg;
 }

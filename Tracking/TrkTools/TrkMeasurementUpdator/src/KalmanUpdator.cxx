@@ -27,7 +27,6 @@ Trk::KalmanUpdator::KalmanUpdator(const std::string& t,const std::string& n,cons
     AthAlgTool (t,n,p),
     m_cov0(std::vector<double>(0)),
     m_projectionMatrices(5),
-    m_log(msgSvc(), n),
     m_outputlevel(1)
 {
     // AlgTool stuff
@@ -49,11 +48,10 @@ Trk::KalmanUpdator::~KalmanUpdator()
 StatusCode Trk::KalmanUpdator::initialize()
 {
     // pass individual outputlevel to message stream
-    m_log.setLevel(outputLevel());
-    m_outputlevel = m_log.level()-MSG::DEBUG;
+  m_outputlevel = msg().level()-MSG::DEBUG;
 
     if (m_cov0.size() < 5) {
-      m_log << MSG::INFO << "Wrong-sized initial covariance given, so set to default: \n";
+      ATH_MSG_INFO( "Wrong-sized initial covariance given, so set to default: "  );
       m_cov0.clear(); // reset
       m_cov0.push_back(250.);
       m_cov0.push_back(250.);
@@ -61,17 +59,17 @@ StatusCode Trk::KalmanUpdator::initialize()
       m_cov0.push_back(0.25);
       m_cov0.push_back(0.000001);
     }
-    m_log << MSG::INFO << "Initial covariance: " << m_cov0[0] << ", "
-          << m_cov0[1] << ", " << m_cov0[2] << ", "
-          << m_cov0[3] << ", " << m_cov0[4] << " (diagonal)" << endreq;
-    m_log << MSG::INFO << "initialize() successful in " << name() << endreq;
+    ATH_MSG_INFO( "Initial covariance: " << m_cov0[0] << ", "
+                  << m_cov0[1] << ", " << m_cov0[2] << ", "
+                  << m_cov0[3] << ", " << m_cov0[4] << " (diagonal)"  );
+    ATH_MSG_INFO( "initialize() successful in " << name()  );
     return StatusCode::SUCCESS;
 }
 
 // finalize
 StatusCode Trk::KalmanUpdator::finalize()
 {
-    m_log << MSG::INFO << "finalize() successful in " << name() << endreq;
+    ATH_MSG_INFO( "finalize() successful in " << name()  );
     return StatusCode::SUCCESS;
 }
 
@@ -102,8 +100,8 @@ const Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackPara
     const {
     if (m_outputlevel <= 0) logStart("addToState(TP,LPOS,ERR,FQ)",trkPar);
     if (fitQoS) {
-        m_log << MSG::WARNING << "expect nil FitQuality pointer, refuse operation to"
-              << " avoid mem leak!" << endreq;
+      ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
+                       << " avoid mem leak!"  );
       return 0;
     } else {
       return calculateFilterStep (trkPar, measmtPos, measmtErr, 1, fitQoS, true);
@@ -118,8 +116,8 @@ const Trk::TrackParameters* Trk::KalmanUpdator::addToState (const Trk::TrackPara
     const {
     if (m_outputlevel <= 0) logStart("addToState(TP,LPAR,ERR,FQ)",trkPar);
     if (fitQoS) {
-        m_log << MSG::WARNING << "expect nil FitQuality pointer, refuse operation to"
-              << " avoid mem leak!" << endreq;
+      ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
+                       << " avoid mem leak!"  );
       return 0;
     } else {
       return calculateFilterStep (trkPar, measmtPar, measmtErr, 1, fitQoS, true);
@@ -154,8 +152,8 @@ const Trk::TrackParameters* Trk::KalmanUpdator::removeFromState (const Trk::Trac
     const {
     if (m_outputlevel<=0) logStart("removeFromState(TP,LPOS,ERR,FQ)",trkPar);
     if (fitQoS) {
-      m_log << MSG::WARNING << "expect nil FitQuality pointer, refuse operation to"
-            << " avoid mem leak!" << endreq;
+      ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
+                       << " avoid mem leak!"  );
       return 0;
     } else {
       return calculateFilterStep (trkPar, measmtPos, measmtErr, -1, fitQoS, true);
@@ -170,8 +168,8 @@ const Trk::TrackParameters* Trk::KalmanUpdator::removeFromState (const Trk::Trac
     const {
     if (m_outputlevel<=0) logStart("removeFromState(TP,LPAR,ERR,FQ)",trkPar);
     if (fitQoS) {
-        m_log << MSG::WARNING << "expect nil FitQuality pointer, refuse operation to"
-            << " avoid mem leak!" << endreq;
+      ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
+                       << " avoid mem leak!"  );
         return 0;
     } else {
         return calculateFilterStep (trkPar, measmtPar, measmtErr, -1, fitQoS, true);
@@ -183,8 +181,8 @@ const Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackP
                                                                const Trk::TrackParameters& two) const {
 	// remember, either one OR two might have no error, but not both !
   if (!one.covariance() && !two.covariance()) {
-    m_log << MSG::WARNING << "both parameters have no errors, invalid "
-	  << "use of Updator::combineStates()" << endreq;
+    ATH_MSG_WARNING( "both parameters have no errors, invalid "
+                     << "use of Updator::combineStates()"  );
     return 0;
   }
   // if only one of two has an error, return that one
@@ -216,7 +214,7 @@ const Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackP
   AmgSymMatrix(5)* covPar = new AmgSymMatrix(5)( K * covTrkTwo );
   if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar,false) : false ) {
     delete covPar;
-    m_log << MSG::WARNING << "combineStates(TP,TP): could not combine angular values." << endreq;
+    ATH_MSG_WARNING( "combineStates(TP,TP): could not combine angular values."  );
     return 0;
   }
 	
@@ -234,13 +232,13 @@ const Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackP
     // try if both Track Parameters are measured ones ?
   // remember, either one OR two might have no error, but not both !
   if (!one.covariance() && !two.covariance()) {
-    m_log << MSG::WARNING << "both parameters have no errors, invalid "
-	  << "use of Updator::combineStates()" << endreq;
+    ATH_MSG_WARNING( "both parameters have no errors, invalid "
+                     << "use of Updator::combineStates()"  );
     return 0;
   }
   if (fitQoS) {
-    m_log << MSG::WARNING << "expect nil FitQuality pointer, refuse operation to"
-	  << " avoid mem leak!" << endreq;
+    ATH_MSG_WARNING( "expect nil FitQuality pointer, refuse operation to"
+                     << " avoid mem leak!"  );
     return 0;
   } else {
     // if only one of two has an error, return that one
@@ -271,7 +269,7 @@ const Trk::TrackParameters* Trk::KalmanUpdator::combineStates (const Trk::TrackP
     Amg::VectorX	  par = one.parameters() + K * r;
     AmgSymMatrix(5)* covPar = new AmgSymMatrix(5)(K * covTrkTwo);
     if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar) : false ) {
-      m_log << MSG::WARNING << "combineStates(TP,TP,FQ): could not combine angular values." << endreq;
+      ATH_MSG_WARNING( "combineStates(TP,TP,FQ): could not combine angular values."  );
       delete covPar; return 0;
     }
 
@@ -293,13 +291,11 @@ const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator::fullStateFitQuality (const Trk::TrackParameters& trkPar,
                                          const Amg::Vector2D& locPos,
                                          const Amg::MatrixX& rioErr) const {
-    if (m_outputlevel<=0) {
-        m_log << MSG::DEBUG << "--> entered KalmanUpdator::fullStateFitQuality(TP,LPOS,ERR)" << endreq;
-    }
+    ATH_MSG_DEBUG( "--> entered KalmanUpdator::fullStateFitQuality(TP,LPOS,ERR)"  );
 	
     // try if Track Parameters are measured ones ?
     if (!trkPar.covariance()) {
-      m_log << MSG::ERROR << "updated smoother/trajectory has no error matrix" << endreq;
+      ATH_MSG_ERROR( "updated smoother/trajectory has no error matrix"  );
       return 0;
     }
     // covariance matrix for prediction
@@ -330,14 +326,11 @@ const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator::fullStateFitQuality (const Trk::TrackParameters& trkPar,
                                          const Trk::LocalParameters& rioPar,
                                          const Amg::MatrixX&     rioErr) const {
-  if (m_outputlevel<=0) {
-    m_log << MSG::VERBOSE
-	  << "--> entered KalmanUpdator::fullStateFitQuality(TP,LPAR,ERR)" << endreq;
-  }
+  ATH_MSG_VERBOSE( "--> entered KalmanUpdator::fullStateFitQuality(TP,LPAR,ERR)"  );
 	
   // try if Track Parameters are measured ones ?
   if (!trkPar.covariance()) {
-    m_log << MSG::ERROR << "updated smoother/trajectory has no error matrix" << endreq;
+    ATH_MSG_ERROR( "updated smoother/trajectory has no error matrix"  );
     return 0;
   }
   if ( !consistentParamDimensions(rioPar,rioErr.cols()) ) return 0;
@@ -362,15 +355,15 @@ const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPar,
                                               const Amg::Vector2D& rioLocPos,
                                               const Amg::MatrixX& rioLocErr) const {
-  if (m_outputlevel<=0) {
-    m_log << MSG::VERBOSE
-	  << "--> entered KalmanUpdator::predictedStateFitQuality(TP,LPOS,ERR)" << endreq;
-  }
+  ATH_MSG_VERBOSE( "--> entered KalmanUpdator::predictedStateFitQuality(TP,LPOS,ERR)"  );
   // try if Track Parameters are measured ones ?
   if (predPar.covariance() == NULL) {
+#if 0
     if (&predPar == NULL) 
-      m_log << MSG::WARNING << "input state is NULL in predictedStateFitQuality()" << endreq;
-    else m_log << MSG::WARNING << "input state has no error matrix in predictedStateFitQuality()" << endreq;
+      ATH_MSG_WARNING( "input state is NULL in predictedStateFitQuality()"  );
+    else
+#endif
+      ATH_MSG_WARNING( "input state has no error matrix in predictedStateFitQuality()"  );
     return 0;
   }
   // covariance matrix for prediction
@@ -400,16 +393,16 @@ const Trk::FitQualityOnSurface*
 Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPar,
                                               const Trk::LocalParameters& rioPar,
                                               const Amg::MatrixX&     rioErr) const {
-  if (m_outputlevel<=0) {
-    m_log << MSG::VERBOSE
-	  << "--> entered KalmanUpdator::predictedStateFitQuality(TP,LPAR,ERR)" << endreq;
-  }
+  ATH_MSG_VERBOSE( "--> entered KalmanUpdator::predictedStateFitQuality(TP,LPAR,ERR)"  );
 
   // try if Track Parameters are measured ones ?
   if (predPar.covariance() == NULL) {
+#if 0
     if (&predPar == NULL) 
-      m_log << MSG::WARNING << "input state is NULL in predictedStateFitQuality()" << endreq;
-    else m_log << MSG::WARNING << "input state has no error matrix in predictedStateFitQuality()" << endreq;
+      ATH_MSG_WARNING( "input state is NULL in predictedStateFitQuality()"  );
+    else
+#endif
+      ATH_MSG_WARNING( "input state has no error matrix in predictedStateFitQuality()"  );
     return 0;
   }
 
@@ -434,19 +427,17 @@ Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& predPa
 const Trk::FitQualityOnSurface* 
 Trk::KalmanUpdator::predictedStateFitQuality (const Trk::TrackParameters& one,
                                               const Trk::TrackParameters& two) const {
-  if (m_outputlevel<=0) {
-    m_log << MSG::VERBOSE << "--> entered KalmanUpdator::predictedStateFitQuality(TP,TP)" << endreq;
-  }
+  ATH_MSG_VERBOSE( "--> entered KalmanUpdator::predictedStateFitQuality(TP,TP)"  );
   // remember, either one OR two might have no error, but not both !
   if (!one.covariance() && !two.covariance()) {
-    m_log << MSG::WARNING << "both parameters have no errors, invalid "
-	  << "use of Updator::fitQuality()" << endreq;
+    ATH_MSG_WARNING( "both parameters have no errors, invalid "
+                     << "use of Updator::fitQuality()"  );
     return 0;
   }
   // if only one of two has an error, place a message.
   if (!one.covariance() || !two.covariance()) {
-    m_log << MSG::DEBUG << "One parameter does not have uncertainties, "
-	  << "assume initial state and return chi2=0.0" << endreq;
+    ATH_MSG_DEBUG( "One parameter does not have uncertainties, "
+                   << "assume initial state and return chi2=0.0"  );
     return new FitQualityOnSurface(0.f, 5);
   }
     
@@ -479,16 +470,14 @@ const Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::
   AmgSymMatrix(5) covTrk;
   if (!trkPar.covariance()) {
     if (sign<0) {
-      m_log << MSG::WARNING << "MeasuredTrackParameters == Null, can not calculate "
-	    << "updated parameter state" << endreq;
+      ATH_MSG_WARNING( "MeasuredTrackParameters == Null, can not calculate "
+                       << "updated parameter state"  );
       return 0;
     } else {
       // no error given - use a huge error matrix for the time
       // covTrk = Amg::MatrixX(5, 1) * 1000.f;
-      if (m_outputlevel<0) {
-	m_log << MSG::VERBOSE << "-U- no covTrk at input - "
-	      << "assign large error matrix for the time being." << endreq;
-      }
+      ATH_MSG_VERBOSE( "-U- no covTrk at input - "
+                       << "assign large error matrix for the time being."  );
       covTrk(0,0) = m_cov0[0];
       covTrk(1,1) = m_cov0[1];
       covTrk(2,2) = m_cov0[2];
@@ -508,16 +497,16 @@ const Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::
   // covariance matrix and parameters of track
   Amg::VectorX parTrk = trkPar.parameters();
   if (!thetaPhiWithinRange(parTrk)) {
-    m_log << MSG::WARNING << (sign>0?"addToState(TP,LPOS,ERR..)":"removeFromState(TP,LPOS,ERR..)")
-	  << ": undefined phi,theta range in input parameters." << endreq;
+    ATH_MSG_WARNING( (sign>0?"addToState(TP,LPOS,ERR..)":"removeFromState(TP,LPOS,ERR..)")
+                     << ": undefined phi,theta range in input parameters."  );
     return 0;
   }
   
   // measurement vector of RIO_OnTrack - needs more care for # local par?
   int nLocCoord = covRio.cols();
   if ( (nLocCoord < 1) || (nLocCoord > 2 ) ) {
-    m_log << MSG::WARNING << " number of local coordinates must be 1 or 2, but it is "
-	  << nLocCoord << endreq;
+    ATH_MSG_WARNING( " number of local coordinates must be 1 or 2, but it is "
+                     << nLocCoord  );
   }
   Amg::VectorX rioPar(nLocCoord);
   for (int iLocCoord=0; iLocCoord < nLocCoord; iLocCoord++) {
@@ -557,7 +546,7 @@ const Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::
     covPar = new AmgSymMatrix(5)(M*covTrk*M.transpose() + sign*K*covRio*K.transpose());
   }
   if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar) : false ) {
-    m_log << MSG::WARNING << "calculateFS(TP,LPOS,ERR): bad angles in filtered state!" << endreq;
+    ATH_MSG_WARNING( "calculateFS(TP,LPOS,ERR): bad angles in filtered state!"  );
     delete covPar;
     return 0;
   }
@@ -596,16 +585,14 @@ const Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::
   AmgSymMatrix(5) covTrk;
   if (!trkPar.covariance()) {
     if (sign<0) {
-      m_log << MSG::WARNING << "MeasuredTrackParameters == Null, can not calculate "
-	    << "updated parameter state." << endreq;
+      ATH_MSG_WARNING( "MeasuredTrackParameters == Null, can not calculate "
+                       << "updated parameter state."  );
       return 0;
     } else {
       // no error given - use a huge error matrix for the time
       // covTrk = Amg::MatrixX(5, 1) * 1000.f;
-      if (m_outputlevel<0) {
-	m_log << MSG::VERBOSE << "-U- no covTrk at input - "
-	      << "assign large error matrix for the time being." << endreq;
-      }
+      ATH_MSG_VERBOSE( "-U- no covTrk at input - "
+                       << "assign large error matrix for the time being."  );
       covTrk(0,0) = m_cov0[0];
       covTrk(1,1) = m_cov0[1];
       covTrk(2,2) = m_cov0[2];
@@ -624,13 +611,13 @@ const Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::
   //    LocalParameters  parTrk = trkPar.parameters();
   Amg::VectorX parTrk = trkPar.parameters();
   if (!thetaPhiWithinRange(parTrk)) {
-    m_log << MSG::WARNING << (sign>0?"addToState(TP,LPAR,ERR..)":"removeFromState(TP,LPAR,ERR..)")
-	  << ": undefined phi,theta range in input parameters." << endreq;
+    ATH_MSG_WARNING( (sign>0?"addToState(TP,LPAR,ERR..)":"removeFromState(TP,LPAR,ERR..)")
+                     << ": undefined phi,theta range in input parameters."  );
     return 0;
   }
   if (!thetaPhiWithinRange(rioPar,rioPar.parameterKey())) {
-    m_log << MSG::WARNING << (sign>0?"addToState(TP,LPAR,ERR..)":"removeFromState(TP,LPAR,ERR..)")
-	  << ": undefined phi,theta range in input measurement !!" << endreq;
+    ATH_MSG_WARNING( (sign>0?"addToState(TP,LPAR,ERR..)":"removeFromState(TP,LPAR,ERR..)")
+                     << ": undefined phi,theta range in input measurement !!"  );
     return 0;
   }
 
@@ -675,7 +662,7 @@ const Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::
     covPar = new AmgSymMatrix(5)(M*covTrk*M.transpose() + sign*K*covRio*K.transpose());
   }
   if ( (!thetaPhiWithinRange(par)) ? !correctThetaPhiRange(par,*covPar) : false ) {
-    m_log << MSG::WARNING << "calculateFS(TP,LPAR,ERR): bad angles in filtered state!" << endreq;
+    ATH_MSG_WARNING( "calculateFS(TP,LPAR,ERR): bad angles in filtered state!"  );
     delete covPar;
     return 0;
   }
@@ -703,7 +690,7 @@ const Trk::TrackParameters* Trk::KalmanUpdator::calculateFilterStep (const Trk::
 
 Amg::MatrixX Trk::KalmanUpdator::projection(const Amg::MatrixX& M, const int key) const
 {
-  //  m_log << MSG::DEBUG << "projection("<<M[0][0]<<", "<<key<<")"<<endreq;
+  //  ATH_MSG_DEBUG( "projection("<<M[0][0]<<", "<<key<<")" );
   if (key == 31) return M;
   // reduction matrix
   const Amg::MatrixX& redMatrix = m_projectionMatrices.reductionMatrix(key);
@@ -717,16 +704,15 @@ Amg::MatrixX Trk::KalmanUpdator::projection(const Amg::MatrixX& M, const int key
 bool Trk::KalmanUpdator::consistentParamDimensions(const Trk::LocalParameters& P,
                                                          const int& dimCov) const {
   if (P.dimension() != dimCov ) {
-    m_log << MSG::WARNING << "Inconsistency in dimension of local coord - "
-              << "problem with LocalParameters object?" << endreq;
-    m_log << MSG::WARNING << "dim of local parameters: "
-          << P.dimension()<< " vs. dim of error matrix: "<<dimCov << endreq;
-    m_log << MSG::INFO << "==> refuse update or chi2 calculation" << endreq;
+    ATH_MSG_WARNING( "Inconsistency in dimension of local coord - "
+                     << "problem with LocalParameters object?"  );
+    ATH_MSG_WARNING( "dim of local parameters: "
+                     << P.dimension()<< " vs. dim of error matrix: "<<dimCov  );
+    ATH_MSG_INFO( "==> refuse update or chi2 calculation"  );
     return false;
   }
   if ( (dimCov < 1) || (dimCov > 5 ) ) {
-    m_log << MSG::WARNING << "invalid dimension for local coordinates: "
-          << dimCov << endreq;
+    ATH_MSG_WARNING( "invalid dimension for local coordinates: " << dimCov  );
     return false;
   }
   return true;
@@ -750,21 +736,21 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, AmgSymMatrix(5)& 
   
   // correct theta and phi coordinate
   if ((jtheta>=0) && (V[jtheta]<thetaMin || V[jtheta]> M_PI) ) {
-    if (m_outputlevel <= (isDifference?0:0) ) {
-      if (key !=31) m_log << MSG::WARNING << "-U- key: "<<key << " jphi: "<<jphi << " jtheta: "<<jtheta << endreq;
-      m_log << MSG::WARNING << "-U- " << (isDifference?"diff. ":" ") << "angles out of range,   phi = ";
-      if (jphi>=0) m_log << V[jphi]; else m_log <<"free";
-      m_log << " theta =  " << V[jtheta] <<endreq;
+    if (m_outputlevel <= 0 ) {
+      if (key !=31) ATH_MSG_WARNING( "-U- key: "<<key << " jphi: "<<jphi << " jtheta: "<<jtheta  );
+      msg() << MSG::WARNING << "-U- " << (isDifference?"diff. ":" ") << "angles out of range,   phi = ";
+      if (jphi>=0) msg() << V[jphi]; else msg() <<"free";
+      msg() << " theta =  " << V[jtheta] <<endmsg;
     }
     // absolute theta: repair if between -pi and +2pi.
     // differential theta: repair if between -pi and +pi
     if ( ( V(jtheta) < -M_PI ) ||
          ( V(jtheta) > (isDifference? M_PI : 2*M_PI) )
          ) {
-      m_log << MSG::WARNING << "-U- track theta too far from defined range, stop update." << endreq;
-      m_log << MSG::WARNING << "-U- " << (isDifference?"diff. ":" ") << "angles out of range,   phi = ";
-      if (jphi>=0) m_log << V[jphi]; else m_log <<"free";
-      m_log << " theta =  " << V[jtheta] <<endreq;
+      ATH_MSG_WARNING( "-U- track theta too far from defined range, stop update."  );
+      msg() << MSG::WARNING << "-U- " << (isDifference?"diff. ":" ") << "angles out of range,   phi = ";
+      if (jphi>=0) msg() << V[jphi]; else msg() <<"free";
+      msg() << " theta =  " << V[jtheta] <<endmsg;
       return false;
     }
     if (V[jtheta] > M_PI) {
@@ -793,23 +779,23 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, AmgSymMatrix(5)& 
     }
     
     if (m_outputlevel <=0) {
-      m_log << MSG::DEBUG << "-U- now use corrected " << (isDifference?"diff. ":" ") << "value phi= ";
-      if (jphi>=0) m_log << V[jphi]; else m_log <<"free";
-      m_log << " theta =  " << V[jtheta] <<endreq;
+      msg() << MSG::DEBUG << "-U- now use corrected " << (isDifference?"diff. ":" ") << "value phi= ";
+      if (jphi>=0) msg() << V[jphi]; else msg() <<"free";
+      msg() << " theta =  " << V[jtheta] <<endmsg;
     }
   }
 
   // correct phi coordinate if necessary
   if ((jphi>=0) && (V[jphi] > M_PI) ) {
-    if (m_outputlevel <=0) m_log << MSG::DEBUG << "-U- phi= " << V[jphi];
+    if (m_outputlevel <=0) msg() << MSG::DEBUG << "-U- phi= " << V[jphi];
     V[jphi] = fmod(V[jphi]+M_PI,2*M_PI)-M_PI;
-    if (m_outputlevel <=0) m_log << MSG::DEBUG << " out of range, now "
-                                 << "corrected to " << V[jphi] << endreq;
+    if (m_outputlevel <=0) msg() << MSG::DEBUG << " out of range, now "
+                                 << "corrected to " << V[jphi] << endmsg;
   } else if ((jphi>=0) && (V[jphi] < -M_PI) ) {
-    if (m_outputlevel <=0) m_log << MSG::DEBUG << "-U- phi= " << V[jphi];
+    if (m_outputlevel <=0) msg() << MSG::DEBUG << "-U- phi= " << V[jphi];
     V[jphi] = fmod(V[jphi]-M_PI,2*M_PI)+M_PI;
-    if (m_outputlevel <=0) m_log << MSG::DEBUG << " out of range, now "
-                                 << "corrected to " << V[jphi] << endreq;
+    if (m_outputlevel <=0) msg() << MSG::DEBUG << " out of range, now "
+                                 << "corrected to " << V[jphi] << endmsg;
   }
   return true;
 }
@@ -833,21 +819,21 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, Amg::MatrixX& C,
   
   // correct theta and phi coordinate
   if ((jtheta>=0) && (V[jtheta]<thetaMin || V[jtheta]> M_PI) ) {
-    if (m_outputlevel <= (isDifference?0:0) ) {
-      if (key !=31) m_log << MSG::WARNING << "-U- key: "<<key << " jphi: "<<jphi << " jtheta: "<<jtheta << endreq;
-      m_log << MSG::WARNING << "-U- " << (isDifference?"diff. ":" ") << "angles out of range,   phi = ";
-      if (jphi>=0) m_log << V[jphi]; else m_log <<"free";
-      m_log << " theta =  " << V[jtheta] <<endreq;
+    if (m_outputlevel <= 0 ) {
+      if (key !=31) ATH_MSG_WARNING( "-U- key: "<<key << " jphi: "<<jphi << " jtheta: "<<jtheta  );
+      msg() << MSG::WARNING << "-U- " << (isDifference?"diff. ":" ") << "angles out of range,   phi = ";
+      if (jphi>=0) msg() << V[jphi]; else msg() <<"free";
+      msg() << " theta =  " << V[jtheta] <<endmsg;
     }
     // absolute theta: repair if between -pi and +2pi.
     // differential theta: repair if between -pi and +pi
     if ( ( V(jtheta) < -M_PI ) ||
          ( V(jtheta) > (isDifference? M_PI : 2*M_PI) )
          ) {
-      m_log << MSG::WARNING << "-U- track theta too far from defined range, stop update." << endreq;
-      m_log << MSG::WARNING << "-U- " << (isDifference?"diff. ":" ") << "angles out of range,   phi = ";
-      if (jphi>=0) m_log << V[jphi]; else m_log <<"free";
-      m_log << " theta =  " << V[jtheta] <<endreq;
+      ATH_MSG_WARNING( "-U- track theta too far from defined range, stop update."  );
+      msg() << MSG::WARNING << "-U- " << (isDifference?"diff. ":" ") << "angles out of range,   phi = ";
+      if (jphi>=0) msg() << V[jphi]; else msg() <<"free";
+      msg() << " theta =  " << V[jtheta] <<endmsg;
       return false;
     }
     if (V[jtheta] > M_PI) {
@@ -876,23 +862,23 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, Amg::MatrixX& C,
     }
     
     if (m_outputlevel <=0) {
-      m_log << MSG::DEBUG << "-U- now use corrected " << (isDifference?"diff. ":" ") << "value phi= ";
-      if (jphi>=0) m_log << V[jphi]; else m_log <<"free";
-      m_log << " theta =  " << V[jtheta] <<endreq;
+      msg() << MSG::DEBUG << "-U- now use corrected " << (isDifference?"diff. ":" ") << "value phi= ";
+      if (jphi>=0) msg() << V[jphi]; else msg() <<"free";
+      msg() << " theta =  " << V[jtheta] <<endmsg;
     }
   }
 
   // correct phi coordinate if necessary
   if ((jphi>=0) && (V[jphi] > M_PI) ) {
-    if (m_outputlevel <=0) m_log << MSG::DEBUG << "-U- phi= " << V[jphi];
+    if (m_outputlevel <=0) msg() << MSG::DEBUG << "-U- phi= " << V[jphi];
     V[jphi] = fmod(V[jphi]+M_PI,2*M_PI)-M_PI;
-    if (m_outputlevel <=0) m_log << MSG::DEBUG << " out of range, now "
-                                 << "corrected to " << V[jphi] << endreq;
+    if (m_outputlevel <=0) ATH_MSG_DEBUG( " out of range, now "
+                                          << "corrected to " << V[jphi]  );
   } else if ((jphi>=0) && (V[jphi] < -M_PI) ) {
-    if (m_outputlevel <=0) m_log << MSG::DEBUG << "-U- phi= " << V[jphi];
+    if (m_outputlevel <=0) msg() << MSG::DEBUG << "-U- phi= " << V[jphi];
     V[jphi] = fmod(V[jphi]-M_PI,2*M_PI)+M_PI;
-    if (m_outputlevel <=0) m_log << MSG::DEBUG << " out of range, now "
-                                 << "corrected to " << V[jphi] << endreq;
+    if (m_outputlevel <=0) ATH_MSG_DEBUG( " out of range, now "
+                                          << "corrected to " << V[jphi]  );
   }
   return true;
 }
@@ -900,51 +886,51 @@ bool Trk::KalmanUpdator::correctThetaPhiRange(Amg::VectorX& V, Amg::MatrixX& C,
 void Trk::KalmanUpdator::logStart(const std::string& IDstring,
                                   const Trk::TrackParameters& tp) const
 {
-  m_log << MSG::DEBUG   << "--> entered KalmanUpdator::" << IDstring << endreq;
-  m_log << MSG::VERBOSE << "-U- TrkPar:" << std::setiosflags(std::ios::right)<<std::setprecision(4)
-        << std::setw( 9)<<tp.parameters()[0]<< std::setw(10)<<tp.parameters()[1]<<std::setprecision(5)
-        << std::setw(10)<<tp.parameters()[2]<< std::setw(10)<<tp.parameters()[3]<<std::setprecision(4)
-        << std::setw(10)<<tp.parameters()[4]<< endreq;
+  ATH_MSG_DEBUG( "--> entered KalmanUpdator::" << IDstring  );
+  ATH_MSG_VERBOSE( "-U- TrkPar:" << std::setiosflags(std::ios::right)<<std::setprecision(4)
+                   << std::setw( 9)<<tp.parameters()[0]<< std::setw(10)<<tp.parameters()[1]<<std::setprecision(5)
+                   << std::setw(10)<<tp.parameters()[2]<< std::setw(10)<<tp.parameters()[3]<<std::setprecision(4)
+                   << std::setw(10)<<tp.parameters()[4] );
 }
 
 void Trk::KalmanUpdator::logInputCov(const Amg::MatrixX& covTrk,
                                      const Amg::VectorX& rioPar, const Amg::MatrixX& covRio) const
 {
-  m_log << MSG::VERBOSE << "-U- cov    "<<std::setiosflags(std::ios::right)<<std::setprecision(3)
+  msg() << MSG::VERBOSE << "-U- cov    "<<std::setiosflags(std::ios::right)<<std::setprecision(3)
         << std::setw(9)<<covTrk(0,0)<<" "<< std::setw(9)<<covTrk(0,1)<<" "
         << std::setw(9)<<covTrk(0,2)<<" "<< std::setw(9)<<covTrk(0,3)<<" "
         << std::setw(9)<<covTrk(0,4)<<"\n";
-  m_log << "                                      " << "          " << "           "
+  msg() << "                                      " << "          " << "           "
         << std::setw(9)<<covTrk(1,1)<<" "<< std::setw(9)<<covTrk(1,2)<<" "
         << std::setw(9)<<covTrk(1,3)<<" "<< std::setw(9)<<covTrk(1,4)<<"\n";
-  m_log << "  covariance matrix                   " << "          " << "                     "
+  msg() << "  covariance matrix                   " << "          " << "                     "
         << std::setw(9)<<covTrk(2,2)<<" "<< std::setw(9)<<covTrk(2,3)<<" "
         << std::setw(9)<<covTrk(2,4)<< "\n"  ;
-  m_log << "  of the PREDICTED track pars         " << "          " << "                               " 
+  msg() << "  of the PREDICTED track pars         " << "          " << "                               " 
         << std::setw(9)<<covTrk(3,3)<<" "<< std::setw(9)<<covTrk(3,4)<<"\n"  ;
-  m_log << "                                      " << "          " << "                                         " 
-        << std::setw(9)<<covTrk(4,4)<<std::setprecision(6)<< endreq;
+  msg() << "                                      " << "          " << "                                         " 
+        << std::setw(9)<<covTrk(4,4)<<std::setprecision(6)<< endmsg;
 
   int nLocCoord = covRio.cols();
-  m_log << MSG::VERBOSE << "-U- measurement locPos: ";
-  for (int i=0; i<nLocCoord; i++) m_log << rioPar[i] << " ";
-  m_log << endreq;
-  m_log << MSG::VERBOSE << "-U- measurement (err)^2: " <<std::setprecision(4)<<covRio(0,0);
-  for (int i=1; i<nLocCoord; i++) m_log << ", "<<covRio(i,i);
-  m_log << std::setprecision(6)<<endreq;
+  msg() << MSG::VERBOSE << "-U- measurement locPos: ";
+  for (int i=0; i<nLocCoord; i++) msg() << rioPar[i] << " ";
+  msg() << endmsg;
+  msg() << MSG::VERBOSE << "-U- measurement (err)^2: " <<std::setprecision(4)<<covRio(0,0);
+  for (int i=1; i<nLocCoord; i++) msg() << ", "<<covRio(i,i);
+  msg() << std::setprecision(6)<<endmsg;
 }
 
 void Trk::KalmanUpdator::logGainForm(int nc, const Amg::VectorX& r, const Amg::MatrixX& R,
                                      const Amg::MatrixX& K, const Amg::MatrixX& M) const
 {
   // again some verbose debug output showing internals of updating
-  m_log << MSG::VERBOSE << "-U- residual: r=("<<r[0];
-  for (int i=1; i<nc; i++) m_log <<","<<r[i];
-  m_log << ")" << endreq;
-  m_log << MSG::VERBOSE << "-U- inv. sigmaR=("<< R(0,0);
-  for (int i=1; i<nc; i++) m_log << "," << R(i,i);
-  m_log << ")" << endreq;
-  for (int i=0; i<nc; i++)  m_log << MSG::VERBOSE // K is a row x col = 5 x nc matrix.
+  msg() << MSG::VERBOSE << "-U- residual: r=("<<r[0];
+  for (int i=1; i<nc; i++) msg() <<","<<r[i];
+  msg() << ")" << endmsg;
+  msg() << MSG::VERBOSE << "-U- inv. sigmaR=("<< R(0,0);
+  for (int i=1; i<nc; i++) msg() << "," << R(i,i);
+  msg() << ")" << endmsg;
+  for (int i=0; i<nc; i++)  msg() << MSG::VERBOSE // K is a row x col = 5 x nc matrix.
 	<< ( i==0 ? "-U- gain mtx  K=(" : "                (" )
         << std::setiosflags(std::ios::fixed | std::ios::showpoint | std::ios::right )
         << std::setw(7) << std::setprecision(4) << K(0,i)<<", " 
@@ -952,36 +938,36 @@ void Trk::KalmanUpdator::logGainForm(int nc, const Amg::VectorX& r, const Amg::M
         << std::setw(7) << std::setprecision(4) << K(2,i)<<", "
         << std::setw(7) << std::setprecision(4) << K(3,i)<<", "
         << std::setw(7) << std::setprecision(4) << K(4,i)<<")"
-        << std::resetiosflags(std::ios::fixed) << endreq;
-  m_log << MSG::VERBOSE << "-U- matrix M: diag=("
+        << std::resetiosflags(std::ios::fixed) << endmsg;
+  msg() << MSG::VERBOSE << "-U- matrix M: diag=("
         << M(0,0)<<"," << M(1,1)<<","
         << M(2,2)<<"," << M(3,3)<<","
-        << M(4,4)                <<")" << endreq;
+        << M(4,4)                <<")" << endmsg;
 }
 
 void Trk::KalmanUpdator::logResult(const std::string& methodName, 
                                    const Amg::VectorX& par, const Amg::MatrixX& covPar) const
 {
     // again some verbose debug output
-    m_log << MSG::VERBOSE << "-U- ==> result for KalmanUpdator::"<<methodName<<endreq;
-    m_log << MSG::VERBOSE << "-U- new par"<<std::setiosflags(std::ios::right)<<std::setprecision(4)
+    msg() << MSG::VERBOSE << "-U- ==> result for KalmanUpdator::"<<methodName<<endmsg;
+    msg() << MSG::VERBOSE << "-U- new par"<<std::setiosflags(std::ios::right)<<std::setprecision(4)
           << std::setw( 9)<<par[0]<< std::setw(10)<<par[1]<<std::setprecision(5)
           << std::setw(10)<<par[2]<< std::setw(10)<<par[3]<<std::setprecision(4)
-          << std::setw(10)<<par[4]                <<endreq;
-    m_log << MSG::VERBOSE << "-U- new cov" <<std::setiosflags(std::ios::right)<<std::setprecision(3)
+          << std::setw(10)<<par[4]                <<endmsg;
+    msg() << MSG::VERBOSE << "-U- new cov" <<std::setiosflags(std::ios::right)<<std::setprecision(3)
           << std::setw(9)<<(covPar)(0,0)<<" "<< std::setw(9)<<(covPar)(0,1)<<" " 
           << std::setw(9)<<(covPar)(0,2)<<" "<< std::setw(9)<<(covPar)(0,3)
           << " " << std::setw(9)<<(covPar)(0,4)<< "\n";
-    m_log << "                                      " << "           " << "          "
+    msg() << "                                      " << "           " << "          "
           << std::setw(9)<<(covPar)(1,1)<<" "<< std::setw(9)<<(covPar)(1,2)<<" "
           << std::setw(9)<<(covPar)(1,3)<<" "<< std::setw(9)<<(covPar)(1,4)<< "\n";
-    m_log << "  covariance matrix                   " << "           " << "                    "
+    msg() << "  covariance matrix                   " << "           " << "                    "
           << std::setw(9)<<(covPar)(2,2)<<" "<< std::setw(9)<<(covPar)(2,3)<<" "
           << std::setw(9)<<(covPar)(2,4)<< "\n";
-    m_log << "  of the UPDATED   track pars         " << "           " 
+    msg() << "  of the UPDATED   track pars         " << "           " 
           << "                              " <<std::setw(9)<<(covPar)(3,3)<< " "
           << std::setw(9)<<(covPar)(3,4)<< "\n";
-    m_log << "                                      " << "           " 
+    msg() << "                                      " << "           " 
           << "                                        " 
-          << std::setw(9)<<(covPar)(4,4)<<std::setprecision(6)<< endreq;
+          << std::setw(9)<<(covPar)(4,4)<<std::setprecision(6)<< endmsg;
 }
