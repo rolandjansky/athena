@@ -76,7 +76,7 @@ namespace Trk {
     if (m_trackFitterTool.retrieve().isSuccess())
       ATH_MSG_INFO("Retrieved " << m_trackFitterTool);
     else{
-      msg(MSG::FATAL) << "Could not get " << m_trackFitterTool << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_trackFitterTool << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -84,19 +84,19 @@ namespace Trk {
       if (m_SLTrackFitterTool.retrieve().isSuccess())
         ATH_MSG_INFO("Retrieved " << m_SLTrackFitterTool);
       else {
-        msg(MSG::FATAL) << "Could not get " << m_SLTrackFitterTool << endreq;
+        msg(MSG::FATAL) << "Could not get " << m_SLTrackFitterTool << endmsg;
         return StatusCode::FAILURE;
       }
     }
 
     if(m_selectTracks) {
       if(m_trackSelectorTool.empty()) {
-        msg(MSG::FATAL) << "TrackSelectorTool not specified : " << m_trackSelectorTool << endreq;
+        msg(MSG::FATAL) << "TrackSelectorTool not specified : " << m_trackSelectorTool << endmsg;
         return StatusCode::FAILURE;
       }
       else if(m_trackSelectorTool.retrieve().isFailure())
       {
-        msg(MSG::FATAL) << "Could not get " << m_trackSelectorTool << endreq;
+        msg(MSG::FATAL) << "Could not get " << m_trackSelectorTool << endmsg;
         return StatusCode::FAILURE;
       }
       ATH_MSG_INFO("Retrieved " << m_trackSelectorTool);
@@ -104,12 +104,12 @@ namespace Trk {
 
     if (m_selectHits) {
       if(m_hitQualityTool.empty()) {
-  msg(MSG::FATAL) << "HitQualityTool not specified : " << m_hitQualityTool << endreq;
+  msg(MSG::FATAL) << "HitQualityTool not specified : " << m_hitQualityTool << endmsg;
   return StatusCode::FAILURE;
       }
       else if(m_hitQualityTool.retrieve().isFailure())
   {
-    msg(MSG::FATAL) << "Could not get " << m_trackSelectorTool << endreq;
+    msg(MSG::FATAL) << "Could not get " << m_trackSelectorTool << endmsg;
     return StatusCode::FAILURE;
   }
       ATH_MSG_INFO("Retrieved " << m_hitQualityTool);
@@ -194,11 +194,11 @@ namespace Trk {
   at = new AlignTrack(*newTrack);
   
   if (msgLvl(MSG::DEBUG) && !msgLvl(MSG::VERBOSE)) {
-    msg(MSG::DEBUG)<<"before refit: "<<endreq;
+    msg(MSG::DEBUG)<<"before refit: "<<endmsg;
     AlignTrack::dumpLessTrackInfo(*origTrack,msg(MSG::DEBUG));
-    msg(MSG::DEBUG)<<"after refit: "<<endreq;
+    msg(MSG::DEBUG)<<"after refit: "<<endmsg;
     AlignTrack::dumpLessTrackInfo(*newTrack,msg(MSG::DEBUG));
-    msg(MSG::DEBUG)<<endreq;
+    msg(MSG::DEBUG)<<endmsg;
   }
   
   // store fit matrices

@@ -35,14 +35,45 @@ namespace Trk {
     , m_muonHitSummaryTool("Muon::MuonHitSummaryTool/MuonHitSummaryTool")
     , m_inputMuonCollection("MuidMuonCollection")
     , m_inputTracksCollection("Tracks")
+    , m_nRetrievalErrors{}
     , m_nCBMuonsFromSG(0)
     , m_nCBMuonsHasEXandID(0)
     , m_nCBMuonsPassSelection(0)
     , m_nCBMuonsFailedRefit(0)
     , m_nCBMuonsSucRefit(0)
-    , m_ntuple(0)
-    , m_tree(0)
-
+    , m_ntuple(nullptr)
+    , m_tree(nullptr)
+    , m_run{}
+    , m_event{}
+    , m_pID{}
+    , m_pMS{}
+    , m_ptID{}
+    , m_ptMS{}
+    , m_charge{}
+    , m_combinedEta{}
+    , m_IDEta{}
+    , m_combinedPhi{}
+    , m_IDPhi{}
+    , m_pID_constrained{}
+    , m_ptID_constrained{}
+    , m_IDEta_constrained{}
+    , m_IDPhi_constrained{}
+    , m_charge_constrained{}
+    , m_eBLhits{}
+    , m_nBLhits{}
+    , m_nPIXDS{}
+    , m_nSCTDS{}
+    , m_nPIXH{}
+    , m_nSCTH{}
+    , m_nPIXHits{}
+    , m_nSCTHits{}
+    , m_nTRTHits{}
+    , m_sectors{}
+    , m_phiLayers{}
+    , m_stationLayers{}
+    , m_sectorNum{}
+    , m_phiLayerNum{}
+    , m_stationLayerNum{}
   {
 
     declareInterface<ITrackCollectionProvider>(this);
@@ -83,21 +114,11 @@ namespace Trk {
   StatusCode MSConstraintTracksProvider::initialize()
   {
     // configure main track fitter
-    if(m_trackFitter.retrieve().isFailure()) {
-       msg(MSG::FATAL) << "Could not get " << m_trackFitter << endreq;
-       return StatusCode::FAILURE;
-    }
-    ATH_MSG_INFO("Retrieved " << m_trackFitter);
-
-    if (m_muonHitSummaryTool.retrieve().isFailure()){
-        ATH_MSG_ERROR("could no initialize " << m_muonHitSummaryTool);
-        return StatusCode::FAILURE;
-    }
-
+    ATH_CHECK(m_trackFitter.retrieve());
+    ATH_MSG_DEBUG("Retrieved " << m_trackFitter);
+    ATH_CHECK(m_muonHitSummaryTool.retrieve());
     // 
     bookNtuple();
-
-
     return StatusCode::SUCCESS;
   }
 

@@ -50,7 +50,7 @@ namespace Trk {
   {
     // Number of layers in the superstructures
     if (m_alignModuleListType>Trk::L3 || m_alignModuleListType<Trk::L0) {
-      msg(MSG::FATAL)<<"AlignModuleListType can be 0, 1, 2, or 3" << endreq;
+      msg(MSG::FATAL)<<"AlignModuleListType can be 0, 1, 2, or 3" << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -59,7 +59,7 @@ namespace Trk {
 
     // Set up ATLAS ID helper 
     if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-      msg(MSG::FATAL)<<"Could not get Atlas ID helper"<<endreq;
+      msg(MSG::FATAL)<<"Could not get Atlas ID helper"<<endmsg;
       return StatusCode::FAILURE;
     }
 

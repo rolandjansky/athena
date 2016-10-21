@@ -48,7 +48,7 @@ namespace Trk {
 
     // Get DerivCalcTool (will have to be moved to AlignTool)
     if ( m_derivCalcTool.retrieve().isFailure() ) {
-      msg(MSG::FATAL)<< "Failed to retrieve tool " << m_derivCalcTool << endreq;
+      msg(MSG::FATAL)<< "Failed to retrieve tool " << m_derivCalcTool << endmsg;
       return StatusCode::FAILURE;
     } 
     ATH_MSG_INFO("Retrieved tool " << m_derivCalcTool);
@@ -122,7 +122,7 @@ namespace Trk {
     }
 
     if (imeas!=NMEAS) {
-      msg(MSG::ERROR)<<"problem with nmeas.  imeas="<<imeas<<", NMEAS="<<NMEAS<<endreq;
+      msg(MSG::ERROR)<<"problem with nmeas.  imeas="<<imeas<<", NMEAS="<<NMEAS<<endmsg;
       exit(3);
     }
 

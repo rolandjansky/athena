@@ -46,6 +46,7 @@ namespace Trk {
     : AthAlgTool(type,name,parent)
     , m_trackFitterTool("Trk::GlobalChi2Fitter/MCTBFitter")
     , m_SLTrackFitterTool("Trk::GlobalChi2Fitter/MCTBSLFitter")
+    //,m_fitter?
     , m_residualCalculator("Trk::AlignResidualCalculator/ResidualCalculator")
     , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
     , m_traSize(.1)
@@ -53,13 +54,23 @@ namespace Trk {
     , m_runOutlierRemoval(false)
     , m_particleHypothesis(Trk::muon)
     , m_particleNumber(2)
+    , m_nChamberShifts{}
     , m_nIterations(0)
-    , m_unshiftedResiduals(0)
-    , m_unshiftedResErrors(0)
-    , m_tmpChi2VAlignParam(0)
-    , m_tmpChi2VAlignParamX(0)
-    , m_tmpChi2VAlignParamMeasType(0)
+    , m_unshiftedResiduals(nullptr)
+    , m_unshiftedResErrors(nullptr)
+    //m_chi2VAlignParamVec
+    //m_chi2VAlignParamXVec
+    , m_tmpChi2VAlignParam(nullptr)
+    , m_tmpChi2VAlignParamX(nullptr)
+    , m_tmpChi2VAlignParamMeasType(nullptr)
+    //m_chi2VAlignParamVecMeasType
+    , m_unshiftedTrackChi2{}
     , m_unshiftedTrackChi2MeasType(new double  [TrackState::NumberOfMeasurementTypes])
+    //m_trackAlignParamCut
+    //m_setMinIterations
+    //m_maxIter
+    //m_minIter
+    //m_removeScatteringBeforeRefit
     , m_ntracksProcessed(0)
     , m_ntracksPassInitScan(0)
     , m_ntracksPassSetUnshiftedRes(0)
@@ -71,6 +82,7 @@ namespace Trk {
     , m_ntracksFailTrackRefit(0)
     , m_ntracksFailAlignParamCut(0)
     , m_ntracksFailFinalAttempt(0)
+    , m_secPass{}
   {
     declareInterface<IDerivCalcTool>(this);
 
@@ -108,42 +120,16 @@ namespace Trk {
   StatusCode ShiftingDerivCalcTool::initialize()
   {
      
-    msg(MSG::DEBUG)  << "in ShiftingDerivCalcTool initialize()"<<endreq;
-
-    if (m_trackFitterTool.retrieve().isSuccess()) {
-      msg(MSG::INFO) << "Retrieved " << m_trackFitterTool << endreq;  
-    }
-    else{
-      msg(MSG::FATAL) << "Could not get " << m_trackFitterTool << endreq; 
-      return StatusCode::FAILURE;
-    }
-
-    if (m_SLTrackFitterTool.retrieve().isSuccess()) {
-      msg(MSG::INFO) << "Retrieved " << m_SLTrackFitterTool << endreq;  
-    }
-    else{
-      msg(MSG::FATAL) << "Could not get " << m_SLTrackFitterTool << endreq; 
-      return StatusCode::FAILURE;
-    }
-    
-    if (m_residualCalculator.retrieve().isSuccess())
-      msg(MSG::INFO) << "Retrieved " << m_residualCalculator << endreq;  
-    else{
-      msg(MSG::FATAL) << "Could not get " << m_residualCalculator << endreq; 
-      return StatusCode::FAILURE;
-    }
-        
-    if (m_alignModuleTool.retrieve().isSuccess())
-      msg(MSG::INFO) << "Retrieved " << m_alignModuleTool << endreq;  
-    else{
-      msg(MSG::FATAL) << "Could not get " << m_alignModuleTool << endreq; 
-      return StatusCode::FAILURE;
-    }
-    
+    msg(MSG::DEBUG)  << "in ShiftingDerivCalcTool initialize()"<<endmsg;
+    ATH_CHECK(m_trackFitterTool.retrieve());
+    ATH_CHECK(m_SLTrackFitterTool.retrieve());
+    ATH_CHECK(m_residualCalculator.retrieve());
+    ATH_CHECK(m_alignModuleTool.retrieve());
+   
     ParticleSwitcher particleSwitch;
     m_particleHypothesis = particleSwitch.particle[m_particleNumber];
-    msg(MSG::INFO) << "ParticleNumber: "     << m_particleNumber     << endreq;
-    msg(MSG::INFO) << "ParticleHypothesis: " << m_particleHypothesis << endreq;
+    msg(MSG::INFO) << "ParticleNumber: "     << m_particleNumber     << endmsg;
+    msg(MSG::INFO) << "ParticleHypothesis: " << m_particleHypothesis << endmsg;
   
    
     if(!m_doFits){
@@ -154,8 +140,8 @@ namespace Trk {
     m_traSize = 5.*m_traSize/(double)m_nFits;
     m_rotSize = 5.*m_rotSize/(double)m_nFits;
 
-    msg(MSG::INFO) << "doFits: "   << m_doFits  << endreq;
-    msg(MSG::INFO) << "nFits:  "   << m_nFits  << endreq;
+    msg(MSG::INFO) << "doFits: "   << m_doFits  << endmsg;
+    msg(MSG::INFO) << "nFits:  "   << m_nFits  << endmsg;
 
     return StatusCode::SUCCESS;
   }
@@ -163,17 +149,17 @@ namespace Trk {
   //________________________________________________________________________
   StatusCode ShiftingDerivCalcTool::finalize()
   {
-    ATH_MSG_INFO("number tracks processed:                           "<<m_ntracksProcessed<<endreq<<
-     "number tracks passing initial scan:                "<<m_ntracksPassInitScan<<endreq<<
-     "number tracks passing setting unshifted residuals: "<< m_ntracksPassSetUnshiftedRes<<endreq<<
-     "number tracks pass getting derivatives (1st pass): "<<m_ntracksPassGetDeriv<<endreq<<
-     "number tracks pass getting derivatives (2nd pass): "<<m_ntracksPassGetDerivSecPass<<endreq<<
-     "number tracks pass getting derivatives (3rd pass): "<<m_ntracksPassGetDerivLastPass<<endreq<<
-     "number tracks pass setting derivatives:            "<<m_ntracksPassDerivatives);
-    ATH_MSG_INFO("number tracks fail max iterations:                 "<<m_ntracksFailMaxIter<<endreq<<
-     "number tracks fail track refit:                    "<<m_ntracksFailTrackRefit<<endreq<<
-     "number tracks fail align param cut:                "<<m_ntracksFailAlignParamCut<<endreq<<
-     "number tracks fail final attempt:                  "<<m_ntracksFailFinalAttempt);   
+    ATH_MSG_INFO("number tracks processed:                           "<<m_ntracksProcessed<<
+     "\nnumber tracks passing initial scan:                "<<m_ntracksPassInitScan<<
+     "\nnumber tracks passing setting unshifted residuals: "<< m_ntracksPassSetUnshiftedRes<<
+     "\nnumber tracks pass getting derivatives (1st pass): "<<m_ntracksPassGetDeriv<<
+     "\nnumber tracks pass getting derivatives (2nd pass): "<<m_ntracksPassGetDerivSecPass<<
+     "\nnumber tracks pass getting derivatives (3rd pass): "<<m_ntracksPassGetDerivLastPass<<
+     "\nnumber tracks pass setting derivatives:            "<<m_ntracksPassDerivatives);
+    ATH_MSG_INFO("number tracks fail max iterations:                 "<<m_ntracksFailMaxIter<<
+     "\nnumber tracks fail track refit:                    "<<m_ntracksFailTrackRefit<<
+     "\nnumber tracks fail align param cut:                "<<m_ntracksFailAlignParamCut<<
+     "\nnumber tracks fail final attempt:                  "<<m_ntracksFailFinalAttempt);   
 
     return StatusCode::SUCCESS;
   }
@@ -202,7 +188,7 @@ namespace Trk {
             m_runOutlierRemoval,
             m_particleHypothesis);  
     if (!refittedTrack) { 
-      msg(MSG::WARNING)  << "initial track refit failed" << endreq;     
+      msg(MSG::WARNING)  << "initial track refit failed" << endmsg;     
       return false;
     } 
     else 
@@ -234,7 +220,7 @@ namespace Trk {
     refittedTrack = m_fitter->fit(*trackForRefit,m_runOutlierRemoval,m_particleHypothesis);
     m_alignModuleTool->restoreModule(*moduleIt);
     if (!refittedTrack) {
-      msg(MSG::WARNING) << "track refit failed!"<<endreq;
+      msg(MSG::WARNING) << "track refit failed!"<<endmsg;
       m_nIterations=0;
       return false;
     }
@@ -267,7 +253,7 @@ namespace Trk {
       <<alignTrack->isSLTrack()<<")");   
     
     // refit track
-    ATH_MSG_DEBUG(endreq<<"setting min number iterations to "<<m_nIterations);
+    ATH_MSG_DEBUG("\nsetting min number iterations to "<<m_nIterations);
     m_fitter->setMinIterations(m_nIterations);
 
     const Trk::Track* trackForRefit = 
@@ -280,7 +266,7 @@ namespace Trk {
             m_particleHypothesis);
     
     if (!refittedTrack) { 
-      msg(MSG::WARNING)  << "initial track refit failed" << endreq;     
+      msg(MSG::WARNING)  << "initial track refit failed" << endmsg;     
       return false;
     } 
     else 
@@ -288,7 +274,7 @@ namespace Trk {
 
     // dump local track chi2 for debugging
     double localChi2=m_residualCalculator->setResiduals(alignTrack,refittedTrack);
-    msg()<<MSG::DEBUG<<"local Chi2(unshifted) in setChi2VAlignParam="<<localChi2<<endreq;    
+    msg()<<MSG::DEBUG<<"local Chi2(unshifted) in setChi2VAlignParam="<<localChi2<<endmsg;    
     m_unshiftedTrackChi2 = localChi2;
     for (int i=0;i<TrackState::NumberOfMeasurementTypes;i++) {
       ATH_MSG_DEBUG("getting chi2 for measType "<<i);
@@ -323,7 +309,7 @@ namespace Trk {
       }
     }
     if (imeas!=NMEAS) {
-      msg(MSG::ERROR)<<"problem with nmeas, imeas="<<imeas<<", NMEAS="<<NMEAS<<endreq;
+      msg(MSG::ERROR)<<"problem with nmeas, imeas="<<imeas<<", NMEAS="<<NMEAS<<endmsg;
       exit(3);
     }
     alignTrack->setResidualVector(m_unshiftedResiduals); 
@@ -619,7 +605,7 @@ Amg::VectorX ShiftingDerivCalcTool::getDerivatives(AlignTrack* alignTrack,
     }
     
     if (!refittedTrack) {
-      msg(MSG::WARNING) << "track refit failed for jfit "<<jfit <<endreq;
+      msg(MSG::WARNING) << "track refit failed for jfit "<<jfit <<endmsg;
       delete [] residuals; delete [] resErrors;
       delete [] chi2Array; delete [] chi2ArrayX;
       m_alignModuleTool->restoreModule(module);
@@ -903,7 +889,7 @@ bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
   for( int irow=0; irow<W.rows(); ++irow) {
     Wisvalid = Wisvalid && W(irow,irow)>0;
     if( !(W(irow,irow)>0) ) 
-      msg(MSG::WARNING) << "matrix invalid: " << W(irow,irow) << endreq;
+      msg(MSG::WARNING) << "matrix invalid: " << W(irow,irow) << endmsg;
     
     for(int icol=0; icol<=irow; ++icol) {
 
@@ -912,7 +898,7 @@ bool ShiftingDerivCalcTool::setResidualCovMatrix(AlignTrack* alignTrack) const
     bool Wcorrisvalid = Wcorr+epsilon>=-1 && Wcorr-epsilon<=1;
     Wisvalid = Wisvalid && Wcorrisvalid;
     if( !Wcorrisvalid )
-      msg(MSG::WARNING) << "matrix corr invalid: " << Wcorr-1 << " " << Wcorr+1 << endreq;
+      msg(MSG::WARNING) << "matrix corr invalid: " << Wcorr-1 << " " << Wcorr+1 << endmsg;
     }
   }
 

@@ -60,10 +60,49 @@ namespace Trk {
     : IMatrixTool()
     , AthAlgTool(type,name,parent)
     , m_alignModuleTool("Trk::AlignModuleTool/AlignModuleTool")
-    , m_bigmatrix(0)
-    , m_bigvector(0)
+    , m_bigmatrix(nullptr)
+    , m_bigvector(nullptr)
+    //m_useSparse
+    //m_diagonalize
+    //m_eigenvaluethreshold
+    , m_nDoF{}
+    //m_solveOption
+    //m_modcut
+    //m_minNumHits
+    //m_minNumTrks
+    //m_pullcut
+    //m_eigenvalueStep
+    //m_Align_db_step
+    //m_calDet
+    //m_wSqMatrix
+    //m_writeMat
+    //m_writeMatTxt
+    //m_writeEigenMat
+    //m_writeEigenMatTxt
+    //m_writeModuleNames
+    //m_writeHitmap
+    //m_writeHitmapTxt
+    //m_readHitmaps
+    //m_writeTFile
+    //m_readTFiles
+    //m_runLocal
     , m_scale(-1.)
+    //m_scaleMatrix
+    , m_matVersion{}
+    , m_vecVersion{}
+    //m_softEigenmodeCut
+    //m_removeSpurious
+    //m_calculateFullCovariance
+    //m_pathbin, m_pathtxt, m_prefixName, m_tfileName, m_scalaMatName, m_scalaVecName
+    //m_inputMatrixFiles, m_inputVectorFiles, m_inputHitmapFiles, m_inputTFiles
+    //m_activeIndices
     , m_aNDoF(0)
+    //m_maxReadErrors
+    //m_AlignIBLbutNotPixel, m_AlignPixelbutNotIBL
+    //m_Remove_Pixel_Tx, m_Remove_Pixel_Ty, m_Remove_Pixel_Tz
+    //m_Remove_Pixel_Rx, m_Remove_Pixel_Ry, m_Remove_Pixel_Rz
+    //m_Remove_IBL_Tx, m_Remove_IBL_Ty, m_Remove_IBL_Tz
+    //m_Remove_IBL_Rx, m_Remove_IBL_Ry, m_Remove_IBL_Rz
   {
     declareInterface<IMatrixTool>(this);
 
@@ -130,8 +169,25 @@ namespace Trk {
     declareProperty("InputHitmapFiles",   m_inputHitmapFiles    = defaultHitmapInput);
   
     declareProperty("MaxReadErrors",    m_maxReadErrors     = 10);
+    //To skip IBL or Pixel Alignment
     declareProperty("AlignIBLbutNotPixel",    m_AlignIBLbutNotPixel = false);
     declareProperty("AlignPixelbutNotIBL",    m_AlignPixelbutNotIBL = false);
+
+    //By Pixel DoF
+    declareProperty("Remove_Pixel_Tx",    m_Remove_Pixel_Tx = false);
+    declareProperty("Remove_Pixel_Ty",    m_Remove_Pixel_Ty = false);
+    declareProperty("Remove_Pixel_Tz",    m_Remove_Pixel_Tz = false);
+    declareProperty("Remove_Pixel_Rx",    m_Remove_Pixel_Rx = false);
+    declareProperty("Remove_Pixel_Ry",    m_Remove_Pixel_Ry = false);
+    declareProperty("Remove_Pixel_Rz",    m_Remove_Pixel_Rz = false);
+
+    //By IBL DoF
+    declareProperty("Remove_IBL_Tx",    m_Remove_IBL_Tx = false);
+    declareProperty("Remove_IBL_Ty",    m_Remove_IBL_Ty = false);
+    declareProperty("Remove_IBL_Tz",    m_Remove_IBL_Tz = false);
+    declareProperty("Remove_IBL_Rx",    m_Remove_IBL_Rx = false);
+    declareProperty("Remove_IBL_Ry",    m_Remove_IBL_Ry = false);
+    declareProperty("Remove_IBL_Rz",    m_Remove_IBL_Rz = false);
 
   }
 
@@ -151,7 +207,7 @@ namespace Trk {
     if (m_alignModuleTool.retrieve().isSuccess())
       ATH_MSG_INFO("Retrieved " << m_alignModuleTool);
     else{
-      msg(MSG::FATAL) << "Could not get " << m_alignModuleTool << endreq;
+      msg(MSG::FATAL) << "Could not get " << m_alignModuleTool << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -227,14 +283,14 @@ namespace Trk {
 
     // some debugging output
     if (msgLvl(MSG::VERBOSE)) {
-      msg(MSG::VERBOSE)<<"dumping matrix and vector to screen"<<endreq;
+      msg(MSG::VERBOSE)<<"dumping matrix and vector to screen"<<endmsg;
       for (int i=0;i<nDoF;i++)
         for (int j=0;j<nDoF;j++)
         //if (std::fabs((*m_bigmatrix)[i][j])>.0001)
-          msg(MSG::VERBOSE)<<i<<", "<<j<<" : "<<(*m_bigmatrix)[i][j] <<endreq;
+          msg(MSG::VERBOSE)<<i<<", "<<j<<" : "<<(*m_bigmatrix)[i][j] <<endmsg;
 
       for (int i=0;i<nDoF;i++)
-        msg(MSG::VERBOSE)<<i <<" : "<<(*m_bigvector)[i]<<endreq;
+        msg(MSG::VERBOSE)<<i <<" : "<<(*m_bigvector)[i]<<endmsg;
     }
 
     // get rescaled first and second derivatives
@@ -257,9 +313,9 @@ namespace Trk {
     TVectorD    b(m_aNDoF,firstderiv);
 
     if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG)<<"First derivatives:"<<endreq;
+      msg(MSG::DEBUG)<<"First derivatives:"<<endmsg;
       b.Print();
-      msg(MSG::DEBUG)<<"Second derivatives:"<<endreq;
+      msg(MSG::DEBUG)<<"Second derivatives:"<<endmsg;
       a.Print();
     }
 
@@ -277,7 +333,7 @@ namespace Trk {
     ATH_MSG_INFO("Time spent in solveROOT: "<<totaltime<<" s");
 
     if(!status) {
-      msg(MSG::ERROR)<<"ROOT inversion failed"<<endreq;
+      msg(MSG::ERROR)<<"ROOT inversion failed"<<endmsg;
       if(m_logStream) {
         *m_logStream<<"ROOT inversion failed"<<std::endl;
         *m_logStream<<std::endl;
@@ -355,14 +411,14 @@ namespace Trk {
 
     // some debugging output
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG)<<"dumping matrix and vector to screen"<<endreq;
+      msg(MSG::DEBUG)<<"dumping matrix and vector to screen"<<endmsg;
       for (int i=0;i<nDoF;i++)
         for (int j=0;j<nDoF;j++)
         //if (std::fabs((*m_bigmatrix)[i][j])>.0001)
-          msg(MSG::DEBUG)<<i<<", "<<j<<" : "<<(*m_bigmatrix)[i][j] <<endreq;
+          msg(MSG::DEBUG)<<i<<", "<<j<<" : "<<(*m_bigmatrix)[i][j] <<endmsg;
 
       for (int i=0;i<nDoF;i++)
-        msg(MSG::DEBUG)<<i <<" : "<<(*m_bigvector)[i]<<endreq;
+        msg(MSG::DEBUG)<<i <<" : "<<(*m_bigvector)[i]<<endmsg;
     }
 
     // get rescaled first and second derivatives
@@ -396,7 +452,7 @@ namespace Trk {
       cov = *d2Chi2;
       cov.invert(ierr);
       if(ierr>0)
-        msg(MSG::ERROR)<<"CLHEP inversion status flag = "<<ierr<<endreq;
+        msg(MSG::ERROR)<<"CLHEP inversion status flag = "<<ierr<<endmsg;
       else
         ATH_MSG_INFO("CLHEP inversion OK");
       if(m_logStream)
@@ -418,12 +474,12 @@ namespace Trk {
       int ierr2 = 0;
       cov2.invert(ierr2);
       if(ierr2>0)
-        msg(MSG::WARNING)<<"Second CLHEP inversion status flag = "<<ierr2<<endreq;
+        msg(MSG::WARNING)<<"Second CLHEP inversion status flag = "<<ierr2<<endmsg;
 
       CLHEP::HepVector delta2 = cov2 * (*dChi2) * .5;
       for (int i=0;i<delta.num_row(); ++i)
         if ( fabs((delta[i] - delta2[i])/delta[i]) > 1e-5 ) {
-          msg(MSG::WARNING)<<"Something's wrong with the matrix inversion: delta["<<i<<"] = "<<delta[i]<<"    delta2["<<i<<"] = "<<delta2[i]<<endreq;
+          msg(MSG::WARNING)<<"Something's wrong with the matrix inversion: delta["<<i<<"] = "<<delta[i]<<"    delta2["<<i<<"] = "<<delta2[i]<<endmsg;
           status=false;
           break;
         }
@@ -727,12 +783,12 @@ namespace Trk {
       StatusCode sc = newVector.ReadPartial(m_inputVectorFiles[ivec],scale,newModIndexMap,dummyVersion);
       totalscale += scale;
       if (sc==StatusCode::FAILURE) {
-        msg(MSG::FATAL)<<"Problem reading vector from "<<m_inputVectorFiles[ivec]<<endreq;
+        msg(MSG::FATAL)<<"Problem reading vector from "<<m_inputVectorFiles[ivec]<<endmsg;
         return false;
       }
       if (newVector.size()!=m_bigvector->size()) {
         msg(MSG::FATAL) <<"vector wrong size!  newVector size "<<newVector.size()
-                        <<", bigvector size "<<m_bigvector->size()<<endreq;
+                        <<", bigvector size "<<m_bigvector->size()<<endmsg;
         return false;
       }
 
@@ -740,7 +796,7 @@ namespace Trk {
       if (ivec==0)
         modIndexMap = newModIndexMap;
       else if (modIndexMap!=newModIndexMap) {
-        msg(MSG::FATAL)<<"module index maps don't agree!"<<endreq;
+        msg(MSG::FATAL)<<"module index maps don't agree!"<<endmsg;
         return false;
       }
       if (ivec>0)
@@ -785,7 +841,7 @@ namespace Trk {
       }
 
       if (sc==StatusCode::FAILURE) {
-        msg(MSG::FATAL)<<"problem reading matrix from "<<m_inputMatrixFiles[imat]<<endreq;
+        msg(MSG::FATAL)<<"problem reading matrix from "<<m_inputMatrixFiles[imat]<<endmsg;
         return false;
       }
 
@@ -931,7 +987,7 @@ namespace Trk {
 
     for (int ifile = 0; ifile < (int)m_inputTFiles.size(); ifile++) {
       if (numberOfReadErrors > m_maxReadErrors){
-        msg(MSG::FATAL) << " number of errors when reading the TFiles already exceed " << m_maxReadErrors << endreq;
+        msg(MSG::FATAL) << " number of errors when reading the TFiles already exceed " << m_maxReadErrors << endmsg;
         return false;
       }
    
@@ -1016,7 +1072,7 @@ namespace Trk {
       
       if (newVector->size()  != m_bigvector->size() ) {
          msg(MSG::FATAL) << "vector wrong size!  newVector size " << newVector->size()
-                         << ", bigvector size " << m_bigvector->size()<<endreq;
+                         << ", bigvector size " << m_bigvector->size()<<endmsg;
          delete newVector;
          delete vector;
          return false;
@@ -1024,7 +1080,7 @@ namespace Trk {
       
       if (m_bigvector->size() != vector->GetNrows() ) {
          msg(MSG::FATAL) << "File vector wrong size!  File Vector size " << vector->GetNrows()
-                         << ", bigvector size " << m_bigvector->size()<<endreq;
+                         << ", bigvector size " << m_bigvector->size()<<endmsg;
          delete newVector;
          delete vector;
          return false;
@@ -1040,14 +1096,14 @@ namespace Trk {
       if (ifile == 0){
         DoFMap = newDoFMap;
       } else if (DoFMap!=newDoFMap) {
-        msg(MSG::FATAL) << "module dofs don't agree!" << endreq;
+        msg(MSG::FATAL) << "module dofs don't agree!" << endmsg;
         return false;
       }
       
       if (ifile == 0){
          modIndexMap = newModIndexMap;
       } else if (modIndexMap!=newModIndexMap) {
-         msg(MSG::FATAL) << "module index maps don't agree!" << endreq;
+         msg(MSG::FATAL) << "module index maps don't agree!" << endmsg;
          return false;
       }
       
@@ -1241,7 +1297,7 @@ namespace Trk {
       StatusCode sc1 = m_bigmatrix->Write("matrix.bin",true,m_wSqMatrix,m_scale,dummyVersion);
       StatusCode sc2 = m_bigvector->WritePartial("vector.bin",true,m_scale,modIndexMap,dummyVersion);
       if (!sc1.isSuccess() || !sc2.isSuccess()) {
-        msg(MSG::ERROR)<<"problem writing matrix or vector"<<endreq;
+        msg(MSG::ERROR)<<"problem writing matrix or vector"<<endmsg;
         return -1;
       }
 
@@ -1255,7 +1311,7 @@ namespace Trk {
           m_bigvector->WritePartial("vector.txt",false,m_scale,modIndexMap,dummyVersion);
   
         if (!sc1.isSuccess() || !sc2.isSuccess()) {
-          msg(MSG::ERROR)<<"problem writing matrix or vector"<<endreq;
+          msg(MSG::ERROR)<<"problem writing matrix or vector"<<endmsg;
           return -1;
         }
       }
@@ -1352,21 +1408,92 @@ namespace Trk {
     
 
     ATH_MSG_INFO("rescaling done");
+    ATH_MSG_INFO("Javi: Printing (*alignParList)[i]->alignModule()->identify32()");
 
     // select modules with non-zero tracks
     for(int i=0;i<nDoF;i++)
       {
+        /*ATH_MSG_INFO(i);
+        ATH_MSG_INFO((*alignParList)[i]->alignModule()->identify32());
+        ATH_MSG_INFO((*alignParList)[i]->alignModule());
+        ATH_MSG_INFO((*alignParList)[i]->alignModule()->name());
+        ATH_MSG_INFO((*alignParList)[i]->paramType());*/
 
-	if (m_AlignIBLbutNotPixel) //If m_AlignIBLbutNotPixel is set to True, Pixel would be skiped in the solving.
+        //Skip solving for Pixel or IBL:
+
+	if (m_AlignIBLbutNotPixel) //If m_AlignIBLbutNotPixel is set to True, Pixel will be skiped in the solving.
 	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier)  
-	    {ATH_MSG_INFO( "Pixel DOF have been skiped in the solving because AlignIBLbutNotPixel is set to True");
+	    {ATH_MSG_INFO( "Pixel DoF have been skiped in the solving because AlignIBLbutNotPixel is set to True");
 	      continue;} 
 	
-	if (m_AlignPixelbutNotIBL) //If m_AlignPixelbutNotIBL is set to True, IBL would be skiped in the solving.
+	if (m_AlignPixelbutNotIBL) //If m_AlignPixelbutNotIBL is set to True, IBL will be skiped in the solving.
 	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier)  
-	    {ATH_MSG_INFO( "IBL DOF have been skiped in the solving because AlignPixelbutNotIBL is set to True");
+	    {ATH_MSG_INFO( "IBL DoF have been skiped in the solving because AlignPixelbutNotIBL is set to True");
 	      continue;}
-	
+
+        //For specific DoF: (*alignParList)[i]->paramType() = 0,1,2,3,4,5,6 for Tx,Ty,Tz,Rx,Ry,Rz,Bx
+	//Pixel Dofs:
+	if (m_Remove_Pixel_Tx) //If m_Remove_Pixel_Tx is set to True, Pixel Tx will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 0)  
+	    {ATH_MSG_INFO( "Pixel Tx DoF has been skiped in the solving because Remove_Pixel_Tx is set to True");
+	      continue;} 
+        
+	if (m_Remove_Pixel_Ty) //If m_Remove_Pixel_Ty is set to True, Pixel Ty will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 1)  
+	    {ATH_MSG_INFO( "Pixel Ty DoF has been skiped in the solving because Remove_Pixel_Ty is set to True");
+	      continue;} 
+        
+	if (m_Remove_Pixel_Tz) //If m_Remove_Pixel_Tz is set to True, Pixel Tz will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 2)  
+	    {ATH_MSG_INFO( "Pixel Tz DoF has been skiped in the solving because Remove_Pixel_Tz is set to True");
+	      continue;} 
+        
+	if (m_Remove_Pixel_Rx) //If m_Remove_Pixel_Rx is set to True, Pixel Rx will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 3)  
+	    {ATH_MSG_INFO( "Pixel Rx DoF has been skiped in the solving because Remove_Pixel_Rx is set to True");
+	      continue;} 
+        
+	if (m_Remove_Pixel_Ry) //If m_Remove_Pixel_Ry is set to True, Pixel Ry will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 4)  
+	    {ATH_MSG_INFO( "Pixel Ry DoF has been skiped in the solving because Remove_Pixel_Ry is set to True");
+	      continue;} 
+        
+	if (m_Remove_Pixel_Rz) //If m_Remove_Pixel_Rz is set to True, Pixel Rz will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== OldPixelIdentifier and (*alignParList)[i]->paramType() == 5)  
+	    {ATH_MSG_INFO( "Pixel Rz DoF has been skiped in the solving because Remove_Pixel_Rz is set to True");
+	      continue;} 
+        
+        //IBL Dofs:
+	if (m_Remove_IBL_Tx) //If m_Remove_IBL_Tx is set to True, IBL Tx will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 0)  
+	    {ATH_MSG_INFO( "IBL Tx DoF has been skiped in the solving because Remove_IBL_Tx is set to True");
+	      continue;} 
+        
+	if (m_Remove_IBL_Ty) //If m_Remove_IBL_Ty is set to True, IBL Ty will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 1)  
+	    {ATH_MSG_INFO( "IBL Ty DoF has been skiped in the solving because Remove_IBL_Ty is set to True");
+	      continue;} 
+        
+	if (m_Remove_IBL_Tz) //If m_Remove_IBL_Tz is set to True, IBL Tz will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 2)  
+	    {ATH_MSG_INFO( "IBL Tz DoF has been skiped in the solving because Remove_IBL_Tz is set to True");
+	      continue;} 
+        
+	if (m_Remove_IBL_Rx) //If m_Remove_IBL_Rx is set to True, IBL Rx will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 3)  
+	    {ATH_MSG_INFO( "IBL Rx DoF has been skiped in the solving because Remove_IBL_Rx is set to True");
+	      continue;} 
+        
+	if (m_Remove_IBL_Ry) //If m_Remove_IBL_Ry is set to True, IBL Ry will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 4)  
+	    {ATH_MSG_INFO( "IBL Ry DoF has been skiped in the solving because Remove_IBL_Ry is set to True");
+	      continue;} 
+
+	if (m_Remove_IBL_Rz) //If m_Remove_IBL_Rz is set to True, IBL Rz will be skiped in the solving.
+	  if  ((*alignParList)[i]->alignModule()->identify32()== IBLIdentifier and (*alignParList)[i]->paramType() == 5)  
+	    {ATH_MSG_INFO( "IBL Rz DoF has been skiped in the solving because Remove_IBL_Rz is set to True");
+	      continue;}
+
 	if((*alignParList)[i]->alignModule()->nHits() >= m_minNumHits && (*alignParList)[i]->alignModule()->nTracks() >= m_minNumTrks)
 	  m_activeIndices.push_back(i);
       }
@@ -1826,12 +1953,12 @@ namespace Trk {
     ATH_MSG_DEBUG("in postSolvinglapack()");
 
     if( z.ncol() != size) {
-      msg(MSG::ERROR)<<"Eigenvector matrix has incorrect size : "<<z.ncol()<<" != "<<size<<endreq;
+      msg(MSG::ERROR)<<"Eigenvector matrix has incorrect size : "<<z.ncol()<<" != "<<size<<endmsg;
       return;
     }
 
     if( (int)m_activeIndices.size() != size) {
-      msg(MSG::ERROR)<<"Number of active parameters is incorrect : "<<m_activeIndices.size()<<" != "<<size<<endreq;
+      msg(MSG::ERROR)<<"Number of active parameters is incorrect : "<<m_activeIndices.size()<<" != "<<size<<endmsg;
       return;
     }
 
@@ -1853,7 +1980,7 @@ namespace Trk {
       StatusCode sc = z.Write("eigenvectors.bin",true); // write the eigenvector matrix
 
       if (sc!=StatusCode::SUCCESS)
-        msg(MSG::ERROR)<<"Problem writing eigenvector matrix"<<endreq;
+        msg(MSG::ERROR)<<"Problem writing eigenvector matrix"<<endmsg;
 
       // Set Path for the w matrix (eigenvalues matrix - diagonal bigmatrix)
       w.SetPathBin(m_pathbin+m_prefixName);
@@ -1866,15 +1993,15 @@ namespace Trk {
       sc = w.WriteEigenvalueVec("eigenvalues.bin",true); // write the eigenvalues vecor
 
       if (sc!=StatusCode::SUCCESS)
-        msg(MSG::ERROR)<<"Problem writing eigenvector matrix"<<endreq;
+        msg(MSG::ERROR)<<"Problem writing eigenvector matrix"<<endmsg;
 
       if (m_writeEigenMatTxt) {
         sc = z.Write("eigenvectors.txt", false);
         if (sc!=StatusCode::SUCCESS)
-          msg(MSG::ERROR)<<"Problem writing eigenvector matrix to text file"<<endreq;
+          msg(MSG::ERROR)<<"Problem writing eigenvector matrix to text file"<<endmsg;
         sc = w.WriteEigenvalueVec("eigenvalues.txt", false);
         if (sc!=StatusCode::SUCCESS)
-          msg(MSG::ERROR)<<"Problem writing eigenvalue vector to text file"<<endreq;
+          msg(MSG::ERROR)<<"Problem writing eigenvalue vector to text file"<<endmsg;
       }
 
     }
@@ -2213,7 +2340,7 @@ namespace Trk {
         *m_logStream<<"***REMOVED*** solving OK."<<std::endl;
     }
     else {
-      msg(MSG::ERROR)<<"***REMOVED*** error code (0 if OK) = "<<info<<endreq;
+      msg(MSG::ERROR)<<"***REMOVED*** error code (0 if OK) = "<<info<<endmsg;
       if(m_logStream)
         *m_logStream<<"***REMOVED*** error code (0 if OK) = "<<info<<std::endl;
     }
