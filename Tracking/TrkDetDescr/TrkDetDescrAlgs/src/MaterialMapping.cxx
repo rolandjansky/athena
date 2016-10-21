@@ -62,6 +62,7 @@ Trk::MaterialMapping::MaterialMapping(const std::string& name, ISvcLocator* pSvc
   m_elementTable(0),
   m_inputEventElementTable("ElementTable"),
   m_accumulatedMaterialXX0(0.),
+  m_accumulatedRhoS(0.),
   m_mapped(0),
   m_unmapped(0),
   m_skippedOutside(0),
@@ -208,7 +209,7 @@ StatusCode Trk::MaterialMapping::execute()
                size_t nLayersHit = ecc.extrapolationSteps.size();
                ATH_MSG_VERBOSE("[+] Extrapolation to layers did succeed and found " << nLayersHit << " layers.");
                // reserve the size of the vectors
-               layersAndHits.reserve(nLayersHit);
+	       //layersAndHits.reserve(nLayersHit);
                // for screen output
                size_t ilayer = 0;
                // find all the intersected material - remember the last parameters
