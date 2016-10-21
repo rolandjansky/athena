@@ -99,8 +99,8 @@ match = TrigMatchExAlg()
 tp_electron=TagAndProbeExAlg( "TagAndProbeExAlg", Flavor="Electron",
         HLTTriggerList=electronHLTList,
         L1TriggerList=["L1_EM15VH","L1_EM22VHI"])
-jetmet = JetMetExAlg("JetMetExAlg",HLTTriggerList=['HLT_j300'])
-emulator = TrigEmulatorExAlg(HLTTriggerList=electronHLTList)
+jetmet = JetMetExAlg("JetMetExAlg", HLTTriggerList=['HLT_j300'])
+emulator = TrigEmulatorExAlg(L1TriggerList=["L1_TAU12", "L1_TAU12IM", "L1_TAU60"], HLTTriggerList=[])
 express=TrigExpressStreamAlg()
 tat = TriggerAnalysisTutorial()
 
@@ -117,7 +117,7 @@ topSequence += tdtexample
 topSequence += match
 topSequence += tp_electron
 topSequence += jetmet
-#topSequence += emulator
+topSequence += emulator
 topSequence += express
 #topSequence += tat
 

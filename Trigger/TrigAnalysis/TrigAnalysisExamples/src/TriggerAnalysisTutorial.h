@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TriggerAnalysisTutorial.h 772674 2016-09-12 09:12:29Z rwhite $
+// $Id: TriggerAnalysisTutorial.h 778540 2016-10-14 15:39:47Z ssnyder $
 #ifndef TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
 #define TRIGANALYSISEXAMPLES_TRIGGERANALYSISTUTORIAL_H
 
@@ -58,7 +58,7 @@ public:
 
 private:
    int m_eventNr;
-   int m_eventsPrinted;
+   //int m_eventsPrinted;
    
    std::vector< std::string > m_chain_names;
    std::vector< std::string > m_cfg_chains;

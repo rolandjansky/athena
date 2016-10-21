@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TDTExample.cxx 771105 2016-08-31 19:04:44Z rwhite $
+// $Id: TDTExample.cxx 779433 2016-10-20 15:22:56Z rwhite $
 // Updated August 2016 for Trigger for Physics Workshop by rwhite
 //
 // STL include(s):
@@ -44,8 +44,8 @@
  *
  * @author Tomasz Bold     <tomasz.bold@cern.ch>     - UC Irvine, AGH-UST Krakow
  *
- * $Revision: 771105 $
- * $Date: 2016-08-31 21:04:44 +0200 (Wed, 31 Aug 2016) $
+ * $Revision: 779433 $
+ * $Date: 2016-10-20 17:22:56 +0200 (Thu, 20 Oct 2016) $
  */
 class JetInfo {
   
@@ -370,7 +370,7 @@ StatusCode Trig::TDTExample::electronsAndFlags() {
 
 StatusCode Trig::TDTExample::matchRoIs() {
 
-   FeatureContainer f = m_trigDec->features( "HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo" ); // take one chain as example and take it's objects
+   FeatureContainer f = m_trigDec->features( "HLT_tau35_perf_tracktwo_tau25_perf_tracktwo");
    FeatureContainer::combination_const_iterator cIt;
    // see how many of this combinations we have
    // the combination in this chain (i.e. chain with multiplicity == 1) the combination is actually RoI
@@ -390,8 +390,8 @@ StatusCode Trig::TDTExample::matchRoIs() {
       // initialRoI is typically what we are interested in, this is the RoI defined by the RoIBuilder and sent to the HLT
       // additional RoIs are defined at the HLT with improved coordinates measured at the HLT
       std::vector< Feature<TrigRoiDescriptor> > initRois = cIt->get<TrigRoiDescriptor>("initialRoI");
-      std::vector< Feature<TrigRoiDescriptor> > caloRois = cIt->get<TrigRoiDescriptor>("TrigT2CaloTau");
-      std::vector< Feature<TrigRoiDescriptor> > tauRois  = cIt->get<TrigRoiDescriptor>("T2TauFinal");
+      std::vector< Feature<TrigRoiDescriptor> > caloRois = cIt->get<TrigRoiDescriptor>("secondaryRoI_L2");
+      std::vector< Feature<TrigRoiDescriptor> > tauRois  = cIt->get<TrigRoiDescriptor>("TrigJetRec");
 
       //
       // this is in fact wrapper which knows about:
@@ -476,7 +476,7 @@ StatusCode Trig::TDTExample::featuresOfCompositeChain() {
    // Use a tau chain that is seeded from L1 Tau (EmTauRoI) and L1 Jet (JetRoi)
    // How to access the EmTauRoi which seeds the HLT and the L1 jets
    // Following item seeded by L1_TAU20IM_2TAU12IM_J25_2J20_3J12
-    const std::string chain("HLT_tau35_medium1_tracktwo_tau25_medium1_tracktwo" ); 
+    const std::string chain("HLT_tau35_perf_tracktwo_tau25_perf_tracktwo");
 
    ATH_MSG_INFO( "REGTEST chain: " << chain << " is passed " << m_trigDec->isPassed( chain ) );
 
@@ -670,7 +670,7 @@ StatusCode Trig::TDTExample::jetRoItoChains( std::vector< JetInfo >& jetRoIs ) {
    std::vector< std::string > chains = m_trigDec->getChainGroup( chains_regex )->getListOfTriggers();
 
    BOOST_FOREACH( const std::string& ch, chains ) {
-      ATH_MSG_INFO( "Iterating over " << ch );
+      ATH_MSG_DEBUG( "Iterating over " << ch );
       const ChainGroup *cg = m_trigDec->getChainGroup( ch );
       CHECK( addChainInfo( jetRoIs, cg ) );
    }

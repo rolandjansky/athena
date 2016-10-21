@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TagAndProbeExAlg.cxx 771815 2016-09-05 15:04:05Z rwhite $
+// $Id: TagAndProbeExAlg.cxx 778537 2016-10-14 15:34:31Z ssnyder $
 // Updated to xAOD for Trigger Tutorial
 //
 // Gaudi/Athena include(s):
@@ -58,35 +58,35 @@ StatusCode TagAndProbeExAlg::initialize() {
    
    //Setup histograms for trigger decision and prescale
    const int nTrigger = (int) m_hltchainList.size();
-   h_triggerAccepts = new TH1F( "TriggerAccepts", "TriggerAccepts", nTrigger, 0,  nTrigger);
-   h_emulationAccepts = new TH1F( "EmulationAccepts", "EmulationAccepts", nTrigger, 0,  nTrigger);
-   h_triggerAcceptsRaw = new TH1F( "TriggerAcceptsRaw", "TriggerAcceptsRaw", nTrigger, 0, nTrigger );
-   h_triggerPrescaled = new TH1F( "TriggerPrescaled", "TriggerPrescaled", nTrigger, 0, nTrigger );
+   m_h_triggerAccepts = new TH1F( "TriggerAccepts", "TriggerAccepts", nTrigger, 0,  nTrigger);
+   m_h_emulationAccepts = new TH1F( "EmulationAccepts", "EmulationAccepts", nTrigger, 0,  nTrigger);
+   m_h_triggerAcceptsRaw = new TH1F( "TriggerAcceptsRaw", "TriggerAcceptsRaw", nTrigger, 0, nTrigger );
+   m_h_triggerPrescaled = new TH1F( "TriggerPrescaled", "TriggerPrescaled", nTrigger, 0, nTrigger );
    if ( ! m_hltchainList.empty() ){
-       for ( int i = 0; i < std::min( (int)m_hltchainList.size(), (int)h_triggerAccepts->GetNbinsX() ); ++i ) {
+       for ( int i = 0; i < std::min( (int)m_hltchainList.size(), (int)m_h_triggerAccepts->GetNbinsX() ); ++i ) {
            int bin = i+1;
-           h_triggerAccepts->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
-           h_emulationAccepts->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
-           h_triggerAcceptsRaw->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
-           h_triggerPrescaled->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
+           m_h_triggerAccepts->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
+           m_h_emulationAccepts->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
+           m_h_triggerAcceptsRaw->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
+           m_h_triggerPrescaled->GetXaxis()->SetBinLabel(bin, m_hltchainList[i].c_str());
            ATH_MSG_INFO("setting label X" <<  m_hltchainList[i] << " for bin " << bin);
        }
    }
-   h_zMass = new TH1F( "ZMass", "m(Z)", 30, 70, 110 );
-   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonTriggerAccepts", h_triggerAccepts ) );
-   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonEmulationAccepts", h_emulationAccepts ) );
-   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonTriggerAcceptsRaw", h_triggerAcceptsRaw ) );
-   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonTriggerPrescaled", h_triggerPrescaled ) );
-   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/ZMass", h_zMass ) );
+   m_h_zMass = new TH1F( "ZMass", "m(Z)", 30, 70, 110 );
+   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonTriggerAccepts", m_h_triggerAccepts ) );
+   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonEmulationAccepts", m_h_emulationAccepts ) );
+   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonTriggerAcceptsRaw", m_h_triggerAcceptsRaw ) );
+   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/LeptonTriggerPrescaled", m_h_triggerPrescaled ) );
+   CHECK( m_histSvc->regHist( "/Trigger/TagAndProbe/ZMass", m_h_zMass ) );
    for(const std::string chain:m_hltchainList){
        m_numSelectedEvents[chain]=0;
        m_numHLTPassedEvents[chain]=0;
        std::string histName="Eff_et_"+chain;
-       h_eff_et[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, 0., 100. );
-       CHECK( m_histSvc->regHist( "/TagAndProbe/"+histName, h_eff_et[chain] ) );
+       m_h_eff_et[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, 0., 100. );
+       CHECK( m_histSvc->regHist( "/TagAndProbe/"+histName, m_h_eff_et[chain] ) );
        histName="Eff_eta_"+chain;
-       h_eff_eta[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, (-1.*m_etaMax), m_etaMax );
-       CHECK( m_histSvc->regHist( "/TagAndProbe/"+histName, h_eff_eta[chain] ) );
+       m_h_eff_eta[chain] = new TProfile( histName.c_str(), "#epsilon(Et)", 20, (-1.*m_etaMax), m_etaMax );
+       CHECK( m_histSvc->regHist( "/TagAndProbe/"+histName, m_h_eff_eta[chain] ) );
    }
    for(const std::string chain:m_hltchainList){
        m_numSelectedEvents[chain]=0;
@@ -184,11 +184,11 @@ StatusCode TagAndProbeExAlg::collectTriggerStatistics() {
         bool l1prescale=tbp && !tap;
         bool prescale=efprescale || l1prescale;
         if( m_trigDec->isPassed( chain ) )
-            h_triggerAccepts->Fill( chain.c_str(), 1 );
+            m_h_triggerAccepts->Fill( chain.c_str(), 1 );
         if(prescale)
-            h_triggerPrescaled->Fill( chain.c_str(), 1 );
+            m_h_triggerPrescaled->Fill( chain.c_str(), 1 );
         if(passedRaw)
-            h_triggerAcceptsRaw->Fill( chain.c_str(), 1);
+            m_h_triggerAcceptsRaw->Fill( chain.c_str(), 1);
     }
 
    return StatusCode::SUCCESS;
@@ -256,7 +256,7 @@ StatusCode TagAndProbeExAlg::TriggerAnalysis (const xAOD::IParticleContainer *co
         probeEta=z.second->eta();
         probeEt=(z.second->e()/cosh(z.second->eta()))/GeV;
         ATH_MSG_INFO("Z Mass " << mass << " Probe et: " << probeEt << " eta: " << probeEta);
-        h_zMass->Fill(mass);
+        m_h_zMass->Fill(mass);
         for(const std::string chain:m_l1chainList){
             m_numSelectedEvents[chain]+=1;
             if(passL1(*z.second,chain))
@@ -268,12 +268,12 @@ StatusCode TagAndProbeExAlg::TriggerAnalysis (const xAOD::IParticleContainer *co
             // L1 measurement
             if(passHLT(*z.second,chain)){ 
                 m_numHLTPassedEvents[chain]+=1;
-                h_eff_et[chain]->Fill(probeEt,1);
-                h_eff_eta[chain]->Fill(probeEta,1);
+                m_h_eff_et[chain]->Fill(probeEt,1);
+                m_h_eff_eta[chain]->Fill(probeEta,1);
             } 
             else {
-                h_eff_et[chain]->Fill(probeEt,0);
-                h_eff_eta[chain]->Fill(probeEta,0);
+                m_h_eff_et[chain]->Fill(probeEt,0);
+                m_h_eff_eta[chain]->Fill(probeEta,0);
                 // Determine why trigger fails
                 if(m_objType == xAOD::Type::Electron){
                     Trig::FeatureContainer f = m_trigDec->features( chain, TrigDefs::alsoDeactivateTEs );

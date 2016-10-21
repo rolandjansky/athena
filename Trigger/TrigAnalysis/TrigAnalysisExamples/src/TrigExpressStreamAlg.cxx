@@ -41,10 +41,10 @@ StatusCode TrigExpressStreamAlg::initialize()
   
    CHECK( m_trigDec.retrieve() );
    m_trigDec->ExperimentalAndExpertMethods()->enable();
-   std::map<std::string,int> m_numHLTPassedEvents; // events firing RAW trigger 
-   std::map<std::string,int> m_numHLTFailedEvents; // events failing
-   std::map<std::string,int> m_numL1PrescaledEvents; // events prescaled at L1
-   std::map<std::string,int> m_numHLTPrescaledEvents; // events prescaled at HLT
+   m_numHLTPassedEvents.clear(); // events firing RAW trigger 
+   m_numHLTFailedEvents.clear(); // events failing
+   m_numL1PrescaledEvents.clear(); // events prescaled at L1
+   m_numHLTPrescaledEvents.clear(); // events prescaled at HLT
     return StatusCode::SUCCESS;
 }
 

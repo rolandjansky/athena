@@ -14,6 +14,7 @@
 // Root
 #include "TProfile.h"
 #include "TH1.h"
+#include "TEfficiency.h" // Used for turn on curves
 // Gaudi/Athena include(s):
 #include "AthenaBaseComps/AthAlgorithm.h"
 #include "GaudiKernel/ToolHandle.h"
@@ -27,8 +28,6 @@
 /**
  * @brief 
  *        
- *        
- *
  * @author 
  *
  * Please see the .cxx file for detailed comments
@@ -54,6 +53,8 @@ private:
    // job options configurable
    std::vector<std::string> m_l1chainList; // L1 chain of interest, e.g., L1_MU10
    std::vector<std::string> m_hltchainList; // HLT chains of interest, e.g., HLT_mu10
+   std::vector<std::string> m_hltjetList;
+   std::vector<std::string> m_hltmetList;
    float m_etaMax; // eta max for reco'd leptons
    float m_ptCut; // pt cut on reco'd leptons
    float m_dRMax; // max dR matching threshold
@@ -62,6 +63,7 @@ private:
    StatusCode collectTriggerStatistics();
    StatusCode TriggerAnalysis(const xAOD::IParticleContainer *);
    StatusCode EmulationAnalysis();
+   StatusCode FillEfficiency();
    // Tools
    ToolHandle< Trig::TrigDecisionTool > m_trigDec;
    ToolHandle<Trig::IMatchingTool> m_matchTool;
@@ -89,10 +91,17 @@ private:
    // Efficiency TProfiles
    std::map<std::string,TProfile*> h_eff_et;
    std::map<std::string,TProfile*> h_eff_eta;
+
+   std::map<std::string, TProfile*> h_eff_xe;
+   std::map<std::string, TProfile*> h_eff_jpt;
+   //std::map<std::string, TH1*> h_eff_xe_pass;
+   //std::map<std::string, TH1*> h_eff_jpt_pass;
+   //std::map<std::string, TH1*> h_eff_xe_total;
+   //std::map<std::string, TH1*> h_eff_jpt_total;
    
    // private functions
-   bool passL1(const xAOD::IParticle &recoObj, const std::string chain); // did the object match L1
-   bool passHLT(const xAOD::IParticle &recoObj, const std::string chain); // did the object match HLT
+   bool passL1(const xAOD::IParticle &recoObj, const std::string &chain); // did the object match L1
+   bool passHLT(const xAOD::IParticle &recoObj, const std::string &chain); // did the object match HLT
    bool passObjectSelection(const xAOD::IParticle *);
 
 }; // end of class JetMetExAlg

@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TagAndProbeExAlg.h 773008 2016-09-13 14:08:35Z rwhite $
+// $Id: TagAndProbeExAlg.h 778537 2016-10-14 15:34:31Z ssnyder $
 #ifndef TRIGANALYSISEXAMPLES_TAG_AND_PROBE_EX_ALG_H
 #define TRIGANALYSISEXAMPLES_TAG_AND_PROBE_EX_ALG_H
 
@@ -92,17 +92,17 @@ private:
    // Histograms common for each analysis
 
    // Trigger Decision
-   TH1* h_triggerAccepts;
-   TH1* h_triggerAcceptsRaw;
-   TH1* h_triggerPrescaled;
-   TH1* h_emulationAccepts;
+   TH1* m_h_triggerAccepts;
+   TH1* m_h_triggerAcceptsRaw;
+   TH1* m_h_triggerPrescaled;
+   TH1* m_h_emulationAccepts;
    
    // Kinematic plots
    //Tag and Probe analysis
-   TH1* h_zMass;
+   TH1* m_h_zMass;
    // Efficiency TProfiles
-   std::map<std::string,TProfile*> h_eff_et;
-   std::map<std::string,TProfile*> h_eff_eta;
+   std::map<std::string,TProfile*> m_h_eff_et;
+   std::map<std::string,TProfile*> m_h_eff_eta;
    
    // private functions
    bool passL1(const xAOD::IParticle &recoObj, const std::string chain); // did the object match L1
