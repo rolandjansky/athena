@@ -132,8 +132,6 @@ class TrigEFElectronHypo : public HLT::HypoAlgo {
   std::vector<unsigned int> m_IsEMRequiredBitsAfterCut;
   // Likelihood output
   std::vector<float> m_lhval;
-  //Impact parameter monitoring
-  std::vector<double> m_a0;
   // Lumi monitoring
   std::vector<double> m_avgmu;
 

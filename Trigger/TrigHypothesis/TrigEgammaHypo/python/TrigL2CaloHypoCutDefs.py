@@ -7,6 +7,8 @@
 
 from AthenaCommon.SystemOfUnits import GeV
 
+from AthenaCommon.Logging import logging
+log_trigegL2 = logging.getLogger( 'L2CaloCutMaps' )
 class L2CaloCutMaps():
     # The following triggers were optimized in 2012 by YanPing
     # e12_loose1
@@ -18,6 +20,7 @@ class L2CaloCutMaps():
     # Cut maps are grouped by Et threshold
     # Adding vloose working points, same cuts as loose
     def __init__(self, threshold):
+        log_trigegL2.info("Configuring L2CaloCuts with threshold %s",threshold)
         ##########################
         # Et 5 GeV
         ##########################
@@ -37,6 +40,7 @@ class L2CaloCutMaps():
         # self.CAERATIOthr     = [0.57, 0.532, 0.342, 0.228, -9999., 0.304, 0.608, 0.722, -9999.]
         ##########################
         if(float(threshold) < 12):
+            log_trigegL2.info("Configuring L2CaloCuts for low Et %s",threshold)
             self.MapsHADETthr = {
                     'vloose': [0.2337, 0.20976, 0.1392, 0.1872, 0.1315, 0.3234, 0.384, 0.1901, 0.1901],
                     'loose': [0.2337, 0.2097, 0.1392, 0.1872, 0.1255, 0.3234, 0.3840, 0.1901, 0.1901],
@@ -93,7 +97,8 @@ class L2CaloCutMaps():
         # self.HADETthr       = [0.043, 0.043, 0.043, 0.043, 0.043, 0.043, 0.043, 0.043, 0.043]
         # self.CARCOREthr     = [0.90, 0.89, 0.89, 0.89, 0.90, 0.89, 0.89, 0.89, 0.89]
         # self.CAERATIOthr    = [0.60, 0.70, 0.70, 0.75, 0.85, 0.90, 0.90, 0.90, 0.90]
-        elif(float(threshold) >= 12. and float(threshold) < 22):
+        if(float(threshold) >= 12. and float(threshold) < 22):
+            log_trigegL2.info("Configuring L2CaloCuts for mid Et %s",threshold)
             self.MapsHADETthr = { 
                  'loose1':  [0.04225, 0.04075, 0.04575, 0.03575, 0.05275, 0.05325, 0.05525, 0.05325, 0.04675],
                  'vloose':  [0.0871, 0.0617, 0.0564, 0.0827, 0.0889, 0.2052, 0.1674, 0.1481, 0.1481],
@@ -145,7 +150,8 @@ class L2CaloCutMaps():
         # self.CAERATIOthr    = [-999., -999., -999., -999., -999., -999., -999., -999., -999.]
         # self.HADETthr      = [0.0275625, 0.0259875, 0.0291375, 0.0228375, 0.0259875, 0.0391125, 0.0359625, 0.0370125, 0.0291375]
         # self.CARCOREthr = [0.819375, 0.819375, 0.800375, 0.828875, 0.7125, 0.805125, 0.843125, 0.824125, 0.700625]
-        elif(float(threshold) >= 22.):
+        if(float(threshold) >= 22.):
+             log_trigegL2.info("Configuring L2CaloCuts for high Et %s",threshold)
              self.MapsHADETthr = {       
                  'vloose':  [0.0612, 0.0588, 0.0564, 0.0504, 0.0357, 0.072, 0.0684, 0.0696, 0.0636],
                  'loose':  [0.0588, 0.0564, 0.054, 0.048, 0.0297, 0.06, 0.06, 0.06, 0.054],
@@ -185,6 +191,27 @@ class L2CaloCutMaps():
                     'lhtight': [0.72, 0.712, 0.68, 0.672, -9999., 0.68, 0.716, 0.74, -9999.],
                     'tight1': [0.83009, 0.830144, 0.794944, 0.794558, -9999, 0.794933, 0.895365, 0.904011, -9999.],
                     }
-        else:
-            raise RuntimeError('INCORRECT threshold: No cuts configured')
+
+# Following is much easier, no Et dependence
+# Almost no dependence on PID
+class L2CaloPhotonCutMaps():
+    def __init__(self):
+
+        self.MapsHADETthr = {
+                'loose':   [0.0789, 0.0706, 0.0831, 0.0673, 0.0597, 0.0661, 0.0833, 0.0803, 0.0591],  
+                'medium':  [0.0789, 0.0706, 0.0831, 0.0673, 0.0597, 0.0661, 0.0833, 0.0803, 0.0591],
+                'tight':   [0.0789, 0.0706, 0.0831, 0.0673, 0.0597, 0.0661, 0.0833, 0.0803, 0.0591],
+            } 
+        self.MapsCARCOREthr = {
+                'loose':   [0.8981, 0.8805, 0.8915, 0.8717, 0.8717, 0.8728, 0.9027, 0.8709, 0.8788],               
+                'medium':  [0.8981, 0.8805, 0.8915, 0.8717, 0.8717, 0.8728, 0.9027, 0.8709, 0.8788],              
+                'tight':   [0.8981, 0.8805, 0.8915, 0.8717, 0.8717, 0.8728, 0.9027, 0.8709, 0.8788],
+            }
+        self.MapsCAERATIOthr = {
+                'loose':   [-999., -999., -999., -999., -999., -999., -999., -999., -999.],
+                'medium':  [0.7266, 0.7625, 0.7402, 0.6861, 0.6861, 0.7453, 0.5746, 0.4539, 0.6761],
+                'tight':   [0.7266, 0.7625, 0.7402, 0.6861, 0.6861, 0.7453, 0.5746, 0.4539, 0.6761],
+            } 
+
+
 

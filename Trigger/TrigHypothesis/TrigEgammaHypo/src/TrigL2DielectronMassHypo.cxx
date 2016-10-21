@@ -112,17 +112,17 @@ HLT::ErrorCode TrigL2DielectronMassHypo::hltExecute(const HLT::TriggerElement* o
       m_monCut = 2;
       // apply cut on mass
       if(mass<m_lowerMassCut || mass>m_upperMassCut) {
-          ATH_MSG_DEBUG("Combination failed mass cut: " 
+          ATH_MSG_VERBOSE("Combination failed mass cut: " 
                   << mass << " not in [" << m_lowerMassCut << "," << m_upperMassCut << "]");
       } else {
           // good combination found
           pass = true;
           m_monCut = 3;    
           m_monMassAccepted = mass;
-          ATH_MSG_DEBUG("Combination passed mass cut: " 
+          ATH_MSG_VERBOSE("Combination passed mass cut: " 
                   << m_lowerMassCut << " < " << mass << " < " 
                   << m_upperMassCut);
-          ATH_MSG_DEBUG("Good combination found! Mee=" 
+          ATH_MSG_VERBOSE("Good combination found! Mee=" 
                   << mass << " MeV");
       }
   } // End of loop over TrigComposites in L2DielectronInfo   
