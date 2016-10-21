@@ -14,7 +14,7 @@ class TrigHLTJetRecFromJet: public TrigHLTJetRecBase<xAOD::JetContainer>{
   TrigHLTJetRecFromJet(const std::string & name, ISvcLocator* pSvcLocator);
   ~TrigHLTJetRecFromJet();
 
-
+ protected:
   const xAOD::JetContainer* build() const override;
 
 }; 
