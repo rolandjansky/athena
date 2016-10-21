@@ -11,9 +11,6 @@
 #include "StoreGate/StoreGateSvc.h"
 #include "TTree.h"
 #include "GaudiKernel/ITHistSvc.h" 
-// CLHEP
-#include "CLHEP/Units/SystemOfUnits.h"
-#include "CLHEP/Geometry/Transform3D.h"
 // Trk
 #include "TrkExInterfaces/IExtrapolator.h"
 #include "TrkExInterfaces/IEnergyLossUpdator.h"
@@ -25,23 +22,101 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkExUtils/ExtrapolationCache.h"
 
+
 // constructor
-Trk::GeantFollowerMSHelper::GeantFollowerMSHelper(const std::string& t, const std::string& n, const IInterface* p) :
-  AthAlgTool(t,n,p),
-  m_extrapolator(""),
-  m_elossupdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator"),
-  m_extrapolateDirectly(false),
-  m_extrapolateIncrementally(false),
-  m_speedup(false),
-  m_parameterCache(0),
-  m_parameterCacheCov(0),
-  m_parameterCacheMS(0),
-  m_parameterCacheMSCov(0),
-  m_tX0Cache(0.),
-  m_validationTreeName("G4Follower"),
-  m_validationTreeDescription("Output of the G4Follower_"),
-  m_validationTreeFolder("/val/G4Follower"),
-  m_validationTree(0)
+Trk::GeantFollowerMSHelper::GeantFollowerMSHelper(const std::string& t, const std::string& n, const IInterface* p)
+ : AthAlgTool(t,n,p)
+ , m_extrapolator("")
+ , m_elossupdator("Trk::EnergyLossUpdator/AtlasEnergyLossUpdator")
+ , m_extrapolateDirectly(false)
+ , m_extrapolateIncrementally(false)
+ , m_speedup(false)
+ , m_parameterCache(nullptr)
+ , m_parameterCacheCov(nullptr)
+ , m_parameterCacheMS(nullptr)
+ , m_parameterCacheMSCov(nullptr)
+ , m_tX0Cache(0.)
+ , m_crossedMuonEntry(false)
+ , m_exitLayer(false)
+ , m_destinationSurface(nullptr)
+ , m_validationTreeName("G4Follower")
+ , m_validationTreeDescription("Output of the G4Follower_")
+ , m_validationTreeFolder("/val/G4Follower")
+ , m_validationTree(nullptr)
+ , m_t_x(0.)
+ , m_t_y(0.)
+ , m_t_z(0.)
+ , m_t_theta(0.)
+ , m_t_eta(0.)
+ , m_t_phi(0.)
+ , m_t_p(0.)
+ , m_t_charge(0.)
+ , m_t_pdg(0)
+ , m_m_x(0.)
+ , m_m_y(0.)
+ , m_m_z(0.)
+ , m_m_theta(0.)
+ , m_m_eta(0.)
+ , m_m_phi(0.)
+ , m_m_p(0.)
+ , m_b_x(0.)
+ , m_b_y(0.)
+ , m_b_z(0.)
+ , m_b_theta(0.)
+ , m_b_eta(0.)
+ , m_b_phi(0.)
+ , m_b_p(0.)
+ , m_b_X0(0.)
+ , m_b_Eloss(0.)
+ , m_g4_steps(-1)
+ , m_g4_p{0}
+ , m_g4_eta{0}
+ , m_g4_theta{0}
+ , m_g4_phi{0}
+ , m_g4_x{0}
+ , m_g4_y{0}
+ , m_g4_z{0}
+ , m_g4_tX0{0}
+ , m_g4_t{0}
+ , m_g4_X0{0}
+ , m_trk_status{0}
+ , m_trk_p{0}
+ , m_trk_eta{0}
+ , m_trk_theta{0}
+ , m_trk_phi{0}
+ , m_trk_x{0}
+ , m_trk_y{0}
+ , m_trk_z{0}
+ , m_trk_lx{0}
+ , m_trk_ly{0}
+ , m_trk_eloss{0}
+ , m_trk_eloss1{0}
+ , m_trk_eloss0{0}
+ , m_trk_eloss5{0}
+ , m_trk_eloss10{0}
+ , m_trk_scaleeloss{0}
+ , m_trk_scalex0{0}
+ , m_trk_x0{0}
+ , m_trk_erd0{0}
+ , m_trk_erz0{0}
+ , m_trk_erphi{0}
+ , m_trk_ertheta{0}
+ , m_trk_erqoverp{0}
+ , m_trk_scats(0)
+ , m_trk_sstatus{0}
+ , m_trk_sx{0}
+ , m_trk_sy{0}
+ , m_trk_sz{0}
+ , m_trk_sx0{0}
+ , m_trk_seloss{0}
+ , m_trk_smeanIoni{0}
+ , m_trk_ssigIoni{0}
+ , m_trk_smeanRad{0}
+ , m_trk_ssigRad{0}
+ , m_trk_ssigTheta{0}
+ , m_trk_ssigPhi{0}
+ , m_g4_stepsMS(-1)
+
 {
    declareInterface<IGeantFollowerMSHelper>(this);
    // properties
@@ -73,6 +148,11 @@ StatusCode Trk::GeantFollowerMSHelper::initialize()
        return StatusCode::FAILURE;
    }
     
+   if(m_speedup) {
+      ATH_MSG_INFO(" SpeedUp GeantFollowerMS ");
+   } else {
+      ATH_MSG_INFO(" NO SpeedUp GeantFollowerMS ");
+   }
    ATH_MSG_INFO("initialize()");
    
    // create the new Tree
@@ -159,6 +239,7 @@ StatusCode Trk::GeantFollowerMSHelper::initialize()
 
    // initialize
    //
+   m_t_x        = 0.;    
    m_t_y        = 0.; 
    m_t_z        = 0.; 
    m_t_theta    = 0.; 
@@ -287,6 +368,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         m_g4_steps   = 0;
         m_tX0Cache   = 0.;
         // construct the intial parameters
+        
         m_parameterCache = new Trk::CurvilinearParameters(npos, nmom, charge);
         AmgSymMatrix(5)* covMatrix = new AmgSymMatrix(5);;
         covMatrix->setZero();
@@ -325,6 +407,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         Trk::CurvilinearParameters* g4Parameters = new Trk::CurvilinearParameters(npos, nmom, m_t_charge);
 // Muon Entry
         m_destinationSurface = &(g4Parameters->associatedSurface());
+        delete g4Parameters;
     }
 
     
@@ -354,6 +437,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
 //      if(fabs(npos.z())>zMuonEntry||npos.perp()>4255) crossedExitLayer = true;
       if(fabs(npos.z())>21800||npos.perp()>12500) crossedExitLayer = true;
       if(m_crossedMuonEntry&&m_g4_steps>=2&&!crossedExitLayer) return;
+      if(m_g4_steps>2) return;
       if(m_g4_steps>4) return;
     }
 
@@ -411,6 +495,9 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
         m_extrapolator->extrapolate(*m_parameterCacheMS,destinationSurface,Trk::alongMomentum,false,Trk::muon);
 // Backwards from Exit to ME 
       if(trkParameters_FW) {
+       ATH_MSG_DEBUG (" forward extrapolation succeeded ");
+       bool doBackWard = false;
+       if(doBackWard) { 
         const Trk::TrackParameters* trkParameters_BACK = m_extrapolateDirectly ?
           m_extrapolator->extrapolateDirectly(*trkParameters_FW,*m_destinationSurface,Trk::oppositeMomentum,false,Trk::muon) :
           m_extrapolator->extrapolate(*trkParameters_FW,*m_destinationSurface,Trk::oppositeMomentum,false,Trk::muon);
@@ -495,6 +582,7 @@ void Trk::GeantFollowerMSHelper::trackParticle(const G4ThreeVector& pos, const G
           m_b_X0         =  x0;
           m_b_Eloss      =  Eloss;
           delete matvec_BACK;
+         }
         }
         delete trkParameters_FW;
       }
