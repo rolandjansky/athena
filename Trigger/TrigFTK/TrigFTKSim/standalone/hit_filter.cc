@@ -331,7 +331,7 @@ std::vector<FTKRoad*> find_matching_roads(FTKRoad *r, FTKRoadStream **oldbanks) 
 	curside=0;
 	continue;
       }
-      if (r->getSSID(pl)==cur_road->getSSID(pl)+FTKSSMap::getPhiOffset(pmap->isSCT(pl)) ) {
+      if (r->getSSID(pl)==cur_road->getSSID(pl)+FTKSSMap::getPhiOffset(pmap->isSCT(pl),false) ) {
 	if(curside!=1) nshifts++;
 	curside=1;
 	continue;

@@ -33,7 +33,8 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_BarrelOnly(false), m_EnableFTKSim(true),
   m_MaxMissingPlanes(1), m_RoadWarrior(0), m_KeepRemoved(0),
   m_MaxMissingSCTPairs(0), m_RestrictSctPairModule(false), m_RestrictSctPairLayer(false),
-  m_IBLMode(0),
+  m_IBLMode(0), m_fixEndcapL0(false),
+  m_ITkMode(false),
   m_ss_offset_fraction(0),
   m_PixelClusteringMode(0),
   m_DuplicateGanged(1),
@@ -46,7 +47,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_BankLevel(1), m_doTSPSim(0), m_minTSPCoverage(0),
   m_setAMSize(0), m_setAMSplit(0), m_maxAMAfterSplit(-1), m_minDVolOverDNPatt(0), 
   m_doMakeCache(0), m_CachePath("bankcache.root"),
-  m_SaveAllRoads(0),
+  m_SaveAllRoads(0), m_StoreAllSS(0),
   m_pmap(0x0), m_pmap_unused(0x0),
   m_rmap(0x0), m_rmap_unused(0x0), m_CUR_REGION(-1),
   m_ssmap(0x0), m_ssmap_unused(0x0), m_ssmap_tsp(0x0),
@@ -57,6 +58,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   m_rmap_path(), m_rmapunused_path(),
   m_ssmap_path(), m_ssmapunused_path(), m_ssmaptsp_path(), m_badmap_path(),m_badmap_path2(),
   m_modulelut_path(),
+  m_modulelut2nd_path(),
   m_CachedBank(false),
   m_InputFromWrapper(true), m_RegionalWrapper(false),
   m_doroadfile(false), m_roadfilepath("ftkroads.root"),
@@ -73,6 +75,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("NBanks",m_nbanks);
   declareProperty("NSubRegions",m_nsubregions);
   declareProperty("BarrelOnly",m_BarrelOnly);
+  declareProperty("MaxMissingPlanes",m_MaxMissingPlanes);
   
   declareProperty("pmap_path",m_pmap_path);
   declareProperty("pmapunused_path",m_pmapunused_path);
@@ -85,8 +88,11 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("badmap_path_for_hit",m_badmap_path2);
 
   declareProperty("ModuleLUTPath",m_modulelut_path);
+  declareProperty("ModuleLUTPath2nd",m_modulelut2nd_path);
   
   declareProperty("IBLMode",m_IBLMode);
+  declareProperty("FixEndCapL0",m_fixEndcapL0, "Fix endcap L0 clustering");
+  declareProperty("ITkMode",m_ITkMode);
 
   declareProperty("PixelClusteringMode",m_PixelClusteringMode,"Pixel clustering correction: 0 simple default, 1 channel center and linear ToT interpolation and account for different pixel lengths");
   declareProperty("DuplicateGanged",m_DuplicateGanged,"Duplicate ganged pixels so we don't lose efficiency");
@@ -121,7 +127,7 @@ FTKRoadFinderAlgo::FTKRoadFinderAlgo(const std::string& name, ISvcLocator* pSvcL
   declareProperty("SaveRoads",m_saveroads,"If true (default) the output roads are saved into the SG");
 
   declareProperty("UseMinimalAMIN",m_useMinimalAMIN);
-
+  declareProperty("StoreAllSS",m_StoreAllSS,"If true, store all SS, not just in roads");
   declareProperty("HWModeSS",m_HWModeSS,"Enable the HW-like encoding for the SS");
 
   declareProperty("MaxMissingSCTPairs",m_MaxMissingSCTPairs,"Increase the number of missing SCT modules, enable the transition region fix");
@@ -159,39 +165,45 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   FTKSetup::getFTKSetup().setMsgStream(&log);
   FTKLogger::SetLogger(this);
 
-  log << MSG::INFO << "FTKRoadFinderAlgo::initialize()" << endreq;
+  log << MSG::INFO << "FTKRoadFinderAlgo::initialize()" << endmsg;
   
 
   ftkset.setSectorsAsPatterns(m_SectorAsPatterns);
   if (m_SectorAsPatterns) {
-      log << MSG::INFO << "SectorsAsPatterns mode enabled with value " << m_SectorAsPatterns << endreq;
+      log << MSG::INFO << "SectorsAsPatterns mode enabled with value " << m_SectorAsPatterns << endmsg;
   }
 
-  log << MSG::INFO << "IBL mode value: " << m_IBLMode << endreq;
+  log << MSG::INFO << "IBL mode value: " << m_IBLMode << endmsg;
   ftkset.setIBLMode(m_IBLMode);
 
-  log << MSG::INFO << "HWModeSS value: " << m_HWModeSS << endreq;
+  log << MSG::INFO << "Fix EndcapL0 value: " << m_fixEndcapL0 << endmsg;
+  ftkset.setfixEndcapL0(m_fixEndcapL0);
+
+  log << MSG::INFO << "ITk mode value: " << m_ITkMode << endmsg;
+  ftkset.setITkMode(m_ITkMode);
+  
+  log << MSG::INFO << "HWModeSS value: " << m_HWModeSS << endmsg;
   ftkset.setHWModeSS(m_HWModeSS);
 
-  log << MSG::INFO << "Read the logical layer definitions" << endreq;
+  log << MSG::INFO << "Read the logical layer definitions" << endmsg;
   // Look for the main plane-map
   if (m_pmap_path.empty()) {
-    log << MSG::FATAL << "Main plane map definition missing" << endreq;
+    log << MSG::FATAL << "Main plane map definition missing" << endmsg;
     return StatusCode::FAILURE;
   }
   else {
     m_pmap = new FTKPlaneMap(m_pmap_path.c_str());
     if (!(*m_pmap)) {
-      log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endreq;
+      log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endmsg;
       return StatusCode::FAILURE;
     }
   }
 
   if (!m_pmapunused_path.empty()) {
-    log << MSG::INFO << "Read the logical layer definitions for the unused layers" << endreq;
+    log << MSG::INFO << "Read the logical layer definitions for the unused layers" << endmsg;
     m_pmap_unused = new FTKPlaneMap(m_pmapunused_path.c_str());
     if (!(*m_pmap_unused)) {
-      log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endreq;
+      log << MSG::FATAL << "Error using plane map: " << m_pmap_path << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -200,44 +212,54 @@ StatusCode FTKRoadFinderAlgo::initialize(){
 
   // Create the region map objects
   if (m_rmap_path.empty()) {
-    log << MSG::FATAL << "Region map file needed" << endreq;
+    log << MSG::FATAL << "Region map file needed" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  log << MSG::INFO << "Creating region map" << endreq;
+  log << MSG::INFO << "Creating region map" << endmsg;
   m_rmap = new FTKRegionMap(m_pmap, m_rmap_path.c_str());
   if (!(*m_rmap)) {
-    log << MSG::FATAL << "Error creating region map from: " << m_rmap_path.c_str() << endreq;
+    log << MSG::FATAL << "Error creating region map from: " << m_rmap_path.c_str() << endmsg;
     return StatusCode::FAILURE;
   }
 
   //In case the HWModeSS=2 the LUT to map global->local module ID is required
   if (m_HWModeSS==2) {
     if (m_modulelut_path.empty()) {
-      log << MSG::FATAL << "A module LUT is required when HW SS calculation is required" << m_rmap_path.c_str() << endreq;
+      log << MSG::FATAL << "A module LUT is required when HW SS calculation is required" << m_rmap_path.c_str() << endmsg;
       return StatusCode::FAILURE;
     }
     else {
-      log << MSG::INFO << "Loading module map from: " << m_modulelut_path << endreq;
+      log << MSG::INFO << "Loading module map from: " << m_modulelut_path << endmsg;
       m_rmap->loadModuleIDLUT(m_modulelut_path.c_str());
     }
   }
 
   if (m_pmap_unused) {
-    log << MSG::INFO << "Creating region map for the unused layers" << endreq;
+    log << MSG::INFO << "Creating region map for the unused layers" << endmsg;
     m_rmap_unused = new FTKRegionMap(m_pmap_unused, m_rmap_path.c_str());
+    if (m_HWModeSS==2) {
+      if (m_modulelut2nd_path.empty()) {
+	log << MSG::FATAL << "A module LUT is required when HW SS calculation is required" << m_rmap_path.c_str() << endmsg;
+	return StatusCode::FAILURE;
+      }
+      else {      
+	log << MSG::INFO << "Loading module map from: " << m_modulelut2nd_path << endmsg; 
+	m_rmap_unused->loadModuleIDLUT(m_modulelut2nd_path.c_str());
+      }
+    }
   }
 
 
-  log << MSG::INFO << "Read SS configurations" << endreq;
-  log << MSG::INFO << "Read AM SS configuration" << endreq;
+  log << MSG::INFO << "Read SS configurations" << endmsg;
+  log << MSG::INFO << "Read AM SS configuration" << endmsg;
   m_ssmap = new FTKSSMap(m_rmap, m_ssmap_path.c_str(), false);
   if (!m_ssmapunused_path.empty()) {
-    log << MSG::INFO << "Read SS configuration for layer not used in AM" << endreq;
+    log << MSG::INFO << "Read SS configuration for layer not used in AM" << endmsg;
     m_ssmap_unused = new FTKSSMap(m_rmap_unused, m_ssmapunused_path.c_str(), false);
   }
   if (!m_ssmaptsp_path.empty()) {
-    log << MSG::INFO << "Read SS configuration for TSP/DC" << endreq;
+    log << MSG::INFO << "Read SS configuration for TSP/DC" << endmsg;
     m_ssmap_tsp = new FTKSSMap(m_rmap, m_ssmaptsp_path.c_str(), false);
   }
   
@@ -247,11 +269,11 @@ StatusCode FTKRoadFinderAlgo::initialize(){
     // Use the SG to retrieve the hits, this also means other Athena tools can be used
     StatusCode schit = m_hitInputTool.retrieve();
     if (schit.isFailure()) {
-      log << MSG::FATAL << "Could not retrieve FTK_SGHitInput tool" << endreq;
+      log << MSG::FATAL << "Could not retrieve FTK_SGHitInput tool" << endmsg;
       return StatusCode::FAILURE;
     }
     else {
-      log << MSG::INFO << "Setting FTK_SGHitInput tool" << endreq;
+      log << MSG::INFO << "Setting FTK_SGHitInput tool" << endmsg;
       // set the pmap address to FTKDataInput to use in processEvent
       m_hitInputTool->reference()->setPlaneMaps(m_pmap,m_pmap_unused);
     }
@@ -261,18 +283,18 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   }
   else if (m_RegionalWrapper) {
     // the input comes from a wrapper file's format, prepare the standlone like input
-    log << MSG::INFO << "Setting FTK_RegionalRawInput as input module" << endreq;
+    log << MSG::INFO << "Setting FTK_RegionalRawInput as input module" << endmsg;
     FTK_RegionalRawInput *ftkrawinput = new FTK_RegionalRawInput(m_pmap,m_pmap_unused,false);
     if (m_pmap_unused) {
       // enable all the flags used for the 2nd stage fitting
-      ftkrawinput->setSaveUnused(true);
-      m_rfobj.setSSSearchUnused(true);
+      ftkrawinput->setSaveUnused(!m_ITkMode);
+      m_rfobj.setSSSearchUnused(!m_ITkMode);
     }
 
     // add the input files
-    log << MSG::INFO << "Loading " << m_wrapperpaths.size() << " files" << endreq;
+    log << MSG::INFO << "Loading " << m_wrapperpaths.size() << " files" << endmsg;
     for (unsigned ifile=0;ifile!=m_wrapperpaths.size();++ifile) {
-      log << MSG::INFO << "Loading " << m_wrapperpaths[ifile] << endreq;
+      log << MSG::INFO << "Loading " << m_wrapperpaths[ifile] << endmsg;
       ftkrawinput->addFile(m_wrapperpaths[ifile].c_str());
     }
     ftkrawinput->setFirstEvent(m_firstEventFTK);
@@ -280,7 +302,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   }
   else {
     // the input comes from a wrapper file's format, prepare the standlone like input
-    log << MSG::INFO << "Setting FTK_RawInput as input module" << endreq;
+    log << MSG::INFO << "Setting FTK_RawInput as input module" << endmsg;
     FTK_RawInput *ftkrawinput = new FTK_RawInput(m_pmap,m_pmap_unused);
     if (m_pmap_unused) {
       // enable all the flags used for the 2nd stage fitting
@@ -289,9 +311,9 @@ StatusCode FTKRoadFinderAlgo::initialize(){
     }
 
     // add the input files
-    log << MSG::INFO << "Loading " << m_wrapperpaths.size() << " files" << endreq;
+    log << MSG::INFO << "Loading " << m_wrapperpaths.size() << " files" << endmsg;
     for (unsigned ifile=0;ifile!=m_wrapperpaths.size();++ifile) {
-      log << MSG::INFO << "Loading " << m_wrapperpaths[ifile] << endreq;
+      log << MSG::INFO << "Loading " << m_wrapperpaths[ifile] << endmsg;
       ftkrawinput->addFile(m_wrapperpaths[ifile].c_str());
     }
     ftkrawinput->setFirstEvent(m_firstEventFTK);
@@ -332,20 +354,20 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   if (m_roadmarket ) { // enable the tool to exchange the roads with the FTKTrackFitterAlgo
     // ensure other colliding options are not true
     if (m_doroadfile) {
-      log << MSG::WARNING << "Use of FTK_RoadMarketTool disable the road file" << endreq;
+      log << MSG::WARNING << "Use of FTK_RoadMarketTool disable the road file" << endmsg;
       m_doroadfile = false;
     }
 
     StatusCode scmrk = m_roadMarketTool.retrieve();
     if (scmrk.isFailure()) {
-      log << MSG::FATAL << "Could not retrieve FTK_RoadMarketTool" << endreq;
+      log << MSG::FATAL << "Could not retrieve FTK_RoadMarketTool" << endmsg;
       return StatusCode::FAILURE;
     }
     else {
-      log << MSG::INFO << "Setting FTK_RoadMarketTool" << endreq;
+      log << MSG::INFO << "Setting FTK_RoadMarketTool" << endmsg;
     }
 
-    log << MSG::INFO << "Roads are not saved but only kept in memory and moved to the track fitter" << endreq;
+    log << MSG::INFO << "Roads are not saved but only kept in memory and moved to the track fitter" << endmsg;
     FTKRoadOutput *ftkoutmodule = m_roadMarketTool->outputReference();
     //m_roadMarketTool->SaveRoads(m_saveroads);
     m_rfobj.setRoadOutputModule(ftkoutmodule); 
@@ -354,14 +376,14 @@ StatusCode FTKRoadFinderAlgo::initialize(){
   else if (!m_doroadfile && m_saveroads) { // enable the Athena tool for the road output
     StatusCode scout = m_roadOutputTool.retrieve();
     if (scout.isFailure()) {
-      log << MSG::FATAL << "Could not retrieve FTK_SGRoadOutput tool" << endreq;
+      log << MSG::FATAL << "Could not retrieve FTK_SGRoadOutput tool" << endmsg;
       return StatusCode::FAILURE;
     }
     else {
-      log << MSG::INFO << "Setting FTK_SGRoadOutput tool" << endreq;
+      log << MSG::INFO << "Setting FTK_SGRoadOutput tool" << endmsg;
     }
 
-    log << MSG::INFO << "Write the AM simulation results into the SG" << endreq;
+    log << MSG::INFO << "Write the AM simulation results into the SG" << endmsg;
     // prepare an object that interact with the SG to save the found roads
     FTKRoadOutput *ftkoutmodule = m_roadOutputTool->reference();
     m_rfobj.setRoadOutputModule(ftkoutmodule); 
@@ -372,24 +394,24 @@ StatusCode FTKRoadFinderAlgo::initialize(){
     // standalone version, to store the found roads
     FTKRoadFileOutput *ftkoutmodule = new FTKRoadFileOutput();
     if (m_InputFromWrapper) {
-      log << MSG::INFO << "Write the AM simulation results in an external directory: " << m_roadfilesdir << endreq;
+      log << MSG::INFO << "Write the AM simulation results in an external directory: " << m_roadfilesdir << endmsg;
       // if the input format is composed by wrapper files the multi-out option is on
       ftkoutmodule->setMultiOut(true);
       ftkoutmodule->setOutDir(m_roadfilesdir.c_str());  // test name -> should be changed for any root file name we want  
     }
     else {
-      log << MSG::INFO << "Write the AM simulation results in an external file: " << m_roadfilepath << endreq;
+      log << MSG::INFO << "Write the AM simulation results in an external file: " << m_roadfilepath << endmsg;
       ftkoutmodule->setMultiOut(false);
       ftkoutmodule->setFileName(m_roadfilepath.c_str());  // test name -> should be changed for any root file name we want  
     }
     m_rfobj.setRoadOutputModule(ftkoutmodule); 
   }
   else {
-    log << MSG::FATAL << "At least an output method has to be specified" << endreq;
+    log << MSG::FATAL << "At least an output method has to be specified" << endmsg;
     return StatusCode::FAILURE;
   }
 
-  log << MSG::INFO << "Load banks" << endreq;
+  log << MSG::INFO << "Load banks" << endmsg;
 
   // Set the bank segmentation
   m_rfobj.setNBanks(m_nbanks);
@@ -397,9 +419,9 @@ StatusCode FTKRoadFinderAlgo::initialize(){
 
   // get the bank files and information from the JO
   unsigned int nbanks = m_patternbankpath.size();
-  log << MSG::INFO << "Loading " << nbanks << " banks"  << endreq;      
+  log << MSG::INFO << "Loading " << nbanks << " banks"  << endmsg;      
   if (nbanks!=m_bankregion.size() || nbanks!=m_bankpatterns.size() || nbanks!=m_banksubreg.size()) {
-    log << MSG::FATAL << "Different array property length in bank definitions: " << nbanks << ' ' << m_bankregion.size() << ' ' << m_bankpatterns.size() << endreq;
+    log << MSG::FATAL << "Different array property length in bank definitions: " << nbanks << ' ' << m_bankregion.size() << ' ' << m_bankpatterns.size() << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -438,6 +460,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
        the number of hits is correctly updated to the number of verified
        layers */
     curbank->setSaveAllRoads(m_SaveAllRoads);
+    curbank->setStoreAllSS(m_StoreAllSS);
     curbank->setRequireFirst(m_require_first);
     curbank->setUseMinimalAMIN(m_useMinimalAMIN);
 
@@ -484,7 +507,7 @@ StatusCode FTKRoadFinderAlgo::initialize(){
 	    break;
 	  }
 	  else {
-	    log << " INVALID" << endreq;
+	    log << " INVALID" << endmsg;
 	  }
 	}
 
@@ -529,11 +552,11 @@ StatusCode FTKRoadFinderAlgo::initialize(){
     m_rfobj.setAMBank(regid, curbank);
   } // end configuration banks loop
   
-  log << MSG::INFO << "Initialize the RoadFinder parameters" << endreq;
+  log << MSG::INFO << "Initialize the RoadFinder parameters" << endmsg;
   m_rfobj.init(); // initialize roadfinder object
 
   //if (sc.isFailure()) {
-  //  log << MSG::FATAL << "Unexpected problem during the initialization stage" << endreq;
+  //  log << MSG::FATAL << "Unexpected problem during the initialization stage" << endmsg;
   //  return StatusCode::FAILURE;
   //}
 
@@ -547,22 +570,22 @@ StatusCode FTKRoadFinderAlgo::execute() {
   FTKSetup::getFTKSetup().setMsgStream(&log);
   FTKLogger::SetLogger(this);
 
-  log << MSG::INFO << "FTKRoadFinderAlgo::execute() start" << endreq;
+  log << MSG::INFO << "FTKRoadFinderAlgo::execute() start" << endmsg;
   
   if (m_AutoDisable) {
     // if AutoDisable feature is found all the execution driven by road-finder
-    log << MSG::INFO << "FTKRoadFinderAlgo auto-disable mode, nothing to do" << endreq;
+    log << MSG::INFO << "FTKRoadFinderAlgo auto-disable mode, nothing to do" << endmsg;
   }
   else {
     int res = m_rfobj.nextEvent();   
     if (res<0)  {
-      log << MSG::WARNING << "No more events to process" << endreq;
+      log << MSG::WARNING << "No more events to process" << endmsg;
       // when all the event are evaluated the auto-disable is enabled
       m_AutoDisable = true;
     }
   }
   
-  log << MSG::INFO << "FTKRoadFinderAlgo::execute() end" << endreq;
+  log << MSG::INFO << "FTKRoadFinderAlgo::execute() end" << endmsg;
   return StatusCode::SUCCESS;
 }
 
@@ -571,12 +594,12 @@ StatusCode FTKRoadFinderAlgo::execute() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTKRoadFinderAlgo::finalize() {
     MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "finalize()" << endreq;
+    log << MSG::INFO << "finalize()" << endmsg;
 
     for (unsigned int ib=0;ib!=m_patternbankpath.size();++ib) {
         int regid(m_bankregion[ib]);
         float meanroads = m_rfobj.getAMBank(regid)->getTotRoads()/m_rfobj.getAMBank(regid)->getTotEvents();
-        log << MSG::INFO << "Average number of roads bank (" << regid << "," << m_banksubreg[ib] << ") = " << meanroads << endreq;
+        log << MSG::INFO << "Average number of roads bank (" << regid << "," << m_banksubreg[ib] << ") = " << meanroads << endmsg;
     }
     // ensure the output is closed
     m_rfobj.getRoadOutputModule()->endFile();

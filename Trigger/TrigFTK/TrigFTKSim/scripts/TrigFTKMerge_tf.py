@@ -42,7 +42,7 @@ def main():
 
 ## Get the base transform with all arguments added
 def getTransform():
-    trf = transform(executor = athenaExecutor(name = 'FTKSimulationMerge',
+    trf = transform(executor = athenaExecutor(name = 'FTKSimulationMerge',disableMP=True,
                                               skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneMerge.py'))
     addAthenaArguments(trf.parser)
     addFTKMergerArgs(trf.parser)
@@ -103,8 +103,8 @@ def addFTKMergerArgs(parser):
                         type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help="Add truth information to output", group="TrigFTKMerge")
     parser.add_argument('--inputNTUP_FTKIPFile',
-                        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True),
-                        help="Original FTKIPO file with truth information", group="TrigFTKMerge")
+                        type=trfArgClasses.argFactory(trfArgClasses.argNTUPFile, runarg=True, io='input', type='ntup_ftkiptruth'),
+                        help="Original FTKIPO file with truth information", group="TrigFTKMerge", nargs='+')
     parser.add_argument('--TruthTrackTreeName',
                         type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='Truth tracks tree name', group='TrigFTKMerge')

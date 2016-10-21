@@ -1,1 +1,0 @@
-pdflatex ftk_majority_v3 && bibtex ftk_majority_v3 && pdflatex ftk_majority_v3

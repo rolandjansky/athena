@@ -18,6 +18,18 @@
 #include <TFile.h>
 #include <TObjString.h>
 
+#ifdef DIAG_VMEM
+#include <sys/time.h>
+#include <sys/resource.h>
+static void printVmemUsage() {
+   struct rusage usage;
+   getrusage(RUSAGE_SELF,&usage);
+   std::cout<<"VMEM usage:"
+            <<" "<<usage.ru_maxrss/1024./1024.<<"G"
+      <<"\n";
+}
+#endif
+
 using namespace std;
 
 static TDirectory *OpenRootFileReadonly(char const *path) {
@@ -114,13 +126,32 @@ FTKPatternBySectorReader::FTKPatternBySectorReader(FTKRootFileChain &chain)
    }
 }
 
-FTKPatternBySectorReader::FTKPatternBySectorReader
-(TDirectory &dir,const char *filename,
- int nSub,int iSub) : FTKPatternBySectorBase(filename) {
+void FTKPatternBySectorReader::SelectSubregion(int nSub,int iSub) {
    if(nSub>1) {
-      Info("FTKPatternBySectorBlockReader")
+      Info("SelectSubregion")
          <<"splitting subregions nSub="<<nSub<<" iSub="<<iSub<<"\n";
+      int nAll=fPatterns.size();
+      for(PatternTreeBySector_t::iterator iSector=fPatterns.begin();
+          iSector!=fPatterns.end();) {
+         int sector=(*iSector).first;
+         PatternTreeBySector_t::iterator i0=iSector;
+         iSector++;
+         if((sector%nSub)!=iSub) {
+            if((*i0).second) {
+               delete (*i0).second;
+               (*i0).second=0;
+            }
+            fPatterns.erase(i0);
+         }
+      }
+      Info("SelectSubregion")<<"selected "<<fPatterns.size()<<"/"<<nAll
+                             <<" sectors\n";
    }
+}
+
+FTKPatternBySectorReader::FTKPatternBySectorReader
+(TDirectory &dir,const char *filename,std::set<int> const *sectorlist)
+  : FTKPatternBySectorBase(filename) {
    // locate all TTree objects with pattern data
    // and store them in the STL map
    //   fPatterns
@@ -132,7 +163,8 @@ FTKPatternBySectorReader::FTKPatternBySectorReader
    while((o=next())) {
       TString name=((TObjString *)o)->GetString();
       int sector=FTKPatternRootTreeReader::ExtractSectorNumber(name);
-      if((sector>=0)&&((nSub<=1)||((sector%nSub)==iSub))) {
+      if((sector>=0)&&((!sectorlist)||
+                       (sectorlist->find(sector)!=sectorlist->end()))) {
          FTKPatternRootTreeReader * &patternTree=fPatterns[sector];
          if(patternTree) delete patternTree;
          FTKPatternRootTree *tree=new FTKPatternRootTree(dir,sector,0);
@@ -207,6 +239,7 @@ void FTKPatternBySectorReader::GetNPatternsByCoverage
       while(reader->ReadNextPattern()) {
          coverageMap[reader->GetPattern().GetCoverage()]++;
       }
+      reader->Rewind();
       reader->ReadCoverageOnly(false);      
    }
 }
@@ -350,8 +383,8 @@ int FTKPatternBySectorReader::WritePatternsToASCIIstream(std::ostream &out,int i
 //================== class FTKPatternBySectorBlockReader ===================
 
 FTKPatternBySectorBlockReader::FTKPatternBySectorBlockReader
-(TDirectory &dir,int nSub,int iSub) :
-   FTKPatternBySectorReader(dir,"FTKPatternBySectorBlockReader",nSub,iSub) {
+(TDirectory &dir,std::set<int> const *sectorList) :
+   FTKPatternBySectorReader(dir,"FTKPatternBySectorBlockReader",sectorList) {
 }
 
 void FTKPatternBySectorBlockReader::Rewind(void) {
@@ -362,7 +395,8 @@ void FTKPatternBySectorBlockReader::Rewind(void) {
        i!=fPatterns.end();i++) {
       FTKPatternRootTreeReader *reader=(*i).second;
       reader->Rewind();
-      /*bool returned =*/ reader->ReadNextPattern();
+      reader->ReadNextPattern();
+      reader->Suspend();
    }
 }
 
@@ -383,6 +417,7 @@ FTKPatternOneSector *FTKPatternBySectorBlockReader::Read
          }
          r->AddPattern(pattern);
       } while( reader->ReadNextPattern());
+      reader->Suspend();
    }
    return r;
 }
@@ -613,23 +648,5 @@ int FTKPatternBySectorWriter::AppendPattern
    }
    error= !patternTree->WritePattern(pattern);
    return error;
-}
-
-//================== class FTKPatternRootTreeReader ================
-
-Long64_t FTKPatternRootTreeReader::SeekBeg(Long64_t position) {
-   if(position>=0) {
-      if(position>0) {
-         Long64_t n=GetNPatterns();
-         if(position>n) position=n;
-      }
-      fPatternNumber=position;
-   }
-   return fPatternNumber;
-}
-
-bool FTKPatternRootTreeReader::HasMorePatterns(void) const {
-   // check whether there are more patterns
-   return fPatternNumber<GetNPatterns();
 }
 

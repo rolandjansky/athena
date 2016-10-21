@@ -126,7 +126,8 @@ public:
    virtual Long64_t SeekBeg(Long64_t position);
    virtual bool ReadNextPattern(void)=0;
    virtual bool HasMorePatterns(void) const;
-   inline void Rewind(void) { SeekBeg(0); }
+   virtual void Suspend(void);
+   void Rewind(void); // can be used to reduce memory consuption (?)
    inline Long64_t GetNumberOfPatternsRead(void) const { return fNumReads; }
    inline FTKPatternWithCoverage const &GetPattern(void) const {
       return *fPattern; }
@@ -145,7 +146,9 @@ protected:
    }
    Long64_t fPatternNumber;
    Long64_t fNumReads;
-   TTree *fTTree;
+   Long64_t fLastNumPatterns;
+   TTree *fTTreePtr;
+   TDirectory *fLastReadDir;
 private:
    bool fDoReadPattern;
    FTKPatternWithCoverage *fPattern;

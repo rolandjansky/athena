@@ -57,6 +57,9 @@ private:
   bool m_RestrictSctPairLayer; // restrict SCT layers in the transition region
 
   int m_IBLMode; // Enable the use of IBL
+  bool m_fixEndcapL0; //fix for endcap L0 in clustering
+
+  bool m_ITkMode; // Use ITk geometry
   
   double m_ss_offset_fraction;
 
@@ -108,6 +111,9 @@ private:
   // save all found roads if >0
   int m_SaveAllRoads;
 
+  // store all ss not just in roads
+  bool m_StoreAllSS; 
+
   // Plane map pointer, to be set during the initialization
   FTKPlaneMap *m_pmap;
   FTKPlaneMap *m_pmap_unused;
@@ -141,6 +147,7 @@ private:
   std::string m_badmap_path2;
 
   std::string m_modulelut_path; // LUT to map global ID in local IDs for HWModeSS=2
+  std::string m_modulelut2nd_path; // LUT to map global ID in local IDs for HWMo
 
   bool m_CachedBank;
   std::vector<std::string> m_patternbankpath;

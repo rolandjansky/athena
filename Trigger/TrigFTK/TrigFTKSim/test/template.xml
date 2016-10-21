@@ -11,13 +11,34 @@
         <chainName>RunMulitpleTowers</chainName>
         
         <sequential>
+
+          <chainElement>
+            <jobTransform userJobId="MakeFTKIPFile">
+              <jobTransformJobName>FTKSimMakeFTKIP</jobTransformJobName>
+              <jobTransformCmd>echo "placeholder"</jobTransformCmd>
+              <group>FTKSimValidation</group>
+              <queue>medium</queue>
+             
+            </jobTransform>
+            <chainfileout>NTUP_FTKIP.root</chainfileout>
+          </chainElement>
+
+
           <parallel>
             {% for tower in range(0,64) %}
             <chainElement>
               <jobTransform userJobId="RunTower{{"%02d" % tower}}">
                 <jobTransformJobName>FTKSimTower{{"%02d" % tower}}</jobTransformJobName>
-                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents {{max_events}} --inputNTUP_FTKIPFile {{input_ftkip}} --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{{"%02d" % tower}} --FTKSetupTag {{ftk_setup_tag}} --firstEventFTK 0 --MergeRoads True  --ConstantsDir {{constants_dir}} --FitConstantsVersion {{fit_constants_version}} --PatternsVersion {{patterns_version}} --bankregion {{tower}}</jobTransformCmd>
+                <jobTransformCmd>TrigFTKSM4Un_tf.py --maxEvents {{max_events}} --inputNTUP_FTKIPFile NTUP_FTKIP.root --CachedBank True --SaveRoads True --SaveTruthTree True --Save1stStageTrks True --outputNTUP_FTKTMPFile tmp.NTUP_FTKTMP_{{"%02d" % tower}} --FTKSetupTag {{ftk_setup_tag}} --firstEventFTK 0 --MergeRoads True  --ConstantsDir {{constants_dir}} --FitConstantsVersion {{fit_constants_version}} --PatternsVersion {{patterns_version}} --bankregion {{tower}}</jobTransformCmd>
                 <group>FTKSimValidation</group>
+                <chaindataset_info>
+                  <jobTransformData />
+                  <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                  <dataset_info>
+                    <jobTransformData />
+                    <datasetName>{{input_ftkip}}</datasetName>
+                  </dataset_info>
+                </chaindataset_info>
                 <queue>medium</queue>
               </jobTransform> 
               <chainfileout>tmp.NTUP_FTKTMP_{{"%02d" % tower}}</chainfileout>
@@ -28,7 +49,7 @@
           <chainElement>
             <jobTransform userJobId="MergeTowers">
               <jobTransformJobName>FTKSimMerge</jobTransformJobName>
-              <jobTransformCmd>TrigFTKTM64SM4Un_tf.py --maxEvents {{max_events}} --MergeRoads=True --UberFinalMerge=False --FTKSetupTag {{ftk_setup_tag}} {% for tower in range(0,64) %}--inputNTUP_FTKTMP_{{"%02d" % tower}}File=tmp.NTUP_FTKTMP_{{"%02d" % tower}} {% endfor %}--outputNTUP_FTKFile=tempout.root --inputNTUP_FTKIPFile={{input_ftkip}}</jobTransformCmd>
+              <jobTransformCmd>TrigFTKTM64SM4Un_tf.py --maxEvents {{max_events}} --MergeRoads=True --UberFinalMerge=False --FTKSetupTag {{ftk_setup_tag}} {% for tower in range(0,64) %}--inputNTUP_FTKTMP_{{"%02d" % tower}}File=tmp.NTUP_FTKTMP_{{"%02d" % tower}} {% endfor %}--outputNTUP_FTKFile=NTUP_FTK.root --inputNTUP_FTKIPFile NTUP_FTKIP.root</jobTransformCmd>
               <group>FTKSimValidation</group>
               {% for tower in range(0,64) %}
               <chaindataset_info>
@@ -40,68 +61,16 @@
                 </dataset_info>
               </chaindataset_info>
               {% endfor %}
+              <chaindataset_info>
+                <jobTransformData />
+                <chaindatasetName>NTUP_FTKIP.root</chaindatasetName>
+                <dataset_info>
+                  <jobTransformData />
+                  <datasetName>{{input_ftkip}}</datasetName>
+                </dataset_info>
+              </chaindataset_info>
               <queue>medium</queue>
              
-              <auxFilePattern>plot_simple_dataflow.C</auxFilePattern>
-              <auxFilePattern>CompareFTKSimDirectories_RTT.py</auxFilePattern>
-              
-              <test>
-                <modulename>RttLibraryTools</modulename>
-                <testname>ROOTMacroRunner</testname>
-                <outputFile>output.txt</outputFile>
-                <testidentifier>Dataflow</testidentifier>
-                <arg>
-                  <argname>macro</argname>
-                  <argvalue>plot_simple_dataflow.C</argvalue>
-                </arg>
-                <arg>
-                  <argname>macroArg</argname>
-                  <argvalue>"tempout.root","-1"</argvalue>
-                </arg>
-                <arg>
-                  <argname>maxRunTime</argname>
-                  <argvalue>1200</argvalue>
-                </arg>
-              </test>
-               
-              <test>
-                <modulename>RttLibraryTools</modulename>
-                <testname>ExeRunner</testname>
-                <outputFile>RefvsNew.pdf</outputFile>
-                <testidentifier>Consistency</testidentifier>
-                <arg>
-                  <argname>exeName</argname>
-                  <argvalue>CompareFTKSimDirectories_RTT.py</argvalue>
-                </arg>
-                <arg>
-                  <argname>macroArg</argname>
-                  <argvalue>CompareFTKSimDirectories_RTT.py --RefFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout.root --ChkFile tempout.root --PlotTowers</argvalue>
-                </arg>
-                <arg>
-                  <argname>maxRunTime</argname>
-                  <argvalue>1800</argvalue>
-                </arg>
-              </test>
-              
-              <test>
-                <modulename>RttLibraryTools</modulename>
-                <testname>ExeRunner</testname>
-                <outputFile>ftk_efficiency.root</outputFile>
-                <testidentifier>Efficiency</testidentifier>
-                <arg>
-                  <argname>exeName</argname>
-                  <argvalue>trigftk_efficiency.exe</argvalue>
-                </arg>
-                <arg>
-                  <argname>macroArg</argname>
-                  <argvalue>--files tempout.root</argvalue>
-                </arg>
-                <arg>
-                  <argname>maxRunTime</argname>
-                  <argvalue>1800</argvalue>
-                </arg>
-              </test>
-              
               <test>
                 <modulename>RttLibraryTools</modulename>
                 <testname>PerfMonRunner</testname>
@@ -122,21 +91,21 @@
               </test>
  
             </jobTransform>
-            <chainfileout>tempout.root</chainfileout>
+            <chainfileout>NTUP_FTK.root</chainfileout>
           </chainElement>
             
           <parallel>
             <chainElement>
               <jobTransform userJobId="ConsistencyCheck">
                 <jobTransformJobName>OutputConsistencyCheck</jobTransformJobName>
-                <jobTransformCmd>CompareFTKSimDirectories_RTT.py --RefFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root --ChkFile tempout.root --PlotTowers</jobTransformCmd>
+                <jobTransformCmd>rtt_compare.py --RefFile /afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root --ChkFile NTUP_FTK.root --PlotTowers</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <chaindataset_info>
                   <jobTransformData />
-                  <chaindatasetName>tempout.root</chaindatasetName>
+                  <chaindatasetName>NTUP_FTK.root</chaindatasetName>
                   <dataset_info>
                     <jobTransformData />
-                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout.root</datasetName>
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root</datasetName>
                   </dataset_info>
                 </chaindataset_info>
                 <queue>medium</queue>
@@ -146,14 +115,14 @@
             <chainElement>
               <jobTransform userJobId="EfficiencyPlots">
                 <jobTransformJobName>EfficiencyPlots</jobTransformJobName>
-                <jobTransformCmd>trigftk_efficiency.exe --files tempout.root</jobTransformCmd>
+                <jobTransformCmd>trigftk_efficiency --files NTUP_FTK.root</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <chaindataset_info>
                   <jobTransformData />
-                  <chaindatasetName>tempout.root</chaindatasetName>
+                  <chaindatasetName>NTUP_FTK.root</chaindatasetName>
                   <dataset_info>
                     <jobTransformData />
-                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout.root</datasetName>
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root</datasetName>
                   </dataset_info>
                 </chaindataset_info>
                 <queue>medium</queue>
@@ -164,22 +133,45 @@
             <chainElement>
               <jobTransform userJobId="Dataflow">
                 <jobTransformJobName>Dataflow</jobTransformJobName>
-                <jobTransformCmd>root -q -b -l 'plot_simple_dataflow.C("tempout.root",-1)'</jobTransformCmd>
+                <jobTransformCmd>trigftk_dataflow --files NTUP_FTK.root</jobTransformCmd>
                 <group>FTKSimValidation</group>
                 <chaindataset_info>
                   <jobTransformData />
-                  <chaindatasetName>tempout.root</chaindatasetName>
+                  <chaindatasetName>NTUP_FTK.root</chaindatasetName>
                   <dataset_info>
                     <jobTransformData />
-                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout.root</datasetName>
+                    <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root</datasetName>
                   </dataset_info>
                 </chaindataset_info>
                 <queue>medium</queue>
-                <auxFilePattern>plot_simple_dataflow.C</auxFilePattern>
+                <auxFilePattern>dataflow.cc</auxFilePattern>
               </jobTransform>
-            </chainElement>         
-        </parallel>
-       </sequential>
+            </chainElement>
+            
+            <sequential>
+              
+              <chainElement>
+                <jobTransform userJobId="MakeRDO_FTK">
+                  <jobTransformJobName>MakeRDO_FTK</jobTransformJobName>
+                  <jobTransformCmd>echo "placeholder"</jobTransformCmd>
+                  <group>FTKSimValidation</group>
+                  <chaindataset_info>
+                    <jobTransformData />
+                    <chaindatasetName>NTUP_FTK.root</chaindatasetName>
+                    <dataset_info>
+                      <jobTransformData />
+                      <datasetName>/afs/cern.ch/work/p/ptaylor/public/RTT_Input_Ntuples/ReferenceOutputNtuples/Current/tempout_ref.root</datasetName>
+                    </dataset_info>
+                  </chaindataset_info>
+                  <queue>medium</queue>
+                </jobTransform>
+                <chainfileout>RDO_FTK.root</chainfileout>
+              </chainElement>
+            
+            </sequential>
+          
+          </parallel>
+        </sequential>
       </chain>
     </jobList>
 

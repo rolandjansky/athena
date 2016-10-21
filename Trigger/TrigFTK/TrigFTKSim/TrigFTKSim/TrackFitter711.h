@@ -34,6 +34,8 @@ protected:
   int m_nneighbours; // number of strips to retrieve, 1 just the central
   FTKTrack *combtrackI; // pre-allocated array for MJ-recovery
 
+  bool m_passedExtrapolation; // temp variable to count if AUX track passed extrapolation
+
   int m_nplanes_ignored; // number of planes to extrapolate the 7L tracks
   int m_ncoords_ignored; // number of coords to extrapolate the 7L tracks
   int *m_idplanes; // array of the index of additional layers
@@ -108,12 +110,16 @@ protected:
   int m_ncombsI; // number of combinations
   int m_nfitsI; // number of fits tryied in a road
   int m_nfits_majI; // number of majority fits
+  int m_nfits_majI_pix; // number of majority fits with missing pixel hit
+  int m_nfits_majI_SCT; // number of majority fits with missing SCT hit
   int m_nfits_recI; // number of recoverd fits
   int m_nfits_addrecI;
   int m_nfits_badI; // number of fits with a bad chi2
   int m_nfits_rejI; // number of fits rejected by HW
   int m_nfits_badmajI; // number of fits with a bad chi2
   int m_nfits_rejmajI; // number of fits rejected by HW
+  int m_nconn; // number of connections
+  int m_nextrapolatedTracks; // number of extrapolated tracks
 
   int m_comb_idI; // current combination id, has to be unique in each event, for each bank
 

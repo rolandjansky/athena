@@ -110,7 +110,7 @@ FTKPlaneMap::FTKPlaneMap(const char *fname) :
   /* check for correct file format */
   if (fgets(line,100,fpmap)!=NULL) {
     if (cmDebug) printf("%s\n",line);
-    sscanf(line,"%d %256s %256s",&npixel,buf1,buf2);
+    sscanf(line,"%d %19s %19s",&npixel,buf1,buf2);
     if (cmDebug) printf("%s %s\n",buf1,buf2);
     if (strcmp(buf2,"barrel")) {
       // pre end-cap extension format

@@ -75,18 +75,23 @@ public:
   virtual void addNCombs(int ib, int v);
   virtual void addNFits(int ib, int v);
   virtual void addNFitsMajority(int ib, int v);
+  virtual void addNFitsMajority_pix(int ib, int v);
+  virtual void addNFitsMajority_SCT(int ib, int v);
   virtual void addNFitsRecovery(int ib, int v);
   virtual void addNAddFitsRecovery(int ib, int v);
   virtual void addNFitsBad(int ib, int v);
   virtual void addNFitsHWRejected(int ib, int v);
   virtual void addNFitsBadMajority(int ib, int v);
   virtual void addNFitsHWRejectedMajority(int ib, int v);
-
+  virtual void addNConnections(int ib, int v);
+  virtual void addNExtrapolatedTracks(int ib, int v);
 
   virtual void addTrackI(int, const FTKTrack&);
   virtual void addNCombsI(int ib, int v);
   virtual void addNFitsI(int ib, int v);
   virtual void addNFitsMajorityI(int ib, int v);
+  virtual void addNFitsMajorityI_pix(int ib, int v);
+  virtual void addNFitsMajorityI_SCT(int ib, int v);
   virtual void addNFitsRecoveryI(int ib, int v);
   virtual void addNAddFitsRecoveryI(int ib, int v);
   virtual void addNFitsBadI(int ib, int v);

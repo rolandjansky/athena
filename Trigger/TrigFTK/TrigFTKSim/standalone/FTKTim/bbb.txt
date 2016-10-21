@@ -1,0 +1,15 @@
+68,77d67
+<   // next board
+<   double PreSecDO_clear = 0;
+<   double PrePreSecDO_clear = 0;
+<   if(GetMaxEwOut(this->nextboard_pre_iotime) - (this->iv.LVL1Gap*(1.+bufsize_ev)) >=0 ){
+<     PreSecDO_clear =  GetMaxEwOut(this->nextboard_pre_iotime) - (this->iv.LVL1Gap*(1.+bufsize_ev));
+<   }
+<   if(GetMaxEwOut(this->nextboard_prepre_iotime) - (this->iv.LVL1Gap*(2.+bufsize_ev)) >=0 ){
+<     PrePreSecDO_clear =  GetMaxEwOut(this->nextboard_prepre_iotime) - (this->iv.LVL1Gap*(2.+bufsize_ev));
+<   }
+< 
+96d85
+<   //  if(buflimit)  temp_io.push_back(PreSecDO_clear);
+123d111
+<   if(buflimit)  temp_io.push_back(PreSecDO_clear);

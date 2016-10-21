@@ -24,10 +24,10 @@ FTK_SGRoadOutput::~FTK_SGRoadOutput()
 StatusCode FTK_SGRoadOutput::initialize()
 {
 
-  m_log << MSG::INFO << "FTK_SGRoadOutput::initialize() xxx" << endreq;
+  m_log << MSG::INFO << "FTK_SGRoadOutput::initialize() xxx" << endmsg;
   
   if( service("StoreGateSvc", m_storeGate).isFailure() ) {
-    m_log << MSG::FATAL << "StoreGate service not found" << endreq;
+    m_log << MSG::FATAL << "StoreGate service not found" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -82,11 +82,11 @@ void FTK_SGRoadOutput::eventEnd()
   if ( sc.isFailure() ) {
     m_log << MSG::ERROR
 	<< "Could not register FTK roads data"
-	<< endreq;
+	<< endmsg;
     return;
   }
   else {
-    m_log << MSG::DEBUG << "Wrote FTK road data class " << endreq;
+    m_log << MSG::DEBUG << "Wrote FTK road data class " << endmsg;
   }
 }
 

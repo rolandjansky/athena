@@ -45,15 +45,21 @@ from TrigFTKSim.TrigFTKSimConf import FTKMergerAlgo
 import os
 import sys
 
-FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=DEBUG)
+FTKMerger = FTKMergerAlgo( "FTKMergerAlgo" , OutputLevel=VERBOSE)
 FTKMerger.doMerging = True # this enables the behavior of the FTKMergerAlgo as FTK streams merger
 
 runArgsMandatory =  ['NBanks', 'NSubRegions', 'pmap_path', 'loadHWConf_path']
 
 runArgsOptional = {'FirstRegion': 0, 'FirstSubreg': 0, 'MergeRegion': -1, 'HWNDiff': 6, 'HitWarrior': 2}
 
+nb=64
+
 # prestore some common configurations that can be called through the option FTKSetupTag
 FTKTagOptions = {}
+
+FTKTagOptions['SectorsAsPatterns12L32b3DHWMode2'] = \
+     {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
+      'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 FTKTagOptions["TDRv0"] = \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_11L.pmap', \
          'loadHWConf_path': 'raw_11L.hw'}
@@ -72,9 +78,18 @@ FTKTagOptions["TDAQTDRv2"] =  \
 FTKTagOptions["Run2v0"] =  \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl3D.pmap', \
          'loadHWConf_path': 'raw_12L.hw'}
+FTKTagOptions["Run2v1"] =  \
+    {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl3D.pmap', \
+         'loadHWConf_path': 'raw_12L.hw'}
 FTKTagOptions["Run2TempMapv0"] =  \
     {'NBanks': 64, 'NSubRegions': 4, 'pmap_path': 'raw_12Libl3D.pmap', \
          'loadHWConf_path': 'raw_12L.hw'}
+FTKTagOptions['SectorsAsPatterns32Tower12L3D'] = \
+    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
+     'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
+FTKTagOptions['SectorsAsPatterns32Tower8L3D'] = \
+    {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
+     'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
 FTKTagOptions['SectorsAsPatterns3D'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl3D123.pmap',
      'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
@@ -93,7 +108,12 @@ FTKTagOptions['SectorsAsPatterns8L64b3DHWMode2'] = \
 FTKTagOptions['SectorsAsPatterns12L64b3DHWMode2'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap',
      'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False, 'MergeRoadsDetailed': False}
-
+FTKTagOptions["HWMode2Test32Tower"] = \
+   {'NBanks': 32, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
+FTKTagOptions["HWMode2Test64Tower"] = \
+   {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW3D.pmap', \
+         'loadHWConf_path': 'raw_8LcIbl123.hw'}
 FTKTagOptions['SectorsAsPatterns'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_8LcIbl123.pmap',
      'loadHWConf_path': 'raw_8Lc.hw', 'MergeRoads': False}
@@ -131,6 +151,20 @@ FTKTagOptions['SectorsAsPatterns12LHWMode2'] = \
     {'NBanks': 64, 'NSubRegions': 1, 'pmap_path': 'raw_12LiblHW.pmap',
      'loadHWConf_path': 'raw_12L.hw', 'MergeRoads': False}
 
+FTKTagOptions['FitITk'] = {
+    'MergeRoads' : True ,
+    'HitWarrior' : 0 ,
+}
+FTKTagOptions['FitITkSaP'] = {
+    'MergeRoads' : True ,
+    'HitWarrior' : 0 ,
+}
+FTKTagOptions['FitITkDC'] = {
+    'MergeRoads' : True ,
+    'HitWarrior' : 0 ,
+}
+
+
 # enable the "Scenario" runarg that sets other runarg values as consequence
 if hasattr(runArgs, 'FTKSetupTag'):
     ftktag = getattr(runArgs,'FTKSetupTag')
@@ -160,6 +194,14 @@ if hasattr(runArgs, 'MergeFromTowers') :
       runArgs.NSubRegions = 1
       FTKMerger.FTKUnmergedFormatName = "FTKMergedTracksStream%u"
       FTKMerger.FTKUnmergedRoadFormatName = "FTKMergedRoadsStream%u"
+
+### But overwrite the names if provided, no matter what
+if hasattr(runArgs, 'UnmergedFormatName'):
+  FTKMerger.FTKUnmergedFormatName = runArgs.UnmergedFormatName
+
+### But overwrite the names if provided, no matter what
+if hasattr(runArgs, 'UnmergedRoadFormatName'):
+  FTKMerger.FTKUnmergedRoadFormatName = runArgs.UnmergedRoadFormatName
 
 # set the FTKRoadMerger properties
 for runArgName in runArgsMandatory + runArgsOptional.keys() :
@@ -242,7 +284,7 @@ elif hasattr(runArgs, 'inputNTUP_FTKTMP_00File'):
     # tower files specified separately
     FTKMerger.FTKToMergePaths = [
         getattr(runArgs, 'inputNTUP_FTKTMP_{0:02d}File'.format(tower))[0]
-        for tower in range(64)] 
+        for tower in range(runArgs.NBanks)] 
 elif hasattr(runArgs, 'inputNTUP_FTKTMPFile'):
     FTKMerger.FTKToMergePaths = runArgs.inputNTUP_FTKTMPFile
 else:

@@ -33,7 +33,7 @@
 #include "FTKLogging.h"
 
 class SteeringParameter {
-   // base blass fro steering parameters
+   // base class for steering parameters
  public:
    virtual ~SteeringParameter(void);
    virtual operator int() const;

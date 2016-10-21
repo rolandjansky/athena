@@ -1,0 +1,115 @@
+#!/usr/bin/python
+
+#######################################################################################
+#                                                                                     #
+#    Author: Akis Gkaitatzis                                                          #
+#    Email: Stamatios.Gkaitatzis@cern.ch                                              #
+#    First upload: 10 March 2016                                                      #
+#                                                                                     #
+#    Usage Instructions:                                                              #
+#    https://twiki.cern.ch/twiki/bin/view/Atlas/FastTrackerSoftwareValidationScripts  #    
+#                                                                                     #
+#######################################################################################
+
+import os
+import sys
+import argparse
+
+def toint(x):
+    return str(int(x, 16)).zfill(2)
+
+
+def explain_list(l):
+    nl = []  # new list
+    for line in l:
+        if line.startswith('0X200'):
+            nl.append(line + ' event ' + toint(line[8:]))
+        if line.startswith('0X08'):
+            nl.append(line + ' module')
+        if line.startswith('0X00'):
+            nl.append(line + ' ' + toint(line[3:6]) + ' ' +
+                      toint(line[6:8]) + ' ' + toint(line[8:]))
+        if line.startswith('0X040000000'):
+            nl.append(line + ' end module')
+        #else:
+            #nl.append(line)
+
+    return nl
+
+
+def make_ucase(f, strip):
+    file = open(f, 'r')
+    ucase_list = []
+    for line in file:
+        if strip and line.startswith('0x08') or line.startswith('0X08'):
+            ucase_list.append('0X080000000')
+        elif line.startswith('0x') or line.startswith('0X'):
+            ucase_list.append(line[:-1].upper())
+    file.close()
+
+    return ucase_list
+
+
+def remove_empty_events(l):
+    new_list = []
+    skip = False
+    for l1, l2 in zip(l, l[1:]):
+        if l1.startswith('0X2') and l2.startswith('0X1'):
+            skip = True
+            continue
+        if skip:
+            skip = False
+            continue
+        new_list.append(l1)
+    new_list.append(l[-1])
+
+    return new_list
+
+
+def diff(l1, l2):
+    for i, l in zip(l1, l2):
+        if i == l:
+            print i + '\t' + l
+        else:
+            print i + '\t' + l + ' <----'
+
+
+def main(argv=None):
+
+    parser = argparse.ArgumentParser('Compare two FTK_IM decoder ouputs')
+    parser.add_argument('-f1', dest='file1', required=True,
+                        help='First file')
+    parser.add_argument('-f2', dest='file2', required=True,
+                        help='Second file')
+    parser.add_argument('-s', action='store_true',
+                        help='Strip module numbers')
+    args = parser.parse_args()
+
+    # certify that both files are in the unix format
+    os.system('dos2unix ' + args.file1)
+    os.system('dos2unix ' + args.file2)
+
+    # convert both files to uppercase, also strip lines that are not related
+    list1 = make_ucase(args.file1, args.s)
+    list2 = make_ucase(args.file2, args.s)
+
+    list1 = remove_empty_events(list1)
+    list2 = remove_empty_events(list2)
+
+    list1 = explain_list(list1)
+    list2 = explain_list(list2)
+
+    f1 = open(args.file1 + '_tmp', 'w')
+    f1.write("\n".join(map(lambda x: str(x), list1)))
+    f1.close()
+
+    f2 = open(args.file2 + '_tmp', 'w')
+    f2.write("\n".join(map(lambda x: str(x), list2)))
+    f2.close()
+
+    os.system('diff -y -W 80 ' + f1.name + ' ' + f2.name)
+    os.remove(f1.name)
+    os.remove(f2.name)
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

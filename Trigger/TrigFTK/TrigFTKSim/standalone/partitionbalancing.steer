@@ -1,0 +1,40 @@
+#
+#  level 0: suppress FATAL,ERROR,WARNING,INFO,PROGRESS (no printout at all)
+#  level 1: suppress ERROR,WARNING,INFO,PROGRESS
+#  level 2: suppress WARNING,INFO,PROGRESS
+#  level 3: suppress INFO,PROGRESS
+#  level 4: suppress PROGRESS (default)
+#  level 5: print everything
+LOGGING_PRINT_LEVEL 4
+#
+#  level 0: always continue
+#  level 1: stop if FATAL
+#  level 2: stop if FATAL,ERROR (default)
+#  level 3: stop if FATAL,ERROR,WARNING
+LOGGING_ABORT_LEVEL 2
+#
+absetarange 0.0 1.05
+etabinOffset 1.0
+#
+maxSectorId 16384
+#
+NREG 32
+NSUB 4
+#
+# 2M per SR minus reserved patterns
+# (2M/128K = 16 reserved patterns)
+# 2097152 - 16 = 2097136
+NPATTERN 2097136
+#
+# non-partitioned bank, 32 tower x 8 M
+efficiency_file /afs/desy.de/user/s/sschmitt/xxl-atlas/ftk_code/20.3.1/output/batch/efficiencyPlots_160510/efficiency_30x64x72Ibl_nominal-mincov5_1stStage.root
+pattern_bank_path /nfs/dust/atlas/user/sschmitt/patternbank_30x64x72Ibl_nominal-mincov5
+#
+efficiency_plot greffeta
+#
+epsilonLimit 0.95
+weightLimit 0.1
+#
+#slices_file_path /nfs/dust/atlas/user/britzger/Run2_xm06_ym06_Reb32_v1/SectorConstHW
+#slices_file_path /nfs/dust/atlas/user/britzger/Run2_x00_y00_Reb32_UseNominalOrigin_v1/SectorConstHW
+slices_file_path /nfs/dust/atlas/user/sschmitt/user.sschmitt.Run2_x00_y00_Reb32_UseNominalOrigin_v1_SectorConstHW.160429-214000

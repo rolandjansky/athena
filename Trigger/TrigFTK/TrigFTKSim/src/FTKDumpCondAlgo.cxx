@@ -27,13 +27,14 @@ FTKDumpCondAlgo::FTKDumpCondAlgo(const std::string& name, ISvcLocator* pSvcLocat
   m_DumpModuleIDMap(false),
   m_DumpGlobalToLocalMap(false),
   m_DumpIDMap(false),
-  m_IBLMode(1)
+  m_IBLMode(0), m_fixEndcapL0(false)
 {
   declareProperty("DumpBadModules", m_DumpBadModules, "If true enable dump of bad modules for FTK");
   declareProperty("DumpModuleIDMap", m_DumpModuleIDMap, "If true dumps the map of the modules in each tower");
   declareProperty("DumpGlobalToLocalMap",m_DumpGlobalToLocalMap, "True if you want to produce the Global-to-Local map");
   declareProperty("DumpIDMap",m_DumpIDMap);
   declareProperty("IBLMode",m_IBLMode);
+  declareProperty("FixEndCapL0",m_fixEndcapL0, "Fix endcap L0 clustering");
 }
 
 FTKDumpCondAlgo::~FTKDumpCondAlgo()
@@ -43,21 +44,22 @@ FTKDumpCondAlgo::~FTKDumpCondAlgo()
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTKDumpCondAlgo::initialize(){
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "FTKDumpCondAlgo::initialize()" << endreq;
+  log << MSG::INFO << "FTKDumpCondAlgo::initialize()" << endmsg;
   
   // FTK library global setup variables
   FTKSetup::getFTKSetup().setIBLMode(m_IBLMode);
+  FTKSetup::getFTKSetup().setfixEndcapL0(m_fixEndcapL0);
 
   // select how the input is obtained
   if (m_DumpBadModules || m_DumpGlobalToLocalMap) {
     // Use the SG to retrieve the hits, this also means other Athena tools can be used
     StatusCode scdet = m_detectorTool.retrieve();
     if (scdet.isFailure()) {
-      log << MSG::FATAL << "Could not retrieve FTKDetectorTool tool" << endreq;
+      log << MSG::FATAL << "Could not retrieve FTKDetectorTool tool" << endmsg;
       return StatusCode::FAILURE;
     }
     else {
-      log << MSG::INFO << "Setting FTKDetectorTool tool" << endreq;
+      log << MSG::INFO << "Setting FTKDetectorTool tool" << endmsg;
       //      m_detectorTool->initialize();
       // connect the detector tool with the FTK maps
       //      m_detectorTool->setPlaneMap(m_pmap);
@@ -67,7 +69,7 @@ StatusCode FTKDumpCondAlgo::initialize(){
   }
 
   //if (sc.isFailure()) {
-  //  log << MSG::FATAL << "Unexpected problem during the initialization stage" << endreq;
+  //  log << MSG::FATAL << "Unexpected problem during the initialization stage" << endmsg;
   //  return StatusCode::FAILURE;
   //}
 
@@ -78,7 +80,7 @@ StatusCode FTKDumpCondAlgo::initialize(){
 StatusCode FTKDumpCondAlgo::execute() {
   
   MsgStream log(msgSvc(), name());
-  log << MSG::INFO << "FTKDumpCondAlgo::execute() start" << endreq;
+  log << MSG::INFO << "FTKDumpCondAlgo::execute() start" << endmsg;
   
   if (m_DumpBadModules) {
     m_detectorTool->makeBadModuleMap(); //Dump bad SS map
@@ -102,7 +104,7 @@ StatusCode FTKDumpCondAlgo::execute() {
 // * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
 StatusCode FTKDumpCondAlgo::finalize() {
     MsgStream log(msgSvc(), name());
-    log << MSG::INFO << "finalize()" << endreq;
+    log << MSG::INFO << "finalize()" << endmsg;
     
     return StatusCode::SUCCESS;
 }

@@ -45,18 +45,23 @@ public:
   virtual void addNCombs(int ib, int v) = 0;
   virtual void addNFits(int ib, int v) = 0;
   virtual void addNFitsMajority(int ib, int v) = 0;
+  virtual void addNFitsMajority_pix(int ib, int v) = 0;
+  virtual void addNFitsMajority_SCT(int ib, int v) = 0;
   virtual void addNFitsRecovery(int ib, int v) = 0;
   virtual void addNAddFitsRecovery(int ib, int v) = 0;
   virtual void addNFitsBad(int ib, int v) = 0;
   virtual void addNFitsHWRejected(int ib, int v) = 0;
   virtual void addNFitsBadMajority(int ib, int v) = 0;
   virtual void addNFitsHWRejectedMajority(int ib, int v) = 0;
-
+  virtual void addNConnections(int ib, int v) = 0;
+  virtual void addNExtrapolatedTracks(int ib, int v) = 0;
 
   virtual void addTrackI(int, const FTKTrack&) = 0;
   virtual void addNCombsI(int ib, int v) = 0;
   virtual void addNFitsI(int ib, int v) = 0;
   virtual void addNFitsMajorityI(int ib, int v) = 0;
+  virtual void addNFitsMajorityI_pix(int ib, int v) = 0;
+  virtual void addNFitsMajorityI_SCT(int ib, int v) = 0;
   virtual void addNFitsRecoveryI(int ib, int v) = 0;
   virtual void addNAddFitsRecoveryI(int ib, int v) = 0;
   virtual void addNFitsBadI(int ib, int v) = 0;

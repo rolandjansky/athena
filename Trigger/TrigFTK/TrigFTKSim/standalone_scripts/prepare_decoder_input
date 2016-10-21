@@ -1,0 +1,308 @@
+#!/usr/bin/env tdaq_python
+
+#######################################################################################
+#                                                                                     #
+#    Author: Akis Gkaitatzis                                                          #
+#    Email: Stamatios.Gkaitatzis@cern.ch                                              #
+#    First upload: 10 March 2016                                                      #
+#                                                                                     #
+#    Usage Instructions:                                                              #
+#    https://twiki.cern.ch/twiki/bin/view/Atlas/FastTrackerSoftwareValidationScripts  #    
+#                                                                                     #
+#######################################################################################
+
+import sys
+import eformat
+import argparse
+import copy
+
+# IBL MODE
+
+def chunks(b):
+    wd = ''
+    bin_chunks = [b[4*i:4*(i+1)] for i in xrange(len(b)//4)]
+    for i in bin_chunks:
+        wd = wd + ' ' + i
+    return wd
+
+
+def wint(word):
+    return str(int(word, 2))
+
+
+def whex(word):
+    return hex(int(word, 2))
+
+
+def combine_frag(w1, w2):
+    tmp = int(w1 + w2, 2)
+    return str(tmp)
+
+
+def ptot(wd, v):
+    if v == 1:
+        return ' totA: ' + wint(wd[0:4])
+    elif v == 2:
+        if wint(wd[4:8]) != 0:
+            return ' totB: ' + wint(wd[4:8])
+
+def dirtyhack(wd, v):
+    x = int(wd)
+    getBin = lambda x: x >= 0 and str(bin(x))[2:] or "-" + str(bin(x))[3:]
+    n = getBin(x).zfill(8)
+    if v == 1:
+        return wint(n[0:4])
+    elif v == 2:
+        if wint(n[4:8]) != 0:
+            return ' totB: ' + wint(n[4:8])
+
+
+def hitCounter(wd):
+    if wd[4:8] == 1111:
+        return 1
+    else:
+        return 2
+
+
+def explainIBLBytestream(wordlist, verbosef):
+    condensed_hit = False
+    counter = 0
+    nhits = 0
+    eventn = False
+
+    for word in wordlist:
+        wbin = str(bin(int(word, 16))[2:].zfill(32))
+        stuff = word + ' |' + chunks(wbin) + ' | '
+
+        if word.startswith('0x1B0F00000'):
+            verbosef.write(stuff + '!Begin event\n')
+        elif word.startswith('0x0EE1234EE'):
+            verbosef.write(stuff + '\n')
+        elif word.startswith('0x1E0F00000'):
+            verbosef.write(stuff + '\n')
+        elif word.startswith('0x000000000'):
+            verbosef.write(stuff + '\n')
+        elif word.startswith('0x000041576'):
+            eventn = True
+            continue
+        elif word.startswith('0x09C') and  eventn:
+            verbosef.write(stuff + 'Event number: ' + word[8:] + '\n')
+            eventn = False
+        elif wbin.startswith('001'):
+            verbosef.write(stuff + '---> MODULE HEADER link: ' + wbin[5:8] +
+                           ' (' + wint(wbin[5:8]) + ')\n')
+            nhits = 0
+        elif wbin.startswith('100') and not condensed_hit:
+            verbosef.write(stuff + 'HIT'.rjust(15)
+                           + ' col:' + wint(wbin[16:23])
+                           + ' row:' + wint(wbin[23:32])
+                           + ptot(wbin[8:16], 1)
+                           + ptot(wbin[8:16], 2)
+                           + '\n')
+        elif wbin.startswith('101') and not condensed_hit:
+            verbosef.write(stuff + 'S CONDENSED HIT'
+                           + ' col: ' + wint(wbin[16:23])
+                           + ' row: ' + wint(wbin[23:32])
+                           + ptot(wbin[8:16], 1)
+                           + ptot(wbin[8:16], 2)
+                           + '\n')
+            counter = 0
+            condensed_hit = True
+            row2 = wbin[3:8]
+            nhits = nhits + hitCounter(wbin[8:16])
+        elif wbin.startswith('1') and condensed_hit and counter == 0:
+            verbosef.write(stuff + '  CONDENSED HIT'
+                           + ' col: ' + wint(wbin[21:28])
+                           + ' row: ' + combine_frag(wbin[28:32], row2)
+                           + ptot(wbin[13:21], 1)
+                           + ptot(wbin[13:21], 2)
+                           + '\n')
+            counter = counter + 1
+            col3 = wbin[1:4]
+            row3 = wbin[4:13]
+            nhits = nhits + hitCounter(wbin[13:21])
+        elif wbin.startswith('1') and condensed_hit and counter == 1:
+            verbosef.write(stuff + '  CONDENSED HIT'
+                           + ' col: ' + combine_frag(wbin[28:32], col3)
+                           + ' row: ' + wint(row3)
+                           + ptot(wbin[20:28], 1)
+                           + ptot(wbin[20:28], 2)
+                           + '\n')
+            counter = counter + 1
+            row4 = wbin[11:20]
+            col4 = wbin[4:11]
+            tot4 = wbin[1:4]
+            nhits = nhits + hitCounter(wbin[20:28])
+        elif wbin.startswith('111') and condensed_hit and counter == 2:
+            tmp = combine_frag(wbin[27:32], tot4)
+            verbosef.write(stuff + '  CONDENSED HIT'
+                           + ' col: ' + wint(col4)
+                           + ' row: ' + wint(row4)
+                           + ' totA: ' + str(dirtyhack(tmp, 1))
+                           + dirtyhack(tmp, 2)
+
+                           + '\n')
+            verbosef.write('E CONDENSED HIT'.rjust(71)
+                           + ' col: ' + wint(wbin[11:18])
+                           + ' row: ' + wint(wbin[18:27])
+                           + ptot(wbin[3:11], 1)
+                           + ptot(wbin[3:11], 2)
+                           + '\n')
+            condensed_hit = False
+            nhits = nhits + hitCounter(wbin[3:11])
+        elif wbin.startswith('010'):
+            verbosef.write(stuff + '<--- TRAILER\n')
+        elif word.startswith('0x1E0F00000'):
+            verbosef.write(stuff + '!End event\n')
+        else:
+            verbosef.write(stuff + '\n')
+
+
+def stripPlanarModules(wordlist):
+    planarMod = False
+    planarModList = ['38', '39', '3A', '3B']
+    wordlist_orig = copy.deepcopy(wordlist)
+
+    del wordlist[:]
+    for i, w in enumerate(wordlist_orig):
+        if w.startswith('0x03') and w[3:5] in planarModList and not planarMod:
+            planarMod = True
+        elif not w.startswith('0x04') and planarMod:
+            continue
+        elif w.startswith('0x04') and planarMod:
+            planarMod = False
+            continue
+        else:
+            wordlist.append(w)
+
+
+
+        # strip empty events
+
+
+# PIXEL MODE
+def sort_hitlist(hitlist):
+    rowsorted = sorted(hitlist, key=lambda hw: int(hw[9:11], 16))
+    colsorted = sorted(rowsorted, key=lambda hw: int(hw[7:9], 16) / 2)
+    fesorted = sorted(colsorted, key=lambda hw: int(hw[4:5], 16))
+
+    return fesorted
+
+
+
+def orderPixelWordlist(wordlist):
+    newlist = []
+    hitlist = []
+    sorted_hitlist = []
+
+    for word in wordlist:
+        if word.startswith('0x08'):
+            hitlist.append(word)
+        elif word.startswith('0x040'):
+            sorted_hitlist = sort_hitlist(hitlist)
+            del hitlist[:]
+            newlist.extend(sorted_hitlist)
+            newlist.append(word)
+        else:
+            newlist.append(word)
+
+        #print 'after'
+        #for j in sorted_hitlist:
+            #print j
+
+    #for w in wordlist:
+        #print w
+    return newlist
+
+
+def explainPixelBytestream(wordlist, verbosef):
+    for word in wordlist:
+        wbin = str(bin(int(word, 16))[2:].zfill(32))
+        stuff = word + ' |' + chunks(wbin) + ' | '
+        if word.startswith('0x1B0F00000'):
+            verbosef.write(stuff + 'Begin event\n')
+        elif word.startswith('0x02'):
+            verbosef.write(stuff + 'Module #\n')
+        elif word.startswith('0x08'):
+            verbosef.write(stuff + 'FE: ' + word[4:5] +' ' + str(int(word[4:5], 16))
+                           + ' TOT: ' + word[5:7] + ' ' + str(int(word[5:7], 16))
+                           + ' COL: ' + word[7:9] + ' ' + str(int(word[7:9], 16))
+                           + ' ROW: ' + word[9:11] + ' ' + str(int(word[9:11], 16))
+                           + '\n')
+        elif word.startswith('0x040000000'):
+            verbosef.write(stuff + 'End module\n')
+        elif word.startswith('0x1E0F00000'):
+            verbosef.write(stuff + 'End event\n')
+        else:
+            verbosef.write(stuff + '\n')
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser('Dump decoder input from a Bytestream File')
+    parser.add_argument('-ibl', action='store_true',
+                        help='Create decoder input for IBL layer')
+    parser.add_argument('-pix', action='store_true',
+                        help='Create decoder input for pixel layers')
+    parser.add_argument('-rod', dest='rod', required=True,
+                        help='Selected ROD')
+    parser.add_argument('-in', dest='input', required=True,
+                        help='Input Bytestream File')
+    parser.add_argument('-out', dest='output', required=True,
+                        help='Output text File')
+    parser.add_argument('-v', action='store_true',
+                        help='Write verbose information to OUTPUT.info file')
+    parser.add_argument('-d', action='store_true',
+                        help='Write only 3d modules')
+    args = parser.parse_args()
+
+    if not args.ibl and not args.pix:
+        print 'Please specify if the decoder input should be IBL or Pixel'
+        sys.exit()
+
+    print 'Fiding events on ROD', args.rod, '...'
+    wordlist = []
+    eventn = 0
+    for event in eformat.istream(args.input):
+        eventn = eventn + 1
+        if eventn == 5000:
+            break
+        for rob in event.children():
+            if hex(int(rob.rod_source_id()) >> 0) == args.rod:
+                wordlist.append('0x1B0F00000')
+                for word in rob.rod():
+                    wordlist.append('0x%09X' % word)
+                wordlist.append('0x1E0F00000')
+
+    if args.ibl and args.d and (args.rod.endswith('3')):
+        print 'Module contains 3D modules, stripping planar modules...'
+        stripPlanarModules(wordlist)
+
+
+    if args.pix:
+        print 'Pixel Module selected, sorting hits'
+        wordlist = orderPixelWordlist(wordlist)
+
+    try:
+        outf = open(args.output, 'w')
+        for w in wordlist:
+            outf.write(w + '\n')
+        outf.close()
+    except IOError:
+        print args.output + ': Permission denied'
+        sys.exit(2)
+
+    if args.v:
+        print 'Making .info file...'
+        try:
+            verbosef = open(args.output + '.info', 'w')
+            if args.ibl:
+                explainIBLBytestream(wordlist, verbosef)
+            elif args.pix:
+                explainPixelBytestream(wordlist, verbosef)
+            verbosef.close()
+        except IOError:
+            print 'damn!'
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

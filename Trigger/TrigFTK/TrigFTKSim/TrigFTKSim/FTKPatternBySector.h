@@ -26,6 +26,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <list>
 #include <TTree.h>
 #include "FTKLogging.h"
 #include "FTKPatternOneSector.h"
@@ -86,11 +87,16 @@ public:
    typedef std::set<PatternTreeBySector_t::iterator,FTKPatternTreeBySectorCompare> SectorSet_t;
    
 public:
+   //explicit FTKPatternBySectorReader(TDirectory &dir,
+   //                                  char const *name="FTKPatternBySector",
+   //                                 int nSub=1,int iSub=0); // read pattern bank
    explicit FTKPatternBySectorReader(TDirectory &dir,
                                      char const *name="FTKPatternBySector",
-                                    int nSub=1,int iSub=0); // read pattern bank
+                                     std::set<int> const *sectorList=0); // read pattern bank
    explicit FTKPatternBySectorReader(FTKRootFileChain &chain); // read pattern bank
    ~FTKPatternBySectorReader();
+
+   void SelectSubregion(int nSub,int iSub);
 
    Long64_t GetNPatterns(void) const;
    Long64_t GetNPatterns(int sector) const;
@@ -114,7 +120,8 @@ protected:
 
 class FTKPatternBySectorBlockReader : public FTKPatternBySectorReader {
  public:
-   FTKPatternBySectorBlockReader(TDirectory &dir,int nSub,int iSub);
+   FTKPatternBySectorBlockReader
+      (TDirectory &dir,std::set<int> const *sectorList);
    void Rewind(void);
    FTKPatternOneSector *Read(int sector,int minCoverage); 
 };

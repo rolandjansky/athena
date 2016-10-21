@@ -3,7 +3,7 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 ## FTK Simulation Transform
-# @version $Id: TrigFTKSim_tf.py 707064 2015-11-11 00:19:24Z end $
+# @version $Id: TrigFTKSim_tf.py 770308 2016-08-26 12:32:36Z vcavalie $
 
 import argparse
 import sys
@@ -42,7 +42,7 @@ def main():
 
 ## Get the base transform with all arguments added
 def getTransform():
-    trf = transform(executor = athenaExecutor(name = 'FTKFullSimulation',
+    trf = transform(executor = athenaExecutor(name = 'FTKFullSimulation',disableMP=True,
                                               skeletonFile = 'TrigFTKSim/skeleton.FTKStandaloneSim.py'))
     addAthenaArguments(trf.parser)
     addFTKSimulationArgs(trf.parser)
@@ -87,6 +87,8 @@ def addFTKSimulationArgs(parser):
                         help='Location of badmap file for hits', group='TrigFTKSim')
     parser.add_argument('--UseTSPBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help='TSP bank utilisation', group='TrigFTKSim')
+    parser.add_argument('--UseCompressedBank', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='use compressed bank algorithm', group='TrigFTKSim')
     parser.add_argument('--DBBankLevel', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
                         help='DBBankLevel', group='TrigFTKSim')
     parser.add_argument('--TSPSimulationLevel', type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
@@ -130,10 +132,10 @@ def addFTKSimulationArgs(parser):
                         help="Enables the second stage fitter", group='TrigFTKSim')
     parser.add_argument('--doAuxFW', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
                         help="Enables firmware-style constants", group='TrigFTKSim')
-
-
+    parser.add_argument('--PrintSSBConstants', type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help="Prints hardware-style SSB constants", group='TrigFTKSim')
     parser.add_argument("--PixelClusteringMode",type=trfArgClasses.argFactory(trfArgClasses.argInt,runarg=True),
-        help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKSim")
+                        help="Set the pixel clustering mode: 0 default, 1 ToT+pixel center",group="TrigFTKSim")
     parser.add_argument('--SctClustering',type=trfArgClasses.argFactory(trfArgClasses.argBool,runarg=False),
                                 help="Set the SCT clustering [def: False]", group="TrigFTKSim")
 
@@ -184,6 +186,16 @@ def addFTKSimulationArgs(parser):
                         help='Run Number', group='TrigFTKSim')
     parser.add_argument('--versionTag', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
                         help='COOL tag for a different version', group='TrigFTKSim')
+    parser.add_argument('--HWModeSS', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='SSID encoding scheme', group='TrigFTKSim')
+    parser.add_argument('--ModuleLUTPath', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='module LUT for HWModeSS=2', group='TrigFTKSim')
+    parser.add_argument('--ModuleLUTPath2nd', default=0, type=trfArgClasses.argFactory(trfArgClasses.argString, runarg=True),
+                        help='module LUT for HWModeSS=2, unused layers', group='TrigFTKSim')
+    parser.add_argument('--MaxMissingSCTPairs', default=0, type=trfArgClasses.argFactory(trfArgClasses.argInt, runarg=True),
+                        help='6/8 option for transition region', group='TrigFTKSim')
+    parser.add_argument('--Save1stStageTrks', default=False, type=trfArgClasses.argFactory(trfArgClasses.argBool, runarg=True),
+                        help='keep 1st stage tracks', group='TrigFTKSim')
     #end JDC
 
 

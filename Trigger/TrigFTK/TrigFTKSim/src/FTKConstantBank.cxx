@@ -10,13 +10,15 @@
 // #include <TMatrixD.h>
 // #include <TVectorD.h>
 #include <TMath.h>
-
+#include <Eigen/Dense>
 #include <iostream>
 #include <iomanip>
-// #include <fstream>
+#include <fstream>
 #include <string>
 #include <cassert>
 #include <cstdio>
+#include <cmath>
+#include <bitset>
 using namespace std;
 
 //#define SIMPLEMJ // ibl undefined simple majority to see if we can get majority for ibl
@@ -32,7 +34,11 @@ FTKConstantBank::FTKConstantBank() :
   m_invfit_consts(0x0),
   m_maj_a(0), m_maj_kk(0), m_maj_invkk(0),
   m_kernel_aux(0), 
-  m_kaverage_aux(0), m_maj_invkk_aux(0), m_maj_invkk_pow(0)
+  m_kernel_hw(0), 
+  m_kaverage_aux(0),
+  m_maj_invkk_aux(0),
+  m_maj_invkk_hw(0),
+  m_maj_invkk_pow(0), m_maj_invkk_pow_hw(0)
 {
   // nothing to do
 }
@@ -44,9 +50,12 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
   m_AUX(false),
   m_invfit_consts(0x0),
   m_kernel_aux(0),
+  m_kernel_hw(0),
   m_kaverage_aux(0),
   m_maj_invkk_aux(0),
-  m_maj_invkk_pow(0)
+  m_maj_invkk_hw(0),
+  m_maj_invkk_pow(0),
+  m_maj_invkk_pow_hw(0)
 {
   //TODO: make possible to read constants in different formats
   m_ncoords = ncoords;
@@ -108,17 +117,24 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
   m_kernel = new float**[m_nsectors];
   m_kaverage = new float*[m_nsectors];
 
+  cout<<"FTKConstantBank settings: m_ncoords="<<m_ncoords<<" m_npars="<<m_npars<<"\n";
+
   int isec_step = 1 + m_nsectors/10;
   for (int isec=0;isec<m_nsectors;++isec) { // loop over sectors
 
     double dval; // tmp value used to conver from double to float
-    if (isec%isec_step == 0)
+
+    if ((isec%isec_step == 0) /* ||(isec<10) */)
       cout << "Load sector: " << isec << "/" << m_nsectors << endl;
 
     // check variable initilized to "false"
     m_isgood[isec] = false;
 
     geocfile >> key >> ival;
+    /* if(key!="sector") {
+       cerr << "expect key=\"sector\" found key=\""<<key<<"\"\n";
+       } */
+
     if (ival!=isec) {
       cerr << "Attempt to read sector # " << ival << " (" << isec << ")" << endl;
       FTKSetup::PrintMessage(ftk::sevr,"Lost sync in constants file");
@@ -142,6 +158,12 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
       geocfile >> key;
       for (int icoord=0;icoord<m_ncoords;++icoord) { // coords loop
         geocfile >> dval;
+        if(geocfile.fail()) {
+           FTKSetup::PrintMessageFmt
+              (ftk::sevr,"par loop (1) key=\"%s\" ipar,icoord=%d,%d\n",
+               key.c_str(),ipar,icoord);
+        }
+        //cout<<dval<<"\n";
         if (dval!=0.) m_isgood[isec] = true;
         m_fit_pars[isec][ipar][icoord] = dval;
       } // end coords loop
@@ -168,6 +190,7 @@ FTKConstantBank::FTKConstantBank(int ncoords, const char *fname) :
 
     for (int ipar=0;ipar<m_npars;++ipar) { // pars loop
       geocfile >> key;
+      //cout<<"second pars loop key="<<key<<"\n";
       geocfile >> dval;
       if (dval!=0.) m_isgood[isec] = true;
       m_fit_const[isec][ipar] = dval;
@@ -228,46 +251,63 @@ void FTKConstantBank::doAuxFW(bool do_it) {
   if (m_ncoords == 16) return;
 
   m_kernel_aux = new signed long long**[m_nsectors];
+  m_kernel_hw = new signed long long**[m_nsectors];
   m_kaverage_aux = new signed long long*[m_nsectors];
 
   for (int isec=0;isec<m_nsectors;++isec) { // loop over sectors
     
     m_kernel_aux[isec] = new signed long long*[m_nconstr];
+    m_kernel_hw[isec] = new signed long long*[m_nconstr];
     m_kaverage_aux[isec] = new signed long long[m_nconstr];
     for (int i=0;i<m_nconstr;++i) {
       m_kernel_aux[isec][i] = new signed long long[m_ncoords];
+      m_kernel_hw[isec][i] = new signed long long[m_ncoords];
     }
 
-    bool ofl = false; // overflow for aux shifts.
+    bool oflAUX = false, oflHW = false; // overflow for aux shifts.
     for (int ik=0;ik<m_nconstr;++ik) { // loop kaverages
-      m_kaverage_aux[isec][ik] = aux_asr(m_kaverage[isec][ik] * pow(2., KAVE_SHIFT), 0, FIT_PREC, ofl);
+      m_kaverage_aux[isec][ik] = aux_asr(m_kaverage[isec][ik] * pow(2., KAVE_SHIFT), 0, FIT_PREC, oflAUX); 
+      m_kaverage_aux[isec][ik] = aux_asr(m_kaverage[isec][ik] * pow(2., KAVE_SHIFT), 0, FIT_PREC, oflHW); 
     } // end loop kaverages
+    if (oflAUX) FTKSetup::PrintMessageFmt(ftk::warn, "  AUX kaverage overflowed allowed precision in sector %d.\n", isec);
+    if (oflHW)  FTKSetup::PrintMessageFmt(ftk::warn, "  HW  kaverage overflowed allowed precision in sector %d.\n", isec);
 
+    oflAUX = oflHW = false;
     for (int ik=0;ik<m_nconstr;++ik) { // loop kaverages
       for (int ik2=0;ik2<m_ncoords;++ik2) { // loop kaverages
-        m_kernel_aux[isec][ik][ik2] = aux_asr(m_kernel[isec][ik][ik2] * pow(2., KERN_SHIFT), 0, FIT_PREC, ofl);
+        m_kernel_aux[isec][ik][ik2] = aux_asr(m_kernel[isec][ik][ik2] * pow(2., KERN_SHIFT), 0, FIT_PREC, oflAUX); 
+        m_kernel_hw[isec][ik][ik2]  = aux_asr(const_scale_map[ik2] * m_kernel[isec][ik][ik2] * pow(2., KERN_SHIFT_HW), 0, 50, oflHW); // FIT_PREC
       }
     } // end loop kaverages
 
-    if (ofl) FTKSetup::PrintMessageFmt(ftk::warn, "  kernel/kaverage overflowed allowed precision in sector %d.\n", isec);
+    if (oflAUX) FTKSetup::PrintMessageFmt(ftk::warn, "  AUX kernel overflowed allowed precision in sector %d.\n", isec);
+    if (oflHW)  FTKSetup::PrintMessageFmt(ftk::warn, "  HW  kernel overflowed allowed precision in sector %d.\n", isec);
   
   } // end loop over sectors
 
 
 
   // pre-calculate the majority logic elements
+  m_maj_invkk_hw = new signed long long**[m_nsectors];
   m_maj_invkk_aux = new signed long long**[m_nsectors];
   m_maj_invkk_pow = new short int**[m_nsectors];
+  m_maj_invkk_pow_hw = new short int**[m_nsectors];
   for (int isec=0;isec!=m_nsectors;++isec) { // sector loop
+    m_maj_invkk_hw [isec] = new signed long long*[m_ncoords];
     m_maj_invkk_aux[isec] = new signed long long*[m_ncoords];
     m_maj_invkk_pow[isec] = new short int*[m_ncoords];
+    m_maj_invkk_pow_hw[isec] = new short int*[m_ncoords];
     for (int ix=0;ix!=m_ncoords;++ix) { // 1st coordinate loop    
 
+      m_maj_invkk_hw [isec][ix] = new signed long long[m_ncoords];
       m_maj_invkk_aux[isec][ix] = new signed long long[m_ncoords];
       m_maj_invkk_pow[isec][ix] = new short int[m_ncoords];
+      m_maj_invkk_pow_hw[isec][ix] = new short int[m_ncoords];
       for (int jx=0;jx!=m_ncoords;++jx) { // 2nd coordinate loop
+        m_maj_invkk_hw [isec][ix][jx] = 0;
         m_maj_invkk_aux[isec][ix][jx] = 0;
         m_maj_invkk_pow[isec][ix][jx] = 0;
+        m_maj_invkk_pow_hw[isec][ix][jx] = 0;
       	for (int row=0;row!=m_nconstr;++row) {
           m_maj_kk[isec][ix][jx] += m_kernel[isec][row][ix]*m_kernel[isec][row][jx];
       	}
@@ -279,28 +319,43 @@ void FTKConstantBank::doAuxFW(bool do_it) {
     // int npixcy = FTKSetup::getFTKSetup().getIBLMode()==1 ? 8 : 6; // this is for ibl, to know how many pixel coords there are
     int npixcy = 6; // we have 6 pixel coords -- not sure what to do about this!!
     /* PIXEL layer [0-5]*/
+    bool ofl = false;
     for (int ix=0;ix!=npixcy;ix+=2) { // pxl layers loop (2 coordinates each)
 
-      m_maj_invkk_pow[isec][ix][ix]     = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix]    ))) - 1;
-      m_maj_invkk_pow[isec][ix][ix+1]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix+1]  ))) - 1;
-      m_maj_invkk_pow[isec][ix+1][ix]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix]  ))) - 1;
-      m_maj_invkk_pow[isec][ix+1][ix+1] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix+1]))) - 1;
+      m_maj_invkk_pow[isec][ix][ix]        = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix]    ))) - 1;
+      m_maj_invkk_pow[isec][ix][ix+1]      = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix+1]  ))) - 1;
+      m_maj_invkk_pow[isec][ix+1][ix]      = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix]  ))) - 1;
+      m_maj_invkk_pow[isec][ix+1][ix+1]    = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix+1][ix+1]))) - 1;
 
-      bool ofl = false;
+      m_maj_invkk_pow_hw[isec][ix][ix]     = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix]   * const_scale_map[ix]  ) * m_maj_invkk[isec][ix][ix]    ))) - 1;
+      m_maj_invkk_pow_hw[isec][ix][ix+1]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix]   * const_scale_map[ix+1]) * m_maj_invkk[isec][ix][ix+1]  ))) - 1;
+      m_maj_invkk_pow_hw[isec][ix+1][ix]   = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix+1] * const_scale_map[ix]  ) * m_maj_invkk[isec][ix+1][ix]  ))) - 1;
+      m_maj_invkk_pow_hw[isec][ix+1][ix+1] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix+1] * const_scale_map[ix+1]) * m_maj_invkk[isec][ix+1][ix+1]))) - 1;
+
+
       m_maj_invkk_aux[isec][ix][ix]     = aux_asr(m_maj_invkk[isec][ix][ix]     * pow(2, m_maj_invkk_pow[isec][ix][ix]),     0, CONST_PREC, ofl);
       m_maj_invkk_aux[isec][ix][ix+1]   = aux_asr(m_maj_invkk[isec][ix][ix+1]   * pow(2, m_maj_invkk_pow[isec][ix][ix+1]),   0, CONST_PREC, ofl);
       m_maj_invkk_aux[isec][ix+1][ix]   = aux_asr(m_maj_invkk[isec][ix+1][ix]   * pow(2, m_maj_invkk_pow[isec][ix+1][ix]),   0, CONST_PREC, ofl);
       m_maj_invkk_aux[isec][ix+1][ix+1] = aux_asr(m_maj_invkk[isec][ix+1][ix+1] * pow(2, m_maj_invkk_pow[isec][ix+1][ix+1]), 0, CONST_PREC, ofl);
+
+      m_maj_invkk_hw [isec][ix][ix]     = aux_asr(8./(const_scale_map[ix]   * const_scale_map[ix]  ) * m_maj_invkk[isec][ix][ix]     * pow(2, m_maj_invkk_pow_hw[isec][ix][ix]),     0, CONST_PREC, ofl);
+      m_maj_invkk_hw [isec][ix][ix+1]   = aux_asr(8./(const_scale_map[ix]   * const_scale_map[ix+1]) * m_maj_invkk[isec][ix][ix+1]   * pow(2, m_maj_invkk_pow_hw[isec][ix][ix+1]),   0, CONST_PREC, ofl);
+      m_maj_invkk_hw [isec][ix+1][ix]   = aux_asr(8./(const_scale_map[ix+1] * const_scale_map[ix]  ) * m_maj_invkk[isec][ix+1][ix]   * pow(2, m_maj_invkk_pow_hw[isec][ix+1][ix]),   0, CONST_PREC, ofl);
+      m_maj_invkk_hw [isec][ix+1][ix+1] = aux_asr(8./(const_scale_map[ix+1] * const_scale_map[ix+1]) * m_maj_invkk[isec][ix+1][ix+1] * pow(2, m_maj_invkk_pow_hw[isec][ix+1][ix+1]), 0, CONST_PREC, ofl);
 
     } // end pxl layers loop
     /* SCT layers */
     for (int ix=npixcy;ix!=m_ncoords;++ix) { // SCT layers loop (1 coordinate each)
       m_maj_invkk[isec][ix][ix] = 1./m_maj_kk[isec][ix][ix];      
 
-      bool ofl = false;
       m_maj_invkk_pow[isec][ix][ix] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(m_maj_invkk[isec][ix][ix]))) - 1;
       m_maj_invkk_aux[isec][ix][ix] = aux_asr(m_maj_invkk[isec][ix][ix] * pow(2, m_maj_invkk_pow[isec][ix][ix]), 0, CONST_PREC, ofl);
+
+      m_maj_invkk_pow_hw[isec][ix][ix] = CONST_PREC - TMath::CeilNint(TMath::Log2(TMath::Abs(8./(const_scale_map[ix] * const_scale_map[ix]) * m_maj_invkk[isec][ix][ix]))) - 1;
+      m_maj_invkk_hw    [isec][ix][ix] = aux_asr(8./(const_scale_map[ix] * const_scale_map[ix]) * m_maj_invkk[isec][ix][ix] * pow(2, m_maj_invkk_pow_hw[isec][ix][ix]), 0, CONST_PREC, ofl);
     } // end SCT layers loop
+
+    if (ofl) FTKSetup::PrintMessageFmt(ftk::warn, "  maj/invkk overflowed allowed precision in sector %d.\n", isec);
 
   } // end sector loop
 
@@ -320,16 +375,20 @@ FTKConstantBank::~FTKConstantBank()
       for (int icoord=0;icoord<m_nconstr;++icoord) {
       	delete [] m_kernel[isec][icoord];
       	if (m_kernel_aux) delete [] m_kernel_aux[isec][icoord];
+      	if (m_kernel_hw) delete [] m_kernel_hw[isec][icoord];
       }
       delete [] m_kernel[isec];
       delete [] m_kaverage[isec];
       if (m_kernel_aux) delete [] m_kernel_aux[isec];
+      if (m_kernel_hw) delete [] m_kernel_hw[isec];
       if (m_kaverage_aux) delete [] m_kaverage_aux[isec];
 
       for (int ix=0;ix!=m_ncoords;++ix) {
         if (m_maj_kk) delete [] m_maj_kk[isec][ix];
+        if (m_maj_invkk_hw) delete [] m_maj_invkk_hw[isec][ix];
         if (m_maj_invkk_aux) delete [] m_maj_invkk_aux[isec][ix];
         if (m_maj_invkk_pow) delete [] m_maj_invkk_pow[isec][ix];
+        if (m_maj_invkk_pow_hw) delete [] m_maj_invkk_pow_hw[isec][ix];
       }
     }
 
@@ -338,12 +397,15 @@ FTKConstantBank::~FTKConstantBank()
     delete [] m_kernel;
     delete [] m_kaverage;
     if (m_kernel_aux) delete [] m_kernel_aux;
+    if (m_kernel_hw) delete [] m_kernel_hw;
     if (m_kaverage_aux) delete [] m_kaverage_aux;
 
     delete [] m_maj_a;
     delete [] m_maj_kk;
+    if (m_maj_invkk_hw) delete [] m_maj_invkk_hw;
     if (m_maj_invkk_aux) delete [] m_maj_invkk_aux;
     if (m_maj_invkk_pow) delete [] m_maj_invkk_pow;
+    if (m_maj_invkk_pow_hw) delete [] m_maj_invkk_pow_hw;
     delete [] m_maj_invkk;
     delete [] m_isgood;
   }
@@ -366,7 +428,8 @@ int FTKConstantBank::linfit(int secid, FTKTrack &track) const
     // guess_res = missing_point_guess(track,secid);    
     if (m_ncoords == 11 && m_AUX) guess_res = missing_point_guess_aux(track, secid);    
     else guess_res = missing_point_guess(track,secid);    
-  }
+  } 
+  // else cout << " JS :: NO MISSING HITS -- NOMINAL FIT" << endl;
    
 
   if (nmissing!=guess_res) {
@@ -659,6 +722,699 @@ int FTKConstantBank::missing_point_guess(FTKTrack &track, int secid, float *newc
   return 0;
 }
 
+unsigned int FTKConstantBank::floatToReg27(float f) {
+
+  int f_f = (*(int*)&f);
+  int f_sign = (f_f >> 31) & 0x1;
+  int f_exp = (f_f >> 23) & 0xFF;
+  int f_frac = f_f & 0x007FFFFF;
+  int r_sign;
+  int r_exp;
+  int r_frac;
+  r_sign = f_sign;
+  if((f_exp == 0x00) || (f_exp == 0xFF)) {
+    // 0x00 -> 0 or subnormal
+    // 0xFF -> infinity or NaN
+    r_exp = 0;
+    r_frac = 0;
+  } else {
+    r_exp = (f_exp) & 0xFF;
+    r_frac = ((f_frac >> 5)) & 0x0003FFFF;
+  }
+  return (r_sign << 26) | (r_exp << 18) | r_frac;
+}
+
+Eigen::MatrixXd FTKConstantBank::get_A_matrix(
+					      int secid,
+					      std::vector<int> real_idx,
+					      std::vector<int> miss_idx,
+					      std::vector<double> hw_scale
+					      )
+{
+
+  // instantitae A_matrix
+  Eigen::MatrixXd A_matrix(11, miss_idx.size()); // 11 will never change for FTK system (this is 16 coordinates minus 5 helix parameters)
+
+  // Defining A column from the "m_kernel"
+  for (unsigned int icol = 0; icol < miss_idx.size(); ++icol)
+    {
+      for (unsigned int irow = 0; irow < 11; ++irow)
+	{
+	  // obtain the A vector in ideal coordinates
+	  double A_irow_icol = m_kernel[secid][irow][miss_idx[icol]];
+
+	  // scale them to hw_scale
+	  A_irow_icol /= hw_scale.at(miss_idx[icol]);
+
+	  // set the A matrix
+	  A_matrix(irow, icol) = A_irow_icol;
+	}
+    }
+
+  return A_matrix;
+}
+//======================
+// B column vectors = B matrix
+//======================
+Eigen::MatrixXd FTKConstantBank::get_B_matrix(
+					      int secid,
+					      std::vector<int> real_idx,
+					      std::vector<int> miss_idx,
+					      std::vector<double> hw_scale
+					      )
+{
+  // instantiate B_matrix, very similar to A_matrix case
+  Eigen::MatrixXd B_matrix(11, real_idx.size()); // 11 will never change for FTK system (this is 16 coordinates minus 5 helix parameters)
+
+  // set the values
+  for (unsigned int icol = 0; icol < real_idx.size(); ++icol)
+    {
+      for (unsigned int irow = 0; irow < 11; ++irow)
+	{
+	  double B_irow_icol = m_kernel[secid][irow][real_idx[icol]];
+
+	  B_irow_icol /= hw_scale.at(real_idx[icol]);
+
+	  B_matrix(irow, icol) = B_irow_icol;
+	}
+    }
+
+  return B_matrix;
+}
+//======================
+// C matrix
+//======================
+Eigen::MatrixXd FTKConstantBank::get_C_matrix(
+					      Eigen::MatrixXd A_matrix
+					      )
+{
+  // the number of column vectors will be the row and col dim of C_matrix
+  int col_dim_A = A_matrix.cols();
+
+  // create C_matrix
+  Eigen::MatrixXd C_matrix(col_dim_A, col_dim_A);
+
+  // set the values;
+  for (int i = 0; i < col_dim_A; ++i)
+    {
+      for (int j = 0; j < col_dim_A; ++j)
+	{
+	  C_matrix(i, j) = A_matrix.col(i).transpose() * A_matrix.col(j);
+	}
+    }
+
+  return C_matrix;
+}
+
+
+
+
+//======================
+// h vector
+//======================
+// The h vectors
+Eigen::VectorXd FTKConstantBank::get_h_vector(
+					      int secid,
+					      std::vector<int> real_idx
+					      )
+{
+  // h_vector has dimension of number of real hits
+  Eigen::VectorXd h_vector(real_idx.size());
+
+  // set the values
+  for (unsigned int i = 0; i < real_idx.size(); ++i)
+    {
+      h_vector(i) = m_kaverage[secid][i];
+    }
+
+  return h_vector;
+}
+
+
+//======================
+// J vector
+//======================
+Eigen::VectorXd FTKConstantBank::get_J_vector(
+					      Eigen::MatrixXd A_matrix,
+					      Eigen::VectorXd h_vector
+					      )
+{
+  // J_vector has the dimension of missed coordinates
+  // (which is same as columns in A_matrix)
+  Eigen::VectorXd J_vector(A_matrix.cols());
+
+  // set the values
+  for (unsigned int i = 0; i < A_matrix.cols(); ++i)
+    {
+      J_vector(i) = A_matrix.col(i).transpose() * h_vector;
+    }
+
+  return J_vector;
+}
+
+
+
+
+//======================
+// D matrix
+//======================
+Eigen::MatrixXd FTKConstantBank::get_D_matrix(
+					      Eigen::MatrixXd A_matrix,
+					      Eigen::MatrixXd B_matrix
+					      )
+{
+  // instantitaion
+  Eigen::MatrixXd D_matrix(A_matrix.cols(), B_matrix.cols());
+
+  // set the value
+  for (unsigned int i = 0; i < A_matrix.cols(); ++i)
+    {
+      for (unsigned int j = 0; j < B_matrix.cols(); ++j)
+	{
+	  D_matrix(i, j) = A_matrix.col(i).transpose() * B_matrix.col(j);
+	}
+    }
+
+  return D_matrix;
+}
+
+
+//======================
+// F vector
+//======================
+Eigen::VectorXd FTKConstantBank::get_F_vector(
+					      Eigen::MatrixXd C_matrix,
+					      Eigen::VectorXd J_vector
+					      )
+{
+  // instantiation
+  Eigen::VectorXd F_vector(C_matrix.cols());
+
+  F_vector = C_matrix.inverse() * J_vector * -1;
+
+  return F_vector;
+}
+//==============================================
+// E_matrix
+//==============================================
+Eigen::MatrixXd FTKConstantBank::get_E_matrix(
+    Eigen::MatrixXd C_matrix,
+    Eigen::MatrixXd D_matrix
+)
+{
+  // instantitaion
+  Eigen::MatrixXd E_matrix(C_matrix.cols(), D_matrix.cols());
+
+  // calculate
+  E_matrix = C_matrix.inverse() * D_matrix * -1.;
+
+  return E_matrix;
+}
+unsigned int FTKConstantBank::createMask(unsigned int a, unsigned int b)
+{
+   unsigned int r = 0;
+   for (unsigned int i=a; i<=b; i++)
+       r |= 1 << i;
+
+   return r;
+}
+
+
+void FTKConstantBank::printExtrapolationConstant(int secid, vector<int> moduleid, int eightl_secid, int nconn, int sizenconn , std::ofstream& myfile){
+
+
+
+  int nmissing = 0;
+  //int i;
+  // evaluate the number of missings points
+  for (int i=0;i<m_ncoords;++i) {
+    m_missid[i] = -1;
+    if (!m_coordsmask[i]) {
+      m_missid[nmissing] = i; // rec the index of missing
+      nmissing++;
+    }
+  
+}
+  std::vector<double> hw_scale;
+
+  hw_scale.push_back(8.);  
+  hw_scale.push_back(16.32); 
+  hw_scale.push_back(8.);   
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(8.);
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(8.);
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.);                                                           
+                       
+
+  std::vector<int> real_idx;
+  std::vector<int> miss_idx;
+  miss_idx.push_back(0);
+  miss_idx.push_back(1);
+  miss_idx.push_back(9);
+  miss_idx.push_back(11);
+  miss_idx.push_back(15);
+
+  real_idx.push_back(2);
+  real_idx.push_back(3);
+  real_idx.push_back(4);
+  real_idx.push_back(5);
+  real_idx.push_back(6);
+  real_idx.push_back(7);
+  real_idx.push_back(8);
+  real_idx.push_back(10);
+  real_idx.push_back(12);
+  real_idx.push_back(13);
+  real_idx.push_back(14);
+
+  Eigen::MatrixXd A = get_A_matrix(secid,real_idx,miss_idx,hw_scale);
+  Eigen::MatrixXd B = get_B_matrix(secid,real_idx,miss_idx,hw_scale);
+  Eigen::MatrixXd C = get_C_matrix(A);
+  Eigen::MatrixXd D = get_D_matrix(A,B);
+  Eigen::VectorXd h = get_h_vector(secid,real_idx);
+  Eigen::VectorXd J = get_J_vector(A,h);
+  Eigen::MatrixXd E = get_E_matrix(C,D);
+  Eigen::VectorXd F = get_F_vector(C,J);
+
+
+
+  vector<double> Constants;
+  Constants.clear();
+
+  Constants.push_back(F[0]);
+  Constants.push_back(E(0,0));
+  Constants.push_back(E(0,1));
+  Constants.push_back(E(0,2));
+  Constants.push_back(E(0,3));
+  Constants.push_back(E(0,4));
+  Constants.push_back(E(0,5));
+  Constants.push_back(E(0,6));
+  Constants.push_back(E(0,7));
+  Constants.push_back(E(0,8));
+  Constants.push_back(E(0,9));
+  Constants.push_back(E(0,10));
+  
+  Constants.push_back(F[1]);
+  Constants.push_back(E(1,0));
+  Constants.push_back(E(1,1));
+  Constants.push_back(E(1,2));
+  Constants.push_back(E(1,3));
+  Constants.push_back(E(1,4));
+  Constants.push_back(E(1,5));
+  Constants.push_back(E(1,6));
+  Constants.push_back(E(1,7));
+  Constants.push_back(E(1,8));
+  Constants.push_back(E(1,9));
+  Constants.push_back(E(1,10));
+  
+  Constants.push_back(F[2]);
+  Constants.push_back(E(2,0));
+  Constants.push_back(E(2,1));
+  Constants.push_back(E(2,2));
+  Constants.push_back(E(2,3));
+  Constants.push_back(E(2,4));
+  Constants.push_back(E(2,5));
+  Constants.push_back(E(2,6));
+  Constants.push_back(E(2,7));
+  Constants.push_back(E(2,8));
+  Constants.push_back(E(2,9));
+  Constants.push_back(E(2,10));
+  
+
+    Constants.push_back(F[3]);
+    Constants.push_back(E(3,0));
+    Constants.push_back(E(3,1));
+    Constants.push_back(E(3,2));
+    Constants.push_back(E(3,3));
+    Constants.push_back(E(3,4));
+    Constants.push_back(E(3,5));
+    Constants.push_back(E(3,6));
+    Constants.push_back(E(3,7));
+    Constants.push_back(E(3,8));
+    Constants.push_back(E(3,9));
+    Constants.push_back(E(3,10));
+
+
+    Constants.push_back(F[4]);
+    Constants.push_back(E(4,0));
+    Constants.push_back(E(4,1));
+    Constants.push_back(E(4,2));
+    Constants.push_back(E(4,3));
+    Constants.push_back(E(4,4));
+    Constants.push_back(E(4,5));
+    Constants.push_back(E(4,6));
+    Constants.push_back(E(4,7));
+    Constants.push_back(E(4,8));
+    Constants.push_back(E(4,9));
+    Constants.push_back(E(4,10));
+
+
+    int NconnID = nconn ;
+    unsigned int word = (eightl_secid << 2) | NconnID ;
+    myfile << internal // fill between the prefix and the number                     
+	   << setfill('0'); // fill with 0s                                                                         
+   
+
+    myfile << hex<< setw(8) << word <<endl;
+
+    for(Int_t y=0;y<=8;y++){
+      Int_t x =y+y;
+      unsigned mask =  (((1 << 2) - 1) << (x));
+      word = ((moduleid[0] & mask) << (28-x)) | floatToReg27(Constants[y]);
+      myfile << hex<< setw(8) << word  << endl;         
+    }
+    word = floatToReg27(Constants[9]);
+    myfile << hex << setw(8) << word  << endl;         
+    for(Int_t y=10;y<=18;y++){
+      Int_t x =(y+y-20);
+      unsigned mask =  (((1 << 2) - 1) << x)  ;
+      word = ((moduleid[1] & mask) << (28-x)) | floatToReg27(Constants[y]);
+      myfile << hex<< setw(8) << word  << endl;         
+    }
+    word = floatToReg27(Constants[19]);
+    myfile << hex << setw(8) << word  << endl;
+    for(Int_t y=20;y<=28;y++){
+      Int_t x =(y+y-40);
+      unsigned mask =  (((1 << 2) - 1) << x);
+      word = ((moduleid[2] & mask) << (28-x)) | floatToReg27(Constants[y]);
+      myfile << hex<< setw(8) << word  << endl;
+    }
+    word = floatToReg27(Constants[29]);
+    myfile << hex << setw(8) << word  << endl;
+    for(Int_t y=30;y<=38;y++){
+      Int_t x =(y+y-60);
+      unsigned mask =  (((1 << 2) - 1) << x);
+      word = ((moduleid[3] & mask) << (28-x)) | floatToReg27(Constants[y]);
+      myfile << hex<< setw(8) << word  << endl;
+    }
+    word = floatToReg27(Constants[39]);
+    myfile << hex << setw(8) << word  << endl;
+    for(Int_t y=40;y<=48;y++){
+      Int_t x =(y+y-80);
+      unsigned mask =  (((1 << 2) - 1) << x) ;
+      word = ((secid  & mask) << (28-x)) | floatToReg27(Constants[y]);
+      myfile << hex<< setw(8) << word  << endl;
+    }
+    word = floatToReg27(Constants[49]);
+    myfile << hex << setw(8) << word  << endl;
+    unsigned mask =  ((1 << 2) - 1) << 0;
+    word = ((sizenconn & mask)<< (28)) | floatToReg27(Constants[50]);
+    myfile << hex << setw(8) << word  << endl;
+    mask =  ((1 << 2) - 1) << 2;
+    word = ((sizenconn & mask) << 26)  | floatToReg27(Constants[51]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[52]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[54]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[55]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[56]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[57]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[58]);
+    myfile << hex << setw(8) << word  << endl;
+    word = floatToReg27(Constants[59]);
+    myfile << hex << setw(8) << word  << endl;
+    myfile << hex<< "00000000" << endl;
+    myfile << hex<< "00000000" << endl;
+    myfile << hex<< "00000000" << endl;
+
+    return;
+
+}
+void FTKConstantBank::printTFConstant(int secid, std::ofstream& myfile){
+
+
+
+
+  std::vector<double> hw_scale;
+  //scaling for hw coordinates
+  hw_scale.push_back(8.);  
+  hw_scale.push_back(16.32); 
+  hw_scale.push_back(8.);   
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(8.);
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(8.);
+  hw_scale.push_back(19./18. * 16.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.);
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.); 
+  hw_scale.push_back(2.);                                                           
+
+
+  std::vector<int> real_idx;
+
+  real_idx.push_back(2);
+  real_idx.push_back(3);
+  real_idx.push_back(4);
+  real_idx.push_back(5);
+  real_idx.push_back(6);
+  real_idx.push_back(7);
+  real_idx.push_back(8);
+  real_idx.push_back(10);
+  real_idx.push_back(12);
+  real_idx.push_back(13);
+  real_idx.push_back(14);
+
+  vector<Eigen::MatrixXd> Cinverse;
+
+
+  for(Int_t pp=0; pp<=11;pp++){
+    std::vector<int> miss_idx1;                       
+    miss_idx1.clear();
+    if(pp ==0){
+      miss_idx1.push_back(0);
+      miss_idx1.push_back(1);
+    }
+    else if (pp ==1){
+      miss_idx1.push_back(2);
+      miss_idx1.push_back(3);
+    }
+    else if (pp ==2){
+      miss_idx1.push_back(4);
+      miss_idx1.push_back(5);
+    }
+    else if (pp ==3){
+      miss_idx1.push_back(6);
+      miss_idx1.push_back(7);
+    }else{
+      miss_idx1.push_back(pp+4);
+    }
+
+
+    Eigen::MatrixXd A = get_A_matrix(secid,real_idx,miss_idx1,hw_scale);//11 (column)x16 (row) 
+    Eigen::MatrixXd C = get_C_matrix(A);
+    Eigen::MatrixXd Cinverse_temp(C.rows(),C.cols());
+    Cinverse_temp = C.inverse();
+    Cinverse.push_back(Cinverse_temp);
+  }
+ 
+  std::vector<int> miss_idx;
+  miss_idx.push_back(0);
+  miss_idx.push_back(1);
+  miss_idx.push_back(2);
+  miss_idx.push_back(3);
+  miss_idx.push_back(4);
+  miss_idx.push_back(5);
+  miss_idx.push_back(6);
+  miss_idx.push_back(7);
+  miss_idx.push_back(8);
+  miss_idx.push_back(9);
+  miss_idx.push_back(10);
+  miss_idx.push_back(11);
+  miss_idx.push_back(12);
+  miss_idx.push_back(13);
+  miss_idx.push_back(14);
+  miss_idx.push_back(15);
+
+
+  Int_t start = m_ncoords-1; 
+  Int_t finish =0;
+  int number_block_transfer =0;
+  unsigned int parola = (secid << 4) | number_block_transfer ; 
+  myfile << internal // fill between the prefix and the number
+	 << setfill('0'); // fill with 0s
+
+
+
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl; 
+  myfile << hex<< setw(8) << floatToReg27(Cinverse[0](1,0)) << endl; //missing pix0 constants
+  myfile << hex<< setw(8) << floatToReg27(Cinverse[0](0,0)) << endl; //missing pix0 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][0]) << endl; 
+  for (int ik2=start;ik2>=finish;--ik2) { // loop kaverages
+    myfile << std::hex<< setw(8) <<floatToReg27(m_kernel[secid][0][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[0](1,1)) << endl; //missing pix0 constants
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[0](0,1)) << endl; //missing pix0 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][1]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<<  setw(8) <<floatToReg27(m_kernel[secid][1][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<<setw(8) <<   floatToReg27(Cinverse[1](1,0)) << endl; //missing pix1 constants
+  myfile << std::hex<<setw(8) <<   floatToReg27(Cinverse[1](0,0)) << endl; //missing pix1 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][2]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<<setw(8) <<    floatToReg27(m_kernel[secid][2][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  number_block_transfer =1;
+  parola = (secid << 4) | number_block_transfer ; 
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[1](1,1)) << endl; //missing pix1 constants
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[1](0,1)) << endl; //missing pix1 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][3]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][3][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << std::hex<< hex<< "00000000" << endl;
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[2](1,0)) << endl; //missing pix2 constants
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[2](0,0)) << endl; //missing pix2 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][4]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<<  setw(8) <<  floatToReg27(m_kernel[secid][4][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[2](1,1)) << endl; //missing pix2 constants
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[2](0,1)) << endl; //missing pix2 consytants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][5]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][5][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  number_block_transfer =2;
+  parola = (secid << 4) | number_block_transfer ; 
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[3](1,0)) << endl; //missing pix3 constants
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[3](0,0)) << endl; //missing pix3 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][6]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][6][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << std::hex<< hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[3](1,1)) << endl; //missing pix3 constants
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[3](0,1)) << endl; //missing pix3 constants
+  myfile << hex<< setw(8) << floatToReg27(m_kaverage[secid][7]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][7][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[4](0,0)) << endl; //missing sct4 constants
+  myfile << std::hex<< setw(8) << floatToReg27(m_kaverage[secid][8]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][8][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  number_block_transfer =3;
+  parola = (secid << 4) | number_block_transfer ; 
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[5](0,0)) << endl; //missing sct5 constants
+  myfile << std::hex<< setw(8) << floatToReg27(m_kaverage[secid][9]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][9][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << std::hex<< hex<< "00000000" << endl;
+  myfile << std::hex<< hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<  floatToReg27(Cinverse[6](0,0)) << endl; //missing sct6 constants
+  myfile << std::hex<< setw(8) << floatToReg27(m_kaverage[secid][10]) << endl; 
+  for (int ik2=start;ik2>=finish;ik2--) { // loop kaverages
+    myfile << std::hex<< setw(8) <<   floatToReg27(m_kernel[secid][10][ik2]/hw_scale.at(ik2)) << endl;    
+  }
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<<  setw(8) <<  floatToReg27(Cinverse[7](0,0)) << endl; //missing sct7 constants
+  myfile << std::hex<<  setw(8) <<  floatToReg27(m_fit_const[secid][1]) << endl; //d0
+  for (int ik2=start;ik2>=finish;ik2--) { 
+    Double_t scaled = (m_fit_pars[secid][1][ik2] / hw_scale.at(ik2));
+    myfile << std::hex<< setw(8) <<    floatToReg27(scaled) << std::endl;
+  } 
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  number_block_transfer =4;
+  parola = (secid << 4) | number_block_transfer ; 
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<   floatToReg27(Cinverse[8](0,0)) << endl; //missing sct8 constants
+  myfile << std::hex<< setw(8) <<   floatToReg27(m_fit_const[secid][3]) << endl; //z0
+  for (int ik2=start;ik2>=finish;ik2--) { 
+    Double_t scaled = (m_fit_pars[secid][3][ik2] / hw_scale.at(ik2));
+    myfile << std::hex<< setw(8) << floatToReg27(scaled) << std::endl;
+  } 
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+
+  myfile << std::hex<<  setw(8) << floatToReg27(Cinverse[9](0,0)) << endl; //missing sct9 constants 
+  myfile << std::hex<<  setw(8) << floatToReg27(m_fit_const[secid][4]) << endl; //coth
+  for (int ik2=start;ik2>=finish;ik2--) { 
+    Double_t scaled = (m_fit_pars[secid][4][ik2] / hw_scale.at(ik2));
+    myfile << std::hex<< setw(8) <<   floatToReg27(scaled) << std::endl;
+  } 
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<   floatToReg27(Cinverse[10](0,0)) << endl; //missing sct10 constants 
+  myfile << std::hex<< setw(8) <<   floatToReg27(m_fit_const[secid][2]) << endl; //phi0
+  for (int ik2=start;ik2>=finish;ik2--) { 
+    Double_t scaled = (m_fit_pars[secid][2][ik2] / hw_scale.at(ik2));
+    myfile<< std::hex<< setw(8) <<   floatToReg27(scaled) << std::endl;
+  } 
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  number_block_transfer =5;
+  parola = (secid << 4) | number_block_transfer ; 
+  myfile << hex<< setw(8) << parola <<endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << hex<< "00000000" << endl;
+  myfile << std::hex<< setw(8) <<   floatToReg27(Cinverse[11](0,0)) << endl; //missing sct11 constants
+  myfile << std::hex<< setw(8) <<   floatToReg27(m_fit_const[secid][0]) << endl; //curvature
+  for (int ik2=start;ik2>=finish;ik2--) { 
+    Double_t scaled = (m_fit_pars[secid][0][ik2] / hw_scale.at(ik2));
+    myfile << std::hex<< setw(8) <<   floatToReg27(scaled) << std::endl;
+  } 
+  for (Int_t i=0; i<43;i++){
+    myfile << hex<< "00000000" << endl;
+  }
+
+
+  return;
+}
+
+
+
+
+
+
+
 
 /** This method prepares the inverted constants used in the invlinfit() */
 void FTKConstantBank::prepareInvConstants()
@@ -705,6 +1461,9 @@ int FTKConstantBank::invlinfit(int secid, FTKTrack &track, double *constr) const
   for (int ip=0;ip!=m_npars;++ip) {
     // The first elements are the track parameters. The track are shifted using the sector constants
      pars(ip) = track.getParameter(ip,true)-m_fit_const[secid][ip];
+     // STS: 2016/4/18
+     // fix bug with wrap-around in phi
+     if(ip==2)  pars(ip)=remainder( pars(ip),2.*M_PI);
   }
   for (int ic=0;ic!=m_nconstr;++ic) {
     // The rest of the paramaters are the external cosntraints. The external constraint it is also shifted by the kAverage value
@@ -812,24 +1571,33 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
 
   long double chi2(0);
   long long chi2LL(0);
+  long long chi2HW(0);
 
   bool ofl = false; // overflow
+
+  // cout << __LINE__ << "::" << __FUNCTION__ << "  sector=" << secid << endl;
 
   for( int i = 0 ; i < m_nconstr ; ++i ) {
 
     long double chi_component = m_kaverage[secid][i];
-    signed long long chi_componentLL = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // to the same level as the Sij
+    signed long long chi_componentLL = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30 to the same level as the Sij
+    signed long long chi_componentHW = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); 
     
-
-    //   for (int ip = 0; ip < trk.getNPlanes(); ip++) {
-    // if dim = 2 can use both, otherwise use first one
-    //   ///      cerr << "JAAAAAAAAAAAAAAAA ip = " << ip <<" and coord0 " << trk.getHwCoord(ip,0) << " and 1 = " << trk.getHwCoord(ip,1) << " and dim = "<< trk.getFTKHit(ip).getDim() << endl;
-    // }
-
     for( int j = 0 ; j < m_ncoords ; ++j ) {
 
-      chi_component += m_kernel[secid][i][j] * trk.getCoord(j); 
-      chi_componentLL += m_kernel_aux[secid][i][j] * trk.getAUXCoord(j); // AUX = a factor of 2^3
+      int p = const_plane_map[j]; int c = const_coord_map[j]; 
+
+      chi_component   += m_kernel[secid][i][j]     * trk.getCoord(j); 
+      chi_componentLL += m_kernel_aux[secid][i][j] * trk.getAUXCoord(j);
+      chi_componentHW += m_kernel_hw [secid][i][j] * trk.getHwCoord(p, c);
+
+
+
+      // if (i == 0 && !trk.getNMissing() && (j < 6) && (j % 2)) 
+      //   cerr << "JS: " << __FUNCTION__ << "::" << __LINE__ << "   sector=" << secid
+      //                        << "    plane=" << p
+      //                        << "    coord=" << setfill('0') << setw(4) << trk.getHwCoord(p, c)
+      //                        << "    one?=" << setprecision(4) << 8/16.88 * trk.getHwCoord(j/2, 1) / trk.getAUXCoord(j) << endl;
 
     }
 
@@ -838,17 +1606,68 @@ void FTKConstantBank::linfit_chisq_aux(int secid, FTKTrack &trk) const {
     chi_componentLL = aux_asr(chi_componentLL, 0, 30, ofl);
     chi2LL += (chi_componentLL * chi_componentLL);
 
+    chi_componentHW = aux_asr(chi_componentHW, 0, 30, ofl);
+    chi2HW += (chi_componentHW * chi_componentHW);
+
+
   }  
 
-
   chi2LL = aux_asr(chi2LL, 0, 45, ofl);
+  chi2HW = aux_asr(chi2HW, 0, 45, ofl);
 
   // If there was a bit overflow, set the chi-square to some artificially large value so it fails the cut.
   // Otherwise, set to the caluclated value, scaled back to nominal units.
 
-  trk.setChi2FW(chi2LL/pow(2., 2.*EFF_SHIFT));
-  // float fchi2 = ofl ? 9999999. : static_cast<float>(chi2) / pow(2.0,26.0);
-  trk.setChi2(chi2); // fchi2
+  float fchi2 = ofl ? 9999999. : chi2HW / pow(2.0, 2.*EFF_SHIFT);
+  trk.setChi2FW(fchi2);
+  trk.setChi2  (fchi2);
+
+  // any negative hits?
+  bool negatives = false;
+  if (trk.getNMissing()) 
+    for( int j = 0 ; j < m_ncoords ; ++j )
+      if (!m_coordsmask[j] && trk.getCoord(j) < 0) negatives = true;
+
+  if (!negatives && chi2HW/pow(2., 2.*EFF_SHIFT) - chi2 > 2. && 
+      abs(1 - chi2HW/(pow(2., 2.*EFF_SHIFT) * chi2)) - abs(1 - chi2LL/(pow(2., 2.*EFF_SHIFT) * chi2)) > 0.1) {
+
+    cerr << __LINE__ <<   " JS FLAG: " 
+      << "  chiR=" << 1.*chi2HW/chi2LL 
+      << "  chi=" << chi2 << "  chi2LL=" << chi2LL/pow(2., 2.*EFF_SHIFT) << "  chi2HW=" << chi2HW/pow(2., 2.*EFF_SHIFT) 
+      << (!trk.getNMissing() ? "  NOMINAL  " : "  MAJORITY  ")
+      << "  sector=" << secid 
+      << "  ofl=" << ofl;
+
+    // keep track of which hits are missing.
+    if (trk.getNMissing()) {
+      cerr << "     MISSING COORDS: ";
+      for( int j = 0 ; j < m_ncoords ; ++j )
+        if (!m_coordsmask[j]) cerr  << "  " << j;
+    }
+
+    cerr << endl;
+
+    ///   ios init(NULL);
+    ///   init.copyfmt(cout);
+    ///   for( int i = 0 ; i < m_nconstr ; ++i ) {
+    ///     for( int j = 0 ; j < m_ncoords ; ++j ) {
+
+    ///       int p = const_plane_map[j]; int c = const_coord_map[j]; 
+
+    ///       if (abs(1. - const_scale_map[j] * m_kernel_aux[secid][i][j] / m_kernel_hw[secid][i][j]) > 0.01 || 
+    ///           abs(1. - const_scale_map[j] * trk.getHwCoord(p, c)      / trk.getAUXCoord(j)) > 0.01)  {
+
+    ///         cout << __LINE__ << "  >>>   JS FLAG:  notone    constr=" << i << ",coord=" << j << setprecision(3) 
+    ///           << "  const:" << const_scale_map[j] * m_kernel_aux[secid][i][j] / m_kernel_hw[secid][i][j] << "  (" << m_kernel_hw[secid][i][j] << "/" << const_scale_map[j] * m_kernel_aux[secid][i][j] << ")"
+    ///           << "  coord:" << const_scale_map[j] * trk.getHwCoord(p, c)      / trk.getAUXCoord(j)       << "  (" << trk.getHwCoord(p, c) << "/" << trk.getAUXCoord(j)/const_scale_map[j]  << ")"
+    ///           << endl;
+    ///       }
+    ///     }
+    ///   }
+    ///   cout.copyfmt(init);
+
+  }
+
 
 }
 
@@ -893,38 +1712,52 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
   // calculate the chi partials
   // long double* m_partials = new long double [m_ncoords];
   long long*   m_partialsLL = new long long [m_ncoords];
+  long long*   m_partialsHW = new long long [m_ncoords];
   for (int i = 0; i < m_nconstr; ++i) {
 
     // m_partials[i]   = m_kaverage[secid][i]; 
-    m_partialsLL[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl);
+    m_partialsLL[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
+    m_partialsHW[i] = aux_asr(m_kaverage_aux[secid][i], 10, 30, ofl); // 30
 
     for (int j = 0 ; j < m_ncoords ; ++j ) {
       if (m_coordsmask[j]) {
+
+        int p = const_plane_map[j]; int c = const_coord_map[j]; 
+
         // m_partials[i]   += m_kernel[secid][i][j] * track.getCoord(j);
         m_partialsLL[i] += m_kernel_aux[secid][i][j] * track.getAUXCoord(j); 
+        m_partialsHW[i] += m_kernel_hw[secid][i][j]  * track.getHwCoord(p, c); 
       }
     }
   }  
 
   if (ofl) {
-    FTKSetup::PrintMessage(ftk::warn, "AUX-style TF calculation had an overflow!!!\n");
+    FTKSetup::PrintMessage(ftk::warn, "AUX-style partials calculation had an overflow!!!\n");
     delete [] m_partialsLL;
+    delete [] m_partialsHW;
     return 0; 
   }
 
   // calculate the t-vectors
   // TVectorD t(nmissing);
   long long tLL[2] = {0, 0};
+  long long tHW[2] = {0, 0};
   for (int j = 0; j < nmissing; ++j) {
     for (int i = 0; i < m_nconstr; ++i ) {
       // t[j] -= m_kernel[secid][i][m_missid[j]] * m_partials[i];
       tLL[j] -= m_kernel_aux[secid][i][m_missid[j]] * m_partialsLL[i];
+      tHW[j] -= m_kernel_hw[secid][i][m_missid[j]]  * m_partialsHW[i];
     }
 
-    tLL[j] = aux_asr(tLL[j], 0, 50, ofl);
+    tLL[j] = aux_asr(tLL[j], 0, 50, ofl); // 50
+    tHW[j] = aux_asr(tHW[j], 0, 50, ofl); // 50
+    // cerr << "JS: " << j << " ofl=" << ofl << "  tHW[j]/tLL[j]=" << (1./const_scale_map[m_missid[j]])*tHW[j]/tLL[j] << endl;
   }
   // delete [] m_partials;
   delete [] m_partialsLL;
+  delete [] m_partialsHW;
+
+  if (ofl) FTKSetup::PrintMessage(ftk::warn, "AUX-style t-vector calculation had an overflow!!!\n");
 
   // preserved only for testing purposes --
   // delete once all validation is complete.
@@ -940,13 +1773,36 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
 
 
   // get the pointer to the track coordinates
+  unsigned int cHW[2] = {0, 0};
   float *coords = track.getCoords();
   if (nmissing == 1) {
 
     coords[m_missid[0]] = tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]]
                           / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] - 1);
 
-    // outfs << "finally coord0: " << newcoord[0] << "  " << coords[m_missid[0]] << endl;
+    cHW[0] = tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]]
+             / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] - 1);
+
+    FTKHit newhit(1);
+    newhit.setHwCoord(0, cHW[0]);
+    track.setFTKHit(const_plane_map[m_missid[0]], newhit);
+
+
+    ///  cout << __LINE__ << "  JS: pow  aux=" << m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] << "   hw=" << m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] << endl;
+    ///  cout << __LINE__ << "  JS: aux=" << tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]] 
+    ///                                      / pow(2., KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] - 1) 
+    ///                   << "      hw="  << tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]] 
+    ///                                      / pow(2., KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] - 1) << endl;
+
+    ///  cout << __LINE__ << "  JS:  " << m_missid[0] << "    C=" << track.getCoord(m_missid[0]) 
+    ///                                               << "    A=" << 1.*track.getAUXCoord(m_missid[0]) / const_scale_map[m_missid[0]]
+    ///                                               << "    H=" << track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+    ///  cout << __LINE__ << "  JS:  " << m_missid[0] << "  A/C=" << 0.125 * track.getAUXCoord(const_plane_map[m_missid[0]])   / track.getCoord(m_missid[0]) 
+    ///                                               << "  H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) / track.getCoord(m_missid[0])
+    ///                                               << "  H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) * const_scale_map[m_missid[0]] / track.getAUXCoord(m_missid[0]) 
+    ///                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+
+
 
   } else if (nmissing == 2) {
 
@@ -960,8 +1816,46 @@ int FTKConstantBank::missing_point_guess_aux(FTKTrack &track, int secid) const {
                           + tLL[1] * m_maj_invkk_aux[secid][m_missid[1]][m_missid[1]]
                             / pow(2., EFF_SHIFT + KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[1]][m_missid[1]]);
 
-    // outfs << "finally coord0: " << newcoord[0] << "  " << coords[m_missid[0]] << endl;
-    // outfs << "finally coord1: " << newcoord[1] << "  " << coords[m_missid[1]] << endl;
+
+    cHW[0] =   tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]])
+             + tHW[1] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[1]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[1]]);
+
+    cHW[1] =   tHW[0] * m_maj_invkk_hw[secid][m_missid[1]][m_missid[0]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[1]][m_missid[0]])
+             + tHW[1] * m_maj_invkk_hw[secid][m_missid[1]][m_missid[1]]
+                / pow(2., EFF_SHIFT_HW + KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[1]][m_missid[1]]);
+
+    FTKHit newhit(2);
+    newhit.setHwCoord(0, cHW[0]);
+    newhit.setHwCoord(1, cHW[1]);
+    track.setFTKHit(const_plane_map[m_missid[0]], newhit);
+
+
+    ////  cout << __LINE__ << "  JS: pow  aux=" << m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] << "   hw=" << m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] << endl;
+    ////  cout << __LINE__ << "  JS: aux=" << tLL[0] * m_maj_invkk_aux[secid][m_missid[0]][m_missid[0]] 
+    ////                                      / pow(2., KERN_SHIFT + m_maj_invkk_pow[secid][m_missid[0]][m_missid[0]] - 1) 
+    ////                   << "      hw="  << tHW[0] * m_maj_invkk_hw[secid][m_missid[0]][m_missid[0]] 
+    ////                                      / pow(2., KERN_SHIFT_HW + m_maj_invkk_pow_hw[secid][m_missid[0]][m_missid[0]] - 1) << endl;
+
+
+    ////  cout << __LINE__ << "  JS:  " << m_missid[0] << "   C=" << track.getCoord(m_missid[0]) 
+    ////                                               << "   A=" << track.getAUXCoord(m_missid[0]) 
+    ////                                               << "   H=" << track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+    ////  cout << __LINE__ << "  JS:  " << m_missid[0] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[m_missid[0]])   / track.getCoord(m_missid[0]) 
+    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) / track.getCoord(m_missid[0])
+    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[0]], 0) * const_scale_map[m_missid[0]] / track.getAUXCoord(m_missid[0]) 
+    ////                                               << "  set/ret=" << 1. * cHW[0] / track.getHwCoord(const_plane_map[m_missid[0]], 0) << endl;
+
+
+    ////  cout << __LINE__ << "  JS:  " << m_missid[1] << "   C=" << track.getCoord(m_missid[1]) 
+    ////                                               << "   A=" << track.getAUXCoord(m_missid[1]) 
+    ////                                               << "   H=" << track.getHwCoord(const_plane_map[m_missid[1]], 1) << endl;
+    ////  cout << __LINE__ << "  JS:  " << m_missid[1] << " A/C=" << 1. * track.getAUXCoord(const_plane_map[m_missid[1]])   / track.getCoord(m_missid[1]) 
+    ////                                               << " H/C=" << 1. * track.getHwCoord(const_plane_map[m_missid[1]], 1) / track.getCoord(m_missid[1]) 
+    ////                                               << " H/A=" << 1. * track.getHwCoord(const_plane_map[m_missid[1]], 1) * const_scale_map[m_missid[1]] / track.getAUXCoord(m_missid[1])
+    ////                                               << "  set/ret=" << 1. * cHW[1] / track.getHwCoord(const_plane_map[m_missid[1]], 1) << endl;
 
   } 
 
