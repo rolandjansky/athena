@@ -270,25 +270,25 @@
   <MaterialWeight>
     <name> Default_ExtBrl32_Stave_Support_L0_Fixed_Weight </name>
     <base> IBeam_L0_Material </base>
-    <weight> 51.49 </weight>
+    <weight> 34.33 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl32_Stave_Support_L1_Fixed_Weight </name>
     <base> IBeam_L1_Material </base>
-    <weight> 86.88 </weight>
+    <weight> 115.84 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl32_Stave_Support_L2_Fixed_Weight </name>
     <base> IBeam_L2_Material </base>
-    <weight> 101.57 </weight>
+    <weight> 87.18 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl32_Stave_Support_L3_Fixed_Weight </name>
     <base> IBeam_L3_Material </base>
-    <weight> 73.87 </weight>
+    <weight> 84.54 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
@@ -301,25 +301,25 @@
   <MaterialWeight>
     <name> Default_ExtBrl4_Stave_Support_L0_Fixed_Weight </name>
     <base> IBeam_L0_Material </base>
-    <weight> 96.40 </weight>
+    <weight> 64.27 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl4_Stave_Support_L1_Fixed_Weight </name>
     <base> IBeam_L1_Material </base>
-    <weight> 96.4 </weight>
+    <weight> 128.53 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl4_Stave_Support_L2_Fixed_Weight </name>
     <base> IBeam_L2_Material </base>
-    <weight> 101.57 </weight>
+    <weight> 87.18 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl4_Stave_Support_L3_Fixed_Weight </name>
     <base> IBeam_L3_Material </base>
-    <weight> 73.87 </weight>
+    <weight> 84.54 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
@@ -378,20 +378,20 @@
 
   <MaterialWeight>
     <name> Default_IExtBrl4_Stave_Support_L2_Fixed_Weight </name>
-    <base> Alpine_L2_Material </base>
-    <weight> 119.50 </weight>
+    <base> IBeam_L2_Material </base>
+    <weight> 87.18 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_IExtBrl4_Stave_Support_L3_Fixed_Weight </name>
-    <base> Alpine_L3_Material </base>
-    <weight> 128.56 </weight>
+    <base> IBeam_L3_Material </base>
+    <weight> 84.54 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_IExtBrl4_Stave_Support_L4_Fixed_Weight </name>
-    <base> Alpine_L4_Material </base>
-    <weight> 134.51 </weight>
+    <base> IBeam_L4_Material </base>
+    <weight> 78.26 </weight>
   </MaterialWeight>
 
 <!-- Alpine -->
@@ -670,13 +670,13 @@
   <MaterialWeight>
     <name> IBeam_ExtBrl32_L0_Fixed_Weight </name>
     <base> IBeam_L0_Material </base>
-    <weight> 51.49 </weight>
+    <weight> 34.33 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> IBeam_ExtBrl4_L0_Fixed_Weight </name>
     <base> IBeam_L0_Material </base>
-    <weight> 96.40 </weight>
+    <weight> 64.27 </weight>
   </MaterialWeight>
 
   <Material>
@@ -690,13 +690,13 @@
   <MaterialWeight>
     <name> IBeam_ExtBrl32_L1_Fixed_Weight </name>
     <base> IBeam_L1_Material </base>
-    <weight> 86.88 </weight>
+    <weight> 115.84 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> IBeam_ExtBrl4_L1_Fixed_Weight </name>
     <base> IBeam_L1_Material </base>
-    <weight> 96.4 </weight>
+    <weight> 128.53 </weight>
   </MaterialWeight>
 
   <Material>
@@ -710,13 +710,13 @@
   <MaterialWeight>
     <name> IBeam_ExtBrl32_L2_Fixed_Weight </name>
     <base> IBeam_L2_Material </base>
-    <weight> 101.57 </weight>
+    <weight> 87.18 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> IBeam_ExtBrl4_L2_Fixed_Weight </name>
     <base> IBeam_L2_Material </base>
-    <weight> 101.57 </weight>
+    <weight> 87.18 </weight>
   </MaterialWeight>
 
   <Material>
@@ -730,13 +730,13 @@
   <MaterialWeight>
     <name> IBeam_ExtBrl32_L3_Fixed_Weight </name>
     <base> IBeam_L3_Material </base>
-    <weight> 73.87 </weight>
+    <weight> 84.54 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> IBeam_ExtBrl4_L3_Fixed_Weight </name>
     <base> IBeam_L3_Material </base>
-    <weight> 73.87 </weight>
+    <weight> 84.54 </weight>
   </MaterialWeight>
 
   <Material>
