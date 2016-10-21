@@ -6,8 +6,8 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGen.h"
 #include <vector>
 
-using res = std::pair<std::vector<int>, bool>;
-using vec = std::vector<int>;
+using res = std::pair<std::vector<unsigned int>, bool>;
+using vec = std::vector<unsigned int>;
 
 TEST(CombinationsGenTester, n3k1) { 
   CombinationsGen gen(3,1);
