@@ -1,10 +1,31 @@
-#include "TrigHLTJetHypo/TrigHLTJetHypo.h"
 #include "GaudiKernel/DeclareFactoryEntries.h"
 
+#include "TrigHLTJetHypo/TrigHLTJetHypo.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypo2.h"
+
+#include "TrigHLTJetHypo/TrigEFHLTJetHypo.h"
+#include "TrigHLTJetHypo/TrigEFHLTHTHypo.h"
+#include "TrigHLTJetHypo/TrigEFHLTRazorAllTE.h"
+#include "TrigHLTJetHypo/TrigEFHLTJetMassDEta.h"
+#include "TrigHLTJetHypo/TrigEFDPhiMetJetAllTE.h"
 
 DECLARE_ALGORITHM_FACTORY(TrigHLTJetHypo)
+DECLARE_ALGORITHM_FACTORY(TrigHLTJetHypo2)
+
+DECLARE_ALGORITHM_FACTORY(TrigEFHLTJetHypo)
+DECLARE_ALGORITHM_FACTORY(TrigEFHLTHTHypo)
+DECLARE_ALGORITHM_FACTORY(TrigEFHLTRazorAllTE)
+DECLARE_ALGORITHM_FACTORY(TrigEFHLTJetMassDEta)
+DECLARE_ALGORITHM_FACTORY(TrigEFDPhiMetJetAllTE)
 
 DECLARE_FACTORY_ENTRIES(TrigHLTJetHypo) {
   DECLARE_ALGORITHM(TrigHLTJetHypo)
+  DECLARE_ALGORITHM(TrigHLTJetHypo2)
+    
+    DECLARE_ALGORITHM(TrigEFHLTJetHypo)
+    DECLARE_ALGORITHM(TrigEFHLTHTHypo)
+    DECLARE_ALGORITHM(TrigEFHLTRazorAllTE)
+    DECLARE_ALGORITHM(TrigEFHLTJetMassDEta)
+    DECLARE_ALGORITHM(TrigEFDPhiMetJetAllTE)
 }
 

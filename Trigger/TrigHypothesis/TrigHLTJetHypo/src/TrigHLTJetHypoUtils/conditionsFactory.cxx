@@ -14,7 +14,7 @@
 
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/EtaEtCondition.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/DijetDEtaMassCondition.h"
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/TLACondition.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory.h"
 
 
@@ -46,12 +46,12 @@ Conditions conditionsFactory(const std::vector<double>& etaMins,
   for (std::size_t i = 0; i != etaMins.size(); ++i){
     
     std::shared_ptr<ICondition> 
-      pCondition(new DijetDEtaMassCondition(etaMins[i],
-					    etaMaxs[i], 
-					    ystarMins[i],
-					    ystarMaxs[i],
-					    massMins[i],
-					    massMaxs[i]));
+      pCondition(new TLACondition(etaMins[i],
+                                  etaMaxs[i], 
+                                  ystarMins[i],
+                                  ystarMaxs[i],
+                                  massMins[i],
+                                  massMaxs[i]));
     
     conditions.push_back(ConditionBridge(pCondition));
   }

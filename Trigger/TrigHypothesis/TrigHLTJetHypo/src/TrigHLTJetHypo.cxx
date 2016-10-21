@@ -30,7 +30,8 @@
 // #include "JetUtils/JetCaloQualityUtils.h"
 // #include "CLHEP/Units/SystemOfUnits.h"
 
-#include "TrigSteeringEvent/TrigPassBits.h"
+//#include "TrigSteeringEvent/TrigPassBits.h"
+#include "xAODTrigger/TrigPassBits.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/matcherFactoryFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CleanerFactory.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/conditionsFactory.h"
@@ -54,6 +55,10 @@ TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name,
   declareProperty("doMonitoring", m_doMonitoring = false );
   declareProperty("AcceptAll",      m_acceptAll=false);
 
+  // the following is not used - here
+  // only due common config with TrigHLTJetHypo2.
+  declareProperty("chain_name", m_chainName="unknown");
+
   // declareProperty("EtThresholds",   m_EtThresholdsInput ); // Default: 40 GeV
   declareProperty("EtThresholds",   m_EtThresholds ); // Default: 40 GeV
   declareProperty("eta_mins",   m_etaMins);
@@ -67,12 +72,12 @@ TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name,
   declareProperty("jetvec_indices",   m_jetvec_indices);
 
   // Heavy object parameters
-  declareProperty("innerMassMin0", m_innerMassMin0);
+  /*declareProperty("innerMassMin0", m_innerMassMin0);
   declareProperty("innerMassMax0", m_innerMassMax0);
   declareProperty("innerMassMin1", m_innerMassMin1);
   declareProperty("innerMassMax1", m_innerMassMax1);
   declareProperty("outerMassMin", m_outerMassMin);
-  declareProperty("outerMassMax", m_outerMassMax);
+  declareProperty("outerMassMax", m_outerMassMax);*/
 
   // cleaning
   declareProperty("cleaningAlg", m_cleaningAlg = "noCleaning");
@@ -123,13 +128,12 @@ TrigHLTJetHypo::~TrigHLTJetHypo(){
 
 HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
 {
-  msg() << MSG::INFO << "in initialize()" << endreq;
+  ATH_MSG_VERBOSE("in initialize()");
 
   // Initialize timing service
   //------------------------------
   if( service( "TrigTimerSvc", m_timersvc).isFailure() ) {
-    msg() << MSG::WARNING << name()
-	  << ": Unable to locate TrigTimer Service" << endreq;
+    ATH_MSG_WARNING(name() << ": Unable to locate TrigTimer Service");
   }
 
   if (m_timersvc) {
@@ -143,13 +147,12 @@ HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
     if (m_EtThresholds.size() != m_etaMins.size() or
 	m_EtThresholds.size() != m_etaMaxs.size()){
 
-      msg() << MSG::ERROR
-	    << name()
-	    << ": mismatch between number of thresholds and eta min, max boundaries: "
-	    << m_EtThresholds.size() << " "
-	    << m_etaMins.size() << " "
-	    << m_etaMaxs.size() << " "
-	    << endreq;
+      ATH_MSG_ERROR(name()
+                    << ": mismatch between number of thresholds and"
+                    << " eta min, max boundaries: "
+                    << m_EtThresholds.size() << " "
+                    << m_etaMins.size() << " "
+                    << m_etaMaxs.size());
       return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
     }
   }
@@ -162,16 +165,15 @@ HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
 	m_etaMins.size() != m_massMaxs.size()){
 
 
-      msg() << MSG::ERROR
-	    << name()
-	    << ": size mismatch: "
-	    << "eta_mins" <<  m_etaMins.size() << " "
-	    << "eta_maxs"  <<  m_etaMaxs.size() << " "
-	    << "ystar_mins" <<  m_ystarMins.size() << " "
-	    << "ystar_maxs" <<  m_ystarMaxs.size() << " "
-	    << "mass_mins" <<  m_massMins.size() << " "
-	    << "mass_maxs" <<  m_massMaxs.size() << " "
-	    << endreq;
+      ATH_MSG_ERROR(name()
+                    << ": size mismatch: "
+                    << "eta_mins" <<  m_etaMins.size() << " "
+                    << "eta_maxs"  <<  m_etaMaxs.size() << " "
+                    << "ystar_mins" <<  m_ystarMins.size() << " "
+                    << "ystar_maxs" <<  m_ystarMaxs.size() << " "
+                    << "mass_mins" <<  m_massMins.size() << " "
+                    << "mass_maxs" <<  m_massMaxs.size());
+
       return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
     }
   }
@@ -205,11 +207,9 @@ HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
 					   m_jetvec_indices,
 					   m_matchingAlg);
   } else {
-    msg() << MSG::ERROR
-          << name()
-          << ": unknown key to set up the matcher factory: "
-	  << m_matchingAlg
-          << endreq;
+    ATH_MSG_ERROR(name()
+                  << ": unknown key to set up the matcher factory: "
+                  << m_matchingAlg);
     return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
   }
 
@@ -251,12 +251,12 @@ HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
     
 
   // print out the CleanerMatcher configuration
-  ATH_MSG_INFO("TrigHLTJetHypo cleanerMatcher: ");
+  ATH_MSG_VERBOSE("TrigHLTJetHypo cleanerMatcher: ");
   std::string line = (m_cleanerMatcherFactory->make()).toString();
   std::vector<std::string> lines = lineSplitter(line, '\n');
 
   for(auto l : lines){
-    ATH_MSG_INFO(l);
+    ATH_MSG_VERBOSE(l);
   }
 
   return HLT::OK;
@@ -267,8 +267,9 @@ HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
 HLT::ErrorCode TrigHLTJetHypo::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  msg() << MSG::INFO << "in finalize()" << endreq;
-  msg() << MSG::INFO << "Events accepted/rejected/errors:  "<< m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endreq;
+  ATH_MSG_VERBOSE("in finalize()");
+  ATH_MSG_VERBOSE("Events accepted/rejected/errors:  "
+               << m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg);
   return HLT::OK;
 }
 
@@ -296,10 +297,16 @@ HLT::ErrorCode TrigHLTJetHypo::hltExecute(const HLT::TriggerElement* outputTE,
   resetCounters();
   const xAOD::JetContainer* outJets(0);
   auto status = getFeature(outputTE, outJets);
-  if (status != HLT::OK){ATH_MSG_ERROR("Jet retrieval failed"); return status;}
+  if (status != HLT::OK){
+    ATH_MSG_ERROR("Jet retrieval failed");
+    return status;
+  }
 
   status = checkJets(outJets) != HLT::OK;
-  if (status != HLT::OK){ATH_MSG_ERROR("Jet checks failed"); return status;}
+  if (status != HLT::OK){
+    ATH_MSG_ERROR("Jet checks failed");
+    return status;
+  }
     
 
   /* copy the jets to a non-constant container */
@@ -437,15 +444,22 @@ TrigHLTJetHypo::markAndStorePassingJets(const CleanerMatcher & cm,
                                         const xAOD::JetContainer* outJets,
                                         const HLT::TriggerElement* outputTE
                                         ){
-  TrigPassBits* bits = HLT::makeTrigPassBits(outJets);
+  // TrigPassBits* bits = HLT::makeTrigPassBits(outJets);
+  std::unique_ptr<xAOD::TrigPassBits> xBits = 
+    xAOD::makeTrigPassBits<xAOD::JetContainer>(outJets);
 
   for(auto i : cm.passedJets())
     {
-      HLT::markPassing( bits, (*outJets)[i->position()], outJets ); 
+      // HLT::markPassing( bits, (*outJets)[i->position()], outJets );
+      xBits->markPassing((*outJets)[i->position()], outJets, true); 
     }
   
   // attach the trigger bits to the output trigger element
-  return  attachBits(outputTE, bits);
+  // return  attachBits(outputTE, bits);
+  auto sc = attachFeature(outputTE, xBits.release(), "passbits");
+  if(sc != HLT::OK) { ATH_MSG_ERROR("Could not store TrigPassBits! ");}
+  
+  return sc;
 }
 
 void

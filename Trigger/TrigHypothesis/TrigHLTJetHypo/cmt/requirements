@@ -28,4 +28,18 @@ private
 # for TLorentzVector
 use     AtlasROOT               AtlasROOT-*             External
 
+# for TrigEFHLTHTHypo, TrigEFHLTJetHypo, TrigEFHLTJetMassDEta, 
+#     TrigEFHLTRazorAllTEHypo
+use     AtlasCLHEP              AtlasCLHEP-*            External
 
+# for TrigEFHLTHTHypo, TrigEFHLTJetMassDEta, TrigEFHLTRazorAllTEHypo
+# use     FourMomUtils            FourMomUtils-*          Event
+
+# for TrigEFHLTRazorAllTEHypo
+# use     JetEvent                JetEvent-*              Reconstruction/Jet
+use     TrigMissingEtEvent      TrigMissingEtEvent-*    Trigger/TrigEvent
+
+# for TrigEFHLTJetHypo, TrigEFHLTJetMassDEta, 
+# use     JetUtils                JetUtils-*              Reconstruction/Jet
+
+use   xAODTrigger             xAODTrigger-*            Event/xAOD             

@@ -21,12 +21,14 @@
 
 class DijetDEtaMassCondition: public ICondition{
  public:
-  DijetDEtaMassCondition(double etaMin,
-			 double etaMax,
-			 double ystarMin,
-			 double ystarMax,
-			 double massMin,
-			 double massMax);
+  DijetDEtaMassCondition(const std::vector<double>& etaMins,
+                         const std::vector<double>& etaMaxs,
+                         const std::vector<double>& etThresholds,
+                         const std::vector<double>& ystarMins,
+                         const std::vector<double>& ystarMaxs,
+                         const std::vector<double>& massMins,
+                         const std::vector<double>& massMaxs);
+
   
   ~DijetDEtaMassCondition() override {}
 
@@ -37,10 +39,27 @@ class DijetDEtaMassCondition: public ICondition{
   std::string toString() const noexcept override;
 
  private:
-  double m_etaMin;
-  double m_etaMax;
-  double m_ystarMin;
-  double m_ystarMax;
+
+  bool passCuts(pHypoJet, pHypoJet) const;
+
+  bool test(double et0, double et1, 
+            double eta0, double eta1, 
+            double dEta, 
+            double mass) const noexcept;
+
+
+  double m_etaMin0;
+  double m_etaMax0;
+
+  double m_etaMin1;
+  double m_etaMax1;
+
+  double m_etMin0;
+  double m_etMin1;
+
+  double m_dEtaMin;
+  double m_dEtaMax;
+
   double m_massMin;
   double m_massMax;
 };
