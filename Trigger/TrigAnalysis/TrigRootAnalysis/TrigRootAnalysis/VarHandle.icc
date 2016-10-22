@@ -4,7 +4,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: VarHandle.icc 726663 2016-02-28 01:22:15Z ssnyder $
+// $Id: VarHandle.icc 755852 2016-06-17 15:51:52Z ssnyder $
 #ifndef TRIGROOTANALYSIS_VARHANDLE_ICC
 #define TRIGROOTANALYSIS_VARHANDLE_ICC
 
@@ -23,6 +23,7 @@
 namespace D3PDReaderPriv {
 
    template< typename Type >
+   // cppcheck-suppress uninitMemberVar
    VarHandle< Type >::VarHandle( ::TObject* parent, const char* name,
                                  const ::Long64_t* master )
       : VarHandleBase( parent, name, master ),
@@ -126,6 +127,7 @@ namespace D3PDReaderPriv {
    }
 
    template< typename Type >
+   // cppcheck-suppress uninitMemberVar
    VarHandle< Type* >::VarHandle( ::TObject* parent, const char* name,
                                   const ::Long64_t* master )
       : VarHandleBase( parent, name, master ),
