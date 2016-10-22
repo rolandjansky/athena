@@ -332,7 +332,7 @@ StatusCode create_symlink(MsgStream& msg,
   if ( !sg->retrieve (in, sgkey).isSuccess() ||
        0 == in ) {
     msg << MSG::ERROR<< "Could not retrieve " << ClassName<InContainer>::name() 
-	<< " at [" << sgkey << "] !!" << endreq;
+	<< " at [" << sgkey << "] !!" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -344,7 +344,7 @@ StatusCode create_symlink(MsgStream& msg,
 
   if ( !sg->symLink (in, sym).isSuccess() ) {
     msg <<  "Could not create symlink to " << ClassName<SymContainer>::name()
-        << endreq;
+        << endmsg;
     return StatusCode::FAILURE;
   }
 

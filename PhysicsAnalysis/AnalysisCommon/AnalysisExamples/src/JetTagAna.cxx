@@ -84,9 +84,13 @@
 #include "HepMC/GenParticle.h"
 
 #include "xAODEventInfo/EventInfo.h"
+#include "AthenaKernel/Units.h"
 
 #include <map>
 #include <algorithm>
+#include <cmath>
+
+using Athena::Units::GeV;
 
 JetTagAna::JetTagAna(const std::string& name,
 		     ISvcLocator* pSvcLocator)
@@ -634,7 +638,7 @@ StatusCode JetTagAna::execute() {
 
 	const Rec::TrackParticle* aTemp = *trkItr;
 
-	m_h_jet_tracks_pt->Fill(aTemp->pt()/1000.);
+	m_h_jet_tracks_pt->Fill(aTemp->pt()/GeV);
 
        const Trk::TrackSummary* summary = aTemp->trackSummary();
        if (summary) {
@@ -650,14 +654,14 @@ StatusCode JetTagAna::execute() {
     if(ma) {
       for(Navigable<Analysis::MuonContainer,double>::object_iter it=ma->begin(); it !=ma->end(); ++it) {
         const Analysis::Muon *m = (*it);
-        m_h_jet_muons_pt->Fill(m->pt()/1000.);
+        m_h_jet_muons_pt->Fill(m->pt()/GeV);
       }
     }
     // loop over electrons in jet
     if(ea) {
       for(Navigable<ElectronContainer,double>::object_iter it=ea->begin(); it !=ea->end(); ++it) {
         const Analysis::Electron *e = (*it);
-        m_h_jet_electrons_pt->Fill(e->pt()/1000.);
+        m_h_jet_electrons_pt->Fill(e->pt()/GeV);
       }
     }
 
@@ -779,7 +783,7 @@ StatusCode JetTagAna::execute() {
           ATH_MSG_VERBOSE ( "-> InfoPlus for each track in IP2D/IP3D/JetProb:  #tracks= " 
                             << ntrk );
           int ibin;
-          ibin = (int) ((p4.et())/1000.)/100;
+          ibin = (int) ((p4.et())/GeV)/100;
           if(ibin>5) ibin=5;
           m_h_tag_IPinfo_ntrk[ibin]->Fill((float) ntrk);
 	  for(int itinf = 0; itinf < ntrk; itinf++) {
@@ -899,7 +903,7 @@ StatusCode JetTagAna::execute() {
     //* HLT b-tagging *//
     /////////////////////
 
-    double m_deltaR = 9999, m_phiRoI = -9999, m_etaRoI = -9999, m_etRoI = -9999;
+    double deltaR = 9999, phiRoI = -9999, etaRoI = -9999, etRoI = -9999;
  
     double w_ip2d_l2 = -1,  w_ip3d_l2 = -1;
     double w_ip2d_ef = -1,  w_ip3d_ef = -1;
@@ -940,21 +944,21 @@ StatusCode JetTagAna::execute() {
 	  //* eta/phi matching w.r.t. offline b-jet *//
 	  double dR = sqrt(pow((*jetItr)->eta() - (*pL2BjetItr)->eta(),2) + pow(phiCorr(phiCorr((*jetItr)->phi()) - phiCorr((*pL2BjetItr)->phi())),2));
 	
-	  if (dR < m_deltaR) {
-	    m_deltaR = dR;
+	  if (dR < deltaR) {
+	    deltaR = dR;
 	    
 	    w_ip2d_l2  = (double)(*pL2BjetItr)->xIP2D();
 	    w_ip3d_l2  = (double)(*pL2BjetItr)->xIP3D();
 	    
 	    w_jetProb_l2 = (double)(*pL2BjetItr)->xCHI2();
 
-	    m_phiRoI = (*pL2BjetItr)->phi();
-	    m_etaRoI = (*pL2BjetItr)->eta();
+	    phiRoI = (*pL2BjetItr)->phi();
+	    etaRoI = (*pL2BjetItr)->eta();
 	  }
 	}
       }
     
-      ATH_MSG_DEBUG ( "deltaR L2 = " << m_deltaR );
+      ATH_MSG_DEBUG ( "deltaR L2 = " << deltaR );
 
     } else {
 
@@ -963,7 +967,7 @@ StatusCode JetTagAna::execute() {
 
     }
 
-    if (m_deltaR > 0.1) {
+    if (deltaR > 0.1) {
       isFoundL2 = false;
       w_ip2d_l2 = -1; w_ip3d_l2 = -1;
       ATH_MSG_DEBUG ( "TrigL2BjetContainer not matched with offline" );
@@ -975,7 +979,7 @@ StatusCode JetTagAna::execute() {
       w_ip2d_ef = 0, w_ip3d_ef = 0; 
       w_jetProb_ef = 0;
       w_mVtx_ef = 0, w_eVtx_ef = 0, w_nVtx_ef = 0;
-      m_deltaR = 9999;
+      deltaR = 9999;
     
       //* Retrieve from StoreGate TrigEFBjetContainer *//
       const DataHandle<TrigEFBjetContainer> trigEFBjet;
@@ -1008,10 +1012,10 @@ StatusCode JetTagAna::execute() {
                 );
 	    
 	    //* eta/phi matching w.r.t. LVL2 b-jet *//	  
-	    double dR = sqrt(pow(m_etaRoI - (*pEFBjetItr)->eta(),2) + pow(phiCorr(phiCorr(m_phiRoI) - phiCorr((*pEFBjetItr)->phi())),2));
+	    double dR = sqrt(pow(etaRoI - (*pEFBjetItr)->eta(),2) + pow(phiCorr(phiCorr(phiRoI) - phiCorr((*pEFBjetItr)->phi())),2));
 	    
-	    if (dR < m_deltaR){
-	      m_deltaR = dR;
+	    if (dR < deltaR){
+	      deltaR = dR;
 	      
 	      w_ip2d_ef = (*pEFBjetItr)->xIP2D();
 	      w_ip3d_ef = (*pEFBjetItr)->xIP3D();
@@ -1025,9 +1029,9 @@ StatusCode JetTagAna::execute() {
 	  }
 	}
   
-	ATH_MSG_DEBUG ( "deltaR EF = " << m_deltaR << " " << w_ip3d_l2 );
+	ATH_MSG_DEBUG ( "deltaR EF = " << deltaR << " " << w_ip3d_l2 );
       
-	if (m_deltaR > 0.001) {
+	if (deltaR > 0.001) {
 	  w_ip2d_ef = -1; w_ip3d_ef = -1;
 	  w_jetProb_ef = -1;
 	  w_mVtx_ef = -1, w_eVtx_ef = -1, w_nVtx_ef = -1;
@@ -1037,7 +1041,7 @@ StatusCode JetTagAna::execute() {
 	ATH_MSG_INFO ( "TrigEFBjetContainer not found" );
       }
    
-      m_deltaR = 9999;
+      deltaR = 9999;
 
       //* Retrieve from StoreGate LVL1 RoIs *//
       const LVL1_ROI* lvl1RoI = 0; 
@@ -1063,15 +1067,15 @@ StatusCode JetTagAna::execute() {
 	  
 	  if ((*pL1Jet).getET8x8() <= 18000) continue;
 	  
-	  double dR = sqrt(pow((*pL1Jet).eta() - m_etaRoI,2) + pow(phiCorr(phiCorr((*pL1Jet).phi()) - phiCorr(m_phiRoI)),2));
+	  double dR = sqrt(pow((*pL1Jet).eta() - etaRoI,2) + pow(phiCorr(phiCorr((*pL1Jet).phi()) - phiCorr(phiRoI)),2));
 	
-	  if (dR < m_deltaR) {
-	    m_deltaR = dR;  
-	    m_etRoI = (*pL1Jet).getET8x8();
+	  if (dR < deltaR) {
+	    deltaR = dR;  
+	    etRoI = (*pL1Jet).getET8x8();
 	  }
 	}
 	
-	ATH_MSG_DEBUG ( "deltaR L1 = " << m_deltaR );
+	ATH_MSG_DEBUG ( "deltaR L1 = " << deltaR );
       }
     }
 
@@ -1142,16 +1146,16 @@ StatusCode JetTagAna::execute() {
 	// will use them to calculate effs and rejs. as a function of these variables
 	// VJ Apr 13'2007
 	for(int i=0;i<(MAX_numTaggers-MAX_numHLTTaggers)+2;i++) {
-	  m_h_perf_b_ET[i]->Fill(p4.et()/1000.,w[i]);
+	  m_h_perf_b_ET[i]->Fill(p4.et()/GeV,w[i]);
 	  m_h_perf_b_eta[i]->Fill(p4.pseudoRapidity(),w[i]);
 	  m_h_perf_b_phi[i]->Fill(p4.phi(),w[i]);
 	}
 	//*
 	for(int i=(MAX_numTaggers-MAX_numHLTTaggers)+2;i<MAX_numTaggers;i++) {
           if (jetRoImatched){
-	    m_h_perf_b_ET[i]->Fill(m_etRoI/1000.,w[i]);
-	    m_h_perf_b_eta[i]->Fill(m_etaRoI,w[i]);
-	    m_h_perf_b_phi[i]->Fill(m_phiRoI,w[i]);
+	    m_h_perf_b_ET[i]->Fill(etRoI/GeV,w[i]);
+	    m_h_perf_b_eta[i]->Fill(etaRoI,w[i]);
+	    m_h_perf_b_phi[i]->Fill(phiRoI,w[i]);
 	  }
 	}
       }
@@ -1169,16 +1173,16 @@ StatusCode JetTagAna::execute() {
 	// fill histograms for weights vs. ET, eta and phi
 	// will use them to calculate effs and rejs. as a function of these variables
 	for(int i=0;i<(MAX_numTaggers-MAX_numHLTTaggers)+2;i++) {
-	  m_h_perf_u_ET[i]->Fill(p4.et()/1000.,w[i]);
+	  m_h_perf_u_ET[i]->Fill(p4.et()/GeV,w[i]);
 	  m_h_perf_u_eta[i]->Fill(p4.pseudoRapidity(),w[i]);
 	  m_h_perf_u_phi[i]->Fill(p4.phi(),w[i]);
 	}
 	//*
 	for(int i=(MAX_numTaggers-MAX_numHLTTaggers)+2;i<MAX_numTaggers;i++) {
           if (jetRoImatched){
-	    m_h_perf_u_ET[i]->Fill(m_etRoI/1000.,w[i]);
-	    m_h_perf_u_eta[i]->Fill(m_etaRoI,w[i]);
-	    m_h_perf_u_phi[i]->Fill(m_phiRoI,w[i]);
+	    m_h_perf_u_ET[i]->Fill(etRoI/GeV,w[i]);
+	    m_h_perf_u_eta[i]->Fill(etaRoI,w[i]);
+	    m_h_perf_u_phi[i]->Fill(phiRoI,w[i]);
 	  }
 	}
 
@@ -1201,16 +1205,16 @@ StatusCode JetTagAna::execute() {
 	  // fill histograms for weights vs. ET, eta and phi
 	  // will use them to calculate effs and rejs. as a function of these variables
 	  for(int i=0;i<(MAX_numTaggers-MAX_numHLTTaggers)+2;i++) {
-	    m_h_perf_upur_ET[i]->Fill(p4.et()/1000.,w[i]);
+	    m_h_perf_upur_ET[i]->Fill(p4.et()/GeV,w[i]);
 	    m_h_perf_upur_eta[i]->Fill(p4.pseudoRapidity(),w[i]);
 	    m_h_perf_upur_phi[i]->Fill(p4.phi(),w[i]);
 	  }
 	  //*
 	  for(int i=(MAX_numTaggers-MAX_numHLTTaggers)+2;i<MAX_numTaggers;i++) {
             if (jetRoImatched){
-	      m_h_perf_upur_ET[i]->Fill(m_etRoI/1000.,w[i]);
-	      m_h_perf_upur_eta[i]->Fill(m_etaRoI,w[i]);
-	      m_h_perf_upur_phi[i]->Fill(m_phiRoI,w[i]);
+	      m_h_perf_upur_ET[i]->Fill(etRoI/GeV,w[i]);
+	      m_h_perf_upur_eta[i]->Fill(etaRoI,w[i]);
+	      m_h_perf_upur_phi[i]->Fill(phiRoI,w[i]);
 	    }
 	  }
 	}
@@ -1300,7 +1304,7 @@ JetTagAna::checkSoftElectron(const std::vector<const JetTagInfoBase*> infoVector
   m_nmuonj[ntotal-1]        = nmu_j;
 
   unsigned int ntrkp = info->numTrackInfo();
-  //mlog << MSG::INFO << "N good ele " << ntrkp << endreq;
+  //mlog << MSG::INFO << "N good ele " << ntrkp << endmsg;
   
   m_jet_ne[ntotal-1] = ntrkp; 
   m_jet_ew[ntotal-1] = info->weight(); // softe standard weight
@@ -1353,13 +1357,13 @@ JetTagAna::checkSoftElectron(const std::vector<const JetTagInfoBase*> infoVector
     
     // REMOVE ME!      
     //std::cout<< " MW drie parentID "<<drie<<" "<<parentID<<std::endl;
-    if (fabs(drie) <= 0.4  && fabs(ID)==11 && 
+    if (std::abs(drie) <= 0.4  && std::abs(ID)==11 && 
         (isBHadron(parentID) || isDHadron(parentID))) jetele = 1;
     //if (fabs(drie)    <= 0.4  && fabs(ID)==11        && 
     //((fabs(parentID)>= 400  && fabs(parentID)<600) ||
     // (fabs(parentID)>= 4000 && fabs(parentID)<6000))) jetele = 1;  
     
-    if (fabs(drie) <= 0.4 && fabs(ID)==11) jetanyele = 1;
+    if (std::abs(drie) <= 0.4 && std::abs(ID)==11) jetanyele = 1;
   }
   
   // REMOVE ME!
@@ -1412,7 +1416,7 @@ JetTagAna::checkSoftElectron(const std::vector<const JetTagInfoBase*> infoVector
     //if GQ track inside jet 
     int codeEle = 0;
     if (fabs(drie) <= 0.4) {
-      if (fabs(ID)==11) { 
+      if (std::abs(ID)==11) { 
         codeEle = 1;
 	
         if (isDHadron(parentID)) codeEle = 4;
@@ -1423,7 +1427,7 @@ JetTagAna::checkSoftElectron(const std::vector<const JetTagInfoBase*> infoVector
         //if ((fabs(parentID)>=500 && fabs(parentID)<600) ||
         //  (fabs(parentID)>=5000 && fabs(parentID)<6000)) codeEle = 5;
 	
-        if (fabs(parentID)==22 || fabs(parentID)==111) codeEle = 2;  
+        if (std::abs(parentID)==22 || std::abs(parentID)==111) codeEle = 2;  
 	
         //jettrackele[nele]            = codeEle;                  
         m_jet_trackEle[ntotal-1][nele]   = codeEle;
@@ -1450,8 +1454,8 @@ JetTagAna::checkSoftElectron(const std::vector<const JetTagInfoBase*> infoVector
   
   for(unsigned int i=0;i<ntrkp;i++) {
     const Analysis::SETrackInfo ipteinfo = info->getTrackInfo(i);
-    //mlog << MSG::INFO << "Elec " << i << endreq;
-    //mlog << MSG::INFO << ipteinfo << endreq;
+    //mlog << MSG::INFO << "Elec " << i << endmsg;
+    //mlog << MSG::INFO << ipteinfo << endmsg;
     
     beid     = 0;
     mothbeid = 0; 
@@ -1574,7 +1578,7 @@ StatusCode JetTagAna::checkTrackqualforSET(Rec::TrackParticleContainer::const_it
 
 // ====================================================================
 void JetTagAna::computeRejections() {
-  MsgStream mlog( messageService(), name() );
+  MsgStream mlog( msgSvc(), name() );
   double r10, e10, w10, r50, e50, w50, r60, e60, w60;
   int nbj = (int)m_h_perf_b[0]->Integral();
   int nbu = (int)m_h_perf_u[0]->Integral();
@@ -1767,11 +1771,13 @@ void JetTagAna::getRej(TH1F* uw, TH1F* bw,
   int    bi10 = 0;
   int    bi50 = 0;
   int    bi60 = 0;
-  double xbi  = (double) bw->Integral(0,nb); // also includes overflows
-  double xui  = (double) uw->Integral(0,nb);
   double ru[n_max_bins],efb[n_max_bins],eru[n_max_bins]; //,eefb[n_max_bins];
+  const double xbi  = (double) bw->Integral(0,nb); // also includes overflows
+  const double xui  = (double) uw->Integral(0,nb);
+  const double inv_xbi = xbi != 0 ? 1. / xbi : 1;
+  const double inv_xui = xui != 0 ? 1. / xui : 1;
   for (int ib = 1;ib<nb;ib++) {
-    efb[ib-1] = ((double) bw->Integral(ib,nb))/xbi;
+    efb[ib-1] = ((double) bw->Integral(ib,nb)) * inv_xbi;
     if(ib>1) {
       if (efb[ib-1] <= 0.1 && efb[ib-2] >= 0.1) {bi10 = ib-1;}
       if (efb[ib-1] <= 0.5 && efb[ib-2] >= 0.5) {bi50 = ib-1;}
@@ -1780,7 +1786,7 @@ void JetTagAna::getRej(TH1F* uw, TH1F* bw,
     //eefb[ib-1] = sqrt(efb[ib-1]*(1.-efb[ib-1])/xbi); // nothing done with that 
     if(uw->Integral(ib,nb)>0.) {
 	ru[ib-1]   = xui/((double) uw->Integral(ib,nb));
-	eru[ib-1]  = ru[ib-1]*sqrt((ru[ib-1]-1.)/xui);
+	eru[ib-1]  = ru[ib-1]*sqrt((ru[ib-1]-1.) * inv_xui);
     } else {
 	ru[ib-1]   = 0.;
 	eru[ib-1]  = 0.;
@@ -1822,6 +1828,7 @@ void JetTagAna::getRej(TH1F* uw, TH1F* bw,
 }
 
 void JetTagAna::bookHistograms() {
+  if (m_h_global_counters) return;
   m_h_global_counters = new TH1F("global_counters","Counters",100,0.,100.);
   m_h_global_nprimvtx = new TH1F("global_nprimvtx","N primary vertex",10,0.,10.);
   m_h_global_xprimvtx = new TH1F("global_xprimvtx","X primary vertex",100,-0.1,0.1);

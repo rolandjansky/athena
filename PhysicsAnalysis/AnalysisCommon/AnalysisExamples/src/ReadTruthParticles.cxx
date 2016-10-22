@@ -72,13 +72,13 @@ StatusCode ReadTruthParticles::initialize()
 
   msg() << MSG::INFO
         << "Initializing ReadTruthParticles"
-        << endreq;
+        << endmsg;
 
   // retrieve the storegate service
   if ( !evtStore().retrieve().isSuccess() ) {
     msg() << MSG::ERROR
           << "Unable to retrieve pointer to StoreGateSvc"
-          << endreq;
+          << endmsg;
      return StatusCode::FAILURE;
   }
 
@@ -86,7 +86,7 @@ StatusCode ReadTruthParticles::initialize()
   if ( !m_cnvTool.retrieve().isSuccess() ) {
     msg() << MSG::ERROR
           << "Could not retrieve the truth particle converter tool !!"
-          << endreq;
+          << endmsg;
     return StatusCode::FAILURE;
   }
  
@@ -151,10 +151,10 @@ StatusCode ReadTruthParticles::execute()
           for ( unsigned int iMoth = 0; iMoth != child->nParents(); ++iMoth ) {
             msg(MSG::INFO) << child->genMother(iMoth)->barcode() << " ";
           }
-          msg(MSG::INFO) << "]" << endreq;
+          msg(MSG::INFO) << "]" << endmsg;
         }
       } else {
-        msg(MSG::WARNING) << "Wrong pointer to child !!" << endreq;
+        msg(MSG::WARNING) << "Wrong pointer to child !!" << endmsg;
       }
     }//> loop over children
   }//> end loop over TruthParticles

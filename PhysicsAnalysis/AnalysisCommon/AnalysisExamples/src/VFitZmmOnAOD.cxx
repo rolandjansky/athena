@@ -30,6 +30,9 @@
 #include "VxVertex/VxContainer.h"   
 #include "VxVertex/RecVertex.h"
 
+// xAOD vertex
+#include "xAODTracking/VertexContainer.h"
+
 // the composite particle
 #include "ParticleEvent/CompositeParticle.h"
 
@@ -53,7 +56,7 @@
 // static const double mMuon = 105.658369;
 static double mMuon = 105.66; // MeV
 
-const Trk::RecVertex* primVtx=NULL;
+const xAOD::Vertex* primVtx=NULL;
 
 using namespace Analysis;
 
@@ -418,7 +421,7 @@ StatusCode VFitZmmOnAOD::execute() {
   }
 
   // Get primary vertex from StoreGate
-  const VxContainer* vxCont(0);
+  const xAOD::VertexContainer* vxCont(0);
   sc = evtStore()->retrieve(vxCont,m_VxContainerName);
   if (sc.isFailure() ) {
     ATH_MSG_WARNING("No Vertex conainter with key "
@@ -427,12 +430,11 @@ StatusCode VFitZmmOnAOD::execute() {
     ATH_MSG_VERBOSE("Found primary vertex info: " <<  m_VxContainerName);
     if(vxCont) {
       // int npvx = vxCont->size();
-      VxContainer::const_iterator fz = vxCont->begin();
-      const Trk::RecVertex& primaryVertex = (*fz)->recVertex();
-      primVtx = &primaryVertex;
-      m_v0_x = primaryVertex.position().x();
-      m_v0_y = primaryVertex.position().y();
-      m_v0_z = primaryVertex.position().z();
+      xAOD::VertexContainer::const_iterator fz = vxCont->begin();
+      primVtx = (*fz);
+      m_v0_x = primVtx->position().x();
+      m_v0_y = primVtx->position().y();
+      m_v0_z = primVtx->position().z();
     }
   }
 
@@ -494,7 +496,7 @@ StatusCode VFitZmmOnAOD::zmm_on_aod() {
     std::vector<const Trk::TrackParticleBase *> myTrackBases;
     std::vector<double> myMuonMasses;
 
-    Trk::RecVertex primaryVtx = *primVtx;
+    xAOD::Vertex primaryVtx = *primVtx;
 
     Amg::Vector3D primVtxPos(primVtx->position().x(), primVtx->position().y(), primVtx->position().z());
 
