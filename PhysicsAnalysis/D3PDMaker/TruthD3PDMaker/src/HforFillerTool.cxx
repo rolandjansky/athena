@@ -32,11 +32,11 @@ namespace D3PD{
 
   StatusCode HforFillerTool::book() {
     CHECK( addVariable ("hfor_type", m_hfor_type) );
-    CHECK( addVariable ("hfor_event_flavour", hfor_event_flavour) );
-    CHECK( addVariable ("hfor_Quarks_px", hfor_Quarks_px) );
-    CHECK( addVariable ("hfor_Quarks_py", hfor_Quarks_py) );
-    CHECK( addVariable ("hfor_Quarks_pz", hfor_Quarks_pz) );
-    CHECK( addVariable ("hfor_Quarks_e", hfor_Quarks_e) );
+    CHECK( addVariable ("hfor_event_flavour", m_hfor_event_flavour) );
+    CHECK( addVariable ("hfor_Quarks_px", m_hfor_Quarks_px) );
+    CHECK( addVariable ("hfor_Quarks_py", m_hfor_Quarks_py) );
+    CHECK( addVariable ("hfor_Quarks_pz", m_hfor_Quarks_pz) );
+    CHECK( addVariable ("hfor_Quarks_e", m_hfor_Quarks_e) );
 
     return StatusCode::SUCCESS;
   }
@@ -46,16 +46,16 @@ namespace D3PD{
 
     // Get the result for the method chosen in the config-file
 
-    hfor_Quarks_px->clear();
-    hfor_Quarks_py->clear();
-    hfor_Quarks_pz->clear();
-    hfor_Quarks_e->clear();
+    m_hfor_Quarks_px->clear();
+    m_hfor_Quarks_py->clear();
+    m_hfor_Quarks_pz->clear();
+    m_hfor_Quarks_e->clear();
 
-    hfor_event_flavour->clear();
+    m_hfor_event_flavour->clear();
     *m_hfor_type = -1;
 
     std::string hfor_decision;
-    int m_event_flavour;
+    int event_flavour;
 
     std::vector<HepMC::FourVector> GS_bQuarks;
     std::vector<HepMC::FourVector> ME_bQuarks;
@@ -84,36 +84,36 @@ namespace D3PD{
       else if (hfor_decision == "kill")          *m_hfor_type =  4;
 
       for (size_t i=0; i<GS_bQuarks.size(); i++){
-        hfor_Quarks_px->push_back( static_cast<float> (GS_bQuarks.at(i).px()) );
-        hfor_Quarks_py->push_back( static_cast<float> (GS_bQuarks.at(i).py()) );
-        hfor_Quarks_pz->push_back( static_cast<float> (GS_bQuarks.at(i).pz()) );
-        hfor_Quarks_e->push_back( static_cast<float> (GS_bQuarks.at(i).e()) );
-        m_event_flavour = 0;
-        hfor_event_flavour->push_back(m_event_flavour);
+        m_hfor_Quarks_px->push_back( static_cast<float> (GS_bQuarks.at(i).px()) );
+        m_hfor_Quarks_py->push_back( static_cast<float> (GS_bQuarks.at(i).py()) );
+        m_hfor_Quarks_pz->push_back( static_cast<float> (GS_bQuarks.at(i).pz()) );
+        m_hfor_Quarks_e->push_back( static_cast<float> (GS_bQuarks.at(i).e()) );
+        event_flavour = 0;
+        m_hfor_event_flavour->push_back(event_flavour);
       }
       for (size_t i=0; i<ME_bQuarks.size(); i++){
-        hfor_Quarks_px->push_back( static_cast<float> (ME_bQuarks.at(i).px()) );
-        hfor_Quarks_py->push_back( static_cast<float> (ME_bQuarks.at(i).py()) );
-        hfor_Quarks_pz->push_back( static_cast<float> (ME_bQuarks.at(i).pz()) );
-        hfor_Quarks_e->push_back( static_cast<float> (ME_bQuarks.at(i).e()) );
-        m_event_flavour = 1;
-        hfor_event_flavour->push_back(m_event_flavour);
+        m_hfor_Quarks_px->push_back( static_cast<float> (ME_bQuarks.at(i).px()) );
+        m_hfor_Quarks_py->push_back( static_cast<float> (ME_bQuarks.at(i).py()) );
+        m_hfor_Quarks_pz->push_back( static_cast<float> (ME_bQuarks.at(i).pz()) );
+        m_hfor_Quarks_e->push_back( static_cast<float> (ME_bQuarks.at(i).e()) );
+        event_flavour = 1;
+        m_hfor_event_flavour->push_back(event_flavour);
       }
       for (size_t i=0; i<GS_cQuarks.size(); i++){
-        hfor_Quarks_px->push_back( static_cast<float> (GS_cQuarks.at(i).px()) );
-        hfor_Quarks_py->push_back( static_cast<float> (GS_cQuarks.at(i).py()) );
-        hfor_Quarks_pz->push_back( static_cast<float> (GS_cQuarks.at(i).pz()) );
-        hfor_Quarks_e->push_back( static_cast<float> (GS_cQuarks.at(i).e()) );
-        m_event_flavour = 2;
-        hfor_event_flavour->push_back(m_event_flavour);
+        m_hfor_Quarks_px->push_back( static_cast<float> (GS_cQuarks.at(i).px()) );
+        m_hfor_Quarks_py->push_back( static_cast<float> (GS_cQuarks.at(i).py()) );
+        m_hfor_Quarks_pz->push_back( static_cast<float> (GS_cQuarks.at(i).pz()) );
+        m_hfor_Quarks_e->push_back( static_cast<float> (GS_cQuarks.at(i).e()) );
+        event_flavour = 2;
+        m_hfor_event_flavour->push_back(event_flavour);
       }
       for (size_t i=0; i<ME_cQuarks.size(); i++){
-        hfor_Quarks_px->push_back( static_cast<float> (ME_cQuarks.at(i).px()) );
-        hfor_Quarks_py->push_back( static_cast<float> (ME_cQuarks.at(i).py()) );
-        hfor_Quarks_pz->push_back( static_cast<float> (ME_cQuarks.at(i).pz()) );
-        hfor_Quarks_e->push_back( static_cast<float> (ME_cQuarks.at(i).e()) );
-        m_event_flavour = 3;
-        hfor_event_flavour->push_back(m_event_flavour);
+        m_hfor_Quarks_px->push_back( static_cast<float> (ME_cQuarks.at(i).px()) );
+        m_hfor_Quarks_py->push_back( static_cast<float> (ME_cQuarks.at(i).py()) );
+        m_hfor_Quarks_pz->push_back( static_cast<float> (ME_cQuarks.at(i).pz()) );
+        m_hfor_Quarks_e->push_back( static_cast<float> (ME_cQuarks.at(i).e()) );
+        event_flavour = 3;
+        m_hfor_event_flavour->push_back(event_flavour);
       }
 
     }
