@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// $Id: TrigDecisionFunctions.cxx 502443 2012-05-25 10:43:25Z krasznaa $
+// $Id: TrigDecisionFunctions.cxx 779870 2016-10-22 20:29:01Z ssnyder $
 
 // ROOT include(s):
 #include <TError.h>
@@ -331,11 +331,7 @@ namespace D3PD {
          result.insert( result.end(), l2.begin(), l2.end() );
          result.insert( result.end(), ef.begin(), ef.end() );
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-         return std::move( result );
-#else
          return result;
-#endif // C++11 rvalue availability
       }
 
       /**
@@ -420,11 +416,7 @@ namespace D3PD {
             }
          }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-         return std::move( result );
-#else
          return result;
-#endif // C++11 rvalue availability
       }
 
       /**
@@ -513,11 +505,7 @@ namespace D3PD {
             result.push_back( GetConfigSvc().GetL2NameFromChainId( *itr ) );
          }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-         return std::move( result );
-#else
          return result;
-#endif // C++11 rvalue availability
       }
 
       /**
@@ -605,11 +593,7 @@ namespace D3PD {
             result.push_back( GetConfigSvc().GetEFNameFromChainId( *itr ) );
          }
 
-#ifdef __GXX_EXPERIMENTAL_CXX0X__
-         return std::move( result );
-#else
          return result;
-#endif // C++11 rvalue availability
       }
 
    } // namespace Trig
