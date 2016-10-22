@@ -85,7 +85,7 @@ namespace met {
   /////////////////////////////////////////////////////////////////// 
   // executeTool
   ////////////////
-  StatusCode METTruthAssociator::executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap)
+  StatusCode METTruthAssociator::executeTool(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 

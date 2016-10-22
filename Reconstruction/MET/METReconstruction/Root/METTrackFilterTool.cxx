@@ -203,7 +203,8 @@ namespace met {
     return true;
   }
 
-  StatusCode METTrackFilterTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) {
+  StatusCode METTrackFilterTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
+  {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

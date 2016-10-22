@@ -63,18 +63,18 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    virtual StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) = 0;
+    virtual StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const = 0;
     virtual bool accept(const xAOD::IParticle* object) const;
     virtual bool resolveOverlap(const xAOD::IParticle* object,
 				xAOD::MissingETComponentMap* metMap,
 				std::vector<const xAOD::IParticle*>& acceptedSignals,
-				MissingETBase::Types::weight_t& objWeight) = 0;
+				MissingETBase::Types::weight_t& objWeight) const = 0;
 
     // Identify topoclusters that share energy with the egamma SW cluster
     //
     virtual void matchTopoClusters(const xAOD::Egamma* eg, std::vector<const xAOD::IParticle*>& tclist,
-				   const xAOD::CaloClusterContainer* tccont);
-    virtual void matchExtraTracks(const xAOD::Egamma* eg, std::vector<const xAOD::IParticle*>& tclist);
+				   const xAOD::CaloClusterContainer* tccont) const;
+    virtual void matchExtraTracks(const xAOD::Egamma* eg, std::vector<const xAOD::IParticle*>& tclist) const;
 
     // PID quality criteria and cuts
     std::string m_eg_pid;

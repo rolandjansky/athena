@@ -53,7 +53,7 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METRefinerTool::execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap)
+  StatusCode METRefinerTool::execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

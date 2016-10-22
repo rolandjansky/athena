@@ -87,7 +87,8 @@ namespace met {
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
 
-  StatusCode METMuonElossTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) {
+  StatusCode METMuonElossTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
+  {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

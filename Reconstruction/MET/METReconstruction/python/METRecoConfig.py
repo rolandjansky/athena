@@ -81,6 +81,10 @@ def getBuilder(config,suffix,doTracks,doCells,doTriggerMET,doOriginCorrClus):
     if config.objType == 'Jet':
         tool = CfgMgr.met__METJetTool('MET_JetTool_'+suffix)
         tool.DoTracks = doTracks
+        if "EMTopo" in suffix:
+            tool.SignalState = clusterSigStates['EMScale']
+        else:
+            tool.SignalState = clusterSigStates['LocHad']
     if config.objType == 'Muon':
         tool = CfgMgr.met__METMuonTool('MET_MuonTool_'+suffix)
     if config.objType == 'SoftTrk':

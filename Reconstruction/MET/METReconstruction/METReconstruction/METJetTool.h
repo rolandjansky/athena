@@ -60,12 +60,12 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+    StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
     bool accept(const xAOD::IParticle* object) const;
     bool resolveOverlap(const xAOD::IParticle* object,
 			xAOD::MissingETComponentMap* metMap,
 			std::vector<const xAOD::IParticle*>& acceptedSignals,
-			MissingETBase::Types::weight_t& objWeight);
+			MissingETBase::Types::weight_t& objWeight) const;
 
   private:
     double m_jet_minPt;
