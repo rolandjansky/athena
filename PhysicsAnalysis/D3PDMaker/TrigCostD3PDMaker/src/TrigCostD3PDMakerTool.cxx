@@ -523,10 +523,10 @@ namespace D3PD {
 
       // Do we want to save this event?
       if (m_onlySaveCostEvents == true) {
-        float _result = 0.;
-        event->getVar(Trig::kIsCostEvent, _result); // 47, is the magic number in this case. 
+        float result = 0.;
+        event->getVar(Trig::kIsCostEvent, result); // 47, is the magic number in this case. 
         // Bool stored as float. Test for 0
-        if (_result < 0.5) {
+        if (result < 0.5) {
           ATH_MSG_DEBUG( "Not a Cost Event (scale tools were not run, but L1 result info still there). Skipping event due to m_onlySaveCostEvents == true" );
           continue;
         }
@@ -851,7 +851,7 @@ namespace D3PD {
       ////////////////
       const std::vector<TrigMonSeq> eventSeqs = event->getVec<TrigMonSeq>();
       if (m_doSeq && eventSeqs.size() > 0) {
-        int _RoIIndex = 0;
+        int RoIIndex = 0;
         *m_seqN = eventSeqs.size();
         
         m_seqLevel               ->resize( eventSeqs.size() );
@@ -903,15 +903,15 @@ namespace D3PD {
             (m_seqAlgPosition   ->at(i)).at(j) = seqAlgs.at(j).getPosition();
             // We shall not go deeper than vector<vector< bla > >, so store this vector<uint8_t> "up one level"
             (m_seqAlgNRoIs            ->at(i)).at(j) = seqAlgs.at(j).getNRoi();
-            (m_seqAlgRoIIndex         ->at(i)).at(j) = _RoIIndex++;
+            (m_seqAlgRoIIndex         ->at(i)).at(j) = RoIIndex++;
             // We need to go via a vector, but this class gives us a set. Need to convert
-            std::vector< uint8_t > _RoIIdSet;
-            _RoIIdSet.clear();
-            _RoIIdSet.resize( seqAlgs.at(j).getNRoi() );
-            for (unsigned int _roi = 0; _roi < seqAlgs.at(j).getNRoi(); ++_roi) {
-              _RoIIdSet.at(_roi) = seqAlgs.at(j).getRoiId( _roi );
+            std::vector< uint8_t > RoIIdSet;
+            RoIIdSet.clear();
+            RoIIdSet.resize( seqAlgs.at(j).getNRoi() );
+            for (unsigned int roi = 0; roi < seqAlgs.at(j).getNRoi(); ++roi) {
+              RoIIdSet.at(roi) = seqAlgs.at(j).getRoiId( roi );
             }
-            m_seqRoI                  ->push_back( _RoIIdSet );
+            m_seqRoI                  ->push_back( RoIIdSet );
             (m_seqAlgIsCached         ->at(i)).at(j) = (uint8_t) seqAlgs.at(j).isCached();
             (m_seqAlgIsCalled         ->at(i)).at(j) = (uint8_t) seqAlgs.at(j).isCalled();
             (m_seqAlgTimer            ->at(i)).at(j) = seqAlgs.at(j).getTimer();
