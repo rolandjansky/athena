@@ -43,8 +43,8 @@ namespace ExpressionParsing {
     private:
       IProxyLoader *m_proxyLoader;
       IUnitInterpreter *m_unitInterpreter;
-      std::vector<StackElement> code;
-      VirtualMachine *vm;
+      std::vector<StackElement> m_code;
+      VirtualMachine *m_vm;
   };
 }
 
