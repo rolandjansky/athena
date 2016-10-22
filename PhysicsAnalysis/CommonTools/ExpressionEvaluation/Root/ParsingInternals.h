@@ -148,15 +148,15 @@ namespace ExpressionParsing
   {
     public:
       VirtualMachine(unsigned stackSize = 4096)
-        : stack(stackSize), stack_ptr(stack.begin())
+        : m_stack(stackSize), m_stack_ptr(m_stack.begin())
       { }
 
-      StackElement top() const { return stack_ptr[-1]; };
+      StackElement top() const { return m_stack_ptr[-1]; };
       void execute(std::vector<StackElement> const& code);
 
     private:
-      std::vector<StackElement> stack;
-      std::vector<StackElement>::iterator stack_ptr;
+      std::vector<StackElement> m_stack;
+      std::vector<StackElement>::iterator m_stack_ptr;
   };
 
 

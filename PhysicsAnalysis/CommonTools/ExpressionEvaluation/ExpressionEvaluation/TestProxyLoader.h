@@ -17,7 +17,7 @@
 namespace ExpressionParsing {
   class TestProxyLoader : public IProxyLoader {
     public:
-      TestProxyLoader() : intAccessCount(0) { }
+      TestProxyLoader() : m_intAccessCount(0) { }
       virtual ~TestProxyLoader();
 
       virtual void reset();
@@ -30,7 +30,7 @@ namespace ExpressionParsing {
       virtual std::vector<double> loadVecDoubleVariableFromString(const std::string &varname);
 
     private:
-      unsigned int intAccessCount;
+      unsigned int m_intAccessCount;
   };
 }
 

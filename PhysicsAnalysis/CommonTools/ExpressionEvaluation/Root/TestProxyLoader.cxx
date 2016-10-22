@@ -20,7 +20,7 @@ namespace ExpressionParsing {
 
   void TestProxyLoader::reset()
   {
-    intAccessCount = 0;
+    m_intAccessCount = 0;
   }
 
   IProxyLoader::VariableType TestProxyLoader::variableTypeFromString(const std::string &varname)
@@ -35,7 +35,7 @@ namespace ExpressionParsing {
 
   int TestProxyLoader::loadIntVariableFromString(const std::string &varname)
   {
-    if (varname == "intTEST") { ++intAccessCount; return (42+(intAccessCount-1)); }
+    if (varname == "intTEST") { ++m_intAccessCount; return (42+(m_intAccessCount-1)); }
     else if (varname == "int_TEST") { return 24; }
     else throw std::runtime_error("Unknown proxy: " + varname);
   }

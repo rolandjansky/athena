@@ -42,7 +42,8 @@
 } while(0)
 
 #define TRY_TMETHOD_WRAPPER() do { \
-  const std::type_info &containerTypeinfo = typeid(*(m_auxElement->container())); \
+  auto container = m_auxElement->container(); \
+  const std::type_info &containerTypeinfo = typeid(*container); \
   TClass *containerClass = TClass::GetClass(containerTypeinfo); \
   if (!containerClass) { \
     containerClass = TClass::GetClass(SG::normalizedTypeinfoName(containerTypeinfo).c_str()); \
