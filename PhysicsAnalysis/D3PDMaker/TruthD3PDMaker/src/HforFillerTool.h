@@ -36,11 +36,11 @@ namespace D3PD {
     ToolHandle<IHforTool> m_hfor_tool;
 
     int* m_hfor_type;
-    std::vector<float>* hfor_Quarks_px;
-    std::vector<float>* hfor_Quarks_py;
-    std::vector<float>* hfor_Quarks_pz;
-    std::vector<float>* hfor_Quarks_e;
-    std::vector<int>* hfor_event_flavour;
+    std::vector<float>* m_hfor_Quarks_px;
+    std::vector<float>* m_hfor_Quarks_py;
+    std::vector<float>* m_hfor_Quarks_pz;
+    std::vector<float>* m_hfor_Quarks_e;
+    std::vector<int>* m_hfor_event_flavour;
 
   }; // class HforFillerTool
 
