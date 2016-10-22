@@ -102,7 +102,6 @@ def getAssociator(config,suffix,doPFlow=False,
     #
     tool.TrackSelectorTool = trkseltool
     #
-    tool.UseIsolationTools = True
     tool.TrackIsolationTool = trkisotool
     tool.CaloIsolationTool = caloisotool
 

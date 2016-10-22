@@ -68,7 +68,7 @@ namespace met {
   /////////////////////////////////////////////////////////////////// 
   // executeTool
   ////////////////
-  StatusCode METMuonAssociator::executeTool(xAOD::MissingETContainer* /*metCont*/, xAOD::MissingETAssociationMap* metMap)
+  StatusCode METMuonAssociator::executeTool(xAOD::MissingETContainer* /*metCont*/, xAOD::MissingETAssociationMap* metMap) const
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
@@ -89,7 +89,7 @@ namespace met {
   // Get constituents
   StatusCode METMuonAssociator::extractTopoClusters(const xAOD::IParticle* obj,
 						    std::vector<const xAOD::IParticle*>& tclist,
-						    const xAOD::IParticleContainer* /*tcCont*/) const
+						    const met::METAssociator::ConstitHolder& /*constits*/) const
   {
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const CaloCluster* muclus = mu->cluster();
@@ -121,12 +121,11 @@ namespace met {
 
   StatusCode METMuonAssociator::extractTracks(const xAOD::IParticle *obj,
 					      std::vector<const xAOD::IParticle*>& constlist,
-					      const xAOD::IParticleContainer* tcCont,
-					      const xAOD::Vertex* pv) const
+					      const met::METAssociator::ConstitHolder& constits) const
   {
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-    if(idtrack && acceptTrack(idtrack,pv) && isGoodEoverP(idtrack,tcCont)) {
+    if(idtrack && acceptTrack(idtrack,constits.pv) && isGoodEoverP(idtrack)) {
     // if(idtrack && acceptTrack(idtrack,pv)) {
       ATH_MSG_VERBOSE("Accept muon track " << idtrack << " px, py = " << idtrack->p4().Px() << ", " << idtrack->p4().Py());
       ATH_MSG_VERBOSE("Muon ID track ptr: " << idtrack);
@@ -142,15 +141,18 @@ namespace met {
   // Get constituents
   StatusCode METMuonAssociator::extractPFO(const xAOD::IParticle* obj,
 					   std::vector<const xAOD::IParticle*>& pfolist,
-					   const xAOD::PFOContainer* pfoCont,
-					   std::map<const IParticle*,MissingETBase::Types::constvec_t>& momenta,
-					   const xAOD::Vertex* pv) const
+					   const met::METAssociator::ConstitHolder& constits,
+					   std::map<const IParticle*,MissingETBase::Types::constvec_t>& momenta) const
   {  
     const xAOD::Muon *mu = static_cast<const xAOD::Muon*>(obj);
     const TrackParticle* idtrack = mu->trackParticle(xAOD::Muon::InnerDetectorTrackParticle);
-    if(idtrack && acceptChargedPFO(idtrack,pv)) {
-      for(const auto& pfo : *pfoCont) {
-	if (fabs(pfo->charge())>1e-9 && pfo->track(0) == idtrack) {
+    const CaloCluster* muclus = mu->cluster();
+
+    // One loop over PFOs
+    for(const auto& pfo : *constits.pfoCont) {
+      if(fabs(pfo->charge())>1e-9) {
+	// get charged PFOs by matching the muon ID track
+	if(idtrack && acceptChargedPFO(idtrack,constits.pv) && pfo->track(0) == idtrack) {
 	  ATH_MSG_VERBOSE("Accept muon PFO " << pfo << " px, py = " << pfo->p4().Px() << ", " << pfo->p4().Py());
 	  ATH_MSG_VERBOSE("Muon PFO index: " << pfo->index() << ", pt: " << pfo->pt() << ", eta: " << pfo->eta() << ", phi: " << pfo->phi() );
 	  ATH_MSG_VERBOSE("Muon ID Track index: " << idtrack->index() << ", pt: " << idtrack->pt() << ", eta: " << idtrack->eta() << ", phi: " << idtrack->phi() );
@@ -161,9 +163,34 @@ namespace met {
 	    momenta[pfo] = weight*MissingETBase::Types::constvec_t(*pfo);
 	  }
 	  break;
-	}
-      }
-    }
+	} // track match
+      } else {
+      	// get neutral PFOs by matching the muon cluster
+      	if(muclus && m_doMuonClusterMatch) {
+      	  ATH_MSG_VERBOSE("Muon " << mu->index() << " with pt " << mu->pt()
+      			  << ", eta "   << mu->eta()
+      			  << ", phi " << mu->phi()
+      			  << " has cluster with "
+      			  << "eta "   << muclus->calEta()
+      			  << ", phi " << muclus->calPhi()
+      			  << ", E "   << muclus->calE()
+      			  << " formed of " << muclus->size() << " cells.");
+      	  ATH_MSG_VERBOSE("Muon Eloss type: " << mu->energyLossType()
+      			  << " Eloss: " << mu->floatParameter(xAOD::Muon::EnergyLoss)
+      			  << " MeasuredEloss: " << mu->floatParameter(xAOD::Muon::MeasEnergyLoss)
+      			  << " FSR E: " << mu->floatParameter(xAOD::Muon::FSR_CandidateEnergy) );
+      
+      	  static const SG::AuxElement::ConstAccessor<std::vector<ElementLink<CaloClusterContainer> > > tcLinkAcc("constituentClusterLinks");
+      	  for(const auto& matchel : tcLinkAcc(*muclus)) {
+      	    ATH_MSG_VERBOSE("Tool found cluster " << (*matchel)->index() << " with pt " << (*matchel)->pt() );
+      	    if((*matchel)->e()>1e-9 && pfo->cluster(0) == *matchel) { // +ve E && matches cluster
+      	      pfolist.push_back(pfo);
+      	    }
+      	  }
+      	} // muon has linked cluster
+      } 
+    } // end of cluster loop
+
     return StatusCode::SUCCESS;
   }
 

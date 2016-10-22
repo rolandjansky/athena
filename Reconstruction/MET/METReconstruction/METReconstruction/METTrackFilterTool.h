@@ -75,7 +75,7 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
   protected: 
-    StatusCode executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+    StatusCode executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
     // Accept functions
     // bool isPVTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* pv) const;
     bool isGoodEoverP(const xAOD::TrackParticle* trk,

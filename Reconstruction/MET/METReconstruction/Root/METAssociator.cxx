@@ -57,7 +57,6 @@ namespace met {
     declareProperty( "UseRapidity",        m_useRapidity = false                 );
     declareProperty( "PFOTool",            m_pfotool                             );
     declareProperty( "PFOWeightTool",     m_pfoweighttool                     );
-    declareProperty( "UseIsolationTools",  m_useIsolationTools=true              );
     declareProperty( "TrackSelectorTool",  m_trkseltool                          );
     declareProperty( "TrackIsolationTool", m_trkIsolationTool                    );
     declareProperty( "CaloIsolationTool",  m_caloIsolationTool                   );
@@ -107,7 +106,7 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METAssociator::execute(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap)
+  StatusCode METAssociator::execute(xAOD::MissingETContainer* metCont, xAOD::MissingETAssociationMap* metMap) const
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
     if(!metCont) {
@@ -129,12 +128,11 @@ namespace met {
     return this->executeTool(metCont, metMap);
   }
 
-  StatusCode METAssociator::retrieveConstituents(const xAOD::IParticleContainer*& tcCont,const xAOD::Vertex*& pv,const xAOD::TrackParticleContainer*& trkCont,const xAOD::PFOContainer*& pfoCont) const
+  StatusCode METAssociator::retrieveConstituents(met::METAssociator::ConstitHolder& constits) const
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
-    tcCont = 0;
     if (!m_skipconst || m_forcoll.empty()) {
-      if( evtStore()->retrieve(tcCont, m_clcoll).isFailure() ) {
+      if( evtStore()->retrieve(constits.tcCont, m_clcoll).isFailure() ) {
         ATH_MSG_WARNING("Unable to retrieve topocluster container " << m_clcoll << " for overlap removal");
         return StatusCode::FAILURE;
       }
@@ -145,7 +143,7 @@ namespace met {
       hybridname += m_foreta;
       hybridname += m_forcoll;
       if( evtStore()->contains<IParticleContainer>(hybridname) ) {
-        ATH_CHECK(evtStore()->retrieve(tcCont,hybridname));
+        ATH_CHECK(evtStore()->retrieve(constits.tcCont,hybridname));
       } else {
         ConstDataVector<IParticleContainer> *hybridCont = new ConstDataVector<IParticleContainer>(SG::VIEW_ELEMENTS);
 
@@ -162,13 +160,11 @@ namespace met {
         for(const auto& clus : *centCont) if (fabs(clus->eta())<m_foreta) hybridCont->push_back(clus);
         for(const auto& clus : *forCont) if (fabs(clus->eta())>=m_foreta) hybridCont->push_back(clus);
         ATH_CHECK( evtStore()->record(hybridCont,hybridname));
-        tcCont = hybridCont->asDataVector();
+        constits.tcCont = hybridCont->asDataVector();
       }
     }
 
     const VertexContainer *vxCont = 0;
-    pv = 0;
-
     if( !m_useTracks){
       //if you want to skip tracks, set the track collection empty manually
       ATH_MSG_DEBUG("Skipping tracks");
@@ -182,27 +178,26 @@ namespace met {
 
       for(const auto& vx : *vxCont) {
 	if(vx->vertexType()==VxType::PriVtx)
-	  {pv = vx; break;}
+	  {constits.pv = vx; break;}
       }
-      if(!pv) {
+      if(!constits.pv) {
 	ATH_MSG_WARNING("Failed to find primary vertex!");
       } else {
-	ATH_MSG_VERBOSE("Primary vertex has z = " << pv->z());
+	ATH_MSG_VERBOSE("Primary vertex has z = " << constits.pv->z());
       }
 
-      trkCont=0;
-      ATH_CHECK( evtStore()->retrieve(trkCont, m_trkcoll) );
-      if(!m_useIsolationTools) ATH_CHECK( filterTracks(trkCont,pv) );
+      constits.trkCont=0;
+      ATH_CHECK( evtStore()->retrieve(constits.trkCont, m_trkcoll) );
 
       if(m_pflow) {
-	pfoCont = 0;
+	constits.pfoCont = 0;
 	if( evtStore()->contains<xAOD::PFOContainer>("EtmissParticleFlowObjects") ) {
-	  ATH_CHECK(evtStore()->retrieve(pfoCont,"EtmissParticleFlowObjects"));
+	  ATH_CHECK(evtStore()->retrieve(constits.pfoCont,"EtmissParticleFlowObjects"));
 	} else {
-	  pfoCont = m_pfotool->retrievePFO(CP::EM, CP::all);
-	  ATH_CHECK( evtStore()->record( const_cast<xAOD::PFOContainer*>(pfoCont),"EtmissParticleFlowObjects"));
+	  constits.pfoCont = m_pfotool->retrievePFO(CP::EM, CP::all);
+	  ATH_CHECK( evtStore()->record( const_cast<xAOD::PFOContainer*>(constits.pfoCont),"EtmissParticleFlowObjects"));
 	}
-	if(!pfoCont) {
+	if(!constits.pfoCont) {
 	  ATH_MSG_WARNING("Unable to retrieve input pfo container");
 	  return StatusCode::FAILURE;
 	}//pfoCont check
@@ -224,14 +219,10 @@ namespace met {
 
   StatusCode METAssociator::fillAssocMap(xAOD::MissingETAssociationMap* metMap,
 					 const xAOD::IParticleContainer* hardObjs) const
-  //					 std::vector<const xAOD::IParticle*>& mutracks) const
   {
-    const IParticleContainer* tcCont;
-    const Vertex* pv;
-    const TrackParticleContainer* trkCont;
-    const PFOContainer* pfoCont;
+    ConstitHolder constits;
 
-    if (retrieveConstituents(tcCont,pv,trkCont,pfoCont).isFailure()) {
+    if (retrieveConstituents(constits).isFailure()) {
       ATH_MSG_DEBUG("Unable to retrieve constituent containers");
       return StatusCode::FAILURE;
     }
@@ -254,36 +245,23 @@ namespace met {
 	  return StatusCode::FAILURE;
 	}else{
 	  std::map<const IParticle*,MissingETBase::Types::constvec_t> momentumOverride;
-	  ATH_CHECK( this->extractPFO(obj,constlist,pfoCont,momentumOverride,pv) );
+	  ATH_CHECK( this->extractPFO(obj,constlist,constits,momentumOverride) );
 	  MissingETComposition::insert(metMap,obj,constlist,momentumOverride);
 	}
       } else {
 	std::vector<const IParticle*> tclist;
 	tclist.reserve(20);
-        ATH_CHECK( this->extractTopoClusters(obj,tclist,tcCont) );
+        ATH_CHECK( this->extractTopoClusters(obj,tclist,constits) );
 	if(m_useModifiedClus) {
 	  for(const auto& cl : tclist) {
 	    // use index-parallelism to identify shallow copied constituents
-	    constlist.push_back((*tcCont)[cl->index()]);
+	    constlist.push_back((*constits.tcCont)[cl->index()]);
 	  }
 	} else {
 	  constlist = tclist;
 	}
-	if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,tcCont,pv) );
+	if(m_useTracks) ATH_CHECK( this->extractTracks(obj,constlist,constits) );
         MissingETComposition::insert(metMap,obj,constlist);
-      }
-    }
-    return StatusCode::SUCCESS;
-  }
-
-  StatusCode METAssociator::filterTracks(const xAOD::TrackParticleContainer* tracks,
-				   const xAOD::Vertex* pv) const {
-    ConstDataVector<TrackParticleContainer>* goodtracks(0);
-    if( !evtStore()->contains<TrackParticleContainer>(m_goodtracks_coll) ) {
-      goodtracks = new ConstDataVector<TrackParticleContainer>(SG::VIEW_ELEMENTS);
-      ATH_CHECK( evtStore()->record(goodtracks, m_goodtracks_coll) );
-      for(const auto& trk : *tracks) {
-	if(acceptTrack(trk,pv)) goodtracks->push_back(trk);
       }
     }
     return StatusCode::SUCCESS;
@@ -293,40 +271,9 @@ namespace met {
   ////////////////
   bool METAssociator::acceptTrack(const xAOD::TrackParticle* trk, const xAOD::Vertex* vx) const
   {
-    //if(fabs(trk->pt())<500/*MeV*/ || fabs(trk->eta())>2.5) return false;
-    // could add some error checking to make sure we successfully read the details
-    //uint8_t nPixHits(0), nSctHits(0);
-    //trk->summaryValue(nPixHits,xAOD::numberOfPixelHits);
-    //if(nPixHits<1) return false;
-    //trk->summaryValue(nSctHits,xAOD::numberOfSCTHits);
-    //if(nSctHits<6) return false;
-    //if(fabs(trk->d0())>1.5) return false;
-    //if(fabs(trk->z0() + trk->vz() - vx->z()) > 1.5) return false;
-    //return true;
-
-    //todo check m_trkseltool exists
-    //if (!m_trkseltool){
-    //  ATH_MSG_WARNING("Tried to accept tracks with no TrackSelectionTool");
-    //  return false;
-    //}
 
     if (!vx) return false;//in events with no pv, we will just reject all tracks, and therefore build only the calo MET
     const Root::TAccept& accept = m_trkseltool->accept( *trk, vx );
-    // uint8_t nBLHits(0), expectBLHit(false);
-    // if(trk->summaryValue(nBLHits,xAOD::numberOfBLayerHits)) {
-    //   ATH_MSG_VERBOSE("Track has " << (int) nBLHits << " b-layer hits");
-    // }
-    // if(trk->summaryValue(expectBLHit,xAOD::expectBLayerHit)) {
-    //   ATH_MSG_VERBOSE("Track expected b-layer hit: " << (bool) expectBLHit);
-    // }
-    // ATH_MSG_VERBOSE("From auxdata: expect hit ? " << (bool) trk->auxdata<uint8_t>("expectBLayerHit")
-    // 		    << " Nhits = " << (int) trk->auxdata<uint8_t>("numberOfBLayerHits"));
-
-    // if(!accept && fabs(trk->z0() + trk->vz() - vx->z())*sin(trk->theta()) < 1.5) {
-    //   for(size_t icut=0; icut<accept.getNCuts(); ++icut) {
-    // 	ATH_MSG_VERBOSE("Cut " << accept.getCutName(icut) << ": result = " << accept.getCutResult(icut));
-    //   }
-    // }
     return accept;
   }
 
@@ -339,7 +286,7 @@ namespace met {
   }
 
 
-  bool METAssociator::isGoodEoverP(const xAOD::TrackParticle* trk,const xAOD::IParticleContainer*& tcCont) const
+  bool METAssociator::isGoodEoverP(const xAOD::TrackParticle* trk) const
   {
 
     if( (fabs(trk->eta())<1.5 && trk->pt()>m_cenTrackPtThr) ||
@@ -351,55 +298,32 @@ namespace met {
 
       // first compute track and calo isolation variables
       float ptcone20 = 0., isolfrac = 0., etcone10 = 0., EoverP = 0.;
-      if(!m_useIsolationTools) {
-        ATH_MSG_VERBOSE( "Using OLD track isolation setup");
-        // ptcone
-	const TrackParticleContainer* goodtracks(0);
-	ATH_CHECK( evtStore()->retrieve(goodtracks, m_goodtracks_coll) );
-        for(const auto& testtrk : *goodtracks) {
-          if(testtrk==trk) continue;
-          if (xAOD::P4Helpers::isInDeltaR(*testtrk,*trk,0.2,m_useRapidity)) {
-	        ptcone20 += testtrk->pt();
-          } 
-        }
-        isolfrac = ptcone20 / trk->pt();
-        // etcone
-        for(const auto& clus : *tcCont) {
-          if (xAOD::P4Helpers::isInDeltaR(*clus,*trk,0.1,m_useRapidity)) {
-            etcone10 += clus->pt();
-          }
-        }
-        EoverP = etcone10/trk->pt();
-      } 
-      else {
-        ATH_MSG_VERBOSE( "Using NEW track isolation setup");
-        // ptcone
-        TrackIsolation trkIsoResult;
-        std::vector<Iso::IsolationType> trkIsoCones; 
-        trkIsoCones.push_back(xAOD::Iso::IsolationType::ptcone20);
-        xAOD::TrackCorrection trkIsoCorr;
-        trkIsoCorr.trackbitset.set(xAOD::Iso::IsolationTrackCorrection::coreTrackPtr); 
-        m_trkIsolationTool->trackIsolation(trkIsoResult,
-                                           *trk,
-                                           trkIsoCones,
-                                           trkIsoCorr);
-        ptcone20 = trkIsoResult.ptcones.size() > 0 ? trkIsoResult.ptcones[0] : 0;
-        isolfrac = ptcone20/trk->pt();
-        // etcone
-        CaloIsolation caloIsoResult_coreCone;
-        std::vector<Iso::IsolationType> caloIsoCones_coreCone; 
-        caloIsoCones_coreCone.push_back(xAOD::Iso::IsolationType::etcone20); 
-        xAOD::CaloCorrection caloIsoCorr_coreCone;
-        caloIsoCorr_coreCone.calobitset.set(xAOD::Iso::IsolationCaloCorrection::coreCone); 
-        m_caloIsolationTool->caloTopoClusterIsolation(caloIsoResult_coreCone,
-                                                      *trk,
-                                                      caloIsoCones_coreCone,
-                                                      caloIsoCorr_coreCone);
-        etcone10 =  caloIsoResult_coreCone.etcones.size() > 0 ? 
-                    caloIsoResult_coreCone.coreCorrections[xAOD::Iso::IsolationCaloCorrection::coreCone][xAOD::Iso::IsolationCorrectionParameter::coreEnergy] : 0.;
-        EoverP   =  etcone10/trk->pt(); 
-        /////////////////////////////////////////////////////////////////////////
-      }
+      // ptcone
+      TrackIsolation trkIsoResult;
+      std::vector<Iso::IsolationType> trkIsoCones; 
+      trkIsoCones.push_back(xAOD::Iso::IsolationType::ptcone20);
+      xAOD::TrackCorrection trkIsoCorr;
+      trkIsoCorr.trackbitset.set(xAOD::Iso::IsolationTrackCorrection::coreTrackPtr); 
+      m_trkIsolationTool->trackIsolation(trkIsoResult,
+					 *trk,
+					 trkIsoCones,
+					 trkIsoCorr);
+      ptcone20 = trkIsoResult.ptcones.size() > 0 ? trkIsoResult.ptcones[0] : 0;
+      isolfrac = ptcone20/trk->pt();
+      // etcone
+      CaloIsolation caloIsoResult_coreCone;
+      std::vector<Iso::IsolationType> caloIsoCones_coreCone; 
+      caloIsoCones_coreCone.push_back(xAOD::Iso::IsolationType::etcone20); 
+      xAOD::CaloCorrection caloIsoCorr_coreCone;
+      caloIsoCorr_coreCone.calobitset.set(xAOD::Iso::IsolationCaloCorrection::coreCone); 
+      m_caloIsolationTool->caloTopoClusterIsolation(caloIsoResult_coreCone,
+						    *trk,
+						    caloIsoCones_coreCone,
+						    caloIsoCorr_coreCone);
+      etcone10 =  caloIsoResult_coreCone.etcones.size() > 0 ? 
+	caloIsoResult_coreCone.coreCorrections[xAOD::Iso::IsolationCaloCorrection::coreCone][xAOD::Iso::IsolationCorrectionParameter::coreEnergy] : 0.;
+      EoverP   =  etcone10/trk->pt(); 
+      /////////////////////////////////////////////////////////////////////////
       ATH_MSG_VERBOSE( "Track isolation fraction: " << isolfrac );
       ATH_MSG_VERBOSE( "Track E/P = " << EoverP );
 

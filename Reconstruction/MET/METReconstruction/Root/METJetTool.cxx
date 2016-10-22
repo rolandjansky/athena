@@ -131,7 +131,7 @@ namespace met {
   bool METJetTool::resolveOverlap(const xAOD::IParticle* object,
 				  xAOD::MissingETComponentMap* metMap,
 				  std::vector<const xAOD::IParticle*>& acceptedSignals,
-				  MissingETBase::Types::weight_t& objWeight)
+				  MissingETBase::Types::weight_t& objWeight) const
   {
 
     if(object->type() != xAOD::Type::Jet) {
@@ -139,7 +139,7 @@ namespace met {
       return false;
     }
     const Jet* jet = static_cast<const Jet*>(object);
-    m_signalstate = jet->getConstituentsSignalState();
+    //m_signalstate = jet->getConstituentsSignalState();
 
     ATH_MSG_VERBOSE("Retrieving jet constituents.");
     // first get the topoclusters
@@ -209,7 +209,7 @@ namespace met {
     return !clustersUsed; // return true if the jet shares no clusters with another object
   }
 
-  StatusCode METJetTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap)
+  StatusCode METJetTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

@@ -54,7 +54,7 @@ namespace met {
 
     // AsgTool Hooks
     virtual StatusCode initialize();
-    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+    virtual StatusCode execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
     virtual StatusCode finalize();
 
     /////////////////////////////////////////////////////////////////// 
@@ -79,7 +79,7 @@ namespace met {
 
     // reconstruction process to be defined in the individual tools
     // pure virtual -- we have no default
-    virtual StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) = 0;
+    virtual StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const = 0;
 
     // decision about whether an input object should be considered for inclusion in the MET sum
     virtual bool accept(const xAOD::IParticle* object) const = 0;
@@ -93,7 +93,7 @@ namespace met {
     virtual bool resolveOverlap(const xAOD::IParticle* object,
 				xAOD::MissingETComponentMap* metMap,
 				std::vector<const xAOD::IParticle*>& acceptedSignals,
-				MissingETBase::Types::weight_t& objWeight) = 0;
+				MissingETBase::Types::weight_t& objWeight) const = 0;
 
     // after overlap resolution, add the object with its list of constituents to the composition map
     // weight and status can be set if they need to be different from the default
@@ -102,7 +102,7 @@ namespace met {
 			  xAOD::MissingET* metTerm,
 			  xAOD::MissingETComponentMap* metMap,
 			  MissingETBase::Types::weight_t& objWeight,
-			  MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::TrackCluster);
+			  MissingETBase::UsageHandler::Policy p=MissingETBase::UsageHandler::TrackCluster) const;
     
     // uses metMap->insert(metTerm, particle, weight, status, acceptedSignals)
     //

@@ -59,7 +59,7 @@ namespace met {
     return StatusCode::SUCCESS;
   }
 
-  StatusCode METBuilderTool::execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap)
+  StatusCode METBuilderTool::execute(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const
   {
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
@@ -100,7 +100,7 @@ namespace met {
 				xAOD::MissingET* metTerm,
 				xAOD::MissingETComponentMap* metMap,
 				MissingETBase::Types::weight_t& objWeight,
-				MissingETBase::UsageHandler::Policy p)
+				MissingETBase::UsageHandler::Policy p) const
   {
 
     metTerm->add(object->pt()*cos(object->phi())*objWeight.wpx(),

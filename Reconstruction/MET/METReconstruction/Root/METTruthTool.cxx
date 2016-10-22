@@ -191,17 +191,7 @@ namespace met {
     return true;
   }
 
-  // don't really need this for anything
-  bool METTruthTool::resolveOverlap(const xAOD::IParticle* /*object*/,
-				    xAOD::MissingETComponentMap* /*metMap*/,
-				    std::vector<const xAOD::IParticle*>& /*acceptedSignals*/,
-				    MissingETBase::Types::weight_t& /*objWeight*/)
-  {
-
-    return true;
-  }
-
-  StatusCode METTruthTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) {
+  StatusCode METTruthTool::executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 

@@ -112,7 +112,8 @@ namespace met {
   // Protected methods: 
   /////////////////////////////////////////////////////////////////// 
 
-  StatusCode METCaloRegionsTool::execute(xAOD::MissingET* metTerm_EMB, xAOD::MissingETComponentMap* /*metMap*/) {
+  StatusCode METCaloRegionsTool::execute(xAOD::MissingET* metTerm_EMB, xAOD::MissingETComponentMap* /*metMap*/) const
+  {
 
     ATH_MSG_DEBUG ("In execute: " << name() << "...");
 
@@ -194,7 +195,7 @@ namespace met {
   }
 
   // Find MetTerm name for a given sampling
-  MissingET* METCaloRegionsTool::findMetTerm(MissingETContainer* metContainer, CaloSampling::CaloSample sample) 
+  MissingET* METCaloRegionsTool::findMetTerm(MissingETContainer* metContainer, CaloSampling::CaloSample sample) const 
   { 
     switch(sample) {
       case CaloSampling::EMB1:
@@ -241,7 +242,8 @@ namespace met {
 
   // Fill Cell MET
   StatusCode METCaloRegionsTool::fillCellMet(xAOD::MissingETContainer* metContainer,
-                                             const CaloCellContainer* caloCellContainer) {
+                                             const CaloCellContainer* caloCellContainer) const
+  {
     #if defined (XAOD_STANDALONE) || defined(XAOD_ANALYSIS)
     ATH_MSG_WARNING("Cell information is only available in athena framework");
     #else
@@ -298,7 +300,8 @@ namespace met {
 
   // Fill Cluster MET
   StatusCode METCaloRegionsTool::fillClusterMet(xAOD::MissingETContainer* metContainer, 
-                                                const CaloClusterContainer* caloClusContainer) {
+                                                const CaloClusterContainer* caloClusContainer) const
+  {
 
     // Loop over all clusters
     for( CaloClusterContainer::const_iterator iClus=caloClusContainer->begin();

@@ -59,8 +59,7 @@ namespace met {
   ////////////////
   METEgammaTool::METEgammaTool(const std::string& name) : 
     AsgTool(name),
-    METBuilderTool(name),
-    m_tcCont(NULL)
+    METBuilderTool(name)
   {
 
     declareProperty( "PIDSel",            m_eg_pid         = ""     ); // Selection string to be determined
@@ -163,7 +162,7 @@ namespace met {
   }
 
   void METEgammaTool::matchTopoClusters(const xAOD::Egamma* eg, std::vector<const xAOD::IParticle*>& tclist,
-					const xAOD::CaloClusterContainer* tcCont)
+					const xAOD::CaloClusterContainer* tcCont) const
   {
     // safe to assume a single SW cluster?
     // will do so for now...
@@ -235,7 +234,7 @@ namespace met {
   }
 
   // In case any common treatment is needed for egammas in addition to the electron/photon specialised versions
-  void METEgammaTool::matchExtraTracks(const xAOD::Egamma* /*eg*/, std::vector<const xAOD::IParticle*>& trklist)
+  void METEgammaTool::matchExtraTracks(const xAOD::Egamma* /*eg*/, std::vector<const xAOD::IParticle*>& trklist) const
   {
     ATH_MSG_VERBOSE("Egamma has " << trklist.size() << " linked tracks");
   }

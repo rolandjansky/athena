@@ -50,7 +50,7 @@ namespace met{
     // Private data: 
     /////////////////////////////////////////////////////////////////// 
     protected: 
-      StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap);
+      StatusCode  executeTool(xAOD::MissingET* metTerm, xAOD::MissingETComponentMap* metMap) const;
 
     private:
       // Default constructor
@@ -63,7 +63,6 @@ namespace met{
       std::vector<float>       m_region_values;
       std::vector<std::string> m_region_names;
       std::vector<std::pair<float,float> > m_region_eta_values;
-      std::map< std::pair<float,float>, xAOD::MissingET* > m_mapRangeToMET;
   };
 
 }

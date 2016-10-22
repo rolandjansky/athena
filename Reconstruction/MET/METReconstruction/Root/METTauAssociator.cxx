@@ -70,7 +70,7 @@ namespace met {
 
   // executeTool
   ////////////////
-  StatusCode METTauAssociator::executeTool(xAOD::MissingETContainer* /*metCont*/, xAOD::MissingETAssociationMap* metMap)
+  StatusCode METTauAssociator::executeTool(xAOD::MissingETContainer* /*metCont*/, xAOD::MissingETAssociationMap* metMap) const
   {
     ATH_MSG_VERBOSE ("In execute: " << name() << "...");
 
@@ -93,7 +93,7 @@ namespace met {
   // Get tau constituents
   StatusCode METTauAssociator::extractTopoClusters(const xAOD::IParticle *obj,
 						   std::vector<const xAOD::IParticle*>& tclist,
-				        	   const xAOD::IParticleContainer* /*tcCont*/) const
+				        	   const met::METAssociator::ConstitHolder& /*tcCont*/) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     /////////////////////////////////////////// TO-BE REMOVED!!!
@@ -137,8 +137,7 @@ namespace met {
 
   StatusCode METTauAssociator::extractTracks(const xAOD::IParticle *obj,
 					     std::vector<const xAOD::IParticle*>& constlist,
-					     const xAOD::IParticleContainer* tcCont,
-					     const xAOD::Vertex* pv) const
+					     const met::METAssociator::ConstitHolder& constits) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     /////////////////////////////////////////// TO-BE REMOVED!!!
@@ -166,7 +165,7 @@ namespace met {
     /////////////////////////////////////////// TO-BE REMOVED!!!
     for( const xAOD::TauTrack* tauTrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks dR<0.2 regardless of quality
       const TrackParticle* trk = tauTrk->track();
-      if(acceptTrack(trk,pv) && isGoodEoverP(trk, tcCont)){
+      if(acceptTrack(trk,constits.pv) && isGoodEoverP(trk)){
         ATH_MSG_VERBOSE("Accept tau track " << trk << " px, py = " << trk->p4().Px() << ", " << trk->p4().Py());
         constlist.push_back(trk);
       }
@@ -178,14 +177,13 @@ namespace met {
   // Get tau constituents
   StatusCode METTauAssociator::extractPFO(const xAOD::IParticle* obj,
 					  std::vector<const xAOD::IParticle*>& pfolist,
-					  const xAOD::PFOContainer* pfoCont,
-					  std::map<const IParticle*,MissingETBase::Types::constvec_t> &momenta,
-					  const xAOD::Vertex* pv) const
+					  const met::METAssociator::ConstitHolder& constits,
+					  std::map<const IParticle*,MissingETBase::Types::constvec_t> &momenta) const
   {
     const TauJet* tau = static_cast<const TauJet*>(obj);
     const Jet* seedjet = *tau->jetLink();
     TLorentzVector momentum;
-    for(const auto& pfo : *pfoCont) {
+    for(const auto& pfo : *constits.pfoCont) {
       bool match = false;
       if (fabs(pfo->charge())<1e-9) {
 	if(seedjet->p4().DeltaR(pfo->p4EM())<0.2 && pfo->eEM()>0) {match = true;}
@@ -211,14 +209,14 @@ namespace met {
         for( const xAOD::TauTrack* ttrk : tau->tracks(xAOD::TauJetParameters::coreTrack) ){//all tracks <0.2, no quality
           const TrackParticle* tautrk = ttrk->track();
           if(tautrk==pfotrk) {
-            if(acceptChargedPFO(tautrk,pv)) match = true;
+            if(acceptChargedPFO(tautrk,constits.pv)) match = true;
           }
         }
       }
       if(match) {
 	pfolist.push_back(pfo);
 	if(fabs(pfo->charge())<1e-9) {
-	  momentum = pv ? pfo->GetVertexCorrectedEMFourVec(*pv) : pfo->p4EM();
+	  momentum = constits.pv ? pfo->GetVertexCorrectedEMFourVec(*constits.pv) : pfo->p4EM();
 	  momenta[pfo] = MissingETBase::Types::constvec_t(momentum.Px(),momentum.Py(),momentum.Pz(),
 						     momentum.E(),momentum.Pt());
 	} else if(m_weight_charged_pfo) {
