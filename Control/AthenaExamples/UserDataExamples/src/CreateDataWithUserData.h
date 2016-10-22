@@ -42,9 +42,9 @@ namespace UserDataExamples {
     unsigned m_vecSize;
     
     //counters:
-    unsigned nEvents;
-    unsigned nClusters;
-    unsigned nAttributes;
+    unsigned m_nEvents;
+    unsigned m_nClusters;
+    unsigned m_nAttributes;
     
     template<typename T>
     bool checkvalues(const T& a, const T& b, const std::string& label);
@@ -56,7 +56,7 @@ namespace UserDataExamples {
     if (a==b) 
       return true;
     else {
-      msg(MSG::ERROR) << "Values with label << " << label << " differ!" << endreq;
+      msg(MSG::ERROR) << "Values with label << " << label << " differ!" << endmsg;
       return false;
     }
   }

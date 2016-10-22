@@ -42,7 +42,7 @@ namespace UserDataExamples {
     
     //counters:
     unsigned m_events;
-    unsigned nAttributes;
+    unsigned m_nAttributes;
     
   }; 
 }
