@@ -79,7 +79,7 @@ if DetFlags.haveRIO.pixel_on():
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/PIPES")
                 if not conddb.folderRequested('/PIXEL/DCS/LV'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/LV")
-                if not conddb.folderRequested('/PIXEL/DCS/HVCURRENT'):
+                if rec.doMonitoring() and not conddb.folderRequested('/PIXEL/DCS/HVCURRENT'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/HVCURRENT")
                 if not conddb.folderRequested('/PIXEL/DCS/PLANTS'):
                     conddb.addFolder("DCS_OFL","/PIXEL/DCS/PLANTS")

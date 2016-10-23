@@ -1099,6 +1099,12 @@ class doParticleConversion(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class doHIP300(InDetFlagsJobProperty):
+    """ Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -2665,7 +2671,8 @@ _list_InDetJobProperties = [Enabled,
                             doSCTModuleVeto,
                             doDBMstandalone,
                             doDBM,
-                            doParticleConversion
+                            doParticleConversion,
+                            doHIP300
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)

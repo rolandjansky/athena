@@ -299,7 +299,10 @@ class ConfiguredNewTrackingCuts :
 
     # --- mode for min bias, commissioning or doRobustReco
     if mode == 'MinBias' or self.__indetflags.doRobustReco(): 
-      self.__minPT                     = 0.100 * Units.GeV 
+      if self.__indetflags.doHIP300():
+        self.__minPT                     = 0.300 * Units.GeV
+      else:
+        self.__minPT                     = 0.100 * Units.GeV 
       self.__minClusters               = 5
       self.__minSecondaryPt            = 0.4 * Units.GeV  # Pt cut for back tracking + segment finding for these
       self.__minTRTonlyPt              = 0.4 * Units.GeV  # Pt cut for TRT only
@@ -545,7 +548,10 @@ class ConfiguredNewTrackingCuts :
       self.__useTRT           = False 
 
       if self.__indetflags.doMinBias():
-        self.__minPT            = 0.05 * Units.GeV
+        if self.__indetflags.doHIP300():
+          self.__minPT            = 0.300 * Units.GeV
+        else:
+          self.__minPT            = 0.05 * Units.GeV
         self.__maxPT            = 100000 * Units.GeV # Won't accept None *NEEDS FIXING*
 
       if self.__indetflags.doHeavyIon():
@@ -615,7 +621,10 @@ class ConfiguredNewTrackingCuts :
       self.__useTRT           = False 
 
       if self.__indetflags.doMinBias():
-        self.__minPT            = 0.1 * Units.GeV
+        if self.__indetflags.doHIP300():
+          self.__minPT            = 0.3 * Units.GeV
+        else:
+          self.__minPT            = 0.1 * Units.GeV
 
       if self.__indetflags.doCosmics():
         self.__minPT            = 0.500 * Units.GeV
