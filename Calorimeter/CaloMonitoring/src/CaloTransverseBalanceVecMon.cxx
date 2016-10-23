@@ -319,7 +319,7 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
     float ph_pt = (*photonItr)->pt();
     float ph_eta = (*photonItr)->eta();
     float ph_phi = (*photonItr)->phi();
-    bool  ph_isTight = ((*photonItr)->isem(egammaPID::PhotonTight)==0);
+    bool  ph_isTight = ((*photonItr)->isem(egammaPIDObs::PhotonTight)==0);
  //   if( ph_pt <  m_photonPtCut)  continue; 
     if( !(fabs(ph_eta)<2.47 && (fabs(ph_eta)>=1.52 || fabs(ph_eta)<=1.37))) continue;
     if( !ph_isTight) continue;
