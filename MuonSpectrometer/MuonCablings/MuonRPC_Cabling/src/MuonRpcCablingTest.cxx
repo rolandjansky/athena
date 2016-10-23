@@ -66,43 +66,43 @@ MuonRpcCablingTest::initialize()
 {
     StatusCode status = StatusCode::SUCCESS;
 
-    msg()<<MSG::INFO<<"In Initialize"<<endreq;
+    msg()<<MSG::INFO<<"In Initialize"<<endmsg;
     first = true;
 
 //     status = detStore()->retrieve( p_MuonMgr );
 //     if ( status.isFailure() ) {
-// 	msg()<< MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endreq;
+// 	msg()<< MSG::ERROR << " Cannot retrieve MuonDetectorManager " << endmsg;
 //     }
 //     else
 //     {
-// 	msg()<< MSG::DEBUG << " MuonDetectorManager  is retriven " << endreq;
+// 	msg()<< MSG::DEBUG << " MuonDetectorManager  is retriven " << endmsg;
 // 	m_idHelper = p_MuonMgr->rpcIdHelper();
-// 	msg() << MSG::DEBUG << " Id Helpers are obtained from MuonDetectorManager " << endreq;	
+// 	msg() << MSG::DEBUG << " Id Helpers are obtained from MuonDetectorManager " << endmsg;	
 //     }	
 
     status = detStore()->retrieve( m_idHelper, "RPCIDHELPER" );
     if ( status.isFailure() ) 
     {
- 	msg()<< MSG::ERROR << " Cannot retrieve RpcIdHelper " << endreq;
+ 	msg()<< MSG::ERROR << " Cannot retrieve RpcIdHelper " << endmsg;
     }
 
     // get RPC cablingSvc
     const IRPCcablingServerSvc* RpcCabGet = 0;
     StatusCode sc = service("RPCcablingServerSvc", RpcCabGet);
     if (sc.isFailure()) {
-	msg (MSG::FATAL) << "Could not get RPCcablingServerSvc !" << endreq;
+	msg (MSG::FATAL) << "Could not get RPCcablingServerSvc !" << endmsg;
 	return StatusCode::FAILURE;
     }
-    else msg (MSG::VERBOSE) << " RPCcablingServerSvc retrieved" << endreq;
+    else msg (MSG::VERBOSE) << " RPCcablingServerSvc retrieved" << endmsg;
   
     status = RpcCabGet->giveCabling(m_cablingSvc);
     if (status.isFailure()) {
-	msg (MSG::FATAL) << "Could not get RPCcablingSvc from the Server !" << endreq;
+	msg (MSG::FATAL) << "Could not get RPCcablingSvc from the Server !" << endmsg;
 	m_cablingSvc = 0;
 	return StatusCode::FAILURE;
     } 
     else {
-	msg (MSG::VERBOSE) << " RPCcablingSvc obtained " << endreq;
+	msg (MSG::VERBOSE) << " RPCcablingSvc obtained " << endmsg;
     }
 
     //    // get here the pad id helper 
@@ -121,7 +121,7 @@ MuonRpcCablingTest::execute()
     std::ofstream fout("RPC_Mapping.dump");
     
     MsgStream exe_log(messageService(), name());
-    msg() << MSG::INFO << "Executing" << endreq;
+    msg() << MSG::INFO << "Executing" << endmsg;
 
     m_padHashIdHelper = m_cablingSvc->padHashFunction();
     
@@ -129,7 +129,7 @@ MuonRpcCablingTest::execute()
     const CablingRPCBase* _cabling = m_cablingSvc->getRPCCabling();
     if (!_cabling) 
     {
-        msg (MSG::ERROR) <<" CablingRPCBase not retrieven !!!!!!"<<endreq;
+        msg (MSG::ERROR) <<" CablingRPCBase not retrieven !!!!!!"<<endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -139,7 +139,7 @@ MuonRpcCablingTest::execute()
 
     // this is the right thing to do !!!!!!!
     unsigned int hash_max = m_padHashIdHelper->max();
-    msg (MSG::INFO) <<"From padHashIdHelper hash_max = "<<hash_max<<endreq;
+    msg (MSG::INFO) <<"From padHashIdHelper hash_max = "<<hash_max<<endmsg;
     
     
     Identifier pad_idId;
@@ -157,7 +157,7 @@ MuonRpcCablingTest::execute()
 	else if (m_selSideStr!="C") 
 	{
 
-	    msg()<<MSG::WARNING<<"Unknown side chosen - selected <"<<m_selSideStr<<"> while available are A and C"<<endreq;
+	    msg()<<MSG::WARNING<<"Unknown side chosen - selected <"<<m_selSideStr<<"> while available are A and C"<<endmsg;
 	}
 	else  iSubSysMax = 0;	
     }
@@ -165,12 +165,12 @@ MuonRpcCablingTest::execute()
     std::vector<unsigned short int> iSecVec;
     if (!m_selSectorVec.empty())
     {
-	msg()<<MSG::INFO<<"# of selected Sectors is "<<m_selSectorVec.size()<<endreq;
+	msg()<<MSG::INFO<<"# of selected Sectors is "<<m_selSectorVec.size()<<endmsg;
 	int ic = 0;
 	for (std::vector<int>::const_iterator is=m_selSectorVec.begin(); is!=m_selSectorVec.end(); ++is) 
 	{
 	    iSecVec.push_back(*is);
-	    msg()<<MSG::INFO<<"Sector Vec content is --- "<<*is<<" at element "<<ic<<endreq;
+	    msg()<<MSG::INFO<<"Sector Vec content is --- "<<*is<<" at element "<<ic<<endmsg;
 	    ++ic;
 	}
 	
@@ -186,24 +186,24 @@ MuonRpcCablingTest::execute()
     std::vector<unsigned short int> iRoiVec;
     if (!m_selRoiVec.empty())
     {
-	msg()<<MSG::INFO<<"# of selected Roi is "<<m_selRoiVec.size()<<endreq;
+	msg()<<MSG::INFO<<"# of selected Roi is "<<m_selRoiVec.size()<<endmsg;
 	int ic=0;
 	for (std::vector<int>::const_iterator is=m_selRoiVec.begin(); is!=m_selRoiVec.end(); ++is) 
 	{
 	    iRoiVec.push_back(*is);
-	    msg()<<MSG::INFO<<"Roi Vec content is --- "<<*is<<" at element "<<ic<<endreq;
+	    msg()<<MSG::INFO<<"Roi Vec content is --- "<<*is<<" at element "<<ic<<endmsg;
 	    ++ic;
 	}
 	
     }	
     else 
     {
-	msg()<<MSG::INFO<<"No Roi Selected "<<endreq;
+	msg()<<MSG::INFO<<"No Roi Selected "<<endmsg;
 	int ic=0;
 	for (unsigned short int is=0; is < 32; ++is) 
 	{
 	    iRoiVec.push_back(is);
-	    msg()<<MSG::DEBUG<<"Roi Vec content is --- "<<is<<" at element "<<ic<<endreq;
+	    msg()<<MSG::DEBUG<<"Roi Vec content is --- "<<is<<" at element "<<ic<<endmsg;
 	    ++ic;
 	}
     }
@@ -236,7 +236,7 @@ MuonRpcCablingTest::execute()
                     {
                         IdentifierHash padHash = (*m_padHashIdHelper)(PadId);
                         ATH_MSG_DEBUG("Associated pad-Hash (via the hash-function) = "<<(int)padHash);
-                        if (padHash>hash_max) msg (MSG::ERROR) <<"Computed hashId > hash_max = "<<hash_max<<endreq;
+                        if (padHash>hash_max) msg (MSG::ERROR) <<"Computed hashId > hash_max = "<<hash_max<<endmsg;
 
                         for (unsigned short int CMAId=0; CMAId<8; ++CMAId)
                         {
@@ -328,7 +328,7 @@ MuonRpcCablingTest::finalize()
 {
     StatusCode status = StatusCode::SUCCESS;
 
-    msg()<< MSG::INFO << "Finalizing" << endreq;
+    msg()<< MSG::INFO << "Finalizing" << endmsg;
      
     return status;
 }
