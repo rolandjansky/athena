@@ -97,7 +97,6 @@ namespace Muon {
     declareProperty("FitterPreFit",        m_trackFitterPrefit);
     declareProperty("SegmentMomentum",     m_momentumEstimator);
     declareProperty("HitTool",m_hitHandler);
-    declareProperty("MomentumEstimator",m_momentumEstimator);
     declareProperty("IdHelper",m_idHelperTool);
     declareProperty("MuonHelperTool",m_helperTool);
     declareProperty("MuonPrinterTool",m_printer);
