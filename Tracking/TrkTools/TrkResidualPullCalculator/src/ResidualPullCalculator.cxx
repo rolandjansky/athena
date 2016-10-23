@@ -23,6 +23,7 @@
 #include "TrkTrack/AlignmentEffectsOnTrack.h"
 #include <Eigen/Geometry> 
 #include <algorithm>
+#include <cmath>
 
 //////////////////////////////
 /// constructor
@@ -44,23 +45,17 @@ m_idHelper(0) {
 /// initialize
 ///////////////////////////////
 StatusCode Trk::ResidualPullCalculator::initialize() {
-    StatusCode sc = AthAlgTool::initialize();
-    if (sc.isFailure()) return sc;
+    //StatusCode sc = AthAlgTool::initialize();
+    //if (sc.isFailure()) return sc;
+    //StatusCode sc=StatusCode::SUCCESS;
 
     // ---------------------------------------
     //Set up ATLAS ID helper to be able to identify the RIO's det-subsystem.
-    if (detStore()->retrieve(m_idHelper, "AtlasID").isFailure()) {
-        ATH_MSG_ERROR ("Could not get AtlasDetectorID helper" );
-        return StatusCode::FAILURE;
-    }
+    ATH_CHECK(detStore()->retrieve(m_idHelper, "AtlasID"));
     // ----------------------------------
     // get the SCT residual/pull calculator
     if ( ! m_SCTresidualTool.empty() ) {
-        sc = m_SCTresidualTool.retrieve();
-        if (sc.isFailure()) {
-            ATH_MSG_ERROR ("Could not get res. calculator for SCT measurements: "<< m_SCTresidualTool);
-            return sc;
-        }
+        ATH_CHECK( m_SCTresidualTool.retrieve());
     } else {
         ATH_MSG_DEBUG ("No residual calculator for SCT given, will ignore SCT measurements!");
     }
@@ -68,11 +63,7 @@ StatusCode Trk::ResidualPullCalculator::initialize() {
     // ----------------------------------
     // get the RPC residual/pull calculator
     if ( ! m_RPCresidualTool.empty() ) {
-        sc = m_RPCresidualTool.retrieve();
-        if (sc.isFailure()) {
-            ATH_MSG_ERROR ("Could not get res. calculator for RPC measurements: "<< m_RPCresidualTool);
-            return sc;
-        }
+        ATH_CHECK( m_RPCresidualTool.retrieve());
     } else {
         ATH_MSG_DEBUG ("No residual calculator for RPC given, will ignore RPC measurements!");
     }
@@ -80,11 +71,7 @@ StatusCode Trk::ResidualPullCalculator::initialize() {
     // ----------------------------------
     // get the TGC residual/pull calculator
     if ( ! m_TGCresidualTool.empty() ) {
-        sc = m_TGCresidualTool.retrieve();
-        if (sc.isFailure()) {
-            ATH_MSG_ERROR ("Could not get res. calculator for TGC measurements: "<< m_TGCresidualTool);
-            return sc;
-        }
+        ATH_CHECK( m_TGCresidualTool.retrieve());
     } else {
         ATH_MSG_DEBUG ("No residual calculator for TGC given, will ignore TGC measurements!");
     }
@@ -93,7 +80,7 @@ StatusCode Trk::ResidualPullCalculator::initialize() {
 }
 
 StatusCode Trk::ResidualPullCalculator::finalize() {
-    ATH_MSG_INFO ("starting finalize() in " << name());
+    ATH_MSG_DEBUG ("starting finalize() in " << name());
     return StatusCode::SUCCESS;
 }
 
@@ -335,7 +322,7 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
     const Trk::TrackState::MeasurementType detType,
     const std::vector<const Trk::AlignmentEffectsOnTrack*>& aeots) const {
 
-    bool veryVerbose = true;
+    //bool veryVerbose = true;
 
     Trk::TrackState::MeasurementType measType = detType;
     if (detType == Trk::TrackState::unidentified) {
@@ -353,14 +340,14 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
     Trk::TrackParameters*  trkPar = originalTrkPar->clone();
     parameters =  trkPar->parameters();
    
-    if(veryVerbose) std::cout << " ResidualPullCalculator aeots size  " <<  aeots.size() << " parameters[0] " <<  parameters[0] << std::endl; 
+    ATH_MSG_VERBOSE( " ResidualPullCalculator aeots size  " <<  aeots.size() << " parameters[0] " <<  parameters[0] ); 
     double residual = measurement->localParameters()[Trk::loc1] - trkPar->parameters()[Trk::loc1];
-    if(veryVerbose) std::cout << " parameters[0] " << parameters[0] << " trkPar->parameters()[Trk::loc1] " << trkPar->parameters()[Trk::loc1] << " measurement->localParameters()[Trk::loc1] " << measurement->localParameters()[Trk::loc1] << " resi " << residual << std::endl;
+    ATH_MSG_VERBOSE( " parameters[0] " << parameters[0] << " trkPar->parameters()[Trk::loc1] " << trkPar->parameters()[Trk::loc1] << " measurement->localParameters()[Trk::loc1] " << measurement->localParameters()[Trk::loc1] << " resi " << residual );
 
     localPos[0] = parameters[0];
     localPosSimple[0] = parameters[0];
-    for ( auto aeot : aeots ){
-        if(veryVerbose) std::cout << " ResidualPullCalculator aeots deltaTranslation  " <<  aeot->deltaTranslation() << " angle " << aeot->deltaAngle()  << std::endl; 
+    for ( const auto & aeot : aeots ){
+        ATH_MSG_VERBOSE( " ResidualPullCalculator aeots deltaTranslation  " <<  aeot->deltaTranslation() << " angle " << aeot->deltaAngle()); 
 
         Trk::DistanceSolution solution = aeot->associatedSurface().straightLineDistanceEstimate(originalTrkPar->position(),originalTrkPar->momentum().unit());
         double distance = solution.currentDistance(true); 
@@ -372,41 +359,44 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
 // MDT 
           double distanceX = distance*originalTrkPar->momentum().unit().x();
           double distanceY = distance*originalTrkPar->momentum().unit().y();
-          double distanceR = cos(originalTrkPar->momentum().phi())*distanceX + sin(originalTrkPar->momentum().phi())*distanceY;
-          if(veryVerbose) std::cout << " originalTrkPar->position() x " << originalTrkPar->position().x() << " y " << originalTrkPar->position().y() << " z " << originalTrkPar->position().z() << std::endl;
-          if(veryVerbose) std::cout << " aeot->associatedSurface().center() x " << aeot->associatedSurface().center().x() << " y " << aeot->associatedSurface().center().y() << " z " << aeot->associatedSurface().center().z() << std::endl;
+          const double originalPhi=originalTrkPar->momentum().phi();
+          double distanceR = std::cos(originalPhi)*distanceX + std::sin(originalPhi)*distanceY; //< Is this quicker than hypotenuse?
+          ATH_MSG_VERBOSE( " originalTrkPar->position() x " << originalTrkPar->position().x() << " y " << originalTrkPar->position().y() << " z " << originalTrkPar->position().z() );
+          ATH_MSG_VERBOSE( " aeot->associatedSurface().center() x " << aeot->associatedSurface().center().x() << " y " << aeot->associatedSurface().center().y() << " z " << aeot->associatedSurface().center().z() );
           
 //        use drift (circle) derivatives as in TrkiPatFitterUtils 
 
-          Amg::Vector3D*  sensorDirection  = new Amg::Vector3D(measurement->associatedSurface().transform().rotation().col(2));
-          Amg::Vector3D*  driftDirection = new Amg::Vector3D(sensorDirection->cross(originalTrkPar->momentum().unit()));
-          *driftDirection = driftDirection->unit();
-          if(veryVerbose) std::cout << " cos(theta) " << cos(originalTrkPar->momentum().theta()) << " phi " << originalTrkPar->momentum().phi() << std::endl;
-          if(veryVerbose) std::cout << " sensorDirection x " << sensorDirection->x() << " y " << sensorDirection->y() << " z " << sensorDirection->z() << std::endl;
-          if(veryVerbose) std::cout << " driftDirection x " << driftDirection->x() << " y " << driftDirection->y() << " z " << driftDirection->z() << std::endl;
+          Amg::Vector3D sensorDirection  = Amg::Vector3D(measurement->associatedSurface().transform().rotation().col(2));
+          Amg::Vector3D driftDirection = Amg::Vector3D(sensorDirection.cross(originalTrkPar->momentum().unit()));
+          driftDirection = driftDirection.unit();
+          ATH_MSG_VERBOSE( " cos(theta) " << std::cos(originalTrkPar->momentum().theta()) << " phi " << originalPhi );
+          ATH_MSG_VERBOSE( " sensorDirection x " << sensorDirection.x() << " y " << sensorDirection.y() << " z " << sensorDirection.z() );
+          ATH_MSG_VERBOSE( " driftDirection x " << driftDirection.x() << " y " << driftDirection.y() << " z " << driftDirection.z() );
           
 
 // Barrel 
-          double projection = driftDirection->z();
+          double projection = driftDirection.z();
 // dz because of a dhteta change: factor = dz/dtheta
-          double factor = distanceR/sin(originalTrkPar->momentum().theta())/sin(originalTrkPar->momentum().theta());         
+          const double originalTheta=originalTrkPar->momentum().theta();
+          const double sinOriginalTheta=std::sin(originalTheta);
+          double factor = (distanceR/sinOriginalTheta)/sinOriginalTheta;    //preserve calc. order     
           const Surface&  surface = aeot->associatedSurface();
-          if(veryVerbose) std::cout << " fabs(surface.normal().z()) " << fabs(surface.normal().z()) << std::endl;
-          if(fabs(surface.normal().z()) > 0.5) {
+          ATH_MSG_VERBOSE( " fabs(surface.normal().z()) " << std::fabs(surface.normal().z()) );
+          if(std::fabs(surface.normal().z()) > 0.5) {
 // endcap 
-             projection = (driftDirection->x()*surface.center().x() + driftDirection->y()*surface.center().y()) /
+             projection = (driftDirection.x()*surface.center().x() + driftDirection.y()*surface.center().y()) /
                                  surface.center().perp();
 // dr because of a dhteta change : factor = dR/dtheta
-             factor = -distanceR/sin(originalTrkPar->momentum().theta())/cos(originalTrkPar->momentum().theta());         
-             if(veryVerbose) std::cout << " distance " << distance << " Endcap projection " << projection << " factor " << factor << std::endl;
+             factor = -(distanceR/std::sin(originalTheta))/(std::cos(originalTheta)); //preserve calc. order        
+             ATH_MSG_VERBOSE( " distance " << distance << " Endcap projection " << projection << " factor " << factor );
           } else {
-             if(veryVerbose) std::cout << " distance " << distance << " Barrel projection " << projection  << " factor " << factor << std::endl;
+             ATH_MSG_VERBOSE( " distance " << distance << " Barrel projection " << projection  << " factor " << factor );
           }
 
 
           localPos[0] += projection*aeot->deltaTranslation() - projection*factor*aeot->deltaAngle(); // Shift in precision direction.
           
-          if(veryVerbose) std::cout << " MDT old localPos " << parameters[0] << " new localPos " << localPos[0] << std::endl; 
+          ATH_MSG_VERBOSE( " MDT old localPos " << parameters[0] << " new localPos " << localPos[0] ); 
 
         } else {
 
@@ -420,14 +410,14 @@ const Trk::ResidualPull* Trk::ResidualPullCalculator::residualPull(
           double projection = aeot->associatedSurface().normal().dot(originalTrkPar->momentum().unit()); 
           localPos[0] += aeot->deltaTranslation()*projection + distance*aeot->deltaAngle();
 
-          if(veryVerbose) std::cout << " CSC old localPos " << parameters[0] << " distance " << distance << " proj " << projection << " new localPos " << localPos[0] << " simple " << localPosSimple[0] << std::endl; 
+          ATH_MSG_VERBOSE( " CSC old localPos " << parameters[0] << " distance " << distance << " proj " << projection << " new localPos " << localPos[0] << " simple " << localPosSimple[0] ); 
           
         } 
     }
 
     parameters[0] = localPos[0];
     residual = measurement->localParameters()[Trk::loc1] -  parameters[0];
-    if(veryVerbose) std::cout << " new residual after end aeots loop " << residual << std::endl;
+    ATH_MSG_VERBOSE( " new residual after end aeots loop " << residual );
 
     // Set parameters to the new values;
     const AmgSymMatrix(5)* originalCov = trkPar->covariance();
