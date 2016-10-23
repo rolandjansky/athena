@@ -28,7 +28,7 @@ namespace Trk {
   /** @enum flag the methods for the probability calculation */
 
   enum TRT_ElectronPidProbability {
-    Combined          = 0,
+      Combined          = 0,
       HighThreshold     = 1,
       TimeOverThreshold = 2,
       Bremsstrahlung    = 3

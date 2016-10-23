@@ -1,3 +1,22 @@
+2016-10-23 Goetz Gaycken
+	* Fix unchecked status code caused by unused status code object
+	  (ATLASRECTS-3597).
+
+2016-10-21 Shaun Roe
+  * fix coverity defect:
+108872 26/04/2016 (Medium) Uninitialized pointer field :/Tracking/TrkTools/TrkTrackSummaryTool/src/TrackSummaryTool.cxx in function "TrackSummaryTool"
+  * Tagging TrkTrackSummaryTool-01-02-11
+  
+2016-09-20  scott snyder  <snyder@bnl.gov>
+
+	* Tagging TrkTrackSummaryTool-01-02-10.
+	* endreq -> endmsg.
+
+2016-09-17  scott snyder  <snyder@bnl.gov>
+
+	* Tagging TrkTrackSummaryTool-01-02-09.
+	* Const fix.
+
 2015-10-06 Goetz Gaycken
 	* Removed debug flags.
 
