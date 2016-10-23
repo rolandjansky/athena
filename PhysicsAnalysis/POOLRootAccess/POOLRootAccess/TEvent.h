@@ -20,10 +20,15 @@
 class TFile;
 class TChain;
 
+//Bootstraps the minimal gaudi environment + a few extra defaults (see basic.opts)
+namespace Gaudi {
+  IAppMgrUI* Init();
+}
+
 namespace POOL {
 
    ///Bootstraps (creates and configures) the Gaudi Application with the provided options file
-   IAppMgrUI* Init( const char* options = "POOLRootAccess/basicPOOL.opts" );
+   IAppMgrUI* Init( const char* options = "POOLRootAccess/basic.opts" );
 
 
    class TEvent {
@@ -36,11 +41,9 @@ namespace POOL {
            kUndefinedAccess = 3
          };
       
-         static IAppMgrUI* Init( const char* options ) { return POOL::Init(options); }
-         static IAppMgrUI* InitPOOL() { return POOL::Init("POOLRootAccess/basicPOOL.opts"); }
-         static IAppMgrUI* InitxAOD() { return POOL::Init("POOLRootAccess/basicxAOD.opts"); }
+         static IAppMgrUI* Init( const char* options = "POOLRootAccess/basic.opts" ) { return POOL::Init(options); }
+  
 
-         //use selectorType="Athena::xAODEventSelector" for fast xAOD
          TEvent( const std::string& name = "StoreGateSvc" );
          TEvent( EReadMode mode, const std::string& name = "StoreGateSvc" );
          
