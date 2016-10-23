@@ -45,20 +45,20 @@ Trk::TrackSummary::TrackSummary( const std::vector<int>& information, const std:
 Trk::TrackSummary::TrackSummary( const std::vector<int>& information, const std::vector<float>& eProbability, std::bitset<numberOfDetectorTypes>& hitPattern, const std::map<std::string, int>& informationITk, const std::map<std::string, int>& dettypes, std::bitset<200>& hitPatternITk, float dedx, int nhitsdedx, int noverflowdedx)
     :
     m_information( information ),
-    m_ITkInformation( informationITk ),
-    m_ITkDetectorTypes( dettypes ),
     m_eProbability( eProbability ),
     m_dedx(dedx),
     m_nhitsdedx(nhitsdedx),
-    m_idHitPattern( hitPattern.to_ulong() ),
     m_nhitsoverflowdedx(noverflowdedx),
-    m_hitPatternITk( hitPatternITk ),m_indetTrackSummary(0),m_muonTrackSummary(0)
+    m_idHitPattern( hitPattern.to_ulong() ),
+    m_indetTrackSummary(0),m_muonTrackSummary(0),
+    m_ITkInformation( informationITk ),
+    m_ITkDetectorTypes( dettypes ),
+    m_hitPatternITk( hitPatternITk ),
+    m_isITkLayout(true),m_isITkInclined(false)
 {
-    m_isITkLayout = true; //tmp variable for internal memory?
     if(m_ITkDetectorTypes.find("itkPixelIncl0Start") != m_ITkDetectorTypes.end()) {
       m_isITkInclined = true; //tmp for Inclined Barrel 4.0
     }
-    //std::cout << m_isITkLayout << " " << m_isITkInclined << std::endl;
 #ifndef NDEBUG
   s_numberOfInstantiations++; // new TrackSummary, so increment total count
 #endif        
@@ -235,16 +235,56 @@ T_out& dumpTrackSummary( T_out& out, const TrackSummary& trackSum )
   out << " number of overflow hits used for dE/dx   : " << trackSum.numberOfOverflowHitsdEdx() << "\n";
  
   bool m_isITkLayout = trackSum.isITk();
+  bool m_isITkInclined = trackSum.isITkInclined();
   if(m_isITkLayout){
     out << "============================================" << "\n";
-    out << "ITk Information:"                             << "\n";
+    out << "             ITk Information:"                << "\n";
     out << "============================================" << "\n";
-    out << "Number Of Pixel Hits:         " << trackSum.get(std::string("numberOfPixelHits")) << std::endl;
-    out << "Number Of Pixel Holes:        " << trackSum.get(std::string("numberOfPixelHoles")) << std::endl;
-    out << "Number Of Shared Pixel Hits:  " << trackSum.get(std::string("numberOfPixelShared")) << std::endl;
+    out << " * Number Of Pixel Hits                 : " << trackSum.get(std::string("numberOfPixelHits")) << "\n";
+    out << " * Number Of Spoilt Pixel Hits          : " << trackSum.get(std::string("numberOfPixelSpoilt")) << "\n";
+    out << " * Number Of Pixel Outliers             : " << trackSum.get(std::string("numberOfPixelOutliers")) << "\n";
+    out << " * Number Of Pixel Holes                : " << trackSum.get(std::string("numberOfPixelHoles")) << "\n";
+    out << " * Number Of Pixel Barrel Holes         : " << trackSum.get(std::string("numberOfPixelBarrelHoles")) << "\n";
+    out << " * Number Of Pixel Ring Holes           : " << trackSum.get(std::string("numberOfPixelRingHoles")) << "\n";
+    if(m_isITkInclined){
+    out << " * Number Of Pixel Incl Module Holes    : " << trackSum.get(std::string("numberOfPixelInclHoles")) << "\n";
+    }
+    out << " * Number Of Shared Pixel Hits          : " << trackSum.get(std::string("numberOfPixelShared")) << "\n";
+    out << " * Number Of Contributing Pixel Layers  : " << trackSum.get(std::string("numberOfContribPixelLayers")) << "\n";
+    out << " * Number Of Contributing Pixel Barrel  : " << trackSum.get(std::string("numberOfContribPixelBarrel")) << "\n";
+    out << " * Number Of Contributing Pixel Rings   : " << trackSum.get(std::string("numberOfContribPixelRings")) << "\n";
+    
+    if(m_isITkInclined) {
+    out << " * Number Of Contributing Pixel Incl    : " << trackSum.get(std::string("numberOfContribPixelInclined")) << "\n";
+    out << " * Number Of Contributing Pixel Central : " << trackSum.get(std::string("numberOfContribPixelCentral")) << "\n";
+    }
+    out << " * Number Of Strip Hits                 : " << trackSum.get(std::string("numberOfStripHits")) << "\n";
+    out << " * Number Of Spoilt Strip Hits          : " << trackSum.get(std::string("numberOfStripSpoilt")) << "\n";
+    out << " * Number Of Strip Outliers             : " << trackSum.get(std::string("numberOfStripOutliers")) << "\n";
+    out << " * Number Of Strip Holes                : " << trackSum.get(std::string("numberOfStripHoles")) << "\n";
+    out << " * Number Of Shared Strip Hits          : " << trackSum.get(std::string("numberOfStripShared")) << "\n";
+    out << " * Number Of Strip Space Points         : " << trackSum.get(std::string("numberOfStripSpacePoints")) << "\n";
+    out << " * Number Of Contributing Strip Layers  : " << trackSum.get(std::string("numberOfContribStripLayers")) << "\n";
+    out << " * Number Of Contributing Strip Barrel  : " << trackSum.get(std::string("numberOfContribStripBarrel")) << "\n";
+    out << " * Number Of Contributing Strip EC Disk : " << trackSum.get(std::string("numberOfContribStripECDisk")) << "\n";
     out << "============================================" << "\n";
-    out << "ITk Information:"                             << "\n";
+    out << "             ITk Hit Pattern:"                << "\n";
     out << "============================================" << "\n";
+ 
+    std::map<std::string, int> detectorTypes = trackSum.getDetectorTypesITk();
+    std::bitset<200> hitPatternITk = trackSum.getHitPatternITk();
+    
+    //NP: DEBUGGING output, comment out...or...something
+    std::map<std::string, int>::const_iterator it = detectorTypes.begin();
+    std::map<std::string, int>::const_iterator itEd = detectorTypes.end();
+    std::string hitPattern;
+    for(; it != itEd; it++) {
+      if ( it->first.find("Start") != std::string::npos ) continue;
+      //out << it->first << ":  " << hitPatternITk.test(it->second) << " ";
+      out << "   " << it->first << " (" << it->second << "):  " << hitPatternITk.test(it->second) << " " << "\n";
+      hitPattern+=std::to_string(hitPatternITk.test(it->second));
+    }
+    out << hitPattern << "\n";
   }
   //this is a bit nasty, but I don't have access to internal data members
   if(!m_isITkLayout){

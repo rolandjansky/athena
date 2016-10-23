@@ -208,7 +208,7 @@ public:
         std::bitset<numberOfDetectorTypes>& hitPattern,
         float dedx=-1,
         int nhitsuseddedx=-1,
-	int nhitsoverflowdedx=-1
+	      int nhitsoverflowdedx=-1
     );
     
     //ITK Constructor
@@ -236,9 +236,15 @@ public:
     Track, or (more likely) Trk::TrkTrackSummaryTool is not filling it yet)*/
     int get(const SummaryType& type) const;
 
+    //ITk Methods
     int get(const std::string& type) const;
     bool isITk() const;
     bool isITkInclined() const;
+    std::bitset<200> getHitPatternITk() const;
+    std::map<std::string, int> getDetectorTypesITk() const;
+    bool isHit(const std::string& type) const;
+
+    //void dumpHitPattern() const;
     /** returns the probability information for the passed ProbabilityType. 
     @param type Use the provided enums to access it, i.e. by summary.getPID(eProbabilityComb)
     @return returns -1 if the enum is undefined (i.e. the information was not available in the 
@@ -315,22 +321,40 @@ private: // data members
     /** pointer to the MuonTrackSummary */
     const MuonTrackSummary* m_muonTrackSummary;
 
-
     /** ITk information. */
     std::map<std::string, int> m_ITkInformation; //Counters for ITk
     std::map<std::string, int> m_ITkDetectorTypes; //Counters for ITk
+    std::bitset<200> m_hitPatternITk; //HitPattern for ITk
     bool m_isITkLayout; //tmp variable for internal memory?
     bool m_isITkInclined; //tmp for Inclined Barrel 4.0
-    std::bitset<200> m_hitPatternITk; //HitPattern for ITk
 };
 
+//ITk Methods
 inline bool Trk::TrackSummary::isITk() const
 { 
   return m_isITkLayout;
 }
+
 inline bool Trk::TrackSummary::isITkInclined() const
 {
   return m_isITkInclined;
+}
+
+inline std::bitset<200> Trk::TrackSummary::getHitPatternITk() const
+{
+  return m_hitPatternITk;
+}
+
+inline std::map<std::string, int> Trk::TrackSummary::getDetectorTypesITk() const
+{
+  return m_ITkDetectorTypes;
+}
+
+inline bool Trk::TrackSummary::isHit(const std::string& type) const
+{
+  std::map<std::string, int>::const_iterator it = m_ITkDetectorTypes.find(type);
+  if ( it->second > 199 ) return false;
+  return m_hitPatternITk.test(it->second);
 }
 
 inline int Trk::TrackSummary::get(const std::string& type) const
@@ -339,7 +363,7 @@ inline int Trk::TrackSummary::get(const std::string& type) const
   if ( it != m_ITkInformation.end() ) return it->second;
   else { return -1; }
 }
-
+//ITk Methods
 inline int Trk::TrackSummary::get(const Trk::SummaryType& type) const 
 {
     return m_information.at(type);
