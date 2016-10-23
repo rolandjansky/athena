@@ -29,6 +29,10 @@
 #include "TrkVolumes/CylinderVolumeBounds.h"
 #include <set>
 
+//Identifiers for adding extra hole-information to trksummary
+#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
+
 //================ Constructor =================================================
 InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
 							  const std::string& n,
@@ -43,6 +47,7 @@ InDet::InDetTrackHoleSearchTool::InDetTrackHoleSearchTool(const std::string& t,
   m_usepix(true),
   m_usesct(true),
   m_warning(0)
+  ,m_pixelId(0),m_sctId(0)
 {
   declareInterface<ITrackHoleSearchTool>(this);
   declareProperty("Extrapolator"         , m_extrapolator);
@@ -99,6 +104,10 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
     } else {
       msg(MSG::INFO) << "Retrieved tool " << m_pixelLayerTool << endreq;
     }
+    if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
+      msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+      return StatusCode::FAILURE;
+    }
 
   }
 
@@ -109,6 +118,10 @@ StatusCode InDet::InDetTrackHoleSearchTool::initialize()
       return StatusCode::FAILURE;
     } else {
       msg(MSG::INFO) << "Retrieved tool " << m_sctCondSummarySvc << endreq;
+    }
+    if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
+      msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endreq;
+      return StatusCode::FAILURE;
     }
   }
 
@@ -143,7 +156,27 @@ void InDet::InDetTrackHoleSearchTool::countHoles(const Trk::Track& track,
   }
   return;
 }
-
+////////////////
+//ITk
+///////////////
+void InDet::InDetTrackHoleSearchTool::countHoles(const Trk::Track& track, 
+						 std::vector<int>& information ,
+             std::map<std::string, int>& informationITk,
+						 const Trk::ParticleHypothesis partHyp) const
+{
+  ATH_MSG_VERBOSE( "ITk countHoles" );
+  std::vector<const Trk::TrackStateOnSurface*>* listOfHoles = 0;
+  searchForHoles(track,&information,&informationITk,listOfHoles,partHyp);
+  if (listOfHoles) {
+    ATH_MSG_ERROR ("listOfHoles is leaking in countHoles !!!");
+    for ( std::vector<const Trk::TrackStateOnSurface*>::const_iterator it = listOfHoles->begin();
+	  it != listOfHoles->end(); ++it) {
+      delete (*it);
+    }
+    delete listOfHoles; 
+  }
+  return;
+}
 //============================================================================================
 const DataVector<const Trk::TrackStateOnSurface>* InDet::InDetTrackHoleSearchTool::getHolesOnTrack(const Trk::Track& track, 
 												   const Trk::ParticleHypothesis partHyp) const
@@ -233,6 +266,73 @@ void InDet::InDetTrackHoleSearchTool::searchForHoles(const Trk::Track& track,
 
   return;	
 }
+
+////////////////
+//ITk
+///////////////
+
+void InDet::InDetTrackHoleSearchTool::searchForHoles(const Trk::Track& track, 
+						     std::vector<int>* information,
+                 std::map<std::string, int>* informationITk,
+						     std::vector<const Trk::TrackStateOnSurface*>* listOfHoles,
+						     const Trk::ParticleHypothesis partHyp) const
+{
+  ATH_MSG_DEBUG ("starting ITk searchForHoles()");
+
+  if ( information )
+    {
+      (*information)[Trk::numberOfPixelHoles]        = -1;
+      (*information)[Trk::numberOfSCTHoles]          = -1;
+      (*information)[Trk::numberOfSCTDoubleHoles]    = -1;
+      (*information)[Trk::numberOfPixelDeadSensors]  = -1;
+      (*information)[Trk::numberOfSCTDeadSensors]    = -1;
+      (*information)[Trk::numberOfTRTHoles]          = -1;
+      (*information)[Trk::numberOfTRTDeadStraws]     = -1;
+
+    }
+  if ( informationITk ) 
+  {
+    (*informationITk)["numberOfPixelHoles"]       = -1;
+    (*informationITk)["numberOfPixelRingHoles"]   = -1;
+    (*informationITk)["numberOfPixelBarrelHoles"] = -1;
+    (*informationITk)["numberOfStripHoles"]       = -1;
+    if((*informationITk).find("numberOfPixelInclHoles") != (*informationITk).end()){
+      (*informationITk)["numberOfPixelInclHoles"] = -1;
+    }
+  }
+  std::map<const Identifier, const Trk::TrackStateOnSurface*> mapOfHits;
+
+  // JEF: fix of [bug #44382] Poor Tracking Software Performance without SCT
+  // the mapOfPrediction needs the knowledge weather a holesearch should be carried out
+  // on this identifier or just the search for dead modules
+  // therefore: if the boolean is set to true, a holesearch will be caarried out, otherwise just 
+  // the search for dead modules
+  // for identifiers BEFORE the last measurement (and after the first): holesearch will be carried out always
+  // for identifiers AFTER the last measurement (or before the first), we have to distiguish two different scenarios:
+  // 1) extendedListOfHoles==True: a hole search will be carried out for all identifiers
+  // 2) extendedListOfHoles==False (default for collisions): dead modules will be counted after the last
+  //    measurement, but no holes
+  std::map<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >     mapOfPredictions;
+
+  bool listOk = getMapOfHits(track,partHyp,mapOfHits,mapOfPredictions);
+
+  if (listOk)
+    {
+      ATH_MSG_DEBUG ("Perform stepwise hole search");
+      performHoleSearchStepWise(mapOfHits ,mapOfPredictions, information, listOfHoles , informationITk);
+    }
+  else
+    ATH_MSG_DEBUG ("List of hits not properly obtained, abort hole search.");
+
+  for (std::map<const Identifier, std::pair<const Trk::TrackParameters*, const bool> >::iterator it = mapOfPredictions.begin();
+       it != mapOfPredictions.end(); ++it)
+    {
+      delete (it->second).first;
+    }
+
+  return;	
+}
+
 
 // ====================================================================================================================
 bool InDet::InDetTrackHoleSearchTool::getMapOfHits(const Trk::Track& track , 
@@ -824,6 +924,204 @@ void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const I
       (*information)[Trk::numberOfSCTDeadSensors]   = SctDead;
     }
   
+  return;
+}
+///////////
+//ITk 
+//////////
+void InDet::InDetTrackHoleSearchTool::performHoleSearchStepWise(std::map<const Identifier, const Trk::TrackStateOnSurface*>& mapOfHits,
+								std::map<const Identifier, std::pair<const Trk::TrackParameters*, const bool> >& mapOfPredictions,
+								std::vector<int>* information,
+								std::vector<const Trk::TrackStateOnSurface*>* listOfHoles
+                ,std::map<std::string, int>* informationITk) const
+{
+  /** This function looks for holes in a given set of TrackStateOnSurface (TSOS) within the Si-detectors.
+      In order to do so, an extrapolation is performed from detector element to the next and compared to the ones in the TSOS.
+      If surfaces other than the ones in the track are crossed, these are possible holes or dead modules. Checks for sensitivity of 
+      struck material are performed.
+      
+      The function requires the TSOS to have either TrackParameters (should have) or a MeasurementBase (must have). The startPoint
+      of an extrapolation is required to be a TP. In case only a MB is present, the extrapolation Startpoint is set by the
+      result TP of the last extrapolation, if possible.
+  */
+  
+  // counters to steer first/last Si hit logic
+  ATH_MSG_VERBOSE("performing Hole Search Step Wise for ITk");
+  unsigned int foundTSOS = 0;
+  int  PixelHoles = 0, SctHoles = 0, SctDoubleHoles = 0, PixelDead=0, SctDead=0;
+  std::set<Identifier> SctHoleIds;
+  
+  int itkPixelHoles = 0, itkPixelRingHoles = 0, itkPixelBarrelHoles = 0, itkPixelInclHoles = 0, itkStripHoles = 0;
+  bool isInclined = false;
+  if((*informationITk).find("numberOfPixelInclHoles")!=(*informationITk).end()) isInclined = true;
+  //NP: TODO Fix dead sensors 
+  ATH_MSG_DEBUG ("Start iteration");
+  ATH_MSG_DEBUG ("Number of hits+outliers: " << mapOfHits.size() << " and predicted parameters:" << mapOfPredictions.size());
+  
+  for (std::map<const Identifier,std::pair<const Trk::TrackParameters*,const bool> >::const_iterator it = mapOfPredictions.begin();
+       it != mapOfPredictions.end(); ++it)
+    {
+      
+      const Trk::TrackParameters* nextParameters = (it->second).first;
+      
+      Identifier id = nextParameters->associatedSurface().associatedDetectorElement()->identify();
+      
+      // search for this ID in the list
+      std::map<const Identifier, const Trk::TrackStateOnSurface*>::iterator iTSOS = mapOfHits.find(id);
+      
+      if (iTSOS == mapOfHits.end())
+	{ 
+	  bool isgood = true;
+	  if (!isSensitive(nextParameters, isgood))
+	    {
+	      if (isgood) ATH_MSG_VERBOSE ("Extrapolation not in sensitive area, ignore and continue");
+
+	      if (!isgood)
+		{
+		  if (m_atlasId->is_pixel(id)) {
+		    
+		    ATH_MSG_VERBOSE ("Found element is a dead pixel module, add it to the list and continue");
+		    ++PixelDead;
+		  }
+		  else if (m_atlasId->is_sct(id)) {
+		    
+		    ATH_MSG_VERBOSE ("Found element is a dead SCT module, add it to the list and continue");
+		    ++SctDead;
+		  }
+		}
+	      continue;
+	    }
+	  
+	  // increment tmp counters only if this detElement should be considered for a proper holesearch
+	  // this info is the boolean in the (mapOfPredictions->second).second
+	  if (((it->second).second))
+	    {
+	      if (m_atlasId->is_pixel(id))
+		{
+		  ATH_MSG_VERBOSE ("Found element is a Pixel hole, add it to the list and continue");
+		  ++PixelHoles;
+
+      ++itkPixelHoles;
+      if(!m_pixelId->is_barrel(id))++itkPixelRingHoles;
+      else{
+        ++itkPixelBarrelHoles;
+        if(isInclined){
+          int layer = m_pixelId->layer_disk(id);
+          int module = m_pixelId->eta_module(id);
+          int startInclined = 4; //NP: WARNING HARDCODED NEED TO RETRIEVE THIS FROM GEOMODEL
+          if( module > (layer+1) + startInclined) ++itkPixelInclHoles;
+        }
+      } 
+		}
+	      else if (m_atlasId->is_sct(id))
+		{
+		  ATH_MSG_VERBOSE ("Found element is a SCT hole, add it to the list and continue");
+		  ++SctHoles;
+		  
+      ++itkStripHoles;
+		  // check double sct 
+		  // obtain backside of SCT module
+		  const InDetDD::SiDetectorElement* thisElement = 
+		    dynamic_cast<const InDetDD::SiDetectorElement *> (nextParameters->associatedSurface().associatedDetectorElement());
+		  if (!thisElement) {
+		    ATH_MSG_ERROR ("cast to SiDetectorElement failed, should never happen !");
+		    continue;
+		  }
+
+		  const Identifier otherId = thisElement->otherSide()->identify();
+		  // loop over holes and look for the other one
+		  if (SctHoleIds.find(otherId) != SctHoleIds.end())
+		    {
+		      ATH_MSG_VERBOSE ("Found an SCT double hole !!!");
+		      ++SctDoubleHoles;
+		    }
+		  // keep this id for double side check
+		  SctHoleIds.insert(id);
+		  
+		}
+	      // add to tmp list of holes
+	      if (listOfHoles) listOfHoles->push_back(createHoleTSOS(nextParameters));
+	      continue;
+	    }
+	  else continue;
+	} // end (iTSOS == mapOfHits.end())
+      
+      if (iTSOS->second->type(Trk::TrackStateOnSurface::Outlier))
+	{
+	  ++foundTSOS;
+	  ATH_MSG_VERBOSE ("Found TSOS is an outlier, not a hole, skip it and continue");
+	  // remove this one from the map
+	  mapOfHits.erase(iTSOS);
+	  continue;
+	}
+      
+      if (iTSOS->second->type(Trk::TrackStateOnSurface::Measurement))
+	{
+	  ++foundTSOS;
+	  ATH_MSG_VERBOSE ("Found TSOS is a measurement, continue");
+	  // remove this one from the map
+	  mapOfHits.erase(iTSOS);
+	  continue;
+	}
+    } // end of loop
+  
+  ATH_MSG_DEBUG ("==> Total number of holes found: " 
+		 << PixelHoles << " Pixel holes, "
+		 << SctHoles << " Sct holes, "
+		 << SctDoubleHoles << " Double holes, "
+     << itkPixelBarrelHoles << " Pixel Barrel Holes, "
+     << itkPixelRingHoles << " Pixel Ring Holes, "
+     << itkPixelInclHoles << " Pixel Incl Holes, "
+     << itkStripHoles << " Strip Holes");
+  
+  if (listOfHoles) 
+    ATH_MSG_DEBUG ("==> Size of listOfHoles: " << listOfHoles->size());
+  
+  if (mapOfHits.size() != 0)
+    {
+      int ioutliers = 0, imeasurements = 0;
+      for (std::map<const Identifier, const Trk::TrackStateOnSurface*>::const_iterator iter = mapOfHits.begin(); 
+	   iter != mapOfHits.end(); ++iter)
+	{
+	  if (iter->second->type(Trk::TrackStateOnSurface::Outlier))
+	    ++ioutliers;
+	  else if (iter->second->type(Trk::TrackStateOnSurface::Measurement))
+	    ++imeasurements;
+	  else
+	    msg(MSG::ERROR) << "Found wrong TSOS in map !!!" << endreq;
+	}
+
+      if ( imeasurements > 0 ) {
+        if (PixelHoles+SctHoles+SctDoubleHoles > 0)
+          ATH_MSG_DEBUG ("Not all measurements found, but holes. Left measurements: "
+			 << imeasurements << " outliers: " << ioutliers << " found: " << foundTSOS
+			 << " Pixel holes: " << PixelHoles << " Sct holes: " << SctHoles 
+			 << " Double holes: " << SctDoubleHoles);
+        else
+          ATH_MSG_DEBUG ("Problem ? Not all measurements found. Left measurements: "
+			 << imeasurements << " outliers: " << ioutliers << " found: " << foundTSOS);
+      }
+    }
+  
+  // update information and return
+  if (information)
+    {
+      (*information)[Trk::numberOfPixelHoles]       = PixelHoles;
+      (*information)[Trk::numberOfSCTHoles]         = SctHoles;
+      (*information)[Trk::numberOfSCTDoubleHoles]   = SctDoubleHoles;
+      (*information)[Trk::numberOfPixelDeadSensors] = PixelDead;
+      (*information)[Trk::numberOfSCTDeadSensors]   = SctDead;
+    }
+  if (informationITk) 
+  {
+    (*informationITk)["numberOfPixelHoles"]       = itkPixelHoles;
+    (*informationITk)["numberOfPixelRingHoles"]   = itkPixelRingHoles;
+    (*informationITk)["numberOfPixelBarrelHoles"] = itkPixelBarrelHoles;
+    (*informationITk)["numberOfStripHoles"]       = itkStripHoles;
+    if((*informationITk).find("numberOfPixelInclHoles") != (*informationITk).end()){
+      (*informationITk)["numberOfPixelInclHoles"] = itkPixelInclHoles;
+    } 
+  }
   return;
 }
 

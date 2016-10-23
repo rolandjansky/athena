@@ -21,6 +21,8 @@
 class AtlasDetectorID;
 class Identifier;
 class AtlasID;
+class PixelID;
+class SCT_ID;
 class IInDetConditionsSvc;
 namespace InDet {class IInDetTestPixelLayerTool; }
 
@@ -101,7 +103,8 @@ namespace InDet
 			  std::vector<int>* information ,
 			  std::vector<const Trk::TrackStateOnSurface*>* listOfHoles,
 			  const Trk::ParticleHypothesis partHyp = Trk::pion) const;
-      
+     
+     
       /**ID pixel helper*/
       const AtlasDetectorID* m_atlasId;
       
@@ -129,7 +132,12 @@ namespace InDet
 
       /** number of warnings printed when no track parameters available **/
       mutable int m_warning;
-
+      /**ID pixel helper*/
+      const PixelID* m_pixelId;
+    
+      /**ID SCT helper*/
+      const SCT_ID* m_sctId;
+ 
       /** Input: track
 	  Output: changes in mapOfHits (filling it) and hasTRT
  	  Return value: True if filling was successful, false otherwise
@@ -168,7 +176,26 @@ namespace InDet
        */
       const Trk::Track*  addHolesToTrack(const Trk::Track& oldTrack, 
 					 std::vector<const Trk::TrackStateOnSurface*>* listOfHoles) const;
+      
+      
+      //ITk overloads
+      virtual void countHoles(const Trk::Track& track, 
+			      std::vector<int>& information ,
+            std::map<std::string, int>& informationITk,
+			      const Trk::ParticleHypothesis partHyp = Trk::pion) const ;
+      
+      void performHoleSearchStepWise(std::map<const Identifier, const Trk::TrackStateOnSurface*>& mapOfHits,
+				     std::map<const Identifier, std::pair<const Trk::TrackParameters*,const bool> >& mapOfPredictions,
+				     std::vector<int>* information,
+				     std::vector<const Trk::TrackStateOnSurface*>* listOfHoles
+             ,std::map<std::string, int>* informationITk) const;
 
+      void searchForHoles(const Trk::Track& track, 
+			  std::vector<int>* information ,
+        std::map<std::string, int>* informationITk,
+			  std::vector<const Trk::TrackStateOnSurface*>* listOfHoles,
+			  const Trk::ParticleHypothesis partHyp = Trk::pion) const;
+     
     };
 
 } // end of namespace
