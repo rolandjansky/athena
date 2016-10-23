@@ -85,44 +85,42 @@ void CaloTransverseBalanceVecMon::AdjustPhi(float& deltaphi){
 CaloTransverseBalanceVecMon::CaloTransverseBalanceVecMon(const std::string& type, const std::string& name,
 				     const IInterface* parent) 
   : ManagedMonitorToolBase(type, name, parent),
-    m_storeGate(0),
-    m_toolSvc(0),
     m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-    m_userPhotonContainer(0),
-    m_pMissing(0),
-    m_theTransverseBalance_shift(0),
+    m_userPhotonContainer(nullptr),
+    m_pMissing(nullptr),
+    m_theTransverseBalance_shift(nullptr),
     m_cutflow_j_1(0),
     m_cutflow_j_2(0),
     m_cutflow_j_3(0),
     m_TriggerCut(0),
-    m_h_photon_pt(0),
-    m_h_photon_eta(0),
-    m_h_photon_phi(0),
-    m_h_jet_pt_beforeoverlap(0),
-    m_h_jet_eta_beforeoverlap(0),
-    m_h_jet_phi_beforeoverlap(0),
-    m_h_jet_pt_afteroverlap(0),
-    m_h_jet_eta_afteroverlap(0),
-    m_h_jet_phi_afteroverlap(0),
-    m_h_njet_beforeoverlap(0),
-    m_h_njet_afteroverlap(0),
-    m_h_leadingJet_pt(0),
-    m_h_leadingJet_eta(0),
-    m_h_leadingJet_phi(0),
-    m_h_deltaPhi(0),
-    m_h2_ph_leadingJet_eta(0),
-    m_p_ptratioVsPhi_Barrel(0),
-    m_p_ptratioVsPhi_ECC(0),
-    m_p_ptratioVsPhi_ECA(0),
-    m_p_ptratioVsEta(0),
-    m_h2_ptratioVsPhi_Barrel(0),
-    m_h2_ptratioVsPhi_ECC(0),
-    m_h2_ptratioVsPhi_ECA(0),
-    m_h2_ptratioVsEta(0),
-    m_h_overlapped_ph_jet_ptratio(0),
-    m_h_pt_ratio(0),
-    m_h_leadingPh_MET_deltaPhi(0),
-    m_h2_leadingPh_MET_deltaPhiVsPt(0)
+    m_h_photon_pt(nullptr),
+    m_h_photon_eta(nullptr),
+    m_h_photon_phi(nullptr),
+    m_h_jet_pt_beforeoverlap(nullptr),
+    m_h_jet_eta_beforeoverlap(nullptr),
+    m_h_jet_phi_beforeoverlap(nullptr),
+    m_h_jet_pt_afteroverlap(nullptr),
+    m_h_jet_eta_afteroverlap(nullptr),
+    m_h_jet_phi_afteroverlap(nullptr),
+    m_h_njet_beforeoverlap(nullptr),
+    m_h_njet_afteroverlap(nullptr),
+    m_h_leadingJet_pt(nullptr),
+    m_h_leadingJet_eta(nullptr),
+    m_h_leadingJet_phi(nullptr),
+    m_h_deltaPhi(nullptr),
+    m_h2_ph_leadingJet_eta(nullptr),
+    m_p_ptratioVsPhi_Barrel(nullptr),
+    m_p_ptratioVsPhi_ECC(nullptr),
+    m_p_ptratioVsPhi_ECA(nullptr),
+    m_p_ptratioVsEta(nullptr),
+    m_h2_ptratioVsPhi_Barrel(nullptr),
+    m_h2_ptratioVsPhi_ECC(nullptr),
+    m_h2_ptratioVsPhi_ECA(nullptr),
+    m_h2_ptratioVsEta(nullptr),
+    m_h_overlapped_ph_jet_ptratio(nullptr),
+    m_h_pt_ratio(nullptr),
+    m_h_leadingPh_MET_deltaPhi(nullptr),
+    m_h2_leadingPh_MET_deltaPhiVsPt(nullptr)
 {
 
   // Time granularity options -  global by default
@@ -145,28 +143,14 @@ CaloTransverseBalanceVecMon::~CaloTransverseBalanceVecMon() {}
 
 StatusCode CaloTransverseBalanceVecMon::initialize() {
   
-  StatusCode sc = service("StoreGateSvc", m_storeGate);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve pointer to StoreGateSvc" << endreq;
-    return sc;
-  }
-  sc = service("ToolSvc", m_toolSvc);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to retrieve pointer to ToolSvc" << endreq;
-    return sc;
-  }
-  sc = m_trigDec.retrieve();
-  if ( sc.isFailure() ) {
-    msg() << MSG::ERROR << "Could not retrieve TrigDecisionTool!" << endreq;
-    return sc;
-  }
+  ATH_CHECK(  m_trigDec.retrieve() );
 
   m_cutflow_j_1 = 0;
   m_cutflow_j_2 = 0;
   m_cutflow_j_3 = 0;
   m_TriggerCut=false; 
   ManagedMonitorToolBase::initialize().ignore();
-  return sc;
+  return StatusCode::SUCCESS;
 }
 ////////////////////////////////////////////////////////////////////////////
 StatusCode CaloTransverseBalanceVecMon::bookHistogramsRecurrent(){
@@ -178,7 +162,7 @@ StatusCode CaloTransverseBalanceVecMon::bookHistogramsRecurrent(){
 ////////////////////////////////////////////////////////////////////////////
 StatusCode CaloTransverseBalanceVecMon::bookHistograms(){
 
-   msg(MSG::DEBUG) << "in bookHistograms()" << endreq;
+  ATH_MSG_DEBUG( "in bookHistograms()"  );
 
    //-------- Time Granularity---------------
 
@@ -193,7 +177,7 @@ StatusCode CaloTransverseBalanceVecMon::bookHistograms(){
 
    m_theTransverseBalance_shift= new MonGroup( this, "/CaloMonitoring/TransverseBalance/", theinterval);
 
-   msg(MSG::DEBUG) << "in bookHistograms()" << endreq;
+   ATH_MSG_DEBUG( "in bookHistograms()"  );
 
    m_h_photon_pt    = new TH1F("h_photon_pt","h_photon_pt",100,0,100000);
    m_h_photon_pt->GetXaxis()->SetTitle("pt(MeV)" );
@@ -277,18 +261,13 @@ StatusCode CaloTransverseBalanceVecMon::bookHistograms(){
 
 StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
   
-  msg(MSG::DEBUG) << "fillHistograms()" << endreq;
-  StatusCode sc = StatusCode::SUCCESS;
+  ATH_MSG_DEBUG( "fillHistograms()"  );
 
-  const xAOD::EventInfo* thisEventInfo;
-  sc = evtStore()->retrieve(thisEventInfo);
-  if (sc.isFailure()) {
-    msg(MSG::ERROR) << "failed to retrieve EventInfo object" << endreq;
-    return sc;
-  }
+  const xAOD::EventInfo* thisEventInfo = nullptr;
+  ATH_CHECK(  evtStore()->retrieve(thisEventInfo) );
 
   if(m_useLArNoisyAlg && (thisEventInfo->errorState(xAOD::EventInfo::LAr) == xAOD::EventInfo::Error)){
-    //      msg(MSG::WARNING) << "Event flagged as bursty by LArNoisyRO" << endreq;
+    //      ATH_MSG_WARNING( "Event flagged as bursty by LArNoisyRO"  );
     return StatusCode::SUCCESS;
   }
 
@@ -297,33 +276,29 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
   
     /// get the photon AOD container from StoreGate
   const PhotonContainer* photonTES;
-  sc=m_storeGate->retrieve( photonTES,m_PhotonContainerName);
+  StatusCode sc=evtStore()->retrieve( photonTES,m_PhotonContainerName);
   if( sc.isFailure()  ||  !photonTES ) {
-     msg()<< MSG::WARNING
-          << "No ESD photon container found in TDS"
-          << endreq;
+    ATH_MSG_WARNING( "No ESD photon container found in TDS" );
      return StatusCode::SUCCESS;
   }
   
   const JetCollection* jetTES;
-  sc = m_storeGate->retrieve( jetTES,m_JetContainerName);
+  sc = evtStore()->retrieve( jetTES,m_JetContainerName);
   if( sc.isFailure()  ||  !photonTES ) {
-     msg()<< MSG::WARNING
-          << "No ESD jet collection found in TDS"
-          << endreq;
-     return StatusCode::SUCCESS;
+    ATH_MSG_WARNING( "No ESD jet collection found in TDS" );
+    return StatusCode::SUCCESS;
   }
    /// retrieve the missing Et object from TDS
-  sc = m_storeGate->retrieve(m_pMissing,m_missingEtObjectName);
+  sc = evtStore()->retrieve(m_pMissing,m_missingEtObjectName);
   if (sc.isFailure()) {
-      msg() << MSG::ERROR << "Could not retrieve MissingET Object" << endreq;
-      return StatusCode::SUCCESS;
+    ATH_MSG_ERROR( "Could not retrieve MissingET Object"  );
+    return StatusCode::SUCCESS;
    }
   float missingEt_phi=0;
   getmissingEt_phi(m_pMissing->etx(),m_pMissing->ety(),missingEt_phi);
   // trigger cut 
   m_TriggerCut = m_trigDec->isPassed("L1_EM14");
-//  msg() << MSG::INFO << "*****************   trigger: " <<m_TriggerCut<< endreq;
+  //  ATH_MSG_INFO( "*****************   trigger: " <<m_TriggerCut );
   if(!m_TriggerCut) return StatusCode::SUCCESS;
 
   m_userPhotonContainer = new PhotonContainer(SG::VIEW_ELEMENTS);
@@ -344,7 +319,7 @@ StatusCode CaloTransverseBalanceVecMon::fillHistograms() {
     float ph_pt = (*photonItr)->pt();
     float ph_eta = (*photonItr)->eta();
     float ph_phi = (*photonItr)->phi();
-    bool  ph_isTight = ((*photonItr)->isem(egammaPID::PhotonTight)==0);
+    bool  ph_isTight = ((*photonItr)->isem(egammaPIDObs::PhotonTight)==0);
  //   if( ph_pt <  m_photonPtCut)  continue; 
     if( !(fabs(ph_eta)<2.47 && (fabs(ph_eta)>=1.52 || fabs(ph_eta)<=1.37))) continue;
     if( !ph_isTight) continue;

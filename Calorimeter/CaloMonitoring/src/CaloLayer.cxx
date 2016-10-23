@@ -30,9 +30,9 @@ CaloLayer::CaloLayer(const char* name,Partition partition, int layerNumber, Side
   m_name = name;
   
   m_nTotEtaBins = 0;
-  m_etaBinArray = 0;
+  m_etaBinArray = nullptr;
   m_nTotPhiBins = 0;
-  m_phiBinArray = 0;
+  m_phiBinArray = nullptr;
 
   setProperties(partition, layerNumber, side);
 }

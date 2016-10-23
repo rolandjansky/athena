@@ -29,9 +29,41 @@ CaloTowerVecMon::CaloTowerVecMon(const std::string& type,
 				 const IInterface* parent) :
   ManagedMonitorToolBase(type, name, parent),
   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
-  m_Trigger1(0),
-  m_Trigger2(0),
-  m_Trigger3(0)
+  m_Trigger1(nullptr),
+  m_Trigger2(nullptr),
+  m_Trigger3(nullptr),
+  m_isTrigDefined1(false),
+  m_isTrigDefined2(false),
+  m_isTrigDefined3(false),
+  m_isTrigEvent1(false),
+  m_isTrigEvent2(false),
+  m_isTrigEvent3(false),
+  m_Fcaltower_sumEt(0),
+  m_energy_most(0),
+  m_eta_most(0),
+  m_phi_most (0),
+  m_ncells_most(0),
+  m_twr_etaphi_Et_thresh(),
+  m_twr_e_phi_thresh(),
+  m_twr_e_eta_thresh(),
+  m_twr_e_phiall_thresh(),
+  m_twr_e_etaphi_thresh(),
+  m_twr_e_trans_phi_thresh(),
+  m_twr_e_trans_eta_thresh(),
+  m_twr_e_trans_phiall_thresh(),
+  m_twr_e_trans_etaphi_thresh(),
+  m_twr_e_total_phi_thresh(),
+  m_twr_e_total_eta_thresh(),
+  m_twr_e_total_phiall_thresh(),
+  m_twr_e_total_etaphi_thresh(),
+  m_twr_nCells_phi_thresh(),
+  m_twr_nCells_eta_thresh(),
+  m_twr_nCells_phiall_thresh(),
+  m_twr_nCells_etaphi_thresh(),
+  m_twr_phi_thresh(),
+  m_twr_eta_thresh(),
+  m_twr_phiall_thresh(),
+  m_twr_etaphi_thresh()
 {
   declareInterface<IMonitorToolBase>(this);
 
@@ -70,66 +102,66 @@ CaloTowerVecMon::CaloTowerVecMon(const std::string& type,
 
 void CaloTowerVecMon::initHists() {
    // twr pre hists
-   m_n_calos=0;
-   m_n_twrs=0;
+   m_n_calos=nullptr;
+   m_n_twrs=nullptr;
 
    // cell hists 
-   m_ratioE_leadcell_tower=0;
-   m_etaphi_hotrat_tower=0;
-   m_etaphi_avgenergy_hotrat_tower=0;
+   m_ratioE_leadcell_tower=nullptr;
+   m_etaphi_hotrat_tower=nullptr;
+   m_etaphi_avgenergy_hotrat_tower=nullptr;
 
    //No threshold energy hists
-   m_twr_e=0;
-   m_postwr_e_thresh=0;
-   m_negtwr_e_thresh=0;
-   m_twr_et_FcalA0=0;
-   m_twr_et_FcalA1=0;
-   m_twr_et_FcalA2=0;
-   m_twr_et_FcalC0=0;
-   m_twr_et_FcalC1=0;
-   m_twr_et_FcalC2=0;
+   m_twr_e=nullptr;
+   m_postwr_e_thresh=nullptr;
+   m_negtwr_e_thresh=nullptr;
+   m_twr_et_FcalA0=nullptr;
+   m_twr_et_FcalA1=nullptr;
+   m_twr_et_FcalA2=nullptr;
+   m_twr_et_FcalC0=nullptr;
+   m_twr_et_FcalC1=nullptr;
+   m_twr_et_FcalC2=nullptr;
 
    // multi-threshold hists
 
    for (int i=0; i<m_threshtests; i++) { //loop over thresholds
-    m_twr_etaphi_Et_thresh[i]=0;
+    m_twr_etaphi_Et_thresh[i]=nullptr;
 
     for (int j=0; j<3;j++){
-     m_twr_e_phi_thresh[i][j]=0;
-     m_twr_e_trans_phi_thresh[i][j]=0;
-     m_twr_e_total_phi_thresh[i][j]=0;
-     m_twr_nCells_phi_thresh[i][j]=0;
-     m_twr_phi_thresh[i][j]=0;
+     m_twr_e_phi_thresh[i][j]=nullptr;
+     m_twr_e_trans_phi_thresh[i][j]=nullptr;
+     m_twr_e_total_phi_thresh[i][j]=nullptr;
+     m_twr_nCells_phi_thresh[i][j]=nullptr;
+     m_twr_phi_thresh[i][j]=nullptr;
     }
 
-    m_twr_e_eta_thresh[i]=0;
-    m_twr_e_phiall_thresh[i]=0;
-    m_twr_e_etaphi_thresh[i]=0;
+    m_twr_e_eta_thresh[i]=nullptr;
+    m_twr_e_phiall_thresh[i]=nullptr;
+    m_twr_e_etaphi_thresh[i]=nullptr;
 
-    m_twr_e_trans_eta_thresh[i]=0;
-    m_twr_e_trans_phiall_thresh[i]=0;
-    m_twr_e_trans_etaphi_thresh[i]=0;
+    m_twr_e_trans_eta_thresh[i]=nullptr;
+    m_twr_e_trans_phiall_thresh[i]=nullptr;
+    m_twr_e_trans_etaphi_thresh[i]=nullptr;
 
-    m_twr_e_total_eta_thresh[i]=0;
-    m_twr_e_total_phiall_thresh[i]=0;
-    m_twr_e_total_etaphi_thresh[i]=0;
+    m_twr_e_total_eta_thresh[i]=nullptr;
+    m_twr_e_total_phiall_thresh[i]=nullptr;
+    m_twr_e_total_etaphi_thresh[i]=nullptr;
 
-    m_twr_nCells_eta_thresh[i]=0;
-    m_twr_nCells_phiall_thresh[i]=0;
-    m_twr_nCells_etaphi_thresh[i]=0;
+    m_twr_nCells_eta_thresh[i]=nullptr;
+    m_twr_nCells_phiall_thresh[i]=nullptr;
+    m_twr_nCells_etaphi_thresh[i]=nullptr;
 
-    m_twr_eta_thresh[i]=0;
-    m_twr_phiall_thresh[i]=0;
-    m_twr_etaphi_thresh[i]=0;
+    m_twr_eta_thresh[i]=nullptr;
+    m_twr_phiall_thresh[i]=nullptr;
+    m_twr_etaphi_thresh[i]=nullptr;
    }
    // twr stat hists
-   m_twr_et_Fcal0=0;
-   m_twr_et_Fcal1=0;
-   m_twr_et_Fcal2=0;
+   m_twr_et_Fcal0=nullptr;
+   m_twr_et_Fcal1=nullptr;
+   m_twr_et_Fcal2=nullptr;
 
-   m_twrMost_e=0;
-   m_twrMost_etaphi=0;
-   m_twrMost_nCells=0;
+   m_twrMost_e=nullptr;
+   m_twrMost_etaphi=nullptr;
+   m_twrMost_nCells=nullptr;
 
 }
 
@@ -662,10 +694,10 @@ StatusCode CaloTowerVecMon::fillHistograms() {
 
  initTwrStat(); 
 
-  const CaloTowerContainer* towerCont = 0;
+  const CaloTowerContainer* towerCont = nullptr;
   sc=evtStore()->retrieve( towerCont, m_towerContainerName);
   if( sc.isFailure()  ||  !towerCont ) {
-    msg(MSG::WARNING) << " No AOD CaloTower container found in TDS " << endreq;
+    ATH_MSG_WARNING( " No AOD CaloTower container found in TDS "  );
     return sc;
   }  
 
@@ -893,6 +925,6 @@ void CaloTowerVecMon::fillTwrStatHists(){
 }
 
 StatusCode CaloTowerVecMon::procHistograms( ){  
-  msg(MSG::DEBUG) << "CaloTowerVecMon default procHistograms() is starting" << endreq;
+  ATH_MSG_DEBUG( "CaloTowerVecMon default procHistograms() is starting"  );
   return StatusCode::SUCCESS;
 }

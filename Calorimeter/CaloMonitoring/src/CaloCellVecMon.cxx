@@ -47,24 +47,65 @@ CaloCellVecMon::CaloCellVecMon(const std::string& type, const std::string& name,
   :CaloMonToolBase(type, name, parent),
    //m_BadLBTool("DQBadLBFilterTool"),
    //m_ReadyFilterTool("DQAtlasReadyFilterTool"),
+   m_isOnline(false),
+   m_ifSaveAndDeleteHists(false),
+   m_bookProcHists(false),
+   m_firstcallofBook(false),
+   m_useElectronicNoiseOnly(false),
+   m_useTwoGaus(false),
    m_noiseTool("CaloNoiseTool"),
-   m_trigDec("Trig::TrigDecisionTool"),
-   m_rndmTriggerEvent(0),
-   m_caloTriggerEvent(0),
-   m_minBiasTriggerEvent(0),
-   m_metTriggerEvent(0),
-   m_miscTriggerEvent(0),
+   m_useNoiseToolGlobal(false),
+   m_trigDec("Trig::TrigDecisionTool/TrigDecisionTool"),
+   m_rndmTriggerEvent(nullptr),
+   m_caloTriggerEvent(nullptr),
+   m_minBiasTriggerEvent(nullptr),
+   m_metTriggerEvent(nullptr),
+   m_miscTriggerEvent(nullptr),
+   m_isRndmTrigDefined(false),
+   m_isCaloTrigDefined(false),
+   m_isMinBiasTrigDefined(false),
+   m_isMetTrigDefined(false),
+   m_isMiscTrigDefined(false),
    m_badChannelMask("BadLArRawChannelMask"),
    m_badChannelTool("LArBadChanTool"),
-   m_LArOnlineIDHelper(0),
+   m_fillNoThreshNoisePlots(false),
+   m_triggersToIncludeInNoisePlots(0),
+   m_triggersToExcludeFromNoisePlots(0),
+   m_procimask(false),
+   m_eventsCounter(0),
+   m_newevent(false),
+   m_ncells(0),
+   m_threshold(0),
+   m_doNActiveCellsFirstEventVsEta(false),
+   m_doNActiveCellsFirstEventVsPhi(false),
+   m_LArOnlineIDHelper(nullptr),
    m_LArCablingService("LArCablingService"),
-   m_caloIdMgr(0),
-   m_LArEM_IDHelper(0),
-   m_LArFCAL_IDHelper(0),
-   m_LArHEC_IDHelper(0),
-   m_tile_id(0),
-   m_calo_id(0),
-   m_em_id(0)
+   m_caloIdMgr(nullptr),
+   m_LArEM_IDHelper(nullptr),
+   m_LArFCAL_IDHelper(nullptr),
+   m_LArHEC_IDHelper(nullptr),
+   m_tile_id(nullptr),
+   m_calo_id(nullptr),
+   m_em_id(nullptr),
+   m_counter_sporadic_protc(0),
+   m_nbh_embc(0),
+   m_nbh_emba(0),
+   m_nbh_emecc(0),
+   m_nbh_emeca(0),
+   m_nbh_hecc(0),
+   m_nbh_heca(0),
+   m_nbh_fcalc(0),
+   m_nbh_fcala(0),
+   m_badCell_flag(false),
+   m_badCell_flag_embc(false),
+   m_badCell_flag_emba(false),
+   m_badCell_flag_emecc(false),
+   m_badCell_flag_emeca(false),
+   m_badCell_flag_hecc(false),
+   m_badCell_flag_heca(false),
+   m_badCell_flag_fcalc(false),
+   m_badCell_flag_fcala(false),
+   m_h_EvtRejSumm(nullptr)
 {    
   declareInterface<IMonitorToolBase>(this);
 
@@ -242,187 +283,187 @@ CaloCellVecMon::CaloCellVecMon(const std::string& type, const std::string& name,
 }
 
 void CaloCellVecMon::initHists(){
-  m_h_NoiseBurstLumiblock = 0;
-  m_h_sporad = 0;
-  m_h_sporad_embc = 0;
-  m_h_sporad_emba = 0;
-  m_h_sporad_emecc = 0;
-  m_h_sporad_emeca = 0;
-  m_h_sporad_hecc = 0;
-  m_h_sporad_heca = 0;
-  m_h_sporad_fcalc  = 0;
-  m_h_sporad_fcala = 0;
+  m_h_NoiseBurstLumiblock = nullptr;
+  m_h_sporad = nullptr;
+  m_h_sporad_embc = nullptr;
+  m_h_sporad_emba = nullptr;
+  m_h_sporad_emecc = nullptr;
+  m_h_sporad_emeca = nullptr;
+  m_h_sporad_hecc = nullptr;
+  m_h_sporad_heca = nullptr;
+  m_h_sporad_fcalc  = nullptr;
+  m_h_sporad_fcala = nullptr;
 
-  m_h_CellsNoiseE = 0;
+  m_h_CellsNoiseE = nullptr;
 
-  m_h_Ncells = 0;
-  m_h_CellsE = 0;
-  m_h_CellsEtaPhi = 0;
-  m_h_CellsEta = 0;
-  m_h_CellsPhi = 0;
-  m_h_CellsModuleS1 = 0;
-  m_h_CellsModuleS2 = 0;
-  m_h_CellsModuleS3 = 0;
-  m_h_CellsModuleS4 = 0;
-  m_h_CellsTower = 0;
+  m_h_Ncells = nullptr;
+  m_h_CellsE = nullptr;
+  m_h_CellsEtaPhi = nullptr;
+  m_h_CellsEta = nullptr;
+  m_h_CellsPhi = nullptr;
+  m_h_CellsModuleS1 = nullptr;
+  m_h_CellsModuleS2 = nullptr;
+  m_h_CellsModuleS3 = nullptr;
+  m_h_CellsModuleS4 = nullptr;
+  m_h_CellsTower = nullptr;
 
-  m_h_CellsNoiseEtaPhi = 0;
-  m_h_CellsNoiseEtaPhiA = 0;
-  m_h_CellsNoiseEtaPhiBC = 0;
-  m_h_CellsNoiseEtaPhiD = 0;
-  m_h_CellsNoiseHash = 0;
+  m_h_CellsNoiseEtaPhi = nullptr;
+  m_h_CellsNoiseEtaPhiA = nullptr;
+  m_h_CellsNoiseEtaPhiBC = nullptr;
+  m_h_CellsNoiseEtaPhiD = nullptr;
+  m_h_CellsNoiseHash = nullptr;
 
-  m_h_CellsNoiseEta = 0;
-  m_h_CellsNoisePhi = 0;
-  m_h_CellsRMSPhi = 0;
-  m_h_CellsRMSEta = 0;
-  m_h_CellsRMSdivDBnoiseEta = 0;
-  m_h_CellsRMSdivDBnoisePhi = 0;
+  m_h_CellsNoiseEta = nullptr;
+  m_h_CellsNoisePhi = nullptr;
+  m_h_CellsRMSPhi = nullptr;
+  m_h_CellsRMSEta = nullptr;
+  m_h_CellsRMSdivDBnoiseEta = nullptr;
+  m_h_CellsRMSdivDBnoisePhi = nullptr;
 
-  m_h_n_trigEvent = 0;
+  m_h_n_trigEvent = nullptr;
 
   for(int ilyr=EMBPA; ilyr<MAXLAYER; ilyr++){
-    m_h_cellOccupancyEtaLumi[ilyr] = 0;
-    m_h_cellOccupancyPhiLumi[ilyr] = 0;
-    m_h_cellAvgEnergyEtaLumi[ilyr] = 0;
-    m_h_cellAvgEnergyPhiLumi[ilyr] = 0;
+    m_h_cellOccupancyEtaLumi[ilyr] = nullptr;
+    m_h_cellOccupancyPhiLumi[ilyr] = nullptr;
+    m_h_cellAvgEnergyEtaLumi[ilyr] = nullptr;
+    m_h_cellAvgEnergyPhiLumi[ilyr] = nullptr;
 
-    m_h_energy[ilyr] = 0;
-    m_h_dbNoiseNormalizedEnergy[ilyr] = 0;
-    m_h_energyVsTime[ilyr] = 0;
-    m_h_energyVsTime_DifferThresholds[ilyr] = 0;
+    m_h_energy[ilyr] = nullptr;
+    m_h_dbNoiseNormalizedEnergy[ilyr] = nullptr;
+    m_h_energyVsTime[ilyr] = nullptr;
+    m_h_energyVsTime_DifferThresholds[ilyr] = nullptr;
     
-    m_h_energy_imask[ilyr] = 0;
-    m_h_energyVsTime_imask[ilyr] = 0;
+    m_h_energy_imask[ilyr] = nullptr;
+    m_h_energyVsTime_imask[ilyr] = nullptr;
 
-    m_h_occupancy_etaphi[ilyr] = 0;
+    m_h_occupancy_etaphi[ilyr] = nullptr;
 
-    m_h_occupancy_eta[ilyr] = 0;
-    m_h_occupancy_phi[ilyr] = 0;
+    m_h_occupancy_eta[ilyr] = nullptr;
+    m_h_occupancy_phi[ilyr] = nullptr;
 
-    m_h_occupancy_etaphi_imask[ilyr] = 0;
-    m_h_occupancy_eta_imask[ilyr] = 0;
-    m_h_occupancy_phi_imask[ilyr] = 0;
+    m_h_occupancy_etaphi_imask[ilyr] = nullptr;
+    m_h_occupancy_eta_imask[ilyr] = nullptr;
+    m_h_occupancy_phi_imask[ilyr] = nullptr;
 
-    m_h_percentOccupancy_etaphi[ilyr] = 0;
-    m_h_percentOccupancy_eta[ilyr] = 0;
-    m_h_percentOccupancy_phi[ilyr] = 0;
+    m_h_percentOccupancy_etaphi[ilyr] = nullptr;
+    m_h_percentOccupancy_eta[ilyr] = nullptr;
+    m_h_percentOccupancy_phi[ilyr] = nullptr;
 
-    m_h_percentOccupancy_etaphi_imask[ilyr] = 0;
-    m_h_percentOccupancy_eta_imask[ilyr] = 0;
-    m_h_percentOccupancy_phi_imask[ilyr] = 0;
+    m_h_percentOccupancy_etaphi_imask[ilyr] = nullptr;
+    m_h_percentOccupancy_eta_imask[ilyr] = nullptr;
+    m_h_percentOccupancy_phi_imask[ilyr] = nullptr;
 
-    m_h_energyProfile_etaphi[ilyr] = 0;
-    m_h_totalEnergy_etaphi[ilyr] = 0;
-    m_h_averageEnergy_etaphi[ilyr] = 0;
-    m_h_noise_etaphi[ilyr] = 0;
-    m_h_deviationFromDBnoise_etaphi[ilyr] = 0;
+    m_h_energyProfile_etaphi[ilyr] = nullptr;
+    m_h_totalEnergy_etaphi[ilyr] = nullptr;
+    m_h_averageEnergy_etaphi[ilyr] = nullptr;
+    m_h_noise_etaphi[ilyr] = nullptr;
+    m_h_deviationFromDBnoise_etaphi[ilyr] = nullptr;
 
-    m_h_energyProfile_etaphi_imask[ilyr] = 0;
-    m_h_totalEnergy_etaphi_imask[ilyr] = 0;
-    m_h_averageEnergy_etaphi_imask[ilyr] = 0;
-    m_h_noise_etaphi_imask[ilyr] = 0;
+    m_h_energyProfile_etaphi_imask[ilyr] = nullptr;
+    m_h_totalEnergy_etaphi_imask[ilyr] = nullptr;
+    m_h_averageEnergy_etaphi_imask[ilyr] = nullptr;
+    m_h_noise_etaphi_imask[ilyr] = nullptr;
 
-    m_h_poorQualityOccupancy_etaphi[ilyr] = 0;
-    m_h_totalQuality_etaphi[ilyr] = 0;
-    m_h_fractionOverQth_etaphi[ilyr] = 0;
-    m_h_averageQuality_etaphi[ilyr] = 0;
+    m_h_poorQualityOccupancy_etaphi[ilyr] = nullptr;
+    m_h_totalQuality_etaphi[ilyr] = nullptr;
+    m_h_fractionOverQth_etaphi[ilyr] = nullptr;
+    m_h_averageQuality_etaphi[ilyr] = nullptr;
 
-    m_h_poorTimeOccupancy_etaphi[ilyr] = 0;
-    m_h_totalTime_etaphi[ilyr] = 0;
-    m_h_fractionPastTth_etaphi[ilyr] = 0;
-    m_h_averageTime_etaphi[ilyr] = 0;
+    m_h_poorTimeOccupancy_etaphi[ilyr] = nullptr;
+    m_h_totalTime_etaphi[ilyr] = nullptr;
+    m_h_fractionPastTth_etaphi[ilyr] = nullptr;
+    m_h_averageTime_etaphi[ilyr] = nullptr;
 
-    m_h_badChannels_etaphi[ilyr] = 0;
-    m_h_dbnoise_etaphi[ilyr] = 0;
-    m_h_missingCellMask[ilyr] = 0;
+    m_h_badChannels_etaphi[ilyr] = nullptr;
+    m_h_dbnoise_etaphi[ilyr] = nullptr;
+    m_h_missingCellMask[ilyr] = nullptr;
 
-    m_h_nActiveCellsFirstEvent_eta[ilyr] = 0;
-    m_h_nActiveCellsFirstEvent_phi[ilyr] = 0; 
+    m_h_nActiveCellsFirstEvent_eta[ilyr] = nullptr;
+    m_h_nActiveCellsFirstEvent_phi[ilyr] = nullptr; 
   }
 
 }
 
 void CaloCellVecMon::initPointers(){
-  m_summaryGroup=0;
-  m_tile_cells_shift = 0;
-  m_tempMonGroup=0;
+  m_summaryGroup=nullptr;
+  m_tile_cells_shift = nullptr;
+  m_tempMonGroup=nullptr;
 
   for(int iht=KnownBadChannels; iht<MaxHistType; iht++) {
-    m_shifterMonGroup[iht] = 0;
+    m_shifterMonGroup[iht] = nullptr;
     //ExpertMonGroup[iht]  = 0;
   }
   
-  m_badCell=0;
-  m_badCell_EMBC=0;
-  m_badCell_EMBA=0;
-  m_badCell_EMECC=0;
-  m_badCell_EMECA=0;
-  m_badCell_HECC=0;
-  m_badCell_HECA=0;
-  m_badCell_FCALC=0;
-  m_badCell_FCALA=0;
+  m_badCell=nullptr;
+  m_badCell_EMBC=nullptr;
+  m_badCell_EMBA=nullptr;
+  m_badCell_EMECC=nullptr;
+  m_badCell_EMECA=nullptr;
+  m_badCell_HECC=nullptr;
+  m_badCell_HECA=nullptr;
+  m_badCell_FCALC=nullptr;
+  m_badCell_FCALA=nullptr;
 
   for(int ilyr=EMBPA; ilyr<MAXLAYER; ilyr++) {
-    m_layer[ilyr] = 0;
+    m_layer[ilyr] = nullptr;
   }
 
   for(int ilyrns=EMBPNS; ilyrns<MAXLYRNS; ilyrns++) {
 
-    m_nEventsPassingTrigger[ilyrns] = 0;
-    m_nEventsPassingBeamBG[ilyrns] = 0;
+    m_nEventsPassingTrigger[ilyrns] = nullptr;
+    m_nEventsPassingBeamBG[ilyrns] = nullptr;
 
-    m_thresholds[ilyrns] = 0;
-    m_threshNames[ilyrns] = 0;
-    m_threshTitles[ilyrns] = 0;
-    m_thresholdDirection[ilyrns] = 0;
-    m_threshTriggersToInclude[ilyrns] = 0;
-    m_threshTriggersToExclude[ilyrns] = 0;
-    m_threshTriggerDecision[ilyrns] = 0;
-    m_useNoiseTool[ilyrns] = 0;
+    m_thresholds[ilyrns] = nullptr;
+    m_threshNames[ilyrns] = nullptr;
+    m_threshTitles[ilyrns] = nullptr;
+    m_thresholdDirection[ilyrns] = nullptr;
+    m_threshTriggersToInclude[ilyrns] = nullptr;
+    m_threshTriggersToExclude[ilyrns] = nullptr;
+    m_threshTriggerDecision[ilyrns] = nullptr;
+    m_useNoiseTool[ilyrns] = nullptr;
 
-    m_qualityThresholds[ilyrns] = 0;
-    m_timeThresholds[ilyrns] = 0;
+    m_qualityThresholds[ilyrns] = nullptr;
+    m_timeThresholds[ilyrns] = nullptr;
 
-    m_maskEmptyBins[ilyrns] = 0;
-    m_doBeamBackgroundRemoval[ilyrns] = 0;
+    m_maskEmptyBins[ilyrns] = nullptr;
+    m_doBeamBackgroundRemoval[ilyrns] = nullptr;
 
-    m_doPercentageOccupancy[ilyrns] = 0;
-    m_doEtaPhiEnergyProfile[ilyrns] = 0;
-    m_doEtaPhiAverageEnergy[ilyrns] = 0;
+    m_doPercentageOccupancy[ilyrns] = nullptr;
+    m_doEtaPhiEnergyProfile[ilyrns] = nullptr;
+    m_doEtaPhiAverageEnergy[ilyrns] = nullptr;
 
-    m_fillEtaPhiOccupancy[ilyrns] = 0;
-    m_tempEtaPhiOccupancy[ilyrns] = 0;
-    m_procEtaPhiOccupancy[ilyrns] = 0;
-    m_fillEtaPhiTotalEnergy[ilyrns] = 0;
-    m_tempEtaPhiTotalEnergy[ilyrns] = 0;
-    m_procEtaPhiTotalEnergy[ilyrns] = 0;
+    m_fillEtaPhiOccupancy[ilyrns] = nullptr;
+    m_tempEtaPhiOccupancy[ilyrns] = nullptr;
+    m_procEtaPhiOccupancy[ilyrns] = nullptr;
+    m_fillEtaPhiTotalEnergy[ilyrns] = nullptr;
+    m_tempEtaPhiTotalEnergy[ilyrns] = nullptr;
+    m_procEtaPhiTotalEnergy[ilyrns] = nullptr;
 
-    m_fillEtaOccupancy[ilyrns] = 0;
-    m_procEtaOccupancy[ilyrns] = 0;
-    m_fillPhiOccupancy[ilyrns] = 0;
-    m_procPhiOccupancy[ilyrns] = 0;
+    m_fillEtaOccupancy[ilyrns] = nullptr;
+    m_procEtaOccupancy[ilyrns] = nullptr;
+    m_fillPhiOccupancy[ilyrns] = nullptr;
+    m_procPhiOccupancy[ilyrns] = nullptr;
 
-    m_fillEtaPhiQualityOccupancy[ilyrns] = 0;
-    m_fillEtaPhiTotalQuality[ilyrns] = 0;
-    m_fillEtaPhiTimeOccupancy[ilyrns] = 0;
-    m_fillEtaPhiTotalTime[ilyrns] = 0;
+    m_fillEtaPhiQualityOccupancy[ilyrns] = nullptr;
+    m_fillEtaPhiTotalQuality[ilyrns] = nullptr;
+    m_fillEtaPhiTimeOccupancy[ilyrns] = nullptr;
+    m_fillEtaPhiTotalTime[ilyrns] = nullptr;
 
-    m_procEtaPhiEnergyRMS[ilyrns] = 0;
-    m_procEtaPhiDeviationFromDBnoise[ilyrns] = 0;
-    m_procEtaPhiAverageQuality[ilyrns] = 0;
-    m_procEtaPhiFractionOverQth[ilyrns] = 0;
-    m_procEtaPhiAverageTime[ilyrns] = 0;
-    m_procEtaPhiFractionPastTth[ilyrns] = 0;
+    m_procEtaPhiEnergyRMS[ilyrns] = nullptr;
+    m_procEtaPhiDeviationFromDBnoise[ilyrns] = nullptr;
+    m_procEtaPhiAverageQuality[ilyrns] = nullptr;
+    m_procEtaPhiFractionOverQth[ilyrns] = nullptr;
+    m_procEtaPhiAverageTime[ilyrns] = nullptr;
+    m_procEtaPhiFractionPastTth[ilyrns] = nullptr;
 
-    m_procPercentOccEtaPhi[ilyrns] = 0;
-    m_procPercentOccEta[ilyrns] = 0;
-    m_procPercentOccPhi[ilyrns] = 0;
-    m_procAbsOccEtaPhi[ilyrns] = 0;
-    m_procAbsOccEta[ilyrns] = 0;
-    m_procAbsOccPhi[ilyrns] = 0;
-    m_doEtaPhiAvgEnNoTh[ilyrns] = 0;
-    m_doEtaPhiAvgEnTh[ilyrns] = 0;
+    m_procPercentOccEtaPhi[ilyrns] = nullptr;
+    m_procPercentOccEta[ilyrns] = nullptr;
+    m_procPercentOccPhi[ilyrns] = nullptr;
+    m_procAbsOccEtaPhi[ilyrns] = nullptr;
+    m_procAbsOccEta[ilyrns] = nullptr;
+    m_procAbsOccPhi[ilyrns] = nullptr;
+    m_doEtaPhiAvgEnNoTh[ilyrns] = nullptr;
+    m_doEtaPhiAvgEnTh[ilyrns] = nullptr;
 
   }
 }
@@ -2285,7 +2326,7 @@ void CaloCellVecMon::bookLarMultThreHists(){
       int ilyrns = ilyr/2;
       int nThr = m_nThresholds[ilyrns];
       for(int ti = 0; ti < nThr; ti++) {
-        if(m_maskEmptyBins[ilyrns][ti] && (m_h_missingCellMask[ilyr] == 0) ) {
+        if(m_maskEmptyBins[ilyrns][ti] && (m_h_missingCellMask[ilyr] == nullptr) ) {
           bookLayerEtaPhiHists2D((LayerEnum)ilyr,m_h_missingCellMask,Temporary,"missingCellMask_%s","Missing Cell Mask - %s");
         }
       }
@@ -2405,7 +2446,7 @@ void CaloCellVecMon::bookLarNonThreHists(){
           int nbins   = m_h_energy[ilyr]->GetNbinsX();
           double binlow  = m_h_energy[ilyr]->GetXaxis()->GetXmin();
           double binhigh = m_h_energy[ilyr]->GetXaxis()->GetXmax();
-          double binsize = abs(int(binhigh)-int(binlow))/nbins;
+          double binsize = static_cast<int>(abs(int(binhigh)-int(binlow))/nbins);
           char axisTitle[64];
           sprintf(axisTitle,"# Cell Events/%0.f MeV",binsize);
           m_h_energy[ilyr]->GetYaxis()->SetTitle(axisTitle);
@@ -2526,7 +2567,7 @@ StatusCode CaloCellVecMon::fillHistograms(){
   // CaloCell info
   //============================
 
-  const CaloCellContainer* cellCont = 0;
+  const CaloCellContainer* cellCont = nullptr;
   sc=evtStore()->retrieve(cellCont, m_cellContainerName);
   if( sc.isFailure()  ||  !cellCont ) {
     ATH_MSG_WARNING("No CaloCell container found in TDS"); 
@@ -2782,9 +2823,9 @@ void CaloCellVecMon::fillSporHists(const CaloCell* cell ){
      onlID = m_LArCablingService->createSignalChannelID(id_s);
    }
    catch(LArID_Exception& except) {
-     msg(MSG::ERROR) << "LArID_Exception " << m_LArEM_IDHelper->show_to_string(id_s) << " " << (std::string) except << endreq ;
-     msg(MSG::ERROR) << "LArID_Exception " << m_LArHEC_IDHelper->show_to_string(id_s) << endreq;
-     msg(MSG::ERROR) << "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string(id_s) << endreq;
+     ATH_MSG_ERROR( "LArID_Exception " << m_LArEM_IDHelper->show_to_string(id_s) << " " << (std::string) except  );
+     ATH_MSG_ERROR( "LArID_Exception " << m_LArHEC_IDHelper->show_to_string(id_s)  );
+     ATH_MSG_ERROR( "LArID_Exception " << m_LArFCAL_IDHelper->show_to_string(id_s)  );
    }
 
    int posneg= m_LArOnlineIDHelper->pos_neg(onlID);
@@ -2803,7 +2844,7 @@ void CaloCellVecMon::fillSporHists(const CaloCell* cell ){
    int sample_s = -1;
    int name_flag=0;
    m_badCell_flag = true;
-   MonGroup * tmpBadCell = 0;
+   MonGroup * tmpBadCell = nullptr;
   
    if(caloDDEl->is_lar_em_barrel() && posneg == 0) {
       part_name = "EMBC";
@@ -2994,9 +3035,9 @@ void CaloCellVecMon::fillSporHists(const CaloCell* cell ){
       m_h_energy_s.resize(m_monitored.size());
       m_h_energy_lb.resize(m_monitored.size());
       m_h_quality.resize(m_monitored.size()); 
-      m_h_energy_s[m_monitored.size()-1] = 0;
-      m_h_energy_lb[m_monitored.size()-1] = 0;
-      m_h_quality[m_monitored.size()-1] = 0;
+      m_h_energy_s[m_monitored.size()-1] = nullptr;
+      m_h_energy_lb[m_monitored.size()-1] = nullptr;
+      m_h_quality[m_monitored.size()-1] = nullptr;
      } 
 
      if(!known) m_listOfNoiseBurstLumiblock[channelHash]=1;
@@ -3055,11 +3096,9 @@ void CaloCellVecMon::fillTileHists(const CaloCell* cell ){
          else if (sample ==1 ) m_h_CellsNoiseEtaPhiBC->Fill(  eta, phi );
          else  m_h_CellsNoiseEtaPhiD->Fill(  eta, phi  );
 
-         if (msgLvl(MSG::DEBUG)) {
-            msg(MSG::DEBUG) << "CaloCellVecMon: Cell rs=" << rs << " e=" << cellen << " eta=" << eta << " phi="<< phi << endreq;
-            msg(MSG::DEBUG) << "CaloCellVecMon: hash=" << hash << " module= " << module+1 << " sample=" << sample
-                              << " tower=" << side*tower<<endreq;
-            }
+         ATH_MSG_DEBUG( "CaloCellVecMon: Cell rs=" << rs << " e=" << cellen << " eta=" << eta << " phi="<< phi  );
+         ATH_MSG_DEBUG( "CaloCellVecMon: hash=" << hash << " module= " << module+1 << " sample=" << sample
+                        << " tower=" << side*tower );
      }// end of if (fabs(rs)>4.0 && badc == false && rs != 999 )
 
      if ( badc == false) {
@@ -3216,7 +3255,7 @@ void CaloCellVecMon::fillLarHists(const CaloCell* cell ){
     }
 
     // 2D plots of active cells versus etaphi: (used to mark missing cells in other histograms)
-    if ( m_h_missingCellMask[caloLyr] != 0 ) {
+    if ( m_h_missingCellMask[caloLyr] != nullptr ) {
        m_h_missingCellMask[caloLyr]->Fill(celleta,cellphi);
     }
   }
@@ -3408,7 +3447,7 @@ void CaloCellVecMon::maskMissCell(){
 
 // ATH_MSG_INFO("CaloCellVecMon::maskMissCell() starts");
  for(int ilyr = 0; ilyr != MAXLAYER; ilyr++) {
-   if(m_h_missingCellMask[ilyr] == 0) continue;
+   if(m_h_missingCellMask[ilyr] == nullptr) continue;
       
    int nbinsx = m_h_missingCellMask[ilyr]->GetNbinsX();
    int nbinsy = m_h_missingCellMask[ilyr]->GetNbinsY();
@@ -4374,147 +4413,147 @@ void CaloCellVecMon::deleteLarMultThreHistVectors(){
   for(int ilyr=EMBPA; ilyr<MAXLAYER; ilyr++) {
     if(m_h_occupancy_etaphi[ilyr]){
       delete [] m_h_occupancy_etaphi[ilyr];
-      m_h_occupancy_etaphi[ilyr]=0;
+      m_h_occupancy_etaphi[ilyr]=nullptr;
     } 
     
     if(m_h_occupancy_eta[ilyr]){
       delete [] m_h_occupancy_eta[ilyr];
-      m_h_occupancy_eta[ilyr]=0;
+      m_h_occupancy_eta[ilyr]=nullptr;
     }
 
     if(m_h_occupancy_phi[ilyr]){
       delete [] m_h_occupancy_phi[ilyr];
-      m_h_occupancy_phi[ilyr]=0;
+      m_h_occupancy_phi[ilyr]=nullptr;
     }
 
     if(m_h_occupancy_etaphi_imask[ilyr]){
       delete [] m_h_occupancy_etaphi_imask[ilyr];
-      m_h_occupancy_etaphi_imask[ilyr]=0;
+      m_h_occupancy_etaphi_imask[ilyr]=nullptr;
     }
 
     if(m_h_occupancy_eta_imask[ilyr]){
       delete [] m_h_occupancy_eta_imask[ilyr];
-      m_h_occupancy_eta_imask[ilyr]=0;
+      m_h_occupancy_eta_imask[ilyr]=nullptr;
     }
 
     if(m_h_occupancy_phi_imask[ilyr]){
       delete [] m_h_occupancy_phi_imask[ilyr];
-      m_h_occupancy_phi_imask[ilyr]=0;
+      m_h_occupancy_phi_imask[ilyr]=nullptr;
     }
 
     if(m_h_percentOccupancy_etaphi[ilyr]){
       delete [] m_h_percentOccupancy_etaphi[ilyr];
-      m_h_percentOccupancy_etaphi[ilyr]=0;
+      m_h_percentOccupancy_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_percentOccupancy_eta[ilyr]){
       delete [] m_h_percentOccupancy_eta[ilyr];
-      m_h_percentOccupancy_eta[ilyr]=0;
+      m_h_percentOccupancy_eta[ilyr]=nullptr;
     }
 
     if(m_h_percentOccupancy_phi[ilyr]){
       delete [] m_h_percentOccupancy_phi[ilyr];
-      m_h_percentOccupancy_phi[ilyr]=0;
+      m_h_percentOccupancy_phi[ilyr]=nullptr;
     }
 
     if(m_h_percentOccupancy_etaphi_imask[ilyr]){
       delete [] m_h_percentOccupancy_etaphi_imask[ilyr];
-      m_h_percentOccupancy_etaphi_imask[ilyr]=0;
+      m_h_percentOccupancy_etaphi_imask[ilyr]=nullptr;
     }
 
     if(m_h_percentOccupancy_phi_imask[ilyr]){
       delete [] m_h_percentOccupancy_phi_imask[ilyr];
-      m_h_percentOccupancy_phi_imask[ilyr]=0;
+      m_h_percentOccupancy_phi_imask[ilyr]=nullptr;
     }
 
     if(m_h_percentOccupancy_eta_imask[ilyr]){
       delete [] m_h_percentOccupancy_eta_imask[ilyr];
-      m_h_percentOccupancy_eta_imask[ilyr]=0;
+      m_h_percentOccupancy_eta_imask[ilyr]=nullptr;
     }
 
     if(m_h_energyProfile_etaphi[ilyr]){
       delete [] m_h_energyProfile_etaphi[ilyr];
-      m_h_energyProfile_etaphi[ilyr]=0;
+      m_h_energyProfile_etaphi[ilyr]=nullptr;
     } 
 
     if(m_h_totalEnergy_etaphi[ilyr]){
       delete [] m_h_totalEnergy_etaphi[ilyr];
-      m_h_totalEnergy_etaphi[ilyr]=0;
+      m_h_totalEnergy_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_averageEnergy_etaphi[ilyr]){
       delete [] m_h_averageEnergy_etaphi[ilyr];
-      m_h_averageEnergy_etaphi[ilyr]=0;
+      m_h_averageEnergy_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_noise_etaphi[ilyr]){
       delete [] m_h_noise_etaphi[ilyr];
-      m_h_noise_etaphi[ilyr]=0;
+      m_h_noise_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_deviationFromDBnoise_etaphi[ilyr]){
       delete [] m_h_deviationFromDBnoise_etaphi[ilyr];
-      m_h_deviationFromDBnoise_etaphi[ilyr]=0;
+      m_h_deviationFromDBnoise_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_energyProfile_etaphi_imask[ilyr]){
       delete [] m_h_energyProfile_etaphi_imask[ilyr];
-      m_h_energyProfile_etaphi_imask[ilyr]=0;
+      m_h_energyProfile_etaphi_imask[ilyr]=nullptr;
     }
 
     if(m_h_totalEnergy_etaphi_imask[ilyr]){
       delete [] m_h_totalEnergy_etaphi_imask[ilyr];
-      m_h_totalEnergy_etaphi_imask[ilyr]=0;
+      m_h_totalEnergy_etaphi_imask[ilyr]=nullptr;
     }
 
     if(m_h_averageEnergy_etaphi_imask[ilyr]){
       delete [] m_h_averageEnergy_etaphi_imask[ilyr];
-      m_h_averageEnergy_etaphi_imask[ilyr]=0;
+      m_h_averageEnergy_etaphi_imask[ilyr]=nullptr;
     }
 
     if(m_h_noise_etaphi_imask[ilyr]){
       delete [] m_h_noise_etaphi_imask[ilyr];
-      m_h_noise_etaphi_imask[ilyr]=0;
+      m_h_noise_etaphi_imask[ilyr]=nullptr;
     }
 
     if(m_h_poorQualityOccupancy_etaphi[ilyr]){
       delete [] m_h_poorQualityOccupancy_etaphi[ilyr];
-      m_h_poorQualityOccupancy_etaphi[ilyr]=0;
+      m_h_poorQualityOccupancy_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_totalQuality_etaphi[ilyr]){
       delete [] m_h_totalQuality_etaphi[ilyr];
-      m_h_totalQuality_etaphi[ilyr]=0;
+      m_h_totalQuality_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_fractionOverQth_etaphi[ilyr]){
       delete [] m_h_fractionOverQth_etaphi[ilyr];
-      m_h_fractionOverQth_etaphi[ilyr]=0;
+      m_h_fractionOverQth_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_averageQuality_etaphi[ilyr]){
       delete [] m_h_averageQuality_etaphi[ilyr];
-      m_h_averageQuality_etaphi[ilyr]=0;
+      m_h_averageQuality_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_poorTimeOccupancy_etaphi[ilyr]){
       delete [] m_h_poorTimeOccupancy_etaphi[ilyr];
-      m_h_poorTimeOccupancy_etaphi[ilyr]=0;
+      m_h_poorTimeOccupancy_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_totalTime_etaphi[ilyr]){
       delete [] m_h_totalTime_etaphi[ilyr];
-      m_h_totalTime_etaphi[ilyr]=0;
+      m_h_totalTime_etaphi[ilyr]=nullptr;
     }
 
     if(m_h_fractionPastTth_etaphi[ilyr]){
       delete [] m_h_fractionPastTth_etaphi[ilyr];
-      m_h_fractionPastTth_etaphi[ilyr]=0;
+      m_h_fractionPastTth_etaphi[ilyr]=nullptr;
     } 
       
     if(m_h_averageTime_etaphi[ilyr]){
       delete [] m_h_averageTime_etaphi[ilyr];
-      m_h_averageTime_etaphi[ilyr]=0;
+      m_h_averageTime_etaphi[ilyr]=nullptr;
     } 
 
   }
@@ -4536,7 +4575,7 @@ StatusCode CaloCellVecMon::deleteSporHists(){
     if(m_h_energy_s[iHisto]) adjust_n_1d(m_h_energy_s[iHisto]);
     if(m_h_quality[iHisto]) adjust_n_1d(m_h_quality[iHisto]);
     if(m_h_energy_lb[iHisto]) adjust_n_2d(m_h_energy_lb[iHisto]);
-    MonGroup * tmpBadCell = 0;
+    MonGroup * tmpBadCell = nullptr;
     switch(name_flag){
         case 1:
                 tmpBadCell = m_badCell_EMBC;
@@ -4822,10 +4861,10 @@ void CaloCellVecMon::bookLayerEtaPhiHists1D(LayerEnum layerNumber , THist1D** hi
 
   const int nThresholds = m_nThresholds[layerNumberNS];
   
-  bool newHistArray = ( hist[layerNumber] == 0 );
+  bool newHistArray = ( hist[layerNumber] == nullptr );
   if( newHistArray ) {
     hist[layerNumber] = new THist1D*[nThresholds];
-    for(int ti = 0; ti< nThresholds; ti++) hist[layerNumber][ti] = 0;
+    for(int ti = 0; ti< nThresholds; ti++) hist[layerNumber][ti] = nullptr;
   }
     
   for(int ti = 0; ti< nThresholds; ti++) {
@@ -4834,7 +4873,7 @@ void CaloCellVecMon::bookLayerEtaPhiHists1D(LayerEnum layerNumber , THist1D** hi
 
       bool registerHist = false;
       if( histType != Temporary ) {
-	if( isTemp != 0 ) {
+	if( isTemp != nullptr ) {
 	  registerHist = (!isTemp[ti]);
 	}
 	else {
@@ -4851,21 +4890,22 @@ void CaloCellVecMon::bookLayerEtaPhiHists1D(LayerEnum layerNumber , THist1D** hi
        sprintf(uniqueTitle,genHistTitle,lyr->getName(),m_threshTitles[layerNumberNS][ti].c_str()," w/o CSC veto");
       }
 
+      std::string uniqueName_s = uniqueName;
       if( !registerHist ) {
-	sprintf(uniqueName,"%s_temp",uniqueName);
+        uniqueName_s += "_temp";
       }
 
       if(strcmp(axisOptions,"e") == 0) {
-	hist[layerNumber][ti] = bookHistogram1D(hist[layerNumber][ti],uniqueName,uniqueTitle,lyr->getNTotEtaBins(),
+	hist[layerNumber][ti] = bookHistogram1D(hist[layerNumber][ti],uniqueName_s.c_str(),uniqueTitle,lyr->getNTotEtaBins(),
 						lyr->getEtaBinArray(),"#eta");
       }
       if(strcmp(axisOptions,"p") == 0) {
-	hist[layerNumber][ti] = bookHistogram1D(hist[layerNumber][ti],uniqueName,uniqueTitle,lyr->getNTotPhiBins(),
+	hist[layerNumber][ti] = bookHistogram1D(hist[layerNumber][ti],uniqueName_s.c_str(),uniqueTitle,lyr->getNTotPhiBins(),
 						lyr->getPhiBinArray(),"#phi");
       }
 
       if( registerHist ){
-//        ATH_MSG_INFO("before 1 reg 1D histograms in ShifterMonGroup for " << uniqueName );
+//        ATH_MSG_INFO("before 1 reg 1D histograms in ShifterMonGroup for " << uniqueName_s );
 /*
         if(hist[layerNumber][ti]) {
           TDirectory* dir = hist[layerNumber][ti]->GetDirectory();
@@ -4875,7 +4915,7 @@ void CaloCellVecMon::bookLayerEtaPhiHists1D(LayerEnum layerNumber , THist1D** hi
 */
 	//If this is not a temporary histogram, then it should be registered so it can be saved:
 	m_shifterMonGroup[histType]->regHist(hist[layerNumber][ti]).ignore();
-//        ATH_MSG_INFO("after 1 reg 1D histograms in ShifterMonGroup for " << uniqueName );
+//        ATH_MSG_INFO("after 1 reg 1D histograms in ShifterMonGroup for " << uniqueName_s );
 /*
         if(hist[layerNumber][ti]) {
           TDirectory* dir = hist[layerNumber][ti]->GetDirectory();
@@ -4885,7 +4925,7 @@ void CaloCellVecMon::bookLayerEtaPhiHists1D(LayerEnum layerNumber , THist1D** hi
 */
       }  // end of if(registerHist) 
       else {
-//       ATH_MSG_INFO("before 1 reg 1D histograms in TempMonGroup for " << uniqueName );
+//       ATH_MSG_INFO("before 1 reg 1D histograms in TempMonGroup for " << uniqueName_s );
 /*
        if(hist[layerNumber][ti]) {
           TDirectory* dir = hist[layerNumber][ti]->GetDirectory();
@@ -4894,7 +4934,7 @@ void CaloCellVecMon::bookLayerEtaPhiHists1D(LayerEnum layerNumber , THist1D** hi
        }
 */
        m_tempMonGroup->regHist(hist[layerNumber][ti]).ignore();
-//       ATH_MSG_INFO("after 1 reg 1D histograms in TempMonGroup for " << uniqueName );
+//       ATH_MSG_INFO("after 1 reg 1D histograms in TempMonGroup for " << uniqueName_s );
 /*
        if(hist[layerNumber][ti]) {
           TDirectory* dir = hist[layerNumber][ti]->GetDirectory();
@@ -4947,10 +4987,10 @@ void CaloCellVecMon::bookLayerEtaPhiHists2D(LayerEnum layerNumber, THist2D** his
   
   // allocating second dimension of array
   const int nThresholds = m_nThresholds[layerNumberNS];
-  bool newHistArray = ( hist[layerNumber] == 0 );
+  bool newHistArray = ( hist[layerNumber] == nullptr );
   if( newHistArray ) {
     hist[layerNumber] = new THist2D*[nThresholds];
-    for(int ti=0; ti<nThresholds; ti++) hist[layerNumber][ti]=0;
+    for(int ti=0; ti<nThresholds; ti++) hist[layerNumber][ti]=nullptr;
   }
 
   for(int ti=0; ti<nThresholds; ti++) {
@@ -4958,7 +4998,7 @@ void CaloCellVecMon::bookLayerEtaPhiHists2D(LayerEnum layerNumber, THist2D** his
 
       bool registerHist = false;
       if( histType != Temporary ) {
-	if( isTemp != 0 ) {
+	if( isTemp != nullptr ) {
 	  registerHist = (!isTemp[ti]);
 	}
 	else {
@@ -4975,15 +5015,16 @@ void CaloCellVecMon::bookLayerEtaPhiHists2D(LayerEnum layerNumber, THist2D** his
        sprintf(uniqueTitle,genHistTitle,lyr->getName(),(m_threshTitles[layerNumberNS][ti]+" w/o CSC veto").c_str());
       }
 
+      std::string uniqueName_s = uniqueName;
       if( !registerHist ) {
-	sprintf(uniqueName,"%s_temp",uniqueName);
+        uniqueName_s += "_temp";
       }
       
-      hist[layerNumber][ti] = bookHistogram2D(hist[layerNumber][ti],uniqueName,uniqueTitle,lyr->getNTotEtaBins(),lyr->getEtaBinArray(),
+      hist[layerNumber][ti] = bookHistogram2D(hist[layerNumber][ti],uniqueName_s.c_str(),uniqueTitle,lyr->getNTotEtaBins(),lyr->getEtaBinArray(),
 					      lyr->getNTotPhiBins(),lyr->getPhiBinArray(),"#eta","#phi");
 
       if( registerHist ){
-//        ATH_MSG_INFO("before 1 reg 2D histograms in ShifterMonGroup for " << uniqueName );
+//        ATH_MSG_INFO("before 1 reg 2D histograms in ShifterMonGroup for " << uniqueName_s );
 /*
         if(hist[layerNumber][ti]) {
           TDirectory* dir = hist[layerNumber][ti]->GetDirectory();
@@ -4992,7 +5033,7 @@ void CaloCellVecMon::bookLayerEtaPhiHists2D(LayerEnum layerNumber, THist2D** his
         }
 */
 	m_shifterMonGroup[histType]->regHist(hist[layerNumber][ti]).ignore();
-//        ATH_MSG_INFO("after 1 reg 2D histograms in ShifterMonGroup for " << uniqueName );
+//        ATH_MSG_INFO("after 1 reg 2D histograms in ShifterMonGroup for " << uniqueName_s );
 /*
         if(hist[layerNumber][ti]) {
           TDirectory* dir = hist[layerNumber][ti]->GetDirectory();
@@ -5002,7 +5043,7 @@ void CaloCellVecMon::bookLayerEtaPhiHists2D(LayerEnum layerNumber, THist2D** his
 */
       } // end of if(registerHist) 
       else {
-//        ATH_MSG_INFO("before 1 reg 2D histograms in TempMonGroup for " << uniqueName );
+//        ATH_MSG_INFO("before 1 reg 2D histograms in TempMonGroup for " << uniqueName_s );
 /*
         if(hist[layerNumber][ti]) {
           TDirectory* dir = hist[layerNumber][ti]->GetDirectory();
@@ -5011,7 +5052,7 @@ void CaloCellVecMon::bookLayerEtaPhiHists2D(LayerEnum layerNumber, THist2D** his
         }
 */
         m_tempMonGroup->regHist(hist[layerNumber][ti]).ignore();
-//        ATH_MSG_INFO("after 1 reg 2D histograms in TempMonGroup for " << uniqueName );
+//        ATH_MSG_INFO("after 1 reg 2D histograms in TempMonGroup for " << uniqueName_s );
 /*
         if(hist[layerNumber][ti]) {
           TDirectory* dir = hist[layerNumber][ti]->GetDirectory();
@@ -5066,7 +5107,7 @@ StatusCode CaloCellVecMon::saveAndDeleteHistsInLayer(LayerEnum ilyr, THist** his
           if(doHist[ti]) {
             bool registerHist = false;
             if( histType != Temporary ) {
-             if(isTemp!=0){
+             if(isTemp!=nullptr){
                registerHist = (!isTemp[ti]);
              }
              else {
@@ -5097,7 +5138,7 @@ template< class THist >
 StatusCode CaloCellVecMon::saveAndDeleteHistFromGroup(THist* &hist, MonGroup* &monGroup, bool if_write) {
   //ATH_MSG_INFO("inside saveAndDeleteHistFromGroup");
   StatusCode sc  = StatusCode::SUCCESS;
-  if( hist != 0 &&  monGroup != 0 ) {
+  if( hist != nullptr &&  monGroup != nullptr ) {
     if(if_write){
 /*
      const char* histName = hist->GetName(); 
@@ -5110,7 +5151,7 @@ StatusCode CaloCellVecMon::saveAndDeleteHistFromGroup(THist* &hist, MonGroup* &m
      }
 */
      sc=monGroup->writeAndDelete(hist);
-     hist = 0;
+     hist = nullptr;
     }
     else {
 /*
@@ -5123,7 +5164,7 @@ StatusCode CaloCellVecMon::saveAndDeleteHistFromGroup(THist* &hist, MonGroup* &m
      }
 */
      if(hist) {
-      hist->SetDirectory(0);
+      hist->SetDirectory(nullptr);
      }
 //     sc=monGroup->deregHist(hist);
 //     ATH_MSG_INFO("inside saveAndDeleteHistFromGroup after SetDirectory to 0");
@@ -5139,7 +5180,7 @@ StatusCode CaloCellVecMon::saveAndDeleteHistFromGroup(THist* &hist, MonGroup* &m
 */
      sc=monGroup->writeAndDelete(hist);
  //    ATH_MSG_INFO("inside saveAndDeleteHistFromGroup after delete");
-     hist=0;
+     hist=nullptr;
 //     safeDelete(hist);
     }
   }
@@ -5399,24 +5440,24 @@ void CaloCellVecMon::safeDelete(THists** &hists) {
 template< class THist >
 void CaloCellVecMon::safeDelete(THist* &hist) {
   //Helper method to delete THist if it was ever booked:
-  if( hist != 0 ) {
+  if( hist != nullptr ) {
     delete hist;
-    hist = 0;
+    hist = nullptr;
   }
 }
 
 template< class dynArray >
 void CaloCellVecMon::safeDeleteArray(dynArray* &array) {
-  if( array != 0 ) {
+  if( array != nullptr ) {
     delete[] array;
-    array = 0;
+    array = nullptr;
   }
 }
 
 void CaloCellVecMon::safeDelete(TH2F_LW* &hist) {
-  if( hist != 0 ) {
+  if( hist != nullptr ) {
     LWHist::safeDelete(hist);
-    hist = 0;
+    hist = nullptr;
   }
 }
 
@@ -5600,7 +5641,7 @@ void CaloCellVecMon::unpackTProfile2D(TProfile2D * input, TH2F* noise, TH2F* ave
   //Verbosely written for the sake of efficiency and safety; this method can accept any combination of its arguements
   //being a null pointer. Optional arguement "norm" allows for occupancy to be normalized by some constant.
 
-  if( input == 0 ) {
+  if( input == nullptr ) {
     return;
   }
 
@@ -5613,9 +5654,9 @@ void CaloCellVecMon::unpackTProfile2D(TProfile2D * input, TH2F* noise, TH2F* ave
   int nbiny = input->GetNbinsY(); 
   double nEntries = input->GetEntries();
 
-  if ( (average != 0) && (noise != 0) ) {
-    if( occupancy != 0 ) {
-      if( total != 0 ) {
+  if ( (average != nullptr) && (noise != nullptr) ) {
+    if( occupancy != nullptr ) {
+      if( total != nullptr ) {
 	//Make everything, average, noise, occupancy, total:
 	for(int ix=1;ix<nbinx+1;ix++){	
 	  for(int iy=1;iy<nbiny+1;iy++){
@@ -5685,7 +5726,7 @@ void CaloCellVecMon::unpackTProfile2D(TProfile2D * input, TH2F* noise, TH2F* ave
       occupancy->SetEntries(nEntries);
     }
     else {
-      if( total != 0) {
+      if( total != nullptr) {
 	// average, noise, total
 	for(int ix=1;ix<nbinx+1;ix++){	
 	  for(int iy=1;iy<nbiny+1;iy++){
@@ -5757,19 +5798,19 @@ void CaloCellVecMon::unpackTProfile2D(TProfile2D * input, TH2F* noise, TH2F* ave
 	double inputContent =  input->GetBinContent(bin);
 	double inputRMS = input->GetBinError(bin);
 	if( input->GetBinEntries(bin) == -1 ) {
-	  if(average != 0) {
+	  if(average != nullptr) {
 	    average->SetBinContent(bin,-1.);
 	    average->SetBinError(bin,0.);
 	  }
-	  if(noise != 0) {
+	  if(noise != nullptr) {
 	    noise->SetBinContent(bin,-1.);
 	    noise->SetBinError(bin,0.);
 	  }
-	  if(total != 0) {
+	  if(total != nullptr) {
 	    total->SetBinContent(bin,-1.);
 	    total->SetBinError(bin,0.);
 	  }
-	  if(occupancy != 0) {
+	  if(occupancy != nullptr) {
 	    occupancy->SetBinContent(bin,-1.);
 	    occupancy->SetBinError(bin,0.);
 	  }
@@ -5778,23 +5819,23 @@ void CaloCellVecMon::unpackTProfile2D(TProfile2D * input, TH2F* noise, TH2F* ave
 
 	double inputEntries = input->GetBinEntries(bin);
 
-	if( average != 0 ) {
+	if( average != nullptr ) {
 	  average->SetBinContent(bin,inputContent);
 	  if (inputEntries>0) {
 	    average->SetBinError(bin,inputRMS/sqrt(inputEntries));
 	  }
 	}
-	if( noise != 0 ) {
+	if( noise != nullptr ) {
 	  noise->SetBinContent(bin,inputRMS);
 	  if (inputEntries>0) {
 	    noise->SetBinError(bin,inputRMS/sqrt(2*inputEntries));
 	  }
 	}
-	if( occupancy != 0 ) {
+	if( occupancy != nullptr ) {
 	  occupancy->SetBinContent(bin,inputEntries*inv_norm);
 	  occupancy->SetBinError(bin,sqrt(inputEntries)*inv_norm);       
 	}
-	if( total != 0 ) {
+	if( total != nullptr ) {
 	  total->SetBinContent(bin, (inputContent * inputEntries) );
 	  if (inputEntries>0) {
 	    total->SetBinError(bin,inputRMS * sqrt(inputEntries));
@@ -5802,16 +5843,16 @@ void CaloCellVecMon::unpackTProfile2D(TProfile2D * input, TH2F* noise, TH2F* ave
 	}
       }      
     }
-    if( average != 0 ) {
+    if( average != nullptr ) {
       average->SetEntries(nEntries);
     }
-    if( occupancy != 0 ) {
+    if( occupancy != nullptr ) {
       occupancy->SetEntries(nEntries);
     }
-    if ( noise != 0 ) {
+    if ( noise != nullptr ) {
       noise->SetEntries(nEntries);
     }
-    if( total != 0 ) {
+    if( total != nullptr ) {
       total->SetEntries(nEntries);
     }
   }
@@ -5821,7 +5862,7 @@ void CaloCellVecMon::makeEtaHist(TH2F* input, TH1F* etaHist){
   //Method for building an eta histogram by integrating an etaphi histogram over phi
   
   //Check that hists are defined:
-  if( (input == 0) || (etaHist == 0) ) {
+  if( (input == nullptr) || (etaHist == nullptr) ) {
     return;
   }
 
@@ -5849,7 +5890,7 @@ void CaloCellVecMon::makePhiHist(TH2F* input, TH1F* phiHist){
   //Method for building a phi histogram by integrating an etaphi histogram over eta
 
   //Check that this input histogram is defined, if not, return:
-  if( (input == 0) || (phiHist == 0) ){
+  if( (input == nullptr) || (phiHist == nullptr) ){
     return;
   }
  
@@ -6035,10 +6076,10 @@ void CaloCellVecMon::divideHistogram(TH1F* numerator, float denominator, TH1F* q
 template< class THist > 
 void CaloCellVecMon::setCorrectEntries(THist ** hist[],int layer, int thresh) {
   
-  if(hist[layer] == 0) {
+  if(hist[layer] == nullptr) {
     return;
   }
-  if(hist[layer][thresh] == 0) {
+  if(hist[layer][thresh] == nullptr) {
     return;
   }
   

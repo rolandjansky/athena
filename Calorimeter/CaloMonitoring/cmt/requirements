@@ -20,12 +20,13 @@ use CaloIdentifier      CaloIdentifier-*    	 Calorimeter
 use CaloInterface       CaloInterface-*          Calorimeter
 use LArRecConditions    LArRecConditions-*       LArCalorimeter
 use LArIdentifier       LArIdentifier-*          LArCalorimeter
-use LArTools            LArTools-*               LArCalorimeter
+use LArCabling          LArCabling-*             LArCalorimeter
 use Identifier          Identifier-*             DetectorDescription
 
 use CommissionEvent     CommissionEvent-*        Commission
 
 use egammaEvent         egammaEvent-*            Reconstruction/egamma
+use ElectronPhotonSelectorTools     ElectronPhotonSelectorTools-* PhysicsAnalysis/ElectronPhotonID
 use MissingETEvent      MissingETEvent-*         Reconstruction
 
 
