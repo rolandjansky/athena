@@ -63,23 +63,23 @@ StatusCode MuonRPC_CablingSvc::initialize()
 {
    
     msg(MSG::INFO) << "Initializing " << name() << " - package version " 
-		   << PACKAGE_VERSION << endreq;
+		   << PACKAGE_VERSION << endmsg;
 
     // get the pointer to the MuonIdHelpers
     StoreGateSvc * detStore;
     StatusCode status = service("DetectorStore",detStore);
     if (status.isFailure()) {
-	msg(MSG::FATAL) << "DetectorStore service not found !" << endreq;  
+	msg(MSG::FATAL) << "DetectorStore service not found !" << endmsg;  
     } else {
 	// Get the RPC id helper from the detector store
 	//    const DataHandle<RpcIdHelper> rpcHelper;
 	const RpcIdHelper* rpcHelper;
 	status = detStore->retrieve(rpcHelper, "RPCIDHELPER");
 	if (status.isFailure()) {
-	    msg(MSG::FATAL) << "Could not get RpcIdHelper !" << endreq;
+	    msg(MSG::FATAL) << "Could not get RpcIdHelper !" << endmsg;
 	    return StatusCode::FAILURE;
 	} else {
-	    msg(MSG::DEBUG) << "Found the RpcIdHelper. " << endreq;
+	    msg(MSG::DEBUG) << "Found the RpcIdHelper. " << endmsg;
 	    RDOindex::setRpcIdHelper(rpcHelper);
 	    m_pRpcIdHelper = rpcHelper;
 	}
@@ -89,7 +89,7 @@ StatusCode MuonRPC_CablingSvc::initialize()
     bool tryRecoveringByReadingTrigRoadsFromFile = false;
 
     if(!m_RPCMapfromCool && m_RPCTriggerRoadsfromCool) {
-      msg(MSG::ERROR)<< " !!! RPC cabling map from files and trigger roads from COOL - option not implemented !!!"<< endreq;
+      msg(MSG::ERROR)<< " !!! RPC cabling map from files and trigger roads from COOL - option not implemented !!!"<< endmsg;
       return StatusCode::FAILURE;
     }    
 
@@ -98,13 +98,13 @@ StatusCode MuonRPC_CablingSvc::initialize()
 	StatusCode sc = m_condDataTool.retrieve();
 	if ( sc.isFailure() )
 	{
-	    //log<<MSG::ERROR<<"Could not retrieve MuonAlignmentDbTool"<<endreq;
-	    msg(MSG::ERROR) << "Could not retrieve RPCCablingDbTool" << endreq;
+	    //log<<MSG::ERROR<<"Could not retrieve MuonAlignmentDbTool"<<endmsg;
+	    msg(MSG::ERROR) << "Could not retrieve RPCCablingDbTool" << endmsg;
 	}
 	else
 	{
-	    //log<<MSG::INFO<<"MuonAlignmentDbTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endreq;
-            msg(MSG::INFO)<<"RPCCablingDbTool retrieved with statusCode = "<<sc<<" with handle "<<m_condDataTool<<endreq;
+	    //log<<MSG::INFO<<"MuonAlignmentDbTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condDataTool<<endmsg;
+            msg(MSG::INFO)<<"RPCCablingDbTool retrieved with statusCode = "<<sc<<" with handle "<<m_condDataTool<<endmsg;
 	}
 
 
@@ -115,7 +115,7 @@ StatusCode MuonRPC_CablingSvc::initialize()
 	folderNames.push_back((m_condDataTool)->mapCorrFolderName());
                                                                
 
-	msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endreq;
+	msg(MSG::INFO)<<"Register call-back  against "<<folderNames.size()<<" folders listed below "<<endmsg;
 	// bool aFolderFound = false;
 	short ic=0;
 	for (std::vector<std::string>::const_iterator ifld =folderNames.begin(); ifld!=folderNames.end(); ++ifld )
@@ -124,7 +124,7 @@ StatusCode MuonRPC_CablingSvc::initialize()
 	    msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
 	    if (detStore->contains<CondAttrListCollection>(*ifld)) {
 		// aFolderFound=true;
-		msg(MSG::INFO)<<"     found in the DetStore"<<endreq;
+		msg(MSG::INFO)<<"     found in the DetStore"<<endmsg;
 		const DataHandle<CondAttrListCollection> mapDataClob;
 		if (detStore->regFcn(&IRPCcablingSvc::initMappingModel,
 				     dynamic_cast<IRPCcablingSvc *>(this),
@@ -134,12 +134,12 @@ StatusCode MuonRPC_CablingSvc::initialize()
 		    msg(MSG::WARNING)<<"Unable to register call back for initMappingModel against folder <"<<(*ifld)<<">";
 		    //return StatusCode::FAILURE;
 		}
-		else msg(MSG::INFO)<<"initMappingModel registered for call-back against folder <"<<(*ifld)<<">"<<endreq;
+		else msg(MSG::INFO)<<"initMappingModel registered for call-back against folder <"<<(*ifld)<<">"<<endmsg;
 	    }
 	    else
 	    {	
 		msg(MSG::WARNING)<<"Folder "<<(*ifld)
-				 <<" NOT found in the DetStore --- failing to init ???"<<endreq;
+				 <<" NOT found in the DetStore --- failing to init ???"<<endmsg;
 		tryRecoveringByReadingFromFile = true;
 		break;
 	    }
@@ -162,18 +162,18 @@ StatusCode MuonRPC_CablingSvc::initialize()
 	StatusCode sc = m_condTriggerTool.retrieve();
 	if ( sc.isFailure() )
 	{
-	    msg(MSG::ERROR) << "Could not retrieve RPCTriggerDbTool" << endreq;
+	    msg(MSG::ERROR) << "Could not retrieve RPCTriggerDbTool" << endmsg;
 	}
 	else
 	{
-	    msg(MSG::INFO)<<"RPCTriggerDbTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condTriggerTool<<endreq;
+	    msg(MSG::INFO)<<"RPCTriggerDbTool retrieved with statusCode = "<<sc<<" pointer = "<<m_condTriggerTool<<endmsg;
 	}
 
 
 	std::vector<std::string> trigfolderNames;
 	trigfolderNames.push_back((m_condTriggerTool)->EtaTableFolderName());
 	trigfolderNames.push_back((m_condTriggerTool)->PhiTableFolderName());
-	msg(MSG::INFO)<<"Register call-back  against "<<trigfolderNames.size()<<" folders listed below "<<endreq;
+	msg(MSG::INFO)<<"Register call-back  against "<<trigfolderNames.size()<<" folders listed below "<<endmsg;
 	// bool aFolderFound = false;
 	short ic=0;
 	for (std::vector<std::string>::const_iterator ifld =trigfolderNames.begin(); ifld!=trigfolderNames.end(); ++ifld )
@@ -182,7 +182,7 @@ StatusCode MuonRPC_CablingSvc::initialize()
 	    msg(MSG::INFO)<<" Folder n. "<<ic<<" <"<<(*ifld)<<">";
 	    if (detStore->contains<CondAttrListCollection>(*ifld)) {
 		// aFolderFound=true;
-		msg(MSG::INFO)<<"     found in the DetStore"<<endreq;
+		msg(MSG::INFO)<<"     found in the DetStore"<<endmsg;
 		const DataHandle<CondAttrListCollection> TrigRoadClob;
        		if (detStore->regFcn(&ICallBackMuonRPC_Cabling::initTrigRoadsModel,
 				     dynamic_cast<ICallBackMuonRPC_Cabling *>(this),
@@ -192,12 +192,12 @@ StatusCode MuonRPC_CablingSvc::initialize()
 		    msg(MSG::WARNING)<<"Unable to register call back for initTrigRoadsModel against folder <"<<(*ifld)<<">";
 		    //return StatusCode::FAILURE;
 		}
-		else msg(MSG::INFO)<<"initTrigRoadsModel registered for call-back against folder <"<<(*ifld)<<">"<<endreq;
+		else msg(MSG::INFO)<<"initTrigRoadsModel registered for call-back against folder <"<<(*ifld)<<">"<<endmsg;
 	    }
 	    else
 	    {	
 		msg(MSG::WARNING)<<"Folder "<<(*ifld)
-				 <<" NOT found in the DetStore --- failing to init ???"<<endreq;
+				 <<" NOT found in the DetStore --- failing to init ???"<<endmsg;
 		tryRecoveringByReadingTrigRoadsFromFile = true;
 		break;
 	    }
@@ -228,16 +228,16 @@ StatusCode MuonRPC_CablingSvc::finalize()
 
 StatusCode MuonRPC_CablingSvc::queryInterface(const InterfaceID& riid, void** ppvIF) 
 {
-    msg(MSG::VERBOSE) << "queryInterface Start" << endreq;
+    msg(MSG::VERBOSE) << "queryInterface Start" << endmsg;
     if(IRPCcablingSvc::interfaceID().versionMatch(riid) ) 
     {
-        msg(MSG::VERBOSE) << "versionMatch=true" << endreq;
+        msg(MSG::VERBOSE) << "versionMatch=true" << endmsg;
         *ppvIF = (IRPCcablingSvc*)(this);
     } else {
-        msg(MSG::VERBOSE) << "cannot find the interface!" << endreq;
+        msg(MSG::VERBOSE) << "cannot find the interface!" << endmsg;
         return AthService::queryInterface(riid, ppvIF); 
       }
-  msg(MSG::VERBOSE) << "queryInterface succesfull" << endreq;
+  msg(MSG::VERBOSE) << "queryInterface succesfull" << endmsg;
   addRef();  // is this needed ?? yes it is ! 
   return StatusCode::SUCCESS;
 }
@@ -527,10 +527,10 @@ MuonRPC_CablingSvc::printType(int type,int station,std::string element,bool deta
     
     __osstream display;
     
-    log << MSG::DEBUG << name() << " is demanding a cabling printout" <<endreq;
+    log << MSG::DEBUG << name() << " is demanding a cabling printout" <<endmsg;
     
     CablingRPC::s_instance->PrintType(display,type,station,element,0,detail);
-    log << MSG::DEBUG << display.str() << endreq;
+    log << MSG::DEBUG << display.str() << endmsg;
 
    return;
     }
@@ -542,10 +542,10 @@ MuonRPC_CablingSvc::printSector(int sector,int station,std::string element,bool 
     
     __osstream display;
  
-    log << MSG::DEBUG << name() << " is demanding a cabling printout" <<endreq;
+    log << MSG::DEBUG << name() << " is demanding a cabling printout" <<endmsg;
 
     CablingRPC::s_instance->PrintSector(display,sector,station,element,0,detail);
-    log << MSG::DEBUG << display.str() << endreq;
+    log << MSG::DEBUG << display.str() << endmsg;
 
    return;
 }
@@ -755,14 +755,14 @@ std::vector<uint32_t> MuonRPC_CablingSvc::giveFullListOfRobIds() const
 // // Dummy methods because we inherit from virtual IRPCcablingSvc
 // std::vector<uint32_t> MuonRPC_CablingSvc::getPadHash (float a,float b,float c,float d) const
 // {
-//     msg(MSG::ERROR) << "Method getPadHash has been removed" << endreq;
+//     msg(MSG::ERROR) << "Method getPadHash has been removed" << endmsg;
 //     std::vector<uint32_t> dummy;
 //     return dummy;
 // }
 
 // std::vector<uint32_t> MuonRPC_CablingSvc::getRobId (float a,float b,float c,float d) const
 // {
-//     msg(MSG::ERROR) << "Method getRobId has been removed" << endreq;
+//     msg(MSG::ERROR) << "Method getRobId has been removed" << endmsg;
 //     std::vector<uint32_t> dummy;
 //     return dummy;
 // }
@@ -770,8 +770,8 @@ std::vector<uint32_t> MuonRPC_CablingSvc::giveFullListOfRobIds() const
 
 StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 {
-    msg(MSG::INFO)<<"initMappingModel has been called"<<endreq;
-    msg(MSG::INFO)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endreq;
+    msg(MSG::INFO)<<"initMappingModel has been called"<<endmsg;
+    msg(MSG::INFO)<<"ToolHandle in initMappingModel - <"<<m_condDataTool<<">"<<endmsg;
 
 #ifdef RPCCAB_MONCPU
     std::ofstream cpuMemStats;
@@ -788,19 +788,19 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
     bool tryRecoveringByReadingFromFile = false;
     bool postponeCabInit = false;
     // retrive (if existing) or create empty CablinRPC singleton - cast to CablingRPC
-    msg(MSG::INFO)<<"Retrieving cabling singleton; to create an empty one or to get the existing one"<<endreq;
+    msg(MSG::INFO)<<"Retrieving cabling singleton; to create an empty one or to get the existing one"<<endmsg;
     CablingRPC* cabling = dynamic_cast<CablingRPC*>(CablingRPC::instance());
     if(!cabling) {
-      msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+      msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endmsg;
       return StatusCode::FAILURE;
     }
-    else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+    else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endmsg;
     // clear cache in case this is not first initialization on the job
     cabling->clearCache();
     cabling->ClearPtoCablingMap();
-    msg(MSG::INFO)<<"Cabling singleton cache has been cleared"<<endreq;
+    msg(MSG::INFO)<<"Cabling singleton cache has been cleared"<<endmsg;
     //cabling->delete_instance();
-    //msg(MSG::INFO)<<"Cabling singleton deleted"<<endreq;
+    //msg(MSG::INFO)<<"Cabling singleton deleted"<<endmsg;
 
 #ifdef RPCCAB_MONCPU
     umem = GeoPerfUtils::getMem();
@@ -817,16 +817,16 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
       {
         msg(MSG::INFO) 
             << "Cannot locate " << m_database_repository 
-            << " default trigger configuratyion is loaded" << endreq;
+            << " default trigger configuratyion is loaded" << endmsg;
         roads_dir=".";
       } else {
         msg(MSG::INFO) 
-            << " Trigger roads will be loaded from " << roads_dir << endreq;
+            << " Trigger roads will be loaded from " << roads_dir << endmsg;
       }
     }
     else {
         msg(MSG::INFO) 
-            << " Trigger roads will be loaded from COOL" << endreq;
+            << " Trigger roads will be loaded from COOL" << endmsg;
     }
     
     if(m_RPCMapfromCool)
@@ -835,7 +835,7 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	StatusCode sc = m_condDataTool->loadParameters(I, keys);
 	if (sc.isFailure())
 	{
-	    msg(MSG::WARNING)<<"Reading Cabling maps from COOL failed; try to read from file"<<endreq;
+	    msg(MSG::WARNING)<<"Reading Cabling maps from COOL failed; try to read from file"<<endmsg;
 	    tryRecoveringByReadingFromFile = true;
 	}
 
@@ -850,7 +850,7 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	RPCCorrMap = m_condDataTool->GetStringRPCCorrMap();
 	RPCConfMap = m_condDataTool->GetStringRPCConfMap();
 
-        msg(MSG::DEBUG)<<"Pointers to Conf/Corr Maps are "<<(uintptr_t)RPCConfMap<<"/"<<(uintptr_t)RPCCorrMap<<endreq;
+        msg(MSG::DEBUG)<<"Pointers to Conf/Corr Maps are "<<(uintptr_t)RPCConfMap<<"/"<<(uintptr_t)RPCCorrMap<<endmsg;
  	ATH_MSG_DEBUG("Dump of the configuration RPC Cabling Map"); 
         ATH_MSG_DEBUG("\n"+(*RPCConfMap));	
  	ATH_MSG_DEBUG("End of Dump of the configuration RPC Cabling Map"); 
@@ -861,14 +861,14 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
         if((m_RPCTriggerRoadsfromCool && cabling->GetPtoTrigRoads() != 0) ||
            !m_RPCTriggerRoadsfromCool ){
   	  // new CablingRPC instance using the maps from Cool
-          msg(MSG::DEBUG)<<"Pointers to Conf/Corr Maps are "<<(uintptr_t)RPCConfMap<<"/"<<(uintptr_t)RPCCorrMap<<endreq;
+          msg(MSG::DEBUG)<<"Pointers to Conf/Corr Maps are "<<(uintptr_t)RPCConfMap<<"/"<<(uintptr_t)RPCCorrMap<<endmsg;
 	  cabling = 
 	      dynamic_cast<CablingRPC*>(CablingRPC::instance(RPCConfMap,RPCCorrMap,roads_dir, m_cosmic_configuration));
 	  if(!cabling) {
-	    msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	    msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endmsg;
 	    return StatusCode::FAILURE;
 	  }
-	  else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	  else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endmsg;
 	  if (!cabling->isLoaded())
 	  {
 	    // this can happen is someone has already built an empty Cabling Singleton 
@@ -900,12 +900,12 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
       {
 	  msg(MSG::ERROR) 
 		<< "Cannot locate " << m_conf_filename 
-		<< " from ${DATAPATH}" << endreq;
+		<< " from ${DATAPATH}" << endmsg;
 	  return StatusCode::FAILURE;
       }
       else msg(MSG::INFO)
 	<< "Cabling conf file <" << m_conf_filename
-	<< "> located at ${DATAPATH}" << endreq;
+	<< "> located at ${DATAPATH}" << endmsg;
 
       std::string corr_filename;
       corr_filename = PathResolver::find_file (m_corr_filename, "DATAPATH");
@@ -913,7 +913,7 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
       {
 	  msg(MSG::ERROR) 
 		<< "Cannot locate " << m_corr_filename 
-		<< " from ${DATAPATH}" << endreq;
+		<< " from ${DATAPATH}" << endmsg;
 	  return StatusCode::FAILURE;
       }
 
@@ -922,10 +922,10 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
 	    dynamic_cast<CablingRPC*>(CablingRPC::instance(conf_filename,corr_filename,roads_dir,
 							   m_cosmic_configuration));
 	if(!cabling) {
-	  msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	  msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endmsg;
 	  return StatusCode::FAILURE;
 	}
-	else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endmsg;
 	if (!cabling->isLoaded())
 	{
 	    // this can happen if someone has already built an empty Cabling Singleton 
@@ -946,21 +946,21 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
     if ( !cabling->isLoaded() ) 
     {
       if(postponeCabInit){
-          msg(MSG::INFO)<<" InitMappingModel: Trigger roads not yet loaded from COOL - postpone cabling initialization " << endreq;
+          msg(MSG::INFO)<<" InitMappingModel: Trigger roads not yet loaded from COOL - postpone cabling initialization " << endmsg;
         return StatusCode::SUCCESS;
       }
       else {
-        msg(MSG::ERROR) <<   "InitMappingModel: RPC cabling model is not loaded!"  << endreq;
+        msg(MSG::ERROR) <<   "InitMappingModel: RPC cabling model is not loaded!"  << endmsg;
         return StatusCode::FAILURE;
       }
     } 
-    else msg(MSG::INFO) << "InitMappingModel: RPC cabling model is loaded!" << *cabling << endreq;
+    else msg(MSG::INFO) << "InitMappingModel: RPC cabling model is loaded!" << *cabling << endmsg;
         
     // build fast map between offlineID and PAD online ID
     if (!buildOfflineOnlineMap())
     {
         msg(MSG::ERROR) << " CAnnot build the map between offlineID and " 
-	     << "PAD online ID!" << endreq;
+	     << "PAD online ID!" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -973,13 +973,13 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
 #endif
 
     msg(MSG::DEBUG) << "DUMP THE FULL RPC ROBID LIST: " 
-         << m_fullListOfRobIds.size() << endreq;
+         << m_fullListOfRobIds.size() << endmsg;
     if(msgLvl(MSG::DEBUG)) 
     {
       for(unsigned int i=0;i<m_fullListOfRobIds.size();++i)
       {
         msg(MSG::DEBUG) << "RobId=" << MSG::hex 
-                 << m_fullListOfRobIds[i] << MSG::dec << endreq; 
+                 << m_fullListOfRobIds[i] << MSG::dec << endmsg; 
       }
     }
         
@@ -987,7 +987,7 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
     //    if(msg.Lvl(MSG::DEBUG))
     if(false)
     {
-        msg(MSG::DEBUG) << "DUMP THE OFFLINE ID MAP OF THE PADs: " << endreq;
+        msg(MSG::DEBUG) << "DUMP THE OFFLINE ID MAP OF THE PADs: " << endmsg;
         for(int side=0;side<2;++side)
             for(int Sector=0;Sector<32;++Sector)
                 for(int Pad=0;Pad<10;++Pad)
@@ -998,7 +998,7 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
                                        << " Sector=" << Sector
                                        << " Pad="    << Pad << ": identifier is "
                                        << m_pRpcIdHelper->show_to_string(ID) 
-                                       << endreq;
+                                       << endmsg;
                 }
     }
     // here get and provide the HashFunction
@@ -1014,14 +1014,14 @@ StatusCode MuonRPC_CablingSvc::initMappingModel(IOVSVC_CALLBACK_ARGS_P(I,keys))
     cpuMemStats.close();
 #endif
 
-    msg(MSG::INFO) << name() << " initialized succesfully" << endreq;
+    msg(MSG::INFO) << name() << " initialized succesfully" << endmsg;
     return StatusCode::SUCCESS;
 }
 
 StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)) 
 {
-    msg(MSG::INFO)<<"initTrigRoadsModel has been called"<<endreq;
-    //    msg(MSG::INFO)<<"ToolHandle in initTrigRoadsModel - <"<<m_condTriggerTool<<">"<<endreq;
+    msg(MSG::INFO)<<"initTrigRoadsModel has been called"<<endmsg;
+    //    msg(MSG::INFO)<<"ToolHandle in initTrigRoadsModel - <"<<m_condTriggerTool<<">"<<endmsg;
 
     std::string roads_dir;
     roads_dir = PathResolver::find_directory (m_database_repository, "DATAPATH");
@@ -1030,40 +1030,40 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
       {
         msg(MSG::INFO) 
             << "Cannot locate " << m_database_repository 
-            << " default trigger configuratyion is loaded" << endreq;
+            << " default trigger configuratyion is loaded" << endmsg;
         roads_dir=".";
       } else {
         msg(MSG::INFO) 
-            << " Trigger roads will be loaded from " << roads_dir << endreq;
+            << " Trigger roads have already been loaded from directory: " << roads_dir << endmsg;
       }
       //return StatusCode::SUCCESS;
     }
-    else {
+    else if(m_RPCTriggerRoadsfromCool)
+      {
         msg(MSG::INFO) 
-            << " Trigger roads will be loaded from COOL" << endreq;
-    }
+	  << " Trigger roads will be loaded from COOL" << endmsg;
+	
+	// retrive CablinRPC singleton - cast to CablingRPC
+	msg(MSG::INFO)<<"Retrieve the pointer to the cabling singleton "<<endmsg; 
+	CablingRPC* cabling = dynamic_cast<CablingRPC*>(CablingRPC::instance());
+	if(!cabling) {
+	  msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endmsg;
+	  return StatusCode::FAILURE;
+	}
+	else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endmsg;
+	// clear cache in case this is not first initialization on the job
+	cabling->clearCache();
+	cabling->ClearPtoTrigRoads();
+	msg(MSG::INFO)<<"Cabling singleton cache has been cleared"<<endmsg;
+	bool postponeCabInit = false;
 
-    // retrive CablinRPC singleton - cast to CablingRPC
-    msg(MSG::INFO)<<"Retrieve the pointer to the cabling singleton "<<endreq; 
-    CablingRPC* cabling = dynamic_cast<CablingRPC*>(CablingRPC::instance());
-    if(!cabling) {
-      msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
-      return StatusCode::FAILURE;
-    }
-    else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
-    // clear cache in case this is not first initialization on the job
-    cabling->clearCache();
-    cabling->ClearPtoTrigRoads();
-    msg(MSG::INFO)<<"Cabling singleton cache has been cleared"<<endreq;
-    bool postponeCabInit = false;
-
-    if(m_RPCTriggerRoadsfromCool)
-    {
+    //    if(m_RPCTriggerRoadsfromCool)
+    //    {
 	    
-       StatusCode sc = m_condTriggerTool->loadParameters(I, keys);
+	StatusCode sc = m_condTriggerTool->loadParameters(I, keys);
        if (sc.isFailure())
        {
-	    msg(MSG::WARNING)<<"Reading trigger roads from COOL failed; try to read from file"<<endreq;
+	    msg(MSG::WARNING)<<"Reading trigger roads from COOL failed; try to read from file"<<endmsg;
             return StatusCode::FAILURE;
        }
 
@@ -1082,15 +1082,15 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
 
 
        for(unsigned int it=0; it<RPCEtaCM_File.size(); it++){
-          msg(MSG::DEBUG)<<"Pointers to ETA CM file ...."<<(uintptr_t) &RPCEtaCM_File.at(it) <<endreq;
-          msg(MSG::DEBUG)<<"Pointers to ETA Th0 ........"<<(uintptr_t) &RPCEtaTh0.at(it) <<endreq;
-          msg(MSG::DEBUG)<<"Pointers to ETA sequence ..."<<(uintptr_t) &RPCEtaSequence_Th.at(it) <<endreq;
-          msg(MSG::DEBUG)<<"Pointers to ETA Info ......."<<(uintptr_t) &RPCEtaInfo.at(it) <<endreq;
+          msg(MSG::DEBUG)<<"Pointers to ETA CM file ...."<<(uintptr_t) &RPCEtaCM_File.at(it) <<endmsg;
+          msg(MSG::DEBUG)<<"Pointers to ETA Th0 ........"<<(uintptr_t) &RPCEtaTh0.at(it) <<endmsg;
+          msg(MSG::DEBUG)<<"Pointers to ETA sequence ..."<<(uintptr_t) &RPCEtaSequence_Th.at(it) <<endmsg;
+          msg(MSG::DEBUG)<<"Pointers to ETA Info ......."<<(uintptr_t) &RPCEtaInfo.at(it) <<endmsg;
        }
        for(unsigned int it=0; it<RPCPhiCM_File.size(); it++){
-          msg(MSG::DEBUG)<<"Pointers to PHI CM file ...."<<(uintptr_t) &RPCPhiCM_File.at(it) <<endreq;
-          msg(MSG::DEBUG)<<"Pointers to PHI Th0 ........"<<(uintptr_t) &RPCPhiTh0.at(it) <<endreq;
-          msg(MSG::DEBUG)<<"Pointers to PHI Info ......."<<(uintptr_t) &RPCPhiInfo.at(it) <<endreq;
+          msg(MSG::DEBUG)<<"Pointers to PHI CM file ...."<<(uintptr_t) &RPCPhiCM_File.at(it) <<endmsg;
+          msg(MSG::DEBUG)<<"Pointers to PHI Th0 ........"<<(uintptr_t) &RPCPhiTh0.at(it) <<endmsg;
+          msg(MSG::DEBUG)<<"Pointers to PHI Info ......."<<(uintptr_t) &RPCPhiInfo.at(it) <<endmsg;
 
        }
        // Trigger Roads Header 
@@ -1103,14 +1103,14 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
        cabling->SetPtoTrigRoads(RPC_trigroads);
 
        if(RPCCorrMap != 0 && RPCConfMap != 0) {
-          msg(MSG::DEBUG)<<"Pointers to Conf/Corr Maps are "<<(uintptr_t)RPCConfMap<<"/"<<(uintptr_t)RPCCorrMap<<endreq;
+          msg(MSG::DEBUG)<<"Pointers to Conf/Corr Maps are "<<(uintptr_t)RPCConfMap<<"/"<<(uintptr_t)RPCCorrMap<<endmsg;
 	  cabling = 
 	      dynamic_cast<CablingRPC*>(CablingRPC::instance(RPCConfMap,RPCCorrMap,roads_dir, m_cosmic_configuration));
 	  if(!cabling) {
-	    msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	    msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endmsg;
 	    return StatusCode::FAILURE;
 	  } 
-	  else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	  else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endmsg;
 	  if (!cabling->isLoaded())
 	  {
 	    // this can happen is someone has already built an empty Cabling Singleton 
@@ -1129,7 +1129,7 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
 	    {
 	      msg(MSG::ERROR) 
 		<< "Cannot locate " << m_conf_filename 
-		<< " from ${DATAPATH}" << endreq;
+		<< " from ${DATAPATH}" << endmsg;
 	      return StatusCode::FAILURE;
 	    }
 
@@ -1139,17 +1139,17 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
 	    {
 	      msg(MSG::ERROR) 
 		<< "Cannot locate " << m_corr_filename 
-		<< " from ${DATAPATH}" << endreq;
+		<< " from ${DATAPATH}" << endmsg;
 	      return StatusCode::FAILURE;
 	    }
 	    cabling = 
 	      dynamic_cast<CablingRPC*>(CablingRPC::instance(conf_filename,corr_filename,roads_dir,
 							   m_cosmic_configuration));
 	    if(!cabling) {
-	      msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endreq;
+	      msg(MSG::ERROR)<<"casting of cabling singleton failed."<<endmsg;
 	      return StatusCode::FAILURE;
 	    }
-	    else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endreq;
+	    else msg(MSG::DEBUG)<<"cabling singleton at <"<<(uintptr_t)cabling<<">"<<endmsg;
 	    if (!cabling->isLoaded())
 	    {
 	      // this can happen if someone has already built an empty Cabling Singleton 
@@ -1161,32 +1161,32 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
        if ( !cabling->isLoaded() ) 
        {
           if(postponeCabInit){
-            msg(MSG::INFO)<<"InitTrigRoadsModel: Cabling maps not yet loaded from COOL - postpone cabling initialization " << endreq;
+            msg(MSG::INFO)<<"InitTrigRoadsModel: Cabling maps not yet loaded from COOL - postpone cabling initialization " << endmsg;
             return StatusCode::SUCCESS;
 	  }
           else {
-            msg(MSG::ERROR) <<   "InitTrigRoadsModel: RPC cabling model is not loaded!"  << endreq;
+            msg(MSG::ERROR) <<   "InitTrigRoadsModel: RPC cabling model is not loaded!"  << endmsg;
             return StatusCode::FAILURE;
           }
        } 
-       else msg(MSG::INFO) << "InitTrigRoadsModel: RPC cabling model is loaded!" << *cabling << endreq;
+       else msg(MSG::INFO) << "InitTrigRoadsModel: RPC cabling model is loaded!" << *cabling << endmsg;
         
         // build fast map between offlineID and PAD online ID
        if (!buildOfflineOnlineMap())
        {
           msg(MSG::ERROR) << " CAnnot build the map between offlineID and " 
-	     << "PAD online ID!" << endreq;
+	     << "PAD online ID!" << endmsg;
           return StatusCode::FAILURE;
        }
 
        msg(MSG::DEBUG) << "DUMP THE FULL RPC ROBID LIST: " 
-         << m_fullListOfRobIds.size() << endreq;
+         << m_fullListOfRobIds.size() << endmsg;
        if(msgLvl(MSG::DEBUG)) 
        {
          for(unsigned int i=0;i<m_fullListOfRobIds.size();++i)
          {
            msg(MSG::DEBUG) << "RobId=" << MSG::hex 
-                 << m_fullListOfRobIds[i] << MSG::dec << endreq; 
+                 << m_fullListOfRobIds[i] << MSG::dec << endmsg; 
          }
        }
         
@@ -1194,7 +1194,7 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
        //    if(msg.Lvl(MSG::DEBUG))
        if(false)
        {
-         msg(MSG::DEBUG) << "DUMP THE OFFLINE ID MAP OF THE PADs: " << endreq;
+         msg(MSG::DEBUG) << "DUMP THE OFFLINE ID MAP OF THE PADs: " << endmsg;
          for(int side=0;side<2;++side)
            for(int Sector=0;Sector<32;++Sector)
              for(int Pad=0;Pad<10;++Pad)
@@ -1205,15 +1205,16 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
                                        << " Sector=" << Sector
                                        << " Pad="    << Pad << ": identifier is "
                                        << m_pRpcIdHelper->show_to_string(ID) 
-                                       << endreq;
+                                       << endmsg;
 	     }
        }
        // here get and provide the HashFunction
        if (m_padHashIdHelper) delete m_padHashIdHelper;
        m_padHashIdHelper = new RpcPadIdHash();
-       //      msg(MSG::INFO) << name() << " initialized succesfully" << endreq;
+       //      msg(MSG::INFO) << name() << " initialized succesfully" << endmsg;
     }
 
+    // this must be done both in case of source = COOL or ASCII
     // -----  Initialization of Pad configuration ------ //
     if (m_ApplyFeetPadThresholds) {
         // if using COOL check the existence of a PAD not existing in run-1 cabling
@@ -1231,7 +1232,7 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
             msg(MSG::INFO) << "Applying FeetPadThresholds : "
                            <<  m_FeetPadThresholds.at(0) << ","
                            <<  m_FeetPadThresholds.at(1) << ","
-                           <<  m_FeetPadThresholds.at(2) << endreq;
+                           <<  m_FeetPadThresholds.at(2) << endmsg;
             
             const unsigned int NumFeetSectors = 8;
             unsigned int FeetSectors[NumFeetSectors]={21,22,25,26,53,54,57,58};
@@ -1248,7 +1249,7 @@ StatusCode MuonRPC_CablingSvc::initTrigRoadsModel(IOVSVC_CALLBACK_ARGS_P(I,keys)
             
         }
     }   
-    msg(MSG::INFO) << name() << " initialized succesfully" << endreq;
+    msg(MSG::INFO) << name() << " initialized succesfully" << endmsg;
     return StatusCode::SUCCESS;
 }
 

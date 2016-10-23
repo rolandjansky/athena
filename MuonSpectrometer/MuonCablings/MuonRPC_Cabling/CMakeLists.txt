@@ -21,10 +21,14 @@ atlas_depends_on_subdirs( PUBLIC
                           Tools/PathResolver )
 
 # Component(s) in the package:
+atlas_add_library( MuonRPC_CablingLib
+		   MuonRPC_Cabling/*.h src/*.cxx
+		   PUBLIC_HEADERS MuonRPC_Cabling
+		   LINK_LIBRARIES AthenaBaseComps AthenaKernel Identifier GaudiKernel MuonCablingTools CablingTools RPCcablingInterfaceLib MuonIdHelpersLib
+		   PRIVATE_LINK_LIBRARIES StoreGateLib AthenaPoolUtilities MuonCondInterface PathResolver )
 atlas_add_component( MuonRPC_Cabling
-                     src/*.cxx
-                     src/components/*.cxx
-                     LINK_LIBRARIES AthenaBaseComps AthenaKernel Identifier GaudiKernel MuonCablingTools CablingTools RPCcablingInterfaceLib MuonIdHelpersLib StoreGateLib SGtests AthenaPoolUtilities MuonCondInterface PathResolver )
+		     src/components/*.cxx
+		     LINK_LIBRARIES MuonRPC_CablingLib )
 
 # Install files from the package:
 atlas_install_headers( MuonRPC_Cabling )

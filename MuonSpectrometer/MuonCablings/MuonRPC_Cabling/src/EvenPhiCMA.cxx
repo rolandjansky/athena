@@ -35,7 +35,14 @@ EvenPhiCMA::EvenPhiCMA(int num,int stat,int type,CMAcoverage coverage,
     // Set the memory for storing the cabling data
     if (!m_pivot_station) {m_pivot_rpc_read  = 1; create_pivot_map(1);}
     if (!m_lowPt_station) {m_lowPt_rpc_read  = 1; create_lowPt_map(1);}
-    if (!m_highPt_station) {m_highPt_rpc_read  = 1; create_highPt_map(1);} 
+    if (!m_highPt_station) {m_highPt_rpc_read  = 1; create_highPt_map(1);}
+
+    /*
+    std::cout<<" EvenPhiCMA is born with: num, stat, type, coverage "<<num<<" "<<stat<<" "<<type<<" "<<coverage
+	     <<"  eta, phi, PAD, Ixx "<<eta<<" "<<phi<<" "<<PAD<<" "<<Ixx 
+	     <<" pivot_stat, lowpt_stat, highpt_stat "<<pivot_station<<" "<<lowPt_station<<" "<<highPt_station
+	     <<" start_ch, start_st, stop_ch, stop_st "<<start_ch<<" "<<start_st<<" "<<stop_ch<<" "<<stop_st<<std::endl;
+    */
 }
  
 EvenPhiCMA::EvenPhiCMA(const EvenPhiCMA& cma) : 
@@ -80,6 +87,9 @@ EvenPhiCMA::operator=(const EvenPhiCMA& cma)
 bool
 EvenPhiCMA::cable_CMA_channels(void)
 {
+
+  //  std::cout<<"EvenPhiCMA::cable_CMA_channels for "<<this->id()<<std::endl;
+  
     if(m_pivot_station)  //Check and connect strips with Pivot matrix channels
     {
         WORlink::iterator found = m_pivot_WORs.find(this->pivot_start_ch());
@@ -182,6 +192,7 @@ EvenPhiCMA::cable_CMA_channels(void)
         int start   = lowPt_start_st();
         int stop    = lowPt_stop_st();
         int max_st  = get_max_strip_readout(lowPt_station());
+	//std::cout<<" start/stop/max strip = "<<start<<" "<<stop<<" "<<max_st<<std::endl;
         
 	int first_ch_cabled = 64;
 	int last_ch_cabled = -1;
@@ -203,21 +214,36 @@ EvenPhiCMA::cable_CMA_channels(void)
                 int cham   = rpc->number();
                 int local_strip = start - (max_st - rpc_st);
                 int final_strip = stop  - (max_st - rpc_st);
+		//std::cout<<" in RPCchamber i="<<i<<" (out of"<<wor->RPCacquired()<<"  ) nphi strips, ch number, local_strip, final_strip = "<<rpc_st<<" "<<cham<<" "<<local_strip <<" "<<final_strip<<std::endl; 
 		
 		int chs = (this->id().Ixx_index() == 0) ? 40 - max_st/2 : 0;
+		//std::cout<<"Ixx chs = "<< this->id().Ixx_index()<<" "<<chs<<std::endl;
+
+		bool isBME=false;
+		char E = rpc->chamber_name()[2];
+		//E='A';
+		if (E=='E') isBME=true;
 		
-		char E = rpc->chamber_name()[2];		
-		
-		if( E=='E' && this->id().Ixx_index() == 1){
-		 chs=0;
-		 local_strip=1;
+		if( isBME && this->id().Ixx_index() == 1){
+		  //std::cout<<" attenzione - Even Phi CM in BME Ixx_index==1 -> resetting chs (now ="<<chs<<") and final_strip (now ="<<final_strip<<"), local_strip="<<local_strip<<std::endl;
+		  // ok for sector 24 (side C [and side A], cm1, ijk=2 and 3)
+		  chs=8;
+		  local_strip=1;
+		  final_strip=32;		  
+		  //std::cout<<" attenzione -                                        reset chs (now ="<<chs<<") and final_strip (now ="<<final_strip<<"), local_strip="<<local_strip<<std::endl;
 		}
-		if( E=='E' && this->id().Ixx_index() == 0){
-		 chs=0;
-		 final_strip=32;
+		if( isBME && this->id().Ixx_index() == 0){
+		  //std::cout<<" attenzione - Even Phi CM in BME Ixx_index==1 -> resetting chs (now ="<<chs<<") and final_strip (now ="<<final_strip<<")), local_strip="<<local_strip<<std::endl;
+		  // ok for sector 24 (side C [and side A], cm0, ijk=2 and 3)
+		  chs=24;
+		  local_strip=1;
+		  final_strip=32;
+		  //std::cout<<" attenzione -                                        reset chs (now ="<<chs<<") and final_strip (now ="<<final_strip<<"), local_strip="<<local_strip<<std::endl;
 		}
 		
 		chs += (local_strip >=0 )? 0 : abs(local_strip) + 1;
+		//		if (isBME) std::cout<<"local_strip="<<local_strip<<"  chs = "<< chs<<std::endl;
+		
                 if(chs >= confirm_channels)
                 {
                     noMoreChannels("Low Pt");
@@ -225,9 +251,12 @@ EvenPhiCMA::cable_CMA_channels(void)
                 }
 	        if (chs <= first_ch_cabled) first_ch_cabled = chs;
 		
+		
 		if (local_strip <= 0) local_strip = 1;
-                do
+		//if (isBME) std::cout<<"local_strip reset to 1 if <=0 ... "<<local_strip<<" start loop over strips (until local_strip<=final_strip) local_strip, chs = "<<local_strip<<" "<<chs<<std::endl;
+		do
                 {
+		  //if (isBME) std::cout<<"do while...  local_strip, chs = "<<local_strip<<" "<<chs<<" rpc_st(limit to connect) = "<<rpc_st;
 	            if(chs == confirm_channels)
                     {
                         noMoreChannels("Low Pt");
@@ -235,6 +264,7 @@ EvenPhiCMA::cable_CMA_channels(void)
 	            }
                     if(local_strip > 0 && local_strip <= rpc_st)
 	            {
+		      //if (isBME)std::cout<<" ijk = "<<rpc->ijk_phiReadout()<<" ";
 		        if(rpc->ijk_phiReadout() ==1)
 			{
 	                m_lowPt[r][0][chs]= cham*100 + local_strip - 1;
@@ -251,7 +281,9 @@ EvenPhiCMA::cable_CMA_channels(void)
 			{
                           multiplicity[local_strip - 1 + (max_st - rpc_st)] = 1;
 			}
+			//if (isBME)std::cout<<" connected"<<std::endl;
 	            }
+		    //else std::cout<<std::endl;
 	            ++chs;
                 }while(++local_strip <= final_strip);
 
@@ -329,15 +361,18 @@ EvenPhiCMA::cable_CMA_channels(void)
 		char L    = rpc->chamber_name()[2];
 		int  sEta = rpc->stationEta();		
 		
-		if(abs(sEta)==8 && L=='L' && this->id().Ixx_index() == 1){
-		 chs=0;
-		 local_strip=1;
+		bool isBOE = false;
+		if (abs(sEta)==8 && L=='L' ) isBOE=true;
+		if(isBOE && this->id().Ixx_index() == 1){
+		  chs=0;
+		  local_strip=13;
+		  final_strip=64;
 		}
 		
-		if(abs(sEta)==8 && L=='L' && this->id().Ixx_index() == 0){
-		 chs=0;
-		 final_strip=64;
-		 local_strip=1;
+		if(isBOE && this->id().Ixx_index() == 0){
+		  chs=4;
+		  final_strip=52;
+		  local_strip=1;
 		}
 		
 		chs += (local_strip >=0 )? 0 : abs(local_strip) + 1;
@@ -356,24 +391,37 @@ EvenPhiCMA::cable_CMA_channels(void)
                         noMoreChannels("High Pt");
 		        return false;
 	            }
-                    if(local_strip > 0 && local_strip <= rpc_st)
-	            {
-		        if(rpc->ijk_phiReadout() ==1)
-			{
-	                m_highPt[r][0][chs]=cham*100 + local_strip - 1;
-	                m_highPt[r][1][chs]=10000 + cham*100 + local_strip - 1;
-			} else
-			{
-			m_highPt[r][1][chs]=cham*100 + local_strip - 1;
-	                m_highPt[r][0][chs]=10000 + cham*100 + local_strip - 1;
-			}
+		    bool skipChannel=false;
+		    if (isBOE && this->id().Ixx_index() == 1 && 
+			( (chs>3 && chs<8) || (chs>39 && chs<44) ) ) skipChannel=true;
+		    if (isBOE && this->id().Ixx_index() == 0 && 
+			( (chs>19 && chs<24) || (chs>55 && chs<60) ) ) skipChannel=true;
+		    if (skipChannel)
+		      {--local_strip;}
+		    else 
+		      {
+			if(local_strip > 0 && local_strip <= rpc_st)
+			  { 
+			    if(rpc->ijk_phiReadout() ==1)
+			      {
+				m_highPt[r][0][chs]=cham*100 + local_strip - 1;
+				m_highPt[r][1][chs]=10000 + cham*100 + local_strip - 1;
+			      } 
+			    else
+			      {
+				m_highPt[r][1][chs]=cham*100 + local_strip - 1;
+				m_highPt[r][0][chs]=10000 + cham*100 + local_strip - 1;
+			      }
+			  }
 			if(max_st > wor->give_max_phi_strips())
-			{
-			  multiplicity[local_strip - 1] = 1;
-			} else {
-                          multiplicity[local_strip - 1 + (max_st - rpc_st)] = 1;
-			}
-	            }
+			  {
+			    multiplicity[local_strip - 1] = 1;
+			  } 
+			else 
+			  {
+			    multiplicity[local_strip - 1 + (max_st - rpc_st)] = 1;
+			  }
+		      }
 	            ++chs;
                 }while(++local_strip <= final_strip);
 
@@ -647,7 +695,9 @@ EvenPhiCMA::cable_CMA_channelsP03(void)
 bool
 EvenPhiCMA::connect(SectorLogicSetup& setup)
 {
-    bool oldPhiSchema = (setup.layout()=="P03" || setup.layout()=="H8")?
+  //std::cout<<"EvenPhiCMA::connect for "<<this->id()<<std::endl;
+
+  bool oldPhiSchema = (setup.layout()=="P03" || setup.layout()=="H8")?
                         true : false;
 
     if(pivot_station())  //Check and connect Pivot plane chambers
@@ -801,19 +851,20 @@ EvenPhiCMA::get_confirm_strip_boundaries(int stat,int max)
         //if(pivot_start_st() == 1)
 	if(this->id().Ixx_index() == 0)
         {
+	  //std::cout<<" get_confirm_strip_boundaries(low_pt, max_phi_strips_inWOR="<<max<<")  Ixx=0; confirm_channels="<<confirm_channels<<std::endl;
 	    m_lowPt_start_st = 1;
 	    m_lowPt_stop_st = confirm_channels - (40 - max/2);
 	    if (m_lowPt_stop_st >= max ) m_lowPt_stop_st = max;
-	    //m_lowPt_stop_st = (confirm_channels<max)? confirm_channels : max;
-	    //m_lowPt_stop_st -= 40 - max/2;
         }
         //else if (pivot_stop_st() == max_pivot_strips)
         else if (this->id().Ixx_index() == 1)
 	{
+	  //std::cout<<" get_confirm_strip_boundaries(low_pt, max_phi_strips_inWOR="<<max<<")  Ixx=1; confirm_channels="<<confirm_channels<<std::endl;
 	    m_lowPt_stop_st = max;
             m_lowPt_start_st = max - confirm_channels + 1 + (40 - max/2);
             if (m_lowPt_start_st <= 0) m_lowPt_start_st = 1;
         }
+	//std::cout<<"  m_lowPt_start_st,  m_lowPt_stop_st "<<m_lowPt_start_st<<" "<<m_lowPt_stop_st<<std::endl;
 	
 	
     }
@@ -1045,13 +1096,13 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
           if(itc != p_trigroads->end()){
             if(m_debug) {
               log<<MSG::DEBUG
-	      << "EvenPhiCMA low: key " << name << "found in the Trigger Road Map --> OK"<<endreq;
+	      << "EvenPhiCMA low: key " << name << "found in the Trigger Road Map --> OK"<<endmsg;
               log<<MSG::DEBUG
-	      << "EvenPhiCMA low: key " <<  itc->second.c_str()<<endreq;
+	      << "EvenPhiCMA low: key " <<  itc->second.c_str()<<endmsg;
 	    }
             CMAprogLow_COOL.str(itc->second.c_str());
           if(m_debug) log<<MSG::DEBUG
-		      << "LBTAG-CMAPROGLOWO " << CMAprogLow_COOL.str()<<endreq;
+		      << "LBTAG-CMAPROGLOWO " << CMAprogLow_COOL.str()<<endmsg;
           }
 	}
         ++it;
@@ -1074,7 +1125,7 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
 		{
                    if(m_debug) log<<MSG::DEBUG
 		               << s_tag << ": " << id() << ": low-pt: has threshold "
-			       << i << " not programmed."<<endreq;
+			       << i << " not programmed."<<endmsg;
                 }
 	    }
 	} else delete program;
@@ -1095,7 +1146,7 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
 		{
                   if(m_debug) log<<MSG::DEBUG
 		    << s_tag << ": " << id() << ": low-pt: has threshold "
-		    << i << " not programmed."<<endreq;
+		    << i << " not programmed."<<endmsg;
 		}
             }
 	} else delete program;
@@ -1104,7 +1155,7 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
     else if (name[0] != '\0')
     {
         if(m_debug) log<<MSG::DEBUG
-		    << name << " not found! Putting a dummy configuration"<<endreq;
+		    << name << " not found! Putting a dummy configuration"<<endmsg;
 	m_lowPt_program = new CMAprogram();
 	m_lowPt_program->open_threshold(0);
     }
@@ -1167,13 +1218,13 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
           if(itc != p_trigroads->end()){
 	    if(m_debug) {
               log<<MSG::DEBUG
-	      << "EvenPhiCMA high: key " << name << "found in the Trigger Road Map --> OK" <<endreq;
+	      << "EvenPhiCMA high: key " << name << "found in the Trigger Road Map --> OK" <<endmsg;
               log<<MSG::DEBUG
-	      << "EvenPhiCMA high: key " <<  itc->second.c_str()<<endreq;
+	      << "EvenPhiCMA high: key " <<  itc->second.c_str()<<endmsg;
 	    }
             CMAprogHigh_COOL.str(itc->second.c_str());
             if(m_debug) log<<MSG::DEBUG
-		        << "CMAPROGHIGH " << CMAprogHigh_COOL.str()<<endreq;
+		        << "CMAPROGHIGH " << CMAprogHigh_COOL.str()<<endmsg;
            }
 	}
         ++it;
@@ -1198,7 +1249,7 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
 		{
                   if(m_debug) log<<MSG::DEBUG
 		              << s_tag << ": " << id() << ": high-pt: has threshold "
-			      << i << " not programmed."<<endreq;
+			      << i << " not programmed."<<endmsg;
                 }
 	    }
 	} else delete program;
@@ -1219,7 +1270,7 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
 		{
                   if(m_debug) log<<MSG::DEBUG
 		    << s_tag << ": " << id() << ": high-pt: has threshold "
-		    << i << " not programmed."<<endreq;
+		    << i << " not programmed."<<endmsg;
 		}
             }
 	} else delete program;
@@ -1228,7 +1279,7 @@ EvenPhiCMA::setup(SectorLogicSetup& setup)
     else if (name[0] != '\0')
     {
         if(m_debug) log<<MSG::DEBUG
-		    << name << " not found! Putting a dummy configuration"<<endreq;
+		    << name << " not found! Putting a dummy configuration"<<endmsg;
 	m_highPt_program = new CMAprogram();
 	m_highPt_program->open_threshold(0);
     }
