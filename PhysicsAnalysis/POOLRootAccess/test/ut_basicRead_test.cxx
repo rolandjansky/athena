@@ -12,9 +12,11 @@
 #include "xAODRootAccess/Init.h"
 #include "xAODRootAccess/TEvent.h"
 
+#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
+
 int main(int argc, char* argv[]) {
 
-   std::string whatToRead = "/r04/atlas/will/xAOD/data15_13TeV.periodD.physics_Main.PhysCont.DAOD_HIGG2D2.grp15_v01_p2425/*";
+   std::string whatToRead = "$ASG_TEST_FILE_MC";
    if(argc>1) whatToRead = argv[1];
 
    std::cout << "reading: " << whatToRead << std::endl; 
@@ -47,6 +49,12 @@ int main(int argc, char* argv[]) {
    //evt.setEvtSelProperty( "OutputLevel" , 3 );
 
    int maxEvt = evt.getEntries(); evt.getEntry(0);
+
+   //just a quick example of retrieving metadata
+   float beam_energy(0);
+   AAH::retrieveMetadata("/TagInfo","beam_energy",beam_energy,evt.inputMetaStore()); 
+   std::cout << "Beam energy = " << beam_energy << std::endl;
+
    TStopwatch st;
    st.Start();
    for(int i=0; i< maxEvt; i++) {

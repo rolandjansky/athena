@@ -13,6 +13,7 @@ atlas_depends_on_subdirs( PUBLIC
 			  Control/StoreGateBindings
                           PRIVATE
                           Control/xAODRootAccess
+			  Control/AthAnalysisBaseComps
                           Event/xAOD/xAODBase
                           Event/xAOD/xAODEventInfo )
 
@@ -23,9 +24,9 @@ find_package( ROOT COMPONENTS Core Tree MathCore Hist RIO pthread )
 atlas_add_library( POOLRootAccess
                    src/*.cxx
                    PUBLIC_HEADERS POOLRootAccess
-                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-		   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess
-                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel StoreGateLib SGtests StoreGateBindings )
+                   PRIVATE_INCLUDE_DIRS ${ROOT_INCLUDE_DIRS} 
+		   LINK_LIBRARIES ${ROOT_LIBRARIES} xAODRootAccess AthAnalysisBaseCompsLib StoreGateLib 
+                   PRIVATE_LINK_LIBRARIES ${ROOT_LIBRARIES} GaudiKernel SGtests StoreGateBindings  )
 
 atlas_add_dictionary( POOLRootAccessDict
                       POOLRootAccess/POOLRootAccessDict.h
@@ -36,12 +37,12 @@ atlas_add_dictionary( POOLRootAccessDict
 atlas_add_executable( ut_basicRead_test
                       test/ut_basicRead_test.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccess xAODBase xAODEventInfo )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccess xAODEventInfo )
 
 atlas_add_executable( ut_basicxAODRead_test
                       test/ut_basicxAODRead_test.cxx
                       INCLUDE_DIRS ${ROOT_INCLUDE_DIRS}
-                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccess xAODBase xAODEventInfo )
+                      LINK_LIBRARIES ${ROOT_LIBRARIES} POOLRootAccess xAODEventInfo )
 
 # Install files from the package:
 atlas_install_joboptions( share/*.opts )

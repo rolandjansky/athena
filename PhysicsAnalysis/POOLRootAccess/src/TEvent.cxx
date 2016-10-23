@@ -15,29 +15,35 @@
 #include "TFile.h"
 #include "TChain.h"
 
+#include "AthAnalysisBaseComps/AthAnalysisHelper.h"
 
+namespace Gaudi {
+  IAppMgrUI* Init() {
+    return AAH::initGaudi("POOLRootAccess/basic.opts");
+  }
+}
 
 namespace POOL {
 
 IAppMgrUI* Init( const char* options ) {
-   IAppMgrUI* theApp = Gaudi::createApplicationMgr();
-   //check if already configured 
-   if(theApp->FSMState() != Gaudi::StateMachine::OFFLINE) return theApp;
-   //set the joboptions 
-   SmartIF<IProperty> propMgr(theApp);
-   propMgr->setProperty("JobOptionsPath",options);
-   //configure and return
-   theApp->configure(); 
-   propMgr->setProperty("OutputLevel","3"); //INFO
-   theApp->initialize();
-   return theApp;
+  return AAH::initGaudi(options); //see AthAnalysisHelper
 }
 
 TEvent::~TEvent() {
-  //need to destroy my storegate, selector, and loop 
-  if(m_evtLoop.isSet()) m_evtLoop.release();
-  if(m_evtSelect.isSet()) m_evtSelect.release();
-  if(m_evtStore.isSet()) m_evtStore.release();
+  //need to destroy my storegate, selector, and loop
+  //take refcounts down to 1 before handle release, to ensure services are destroyed
+  if(m_evtLoop.isSet()) {
+    //while(m_evtLoop->refCount()>1) m_evtLoop->release(); //CRASH
+    m_evtLoop.release();
+  }
+  if(m_evtSelect.isSet()) {
+    //while(m_evtSelect->refCount()>1) m_evtSelect->release();
+    m_evtSelect.release();
+  }
+  if(m_evtStore.isSet()) {
+    //while(m_evtStore->refCount()>1) m_evtStore->release();
+    m_evtStore.release();
+  }
 }
 
 TEvent::TEvent(const std::string& name ) : TEvent( kPOOLAccess , name ) { }
@@ -50,16 +56,20 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
    m_activeStoreSvc("ActiveStoreSvc","TEvent"+name),
    m_inputMetaStore("InputMetaDataStore","TEvent"+name) /*fixme, when reading multiple files at once?*/ {
 
+   Gaudi::Init();
+
    //FIXME: Should protect against attempt to mix POOL with nonPOOL
    if(mode==kPOOLAccess) {
-    InitPOOL();
+    //add the AthenaPoolAddressProviderSvc to ProxyProviderSvc
+     ServiceHandle<IService> ppSvc("ProxyProviderSvc","TEvent"+name);
+     AAH::setProperty( ppSvc , "ProviderNames", "['MetaDataSvc', 'AthenaPoolAddressProviderSvc']" );
    } else {
-    InitxAOD();
-    //add the access mode property to catalog 
-    m_joSvc->addPropertyToCatalogue( m_evtSelect.name() , IntegerProperty( "AccessMode" , int(mode) ) );
+     //switch selector type to xAODEventSelector:
+     m_evtSelect.setTypeAndName("Athena::xAODEventSelector/"+name+"_EventSelector");
    }
 
    //check if a SelectorType has been specified in the joSvc 
+   //should retire this code at some point (hangover from basicxAOD.opts)
    auto properties = m_joSvc->getProperties("TEvent");
    if(properties) {
       for(auto prop : *properties) {
@@ -67,20 +77,22 @@ TEvent::TEvent(EReadMode mode, const std::string& name) :
       }
    }
 
-   m_joSvc->addPropertyToCatalogue( m_evtLoop.name() , StringProperty( "ClearStorePolicy" , "BeginEvent") );
-   m_joSvc->addPropertyToCatalogue( m_evtLoop.name() , StringProperty( "EvtSel" , m_evtSelect.typeAndName() ) );
-   m_joSvc->addPropertyToCatalogue( m_evtLoop.name() , StringProperty( "EvtStore" , m_evtStore.typeAndName() ) );
-   m_joSvc->addPropertyToCatalogue( m_evtLoop.name() , StringProperty( "EventPrintoutInterval" , "999999999" ) );
+   AAH::setProperty( m_evtLoop , "ClearStorePolicy", "BeginEvent" );    //for interactive use of storegate
+   AAH::setProperty( m_evtLoop , "EvtSel", m_evtSelect.typeAndName() ); //connect loop to selector
+   AAH::setProperty( m_evtLoop , "EvtStore", m_evtStore.typeAndName() );//connect loop to store
+   AAH::setProperty( m_evtLoop , "EventPrintoutInterval", 999999999 ); //disable printout (speeds up loop)
 
    if(m_evtSelect.type()=="Athena::xAODEventSelector") {
-      m_joSvc->addPropertyToCatalogue( m_evtSelect.name() , BooleanProperty( "ReadMetaDataWithPool" , true) );
+     AAH::setProperty( m_evtSelect , "ReadMetaDataWithPool" , true); //uses hybrid xAOD reading by default
+     AAH::setProperty( m_evtSelect , "AccessMode" , int(mode) ); //sets the mode
    }
 
    //set outputlevels to WARNING 
-   m_joSvc->addPropertyToCatalogue( m_evtLoop.name() , IntegerProperty( "OutputLevel" , 4 ) );
-   m_joSvc->addPropertyToCatalogue( m_evtSelect.name() , IntegerProperty( "OutputLevel" , 4 ) );
-   m_joSvc->addPropertyToCatalogue( m_evtStore.name() , IntegerProperty( "OutputLevel" , 4 ) );
-   m_joSvc->addPropertyToCatalogue( m_activeStoreSvc.name() , IntegerProperty( "OutputLevel" , 4 ) );
+   AAH::setProperty( m_evtLoop, "OutputLevel", 4 );
+   AAH::setProperty( m_evtSelect, "OutputLevel", 4 );
+   AAH::setProperty( m_evtStore, "OutputLevel", 4 );
+   AAH::setProperty( m_activeStoreSvc, "OutputLevel", 4 );
+
    //suppress messages below WARNING too
    //do this here to stop some pre initialize INFO messages from showing
    ServiceHandle<IProperty> messageSvc("MessageSvc","");
@@ -119,8 +131,7 @@ StatusCode TEvent::readFrom( const char* file ) {
       std::cout << "Unable to change file after already reading" << std::endl;
       return StatusCode::FAILURE;
    }
-   std::string prop = "[";
-   bool hasFile(false);
+   std::vector<std::string> myFiles;
    //see if contains wildcard
    //separate by comma
    TString sFileIn(file);
@@ -133,20 +144,14 @@ StatusCode TEvent::readFrom( const char* file ) {
       std::unique_ptr<TObjArray> theFiles(gSystem->GetFromPipe(("ls " + std::string(file)).c_str()).Tokenize("\n"));
       for(int i=0;i<theFiles->GetEntries();i++) {
          //std::cout << "Adding " << dynamic_cast<TObjString*>(theFiles->At(i))->String().Data() << std::endl;
-         if(i != 0) prop += " , ";
-         prop += "'"; prop += gSystem->ExpandPathName(dynamic_cast<TObjString*>(theFiles->At(i))->String().Data()); prop += "'";
+	myFiles.push_back(gSystem->ExpandPathName(dynamic_cast<TObjString*>(theFiles->At(i))->String().Data()));
       }
      } else {
-       if(hasFile) prop += " , ";
-	prop += "'"; prop += gSystem->ExpandPathName(sFile.Data()); prop += "'";
+       myFiles.push_back( gSystem->ExpandPathName(sFile.Data()) );
      }
-     hasFile=true;
    }
 
-  
-   prop += "]";
-   //std::cout << prop << std::endl;
-   return m_joSvc->addPropertyToCatalogue( m_evtSelect.name() , StringProperty( "InputCollections" , prop ) );
+   return AAH::setProperty( m_evtSelect , "InputCollections" , myFiles );
 }
 
 StatusCode TEvent::readFrom(TChain* files) {

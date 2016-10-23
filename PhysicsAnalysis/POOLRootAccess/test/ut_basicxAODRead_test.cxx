@@ -24,7 +24,11 @@ int main(int argc, char* argv[]) {
    xAOD::TEvent::EAuxMode accessMode2 = xAOD::TEvent::kClassAccess;
    POOL::TEvent::EReadMode accessMode = POOL::TEvent::kClassAccess;
 
-   std::string whatToRead = "$ASG_TEST_FILE_MC";
+   std::string whatToRead;
+   if (getenv("ASG_TEST_FILE_MC") != nullptr)
+     whatToRead = "$ASG_TEST_FILE_MC";
+   else
+     whatToRead = "/afs/cern.ch/user/a/asgbase/patspace/xAODs/r7725/mc15_13TeV.410000.PowhegPythiaEvtGen_P2012_ttbar_hdamp172p5_nonallhad.merge.AOD.e3698_s2608_s2183_r7725_r7676/AOD.07915862._000100.pool.root.1";
    if(argc>1) whatToRead = argv[1];
 
    std::cout << "reading: " << whatToRead << std::endl; 
@@ -116,7 +120,7 @@ int main(int argc, char* argv[]) {
   }
 
   TFile f1("ut_basicxAODRead_test.results.root","RECREATE");
-  TH1F* speed1 = new TH1F("speed1","xAODRootAcess Speed [Hz]",1,0,1);speed1->Sumw2();
+  TH1F* speed1 = new TH1F("speed1","xAODRootAccess Speed [Hz]",1,0,1);speed1->Sumw2();
   TH1F* speed2 = new TH1F("speed2","POOLRootAccess Speed [Hz]",1,0,1);speed2->Sumw2();
   speed1->SetBinContent(1,double(maxEvt2)/st2.RealTime());speed1->SetBinError(1,0.0001);
   speed2->SetBinContent(1,double(maxEvt)/st.RealTime());speed2->SetBinError(1,0.0001);

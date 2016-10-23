@@ -2,6 +2,7 @@
 package POOLRootAccess
 author  will
 
+
 ## for athena policies: this has to be the first use statement
 use AtlasPolicy 	AtlasPolicy-*
 
@@ -14,6 +15,9 @@ use StoreGateBindings StoreGateBindings-* Control
 
 private
 use AtlasROOT AtlasROOT-* External
+
+use AthAnalysisBaseComps AthAnalysisBaseComps-* Control
+
 end_private
 
 ##
@@ -42,3 +46,4 @@ macro_append ut_basicRead_test_dependencies " POOLRootAccess "
 application ut_basicxAODRead_test ../test/ut_basicxAODRead_test.cxx
 macro_append ut_basicxAODRead_test_dependencies " POOLRootAccess "
 end_private
+
