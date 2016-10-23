@@ -169,7 +169,7 @@ bool hardwareId::convert_offline2HW(){
     m_HwStationNumber=absEta*2;
   } else if (m_stName==53){
     m_HwStationName="BME";
-    m_HwStationNumber=1;
+    m_HwStationNumber=4;
   }
   
   m_HwSide="A";
