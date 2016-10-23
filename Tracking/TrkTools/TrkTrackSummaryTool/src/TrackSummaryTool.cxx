@@ -9,6 +9,8 @@
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 
 #include "Identifier/Identifier.h"
+//#include "InDetIdentifier/PixelID.h"
+#include "InDetIdentifier/SCT_ID.h"
 
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkTrack/Track.h"
@@ -30,6 +32,7 @@
 #include <vector>
 #include <algorithm>
 
+#include "InDetIdentifier/PixelID.h"
 //============================================================================================
 
 Trk::TrackSummaryTool::TrackSummaryTool(const std::string& t,
@@ -39,7 +42,9 @@ Trk::TrackSummaryTool::TrackSummaryTool(const std::string& t,
 AthAlgTool(t,n,p),
   m_doHolesMuon(false),
   m_doHolesInDet(false),
-  m_doSharedHits(false),
+  m_doSharedHits(false), 
+  m_pixelId(0),
+  m_sctId(0),
   m_idTool(""),
   m_eProbabilityTool(""),
   m_trt_dEdxTool(""),
@@ -65,6 +70,9 @@ AthAlgTool(t,n,p),
   declareProperty("TRTdEdx_useHThits",        (m_TRTdEdx_useHThits=true) );
   declareProperty("TRTdEdx_corrected",        (m_TRTdEdx_corrected=true) );
   declareProperty("minTRThitsForTRTdEdx",     (m_minTRThitsForTRTdEdx=1) );
+
+  declareProperty("AddITkSummary",                m_isITkLayout=false);
+  declareProperty("GeometryType",                 m_geometryType="default");
 
 }
 
@@ -160,6 +168,97 @@ StatusCode
         ATH_MSG_INFO ("Search for Muon holes using external tool turned OFF");
 
     ATH_MSG_INFO ("initialize() successful in " << name());
+
+    if( !m_isITkLayout ) return StatusCode::SUCCESS;
+ 
+    //itk user
+    if(m_isInDetSummary){
+      if (detStore()->retrieve(m_pixelId, "PixelID").isFailure()) {
+           msg(MSG::ERROR) << "Could not get PixelID helper !" << endreq;
+           return StatusCode::FAILURE;
+      }
+      if (detStore()->retrieve(m_sctId, "SCT_ID").isFailure()) {
+         msg(MSG::ERROR) << "Could not get SCT_ID helper !" << endreq;
+         return StatusCode::FAILURE;
+      }
+   
+    }
+    //NP: Init ITk detector types - FIXME
+    //This is a bit ugly, but should be easy to configure...
+    //Perhaps could read from xml in the future if there is any need... 
+    //std::map<std::string, int> detectorTypesITk;
+    ATH_MSG_VERBOSE( "Initialising ITk Specific Detector Types" );
+    const int nPart = 2;
+    const int nCompPixel = 3;
+    const int nCompSCT = 2;
+    
+    std::string part[nPart] = { "Pixel", "Strip" };
+    std::string compPixel[nCompPixel] = { "Barrel", "Ring", "Incl" };
+    std::string compSCT[nCompSCT] = { "Barrel", "ECDisk" };
+    
+    const int nPixelBarrel = 5;
+    int nSCTBarrel = 3;
+    int nSCTECDisk = 5;
+    //Layer i: 0 - 4; number of Rings for Layer i; number of Incl for Layer i;
+    int pixel[nPixelBarrel][3] = { { 0, 16+1, 16+1 }, { 1, 18+1, 17+1 }, { 2, 15+1, 12+1 }, { 3, 15+1, 12+1 }, { 4, 0, 12+1 } };
+    int nCompPixelVar = 2;
+    if ( m_geometryType == "BrlIncl4.0_ref" || m_geometryType == "IBrlExt4.0ref" ) nCompPixelVar = 3;
+    int index = 1;
+    for ( int ipart = 0; ipart < nPart; ipart++) {
+      if ( part[ipart] == "Pixel" ) {
+      for ( int icomp = 0; icomp < nCompPixelVar; icomp++){
+        for( int inum = 0; inum < nPixelBarrel; inum++){
+        /*  //Inclined extended..? only have 2 inclined layers
+          if( m_geometryType == "IBrlExt4.0ref" && inum > 1 && icomp == 2){
+            continue;
+          } */
+          if( icomp == 0 ){
+            if ( inum == 0 ) {
+              std::string tmpName = "itk" + part[ipart] + compPixel[icomp] + "Start";
+              m_detectorTypesITk[tmpName] = index; index++;  
+            }
+            std::string tmpName = "itk" + part[ipart] + compPixel[icomp] + std::to_string(pixel[inum][icomp]);
+            m_detectorTypesITk[tmpName] = index; index++;
+          }
+          else {
+              for ( int inum2 = 0; inum2 < pixel[inum][icomp]; inum2++){
+                if ( inum2 == 0 ) {
+                  std::string tmpName = "itk" + part[ipart] + compPixel[icomp] + std::to_string(pixel[inum][0]) + "Start";
+                  m_detectorTypesITk[tmpName] = index; index++;
+                }
+                std::string extraZero = "";
+                if(inum2 < 10) extraZero = "0";
+                std::string tmpName = "itk" + part[ipart] + compPixel[icomp] + std::to_string(pixel[inum][0]) + extraZero + std::to_string(inum2);
+                m_detectorTypesITk[tmpName] = index; index++;
+              }
+          }
+        }
+      }
+      } else {
+      for( int icomp = 0; icomp < nCompSCT; icomp++){
+        if ( icomp == 0 ) {
+          std::string tmpName = "itk" + part[ipart] + compSCT[icomp] + "Start";
+          m_detectorTypesITk[tmpName] = index; index++;
+          for ( int inum = 0; inum < nSCTBarrel+1; inum++){
+            std::string tmpName = "itk" + part[ipart] + compSCT[icomp] + std::to_string(inum);
+            m_detectorTypesITk[tmpName] = index; index++;
+          }
+        }
+        else {
+          std::string tmpName = "itk" + part[ipart] + compSCT[icomp] + "Start";
+          m_detectorTypesITk[tmpName] = index; index++;
+          for ( int inum = 0; inum < nSCTECDisk+1; inum++){
+            std::string tmpName = "itk" + part[ipart] + compSCT[icomp] + std::to_string(inum);
+            m_detectorTypesITk[tmpName] = index; index++;
+          }
+        }
+      }
+    }} //loop
+    for(std::map<std::string, int>::iterator it=m_detectorTypesITk.begin(); it!=m_detectorTypesITk.end(); it++){
+      ATH_MSG_VERBOSE( "Detector Type [ index ]:  " << it->first << "[ " << it->second << " ]");
+    }
+     //isITk
+    
     return StatusCode::SUCCESS;
 }
 
@@ -201,6 +300,7 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
   // put values to -1 of they are not evaluated
   std::vector<int> information(numberOfTrackSummaryTypes,-1);
 
+  std::map<std::string, int> informationITk;
   // Troels.Petersen@cern.ch:
   unsigned int numberOfeProbabilityTypes = Trk::numberOfeProbabilityTypes+1;
   std::vector<float> eProbability(numberOfeProbabilityTypes,0.5);
@@ -209,6 +309,45 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
   int nhitsuseddedx=-1;
   int noverflowhitsdedx=-1;
 
+  if(m_isITkLayout){ 
+     informationITk["numberOfPixelHits"]            = 0; //Number of Pixel Hits
+     informationITk["numberOfPixelRingHits"]        = 0; //Number of Ring Pixel Hits
+     informationITk["numberOfPixelBarrelHits"]      = 0; //Number of Ring Pixel Hits
+     informationITk["numberOfPixelHoles"]           = -1; //Number of Pixel Holes
+     informationITk["numberOfPixelRingHoles"]       = -1; //Number of Holes in Pixel Rings
+     informationITk["numberOfPixelBarrelHoles"]     = -1; //Number of Holes in Pixel Barrel
+     informationITk["numberOfPixelShared"]          = 0; //Number of Shared Pixel Hits
+     informationITk["numberOfPixelOutliers"]        = 0; //Number of Pixel Outliers
+     informationITk["numberOfPixelSpoilt"]          = 0; //Number of Pixel Spoilt Hits
+     informationITk["numberOfStripHits"]            = 0; //Number of SCT Hits
+     informationITk["numberOfStripHoles"]           = -1; //Number of SCT Holes
+     informationITk["numberOfStripShared"]          = 0; //Number of Shared SCT Hits
+     informationITk["numberOfStripSpoilt"]          = 0; //Number of SCT Spoilt Hits
+     informationITk["numberOfStripOutliers"]        = 0; //Number of SCT Outliers
+     informationITk["numberOfStripSpacePoints"]     = 0; //Number of SCT Space Points ?
+     informationITk["numberOfContribPixelLayers"]   = 0; //Number of Contributing Pixel Layers
+     informationITk["numberOfContribStripLayers"]   = 0; //Number of Contributing Strip Layers
+     informationITk["numberOfContribPixelBarrel"]   = 0; //Number of Contributing Pixel Barrel Layers
+     informationITk["numberOfContribPixelRings"]    = 0; //Number of Contributing Pixel Rings
+     informationITk["numberOfContribStripBarrel"]   = 0; //Number of Contributing Strip Barrel Layers
+     informationITk["numberOfContribStripECDisk"]   = 0; //Number of Contributing Strip EC Disks
+
+     
+    if ( m_geometryType == "BrlIncl4.0_ref" || m_geometryType == "IBrlExt4.0ref" ) {
+      informationITk["numberOfContribPixelInclined"] = 0; //Number of Contributing Inclined Pixel "Modules"?
+      informationITk["numberOfContribPixelCentral"]  = 0; //Number of Contributing Central Pixel Modules
+      informationITk["numberOfPixelInclHits"]        = 0; //Number of Inclined Pixel Hits
+      informationITk["numberOfPixelInclHoles"]       = -1; //Number of Holes in Inclined Pixel "Modules"?
+    }
+    if(m_doHolesInDet) {
+      informationITk["numberOfPixelHoles"]           = 0;
+      informationITk["numberOfStripHoles"]           = 0;
+      informationITk["numberOfPixelBarrelHoles"]     = 0;
+      informationITk["numberOfPixelRingHoles"]       = 0;
+      informationITk["numberOfPixelInclHoles"]       = 0;
+    }
+  }
+  
   // Now set values to 0 for the ones we evaluate
   if (!m_idTool.empty()) {
     if (m_pixelExists)
@@ -283,13 +422,15 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
   }
 
   std::bitset<numberOfDetectorTypes> hitPattern;
+  std::bitset<numberofITkDetectorTypes> hitPatternITk; //NP: FIXME Size differs for layouts... configured with a static const int ?!
 
   ATH_MSG_DEBUG ("Produce summary for: "<<track.info().dumpInfo());
 
   if (track.trackStateOnSurfaces()!=0)
   {
     information[Trk::numberOfOutliersOnTrack] = 0;
-    processTrackStates(track,track.trackStateOnSurfaces(), information, hitPattern);
+    if(m_isITkLayout) processTrackStates(track,track.trackStateOnSurfaces(), information, hitPattern, informationITk, hitPatternITk);
+    else {processTrackStates(track,track.trackStateOnSurfaces(), information, hitPattern); }
   }else{
     ATH_MSG_WARNING ("Null pointer to TSoS found on Track (author = "
       <<track.info().dumpInfo()<<"). This should never happen! ");
@@ -303,7 +444,7 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
     }
     information [numberOfSCTHoles]       = 0; 
     information [numberOfSCTDoubleHoles] = 0;
-    searchHolesStepWise(track,information);
+    searchHolesStepWise(track,information,informationITk);
   }
 
   if (!m_trt_dEdxTool.empty()) {
@@ -321,8 +462,11 @@ const Trk::TrackSummary* Trk::TrackSummaryTool::createSummary( const Track& trac
   else {
     eProbability.push_back(0.0);
   }
-  
-  TrackSummary* ts = new TrackSummary(information,eProbability,hitPattern,dedx,nhitsuseddedx,noverflowhitsdedx);
+
+  TrackSummary* ts;
+  if(m_isITkLayout) ts = new TrackSummary(information,eProbability,hitPattern,informationITk,m_detectorTypesITk,hitPatternITk,dedx,nhitsuseddedx,noverflowhitsdedx); //ITk constructor of TrackSummary
+  else {  ts = new TrackSummary(information,eProbability,hitPattern,dedx,nhitsuseddedx,noverflowhitsdedx); }
+
 
   // add detailed summary for indet
   if( m_addInDetDetailedSummary && !m_idTool.empty() ){
@@ -428,9 +572,70 @@ void Trk::TrackSummaryTool::updateAdditionalInfo(Track& track) const
   return;
 }
 
+//===================================ITK=====================================================
 
-//============================================================================================
+void Trk::TrackSummaryTool::processTrackStates(const Track& track, //Overloaded method for added ITk variables
+					       const DataVector<const TrackStateOnSurface>* tsos,
+					       std::vector<int>& information,
+					       std::bitset<numberOfDetectorTypes>& hitPattern, 
+                 std::map<std::string, int>& informationITk,
+                 std::bitset<numberofITkDetectorTypes>& hitPatternITk) const
+{
+  ATH_MSG_DEBUG ("ITk:  Starting to process " << tsos->size() << " track states");
+  
+  int measCounter = 0, cntAddChi2 = 0;
+  float chi2Sum = 0, chi2Sum2 = 0;
+  std::vector<const TrackStateOnSurface*>::const_iterator it = tsos->begin(), itEnd = tsos->end();
+  for ( ; it!=itEnd; ++it){
+    if ((*it)->type(Trk::TrackStateOnSurface::Measurement) || (*it)->type(Trk::TrackStateOnSurface::Outlier)){
+      ++measCounter;
+      const Trk::MeasurementBase *measurement = (*it)->measurementOnTrack();
+      if (!measurement) {
+        ATH_MSG_WARNING ("ITk:  measurementOnTrack == Null for a TrackStateOnSurface "
+          << "of type Measurement or Outlier");
+      } else {
 
+        if ((*it)->type(Trk::TrackStateOnSurface::Outlier)) ++information[Trk::numberOfOutliersOnTrack]; // increment outlier counter
+        ATH_MSG_VERBOSE ("ITk:  analysing TSoS " << measCounter << " of type " << (*it)->dumpType() );
+        processMeasurement(track, measurement, *it, information, hitPattern, informationITk, hitPatternITk);
+      } // if have measurement pointer
+    } // if type measurement, scatterer or outlier
+
+    if ((*it)->type(Trk::TrackStateOnSurface::Measurement) &&
+      (*it)->fitQualityOnSurface() &&
+      (*it)->fitQualityOnSurface()->numberDoF()>0 )
+    {
+      ++cntAddChi2;
+      if ((*it)->fitQualityOnSurface()->chiSquared() > 1.e5) {// limit unphysical values and protect against FPE
+        chi2Sum += 1.e5;
+        chi2Sum2 += 1.e10;
+        ATH_MSG_DEBUG ("ITk:  TSOS has unphysical chi2: "<< (*it)->fitQualityOnSurface()->chiSquared());
+      } else {
+        float chi2add =(*it)->fitQualityOnSurface()->chiSquared()/
+          (*it)->fitQualityOnSurface()->numberDoF();
+        chi2Sum+=chi2add;
+        chi2Sum2+=chi2add*chi2add;
+      }
+    }
+
+    if ( (*it)->type(Trk::TrackStateOnSurface::Hole) && (*it)->trackParameters() ){
+      if (!m_doHolesInDet || !m_doHolesMuon ){ // no dedicated hole search via extrapolation, but take what might be on the track already.
+        if ( (*it)->trackParameters()->associatedSurface().associatedDetectorElement()!=0 ) {
+          const Identifier& id = (*it)->trackParameters()->associatedSurface().associatedDetectorElementIdentifier();
+          if ( !m_doHolesInDet && m_detID->is_pixel( id ) ) ++information[Trk::numberOfPixelHoles];
+          if ( !m_doHolesInDet && m_detID->is_sct( id ) )    ++information[Trk::numberOfSCTHoles];
+          if ( !m_doHolesMuon && m_detID->is_mdt( id ) )    ++information[Trk::numberOfMdtHoles];
+        }
+      }
+    }
+  } // end loop
+
+  float varChi2 = 0;
+  if (cntAddChi2>0) varChi2=chi2Sum2/cntAddChi2 - (chi2Sum/cntAddChi2) *(chi2Sum/cntAddChi2) ;
+  if (varChi2>0 && varChi2<1.e13) information[Trk::standardDeviationOfChi2OS] = int(sqrt(varChi2)*100);
+
+  return;
+}
 void Trk::TrackSummaryTool::processTrackStates(const Track& track,
 					       const DataVector<const TrackStateOnSurface>* tsos,
 					       std::vector<int>& information,
@@ -452,7 +657,7 @@ void Trk::TrackSummaryTool::processTrackStates(const Track& track,
         if ((*it)->type(Trk::TrackStateOnSurface::Outlier)) ++information[Trk::numberOfOutliersOnTrack]; // increment outlier counter
         ATH_MSG_VERBOSE ("analysing TSoS " << measCounter << " of type " << (*it)->dumpType() );
         processMeasurement(track, measurement, *it, information, hitPattern);
-      } // if have measurement pointer
+    } // if have measurement pointer
     } // if type measurement, scatterer or outlier
 
     if ((*it)->type(Trk::TrackStateOnSurface::Measurement) &&
@@ -520,6 +725,43 @@ void Trk::TrackSummaryTool::processMeasurement(const Track& track,
         msg(MSG::WARNING)<<"Cannot find tool to match cROT. Skipping."<<endreq;
       } else {
         tool->analyse(track,compROT,tsos,information, hitPattern);
+      }
+    }
+  }
+}
+//===================================ITK=====================================================
+
+void Trk::TrackSummaryTool::processMeasurement(const Track& track,  //NP: Overloaded method for added ITk variables
+					       const Trk::MeasurementBase* meas,
+					       const Trk::TrackStateOnSurface* tsos,
+					       std::vector<int>& information,
+					       std::bitset<numberOfDetectorTypes>& hitPattern,
+                 std::map<std::string, int>& informationITk,
+                 std::bitset<numberofITkDetectorTypes>& hitPatternITk) const
+                 
+{
+  const RIO_OnTrack* rot = dynamic_cast<const RIO_OnTrack*> (meas);
+  
+  if ( rot ){
+    // have RIO_OnTrack
+    Trk::ITrackSummaryHelperTool* tool = getTool(rot->identify());
+    if (tool==0){
+      msg(MSG::WARNING)<<"Cannot find tool to match ROT. Skipping."<<endreq;
+    } else {
+      tool->analyse(track,rot,tsos,information, hitPattern, informationITk, hitPatternITk, m_detectorTypesITk);
+    }
+  } else {
+    // Something other than a ROT.
+    const Trk::CompetingRIOsOnTrack *compROT = 
+      dynamic_cast<const Trk::CompetingRIOsOnTrack*>(meas);
+    if (compROT) {
+      // if this works we have a CompetingRIOsOnTrack.
+      rot = &compROT->rioOnTrack(0); // get 1st rot
+      Trk::ITrackSummaryHelperTool* tool = getTool(rot->identify()); // Use 'main' ROT to get detector type
+      if (tool==0){
+        msg(MSG::WARNING)<<"Cannot find tool to match cROT. Skipping."<<endreq;
+      } else {
+        tool->analyse(track,compROT,tsos,information, hitPattern, informationITk, hitPatternITk, m_detectorTypesITk);
       }
     }
   }
@@ -615,6 +857,70 @@ void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track, std::v
 }
 
 
+////////
+//ITk
+///////
+void Trk::TrackSummaryTool::searchHolesStepWise( const Trk::Track& track, std::vector<int>& information, std::map<std::string, int>& informationITk) const
+{
+
+ 
+// -------- obtain hits in Pixel and SCT only
+
+  if (track.trackStateOnSurfaces()==0) 
+  {
+    ATH_MSG_DEBUG ("No trackStatesOnSurface!!!!");
+    information [numberOfPixelHoles]           = -1;
+    information [numberOfPixelDeadSensors]     = -1; 
+    information [numberOfSCTHoles]             = -1;
+    information [numberOfSCTDoubleHoles]       = -1;
+    information [numberOfSCTDeadSensors]       = -1;
+    information [numberOfTRTHoles]             = -1;
+    information [numberOfTRTDeadStraws]        = -1;
+    information [numberOfCscEtaHoles]          = -1;
+    information [numberOfCscEtaHoles]          = -1;    
+    information [numberOfRpcEtaHoles]          = -1;
+    information [numberOfRpcEtaHoles]          = -1;    
+    information [numberOfTgcEtaHoles]          = -1;
+    information [numberOfTgcEtaHoles]          = -1;    
+    return;
+  }
+  else
+  {
+    if (m_doHolesInDet)
+    {
+      // -------- perform the InDet hole search
+      if (m_pixelExists) {
+        information [numberOfPixelHoles]           = 0;
+        information [numberOfPixelDeadSensors]     = 0;
+      } 
+      information [numberOfSCTHoles]             = 0;    
+      information [numberOfSCTDoubleHoles]       = 0;
+      information [numberOfSCTDeadSensors]       = 0;
+      //information [numberOfTRTHoles]             = 0;  
+      //information [numberOfTRTDeadStraws]        = 0;  
+
+      // Extra variables for ITk
+      m_idTool->searchForHoles(track,information,informationITk,Trk::pion);
+      //m_idHoleSearch->countHoles(track,information,Trk::pion) ; //TC: shouldn't it take the particle hypothesis from the track?
+
+    }
+    if (!m_muonTool.empty() && m_doHolesMuon)
+    {
+// now do Muon hole search. It works completely differently to the above, so we need to make this all a bit more general
+// and probably more efficient. But this hopefully works for now! EJWM
+      information [numberOfMdtHoles]          = 0;
+      information [numberOfCscEtaHoles]          = 0;
+      information [numberOfCscPhiHoles]          = 0;    
+      information [numberOfRpcEtaHoles]          = 0;
+      information [numberOfRpcPhiHoles]          = 0;    
+      information [numberOfTgcEtaHoles]          = 0;
+      information [numberOfTgcPhiHoles]          = 0;    
+      m_muonTool->searchForHoles(track,information,Trk::muon) ;
+    }
+  }
+
+  return;
+}
 
 
 

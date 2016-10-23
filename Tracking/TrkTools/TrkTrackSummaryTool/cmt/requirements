@@ -25,6 +25,7 @@ use TrkCompetingRIOsOnTrack TrkCompetingRIOsOnTrack-* Tracking/TrkEvent
 use TrkTrack TrkTrack-* Tracking/TrkEvent
 use TRT_ToT_Tools               TRT_ToT_Tools-*          InnerDetector/InDetRecTools
 
+use InDetIdentifier                InDetIdentifier-*               InnerDetector/InDetDetDescr
 
 public
 

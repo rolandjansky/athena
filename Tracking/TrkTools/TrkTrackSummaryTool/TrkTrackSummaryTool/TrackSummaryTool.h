@@ -12,12 +12,14 @@
 #include "DataModel/DataVector.h"
 #include "TrkTrackSummary/TrackSummary.h"
 #include "TrkParameters/TrackParameters.h" 
+#include <map>
 
 class AtlasDetectorID;
 class Identifier;
+class PixelID;
+class SCT_ID;
 
 #include <vector>
-
 class ITRT_ToT_dEdx;
 
 namespace Trk {
@@ -94,7 +96,8 @@ namespace Trk {
 	
   /**atlas id helper*/
       const AtlasDetectorID* m_detID;
-
+      const PixelID* m_pixelId;
+      const SCT_ID* m_sctId;
   /**tool to decipher ID RoTs*/
       ToolHandle< ITrackSummaryHelperTool > m_idTool;
 
@@ -115,12 +118,13 @@ namespace Trk {
   /** tool to search holes in the InDet */
       ToolHandle< ITrackHoleSearchTool > m_idHoleSearch;
 
+  /** switch to deactivate Pixel info init */
+      bool m_pixelExists;
+
+
       /** Only compute TRT dE/dx if there are at least this number of TRT hits or outliers.
        */
       int m_minTRThitsForTRTdEdx;
-
-  /** switch to deactivate Pixel info init */
-      bool m_pixelExists;
 
       /** Parameters for the TRT dE/dx compution see @ref ITRT_ToT_dEdx for details.*/
       bool m_TRTdEdx_DivideByL;
@@ -129,6 +133,13 @@ namespace Trk {
       /** Parameters for the TRT dE/dx compution see @ref ITRT_ToT_dEdx for details.*/
       bool m_TRTdEdx_corrected;
 
+  /** controls whether the extended ITk summary is added */ 
+      bool m_isITkLayout;
+      //bool m_useInclinedSummary;
+      static const int numberofITkDetectorTypes = 200; //NP: FIXME
+      std::map<std::string, int> m_detectorTypesITk;
+      bool m_isInDetSummary;
+      std::string m_geometryType;
   /**loops over TrackStatesOnSurface and uses this to produce the summary information
       Fills 'information', 'eProbability', and 'hitPattern'*/
       void processTrackStates(const Track& track,
@@ -142,11 +153,28 @@ namespace Trk {
 			      std::vector<int>& information,
 			      std::bitset<numberOfDetectorTypes>& hitPattern) const;
 
+      void processTrackStates(const Track& track,
+			      const DataVector<const TrackStateOnSurface>* tsos,
+			      std::vector<int>& information,
+			      std::bitset<numberOfDetectorTypes>& hitPattern,
+            std::map<std::string, int>& informationITk,
+            std::bitset<numberofITkDetectorTypes>& hitPatternITk) const;
+        
+      void processMeasurement(const Track& track,
+			      const Trk::MeasurementBase* meas,
+			      const Trk::TrackStateOnSurface* tsos,
+			      std::vector<int>& information,
+			      std::bitset<numberOfDetectorTypes>& hitPattern, 
+            std::map<std::string, int>& informationITk,
+            std::bitset<numberofITkDetectorTypes>& hitPatternITk) const;
+
+
   /** Extrapolation is performed from one hit to the next, it is checked if surfaces in between
       the extrapolation are left out. The trackParameters of the destination hit (instead of the
         trackParameters of the extrapolation step) are then used as starting point for the next
         extrapolation step. */
       void searchHolesStepWise( const Trk::Track& track, std::vector<int>& information) const;
+      void searchHolesStepWise( const Trk::Track& track, std::vector<int>& information, std::map<std::string, int>& informationITk) const;
 
     };
 
