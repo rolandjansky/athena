@@ -4,9 +4,10 @@
 
 #include "xAODJiveXML/xAODPhotonRetriever.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
 #include "xAODEgamma/PhotonContainer.h" 
+
+#include "AthenaKernel/Units.h"
+using Athena::Units::GeV;
 
 namespace JiveXML {
 
@@ -25,7 +26,7 @@ namespace JiveXML {
    *
    **/
   xAODPhotonRetriever::xAODPhotonRetriever(const std::string& type,const std::string& name,const IInterface* parent):
-    AthAlgTool(type,name,parent), typeName("Photon"){
+    AthAlgTool(type,name,parent), m_typeName("Photon"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -44,22 +45,22 @@ namespace JiveXML {
    */
   StatusCode xAODPhotonRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
     
     const DataHandle<xAOD::PhotonContainer> iterator, end;
     const xAOD::PhotonContainer* photons;
     
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endmsg;
     StatusCode sc = evtStore()->retrieve(photons, m_sgKey);
     if (sc.isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg; 
     }else{
       DataMap data = getData(photons);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey+"_xAOD", &data).isFailure()){ //suffix can be removed later
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Photon retrieved" << endreq;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Photon retrieved" << endmsg;
       }
     }
  
@@ -67,21 +68,21 @@ namespace JiveXML {
       //obtain all other collections from StoreGate
       if (( evtStore()->retrieve(iterator, end)).isFailure()){
          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << 
-	 "Unable to retrieve iterator for xAOD Muon collection" << endreq;
+	 "Unable to retrieve iterator for xAOD Muon collection" << endmsg;
 //        return false;
       }
       
       for (; iterator!=end; iterator++) {
 	  if (iterator.key()!=m_sgKey) {
        	     if ((iterator.key().find("HLT",0) != std::string::npos) && (!m_doWriteHLT)){
-	          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT-AutoKey collection " << iterator.key() << endreq;
+	          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT-AutoKey collection " << iterator.key() << endmsg;
 	         continue;  }
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all. Current collection: " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all. Current collection: " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
              DataMap data = getData(iterator);
              if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_xAOD", &data).isFailure()){
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
 	    }else{
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") xAOD Photon retrieved" << endreq;
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") xAOD Photon retrieved" << endmsg;
 	    }
           }
       }
@@ -91,12 +92,12 @@ namespace JiveXML {
       for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
 	StatusCode sc = evtStore()->retrieve( photons, (*keyIter) );
 	if (!sc.isFailure()) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endmsg;
           DataMap data = getData(photons);
           if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter), &data).isFailure()){
-	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endreq;
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endmsg;
 	  }else{
-	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endreq;
+	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endmsg;
 	  }
 	}
       }
@@ -113,9 +114,9 @@ namespace JiveXML {
    */
   const DataMap xAODPhotonRetriever::getData(const xAOD::PhotonContainer* phCont) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect pt; pt.reserve(phCont->size());
     DataVect phi; phi.reserve(phCont->size());
@@ -136,7 +137,7 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "  Photon #" << counter++ << " : eta = "  << (*phItr)->eta() << ", phi = " 
-          << (*phItr)->phi() << endreq;
+          << (*phItr)->phi() << endmsg;
     }
 
     std::string photonAuthor = "";
@@ -145,20 +146,20 @@ namespace JiveXML {
 
       phi.push_back(DataType((*phItr)->phi()));
       eta.push_back(DataType((*phItr)->eta()));
-      pt.push_back(DataType((*phItr)->pt()/CLHEP::GeV));
+      pt.push_back(DataType((*phItr)->pt()/GeV));
 
       bool passesTight(false);
       bool passesMedium(false);
       bool passesLoose(false);
       const bool tightSelectionExists = (*phItr)->passSelection(passesTight, "Tight");
        msg(MSG::VERBOSE) << "tight exists " << tightSelectionExists 
-	 << " and passes? " << passesTight << endreq;
+	 << " and passes? " << passesTight << endmsg;
       const bool mediumSelectionExists = (*phItr)->passSelection(passesMedium, "Medium");
        msg(MSG::VERBOSE) << "medium exists " << mediumSelectionExists 
-	 << " and passes? " << passesMedium << endreq;
+	 << " and passes? " << passesMedium << endmsg;
       const bool looseSelectionExists = (*phItr)->passSelection(passesLoose, "Loose");
        msg(MSG::VERBOSE) << "loose exists " << looseSelectionExists 
-	<< " and passes? " << passesLoose << endreq;
+	<< " and passes? " << passesLoose << endmsg;
 
       photonAuthor = "author"+DataType( (*phItr)->author() ).toString(); // for odd ones eg FWD
       photonLabel = photonAuthor;
@@ -183,26 +184,26 @@ namespace JiveXML {
       label.push_back( DataType( photonLabel ) );
       isEMString.push_back( DataType( photonIsEMString ) );
 
-      mass.push_back(DataType((*phItr)->m()/CLHEP::GeV));
-      energy.push_back( DataType((*phItr)->e()/CLHEP::GeV ) );
+      mass.push_back(DataType((*phItr)->m()/GeV));
+      energy.push_back( DataType((*phItr)->e()/GeV ) );
     } // end PhotonIterator 
 
     // four-vectors
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["pt"] = pt;
-    m_DataMap["energy"] = energy;
-    m_DataMap["mass"] = mass;
-    m_DataMap["isEMString"] = isEMString;
-    m_DataMap["label"] = label;
-    m_DataMap["author"] = author;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["pt"] = pt;
+    DataMap["energy"] = energy;
+    DataMap["mass"] = mass;
+    DataMap["isEMString"] = isEMString;
+    DataMap["label"] = label;
+    DataMap["author"] = author;
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

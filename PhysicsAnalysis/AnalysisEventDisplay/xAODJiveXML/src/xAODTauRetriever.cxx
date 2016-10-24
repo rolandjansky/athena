@@ -4,10 +4,11 @@
 
 #include "xAODJiveXML/xAODTauRetriever.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
 #include "xAODTau/TauJetContainer.h" 
 #include "xAODTau/TauxAODHelpers.h"
+
+#include "AthenaKernel/Units.h"
+using Athena::Units::GeV;
 
 namespace JiveXML {
 
@@ -28,7 +29,7 @@ namespace JiveXML {
    *     https://svnweb.cern.ch/trac/atlasoff/browser/Event/xAOD
    **/
   xAODTauRetriever::xAODTauRetriever(const std::string& type,const std::string& name,const IInterface* parent):
-    AthAlgTool(type,name,parent), typeName("TauJet"){
+    AthAlgTool(type,name,parent), m_typeName("TauJet"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -46,22 +47,22 @@ namespace JiveXML {
    */
   StatusCode xAODTauRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
     
     const DataHandle<xAOD::TauJetContainer> iterator, end;
     const xAOD::TauJetContainer* Taus;
     
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endmsg;
     StatusCode sc = evtStore()->retrieve(Taus, m_sgKey);
     if (sc.isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg; 
     }else{
       DataMap data = getData(Taus);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey+"_xAOD", &data).isFailure()){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Tau retrieved" << endreq;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Tau retrieved" << endmsg;
       }
     }
  
@@ -78,9 +79,9 @@ namespace JiveXML {
    */
   const DataMap xAODTauRetriever::getData(const xAOD::TauJetContainer* tauCont) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect pt; pt.reserve(tauCont->size());
     DataVect phi; phi.reserve(tauCont->size());
@@ -108,12 +109,12 @@ namespace JiveXML {
 
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << "  Tau #" << counter++ << " : eta = "  << (*tauItr)->eta() << ", phi = " 
-          << (*tauItr)->phi() << endreq;
+          << (*tauItr)->phi() << endmsg;
     }
 
       phi.push_back(DataType((*tauItr)->phi()));
       eta.push_back(DataType((*tauItr)->eta()));
-      pt.push_back(DataType((*tauItr)->pt()/CLHEP::GeV));
+      pt.push_back(DataType((*tauItr)->pt()/GeV));
 
       isolFrac.push_back(DataType( 1. ));
       logLhRatio.push_back(DataType( 1. ));
@@ -121,8 +122,8 @@ namespace JiveXML {
       charge.push_back(DataType( (*tauItr)->charge() ));
       isTauString.push_back(DataType( "xAOD_tauJet_withoutQuality" ));
 
-      mass.push_back(DataType((*tauItr)->m()/CLHEP::GeV));
-      energy.push_back( DataType((*tauItr)->e()/CLHEP::GeV ) );
+      mass.push_back(DataType((*tauItr)->m()/GeV));
+      energy.push_back( DataType((*tauItr)->e()/GeV ) );
 
       // track-vertex association code in xAOD from Nick Styles, Apr14:
       // InnerDetector/InDetRecAlgs/InDetPriVxFinder/InDetVxLinksToTrackParticles
@@ -149,7 +150,7 @@ namespace JiveXML {
 	    if (msgLvl(MSG::DEBUG)) {
 	      msg(MSG::DEBUG) << "  tau #" << counter << " track association index: " << tpl.index() 
 			      << ", collection : "  << tpl.key() 
-			      << ", Tracks : " << tp  << " out of " << tp_size << ", own count: " << trkCnt++ << endreq;
+			      << ", Tracks : " << tp  << " out of " << tp_size << ", own count: " << trkCnt++ << endmsg;
 	    }
 	    tracks.push_back(DataType( tpl.index() ));
 	    sgKey.push_back( m_tracksName );
@@ -159,19 +160,19 @@ namespace JiveXML {
     } // end TauIterator 
 
     // four-vectors
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["pt"] = pt;
-    m_DataMap["mass"] = mass;
-    m_DataMap["energy"] = energy;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["pt"] = pt;
+    DataMap["mass"] = mass;
+    DataMap["energy"] = energy;
 
-    m_DataMap["numTracks"] = numTracks;
-    m_DataMap["isolFrac"] = isolFrac;
-    m_DataMap["logLhRatio"] = logLhRatio;
-    m_DataMap["label"] = label;
-    m_DataMap["charge"] = charge;
-    m_DataMap["trackLinkCount"] = trackLinkCount;
-    m_DataMap["isTauString"] = isTauString;
+    DataMap["numTracks"] = numTracks;
+    DataMap["isolFrac"] = isolFrac;
+    DataMap["logLhRatio"] = logLhRatio;
+    DataMap["label"] = label;
+    DataMap["charge"] = charge;
+    DataMap["trackLinkCount"] = trackLinkCount;
+    DataMap["isTauString"] = isTauString;
 
     //This is needed once we know numTracks and associations:
     //If there had been any tracks, add a tag
@@ -179,20 +180,20 @@ namespace JiveXML {
       //Calculate average number of tracks per vertex
       double NTracksPerVertex = tracks.size()*1./numTracks.size();
       std::string tag = "trackIndex multiple=\"" +DataType(NTracksPerVertex).toString()+"\"";
-      m_DataMap[tag] = tracks;
+      DataMap[tag] = tracks;
       tag = "trackKey multiple=\"" +DataType(NTracksPerVertex).toString()+"\"";
-      m_DataMap[tag] = sgKey;
+      DataMap[tag] = sgKey;
     } 
 
-//    m_DataMap["energy"] = energy;
-//    m_DataMap["mass"] = mass;
+//    DataMap["energy"] = energy;
+//    DataMap["mass"] = mass;
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

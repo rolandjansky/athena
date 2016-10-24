@@ -4,12 +4,13 @@
 
 #include "xAODJiveXML/xAODVertexRetriever.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "xAODTracking/TrackParticleContainer.h"
 #include "xAODTracking/TrackParticleAuxContainer.h"
+
+#include "AthenaKernel/Units.h"
+using Athena::Units::cm;
 
 namespace JiveXML {
 
@@ -26,7 +27,7 @@ namespace JiveXML {
    *
    **/
   xAODVertexRetriever::xAODVertexRetriever(const std::string& type,const std::string& name,const IInterface* parent):
-    AthAlgTool(type,name,parent), typeName("RVx"){
+    AthAlgTool(type,name,parent), m_typeName("RVx"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -48,32 +49,32 @@ namespace JiveXML {
     //return if there are none
     const DataHandle<xAOD::VertexContainer> vtxCollectionItr, vtxCollectionsEnd;
     if (evtStore()->retrieve(vtxCollectionItr,vtxCollectionsEnd).isFailure()) {
-      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "No xAODVertexContainer containers found in this event" << endreq;
+      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "No xAODVertexContainer containers found in this event" << endmsg;
       return StatusCode::SUCCESS;
     }
 
     //See if we can find the requested secondary vertex collection
     const xAOD::VertexContainer* secondaryVtxCollection;
     if (evtStore()->retrieve(secondaryVtxCollection,m_secondaryVertexKey).isFailure()) {
-      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "No Secondary vertex container found at SecVertices" << endreq;
+      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "No Secondary vertex container found at SecVertices" << endmsg;
     }else{
-      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "Secondary vertex container size: " << secondaryVtxCollection->size() << endreq;
+      if (msgLvl(MSG::DEBUG )) msg(MSG::DEBUG ) << "Secondary vertex container size: " << secondaryVtxCollection->size() << endmsg;
     }
 	
     //See if we can find the requested primary vertex collection
     const xAOD::VertexContainer* primaryVtxCollection;
     if ( evtStore()->retrieve(primaryVtxCollection,m_primaryVertexKey).isFailure()) {
       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Primary vertex container "
-          << m_primaryVertexKey << " not found" << endreq;
+          << m_primaryVertexKey << " not found" << endmsg;
     }
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieve" << endmsg;
 
   /**
    * Retrieve basic parameters, mainly four-vectors, for each collection.
    * Also association with clusters and tracks (ElementLink).
    */
-    float m_chi2 = 0.;
+    float chi2val = 0.;
     DataVect x; 
     DataVect y; 
     DataVect z; 
@@ -89,11 +90,11 @@ namespace JiveXML {
     for ( ; vtxCollectionItr != vtxCollectionsEnd; ++vtxCollectionItr ) {
 
       if ( ( vtxCollectionItr.key().find("HLT") != std::string::npos)){ // ignore all HLT for now
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT collection " << vtxCollectionItr.key() << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT collection " << vtxCollectionItr.key() << endmsg;
         continue;
       }
       if ( ( vtxCollectionItr.key().find("V0") != std::string::npos)){ // ignore all HLT for now                                                 
-	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring V0 collection " << vtxCollectionItr.key() << endreq;
+	if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring V0 collection " << vtxCollectionItr.key() << endmsg;
         continue;
       }
 
@@ -102,7 +103,7 @@ namespace JiveXML {
 
       //Be a bit verbose
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Reading vertex container " << vtxCollectionItr.key()
-                                              << " with " << NVtx << " entries" << endreq;
+                                              << " with " << NVtx << " entries" << endmsg;
 
     x.reserve(x.size()+NVtx);
     y.reserve(y.size()+NVtx);
@@ -122,16 +123,16 @@ namespace JiveXML {
     for ( ; VertexItr != vtxCollectionItr->end(); ++VertexItr) {
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "  Vertex #" << counter++ << " : x = "  << (*VertexItr)->x()/CLHEP::cm << ", y = " 
-          << (*VertexItr)->y()/CLHEP::cm << ", z[GeV] = "  << (*VertexItr)->z()/CLHEP::cm
+      msg(MSG::DEBUG) << "  Vertex #" << counter++ << " : x = "  << (*VertexItr)->x()/cm << ", y = " 
+          << (*VertexItr)->y()/cm << ", z[GeV] = "  << (*VertexItr)->z()/cm
           << ", vertexType = "  << (*VertexItr)->vertexType()
           << ", chiSquared = "  << (*VertexItr)->chiSquared() 
-          << ", numberDoF = "  << (*VertexItr)->numberDoF() << endreq;
+          << ", numberDoF = "  << (*VertexItr)->numberDoF() << endmsg;
     }
 	
-      x.push_back(DataType((*VertexItr)->x()/CLHEP::cm));
-      y.push_back(DataType((*VertexItr)->y()/CLHEP::cm));
-      z.push_back(DataType((*VertexItr)->z()/CLHEP::cm));
+      x.push_back(DataType((*VertexItr)->x()/cm));
+      y.push_back(DataType((*VertexItr)->y()/cm));
+      z.push_back(DataType((*VertexItr)->z()/cm));
 
      if ( vtxCollectionItr.key() == m_secondaryVertexKey){ 
       vertexType.push_back( 2 );
@@ -151,11 +152,11 @@ namespace JiveXML {
 
     //degrees of freedom might be zero - beware
       if ( (*VertexItr)->numberDoF()  != 0 ){
-          m_chi2 = (*VertexItr)->chiSquared()/(*VertexItr)->numberDoF() ;
+          chi2val = (*VertexItr)->chiSquared()/(*VertexItr)->numberDoF() ;
       }else{
-          m_chi2 = -1.;
+          chi2val = -1.;
       }
-      chi2.push_back(DataType( m_chi2 ));
+      chi2.push_back(DataType( chi2val ));
 
     // track-vertex association code in xAOD from Nick Styles, Apr14:
     // InnerDetector/InDetRecAlgs/InDetPriVxFinder/InDetVxLinksToTrackParticles
@@ -177,7 +178,7 @@ namespace JiveXML {
       if (msgLvl(MSG::DEBUG)) {
        msg(MSG::DEBUG) << "  Vertex #" << counter << " track association index: " << tpl.index() 
          << ", collection : "  << tpl.key() 
-		       << ", Tracks : " << tp  << " out of " << tp_size << ", own count: " << trkCnt++ << endreq;
+		       << ", Tracks : " << tp  << " out of " << tp_size << ", own count: " << trkCnt++ << endmsg;
        }
         if ( tpl.index() < 1000 ){ // sanity check, this can be huge number
           tracks.push_back(DataType( tpl.index() ));
@@ -188,24 +189,24 @@ namespace JiveXML {
     }//end of track particle collection size check
 
     //if (msgLvl(MSG::DEBUG)) {
-    //  msg(MSG::DEBUG) << "  Vertex #" << counter << ", numTracks : " << tpLinks.size() << endreq;
+    //  msg(MSG::DEBUG) << "  Vertex #" << counter << ", numTracks : " << tpLinks.size() << endmsg;
     //}
     
     } // end VertexIterator 
     } // end collectionIterator    
 
     // four-vectors
-    DataMap m_DataMap;
-    m_DataMap["x"] = x;
-    m_DataMap["y"] = y;
-    m_DataMap["z"] = z;
-    m_DataMap["chi2"] = chi2;
-    m_DataMap["vertexType"] = vertexType;
-    m_DataMap["primVxCand"] = primVxCand;
-    m_DataMap["covMatrix multiple=\"6\""] = covMatrix;
-    m_DataMap["numTracks"] = numTracks;
-//    m_DataMap["tracks multiple=\"0\""];
-    m_DataMap["sgkey"] = sgkey;
+    DataMap DataMap;
+    DataMap["x"] = x;
+    DataMap["y"] = y;
+    DataMap["z"] = z;
+    DataMap["chi2"] = chi2;
+    DataMap["vertexType"] = vertexType;
+    DataMap["primVxCand"] = primVxCand;
+    DataMap["covMatrix multiple=\"6\""] = covMatrix;
+    DataMap["numTracks"] = numTracks;
+//    DataMap["tracks multiple=\"0\""];
+    DataMap["sgkey"] = sgkey;
   
     //This is needed once we know numTracks and associations:
     //If there had been any tracks, add a tag
@@ -213,14 +214,14 @@ namespace JiveXML {
       //Calculate average number of tracks per vertex
       double NTracksPerVertex = tracks.size()*1./numTracks.size();
       std::string tag = "tracks multiple=\"" +DataType(NTracksPerVertex).toString()+"\"";
-      m_DataMap[tag] = tracks;
+      DataMap[tag] = tracks;
     } 
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << x.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << x.size() << " entries"<< endmsg;
     }
     //All collections retrieved okay
-    return FormatTool->AddToEvent(dataTypeName(), "Vertices_xAOD", &m_DataMap);
+    return FormatTool->AddToEvent(dataTypeName(), "Vertices_xAOD", &DataMap);
   
   } // retrieve
 
