@@ -14,7 +14,6 @@
 // Gaudi & Athena
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/IIncidentListener.h"
-#include "GaudiKernel/IIncidentListener.h"
 // Trk
 #include "TrkDetDescrInterfaces/IMaterialMapper.h"
 // ROOT

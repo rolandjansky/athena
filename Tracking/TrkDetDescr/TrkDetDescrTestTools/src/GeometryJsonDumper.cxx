@@ -59,13 +59,13 @@ StatusCode Trk::GeometryJsonDumper::finalize()
 
 
 
-StatusCode Trk::GeometryJsonDumper::processNode(const Trk::TrackingVolume& tvol, size_t level)
+StatusCode Trk::GeometryJsonDumper::processNode(const Trk::TrackingVolume& /*tvol*/, size_t /*level*/)
 {
    return StatusCode::SUCCESS;
 }
 
 
-StatusCode Trk::GeometryJsonDumper::processNode(const Trk::Layer& lay, size_t level)
+StatusCode Trk::GeometryJsonDumper::processNode(const Trk::Layer& lay, size_t /*level*/)
 {
     
     ATH_MSG_VERBOSE("Dumping information for Layer with index " << lay.layerIndex().value());
@@ -112,7 +112,7 @@ StatusCode Trk::GeometryJsonDumper::processNode(const Trk::Layer& lay, size_t le
 }
 
 
-StatusCode Trk::GeometryJsonDumper::processNode(const Trk::Surface& sf, size_t level)
+StatusCode Trk::GeometryJsonDumper::processNode(const Trk::Surface& /*sf*/, size_t /*level*/)
 {
     ATH_MSG_VERBOSE("Dumping information for Surfaces.");
     
