@@ -28,6 +28,9 @@
 
 #include "GaudiKernel/IAppMgrUI.h"
 
+
+#include "GaudiKernel/ToolHandle.h"
+
 class AthAnalysisHelper { //thought about being a namespace but went for static methods instead, in case I want private data members in future
 
 public:
@@ -124,10 +127,15 @@ public:
       return theAlg->setProperty(property, value);
    }
 
+  template<typename T> static std::string toString(const T& value) { return Gaudi::Utils::toString( value ); }
+  static std::string toString(const std::string& value) { return value; } //gaudi's toString puts extra quote marks around things like "['b']" .. should probably stop that..
+  static std::string toString(const char* value) { return value; } //gaudi's toString puts extra quote marks around things like "['b']" .. should probably stop that..
+
+
    ///setProperty for services ... will allow setProperty on already-existing services
    template<typename T, typename W> static StatusCode setProperty(const ServiceHandle<T>& serviceHandle, const std::string& property, const W& value) {
       if(serviceHandle.isSet()) {
-         return dynamic_cast<Service&>(*serviceHandle).setProperty(property,Gaudi::Utils::toString ( value ));
+         return dynamic_cast<Service&>(*serviceHandle).setProperty(property,toString ( value ));
       }
       std::string fullName = serviceHandle.name();
       std::string thePropertyName(property);
@@ -141,7 +149,7 @@ public:
       //check if the service already exists
       if(Gaudi::svcLocator()->existsService(serviceHandle.name())) {
          //set property on the service directly
-         return dynamic_cast<Service&>(*serviceHandle).setProperty(property,Gaudi::Utils::toString ( value ));
+         return dynamic_cast<Service&>(*serviceHandle).setProperty(property,toString ( value ));
       } 
 
       //service not existing, ok so add property to catalogue
@@ -299,6 +307,22 @@ public:
    ///Print the aux variables of an xAOD object (aux element)
    ///An alternative to this method is the 'xAOD::dump' method
    static void printAuxElement(const SG::AuxElement& ae);
+
+
+   ///Dump the properties of an IProperty
+   //these aren't necessarily the same as what is in the JobOptionsSvc
+  static void dumpProperties(const IProperty& component);
+    
+  template<typename T> static void dumpProperties(const ServiceHandle<T>& handle) {
+    if(!handle.isSet()) {std::cout << "Please retrieve service before dumping properties" << std::endl; return;}
+    return dumpProperties(dynamic_cast<const IProperty&>(*handle));
+  }
+   template<typename T> static void dumpProperties(const ToolHandle<T>& handle) {
+    if(!handle.isSet()) {std::cout << "Please retrieve service before dumping properties" << std::endl; return;}
+    return dumpProperties(dynamic_cast<const IProperty&>(*handle));
+  }
+
+
 
 
    ///we keep a static handle to the joboptionsvc, since it's very useful

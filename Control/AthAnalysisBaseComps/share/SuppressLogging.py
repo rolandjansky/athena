@@ -1,5 +1,23 @@
 
-MessageSvc.setWarning += {"ClassIDSvc","PoolSvc","AthDictLoaderSvc","AthenaPoolAddressProviderSvc","ProxyProviderSvc","DBReplicaSvc","MetaDataSvc","MetaDataStore","AthenaPoolCnvSvc","TagMetaDataStore","EventSelector","ApplicationMgr","CoreDumpSvc","AthMasterSeq","EventPersistencySvc","ActiveStoreSvc","AthenaEventLoopMgr","AthOutSeq","AthRegSeq"};
+MessageSvc.setWarning += {"ClassIDSvc",
+                          "PoolSvc",
+                          "AthDictLoaderSvc",
+                          "AthenaPoolAddressProviderSvc",
+                          "ProxyProviderSvc",
+                          "DBReplicaSvc",
+                          "MetaDataSvc",
+                          "MetaDataStore",
+                          "AthenaPoolCnvSvc",
+                          "TagMetaDataStore",
+                          "EventSelector",
+                          #"ApplicationMgr", can't silence because otherwise ATN tests fail, see ATLINFR-1235
+                          "CoreDumpSvc",
+                          "AthMasterSeq",
+                          "EventPersistencySvc",
+                          "ActiveStoreSvc",
+                          "AthenaEventLoopMgr",
+                          "AthOutSeq",
+                          "AthRegSeq"};
 
 #also silence storegates if not dumping
 if not hasattr(StoreGateSvc,"Dump") or StoreGateSvc.Dump: MessageSvc.setWarning += ["StoreGateSvc"]
