@@ -64,13 +64,13 @@ TileTBFactory::~TileTBFactory()
 // Creation of geometry:
 void TileTBFactory::create(GeoPhysVol *world) 
 {
-  (*m_log) << MSG::INFO <<" Entering TileTBFactory::create()" << endreq;
+  (*m_log) << MSG::INFO <<" Entering TileTBFactory::create()" << endmsg;
 
   // -------- -------- MATERIAL MANAGER -------- ----------
   DataHandle<StoredMaterialManager> theMaterialManager;
   if (StatusCode::SUCCESS != m_detectorStore->retrieve(theMaterialManager, "MATERIALS")) 
   { 
-    (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endreq; 
+    (*m_log) << MSG::ERROR << "Could not find Material Manager MATERIALS" << endmsg; 
     return; 
   }
   const GeoMaterial* matAir = theMaterialManager->getMaterial("std::Air");
@@ -138,7 +138,7 @@ void TileTBFactory::create(GeoPhysVol *world)
     ROutMax= std::max(ROutMax, dbManager->GetEnvRout());
   }
 
- (*m_log) << MSG::DEBUG << "tileTBEnvThickness 1 " << tileTBEnvThickness << endreq;
+ (*m_log) << MSG::DEBUG << "tileTBEnvThickness 1 " << tileTBEnvThickness << endmsg;
 
  // enlarge mother volume by extra distance between barrel and positive ext.barrel
   if(IfEBPos){
@@ -146,7 +146,7 @@ void TileTBFactory::create(GeoPhysVol *world)
     tileTBEnvThickness += dbManager->GetEnvDZ()*dbManager->GetEnvSide();
   }
 
-  (*m_log) << MSG::DEBUG << "tileTBEnvThickness 2 " << tileTBEnvThickness << endreq;
+  (*m_log) << MSG::DEBUG << "tileTBEnvThickness 2 " << tileTBEnvThickness << endmsg;
 
   // enlarge mother volume by extra distance between barrel and negative ext.barrel
   if(IfEBNeg){
@@ -154,7 +154,7 @@ void TileTBFactory::create(GeoPhysVol *world)
     tileTBEnvThickness += dbManager->GetEnvDZ()*dbManager->GetEnvSide();
   }
 
- (*m_log) << MSG::DEBUG << "tileTBEnvThickness 3 " << tileTBEnvThickness << endreq;
+ (*m_log) << MSG::DEBUG << "tileTBEnvThickness 3 " << tileTBEnvThickness << endmsg;
 
   // take into account extra DZ for barrel only if there are no Ext.Barrel modules
   // but keep the mother volume symmetric (i.e. add DZ on both sides)
@@ -163,11 +163,11 @@ void TileTBFactory::create(GeoPhysVol *world)
     tileTBEnvThickness += 2 * fabs(dbManager->GetEnvDZ());
   }
 
-  (*m_log) << MSG::DEBUG << "Presence of barrel " << ((IfB) ? "true" : "false") << endreq;
-  (*m_log) << MSG::DEBUG << "Presence of positive ext.barrel " << ((IfEBPos) ? "true" : "false") << endreq;
-  (*m_log) << MSG::DEBUG << "Presence of negative ext.barrel " << ((IfEBNeg) ? "true" : "false") << endreq;
+  (*m_log) << MSG::DEBUG << "Presence of barrel " << ((IfB) ? "true" : "false") << endmsg;
+  (*m_log) << MSG::DEBUG << "Presence of positive ext.barrel " << ((IfEBPos) ? "true" : "false") << endmsg;
+  (*m_log) << MSG::DEBUG << "Presence of negative ext.barrel " << ((IfEBNeg) ? "true" : "false") << endmsg;
 
-  (*m_log) << MSG::DEBUG << "tileTBEnvThickness " << tileTBEnvThickness << endreq;
+  (*m_log) << MSG::DEBUG << "tileTBEnvThickness " << tileTBEnvThickness << endmsg;
 
 
 // -------------------- TILE  TB  ENVELOPE ---------------------
@@ -187,7 +187,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       << " Rmax=" << ROutMax << " cm"
       << " PhiMin=" << PhiMin << " deg"
       << " PhiMax=" << PhiMax << " deg"
-      << endreq;
+      << endmsg;
 
   GeoLogVol* lvTileTBEnv = new GeoLogVol("TileTBEnv",tileTBEnv,matAir);
   GeoFullPhysVol* pvTileTBEnv = new GeoFullPhysVol(lvTileTBEnv);
@@ -230,7 +230,7 @@ void TileTBFactory::create(GeoPhysVol *world)
           << " Rmin=" << (dbManager->GetEnvRin()) << " cm"
           << " Rmax=" << (dbManager->GetEnvRout()) << " cm"
           << " nMod=" << NumberOfMod
-          << endreq;
+          << endmsg;
       
       //Envelopes for two barrel fingers
       dbManager->SetCurrentTifg(2);  //use small size for barrel finger !
@@ -250,7 +250,7 @@ void TileTBFactory::create(GeoPhysVol *world)
           << " Rmin=" << FingerRmin << " cm"
           << " Rmax=" << (dbManager->GetEnvRout()) << " cm"
           << " nMod=" << NumberOfMod
-          << endreq;
+          << endmsg;
     }
     
     if(EnvType == 3) {   
@@ -269,7 +269,7 @@ void TileTBFactory::create(GeoPhysVol *world)
           << " Rmin=" << (dbManager->GetEnvRin()) << " cm"
           << " Rmax=" << (dbManager->GetEnvRout()) << " cm"
           << " nMod=" << NumberOfMod
-          << endreq;
+          << endmsg;
 
       //Envelope for finger separately
       GeoTubs* fingerMother = new GeoTubs(FingerRmin*CLHEP::cm,
@@ -286,7 +286,7 @@ void TileTBFactory::create(GeoPhysVol *world)
           << " Rmin=" << FingerRmin << " cm"
           << " Rmax=" << (dbManager->GetEnvRout()) << " cm"
           << " nMod=" << NumberOfMod
-          << endreq;
+          << endmsg;
     }
     
     if(EnvType == 2) {    
@@ -304,7 +304,7 @@ void TileTBFactory::create(GeoPhysVol *world)
           << " Rmin=" << (dbManager->GetEnvRin()) << " cm"
           << " Rmax=" << (dbManager->GetEnvRout()) << " cm"
           << " nMod=" << NumberOfMod
-          << endreq;
+          << endmsg;
 
       //Envelope for finger separately
       GeoTubs* fingerMother = new GeoTubs(FingerRmin*CLHEP::cm,
@@ -321,7 +321,7 @@ void TileTBFactory::create(GeoPhysVol *world)
           << " Rmin=" << FingerRmin << " cm"
           << " Rmax=" << (dbManager->GetEnvRout()) << " cm"
           << " nMod=" << NumberOfMod
-          << endreq;
+          << endmsg;
     }
     
     if(EnvType == 5) {
@@ -340,7 +340,7 @@ void TileTBFactory::create(GeoPhysVol *world)
           << " Rmin=" << (dbManager->GetEnvRin()) << " cm"
           << " Rmax=" << (dbManager->GetEnvRout()) << " cm"
           << " nMod=" << NumberOfMod
-          << endreq;
+          << endmsg;
     }
     
     if(EnvType == 4) {
@@ -359,7 +359,7 @@ void TileTBFactory::create(GeoPhysVol *world)
           << " Rmin=" << (dbManager->GetEnvRin()) << " cm"
           << " Rmax=" << (dbManager->GetEnvRout()) << " cm"
           << " nMod=" << NumberOfMod
-          << endreq;
+          << endmsg;
     }
 
    
@@ -377,7 +377,7 @@ void TileTBFactory::create(GeoPhysVol *world)
           << "ModCounter is " << ModCounter
           << " ModType is " << ModType
           << " ModPositionNumber is " << ModPositionNumber
-          << endreq;
+          << endmsg;
           
       Variable varInd;
       GENFUNCTION phiInd = deltaPhi*(varInd + ModCounter + 0.5) * CLHEP::deg; 
@@ -882,7 +882,7 @@ void TileTBFactory::create(GeoPhysVol *world)
         ztrans = 0;
       }
       tfBarrelMother = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
-      (*m_log) << MSG::DEBUG << "Positioning barrel with translation " << ztrans << " cm" << endreq;
+      (*m_log) << MSG::DEBUG << "Positioning barrel with translation " << ztrans << " cm" << endmsg;
       GeoNameTag* ntBarrelModuleMother = new GeoNameTag("Barrel"); 
 
       pvTileTBEnv->add(tfBarrelMother);
@@ -905,7 +905,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       }
       tfFingerMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
       (*m_log) << MSG::DEBUG << "Positioning positive barrel finger with translation " << ztrans
-          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endreq;
+          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
       GeoNameTag* ntFingerMotherPos = new GeoNameTag("TileFingerPos");
       pvTileTBEnv->add(tfFingerMotherPos);
       pvTileTBEnv->add(ntFingerMotherPos);
@@ -927,7 +927,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       }
       tfFingerMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D((dbManager->GetEnvDPhi())*CLHEP::deg));
       (*m_log) << MSG::DEBUG << "Positioning negative barrel finger with translation " << ztrans 
-          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endreq;
+          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
       GeoNameTag* ntFingerMotherNeg = new GeoNameTag("TileFingerNeg");
       pvTileTBEnv->add(tfFingerMotherNeg);
       pvTileTBEnv->add(ntFingerMotherNeg);
@@ -940,7 +940,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       ztrans = (tileTBEnvThickness/2. - dbManager->GetEnvZLength()/2. - EBFingerLength/2.);
       GeoTransform* tfEBarrelMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
       (*m_log) << MSG::DEBUG << "Positioning positive ext.barrel with translation " << ztrans
-          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endreq;
+          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
       
       GeoNameTag* ntEBarrelMotherPos = new GeoNameTag("EBarrelPos");
       pvTileTBEnv->add(tfEBarrelMotherPos);
@@ -950,7 +950,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       ztrans = (tileTBEnvThickness/2. - EBFingerLength/2.);
       GeoTransform* tfEFingerMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
       (*m_log) << MSG::DEBUG << "Positioning positive ext.barrel finger with translation " << ztrans
-          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endreq;
+          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
 
       GeoNameTag* ntEFingerMotherPos = new GeoNameTag("TileEFingerPos");
       pvTileTBEnv->add(tfEFingerMotherPos);
@@ -963,7 +963,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       ztrans = (-tileTBEnvThickness/2. + dbManager->GetEnvZLength()/2. + EBFingerLength/2.);
       GeoTransform* tfEBarrelMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
       (*m_log) << MSG::DEBUG << "Positioning negative ext.barrel with translation " << ztrans
-          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endreq;
+          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
       
       GeoNameTag* ntEBarrelMotherNeg = new GeoNameTag("EBarrelNeg");
       pvTileTBEnv->add(tfEBarrelMotherNeg);
@@ -973,7 +973,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       ztrans = (-tileTBEnvThickness/2. + EBFingerLength/2.);
       GeoTransform* tfEFingerMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
       (*m_log) << MSG::DEBUG << "Positioning negative ext.barrel finger with translation " << ztrans
-          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endreq;
+          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
 
       GeoNameTag* ntEFingerMotherNeg = new GeoNameTag("TileEFingerNeg");
       pvTileTBEnv->add(tfEFingerMotherNeg);
@@ -986,7 +986,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       ztrans = (tileTBEnvThickness/2. - ZLengthEBarrelPos - dbManager->GetEnvZLength()/2.);
       GeoTransform* tfITCMotherPos = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
       (*m_log) << MSG::DEBUG << "Positioning positive ITC with translation " << ztrans
-          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endreq;
+          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
 
       GeoNameTag* ntITCMotherPos = new GeoNameTag("ITCPos");
       pvTileTBEnv->add(tfITCMotherPos);
@@ -998,7 +998,7 @@ void TileTBFactory::create(GeoPhysVol *world)
       ztrans = (-tileTBEnvThickness/2. + ZLengthEBarrelNeg + dbManager->GetEnvZLength()/2.);
       GeoTransform* tfITCMotherNeg = new GeoTransform(HepGeom::TranslateZ3D(ztrans*CLHEP::cm) * HepGeom::RotateZ3D(dbManager->GetEnvDPhi() * CLHEP::deg));
       (*m_log) << MSG::DEBUG << "Positioning negative ITC with translation " << ztrans
-          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endreq;
+          << " cm and rotation " << dbManager->GetEnvDPhi() << " deg " << endmsg;
 
       GeoNameTag* ntITCMotherNeg = new GeoNameTag("ITCNeg");
       pvTileTBEnv->add(tfITCMotherNeg);
@@ -1023,7 +1023,7 @@ void TileTBFactory::create(GeoPhysVol *world)
         << " EnvType is " << EnvType
         << " Nmodules is " << NumberOfMod
         << " Zshift is " << Zshift*(1./CLHEP::cm) << " cm"
-        << endreq;
+        << endmsg;
 
     if(EnvType == 1 || EnvType == 0) { // central barrel
       nModulesInSection[0] = nModulesInSection[1] = NumberOfMod;

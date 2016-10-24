@@ -76,7 +76,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 				        double                   zlen_itc2,
 					bool                     neg)
 {
-  (*m_log) << MSG::VERBOSE <<" TileGeoSectionBuilder::fillSection ModuleNcp= "<<ModuleNcp<< endreq;
+  (*m_log) << MSG::VERBOSE <<" TileGeoSectionBuilder::fillSection ModuleNcp= "<<ModuleNcp<< endmsg;
 
   double tan_delta_phi_2 = tan(delta_phi/2*CLHEP::deg);
   
@@ -197,12 +197,12 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       }
       
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: CutA and CutB Ok"<< endreq;
+	(*m_log) << MSG::DEBUG <<" _fillSection: CutA and CutB Ok"<< endmsg;
    } // end if,  BoolCuts
 
   //---------------------Girder-----------------------------------------
  
-  int Id4 = int(fmod(m_dbManager->GetModType(),10));
+  int Id4 = m_dbManager->GetModType()%100;
   double thicknessGirderMother = 0.0;
   double specialModuleZShift = 0.0; 
 
@@ -253,11 +253,11 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       tfGirderMother = new GeoTransform(HepGeom::Translate3D((m_dbManager->TILBdzend()-m_dbManager->TILBdzend2())*CLHEP::cm/2, 0.,
 						       (m_dbManager->TILBrmax()-rminb)*CLHEP::cm/2));
 
-      mother->add(tfGirderMother);
-      mother->add(pvGirderMother); 
+    mother->add(tfGirderMother);
+    mother->add(pvGirderMother); 
 
-      if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: GirderMother Ok "<< endreq;
+    if(m_log->level()<=MSG::DEBUG)
+      (*m_log) << MSG::DEBUG <<" _fillSection: GirderMother Ok "<< endmsg;
 
   } // End Girder
 
@@ -282,7 +282,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	 if(m_log->level()<=MSG::DEBUG)
 	   (*m_log) << MSG::DEBUG <<"   FrontPlateSh dX1,dX2= "<<thicknessFrontPlate/2<<", "<<thicknessFrontPlate/2
 		    <<" dY1,dY2= "<<dy1FrontPlate<<" "<<dy2FrontPlate<<" dZ= "<<heightFrontPlate/2
-		    << endreq;
+		    << endmsg;
 
          GeoTrd* frontPlateSh = new GeoTrd(thicknessFrontPlate/2,
 		                           thicknessFrontPlate/2,
@@ -300,7 +300,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
          mother->add(pvFrontPlateSh);
        } else {
 	if(m_log->level()<=MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG <<"   FrontPlateSh was lost "<< endreq;
+	  (*m_log) << MSG::DEBUG <<"   FrontPlateSh was lost "<< endmsg;
        }
     }
     else if (sec_number==2 && (m_dbManager->BoolCuts() &&  
@@ -348,7 +348,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       mother->add(pvFrontPlate);
 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG<<" _fillSection: FrontPlate Cut Ok "<< endreq;
+	(*m_log) << MSG::DEBUG<<" _fillSection: FrontPlate Cut Ok "<< endmsg;
 
     }
     else
@@ -472,7 +472,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  }
 	else
 	  {
-	    (*m_log) << MSG::ERROR <<" TileGeoSectionBuilder::fillSection . Wrong Module in cut-out region. ModuleNcp= "<<ModuleNcp<< endreq;	
+	    (*m_log) << MSG::ERROR <<" TileGeoSectionBuilder::fillSection . Wrong Module in cut-out region. ModuleNcp= "<<ModuleNcp<< endmsg;	
 	    lvEndPlateSh = new GeoLogVol("EndPlateSh", endPlateSh , matIron);
 	  }
 
@@ -502,7 +502,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       tfEndPlateSh->unref();
 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: ext.barrel EndPlateSh Ok "<< endreq;
+	(*m_log) << MSG::DEBUG <<" _fillSection: ext.barrel EndPlateSh Ok "<< endmsg;
     }
     else
     {
@@ -544,7 +544,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       mother->add(pvEndPlate1);  
 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: Ordinary EndPlateSh Ok "<< endreq;
+	(*m_log) << MSG::DEBUG <<" _fillSection: Ordinary EndPlateSh Ok "<< endmsg;
     }
   }
 
@@ -668,7 +668,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       tfEndPlate2->unref();
       
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: EndPlate2 Ok "<< endreq;
+	(*m_log) << MSG::DEBUG <<" _fillSection: EndPlate2 Ok "<< endmsg;
      
   } // End Plates
 
@@ -714,7 +714,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       if(m_log->level()<=MSG::DEBUG)
 	(*m_log) << MSG::DEBUG <<" Number of periods per Module: N= "<<nA1+nA2+nA3 
 		 << " Middle absorber, numbers of periods = "<<nA2
-		 << endreq;
+		 << endmsg;
 
       // First Cut-out part
       absorber1 = new GeoTrd(thicknessAbsorber1/2, thicknessAbsorber1/2,
@@ -743,7 +743,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       //
 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: Ex.Barrel pvAbsorber 1,3 Ok "<< endreq;
+	(*m_log) << MSG::DEBUG <<" _fillSection: Ex.Barrel pvAbsorber 1,3 Ok "<< endmsg;
 
       break;
     }
@@ -763,9 +763,9 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       
       if(m_log->level()<=MSG::DEBUG) {
           if (m_dbManager->TILBnperiod() > 1) {
-              (*m_log) << MSG::DEBUG <<" _fillSection: default pvAbsorber  Ok "<< endreq;
+              (*m_log) << MSG::DEBUG <<" _fillSection: default pvAbsorber  Ok "<< endmsg;
           } else {
-              (*m_log) << MSG::DEBUG <<" _fillSection: special pvAbsorber made from Air  Ok "<< endreq;
+              (*m_log) << MSG::DEBUG <<" _fillSection: special pvAbsorber made from Air  Ok "<< endmsg;
           }
       }
       
@@ -943,11 +943,11 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
             pvTmp_Absorber1 = action1.getPV();
             //
 	    if(m_log->level()<=MSG::DEBUG)
-	      (*m_log) << MSG::DEBUG <<" _fillSection: CutA Ok "<< endreq;
+	      (*m_log) << MSG::DEBUG <<" _fillSection: CutA Ok "<< endmsg;
          } // end special modules
       } // end if, BoolCuts()
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: Absorber1 Ok "<< endreq;
+	(*m_log) << MSG::DEBUG <<" _fillSection: Absorber1 Ok "<< endmsg;
 
       // middle partr of absorber
       GENFUNCTION periodPos2 = (thicknessPeriod*(2*periodInd+1)-thicknessAbsorber2)/2;
@@ -961,7 +961,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       pvAbsorber->add(stPeriod);
 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: pvAbsorber Ok "<< endreq;
+	(*m_log) << MSG::DEBUG <<" _fillSection: pvAbsorber Ok "<< endmsg;
 
       // second partr of absorber
       //
@@ -984,7 +984,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	     pvAbsorber3->apply(&action2);
 	     pvTmp_Absorber3 = action2.getPV();
 	     if(m_log->level()<=MSG::DEBUG)
-	       (*m_log) << MSG::DEBUG <<" _fillSection: CutB L Ok "<< endreq;
+	       (*m_log) << MSG::DEBUG <<" _fillSection: CutB L Ok "<< endmsg;
 	   } else if (ModuleNcp>=35 && ModuleNcp<=37) { 
 	     // Cuting of pvEBarrelModuleMotherPos (Right)
 	     //
@@ -992,11 +992,11 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	     pvAbsorber3->apply(&action3);
 	     pvTmp_Absorber3 = action3.getPV();
 	     if(m_log->level()<=MSG::DEBUG)
-	       (*m_log) << MSG::DEBUG <<" _fillSection: CutB R Ok "<< endreq;
+	       (*m_log) << MSG::DEBUG <<" _fillSection: CutB R Ok "<< endmsg;
 	   }
          } // end if, BoolCuts()
 	if(m_log->level()<=MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG <<" _fillSection: Absorber3 Ok "<< endreq;
+	  (*m_log) << MSG::DEBUG <<" _fillSection: Absorber3 Ok "<< endmsg;
 
       break;
     }
@@ -1102,7 +1102,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  pvAbsorber->add(pvAbsorberChild);
 	  
 	  if(m_log->level()<=MSG::DEBUG)
-	    (*m_log) << MSG::DEBUG <<" _fillSection: Absorber (ITC plug special) Ok "<< endreq;
+	    (*m_log) << MSG::DEBUG <<" _fillSection: Absorber (ITC plug special) Ok "<< endmsg;
 	}
       else
 	{
@@ -1137,7 +1137,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	    NbPeriod = m_dbManager->TILBnperiod();
 
 	  if(m_log->level()<=MSG::DEBUG)
-	    (*m_log) << MSG::DEBUG <<" SCNTitem= "<<m_dbManager->SCNTitem()<<"    NbPeriod= "<<NbPeriod<< endreq;
+	    (*m_log) << MSG::DEBUG <<" SCNTitem= "<<m_dbManager->SCNTitem()<<"    NbPeriod= "<<NbPeriod<< endmsg;
 	  stPeriod = new GeoSerialTransformer(pvPeriod,
 					      &xfReplica3, 
 					      NbPeriod);//sbb
@@ -1145,7 +1145,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
 	  pvAbsorber->add(new GeoSerialIdentifier(0));
 	  pvAbsorber->add(stPeriod);
 	  if(m_log->level()<=MSG::DEBUG)
-	    (*m_log) << MSG::DEBUG <<" _fillSection: Absorber (case 3) Ok "<< endreq;
+	    (*m_log) << MSG::DEBUG <<" _fillSection: Absorber (case 3) Ok "<< endmsg;
 	}
       break;
     }
@@ -1247,7 +1247,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       pvAbsorber->add(pvAbsorberChild);
 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: Absorber (case 4) Ok "<< endreq;
+	(*m_log) << MSG::DEBUG <<" _fillSection: Absorber (case 4) Ok "<< endmsg;
       break;
     }
   default:
@@ -1261,7 +1261,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       else 
       {
 	(*m_log) << MSG::ERROR << "TileGeoSectionBuilder::fillSection: Unexpected section = "
-                 << m_dbManager->TILBsection() << " for Gap/Crack" << endreq;
+                 << m_dbManager->TILBsection() << " for Gap/Crack" << endmsg;
 	return;
       }
 
@@ -1301,7 +1301,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
       pvAbsorber->add(pvPeriod);
 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG <<" _fillSection: Absorber (case default) Ok "<< endreq;
+	(*m_log) << MSG::DEBUG <<" _fillSection: Absorber (case default) Ok "<< endmsg;
       break;
     }
   }
@@ -1322,7 +1322,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
   else if (sec_number==2)
     { 
       if(m_log->level()<=MSG::DEBUG)
-	(*m_log) << MSG::DEBUG << " _fillsection  Ex.barrel in "<< endreq;
+	(*m_log) << MSG::DEBUG << " _fillsection  Ex.barrel in "<< endmsg;
  
      tfAbsorber1 = new GeoTransform(HepGeom::Translate3D(dXAbsorber*CLHEP::cm/2 - PosAbsor1, 0.,
                                    (dZAbsorber + m_dbManager->TILBrmin() - rminb)*CLHEP::cm/2)); 
@@ -1335,7 +1335,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
      }
 
      if(m_log->level()<=MSG::DEBUG)
-       (*m_log) << MSG::DEBUG << " _fillsection  ext.barrel pvAbsorber1 Ok"<< endreq;
+       (*m_log) << MSG::DEBUG << " _fillsection  ext.barrel pvAbsorber1 Ok"<< endmsg;
 
      tfAbsorber  = new GeoTransform(HepGeom::Translate3D(dXAbsorber*CLHEP::cm/2 - PosAbsor2, 0.,
                                     (dZAbsorber + m_dbManager->TILBrmin() - rminb)*CLHEP::cm/2));  
@@ -1343,7 +1343,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
      mother->add(pvAbsorber);
 
      if(m_log->level()<=MSG::DEBUG)
-       (*m_log) << MSG::DEBUG << " _fillsection  ext.barrel pvAbsorber Ok"<< endreq;
+       (*m_log) << MSG::DEBUG << " _fillsection  ext.barrel pvAbsorber Ok"<< endmsg;
 
      tfAbsorber3 = new GeoTransform(HepGeom::Translate3D(dXAbsorber*CLHEP::cm/2 - PosAbsor3, 0.,  
                                     (dZAbsorber + m_dbManager->TILBrmin() - rminb)*CLHEP::cm/2));                
@@ -1356,7 +1356,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
      }
 
      if(m_log->level()<=MSG::DEBUG)
-       (*m_log) << MSG::DEBUG << " _fillsection  ext.barrel pvAbsorber3 Ok"<< endreq;
+       (*m_log) << MSG::DEBUG << " _fillsection  ext.barrel pvAbsorber3 Ok"<< endmsg;
    }
   else                                           
    { 
@@ -1365,7 +1365,7 @@ void TileGeoSectionBuilder::fillSection(GeoPhysVol*&             mother,
      mother->add(tfAbsorber);
      mother->add(pvAbsorber);
      if(m_log->level()<=MSG::DEBUG)
-       (*m_log) << MSG::DEBUG << " _fillsection other pvAbsorber Ok"<< endreq;
+       (*m_log) << MSG::DEBUG << " _fillsection other pvAbsorber Ok"<< endmsg;
    }
 
   if(CutA) {
@@ -1453,7 +1453,7 @@ void TileGeoSectionBuilder::fillGirder(GeoPhysVol*&             mother,
     default:
       {
 	(*m_log) << MSG::ERROR << "TileGeoSectionBuilder::FillGirder: unknown material = "
-                 << m_dbManager->TIGRmaterial() << endreq;
+                 << m_dbManager->TIGRmaterial() << endmsg;
 	return;
       }
     }
@@ -1557,25 +1557,25 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
         AirVolumeShift = (elementDz-corrected_dz)/2 - elementZPozition;
         AirVolumeSize = elementDz;
 	if(m_log->level()<=MSG::DEBUG) {
-	  (*m_log) << MSG::DEBUG << "TileFinger: OldAirVolumeCenter ="<<elementZPozition << endreq;
-	  (*m_log) << MSG::DEBUG << "TileFinger: NewAirVolumeCenter ="<<elementZPozition+AirVolumeShift << endreq;
-	  (*m_log) << MSG::DEBUG << "TileFinger: AirVolumeShift ="<< AirVolumeShift << endreq;
-	  (*m_log) << MSG::DEBUG << "TileFinger: AirVolumeSize ="<< AirVolumeSize << endreq;
+	  (*m_log) << MSG::DEBUG << "TileFinger: OldAirVolumeCenter ="<<elementZPozition << endmsg;
+	  (*m_log) << MSG::DEBUG << "TileFinger: NewAirVolumeCenter ="<<elementZPozition+AirVolumeShift << endmsg;
+	  (*m_log) << MSG::DEBUG << "TileFinger: AirVolumeShift ="<< AirVolumeShift << endmsg;
+	  (*m_log) << MSG::DEBUG << "TileFinger: AirVolumeSize ="<< AirVolumeSize << endmsg;
 	}
       }
       if (elementZPozition*2-AirVolumeSize<-0.01) { // compare with zero with 0.1 CLHEP::mm precision
         elementZPozition += AirVolumeShift; // shift all volumes keeping size
       } else { // resize finger cover with shims attached to it
 	if(m_log->level()<=MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG << "TileFinger: OldCoverThickness ="<<elementDz << endreq;
+	  (*m_log) << MSG::DEBUG << "TileFinger: OldCoverThickness ="<<elementDz << endmsg;
         elementDz = corrected_dz - AirVolumeSize;
 	if(m_log->level()<=MSG::DEBUG) {
-	  (*m_log) << MSG::DEBUG << "TileFinger: NewCoverThickness ="<<elementDz << endreq;
-	  (*m_log) << MSG::DEBUG << "TileFinger: OldCoverCenter ="<<elementZPozition << endreq;
+	  (*m_log) << MSG::DEBUG << "TileFinger: NewCoverThickness ="<<elementDz << endmsg;
+	  (*m_log) << MSG::DEBUG << "TileFinger: OldCoverCenter ="<<elementZPozition << endmsg;
 	}
         elementZPozition = (corrected_dz-elementDz)/2;
 	if(m_log->level()<=MSG::DEBUG)
-	  (*m_log) << MSG::DEBUG << "TileFinger: NewCoverCenter ="<<elementZPozition << endreq;
+	  (*m_log) << MSG::DEBUG << "TileFinger: NewCoverCenter ="<<elementZPozition << endmsg;
       }
     }
     
@@ -1602,7 +1602,7 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
     default:
       {
 	(*m_log) << MSG::ERROR << "TileGeoSectionBuilder::fillFinger: unexpected material = "
-                 << m_dbManager->TICGmaterial() << " for finger element" << endreq;
+                 << m_dbManager->TICGmaterial() << " for finger element" << endmsg;
 	return;
       }
     }
@@ -1636,7 +1636,7 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
     else
     {
       (*m_log) << MSG::ERROR << "TileGeoSectionBuilder::fillFinger: unexpected shape = "
-               << m_dbManager->TICGshape() << " for finger element" << endreq;
+               << m_dbManager->TICGshape() << " for finger element" << endmsg;
       return;
     }
 
@@ -1721,7 +1721,7 @@ void TileGeoSectionBuilder::fillFinger(GeoPhysVol*&             mother,
   if(m_log->level()<=MSG::DEBUG)
     (*m_log) << MSG::DEBUG << " Finger : number= "<<sec_number<<" ModuleNcp = " <<ModuleNcp<< " Sector= "<< Isector
 	     << " LRflag= " << LRflag <<" Neg "<< boolNeg 
-	     << endreq;
+	     << endmsg;
 
   GeoTransform *rotateY = new GeoTransform(HepGeom::RotateY3D(90*CLHEP::deg));
   GeoTransform *rotateZ = new GeoTransform(HepGeom::RotateZ3D(3*CLHEP::deg));
@@ -1817,7 +1817,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 
   GeoIdentifierTag* idTag = 0;
 
-  (*m_log) << MSG::VERBOSE <<" TileGeoSectionBuilder::fillPeriod"<< endreq;
+  (*m_log) << MSG::VERBOSE <<" TileGeoSectionBuilder::fillPeriod"<< endmsg;
 
   // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
 
@@ -1851,10 +1851,10 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
     zpShift = -1;
   }
   
-  (*m_log) << MSG::VERBOSE <<"     TILBsection= "<<m_dbManager->TILBsection()<<endreq;
+  (*m_log) << MSG::VERBOSE <<"     TILBsection= "<<m_dbManager->TILBsection()<<endmsg;
   (*m_log) << MSG::VERBOSE <<"     CurrentScin= "<<CurrentScin<<" TILBcurscint= "<<m_dbManager->TILBcurscint() 
-                           << " - " << m_dbManager->TILBcurscint()+m_dbManager->TILBnscin()-1 <<endreq;
-  (*m_log) << MSG::VERBOSE <<"     period_type= "<<period_type <<endreq;
+                           << " - " << m_dbManager->TILBcurscint()+m_dbManager->TILBnscin()-1 <<endmsg;
+  (*m_log) << MSG::VERBOSE <<"     period_type= "<<period_type <<endmsg;
 
   // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- --
   // Obtain required materials - Air, Glue, Scintillator
@@ -1985,7 +1985,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         if (m_verbose) {
           (*m_log) << MSG::VERBOSE <<" X scintiZPos= "<<scintiZPos;
           printdouble("  ==>  ",(scintiZPos*thickness+m_dbManager->TILBdzspac()/2)*CLHEP::cm);
-          (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endreq;
+          (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endmsg;
         }
         
 	tfWrapper = new GeoTransform(HepGeom::Translate3D((scintiZPos*thickness+m_dbManager->TILBdzspac()/2)*CLHEP::cm,
@@ -2078,7 +2078,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         if (m_verbose) {
           (*m_log) << MSG::VERBOSE <<" X scintiZPos= "<<scintiZPos; 
           printdouble("  ==>  ",(2*scintiZPos+0.5)*(thickness-m_dbManager->TILBdzspac())*CLHEP::cm);
-          (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endreq;
+          (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endmsg;
         }
         
 	tfWrapper = new GeoTransform(HepGeom::Translate3D((2*scintiZPos+0.5)*(thickness-m_dbManager->TILBdzspac())*CLHEP::cm,
@@ -2184,7 +2184,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         if (m_verbose) {
           (*m_log) << MSG::VERBOSE <<" X scintiZPos= "<<scintiZPos; 
           printdouble("  ==>  ",(scintiZPos*thickness-m_dbManager->TILBdzspac()/2)*CLHEP::cm);
-          (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endreq;
+          (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endmsg;
         }
       
 	tfWrapper = new GeoTransform(HepGeom::Translate3D((scintiZPos*thickness-m_dbManager->TILBdzspac()/2)*CLHEP::cm,
@@ -2261,8 +2261,8 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 	  
 	  //place wrapper in period
           if (m_verbose) {
-            (*m_log) << MSG::VERBOSE <<" X scintiZPos= "<<0.0 <<endreq; 
-            (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endreq;
+            (*m_log) << MSG::VERBOSE <<" X scintiZPos= "<<0.0 <<endmsg; 
+            (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endmsg;
           }
           
 	  tfWrapper = new GeoTransform(HepGeom::Translate3D(0.,
@@ -2284,7 +2284,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
       double tanphi = (period->getYHalfLength2()-dy1Period)/period->getZHalfLength()/2.;
       if(m_log->level()<=MSG::DEBUG)
           if (fabs(tanphi-tan_delta_phi_2) > 1.e-5)
-              (*m_log) << MSG::DEBUG <<"Different tan_delta_phi_2 " << tanphi << " " << tan_delta_phi_2  <<endreq;
+              (*m_log) << MSG::DEBUG <<"Different tan_delta_phi_2 " << tanphi << " " << tan_delta_phi_2  <<endmsg;
       
       for (j = CurrentScin; j < (CurrentScin + m_dbManager->TILBnscin()); j++)
       {
@@ -2307,7 +2307,7 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
         dy2Wrapper = dy1Period - thicknessEnvelope + ((scintiRC + scintiHeight/2. + scintiWrapInR)*tanphi)*CLHEP::cm;
 
         if(m_log->level()<=MSG::DEBUG)
-            (*m_log) << MSG::DEBUG <<"Envelope thickness is " << thicknessEnvelope <<endreq;
+            (*m_log) << MSG::DEBUG <<"Envelope thickness is " << thicknessEnvelope <<endmsg;
         checking("Wrapper 4", true, 5, 
             thicknessWrapper/2,thicknessWrapper/2,dy1Wrapper,dy2Wrapper,heightWrapper/2);
 
@@ -2342,8 +2342,8 @@ void TileGeoSectionBuilder::fillPeriod(GeoPhysVol*&              mother,
 
         //place wrapper in period
         if (m_verbose) {
-          (*m_log) << MSG::VERBOSE <<" X scintiZPos= "<<0.0 <<endreq; 
-          (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endreq;
+          (*m_log) << MSG::VERBOSE <<" X scintiZPos= "<<0.0 <<endmsg; 
+          (*m_log) << MSG::VERBOSE <<" Y scintiRC= "<<scintiRC <<endmsg;
         }
         
 	tfWrapper = new GeoTransform(HepGeom::Translate3D(0.,
@@ -2380,16 +2380,16 @@ void TileGeoSectionBuilder::checking(std::string Name, bool print, int level,
 		<<"  dX1,dX2= "<<X1<<" "<<X2
                 <<"  dY1,dY2= "<<Y1<<" "<<Y2
                 <<"  dZ= "<<Z
-		<<endreq;
+		<<endmsg;
    }
   if (X1 < rless && X2 < rless)
-   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, X1 or X2<0 "<<endreq;
+   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, X1 or X2<0 "<<endmsg;
    }
   if (Y1 < rless && Y2 < rless)
-   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Y1 or Y2<0 "<<endreq;
+   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Y1 or Y2<0 "<<endmsg;
    }
   if (Z < rless)
-   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Z<0   "<<endreq;
+   { (*m_log) << MSG::WARNING <<" volume "<<Name<<" is empty, Z<0   "<<endmsg;
    }
 }
 
@@ -2424,6 +2424,12 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
     phi_max = nphi * dphi;
   }
 
+  bool BCseparate = m_dbManager->separateBC();
+
+  // Hardcoded values for BC separated
+  float rBarrelBC[] = {2450., 2795., 3215., 3630.};
+  float drBarrelBC[] = {300., 390., 450., 380.};
+
   // Hardcoded values for R/dR
   float rBarrel[] = {2450., 3020., 3630.};
   float drBarrel[] = {300., 840., 380.};
@@ -2445,6 +2451,10 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
     drExtended[2] += 40*CLHEP::mm;
     rGap[1] += 40*CLHEP::mm/2;
     drGap[1] += 40*CLHEP::mm;
+    rBarrelBC[0] -= 10*CLHEP::mm/2;
+    rBarrelBC[3] += 40*CLHEP::mm/2;
+    drBarrelBC[0] += 10*CLHEP::mm;
+    drBarrelBC[3] += 40*CLHEP::mm;
   }
     
   int indHardcoded = 0;
@@ -2483,7 +2493,7 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
 	  if (!(m_dbManager->SetNextTiclInDet()))
 	  {
 	    (*m_log) << MSG::ERROR << "TileGeoSectionBuilder::fillDescriptor: No TICL structures for detector: "
-                     << detector << " and side: " << sign_eta << endreq;
+                     << detector << " and side: " << sign_eta << endmsg;
 	    return;
 	  }
 	}
@@ -2508,7 +2518,7 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
     else
     {
       (*m_log) << MSG::ERROR << "TileGeoSectionBuilder::fillDescriptor: No TICL structures for the detector: "
-               << detector << endreq;
+               << detector << endmsg;
       return;
     }
 
@@ -2534,8 +2544,8 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
       // Fill in the hardcoded values
       if(detector == TILE_REGION_CENTRAL)
       {
-         rcenter[etaIndex-1] = rBarrel[indHardcoded];
-         dr[etaIndex-1] = drBarrel[indHardcoded];
+         rcenter[etaIndex-1] = (BCseparate) ? rBarrelBC[indHardcoded] : rBarrel[indHardcoded];
+         dr[etaIndex-1] = (BCseparate) ? drBarrelBC[indHardcoded] : drBarrel[indHardcoded];
       }
       else
       {
@@ -2558,11 +2568,15 @@ void TileGeoSectionBuilder::fillDescriptor(TileDetDescriptor*&   descriptor,
     for(unsigned int det = detector; det < detector+2; det++)
       for(int status=m_dbManager->SetFirstTiclInDet(det); status>0; status=m_dbManager->SetNextTiclInDet())
       {
-        if ((int)m_dbManager->TICLtower()>16) continue;
+        if (fabs(m_dbManager->TICLeta())>1.6) continue;
 	if(det==detector)
 	  etaIndex = (int)m_dbManager->TICLsample();
-	else
+	else {
 	  etaIndex = (int)m_dbManager->TICLtower();
+          if (etaIndex > 16) {
+              etaIndex = int(fabs(m_dbManager->TICLeta())*10.)+1;
+          }
+        }
 	if(etaIndex > nsamp) nsamp = etaIndex;
         // simple calculations of eta for one cell
 	neta[etaIndex-1] = 1;
@@ -2653,7 +2667,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
 {
   if (m_log->level()<=MSG::DEBUG) 
     (*m_log) << MSG::DEBUG << "TileGeoSectionBuilder::computeCellDim for detector="
-             << detector << endreq;
+             << detector << endmsg;
 
   boost::io::ios_all_saver ias (std::cout);
 
@@ -2762,9 +2776,11 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
     else
     {
       (*m_log) << MSG::ERROR << "TileGeoSectionBuilder::computeCellDim: No TICL structures for the detector: "
-               << detector << endreq;
+               << detector << endmsg;
       return;
     }
+
+    bool BCseparate = m_dbManager->separateBC();
 
     /** Iterate through cells by samples */
     for(index=0; index<samples.size(); index++)
@@ -2804,7 +2820,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
 
 
 	  /** -------- BC ---------- */
-	  if(m_dbManager->TICLsample()==2 && detector == TILE_REGION_CENTRAL)
+	  if(m_dbManager->TICLsample()==2 && detector == TILE_REGION_CENTRAL && !BCseparate)
 	  {
 	    isSquare = true;
 	    int firstC = nLastRow + 1;
@@ -2830,7 +2846,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
 	  }
 
 	  /** Create and fill in TileCellDim objects, one for Central Barrel two for extended (+/- side) */
-	  if(m_dbManager->TICLsample()==2 && detector == TILE_REGION_CENTRAL)
+	  if(m_dbManager->TICLsample()==2 && detector == TILE_REGION_CENTRAL && !BCseparate)
 	    cellDim = new TileCellDim(2*nRows);
 	  else
 	    cellDim = new TileCellDim(nRows);
@@ -2885,7 +2901,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
 	    manager->add_cellDim(detector, -1, nTower, nSample, cellDimNeg);
 	  }
 
-	  if(m_dbManager->TICLsample()==2 && detector == TILE_REGION_CENTRAL) nLastRow -=3;
+	  if(m_dbManager->TICLsample()==2 && detector == TILE_REGION_CENTRAL && !BCseparate) nLastRow -=3;
 
 	  /* -------- DEBUG printouts -------------- */
 
@@ -2923,7 +2939,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
       else
       {
 	(*m_log) << MSG::ERROR << "TileGeoSectionBuilder::computeCellDim: No TICL structures in detector: "
-                 << detector << " for sample: " << nSample << endreq;
+                 << detector << " for sample: " << nSample << endmsg;
 	return;
       }
     }
@@ -2991,7 +3007,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
 
       // Create TileCellDim objects
       if (m_dbManager->TILBnscin() < 0) {
-	(*m_log) << MSG::ERROR << "TileGeoSectionBuilder::computeCellDim: Bad return from TILBnscin" << endreq;
+	(*m_log) << MSG::ERROR << "TileGeoSectionBuilder::computeCellDim: Bad return from TILBnscin" << endmsg;
 	return;
       }
       unsigned int nscin = static_cast<unsigned int>(m_dbManager->TILBnscin());
@@ -3089,7 +3105,7 @@ void TileGeoSectionBuilder::computeCellDim(TileDetDescrManager*& manager,
 	  m_dbManager->SetFirstTiclInDet(detector+1);
 	else
 	  m_dbManager->SetNextTiclInDet();
-        if ((int)m_dbManager->TICLtower()>16) continue;
+        if (fabs(m_dbManager->TICLeta())>1.6) continue;
 
 	cellDim = new TileCellDim(1);
 	cellDimNeg = new TileCellDim(1);
@@ -3170,7 +3186,7 @@ void TileGeoSectionBuilder::calculateZ(int detector,
     break;
   default:
     (*m_log) << MSG::ERROR << "TileGeoSectionBuilder::calculateZ: Unexpected detector: "
-             << detector << endreq;
+             << detector << endmsg;
     return;
   }
 
@@ -3239,7 +3255,7 @@ void TileGeoSectionBuilder::calculateEta(int detector,
 	  if (!(m_dbManager->SetNextTiclInDetSamp()))
 	  {
 	    (*m_log) << MSG::ERROR << "TileGeoSectionBuilder::calculateEta: No TICL structures of positive side "
-                     << "in Central Barrel for sample: " << sample << endreq;
+                     << "in Central Barrel for sample: " << sample << endmsg;
 	    return;
 	  }
 
@@ -3265,7 +3281,7 @@ void TileGeoSectionBuilder::calculateEta(int detector,
       else
       {
 	(*m_log) << MSG::ERROR << "TileGeoSectionBuilder::calculateEta: No TICL structures in detector: "
-                 << detector << " for sample: " << sample << endreq;
+                 << detector << " for sample: " << sample << endmsg;
 	return;
       }
       break;
@@ -3273,7 +3289,7 @@ void TileGeoSectionBuilder::calculateEta(int detector,
   default:
     {
       (*m_log) << MSG::ERROR << "TileGeoSectionBuilder::calculateEta: Unexpected detector: "
-               << detector << endreq;
+               << detector << endmsg;
       return;
     }
   }
@@ -3318,5 +3334,5 @@ void TileGeoSectionBuilder::checktransfunc(double absorber, double period, int n
 void TileGeoSectionBuilder::printdouble(const char * name, double val)
 {
     (*m_log) << MSG::VERBOSE  << std::setprecision (std::numeric_limits<double>::digits10 + 1)
-             << name << val << endreq;
+             << name << val << endmsg;
 }
