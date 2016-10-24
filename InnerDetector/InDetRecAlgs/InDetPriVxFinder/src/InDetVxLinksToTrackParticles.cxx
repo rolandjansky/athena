@@ -209,7 +209,7 @@ namespace InDet
       if (first_vertex < nvx && !m_trackToVertex.empty()) { 
         const xAOD::Vertex *vxCandidate = vertexCollection->at(first_vertex);
         for (xAOD::TrackParticle *track_particle: *trackParticleCollection) {
-          const Trk::Perigee* result =  m_trackToVertex->perigeeAtVertex( *track_particle, vxCandidate->position());
+	   std::unique_ptr<const Trk::Perigee> result( m_trackToVertex->perigeeAtVertex( *track_particle, vxCandidate->position()) );
           if (result) {
             // ATH_MSG_DEBUG( "Updated track parameters for  " << *track_particle << "to primary vertex " << vxCandidate->position() );
             const AmgSymMatrix(5)* covMatrix = result->covariance();
