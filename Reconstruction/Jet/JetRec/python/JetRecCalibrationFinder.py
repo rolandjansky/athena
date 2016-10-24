@@ -39,6 +39,7 @@ class JetRecCalibrationFinder:
     "r":"Residual",
     "o":"Origin",
     "j":"AbsoluteEtaJES",
+    "m":"JMS",
     "g":"GSC",
     "i":"Insitu"
   }
@@ -48,6 +49,8 @@ class JetRecCalibrationFinder:
     "reco"            : "JES_MC15cRecommendation_May2016.config",
     "trigger"         : "JES_Full2012dataset_Preliminary_Trigger.config",
     "triggerNoPileup" : "JES_Full2012dataset_Preliminary_Trigger_NoPileup.config",
+    "trigger2016"     : "JES_MC15cRecommendation_May2016_Trigger.config",
+    "triggerTrim"     : "JES_MC15recommendation_FatJet_June2015.config",
     "pflow"           : "JES_MC15cRecommendation_PFlow_Aug2016.config"
   }
 
@@ -94,6 +97,8 @@ class JetRecCalibrationFinder:
       if   inpin == "EMTopo":
         evssuf="EMTopoEventShape"
       elif inpin == "LCTopo":
+        evssuf="LCTopoEventShape"
+      elif inpin.startswith("LCTopoTrimmed"):
         evssuf="LCTopoEventShape"
       elif inpin == "EMTopoOrigin":
         evssuf="EMTopoOriginEventShape"

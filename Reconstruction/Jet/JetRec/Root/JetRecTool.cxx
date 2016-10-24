@@ -54,7 +54,11 @@ xAOD::JetContainer* shallowCopyJets(const xAOD::JetContainer& jetsin,
 
 JetRecTool::JetRecTool(std::string myname)
 : AsgTool(myname), m_intool(""),
+#ifdef XAOD_STANDALONE
   m_hpjr(""),
+#else
+  m_hpjr("JetPseudojetRetriever/jpjr"),
+#endif
   m_finder(""), m_groomer(""),
   m_trigger(false),
   m_shallowCopy(true),
@@ -121,7 +125,7 @@ StatusCode JetRecTool::initialize() {
       ATH_MSG_ERROR("Unable to retrieve requested pseudojet retriever: " << m_hpjr.name());
     }
   } else {
-#ifdef ROOTCORE
+#ifdef XAOD_STANDALONE
       m_ppjr = new JetPseudojetRetriever(name()+"_retriever");
 #else
       m_ppjr = nullptr;

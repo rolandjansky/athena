@@ -311,6 +311,7 @@ jtm += RetrievePFOTool("pflowretriever")
 
 # Weight tool for charged pflow objects.
 jtm += WeightPFOTool("pflowweighter")
+jtm += WeightPFOTool("pflowweighter_LC",NeutralPFOScale="LC")
 
 useVertices = True
 if False == jetFlags.useVertices:
@@ -346,7 +347,7 @@ jtm += PFlowPseudoJetGetter(
   Label = "EMCPFlow",
   OutputContainer = "PseudoJetEMCPFlow",
   RetrievePFOTool = jtm.pflowretriever,
-  WeightPFOTool = jtm.pflowweighter,
+  WeightPFOTool = jtm.pflowweighter_LC,
   InputIsEM = True,
   CalibratePFO = True,
   SkipNegativeEnergy = True,

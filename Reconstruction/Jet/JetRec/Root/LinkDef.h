@@ -20,6 +20,7 @@
 #include <JetRec/JetSplitter.h>
 #include <JetRec/JetToolRunner.h>
 #include <JetRec/JetTrimmer.h>
+#include <JetRec/JetSoftDrop.h>
 #include <JetRec/MuonSegmentPseudoJetGetter.h>
 #include <JetRec/PseudoJetGetter.h>
 #include <JetRec/PseudoJetGetterRegistry.h>
@@ -51,6 +52,7 @@
 #pragma link C++ class JetSplitter+;
 #pragma link C++ class JetToolRunner+;
 #pragma link C++ class JetTrimmer+;
+#pragma link C++ class JetSoftDrop+;
 #pragma link C++ class MuonSegmentPseudoJetGetter+;
 #pragma link C++ class PseudoJetGetter+;
 #pragma link C++ class PseudoJetGetterRegistry+;

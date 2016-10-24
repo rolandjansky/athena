@@ -14,6 +14,8 @@ def declareDefaultTools():
   from JetRecConfig.JetRecFlags import jetFlags
   from JetRecConfig.JetRecStandardToolManager import jtm
 
+  ghostScaleFactor = 1e-40
+
   #--------------------------------------------------------------
   # Jet reco infrastructure.
   #--------------------------------------------------------------
@@ -38,7 +40,7 @@ def declareDefaultTools():
     UseJetConstituents = True,
     PseudojetRetriever = jtm.jpjretriever,
     GhostLabels = labs,
-    GhostScale = 1.e-20
+    GhostScale = ghostScaleFactor
   )
 
   #--------------------------------------------------------------
@@ -82,18 +84,18 @@ def declareDefaultTools():
     Label = "GhostAntiKt2TrackJet",   # this is the name you'll use to retrieve associated ghosts
     OutputContainer = "PseudoJetGhostAntiKt2TrackJet",
     SkipNegativeEnergy = True,
-    GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+    GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
   )
 
-  # AntiKt3 track jets.
-  jtm += PseudoJetGetter(
-    "gakt3trackget", # give a unique name
-    InputContainer = jetFlags.containerNamePrefix() + "AntiKt3PV0TrackJets", # SG key
-    Label = "GhostAntiKt3TrackJet",   # this is the name you'll use to retrieve associated ghosts
-    OutputContainer = "PseudoJetGhostAntiKt3TrackJet",
-    SkipNegativeEnergy = True,
-    GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
-  )
+#  # AntiKt3 track jets.
+#  jtm += PseudoJetGetter(
+#    "gakt3trackget", # give a unique name
+#    InputContainer = jetFlags.containerNamePrefix() + "AntiKt3PV0TrackJets", # SG key
+#    Label = "GhostAntiKt3TrackJet",   # this is the name you'll use to retrieve associated ghosts
+#    OutputContainer = "PseudoJetGhostAntiKt3TrackJet",
+#    SkipNegativeEnergy = True,
+#    GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+#  )
 
   # AntiKt4 track jets.
   jtm += PseudoJetGetter(
@@ -102,7 +104,7 @@ def declareDefaultTools():
     Label = "GhostAntiKt4TrackJet",   # this is the name you'll use to retrieve associated ghosts
     OutputContainer = "PseudoJetGhostAntiKt4TrackJet",
     SkipNegativeEnergy = True,
-    GhostScale = 1.e-20,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
+    GhostScale = ghostScaleFactor,   # This makes the PseudoJet Ghosts, and thus the reco flow will treat them as so.
   )
 
   #--------------------------------------------------------------
