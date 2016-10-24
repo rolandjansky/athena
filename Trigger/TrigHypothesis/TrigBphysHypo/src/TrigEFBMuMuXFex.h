@@ -17,6 +17,8 @@
 **   Created:   12.09.2007
 **   Modified:  08.04.2012
 **   Modified:  26.09.2012 : "B_c -> D_s(*) (->Phi(->K+K-)) mu+mu-" added (Leonid Gladilin <gladilin@mail.cern.ch>)
+**              17.11.2015 : "B_c -> D_s(*) (->Phi(->K+K-)) mu+mu-" updated (Leonid Gladilin <gladilin@mail.cern.ch>)
+**              18.11.2015 : "B_c -> Dplus  (->K pi pi)     mu+mu-" added   (Leonid Gladilin <gladilin@mail.cern.ch>)
 **
 ***************************************************************************/
             
@@ -133,14 +135,18 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     bool m_doLb_LambdaMuMuDecay;
     float m_lowerLambda_PrPiMassCut;
     float m_upperLambda_PrPiMassCut;
+    float m_lowerLambda_PtCut;
     float m_lowerLb_LambdaMuMuMassCut;
     float m_upperLb_LambdaMuMuMassCut;
+    float m_lowerLb_PtCut;
 //     float m_lowerLambdaVtxMassCut;
-//     float m_upperLambdaVtxMassCut;
-//     float m_lowerLbVtxMassCut;
-//     float m_upperLbVtxMassCut;
+    float m_lowerLambda_LxyCut;
+    float m_upperLambdaVtxMassCut;
+    float m_lowerLb_LambdaMuMuVtxMassCut;
+    float m_upperLb_LambdaMuMuVtxMassCut;
     bool m_doLambda_PPiVertexing;
     bool m_doLb_LambdaMuMuVertexing;
+    bool m_doLb_LambdaMuMuCascade;
     float m_lambdaVtxChi2Cut;
     float m_lBVtxChi2Cut;
     int m_maxLbToStore;
@@ -150,13 +156,64 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     float m_upperPhiDs_MassCut;
     float m_lowerDs_MassCut;
     float m_upperDs_MassCut;
+    float m_lowerDs_PtCut;
     float m_lowerBc_DsMuMuMassCut;
     float m_upperBc_DsMuMuMassCut;
+    float m_lowerBcDs_PtCut;
+    float m_lowerDs_LxyCut;
     bool m_doDs_Vertexing;
     bool m_doBc_DsMuMuVertexing;
+    bool m_doBc_DsMuMuCascade;
     float m_DsVtxChi2Cut;
     float m_bCVtxChi2Cut;
     int m_maxBcToStore;
+    
+    bool m_doBc_DplusMuMuDecay;
+    float m_lowerDplus_MassCut;
+    float m_upperDplus_MassCut;
+    float m_lowerDplus_PtCut;
+    float m_lowerDplus_LxyCut;
+    float m_lowerBc_DplusMuMuMassCut;
+    float m_upperBc_DplusMuMuMassCut;
+    float m_lowerBcDplus_PtCut;
+    bool m_doDplus_Vertexing;
+    bool m_doBc_DplusMuMuVertexing;
+    bool m_doBc_DplusMuMuCascade;
+    float m_DplusVtxChi2Cut;
+    float m_bCDplusVtxChi2Cut;
+    int m_maxBcDplusToStore;
+    
+    bool m_doBc_DstarMuMuDecay;
+    float m_lowerD0Dstar_MassCut;
+    float m_upperD0Dstar_MassCut;
+    float m_upperDstar_DMCut;
+    float m_lowerDstar_PtCut;
+    float m_lowerDstarKpi_PtCut;
+    float m_lowerD0Dstar_LxyCut;
+    float m_lowerBc_DstarMuMuMassCut;
+    float m_upperBc_DstarMuMuMassCut;
+    float m_lowerBcDstar_PtCut;
+    bool m_doD0Dstar_Vertexing;
+    bool m_doBc_DstarMuMuVertexing;
+    bool m_doBc_DstarMuMuCascade;
+    float m_D0DstarVtxChi2Cut;
+    float m_bCDstarVtxChi2Cut;
+    int m_maxBcDstarToStore;
+    
+    bool m_doBc_D0MuMuDecay;
+    float m_lowerD0_MassCut;
+    float m_upperD0_MassCut;
+    float m_lowerD0_PtCut;
+    float m_lowerD0_LxyCut;
+    float m_lowerBc_D0MuMuMassCut;
+    float m_upperBc_D0MuMuMassCut;
+    float m_lowerBcD0_PtCut;
+    bool m_doD0_Vertexing;
+    bool m_doBc_D0MuMuVertexing;
+    bool m_doBc_D0MuMuCascade;
+    float m_D0VtxChi2Cut;
+    float m_bCD0VtxChi2Cut;
+    int m_maxBcD0ToStore;
     
     // FTK Flag
     bool m_FTK;
@@ -241,9 +298,14 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     std::vector<float> m_mon_LbMuMuLambda_Phi_Pi;
     std::vector<float> m_mon_LbMuMuLambda_InvMass_Lambda;
     std::vector<float> m_mon_LbMuMuLambda_VtxMass_Lambda;
+    std::vector<float> m_mon_LbMuMuLambda_FinMass_Lambda;
     std::vector<float> m_mon_LbMuMuLambda_Chi2_Lambda;
+    std::vector<float> m_mon_LbMuMuLambda_Lxy_Lambda;
+    std::vector<float> m_mon_LbMuMuLambda_pT_Lambda;
+    std::vector<float> m_mon_LbMuMuLambda_pT_Lb;
     std::vector<float> m_mon_LbMuMuLambda_InvMass_Lb;
     std::vector<float> m_mon_LbMuMuLambda_VtxMass_Lb;
+    std::vector<float> m_mon_LbMuMuLambda_FinMass_Lb;
     std::vector<float> m_mon_LbMuMuLambda_Chi2_Lb;
     //   Bc
     int                m_mon_BcMuMuDs_n;
@@ -260,9 +322,71 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     std::vector<float> m_mon_BcMuMuDs_InvMass_Ds;
     std::vector<float> m_mon_BcMuMuDs_VtxMass_Ds;
     std::vector<float> m_mon_BcMuMuDs_Chi2_Ds;
+    std::vector<float> m_mon_BcMuMuDs_Lxy_Ds;
+    std::vector<float> m_mon_BcMuMuDs_pT_Ds;
+    std::vector<float> m_mon_BcMuMuDs_pT_Bc;
     std::vector<float> m_mon_BcMuMuDs_InvMass_Bc;
     std::vector<float> m_mon_BcMuMuDs_VtxMass_Bc;
     std::vector<float> m_mon_BcMuMuDs_Chi2_Bc;
+    //   Bc -> D+
+    int                m_mon_BcMuMuDplus_n;
+    std::vector<float> m_mon_BcMuMuDplus_Pt_K;
+    std::vector<float> m_mon_BcMuMuDplus_Eta_K;
+    std::vector<float> m_mon_BcMuMuDplus_Phi_K;
+    std::vector<float> m_mon_BcMuMuDplus_Pt_pi1;
+    std::vector<float> m_mon_BcMuMuDplus_Eta_pi1;
+    std::vector<float> m_mon_BcMuMuDplus_Phi_pi1;
+    std::vector<float> m_mon_BcMuMuDplus_Pt_pi2;
+    std::vector<float> m_mon_BcMuMuDplus_Eta_pi2;
+    std::vector<float> m_mon_BcMuMuDplus_Phi_pi2;
+    std::vector<float> m_mon_BcMuMuDplus_InvMass_Dplus;
+    std::vector<float> m_mon_BcMuMuDplus_VtxMass_Dplus;
+    std::vector<float> m_mon_BcMuMuDplus_Chi2_Dplus;
+    std::vector<float> m_mon_BcMuMuDplus_Lxy_Dplus;
+    std::vector<float> m_mon_BcMuMuDplus_pT_Dplus;
+    std::vector<float> m_mon_BcMuMuDplus_pT_Bc;
+    std::vector<float> m_mon_BcMuMuDplus_InvMass_Bc;
+    std::vector<float> m_mon_BcMuMuDplus_VtxMass_Bc;
+    std::vector<float> m_mon_BcMuMuDplus_Chi2_Bc;
+    //   Bc -> D*
+    int                m_mon_BcMuMuDstar_n;
+    std::vector<float> m_mon_BcMuMuDstar_Pt_K;
+    std::vector<float> m_mon_BcMuMuDstar_Eta_K;
+    std::vector<float> m_mon_BcMuMuDstar_Phi_K;
+    std::vector<float> m_mon_BcMuMuDstar_Pt_pi;
+    std::vector<float> m_mon_BcMuMuDstar_Eta_pi;
+    std::vector<float> m_mon_BcMuMuDstar_Phi_pi;
+    std::vector<float> m_mon_BcMuMuDstar_Pt_pis;
+    std::vector<float> m_mon_BcMuMuDstar_Eta_pis;
+    std::vector<float> m_mon_BcMuMuDstar_Phi_pis;
+    std::vector<float> m_mon_BcMuMuDstar_InvMass_D0Dstar;
+    std::vector<float> m_mon_BcMuMuDstar_VtxMass_D0Dstar;
+    std::vector<float> m_mon_BcMuMuDstar_DelMass_Dstar;
+    std::vector<float> m_mon_BcMuMuDstar_VtxDelMass_Dstar;
+    std::vector<float> m_mon_BcMuMuDstar_Chi2_D0Dstar;
+    std::vector<float> m_mon_BcMuMuDstar_Lxy_D0Dstar;
+    std::vector<float> m_mon_BcMuMuDstar_pT_Dstar;
+    std::vector<float> m_mon_BcMuMuDstar_pT_Bc;
+    std::vector<float> m_mon_BcMuMuDstar_InvMass_Bc;
+    std::vector<float> m_mon_BcMuMuDstar_VtxMass_Bc;
+    std::vector<float> m_mon_BcMuMuDstar_Chi2_Bc;
+    //   Bc -> D0
+    int                m_mon_BcMuMuD0_n;
+    std::vector<float> m_mon_BcMuMuD0_Pt_K;
+    std::vector<float> m_mon_BcMuMuD0_Eta_K;
+    std::vector<float> m_mon_BcMuMuD0_Phi_K;
+    std::vector<float> m_mon_BcMuMuD0_Pt_pi;
+    std::vector<float> m_mon_BcMuMuD0_Eta_pi;
+    std::vector<float> m_mon_BcMuMuD0_Phi_pi;
+    std::vector<float> m_mon_BcMuMuD0_InvMass_D0;
+    std::vector<float> m_mon_BcMuMuD0_VtxMass_D0;
+    std::vector<float> m_mon_BcMuMuD0_Chi2_D0;
+    std::vector<float> m_mon_BcMuMuD0_Lxy_D0;
+    std::vector<float> m_mon_BcMuMuD0_pT_D0;
+    std::vector<float> m_mon_BcMuMuD0_pT_Bc;
+    std::vector<float> m_mon_BcMuMuD0_InvMass_Bc;
+    std::vector<float> m_mon_BcMuMuD0_VtxMass_Bc;
+    std::vector<float> m_mon_BcMuMuD0_Chi2_Bc;
 
 
     // to set Accept-All mode: should be done with force-accept when possible
@@ -294,11 +418,17 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     int m_lastEventPassedBs;
     int m_lastEventPassedLb;
     int m_lastEventPassedBc;
+    int m_lastEventPassedBcDplus;
+    int m_lastEventPassedBcDstar;
+    int m_lastEventPassedBcD0;
     unsigned int m_countPassedEventsBplus;
     unsigned int m_countPassedEventsBs;
     unsigned int m_countPassedEventsBd;
     unsigned int m_countPassedEventsLb;
     unsigned int m_countPassedEventsBc;
+    unsigned int m_countPassedEventsBcDplus;
+    unsigned int m_countPassedEventsBcDstar;
+    unsigned int m_countPassedEventsBcD0;
     
     unsigned int m_countPassedMuMuID;
     unsigned int m_countPassedMuMuOS;
@@ -328,11 +458,14 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     int m_countBsToStore;
     
     unsigned int m_countPassedLambdaMass;
+    unsigned int m_countPassedLambdaVtxMass;
     unsigned int m_countPassedLbMass;
+    unsigned int m_countPassedLbVtxMass;
     unsigned int m_countPassedLambdaVtx;
     unsigned int m_countPassedLambdaVtxChi2;
     unsigned int m_countPassedLbVtx;
     unsigned int m_countPassedLbVtxChi2;
+    unsigned int m_countPassedLbLambdaLxy;
     int m_countLbToStore;
     
     unsigned int m_countPassedPhiDsMass;
@@ -342,8 +475,36 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     unsigned int m_countPassedDsVtxChi2;
     unsigned int m_countPassedBcVtx;
     unsigned int m_countPassedBcVtxChi2;
+    unsigned int m_countPassedBcDsLxy;
     int m_countBcToStore;
 
+    unsigned int m_countPassedDplusMass;
+    unsigned int m_countPassedBcDplusMass;
+    unsigned int m_countPassedDplusVtx;
+    unsigned int m_countPassedDplusVtxChi2;
+    unsigned int m_countPassedBcDplusVtx;
+    unsigned int m_countPassedBcDplusVtxChi2;
+    unsigned int m_countPassedBcDplusLxy;
+    int m_countBcDplusToStore;
+
+    unsigned int m_countPassedD0DstarMass;
+    unsigned int m_countPassedDstarMass;
+    unsigned int m_countPassedBcDstarMass;
+    unsigned int m_countPassedD0DstarVtx;
+    unsigned int m_countPassedD0DstarVtxChi2;
+    unsigned int m_countPassedBcDstarVtx;
+    unsigned int m_countPassedBcDstarVtxChi2;
+    unsigned int m_countPassedBcD0DstarLxy;
+    int m_countBcDstarToStore;
+
+    unsigned int m_countPassedD0Mass;
+    unsigned int m_countPassedBcD0Mass;
+    unsigned int m_countPassedD0Vtx;
+    unsigned int m_countPassedD0VtxChi2;
+    unsigned int m_countPassedBcD0Vtx;
+    unsigned int m_countPassedBcD0VtxChi2;
+    unsigned int m_countPassedBcD0Lxy;
+    int m_countBcD0ToStore;
     
     void addUnique(std::vector<const Trk::Track*>&, const Trk::Track*);
     void addUnique(std::vector<const xAOD::TrackParticle*>&, const xAOD::TrackParticle*);
@@ -364,11 +525,14 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
     
     double XMass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, int decay); /// checking the mass
     double X3Mass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3 );
+    double XKPiPiMass(const xAOD::TrackParticle* particle1, const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3 );
     
     double KMuMuMass( const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* kaon);
     double XMuMuMass( const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* particle1,
                      const xAOD::TrackParticle* particle2, int decay);
     double X3MuMuMass(const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* particle1,
+                      const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3 );
+    double XKPiPiMuMuMass(const xAOD::TrackParticle* mu1, const xAOD::TrackParticle* mu2, const xAOD::TrackParticle* particle1,
                       const xAOD::TrackParticle* particle2, const xAOD::TrackParticle* particle3 );
     
     xAOD::TrigBphys* checkBplusMuMuKplus(const ElementLink<xAOD::TrackParticleContainer> & eltrack1,
@@ -388,6 +552,32 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
                                    const ElementLink<xAOD::TrackParticleContainer> & elmu2,
                                    double xPhiMass,
                                    xAOD::TrigBphys* & trigPartX);
+    
+    xAOD::TrigBphys* checkBcMuMuDplus(const ElementLink<xAOD::TrackParticleContainer> & eltrack1,
+                                      const ElementLink<xAOD::TrackParticleContainer> & eltrack2,
+                                      const ElementLink<xAOD::TrackParticleContainer> & eltrack3,
+                                      const ElementLink<xAOD::TrackParticleContainer> & elmu1,
+                                      const ElementLink<xAOD::TrackParticleContainer> & elmu2,
+                                      xAOD::TrigBphys* & trigPartX);
+    
+    xAOD::TrigBphys* checkBcMuMuDstar(const ElementLink<xAOD::TrackParticleContainer> & eltrack1,
+                                      const ElementLink<xAOD::TrackParticleContainer> & eltrack2,
+                                      const ElementLink<xAOD::TrackParticleContainer> & eltrack3,
+                                      const ElementLink<xAOD::TrackParticleContainer> & elmu1,
+                                      const ElementLink<xAOD::TrackParticleContainer> & elmu2,
+                                      xAOD::TrigBphys* & trigPartX);
+    
+    xAOD::TrigBphys* checkBcMuMuD0(const ElementLink<xAOD::TrackParticleContainer> & eltrack1,
+                                   const ElementLink<xAOD::TrackParticleContainer> & eltrack2,
+                                   const ElementLink<xAOD::TrackParticleContainer> & elmu1,
+                                   const ElementLink<xAOD::TrackParticleContainer> & elmu2,
+                                   xAOD::TrigBphys* & trigPartX);
+    
+    xAOD::TrigBphys* checkLbMuMuLambda(const ElementLink<xAOD::TrackParticleContainer> & eltrack1,
+                                       const ElementLink<xAOD::TrackParticleContainer> & eltrack2,
+                                       const ElementLink<xAOD::TrackParticleContainer> & elmu1,
+                                       const ElementLink<xAOD::TrackParticleContainer> & elmu2,
+                                       xAOD::TrigBphys* & trigPartX);
 
     
 };
@@ -424,6 +614,9 @@ class TrigEFBMuMuXFex: public HLT::ComboAlgo  {
 #define ERROR_MaxNumBsReached        22
 #define ERROR_MaxNumLbReached        23
 #define ERROR_MaxNumBcReached        24
+#define ERROR_MaxNumBcDplusReached   24
+#define ERROR_MaxNumBcDstarReached   24
+#define ERROR_MaxNumBcD0Reached   24
 
 // // Define the bins for acceptance-monitoring histogram
 // #define ACCEPT_Input                 0
