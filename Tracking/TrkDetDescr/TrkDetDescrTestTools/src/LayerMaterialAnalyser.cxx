@@ -33,10 +33,18 @@
 Trk::LayerMaterialAnalyser::LayerMaterialAnalyser(const std::string& t, const std::string& n, const IInterface* p)
 : AthAlgTool(t,n,p),
   m_layerMaterialName("UnspecifiedLayerMaterialMap"),
-  m_validationTree(0),
+  m_validationTree(nullptr),
   m_validationTreeName("LayerMaterialAnalyser"),
   m_validationTreeDescription("LayerMaterialAnalyser information"),
-  m_validationTreeFolder("/val/LayerMaterialAnalyser")
+  m_validationTreeFolder("/val/LayerMaterialAnalyser"),
+  m_layerIndex{},        
+  m_layerType{},
+  m_layerDimension0{},   
+  m_layerDimension1{},   
+  m_layerBins{},         
+  m_layerBins0{},         
+  m_layerBins1{}      
+
   
 {
     declareInterface<Trk::ILayerMaterialAnalyser>(this);
