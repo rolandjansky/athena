@@ -2,7 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-//$Id: XMLmetaTest_test.cxx 458056 2011-09-09 13:34:50Z mnowak $
+//$Id: XMLmetaTest_test.cxx 780038 2016-10-24 13:04:52Z mnowak $
 /*
   CPPUnit test of metadata for XML Catalog.
   Author: Maria Girone from original test by Zhen Xie
@@ -200,5 +200,7 @@ public:
   void testDelete(){
   }  
 };
+
 CPPUNIT_TEST_SUITE_REGISTRATION(metadataTest);
-#include<CppUnit_testdriver.cpp>
+
+#include "CppUnit_testdriver.cxx"
