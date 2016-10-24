@@ -9,9 +9,9 @@
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/util/XMLURL.hpp>
 
+#include "FileCatalog/FCSystemTools.h"
 #include "FileCatalog/URIParser.h"
 #include "PersistentDataModel/Guid.h"
-#include "CoralBase/MessageStream.h"
 #include "PoolXMLFileCatalog.h"
 #include "XMLDOMErrorMessanger.h"
 #include "DTDRedirect.h"
@@ -20,6 +20,9 @@
 #include <vector>
 #include <fstream>
 #include <stdexcept>
+
+//#include <iostream>
+//using namespace std;
 
 using namespace xercesc;
 
@@ -124,30 +127,31 @@ pool::PoolXMLFileCatalog::finding(XMLQueryHandle& qhandle,
 
 
 
-pool::PoolXMLFileCatalog::PoolXMLFileCatalog(const std::string& contactstring)
-  :
-  read_only(false),
-  update(false),
-  doc(0),
-  parser(0),
-  errMessanger(0),
-  index_l(0),
-  m_file(contactstring),
-  nmeta(0),
-  imeta(0),
-  fmeta(true)
+pool::PoolXMLFileCatalog::PoolXMLFileCatalog(const std::string& contactstring)  :
+      AthMessaging( 0, "APR.PFC.XML_i" ),
+      read_only(false),
+      update(false),
+      doc(0),
+      parser(0),
+      errMessanger(0),
+      index_l(0),
+      m_file(contactstring),
+      m_basename( FCSystemTools::FCBasename(m_file) ),
+      nmeta(0),
+      imeta(0),
+      fmeta(true)
 {
-  coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-  xmllog << ( NumberOfIstances? coral::Debug : coral::Info )
-         << "Xerces-c initialization Number " << NumberOfIstances << coral::MessageStream::endmsg;
-  if( NumberOfIstances==0 ) try { 
-     XMLPlatformUtils::Initialize();  
-  }
-  catch (const XMLException& e) {
-     xmllog<<coral::Fatal << "Xerces-c error in initialization \n"<< "Exception message is:  \n"<< pool::_toString(e.getMessage()) << coral::MessageStream::endmsg;
-     throw std::runtime_error( "Standard pool exception : Fatal Error on pool::PoolXMLFileCatalog" );
-  }
-  ++NumberOfIstances;
+   msg().setLevel( FCSystemTools::GetOutputLvl() );
+// MN: this might be a MT critical section
+   if( NumberOfIstances==0 ) try {
+         ATH_MSG_INFO("Xerces-c initialization");
+         XMLPlatformUtils::Initialize();  
+      }
+      catch (const XMLException& e) {
+         ATH_MSG_ERROR("Xerces-c error in initialization \n"<< "Exception message is:  \n"<< pool::_toString(e.getMessage()) );
+         throw std::runtime_error( "Standard pool exception : Fatal Error on pool::PoolXMLFileCatalog" );
+      }
+   ++NumberOfIstances;
 }
 
 
@@ -158,21 +162,17 @@ pool::PoolXMLFileCatalog::~PoolXMLFileCatalog()
    delete errMessanger;   errMessanger = 0;
 
    --NumberOfIstances;
-
-   coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-   xmllog << ( NumberOfIstances? coral::Debug : coral::Info )
-          << "XercesC termination number "  << NumberOfIstances << coral::MessageStream::endmsg;
-
-   if (NumberOfIstances == 0)
+   if (NumberOfIstances == 0) {
+      ATH_MSG_INFO("Xerces-c stopping");
       XMLPlatformUtils::Terminate();
+   }
 }
 
 
 void
 pool::PoolXMLFileCatalog::StartXMLFileCatalog() 
 {  
-  coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-  xmllog<<coral::Verbose<<"Start parsing the catalog" <<coral::MessageStream::endmsg;
+  ATH_MSG_DEBUG("Start parsing catalog " << m_file);
   std::string xmlFile;
   try{
     char* back = getenv("POOL_XMLBACKUP");
@@ -211,7 +211,7 @@ pool::PoolXMLFileCatalog::StartXMLFileCatalog()
     parser->setDoNamespaces(false);      
     DTDRedirect dtdinmem;
     parser->setEntityResolver(&dtdinmem);
-    errMessanger = new XMLDOMErrorMessanger();
+    errMessanger = new XMLDOMErrorMessanger(msg());
     parser->setErrorHandler(errMessanger); 
     parser->parse(xmlFile.c_str());
     doc = parser->getDocument();
@@ -219,17 +219,17 @@ pool::PoolXMLFileCatalog::StartXMLFileCatalog()
     this->getMeta();    
   }
   catch (const XMLException& e) {
-    xmllog<<coral::Fatal<<"xml parse error in file " << xmlFile << "\n"<< "Exception message is:  \n"<< pool::_toString(e.getMessage()) << coral::MessageStream::endmsg;
-    throw( std::runtime_error( "Standard pool exception : Fatal Error on pool::PoolXMLFileCatalog" ) );
+     ATH_MSG_WARNING("xml parse error in file " << xmlFile << "\n"<< "Exception message is:  \n"<< pool::_toString(e.getMessage()) );
+     throw( std::runtime_error( "Standard pool exception : Fatal Error on pool::PoolXMLFileCatalog" ) );
   }
   catch (const DOMException& e) {
-    xmllog<<coral::Fatal<<"xml parse error in file " << xmlFile << "\n"<<" DOMException code is: "<<e.code <<coral::MessageStream::endmsg;
-    throw( std::runtime_error( "Standard pool exception : Fatal Error on PoolXMLFileCatalog" ) );
+     ATH_MSG_WARNING("xml parse error in file " << xmlFile << "\n"<<" DOMException code is: "<<e.code);
+     throw( std::runtime_error( "Standard pool exception : Fatal Error on PoolXMLFileCatalog" ) );
   }
   catch (...)
   {
-    xmllog<<coral::Fatal<<"xml parse error in file " << xmlFile << coral::MessageStream::endmsg;
-    throw( std::runtime_error( "Standard pool exception : Fatal Error on PoolXMLFileCatalog" ) );
+     ATH_MSG_WARNING("xml parse error in file " << xmlFile);
+     throw( std::runtime_error( "Standard pool exception : Fatal Error on PoolXMLFileCatalog" ) );
   }
 }
 
@@ -239,24 +239,19 @@ pool::PoolXMLFileCatalog::StartXMLFileCatalog()
 std::vector<pool::PoolXMLFileCatalog::poolFNs>
 pool::PoolXMLFileCatalog::getAllpfns(const std::string& FileID)
 {
-  coral::MessageStream xmllog("PoolXMLFileCatalog" );
-  xmllog <<coral::Verbose
-         <<" Loading all physical file names for FileID "
-         <<FileID<<coral::MessageStream::endmsg;
+   ATH_MSG_DEBUG("Loading all physical file names for FileID " << FileID);
   std::vector<poolFNs> files;
 
   DOMNode* FIDNode = this->getNode(ParentNodeName,FileAtt_ID,FileID);
   if (!FIDNode){
-    xmllog<<coral::Debug << "FileID "<<FileID
-          <<" is not in the xml file"<<coral::MessageStream::endmsg;
-    return files;
+     ATH_MSG_DEBUG("FileID "<<FileID << " is not in the xml file");
+     return files;
   }
   
   DOMNode* DaNode = this->getChild(FIDNode,DaughtPNodeName);
   while (!DaNode){
-    xmllog<<coral::Warning<< "FileID "<<FileID<<" has not the <"
-          <<DaughtPNodeName<<"> node"<<coral::MessageStream::endmsg;
-    return files;
+     ATH_MSG_WARNING("FileID "<<FileID<<" has not the <" << DaughtPNodeName << "> node");
+     return files;
   }
   
   DOMNode* MyNode = this->getChild(DaNode,GranDaPNodeName);
@@ -282,11 +277,9 @@ pool::PoolXMLFileCatalog::getAllpfnsbyq(const std::string& query,
                                         unsigned int init, 
                                         unsigned int ntot)
 {
-  coral::MessageStream xmllog( "PoolXMLFileCatalog" );  
-  xmllog <<coral::Verbose
-         <<coral::MessageStream::endmsg;
-  std::vector<poolFNs> files;
-  pool::XMLQueryHandle qhandle;
+   ATH_MSG_DEBUG("Retrieving PFNs by query: " << query << " from " << m_file);
+   std::vector<poolFNs> files;
+   pool::XMLQueryHandle qhandle(msg());
   // Deal with simple query guid=...
   qhandle.init(query);
   if (qhandle.nqueries() == 1 && 
@@ -297,8 +290,7 @@ pool::PoolXMLFileCatalog::getAllpfnsbyq(const std::string& query,
     for (unsigned int i=init; i<iend ;i++)
       files.push_back(buffs[i]);
     return files; 
-  }
-  
+  }  
 
   bool lfnused=false;
   bool metaused=false;
@@ -382,11 +374,9 @@ pool::PoolXMLFileCatalog::getAlllfnsbyq(const std::string& query,
                                         unsigned int init, 
                                         unsigned int ntot)
 {  
-  coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-  xmllog <<coral::Verbose
-         <<" Loading all logical file names for query"<<coral::MessageStream::endmsg;
+   ATH_MSG_DEBUG("Loading all logical file names for query"<< query << " from " << m_file);
   std::vector<poolFNs> files;
-  pool::XMLQueryHandle qhandle;
+  pool::XMLQueryHandle qhandle(msg());
   qhandle.init(query);
   if (qhandle.nqueries() == 0) return files;
   // Deal with simple query guid=...
@@ -478,13 +468,10 @@ pool::PoolXMLFileCatalog::getAllMetaDatabyq(const std::string& query,
                                             unsigned int init, 
                                             unsigned int ntot)
 {  
-  coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-  xmllog <<coral::Verbose
-         <<" Loading all Meta Data for query"
-         <<coral::MessageStream::endmsg;
+   ATH_MSG_DEBUG("Loading all Meta Data for query: "<< query);
   metadata.clear();
   std::vector<std::vector<poolMeta> > attrs;
-  pool::XMLQueryHandle qhandle;
+  pool::XMLQueryHandle qhandle(msg());
   qhandle.init(query);
   if (qhandle.nqueries() == 0) return attrs;
 
@@ -567,8 +554,7 @@ pool::PoolXMLFileCatalog::getAllMetaDatabyq(const std::string& query,
         nfound++;
       }
     }else{
-      xmllog<<coral::Verbose<<"No metadata for FileID "
-            <<fid<<coral::MessageStream::endmsg;
+       ATH_MSG_VERBOSE("No metadata for FileID "<<fid);
     }
     index_l++;
   }
@@ -583,10 +569,10 @@ std::vector<std::string >
 pool::PoolXMLFileCatalog::getAllGuidbyq(const std::string& query,
                                         unsigned int init, 
                                         unsigned int ntot)
-{ 
-  coral::MessageStream xmllog( "PoolXMLFileCatalog" );
+{
+   ATH_MSG_DEBUG("Retrieving GUIDs by query: "<< query << " from " << m_file);
   std::vector<std::string>  guids;
-  pool::XMLQueryHandle qhandle;
+  pool::XMLQueryHandle qhandle(msg());
   qhandle.init(query);
   if (qhandle.nqueries() == 0) return guids;
   
@@ -688,23 +674,19 @@ pool::PoolXMLFileCatalog::getAllGuidbyq(const std::string& query,
 std::vector<pool::PoolXMLFileCatalog::poolFNs> 
 pool::PoolXMLFileCatalog::getAlllfns(const std::string& FileID)
 {  
-  coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-  xmllog <<coral::Verbose<<" Loading all logical file names for FileID "
-         <<FileID<<coral::MessageStream::endmsg;
+   ATH_MSG_DEBUG("Retrieving LFNs for  FileID: "<< FileID);
   std::vector<poolFNs> files;
   
   DOMNode* FIDNode = this->getNode(ParentNodeName,FileAtt_ID,FileID);
   if (!FIDNode){
-    xmllog<<coral::Warning << "FileID "<<FileID
-          <<" is not in the xml file"<<coral::MessageStream::endmsg;
-    return files;
+     ATH_MSG_WARNING("FileID "<<FileID <<" is not in the xml file");
+     return files;
   }
   
   DOMNode* DaNode = this->getChild(FIDNode,DaughtLNodeName);
   if (!DaNode){
-    xmllog<<coral::Warning<< "FileID "<<FileID<<" has not the <"
-          <<DaughtLNodeName<<"> node"<<coral::MessageStream::endmsg;
-    return files;
+     ATH_MSG_WARNING("FileID "<<FileID <<" has not the <" << DaughtLNodeName<<"> node");
+     return files;
   }
   
   DOMNode* FNNode = this->getChild(DaNode,GranDaLNodeName);
@@ -725,16 +707,12 @@ pool::PoolXMLFileCatalog::getAlllfns(const std::string& FileID)
 std::vector<pool::PoolXMLFileCatalog::poolMeta> 
 pool::PoolXMLFileCatalog::getAllMetaData(const std::string& FileID)
 {  
-  coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-  xmllog <<coral::Verbose<<" Loading all  MetaData for FileID "<<
-    FileID<<coral::MessageStream::endmsg;
-
+   ATH_MSG_DEBUG("Loading all  MetaData for FileID "<< FileID);
   std::vector<pool::PoolXMLFileCatalog::poolMeta> myattrs;
   DOMNode* FIDNode = this->getNode(ParentNodeName,FileAtt_ID,FileID);
   if (!FIDNode){
-    xmllog<<coral::Warning << "FileID "<<FileID
-          <<" is not in the xml file"<<coral::MessageStream::endmsg;
-    return myattrs;
+     ATH_MSG_WARNING("FileID "<<FileID <<" is not in the xml file");
+     return myattrs;
   }
   
   DOMNode* FNNode = this->getChild(FIDNode,MetaNode);
@@ -763,34 +741,30 @@ pool::PoolXMLFileCatalog::getFile_FROM_FileId (const pool::PoolXMLFileCatalog::
                                                FileNameType& fntype,
                                                const std::string & FileID)
 {  
-  /// Find the first available PFN
-  DOMNode* FIDNode = this->getNode(ParentNodeName,FileAtt_ID,FileID);
-  if (!FIDNode){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog<<coral::Debug << "FileID "<<FileID
-          <<" is not in the catalog"<<coral::MessageStream::endmsg;
-    return std::string();
-  }
+   /// Find the first available PFN
+   ATH_MSG_DEBUG("Get PFN for GUID: " << FileID);
+   DOMNode* FIDNode = this->getNode(ParentNodeName,FileAtt_ID,FileID);
+   if (!FIDNode){
+      ATH_MSG_DEBUG("FileID "<<FileID <<" is not in the catalog " << m_file);
+//      cout << "MN: this=" << this << endl; 
+      return std::string();
+   }
     
-  std::string daughter,grandaug;
-  this->selectType(fntype,daughter,grandaug);
+   std::string daughter,grandaug;
+   this->selectType(fntype,daughter,grandaug);
   
-  DOMNode* DaNode = this->getChild(FIDNode,daughter);
-  if (!DaNode){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog<<coral::Debug<< "FileID "<<FileID<<" has not the <"
-          <<daughter<<"> node"<<coral::MessageStream::endmsg;
-    return std::string();
-  }
+   DOMNode* DaNode = this->getChild(FIDNode,daughter);
+   if (!DaNode){
+      ATH_MSG_DEBUG("FileID "<<FileID <<" has not the <" << daughter <<"> node");
+      return std::string();
+   }
   
-  DOMNode* FNNode = this->getChild(DaNode,grandaug);
-  if (!FNNode){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog <<coral::Debug <<"No "<<daughter<<" filename for FileID "
-           <<FileID<<coral::MessageStream::endmsg;
-    return std::string();
-  }  
-  return nopref(grandaug+std::string("_"),this->getAttr(FNNode,FileAtt_name));
+   DOMNode* FNNode = this->getChild(DaNode,grandaug);
+   if (!FNNode){
+      ATH_MSG_DEBUG("No "<<daughter<<" filename for FileID " << FileID);
+      return std::string();
+   }  
+   return nopref(grandaug+std::string("_"),this->getAttr(FNNode,FileAtt_name));
 }
 
 
@@ -801,25 +775,23 @@ pool::PoolXMLFileCatalog::getFileID_FROM_File(const pool::PoolXMLFileCatalog::
                                               FileNameType & fntype, 
                                               const std::string& FName)
 {
-  // Find the FIleID. Assuming unique PFNames
-  std::string daughter,grandaug;
-  this->selectType(fntype,daughter,grandaug);
+   // Find the FIleID. Assuming unique PFNames
+   ATH_MSG_DEBUG("Get GUID for file: " << FName );
+   std::string daughter,grandaug;
+   this->selectType(fntype,daughter,grandaug);
   
-  DOMNode* FNNode = this->getNode(grandaug,FileAtt_name,FName);
-  if (!FNNode){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog<<coral::Debug <<"filename "<<FName
-          <<" does not exist"<<coral::MessageStream::endmsg; 
-    return std::string();
-  }  
-  DOMNode* FIDNode = FNNode->getParentNode()->getParentNode();
-  if (!FIDNode){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog<<coral::Debug << "FileID is missing for physical filename "
-          <<FName<<coral::MessageStream::endmsg;
-    return std::string();
-  }
-  return this->getAttr(FIDNode,FileAtt_ID);
+   DOMNode* FNNode = this->getNode(grandaug,FileAtt_name,FName);
+   if (!FNNode){
+      ATH_MSG_DEBUG("filename "<<FName<<" does not exist in " << m_file);
+//      cout << "MN: this=" << this << endl; 
+      return std::string();
+   }  
+   DOMNode* FIDNode = FNNode->getParentNode()->getParentNode();
+   if (!FIDNode){
+      ATH_MSG_DEBUG("FileID is missing for physical filename "<<FName);
+      return std::string();
+   }
+   return this->getAttr(FIDNode,FileAtt_ID);
 }
 
 
@@ -836,9 +808,7 @@ pool::PoolXMLFileCatalog::delFile(const pool::PoolXMLFileCatalog::
   
   DOMNode* FNNode = this->getNode(grandaug,FileAtt_name,FName);
   if (!FNNode){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog<<coral::Warning<<daughter<<" filename "<<FName
-          <<" does not exist"<<coral::MessageStream::endmsg;
+    ATH_MSG_WARNING(daughter<<" filename "<<FName <<" does not exist");
     return;
   }
   
@@ -864,10 +834,8 @@ pool::PoolXMLFileCatalog::delFileID(const std::string & FileID)
 {
   DOMNode* FileNode = this->getNode(ParentNodeName,FileAtt_ID,FileID);
   if (!FileNode){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog<<coral::Warning<< "FileID "<<FileID
-          <<" is not in the xml file"<<coral::MessageStream::endmsg;
-    return;
+     ATH_MSG_WARNING("FileID "<<FileID <<" is not in the xml file");
+     return;
   }
   DOMNode* parentNode = FileNode->getParentNode();
   parentNode->removeChild(FileNode);
@@ -913,35 +881,34 @@ pool::PoolXMLFileCatalog::setFile_onFileID(const pool::PoolXMLFileCatalog::
                                            const std::string & FName, 
                                            const std::string & filetype)
 {
-  DOMNode* FIDNode = this->getNode(ParentNodeName,FileAtt_ID,FileID);
-  if (!FIDNode){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog<<coral::Warning<<"FileID "<<FileID
-          <<" is not in the xml file"<<coral::MessageStream::endmsg;return;
-  }
+   ATH_MSG_DEBUG("Set name " << FName << " for GUID: " << FileID);
+   DOMNode* FIDNode = this->getNode(ParentNodeName,FileAtt_ID,FileID);
+   if (!FIDNode) {
+      ATH_MSG_WARNING("setFile_onFileID(): FileID "<<FileID <<" is not in the xml file");
+      return;
+   }
   
-  std::string daughter,grandaug;
-  this->selectType(fntype,daughter,grandaug);
+   std::string daughter,grandaug;
+   this->selectType(fntype,daughter,grandaug);
   
-  DOMNode* FNNode = this->getChild(FIDNode,daughter);
-  if (!FNNode){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog<<coral::Warning<<"FileID "<<FileID
-          <<" has not the <"<<daughter<<"> node"<<coral::MessageStream::endmsg;return;
-  }
-  XMLCh* name = pool::_toDOMS(grandaug);
-  DOMElement* fnelem = doc->createElement(name);
-  XMLString::release(&name);
+   DOMNode* FNNode = this->getChild(FIDNode,daughter);
+   if (!FNNode){
+      ATH_MSG_WARNING("setFile_onFileID(): FileID "<<FileID <<" does not have the <" << daughter << "> node");
+      return;
+   }
+   XMLCh* name = pool::_toDOMS(grandaug);
+   DOMElement* fnelem = doc->createElement(name);
+   XMLString::release(&name);
 
-  FNNode->appendChild(fnelem);
-  this->setAttr(fnelem,FileAtt_name,addpref(grandaug+std::string("_"),FName));
+   FNNode->appendChild(fnelem);
+   this->setAttr(fnelem,FileAtt_name,addpref(grandaug+std::string("_"),FName));
   
-  if (fntype == pool::PoolXMLFileCatalog::PFNAME) {
-    mem_pfn[FName]=fnelem;
-    this->setAttr(fnelem,FileAtt_fitype,filetype);
-  }else{
-    mem_lfn[FName]=fnelem;
-  }
+   if (fntype == pool::PoolXMLFileCatalog::PFNAME) {
+      mem_pfn[FName]=fnelem;
+      this->setAttr(fnelem,FileAtt_fitype,filetype);
+   }else{
+      mem_lfn[FName]=fnelem;
+   }
 }
 
 
@@ -953,6 +920,7 @@ pool::PoolXMLFileCatalog::insertFile(const std::string& FileID,
                                      const std::string& ftype)
 {
   /// It creates a new node File with name = FileID in the XML file catalog   
+   ATH_MSG_DEBUG("Insert file: " << fname << " with GUID: " << FileID);
   DOMNode* FIDNode = this->getNode(ParentNodeName,FileAtt_ID,FileID);
   if (!FIDNode){
     // Create it !
@@ -1004,7 +972,8 @@ pool::PoolXMLFileCatalog::registerFile(const std::string& FileID,
                                        const std::string& ftype)
 {
   /// It creates a new node File with name = FileID in the XML file catalog 
- 
+   ATH_MSG_DEBUG("Register file: " << fname << " with GUID: " << FileID << " in " << m_file);
+//   cout << "MN: this=" << this << endl; 
   XMLCh* name = pool::_toDOMS("*");
   DOMNode* fde      = doc->getElementsByTagName(name)->item(0);
   XMLString::release(&name);
@@ -1066,8 +1035,7 @@ pool::PoolXMLFileCatalog::storeOn()
   }
   catch ( std::exception& e )
   {
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog << coral::Fatal << "Cannot open output file "<<coral::MessageStream::endmsg;
+     ATH_MSG_ERROR("Cannot open output file "<< xmlfile);
     throw e;
   }
   catch (...)
@@ -1348,7 +1316,6 @@ pool::PoolXMLFileCatalog::getfile(bool backup)
   std::string bakfile;
   std::string pathxml,namexml;
   std::string myurl=xmlfile;
-  coral::MessageStream xmllog( "PoolXMLFileCatalog" );
 
   XMLURL xerurl;
   try{
@@ -1357,8 +1324,8 @@ pool::PoolXMLFileCatalog::getfile(bool backup)
     XMLString::release(&burl);
   }
   catch (const XMLException& e ) {
-    xmllog << coral::Error << pool::_toString(e.getMessage()) <<coral::MessageStream::endmsg;;
-    throw( std::runtime_error( "Standard pool exception : Fatal Error on PoolXMLFileCatalog" ) );
+     ATH_MSG_ERROR(pool::_toString(e.getMessage()) );
+     throw( std::runtime_error( "Standard pool exception : Fatal Error on PoolXMLFileCatalog" ) );
   }  
   
   std::string prol("");
@@ -1366,37 +1333,32 @@ pool::PoolXMLFileCatalog::getfile(bool backup)
     prol = pool::_toString(xerurl.getProtocolName());
   }
   catch (const XMLException& e) {
-    xmllog<<coral::Fatal << pool::_toString(e.getMessage()) << coral::MessageStream::endmsg;
-    throw( std::runtime_error( "Standard pool exception : Fatal Error on PoolXMLFileCatalog" ) );
+     ATH_MSG_ERROR(pool::_toString(e.getMessage()) );
+     throw( std::runtime_error( "Standard pool exception : Fatal Error on PoolXMLFileCatalog" ) );
   }
   
-  if      ( prol == "http") {
-    xmllog<<coral::Verbose << "http protocol in use"<<coral::MessageStream::endmsg;
-    xmllog << coral::Verbose << "URL in use "<< xmlfile <<coral::MessageStream::endmsg;
+  if( prol == "http") {
+     ATH_MSG_DEBUG("Using http protocol, URL: " << xmlfile);
     read_only= true;
   }
   else if ( prol == "ftp")  {
-    xmllog<<coral::Verbose << "ftp protocol in use"<<coral::MessageStream::endmsg;
-    xmllog<<coral::Warning << "ftp protocol not supported yet"
-          <<coral::MessageStream::endmsg;
+    ATH_MSG_WARNING("ftp protocol not supported");
     read_only= true;
   }
   else if ( prol == "file") {
     std::string mypath=pool::_toString(xerurl.getPath());
     xmlfile = mypath;
-    xmllog << coral::Verbose << "Local file in use "
-           << xmlfile <<coral::MessageStream::endmsg;
+    ATH_MSG_DEBUG("Using local file: " << xmlfile);
     read_only = false;
     std::ifstream TheXML(xmlfile.c_str());
     if ( ! TheXML ) {
-      xmllog<<coral::Info<< "File "<<xmlfile
-            <<" does not exist, a new one is created"<<coral::MessageStream::endmsg;
+       ATH_MSG_DEBUG("File "<<xmlfile<<" does not exist, a new one is created");
       TheXML.close();
       std::ofstream NewXML(xmlfile.c_str());
       read_only  = (!NewXML);
       if ( ! NewXML )
       {
-        xmllog << coral::Fatal << "Problem creating file " << xmlfile <<coral::MessageStream::endmsg;
+         ATH_MSG_ERROR("Problem creating file " << xmlfile );
         throw( std::runtime_error( "Standard pool exception : Fatal Error on PoolXMLFileCatalog" ) );
       }
       else
@@ -1414,7 +1376,7 @@ pool::PoolXMLFileCatalog::getfile(bool backup)
       std::ofstream TheBAK(bakfile.c_str());
       read_only = (!TheBAK);
       if (!TheBAK) {
-        xmllog << coral::Info <<"Read-only filesystem"<<coral::MessageStream::endmsg;
+         ATH_MSG_INFO("Failed to make catalog backup - read-only filesystem?");
       }
       else
       {
@@ -1434,7 +1396,7 @@ pool::PoolXMLFileCatalog::getfile(bool backup)
     throw( std::runtime_error( "Standard pool exception : Missing protocol  (file or http)" ) );
   } else
   {
-    std::string message = prol + std::string(" protocol not supported. Use file or http protocol");
+    std::string message = prol + std::string("protocol not supported. Use file or http protocol");
     throw( std::runtime_error( "Standard pool exception " + message ) );
   }
   return xmlfile;
@@ -1490,7 +1452,6 @@ pool::PoolXMLFileCatalog::getGuidMeta(const std::string& fid,
 {  
   DOMNode* node = this->getNode(ParentNodeName,FileAtt_ID,fid);
   if (!node){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
     // xmllog<<coral::Warning << "FileID "<<fid
     //          <<" is not in the xml file"<<coral::MessageStream::endmsg;
     return std::string();
@@ -1499,7 +1460,6 @@ pool::PoolXMLFileCatalog::getGuidMeta(const std::string& fid,
   DOMNode* mnod = this->getChildwithAttr(node,MetaNode,
                                          FileAtt_attname,attr_name);
   if (!mnod){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
     //xmllog<<coral::Warning << "Metadata  "<<attr_name
     //          <<" is not in the xml file"<<coral::MessageStream::endmsg;
     return std::string();
@@ -1518,10 +1478,8 @@ pool::PoolXMLFileCatalog::setGuidMeta(const std::string& fid,
   if (metaGuid.find(attr_name) != metaGuid.end()){    
     DOMNode* node = this->getNode(ParentNodeName,FileAtt_ID,fid);
     if (!node) {      
-      coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-      xmllog<<coral::Warning << "FileID "<<fid
-            <<" is not in the xml file"<<coral::MessageStream::endmsg;
-      return;
+       ATH_MSG_WARNING("FileID "<< fid <<" is not in the xml file");
+       return;
     }
     DOMNode* mnod = 
       this->getChildwithAttr(node,MetaNode,FileAtt_attname,attr_name);
@@ -1534,8 +1492,7 @@ pool::PoolXMLFileCatalog::setGuidMeta(const std::string& fid,
     }
     this->setAttr(mnod,FileAtt_attvalu,attr_value);        
   }else{
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog << coral::Error<<"Attribute "<<attr_name <<" not found"<<coral::MessageStream::endmsg;
+    ATH_MSG_ERROR("Attribute "<<attr_name <<" not found");
     throw( std::runtime_error( "Not such attribute : Fatal Error on PoolXMLFileCatalog" ) );
   }
 }
@@ -1705,8 +1662,7 @@ pool::PoolXMLFileCatalog::setMeta(const std::vector<std::string>& name,
   XMLString::release(&mnod);
  
   if (!MNode) {
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog << coral::Error <<"I Cannot find the main node"<<coral::MessageStream::endmsg;
+    ATH_MSG_ERROR("I Cannot find the main node");
     throw( std::runtime_error( "POOLCATALOG node missing : Fatal Error on PoolXMLFileCatalog" ) );
   }
   std::vector<std::string>::const_iterator imeta;
@@ -1734,9 +1690,7 @@ pool::PoolXMLFileCatalog::getfiletype(const std::string& pfn)
 {
   DOMNode* node = this->getNode(GranDaPNodeName,FileAtt_name,pfn);
   if (!node){
-    coral::MessageStream xmllog( "PoolXMLFileCatalog" );
-    xmllog<<coral::Debug << "PFname "<<pfn
-          <<" is not in the xml file"<<coral::MessageStream::endmsg;
+     ATH_MSG_DEBUG("getfiletype: PFname "<<pfn <<" is not in " << m_file);
     return std::string();
   }
   return this->getAttr(node,FileAtt_fitype);      

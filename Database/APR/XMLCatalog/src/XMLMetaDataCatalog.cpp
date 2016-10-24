@@ -8,29 +8,27 @@
 */
 #include "XMLCatalog/XMLMetaDataCatalog.h"
 #include "XMLCatalog/XMLFileCatalog.h"
-#include "CoralBase/MessageStream.h"
+
+#include "FileCatalog/FCSystemTools.h"
 #include "FileCatalog/FCException.h"
+
 #include "PoolXMLFileCatalog.h"
+
 #include "CoralBase/AttributeListException.h"
 
 #include <set>
 #include <exception>
 
-using namespace pool;
-
-// declare types provided by this Catalog plugin
-#ifdef HAVE_GAUDI_PLUGINSVC
-DECLARE_COMPONENT_WITH_ID(XMLMetaDataCatalog, "xmlcatalog_meta")
-#else
-#include "Reflex/PluginService.h"
-PLUGINSVC_FACTORY_WITH_ID(XMLMetaDataCatalog, std::string("xmlcatalog_meta"), FCMetaImpl*(FCImpl*))
-#endif
-
    
-pool::XMLMetaDataCatalog::XMLMetaDataCatalog(FCImpl* fc) : FCMetaImpl(fc) {
-    x_fc=static_cast<XMLFileCatalog*>(m_fc);  
-    XMLcon = 0;
+pool::XMLMetaDataCatalog::XMLMetaDataCatalog(FCImpl* fc) :
+      FCMetaImpl(fc),
+      AthMessaging( 0, "APR.XMLMetaDataCatalog" )
+{
+   msg().setLevel( FCSystemTools::GetOutputLvl() ); 
+   x_fc=static_cast<XMLFileCatalog*>(m_fc);  
+   XMLcon = 0;
 }
+
 
 pool::XMLMetaDataCatalog::~XMLMetaDataCatalog()
 {
@@ -39,7 +37,6 @@ pool::XMLMetaDataCatalog::~XMLMetaDataCatalog()
 void
 pool::XMLMetaDataCatalog::createMetaDataSpec(MetaDataEntry& meta) const 
 {
-  coral::MessageStream xmllog( "XMLMetaDataCatalog");
   MetaDataEntry m_spec;
   this->getMetaDataSpec(m_spec);
   if ( m_spec.size() > 1 ){    
@@ -66,8 +63,7 @@ pool::XMLMetaDataCatalog::createMetaDataSpec(MetaDataEntry& meta) const
     x_fc->to_be_updated = true;
   }
   catch( std::exception& er){
-    std::string message("Cannot create metadata schema");
-    xmllog << coral::Fatal << message << coral::MessageStream::endmsg;
+    ATH_MSG_FATAL( "Cannot create metadata schema: " << er.what() );
     throw FCbackendException("XMLMetaDataCatalog::createMetaDataSpec", er.what());        
   }
 }
@@ -76,16 +72,13 @@ void
 pool::XMLMetaDataCatalog::updateMetaDataSpec(MetaDataEntry& meta,
                                          const FileCatalog::MetaUpdateMode metamode) const
 {
-  coral::MessageStream xmllog( "XMLMetaDataCatalog");
   try{
     x_fc->ClassHandle();
     //coral::AttributeListSpecification schemadef = meta.spec();
     MetaDataEntry oldmeta;
     this->getMetaDataSpec(oldmeta);
     if( oldmeta.attrs()==meta.attrs() ){
-      xmllog<<coral::Info
-            <<"old schema equals the new one, do nothing"
-            <<coral::MessageStream::endmsg;
+       ATH_MSG_INFO("old schema equals the new one, do nothing");
       return;
     }
 
@@ -121,16 +114,14 @@ pool::XMLMetaDataCatalog::updateMetaDataSpec(MetaDataEntry& meta,
 
   catch( std::exception& er)
   {
-    std::string message("Cannot update metadata schema");
-    xmllog << coral::Fatal << message << coral::MessageStream::endmsg;
-    throw FCbackendException("XMLMetaDataCatalog::updateMetaDataSpec", er.what());        
+     ATH_MSG_FATAL("Cannot update metadata schema: " << er.what() );
+     throw FCbackendException("XMLMetaDataCatalog::updateMetaDataSpec", er.what());        
   }
 }
 
 void
 pool::XMLMetaDataCatalog::getMetaDataSpec(MetaDataEntry& meta) const
 {
-  coral::MessageStream xmllog( "XMLMetaDataCatalog");
   try{
     x_fc->ClassHandle();
     PoolXMLFileCatalog* _xmlcatalog = x_fc->castConnectionHandle(x_fc->XMLcon);
@@ -147,9 +138,8 @@ pool::XMLMetaDataCatalog::getMetaDataSpec(MetaDataEntry& meta) const
     }
   }
   catch( std::exception& er ){
-    std::string message("Cannot get metadata schema");
-    xmllog << coral::Fatal << message << coral::MessageStream::endmsg;
-    throw FCbackendException("XMLMetaDataCatalog::getMetaDataSpec", er.what());
+     ATH_MSG_FATAL("Cannot get metadata schema: " << er.what() );
+     throw FCbackendException("XMLMetaDataCatalog::getMetaDataSpec", er.what());
   }  
 }
 
@@ -165,7 +155,6 @@ void pool::XMLMetaDataCatalog::dropMetaDataSpec() const
 void
 pool::XMLMetaDataCatalog::insertMetaData(MetaDataEntry& mentry) const
 {
-  coral::MessageStream xmllog( "XMLMetaDataCatalog");
   try{    
     x_fc->ClassHandle();
     PoolXMLFileCatalog* _xmlcatalog = x_fc->castConnectionHandle(x_fc->XMLcon);
@@ -222,13 +211,12 @@ pool::XMLMetaDataCatalog::insertMetaData(MetaDataEntry& mentry) const
   }catch( pool::FCduplicatemetadataException& /* m */ ){
     throw FCduplicatemetadataException("XMLCatalog::insertMetaData"); 
   }
-  catch( std::exception& er)
-    {
-      std::string message("Cannot insert MetaData");
-      xmllog << coral::Fatal << message << coral::MessageStream::endmsg;
-      throw FCbackendException("XMLMetaDataCatalog::insertMetaData", er.what());
-    }
+  catch( std::exception& er)    {
+     ATH_MSG_FATAL("Cannot insert MetaData: " << er.what() );
+     throw FCbackendException("XMLMetaDataCatalog::insertMetaData", er.what());
+  }
 }
+
 
 void
 pool::XMLMetaDataCatalog::deleteMetaData(const FileCatalog::FileID& fid) const
@@ -241,6 +229,7 @@ pool::XMLMetaDataCatalog::deleteMetaData(const FileCatalog::FileID& fid) const
   _xmlcatalog->dropMetas(fid);
   x_fc->to_be_updated = true;
 }
+
 
 bool
 pool::XMLMetaDataCatalog::retrievePFN(const std::string& query, 
@@ -263,6 +252,7 @@ pool::XMLMetaDataCatalog::retrievePFN(const std::string& query,
   }
   return (files.size() > 0);
 }
+
 
 bool
 pool::XMLMetaDataCatalog::retrieveLFN(const std::string& query,
@@ -287,6 +277,7 @@ pool::XMLMetaDataCatalog::retrieveLFN(const std::string& query,
   }
   return (files.size() > 0);
 }
+
 
 bool
 pool::XMLMetaDataCatalog::retrieveMetaData(const std::string& query,
@@ -381,6 +372,7 @@ pool::XMLMetaDataCatalog::retrieveMetaData(const std::string& query,
   return (files.size() > 0);
 }  
 
+
 bool
 pool::XMLMetaDataCatalog::retrieveGuid(const std::string& query, 
                                        FCBuf<FileCatalog::FileID>& buf, 
@@ -398,34 +390,4 @@ pool::XMLMetaDataCatalog::retrieveGuid(const std::string& query,
   return (buf.size()>0);
 }
 //end fix
-
-
-
-/*
-void
-pool::XMLMetaDataCatalog::ClassHandle() const
-{
-  coral::MessageStream xmllog( "XMLMetaDataCatalog", coral::Nil );
-  if ( !is_started) {
-    xmllog<< coral::Error 
-          <<"Catalog not started, please use XMLMetaDataCatalog::start()"
-          <<coral::MessageStream::endmsg;
-    throw FCbackendException("XMLMetaDataCatalog::ClassHandle",
-                             "start() not called");
-  }
-}
-
-
-
-
-pool::PoolXMLFileCatalog*
-pool::XMLMetaDataCatalog::castConnectionHandle(PoolXMLFileCatalog* con)
-{
-  PoolXMLFileCatalog* x = (con ? con : lastConnection);
-  if (!x) 
-    throw FCconnectionException("XMLMetaDataCatalog::castConnectionHandle",
-                                "cannot find a connection");  
-  return x;
-}
-*/
 
