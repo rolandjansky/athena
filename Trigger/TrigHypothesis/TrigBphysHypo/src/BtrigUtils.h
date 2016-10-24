@@ -19,6 +19,10 @@
 // xAOD edm
 #include "xAODMuon/MuonContainer.h"
 
+double PtVal(const std::vector<const Trk::Track*>&);
+double PtVal(const std::vector<const xAOD::TrackParticle*>&);
+
+double LxyVal(const double, const double, const Amg::Vector3D, const Amg::Vector3D);
 
 double InvMass(const std::vector<const TrigInDetTrack*>  &    , const std::vector<double>&);
 double InvMass(const std::vector<const TrigInDetTrackFitPar*>&, const std::vector<double>&);

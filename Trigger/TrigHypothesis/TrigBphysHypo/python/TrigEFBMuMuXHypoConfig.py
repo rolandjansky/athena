@@ -17,6 +17,9 @@ class EFBMuMuXHypo_1 (TrigEFBMuMuXHypo):
         self.AcceptBs = True
         self.AcceptLb = True
         self.AcceptBc = False
+        self.AcceptBcDplus = False
+        self.AcceptBcDstar = False
+        self.AcceptBcD0 = False
         # mass cuts
         # B+
         self.LowerBplusMassCut = 4400.
@@ -50,6 +53,27 @@ class EFBMuMuXHypo_1 (TrigEFBMuMuXHypo):
         self.LowerDsMassCut = 1600.
         self.UpperDsMassCut = 2400.
         self.DsChi2Cut = 90.
+        # BcDplus
+        self.LowerBcDplusMassCut = 5450.
+        self.UpperBcDplusMassCut = 7050.
+        self.BcDplusChi2Cut = 180.
+        self.LowerDplusMassCut = 1500.
+        self.UpperDplusMassCut = 2300.
+        self.DplusChi2Cut = 90.
+        # BcDstar
+        self.LowerBcDstarMassCut = 5450.
+        self.UpperBcDstarMassCut = 7050.
+        self.BcDstarChi2Cut = 120.
+        self.LowerDstarMassCut = 1500.
+        self.UpperDstarMassCut = 2500.
+        self.DstarChi2Cut = 90.
+        # BcD0
+        self.LowerBcD0MassCut = 5250.
+        self.UpperBcD0MassCut = 6911.
+        self.BcD0Chi2Cut = 120.
+        self.LowerD0MassCut = 1500.
+        self.UpperD0MassCut = 2300.
+        self.D0Chi2Cut = 90.
 
 
         from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
@@ -190,6 +214,12 @@ class EFBMuMuXHypo_LbMuMuLambda (EFBMuMuXHypo_1):
         self.AcceptBd = False
         self.AcceptBs = False
         self.AcceptLb = True
+        self.LowerLbMassCut = 3700.
+        self.UpperLbMassCut = 6600.
+        self.LbChi2Cut = 180.
+        self.LowerLambdaMassCut = 1040.
+        self.UpperLambdaMassCut = 1250.
+        self.LambdaChi2Cut = 90.
         self.AcceptBc = False
         
 class EFBMuMuXHypo_BcMuMuDs (EFBMuMuXHypo_1):
@@ -206,6 +236,9 @@ class EFBMuMuXHypo_BcMuMuDs (EFBMuMuXHypo_1):
         self.AcceptBs = False
         self.AcceptLb = False
         self.AcceptBc = True
+        self.AcceptBcDplus = True
+        self.AcceptBcDstar = True
+        self.AcceptBcD0 = True
         
 class EFBMuMuXHypo_BcMuMuDs_tight (EFBMuMuXHypo_BcMuMuDs):
     __slots__ = []

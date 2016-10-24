@@ -71,6 +71,6 @@ class TrigMultiTrkFexOnlineMonitoring(TrigGenericMonitoringToolConfig):
                                            xbins=100, xmin=0., xmax=100.) ]
         self.Histograms += [ defineHistogram('NPair_all', type='TH1F', title="Number of hight pt pairs",
                                            xbins=100, xmin=0., xmax=100.) ]
-        self.Histograms += [ defineHistogram('NPair_all', type='TH1F', title="Number of hight pt pairs (accepted)",
+        self.Histograms += [ defineHistogram('NPair_accepted', type='TH1F', title="Number of hight pt pairs (accepted)",
                                            xbins=100, xmin=0., xmax=100.) ]
         

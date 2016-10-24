@@ -273,7 +273,8 @@ HLT::ErrorCode TrigEFBMuMuFex::acceptInputs(HLT::TEConstVec& inputTE, bool& pass
 
     
     // check the right number of inputTEs
-    if (m_expectNumberOfInputTE != inputTE.size()) {
+    // if !m_useRoIs -- allow +1 number of TEs, for nscan chains
+    if (m_expectNumberOfInputTE != inputTE.size() && (m_useRoIs || m_expectNumberOfInputTE != inputTE.size()-1) ) {
         msg() << MSG::ERROR << "Got different than " << m_expectNumberOfInputTE << " number of input TEs, found " << inputTE.size() << endmsg;
         m_mon_Errors.push_back( ERROR_Not_2_Input_TE );
         if ( timerSvc() )    m_BmmHypTot->stop();
