@@ -24,6 +24,8 @@ IAppMgrUI* AthAnalysisHelper::initGaudi(const char* options) {
     } else {
       propMgr->setProperty( "JobOptionsType", "NONE" ); //no joboptions given
     }
+    propMgr->setProperty("EventLoop","MinimalEventLoopMgr"); //using this instead of the default EventLoopMgr means some services (e.g. EventSelector) are not created, which is good! :-)
+
     //configure and return
     theApp->configure(); 
     propMgr->setProperty("OutputLevel","3"); //INFO
@@ -70,4 +72,10 @@ if(typeinfo==typeid(TYPE) && ae.isAvailable<TYPE>(name)) std::cout << ae.auxdata
       
 #undef PRINT_AE
    }
+}
+
+void AthAnalysisHelper::dumpProperties(const IProperty& component) {
+  for(auto p : component.getProperties()) {
+    std::cout << p->name() << " = " << p->toString() << std::endl;
+  }
 }
