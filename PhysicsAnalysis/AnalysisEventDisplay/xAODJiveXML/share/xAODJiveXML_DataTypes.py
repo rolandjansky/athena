@@ -50,7 +50,7 @@ from xAODJiveXML.xAODJiveXMLConf import JiveXML__xAODJetRetriever
 thexAODJetRetriever = JiveXML__xAODJetRetriever (name = "xAODJetRetriever")
 thexAODJetRetriever.FavouriteJetCollection="AntiKt4EMTopoJets"
 ## If this list is not set, all other collections will be retrieved
-thexAODJetRetriever.OtherJetCollections=["AntiKt4LCTopoJets", "CamKt12LCTopoJets", "Kt4EMTopoJets", "Kt4LCTopoJets", "AntiKt4TruthJets", "AntiKt10LCTopoJets"]
+#thexAODJetRetriever.OtherJetCollections=["AntiKt4LCTopoJets", "CamKt12LCTopoJets", "Kt4EMTopoJets", "Kt4LCTopoJets", "AntiKt4TruthJets", "AntiKt10LCTopoJets"]
 #thexAODJetRetriever.OutputLevel = VERBOSE
 ToolSvc += thexAODJetRetriever
 

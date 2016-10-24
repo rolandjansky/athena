@@ -19,6 +19,7 @@ use xAODTracking          xAODTracking-*          Event/xAOD
 private
 
 use AtlasCLHEP            AtlasCLHEP-*            External
+use AthenaKernel          AthenaKernel-*          Control
 use xAODTracking          xAODTracking-*          Event/xAOD
 use xAODBTagging          xAODBTagging-*          Event/xAOD
 use CaloGeoHelpers        CaloGeoHelpers-*        Calorimeter

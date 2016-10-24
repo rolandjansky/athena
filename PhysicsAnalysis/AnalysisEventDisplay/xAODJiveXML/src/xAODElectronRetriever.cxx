@@ -4,9 +4,10 @@
 
 #include "xAODJiveXML/xAODElectronRetriever.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
-
 #include "xAODEgamma/ElectronContainer.h" 
+
+#include "AthenaKernel/Units.h"
+using Athena::Units::GeV;
 
 namespace JiveXML {
 
@@ -25,7 +26,7 @@ namespace JiveXML {
    *
    **/
   xAODElectronRetriever::xAODElectronRetriever(const std::string& type,const std::string& name,const IInterface* parent):
-    AthAlgTool(type,name,parent), typeName("Electron"){
+    AthAlgTool(type,name,parent), m_typeName("Electron"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -43,22 +44,22 @@ namespace JiveXML {
    */
   StatusCode xAODElectronRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
     
     const DataHandle<xAOD::ElectronContainer> iterator, end;
     const xAOD::ElectronContainer* electrons;
     
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKey << ")" << endmsg;
     StatusCode sc = evtStore()->retrieve(electrons, m_sgKey);
     if (sc.isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg; 
     }else{
       DataMap data = getData(electrons);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKey+"_xAOD", &data).isFailure()){ //suffix can be removed later
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKey << " not found in SG " << endmsg;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Electron retrieved" << endreq;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKey << ") Electron retrieved" << endmsg;
       }
     }
  
@@ -66,18 +67,18 @@ namespace JiveXML {
       //obtain all other collections from StoreGate
       if (( evtStore()->retrieve(iterator, end)).isFailure()){
          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << 
-	 "Unable to retrieve iterator for xAOD Electron collection" << endreq;
+	 "Unable to retrieve iterator for xAOD Electron collection" << endmsg;
 //        return false;
       }
     
       for (; iterator!=end; iterator++) {
 	  if (iterator.key()!=m_sgKey) {
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all. Current collection: " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all. Current collection: " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
              DataMap data = getData(iterator);
              if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_xAOD", &data).isFailure()){
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
 	    }else{
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") xAOD Electron retrieved" << endreq;
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") xAOD Electron retrieved" << endmsg;
 	    }
           }
       }
@@ -87,12 +88,12 @@ namespace JiveXML {
       for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
 	StatusCode sc = evtStore()->retrieve( electrons, (*keyIter) );
 	if (!sc.isFailure()) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endmsg;
           DataMap data = getData(electrons);
           if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter), &data).isFailure()){
-	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endreq;
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endmsg;
 	  }else{
-	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endreq;
+	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endmsg;
 	  }
 	}
       }
@@ -109,9 +110,9 @@ namespace JiveXML {
    */
   const DataMap xAODElectronRetriever::getData(const xAOD::ElectronContainer* elCont) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in getData()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect pt; pt.reserve(elCont->size());
     DataVect phi; phi.reserve(elCont->size());
@@ -136,9 +137,9 @@ namespace JiveXML {
     std::string electronLabel = "";
       phi.push_back(DataType((*elItr)->phi()));
       eta.push_back(DataType((*elItr)->eta()));
-      pt.push_back(DataType((*elItr)->pt()/CLHEP::GeV));
-      mass.push_back(DataType((*elItr)->m()/CLHEP::GeV));
-      energy.push_back( DataType((*elItr)->e()/CLHEP::GeV ) );
+      pt.push_back(DataType((*elItr)->pt()/GeV));
+      mass.push_back(DataType((*elItr)->m()/GeV));
+      energy.push_back( DataType((*elItr)->e()/GeV ));
 
       if ((*elItr)->trackParticle()){ // ForwardElectrons have no track !
          pdgId.push_back(DataType( -11.*(*elItr)->trackParticle()->charge() )); // pdgId not available anymore in xAOD
@@ -146,7 +147,7 @@ namespace JiveXML {
          pdgId.push_back(DataType( 0. ) );
       }
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CHECKPOINT 1" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "CHECKPOINT 1" << endmsg;
 
 
     if (msgLvl(MSG::DEBUG)) {
@@ -158,7 +159,7 @@ namespace JiveXML {
 //	  << ", isEM/Tight: " << (*elItr)->passSelection(passesTight, "Tight")
 //		      << ", charge = " << (*elItr)->trackParticle()->charge() 
 //		      << ", pdgId = " << -11.*(*elItr)->trackParticle()->charge()
-          << endreq;
+          << endmsg;
     }
 
 
@@ -167,13 +168,13 @@ namespace JiveXML {
       bool passesLoose(false);
       const bool tightSelectionExists = (*elItr)->passSelection(passesTight, "Tight");
        msg(MSG::VERBOSE) << "tight exists " << tightSelectionExists 
-	 << " and passes? " << passesTight << endreq;
+	 << " and passes? " << passesTight << endmsg;
       const bool mediumSelectionExists = (*elItr)->passSelection(passesMedium, "Medium");
        msg(MSG::VERBOSE) << "medium exists " << mediumSelectionExists 
-	 << " and passes? " << passesMedium << endreq;
+	 << " and passes? " << passesMedium << endmsg;
       const bool looseSelectionExists = (*elItr)->passSelection(passesLoose, "Loose");
        msg(MSG::VERBOSE) << "loose exists " << looseSelectionExists 
-	<< " and passes? " << passesLoose << endreq;
+	<< " and passes? " << passesLoose << endmsg;
 
       electronAuthor = "author"+DataType( (*elItr)->author() ).toString(); // for odd ones eg FWD
       electronLabel = electronAuthor;
@@ -201,22 +202,22 @@ namespace JiveXML {
     } // end ElectronIterator 
 
     // four-vectors
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["pt"] = pt;
-    m_DataMap["energy"] = energy;
-    m_DataMap["mass"] = mass;
-    m_DataMap["pdgId"] = pdgId;
-    m_DataMap["isEMString"] = isEMString;
-    m_DataMap["label"] = label;
-    m_DataMap["author"] = author;
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["pt"] = pt;
+    DataMap["energy"] = energy;
+    DataMap["mass"] = mass;
+    DataMap["pdgId"] = pdgId;
+    DataMap["isEMString"] = isEMString;
+    DataMap["label"] = label;
+    DataMap["author"] = author;
 
     if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << dataTypeName() << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 

@@ -6,7 +6,8 @@
 
 #include "CaloGeoHelpers/CaloSampling.h"
 
-#include "CLHEP/Units/SystemOfUnits.h"
+#include "AthenaKernel/Units.h"
+using Athena::Units::GeV;
 
 namespace JiveXML {
 
@@ -18,7 +19,7 @@ namespace JiveXML {
    **/
   xAODCaloClusterRetriever::xAODCaloClusterRetriever(const std::string& type,const std::string& name,const IInterface* parent):
     AthAlgTool(type,name,parent),
-    typeName("Cluster"){
+    m_typeName("Cluster"){
 
     //Only declare the interface
     declareInterface<IDataRetriever>(this);
@@ -38,22 +39,22 @@ namespace JiveXML {
    */
   StatusCode xAODCaloClusterRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "in retrieveAll()" << endmsg;
     
     const DataHandle<xAOD::CaloClusterContainer> iterator, end;
     const xAOD::CaloClusterContainer* ccc;
 
     //obtain the default collection first
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKeyFavourite << ")" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve " << dataTypeName() << " (" << m_sgKeyFavourite << ")" << endmsg;
     StatusCode sc = evtStore()->retrieve(ccc, m_sgKeyFavourite);
     if (sc.isFailure() ) {
-      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKeyFavourite << " not found in SG " << endreq; 
+      if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKeyFavourite << " not found in SG " << endmsg; 
     }else{
       DataMap data = getData(ccc);
       if ( FormatTool->AddToEvent(dataTypeName(), m_sgKeyFavourite+"_xAOD", &data).isFailure()){
-	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKeyFavourite << " not found in SG " << endreq;
+	if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << m_sgKeyFavourite << " not found in SG " << endmsg;
       }else{
-         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKeyFavourite << ") AODCaloCluster retrieved" << endreq;
+         if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << dataTypeName() << " (" << m_sgKeyFavourite << ") AODCaloCluster retrieved" << endmsg;
       }
     }
 
@@ -61,21 +62,21 @@ namespace JiveXML {
       //obtain all other collections from StoreGate
       if (( evtStore()->retrieve(iterator, end)).isFailure()){
          if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << 
-	 "Unable to retrieve iterator for AODCaloCluster collection" << endreq;
+	 "Unable to retrieve iterator for AODCaloCluster collection" << endmsg;
 //        return false;
       }
       
       for (; iterator!=end; iterator++) {
        	     if ((iterator.key().find("HLT",0) != std::string::npos) && (!m_doWriteHLT)){
-	          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT collection: " << iterator.key() << endreq;
+	          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ignoring HLT collection: " << iterator.key() << endmsg;
 	         continue;  }
 	  if (iterator.key()!=m_sgKeyFavourite) {
-             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all. Current collection: " << dataTypeName() << " (" << iterator.key() << ")" << endreq;
+             if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve all. Current collection: " << dataTypeName() << " (" << iterator.key() << ")" << endmsg;
              DataMap data = getData(iterator);
              if ( FormatTool->AddToEvent(dataTypeName(), iterator.key()+"_xAOD", &data).isFailure()){
-	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endreq;
+	       if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << iterator.key() << " not found in SG " << endmsg;
 	    }else{
-	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") AODCaloCluster retrieved" << endreq;
+	      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << iterator.key() << ") AODCaloCluster retrieved" << endmsg;
 	    }
           }
       }
@@ -85,12 +86,12 @@ namespace JiveXML {
       for ( keyIter=m_otherKeys.begin(); keyIter!=m_otherKeys.end(); ++keyIter ){
 	StatusCode sc = evtStore()->retrieve( ccc, (*keyIter) );
 	if (!sc.isFailure()) {
-          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endreq;
+          if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "Trying to retrieve selected " << dataTypeName() << " (" << (*keyIter) << ")" << endmsg;
           DataMap data = getData(ccc);
           if ( FormatTool->AddToEvent(dataTypeName(), (*keyIter), &data).isFailure()){
-	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endreq;
+	    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Collection " << (*keyIter) << " not found in SG " << endmsg;
 	  }else{
-	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endreq;
+	     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << " (" << (*keyIter) << ") retrieved" << endmsg;
 	  }
 	}
       }
@@ -108,9 +109,9 @@ namespace JiveXML {
    */
   const DataMap xAODCaloClusterRetriever::getData(const xAOD::CaloClusterContainer* ccc) {
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "retrieve()" << endmsg;
 
-    DataMap m_DataMap;
+    DataMap DataMap;
 
     DataVect phi; phi.reserve(ccc->size());
     DataVect eta; eta.reserve(ccc->size());
@@ -170,7 +171,7 @@ namespace JiveXML {
 
       labelVec.push_back( label );
       if (msgLvl(MSG::VERBOSE)) {
-	msg(MSG::VERBOSE) << "label is " << label << endreq;
+	msg(MSG::VERBOSE) << "label is " << label << endmsg;
       }
 
 // now the standard variables
@@ -178,37 +179,37 @@ namespace JiveXML {
 
       phi.push_back(DataType((*itr)->phi()));
       eta.push_back(DataType((*itr)->eta()));
-      et.push_back(DataType((*itr)->et()/CLHEP::GeV));
+      et.push_back(DataType((*itr)->et()/GeV));
       numCells.push_back(DataType( "0" ));
       cells.push_back(DataType( "0" ));
       idVec.push_back(DataType( ++id ));
 
       if (msgLvl(MSG::VERBOSE)) {
         msg(MSG::VERBOSE) << dataTypeName() << " cluster #" << id  
-		<< " ,e=" <<  (*itr)->e()/CLHEP::GeV  << ", et=";
-        msg(MSG::VERBOSE) << (*itr)->et()/CLHEP::GeV << ", eta=" << (*itr)->eta() 
-		<< ", phi=" << (*itr)->phi() << endreq;
+                          << " ,e=" <<  (*itr)->e()/GeV  << ", et=";
+        msg(MSG::VERBOSE) << (*itr)->et()/GeV << ", eta=" << (*itr)->eta() 
+		<< ", phi=" << (*itr)->phi() << endmsg;
       }
 
     }
     // Start with mandatory entries
-    m_DataMap["phi"] = phi;
-    m_DataMap["eta"] = eta;
-    m_DataMap["et"] = et;
-    m_DataMap[tagCells] = cells;
-    m_DataMap["numCells"] = numCells;
-    m_DataMap["id"] = idVec;
-    m_DataMap["emfrac"] = emfracVec; // not in Atlantis yet ! Could be used in legoplot
-    m_DataMap["label"] = labelVec; // not in Atlantis yet ! 
+    DataMap["phi"] = phi;
+    DataMap["eta"] = eta;
+    DataMap["et"] = et;
+    DataMap[tagCells] = cells;
+    DataMap["numCells"] = numCells;
+    DataMap["id"] = idVec;
+    DataMap["emfrac"] = emfracVec; // not in Atlantis yet ! Could be used in legoplot
+    DataMap["label"] = labelVec; // not in Atlantis yet ! 
 
     //Be verbose
     if (msgLvl(MSG::DEBUG)) {
       msg(MSG::DEBUG) << dataTypeName() << " (AOD, no cells), collection: " << dataTypeName();
-      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endreq;
+      msg(MSG::DEBUG) << " retrieved with " << phi.size() << " entries"<< endmsg;
     }
 
     //All collections retrieved okay
-    return m_DataMap;
+    return DataMap;
 
   } // retrieve
 
