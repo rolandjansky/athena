@@ -20,6 +20,7 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkiPatFitterUtils/IMaterialAllocator.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -32,6 +33,7 @@ class FitMeasurement;
 class FitParameters;
 class IExtrapolator;
 class IIntersector;    
+class IPropagator;
 class TrackingVolume;
 class TrackStateOnSurface;
 class Volume;    
@@ -133,8 +135,10 @@ private:
     ToolHandle<IExtrapolator>				m_spectrometerExtrapolator;
     mutable ServiceHandle<ITrackingGeometrySvc>		m_trackingGeometrySvc;	// init with callback
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
+    ToolHandle< IPropagator >                           m_stepPropagator;
     bool						m_aggregateMaterial;
     bool						m_allowReordering;
+    int                                                 m_useStepPropagator;
     unsigned						m_maxWarnings;
 
     // configurable parameters and tolerances (for aggregation rules and Coulomb scattering constants)
@@ -149,6 +153,8 @@ private:
     // constants 
     Trk::Volume*					m_calorimeterVolume;
     Trk::Volume*					m_indetVolume;
+
+    Trk::MagneticFieldProperties                        m_stepField;
 
     // constant initialized the first time it's needed
     mutable const Trk::TrackingVolume*			m_spectrometerEntrance;

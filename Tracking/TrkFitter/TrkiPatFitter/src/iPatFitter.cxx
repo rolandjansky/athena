@@ -19,6 +19,7 @@
 #include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkDetElementBase/TrkDetElementBase.h"
 #include "TrkExInterfaces/IIntersector.h"
+#include "TrkExInterfaces/IPropagator.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkGeometry/TrackingVolume.h"
 #include "TrkMaterialOnTrack/EnergyLoss.h"
@@ -69,10 +70,12 @@ iPatFitter::iPatFitter (const std::string&	type,
 	m_solenoidalIntersector		("Trk::SolenoidalIntersector/SolenoidalIntersector"),
 	m_straightLineIntersector	("Trk::StraightLineIntersector/StraightLineIntersector"),
 	m_trackingVolumesSvc		("TrackingVolumesSvc/TrackingVolumesSvc",name),
+        m_stepPropagator                ("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
  	m_orderingTolerance		(1.*Gaudi::Units::mm),
 	m_maxWarnings			(10),
 	m_constrainedAlignmentEffects	(false),
 	m_extendedDebug			(false),
+	m_useStepPropagator		(1),
 	m_forcedRefitsForValidation	(0),
 	m_calorimeterVolume		(0),
 	m_indetVolume			(0),
@@ -104,6 +107,14 @@ iPatFitter::iPatFitter (const std::string&	type,
     // validation options
     declareProperty("ConstrainedAlignmentEffects",	m_constrainedAlignmentEffects);
     declareProperty("ExtendedDebug",			m_extendedDebug);
+
+    // m_useStepPropagator 0 means not used (so Intersector used)
+    // 1 Intersector not used and StepPropagator used with FullField
+    // 2 StepPropagator with FastField propagation 
+    // 99 debug mode where both are ran with FullField
+
+    declareProperty("UseStepPropagator",		m_useStepPropagator);
+
     declareProperty("ForcedRefitsForValidation",	m_forcedRefitsForValidation);
 }
 
@@ -130,7 +141,7 @@ iPatFitter::initialize()
     if (m_extendedDebug)		msg() << " ExtendedDebug";
     if (m_forcedRefitsForValidation)	msg() << " ForcedRefitsForValidation = "
 					      << m_forcedRefitsForValidation;
-    msg() << endreq;
+    msg() << endmsg;
   
     // fill WARNING messages
     m_messageHelper->setMaxNumberOfMessagesPrinted(m_maxWarnings);
@@ -215,6 +226,16 @@ iPatFitter::initialize()
 	    m_trackingVolumesSvc->volume(ITrackingVolumesSvc::CalorimeterEntryLayer));
     }
 
+    if ( m_useStepPropagator > 0 && m_stepPropagator.retrieve().isFailure())
+    {
+	ATH_MSG_FATAL( "Failed to retrieve Svc " <<  m_stepPropagator );
+	return StatusCode::FAILURE;
+    } 
+
+// Field for StepPropagator
+    m_stepField = Trk::MagneticFieldProperties(Trk::FullField);
+    if(m_useStepPropagator==2)  m_stepField = Trk::MagneticFieldProperties(Trk::FastField);
+
     // can now create FitProcedure class
     m_fitProcedure = new FitProcedure(m_constrainedAlignmentEffects,
 				      m_extendedDebug,
@@ -223,7 +244,9 @@ iPatFitter::initialize()
 				      m_rungeKuttaIntersector,
 				      m_solenoidalIntersector,
 				      m_straightLineIntersector,
-				      m_indetVolume);
+				      m_stepPropagator,
+				      m_indetVolume,
+                                      m_useStepPropagator);
     
     return StatusCode::SUCCESS;
 }
@@ -633,10 +656,31 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&	measurements,
 	 m != measurementSet.end();
 	 ++m, ++hit)
     {
-	const TrackSurfaceIntersection* newIntersection =
+	const TrackSurfaceIntersection* newIntersection = m_useStepPropagator>=1?
+            m_stepPropagator->intersectSurface((**m).associatedSurface(),
+                                                      intersection,
+                                                      qOverP,
+                                                      m_stepField,
+                                                      Trk::muon):
 	    m_rungeKuttaIntersector->intersectSurface((**m).associatedSurface(),
 						      intersection,
 						      qOverP);
+        if(m_useStepPropagator==99&&newIntersection) {
+            const TrackSurfaceIntersection* newIntersectionSTEP = 
+            m_stepPropagator->intersectSurface((**m).associatedSurface(),
+                                                      intersection,
+                                                      qOverP,
+                                                      m_stepField,
+                                                      Trk::muon);
+            if(newIntersectionSTEP) {
+              double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
+              std::cout << " iPat 1 distance STEP and Intersector " << dist << std::endl; 
+              if(dist>10.) std::cout << " iPat 1 ALARM distance STEP and Intersector " << dist << std::endl; 
+              delete newIntersectionSTEP;
+            } else {
+              std::cout << " iPat 1 ALARM STEP did not intersect! " << std::endl;
+            }
+        }
 	if (newIntersection)
 	{
 	    intersection = newIntersection;
@@ -899,10 +943,32 @@ iPatFitter::addMeasurements (std::list<FitMeasurement*>&		  measurements,
 	}
 	else if (surface)
 	{
-	    const TrackSurfaceIntersection* newIntersection =
+	    const TrackSurfaceIntersection* newIntersection = m_useStepPropagator>=1?
+                m_stepPropagator->intersectSurface(*surface,
+                                                 intersection,
+                                                 qOverP,
+                                                 m_stepField,
+                                                 Trk::muon):
 		m_rungeKuttaIntersector->intersectSurface(*surface,
 							  intersection,
 							  qOverP);
+            if(m_useStepPropagator==99&&newIntersection) {
+              const TrackSurfaceIntersection* newIntersectionSTEP = 
+              m_stepPropagator->intersectSurface(*surface,
+                                                 intersection,
+                                                 qOverP,
+                                                 m_stepField,
+                                                 Trk::muon);
+              if(newIntersectionSTEP) {
+                double dist = 1000.*(newIntersectionSTEP->position()-newIntersection->position()).mag();
+                std::cout << " iPat 2 distance STEP and Intersector " << dist << std::endl; 
+                if(dist>10.) std::cout << " iPat 2 ALARM distance STEP and Intersector " << dist << std::endl; 
+                delete newIntersectionSTEP;
+              } else {
+                std::cout << " iPat 2 ALARM STEP did not intersect! " << std::endl;
+              }
+            }
+
 	    if (! newIntersection)
 	    {
 		// addMeasurements: skip measurement as fail to intersect
@@ -1049,8 +1115,26 @@ iPatFitter::performFit(std::list<FitMeasurement*>*			measurements,
 // 						  perigeeQuality);
 // 	}
 
+       bool haveLeadingMaterial            = false;
+       bool firstMSHit                     = false;
+       std::list<Trk::FitMeasurement*>::iterator m = measurements->begin();
+       for ( ; m != measurements->end(); ++m) {
+         Amg::Vector3D position = (*m)->hasIntersection(FittedTrajectory) ? (*m)->intersection(FittedTrajectory).position(): (*m)->surface()->center() ;
+         Amg::Vector3D positionSurf = (*m)->surface()->center();
+         if (!m_calorimeterVolume->inside(position) || !m_calorimeterVolume->inside(positionSurf)) {
+           if ((*m)->measurementBase()&&!firstMSHit) {
+             firstMSHit = true;
+           }
+           if ((*m)->isScatterer()&&!firstMSHit)         haveLeadingMaterial = true;
+         }
+       }
+       if(! haveLeadingMaterial && firstMSHit) {
 	// include leading material
-	m_materialAllocator->addLeadingMaterial(*measurements,particleHypothesis,*parameters);
+         unsigned int nmeas = measurements->size();
+  	 m_materialAllocator->addLeadingMaterial(*measurements,particleHypothesis,*parameters);
+         msg(MSG::DEBUG) << " addLeadingMaterial in Muon Spectrometer  nr meas before " << nmeas << " after " << measurements->size() << endmsg;
+       } 
+
 
 	// construct the fitted track
 	fittedTrack		=  m_fitProcedure->constructTrack(*measurements,
@@ -1204,7 +1288,7 @@ iPatFitter::performFit(std::list<FitMeasurement*>*			measurements,
 		}
 	    
 		if (! indet && ! spect) msg() << "    0 scatterers - no tracking material";
-		msg() << endreq;
+		msg() << endmsg;
 	    }
 	}
     }
@@ -1234,7 +1318,7 @@ iPatFitter::printTSOS (const Track& track) const
 {
     // debugging aid
     MsgStream log(msgSvc(), name());
-    msg(MSG::INFO) << " track with " << track.trackStateOnSurfaces()->size() << " TSOS " << endreq;
+    msg(MSG::INFO) << " track with " << track.trackStateOnSurfaces()->size() << " TSOS " << endmsg;
     int tsos = 0;
     for (DataVector<const TrackStateOnSurface>::const_iterator t = track.trackStateOnSurfaces()->begin();
 	 t !=  track.trackStateOnSurfaces()->end();
@@ -1275,7 +1359,7 @@ iPatFitter::printTSOS (const Track& track) const
 	{
 	    msg() << "       ";
 	}
-	msg() << (**t).dumpType() << endreq;
+	msg() << (**t).dumpType() << endmsg;
     }
 }
  
