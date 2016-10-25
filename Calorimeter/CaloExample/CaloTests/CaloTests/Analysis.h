@@ -126,7 +126,7 @@ namespace MyAnalysis {
        double Ecell;
        Identifier identifier;
    };
-   std::vector<CellInfo> CellListEM; 
+   std::vector<CellInfo> m_CellListEM; 
 
    double m_nt_e;
    double m_nt_eta;
