@@ -33,7 +33,7 @@ GeoPixelIFlexServices::GeoPixelIFlexServices(int iSection):
 GeoVPhysVol* GeoPixelIFlexServices::Build()
 {
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL I-Flex services"<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build IBL I-Flex services"<<endmsg;
 
   double safety = 0.01*CLHEP::mm;
 
@@ -177,7 +177,7 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     CLHEP::Hep3Vector flex_pos(0.,0.,0.);
     //    GeoTransform* flex_xform = new GeoTransform(HepGeom::Transform3D(CLHEP::HepRotation(0.0,0.0,fabs(flex_rot)),flex_pos));
     const GeoMaterial* flex_material = mat_mgr->getMaterial(flexMatName);
-    if(flex_material==0) gmt_mgr->msg(MSG::DEBUG)<<"-> error while reading material"<<flexMatName<<endreq;
+    if(flex_material==0) gmt_mgr->msg(MSG::DEBUG)<<"-> error while reading material"<<flexMatName<<endmsg;
     
     flex_logVolA = new GeoLogVol("Flex",flex_shapeA,flex_material);
     flex_logVolC = new GeoLogVol("Flex",flex_shapeC,flex_material);
@@ -198,10 +198,10 @@ GeoVPhysVol* GeoPixelIFlexServices::Build()
     for(unsigned int iPt=0; iPt<nbFlexPoint; iPt++) Iflex_shape->addVertex(xFlex[iPt],yFlex[iPt]-flexYmidPos);
     
     std::string IflexMatName = gmt_mgr->IBLFlexMaterial(1, "IFlexA");
-    gmt_mgr->msg(MSG::DEBUG)<<"IFlex material : "<<m_section<<" "<<IflexMatName<<endreq;
+    gmt_mgr->msg(MSG::DEBUG)<<"IFlex material : "<<m_section<<" "<<IflexMatName<<endmsg;
     const GeoMaterial* Iflex_material = mat_mgr->getMaterial(IflexMatName);
     
-    if(Iflex_material==0) gmt_mgr->msg(MSG::DEBUG)<<"-> error while reading IFlex material"<<endreq;
+    if(Iflex_material==0) gmt_mgr->msg(MSG::DEBUG)<<"-> error while reading IFlex material"<<endmsg;
     
     flex_logVolA = new GeoLogVol("IFlex",Iflex_shape,Iflex_material);
     flex_logVolC = new GeoLogVol("IFlex",Iflex_shape,Iflex_material);

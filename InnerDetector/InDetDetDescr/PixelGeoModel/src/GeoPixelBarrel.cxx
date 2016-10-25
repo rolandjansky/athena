@@ -137,7 +137,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
     }
     else 
       {
-	if(gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) << "Layer " << ii << " not built" << endreq;
+	if(gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) << "Layer " << ii << " not built" << endmsg;
       }
   }
   

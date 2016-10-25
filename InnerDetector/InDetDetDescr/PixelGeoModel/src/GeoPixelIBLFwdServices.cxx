@@ -35,8 +35,6 @@ GeoPixelIBLFwdServices::GeoPixelIBLFwdServices(int section):
 bool GeoPixelIBLFwdServices::isComplexShapeDefined()
 {
   // check if the wavy shape option is defined in the DB (based on the definition of the material)
-  const GeoMaterial* cableMat_wavy = mat_mgr->getMaterialForVolume("pix::IBL_Fwd02_Cable_Wvy",1.,"pix::DummyMaterial");
-  const GeoMaterial* cableMat_wavy_model1 = mat_mgr->getMaterialForVolume("pix::IBL_Fwd02_Cable_Wvy_M1",1.,"pix::DummyMaterial1");
 
   bool bFwd02Defined=false;
   int nbBarrelSvc = gmt_mgr->PixelServiceElements("barrel");
@@ -50,10 +48,10 @@ bool GeoPixelIBLFwdServices::isComplexShapeDefined()
     if(volName.substr(0,9)=="IBL_Fwd02")bFwd02Defined=true;
   }
 
-  if(cableMat_wavy&&!bFwd02Defined) m_bFwdComplexGeometry_CAD = true;
-  if(cableMat_wavy_model1&&!bFwd02Defined) m_bFwdComplexGeometry_Mod1 = true;
+  if(mat_mgr->hasMaterial("pix::IBL_Fwd02_Cable_Wvy") &&!bFwd02Defined) m_bFwdComplexGeometry_CAD = true;
+  if(mat_mgr->hasMaterial("pix::IBL_Fwd02_Cable_Wvy_M1")  && !bFwd02Defined) m_bFwdComplexGeometry_Mod1 = true;
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design / S. model1 : "<<  m_bFwdComplexGeometry_CAD<<"/"<<m_bFwdComplexGeometry_Mod1<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design / S. model1 : "<<  m_bFwdComplexGeometry_CAD<<"/"<<m_bFwdComplexGeometry_Mod1<<endmsg;
 
 
   return m_bFwdComplexGeometry_CAD||m_bFwdComplexGeometry_Mod1;
@@ -64,11 +62,11 @@ bool GeoPixelIBLFwdServices::isComplexShapeDefined()
 GeoVPhysVol* GeoPixelIBLFwdServices::Build()
 {
 
-  gmt_mgr->msg(MSG::INFO) <<"GeoPixelIBLFwdService - CAD tool design / S. model1 : "<<  m_bFwdComplexGeometry_CAD<<"/"<<m_bFwdComplexGeometry_Mod1<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"GeoPixelIBLFwdService - CAD tool design / S. model1 : "<<  m_bFwdComplexGeometry_CAD<<"/"<<m_bFwdComplexGeometry_Mod1<<endmsg;
   
   if(m_bFwdComplexGeometry_CAD) {
 
-    gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design"<<endreq;
+    gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - CAD tool design"<<endmsg;
     GeoPixelIBLFwdSvcCADModel fwdSvc = GeoPixelIBLFwdSvcCADModel(m_section);
     
     fwdSvc.Build();
@@ -78,8 +76,8 @@ GeoVPhysVol* GeoPixelIBLFwdServices::Build()
     m_xformSupportC = fwdSvc.getSupportTrfC();
 
     if(m_supportPhysA==0) {
-      gmt_mgr->msg(MSG::ERROR) <<"Build IBL fwd services - CAD tool design : the PixelGeoModel package is not meant to be used to build this design"<<endreq;
-      gmt_mgr->msg(MSG::ERROR) <<"                                         : check that the GeoTorus object is defined in GeoModelKernel/GeoModel"<<endreq;
+      gmt_mgr->msg(MSG::ERROR) <<"Build IBL fwd services - CAD tool design : the PixelGeoModel package is not meant to be used to build this design"<<endmsg;
+      gmt_mgr->msg(MSG::ERROR) <<"                                         : check that the GeoTorus object is defined in GeoModelKernel/GeoModel"<<endmsg;
     }
     return 0;
   }
@@ -87,7 +85,7 @@ GeoVPhysVol* GeoPixelIBLFwdServices::Build()
 
   if(m_bFwdComplexGeometry_Mod1) {
 
-    gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - S. Menke  design"<<endreq;
+    gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services - S. Menke  design"<<endmsg;
     GeoPixelIBLFwdSvcModel1 fwdSvc = GeoPixelIBLFwdSvcModel1(m_section);
     
     fwdSvc.Build();
