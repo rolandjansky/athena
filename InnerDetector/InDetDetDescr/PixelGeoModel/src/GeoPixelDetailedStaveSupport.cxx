@@ -34,7 +34,7 @@ GeoPixelDetailedStaveSupport::GeoPixelDetailedStaveSupport()
 
 GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
-  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave support description :  layout "<<gmt_mgr->PixelStaveLayout()<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave support description :  layout "<<gmt_mgr->PixelStaveLayout()<<endmsg;
 
   bool isBLayer = false;
   if(gmt_mgr->GetLD() == 0) isBLayer = true;
@@ -68,7 +68,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
       pmThicknessP3D=pm3D.ThicknessP();
       
       if(pmThicknessP3D>pmThicknessP) radialShift = -(pmThicknessP3D-pmThicknessP);
-      gmt_mgr->msg(MSG::INFO)<<"Si3D/SiPl radial shift : "<<radialShift<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"Si3D/SiPl radial shift : "<<radialShift<<endmsg;
 
       pmThicknessN3D=pm3D.ThicknessN()-radialShift;   // /!\ thicknesses in SiPl referential 
       pmThicknessP3D=pm3D.ThicknessP()+radialShift;
@@ -76,7 +76,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
       gmt_mgr->msg(MSG::INFO) <<"Module thicknesses :  SiPl P/N "<<pmThicknessP<<" "<<pmThicknessN<<" "<<pmWidth<<
 	"  SiPl P/N "<<pmThicknessP3D<<" "<<pmThicknessN3D<<" "<<pmWidth3D<<
-	"  //  "<<pm3D.ThicknessP()<<" "<<pm3D.ThicknessN()<<endreq;
+	"  //  "<<pm3D.ThicknessP()<<" "<<pm3D.ThicknessN()<<endmsg;
 
       double MechanicalStaveOffset = gmt_mgr->IBLStaveMechanicalStaveOffset();
       double MechanicalStaveOffset3D = gmt_mgr->IBLStaveMechanicalStaveOffset(true);
@@ -121,7 +121,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
   m_PlanarModuleNumber = ModuleNumber;
   m_3DModuleNumber = Module3DNumber;
-  gmt_mgr->msg(MSG::INFO) <<"Pixel modules "<<ModuleNumber<<" -> planar/3D : "<<m_PlanarModuleNumber<<" "<<m_3DModuleNumber<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Pixel modules "<<ModuleNumber<<" -> planar/3D : "<<m_PlanarModuleNumber<<" "<<m_3DModuleNumber<<endmsg;
 
   // ------------------------------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------------------------------
@@ -141,8 +141,8 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 //   m_StaveLength=ModuleLength*ModuleNumber_allplanar+ModuleGap_allplanar*(ModuleNumber_allplanar-1)+2.0*MechanicalStaveEndBlockLength;
 
 
-  gmt_mgr->msg(MSG::INFO) <<"Module length/gap : "<<ModuleLength<<" / "<<Module3DLength<<" "<<ModuleGap<<"  -> Stave length : "<<m_StaveLength<<endreq;
-  gmt_mgr->msg(MSG::INFO) <<"   planar/3D/endblock/NonActive lengths : "<<lgPlanar<<" "<<lg3D<<" "<<lgEndBlock<<" "<<lgNAStave<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Module length/gap : "<<ModuleLength<<" / "<<Module3DLength<<" "<<ModuleGap<<"  -> Stave length : "<<m_StaveLength<<endmsg;
+  gmt_mgr->msg(MSG::INFO) <<"   planar/3D/endblock/NonActive lengths : "<<lgPlanar<<" "<<lg3D<<" "<<lgEndBlock<<" "<<lgNAStave<<endmsg;
 
   // ------------------------------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------------------------------
@@ -194,7 +194,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   else
     MaxFlexThickness=FlexBaseThick;
 
-  gmt_mgr->msg(MSG::INFO) <<"Flex thickness (max) : "<<MaxFlexThickness<<" computed for "<<ModuleNumber_allPlanar<<" modules "<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Flex thickness (max) : "<<MaxFlexThickness<<" computed for "<<ModuleNumber_allPlanar<<" modules "<<endmsg;
   
   double halfMecStaveWidth=MechanicalStaveWidth*0.5;
 
@@ -214,20 +214,20 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
        FlexWidth = sqrt(xDelta*xDelta+yDelta*yDelta);
     }
 
-  gmt_mgr->msg(MSG::INFO)<<" MechanicalStaveWidth  = "<<MechanicalStaveWidth <<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" MechanicalStaveLength = "<<MechanicalStaveLength <<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" MechanicalStaveOffset = "<<MechanicalStaveOffset <<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" StaveModuleOffset     = "<<StaveModuleOffset <<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" MechanicalStaveEndBlockLength = "<<MechanicalStaveEndBlockLength <<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" FacePlateThick  = "<<FacePlateThick <<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" TubeOuterDiam   = "<< TubeOuterDiam <<endreq; 
-  gmt_mgr->msg(MSG::INFO)<<" TubeInnerDiam   = "<< TubeInnerDiam <<endreq; 
-  gmt_mgr->msg(MSG::INFO)<<" TubeMiddlePos   = "<< TubeMiddlePos <<endreq; 
-  gmt_mgr->msg(MSG::INFO)<<" FlexBaseThick   = "<< FlexBaseThick <<endreq; 
-  gmt_mgr->msg(MSG::INFO)<<" FlexLayerThick  = "<< FlexLayerThick <<endreq; 
-  gmt_mgr->msg(MSG::INFO)<<" FlexWidth       = "<< FlexWidth <<endreq; 
-  gmt_mgr->msg(MSG::INFO)<<" FlexOffset      = "<< FlexOffset <<endreq; 
-  gmt_mgr->msg(MSG::INFO)<<" XOffset / ladder = "<< StaveModuleOffset <<endreq; 
+  gmt_mgr->msg(MSG::INFO)<<" MechanicalStaveWidth  = "<<MechanicalStaveWidth <<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" MechanicalStaveLength = "<<MechanicalStaveLength <<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" MechanicalStaveOffset = "<<MechanicalStaveOffset <<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" StaveModuleOffset     = "<<StaveModuleOffset <<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" MechanicalStaveEndBlockLength = "<<MechanicalStaveEndBlockLength <<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" FacePlateThick  = "<<FacePlateThick <<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" TubeOuterDiam   = "<< TubeOuterDiam <<endmsg; 
+  gmt_mgr->msg(MSG::INFO)<<" TubeInnerDiam   = "<< TubeInnerDiam <<endmsg; 
+  gmt_mgr->msg(MSG::INFO)<<" TubeMiddlePos   = "<< TubeMiddlePos <<endmsg; 
+  gmt_mgr->msg(MSG::INFO)<<" FlexBaseThick   = "<< FlexBaseThick <<endmsg; 
+  gmt_mgr->msg(MSG::INFO)<<" FlexLayerThick  = "<< FlexLayerThick <<endmsg; 
+  gmt_mgr->msg(MSG::INFO)<<" FlexWidth       = "<< FlexWidth <<endmsg; 
+  gmt_mgr->msg(MSG::INFO)<<" FlexOffset      = "<< FlexOffset <<endmsg; 
+  gmt_mgr->msg(MSG::INFO)<<" XOffset / ladder = "<< StaveModuleOffset <<endmsg; 
 
   // Adjust length of face plate/foam  depending on end block
   double MiddleSectionLength=MechanicalStaveLength-2.0*MechanicalStaveEndBlockLength;
@@ -379,7 +379,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
   // clean up shape and store points to Brep structure
 
-  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"Remove points "<<endreq;
+  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"Remove points "<<endmsg;
   GetSurroundingConvexShape(xShape, yShape, iShapeExcept);
   RemoveCoincidentAndColinearPointsFromShape( xShape, yShape);
 
@@ -433,14 +433,14 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   // Create composite material made of omega+glue if a thickness of glue is defined is DB
   if(OmegaGlueThick<0.0001)
     {
-      gmt_mgr->msg(MSG::INFO)<<"** OMEGA : without Stycast "<<OmegaGlueThick<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"** OMEGA : without Stycast "<<OmegaGlueThick<<endmsg;
       const GeoMaterial* omega_material = mat_mgr->getMaterial("pix::Omega_IBL");
       //      const GeoMaterial* omega_material = mat_mgr->getMaterial(gmt_mgr->getMaterialName("Omega",0,0));
       omega_logVol = new GeoLogVol("Omega",omega_shape,omega_material);
     }
   else
     {
-      gmt_mgr->msg(MSG::INFO)<<"** OMEGA : with Stycast "<<OmegaGlueThick<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"** OMEGA : with Stycast "<<OmegaGlueThick<<endmsg;
       double omegaVolume = omega_shape->volume();
       double glueVolume = omegaVolume*(OmegaGlueThick/OmegaThick);
       const std::string compMatName="OmegaGlue_IBL";
@@ -448,7 +448,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 										 omegaVolume,
 										 omegaVolume,"pix::Omega_IBL",
 										 glueVolume,"pix::Stycast2850FT");
-      gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<omega_material->getName()<<" "<<omega_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<omega_material->getName()<<" "<<omega_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endmsg;
       omega_logVol = new GeoLogVol("Omega",omega_shape,omega_material);
     }
 
@@ -482,13 +482,13 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   // Create composite material made of face plate +glue if a thickness of glue is defined is DB
   if(FacePlateGlueThick<0.0001)
     {
-      gmt_mgr->msg(MSG::INFO)<<"** FacePlate : without Stycast "<<FacePlateGlueThick<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"** FacePlate : without Stycast "<<FacePlateGlueThick<<endmsg;
       faceplateMatName = "pix::FacePlate_IBL";
       faceplate_material = mat_mgr->getMaterial(faceplateMatName);
     }
   else
     {
-      gmt_mgr->msg(MSG::INFO)<<" ** FacePlate : with Stycast "<<FacePlateGlueThick<<"  grease : "<<FacePlateGreaseThick<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<" ** FacePlate : with Stycast "<<FacePlateGlueThick<<"  grease : "<<FacePlateGreaseThick<<endmsg;
       // /!\ : faceplate thickness is already set to faceplate thickness + grease thickness
       double glueVolume = FacePlateGlueThick*MechanicalStaveWidth*MiddleSectionLength; 
       double facePlateVolume = (FacePlateThick-FacePlateGreaseThick)*MechanicalStaveWidth*MiddleSectionLength; 
@@ -498,20 +498,20 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 								  facePlateVolume,
 								  facePlateVolume,"pix::FacePlate_IBL",
 								  glueVolume,"pix::Stycast2850FT");
-      gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endmsg;
     }
 
   // Create composite material made of faceplate + grease if a thickness of grease is defined is DB
   GeoLogVol * faceplate_logVol = 0;
   if(FacePlateGreaseThick<0.0001)
     {
-      gmt_mgr->msg(MSG::INFO)<<"** FacePlate : without grease"<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"** FacePlate : without grease"<<endmsg;
       //  const GeoMaterial* faceplate_material = mat_mgr->getMaterial(gmt_mgr->getMaterialName("FacePlate",0,0));
       faceplate_logVol = new GeoLogVol("FacePlate",faceplate_shape,faceplate_material);
     }
   else
     {
-      gmt_mgr->msg(MSG::INFO)<<"** FacePlate : with grease"<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"** FacePlate : with grease"<<endmsg;
       // /!\ : faceplate thickness is already set to faceplate thickness + grease thickness
       double greaseVolume = FacePlateGreaseThick*MechanicalStaveWidth*MiddleSectionLength;
       double facePlateVolume = (FacePlateThick-FacePlateGreaseThick)*MechanicalStaveWidth*MiddleSectionLength; 
@@ -523,7 +523,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 										     facePlateVolume,faceplateMatName,
 										     greaseVolume,"pix::ThermGrease_IBL");
       faceplate_logVol = new GeoLogVol("FacePlate",faceplate_shape,faceplate_material);
-      gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<faceplate_material->getName()<<" "<<faceplate_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endmsg;
     }
 
   //  const GeoMaterial* faceplate_material = mat_mgr->getMaterial(gmt_mgr->getMaterialName("FacePlate",0,0));
@@ -758,7 +758,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 	FlexThicknessRL+=FlexLayerThick;
     }
 
-  gmt_mgr->msg(MSG::INFO)<<endreq;
+  gmt_mgr->msg(MSG::INFO)<<endmsg;
 
   // ------------------------------------------------------------------------------------------------------------
   // ------------------------------------------------------------------------------------------------------------
@@ -768,7 +768,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 
   if(bFlexAndWing&&nbModuleSvc==0)   // old wing flex definition
     {
-      gmt_mgr->msg(MSG::INFO)<<"Wings : "<< FlexOffset<<" "<<flexHalfWidth<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"Wings : "<< FlexOffset<<" "<<flexHalfWidth<<endmsg;
       
       double wingPos = FlexOffset+flexHalfWidth+2.*m_SafetyMargin+0.5;               // SES - fixme
       double flex1x = foamMidX+(wingPos+wingHalfWidth)*vDirX;
@@ -818,13 +818,13 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   // Create composite material made of omega+glue if a thickness of glue is defined is DB
   if(TubeGlueThick<0.0001)
     {
-      gmt_mgr->msg(MSG::INFO)<<"** TUBE : without Stycast "<<TubeGlueThick<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"** TUBE : without Stycast "<<TubeGlueThick<<endmsg;
       const GeoMaterial* cp_material = mat_mgr->getMaterial("pix::CoolingPipe_IBL");
       cp_logVol = new GeoLogVol("CoolingPipe",coolingPipe,cp_material);
     }
   else
     {
-      gmt_mgr->msg(MSG::INFO)<<"** TUBE : with Stycast "<<TubeGlueThick<<"  diam "<<TubeOuterDiam*0.5<<" "<<TubeInnerDiam*0.5<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"** TUBE : with Stycast "<<TubeGlueThick<<"  diam "<<TubeOuterDiam*0.5<<" "<<TubeInnerDiam*0.5<<endmsg;
       double glueVolume = (TubeOuterDiam*0.5+TubeGlueThick)*(TubeOuterDiam*0.5+TubeGlueThick)*CLHEP::pi*MiddleSectionLength;
       double tubeOuterVolume = TubeOuterDiam*TubeOuterDiam*0.25*CLHEP::pi*MiddleSectionLength;
       double tubeInnerVolume = TubeInnerDiam*TubeInnerDiam*0.25*CLHEP::pi*MiddleSectionLength;
@@ -834,7 +834,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 									      tubeOuterVolume-tubeInnerVolume,
 									      tubeOuterVolume-tubeInnerVolume,"pix::CoolingPipe_IBL",
 									      glueVolume-tubeOuterVolume,"pix::Stycast2850FT");
-      gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<cp_material->getName()<<" "<<cp_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endreq;
+      gmt_mgr->msg(MSG::INFO)<<"***> new material : "<<cp_material->getName()<<" "<<cp_material->getDensity()/(CLHEP::gram/CLHEP::cm3)<<endmsg;
       cp_logVol = new GeoLogVol("CoolingPipe",coolingPipe,cp_material);
     }
 
@@ -891,7 +891,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   if(bFlexAndWing)
       m_endblockSrvLength=FlexEOS_zpos-totalStaveLength*.5;
 
-  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"FLEX PP0 srv : "<<  m_endblockSrvLength<<" +  "<<m_doglegFlexLength<<endreq;
+  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"FLEX PP0 srv : "<<  m_endblockSrvLength<<" +  "<<m_doglegFlexLength<<endmsg;
 
 
   double serviceZMidPoint=MechanicalStaveLength*0.5-MechanicalStaveEndBlockLength*.5;
@@ -985,11 +985,11 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   m_serviceZpos=MechanicalStaveLength*0.5-m_endblockLength+(m_endblockLength+m_endblockSrvLength)*0.5;
   m_endblockZpos=MechanicalStaveLength*0.5-m_endblockLength*0.5;
 
-  gmt_mgr->msg(MSG::INFO)<<"IBL EOS : mechanical stave length : "<<MechanicalStaveLength*0.5<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<"IBL EOS :            service Zpos : "<<m_serviceZpos<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<"IBL EOS :           endblock Zpos : "<<m_endblockZpos<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<"IBL EOS :         endblock length : "<<m_endblockLength<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<"IBL EOS :     endblock srv length : "<<m_endblockSrvLength<<endreq;
+  gmt_mgr->msg(MSG::INFO)<<"IBL EOS : mechanical stave length : "<<MechanicalStaveLength*0.5<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<"IBL EOS :            service Zpos : "<<m_serviceZpos<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<"IBL EOS :           endblock Zpos : "<<m_endblockZpos<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<"IBL EOS :         endblock length : "<<m_endblockLength<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<"IBL EOS :     endblock srv length : "<<m_endblockSrvLength<<endmsg;
 
 
   // -----------  Flex running on the top of End block & service 
@@ -1023,7 +1023,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   GeoLogVol * cableflex_logVol = new GeoLogVol(lname.str(),cableflex_shape,scaledFlexMaterial);
   m_endblockFlexPhysVol = new GeoPhysVol(cableflex_logVol);
 
-  gmt_mgr->msg(MSG::INFO)<<"Flex half thickness srv : "<<EndblockFlexThickness<<endreq;
+  gmt_mgr->msg(MSG::INFO)<<"Flex half thickness srv : "<<EndblockFlexThickness<<endmsg;
 
   // -----------  service cooling pipe
   // ------------------------------------------------------------------------------------------------------------
@@ -1078,9 +1078,9 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
 				      pmThicknessN3D,pmThicknessP3D,pmShilftLateral3D);
 
   if(m_bVerbose){
-    gmt_mgr->msg(MSG::DEBUG)<<"Max thickness N/P : "<<m_thicknessN<<" "<<m_thicknessP<<endreq;
-    gmt_mgr->msg(MSG::DEBUG)<<"Max thickness P : "<<m_thicknessP+layerRadius<<" "<<flexWingMaxR<<endreq;
-    gmt_mgr->msg(MSG::DEBUG)<<"Max thickness N : "<<-m_thicknessN+layerRadius<<" "<<-m_thicknessN-radialShiftThickN+layerRadius<<" "<<radialShiftThickN<<endreq;
+    gmt_mgr->msg(MSG::DEBUG)<<"Max thickness N/P : "<<m_thicknessN<<" "<<m_thicknessP<<endmsg;
+    gmt_mgr->msg(MSG::DEBUG)<<"Max thickness P : "<<m_thicknessP+layerRadius<<" "<<flexWingMaxR<<endmsg;
+    gmt_mgr->msg(MSG::DEBUG)<<"Max thickness N : "<<-m_thicknessN+layerRadius<<" "<<-m_thicknessN-radialShiftThickN+layerRadius<<" "<<radialShiftThickN<<endmsg;
   }
 
   if(bFlexAndWing){
@@ -1089,7 +1089,7 @@ GeoVPhysVol* GeoPixelDetailedStaveSupport::Build() {
   }
   m_thicknessN+=radialShiftThickN+.11;                 // SES - fixme
 
-  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"Max thickness -> output N/P : "<<m_thicknessN<<" "<<m_thicknessP<<endreq;
+  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"Max thickness -> output N/P : "<<m_thicknessN<<" "<<m_thicknessP<<endmsg;
 
   //**********  return stave phys. vol. (= face plate + foam + cable flex + end blocks) *********************
 
@@ -1113,8 +1113,8 @@ void GeoPixelDetailedStaveSupport::computeStaveEnvelopTransformAndSize(double mo
   if(FacePlateGreaseThick>0.001) FacePlateThick+=FacePlateGreaseThick;
 
   double stave_xOffset=StaveModuleOffset+moduleThickP, stave_yOffset=MechanicalStaveOffset;
-  gmt_mgr->msg(MSG::INFO)<<" stave xoffset = "<< stave_xOffset <<endreq; 
-  gmt_mgr->msg(MSG::INFO)<<" stave yoffset = "<< stave_yOffset <<endreq; 
+  gmt_mgr->msg(MSG::INFO)<<" stave xoffset = "<< stave_xOffset <<endmsg; 
+  gmt_mgr->msg(MSG::INFO)<<" stave yoffset = "<< stave_yOffset <<endmsg; 
   m_transform = HepGeom::Translate3D(stave_xOffset,stave_yOffset,0);
 
   double staveSupportThickness=FacePlateThick+m_FoamMiddleThick;
@@ -1139,7 +1139,7 @@ void GeoPixelDetailedStaveSupport::computeStaveEnvelopTransformAndSize(double mo
   double moduleThicknessN=max(moduleThickN,moduleThickN3D);
   double moduleThicknessP=moduleThickP;
 
-  //  gmt_mgr->msg(MSG::INFO)<<"Stave envelop : module thicknesses P/N "<<moduleThicknessP<<" "<<moduleThicknessN<<endreq;
+  //  gmt_mgr->msg(MSG::INFO)<<"Stave envelop : module thicknesses P/N "<<moduleThicknessP<<" "<<moduleThicknessN<<endmsg;
 
   double module1x  =-moduleThicknessN,  module1y= -moduleWidth*0.5;
   double module2x  =moduleThicknessP,  module2y= -moduleWidth*0.5;
@@ -1158,7 +1158,7 @@ void GeoPixelDetailedStaveSupport::computeStaveEnvelopTransformAndSize(double mo
 
   // stick module and stave envelop together
   double halfLadderLength=m_basicStaveEnvelopShape->getDZ();
-  gmt_mgr->msg(MSG::INFO)<<"Stave envelop length : "<<m_StaveLength<<" ->  "<<halfLadderLength<<endreq;
+  gmt_mgr->msg(MSG::INFO)<<"Stave envelop length : "<<m_StaveLength<<" ->  "<<halfLadderLength<<endmsg;
   m_staveEnvelopShape = new GeoSimplePolygonBrep(halfLadderLength);
 
   bool bFlex=gmt_mgr->IBLFlexAndWingDefined();
@@ -1215,7 +1215,7 @@ GeoTransform* GeoPixelDetailedStaveSupport::getEndblockEnvelopShapeTrf(int iObje
 GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( double safetyMargin )
 {
 
-  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( double safetyMargin )"<<endreq;
+  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( double safetyMargin )"<<endmsg;
 
   if(safetyMargin<0 || m_staveEnvelopShape==0 || m_staveEnvelopShape->getNVertices()<=0)
     return m_staveEnvelopShape;
@@ -1229,7 +1229,7 @@ GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( do
       xVertices.push_back(m_staveEnvelopShape->getXVertex(iPt));
       yVertices.push_back(m_staveEnvelopShape->getYVertex(iPt));
 
-      if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"  "<<iPt<<" "<<m_staveEnvelopShape->getXVertex(iPt)<<" "<<m_staveEnvelopShape->getYVertex(iPt)<<endreq;
+      if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"  "<<iPt<<" "<<m_staveEnvelopShape->getXVertex(iPt)<<" "<<m_staveEnvelopShape->getYVertex(iPt)<<endmsg;
 
     }
 
@@ -1247,13 +1247,13 @@ GeoSimplePolygonBrep* GeoPixelDetailedStaveSupport::computeStaveEnvelopShape( do
     for(unsigned int iPt=0; iPt<xVertices.size(); iPt++)
       {
 	m_convexStaveEnvelopShape->addVertex(xVertices[iPt],yVertices[iPt]);
-	if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"  "<<xVertices[iPt]<<" "<<yVertices[iPt]<<endreq;
+	if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"  "<<xVertices[iPt]<<" "<<yVertices[iPt]<<endmsg;
       }
   else {
     for(unsigned int iPt=1; iPt<xVertices.size()-1; iPt++)
       {
 	m_convexStaveEnvelopShape->addVertex(xVertices[iPt],yVertices[iPt]);
-	if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"  "<<xVertices[iPt]<<" "<<yVertices[iPt]<<endreq;
+	if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"  "<<xVertices[iPt]<<" "<<yVertices[iPt]<<endmsg;
       }
 
     xVertices[0]+=m_thicknessN_svc;
@@ -1352,7 +1352,7 @@ void GeoPixelDetailedStaveSupport::GetSurroundingConvexShape(std::vector<double>
   int iMaxWhileLoop=xVertices.size();
   int iWhileLoop=0;
 
-  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"Convex shape "<<iException.size()<<endreq;
+  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"Convex shape "<<iException.size()<<endmsg;
 
   if(iException.size()==0)
     for(int i=0; i<(int)xVertices.size(); i++)iException.push_back(0);
@@ -1378,7 +1378,7 @@ void GeoPixelDetailedStaveSupport::GetSurroundingConvexShape(std::vector<double>
 	  iTmp.push_back(i);
 	}
 
-      if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"---> # points "<<xTmp.size()<<endreq;
+      if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"---> # points "<<xTmp.size()<<endmsg;
 
       int nbTmp=xTmp.size();
       int iPt;
@@ -1391,7 +1391,7 @@ void GeoPixelDetailedStaveSupport::GetSurroundingConvexShape(std::vector<double>
 	  
 	  double zProdVect=(xTmp[i1]-xTmp[i])*(yTmp[i2]-yTmp[i])-(xTmp[i2]-xTmp[i])*(yTmp[i1]-yTmp[i]);
 	  
-	  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<" => "<<iPt<<" "<<zProdVect<<endreq;
+	  if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<" => "<<iPt<<" "<<zProdVect<<endmsg;
 
 	  if(zProdVect>0)
 	    {
@@ -1401,7 +1401,7 @@ void GeoPixelDetailedStaveSupport::GetSurroundingConvexShape(std::vector<double>
 // 	      xVertices.erase(xVertices.begin()+iPt);
 // 	      yVertices.erase(yVertices.begin()+iPt);
 // 	      iException.erase(iException.begin()+iPt);
-	      if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<" -> remove point "<<iPt<<endreq;
+	      if(m_bVerbose)gmt_mgr->msg(MSG::DEBUG)<<" -> remove point "<<iPt<<endmsg;
 	      
 	    }
 	}
@@ -1516,14 +1516,14 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   double omegaThick = gmt_mgr->IBLStaveOmegaThickness();
   double omegaEndStavePointY = gmt_mgr->IBLStaveMechanicalStaveWidth()*0.5;
 
-  gmt_mgr->msg(MSG::INFO)<<" Omega MidStaveCenterX  = "<<midStaveCenter.x()<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" Omega MidStaveAngle  = "<<midStaveAngle<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" Omega MidStaveRadius  = "<<midStaveRadius<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" Omega EndStaveCenterX  = "<<endStaveCenter.x()<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" Omega EndStaveCenterY  = "<<endStaveCenter.y()<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" Omega EndStaveAngle  = "<<endStaveAngle<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" Omega EndStaveRadius  = "<<endStaveRadius<<endreq;
-  gmt_mgr->msg(MSG::INFO)<<" Omega Thickness  = "<<omegaThick<<endreq;
+  gmt_mgr->msg(MSG::INFO)<<" Omega MidStaveCenterX  = "<<midStaveCenter.x()<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" Omega MidStaveAngle  = "<<midStaveAngle<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" Omega MidStaveRadius  = "<<midStaveRadius<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" Omega EndStaveCenterX  = "<<endStaveCenter.x()<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" Omega EndStaveCenterY  = "<<endStaveCenter.y()<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" Omega EndStaveAngle  = "<<endStaveAngle<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" Omega EndStaveRadius  = "<<endStaveRadius<<endmsg;
+  gmt_mgr->msg(MSG::INFO)<<" Omega Thickness  = "<<omegaThick<<endmsg;
 
   // Sines and cosines
   double midCos=cos(midStaveAngle);
@@ -1539,16 +1539,16 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   if(fabs(endStavePt2-omegaEndStavePointY)<fabs(endStavePt1-omegaEndStavePointY))endStavePt=endStavePt2;
   HepGeom::Point3D<double> endStavePoint(0.0,endStavePt,0.0);
   m_OmegaEndStaveThick=omegaEndStavePointY-endStavePt;
-  gmt_mgr->msg(MSG::DEBUG)<<"End stave Y point : "<<endStavePt<<" "<<omegaEndStavePointY<<" -> "<<m_OmegaEndStaveThick<<endreq;
-  gmt_mgr->msg(MSG::DEBUG)<<"Angles : "<<midStaveAngle<<" "<<endStaveAngle<<endreq;
+  gmt_mgr->msg(MSG::DEBUG)<<"End stave Y point : "<<endStavePt<<" "<<omegaEndStavePointY<<" -> "<<m_OmegaEndStaveThick<<endmsg;
+  gmt_mgr->msg(MSG::DEBUG)<<"Angles : "<<midStaveAngle<<" "<<endStaveAngle<<endmsg;
   
   // ***** compute points coordinates defining stave long side
   // midSidePt : point next to cooling pipe 
 
   HepGeom::Point3D<double> midSidePt(0.0,0.0,0.0);
   midSidePt=HepGeom::Point3D<double>(midStaveCenter.x()+midStaveRadius*midCos, midStaveCenter.y()+midStaveRadius*midSin, 0.0);
-  gmt_mgr->msg(MSG::DEBUG)<< "midSidePt : "<<midSidePt.x()<<" "<<midSidePt.y()<<endreq;
-  gmt_mgr->msg(MSG::DEBUG)<< "-> verif : "<<(midSidePt.x()-midStaveCenter.x())*(midSidePt.x()-midStaveCenter.x())+(midSidePt.y()-midStaveCenter.y())*(midSidePt.y()-midStaveCenter.y())-midStaveRadius*midStaveRadius<<"  ps : "<<(midSidePt.x()-midStaveCenter.x())*midSin+(midSidePt.y()-midStaveCenter.y())*midCos<<endreq;
+  gmt_mgr->msg(MSG::DEBUG)<< "midSidePt : "<<midSidePt.x()<<" "<<midSidePt.y()<<endmsg;
+  gmt_mgr->msg(MSG::DEBUG)<< "-> verif : "<<(midSidePt.x()-midStaveCenter.x())*(midSidePt.x()-midStaveCenter.x())+(midSidePt.y()-midStaveCenter.y())*(midSidePt.y()-midStaveCenter.y())-midStaveRadius*midStaveRadius<<"  ps : "<<(midSidePt.x()-midStaveCenter.x())*midSin+(midSidePt.y()-midStaveCenter.y())*midCos<<endmsg;
 
   HepGeom::Point3D<double> midSidePt_omega(0.0,0.0,0.0);
   CLHEP::Hep3Vector midSideDir(midSidePt.x()-midStaveCenter.x(),midSidePt.y()-midStaveCenter.y(),0.0);
@@ -1557,8 +1557,8 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   // endSidePt : point next to end of stave
   HepGeom::Point3D<double> endSidePt(0.0,0.0,0.0);
   endSidePt=HepGeom::Point3D<double>(endStaveCenter.x()+endStaveRadius*midCos, endStaveCenter.y()+endStaveRadius*midSin, 0.0);
-  gmt_mgr->msg(MSG::DEBUG)<< "endSidePt : "<<endSidePt.x()<<" "<<endSidePt.y()<<endreq;
-  gmt_mgr->msg(MSG::DEBUG)<< "-> verif : "<<(endSidePt.x()-endStaveCenter.x())*(endSidePt.x()-endStaveCenter.x())+(endSidePt.y()-endStaveCenter.y())*(endSidePt.y()-endStaveCenter.y())-endStaveRadius*endStaveRadius<<"  ps : "<<(endSidePt.x()-endStaveCenter.x())*midSin-(endSidePt.y()-endStaveCenter.y())*midCos<<endreq;
+  gmt_mgr->msg(MSG::DEBUG)<< "endSidePt : "<<endSidePt.x()<<" "<<endSidePt.y()<<endmsg;
+  gmt_mgr->msg(MSG::DEBUG)<< "-> verif : "<<(endSidePt.x()-endStaveCenter.x())*(endSidePt.x()-endStaveCenter.x())+(endSidePt.y()-endStaveCenter.y())*(endSidePt.y()-endStaveCenter.y())-endStaveRadius*endStaveRadius<<"  ps : "<<(endSidePt.x()-endStaveCenter.x())*midSin-(endSidePt.y()-endStaveCenter.y())*midCos<<endmsg;
 
   HepGeom::Point3D<double> endSidePt_omega(0.0,0.0,0.0);
   CLHEP::Hep3Vector endSideDir(endSidePt.x()-endStaveCenter.x(),endSidePt.y()-endStaveCenter.y(),0.0);
@@ -1572,14 +1572,14 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   midStavePoint=IntersectionPoint(midSidePt.x(),midSidePt.y(),endSidePt.x(),endSidePt.y(),
 				  midSidePt.x(),-midSidePt.y(),endSidePt.x(),-endSidePt.y());
   m_FoamMiddleThick=midStavePoint.x();
-  gmt_mgr->msg(MSG::DEBUG)<< "Foam thickness (middle) "<<m_FoamMiddleThick<<" ("<<midStavePoint.y()<<") "<<endreq;
+  gmt_mgr->msg(MSG::DEBUG)<< "Foam thickness (middle) "<<m_FoamMiddleThick<<" ("<<midStavePoint.y()<<") "<<endmsg;
 
   // Omega module
   HepGeom::Point3D<double> midStavePoint_omega(0.0,0.0,0.0);
   midStavePoint_omega=IntersectionPoint(midSidePt_omega.x(),midSidePt_omega.y(),endSidePt_omega.x(),endSidePt_omega.y(),
 					midSidePt_omega.x(),-midSidePt_omega.y(),endSidePt_omega.x(),-endSidePt_omega.y());
   m_OmegaMidStaveThick=midStavePoint_omega.x()-midStavePoint.x();
-  gmt_mgr->msg(MSG::DEBUG)<< "Omega thickness (middle) "<<m_OmegaMidStaveThick<<" ("<<midStavePoint_omega.y()<<") "<<endreq;
+  gmt_mgr->msg(MSG::DEBUG)<< "Omega thickness (middle) "<<m_OmegaMidStaveThick<<" ("<<midStavePoint_omega.y()<<") "<<endmsg;
 
 
   // ***** Points defining the rounded shape at the edge of the stave
@@ -1592,7 +1592,7 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   HepGeom::Point3D<double> endSidePt_omega2(0.0,0.0,0.0);
   endSidePt_omega2=IntersectionPoint(midSidePt_omega.x(),midSidePt_omega.y(),endSidePt_omega.x(),endSidePt_omega.y(),
 				     endStavePoint_omega.x(),endStavePoint_omega.y(),endStavePoint.x(),endStavePoint.y()+m_OmegaEndStaveThick);
-  gmt_mgr->msg(MSG::DEBUG)<< "EndStave + omega par intersection X/Y "<<endSidePt_omega2.x()<<" "<<endSidePt_omega2.y()<<endreq;
+  gmt_mgr->msg(MSG::DEBUG)<< "EndStave + omega par intersection X/Y "<<endSidePt_omega2.x()<<" "<<endSidePt_omega2.y()<<endmsg;
   m_OmegaEndStavePointX=endSidePt_omega2.x();
   m_OmegaEndStavePointY=endSidePt_omega2.y();
 
@@ -1606,7 +1606,7 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
 				    endSidePt_inner.x(),endSidePt_inner.y(),endStavePoint.x(),endStavePoint.y());
   m_FoamEdgePointX=endSidePt_inter.x();
   m_FoamEdgePointY=endSidePt_inter.y();
-  gmt_mgr->msg(MSG::DEBUG)<< "EndStave sans omega X/Y "<<m_FoamEdgePointX<<" "<<m_FoamEdgePointY<<endreq;
+  gmt_mgr->msg(MSG::DEBUG)<< "EndStave sans omega X/Y "<<m_FoamEdgePointX<<" "<<m_FoamEdgePointY<<endmsg;
 
 
     // Check angles
@@ -1614,7 +1614,7 @@ void GeoPixelDetailedStaveSupport::ComputeStaveExternalShape()
   double angle2=ComputeAngle(0.0,1.0,m_OmegaEndStavePointX-midSidePt_omega.x(),m_OmegaEndStavePointY-midSidePt_omega.y());
   double angle3=ComputeAngle(0.0,1.0,m_FoamEdgePointX-midSidePt.x(),m_FoamEdgePointY-midSidePt.y());
 
-  gmt_mgr->msg(MSG::DEBUG)<< "Verfi angles : "<<angle1<<" "<<angle2<<" "<<angle3<<"  / "<<angle1*180.0/3.1415<<" "<<angle2*180.0/3.1415<<endreq;
+  gmt_mgr->msg(MSG::DEBUG)<< "Verfi angles : "<<angle1<<" "<<angle2<<" "<<angle3<<"  / "<<angle1*180.0/3.1415<<" "<<angle2*180.0/3.1415<<endmsg;
 
   // Compute mid stave side point
   HepGeom::Point3D<double> midSidePoint(0.0,0.0,0.0);

@@ -74,7 +74,7 @@ GeoVPhysVol* GeoPixelBarrel::Build( ) {
       Identifier id = gmt_mgr->getIdHelper()->wafer_id(0,ii,0,0);
       DDmgr->addAlignableTransform(1, id, xform, layerphys);
     } else {
-      gmt_mgr->msg(MSG::DEBUG) << "Layer " << ii << " not built" << endreq;
+      gmt_mgr->msg(MSG::DEBUG) << "Layer " << ii << " not built" << endmsg;
     }
   }
   if(gmt_mgr->DoServices() ) {
@@ -552,7 +552,7 @@ GeoVPhysVol* GeoPixelEndCap::Build( ) {
       ecPhys->add(xformCablesMinus);
       ecPhys->add(pecc.Build() );
     } else {
-      if(gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) << "Disk " << ii << " not built" << endreq;
+      if(gmt_mgr->msgLvl(MSG::DEBUG)) gmt_mgr->msg(MSG::DEBUG) << "Disk " << ii << " not built" << endmsg;
 
     }
   }
@@ -1757,21 +1757,21 @@ OraclePixGeoManager::OraclePixGeoManager()
   // Get service locator from Bootstrap
   ISvcLocator* svcLocator = Gaudi::svcLocator(); // from Bootstrap
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using ORACLE PIXEL GEOMETRY MANAGER" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Using ORACLE PIXEL GEOMETRY MANAGER" << endmsg;
 
   // Get the DetStore 
   StatusCode sc = svcLocator->service("DetectorStore", m_pDetStore );
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate DetectorStore" << endreq;  
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate DetectorStore" << endmsg;  
 
  
   IRDBAccessSvc *rdbSvc;
   sc = svcLocator->service("RDBAccessSvc",rdbSvc);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
 
 
   IGeoModelSvc *geoModel;
   sc = svcLocator->service ("GeoModelSvc",geoModel);
-  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+  if (sc.isFailure()) msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
 
   // Get version tag and node for Pixel.
   DecodeVersionKey versionKey(geoModel, "Pixel");
@@ -1787,7 +1787,7 @@ OraclePixGeoManager::OraclePixGeoManager()
 //
 /////////////////////////////////////////////////////////
 
-  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieving Record Sets from database ..." << endreq;
+  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "Retrieving Record Sets from database ..." << endmsg;
 
   atls = rdbSvc->getRecordsetPtr("AtlasMother",geoModel->atlasVersion(), "ATLAS");
   PixelBarrelGeneral = rdbSvc->getRecordsetPtr("PixelBarrelGeneral",     detectorKey, detectorNode);
@@ -1809,7 +1809,7 @@ OraclePixGeoManager::OraclePixGeoManager()
   plor = rdbSvc->getRecordsetPtr("PLOR",     detectorKey, detectorNode);
   plrn = rdbSvc->getRecordsetPtr("PLRN",     detectorKey, detectorNode);
    
-  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "... Record Sets retrieved." << endreq;
+  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "... Record Sets retrieved." << endmsg;
 
   // cache the number of inner frames
   

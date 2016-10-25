@@ -88,13 +88,13 @@ StatusCode IBLParameterSvc::initialize()
 //Determine if IBL is present and set appropriate parameters
 StatusCode IBLParameterSvc::setIblParameters() {
   if (m_geoModelSvc.retrieve().isFailure()) {
-    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endreq;
+    msg(MSG::FATAL) << "Could not locate GeoModelSvc" << endmsg;
     return (StatusCode::FAILURE); 
   }  
   DecodeVersionKey versionKey(&*m_geoModelSvc, "Pixel");
 
   if (m_rdbAccessSvc.retrieve().isFailure()) {
-     msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endreq;
+     msg(MSG::FATAL) << "Could not locate RDBAccessSvc" << endmsg;
      return (StatusCode::FAILURE); 
   } 
   m_rdbAccessSvc->connect();

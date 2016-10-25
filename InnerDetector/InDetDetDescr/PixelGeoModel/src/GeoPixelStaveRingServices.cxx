@@ -34,7 +34,7 @@ GeoPixelStaveRingServices::GeoPixelStaveRingServices(GeoPixelLadder& ladder, Geo
 GeoVPhysVol* GeoPixelStaveRingServices::Build()
 {
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL stave ring services"<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build IBL stave ring services"<<endmsg;
 
 
   double layerRadius = gmt_mgr->PixelLayerRadius();
@@ -60,7 +60,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   double dogLegStaveLength=17.87;
   double halfSupportLength=endblockLength*0.5+dogLegStaveLength*0.5;
   
-  gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : "<<endblockZpos<<"  "<<serviceZpos<<"   "<<endblockLength<<endreq;
+  gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : "<<endblockZpos<<"  "<<serviceZpos<<"   "<<endblockLength<<endmsg;
   
   
   // Define staveRing for side A
@@ -86,7 +86,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
     //layerRadius+ladderHalfThickP+m_staveSupport.thicknessP();
   
   gmt_mgr->msg(MSG::DEBUG)<<"Support assembly : "<<innerRadius<<" "<<outerRadius<<" ladderThickP  "<<ladderHalfThickP<<" "<<ladderHalfThickN<<
-    " supportThickP "<<m_staveSupport.thicknessP()<<" "<<m_staveSupport.thicknessN()<<endreq;
+    " supportThickP "<<m_staveSupport.thicknessP()<<" "<<m_staveSupport.thicknessN()<<endmsg;
   
   
   const GeoTube* supportShape = new GeoTube(innerRadius,outerRadius,endblockLength*0.5+dogLegStaveLength*0.5);
@@ -293,7 +293,7 @@ GeoVPhysVol* GeoPixelStaveRingServices::Build()
   m_supportPhysC->add(xformC);
   m_supportPhysC->add(ringphysC);
   
-  gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : zpos "<<serviceZpos<<endreq;
+  gmt_mgr->msg(MSG::DEBUG)<<"IBL EOS : zpos "<<serviceZpos<<endmsg;
   HepGeom::Transform3D supportTrfA = HepGeom::TranslateZ3D(serviceZpos+dogLegStaveLength*0.5+layerZshift);
   m_xformSupportA = new GeoTransform(supportTrfA);
   

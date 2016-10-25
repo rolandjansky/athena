@@ -60,7 +60,7 @@ PixelDetectorFactoryDC2::PixelDetectorFactoryDC2(const PixelGeoModelAthenaComps 
     if(msgLvl(MSG::WARNING)) 
       msg(MSG::WARNING) << "IdDict tag is \"" << m_detectorManager->tag() 
 			<< "\" which is inconsistent with the layout choosen!"
-			<< endreq;
+			<< endmsg;
   } 
 
   
@@ -122,16 +122,16 @@ void PixelDetectorFactoryDC2::create(GeoPhysVol *world)
   PixelGeometryManager * geometryManager =  PixelGeometryManager::GetPointer();
 
   if(msgLvl(MSG::INFO)) {
-    msg(MSG::INFO) << "Building Pixel Detector" << endreq;
-    msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endreq;
+    msg(MSG::INFO) << "Building Pixel Detector" << endmsg;
+    msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
 
     // Printout the parameters that are different in DC1 and DC2.
-    msg(MSG::INFO) << " B-Layer basic eta pitch: " << geometryManager->DesignPitchZ(true)/CLHEP::micrometer << "um" << endreq;
+    msg(MSG::INFO) << " B-Layer basic eta pitch: " << geometryManager->DesignPitchZ(true)/CLHEP::micrometer << "um" << endmsg;
   }  
   geometryManager->SetCurrentLD(0);
   geometryManager->SetBarrel();
   if(msgLvl(MSG::INFO)) 
-    msg(MSG::INFO) << " B-Layer sensor thickness: " << geometryManager->PixelBoardThickness()/CLHEP::micrometer << "um" << endreq;   
+    msg(MSG::INFO) << " B-Layer sensor thickness: " << geometryManager->PixelBoardThickness()/CLHEP::micrometer << "um" << endmsg;   
   
   //
   // Create the Pixel Envelope...

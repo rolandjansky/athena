@@ -38,7 +38,7 @@ GeoPixelIBLFwdSvcModel1::GeoPixelIBLFwdSvcModel1(int section):
 GeoVPhysVol* GeoPixelIBLFwdSvcModel1::Build()
 {
 
-  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services"<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build IBL fwd services"<<endmsg;
 
   //  double safety = 0.01*CLHEP::mm;
 

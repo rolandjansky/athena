@@ -55,7 +55,7 @@ PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athe
 
   // get switch for DBM
   m_geometryManager->SetDBMFlag(switches.dbm());
-  msg(MSG::INFO) << "DBM switch = SetDBMFlag: "<< m_geometryManager->dbm() << endreq;
+  msg(MSG::INFO) << "DBM switch = SetDBMFlag: "<< m_geometryManager->dbm() << endmsg;
    
   // Create SiCommonItems ans store it in geometry manager. 
   // These are items that are shared by all elements
@@ -69,7 +69,7 @@ PixelDetectorFactory::PixelDetectorFactory(const PixelGeoModelAthenaComps * athe
     if(msgLvl(MSG::WARNING)) 
       msg(MSG::WARNING) << "IdDict tag is \"" << m_detectorManager->tag() 
 			<< "\" which is inconsistent with the layout choosen!"
-			<< endreq;
+			<< endmsg;
   } 
 
 
@@ -111,15 +111,15 @@ PixelDetectorFactory::~PixelDetectorFactory()
 void PixelDetectorFactory::create(GeoPhysVol *world)
 {
   if(msgLvl(MSG::INFO)) {
-    msg(MSG::INFO) << "Building Pixel Detector" << endreq;
-    msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endreq;
+    msg(MSG::INFO) << "Building Pixel Detector" << endmsg;
+    msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
   }
   // Printout the parameters that are different in DC1 and DC2.
   m_geometryManager->SetCurrentLD(0);
   m_geometryManager->SetBarrel();
   if(msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/CLHEP::micrometer << "um" << endreq;  
-    msg(MSG::DEBUG) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/CLHEP::micrometer << "um" << endreq;   
+    msg(MSG::DEBUG) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/CLHEP::micrometer << "um" << endmsg;  
+    msg(MSG::DEBUG) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/CLHEP::micrometer << "um" << endmsg;   
   }
 
   // Top level transform
@@ -222,7 +222,7 @@ PixelDetectorFactory::doChecks()
   const PixelID * idHelper = m_geometryManager->athenaComps()->getIdHelper();
   const PixelDetectorManager * manager = m_detectorManager;
 
-  msg(MSG::INFO) << "Doing consistency checks." << endreq;
+  msg(MSG::INFO) << "Doing consistency checks." << endmsg;
 
   unsigned int maxHash = idHelper->wafer_hash_max();
 
@@ -233,15 +233,15 @@ PixelDetectorFactory::doChecks()
     count++;
     const InDetDD::SiDetectorElement * element = *iter; 
     if (!element) {
-      msg(MSG::WARNING) << "MISSING ELEMENT!!!!!!!!!!! - Element # " << count-1 << endreq;
+      msg(MSG::WARNING) << "MISSING ELEMENT!!!!!!!!!!! - Element # " << count-1 << endmsg;
       missingCount++;
     }
   }
   
   if (missingCount) { 
-    msg(MSG::ERROR) << "There are missing elements in element array." << endreq;
-    msg(MSG::INFO) << "Number of elements: " << count << endreq;
-    msg(MSG::INFO) << "Number missing:     " << missingCount << endreq;
+    msg(MSG::ERROR) << "There are missing elements in element array." << endmsg;
+    msg(MSG::INFO) << "Number of elements: " << count << endmsg;
+    msg(MSG::INFO) << "Number missing:     " << missingCount << endmsg;
   } 
 
 
@@ -280,7 +280,7 @@ PixelDetectorFactory::doChecks()
 	    ostr << "[2.1 . " << iBarrel << " . " << iLayer << " . " << iPhi << " . " << iEta << " . 0]"; 
 	    if (!element) {
 	      barrelCountError++;
-	      msg(MSG::WARNING) << "   No element found for id: " << ostr.str() << " " << idHelper->show_to_string(id) << endreq;
+	      msg(MSG::WARNING) << "   No element found for id: " << ostr.str() << " " << idHelper->show_to_string(id) << endmsg;
 	    }
 	  } // iEta
 	} //iPhi
@@ -305,7 +305,7 @@ PixelDetectorFactory::doChecks()
 	    ostr << "[2.1." << iEndcap << "." << iDisk << "." << iPhi << "." << iEta << ".0]"; 
 	    if (!element) {
 	      endcapCountError++;
-	      msg(MSG::WARNING) << "    No element found for id: " << ostr.str() << " " << idHelper->show_to_string(id) << endreq;
+	      msg(MSG::WARNING) << "    No element found for id: " << ostr.str() << " " << idHelper->show_to_string(id) << endmsg;
 	    }
 	  } // iEta
 	} //iPhi
@@ -333,7 +333,7 @@ PixelDetectorFactory::doChecks()
 	      ostr << "[2.1." << iEndcap << "." << iDisk << "." << iPhi << "." << iEta << ".0]"; 
 	      if (!element) {
 		endcapCountErrorDBM++;
-		msg(MSG::WARNING) << "    No element found for id (DBM): " << ostr.str() << " " << idHelper->show_to_string(id) << endreq;
+		msg(MSG::WARNING) << "    No element found for id (DBM): " << ostr.str() << " " << idHelper->show_to_string(id) << endmsg;
 	      }
 	    } // iEta
 	  } //iPhi
@@ -343,26 +343,26 @@ PixelDetectorFactory::doChecks()
   }
   
   if (barrelCountError || endcapCountError || endcapCountErrorDBM) {
-    msg(MSG::ERROR) << "There are elements which cannot be found."  << endreq;
-    msg(MSG::INFO) << "Number of barrel elements not found : " << barrelCountError << endreq;
-    msg(MSG::INFO) << "Number of pixel endcap elements not found : " << endcapCountError << endreq;
-    msg(MSG::INFO) << "Number of DBM endcap elements not found : " << endcapCountErrorDBM << endreq;
+    msg(MSG::ERROR) << "There are elements which cannot be found."  << endmsg;
+    msg(MSG::INFO) << "Number of barrel elements not found : " << barrelCountError << endmsg;
+    msg(MSG::INFO) << "Number of pixel endcap elements not found : " << endcapCountError << endmsg;
+    msg(MSG::INFO) << "Number of DBM endcap elements not found : " << endcapCountErrorDBM << endmsg;
   }
 
   if ( barrelCount+endcapCount+endcapCountDBM != int(maxHash)) { 
-     msg(MSG::ERROR) << "Total count does not match maxHash." << endreq;
-     msg(MSG::INFO) << "Number of barrel elements       : " << barrelCount << endreq;
-     msg(MSG::INFO) << "Number of endcap elements       : " << endcapCount << endreq;
-     msg(MSG::INFO) << "Number of endcap elements (DBM) : " << endcapCountDBM << endreq;
-     msg(MSG::INFO) << "Total                           : " << barrelCount+endcapCount+endcapCountDBM << endreq;
-     msg(MSG::INFO) << "MaxHash                         : " << maxHash << endreq;
+     msg(MSG::ERROR) << "Total count does not match maxHash." << endmsg;
+     msg(MSG::INFO) << "Number of barrel elements       : " << barrelCount << endmsg;
+     msg(MSG::INFO) << "Number of endcap elements       : " << endcapCount << endmsg;
+     msg(MSG::INFO) << "Number of endcap elements (DBM) : " << endcapCountDBM << endmsg;
+     msg(MSG::INFO) << "Total                           : " << barrelCount+endcapCount+endcapCountDBM << endmsg;
+     msg(MSG::INFO) << "MaxHash                         : " << maxHash << endmsg;
   }
 
-     msg(MSG::INFO) << "Number of barrel elements       : " << barrelCount << endreq;
-     msg(MSG::INFO) << "Number of endcap elements       : " << endcapCount << endreq;
-     msg(MSG::INFO) << "Number of endcap elements (DBM) : " << endcapCountDBM << endreq;
-     msg(MSG::INFO) << "Total                           : " << barrelCount+endcapCount+endcapCountDBM << endreq;
-     msg(MSG::INFO) << "MaxHash                         : " << maxHash << endreq;
+     msg(MSG::INFO) << "Number of barrel elements       : " << barrelCount << endmsg;
+     msg(MSG::INFO) << "Number of endcap elements       : " << endcapCount << endmsg;
+     msg(MSG::INFO) << "Number of endcap elements (DBM) : " << endcapCountDBM << endmsg;
+     msg(MSG::INFO) << "Total                           : " << barrelCount+endcapCount+endcapCountDBM << endmsg;
+     msg(MSG::INFO) << "MaxHash                         : " << maxHash << endmsg;
 
 }
 
@@ -379,11 +379,11 @@ InDetDD::AlignFolderType PixelDetectorFactory::getAlignFolderType() const
   if (detStore()->contains<AlignableTransformContainer>("/Indet/Align") ) static_folderStruct = true;
 
   if (static_folderStruct && !timedep_folderStruct){
-    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endreq; 
+    msg(MSG::INFO) << " Static run1 type alignment folder structure found" << endmsg; 
     return InDetDD::static_run1;
   }
   else if (!static_folderStruct && timedep_folderStruct){
-    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endreq;
+    msg(MSG::INFO) << " Time dependent run2 type alignment folder structure found" << endmsg;
     return InDetDD::timedependent_run2;
   }
   else if (static_folderStruct && timedep_folderStruct){

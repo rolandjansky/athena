@@ -63,7 +63,7 @@ PixelDetectorFactorySR1::PixelDetectorFactorySR1(const PixelGeoModelAthenaComps 
     if(msgLvl(MSG::WARNING))
       msg(MSG::WARNING) << "IdDict tag is \"" << m_detectorManager->tag() 
 			<< "\" which is inconsistent with the layout choosen!"
-			<< endreq;
+			<< endmsg;
   } 
 
   
@@ -107,12 +107,12 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
   m_geometryManager->SetCurrentLD(0);
   m_geometryManager->SetBarrel();
   if(msgLvl(MSG::INFO)) {
-    msg(MSG::INFO) << "Building Pixel Detector" << endreq;
-    msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endreq;
+    msg(MSG::INFO) << "Building Pixel Detector" << endmsg;
+    msg(MSG::INFO) << " " << m_detectorManager->getVersion().fullDescription() << endmsg;
 
     // Printout the parameters that are different in DC1 and DC2.
-    msg(MSG::INFO) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/CLHEP::micrometer << "um" << endreq;
-    msg(MSG::INFO) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/CLHEP::micrometer << "um" << endreq;   
+    msg(MSG::INFO) << " B-Layer basic eta pitch: " << m_geometryManager->DesignPitchZ()/CLHEP::micrometer << "um" << endmsg;
+    msg(MSG::INFO) << " B-Layer sensor thickness: " << m_geometryManager->PixelBoardThickness()/CLHEP::micrometer << "um" << endmsg;   
   }  
 
   bool barrelPresent   = m_geometryManager->partPresent("Barrel");
@@ -126,11 +126,11 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
   if ((barrelPresent && endcapAPresent) ||
       (barrelPresent && endcapCPresent) ||
       (endcapAPresent && endcapCPresent)) {
-    msg(MSG::ERROR) << "SR1 geometry can only have 1 part" << endreq;
+    msg(MSG::ERROR) << "SR1 geometry can only have 1 part" << endmsg;
   }
 
   if (!barrelPresent && !endcapAPresent && !endcapCPresent) {
-    msg(MSG::ERROR) << "SR1 geometry must have 1 part" << endreq;
+    msg(MSG::ERROR) << "SR1 geometry must have 1 part" << endmsg;
   }
 
   GeoVPhysVol* physVol = 0;   
@@ -212,7 +212,7 @@ void PixelDetectorFactorySR1::create(GeoPhysVol *world)
 
   // Should not happen as we check before that we have at least one part built.
   if (!physVol) {
-    msg(MSG::ERROR) << "Unexpected condition. Top level volume has zero pointer" << endreq;
+    msg(MSG::ERROR) << "Unexpected condition. Top level volume has zero pointer" << endmsg;
   }
 
   // Store alignable transform

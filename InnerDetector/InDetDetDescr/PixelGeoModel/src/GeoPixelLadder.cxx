@@ -103,7 +103,7 @@ GeoPixelLadder::GeoPixelLadder(GeoPixelSiCrystal& theSensor,
     }
   else
     {
-      gmt_mgr->msg(MSG::ERROR)<<"No ladder shape could be defined "<<endreq;      
+      gmt_mgr->msg(MSG::ERROR)<<"No ladder shape could be defined "<<endmsg;      
     }
 
   const GeoMaterial* air = mat_mgr->getMaterial("std::Air");
@@ -181,7 +181,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
       double SiPlThick = pm.ThicknessP();
       double Si3DThick = pm3D.ThicknessP();
       if(Si3DThick>SiPlThick) Si3DRadialShift=-(Si3DThick-SiPlThick);
-      //      gmt_mgr->msg(MSG::INFO)<<"Si3D/SiPl radial shift : "<<Si3DRadialShift<<"  Pl/3D : "<<SiPlThick<<" "<<Si3DThick<<endreq;
+      //      gmt_mgr->msg(MSG::INFO)<<"Si3D/SiPl radial shift : "<<Si3DRadialShift<<"  Pl/3D : "<<SiPlThick<<" "<<Si3DThick<<endmsg;
 
       double MechanicalStaveOffset = gmt_mgr->IBLStaveMechanicalStaveOffset();
       double MechanicalStaveOffset3D = gmt_mgr->IBLStaveMechanicalStaveOffset(true);
@@ -218,7 +218,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 	      zNegStavePos=-v3DLength;
 	    }
 
-	  //	  gmt_mgr->msg(MSG::INFO)<<"GeoPixelLadder : "<<nbPixelModule<<" "<<nbPixelPlanarModule<<" + "<<nbPixel3DModule<<"   planar and 3D Lengths : "<<planarLength<<" "<<v3DLength<<endreq;
+	  //	  gmt_mgr->msg(MSG::INFO)<<"GeoPixelLadder : "<<nbPixelModule<<" "<<nbPixelPlanarModule<<" + "<<nbPixel3DModule<<"   planar and 3D Lengths : "<<planarLength<<" "<<v3DLength<<endmsg;
 	}
     }
 
@@ -255,7 +255,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 	else if(gmt_mgr->PixelStaveLayout()==5)   /// 75/25  planar/3D
 	  {
 
-	    if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"Eta : cmpt/index "<<ii<<" "<<moduleIndex<<endreq;
+	    if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"Eta : cmpt/index "<<ii<<" "<<moduleIndex<<endmsg;
 
 	    if(ii<nbPixel3DModule/2) // zneg 3D pixel area
 	      {
@@ -264,11 +264,11 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 		zpos+=pm3D.Length()*0.5;
 		xposShift=Si3DRadialShift;
 		yposShift=Si3DLateralShift;
-		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"left 3D module "<<pm3D.Length()<<" "<<zpos<<endreq;
+		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"left 3D module "<<pm3D.Length()<<" "<<zpos<<endmsg;
 	      }
 	    else if(ii>nbPixelPlanarModule+nbPixel3DModule/2-1)  // zpos 3D pixel area
 	      {
-		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"right 3D module "<<pm3D.Length()<<" "<<zpos<<endreq;
+		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"right 3D module "<<pm3D.Length()<<" "<<zpos<<endmsg;
 		b3DModule=true;
 		zpos=v3DHalfLength+planarLength+gmt_mgr->IBLStaveModuleGap();
 		zpos+=(pm3D.Length()+gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - nbPixel3DModule/2 - nbPixelPlanarModule); 
@@ -280,7 +280,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 	      {
 		zpos=v3DHalfLength+(pm.Length()+gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - nbPixel3DModule/2); 
 		zpos+=pm.Length()*0.5;
-		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"planar module "<<pm.Length()<<" "<<zpos<<endreq;
+		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"planar module "<<pm.Length()<<" "<<zpos<<endmsg;
 		xposShift=0.;
 	      }
 
@@ -293,7 +293,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 
 	    if(ii<nbPixel3DModule) // zneg 3D pixel area
 	      {
-		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"left 3D module "<<pm3D.Length()<<" "<<moduleIndex<<endreq;
+		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"left 3D module "<<pm3D.Length()<<" "<<moduleIndex<<endmsg;
 		b3DModule=true;
 		zpos=(pm3D.Length()+pixelModuleGap) * moduleIndex;
 		zpos=zNegStavePos+zpos+pm3D.Length()*0.5;
@@ -302,7 +302,7 @@ GeoVPhysVol* GeoPixelLadder::Build( ) {
 	      }
 	    else  // zpos 3D pixel area
 	      {
-		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"right plannar module "<<pm.Length()<<" "<<moduleIndex<<endreq;
+		if(bVerbose)gmt_mgr->msg(MSG::DEBUG)<<"right plannar module "<<pm.Length()<<" "<<moduleIndex<<endmsg;
 		zpos=(pm.Length()+gmt_mgr->IBLStaveModuleGap()) * (moduleIndex - nbPixel3DModule);
 		zpos+=pm.Length()*0.5+pixelModuleGap*0.5;
 	      }

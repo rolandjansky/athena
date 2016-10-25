@@ -46,7 +46,7 @@ GeoVPhysVol* GeoPixelStaveRing::SetParametersAndBuild(std::string ringName, std:
 
 GeoVPhysVol* GeoPixelStaveRing::Build(){
 
-  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support : "<<m_ringName<<"  "<<m_ringPosition<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support : "<<m_ringName<<"  "<<m_ringPosition<<endmsg;
 
   double safety = 0.001*CLHEP::mm; 
   bool isBLayer = false;
@@ -76,14 +76,14 @@ GeoVPhysVol* GeoPixelStaveRing::Build(){
       m_zPosition = endBlockPosition-ringPosition;
 
       double IPTouterRadius = gmt_mgr->IBLServiceGetMaxRadialPosition("IPT","simple",m_zPosition,m_zPosition)+safety;
-      gmt_mgr->msg(MSG::DEBUG)<<"IBL stave ring "<<m_zPosition<<" "<<m_innerRadius<<"  "<<IPTouterRadius<<endreq;
+      gmt_mgr->msg(MSG::DEBUG)<<"IBL stave ring "<<m_zPosition<<" "<<m_innerRadius<<"  "<<IPTouterRadius<<endmsg;
       if(IPTouterRadius>m_innerRadius) m_innerRadius=IPTouterRadius;
 
       // create log and phys volumes
-      gmt_mgr->msg(MSG::DEBUG)<<"-> IBL stave ring "<<m_zPosition<<" "<<m_innerRadius<<"  "<<m_outerRadius<<endreq;
+      gmt_mgr->msg(MSG::DEBUG)<<"-> IBL stave ring "<<m_zPosition<<" "<<m_innerRadius<<"  "<<m_outerRadius<<endmsg;
       const GeoTube* ring_tube = new GeoTube(m_innerRadius,m_outerRadius,ringWidth*0.5);
       const GeoMaterial* ring_material_weight = mat_mgr->getMaterialForVolume("pix::StaveRing_IBLwght",ring_tube->volume());
-      gmt_mgr->msg(MSG::DEBUG)<<"IBL stave ring weighted material : "<<(ring_material_weight==0)<<endreq;
+      gmt_mgr->msg(MSG::DEBUG)<<"IBL stave ring weighted material : "<<(ring_material_weight==0)<<endmsg;
 
       GeoLogVol * logVol = 0;
       if(ring_material_weight)
@@ -93,7 +93,7 @@ GeoVPhysVol* GeoPixelStaveRing::Build(){
 	logVol = new GeoLogVol(m_ringName,ring_tube,ring_material);
       }
       GeoPhysVol * logVolPV = new GeoPhysVol(logVol);
-  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support - logVol : "<<logVol->getName()<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support - logVol : "<<logVol->getName()<<endmsg;
 
       return logVolPV;
     }
@@ -118,7 +118,7 @@ GeoVPhysVol* GeoPixelStaveRing::Build(){
 
   GeoPhysVol * logVolPV = new GeoPhysVol(logVol); 
 
-  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support - logVol : "<<logVol->getName()<<endreq;
+  gmt_mgr->msg(MSG::INFO) <<"Build detailed stave ring support - logVol : "<<logVol->getName()<<endmsg;
 
   return logVolPV;
 
