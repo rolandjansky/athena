@@ -3,7 +3,7 @@
 monitoring_bphys = [
                     'HLT_2mu4_bDimu', 'HLT_2mu4_bDimu_novtx_noos', 'HLT_mu6_mu4_bDimu', 'HLT_mu6_mu4_bDimu_novtx_noos', 'HLT_2mu6_bDimu', 'HLT_2mu6_bDimu_novtx_noos', 'HLT_2mu10_bDimu', 
                     
-                    'HLT_2mu4_bJpsimumu', 'HLT_2mu6_bJpsimumu', 'HLT_mu10_mu6_bJpsimumu', 'HLT_2mu10_bJpsimumu'
+                    'HLT_2mu4_bJpsimumu', 'HLT_2mu6_bJpsimumu', 'HLT_mu10_mu6_bJpsimumu', 'HLT_2mu10_bJpsimumu',
                     
                     'HLT_mu4_bJpsi_Trkloose', 'HLT_mu6_bJpsi_Trkloose', 'HLT_mu10_bJpsi_Trkloose', 'HLT_mu18_bJpsi_Trkloose',
                     'HLT_2mu4_bBmumuxv2', 'HLT_2mu6_bBmumuxv2', 
@@ -50,7 +50,7 @@ monitoring_bphys = [
 
 
 primary_bphys = [ 
-                 'HLT_2mu6_bDimu', 'HLT_2mu6_bBmumuxv2', 'HLT_3mu6_bJpsi', 'HLT_mu18_bJpsi_Trkloose', 'HLT_2mu6_bDimu_L12MU6-B', 'HLT_2mu6_bDimu_L12CMU6', 'HLT_2mu6_bDimu_L1BPH-8M15-2MU6', 'HLT_2mu6_bDimu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 'HLT_2mu6_bDimu_novtx_noos', 'HLT_mu11_nomucomb_2mu4noL1_nscan03_L1MU11_2MU6_bTau'
+                 'HLT_2mu6_bDimu', 'HLT_2mu6_bBmumuxv2', 'HLT_3mu6_bJpsi', 'HLT_mu18_bJpsi_Trkloose', 'HLT_2mu6_bDimu_L12MU6-B', 'HLT_2mu6_bDimu_L12CMU6', 'HLT_2mu6_bDimu_L1BPH-8M15-2MU6', 'HLT_2mu6_bDimu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6', 'HLT_2mu6_bDimu_novtx_noos', 'HLT_mu11_nomucomb_2mu4noL1_nscan03_L1MU11_2MU6_bTau', 'HLT_mu6_mu4_bDimu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4'
                  ]
 
 primary_bphys_pp = primary_bphys
