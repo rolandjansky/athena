@@ -11,7 +11,7 @@ from ROOT import *
 
 # Return the path of the output of tier0 monitoring
 def returnEosHistPath(run,stream,amiTag,tag="data16_13TeV"):
-   prefix = {'express':'express_','Egamma':'physics_','CosmicCalo':'physics_','JetTauEtmiss':'physics_','Main':'physics_','ZeroBias':'physics_'}
+   prefix = {'express':'express_','Egamma':'physics_','CosmicCalo':'physics_','JetTauEtmiss':'physics_','Main':'physics_','ZeroBias':'physics_','MinBias':'physics_'}
    path = '/eos/atlas/atlastier0/rucio/'+tag+'/'+prefix[stream]+stream+'/00'+str(run)+'/'
    P = sp.Popen(['/afs/cern.ch/project/eos/installation/0.3.84-aquamarine/bin/eos.select','ls',path],stdout=sp.PIPE,stderr=sp.PIPE)
    p = P.communicate()
@@ -67,7 +67,8 @@ def returnEosHistPathLB(run,lb0,lb1,stream,amiTag,tag="data16_13TeV"):
          listOfFiles2 = p[0].split('\n')
          for iFile2 in listOfFiles2:            
             if ("data" in iFile2):
-               ilb = int((iFile2.split("_lb")[1]).split("._SFO")[0])
+               ilb = int((iFile2.split("_lb")[1]).split("._")[0])
+#               print iFile2,ilb
                if (lb0<=ilb and ilb<=lb1):
                   path = '/eos/atlas/atlastier0/tzero/prod/'+tag+'/'+prefix[stream]+stream+'/00'+str(run)+'/'+iFile+'/'+iFile2
                   pathList.append(path)

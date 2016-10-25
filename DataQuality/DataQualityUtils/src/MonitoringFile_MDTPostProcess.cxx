@@ -417,10 +417,6 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string _title_, in
 			TH1F* heff = new TH1F(ecap_fullStr_lower+"_TUBE_eff",ecap_fullStr_lower+"_TUBE_eff",100,0,1);
 			TH1F* heffML = new TH1F(ecap_fullStr_lower+"_ML_eff",ecap_fullStr_lower+"_ML_eff",50,0,1);
 			//Histogram To Trivially measure coverage per tube
-			int totalTube_region = 0;
-			int totalDead_region = 0;
-			TH1F* hTubeOcc = new TH1F(ecap_fullStr_lower+"_Occupancy",ecap_fullStr_lower+"_Tube_Occupancy",1,0,1);
-			mf.setMetaData(dir_Overview_local, heff, heffML, hTubeOcc);
 
 			if(dir_Overview_local){
 				mf.get("EffsIn"+ecap_str+"InnerPerMultiLayer_ADCCut",EffInner,dir_Overview_local); 
@@ -705,10 +701,6 @@ void MonitoringFile::MDTChamEff( std::string inFilename, std::string _title_, in
 				EffMiddle->Write("",TObject::kOverwrite);
 				EffOuter->Write("",TObject::kOverwrite);
 				EffExtra->Write("",TObject::kOverwrite);
-				hTubeOcc->Fill("%_Tubes_On", totalTube_region > 0 ? 1-totalDead_region*1./totalTube_region : 0);
-				hTubeOcc->Fill("%_Dead_Frac", totalTube_region > 0 ? totalDead_region*1./totalTube_region : 0);
-				hTubeOcc->LabelsDeflate("x");
-				hTubeOcc->Write("",TObject::kOverwrite);
 			}
 		}//End BA,BC,EA,EC
 		if(EffG){
