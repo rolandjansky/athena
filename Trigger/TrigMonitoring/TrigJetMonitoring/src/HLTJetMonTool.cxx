@@ -28,6 +28,7 @@
 #include "TString.h"
 #include "TProfile.h"
 #include "TEfficiency.h"
+#include "TLorentzVector.h"
 
 #include "boost/tokenizer.hpp"
 
@@ -94,7 +95,8 @@ HLTJetMonTool::HLTJetMonTool(
   declareProperty("isPP",             m_isPP,         "collision mode flag" );
   declareProperty("isHI",             m_isHI,         "collision mode flag" );
   declareProperty("isCosmic",         m_isCosmic,     "collision mode flag" );
-  declareProperty("isPPb",            m_isPPb,        "collision mode flag" );
+  declareProperty("isMC",             m_isMC,         "collision mode flag" );
+  //declareProperty("isPPb",            m_isPPb,        "collision mode flag" );
 
   // Jet Multiplicity bins
   declareProperty("NJetNBins",        m_njnbins );
@@ -1338,7 +1340,7 @@ StatusCode HLTJetMonTool::retrieveContainers() {
       ATH_MSG_INFO ("Could not retrieve JetCollection with key \"" << (*ofj).second << "\" from TDS"  );
     }
     else {
-      ATH_MSG_INFO ("FOUND JetCollection with key \"" << (*ofj).second << "\" from TDS"  );
+      ATH_MSG_DEBUG ("FOUND JetCollection with key \"" << (*ofj).second << "\" from TDS"  );
     }
     m_OFJetC.push_back(jetcoll);
   } // end for
@@ -1433,13 +1435,13 @@ StatusCode HLTJetMonTool::fillJetHists() {
     ATH_MSG_DEBUG ( "HLTJetMonTool::fillOfflineHists() returned success" );    
   }
    
-// fill dijet monitoring hists
-    sc = fillDiJetHists();
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING ( "HLTJetMonTool::fillDiJetHists() failed" );
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG ( "HLTJetMonTool::fillDiJetHists() returned success" );    
+  // fill dijet monitoring hists
+  sc = fillDiJetHists();
+  if (sc.isFailure()) {
+    ATH_MSG_WARNING ( "HLTJetMonTool::fillDiJetHists() failed" );
+    return StatusCode::SUCCESS;
+  }
+  ATH_MSG_DEBUG ( "HLTJetMonTool::fillDiJetHists() returned success" );    
   
   return StatusCode::SUCCESS;
 
@@ -1572,7 +1574,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 
 	double  emfrac  =1;
 	double  hecfrac =1;
-	if (m_isPP || m_isCosmic){
+	if (m_isPP || m_isCosmic || m_isMC){
 	  emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	}
@@ -1664,7 +1666,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 
 	    double  emfrac  =1;
 	    double  hecfrac =1;
-	    if (m_isPP || m_isCosmic){
+	    if (m_isPP || m_isCosmic || m_isMC){
 	      emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	      hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
@@ -1770,7 +1772,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	   
 	   double  emfrac  =1;
 	   double  hecfrac =1;
-	   if (m_isPP || m_isCosmic){
+	   if (m_isPP || m_isCosmic || m_isMC){
 	      emfrac  = j->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	      hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
@@ -1946,7 +1948,6 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
 
   //Fill L1 Correlation
 
-
  //:::::::::::::::::::::::SELECT L1 JETS:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
  
@@ -1987,7 +1988,7 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
    }
    
    count1++;
-   
+ 
    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
    
      
@@ -2058,6 +2059,8 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
       
       count3++;
     
+
+
       //::::::::::::::::::FILL L1 vs OF HISTO::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
@@ -2085,7 +2088,7 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
     
     //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     
-       
+ 
 
     //:::::::::::::::::::::::SELECT HLT JETS::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     
@@ -2132,6 +2135,7 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
       
       count5++;
     
+
       //::::::::::::::::::FILL L1 vs HLT HISTO::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 

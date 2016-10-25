@@ -35,9 +35,7 @@ monitoring_jet = ['j25',
                   'j85_cleanLLP',
                   'j85_cleanL',
                   'j85_cleanT',
-                  'j0_1i2c400m600TLA',
-                  'j0_0i1c400m600TLA',
-                  'j0_1i2c500m900TLA',
+                  'j0_1i2c300m500TLA',
                   'j0_0i1c500m900TLA'] 
 
 
@@ -266,6 +264,7 @@ monitoring_l1jet_hi = ['L1_J10',
                        'L1_J75',
                        'L1_J100',
                        'L1_J100.31ETA49',
+                       'L1_J20',
                        'L1_J400'] 
 
                      
@@ -287,13 +286,20 @@ monitoring_jet_hi = ['j25',
                      'j0_perf_ds1_L1J75',
                      'j0_perf_ds1_L1J100',
                      'ht850_L1J100',
-                     'j30_ion_L1TE50', # Start HI chains
-                     'j30_ion_L1TE20',
-                     'j30_a3_ion_L1TE50',
-                     'j50_ion_L1TE50',
-                     'j50_ion_L1J10' ,
-                     'j100_ion_L1TE50',
-                     'j150_ion_L1TE50'] 
+                     'j30_ion_L1TE20', #start HI chains
+                     'j30_L1TE20',
+                     'j75_ion_L1J20',
+                     'j85_ion_L1J20',
+                     'j100_ion_L1J20',
+                     'j150_ion_L1J30',
+                     'j75_L1J20',
+                     'j85_L1J20',
+                     'j100_L1J20',
+                     'j150_L1J30',
+                     'j45_320eta490_ion',
+                     'j45_320eta490',
+                     'j50_ion_2j30_ion_0eta490_L1J10',
+                     'j50_2j30_0eta490_L1J10'] 
 
 primary_l1jet_hi = ['L1_J10',
                     'L1_TE50',
@@ -301,6 +307,7 @@ primary_l1jet_hi = ['L1_J10',
                     'L1_J75',
                     'L1_J100',
                     'L1_J100.31ETA49',
+                    'L1_J20',
                     'L1_J400'] 
                      
                      
@@ -322,12 +329,19 @@ primary_jet_hi = ['j25',
                   'j0_perf_ds1_L1J75',
                   'j0_perf_ds1_L1J100',
                   'ht850_L1J100',
-                  'j30_ion_L1TE50', # Start HI chains
-                  'j30_ion_L1TE20',
-                  'j30_a3_ion_L1TE50',
-                  'j50_ion_L1TE50',
-                  'j50_ion_L1J10' ,
-                  'j100_ion_L1TE50',
-                  'j150_ion_L1TE50'] 
+                  'j30_ion_L1TE20', #start HI chains
+                  'j30_L1TE20',
+                  'j75_ion_L1J20',
+                  'j85_ion_L1J20',
+                  'j100_ion_L1J20',
+                  'j150_ion_L1J30',
+                  'j75_L1J20',
+                  'j85_L1J20',
+                  'j100_L1J20',
+                  'j150_L1J30',
+                  'j45_320eta490_ion',
+                  'j45_320eta490',
+                  'j50_ion_2j30_ion_0eta490_L1J10',
+                  'j50_2j30_0eta490_L1J10'] 
 
 

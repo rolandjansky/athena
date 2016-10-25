@@ -19,8 +19,8 @@ from TrigHLTMonitoring.HLTMonTriggerList import hltmonList
 pp      = hltmonList.pp_mode
 hi      = hltmonList.HI_mode
 cosmics = hltmonList.cosmic_mode
-pPb     = hltmonList.pPb_mode
-
+#pPb     = hltmonList.pPb_mode
+mc      = hltmonList.mc_mode
 
 # Binning for NJets
 hlt_njetbins = [ 55 ]
@@ -118,9 +118,9 @@ of_DijetChains  = ['AntiKt4EMTopoJets']
 
 ############################################ pp Config ###############################################
 
-if (pp):
+if (pp) or (mc):
 
-  hlt_JetKeys = { "a10tclcwsubFS"    : "HLT_xAOD__JetContainer_a10tclcwsubFS",
+  hlt_JetKeys = { "a10tclcwsubFS"   : "HLT_xAOD__JetContainer_a10tclcwsubFS",
                   "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
                   "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
                   "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
@@ -334,9 +334,9 @@ if (pp):
 
 ############################################# HI Config #########################################################
   
-if (hi) or (pPb):
+if (hi):
 
-  hlt_JetKeys = { "a10tclcwsubFS"    : "HLT_xAOD__JetContainer_a10tclcwsubFS",
+  hlt_JetKeys = { "a10tclcwsubFS"   : "HLT_xAOD__JetContainer_a10tclcwsubFS",
                   "a4tcemsubFS"     : "HLT_xAOD__JetContainer_a4tcemsubFS", 
                   "a4tcemjesFS"     : "HLT_xAOD__JetContainer_a4tcemjesFS", 
                   "a4tcemjesPS"     : "HLT_xAOD__JetContainer_a4tcemjesPS",
@@ -345,11 +345,11 @@ if (hi) or (pPb):
                   "a4ionemsubjesFS" : "HLT_xAOD__JetContainer_a4ionemsubjesFS",  # Start HI chains
                   "a3ionemsubjesFS" : "HLT_xAOD__JetContainer_a3ionemsubjesFS" }
   
-  hlt_offlineJetKeys = {"AntiKt2HIJets"      : "AntiKt2HIJets",   # Start HI chains
-                        "AntiKt3HIJets"      : "AntiKt3HIJets", 
+  hlt_offlineJetKeys = {"AntiKt4EMTopoJets":"AntiKt4EMTopoJets",  
                         "AntiKt4HIJets"      : "AntiKt4HIJets"}
 
   hlt_level1EtThresholds        = { 'L1_J10':0.,
+                                    'L1_J20':0.,
                                     'L1_TE50':0.,
                                     'L1_J15':5.,
                                     'L1_J75':30.,
@@ -358,6 +358,7 @@ if (hi) or (pPb):
                                     'L1_J400':150.}
 
   hlt_l1EtaLowThresholds        = { 'L1_J10':0.,
+                                    'L1_J20':0.,
                                     'L1_TE50':0.,
                                     'L1_J15':0.,                        #Chose eta range for efficiency calculation
                                     'L1_J75':0.,
@@ -367,6 +368,7 @@ if (hi) or (pPb):
   
   
   hlt_l1EtaHighThresholds        = { 'L1_J10':4.9,
+                                     'L1_J20':4.9,
                                      'L1_TE50':4.9,
                                      'L1_J15':4.9,
                                      'L1_J75':4.9,
@@ -392,13 +394,20 @@ if (hi) or (pPb):
                                      'j0_perf_ds1_L1J75':0.,
                                      'j0_perf_ds1_L1J100':0.,
                                      'ht850_L1J100':50.,
-                                     'j30_ion_L1TE50':0., # Start HI chains
-                                     'j30_ion_L1TE20':0.,
-                                     'j30_a3_ion_L1TE50':0.,
-                                     'j50_ion_L1TE50':0.,
-                                     'j50_ion_L1J10' :0.,
-                                     'j100_ion_L1TE50':0.,
-                                     'j150_ion_L1TE50':0.}
+                                     'j30_ion_L1TE20':0., #start HI chains
+                                     'j30_L1TE20':0.,
+                                     'j75_ion_L1J20':0.,
+                                     'j85_ion_L1J20':0.,
+                                     'j100_ion_L1J20':0.,
+                                     'j150_ion_L1J30':0.,
+                                     'j75_L1J20':0.,
+                                     'j85_L1J20':0.,
+                                     'j100_L1J20':0.,
+                                     'j150_L1J30':0.,
+                                     'j45_320eta490_ion':0.,
+                                     'j45_320eta490':0.,
+                                     'j50_ion_2j30_ion_0eta490_L1J10':0.,
+                                     'j50_2j30_0eta490_L1J10':0.}
   
   hlt_hltEtaHighThresholds       = { 'j25':3.2,                          #Chose eta range for efficiency calculation
                                      'j25_320eta490':4.9,
@@ -416,13 +425,20 @@ if (hi) or (pPb):
                                      'j0_perf_ds1_L1J75':3.2,
                                      'j0_perf_ds1_L1J100':3.2,
                                      'ht850_L1J100':3.2,
-                                     'j30_ion_L1TE50':3.2, # Start HI chains
-                                     'j30_ion_L1TE20':3.2,
-                                     'j30_a3_ion_L1TE50':3.2,
-                                     'j50_ion_L1TE50':3.2,
-                                     'j50_ion_L1J10' :3.2,
-                                     'j100_ion_L1TE50':3.2,
-                                     'j150_ion_L1TE50':3.2}
+                                     'j30_ion_L1TE20':3.2, #start HI chains
+                                     'j30_L1TE20':3.2,
+                                     'j75_ion_L1J20':3.2,
+                                     'j85_ion_L1J20':3.2,
+                                     'j100_ion_L1J20':3.2,
+                                     'j150_ion_L1J30':3.2,
+                                     'j75_L1J20':3.2,
+                                     'j85_L1J20':3.2,
+                                     'j100_L1J20':3.2,
+                                     'j150_L1J30':3.2,
+                                     'j45_320eta490_ion':4.9,
+                                     'j45_320eta490':4.9,
+                                     'j50_ion_2j30_ion_0eta490_L1J10':4.9,
+                                     'j50_2j30_0eta490_L1J10':4.9}
   
   hlt_hltEtaLowThresholds        = { 'j25':0.,
                                      'j25_320eta490':3.2, 
@@ -441,13 +457,20 @@ if (hi) or (pPb):
                                      'j0_perf_ds1_L1J75':0.,
                                      'j0_perf_ds1_L1J100':0.,
                                      'ht850_L1J100':0.,
-                                     'j30_ion_L1TE50':0.,  # Start HI chains
-                                     'j30_ion_L1TE20':0.,
-                                     'j30_a3_ion_L1TE50':0.,
-                                     'j50_ion_L1TE50':0.,
-                                     'j50_ion_L1J10' :0.,
-                                     'j100_ion_L1TE50':0.,
-                                     'j150_ion_L1TE50':0.}
+                                     'j30_ion_L1TE20':0., #start HI chains
+                                     'j30_L1TE20':0.,
+                                     'j75_ion_L1J20':0.,
+                                     'j85_ion_L1J20':0.,
+                                     'j100_ion_L1J20':0.,
+                                     'j150_ion_L1J30':0.,
+                                     'j75_L1J20':0.,
+                                     'j85_L1J20':0.,
+                                     'j100_L1J20':0.,
+                                     'j150_L1J30':0.,
+                                     'j45_320eta490_ion':3.2,
+                                     'j45_320eta490':3.2,
+                                     'j50_ion_2j30_ion_0eta490_L1J10':0.,
+                                     'j50_2j30_0eta490_L1J10':0.}
   
   
   hlt_hltJetn                    = { 'j25':1,                           #Select the nth jet for efficiency calcultaion of single/multijet HLT chains
@@ -467,13 +490,20 @@ if (hi) or (pPb):
                                      'j0_perf_ds1_L1J75':1,
                                      'j0_perf_ds1_L1J100':1,
                                      'ht850_L1J100':1,
-                                     'j30_ion_L1TE50':1,   # Start HI chains
-                                     'j30_ion_L1TE20':1,
-                                     'j30_a3_ion_L1TE50':1,
-                                     'j50_ion_L1TE50':1,
-                                     'j50_ion_L1J10' :1,
-                                     'j100_ion_L1TE50':1,
-                                     'j150_ion_L1TE50':1}
+                                     'j30_ion_L1TE20':1, #start HI chains
+                                     'j30_L1TE20':1,
+                                     'j75_ion_L1J20':1,
+                                     'j85_ion_L1J20':1,
+                                     'j100_ion_L1J20':1,
+                                     'j150_ion_L1J30':1,
+                                     'j75_L1J20':1,
+                                     'j85_L1J20':1,
+                                     'j100_L1J20':1,
+                                     'j150_L1J30':1,
+                                     'j45_320eta490_ion':1,
+                                     'j45_320eta490':1,
+                                     'j50_ion_2j30_ion_0eta490_L1J10':1,
+                                     'j50_2j30_0eta490_L1J10':1}
 
 
   hlt_hltContainers              = {'j25':'a4tcemsubjesFS',                  #Chose container to retrieve the features of a given chain
@@ -493,15 +523,25 @@ if (hi) or (pPb):
                                     'j0_perf_ds1_L1J75':'a4tcemsubjesFS',
                                     'j0_perf_ds1_L1J100':'a4tcemsubjesFS',
                                     'ht850_L1J100':'a4tcemsubjesFS',
-                                    'j30_ion_L1TE50':'a4ionemsubjesFS',  # Start HI chains
-                                    'j30_ion_L1TE20':'a4ionemsubjesFS',
-                                    'j30_a3_ion_L1TE50':'a3ionemsubjesFS',
-                                    'j50_ion_L1TE50':'a4ionemsubjesFS',
-                                    'j50_ion_L1J10' :'a4ionemsubjesFS',
-                                    'j100_ion_L1TE50':'a4ionemsubjesFS',
-                                    'j150_ion_L1TE50':'a4ionemsubjesFS'}
+                                    'j30_ion_L1TE20':'a4ionemsubjesFS', #start HI chains
+                                    'j30_L1TE20':'a4tcemsubjesFS',
+                                    'j75_ion_L1J20':'a4ionemsubjesFS',
+                                    'j85_ion_L1J20':'a4ionemsubjesFS',
+                                    'j100_ion_L1J20':'a4ionemsubjesFS',
+                                    'j150_ion_L1J30':'a4ionemsubjesFS',
+                                    'j75_L1J20':'a4tcemsubjesFS',
+                                    'j85_L1J20':'a4tcemsubjesFS',
+                                    'j100_L1J20':'a4tcemsubjesFS',
+                                    'j150_L1J30':'a4tcemsubjesFS',
+                                    'j45_320eta490_ion':'a4ionemsubjesFS',
+                                    'j45_320eta490':'a4tcemsubjesFS',
+                                    'j50_ion_2j30_ion_0eta490_L1J10':'a4ionemsubjesFS',
+                                    'j50_2j30_0eta490_L1J10':'a4tcemsubjesFS'}
 
-  hlt_offlineEtThresholds        = { 'L1_J15':10., 
+
+
+  hlt_offlineEtThresholds        = { 'L1_J15':0., 
+                                     'L1_J20':0.,
                                      'j25':20.,
                                      'j25_320eta490':20., 
                                      'j60':50.  , 
@@ -519,15 +559,20 @@ if (hi) or (pPb):
                                      'j0_perf_ds1_L1J75':0.,
                                      'j0_perf_ds1_L1J100':0.,
                                      'ht850_L1J100':50.,
-                                     'L1_J10':0.,           # Start HI chains
-                                     'L1_TE50':0.,
-                                     'j30_ion_L1TE50':0.,  
-                                     'j30_ion_L1TE20':0.,
-                                     'j30_a3_ion_L1TE50':0.,
-                                     'j50_ion_L1TE50':0.,
-                                     'j50_ion_L1J10' :0.,
-                                     'j100_ion_L1TE50':0.,
-                                     'j150_ion_L1TE50':0.}
+                                     'j30_ion_L1TE20':0., #start HI chains
+                                     'j30_L1TE20':0.,
+                                     'j75_ion_L1J20':0.,
+                                     'j85_ion_L1J20':0.,
+                                     'j100_ion_L1J20':0.,
+                                     'j150_ion_L1J30':0.,
+                                     'j75_L1J20':0.,
+                                     'j85_L1J20':0.,
+                                     'j100_L1J20':0.,
+                                     'j150_L1J30':0.,
+                                     'j45_320eta490_ion':0.,
+                                     'j45_320eta490':0.,
+                                     'j50_ion_2j30_ion_0eta490_L1J10':0.,
+                                     'j50_2j30_0eta490_L1J10':0.}
 #Dijet chains
   
   l1_DijetChains  = ['L1_J400']
@@ -696,7 +741,8 @@ def TrigJetMonitoringTool():
             isPP=pp,
             isHI=hi,
             isCosmic=cosmics,
-            isPPb=pPb,
+            isMC=mc,
+           # isPPb=pPb,
 
             # L1 Items for trigger efficiency
             primary_l1jet           = hltmonList.primary_l1jet,
