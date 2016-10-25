@@ -21,6 +21,7 @@
 #include "TrkFitterInterfaces/ITrackFitter.h"
 #include "TrkParameters/TrackParameters.h"
 #include "TrkTrack/TrackInfo.h"
+#include "TrkGeometry/MagneticFieldProperties.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
@@ -35,6 +36,7 @@ class FitProcedure;
 class FitProcedureQuality;
 class FitQuality;    
 class IIntersector;
+class IPropagator;
 class IMaterialAllocator;
 class MaterialEffectsBase;
 class PerigeeSurface;
@@ -155,6 +157,7 @@ private:
     ToolHandle<IIntersector>				m_solenoidalIntersector;
     ToolHandle<IIntersector>				m_straightLineIntersector;
     ServiceHandle<ITrackingVolumesSvc>			m_trackingVolumesSvc;
+    ToolHandle< IPropagator >                           m_stepPropagator;
 
     // configurable tolerances, warnings
     double						m_orderingTolerance;
@@ -163,12 +166,14 @@ private:
     // configurables for validation purposes
     bool						m_constrainedAlignmentEffects;
     bool						m_extendedDebug;
+    int  						m_useStepPropagator;
     int 						m_forcedRefitsForValidation;
     
     // constants 
     Trk::Volume*					m_calorimeterVolume;
     Trk::Volume*					m_indetVolume;
- 
+    Trk::MagneticFieldProperties                        m_stepField; 
+
     // counters
     mutable unsigned					m_countFitAttempts;
     mutable unsigned					m_countGoodFits;
