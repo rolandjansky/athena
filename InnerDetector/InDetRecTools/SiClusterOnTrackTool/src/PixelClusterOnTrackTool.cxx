@@ -83,7 +83,9 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   m_usingTIDE_Ambi(false),
   m_useCentroidPosition(false),
   m_correctLorentzShift(true),
-  m_enableTheta(false)
+  m_enableTheta(false),
+  m_correctDigitalCentroid(false)
+
 {
   declareInterface<IRIO_OnTrackCreator>(this);
   
@@ -106,6 +108,7 @@ InDet::PixelClusterOnTrackTool::PixelClusterOnTrackTool
   declareProperty("UseCentroidPosition",      m_useCentroidPosition);
   declareProperty("CorrectLorentzShift",      m_correctLorentzShift);
   declareProperty("EnableTheta",              m_enableTheta);
+  declareProperty("CorrectDigitalCentroid",   m_correctDigitalCentroid); 
 
 }
 
@@ -375,6 +378,74 @@ const InDet::PixelClusterOnTrack* InDet::PixelClusterOnTrackTool::correctDefault
       meanpos += m_useCentroidPosition ? design->positionFromColumnRow(col,row)*charge : design->positionFromColumnRow(col,row);
     }
     meanpos = m_useCentroidPosition ? meanpos/totalChargeNorm : meanpos/rdos.size();
+
+    if(element->isBarrel() && m_correctDigitalCentroid ){
+      int colWidth = colmax-colmin+1;
+      int rowWidth = rowmax-rowmin+1;
+      const int numberOfRows = design->rows();
+      const int numberOfColumns = design->columns();
+      //*** correction on local X : digital average of the most populated row and its most populated neighbor ***
+      if(rowWidth>1){  //only modify the localX of clusters with phiWidth>1
+        int *NumberHitsEachRow = new int[numberOfRows](); // all elements initialized to zero
+        std::vector<Identifier>::const_iterator tpRDO = rdos.begin();
+        for(; tpRDO != rdos.end(); tpRDO++){
+          Identifier tpId = *tpRDO;
+          int row = m_pixelid->phi_index(tpId);
+          for(int ii=rowmin; ii<=rowmax;ii++){
+            if(row==ii ) {
+              NumberHitsEachRow[ii]++;
+              break;
+            }
+          }
+        }
+        //find out the row with highest number of fired pixels
+        int refmax(-9999); int row1(-9999); int row2(-9999);
+        for(int ii=rowmin; ii<=rowmax;ii++){
+          if((NumberHitsEachRow[ii])>refmax) {
+            refmax = NumberHitsEachRow[ii];
+            row1 = ii;
+          }
+        }
+        //find out the neighboring row with the second highest number of hits
+        if((row1-1)>=rowmin && (row1+1)<=rowmax ) {//make sure they are valid rows
+          if(NumberHitsEachRow[row1-1] > NumberHitsEachRow[row1+1] ) row2 = row1-1;
+          else row2 = row1+1;
+        }
+        else if((row1-1)>=rowmin && (row1+1)>rowmax ) row2 = row1-1;
+        else if((row1-1)<rowmin && (row1+1)<=rowmax ) row2 = row1+1;
+         
+        InDetDD::SiLocalPosition avgPos(0,0,0);
+        std::vector<Identifier>::const_iterator TpRDO = rdos.begin();
+        for(; TpRDO != rdos.end(); TpRDO++){
+          Identifier tpId = *TpRDO;
+          int row = m_pixelid->phi_index(tpId);
+          int col = m_pixelid->eta_index(tpId);
+          if(row==row1 || row==row2 ) avgPos += design->positionFromColumnRow(col,row);
+        }
+        avgPos = avgPos / (NumberHitsEachRow[row1]+NumberHitsEachRow[row2]);
+        InDetDD::SiLocalPosition tp_meanpos(meanpos.xEta(), avgPos.xPhi(), meanpos.xDepth());
+        meanpos = tp_meanpos;
+        delete[] NumberHitsEachRow;
+      }
+      //*** correction on local Y : (col_Min + col_Max)/2 ***
+      InDetDD::SiLocalPosition left_pos = design->positionFromColumnRow(colmin,rowmin);
+      InDetDD::SiLocalPosition right_pos = design->positionFromColumnRow(colmax,rowmin);
+      InDetDD::SiLocalPosition middle_pos = (left_pos+right_pos)/2.0;
+      InDetDD::SiLocalPosition tp_meanpos(middle_pos.xEta(), meanpos.xPhi(), meanpos.xDepth());
+      meanpos = tp_meanpos;
+      //*** correct local Y for clusters on module edge ***
+      if (colmin <= 0 || colmax >= (numberOfColumns-1) ) {
+        Amg::Vector3D globalPos = element->globalPosition(meanpos);
+        int expectedClusterLength = element->thickness() / design->etaPitch() * fabs(globalPos.z()) / globalPos.perp();
+        if( (colWidth >= expectedClusterLength/2.) && (colWidth <= expectedClusterLength) ){
+          if (colmin <= 0)  
+            meanpos += InDetDD::SiLocalPosition( design->etaPitch()*(colWidth - expectedClusterLength) / 2., 0.);
+          else if (colmax >= (numberOfColumns-1)) 
+            meanpos += InDetDD::SiLocalPosition( design->etaPitch()*(expectedClusterLength - colWidth) / 2., 0.);
+        }
+      }
+    } // end if isBarrel and m_correctDigitalCentroid
+
     InDetDD::SiLocalPosition pos1 = 
          design->positionFromColumnRow(colmin,rowmin);
     InDetDD::SiLocalPosition pos2 = 

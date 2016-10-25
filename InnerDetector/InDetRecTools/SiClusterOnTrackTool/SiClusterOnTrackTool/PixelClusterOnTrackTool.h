@@ -190,7 +190,8 @@ public:
   bool                      m_useCentroidPosition;
   bool                      m_correctLorentzShift;
   bool                      m_enableTheta;
-
+ 
+  bool                      m_correctDigitalCentroid;
 };
 
 } // end of namespace InDet
