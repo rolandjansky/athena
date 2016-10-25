@@ -106,26 +106,26 @@ namespace Trk{
    double trkWeight = trk.weight();
    //  std::cout<< "Updator::update Weight is: " << trkWeight <<std::endl;
 
-   const xAOD::Vertex & old_vrt = xAOD::Vertex(vtx); // this also copies track info from vtx which old_vrt doesn't need...oh well
+   //const xAOD::Vertex & old_vrt = xAOD::Vertex(vtx); // this also copies track info from vtx which old_vrt doesn't need...oh well
 
    // ATH_MSG_DEBUG ("old vertex is: " << old_vrt); //TODO: operator << not defined for xAOD::Vertex
 
-   xAOD::Vertex fit_vrt = positionUpdate( old_vrt, trk.linState(), trkWeight, sign);
+   xAOD::Vertex fit_vrt = positionUpdate( vtx, trk.linState(), trkWeight, sign);
 
    // ATH_MSG_DEBUG ("updated vertex is: " << fit_vrt); //TODO: operator << not defined for xAOD::Vertex
 
-   double chi2 = old_vrt.chiSquared();
+   double chi2 = vtx.chiSquared();
    double trk_chi = trackParametersChi2( fit_vrt, trk.linState() );
 
    //  std::cout << "Track parameters chi2 " << trk_chi << std::endl;
    //  std::cout << "Vertex-related chi2 " << vertexPositionChi2( old_vrt, fit_vrt ) <<std::endl;
 
-   chi2 += sign * (vertexPositionChi2(old_vrt, fit_vrt) + trkWeight * trk_chi);
+   chi2 += sign * (vertexPositionChi2(vtx, fit_vrt) + trkWeight * trk_chi);
 
    //  std::cout << "Resulting chi2 increment " << sign * (vertexPositionChi2(old_vrt, fit_vrt) + trkWeight * trk_chi) << std::endl;
 
    //number of degrees of freedom
-   double ndf = old_vrt.numberDoF();
+   double ndf = vtx.numberDoF();
    ndf +=  sign * trkWeight * (2.0);
 
    //  std::cout << "Updator NDF in calculation is: " << ndf << std::endl;
@@ -205,10 +205,13 @@ namespace Trk{
    Amg::Vector3D new_vrt_position =  new_vrt_weight_later_cov*(old_vrt_weight * old_pos + trackWeight * sign * A.transpose() * gB *(trackParameters - constantTerm) );
    //  std::cout << "New vertex position obtained: " << new_vrt_position << std::endl;
 
-   // return a vertex which is identical to the input vertex but with updated position and covariance
-   xAOD::Vertex r_vtx( vtx );
+   // return a vertex which has an updated position and covariance but with no tracks
+   xAOD::Vertex r_vtx;
+   r_vtx.makePrivateStore();
+   // r_vtx was a RecVertex before vertex EDM migration and instantiated using RecVertex(pos,cov)
    r_vtx.setPosition( new_vrt_position );
    r_vtx.setCovariancePosition( new_vrt_weight_later_cov );
+   r_vtx.setFitQuality( vtx.chiSquared(), vtx.numberDoF() );
    ATH_MSG_VERBOSE ( "Maths done, returning a valid xAOD::Vertex.");
 
    return r_vtx;
