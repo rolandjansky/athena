@@ -2041,8 +2041,8 @@ void HltEventLoopMgr::bookHistograms()
   }
 
   // *-- HLT result size plot (Stream Physiscs Main)
-  m_hist_Hlt_result_size_physics = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (Main,physiscs))").c_str(),
-      (m_histProp_Hlt_result_size.value().title() + "-(StreamType Physiscs)" + ";words;entries").c_str(),
+  m_hist_Hlt_result_size_physics = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (Main:physics))").c_str(),
+      (m_histProp_Hlt_result_size.value().title() + "-(Stream (Main:physics))" + ";words;entries").c_str(),
       m_histProp_Hlt_result_size.value().bins(),
       m_histProp_Hlt_result_size.value().lowEdge(),
       m_histProp_Hlt_result_size.value().highEdge());
@@ -2052,8 +2052,8 @@ void HltEventLoopMgr::bookHistograms()
   }
 
   // *-- HLT result size plot (Stream Express)
-  m_hist_Hlt_result_size_express = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (express,express))").c_str(),
-      (m_histProp_Hlt_result_size.value().title() + "-(StreamType Express)" + ";words;entries").c_str(),
+  m_hist_Hlt_result_size_express = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Stream (express:express))").c_str(),
+      (m_histProp_Hlt_result_size.value().title() + "-(Stream (express:express))" + ";words;entries").c_str(),
       m_histProp_Hlt_result_size.value().bins(),
       m_histProp_Hlt_result_size.value().lowEdge(),
       m_histProp_Hlt_result_size.value().highEdge());
@@ -2063,8 +2063,8 @@ void HltEventLoopMgr::bookHistograms()
   }
 
   // *-- HLT result size plot (Stream calibration, DataScouting results)
-  m_hist_Hlt_result_size_DataScouting = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Streams (DataScouting_*,calibration))").c_str(),
-      (m_histProp_Hlt_result_size.value().title() + "-(StreamType Calibration, DataScouting)" + ";words;entries").c_str(),
+  m_hist_Hlt_result_size_DataScouting = new TH1F (((m_histProp_Hlt_result_size.value().title()) + "-(Streams (DataScouting_*:calibration))").c_str(),
+      (m_histProp_Hlt_result_size.value().title() + "-(Streams (DataScouting_*:calibration))" + ";words;entries").c_str(),
       m_histProp_Hlt_result_size.value().bins(),
       m_histProp_Hlt_result_size.value().lowEdge(),
       m_histProp_Hlt_result_size.value().highEdge());
@@ -2075,7 +2075,7 @@ void HltEventLoopMgr::bookHistograms()
 
   // *-- HLT result size profile plot for all stream types "physiscs"
   m_hist_HltResultSizes_Stream_physics = new TProfile( std::string("Average Hlt Result size for physics streams").c_str(),
-						       std::string("Stream Name;;Average size in words").c_str(),
+						       std::string("Average Hlt Result size for physics streams;Stream Name;Average size in words").c_str(),
 						       1,
 						       (double) 0., (double) 1.,
 						       (double) 0., (double) 3000000.);
@@ -2087,7 +2087,7 @@ void HltEventLoopMgr::bookHistograms()
 
   // *-- HLT result size profile plot for all stream names "DataScouting"
   m_hist_HltResultSizes_Stream_DataScouting = new TProfile( std::string("Average Hlt Result size for data scouting streams").c_str(),
-						       std::string("Stream Name;;Average size in words").c_str(),
+						       std::string("Average Hlt Result size for data scouting streams;Stream Name;Average size in words").c_str(),
 						       1,
 						       (double) 0., (double) 1.,
 						       (double) 0., (double) 3000000.);
