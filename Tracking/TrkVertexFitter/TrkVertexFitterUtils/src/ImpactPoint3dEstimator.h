@@ -18,6 +18,14 @@
  *  
  * This algorithm makes use of a simple iterative Newton process 
  * @author N. Giacinto Piacquadio (for the Freiburg Group)
+ *
+ * -------------------------------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-03-18)
+ *
+ * EDM Migration to xAOD - move Trk::Vertex to Amg::Vector3D
+ *
  */
 
 namespace MagField {
@@ -58,14 +66,16 @@ namespace Trk
    /**
     * New method implementing the features of two above methods at once
     */
-    template<typename T> PlaneSurface* _Estimate3dIPNoCurvature(const T*, const Vertex* theVertex) const; 
-    PlaneSurface* Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Vertex* theVertex) const; 
-    PlaneSurface* Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Vertex* theVertex) const; 
+    template<typename T> PlaneSurface* _Estimate3dIPNoCurvature(const T*, const Amg::Vector3D* theVertex) const;
+
+    PlaneSurface* Estimate3dIP(const Trk::TrackParameters* trackPerigee, const Amg::Vector3D* theVertex) const;
+
+    PlaneSurface* Estimate3dIP(const Trk::NeutralParameters* neutralPerigee, const Amg::Vector3D* theVertex) const;
    
     /**
      * Access to the 3D impact point
      */
-    Vertex* get3dIP() const;
+    Amg::Vector3D* get3dIP() const;
 
     /**
      * Access to the IP 3D distance
@@ -75,7 +85,7 @@ namespace Trk
     /**
       * Actual estimate method, changing the state of Trk::VxTrackAtVertex
       */
-    bool addIP3dAtaPlane(VxTrackAtVertex &,const Vertex & vertex) const;
+    bool addIP3dAtaPlane(VxTrackAtVertex &,const Amg::Vector3D & vertex) const;
 
     /**
       *
@@ -84,11 +94,11 @@ namespace Trk
       * intersecting the track at point of closest approach, with track ortogonal to the plane and center 
       * of the plane defined as the given vertex.
       */
-    Trk::AtaPlane * IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Vertex & vertex) const;
+    Trk::AtaPlane * IP3dAtaPlane(VxTrackAtVertex & vtxTrack,const Amg::Vector3D & vertex) const;
 
     //Same for neutrals
-    Trk::NeutralAtaPlane * IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Vertex & vertex) const;
- 
+    Trk::NeutralAtaPlane * IP3dNeutralAtaPlane(const NeutralParameters * initNeutPerigee,const Amg::Vector3D & vertex) const;
+
   private:
     
     
@@ -98,7 +108,7 @@ namespace Trk
     int m_maxiterations;
     double m_precision;
     
-    mutable Vertex* m_vertex;
+    mutable Amg::Vector3D* m_vertex;
     
     mutable double m_distance;
     

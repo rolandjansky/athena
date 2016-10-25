@@ -15,12 +15,10 @@
 namespace Trk
 {
 
- class VxCandidate;
  class Track;
  class TrackParticleBase;
  class IExtrapolator;
  class IVertexUpdator;
- class RecVertex;
  class IVertexLinearizedTrackFactory;
 
 
@@ -62,6 +60,11 @@ namespace Trk
  * allow for estimation of IP parameter even if vertex doesn't contain any tracks
  * as can happen in BeamSpot or early running when PV is not reconstructed
  * degrade some INFO/WARNINGS to DEBUG
+ *
+ * --------------------------------------
+ * David Shope <david.richard.shope@cern.ch> (2016-04-19)
+ * EDM Migration to xAOD - Remove methods involving Trk::VxCandidate and Trk::RecVertex
+ *
  */ 
  
  
@@ -89,57 +92,21 @@ namespace Trk
  * Estimate methods returning a d0 and its calculated sigma.
  * All  methods do check whether a track is actually fitted to a vertex
  */  
-   const  ImpactParametersAndSigma * estimate(const Trk::Track * track, const Trk::VxCandidate * vtx, bool doRemoval=true) const;
-   const  ImpactParametersAndSigma * estimate(const Trk::TrackParticleBase * track, const Trk::VxCandidate * vtx, bool doRemoval=true) const;
-   const  ImpactParametersAndSigma * estimate(const TrackParameters * track, const Trk::VxCandidate * vtx, bool doRemoval=true) const;
-   const  ImpactParametersAndSigma * estimate(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx, bool doRemoval=false) const;
-   const  ImpactParametersAndSigma * estimate(const TrackParameters * track, const xAOD::Vertex * vtx, bool doRemoval=true) const;
+   const  ImpactParametersAndSigma * estimate(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx, bool doRemoval) const;
+   const  ImpactParametersAndSigma * estimate(const TrackParameters * track, const xAOD::Vertex * vtx, bool doRemoval) const;
 
+   const  ImpactParametersAndSigma * estimate(const xAOD::TrackParticle * track,const xAOD::TrackParticle * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const;
+   const  ImpactParametersAndSigma * estimate(const TrackParameters * track, const TrackParameters * newtrack, const xAOD::Vertex * vtx, bool doRemoval) const;
 
-   
-   const  ImpactParametersAndSigma * estimate(const Trk::Track * track, const Trk::Track * newtrack, const Trk::VxCandidate * vtx, bool doRemoval=true) const;
-   const  ImpactParametersAndSigma * estimate(const TrackParameters * track, const TrackParameters * newtrack, const Trk::VxCandidate * vtx, bool doRemoval=true) const;
-   const  ImpactParametersAndSigma * estimate(const Trk::TrackParticleBase * track, const Trk::TrackParticleBase * newtrack, const Trk::VxCandidate * vtx, bool doRemoval=true) const;
-   const  ImpactParametersAndSigma * estimate(const xAOD::TrackParticle * track,const xAOD::TrackParticle * newtrack, const xAOD::Vertex * vtx, bool doRemoval=false) const;
-   const  ImpactParametersAndSigma * estimate(const TrackParameters * track, const TrackParameters * newtrack, const xAOD::Vertex * vtx, bool doRemoval=true) const;
-   
-
-   virtual const Trk::RecVertex * getUnbiasedVertex(const Trk::Track * track, const Trk::VxCandidate * vtx ) const ;
-   virtual const Trk::RecVertex * getUnbiasedVertex(const Trk::TrackParticleBase * track, const Trk::VxCandidate * vtx ) const ;
-   virtual const Trk::RecVertex * getUnbiasedVertex(const TrackParameters * track, const Trk::VxCandidate * vtx ) const ;
    virtual const xAOD::Vertex *   getUnbiasedVertex(const xAOD::TrackParticle * track, const xAOD::Vertex * vtx ) const ;
    virtual const xAOD::Vertex *   getUnbiasedVertex(const TrackParameters * track, const xAOD::Vertex * vtx ) const ;
   
 
-   virtual const ImpactParametersAndSigma  * estimate(const Trk::Track * track, const Trk::RecVertex* vtx)const;
-   virtual const ImpactParametersAndSigma  * estimate(const Trk::TrackParticleBase * track, const Trk::RecVertex* vtx)const;
-   virtual const ImpactParametersAndSigma  * estimate(const TrackParameters * track, const Trk::RecVertex* vtx)const;
+   virtual const ImpactParametersAndSigma  * estimate(const xAOD::TrackParticle * track, const xAOD::Vertex* vtx)const;
+   virtual const ImpactParametersAndSigma  * estimate(const TrackParameters * track, const xAOD::Vertex* vtx)const;
    
 
    /* Methods which provide the lifetime Sign for the Impact Parameter (2D, Z, 3D)  */
-
-   double get3DLifetimeSignOfTrack(const TrackParameters & track,
-                                   const Amg::Vector3D & jetDirection,
-                                   const Trk::RecVertex & primaryVertex) const;
-   double get3DLifetimeSignOfTrack(const TrackParameters & track,
-                                   const CLHEP::Hep3Vector & jetDirection,
-                                   const Trk::RecVertex & primaryVertex) const;
-
-   double get2DLifetimeSignOfTrack(const TrackParameters & track,
-                                   const Amg::Vector3D & jetDirection,
-                                   const Trk::RecVertex & primaryVertex) const;
-   double get2DLifetimeSignOfTrack(const TrackParameters & track,
-                                   const CLHEP::Hep3Vector & jetDirection,
-                                   const Trk::RecVertex & primaryVertex) const;
-
-   double getZLifetimeSignOfTrack(const TrackParameters & track,
-                                  const Amg::Vector3D & jetDirection,
-                                  const Trk::RecVertex & primaryVertex) const;
-   double getZLifetimeSignOfTrack(const TrackParameters & track,
-                                  const CLHEP::Hep3Vector & jetDirection,
-                                  const Trk::RecVertex & primaryVertex) const;
-
-
    double get3DLifetimeSignOfTrack(const TrackParameters & track,
                                    const Amg::Vector3D & jetDirection,
                                    const xAOD::Vertex & primaryVertex) const;
@@ -171,7 +138,6 @@ namespace Trk
  * At this stage the trajectory is removed from the 
  * vertex.
  */
-   const ImpactParametersAndSigma  * calculate(const TrackParameters * track, const Trk::RecVertex& vtx) const;
    const ImpactParametersAndSigma  * calculate(const TrackParameters * track, const xAOD::Vertex& vtx) const;
 
    ToolHandle< Trk::IExtrapolator >  m_extrapolator; 

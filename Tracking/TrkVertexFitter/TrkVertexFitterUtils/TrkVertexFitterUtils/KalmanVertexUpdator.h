@@ -17,12 +17,19 @@
  * Based on R. Fruhwirth et al. Comp. Phys. Comm 96(1996) 189 
  *
  * @author Kirill Prokofiev, November 2005
+ *
+ * ----------------------------------------------------------
+ * Changes:
+ *
+ * David Shope <david.richard.shope@cern.ch> (2016-04-19)
+ *
+ * EDM Migration to xAOD - from Trk::VxCandidate to xAOD::Vertex, 
+ *                         from Trk::RecVertex   to xAOD::Vertex,
+ *                         from Trk::Vertex      to Amg::Vector3D
  */
  
 namespace Trk
 {
- class RecVertex;
- class VxCandidate;
  class VxTrackAtVertex;
  class LinearizedTrack;
  
@@ -45,35 +52,35 @@ namespace Trk
 /**
  * Method adding a single track to the vertex estimate
  */
-   VxCandidate * add(VxCandidate& vtx,  VxTrackAtVertex& trk) const;
- 
+   xAOD::Vertex * add(xAOD::Vertex& vtx, VxTrackAtVertex& trk) const;
+
 /**
  * Method removing already added track from the vertex estimate
  */
-   VxCandidate * remove(VxCandidate& vtx,  VxTrackAtVertex& trk) const;
+   xAOD::Vertex * remove(xAOD::Vertex& vtx,  VxTrackAtVertex& trk) const;
 
 /**
  * Position update method  
  */
-  Trk::RecVertex positionUpdate (const RecVertex& vtx, const LinearizedTrack * trk, double trackWeight, int sign) const;
+  xAOD::Vertex positionUpdate (const xAOD::Vertex& vtx, const LinearizedTrack * trk, double trackWeight, int sign) const;
+
+/**
+ * Method calculating the interstep Chi2 increment
+ */ 
+  float trackParametersChi2(const xAOD::Vertex& new_vtx, const LinearizedTrack * trk) const;
+
+/** 
+ * Method calculating the vertex displacement-related part of the chi2   
+ */
+  float vertexPositionChi2(const xAOD::Vertex& old_vtx, const xAOD::Vertex& new_vtx) const;
 
   private:
   
 /**
  * Method where the fit is actually done
  */
-  VxCandidate* update(VxCandidate& vtx,  VxTrackAtVertex& trk,int sign) const;
-  
-/**
- * Helper method calculating the interstep Chi2 increment
- */ 
-  float trackParametersChi2(const RecVertex& new_vtx, const LinearizedTrack * trk)const;
-  
-/** 
- * Helper method calculating the vertex displacement-related part of the chi2   
- */
-  float vertexPositionChi2(const RecVertex& old_vtx, const RecVertex& new_vtx)const;  
-    
+  xAOD::Vertex* update(xAOD::Vertex& vtx, const VxTrackAtVertex& trk,int sign) const;
+   
  };//end of class definition
 }//end of namespace definition
 
