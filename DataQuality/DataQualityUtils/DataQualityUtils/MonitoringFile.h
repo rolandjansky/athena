@@ -140,6 +140,7 @@ namespace dqutils {
     static void   fitMergedFile_IDAlignMonResiduals(TFile* f, std::string run_dir, std::string TriggerName);
     static void   fitMergedFile_IDAlignMonTrackSegments(TFile* file, std::string run_dir, std::string tracksName);
     static void   fitMergedFile_IDAlignMonGenericTracks(TFile* file, std::string run_dir, std::string tracksName);
+    static void   fitMergedFile_IDAlignMonPVbiases(TFile* file, std::string run_dir, std::string tracksName);
     static void   fitMergedFile_IDPerfMonKshort(TFile* f, std::string run_dir, std::string TriggerName);
     static void   fitMergedFile_IDPerfMonJpsi(TFile* f, std::string run_dir, 
 					       std::string TriggerName);
@@ -155,7 +156,7 @@ namespace dqutils {
     static void   fitZmumuHistograms(TH1F* hmass, TH1F* hwidth, std::vector<TH1F*> hvec);
     static void   processModule(TFile* f, std::string run_dir, TKey* key_module, std::string moduleName);
     static void   fitMergedFile_DiMuMonAll(TFile* f, std::string run_dir, std::string resonName, std::string triggerName);
-    static void   fitHistos(TH2D* hin, std::vector<TH1D*> hout, int mode, std::string triggerName, std::string resonName, TH1D* m_chi2);
+    static void   fitHistos(TH2F* hin, std::vector<TH1F*> hout, int mode, std::string triggerName, std::string resonName, TH1F* m_chi2);
     static void   fillGaussianMeanOrWidth(TH2F* h2d, TH1F* h, float fitMin, float fitMax, int iopt);
     static void   fillMeanOrWidth(TH2F* h2d, TH1F* h, int iopt);
     static void   fillDetPaperMeanRMS(TH2F* h2d, TH1F* h, int iopt);
@@ -168,6 +169,9 @@ namespace dqutils {
     static void   setMinWindow(TH1* h1, float min, float max);
     static float  getMedian(TH1* h1);
     static void   ProcessAsymHistograms(TH1F* m_neg, TH1F* m_pos, TH1F* m_asym);
+    static void   Make1DProfile(TH1* output, TH2* histo);
+    static void   MakeMap(TH2* outputhist, TH3* hist);
+    static int    IterativeGaussFit(TH1* hist, double &mu, double &mu_err, double &sigma, double &sigma_err); 
 
     // Muon CSC
     static void CSCPostProcess(std::string inFilename, bool isIncremental = false);
