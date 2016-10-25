@@ -59,14 +59,12 @@ parser.add_argument('-ul','--upperlb',type=int,dest='upperLB',default='999999',h
 parser.add_argument('-s','--stream',dest='stream',default='express',help="Stream without prefix: express, CosmicCalo, Egamma...",action='store')
 parser.add_argument('-t','--tag',dest='tag',default='data16_13TeV',help="DAQ tag: data12_8TeV, data12_calocomm...",action='store')
 parser.add_argument('-a','--amiTag',dest='amiTag',default='x',help="First letter of AMI tag: x->express / f->bulk",action='store')
-parser.add_argument('-e','--eta',type=float,dest='etaSpot',default='0',help='Eta of hot spot',action='store')
-parser.add_argument('-p','--phi',type=float,dest='phiSpot',default='0.',help='Phi of hot spot (or MET bump)',action='store')
+parser.add_argument('-e','--eta',type=float,dest='etaSpot',default='-999.',help='Eta of hot spot',action='store')
+parser.add_argument('-p','--phi',type=float,dest='phiSpot',default='-999.',help='Phi of hot spot (or MET bump)',action='store')
+parser.add_argument('-lb','--lowerBound',type=float,dest='lowerBound',default='-999.',help='Lower bound of upper band',action='store')
 parser.add_argument('-d','--delta',type=float,dest='deltaSpot',default='0.1',help='Distance to look around hot spot (or MET bump)',action='store')
 parser.add_argument('-o','--object',dest='objectType',default='TopoClusters',help='TopoClusters,EMTopoClusters,EMTopoJets',action='store')
-#parser.add_argument('-c','--cut',type=int,dest='upperLB',default='999999',help="Upper lb",action='store')
 parser.add_argument('-m','--min',type=int,dest='minInLB',default='5',help='Min number of object in a LB',action='store')
-parser.add_argument('-n','--noplot',dest='noplot',help='Do not plot LB map',action='store_true')
-
 
 args = parser.parse_args()
 
@@ -81,6 +79,7 @@ amiTag = args.amiTag
 etaSpot = args.etaSpot
 phiSpot = args.phiSpot
 deltaSpot = args.deltaSpot
+lowerBound = args.lowerBound
 objectType = args.objectType
 minInLB = args.minInLB
 
@@ -98,8 +97,8 @@ if (objectType == "TopoClusters"):
   histoKeys = ["Et10GeV",
                "Et25GeV",
                "Et50GeV"]
-  b_2dHisto = True # Draw with "COLZ"
-
+  histoType = "2d_hotSpot"
+  histoName = "TopoClusters"
 if (objectType == "EMTopoClusters"):
   histoPath  = {"Et4GeV":"run_%d/CaloMonitoring/ClusterMon/LArClusterEMNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh1"%(run),
                 "Et10GeV":"run_%d/CaloMonitoring/ClusterMon/LArClusterEMNoTrigSel/2d_Rates/m_clus_etaphi_Et_thresh2"%(run),
@@ -113,8 +112,8 @@ if (objectType == "EMTopoClusters"):
   histoKeys = ["Et4GeV",
                "Et10GeV",
                "Et25GeV"]
-  b_2dHisto = True # Draw with "COLZ"
-
+  histoType = "2d_hotSpot"
+  histoName = "EMTopoClusters"
 if (objectType == "EMTopoJets"):
   histoPath  = {"noCut":"run_%d/Jets/AntiKt4EMTopoJets/OccupancyEtaPhi"%(run),
                 "cut1":"run_%d/Jets/AntiKt4EMTopoJets/OccupancyEtaPhisel_20000_inf_pt_inf_500000"%(run),
@@ -136,7 +135,74 @@ if (objectType == "EMTopoJets"):
                "cut2",
                "cut3",
                "cut4"]
-  b_2dHisto = True # Draw with "COLZ"
+  histoType = "2d_hotSpot"
+  histoName = "EMTopoJots"
+if (objectType == "EMTopoJets_eta"):
+  histoPath  = {"cut1":"run_%d/Jets/AntiKt4EMTopoJets/etasel_20000_inf_pt_inf_500000"%(run),
+                "cut2":"run_%d/Jets/AntiKt4EMTopoJets/etasel_500000_inf_pt_inf_1000000"%(run),
+                "cut3":"run_%d/Jets/AntiKt4EMTopoJets/etasel_1000000_inf_pt_inf_2000000"%(run),
+                "cut4":"run_%d/Jets/AntiKt4EMTopoJets/etasel_2000000_inf_pt_inf_8000000"%(run)}
+  histoLegend = {"cut1":"20GeV-500GeV",
+                 "cut2":"500GeV-1TeV",
+                 "cut3":"1TeV-2TeV",
+                 "cut4":"2TeV-8TeV"}
+  histoColor = {"cut1":kRed,
+                "cut2":kBlue,
+                "cut3":kGreen,
+                "cut4":kPink}
+  histoKeys = ["cut1",
+               "cut2",
+               "cut3",
+               "cut4"]
+  histoType = "1d_etaHotSpot"
+  histoName = "EMTopoJots"
+if (objectType == "NumberTau"):
+  histoPath  = {"cut1":"run_%d/Tau/nTauCandidates"%(run),
+                "cut2":"run_%d/Tau/nHighPtTauCandidates"%(run)}
+  histoLegend = {"cut1":"All candidates",
+                 "cut2":"High Pt (>100GeV) candidates"}
+  histoColor = {"cut1":kRed,
+                "cut2":kBlue}
+  histoKeys = ["cut1",
+               "cut2"]
+  histoType = "1d_upperBand"
+  histoName = "Number of Tau candidates"
+if (objectType == "TightFwdElectrons"):
+  histoPath  = {"cut1":"run_%d/egamma/forwardElectrons/forwardElectronTightEtaPhi"%(run)}
+  histoLegend = {"cut1":"10GeV"}
+  histoColor = {"cut1":kRed}
+  histoKeys = ["cut1"]
+  histoType = "2d_hotSpot"
+  histoName = "Tight electrons"
+if (objectType == "NumberTightElectrons"):
+  histoPath  = {"cut1":"run_%d/egamma/forwardElectrons/forwardElectronTightN"%(run)}
+  histoLegend = {"cut1":"All candidates"}
+  histoColor = {"cut1":kRed}
+  histoKeys = ["cut1"]
+  histoType = "1d_upperBand"
+  histoName = "Number of tight electrons"
+
+
+# Depending of the histo/check type, define the summary title and
+# check that the position of the "hot spot" (or lower bound of the band) is defined
+if histoType == "2d_hotSpot":
+  summaryTitle = "Nb of hits in a region of %.2f around the position (%.2f,%.2f) - %s"%(deltaSpot,etaSpot,phiSpot,histoName)
+  statement = "I have looked for LBs with at least %d entries at position (%.2f,%.2f) in %s histogram"%(minInLB,etaSpot,phiSpot,histoName)
+  if (etaSpot==-999. or phiSpot==-999.):
+    print "You must define eta/phi of hot spot"
+    sys.exit()
+elif histoType == "1d_etaHotSpot":
+  summaryTitle = "Nb of hits in a region of %.2f around the eta position %.2f - %s"%(deltaSpot,etaSpot,histoName)
+  statement = "I have looked for LBs with at least %d entries at eta position %.2f in %s histogram"%(minInLB,etaSpot,histoName)
+  if (etaSpot==-999.):
+    print "You must define eta of hot spot"
+    sys.exit()
+elif histoType == "1d_upperBand":
+  summaryTitle = "Nb of hits in the band above %.2f - %s"%(lowerBound,histoName)
+  statement = "I have looked for LBs with at least %d entries in band above %.2f in %s histogram"%(minInLB,lowerBound,histoName)
+  if (lowerBound==-999.):
+    print "You must define the lower bound of your band"
+    sys.exit()
 
 # Look for the final merged HIST file
 # and plot the histogram
@@ -150,7 +216,7 @@ histo = {}
 for iHisto in histoKeys:
   histo[iHisto] = f.Get(histoPath[iHisto])
 
-if (b_2dHisto):
+if ("2d" in histoType):# Definition of drawOption 
   gStyle.SetPalette(1)
   gStyle.SetOptStat("")
   drawOption="COLZ"
@@ -162,23 +228,37 @@ for iHisto in histoKeys:
   c[iHisto] = TCanvas(histoLegend[iHisto])
   histo[iHisto].Draw(drawOption)
 
-# Extract the bin number of the noisy region. the position should be precisely defined (facility of
-# using a delta around the position not yet implemented)
-# Assume that eta is on x axis
-#hotSpotBin = histo[iHisto].FindBin(etaSpot,phiSpot)
+# Extract the bin region where to count.
 # Scans the window to find all bins that fall in the window
-regionBins = []
-nSteps = 1000
-subStep = 2*deltaSpot/nSteps
-for ix in range(nSteps):
-  iEta = etaSpot - deltaSpot + ix * subStep
-  for iy in range (nSteps):
-    iPhi = phiSpot - deltaSpot + iy * subStep
-    tmpBin = histo[iHisto].FindBin(iEta,iPhi)
-    if (tmpBin not in regionBins):
-      regionBins.append(tmpBin)
+# The regionBins is defined for ech histogram allowing different binning
+regionBins = {}
+for iHisto in histoKeys:
+  if (histoType == "2d_hotSpot"):
+    nSteps = 1000
+    subStep = 2*deltaSpot/nSteps
+    regionBins[iHisto] = []
+    for ix in range(nSteps):# Assume that eta is on x axis
+      iEta = etaSpot - deltaSpot + ix * subStep 
+      for iy in range (nSteps):
+        iPhi = phiSpot - deltaSpot + iy * subStep
+        tmpBin = histo[iHisto].FindBin(iEta,iPhi)
+        if (tmpBin not in regionBins[iHisto]):
+          regionBins[iHisto].append(tmpBin)
+  elif (histoType == "1d_etaHotSpot"):
+    nSteps = 1000
+    subStep = 2*deltaSpot/nSteps
+    regionBins[iHisto] = []
+    for ix in range(nSteps):
+      iEta = etaSpot - deltaSpot + ix * subStep
+      tmpBin = histo[iHisto].FindBin(iEta)
+      if (tmpBin not in regionBins[iHisto]):
+          regionBins[iHisto].append(tmpBin)
+  elif (histoType == "1d_upperBand"):
+    regionBins[iHisto] = []
+    for iBin in range(histo[iHisto].FindBin(lowerBound),histo[iHisto].GetNbinsX()):
+      regionBins[iHisto].append(iBin)          
 
-# Extract all the unmerged files available withthe LB range
+# Extract all the unmerged files available with the LB range
 lbFilePathList = pathExtract.returnEosHistPathLB(args.runNumber,lowerLumiBlock,upperLumiBlock,args.stream,args.amiTag,args.tag)
 nbHitInHot = []
 
@@ -201,14 +281,14 @@ sys.stdout.write("Start scanning the LBs:")
 # Loop on all unmerged files
 for lbFile in lbFilePathList:
   lbFilePath = "root://eosatlas.cern.ch/%s"%(lbFile).rstrip()
-  ilb = int((lbFile.split("_lb")[1]).split("._SFO")[0])
+  ilb = int((lbFile.split("_lb")[1]).split("._")[0])
   sys.stdout.write("%d "%(ilb))
   sys.stdout.flush()
   fLB[lbFile] = TFile.Open(lbFilePath)
   histoLB = {}
   for iHisto in histoKeys:
     histoLB[iHisto] = fLB[lbFile].Get(histoPath[iHisto])
-    for iBin in regionBins:
+    for iBin in regionBins[iHisto]:
       nbHitInHot[iHisto][ilb] = nbHitInHot[iHisto][ilb] + histoLB[iHisto].GetBinContent(iBin)
 #  sys.stdout.write("->%d "%(nbHitInHot[ilb]))
 
@@ -221,7 +301,7 @@ for iHisto in histoKeys:
       if ilb>upperLB : upperLB = ilb  
 
 print ""
-print "I have looked for LBs with at least %d entries at position (%.2f,%.2f) in %s histogram"%(minInLB,etaSpot,phiSpot,objectType)
+print statement
 
 maxNbInHot = 0
 totalInRegionRecomp = {} 
@@ -233,7 +313,7 @@ for iHisto in histoKeys:
 
 for iHisto in histoKeys:
   print "======= ",histoLegend[iHisto]
-  for iBin in regionBins:
+  for iBin in regionBins[iHisto]:
     totalInRegion[iHisto] = totalInRegion[iHisto] + histo[iHisto].GetBinContent(iBin)
   for i in range(nLB):
     totalInRegionRecomp[iHisto] = totalInRegionRecomp[iHisto] + nbHitInHot[iHisto][i]
@@ -260,7 +340,7 @@ if (upperLB>=lowerLB): # check that at least one noisy LB was found
   h0Evol = {}
   first = True
   for iHisto in histoKeys:
-    h0Evol[iHisto] = TH1I("h0Evol%s"%(iHisto),"Nb of hits in a region of %.2f around the position (%.2f,%.2f) - %s"%(deltaSpot,etaSpot,phiSpot,objectType),upperLB-lowerLB+1,lowerLB-0.5,upperLB+0.5)
+    h0Evol[iHisto] = TH1I("h0Evol%s"%(iHisto),summaryTitle,upperLB-lowerLB+1,lowerLB-0.5,upperLB+0.5)
     h0Evol[iHisto].SetXTitle("LumiBlock (Only LB with >= %d entries)"%(minInLB))
     h0Evol[iHisto].SetLineColor(histoColor[iHisto])
     leg.AddEntry(h0Evol[iHisto],"%s (%d entries in the run)"%(histoLegend[iHisto],totalInRegion[iHisto]))
@@ -269,7 +349,7 @@ if (upperLB>=lowerLB): # check that at least one noisy LB was found
     if first:
       h0Evol[iHisto].Draw()
       h0Evol[iHisto].SetMinimum(minInLB-1)
-      h0Evol[iHisto].SetMaximum(maxNbInHot*1.25)
+      h0Evol[iHisto].SetMaximum(maxNbInHot*1.5)
       first = False
     else:
       h0Evol[iHisto].Draw("SAME")

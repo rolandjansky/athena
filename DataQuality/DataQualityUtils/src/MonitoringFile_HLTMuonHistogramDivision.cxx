@@ -101,7 +101,7 @@ namespace dqutils {
       }else{
 	//std::cout<<"HI_PP_Flag :found "<<std::endl;
 	//std::cout<<"bin content "<<hHI_PP_Flag->GetBinContent(0)<<"/"<<hHI_PP_Flag->GetBinContent(1)<<"/"<<hHI_PP_Flag->GetBinContent(2)<<std::endl;
-	if(hHI_PP_Flag->GetBinContent(1)==0){
+	if(hHI_PP_Flag->GetBinContent(1) > 0){
 	  m_HI_pp_key = true;
 	}else{
 	  m_HI_pp_key = false;
