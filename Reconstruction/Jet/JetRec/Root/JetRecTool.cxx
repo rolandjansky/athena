@@ -407,16 +407,22 @@ const JetContainer* JetRecTool::build() const {
   const JetContainer* pjetsin = 0;
   if ( m_groom || m_copy ) {
     m_inpclock.Start(false);
-    if ( m_incoll.size() && evtStore()->contains<JetContainer>(m_incoll)) {
-      pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
-    }
-    if ( pjetsin==0 && !m_intool.empty() ) {
-      ATH_MSG_DEBUG("Excuting input tool.");
-      if ( m_intool->execute() ) {
-        ATH_MSG_WARNING("Input tool execution failed.");
+    
+    if(!m_trigger || m_copy) { // reco case : get input from evt store
+      if ( m_incoll.size() && evtStore()->contains<JetContainer>(m_incoll)) {
+        pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
       }
-      pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
+      if ( pjetsin==0 && !m_intool.empty() ) {
+        ATH_MSG_DEBUG("Excuting input tool.");
+        if ( m_intool->execute() ) {
+          ATH_MSG_WARNING("Input tool execution failed.");
+        }
+        pjetsin = evtStore()->retrieve<const JetContainer>(m_incoll);
+      }
+    } else { // trigger case : assume setInputJetContainer was called, use m_trigInputJetsForGrooming
+      pjetsin = m_trigInputJetsForGrooming;
     }
+
     if ( pjetsin == 0 ) {
       ATH_MSG_ERROR("Unable to retrieve input jet container: " << m_incoll);
       m_totclock.Stop();
@@ -684,3 +690,9 @@ int JetRecTool::outputContainerNames(std::vector<std::string>& connames) {
 }
 
 //**********************************************************************
+
+void JetRecTool::setInputJetContainer(const xAOD::JetContainer* cont) {
+  m_trigInputJetsForGrooming = cont; 
+}
+
+

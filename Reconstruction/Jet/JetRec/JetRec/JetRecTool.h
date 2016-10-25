@@ -1,8 +1,9 @@
+// JetRecTool.h. This file is -*- C++ -*-
+
 /*
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-// JetRecTool.h
 
 #ifndef JetRecTool_H
 #define JetRecTool_H
@@ -98,6 +99,9 @@ public:
   /// Default returns 0 and adds no names.
   int outputContainerNames(std::vector<std::string>& connames);
 
+  /// For trigger usage in grooming mode only : give the input ungroomed jet container.
+  void setInputJetContainer(const xAOD::JetContainer* cont) ;
+
 private:
 
   /// Record the container and Aux container in the event store.
@@ -133,6 +137,10 @@ private:
   std::vector<std::string> m_incolls;
   std::vector<std::string> m_outcolls;
   const IJetPseudojetRetriever* m_ppjr;
+
+  
+  // trigger hacks
+  const xAOD::JetContainer* m_trigInputJetsForGrooming; // used in trigger context only
 
   // Clocks.
   mutable unsigned int m_nevt;

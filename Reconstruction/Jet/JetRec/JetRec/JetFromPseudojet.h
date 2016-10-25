@@ -20,7 +20,7 @@
 #include "xAODJet/JetContainer.h"
 
 class JetFromPseudojet
-: virtual public asg::AsgTool,
+: public asg::AsgTool,
   virtual public IJetFromPseudojet {
 ASG_TOOL_CLASS(JetFromPseudojet, IJetFromPseudojet)
 
@@ -50,7 +50,8 @@ public:
   // Dump to log.
   void print() const;
 
-private:
+
+protected:
 
   // Method use by the above add(...) to do most of the work.
   xAOD::Jet* addjet(const fastjet::PseudoJet& pj, xAOD::JetContainer& jets,
