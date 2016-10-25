@@ -19,9 +19,12 @@
 #include "GeoPrimitives/GeoPrimitives.h"
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkExInterfaces/IIntersector.h"
+#include "TrkExInterfaces/IPropagator.h"
+#include "TrkDetDescrInterfaces/ITrackingVolumesSvc.h"
 #include "TrkExUtils/TrackSurfaceIntersection.h"
 #include "TrkMeasurementBase/MeasurementBase.h"
 #include "TrkSurfaces/Surface.h"
+#include "TrkVolumes/Volume.h"
 #include "TrkiPatFitterUtils/ExtrapolationType.h"
 #include "TrkiPatFitterUtils/FitMeasurement.h"
 #include "TrkiPatFitterUtils/FitParameters.h"
@@ -48,6 +51,8 @@ TrackFitter::TrackFitter (const std::string&	type,
 	m_scatteringAngle		(13.6),		// Coulomb scattering constant
 	m_solenoidalIntersector		("Trk::SolenoidalIntersector/SolenoidalIntersector"),
 	m_straightLineIntersector	("Trk::StraightLineIntersector/StraightLineIntersector"),
+	m_stepPropagator                ("Trk::STEP_Propagator/AtlasSTEP_Propagator"),
+	m_trackingVolumesSvc            ("Trk::TrackingVolumesSvc/Trk::TrackingVolumesSvc",name),
 	m_vertexMeasurement		(0)
 {
     declareInterface<IiPatFitter>(this);
@@ -348,7 +353,7 @@ TrackFitter::print (TrackStatus			status,
     msg() << std::setiosflags(std::ios::fixed) << std::setw(6)
 	  << m_planarHits << "(" << std::setw(2) << m_driftHits << ") planar(drift) hits "
 	  << std::setw(5) << m_parameters->numberScatterers() << " scattering parameters "
-	  << endreq;
+	  << endmsg;
 }
 
 void
@@ -615,6 +620,25 @@ TrackFitter::initialize()
 	ATH_MSG_INFO( "Retrieved tool " << m_straightLineIntersector );
     }
 
+    if(m_stepPropagator.retrieve().isFailure()){
+      ATH_MSG_FATAL("Failed to retrieve tool "<<m_stepPropagator);
+      return StatusCode::FAILURE;
+    }
+    else{
+      ATH_MSG_INFO("Retrieved tool "<<m_stepPropagator);
+    }
+
+    if (m_trackingVolumesSvc.retrieve().isFailure())
+      {
+	ATH_MSG_FATAL( "Failed to retrieve Svc " << m_trackingVolumesSvc );
+	return StatusCode::FAILURE;
+      }
+    else
+      {
+	ATH_MSG_INFO( "Retrieved Svc " << m_trackingVolumesSvc );
+	m_indetVolume = new Trk::Volume(m_trackingVolumesSvc->volume(Trk::ITrackingVolumesSvc::CalorimeterEntryLayer));
+      }
+
     // can now create FitProcedure class
     m_fitProcedure = new Trk::FitProcedure(false,
 					   false,
@@ -622,7 +646,10 @@ TrackFitter::initialize()
 					   false,
 					   m_rungeKuttaIntersector,
 					   m_solenoidalIntersector,
-					   m_straightLineIntersector);
+					   m_straightLineIntersector,
+					   m_stepPropagator,
+					   m_indetVolume,
+					   1);
     
     return StatusCode::SUCCESS;
 }
@@ -762,7 +789,7 @@ TrackFitter::fitWithRejection(TrackStatus		status,
 		msg() << "  ratio " << ((**h).broadSigma()/(**h).sigma());
 	    if (reject && number_rejected == maxReject)
 		msg() << "  number_rejected " << number_rejected;
-	    msg() << endreq;
+	    msg() << endmsg;
 	}
 	
 	if (reject && ++number_rejected > maxReject)

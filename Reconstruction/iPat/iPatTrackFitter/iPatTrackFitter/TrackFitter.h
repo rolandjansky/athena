@@ -17,18 +17,22 @@
 #include <list>
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/ToolHandle.h"
+#include "GaudiKernel/ServiceHandle.h"
 #include "iPatInterfaces/IiPatFitter.h"
 
 //<<<<<< CLASS DECLARATIONS                                             >>>>>>
 
 namespace Trk
 {
+    class ITrackingVolumesSvc;
     class FitMeasurement;
     class FitParameters;
     class FitProcedure;
     class FitProcedureQuality;
     class IIntersector;
+    class IPropagator;
     class IMaterialAllocator;
+    class Volume;
 }
 
 class TrackFitter: public AthAlgTool,
@@ -127,7 +131,10 @@ protected:
     double				m_sigma_pt3;
     ToolHandle<Trk::IIntersector>	m_solenoidalIntersector;
     ToolHandle<Trk::IIntersector>	m_straightLineIntersector;
+    ToolHandle< Trk::IPropagator >      m_stepPropagator;
+    ServiceHandle<Trk::ITrackingVolumesSvc>  m_trackingVolumesSvc;
     Trk::FitMeasurement*		m_vertexMeasurement;
+    Trk::Volume*                        m_indetVolume;
 
 };
 
