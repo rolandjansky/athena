@@ -28,6 +28,7 @@
 #include "TString.h"
 #include "TProfile.h"
 #include "TEfficiency.h"
+#include "TLorentzVector.h"
 
 #include "boost/tokenizer.hpp"
 
@@ -94,7 +95,8 @@ HLTJetMonTool::HLTJetMonTool(
   declareProperty("isPP",             m_isPP,         "collision mode flag" );
   declareProperty("isHI",             m_isHI,         "collision mode flag" );
   declareProperty("isCosmic",         m_isCosmic,     "collision mode flag" );
-  declareProperty("isPPb",            m_isPPb,        "collision mode flag" );
+  declareProperty("isMC",             m_isMC,         "collision mode flag" );
+  //declareProperty("isPPb",            m_isPPb,        "collision mode flag" );
 
   // Jet Multiplicity bins
   declareProperty("NJetNBins",        m_njnbins );
@@ -1412,15 +1414,16 @@ StatusCode HLTJetMonTool::fillJetHists() {
   v_lbn.push_back(m_lumiBlock);
 
   //  ATH_MSG_DEBUG("lbLumiWeight() = "<<lbLumiWeight()<<" lumi_weight = "<<lumi_weight<<" LumiBlock = "<<m_lumiBlock<<" first v_lb = "<<v_lbn.front()<<" last v_lbn = "<<v_lbn.back());
-
+  
   StatusCode sc = StatusCode::SUCCESS;
+  
   sc = fillBasicHists();
   if (sc.isFailure()) {
     ATH_MSG_WARNING ( "HLTJetMonTool::fillBasicHists() failed" );
     return StatusCode::SUCCESS;
   }
   ATH_MSG_DEBUG ( "HLTJetMonTool::fillBasicHists() returned success" );
-
+  
   // fill offline jet and trigger eff hists
  
   if(m_doOFJets) {
@@ -1431,14 +1434,14 @@ StatusCode HLTJetMonTool::fillJetHists() {
     }
     ATH_MSG_DEBUG ( "HLTJetMonTool::fillOfflineHists() returned success" );    
   }
-  
-// fill dijet monitoring hists
-    sc = fillDiJetHists();
-    if (sc.isFailure()) {
-      ATH_MSG_WARNING ( "HLTJetMonTool::fillDiJetHists() failed" );
-      return StatusCode::SUCCESS;
-    }
-    ATH_MSG_DEBUG ( "HLTJetMonTool::fillDiJetHists() returned success" );    
+   
+  // fill dijet monitoring hists
+  sc = fillDiJetHists();
+  if (sc.isFailure()) {
+    ATH_MSG_WARNING ( "HLTJetMonTool::fillDiJetHists() failed" );
+    return StatusCode::SUCCESS;
+  }
+  ATH_MSG_DEBUG ( "HLTJetMonTool::fillDiJetHists() returned success" );    
   
   return StatusCode::SUCCESS;
 
@@ -1571,7 +1574,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 
 	double  emfrac  =1;
 	double  hecfrac =1;
-	if (m_isPP || m_isCosmic){
+	if (m_isPP || m_isCosmic || m_isMC){
 	  emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	  hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	}
@@ -1663,7 +1666,7 @@ StatusCode HLTJetMonTool::fillBasicHists() {
 
 	    double  emfrac  =1;
 	    double  hecfrac =1;
-	    if (m_isPP || m_isCosmic){
+	    if (m_isPP || m_isCosmic || m_isMC){
 	      emfrac  = thisjet->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	      hecfrac = thisjet->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
@@ -1769,7 +1772,7 @@ void HLTJetMonTool::fillBasicHLTforChain( const std::string& theChain, double th
 	   
 	   double  emfrac  =1;
 	   double  hecfrac =1;
-	   if (m_isPP || m_isCosmic){
+	   if (m_isPP || m_isCosmic || m_isMC){
 	      emfrac  = j->getAttribute<float>(xAOD::JetAttribute::EMFrac); 
 	      hecfrac = j->getAttribute<float>(xAOD::JetAttribute::HECFrac); 
 	    }
@@ -1945,7 +1948,6 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
 
   //Fill L1 Correlation
 
-
  //:::::::::::::::::::::::SELECT L1 JETS:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
  
@@ -1986,7 +1988,7 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
    }
    
    count1++;
-   
+ 
    //:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
    
      
@@ -2057,6 +2059,8 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
       
       count3++;
     
+
+
       //::::::::::::::::::FILL L1 vs OF HISTO::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
@@ -2084,7 +2088,7 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
     
     //::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     
-       
+ 
 
     //:::::::::::::::::::::::SELECT HLT JETS::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
     
@@ -2131,6 +2135,7 @@ StatusCode HLTJetMonTool::fillDiJetHists() {
       
       count5++;
     
+
       //::::::::::::::::::FILL L1 vs HLT HISTO::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
 
@@ -2434,9 +2439,10 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
   // fill offline jets in one loop
   unsigned int Nelem = m_OFJetC.size();
+  const xAOD::JetContainer *ofcoll =0;
   for(unsigned int k = 0; k < Nelem; k++ ) {
-    const xAOD::JetContainer *jetcoll = m_OFJetC[k];
-    if(jetcoll) {
+    ofcoll = m_OFJetC[k];
+    if(ofcoll) {
       std::string malg = Form("%s%d",m_OFpfx.c_str(),k);
       std::string mgrp = m_monGroups[malg];
       std::string mgrp_eff = m_monGroups[Form("%s%dEff",m_OFpfx.c_str(),k)];
@@ -2446,11 +2452,23 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
       std::vector<std::string> mFoundL1, mFoundHLT, mUnmatchedL1, mUnmatchedHLT ; 
       std::vector<TLorentzVector> mFoundL1Jets, mFoundHLTJets,mUnmatchedL1Jets, mUnmatchedHLTJets;
       std::vector<std::string>::iterator mIt;
+      
+      v_offline_eta.clear(); 
+      v_offline_pt.clear();      
+
       JetSigIter lIt;
 
       TLorentzVector v_trigjet_tmp;
+      TLorentzVector this_offline_jet;
 
-      for(const auto & jet : *jetcoll) {
+
+      for (size_t iJet = 0; iJet < ofcoll->size(); ++iJet)
+	{
+	  v_offline_eta.push_back(ofcoll->at(iJet)->eta());
+	  v_offline_pt.push_back(ofcoll->at(iJet)->pt());
+	} 
+      
+      for(const auto & jet : *ofcoll) {
 
 	ATH_MSG_DEBUG("Offline Jet Collection Loop");
 
@@ -2494,7 +2512,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	  
 	  // if L1 eff required
 	  if(m_doL1TrigEff) {
-	    if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres,1)){ //OF leading jet in the same eta region of HLTJet
+	    if (isLeadingJet(jet,k,EtaLowThres,EtaHighThres,1)){ //OF leading jet in the same eta region of HLTJet
 	      
 	      ATH_MSG_DEBUG(" OF Jet passed requirements->Filling the denominator");
 	      
@@ -2525,7 +2543,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	    ATH_MSG_DEBUG("Chain Matched= "<<itemName<<" TDT= "<<getTDT()->isPassed(itemName));
 	    
             if(m_doL1TrigEff) {
-	      if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres,1)){ //OF leading jet in the same eta region of HLTJet
+	      if (isLeadingJet(jet,k,EtaLowThres,EtaHighThres,1)){ //OF leading jet in the same eta region of HLTJet
 		if(getTDT()->isPassed(itemName)) {
 		  
 		  ATH_MSG_DEBUG(" OF Jet passed requirements->Filling the numerator");	 	
@@ -2598,7 +2616,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 
           // if HLT eff required
           if(m_doHLTTrigEff) {
-	    if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres,NJet)){ //OF nth leading jet in the same eta region of HLTJet	    
+	    if (isLeadingJet(jet,k,EtaLowThres,EtaHighThres,NJet)){ //OF nth leading jet in the same eta region of HLTJet	    
 	    
 	      if((h = hist(Form("%s_Eff_vs_pt_den",chainName.c_str()))))          h->Fill(jet->pt()/CLHEP::GeV);
 	      if((h = hist(Form("%s_Eff_vs_eta_den",chainName.c_str()))))         h->Fill(jet->eta());
@@ -2626,7 +2644,7 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	  
             // fill num HLT eff
             if(m_doHLTTrigEff) {
-	      if (isLeadingJet(jet,jetcoll,EtaLowThres,EtaHighThres,NJet)){ //OF leading jet in the same eta region of HLTJet	  
+	      if (isLeadingJet(jet,k,EtaLowThres,EtaHighThres,NJet)){ //OF leading jet in the same eta region of HLTJet	  
 		if(getTDT()->isPassed(Form("HLT_%s",chainName.c_str()))) {
 		  
 		  if((h = hist(Form("%s_Eff_vs_pt_num",chainName.c_str()))))          h->Fill(jet->pt()/CLHEP::GeV);
@@ -2681,7 +2699,11 @@ StatusCode HLTJetMonTool::fillOfflineHists() {
 	//::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 	
       } // for loop over OF jet
-    } // if jetcoll
+      
+      v_offline_pt.clear();
+      v_offline_eta.clear();
+
+    } // if ofcoll
   } // for k (loop over all ref coll's)
 
   return StatusCode::SUCCESS;
@@ -2752,27 +2774,33 @@ bool HLTJetMonTool::passedChainTest( const xAOD::Jet *jet, std::vector<std::stri
   
 }//EOF
 
-bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer *jetcoll, double EtaLow, double EtaHigh, int Jetn){
+bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, int collection_index ,double EtaLow, double EtaHigh, int Jetn){
 
-  double njets=0;
-  double nleading=0;
-  bool   found_jetn=false;
+  int             njets=0;
+  int             nleading=0;
+  bool            found_jetn=false;
+  double          pt_jet=0;
+  double          pt_jetcoll=jet->pt();
+
   std::vector<double> v_ofjets;
 
-  for(const auto & j : *jetcoll) {
-    if (fabs(j->eta())>=EtaLow && fabs(j->eta())<=EtaHigh){
-     
-      v_ofjets.push_back(j->pt());
-      
-    }
-  }
-  
+  const xAOD::JetContainer *coll =m_OFJetC[collection_index];  
+  for (size_t iJet = 0; iJet < coll->size(); ++iJet){
+    pt_jet=coll->at(iJet)->pt();
 
+      if (fabs(coll->at(iJet)->eta())>=EtaLow && fabs(coll->at(iJet)->eta())<=EtaHigh){
+	v_ofjets.push_back(pt_jet);	
+      }
+    } 
+
+  
   for(unsigned int i=0; i<v_ofjets.size(); ++i) {
     njets=njets+1;
-    if (jet->pt() >= v_ofjets[i] && fabs(jet->eta())>=EtaLow && fabs(jet->eta())<=EtaHigh && Jetn==1){ //Select leading if jetn=1
+
+    if (pt_jetcoll >= v_ofjets[i] && fabs(jet->eta())>=EtaLow && fabs(jet->eta())<=EtaHigh && Jetn==1){ //Select leading if jetn=1
       nleading=nleading+1;
-    } else if (jet->pt()==v_ofjets[Jetn-1] && v_ofjets.size()>=static_cast<size_t>(Jetn) && Jetn>1){ // select nth Jet in case jetn != 1
+
+    } else if (Jetn>1 && v_ofjets.size()>=static_cast<size_t>(Jetn) && pt_jetcoll==v_ofjets[Jetn-1]){ // select nth Jet in case jetn != 1
       found_jetn=true;
     }
   }
@@ -2785,7 +2813,6 @@ bool HLTJetMonTool::isLeadingJet(const xAOD::Jet *jet, const xAOD::JetContainer 
   }
   
   if (njets==nleading && njets>0){
-    ATH_MSG_DEBUG("is leading");
     return true;
   }else{
     return false; 
