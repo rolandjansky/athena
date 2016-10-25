@@ -38,7 +38,9 @@ def cmake_get_pkg_version(fullPkgName):
    """Get version of package in the release"""
 
    cpath = os.environ.get('CMAKE_PREFIX_PATH','')
+   workDir = os.environ.get('WorkDir_DIR')
    for cdir in cpath.split(os.pathsep):
+      if (workDir and cdir.find(workDir)!=-1): continue
       pkgs = read_pkg_file(os.path.join(cdir,'packages.txt'))
       if fullPkgName in pkgs:
          return pkgs[fullPkgName]
