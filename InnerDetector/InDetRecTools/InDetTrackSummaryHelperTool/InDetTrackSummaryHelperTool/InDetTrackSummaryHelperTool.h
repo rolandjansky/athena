@@ -12,7 +12,12 @@
 #include "GaudiKernel/ToolHandle.h"
 #include <vector>
 #include <bitset>
+#include <map>
 #include "TRT_ConditionsServices/ITRT_StrawStatusSummarySvc.h"
+
+//Extrapolator
+//#include "TrkExUtils/ExtrapolationCell.h"
+//#include "TrkExInterfaces/IExtrapolationEngine.h"
 
 class ITRT_StrawSummarySvc;
 class PixelID;
@@ -65,6 +70,32 @@ namespace InDet {
 			 std::vector<int>& information, 
 			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const;
 
+    //Overload methods for ITk
+    virtual void analyse(const Trk::Track& track,
+			 const Trk::RIO_OnTrack* rot,
+			 const Trk::TrackStateOnSurface* tsos,
+			 std::vector<int>& information, 
+			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+       std::map<std::string, int>& informationITk,
+       std::bitset<200>& hitPatternITk,
+       const std::map<std::string, int>& detectorTypesITk) const;
+
+    virtual void analyse(const Trk::Track& track,
+			 const Trk::CompetingRIOsOnTrack* crot,
+			 const Trk::TrackStateOnSurface* tsos,
+			 std::vector<int>& information, 
+			 std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+       std::map<std::string, int>& informationITk,
+       std::bitset<200>& hitPatternITk,
+       const std::map<std::string, int>& detectorTypesITk) const;
+    
+    int m_startInclined = 4; //NP: Tempary solution to indicate at what eta_module the inclined start at
+    void searchForHoles(const Trk::Track& track, 
+			std::vector<int>& information ,
+      std::map<std::string, int>& informationITk,
+			const Trk::ParticleHypothesis partHyp = Trk::pion) const ;
+
+
     /** Input : track, partHyp
 	Output: Changes in information
 	This method first calls the method getListOfHits to isolate the relevant hits on the track before calling the method
@@ -109,12 +140,16 @@ namespace InDet {
     ToolHandle< InDet::IInDetTestBLayerTool > m_testBLayerTool;
     ServiceHandle<ITRT_StrawStatusSummarySvc> m_TRTStrawSummarySvc; //!< The ConditionsSummaryTool
 
-
+    //Extrapolator
+    //ToolHandle<Trk::IExtrapolationEngine>        m_extrapolationEngine; //pies?
+    
     bool m_doSharedHits;
     bool m_doSharedHitsTRT;
     bool m_doSplitPixelHits;
     bool m_overwriteidsummary;
     bool m_runningTIDE_Ambi;
+    
+    //bool m_isInDetSummary;
 };
 
 }

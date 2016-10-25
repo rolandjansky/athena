@@ -19,6 +19,8 @@ use  TrkCompetingRIOsOnTrack    TrkCompetingRIOsOnTrack-*       Tracking/TrkEven
 use  TrkParameters              TrkParameters-*                 Tracking/TrkEvent
 use  TrkRIO_OnTrack             TrkRIO_OnTrack-*                Tracking/TrkEvent
 use  TrkTrack                   TrkTrack-*                      Tracking/TrkEvent
+use  TrkGeometry                TrkGeometry-*                   Tracking/TrkDetDescr
+
 end_private
 
 public

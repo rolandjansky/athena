@@ -26,6 +26,7 @@
 
 #include <cassert>
 
+#include "TrkGeometry/Layer.h"
 //==========================================================================
 InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
    const std::string& t,
@@ -60,6 +61,7 @@ InDet::InDetTrackSummaryHelperTool::InDetTrackSummaryHelperTool(
    declareProperty("useSCT",              m_useSCT   = true);
    declareProperty("useTRT",              m_useTRT   = true);
    declareProperty("OverwriteIDSummary",  m_overwriteidsummary = false);
+
 }
 
 //==========================================================================
@@ -133,8 +135,6 @@ StatusCode InDet::InDetTrackSummaryHelperTool::initialize()
       if ( !m_TRTStrawSummarySvc.empty()) msg(MSG::INFO) << "Retrieved tool " << m_TRTStrawSummarySvc << endreq;
    }
 
-
-
    msg(MSG::INFO) << "initialize() successful in " << name() << endreq;
 
    return StatusCode::SUCCESS;
@@ -151,7 +151,6 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
    const Identifier& id = rot->identify();
    bool  isOutlier      = (tsos->type(Trk::TrackStateOnSurface::Outlier));
    bool  ispatterntrack =  (track.info().trackFitter()==Trk::TrackInfo::Unknown);
-
 
    //pointer to det El (possibly 0), from pointer to PRD (which can also be zero - at the moment at least)
    //const TrkDetElementBase* detEl = rot->detectorElement(); 
@@ -296,8 +295,8 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
      }
 
      
-     if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
-       information[Trk::numberOfTRTOutliers]++;
+      if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
+         information[Trk::numberOfTRTOutliers]++;
 
        const InDet::TRT_DriftCircleOnTrack* trtDriftCircle 
          = dynamic_cast<const InDet::TRT_DriftCircleOnTrack*>(  rot  );
@@ -347,7 +346,289 @@ void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
    // re-produce prior behaviour (i.e. just take most probable ROT)
    analyse(track, &crot->rioOnTrack(crot->indexOfMaxAssignProb() ), tsos, information, hitPattern);
 }
+/////////////////////////////////////
+// iTK
+// ////////////////////////////////////
+//==========================================================================
+void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track, 
+                                                 const Trk::RIO_OnTrack* rot, 
+                                                 const Trk::TrackStateOnSurface* tsos,
+                                                 std::vector<int>& information, 
+                                                 std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+                                                 std::map<std::string, int>& informationITk,
+                                                 std::bitset<200>& hitPatternITk,
+                                                 const std::map<std::string, int>& detectorTypesITk) const
+{
+   const Identifier& id = rot->identify();
+   bool  isOutlier      = (tsos->type(Trk::TrackStateOnSurface::Outlier));
+   bool  ispatterntrack =  (track.info().trackFitter()==Trk::TrackInfo::Unknown);
+   bool  isInclined = detectorTypesITk.size() > 90; //NP: FIXME
 
+   //pointer to det El (possibly 0), from pointer to PRD (which can also be zero - at the moment at least)
+   //const TrkDetElementBase* detEl = rot->detectorElement(); 
+
+   if ( m_usePixel && m_pixelId->is_pixel(id) ) {
+    if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits
+      information[Trk::numberOfPixelOutliers]++;
+      informationITk["numberOfPixelOutliers"]++;
+      if (m_pixelId->is_blayer(id)){
+        information[Trk::numberOfBLayerOutliers]++;
+      }
+	    if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)){
+	      information[Trk::numberOfInnermostPixelLayerOutliers]++;
+	    }
+	    if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)){
+	      information[Trk::numberOfNextToInnermostPixelLayerOutliers]++;
+	    }
+    }
+    else {
+      bool hitIsSplit(false);
+     	information[Trk::numberOfPixelHits]++; //Leave these to avoid clashes with EVERYTHING - needs clean up at some point
+      informationITk["numberOfPixelHits"]++;
+
+	    if ( (m_pixelId->is_blayer(id) ) ) information[Trk::numberOfBLayerHits]++; // found b layer hit
+	    if (m_pixelId->layer_disk(id)==0 && m_pixelId->is_barrel(id)) information[Trk::numberOfInnermostPixelLayerHits]++;
+	    if (m_pixelId->layer_disk(id)==1 && m_pixelId->is_barrel(id)) information[Trk::numberOfNextToInnermostPixelLayerHits]++;  
+     
+
+	    // check to see if there's an ambiguity with the ganged cluster.
+	    const PixelClusterOnTrack* pix = dynamic_cast<const PixelClusterOnTrack*>(rot);
+	    if ( !pix ) {
+	      if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast pixel RoT to PixelClusterOnTrack!"<<endreq;
+	    } 
+      else {
+	      const InDet::PixelCluster* pixPrd = pix->prepRawData();
+	      if ( pixPrd && pixPrd->isSplit() ){ information[Trk::numberOfPixelSplitHits]++; hitIsSplit=true; }
+	      if ( pixPrd && m_pixelId->is_blayer(id) && pixPrd->isSplit() ) information[Trk::numberOfBLayerSplitHits]++;
+	      if ( pixPrd && m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0 && pixPrd->isSplit() ) information[Trk::numberOfInnermostLayerSplitHits]++;
+	      if ( pixPrd && m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1 && pixPrd->isSplit() ) information[Trk::numberOfNextToInnermostLayerSplitHits]++;
+	      if ( pix->isBroadCluster() ) {
+          information[Trk::numberOfPixelSpoiltHits]++;
+          informationITk["numberOfPixelSpoilt"]++;
+        }
+	      if ( pix->hasClusterAmbiguity() ) {
+          information[Trk::numberOfGangedPixels]++;
+          if (pix->isFake() ) information[Trk::numberOfGangedFlaggedFakes]++;
+	      }
+	    }
+        if ( m_pixelId->is_barrel(id) ) { //Fill ITk Barrel layers
+          int layer = m_pixelId->layer_disk(id); //+1 just to fix the counter...
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Layer:  " << layer<<endreq; 
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trk::counter: " << detectorTypesITk.at("itkPixelBarrelStart")+ layer<<endreq;
+          if(!hitPattern.test(layer)) information[Trk::numberOfContribPixelLayers]++;
+          if(!hitPatternITk.test(detectorTypesITk.at("itkPixelBarrelStart")+layer+1)) {
+            informationITk["numberOfContribPixelBarrel"]++;
+            informationITk["numberOfContribPixelLayers"]++;
+          }
+          hitPatternITk.set(detectorTypesITk.at("itkPixelBarrelStart")+layer+1);
+          if(isInclined){ //NP: If inclinded layout, fill inclined module hits
+            //This works fine as long as there are 5 inclinded pixel layers
+            int itkPixelInclStart[5] = { detectorTypesITk.at("itkPixelIncl0Start"), detectorTypesITk.at("itkPixelIncl1Start"), detectorTypesITk.at("itkPixelIncl2Start"),detectorTypesITk.at("itkPixelIncl3Start"),detectorTypesITk.at("itkPixelIncl4Start")};
+            int module = fabs(m_pixelId->eta_module(id));
+            if( module > (layer+1) + m_startInclined) { //NP: Slightly bit hardcoded The indices for inclined modules...how do I get the start of the inclined? ...
+              if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Layer: " << layer << endreq;
+              if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Module:  " << module << endreq;
+              if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trk::counter:  " << itkPixelInclStart[layer] + (module-layer-1-m_startInclined) << endreq;
+              if(itkPixelInclStart[layer]+(module-layer-1-m_startInclined)) informationITk["numberOfPixelInclHits"]++;
+              if(!hitPatternITk.test(itkPixelInclStart[layer] + (module-layer-1-m_startInclined))) {
+                informationITk["numberOfContribPixelInclined"]++;
+                if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Filling contrib pixel Incl Modules" << endreq;
+              }
+              hitPatternITk.set(itkPixelInclStart[layer] + (module-layer-1-m_startInclined));
+            }
+            else { informationITk["numberOfContribPixelCentral"]++; }
+          }
+          informationITk["numberOfPixelBarrelHits"]++;
+        }
+        else{
+          int itkPixelRingStart[4] = { detectorTypesITk.at("itkPixelRing0Start"),detectorTypesITk.at("itkPixelRing1Start"),detectorTypesITk.at("itkPixelRing2Start"),detectorTypesITk.at("itkPixelRing3Start") };
+          int layer = m_pixelId->layer_disk(id); //disk gives "barrel layer"
+          int ring = m_pixelId->eta_module(id); //gives index of the ring in the given layer
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Layer: " << layer << endreq;
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Ring:  " << ring << endreq;
+          if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trk::counter:  " << itkPixelRingStart[layer]+ring << endreq;
+          informationITk["numberOfPixelRingHits"]++;
+          if(!hitPatternITk.test(itkPixelRingStart[layer]+ring)) {
+            informationITk["numberOfContribPixelLayers"]++;
+            informationITk["numberOfContribPixelRings"]++;
+            information[Trk::numberOfContribPixelLayers]++;
+          }
+          hitPatternITk.set(itkPixelRingStart[layer]+ring);
+          
+        }
+      if (m_doSharedHits) {
+      // If we are running the TIDE ambi don't count split hits as shared 
+        if( !(m_runningTIDE_Ambi && hitIsSplit) ){
+          // used in more than one track ?
+          if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+          if (msgLvl(MSG::DEBUG)) msg() << "shared Pixel hit found" << endreq;
+            information[Trk::numberOfPixelSharedHits]++;
+            informationITk["numberOfPixelShared"]++;
+          if ( (m_pixelId->is_blayer(id) ) ) {
+            if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in b-layer" << endreq;
+              information[Trk::numberOfBLayerSharedHits]++;        
+          }
+	        if ( (m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==0) ) {
+            if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in innermost layer" << endreq;
+              information[Trk::numberOfInnermostPixelLayerSharedHits]++;        
+            } 
+	          if ( (m_pixelId->is_barrel(id) && m_pixelId->layer_disk(id)==1) ) {
+              if (msgLvl(MSG::DEBUG)) msg() << "--> shared Pixel hit is in next to innermost layer" << endreq;
+                information[Trk::numberOfNextToInnermostPixelLayerSharedHits]++;        
+            }
+          }
+        }
+      }
+    }
+    } //end of usePixel is PixelID
+    else if (m_useSCT && m_sctId->is_sct(id) ) {
+      if (isOutlier && !ispatterntrack ) { // ME: outliers on pattern tracks may be reintegrated by fitter, so count them as hits    
+        information[Trk::numberOfSCTOutliers]++;
+        informationITk["numberOfStripOutliers"]++;
+      } 
+      else {
+
+        information[Trk::numberOfSCTHits]++;
+        informationITk["numberOfStripHits"]++;
+
+        const InDet::SCT_ClusterOnTrack *sctclus=dynamic_cast<const InDet::SCT_ClusterOnTrack *>(rot);
+        if ( !sctclus ) {
+          if (msgLvl(MSG::ERROR)) msg(MSG::ERROR)<<"Could not cast SCT RoT to SCT_ClusterOnTrack!"<<endreq;
+        } else {
+          if (sctclus->isBroadCluster()) {
+            information[Trk::numberOfSCTSpoiltHits]++;
+            informationITk["numberOfStripSpoilt"]++;
+          }
+        }
+        if( (m_sctId->is_barrel(id) ) ) {
+         
+            int layer = m_sctId->layer_disk(id);
+            if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Layer: " << layer << endreq;
+            if(!hitPatternITk.test( detectorTypesITk.at("itkStripBarrelStart") + layer + 1)) {
+              //information[Trk::numberOfContribSCTBarrel]++;
+              informationITk["numberOfContribStripLayers"]++;
+              informationITk["numberOfContribStripBarrel"]++;
+            }
+            hitPatternITk.set( detectorTypesITk.at("itkStripBarrelStart") + layer + 1);
+           }
+           else {
+            int layer = m_sctId->layer_disk(id);
+            if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Layer: " << layer << endreq;
+            if(!hitPatternITk.test( detectorTypesITk.at("itkStripECDiskStart") + layer + 1)) {
+            //  information[Trk::numberOfContribSCTECDisk]++;
+              informationITk["numberOfContribStripLayers"]++;
+              informationITk["numberOfContribStripECDisk"]++;
+            }
+            hitPatternITk.set( detectorTypesITk.at("itkStripECDiskStart") + layer + 1);
+          
+        if (m_doSharedHits) {
+          // used in more than one track ?
+          if ( m_assoTool->isShared(*(rot->prepRawData())) ) {
+            if (msgLvl(MSG::DEBUG)) msg() << "shared SCT hit found" << endreq;
+              information[Trk::numberOfSCTSharedHits]++;
+              informationITk["numberOfStripShared"]++;
+          }
+        }
+      }  
+   } //end of useSCT is SCTID  
+  }
+   return;
+}
+
+void InDet::InDetTrackSummaryHelperTool::analyse(const Trk::Track& track,
+                                                 const Trk::CompetingRIOsOnTrack* crot, 
+                                                 const Trk::TrackStateOnSurface* tsos,
+                                                 std::vector<int>& information, 
+                                                 std::bitset<Trk::numberOfDetectorTypes>& hitPattern,
+                                                 std::map<std::string, int>& informationITk,
+                                                 std::bitset<200>& hitPatternITk,
+                                                 const std::map<std::string, int>& detectorTypesITk) const
+{
+   // re-produce prior behaviour (i.e. just take most probable ROT)
+   analyse(track, &crot->rioOnTrack(crot->indexOfMaxAssignProb() ), tsos, information, hitPattern, informationITk, hitPatternITk, detectorTypesITk);
+}
+/////////////////////////////////////
+//// ITk
+/////////////////////////////////////
+void InDet::InDetTrackSummaryHelperTool::searchForHoles(const Trk::Track& track, 
+                                                        std::vector<int>& information,
+                                                        std::map<std::string, int>& informationITk,
+                                                        const Trk::ParticleHypothesis partHyp         ) const 
+{
+   ATH_MSG_VERBOSE("Search for holes ITk");
+   // ME: this is a temporary change for getting the blayer info into the summary 
+   //if (msgLvl(MSG::WARNING))
+   //{
+   //  msg(MSG::WARNING) << "You are accessing the hole search through the InDetTrackSummaryHelperTool." << endreq;
+   //  msg(MSG::WARNING) << "This will soon be disabled. Please access the HoleSearchTool directly!" << endreq;
+   // }
+ 
+   //ATH_MSG_DEBUG("Do hole search within HELPER, PLEASE FIX THIS AFTER 16.0.X");
+   m_holeSearchTool->countHoles(track,information,informationITk,partHyp);
+  
+
+   // this is a hack, we need to run the TestBLayer Tool somewhere
+
+   if (m_usePixel && !m_testBLayerTool.empty() ) {
+
+      if ( information[Trk::numberOfContribPixelLayers] == 0 ) {
+         ATH_MSG_DEBUG("No pxiels on track, so wo do not expect a B-Layer hit !");
+         information[Trk::expectBLayerHit] = 0;
+	 information[Trk::expectInnermostPixelLayerHit] = 0;
+	 information[Trk::expectNextToInnermostPixelLayerHit] = 0;
+      } else{
+
+
+	///blayer block
+	if ( information[Trk::numberOfBLayerHits] > 0) {
+	  ATH_MSG_DEBUG("B-Layer hit on track, so we expect a B-Layer hit !");
+	  information[Trk::expectBLayerHit] = 1;
+	} else {
+	  ATH_MSG_DEBUG("Testing B-Layer using tool..");
+	  if (m_testBLayerTool->expectHitInBLayer(&track) ) {
+            ATH_MSG_DEBUG("expect B-Layer hit !");
+            information[Trk::expectBLayerHit] = 1;
+	  } else {
+            ATH_MSG_DEBUG("do not expect B-Layer hit !");
+            information[Trk::expectBLayerHit] = 0;
+	  }
+	}
+
+	//innermost layer block
+	if (information[Trk::numberOfInnermostPixelLayerHits] > 0){
+	  information[Trk::expectInnermostPixelLayerHit] = 1;
+	} else {
+
+	if (m_testBLayerTool->expectHitInInnermostPixelLayer(&track) ) {
+            ATH_MSG_DEBUG("expect Pixel Layer 0 hit !");
+            information[Trk::expectInnermostPixelLayerHit] = 1;
+	  } else {
+            ATH_MSG_DEBUG("do not expect Pixel Layer 0 hit !");
+            information[Trk::expectInnermostPixelLayerHit] = 0; 
+	}  
+	
+	}
+	
+	//next to innermost block
+	if(information[Trk::numberOfNextToInnermostPixelLayerHits] > 0){
+	  information[Trk::expectNextToInnermostPixelLayerHit] = 1; 
+	} else {
+	  
+	  if (m_testBLayerTool->expectHitInNextToInnermostPixelLayer(&track) ) {
+	    ATH_MSG_DEBUG("expect Pixel Layer 1 hit !");
+            information[Trk::expectNextToInnermostPixelLayerHit] = 1;
+	  } else {
+	    ATH_MSG_DEBUG("do not expect Pixel Layer 1 hit !");
+            information[Trk::expectNextToInnermostPixelLayerHit] = 0;
+	  }
+	  
+	}
+	
+      }
+   }
+
+   return;
+}
 void InDet::InDetTrackSummaryHelperTool::searchForHoles(const Trk::Track& track, 
                                                         std::vector<int>& information,
                                                         const Trk::ParticleHypothesis partHyp         ) const 
@@ -360,7 +641,7 @@ void InDet::InDetTrackSummaryHelperTool::searchForHoles(const Trk::Track& track,
    //  msg(MSG::WARNING) << "This will soon be disabled. Please access the HoleSearchTool directly!" << endreq;
    // }
  
-   ATH_MSG_DEBUG("Do hole search within HELPER, PLEASE FIX THIS AFTER 16.0.X");
+   //ATH_MSG_DEBUG("Do hole search within HELPER, PLEASE FIX THIS AFTER 16.0.X");
    m_holeSearchTool->countHoles(track,information,partHyp);
   
 
