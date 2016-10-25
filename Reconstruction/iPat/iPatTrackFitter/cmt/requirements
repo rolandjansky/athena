@@ -12,9 +12,11 @@ use GeoPrimitives	       GeoPrimitives-*		     DetectorDescription
 use EventPrimitives	       EventPrimitives-*	     Event
 use GeoPrimitives	       GeoPrimitives-*		     DetectorDescription
 use TrkEventPrimitives	       TrkEventPrimitives-*	     Tracking/TrkEvent
+use TrkDetDescrInterfaces      TrkDetDescrInterfaces-*       Tracking/TrkDetDescr
 use TrkExInterfaces	       TrkExInterfaces-*	     Tracking/TrkExtrapolation
 use TrkExUtils		       TrkExUtils-*		     Tracking/TrkExtrapolation
 use TrkMeasurementBase	       TrkMeasurementBase-*	     Tracking/TrkEvent
+use TrkVolumes                 TrkVolumes-*                  Tracking/TrkDetDescr
 use TrkSurfaces		       TrkSurfaces-*		     Tracking/TrkDetDescr
 use TrkiPatFitterUtils	       TrkiPatFitterUtils-*	     Tracking/TrkFitter
 use VxVertex		       VxVertex-*		     Tracking/TrkEvent

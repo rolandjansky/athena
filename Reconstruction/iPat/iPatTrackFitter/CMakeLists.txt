@@ -14,6 +14,8 @@ atlas_depends_on_subdirs( PUBLIC
                           DetectorDescription/GeoPrimitives
                           Event/EventPrimitives
                           Tracking/TrkDetDescr/TrkSurfaces
+                          Tracking/TrkDetDescr/TrkVolumes
+                          Tracking/TrkDetDescr/TrkDetDescrInterfaces
                           Tracking/TrkEvent/TrkEventPrimitives
                           Tracking/TrkEvent/TrkMeasurementBase
                           Tracking/TrkEvent/VxVertex
@@ -29,7 +31,7 @@ atlas_add_component( iPatTrackFitter
                      src/TrackFitter.cxx
                      src/components/*.cxx
                      INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS}
-                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel iPatInterfaces GeoPrimitives EventPrimitives TrkSurfaces TrkEventPrimitives TrkMeasurementBase VxVertex TrkExInterfaces TrkExUtils TrkiPatFitterUtils )
+                     LINK_LIBRARIES ${EIGEN_LIBRARIES} AthenaBaseComps GaudiKernel iPatInterfaces GeoPrimitives EventPrimitives TrkSurfaces TrkVolumes TrkDetDescrInterfaces TrkEventPrimitives TrkMeasurementBase VxVertex TrkExInterfaces TrkExUtils TrkiPatFitterUtils )
 
 # Install files from the package:
 atlas_install_headers( iPatTrackFitter )
