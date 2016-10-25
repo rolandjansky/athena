@@ -134,7 +134,7 @@ namespace Trk {
     return *this;
   }
   
-  VxSecVKalVertexInfo::~VxSecVKalVertexInfo() { if(m_pseudoVertex)delete m_pseudoVertex;}
+  VxSecVKalVertexInfo::~VxSecVKalVertexInfo() { if(m_pseudoVertex && m_SVOwnership)delete m_pseudoVertex;}
 
   const std::vector<const Trk::TrackParticleBase*> VxSecVKalVertexInfo::badTracksTP() const {
 
