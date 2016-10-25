@@ -1,4 +1,4 @@
-# $Id: CMakeLists.txt 756879 2016-06-22 12:09:32Z krasznaa $
+# $Id: CMakeLists.txt 780174 2016-10-25 07:53:15Z elmsheus $
 ################################################################################
 # Package: ByteStreamStoragePlugins
 ################################################################################
@@ -12,6 +12,7 @@ find_package( CASTOR COMPONENTS rfio )
 find_package( Xrootd COMPONENTS Posix PosixPreload )
 find_package( dcache_client )
 find_package( tdaq-common COMPONENTS ers )
+find_package( Davix )
 
 # Make sure that libraries are linked correctly:
 atlas_disable_as_needed()
@@ -41,4 +42,12 @@ atlas_add_library( fReaddCache
    PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
    ${DCACHE_CLIENT_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
    PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${DCACHE_CLIENT_LIBRARIES}
+   ${Boost_LIBRARIES} )
+
+atlas_add_library( fReadDavix
+   src/fReadDavix.h src/fReadDavix.cxx
+   NO_PUBLIC_HEADERS
+   PRIVATE_INCLUDE_DIRS ${TDAQ-COMMON_INCLUDE_DIRS}
+   ${DAVIX_INCLUDE_DIRS} ${Boost_INCLUDE_DIRS}
+   PRIVATE_LINK_LIBRARIES ${TDAQ-COMMON_LIBRARIES} ${DAVIX_LIBRARIES}
    ${Boost_LIBRARIES} )
