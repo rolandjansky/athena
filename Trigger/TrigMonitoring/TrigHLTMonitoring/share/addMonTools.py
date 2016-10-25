@@ -16,7 +16,7 @@ from RecExConfig.RecFlags  import rec
 
 # if not 'HLTMonFlags' in dir():
 #   from TrigHLTMonitoring.HLTMonFlags import HLTMonFlags
-# 
+#
 # if not 'DQMonFlags' in dir():
 #   from AthenaMonitoring.DQMonFlags import DQMonFlags
 
@@ -59,7 +59,7 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools+=HLTCaloMonitoringTool()
       except:
         print "Problems with HLTCaloTool, tool not enabled"
-    
+
     # HLTMuonMonTool - Multiple Muon algorithms EDM Dumper
     if HLTMonFlags.doMuon:
       try:
@@ -91,7 +91,7 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigTauMonitoringTool()
       except:
         print "Problems with HLTTauTool, tool not enabled"
-        
+
     # Jet HLTMonTool
     if HLTMonFlags.doJet:
       try:
@@ -99,7 +99,7 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigJetMonitoringTool()
       except:
         print "Problems with HLTJetTool, tool not enabled"
-    
+
     # b-jet HLTMonTool
     if HLTMonFlags.doBjet and rec.doInDet:
       try:
@@ -107,7 +107,7 @@ if HLTMonFlags.doMonTier0:
         HLTMonManager.AthenaMonTools += TrigBjetMonitoringConfig()
       except:
         print "Problems with HLTBjetTool, tool not enabled"
-    
+
     # B-phys HLTMonTool
     if HLTMonFlags.doBphys:
       try:
@@ -147,181 +147,150 @@ if HLTMonFlags.doDump:
 
 
     #Make the custom tau TTP ntuples.
-    if HLTMonFlags.doOfflineTauTTP :      
+    if HLTMonFlags.doOfflineTauTTP :
      try:
       from TrigTauPerformAthena.TrigTauPerformAthenaConf import TrigTauPerformAthenaAlgo
       ttpalgo = TrigTauPerformAthenaAlgo()
       from AthenaCommon.AlgSequence import AlgSequence
       topSequence = AlgSequence()
-      topSequence += ttpalgo          
+      topSequence += ttpalgo
      except:
       print "Problems with OfflineTauTTP, tool not enabled"
 
 ############################################
-
 ########## Menu-aware Monitoring ###########
 
-HLTMonFlags.doMaM = False
-if HLTMonFlags.doMaM:    
+#HLTMonFlags.doMaM = True
+#HLTMonFlags.doMaM_ApplyMCK = True
+
+if HLTMonFlags.doMaM:
 
     # MaM needs to check whether it is running in a Trigger reprocessing job or not, and start an instance of MaM connected to the correct database accordingly
     trigger_reco_tf_job = False
-    
+
     if hasattr(runArgs, "DBserver") and runArgs.DBserver == "TRIGGERDBREPR":
-        trigger_reco_tf_job = True            
-        
+        trigger_reco_tf_job = True
+
     elif hasattr(runArgs, "triggerConfig") and "TRIGGERDBREPR" in runArgs.triggerConfig:
-        trigger_reco_tf_job = True            
-    
+        trigger_reco_tf_job = True
+
     from TrigHLTMonitoring.MenuAwareMonitoring import MenuAwareMonitoring
     if trigger_reco_tf_job:
+        print "Will attempt to doMaM with TRIGGERDBREPR"
         mam = MenuAwareMonitoring("TRIGGERDBREPR")
     else:
+        print "Will attempt to doMaM with TRIGGERDB"
         mam = MenuAwareMonitoring()
-    
-    if mam.connected_to_oracle == False:
+
+    if mam.ms.connected_to_oracle == False:
         # how to raise this as an error?
-        print "Menu-aware Monitoring error: Cannot doMaM without database connection. Exiting MaM."
+        print "Menu-aware Monitoring error: Cannot doMaM without database connection -> Exiting MaM."
     else:
 
-        # if we are applying configurations to tools according to an MCK, then do that here
-        if  HLTMonFlags.doMaM_ApplyMCK:
-
-            # if a specific Monitoring Configuration Key (MCK) has been set, then use it
-            if HLTMonFlags.MCK.StoredValue > 0:
+        # if a specific Monitoring Configuration Key (MCK) has been set, then use it
+        if HLTMonFlags.MCK.StoredValue > 0:
+            if mam.ms.oi.check_if_mck_id_exists( HLTMonFlags.MCK.StoredValue ):
                 if mam.does_mck_athena_version_match_current_athena_version( HLTMonFlags.MCK.StoredValue ):
-                    print "Using trigger Monitoring Configuration Key (MCK)",HLTMonFlags.MCK.StoredValue
-                    mam.apply_mck( HLTMonFlags.MCK.StoredValue )
-                else: 
-                    print "MCK",HLTMonFlags.MCK.StoredValue,"cannot be applied as it is a patch for a different Athena version. No MCK applied."
-                    # should MAM check Cool in this case? no
+                    print "MCK found via transform:",HLTMonFlags.MCK.StoredValue
+                    # if we are applying configurations to tools according to an MCK, then do that here
+                    if  HLTMonFlags.doMaM_ApplyMCK:
+                        print "Applying MCK",HLTMonFlags.MCK.StoredValue
+                        mam.apply_mck( HLTMonFlags.MCK.StoredValue )
+                else:
+                    print "MCK for a different release found via transform:",HLTMonFlags.MCK.StoredValue,"-> MCK ignored."
+            else:
+                print "MCK found via transform:",HLTMonFlags.MCK.StoredValue,"is not a vaid MCK -> No MCK applied."
 
-            # if HLTMonFlags.MCK is -1 (the default) we get the MCK from Cool, if there is no MCK there then we pick the MCK based on the SMK
-            if HLTMonFlags.MCK.StoredValue == -1:
-                                
-                if trigger_reco_tf_job:
-                    # for trigger repro jobs, need to check the transform arguments and get the SMK from there, then use the linked MCK.
-                    # no Cool interaction in these jobs
-                    SMKrepr = None
-                    
-                    if hasattr(runArgs, "DBsmkey") and runArgs.DBsmkey!="NONE":
-                        SMKrepr = int(runArgs.DBsmkey)                        
+        # if HLTMonFlags.MCK is -1 (the default) we try to determine the MCK automatically
+        if HLTMonFlags.MCK.StoredValue == -1:
 
-                    elif hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
-                        SMKrepr = int(runArgs.triggerConfig.split(":")[-1].split(",")[0])
-                
-                    else: 
-                        print "Could not get SMK from DBsmkey or triggerConfig runArgs. No MCK applied."
-                            
-                    if SMKrepr is not None:
-                        print "SMK SuperMasterKey from runArgs =",SMKrepr
-                        # We now have the required input info. Use mam to get the appropriate MCK
-                        MCKfromSMKrepr = mam.get_mck_id_from_smk(SMKrepr)
-                        
-                        # If the MCK is > 0 and is from the right release then apply it, otherwise use the default tool configurations
-                        if MCKfromSMKrepr > 0:
-                            if mam.does_mck_athena_version_match_current_athena_version( MCKfromSMKrepr ):
-                                HLTMonFlags.MCK.StoredValue = MCKfromSMKrepr
-                                print "Using trigger Monitoring Configuration Key (MCK) from SMK link =",HLTMonFlags.MCK.StoredValue
-                                mam.apply_mck( HLTMonFlags.MCK.StoredValue )
-                            else:
-                                print "MCK",MCKfromSMKrepr,"cannot be applied as it is a patch for a different Athena version. No MCK applied."
-                        elif MCKfromSMKrepr == 0:
+            if trigger_reco_tf_job:
+                # for trigger repro jobs, need to check the transform arguments and get the SMK from there, then use the linked MCK.
+                # no Cool interaction in these jobs
+                SMKrepr = None
+
+                if hasattr(runArgs, "DBsmkey") and runArgs.DBsmkey!="NONE":
+                    SMKrepr = int(runArgs.DBsmkey)
+
+                elif hasattr(runArgs, "triggerConfig") and runArgs.triggerConfig!="NONE":
+                    SMKrepr = int(runArgs.triggerConfig.split(":")[-1].split(",")[0])
+
+                else:
+                    print "Could not get SMK from DBsmkey or triggerConfig runArgs -> No MCK applied."
+
+                if SMKrepr is not None:
+                    print "SMK from runArgs:",SMKrepr
+                    # we now have the required input info. Use mam to get the appropriate MCK
+                    MCKfromSMKrepr = mam.get_mck_id_from_smk(SMKrepr)
+
+                    # if the MCK is > 0 and is from the right release then apply it, otherwise use the default tool configurations
+                    if MCKfromSMKrepr > 0:
+                        if mam.does_mck_athena_version_match_current_athena_version( MCKfromSMKrepr ):
                             HLTMonFlags.MCK.StoredValue = MCKfromSMKrepr
-                            print "Monitoring Configuration Key (MCK) from SMK link = 0, default configuration used"
-                
-                else:                
-                    # try to get the MCK from Cool
-                    from RecExConfig.InputFilePeeker import inputFileSummary
-                    #print "inputFileSummary =",inputFileSummary
-                    if inputFileSummary.__contains__('bs_metadata'):
-                        # get the run number and lumi_block for the input
-                        run_number = inputFileSummary['bs_metadata']['run_number']
-                        #lumi_block = inputFileSummary['bs_metadata']['LumiBlock']
-                        from PyCool import cool
-
-                        pointintime = (int(run_number)<<32) + int(lumi_block) # start from lumiblock 0 (or 1?)
-                        
-                        # get the database instance for getting the SMK
-                        from IOVDbSvc.IOVDbSvcConf import IOVDbSvc
-                        #print "svcMgr.IOVDbSvc.properties() =",svcMgr.IOVDbSvc.properties()
-                        DBInstance = svcMgr.IOVDbSvc.properties()['DBInstance']
-                                        
-                        # try to connect to the COOL database
-                        from CoolConvUtilities.AtlCoolLib import indirectOpen
-                        connstring = "COOLONL_TRIGGER/"+str(DBInstance) 
-                        coolDB=indirectOpen(connstring,oracle='True')
-                        if coolDB is None:
-                            print "Unable to connect to",connstring,"to get MCK from Cool. Will also not be able to get the SMK so no MCK will be applied."
+                            print "MCK found via SMK link: ",HLTMonFlags.MCK.StoredValue
+                            if  HLTMonFlags.doMaM_ApplyMCK:
+                                print "Applying MCK ",HLTMonFlags.MCK.StoredValue
+                                mam.apply_mck( HLTMonFlags.MCK.StoredValue )
                         else:
-                            # try to get the MCK out of COOL
-                            foldername = 'MenuAwareMonConfigKey'
-                            MCKfolder=coolDB.getFolder('/TRIGGER/HLT/' + foldername ) #what if the folder doesn't exist?
-                            release_tag = foldername + '-' + mam.current_athena_version
-                        
-                            # need to retrieve for the right release using tags using a try-except  
-                            try:
-                                retrieved_obj=MCKfolder.findObject(pointintime,0,release_tag)
-                                retrieved_payload=retrieved_obj.payload()
-                                retrieved_format=retrieved_payload['MonConfigKey']
-                                MonitoringConfigurationKey = int(retrieved_format)
-                                HLTMonFlags.MCK.StoredValue = MonitoringConfigurationKey
+                            print "MCK for a different release found via SMK link:",HLTMonFlags.MCK.StoredValue,"-> MCK ignored."
+                    elif MCKfromSMKrepr == 0:
+                        HLTMonFlags.MCK.StoredValue = MCKfromSMKrepr
+                        print "MCK found via SMK link: 0 -> Default configuration used."
 
-                                # do not check athena version - we know the release is right because of the tag
-                                if HLTMonFlags.MCK.StoredValue > 0:
-                                    print "Using trigger Monitoring Configuration Key (MCK) from Cool =",HLTMonFlags.MCK.StoredValue
+            else:
+
+                # try to get the MCK from Cool
+                from RecExConfig.InputFilePeeker import inputFileSummary
+                if inputFileSummary.__contains__('bs_metadata') or inputFileSummary.__contains__('run_number'):
+                    # get the run number for the input
+                    if inputFileSummary.__contains__('bs_metadata'):                    
+                        run_number = inputFileSummary['bs_metadata']['run_number']
+                    else:
+                        run_number = int(inputFileSummary['run_number'][0])
+                    from PyCool import cool
+
+                    pointintime = (int(run_number)<<32)
+
+                    # try to connect to the COOL database
+                    from CoolConvUtilities.AtlCoolLib import indirectOpen
+                    connstring = "COOLONL_TRIGGER/CONDBR2" # get the MCK from Cool
+                    coolDB=indirectOpen(connstring,oracle='True')
+                    if coolDB is None:
+                        print "Unable to connect to",connstring,"to get MCK from Cool."
+                    else:
+                        # try to get the MCK out of COOL
+                        foldername = 'MenuAwareMonConfigKey'
+                        MCKfolder=coolDB.getFolder('/TRIGGER/HLT/' + foldername )
+                        release_tag = foldername + '-' + mam.ms.current_athena_version
+
+                        # need to retrieve for the right release using tags using a try-except
+                        try:
+                            retrieved_obj=MCKfolder.findObject(pointintime,0,release_tag)
+                            retrieved_payload=retrieved_obj.payload()
+                            retrieved_format=retrieved_payload['MonConfigKey']
+                            MonitoringConfigurationKey = int(retrieved_format)
+                            HLTMonFlags.MCK.StoredValue = MonitoringConfigurationKey
+
+                            if HLTMonFlags.MCK.StoredValue > 0:
+                                print "MCK found via Cool:",HLTMonFlags.MCK.StoredValue
+                                if  HLTMonFlags.doMaM_ApplyMCK:
+                                    print "Applying MCK",HLTMonFlags.MCK.StoredValue
                                     mam.apply_mck( HLTMonFlags.MCK.StoredValue )
-                                elif HLTMonFlags.MCK.StoredValue == 0:
-                                    print "Monitoring Configuration Key (MCK) from Cool = 0, default configuration used"
-                            
-                            except ( ObjectNotFound, TagNotFound ):
+                            elif HLTMonFlags.MCK.StoredValue == 0:
+                                print "MCK found via Cool: 0 -> Default monitoring configuration used."
 
-                                print "No MCK in Cool folder",foldername,"for release",mam.current_athena_version,", checking via SMK"
-                                                    
-                                # if MCK version doesn't match, check SMK  
-                                # If MCK version didn't match, add the new MCK to Cool with a new tag
-                                SMKfolder=coolDB.getFolder('/TRIGGER/HLT/HltConfigKeys')
-                                retrieved_obj=SMKfolder.findObject(pointintime,0)
-                                retrieved_payload=retrieved_obj.payload()
-                                retrieved_format=retrieved_payload['MasterConfigurationKey'] 
-                                SuperMasterKey = int(retrieved_format)
-                                
-                                print "SMK SuperMasterKey from Cool =",SuperMasterKey
-                                
-                                # We now have the required input info. Use mam to get the appropriate MCK
-                                MCKfromSMK = mam.get_mck_id_from_smk(SuperMasterKey)
-                                
-                                # If the MCK is > 0 and is from the right release then apply it, otherwise use the default tool configurations
-                                if MCKfromSMK > 0:
-                                    if mam.does_mck_athena_version_match_current_athena_version( MCKfromSMK ):
-                                        HLTMonFlags.MCK.StoredValue = MCKfromSMK
-                                        print "Using trigger Monitoring Configuration Key (MCK) from SMK link =",HLTMonFlags.MCK.StoredValue
-                                        mam.apply_mck( HLTMonFlags.MCK.StoredValue )
-                                        # If MCK version didn't match, should we update the MCK in Cool? no
-                                    else:
-                                        print "MCK",MCKfromSMK,"cannot be applied as it is a patch for a different Athena version. No MCK applied."
-                                elif MCKfromSMK == 0:
-                                    HLTMonFlags.MCK.StoredValue = MCKfromSMK
-                                    print "Monitoring Configuration Key (MCK) from SMK link = 0, default configuration used"
-                                        
-                                if MCKfromSMK is 0 or mam.does_mck_athena_version_match_current_athena_version( MCKfromSMK ):        
-                                
-                                        # add the MCK to Cool if we used it 
-                                        # Store MCK=0 if what is linked to the SMK is explicitly 0 
+                        except ( ObjectNotFound, TagNotFound ):
+                            print "No MCK in Cool folder",foldername,"for release",mam.current_athena_version," -> No MCK applied."
 
-                                        payloadSpec = cool.RecordSpecification()
-                                        payloadSpec.extend('MonConfigKey',cool.StorageType.UInt32)
-                                        dataforCool = cool.Record(payloadSpec)
-                                        dataforCool['MonConfigKey'] = HLTMonFlags.MCK.StoredValue
+                        coolDB.closeDatabase()
+                else:
+                    print "Unable to get run number from metadata"
 
-                                        iovsince = (int(run_number)<<32)
-                                        iovuntil = (int(run_number+1)<<32)-1  
-                                        print "Storing MCK",HLTMonFlags.MCK.StoredValue,"in Cool for IOVs",runiov,"to",iovuntil 
-                                        MCKfolder.storeObject(runiov,iovuntil,dataforCool,0,release_tag)
-                            
+
         # if dumping the tool configurations (as a .json file) has been requested, then do that here
         if  HLTMonFlags.doMaM_ExtractAndDumpConfigs:
 
+            print "Will attempt to doMaM_ExtractAndDumpConfigs"
             # get updated configs for all tools, and dump them to HLTMonFlags.MaM_OutputJSON.StoredValue
             mam.get_current_local_info()
             mam.dump_local_config_to_json(HLTMonFlags.MaM_OutputJSON.StoredValue)

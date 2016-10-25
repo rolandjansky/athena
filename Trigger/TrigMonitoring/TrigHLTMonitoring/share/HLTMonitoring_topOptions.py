@@ -41,13 +41,6 @@ else :
   HLTMonFlags.doGeneral = False
   HLTMonFlags.doMonTier0 = False
 
-### Menu-aware monitoring flags ###
-#HLTMonFlags.doMaM                       = True # default is False
-#HLTMonFlags.doMaM_ExtractAndDumpConfigs = True # default is False
-#HLTMonFlags.MaM_OutputJSON              = "mam_configs.json" # default is "mam_configs.json"
-#HLTMonFlags.doMaM_ApplyMCK              = True # default is False
-#HLTMonFlags.MCK                         = -1 # default is -1 
-
 # temporarily disabling IDJpsiMon to deal with ATR-12037
 HLTMonFlags.doIDJpsiMon = False
 include( "TrigHLTMonitoring/addMonTools.py" )

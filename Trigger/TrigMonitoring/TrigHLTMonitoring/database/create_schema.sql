@@ -1,9 +1,7 @@
 -- 11th Dec 2015 
--- test DB objects creation in ATLAS_CONF_TRIGGER_RUN2 @INT8R 
 
-
-ALTER SESSION set current_schema = ATLAS_CONF_TRIGGER_RUN2;
-
+-- ALTER SESSION set current_schema = ATLAS_CONF_TRIGGER_RUN2;
+-- ALTER SESSION set current_schema = ATLAS_CONF_TRIGGER_REPR;
 
 CREATE SEQUENCE seq_mck_table_id;
 
