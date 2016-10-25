@@ -27,10 +27,9 @@ DetailedChains = {
                   "Tau3mu" : 'HLT_([2-3]?mu[0-9]+).*_bTau.*'
                  }
 DetailedL1TopoChains = {
-                        "L1BPH-M"    : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-[0-9]+M[0-9]+-.*",
-                        "L1BPH-M-DR" : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1BPH-[0-9]+M[0-9]+-.*BPH-[0-9]+DR[0-9]+-.*",
-                        "L1BPH-B"    : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1(2MU[0-9]+|MU[0-9]+_2MU[0-9]+)-B",
-                        "L1BPH-BO"   : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(b.*)_L1(2CMU[0-9]|CMU[0-9]+_2CMU[0-9]+)"
+                      "L1BPH-M-DR-low"    : "HLT_mu6_mu4_bDimu_L1BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4",
+                      "L1BPH-M-DR"        : "HLT_2mu6_bDimu_L1BPH-2M9-2MU6_BPH-2DR15-2MU6",
+                      "L1BPH-M"           : "HLT_2mu6_bDimu_L1BPH-8M15-2MU6"
                        }
 EfficiencyChains = {
                     "BMuMu"  : "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)",
@@ -41,7 +40,7 @@ EfficiencyChains = {
 EffTrigDenom_noVtxOS = "HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_bDimu_novtx_noos"
 
 # configuration for HI and pPb
-if hltmonList.HI_mode or hltmonList.pPb_mode :
+if hltmonList.HI_mode :
     containers = ["HLT_xAOD__TrigBphysContainer_L2BMuMuFex",  "HLT_xAOD__TrigBphysContainer_EFBMuMuFex"]
     DetailedChains = {"BMuMu"  : 'HLT_(2mu[0-9]+|mu[0-9]+_?mu[0-9]+)_(bDimu|bJpsimumu)'}
     DetailedL1TopoChains = {}
