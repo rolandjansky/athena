@@ -166,32 +166,32 @@ fitMergedFile_DiMuMonAll( TFile* f, std::string run_dir, std::string resonName, 
   vars.push_back("phiSumm");
   vars.push_back("crtDiff");
   
-  std::map< std::string, TH1D* > m_invmass;
-  std::map< std::string, std::map< std::string, TH2D*> > m_2DinvmassVSx;
-  std::map< std::string, std::map< std::string, TH1D*> > m_invmassVSx;
-  std::map< std::string, std::map< std::string, TH1D*> > m_widthVSx;
-  TH1D* m_chi2;
+  std::map< std::string, TH1F* > m_invmass;
+  std::map< std::string, std::map< std::string, TH2F*> > m_2DinvmassVSx;
+  std::map< std::string, std::map< std::string, TH1F*> > m_invmassVSx;
+  std::map< std::string, std::map< std::string, TH1F*> > m_widthVSx;
+  TH1F* m_chi2;
 
   //loop over all possible 2D histos
   //check if 2D histo has been filled
   //if found the 2D histo, then see whether the mean or width or both 1D histos were also made.-->Decide what to refit `
   if (CheckHistogram(f,(path+"_detail/chi2").c_str())) {
-    m_chi2 = (TH1D*)(f->Get((path+"_detail/chi2").c_str())->Clone());
+    m_chi2 = (TH1F*)(f->Get((path+"_detail/chi2").c_str())->Clone());
     std::vector<std::string> ::iterator ivar = vars.begin();
     std::vector<std::string> ::iterator ireg = regions.begin();
     for (ireg=regions.begin(); ireg!=regions.end(); ireg++) {
       for (ivar=vars.begin(); ivar!=vars.end(); ivar++) {
 	std::string hname2D = resonName + "_2DinvmassVS" + *ivar + "_" + *ireg;
 	if (CheckHistogram(f,(path+"/"+hname2D).c_str())) {
-	  m_2DinvmassVSx[*ireg][*ivar] = (TH2D*)(f->Get((path+"/"+hname2D).c_str())->Clone());
+	  m_2DinvmassVSx[*ireg][*ivar] = (TH2F*)(f->Get((path+"/"+hname2D).c_str())->Clone());
 	  std::string hnameMean = resonName + "_invmassVS" + *ivar + "_" + *ireg;
 	  std::string hnameWidth = resonName + "_widthVS" + *ivar + "_" + *ireg;
-	  std::vector<TH1D*> hfitted;
+	  std::vector<TH1F*> hfitted;
 	  if (CheckHistogram(f,(path+"/"+hnameMean).c_str())) {
-	    m_invmassVSx[*ireg][*ivar] = (TH1D*)(f->Get((path+"/"+hnameMean).c_str())->Clone());
+	    m_invmassVSx[*ireg][*ivar] = (TH1F*)(f->Get((path+"/"+hnameMean).c_str())->Clone());
 	    hfitted.push_back(m_invmassVSx[*ireg][*ivar] );
 	    if (CheckHistogram(f,(path+"_detail/"+hnameWidth).c_str())) {
-	      m_widthVSx[*ireg][*ivar] = (TH1D*)(f->Get((path+"_detail/"+hnameWidth).c_str())->Clone());
+	      m_widthVSx[*ireg][*ivar] = (TH1F*)(f->Get((path+"_detail/"+hnameWidth).c_str())->Clone());
 	      hfitted.push_back(m_widthVSx[*ireg][*ivar] );
 	      fitHistos(m_2DinvmassVSx[*ireg][*ivar], hfitted, 0, triggerName, resonName, m_chi2);// 0 means to fill both mean and width results from the fit
 	      f->cd((path+"/").c_str());
@@ -205,7 +205,7 @@ fitMergedFile_DiMuMonAll( TFile* f, std::string run_dir, std::string resonName, 
 	    } 
 	  } else {
 	    if (CheckHistogram(f,(path+"_detail/"+hnameWidth).c_str())) {
-	      m_widthVSx[*ireg][*ivar] = (TH1D*)(f->Get((path+"_detail/"+hnameWidth).c_str())->Clone());
+	      m_widthVSx[*ireg][*ivar] = (TH1F*)(f->Get((path+"_detail/"+hnameWidth).c_str())->Clone());
 	      hfitted.push_back(m_widthVSx[*ireg][*ivar] );
 	      fitHistos(m_2DinvmassVSx[*ireg][*ivar], hfitted, 2, triggerName, resonName, m_chi2);// 2 means to fill only width results from the fit	 
 	      f->cd((path+"_detail/").c_str());
@@ -223,7 +223,7 @@ fitMergedFile_DiMuMonAll( TFile* f, std::string run_dir, std::string resonName, 
   f->Write();
 }
 
-void MonitoringFile::fitHistos (TH2D* hin, std::vector<TH1D*> hout, int mode, std::string triggerName, std::string resonName, TH1D* m_chi2){
+void MonitoringFile::fitHistos (TH2F* hin, std::vector<TH1F*> hout, int mode, std::string triggerName, std::string resonName, TH1F* m_chi2){
   bool saveHistos = false;
   // a canvas may be needed when implmenting this into the post-processing file 
   //std::cout<<"The fitHistos method is called"<<endl;
@@ -233,7 +233,7 @@ void MonitoringFile::fitHistos (TH2D* hin, std::vector<TH1D*> hout, int mode, st
   int nbins=hin->GetNbinsX();
   for (int i=0; i<nbins;i++){
     snprintf(num2str,50,"%s_%i",(hname).c_str(),i);
-    TH1D* htemp = (TH1D*) (hin->ProjectionY(num2str,i+1,i+1));
+    TH1F* htemp = (TH1F*) (hin->ProjectionY(num2str,i+1,i+1));
     //htemp->SetTitle(projName);
     htemp->Sumw2();
     if (htemp->GetEntries()>50){
