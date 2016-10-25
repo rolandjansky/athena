@@ -9,6 +9,7 @@
 #include "GaudiKernel/IAlgTool.h"
 #include <vector>
 #include <bitset>
+#include <map>
 #include "TrkEventPrimitives/ParticleHypothesis.h"
 #include "TrkTrackSummary/TrackSummary.h" // defines Trk::numberOfDetectorTypes used below
 
@@ -53,11 +54,34 @@ namespace Trk {
 			   const TrackStateOnSurface* tsos,
 			   std::vector<int>& information, 
 			   std::bitset<Trk::numberOfDetectorTypes>& hitPattern ) const = 0;
-      
+ 
+      virtual void analyse(const Trk::Track&,
+			   const Trk::RIO_OnTrack*,
+			   const Trk::TrackStateOnSurface*,
+			   std::vector<int>&, 
+			   std::bitset<Trk::numberOfDetectorTypes>&,
+         std::map<std::string, int>&,
+         std::bitset<200>&,
+         const std::map<std::string, int>&) const { };
+
+      virtual void analyse(const Trk::Track&,
+			   const Trk::CompetingRIOsOnTrack*,
+			   const Trk::TrackStateOnSurface*,
+			   std::vector<int>&, 
+			   std::bitset<Trk::numberOfDetectorTypes>&,
+         std::map<std::string, int>&,
+         std::bitset<200>&,
+         const std::map<std::string, int>& ) const { };
+
       virtual void searchForHoles(const Trk::Track& track, 
 				  std::vector<int>& information ,
 				  const Trk::ParticleHypothesis partHyp = Trk::pion) const =0;
-                  
+ 
+      virtual void searchForHoles(const Trk::Track&, 
+				  std::vector<int>&,
+          std::map<std::string, int>&,
+				  const Trk::ParticleHypothesis) const { };
+      
       virtual void updateSharedHitCount(const Trk::Track&, TrackSummary&) const {};
 
        virtual void  updateExpectedHitInfo(const Trk::Track&, TrackSummary&) const {};

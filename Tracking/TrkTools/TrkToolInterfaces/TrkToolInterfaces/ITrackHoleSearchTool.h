@@ -72,7 +72,14 @@ namespace Trk
 							   const Trk::Track& track, 
 							   const Trk::ParticleHypothesis partHyp = Trk::pion) const = 0;
 
-      
+   
+      //ITk overloads
+     virtual void countHoles( 
+			    const Trk::Track&, 
+			    std::vector<int>&,
+          std::map<std::string, int>&,
+			    const Trk::ParticleHypothesis) const { };
+
   };
 
   inline const InterfaceID& Trk::ITrackHoleSearchTool::interfaceID()
