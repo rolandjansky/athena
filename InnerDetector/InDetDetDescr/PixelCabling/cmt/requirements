@@ -8,7 +8,7 @@ use GaudiInterface	 GaudiInterface-*	External
 use AthenaKernel	 AthenaKernel-*		Control
 
 private
-use AtlasCOOL		 AtlasCOOL-*		External
+use AtlasCORAL		 AtlasCORAL-*		External
 #use AtlasCORAL		 AtlasCORAL-*           External
 use PathResolver         PathResolver-*         Tools
 #use CoralDB		 CoralDB-*		Database

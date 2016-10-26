@@ -86,6 +86,9 @@ class PixelCablingData
    uint64_t getOnlineIdFromRobId(const uint32_t robid, const uint32_t link);
    ///@}
 
+   /** Clear all the maps **/
+   void clear_all_maps();
+
    /** @name FE-I4 HitDiscCnfg functions */
    ///@{
    void setCommonHitDiscCngf(int hitdisccnfg) {m_commonHitDiscCnfg = hitdisccnfg;}

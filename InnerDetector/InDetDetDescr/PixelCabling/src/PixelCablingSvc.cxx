@@ -21,7 +21,7 @@
 #include "PixelGeoModel/IBLParameterSvc.h"
 
 // Tools to fill the cabling
-#include "GaudiKernel/IToolSvc.h"
+//#include "GaudiKernel/IToolSvc.h"
 
 #include "PixelFillCablingData.h"
 
@@ -30,15 +30,14 @@
 #include "AthenaPoolUtilities/AthenaAttributeList.h"
 
 // COOL includes
-#include "CoolKernel/IObjectIterator.h"
-#include "CoolKernel/IObject.h"
+#include "CoralBase/Blob.h"
 
 
 //#define PIXEL_DEBUG
 
 
-using namespace std;
-using eformat::helper::SourceIdentifier;
+//using namespace std;
+//using eformat::helper::SourceIdentifier;
 
 static unsigned int defaultColumnsPerFE_pix     = 18;   // number of columns per FE
 static unsigned int defaultRowsPerFE_pix        = 164;  // number of rows per FE
@@ -60,7 +59,7 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     m_detStore("DetectorStore", name),
     m_IBLParameterSvc("IBLParameterSvc",name),
     m_idHelper(0),
-    m_cabling(0),
+    m_cabling(new PixelCablingData),
     m_callback_calls(0),
     m_dataString(""),
     m_key("/PIXEL/ReadoutSpeed"),
@@ -98,7 +97,7 @@ PixelCablingSvc::PixelCablingSvc(const std::string& name, ISvcLocator*svc) :
     declareProperty("DumpMapToFile", m_dump_map_to_file = false);
 }
 
-
+/*
 ////////////////////////
 // Copy constructor
 ////////////////////////
@@ -156,7 +155,7 @@ PixelCablingSvc& PixelCablingSvc::operator= (const PixelCablingSvc &other) {
     }
     return *this;
 }
-
+*/
 
 ////////////////////////
 // destructor
@@ -172,7 +171,7 @@ PixelCablingSvc::~PixelCablingSvc()
 StatusCode PixelCablingSvc::initialize( )
 {
     StatusCode sc;
-    msg(MSG::INFO) << "PixelCablingSvc::initialize" << endreq;
+    msg(MSG::INFO) << "PixelCablingSvc::initialize" << endmsg;
 
     // Get an Identifier helper object
     sc = m_detStore.retrieve();
@@ -181,30 +180,30 @@ StatusCode PixelCablingSvc::initialize( )
         return StatusCode::FAILURE;
     }
     else {
-        msg(MSG::DEBUG) << "DetectorStore service found" << endreq;
+        msg(MSG::DEBUG) << "DetectorStore service found" << endmsg;
     }
 
 
     // Get the PixelID Helper
     if (m_detStore->retrieve(m_idHelper, "PixelID").isFailure()) {
-        msg(MSG::FATAL) << "Could not get Pixel ID helper" << endreq;
+        msg(MSG::FATAL) << "Could not get Pixel ID helper" << endmsg;
         return StatusCode::FAILURE;
     }
 
     // Get ToolSvc
     IToolSvc* toolSvc;
     if(StatusCode::SUCCESS != service("ToolSvc", toolSvc)) {
-        msg(MSG::ERROR) << "Cannot get ToolSvc!" << endreq;
+        msg(MSG::ERROR) << "Cannot get ToolSvc!" << endmsg;
         return StatusCode::FAILURE;
     }
 
 
     // Get IBLParameterSvc
     if (!m_useIBLParameterSvc) {
-        msg(MSG::INFO) << "IBLParameterSvc not used" << endreq;
+        msg(MSG::INFO) << "IBLParameterSvc not used" << endmsg;
     }
     else if (m_IBLParameterSvc.retrieve().isFailure()) {
-        msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endreq;
+        msg(MSG::FATAL) << "Could not retrieve IBLParameterSvc" << endmsg;
         return StatusCode::FAILURE;
     }
 
@@ -257,22 +256,22 @@ StatusCode PixelCablingSvc::initialize( )
 
     // Print out all values
 #ifdef PIXEL_DEBUG
-    msg(MSG::DEBUG) << "-- PixelCablingSvc ------------------------------" << endreq;
-    msg(MSG::DEBUG) << "m_IBLpresent = " << m_IBLpresent << endreq;
-    msg(MSG::DEBUG) << "m_DBMpresent = " << m_DBMpresent << endreq;
-    msg(MSG::DEBUG) << "m_isHybrid = " << m_isHybrid << endreq;
-    msg(MSG::DEBUG) << "m_layer_columnsPerFE = " << m_layer_columnsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_layer_rowsPerFE = " << m_layer_rowsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_layer_FEsPerHalfModule = " << m_layer_FEsPerHalfModule << endreq;
-    msg(MSG::DEBUG) << "m_disk_columnsPerFE = " << m_disk_columnsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_disk_rowsPerFE = " << m_disk_rowsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_disk_FEsPerHalfModule = " << m_disk_FEsPerHalfModule << endreq;
-    msg(MSG::DEBUG) << "m_dbm_columnsPerFE = " << m_dbm_columnsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_dbm_rowsPerFE = " << m_dbm_rowsPerFE << endreq;
-    msg(MSG::DEBUG) << "m_dbm_FEsPerHalfModule = " << m_dbm_FEsPerHalfModule << endreq;
-    msg(MSG::DEBUG) << "m_final_mapping_file = " << m_final_mapping_file << endreq;
-    msg(MSG::DEBUG) << "useMapFromOptions = " << useMapFromOptions << endreq;
-    msg(MSG::DEBUG) << "-------------------------------------------------" << endreq;
+    msg(MSG::DEBUG) << "-- PixelCablingSvc ------------------------------" << endmsg;
+    msg(MSG::DEBUG) << "m_IBLpresent = " << m_IBLpresent << endmsg;
+    msg(MSG::DEBUG) << "m_DBMpresent = " << m_DBMpresent << endmsg;
+    msg(MSG::DEBUG) << "m_isHybrid = " << m_isHybrid << endmsg;
+    msg(MSG::DEBUG) << "m_layer_columnsPerFE = " << m_layer_columnsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_layer_rowsPerFE = " << m_layer_rowsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_layer_FEsPerHalfModule = " << m_layer_FEsPerHalfModule << endmsg;
+    msg(MSG::DEBUG) << "m_disk_columnsPerFE = " << m_disk_columnsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_disk_rowsPerFE = " << m_disk_rowsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_disk_FEsPerHalfModule = " << m_disk_FEsPerHalfModule << endmsg;
+    msg(MSG::DEBUG) << "m_dbm_columnsPerFE = " << m_dbm_columnsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_dbm_rowsPerFE = " << m_dbm_rowsPerFE << endmsg;
+    msg(MSG::DEBUG) << "m_dbm_FEsPerHalfModule = " << m_dbm_FEsPerHalfModule << endmsg;
+    msg(MSG::DEBUG) << "m_final_mapping_file = " << m_final_mapping_file << endmsg;
+    msg(MSG::DEBUG) << "useMapFromOptions = " << useMapFromOptions << endmsg;
+    msg(MSG::DEBUG) << "-------------------------------------------------" << endmsg;
 #endif
 
 
@@ -284,27 +283,13 @@ StatusCode PixelCablingSvc::initialize( )
     else ATH_MSG_INFO("PixelFillCablingData tool retrieved");
 
 
-    // Fill the cabling map
-    // Since COOL information is not available yet, fill the map from text
-    // file. Then, if mappingType == "COOL", a callback will be registered
-    // and the map is re-filled with the correct values. The correct 'fallback'
-    // file to use is set in SelectPixelMap.py.  The contents of the map is 
-    // anyways not important at this step. If mappingType == "Final", use 
-    // only the provided mapping file and do not register a callback.
-    if (m_mappingType == "COOL") {
-        ATH_MSG_DEBUG("Temporarily filling cabling map from " << m_final_mapping_file);
-    }
-    else if (m_mappingType == "Final") {
-        // pass
-    }
-    else {
+    if ((m_mappingType != "COOL") && (m_mappingType != "Final")) {
         ATH_MSG_FATAL("Unknown PixelCablingSvc configuration: " << m_mappingType);
         return StatusCode::FAILURE;
     }
 
-
-    m_cabling = m_cablingTool->fillMapFromFile(m_final_mapping_file);
-    if (m_cabling == NULL) {
+    if (m_mappingType != "COOL") 
+      if (!m_cablingTool->fillMapFromFile(m_final_mapping_file,m_cabling.get())) {
         ATH_MSG_ERROR("Filling pixel cabling from file \"" << m_final_mapping_file << "\" failed");
         return StatusCode::FAILURE;
     }
@@ -312,15 +297,13 @@ StatusCode PixelCablingSvc::initialize( )
     m_context = m_idHelper->wafer_context();
 
 
-    // Register callback to ReadoutSpeed
-    // This has to be done before the callback to CablingMap.
-    const DataHandle<AthenaAttributeList> attrlist_rs;
+    // Register readout speed callback
+    const DataHandle<AthenaAttributeList> attrlist;
     if (m_detStore->contains<AthenaAttributeList>(m_key)) {
 
         sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack,
                                 dynamic_cast<IPixelCablingSvc*>(this),
-                                attrlist_rs, m_key);
-        // If regFcn fails even when folder is present -> abort
+                                attrlist, m_key);
         if (!sc.isSuccess()) {
             ATH_MSG_FATAL("Unable to register readoutspeed callback");
             return StatusCode::FAILURE;
@@ -331,13 +314,12 @@ StatusCode PixelCablingSvc::initialize( )
                         << " values (all modules at SINGLE_40)");
     }
 
-    // Register callback to CablingMap
+    // Register cabling map callback
     if (m_mappingType == "COOL") {
-
         const DataHandle<AthenaAttributeList> attrlist_cabling;
         if (m_detStore->contains<AthenaAttributeList>(m_keyCabling)) {
 
-            sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack_FillCabling,
+            sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack,
                                     dynamic_cast<IPixelCablingSvc*>(this),
                                     attrlist_cabling, m_keyCabling);
 
@@ -347,18 +329,17 @@ StatusCode PixelCablingSvc::initialize( )
             }
         }
         else {
-            m_mappingType = "Final";
-            ATH_MSG_WARNING("Folder " << m_keyCabling << " not found, defaulting to "
-                            << "mapping file: " << m_final_mapping_file);
+            ATH_MSG_WARNING("Folder " << m_keyCabling << " not found, exiting");
+            return StatusCode::FAILURE;
         }
     }
 
-    // Register callback to HitDiscCnfg
+    // Register hitdisccnfg callback
     if (m_IBLpresent) {
         const DataHandle<AthenaAttributeList> attrlist_hdc;
         if (m_detStore->contains<AthenaAttributeList>(m_keyFEI4)) {
 
-            sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack_HitDiscCnfg,
+            sc = m_detStore->regFcn(&IPixelCablingSvc::IOVCallBack,
                                     dynamic_cast<IPixelCablingSvc*>(this),
                                     attrlist_hdc, m_keyFEI4);
 
@@ -410,7 +391,7 @@ PixelCablingSvc::queryInterface(const InterfaceID & riid, void** ppvInterface ){
 ////////////////////////
 void PixelCablingSvc::getOfflineList(std::vector<IdentifierHash>& offlineIdHashList, int robid)
 {
-    deque<Identifier> offlineIdList = m_cabling->find_entry_offlineList(robid);
+    std::deque<Identifier> offlineIdList = m_cabling->find_entry_offlineList(robid);
     std::deque<Identifier>::iterator it1 = offlineIdList.begin();
     std::deque<Identifier>::iterator it2 = offlineIdList.end();
     for(; it1!=it2;++it1)
@@ -528,7 +509,7 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
     switch (thisModule) {
 
     case NONE:
-        msg(MSG::ERROR) << "Module type not identified -- cannot build pixelId" << endreq;
+        msg(MSG::ERROR) << "Module type not identified -- cannot build pixelId" << endmsg;
         return Identifier();
 
     case DBM:
@@ -549,7 +530,7 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset;
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
             msg(MSG::WARNING) << "getPixelId: Eta_module out of range (eta_module = " << eta_module
-                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endreq;
+                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return Identifier();
         }
         // fall through
@@ -573,9 +554,9 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
     if (row >= rowsPerFE || column >= columnsPerFE ||
             FE >= ((thisModule == IBL || thisModule == DBM) ? FEsPerHalfModule : 2*FEsPerHalfModule)) {
         msg(MSG::WARNING) << "Illegal pixel requested OfflineID: " << std::hex << offlineId << std::dec
-                        << " FE: " << FE << " row: " << row << " column: " << column << endreq;
+                        << " FE: " << FE << " row: " << row << " column: " << column << endmsg;
         msg(MSG::DEBUG) << "Limits are: FE < " << ((thisModule == IBL || thisModule == DBM) ? FEsPerHalfModule : 2*FEsPerHalfModule)
-                       << ", row < " << rowsPerFE << ", column < " << columnsPerFE << endreq;
+                       << ", row < " << rowsPerFE << ", column < " << columnsPerFE << endmsg;
         return Identifier(); // illegal Identifier, standardized for PixelRodDecoder
     }
 
@@ -612,7 +593,7 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
             if ((m_idHelper->phi_module(offlineId))%2 == 0) {
                 phi_index = 2*rowsPerFE-phi_index-1;
                 if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Even disk module found, phi module: " << m_idHelper->phi_module(offlineId)
-                                << " swapped phi index to : " << phi_index << endreq;
+                                << " swapped phi index to : " << phi_index << endmsg;
             }
         }
         break;
@@ -625,15 +606,15 @@ Identifier PixelCablingSvc::getPixelId(Identifier offlineId, uint32_t FE, uint32
 #ifdef PIXEL_DEBUG
     unsigned int eta_index_max =  m_idHelper->eta_index_max(offlineId);
     unsigned int phi_index_max =  m_idHelper->phi_index_max(offlineId);
-    if (eta_index > eta_index_max) msg(MSG::WARNING) << "Error! eta_index: " << eta_index << " > eta_index_max: " << eta_index_max << endreq;
-    if (phi_index > phi_index_max) msg(MSG::WARNING) << "Error! phi_index: " << phi_index << " > phi_index_max: " << phi_index_max << endreq;
+    if (eta_index > eta_index_max) msg(MSG::WARNING) << "Error! eta_index: " << eta_index << " > eta_index_max: " << eta_index_max << endmsg;
+    if (phi_index > phi_index_max) msg(MSG::WARNING) << "Error! phi_index: " << phi_index << " > phi_index_max: " << phi_index_max << endmsg;
     //consistency check - to be removed to speed up
     uint32_t check_FE = getFE(&pixelId,offlineId);
     uint32_t check_row = getRow(&pixelId,offlineId) + column_row_offset;
     uint32_t check_column = getColumn(&pixelId,offlineId) + column_row_offset;
     if (check_FE != FE || check_row != row || check_column != column) {
-        msg(MSG::WARNING) << "identify OfflineID: 0x" << std::hex << offlineId << std::dec << " FE: " << FE << " row: " << row << " column: " << column << " unequal to:" << endreq;
-        msg(MSG::WARNING) << "identify PixelID: 0x" << std::hex << pixelId << std::dec << " FE: " << check_FE << " row: " << check_row << " column: " << check_column << endreq;
+        msg(MSG::WARNING) << "identify OfflineID: 0x" << std::hex << offlineId << std::dec << " FE: " << FE << " row: " << row << " column: " << column << " unequal to:" << endmsg;
+        msg(MSG::WARNING) << "identify PixelID: 0x" << std::hex << pixelId << std::dec << " FE: " << check_FE << " row: " << check_row << " column: " << check_column << endmsg;
     }
 #endif
 
@@ -687,7 +668,7 @@ uint32_t PixelCablingSvc::getFE(Identifier *pixelId, Identifier offlineId)
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset; //offset by 10 to start counting from 0
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
             msg(MSG::WARNING) << "getFE: Eta_module out of range (eta_module = " << eta_module
-                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endreq;
+                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return 0xffffffff;
         }
         // fall through
@@ -760,7 +741,7 @@ uint32_t PixelCablingSvc::getColumn(Identifier *pixelId, Identifier offlineId)
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset; //offset by 10 to start counting from 0
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
             msg(MSG::WARNING) << "getColumn: Eta_module out of range (eta_module = " << eta_module
-                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endreq;
+                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return 0xffffffff;
         }
         // fall through
@@ -798,7 +779,7 @@ uint32_t PixelCablingSvc::getColumn(Identifier *pixelId, Identifier offlineId)
     // ---------------------
     if (column >= (int)columnsPerFE) {
         msg(MSG::WARNING) << "Computed column number exceeds maximum value: col = " << column + column_offset
-                          << " (max = " << columnsPerFE << ")" <<  endreq;
+                          << " (max = " << columnsPerFE << ")" <<  endmsg;
         return 0xffffffff;
     }
 
@@ -846,7 +827,7 @@ uint32_t PixelCablingSvc::getRow(Identifier *pixelId, Identifier offlineId)
         eta_module = m_idHelper->eta_module(offlineId) + m_eta_module_offset; //offset by 10 to start counting from 0
         if (eta_module >= m_layer_FEsPerHalfModule[0].size()) {
             msg(MSG::WARNING) << "getRow: Eta_module out of range (eta_module = " << eta_module
-                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endreq;
+                              << ", expected number of modules per stave = " << m_layer_FEsPerHalfModule[0].size() << ")" << endmsg;
             return 0xffffffff;
         }
         // fall through
@@ -888,7 +869,7 @@ uint32_t PixelCablingSvc::getRow(Identifier *pixelId, Identifier offlineId)
     // ---------------------
     if (row >= (int)rowsPerFE) {
         msg(MSG::WARNING) << "Computed row number exceeds maximum value: row = " << row + row_offset
-                          << "(max = " << rowsPerFE << ")" << endreq;
+                          << "(max = " << rowsPerFE << ")" << endmsg;
         return 0xffffffff;
     }
 
@@ -916,7 +897,7 @@ uint32_t PixelCablingSvc::getFEwrtSlink(Identifier *pixelId) {
     nnn = (linkNum >> (localFE * 8)) & 0xF;
 
     // Check for errors
-    if (nnn > 7) msg(MSG::WARNING) << "Error in the identification of the FE-I4 w.r.t. Slink" << endreq;
+    if (nnn > 7) msg(MSG::WARNING) << "Error in the identification of the FE-I4 w.r.t. Slink" << endmsg;
 
     return nnn;
 }
@@ -939,10 +920,11 @@ std::vector<uint32_t>& PixelCablingSvc::getAllRobs()
     return m_cabling->get_allRobs();
 }
 
+
 ////////////////////////
-// callback for changing the readout speed
+// IOV callback
 ////////////////////////
-StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
+StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
 
     m_callback_calls++;
 
@@ -950,6 +932,10 @@ StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
         ATH_MSG_INFO("IOVCALLBACK for key " << *key << " number " << I);
 
 
+    // Clear all the existing map content
+    m_cabling->clear_all_maps();
+
+    // First do readout speed
     const AthenaAttributeList* attrlist = 0;
     StatusCode sc = m_detStore->retrieve(attrlist, m_key);
     if(!sc.isSuccess()){
@@ -970,17 +956,15 @@ StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
     for (unsigned int i = 0; i!=len; ++i) m_dataString[i] = *p++;
 
     int pos=0;
-    bool refill = false; // only refill the cabling if something changed
-    while (m_dataString.find(",",pos) != string::npos){
-        istringstream iss(m_dataString.substr(pos,m_dataString.find(",",pos)));
+    while (m_dataString.find(",",pos) != std::string::npos){
+        std::istringstream iss(m_dataString.substr(pos,m_dataString.find(",",pos)));
         uint32_t rod;
         iss >> std::hex >> rod;
 
-        string speed = m_dataString.substr(m_dataString.find(",",pos)+1,m_dataString.find("\n",pos)-m_dataString.find(",",pos)-1);
+        const std::string speed = m_dataString.substr(m_dataString.find(",",pos)+1,m_dataString.find("\n",pos)-m_dataString.find(",",pos)-1);
         if (m_cablingTool->rodReadoutMap.find(rod) == m_cablingTool->rodReadoutMap.end()){
             if (speed != "SINGLE_40"){
-                m_cablingTool->rodReadoutMap.insert(make_pair(rod,true));
-                refill = true;
+              m_cablingTool->rodReadoutMap.insert(std::make_pair(rod,true));
             }
         }
         else{
@@ -988,160 +972,132 @@ StatusCode PixelCablingSvc::IOVCallBack(IOVSVC_CALLBACK_ARGS_P(I, keys)){
                 m_cablingTool->rodReadoutMap[rod]=true;
             else
                 m_cablingTool->rodReadoutMap[rod]=false;
-            refill = true;
         }
 
         pos = m_dataString.find("\n",pos) + 1;
     }
-    if (refill) {
-        // Refill here only if reading cabling map from text file,
-        // since the callback to CablingMap in COOL is done separately.
-        if (m_mappingType == "Final") {
-            m_cabling = m_cablingTool->fillMapFromFile(m_final_mapping_file);
-            ATH_MSG_INFO("Refilled cabling map due to change in readout speed");
+
+    ATH_MSG_INFO("DONE Callback for " << m_key);
+
+
+
+    // Now do cabling map
+    if (m_mappingType != "COOL") {
+        if (!m_cablingTool->fillMapFromFile(m_final_mapping_file,m_cabling.get())) {
+            ATH_MSG_ERROR("Refilling pixel cabling from file \"" << m_final_mapping_file << "\" failed");
+            return StatusCode::FAILURE;
         }
+        ATH_MSG_INFO("Refilled pixel cabling from file \"" << m_final_mapping_file << "\"");
     }
-    ATH_MSG_INFO("DONE Callback " << m_callback_calls);
+    else {
 
-    return StatusCode::SUCCESS;
-}
-
-
-
-
-////////////////////////
-// callback for changing the FE-I4 HitDiscCnfg property
-////////////////////////
-StatusCode PixelCablingSvc::IOVCallBack_HitDiscCnfg(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
-
-    m_callback_calls++;
-
-    for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
-        ATH_MSG_INFO("IOVCALLBACK for key " << *key << " number " << I);
-
-
-    const AthenaAttributeList* attrlist = 0;
-    StatusCode sc = m_detStore->retrieve(attrlist, m_keyFEI4);
-    if(!sc.isSuccess()){
-        ATH_MSG_FATAL("Unable to retrieve AthenaAttributeList");
-        return StatusCode::FAILURE;
-    }
-
-    if (msgLvl(MSG::DEBUG)) {
-        ATH_MSG_DEBUG("AthenaAttributeList for " << m_keyFEI4 << ":");
-        attrlist->print(std::cout);
-        ATH_MSG_DEBUG("");
-    }
-
-    const coral::Blob& blob=(*attrlist)["HitDiscCnfgData"].data<coral::Blob>();
-    const uint32_t* p = static_cast<const uint32_t*>(blob.startingAddress());
-
-    uint32_t cooldata;
-    unsigned int len = blob.size()/sizeof(uint32_t);
-    ATH_MSG_DEBUG("blob.size() = " << blob.size() << ", len = " << len);
-
-
-    for (unsigned int i = 0; i < len; ++i) {
-
-        cooldata = *p++;
-
-        ATH_MSG_DEBUG("Got hitdisccnfgData[" << i << "] = 0x" << std::hex << cooldata << std::dec);
-
-        // The implementation below uses one common value, one common 3D value,
-        // and an exception list of individual FEs, in order to save DB space.
-        // Here we convert this into only one common value and an exception list, i.e.
-        // if the 3D FEs have a different common value they are all added to the exception list
-
-        // Update the most common value, identified by 0xH0000000, where H = 00HH
-        if ((cooldata & 0x8FFFFFFF) == 0x0) {
-            ATH_MSG_DEBUG("Setting common HitDiscCnfg value to " << ((cooldata&0x30000000) >> 28));
-            m_cabling->setCommonHitDiscCngf((cooldata&0x30000000) >> 28);
+        attrlist = 0;
+        sc = m_detStore->retrieve(attrlist, m_keyCabling);
+        if(!sc.isSuccess()){
+            ATH_MSG_FATAL("Unable to retrieve AthenaAttributeList");
+            return StatusCode::FAILURE;
         }
 
-        // Update all 3D sensors with a common value, identified by 0xZ0000000, where Z = 10hh
-        else if ((cooldata & 0x8FFFFFFF) == 0x80000000) {
+        if (msgLvl(MSG::DEBUG)) {
+            ATH_MSG_DEBUG("AthenaAttributeList for " << m_keyCabling << ":");
+            attrlist->print(std::cout);
+            ATH_MSG_DEBUG("");
+        }
 
-            ATH_MSG_DEBUG("Setting common 3D HitDiscCnfg value to " << ((cooldata&0x30000000) >> 28));
+        const coral::Blob& blob_cabling=(*attrlist)["CablingMapData"].data<coral::Blob>();
+        const char* p_cabling = static_cast<const char*>(blob_cabling.startingAddress());
 
-            // Loop over list of robs, find the 3D sensors and insert them in HitDiscCnfg map
-            for (auto robid : m_cabling->get_allRobs()) {
+        unsigned int len_cabling = blob_cabling.size()/sizeof(char);
+        ATH_MSG_DEBUG("blob_cabling.size() = " << blob_cabling.size() << ", len_cabling = " << len_cabling);
 
-                // Skip non-IBL ROBs (DBM is not affected by the common 3D value)
-                if (!isIBL(robid)) continue;
+        bool stat = m_cablingTool->fillMapFromCool(p_cabling, blob_cabling.size(), m_cabling.get(), m_dump_map_to_file);
 
-                for (int link = 0 ; link < 8 ; ++link) {
+        if (!stat) {
+            ATH_MSG_ERROR("Callback to CablingMap failed, map was not filled");
+            return StatusCode::FAILURE;
+        }
+        else ATH_MSG_INFO("Refilled cabling map");
 
-                    if (((robid&0xF)==1 && link > 3) || (((robid&0xF)==2) && link < 4))  {
-                        m_cabling->add_entry_HitDiscCnfg((robid | (link >> 24)), (cooldata & 0x30000000) >> 28);
+    }
+
+
+    // Now do HDC
+    if (m_IBLpresent) {
+        attrlist = 0;
+        sc = m_detStore->retrieve(attrlist, m_keyFEI4);
+        if(!sc.isSuccess()){
+            ATH_MSG_FATAL("Unable to retrieve AthenaAttributeList");
+            return StatusCode::FAILURE;
+        }
+
+        if (msgLvl(MSG::DEBUG)) {
+            ATH_MSG_DEBUG("AthenaAttributeList for " << m_keyFEI4 << ":");
+            attrlist->print(std::cout);
+            ATH_MSG_DEBUG("");
+        }
+
+        const coral::Blob& blob_hdc=(*attrlist)["HitDiscCnfgData"].data<coral::Blob>();
+        const uint32_t* p_hdc = static_cast<const uint32_t*>(blob_hdc.startingAddress());
+
+        uint32_t cooldata;
+        unsigned int len_hdc = blob_hdc.size()/sizeof(uint32_t);
+        ATH_MSG_DEBUG("blob_hdc.size() = " << blob_hdc.size() << ", len_hdc = " << len_hdc);
+
+
+        for (unsigned int i = 0; i < len_hdc; ++i) {
+
+            cooldata = *p_hdc++;
+
+            ATH_MSG_DEBUG("Got hitdisccnfgData[" << i << "] = 0x" << std::hex << cooldata << std::dec);
+
+            // The implementation below uses one common value, one common 3D value,
+            // and an exception list of individual FEs, in order to save DB space.
+            // Here we convert this into only one common value and an exception list, i.e.
+            // if the 3D FEs have a different common value they are all added to the exception list
+
+            // Update the most common value, identified by 0xH0000000, where H = 00HH
+            if ((cooldata & 0x8FFFFFFF) == 0x0) {
+                ATH_MSG_DEBUG("Setting common HitDiscCnfg value to " << ((cooldata&0x30000000) >> 28));
+                m_cabling->setCommonHitDiscCngf((cooldata&0x30000000) >> 28);
+            }
+
+            // Update all 3D sensors with a common value, identified by 0xZ0000000, where Z = 10hh
+            else if ((cooldata & 0x8FFFFFFF) == 0x80000000) {
+
+                ATH_MSG_DEBUG("Setting common 3D HitDiscCnfg value to " << ((cooldata&0x30000000) >> 28));
+
+                // Loop over list of robs, find the 3D sensors and insert them in HitDiscCnfg map
+                for (auto robid : m_cabling->get_allRobs()) {
+
+                    // Skip non-IBL ROBs (DBM is not affected by the common 3D value)
+                    if (!isIBL(robid)) continue;
+
+                    for (int link = 0 ; link < 8 ; ++link) {
+
+                        if (((robid&0xF)==1 && link > 3) || (((robid&0xF)==2) && link < 4))  {
+                            m_cabling->add_entry_HitDiscCnfg((robid | (link >> 24)), (cooldata & 0x30000000) >> 28);
+                        }
                     }
                 }
             }
+
+            // Update a single link, 0xHLDDRRRR
+            else {
+                ATH_MSG_DEBUG("Setting HitDiscCnfg value to " << ((cooldata&0x30000000) >> 28)
+                              << " for ROB 0x" << std::hex << (cooldata & 0xFFFFFF)
+                              << ", link " << std::dec << ((cooldata & 0xF000000) >> 24));
+                m_cabling->add_entry_HitDiscCnfg((cooldata & 0xFFFFFFF), (cooldata & 0x30000000) >> 28);
+            }
+
         }
 
-        // Update a single link, 0xHLDDRRRR
-        else {
-            ATH_MSG_DEBUG("Setting HitDiscCnfg value to " << ((cooldata&0x30000000) >> 28)
-                          << " for ROB 0x" << std::hex << (cooldata & 0xFFFFFF)
-                          << ", link " << std::dec << ((cooldata & 0xF000000) >> 24));
-            m_cabling->add_entry_HitDiscCnfg((cooldata & 0xFFFFFFF), (cooldata & 0x30000000) >> 28);
-        }
-
+        ATH_MSG_INFO("Refilled HitDiscCnfg values");
     }
-
-    ATH_MSG_INFO("DONE Callback " << m_callback_calls);
-
-    // Print map contents
-    if (msgLvl(MSG::DEBUG)) m_cabling->printHitDiscCnfg();
 
 
     return StatusCode::SUCCESS;
 }
 
-
-////////////////////////
-// callback for changing the pixel cabling map property
-////////////////////////
-StatusCode PixelCablingSvc::IOVCallBack_FillCabling(IOVSVC_CALLBACK_ARGS_P(I, keys)) {
-
-    m_callback_calls++;
-
-    for(std::list<std::string>::const_iterator key=keys.begin(); key != keys.end(); ++key)
-        ATH_MSG_INFO("IOVCALLBACK for key " << *key << " number " << I);
-
-
-
-    const AthenaAttributeList* attrlist = 0;
-    StatusCode sc = m_detStore->retrieve(attrlist, m_keyCabling);
-    if(!sc.isSuccess()){
-        ATH_MSG_FATAL("Unable to retrieve AthenaAttributeList");
-        return StatusCode::FAILURE;
-    }
-
-    if (msgLvl(MSG::DEBUG)) {
-        ATH_MSG_DEBUG("AthenaAttributeList for " << m_keyCabling << ":");
-        attrlist->print(std::cout);
-        ATH_MSG_DEBUG("");
-    }
-
-    const coral::Blob& blob=(*attrlist)["CablingMapData"].data<coral::Blob>();
-    const char* p = static_cast<const char*>(blob.startingAddress());
-
-    unsigned int len = blob.size()/sizeof(char);
-    ATH_MSG_DEBUG("blob.size() = " << blob.size() << ", len = " << len);
-
-    m_cablingTool->fillMapFromCool(p, blob.size(), m_dump_map_to_file);
-
-    if (!m_cablingTool) {
-        ATH_MSG_ERROR("Callback to CablingMap failed, map was not filled");
-        return StatusCode::FAILURE;
-    }
-    else ATH_MSG_INFO("Refilled cabling map");
-
-    ATH_MSG_INFO("DONE Callback " << m_callback_calls);
-
-
-    return StatusCode::SUCCESS;
-}
 
 
 
@@ -1166,7 +1122,7 @@ unsigned int PixelCablingSvc::getLocalFEI4(const uint32_t fe, const uint64_t onl
     if (fe == linknum40) return 0;
     else if (fe == linknum80) return 1;
     else msg(MSG::WARNING) << "Error in retrieving local FE-I4 number: linknumber " << fe
-                           << " not found in onlineID " << std::hex << onlineId << endreq;
+                           << " not found in onlineID " << std::hex << onlineId << endmsg;
     return 0xF;
 }
 

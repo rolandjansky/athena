@@ -52,7 +52,7 @@ class PixelFillCablingData : public AthAlgTool
     * in the PixelCabling/share/ directory
     * @return Pointer to filled instance of PixelCablingData
     */
-   PixelCablingData* fillMapFromFile(const std::string filename);
+   bool fillMapFromFile(const std::string filename,  PixelCablingData* cabling);
 
    /** Fill cabling map from COOL database (for Run-2 onwards,
     *  where the CablingMap folder is available)
@@ -62,13 +62,11 @@ class PixelFillCablingData : public AthAlgTool
     * read from COOL into a text file for debugging
     * @return Pointer to filled instance of PixelCablingData
     */
-   PixelCablingData* fillMapFromCool(const char* data, unsigned int size, bool dump_map_to_file = false);
+   bool fillMapFromCool(const char* data, unsigned int size, PixelCablingData* cabling, bool dump_map_to_file = false);
 
    /** Function to fill the map by parsing input istream */
-   PixelCablingData* parseAndFill(std::istream& instr, bool dump_map_to_file = false);
+   bool parseAndFill(std::istream& instr,  PixelCablingData* cabling ,bool dump_map_to_file = false);
 
-   /** Return a pointer to the current map (i.e. current instance of PixelCablingData */
-   PixelCablingData* getCabling() {return m_cabling;}
 
    /** Set the mapping file to read from */
    inline void setMappingFile(std::string file) {m_mapping_file = file;}
@@ -80,7 +78,6 @@ class PixelFillCablingData : public AthAlgTool
    IdContext m_cntxpixel;
    std::string m_mapping_file;
    const PixelID* m_idHelper;
-   PixelCablingData* m_cabling;
 
 
 };

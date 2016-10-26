@@ -36,6 +36,7 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#include <memory>
 
 class StatusCode;
 class ISvcLocator;
@@ -90,10 +91,10 @@ public:
   PixelCablingSvc(const std::string& name, ISvcLocator* svc ) ;
 
   /** Copy constructor */
-  PixelCablingSvc(const PixelCablingSvc &other, const std::string& name, ISvcLocator*svc);
+  //PixelCablingSvc(const PixelCablingSvc &other, const std::string& name, ISvcLocator*svc);
 
   /** Assignment operator */
-  PixelCablingSvc& operator= (const PixelCablingSvc &other);
+  //PixelCablingSvc& operator= (const PixelCablingSvc &other);
   
   /** Destructor */
   ~PixelCablingSvc();
@@ -104,15 +105,8 @@ public:
   /** Finialize */
   StatusCode finalize();
 
-  /** @name Callback functions */
-  ///@{
-  /** Callback to update the readout speed */
+  /** Callback to update maps */
   StatusCode IOVCallBack(IOVSVC_CALLBACK_ARGS);
-  /** Callback to update FE-I4 hit discriminator setting (HitDiscCnfg) */
-  StatusCode IOVCallBack_HitDiscCnfg(IOVSVC_CALLBACK_ARGS);
-  /** Callback to update the cabling map */
-  StatusCode IOVCallBack_FillCabling(IOVSVC_CALLBACK_ARGS);
-  ///@}
 
   StatusCode queryInterface(const InterfaceID & riid, void** ppvInterface );
   
@@ -203,7 +197,7 @@ private:
   ServiceHandle< StoreGateSvc > m_detStore;
   ServiceHandle<IBLParameterSvc> m_IBLParameterSvc; 
   const PixelID* m_idHelper;
-  PixelCablingData* m_cabling;
+  std::unique_ptr<PixelCablingData> m_cabling;
 
   unsigned int m_callback_calls;
   IdContext m_context;
