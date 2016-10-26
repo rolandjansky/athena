@@ -28,11 +28,11 @@ PhotonPlots::PhotonPlots(PlotBase* pParent, std::string sDir, std::string sParti
 											 m_oKinIsoTightUncPlots(this, "IsoTight/KinPlotsUnc/", "Reco " + sParticleType +" Photon"),
 											 m_oKinIsoTightConvPlots(this, "IsoTight/KinPlotsConv/", "Reco " + sParticleType +" Photon"),
 											 m_sParticleType(sParticleType),
-											 nParticles(0)
+											 m_nParticles(0)
 {}	
 
 void PhotonPlots::initializePlots(){
-  nParticles = Book1D("n", "Number of"+ m_sParticleType + "s;#" + m_sParticleType + "s;Events", 15, 0., 15.);
+  m_nParticles = Book1D("n", "Number of"+ m_sParticleType + "s;#" + m_sParticleType + "s;Events", 15, 0., 15.);
 }
 
 void PhotonPlots::fill(const xAOD::Photon& photon, bool isPrompt){
