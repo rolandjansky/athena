@@ -1033,6 +1033,13 @@ class doTIDE_Ambi(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = True
 
+class doRefitInvalidCov(InDetFlagsJobProperty):
+  """ Try Kalman fitter if the track fit in the ambiguity processor produces invalid covariance matrices."""
+  statusOn     = True
+  allowedTypes = ['bool']
+  StoredValue  = False
+
+
 class doSSSfilter(InDetFlagsJobProperty):
   """ Switch for running SSS filter"""
   statusOn     = True
@@ -1099,6 +1106,12 @@ class doParticleConversion(InDetFlagsJobProperty):
   allowedTypes = ['bool']
   StoredValue  = False
 
+class doHIP300(InDetFlagsJobProperty):
+    """ Switch for running MinBias settings with a 300 MeV pT cut (for Heavy Ion Proton)"""
+    statusOn     = True
+    allowedTypes = ['bool']
+    StoredValue  = False
+
 ##-----------------------------------------------------------------------------
 ## 2nd step
 ## Definition of the InDet flag container
@@ -1136,7 +1149,10 @@ class InDetJobProperties(JobPropertyContainer):
     print "InDetJobProperties::setupDefaults():  jobproperties.Beam.beamType() is "+jobproperties.Beam.beamType()+" bunch spacing is "+str(jobproperties.Beam.bunchSpacing()) 
 
     if ( jobproperties.Beam.beamType()=="collisions" and jobproperties.Beam.bunchSpacing() <= 25): 
-       self.checkThenSet(self.InDet25nsec            , True)     
+       self.checkThenSet(self.InDet25nsec            , True)
+
+    if self.doHIP300 :
+       self.checkThenSet(self.doRefitInvalidCov      ,True)
 
     if self.doSLHCVeryForward():
        self.checkThenSet(self.doSLHC            , True)
@@ -1229,6 +1245,7 @@ class InDetJobProperties(JobPropertyContainer):
        self.checkThenSet(self.priVtxCutLevel         , 1    )
        self.checkThenSet(self.doTrackSegmentsPixelPrdAssociation, False)
        self.checkThenSet(self.perigeeExpression      , 'Vertex')
+       self.checkThenSet(self.doRefitInvalidCov      ,True)
 
     # --- special case SLHC
     elif (self.doSLHC()):
@@ -2653,6 +2670,7 @@ _list_InDetJobProperties = [Enabled,
                             doCaloSeededTRTSegments,
                             doInnerDetectorCommissioning,
                             doTIDE_Ambi,
+                            doRefitInvalidCov,
                             doSSSfilter,
                             pT_SSScut,
                             ForceCoraCool,
@@ -2665,7 +2683,8 @@ _list_InDetJobProperties = [Enabled,
                             doSCTModuleVeto,
                             doDBMstandalone,
                             doDBM,
-                            doParticleConversion
+                            doParticleConversion,
+                            doHIP300
                            ]
 for j in _list_InDetJobProperties: 
     jobproperties.InDetJobProperties.add_JobProperty(j)
