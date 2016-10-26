@@ -1029,6 +1029,7 @@ build_segment(const ICscSegmentFinder::Segment& seg, bool measphi, Identifier ch
   // Fit quality.
   int ndof = int(prios->size()) - 2;
   if(m_IPconstraint) ndof = ndof + 1;
+  if(ndof==0) ndof=1; //bit of a hack here, it's better in r21, but for now this ensures that 2-layer ncb segments never have ndof=0 (not possible for any other segments)
   Trk::FitQuality* pfq = new Trk::FitQuality(seg.chsq, ndof);
   // Build segment.
   // Build position vector.
