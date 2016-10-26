@@ -9,6 +9,7 @@ if rec.doESD :
 
      from InDetRecExample.InDetJobProperties import InDetFlags
      InDetFlags.doMinBias.set_Value_and_Lock(True)
+     InDetFlags.doRefitInvalidCov.set_Value_and_Lock(True)
      InDetFlags.perigeeExpression.set_Value_and_Lock('Vertex')
      InDetFlags.doSplitVertexFindingForMonitoring.set_Value_and_Lock(False)
      InDetFlags.writeRDOs.set_Value_and_Lock(True)
