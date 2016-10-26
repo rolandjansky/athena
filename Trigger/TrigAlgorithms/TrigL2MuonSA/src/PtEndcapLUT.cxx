@@ -348,13 +348,13 @@ double TrigL2MuonSA::PtEndcapLUT::ptcombined(int iEta, int iPhi, double ApT, dou
 	<< "iPhi="      << iPhi
 	<< "Alpha pT="  << ApT
 	<< "Beta pT="   << BpT
-	<< ")" << endreq;
+	<< ")" << endmsg;
 
   if (iEta == -1) iEta =  0;
   if (iEta == 30) iEta = 29;
 
   if (iEta < 0 || iEta >= ETAS || iPhi < 0 || iPhi >= PHIS) {
-    msg() << MSG::WARNING << "pTcombined("<< iEta << ", " << iPhi << ") Invalid indices" << endreq;
+    msg() << MSG::WARNING << "pTcombined("<< iEta << ", " << iPhi << ") Invalid indices" << endmsg;
     return 0.0;
   }
 
@@ -420,11 +420,11 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUTSigmaMean(std::string lut_mean, std
   std::ifstream ifsmean(lut_mean.c_str());
   std::ifstream ifssigma(lut_sigma.c_str());
   if (!ifsmean.is_open()) {
-    msg() << MSG::ERROR << "Cannot open EndcapLUT Mean file " << lut_mean << endreq;
+    msg() << MSG::ERROR << "Cannot open EndcapLUT Mean file " << lut_mean << endmsg;
     return StatusCode::FAILURE;
   }
   if (!ifssigma.is_open()) {
-    msg() << MSG::ERROR << "Cannot open EndcapLUT Sigma file " << lut_sigma << endreq;
+    msg() << MSG::ERROR << "Cannot open EndcapLUT Sigma file " << lut_sigma << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -450,7 +450,7 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUTSigmaMean(std::string lut_mean, std
     int iEta, iPhi, iNP;
     double tmp_par1, tmp_par2, tmp_par3;
     if (sscanf(line.c_str(), "%d %d %d %lf %lf %lf", &iEta, &iPhi, &iNP, &tmp_par1, &tmp_par2, &tmp_par3) != 6) {
-      msg() << MSG::ERROR << " Invalid data in mean EndcapLUT file " << lut_mean << endreq;
+      msg() << MSG::ERROR << " Invalid data in mean EndcapLUT file " << lut_mean << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -467,7 +467,7 @@ StatusCode TrigL2MuonSA::PtEndcapLUT::readLUTSigmaMean(std::string lut_mean, std
     int iEta, iPhi, iNP;
     double tmp_par1, tmp_par2, tmp_par3;
     if (sscanf(line2.c_str(), "%d %d %d %lf %lf %lf", &iEta, &iPhi, &iNP, &tmp_par1, &tmp_par2, &tmp_par3) != 6) {
-      msg() << MSG::ERROR << " Invalid data in mean EndcapLUT file " << lut_mean << endreq;
+      msg() << MSG::ERROR << " Invalid data in mean EndcapLUT file " << lut_mean << endmsg;
       return StatusCode::FAILURE;
     }
 

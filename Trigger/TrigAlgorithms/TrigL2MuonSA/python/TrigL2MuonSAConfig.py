@@ -28,20 +28,16 @@ ToolSvc += MuonBackExtrapolatorForAlignedDet()
 ToolSvc += MuonBackExtrapolatorForMisalignedDet()
 ToolSvc += MuonBackExtrapolatorForData()
 
-class CscRegDict(TrigL2MuonSA__CscRegDict):
-    def __init__(self,name = 'CscRegDict'):
-        super(CscRegDict ,self).__init__(name)
-        self.MCFlag = True
 
 ToolSvc += TrigL2MuonSA__CscSegmentMaker()
-ToolSvc += CscRegDict()
+ToolSvc += TrigL2MuonSA__CscRegDict()
 
 
 class PtBarrelLUTSvc(TrigL2MuonSA__PtBarrelLUTSvc):
     def __init__(self,name = 'PtBarrelLUTSvc'):
         super(PtBarrelLUTSvc ,self).__init__(name)
         self.LUTfile = "pt_barrel.lut"
-        self.SP_LUTfile = "pt_barrelSP.lut"
+        self.SP_LUTfile = "pt_barrelSP_new.lut"
 
 class PtBarrelLUTSvc_MC(TrigL2MuonSA__PtBarrelLUTSvc):
     def __init__(self,name = 'PtBarrelLUTSvc_MC'):

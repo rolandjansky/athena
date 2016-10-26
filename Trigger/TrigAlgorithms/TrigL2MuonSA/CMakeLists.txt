@@ -65,5 +65,5 @@ atlas_add_component( TrigL2MuonSA
 # Install files from the package:
 atlas_install_headers( TrigL2MuonSA )
 atlas_install_python_modules( python/*.py )
-atlas_install_runtime( share/pt_barrel.lut share/pt_barrelSP.lut share/pt_barrel.mc10.lut share/pt_endcap.lut share/pt_endcap.mc10.lut share/dZ_barrel.lut share/pt_endcap_small_large.lut share/pt_endcap_run2.lut share/pt_comb_sigma.lut share/pt_comb_mean.lut)
+atlas_install_runtime( share/pt_barrel.lut share/pt_barrelSP.lut share/pt_barrelSP_new.lut share/pt_barrel.mc10.lut share/pt_endcap.lut share/pt_endcap.mc10.lut share/dZ_barrel.lut share/pt_endcap_small_large.lut share/pt_endcap_run2.lut share/pt_comb_sigma.lut share/pt_comb_mean.lut)
 

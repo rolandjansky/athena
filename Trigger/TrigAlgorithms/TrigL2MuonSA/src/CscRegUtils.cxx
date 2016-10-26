@@ -2,6 +2,7 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
+
 #include "TrigL2MuonSA/CscRegUtils.h"
 
 #include "AthenaBaseComps/AthMsgStreamMacros.h"
@@ -9,9 +10,7 @@
 #include <cmath>
 
 
-
 static const InterfaceID IID_CscRegDict("IID_CscRegDict", 1, 0);
-
 
 namespace TrigL2MuonSA{
 
@@ -19,9 +18,10 @@ namespace TrigL2MuonSA{
 const InterfaceID& CscRegDict :: interfaceID(){ return IID_CscRegDict; }
 
 
-CscRegDict :: CscRegDict(const std::string &type, const std::string &name, const IInterface *parent): AthAlgTool(type,name,parent),m_util(0){
+  CscRegDict :: CscRegDict(const std::string &type, const std::string &name, const IInterface *parent): AthAlgTool(type,name,parent),m_util(0){
   declareInterface<TrigL2MuonSA::CscRegDict>(this);
   declareProperty("MCFlag", m_isMC=true);
+
 }
 
 
@@ -45,7 +45,7 @@ StatusCode CscRegDict :: initialize(){
   const double SPwid = 0.32369;
   const double Setamin = 1.97667;
   const double Setamax = 2.76781;
-  const double SDisplace = (7441.+7518.)/2.;
+  const double SDisplace = (7441.+7518.)/2.;//7428.3;
   const double SAtanNormal = 0.20223129856437;
   
     //Cside Small
@@ -89,7 +89,7 @@ StatusCode CscRegDict :: initialize(){
   const double LPwid = 0.514507;
   const double Letamin = 2.01471;
   const double Letamax = 2.75914;
-  const double LDisplace = (7800.+7880.)/2.;
+  const double LDisplace = (7800.+7880.)/2.;//7789.6;
   const double LAtanNormal = 0.20223129856437;
   
     //Cside Large
@@ -126,14 +126,15 @@ StatusCode CscRegDict :: initialize(){
                   << " theta: " << m_util->calc_theta(m_reg_dict[i].etaMin) << " - " << m_util->calc_theta(m_reg_dict[i].etaMax) );
     ++i;
   }
-
-
+  /*
+  ATH_MSG_DEBUG( "m_isMC=" << m_isMC );  
   if (!m_isMC){
     initializePosCorrectionParameters();
     initializeDictionaryForData();
   }
+  */  
   initializeHashDictionary();
-  
+ 
   
   return StatusCode::SUCCESS;
 }
@@ -155,20 +156,24 @@ int CscRegDict :: get_hash(int stationname, int stationeta, int stationphi){
   int sname, seta, sphi;
   if (stationname == 50 || stationname == 51)  sname = stationname-50;
   else {  ATH_MSG_DEBUG( "stationname is out of [50,51]");
-    return -999;
+    return 999;
   }
   if (stationeta == 1 || stationeta ==-1) seta = ((stationeta == 1)? 1:0);
   else {  ATH_MSG_DEBUG( "stationeta is not 1 nor -1" );
-    return -999;
+    return 999;
   }
   if (stationphi >=1  || stationeta <=8) sphi = stationphi-1;
   else {  ATH_MSG_DEBUG( "stationeta is out of [1,8]" );
-    return -999;
+    return 999;
   }
   
   return m_module_hashes[sname][seta][sphi];
   
 }
+
+
+
+
 
 
 double CscRegDict :: PhiConv(double phi){
@@ -199,7 +204,7 @@ ReturnCode CscRegDict :: initializeHashDictionary(){
 
 
 Amg::Vector3D CscRegDict::nomalVector(int module){
-  
+    
   double phi=m_reg_dict[module].phiCen;
   double theta=m_reg_dict[module].idealAtanNormal;
   Amg::Vector3D nomvec( sin(theta)*cos(phi), sin(theta)*sin(phi), cos(theta));
@@ -207,8 +212,8 @@ Amg::Vector3D CscRegDict::nomalVector(int module){
   return nomvec;
   
 }
-
-
+  
+  
 double CscRegDict  :: posCorrectionR(int module, int charge/*0 or 1*/){
   
   if (0==charge) return m_reg_dict[module].posCorrectionMinusR;
@@ -216,7 +221,7 @@ double CscRegDict  :: posCorrectionR(int module, int charge/*0 or 1*/){
   
   return 0.0;
 }
-
+  
 
 double CscRegDict :: posCorrectionZ(int module, int charge/*0 or 1*/){
   
@@ -227,13 +232,15 @@ double CscRegDict :: posCorrectionZ(int module, int charge/*0 or 1*/){
   
   return 0.0;
 }
+  
+
 
 
 double UtilTools :: calc_phi(double x, double y){
   
-  double abs_y=fabs(y);
+  double /*abs_x=fabs(x),*/ abs_y=fabs(y);
   double abs_sine=abs_y/sqrt(x*x+y*y);
-
+    //std::cout << "convert " << ASin(abssin) << std::endl;
   
   if (x>0 && y>=0) {
     return asin(abs_sine);
