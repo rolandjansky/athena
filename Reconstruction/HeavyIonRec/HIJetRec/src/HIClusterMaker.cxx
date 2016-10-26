@@ -77,14 +77,15 @@ StatusCode HIClusterMaker::execute()
     // std::vector<float> eta_sampling(NUMSAMPLES,0);
     // std::vector<float> phi_sampling(NUMSAMPLES,0);
 
-    // //Make the cluster:
-    xAOD::CaloCluster* cl=CaloClusterStoreHelper::makeCluster(cellColl);
-
     //navigate back to cells
     //Default is to sort the cells by either pointer values leading to irreproducible output
     //CaloCellIDFcn ensures cells are ordered by their IDs
     NavigationToken<CaloCell,double,CaloCellIDFcn> cellToken;
     (*towerItr)->fillToken(cellToken,double(1.));
+
+    // Make the cluster:
+    std::unique_ptr<xAOD::CaloCluster> cl(CaloClusterStoreHelper::makeCluster(cellColl));
+
     if ( cellToken.size() == 0 ) continue;
     for(NavigationToken<CaloCell,double,CaloCellIDFcn>::const_iterator cellItr = cellToken.begin();
 	cellItr != cellToken.end(); cellItr++ )
@@ -165,13 +166,14 @@ StatusCode HIClusterMaker::execute()
     //extra info
     cl->setTime(time_cl);
     cl->setSamplingPattern(samplingPattern);
-    cl_container->push_back(cl);
 
     msg(MSG::VERBOSE) << std::setw(20) << "PUSHING CLUSTER"
 		      << std::setw(15) << cl->e()
 		      << std::setw(15) << cl->eta()
 		      << std::setw(15) << cl->phi()
 		      << endreq;
+
+    cl_container->push_back(std::move(cl));
   }//end tower loop
   return StatusCode::SUCCESS;
 }
