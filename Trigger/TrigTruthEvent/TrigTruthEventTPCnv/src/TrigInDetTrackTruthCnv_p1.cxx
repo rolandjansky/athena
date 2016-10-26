@@ -11,7 +11,7 @@ void TrigInDetTrackTruthCnv_p1::persToTrans(const TrigInDetTrackTruth_p1* persOb
 				          TrigInDetTrackTruth* transObj, 
 				          MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigInDetTrackTruthCnv_p1::persToTrans called " << endreq;
+   log << MSG::DEBUG << "TrigInDetTrackTruthCnv_p1::persToTrans called " << endmsg;
 
    transObj->m_best_match_hits     = persObj->best_match_hits    ;
    transObj->m_best_Si_match_hits  = persObj->best_Si_match_hits ;
@@ -52,7 +52,7 @@ void TrigInDetTrackTruthCnv_p1::transToPers(const TrigInDetTrackTruth* transObj,
 				          TrigInDetTrackTruth_p1* persObj, 
 				          MsgStream &log)
 {
-   log << MSG::DEBUG << "TrigInDetTrackTruthCnv_p1::transToPers called " << endreq;
+   log << MSG::DEBUG << "TrigInDetTrackTruthCnv_p1::transToPers called " << endmsg;
 
 
    persObj->best_match_hits     = transObj->m_best_match_hits    ;
