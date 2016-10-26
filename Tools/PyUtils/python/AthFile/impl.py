@@ -7,7 +7,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 768237 $"
+__version__ = "$Revision: 723532 $"
 __author__  = "Sebastien Binet"
 __doc__ = "implementation of AthFile-server behind a set of proxies to isolate environments"
 
@@ -29,7 +29,7 @@ except:
     pass
 
 ### globals -------------------------------------------------------------------
-DEFAULT_AF_RUN = os.environ.get('DEFAULT_AF_RUN', True)
+DEFAULT_AF_RUN = os.environ.get('DEFAULT_AF_RUN', False)
 '''Revert to old file peeking via Athena sub-process if True.'''
 
 DEFAULT_AF_CACHE_FNAME = os.environ.get('DEFAULT_AF_CACHE_FNAME',

@@ -9,7 +9,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 734631 $"
+__version__ = "$Revision: 774188 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new standalone applications"
 
@@ -41,7 +41,7 @@ using namespace asg::msgUserCode;  //messaging
 
 int main( int argc, char* argv[] ) {
 
-   IAppMgrUI* app = POOL::Init(); //important to do this first!
+   IAppMgrUI* app = Gaudi::Init(); //important to do this first, for MessageSvc to exist properly for MSG_INFO macro
 
    // Open the input file:
    TString fileName = "$ASG_TEST_FILE_MC";
@@ -55,11 +55,19 @@ int main( int argc, char* argv[] ) {
    //Here's an example of how you would create a tool of type ToolType, and set a property on it
    //The preferred way to create and configure the tool is with a ToolHandle:
    //ToolHandle<IToolInterface> myTool("ToolType/myTool");
-   //AthAnalysisHelper::setProperty( myTool, "MyProperty", value );
+   //AAH::setProperty( myTool, "MyProperty", value );
    //myTool.retrieve(); //this will cause the tool to be created and initialized
 
    //loop over input file with POOL 
-   POOL::TEvent evt;
+   POOL::TEvent evt(POOL::TEvent::kPOOLAccess); 
+
+   //read modes (constructor argument) are:
+   //kPOOLAccess = default (slowest but reads all POOL file types (including xAOD)), 
+   //kAthenaAccess, (just xAOD)
+   //kClassAccess, (just xAOD, but not some primary xAOD)
+   //kBranchAccess (just xAOD, fastest but might not always work)
+
+
    evt.readFrom( fileName );
 
    for(int i=0;i < evt.getEntries(); i++) {
@@ -72,7 +80,7 @@ int main( int argc, char* argv[] ) {
 
    }
 
-   app->finalize(); //trigger finalization of all services and tools created by the Gaudi Application
+   app->finalize(); //optional trigger finalization of all services and tools created by the Gaudi Application
    return 0;
 }
 
