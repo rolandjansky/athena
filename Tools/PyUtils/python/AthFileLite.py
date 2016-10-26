@@ -52,6 +52,8 @@ def _urlType(filename):
         return 'dcap'
     if filename.startswith('root:'):
         return 'root'
+    if filename.startswith('https:'):
+        return 'https'
     if filename.startswith('rfio:'):
         return 'rfio'
     if filename.startswith('file:'):
@@ -70,7 +72,13 @@ def _get_file_size(filename):
         root = import_root()
         try:
             msg.debug('Calling TFile.Open for {0}'.format(filename))
-            file = root.TFile.Open(filename + '?filetype=raw', 'READ')
+            pos = filename.find("?")
+            if pos>=0:
+                extraparam = '&filetype=raw'
+            else:
+                extraparam = '?filetype=raw'
+
+            file = root.TFile.Open(filename + extraparam, 'READ')
             fsize = file.GetSize()
             msg.debug('Got size {0} from TFile.GetSize'.format(fsize))
         except ReferenceError:

@@ -9,7 +9,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 710998 $"
+__version__ = "$Revision: 774188 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new skeleton joboption for analysis"
 
@@ -24,13 +24,24 @@ class Templates:
     jobo_template = """\
 #Skeleton joboption for a simple analysis job
 
+#---- Minimal joboptions -------
+
 theApp.EvtMax=10                                         #says how many events to run over. Set to -1 for all events
+jps.AthenaCommonFlags.FilesInput = ["%(inFile)s"]   #insert your list of input files here (do this before next lines)
 
 import AthenaPoolCnvSvc.ReadAthenaPool                   #sets up reading of POOL files (e.g. xAODs)
-svcMgr.EventSelector.InputCollections=["%(inFile)s"]   #insert your list of input files here
+#import AthenaRootComps.ReadAthenaxAODHybrid             #alternative for FAST xAOD reading!
 
 algseq = CfgMgr.AthSequencer("AthAlgSeq")                #gets the main AthSequencer
 algseq += CfgMgr.%(klass)s()                                 #adds an instance of your alg to it
+
+#-------------------------------
+
+
+#note that if you edit the input files after this point you need to pass the new files to the EventSelector:
+#like this: svcMgr.EventSelector.InputCollections = ["new","list"] 
+
+
 
 
 

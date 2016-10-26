@@ -30,5 +30,8 @@ acmdlib.register('cmt.new-asgtool', 'PyUtils.scripts.cmt_newasgtool:main')
 acmdlib.register('cmt.new-pyalg', 'PyUtils.scripts.cmt_newpyalg:main')
 acmdlib.register('cmt.new-jobo', 'PyUtils.scripts.cmt_newjobo:main')
 acmdlib.register('cmt.new-analysisapp', 'PyUtils.scripts.cmt_newanalysisapp:main')
+
+acmdlib.register('jira.issues', 'PyUtils.scripts.jira_issues:main')
+# acmdlib.register('jira.issue', 'PyUtils.scripts.jira_issue:main')
 ##
 

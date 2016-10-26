@@ -5,7 +5,7 @@
 # @author Sebastien Binet
 # @date February 2010
 
-__version__ = "$Revision: 717788 $"
+__version__ = "$Revision: 766754 $"
 __doc__ = "Submit one or more TAGs to TagCollector."
 __author__ = "Sebastien Binet, Frank Winklmeier"
 
@@ -238,7 +238,9 @@ def main(args):
         for p in pkg_list:
             if not 'packageTag' in p:
                 pkg = (p['packagePath']+p['packageName']).strip('/') # CMTise path
-                p['packageTag'] = cmt.CmtWrapper().get_latest_pkg_tag(pkg)
+                #p['packageTag'] = cmt.CmtWrapper().get_latest_pkg_tag(pkg)
+                from PyUtils.WorkAreaLib import get_latest_pkg_tag
+                p['packageTag'] = get_latest_pkg_tag(pkg)
                 print 'Using latest tag %s' % (p['packageTag'])
     
         # query for missing options    

@@ -89,22 +89,21 @@ def parseCMAKEPath(dumpfilename):
     if len(allProjects)==0 or allProjects[0]=="": 
         return None 
 
-    print allProjects,allProjects
+    #print "allProjects:",allProjects
 
     cmakePackages=dict()
     for projPath in reversed(allProjects): #We want to scan projects in reverse order (so that packages patch overwrite others)
         if not os.access(projPath+"/packages.txt",os.R_OK):
             print "WARNING, no packages.txt file found in",projPath
         else:
-            thisProject=None
+            #Guess project name:
+            thisProject=projPath.split("/")[-4]
+            #print "Current project is ",thisProject
             packagesFile=open(projPath+"/packages.txt")
             for l in packagesFile:
                 ls=l.strip()
-                if thisProject is None and ls.startswith("# Packages built in"):
-                    thisProject=ls.split(" ")[4]
-                    #print "Current project",thisProject
-
-                if not ls.startswith("#"):
+                #print "Working on",ls
+                if not ls.startswith("#") and len(ls.split(" "))>1:
                     packagePath=ls.split(" ")[0]
                     fullPackVersion=ls.split(" ")[1]
                     packageName=fullPackVersion.split("-")[0]
@@ -163,7 +162,7 @@ def getPackageDict(setupcmd):
     asetupscriptfile.write("cd %s\n" % tempdir)
     asetupscriptfile.write("set CMTPATH=""\n")
     asetupscriptfile.write("set CMAKE_PREFIX_PATH=""\n")
-    asetupscriptfile.write("source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh %s\n" %setupcmd)
+    asetupscriptfile.write("source /afs/cern.ch/atlas/software/dist/AtlasSetup/scripts/asetup.sh %s,notest\n" %setupcmd)
     #asetupscriptfile.write("echo $CMTPATH\n")
     #asetupscriptfile.write("echo $CMAKE_PREFIX_PATH\n")
     asetupscriptfile.write("if [ $? -ne 0 ]; then \n   exit -1\nfi\n")
@@ -171,7 +170,7 @@ def getPackageDict(setupcmd):
     asetupscriptfile.write("echo $CMAKE_PREFIX_PATH > cmakepath.txt\n")
     asetupscriptfile.close()
 
-    sc=subprocess.call(["/bin/bash",asetupscriptname])
+    sc=subprocess.call(["/bin/bash",asetupscriptname],env=dict())
     
     if sc!=0:
         print "ERROR asetup %s failed!" % setupcmd

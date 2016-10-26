@@ -9,7 +9,7 @@
 
 from __future__ import with_statement
 
-__version__ = "$Revision: 734631 $"
+__version__ = "$Revision: 774188 $"
 __author__ = "Will Buttinger"
 __doc__ = "streamline and ease the creation of new AthAnalysisAlgorithm"
 
@@ -249,7 +249,7 @@ def main(args):
                   print "#use xAODEventInfo xAODEventInfo-* Event/xAOD"
                   print ""
                 if not hasAsgTools:
-                  print "use AsgTools AsgTools-* Control/AthToolSupport"
+                  print "#use AsgTools AsgTools-* Control/AthToolSupport"
                   print ""
                 if not inPrivate: print "end_private"
             if line.startswith("private"): inPrivate=True
