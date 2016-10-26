@@ -512,6 +512,8 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                                               m_tgcFitResult,
                                               m_trackPatterns);
       }
+      /////csc SuperPoint
+      m_cscsegmaker->FindSuperPointCsc(m_cscHits,m_trackPatterns,m_tgcFitResult,m_muonRoad);
 
       if (!sc.isSuccess()) {
 	ATH_MSG_WARNING("Super point fitter failed");
@@ -519,8 +521,6 @@ HLT::ErrorCode MuFastSteering::hltExecute(const HLT::TriggerElement* inputTE,
                         m_rpcFitResult, m_tgcFitResult, m_mdtHits_normal, m_cscHits, m_trackPatterns);
          return HLT::OK;
       }
-      /////csc SuperPoint
-      m_cscsegmaker->FindSuperPointCsc(m_cscHits,m_trackPatterns,m_tgcFitResult,m_muonRoad);
 
       if (m_timerSvc) m_timers[ITIMER_STATION_FITTER]->pause();      
 
@@ -870,7 +870,7 @@ bool MuFastSteering::updateOutputTE(HLT::TriggerElement*                     out
     //CSC hits
     for(unsigned int i_hit=0; i_hit<cscHits.size(); i_hit++) {
       if ( 1/*cscHits[i_hit].MeasuresPhi==0*/ ){
-        if ( 1/*cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1*/ ) {
+        if ( cscHits[i_hit].isOutlier==0 || cscHits[i_hit].isOutlier==1 ) {
           muonSA->setCscHit(cscHits[i_hit].isOutlier, cscHits[i_hit].Chamber, cscHits[i_hit].StationName,
                             cscHits[i_hit].StationEta, cscHits[i_hit].StationPhi,
                             cscHits[i_hit].ChamberLayer, cscHits[i_hit].WireLayer, cscHits[i_hit].MeasuresPhi, cscHits[i_hit].Strip,

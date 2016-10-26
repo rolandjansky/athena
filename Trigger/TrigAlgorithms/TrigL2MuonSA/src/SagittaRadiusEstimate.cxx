@@ -64,7 +64,7 @@ void TrigL2MuonSA::SagittaRadiusEstimate::setMCFlag(BooleanProperty use_mcLUT,
 						    const AlignmentBarrelLUTSvc* alignmentBarrelLUTSvc)
 {
   m_use_mcLUT = use_mcLUT;
-  if ( alignmentBarrelLUTSvc && !m_use_mcLUT ) m_alignmentBarrelLUT = alignmentBarrelLUTSvc->alignmentBarrelLUT();
+  if ( alignmentBarrelLUTSvc ) m_alignmentBarrelLUT = alignmentBarrelLUTSvc->alignmentBarrelLUT();
 
   return;
 }
@@ -215,8 +215,8 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
 
     trackPattern.phiMS = phi;
 
-    // Alignment correation to data
-    if ( !m_use_mcLUT && trackPattern.s_address==1) {
+    // Alignment correation to LargeSpecial
+    if ( trackPattern.s_address==1) {
 
       if ( !m_alignmentBarrelLUT ) {
 	ATH_MSG_ERROR("Alignment correction service is not prepared");
@@ -228,7 +228,7 @@ StatusCode TrigL2MuonSA::SagittaRadiusEstimate::setSagittaRadius(const LVL1::Rec
 						     trackPattern.phiMap,
 						     trackPattern.phiMS,
 						     superPoints[0]->R);
-      superPoints[1]->Z += dZ;
+      superPoints[1]->Z += 10*dZ;
     }
 
     a3 = ( superPoints[2]->Z - superPoints[0]->Z ) / ( superPoints[2]->R - superPoints[0]->R );

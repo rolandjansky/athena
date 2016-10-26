@@ -7,17 +7,15 @@
 
 
 #include "AthenaBaseComps/AthAlgTool.h"
-
+#include "GaudiKernel/ISvcLocator.h"
+#include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/ToolHandle.h"
+
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
 #include "GaudiKernel/StatusCode.h"
 
-#include <Math/Vector3D.h>
-#include <Math/RotationX.h>
-#include <Math/RotationY.h>
-#include <Math/RotationZ.h>
-
+#include "GeoPrimitives/GeoPrimitives.h"
 
 #include "TrigL2MuonSA/TrackData.h"
 #include "TrigL2MuonSA/TgcFitResult.h"
@@ -25,6 +23,9 @@
 #include "TrigL2MuonSA/CscData.h"
 #include "TrigL2MuonSA/CscRegUtils.h"
 
+#ifdef USE_GEOMETRY
+#include "MuonReadoutGeometry/MuonDetectorManager.h"
+#endif
 #include <cmath>
 #include <vector>
 
@@ -47,9 +48,10 @@ namespace TrigL2MuonSA{
       double error;
       double residual;
       int measphi;
-      int index4;
+      //int index4; not used
       bool enabled;
       int stationname;
+      bool isIP;
     } localCscHit;
     
     typedef struct{
@@ -60,7 +62,7 @@ namespace TrigL2MuonSA{
       int nhit;
       int stationname;
       double residual;
-      int outlier;
+      //int outlier; obsolete
       std::vector<localCscHit> localHits;
     }local2dSegment;
     
@@ -74,27 +76,38 @@ namespace TrigL2MuonSA{
     StatusCode finalize();
     
     
-    ReturnCode initializeRegDict(ToolHandle<CscRegDict> cscregdict);
+    //    ReturnCode initializeRegDict(ToolHandle<CscRegDict> cscregdict);
 
+    ReturnCode	FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits, std::vector<TrigL2MuonSA::TrackPattern> &v_trackPatterns, const TrigL2MuonSA::TgcFitResult &tgcFitResult, const TrigL2MuonSA::MuonRoad &muroad);
 
-    ReturnCode	FindSuperPointCsc( const TrigL2MuonSA::CscHits &cscHits, std::vector<TrigL2MuonSA::TrackPattern> &v_trackPatterns, 
-				   const TrigL2MuonSA::TgcFitResult &tgcFitResult, const TrigL2MuonSA::MuonRoad &muroad);
 
     ReturnCode make_segment(int mod_hash, TrigL2MuonSA::CscHits clusters[8], CscSegment &cscsegment, CscSegment &cscsegment_noip );
-    ReturnCode make_2dsegment(int signz,int measphi, const std::vector<localCscHit> hits_loc[4], local2dSegment &seg2d_eta,local2dSegment &local2d_noip, int &nhite);
-    ReturnCode make_2dseg4hit(int signz,int measphi, std::vector<localCscHit> hits_loc[4], std::vector<local2dSegment> &seg2d_4hitCollection, int &nhite);
-    ReturnCode make_2dseg3hit(int signz,int measphi, const std::vector<localCscHit> hits_loc[4], std::vector<local2dSegment> &seg2d_4hitCollection, int &nhit);
+    
+    ReturnCode make_2dsegment(int measphi, const localCscHit &ip_loc,const std::vector<localCscHit> hits_loc[4], local2dSegment &seg2d_eta,local2dSegment &local2d_noip, int &nhite);
+    
+    ReturnCode make_2dseg4hit(int measphi, const localCscHit &ip_loc,std::vector<localCscHit> hits_loc[4], std::vector<local2dSegment> &seg2d_4hitCollection, int &nhite);
+    
+    ReturnCode make_2dseg3hit(int measphi, const localCscHit &ip_loc, const std::vector<localCscHit> hits_loc[4], std::vector<local2dSegment> &seg2d_4hitCollection, int &nhit);
+    
     ReturnCode fit_clusters(int measphi, const std::vector<localCscHit> &hits_fit, local2dSegment &seg2d);
-    ReturnCode make_4dsegment(int signz, const local2dSegment &seg2d_eta, const local2dSegment &seg2d_phi,
-                              ROOT::Math::XYZVector &seg_pos, ROOT::Math::XYZVector &seg_dir);
-    ReturnCode getModuleSP(int &mod_hash, int phibin, int LargeSmall, const int exist_clusters[32]);
+    
+    ReturnCode make_4dsegment(const local2dSegment &seg2d_eta, const local2dSegment &seg2d_phi,
+                              Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir);
+    
+    ReturnCode getModuleSP(int mod_hash[2], const TrigL2MuonSA::TgcFitResult &tgcFitResult, int phibin, const TrigL2MuonSA::MuonRoad &muroad, const int exist_clusters[32]);
+    
     ReturnCode display_hits(const std::vector<localCscHit> localHits[4]);
+    
     CscSegment segmentAtFirstLayer(int mod_hash, TrigL2MuonSA::CscSegment *mu_seg);
     
   private:
+    IMessageSvc* m_msgSvc;
+    IntegerProperty m_msglevel;
     UtilTools *m_util;
     ToolHandle<CscRegDict> m_cscregdict;
-
+#ifdef USE_GEOMETRY
+    const MuonGM::MuonDetectorManager *m_muonMgr;
+#endif
     
   };
   
@@ -113,6 +126,7 @@ namespace TrigL2MuonSA{
     double pz(){ return m_pz; }
     double slopeRZ(){ return m_slopeRZ; }
     double interceptRZ(){ return m_interceptRZ; }
+    double chiSquare(){ return m_chisquare; }
     
     unsigned int l1id(){ return m_l1id; }
     void setL1id(unsigned int l1id){ m_l1id = l1id; }
@@ -122,8 +136,8 @@ namespace TrigL2MuonSA{
     void setNHitPhi( int nhitp){ m_nhit_phi = nhitp; }
     bool isClean();
     
-    ReturnCode set(double x, double y, double z, double px, double py, double pz, double slopeRZ, double interceptRZ);
-    ReturnCode set(ROOT::Math::XYZVector &seg_pos, ROOT::Math::XYZVector &seg_dir, double slopeRZ, double interceptRZ);
+    ReturnCode set(double x, double y, double z, double px, double py, double pz, double chisquare);
+    ReturnCode set(Amg::Vector3D &seg_pos, Amg::Vector3D &seg_dir, double chisquare);
     
   private:
     unsigned int m_l1id;
@@ -131,7 +145,7 @@ namespace TrigL2MuonSA{
     double m_slopeRZ, m_interceptRZ;
     int m_nhit_eta, m_nhit_phi;
     bool m_clean;
-    
+    double m_chisquare;    
     
   };
   

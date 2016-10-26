@@ -122,11 +122,11 @@ StatusCode TrigL2MuonSA::PtBarrelLUT::readLUT(std::string lut_fileName,
     return StatusCode::FAILURE;
   }
 
-  int ieta, iphi, icharge, iR;
+  int ieta, iphi, iqeta, iR;
   while( !fileSP.eof() ){
-    fileSP >> ieta >> iphi >> icharge >> iR >> A1 >> A0;
-    m_lutSP.table_LargeSP[iR][icharge][ieta][iphi][0] = A1;
-    m_lutSP.table_LargeSP[iR][icharge][ieta][iphi][1] = A0;
+    fileSP >> iqeta >> iR >> ieta >> iphi >> A1 >> A0;
+    m_lutSP.table_LargeSP[iqeta][iR][ieta][iphi][0] = A1;
+    m_lutSP.table_LargeSP[iqeta][iR][ieta][iphi][1] = A0;
   }
 
   return StatusCode::SUCCESS;

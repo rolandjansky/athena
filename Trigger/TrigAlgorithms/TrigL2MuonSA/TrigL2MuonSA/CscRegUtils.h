@@ -5,7 +5,6 @@
 #ifndef TRIGL2MUONSA_CSCREGUTILS_H
 #define TRIGL2MUONSA_CSCREGUTILS_H
 
-
 #include "AthenaBaseComps/AthAlgTool.h"
 #include "GaudiKernel/Service.h"
 #include "GaudiKernel/IInterface.h"
@@ -30,7 +29,7 @@ class CscRegDict: public AthAlgTool{
   
  public:
   
-
+  //  typedef TrigL2MuonSA::ReturnCode ReturnCode;
   
   typedef struct {
     double etaMin;
@@ -63,7 +62,9 @@ class CscRegDict: public AthAlgTool{
   double posCorrectionZ(int module, int charge);
   double idealAtanNormal(int module){ return m_reg_dict[module].idealAtanNormal; }
   double actualAtanNormal(int module){ return m_reg_dict[module].actualAtanNormal; }
-  
+  int stationName(int hash);
+  int stationEta(int hash);
+  int stationPhi(int hash);
   
  private:
   BooleanProperty  m_isMC;
@@ -82,11 +83,30 @@ class CscRegDict: public AthAlgTool{
 };
   
 
+inline int CscRegDict::stationName(int hash){
+ 
+   if(hash<0 || hash>31) return 999;
+   else return (hash<16) ? 50 : 51; 
+
+}
+ 
+
+inline int CscRegDict::stationEta(int hash){
+
+   if(hash<0 || hash>31) return 999;
+   else{
+     int secteta=(hash - hash%8)/8;// secteta: 0(Small Cside),1(Small Aside), 2(Large Cside), 3(Large Aside)
+     return (secteta%2) ? 1 : -1;
+   }
+}
 
 
+inline int CscRegDict::stationPhi(int hash){
 
+   if(hash<0 || hash>31) return 999;
+   else return hash%8+1;
 
-
+}
 
 
 class UtilTools{
@@ -96,7 +116,7 @@ public:
   ~UtilTools(){}
   
   double calc_theta(double eta){ return 2*atan(exp((-1)*eta)); }
-  double calc_theta(double x, double y, double z){ return acos(z/sqrt(x*x+y*y+z*z)); } // for position (not for direction)
+  double calc_theta(double x, double y, double z){ return acos(z/sqrt(x*x+y*y+z*z)); } // for position not for direction theta in [0,pi]
   double calc_eta(double x, double y, double z){return (-1)*log(tan(calc_theta(x,y,z)/2.));}
   double calc_phi( double x, double y);
   double calc_dphi(double phi1, double phi2);
@@ -137,6 +157,10 @@ private:
 
 
 }//namespace TrigL2MuonSA
+
+
+
+
 
 
 

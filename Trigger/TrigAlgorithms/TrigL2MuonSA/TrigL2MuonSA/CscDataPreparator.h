@@ -78,7 +78,7 @@ namespace TrigL2MuonSA {
 			 double x,
 			 double y);
 
-    double calc_residual_phi(double hitr, double hitphi, double roadphi);
+    double calc_residual_phi(double aw, double bw, double phiw, double hitphi, double hitz);
 
   private:
 
