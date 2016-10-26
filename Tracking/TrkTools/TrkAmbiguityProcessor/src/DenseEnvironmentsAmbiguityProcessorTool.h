@@ -130,6 +130,12 @@ namespace Trk {
       void updateSCT_SplitInformation(std::map< const InDet::SCT_Cluster*, const Trk::TrackParameters* >& setOfClustersOnTrack);
 
       
+      Trk::Track *fit(std::vector<const Trk::PrepRawData*> &raw,
+                      const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const;
+
+      template<typename... Args>
+      Trk::Track *fit(const Track &track, Args... args) const;
+      bool _checkTrack(const Trk::Track *) const;
     
       // private data members
 
@@ -169,7 +175,7 @@ namespace Trk {
 
       /** refitting tool - used to refit tracks once shared hits are removed. 
           Refitting tool used is configured via jobOptions.*/
-      ToolHandle<ITrackFitter> m_fitterTool;
+      ToolHandleArray<ITrackFitter> m_fitterTool;
         
       /** selection tool - here the decision which hits remain on a track and
           which are removed are made */
@@ -283,12 +289,54 @@ namespace Trk {
       std::string                        m_truth_locationTRT      ;
 
 #endif // DebugCode
+      bool m_rejectInvalidTracks;
 
   };
 
+  inline
+  Trk::Track *DenseEnvironmentsAmbiguityProcessorTool::fit(std::vector<const Trk::PrepRawData*> &raw,
+                                                           const TrackParameters &param, bool flag, Trk::ParticleHypothesis hypo) const {
+    Trk::Track *new_track=nullptr;
+    for ( const ToolHandle<ITrackFitter> &a_fitter : m_fitterTool) {
+      delete new_track;
+      new_track=nullptr;
+      new_track =  a_fitter->fit(raw, param, flag,hypo);
+      if (Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack(new_track)) {
+        return new_track;
+      }
+      ATH_MSG_WARNING( "The track fitter, " <<  a_fitter->name() << ", produced a track with an invalid covariance matrix." );
+    }
+    ATH_MSG_WARNING( "None of the " <<  m_fitterTool.size() << " track fitter(s) produced a track with a valid covariance matrix." );
+    if (m_rejectInvalidTracks) {
+      delete new_track;
+      new_track=nullptr;
+    }
+    return new_track;
+  }
+
+  template<typename... Args>
+  inline
+  Trk::Track *DenseEnvironmentsAmbiguityProcessorTool::fit(const Track &track, Args... args) const
+  {
+    Trk::Track *new_track=nullptr;
+    for ( const ToolHandle<ITrackFitter> &a_fitter : m_fitterTool) {
+      delete new_track;
+      new_track=nullptr;
+      new_track =  a_fitter->fit(track,args...);
+      if (Trk::DenseEnvironmentsAmbiguityProcessorTool::_checkTrack(new_track)) {
+        return new_track;
+      }
+      ATH_MSG_WARNING( "The track fitter, " <<  a_fitter->name() << ", produced a track with an invalid covariance matrix." );
+    }
+    ATH_MSG_WARNING( "None of the " <<  m_fitterTool.size() << " track fitter(s) produced a track with a valid covariance matrix." );
+    if (m_rejectInvalidTracks) {
+      delete new_track;
+      new_track=nullptr;
+    }
+   return new_track;
+  }
 
 } //end ns
-
 
 #endif // TrackAmbiguityProcessorTool_H
 
