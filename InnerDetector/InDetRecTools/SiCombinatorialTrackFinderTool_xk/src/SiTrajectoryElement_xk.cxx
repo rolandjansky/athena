@@ -897,8 +897,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoSCT
 
     if(fabs(dP1) > m_halflenght) {
 
-      double r1; 
-      dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -(m_halflenght+P1);
+      double r1 = M[1]-P1; 
+      dP1 > m_halflenght ? r1+= m_halflenght : r1 -=m_halflenght;
       
       double v1 = PV1;
       double v2 = PV2;  
@@ -1073,8 +1073,8 @@ int  InDet::SiTrajectoryElement_xk::searchClustersWithoutStereoAssSCT
 
     if(fabs(dP1) > m_halflenght) {
 
-      double r1; 
-      dP1 > m_halflenght ? r1 = m_halflenght-P1 : r1 = -(m_halflenght+P1);
+      double r1 = M[1]-P1; 
+      dP1 > m_halflenght ? r1+= m_halflenght : r1 -=m_halflenght;
       
       double v1 = PV1;
       double v2 = PV2;  
@@ -1279,12 +1279,12 @@ void  InDet::SiTrajectoryElement_xk::noiseProduction
   if(Model < 1 || Model > 2) return; 
 
   double q = fabs(Tp.par()[4]);
-  double s = fabs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]);
-  s  < .05 ? s = 20. : s = 1./s; 
+  double s = fabs(m_A[0]*m_Tr[6]+m_A[1]*m_Tr[7]+m_A[2]*m_Tr[8]); s  < .05 ? s = 20. : s = 1./s; 
+  double d = (1.-m_A[2])*(1.+m_A[2]);   if(d < 1.e-5) d = 1.e-5;
 
   m_radlengthN = s*m_radlength; 
   double covariancePola = (134.*m_radlengthN)*(q*q);
-  double covarianceAzim = covariancePola/((1.-m_A[2])*(1.+m_A[2]));
+  double covarianceAzim = covariancePola/d;
   double covarianceIMom,correctionIMom;
 
   if(Model==1) {

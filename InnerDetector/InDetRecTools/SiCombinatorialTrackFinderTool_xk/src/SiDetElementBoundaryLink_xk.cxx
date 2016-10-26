@@ -24,6 +24,7 @@ InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
 ( const InDetDD::SiDetectorElement*& Si)
 {
   m_detelement = 0;
+  m_dR         = 0.;
   const Trk::PlaneSurface* pla = dynamic_cast<const Trk::PlaneSurface*>(& Si->surface());
   if(!pla) return;
   m_detelement = Si;
@@ -74,7 +75,6 @@ InDet::SiDetElementBoundaryLink_xk::SiDetElementBoundaryLink_xk
     m_bound[i][1] = ay/m_bound[i][2];
     m_bound[i][0] = ax/m_bound[i][2];
   }
-  m_dR = 0.;
   const Trk::AnnulusBounds* B = dynamic_cast<const Trk::AnnulusBounds*>(&Si->design().bounds()); if(B) m_dR = B->R();
 }
 

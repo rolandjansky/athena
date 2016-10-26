@@ -51,15 +51,32 @@ InDet::SiCombinatorialTrackFinder_xk::SiCombinatorialTrackFinder_xk
   m_useSCT      = true               ;
   m_simpleTrack = false              ;
   m_heavyion    = false              ;
+  m_pix         = false              ;
+  m_sct         = false              ;
   m_sctm        = "SCT"              ;
   m_pixm        = "Pixel"            ;
   m_fieldmode   = "MapSolenoid"      ;
-//  m_pixelname   = "PixelClusters"    ;
-//  m_sctname     = "SCT_Clusters"     ;
   m_inputseeds  = 0                  ;
   m_findtracks  = 0                  ;
   m_qualityCut  = 9.3                ;
+  m_xi2max      = 0.                 ;
+  m_xi2maxNoAdd = 0.                 ;
+  m_pTmin       = 200.               ;
+  m_pTminBrem   = 2000.              ;
   m_fieldService = 0                 ; 
+  
+  m_outputlevel  = 0                 ;
+  m_nprint       = 0                 ;
+  m_goodseeds    = 0                 ;
+  m_inittracks   = 0                 ;
+  m_roadbug      = 0                 ;
+  m_cosmicTrack  = 0                 ;
+  m_nholesmax    = 0                 ;
+  m_dholesmax    = 0                 ;
+  m_nclusmin     = 0                 ;
+  m_nclusminb    = 0                 ;
+  m_nwclusmin    = 0                 ;
+  
 
   m_useITKclusterSizeCuts = false; // ITK (long barrel): switch to turn on cluster size cuts 
   m_Nsigma_clSizeZcut = 5.0; // ITK (long barrel): size of the cut on the cluster sizeZ

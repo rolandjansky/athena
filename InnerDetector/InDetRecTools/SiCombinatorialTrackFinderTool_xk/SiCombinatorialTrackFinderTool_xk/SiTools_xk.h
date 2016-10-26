@@ -156,6 +156,7 @@ namespace InDet{
       m_multitrack  = false; 
       m_bremnoise   = false;
       m_electron    = false;
+      m_heavyion    = false;
       m_fieldService= 0    ;
 
       m_useITKclusterSizeCuts=false;
