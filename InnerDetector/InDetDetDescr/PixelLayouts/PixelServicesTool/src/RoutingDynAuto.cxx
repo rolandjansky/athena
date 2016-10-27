@@ -53,7 +53,7 @@ RoutingDynAuto::RoutingDynAuto(const Athena::MsgStreamMember& msg, const PixelGe
 void RoutingDynAuto::createRoutingVolumes(ServicesDynTracker& tracker)
 {
 
-  std::cout<<"IST : check if defined "<<m_simpleSrvXMLHelper->SupportTubeRMin("IST")<<std::endl;
+  msg(MSG::DEBUG)<<"IST : check if defined "<<m_simpleSrvXMLHelper->SupportTubeRMin("IST")<<endmsg;
   m_ISTexists = (m_simpleSrvXMLHelper->SupportTubeRMin("IST") > 0.1); 
 
   createRoutes(tracker);
@@ -101,27 +101,24 @@ void RoutingDynAuto::createRoutes(ServicesDynTracker& tracker)
   const LayerContainer& eplc = tracker.endcapPixelLayers();
   //  const LayerContainer& bslc = tracker.barrelStripLayers();
   
-  std::cout<<"Create routes : "<<bplc.size()<<" "<<c_nInnerPixelLayers<<std::endl;
+  msg(MSG::DEBUG)<<"Create routes : "<<bplc.size()<<" "<<c_nInnerPixelLayers<<endmsg;
 
   double bpZmax = 0;
   for (LayerContainer::const_iterator bl=bplc.begin()+c_nInnerPixelLayers; bl!=bplc.end(); ++bl){
-    std::cout<<"bpZamx "<<bpZmax<<"  bl==0 "<<((*bl)==0)<<std::endl; 
+    msg(MSG::DEBUG) << "bpZamx "<<bpZmax<<"  bl==0 "<<((*bl)==0)<<endmsg; 
     bpZmax = std::max( bpZmax, (**bl).zPos() + (**bl).halfLength());
   }
 
-  std::cout<<"Create routes : 1"<<std::endl;
   
   double bpVertRouteZpos = bpZmax+c_EosTolerance+c_bpEosLength +  0.5*c_ServiceDiskThickness + c_safetyGap;
   double bpVertRouteRmin = bplc[c_nInnerPixelLayers]->radius(); //change if along PST
 								  
-  std::cout<<"Create routes : 2"<<std::endl;
 
   //  Find max endcap pixel layer radius
   double epRmax = 0;
   for (LayerContainer::const_iterator i=eplc.begin(); i!=eplc.end(); ++i) 
     epRmax = std::max( epRmax, (**i).rMax());
 
-  std::cout<<"Create routes : 3"<<std::endl;
 
   //Find max radius for vertical route
   double bpVertRouteRmax;
@@ -136,23 +133,16 @@ void RoutingDynAuto::createRoutes(ServicesDynTracker& tracker)
     bpVertRouteRmax = m_simpleSrvXMLHelper->SupportTubeRMin("PST") - c_safetyGap - 0.5*c_ServiceCylinderThickness;
   }
 
-  std::cout<<"Create routes : 4"<<std::endl;
 
   double bpHorRouteR = bpVertRouteRmax;
-  std::cout<<"Create routes : 41"<<std::endl;
   double bpHSvcRouteZmin = bpVertRouteZpos +  0.5*c_ServiceDiskThickness + c_safetyGap;
-  std::cout<<"Create routes : 42"<<std::endl;
   double bpHSvcRouteZmax = eplc.back()->zPos();   // prolong if along PST ?
-  std::cout<<"Create routes : 43"<<std::endl;
-  msg(MSG::INFO) << "Route2: setting bpHSvcRouteZmax to " << bpHSvcRouteZmax << endreq;
-  std::cout<<"Create routes : 44"<<std::endl;
+  msg(MSG::DEBUG) << "Route2: setting bpHSvcRouteZmax to " << bpHSvcRouteZmax << endreq;
 
   if(m_simpleSrvXMLHelper->SupportTubeRMin("PST") > 0.1) 
     bpHSvcRouteZmax = m_simpleSrvXMLHelper->SupportTubeZMax("PST");
-  std::cout<<"Create routes : 45"<<std::endl;
-  msg(MSG::INFO) << "Route2: changinng bpHSvcRouteZmax (/PST zmax) to " << bpHSvcRouteZmax << endreq;
+  msg(MSG::DEBUG) << "Route2: changinng bpHSvcRouteZmax (/PST zmax) to " << bpHSvcRouteZmax << endreq;
 
-  std::cout<<"Create routes : 5"<<std::endl;
 
 //   //  Assume same length barrel, the loop is to make sure there are no volume overlaps                  // SES fixme
 //   //  in case strip barrel layers are slightly different
@@ -176,10 +166,9 @@ void RoutingDynAuto::createRoutes(ServicesDynTracker& tracker)
     if(bpHSvcRouteZmax_mode>0.1&&bpHSvcRouteZmax_mode<bpHSvcRouteZmax) bpHSvcRouteZmax = bpHSvcRouteZmax_mode-0.001;
   }
 
-  std::cout<<"Create routes : 6"<<std::endl;
 
   if(bpHSvcRouteZmax_mode>0&&bpHSvcRouteZmax>bpHSvcRouteZmax_mode) bpHSvcRouteZmax=bpHSvcRouteZmax_mode;
-  msg(MSG::INFO)<< "Changing bpHSvcRouteZmax to " << bpHSvcRouteZmax << " mode : "<<bpHSvcRouteZmax_mode<<endreq;
+  msg(MSG::DEBUG)<< "Changing bpHSvcRouteZmax to " << bpHSvcRouteZmax << " mode : "<<bpHSvcRouteZmax_mode<<endreq;
   
   //  double bsVertRouteRmin = bpHorRouteR + 0.5*c_ServiceCylinderThickness + c_safetyGap;
   //  double bsVertRouteRmax = bslc.back()->radius() + c_ServiceCylinderThickness;                //approx
@@ -194,7 +183,6 @@ void RoutingDynAuto::createRoutes(ServicesDynTracker& tracker)
   m_epHSvcRoute = m_bpHSvcRoute;  //different if along PST
   //  m_bsVSvcRoute = VSvcRoute( bsVertRouteZpos, bsVertRouteRmin, bsVertRouteRmax, bsVertRouteRmax,"BarrelStripRPath");
 
-  std::cout<<"Create routes : 7"<<std::endl;
 
   m_bpVSvcRoute.setNextRoute(&m_bpHSvcRoute);
   if (m_pixelAlongBarrelStrip) m_bpHSvcRoute.setNextRoute(&m_bsVSvcRoute);
@@ -216,12 +204,10 @@ void RoutingDynAuto::createRoutes(ServicesDynTracker& tracker)
   double bpMSTM_RI =  m_simpleSrvXMLHelper->SupportTubeRMin("MSTM") - c_safetyGap - 0.5*c_ServiceCylinderThickness;
   m_MSTM_HSvcRouteInner = HSvcRoute( bpMSTM_RI, bpHSvcRouteZmin, bpHSvcRouteZmax, bpHSvcRouteZmax, "MSTMPixelZPathInner"); 
 
-  std::cout<<"Create routes : 8"<<std::endl;
 
   //  Exit route for pixel
   if (!m_pixelAlongBarrelStrip) createOuterPixelRoutes(tracker);
 
-  std::cout<<"Create routes : 9"<<std::endl;
 
   //  route inside PST
   createRoutesInIST(tracker);
@@ -457,7 +443,7 @@ void RoutingDynAuto::routeEndcapLayer(LayerContainer::const_iterator bl,
   double rEosMin = 0.0;
   double rEosMax = 0.0;
   std::string SupportName =  m_svcOtherXMLHelper->EndcapDiscRoute((*bl)->number());
-  std::cout<<"ROUTE ENDCAP LAYERS : "<<SupportName<<std::endl;
+  msg(MSG::DEBUG) <<"ROUTE ENDCAP LAYERS : "<<SupportName<<endmsg;
   double EOSZOffset = 0.0;
 
   bool bRoutedOutsideSupport = isRoutedOutsideSupportTube(bl, route);

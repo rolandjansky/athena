@@ -138,7 +138,7 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
 //  // If not slhc, procced as usual : all services are added at a time
 //   //  if not SLHC, check all services vs pixel
 
-  msg(MSG::INFO)<<" ************************** ServiceStaticBuilder built - BEGIN  - pixServBuilder ****************************"<<endreq;
+  msg(MSG::DEBUG)<<" ************************** ServiceStaticBuilder built - BEGIN  - pixServBuilder ****************************"<<endreq;
 
   //  m_pixServBuilder = new InDetDD::VolumeStandardBuilder(*pixZone, m_services);
   //  m_pixServBuilder->setMaterialManager(matMgr());
@@ -148,7 +148,7 @@ ServiceStaticBuilder::ServiceStaticBuilder(const PixelGeoBuilderBasics* basics, 
 
   m_pixServBuilder.push_back(volStdBuilder);
 
-  msg(MSG::INFO)<<" ************************** ServiceStaticBuilder built - END  - svcBuilderTool ****************************"<<endreq;
+  msg(MSG::DEBUG)<<" ************************** ServiceStaticBuilder built - END  - svcBuilderTool ****************************"<<endreq;
     
   return;
 
@@ -206,9 +206,9 @@ void ServiceStaticBuilder::initialize(const std::string & a)
 
   IRDBRecordset_ptr table = srvDBHelper.getPixelServiceRecordset(a);
   
-  msg(MSG::INFO)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker "<<a<<endreq;
+  msg(MSG::DEBUG)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker "<<a<<endreq;
   InDetDD::SimpleServiceVolumeMaker volMaker(label, table, schema, getBasics(),false);
-  msg(MSG::INFO)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker : # services "<<a<<"  "<<volMaker.numElements()<<endreq;
+  msg(MSG::DEBUG)<<"ServiceStaticBuilder::initialize : ServiceVolumeMaker : # services "<<a<<"  "<<volMaker.numElements()<<endreq;
   for (unsigned int i = 0; i < volMaker.numElements(); ++i) {
     m_services.push_back(volMaker.make(i));
   }

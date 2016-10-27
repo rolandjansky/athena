@@ -35,7 +35,7 @@ ServiceDynamicBuilder::ServiceDynamicBuilder(const PixelGeoBuilderBasics* basics
     m_services(0)
 {
   
-  msg(MSG::INFO)<<"ServiceDynamicBuilder::ServiceDynamicBuilder "<<bSvcDynAuto<<" "<<bBarrelModuleMaterial<<endreq;
+  msg(MSG::DEBUG)<<"ServiceDynamicBuilder::ServiceDynamicBuilder "<<bSvcDynAuto<<" "<<bBarrelModuleMaterial<<endreq;
 
   // Collect the layer&disc information from geometry
   //     and build the corresponding LayerContainers in ServiceDynTracker
@@ -68,7 +68,7 @@ ServiceDynamicBuilder::ServiceDynamicBuilder(const PixelGeoBuilderBasics* basics
   // Envelope interface
   PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
 
-  msg(MSG::INFO) <<" ************************** ServiceDynamicBuilder built - BEGIN  - pixServBuilder ****************************"<<endreq;
+  msg(MSG::DEBUG) <<" ************************** ServiceDynamicBuilder built - BEGIN  - pixServBuilder ****************************"<<endreq;
 
 
   InDetDD::VolumeStandardBuilder* volStdBuilder = new InDetDD::VolumeStandardBuilder(*pixZone, m_services,1);
@@ -76,7 +76,7 @@ ServiceDynamicBuilder::ServiceDynamicBuilder(const PixelGeoBuilderBasics* basics
 
   m_volStdBuilder.push_back(volStdBuilder);
 
-  msg(MSG::INFO)<<" ************************** ServiceDynamicBuilder built - END  - svcBuilderTool ****************************"<<endreq;
+  msg(MSG::DEBUG)<<" ************************** ServiceDynamicBuilder built - END  - svcBuilderTool ****************************"<<endreq;
 
 
 }
@@ -106,7 +106,7 @@ void ServiceDynamicBuilder::addServiceDynVolume( const ServiceDynVolume& vol)
 
   Athena::MsgStreamMember msgRouting(Athena::Options::Eager,"RoutingDyn - SvcDynBuilder");
 
-  msgRouting << MSG::INFO << "Entering InDetServMatBuilderToolSLHC::addServiceDynVolume for volume " << vol.name() 
+  msgRouting << MSG::DEBUG<< "Entering InDetServMatBuilderToolSLHC::addServiceDynVolume for volume " << vol.name() 
 	     << " with " << vol.materials().size() << " materials" << endreq;
 
   InDetDD::ServiceVolume * param = new InDetDD::ServiceVolume;
@@ -163,18 +163,19 @@ void ServiceDynamicBuilder::addServiceDynVolume( const ServiceDynVolume& vol)
     for(int i=0; i<(int)linearComponents.size(); i++)
       msgRouting<<"* "<<linearComponents[i]<<" "<<linWeights[i]<<endreq;
 
-    msgRouting<<MSG::INFO << "build material for volume " << vol.name() <<"  shape volume : "<<param->volume()/(CLHEP::cm3)<<" [cm3]   service length : "<<vol.length()/(CLHEP::mm)<<" [mm]"<<endreq;
+    msgRouting<<MSG::DEBUG << "build material for volume " << vol.name() <<"  shape volume : "<<param->volume()/(CLHEP::cm3)<<" [cm3]   service length : "<<vol.length()/(CLHEP::mm)<<" [mm]"<<endreq;
     const GeoMaterial * newMat = matMgr()->getMaterialForVolumeLength( vol.name(), 
 								       linearComponents, linWeights, 
 								       param->volume(), vol.length());
 
     
-    msgRouting<<MSG::INFO << "  => final material    " << newMat->getName()<<"   density : "<<newMat->getDensity()/(CLHEP::g/CLHEP::cm3)<<" g/cm3     X0 : "<<newMat->getRadLength()/CLHEP::mm<<"mm"<<endreq;
+    msgRouting<<MSG::DEBUG << "  => final material    " << newMat->getName()<<"   density : "<<newMat->getDensity()/(CLHEP::g/CLHEP::cm3)<<" g/cm3     X0 : "<<newMat->getRadLength()/CLHEP::mm<<"mm"<<endreq;
     msgRouting<<MSG::DEBUG << "  dataMat ("<<(vol.zMin()+vol.zMax())*.5<<","<<(vol.rMin()+vol.rMax())*.5<<","<<newMat->getRadLength()/CLHEP::mm<<"),"<<endreq;
 
     param->setMaterial(newMat);
+    
     addService(param);
-    param->print();
+    if (msgLvl(MSG::DEBUG)) param->print();
     printNewVolume( vol, *newMat, *param);
     //    addService(param.release()); 
   }
@@ -193,7 +194,7 @@ void ServiceDynamicBuilder::addService(InDetDD::ServiceVolume * param)
 {
   int count = m_services.size() + 1;
   param->setLabel("ISM",count);
-  msg(MSG::INFO)<<"Add service : "<<param->volName()<<" "<<param->region()<<endreq;
+  msg(MSG::DEBUG)<<"Add service : "<<param->volName()<<" "<<param->region()<<endreq;
   m_services.push_back(param);
 }
 
@@ -234,10 +235,10 @@ void ServiceDynamicBuilder::printNewVolume( const ServiceDynVolume& vol,
   double dens = mat.getDensity();
   double weight = dens*param.volume();
 
-  if (msgLvl(MSG::INFO)) {
-   msg(MSG::INFO) << "---> name " << vol.name() << " density " << dens * CLHEP::cm3 / CLHEP::g 
+  if (msgLvl(MSG::DEBUG)) {
+   msg(MSG::DEBUG) << "---> name " << vol.name() << " density " << dens * CLHEP::cm3 / CLHEP::g 
 		   << " [g/cm3] weight " << dens*param.volume()/CLHEP::kg  << " [kg]" << endreq;
-    msg(MSG::INFO) << "Creating service volume with rmin " << vol.rMin()
+    msg(MSG::DEBUG) << "Creating service volume with rmin " << vol.rMin()
 		   << " rmax " << vol.rMax() 
 		   << " zmin " << vol.zMin() 
 		   << " zmax " << vol.zMax() << endreq;

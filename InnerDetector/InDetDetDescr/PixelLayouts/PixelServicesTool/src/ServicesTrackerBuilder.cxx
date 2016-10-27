@@ -31,25 +31,25 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
   bool bXMLReaderDefined = true;
   StatusCode sc = m_xmlReader.retrieve();
   if (sc.isSuccess()){
-    msg<<MSG::DEBUG<<"ITkXMLReader successfully retrieved " << m_xmlReader << endreq;
+    msg << MSG::DEBUG<<"ITkXMLReader successfully retrieved " << m_xmlReader << endmsg;
   } else {
-    msg<<MSG::WARNING<<"ITkXMLReader: Couldn't retrieve " << m_xmlReader <<endreq;
+    msg<<MSG::WARNING<<"ITkXMLReader: Couldn't retrieve " << m_xmlReader <<endmsg;
     bXMLReaderDefined = false;
   }
 
   if(!bXMLReaderDefined) return 0;
   
-  msg<< MSG::INFO << "Entering ServicesTrackerBuilder::buildGeometry" <<endmsg;
+  msg << MSG::INFO << "Entering ServicesTrackerBuilder::buildGeometry" <<endmsg;
 
   //  ServicesDynTracker* tracker = new ServicesDynTracker(msg);
   ServicesDynTracker* tracker = new ServicesDynTracker(basics, bSvcDynAuto,bBarrelModuleMaterial);
-  msg << MSG::INFO << "Created new ServicesDynTracker()" << endmsg;
+  msg << MSG::DEBUG << "Created new ServicesDynTracker()" << endmsg;
 
   std::string suffix;
   
   // Build pixel barrel layers
   int numLayers = m_xmlReader->nbOfPixelBarrelLayers();
-  msg << MSG::INFO << "Created new ServicesDynTracker() # barrel layers " << numLayers << endmsg;
+  msg << MSG::DEBUG << "Created new ServicesDynTracker() # barrel layers " << numLayers << endmsg;
 
   for (int i = 0; i < numLayers; i++) {
 
@@ -74,7 +74,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
     double layerLength =  staveTmp[0]->support_halflength;
     int nSectors =  layerTmp->stave_n; 
 
-    msg << MSG::INFO << "Created new ServicesDynTracker() : add barrel layer " << i<<" "<<layerRadius<<" "<<nSectors<<" # modules "<<modulesPerStave<<"  // length : "<<layerLength<<endmsg;
+    msg<< MSG::DEBUG << "Created new ServicesDynTracker() : add barrel layer " << i<<" "<<layerRadius<<" "<<nSectors<<" # modules "<<modulesPerStave<<"  // length : "<<layerLength<<endmsg;
   
     if(endcapModuleNumber==0)
       tracker->constructBarrelLayer( layerRadius, layerLength+2.*basics->epsilon(),
@@ -116,7 +116,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
   std::vector<int> ringDiskId;
   std::vector<int> ringId;
 
-  msg << MSG::INFO << "Created new ServicesDynTracker() # endcap layers " << m_ndisks << endmsg;
+  msg << MSG::DEBUG << "Created new ServicesDynTracker() # endcap layers " << m_ndisks << endmsg;
 
   for (int iDisc = 0; iDisc < m_ndisks; iDisc++) {
 
@@ -145,7 +145,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
 	for(int j=0; j<numRing; j++){
 	  rMin = std::min(rMin,rInner[j]);
 
-	  std::cout<<"ServicesTrackerBuilder - build disc : "<<iDisc<<"  "<<modType[j]<<std::endl;
+	  msg<<MSG::DEBUG<<"ServicesTrackerBuilder - build disc : "<<iDisc<<"  "<<modType[j]<<endmsg;
 
 	  GeoDetModulePixel* endcapModule = m_pixelModuleSvc->getModule(basics,2,iDisc,modType[j]);
 	  nbModTot += nSectors[j];
@@ -245,7 +245,7 @@ ServicesDynTracker* ServicesTrackerBuilder::buildGeometry(const PixelGeoBuilderB
 	}
       }
       
-      for (int iDisc = 0; iDisc < m_ndisks; iDisc++) std::cout<<trkLayerNumber[iDisc]<<std::endl;
+      for (int iDisc = 0; iDisc < m_ndisks; iDisc++) msg<<MSG::DEBUG<<trkLayerNumber[iDisc]<<endmsg;
     }
   
 	

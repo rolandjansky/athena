@@ -25,13 +25,12 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
     return;
   }
 
-  std::cout<<"PixelSimpleServiceXMLHelper for node : "<<nodeName<<" - "<<envName<<"  -> "<<fileName<<std::endl;
 
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      msg(MSG::INFO)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -39,7 +38,7 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
     }
   else
     {
-      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
       InitializeXML();
       bParsed = ParseFile(file);
@@ -47,7 +46,7 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(IRDBRecordset_ptr table
   
   if(!bParsed){
     m_bXMLdefined = false;
-    std::cout<<"XML file "<<fileName<<" not found"<<std::endl;
+    msg(MSG::WARNING)<<"XML file "<<fileName<<" not found"<<endmsg;
     return;
     }
 }
@@ -58,17 +57,16 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(std::string envFileName
   m_bXMLdefined(true)
 {
 
-  std::cout<<"XML helper - PixelSimpleServiceXMLHelper"<<std::endl;
+  msg(MSG::DEBUG)<<"XML helper - PixelSimpleServiceXMLHelper"<<endmsg;
     
   std::string envName = envFileName;
-  std::cout<<"SimpleServiceVolumeMakerMgr : env name "<<envName<<std::endl;
+  msg(MSG::DEBUG)<<"SimpleServiceVolumeMakerMgr : env name "<<envName<<endmsg;
   
   std::string fileName;
   if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
  
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
-  msgStream()<<"Build material table from XML  (DB XML file : "<<readXMLfromDB<<endreq;
-  std::cout<<"Build material table from XML  (DB XML file : "<<readXMLfromDB<<" )"<<std::endl;
+  msg(MSG::DEBUG)<<"Build material table from XML  (DB XML file : "<<readXMLfromDB<<" )"<<endmsg;
 
   bool bParsed=false;
   if(readXMLfromDB)
@@ -81,14 +79,14 @@ PixelSimpleServiceXMLHelper::PixelSimpleServiceXMLHelper(std::string envFileName
   else
     {
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
-      std::cout<<" PixelServices : "<<file<<std::endl;
+      msg(MSG::DEBUG)<< " PixelServices : "<<file<<endmsg;
       InitializeXML();
       bParsed = ParseFile(file);
     }
   
   if(!bParsed){
     m_bXMLdefined = false;
-    std::cout<<"XML file "<<fileName<<" not found"<<std::endl;
+    msg(MSG::WARNING)<<"XML file "<<fileName<<" not found"<<endmsg;
     return;
     }
 }

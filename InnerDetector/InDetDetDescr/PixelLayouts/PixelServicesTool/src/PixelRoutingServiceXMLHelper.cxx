@@ -13,10 +13,10 @@ PixelRoutingServiceXMLHelper::PixelRoutingServiceXMLHelper(std::string envFileNa
   PixelGeoBuilder(basics)  
 {
 
-  std::cout<<"XML helper - PixelRoutingServiceXMLHelper"<<std::endl;
+  msg(MSG::DEBUG)<<"XML helper - PixelRoutingServiceXMLHelper"<<endmsg;
     
   std::string envName = envFileName;
-  std::cout<<"SimpleServiceVolumeMakerMgr : env name "<<envName<<std::endl;
+  msg(MSG::DEBUG)<<"SimpleServiceVolumeMakerMgr : env name "<<envName<<endmsg;
   std::string fileName;
   if(const char* env_p = std::getenv(envName.c_str())) fileName = std::string(env_p);
 
@@ -24,7 +24,7 @@ PixelRoutingServiceXMLHelper::PixelRoutingServiceXMLHelper(std::string envFileNa
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      msg(MSG::INFO)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -32,15 +32,15 @@ PixelRoutingServiceXMLHelper::PixelRoutingServiceXMLHelper(std::string envFileNa
     }
   else
     {
-      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
-      std::cout<<" PixelServices : "<<file<<std::endl;
+      msg(MSG::DEBUG)<<" PixelServices : "<<file<<endmsg;
       InitializeXML();
       bParsed = ParseFile(file);
     }
 
   if(!bParsed){
-    std::cout<<"XML file "<<fileName<<" not found"<<std::endl;
+    msg(MSG::WARNING) << "XML file "<<fileName<<" not found"<<endmsg;
     return;
     }
 }
@@ -239,7 +239,7 @@ std::vector<double> PixelRoutingServiceXMLHelper::EOScardLength(int index) const
   for(auto& it : cardList)
     {
       int cardIndex = getChildValue_Index("PixelBarrelEOScard","name",-1,it);
-      std::cout<<"CARD : "<<it<<" "<<cardIndex<<std::endl;
+      msg(MSG::DEBUG)<<"CARD : "<<it<<" "<<cardIndex<<endmsg;
       cardLength.push_back(getEOSCardLength(cardIndex));
     }
   return cardLength;
