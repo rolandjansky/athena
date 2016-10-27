@@ -109,7 +109,7 @@ void GeoPixelEndcapECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics)
   // Pixel general envelope XML reader
   PixelGeneralXMLHelper genDBHelper("PIXEL_PIXELGENERAL_GEO_XML", basics);
 
-  std::cout<<"ENDCAP RING - GeoPixelEndcapRingTool"<<std::endl;
+  ATH_MSG_DEBUG("ENDCAP RING - GeoPixelEndcapRingTool");
 
   // get the min/mac Endcap Mother volume
   m_endcapRMin = genDBHelper.getEndcapRMin();
@@ -120,7 +120,7 @@ void GeoPixelEndcapECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics)
   // read the number of layers
   m_nlayers = m_xmlReader->nbOfPixelEndcapLayers();
 
-  std::cout<<"ENDCAP : "<<m_endcapRMin<<" "<<m_endcapRMax<<" "<<m_endcapZMin<<" "<<m_endcapZMax<<"   # layer "<<m_nlayers<<std::endl;
+  ATH_MSG_DEBUG("ENDCAP : "<<m_endcapRMin<<" "<<m_endcapRMax<<" "<<m_endcapZMin<<" "<<m_endcapZMax<<"   # layer "<<m_nlayers);
 
   // Build and collect the service regions
   double zMiddle =  (m_endcapZMax+m_endcapZMin)*.5;
@@ -185,7 +185,7 @@ GeoVPhysVol* GeoPixelEndcapECRingRefTool::buildEndcap(const PixelGeoBuilderBasic
   double zMiddle =  (m_endcapZMax+m_endcapZMin)*.5;
   bool cylEndcap = genDBHelper.isBarrelCylindrical();
   m_endcapZOffset = zMiddle;
-  std::cout<<"ENDCAP : "<<m_endcapRMin<<" "<<m_endcapRMax<<" "<<m_endcapZMin<<" "<<m_endcapZMax<<std::endl;
+  ATH_MSG_DEBUG("ENDCAP : "<<m_endcapRMin<<" "<<m_endcapRMax<<" "<<m_endcapZMin<<" "<<m_endcapZMax);
 
   GeoFullPhysVol* ecPhys = 0;
 
@@ -227,10 +227,10 @@ GeoVPhysVol* GeoPixelEndcapECRingRefTool::buildEndcap(const PixelGeoBuilderBasic
   // Retrieve the PixelServiceTool
   StatusCode sc = m_IDserviceTool.retrieve(); 
   if (sc.isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built." << endreq;
+    ATH_MSG_ERROR("Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built.");
   }
   else{
-    msg(MSG::DEBUG) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
+    ATH_MSG_DEBUG("Service builder tool retrieved: " << m_IDserviceTool);
   }
   
   //
@@ -242,7 +242,7 @@ GeoVPhysVol* GeoPixelEndcapECRingRefTool::buildEndcap(const PixelGeoBuilderBasic
 
     // position of the layer
     double zlayer = m_layerTool->getZPosition();
-    std::cout<<"LAYER position : "<<ilayer<<" "<<zlayer<<"  / zMiddle "<<zMiddle<<"  / side "<<side<<std::endl;
+    ATH_MSG_DEBUG("LAYER position : "<<ilayer<<" "<<zlayer<<"  / zMiddle "<<zMiddle<<"  / side "<<side);
 
     // add the services in defined layer
     if(m_IDserviceTool){
@@ -287,7 +287,7 @@ GeoVPhysVol* GeoPixelEndcapECRingRefTool::buildEndcap(const PixelGeoBuilderBasic
     
   }
   else
-    std::cout<<"ENDCAP : build services - no services defined "<<std::endl;
+    ATH_MSG_DEBUG("ENDCAP : build services - no services defined ");
 
   return ecPhys;
 }

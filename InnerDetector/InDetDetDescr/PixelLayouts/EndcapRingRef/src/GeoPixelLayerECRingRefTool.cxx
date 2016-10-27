@@ -132,7 +132,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
 
   for(int iRing=0; iRing<nrings; iRing++){
 
-    std::cout<<"**** BUILD - prebuild layer - ring "<<iRing<<"/"<<nrings<<"  - layer "<<m_layer<<"   "<<std::endl;
+    ATH_MSG_DEBUG("**** BUILD - prebuild layer - ring "<<iRing<<"/"<<nrings<<"  - layer "<<m_layer);
     
     //    int ringNumber = iRing;
     int discNumber = getValueFromVector(v_discNumber, iRing);
@@ -145,7 +145,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
     std::string moduleType = getValueFromVector(v_moduleType, iRing);
     double halfZoffset = zOffset*.5;
 
-    std::cout<<"                            - # modules & module type"<<numModules<<"  -  "<<moduleType<<"   "<<std::endl;
+    ATH_MSG_DEBUG("                            - # modules & module type"<<numModules<<"  -  "<<moduleType<<"   ");
     
     int iSide = getValueFromVector(v_discSide,iRing);
 
@@ -192,7 +192,7 @@ void GeoPixelLayerECRingRefTool::preBuild(const PixelGeoBuilderBasics* basics, i
   m_layerRMin = rLayerMin-0.001;
   m_layerRMax = rLayerMax+0.001;
 
-    std::cout<<"LAYER svc : "<< m_layerRMin<<" "<<m_layerRMax<<" / "<<m_layerZMin<<" "<<m_layerZMax<<std::endl;
+  ATH_MSG_DEBUG("LAYER svc : "<< m_layerRMin<<" "<<m_layerRMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
 
 }
 
@@ -230,7 +230,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   // Build rings defined in preBuild function
   for(int iRing=0; iRing<nrings; iRing++){
 
-    std::cout<<"**** BUILD ring "<<iRing<<"/"<<nrings<<"  - layer "<<m_layer<<"   "<<std::endl;
+    ATH_MSG_DEBUG("**** BUILD ring "<<iRing<<"/"<<nrings<<"  - layer "<<m_layer<<"   ");
     
     ringList_PV.push_back(m_ringListF[iRing].Build(basics,m_endcapSide));
     ringList_PV.push_back(m_ringListB[iRing].Build(basics,m_endcapSide));
@@ -244,7 +244,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
   // Build layer envelope
   const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
   
-  std::cout<<"LAYER minmax: "<<m_layerRMin<<" "<<m_layerRMax<<" / "<<m_layerZMin<<" "<<m_layerZMax<<std::endl;
+  ATH_MSG_DEBUG("LAYER minmax: "<<m_layerRMin<<" "<<m_layerRMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
 
   double halflength = (m_layerZMax-m_layerZMin)*.5;
   const GeoTube* ecTube = new GeoTube(m_layerRMin,m_layerRMax,halflength);
@@ -290,7 +290,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 	  //std::cout << "Ring support?: matName = " << matName << " matVolume = " << matVolume << " rminSvc = " << rminSvc << " rmaxSvc = " << rmaxSvc << " thick = " << thick << std::endl;
 
 	  const GeoMaterial* supMat = basics->matMgr()->getMaterialForVolume(matName,matVolume);
-	  std::cout << "Density = " << supMat->getDensity() << " Mass = " << ( matVolume * supMat->getDensity() ) << std::endl;
+	  ATH_MSG_DEBUG("Density = " << supMat->getDensity() << " Mass = " << ( matVolume * supMat->getDensity() ));
 	  GeoLogVol* _supLog = new GeoLogVol("supLog",supTube,supMat);
 	  GeoPhysVol* supPhys = new GeoPhysVol(_supLog);
 	  
@@ -324,7 +324,7 @@ GeoVPhysVol* GeoPixelLayerECRingRefTool::buildLayer(const PixelGeoBuilderBasics*
 
     }
 
-  std::cout<<"Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax<<std::endl;
+  ATH_MSG_DEBUG("Layer minmax global : "<<m_layerZMin<<" "<<m_layerZMax<<" / "<<m_layerZMin<<" "<<m_layerZMax);
 
   return ecPhys;
 }
