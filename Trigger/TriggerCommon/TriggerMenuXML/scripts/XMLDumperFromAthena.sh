@@ -77,7 +77,7 @@ cp L1Topoconfig_*.xml ${dest}
 
 # L1 + HLT config file
 if [ -z "$TMXML_BUILD_TEST" ]; then
-    athena.py -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
+    athena.py -l DEBUG -c "TriggerMenuSetup='$menu'" $jo >&! $logfile
     athena_exit=$?
 else
     # Set the above env var to fake the output files (for fast build system test)
