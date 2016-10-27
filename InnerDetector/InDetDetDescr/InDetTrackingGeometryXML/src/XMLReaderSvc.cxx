@@ -329,7 +329,8 @@ void InDet::XMLReaderSvc::parseChipXML(DOMNode* node)
   // Register chip template
   if((chip->name).size()>0) {
     m_tmp_chip.push_back(chip);
-    chip->Print();
+    if(msgLvl(MSG::DEBUG))
+      chip->Print();
   }
 }
 
@@ -382,7 +383,8 @@ void InDet::XMLReaderSvc::parseModuleXML(DOMNode* node)
   if((module->name).size()>0) {
     computeModuleSize(module);
     m_tmp_module.push_back(module);
-    module->Print();
+    if(msgLvl(MSG::DEBUG))
+      module->Print();
   }
  
 }
@@ -463,7 +465,8 @@ void InDet::XMLReaderSvc::parseStaveXML(DOMNode* node, std::vector< InDet::Stave
   // Register stave template
   if((stave->name).size()>0 && stave->layer>=0) {
     vtmp.push_back(stave);
-    stave->Print();
+    if(msgLvl(MSG::DEBUG))
+      stave->Print();
   }
 }
 
@@ -508,7 +511,8 @@ void InDet::XMLReaderSvc::parseBarrelLayerXML(DOMNode* node, std::vector< InDet:
     unsigned int min_size = layer->index+1;
     if(vtmp.size()<min_size) vtmp.resize(min_size,0);
     vtmp.at(layer->index) = layer;
-    layer->Print();
+    if(msgLvl(MSG::DEBUG))
+      layer->Print();
   }
 }
 
@@ -690,7 +694,8 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
 
   // Register endcap layer template
   vtmp.push_back(layer);
-  layer->Print();
+  if(msgLvl(MSG::DEBUG))
+    layer->Print();
 
   return;
 

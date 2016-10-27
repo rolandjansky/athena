@@ -1,3 +1,7 @@
+2016-10-27 Thorsten Kuhl <thorsten.kuhl@cern.ch>
+	* cleaning up log file output (first iteration)
+	* Tag as InDetTrackingGeometryXML-00-00-51
+
 2016-10-11 Noemi Calace <noemi.calace@cern.ch>
         * removing trt dictionary creation
         * Tag as InDetTrackingGeometryXML-00-00-50

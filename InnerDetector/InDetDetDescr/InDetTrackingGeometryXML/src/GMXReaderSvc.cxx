@@ -273,8 +273,8 @@ void InDet::GMXReaderSvc::getVariables(DOMDocument *doc) {
   for (unsigned int size = 0; size < sensorTypes.size(); size++) 
     ATH_MSG_DEBUG( "element " << size << " = " << sensorTypes.at(size) );
   
-  
-  for ( auto ss: sensors) ss->Print();
+  if(msgLvl(MSG::DEBUG))
+    for ( auto ss: sensors) ss->Print();
   
   DOMNodeList *rgs = doc->getElementsByTagName(translate("readoutgeometry"));
   const XMLSize_t nRgs = rgs->getLength();
@@ -394,8 +394,9 @@ void InDet::GMXReaderSvc::getVariables(DOMDocument *doc) {
   for (unsigned int x = 0; x < sensorRows.size(); x++) 
     for (unsigned int y = 0; y < sensorRows.at(x).size(); y++) 
       ATH_MSG_DEBUG( "element (x,y) = (" << x << "," << y << ") " << sensorRows.at(x).at(y) );
-    
-  for ( auto& ss: sensors) ss->Print();
+
+  if(msgLvl(MSG::DEBUG))    
+    for ( auto& ss: sensors) ss->Print();
   
   std::map < std::string , std::vector<int> > barrel_indices;
         
@@ -585,8 +586,9 @@ void InDet::GMXReaderSvc::CreateBarrelLayers (std::vector<double> Barrel_NumberO
   for (unsigned int el=0; el < Barrel_NumberOfPhi.size(); el++ ) 
     m_tmp_BarrelLayers.push_back( new LayerDiscClass( true, el, Barrel_NumberOfPhi.at(el), Barrel_NumberOfEta.at(el)));  
 
-  for (auto& el: m_tmp_BarrelLayers)
-    el->Print();  
+  if(msgLvl(MSG::DEBUG))
+    for (auto& el: m_tmp_BarrelLayers)
+      el->Print();  
 }
 
 void InDet::GMXReaderSvc::CreateEndcapDiscs (double Endcap_Wheels, std::vector<double> Endcap_NumberOfPhi) {
@@ -596,9 +598,10 @@ void InDet::GMXReaderSvc::CreateEndcapDiscs (double Endcap_Wheels, std::vector<d
           m_tmp_EndcapDiscs.push_back( new LayerDiscClass( false, wheel, Endcap_NumberOfPhi.at(el), el));  
     }    
   }  
-  
-  for (auto& el: m_tmp_EndcapDiscs)
-    el->Print();
+
+  if(msgLvl(MSG::DEBUG))
+    for (auto& el: m_tmp_EndcapDiscs)
+      el->Print();
 }
 
 void InDet::GMXReaderSvc::LinkSensors( std::vector<SensorClass*> sensors, std::map < std::string, std::vector <int> > barrel_indices ) {
@@ -618,9 +621,10 @@ void InDet::GMXReaderSvc::LinkSensors( std::vector<SensorClass*> sensors, std::m
       }
     }
   }
-  
-  for (auto& el: m_tmp_BarrelLayers) el->Print();  
-  for (auto& el: m_tmp_EndcapDiscs)  el->Print();
+  if(msgLvl(MSG::DEBUG)){  
+    for (auto& el: m_tmp_BarrelLayers) el->Print();  
+    for (auto& el: m_tmp_EndcapDiscs)  el->Print();
+  }
   
 }
 
