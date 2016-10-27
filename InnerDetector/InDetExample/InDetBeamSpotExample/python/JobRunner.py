@@ -11,7 +11,7 @@ Jobs can run interactively, on different batch systems, or on the Grid.
 Written by Juerg Beringer (LBNL) in 2008.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: JobRunner.py 759523 2016-07-04 12:49:24Z amorley $'
+__version__ = '$Id: JobRunner.py 747883 2016-05-18 06:58:10Z amorley $'
 
 import math
 import os

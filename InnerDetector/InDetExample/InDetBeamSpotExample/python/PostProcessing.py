@@ -61,6 +61,8 @@ def doPostProcessing(taskman,taskDict,postprocSteps,postprocLib,forceRun=False,j
     if not postprocSteps:
         return []   # nothing to do
 
+    #update again from DataBase
+    prePostProcStatus = taskman.getStatus(dsName,taskName)
     # Don't run postprocessing if status is already postprocessing
     if prePostProcStatus>=TaskManager.StatusCodes['POSTPROCRUNNING'] and not forceRun:
         print 'Exiting postprocessing without doing anything: task %s/%s status is %s\n' % (dsName,taskName,getKey(TaskManager.StatusCodes,prePostProcStatus))
