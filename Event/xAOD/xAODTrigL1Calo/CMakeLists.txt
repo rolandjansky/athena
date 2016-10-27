@@ -14,6 +14,7 @@ atlas_depends_on_subdirs( PUBLIC
                           PRIVATE
                           Control/AthLinks )
 
+                         
 # External dependencies:
 find_package( ROOT COMPONENTS Physics Core Tree MathCore Hist RIO pthread )
 
