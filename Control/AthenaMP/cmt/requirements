@@ -27,6 +27,7 @@ library AthenaMP *.cxx components/*.cxx memory-profiler/getPss.cc
 apply_pattern component_library
 
 application getSharedMemory memory-profiler/getSharedMemory.cc memory-profiler/getPss.cc application_suffix=""
+macro_append getSharedMemory_dependencies "AthenaMP"
 application MemoryMonitor memory-monitor/MemoryMonitor.cxx application_suffix="" 
 
 end_private

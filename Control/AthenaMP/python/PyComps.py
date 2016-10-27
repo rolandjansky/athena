@@ -117,27 +117,16 @@ class MpEvtLoopMgr(AthMpEvtLoopMgr):
         elif strategy=='EventService':
             channelScatterer2Processor = "AthenaMP_Scatterer2Processor_" + str(os.getpid())
             channelProcessor2EvtSel = "AthenaMP_Processor2EvtSel_" + str(os.getpid())
-            use_token_extractor = jp.AthenaMPFlags.UseTokenExtractor()
-
-            if use_token_extractor:
-                from AthenaCommon.AppMgr import ServiceMgr as svcMgr
-                from AthenaServices.AthenaServicesConf import AthenaYamplTool
-                svcMgr.EventSelector.SharedMemoryTool = AthenaYamplTool("AthenaYamplTool",
-                                                                        ChannelName = channelProcessor2EvtSel,
-                                                                        Many2One=False)
 
             from AthenaMPTools.AthenaMPToolsConf import EvtRangeScatterer
             self.Tools += [ EvtRangeScatterer(ProcessorChannel = channelScatterer2Processor,
                                               EventRangeChannel = event_range_channel,
-                                              UseTokenExtractor = use_token_extractor,
-                                              TokenExtractorChannel = jp.AthenaMPFlags.TokenExtractorChannel(),
                                               DoCaching=jp.AthenaMPFlags.EvtRangeScattererCaching()) ]
 
             from AthenaMPTools.AthenaMPToolsConf import EvtRangeProcessor
             self.Tools += [ EvtRangeProcessor(IsPileup=pileup,
                                               Channel2Scatterer = channelScatterer2Processor,
                                               Channel2EvtSel = channelProcessor2EvtSel,
-                                              UseTokenExtractor = use_token_extractor,
                                               Debug=debug_worker) ]
             # Enable seeking
             setupEvtSelForSeekOps()
