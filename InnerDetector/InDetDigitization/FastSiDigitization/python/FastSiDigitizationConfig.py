@@ -193,3 +193,21 @@ def getFastSCTRange(name="FastSCTRange" , **kwargs):
     kwargs.setdefault('ItemList', ["SiHitCollection#SCT_Hits"] )
     from AthenaCommon import CfgMgr
     return CfgMgr.PileUpXingFolder(name, **kwargs)
+
+######################################################################################
+def PixelSmearedDigitizationTool(name="PixelSmearedDigitizationTool", **kwargs):
+    # Import Digitization job properties
+    from Digitization.DigitizationFlags import digitizationFlags
+    # set the random service, stream name
+    streamName = kwargs.setdefault("RndmEngine", "FastPixelDigitization")
+    kwargs.setdefault("RndmSvc", digitizationFlags.rndmSvc() )
+    # set rndm seeds
+    if not digitizationFlags.rndmSeedList.checkForExistingSeed(streamName):
+        digitizationFlags.rndmSeedList.addSeed(streamName, 10513239, 492615104 )
+    
+    kwargs.setdefault("InputObjectName", "PixelHits")
+    kwargs.setdefault("ClusterContainerName", "PixelClusters")
+    kwargs.setdefault("PRD_MultiTruthName", "PRD_MultiTruthPixel")
+    
+    from AthenaCommon import CfgMgr
+    return CfgMgr.SiSmearedDigitizationTool(name,**kwargs)

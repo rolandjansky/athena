@@ -13,3 +13,5 @@ addTool("FastSiDigitization.FastSiDigitizationConfig.SCT_FastDigitizationToolHS"
 addTool("FastSiDigitization.FastSiDigitizationConfig.SCT_FastDigitizationToolPU"             , "SCT_FastDigitizationToolPU")
 addTool("FastSiDigitization.FastSiDigitizationConfig.SCT_FastDigitizationToolSplitNoMergePU" , "SCT_FastDigitizationToolSplitNoMergePU")
 addTool("FastSiDigitization.FastSiDigitizationConfig.getFastSCTRange"                        , "FastSCTRange" )
+
+addTool("FastSiDigitization.FastSiDigitizationConfig.PixelSmearedDigitizationTool"           , "PixelSmearedDigitizationTool")
