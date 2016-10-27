@@ -6,7 +6,6 @@ use AtlasPolicy          AtlasPolicy-*
 
 use GaudiInterface	 GaudiInterface-*	   External
 
-use SGTools		     SGTools-*		       Control
 use AthenaPoolCnvSvc AthenaPoolCnvSvc-*    Database/AthenaPOOL
 
 use AtlasHepMC		     AtlasHepMC-*	       External

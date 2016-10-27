@@ -31,7 +31,7 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
 					   MsgStream &/*msg*/ ) 
 {
 //   msg << MSG::DEBUG << "Loading HepMcParticleLink from persistent state..."
-//       << endreq;
+//       << endmsg;
   if (transObj->m_ptrs.m_dict == nullptr)
     transObj->init_dict();
   transObj->m_extBarcode = 
@@ -40,7 +40,7 @@ void HepMcParticleLinkCnv_p1::persToTrans( const HepMcParticleLink_p1* persObj,
   
 
 //   msg << MSG::DEBUG << "Loaded HepMcParticleLink from persistent state [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 
@@ -49,12 +49,12 @@ void HepMcParticleLinkCnv_p1::transToPers( const HepMcParticleLink* transObj,
 					   MsgStream &/*msg*/ ) 
 {
 //   msg << MSG::DEBUG << "Creating persistent state of HepMcParticleLink..."
-//       << endreq;
+//       << endmsg;
   persObj->m_mcEvtIndex = transObj->eventIndex();
   persObj->m_barcode    = transObj->m_extBarcode.barcode();
 
 //   msg << MSG::DEBUG << "Created persistent state of HepMcGenParticleLink [OK]"
-//       << endreq;
+//       << endmsg;
   return;
 }
 

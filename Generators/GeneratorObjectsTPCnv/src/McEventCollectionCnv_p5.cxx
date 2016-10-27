@@ -82,7 +82,7 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
                                            MsgStream& msg )
 {
   msg << MSG::DEBUG << "Loading McEventCollection from persistent state..."
-      << endreq;
+      << endmsg;
 
   // elements are managed by DataPool
   if (!m_isPileup) {
@@ -228,7 +228,7 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
       } else {
         msg << MSG::ERROR
             << "GenParticle points to null end vertex !!"
-            << endreq;
+            << endmsg;
       }
     }
 
@@ -245,7 +245,7 @@ void McEventCollectionCnv_p5::persToTrans( const McEventCollection_p5* persObj,
   } //> end loop over m_genEvents
 
   msg << MSG::DEBUG << "Loaded McEventCollection from persistent state [OK]"
-      << endreq;
+      << endmsg;
 
   return;
 }
@@ -255,7 +255,7 @@ void McEventCollectionCnv_p5::transToPers( const McEventCollection* transObj,
                                            MsgStream& msg )
 {
   msg << MSG::DEBUG << "Creating persistent state of McEventCollection..."
-      << endreq;
+      << endmsg;
   persObj->m_genEvents.reserve( transObj->size() );
 
   const std::pair<unsigned int,unsigned int> stats = nbrParticlesAndVertices( transObj );
@@ -361,7 +361,7 @@ void McEventCollectionCnv_p5::transToPers( const McEventCollection* transObj,
   } //> end loop over GenEvents
 
   msg << MSG::DEBUG << "Created persistent state of HepMC::GenEvent [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
