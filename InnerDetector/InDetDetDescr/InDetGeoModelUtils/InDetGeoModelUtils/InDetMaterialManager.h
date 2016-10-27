@@ -53,6 +53,9 @@ public:
   void addCompositionTable(IRDBRecordset_ptr compositionTable, const std::string & space = "");
   void addScalingTable(IRDBRecordset_ptr scalingTable);
 
+
+  bool hasMaterial(const std::string &materialName) const;
+
   /// Get material. First looks for locally defined material and if not found looks in GeoModel material manager.
   const GeoMaterial* getMaterial(const std::string & materialName);
 
