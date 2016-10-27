@@ -137,7 +137,7 @@ if InDetFlags.loadRotCreator():
                                                                         )
             ToolSvc += PixelClusterOnTrackToolDBM
         PixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackTool",
-                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone() or InDetFlags.doSLHC()),
                                                                  applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                                                                  NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
@@ -160,7 +160,7 @@ if InDetFlags.loadRotCreator():
                 print PixelClusterOnTrackToolDBM
                 
         PixelClusterOnTrackToolDigital = InDet__PixelClusterOnTrackTool("InDetPixelClusterOnTrackToolDigital",
-                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                 DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone() or InDetFlags.doSLHC()),
                                                                  applyNNcorrection = False,
                                                                  NNIBLcorrection = False,
                                                                  SplitClusterAmbiguityMap = InDetKeys.SplitClusterAmbiguityMap(),
@@ -230,7 +230,7 @@ if InDetFlags.loadRotCreator():
             from SiClusterOnTrackTool.SiClusterOnTrackToolConf import InDet__PixelClusterOnTrackTool
             BroadPixelClusterOnTrackTool = InDet__PixelClusterOnTrackTool("InDetBroadPixelClusterOnTrackTool",
                                                                           ErrorStrategy      = 0,
-                                                                          DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone()),
+                                                                          DisableDistortions = (InDetFlags.doFatras() or InDetFlags.doDBMstandalone() or InDetFlags.doSLHC()),
                                                                           applyNNcorrection = ( InDetFlags.doPixelClusterSplitting() and
                                                                                        InDetFlags.pixelClusterSplittingType() == 'NeuralNet' and not InDetFlags.doSLHC()),
                                                                           NNIBLcorrection = ( InDetFlags.doPixelClusterSplitting() and
@@ -976,6 +976,11 @@ if InDetFlags.loadSummaryTool():
                                                   #TRT_ElectronPidTool    = InDetTRT_ElectronPidTool,
                                                   #PixelToTPIDTool        = InDetPixelToTPIDTool)
     #InDetTrackSummaryTool.OutputLevel = VERBOSE
+    if (InDetFlags.doSLHC()):
+      from AtlasGeoModel.InDetGMJobProperties import GeometryFlags #Might need to move this...
+      if not "LoI" in GeometryFlags.GeoType():
+        InDetTrackSummaryTool.AddITkSummary = True
+        InDetTrackSummaryTool.GeometryType = GeometryFlags.GeoType()
     ToolSvc += InDetTrackSummaryTool
     if (InDetFlags.doPrintConfigurables()):
       print      InDetTrackSummaryTool
@@ -1815,35 +1820,32 @@ if InDetFlags.doTIDE_AmbiTrackMonitoring():
 # ----------- Loading of tool for dynamic cuts
 #
 # ------------------------------------------------------------
-if InDetFlags.useInDetDynamicCuts():
+if InDetFlags.useInDetDynamicCuts() and InDetNewTrackingCuts.mode() == "SLHC":
   from   InDetDynamicCutsTool.InDetDynamicCutsToolConf import InDet__InDetDynamicCutsTool
   InDetDynamicCutsTool = InDet__InDetDynamicCutsTool("InDetDynamicCutsTool")
-
-  SLHCDynamicTrackingCuts = ConfiguredNewTrackingCuts("SLHCDynamicCuts")
-
   #Set the configurables
-  InDetDynamicCutsTool.maxEta                  = SLHCDynamicTrackingCuts.maxEta()
-  InDetDynamicCutsTool.etaBins                 = SLHCDynamicTrackingCuts.etaBins()
-  InDetDynamicCutsTool.etaWidthBrem            = SLHCDynamicTrackingCuts.etaWidthBrem()
-  InDetDynamicCutsTool.maxdImpactSSSSeeds      = SLHCDynamicTrackingCuts.maxdImpactSSSSeeds()
-  InDetDynamicCutsTool.maxDoubleHoles          = SLHCDynamicTrackingCuts.maxDoubleHoles()
-  InDetDynamicCutsTool.maxHoles                = SLHCDynamicTrackingCuts.maxHoles()
-  InDetDynamicCutsTool.maxPixelHoles           = SLHCDynamicTrackingCuts.maxPixelHoles()
-  InDetDynamicCutsTool.maxPrimaryImpact        = SLHCDynamicTrackingCuts.maxPrimaryImpact()
-  InDetDynamicCutsTool.maxSctHoles             = SLHCDynamicTrackingCuts.maxSCTHoles()
-  InDetDynamicCutsTool.maxShared               = SLHCDynamicTrackingCuts.maxShared()
-  InDetDynamicCutsTool.maxZImpact              = SLHCDynamicTrackingCuts.maxZImpact()
-  InDetDynamicCutsTool.minClusters             = SLHCDynamicTrackingCuts.minClusters()
-  InDetDynamicCutsTool.minPixelHits            = SLHCDynamicTrackingCuts.minPixel()
-  InDetDynamicCutsTool.minPT                   = SLHCDynamicTrackingCuts.minPT()
-  InDetDynamicCutsTool.minPTBrem               = SLHCDynamicTrackingCuts.minPTBrem()
-  InDetDynamicCutsTool.minSiNotShared          = SLHCDynamicTrackingCuts.minSiNotShared()
-  InDetDynamicCutsTool.maxHolesGapPattern      = SLHCDynamicTrackingCuts.nHolesGapMax()
-  InDetDynamicCutsTool.maxHolesPattern         = SLHCDynamicTrackingCuts.nHolesMax()
-  InDetDynamicCutsTool.nWeightedClustersMin    = SLHCDynamicTrackingCuts.nWeightedClustersMin()
-  InDetDynamicCutsTool.phiWidthBrem            = SLHCDynamicTrackingCuts.phiWidthBrem()
-  InDetDynamicCutsTool.Xi2max                  = SLHCDynamicTrackingCuts.Xi2max()
-  InDetDynamicCutsTool.Xi2maxNoAdd             = SLHCDynamicTrackingCuts.Xi2maxNoAdd()
+  InDetDynamicCutsTool.maxEta                  = InDetNewTrackingCuts.maxEta()
+  InDetDynamicCutsTool.etaBins                 = InDetNewTrackingCuts.etaBins()
+  InDetDynamicCutsTool.etaWidthBrem            = InDetNewTrackingCuts.etaWidthBrem()
+  InDetDynamicCutsTool.maxdImpactSSSSeeds      = InDetNewTrackingCuts.maxdImpactSSSSeeds()
+  InDetDynamicCutsTool.maxDoubleHoles          = InDetNewTrackingCuts.maxDoubleHoles()
+  InDetDynamicCutsTool.maxHoles                = InDetNewTrackingCuts.maxHoles()
+  InDetDynamicCutsTool.maxPixelHoles           = InDetNewTrackingCuts.maxPixelHoles()
+  InDetDynamicCutsTool.maxPrimaryImpact        = InDetNewTrackingCuts.maxPrimaryImpact()
+  InDetDynamicCutsTool.maxSctHoles             = InDetNewTrackingCuts.maxSCTHoles()
+  InDetDynamicCutsTool.maxShared               = InDetNewTrackingCuts.maxShared()
+  InDetDynamicCutsTool.maxZImpact              = InDetNewTrackingCuts.maxZImpact()
+  InDetDynamicCutsTool.minClusters             = InDetNewTrackingCuts.minClusters()
+  InDetDynamicCutsTool.minPixelHits            = InDetNewTrackingCuts.minPixel()
+  InDetDynamicCutsTool.minPT                   = InDetNewTrackingCuts.minPT()
+  InDetDynamicCutsTool.minPTBrem               = InDetNewTrackingCuts.minPTBrem()
+  InDetDynamicCutsTool.minSiNotShared          = InDetNewTrackingCuts.minSiNotShared()
+  InDetDynamicCutsTool.maxHolesGapPattern      = InDetNewTrackingCuts.nHolesGapMax()
+  InDetDynamicCutsTool.maxHolesPattern         = InDetNewTrackingCuts.nHolesMax()
+  InDetDynamicCutsTool.nWeightedClustersMin    = InDetNewTrackingCuts.nWeightedClustersMin()
+  InDetDynamicCutsTool.phiWidthBrem            = InDetNewTrackingCuts.phiWidthBrem()
+  InDetDynamicCutsTool.Xi2max                  = InDetNewTrackingCuts.Xi2max()
+  InDetDynamicCutsTool.Xi2maxNoAdd             = InDetNewTrackingCuts.Xi2maxNoAdd()
 
   ToolSvc += InDetDynamicCutsTool
   

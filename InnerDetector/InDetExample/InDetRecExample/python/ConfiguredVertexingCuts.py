@@ -190,7 +190,7 @@ class ConfiguredVertexingCuts :
 
      #cluster and track quality cuts   
 
-      self.__nHitSct             = 5
+      self.__nHitSct             = 0
       self.__nHitSi              = 7
       self.__useTrackQualityInfo = True      
 

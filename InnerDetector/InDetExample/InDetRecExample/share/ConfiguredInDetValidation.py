@@ -103,17 +103,18 @@ class  ConfiguredInDetValidation:
                                                                         SpacePointsPixelName   = InDetKeys.PixelSpacePoints()    ,
                                                                         SpacePointsSCTName     = InDetKeys.SCT_SpacePoints()     ,
                                                                         SpacePointsOverlapName = InDetKeys.OverlapSpacePoints()  ,
-                                                                        MomentumCut            = 2. * NewTrackingCuts.minPT()   ,
                                                                         RapidityCut            = NewTrackingCuts.maxEta()        ,
                                                                         RadiusMin              = rmin                            ,
                                                                         RadiusMax              = rmax                            ,
-                                                                        MinNumberClusters      = NewTrackingCuts.minClusters()   ,
                                                                         MinNumberClustersTRT   = 0                               ,
                                                                         MinNumberSpacePoints   = 3                               ,
                                                                         usePixel               = DetFlags.haveRIO.pixel_on()     ,
                                                                         useSCT                 = DetFlags.haveRIO.SCT_on()       ,
                                                                         useTRT                 = DetFlags.haveRIO.TRT_on()       )
-
+      if not InDetFlags.useInDetDynamicCuts() or not NewTrackingCuts.mode() == "SLHC":
+        InDetTrackClusterAssValidation.MomentumCut            = 2. * NewTrackingCuts.minPT()
+        InDetTrackClusterAssValidation.MinNumberClusters      = NewTrackingCuts.minClusters()
+        
       if InDetFlags.doDBMstandalone() or  nameExt=="DBM" or nameExt=="PUDBM":
         InDetTrackClusterAssValidation.MomentumCut            = 0
         InDetTrackClusterAssValidation.RadiusMax              = 9999999.0
@@ -133,9 +134,10 @@ class  ConfiguredInDetValidation:
         if InDetFlags.doBeamHalo():
           InDetTrackClusterAssValidation.MomentumCut            = 0
 
-      if InDetFlags.useInDetDynamicCuts():
+      if InDetFlags.useInDetDynamicCuts() and NewTrackingCuts.mode() == "SLHC":
         InDetTrackClusterAssValidation.InDetDynamicCutsTool = InDetDynamicCutsTool
         InDetTrackClusterAssValidation.UseDynamicCuts       = True
+        InDetTrackClusterAssValidation.MomentumCut          = 2. * NewTrackingCuts.minPT()[0]
  
       topSequence += InDetTrackClusterAssValidation
       if (InDetFlags.doPrintConfigurables()):
