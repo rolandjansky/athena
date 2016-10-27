@@ -60,7 +60,7 @@ namespace InDet {
 		 sqrt(m_V(3,3) + 2*z*m_V(4,3) + z*z*m_V(4,4)) );
     }
     double  getErrZ() const {
-      return (m_getLLres ? sqrt(m_VLL(9,9)):m_zErrSolved);} // defined as centroid of beam
+      return (m_getLLres ?  (m_fixInputK ? sqrt(m_VLL(8,8)) : sqrt(m_VLL(9,9))):m_zErrSolved);} // defined as centroid of beam
     
     double  getSigmaX(double) const { 
       return (m_getLLres ? m_pLL(5) : m_def_sx);}
@@ -73,7 +73,7 @@ namespace InDet {
     double  getErrSigmaY(double) const {
       return (m_getLLres ? sqrt(m_VLL(6,6)) :0.);}
     double  getErrSigmaZ() const  {
-      return (m_getLLres ? sqrt(m_VLL(10,10)) :0.);}
+      return (m_getLLres ?  (m_fixInputK ? sqrt(m_VLL(9,9)) : sqrt(m_VLL(10,10))) :0.);}
 
     double  getTiltX() const {
       return (m_getLLres ? m_pLL(3) :m_p(2));}
@@ -88,7 +88,7 @@ namespace InDet {
     double getRhoXY() const { return (m_getLLres ? m_pLL(7) : 0.);}
     double getK() const     { return (m_getLLres ? m_pLL(8) : 0.);}
     double getErrRhoXY() const { return  (m_getLLres ? sqrt(m_VLL(7,7)) : 0.);}
-    double getErrK() const { return  (m_getLLres ? sqrt(m_VLL(8,8)) : 0.);}
+    double getErrK() const { return  (m_getLLres ?  (m_fixInputK ? 0. : sqrt(m_VLL(8,8)) ) : 0.);}
 
     double getSigmaXY(double z) const {return getRhoXY()*getSigmaX(z)*getSigmaY(z);}
     
@@ -192,6 +192,7 @@ namespace InDet {
     
     bool m_fixInputK; // fix in LL fit the K factor to it's initial value
     bool m_useLLNorm; // use the normalisation mode of the pdf...
+    bool m_fixWidth;
     
     int m_nUsed;
 
