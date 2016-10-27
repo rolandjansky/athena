@@ -129,11 +129,11 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
   
   // Services already defined
   if(m_pixServices||m_dynServices){
-    std::cout<<"InDetServicesTool::buildServices - services already built"<<std::endl;
+    ATH_MSG_WARNING("InDetServicesTool::buildServices - services already built");
     return;
   }
 
-  std::cout<<"InDetServicesTool::buildServices -built services"<<std::endl;
+  ATH_MSG_INFO("InDetServicesTool::buildServices -built services");
 
   // Add service materials
   std::string fileName="ServiceMaterial.xml";
@@ -173,9 +173,9 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
     endcapZmax = genDBHelper.getEndcapZMax();
   }
 
-  std::cout<<"GEOPIXELSERVICES pixel : "<<pixelRmin<<" "<<pixelRmax<<" //  "<<pixelZmax<<std::endl;
-  std::cout<<"GEOPIXELSERVICES barrel : "<<barrelRmin<<" "<<barrelRmax<<" //  "<<barrelZmin<<" "<<barrelZmax<<std::endl;
-  std::cout<<"GEOPIXELSERVICES endcap : "<<endcapRmin<<" "<<endcapRmax<<" //  "<<endcapZmin<<" "<<endcapZmax<<std::endl;
+  ATH_MSG_DEBUG("GEOPIXELSERVICES pixel : "<<pixelRmin<<" "<<pixelRmax<<" //  "<<pixelZmax);
+  ATH_MSG_DEBUG("GEOPIXELSERVICES barrel : "<<barrelRmin<<" "<<barrelRmax<<" //  "<<barrelZmin<<" "<<barrelZmax);
+  ATH_MSG_DEBUG("GEOPIXELSERVICES endcap : "<<endcapRmin<<" "<<endcapRmax<<" //  "<<endcapZmin<<" "<<endcapZmax);
 
 
   // Barrel/endcap volume
@@ -186,7 +186,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
   InDetDD::UnboundedZone topZone("Mother");
 
   // SvcRegion defined locally
-  std::cout<<"GEOPIXELSERVICES pixel : "<<svcRegions.size()<<"  cyl : "<<cylBarrel<<" "<<cylEndcap<<"  dyn "<<std::endl;
+  ATH_MSG_DEBUG("GEOPIXELSERVICES pixel : "<<svcRegions.size()<<"  cyl : "<<cylBarrel<<" "<<cylEndcap<<"  dyn ");
 //   if(svcRegions.size()==0)
 //     {
 //       if(cylBarrel||cylEndcap){
@@ -213,12 +213,12 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
   file = PathResolver::find_file (fileName, "DATAPATH");
   if(file.size()>0&&!m_bSvcDynAutomated) bDynBuilder = true;
 
-  std::cout<<"GEOPIXELSERVICES pixel : dynamic services "<<bDynBuilder<<std::endl;
+  ATH_MSG_DEBUG("GEOPIXELSERVICES pixel : dynamic services "<<bDynBuilder);
 
   // Define service envelopes for standard cylindrical barrel/endcap geometries
   if(cylBarrel){
 
-    std::cout<<"GEOPIXELSERVICES pixel : cylindrical barrel/endcap"<<std::endl;
+    ATH_MSG_DEBUG("GEOPIXELSERVICES pixel : cylindrical barrel/endcap");
     double delta =0.;
     InDetDD::TubeZone* pixZone = new InDetDD::TubeZone("Pixel",-pixelZmax+delta,pixelZmax-delta,pixelRmin+delta,pixelRmax-delta);
     InDetDD::UnboundedZone topZone("Mother");
@@ -239,7 +239,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
   //  -> different topzones are successively added to each service builder
 
   // --------------------------------------------------------------------------------
-  std::cout<<"-> non cylindrical  sections : BARREL"<<std::endl;
+  ATH_MSG_DEBUG("-> non cylindrical  sections : BARREL");
   
   double delta=0.001;
   std::vector<double> radiusList = genDBHelper.getBarrelRadiusList();
@@ -276,7 +276,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
       
       //	  os << "gbl";
       if(nbZone==0)pixZone->add(new InDetDD::TubeZone(os.str(),zmin+delta, zmax-delta, rmin+delta, rmax-delta));
-      std::cout<<"   nbZone final : "<<name.str()<<" : "<<os.str()<<" "<<nbZone<<std::endl;
+      ATH_MSG_DEBUG("   nbZone final : "<<name.str()<<" : "<<os.str()<<" "<<nbZone);
       
       topZone.add(pixZone);
       
@@ -293,7 +293,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
     }
   
   // --------------------------------------------------------------------------------
-  std::cout<<"-> non cylindrical  sections : ENDCAP"<<std::endl;
+  ATH_MSG_DEBUG("-> non cylindrical  sections : ENDCAP");
   
   if(endcapAPresent)
     {    
@@ -321,7 +321,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	  InDetDD::Zone* pixZoneA = new InDetDD::TubeZone(os.str(),zmin,zmax,rmin,rmax);
 	  InDetDD::UnboundedZone topZoneA("Mother");
 	  
-	  std::cout<<"TubeZone A : "<<os.str()<<" / "<<zmin<<" "<<zmax<<" / "<<rmin<<" "<<rmax<<"     Radius : "<<iRad<<"/"<<radiusList.size()<<std::endl;
+	  ATH_MSG_DEBUG("TubeZone A : "<<os.str()<<" / "<<zmin<<" "<<zmax<<" / "<<rmin<<" "<<rmax<<"     Radius : "<<iRad<<"/"<<radiusList.size());
 	  
 	  int nbZone=0;
 	  for(std::vector<InDetDD::TubeZone*>::iterator it=svcRegions.begin(); it!=svcRegions.end(); ++it){
@@ -333,10 +333,10 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	      pixZoneA->add(new InDetDD::TubeZone((*it)->label(),(*it)->getZmin(),(*it)->getZmax(),(*it)->getRmin(),(*it)->getRmax()));
 	      nbZone++;
 	    }
-	    else std::cout<<"   check if point inside svcRegion - "<<bRadial<<" "<<bZpos<<std::endl;
+	    else ATH_MSG_DEBUG("   check if point inside svcRegion - "<<bRadial<<" "<<bZpos);
 	  }
 	  if(nbZone==0)pixZoneA->add(new InDetDD::TubeZone(os.str(),zmin+delta,zmax-delta,rmin+delta,rmax-delta));
-	  std::cout<<"   nbZone "<<name.str()<<" : "<<os.str()<<" "<<nbZone<<" / "<<svcRegions.size()<<std::endl;
+	  ATH_MSG_DEBUG("   nbZone "<<name.str()<<" : "<<os.str()<<" "<<nbZone<<" / "<<svcRegions.size());
 	  topZoneA.add(pixZoneA);
 	  
 	  // Takes ownership of pixZone
@@ -372,7 +372,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	  InDetDD::Zone* pixZoneC = new InDetDD::TubeZone(osC.str(),zmin,zmax,rmin,rmax);
 	  InDetDD::UnboundedZone topZoneC("Mother");
 	  
-	  std::cout<<"TubeZone C : "<<osC.str()<<" / "<<zmin<<" "<<zmax<<" / "<<rmin<<" "<<rmax<<"     Radius : "<<iRad<<"/"<<radiusList.size()<<std::endl;
+	  ATH_MSG_DEBUG("TubeZone C : "<<osC.str()<<" / "<<zmin<<" "<<zmax<<" / "<<rmin<<" "<<rmax<<"     Radius : "<<iRad<<"/"<<radiusList.size());
 	  
 	  int nbZone=0;
 	  for(std::vector<InDetDD::TubeZone*>::iterator it=svcRegions.begin(); it!=svcRegions.end(); ++it){
@@ -387,7 +387,7 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 	    //	    else std::cout<<"   check if point inside svcRegion - "<<bRadial<<" "<<bZpos<<std::endl;
 	  }
 	  if(nbZone==0)pixZoneC->add(new InDetDD::TubeZone(osC.str(),-zmax+delta,-zmin-delta,rmin+delta,rmax-delta,true));
-	  std::cout<<"   nbZone "<<nameC.str()<<" : "<<osC.str()<<" "<<nbZone<<" / "<<svcRegions.size()<<std::endl;
+	  ATH_MSG_DEBUG("   nbZone "<<nameC.str()<<" : "<<osC.str()<<" "<<nbZone<<" / "<<svcRegions.size());
 	  topZoneC.add(pixZoneC);
 	  
 	  // Takes ownership of pixZone
@@ -403,14 +403,14 @@ void PixelServicesTool::buildServices(const PixelGeoBuilderBasics* basics, std::
 void PixelServicesTool::buildAndPlace(const std::string & region, GeoPhysVol * parent, double zcenter, std::vector<std::string> svcList,
 				      bool bStatic, bool bDynamic) 
 {
-  std::cout<<"GEOPIXELSERVICES : tool buildandplace PhysVol "<<region<<std::endl;
+  ATH_MSG_DEBUG("GEOPIXELSERVICES : tool buildandplace PhysVol "<<region);
   //  m_pixServices->getBuilder(i)->resetServices();
 
   if(m_pixServices==0){
-    msg(MSG::INFO)<<"InDetServicesTool::BuildAndPlace "<<region<<"  : no static services defined"<<endreq;
+    ATH_MSG_INFO("InDetServicesTool::BuildAndPlace "<<region<<"  : no static services defined");
   }
   if(m_dynServices==0){
-    msg(MSG::INFO)<<"InDetServicesTool::BuildAndPlace "<<region<<"  : no dynamic services defined"<<endreq;
+    ATH_MSG_INFO("InDetServicesTool::BuildAndPlace "<<region<<"  : no dynamic services defined");
   }
 
   if(m_pixServices&&bStatic)
@@ -428,14 +428,14 @@ void PixelServicesTool::buildAndPlace(const std::string & region, GeoFullPhysVol
 					
 {
 
-  std::cout<<"GEOPIXELSERVICES : tool buildandplace FullPhysVol "<<region<<std::endl;
+  ATH_MSG_DEBUG("GEOPIXELSERVICES : tool buildandplace FullPhysVol "<<region);
   //  m_pixServices->getBuilder(i)->resetServices();
 
   if(m_pixServices==0){
-    msg(MSG::INFO)<<"InDetServicesTool::BuildAndPlace "<<region<<"  : no static services defined"<<endreq;
+    ATH_MSG_INFO("InDetServicesTool::BuildAndPlace "<<region<<"  : no static services defined");
   }
   if(m_dynServices==0){
-    msg(MSG::INFO)<<"InDetServicesTool::BuildAndPlace "<<region<<"  : no dynamic services defined"<<endreq;
+    ATH_MSG_INFO("InDetServicesTool::BuildAndPlace "<<region<<"  : no dynamic services defined");
   }
 
   if(m_pixServices&&bStatic)

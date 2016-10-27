@@ -58,12 +58,12 @@ RoutingDyn::RoutingDyn(const Athena::MsgStreamMember& msg, const PixelGeoBuilder
 void RoutingDyn::createRoutingVolumes(ServicesDynTracker& tracker)
 {
 
-  msg(MSG::INFO)<<"IST : check if defined "<<m_simpleSrvXMLHelper->SupportTubeRMin("IST")<<endreq;
+  msg(MSG::DEBUG)<<"IST : check if defined "<<m_simpleSrvXMLHelper->SupportTubeRMin("IST")<<endreq;
   m_ISTexists = (m_simpleSrvXMLHelper->SupportTubeRMin("IST") > 0.1); 
 
   createRoutes(tracker);
 
-  msg(MSG::INFO)<<"Create routes : final volume number "<<m_volumes.size()<<endreq;
+  msg(MSG::DEBUG)<<"Create routes : final volume number "<<m_volumes.size()<<endreq;
   tracker.setServiceDynVolumes(m_volumes);
 
 }
@@ -77,7 +77,7 @@ void RoutingDyn::createRoutes(ServicesDynTracker& tracker)
 
   int nbRoutes = m_svcRoutingXMLHelper->getRouteNumber();
 
-  msg(MSG::INFO)<<"Create routes : registered barrel and endcap routes "<<nbRoutes<<" "<<endreq;
+  msg(MSG::DEBUG)<<"Create routes : registered barrel and endcap routes "<<nbRoutes<<" "<<endreq;
 
   m_horizRoutes.clear();
   m_vertRoutes.clear();
@@ -318,9 +318,9 @@ void RoutingDyn::organizePredefinedRouteSegment(VSvcRoute route)
 	      if(svcInter.isInInterval(rmin_hrz)||svcInter.isInInterval(rmax_hrz))bIntersection=true;
 	      
 	      if(bIntersection){
-		//  	      msg(MSG::INFO)<<"SERVICE INTERSECTION : "<<svcVol[i]->name()<<" "<<svcVol_hrz[isvc]->name()<<" => "<<rMin<<" "<<rMax<<" // "<<rmin_hrz<<" "<<rmax_hrz<<endreq;
-		//  	      msg(MSG::INFO)<<"                : "<<(rmax_hrz-rMax)*(rmax_hrz-rMax)<<" "<<(rmax_hrz-rMax)*(rmax_hrz-rMax)<<endreq;
-		//  	      msg(MSG::INFO)<<"                : "<<fabs(rMax-rmax_hrz)<<" "<<fabs(rMin-rmin_hrz)<<endreq;
+		//  	      msg(MSG::DEBUG)<<"SERVICE INTERSECTION : "<<svcVol[i]->name()<<" "<<svcVol_hrz[isvc]->name()<<" => "<<rMin<<" "<<rMax<<" // "<<rmin_hrz<<" "<<rmax_hrz<<endreq;
+		//  	      msg(MSG::DEBUG)<<"                : "<<(rmax_hrz-rMax)*(rmax_hrz-rMax)<<" "<<(rmax_hrz-rMax)*(rmax_hrz-rMax)<<endreq;
+		//  	      msg(MSG::DEBUG)<<"                : "<<fabs(rMax-rmax_hrz)<<" "<<fabs(rMin-rmin_hrz)<<endreq;
 		rPos.push_back(rmin_hrz);
 		rPos.push_back(rmax_hrz);
 		bool bAlreadyExists = false;
@@ -365,7 +365,7 @@ void RoutingDyn::organizePredefinedRouteSegment(VSvcRoute route)
       Interval locInt(r1,r2);
       for(std::vector<Interval>::iterator it=overlapInterval.begin(); it!=overlapInterval.end(); ++it){
 	if((*it).containsInterval(locInt)) bOverlap=true;
-	//	msg(MSG::INFO)<<"-> isInInterval : "<<r1<<" "<<r2<<" // "<<(*it).getMin()<<" "<<(*it).getMax()<<"  => "<<bOverlap<<" "<<(*it).isInInterval(r1)<<" "<<(*it).isInInterval(r2)<<endreq;
+	//	msg(MSG::DEBUG)<<"-> isInInterval : "<<r1<<" "<<r2<<" // "<<(*it).getMin()<<" "<<(*it).getMax()<<"  => "<<bOverlap<<" "<<(*it).isInInterval(r1)<<" "<<(*it).isInInterval(r2)<<endreq;
       }
 
       if(bOverlap)
@@ -708,7 +708,7 @@ void RoutingDyn::createHorizontalRoute(const RouteParameter& param)
 void RoutingDyn::dumpRoute( const SvcRoute& route) 
 {
   using namespace std;
-  msg(MSG::INFO)<< "Dumping route at pos " << route.position() 
+  msg(MSG::DEBUG)<< "Dumping route at pos " << route.position() 
 		<< " with exit at " << route.exit() << endreq;
   for ( SvcRoute::VolumeContainer::const_iterator iv = route.volumes().begin(); 
 	iv != route.volumes().end(); ++iv) {
@@ -825,14 +825,14 @@ double RoutingDyn::DecodeLayerZPosition(std::string z, int layer, double zShift,
   std::string pattern = "zMax_Layer_";
   if(z.substr(0,pattern.size()).compare(pattern)==0){
     int layerNumber = atoi((z.substr(pattern.size(),z.size()-pattern.size())).c_str());
-    //    msg(MSG::INFO)<<"PATTERN : "<<z<<" "<<layerNumber<<" "<<m_bplc[layerNumber]->zMax()<<endreq;
+    //    msg(MSG::DEBUG)<<"PATTERN : "<<z<<" "<<layerNumber<<" "<<m_bplc[layerNumber]->zMax()<<endreq;
     return m_bplc[layerNumber]->zMax()+zShift+margin;
   }
 
   pattern = "zMin_Layer_";
   if(z.substr(0,pattern.size()).compare(pattern)==0){
     int layerNumber = atoi((z.substr(pattern.size(),z.size()-pattern.size())).c_str());
-    //    msg(MSG::INFO)<<"PATTERN : "<<z<<" "<<layerNumber<<" "<<m_bplc[layerNumber]->zMin()<<endreq;
+    //    msg(MSG::DEBUG)<<"PATTERN : "<<z<<" "<<layerNumber<<" "<<m_bplc[layerNumber]->zMin()<<endreq;
     return m_bplc[layerNumber]->zMin()+margin;
   }
 
@@ -841,7 +841,7 @@ double RoutingDyn::DecodeLayerZPosition(std::string z, int layer, double zShift,
   pattern = "z_Disc_";
   if(z.substr(0,pattern.size()).compare(pattern)==0){
     int discNumber = atoi((z.substr(pattern.size(),z.size()-pattern.size())).c_str());
-    //    msg(MSG::INFO)<<"PATTERN : "<<z<<" "<<discNumber<<" "<<m_eplc[discNumber]->zMin()<<endreq;
+    //    msg(MSG::DEBUG)<<"PATTERN : "<<z<<" "<<discNumber<<" "<<m_eplc[discNumber]->zMin()<<endreq;
     return m_eplc[discNumber]->zPos()+zShift+margin;
   }
 
@@ -850,7 +850,7 @@ double RoutingDyn::DecodeLayerZPosition(std::string z, int layer, double zShift,
   if(z.compare("zMin_IST")==0) return m_simpleSrvXMLHelper->SupportTubeZMin("IST")+margin;
   if(z.compare("zMax_IST")==0) return m_simpleSrvXMLHelper->SupportTubeZMax("IST")+margin;
 
-  //  msg(MSG::INFO)<<"PATTERN - digit only : "<<z<<" "<<endreq;
+  //  msg(MSG::DEBUG)<<"PATTERN - digit only : "<<z<<" "<<endreq;
 
   return atof(z.c_str());
 }
@@ -860,8 +860,8 @@ double RoutingDyn::DecodeLayerZPosition(std::string z, int layer, double zShift,
 void RoutingDyn::addRouteMaterial(const PixelGeoBuilderBasics* basics)
 {
 
-  msg(MSG::INFO) << "----------------------------------------------------------------------"<<endreq;
-  msg(MSG::INFO) << "RoutingDyn::addRouteMaterial called for " << m_volumes.size() << " volumes" << endreq;
+  msg(MSG::DEBUG) << "----------------------------------------------------------------------"<<endreq;
+  msg(MSG::DEBUG) << "RoutingDyn::addRouteMaterial called for " << m_volumes.size() << " volumes" << endreq;
 
   std::map<const ServicesDynLayer*, ServiceDynMaterial> layerMaterial; // cache the layer services
   m_svcMatNames.clear();
@@ -870,7 +870,7 @@ void RoutingDyn::addRouteMaterial(const PixelGeoBuilderBasics* basics)
   for (VolumeIter iv=m_volumes.begin(); iv!=m_volumes.end(); iv++) 
     {
 
-      //      msg(MSG::INFO) << "********************************************************************************************"<<endreq;
+      //      msg(MSG::DEBUG) << "********************************************************************************************"<<endreq;
       msg(MSG::DEBUG) << "*** Service material for volume : "<<(**iv).name()<<"  add material "<<endreq;
       
       std::vector<ServiceDynMaterial> result; // = (**iv).materials(); // preserve already present mat. (EOS)
@@ -885,7 +885,7 @@ void RoutingDyn::addRouteMaterial(const PixelGeoBuilderBasics* basics)
 	  ServiceDynMaterial layerMat;
 	  std::map<const ServicesDynLayer*, ServiceDynMaterial>::iterator iMat = layerMaterial.find(*il);
 	  if (iMat !=  layerMaterial.end()) {
-	    //	    msg(MSG::INFO)<<"  - material already defined "<<endreq;
+	    //	    msg(MSG::DEBUG)<<"  - material already defined "<<endreq;
 	    layerMat = iMat->second;
 	  }
 	  else {
@@ -901,7 +901,7 @@ void RoutingDyn::addRouteMaterial(const PixelGeoBuilderBasics* basics)
       
       (**iv).setMaterials( result);
 
-      //      msg(MSG::INFO) << "********************************************************************************************"<<endreq;
+      //      msg(MSG::DEBUG) << "********************************************************************************************"<<endreq;
     }  
   
 }
@@ -913,11 +913,11 @@ ServiceDynMaterial RoutingDyn::computeRouteMaterial(const PixelGeoBuilderBasics*
 						    bool scalePerHalf)
 
 {
-  msg(MSG::INFO)<<endreq;
-  msg(MSG::INFO)<<"** ComputeRouteMaterial for layer "<<layerNumber<<" type "<<layerType;
-  msg(MSG::INFO)<<"  part : "<<((layerType==0)?"brl":"ec")<<"  #module/chip : ";
-  for(auto& it : modulePerStave) msg(MSG::INFO)<<it<<"  "; msg(MSG::INFO)<<"// ";
-  for(auto& it : chipPerModule) msg(MSG::INFO)<<it<<"  "; msg(MSG::INFO)<<endreq;
+  msg(MSG::DEBUG)<<endreq;
+  msg(MSG::DEBUG)<<"** ComputeRouteMaterial for layer "<<layerNumber<<" type "<<layerType;
+  msg(MSG::DEBUG)<<"  part : "<<((layerType==0)?"brl":"ec")<<"  #module/chip : ";
+  for(auto& it : modulePerStave) msg(MSG::DEBUG)<<it<<"  "; msg(MSG::DEBUG)<<"// ";
+  for(auto& it : chipPerModule) msg(MSG::DEBUG)<<it<<"  "; msg(MSG::DEBUG)<<endreq;
 
   std::string name = constructName(layerType, layerPart, layerNumber);
   ServiceDynMaterial result( name);
@@ -930,7 +930,7 @@ ServiceDynMaterial RoutingDyn::computeRouteMaterial(const PixelGeoBuilderBasics*
   // Get the service list corresponding to staves  (taken into account only once per module)
   std::vector<std::string> staveMaterialNames;
   if(layerPart==0) staveMaterialNames = m_svcRoutingXMLHelper->getTypeMaterialNames(layerNumber,"stave");
-  msg(MSG::INFO)<<"Stave material names : ";for(std::vector<std::string>::iterator it=staveMaterialNames.begin(); it!=staveMaterialNames.end(); ++it) msg(MSG::INFO)<<(*it)<<" "; msg(MSG::INFO)<<endreq;
+  msg(MSG::DEBUG)<<"Stave material names : ";for(std::vector<std::string>::iterator it=staveMaterialNames.begin(); it!=staveMaterialNames.end(); ++it) msg(MSG::DEBUG)<<(*it)<<" "; msg(MSG::DEBUG)<<endreq;
   std::vector<std::string> staveMaterialCmpt;
 
   // Loop over the different types of module (barrel/transition/inclined) or (endcap) only
@@ -939,14 +939,14 @@ ServiceDynMaterial RoutingDyn::computeRouteMaterial(const PixelGeoBuilderBasics*
     {
       
       int svcSetIndex = (routeType=="endcap") ? svcSetIndex_endcap : m_svcRoutingXMLHelper->getBarrelServiceSetIndex(layerNumber, iModType);
-      msg(MSG::INFO)<<"*** MODULE TYPE : "<<iModType<<"   for layer "<<layerNumber<<" "<<routeType<<"   ";
-      msg(MSG::INFO)<<"***             : svcSetIndex : "<<svcSetIndex<<endreq;
+      msg(MSG::DEBUG)<<"*** MODULE TYPE : "<<iModType<<"   for layer "<<layerNumber<<" "<<routeType<<"   ";
+      msg(MSG::DEBUG)<<"***             : svcSetIndex : "<<svcSetIndex<<endreq;
 
       std::vector<std::string> svcList_string = m_svcRoutingXMLHelper->getServiceSetContent(svcSetIndex);
       std::string svcSetName = m_svcRoutingXMLHelper->getServiceSetName(svcSetIndex);
       
-      //  msg(MSG::INFO)<<"** ComputeRouteMaterial : layer index "<<layerIndex<<"    svc index "<<svcSetIndex<<endreq;
-      //  for(std::vector<std::string>::iterator it=svcList_string.begin(); it!=svcList_string.end(); ++it) msg(MSG::INFO)<<"  -> "<<(*it)<<endreq;
+      //  msg(MSG::DEBUG)<<"** ComputeRouteMaterial : layer index "<<layerIndex<<"    svc index "<<svcSetIndex<<endreq;
+      //  for(std::vector<std::string>::iterator it=svcList_string.begin(); it!=svcList_string.end(); ++it) msg(MSG::DEBUG)<<"  -> "<<(*it)<<endreq;
       
       // List of the services defined for the module type
       for(std::vector<std::string>::iterator it=svcList_string.begin(); it!=svcList_string.end(); ++it)
@@ -1041,17 +1041,17 @@ ServiceDynMaterial RoutingDyn::computeRouteMaterial(const PixelGeoBuilderBasics*
 	    double density = 1./densityTmp;
 	    
 	    // Build the material corresponding to the service 
-	    //	msg(MSG::INFO)<<"xxxxxxxxxxxxxxxx MATERIAL - ready to define "<<os.str()<<"  "<<density<<" g/cm3"<<endreq;
+	    //	msg(MSG::DEBUG)<<"xxxxxxxxxxxxxxxx MATERIAL - ready to define "<<os.str()<<"  "<<density<<" g/cm3"<<endreq;
 	    GeoMaterial* newMat = new GeoMaterial(os.str(),density*(CLHEP::g/CLHEP::cm3));
 	    int compNumber = (int)compName.size();
 	    for(int ii=0; ii<compNumber; ii++)
 	      {
-		//	      msg(MSG::INFO)<<"   - get "<<compName[ii]<<endreq;
+		//	      msg(MSG::DEBUG)<<"   - get "<<compName[ii]<<endreq;
 		if(compName[ii].substr(0,5)=="std::"||compName[ii].substr(0,5)=="sct::"||compName[ii].substr(0,5)=="pix::"||compName[ii].substr(0,7)=="indet::")
 		  {
 		    std::string tmp = compName[ii];
 		    GeoMaterial *matComp = const_cast<GeoMaterial*>(basics->matMgr()->getMaterial(tmp));
-		    //		  msg(MSG::INFO)<<"   - get material "<<(matComp==0)<<endreq;
+		    //		  msg(MSG::DEBUG)<<"   - get material "<<(matComp==0)<<endreq;
 		    newMat->add(matComp,compWeightPercent[ii]);
 		  }
 		else
@@ -1082,7 +1082,7 @@ ServiceDynMaterial RoutingDyn::computeRouteMaterial(const PixelGeoBuilderBasics*
 	  if(bAddMaterialToBudget){
 	    
 	    // Add the material in the SvcDynMaterial object 
-	    //	        msg(MSG::INFO)<<"  - register "<<os.str()<<" "<<numCable<<" "<<totWeight<<endreq;
+	    //	        msg(MSG::DEBUG)<<"  - register "<<os.str()<<" "<<numCable<<" "<<totWeight<<endreq;
 	    if(scalePerHalf)totWeight*=.5;
 	    msg(MSG::DEBUG)<<"          -> material : "<<os.str()<<"      cable number "<<numCable<<"  "<<res[2]<<"  mat lin weight : "<<totWeight<<endreq;
 	    result.addEntry( os.str(), numCable , true, totWeight);
@@ -1115,7 +1115,7 @@ int RoutingDyn::decodeStaveCableNumber(std::string pattern, int nbStave, int mod
   // per stave/ module or chip ?
   std::size_t iPos=pattern.find("_");
   if(iPos==std::string::npos){
-    msg(MSG::INFO)<<"ERROR : unrecognisable pattern : "<<pattern<<endreq;
+    msg(MSG::DEBUG)<<"ERROR : unrecognisable pattern : "<<pattern<<endreq;
     return 0;
   }
 
@@ -1151,8 +1151,8 @@ int RoutingDyn::decodeStaveCableNumber(std::string pattern, int nbStave, int mod
 void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics)
 {
 
-  msg(MSG::INFO) << "----------------------------------------------------------------------"<<endreq;
-  msg(MSG::INFO) << "RoutingDyn::ComputeBarrelModuleMaterial "<<m_bplc.size()<<endreq;
+  msg(MSG::DEBUG) << "----------------------------------------------------------------------"<<endreq;
+  msg(MSG::DEBUG) << "RoutingDyn::ComputeBarrelModuleMaterial "<<m_bplc.size()<<endreq;
 
   // Loop over the barrel layers to create the service material corresponding to each module
 
@@ -1163,7 +1163,7 @@ void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics
     {
       // Get the service list corresponding to staves  (taken into account only once per module)
       std::vector<std::string> staveMaterialNames = m_svcRoutingXMLHelper->getTypeMaterialNames(iLayer,"stave");
-      msg(MSG::INFO)<<"Stave material names : ";for(std::vector<std::string>::iterator it=staveMaterialNames.begin(); it!=staveMaterialNames.end(); ++it) msg(MSG::INFO)<<(*it)<<" "; msg(MSG::INFO)<<endreq;
+      msg(MSG::DEBUG)<<"Stave material names : ";for(std::vector<std::string>::iterator it=staveMaterialNames.begin(); it!=staveMaterialNames.end(); ++it) msg(MSG::DEBUG)<<(*it)<<" "; msg(MSG::DEBUG)<<endreq;
       // Total module number
       int nbModule = m_bplc[iLayer]->modulesPerStaveTot()/2;
       if(m_bplc[iLayer]->modulesPerStaveTot()%2==1) nbModule++;
@@ -1218,7 +1218,7 @@ void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics
 	      
 	      if (msgLvl(MSG::DEBUG)) { 
 		msg(MSG::DEBUG)<<endreq;
-		msg(MSG::DEBUG)<<"MODULE per layer : "<<iModule<<" : "; for(int i=0; i<(int)nbModuleLayer.size(); i++) msg(MSG::INFO)<<nbModuleLayer[i]<<"  "; msg(MSG::INFO)<<"// "<<materialId<<endreq;
+		msg(MSG::DEBUG)<<"MODULE per layer : "<<iModule<<" : "; for(int i=0; i<(int)nbModuleLayer.size(); i++) msg(MSG::DEBUG)<<nbModuleLayer[i]<<"  "; msg(MSG::DEBUG)<<"// "<<materialId<<endreq;
 	      }
 	      
 	      std::string matName = constructBarrelLayerName(materialId, nbModuleLayer);
@@ -1232,7 +1232,7 @@ void RoutingDyn::computeBarrelModuleMaterial(const PixelGeoBuilderBasics* basics
 	      
 	      // Material already defined
 	      if(bAlreadyDefined) {
-		msg(MSG::INFO) <<"Barrel module material "<<matName<<" already defined"<<endreq;
+		msg(MSG::DEBUG) <<"Barrel module material "<<matName<<" already defined"<<endreq;
 	      }
 	      else {
 		// Compute material corresponding to iModule modules

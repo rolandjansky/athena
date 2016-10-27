@@ -20,7 +20,7 @@ PixelDynamicServiceXMLHelper::PixelDynamicServiceXMLHelper(std::string envFileNa
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
   if(readXMLfromDB)
     {
-      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      msg(MSG::INFO)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -28,7 +28,7 @@ PixelDynamicServiceXMLHelper::PixelDynamicServiceXMLHelper(std::string envFileNa
     }
   else
     {
-      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      msg(MSG::DEBUG)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
       InitializeXML();
       m_bParsed = ParseFile(file);
