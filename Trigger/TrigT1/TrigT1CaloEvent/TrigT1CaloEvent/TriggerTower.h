@@ -150,6 +150,8 @@ public:
     static const int m_saturation = 255;
   
     };
+
+    typedef std::map<int, TriggerTower*> TriggerTowerMap_t;
   } // end of namespace
 
 #ifndef TriggerTower_ClassDEF_H
