@@ -65,10 +65,10 @@ StatusCode GeoPixelEnvelopeInclRefTool::initialize()
 
   sc = m_IDserviceTool.retrieve(); 
   if (sc.isFailure()){
-    msg(MSG::ERROR) << "Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built." << endreq;
+    ATH_MSG_ERROR("Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built.");
   }
   else{
-    msg(MSG::INFO) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
+    ATH_MSG_INFO("Service builder tool retrieved: " << m_IDserviceTool);
   }
 
   return StatusCode::SUCCESS;
@@ -121,7 +121,7 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
   // Load material file 
   std::string fileName="Material.xml";
   if(const char* env_p = std::getenv("PIXEL_MATERIAL_GEO_XML")) fileName = std::string(env_p);
-  std::cout<<"SES - XML "<<fileName<<std::endl;
+  ATH_MSG_DEBUG("SES - XML "<<fileName);
 
   GeoPixelXMLMaterial matBuilder(basics,fileName);
   matBuilder.Build();
@@ -148,7 +148,7 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
       svcRegion_ec = m_endcapTool->getSvcRegions();
     }
     
-    std::cout<<"Collected svcRegion : b/ec : "<<svcRegion_brl.size()<<" "<<svcRegion_ec.size()<<std::endl;
+    ATH_MSG_DEBUG("Collected svcRegion : b/ec : "<<svcRegion_brl.size()<<" "<<svcRegion_ec.size());
     
     svcRegion_brl.insert( svcRegion_brl.end(), svcRegion_ec.begin(), svcRegion_ec.end());
     std::vector<InDetDD::TubeZone*> svcRegions =  SortServiceRegions(svcRegion_brl);
@@ -204,13 +204,6 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
 //     envelopePhys->add(barrelPhys );
   }
 
-  std::cout<<"*****************************************************************************"<<std::endl;
-  std::cout<<"*****************************************************************************"<<std::endl;
-  std::cout<<"*****************************************************************************"<<std::endl;
-  std::cout<<"*****************************************************************************"<<std::endl;
-  std::cout<<"*****************************************************************************"<<std::endl;
-  std::cout<<"*****************************************************************************"<<std::endl;
-
 
   //
   // Add the EndCaps
@@ -221,7 +214,7 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
     if (endcapAPresent) {
 
       if(!m_endcapTool) {
-	std::cout<<"No endcap defined on side "<<std::endl;
+	ATH_MSG_WARNING("No endcap defined on side ");
       }
       else{
 
@@ -246,7 +239,7 @@ GeoVPhysVol* GeoPixelEnvelopeInclRefTool::buildEnvelope(const PixelGeoBuilderBas
     if (endcapCPresent) {
       
       if(!m_endcapTool) {
-	std::cout<<"No endcap defined on side "<<std::endl;
+	ATH_MSG_WARNING("No endcap defined on side ");
       }
       else{
 	//      DDmgr->numerology().addEndcap(-2);
@@ -314,11 +307,11 @@ std::vector<InDetDD::TubeZone*> GeoPixelEnvelopeInclRefTool::SortServiceRegions(
 	}
       if(!bAlreadyExists){
 	newSvcRegions.push_back((*it));
-	std::cout<<"Collected svcRegion : "<<(*it)->label()<<" "<<std::endl; //(*it)->getZmin()<<" "<<(*it)->getZmax()<<" / "<<(*it)->getRmin()<<" "<<(*it)->getRmax()<<" / "<<std::endl;
+	ATH_MSG_DEBUG("Collected svcRegion : "<<(*it)->label()); //<< " " << (*it)->getZmin()<<" "<<(*it)->getZmax()<<" / "<<(*it)->getRmin()<<" "<<(*it)->getRmax()<<" / ");
       }
       else 
 	{
-	  std::cout<<"Collected svcRegion - already defined : "<<(*it)->label()<<std::endl;	  
+	  ATH_MSG_DEBUG("Collected svcRegion - already defined : "<<(*it)->label());	  
 	}
     }
   

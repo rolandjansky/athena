@@ -34,7 +34,7 @@ public:
   virtual double width() const {return m_width; }
   virtual double length() const {return m_length; }
   virtual double thickness() const { return m_thicknessP+m_thicknessN; }
-  std::string getSvcRoutingRadiaPos() const { return m_svcRouting; }
+  std::string getSvcRoutingPos() const { return m_svcRouting; }
 
 private:
 

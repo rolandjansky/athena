@@ -152,6 +152,7 @@ void GeoPixelLadderInclRef::preBuild( ) {
   // ----------------------------------------------------------------------------
   // Gap between last barrel module and zpos that correspond to the radial escape of the stvae & services
   m_gapPlanarStave = 10.;
+  if (m_layer==1) m_gapPlanarStave = 0.;
   if(m_layer>1) m_gapPlanarStave = 4.;
   msg(MSG::INFO)<<"xxxxxxxxxxxxx Build stave support for layer : "<<m_layer<<endreq;
   double zEndOfNBarrelModulePos = (m_barrelModuleNumber*m_barrelModule->Length()+m_barrelModuleGap*(m_barrelModuleNumber-1))*.5;
@@ -216,7 +217,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
   if(bVerbose)std::cout<<"FIRST module number "<<m_barrelModuleNumber<<"  "<<m_endcapModuleNumber<<"  "<<iModuleCmpt<<std::endl;
   
   int inclinedModTag = 500;   // new sensor identifier tag for inclined modules
-  double ecSvcRadialPos = (m_staveSupport->getSvcRoutingRadiaPos()=="inner")?-1:1;
+  double ecSvcRadialPos = (m_staveSupport->getSvcRoutingPos()=="inner")?-1:1;
 
   //--------------------------------------------------------
   // Compute endcap module positions
@@ -287,15 +288,25 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
    if(m_endcapModuleNumber>0)
      {
        // Build the service structure of the endcap module
-       GeoPixelEndcapModuleSvcRef foamBuilder(getBasics(),m_layer, m_endcapModule, m_transitionModule, m_endcapInclAngle, m_transitionTiltAngle);
+       //GeoPixelEndcapModuleSvcRef foamBuilder(getBasics(),m_layer, m_endcapModule, m_transitionModule, m_endcapInclAngle, m_transitionTiltAngle);
+       GeoPixelEndcapModuleSvcRef foamBuilder(getBasics(), m_staveSupport, m_layer, m_endcapModule, m_transitionModule, m_endcapInclAngle, m_transitionTiltAngle);
        GeoPhysVol* foamEndcap = dynamic_cast<GeoPhysVol*>(foamBuilder.getEndcapFoam());
        
        // Endcap servcie transforms
        double zEndcapFoamShift = foamBuilder.getEndcapZshift()+.25;
        GeoPhysVol* foamTrans = dynamic_cast<GeoPhysVol*>(foamBuilder.getTransFoam());
        double zTransFoamShift = foamBuilder.getTransZshift()+.25;
-       HepGeom::Transform3D trfFoam = HepGeom::RotateX3D(180.*CLHEP::deg)*HepGeom::RotateZ3D(270.*CLHEP::deg)*HepGeom::RotateY3D(90.*CLHEP::deg);       
-       HepGeom::Transform3D EcRot= HepGeom::RotateY3D(270.*CLHEP::deg-m_endcapInclAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg);
+
+       if (foamEndcap && !foamTrans) {
+	 foamTrans = foamEndcap;
+         zTransFoamShift = zEndcapFoamShift;
+       }  
+
+       // HepGeom::Transform3D trfFoam = HepGeom::RotateX3D(180.*CLHEP::deg)*HepGeom::RotateZ3D(270.*CLHEP::deg)*HepGeom::RotateY3D(90.*CLHEP::deg);       
+       HepGeom::Transform3D trfFoam = HepGeom::RotateZ3D(270.*CLHEP::deg)*HepGeom::RotateY3D(90.*CLHEP::deg);       
+       HepGeom::Transform3D EcRot= (m_staveSupport->getSvcRoutingPos()=="inner") ?
+	 HepGeom::RotateY3D(90.*CLHEP::deg-m_endcapInclAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg):
+	 HepGeom::RotateY3D(270.*CLHEP::deg-m_endcapInclAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg);
 
        // Loop over the endcap modules
        int endcapIterator = m_endcapModuleNumber-1;
@@ -326,7 +337,9 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	     std::ostringstream modName; 
 	     modName<<"_"<<m_layer<<"_"<<m_sector<<"_"<<iModuleCmpt;
 	     modulePhys = m_transitionModule->Build(0, m_layer, m_sector, iModuleCmpt, inclinedModTag , modName.str());
-	     EcRot= HepGeom::RotateY3D(270.*CLHEP::deg-m_transitionTiltAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg);
+	     EcRot= (m_staveSupport->getSvcRoutingPos()=="inner") ?
+	       HepGeom::RotateY3D(90.*CLHEP::deg-m_transitionTiltAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg):
+	       HepGeom::RotateY3D(270.*CLHEP::deg-m_transitionTiltAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg);
 	     xPos=endcapModulePos[endcapIterator].x();
 	     yPos=endcapModulePos[endcapIterator].y();
 	     zPos=-endcapModulePos[endcapIterator].z();
@@ -476,7 +489,8 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	 nameTag << "ModuleBrl" << iModuleCmpt;
 	 GeoNameTag * tag = new GeoNameTag(nameTag.str());
 
-	 HepGeom::Transform3D moduleTrans = HepGeom::Transform3D(rm,modulepos);
+	 HepGeom::Transform3D moduleTrans = (m_staveSupport->getSvcRoutingPos()=="inner") ?
+	   HepGeom::RotateZ3D(180.*CLHEP::deg)*HepGeom::Transform3D(rm,modulepos) : HepGeom::Transform3D(rm,modulepos);
 	 GeoAlignableTransform* xform = new GeoAlignableTransform(moduleTrans);
 	 ladderPhys->add(tag);
 	 ladderPhys->add(new GeoIdentifierTag(iModuleCmpt));
@@ -531,7 +545,8 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
        std::ostringstream nameTag; 
        nameTag << "ModuleBrl" << iModuleCmpt;
        GeoNameTag * tag = new GeoNameTag(nameTag.str());
-       HepGeom::Transform3D barrelTrans = HepGeom::Transform3D(rm,modulepos);
+       HepGeom::Transform3D barrelTrans = (m_staveSupport->getSvcRoutingPos()=="inner") ? 
+	   HepGeom::RotateZ3D(180.*CLHEP::deg)*HepGeom::Transform3D(rm,modulepos) : HepGeom::Transform3D(rm,modulepos);
        GeoAlignableTransform* xform = new GeoAlignableTransform(barrelTrans);
        ladderPhys->add(tag);
        ladderPhys->add(new GeoIdentifierTag(iModuleCmpt));
@@ -552,22 +567,26 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	 BuildAndPlaceModuleService(nbModuleSvc, z0, z1 ,m_barrelModuleTilt, ladderPhys, "barrel");
 
 	 // Barrel module to the first endcap module
-	 if(m_transitionModuleNumber>0) {
-	   if((iBrl==0||iBrl==m_barrelModuleNumber-1)&&m_endcapModuleNumber>0){
+	 //if(m_transitionModuleNumber>0) {
+
+	 if((iBrl==0||iBrl==m_barrelModuleNumber-1)&&m_endcapModuleNumber>0){
+	   
+	   double z0 = 0., z1=0.;
+	   if(iBrl==0) { z0 = -endcapModulePos[0].z(); z1 = zpos - m_barrelModule->Length()*.5- m_gapPlanarStave; }
+	   else if(iBrl==m_barrelModuleNumber-1) { z0 = zpos + m_barrelModule->Length()*.5+ m_gapPlanarStave; z1= endcapModulePos[0].z(); }
+	   //BuildAndPlaceModuleService(nbModuleSvc, z0, z1 , m_barrelModuleTilt, ladderPhys, "endcap",ecSvcRadialPos);
+	   BuildAndPlaceModuleService(nbModuleSvc, z0, z1 , 0., ladderPhys, "endcap",ecSvcRadialPos);
+	   
+	   // In case endcap modules are shifted in R
+	   if(m_endcapModuleRshift){
 	     double z0 = 0., z1=0.;
-	     if(iBrl==0) { z0 = -endcapModulePos[0].z(); z1 = zpos - m_barrelModule->Length()*.5- m_gapPlanarStave; }
-	     else if(iBrl==m_barrelModuleNumber-1) { z0 = zpos + m_barrelModule->Length()*.5+ m_gapPlanarStave; z1= endcapModulePos[0].z(); }
-	     BuildAndPlaceModuleService(nbModuleSvc, z0, z1 , m_barrelModuleTilt, ladderPhys, "endcap",ecSvcRadialPos);
-	     
-	     // In case endcap modules are shifted in R
-	     if(m_endcapModuleRshift){
-	       double z0 = 0., z1=0.;
-	       if(iBrl==0) { z0 = zpos - m_barrelModule->Length()*.5- m_gapPlanarStave; z1 = z0+m_moduleSvcThickness; }
-	       else if(iBrl==m_barrelModuleNumber-1) { z1 = zpos + m_barrelModule->Length()*.5 + m_gapPlanarStave; z0 = z1-m_moduleSvcThickness; }
-	       BuildAndPlaceModuleService(nbModuleSvc, z0, z1 , m_barrelModuleTilt, ladderPhys, "radial");
-	     }
+	     if(iBrl==0) { z0 = zpos - m_barrelModule->Length()*.5- m_gapPlanarStave; z1 = z0+m_moduleSvcThickness; }
+	     else if(iBrl==m_barrelModuleNumber-1) { z1 = zpos + m_barrelModule->Length()*.5 + m_gapPlanarStave; z0 = z1-m_moduleSvcThickness; }
+	     //BuildAndPlaceModuleService(nbModuleSvc, z0, z1 , m_barrelModuleTilt, ladderPhys, "radial");
+	     BuildAndPlaceModuleService(nbModuleSvc, z0, z1 , 0., ladderPhys, "radial");
 	   }
 	 }
+	   //}
        }
        
        // Increment/decrement the number of module which services run on the top of the stave
@@ -638,7 +657,8 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	 std::ostringstream nameTag; 
 	 nameTag << "ModuleBrl" << iModuleCmpt;
 	 GeoNameTag * tag = new GeoNameTag(nameTag.str());
-	 HepGeom::Transform3D moduleTrans = HepGeom::Transform3D(rm,modulepos);
+	 HepGeom::Transform3D moduleTrans = (m_staveSupport->getSvcRoutingPos()=="inner") ? 
+	   HepGeom::RotateY3D(180.*CLHEP::deg)*HepGeom::Transform3D(rm,modulepos) : HepGeom::Transform3D(rm,modulepos);
 	 GeoAlignableTransform* xform = new GeoAlignableTransform(moduleTrans);
 	 ladderPhys->add(tag);
 	 ladderPhys->add(new GeoIdentifierTag(iModuleCmpt));
@@ -672,14 +692,22 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 
       //      double xModPos=0.0;
       //      double yModPos=0.0;
-      GeoPixelEndcapModuleSvcRef foamBuilder(getBasics(), m_layer, m_endcapModule, m_transitionModule, m_endcapInclAngle, m_transitionTiltAngle);
+      GeoPixelEndcapModuleSvcRef foamBuilder(getBasics(), m_staveSupport, m_layer, m_endcapModule, m_transitionModule, m_endcapInclAngle, m_transitionTiltAngle);
       GeoPhysVol* foamEndcap = dynamic_cast<GeoPhysVol*>(foamBuilder.getEndcapFoam());
 
       double zEndcapFoamShift = foamBuilder.getEndcapZshift()+.25; //m_endcapModule->ThicknessN()*sin(m_endcapInclAngle);
       GeoPhysVol* foamTrans = dynamic_cast<GeoPhysVol*>(foamBuilder.getTransFoam());
       double zTransFoamShift = foamBuilder.getTransZshift()+.25;
-      HepGeom::Transform3D trfFoam = HepGeom::RotateX3D(0.*CLHEP::deg)*HepGeom::RotateZ3D(270.*CLHEP::deg)*HepGeom::RotateY3D(90.*CLHEP::deg);
-      HepGeom::Transform3D EcRot_pos= HepGeom::RotateY3D(90.*CLHEP::deg-m_endcapInclAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg);
+
+      if (foamEndcap && !foamTrans) {
+	foamTrans = foamEndcap;
+	zTransFoamShift = zEndcapFoamShift;
+      }  
+
+      HepGeom::Transform3D trfFoam = HepGeom::RotateX3D(180.*CLHEP::deg)*HepGeom::RotateZ3D(270.*CLHEP::deg)*HepGeom::RotateY3D(90.*CLHEP::deg);
+      HepGeom::Transform3D EcRot_pos = (m_staveSupport->getSvcRoutingPos()=="inner") ?
+	 HepGeom::RotateY3D(270.*CLHEP::deg-m_endcapInclAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg):
+         HepGeom::RotateY3D(90.*CLHEP::deg-m_endcapInclAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg);
 
       int endcapIterator = 0;
       Identifier idwafer;
@@ -696,7 +724,9 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	    xPos=endcapModulePos[iPos].x();
 	    yPos=endcapModulePos[iPos].y();
 	    zPos=endcapModulePos[iPos].z();
-	    EcRot_pos= HepGeom::RotateY3D(90.*CLHEP::deg+m_endcapInclAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg);
+	    EcRot_pos = (m_staveSupport->getSvcRoutingPos()=="inner") ?
+	      HepGeom::RotateY3D(270.*CLHEP::deg+m_endcapInclAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg):
+	      HepGeom::RotateY3D(90.*CLHEP::deg+m_endcapInclAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg);
 
 	    if(bVerbose)std::cout<<"ENDCAP MODULE : ec "<<m_layer<<" "<<iPos<<"  "<<zPos<<std::endl;
 	    if(bVerbose)std::cout<<"wafer id : "<<0<<" "<< m_layer<<" "<< m_sector<<" "<< iModuleCmpt<<std::endl;
@@ -712,7 +742,9 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	    std::ostringstream modName; 
 	    modName<<"_"<<m_layer<<"_"<<m_sector<<"_"<<iModuleCmpt;
 	    modulePhys = m_transitionModule->Build(0, m_layer, m_sector, iModuleCmpt, inclinedModTag , modName.str());
-	    EcRot_pos= HepGeom::RotateY3D(90.*CLHEP::deg+m_transitionTiltAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg);
+	    EcRot_pos = (m_staveSupport->getSvcRoutingPos()=="inner") ?
+	      HepGeom::RotateY3D(270.*CLHEP::deg+m_transitionTiltAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg):
+	      HepGeom::RotateY3D(90.*CLHEP::deg+m_transitionTiltAngle)*HepGeom::RotateZ3D(180.*CLHEP::deg);
 	    xPos=endcapModulePos[iPos].x();
 	    yPos=endcapModulePos[iPos].y();
 	    zPos=endcapModulePos[iPos].z();
@@ -786,7 +818,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	}
     }
   
-  std::cout<<"ALPINE ladder module number : "<<iModuleCmpt<<std::endl;
+  if(bVerbose) std::cout<<"ALPINE ladder module number : "<<iModuleCmpt<<std::endl;
   
   //Add the TMT or other stave support
   if (m_staveSupport) {
@@ -865,7 +897,7 @@ void GeoPixelLadderInclRef::computeRadiusMinMax(HepGeom::Transform3D trf, double
   if(vMin<rMin) rMin=vMin;
   if(vMax>rMax) rMax=vMax;
 
-  std::cout<<"Compute ladder rminmax : "<<rMin<<" "<<rMax<<std::endl;
+  msg(MSG::DEBUG)<<"Compute ladder rminmax : "<<rMin<<" "<<rMax<<endmsg;
 
 }
 
@@ -877,15 +909,15 @@ GeoPhysVol* GeoPixelLadderInclRef::createServiceVolume(double length, double thi
   // Place the stave module service (on the top of the stave support...)
   GeoBox * svcBox = new GeoBox(thick, width, length);
 
-  std::cout<<"Barrel module service material for layer  "<<m_layer <<" :  size WxTxL "<<width<<" "<<thick<<" "<<length<<"     # modules ";  
-  for(int i=0; i<(int)nModuleSvc.size(); i++) std::cout<<nModuleSvc[i]<<" "; std::cout<<std::endl;
+  msg(MSG::DEBUG) <<"Barrel module service material for layer  "<<m_layer <<" :  size WxTxL "<<width<<" "<<thick<<" "<<length<<"     # modules ";  
+  for(int i=0; i<(int)nModuleSvc.size(); i++) msg(MSG::DEBUG) <<nModuleSvc[i]<<" ";  msg(MSG::DEBUG)<<endmsg;
   std::string matName = m_IDserviceTool->getLayerModuleMaterialName(m_layer ,nModuleSvc);   // material name stored in PixelServicesTool (material are built there)
-  std::cout<<"Barrel module service material  : "<<matName<<"  "<<std::endl;
+  msg(MSG::DEBUG) <<"Barrel module service material  : "<<matName<<"  "<<endmsg;
   
   std::ostringstream wg_matName;  
   wg_matName<<matName<<"_L"<<m_layer<<"_"<<m_svcMaterialCmpt;
   
-  std::cout<<"Barrel module weighted service material : "<<matName<<"  "<<wg_matName.str()<<"   / sector : "<<m_sector<<std::endl;
+  msg(MSG::DEBUG) <<"Barrel module weighted service material : "<<matName<<"  "<<wg_matName.str()<<"   / sector : "<<m_sector<<endmsg;
   if(matName=="None") return 0;
 
   GeoMaterial* svcMat = 0;  // do not redefine material if already done for sector 0
@@ -894,13 +926,14 @@ GeoPhysVol* GeoPixelLadderInclRef::createServiceVolume(double length, double thi
   //  else
   //    svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
 
-  svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
-  if(svcMat==0)
+  if (matMgr()->hasMaterial(wg_matName.str()))
+      svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
+  else
     svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolumeLength(matName, svcBox->volume(), m_barrelModule->Length(),wg_matName.str()));  // define material
 
 //  svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial("std::Copper"));
   
-  std::cout<<"Material : "<<svcMat->getDensity()<<std::endl;
+  msg(MSG::DEBUG)<<"Material : "<<svcMat->getDensity()<<endmsg;
 
   // Material not defined - FIXME SES
   //  if(svcMat==0)return 0;
@@ -932,14 +965,19 @@ void GeoPixelLadderInclRef:: BuildAndPlaceModuleService(std::vector<int> moduleN
     if(locTilt<0) svcOffset = -svcOffset;
     double xPos_svc = 0.;
     if(type=="radial"){
-      xPos_svc = (m_staveSupport->thicknessP_barrel()+m_staveSupport->thicknessP_endcap())*.5;
-      svcHalfThick = fabs(m_staveSupport->thicknessP_barrel()-m_staveSupport->thicknessP_endcap())*.5;
+      xPos_svc = (m_staveSupport->thicknessP_barrel()+m_staveSupport->thicknessP_endcap())*.5 
+	+ 0.5*m_staveSupport->thickness()*fabs(sin(m_staveTmp->b_tilt)) -0.5;
+      svcHalfThick = fabs(m_staveSupport->thicknessP_barrel()-m_staveSupport->thicknessP_endcap())*0.5
+			 -m_staveSupport->thickness()*fabs(sin(m_staveTmp->b_tilt))*0.25;
+      if (svcHalfThick<1.) return;
     }
     else {
       xPos_svc = (type=="barrel")?m_staveSupport->thicknessP_barrel():m_staveSupport->thicknessP_endcap(); 
-      xPos_svc+=m_moduleSvcThickness*.5+xshift;
+      xPos_svc+=  m_staveSupport->getSvcRoutingPos()=="inner" ? -(m_moduleSvcThickness*.5+xshift) :
+                              	m_moduleSvcThickness*.5+xshift;
       if(type=="endcap"&&ecSide<0) xPos_svc = m_staveSupport->thicknessN_endcap()-m_moduleSvcThickness*.5-ec_xshift; 
     }
+
     GeoPhysVol* svcPhys = createServiceVolume(svcLength*.5, svcHalfThick, svcHalfWidth, moduleNumber);
 
     if(svcPhys){

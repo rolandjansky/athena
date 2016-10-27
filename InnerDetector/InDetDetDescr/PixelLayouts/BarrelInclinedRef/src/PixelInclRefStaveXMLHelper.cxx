@@ -116,3 +116,8 @@ std::string PixelInclRefStaveXMLHelper::getSvcRoutingPos() const
 {
   return getString("PixelStaveGeo", m_layerIndices, "ServiceRouting");
 }
+
+double PixelInclRefStaveXMLHelper::getMountainEdge() const
+{
+  return getDouble("PixelStaveGeo", m_layerIndices, "MountainEdge");
+}

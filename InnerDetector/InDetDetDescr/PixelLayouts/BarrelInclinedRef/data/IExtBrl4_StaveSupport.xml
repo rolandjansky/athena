@@ -7,6 +7,7 @@
     <StaggerDist> 0. </StaggerDist>
     <StaggerSign> 0. </StaggerSign>
     <ModuleCenterShift> 0. </ModuleCenterShift>
+    <MountainEdge> 5. </MountainEdge>
   </PixelStaveGeo>
 
   <PixelStaveGeo>
@@ -42,10 +43,11 @@
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 1460. </EnvelopeLength>
     <StaveSupportMaterialGeo>pix::Default_IExtBrl4_Stave_Support_L2_Fixed_Weight</StaveSupportMaterialGeo>
-    <ServiceOffsetX> 1.1 </ServiceOffsetX>
-    <ServiceOffsetY> 0. </ServiceOffsetY>
+    <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> 1. </LadderThickness>
     <StaveSupportWidth> 33.7 </StaveSupportWidth>
+    <ServiceOffsetX> 1.1 </ServiceOffsetX>
+    <ServiceOffsetY> 0. </ServiceOffsetY>
   </PixelStaveGeo>
 
   <PixelStaveGeo>
@@ -54,11 +56,12 @@
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 1460. </EnvelopeLength>
     <StaveSupportMaterialGeo>pix::Default_IExtBrl4_Stave_Support_L3_Fixed_Weight</StaveSupportMaterialGeo>
-    <ServiceOffsetX> 1.1 </ServiceOffsetX>
-    <ServiceOffsetY> 0. </ServiceOffsetY>
+    <ServiceRouting>inner</ServiceRouting>
     <LadderThickness> 1. </LadderThickness>
     <StaveSupportWidth> 33.7 </StaveSupportWidth>
- </PixelStaveGeo>
+    <ServiceOffsetX> 1.1 </ServiceOffsetX>
+    <ServiceOffsetY> 0. </ServiceOffsetY>
+  </PixelStaveGeo>
 
   <PixelStaveGeo>
     <Layer>4</Layer>
@@ -66,10 +69,11 @@
     <ModuleTilt> 0. </ModuleTilt>
     <EnvelopeLength> 1460. </EnvelopeLength>
     <StaveSupportMaterialGeo>pix::Default_IExtBrl4_Stave_Support_L4_Fixed_Weight</StaveSupportMaterialGeo>
-    <ServiceOffsetX> 1.1 </ServiceOffsetX>
-    <ServiceOffsetY> 0. </ServiceOffsetY>
+    <ServiceRouting>outer</ServiceRouting>
     <LadderThickness> 1. </LadderThickness>
     <StaveSupportWidth> 33.7 </StaveSupportWidth>
- </PixelStaveGeo>
+    <ServiceOffsetX> 1.1 </ServiceOffsetX>
+    <ServiceOffsetY> 0. </ServiceOffsetY>
+  </PixelStaveGeo>
 
 </PixelStaveGeos>
