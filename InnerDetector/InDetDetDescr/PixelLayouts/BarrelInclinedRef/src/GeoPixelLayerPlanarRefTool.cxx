@@ -126,8 +126,8 @@ GeoVPhysVol* GeoPixelLayerPlanarRefTool::buildLayer(const PixelGeoBuilderBasics*
 
   double phiOfStaveZero = 0.;
 
-  msg(MSG::INFO)<<layerName<<" "<<staveType<<" "<<nSectors<<endreq;
-  msg(MSG::INFO)<<"*****************************************************************************"<<endreq;
+  msg(MSG::DEBUG)<<layerName<<" "<<staveType<<" "<<nSectors<<endreq;
+  msg(MSG::DEBUG)<<"*****************************************************************************"<<endreq;
 
   double deltaPhi = 360.*CLHEP::deg/(double)nSectors;
 
@@ -160,7 +160,7 @@ GeoVPhysVol* GeoPixelLayerPlanarRefTool::buildLayer(const PixelGeoBuilderBasics*
 
       // Now make the layer envelope
       // 
-      msg(MSG::INFO)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
+      msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
       const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
       std::ostringstream lname;
       lname << "Layer" << m_layer;
@@ -204,7 +204,7 @@ void GeoPixelLayerPlanarRefTool::ComputeLayerThickness(const GeoPixelLadderPlana
   double ladderHalfThickN = pixelLadder.thicknessN();
   double ladderHalfThickP = pixelLadder.thicknessP();
   double ladderHalfWidth = pixelLadder.width()/2;
-  msg(MSG::INFO) << "ladderHalfThickN, ladderHalfThickP, ladderHalfWidth, ladderTilt, layerRadius:"
+  msg(MSG::DEBUG) << "ladderHalfThickN, ladderHalfThickP, ladderHalfWidth, ladderTilt, layerRadius:"
 	    << ladderHalfThickN << " "<< ladderHalfThickP << " " << ladderHalfWidth 
 	    << " " << ladderTilt << " " << layerRadius << endreq;
   
@@ -222,8 +222,8 @@ void GeoPixelLayerPlanarRefTool::ComputeLayerThickness(const GeoPixelLadderPlana
   // distance of closest approach.
   double radClosest = (y1 - grad*x1)/(sqrt(1+grad*grad));
 
-  //msg(MSG::INFO) << "Distance of closest approach: " << radClosest << endreq;
-  //msg(MSG::INFO) << "Distance along ladder surface from center to point of closest approach: " <<  distToClosestPoint << endreq;
+  //msg(MSG::DEBUG) << "Distance of closest approach: " << radClosest << endreq;
+  //msg(MSG::DEBUG) << "Distance along ladder surface from center to point of closest approach: " <<  distToClosestPoint << endreq;
 
   // Calculate the radius of the corners of the ladder.
   HepGeom::Point3D<double> ladderLowerCorner(-ladderHalfThickN, ladderHalfWidth, 0);
@@ -234,10 +234,10 @@ void GeoPixelLayerPlanarRefTool::ComputeLayerThickness(const GeoPixelLadderPlana
   m_layerThicknessN = layerRadius - ladderLowerCorner.perp();
   m_layerThicknessP = ladderUpperCorner.perp() - layerRadius; // Will be recalculated below in case of additional services
   
-  //  msg(MSG::INFO)<<"Max thickness : ladderhick "<<ladderHalfThickN<<"  "<<ladderHalfThickP<<endreq;
-  //  msg(MSG::INFO)<<"Max thickness : layerthick "<<m_layerThicknessN<<"  "<<m_layerThicknessP<<endreq;
+  //  msg(MSG::DEBUG)<<"Max thickness : ladderhick "<<ladderHalfThickN<<"  "<<ladderHalfThickP<<endreq;
+  //  msg(MSG::DEBUG)<<"Max thickness : layerthick "<<m_layerThicknessN<<"  "<<m_layerThicknessP<<endreq;
 
-  //msg(MSG::INFO) << "Layer Envelope (using ladder corners): "
+  //msg(MSG::DEBUG) << "Layer Envelope (using ladder corners): "
   //	    << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP <<endreq;
 
   // If distance of closest approach is within the ladder width we use that instead

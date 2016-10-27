@@ -37,7 +37,7 @@ GeoPixelEndcapModuleSvcRef::GeoPixelEndcapModuleSvcRef(const PixelGeoBuilderBasi
 void GeoPixelEndcapModuleSvcRef::preBuild()
 {
 
-  msg(MSG::INFO) <<"Foam description for layer "<<m_layer<<endreq;
+  msg(MSG::DEBUG) <<"Foam description for layer "<<m_layer<<endreq;
 
   // Access XML file
   PixelInclRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
@@ -46,11 +46,11 @@ void GeoPixelEndcapModuleSvcRef::preBuild()
   m_MountainEdge = staveDBHelper.getMountainEdge();
   m_svcRouting = staveDBHelper.getSvcRoutingPos()=="inner" ? -1. : 1.;
 
-  msg(MSG::INFO) <<"Foam base derived from ladder width "<<m_FoamBaseWidth<<endreq;
+  msg(MSG::DEBUG) <<"Foam base derived from ladder width "<<m_FoamBaseWidth<<endreq;
 
   if (m_layer==0) {
     m_FoamBaseWidth += -2.;
-    msg(MSG::INFO) <<"Foam base width for layer 0 shrunk to "<< m_FoamBaseWidth<<endreq;
+    msg(MSG::DEBUG) <<"Foam base width for layer 0 shrunk to "<< m_FoamBaseWidth<<endreq;
   }
   
   buildFoamModules();
@@ -77,7 +77,7 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
 
   m_FoamBaseThick = modZ + m_MountainEdge; 
 
-  msg(MSG::INFO) <<"foam base Z :"<< m_FoamBaseThick<<", height:"<< modH<< ",edge:"<< m_MountainEdge<<
+  msg(MSG::DEBUG) <<"foam base Z :"<< m_FoamBaseThick<<", height:"<< modH<< ",edge:"<< m_MountainEdge<<
      ",foam volume (trapezoid):"<< 0.5*modZ*modH*m_FoamBaseWidth + modH*m_MountainEdge*m_FoamBaseWidth<< endreq;
 
   if (m_svcRouting>0) {
@@ -130,7 +130,7 @@ void GeoPixelEndcapModuleSvcRef::buildFoamModules()
 
   m_FoamBaseThick_t = modZ_t + m_MountainEdge; 
   
-  msg(MSG::INFO) <<"transition foam base Z :"<< m_FoamBaseThick_t<<", height:"<< modH_t<< 
+  msg(MSG::DEBUG) <<"transition foam base Z :"<< m_FoamBaseThick_t<<", height:"<< modH_t<< 
     "foam volume (trapezoid):"<< 0.5*modZ_t*modH_t*m_FoamBaseWidth 
       + modH_t*m_MountainEdge*m_FoamBaseWidth<< endreq;
 

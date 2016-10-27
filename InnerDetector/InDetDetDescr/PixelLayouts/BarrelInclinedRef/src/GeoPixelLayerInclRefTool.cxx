@@ -126,8 +126,8 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
 
   double phiOfStaveZero = 0.;
 
-  msg(MSG::INFO)<<layerName<<" "<<staveType<<" "<<nSectors<<endreq;
-  msg(MSG::INFO)<<"*****************************************************************************"<<endreq;
+  msg(MSG::DEBUG)<<layerName<<" "<<staveType<<" "<<nSectors<<endreq;
+  msg(MSG::DEBUG)<<"*****************************************************************************"<<endreq;
 
   double deltaPhi = 360.*CLHEP::deg/(double)nSectors;
 
@@ -153,7 +153,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
   int ladderCmpt=0;
   for(int ii = 0; ii < nSectors; ii++) {
 
-    msg(MSG::INFO)<<"LADDER build : "<<ladderCmpt<<"  / "<<nbLadderType<<endreq;
+    msg(MSG::DEBUG)<<"LADDER build : "<<ladderCmpt<<"  / "<<nbLadderType<<endreq;
 
     // Build ladder
     vPixelLadder[ladderCmpt]->setSector(ii);
@@ -168,7 +168,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
       double rmax =  vPixelLadder[ladderCmpt]->rmax()+safety;
       double ladderLength = vPixelLadder[ladderCmpt]->envLength() + 4*basics->epsilon(); // Ladder has length gmt_mgr->PixelLadderLength() +  2*m_epsilon
 
-      msg(MSG::INFO)<<"Layer "<<m_layer<<" in/out radius init "<<rmin<<"  "<<rmax<<endreq;
+      msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius init "<<rmin<<"  "<<rmax<<endreq;
 
       if(iLayer==0){
 	rmin=35.; rmax=60.;
@@ -179,7 +179,7 @@ GeoVPhysVol* GeoPixelLayerInclRefTool::buildLayer(const PixelGeoBuilderBasics* b
 
       // Now make the layer envelope
       // 
-      msg(MSG::INFO)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
+      msg(MSG::DEBUG)<<"Layer "<<m_layer<<" in/out radius "<<rmin<<"  "<<rmax<<endreq;
       const GeoMaterial* air = basics->matMgr()->getMaterial("std::Air");
       std::ostringstream lname;
       lname << "Layer" << m_layer;
@@ -225,7 +225,7 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
   double ladderHalfThickN = pixelLadder.thicknessN();
   double ladderHalfThickP = pixelLadder.thicknessP();
   double ladderHalfWidth = pixelLadder.width()/2;
-  msg(MSG::INFO) << "ladderHalfThickN, ladderHalfThickP, ladderHalfWidth, ladderTilt, layerRadius:"
+  msg(MSG::DEBUG) << "ladderHalfThickN, ladderHalfThickP, ladderHalfWidth, ladderTilt, layerRadius:"
 	    << ladderHalfThickN << " "<< ladderHalfThickP << " " << ladderHalfWidth 
 	    << " " << ladderTilt << " " << layerRadius << endreq;
   
@@ -243,8 +243,8 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
   // distance of closest approach.
   double radClosest = (y1 - grad*x1)/(sqrt(1+grad*grad));
 
-  //msg(MSG::INFO) << "Distance of closest approach: " << radClosest << endreq;
-  //msg(MSG::INFO) << "Distance along ladder surface from center to point of closest approach: " <<  distToClosestPoint << endreq;
+  //msg(MSG::DEBUG) << "Distance of closest approach: " << radClosest << endreq;
+  //msg(MSG::DEBUG) << "Distance along ladder surface from center to point of closest approach: " <<  distToClosestPoint << endreq;
 
   // Calculate the radius of the corners of the ladder.
   HepGeom::Point3D<double> ladderLowerCorner(-ladderHalfThickN, ladderHalfWidth, 0);
@@ -255,10 +255,10 @@ void GeoPixelLayerInclRefTool::ComputeLayerThickness(const GeoPixelLadderInclRef
   m_layerThicknessN = layerRadius - ladderLowerCorner.perp();
   m_layerThicknessP = ladderUpperCorner.perp() - layerRadius; // Will be recalculated below in case of additional services
   
-  //  msg(MSG::INFO)<<"Max thickness : ladderhick "<<ladderHalfThickN<<"  "<<ladderHalfThickP<<endreq;
-  //  msg(MSG::INFO)<<"Max thickness : layerthick "<<m_layerThicknessN<<"  "<<m_layerThicknessP<<endreq;
+  //  msg(MSG::DEBUG)<<"Max thickness : ladderhick "<<ladderHalfThickN<<"  "<<ladderHalfThickP<<endreq;
+  //  msg(MSG::DEBUG)<<"Max thickness : layerthick "<<m_layerThicknessN<<"  "<<m_layerThicknessP<<endreq;
 
-  //msg(MSG::INFO) << "Layer Envelope (using ladder corners): "
+  //msg(MSG::DEBUG) << "Layer Envelope (using ladder corners): "
   //	    << layerRadius - layerThicknessN << " to " << layerRadius + layerThicknessP <<endreq;
 
   // If distance of closest approach is within the ladder width we use that instead

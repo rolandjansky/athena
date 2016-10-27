@@ -65,7 +65,7 @@ StatusCode GeoPixelBarrelInclRefTool::initialize()
     msg(MSG::ERROR) << "Could not retrieve " <<  m_IDserviceTool << ",  some services will not be built." << endreq;
   }
   else{
-    msg(MSG::INFO) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
+    msg(MSG::DEBUG) << "Service builder tool retrieved: " << m_IDserviceTool << endreq;
   }
 
   if (m_xmlReader.retrieve().isSuccess()){
@@ -121,7 +121,7 @@ void GeoPixelBarrelInclRefTool::preBuild(const PixelGeoBuilderBasics* basics)
   double rmax = genDBHelper.getBarrelRMax();
   double halflen = genDBHelper.getBarrelHalfLength();
 
-  msg(MSG::INFO) << "GeoPixelBarrelInclinedTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << endreq;
+  msg(MSG::DEBUG) << "GeoPixelBarrelInclinedTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << endreq;
   m_barrelRegion.push_back("B");
   m_barrelSvcRegions.push_back(new InDetDD::TubeZone("B",-halflen, halflen, rmin, rmax));
 
@@ -130,7 +130,7 @@ void GeoPixelBarrelInclRefTool::preBuild(const PixelGeoBuilderBasics* basics)
 GeoVPhysVol* GeoPixelBarrelInclRefTool::buildBarrel(const PixelGeoBuilderBasics* basics)
 {
 
-  msg(MSG::INFO)<<"GeoBarrelInclRef : GeoVPhysVol* GeoPixelBarrelInclRefTool::Build( )"<<endreq;
+  msg(MSG::DEBUG)<<"GeoBarrelInclRef : GeoVPhysVol* GeoPixelBarrelInclRefTool::Build( )"<<endreq;
 
   // links to material manager and msgstream
   m_matMgr = basics->matMgr();
@@ -143,7 +143,7 @@ GeoVPhysVol* GeoPixelBarrelInclRefTool::buildBarrel(const PixelGeoBuilderBasics*
   double halflen = genDBHelper.getBarrelHalfLength();
   bool cylBarrel = genDBHelper.isBarrelCylindrical();
 
-  msg(MSG::INFO) << "GeoPixelBarrelInclRefTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << endreq;
+  msg(MSG::DEBUG) << "GeoPixelBarrelInclRefTool: rmin " << rmin << " rmax " << rmax << " halflen " << halflen << endreq;
 
   const std::string matEnvelope("std::Air");
   GeoPhysVol* barrelPhys = 0;

@@ -818,7 +818,7 @@ GeoVPhysVol* GeoPixelLadderInclRef::Build( ) {
 	}
     }
   
-  std::cout<<"ALPINE ladder module number : "<<iModuleCmpt<<std::endl;
+  if(bVerbose) std::cout<<"ALPINE ladder module number : "<<iModuleCmpt<<std::endl;
   
   //Add the TMT or other stave support
   if (m_staveSupport) {
@@ -897,7 +897,7 @@ void GeoPixelLadderInclRef::computeRadiusMinMax(HepGeom::Transform3D trf, double
   if(vMin<rMin) rMin=vMin;
   if(vMax>rMax) rMax=vMax;
 
-  std::cout<<"Compute ladder rminmax : "<<rMin<<" "<<rMax<<std::endl;
+  msg(MSG::DEBUG)<<"Compute ladder rminmax : "<<rMin<<" "<<rMax<<endmsg;
 
 }
 
@@ -909,15 +909,15 @@ GeoPhysVol* GeoPixelLadderInclRef::createServiceVolume(double length, double thi
   // Place the stave module service (on the top of the stave support...)
   GeoBox * svcBox = new GeoBox(thick, width, length);
 
-  std::cout<<"Barrel module service material for layer  "<<m_layer <<" :  size WxTxL "<<width<<" "<<thick<<" "<<length<<"     # modules ";  
-  for(int i=0; i<(int)nModuleSvc.size(); i++) std::cout<<nModuleSvc[i]<<" "; std::cout<<std::endl;
+  msg(MSG::DEBUG) <<"Barrel module service material for layer  "<<m_layer <<" :  size WxTxL "<<width<<" "<<thick<<" "<<length<<"     # modules ";  
+  for(int i=0; i<(int)nModuleSvc.size(); i++) msg(MSG::DEBUG) <<nModuleSvc[i]<<" ";  msg(MSG::DEBUG)<<endmsg;
   std::string matName = m_IDserviceTool->getLayerModuleMaterialName(m_layer ,nModuleSvc);   // material name stored in PixelServicesTool (material are built there)
-  std::cout<<"Barrel module service material  : "<<matName<<"  "<<std::endl;
+  msg(MSG::DEBUG) <<"Barrel module service material  : "<<matName<<"  "<<endmsg;
   
   std::ostringstream wg_matName;  
   wg_matName<<matName<<"_L"<<m_layer<<"_"<<m_svcMaterialCmpt;
   
-  std::cout<<"Barrel module weighted service material : "<<matName<<"  "<<wg_matName.str()<<"   / sector : "<<m_sector<<std::endl;
+  msg(MSG::DEBUG) <<"Barrel module weighted service material : "<<matName<<"  "<<wg_matName.str()<<"   / sector : "<<m_sector<<endmsg;
   if(matName=="None") return 0;
 
   GeoMaterial* svcMat = 0;  // do not redefine material if already done for sector 0
@@ -926,13 +926,14 @@ GeoPhysVol* GeoPixelLadderInclRef::createServiceVolume(double length, double thi
   //  else
   //    svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
 
-  svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
-  if(svcMat==0)
+  if (matMgr()->hasMaterial(wg_matName.str()))
+      svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial(wg_matName.str()));   // material already defined
+  else
     svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterialForVolumeLength(matName, svcBox->volume(), m_barrelModule->Length(),wg_matName.str()));  // define material
 
 //  svcMat = const_cast<GeoMaterial*>(matMgr()->getMaterial("std::Copper"));
   
-  std::cout<<"Material : "<<svcMat->getDensity()<<std::endl;
+  msg(MSG::DEBUG)<<"Material : "<<svcMat->getDensity()<<endmsg;
 
   // Material not defined - FIXME SES
   //  if(svcMat==0)return 0;
