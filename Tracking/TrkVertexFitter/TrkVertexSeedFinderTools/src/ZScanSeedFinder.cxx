@@ -194,7 +194,7 @@ namespace Trk
 	if (constraint != 0 && constraint->covariancePosition()(0,0)!=0) ipas = m_IPEstimator->estimate(i, constraint);
 	if (ipas != 0 && ipas->sigmad0 > 0)
 	{
-	    z0AndWeight.first = ipas->IPz0 + i->associatedSurface().center().z();
+	  z0AndWeight.first = ipas->IPz0 + constraint->position().z();
 	    double chi2IP = std::pow(ipas->IPd0/ipas->sigmad0, 2);
 	    msg(MSG::VERBOSE) << "d0 from tool: " << ipas->IPd0 << " error: " << ipas->sigmad0 << " chi2: " << chi2IP << endreq;
 	    if ( !m_disableAllWeights )
