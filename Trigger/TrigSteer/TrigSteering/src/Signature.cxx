@@ -53,7 +53,7 @@ Signature::Signature( const TrigConf::HLTSignature* configSig,
    // Debug output
    if (m_config->getMsgLvl() <=MSG::DEBUG) {
       m_config->getMsgStream() << MSG::DEBUG << "Signature "
-                               << configSig->label() << ": constructor" << endreq;
+                               << configSig->label() << ": constructor" << endmsg;
    }
 
    // Copy the TE information over from the configSig; transform the "vector of TEs"
@@ -79,14 +79,14 @@ Signature::Signature( const TrigConf::HLTSignature* configSig,
       if (!seq) {
          m_config->getMsgStream() << MSG::FATAL << "Signature: (TE = " << configTE->name()
                                   << ") : Could not find matching sequence for output TE."
-                                  << endreq;
+                                  << endmsg;
          m_requiredTEs.clear();
          return;
       } else {
          addItem(multiplicity[id], seq);
          if (m_config->getMsgLvl() <=MSG::DEBUG) {
             m_config->getMsgStream() << MSG::DEBUG << "Made part of signature: " << configSig->label() << " TE = " << id
-                                     << " (" << configTE->name() << ") x " << multiplicity[id] << endreq;
+                                     << " (" << configTE->name() << ") x " << multiplicity[id] << endmsg;
          }
       }
    }
@@ -125,7 +125,7 @@ HLT::ErrorCode Signature::execute( bool& pass )
   if (m_config->getMsgLvl() <= MSG::DEBUG) {
     m_config->getMsgStream() << MSG::DEBUG << "Signature "
                              << m_configSig->label()
-                             << ": executing" << endreq;
+                             << ": executing" << endmsg;
   }
 
   // collect operational information: create new TrigOperationalInfo
@@ -148,7 +148,7 @@ HLT::ErrorCode Signature::execute( bool& pass )
 
     if (m_config->getMsgLvl() <= MSG::DEBUG) 
       m_config->getMsgStream() << MSG::DEBUG << "Signature " << m_configSig->label()
-                               << " EC from sequence execution =  " << HLT::strErrorCode(ec) << endreq;
+                               << " EC from sequence execution =  " << HLT::strErrorCode(ec) << endmsg;
 
     // Debug output
     if (m_config->getMsgLvl() <= MSG::DEBUG) {
@@ -157,9 +157,9 @@ HLT::ErrorCode Signature::execute( bool& pass )
                                << " active TEs, require " << m_requiredTEs[i].multiplicity;
 
       if (m_requiredTEs[i].sequence->activeOutputTEs() < static_cast<int>(m_requiredTEs[i].multiplicity))
-        m_config->getMsgStream() << MSG::DEBUG << " -> failed!" << endreq;
+        m_config->getMsgStream() << MSG::DEBUG << " -> failed!" << endmsg;
       else
-        m_config->getMsgStream() << MSG::DEBUG << " -> satisfied!" << endreq;
+        m_config->getMsgStream() << MSG::DEBUG << " -> satisfied!" << endmsg;
     }
 
     retCode = retCode > ec ? retCode : ec;
@@ -180,9 +180,9 @@ HLT::ErrorCode Signature::execute( bool& pass )
   // Debug output
   if (m_config->getMsgLvl() <= MSG::DEBUG) {
     if (pass)
-      m_config->getMsgStream() << MSG::DEBUG << "Signature: done, satisfied" << endreq;
+      m_config->getMsgStream() << MSG::DEBUG << "Signature: done, satisfied" << endmsg;
     else
-      m_config->getMsgStream() << MSG::DEBUG << "Signature: done, failed: TEs do not come from different RoIs!" << endreq;
+      m_config->getMsgStream() << MSG::DEBUG << "Signature: done, failed: TEs do not come from different RoIs!" << endmsg;
 
   }
 
@@ -197,7 +197,7 @@ HLT::ErrorCode Signature::prepareRobRequests()
    if (m_config->getMsgLvl() <= MSG::DEBUG) {
       m_config->getMsgStream() << MSG::DEBUG << "Signature "
                                << m_configSig->label()
-                               << ": preparing ROB requests for first sequence of each final output TE" << endreq;
+                               << ": preparing ROB requests for first sequence of each final output TE" << endmsg;
    }
 
    HLT::ErrorCode retCode = HLT::OK; // largest error code
@@ -207,12 +207,12 @@ HLT::ErrorCode Signature::prepareRobRequests()
    if (m_config->getMsgLvl() <= MSG::DEBUG) {
       m_config->getMsgStream() << MSG::DEBUG << "Signature "
                                << m_configSig->label()
-                               << " has " << m_requiredTEs.size() << " sequence(s):" << endreq;
+                               << " has " << m_requiredTEs.size() << " sequence(s):" << endmsg;
 
       std::string telabel;
       for (unsigned int i = 0; i < m_requiredTEs.size(); ++i) {
          TrigConf::HLTTriggerElement::getLabel(m_requiredTEs[i].sequence->outputTEType(), telabel);
-         m_config->getMsgStream() << MSG::DEBUG << "    " << telabel << endreq;
+         m_config->getMsgStream() << MSG::DEBUG << "    " << telabel << endmsg;
       }
    }
    for (unsigned int i = 0; i < m_requiredTEs.size(); ++i) {
@@ -224,7 +224,7 @@ HLT::ErrorCode Signature::prepareRobRequests()
       // Debug output
       if (m_config->getMsgLvl() <= MSG::DEBUG) 
          m_config->getMsgStream() << MSG::DEBUG << "In signature " << m_configSig->label()
-                                  << ": EC from sequence prepareRobRequests =  " << HLT::strErrorCode(ec) << endreq;
+                                  << ": EC from sequence prepareRobRequests =  " << HLT::strErrorCode(ec) << endmsg;
 
       retCode = retCode > ec ? retCode : ec;
    }
@@ -479,7 +479,7 @@ bool Signature::addIfNoOverlap(const TriggerElement* te,
                                  << m_configSig->label()
                                  << ": found overlap between TEs: "
                                  << (*iterTEs) << " and " << te
-                                 << endreq;
+                                 << endmsg;
       }
       return false;
     }

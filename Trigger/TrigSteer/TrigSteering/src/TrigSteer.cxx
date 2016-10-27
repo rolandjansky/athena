@@ -159,7 +159,7 @@ StatusCode TrigSteer::initialize()
    CHECK( m_robDataProvider.retrieve());
   
    // Setup the HLT ROB Data Provider Service when configured
-   if ( &*m_robDataProvider ) {
+   if ( m_robDataProvider.isValid() ) {
       m_trigROBDataProvider = SmartIF<ITrigROBDataProviderSvc>( &*m_robDataProvider );
       if (m_trigROBDataProvider.isValid()) {
         ATH_MSG_INFO(" A ROBDataProviderSvc implementing the HLT interface ITrigROBDataProviderSvc was found.");
@@ -542,10 +542,10 @@ StatusCode TrigSteer::execute()
 
    // DEBUG output: print all activated HLT Chains
    if (msgLvl(MSG::DEBUG)) {
-     msg() << "Working with "<< m_activeChains.size() <<" active chains in this level: " << endreq;
+     msg() << "Working with "<< m_activeChains.size() <<" active chains in this level: " << endmsg;
      for (std::vector<HLT::SteeringChain*>::iterator iterChain = m_activeChains.begin();
           iterChain != m_activeChains.end(); ++iterChain) {
-       msg() << "Active: " << *(*iterChain) << " lower_chain: " << (*iterChain)->getLowerChainName() <<" EB after step: "<<(*iterChain)->getEBAfterStep() << endreq;
+       msg() << "Active: " << *(*iterChain) << " lower_chain: " << (*iterChain)->getLowerChainName() <<" EB after step: "<<(*iterChain)->getEBAfterStep() << endmsg;
      }
    }
 
@@ -701,8 +701,8 @@ StatusCode TrigSteer::execute()
    if (msgLvl(MSG::DEBUG)) {
       msg() << "\n ///////////////////////////////////////////////\n";
       msg() << " /////////  Event processing finished  ///////// \n";
-      msg() << " ///////////////////////////////////////////////" << endreq;
-      msg() << "Most severe error: " <<  strErrorCode(m_config->getHltStatus()) << endreq;
+      msg() << " ///////////////////////////////////////////////" << endmsg;
+      msg() << "Most severe error: " <<  strErrorCode(m_config->getHltStatus()) << endmsg;
    }
 
    if ( !canContinueJob() ) {
@@ -815,7 +815,7 @@ void TrigSteer::runChains(bool secondPass) {
     if (msgLvl(MSG::DEBUG)) {
       msg() << "\n /////////////////////////////////////////////////\n";
       msg() << " /////////  Executing next Step " << step << " (" <<  (secondPass ? "second pass" : "first pass") << ")\n";
-      msg() << " /////////////////////////////////////////////////" << endreq;
+      msg() << " /////////////////////////////////////////////////" << endmsg;
     }
 
     chainsStillActive = false;

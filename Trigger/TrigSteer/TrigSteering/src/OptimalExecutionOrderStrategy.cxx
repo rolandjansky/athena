@@ -33,18 +33,18 @@ std::set<std::string> getL1ThresholdsOfChain(const HLT::SteeringChain* chain, Tr
 
 
 bool Bag::insert(const HLT::SteeringChain* chain) {
-   if ( matching.find(chain) != matching.end() ) {
-      content.push_back(chain);
+   if ( m_matching.find(chain) != m_matching.end() ) {
+      m_content.push_back(chain);
       return true;
    }
    return false;
 }
 
 void Bag::flush(std::vector<HLT::SteeringChain*>& chains) {
-   for(const HLT::SteeringChain* ch : content) {
+   for(const HLT::SteeringChain* ch : m_content) {
       chains.push_back(const_cast<HLT::SteeringChain*>(ch));
    }
-   content.clear();
+   m_content.clear();
 }
 
 
@@ -55,7 +55,7 @@ public:
    BagForAll() {}
    virtual bool prepare(const HLT::SteeringChain* ) { return true; }
    virtual bool insert(const HLT::SteeringChain* chain) { 
-      content.push_back(chain);
+      m_content.push_back(chain);
       return true;
    }
 
@@ -68,7 +68,7 @@ public:
    bool prepare(const HLT::SteeringChain* chain) {      
       std::set<std::string> thresholds = getL1ThresholdsOfChain(chain, m_config);
       if ( thresholds.find(m_th) != thresholds.end() ) {
-         matching.insert(chain);
+         m_matching.insert(chain);
          //std::cout << "in this bag we like: " << chain->getChainName() << std::endl;
          return true;
       }
@@ -87,7 +87,7 @@ public:
       //if (chain->getChainName() == m_chname ) {
       boost::cmatch what;
       if ( boost::regex_match(chain->getChainName().c_str(), what, m_chname) ) {
-         matching.insert(chain);
+         m_matching.insert(chain);
          return true;
       }
       return false;

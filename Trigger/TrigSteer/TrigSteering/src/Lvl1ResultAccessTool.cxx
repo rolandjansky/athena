@@ -1010,12 +1010,12 @@ std::bitset<3> Lvl1ResultAccessTool::lvl1EMTauJetOverflow(const ROIB::RoIBResult
     msg() << "EM RoI multiplicities by crate,module: ";
     for (const auto& i : em) msg() << "(" << i.first.first << "," << i.first.second << "):" << i.second << " ";
 
-    msg() << endreq << "Tau RoI multiplicities by crate,module: ";
+    msg() << endmsg << "Tau RoI multiplicities by crate,module: ";
     for (const auto& i : tau) msg() << "(" << i.first.first << "," << i.first.second << "):" << i.second << " ";
 
-    msg() << endreq << "Jet RoI multiplicities by crate,module: ";
+    msg() << endmsg << "Jet RoI multiplicities by crate,module: ";
     for (const auto& i : jet) msg() << "(" << i.first.first << "," << i.first.second << "):" << i.second << " ";
-    msg() << endreq;
+    msg() << endmsg;
   }
   
   return overflow;

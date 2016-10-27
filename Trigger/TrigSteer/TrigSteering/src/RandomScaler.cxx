@@ -25,7 +25,26 @@
 #include "EventInfo/EventInfo.h"
 #include "EventInfo/EventID.h"
 #include "EventInfo/EventIncident.h"
-#include "CxxUtils/hashtable.h"
+
+namespace {
+
+
+struct Fnv_hash4
+{
+  static std::uint32_t
+  hash(const char* first, std::size_t length)
+  {
+    std::uint32_t result = static_cast<std::uint32_t>(2166136261UL);
+    for (; length > 0; --length)
+    {
+      result ^= (std::uint32_t)*first++;
+      result *= 16777619UL;
+    }
+    return result;
+  }
+};
+
+} //anonymous namespace
 
 const short DEFAULT_LUXURY(2);
 
@@ -52,13 +71,13 @@ StatusCode HLT::RandomScaler::initialize()
   ServiceHandle<IAtRndmGenSvc> rngSvc("AtRanluxGenSvc",name());
 
   if ( rngSvc.retrieve().isFailure() ) {
-    msg() << MSG::ERROR << "Could not initialize Random Number Service" << endreq;
+    msg() << MSG::ERROR << "Could not initialize Random Number Service" << endmsg;
     return StatusCode::FAILURE;
   }
 
   m_engine = dynamic_cast<CLHEP::Ranlux64Engine*>(rngSvc->GetEngine(name()));
   if (m_engine==0) {
-    msg() << MSG::ERROR << "Random number engine not of type Ranlux64Engine" << endreq;
+    msg() << MSG::ERROR << "Random number engine not of type Ranlux64Engine" << endmsg;
     return StatusCode::FAILURE;
   }
       
@@ -73,15 +92,15 @@ StatusCode HLT::RandomScaler::initialize()
   if (m_eventSeed) {
     ServiceHandle<IIncidentSvc> incSvc("IncidentSvc",name());
     if (incSvc.retrieve().isFailure()) {
-      msg() << MSG::ERROR << "Cannot retrieve IncidentSvc" << endreq;
+      msg() << MSG::ERROR << "Cannot retrieve IncidentSvc" << endmsg;
       return StatusCode::FAILURE;
     }
     incSvc->addListener(this, IncidentType::BeginEvent);
     msg() << MSG::INFO << "Re-seeding RNG on every event from time stamp and fixed seed "
-          << m_seed << " with luxury level " << m_engine->getLuxury() << endreq;
+          << m_seed << " with luxury level " << m_engine->getLuxury() << endmsg;
   }
   else {
-    msg() << MSG::INFO << "Using random seed = " << m_seed << endreq;
+    msg() << MSG::INFO << "Using random seed = " << m_seed << endmsg;
   }
   
   return StatusCode::SUCCESS;
@@ -95,7 +114,7 @@ void HLT::RandomScaler::handle(const Incident& inc)
     const EventIncident* eventInc  = dynamic_cast<const EventIncident*>(&inc);
     if (eventInc) event = &eventInc->eventInfo();
     else {
-      msg() << MSG::ERROR << "Cannot retrieve EventInfo object from BeginEvent incident." << endreq;
+      msg() << MSG::ERROR << "Cannot retrieve EventInfo object from BeginEvent incident." << endmsg;
       return;
     }
 
@@ -105,10 +124,10 @@ void HLT::RandomScaler::handle(const Incident& inc)
     /* Generate hash-based seed from event quantities.
      * Ranlux64 only supports signed 32bit seeds ('long' on i686)
      */
-    int32_t seed = static_cast<int32_t>(SG::Fnv_hash<4>::hash((char*)m_seedInput, sizeof(long)*N_SEED_INPUTS));
+    int32_t seed = static_cast<int32_t>(Fnv_hash4::hash((char*)m_seedInput, sizeof(long)*N_SEED_INPUTS));
 
     if (msgLvl(MSG::VERBOSE)) {
-      msg() << MSG::VERBOSE << "Setting random number seed = " << seed << endreq;
+      msg() << MSG::VERBOSE << "Setting random number seed = " << seed << endmsg;
     }
     m_engine->setSeed(seed, /*seed lux*/ DEFAULT_LUXURY);  // seed luxury level is separate from RNG luxury level
   }
@@ -125,12 +144,12 @@ void HLT::RandomScaler::setSeedFromDataflow()
       IntegerProperty seed;
       if ( seed.assign(*p) ) {
         m_seed = seed;
-        msg() << MSG::INFO << "Using application-specific random seed = " << m_seed << endreq;
+        msg() << MSG::INFO << "Using application-specific random seed = " << m_seed << endmsg;
       }
-      else msg() << MSG::WARNING << "Could not set Property 'seed' from DataFlowConfig.DF_RandomSeed" << endreq;
+      else msg() << MSG::WARNING << "Could not set Property 'seed' from DataFlowConfig.DF_RandomSeed" << endmsg;
     }
   }
-  else msg() << MSG::WARNING << "Could not retrieve JobOptionsSvc to read random seed. Using default value." << endreq;
+  else msg() << MSG::WARNING << "Could not retrieve JobOptionsSvc to read random seed. Using default value." << endmsg;
 }
 
 
@@ -141,7 +160,7 @@ bool HLT::RandomScaler::decision(float factor)
     return (factor*rand < 1);
   }
   else {
-    msg() << MSG::ERROR << "Engine not initialized! Returning false" << endreq;
+    msg() << MSG::ERROR << "Engine not initialized! Returning false" << endmsg;
     return false;
   }
 }
