@@ -35,8 +35,19 @@ GeoPixelIBLFwdServices::GeoPixelIBLFwdServices(int section):
 bool GeoPixelIBLFwdServices::isComplexShapeDefined()
 {
   // check if the wavy shape option is defined in the DB (based on the definition of the material)
-  const GeoMaterial* cableMat_wavy = mat_mgr->getMaterialForVolume("pix::IBL_Fwd02_Cable_Wvy",1.,"pix::DummyMaterial");
-  const GeoMaterial* cableMat_wavy_model1 = mat_mgr->getMaterialForVolume("pix::IBL_Fwd02_Cable_Wvy_M1",1.,"pix::DummyMaterial1");
+  const GeoMaterial* cableMat_wavy =nullptr;
+  const GeoMaterial* cableMat_wavy_model1=nullptr;
+
+  try {  
+     cableMat_wavy  = mat_mgr->getMaterialForVolume("pix::IBL_Fwd02_Cable_Wvy",1.,"pix::DummyMaterial");
+  }
+  catch (std::runtime_error &err) {
+  }
+  try {
+     cableMat_wavy_model1 = mat_mgr->getMaterialForVolume("pix::IBL_Fwd02_Cable_Wvy_M1",1.,"pix::DummyMaterial1");
+  }
+  catch (std::runtime_error &err) {
+  }
 
   bool bFwd02Defined=false;
   int nbBarrelSvc = gmt_mgr->PixelServiceElements("barrel");

@@ -299,12 +299,12 @@ PixelDetectorFactoryFastGeo::doChecks()
   int barrelCount = 0;
   int barrelCountError = 0;
 
-  std::cout<<"Number of barrel elements : "<<manager->numerology().numBarrels()<<std::endl;
+  msg(MSG::DEBUG) <<"Number of barrel elements : "<<manager->numerology().numBarrels()<<endmsg;
 
   for (int iBarrelIndex = 0; iBarrelIndex < manager->numerology().numBarrels(); iBarrelIndex++) {
     int iBarrel = manager->numerology().barrelId(iBarrelIndex);
 
-    std::cout<<"Number of layers elements : "<<manager->numerology().numLayers()<<std::endl;
+    msg(MSG::DEBUG) << "Number of layers elements : "<<manager->numerology().numLayers()<<endmsg;
 
     for (int iLayer = 0; iLayer < manager->numerology().numLayers(); iLayer++) {
 
@@ -320,8 +320,8 @@ PixelDetectorFactoryFastGeo::doChecks()
 
       if (manager->numerology().useLayer(iLayer)) {
 
-	std::cout<<"  -> brwose layer "<<iLayer<<"  # modules "<<
-	  manager->numerology().numPhiModulesForLayer(iLayer)<<" x "<<manager->numerology().endEtaModuleForLayer(iLayer)<<std::endl;
+	msg(MSG::DEBUG) << "  -> brwose layer "<<iLayer<<"  # modules "<<
+	  manager->numerology().numPhiModulesForLayer(iLayer)<<" x "<<manager->numerology().endEtaModuleForLayer(iLayer)<<endmsg;
 
 	for (int iPhi = 0; iPhi < manager->numerology().numPhiModulesForLayer(iLayer); iPhi++) {
 	  for (int iEta = manager->numerology().beginEtaModuleForLayer(iLayer); 
@@ -354,7 +354,7 @@ PixelDetectorFactoryFastGeo::doChecks()
   int endcapCount = 0;
   int endcapCountError = 0;
 
-  std::cout<<"Number of endcap elements : "<<manager->numerology().numEndcaps()<<std::endl;
+  msg(MSG::DEBUG) <<"Number of endcap elements : "<<manager->numerology().numEndcaps()<<endmsg;
 
   for (int iEndcapIndex = 0; iEndcapIndex < manager->numerology().numEndcaps(); iEndcapIndex++) {
     int iEndcap = manager->numerology().endcapId(iEndcapIndex);
