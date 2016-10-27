@@ -62,9 +62,7 @@ class EvtRangeScatterer : public AthenaMPToolBase
 
   StringProperty           m_processorChannel;
   StringProperty           m_eventRangeChannel;
-  StringProperty           m_tokenExtractorChannel;
   bool                     m_doCaching;
-  bool                     m_useTokenExtractor;  // Support usage of the Token Extractor
   Pid2RangeID              m_pid2RangeID;        // Current RangeID-s by PIDs
 };
 
