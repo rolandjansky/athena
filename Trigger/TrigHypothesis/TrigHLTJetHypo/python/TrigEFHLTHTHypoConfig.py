@@ -1,25 +1,35 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
 from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigEFHLTHTHypo
+
 from TrigHLTJetHypo.TrigEFHLTHTHypoMonitoring import (
     TrigEFHLTHTHypoValidationMonitoring,
     TrigEFHLTHTHypoOnlineMonitoring)
+
+from JetCleanMonitoring import JetChainsToKeepMonitoring
+from TriggerMenu.menu.CleanMonitoring import KeepMonitoring
+
+
+
+from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
 
 from AthenaCommon.SystemOfUnits import GeV
 
 
 class EFHLTHTBase (TrigEFHLTHTHypo):
     __slots__ = []
-    def __init__(self, name):
+    def __init__(self, name, chain_name, **kargs):
         super( EFHLTHTBase, self ).__init__( name )
 
-        validation = TrigEFHLTHTHypoValidationMonitoring()
-        online = TrigEFHLTHTHypoOnlineMonitoring()
+        if  KeepMonitoring(chain_name,
+                           JetChainsToKeepMonitoring,
+                           strictComparison=True):
+            validation = TrigEFHLTHTHypoValidationMonitoring()
+            online = TrigEFHLTHTHypoOnlineMonitoring()
 
-        from TrigTimeMonitor.TrigTimeHistToolConfig import TrigTimeHistToolConfig
-        time = TrigTimeHistToolConfig("EFHT_Time")
-
-        self.AthenaMonTools = [ time, validation, online ]
+            time = TrigTimeHistToolConfig("EFHT_Time")
+            
+            self.AthenaMonTools = [ time, validation, online ]
                 
 
 class EFHLTHT (EFHLTHTBase):
@@ -30,9 +40,10 @@ class EFHLTHT (EFHLTHTBase):
                  eta_min=0.,
                  eta_max=3.2,
                  Et_cut=30*GeV,
-                 doMonitoring=False):
+                 doMonitoring=False,
+                 **kargs):
         
-        super( EFHLTHT, self ).__init__( name )
+        super(EFHLTHT, self).__init__(name, **kargs)
 
         self.HTcut = HT_cut  # cut on Sum(Et))
         self.etaMincut = eta_min  # eta cuts on  jets contributing to the ET Sum

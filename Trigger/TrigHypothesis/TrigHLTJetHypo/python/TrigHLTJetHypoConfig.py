@@ -3,6 +3,12 @@
 # from TrigHLTJetHypo.TrigHLTJetHypoConf import TrigHLTJetHypo
 import  TrigHLTJetHypoConf
 
+# modules to decide whether to add monitoring plots
+# this is chain dependent.
+from JetCleanMonitoring import JetChainsToKeepMonitoring
+from TriggerMenu.menu.CleanMonitoring import KeepMonitoring
+# from TriggerMenu.menu.CleanMonitoring import DisableMonitoringButValAndTime
+
 from TrigHLTJetHypo.TrigHLTJetHypoMonitoring import (
     TrigHLTJetHypoValidationMonitoring,
     TrigHLTJetHypoOnlineMonitoring,
@@ -34,11 +40,14 @@ class TrigHLTJetHypo2 (TrigHLTJetHypoConf.TrigHLTJetHypo2):
     __slots__ = []
     def __init__(self, name, **kwargs):
         super( TrigHLTJetHypo2, self ).__init__( name, **kwargs )
-        
-        validation = TrigHLTJetHypo2ValidationMonitoring()
-        online = TrigHLTJetHypo2OnlineMonitoring()
-        cosmic = TrigHLTJetHypo2CosmicMonitoring()
-        
-        time = TrigTimeHistToolConfig("HLTJetHypo2_Time")
-        
-        self.AthenaMonTools = [ time, validation, online, cosmic ]
+
+        if  KeepMonitoring(self.chain_name,
+                           JetChainsToKeepMonitoring,
+                           strictComparison=True):
+            validation = TrigHLTJetHypo2ValidationMonitoring()
+            online = TrigHLTJetHypo2OnlineMonitoring()
+            cosmic = TrigHLTJetHypo2CosmicMonitoring()
+            
+            time = TrigTimeHistToolConfig("HLTJetHypo2_Time")
+            
+            self.AthenaMonTools = [ time, validation, online, cosmic ]

@@ -20,9 +20,12 @@
 #include <sstream>
 #include <stdexcept>
 
-MaximumBipartiteGroupsMatcher::MaximumBipartiteGroupsMatcher(const Conditions& cs,
-						 const std::string& name):
-  GroupsMatcher(name), m_conditions(cs), m_pass(false), m_G(FlowNetwork(0)){}
+MaximumBipartiteGroupsMatcher::MaximumBipartiteGroupsMatcher(const Conditions& cs):
+  GroupsMatcher(std::string("MaximumBipartiteGroupsMatcher")), 
+  m_conditions(cs), 
+  m_pass(false),
+  m_G(FlowNetwork(0)){
+}
   
 void MaximumBipartiteGroupsMatcher::match(const HypoJetGroupCIter& jets_b,
 				    const HypoJetGroupCIter& jets_e){

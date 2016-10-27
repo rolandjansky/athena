@@ -2,13 +2,13 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef TRIGHLTJETHYPO_MAXIMUMBIPARTITEGROUPSMATCHER_H
-#define TRIGHLTJETHYPO_MAXIMUMBIPARTITEGROUPSMATCHER_H
+#ifndef TRIGHLTJETHYPO_SINGLECONDITIONMATCHER_H
+#define TRIGHLTJETHYPO_SINGLECONDITIONMATCHER_H
 
 
 // ********************************************************************
 //
-// NAME:     MaximumBipartiteGroupsMatcher.h
+// NAME:     SingleConditionMatcher.h
 // PACKAGE:  Trigger/TrigHypothesis/TrigHLTJetHypo
 //
 // AUTHOR:  P Sherwood
@@ -20,13 +20,12 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/GroupsMatcher.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/FlowNetwork.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJet.h"
 #include <utility>  // std::pair
 #include <set>
 
 
-class MaximumBipartiteGroupsMatcher:
+class SingleConditionMatcher:
 virtual public IGroupsMatcher,  private GroupsMatcher {
 
   /* Used to find jets pass multithreshold,
@@ -36,8 +35,8 @@ virtual public IGroupsMatcher,  private GroupsMatcher {
      See Algorithms, Sedgewick and Wayne 4th edition */
 
 public:
-  MaximumBipartiteGroupsMatcher(const Conditions& cs);
-  ~MaximumBipartiteGroupsMatcher(){}
+  SingleConditionMatcher(const ConditionBridge&);
+  ~SingleConditionMatcher(){}
   void match(const HypoJetGroupCIter&, const HypoJetGroupCIter&) override;
   bool pass() const  override;
   HypoJetVector passedJets() const noexcept override;
@@ -45,15 +44,14 @@ public:
   std::string toString() const noexcept override;
   Conditions getConditions() const noexcept override;
 private:
-  Conditions m_conditions;
+  ConditionBridge m_condition;
   bool m_pass;
-  FlowNetwork m_G;
 
   // m_passed_jets is filled only if the event passes.
   // it can be used to determine which jets contribute.
   // it may be possible that different sets of jets could 
   // allow a pass.
-  void addToFailedJets(const HypoJetVector&);
+  void addToPassedJets(HypoJetGroupCIter);
   void addToFailedJets(HypoJetGroupCIter, HypoJetGroupCIter);
 
   HypoJetVector m_passed_jets;

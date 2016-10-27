@@ -28,6 +28,7 @@ using HypoJetIter = HypoJetVector::iterator;
 using HypoJetCIter = HypoJetVector::const_iterator;
 using HypoJetSet = std::set<pHypoJet>;
 using HypoJetQueue = std::queue<pHypoJet>;
+using pairHypoJetIter = std::pair<HypoJetIter, HypoJetIter>;
 using pairHypoJetCIter = std::pair<HypoJetCIter, HypoJetCIter>;
 
 using HypoJetGroupVector = std::vector<HypoJetVector>;

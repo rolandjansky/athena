@@ -33,5 +33,5 @@ atlas_add_component( TrigHLTJetHypo
                      LINK_LIBRARIES ${ROOT_LIBRARIES} xAODJet GaudiKernel TrigParticle TrigSteeringEvent TrigInterfacesLib TrigTimeAlgsLib TrigHLTJetHypoLib )
 
 # Install files from the package:
-atlas_install_python_modules( python/*.py )
+atlas_install_python_modules( python/*.py ) 
 

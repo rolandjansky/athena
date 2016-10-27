@@ -21,10 +21,13 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/ConditionsDefs.h"
 #include <memory>
+#include <chrono>
 
 class TriggerElement;
 class TrigHLTJetHypoHelper;
 enum class HypoStrategy;
+
+using namespace std::chrono;
 
 class TrigHLTJetHypo2 : public HLT::HypoAlgo {
 
@@ -71,6 +74,9 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
                             const HLT::TriggerElement*);
   void resetCounters();
 
+  void accumulateTime(nanoseconds) noexcept;
+
+  std::string m_chainName;  // used for configuration of dimass chains
   // vectors with Et thresholds, eta nins and eta maxs
   // (thresh, eta min, eta max) triplets will bbe converted to Conditon objs.
   std::vector<double> m_EtThresholds;
@@ -92,8 +98,8 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   double m_htMin;
 
   // Dijets
-  double m_invm;
-  double m_deta;
+  /*double m_invm;
+    double m_deta;*/
 
   int m_accepted;
   int m_rejected;
@@ -164,6 +170,10 @@ class TrigHLTJetHypo2 : public HLT::HypoAlgo {
   ITrigTimerSvc*            m_timersvc;
   std::vector<TrigTimer*>   m_timers;
 
+ // local code fragment timing
+
+  double m_chainTimeAv{0.}; //std::chrono
+  double m_chainTimeSquareAv{0.}; //std::chrono
+  unsigned int m_nCalls{0};
 };
 #endif
-

@@ -25,6 +25,7 @@ Conditions conditionsFactoryEtaEt(const std::vector<double>& etasMin,
 // for conditionsFactory2
 Conditions conditionsFactoryDijetEtaMass(const std::vector<double>& etasMin,
                                          const std::vector<double>& etasMax,
+                                         const std::vector<double>& etMins,
                                          const std::vector<double>& dEtaMin,
                                          const std::vector<double>& dEtaMax,
                                          const std::vector<double>& massesMin,

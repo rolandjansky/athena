@@ -16,6 +16,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <memory>
+#include <limits>
 //
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/StatusCode.h"
@@ -42,12 +43,13 @@
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/lineSplitter.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/xAODJetAsIJet.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/HypoJetDefs.h"
-#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/MaximumBipartiteGroupsMatcher.h"
 
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/SingleJetGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/AllJetsGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/IndexedJetsGrouper.h"
 #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/CombinationsGrouper.h"
+
+#include "TrigHLTJetHypo/TrigHLTJetHypoUtils/groupsMatcherFactory.h"
 
 // #include "TrigHLTJetHypo/TrigHLTJetHypoUtils/make_unique.h"
 
@@ -81,6 +83,7 @@ TrigHLTJetHypo2::TrigHLTJetHypo2(const std::string& name,
 
   declareProperty("doMonitoring", m_doMonitoring = false );
   declareProperty("AcceptAll",      m_acceptAll=false);
+  declareProperty("chain_name",      m_chainName="Unknown");
 
   declareProperty("hypoStrategy", m_hypoStrategy="Unknown");
   // declareProperty("EtThresholds",   m_EtThresholdsInput ); // Default: 40 GeV
@@ -100,12 +103,12 @@ TrigHLTJetHypo2::TrigHLTJetHypo2(const std::string& name,
   declareProperty("dEta_maxs", m_dEtaMaxs);
 
   // HT parameter
-  declareProperty("htMin", m_htMin);
+  declareProperty("htMin", m_htMin = 0);
 
 
   // Dimass, Deta parameters
-  declareProperty("invm", m_invm);
-  declareProperty("deta", m_deta);
+  //declareProperty("invm", m_invm);
+  //declareProperty("deta", m_deta);
 
   // CombinationsGrouper combinations size;
   declareProperty("combinationsSize", m_combinationsSize=0);
@@ -180,10 +183,13 @@ HLT::ErrorCode TrigHLTJetHypo2::hltInitialize()
     m_timers.push_back(tmp);
   }
 
+
+  // mawk and store the jet cleaner
+  setCleaner();
+
   if (!checkStrategy(strategy)){
     return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
   }
-
 
   if (!setConditions(strategy)){
     return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
@@ -193,10 +199,12 @@ HLT::ErrorCode TrigHLTJetHypo2::hltInitialize()
     return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
   }
 
-  auto matcher = 
-    std::unique_ptr<IGroupsMatcher>(new MaximumBipartiteGroupsMatcher(m_conditions,
-                                                                      "groupsMatcher"));
+  if (m_conditions.empty()){
+    ATH_MSG_ERROR("Hypo set up with no conditions");
+    return HLT::ErrorCode(HLT::Action::ABORT_JOB,HLT::Reason::BAD_JOB_SETUP);
+  } 
 
+  auto matcher = groupsMatcherFactory(m_conditions);
   auto helper = TrigHLTJetHypoHelper(m_cleaners, m_grouper, std::move(matcher));
 
 
@@ -221,6 +229,21 @@ HLT::ErrorCode TrigHLTJetHypo2::hltFinalize(){
   ATH_MSG_INFO("Events accepted/rejected/errors:  "
                << m_accepted  << " / " << m_rejected << " / "<< m_errors);
 
+
+  double sd = 0;
+  if (m_nCalls > 0 ){
+    sd = std::sqrt( (m_chainTimeSquareAv - m_chainTimeAv)/m_chainTimeAv);
+  }
+   
+  ATH_MSG_INFO("Chain "
+               << m_chainName
+               <<" TrigHLTHelper duration (us) "
+               << m_chainTimeAv
+               <<" +- "
+               << sd
+               << " "
+               << m_nCalls);
+  
   return HLT::OK;
 }
 
@@ -267,15 +290,15 @@ HLT::ErrorCode TrigHLTJetHypo2::hltExecute(const HLT::TriggerElement* outputTE,
 		 xAODJetAsIJetFactory());
  
   // make clean matcher evey event - this sees the jets of the event.
-  auto matcher = 
-    std::unique_ptr<IGroupsMatcher>(new MaximumBipartiteGroupsMatcher(m_conditions,
-                                                                      "groupsMatcher"));
-
+  auto matcher = groupsMatcherFactory(m_conditions);
   auto helper = TrigHLTJetHypoHelper(m_cleaners, m_grouper, std::move(matcher));
 
    /* apply cleaning and hypotheis alg */
-  ATH_MSG_DEBUG("hypo helper start start... " << name() << "...");
+  ATH_MSG_DEBUG("hypo helper start... " << name() << "...");
   ATH_MSG_DEBUG("no of jets ... " << inJets.size() << "...");
+
+  steady_clock::time_point t =  steady_clock::now();
+
   try{
     pass = !inJets.empty() && (m_acceptAll || helper.pass(hypoJets));
   } catch(std::exception& e){
@@ -283,6 +306,8 @@ HLT::ErrorCode TrigHLTJetHypo2::hltExecute(const HLT::TriggerElement* outputTE,
                   << e.what());
     return HLT::ERROR;
   }
+
+  accumulateTime(steady_clock::now() - t);
 
   ATH_MSG_DEBUG("hypo testing done... " << name() << "...");
 
@@ -365,13 +390,26 @@ void
                             const HypoJetVector& failedJets,
                              const TrigHLTJetHypoHelper& helper
                              ) const{
-    ATH_MSG_DEBUG("Writing debug start" << name() << "...");
+    ATH_MSG_VERBOSE("Writing debug start" << name() << "...");
 
-    if(pass){ATH_MSG_DEBUG("Event accepted");}
-    else { ATH_MSG_DEBUG("Event rejected");}
+    if(pass){ATH_MSG_VERBOSE("Event accepted");}
+    else { ATH_MSG_VERBOSE("Event rejected");}
 
+    ATH_MSG_VERBOSE("passing jets: ");
     for (auto j :  passedJets) {
-      ATH_MSG_DEBUG(j->p4().Et() << " " << j->eta());
+      auto p4 = j->p4();
+      ATH_MSG_VERBOSE("Et: " 
+                   << p4.Et() 
+                   << " eta " 
+                   << j->eta() 
+                   << " px "
+                   << p4.Px()
+                   << " py "
+                   << p4.Py()
+                   << " pz "
+                   << p4.Pz()
+                   << " E "
+                   << p4.E());
     }
 
    ATH_MSG_DEBUG("failed or unused jets: ");
@@ -476,25 +514,26 @@ bool TrigHLTJetHypo2::checkTLAStrategy(){
 }
 
 bool TrigHLTJetHypo2::checkDijetMassDEtaStrategy(){
-    
-  bool etaOK = m_etaMins.size() == 2 and m_etaMaxs.size() == 2;
-  
+
+  if (not checkEtaEtStrategy()) {return false;}
+
+  bool multOK = m_EtThresholds.size() > 1;
+
   bool ystarOK = (m_dEtaMins.size() < 2);
   
   bool massOK = (m_massMins.size() < 2);
   
   bool atLeastOne = m_dEtaMins.size() > 0 or m_massMins.size() > 0;
   
-  if (not etaOK){
-    ATH_MSG_ERROR(name() << ": size error, expect 2 ");
-    ATH_MSG_ERROR(name()<< " eta_mins " <<  m_etaMins.size());
-    ATH_MSG_ERROR(name()<< " eta_maxs " <<  m_etaMaxs.size());
+  if (not multOK){
+    ATH_MSG_ERROR(name() << ": size error, expect >= 2 ");
+    ATH_MSG_ERROR(name() << "Et thresholds " << m_EtThresholds);
   }
-  
+
   if (not ystarOK){
     ATH_MSG_ERROR(name() << ": size error, expect 0 or 1");
-    ATH_MSG_ERROR(name() << " ystar_mins " <<  m_ystarMins.size());
-    ATH_MSG_ERROR(name() << " ystar_maxs " <<  m_ystarMaxs.size());
+    ATH_MSG_ERROR(name() << " dEta_mins " <<  m_dEtaMins.size());
+    ATH_MSG_ERROR(name() << " dEta_maxs " <<  m_dEtaMaxs.size());
   }
   
   if (not massOK){
@@ -508,7 +547,7 @@ bool TrigHLTJetHypo2::checkDijetMassDEtaStrategy(){
     ATH_MSG_ERROR(name() << " neither mass nor deta limits given");
   }
   
-  return etaOK and ystarOK and massOK and atLeastOne;
+  return multOK and ystarOK and massOK and atLeastOne;
 }
 
 bool TrigHLTJetHypo2::checkHTStrategy(){
@@ -597,11 +636,44 @@ bool TrigHLTJetHypo2::setTLAConditions(){
   return true;
 }
 
+std::vector<double> getEtThresholds(const std::vector<double>& dEtas,
+                                    const std::vector<double>& etThresholds){
+  for (auto dEta : dEtas){
+    if (dEta > 0.) {
+      auto etThreshold = 
+        std::min(40000., 
+                 *std::min_element(etThresholds.cbegin(), 
+                                   etThresholds.cend()));
+
+      return std::vector<double> {etThreshold, etThreshold};
+    }
+  }
+
+  return std::vector<double> {0., 0.};
+}
 
 bool TrigHLTJetHypo2::setDijetMassDEtaConditions(){
-  m_conditions = conditionsFactoryDijetEtaMass(m_etaMins, m_etaMaxs,
-                                               m_ystarMins, m_ystarMaxs,
+  // emulate old behaviour of TriggerMenu to set the min Et for the jets.
+
+  auto dmax = std::numeric_limits<double>::max();
+
+  std::vector<double> etaMins {0., 0.};  // default from the run 1 hypo
+  std::vector<double> etaMaxs {dmax, dmax};
+  std::vector<double> etThresholds = getEtThresholds(m_dEtaMins, 
+                                                     m_EtThresholds);
+  ATH_MSG_VERBOSE("in setDijetMassDEtaConditions dEtamins:");
+  for(auto em : m_dEtaMins){ATH_MSG_VERBOSE(em);}
+  ATH_MSG_VERBOSE("in setDijetMassDEtaConditions m_EtThresholds:");
+  for(auto et : m_EtThresholds){ATH_MSG_VERBOSE(et);}
+  ATH_MSG_VERBOSE("in setDijetMassDEtaConditions etThresholds:");
+  for(auto et : etThresholds){ATH_MSG_VERBOSE(et);}
+
+
+  m_conditions = conditionsFactoryDijetEtaMass(etaMins, etaMaxs,
+                                               etThresholds,
+                                               m_dEtaMins, m_dEtaMaxs,
                                                m_massMins, m_massMaxs);
+
   std::sort(m_conditions.begin(), m_conditions.end(), ConditionsSorter());
   return true;
 }
@@ -647,4 +719,26 @@ bool TrigHLTJetHypo2::setJetGrouper(HypoStrategy s){
   return false;
 }
 
+
+void  TrigHLTJetHypo2::accumulateTime(nanoseconds duration) noexcept{
+
+  auto dtime = duration_cast<microseconds>(duration);
+  auto counts = dtime.count();
+  auto countssq = counts*counts;
+
+  if (m_nCalls == 0){
+    m_nCalls = 1;
+    m_chainTimeAv = counts;
+    m_chainTimeSquareAv = countssq;
+    return;
+  }
+  
+  m_nCalls += 1;
+  m_chainTimeAv = (m_chainTimeAv * (m_nCalls - 1) +  counts)/m_nCalls;
+  m_chainTimeSquareAv += 
+    (m_chainTimeSquareAv * (m_nCalls - 1) + countssq)/m_nCalls;
+}
+
+  
+  
 

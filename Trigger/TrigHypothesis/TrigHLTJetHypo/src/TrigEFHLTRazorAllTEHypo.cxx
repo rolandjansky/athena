@@ -92,7 +92,7 @@ TrigEFHLTRazorAllTE::~TrigEFHLTRazorAllTE()
 HLT::ErrorCode TrigEFHLTRazorAllTE::hltInitialize()
   // ----------------------------------------------------------------------
 {
-  ATH_MSG_INFO("in initialize()");
+  ATH_MSG_VERBOSE("in initialize()");
 
   // Initialize timing service
   //------------------------------
@@ -120,8 +120,8 @@ HLT::ErrorCode TrigEFHLTRazorAllTE::hltInitialize()
 HLT::ErrorCode TrigEFHLTRazorAllTE::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  ATH_MSG_INFO("in finalize()");
-  ATH_MSG_INFO("Events accepted/rejected/errors:  "
+  ATH_MSG_VERBOSE("in finalize()");
+  ATH_MSG_VERBOSE("Events accepted/rejected/errors:  "
                << m_accepted <<" / "<<m_rejected<< " / "<< m_errors);
   return HLT::OK;
 }

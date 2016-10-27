@@ -55,6 +55,10 @@ TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name,
   declareProperty("doMonitoring", m_doMonitoring = false );
   declareProperty("AcceptAll",      m_acceptAll=false);
 
+  // the following is not used - here
+  // only due common config with TrigHLTJetHypo2.
+  declareProperty("chain_name", m_chainName="unknown");
+
   // declareProperty("EtThresholds",   m_EtThresholdsInput ); // Default: 40 GeV
   declareProperty("EtThresholds",   m_EtThresholds ); // Default: 40 GeV
   declareProperty("eta_mins",   m_etaMins);
@@ -68,12 +72,12 @@ TrigHLTJetHypo::TrigHLTJetHypo(const std::string& name,
   declareProperty("jetvec_indices",   m_jetvec_indices);
 
   // Heavy object parameters
-  declareProperty("innerMassMin0", m_innerMassMin0);
+  /*declareProperty("innerMassMin0", m_innerMassMin0);
   declareProperty("innerMassMax0", m_innerMassMax0);
   declareProperty("innerMassMin1", m_innerMassMin1);
   declareProperty("innerMassMax1", m_innerMassMax1);
   declareProperty("outerMassMin", m_outerMassMin);
-  declareProperty("outerMassMax", m_outerMassMax);
+  declareProperty("outerMassMax", m_outerMassMax);*/
 
   // cleaning
   declareProperty("cleaningAlg", m_cleaningAlg = "noCleaning");
@@ -124,7 +128,7 @@ TrigHLTJetHypo::~TrigHLTJetHypo(){
 
 HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
 {
-  ATH_MSG_INFO("in initialize()");
+  ATH_MSG_VERBOSE("in initialize()");
 
   // Initialize timing service
   //------------------------------
@@ -247,12 +251,12 @@ HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
     
 
   // print out the CleanerMatcher configuration
-  ATH_MSG_INFO("TrigHLTJetHypo cleanerMatcher: ");
+  ATH_MSG_VERBOSE("TrigHLTJetHypo cleanerMatcher: ");
   std::string line = (m_cleanerMatcherFactory->make()).toString();
   std::vector<std::string> lines = lineSplitter(line, '\n');
 
   for(auto l : lines){
-    ATH_MSG_INFO(l);
+    ATH_MSG_VERBOSE(l);
   }
 
   return HLT::OK;
@@ -263,8 +267,8 @@ HLT::ErrorCode TrigHLTJetHypo::hltInitialize()
 HLT::ErrorCode TrigHLTJetHypo::hltFinalize(){
   // ----------------------------------------------------------------------
 
-  ATH_MSG_INFO("in finalize()");
-  ATH_MSG_INFO("Events accepted/rejected/errors:  "
+  ATH_MSG_VERBOSE("in finalize()");
+  ATH_MSG_VERBOSE("Events accepted/rejected/errors:  "
                << m_accepted <<" / "<<m_rejected<< " / "<< m_errors<< endmsg);
   return HLT::OK;
 }
