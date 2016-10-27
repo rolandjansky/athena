@@ -121,6 +121,8 @@ namespace LVL1 {
     static const int m_layerSaturationThreshold = 511;
     
     };
+
+    typedef std::map<int, JetElement*> JetElementMap_t;
   } // end of namespace
 
 #ifndef JetElement_ClassDEF_H

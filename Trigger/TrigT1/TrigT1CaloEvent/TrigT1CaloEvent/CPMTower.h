@@ -23,6 +23,7 @@
 #include "CLIDSvc/CLASS_DEF.h"
 
 #include "TrigT1Interfaces/Coordinate.h"
+#include <map>
 
   
 namespace LVL1 {
@@ -107,6 +108,8 @@ public:
     int m_peak;
   
     };
+
+    typedef std::map<int, CPMTower*> CPMTowerMap_t;
   } // end of namespace
 
 #ifndef CPMTower_ClassDEF_H

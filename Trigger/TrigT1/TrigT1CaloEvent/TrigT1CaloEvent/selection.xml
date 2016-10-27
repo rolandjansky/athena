@@ -37,8 +37,6 @@
   <class name="CPMHitsCollection"/>
   <class name="LVL1::CPMRoI"/>
   <class name="CPMRoICollection"/>
-  <class name="LVL1::CPMTower"/>
-  <class name="CPMTowerCollection"/>
   <class name="LVL1::JEMEtSums"/>
   <class name="JEMEtSumsCollection"/>
   <class name="LVL1::JEMHits"/>
