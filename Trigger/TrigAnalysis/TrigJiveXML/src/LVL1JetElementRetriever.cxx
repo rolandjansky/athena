@@ -36,12 +36,12 @@ namespace JiveXML {
     
     if ( evtStore()->retrieve(JEVector,m_sgKey).isFailure() ) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No Level-1 Jet Elements found in SG at "
-          << m_sgKey << endreq;
+          << m_sgKey << endmsg;
       return StatusCode::SUCCESS;
     } 
     int noJE = JEVector->size();
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving Level-1 Jet Elements with size " << noJE << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving Level-1 Jet Elements with size " << noJE << endmsg;
 
     DataVect phi; phi.reserve(noJE);
     DataVect eta; eta.reserve(noJE);
@@ -51,7 +51,7 @@ namespace JiveXML {
 
     for( it  = JEVector->begin(); it < JEVector->end(); ++it ){
         //  	 log << MSG::DEBUG <<" Lvl1 JE coords ("<<(*it)->phi()<<", "<<(*it)->eta()
-	//	     << " and energies : "<<(*it)->energy()<<endreq;
+	//	     << " and energies : "<<(*it)->energy()<<endmsg;
         eta.push_back(DataType((*it)->eta()));
         phi.push_back(DataType((*it)->phi()));
         energy.push_back(DataType((*it)->energy()));
@@ -62,7 +62,7 @@ namespace JiveXML {
     myDataMap["phi"] = phi;
     myDataMap["eta"] = eta;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() << endmsg;
 
     ////forward data to formating tool
     //return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

@@ -34,7 +34,7 @@ namespace JiveXML {
   StatusCode JetROIRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " retrieving" <<
-    ( m_readJEM ? " from JEMRoIs (ACR) " : " JetROI (LVL1_ROI) ") << endreq;
+    ( m_readJEM ? " from JEMRoIs (ACR) " : " JetROI (LVL1_ROI) ") << endmsg;
 
   DataVect phi;
   DataVect eta;
@@ -49,7 +49,7 @@ namespace JiveXML {
     // L1JetObject -not- available
     m_sgKey = "LVL1_ROI";
     if ( evtStore()->retrieve(roi,m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No LVL1_ROI found in SG for Level-1 JetROI" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No LVL1_ROI found in SG for Level-1 JetROI" << endmsg;
       return StatusCode::SUCCESS;
     } 
 
@@ -59,7 +59,7 @@ namespace JiveXML {
     LVL1_ROI::jets_type::const_iterator itJET  = (roi->getJetROIs()).begin();
     LVL1_ROI::jets_type::const_iterator itJETe = (roi->getJetROIs()).end();
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "JetROIs from LVL1_ROI retrieved from StoreGate with size: "<< (roi->getJetROIs()).size() <<endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "JetROIs from LVL1_ROI retrieved from StoreGate with size: "<< (roi->getJetROIs()).size() <<endmsg;
 
     for (; itJET != itJETe; ++itJET)
         {
@@ -83,10 +83,10 @@ namespace JiveXML {
     // L1JetObject -not- available
     m_sgKey = "JEMRoIs";
     if ( evtStore()->retrieve(jemRoICollection, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No DataVector<LVL1::JEMRoI> found with key JEMRoIs" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No DataVector<LVL1::JEMRoI> found with key JEMRoIs" << endmsg;
       return StatusCode::SUCCESS;
     } 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "DataVector<LVL1::JEMRoI> retrieved from StoreGate with size: "<< jemRoICollection->size() <<endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "DataVector<LVL1::JEMRoI> retrieved from StoreGate with size: "<< jemRoICollection->size() <<endmsg;
 
       DataVector<LVL1::JEMRoI>::const_iterator roi_it = jemRoICollection->begin();
       DataVector<LVL1::JEMRoI>::const_iterator roi_end = jemRoICollection->end();
@@ -124,7 +124,7 @@ namespace JiveXML {
     myDataMap["thrPattern"] = thrPattern;
   
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size() 
-           << " from: " << m_sgKey << endreq;
+           << " from: " << m_sgKey << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

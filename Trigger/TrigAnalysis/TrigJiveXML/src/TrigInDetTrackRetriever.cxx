@@ -32,7 +32,7 @@ namespace JiveXML {
     const DataHandle<TrigInDetTrackCollection> lastColl;
     
     if ( evtStore()->retrieve(firstColl,lastColl).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No TrigInDetTrackCollection found in SG " << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No TrigInDetTrackCollection found in SG " << endmsg;
       return StatusCode::SUCCESS;
     } 
 
@@ -143,7 +143,7 @@ namespace JiveXML {
     myDataMap["numHits"] = numHitsVec;
     myDataMap["trackAuthor"] = author;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< d0.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< d0.size() << endmsg;
 
     //forward data to formating tool
     std::string emptyStr = ""; // no clear SgKey here, reads all collections

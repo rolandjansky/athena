@@ -34,7 +34,7 @@ namespace JiveXML {
   StatusCode EmTauROIRetriever::retrieve(ToolHandle<IFormatTool> &FormatTool) {
 
   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " retrieving" <<
-     ( m_readCPM ? " from CPMRoIs (ACR) " : " EmTauROI (LVL1_ROI) ") << endreq;
+     ( m_readCPM ? " from CPMRoIs (ACR) " : " EmTauROI (LVL1_ROI) ") << endmsg;
 
   DataVect phi;
   DataVect eta; 
@@ -51,7 +51,7 @@ namespace JiveXML {
     // L1JetObject -not- available
     m_sgKey = "LVL1_ROI"; 
     if ( evtStore()->retrieve(roi,m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No LVL1_ROI found in SG for Level-1 JetROI" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No LVL1_ROI found in SG for Level-1 JetROI" << endmsg;
       return StatusCode::SUCCESS;
     } 
  
@@ -62,7 +62,7 @@ namespace JiveXML {
     LVL1_ROI::emtaus_type::const_iterator itEM  = (roi->getEmTauROIs()).begin();
     LVL1_ROI::emtaus_type::const_iterator itEMe = (roi->getEmTauROIs()).end();
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "JetROIs from LVL1_ROI retrieved from StoreGate with size: "<< (roi->getJetROIs()).size() <<endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "JetROIs from LVL1_ROI retrieved from StoreGate with size: "<< (roi->getJetROIs()).size() <<endmsg;
 
     for (; itEM != itEMe; ++itEM)
         {
@@ -89,10 +89,10 @@ namespace JiveXML {
     // L1JetObject -not- available
     m_sgKey = "CPMRoIs";
     if ( evtStore()->retrieve(cpmRoICollection, m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No DataVector<LVL1::CPMRoI> found with key CPMRoIs" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No DataVector<LVL1::CPMRoI> found with key CPMRoIs" << endmsg;
       return StatusCode::SUCCESS;
     } 
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "DataVector<LVL1::CPMRoI> retrieved from StoreGate with size: "<< cpmRoICollection->size() <<endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "DataVector<LVL1::CPMRoI> retrieved from StoreGate with size: "<< cpmRoICollection->size() <<endmsg;
 
       DataVector<LVL1::CPMRoI>::const_iterator roi_it = cpmRoICollection->begin();
       DataVector<LVL1::CPMRoI>::const_iterator roi_end = cpmRoICollection->end();
@@ -134,7 +134,7 @@ namespace JiveXML {
     myDataMap["thrPattern"] = thrPattern;
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size()
-					    << " from: " << m_sgKey << endreq;
+					    << " from: " << m_sgKey << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

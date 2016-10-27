@@ -20,7 +20,9 @@ namespace JiveXML {
   //--------------------------------------------------------------------------
 
   xAODEmTauROIRetriever::xAODEmTauROIRetriever(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type, name, parent), m_typeName("EmTauROI")
+    AthAlgTool(type, name, parent), m_typeName("EmTauROI"),
+    m_readCPM(false),
+    m_maskLowerThresholds(false)
   {
 
     declareInterface<IDataRetriever>(this);
@@ -47,15 +49,15 @@ namespace JiveXML {
     // L1JetObject -not- available
     m_sgKey = "LVL1EmTauRoIs"; 
     if ( evtStore()->retrieve(emTauRoIs,m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No LVL1EmTauROIs found in SG " << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No LVL1EmTauROIs found in SG " << endmsg;
       return StatusCode::SUCCESS;
     } 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found LVL1EmTauROIs in SG ! " << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found LVL1EmTauROIs in SG ! " << endmsg;
 
     xAOD::EmTauRoIContainer::const_iterator itEM  = emTauRoIs->begin();
     xAOD::EmTauRoIContainer::const_iterator itEMe = emTauRoIs->end();
 
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "xAOD EmTauROIs retrieved from StoreGate with size: " << (emTauRoIs->size()) <<endreq;
+    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "xAOD EmTauROIs retrieved from StoreGate with size: " << (emTauRoIs->size()) <<endmsg;
 
     int counter = 0;
     for (; itEM != itEMe; ++itEM)
@@ -64,7 +66,7 @@ namespace JiveXML {
 	eta.push_back(DataType( (*itEM)->eta()) );
 
        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "xAOD EmTauRoI #" << counter++ 
-          << ", eta: " << (*itEM)->eta() << ", phi: " << (*itEM)->phi() << endreq;
+          << ", eta: " << (*itEM)->eta() << ", phi: " << (*itEM)->phi() << endmsg;
 
 // Placeholders ! No direct access to those in Run-2
 // Reference:
@@ -88,7 +90,7 @@ namespace JiveXML {
     myDataMap["thrPattern"] = thrPattern;
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size()
-					    << " from: " << m_sgKey << endreq;
+					    << " from: " << m_sgKey << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);
