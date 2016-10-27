@@ -36,8 +36,8 @@ public:
 
 
 InDetBeamSpotVertex::InDetBeamSpotVertex( const std::string& type, 
-						  const std::string& name, 
-						  const IInterface* parent):
+              const std::string& name, 
+              const IInterface* parent):
   AthAlgTool(type,name,parent),
   m_x(4),m_cov(4,0),m_z(0.),m_zErr(0.),
   m_p(4), m_V(4,0),
@@ -56,8 +56,8 @@ InDetBeamSpotVertex::InDetBeamSpotVertex( const std::string& type,
   declareProperty("InitParZ",      m_init_z =0.0);
   declareProperty("InitParAx",     m_init_ax=0.0);
   declareProperty("InitParAy",     m_init_ay=0.0);
-  declareProperty("InitParSigmaX", m_init_sx=0.015);
-  declareProperty("InitParSigmaY", m_init_sy=0.015);
+  declareProperty("InitParSigmaX", m_init_sx=0.01);
+  declareProperty("InitParSigmaY", m_init_sy=0.01);
   declareProperty("InitParSigmaZ", m_init_sz=56.0);
   declareProperty("InitParK",      m_init_k =1.0);
   declareProperty("InitParRhoXY",  m_init_rhoxy=0.0);
@@ -67,8 +67,8 @@ InDetBeamSpotVertex::InDetBeamSpotVertex( const std::string& type,
   declareProperty("InitParMinZ",      m_init_min_z =0.0);
   declareProperty("InitParMinAx",     m_init_min_ax=0.0);
   declareProperty("InitParMinAy",     m_init_min_ay=0.0);
-  declareProperty("InitParMinSigmaX", m_init_min_sx=0.001);
-  declareProperty("InitParMinSigmaY", m_init_min_sy=0.001);
+  declareProperty("InitParMinSigmaX", m_init_min_sx=0.0001);
+  declareProperty("InitParMinSigmaY", m_init_min_sy=0.0001);
 
   declareProperty("InitParMinSigmaZ", m_init_min_sz=0.0);
   declareProperty("InitParMinK",      m_init_min_k =0);
@@ -114,6 +114,7 @@ InDetBeamSpotVertex::InDetBeamSpotVertex( const std::string& type,
   
   declareProperty( "FixParK" ,   m_fixInputK = false);
   declareProperty( "UseLLNorm" , m_useLLNorm = false);
+  declareProperty( "FixWidth",   m_fixWidth  = false); 
 
   declareProperty("TruncatedRMS", m_truncatedRMS = false); 
   declareProperty("RMSFraction", m_fractionRMS = 0.95); 
@@ -197,6 +198,7 @@ InDetBeamSpotVertex::InDetBeamSpotVertex( const InDetBeamSpotVertex& rhs) :
 
   m_fixInputK   = rhs.m_fixInputK;
   m_useLLNorm   = rhs.m_useLLNorm;
+  m_fixWidth    = rhs.m_fixWidth;
 
   m_truncatedRMS = rhs.m_truncatedRMS;
   m_fractionRMS = rhs.m_fractionRMS;
@@ -205,13 +207,12 @@ InDetBeamSpotVertex::InDetBeamSpotVertex( const InDetBeamSpotVertex& rhs) :
 }
 
 StatusCode InDetBeamSpotVertex::initialize() {
-  msg().setLevel( outputLevel() );
-  msg(MSG::DEBUG) << "In initialize" << endreq;
+  ATH_MSG_DEBUG( "In initialize" );
   return StatusCode::SUCCESS;
 }
 
 StatusCode InDetBeamSpotVertex::finalize() {
-  msg(MSG::DEBUG) << "In finalize" << endreq;
+  ATH_MSG_DEBUG( "In finalize" );
   clear(); // clear the data;
 
   return StatusCode::SUCCESS;
@@ -253,8 +254,7 @@ InDetBeamSpotVertex::FitStatus InDetBeamSpotVertex::fit(std::vector< BeamSpot::V
     m_getLLres =  true; //set system to use these results
     llResult = solveLL();
     if (!llResult) {
-      msg(MSG::WARNING) << "Log-likelihood fit failed: Reverting to chi2 solution" 
-	    << endreq;
+      ATH_MSG_WARNING( "Log-likelihood fit failed: Reverting to chi2 solution" );
       m_getLLres = false;
       chi2Result = solveChi2(); //unfortunately need to resolve, to set correct fit parameters
     }
@@ -264,8 +264,7 @@ InDetBeamSpotVertex::FitStatus InDetBeamSpotVertex::fit(std::vector< BeamSpot::V
     m_getLLres =  true; //set system to use these results
     llResult = solveLL();
     if (!llResult) {
-      msg(MSG::WARNING) << "Log-likelihood fit failed: Reverting to chi2 solution" 
-			<< endreq;
+      ATH_MSG_WARNING( "Log-likelihood fit failed: Reverting to chi2 solution" );
       m_getLLres = false;
       chi2Result = solveChi2(); //unfortunately need to resolve, to set correct fit parameters
     }
@@ -279,32 +278,32 @@ InDetBeamSpotVertex::FitStatus InDetBeamSpotVertex::fit(std::vector< BeamSpot::V
     m_fitStatus = (chi2Result ? successful : failed);
 
   for ( std::vector< BeamSpot::VrtHolder >::iterator it =  
-	  m_vertexData.begin();
-	it != m_vertexData.end(); ++it) {
+    m_vertexData.begin();
+  it != m_vertexData.end(); ++it) {
     if ( it->valid ) m_nUsed++;
   }  
 
   if (msgLvl(MSG::INFO)) {
     //display results
-    msg(MSG::INFO) << "Fit result was: " << ( m_fitStatus == successful ? "Successful" : "Failure") 
-		   << " using Vertex " << (m_getLLres ? "Log-likelihood":"Chi2") << " method" <<endreq;
-    msg(MSG::INFO) << "Number of vertices: " << m_vertexCount << endreq;
-    msg(MSG::INFO) << "x(z=0) = " << getX(0.) << " +- " << getErrX(0) << endreq;
-    msg(MSG::INFO) << "y(z=0) = " << getY(0.) << " +- " << getErrY(0) << endreq;
-    msg(MSG::INFO) << "z = " << getZ() << " +- " << getErrZ() << endreq;
+    ATH_MSG_INFO( "Fit result was: " << ( m_fitStatus == successful ? "Successful" : "Failure") 
+       << " using Vertex " << (m_getLLres ? "Log-likelihood":"Chi2") << " method" );
+    ATH_MSG_INFO( "Number of vertices: " << m_vertexCount );
+    ATH_MSG_INFO( "x(z=0) = " << getX(0.) << " +- " << getErrX(0) );
+    ATH_MSG_INFO( "y(z=0) = " << getY(0.) << " +- " << getErrY(0) );
+    ATH_MSG_INFO( "z = " << getZ() << " +- " << getErrZ() );
     double z = getZ();
-    msg(MSG::INFO) << "x(z) = " << getX(z) << " +- " << getErrX(z) << endreq;
-    msg(MSG::INFO) << "y(z) = " << getY(z) << " +- " << getErrY(z) << endreq;
+    ATH_MSG_INFO( "x(z) = " << getX(z) << " +- " << getErrX(z) );
+    ATH_MSG_INFO( "y(z) = " << getY(z) << " +- " << getErrY(z) );
     
-    msg(MSG::INFO) << "TiltX = " << getTiltX() << " +- " << getErrTiltX() << endreq;
-    msg(MSG::INFO) << "TiltY = " << getTiltY() << " +- " << getErrTiltY() << endreq;
+    ATH_MSG_INFO( "TiltX = " << getTiltX() << " +- " << getErrTiltX() );
+    ATH_MSG_INFO( "TiltY = " << getTiltY() << " +- " << getErrTiltY() );
     
-    msg(MSG::INFO) << "SigmaX(z=0) = " << getSigmaX(0.) << " +- " << getErrSigmaX(0.) << endreq;
-    msg(MSG::INFO) << "SigmaY(z=0) = " << getSigmaY(0.) << " +- " << getErrSigmaY(0.) << endreq;
-    msg(MSG::INFO) << "SigmaZ      = " << getSigmaZ()   << " +- " << getErrSigmaZ() << endreq;
+    ATH_MSG_INFO( "SigmaX(z=0) = " << getSigmaX(0.) << " +- " << getErrSigmaX(0.) );
+    ATH_MSG_INFO( "SigmaY(z=0) = " << getSigmaY(0.) << " +- " << getErrSigmaY(0.) );
+    ATH_MSG_INFO( "SigmaZ      = " << getSigmaZ()   << " +- " << getErrSigmaZ() );
     
-    msg(MSG::INFO) << "rhoXY = " << getRhoXY() << " +- " << getErrRhoXY() << endreq; 
-    msg(MSG::INFO) << "K = " << getK() << " +- " << getErrK() << endreq; 
+    ATH_MSG_INFO( "rhoXY = " << getRhoXY() << " +- " << getErrRhoXY() ); 
+    ATH_MSG_INFO( "K = " << getK() << " +- " << getErrK() ); 
   }
   
   return m_fitStatus;
@@ -397,8 +396,8 @@ bool InDetBeamSpotVertex::solveLL() {
     doFit2(minuit);
     successfulFit(minuit, status);
     if ( status.first == 3 && ( status.second == "SUCCESSFUL" ||
-				status.second == "CONVERGED " ||
-				status.second == "CONVERGED") ){
+        status.second == "CONVERGED " ||
+        status.second == "CONVERGED") ){
       goodFit = true;
     } else {
       goodFit = false;
@@ -406,10 +405,10 @@ bool InDetBeamSpotVertex::solveLL() {
   }
 
   if (goodFit){
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Successful fit" << endreq;
+    ATH_MSG_INFO( "Successful fit" );
     setOutput( minuit);
   } else {
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No LL fit convergence" << endreq;
+    ATH_MSG_DEBUG( "No LL fit convergence" );
   }
   
   delete minuit;
@@ -480,12 +479,11 @@ int InDetBeamSpotVertex::setInitialPars( TMinuit * minuit) {
 }
 
 bool InDetBeamSpotVertex::solveChi2() {
-   if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Attempting to solve " << endreq;
+  ATH_MSG_DEBUG( "Attempting to solve " );
   
   //calulate a solution for the current set of data
   if (m_vertexCount == 0) {
-     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No vertices stored for solve"
-	  << endreq;
+    ATH_MSG_DEBUG( "No vertices stored for solve" );
     m_fitStatus = failed;
     return false; 
   }
@@ -494,35 +492,33 @@ bool InDetBeamSpotVertex::solveChi2() {
   //invert matrix
   int fail;
   m_V = m_cov;
-  if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Matrix prior to inversion\n" << m_V<< endreq;
+  ATH_MSG_DEBUG( "Matrix prior to inversion\n" << m_V);
 
   m_V.invert(fail); //replaces the matrix with inverse
   if (fail != 0) {
     return false;
   }
-   if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Matrix post inversion\n" << m_V<< endreq;
+  ATH_MSG_DEBUG( "Matrix post inversion\n" << m_V);
 
 
   m_p = m_V*m_x;  // calculate parameter estimates
   m_zSolved = m_z / m_zErr; // weighted 
   m_zErrSolved = 1./sqrt(m_zErr);
 
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << "Fit solved succesfully from "
-	  << m_vertexCount << " vertices"<< endreq;
-    msg(MSG::DEBUG) << "Chi2 Solution:\n"<<m_p <<"\n" 
-	  << "Covariance: \n" << m_V << endreq;
-  }
+  
+  ATH_MSG_DEBUG( "Fit solved succesfully from " << m_vertexCount << " vertices");
+  ATH_MSG_DEBUG( "Chi2 Solution:\n"<<m_p <<"\n" << "Covariance: \n" << m_V );
+ 
   return true;
 }
 
 
 
 bool InDetBeamSpotVertex::applyOutlierRemoval() {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "In Outlier removal" << endreq;
+  ATH_MSG_DEBUG( "In Outlier removal" );
   // apply selection using results of a chi2 fit (eg. displacement)
   if (!m_vertexData.size()) {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "No vertices found" << endreq;
+    ATH_MSG_INFO( "No vertices found" );
     return false;
   }
   static int rCount(0); // counter used for recussive mode
@@ -538,8 +534,8 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
 
   int count(0);
   for ( std::vector< BeamSpot::VrtHolder >::iterator it =  
-	  m_vertexData.begin();
-	it != m_vertexData.end(); ++it) {
+    m_vertexData.begin();
+  it != m_vertexData.end(); ++it) {
     if (!it->valid) continue;
 
     if (!m_truncatedRMS) {
@@ -568,13 +564,13 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
   double mediany = (vy.size() > 1 ?  vy.at(vy.size()/2) : 0.);
   double medianz = (vz.size() > 1 ?  vz.at(vz.size()/2) : 0.);
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Median: x: " << medianx  
-					  <<  " y: " << mediany 
-					  <<  " z: " << medianz << endreq;
+  ATH_MSG_DEBUG(  "Median: x: " << medianx  
+            <<  " y: " << mediany 
+            <<  " z: " << medianz );
 
   if (m_truncatedRMS) {
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Truncating RMS ... " << endreq;
+    ATH_MSG_DEBUG( "Truncating RMS ... " );
     // Only use the fraction (95%) of tracks closest to the median position to determin the RMS
     int nvtx(vx.size());
     std::sort(vx.begin(), vx.end(), SortDistToMedian(medianx));
@@ -586,7 +582,7 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     std::sort(vz.begin(), vz.end(), SortDistToMedian(medianz));
     vz.erase(vz.begin()+int(m_fractionRMS*nvtx), vz.end());
     
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "... using " << int(m_fractionRMS*nvtx) << " from " << nvtx << " vertices" << endreq;
+    ATH_MSG_DEBUG( "... using " << int(m_fractionRMS*nvtx) << " from " << nvtx << " vertices" );
 
     for (unsigned int ivtx(0); ivtx < vx.size(); ++ivtx) {
       double x = vx.at(ivtx);
@@ -621,13 +617,13 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     rmsY = m_init_sy;
     // should we include z here too??
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting RMS in x to " << rmsX << endreq;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Setting RMS in y to " << rmsY << endreq;
+    ATH_MSG_DEBUG( "Setting RMS in x to " << rmsX );
+    ATH_MSG_DEBUG( "Setting RMS in y to " << rmsY );
 
   }
 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "mean, RMS; x: " << meanx << " " << rmsX
-    << "   "  << ", y: " << meany << " " << rmsY <<  ", z: " << meanz << " " << rmsZ << endreq;
+  ATH_MSG_DEBUG(  "mean, RMS; x: " << meanx << " " << rmsX
+    << "   "  << ", y: " << meany << " " << rmsY <<  ", z: " << meanz << " " << rmsZ );
 
 
   // varivables to hold the new chi2 and weighted z-mean values
@@ -640,8 +636,8 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
   // also redetermine a new chi2 value, based on passed vertices
   long failCount(0);
   for ( std::vector< BeamSpot::VrtHolder >::iterator it =  
-	  m_vertexData.begin();
-	it != m_vertexData.end(); ++it) {
+    m_vertexData.begin();
+  it != m_vertexData.end(); ++it) {
     if (!it->valid) continue;
     int fail=0;
     //if (  fabs( meanx - it->x ) > m_sigTr * rmsX ) fail += 1;
@@ -652,27 +648,27 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     
     /*
     if (  (meanx - it->x)*(meanx-it->x)/rmsX/rmsX + (meany-it->y)*(meany-it->y)/rmsY/rmsY > m_sigTr*m_sigTr) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Vertex info: extended past radial extent: sig." 
-					      << sqrt((meanx - it->x)*(meanx-it->x)/rmsX/rmsX + (meany-it->y)*(meany-it->y)/rmsY/rmsY) << " > "
-					      << sqrt( m_sigTr*m_sigTr ) << "." << endreq;
+      if (msgLvl(MSG::DEBUG)) ATH_MSG_DEBUG( "Vertex info: extended past radial extent: sig." 
+                << sqrt((meanx - it->x)*(meanx-it->x)/rmsX/rmsX + (meany-it->y)*(meany-it->y)/rmsY/rmsY) << " > "
+                << sqrt( m_sigTr*m_sigTr ) << "." );
       // don't remove these vertices yet 
     }
     */
     if (  (medianx - it->x)*(medianx-it->x)/rmsX/rmsX + (mediany-it->y)*(mediany-it->y)/rmsY/rmsY > m_sigTr*m_sigTr) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Vertex info: extended past radial extent: sig."
-                                              << sqrt((medianx - it->x)*(medianx-it->x)/rmsX/rmsX + (mediany-it->y)*(mediany-it->y)/rmsY/rmsY) << " > "
-                                              << sqrt( m_sigTr*m_sigTr ) << "." << endreq; 
+      ATH_MSG_DEBUG( "Vertex info: extended past radial extent: sig."
+                     << sqrt((medianx - it->x)*(medianx-it->x)/rmsX/rmsX + (mediany-it->y)*(mediany-it->y)/rmsY/rmsY) << " > "
+                     << sqrt( m_sigTr*m_sigTr ) << "." ); 
       fail += 128;
     }
     
     //and in Z?
     
     if (fail) { // TBD only allow failed vertices here to be removed on every nth iteration (to aid stability)
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Vertex reject from simple mean; reason: " << fail << " : x,y,z: " 
+      ATH_MSG_DEBUG( "Vertex reject from simple mean; reason: " << fail << " : x,y,z: " 
         << it->x << "  " << it->y << "  " << it->z 
         << " , sigma(x,y,z): " << sqrt(it->vxx) << "  " << sqrt(it->vyy)
         << "  " << sqrt(it->vzz) 
-        << endreq;
+        );
       
       it->valid = false;
       //      it->outlierRemoved = true;
@@ -702,7 +698,7 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     }// end of valid vertex
     
   }// for 
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Removed: " << failCount << " vertices from simple mean,RMS." << endreq;
+  ATH_MSG_DEBUG( "Removed: " << failCount << " vertices from simple mean,RMS." );
   
   
   // update the new global chi2  - need to do this after the invert has been successful though !!!
@@ -722,12 +718,12 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
   
   // make comparisons of old chi2, new mean and new chi2 values
   if (msgLvl(MSG::DEBUG) ) {
-    msg(MSG::DEBUG) << "Mean position: x,y,z " << meanx << "  " << meany << "  " << meanz << endreq;
-    msg(MSG::DEBUG) << "     RMS:      x,y,z " << rmsX  << "  " << rmsY  << "  " << rmsZ  << endreq;
+    ATH_MSG_DEBUG( "Mean position: x,y,z " << meanx << "  " << meany << "  " << meanz );
+    ATH_MSG_DEBUG( "     RMS:      x,y,z " << rmsX  << "  " << rmsY  << "  " << rmsZ  );
     
-    msg(MSG::DEBUG) << "Original chi2:" << m_p << "\n" << m_V << "\n" << m_zSolved << "  " << m_zErrSolved << endreq;
+    ATH_MSG_DEBUG( "Original chi2:" << m_p << "\n" << m_V << "\n" << m_zSolved << "  " << m_zErrSolved );
     
-    msg(MSG::DEBUG) << "New      chi2:" << chi2Pos << "\n" << chi2Cov << "\n" << zpos << "  " << zerr << endreq;
+    ATH_MSG_DEBUG( "New      chi2:" << chi2Pos << "\n" << chi2Cov << "\n" << zpos << "  " << zerr );
 
   } // debug statement
   
@@ -739,15 +735,15 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
   
   /* TBD
   if (goodChi2) {
-    if (msgLvl(MSG::DEBUG)) )  msg(MSG::DEBUG) << "Replacing original chi2 with new value" << endreq;
+    if (msgLvl(MSG::DEBUG)) )  ATH_MSG_DEBUG( "Replacing original chi2 with new value" );
     
     
   }
   */
   
   //Dubious - !!! TBD: move this into the general LL solve area and do it properly!
-  m_init_sx = rmsX;
-  m_init_sy = rmsY;
+  //m_init_sx = rmsX;
+  //m_init_sy = rmsY;
   m_init_sz = rmsZ;
   
   // perform LL fit?
@@ -759,7 +755,7 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
   }
 
   if ( llSolve and rCount > 0 ) {
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << "Log-Likelihood fit converged in outlier removal. Exiting outlier removal." << endreq;
+    ATH_MSG_INFO( "Log-Likelihood fit converged in outlier removal. Exiting outlier removal." );
     return true;
   }
   
@@ -775,9 +771,9 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     // ll solution not used, or not trusted
     // set a wide solution
     m_getLLres = false;
-    if (msgLvl(MSG::INFO)) msg(MSG::INFO) << ": removeOutliers: LL fit not use/converged/trusted - " <<
-      "using chi2 for mean and simple RMS for width values " << endreq;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << llSolve << " " << getSigmaX(0.) << " " << getSigmaY(0.) << " " << getRhoXY() << endreq;
+    ATH_MSG_INFO( ": removeOutliers: LL fit not use/converged/trusted - " <<
+      "using chi2 for mean and simple RMS for width values " );
+    ATH_MSG_DEBUG( llSolve << " " << getSigmaX(0.) << " " << getSigmaY(0.) << " " << getRhoXY() );
     xbar = getX(0.);
     ybar = getY(0.);
     ax  =  getTiltX();
@@ -858,24 +854,22 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     if ( !vit->second) continue; // no valid pointer ... 
     if ( !vit->second->valid) continue; // ignore vertices set to invalid - shouldn't happen here though
     if ( fCount >= m_singleIterationMax && m_singleIterationMax != -1) {
-      if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << " removeOutlier: Reached max number of vertex rejections for this iteration.\n" 
-	      << "\tNeed to recalculate mean positions." << endreq;
-      }
+      ATH_MSG_DEBUG( " removeOutlier: Reached max number of vertex rejections for this iteration.\n" 
+        << "\tNeed to recalculate mean positions." );
       break;
     } // if reached max iterations for this round
 
-    if (msgLvl(MSG::VERBOSE)) msg(MSG::VERBOSE) << "Vertex chi2: " << vit->first  << endreq;
+    ATH_MSG_VERBOSE( "Vertex chi2: " << vit->first  );
 
 
     
     if ( vit->first  < m_outlierChi2Tr ) {
       if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << " No more 'bad' vertices found in this iteration."  ;
+        ATH_MSG_DEBUG( " No more 'bad' vertices found in this iteration."  );
         if (fCount == 0) {
-          msg(MSG::DEBUG) << " No futher vertices removed - moving to final iteration" << endreq;
+          ATH_MSG_DEBUG( " No futher vertices removed - moving to final iteration" );
         } else {
-          msg(MSG::DEBUG) << " Moving to next iteration of outlier removal." << endreq;
+          ATH_MSG_DEBUG( " Moving to next iteration of outlier removal." );
         }
       }
       break;
@@ -885,20 +879,18 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     ++fCount;
     vit->second->valid = false;
     //    vit->second->outlierRemoved = true;
-    if (msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << "Vertex rejected; chi2: " << vit->first <<". pos(x,y,z): " 
+    ATH_MSG_DEBUG( "Vertex rejected; chi2: " << vit->first <<". pos(x,y,z): " 
       << vit->second->x << "  " << vit->second->y << "  " << vit->second->z 
       << " , sigma(x,y,z): " << sqrt(vit->second->vxx) << "  " << sqrt(vit->second->vyy)
       << "  " << sqrt(vit->second->vzz) 
-      << endreq;
-    } // debug
+      );
                    
   } // for
   
   // if no vertices removed and ll fit still fails, then we continue to have a problem ... 
   if (fCount == 0 && m_useLL && !llSolve && rCount !=0 ) { // if first iteration, we have another iteration later.
-    //    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "In LL test MODE !!!!" << endreq;
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "No vertices removed and fit still fails - most likely final result will fail"  << endreq;
+    //    if (msgLvl(MSG::WARNING)) ATH_MSG_WARNING( "In LL test MODE !!!!" );
+    ATH_MSG_WARNING( "No vertices removed and fit still fails - most likely final result will fail"  );
     
     // this is our 'last-ditch approach'. Split the collection of vertices into two 'random' sets and solve for each.
     // if both successful, then compare (and be a little confused). If only one, compare to chi2 and take if ok.
@@ -918,61 +910,61 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
     
     bool goodFit1(false), goodFit2(false);
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Attempting fit with vextex half: 1"<< endreq;
+    ATH_MSG_DEBUG( "Attempting fit with vextex half: 1");
     m_vertexData = vertex1;
     llSolve = solveLL();
     //m_getLLres = llSolve; // allow the log-likelihood accessor values to returned, if sucessful
     m_getLLres = true;
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Fit using \"vertex1\"  " << ( llSolve ? "Successful": "Failed") << endreq;
+    ATH_MSG_WARNING( "Fit using \"vertex1\"  " << ( llSolve ? "Successful": "Failed") );
     if (llSolve) {
       goodFit1 = true;
 
       if (msgLvl(MSG::DEBUG)) {
-	msg(MSG::DEBUG) << "x:  " << getX(0) << " +- " << getErrX(0) << endreq;
-	msg(MSG::DEBUG) << "y:  " << getY(0) << " +- " << getErrY(0) << endreq;
-	msg(MSG::DEBUG) << "z:  " << getZ() << " +- " << getErrZ() << endreq;
-	msg(MSG::DEBUG) << "sx: " << getSigmaX(0) << " +- " << getErrSigmaX(0) << endreq;
-	msg(MSG::DEBUG) << "sy: " << getSigmaY(0) << " +- " << getErrSigmaY(0) << endreq;
-	msg(MSG::DEBUG) << "sz: " << getSigmaZ() << " +- " << getErrSigmaZ() << endreq;
-	msg(MSG::DEBUG) << "ax: " << getTiltX() << " +- " << getErrTiltX() << endreq;
-	msg(MSG::DEBUG) << "ay: " << getTiltY() << " +- " << getErrTiltY() << endreq;
-	msg(MSG::DEBUG) << "sxy:" << getSigmaXY(0) << " +- " << getErrSigmaXY(0) << endreq;
-	msg(MSG::DEBUG) << "rh: " << getRhoXY() << " +- " << getErrRhoXY() << endreq;
-	msg(MSG::DEBUG) << "k:  " << getK() << " +- " << getErrK() << endreq;
+        ATH_MSG_DEBUG( "x:  " << getX(0) << " +- " << getErrX(0) );
+        ATH_MSG_DEBUG( "y:  " << getY(0) << " +- " << getErrY(0) );
+        ATH_MSG_DEBUG( "z:  " << getZ() << " +- " << getErrZ() );
+        ATH_MSG_DEBUG( "sx: " << getSigmaX(0) << " +- " << getErrSigmaX(0) );
+        ATH_MSG_DEBUG( "sy: " << getSigmaY(0) << " +- " << getErrSigmaY(0) );
+        ATH_MSG_DEBUG( "sz: " << getSigmaZ() << " +- " << getErrSigmaZ() );
+        ATH_MSG_DEBUG( "ax: " << getTiltX() << " +- " << getErrTiltX() );
+        ATH_MSG_DEBUG( "ay: " << getTiltY() << " +- " << getErrTiltY() );
+        ATH_MSG_DEBUG( "sxy:" << getSigmaXY(0) << " +- " << getErrSigmaXY(0) );
+        ATH_MSG_DEBUG( "rh: " << getRhoXY() << " +- " << getErrRhoXY() );
+        ATH_MSG_DEBUG( "k:  " << getK() << " +- " << getErrK() );
       }// debug
 
     } // good fit
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "Attempting fit with vextex half: 2"<< endreq;
+    ATH_MSG_DEBUG( "Attempting fit with vextex half: 2");
     m_vertexData = vertex2;
     llSolve = solveLL();
     //    m_getLLres = llSolve; // allow the log-likelihood accessor values to returned, if sucessful
     m_getLLres = true;
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Fit using \"vertex2\"  " << ( llSolve ? "Successful": "Failed") << endreq;
+    ATH_MSG_WARNING( "Fit using \"vertex2\"  " << ( llSolve ? "Successful": "Failed") );
     if (llSolve) { 
       goodFit2 = true;
       if (msgLvl(MSG::DEBUG)) {
-	msg(MSG::DEBUG) << "x:  " << getX(0) << " +- " << getErrX(0) << endreq;
-	msg(MSG::DEBUG) << "y:  " << getY(0) << " +- " << getErrY(0) << endreq;
-	msg(MSG::DEBUG) << "z:  " << getZ() << " +- " << getErrZ() << endreq;
-	msg(MSG::DEBUG) << "sx: " << getSigmaX(0) << " +- " << getErrSigmaX(0) << endreq;
-	msg(MSG::DEBUG) << "sy: " << getSigmaY(0) << " +- " << getErrSigmaY(0) << endreq;
-	msg(MSG::DEBUG) << "sz: " << getSigmaZ() << " +- " << getErrSigmaZ() << endreq;
-	msg(MSG::DEBUG) << "ax: " << getTiltX() << " +- " << getErrTiltX() << endreq;
-	msg(MSG::DEBUG) << "ay: " << getTiltY() << " +- " << getErrTiltY() << endreq;
-	msg(MSG::DEBUG) << "sxy:" << getSigmaXY(0) << " +- " << getErrSigmaXY(0) << endreq;
-	msg(MSG::DEBUG) << "rh: " << getRhoXY() << " +- " << getErrRhoXY() << endreq;
-	msg(MSG::DEBUG) << "k:  " << getK() << " +- " << getErrK() << endreq;
+        ATH_MSG_DEBUG( "x:  " << getX(0) << " +- " << getErrX(0) );
+        ATH_MSG_DEBUG( "y:  " << getY(0) << " +- " << getErrY(0) );
+        ATH_MSG_DEBUG( "z:  " << getZ() << " +- " << getErrZ() );
+        ATH_MSG_DEBUG( "sx: " << getSigmaX(0) << " +- " << getErrSigmaX(0) );
+        ATH_MSG_DEBUG( "sy: " << getSigmaY(0) << " +- " << getErrSigmaY(0) );
+        ATH_MSG_DEBUG( "sz: " << getSigmaZ() << " +- " << getErrSigmaZ() );
+        ATH_MSG_DEBUG( "ax: " << getTiltX() << " +- " << getErrTiltX() );
+        ATH_MSG_DEBUG( "ay: " << getTiltY() << " +- " << getErrTiltY() );
+        ATH_MSG_DEBUG( "sxy:" << getSigmaXY(0) << " +- " << getErrSigmaXY(0) );
+        ATH_MSG_DEBUG( "rh: " << getRhoXY() << " +- " << getErrRhoXY() );
+        ATH_MSG_DEBUG( "k:  " << getK() << " +- " << getErrK() );
       }// debug
 
     }
 
     // what now ? ...
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "Fit was " <<  ( goodFit2 || goodFit1 ? "Successful ": "Unsuccessful ") 
-						<<"  using a subset of the available vertices" << endreq;
-    if (msgLvl(MSG::WARNING) && ( goodFit2 || goodFit1) )
-      msg(MSG::WARNING) << "Using these subset data for final result!!! " << endreq;
-    if (msgLvl(MSG::WARNING)) msg(MSG::WARNING) << "FIT HALFVERTX" << endreq;
+    ATH_MSG_WARNING( "Fit was " <<  ( goodFit2 || goodFit1 ? "Successful ": "Unsuccessful ") 
+            <<"  using a subset of the available vertices" );
+    if (( goodFit2 || goodFit1) )
+      ATH_MSG_WARNING( "Using these subset data for final result!!! " );
+    ATH_MSG_WARNING( "FIT HALFVERTX" );
 
     if (goodFit1) {
       m_vertexData = vertex1;
@@ -990,20 +982,15 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
   
   
   // recursive mode
-  if (msgLvl(MSG::DEBUG)) {
-    msg(MSG::DEBUG) << " Recursive debug: Loop: " << rCount << ". Number of failed vertices: " << fCount << endreq  ;
-  }  
+  ATH_MSG_DEBUG( " Recursive debug: Loop: " << rCount << ". Number of failed vertices: " << fCount );
+  
   ++rCount;
   if ( fCount > 0 || ( fCount == 0 && rCount == 1 && !llSolve)) { // if failed vertices or, no failed, first iteration, and no succesful fit
     if ( rCount > m_maxOutlierLoops) {
-      if (msgLvl(MSG::WARNING)) {
-        msg(MSG::WARNING) << "OutlierRemoval: Reached maximum number of recursive loops: " << rCount 
-	      << ". No more iterations performed." << endreq;
-      }
+      ATH_MSG_WARNING( "OutlierRemoval: Reached maximum number of recursive loops: " << rCount 
+        << ". No more iterations performed." );
     } else {
-      if (msgLvl(MSG::DEBUG)) {
-        msg(MSG::DEBUG) << "OutlierRemoval: Entering recursive loop: " << rCount << endreq;
-      }
+      ATH_MSG_DEBUG( "OutlierRemoval: Entering recursive loop: " << rCount );
       applyOutlierRemoval();
     } // if entering loop
   } // if fails > 0
@@ -1013,7 +1000,7 @@ bool InDetBeamSpotVertex::applyOutlierRemoval() {
 
 
 bool InDetBeamSpotVertex::successfulFit( TMinuit * minuit, 
-					     std::pair<int, std::string> & status)  {
+               std::pair<int, std::string> & status)  {
   if (!minuit) return false;
   //This should be called directly after the fit
   std::string sRes = minuit->fCstatu.Data();
@@ -1022,8 +1009,7 @@ bool InDetBeamSpotVertex::successfulFit( TMinuit * minuit,
   Int_t npari,nparx,istat;
   minuit->mnstat(fmin, fedm, errdef,npari,nparx,istat);
   
-  if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Fit reports status: " << istat << " and " 
-				 << sRes << endreq;
+  ATH_MSG_DEBUG( "Fit reports status: " << istat << " and " << sRes );
 
   status.first = istat;
   status.second = sRes;
@@ -1034,25 +1020,24 @@ bool InDetBeamSpotVertex::successfulFit( TMinuit * minuit,
     minuit->GetParameter(6,x,ex); // rhoxy
     if ( fabs(x) > m_rhoFail){
       sanityPassed = false;
-      if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Fit Failed with rhoxy: " << x << " > " << m_rhoFail << endreq;
+      ATH_MSG_DEBUG( "Fit Failed with rhoxy: " << x << " > " << m_rhoFail );
     }
     minuit->GetParameter(4,x,ex); // sigma x
     if ( fabs(x) < m_widthFail ){
       sanityPassed = false;
-      if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Fit Failed with sigmaX:" << x << " > " << m_widthFail << endreq;
-
+      ATH_MSG_DEBUG( "Fit Failed with sigmaX:" << x << " > " << m_widthFail );
     }
     minuit->GetParameter(5,x,ex); // sigma y
     if ( fabs(x) < m_widthFail ){
       sanityPassed = false;
-      if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Fit Failed with sigmaY: " << x << " > " <<m_widthFail  << endreq;
+      ATH_MSG_DEBUG( "Fit Failed with sigmaY: " << x << " > " <<m_widthFail  );
     }
     
     minuit->GetParameter(7,x,ex); // k
     if ( fabs(x) < m_kMinFail || fabs(x) > m_kMaxFail ){
       sanityPassed = false;
-      if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Fit Failed with k: " << x << " > " << m_kMaxFail 
-					       << ", or " << x << " < " << m_kMinFail  << endreq;
+      ATH_MSG_DEBUG( "Fit Failed with k: " << x << " > " << m_kMaxFail 
+                 << ", or " << x << " < " << m_kMinFail  );
     }
 
 
@@ -1062,7 +1047,7 @@ bool InDetBeamSpotVertex::successfulFit( TMinuit * minuit,
     status.first = 99;
     status.second = "FAILED BEAMSPOT SANITY CHECK";
   }
-  if (msgLvl(MSG::DEBUG))  msg(MSG::DEBUG) << "Fit " << ( sanityPassed ? "Passed": "Failed") << " sanity check: " << endreq;
+  ATH_MSG_DEBUG( "Fit " << ( sanityPassed ? "Passed": "Failed") << " sanity check: " );
 
   if ( istat != 3) return false;
 
@@ -1148,10 +1133,10 @@ double BeamSpot::pdfxy(double *, double *) {
 
 
   double pxy = 1/(2*Pi*det)*exp( -0.5* (  ( x - mux -ax*z) * covXX *  ( x - mux - ax*z) 
-					  +   ( y - muy - ay*z) * covYY *  ( y - muy - ay*z) 
-					  + 2*( x - mux - *z) * covXY *  ( y - muy - ay*z)
-					  )
-				 );
+            +   ( y - muy - ay*z) * covYY *  ( y - muy - ay*z) 
+            + 2*( x - mux - *z) * covXY *  ( y - muy - ay*z)
+            )
+         );
   return pxy;
   */
   return 0; // TBD dlete
@@ -1222,8 +1207,8 @@ void BeamSpot::myFCN_LLsolverNorm( Int_t &, Double_t *, Double_t & /*f*/, Double
               +   ( y - par[1] - par[3]*z) * covYY *  ( y - par[1] - par[3]*z) 
               + 2*( x - par[0] - par[2]*z) * covXY *  ( y - par[1] - par[3]*z)
               );
-	      
-	      temp +=  TMath::Log( 2*Pi * par[9]*par[9] )  +  ( z - par[8]) * (z-par[8]) / (par[9] * par[9] );
+        
+        temp +=  TMath::Log( 2*Pi * par[9]*par[9] )  +  ( z - par[8]) * (z-par[8]) / (par[9] * par[9] );
     */
     
     // apply normalisations
@@ -1257,6 +1242,11 @@ void InDetBeamSpotVertex::doFit2( TMinuit * minuit) {
   minuit->FixParameter(2);
   minuit->FixParameter(3);
 
+  if(m_fixWidth){
+    minuit->FixParameter(4);
+    minuit->FixParameter(5);
+  }
+
   minuit->Migrad();
   minuit->Migrad();
   //release k,rho
@@ -1265,9 +1255,10 @@ void InDetBeamSpotVertex::doFit2( TMinuit * minuit) {
     minuit->Migrad();
   }
 
-  minuit->Release(6);
-  minuit->Migrad();
-
+  if(!m_fixWidth){
+    minuit->Release(6);
+    minuit->Migrad();
+  }
 
   minuit->Release(0);
   minuit->Release(1);
@@ -1293,37 +1284,63 @@ std::map<std::string,double> InDetBeamSpotVertex::getCovMap() const {
   //This is the method that was used before to put the covariance matrix in the required order
   //We don't want to mess with this, because no one knows the original order
 
-  static const int map[] = {0,0,6,-1,-1,-1,-1,2,-2,-2};
+  //static const int map[] = {0,0,6,-1,-1,-1,-1,2,-2,-2};
+  int map[] = {1,2,9,3,4,5,6,10,7,8};
+  if(m_fixInputK){
+    //            1 2 3  4  5  6  7 8  9 10 
+    //int map2[] = {0,0,5,-1,-1,-1,-1,0,-2,-2};
+    int map2[] = {1,2,8,3,4,5,6,9,7,10};
+    for(int i=0; i < 10; ++i){
+      map[i] = map2[i];
+    }
+  } else if (m_fixWidth) {
+    //int map2[] = {0,0,3,-1,-1,-5,-6,-1, -8,-5};
+    int map2[] = {1,2,6,3,4,8,9,7,10,5};
+    for(int i=0; i < 10; ++i){
+      map[i] = map2[i];
+    }
+  }
+ 
   int temp = 0;
   for (int i=0;i<10;++i) {
     for (int j=i;j<10;++j) {
-      covVector[temp++] = m_VLL(i + 1 +map[i], j+1+ map[j]);
+      if( m_fixInputK && (i == 9 || j ==9 )){ 
+        covVector[temp++] = 0; 
+      } else if ( m_fixWidth && ( i == 5 || i == 6 || i == 8 || j == 5 || j == 6 || j == 8  ) ){
+        covVector[temp++] = 0;
+      }else{  
+        covVector[temp++] = m_VLL( map[i], map[j] );
+      }
     }
   }
 
   //This array is in the order required from the original ntuple format
 
-  const std::string keyArr[] = {"posXErr","covXY","covXZ","covXTiltX","covXTiltY","covXSx","covXSy","covXSz",
-			   "covXRhoXY","covXk","posYErr","covYZ","covYTiltX","covYTiltY","covYSx","covYSy",
-			   "covYSz","covYRhoXY","covYk","posZErr","covZTiltX","covZTiltY","covZSx","covZSy","covZSz",
-			   "covZRhoXY","covZk","tiltXErr","covTiltXTiltY","covTiltXSx","covTiltXSy","covTiltXSz","covTiltXRhoXY",
-			   "covTiltXk","tiltYErr","covTiltYSx","covTiltYSy","covTiltYSz","covTiltYRhoXY","covTiltYk","sigmaXErr",
-			   "covSxSy","covSxSz","covSxRhoXY","covSxk","sigmaYErr","covSySz","covSyRhoXY","covSyk","sigmaZErr","covSzRhoXY",
-			   "covSzk","rhoXYErr","covRhoXYk","kErr"};
+  const std::string keyArr[] = {"posXErr","covXY","covXZ","covXTiltX","covXTiltY","covXSx","covXSy","covXSz","covXRhoXY","covXk",
+                                "posYErr","covYZ","covYTiltX","covYTiltY","covYSx","covYSy","covYSz","covYRhoXY","covYk",
+                                "posZErr","covZTiltX","covZTiltY","covZSx","covZSy","covZSz","covZRhoXY","covZk",
+                                "tiltXErr","covTiltXTiltY","covTiltXSx","covTiltXSy","covTiltXSz","covTiltXRhoXY","covTiltXk",
+                                "tiltYErr","covTiltYSx","covTiltYSy","covTiltYSz","covTiltYRhoXY","covTiltYk",
+                                "sigmaXErr","covSxSy","covSxSz","covSxRhoXY","covSxk",
+                                "sigmaYErr","covSySz","covSyRhoXY","covSyk",
+                                "sigmaZErr","covSzRhoXY","covSzk",
+                                "rhoXYErr","covRhoXYk",
+                                "kErr"};
 
   /*  const std::string keyArr2[] = {"posXErr","covYX","covZX","covTiltXX","covTiltYX","covSxX","covSyX","covSzX",
-			   "covRhoXYX","covkX","posYErr","covZY","covTiltXY","covTiltYY","covSxY","covSyY",
-			   "covSzY","covRhoXYY","covkY","posZErr","covTiltXZ","covTiltYZ","covSxZ","covSyZ","covSzZ",
-			   "covRhoXYZ","covkZ","tiltXErr","covTiltYTiltX","covSxTiltX","covSyTiltX","covSzTiltX","covRhoXYTiltX",
-			   "covkTiltX","tiltYErr","covSxTiltY","covSyTiltY","covSzTiltY","covRhoXYTiltY","covkTiltY","sigmaXErr",
-			   "covSySx","covSzSx","covRhoXYSx","covkSx","sigmaYErr","covSzSy","covRhoXYSy","covkSy","sigmaZErr","covRhoXYSz",
-			   "covkSz","rhoXYErr","covkRhoXY","kErr"};
+         "covRhoXYX","covkX","posYErr","covZY","covTiltXY","covTiltYY","covSxY","covSyY",
+         "covSzY","covRhoXYY","covkY","posZErr","covTiltXZ","covTiltYZ","covSxZ","covSyZ","covSzZ",
+         "covRhoXYZ","covkZ","tiltXErr","covTiltYTiltX","covSxTiltX","covSyTiltX","covSzTiltX","covRhoXYTiltX",
+         "covkTiltX","tiltYErr","covSxTiltY","covSyTiltY","covSzTiltY","covRhoXYTiltY","covkTiltY","sigmaXErr",
+         "covSySx","covSzSx","covRhoXYSx","covkSx","sigmaYErr","covSzSy","covRhoXYSy","covkSy","sigmaZErr","covRhoXYSz",
+         "covkSz","rhoXYErr","covkRhoXY","kErr"};
   */
   //Now that everything should be in the right order, it's simple to set the covariance matrix map correctly:
   
   
   for(int i = 0; i < 55; i++){
     covMap[keyArr[i]] = covVector[i];
+    //std::cout << keyArr[i] << "  " <<  covVector[i] <<  std::endl;
     //covMap[keyArr2[i]]= covVector[i];
   }
 
@@ -1345,10 +1362,10 @@ std::map<std::string,double> InDetBeamSpotVertex::getCovMap() const {
   double z = getZ();
   CLHEP::HepSymMatrix covc = getCov(z);
 
-  covMap["posXErr"]  = sqrt( covc(1,1) ); //xcxc
-  covMap["posYErr"]  = sqrt( covc(2,2) ); //ycyc
-  covMap["tiltXErr"]  = sqrt( covc(3,3) ); //axcaxc
-  covMap["tiltYErr"]  = sqrt( covc(4,4) ); //aycayc
+  covMap["posXErr"]    = sqrt( covc(1,1) ); //xcxc
+  covMap["posYErr"]    = sqrt( covc(2,2) ); //ycyc
+  covMap["tiltXErr"]   = sqrt( covc(3,3) ); //axcaxc
+  covMap["tiltYErr"]   = sqrt( covc(4,4) ); //aycayc
   covMap["sigmaXErr"]  = sqrt( getErrSigmaX(z)*getErrSigmaX(z) ); //sxcsxc
   covMap["sigmaYErr"]  = sqrt( getErrSigmaY(z)*getErrSigmaY(z) ); //sycsyc
     

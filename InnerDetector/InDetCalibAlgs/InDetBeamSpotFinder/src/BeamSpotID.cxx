@@ -5,6 +5,8 @@
 #include "BeamSpotID.h"
 
 bool BeamSpot::ID::operator<( const ID & rhs) const { 
+  if ( m_timeStamp < rhs.m_timeStamp ) return true;
+  if ( m_timeStamp > rhs.m_timeStamp ) return false;
   if ( m_pileup < rhs.m_pileup ) return true;
   if ( m_pileup > rhs.m_pileup ) return false;
   if ( m_bcid < rhs.m_bcid ) return true;
