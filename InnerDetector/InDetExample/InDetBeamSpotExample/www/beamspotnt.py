@@ -5,7 +5,7 @@
 beamspotnt is a command line utility for beam spot ntuples.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotnt.py 743501 2016-04-28 09:56:37Z amorley $'
+__version__ = '$Id: beamspotnt.py 780766 2016-10-27 14:03:02Z amorley $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -31,7 +31,7 @@ beamspotnt -t BeamSpotCOOL -f IndetBeampos-ES1-UPD2 --ru 165815 --rl 165815 dump
 #periodDef = '/afs/cern.ch/atlas/www/GROUPS/DATAPREPARATION/DataPeriods'
 periodDef = '/afs/cern.ch/user/a/atlidbs/nt/DataPeriods'
 
-import sys, os, time, glob, re, copy
+import sys, os, time, glob, re, copy, math
 
 # Create a properly quoted string of the command line to save
 qargv = [ ]
@@ -274,6 +274,15 @@ def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
     i=0 
     while  i < len( allBSResultsInNt ):
       b = allBSResultsInNt[i]
+      if b.status < 70 and  b.sigmaZErr == 0:
+        print "Will change Z error for  lb's " + str(b.lbStart) +" to " + str(b.lbEnd) + " which has " + str(b.nValid) + " verticies"
+        b.sigmaZErr = b.sigmaZ * 0.5
+      i += 1 
+   
+    i=0
+    while  i < len( allBSResultsInNt ):
+      b = allBSResultsInNt[i]
+
       if b.status < 70 and b.nValid < 2000 and b.nValid < averagenVtx:
         print "Will take an average for  lb's " + str(b.lbStart) +" to " + str(b.lbEnd) + " which has " + str(b.nValid) + " verticies" 
         lastGoodEntry = b
@@ -302,25 +311,23 @@ def cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize ):
           i+=1
           continue
 
-
         #check the entries are reasonablly close to each other
-        if( (nextGoodEntry.lbStart - b.lbEnd) > lbSize  and (b.lbStart - lastGoodEntry.lbEnd) > lbSize):
+        if( ( nextGoodEntry == b or abs(nextGoodEntry.lbStart - b.lbEnd) > abs(lbSize) ) and (lastGoodEntry == b or abs(b.lbStart - lastGoodEntry.lbEnd) > abs(lbSize) ) ):
           print "Failed to do average - entries were too far away"
           i+=1
           continue 
-        
-        
+
         #Calculate the average beamspot position for the following parameters
         varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
         calc = BeamSpotAverage(varList ,weightedAverage=True)
         #Add current entry if it is reliable 
-        if( b.status == 59 and b.posXErr != 0):
+        if( b.status == 59 and b.posXErr != 0 and not math.isnan(b.posX) and not math.isnan(b.posZ) and not math.isnan(b.sigmaZ) ):
           calc.add(b)
         #Add previous entry if it is not too far away in time
-        if lastGoodEntry != b and (b.lbStart - lastGoodEntry.lbEnd) <= lbSize :
+        if lastGoodEntry != b and abs(b.lbStart - lastGoodEntry.lbEnd) <= abs(lbSize) :
           calc.add(lastGoodEntry)
         #Add next entry if it is not too far away in time
-        if nextGoodEntry != b and (nextGoodEntry.lbStart - b.lbEnd) <= lbSize :
+        if nextGoodEntry != b and abs(nextGoodEntry.lbStart - b.lbEnd) <= abs(lbSize) :
           calc.add(nextGoodEntry)
         calc.average()
 
@@ -355,9 +362,13 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
           
         if(lastValidEntry >= 0):
           if allBSResultsInNt[nextValidEntry].lbStart !=  allBSResultsInNt[lastValidEntry].lbEnd + 1:
-            print "Missing Lumi block from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd, allBSResultsInNt[nextValidEntry].lbStart + 1)
+            print "Missing Lumi block from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd + 1 , allBSResultsInNt[nextValidEntry].lbStart)
+            
+            
             if allBSResultsInNt[nextValidEntry].lbStart -  allBSResultsInNt[lastValidEntry].lbEnd + 1 > lbSize:
               print "--Lumi block gap too large wont fill in the gap"           
+            elif (allBSResultsInNt[nextValidEntry].lbStart-1) -  (allBSResultsInNt[lastValidEntry].lbEnd+1) < 0 :
+              print "Missing Lumi block is invalid from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd+1, allBSResultsInNt[nextValidEntry].lbStart -1)
             else:
               varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
               calc = BeamSpotAverage(varList ,weightedAverage=True)
@@ -378,14 +389,15 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
               bcopy.status    = 59
               bcopy.timeStart = 0 
               bcopy.timeEnd   = 0   
-              bcopy.nEvents   = 0   
-              bcopy.nValid    = 0    
-              bcopy.nVtxAll   = 0   
-              bcopy.nVtxPrim  = 0  
+              bcopy.nEvents   = 1   
+              bcopy.nValid    = 1    
+              bcopy.nVtxAll   = 1   
+              bcopy.nVtxPrim  = 1  
               bcopy.lbStart   = allBSResultsInNt[lastValidEntry].lbEnd + 1    
               bcopy.lbEnd     = allBSResultsInNt[nextValidEntry].lbStart-1
               allBSResultsInNt.insert(lastValidEntry+1, bcopy)
               i += 1
+              nextValidEntry += 1
 
         lastValidEntry = nextValidEntry
         i += 1  
@@ -1166,8 +1178,10 @@ if cmd=='merge' and len(args)==2:
       if b.status == 59:
         totalEntries += 1
         totalVtxs += b.nValid
-        lbSize += b.lbStart - b.lbEnd 
+        lbSize += b.lbEnd - b.lbStart 
         
+    if totalEntries == 0:
+      totalEntries = 1  
     averagenVtx = totalVtxs/totalEntries  
     print 'Average Entries: '+ str(averagenVtx)
     averagenVtx *= 0.33
@@ -1180,6 +1194,7 @@ if cmd=='merge' and len(args)==2:
     allBSResultsInNt.sort()  
     if options.useAve:
         cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize * 10)
+        allBSResultsInNt.sort()
         fillInMissingLbs(allBSResultsInNt, lbSize * 10)
                    
     for b in allBSResultsInNt:
@@ -1229,7 +1244,7 @@ if cmd=='ave' and len(args)==1:
     maxrun=0
     for b in nt:
         if options.verbose or options.debug:
-            b.dump(options.debug)
+           b.dump(options.debug)
         calc.add(b)
         minrun = min(b.run,minrun)
         maxrun = max(b.run,maxrun)
@@ -1359,8 +1374,6 @@ if cmd=='ave' and len(args)==1:
                                        sigmaXYErr=sqrt( (b.sigmaX*b.sigmaX) * (b.sigmaY*b.sigmaY) * (b.rhoXYErr*b.rhoXYErr) +(b.sigmaX*b.sigmaX) * (b.sigmaYErr*b.sigmaYErr) * (b.rhoXY*b.rhoXY) + (b.sigmaXErr*b.sigmaXErr) * (b.sigmaY*b.sigmaY) * (b.rhoXY*b.rhoXY) ) )
 
     cmdOk = True
-
-
 
 #
 # Different histograms of beam spot variables

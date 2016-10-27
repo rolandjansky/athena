@@ -78,7 +78,6 @@ def extractFromFiles(fileNames):
         try:
             f = ROOT.TFile.Open (fileName)
             assert f.IsOpen()
-
             isNewDataHdr = True
             tree = f.Get ('MetaDataHdr')
 
@@ -128,6 +127,7 @@ def extractFromFiles(fileNames):
                             lbDict[fname].append(lb) 
                         except KeyError:
                             lbDict[fname] = [lb]
+                    #print 'Added lbs for Dict'
 
             except Exception, e:
                 print "## Caught exception [%s] !!" % str(e.__class__)
@@ -138,8 +138,8 @@ def extractFromFiles(fileNames):
                 sc = 1
                 pass
 
-            if not "eos" in fileName:
-                f.Close()
+            #if not "eos" in fileName:
+            f.Close()
         
         except Exception, e:
             print "## Caught exception [%s] !!" % str(e.__class__)
@@ -149,5 +149,4 @@ def extractFromFiles(fileNames):
             print sys.exc_info()[1]
             sc = 1
             pass
-
     return lbDict

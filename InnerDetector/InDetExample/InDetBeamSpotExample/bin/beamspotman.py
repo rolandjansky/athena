@@ -5,7 +5,7 @@
 beamspotman is a command line utility to do typical beam spot related tasks.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotman.py 717336 2016-01-12 13:11:29Z amorley $'
+__version__ = '$Id: beamspotman.py 780766 2016-10-27 14:03:02Z amorley $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -46,6 +46,7 @@ mctag STATUS POSX POSY POSZ             Create an sqlite file containing a MC ta
 # TODO: additional commands
 # - authorize USERID
 # - deauthorize USERID
+
 
 proddir = '/afs/cern.ch/user/a/atlidbs/jobs'
 produserfile = '/private/produsers.dat'
@@ -117,7 +118,7 @@ parser.add_option('', '--ru', dest='runMax', type='int', default=None, help='Max
 parser.add_option('', '--rucio', dest='rucio', action='store_true', default=False, help='rucio directory structure')
 parser.add_option('', '--noCheckAcqFlag', dest='noCheckAcqFlag', action='store_true', default=False, help='Don\'t check acqFlag when submitting VdM jobs')
 parser.add_option('', '--mon', dest='mon', action='store_true', default=False, help='mon directory structure')
-
+parser.add_option('', '--resubAll', dest='resubAll', action='store_true', default=False, help='Resubmit all jobs irrespective of status') 
 
 (options,args) = parser.parse_args()
 if len(args) < 1:
@@ -556,7 +557,10 @@ if cmd=='queryT0' and len(args)==3:
     if 'ESD' in options.filter:
         t0TaskName = '%s.recon.ESD.%s.beamspotproc.task' % (dsname,tags)
     else:
-        t0TaskName = '%s.recon.AOD.%s.beamspotproc.task' % (dsname,tags)
+        if "_m" in tags:
+          t0TaskName = '%s.merge.AOD.%s.beamspotproc.task' % (dsname,tags)
+        else: 
+          t0TaskName = '%s.recon.AOD.%s.beamspotproc.task' % (dsname,tags)
     print 'Querying Tier-0 database for task',t0TaskName,'...'
     oracle = getT0DbConnection()
     cur = oracle.cursor()
@@ -889,15 +893,25 @@ if cmd=='resubmit' and len(args)==4:
         if options.mon: 
            jobname= dsname+'-'+taskname+'-'+dir
         fullpath = os.getcwd()+'/'+dsname+'/'+taskname+'/'+dir
+        
 
         isRunning = False
+        isFailed = False
         for f in os.listdir(fullpath):
-          if re.search('RUNNING', f) or re.search('COMPLETED',f):
+          if re.search('RUNNING', f) or re.search('POSTPROCESSING',f):
             isRunning = True
+          if re.search('COMPLETED',f) or re.search('POSTPROCESSING',f):
+            statusFile  = open( fullpath+'/'+jobname + '.exitstatus.dat', 'r')
+            status  = statusFile.read(1)
+            print status
+            if status != "0": 
+              isFailed  = True
+              isRunning = False
 
-        if isRunning:
+        if (isRunning or not isFailed) and not options.resubAll:
           continue
-
+        
+        
         for f in os.listdir(fullpath):
           if re.search('.exitstatus.', f):
             os.remove(os.path.join(fullpath, f))
@@ -1336,11 +1350,15 @@ if cmd=='runaod' and len(args)==5:
     elif os.path.isfile(inputdata):
         # read in the file names from the text file
         for line in open(inputdata,'r'):
+          
+          if line.split('/')[1] == 'castor': 
+            files.append('root://castoratlas/'+line.rstrip())
+          else:
             files.append('root://eosatlas/'+line.rstrip())
-
+    
     # Check if files, matching pattern, exist
     if not files: sys.exit('No files existing in directory %s matching "%s"' % (inputdata, options.filter))
-        
+
     # Get file-LB mapping
     lbMap = {}
     if options.lbfilemap:
@@ -1362,14 +1380,14 @@ if cmd=='runaod' and len(args)==5:
     jobFileDict = {}
     jobLBDict   = {}
     jobParams   = {}
-    
+
     if options.pseudoLbFile:
         # Extract start and end times of real LBs
         from InDetBeamSpotExample.COOLUtils import COOLQuery
         coolQuery = COOLQuery()
         from InDetBeamSpotExample.Utils import getRunFromName        
         lbTimes = coolQuery.getLbTimes( getRunFromName(dsname, None, True) ) 
-
+           
         # Loop over pseudo LBs
         with open(options.pseudoLbFile) as pLbFile:            
             for line in pLbFile:
@@ -1399,7 +1417,6 @@ if cmd=='runaod' and len(args)==5:
                     if not sum([lb for lb in lbs if lb in rlbs]): continue
 
                     filenames.append(f)
-
                 try:
                     jobLBDict[jobId].extend([lb for lb in rlbs if not lb in jobLBDict[jobId]])
                     jobFileDict[jobId].extend([f for f in filenames if not f in jobFileDict[jobId]])                     
@@ -1428,7 +1445,7 @@ if cmd=='runaod' and len(args)==5:
                     if not f in jobFileDict[jobId]:
                         jobFileDict[jobId].append(f)
                     jobLBDict[jobId].append(lbnr)
-
+    
     # Submit bunched jobs
     for i in  sorted(jobFileDict.keys()):
         jobnr = i*lbperjob+1  # use first LB number as job number
@@ -1456,7 +1473,7 @@ if cmd=='runaod' and len(args)==5:
                                            inputfiles=files,
                                            joboptionpath=jobopts,
                                            filesperjob=len(files),
-                                           batchqueue='1nw' if options.pseudoLbFile else 'atlasb1', # run on different queue for VdM scans to avoid cloggin up normal queue # '1nw' '2nd'
+                                           batchqueue='atlasb1_long' if options.pseudoLbFile else 'atlasb1', # run on different queue for VdM scans to avoid cloggin up normal queue # '1nw' '2nd'
                                            addinputtopoolcatalog=True,
                                            taskpostprocsteps=options.postprocsteps,
                                            autoconfparams='DetDescrVersion',

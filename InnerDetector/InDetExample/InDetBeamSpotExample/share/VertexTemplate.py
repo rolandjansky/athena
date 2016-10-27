@@ -1,11 +1,11 @@
-# $Id: VertexTemplate.py 714548 2015-12-14 16:30:23Z amorley $
+# $Id: VertexTemplate.py 780766 2016-10-27 14:03:02Z amorley $
 #
 # Top-level job options file to run the vertex-based beamspot algorithm
 # from AOD files using a JobRunner.
 #
 # Written by Juerg Beringer in July 2008.
 #
-print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 714548 2015-12-14 16:30:23Z amorley $"
+print "InDetBeamSpotExample INFO Using $Id: VertexTemplate.py 780766 2016-10-27 14:03:02Z amorley $"
 
 # Default values (please put a default for EACH jobConfig parameter
 # so that the template can be used easily without JobRunner)
@@ -61,6 +61,8 @@ if not 'BeamSpotToolList' in jobConfig:              jobConfig['BeamSpotToolList
 #Fit Options for RooFit only
 if not 'RooFitMaxTransverseErr' in jobConfig:        jobConfig['RooFitMaxTransverseErr'] = 0.05
 
+if not 'FixWidth' in jobConfig:                      jobConfig['FixWidth'] =  False
+
 # General job setup
 include("InDetBeamSpotExample/AutoConfFragment.py")
 include("InDetBeamSpotExample/ReadInDetRecFragment.py")
@@ -89,10 +91,13 @@ ToolSvc += CfgMgr.InDet__InDetBeamSpotVertex(name            = 'InDetBeamSpotVer
                                              OutlierRhoFail  = 0.8,
                                              InitParK        = jobConfig['InitialKFactor'],
                                              FixParK         = jobConfig['ConstantKFactor'],
+                                             FixWidth        = jobConfig['FixWidth'],
                                              TruncatedRMS    = jobConfig['TruncatedRMS'],
                                              SetInitialRMS   = jobConfig['SetInitialRMS'],
                                              OutputLevel     = min(INFO,jobConfig['outputlevel']))
 
+
+print ToolSvc.InDetBeamSpotVertex
 
 ToolSvc += CfgMgr.InDet__InDetBeamSpotRooFit(name            = 'InDetBeamSpotRooFit',
                                              OutputLevel     = min(INFO,jobConfig['outputlevel']),
@@ -100,6 +105,7 @@ ToolSvc += CfgMgr.InDet__InDetBeamSpotRooFit(name            = 'InDetBeamSpotRoo
                                              ConstantKFactor = jobConfig['ConstantKFactor'],
                                              vtxResCut       = jobConfig['RooFitMaxTransverseErr'])
 
+print ToolSvc.InDetBeamSpotRooFit
 
 topSequence += CfgMgr.InDet__InDetBeamSpotFinder(name                = 'InDetBeamSpotFinder',
                                                  #job options

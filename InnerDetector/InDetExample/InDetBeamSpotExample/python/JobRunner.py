@@ -11,7 +11,7 @@ Jobs can run interactively, on different batch systems, or on the Grid.
 Written by Juerg Beringer (LBNL) in 2008.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: JobRunner.py 609046 2014-07-28 18:41:26Z btamadio $'
+__version__ = '$Id: JobRunner.py 747883 2016-05-18 06:58:10Z amorley $'
 
 import math
 import os
@@ -341,7 +341,8 @@ class JobRunner:
                 raise JobRunnerError, 'Job configuration or log file %s exists already' % jobConfig[f]
 
         # Make sure start directory where script and config files will be written to exists
-        os.system('mkdir -p %(jobdir)s' % jobConfig)
+        os.makedirs('%(jobdir)s' % jobConfig) 
+        #os.system('mkdir -p %(jobdir)s' % jobConfig)
 
         # Write job configuration file
         config = open(jobConfig['configfile'],'w')

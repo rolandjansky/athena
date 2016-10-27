@@ -9,7 +9,7 @@ Frontier outside of CERN. For example:
 setenv FRONTIER_SERVER "(serverurl=http://squid-frontier.usatlas.bnl.gov:23128/frontieratbnl)"
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: BeamSpotData.py 742523 2016-04-25 07:30:44Z amorley $'
+__version__ = '$Id: BeamSpotData.py 759522 2016-07-04 12:47:58Z amorley $'
 
 import time
 import copy
@@ -445,9 +445,11 @@ class BeamSpotValue:
                 tokens = line.split()
                 if len(tokens) < 5: tokens.append(0.0)
                 point, start, end, sep, acq = tokens
+                print "point %s %s %s %s" % (point,start,sep,acq)
                 BeamSpotValue.pseudoLbDict[int(point)] = (int(int(start)*timeUnit), int(int(end)*timeUnit), float(sep), float(acq))
 
         if not self.lbStart in self.pseudoLbDict:
+            print "Missing %s in pseudoLbDict" % self.lbStart
             return
 
         self.timeStart = self.pseudoLbDict[self.lbStart][0]
@@ -1087,7 +1089,7 @@ class BeamSpotFinderNt(BeamSpotContainer):
 class BeamSpotCOOL(BeamSpotContainer):
     """BeamSpotContainer for beam spot information stored in COOL."""
 
-    def __init__(self, tag, database='COOLOFL_INDET/CONDBR2', folder='/Indet/Beampos'):
+    def __init__(self, tag, database='COOLOFL_INDET/CONDBR2', folder='/Indet/Beampos', fullCorrelations=False):
         BeamSpotContainer.__init__(self)
         self.database = database
         self.tag = tag

@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: ROOTUtils.py 721731 2016-02-03 22:26:53Z beringer $
+# $Id: ROOTUtils.py 759047 2016-07-01 00:45:13Z beringer $
 """
 Miscellaneous utilities for PyROOT.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: ROOTUtils.py 721731 2016-02-03 22:26:53Z beringer $'
+__version__ = '$Id: ROOTUtils.py 759047 2016-07-01 00:45:13Z beringer $'
 
 
 import ROOT
@@ -311,26 +311,19 @@ def atlasLabel(x,y,isPreliminary=False,color=1,offset=0.115,isForApproval=False,
     l.SetTextSize(size)
     l.SetTextColor(color)
     l.DrawLatex(x,y,"ATLAS")
+
+    p = ROOT.TLatex()
+    p.SetNDC()
+    p.SetTextFont(42)
+    p.SetTextSize(size)
+    p.SetTextColor(color)
+
     if customstring != "":
-        p = ROOT.TLatex()
-        p.SetNDC()
-        p.SetTextFont(42)
-        p.SetTextColor(color)
         p.DrawLatex(x+offset,y,customstring)
     else:
         if (isPreliminary):
-            p = ROOT.TLatex()
-            p.SetNDC()
-            p.SetTextFont(42)
-            p.SetTextSize(size)
-            p.SetTextColor(color)
             p.DrawLatex(x+offset,y,"Preliminary")
         if (isForApproval):
-            p = ROOT.TLatex()
-            p.SetNDC()
-            p.SetTextFont(42)
-            p.SetTextSize(size)
-            p.SetTextColor(color)
             #p.DrawLatex(x+offset,y,"Internal for approval")
             p.DrawLatex(x+offset,y,"Internal")
     
