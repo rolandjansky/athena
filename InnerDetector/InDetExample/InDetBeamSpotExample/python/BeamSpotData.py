@@ -9,7 +9,7 @@ Frontier outside of CERN. For example:
 setenv FRONTIER_SERVER "(serverurl=http://squid-frontier.usatlas.bnl.gov:23128/frontieratbnl)"
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: BeamSpotData.py 759523 2016-07-04 12:49:24Z amorley $'
+__version__ = '$Id: BeamSpotData.py 759522 2016-07-04 12:47:58Z amorley $'
 
 import time
 import copy

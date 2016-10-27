@@ -5,7 +5,7 @@
 beamspotnt is a command line utility for beam spot ntuples.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: beamspotnt.py 759523 2016-07-04 12:49:24Z amorley $'
+__version__ = '$Id: beamspotnt.py 780766 2016-10-27 14:03:02Z amorley $'
 __usage__   = '''%prog [options] command [args ...]
 
 Commands are:
@@ -362,9 +362,13 @@ def fillInMissingLbs(allBSResultsInNt, lbSize):
           
         if(lastValidEntry >= 0):
           if allBSResultsInNt[nextValidEntry].lbStart !=  allBSResultsInNt[lastValidEntry].lbEnd + 1:
-            print "Missing Lumi block from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd, allBSResultsInNt[nextValidEntry].lbStart + 1)
+            print "Missing Lumi block from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd + 1 , allBSResultsInNt[nextValidEntry].lbStart)
+            
+            
             if allBSResultsInNt[nextValidEntry].lbStart -  allBSResultsInNt[lastValidEntry].lbEnd + 1 > lbSize:
               print "--Lumi block gap too large wont fill in the gap"           
+            elif (allBSResultsInNt[nextValidEntry].lbStart-1) -  (allBSResultsInNt[lastValidEntry].lbEnd+1) < 0 :
+              print "Missing Lumi block is invalid from {:>5d} to {:>5d}".format( allBSResultsInNt[lastValidEntry].lbEnd+1, allBSResultsInNt[nextValidEntry].lbStart -1)
             else:
               varList = ['posX','posY','posZ','sigmaX','sigmaY','sigmaZ','tiltX','tiltY','rhoXY','sigmaXY']
               calc = BeamSpotAverage(varList ,weightedAverage=True)
@@ -1190,6 +1194,7 @@ if cmd=='merge' and len(args)==2:
     allBSResultsInNt.sort()  
     if options.useAve:
         cleanUpLowStat( allBSResultsInNt, averagenVtx, lbSize * 10)
+        allBSResultsInNt.sort()
         fillInMissingLbs(allBSResultsInNt, lbSize * 10)
                    
     for b in allBSResultsInNt:
@@ -1369,8 +1374,6 @@ if cmd=='ave' and len(args)==1:
                                        sigmaXYErr=sqrt( (b.sigmaX*b.sigmaX) * (b.sigmaY*b.sigmaY) * (b.rhoXYErr*b.rhoXYErr) +(b.sigmaX*b.sigmaX) * (b.sigmaYErr*b.sigmaYErr) * (b.rhoXY*b.rhoXY) + (b.sigmaXErr*b.sigmaXErr) * (b.sigmaY*b.sigmaY) * (b.rhoXY*b.rhoXY) ) )
 
     cmdOk = True
-
-
 
 #
 # Different histograms of beam spot variables

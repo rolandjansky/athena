@@ -1,11 +1,11 @@
 # Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 
-# $Id: COOLUtils.py 667995 2015-05-19 06:01:05Z mhance $
+# $Id: COOLUtils.py 780766 2016-10-27 14:03:02Z amorley $
 """
 Miscellaneous utilities related to COOL.
 """
 __author__  = 'Juerg Beringer'
-__version__ = '$Id: COOLUtils.py 667995 2015-05-19 06:01:05Z mhance $'
+__version__ = '$Id: COOLUtils.py 780766 2016-10-27 14:03:02Z amorley $'
 
 import os, time,sys
 
@@ -97,8 +97,6 @@ def writeBeamSpotEntry(folderHandle, tag='nominal',
     payload['tiltYErr'] = float(tiltYErr)
     payload['sigmaXYErr'] = float(sigmaXYErr)
 
-
-
     if tag=='HEAD':
         folderHandle[1].storeObject(since,until,payload,0)
     else:
@@ -122,7 +120,7 @@ def COOLToUnixTime(coolTime):
 #
 class COOLQuery:
     """Utility to query COOL to retrieve start and end time of run and LBs."""
-    def __init__(self,useOracle=True,debug=True):
+    def __init__(self,useOracle=False,debug=True):
 
         self.tdaqdbname='COOLONL_TDAQ/CONDBR2'
         self.coolpath='/TDAQ/RunCtrl'
@@ -136,10 +134,13 @@ class COOLQuery:
         self.oracle = useOracle
         self.debug = debug
 
+        print 'open cool db' 
         self.cooldb = AtlCoolLib.indirectOpen(self.tdaqdbname, True, self.oracle, self.debug)
+        print 'open cooltrig db'
         self.cooltrigdb = AtlCoolLib.indirectOpen(self.trigdbname, True, self.oracle, self.debug)
+        print 'open cooldcs db'
         self.cooldcsdb = AtlCoolLib.indirectOpen(self.dcsdbname, True, self.oracle, self.debug)
-
+         
         self.lbDictCache = {'runnr': None, 'lbDict': None}
 
     def __del__(self):
