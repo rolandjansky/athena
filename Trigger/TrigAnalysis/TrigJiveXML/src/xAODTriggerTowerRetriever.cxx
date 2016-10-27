@@ -30,14 +30,14 @@ namespace JiveXML {
         
     if ( evtStore()->retrieve(TTVector,m_sgKey).isFailure() ) {
       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No Level-1 Trigger Towers found in SG at "
-          << m_sgKey << endreq;
+          << m_sgKey << endmsg;
       return StatusCode::SUCCESS;
     } 
     
     //Get number of trigger towers
     int numTrigTowers = TTVector->size();
     int count = 0;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving xAOD Level-1 Trigger Towers with size " << numTrigTowers << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieving xAOD Level-1 Trigger Towers with size " << numTrigTowers << endmsg;
 
     DataVect phi; phi.reserve(numTrigTowers);
     DataVect eta; eta.reserve(numTrigTowers);
@@ -91,7 +91,7 @@ namespace JiveXML {
 	<< " at layer: " << layer << ", with" 
         << " eta:"<<(*trigTowerIter)->eta() << ", phi:"<<(*trigTowerIter)->phi() 
         << ", em energy:"<< emEnergy <<", had energy:"<< hadEnergy 
-        << ", cpET:" << cpET <<", jepET:"<< jepET << endreq;
+        << ", cpET:" << cpET <<", jepET:"<< jepET << endmsg;
 
       //Store eta and phi
       eta.push_back(DataType( (*trigTowerIter)->eta() ));
@@ -131,7 +131,7 @@ namespace JiveXML {
     myDataMap["isHadSaturated"] = isHadSaturated;
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size()
-					    << " from: " << m_sgKey << endreq;
+					    << " from: " << m_sgKey << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

@@ -20,7 +20,9 @@ namespace JiveXML {
   //--------------------------------------------------------------------------
 
   xAODMuonROIRetriever::xAODMuonROIRetriever(const std::string& type, const std::string& name, const IInterface* parent):
-    AthAlgTool(type, name, parent), m_typeName("MuonROI")
+    AthAlgTool(type, name, parent), m_typeName("MuonROI"),
+    m_readCPM(false),
+    m_maskLowerThresholds(false)
   {
 
     declareInterface<IDataRetriever>(this);
@@ -39,10 +41,10 @@ namespace JiveXML {
     // L1JetObject -not- available
     m_sgKey = "LVL1MuonRoIs"; 
     if ( evtStore()->retrieve(muonROIs,m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No LVL1MuonROIs found in SG " << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No LVL1MuonROIs found in SG " << endmsg;
       return StatusCode::SUCCESS;
     } 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found LVL1MuonROIs in SG ! " << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found LVL1MuonROIs in SG ! " << endmsg;
 
     int noRois = muonROIs->size();
 
@@ -57,7 +59,7 @@ namespace JiveXML {
     xAOD::MuonRoIContainer::const_iterator itMU  = muonROIs->begin();
     xAOD::MuonRoIContainer::const_iterator itMUe = muonROIs->end();
 
-    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "xAOD MuonROIs retrieved from StoreGate with size: " << (MuonROIs->size()) <<endreq;
+    //if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "xAOD MuonROIs retrieved from StoreGate with size: " << (MuonROIs->size()) <<endmsg;
 
     int counter = 0;
     for (; itMU != itMUe; ++itMU)
@@ -80,7 +82,7 @@ namespace JiveXML {
         energy.push_back(DataType( 1. ));
 
        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "xAOD MuonROI #" << counter++ 
-          << ", eta: " << (*itMU)->eta() << ", phi: " << (*itMU)->phi() << endreq;
+          << ", eta: " << (*itMU)->eta() << ", phi: " << (*itMU)->phi() << endmsg;
 
 /* from old MuonRoI object: 'getThrNumber', 'getThrName' and 'getROIWord' have gone !
     for (; itMU != itMUe; ++itMU){
@@ -109,7 +111,7 @@ namespace JiveXML {
     myDataMap["energy"] = energy;
 
     if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< phi.size()
-					    << " from: " << m_sgKey << endreq;
+					    << " from: " << m_sgKey << endmsg;
 
     //forward data to formating tool
     return FormatTool->AddToEvent(dataTypeName(), m_sgKey, &myDataMap);

@@ -35,15 +35,15 @@ namespace JiveXML {
     const TriggerInfo* trigger_info;
     
     if ( evtStore()->retrieve(eventInfo).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No EventInfo found in SG" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No EventInfo found in SG" << endmsg;
       return StatusCode::SUCCESS;
     } 
     trigger_info = eventInfo->trigger_info();
     if (trigger_info == 0){
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TriggerInfo in EventInfo" << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No TriggerInfo in EventInfo" << endmsg;
       return StatusCode::SUCCESS;
     }
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieved EventInfo and TriggerInfo" << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " Retrieved EventInfo and TriggerInfo" << endmsg;
 
     std::string triggerInfoStrL1="0";
     std::string triggerInfoStrL2="0";
@@ -85,7 +85,7 @@ namespace JiveXML {
             triggerInfoStrL1 += DataType( trigger_info->level1TriggerInfo()[i]).toString() + "-";
         }
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " lvl2Info " << endreq;    
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << " lvl2Info " << endmsg;    
         if ( trigger_info->level2TriggerInfo().size() > 0 ){
 	    triggerInfoStrL2 = "-"; // item seperator
         }
@@ -94,7 +94,7 @@ namespace JiveXML {
             triggerInfoStrL2 += DataType( trigger_info->level2TriggerInfo()[i] ).toString() + "-";
         }
 
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "EventFilterInfo " << endreq;    
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "EventFilterInfo " << endmsg;    
         if ( trigger_info->eventFilterInfo().size() > 0 ){
 	    triggerInfoStrEF = "-"; // item seperator
         }
@@ -119,9 +119,9 @@ namespace JiveXML {
             //// with L1 to just L1
             //std::string myStreamTag = trigger_info->streamTags()[i].name();
 	    //log << MSG::DEBUG << " myStreamTag was: " << myStreamTag << "+++" 
-            //    << " length: " << myStreamTag.size() <<  endreq;
+            //    << " length: " << myStreamTag.size() <<  endmsg;
             //if (myStreamTag.substr(0,2) == "L1" && myStreamTag.size() < 7 ){ myStreamTag = "L1";}
-	    //log << MSG::DEBUG << " myStreamTag is: " << myStreamTag << "+++" << endreq;
+	    //log << MSG::DEBUG << " myStreamTag is: " << myStreamTag << "+++" << endmsg;
             //triggerInfoStreamTag += myStreamTag  + "_" +
 
             //// normal code without mask is this:
@@ -141,10 +141,10 @@ namespace JiveXML {
           triggerInfoStreamTag += "-";
 	}
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trigInfoL1: " << triggerInfoStrL1 << endreq;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trigInfoL2: " << triggerInfoStrL2 << endreq;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trigInfoEF: " << triggerInfoStrEF << endreq;
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "triggerInfoStreamTag: " << triggerInfoStreamTag << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trigInfoL1: " << triggerInfoStrL1 << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trigInfoL2: " << triggerInfoStrL2 << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "trigInfoEF: " << triggerInfoStrEF << endmsg;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "triggerInfoStreamTag: " << triggerInfoStreamTag << endmsg;
 
     trigInfoL1Vec.push_back(DataType( triggerInfoStrL1 ));
     trigInfoL2Vec.push_back(DataType( triggerInfoStrL2 ));
@@ -158,7 +158,7 @@ namespace JiveXML {
 
     const LVL1_ROI * roi;
     if ( evtStore()->retrieve(roi,"LVL1_ROI").isFailure() ) {
-       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No LVL1_ROI for Trigger-MissingET found in SG, setting placeholders." << endreq;
+       if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "No LVL1_ROI for Trigger-MissingET found in SG, setting placeholders." << endmsg;
 //       return StatusCode::SUCCESS; // not here.
        // placeholders:
         energySumEtVec.push_back(DataType( -1. ) ); // means n/a
@@ -167,7 +167,7 @@ namespace JiveXML {
         energyEtMissVec.push_back(DataType( -1. ) );
     }else{
       if ( (roi->getEnergySumROIs()).size() != 0 ){ // catch empty container
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TriggerInfo: LVL1_ROI for EnergySum retrieved" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TriggerInfo: LVL1_ROI for EnergySum retrieved" << endmsg;
 
         LVL1_ROI::energysums_type::const_iterator itES  = (roi->getEnergySumROIs()).begin();
         LVL1_ROI::energysums_type::const_iterator itESe = (roi->getEnergySumROIs()).end();
@@ -182,10 +182,10 @@ namespace JiveXML {
 	  energyEtMissVec.push_back(DataType( m_EtMiss ) );
 
 	  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "EnergySum from LVL1_ROI: X:" << m_Ex << ", Y:"
-	      << m_Ey << ", T:" << m_Et << ", ETMiss:" << m_EtMiss << endreq;
+	      << m_Ey << ", T:" << m_Et << ", ETMiss:" << m_EtMiss << endmsg;
         }
       }else{ // empty container
-        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TriggerInfo: LVL1_ROI for EnergySum empty !" << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "TriggerInfo: LVL1_ROI for EnergySum empty !" << endmsg;
 
 	  energySumEtVec.push_back(DataType( "-1" ) ); // means n/a
 	  energyExVec.push_back(DataType( "-1" ) );
@@ -207,7 +207,7 @@ namespace JiveXML {
     myDataMap["trigInfoEF"] = trigInfoEFVec;
     myDataMap["trigInfoStreamTag"] = trigInfoStreamTagVec;
 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< trigInfoStatusVec.size() << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << dataTypeName() << ": "<< trigInfoStatusVec.size() << endmsg;
 
     //forward data to formating tool
     std::string emptyStr=""; // eventInfo has no SGKey

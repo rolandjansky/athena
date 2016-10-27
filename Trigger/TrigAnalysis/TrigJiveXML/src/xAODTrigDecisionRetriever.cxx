@@ -34,10 +34,10 @@ namespace JiveXML {
 
     m_sgKey = "xTrigDecision"; //sgKey from 20.0.0.2 AOD
     if ( evtStore()->retrieve(trigDec,m_sgKey).isFailure() ) {
-      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No xAOD::xTrigDecision found in SG " << endreq;
+      if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "No xAOD::xTrigDecision found in SG " << endmsg;
       return StatusCode::SUCCESS;
     } 
-    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found xAOD::xTrigDecision in SG ! " << endreq;
+    if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) <<  "Found xAOD::xTrigDecision in SG ! " << endmsg;
 
     DataVect smk;
     DataVect bgCode;
@@ -69,7 +69,7 @@ namespace JiveXML {
           << " TAV: " << trigDec->tav()
           << " TAP: " << trigDec->tap()
           << " TBP: " << trigDec->tbp()
-          << " from: " << m_sgKey << endreq;
+          << " from: " << m_sgKey << endmsg;
 
     /// Test only ! No output to file yet.
     //return 0;
