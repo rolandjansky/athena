@@ -190,7 +190,7 @@ def writeDigitizationMetadata():
         attrname = det+"_on"
         checkfn = getattr(DetFlags.digitize, attrname, None)
         if checkfn is None:
-            logDigitizationWriteMetadata.warning("No attribute '%s' found on DetFlags.digitize" % attrname)
+            logDigitizationWriteMetadata.info("No attribute '%s' found on DetFlags.digitize" % attrname)
             continue
         if checkfn():
             digiDets.append(det)
