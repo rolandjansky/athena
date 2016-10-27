@@ -47,24 +47,24 @@ TrigMuonEFFSRoiMaker::~TrigMuonEFFSRoiMaker() {
 HLT::ErrorCode TrigMuonEFFSRoiMaker::hltInitialize() {
 
   if (msgLvl() <= MSG::INFO) {
-    msg() << MSG::INFO << "Initializing TrigMuonEFFSRoiMaker[" << name() << "], version " << PACKAGE_VERSION << endreq;
-    msg() << MSG::INFO << "pT cut on muons = " << m_ptcut << " MeV" << endreq;
-    msg() << MSG::INFO << "Output EF container name = " << m_efContName << endreq;
-    msg() << MSG::INFO << "RoI eta,phi = " << m_roiSizeEta << "," << m_roiSizePhi << endreq;
-    msg() << MSG::INFO << "RoI Label = " << m_roiLabel << endreq;
-    msg() << MSG::INFO << "Invert RoI = " << m_doInvertRoI << endreq;
-    msg() << MSG::INFO << "Use FS RoI = " << m_useFS << endreq;
-    msg() << MSG::INFO << "Create crack RoI = " << m_createCrackRoI << endreq;
-    msg() << MSG::INFO << "Create FS RoI = " << m_createFSroi << endreq;
-    msg() << MSG::INFO << "Create RoI from L1 = " << m_createRoIfromL1 << endreq;
+    msg() << MSG::INFO << "Initializing TrigMuonEFFSRoiMaker[" << name() << "], version " << PACKAGE_VERSION << endmsg;
+    msg() << MSG::INFO << "pT cut on muons = " << m_ptcut << " MeV" << endmsg;
+    msg() << MSG::INFO << "Output EF container name = " << m_efContName << endmsg;
+    msg() << MSG::INFO << "RoI eta,phi = " << m_roiSizeEta << "," << m_roiSizePhi << endmsg;
+    msg() << MSG::INFO << "RoI Label = " << m_roiLabel << endmsg;
+    msg() << MSG::INFO << "Invert RoI = " << m_doInvertRoI << endmsg;
+    msg() << MSG::INFO << "Use FS RoI = " << m_useFS << endmsg;
+    msg() << MSG::INFO << "Create crack RoI = " << m_createCrackRoI << endmsg;
+    msg() << MSG::INFO << "Create FS RoI = " << m_createFSroi << endmsg;
+    msg() << MSG::INFO << "Create RoI from L1 = " << m_createRoIfromL1 << endmsg;
   }
 
   if (m_classIDSvc.retrieve().isFailure()) {
-    msg() << MSG::WARNING << "Cannot retrieve ClassIDSvc" << endreq;
+    msg() << MSG::WARNING << "Cannot retrieve ClassIDSvc" << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
   else {
-    msg() << MSG::INFO << "Retrieved " << m_classIDSvc << endreq;
+    msg() << MSG::INFO << "Retrieved " << m_classIDSvc << endmsg;
   }
 
   return HLT::OK;
@@ -104,7 +104,7 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
       const HLT::TriggerElement* inputTe = tev[iTe];
       
       if(!inputTe){
-	msg() << MSG::ERROR << "Invalid TriggerElement pointer = "<< inputTe << endreq;
+	msg() << MSG::ERROR << "Invalid TriggerElement pointer = "<< inputTe << endmsg;
 	return HLT::ERROR;
       } // end if(!inputTe)
 	
@@ -112,7 +112,7 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
       const TrigRoiDescriptor* roiDescriptor = 0;
       HLT::ErrorCode hltStatus = getFeature(inputTe, roiDescriptor);
       if( hltStatus != HLT::OK ){
-	msg()<<MSG::ERROR<<" Failed to find RoiDescriptor "<<endreq;
+	msg()<<MSG::ERROR<<" Failed to find RoiDescriptor "<<endmsg;
 	return hltStatus;
       } 
       te = addRoI(output, nullptr);
@@ -126,7 +126,7 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
   //start of FS roi building
   // we run after FS instance - so should only be one inputTE
   if (inputTEs.size() != 1) {
-    msg() << MSG::ERROR << "Got more than one inputTE" << endreq;
+    msg() << MSG::ERROR << "Got more than one inputTE" << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_CHAIN, HLT::Reason::MISSING_FEATURE);
   }
   
@@ -187,24 +187,24 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
       /* Some debugging of the error matrix - need to fix for Eigen
       if(msgLvl(MSG::DEBUG)) {
         const Amg::AmgSymMatrix(5)* em = perigee->covariance();
-        msg(MSG::DEBUG) << "Err[Trk::z0] = " << Amg::error(*em,Trk::z0) << endreq;
-        msg(MSG::DEBUG) << "Cov[Trk::phi0] = " << em.covValue(Trk::phi0) << endreq;
-        msg(MSG::DEBUG) << "Cov[Trk::theta] = " << em.covValue(Trk::theta) << endreq;
-        msg(MSG::DEBUG) << "Cov[Trk::qoverp] = " << em.covValue(Trk::qOverP) << endreq;
+        msg(MSG::DEBUG) << "Err[Trk::z0] = " << Amg::error(*em,Trk::z0) << endmsg;
+        msg(MSG::DEBUG) << "Cov[Trk::phi0] = " << em.covValue(Trk::phi0) << endmsg;
+        msg(MSG::DEBUG) << "Cov[Trk::theta] = " << em.covValue(Trk::theta) << endmsg;
+        msg(MSG::DEBUG) << "Cov[Trk::qoverp] = " << em.covValue(Trk::qOverP) << endmsg;
       }//DEBUG
       } else {
-        msg(MSG::DEBUG) << "No Trk::MeasuredPerigee" << endreq;
+        msg(MSG::DEBUG) << "No Trk::MeasuredPerigee" << endmsg;
       }
       */
 
-      if(msgLvl(MSG::DEBUG)) msg(MSG::INFO) << "Extrapolated track, pT, eta, phi = " << pt << ", " << eta << ", " << phi << endreq;
+      if(msgLvl(MSG::DEBUG)) msg(MSG::INFO) << "Extrapolated track, pT, eta, phi = " << pt << ", " << eta << ", " << phi << endmsg;
       
       if (m_doInvertRoI) {
         eta = -eta; //Flip RoI in eta
         if (phi > 0) phi -= M_PI; //Shift phi by pi
         else phi += M_PI;
         
-        if (msgLvl(MSG::DEBUG)) msg(MSG::INFO) << "Reversed extrapolated track, pT, eta, phi = " << pt << ", " << eta << ", " << phi << endreq;
+        if (msgLvl(MSG::DEBUG)) msg(MSG::INFO) << "Reversed extrapolated track, pT, eta, phi = " << pt << ", " << eta << ", " << phi << endmsg;
       }
 
       // check pT of track
@@ -255,7 +255,7 @@ HLT::ErrorCode TrigMuonEFFSRoiMaker::hltExecute(std::vector<std::vector<HLT::Tri
 
       status = attachFeature(outputTE, outputContainer, m_efContName);
       if ( status != HLT::OK ) {
-        msg() << MSG::ERROR << "Failed to attach MuonContainer" << endreq;
+        msg() << MSG::ERROR << "Failed to attach MuonContainer" << endmsg;
         return status;
       } else {
         ATH_MSG_DEBUG("Successfully attached new MuonContainer to " << outputTE->getId());

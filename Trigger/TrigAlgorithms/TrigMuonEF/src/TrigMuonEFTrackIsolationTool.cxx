@@ -65,7 +65,7 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
   const Trk::Perigee* muidtrk_perigee = 0;
   if( efmuon->combinedTrackParticleLink().isValid()  ) {
     if(m_debug) {
-      msg() << MSG::DEBUG << "EF muon has combined muon" << endreq;
+      msg() << MSG::DEBUG << "EF muon has combined muon" << endmsg;
     }
     muon = *(efmuon->combinedTrackParticleLink());
     if( efmuon->inDetTrackParticleLink().isValid() ) {
@@ -73,11 +73,11 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
       muidtrk_perigee = &(muon_idtrk->perigeeParameters());
       selfpt = muon_idtrk->pt();
       if(m_debug) {
-	msg() << MSG::DEBUG << "Found ID track attached to combined muon, " << muon_idtrk << ",pt = " << selfpt << endreq;
+	msg() << MSG::DEBUG << "Found ID track attached to combined muon, " << muon_idtrk << ",pt = " << selfpt << endmsg;
       }
     }
     else {
-      msg() << MSG::WARNING << "Found EF combined muon without a link to ID track, will use combined pt for self removal" << endreq;
+      msg() << MSG::WARNING << "Found EF combined muon without a link to ID track, will use combined pt for self removal" << endmsg;
       selfpt = muon->pt();
     }
   }//combinedmuon
@@ -85,10 +85,10 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
     // for extrapolated muons use the extrapolated muon for self removal
     if( !efmuon->muonSpectrometerTrackParticleLink().isValid() ) {
       if(m_removeSelf) {
-	msg() << MSG::WARNING << "This EF muon has neither a combined or extrapolated muon and removeSelf is requested, do not process further" << endreq;
+	msg() << MSG::WARNING << "This EF muon has neither a combined or extrapolated muon and removeSelf is requested, do not process further" << endmsg;
 	return StatusCode::FAILURE;
       }//m_removeSelf
-      msg() << MSG::WARNING << "This EF muon has neither a combined, extrapolated or MS muon, do not process further" << endreq;
+      msg() << MSG::WARNING << "This EF muon has neither a combined, extrapolated or MS muon, do not process further" << endmsg;
       return StatusCode::FAILURE; 
     }
     else {
@@ -99,10 +99,10 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
   
   /// consistency checks
   if(m_removeSelf && selfpt==0.0) {
-    msg() << MSG::WARNING << "Inconsistency, removeSelf requested, but selfpt = 0" << endreq;
+    msg() << MSG::WARNING << "Inconsistency, removeSelf requested, but selfpt = 0" << endmsg;
   }
   if(!muon) {
-    msg() << MSG::WARNING << "Could not find a muon to update with the isolation, skipping this muon" << endreq;
+    msg() << MSG::WARNING << "Could not find a muon to update with the isolation, skipping this muon" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -119,14 +119,14 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
       const double dz = idtrk_perigee.parameters()[Trk::z0] - muidtrk_perigee->parameters()[Trk::z0];
       if( fabs(dz) > m_deltaz_cut ) {
 	if(m_debug) {
-	  msg() << MSG::DEBUG << "ID track failed dz cut, ignoring it. dz = " << dz << endreq;
+	  msg() << MSG::DEBUG << "ID track failed dz cut, ignoring it. dz = " << dz << endmsg;
 	}
 	continue;
       }//failed delta(z)
       // store dz (after cut)
       if(dzvals) dzvals->push_back(dz);
       if(m_debug) {
-	msg() << MSG::DEBUG << "ID track passes dz cut. dz = " << dz << endreq;
+	msg() << MSG::DEBUG << "ID track passes dz cut. dz = " << dz << endmsg;
       }
       
     }//deltaz_cut
@@ -147,13 +147,13 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
     if(m_useAnnulus) {
       if( dr < m_annulusSize ) {
 	if(m_debug) {
-	  msg() << MSG::DEBUG << "ID track within annulus, ignoring it, dR = " << dr << ", annulus = " << m_annulusSize << endreq;
+	  msg() << MSG::DEBUG << "ID track within annulus, ignoring it, dR = " << dr << ", annulus = " << m_annulusSize << endmsg;
 	 
 	}
 	continue; // skip tracks in the annulus
       }//annulus cut
       if(m_debug) {
-	msg() << MSG::DEBUG << "ID track outside annulus, keep it, dR = " << dr << ", annulus = " << m_annulusSize << endreq;
+	msg() << MSG::DEBUG << "ID track outside annulus, keep it, dR = " << dr << ", annulus = " << m_annulusSize << endmsg;
       }
     }//use Annulus
 
@@ -170,7 +170,7 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
     for(unsigned int conepos=0; conepos<conesizes.size(); ++conepos) {
       if(dr < conesizes.at(conepos) ) {
 	if(m_debug) {
-	  msg() << MSG::DEBUG << "Adding trk pt = " << (*trkit)->pt() << ", with dr = " << dr << ", into cone = " << conesizes.at(conepos) << endreq; 
+	  msg() << MSG::DEBUG << "Adding trk pt = " << (*trkit)->pt() << ", with dr = " << dr << ", into cone = " << conesizes.at(conepos) << endmsg; 
 	}
 	results.at(conepos) += (*trkit)->pt();
       }
@@ -180,7 +180,7 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
   
   if(m_debug) {
     for(unsigned int conepos=0; conepos<conesizes.size(); ++conepos) {
-      msg() << MSG::DEBUG << "Scalar pT sum of tracks around this muon cone " << conesizes.at(conepos) << " = " << results.at(conepos) << endreq;
+      msg() << MSG::DEBUG << "Scalar pT sum of tracks around this muon cone " << conesizes.at(conepos) << " = " << results.at(conepos) << endmsg;
     }
   }
   if(m_removeSelf && !m_useAnnulus) { // remove muon pt from the sums
@@ -189,7 +189,7 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const xAOD::Muon* ef
     }
     if(m_debug) {
       for(unsigned int conepos=0; conepos<conesizes.size(); ++conepos) {
-	msg() << MSG::DEBUG << "Scalar pT sum of tracks around this muon cone " << conesizes.at(conepos) << " after self removal = " << results.at(conepos) << endreq;
+	msg() << MSG::DEBUG << "Scalar pT sum of tracks around this muon cone " << conesizes.at(conepos) << " after self removal = " << results.at(conepos) << endmsg;
       }
     }
     
@@ -226,7 +226,7 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfo
   const Trk::Perigee* muidtrk_perigee = 0;
   if( efmuon->hasCombinedTrack() ) {
     if(m_debug) {
-      msg() << MSG::DEBUG << "EF muon has combined muon" << endreq;
+      msg() << MSG::DEBUG << "EF muon has combined muon" << endmsg;
     }
     const TrigMuonEFCbTrack* cbmuon = efmuon->CombinedTrack();
     muon = efmuon->CombinedTrack();
@@ -235,11 +235,11 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfo
       muidtrk_perigee = muon_idtrk->measuredPerigee();
       selfpt = muon_idtrk->pt();
       if(m_debug) {
-	msg() << MSG::DEBUG << "Found ID track attached to combined muon, pt = " << selfpt << endreq;
+	msg() << MSG::DEBUG << "Found ID track attached to combined muon, pt = " << selfpt << endmsg;
       }
     }
     else {
-      msg() << MSG::WARNING << "Found EF combined muon without a link to ID track, will use combined pt for self removal" << endreq;
+      msg() << MSG::WARNING << "Found EF combined muon without a link to ID track, will use combined pt for self removal" << endmsg;
       selfpt = cbmuon->pt();
     }
   }//combinedmuon
@@ -247,13 +247,13 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfo
     // for extrapolated muons use the extrapolated muon for self removal
     if(!efmuon->hasExtrapolatedTrack()) {
       if(m_removeSelf) {
-	msg() << MSG::WARNING << "This EF muon has neither a combined or extrapolated muon and removeSelf is requested, do not process further" << endreq;
+	msg() << MSG::WARNING << "This EF muon has neither a combined or extrapolated muon and removeSelf is requested, do not process further" << endmsg;
 	return StatusCode::FAILURE;
       }//m_removeSelf
       else { //use spectrometer track
 	
 	if(!efmuon->hasSpectrometerTrack()) {
-	  msg() << MSG::WARNING << "This EF muon has neither a combined, extrapolated or MS muon, do not process further" << endreq;
+	  msg() << MSG::WARNING << "This EF muon has neither a combined, extrapolated or MS muon, do not process further" << endmsg;
 	  return StatusCode::FAILURE;
 	} 
 	//const TrigMuonEFTrack* msmuon = efmuon->SpectrometerTrack();
@@ -269,10 +269,10 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfo
   
   /// consistency checks
   if(m_removeSelf && selfpt==0.0) {
-    msg() << MSG::WARNING << "Inconsistency, removeSelf requested, but selfpt = 0" << endreq;
+    msg() << MSG::WARNING << "Inconsistency, removeSelf requested, but selfpt = 0" << endmsg;
   }
   if(!muon) {
-    msg() << MSG::WARNING << "Could not find a muon to update with the isolation, skipping this muon" << endreq;
+    msg() << MSG::WARNING << "Could not find a muon to update with the isolation, skipping this muon" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -290,17 +290,17 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfo
 	const double dz = idtrk_perigee->parameters()[Trk::z0] - muidtrk_perigee->parameters()[Trk::z0];
 	if( fabs(dz) > m_deltaz_cut ) {
 	  if(m_debug) {
-	    msg() << MSG::DEBUG << "ID track failed dz cut, ignoring it. dz = " << dz << endreq;
+	    msg() << MSG::DEBUG << "ID track failed dz cut, ignoring it. dz = " << dz << endmsg;
 	  }
 	  continue;
 	}//failed delta(z)
 	// store dz (after cut)
 	if(dzvals) dzvals->push_back(dz);
 	if(m_debug) {
-	  msg() << MSG::DEBUG << "ID track passes dz cut. dz = " << dz << endreq;
+	  msg() << MSG::DEBUG << "ID track passes dz cut. dz = " << dz << endmsg;
 	}
       } else {
-	msg() << MSG::WARNING << "Can not make delta(z) cut because id trk has invalid measuredPerigee. This track will be included in the isolation calculation" << endreq;
+	msg() << MSG::WARNING << "Can not make delta(z) cut because id trk has invalid measuredPerigee. This track will be included in the isolation calculation" << endmsg;
       }
       
     }//deltaz_cut
@@ -321,13 +321,13 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfo
     if(m_useAnnulus) {
       if( dr < m_annulusSize ) {
 	if(m_debug) {
-	  msg() << MSG::DEBUG << "ID track within annulus, ignoring it, dR = " << dr << ", annulus = " << m_annulusSize << endreq;
+	  msg() << MSG::DEBUG << "ID track within annulus, ignoring it, dR = " << dr << ", annulus = " << m_annulusSize << endmsg;
 	 
 	}
 	continue; // skip tracks in the annulus
       }//annulus cut
       if(m_debug) {
-	msg() << MSG::DEBUG << "ID track outside annulus, keep it, dR = " << dr << ", annulus = " << m_annulusSize << endreq;
+	msg() << MSG::DEBUG << "ID track outside annulus, keep it, dR = " << dr << ", annulus = " << m_annulusSize << endmsg;
       }
     }//use Annulus
 
@@ -344,7 +344,7 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfo
     for(unsigned int conepos=0; conepos<conesizes.size(); ++conepos) {
       if(dr < conesizes.at(conepos) ) {
 	if(m_debug) {
-	  msg() << MSG::DEBUG << "Adding trk pt = " << (*trkit)->pt() << ", with dr = " << dr << ", into cone = " << conesizes.at(conepos) << endreq; 
+	  msg() << MSG::DEBUG << "Adding trk pt = " << (*trkit)->pt() << ", with dr = " << dr << ", into cone = " << conesizes.at(conepos) << endmsg; 
 	}
 	results.at(conepos) += (*trkit)->pt();
       }
@@ -354,7 +354,7 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfo
   
   if(m_debug) {
     for(unsigned int conepos=0; conepos<conesizes.size(); ++conepos) {
-      msg() << MSG::DEBUG << "Scalar pT sum of tracks around this muon cone " << conesizes.at(conepos) << " = " << results.at(conepos) << endreq;
+      msg() << MSG::DEBUG << "Scalar pT sum of tracks around this muon cone " << conesizes.at(conepos) << " = " << results.at(conepos) << endmsg;
     }
   }
   if(m_removeSelf && !m_useAnnulus) { // remove muon pt from the sums
@@ -363,7 +363,7 @@ StatusCode TrigMuonEFTrackIsolationTool::calcTrackIsolation(const TrigMuonEFInfo
     }
     if(m_debug) {
       for(unsigned int conepos=0; conepos<conesizes.size(); ++conepos) {
-	msg() << MSG::DEBUG << "Scalar pT sum of tracks around this muon cone " << conesizes.at(conepos) << " after self removal = " << results.at(conepos) << endreq;
+	msg() << MSG::DEBUG << "Scalar pT sum of tracks around this muon cone " << conesizes.at(conepos) << " after self removal = " << results.at(conepos) << endmsg;
       }
     }
     
@@ -377,28 +377,28 @@ StatusCode TrigMuonEFTrackIsolationTool::initialize() {
   m_debug = msgLvl(MSG::DEBUG);
 
   if(m_debug) {
-    msg() << MSG::DEBUG << "Initializing TrigMuonEFTrackIsolationTool[" << name() << "]" << endreq;
+    msg() << MSG::DEBUG << "Initializing TrigMuonEFTrackIsolationTool[" << name() << "]" << endmsg;
     msg() << MSG::DEBUG
-	  << "package version = " << PACKAGE_VERSION << endreq;
+	  << "package version = " << PACKAGE_VERSION << endmsg;
     msg() << MSG::DEBUG
-	  << "Properties set as follows: " << endreq;
+	  << "Properties set as follows: " << endmsg;
     msg() << MSG::DEBUG
-	  << "removeSelf                     " << m_removeSelf << endreq;
+	  << "removeSelf                     " << m_removeSelf << endmsg;
     msg() << MSG::DEBUG
-	  << "deltaZCut                      " << m_deltaz_cut << endreq;
+	  << "deltaZCut                      " << m_deltaz_cut << endmsg;
     msg() << MSG::DEBUG
-	  << "useAnnulus                     " << m_useAnnulus << endreq;
+	  << "useAnnulus                     " << m_useAnnulus << endmsg;
     msg() << MSG::DEBUG
-	  << "annulusSize                    " << m_annulusSize << endreq;
+	  << "annulusSize                    " << m_annulusSize << endmsg;
     msg() << MSG::DEBUG
-	  << "useVarIso                    " << m_useVarIso << endreq;
+	  << "useVarIso                    " << m_useVarIso << endmsg;
 
   }//debug
 
   // check the annulus size is valid
   if(m_useAnnulus) {
     if(m_annulusSize < 0.0 || m_annulusSize > 0.2) {
-      msg() << MSG::ERROR << "Bad configuration of annulusSize = " << m_annulusSize << ", fix your config!" << endreq;
+      msg() << MSG::ERROR << "Bad configuration of annulusSize = " << m_annulusSize << ", fix your config!" << endmsg;
       return StatusCode::FAILURE;
     }
   }//useAnnulus
