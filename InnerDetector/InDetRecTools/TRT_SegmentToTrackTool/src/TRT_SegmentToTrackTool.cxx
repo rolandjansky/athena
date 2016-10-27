@@ -6,6 +6,7 @@
 #include "TrkPseudoMeasurementOnTrack/PseudoMeasurementOnTrack.h"
 #include "InDetRIO_OnTrack/TRT_DriftCircleOnTrack.h"
 #include "InDetIdentifier/TRT_ID.h"
+#include "TrkSurfaces/Surface.h"
 
 ///Needed for the track refitter
 #include "TrkFitterInterfaces/ITrackFitter.h"
@@ -66,13 +67,13 @@ namespace InDet {
 
     StatusCode sc = AthAlgTool::initialize();
 
-    msg(MSG::DEBUG) << "Initializing TRT_SegmentToTrackTool" << endreq;
+    msg(MSG::DEBUG) << "Initializing TRT_SegmentToTrackTool" << endmsg;
 
     //Get the refitting tool
     //
     if(m_doRefit){
       if(m_fitterTool.retrieve().isFailure()) {
-	msg(MSG::FATAL) << "Could not get " << m_fitterTool << endreq; return StatusCode::FAILURE;
+	msg(MSG::FATAL) << "Could not get " << m_fitterTool << endmsg; return StatusCode::FAILURE;
       }
       else {
 	ATH_MSG_INFO( "Retrieved tool " << m_extrapolator );
@@ -81,7 +82,7 @@ namespace InDet {
 
     sc = m_extrapolator.retrieve();
     if (sc.isFailure()) {
-      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve tool " << m_extrapolator << endmsg;
       return StatusCode::FAILURE;
     }
 
@@ -89,38 +90,38 @@ namespace InDet {
     //
     if(m_useasso){
       if(m_assotool.retrieve().isFailure()) {
-	msg(MSG::FATAL)<<"Could not get "<<m_assotool<<endreq; return StatusCode::FAILURE;
+	msg(MSG::FATAL)<<"Could not get "<<m_assotool<<endmsg; return StatusCode::FAILURE;
       }
     }
 
     // Get the scoring tool
     //
     if(m_scoringTool.retrieve().isFailure()) {
-      msg(MSG::FATAL)<<"Could not get "<<m_scoringTool<<endreq; return StatusCode::FAILURE;
+      msg(MSG::FATAL)<<"Could not get "<<m_scoringTool<<endmsg; return StatusCode::FAILURE;
     }
 
     if (m_magFieldSvc.retrieve().isFailure()){
-      msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endreq;
+      msg(MSG::FATAL) << "Failed to retrieve " << m_magFieldSvc << endmsg;
       return StatusCode::FAILURE;
     }
 
     StoreGateSvc* detStore = 0;
     sc = service( "DetectorStore", detStore );
     if (sc.isFailure()){
-      msg(MSG::FATAL) << "Could not get DetectorStore"<<endreq;
+      msg(MSG::FATAL) << "Could not get DetectorStore"<<endmsg;
       return sc;
     }
 
     sc = detStore->retrieve(m_trtId, "TRT_ID");
     if (sc.isFailure()){
-      msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endreq;
+      msg(MSG::FATAL) << "Could not get TRT_ID helper !" << endmsg;
       return StatusCode::FAILURE;
     }
 
     // Get output print level
     //
     if(msgLvl(MSG::DEBUG)) {
-      msg(MSG::DEBUG) << (*this) << endreq;
+      msg(MSG::DEBUG) << (*this) << endmsg;
     }
 
     return sc;
@@ -421,8 +422,8 @@ namespace InDet {
 	  if (zmax*zmin>0.){
 	    pseudotheta = atan2(Rout-Rinn,zmax-zmin);
 	  }
-	  else if (abs(zmax*zmin)<1.e-6){
-	    if (abs(zmax)>1.e-6){
+	  else if (std::abs(zmax*zmin)<1.e-6){
+	    if (std::abs(zmax)>1.e-6){
 	      pseudotheta = atan2(Rout, zmax) ;
 	    } else {
 	      ATH_MSG_DEBUG("no points in endcap?");
@@ -578,9 +579,10 @@ namespace InDet {
       const Trk::TrackParameters *firstmeaspar=0;
       DataVector<const Trk::TrackParameters>::const_iterator parit = fitTrack->trackParameters()->begin();
       do {
-	parit++;
-	if ( (*parit)->covariance()) firstmeaspar = *parit;
-      } while (firstmeaspar==0);
+	// skip pesudo measurements on perigee
+	if ( (*parit)->covariance() && ((*parit)->associatedSurface()  == tS.associatedSurface())) firstmeaspar = *parit;
+	++parit;
+      } while (firstmeaspar==0 && parit != fitTrack->trackParameters()->end());
 
       //Create new perigee starting from the modified first measurement that has a more reasonable covariance matrix
       // const Trk::Perigee* perTrack=dynamic_cast<const Trk::Perigee*>(fitTrack->perigeeParameters());
@@ -595,7 +597,7 @@ namespace InDet {
 	if(firstmeaspar && firstmeaspar->position().perp()<2000*mm && std::abs(firstmeaspar->position().z())<3000*mm){
 
 	  // Modify first measurement so that it has reasonable errors on z and theta
-	  AmgSymMatrix(5)* fcovmat = new AmgSymMatrix(5)(*firstmeaspar->covariance());
+	  AmgSymMatrix(5)* fcovmat = new AmgSymMatrix(5)(*(firstmeaspar->covariance()));
 	  // factors by which we like to scale the cov, this takes the original segment errors into account
 	  double scaleZ     = sqrt(tS.localCovariance()(1,1))/sqrt( (*fcovmat)(1,1));
 	  double scaleTheta = sqrt(tS.localCovariance()(3,3))/sqrt( (*fcovmat)(3,3));
