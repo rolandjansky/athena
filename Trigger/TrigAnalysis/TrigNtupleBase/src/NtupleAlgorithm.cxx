@@ -27,13 +27,13 @@ NtupleAlgorithm::NtupleAlgorithm(const std::string& name, ISvcLocator* pSvcLocat
 StatusCode NtupleAlgorithm::initialize(){
   StatusCode sc;
 
-  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "entering intialize()" << endreq;
+  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "entering intialize()" << endmsg;
   
   // retrive pointer to THistSvc
   ITHistSvc *tHistSvc;
   sc =  service("THistSvc", tHistSvc);
   if (sc.isFailure() || !tHistSvc) {
-    msg(MSG::ERROR) << "Unable to locate Service THistSvc" << endreq;
+    msg(MSG::ERROR) << "Unable to locate Service THistSvc" << endmsg;
     return sc;
   }
 
@@ -44,7 +44,7 @@ StatusCode NtupleAlgorithm::initialize(){
   std::string fullNtupleName =  "/"+m_ntupleFile+"/"+m_ntupleDir+"/"+m_ntupleTreeName;
   sc = tHistSvc->regTree(fullNtupleName, m_tree);
   if (sc.isFailure()) {
-    msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endreq;
+    msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
     return sc;
   }
 
@@ -63,7 +63,7 @@ StatusCode NtupleAlgorithm::initialize(){
     fullNtupleName =  "/"+m_ntupleFile+"/"+m_ntupleDir+"/"+m_ntupleTreeName+"RunInfo";
     sc = tHistSvc->regTree(fullNtupleName, m_treeRun);
     if (sc.isFailure()) {
-      msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endreq;
+      msg(MSG::ERROR) << "Unable to register TTree : " << fullNtupleName << endmsg;
       return sc;
     }
 
@@ -77,7 +77,7 @@ StatusCode NtupleAlgorithm::initialize(){
     }
   }
 
-  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "leaving intialize()" << endreq;
+  if(msgLvl(MSG::INFO)) msg(MSG::INFO) << "leaving intialize()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -85,7 +85,7 @@ StatusCode NtupleAlgorithm::initialize(){
 //---------------------------------------------------------------------
 
 StatusCode NtupleAlgorithm::execute() {
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "entering execute()" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "entering execute()" << endmsg;
 
   // Fill ntuple components
   m_itrNtComp = m_ntupleComponents.begin();
@@ -98,7 +98,7 @@ StatusCode NtupleAlgorithm::execute() {
   // Write the record
   m_tree->Fill();
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving execute()" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving execute()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -106,7 +106,7 @@ StatusCode NtupleAlgorithm::execute() {
 //---------------------------------------------------------------------
 
 StatusCode  NtupleAlgorithm::finalize() {
-  msg(MSG::INFO) << "entering finalize()" << endreq;
+  msg(MSG::INFO) << "entering finalize()" << endmsg;
 
   // Delete ntuple components
   m_itrNtComp = m_ntupleComponents.begin();
@@ -115,7 +115,7 @@ StatusCode  NtupleAlgorithm::finalize() {
     delete (*m_itrNtComp);
   }
 
-  msg(MSG::INFO) << "leaving finalize()" << endreq;
+  msg(MSG::INFO) << "leaving finalize()" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -153,7 +153,7 @@ StatusCode NtupleAlgorithm::parseNtupleComponentStrings() {
         m_ntupleComponentParameters.push_back(ntComponentParameters);
       }
       else {
-        msg(MSG::WARNING) << "No NtComponent class name given in string." << endreq;
+        msg(MSG::WARNING) << "No NtComponent class name given in string." << endmsg;
       }
 
       // Clear the ntComponentParameters object
@@ -182,7 +182,7 @@ StatusCode NtupleAlgorithm::parseNtupleComponentStrings() {
 	
         // Check if this is an allowed NtComponent class.
         if(find(allowed_itr_begin,allowed_itr_end,tmpString) == allowed_itr_end) {
-          msg(MSG::WARNING) << tmpString << " is not an available ntuple component." << endreq;
+          msg(MSG::WARNING) << tmpString << " is not an available ntuple component." << endmsg;
           i = stringLength; // Break out of loop.
           continue;
         }
@@ -221,9 +221,9 @@ StatusCode NtupleAlgorithm::parseNtupleComponentStrings() {
     para_itr = m_ntupleComponentParameters.begin();
     para_itr_end = m_ntupleComponentParameters.end();
 
-    msg(MSG::INFO) << "===================================================== " << endreq;
-    msg(MSG::INFO) << " Activated NtComponent classes and settings " << endreq;
-    msg(MSG::INFO) << "----------------------------------------------------- " << endreq;
+    msg(MSG::INFO) << "===================================================== " << endmsg;
+    msg(MSG::INFO) << " Activated NtComponent classes and settings " << endmsg;
+    msg(MSG::INFO) << "----------------------------------------------------- " << endmsg;
     
     for(;para_itr!=para_itr_end;para_itr++) {
       msg(MSG::INFO)  << (*para_itr).name << "NtComponent";
@@ -238,10 +238,10 @@ StatusCode NtupleAlgorithm::parseNtupleComponentStrings() {
           vec_str_itr++) {
         msg(MSG::INFO) << ", opt:" << (*vec_str_itr);
       }
-      msg(MSG::INFO) << endreq;
+      msg(MSG::INFO) << endmsg;
     }
     
-    msg(MSG::INFO) << "===================================================== " << endreq;
+    msg(MSG::INFO) << "===================================================== " << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -250,7 +250,7 @@ StatusCode NtupleAlgorithm::parseNtupleComponentStrings() {
 //---------------------------------------------------------------------
 
 StatusCode NtupleAlgorithm::beginRun(){
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "entering beginRun()" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "entering beginRun()" << endmsg;
 
   // Fill ntuple components for the RunInfo  TTree
   std::vector<NtComponent::NtupleComponent *>::iterator itrNtComp = m_ntupleRunComponents.begin();
@@ -263,7 +263,7 @@ StatusCode NtupleAlgorithm::beginRun(){
   if (m_ntupleRunComponents.size() > 0)
     m_treeRun->Fill();
 
-  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving beginRun()" << endreq;
+  if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "leaving beginRun()" << endmsg;
   return StatusCode::SUCCESS;
 
 }
