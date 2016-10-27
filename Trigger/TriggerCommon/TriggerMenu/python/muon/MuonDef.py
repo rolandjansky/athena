@@ -1402,9 +1402,11 @@ class L2EFChain_mu(L2EFChainDef):
       if "msonly" in self.chainPart['reccalibInfo']:
               #      self.EFsequenceList += [[self.chainPart['L1item'].replace("L1_",""),
       	      self.EFsequenceList += [['EF_dummy',
-      	        		      [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA"),
-      	        		       theTrigMuonEFSA_NS_Hypo],
-      	        		       'EF_SA_NS']]
+      	        		      [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA")],
+                                       'EF_SA_NS']]
+      	      self.EFsequenceList += [['EF_SA_NS',
+      	        		       [theTrigMuonEFSA_NS_Hypo],
+      	        		       'EF_SA_NS2']]
       	      if "noComb" in self.chainPart['addInfo']:
       	        self.EFsequenceList += [['EF_SA_NS',
       	        			 [CfgGetter.getAlgorithm("TrigMuonEFFSRoiMaker")],
@@ -1423,9 +1425,11 @@ class L2EFChain_mu(L2EFChainDef):
       else:
               #      self.EFsequenceList += [[self.chainPart['L1item'].replace("L1_",""),
       	      self.EFsequenceList += [['EF_dummy',
-      	        		       [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA"),
-      	        			theTrigMuonEFSA_NS_Hypo],
-      	        		       'EF_SA_NS']]
+      	        		       [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA")],
+                                       'EF_SA_NS']]
+      	      self.EFsequenceList += [['EF_SA_NS',
+                                       [theTrigMuonEFSA_NS_Hypo],
+      	        		       'EF_SA_NS2']]
       	      self.EFsequenceList += [['EF_SA_NS',
       	        		      [CfgGetter.getAlgorithm("TrigMuonEFFSRoiMaker")],
       	        		       'EF_SAR_NS']]
@@ -1445,9 +1449,11 @@ class L2EFChain_mu(L2EFChainDef):
       theTrigMuonEFCombinerMultiHypoConfigNS.ConeSize=0.3
       #      self.EFsequenceList += [[self.chainPart['L1item'].replace("L1_",""),
       self.EFsequenceList += [['EF_dummy',
-                              [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA"),
-                               theTrigMuonEFSA_NS_Hypo],
+                              [CfgGetter.getAlgorithm("TrigMuSuperEF_FSSA")],
                                'EF_SA_NS']]
+      self.EFsequenceList += [['EF_SA_NS',
+                               [theTrigMuonEFSA_NS_Hypo],
+                               'EF_SA_NS2']]
       if "noComb" in self.chainPart['addInfo']:
         self.EFsequenceList += [['EF_SA_NS',
                                  [CfgGetter.getAlgorithm("TrigMuonEFFSRoiMaker")],
@@ -1470,24 +1476,25 @@ class L2EFChain_mu(L2EFChainDef):
     ########### Signatures ###########
     self.EFsignatureList += [ [['EF_dummy']] ]
     self.EFsignatureList += [ [['EF_SA_NS']] ]
+    self.EFsignatureList += [ [['EF_SA_NS2']] ]
     if "nscan03" in self.chainPart['FSinfo']:
       if "msonly" in self.chainPart['reccalibInfo']:
         if "noComb" in self.chainPart['addInfo']:
           self.EFsignatureList += [ [['EF_SAR_NS']] ]
           self.EFsignatureList += [ [['EF_NStracksMuon']] ]
           self.EFsignatureList += [ [['EF_CB_NS_single']] ]
-          self.EFsignatureList += [ [['EF_CB_NS']] ]
+          self.EFsignatureList += [ [['EF_CB_NS','EF_SA_NS2']] ]
       else:
         self.EFsignatureList += [ [['EF_SAR_NS']] ]
         self.EFsignatureList += [ [['EF_NStracksMuon']] ]
         self.EFsignatureList += [ [['EF_CB_NS_single']] ]
-        self.EFsignatureList += [ [['EF_CB_NS']] ]
+        self.EFsignatureList += [ [['EF_CB_NS','EF_SA_NS2']] ]
     if "nscan05" in self.chainPart['FSinfo']:
       if "noComb" in self.chainPart['addInfo']:
         self.EFsignatureList += [ [['EF_SAR_NS']] ]
         self.EFsignatureList += [ [['EF_NStracksMuon']] ]
         self.EFsignatureList += [ [['EF_CB_NS_single']] ]
-        self.EFsignatureList += [ [['EF_CB_NS']] ]
+        self.EFsignatureList += [ [['EF_CB_NS','EF_SA_NS2']] ]
 
     nscanseed = self.chainPart['L1item']
     l1seed = self.chainL1Item
@@ -1496,37 +1503,39 @@ class L2EFChain_mu(L2EFChainDef):
       if "msonly" in self.chainPart['reccalibInfo']:
         if "noComb" in self.chainPart['addInfo']:
           self.TErenamingDict = {
-            'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed),
-            'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed), 
-            'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed), 
-            'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed), 
+            'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'),
+            'EF_SA_NS2': mergeRemovingOverlap('EF_SA_NS_','SANShyp2'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed),
+            'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'), 
+            'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'), 
+            'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'), 
             'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+'_noComb_'+nscanseed+'_'+l1seed),
             }
         else:
           self.TErenamingDict = {
-            'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+            'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'),
             }
       else:
         self.TErenamingDict = {
-          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
-          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
-          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
-          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed), 
+          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'),
+          'EF_SA_NS2': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANShyp'),
+          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStrkMu_', 'SANShyp'),
+          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_sngl_','SANShyp'), 
           'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANShyp'+hypocut+'_'+hypocutEF+cone+'_'+nscanseed+'_'+l1seed),
         }
     if "nscan05" in self.chainPart['FSinfo']:
       if "noComb" in self.chainPart['addInfo']:
-        print "hi nils "+ self.chainPartL1Item +' ' + self.chainPartName
         self.TErenamingDict = {
-          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed),
-          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed), 
-          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed), 
-          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'+hypocut+cone+'_noComb_'+nscanseed+'_'+l1seed), 
+          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'),
+          'EF_SA_NS2': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+          'EF_SAR_NS': mergeRemovingOverlap('EF_SAR_NS_','SANSHypo'), 
+          'EF_NStracksMuon': mergeRemovingOverlap('EF_NStracksMuon_', 'SANSHypo'), 
+          'EF_CB_NS_single': mergeRemovingOverlap('EF_CB_NS_single_','SANSHypo'), 
           'EF_CB_NS': mergeRemovingOverlap('EF_CB_NS_', 'SANSHypo'+hypocut+'_'+hypocutEF+cone+'_noComb_'+nscanseed+'_'+l1seed),
           }
       else:
         self.TErenamingDict = {
-          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'+hypocut+cone+'_'+nscanseed+'_'+l1seed),
+          'EF_SA_NS': mergeRemovingOverlap('EF_SA_NS_','SANShyp'),
           }
       
 

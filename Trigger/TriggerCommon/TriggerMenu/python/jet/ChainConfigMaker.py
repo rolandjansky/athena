@@ -48,6 +48,7 @@ class ChainConfigMaker(object):
 
     reco_alg_re = re.compile(r'^a\d+$')
     recluster_alg_re = re.compile(r'^a\d+r$')
+    trimming_alg_re = re.compile(r'^a\d+t$')
     tla_re = \
         re.compile(r'^(?P<indexlo>\d+)i(?P<indexhi>\d+)c(?P<mass_min>\d+)m(?P<mass_max>\d+)TLA$')
     invm_re = re.compile(r'^invm(?P<mass_min>\d+)$')
@@ -196,6 +197,34 @@ class ChainConfigMaker(object):
         else:
             self.check_and_set('do_recluster', False)
 
+
+	# Check for trimming regular expression match
+        match = self.trimming_alg_re.search(part['recoAlg'])
+        if match:
+            self.check_and_set('do_trim',True)
+            print 'doTrimming is True' #Nima!
+            # ----- trimming parameters -----
+            #self.check_and_set('trim_fex_name', 'antikt')
+            self.check_and_set('trim_rclus',0.2)
+            self.check_and_set('trim_ptfrac',0.05)
+            #self.check_and_set('trim_merge_param', part['recoAlg'][1:-1])
+            #self.check_and_set('trim_jet_calib', part['jetCalib'])
+            #self.check_and_set('trim_fex_alg_name', part["recoAlg"])
+
+            fex_label = reduce(lambda x, y: x + y,
+                               (part["recoAlg"],
+                                '_',
+                                part["dataType"],
+                                self.cluster_calib,
+                                part["jetCalib"],
+                                part["scan"]))
+            self.check_and_set('trim_fex_label', fex_label)
+            # Input jets are aktX ungroomed (change from 'aXt' to 'aX', typically X=10)
+            part['recoAlg'] = part['recoAlg'][0:-1]
+        else:
+            self.check_and_set('do_trim',False)
+            print 'doTrimming is false' #Nima!
+
         jet_calib = part['jetCalib']
         self.check_and_set('jet_calib', jet_calib)
         
@@ -227,7 +256,6 @@ class ChainConfigMaker(object):
                             part["scan"]))
 
         self.check_and_set('fex_label', fex_label)
-        
 
 
         # ------- data scouting parameters ----------
@@ -285,21 +313,40 @@ class ChainConfigMaker(object):
         self.deta_string = getTopo(part['topo'], 'deta')
 
         self.dimass_deta = bool(self.invm_string) or bool(self.deta_string)
-        
-        hypo_type = {('j', '', False, False): 'HLThypo',
+
+        # 16/04/10 switch to using TrigHLTJetHypo2 for non-test4 chains
+        # and TrigHLTJetHypo for test4 chains (reverses previous order)
+        hypo_type = {('j', '', False, False): 'HLThypo2_etaet',
                      ('j', 'test1', False, False): 'run1hypo',
                      ('j', 'test2', False, False): 'HLTSRhypo',
-                     ('j', 'test4', False, False): 'HLThypo2_etaet',
-                     ('j', 'test4', False, True): 'HLThypo2_dimass_deta',
-                     ('j', '', False, True): 'HLThypo',
-                     ('ht','test4', False, False): 'HLThypo2_ht',
-                     ('j', 'test4', True, False): 'HLThypo2_tla',
-                     ('ht', '', False, False):'ht',
-                     ('j', '', True, False): 'tla'}.get(
+                     ('j', 'test4', False, False): 'HLThypo',
+                     # set up jets normally, dijet hypo appended:
+                     # requires corresponding change to generateJetChainDefs.py
+                     ('j', 'test4', False, True): 'HLThypo', 
+                     ('j', '', False, True): 'HLThypo2_dimass_deta',
+                     ('ht','test4', False, False): 'ht',
+                     ('j', 'test4', True, False): 'tla',
+                     ('ht', '', False, False):'HLThypo2_ht',
+                     ('j', '', True, False): 'HLThypo2_tla',}.get(
                          (part['trigType'],
                           self.test_flag,
                           bool(self.tla_string),
                           self.dimass_deta), None)
+       
+        # hypo_type = {('j', '', False, False): 'HLThypo',
+        #              ('j', 'test1', False, False): 'run1hypo',
+        #              ('j', 'test2', False, False): 'HLTSRhypo',
+        #              ('j', 'test4', False, False): 'HLThypo2_etaet',
+        #              ('j', 'test4', False, True): 'HLThypo2_dimass_deta',
+        #              ('j', '', False, True): 'HLThypo',
+        #              ('ht','test4', False, False): 'HLThypo2_ht',
+        #              ('j', 'test4', True, False): 'HLThypo2_tla',
+        #              ('ht', '', False, False):'ht',
+        #              ('j', '', True, False): 'tla'}.get(
+        #                  (part['trigType'],
+        #                   self.test_flag,
+        #                   bool(self.tla_string),
+        #                   self.dimass_deta), None)
 
         if self.multi_eta and not hypo_type.startswith('HLThypo'):
             hypo_type = 'HLThypo'
@@ -362,15 +409,42 @@ class ChainConfigMaker(object):
 
         if self.n_parts == 0:
             setattr(self, attr, val)
+            return
 
-        if self.n_parts:
+        
+            
+        # handle special cases, where chainParts differ for understood
+        # reasons.
+        #
+        # - hypo_type. if
+        # old == HLThypo2_dimass_deta, new == HLThypo2_etaet, keep old
+        # new == HLThypo2_dimass_deta, old == HLThypo2_etaet, use new
+
+        my_val = None
+        try:
             my_val = getattr(self, attr)
-            if my_val != val:
-                msg = '%s attribute clash %s %s %s' % (self.err_hdr,
-                                                       attr,
-                                                       my_val,
-                                                       val)
-                raise RuntimeError(msg)
+        except AttributeError:
+            # second chain parts include new inforamtion
+            # of the dijet hypo
+            if self.hypo_type == 'HLThypo2_dimass_deta':
+                if attr in  ('mass_min','dEta_min'):
+                    setattr(self, attr, val)
+                    my_val = getattr(self, attr)
+                    
+        if attr == 'hypo_type':
+            if my_val == 'HLThypo2_etaet' and val == 'HLThypo2_dimass_deta':
+                setattr(self, attr, val)
+                my_val = getattr(self, attr)
+
+            if val == 'HLThypo2_etaet' and my_val == 'HLThypo2_dimass_deta':
+                val = my_val
+
+        if my_val != val:
+            msg = '%s attribute clash %s %s %s' % (self.err_hdr,
+                                                   attr,
+                                                   my_val,
+                                                   val)
+            raise RuntimeError(msg)
 
     def __call__(self):
 
@@ -388,7 +462,7 @@ class ChainConfigMaker(object):
                     'fex_label': self.fex_label,
                     'data_type': self.data_type,
                     'fex_alg_name': self.fex_alg_name,  # for labelling
-                }
+                    }
 
         fex_params = fexparams_factory(self.fex_name, fex_args)
 
@@ -414,6 +488,20 @@ class ChainConfigMaker(object):
             # this is used to name the hypo instance
             last_fex_params = recluster_params  
 
+        trim_params = None
+        if self.do_trim:
+            trim_args = dict(fex_args)
+            trim_args.update({'rclus': self.trim_rclus,
+                              'ptfrac': self.trim_ptfrac,
+                              'fex_label': self.trim_fex_label,
+                              })
+            trim_params = fexparams_factory('jetrec_trimming',trim_args)
+	    
+  	    # overwrite last_fex_params
+	    # this is used to name the hypo instance
+            last_fex_params = trim_params
+          
+            
         if self.hypo_type in ('HLThypo', 'HLThypo2_etaet'):
             hypo_args = {
                 'chain_name': self.chain_name,
@@ -472,7 +560,7 @@ class ChainConfigMaker(object):
                 mass_min = None
                 
             try:
-                dEta_min = float(self.dEta_min)
+                dEta_min = float(self.dEta_min)/10.
             except TypeError:
                 dEta_min = None
 
@@ -496,6 +584,7 @@ class ChainConfigMaker(object):
                              hypo_params=hypo_params,
                              cluster_params=cluster_params,
                              recluster_params=recluster_params,
+			     trim_params=trim_params,
                              last_fex_params= last_fex_params
                          )
 

@@ -21,9 +21,6 @@ from SequenceTree import SequenceLinear
 from ChainConfigMaker import ChainConfigMaker
 from AlgFactory import AlgFactory
 
-from JetCleanMonitoring import JetChainsToKeepMonitoring
-from TriggerMenu.menu.CleanMonitoring import KeepMonitoring
-from TriggerMenu.menu.CleanMonitoring import DisableMonitoringButValAndTime
 
 try:
     from AthenaCommon.Logging import logging
@@ -118,33 +115,33 @@ def _make_sequences(alg_lists, start_te, chain_name):
     st = SequenceLinear(start_te, alg_lists, chain_name)
     return st.sequences
 
-def _reduceHists(sequence, final_chain_name):
-    """reduce number of online histograms according to a whitelist,
-    # strictComparison is needed as e.g. j25 is found as a substring
-    # in other chain names"""
-
-
-    # check if monitoring should be done for this chain.
-    if  KeepMonitoring(final_chain_name,
-                       JetChainsToKeepMonitoring,
-                       strictComparison=True): return
-
-    # find the algs for this sequence with monitoring tools.
-    algsWithTools = [a for a in sequence.alg_list if
-                     hasattr(a,"AthenaMonTools")]
-
-    def hasOnlineTarget(a):
-        for t in a.AthenaMonTools:
-            target = t.target()
-            if target == 'Online' or 'Online' in target:
-                return True
-        return False
-            
-    algsToDisable = [a for a in algsWithTools if hasOnlineTarget(a)]
-
-    for a in algsToDisable:
-        disableMon = DisableMonitoringButValAndTime(a.AthenaMonTools)
-        setattr(a, 'AthenaMonTools', disableMon)
+# def _reduceHists(sequence, final_chain_name):
+#     """reduce number of online histograms according to a whitelist,
+#     # strictComparison is needed as e.g. j25 is found as a substring
+#     # in other chain names"""
+# 
+# 
+#     # check if monitoring should be done for this chain.
+#     if  KeepMonitoring(final_chain_name,
+#                        JetChainsToKeepMonitoring,
+#                        strictComparison=True): return
+# 
+#     # find the algs for this sequence with monitoring tools.
+#     algsWithTools = [a for a in sequence.alg_list if
+#                      hasattr(a,"AthenaMonTools")]
+# 
+#     def hasOnlineTarget(a):
+#         for t in a.AthenaMonTools:
+#             target = t.target()
+#             if target == 'Online' or 'Online' in target:
+#                 return True
+#         return False
+#             
+#     algsToDisable = [a for a in algsWithTools if hasOnlineTarget(a)]
+# 
+#     for a in algsToDisable:
+#         disableMon = DisableMonitoringButValAndTime(a.AthenaMonTools)
+#         setattr(a, 'AthenaMonTools', disableMon)
 
 
 
@@ -234,7 +231,7 @@ def _make_chaindef(from_central, instantiator):
 
     # add sequence and signature (check point) information to it
 
-    [_reduceHists(s, final_chain_name) for s in sequences if "hypo" in s.te_out]
+    # [_reduceHists(s, final_chain_name) for s in sequences if "hypo" in s.te_out]
 
     sig_ind = 0
     for s in sequences:
@@ -322,8 +319,21 @@ def generateHLTChainDef(caller_data):
     debug = 'JETDEF_DEBUG' in os.environ
     no_instantiation_flag = 'JETDEF_NO_INSTANTIATION' in os.environ
     use_atlas_config = not no_instantiation_flag
-
+    chain_name = caller_data_copy['chainName']
+    # if 'inv' in chain_name:
+    #    dump_chaindef(caller_data, None, None, no_instantiation_flag)
+    #    return
+        
     chain_config = None
+    if 'test1' in caller_data['chainName']:
+        msg = 'Chain name error: test1 chains not currently supported'
+        cd = ErrorChainDef(msg, chain_name)
+        if debug:
+            # for debugging, output the original incoming dictionary
+            dump_chaindef(caller_data, cd, chain_config, no_instantiation_flag)
+
+        return cd
+        
     try:
         # instantiator instantiation can fail if there are
         # ATLAS import errors
@@ -331,8 +341,6 @@ def generateHLTChainDef(caller_data):
     except Exception, e:
         tb = exc2string2()
         msg = 'JetDef Instantiator error: error: %s\n%s' % (str(e), tb)
-        chain_name = caller_data_copy['chainName']
-
         cd = ErrorChainDef(msg, chain_name)
         if debug:
             # for debugging, output the original incoming dictionary
@@ -344,7 +352,6 @@ def generateHLTChainDef(caller_data):
         cd, chain_config = _make_chaindef(caller_data_copy, instantiator)
     except Exception, e:
         tb = exc2string2()
-        chain_name = caller_data_copy['chainName']
         msg = 'JetDef error: error: %s\n%s' % (str(e), tb)
         cd = ErrorChainDef(msg, chain_name)
         if logger:
@@ -378,10 +385,13 @@ def dump_chaindef(caller_data, cd, chain_config, no_instantiation_flag):
     # can be stored for later investigation.
 
     if no_instantiation_flag:
-        db =  shelve.open(os.path.join(ddir,
-                                       'chain_defs.db'))
-        db[chain_name] = cd
-        db.close()
+        try:
+            db =  shelve.open(os.path.join(ddir,
+                                           'chain_defs.db'))
+            db[chain_name] = cd
+            db.close()
+        except:
+            print 'Error shelving ChainDef object'
 
     print 'Debug output written to ', fn
 

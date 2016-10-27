@@ -186,6 +186,9 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
     try:
         if 'upc' in ChainDicts[0]['chainName'] :
             noTEreplication=True  
+
+        if 'hi' in ChainDicts[0]['chainName'] and 'v2' in  ChainDicts[1]['chainName'] :
+            noTEreplication=True  
         
         for chainDict in ChainDicts:
             if (chainDict["signature"] == "Jet"):

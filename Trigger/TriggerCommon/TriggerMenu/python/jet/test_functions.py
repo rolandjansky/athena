@@ -7,6 +7,8 @@ from StdOutController import StdOutController
 
 from generateJetChainDefs import  generateChainDefs
 from exc2string import exc2string2 
+from AthenaCommon.Include import include
+from AthenaCommon.OldStyleConfig import  Service
 
 def _generate(d, silent):
 
@@ -38,10 +40,14 @@ def run_triggerMenuXML_dicts(silent,
     
     result = []
     ndicts = 0
+    toSkip = (
+        'j30_jes_cleanLLP_PS_llp_noiso_L1TAU8_EMPTY',
+        'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO',
+        )
     for d in dicts:
-        if d['chainName'] == 'j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO':
-            print 'Excluding j30_jes_PS_llp_L1TAU8_UNPAIRED_ISO'
-            continue
+        # if d['chainName'] in toSkip or '_PS_' in d['chainName']:
+        #    print d['chainName']
+        #    continue
         
         if printChains: print ndicts, d['chainName']
         # sys.stdout = devnull
@@ -49,6 +55,8 @@ def run_triggerMenuXML_dicts(silent,
         try:
             result.append(_generate(d, silent))
         except Exception, e:
+            print d['chainName']
+            print e
             assert False
         ndicts += 1
         # sys.stdout = old_out

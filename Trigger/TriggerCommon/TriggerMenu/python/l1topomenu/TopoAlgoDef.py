@@ -254,6 +254,9 @@ class TopoAlgoDef:
         # Decision algorithms
         currentAlgoId = 0
         
+
+
+
         # VBF items    
         for x in [
             {"algoname": 'INVM_AJ_HighMass', "Threlist": [ 900, 800, 700, 500 ], "maxInvm": 9999, "otype" : "AJ", "ocut1" : 30, "olist" : "s", "nleading1" : 6, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 20, "nleading2" : 6},
@@ -289,27 +292,14 @@ class TopoAlgoDef:
 
         # dimu INVM items
 
- 
+        listofalgos=[
 
-        if doPhysics:
-            listofalgos=[
-
-            {"minInvm": 1, "maxInvm": 19, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0},#1INVM19-2MU4ab 
+            #{"minInvm": 1, "maxInvm": 19, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0},#1INVM19-2MU4ab 
             {"minInvm": 2, "maxInvm": 8, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0}, #2INVM8-2MU4ab 
+            {"minInvm": 2, "maxInvm": 9, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0}, #2INVM9-2MU4ab 
             {"minInvm": 8, "maxInvm": 15, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 0}, #8INVM15-MU6ab-MU4ab
             {"minInvm": 2, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 0}, #2INVM8-MU6ab-MU4ab
-            {"minInvm": 8, "maxInvm": 15, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0}, #8INVM15-2MU6ab
-            {"minInvm": 2, "maxInvm": 9, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0},  #2INVM9-2MU6ab 
-            ]
-        else:
-            listofalgos=[
-
-            {"minInvm": 1, "maxInvm": 19, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0},#1INVM19-2MU4ab 
-            {"minInvm": 2, "maxInvm": 8, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0}, #2INVM8-2MU4ab 
-# ATR-15197            {"minInvm": 2, "maxInvm": 9, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0}, #2INVM9-2MU4ab 
-            {"minInvm": 8, "maxInvm": 15, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 0}, #8INVM15-MU6ab-MU4ab
-            {"minInvm": 2, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 0}, #2INVM8-MU6ab-MU4ab
-# ATR-15197            {"minInvm": 2, "maxInvm": 9, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 0}, #2INVM9-MU6ab-MU4ab
+            {"minInvm": 2, "maxInvm": 9, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 0}, #2INVM9-MU6ab-MU4ab
             {"minInvm": 8, "maxInvm": 15, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0}, #8INVM15-2MU6ab
             {"minInvm": 2, "maxInvm": 9, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0},  #2INVM9-2MU6ab 
             {"minInvm": 7, "maxInvm": 15, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist" : "ab", "otype2" : "",  "ocut2" : 0, "onebarrel": 0}, #7INVM15-2MU4ab 
@@ -350,19 +340,7 @@ class TopoAlgoDef:
 
 
         # dimu DR items
-
-
-
-        if doPhysics:
-            listofalgos=[  
-                {"minDr": 2, "maxDr": 99, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4, "onebarrel": 0}, # SM Y  x
-                {"minDr": 0, "maxDr": 10, "mult": 1, "otype1" : "MU" ,"ocut1": 10, "olist" : "ab", "otype2" : "MU", "ocut2": 6, "onebarrel": 0}, # Exotic LFV x 
-                {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU" ,"ocut1": 6,  "olist" : "ab", "otype2" : "",   "ocut2": 6, "onebarrel": 0},   #x
-                {"minDr": 0, "maxDr": 15, "mult": 1, "otype1" : "MU", "ocut1": 6,  "olist" : "ab", "otype2" : "MU", "ocut2": 4, "onebarrel": 0}, #0DR15-MU6ab-MU4ab  
-                {"minDr": 0, "maxDr": 34, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4, "onebarrel": 0}, #0DR34-2MU4ab 
-            ]
-        else: #MC
-            listofalgos=[  
+        listofalgos=[  
             {"minDr": 2, "maxDr": 99, "mult": 2, "otype1" : "MU" ,"ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4, "onebarrel": 0}, # SM Y  x
             {"minDr": 0, "maxDr": 10, "mult": 1, "otype1" : "MU" ,"ocut1": 10, "olist" : "ab", "otype2" : "MU", "ocut2": 6, "onebarrel": 0}, # Exotic LFV x 
             {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "MU" ,"ocut1": 6,  "olist" : "ab", "otype2" : "",   "ocut2": 6, "onebarrel": 0},   #x
@@ -411,7 +389,7 @@ class TopoAlgoDef:
             
         # deta-dphi with ab+ab
         for x in [     
-            {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 4, "olist2": "", "nleading2": HW.OutputWidthSelectMU},
+            #{"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 4, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 4, "olist2": "", "nleading2": HW.OutputWidthSelectMU},
             {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "MU", "ocut2": 4, "olist2": "ab", "nleading2": HW.OutputWidthSelectMU},
             {"minDeta": 5, "maxDeta": 99, "minDphi": 5, "maxDphi": 99, "mult": 2, "otype1" : "MU", "ocut1": 6, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "otype2" : "", "ocut2": 6, "olist2": "", "nleading2": HW.OutputWidthSelectMU},
             ]:
@@ -454,13 +432,9 @@ class TopoAlgoDef:
             
             tm.registerAlgo(alg)
 
-        if doPhysics:
-            algolist=[
-               {"minDr": 0, "maxDr": 28, "otype1" : "MU" ,"ocut1": 10, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "inputwidth1": HW.OutputWidthSelectMU, "otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU},
-               {"minDr": 0, "maxDr": 28, "otype1" : "TAU" ,"ocut1": 20, "olist1" : "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU,"otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU}, 
-            ]
-        else: # MC
-            algolist=[
+
+
+        algolist=[
                {"minDr": 0, "maxDr": 28, "otype1" : "MU" ,"ocut1": 10, "olist1" : "ab", "nleading1": HW.OutputWidthSelectMU, "inputwidth1": HW.OutputWidthSelectMU, "otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU},   # 0DR28-MU10ab-TAU12abi
                {"minDr": 0, "maxDr": 28, "otype1" : "TAU" ,"ocut1": 20, "olist1" : "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU,"otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU}, # 0DR28-TAU20abi-TAU12abi
                {"minDr": 0, "maxDr": 25, "otype1" : "TAU" ,"ocut1": 20, "olist1" : "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU,"otype2" : "TAU", "ocut2": 12, "olist2" : "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU}, #	0DR25-TAU20abi-TAU12abi
@@ -540,10 +514,7 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)  
 
         # INVM_EM for Jpsi    
-        if doPhysics:
-            invm_map = {"algoname": 'INVM_EMall', "ocutlist": [ 0, 7, 12 ], "minInvm": 1, "maxInvm": 5, "otype" : "EM", "olist" : "s", "nleading" : 1, "inputwidth": HW.OutputWidthSortEM}
-        else:
-            invm_map = {"algoname": 'INVM_EMs6' , "ocutlist": [ 0, 7, 12 ], "minInvm": 1, "maxInvm": 5, "otype" : "EM", "olist" : "s", "nleading" : 1, "inputwidth": HW.OutputWidthSortEM}
+        invm_map = {"algoname": 'INVM_EMs6' , "ocutlist": [ 0, 7, 12 ], "minInvm": 1, "maxInvm": 5, "otype" : "EM", "olist" : "s", "nleading" : 1, "inputwidth": HW.OutputWidthSortEM}
         for x in [ invm_map,
             ]:
             
@@ -554,16 +525,10 @@ class TopoAlgoDef:
             toponames=[]
 
             for ocut in ocutlist:
-                if doPhysics:
-                  toponame = "%iINVM%i-%s%s%s%s-EMall"  % (minInvm, maxInvm, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
-                else:
-                  toponame = "%iINVM%i-%s%s%s%s-EMs6"   % (minInvm, maxInvm, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
+                toponame = "%iINVM%i-%s%s%s%s-EMs6"   % (minInvm, maxInvm, otype, str(ocut) if ocut > 0 else "", olist, str(nleading) if olist=="s" else "")
                 toponames.append(toponame)
-                
-            if doPhysics:
-              alg = AlgConf.InvariantMassInclusive2( name = algoname, inputs = [inputList, 'EMall'], outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1    
-            else:
-              alg = AlgConf.InvariantMassInclusive2( name = algoname, inputs = [inputList, 'EMs'], outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1    
+
+            alg = AlgConf.InvariantMassInclusive2( name = algoname, inputs = [inputList, 'EMs'], outputs = toponames, algoId = currentAlgoId); currentAlgoId += 1    
 
 
             alg.addgeneric('InputWidth1', inputwidth)
@@ -588,7 +553,7 @@ class TopoAlgoDef:
             {"minDPhi": 10, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
             {"minDPhi": 15, "otype" : "AJj", "ocut" : 10, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortJET},
             {"minDPhi": 05, "otype" : "EM",  "ocut" : 12, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},#new
-            {"minDPhi": 10, "otype" : "EM",  "ocut" : 12, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},#new
+            #{"minDPhi": 10, "otype" : "EM",  "ocut" : 12, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},#new
             {"minDPhi": 05, "otype" : "EM",  "ocut" : 15, "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},#same
             ]
 
@@ -619,7 +584,7 @@ class TopoAlgoDef:
 
         alglistmt = [
             {"minMT": 25, "otype" : "EM", "ocut" : "12", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
-            {"minMT": 30, "otype" : "EM", "ocut" : "12", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
+            #{"minMT": 30, "otype" : "EM", "ocut" : "12", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
             {"minMT": 35, "otype" : "EM", "ocut" : "15", "olist" : "s", "nleading" : 6, "inputwidth": HW.OutputWidthSortEM},
             ]
         for x in alglistmt:
@@ -646,7 +611,7 @@ class TopoAlgoDef:
             
         # VBF deta     
         for x in [
-            {"minDeta": 0,  "maxDeta": 10, "otype" : "J",  "ocut1" : 0,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 0, "nleading2": 2},
+            #{"minDeta": 0,  "maxDeta": 10, "otype" : "J",  "ocut1" : 0,  "olist" : "s", "nleading1" : 1, "inputwidth1": HW.OutputWidthSortJET, "ocut2" : 0, "nleading2": 2},
             ]:
 
             for k in x:
@@ -673,16 +638,9 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)
             
         # ZH Trigger
-        if doPhysics:
-            supportedalgolist = [
-               {"minDPhi": 10, "otype" : "J", "ocut" : 0,  "olist" : "s", "nleading" : 2, "inputwidth": HW.OutputWidthSortJET, "ocut2": 50 },
-               {"minDPhi": 10, "otype" : "J", "ocut" : 20, "olist" : "s", "nleading" : 2, "inputwidth": HW.OutputWidthSortJET, "ocut2": 50 },
-               {"minDPhi": 10, "otype" : "J", "ocut" : 20, "olist" : "ab", "nleading" : HW.OutputWidthSelectJET, "inputwidth": HW.OutputWidthSelectJET, "ocut2": 50},
-               {"minDPhi": 10, "otype" : "CJ","ocut" : 20, "olist" : "ab", "nleading" : HW.OutputWidthSelectJET, "inputwidth": HW.OutputWidthSelectJET, "ocut2": 50},
-            ]
-        else:
-            supportedalgolist = [
-               {"minDPhi": 10, "otype" : "J", "ocut" : 0,  "olist" : "s", "nleading" : 2, "inputwidth": HW.OutputWidthSortJET, "ocut2": 50 },
+
+        supportedalgolist = [
+               #{"minDPhi": 10, "otype" : "J", "ocut" : 0,  "olist" : "s", "nleading" : 2, "inputwidth": HW.OutputWidthSortJET, "ocut2": 50 },
                {"minDPhi": 10, "otype" : "J", "ocut" : 20, "olist" : "s", "nleading" : 2, "inputwidth": HW.OutputWidthSortJET, "ocut2": 50 },
                {"minDPhi": 10, "otype" : "J", "ocut" : 20, "olist" : "ab", "nleading" : HW.OutputWidthSelectJET, "inputwidth": HW.OutputWidthSelectJET, "ocut2": 50},
                {"minDPhi": 10, "otype" : "CJ","ocut" : 20, "olist" : "ab", "nleading" : HW.OutputWidthSelectJET, "inputwidth": HW.OutputWidthSelectJET, "ocut2": 50},
@@ -744,21 +702,7 @@ class TopoAlgoDef:
             
         # dimu INVM items
 
-
-        if doPhysics:
-            algolist=[
-                {"minInvm": 1, "maxInvm": 19, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0}, #1INVM19-CMU4ab-MU4ab
-                {"minInvm": 2, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0}, #2INVM8-CMU4ab-MU4ab
-                {"minInvm": 1, "maxInvm": 19, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0}, #1INVM19-2CMU4ab
-                {"minInvm": 2, "maxInvm": 8, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0}, #2INVM8-2CMU4ab
-                {"minInvm": 2, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 1}, #2INVM8-ONEBARREL-MU6ab-MU4ab
-                {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 1},
-                {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "CMU","ocut1": 6, "olist" : "ab", "otype2" :"CMU","ocut2" : 4, "onebarrel": 0},
-                {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 6, "olist" : "ab", "otype2" : "CMU","ocut2": 4, "onebarrel": 0},
-
-            ]
-        else:
-            algolist=[
+        algolist=[
                 #            {"minInvm": 2, "maxInvm": 999, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0},
                 #            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0},
                 #            {"minInvm": 2, "maxInvm": 999, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 1},
@@ -770,10 +714,10 @@ class TopoAlgoDef:
                 #            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 1},
                 #            {"minInvm": 4, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 6, "olist" : "ab", "otype2" : "CMU","ocut2": 4, "onebarrel": 0},
                 #SX
-                {"minInvm": 1, "maxInvm": 19, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0}, #1INVM19-CMU4ab-MU4ab
+                #{"minInvm": 1, "maxInvm": 19, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0}, #1INVM19-CMU4ab-MU4ab
                 {"minInvm": 2, "maxInvm": 8, "mult": 1, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"MU", "ocut2" : 4, "onebarrel": 0}, #2INVM8-CMU4ab-MU4ab
-                {"minInvm": 1, "maxInvm": 19, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0}, #1INVM19-2CMU4ab
-                {"minInvm": 2, "maxInvm": 8, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0}, #2INVM8-2CMU4ab
+                #{"minInvm": 1, "maxInvm": 19, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0}, #1INVM19-2CMU4ab
+                #{"minInvm": 2, "maxInvm": 8, "mult": 2, "otype1" : "CMU","ocut1": 4, "olist" : "ab", "otype2" :"", "ocut2" : 0, "onebarrel": 0}, #2INVM8-2CMU4ab
                 {"minInvm": 2, "maxInvm": 8, "mult": 1, "otype1" : "MU", "ocut1": 6, "olist" : "ab", "otype2" : "MU","ocut2" : 4, "onebarrel": 1}, #2INVM8-ONEBARREL-MU6ab-MU4ab
             ]
 
@@ -810,17 +754,7 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)
 
         # dimu DR items
-
-
-        if doPhysics:
-            algolist=[
-                {"minDr": 0, "maxDr": 24, "mult": 2, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4, "onebarrel": 0}, #0DR24-2CMU4ab
-                {"minDr": 0, "maxDr": 24, "mult": 1, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "MU","ocut2": 4, "onebarrel": 0}, #0DR24-CMU4ab-MU4ab  
-                {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "CMU","ocut1": 6,  "olist" : "ab", "otype2" : "CMU","ocut2": 4, "onebarrel": 0},
-                {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "MU", "ocut1": 6,  "olist" : "ab", "otype2" : "MU","ocut2": 4, "onebarrel": 1},   
-            ]
-        else:
-            algolist=[#            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "MU", "ocut2": 4, "onebarrel": 0},
+        algolist=[#            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "MU", "ocut2": 4, "onebarrel": 0},
                 #            {"minDr": 2, "maxDr": 15, "mult": 2, "otype1" : "CMU","ocut1": 4,  "olist" : "ab", "otype2" : "",   "ocut2": 4, "onebarrel": 0},
                 #            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "MU", "ocut1": 6,  "olist" : "ab", "otype2" : "MU","ocut2": 4, "onebarrel": 1},            
                 #            {"minDr": 2, "maxDr": 15, "mult": 1, "otype1" : "CMU","ocut1": 6,  "olist" : "ab", "otype2" : "CMU","ocut2": 4, "onebarrel": 0},
@@ -938,32 +872,32 @@ class TopoAlgoDef:
         tm.registerAlgo(alg)
 
         # RATIO SUM for W T&P 
-        toponame = "05RATIO-XE0-SUM0-EM10s1-HT0-AJj15all.ETA49"
-        alg = AlgConf.RatioSum( name = toponame, inputs = ['XE', 'AJjall', 'EMs'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
-        alg.addgeneric('InputWidth1', 1)
-        alg.addgeneric('InputWidth2', HW.InputWidthJET) 
-        alg.addgeneric('InputWidth3', HW.OutputWidthSortEM) 
-        alg.addgeneric('MaxTob1', 1)
-        alg.addgeneric('MaxTob2', HW.InputWidthJET)
-        alg.addgeneric('MaxTob3', 1)
-        alg.addgeneric('NumResultBits', 1)
-        alg.addgeneric('UseCluster05Granularity', 1)
-        alg.addvariable('MinET2', 15)
-        alg.addvariable('EtaMin2', 0)
-        alg.addvariable('EtaMax2', 49)
-        alg.addvariable('MinET3', 10)
-        alg.addvariable('EtaMin3', 0)
-        alg.addvariable('EtaMax3', 49)
-        alg.addvariable('MinMET', 0)
-        alg.addvariable('HT', 0)
-        alg.addvariable('SUM', 0)
-        alg.addvariable('Ratio', 5, 0)
-        tm.registerAlgo(alg)
+        #toponame = "05RATIO-XE0-SUM0-EM10s1-HT0-AJj15all.ETA49"
+        #alg = AlgConf.RatioSum( name = toponame, inputs = ['XE', 'AJjall', 'EMs'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
+        #alg.addgeneric('InputWidth1', 1)
+        #alg.addgeneric('InputWidth2', HW.InputWidthJET) 
+        #alg.addgeneric('InputWidth3', HW.OutputWidthSortEM) 
+        #alg.addgeneric('MaxTob1', 1)
+        #alg.addgeneric('MaxTob2', HW.InputWidthJET)
+        #alg.addgeneric('MaxTob3', 1)
+        #alg.addgeneric('NumResultBits', 1)
+        #alg.addgeneric('UseCluster05Granularity', 1)
+        #alg.addvariable('MinET2', 15)
+        #alg.addvariable('EtaMin2', 0)
+        #alg.addvariable('EtaMax2', 49)
+        #alg.addvariable('MinET3', 10)
+        #alg.addvariable('EtaMin3', 0)
+        #alg.addvariable('EtaMax3', 49)
+        #alg.addvariable('MinMET', 0)
+        #alg.addvariable('HT', 0)
+        #alg.addvariable('SUM', 0)
+        #alg.addvariable('Ratio', 5, 0)
+        #tm.registerAlgo(alg)
 
         # RATIO for W T&P
         for x in [
             {"minRatio": 5, "ocut" : 15, "Ratio": "RATIO"},
-            {"minRatio": 8, "ocut" : 15, "Ratio": "RATIO"},
+            #{"minRatio": 8, "ocut" : 15, "Ratio": "RATIO"},
             {"minRatio": 90, "ocut" : 15, "Ratio": "RATIO2"},
             {"minRatio": 250, "ocut" : 15, "Ratio": "RATIO2"},
             ]:
@@ -992,10 +926,7 @@ class TopoAlgoDef:
 
             
         # RATIO MATCH dedicated to Exotic 
-        if doPhysics:
-          toponame = '210RATIO-0MATCH-TAU30si2-EMall'
-        else:
-          toponame = '100RATIO-0MATCH-TAU30si2-EMall'
+        toponame = '100RATIO-0MATCH-TAU30si2-EMall'
         alg = AlgConf.RatioMatch( name = toponame, inputs = [ 'TAUsi', 'EMall'], outputs = [ toponame ], algoId = currentAlgoId ); currentAlgoId += 1
         alg.addgeneric('InputWidth1', HW.OutputWidthSortTAU)
         alg.addgeneric('InputWidth2', HW.InputWidthEM)      
@@ -1004,10 +935,7 @@ class TopoAlgoDef:
         alg.addgeneric('NumResultBits', 1)
         alg.addvariable('MinET1', 30)
         alg.addvariable('MinET2',  0)
-        if doPhysics:
-          alg.addvariable('Ratio', 210, 0)
-        else:
-          alg.addvariable('Ratio', 100, 0)
+        alg.addvariable('Ratio', 100, 0)
         tm.registerAlgo(alg)        
 
 
@@ -1052,9 +980,9 @@ class TopoAlgoDef:
         # DISAMB 2 lists
         for x in [     
             {"disamb": 1, "otype1" : "TAU", "ocut1": 12, "olist1" : "abi", "nleading1": HW.OutputWidthSelectTAU, "otype2" : "J", "ocut2": 25, "olist2": "ab", "nleading2": HW.OutputWidthSelectJET},
-            {"disamb": 0, "otype1" : "EM",  "ocut1": 15, "olist1" : "abhi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "TAU", "ocut2": 40, "olist2": "ab", "nleading2": HW.OutputWidthSelectTAU},
-            {"disamb": 1, "otype1" : "TAU", "ocut1": 20, "olist1" : "ab", "nleading1": HW.OutputWidthSelectTAU,  "otype2" : "J", "ocut2": 20, "olist2": "ab", "nleading2": HW.OutputWidthSelectJET},
-            {"disamb": 0, "otype1" : "EM",  "ocut1": 15, "olist1" : "abhi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU},
+            #{"disamb": 0, "otype1" : "EM",  "ocut1": 15, "olist1" : "abhi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "TAU", "ocut2": 40, "olist2": "ab", "nleading2": HW.OutputWidthSelectTAU},
+            #{"disamb": 1, "otype1" : "TAU", "ocut1": 20, "olist1" : "ab", "nleading1": HW.OutputWidthSelectTAU,  "otype2" : "J", "ocut2": 20, "olist2": "ab", "nleading2": HW.OutputWidthSelectJET},
+            #{"disamb": 0, "otype1" : "EM",  "ocut1": 15, "olist1" : "abhi", "nleading1": HW.OutputWidthSelectEM, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU},
             ]:
             
             for k in x:
@@ -1113,13 +1041,8 @@ class TopoAlgoDef:
             tm.registerAlgo(alg)         
 
         # DISAMB 3 lists with DR cut to 2nd and 3rd lists
-        if doPhysics:
-            algolist=[
-               {"disamb": 1, "otype1" : "EM",  "ocut1": 15, "olist1": "shi","nleading1": 2, "inputwidth1": HW.OutputWidthSortEM, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28},
-               {"disamb": 1, "otype1" : "TAU",  "ocut1": 20, "olist1": "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28},
-            ]
-        else: # MC
-            algolist=[
+
+        algolist=[
                {"disamb": 1, "otype1" : "EM",  "ocut1": 15, "olist1": "shi","nleading1": 2, "inputwidth1": HW.OutputWidthSortEM, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28}, 
                {"disamb": 1, "otype1" : "TAU",  "ocut1": 20, "olist1": "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 28}, # 1DISAMB-J25ab-0DR28-TAU20abi-TAU12abi
                {"disamb": 1, "otype1" : "TAU",  "ocut1": 20, "olist1": "abi","nleading1": HW.OutputWidthSelectTAU, "inputwidth1": HW.OutputWidthSelectTAU, "otype2" : "TAU", "ocut2": 12, "olist2": "abi", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU, "otype3" : "J", "ocut3": 25, "olist3": "ab", "nleading3": HW.OutputWidthSelectJET, "inputwidth3": HW.OutputWidthSelectJET, "drcutmin": 0, "drcutmax": 25}, # 1DISAMB-J25ab-0DR25-TAU20abi-TAU12abi
@@ -1181,10 +1104,10 @@ class TopoAlgoDef:
             alg.addvariable('PhiMax', maxPhi)
             tm.registerAlgo(alg)
 
-        if doPhysics:
-          xemap = {"etcut": 0, "Threlist": [ 35, 45, 55, 60, 65, 75 ]}
-        else:
-          xemap = {"etcut": 0, "Threlist": [ 40, 50, 55, 60, 65, 75 ]}
+
+
+
+        xemap = {"etcut": 0, "Threlist": [ 40, 50, 55, 60, 65, 75 ]}
         for x in [ 
             xemap,
             ]:
@@ -1339,7 +1262,7 @@ class TopoAlgoDef:
             alg.addgeneric('InputWidth', inputwidth) 
             alg.addgeneric('MaxTob', 1)
             alg.addgeneric('NumResultBits', 1)
-            alg.addvariable('MinEt', str(ocut))
+            alg.addvariable('MinET', str(ocut))
             tm.registerAlgo(alg)
             
 
@@ -1358,16 +1281,78 @@ class TopoAlgoDef:
 
             inputList = otype + olist
 
-            alg = AlgConf.JetSimpleCone( name = toponame, inputs = inputList, outputs = [toponame], algoId = currentAlgoId ); currentAlgoId += 1
+            alg = AlgConf.SimpleCone( name = toponame, inputs = inputList, outputs = [toponame], algoId = currentAlgoId ); currentAlgoId += 1
 
 
             alg.addgeneric('InputWidth', inputwidth)
-            alg.addgeneric('MaxTob', nleading)        
-            alg.addgeneric('NumRegisters', 2 if olist=="all" else 0)
-            alg.addgeneric('NumResultBits', 1)
             alg.addvariable('MinET', ocut)                        
-            alg.addvariable('MinEta', 0)
-            alg.addvariable('MaxEta', oeta)
-            alg.addvariable('Radius', 10)                        
-            alg.addvariable('MinHt', minHT)
+            alg.addvariable('MinSumET', minHT)
+            alg.addvariable('MaxRSqr', 10*10)                        
             tm.registerAlgo(alg)  
+
+        # DISAMB-INVM
+
+        for x in [
+                {"disamb": 0, "minInvm": 30, "maxInvm": 9999,"otype1" : "EM",  "ocut1": 20, "olist1": "shi","nleading1": 2, "inputwidth1": HW.OutputWidthSortEM, "otype2" : "TAU", "ocut2": 12, "olist2": "ab", "nleading2": HW.OutputWidthSelectTAU, "inputwidth2": HW.OutputWidthSelectTAU}, # DISAMB-30INVM-EM20his2-TAU12ab
+                ]:
+            
+                for k in x:
+                    exec("%s = x[k]" % k)
+
+                obj1 = "%s%s%s"  % (otype1, str(ocut1), olist1.replace('shi','his') + (str(nleading1) if olist1.find('s')>=0 else ""))
+                obj2 = "-%s%s%s" % (otype2, str(ocut2), olist2)
+                toponame = "%sDISAMB-%iINVM%s-%s%s"  % ( disamb if disamb>0 else "", minInvm, str(maxInvm) if maxInvm<9999 else "", obj1, obj2)          
+
+                log.info("Define %s" % toponame)
+                inputList = [otype1 + olist1, otype2 + olist2]               
+                alg = AlgConf.DisambiguationInvariantMass2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1
+
+                alg.addgeneric('InputWidth1', inputwidth1)
+                alg.addgeneric('InputWidth2', inputwidth2)
+                alg.addgeneric('MaxTob1', nleading1)
+                alg.addgeneric('MaxTob2', nleading2)
+                alg.addgeneric('NumResultBits', 1)
+            
+                alg.addvariable('MinET1', ocut1)
+                alg.addvariable('MinET2', ocut2)
+                alg.addvariable('MinMSqr', minInvm * minInvm)
+                alg.addvariable('MaxMSqr', maxInvm * maxInvm)
+                
+                tm.registerAlgo(alg)
+
+
+        for x in [
+                {  "minInvm": 400, "maxInvm": 9999, "otype1" : "AJ", "ocut1": 30, "olist1" : "s", "nleading1" : 6, "inputwidth1": HW.OutputWidthSortJET, "otype2" : "AJ", "ocut2": 20, "olist2" : "s", "nleading2" : 6, "inputwidth2": HW.OutputWidthSortJET, "applyEtaCut":1, "minEta1": 0 ,"maxEta1": 31 , "minEta2": 31 ,"maxEta2": 49 , }, #400INVM9999-AJ30s6.ETA31-AJ20s6.31ETA49
+                ]:
+            
+                for k in x:
+                    exec("%s = x[k]" % k)
+
+                obj1 = "%s%s%s.%sETA%i"  % (otype1, str(ocut1), olist1 + (str(nleading1) if olist1.find('s')>=0 else ""),str(minEta1) if minEta1>0 else "", maxEta1)
+                obj2 = "-%s%s%s.%sETA%i"  % (otype2, str(ocut2), olist2 + (str(nleading2) if olist2.find('s')>=0 else ""),str(minEta2) if minEta2>0 else "", maxEta2)
+            
+                inputList = [otype1 + olist1, otype2 + olist2]
+                        
+                toponame = "%iINVM%i-%s%s"   % (minInvm, maxInvm, obj1, obj2)
+                alg = AlgConf.InvariantMassInclusive2( name = toponame, inputs = inputList, outputs = toponame, algoId = currentAlgoId); currentAlgoId += 1    
+
+
+                alg.addgeneric('InputWidth1', inputwidth1)
+                alg.addgeneric('InputWidth2', inputwidth2)
+                alg.addgeneric('MaxTob1', nleading1)
+                alg.addgeneric('MaxTob2', nleading2)
+                alg.addgeneric('NumResultBits', 1)
+                if (applyEtaCut>0):
+                    alg.addgeneric('ApplyEtaCut', applyEtaCut)
+
+                alg.addvariable('MinET1', ocut1)
+                alg.addvariable('MinET2', ocut2)
+                alg.addvariable('MinMSqr', minInvm * minInvm )
+                alg.addvariable('MaxMSqr', maxInvm * maxInvm )
+                if (applyEtaCut>0):
+                    alg.addvariable('MinEta1', minEta1)
+                    alg.addvariable('MaxEta1', maxEta1)
+                    alg.addvariable('MinEta2', minEta2)
+                    alg.addvariable('MaxEta2', maxEta2)
+
+                tm.registerAlgo(alg)

@@ -80,6 +80,7 @@ class JetSequencesBuilder(object):
                        'jr': self.make_jr_clusters,  # jet rec
                        'hijr': self.make_hijr,  # hi jet rec
                        'rc': self.make_jr_recluster,  # recluster jets
+		       'tr': self.make_jr_trimming, # trimmed jets
                        'jh': self.make_jh,  # jet hypo
                        'jh_ht': self.make_jh_ht,  # HT hypo
                        'jh_tla': self.make_jh_tla,  # TLA hypo
@@ -148,6 +149,16 @@ class JetSequencesBuilder(object):
         if menu_data.recluster_params is not None:
             seq_order.append('rc')
 
+        # add jet trimming sequence if requested 
+        if menu_data.trim_params is not None:
+            # Replace 'jr' with 'tr' if available
+            # Done this way for reasones explained in ATR-14738
+            # See explanation from S. Schramm on Oct 15 2016
+            if seq_order[-1] == 'jr':
+                seq_order[-1] = 'tr'
+            else:
+                seq_order.append('tr')
+    
         # fex diagnostics are run before the hypo,
         # otherwise they will not see
         # features before cuts.
@@ -345,7 +356,18 @@ class JetSequencesBuilder(object):
         # return AlgList([self.alg_factory.jetrec_cluster(),
         #                self.alg_factory.jetrec_jet()], alias)
 
+    def make_jr_trimming(self):
+        """Make jetrec sequence"""
 
+        menu_data = self.chain_config.menu_data
+        fex_params = menu_data.fex_params
+        cluster_params = menu_data.cluster_params
+        trim_params = menu_data.trim_params
+        
+        alias = 'jetrectrim_%s' % trim_params.fex_label
+        
+        return AlgList(self.alg_factory.jetrec_trimming(),alias)
+        
 
     def make_jh(self):
         """Create an alg_list for 2015 JetRec hypo sequence"""
@@ -355,12 +377,13 @@ class JetSequencesBuilder(object):
         alias_base = hypo.hypo_type+ '_' + hypo.attributes_toString()
         alias_base += '_' + hypo.cleaner
 
-        alias = alias_base  # copy
-        
+        # alias = alias_base  # copy
+        alias = 'noCleaning%s_%s' % (hypo.hypo_type, self.chain_name_esc)
+                         
         function_map  = {
             'HLThypo': self.alg_factory.hlthypo_EtaEt,  # maxbipartitite matcher
             'HLTSRhypo': self.alg_factory.hlthypo_EtaEt,  # 1 EtaRegion matcher
-            'run1hypo': self.alg_factory.jr_hypo,
+            # 'run1hypo': self.alg_factory.jr_hypo,
             'HLThypo2_etaet': self.alg_factory.hlthypo2_EtaEt,
             }
 
@@ -393,7 +416,8 @@ class JetSequencesBuilder(object):
 
         
         hypo = menu_data.hypo_params
-        alias = 'hthypo_%s' % str(hypo.attributes_toString())
+        # alias = 'hthypo_%s' % str(hypo.attributes_toString())
+        alias = 'hthypo_%s' % self.chain_name_esc
 
         return AlgList(self.alg_factory.ht_hypo(), alias)
 
@@ -401,24 +425,17 @@ class JetSequencesBuilder(object):
     def make_jh_dimass_deta(self):
         """Create an alg_list for the dijet hypo"""
 
-        function_map  = {
-            'HLThypo2_dimass_deta': self.alg_factory.hlthypo2_dimass_deta, 
-        }
-
         menu_data = self.chain_config.menu_data
         hypo = menu_data.hypo_params
-        f = function_map.get(hypo.hypo_type, None)
 
-        if f is None:
-            msg = '%s._make_jh: unknown hypo_type: %s' % (
-                self.__class__.__name__, str(hypo.hypo_type))
-            raise RuntimeError(msg)
+        alias = 'noCleaning%s_%s' % (hypo.hypo_type, self.chain_name_esc)
 
-        alias = hypo.hypo_type
-        alias += '_' + hypo.cleaner
-        alias += hypo.attributes_toString()
+        algs = []
 
-        return AlgList(f(), alias)
+        #run the eta-et hypo then the dimass hypo
+        [algs.extend(f()) for f in ( self.alg_factory.hlthypo2_EtaEt,
+                                     self.alg_factory.hlthypo2_dimass_deta)]
+        return AlgList(algs, alias)
 
 
     def make_jh_tla(self):
@@ -439,7 +456,8 @@ class JetSequencesBuilder(object):
             raise RuntimeError(msg)
 
         hypo = menu_data.hypo_params
-        alias = hypo.hypo_type+ '_%s' % str(hypo.tla_string)
+        # alias = hypo.hypo_type+ '_%s' % str(hypo.tla_string)
+        alias = '%s_%s' % (hypo.hypo_type, self.chain_name_esc)
 
         return AlgList(f(), alias)
 

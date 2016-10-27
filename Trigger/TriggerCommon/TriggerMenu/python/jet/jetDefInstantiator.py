@@ -36,6 +36,7 @@ from TrigHLTJetRec.TrigHLTJetRecConf import TrigHLTRoIDiagnostics
 from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTJetRecFromCluster,
                                                TrigHLTJetRecFromJet,
+                                               TrigHLTJetRecGroomer,
                                                TrigHLTJetRecFromTriggerTower,
                                                TrigHLTClusterDiagnostics_named,
                                                TrigHLTCellDiagnostics_named,
@@ -44,12 +45,10 @@ from TrigHLTJetRec.TrigHLTJetRecConfig import (TrigHLTJetDiagnostics_named,
                                                TrigHLTEnergyDensity,
                                                TrigHLTJetDSSelector,)
 
-from TrigJetHypo.TrigJetHypoConfig import EFCentFullScanMultiJetHypo
-
 from TrigHLTJetHypo.TrigHLTJetHypoConfig import (TrigHLTJetHypo,
                                                  TrigHLTJetHypo2)
 
-from TrigJetHypo.TrigEFHTHypoConfig import EFHT
+from TrigHLTJetHypo.TrigEFHLTHTHypoConfig import EFHLTHT
 from TrigDetCalib.TrigDetCalibConf import ScoutingStreamWriter
 
 from TrigHIRec.TrigHICaloRec import (TrigCaloTowerMaker_hijet,

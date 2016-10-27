@@ -216,7 +216,9 @@ def getL1_ALFA_Phys_Any(l1seed):
 ##############################
 def getL1ALFA_Calib(l1seed):
 
-    L1ALFA_Calib_seeds = 'L1_ALFA_ELAST15_Calib,L1_ALFA_ELAST18_Calib,L1_ALFA_BGT,L1_ALFA_BGT_UNPAIRED_ISO,L1_ALFA_BGT_BGRP10,L1_ALFA_SHOWSYST5,L1_ALFA_ANY_EMPTY,L1_ALFA_ANY_FIRSTEMPTY,L1_ALFA_ANY_UNPAIRED_ISO,L1_ALFA_ANY_UNPAIRED_NONISO,L1_ALFA_ANY_BGRP10,L1_ALFA_ANY_CALIB,L1_ALFA_ANY_ABORTGAPNOTCALIB,L1_ALFA_B7L1U,L1_ALFA_B7L1L,L1_ALFA_A7L1U,L1_ALFA_A7L1L,L1_ALFA_A7R1U,L1_ALFA_A7R1L,L1_ALFA_B7R1U,L1_ALFA_B7R1L,L1_ALFA_B7L1U_OD,L1_ALFA_B7L1L_OD,L1_ALFA_A7L1U_OD,L1_ALFA_A7L1L_OD,L1_ALFA_A7R1U_OD,L1_ALFA_A7R1L_OD,L1_ALFA_B7R1U_OD,L1_ALFA_B7R1L_OD,L1_ALFA_B7L1_OD,L1_ALFA_A7L1_OD,L1_ALFA_A7R1_OD,L1_ALFA_B7R1_OD,L1_ALFA_ANY_A_EMPTY,L1_ALFA_ANY_C_EMPTY'
+    L1ALFA_Calib_seeds = 'L1_ALFA_B7L1U,L1_ALFA_B7L1L,L1_ALFA_A7L1U,L1_ALFA_A7L1L,L1_ALFA_A7R1U,L1_ALFA_A7R1L,L1_ALFA_B7R1U,L1_ALFA_B7R1L'
+        #ATR-13743 'L1_ALFA_ELAST15_Calib,L1_ALFA_ELAST18_Calib,L1_ALFA_BGT,L1_ALFA_BGT_UNPAIRED_ISO,L1_ALFA_BGT_BGRP10,L1_ALFA_SHOWSYST5,L1_ALFA_ANY_EMPTY,L1_ALFA_ANY_FIRSTEMPTY,L1_ALFA_ANY_UNPAIRED_ISO,L1_ALFA_ANY_UNPAIRED_NONISO,L1_ALFA_ANY_BGRP10,L1_ALFA_ANY_CALIB,L1_ALFA_ANY_ABORTGAPNOTCALIB,
+           #L1_ALFA_B7L1U_OD,L1_ALFA_B7L1L_OD,L1_ALFA_A7L1U_OD,L1_ALFA_A7L1L_OD,L1_ALFA_A7R1U_OD,L1_ALFA_A7R1L_OD,L1_ALFA_B7R1U_OD,L1_ALFA_B7R1L_OD,L1_ALFA_B7L1_OD,L1_ALFA_A7L1_OD,L1_ALFA_A7R1_OD,L1_ALFA_B7R1_OD,L1_ALFA_ANY_A_EMPTY,L1_ALFA_ANY_C_EMPTY'
 
     # check if all the l1 background seeds given are in the current L1 menu
     l1bgditems = L1ALFA_Calib_seeds.split(',')
@@ -293,12 +295,12 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
     L1Seed = ''
     if (l1seedname == 'L1_Bkg'):
         L1Seed = getL1BackgroundSeed(l1items)
-    elif (l1seedname == 'L1_ALFA_Diff_Phys' ):
-        L1Seed = getL1_ALFA_Diff_Phys_Seeds(l1items)
-    elif (l1seedname == 'L1_ALFA_CDiff_Phys' ):
-        L1Seed = getL1_ALFA_CDiff_Phys_Seeds(l1items)
-    elif (l1seedname == 'L1_ALFA_Jet_Phys' ):
-        L1Seed = getL1_ALFA_Jet_Phys_Seeds(l1items)
+#    elif (l1seedname == 'L1_ALFA_Diff_Phys' ):
+#        L1Seed = getL1_ALFA_Diff_Phys_Seeds(l1items)
+#    elif (l1seedname == 'L1_ALFA_CDiff_Phys' ):
+#        L1Seed = getL1_ALFA_CDiff_Phys_Seeds(l1items)
+#    elif (l1seedname == 'L1_ALFA_Jet_Phys' ):
+#        L1Seed = getL1_ALFA_Jet_Phys_Seeds(l1items)
 
     elif (l1seedname in ['L1_PhysicsLow_noPS', 'L1_PhysicsHigh_noPS', 'L1_EMPTY_noPS', 'L1_FIRSTEMPTY_noPS', 'L1_UNPAIRED_ISO_noPS', 'L1_UNPAIRED_NONISO_noPS', 'L1_ABORTGAPNOTCALIB_noPS']):
         L1Seed =  getEBnoL1PSSeed(l1items, l1seedname)
@@ -321,41 +323,41 @@ def getSpecificL1Seeds(l1seedname, l1itemobject):
     elif (l1seedname in ['L1_MinBias', 'L1_MinBias_EMPTY']):
         L1Seed = getL1MinBiasSeed(l1seedname, l1itemobject)
 
-    elif (l1seedname == 'L1_ALFA_Phys'):
-        L1Seed = getL1_ALFA_Phys(l1items)
-
-    elif (l1seedname == 'L1_ALFA_PhysAny'):
-        L1Seed = getL1_ALFA_Phys_Any(l1items)
-
-    elif (l1seedname == 'L1_ALFA_Diff'):
-        L1Seed = getL1ALFA_Diff(l1items)
-
-    elif (l1seedname == 'L1_ALFA_TRT_Diff'):
-        L1Seed = getL1ALFA_TRT_Diff(l1items)
-        
+#    elif (l1seedname == 'L1_ALFA_Phys'):
+#        L1Seed = getL1_ALFA_Phys(l1items)
+#
+#    elif (l1seedname == 'L1_ALFA_PhysAny'):
+#        L1Seed = getL1_ALFA_Phys_Any(l1items)
+#
+#    elif (l1seedname == 'L1_ALFA_Diff'):
+#        L1Seed = getL1ALFA_Diff(l1items)
+#
+#    elif (l1seedname == 'L1_ALFA_TRT_Diff'):
+#        L1Seed = getL1ALFA_TRT_Diff(l1items)
+#        
     elif (l1seedname == 'L1_ALFA_Calib'):
         L1Seed = getL1ALFA_Calib(l1items)
-
-    elif (l1seedname == 'L1_ALFA_ELAS'):
-        L1Seed = getL1ALFA_ELAS(l1items)
-
-    elif (l1seedname == 'L1_ALFA_TRT_Calib'):
-        L1Seed = getL1ALFA_TRT_Calib(l1items)
-
-    elif (l1seedname == 'L1_ALFA_Jet'):
-        L1Seed = getL1ALFA_Jet(l1items)
-        
-    elif (l1seedname == 'L1_ALFA_SDiff'):
-        L1Seed = getL1ALFA_SDiff(l1items)
-
-    elif (l1seedname == 'L1_ALFA_CEP'):
-        L1Seed = getL1ALFA_CEP(l1items)
-
-    elif (l1seedname == 'L1_ALFA_TRT'):
-        L1Seed = getL1ALFA_TRT(l1items)
-
-    elif (l1seedname == 'L1_ALFA_SYS'):
-        L1Seed = getL1ALFA_SYS(l1items)
+#
+#    elif (l1seedname == 'L1_ALFA_ELAS'):
+#        L1Seed = getL1ALFA_ELAS(l1items)
+#
+#    elif (l1seedname == 'L1_ALFA_TRT_Calib'):
+#        L1Seed = getL1ALFA_TRT_Calib(l1items)
+#
+#    elif (l1seedname == 'L1_ALFA_Jet'):
+#        L1Seed = getL1ALFA_Jet(l1items)
+#        
+#    elif (l1seedname == 'L1_ALFA_SDiff'):
+#        L1Seed = getL1ALFA_SDiff(l1items)
+#
+#    elif (l1seedname == 'L1_ALFA_CEP'):
+#        L1Seed = getL1ALFA_CEP(l1items)
+#
+#    elif (l1seedname == 'L1_ALFA_TRT'):
+#        L1Seed = getL1ALFA_TRT(l1items)
+#
+#    elif (l1seedname == 'L1_ALFA_SYS'):
+#        L1Seed = getL1ALFA_SYS(l1items)
 
 
     elif (l1seedname == 'L1_LowLumi'):
@@ -396,6 +398,7 @@ def getInputTEfromL1Item(l1item):
         'L1_TAU30_UNPAIRED_ISO': ['HA30'],
         'L1_TAU40'         :  ['HA40'],
         'L1_TAU60'         :  ['HA60'],
+        'L1_TAU100'         :  ['HA100'],
         }
 
     if TriggerFlags.triggerMenuSetup() == 'LS1_v1': 

@@ -115,7 +115,7 @@ class ThresholdDef:
 
         ThresholdValue.setDefaults('EM', {'isobits' : '00010', 'use_relIso' : True })
 
-        for thrV in [8, 15]:
+        for thrV in [8]:
             tc.registerThr('EM%iI' % thrV, 'EM').addThrValue(thrV)
 
 
@@ -155,6 +155,16 @@ class ThresholdDef:
             .addThrValue(21, -15, -14, priority=2).addThrValue(21, 14, 15, priority=2)\
             .addThrValue(23, -17, -15, priority=2).addThrValue(23, 15, 17, priority=2)\
             .addThrValue(25, -25, -17, priority=2).addThrValue(25, 17, 25, priority=2)
+        
+        tc.registerThr( 'EM26VHI', type='EM').addThrValue(26, priority=1)\
+            .addThrValue(28, -7, 0, priority=2).addThrValue(28, 0, 7, priority=2)\
+            .addThrValue(27, -8, -7, priority=2).addThrValue(27, 7, 8, priority=2)\
+            .addThrValue(26, -11, -8, priority=2).addThrValue(26, 8, 11, priority=2)\
+            .addThrValue(25, -13, -11, priority=2).addThrValue(25, 11, 13, priority=2)\
+            .addThrValue(24, -14, -13, priority=2).addThrValue(24, 13, 14, priority=2)\
+            .addThrValue(23, -15, -14, priority=2).addThrValue(23, 14, 15, priority=2)\
+            .addThrValue(25, -17, -15, priority=2).addThrValue(25, 15, 17, priority=2)\
+            .addThrValue(27, -25, -17, priority=2).addThrValue(27, 17, 25, priority=2)
 
 
         tc.registerThr( 'EM3HI', type='EM').addThrValue(3, priority=1)\
@@ -217,7 +227,7 @@ class ThresholdDef:
 
         for thrV in [5, 10, 12, 15, 20, 25, 30, 35, 40, 50, 60, 70, 75, 85, 100, 120, 150,175, 250, 400]:
             tc.registerThr('J%i' % thrV, 'JET').addThrValue(JetOff).addThrValue(thrV, etamin=-31, etamax=31, priority=1) # jets are between -31 and 31 -ATR-11526
-
+        
         ThresholdValue.setDefaults('JET', {})
 
         
@@ -236,7 +246,7 @@ class ThresholdDef:
         
 
         # Central jet
-        for (thrV, etamax) in [(15,25), (17,22), (20,28), (25,23), (20,49), (30,49), (40,25)]:
+        for (thrV, etamax) in [(15,25), (17,22), (20,28), (25,23), (35,23), (20,49), (30,49), (40,25)]:
             tc.registerThr('J%i.0ETA%i'  % (thrV, etamax), 'JET').addThrValue(JetOff).addThrValue( thrV, etamin = -etamax,  etamax = etamax, priority=1)  
 
         # Standard forward jet

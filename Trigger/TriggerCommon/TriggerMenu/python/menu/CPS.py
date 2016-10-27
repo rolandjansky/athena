@@ -86,16 +86,16 @@ def defineCPSGroups():
         'RATE:CPS:HLT_e9_tight_e4_etcut_Jpsiee' :['e9_lhtight_e4_etcut_Jpsiee',
                                                  'e9_lhtight_nod0_e4_etcut_Jpsiee'],
 
-        'RATE:CPS:HLT_e9_etcut_e5_tight_Jpsiee': ['e9_etcut_e5_tight_Jpsiee',
-                                                 'e9_etcut_e5_lhtight_Jpsiee',
-                                                 'e9_etcut_e5_lhtight_nod0_Jpsiee'],
+        'RATE:CPS:HLT_e5_tight_e9_etcut_Jpsiee': ['e5_tight_e9_etcut_Jpsiee',
+                                                 'e5_lhtight_e9_etcut_Jpsiee',
+                                                 'e5_lhtight_nod0_e9_etcut_Jpsiee'],
         
         'RATE:CPS:HLT_e14_tight_e4_etcut_Jpsiee': ['e14_lhtight_e4_etcut_Jpsiee',
                                                   'e14_lhtight_nod0_e4_etcut_Jpsiee'],
         
-        'RATE:CPS:HLT_e14_etcut_e5_tight_Jpsiee' :['e14_etcut_e5_tight_Jpsiee',
-                                                  'e14_etcut_e5_lhtight_Jpsiee',
-                                                  'e14_etcut_e5_lhtight_nod0_Jpsiee'],
+        'RATE:CPS:HLT_e5_tight_e14_etcut_Jpsiee' :['e5_tight_e14_etcut_Jpsiee',
+                                                  'e5_lhtight_e14_etcut_Jpsiee',
+                                                  'e5_lhtight_nod0_e14_etcut_Jpsiee'],
 
         #'RATE:CPS:HLT_e5_tight_e4_etcut_L1JPSI-1M5' :['e5_tight_e4_etcut_L1JPSI-1M5',
         #                                             'e5_tight_e4_etcut_Jpsiee_L1JPSI-1M5',] ,
