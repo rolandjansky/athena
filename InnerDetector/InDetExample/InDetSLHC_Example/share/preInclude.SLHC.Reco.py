@@ -44,8 +44,6 @@ InDetFlags.doSlimming=False
 InDetFlags.doBeamHalo=False
 InDetFlags.doStatistics=True
 InDetFlags.useDCS=False
-InDetFlags.doBremRecovery=True
-InDetFlags.doCaloSeededBrem=False
 
 InDetFlags.doSGDeletion=False # This should be False. 
 #InDetFlags.doPixelClusterSplitting=False  # Christoph Rauchegger: Set to true (default) for run2 ambi solving  # Previously: This should be False.
@@ -79,3 +77,6 @@ if rec.OutputFileNameForRecoStep() == 'ESDtoDPD':
     InDetDxAODFlags.DumpPixelRdoInfo = True
     InDetDxAODFlags.DumpSctInfo = True
     InDetDxAODFlags.DumpSctRdoInfo = True
+    InDetDxAODFlags.ThinHitsOnTrack = False
+    InDetDxAODFlags.ThinTrackSelection = "InDetTrackParticles.pt > 0.0*GeV"
+    InDetDxAODFlags.DumpTriggerInfo = False
