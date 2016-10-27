@@ -39,7 +39,6 @@ use  AtlasCLHEP                 AtlasCLHEP-*                    External
 use  AtlasROOT                  AtlasROOT-*                     External
 use  AtlasReflex                AtlasReflex-*                   External
 use  ByteStreamCnvSvcBase       ByteStreamCnvSvcBase-*          Event
-use  CxxUtils                   CxxUtils-*                      Control
 use  DataCollection             DataCollection-*                External
 use  TestTools                  TestTools-*                     AtlasTest
 use  TrigConfL1Data             TrigConfL1Data-*                Trigger/TrigConfiguration

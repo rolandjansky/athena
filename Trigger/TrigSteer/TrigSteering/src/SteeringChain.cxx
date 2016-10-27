@@ -58,19 +58,19 @@ SteeringChain::SteeringChain( const TrigConf::HLTChain* configChain, ISequencePr
   }
 
   if (!configChain) {
-    m_config->getMsgStream() << MSG::ERROR << "Chain::Chain HLTChain is 0!" << endreq;
+    m_config->getMsgStream() << MSG::ERROR << "Chain::Chain HLTChain is 0!" << endmsg;
     return;
   }
 
   if (!seqs) {
-    m_config->getMsgStream() << MSG::ERROR << "Chain::Chain ISequenceProvider is 0!" << endreq;
+    m_config->getMsgStream() << MSG::ERROR << "Chain::Chain ISequenceProvider is 0!" << endmsg;
     return;
   }
 
 
   if (m_config->getMsgLvl() <=MSG::DEBUG) {
     m_config->getMsgStream() << MSG::DEBUG << "Chain "
-                             << configChain->chain_name() << ": constructor" << endreq;
+                             << configChain->chain_name() << ": constructor" << endmsg;
   }
 
   if (!fillFromConfigChain(seqs, scalerSvc)) return;
@@ -85,12 +85,12 @@ SteeringChain::SteeringChain( const TrigConf::HLTChain* configChain, ISequencePr
   if (m_configChain->groups().size() < 1) {
     m_config->getMsgStream() << MSG::WARNING << "Chain "
                              << configChain->chain_name()
-                             << ": has no group associated with it." << endreq;
+                             << ": has no group associated with it." << endmsg;
   }
   if (m_streamTags.size() < 1) {
     m_config->getMsgStream() << MSG::ERROR << "Chain "
                              << configChain->chain_name()
-                             << ": no stream associated to this Chain => abort!" << endreq;
+                             << ": no stream associated to this Chain => abort!" << endmsg;
     return;
   }
   // make sure the maximum number of steps is fitting into our 8 bits:
@@ -98,7 +98,7 @@ SteeringChain::SteeringChain( const TrigConf::HLTChain* configChain, ISequencePr
     m_config->getMsgStream() << MSG::ERROR << "Chain "
                              << configChain->chain_name()
                              << ": has maximum step (="<< m_signatures.size() <<") does not fit into our 8 bits for serialization => abort!"
-                             << endreq;
+                             << endmsg;
     return;
   }
 
@@ -107,7 +107,7 @@ SteeringChain::SteeringChain( const TrigConf::HLTChain* configChain, ISequencePr
     m_config->getMsgStream() << MSG::ERROR << "Chain "
                              << configChain->chain_name()
                              << ": chain_counter (="<< m_chain_counter <<") does not fit into our 13 bits for serialization => abort!"
-                             << endreq;
+                             << endmsg;
     return;
   }
 
@@ -118,22 +118,22 @@ SteeringChain::SteeringChain( const TrigConf::HLTChain* configChain, ISequencePr
  if ( config->getDoTiming() ) {
    ServiceHandle<ITrigTimerSvc> timerSvc("TrigTimerSvc/TrigTimerSvc", "tr");
    if ( timerSvc.retrieve().isFailure() ) {
-     m_config->getMsgStream() << MSG::WARNING << "Requested timing measurements but can't retrieve TrigTimerSvc for chain" << endreq;
+     m_config->getMsgStream() << MSG::WARNING << "Requested timing measurements but can't retrieve TrigTimerSvc for chain" << endmsg;
    }
    AlgTool *ntool = dynamic_cast<AlgTool*>(m_config->getNavigation());
    if ( !ntool ) {
-     m_config->getMsgStream() << MSG::WARNING << "Navigation tool not available" << endreq;
+     m_config->getMsgStream() << MSG::WARNING << "Navigation tool not available" << endmsg;
      return;
    }
    const Algorithm* parentAlg = dynamic_cast<const Algorithm*>(ntool->parent()); // this is the way to get parent alg name (TrigSteer_L2/EF) ugh we need better way.
    if ( !parentAlg ) {
-     m_config->getMsgStream() << MSG::WARNING << "Parent alg not available" << endreq;
+     m_config->getMsgStream() << MSG::WARNING << "Parent alg not available" << endmsg;
      return;
    }
    
    std::string name = parentAlg->name()+":Chain_"+configChain->chain_name();
    m_timer = timerSvc->addItem(name); 
-   m_config->getMsgStream() << MSG::DEBUG << "Booked timer: " << name << endreq;
+   m_config->getMsgStream() << MSG::DEBUG << "Booked timer: " << name << endmsg;
  }
  setStatus(HLT::ChainOK);
 
@@ -162,7 +162,7 @@ SteeringChain::fillFromConfigChain( ISequenceProvider* seqs,
    // in case there is no signature, we must never activate this Chain! -> see setActive()
    if (getConfigChain()->signatureList().size() == 0) {
       m_config->getMsgStream() << MSG::DEBUG << "Chain: no signatures found for this chain!! "
-                               << endreq;
+                               << endmsg;
    }
 
    // We assume here that the HLTSignatures have reasonable signature_counters (e.g. not all the same)!
@@ -173,7 +173,7 @@ SteeringChain::fillFromConfigChain( ISequenceProvider* seqs,
 
       if (m_config->getMsgLvl() <=MSG::DEBUG) {
          m_config->getMsgStream() << MSG::DEBUG << "Chain: creating new Signature: "
-                                  << sig->label() << endreq;
+                                  << sig->label() << endmsg;
       }
 
       unsigned int pos = sig->signature_counter() - 1; // - 1 : signature_counters start with 1, vector pos with 0 !!
@@ -187,7 +187,7 @@ SteeringChain::fillFromConfigChain( ISequenceProvider* seqs,
    // if we don't have the ScalerSvc (because this Chain is created from a TrigConf::HLTChain
    if ( !scalerSvc ) {
       if (m_config->getMsgLvl() <=MSG::DEBUG) {
-         m_config->getMsgStream() << MSG::DEBUG << "ScalerSvc is NULL!" << endreq;
+         m_config->getMsgStream() << MSG::DEBUG << "ScalerSvc is NULL!" << endmsg;
       }
    }
 
@@ -202,7 +202,7 @@ SteeringChain::fillFromConfigChain( ISequenceProvider* seqs,
          it != streams.end(); ++it) {
       // make sure the TrigConf streamTag pointer is not NULL:
       if ( !(*it) ) {
-         m_config->getMsgStream() << MSG::ERROR << "Chain: TrigConf::HLTStreamTag pointer NULL!" << endreq;
+         m_config->getMsgStream() << MSG::ERROR << "Chain: TrigConf::HLTStreamTag pointer NULL!" << endmsg;
          return false;
       }
       m_streamTags.push_back( StreamTag( *it, scalerSvc ) );
@@ -211,13 +211,13 @@ SteeringChain::fillFromConfigChain( ISequenceProvider* seqs,
       if ((*it)->type() == "calibration" ) {
          m_calibrationROBs = new PartialEventBuildingInfo();
          m_scouting = new ScoutingInfo();
-	 m_config->getMsgStream() << MSG::VERBOSE << "Chain " << getChainName() << " has the storage for the ROBs for PEB and data scouting" << endreq;
+	 m_config->getMsgStream() << MSG::VERBOSE << "Chain " << getChainName() << " has the storage for the ROBs for PEB and data scouting" << endmsg;
       }
 
       // if the stream type is "monitoring" prepare ROBs storage
       if ((*it)->type() == "monitoring" ) {
 	m_calibrationROBs = new PartialEventBuildingInfo();
-	m_config->getMsgStream() << MSG::VERBOSE << "Chain " << getChainName() << " has the storage for the ROBs for PEB" << endreq;
+	m_config->getMsgStream() << MSG::VERBOSE << "Chain " << getChainName() << " has the storage for the ROBs for PEB" << endmsg;
       }
    }
 
@@ -249,7 +249,7 @@ HLT::ErrorCode SteeringChain::executeStep() {
                                << getChainCounter() << " (id "
                                << m_configChain->chain_name() << ") "
                                << " step " << m_currentStep << " out of " << m_signatures.size()
-                               << endreq;
+                               << endmsg;
    }
    
 
@@ -268,7 +268,7 @@ HLT::ErrorCode SteeringChain::executeStep() {
       if ( m_signatures[m_currentStep] == 0) {
          if (m_config->getMsgLvl() <=MSG::DEBUG) {
             m_config->getMsgStream() << MSG::DEBUG << "skipping this step (no signature to satisfy)"
-                                     << endreq;
+                                     << endmsg;
          }
       } else {
         
@@ -278,7 +278,7 @@ HLT::ErrorCode SteeringChain::executeStep() {
 
          //     m_config->getMsgStream() << MSG::DEBUG << "Chain " << m_configChain->chain_name()
          // 			     << " EC from signature execution =  " << HLT::strErrorCode(ec) << " at step "
-         // 			     << m_currentStep << endreq;
+         // 			     << m_currentStep << endmsg;
          m_errorCode = m_errorCode > ec ? m_errorCode : ec;
          // If some error occurred, end here:
          if (ec.action() > HLT::Action::CONTINUE ) {
@@ -286,7 +286,7 @@ HLT::ErrorCode SteeringChain::executeStep() {
             if (m_config->getMsgLvl() <= MSG::WARNING) {
                m_config->getMsgStream() << MSG::WARNING << "Chain " << getChainName()
                                         << " aborting with error code " << strErrorCode(ec) << " at step "
-                                        << m_currentStep << endreq;
+                                        << m_currentStep << endmsg;
             }
             //m_errorCode = m_errorCode > ec ? m_errorCode : ec;
            
@@ -296,7 +296,7 @@ HLT::ErrorCode SteeringChain::executeStep() {
             if (m_config->getMsgLvl() <= MSG::DEBUG) {
                m_config->getMsgStream() << MSG::DEBUG << "Chain " << getChainName()
                                         << " continues with error code " << strErrorCode(ec) << " at step "
-                                        << m_currentStep << endreq;
+                                        << m_currentStep << endmsg;
             }
          }
         
@@ -304,7 +304,7 @@ HLT::ErrorCode SteeringChain::executeStep() {
          if ( !m_active ) {
             if (m_config->getMsgLvl() <= MSG::DEBUG)
                m_config->getMsgStream() << MSG::DEBUG << "Chain " << getChainName()
-                                        << " failed at step " << m_currentStep << endreq;
+                                        << " failed at step " << m_currentStep << endmsg;
             return m_errorCode;
          }
       }       
@@ -321,7 +321,7 @@ HLT::ErrorCode SteeringChain::executeStep() {
       // some debug output
       if (m_config->getMsgLvl() <= MSG::DEBUG) {
          m_config->getMsgStream()   << MSG::DEBUG << "Chain " << getChainName()
-                                    << " finished successfully" << endreq;
+                                    << " finished successfully" << endmsg;
       }
       return m_errorCode;
    }
@@ -341,7 +341,7 @@ HLT::ErrorCode SteeringChain::prepareStepRobRequests() {
     // nothing to do, only debug output
     if (m_config->getMsgLvl() <= MSG::DEBUG) {
       m_config->getMsgStream() << MSG::DEBUG << "skipping step " << m_currentStep << " (no signature to satisfy)"
-                               << endreq;
+                               << endmsg;
     }
 
   } else {
@@ -357,7 +357,7 @@ HLT::ErrorCode SteeringChain::prepareStepRobRequests() {
       if (m_config->getMsgLvl() <= MSG::WARNING) {
         m_config->getMsgStream() << MSG::WARNING << "Chain " << getChainName()
                                  << " aborting with error code " << strErrorCode(ec) << " at step "
-                                 << m_currentStep << endreq;
+                                 << m_currentStep << endmsg;
       }
       m_active = false;
       return m_errorCode;
@@ -368,7 +368,7 @@ HLT::ErrorCode SteeringChain::prepareStepRobRequests() {
     if (m_config->getMsgLvl() <= MSG::DEBUG)
       m_config->getMsgStream() << MSG::DEBUG << "Chain " << getChainName()
                                << " continues with error code " << strErrorCode(ec) << " at step "
-                               << m_currentStep << endreq;
+                               << m_currentStep << endmsg;
     
   }
 
@@ -446,7 +446,7 @@ void SteeringChain::setPrescaleState() {
 
   if ( prescaleFactor() < -0.1 )
     m_config->getMsgStream() << MSG::ERROR << "Chain: : " << getChainName()
-			     << " arrived to scaler service with prescale value < 0, this is not suported anymore" << endreq;
+			     << " arrived to scaler service with prescale value < 0, this is not suported anymore" << endmsg;
   
   if ( prescaleFactor() < 0.1  && prescaleFactor() > -0.1 ) { // treat zero
     m_prescaled = true;
@@ -535,7 +535,7 @@ bool SteeringChain::canAddSignature(unsigned int pos) {
 
   if (m_signatures[pos] != 0) {
       m_config->getMsgStream() << MSG::ERROR << "Chain: 2 or more signatures have the same signature_counter: "
-			       << pos << " --> ignore this Signature! " << endreq;
+			       << pos << " --> ignore this Signature! " << endmsg;
     return false;
   }
 

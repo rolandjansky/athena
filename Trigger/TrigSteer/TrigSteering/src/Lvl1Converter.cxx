@@ -163,12 +163,10 @@ ErrorCode Lvl1Converter::hltInitialize()
   return HLT::OK;
 }
 
-
 ErrorCode Lvl1Converter::hltFinalize()
 {
   return HLT::OK;
 }
-
 
 ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRun)
 {
@@ -199,8 +197,6 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
 
    if(m_doTiming) m_sgTime->stop();
 
-
-
    // =============================================================
    // Step 2: Activate HLT chains that have a matching LVL1 item
    //         - First, get and decode the CTP result for this event
@@ -211,16 +207,15 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
    const std::vector<const LVL1CTP::Lvl1Item*>& items = m_lvl1Tool->createL1Items(*result, true);
 
    ATH_MSG_DEBUG("Lvl1 provides: " <<  items.size()  << " items");
-
    if  ( items.size() == 0 ) {
-      ATH_MSG_WARNING("Lvl1 delivered 0 items, Lvl2 can not continue");
+      ATH_MSG_WARNING("Lvl1 delivered 0 items, HLT cannot continue");
       return HLT::NO_LVL1_ITEMS;
    }
 
    for (const LVL1CTP::Lvl1Item* item : items) {
 
       bool l1BeforePrescale = item->isPassedBeforePrescale();
-      bool l1Passed         = item->isPassedAfterVeto(); // that looks like bug bit it isn't 
+      bool l1Passed         = item->isPassedAfterVeto(); // that looks like bug but it isn't 
 
       if ( m_ignoreL1Prescales ) // undo L1 prescaling (only when JO says so)
          l1Passed = l1BeforePrescale;
@@ -541,12 +536,19 @@ ErrorCode Lvl1Converter::hltExecute(std::vector<HLT::SteeringChain*>& chainsToRu
 
    if(m_doTiming) m_totalTime->stop();
 
+   // Check for L1Calo overflows
    std::bitset<3> overflow = m_lvl1Tool->lvl1EMTauJetOverflow(*result);
-   if (overflow[0]) ATH_MSG_WARNING("All EM L1 thresholds were forced on due to overflow in TOB transmission to CMX");
-   if (overflow[1]) ATH_MSG_WARNING("All Tau L1 thresholds were forced on due to overflow in TOB transmission to CMX");
-   if (overflow[2]) ATH_MSG_WARNING("All Jet L1 thresholds were forced on due to overflow in TOB transmission to CMX");
-      
-   HLT::ErrorCode ecl1 = m_lvl1ConsistencyTool->check(items, m_config->getNavigation());
+   std::vector<std::string> ignore;
+   const char* thr[] = {"EM","TAU","JET"};
+   for (size_t i=0; i<overflow.size(); ++i) {
+     if (overflow[i]) {
+       ATH_MSG_WARNING("All " << thr[i] << " L1 thresholds were forced on due to overflow in TOB transmission to CMX");     
+       ignore.push_back(thr[i]);
+     }
+   }
+
+   // Consistency check
+   HLT::ErrorCode ecl1 = m_lvl1ConsistencyTool->check(items, m_config->getNavigation(), ignore);
    if ( ecl1  != HLT::OK ) {
       ATH_MSG_WARNING("Lvl1 decision inconsistent: "); 
       return ecl1;
