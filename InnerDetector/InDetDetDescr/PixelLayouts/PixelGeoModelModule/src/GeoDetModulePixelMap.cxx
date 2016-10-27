@@ -52,7 +52,7 @@ void GeoDetModulePixelMap::preBuild()
     itemName = "FrontEndChipGeo";
   }
 
-  std::cout<<"XML file read to create map for modules / readout geos "<<fileName<<std::endl;
+  // std::cout<<"XML file read to create map for modules / readout geos "<<fileName<<endmsg;
 
   InitializeXML();
   std::string file = PathResolver::find_file (fileName, "DATAPATH");
@@ -64,13 +64,13 @@ void GeoDetModulePixelMap::preBuild()
   }
 
   int nbModule = getChildCount(itemGen.c_str(), 0, itemName.c_str());
-  std::cout<<"# module defined : "<<nbModule<<std::endl;
+  //  std::cout<<"# module defined : "<<nbModule<<std::endl;
   for(int iModule=0; iModule<nbModule; iModule++)
     {
       std::string moduleName = getChildValue(itemName.c_str(), iModule, "moduleName");
       moduleName.erase(std::remove(moduleName.begin(),moduleName.end(),' '),moduleName.end());
 
-      std::cout<<"   - "<<moduleName<<" "<<iModule<<std::endl;
+      //  std::cout<<"   - "<<moduleName<<" "<<iModule<<std::endl;
       m_moduleMap.insert( std::pair<std::string,int>(moduleName,iModule) );
     }
 

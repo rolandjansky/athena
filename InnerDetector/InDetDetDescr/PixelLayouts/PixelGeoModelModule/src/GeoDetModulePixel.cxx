@@ -62,13 +62,13 @@ void GeoDetModulePixel::preBuild()
 
   std::string fileName="PixelModules.xml";
   if(const char* env_p = std::getenv("PIXEL_SILICONMODULES_GEO_XML")) fileName = std::string(env_p);
-  m_basics->msgStream()<<MSG::INFO<<"XML file - modules  "<<fileName<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<"XML file - modules  "<<fileName<<endreq;
 
   bool readXMLfromDB = m_basics->ReadInputDataFromDB();
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      m_basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      m_basics->msgStream()<< MSG::DEBUG <<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(m_basics);
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -76,14 +76,14 @@ void GeoDetModulePixel::preBuild()
     }
   else
     {
-      m_basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      m_basics->msgStream()<<MSG::DEBUG << "XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       InitializeXML();
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
       bParsed = ParseFile(file);
     }
 
   if(!bParsed){
-    m_basics->msgStream()<<"XML file "<<fileName<<" not found"<<endreq;
+    m_basics->msgStream()<<MSG::WARNING << "XML file "<<fileName<<" not found"<<endmsg;
     return;
   }
 
@@ -94,7 +94,7 @@ void GeoDetModulePixel::preBuild()
   // Get gchip and hybrid geometry from geo xml file
   int geoModuleIndex = getChildValue_Index("ModuleGeo", "name", -1, moduleName);
 
-  m_basics->msgStream()<<MSG::INFO<<"MODULE XML : "<<m_moduleIndex<<"  - "<<moduleName<<" "<<chipName<<" "<<chipIndex<<"   geoIndex "<<geoModuleIndex<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<"MODULE XML : "<<m_moduleIndex<<"  - "<<moduleName<<" "<<chipName<<" "<<chipIndex<<"   geoIndex "<<geoModuleIndex<<endreq;
 
   // chip configuration
   int lengthChip = getInt("Module", m_moduleIndex, "lengthInChips");
@@ -105,7 +105,7 @@ void GeoDetModulePixel::preBuild()
   widthChip = std::max(widthChip, widthChipMin);
   m_chipNumber = widthChip * lengthChip;
 
-  m_basics->msgStream()<<MSG::INFO<<"ChipWidth : "<<widthChip<<" "<<widthChipMin<<" "<<widthChipMax<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<"ChipWidth : "<<widthChip<<" "<<widthChipMin<<" "<<widthChipMax<<endreq;
 
   //  sensor / chip and hybrid thicknesses 
   m_boardThick =  getDouble("Module", m_moduleIndex, "sensorThickness");
@@ -149,14 +149,14 @@ void GeoDetModulePixel::preBuild()
 
   TerminateXML();
 
-  m_basics->msgStream()<<MSG::INFO<<"GeoDetModulePixel - Build module "<<moduleName<<"  "<<m_moduleIndex<<endreq;
-  m_basics->msgStream()<<MSG::INFO<<"board  : "<<m_boardThick<<" "<<m_boardLength<<" "<<m_boardWidth<<endreq;
-  m_basics->msgStream()<<MSG::INFO<<"hybrid : "<<m_hybridThick<<" "<<m_hybridLength<<" "<<m_hybridWidth<<endreq;
-  m_basics->msgStream()<<MSG::INFO<<"chip   : "<<m_chipThick<<" "<<m_chipLength<<" "<<m_chipWidth<<"  gap : "<<m_chipGap<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<"GeoDetModulePixel - Build module "<<moduleName<<"  "<<m_moduleIndex<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<"board  : "<<m_boardThick<<" "<<m_boardLength<<" "<<m_boardWidth<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<"hybrid : "<<m_hybridThick<<" "<<m_hybridLength<<" "<<m_hybridWidth<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<"chip   : "<<m_chipThick<<" "<<m_chipLength<<" "<<m_chipWidth<<"  gap : "<<m_chipGap<<endreq;
 
-  m_basics->msgStream()<<MSG::INFO<<"MODULE thickness : "<<ThicknessN()<<" "<<ThicknessP()<<" // "<<Thickness()<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<"MODULE thickness : "<<ThicknessN()<<" "<<ThicknessP()<<" // "<<Thickness()<<endreq;
 
-  m_basics->msgStream()<<MSG::INFO<<" ********** end of module prebuild"<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<" ********** end of module prebuild"<<endreq;
 
   // -----------------------------------------------------------------------------
   // Build the module ------------------------------------------------------------
@@ -168,7 +168,7 @@ void GeoDetModulePixel::preBuild()
   double thickness = this->Thickness();
   double width = this->Width();
 
-  m_basics->msgStream()<<MSG::INFO<<"Size : "<<length<<" "<<thickness<<" "<<width<<endreq;
+  m_basics->msgStream()<<MSG::DEBUG<<"Size : "<<length<<" "<<thickness<<" "<<width<<endreq;
 
   const GeoMaterial* air = m_matMgr->getMaterial("std::Air");
 
@@ -200,13 +200,13 @@ GeoFullPhysVol* GeoDetModulePixel::Build(int brl_ec, int /*layer_disk*/, int /*p
 {
 
 
-  //  m_basics->msgStream()<<MSG::INFO<<"GeoVPhysVol* GeoDetModulePixel::Build()"<<endreq;
+  //  m_basics->msgStream()<<MSG::DEBUG<<"GeoVPhysVol* GeoDetModulePixel::Build()"<<endreq;
 
   GeoFullPhysVol* modulePhys = new GeoFullPhysVol(m_moduleLogVol);
 
   std::string suffix = (brl_ec==0)? "Brl" : "EC";
 
-  //  m_basics->msgStream()<<MSG::INFO<<"Module services sizes : hyb/chip "<<m_hybridThick<<" "<<m_chipThick<<endreq;
+  //  m_basics->msgStream()<<MSG::DEBUG<<"Module services sizes : hyb/chip "<<m_hybridThick<<" "<<m_chipThick<<endreq;
 
   //
   // Place the Hybrid
