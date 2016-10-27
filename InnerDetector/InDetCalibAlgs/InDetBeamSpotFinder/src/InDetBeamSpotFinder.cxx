@@ -12,6 +12,9 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/TrackParticle.h"
 
+#include "EventInfo/EventInfo.h"
+#include "EventInfo/EventID.h"
+
 InDet::InDetBeamSpotFinder::InDetBeamSpotFinder(const std::string& name, ISvcLocator* pSvcLocator):
   AthAlgorithm(name, pSvcLocator),
   m_toolSvc("ToolSvc",name),m_bcTool("Trig::TrigConfBunchCrossingTool/BunchCrossingTool")
@@ -36,12 +39,13 @@ InDet::InDetBeamSpotFinder::InDetBeamSpotFinder(const std::string& name, ISvcLoc
   declareProperty( "VertexNtuple" , m_writeVertexNtuple = true);
   declareProperty( "WriteAllVertices"  , m_writeAllVertices=false);
   declareProperty( "VertexTreeName"    , m_vertexTreeName);
+  declareProperty( "SecondsPerFit",  m_secondsPerFit = 1);
 }
 
 StatusCode InDet::InDetBeamSpotFinder::initialize() {
-  msg(MSG::DEBUG) << "in initialize()" << endreq;
+  ATH_MSG_DEBUG( "in initialize()");
   if ( m_beamSpotToolList.size() == 0 ){
-    msg(MSG::FATAL) <<"FATAL ERROR: must provide at least one beamspot tool in beamSpotToolList";
+    ATH_MSG_FATAL("FATAL ERROR: must provide at least one beamspot tool in beamSpotToolList");
     return StatusCode::FAILURE;
   }
   ATH_CHECK( service("THistSvc",m_thistSvc) );
@@ -65,7 +69,7 @@ StatusCode InDet::InDetBeamSpotFinder::execute(){
   if( m_writeVertexNtuple ){
     for( unsigned int i = 0; i < currentEvent.vertices.size(); i++){
       if( currentEvent.vertices[i].passed || m_writeAllVertices ){
-	writeToVertexTree( currentEvent, currentEvent.vertices[i] );
+        writeToVertexTree( currentEvent, currentEvent.vertices[i] );
       }
     }
   }
@@ -73,7 +77,7 @@ StatusCode InDet::InDetBeamSpotFinder::execute(){
 }
 
 StatusCode InDet::InDetBeamSpotFinder::finalize() {
-  if (msgLvl(MSG::DEBUG)) msg(MSG::DEBUG) << "in finalize()" << endreq;
+  ATH_MSG_DEBUG( "in finalize()" );
   sortEvents();
   ATH_CHECK(performFits());
   return StatusCode::SUCCESS;
@@ -85,7 +89,22 @@ BeamSpot::Event InDet::InDetBeamSpotFinder::readEvent(const xAOD::EventInfo & ev
   event.pileup = ceil(eventInfo.actualInteractionsPerCrossing());
   event.runNumber = eventInfo.runNumber();
   event.lumiBlock  = eventInfo.lumiBlock();
-  event.bcid = eventInfo.bcid();
+  event.bcid  = eventInfo.bcid();
+  event.eventTime    = eventInfo.timeStamp();
+  event.eventTime_NS = eventInfo.timeStampNSOffset();
+  event.eventNumber  = eventInfo.eventNumber();
+  const DataHandle<EventInfo> BSeventInfo; 
+  //This is required for pseudo lumiblocks 
+  if( evtStore()->retrieve(BSeventInfo) != StatusCode::SUCCESS){
+    ATH_MSG_ERROR("Cannot get event info.");
+    return event;
+  }
+  if (event.lumiBlock != BSeventInfo->event_ID()->lumi_block())
+  {
+    //ATH_MSG_INFO("Updating Event info " <<  BSeventInfo->event_ID()->lumi_block() );   
+    event.lumiBlock = BSeventInfo->event_ID()->lumi_block(); 
+  }
+  
   for(xAOD::VertexContainer::const_iterator vtxItr=vertexContainer.begin(); vtxItr!=vertexContainer.end(); ++vtxItr) {
     if ((*vtxItr)->vertexType() == xAOD::VxType::NoVtx) continue; 
     vertex.x          = (*vtxItr)->x();
@@ -111,6 +130,8 @@ void InDet::InDetBeamSpotFinder::sortEvents(){
     id.lumiBlock( (m_maxLBsPerFit  > 0) ? m_eventList[i].lumiBlock : 0 );
     id.pileup   ( iequals(m_fitSortingKey,"pileup") ? m_eventList[i].pileup : 0 );
     id.bcid     ( iequals(m_fitSortingKey,"bcid"  ) ? m_eventList[i].bcid   : 0 );
+    //std::cout << "time " << iequals(m_fitSortingKey,"time"  )<< "  "  <<  m_eventList[i].eventTime/m_secondsPerFit  << std::endl; 
+    id.timeStamp( iequals(m_fitSortingKey,"time"  ) ? m_eventList[i].eventTime/m_secondsPerFit  : 0 );
     m_eventMap[id].push_back( m_eventList[i] );
   }
   auto iter = m_eventMap.begin();
@@ -124,18 +145,19 @@ void InDet::InDetBeamSpotFinder::sortEvents(){
     currentID = iter->first;
     if( iter == m_eventMap.begin() || currentID.runNumber() != lastID.runNumber() ){ nRuns++; }
     if( iter == m_eventMap.begin() || currentID.lumiBlock() != lastID.lumiBlock() ){ nLBs++;  }
-    if( currentID.pileup() != lastID.pileup() || currentID.bcid() != lastID.bcid() 
-	|| ( m_maxRunsPerFit > 0 && nRuns > m_maxRunsPerFit )
-	|| ( m_maxLBsPerFit  > 0 && nLBs  > m_maxLBsPerFit )){
+    if( currentID.timeStamp() != lastID.timeStamp() || 
+      currentID.pileup() != lastID.pileup() || currentID.bcid() != lastID.bcid() 
+  || ( m_maxRunsPerFit > 0 && nRuns > m_maxRunsPerFit )
+  || ( m_maxLBsPerFit  > 0 && nLBs  > m_maxLBsPerFit )){
       nFits++;
       m_sortedEventList.resize(nFits);
       nRuns = 1; nLBs = 1;
     }
     for( unsigned int i = 0; i < iter->second.size(); i++){
       if( m_sortedEventList.at(nFits-1).size() == m_maxEventsPerFit && m_maxEventsPerFit > 0 ){
-	nFits++;
-	m_sortedEventList.resize(nFits);
-	nRuns = 1; nLBs = 1;
+  nFits++;
+  m_sortedEventList.resize(nFits);
+  nRuns = 1; nLBs = 1;
       }
       m_sortedEventList.at(nFits-1).push_back( iter->second.at(i) );
     }
@@ -147,7 +169,7 @@ void InDet::InDetBeamSpotFinder::sortEvents(){
 void InDet::InDetBeamSpotFinder::convertVtxTypeNames(){
   if ( m_vertexTypeNames.size() ) {
     for ( std::vector<std::string>::const_iterator it = m_vertexTypeNames.begin();
-	  it != m_vertexTypeNames.end(); ++it) {
+    it != m_vertexTypeNames.end(); ++it) {
       if ((*it) == "NoVtx") ;
       else if ((*it) == "PriVtx") m_vertexTypes.push_back(xAOD::VxType::PriVtx);
       else if ((*it) == "SecVtx") m_vertexTypes.push_back(xAOD::VxType::SecVtx);
@@ -157,11 +179,10 @@ void InDet::InDetBeamSpotFinder::convertVtxTypeNames(){
       else if ((*it) == "KinkVtx") m_vertexTypes.push_back(xAOD::VxType::KinkVtx);
       else if ((*it) =="NotSpecified")m_vertexTypes.push_back(xAOD::VxType::NotSpecified) ;
     }
-    msg(MSG::INFO) << "Allowing " << m_vertexTypes.size()
-	  << " Vertex types" << endreq;
+    ATH_MSG_INFO("Allowing " << m_vertexTypes.size() << " Vertex types" );
   }
   else {
-    msg(MSG::DEBUG) << "No selection based on vertexType will be done" << endreq;
+    ATH_MSG_DEBUG( "No selection based on vertexType will be done" );
   }
 }
 
@@ -192,7 +213,7 @@ StatusCode InDet::InDetBeamSpotFinder::setupVertexTree(){
   const std::string inRootID = "/INDETBEAMSPOTFINDER/";
   const std::string svrts       = m_vertexTreeName;
   m_root_vrt = new TTree(svrts.data(),"Vertices");
-  m_root_vrt->Branch("vrt",&m_root_vtx,"x/D:y:z:vxx:vxy:vyy:vzz:vType/i:run:lb:bcid:pileup:nTracks:passed/O:valid");
+  m_root_vrt->Branch("vrt",&m_root_vtx,"x/D:y:z:vxx:vxy:vyy:vzz:vType/i:run:lb:bcid:pileup:nTracks:eventNumber/l:eventTime:eventTime_NS:passed/O:valid");
   return m_thistSvc->regTree(inRootID+svrts,m_root_vrt);
 }
 
@@ -204,7 +225,7 @@ StatusCode InDet::InDetBeamSpotFinder::performFits(){
     verticesToFit.clear();
     for( unsigned int j = 0; j < m_sortedEventList.at(i).size(); j++){
       for( unsigned int k = 0; k < m_sortedEventList.at(i).at(j).vertices.size(); k++){
-	if( m_sortedEventList.at(i).at(j).vertices.at(k).passed ) { verticesToFit.push_back( m_sortedEventList.at(i).at(j).vertices.at(k) ); }
+        if( m_sortedEventList.at(i).at(j).vertices.at(k).passed ) { verticesToFit.push_back( m_sortedEventList.at(i).at(j).vertices.at(k) ); }
       }
     }
     for( unsigned int j = 0; j < m_beamSpotToolList.size(); j++){
@@ -219,19 +240,19 @@ StatusCode InDet::InDetBeamSpotFinder::performFits(){
       m_BeamStatusCode.setAlgType( bs->getFitID() );
       int fitStat;
       if ( bsFitStatus == IInDetBeamSpotTool::successful)
-	fitStat = 3;
+        fitStat = 3;
       else if ( bsFitStatus == IInDetBeamSpotTool::problems)
-	fitStat = 1;
+        fitStat = 1;
       else if ( bsFitStatus == IInDetBeamSpotTool::failed || bsFitStatus == IInDetBeamSpotTool::unsolved)
-	fitStat = 0;	
+        fitStat = 0;  
       else 
-	fitStat = 0;
+        fitStat = 0;
       m_BeamStatusCode.setFitStatus(fitStat);
       if (bs->getParamMap()["sigmaX"] == 0 && bs->getParamMap()["sigmaY"] ==0 ) { m_BeamStatusCode.setFitWidth( false); }
       else { m_BeamStatusCode.setFitWidth(true); } 
 
       if(m_sortedEventList[i].size() > 0)
-	writeToBeamSpotTree( bs, m_sortedEventList[i], verticesToFit );
+        writeToBeamSpotTree( bs, m_sortedEventList[i], verticesToFit );
     }
   }
   return StatusCode::SUCCESS;
@@ -270,9 +291,9 @@ StatusCode InDet::InDetBeamSpotFinder::setupBeamSpotTree(){
       std::string key =  iter->first;
       //double val =  iter->second;
       if( !(m_root_bs->GetBranch(key.c_str())) ){
-	m_beamSpotNtuple.paramMap[key] = 0;
-	keySlashD = key + slashD;
-	m_root_bs->Branch(key.c_str(), &m_beamSpotNtuple.paramMap[key], keySlashD.c_str());
+        m_beamSpotNtuple.paramMap[key] = 0;
+        keySlashD = key + slashD;
+        m_root_bs->Branch(key.c_str(), &m_beamSpotNtuple.paramMap[key], keySlashD.c_str());
       }
     }
     //Loop over the covariance matrix for a given fit tool and create a branch for each element, if it doesn't already exist.
@@ -280,9 +301,9 @@ StatusCode InDet::InDetBeamSpotFinder::setupBeamSpotTree(){
       std::string key =  iter->first;
       //double val  =  iter->second;
       if( !(m_root_bs->GetBranch(key.c_str())) ){
-	m_beamSpotNtuple.covMap[key] = 0;
-	keySlashD = key + slashD;
-	m_root_bs->Branch( key.c_str(), &m_beamSpotNtuple.covMap[key], keySlashD.c_str());
+        m_beamSpotNtuple.covMap[key] = 0;
+        keySlashD = key + slashD;
+        m_root_bs->Branch( key.c_str(), &m_beamSpotNtuple.covMap[key], keySlashD.c_str());
       }
     }
   }
@@ -304,7 +325,10 @@ void InDet::InDetBeamSpotFinder::writeToVertexTree(BeamSpot::Event &evt, BeamSpo
   m_root_vtx.pileup = evt.pileup;
   m_root_vtx.nTracks = vtx.nTracks;
   m_root_vtx.passed = vtx.passed;
-  m_root_vtx.valid = vtx.valid;
+  m_root_vtx.valid        = vtx.valid;
+  m_root_vtx.eventNumber  = evt.eventNumber;
+  m_root_vtx.eventTime    = evt.eventTime;
+  m_root_vtx.eventTime_NS = evt.eventTime_NS;
   m_root_vrt->Fill();
 }
 
@@ -341,8 +365,8 @@ void InDet::InDetBeamSpotFinder::writeToBeamSpotTree(const IInDetBeamSpotTool *b
   m_beamSpotNtuple.run = min_run( eventList );
   m_beamSpotNtuple.status = m_BeamStatusCode.getWord();  
   m_beamSpotNtuple.separation = 0;
-  m_beamSpotNtuple.timeEnd = 0;
-  m_beamSpotNtuple.timeStart = 0;
+  m_beamSpotNtuple.timeEnd = iequals(m_fitSortingKey,"time")   ? eventList.back().eventTime   : 0;
+  m_beamSpotNtuple.timeStart = iequals(m_fitSortingKey,"time")   ? eventList.front().eventTime   : 0;
   m_beamSpotNtuple.runEnd = max_run( eventList );
   for( std::map<std::string,double>::iterator iter = m_beamSpotNtuple.paramMap.begin(); 
        iter != m_beamSpotNtuple.paramMap.end(); ++iter){    
