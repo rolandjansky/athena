@@ -299,13 +299,13 @@ void InDetServMatBuilderToolSLHC::printNewVolume( const ServiceVolume& vol,
 {
   double dens = mat.getDensity();
   double weight = dens*param.volume();
-  if (msgLvl(MSG::INFO)) {
-    msg(MSG::INFO) << "Creating service volume with rmin " << vol.rMin()
+  if (msgLvl(MSG::DEBUG)) {
+    msg(MSG::DEBUG) << "Creating service volume with rmin " << vol.rMin()
 		   << " rmax " << vol.rMax() 
 		   << " zmin " << vol.zMin() 
 		   << " zmax " << vol.zMax() << endreq;
  
-    msg(MSG::INFO) << "name " << vol.name() << " density " << dens * CLHEP::cm3 / CLHEP::g 
+    msg(MSG::DEBUG) << "name " << vol.name() << " density " << dens * CLHEP::cm3 / CLHEP::g 
 		   << " [g/cm3] weight " << dens*param.volume()/CLHEP::kg  << " [kg]" << endreq;
   } 
   if (msgLvl(MSG::DEBUG)) {   // FIXME: change to VERBOSE when done!
@@ -384,7 +384,7 @@ void InDetServMatBuilderToolSLHC::addMissingMaterial( const std::string& name,
 						      const std::vector<double>& fracs, double dens)
 {
   const GeoMaterial* geomat = m_geoMgr->matMgr()->getMaterial( name, comps, fracs, dens);
-  if (geomat) msg(MSG::INFO) << "Material with name name " << name << " added" << endreq;
+  if (geomat) msg(MSG::DEBUG) << "Material with name name " << name << " added" << endreq;
   else        msg(MSG::INFO) << "Material with name name " << name << " failed to be added" << endreq;
 }
 
