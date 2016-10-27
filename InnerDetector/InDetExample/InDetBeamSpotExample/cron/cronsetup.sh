@@ -14,13 +14,14 @@ echo "------------------------------"
 echo "Host name = ${HOSTNAME}"
 echo "------------------------------"
 echo "/usr/kerberos/bin/klist:"
-/usr/kerberos/bin/klist
+#/usr/kerberos/bin/klist
+/usr/bin/klist
 echo "------------------------------"
 echo "/usr/kerberos/bin/kvno host/lxadm10.cern.ch"
-/usr/kerberos/bin/kvno host/lxadm10.cern.ch
+/usr/bin/kvno host/lxadm10.cern.ch
 echo "------------------------------"
 echo "/usr/sue/bin/tokens"
-/usr/sue/bin/tokens
+/usr/bin/tokens
 echo "------------------------------"
 echo "/usr/bin/id"
 /usr/bin/id
