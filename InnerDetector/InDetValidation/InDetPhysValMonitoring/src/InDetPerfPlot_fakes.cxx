@@ -24,49 +24,42 @@ InDetPerfPlot_fakes::InDetPerfPlot_fakes(InDetPlotBase *pParent, const std::stri
   m_track_fakerate_vs_phi{},
   m_track_fakerate_vs_d0{},
   m_track_fakerate_vs_z0{},
-  m_incFakevsTracks{},
-  m_selectedTracks_vs_nTracks{},
-  m_fakePtNumPrimary{},
-  m_fakephiNumPrimary{},
-  m_fakeetaNumPrimary{},
-  m_faked0NumPrimary{},
-  m_fakez0NumPrimary{},
-  m_fakePtNumSecondary{},
-  m_fakephiNumSecondary{},
-  m_fakeetaNumSecondary{},
-  m_faked0NumSecondary{},
-  m_fakez0NumSecondary{},
-  m_fakePtDenom{},
-  m_fakephiDenom{},
-  m_fakeetaDenom{},
-  m_faked0Denom{},
-  m_fakez0Denom{},
-  m_fakePtUnlinked{},
-  m_fakephiUnlinked{},
-  m_fakeetaUnlinked{},
-  m_faked0Unlinked{},
-  m_fakez0Unlinked{},
-
+  m_incFakeNum_pt1{},
+  m_incFakeNum_pt2{},
+  m_incFakeNum_pt5{},
+  m_fakeEtaTotal{},
   m_fakePtPrimary{},
-  m_fakephiPrimary{},
   m_fakeetaPrimary{},
+  m_fakePhiPrimary{},
   m_faked0Primary{},
   m_fakez0Primary{},
   m_fakePtSecondary{},
-  m_fakephiSecondary{},
   m_fakeetaSecondary{},
+  m_fakePhiSecondary{},
   m_faked0Secondary{},
   m_fakez0Secondary{},
+  m_incFakeDenomEta_pt1{},
+  m_incFakeDenomEta_pt2{},
+  m_incFakeDenomEta_pt5{},
   m_fakePtUnlinkedFrac{},
-  m_fakephiUnlinkedFrac{},
   m_fakeetaUnlinkedFrac{},
+  m_fakePhiUnlinkedFrac{},
   m_faked0UnlinkedFrac{},
   m_fakez0UnlinkedFrac{},
-
-  m_incFakeDenomEta{},
-  m_incFakeDenomPt{},
-  m_incFakeEta{},
-  m_incFakePt{} {
+  m_incFakeEta_pt1{},
+  m_incFakeEta_pt2{},
+  m_incFakeEta_pt5{},
+  m_nTracks_vs_mu{},
+  m_nTruth_vs_mu{},
+  m_incTrkRate_vs_mu{},
+  m_nTracks_vs_mu2{},
+  m_nTruth_vs_mu2{},
+  m_incTrkRate_vs_mu2{},
+  m_nTracks_vs_mu3{},
+  m_nTruth_vs_mu3{},
+  m_incTrkRate_vs_mu3{},
+  m_mu{}
+ {
   // nop
 }
 
@@ -87,61 +80,47 @@ InDetPerfPlot_fakes::initializePlots() {
   book(m_track_fakerate_vs_d0, "track_fakerate_vs_d0");
   book(m_track_fakerate_vs_z0, "track_fakerate_vs_z0");
 
-  book(m_incFakevsTracks, "incFakevsTracks");
-  book(m_selectedTracks_vs_nTracks, "selectedTracks_vs_nTracks");
+  book(m_fakeEtaTotal,"fakeEtaTotal");
+  book(m_fakePtPrimary,  "fakePtPrimary");
+  book(m_fakeetaPrimary, "fakeetaPrimary");
+  book(m_fakePhiPrimary, "fakePhiPrimary");
+  book(m_faked0Primary,  "faked0Primary");
+  book(m_fakez0Primary,  "fakez0Primary");
 
-  m_fakePtUnlinked = Book1D("fakePtUnlinked", "fake Pt Unlinked", 400, 0, 200, prependDirectory);
-  m_fakephiUnlinked = Book1D("fakephiUnlinked", "fake Phi Unlinked", 60, -3.1415926, 3.1415926, prependDirectory);
-  m_fakeetaUnlinked = Book1D("fakeetaUnlinked", "fake Eta Unlinked", 80, -4, 4, prependDirectory);
-  m_faked0Unlinked = Book1D("faked0Unlinked", "fake D0 Unlinked", 60, -1.5, 1.5, prependDirectory);
-  m_fakez0Unlinked = Book1D("fakez0Unlinked", "fake z0 Unlinked", 50, -200, 200, prependDirectory);
+  book(m_fakePtSecondary,  "fakePtSecondary");
+  book(m_fakeetaSecondary, "fakeetaSecondary");
+  book(m_fakePhiSecondary, "fakePhiSecondary");
+  book(m_faked0Secondary,  "faked0Secondary");
+  book(m_fakez0Secondary,  "fakez0Secondary");
 
-  m_fakePtNumPrimary = Book1D("fakePtNumPrimary", "fake Pt Num Linked (Primary)", 400, 0, 200, prependDirectory);
-  m_fakephiNumPrimary = Book1D("fakephiNumPrimary", "fake Phi Num Linked (Primary)", 60, -3.1415926, 3.1415926,
-                               prependDirectory);
-  m_fakeetaNumPrimary = Book1D("fakeetaNumPrimary", "fake Eta Num Linked (Primary)", 80, -4, 4, prependDirectory);
-  m_faked0NumPrimary = Book1D("faked0NumPrimary", "fake D0 Num Linked (Primary)", 60, -1.5, 1.5, prependDirectory);
-  m_fakez0NumPrimary = Book1D("fakez0NumPrimary", "fake z0 Num Linked (Primary)", 50, -200, 200, prependDirectory);
+  m_incFakeNum_pt1 = Book1D("incFakeNum_pt1", "inclusive fake numerator p_{T} > 1 GeV ", 80, -4, 4, prependDirectory);
+  m_incFakeNum_pt2 = Book1D("incFakeNum_pt2", "inclusive fake numerator p_{T} > 2 GeV ", 80, -4, 4, prependDirectory);
+  m_incFakeNum_pt5 = Book1D("incFakeNum_pt5", "inclusive fake numerator p_{T} > 5 GeV ", 80, -4, 4, prependDirectory);
 
-  m_fakePtNumSecondary = Book1D("fakePtNumSecondary", "fake Pt Num Linked (Secondary)", 400, 0, 200, prependDirectory);
-  m_fakephiNumSecondary = Book1D("fakephiNumSecondary", "fake Phi Num Linked (Secondary)", 60, -3.1415926, 3.1415926,
-                                 prependDirectory);
-  m_fakeetaNumSecondary = Book1D("fakeetaNumSecondary", "fake Eta Num Linked (Secondary)", 80, -4, 4, prependDirectory);
-  m_faked0NumSecondary =
-    Book1D("faked0NumSecondary", "fake D0 Num Linked (Secondary)", 60, -1.5, 1.5, prependDirectory);
-  m_fakez0NumSecondary =
-    Book1D("fakez0NumSecondary", "fake z0 Num Linked (Secondary)", 50, -200, 200, prependDirectory);
+  book(m_fakePtUnlinkedFrac,  "fakePtUnlinkedFrac");
+  book(m_fakeetaUnlinkedFrac, "fakeetaUnlinkedFrac");
+  book(m_fakePhiUnlinkedFrac, "fakePhiUnlinkedFrac");
+  book(m_faked0UnlinkedFrac,  "faked0UnlinkedFrac");
+  book(m_fakez0UnlinkedFrac,  "fakez0UnlinkedFrac");
 
-  m_fakePtDenom = Book1D("fakePtDenom", "fake Pt Denom ", 400, 0, 200, prependDirectory);
-  m_fakephiDenom = Book1D("fakephiDenom", "fake Phi Denom ", 60, -3.1415926, 3.1415926, prependDirectory);
-  m_fakeetaDenom = Book1D("fakeetaDenom", "fake Eta Denom ", 80, -4, 4, prependDirectory);
-  m_faked0Denom = Book1D("faked0Denom", "fake D0 Denom ", 60, -1.5, 1.5, prependDirectory);
-  m_fakez0Denom = Book1D("fakez0Denom", "fake z0 Denom ", 50, -200, 200, prependDirectory);
+  m_incFakeDenomEta_pt1 = Book1D("incFakeDenomEta_pt1", "Inclusive FakeRate Denominator vs #eta (p_{T} > 1 GeV)", 80, -4, 4, prependDirectory);
+  m_incFakeDenomEta_pt2 = Book1D("incFakeDenomEta_pt2", "Inclusive FakeRate Denominator vs #eta (p_{T} > 2 GeV)", 80, -4, 4, prependDirectory);
+  m_incFakeDenomEta_pt5 = Book1D("incFakeDenomEta_pt5", "Inclusive FakeRate Denominator vs #eta (p_{T} > 5 GeV)", 80, -4, 4, prependDirectory);
+  m_incFakeEta_pt1 = Book1D("incFakeEta_pt1", "Inclusive FakeRate vs #eta (p_{T} > 1 GeV)", 80, -4, 4, prependDirectory);
+  m_incFakeEta_pt2 = Book1D("incFakeEta_pt2", "Inclusive FakeRate vs #eta (p_{T} > 2 GeV)", 80, -4, 4, prependDirectory);
+  m_incFakeEta_pt5 = Book1D("incFakeEta_pt5", "Inclusive FakeRate vs #eta (p_{T} > 5 GeV)", 80, -4, 4, prependDirectory);
 
-  m_fakePtPrimary = Book1D("fakePtPrimary", "fake Pt  Linked (Primary)", 400, 0, 200, prependDirectory);
-  m_fakephiPrimary = Book1D("fakephiPrimary", "fake Phi Linked (Primary)", 60, -3.1415926, 3.1415926, prependDirectory);
-  m_fakeetaPrimary = Book1D("fakeetaPrimary", "fake Eta Linked (Primary)", 80, -4, 4, prependDirectory);
-  m_faked0Primary = Book1D("faked0Primary", "fake D0 Linked (Primary)", 60, -1.5, 1.5, prependDirectory);
-  m_fakez0Primary = Book1D("fakez0Primary", "fake z0  Linked (Primary)", 50, -200, 200, prependDirectory);
+  m_nTracks_vs_mu = Book1D("nTracks_vs_mu"," # tracks vs pileupEvents (#eta < 2.7)", 20, 150, 250, prependDirectory);
+  m_nTruth_vs_mu = Book1D("nTruth_vs_mu"," # truth vs pileupEvents (#eta < 2.7)", 20,150,250, prependDirectory);
+  m_incTrkRate_vs_mu = Book1D("incTrk_vs_mu"," inclusive track rate vs mu (#eta < 2.7)", 20,150,250,  prependDirectory);
+  m_nTracks_vs_mu2 = Book1D("nTracks_vs_mu2"," # tracks vs pileupEvents (#eta > 2.8, #eta < 3.5)", 20, 150, 250, prependDirectory);
+  m_nTruth_vs_mu2 = Book1D("nTruth_vs_mu2"," # truth vs pileupEvents (#eta > 2.8, #eta < 3.5)", 20,150,250, prependDirectory);
+  m_incTrkRate_vs_mu2 = Book1D("incTrk_vs_mu2"," inclusive track rate vs mu (#eta > 2.8, #eta < 3.5)", 20,150,250,  prependDirectory);
+  m_nTracks_vs_mu3 = Book1D("nTracks_vs_mu3"," # tracks vs pileupEvents (#eta > 3.5)", 20, 150, 250, prependDirectory);
+  m_nTruth_vs_mu3 = Book1D("nTruth_vs_mu3"," # truth vs pileupEvents (#eta > 3.5)", 20,150,250, prependDirectory);
+  m_incTrkRate_vs_mu3 = Book1D("incTrk_vs_mu3"," inclusive track rate vs mu (#eta > 3.5)", 20,150,250,  prependDirectory);
+  m_mu = Book1D("mu"," <mu> " , 10, 150, 250, prependDirectory);
 
-  m_fakePtSecondary = Book1D("fakePtSecondary", "fake Pt  Linked (Secondary)", 400, 0, 200, prependDirectory);
-  m_fakephiSecondary = Book1D("fakephiSecondary", "fake Phi Linked (Secondary)", 60, -3.1415926, 3.1415926,
-                              prependDirectory);
-  m_fakeetaSecondary = Book1D("fakeetaSecondary", "fake Eta Linked (Secondary)", 80, -4, 4, prependDirectory);
-  m_faked0Secondary = Book1D("faked0Secondary", "fake D0 Linked (Secondary)", 60, -1.5, 1.5, prependDirectory);
-  m_fakez0Secondary = Book1D("fakez0Secondary", "fake z0  Linked (Secondary)", 50, -200, 200, prependDirectory);
-
-  m_fakePtUnlinkedFrac = Book1D("fakePtUnlinkedFrac", "Pt Unlinked Fraction", 400, 0, 200, prependDirectory);
-  m_fakephiUnlinkedFrac = Book1D("fakephiUnlinkedFrac", "Phi Unlinked Fraction", 60, -3.1415926, 3.1415926,
-                                 prependDirectory);
-  m_fakeetaUnlinkedFrac = Book1D("fakeetaUnlinkedFrac", "Eta Unlinked Fraction", 80, -4, 4, prependDirectory);
-  m_faked0UnlinkedFrac = Book1D("faked0UnlinkedFrac", "D0 Unlinked Fraction", 60, -1.5, 1.5, prependDirectory);
-  m_fakez0UnlinkedFrac = Book1D("fakez0UnlinkedFrac", "z0 Unlinked Fraction", 50, -200, 200, prependDirectory);
-
-  m_incFakeDenomEta = Book1D("incFakeDenomEta", "Inclusive FakeRate Denominator (eta)", 80, -4, 4, prependDirectory);
-  m_incFakeDenomPt = Book1D("incFakeDenomPt", "Inclusive FakeRate Denominator (pt)", 400, 0, 200, prependDirectory);
-  m_incFakeEta = Book1D("incFakeEta", "Inclusive FakeRate Denominator (eta)", 80, -4, 4, prependDirectory);
-  m_incFakePt = Book1D("incFakePt", "Inclusive FakeRate Denominator (pt)", 400, 0, 200, prependDirectory);
 }
 
 void
@@ -155,127 +134,120 @@ InDetPerfPlot_fakes::fill(const xAOD::TrackParticle &trkprt, const bool isFake, 
   double d0(trkprt.d0());
   double z0(trkprt.z0());
 
-  m_fakepT->Fill(pt);
+  fillHisto(m_fakepT,pt);
   if (isFake) {
-    m_fakePtLow->Fill(pt);
-    m_fakeeta->Fill(eta);
-    m_fakephi->Fill(phi);
-    m_faked0->Fill(d0);
-    m_fakez0->Fill(z0);
+    fillHisto(m_fakePtLow,pt);
+    fillHisto(m_fakeeta,eta);
+    fillHisto(m_fakephi,phi);
+    fillHisto(m_faked0,d0);
+    fillHisto(m_fakez0,z0);
   }
-  m_track_fakerate_vs_eta->Fill(eta, fakeNum);
-  m_track_fakerate_vs_pt->Fill(pt, fakeNum);
-  m_track_fakerate_vs_phi->Fill(phi, fakeNum);
-  m_track_fakerate_vs_d0->Fill(d0, fakeNum);
-  m_track_fakerate_vs_z0->Fill(z0, fakeNum);
+  fillHisto(m_track_fakerate_vs_eta,eta, fakeNum);
+  fillHisto(m_track_fakerate_vs_pt,pt, fakeNum);
+  fillHisto(m_track_fakerate_vs_phi,phi, fakeNum);
+  fillHisto(m_track_fakerate_vs_d0,d0, fakeNum);
+  fillHisto(m_track_fakerate_vs_z0,z0, fakeNum);
 }
 
 void
-InDetPerfPlot_fakes::fillLinked(const xAOD::TrackParticle &trkprt, const xAOD::TruthParticle &particle, double prob) {
+InDetPerfPlot_fakes::fillLinkedandUnlinked(const xAOD::TrackParticle &trkprt, float Prim_w, float Sec_w, float Unlinked_w) {
   double pt = trkprt.pt() / 1000.;
   double eta(trkprt.eta());
   double phi(trkprt.phi());
   double d0(trkprt.d0());
   double z0(trkprt.z0());
-
-  m_fakePtDenom->Fill(pt);
-  m_fakeetaDenom->Fill(eta);
-  m_fakephiDenom->Fill(phi);
-  m_faked0Denom->Fill(d0);
-  m_fakez0Denom->Fill(z0);
-
-  if (prob < .5 && particle.barcode() < 200000) {
-    m_fakePtNumPrimary->Fill(pt);
-    m_fakeetaNumPrimary->Fill(eta);
-    m_fakephiNumPrimary->Fill(phi);
-    m_faked0NumPrimary->Fill(d0);
-    m_fakez0NumPrimary->Fill(z0);
-  }
-  if (prob < .5 && particle.barcode() > 200000) {
-    m_fakePtNumSecondary->Fill(pt);
-    m_fakeetaNumSecondary->Fill(eta);
-    m_fakephiNumSecondary->Fill(phi);
-    m_faked0NumSecondary->Fill(d0);
-    m_fakez0NumSecondary->Fill(z0);
-  }
   
-}
+  if(pt > 1) fillHisto(m_incFakeNum_pt1,eta);
+  if(pt > 2) fillHisto(m_incFakeNum_pt2,eta);
+  if(pt > 5) fillHisto(m_incFakeNum_pt5,eta);
 
-void
-InDetPerfPlot_fakes::fillUnlinked(const xAOD::TrackParticle &trkprt, double /* unused prob*/) {
-  double pt = trkprt.pt() / 1000.;
-  double eta(trkprt.eta());
-  double phi(trkprt.phi());
-  double d0(trkprt.d0());
-  double z0(trkprt.z0());
-
-  m_fakePtDenom->Fill(pt);
-  m_fakeetaDenom->Fill(eta);
-  m_fakephiDenom->Fill(phi);
-  m_faked0Denom->Fill(d0);
-  m_fakez0Denom->Fill(z0);
-
-
-  m_fakePtUnlinked->Fill(pt);
-  m_fakeetaUnlinked->Fill(eta);
-  m_fakephiUnlinked->Fill(phi);
-  m_faked0Unlinked->Fill(d0);
-  m_fakez0Unlinked->Fill(z0);
+  if(Unlinked_w == 0) fillHisto(m_fakeEtaTotal,eta,Prim_w+Sec_w);
+ 
+    fillHisto(m_fakePtPrimary, pt, Prim_w);
+    fillHisto(m_fakeetaPrimary, eta, Prim_w);
+    fillHisto(m_fakePhiPrimary, phi, Prim_w);
+    fillHisto(m_faked0Primary, d0, Prim_w);
+    fillHisto(m_fakez0Primary, z0, Prim_w);
+  
+    fillHisto(m_fakePtSecondary, pt, Sec_w);
+    fillHisto(m_fakeetaSecondary, eta, Sec_w);
+    fillHisto(m_fakePhiSecondary, phi, Sec_w);
+    fillHisto(m_faked0Secondary, d0, Sec_w);
+    fillHisto(m_fakez0Secondary, z0, Sec_w);  
+  
+    fillHisto(m_fakePtUnlinkedFrac, pt, Unlinked_w);
+    fillHisto(m_fakeetaUnlinkedFrac, eta, Unlinked_w);
+    fillHisto(m_fakePhiUnlinkedFrac, phi, Unlinked_w);
+    fillHisto(m_faked0UnlinkedFrac, d0, Unlinked_w);
+    fillHisto(m_fakez0UnlinkedFrac, z0, Unlinked_w);
 }
 
 void
 InDetPerfPlot_fakes::fillIncFakeDenom(const xAOD::TruthParticle &particle) {
   double eta = particle.eta();
-  double pt = particle.pt() / 1000;
+  double pt = particle.pt()/1000;
 
-  m_incFakeDenomEta->Fill(eta);
-  m_incFakeDenomPt->Fill(pt);
+  if(pt > 1) fillHisto(m_incFakeDenomEta_pt1,eta);
+  if(pt > 2) fillHisto(m_incFakeDenomEta_pt2,eta);
+  if(pt > 5) fillHisto(m_incFakeDenomEta_pt5,eta);
+
 }
 
 void
-InDetPerfPlot_fakes::fillIncFake(int nTracks, double ifr, int nSelected) {
-  m_incFakevsTracks->Fill(nTracks, ifr);
-  m_selectedTracks_vs_nTracks->Fill(nTracks, nSelected);
+InDetPerfPlot_fakes::fillIncTrkRate(const unsigned int nMuEvents,std::vector<int> incTrkNum, std::vector<int> incTrkDenom){
+ 
+  fillHisto(m_nTracks_vs_mu,nMuEvents,incTrkNum[0]);
+  fillHisto(m_nTruth_vs_mu,nMuEvents,incTrkDenom[0]);
+  fillHisto(m_nTracks_vs_mu2,nMuEvents,incTrkNum[1]);
+  fillHisto(m_nTruth_vs_mu2,nMuEvents,incTrkDenom[1]);
+  fillHisto(m_nTracks_vs_mu3,nMuEvents,incTrkNum[2]);
+  fillHisto(m_nTruth_vs_mu3,nMuEvents,incTrkDenom[2]);
+  fillHisto(m_mu,nMuEvents);
 }
+
+
+
+
+
 
 void
 InDetPerfPlot_fakes::finalizePlots() {
-  m_fakePtPrimary->Sumw2();
-  m_fakePtPrimary->Divide(m_fakePtNumPrimary, m_fakePtDenom, 1, 1, "B");
-  m_fakePtPrimary->SetXTitle(" Pt (2 GeV bins)");
-  m_fakeetaPrimary->Sumw2();
-  m_fakeetaPrimary->Divide(m_fakeetaNumPrimary, m_fakeetaDenom, 1, 1, "B");
-  m_fakephiPrimary->Sumw2();
-  m_fakephiPrimary->Divide(m_fakephiNumPrimary, m_fakephiDenom, 1, 1, "B");
-  m_faked0Primary->Sumw2();
-  m_faked0Primary->Divide(m_faked0NumPrimary, m_faked0Denom, 1, 1, "B");
-  m_fakez0Primary->Sumw2();
-  m_fakez0Primary->Divide(m_fakez0NumPrimary, m_fakez0Denom, 1, 1, "B");
+  if(m_incFakeEta_pt1 && m_incFakeEta_pt2 && m_incFakeEta_pt5 && m_incTrkRate_vs_mu && m_incTrkRate_vs_mu2 && m_incTrkRate_vs_mu3){
+  m_incFakeEta_pt1->Sumw2();
+  m_incFakeEta_pt1->Divide(m_incFakeNum_pt1, m_incFakeDenomEta_pt1,1,1,"B");
+  m_incFakeEta_pt2->Sumw2();
+  m_incFakeEta_pt2->Divide(m_incFakeNum_pt2, m_incFakeDenomEta_pt2,1,1,"B");
+  m_incFakeEta_pt5->Sumw2();
+  m_incFakeEta_pt5->Divide(m_incFakeNum_pt5, m_incFakeDenomEta_pt5,1,1,"B");
 
-  m_fakePtSecondary->Sumw2();
-  m_fakePtSecondary->Divide(m_fakePtNumSecondary, m_fakePtDenom, 1, 1, "B");
-  m_fakeetaSecondary->Sumw2();
-  m_fakeetaSecondary->Divide(m_fakeetaNumSecondary, m_fakeetaDenom, 1, 1, "B");
-  m_fakephiSecondary->Sumw2();
-  m_fakephiSecondary->Divide(m_fakephiNumSecondary, m_fakephiDenom, 1, 1, "B");
-  m_faked0Secondary->Sumw2();
-  m_faked0Secondary->Divide(m_faked0NumSecondary, m_faked0Denom, 1, 1, "B");
-  m_fakez0Secondary->Sumw2();
-  m_fakez0Secondary->Divide(m_fakez0NumSecondary, m_fakez0Denom, 1, 1, "B");
+  m_incTrkRate_vs_mu->Divide(m_nTracks_vs_mu,m_nTruth_vs_mu,1,1,"B");
+  m_incTrkRate_vs_mu2->Divide(m_nTracks_vs_mu2,m_nTruth_vs_mu2,1,1,"B");
+  m_incTrkRate_vs_mu3->Divide(m_nTracks_vs_mu3,m_nTruth_vs_mu3,1,1,"B");
+  }else {
+    ATH_MSG_INFO("InDetPerfPlot_fakes: some plots have null pointer, probably were not fully specified in the histogram definition xml file");
+  }
+  
+  int nPlot = 6;
+  TH1* incTrkNum[nPlot] = {m_nTracks_vs_mu,m_nTracks_vs_mu2,m_nTracks_vs_mu3,m_incFakeNum_pt1,m_incFakeNum_pt2,m_incFakeNum_pt5};
+  TH1* incTrkDenom[nPlot] = {m_nTruth_vs_mu,m_nTruth_vs_mu2,m_nTruth_vs_mu3,m_incFakeDenomEta_pt1,m_incFakeDenomEta_pt2,m_incFakeDenomEta_pt5};
+  TH1* incTrk[nPlot] = {m_incTrkRate_vs_mu,m_incTrkRate_vs_mu2,m_incTrkRate_vs_mu3,m_incFakeEta_pt1,m_incFakeEta_pt2,m_incFakeEta_pt5};
 
-  m_fakePtUnlinkedFrac->Sumw2();
-  m_fakePtUnlinkedFrac->Divide(m_fakePtUnlinked, m_fakePtDenom, 1, 1, "B");
-  m_fakeetaUnlinkedFrac->Sumw2();
-  m_fakeetaUnlinkedFrac->Divide(m_fakeetaUnlinked, m_fakeetaDenom, 1, 1, "B");
-  m_fakephiUnlinkedFrac->Sumw2();
-  m_fakephiUnlinkedFrac->Divide(m_fakephiUnlinked, m_fakephiDenom, 1, 1, "B");
-  m_faked0UnlinkedFrac->Sumw2();
-  m_faked0UnlinkedFrac->Divide(m_faked0Unlinked, m_faked0Denom, 1, 1, "B");
-  m_fakez0UnlinkedFrac->Sumw2();
-  m_fakez0UnlinkedFrac->Divide(m_fakez0Unlinked, m_fakez0Denom, 1, 1, "B");
-
-  m_incFakeEta->Sumw2();
-  m_incFakeEta->Divide(m_fakeetaDenom, m_incFakeDenomEta);
-  m_incFakePt->Sumw2();
-  m_incFakePt->Divide(m_fakePtDenom, m_incFakeDenomPt);
+  for(int j = 0; j< nPlot; j++){
+    int nBins = incTrkDenom[j]->GetNbinsX();
+    for( int i = 0; i < nBins; i++){
+      double binError = 0;
+      double yBC = incTrkDenom[j]->GetBinContent(i);
+      double xBC = incTrkNum[j]->GetBinContent(i);
+      incTrkDenom[j]->SetBinError(i,std::sqrt(yBC));
+      incTrkNum[j]->SetBinError(i,std::sqrt(xBC));
+      binError = std::sqrt((xBC*xBC/(yBC*yBC*yBC)) + (xBC)/(yBC*yBC));
+      if(binError > 0){
+        incTrk[j]->SetBinError(i,binError);}
+    }
+  }
 }
+
+  
+
+
+

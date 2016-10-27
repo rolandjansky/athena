@@ -84,25 +84,25 @@ InDetPerfPlot_HitDetailed::fill(const xAOD::TrackParticle &trk) {
   uint8_t iPixHoles(0), iSCTHoles(0), iTrtHTHits(0);
 
   if (trk.summaryValue(iBLayerHits, xAOD::numberOfBLayerHits)) {
-    n_vs_eta_BLayerHits->Fill(eta, iBLayerHits);
+    fillHisto(n_vs_eta_BLayerHits,eta, iBLayerHits);
   }
   if (trk.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
-    n_vs_eta_PixelHits->Fill(eta, iPixHits);
+    fillHisto(n_vs_eta_PixelHits,eta, iPixHits);
   }
   if (trk.summaryValue(iSctHits, xAOD::numberOfSCTHits)) {
-    n_vs_eta_SCTHits->Fill(eta, iSctHits);
+    fillHisto(n_vs_eta_SCTHits,eta, iSctHits);
   }
   if (trk.summaryValue(iTrtHits, xAOD::numberOfTRTHits)) {
-    n_vs_eta_TRTHits->Fill(eta, iTrtHits);
+    fillHisto(n_vs_eta_TRTHits,eta, iTrtHits);
   }
   if (trk.summaryValue(iPixHoles, xAOD::numberOfPixelHoles)) {
-    n_vs_eta_PixelHoles->Fill(eta, iPixHoles);
+    fillHisto(n_vs_eta_PixelHoles,eta, iPixHoles);
   }
   if (trk.summaryValue(iSCTHoles, xAOD::numberOfSCTHoles)) {
-    n_vs_eta_SCTHoles->Fill(eta, iSCTHoles);
+    fillHisto(n_vs_eta_SCTHoles,eta, iSCTHoles);
   }
   if (trk.summaryValue(iTrtHTHits, xAOD::numberOfTRTHighThresholdHits)) {
-    n_vs_eta_TRTHighThresholdHits->Fill(eta, iTrtHTHits);
+    fillHisto(n_vs_eta_TRTHighThresholdHits,eta, iTrtHTHits);
   }
 
   // expert plots
@@ -113,46 +113,46 @@ InDetPerfPlot_HitDetailed::fill(const xAOD::TrackParticle &trk) {
     uint8_t iSCTOutliers(0), iSCTDoubleHoles(0), iSCTShared(0);
     uint8_t iTRTOutliers(0), iTRTHTOutliers(0);
     if (trk.summaryValue(iBLayerOutliers, xAOD::numberOfBLayerOutliers)) {
-      n_vs_eta_BLayerOutliers->Fill(eta, iBLayerOutliers);
+      fillHisto(n_vs_eta_BLayerOutliers,eta, iBLayerOutliers);
     }
     if (trk.summaryValue(iBLayerShared, xAOD::numberOfBLayerSharedHits)) {
-      n_vs_eta_BLayerSharedHits->Fill(eta, iBLayerShared);
+      fillHisto(n_vs_eta_BLayerSharedHits,eta, iBLayerShared);
     }
     if (trk.summaryValue(iBLayerSplit, xAOD::numberOfBLayerSplitHits)) {
-      n_vs_eta_BLayerSplitHits->Fill(eta, iBLayerSplit);
+      fillHisto(n_vs_eta_BLayerSplitHits,eta, iBLayerSplit);
     }
     if (trk.summaryValue(iPixelOutliers, xAOD::numberOfPixelOutliers)) {
-      n_vs_eta_PixelOutliers->Fill(eta, iPixelOutliers);
+      fillHisto(n_vs_eta_PixelOutliers,eta, iPixelOutliers);
     }
     if (trk.summaryValue(iPixelContribLayers, xAOD::numberOfContribPixelLayers)) {
-      n_vs_eta_PixelContribLayers->Fill(eta, iPixelContribLayers);
+      fillHisto(n_vs_eta_PixelContribLayers,eta, iPixelContribLayers);
     }
     if (trk.summaryValue(iPixelShared, xAOD::numberOfPixelSharedHits)) {
-      n_vs_eta_PixelSharedHits->Fill(eta, iPixelShared);
+      fillHisto(n_vs_eta_PixelSharedHits,eta, iPixelShared);
     }
     if (trk.summaryValue(iPixelSplit, xAOD::numberOfPixelSplitHits)) {
-      n_vs_eta_PixelSplitHits->Fill(eta, iPixelSplit);
+      fillHisto(n_vs_eta_PixelSplitHits,eta, iPixelSplit);
     }
     if (trk.summaryValue(iPixelGanged, xAOD::numberOfGangedPixels)) {
-      n_vs_eta_PixelGangedHits->Fill(eta, iPixelGanged);
+      fillHisto(n_vs_eta_PixelGangedHits,eta, iPixelGanged);
     }
     if (trk.summaryValue(iPixelGangedFF, xAOD::numberOfGangedFlaggedFakes)) {
-      n_vs_eta_PixelGangedHitsFlaggedFakes->Fill(eta, iPixelGangedFF);
+      fillHisto(n_vs_eta_PixelGangedHitsFlaggedFakes,eta, iPixelGangedFF);
     }
     if (trk.summaryValue(iSCTOutliers, xAOD::numberOfSCTOutliers)) {
-      n_vs_eta_PixelOutliers->Fill(eta, iSCTOutliers);
+      fillHisto(n_vs_eta_SCTOutliers,eta, iSCTOutliers);
     }
     if (trk.summaryValue(iSCTDoubleHoles, xAOD::numberOfSCTDoubleHoles)) {
-      n_vs_eta_SCTDoubleHoles->Fill(eta, iSCTDoubleHoles);
+      fillHisto(n_vs_eta_SCTDoubleHoles,eta, iSCTDoubleHoles);
     }
     if (trk.summaryValue(iSCTShared, xAOD::numberOfSCTSharedHits)) {
-      n_vs_eta_SCTSharedHits->Fill(eta, iSCTShared);
+      fillHisto(n_vs_eta_SCTSharedHits,eta, iSCTShared);
     }
     if (trk.summaryValue(iTRTOutliers, xAOD::numberOfTRTOutliers)) {
-      n_vs_eta_TRTOutliers->Fill(eta, iTRTOutliers);
+      fillHisto(n_vs_eta_TRTOutliers,eta, iTRTOutliers);
     }
     if (trk.summaryValue(iTRTHTOutliers, xAOD::numberOfTRTHighThresholdOutliers)) {
-      n_vs_eta_TRTHighThresholdOutliers->Fill(eta, iTRTHTOutliers);
+      fillHisto(n_vs_eta_TRTHighThresholdOutliers,eta, iTRTHTOutliers);
     }
   }
 }

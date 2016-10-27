@@ -114,99 +114,99 @@ InDetPerfPlot_TrtTest::fill(const xAOD::TrackParticle &particle) {
   }
 
 
-  m_matchProb->Fill(prob);
+  fillHisto(m_matchProb,prob);
 
-  m_trackCategories->Fill(1);
+  fillHisto(m_trackCategories,1);
   if (SiSd || Ambi) {
-    m_trackCategories->Fill(2);
+    fillHisto(m_trackCategories,2);
   }
   if (SiSd || Ambi || Ext) {
-    m_trackCategories->Fill(3);
+    fillHisto(m_trackCategories,3);
   }
   if ((SiSd || Ambi) && Ext) {
-    m_trackCategories->Fill(4);
+    fillHisto(m_trackCategories,4);
   }
   if (LRT) {
-    m_trackCategories->Fill(5);
+    fillHisto(m_trackCategories,5);
   }
   if (LRT && Ext) {
-    m_trackCategories->Fill(6);
+    fillHisto(m_trackCategories,6);
   }
   if (LRT && TRTHit) {
-    m_trackCategories->Fill(7);
+    fillHisto(m_trackCategories,7);
   }
   if (LRT && TRTOut) {
-    m_trackCategories->Fill(8);
+    fillHisto(m_trackCategories,8);
   }
   if (Ext && !TRTHit && !TRTOut) {
-    m_trackCategories->Fill(9);
+    fillHisto(m_trackCategories,9);
   }
   if ((SiSd || Ambi) && LRT) {
-    m_trackCategories->Fill(10);
+    fillHisto(m_trackCategories,10);
   }
   if (TRTHit && !Ext) {
-    m_trackCategories->Fill(11);
+    fillHisto(m_trackCategories,11);
   }
   if (TRTOut && !Ext) {
-    m_trackCategories->Fill(12);
+    fillHisto(m_trackCategories,12);
   }
   if (TRTOut && !Ext && !TRTSd && !TRTStdAl) {
-    m_trackCategories->Fill(13);
+    fillHisto(m_trackCategories,13);
   }
   if (TRTHit) {
-    m_trackCategories->Fill(14);
+    fillHisto(m_trackCategories,14);
   }
   if (TRTOut) {
-    m_trackCategories->Fill(15);
+    fillHisto(m_trackCategories,15);
   }
 
   if (LRT) {
-    m_ld0TrackCategories->Fill(1);
+    fillHisto(m_ld0TrackCategories,1);
   }
   if (LRT && TRTHit) {
-    m_ld0TrackCategories->Fill(2);
+    fillHisto(m_ld0TrackCategories,2);
   }
   if (LRT && TRTOut && !TRTHit) {
-    m_ld0TrackCategories->Fill(3);
+    fillHisto(m_ld0TrackCategories,3);
   }
   if (LRT && !TRTOut && !TRTHit) {
-    m_ld0TrackCategories->Fill(4);
+    fillHisto(m_ld0TrackCategories,4);
   }
 
   if (LRT) {
-    m_pt_lrt->Fill(pt);
-    m_eta_lrt->Fill(eta);
-    m_phi_lrt->Fill(phi);
-    m_d0_lrt->Fill(d0);
-    m_z0_lrt->Fill(z0);
+    fillHisto(m_pt_lrt,pt);
+    fillHisto(m_eta_lrt,eta);
+    fillHisto(m_phi_lrt,phi);
+    fillHisto(m_d0_lrt,d0);
+    fillHisto(m_z0_lrt,z0);
   }
   if (LRT && Ext) {
-    m_pt_lrtExt->Fill(pt);
-    m_eta_lrtExt->Fill(eta);
-    m_phi_lrtExt->Fill(phi);
-    m_d0_lrtExt->Fill(d0);
-    m_z0_lrtExt->Fill(z0);
+    fillHisto(m_pt_lrtExt,pt);
+    fillHisto(m_eta_lrtExt,eta);
+    fillHisto(m_phi_lrtExt,phi);
+    fillHisto(m_d0_lrtExt,d0);
+    fillHisto(m_z0_lrtExt,z0);
   }
   if (LRT && TRTHit && !TRTOut) {
-    m_pt_lrtTrtHit->Fill(pt);
-    m_eta_lrtTrtHit->Fill(eta);
-    m_phi_lrtTrtHit->Fill(phi);
-    m_d0_lrtTrtHit->Fill(d0);
-    m_z0_lrtTrtHit->Fill(z0);
+    fillHisto(m_pt_lrtTrtHit,pt);
+    fillHisto(m_eta_lrtTrtHit,eta);
+    fillHisto(m_phi_lrtTrtHit,phi);
+    fillHisto(m_d0_lrtTrtHit,d0);
+    fillHisto(m_z0_lrtTrtHit,z0);
   }
   if (LRT && TRTHit && TRTOut) {
-    m_pt_lrtTrtHitOut->Fill(pt);
-    m_eta_lrtTrtHitOut->Fill(eta);
-    m_phi_lrtTrtHitOut->Fill(phi);
-    m_d0_lrtTrtHitOut->Fill(d0);
-    m_z0_lrtTrtHitOut->Fill(z0);
+    fillHisto(m_pt_lrtTrtHitOut,pt);
+    fillHisto(m_eta_lrtTrtHitOut,eta);
+    fillHisto(m_phi_lrtTrtHitOut,phi);
+    fillHisto(m_d0_lrtTrtHitOut,d0);
+    fillHisto(m_z0_lrtTrtHitOut,z0);
   }
   if (LRT && !TRTHit && TRTOut) {
-    m_pt_lrtTrtOutlier->Fill(pt);
-    m_eta_lrtTrtOutlier->Fill(eta);
-    m_phi_lrtTrtOutlier->Fill(phi);
-    m_d0_lrtTrtOutlier->Fill(d0);
-    m_z0_lrtTrtOutlier->Fill(z0);
+    fillHisto(m_pt_lrtTrtOutlier,pt);
+    fillHisto(m_eta_lrtTrtOutlier,eta);
+    fillHisto(m_phi_lrtTrtOutlier,phi);
+    fillHisto(m_d0_lrtTrtOutlier,d0);
+    fillHisto(m_z0_lrtTrtOutlier,z0);
   }
 }
 

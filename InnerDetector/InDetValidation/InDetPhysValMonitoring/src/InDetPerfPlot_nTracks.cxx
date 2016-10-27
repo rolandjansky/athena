@@ -34,6 +34,6 @@ InDetPerfPlot_nTracks::initializePlots() {
 void
 InDetPerfPlot_nTracks::fill(const unsigned int freq, const CounterCategory counter) {
   if (counter < N_COUNTERS) {
-    (m_counters[counter])->Fill(freq);
+    fillHisto((m_counters[counter]),freq);
   }
 }

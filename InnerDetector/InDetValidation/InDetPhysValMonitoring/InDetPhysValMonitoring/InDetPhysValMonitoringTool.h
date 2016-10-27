@@ -17,13 +17,14 @@
 #include "GaudiKernel/ToolHandle.h"
 
 //local include
-#include "PATCore/IAsgSelectionTool.h"
+//#include "PATCore/IAsgSelectionTool.h"
 #include "AthenaMonitoring/ManagedMonitorToolBase.h"
 #include "InDetTrackSelectionTool/IInDetTrackSelectionTool.h"
 
 #include "xAODTruth/TruthParticleContainer.h"
 
 #include "InDetPhysValMonitoring/IInDetPhysValDecoratorTool.h"
+#include "InDetPhysValMonitoring/IAthSelectionTool.h"
 #include "src/InDetPhysHitDecoratorTool.h"
 
 #include "AtlasDetDescr/AtlasDetectorID.h"
@@ -40,6 +41,7 @@ class InDetRttPlots;
 namespace Root {
   class TAccept;
 }
+
 
 /**
  * Tool to book and fill inner detector histograms for physics validation
@@ -85,8 +87,8 @@ private:
 	ToolHandle<InDet::IInDetTrackSelectionTool> m_trackSelectionTool;
 
 	//ToolHandle<Trk::ITrackSelectorTool> m_trackSelectionTool;
-	ToolHandle<IAsgSelectionTool> m_truthSelectionTool;
-
+	//ToolHandle<IAsgSelectionTool> m_truthSelectionTool;
+  ToolHandle<IAthSelectionTool> m_truthSelectionTool;
 	std::vector<int> m_prospectsMatched;
 	int m_twoMatchedEProb;
 	int m_threeMatchedEProb;
@@ -96,10 +98,11 @@ private:
 	void fillTrackCutFlow(Root::TAccept& accept);
 	std::vector<std::string> m_trackCutflowNames;
 	std::vector<int> m_trackCutflow;
+	std::vector<unsigned int> m_truthCutCounters;
 
-	void fillTruthCutFlow(Root::TAccept& accept);
-	std::vector<std::string> m_truthCutflowNames;
-	std::vector<int> m_truthCutflow;
+	//void fillTruthCutFlow(Root::TAccept& accept);
+	//std::vector<std::string> m_truthCutflowNames;
+	//std::vector<int> m_truthCutflow;
 	
 	void fillCutFlow(Root::TAccept& accept, std::vector<std::string> & names, std::vector<int> & cutFlow);
 	
@@ -122,10 +125,11 @@ private:
 };
 
 template<class T>
+  inline 
 	const T* InDetPhysValMonitoringTool::getContainer(const std::string & containerName){
 		const T * ptr = evtStore()->retrieve< const T >( containerName );
     	if (!ptr) {
-        	ATH_MSG_ERROR("Container '"<<containerName<<"' could not be retrieved");
+        	ATH_MSG_WARNING("Container '"<<containerName<<"' could not be retrieved");
     	}
     	return ptr;
 	}

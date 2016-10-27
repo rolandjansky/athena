@@ -52,8 +52,8 @@ InDetPerfPlot_ExtendedFakes::fill(const xAOD::TrackParticle &trk, const bool isF
     double R = sqrt(x * x + y * y);
     // double za = fabs(z); unused
 
-    m_KinematicFakerates["RfirstHit"]->Fill(R, fakeNum);
-    m_KinematicFakerates["ZfirstHit"]->Fill(z, fakeNum);
+    fillHisto(m_KinematicFakerates["RfirstHit"],R, fakeNum);
+    fillHisto(m_KinematicFakerates["ZfirstHit"],z, fakeNum);
   }
 
   // Hit information.
@@ -66,70 +66,70 @@ InDetPerfPlot_ExtendedFakes::fill(const xAOD::TrackParticle &trk, const bool isF
 
 
   if (trk.summaryValue(iBLayerHits, xAOD::numberOfBLayerHits)) {
-    m_HitInfoFakerates["nBLayerHits"      ]->Fill(iBLayerHits, fakeNum);
+    fillHisto(m_HitInfoFakerates["nBLayerHits"      ],iBLayerHits, fakeNum);
   }
   if (trk.summaryValue(iBLayerOutliers, xAOD::numberOfBLayerOutliers)) {
-    m_HitInfoFakerates["nBLayerOutliers"  ]->Fill(iBLayerOutliers, fakeNum);
+    fillHisto(m_HitInfoFakerates["nBLayerOutliers"  ],iBLayerOutliers, fakeNum);
   }
   if (trk.summaryValue(iBLayerSharedHits, xAOD::numberOfBLayerSharedHits)) {
-    m_HitInfoFakerates["nBLayerSharedHits"]->Fill(iBLayerSharedHits, fakeNum);
+    fillHisto(m_HitInfoFakerates["nBLayerSharedHits"],iBLayerSharedHits, fakeNum);
   }
   if (trk.summaryValue(iBLayerSplitHits, xAOD::numberOfBLayerSplitHits)) {
-    m_HitInfoFakerates["nBLayerSplitHits" ]->Fill(iBLayerSplitHits, fakeNum);
+    fillHisto(m_HitInfoFakerates["nBLayerSplitHits" ],iBLayerSplitHits, fakeNum);
   }
 
   if (trk.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
-    m_HitInfoFakerates["nPixHits"         ]->Fill(iPixHits, fakeNum);
+    fillHisto(m_HitInfoFakerates["nPixHits"         ],iPixHits, fakeNum);
   }
   if (trk.summaryValue(iPixHoles, xAOD::numberOfPixelHoles)) {
-    m_HitInfoFakerates["nPixHoles"        ]->Fill(iPixHoles, fakeNum);
+    fillHisto(m_HitInfoFakerates["nPixHoles"        ],iPixHoles, fakeNum);
   }
   if (trk.summaryValue(iPixOutliers, xAOD::numberOfPixelOutliers)) {
-    m_HitInfoFakerates["nPixOutliers"     ]->Fill(iPixOutliers, fakeNum);
+    fillHisto(m_HitInfoFakerates["nPixOutliers"     ],iPixOutliers, fakeNum);
   }
   if (trk.summaryValue(iPixContribLayers, xAOD::numberOfContribPixelLayers)) {
-    m_HitInfoFakerates["nPixContribLayers"]->Fill(iPixContribLayers, fakeNum);
+    fillHisto(m_HitInfoFakerates["nPixContribLayers"],iPixContribLayers, fakeNum);
   }
   if (trk.summaryValue(iPixSharedHits, xAOD::numberOfPixelSharedHits)) {
-    m_HitInfoFakerates["nPixSharedHits"   ]->Fill(iPixSharedHits, fakeNum);
+    fillHisto(m_HitInfoFakerates["nPixSharedHits"   ],iPixSharedHits, fakeNum);
   }
   if (trk.summaryValue(iPixSplitHits, xAOD::numberOfPixelSplitHits)) {
-    m_HitInfoFakerates["nPixSplitHits"    ]->Fill(iPixSplitHits, fakeNum);
+   fillHisto( m_HitInfoFakerates["nPixSplitHits"    ],iPixSplitHits, fakeNum);
   }
   if (trk.summaryValue(iPixGangedHits, xAOD::numberOfGangedPixels)) {
-    m_HitInfoFakerates["nPixGangedHits"   ]->Fill(iPixGangedHits, fakeNum);
+    fillHisto(m_HitInfoFakerates["nPixGangedHits"   ],iPixGangedHits, fakeNum);
   }
 
   if (trk.summaryValue(iSCTHits, xAOD::numberOfSCTHits)) {
-    m_HitInfoFakerates["nSCTHits"       ]->Fill(iSCTHits, fakeNum);
+    fillHisto(m_HitInfoFakerates["nSCTHits"       ],iSCTHits, fakeNum);
   }
   if (trk.summaryValue(iSCTHoles, xAOD::numberOfSCTHoles)) {
-    m_HitInfoFakerates["nSCTHoles"      ]->Fill(iSCTHoles, fakeNum);
+    fillHisto(m_HitInfoFakerates["nSCTHoles"      ],iSCTHoles, fakeNum);
   }
   if (trk.summaryValue(iSCTOutliers, xAOD::numberOfSCTOutliers)) {
-    m_HitInfoFakerates["nSCTOutliers"   ]->Fill(iSCTOutliers, fakeNum);
+    fillHisto(m_HitInfoFakerates["nSCTOutliers"   ],iSCTOutliers, fakeNum);
   }
   if (trk.summaryValue(iSCTDoubleHoles, xAOD::numberOfSCTDoubleHoles)) {
-    m_HitInfoFakerates["nSCTDoubleHoles"]->Fill(iSCTDoubleHoles, fakeNum);
+    fillHisto(m_HitInfoFakerates["nSCTDoubleHoles"],iSCTDoubleHoles, fakeNum);
   }
   if (trk.summaryValue(iSCTSharedHits, xAOD::numberOfSCTSharedHits)) {
-    m_HitInfoFakerates["nSCTSharedHits" ]->Fill(iSCTSharedHits, fakeNum);
+    fillHisto(m_HitInfoFakerates["nSCTSharedHits" ],iSCTSharedHits, fakeNum);
   }
 
   iSiHits = iPixHits + iSCTHits;
-  m_HitInfoFakerates["nSiHits"]->Fill(iSiHits, fakeNum);
+  fillHisto(m_HitInfoFakerates["nSiHits"],iSiHits, fakeNum);
 
   if (trk.summaryValue(iTRTOutliers, xAOD::numberOfTRTOutliers)) {
-    m_HitInfoFakerates["nTRTOutliers"             ]->Fill(iTRTOutliers, fakeNum);
+    fillHisto(m_HitInfoFakerates["nTRTOutliers"             ],iTRTOutliers, fakeNum);
   }
   if (trk.summaryValue(iTRTHighThresholdOutliers, xAOD::numberOfTRTHighThresholdOutliers)) {
-    m_HitInfoFakerates["nTRTHighThresholdOutliers"]->Fill(iTRTHighThresholdOutliers, fakeNum);
+    fillHisto(m_HitInfoFakerates["nTRTHighThresholdOutliers"],iTRTHighThresholdOutliers, fakeNum);
   }
   if (trk.summaryValue(iTRTHits, xAOD::numberOfTRTHits)) {
-    m_HitInfoFakerates["nTRTHits"                 ]->Fill(iTRTHits, fakeNum);
+    fillHisto(m_HitInfoFakerates["nTRTHits"                 ],iTRTHits, fakeNum);
   }
   if (trk.summaryValue(iTRTHighThresholdHits, xAOD::numberOfTRTHighThresholdHits)) {
-    m_HitInfoFakerates["nTRTHighThresholdHits"    ]->Fill(iTRTHighThresholdHits, fakeNum);
+    fillHisto(m_HitInfoFakerates["nTRTHighThresholdHits"    ],iTRTHighThresholdHits, fakeNum);
   }
 
 

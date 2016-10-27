@@ -71,7 +71,8 @@ ReadFromXmlDom::initialize() {
   bool ok(true);
 
   if (m_source.empty() or(not sourceExists())) {
-    throw std::runtime_error("Could not open file in ReadFromXmlDom initialize");
+    std::cerr<<"Could not open file "<<m_source<<" in ReadFromXmlDom initialize"<<std::endl;
+    return false;
   }
   myXerces::Lib xercesFrame; // RAII xerces context
   static const XMLCh gLS[] = {
@@ -104,7 +105,6 @@ ReadFromXmlDom::initialize() {
 bool
 ReadFromXmlDom::sourceExists() const {
   struct stat buffer;
-
   return(stat(m_source.c_str(), &buffer) == 0);
 }
 

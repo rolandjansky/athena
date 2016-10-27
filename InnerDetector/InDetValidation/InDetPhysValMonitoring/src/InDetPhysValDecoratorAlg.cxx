@@ -111,12 +111,14 @@ InDetPhysValDecoratorAlg::execute() {
   const xAOD::TruthParticleContainer *truthParticles =
     (!m_truthParticleName.empty() ? getContainer<xAOD::TruthParticleContainer>(m_truthParticleName) : nullptr);
   if (truthParticles) {
+  
     for (const auto &thisTruth: *truthParticles) {
       bool successfulDecoration = m_truthDecoratorTool->decorateTruth(*thisTruth, "");
       if (not successfulDecoration) {
         ATH_MSG_DEBUG("Could not retrieve some information for the truth particle.");
       }
     }
+    
   }
 
   ATH_MSG_VERBOSE(nTracks << " tracks were retrieved; " << num_truthmatch_match << " had associated truth.");

@@ -56,11 +56,7 @@ InDetPhysHitDecoratorTool::~InDetPhysHitDecoratorTool () {
 
 StatusCode
 InDetPhysHitDecoratorTool::initialize() {
-  StatusCode sc = AlgTool::initialize();
 
-  if (sc.isFailure()) {
-    return sc;
-  }
   ATH_CHECK(m_holeSearchTool.retrieve());
   if (not (m_updatorHandle.empty())) {
     ATH_CHECK(m_updatorHandle.retrieve());
@@ -90,7 +86,7 @@ InDetPhysHitDecoratorTool::initialize() {
   } else {
     ATH_MSG_INFO("Generic hit residuals & pulls will be calculated in one or both available local coordinates");
   }
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 StatusCode
@@ -102,7 +98,7 @@ bool
 InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, const std::string &prefix) {
   static int trackNumber(0);
 
-  typedef std::tuple<int, int, int, float, float, float, float, int, int> SingleResult_t;
+  typedef std::tuple<int, int, int, float, float, float, float, int, int, int> SingleResult_t;
   typedef std::vector<SingleResult_t> TrackResult_t;
   const float invalidFloat(std::numeric_limits<float>::quiet_NaN());
   // const float invalidDouble(std::numeric_limits<double>::quiet_NaN());
@@ -113,7 +109,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
   const int invalidWidth(-1);
   const int invalidMeasure(-1);
   const SingleResult_t invalidResult = std::make_tuple(invalidDetector, invalidRegion, invalidLayer, invalidRes,
-                                                       invalidPull, invalidRes, invalidPull, invalidWidth,
+                                                       invalidPull, invalidRes, invalidPull, invalidWidth, invalidWidth,
                                                        invalidMeasure);
   // get element link to the original track
   const ElementLink< TrackCollection > &trackLink = particle.trackLink();// using xAODTracking-00-03-09, interface has
@@ -195,6 +191,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
         float residualLocY(invalidFloat), pullLocY(invalidFloat);// NaN by default
         float residualLocX = -1, pullLocX = -1; // what values?
         int phiWidth(-1);
+        int etaWidth(-1);
         std::unique_ptr<const Trk::ResidualPull> residualPull(nullptr);
         const Trk::TrackParameters *biasedTrackParameters = thisTrackState->trackParameters();
         if (biasedTrackParameters) {
@@ -241,6 +238,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
               if (pCluster) {
                 InDet::SiWidth width = pCluster->width();
                 phiWidth = int(width.colRow().x());
+                etaWidth = int(width.colRow().y());
               }
             }
             ATH_MSG_VERBOSE("hit and isUnbiased ok");
@@ -256,7 +254,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
           }
           --trackParametersCounter;
         }
-        thisResult = std::make_tuple(det, r, iLayer, residualLocX, pullLocX, residualLocY, pullLocY, phiWidth,
+        thisResult = std::make_tuple(det, r, iLayer, residualLocX, pullLocX, residualLocY, pullLocY, phiWidth, etaWidth,
                                      measureType);
         result.push_back(thisResult);
       }// end of for loop*/
@@ -282,6 +280,8 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
         result_pullLocY.reserve(arraySize);
         std::vector<int> result_phiWidth;
         result_phiWidth.reserve(arraySize);
+        std::vector<int> result_etaWidth;
+        result_etaWidth.reserve(arraySize);
         std::vector<int> result_measureType;
         result_measureType.reserve(arraySize);
         for (const SingleResult_t &single_result : result) {
@@ -293,7 +293,8 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
           result_residualLocY.push_back(std::get<5>(single_result));
           result_pullLocY.push_back(std::get<6>(single_result));
           result_phiWidth.push_back(std::get<7>(single_result));
-          result_measureType.push_back(std::get<8>(single_result));
+          result_etaWidth.push_back(std::get<8>(single_result));
+          result_measureType.push_back(std::get<9>(single_result));
         }
         particle.auxdecor<std::vector<int> >(prefix + "measurement_region") = result_r;
         particle.auxdecor<std::vector<int> >(prefix + "measurement_det") = result_det;
@@ -303,6 +304,7 @@ InDetPhysHitDecoratorTool::decorateTrack(const xAOD::TrackParticle &particle, co
         particle.auxdecor<std::vector<float> >(prefix + "hitResiduals_residualLocY") = result_residualLocY;
         particle.auxdecor<std::vector<float> >(prefix + "hitResiduals_pullLocY") = result_pullLocY;
         particle.auxdecor<std::vector<int> >(prefix + "hitResiduals_phiWidth") = result_phiWidth;
+        particle.auxdecor<std::vector<int> >(prefix + "hitResiduals_etaWidth") = result_etaWidth;
         particle.auxdecor<std::vector<int> >(prefix + "measurement_type") = result_measureType;
         return true;
       }

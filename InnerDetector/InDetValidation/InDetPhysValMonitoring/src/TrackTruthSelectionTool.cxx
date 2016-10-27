@@ -12,19 +12,19 @@ TrackTruthSelectionTool::TrackTruthSelectionTool(const std::string &name) :
   , m_accept("TrackTruthSelection")
   , m_numTruthProcessed(0)
   , m_numTruthPassed(0) {
+
   declareInterface<IAsgSelectionTool>(this);
 
   // declareProperty( "Property", m_nProperty ); //example property declaration
   declareProperty("maxEta", m_maxEta = 2.5);
-  declareProperty("minPt", m_minPt = 400); // 5-20-16: normally 400, set to 950 for testing
+  declareProperty("minPt", m_minPt = 400); 
   declareProperty("maxPt", m_maxPt = -1);
-  declareProperty("maxBarcode", m_maxBarcode = 200e3); // 6-29-16 normally 200e3, set to -1 for testing
-  declareProperty("requireCharged", m_requireCharged = true); // 6-30-16 normally true, setting to false for testing
-  declareProperty("requireStatus1", m_requireStatus1 = true); // 6-30-16 normally true, setting to false for testing
-  declareProperty("requireDecayBeforePixel", m_requireDecayBeforePixel = true); // 6-29-16 normally true, setting to
-                                                                                // false for testing
+  declareProperty("maxBarcode", m_maxBarcode = 200e3); 
+  declareProperty("requireCharged", m_requireCharged = true); 
+  declareProperty("requireStatus1", m_requireStatus1 = true); 
+  declareProperty("maxProdVertRadius", m_maxProdVertRadius = 110.);
   declareProperty("pdgId", m_pdgId = -1);
-}
+} 
 
 TrackTruthSelectionTool::~TrackTruthSelectionTool() {
 }
@@ -34,7 +34,7 @@ TrackTruthSelectionTool::initialize() {
   if (AlgTool::initialize().isFailure()) {
     return StatusCode::FAILURE;
   }
-  ATH_MSG_INFO("Initializing " << name() << "...");
+  ATH_MSG_DEBUG("Initializing " << name() << "...");
 
   // Define cut names and descriptions
   m_cuts.clear();
@@ -59,9 +59,10 @@ TrackTruthSelectionTool::initialize() {
     m_cuts.push_back(std::make_pair("status_1", "Particle status=1"));
   }
 
-  if (m_requireDecayBeforePixel) {
+  if (m_maxProdVertRadius>0.) {
     m_cuts.push_back(std::make_pair("decay_before_pixel", "Decays before first pixel layer"));
   }
+
   if (m_pdgId > -1) {
     m_cuts.push_back(std::make_pair("pdgId", "Pdg Id cut")); // 3-18-16 normally enabled, disabled for testing
   }
@@ -132,10 +133,9 @@ TrackTruthSelectionTool::accept(const xAOD::TruthParticle *p) const {
   if (m_requireStatus1) {
     m_accept.setCutResult("status_1", (p->status() == 1));
   }
-  if ((m_requireDecayBeforePixel)) {
-    m_accept.setCutResult("decay_before_pixel", (!p->hasProdVtx() || p->prodVtx()->perp() < 110));
+  if (m_maxProdVertRadius>0.) {
+    m_accept.setCutResult("decay_before_pixel", (!p->hasProdVtx() || p->prodVtx()->perp() < m_maxProdVertRadius));
   }
-
   if (m_pdgId > -1) {
     m_accept.setCutResult("pdgId", (fabs(p->pdgId()) == m_pdgId));// 3-18-16 normally on, disabled for testing
   }

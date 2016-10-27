@@ -4,77 +4,14 @@
 
 /**
  * @file InDetPerfPlot_resITk.cxx
- * @author me!  WHO?! :P
+ * @author nora pettersson
  **/
 
 #include "InDetPerfPlot_resITk.h"
 #include <iostream>
 #include <map>
 
-InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string &sDir)  :
-  PlotBase(pParent, sDir),
-  m_EtaBins{},
-  m_primTrk{},
-  m_secdTrk{},
-  m_allTrk{},
-  trkP{},
-  truetrkP{},
-  trkErrP{},
-  resP{},
-  pullP{},
-  sigP{},
-  paramProp{},
-  m_resITk_pull{},
-  m_resITk_res{},
-  m_resITk_reco{},
-  m_resITk_true{},
-  m_resITk_sigma{},
-  m_resITk_chargeID{},
-  m_resITk_chargeID_vs_eta{},
-  m_resITk_chargeID_vs_pt{},
-  m_resITk_chargeID_vs_phi{},
-
-  m_resITk_momTail{},
-  m_resITk_momTail_vs_eta{},
-  m_resITk_momTail_vs_pt{},
-  m_resITk_momTail_vs_phi{},
-  m_resITk_momTail_Frac{},
-  m_resITk_chargeID_chgvschg{},
-
-  m_resITk_resHelpereta{},
-  m_resITk_Resolution_vs_eta{},
-  m_resITk_ResProjections_vs_eta{},
-
-  m_resITk_resHelpereta_pos{},
-  m_resITk_Resolution_vs_eta_pos{},
-  m_resITk_resHelpereta_neg{},
-  m_resITk_Resolution_vs_eta_neg{},
-
-  m_resITk_resHelperpt{},
-  m_resITk_Resolution_vs_pt{},
-  m_resITk_ResProjections_vs_pt{},
-
-  m_resITk_resHelperpt_pos{},
-  m_resITk_Resolution_vs_pt_pos{},
-  m_resITk_resHelperpt_neg{},
-  m_resITk_Resolution_vs_pt_neg{},
-
-
-  m_resITk_resHelperetapt{},
-  m_resITk_pullHelperpt{},
-  m_resITk_pullResolution_vs_pt{},
-  m_resITk_pullProjections_vs_pt{},
-
-  m_resITk_Resolution_vs_pt_EtaBin{},
-  m_resITk_Resolution_vs_eta_PtBin{},
-
-  m_resITk_meanProfeta{},
-  m_resITk_meanProfpt{},
-  m_resITk_sigmaVsEta{},
-  m_DEBUG_D0dep{},
-  m_DEBUG_FirstHitR_d0{},
-  m_DEBUG_NOBREM_d0{},
-  m_DEBUG_BREM_d0{} {
+InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string &sDir)  : PlotBase(pParent, sDir) {
   m_primTrk = false;
   m_secdTrk = false;
   m_allTrk = false;
@@ -95,13 +32,13 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string 
   paramProp[D0].paraName = std::string("d0");
   paramProp[D0].paraLabel = std::string("d_{0}");
   paramProp[D0].paraUnit = std::string("[mm]");
-  paramProp[D0].nBinsRes = 200;
+  paramProp[D0].nBinsRes = 1000;
   paramProp[D0].limRes = {
-    -0.1, 0.1
+    -1.5, 1.5
   };
   paramProp[D0].nBinsPrp = 200;
   paramProp[D0].limPrp = {
-    -0.2, 0.2
+    -0.4, 0.4
   };
   paramProp[D0].nBinsSig = 200;
   paramProp[D0].limSig = {
@@ -112,9 +49,9 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string 
   paramProp[Z0].paraName = std::string("z0");
   paramProp[Z0].paraLabel = std::string("z_{0}");
   paramProp[Z0].paraUnit = std::string("[mm]");
-  paramProp[Z0].nBinsRes = 200;
+  paramProp[Z0].nBinsRes = 2000;
   paramProp[Z0].limRes = {
-    -0.2, 0.2
+    -10.0, 10.0
   };
   paramProp[Z0].nBinsPrp = 200;
   paramProp[Z0].limPrp = {
@@ -129,7 +66,7 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string 
   paramProp[Z0SIN].paraName = std::string("z0sin");
   paramProp[Z0SIN].paraLabel = std::string("z_{0}#times sin(#theta)");
   paramProp[Z0SIN].paraUnit = std::string("[mm]");
-  paramProp[Z0SIN].nBinsRes = 200;
+  paramProp[Z0SIN].nBinsRes = 1000;
   paramProp[Z0SIN].limRes = {
     -0.2, 0.2
   };
@@ -147,13 +84,13 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string 
   paramProp[QOVERP].paraName = std::string("qoverp");
   paramProp[QOVERP].paraLabel = std::string("(q/p)");
   paramProp[QOVERP].paraUnit = std::string("[MeV^{-1}]");
-  paramProp[QOVERP].nBinsRes = 200;
+  paramProp[QOVERP].nBinsRes = 2000;
   paramProp[QOVERP].limRes = {
-    -0.2e-5, 0.2e-5
+    -2.5e-5, 2.5e-5
   };
   paramProp[QOVERP].nBinsPrp = 200;
   paramProp[QOVERP].limPrp = {
-    -0.2e-5, 0.2e-5
+    -2.5e-5, 2.5e-5
   };
   paramProp[QOVERP].nBinsSig = 100;
   paramProp[QOVERP].limSig = {
@@ -162,15 +99,15 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string 
   paramProp[QOVERP].resUnit = std::string("[MeV^{-1}]");
 
   paramProp[QOVERPT].paraName = std::string("qoverpt");
-  paramProp[QOVERPT].paraLabel = std::string("(q/p_{T})");
+  paramProp[QOVERPT].paraLabel = std::string("(1/p_{T})");
   paramProp[QOVERPT].paraUnit = std::string("[MeV^{-1}]");
-  paramProp[QOVERPT].nBinsRes = 200;
+  paramProp[QOVERPT].nBinsRes = 2000;
   paramProp[QOVERPT].limRes = {
-    -0.2e-5, 0.2e-5
+    -15.0, 15.0
   };
   paramProp[QOVERPT].nBinsPrp = 200;
   paramProp[QOVERPT].limPrp = {
-    -0.2e-5, 0.2e-5
+    -1e-2, 1e-2
   };
   paramProp[QOVERPT].nBinsSig = 100;
   paramProp[QOVERPT].limSig = {
@@ -181,9 +118,9 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string 
   paramProp[THETA].paraName = std::string("theta");
   paramProp[THETA].paraLabel = std::string("#theta");
   paramProp[THETA].paraUnit = std::string("[rad]");
-  paramProp[THETA].nBinsRes = 200;
+  paramProp[THETA].nBinsRes = 1000;
   paramProp[THETA].limRes = {
-    -0.0005, 0.0005
+    -0.01, 0.01
   };
   paramProp[THETA].nBinsPrp = 200;
   paramProp[THETA].limPrp = {
@@ -198,11 +135,11 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string 
   paramProp[PHI].paraName = std::string("phi");
   paramProp[PHI].paraLabel = std::string("#phi");
   paramProp[PHI].paraUnit = std::string("[rad]");
-  paramProp[PHI].nBinsRes = 200;
+  paramProp[PHI].nBinsRes = 1000;
   paramProp[PHI].limRes = {
-    -0.0005, 0.0005
+    -0.01, 0.01
   };
-  paramProp[PHI].nBinsPrp = 100;
+  paramProp[PHI].nBinsPrp = 60;
   paramProp[PHI].limPrp = {
     -3.14, 3.14
   };
@@ -215,24 +152,19 @@ InDetPerfPlot_resITk::InDetPerfPlot_resITk(PlotBase *pParent, const std::string 
   paramProp[PT].paraName = std::string("pt");
   paramProp[PT].paraLabel = std::string("p_{T}");
   paramProp[PT].paraUnit = std::string("[GeV]");
-  paramProp[PT].nBinsRes = 200;
+  paramProp[PT].nBinsRes = 1000;
   paramProp[PT].limRes = {
-    -2.0, 2.0
+    -100.0, 100.0
   };
   paramProp[PT].nBinsPrp = 200;
   paramProp[PT].limPrp = {
-    0.0, 50.0
+    0.0, 110.0
   };
   paramProp[PT].nBinsSig = 200;
   paramProp[PT].limSig = {
     0.0, 0.1
   };
   paramProp[PT].resUnit = std::string("[GeV]");
-}
-
-InDetPerfPlot_resITk::pCfg::pCfg() :
-  paraName{}, paraLabel{}, paraUnit{}, resUnit{}, nBinsRes{0}, limRes{}, nBinsPrp{0}, limPrp{}, nBinsSig{0}, limSig{} {
-  // nop
 }
 
 void
@@ -254,8 +186,8 @@ InDetPerfPlot_resITk::initializePlots() {
     m_resITk_pull[iparam] = Book1D(tmpName, tmpTitle, 200, -5.0, 5.0, false);
     // res
     tmpName = "res_" + paramProp[iparam].paraName;
-    tmpTitle = tmpName + "; " + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel + "^{true} " +
-               paramProp[iparam].paraUnit;
+    tmpTitle = tmpName + "; " + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel + "^{true} / " + paramProp[iparam].paraLabel + "^{true}";
+        //       paramProp[iparam].paraUnit;
     m_resITk_res[iparam] = Book1D(tmpName, tmpTitle, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(
                                     0), paramProp[iparam].limRes.at(1), false);
     // reco
@@ -278,11 +210,10 @@ InDetPerfPlot_resITk::initializePlots() {
     tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + "^{reco}-" +
                paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
     m_resITk_resHelpereta[iparam] =
-      Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(
-               0), paramProp[iparam].limRes.at(1), false);
+      Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(0), paramProp[iparam].limRes.at(1),false);
     for (unsigned int ibins = 0; ibins < m_nEtaBins; ibins++) {
-      tmpName = "EtaProjections/resProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1);
-      tmpTitle = tmpName + "; " + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel + "^{true} " +
+      tmpName = "EtaProjections_resProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1);
+      tmpTitle = "resProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1) + "; " + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel + "^{true} " +
                  paramProp[iparam].paraUnit;
       m_resITk_ResProjections_vs_eta[iparam][ibins] =
         Book1D(tmpName, tmpTitle, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(0),
@@ -297,19 +228,21 @@ InDetPerfPlot_resITk::initializePlots() {
 
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
       tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta";
-      tmpTitle = tmpName + "; true track #eta [rad]; " + paramProp[iparam].paraLabel + ytitle[ires] +
+      tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + ytitle[ires] +
                  paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_eta[iparam][ires] = Book1D(tmpName, tmpTitle, m_nEtaBins, -4.0, 4.0, false);
     }
+
+    
     tmpName = "resHelpereta_pos" + paramProp[iparam].paraName;
     tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + "^{reco}-" +
                paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
     m_resITk_resHelpereta_pos[iparam] = Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta,
                                                paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(0),
-                                               paramProp[iparam].limRes.at(1), false);
+                                               paramProp[iparam].limRes.at(1),false);
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
       tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta_pos";
-      tmpTitle = tmpName + "; true track #eta [rad]; " + paramProp[iparam].paraLabel + ytitle[ires] +
+      tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + ytitle[ires] +
                  paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_eta_pos[iparam][ires] = Book1D(tmpName, tmpTitle, m_nEtaBins, -4.0, 4.0, false);
     }
@@ -318,10 +251,10 @@ InDetPerfPlot_resITk::initializePlots() {
                paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
     m_resITk_resHelpereta_neg[iparam] = Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta,
                                                paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(0),
-                                               paramProp[iparam].limRes.at(1), false);
+                                               paramProp[iparam].limRes.at(1),false);
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
       tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_eta_neg";
-      tmpTitle = tmpName + "; true track #eta [rad]; " + paramProp[iparam].paraLabel + ytitle[ires] +
+      tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + ytitle[ires] +
                  paramProp[iparam].resUnit;
       m_resITk_Resolution_vs_eta_neg[iparam][ires] = Book1D(tmpName, tmpTitle, m_nEtaBins, -4.0, 4.0, false);
     }
@@ -332,11 +265,17 @@ InDetPerfPlot_resITk::initializePlots() {
                paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
     m_resITk_resHelperpt[iparam] =
       Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(
-               0), paramProp[iparam].limRes.at(1), false);
+               0), paramProp[iparam].limRes.at(1),false);
     tmpName = "pullHelperpt_" + paramProp[iparam].paraName;
     tmpTitle = tmpName + "; true track p_{T} [GeV]; (" + paramProp[iparam].paraLabel + "^{reco}-" +
                paramProp[iparam].paraLabel + "^{true})/#sigma_{" + paramProp[iparam].paraLabel + "}";
-    m_resITk_pullHelperpt[iparam] = Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, 200, -10.0, 10.0, false);
+    m_resITk_pullHelperpt[iparam] = Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, 200, -10.0, 10.0,false);
+
+    tmpName = "pullHelpereta_" + paramProp[iparam].paraName;
+    tmpTitle = tmpName + "; true track #eta; (" + paramProp[iparam].paraLabel + "^{reco}-" +
+               paramProp[iparam].paraLabel + "^{true})/#sigma_{" + paramProp[iparam].paraLabel + "}";
+    m_resITk_pullHelpereta[iparam] = Book2D(tmpName, tmpTitle, nBinsEta, nMinEta, nMaxEta, 200, -10.0, 10.0,false);
+
 
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
       tmpName = paramProp[iparam].paraName + "pull" + m_resHisto[ires] + "_vs_pt";
@@ -345,6 +284,14 @@ InDetPerfPlot_resITk::initializePlots() {
       m_resITk_pullResolution_vs_pt[iparam][ires]->GetXaxis()->Set(m_nPtBins, m_PtBins);
     }
 
+    for (unsigned int ires = 0; ires < m_nResHist; ires++) {
+      tmpName = paramProp[iparam].paraName + "pull" + m_resHisto[ires] + "_vs_eta";
+      tmpTitle = tmpName + "; true track #eta; " + paramProp[iparam].paraLabel + ytitlePull[ires];
+      m_resITk_pullResolution_vs_eta[iparam][ires] = Book1D(tmpName, tmpTitle, m_nEtaBins, 0., 50.0, false);
+      m_resITk_pullResolution_vs_eta[iparam][ires]->GetXaxis()->Set(m_nEtaBins, m_EtaBins);
+    }
+
+
     for (unsigned int ibins = 0; ibins < m_nPtBins; ibins++) {
       tmpName = "PtPullProjections/pullProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1);
       tmpTitle = tmpName + "; (" + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel +
@@ -352,6 +299,12 @@ InDetPerfPlot_resITk::initializePlots() {
       m_resITk_pullProjections_vs_pt[iparam][ibins] = Book1D(tmpName, tmpTitle, 200, -10.0, 10.0, false);
     }
 
+    for (unsigned int ibins = 0; ibins < m_nEtaBins; ibins++) {
+      tmpName = "EtaPullProjections/pullProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1);
+      tmpTitle = tmpName + "; (" + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel +
+                 "^{true})/#sigma_{" + paramProp[iparam].paraLabel + "}";
+      m_resITk_pullProjections_vs_eta[iparam][ibins] = Book1D(tmpName, tmpTitle, 200, -10.0, 10.0, false);
+    }
     for (unsigned int ibins = 0; ibins < m_nPtBins; ibins++) {
       tmpName = "PtProjections/resProjection_" + paramProp[iparam].paraName + std::to_string(ibins + 1);
       tmpTitle = tmpName + "; " + paramProp[iparam].paraLabel + "^{reco}-" + paramProp[iparam].paraLabel + "^{true} " +
@@ -372,7 +325,7 @@ InDetPerfPlot_resITk::initializePlots() {
                paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
     m_resITk_resHelperpt_pos[iparam] =
       Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(
-               0), paramProp[iparam].limRes.at(1), false);
+               0), paramProp[iparam].limRes.at(1),false);
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
       tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt_pos";
       tmpTitle = tmpName + "; true track p_{T} [GeV]; " + paramProp[iparam].paraLabel + ytitle[ires] +
@@ -385,7 +338,7 @@ InDetPerfPlot_resITk::initializePlots() {
                paramProp[iparam].paraLabel + "^{true} " + paramProp[iparam].paraUnit;
     m_resITk_resHelperpt_neg[iparam] =
       Book2D(tmpName, tmpTitle, nBinsPt, nMinPt, nMaxPt, paramProp[iparam].nBinsRes, paramProp[iparam].limRes.at(
-               0), paramProp[iparam].limRes.at(1), false);
+               0), paramProp[iparam].limRes.at(1),false);
     for (unsigned int ires = 0; ires < m_nResHist; ires++) {
       tmpName = paramProp[iparam].paraName + m_resHisto[ires] + "_vs_pt_neg";
       tmpTitle = tmpName + "; true track p_{T} [GeV]; " + paramProp[iparam].paraLabel + ytitle[ires] +
@@ -476,6 +429,79 @@ InDetPerfPlot_resITk::initializePlots() {
 
   m_DEBUG_FirstHitR_d0 =
     BookTProfile("DEBUG_FirstHitR_d0", "DEBUG_FirstHitR_d0; R [mm]", 150, 0., 10., -1.0, 1.0, false);
+
+  m_trk_chi2ndof = Book1D("trk_chi2ndof","trk_chi2ndof; #chi_{0}/ndof", 200, 0., 20,false);
+  m_trk_chi2 = Book1D("trk_chi2","trk_chi2; #chi^{2}/ndof", 200, 0., 200,false);
+  m_trk_ndof = Book1D("trk_ndof","trk_ndof; #chi^{2}/ndof", 200, 0., 200,false);
+  m_trk_chi2ndof_vs_eta = BookTProfile("trk_chi2ndof_vs_eta","trk_chi2ndof_vs_eta; #eta; #chi^{2}/ndof", nBinsEta, nMinEta, nMaxEta, -1.0, 1.0, false);
+  m_trk_chi2ndof_vs_totHits = BookTProfile("trk_chi2ndof_vs_totHits","trk_chi2ndof_vs_totHits; number of Total Hits; #chi^{2}/ndof", 30, 0, 30, -1.0, 1.0, false);
+  m_trk_chi2ndof_vs_totHits_prob = BookTProfile("trk_chi2ndof_vs_totHits_prob","trk_chi2ndof_vs_totHits_prob; number of Total Hits; #chi^{2}/ndof", 30, 0, 30, -1.0, 1.0, false);
+
+  m_significance_d0 = Book2D("significance_d0","d0 significance w.r.t pv; #eta; d_{0}/#sigma_{d_{0}}",320,-4.0,4.0,150,-5.0,5.0,false);
+  m_significance_z0 = Book2D("significance_z0","z0 significance w.r.t pv; #eta; z_{0}/#sigma_{z_{0}}",320,-4.0,4.0,150,-5.0,5.0,false);
+
+  m_significance_d0_vs_eta = Book1D("significance_d0_vs_eta","d0 significance with w.r.t pv; #eta; d_{0} sign width",m_nEtaBins,-4.0,4.0,false);
+  m_significance_z0_vs_eta = Book1D("significance_z0_vs_eta","z0 significance with w.r.t pv; #eta; z_{0} sign width",m_nEtaBins,-4.0,4.0,false);
+
+//tmp fix for pT resolution
+  //16 eta bins
+  std::string fixName = "fix_qoverpt_res1";
+  m_fix_qoverpt_res[0] = Book1D(fixName,fixName,600,-15.0,15.0,false);
+  fixName = "fix_qoverpt_res2";
+  m_fix_qoverpt_res[1] = Book1D(fixName,fixName,600,-5.0,5.0,false);
+  fixName = "fix_qoverpt_res3";
+  m_fix_qoverpt_res[2] = Book1D(fixName,fixName,600,-2.0,2.0,false);
+  fixName = "fix_qoverpt_res4";
+  m_fix_qoverpt_res[3] = Book1D(fixName,fixName,600,-1.0,1.0,false);
+  fixName = "fix_qoverpt_res5";
+  m_fix_qoverpt_res[4] = Book1D(fixName,fixName,600,-1.0,1.0,false);
+  fixName = "fix_qoverpt_res6";
+  m_fix_qoverpt_res[5] = Book1D(fixName,fixName,600,-0.5,0.5,false);
+  fixName = "fix_qoverpt_res7";
+  m_fix_qoverpt_res[6] = Book1D(fixName,fixName,600,-0.2,0.2,false);
+  fixName = "fix_qoverpt_res8";
+  m_fix_qoverpt_res[7] = Book1D(fixName,fixName,600,-0.2,0.2,false);
+
+  fixName = "fix_qoverpt_res16";
+  m_fix_qoverpt_res[15] = Book1D(fixName,fixName,600,-15.0,15.0,false);
+  fixName = "fix_qoverpt_res15";
+  m_fix_qoverpt_res[14] = Book1D(fixName,fixName,600,-5.0,5.0,false);
+  fixName = "fix_qoverpt_res14";
+  m_fix_qoverpt_res[13] = Book1D(fixName,fixName,600,-2.0,2.0,false);
+  fixName = "fix_qoverpt_res13";
+  m_fix_qoverpt_res[12] = Book1D(fixName,fixName,600,-1.0,1.0,false);
+  fixName = "fix_qoverpt_res12";
+  m_fix_qoverpt_res[11] = Book1D(fixName,fixName,600,-1.0,1.0,false);
+  fixName = "fix_qoverpt_res11";
+  m_fix_qoverpt_res[10] = Book1D(fixName,fixName,600,-0.5,0.5,false);
+  fixName = "fix_qoverpt_res10";
+  m_fix_qoverpt_res[9] = Book1D(fixName,fixName,600,-0.2,0.2,false);
+  fixName = "fix_qoverpt_res9";
+  m_fix_qoverpt_res[8] = Book1D(fixName,fixName,600,-0.2,0.2,false);
+
+  m_fix_qoverptresolutionRMS_vs_eta = Book1D("fix_qoverptresolutionRMS_vs_eta","fix_qoverptresolutionRMS_vseta; true particle #eta; p_{T} #times #sigma(1/p_{T})",m_nEtaBins, -4.0, 4.0, false);
+
+
+
+  float rangesd0[16] = { 1.5, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,
+                         1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.5 };
+
+  float rangesz0[16] = { 10.0, 10.0, 8.0, 6.0, 6.0, 4.0, 3.0, 2.0,
+                         2.0, 3.0, 4.0, 6.0, 6.0, 8.0, 10.0, 10.0 };
+
+  for(int ieta = 0; ieta < 16; ieta++){
+    fixName = "fix_d0_res" + std::to_string(ieta+1);
+    m_fix_d0_res[ieta] = Book1D(fixName,fixName,600,-rangesd0[ieta],rangesd0[ieta],false);
+  }
+  m_fix_d0resolutionRMS_vs_eta = Book1D("fix_d0resolutionRMS_vs_eta","fix_d0resolutionRMS_vs_eta; true particle #eta; #sigma(d_{0}) [#mum]",m_nEtaBins,-4.0,4.0,false);
+
+
+  for(int ieta = 0; ieta < 16; ieta++){
+    fixName = "fix_z0_res" + std::to_string(ieta+1);
+    m_fix_z0_res[ieta] = Book1D(fixName,fixName,600,-rangesz0[ieta],rangesz0[ieta],false);
+  }
+  m_fix_z0resolutionRMS_vs_eta = Book1D("fix_z0resolutionRMS_vs_eta","fix_z0resolutionRMS_vs_eta; true particle #eta; #sigma(z_{0}) [#mum]",m_nEtaBins,-4.0,4.0,false);
+
 }
 
 void
@@ -510,6 +536,26 @@ InDetPerfPlot_resITk::fill(const xAOD::TrackParticle &trkprt, const xAOD::TruthP
   getTrackParameters(truthprt);
   getPlotParameters();
   getPlots();
+  uint8_t iPixHits, iSCTHits;
+
+  int pixHits = 0;
+  int sctHits = 0;
+  if (trkprt.summaryValue(iPixHits, xAOD::numberOfPixelHits)) {
+    pixHits = iPixHits;
+  }
+  if (trkprt.summaryValue(iSCTHits, xAOD::numberOfSCTHits)) {
+    sctHits = iSCTHits;
+  }
+  float chi2ndof = 1e-7;
+  if(trkprt.chiSquared()/trkprt.numberDoF() > chi2ndof) chi2ndof = trkprt.chiSquared()/trkprt.numberDoF(); 
+  m_trk_chi2ndof->Fill(chi2ndof);
+  m_trk_chi2ndof_vs_eta->Fill(trkprt.eta(),chi2ndof);
+  m_trk_chi2ndof_vs_totHits->Fill(pixHits+sctHits,chi2ndof);
+  m_trk_chi2ndof_vs_totHits_prob->Fill(pixHits+sctHits,TMath::Prob(trkprt.chiSquared(),trkprt.numberDoF()));
+
+  m_trk_chi2->Fill(trkprt.chiSquared());
+  m_trk_ndof->Fill(trkprt.numberDoF());
+
 }
 
 void
@@ -532,6 +578,7 @@ InDetPerfPlot_resITk::getPlots() {
     m_resITk_resHelperetapt[iparam]->Fill(truetrkP[PT], eta, resP[iparam]);
 
     m_resITk_pullHelperpt[iparam]->Fill(truetrkP[PT], pullP[iparam]);
+    m_resITk_pullHelpereta[iparam]->Fill(eta, pullP[iparam]);
 
     if (trkP[QOVERP] >= 0.) {
       m_resITk_resHelpereta_pos[iparam]->Fill(eta, resP[iparam]);
@@ -569,15 +616,29 @@ InDetPerfPlot_resITk::getPlots() {
 
     m_DEBUG_D0dep[iparam]->Fill(trkP[iparam], trkP[D0]);
   }
+  for(int ieta = 0; ieta < m_nEtaBins; ieta++){
+    //std::cout << eta << " " << m_EtaBins[ieta+1] << " " << m_EtaBins[ieta] << std::endl;
+    if( eta < m_EtaBins[ieta+1] && eta > m_EtaBins[ieta]) {
+      m_fix_qoverpt_res[ieta]->Fill(resP[QOVERPT]);
+      m_fix_d0_res[ieta]->Fill(resP[D0]);
+      m_fix_z0_res[ieta]->Fill(resP[Z0]);
+      //std::cout << ieta << std::endl;
+    }
+  }
+  m_significance_d0->Fill(eta,trkP[D0]);
+  m_significance_z0->Fill(eta,trkP[Z0]);
 }
 
 void
 InDetPerfPlot_resITk::getPlotParameters() {
   for (unsigned int iparam = 0; iparam < NPARAMS; iparam++) {
     resP[iparam] = trkP[iparam] - truetrkP[iparam];
+    //if(iparam == PT) resP[iparam] = (trkP[iparam] - truetrkP[iparam]);
     sigP[iparam] = trkErrP[iparam];
     (sigP[iparam] != 0) ? pullP[iparam] = resP[iparam] / sigP[iparam] : pullP[iparam] = -9999.;
   }
+  resP[QOVERPT] = (trkP[QOVERPT] - truetrkP[QOVERPT]) * (1/truetrkP[QOVERPT]);
+//  std::cout << resP[QOVERPT] << std::endl;
 }
 
 void
@@ -693,6 +754,9 @@ InDetPerfPlot_resITk::finalizePlots() {
     // add for the pull vs pT
     makeResolutions(m_resITk_pullHelperpt[iparam], m_resITk_pullResolution_vs_pt[iparam],
                     m_resITk_pullProjections_vs_pt[iparam], true);
+    makeResolutions(m_resITk_pullHelpereta[iparam], m_resITk_pullResolution_vs_eta[iparam],
+                    m_resITk_pullProjections_vs_eta[iparam], true);
+
   }
 
   // Get total fraction of miss ID and Momentum tails
@@ -702,6 +766,34 @@ InDetPerfPlot_resITk::finalizePlots() {
   m_resITk_momTail_vs_pt->Scale(1 / m_resITk_momTail->GetEntries());
   m_resITk_momTail_vs_phi->Scale(1 / m_resITk_momTail->GetEntries());
   m_resITk_momTail_vs_eta->Scale(1 / m_resITk_momTail->GetEntries());
+  
+  for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
+     TH1D *tmp = (TH1D*)m_significance_d0->ProjectionY("tmp_py",m_significance_d0->GetXaxis()->FindBin(m_EtaBins[ieta]),m_significance_d0->GetXaxis()->FindBin(m_EtaBins[ieta+1]));
+     m_significance_d0_vs_eta->SetBinContent(ieta+1,tmp->GetRMS());
+     m_significance_d0_vs_eta->SetBinError(ieta+1,tmp->GetRMSError());
+  }
+  for (unsigned int ieta = 0; ieta < m_nEtaBins; ieta++) {
+     TH1D *tmp = (TH1D*)m_significance_z0->ProjectionY("tmp_py",m_significance_z0->GetXaxis()->FindBin(m_EtaBins[ieta]),m_significance_z0->GetXaxis()->FindBin(m_EtaBins[ieta+1]));
+     m_significance_z0_vs_eta->SetBinContent(ieta+1,tmp->GetRMS());
+     m_significance_z0_vs_eta->SetBinError(ieta+1,tmp->GetRMSError());
+  }
+  //m_fix_qoverpt_res[8] = Book1D(fixName,fixName,600,-0.2,0.2,false);
+
+  for(int ieta = 0; ieta < m_nEtaBins; ieta++){
+     std::vector<float> result = getResolution(m_fix_qoverpt_res[ieta], std::string("RMS"));
+     m_fix_qoverptresolutionRMS_vs_eta->SetBinContent(ieta+1,result.at(0));
+     m_fix_qoverptresolutionRMS_vs_eta->SetBinError(ieta+1,result.at(1));
+  }
+  for(int ieta = 0; ieta < m_nEtaBins; ieta++){
+     std::vector<float> result = getResolution(m_fix_d0_res[ieta], std::string("RMS"));
+     m_fix_d0resolutionRMS_vs_eta->SetBinContent(ieta+1,result.at(0));
+     m_fix_d0resolutionRMS_vs_eta->SetBinError(ieta+1,result.at(1));
+  }
+  for(int ieta = 0; ieta < m_nEtaBins; ieta++){
+     std::vector<float> result = getResolution(m_fix_z0_res[ieta], std::string("RMS"));
+     m_fix_z0resolutionRMS_vs_eta->SetBinContent(ieta+1,result.at(0));
+     m_fix_z0resolutionRMS_vs_eta->SetBinError(ieta+1,result.at(1));
+  }
 }
 
 void
@@ -882,7 +974,7 @@ InDetPerfPlot_resITk::makeResolutions(TH3 *h, TH1 *hres_eta[4][4], TH1 *hres_pt[
 std::vector<float> InDetPerfPlot_resITk::getResolution(TH1 *h, std::string s) {
   std::vector<float> result;
 
-  if (h->GetEntries() == 0.0 || h->Integral() < 100.0) {
+  if (h->GetEntries() == 0.0){// || h->Integral() < 100.0) {
     result.push_back(0.0);
     result.push_back(0.0);
     result.push_back(0.0);

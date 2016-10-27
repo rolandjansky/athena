@@ -80,9 +80,7 @@ InDetRttPlots::InDetRttPlots(InDetPlotBase *pParent, const std::string &sDir) : 
   m_ITkResPlots = false;
   // These settings are probably all redundant & can be removed from this script
   m_trackParticleTruthProbKey = "truthMatchProbability";
-  m_truthProbThreshold = 0.8;
   m_truthProbLowThreshold = 0.5;
-  m_truthPrimaryEtaCut = 2.5;
 
   if (m_moreJetPlots) {
     m_trkInJetResPlotsDr0010 = new InDetPerfPlot_res(this, "Tracks/SelectedGoodJetDr0010Tracks");
@@ -143,19 +141,20 @@ InDetRttPlots::fillSpectrum(const xAOD::TrackParticle &trkprt, const xAOD::Verte
 }
 
 void
-InDetRttPlots::fillSpectrumLinked(const xAOD::TrackParticle &particle, const xAOD::TruthParticle &truthParticle) {
+InDetRttPlots::fillSpectrumLinked(const xAOD::TrackParticle &particle, const xAOD::TruthParticle &truthParticle, float /*weight*/) {
   double prob = getMatchingProbability(particle);
-
   m_specPlots.fillSpectrumLinked(particle, truthParticle, prob);
-  m_fakePlots.fillLinked(particle, truthParticle, prob);
+}
+
+void
+InDetRttPlots::fillLinkedandUnlinked(const xAOD::TrackParticle &particle, float Prim_w, float Sec_w, float Unlinked_w) {
+  m_fakePlots.fillLinkedandUnlinked(particle, Prim_w, Sec_w, Unlinked_w);
 }
 
 void
 InDetRttPlots::fillSpectrumUnlinked2(const xAOD::TrackParticle &particle) {
   double prob = getMatchingProbability(particle);
-
   m_specPlots.fillSpectrumUnlinked2(particle, prob);
-  m_fakePlots.fillUnlinked(particle, prob);
 }
 
 void
@@ -172,6 +171,7 @@ InDetRttPlots::fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::T
 void
 InDetRttPlots::fill(const xAOD::TrackParticle &particle) {
   m_hitResidualPlot.fill(particle);
+  m_hitEffPlot.fill(particle);
   // fill pt plots
   m_ptPlot.fill(particle);
   m_basicPlot.fill(particle);
@@ -201,13 +201,13 @@ InDetRttPlots::fill(const xAOD::TruthParticle &truthParticle) {
 
 void
 InDetRttPlots::fillBMR(const xAOD::TrackParticle &track, float weight) {
-  // fill the plot requiring truth matching probability less than the upper limit (80% right now)
+  // fill the plot requiring truth matching probability less than the upper limit (50.1% right now)
   m_BadMatchRate.fillBMR(track, weight);
 }
 
 void
 InDetRttPlots::fillRF(const xAOD::TrackParticle &track, float weight) {
-  // fill the plot requiring truth matching probability less than the lower limit (20% right now)
+  // fill the plot requiring truth matching probability less than the lower limit (50.0% right now)
   m_BadMatchRate.fillRF(track, weight);
 }
 
@@ -333,6 +333,9 @@ InDetRttPlots::fillJetTrkTruthCounter(const xAOD::Jet &jet) {
 }
 
 void
-InDetRttPlots::fillIncFake(int nTracks, double ifr, int nSelected) {
-  m_fakePlots.fillIncFake(nTracks, ifr, nSelected);
+InDetRttPlots::fillIncTrkRate(const unsigned int nMuEvents, std::vector<int> incTrkNum, std::vector<int> incTrkDenom)
+{
+  m_fakePlots.fillIncTrkRate(nMuEvents,incTrkNum,incTrkDenom);
+
 }
+

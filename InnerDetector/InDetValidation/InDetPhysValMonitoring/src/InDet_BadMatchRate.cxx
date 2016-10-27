@@ -17,10 +17,10 @@ using namespace TMath;
 
 InDet_BadMatchRate::InDet_BadMatchRate(InDetPlotBase *pParent, std::string sDir) :
   InDetPlotBase(pParent, sDir),
-  m_BadMatchRate{},
-  m_BMR_vs_logpt{},
-  m_ReallyFakeRate{},
-  m_trackinjet_badmatchrate_vs_dr_gr_j100{} {
+  m_BadMatchRate{nullptr},
+  m_BMR_vs_logpt{nullptr},
+  m_ReallyFakeRate{nullptr},
+  m_trackinjet_badmatchrate_vs_dr_gr_j100{nullptr} {
   //
 }
 
@@ -43,23 +43,22 @@ InDet_BadMatchRate::fillBMR(const xAOD::TrackParticle &particle, float weight) {
   float trkpt = particle.pt();
   float logpt = Log10(trkpt) - 3.0; // -3 converts from MeV to GeV
 
-  m_BadMatchRate->Fill(trketa, weight);
-  m_BMR_vs_logpt->Fill(logpt, weight);
+  fillHisto(m_BadMatchRate,trketa, weight);
+  fillHisto(m_BMR_vs_logpt,logpt, weight);
 }
 
 void
 InDet_BadMatchRate::fillRF(const xAOD::TrackParticle &particle, float weight) {
   float trketa = particle.eta();
-
-  m_ReallyFakeRate->Fill(trketa, weight);
+  fillHisto(m_ReallyFakeRate,trketa, weight);
 }
 
 void
 InDet_BadMatchRate::jetBMR(const xAOD::TrackParticle &track, const xAOD::Jet &jet, float weight) {
-  float jet_et = jet.pt() / 1000.; // divide by 1000 to convert to GeV
+  float jet_et = jet.pt() * 0.001; // divide by 1000 to convert to GeV
   float dR = jet.p4().DeltaR(track.p4());
 
   if (jet_et > 100) {
-    m_trackinjet_badmatchrate_vs_dr_gr_j100->Fill(dR, weight);
+    fillHisto(m_trackinjet_badmatchrate_vs_dr_gr_j100,dR, weight);
   }
 }

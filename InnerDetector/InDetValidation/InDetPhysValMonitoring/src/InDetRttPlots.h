@@ -66,7 +66,8 @@ public:
   void fillSpectrum(const xAOD::TrackParticle &trkprt, const xAOD::TruthVertex &truthVrt);
   void fillSpectrum(const xAOD::TrackParticle &trkprt, const xAOD::Vertex &vertex);
   void fillSpectrum(const xAOD::TrackParticle &trkprt, const xAOD::Vertex &vertex, bool fill);
-  void fillSpectrumLinked(const xAOD::TrackParticle &particle, const xAOD::TruthParticle &truthParticle);
+  void fillSpectrumLinked(const xAOD::TrackParticle &particle, const xAOD::TruthParticle &truthParticle, float weight);
+  void fillLinkedandUnlinked(const xAOD::TrackParticle &particle, float Prim_w, float Sec_w, float Unlinked_w);
   void fillSpectrumUnlinked2(const xAOD::TrackParticle &particle);
   void fillSingleMatch(const xAOD::TrackParticle &trackParticle);
   void fillTwoMatchDuplicate(Float_t prob1, Float_t prob2, const xAOD::TrackParticle &trackParticle,
@@ -106,7 +107,7 @@ public:
   ///fill for fakes
   void fillFakeRate(const xAOD::TrackParticle &particle, const bool match,
                     const InDetPerfPlot_fakes::Category c = InDetPerfPlot_fakes::ALL);
-  void fillIncFake(int nTracks, double ifr, int nSelected);
+  void fillIncTrkRate(const unsigned int nMuEvents, std::vector<int> incTrkNum, std::vector<int> incTrkDenom);
   void fillFakeRateLinked(const xAOD::TrackParticle &particle, const xAOD::TruthParticle &truthParticle);
   void fillFakeRateUnlinked(const xAOD::TrackParticle &particle);
 private:
@@ -162,9 +163,7 @@ private:
   InDetPerfPlot_spectrum m_specPlots;
 
   std::string m_trackParticleTruthProbKey;
-  float m_truthProbThreshold;
   float m_truthProbLowThreshold;
-  float m_truthPrimaryEtaCut;
 };
 
 

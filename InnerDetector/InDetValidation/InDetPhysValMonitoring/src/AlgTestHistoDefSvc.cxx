@@ -58,9 +58,14 @@ AlgTestHistoDefSvc::initialize() {
   ATH_MSG_INFO("Printing histogram definition for testEfficiency");
   definition = m_histoDefSvc->definition("testEfficiency", "").str();
   ATH_MSG_INFO(definition);
-  ATH_MSG_INFO("Printing definition for xinclusion test");
-  definition = m_histoDefSvc->definition("xinclude").str();
+  ATH_MSG_INFO("Printing definition for inclusion test");
+  definition = m_histoDefSvc->definition("include").str();
   ATH_MSG_INFO(definition);
+  //
+  ATH_MSG_INFO("Printing histogram definition for non-existent definition");
+  definition = m_histoDefSvc->definition("utterRubbish", "").str();
+  ATH_MSG_INFO(definition);
+  
   return StatusCode::SUCCESS;
 }
 
@@ -71,6 +76,6 @@ AlgTestHistoDefSvc::execute() {
 
 StatusCode
 AlgTestHistoDefSvc::finalize() {
-  msg(MSG::INFO) << "finalize()" << endreq;
+  msg(MSG::INFO) << "finalize()" << endmsg;
   return StatusCode::SUCCESS;
 }

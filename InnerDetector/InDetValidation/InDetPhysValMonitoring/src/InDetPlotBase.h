@@ -56,6 +56,18 @@ public:
   void book(TEfficiency * &pHisto, const SingleHistogramDefinition &hd);
   /// Book a TEfficiency with optional folder name
   void book(TEfficiency * &pHisto, const std::string &histoIdentifier, const std::string &folder = "default");
+  //
+  void fillHisto(TProfile *pTprofile, const float bin, const float weight );
+  //
+  void fillHisto(TH1 *pTh1, const float value);
+  void fillHisto(TH1 *pTh1, const float value,const float weight);
+  //
+  void fillHisto(TH2 *pTh2, const float xval, const float yval);
+  //
+  void fillHisto(TH3 *pTh3, const float xval, const float yval,const float zval);
+   //
+  void fillHisto(TEfficiency *pTeff, const bool accepted, const float value );
+  //
 protected:
   /// book, for use by macro
   template <class T>

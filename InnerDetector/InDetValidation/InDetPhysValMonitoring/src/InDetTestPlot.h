@@ -18,6 +18,7 @@
 #include "xAODTracking/TrackParticle.h"
 class TEfficiency;
 
+
 /**
  * @class InDetTestPlot
  * @brief Class holding plots to test the histogram definition service and subsequent filling
@@ -33,6 +34,7 @@ private:
   TProfile *m_testProfile;
   TH2 *m_test2D;
   TEfficiency *m_testEff;
+  TH1 *m_nonsense;
   // plot base has nop default implementation of this; we use it to book the histos
   void initializePlots();
 };

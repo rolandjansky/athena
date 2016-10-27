@@ -5,7 +5,6 @@
 // InDetPhysValMonitoring includes
 #include "TrackSelectionTool.h"
 
-
 TrackSelectionTool::TrackSelectionTool(const std::string &name) :
   asg::AsgTool(name),
   m_accept("TrackSelection"),
@@ -366,7 +365,7 @@ TrackSelectionTool::accept(const xAOD::TrackParticle *p) const {
     m_accept.setCutResult("maxSCTHits", iSCTHits <= m_maxSCTHits);
   }
   if (m_minSCTHits > -1) {
-    m_accept.setCutResult("minSCTHits", iSCTHits <= m_minSCTHits);
+    m_accept.setCutResult("minSCTHits", iSCTHits >= m_minSCTHits);
   }
   if (m_maxTRTOutliers > -1) {
     m_accept.setCutResult("maxTRTOutliers", iTRTOutliers <= m_maxTRTOutliers);

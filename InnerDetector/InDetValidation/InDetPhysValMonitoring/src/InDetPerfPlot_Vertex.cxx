@@ -59,30 +59,30 @@ InDetPerfPlot_Vertex::initializePlots() {
 void
 InDetPerfPlot_Vertex::fill(const xAOD::Vertex &vertex) {
   // fill position plots
-  m_vx_x->Fill(vertex.x());
-  m_vx_y->Fill(vertex.y());
-  m_vx_z->Fill(vertex.z());
+  fillHisto(m_vx_x,vertex.x());
+  fillHisto(m_vx_y,vertex.y());
+  fillHisto(m_vx_z,vertex.z());
 
   // fill error plots
   const AmgSymMatrix(3) &covariance = vertex.covariancePosition();
-  m_vx_err_x->Fill(Amg::error(covariance, 0));
-  m_vx_err_y->Fill(Amg::error(covariance, 1));
-  m_vx_err_z->Fill(Amg::error(covariance, 2));
+  fillHisto(m_vx_err_x,Amg::error(covariance, 0));
+  fillHisto(m_vx_err_y,Amg::error(covariance, 1));
+  fillHisto(m_vx_err_z,Amg::error(covariance, 2));
 
   // fill vertex quality and type
-  m_vx_type->Fill(vertex.vertexType());
+  fillHisto(m_vx_type,vertex.vertexType());
   float ndf = vertex.numberDoF();
   if (ndf != 0) {
-    m_vx_chi2_over_ndf->Fill(vertex.chiSquared() / ndf);
+    fillHisto(m_vx_chi2_over_ndf,vertex.chiSquared() / ndf);
   } else {
-    m_vx_chi2_over_ndf->Fill(-1);
+    fillHisto(m_vx_chi2_over_ndf,-1);
   }
 
   // fill vertex tracks properties
   int nTracks = vertex.nTrackParticles();
-  m_vx_nTracks->Fill(nTracks);
+  fillHisto(m_vx_nTracks,nTracks);
   for (const float &weight : vertex.trackWeights()) {
-    m_vx_track_weights->Fill(weight);
+    fillHisto(m_vx_track_weights,weight);
   }
 
   // fill expert plots: tracks properties at vertex
@@ -90,24 +90,24 @@ InDetPerfPlot_Vertex::fill(const xAOD::Vertex &vertex) {
     // loop over tracks at vertex
     for (const auto &elTrk : vertex.trackParticleLinks()) {
       const xAOD::TrackParticle *trk = *elTrk;
-      m_vx_track_pt->Fill(trk->pt() / 1000.); // MeV -> GeV
-      m_vx_track_eta->Fill(trk->eta());
+      fillHisto(m_vx_track_pt,trk->pt() / 1000.); // MeV -> GeV
+      fillHisto(m_vx_track_eta,trk->eta());
       const xAOD::ParametersCovMatrix_t covTrk = trk->definingParametersCovMatrix();
-      m_vx_track_d0->Fill(trk->d0());
-      m_vx_track_err_d0->Fill(Amg::error(covTrk, 0));
-      m_vx_track_z0->Fill(trk->z0() - vertex.z());
-      m_vx_track_err_z0->Fill(Amg::error(covTrk, 1));
+      fillHisto(m_vx_track_d0,trk->d0());
+      fillHisto(m_vx_track_err_d0,Amg::error(covTrk, 0));
+      fillHisto(m_vx_track_z0,trk->z0() - vertex.z());
+      fillHisto(m_vx_track_err_z0,Amg::error(covTrk, 1));
       bool successfulRetrieval(false);
       uint8_t iPixHits, iSctHits, iPixHoles, iSctHoles;
       successfulRetrieval = trk->summaryValue(iPixHits, xAOD::numberOfPixelHits);
       successfulRetrieval &= trk->summaryValue(iSctHits, xAOD::numberOfSCTHits);
       if (successfulRetrieval) {
-        m_vx_track_nSiHits->Fill(iPixHits + iSctHits);
+        fillHisto(m_vx_track_nSiHits,iPixHits + iSctHits);
       }
       successfulRetrieval = trk->summaryValue(iPixHoles, xAOD::numberOfPixelHoles);
       successfulRetrieval &= trk->summaryValue(iSctHoles, xAOD::numberOfSCTHoles);
       if (successfulRetrieval) {
-        m_vx_track_nSiHoles->Fill(iPixHoles + iSctHoles);
+        fillHisto(m_vx_track_nSiHoles,iPixHoles + iSctHoles);
       }
     }
   }

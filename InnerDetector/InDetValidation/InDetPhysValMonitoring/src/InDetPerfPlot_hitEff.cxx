@@ -43,12 +43,13 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle &trkprt) {
   }
 
   const bool hitDetailsAvailable = trkprt.isAvailable<std::vector<int> >("measurement_region");
-
+  static int warnCount(0);
   if (!hitDetailsAvailable) {
-    ATH_MSG_WARNING("The hit res plots dont see any data");
+    if (warnCount++<10){
+      ATH_MSG_WARNING("The hitEff plots dont see any data (note: only 10 warnings issued)");
+    }
   } else {
     const std::vector<int> &result_det = trkprt.auxdata< std::vector<int> >("measurement_det");
-
     if (!result_det.empty()) {
       const std::vector<int> &result_measureType = trkprt.auxdata< std::vector<int> >("measurement_type");
       const std::vector<int> &result_region = trkprt.auxdata< std::vector<int> >("measurement_region");
@@ -58,7 +59,7 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle &trkprt) {
       for (unsigned int idx = 0; idx < result_region.size(); ++idx) {
         const int measureType = result_measureType.at(idx);
         bool isHit = false;
-        if (measureType == 0) {
+        if (measureType == 0 || measureType == 4) {
           isHit = true;
         }
         const int det = result_det.at(idx); // LAYER TYPE IBL / PIXEL / ...
@@ -68,11 +69,9 @@ InDetPerfPlot_hitEff::fill(const xAOD::TrackParticle &trkprt) {
           continue; // IBL have no endcaps! and ignore DBM
         }
         if (isHit) {
-          m_eff_hit_vs_eta[det][region]->Fill(eta, 1);
+          fillHisto(m_eff_hit_vs_eta[det][region],eta, 1);
         }else {
-          if (measureType != 4) {
-            m_eff_hit_vs_eta[det][region]->Fill(eta, 0);
-          }
+            fillHisto(m_eff_hit_vs_eta[det][region],eta, 0);
         }
       }
     }

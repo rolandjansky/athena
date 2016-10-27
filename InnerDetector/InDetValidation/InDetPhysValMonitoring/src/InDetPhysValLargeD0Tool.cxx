@@ -204,23 +204,18 @@ InDetPhysValLargeD0Tool::fillHistograms() {
     m_LargeD0Plots->fillRF(*thisTrack, RF_w);
 
     bool isFake = (prob < minProbEffLow);
-    bool hasTruthLink = !(associatedTruth == nullptr);
-    int barcode = -1;
-    // bool isPrimary = false;
-
-    if (hasTruthLink) {
-      barcode = associatedTruth->barcode();
-    }
+    int barcode = (associatedTruth ? associatedTruth->barcode() : -1);
 
     // * Fake rate plots, using 'fake' flag.
     m_LargeD0Plots->fillFakeRate(*thisTrack, isFake);
 
-    // * Distributions for only fake tracks.
+    m_LargeD0Plots->fill(*thisTrack, barcode, isFake);
+
     if (isFake) {
       m_LargeD0Plots->fillFake(*thisTrack);
-    }else {
+    } else {
       // * Distributions for non-fake tracks.
-      m_LargeD0Plots->fill(*thisTrack, barcode);
+      //m_LargeD0Plots->fill(*thisTrack, barcode);
     }
   } // END: Main track loop.
 
@@ -232,6 +227,7 @@ InDetPhysValLargeD0Tool::fillHistograms() {
    * This is the beginning of the nested Loop, built mainly for the Efficiency Plots.
    */
   if (truthParticles) {
+
     // Outer loop: All truth particles.
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     for (const auto &thisTruth : *truthParticles) {

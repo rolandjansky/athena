@@ -40,5 +40,5 @@ InDetPerfPlot_VertexContainer::fill(const xAOD::VertexContainer &vertices, const
     }
     nGoodVertices++;
   }
-  m_vx_n_vs_mu->Fill(nGoodVertices, ei.actualInteractionsPerCrossing());
+  fillHisto(m_vx_n_vs_mu,nGoodVertices, ei.actualInteractionsPerCrossing());
 }
