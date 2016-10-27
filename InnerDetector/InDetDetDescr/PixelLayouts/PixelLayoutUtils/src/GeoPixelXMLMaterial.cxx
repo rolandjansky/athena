@@ -39,7 +39,7 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      getBasics()->msgStream()<<"XML input : DB CLOB "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      msg(MSG::INFO)<< "XML input : DB CLOB "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(m_xmlFileName);
       InitializeXML();
@@ -47,7 +47,7 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
     }
   else
     {
-      getBasics()->msgStream()<<"XML input : from file "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      msg(MSG::INFO) <<"XML input : from file "<<m_xmlFileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       std::string file = PathResolver::find_file (m_xmlFileName, "DATAPATH");
       InitializeXML();
       bParsed = ParseFile(file);
@@ -55,12 +55,12 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
 
   // No XML file was parsed    
   if(!bParsed){
-    std::cout<<"XML file "<<m_xmlFileName<<" not found"<<std::endl;
+    msg(MSG::WARNING) << "XML file "<<m_xmlFileName<<" not found"<<endmsg;
     return 0;
   }
   
   int nbMaterial = getChildCount("PixelMaterials", 0, "Material");
-  std::cout<<"MATERIAL NUMBER : "<<nbMaterial<<std::endl;
+  msg(MSG::DEBUG) <<"MATERIAL NUMBER : "<<nbMaterial<<endmsg;
   
   if(prefix=="none") prefix="pix"; prefix = prefix+"::";
   
@@ -73,7 +73,7 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
   int iCmpt=0;
   while(!bAllMaterialDefined&&iCmpt<5)
     {
-      std::cout<<"-- MATERIAL --------------------------------------------------------"<<std::endl;
+      msg(MSG::DEBUG)<<"-- MATERIAL --------------------------------------------------------"<<endmsg;
 
       for(int iMat=0; iMat<nbMaterial; iMat++)
 	{
@@ -113,18 +113,18 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
 
 	      if(bMaterialReadyToDefine)
 		{
-		  std::cout<<"xxxxxxxxxxxxxxxx MATERIAL - ready to define "<<pixMatName<<"  "<<density<<std::endl;
+		  msg(MSG::DEBUG) <<"xxxxxxxxxxxxxxxx MATERIAL - ready to define "<<pixMatName<<"  "<<density<<endmsg;
 		  materialDefined.push_back(pixMatName);
 		  GeoMaterial* newMat = new GeoMaterial(pixMatName,density*(CLHEP::g/CLHEP::cm3));
 		  for(int ii=0; ii<(int)compNameVec.size(); ii++)
 		    {
-		      std::cout<<"   - get "<<compNameVec[ii]<<std::endl;
+		      msg(MSG::DEBUG) <<"   - get "<<compNameVec[ii]<<endmsg;
 		      if(compNameVec[ii].substr(0,5)=="std::"||compNameVec[ii].substr(0,5)=="sct::"||compNameVec[ii].substr(0,5)=="pix::"||compNameVec[ii].substr(0,7)=="indet::")
 			{
 			  std::string tmp = compNameVec[ii];
-			  std::cout<<"   - get material "<<tmp<<std::endl;
+			  msg(MSG::DEBUG) <<"   - get material "<<tmp<<endmsg;
 			  GeoMaterial *matComp = const_cast<GeoMaterial*>(matMgr()->getMaterial(tmp));
-			  std::cout<<"   - get material "<<(matComp==0)<<std::endl;
+			  msg(MSG::DEBUG) <<"   - get material "<<(matComp==0)<<endmsg;
 			  newMat->add(matComp,compWeightVec[ii]);
 			}
 		      else
@@ -134,12 +134,12 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
 			}
 		    }		
 
-		  std::cout<<">>>>>>>> register new material : "<<pixMatName<<std::endl;
+		  msg(MSG::DEBUG) <<">>>>>>>> register new material : "<<pixMatName<<endmsg;
 		  matMgr()->addMaterial(newMat);
 
 
 		  const GeoMaterial *matRead = matMgr()->getMaterial(pixMatName);
-		  std::cout<<"MATERIAL READ FROM manager : "<<matRead->getName()<<" "<<matRead->getDensity()/(CLHEP::g/CLHEP::cm3)<<std::endl;
+		  msg(MSG::DEBUG) <<"MATERIAL READ FROM manager : "<<matRead->getName()<<" "<<matRead->getDensity()/(CLHEP::g/CLHEP::cm3)<<endmsg;
 
 		}
 	      //	      else
@@ -158,9 +158,9 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
   // --------------------------------------------------------------------------------------------------
 
   int nbWeightedMaterial = getChildCount("PixelMaterials", 0, "MaterialWeight");
-  std::cout<<"WEIGHTED MATERIAL NUMBER : "<<nbMaterial<<std::endl;
+  msg(MSG::DEBUG) <<"WEIGHTED MATERIAL NUMBER : "<<nbMaterial<< endmsg;
   
-  std::cout<<"-- MATERIAL --------------------------------------------------------"<<std::endl;
+  msg(MSG::DEBUG) <<"-- MATERIAL --------------------------------------------------------"<<endmsg;
   
   for(int iMat=0; iMat<nbWeightedMaterial; iMat++)
     {
@@ -172,7 +172,7 @@ GeoVPhysVol* GeoPixelXMLMaterial::Build(std::string prefix)
       matName.erase(std::remove(matName.begin(),matName.end(),' '),matName.end());
       baseName.erase(std::remove(baseName.begin(),baseName.end(),' '),baseName.end());
 
-      std::cout<<">>>>>>>> register new material : "<<prefix<<matName<<std::endl;
+      msg(MSG::DEBUG) <<">>>>>>>> register new material : "<<prefix<<matName<<endmsg;
       matMgr()->addWeightMaterial(prefix+matName, prefix+baseName, weight, linearWeight);
     }
 

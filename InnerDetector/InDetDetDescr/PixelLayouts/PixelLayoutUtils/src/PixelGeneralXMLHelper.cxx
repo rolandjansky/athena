@@ -13,7 +13,7 @@ PixelGeneralXMLHelper::PixelGeneralXMLHelper(std::string envFileName, const Pixe
   GeoXMLUtils(), PixelGeoBuilder(basics)
 {
 
-  std::cout<<"XML helper - PixelGeneralXMLHelper"<<std::endl;
+  //  std::cout<<"XML helper - PixelGeneralXMLHelper"<<std::endl;
 
   bool readXMLfromDB = getBasics()->ReadInputDataFromDB();
   bool bParsed = false;
@@ -89,7 +89,7 @@ double PixelGeneralXMLHelper::getBarrelHalfLength() const
 bool PixelGeneralXMLHelper::isBarrelCylindrical() const
 {
   std::vector<double> res = getBarrelRadiusList();
-  std::cout<<"GEOPIXELSERVICES : # radii : "<<res.size()<<std::endl;
+  msg(MSG::DEBUG)<<"GEOPIXELSERVICES : # radii : "<<res.size()<<std::endl;
   return (res.size()==0);
 }
 
@@ -159,7 +159,7 @@ double PixelGeneralXMLHelper::getLayerRMin(int ilayer) const
   std::ostringstream ostr; 
   ostr << "LayerMin" << ilayer;
 
-  std::cout<<"Read pixel layer rmin "<<std::cout;
+  //  std::cout<<"Read pixel layer rmin "<<std::cout;
  
   return getDouble("PixelLayerEnvelope", 0, ostr.str().c_str(),0, 0.);
 }
