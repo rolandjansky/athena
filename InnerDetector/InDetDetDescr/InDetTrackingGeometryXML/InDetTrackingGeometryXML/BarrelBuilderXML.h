@@ -15,12 +15,12 @@
 #include <vector>
 // TRK
 #include "TrkDetDescrUtils/BinnedArray.h"
+#include "TrkDetElementBase/TrkDetElementBase.h"
 
 namespace Trk {
   class CylinderLayer;
   class AlpineLayer;
   class Surface;
-  class TrkDetElementBase; 
   class Layer;
   class LayerMaterialProperties;
 }
@@ -72,13 +72,15 @@ namespace InDet {
     // JL: Common functions to EndcapBuilder & BarrelBuilder : should be moved to separate class 
     Trk::BinnedArray<Trk::Surface>* getBinnedArray1D1D(Trk::BinUtility& steerBinUtility,
 						       std::vector<Trk::BinUtility*>& subBinUtility,  
-						       std::vector<Trk::TrkDetElementBase*>& cElements) const;
+						       std::vector<const Trk::TrkDetElementBase*>& cElements) const;
 
     void setPhiNeighbors(std::vector<Trk::TrkDetElementBase*>& pElements, std::vector<Trk::TrkDetElementBase*>& cElements) const;
 
     void registerSurfacesToLayer(const std::vector<const Trk::Surface*>& surfaces, const Trk::Layer& layer) const; //!< layer association
     
     const Trk::LayerMaterialProperties* barrelLayerMaterial(double r, double hz, InDet::StaveTmp* staveTmp, bool isActive = true) const;  //!< helper method to construct barrel material
+
+    inline static bool sortElements (const Trk::TrkDetElementBase* el_min,const Trk::TrkDetElementBase* el_max) { return el_min->center().z()<el_max->center().z(); }
 
     // properties
     bool  m_pixelCase; // flag for pixel/sct

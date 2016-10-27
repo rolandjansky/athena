@@ -5,7 +5,7 @@
     <Type> IBL </Type>
     <Layer> 0 </Layer>
     <NBarrelModules>16</NBarrelModules>
-    <BarrelModuleType> DoubleLength_RD53 </BarrelModuleType>
+    <BarrelModuleType> DoubleLength_RD53_thin </BarrelModuleType>
     <BarrelModuleGap> 0.2 </BarrelModuleGap>
     <BarrelModuleAngle> 0. </BarrelModuleAngle>
     <StaveSupportLength> 651 </StaveSupportLength>
@@ -16,7 +16,7 @@
     <Type> IBL </Type>
     <Layer> 1 </Layer>
     <NBarrelModules>27</NBarrelModules>
-    <BarrelModuleType>FourChip_RD53</BarrelModuleType>
+    <BarrelModuleType> FourChip_RD53_thin </BarrelModuleType>
     <BarrelModuleGap> 0.2 </BarrelModuleGap>
     <BarrelModuleAngle> 0. </BarrelModuleAngle>
     <StaveSupportLength> 1097 </StaveSupportLength>

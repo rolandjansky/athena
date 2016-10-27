@@ -1,20 +1,48 @@
-2016-19-09 Noemi Calace <noemi.calace@cern.ch>
+2016-10-27 Thorsten Kuhl <thorsten.kuhl@cern.ch>
+	* cleaning up log file output (first iteration)
+	* Tag as InDetTrackingGeometryXML-00-00-51
+
+2016-10-11 Noemi Calace <noemi.calace@cern.ch>
+        * removing trt dictionary creation
+        * Tag as InDetTrackingGeometryXML-00-00-50
+
+2016-10-06 Noemi Calace <noemi.calace@cern.ch>
+        * Restoring trt dictionary creation to run on step1.5 RDOs
+        * Tag as InDetTrackingGeometryXML-00-00-49
+
+2016-09-30 Simon Viel
+        * Create ExtBrl4Ref33mm, identical to ExtBrl4Ref except for the innermost pixel barrel radius (nominal is 39 mm)
+        * Tag as InDetTrackingGeometryXML-00-00-48
+
+2016-09-30 Simon Viel
+        * Thin pixel sensors (100 um instead of 150 um) for ITk inside the IST
+        * Tag as InDetTrackingGeometryXML-00-00-47
+
+2016-09-27 Noemi Calace <noemi.calace@cern.ch>
+	* Bugfix on top of InDetTrackingGeometryXML-00-00-45
+	* Tag as InDetTrackingGeometryXML-00-00-46
+
+2016-09-27 Noemi Calace <noemi.calace@cern.ch>
+	* Adding the SurfaceArray to Alpine Layers in the BarrelBuilderXML (needed for Tracking!!)
+	* Tag as InDetTrackingGeometryXML-00-00-44 and InDetTrackingGeometryXML-00-00-45
+
+2016-09-19 Noemi Calace <noemi.calace@cern.ch>
 	* Creation of the dictionary on-the-fly for GMX-based strip
 	* Tag as InDetTrackingGeometryXML-00-00-43
 
-2016-04-07 Noemi Calace <noemi.calace@cern.ch>
+2016-07-04 Noemi Calace <noemi.calace@cern.ch>
 	* Fixing dictionary for GMX-based strip
 	* Tag as InDetTrackingGeometryXML-00-00-42
 
-2016-14-06 Noemi Calace <noemi.calace@cern.ch>
+2016-06-14 Noemi Calace <noemi.calace@cern.ch>
 	* Fixing typo
 	* Tag as InDetTrackingGeometryXML-00-00-41
 
-2016-07-06 Noemi Calace <noemi.calace@cern.ch>
+2016-06-07 Noemi Calace <noemi.calace@cern.ch>
 	* Add dictionary fragment for gmx based strip
 	* Tag as InDetTrackingGeometryXML-00-00-40
 
-2016-01-06 Sabine Elles
+2016-06-01 Sabine Elles
 	* Add XML-CLOB read from geometry DB
 	* Tag as InDetTrackingGeometryXML-00-00-39
 

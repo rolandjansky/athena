@@ -329,7 +329,8 @@ void InDet::XMLReaderSvc::parseChipXML(DOMNode* node)
   // Register chip template
   if((chip->name).size()>0) {
     m_tmp_chip.push_back(chip);
-    chip->Print();
+    if(msgLvl(MSG::DEBUG))
+      chip->Print();
   }
 }
 
@@ -382,7 +383,8 @@ void InDet::XMLReaderSvc::parseModuleXML(DOMNode* node)
   if((module->name).size()>0) {
     computeModuleSize(module);
     m_tmp_module.push_back(module);
-    module->Print();
+    if(msgLvl(MSG::DEBUG))
+      module->Print();
   }
  
 }
@@ -463,7 +465,8 @@ void InDet::XMLReaderSvc::parseStaveXML(DOMNode* node, std::vector< InDet::Stave
   // Register stave template
   if((stave->name).size()>0 && stave->layer>=0) {
     vtmp.push_back(stave);
-    stave->Print();
+    if(msgLvl(MSG::DEBUG))
+      stave->Print();
   }
 }
 
@@ -508,7 +511,8 @@ void InDet::XMLReaderSvc::parseBarrelLayerXML(DOMNode* node, std::vector< InDet:
     unsigned int min_size = layer->index+1;
     if(vtmp.size()<min_size) vtmp.resize(min_size,0);
     vtmp.at(layer->index) = layer;
-    layer->Print();
+    if(msgLvl(MSG::DEBUG))
+      layer->Print();
   }
 }
 
@@ -690,7 +694,8 @@ void InDet::XMLReaderSvc::parseEndcapXML(DOMNode* node, std::vector< InDet::Endc
 
   // Register endcap layer template
   vtmp.push_back(layer);
-  layer->Print();
+  if(msgLvl(MSG::DEBUG))
+    layer->Print();
 
   return;
 
@@ -898,7 +903,7 @@ void InDet::XMLReaderSvc::writeDictionary(std::string filename)
     writeSctBarrelDict(file);
     writeSctEndcapDict(file);
   }
-
+  
   closeDictFile(file);
 }
 
@@ -1118,211 +1123,6 @@ void InDet::XMLReaderSvc::writeSctBarrelDict(std::ofstream& file)
     file << "    <range field=\"strip\" minvalue=\"0\" maxvalue=\"" << iphi << "\" />" << std::endl;
     file << "  </region>" << std::endl;
   }
-  file << std::endl;
-}
-
-void InDet::XMLReaderSvc::writeTrtDict(std::ofstream& file)
-{
-  file << "  <subregion name=\"TRT_barrel\">" << std::endl;
-  file << "    <range field=\"part\" value=\"TRT\" />" << std::endl;
-  file << "    <range field=\"barrel_endcap\" values=\"negative_barrel positive_barrel\" />" << std::endl;
-  file << "  </subregion>" << std::endl;
-  
-  file << "  <subregion name=\"TRT_endcap\">" << std::endl;
-  file << "    <range field=\"part\" value=\"TRT\" />" << std::endl;
-  file << "    <range field=\"barrel_endcap\" values=\"negative_endcap positive_endcap\" />" << std::endl;
-  file << "  </subregion>" << std::endl;
-  
-  file << "  <subregion name=\"TRT_layer_0\">" << std::endl;
-  file << "    <reference subregion=\"TRT_barrel\" />" << std::endl;
-  file << "    <range field=\"phi_sector\" minvalue=\"0\" maxvalue=\"31\" wraparound=\"TRUE\" />" << std::endl;
-  file << "    <range field=\"layer_or_wheel\" value=\"0\" />" << std::endl;
-  file << "  </subregion>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_0\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" value=\"0\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"14\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_0\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"1\" maxvalue=\"4\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"15\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_0\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"5\" maxvalue=\"9\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"16\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_0\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"10\" maxvalue=\"14\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"17\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_0\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"15\" maxvalue=\"17\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"18\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_0\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" value=\"18\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"17\" />" << std::endl;
-  file << "  </region>" << std::endl;
-
-  file << "  <subregion name=\"TRT_layer_1\">" << std::endl;
-  file << "    <reference subregion=\"TRT_barrel\" />" << std::endl;
-  file << "    <range field=\"phi_sector\" minvalue=\"0\" maxvalue=\"31\" wraparound=\"TRUE\" />" << std::endl;
-  file << "    <range field=\"layer_or_wheel\" value=\"1\" />" << std::endl;
-  file << "  </subregion>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_1\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" value=\"0\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"18\" />" << std::endl;
-  file << "  </region>" << std::endl;
-
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_1\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"1\" maxvalue=\"5\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"19\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_1\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"6\" maxvalue=\"10\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"20\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_1\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"11\" maxvalue=\"15\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"21\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_1\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"16\" maxvalue=\"20\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"22\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_1\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"21\" maxvalue=\"22\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"23\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_1\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" value=\"23\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"22\" />" << std::endl;
-  file << "  </region>" << std::endl;
-
-  file << "  <subregion name=\"TRT_layer_2\">" << std::endl;
-  file << "    <reference subregion=\"TRT_barrel\" />" << std::endl;
-  file << "    <range field=\"phi_sector\" minvalue=\"0\" maxvalue=\"31\" wraparound=\"TRUE\" />" << std::endl;
-  file << "    <range field=\"layer_or_wheel\" value=\"2\" />" << std::endl;
-  file << "  </subregion>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_2\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" value=\"0\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"22\" />" << std::endl;
-  file << "  </region>" << std::endl;
-
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_2\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"1\" maxvalue=\"4\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"23\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_2\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"5\" maxvalue=\"9\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"24\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_2\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"10\" maxvalue=\"14\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"25\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_2\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"15\" maxvalue=\"19\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"26\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_2\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"20\" maxvalue=\"24\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"27\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_2\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"25\" maxvalue=\"28\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"28\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_layer_2\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" value=\"29\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"27\" />" << std::endl;
-  file << "  </region>" << std::endl;
-
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_endcap\" />" << std::endl;
-  file << "    <range field=\"phi_sector\" minvalue=\"0\" maxvalue=\"31\" wraparound=\"TRUE\" />" << std::endl;
-  file << "    <range field=\"layer_or_wheel\" minvalue=\"0\" maxvalue=\"5\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"0\" maxvalue=\"15\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"23\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <region group=\"trt\" >" << std::endl;
-  file << "    <reference subregion=\"TRT_endcap\" />" << std::endl;
-  file << "    <range field=\"phi_sector\" minvalue=\"0\" maxvalue=\"31\" wraparound=\"TRUE\" />" << std::endl;
-  file << "    <range field=\"layer_or_wheel\" minvalue=\"6\" maxvalue=\"13\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"0\" maxvalue=\"7\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"23\" />" << std::endl;
-  file << "  </region>" << std::endl;
-  
-  file << "  <alternate_regions>" << std::endl;
-  file << "    <region group=\"trt\" >" << std::endl;
-  file << "      <reference subregion=\"TRT_endcap\" />" << std::endl;
-  file << "      <range field=\"phi_sector\" minvalue=\"0\" maxvalue=\"31\" wraparound=\"TRUE\" />" << std::endl;
-  file << "      <range field=\"layer_or_wheel\" minvalue=\"14\" maxvalue=\"17\" />" << std::endl;
-  file << "      <range field=\"straw_layer\" minvalue=\"0\" maxvalue=\"15\" />" << std::endl;
-  file << "      <range field=\"straw\" minvalue=\"0\" maxvalue=\"17\" />" << std::endl;
-  file << "    </region>" << std::endl;
-  file << "    <region group=\"trt\"  tag=\"initial_layout\" />" << std::endl;
-  file << "    <region group=\"trt\" tag=\"final_layout\" >" << std::endl;
-  file << "      <reference subregion=\"TRT_endcap\" />" << std::endl;
-  file << "      <range field=\"phi_sector\" minvalue=\"0\" maxvalue=\"31\" wraparound=\"TRUE\" />" << std::endl;
-  file << "      <range field=\"layer_or_wheel\" minvalue=\"14\" maxvalue=\"17\" />" << std::endl;
-  file << "      <range field=\"straw_layer\" minvalue=\"0\" maxvalue=\"15\" />" << std::endl;
-  file << "      <range field=\"straw\" minvalue=\"0\" maxvalue=\"17\" />" << std::endl;
-  file << "    </region>" << std::endl;
-  file << "    <region group=\"trt\"  tag=\"destaged_layout\" />" << std::endl;
-  file << "  </alternate_regions>" << std::endl;
-  
-  file << "  <!-- Dummy region: This forces the bit packing to be the same for all layouts -->" << std::endl;
-  
-  file << "  <region group=\"trt\" name = \"dummy\">" << std::endl;
-  file << "    <range field=\"part\" value=\"TRT\" />" << std::endl;
-  file << "    <range field=\"barrel_endcap\" values=\"negative_endcap negative_barrel positive_barrel positive_endcap\"/>" << std::endl;
-  file << "    <range field=\"phi_sector\" minvalue=\"0\" maxvalue=\"31\" />" << std::endl;
-  file << "    <range field=\"layer_or_wheel\" minvalue=\"0\" maxvalue=\"17\" />" << std::endl;
-  file << "    <range field=\"straw_layer\" minvalue=\"0\" maxvalue=\"29\" />" << std::endl;
-  file << "    <range field=\"straw\" minvalue=\"0\" maxvalue=\"28\" />" << std::endl;
-  file << "  </region>" << std::endl;
-
   file << std::endl;
 }
 
