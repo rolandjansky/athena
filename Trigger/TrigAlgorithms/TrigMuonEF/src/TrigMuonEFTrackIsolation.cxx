@@ -81,28 +81,28 @@ HLT::ErrorCode TrigMuonEFTrackIsolation::hltInitialize() {
   m_debug   = msgLvl() <= MSG::DEBUG;
   
   if(m_debug) {
-    msg() << MSG::DEBUG << "Initializing TrigMuonEFTrackIsolation[" << name() << "]" << endreq;
+    msg() << MSG::DEBUG << "Initializing TrigMuonEFTrackIsolation[" << name() << "]" << endmsg;
     msg() << MSG::DEBUG
-	  << "package version = " << PACKAGE_VERSION << endreq;
+	  << "package version = " << PACKAGE_VERSION << endmsg;
     msg() << MSG::DEBUG
-	  << "Properties set as follows: " << endreq;
+	  << "Properties set as follows: " << endmsg;
     msg() << MSG::DEBUG
-	  << "Track isolation tool:          " << m_efIsoTool << endreq;
+	  << "Track isolation tool:          " << m_efIsoTool << endmsg;
     msg() << MSG::DEBUG
-	  << "IdTrackParticles:              " << m_idTrackParticlesName << endreq;
+	  << "IdTrackParticles:              " << m_idTrackParticlesName << endmsg;
     msg() << MSG::DEBUG
-	  << "requireCombinedMuon:           " << m_requireCombined << endreq;
+	  << "requireCombinedMuon:           " << m_requireCombined << endmsg;
     msg() << MSG::DEBUG
-	  << "doMyTiming                     " << m_doMyTiming << endreq;
+	  << "doMyTiming                     " << m_doMyTiming << endmsg;
     msg() << MSG::DEBUG
-	  << "useVarIso                  " << m_useVarIso << endreq;
+	  << "useVarIso                  " << m_useVarIso << endmsg;
   }//debug
 
   StatusCode sc = m_efIsoTool.retrieve();
   if(sc.isSuccess()) {
-    msg() << MSG::INFO << "Retrieved " << m_efIsoTool << endreq;
+    msg() << MSG::INFO << "Retrieved " << m_efIsoTool << endmsg;
   } else {
-    msg() << MSG::FATAL << "Could not retrieve " << m_efIsoTool << endreq;
+    msg() << MSG::FATAL << "Could not retrieve " << m_efIsoTool << endmsg;
     return HLT::BAD_JOB_SETUP;
   }
 
@@ -113,7 +113,7 @@ HLT::ErrorCode TrigMuonEFTrackIsolation::hltInitialize() {
   }
 
   if (m_debug) msg() << MSG::DEBUG
-		     << "End of init TrigMuonEFTrackIsolation" << endreq;
+		     << "End of init TrigMuonEFTrackIsolation" << endmsg;
   return HLT::OK;
 
 }
@@ -128,13 +128,13 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
   if(m_doMyTiming) m_dataPrepTime->start();
 
   if (m_debug) msg() << MSG::DEBUG
-		     << ": Executing TrigMuonEFTrackIsolation::execHLTAlgorithm()" << endreq;
+		     << ": Executing TrigMuonEFTrackIsolation::execHLTAlgorithm()" << endmsg;
 
   // Get ID Track particles
   const xAOD::TrackParticleContainer* idTrackParticles = 0;
   HLT::ErrorCode hltStatus = getFeature(inputTE, idTrackParticles, m_idTrackParticlesName);
   if (hltStatus != HLT::OK) {
-    msg() << MSG::WARNING << "Failed to retrieve inner detector track particles" << endreq;
+    msg() << MSG::WARNING << "Failed to retrieve inner detector track particles" << endmsg;
     return hltStatus;
   }
   if(!idTrackParticles) {
@@ -142,11 +142,11 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     std::string inlabel;
     TrigConf::HLTTriggerElement::getLabel (TEout->getId(), label );
     TrigConf::HLTTriggerElement::getLabel (inputTE->getId(), inlabel );
-    msg() << MSG::WARNING << "Pointer to xAOD::TrackParticleContainer[" << m_idTrackParticlesName << "] for id tracks = 0, stopping processing of ROI" << endreq;
-    msg() << MSG::WARNING << "Input TE = " << inlabel << ", Output TE = " << label << endreq;
+    msg() << MSG::WARNING << "Pointer to xAOD::TrackParticleContainer[" << m_idTrackParticlesName << "] for id tracks = 0, stopping processing of ROI" << endmsg;
+    msg() << MSG::WARNING << "Input TE = " << inlabel << ", Output TE = " << label << endmsg;
     return HLT::MISSING_FEATURE;
   }  else {
-    if(m_debug) msg() << MSG::DEBUG << "Inner detector track particles retrieved with size: " << idTrackParticles->size() << endreq;
+    if(m_debug) msg() << MSG::DEBUG << "Inner detector track particles retrieved with size: " << idTrackParticles->size() << endmsg;
   }
 
 
@@ -167,17 +167,17 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
   for(auto muon : *muonContainer) {
 
     if(m_debug) {
-      msg() << MSG::DEBUG << "Processing next EF muon " << muon << endreq;
+      msg() << MSG::DEBUG << "Processing next EF muon " << muon << endmsg;
     }
     const xAOD::Muon::MuonType muontype = muon->muonType();
     if( muontype == xAOD::Muon::MuonType::Combined || muontype == xAOD::Muon::MuonType::SegmentTagged ) {
       if(m_debug) {
-	msg() << MSG::DEBUG << "EF muon has combined or segment tagged muon" << endreq;
+	msg() << MSG::DEBUG << "EF muon has combined or segment tagged muon" << endmsg;
       }
     } else {
       if(m_requireCombined) {
 	if(m_debug) {
-	  msg() << MSG::DEBUG << "Not a combined or segment tagged muon & requireCombined=true, so ignore this muon" << endreq;
+	  msg() << MSG::DEBUG << "Not a combined or segment tagged muon & requireCombined=true, so ignore this muon" << endmsg;
 	}
 	continue;
       }//requireCombined
@@ -194,10 +194,10 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
     if(result.isFailure() || isoResults.size() != 2) {
 	
       if(result.isFailure()) {
-	msg() << MSG::WARNING << "Isolation tool failed for this muon - isolation will not be set for this muon" << endreq;
+	msg() << MSG::WARNING << "Isolation tool failed for this muon - isolation will not be set for this muon" << endmsg;
       } else {
 	if(isoResults.size() != 2) {
-	  msg() << MSG::WARNING << "Wrong number of isolation results - isolation will not be set for this muon." << endreq;
+	  msg() << MSG::WARNING << "Wrong number of isolation results - isolation will not be set for this muon." << endmsg;
 	}
       }
     } else { //isolation tool was ok - store results
@@ -228,7 +228,7 @@ TrigMuonEFTrackIsolation::hltExecute(const HLT::TriggerElement* inputTE, HLT::Tr
 HLT::ErrorCode TrigMuonEFTrackIsolation:: hltFinalize()
 {
   if (m_debug)
-    msg() << MSG::DEBUG << "Finalizing TrigMuonEFTrackIsolation" << endreq;
+    msg() << MSG::DEBUG << "Finalizing TrigMuonEFTrackIsolation" << endmsg;
 
   return  HLT::OK;
 }
