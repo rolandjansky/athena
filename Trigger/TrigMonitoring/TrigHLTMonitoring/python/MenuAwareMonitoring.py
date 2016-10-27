@@ -20,6 +20,8 @@ import hashlib
 import json
 # for getting connection details
 from xml.dom import minidom
+# for monitoring mode setup
+from AthenaMonitoring.DQMonFlags import DQMonFlags
 
 # all Menu-Aware Monitoring stuff in one class
 # it uses OracleInterface to talk to the Oracle database
@@ -60,6 +62,9 @@ class MenuAwareMonitoring:
 
         # create tool interrogator object
         self.ti = ToolInterrogator()
+
+        # flag to prevent multiple calls to setup_all_local_tools, as it doesn't seem like the current config is picked up is this is tried
+        self.tools_setup = False
 
         # need to grab ms.local_global_info and make all methods act on that
         # pointer to local tool info
@@ -129,10 +134,14 @@ class MenuAwareMonitoring:
     def __get_athena_version__(self):
         "Get the current Athena version."
 
-        # Probably only want to store the first 4 digits?
-        # get the current local Athena version (there must be a better way!)
         AtlasVersion = subprocess.check_output("echo $AtlasVersion", shell=True).replace("\n","")
         AtlasProject = subprocess.check_output("echo $AtlasProject", shell=True).replace("\n","")
+        if 'rel' in AtlasVersion:
+            # make MAM detect nightly versions (though use of MAM with nightlies is not expected)
+            AtlasArea = subprocess.check_output("echo $AtlasArea", shell=True).replace("\n","")
+            # format is like AtlasArea=/afs/cern.ch/atlas/software/builds/nightlies/20.7.9.Y-VAL/AtlasProduction/rel_3
+            AtlasVersion = AtlasArea.split(AtlasProject)[0].split('/')[-2:-1][0]
+
         self.ms.current_athena_version = AtlasProject+"-"+AtlasVersion
 
     def __update_local_pointer__(self):
@@ -281,14 +290,44 @@ class MenuAwareMonitoring:
                 print ""
 
 
-    def setup_all_local_tools(self):
+    def setup_all_local_tools(self,mode=""):
         "Setup all local trigger-monitoring tools and runs get_current_local_info() to read them in using the Tool Interrogator."
+
+        if self.tools_setup == True:
+            # this is a precautionary measure because it is not clear from testing that tools are resetup correctly if setup is attempted multiple times (probably because tools has protections against this implemented)
+            print "Tools already set up."
+            print "Quit and restart to setup again."
+            return
+
+        # enabling setting of monitoring mode
+        if mode.lower() == "hi":
+            mode = "HI"
+        else:
+            mode = mode.lower()
+
+        if mode not in [ "pp", "HI", "cosmic", "mc", "" ]:
+            print "Unrecognised setup mode: using default"
+            mode = ""
+        else:
+            print "Using mode",mode
+
+        if mode == "pp":
+            DQMonFlags.monManDataType = 'collisions'
+        elif mode == "mc":
+            DQMonFlags.monManDataType = 'monteCarlo'
+        elif mode == "HI":
+            DQMonFlags.monManDataType = 'heavyioncollisions'
+        elif mode == "cosmic":
+            DQMonFlags.monManDataType = 'cosmics'
+        print "DQMonFlags.monManDataType() =",DQMonFlags.monManDataType()
 
         # setup all local packages listed in PackagesToInterrogate via ToolInterrogator
         self.ti.load_all_tools()
 
-        # we probably want to read in these tools with the Tool Interrogator
+        # read in these tools with the Tool Interrogator
         self.get_current_local_info()
+
+        self.tools_setup = True
 
 
     def upload_smck(self,input1="",processing_step="",comment="",print_output_here=""):

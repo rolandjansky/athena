@@ -170,7 +170,6 @@ if HLTMonFlags.doMaM:
 
     if hasattr(runArgs, "DBserver") and runArgs.DBserver == "TRIGGERDBREPR":
         trigger_reco_tf_job = True
-
     elif hasattr(runArgs, "triggerConfig") and "TRIGGERDBREPR" in runArgs.triggerConfig:
         trigger_reco_tf_job = True
 
@@ -183,10 +182,8 @@ if HLTMonFlags.doMaM:
         mam = MenuAwareMonitoring()
 
     if mam.ms.connected_to_oracle == False:
-        # how to raise this as an error?
         print "Menu-aware Monitoring error: Cannot doMaM without database connection -> Exiting MaM."
     else:
-
         # if a specific Monitoring Configuration Key (MCK) has been set, then use it
         if HLTMonFlags.MCK.StoredValue > 0:
             if mam.ms.oi.check_if_mck_id_exists( HLTMonFlags.MCK.StoredValue ):
@@ -201,9 +198,15 @@ if HLTMonFlags.doMaM:
             else:
                 print "MCK found via transform:",HLTMonFlags.MCK.StoredValue,"is not a vaid MCK -> No MCK applied."
 
-        # if HLTMonFlags.MCK is -1 (the default) we try to determine the MCK automatically
-        if HLTMonFlags.MCK.StoredValue == -1:
+        # if HLTMonFlags.MCK is -1 (the default) we try to determine the MCK automatically, as long as this is not MC
+        is_not_sim = True
+        from RecExConfig.InputFilePeeker import inputFileSummary
+        if inputFileSummary.__contains__('evt_type'):
+            if 'IS_SIMULATION' in inputFileSummary['evt_type']:
+                print "Will not try to get MCK automatically as we are running on MC"
+                is_not_sim = False
 
+        if HLTMonFlags.MCK.StoredValue == -1 and is_not_sim:
             if trigger_reco_tf_job:
                 # for trigger repro jobs, need to check the transform arguments and get the SMK from there, then use the linked MCK.
                 # no Cool interaction in these jobs
@@ -228,7 +231,7 @@ if HLTMonFlags.doMaM:
                         if mam.does_mck_athena_version_match_current_athena_version( MCKfromSMKrepr ):
                             HLTMonFlags.MCK.StoredValue = MCKfromSMKrepr
                             print "MCK found via SMK link: ",HLTMonFlags.MCK.StoredValue
-                            if  HLTMonFlags.doMaM_ApplyMCK:
+                            if HLTMonFlags.doMaM_ApplyMCK:
                                 print "Applying MCK ",HLTMonFlags.MCK.StoredValue
                                 mam.apply_mck( HLTMonFlags.MCK.StoredValue )
                         else:
@@ -238,19 +241,16 @@ if HLTMonFlags.doMaM:
                         print "MCK found via SMK link: 0 -> Default configuration used."
 
             else:
-
                 # try to get the MCK from Cool
-                from RecExConfig.InputFilePeeker import inputFileSummary
                 if inputFileSummary.__contains__('bs_metadata') or inputFileSummary.__contains__('run_number'):
                     # get the run number for the input
-                    if inputFileSummary.__contains__('bs_metadata'):                    
+                    if inputFileSummary.__contains__('bs_metadata'):
                         run_number = inputFileSummary['bs_metadata']['run_number']
                     else:
                         run_number = int(inputFileSummary['run_number'][0])
-                    from PyCool import cool
-
                     pointintime = (int(run_number)<<32)
 
+                    from PyCool import cool
                     # try to connect to the COOL database
                     from CoolConvUtilities.AtlCoolLib import indirectOpen
                     connstring = "COOLONL_TRIGGER/CONDBR2" # get the MCK from Cool
@@ -279,17 +279,15 @@ if HLTMonFlags.doMaM:
                             elif HLTMonFlags.MCK.StoredValue == 0:
                                 print "MCK found via Cool: 0 -> Default monitoring configuration used."
 
-                        except ( ObjectNotFound, TagNotFound ):
-                            print "No MCK in Cool folder",foldername,"for release",mam.current_athena_version," -> No MCK applied."
+                        except:
+                            print "No MCK in Cool folder",foldername,"for release",mam.ms.current_athena_version,"-> No MCK applied."
 
                         coolDB.closeDatabase()
                 else:
                     print "Unable to get run number from metadata"
 
-
         # if dumping the tool configurations (as a .json file) has been requested, then do that here
         if  HLTMonFlags.doMaM_ExtractAndDumpConfigs:
-
             print "Will attempt to doMaM_ExtractAndDumpConfigs"
             # get updated configs for all tools, and dump them to HLTMonFlags.MaM_OutputJSON.StoredValue
             mam.get_current_local_info()

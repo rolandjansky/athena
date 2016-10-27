@@ -28,7 +28,7 @@ class MenuAwareMonitoringStandalone:
         and get the current default from the database (if it exists)."""
 
         # MaM code version
-        self.version = '1.3.0'
+        self.version = '1.4.0'
 
         # flag for setting whether to print out anything to screen or not
         self.print_output = True
@@ -1670,28 +1670,32 @@ class MenuAwareMonitoringStandalone:
             elif print_deactivated_links:
                 print "SMK",link['SMK'],"was previously linked to MCK",link['MCK'],"(DEACTIVATED LINK)"
 
-    def create_sqlite_file_to_copy_to_cool(self,mck_id,run_number,info="",project="",version=""):
+    def create_sqlite_file_to_copy_to_cool(self,mck,run,runend="",info="",project="",version=""):
         """Create ad sqlite file which can be used to manually add data to COOL"""
         # this way https://twiki.cern.ch/twiki/bin/view/AtlasComputing/CoolPublishing#Updating_data_on_the_online_data
 
-        # check mck exists
-        if mck_id and not self.oi.check_if_mck_id_exists(mck_id):
-            print "MCK",mck_id,"doesn't exist."
+        if runend and run >= runend:
+            print "runend must be greater than run"
             return
 
-        if mck_id == 0 and ( not project or not version ):
+        # check mck exists
+        if mck and not self.oi.check_if_mck_id_exists(mck):
+            print "MCK",mck,"doesn't exist."
+            return
+
+        if mck == 0 and ( not project or not version ):
             print "Please give the AtlasProject and AtlasVersion that you want to write MCK 0 to COOL for."
-            print "Usage: create_sqlite_file_to_copy_to_cool(mck_id,run_number,project="",version="",info="")"
+            print "Usage: create_sqlite_file_to_copy_to_cool(mck,run,runend,info,project,version)"
             print "project and version are compulsory for MCK 0."
             return
 
-        if mck_id and ( project or version ):
+        if mck and ( project or version ):
             print "The AtlasProject and AtlasVersion are taken from the MCK info, and should not be specified manually except for MCK 0."
             print "If you want to assign an MCK to a new release consider using the function mam.ms.clone_mck_for_new_release(mck_id,project="",version="")"
             print "Continuing but ignoring project and version variables..."
 
         # TO ADD: check that run exists
-        # something similar to http://acode-browser.usatlas.bnl.gov/lxr/ident?_i=getOnlineRun ?
+        # something similar to http://acode-browser.usatlas.bnl.gov/lxr/ident?_i=getOnlineRun
 
         from PyCool import cool
 
@@ -1731,15 +1735,18 @@ class MenuAwareMonitoringStandalone:
 
         # setup the payload and tag
         data = cool.Record(rspec)
-        data['MonConfigKey'] = mck_id
+        data['MonConfigKey'] = mck
         data['Info'] = info
-        if mck_id:
-            release = self.oi.read_mck_info_from_db(mck_id)['MCK_ATHENA_VERSION']
+        if mck:
+            release = self.oi.read_mck_info_from_db(mck)['MCK_ATHENA_VERSION']
         else:
             release = project + '-' + version
         tag = folder_name.split('/')[-1] + '-' + release
 
-        iov_since = (int(run_number)<<32)
-        iov_until = (int(run_number+1)<<32)
-        print "Storing MCK",mck_id,"with tag",tag,"for run",run_number,"for IOV",iov_since,"to",iov_until
+        iov_since = (int(run)<<32)
+        if runend:
+            iov_until = (int(runend+1)<<32)
+        else:
+            iov_until = (int(run+1)<<32)
+        print "Storing MCK",mck,"with tag",tag,"for IOV",iov_since,"to",iov_until
         folder.storeObject(iov_since,iov_until,data,chan,tag)

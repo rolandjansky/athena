@@ -35,23 +35,6 @@ class ToolInterrogator:
         print "#"*10
         print ""
 
-        # nasty hacks to fix problems in HLTMonTriggerList.py in Athena 20.1.5.8
-        #
-        # line 60, in config
-        # self.primary_single_ele_iso = egamma.primary_single_ele_iso
-        # AttributeError: 'module' object has no attribute 'primary_single_ele_iso'
-        #
-        # line 84, in config
-        # self.monitoring_muonEFFS = muon.monitoring_muonEFFS
-        # AttributeError: 'module' object has no attribute 'monitoring_muonEFFS'
-        #
-        # so we give these objects the offending attributes...
-        # import TrigEgammaMonitoring.TrigEgammaMonitCategory as egamma
-        # egamma.primary_single_ele_iso = ['e24_lhmedium_iloose_L1EM18VH','e24_lhmedium_iloose_L1EM20VH','e24_lhtight_iloose_L1EM20VH','e24_lhtight_iloose','e26_lhtight_iloose']
-        # egamma.primary_single_ele_cutbased_iso = ['e24_medium_iloose_L1EM18VH','e24_medium_iloose_L1EM20VH','e24_tight_iloose_L1EM20VH','e24_tight_iloose','e26_tight_iloose']
-        # import TrigMuonMonitoring.TrigMuonMonitCategory as muon
-        # muon.monitoring_muonEFFS = ['HLT_mu18_mu8noL1']
-
         # load all tools in PackagesToInterrogate
         for key, value in self.packages_to_interrogate.PackagesToInterrogate.iteritems():
 
@@ -92,7 +75,7 @@ class ToolInterrogator:
             if "Trig" in tool.getDlls() and "Monitoring" in tool.getDlls():
                 mon_tools.append(tool.getName())
             #
-            # NEW: 
+            # NEW:
             # find if Trig and Monitoring are in the tool Dll name, or if the tool name contains both 'Mon' and either 'HLT' or 'Trig'
             # (This change was made to catch TrigEgammaMonTool, which has 'TrigEgammaAnalysisTools' as its Dll name)
             # FURTHER EDIT: extra if statemend added below (7 lines below here) to catch all TrigEgammaAnalysisTools, so we can just revert back to the previous 'OLD' if statement above
@@ -105,7 +88,7 @@ class ToolInterrogator:
             # of if the tool Dll name is TrigEgammaAnalysisTools, as is the case for the Egamma tools
             if 'TrigEgammaAnalysisTools' == tool.getDlls():
                 mon_tools.append(tool.getName())
-            
+
 
         # return the list of monitoring tools
         print "mon_tools =",mon_tools
@@ -169,7 +152,7 @@ class ToolInterrogator:
             smck_config['MonitCategoryName'] = self.packages_to_interrogate.PackagesToInterrogate[slice_name]['MonitCategoryName']
             smck_config['MonitCategoryInfo'] = self.interrogate_MonitCategory(self.packages_to_interrogate.PackagesToInterrogate[slice_name]['MonitCategoryName'])
 
-            # json dump and load, 
+            # json dump and load,
             # so that any odd characters are consistently encoded in the output smck_config dictionary
             smck_config = json.loads( json.dumps(smck_config, ensure_ascii=True, sort_keys=True) )
 
@@ -185,14 +168,14 @@ class ToolInterrogator:
             return -1
 
         # now we begin interrogating the tool...
-            
+
         # This is the dictionary where we will store all our good gathered information
         tool_info = {}
-    
+
         # first we get its properties
         tool_properties = ""
         exec "tool_properties = ToolSvc.%s.properties()" % (tool_ToolSvc_name)
-    
+
         # we also get the property 'no value' string for this tool (to use later)
         tool_novalue = ""
         exec "tool_novalue = ToolSvc.%s.propertyNoValue" % (tool_ToolSvc_name)
@@ -200,22 +183,22 @@ class ToolInterrogator:
         # and we get the default property values
         tool_default_properties = ""
         exec "tool_default_properties = ToolSvc.%s.getDefaultProperties()" % (tool_ToolSvc_name)
-    
+
         # then we check these properties
         for prop,value in tool_properties.iteritems():
-            
+
             # does the tool really have this property?
             tool_property_truth = False
             exec "tool_property_truth = hasattr(ToolSvc.%s,prop)" % (tool_ToolSvc_name)
-        
+
             # if it does not...
             # then the value has likely not been set
             # ie. the default value is to be used
             if tool_property_truth == False:
-            
+
                 # does this property hold a 'no value' value?
                 if value == tool_novalue:
-                
+
                     # if so, use the default value
                     if tool_default_properties.__contains__(prop):
                         value = tool_default_properties[prop]
@@ -232,7 +215,7 @@ class ToolInterrogator:
             # Little hack because MaM doesn't know what GaudiKernel is
             if 'GaudiKernel.GaudiHandles.PublicToolHandleArray' in str(type(value)):
                 continue
-    
+
             # test if this value is JSON serializable
             try:
 
@@ -330,7 +313,7 @@ class ToolInterrogator:
 
         # now we can return the results
         return monitCategoryObject_interesting_properties
-        
+
 
     def __unicode_to_str__(self,input1=""):
         "Input a unicode string, list, or dict, and convert all unicode to str."
