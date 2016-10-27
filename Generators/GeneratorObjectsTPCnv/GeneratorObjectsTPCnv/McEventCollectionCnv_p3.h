@@ -12,9 +12,7 @@
 #define GENERATOROBJECTSTPCNV_MCEVENTCOLLECTIONCNV_P3_H
 
 // STL includes
-
-// SGTools includes
-#include "SGTools/unordered_map.h" // move to STL once available
+#include <unordered_map>
 
 // HepMC / CLHEP includes
 #define private public
@@ -89,7 +87,7 @@ class McEventCollectionCnv_p3 : public T_AthenaPoolTPCnvBase<
   ///////////////////////////////////////////////////////////////////
  protected:
 
-  typedef SG::unordered_map<HepMC::GenParticle*,int> ParticlesMap_t;
+  typedef std::unordered_map<HepMC::GenParticle*,int> ParticlesMap_t;
 
   /** @brief Create a transient @c GenVertex from a persistent one (version 1)
    *  It returns the new @c GenVertex.

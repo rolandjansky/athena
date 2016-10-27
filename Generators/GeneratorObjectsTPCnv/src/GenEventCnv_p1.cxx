@@ -46,15 +46,15 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
 				  MsgStream& msg ) 
 {
   msg << MSG::DEBUG << "Loading HepMC::GenEvent from persistent state..."
-      << endreq;
+      << endmsg;
 
   if ( 0 == m_pool ) {
     msg << MSG::ERROR
 	<< "This instance of GenEventCnv_p1 has a null pointer to "
-	<< "HepMC::DataPool !" << endreq
+	<< "HepMC::DataPool !" << endmsg
 	<< "This probably means the T/P converter (McEventCollectionCnv_pX) "
 	<< "is misconfigured !!"
-	<< endreq;
+	<< endmsg;
     throw std::runtime_error("Null pointer to HepMC::DataPool !!");
   }
 
@@ -112,12 +112,12 @@ void GenEventCnv_p1::persToTrans( const GenEvent_p1* persObj,
     } else {
       msg << MSG::ERROR
 	  << "GenParticle points to null end vertex !!" 
-	  << endreq;
+	  << endmsg;
     }
   }
 
   msg << MSG::DEBUG << "Loaded HepMC::GenEvent from persistent state [OK]"
-      << endreq;
+      << endmsg;
   return;
 }
 
@@ -126,13 +126,13 @@ void GenEventCnv_p1::transToPers( const HepMC::GenEvent*,
 				  MsgStream& msg ) 
 {
   msg << MSG::DEBUG << "Creating persistent state of HepMC::GenEvent..."
-      << endreq;
+      << endmsg;
 
   msg << MSG::ERROR
       << "This transient-to-persistent converter method has been RETIRED !!"
-      << endreq
+      << endmsg
       << "You are not supposed to end-up here ! Go away !"
-      << endreq;
+      << endmsg;
 
   throw std::runtime_error( "Retired GenEventCnv_p1::transToPers() !!" );
   return;

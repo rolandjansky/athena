@@ -57,7 +57,7 @@ void McEventCollectionCnv_p1::persToTrans( const McEventCollection_p1* persObj,
                                            MsgStream& msg )
 {
   msg << MSG::DEBUG << "Loading McEventCollection from persistent state..."
-      << endreq;
+      << endmsg;
 
   // elements are managed by DataPool
   transObj->clear(SG::VIEW_ELEMENTS);
@@ -89,7 +89,7 @@ void McEventCollectionCnv_p1::persToTrans( const McEventCollection_p1* persObj,
   } //> end loop over genEvents
 
   msg << MSG::DEBUG << "Loaded McEventCollection from persistent state [OK]"
-      << endreq;
+      << endmsg;
 
   return;
 }
@@ -99,13 +99,13 @@ void McEventCollectionCnv_p1::transToPers( const McEventCollection*,
                                            MsgStream& msg )
 {
   msg << MSG::DEBUG << "Creating persistent state of McEventCollection..."
-      << endreq;
+      << endmsg;
 
   msg << MSG::ERROR
       << "This transient-to-persistent converter method has been RETIRED !!"
-      << endreq
+      << endmsg
       << "You are not supposed to end-up here ! Go away !"
-      << endreq;
+      << endmsg;
 
   throw std::runtime_error( "Retired McEventCollectionCnv_p1::transToPers() !!" );
   return;
