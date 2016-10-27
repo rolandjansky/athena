@@ -7,17 +7,15 @@
     <Output algname="INVM_AJ_LowMass" triggerline="400INVM9999-AJ30s6-AJ20s6,300INVM9999-AJ30s6-AJ20s6,200INVM9999-AJ30s6-AJ20s6,100INVM9999-AJ30s6-AJ20s6" algoId="1" module="0" fpga="0" firstbit="4" clock="0"/>
     <Output algname="HT150-J20s5.ETA31" triggerline="HT150-J20s5.ETA31" algoId="18" module="0" fpga="0" firstbit="9" clock="0"/>
     <Output algname="HT190-J15s5.ETA21" triggerline="HT190-J15s5.ETA21" algoId="19" module="0" fpga="0" firstbit="10" clock="0"/>
-    <Output algname="INVM_EMall" triggerline="1INVM5-EMs1-EMall,1INVM5-EM7s1-EMall,1INVM5-EM12s1-EMall" algoId="24" module="0" fpga="0" firstbit="11" clock="0"/>
-    <Output algname="10MINDPHI-EM10s6-XE0" triggerline="10MINDPHI-EM10s6-XE0" algoId="28" module="0" fpga="0" firstbit="14" clock="0"/>
-    <Output algname="15MINDPHI-EM10s6-XE0" triggerline="15MINDPHI-EM10s6-XE0" algoId="29" module="0" fpga="0" firstbit="15" clock="0"/>
+    <Output algname="05MINDPHI-EM12s6-XE0" triggerline="05MINDPHI-EM12s6-XE0" algoId="28" module="0" fpga="0" firstbit="14" clock="0"/>
+    <Output algname="10MINDPHI-EM12s6-XE0" triggerline="10MINDPHI-EM12s6-XE0" algoId="29" module="0" fpga="0" firstbit="15" clock="0"/>
     <Output algname="05MINDPHI-EM15s6-XE0" triggerline="05MINDPHI-EM15s6-XE0" algoId="30" module="0" fpga="0" firstbit="0" clock="1"/>
-    <Output algname="25MT-EM10s6-XE0" triggerline="25MT-EM10s6-XE0" algoId="31" module="0" fpga="0" firstbit="1" clock="1"/>
-    <Output algname="30MT-EM10s6-XE0" triggerline="30MT-EM10s6-XE0" algoId="32" module="0" fpga="0" firstbit="2" clock="1"/>
+    <Output algname="25MT-EM12s6-XE0" triggerline="25MT-EM12s6-XE0" algoId="31" module="0" fpga="0" firstbit="1" clock="1"/>
+    <Output algname="30MT-EM12s6-XE0" triggerline="30MT-EM12s6-XE0" algoId="32" module="0" fpga="0" firstbit="2" clock="1"/>
     <Output algname="35MT-EM15s6-XE0" triggerline="35MT-EM15s6-XE0" algoId="33" module="0" fpga="0" firstbit="3" clock="1"/>
     <Output algname="0DETA10-Js1-Js2" triggerline="0DETA10-Js1-Js2" algoId="34" module="0" fpga="0" firstbit="4" clock="1"/>
     <Output algname="10MINDPHI-Js2-XE50" triggerline="10MINDPHI-Js2-XE50" algoId="35" module="0" fpga="0" firstbit="5" clock="1"/>
     <Output algname="10MINDPHI-J20s2-XE50" triggerline="10MINDPHI-J20s2-XE50" algoId="36" module="0" fpga="0" firstbit="6" clock="1"/>
-    <Output algname="210RATIO-0MATCH-TAU30si2-EMall" triggerline="210RATIO-0MATCH-TAU30si2-EMall" algoId="66" module="0" fpga="0" firstbit="7" clock="1"/>
     <Output algname="NOT-0MATCH-TAU30si2-EMall" triggerline="NOT-0MATCH-TAU30si2-EMall" algoId="67" module="0" fpga="0" firstbit="8" clock="1"/>
     <Output algname="LAR-EM50s1" triggerline="LAR-EM50s1" algoId="78" module="0" fpga="0" firstbit="9" clock="1"/>
     <Output algname="LAR-J100s1" triggerline="LAR-J100s1" algoId="79" module="0" fpga="0" firstbit="10" clock="1"/>
@@ -27,9 +25,8 @@
     <Output algname="DISAMB-EM15abhi-TAU12abi" triggerline="DISAMB-EM15abhi-TAU12abi" algoId="73" module="0" fpga="1" firstbit="1" clock="0"/>
     <Output algname="1DISAMB-EM15his2-TAU12abi-J25ab" triggerline="1DISAMB-EM15his2-TAU12abi-J25ab" algoId="74" module="0" fpga="1" firstbit="2" clock="0"/>
     <Output algname="1DISAMB-J25ab-0DR28-EM15his2-TAU12abi" triggerline="1DISAMB-J25ab-0DR28-EM15his2-TAU12abi" algoId="76" module="0" fpga="1" firstbit="3" clock="0"/>
-    <Output algname="4INVM8-2MU6ab" triggerline="4INVM8-2MU6ab" algoId="7" module="0" fpga="1" firstbit="4" clock="0"/>
-    <Output algname="2INVM999-ONEBARREL-MU6ab-MU4ab" triggerline="2INVM999-ONEBARREL-MU6ab-MU4ab" algoId="46" module="0" fpga="1" firstbit="5" clock="0"/>
-    <Output algname="4INVM8-ONEBARREL-MU6ab-MU4ab" triggerline="4INVM8-ONEBARREL-MU6ab-MU4ab" algoId="50" module="0" fpga="1" firstbit="6" clock="0"/>
+    <Output algname="2INVM9-2MU6ab" triggerline="2INVM9-2MU6ab" algoId="7" module="0" fpga="1" firstbit="4" clock="0"/>
+    <Output algname="2INVM8-ONEBARREL-MU6ab-MU4ab" triggerline="2INVM8-ONEBARREL-MU6ab-MU4ab" algoId="48" module="0" fpga="1" firstbit="6" clock="0"/>
     <Output algname="5DETA99-5DPHI99-2MU4ab" triggerline="5DETA99-5DPHI99-2MU4ab" algoId="13" module="0" fpga="1" firstbit="7" clock="0"/>
     <Output algname="5DETA99-5DPHI99-MU6ab-MU4ab" triggerline="5DETA99-5DPHI99-MU6ab-MU4ab" algoId="14" module="0" fpga="1" firstbit="8" clock="0"/>
     <Output algname="5DETA99-5DPHI99-2MU6ab" triggerline="5DETA99-5DPHI99-2MU6ab" algoId="15" module="0" fpga="1" firstbit="9" clock="0"/>
@@ -37,28 +34,25 @@
     <Output algname="0DR28-MU10ab-TAU12abi" triggerline="0DR28-MU10ab-TAU12abi" algoId="16" module="0" fpga="1" firstbit="11" clock="0"/>
     <Output algname="0DETA20-0DPHI20-TAU20abi-TAU12abi" triggerline="0DETA20-0DPHI20-TAU20abi-TAU12abi" algoId="58" module="0" fpga="1" firstbit="12" clock="0"/>
     <Output algname="DISAMB-EM15abhi-TAU40ab" triggerline="DISAMB-EM15abhi-TAU40ab" algoId="71" module="0" fpga="1" firstbit="13" clock="0"/>
-    <Output algname="05MINDPHI-AJj20s6-XE0" triggerline="05MINDPHI-AJj20s6-XE0" algoId="25" module="1" fpga="0" firstbit="0" clock="0"/>
-    <Output algname="10MINDPHI-AJj20s6-XE0" triggerline="10MINDPHI-AJj20s6-XE0" algoId="26" module="1" fpga="0" firstbit="1" clock="0"/>
-    <Output algname="15MINDPHI-AJj20s6-XE0" triggerline="15MINDPHI-AJj20s6-XE0" algoId="27" module="1" fpga="0" firstbit="2" clock="0"/>
+    <Output algname="05MINDPHI-AJj10s6-XE0" triggerline="05MINDPHI-AJj10s6-XE0" algoId="25" module="1" fpga="0" firstbit="0" clock="0"/>
+    <Output algname="10MINDPHI-AJj10s6-XE0" triggerline="10MINDPHI-AJj10s6-XE0" algoId="26" module="1" fpga="0" firstbit="1" clock="0"/>
+    <Output algname="15MINDPHI-AJj10s6-XE0" triggerline="15MINDPHI-AJj10s6-XE0" algoId="27" module="1" fpga="0" firstbit="2" clock="0"/>
     <Output algname="0DR04-MU4ab-CJ15ab" triggerline="0DR04-MU4ab-CJ15ab" algoId="39" module="1" fpga="0" firstbit="3" clock="0"/>
     <Output algname="0DR04-MU4ab-CJ20ab" triggerline="0DR04-MU4ab-CJ20ab" algoId="43" module="1" fpga="0" firstbit="4" clock="0"/>
     <Output algname="0DR04-MU4ab-CJ30ab" triggerline="0DR04-MU4ab-CJ30ab" algoId="40" module="1" fpga="0" firstbit="5" clock="0"/>
     <Output algname="0DR04-MU6ab-CJ20ab" triggerline="0DR04-MU6ab-CJ20ab" algoId="41" module="1" fpga="0" firstbit="6" clock="0"/>
     <Output algname="0DR04-MU6ab-CJ25ab" triggerline="0DR04-MU6ab-CJ25ab" algoId="42" module="1" fpga="0" firstbit="7" clock="0"/>
     <Output algname="10MINDPHI-CJ20ab-XE50" triggerline="10MINDPHI-CJ20ab-XE50" algoId="38" module="1" fpga="0" firstbit="8" clock="0"/>
-    <Output algname="2DR15-2CMU4ab" triggerline="2DR15-2CMU4ab" algoId="53" module="1" fpga="0" firstbit="9" clock="0"/>
-    <Output algname="2DR15-CMU6ab-CMU4ab" triggerline="2DR15-CMU6ab-CMU4ab" algoId="55" module="1" fpga="0" firstbit="10" clock="0"/>
+    <Output algname="0DR24-2CMU4ab" triggerline="0DR24-2CMU4ab" algoId="52" module="1" fpga="0" firstbit="9" clock="0"/>
     <Output algname="MULT-CMU4ab" triggerline="MULT-CMU4ab[0],MULT-CMU4ab[1]" algoId="68" module="1" fpga="0" firstbit="11" clock="0"/>
     <Output algname="MULT-CMU6ab" triggerline="MULT-CMU6ab[0],MULT-CMU6ab[1]" algoId="69" module="1" fpga="0" firstbit="13" clock="0"/>
-    <Output algname="2INVM999-2CMU4ab" triggerline="2INVM999-2CMU4ab" algoId="44" module="1" fpga="0" firstbit="15" clock="0"/>
-    <Output algname="2INVM999-CMU6ab-CMU4ab" triggerline="2INVM999-CMU6ab-CMU4ab" algoId="47" module="1" fpga="0" firstbit="0" clock="1"/>
-    <Output algname="4INVM8-2CMU4ab" triggerline="4INVM8-2CMU4ab" algoId="48" module="1" fpga="0" firstbit="1" clock="1"/>
-    <Output algname="4INVM8-CMU6ab-CMU4ab" triggerline="4INVM8-CMU6ab-CMU4ab" algoId="51" module="1" fpga="0" firstbit="2" clock="1"/>
+    <Output algname="1INVM19-2CMU4ab" triggerline="1INVM19-2CMU4ab" algoId="46" module="1" fpga="0" firstbit="15" clock="0"/>
+    <Output algname="2INVM8-2CMU4ab" triggerline="2INVM8-2CMU4ab" algoId="47" module="1" fpga="0" firstbit="1" clock="1"/>
     <Output algname="0DETA04-0DPHI03-EM8abi-MU10ab" triggerline="0DETA04-0DPHI03-EM8abi-MU10ab" algoId="56" module="1" fpga="0" firstbit="3" clock="1"/>
     <Output algname="0DETA04-0DPHI03-EM15abi-MUab" triggerline="0DETA04-0DPHI03-EM15abi-MUab" algoId="57" module="1" fpga="0" firstbit="4" clock="1"/>
-    <Output algname="2DR15-CMU4ab-MU4ab" triggerline="2DR15-CMU4ab-MU4ab" algoId="52" module="1" fpga="0" firstbit="5" clock="1"/>
-    <Output algname="2INVM999-CMU4ab-MU4ab" triggerline="2INVM999-CMU4ab-MU4ab" algoId="45" module="1" fpga="0" firstbit="6" clock="1"/>
-    <Output algname="4INVM8-CMU4ab-MU4ab" triggerline="4INVM8-CMU4ab-MU4ab" algoId="49" module="1" fpga="0" firstbit="7" clock="1"/>
+    <Output algname="0DR24-CMU4ab-MU4ab" triggerline="0DR24-CMU4ab-MU4ab" algoId="53" module="1" fpga="0" firstbit="5" clock="1"/>
+    <Output algname="1INVM19-CMU4ab-MU4ab" triggerline="1INVM19-CMU4ab-MU4ab" algoId="44" module="1" fpga="0" firstbit="6" clock="1"/>
+    <Output algname="2INVM8-CMU4ab-MU4ab" triggerline="2INVM8-CMU4ab-MU4ab" algoId="45" module="1" fpga="0" firstbit="7" clock="1"/>
     <Output algname="KF-XE-AJall" triggerline="KF-XE35-AJall,KF-XE45-AJall,KF-XE55-AJall,KF-XE60-AJall,KF-XE65-AJall,KF-XE75-AJall" algoId="80" module="1" fpga="1" firstbit="0" clock="0"/>
     <Output algname="0MATCH-4AJ20.ETA31-4AJj15.ETA31" triggerline="0MATCH-4AJ20.ETA31-4AJj15.ETA31" algoId="59" module="1" fpga="1" firstbit="6" clock="0"/>
     <Output algname="HT190-AJ15all.ETA21" triggerline="HT190-AJ15all.ETA21" algoId="20" module="1" fpga="1" firstbit="7" clock="0"/>
@@ -75,15 +69,21 @@
     <Output algname="1DISAMB-TAU12abi-J25ab" triggerline="1DISAMB-TAU12abi-J25ab" algoId="70" module="1" fpga="1" firstbit="4" clock="1"/>
     <Output algname="0DR10-MU10ab-MU6ab" triggerline="0DR10-MU10ab-MU6ab" algoId="9" module="1" fpga="1" firstbit="5" clock="1"/>
     <Output algname="2DR99-2MU4ab" triggerline="2DR99-2MU4ab" algoId="8" module="1" fpga="1" firstbit="6" clock="1"/>
-    <Output algname="2DR15-2MU4ab" triggerline="2DR15-2MU4ab" algoId="10" module="1" fpga="1" firstbit="7" clock="1"/>
-    <Output algname="2DR15-2MU6ab" triggerline="2DR15-2MU6ab" algoId="11" module="1" fpga="1" firstbit="8" clock="1"/>
-    <Output algname="2DR15-MU6ab-MU4ab" triggerline="2DR15-MU6ab-MU4ab" algoId="12" module="1" fpga="1" firstbit="9" clock="1"/>
-    <Output algname="2DR15-ONEBARREL-MU6ab-MU4ab" triggerline="2DR15-ONEBARREL-MU6ab-MU4ab" algoId="54" module="1" fpga="1" firstbit="10" clock="1"/>
-    <Output algname="2INVM999-2MU4ab" triggerline="2INVM999-2MU4ab" algoId="2" module="1" fpga="1" firstbit="11" clock="1"/>
-    <Output algname="2INVM999-MU6ab-MU4ab" triggerline="2INVM999-MU6ab-MU4ab" algoId="3" module="1" fpga="1" firstbit="12" clock="1"/>
-    <Output algname="2INVM999-2MU6ab" triggerline="2INVM999-2MU6ab" algoId="4" module="1" fpga="1" firstbit="13" clock="1"/>
-    <Output algname="4INVM8-2MU4ab" triggerline="4INVM8-2MU4ab" algoId="5" module="1" fpga="1" firstbit="14" clock="1"/>
-    <Output algname="4INVM8-MU6ab-MU4ab" triggerline="4INVM8-MU6ab-MU4ab" algoId="6" module="1" fpga="1" firstbit="15" clock="1"/>
+    <Output algname="0DR34-2MU4ab" triggerline="0DR34-2MU4ab" algoId="12" module="1" fpga="1" firstbit="7" clock="1"/>
+    <Output algname="2DR15-2MU6ab" triggerline="2DR15-2MU6ab" algoId="10" module="1" fpga="1" firstbit="8" clock="1"/>
+    <Output algname="0DR15-MU6ab-MU4ab" triggerline="0DR15-MU6ab-MU4ab" algoId="11" module="1" fpga="1" firstbit="9" clock="1"/>
+    <Output algname="1INVM19-2MU4ab" triggerline="1INVM19-2MU4ab" algoId="2" module="1" fpga="1" firstbit="11" clock="1"/>
+    <Output algname="8INVM15-MU6ab-MU4ab" triggerline="8INVM15-MU6ab-MU4ab" algoId="4" module="1" fpga="1" firstbit="12" clock="1"/>
+    <Output algname="8INVM15-2MU6ab" triggerline="8INVM15-2MU6ab" algoId="6" module="1" fpga="1" firstbit="13" clock="1"/>
+    <Output algname="2INVM8-2MU4ab" triggerline="2INVM8-2MU4ab" algoId="3" module="1" fpga="1" firstbit="14" clock="1"/>
+    <Output algname="2INVM8-MU6ab-MU4ab" triggerline="2INVM8-MU6ab-MU4ab" algoId="5" module="1" fpga="1" firstbit="15" clock="1"/>
+    <Output algname="2DR15-CMU6ab-CMU4ab" triggerline="2DR15-CMU6ab-CMU4ab" algoId="54" module="1" fpga="0" firstbit="10" clock="0"/>
+    <Output algname="4INVM8-ONEBARREL-MU6ab-MU4ab" triggerline="4INVM8-ONEBARREL-MU6ab-MU4ab" algoId="49" module="0" fpga="1" firstbit="5" clock="0"/>
+    <Output algname="2DR15-ONEBARREL-MU6ab-MU4ab" triggerline="2DR15-ONEBARREL-MU6ab-MU4ab" algoId="55" module="1" fpga="1" firstbit="10" clock="1"/>
+    <Output algname="2INVM999-CMU6ab-CMU4ab" triggerline="2INVM999-CMU6ab-CMU4ab" algoId="50" module="1" fpga="0" firstbit="0" clock="1"/>
+    <Output algname="4INVM8-CMU6ab-CMU4ab" triggerline="4INVM8-CMU6ab-CMU4ab" algoId="51" module="1" fpga="0" firstbit="2" clock="1"/>
+    <Output algname="INVM_EMall" triggerline="1INVM5-EMs1-EMall,1INVM5-EM7s1-EMall,1INVM5-EM12s1-EMall" algoId="24" module="0" fpga="0" firstbit="11" clock="0"/>
+    <Output algname="210RATIO-0MATCH-TAU30si2-EMall" triggerline="210RATIO-0MATCH-TAU30si2-EMall" algoId="66" module="0" fpga="0" firstbit="7" clock="1"/>
   </OutputList>
 
   <TopoConfig>
@@ -481,43 +481,12 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="InvariantMassInclusive2" name="INVM_EMall" algoId="24">
-    <Fixed>
-      <Input name="Tob1" value="EMs" position="0"/>
-      <Input name="Tob2" value="EMall" position="1"/>
-      <Output name="Results" bits="3">
-        <Bit selection="0" name="1INVM5-EMs1-EMall"/>
-        <Bit selection="1" name="1INVM5-EM7s1-EMall"/>
-        <Bit selection="2" name="1INVM5-EM12s1-EMall"/>
-      </Output>
-      <Generic name="InputWidth1" value=":OutputWidthSortEM:"/>
-      <Generic name="InputWidth2" value=":InputWidthEM:"/>
-      <Generic name="MaxTob1" value="1"/>
-      <Generic name="MaxTob2" value=":InputWidthEM:"/>
-      <Generic name="NumResultBits" value="3"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" selection="0" value="0"/>
-      <Parameter pos="1" name="MinET2" selection="0" value="0"/>
-      <Parameter pos="2" name="MinMSqr" selection="0" value="4"/>
-      <Parameter pos="3" name="MaxMSqr" selection="0" value="100"/>
-      <Parameter pos="4" name="MinET1" selection="1" value="14"/>
-      <Parameter pos="5" name="MinET2" selection="1" value="0"/>
-      <Parameter pos="6" name="MinMSqr" selection="1" value="4"/>
-      <Parameter pos="7" name="MaxMSqr" selection="1" value="100"/>
-      <Parameter pos="8" name="MinET1" selection="2" value="24"/>
-      <Parameter pos="9" name="MinET2" selection="2" value="0"/>
-      <Parameter pos="10" name="MinMSqr" selection="2" value="4"/>
-      <Parameter pos="11" name="MaxMSqr" selection="2" value="100"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="MinDeltaPhiIncl2" name="10MINDPHI-EM10s6-XE0" algoId="28">
+  <DecisionAlgo type="MinDeltaPhiIncl2" name="05MINDPHI-EM12s6-XE0" algoId="28">
     <Fixed>
       <Input name="Tob1" value="EMs" position="0"/>
       <Input name="Tob2" value="XE" position="1"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="10MINDPHI-EM10s6-XE0"/>
+        <Bit selection="0" name="05MINDPHI-EM12s6-XE0"/>
       </Output>
       <Generic name="InputWidth1" value=":OutputWidthSortEM:"/>
       <Generic name="InputWidth2" value="1"/>
@@ -526,29 +495,29 @@
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET1" value="20"/>
+      <Parameter pos="0" name="MinET1" value="24"/>
+      <Parameter pos="1" name="MinET2" value="0"/>
+      <Parameter pos="2" name="DeltaPhiMin" selection="0" value="5"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="MinDeltaPhiIncl2" name="10MINDPHI-EM12s6-XE0" algoId="29">
+    <Fixed>
+      <Input name="Tob1" value="EMs" position="0"/>
+      <Input name="Tob2" value="XE" position="1"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="10MINDPHI-EM12s6-XE0"/>
+      </Output>
+      <Generic name="InputWidth1" value=":OutputWidthSortEM:"/>
+      <Generic name="InputWidth2" value="1"/>
+      <Generic name="MaxTob1" value="6"/>
+      <Generic name="MaxTob2" value="1"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="24"/>
       <Parameter pos="1" name="MinET2" value="0"/>
       <Parameter pos="2" name="DeltaPhiMin" selection="0" value="10"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="MinDeltaPhiIncl2" name="15MINDPHI-EM10s6-XE0" algoId="29">
-    <Fixed>
-      <Input name="Tob1" value="EMs" position="0"/>
-      <Input name="Tob2" value="XE" position="1"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="15MINDPHI-EM10s6-XE0"/>
-      </Output>
-      <Generic name="InputWidth1" value=":OutputWidthSortEM:"/>
-      <Generic name="InputWidth2" value="1"/>
-      <Generic name="MaxTob1" value="6"/>
-      <Generic name="MaxTob2" value="1"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="20"/>
-      <Parameter pos="1" name="MinET2" value="0"/>
-      <Parameter pos="2" name="DeltaPhiMin" selection="0" value="15"/>
     </Variable>
   </DecisionAlgo>
 
@@ -572,37 +541,37 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="TransverseMassInclusive1" name="25MT-EM10s6-XE0" algoId="31">
+  <DecisionAlgo type="TransverseMassInclusive1" name="25MT-EM12s6-XE0" algoId="31">
     <Fixed>
       <Input name="Tob1" value="EMs" position="0"/>
       <Input name="Tob2" value="XE" position="1"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="25MT-EM10s6-XE0"/>
+        <Bit selection="0" name="25MT-EM12s6-XE0"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSortEM:"/>
       <Generic name="MaxTob" value="6"/>
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET1" value="20"/>
+      <Parameter pos="0" name="MinET1" value="24"/>
       <Parameter pos="1" name="MinET2" value="0"/>
       <Parameter pos="2" name="MinMTSqr" value="625"/>
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="TransverseMassInclusive1" name="30MT-EM10s6-XE0" algoId="32">
+  <DecisionAlgo type="TransverseMassInclusive1" name="30MT-EM12s6-XE0" algoId="32">
     <Fixed>
       <Input name="Tob1" value="EMs" position="0"/>
       <Input name="Tob2" value="XE" position="1"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="30MT-EM10s6-XE0"/>
+        <Bit selection="0" name="30MT-EM12s6-XE0"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSortEM:"/>
       <Generic name="MaxTob" value="6"/>
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET1" value="20"/>
+      <Parameter pos="0" name="MinET1" value="24"/>
       <Parameter pos="1" name="MinET2" value="0"/>
       <Parameter pos="2" name="MinMTSqr" value="900"/>
     </Variable>
@@ -684,26 +653,6 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="RatioMatch" name="210RATIO-0MATCH-TAU30si2-EMall" algoId="66">
-    <Fixed>
-      <Input name="Tob1" value="TAUsi" position="0"/>
-      <Input name="Tob2" value="EMall" position="1"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="210RATIO-0MATCH-TAU30si2-EMall"/>
-      </Output>
-      <Generic name="InputWidth1" value=":OutputWidthSortTAU:"/>
-      <Generic name="InputWidth2" value=":InputWidthEM:"/>
-      <Generic name="MaxTob1" value="2"/>
-      <Generic name="MaxTob2" value=":InputWidthEM:"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="60"/>
-      <Parameter pos="1" name="MinET2" value="0"/>
-      <Parameter pos="2" name="Ratio" selection="0" value="210"/>
-    </Variable>
-  </DecisionAlgo>
-
   <DecisionAlgo type="NotMatch" name="NOT-0MATCH-TAU30si2-EMall" algoId="67">
     <Fixed>
       <Input name="Tob1" value="TAUsi" position="0"/>
@@ -742,8 +691,8 @@
       <Parameter pos="0" name="MinET" value="40"/>
       <Parameter pos="1" name="EtaMin" value="0"/>
       <Parameter pos="2" name="EtaMax" value="15"/>
-      <Parameter pos="3" name="PhiMin" value="15"/>
-      <Parameter pos="4" name="PhiMax" value="22"/>
+      <Parameter pos="3" name="PhiMin" value="16"/>
+      <Parameter pos="4" name="PhiMax" value="23"/>
     </Variable>
   </DecisionAlgo>
 
@@ -761,8 +710,8 @@
       <Parameter pos="0" name="MinET" value="100"/>
       <Parameter pos="1" name="EtaMin" value="0"/>
       <Parameter pos="2" name="EtaMax" value="14"/>
-      <Parameter pos="3" name="PhiMin" value="15"/>
-      <Parameter pos="4" name="PhiMax" value="22"/>
+      <Parameter pos="3" name="PhiMin" value="16"/>
+      <Parameter pos="4" name="PhiMax" value="23"/>
     </Variable>
   </DecisionAlgo>
 
@@ -916,11 +865,11 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="InvariantMassInclusive1" name="4INVM8-2MU6ab" algoId="7">
+  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM9-2MU6ab" algoId="7">
     <Fixed>
       <Input name="Tob" value="MUab" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="4INVM8-2MU6ab"/>
+        <Bit selection="0" name="2INVM9-2MU6ab"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
       <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
@@ -930,16 +879,16 @@
     <Variable>
       <Parameter pos="0" name="MinET1" value="5"/>
       <Parameter pos="1" name="MinET2" value="5"/>
-      <Parameter pos="2" name="MinMSqr" value="16"/>
-      <Parameter pos="3" name="MaxMSqr" value="64"/>
+      <Parameter pos="2" name="MinMSqr" value="4"/>
+      <Parameter pos="3" name="MaxMSqr" value="81"/>
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM999-ONEBARREL-MU6ab-MU4ab" algoId="46">
+  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM8-ONEBARREL-MU6ab-MU4ab" algoId="48">
     <Fixed>
       <Input name="Tob" value="MUab" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="2INVM999-ONEBARREL-MU6ab-MU4ab"/>
+        <Bit selection="0" name="2INVM8-ONEBARREL-MU6ab-MU4ab"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
       <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
@@ -950,25 +899,6 @@
       <Parameter pos="0" name="MinET1" value="5"/>
       <Parameter pos="1" name="MinET2" value="3"/>
       <Parameter pos="2" name="MinMSqr" value="4"/>
-      <Parameter pos="3" name="MaxMSqr" value="998001"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="InvariantMassInclusive1" name="4INVM8-ONEBARREL-MU6ab-MU4ab" algoId="50">
-    <Fixed>
-      <Input name="Tob" value="MUab" position="0"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="4INVM8-ONEBARREL-MU6ab-MU4ab"/>
-      </Output>
-      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
-      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
-      <Generic name="RequireOneBarrel" value="1"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="5"/>
-      <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="MinMSqr" value="16"/>
       <Parameter pos="3" name="MaxMSqr" value="64"/>
     </Variable>
   </DecisionAlgo>
@@ -1121,12 +1051,12 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="MinDeltaPhiIncl2" name="05MINDPHI-AJj20s6-XE0" algoId="25">
+  <DecisionAlgo type="MinDeltaPhiIncl2" name="05MINDPHI-AJj10s6-XE0" algoId="25">
     <Fixed>
       <Input name="Tob1" value="AJjs" position="0"/>
       <Input name="Tob2" value="XE" position="1"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="05MINDPHI-AJj20s6-XE0"/>
+        <Bit selection="0" name="05MINDPHI-AJj10s6-XE0"/>
       </Output>
       <Generic name="InputWidth1" value=":OutputWidthSortJET:"/>
       <Generic name="InputWidth2" value="1"/>
@@ -1135,18 +1065,18 @@
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET1" value="20"/>
+      <Parameter pos="0" name="MinET1" value="10"/>
       <Parameter pos="1" name="MinET2" value="0"/>
       <Parameter pos="2" name="DeltaPhiMin" selection="0" value="5"/>
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="MinDeltaPhiIncl2" name="10MINDPHI-AJj20s6-XE0" algoId="26">
+  <DecisionAlgo type="MinDeltaPhiIncl2" name="10MINDPHI-AJj10s6-XE0" algoId="26">
     <Fixed>
       <Input name="Tob1" value="AJjs" position="0"/>
       <Input name="Tob2" value="XE" position="1"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="10MINDPHI-AJj20s6-XE0"/>
+        <Bit selection="0" name="10MINDPHI-AJj10s6-XE0"/>
       </Output>
       <Generic name="InputWidth1" value=":OutputWidthSortJET:"/>
       <Generic name="InputWidth2" value="1"/>
@@ -1155,18 +1085,18 @@
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET1" value="20"/>
+      <Parameter pos="0" name="MinET1" value="10"/>
       <Parameter pos="1" name="MinET2" value="0"/>
       <Parameter pos="2" name="DeltaPhiMin" selection="0" value="10"/>
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="MinDeltaPhiIncl2" name="15MINDPHI-AJj20s6-XE0" algoId="27">
+  <DecisionAlgo type="MinDeltaPhiIncl2" name="15MINDPHI-AJj10s6-XE0" algoId="27">
     <Fixed>
       <Input name="Tob1" value="AJjs" position="0"/>
       <Input name="Tob2" value="XE" position="1"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="15MINDPHI-AJj20s6-XE0"/>
+        <Bit selection="0" name="15MINDPHI-AJj10s6-XE0"/>
       </Output>
       <Generic name="InputWidth1" value=":OutputWidthSortJET:"/>
       <Generic name="InputWidth2" value="1"/>
@@ -1175,7 +1105,7 @@
       <Generic name="NumResultBits" value="1"/>
     </Fixed>
     <Variable>
-      <Parameter pos="0" name="MinET1" value="20"/>
+      <Parameter pos="0" name="MinET1" value="10"/>
       <Parameter pos="1" name="MinET2" value="0"/>
       <Parameter pos="2" name="DeltaPhiMin" selection="0" value="15"/>
     </Variable>
@@ -1306,11 +1236,11 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="DeltaRSqrIncl1" name="2DR15-2CMU4ab" algoId="53">
+  <DecisionAlgo type="DeltaRSqrIncl1" name="0DR24-2CMU4ab" algoId="52">
     <Fixed>
       <Input name="Tob" value="CMUab" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="2DR15-2CMU4ab"/>
+        <Bit selection="0" name="0DR24-2CMU4ab"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
       <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
@@ -1320,27 +1250,8 @@
     <Variable>
       <Parameter pos="0" name="MinET1" value="3"/>
       <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="DeltaRMin" value="4"/>
-      <Parameter pos="3" name="DeltaRMax" value="225"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="DeltaRSqrIncl1" name="2DR15-CMU6ab-CMU4ab" algoId="55">
-    <Fixed>
-      <Input name="Tob" value="CMUab" position="0"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="2DR15-CMU6ab-CMU4ab"/>
-      </Output>
-      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
-      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
-      <Generic name="RequireOneBarrel" value="0"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="5"/>
-      <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="DeltaRMin" value="4"/>
-      <Parameter pos="3" name="DeltaRMax" value="225"/>
+      <Parameter pos="2" name="DeltaRMin" value="0"/>
+      <Parameter pos="3" name="DeltaRMax" value="576"/>
     </Variable>
   </DecisionAlgo>
 
@@ -1374,11 +1285,30 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM999-2CMU4ab" algoId="44">
+  <DecisionAlgo type="InvariantMassInclusive1" name="1INVM19-2CMU4ab" algoId="46">
     <Fixed>
       <Input name="Tob" value="CMUab" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="2INVM999-2CMU4ab"/>
+        <Bit selection="0" name="1INVM19-2CMU4ab"/>
+      </Output>
+      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
+      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
+      <Generic name="RequireOneBarrel" value="0"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="3"/>
+      <Parameter pos="1" name="MinET2" value="3"/>
+      <Parameter pos="2" name="MinMSqr" value="1"/>
+      <Parameter pos="3" name="MaxMSqr" value="361"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM8-2CMU4ab" algoId="47">
+    <Fixed>
+      <Input name="Tob" value="CMUab" position="0"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="2INVM8-2CMU4ab"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
       <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
@@ -1389,63 +1319,6 @@
       <Parameter pos="0" name="MinET1" value="3"/>
       <Parameter pos="1" name="MinET2" value="3"/>
       <Parameter pos="2" name="MinMSqr" value="4"/>
-      <Parameter pos="3" name="MaxMSqr" value="998001"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM999-CMU6ab-CMU4ab" algoId="47">
-    <Fixed>
-      <Input name="Tob" value="CMUab" position="0"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="2INVM999-CMU6ab-CMU4ab"/>
-      </Output>
-      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
-      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
-      <Generic name="RequireOneBarrel" value="0"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="5"/>
-      <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="MinMSqr" value="4"/>
-      <Parameter pos="3" name="MaxMSqr" value="998001"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="InvariantMassInclusive1" name="4INVM8-2CMU4ab" algoId="48">
-    <Fixed>
-      <Input name="Tob" value="CMUab" position="0"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="4INVM8-2CMU4ab"/>
-      </Output>
-      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
-      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
-      <Generic name="RequireOneBarrel" value="0"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="3"/>
-      <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="MinMSqr" value="16"/>
-      <Parameter pos="3" name="MaxMSqr" value="64"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="InvariantMassInclusive1" name="4INVM8-CMU6ab-CMU4ab" algoId="51">
-    <Fixed>
-      <Input name="Tob" value="CMUab" position="0"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="4INVM8-CMU6ab-CMU4ab"/>
-      </Output>
-      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
-      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
-      <Generic name="RequireOneBarrel" value="0"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="5"/>
-      <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="MinMSqr" value="16"/>
       <Parameter pos="3" name="MaxMSqr" value="64"/>
     </Variable>
   </DecisionAlgo>
@@ -1496,12 +1369,12 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="DeltaRSqrIncl2" name="2DR15-CMU4ab-MU4ab" algoId="52">
+  <DecisionAlgo type="DeltaRSqrIncl2" name="0DR24-CMU4ab-MU4ab" algoId="53">
     <Fixed>
       <Input name="Tob1" value="CMUab" position="0"/>
       <Input name="Tob2" value="MUab" position="1"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="2DR15-CMU4ab-MU4ab"/>
+        <Bit selection="0" name="0DR24-CMU4ab-MU4ab"/>
       </Output>
       <Generic name="InputWidth1" value=":OutputWidthSelectMU:"/>
       <Generic name="InputWidth2" value=":OutputWidthSelectMU:"/>
@@ -1512,17 +1385,38 @@
     <Variable>
       <Parameter pos="0" name="MinET1" value="3"/>
       <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="DeltaRMin" value="4"/>
-      <Parameter pos="3" name="DeltaRMax" value="225"/>
+      <Parameter pos="2" name="DeltaRMin" value="0"/>
+      <Parameter pos="3" name="DeltaRMax" value="576"/>
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="InvariantMassInclusive2" name="2INVM999-CMU4ab-MU4ab" algoId="45">
+  <DecisionAlgo type="InvariantMassInclusive2" name="1INVM19-CMU4ab-MU4ab" algoId="44">
     <Fixed>
       <Input name="Tob1" value="CMUab" position="0"/>
       <Input name="Tob2" value="MUab" position="1"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="2INVM999-CMU4ab-MU4ab"/>
+        <Bit selection="0" name="1INVM19-CMU4ab-MU4ab"/>
+      </Output>
+      <Generic name="InputWidth1" value=":OutputWidthSelectMU:"/>
+      <Generic name="InputWidth2" value=":OutputWidthSelectMU:"/>
+      <Generic name="MaxTob1" value=":OutputWidthSelectMU:"/>
+      <Generic name="MaxTob2" value=":OutputWidthSelectMU:"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="3"/>
+      <Parameter pos="1" name="MinET2" value="3"/>
+      <Parameter pos="2" name="MinMSqr" value="1"/>
+      <Parameter pos="3" name="MaxMSqr" value="361"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="InvariantMassInclusive2" name="2INVM8-CMU4ab-MU4ab" algoId="45">
+    <Fixed>
+      <Input name="Tob1" value="CMUab" position="0"/>
+      <Input name="Tob2" value="MUab" position="1"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="2INVM8-CMU4ab-MU4ab"/>
       </Output>
       <Generic name="InputWidth1" value=":OutputWidthSelectMU:"/>
       <Generic name="InputWidth2" value=":OutputWidthSelectMU:"/>
@@ -1534,27 +1428,6 @@
       <Parameter pos="0" name="MinET1" value="3"/>
       <Parameter pos="1" name="MinET2" value="3"/>
       <Parameter pos="2" name="MinMSqr" value="4"/>
-      <Parameter pos="3" name="MaxMSqr" value="998001"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="InvariantMassInclusive2" name="4INVM8-CMU4ab-MU4ab" algoId="49">
-    <Fixed>
-      <Input name="Tob1" value="CMUab" position="0"/>
-      <Input name="Tob2" value="MUab" position="1"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="4INVM8-CMU4ab-MU4ab"/>
-      </Output>
-      <Generic name="InputWidth1" value=":OutputWidthSelectMU:"/>
-      <Generic name="InputWidth2" value=":OutputWidthSelectMU:"/>
-      <Generic name="MaxTob1" value=":OutputWidthSelectMU:"/>
-      <Generic name="MaxTob2" value=":OutputWidthSelectMU:"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="3"/>
-      <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="MinMSqr" value="16"/>
       <Parameter pos="3" name="MaxMSqr" value="64"/>
     </Variable>
   </DecisionAlgo>
@@ -1898,11 +1771,11 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="DeltaRSqrIncl1" name="2DR15-2MU4ab" algoId="10">
+  <DecisionAlgo type="DeltaRSqrIncl1" name="0DR34-2MU4ab" algoId="12">
     <Fixed>
       <Input name="Tob" value="MUab" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="2DR15-2MU4ab"/>
+        <Bit selection="0" name="0DR34-2MU4ab"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
       <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
@@ -1912,12 +1785,12 @@
     <Variable>
       <Parameter pos="0" name="MinET1" value="3"/>
       <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="DeltaRMin" value="4"/>
-      <Parameter pos="3" name="DeltaRMax" value="225"/>
+      <Parameter pos="2" name="DeltaRMin" value="0"/>
+      <Parameter pos="3" name="DeltaRMax" value="1156"/>
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="DeltaRSqrIncl1" name="2DR15-2MU6ab" algoId="11">
+  <DecisionAlgo type="DeltaRSqrIncl1" name="2DR15-2MU6ab" algoId="10">
     <Fixed>
       <Input name="Tob" value="MUab" position="0"/>
       <Output name="Results" bits="1">
@@ -1936,11 +1809,125 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="DeltaRSqrIncl1" name="2DR15-MU6ab-MU4ab" algoId="12">
+  <DecisionAlgo type="DeltaRSqrIncl1" name="0DR15-MU6ab-MU4ab" algoId="11">
     <Fixed>
       <Input name="Tob" value="MUab" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="2DR15-MU6ab-MU4ab"/>
+        <Bit selection="0" name="0DR15-MU6ab-MU4ab"/>
+      </Output>
+      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
+      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
+      <Generic name="RequireOneBarrel" value="0"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="5"/>
+      <Parameter pos="1" name="MinET2" value="3"/>
+      <Parameter pos="2" name="DeltaRMin" value="0"/>
+      <Parameter pos="3" name="DeltaRMax" value="225"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="InvariantMassInclusive1" name="1INVM19-2MU4ab" algoId="2">
+    <Fixed>
+      <Input name="Tob" value="MUab" position="0"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="1INVM19-2MU4ab"/>
+      </Output>
+      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
+      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
+      <Generic name="RequireOneBarrel" value="0"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="3"/>
+      <Parameter pos="1" name="MinET2" value="3"/>
+      <Parameter pos="2" name="MinMSqr" value="1"/>
+      <Parameter pos="3" name="MaxMSqr" value="361"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="InvariantMassInclusive1" name="8INVM15-MU6ab-MU4ab" algoId="4">
+    <Fixed>
+      <Input name="Tob" value="MUab" position="0"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="8INVM15-MU6ab-MU4ab"/>
+      </Output>
+      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
+      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
+      <Generic name="RequireOneBarrel" value="0"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="5"/>
+      <Parameter pos="1" name="MinET2" value="3"/>
+      <Parameter pos="2" name="MinMSqr" value="64"/>
+      <Parameter pos="3" name="MaxMSqr" value="225"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="InvariantMassInclusive1" name="8INVM15-2MU6ab" algoId="6">
+    <Fixed>
+      <Input name="Tob" value="MUab" position="0"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="8INVM15-2MU6ab"/>
+      </Output>
+      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
+      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
+      <Generic name="RequireOneBarrel" value="0"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="5"/>
+      <Parameter pos="1" name="MinET2" value="5"/>
+      <Parameter pos="2" name="MinMSqr" value="64"/>
+      <Parameter pos="3" name="MaxMSqr" value="225"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM8-2MU4ab" algoId="3">
+    <Fixed>
+      <Input name="Tob" value="MUab" position="0"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="2INVM8-2MU4ab"/>
+      </Output>
+      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
+      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
+      <Generic name="RequireOneBarrel" value="0"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="3"/>
+      <Parameter pos="1" name="MinET2" value="3"/>
+      <Parameter pos="2" name="MinMSqr" value="4"/>
+      <Parameter pos="3" name="MaxMSqr" value="64"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM8-MU6ab-MU4ab" algoId="5">
+    <Fixed>
+      <Input name="Tob" value="MUab" position="0"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="2INVM8-MU6ab-MU4ab"/>
+      </Output>
+      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
+      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
+      <Generic name="RequireOneBarrel" value="0"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="5"/>
+      <Parameter pos="1" name="MinET2" value="3"/>
+      <Parameter pos="2" name="MinMSqr" value="4"/>
+      <Parameter pos="3" name="MaxMSqr" value="64"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="DeltaRSqrIncl1" name="2DR15-CMU6ab-CMU4ab" algoId="54">
+    <Fixed>
+      <Input name="Tob" value="CMUab" position="0"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="2DR15-CMU6ab-CMU4ab"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
       <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
@@ -1955,7 +1942,26 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="DeltaRSqrIncl1" name="2DR15-ONEBARREL-MU6ab-MU4ab" algoId="54">
+  <DecisionAlgo type="InvariantMassInclusive1" name="4INVM8-ONEBARREL-MU6ab-MU4ab" algoId="49">
+    <Fixed>
+      <Input name="Tob" value="MUab" position="0"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="4INVM8-ONEBARREL-MU6ab-MU4ab"/>
+      </Output>
+      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
+      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
+      <Generic name="RequireOneBarrel" value="1"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="5"/>
+      <Parameter pos="1" name="MinET2" value="3"/>
+      <Parameter pos="2" name="MinMSqr" value="16"/>
+      <Parameter pos="3" name="MaxMSqr" value="64"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="DeltaRSqrIncl1" name="2DR15-ONEBARREL-MU6ab-MU4ab" algoId="55">
     <Fixed>
       <Input name="Tob" value="MUab" position="0"/>
       <Output name="Results" bits="1">
@@ -1974,30 +1980,11 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM999-2MU4ab" algoId="2">
+  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM999-CMU6ab-CMU4ab" algoId="50">
     <Fixed>
-      <Input name="Tob" value="MUab" position="0"/>
+      <Input name="Tob" value="CMUab" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="2INVM999-2MU4ab"/>
-      </Output>
-      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
-      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
-      <Generic name="RequireOneBarrel" value="0"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="3"/>
-      <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="MinMSqr" value="4"/>
-      <Parameter pos="3" name="MaxMSqr" value="998001"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM999-MU6ab-MU4ab" algoId="3">
-    <Fixed>
-      <Input name="Tob" value="MUab" position="0"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="2INVM999-MU6ab-MU4ab"/>
+        <Bit selection="0" name="2INVM999-CMU6ab-CMU4ab"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
       <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
@@ -2012,49 +1999,11 @@
     </Variable>
   </DecisionAlgo>
 
-  <DecisionAlgo type="InvariantMassInclusive1" name="2INVM999-2MU6ab" algoId="4">
+  <DecisionAlgo type="InvariantMassInclusive1" name="4INVM8-CMU6ab-CMU4ab" algoId="51">
     <Fixed>
-      <Input name="Tob" value="MUab" position="0"/>
+      <Input name="Tob" value="CMUab" position="0"/>
       <Output name="Results" bits="1">
-        <Bit selection="0" name="2INVM999-2MU6ab"/>
-      </Output>
-      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
-      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
-      <Generic name="RequireOneBarrel" value="0"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="5"/>
-      <Parameter pos="1" name="MinET2" value="5"/>
-      <Parameter pos="2" name="MinMSqr" value="4"/>
-      <Parameter pos="3" name="MaxMSqr" value="998001"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="InvariantMassInclusive1" name="4INVM8-2MU4ab" algoId="5">
-    <Fixed>
-      <Input name="Tob" value="MUab" position="0"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="4INVM8-2MU4ab"/>
-      </Output>
-      <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
-      <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
-      <Generic name="RequireOneBarrel" value="0"/>
-      <Generic name="NumResultBits" value="1"/>
-    </Fixed>
-    <Variable>
-      <Parameter pos="0" name="MinET1" value="3"/>
-      <Parameter pos="1" name="MinET2" value="3"/>
-      <Parameter pos="2" name="MinMSqr" value="16"/>
-      <Parameter pos="3" name="MaxMSqr" value="64"/>
-    </Variable>
-  </DecisionAlgo>
-
-  <DecisionAlgo type="InvariantMassInclusive1" name="4INVM8-MU6ab-MU4ab" algoId="6">
-    <Fixed>
-      <Input name="Tob" value="MUab" position="0"/>
-      <Output name="Results" bits="1">
-        <Bit selection="0" name="4INVM8-MU6ab-MU4ab"/>
+        <Bit selection="0" name="4INVM8-CMU6ab-CMU4ab"/>
       </Output>
       <Generic name="InputWidth" value=":OutputWidthSelectMU:"/>
       <Generic name="MaxTob" value=":OutputWidthSelectMU:"/>
@@ -2066,6 +2015,57 @@
       <Parameter pos="1" name="MinET2" value="3"/>
       <Parameter pos="2" name="MinMSqr" value="16"/>
       <Parameter pos="3" name="MaxMSqr" value="64"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="InvariantMassInclusive2" name="INVM_EMall" algoId="24">
+    <Fixed>
+      <Input name="Tob1" value="EMs" position="0"/>
+      <Input name="Tob2" value="EMall" position="1"/>
+      <Output name="Results" bits="3">
+        <Bit selection="0" name="1INVM5-EMs1-EMall"/>
+        <Bit selection="1" name="1INVM5-EM7s1-EMall"/>
+        <Bit selection="2" name="1INVM5-EM12s1-EMall"/>
+      </Output>
+      <Generic name="InputWidth1" value=":OutputWidthSortEM:"/>
+      <Generic name="InputWidth2" value=":InputWidthEM:"/>
+      <Generic name="MaxTob1" value="1"/>
+      <Generic name="MaxTob2" value=":InputWidthEM:"/>
+      <Generic name="NumResultBits" value="3"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" selection="0" value="0"/>
+      <Parameter pos="1" name="MinET2" selection="0" value="0"/>
+      <Parameter pos="2" name="MinMSqr" selection="0" value="4"/>
+      <Parameter pos="3" name="MaxMSqr" selection="0" value="100"/>
+      <Parameter pos="4" name="MinET1" selection="1" value="14"/>
+      <Parameter pos="5" name="MinET2" selection="1" value="0"/>
+      <Parameter pos="6" name="MinMSqr" selection="1" value="4"/>
+      <Parameter pos="7" name="MaxMSqr" selection="1" value="100"/>
+      <Parameter pos="8" name="MinET1" selection="2" value="24"/>
+      <Parameter pos="9" name="MinET2" selection="2" value="0"/>
+      <Parameter pos="10" name="MinMSqr" selection="2" value="4"/>
+      <Parameter pos="11" name="MaxMSqr" selection="2" value="100"/>
+    </Variable>
+  </DecisionAlgo>
+
+  <DecisionAlgo type="RatioMatch" name="210RATIO-0MATCH-TAU30si2-EMall" algoId="66">
+    <Fixed>
+      <Input name="Tob1" value="TAUsi" position="0"/>
+      <Input name="Tob2" value="EMall" position="1"/>
+      <Output name="Results" bits="1">
+        <Bit selection="0" name="210RATIO-0MATCH-TAU30si2-EMall"/>
+      </Output>
+      <Generic name="InputWidth1" value=":OutputWidthSortTAU:"/>
+      <Generic name="InputWidth2" value=":InputWidthEM:"/>
+      <Generic name="MaxTob1" value="2"/>
+      <Generic name="MaxTob2" value=":InputWidthEM:"/>
+      <Generic name="NumResultBits" value="1"/>
+    </Fixed>
+    <Variable>
+      <Parameter pos="0" name="MinET1" value="60"/>
+      <Parameter pos="1" name="MinET2" value="0"/>
+      <Parameter pos="2" name="Ratio" selection="0" value="210"/>
     </Variable>
   </DecisionAlgo>
 
