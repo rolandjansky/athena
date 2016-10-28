@@ -74,8 +74,6 @@ ValgrindSvc::~ValgrindSvc()
 ////////////////////////////
 StatusCode ValgrindSvc::initialize()
 {
-  ATH_CHECK(AthService::initialize());
-
   ATH_MSG_DEBUG
     ("Initializing " << name() << " package version " << PACKAGE_VERSION);
   
@@ -258,7 +256,7 @@ StatusCode ValgrindSvc::makeAuditor (const std::string& audName,
     ATH_MSG_ERROR
       ("Could not add [" << audName 
        << "] to the list of auditors of [AuditorSvc] !!"
-	<< endreq
+	<< endmsg
        << audSvcProp->getProperty(propName));
     return StatusCode::FAILURE;
   }
