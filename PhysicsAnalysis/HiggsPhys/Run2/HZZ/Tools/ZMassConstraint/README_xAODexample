@@ -1,0 +1,164 @@
+// *************************
+// ZMassConstraint Overview:
+// *************************
+
+//  The Z mass constraint fit is now an AsgTool, and can be used via a ToolHandle to its interface:
+//  ToolHandle<ZMassConstraint::IConstraintFit>. 
+//
+//  The fitter tool requires two other tools for access to the electron/photon energy resolution
+//  (ElectronPhotonFourMomentumCorrection - tag ElectronPhotonFourMomentumCorrection-00-01-23 or
+//  higher), and scale factors (SF) for the muon resolution (MuonCalibrationAndSmearingTool) where
+//  the SF are applied to the resolution extracted from the track covariance matrix (for
+//  q/p). (NOTE: the SF from the MuonCalibrationAndSmearingTool is not yet implemented as of
+//  24/04/2105. This will be done soon.) The use of these tools is explained below.
+//
+
+// **********************************
+// Access to the mass constraint fit:
+// **********************************
+
+// You can hold onto a ToolHandle to the mass constraint interface, e.g. in your header file:
+#include "AsgTools/ToolHandle.h"
+
+namespace ZMassConstraint 
+{
+    class IConstraintFit;
+}
+
+class MyAnalysis {
+...
+private:
+  ToolHandle<ZMassConstraint::IConstraintFit> m_massConstraint;
+}
+
+
+// **************
+// Initialization
+// **************
+
+// Initialize IEgammaCalibrationAndSmearingTool as described in
+// https://twiki.cern.ch/twiki/bin/viewauth/AtlasProtected/ElectronPhotonFourMomentumCorrection 
+
+// includes:
+#include "ZMassConstraint/ConstraintFit.h"
+
+
+// Create the mass constraint fitter
+
+    // Setup mass constrained fit
+    ZMassConstraint::ConstraintFit* massConstraint = new ZMassConstraint::ConstraintFit("ZMassConstraint");
+
+// If you need to debug the fitter, you can turn on DEBUG or VERBOSE printout:
+
+    if (!massConstraint->setProperty( "OutputLevel", MSG::DEBUG)) {
+        std::cout << "Cannot  set property OutputLevel to DEBUG for ConstraintFit " << std::endl;
+        return false;
+    }
+
+// The massConstraint tool uses the EgammaCalibrationAndSmearingTool, which is accessed with the
+// name 'EgammaCalibrationAndSmearingTool', and the MuonCalibrationAndSmearingTool with the name
+// 'MuonCalibrationAndSmearingTool'. If you have given another name to this tool, please give the
+// name to the massConstraint tool:
+
+    if (!massConstraint->setProperty( "EgammaCalibAndSmearingTool", ToolHandle<CP::IEgammaCalibrationAndSmearingTool>("<the name of the 'EgammaCalibrationAndSmearingTool'>" ))) {
+        ATH_MSG_ERROR("initFirstEvent - cannot setProperty EgammaCalibAndSmearingTool ");
+        return false;
+    }
+        
+    if (!massConstraint->setProperty( "MuonCalibrationAndSmearingTool", ToolHandle<CP::IMuonCalibrationAndSmearingTool>("<the name of the 'MuonCalibrationAndSmearingTool'>" ))) {
+        ATH_MSG_ERROR("initFirstEvent - cannot setProperty MuonCalibrationAndSmearingTool ");
+        return false;
+    }
+
+
+// *********************************
+// Use of the mass constraint fitter
+// *********************************
+
+
+// includes
+#include "ZMassConstraint/IConstraintFit.h"
+
+
+// The fitter is accessed via its interface: IConstraintFit
+// Input and output for the fit is done with two classes: ConstraintFitInput and ConstraintFitOutput
+
+
+// Add in the pair of electrons or muons to be fit:
+
+// For electrons, you must first get the resolution from the IEgammaCalibrationAndSmearingTool,
+// using the "corrected" cluster energy (e.g. use the correction factor for the electron energy and
+// apply to the cluster energy), and the cluster eta postion:
+
+// Add in electrons:
+//  (NOTE: we obtain here the electron resolution from the IEgammaCalibrationAndSmearingTool
+//         However, if one is combining the cluster and track measurements for the electron, the
+//         resolution should come from the output of the combination.)
+
+    ZMassConstraint::ConstraintFitInput input;
+    ToolHandle<CP::IEgammaCalibrationAndSmearingTool>  energyRescaler;
+    float el_E_resol = 0;
+    xAOD::Electron* el1 = ...;
+    el_E_resol = energyRescaler->resolution(clusEnergy, el1->caloCluster()->eta())*clusEnergy;
+    massConstraint->addParticle(*el1, el_E_resol, input);
+    xAOD::Electron* el2 = ...;
+    el_E_resol = energyRescaler->resolution(clusEnergy, el2->caloCluster()->eta())*clusEnergy;
+    massConstraint->addParticle(*el2, el_E_resol, input);
+
+// Or add in muons. Here you just select whether you want the standard fit for combined muons, or a
+// specialized fit for just the ID or MS:
+
+    ZMassConstraint::ConstraintFitInput input;
+    ZMassConstraint::MassConstraintMuonType muType = ZMassConstraint::isCombMCMT;
+// or
+    ZMassConstraint::MassConstraintMuonType muType = ZMassConstraint::isID_MCMT;
+// or
+    ZMassConstraint::MassConstraintMuonType muType = ZMassConstraint::isMS_MCMT;
+        
+    massConstraint->addParticle(*mu, input, muType);
+
+// IF there is an FSR, you must add in a third particle for the FSR. The information comes from the
+// candidate returned from the fsrPhotonTool:
+//   (NOTE: here the massConstraint tool will get the energy resolution for the FSR from the
+//          IEgammaCalibrationAndSmearingTool. If the name to find the tool is not correct, an error
+//          will be printed!)
+
+    FSR::FsrCandidate cand;
+    // From FSR tool, get candidate: ...
+    fsrPhotonTool->getFsrPhoton(mus, cand, phs, els);
+    TLorentzVector fsr4V.SetPtEtaPhiM(cand.Et, cand.eta, cand.phi, 0);
+    massConstraint->addFSRParticle(*cand.particle, fsr4V, input);
+
+
+// Do fit and get the result:
+
+    ZMassConstraint::ConstraintFitOutput result;
+    if (massConstraint->doMassFit(input, result).isFailure()) {
+        std::cout << "doMassConstraint: Unable to do mass contrained fit for Z1" << std::endl;
+    }
+
+
+    TLorentzVector Z_constrained;
+    result.getCompositeFourVector(Z_constrained);
+
+// For the error, use the two inputs and the output result from above:
+
+    // indices: 0 - m12, 1 - m34
+    ZMassConstraint::ConstraintFitInput input[2];   
+    ZMassConstraint::ConstraintFitOutput result;
+    ...
+
+    // unconstrained error:
+    float m4lerr_unconstrained = m_massConstraint->getMassError(input[0], input[1])/1000.;
+
+    // constrained error fitting only m12:
+    float m4lerr_constrained = m_massConstraint->getMassError(result, input[1])/1000.;
+
+// For the error on just m12, one can use:
+
+    // unconstrained error fitting m12
+    float m12err_unconstrained = m_massConstraint->getMassError(input[0])/1000.;
+
+    // constrained error fitting m12
+    float m12err_constrained = m_massConstraint->getMassError(result)/1000.;
+
