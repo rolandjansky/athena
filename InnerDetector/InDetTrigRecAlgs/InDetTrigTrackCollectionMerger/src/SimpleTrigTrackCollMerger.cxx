@@ -30,7 +30,7 @@ namespace Trk {
   //          beginRun method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode SimpleTrigTrackCollMerger::hltBeginRun() {
-    msg() << MSG::INFO << name() << "::beginRun()" << endreq;
+    msg() << MSG::INFO << name() << "::beginRun()" << endmsg;
 
     return HLT::OK;
   }
@@ -40,20 +40,20 @@ namespace Trk {
   //          hltInitialize method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode SimpleTrigTrackCollMerger::hltInitialize() {
-    msg() << MSG::INFO << name() << "::hltInitialize()" << endreq;
+    msg() << MSG::INFO << name() << "::hltInitialize()" << endmsg;
 
     if (!m_assoTool.retrieve().isSuccess()){
-      msg() << MSG::FATAL << "Failed to retrieve association tool " << m_assoTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve association tool " << m_assoTool << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } else {
-      msg() << MSG::INFO << "Retrieved tool " << m_assoTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_assoTool << endmsg;
     }
 
     if (!m_sumTool.retrieve().isSuccess()){
-      msg() << MSG::FATAL << "Failed to retrieve trk::summary tool " << m_sumTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve trk::summary tool " << m_sumTool << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } else {
-      msg() << MSG::INFO << "Retrieved tool " << m_sumTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_sumTool << endmsg;
     }
 
     return HLT::OK;
@@ -83,31 +83,31 @@ namespace Trk {
       if (HLT::OK != getFeature(outputTE, tracks, *collname)){
 	if (msglvl<=MSG::DEBUG){
 	  msg() << MSG::DEBUG << "Input collection " << *collname
-		<< " not available in the navigation" << endreq;
+		<< " not available in the navigation" << endmsg;
 	}
       } 
       else {
 	if (tracks && msglvl<=MSG::DEBUG)
 	  msg() << MSG::DEBUG << "input track coll: " << *collname <<
-	    " with size" << tracks->size() << endreq;
+	    " with size" << tracks->size() << endmsg;
 	if (HLT::OK != mergeTrack(tracks, mergedTracks)){
-	  msg() << MSG::ERROR << "merging failed  for " << *collname << endreq; 
+	  msg() << MSG::ERROR << "merging failed  for " << *collname << endmsg; 
 	  delete mergedTracks; mergedTracks=0;
 	  return HLT::NAV_ERROR;
 	} else {
 	  if (msglvl<=MSG::DEBUG) msg() << MSG::DEBUG << "REGTEST after merging "
-					<< mergedTracks->size() << " tracks" << endreq;
+					<< mergedTracks->size() << " tracks" << endmsg;
 	}
       }
     }
 
 
     // now loop over all track and update summaries with new shared hit counts
-    TrackCollection::const_iterator rf,rfe=mergedTracks->end();
+    TrackCollection::iterator rf,rfe=mergedTracks->end();
     for(rf=mergedTracks->begin();rf!=rfe; ++rf) m_sumTool->updateTrack(**rf);
 	
     if ( HLT::OK !=  attachFeature(outputTE, mergedTracks, m_outputColl) ) {
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+      msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
     }
 
     return HLT::OK;
@@ -126,7 +126,7 @@ namespace Trk {
     
     // loop over forward track, accept them and add them imto association tool
     if(trackCol && trackCol->size()) {
-      if (msglvl <= MSG::DEBUG) msg() << MSG::DEBUG << "Size of track collection " << trackCol->size() << endreq;
+      if (msglvl <= MSG::DEBUG) msg() << MSG::DEBUG << "Size of track collection " << trackCol->size() << endmsg;
       
       // loop over tracks
       TrackCollection::const_iterator rf,rfe=trackCol->end();
@@ -138,10 +138,10 @@ namespace Trk {
 	
 	// add tracks into PRD tool
 	if (m_assoTool->addPRDs(*newTrack).isFailure())
-	  msg() << MSG::WARNING << "Failed to add PRDs to map" << endreq;
+	  msg() << MSG::WARNING << "Failed to add PRDs to map" << endmsg;
 	
       }
-      if (msglvl <= MSG::DEBUG) msg() << MSG::DEBUG << "Size of the output track coll " << outputCol->size() << endreq;
+      if (msglvl <= MSG::DEBUG) msg() << MSG::DEBUG << "Size of the output track coll " << outputCol->size() << endmsg;
     }
 	
     return HLT::OK;
@@ -151,7 +151,7 @@ namespace Trk {
   //          endRun method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode SimpleTrigTrackCollMerger::hltEndRun() {
-    msg() << MSG::INFO << name() << "::hltEndRun()" << endreq;
+    msg() << MSG::INFO << name() << "::hltEndRun()" << endmsg;
 
     return HLT::OK;
   }
@@ -161,7 +161,7 @@ namespace Trk {
   //          finalize method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode SimpleTrigTrackCollMerger::hltFinalize() {
-    msg() << MSG::INFO << name() << "::hltFinalize()" << endreq;
+    msg() << MSG::INFO << name() << "::hltFinalize()" << endmsg;
 
     return HLT::OK;
   }
