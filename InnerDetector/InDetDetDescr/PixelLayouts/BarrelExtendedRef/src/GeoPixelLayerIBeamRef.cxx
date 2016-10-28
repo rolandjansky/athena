@@ -66,8 +66,8 @@ GeoVPhysVol* GeoPixelLayerIBeamRef::Build() {
 
   double phiOfStaveZero = 0.;
 
-  std::cout<<"IBeam layer:" <<layerName<<" "<<staveType<<" "<<nSectors<<std::endl;
-  std::cout<<"*****************************************************************************"<<std::endl;
+  ATH_MSG_DEBUG("IBeam layer:" <<layerName<<" "<<staveType<<" "<<nSectors);
+
    
   double deltaPhi = 360.*CLHEP::deg/(double)nSectors;
 
@@ -163,9 +163,9 @@ std::pair<double,double> GeoPixelLayerIBeamRef::ComputeLayerThickness(const GeoP
   double ladderHalfThickN = pixelLadder.thicknessN();
   double ladderHalfThickP = pixelLadder.thicknessP();
   double ladderHalfWidth = pixelLadder.width()/2;
-  std::cout << "ladderHalfThickN, ladderHalfThickP, ladderHalfWidth, ladderTilt, layerRadius:"
+  ATH_MSG_DEBUG("ladderHalfThickN, ladderHalfThickP, ladderHalfWidth, ladderTilt, layerRadius:"
 	    << ladderHalfThickN << " "<< ladderHalfThickP << " " << ladderHalfWidth 
-	    << " " << ladderTilt << " " << layerRadius << std::endl;
+		<< " " << ladderTilt << " " << layerRadius);
   
   // Calculate distance of closest approach to a line following the surface of the ladder.
   double grad = -1/tan(std::abs(ladderTilt)); // Gradient of this line.

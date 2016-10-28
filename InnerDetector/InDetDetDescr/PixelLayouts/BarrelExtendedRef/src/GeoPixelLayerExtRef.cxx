@@ -45,14 +45,14 @@ GeoPixelLayerExtRef::GeoPixelLayerExtRef(const PixelGeoBuilderBasics* basics, in
 
   if (m_layerTmp->stave_type == "IBeam_Inner") {   // build 
 
-    printf("************** BUILD IBEAM inner LAYER  %d\n", m_layer);
+    ATH_MSG_DEBUG("************** BUILD IBEAM inner LAYER "<<m_layer);
 
     GeoPixelLayerIBeamRef iblayer(basics, m_layer, "inner");
     m_physVol = iblayer.getPhysVol();
   
   } else if (m_layerTmp->stave_type == "IBeam_Outer") {   // build 
 
-    printf("************** BUILD IBEAM outer LAYER  %d\n", m_layer);
+    ATH_MSG_DEBUG("************** BUILD IBEAM outer LAYER " << m_layer);
 
     GeoPixelLayerIBeamRef iblayer(basics, m_layer, "outer");
     m_physVol = iblayer.getPhysVol();
@@ -78,12 +78,12 @@ GeoVPhysVol* GeoPixelLayerExtRef::Build() {
   //  double staveOffset       = m_layerTmp->stave_zoffset;   
   std::string staveType    = m_layerTmp->stave_type;
 
-  printf("************** BUILD LAYER  %d\n", m_layer);
+  ATH_MSG_DEBUG("************** BUILD LAYER  " << m_layer);
 
   double phiOfStaveZero = 0.;
 
-  std::cout<<layerName<<" "<<staveType<<" "<<nSectors<<std::endl;
-  std::cout<<"*****************************************************************************"<<std::endl;
+  //std::cout<<layerName<<" "<<staveType<<" "<<nSectors<<std::endl;
+  
 
   double deltaPhi = 360.*CLHEP::deg/(double)nSectors;
 
@@ -160,9 +160,9 @@ void GeoPixelLayerExtRef::ComputeLayerThickness(const GeoPixelLadderExtRef& pixe
   double ladderHalfThickN = pixelLadder.thicknessN();
   double ladderHalfThickP = pixelLadder.thicknessP();
   double ladderHalfWidth = pixelLadder.width()/2;
-  std::cout << "ladderHalfThickN, ladderHalfThickP, ladderHalfWidth, ladderTilt, layerRadius:"
+  ATH_MSG_DEBUG("ladderHalfThickN, ladderHalfThickP, ladderHalfWidth, ladderTilt, layerRadius:"
 	    << ladderHalfThickN << " "<< ladderHalfThickP << " " << ladderHalfWidth 
-	    << " " << ladderTilt << " " << layerRadius << std::endl;
+		<< " " << ladderTilt << " " << layerRadius);
   
   // Calculate distance of closest approach to a line following the surface of the ladder.
   double grad = -1/tan(std::abs(ladderTilt)); // Gradient of this line.

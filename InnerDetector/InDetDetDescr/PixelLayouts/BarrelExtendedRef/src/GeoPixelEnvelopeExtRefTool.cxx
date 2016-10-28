@@ -142,7 +142,7 @@ GeoVPhysVol* GeoPixelEnvelopeExtRefTool::buildEnvelope(const PixelGeoBuilderBasi
       svcRegion_ec = m_endcapTool->getSvcRegions();
     }
     
-    std::cout<<"Collected svcRegion : b/ec : "<<svcRegion_brl.size()<<" "<<svcRegion_ec.size()<<std::endl;
+    ATH_MSG_DEBUG("Collected svcRegion : b/ec : "<<svcRegion_brl.size()<<" "<<svcRegion_ec.size());
     
     svcRegion_brl.insert( svcRegion_brl.end(), svcRegion_ec.begin(), svcRegion_ec.end());
     std::vector<InDetDD::TubeZone*> svcRegions =  SortServiceRegions(svcRegion_brl);
@@ -188,8 +188,6 @@ GeoVPhysVol* GeoPixelEnvelopeExtRefTool::buildEnvelope(const PixelGeoBuilderBasi
     envelopePhys->add(barrelPhys );
 
   }
-  std::cout<<"*****************************************************************************"<<std::endl;
-  std::cout<<"*****************************************************************************"<<std::endl;
 
   // --------------------------------------------------------------------------
   // build endcapsbarrel 
@@ -200,7 +198,7 @@ GeoVPhysVol* GeoPixelEnvelopeExtRefTool::buildEnvelope(const PixelGeoBuilderBasi
     if (endcapAPresent) {
 
       if(!m_endcapTool) {
-	std::cout<<"No endcap defined on side "<<std::endl;
+	ATH_MSG_WARNING("No endcap defined on side ");
       }
       else{
 	// Numerology
@@ -224,7 +222,7 @@ GeoVPhysVol* GeoPixelEnvelopeExtRefTool::buildEnvelope(const PixelGeoBuilderBasi
     if (endcapCPresent) {
       
       if(!m_endcapTool) {
-	std::cout<<"No endcap defined on side "<<std::endl;
+	ATH_MSG_DEBUG("No endcap defined on side ");
       }
       else{
 	// Numerology
@@ -276,7 +274,7 @@ std::vector<InDetDD::TubeZone*> GeoPixelEnvelopeExtRefTool::SortServiceRegions(s
 	}
       if(!bAlreadyExists){
 	newSvcRegions.push_back((*it));
-	std::cout<<"Collected region - sorted "<<(*it)->label()<<std::endl;
+	ATH_MSG_DEBUG("Collected region - sorted "<<(*it)->label());
       }
     }
   

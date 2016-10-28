@@ -95,14 +95,14 @@ void GeoPixelLadderIBeamRef::preBuild( ) {
   // Get access to the service that defines the modules
   StatusCode sc = m_pixelModuleSvc.retrieve();
   if(sc.isFailure())
-      std::cout << "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." << std::endl;
+    msg(MSG::WARNING) << "Could not retrieve pixel module builder tool " <<  m_pixelModuleSvc << ",  some services will not be built." <<endmsg;
   else 
-      std::cout << "Pixel module builder tool retrieved: " << m_pixelModuleSvc << std::endl;
+    msg(MSG::INFO) << "Pixel module builder tool retrieved: " << m_pixelModuleSvc <<endmsg;
   
   // Access stave description xml file				
   PixelExtRefStaveXMLHelper staveDBHelper(m_layer, getBasics());
 
-  printf("************** BUILD LADDER for layer  %d\n", m_layer);
+  msg(MSG::DEBUG) << "************** BUILD LADDER for layer" << m_layer<<endmsg;
 
   std::string staveType = m_staveTmp->type;
 
@@ -122,13 +122,13 @@ void GeoPixelLadderIBeamRef::preBuild( ) {
 
 
   //  double phiOfSTaveZero = 0.;
-  std::cout<<"xxxxxxxxxxxxx Get barrel module from builder : "<<m_barrelModuleType<<" / "<<staveType<<std::endl;
+  msg(MSG::DEBUG)<<"xxxxxxxxxxxxx Get barrel module from builder : "<<m_barrelModuleType<<" / "<<staveType<<endmsg;
   m_barrelModule = m_pixelModuleSvc->getModule(getBasics(),0,m_layer,m_barrelModuleType);
   m_barrelModuleDesign = m_pixelDesignSvc->getDesign(getBasics(),m_barrelModuleType);
 
   m_barrelModuleDZ = m_barrelModule->Length()+m_barrelModuleGap;
 
-  std::cout<<"-- Barrel modules : "<<m_barrelModuleNumber<<" "<<m_barrelModuleType<<" / "<<staveType<<"  "<<m_barrelModuleDZ<<std::endl;
+  msg(MSG::DEBUG)<<"-- Barrel modules : "<<m_barrelModuleNumber<<" "<<m_barrelModuleType<<" / "<<staveType<<"  "<<m_barrelModuleDZ<<endmsg;
 
   // ----------------------------------------------------------------------------
   // Stave module service thickness
@@ -138,7 +138,7 @@ void GeoPixelLadderIBeamRef::preBuild( ) {
   // ----------------------------------------------------------------------------
   // Stave support service thickness
   // ----------------------------------------------------------------------------
-  std::cout<<"xxxxxxxxxxxxx Build stave support for layer : "<<m_layer<<std::endl;
+  msg(MSG::DEBUG)<<"xxxxxxxxxxxxx Build stave support for layer : "<<m_layer<<endmsg;
   m_staveSupport = new GeoPixelStaveSupportExtRef(getBasics(),m_layer, *m_barrelModule); 
 
   // stave support thicknesses & width
@@ -166,7 +166,7 @@ void GeoPixelLadderIBeamRef::preBuild( ) {
   const GeoMaterial* air = matMgr()->getMaterial("std::Air");
   m_theLadder = new GeoLogVol("Ladder",m_ladderShape,air);
 
-  std::cout<<"LADDER size LxWxT "<<m_length<<" "<<m_width<<"  "<<2.*halfThickness<<std::endl;
+  msg(MSG::DEBUG)<<"LADDER size LxWxT "<<m_length<<" "<<m_width<<"  "<<2.*halfThickness<<endmsg;
 
   // ----------------------------------------------------------------------------
   // Register the number of mopdules defined for a stave

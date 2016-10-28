@@ -140,7 +140,7 @@ void GeoPixelBarrelExtRefTool::preBuild(const PixelGeoBuilderBasics* basics)
 GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* basics)
 {
 
-  std::cout<<"GeoBarrelExtRef : GeoVPhysVol* GeoPixelBarrelExtRefTool::Build( )"<<std::endl;
+  msg(MSG::DEBUG)<<"GeoBarrelExtRef : GeoVPhysVol* GeoPixelBarrelExtRefTool::Build( )"<<endmsg;
 
   // links to material manager and msgstream
   m_matMgr = basics->matMgr();
@@ -190,7 +190,7 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
   // Layer number
 
   int numLayers = m_xmlReader->nbOfPixelBarrelLayers();
-  std::cout<<"ExtBarrel - GeoPixelBarrelExtRefTool - # layers "<<numLayers<<std::endl;
+  msg(MSG::DEBUG) <<"ExtBarrel - GeoPixelBarrelExtRefTool - # layers "<<numLayers<<endmsg;
 
   // Set numerology
   basics->getDetectorManager()->numerology().setNumLayers(numLayers);
@@ -226,7 +226,7 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
       m_IDserviceTool->buildAndPlace((*it), barrelPhys, zOffset, svcList, false, true);
   }
 
-  std::cout<<"RETURN BARREL PHYS"<<std::endl;
+  msg(MSG::DEBUG) <<"RETURN BARREL PHYS"<<endmsg;
 
   return barrelPhys;
   
