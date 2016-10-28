@@ -79,24 +79,26 @@ void MakeDiMuonsTool::initializeMembers()
 
 // input tracks, cuts or turn on tag-and-probe
 
-void MakeDiMuonsTool::setProbes(std::vector<const TrigMuonEFTrack*> trksIn, std::vector<int> roi) {
+void MakeDiMuonsTool::setProbes(const std::vector<const TrigMuonEFTrack*>& trksIn,
+                                const std::vector<int>& roi) {
   for( unsigned i=0; i<trksIn.size(); ++i ) m_selectaProbe.muonSelector( trksIn[i], NULL, roi[i] );
   m_tracks = m_selectaProbe.tracks();
 }
 
-void MakeDiMuonsTool::setProbes(std::vector<const CaloCluster*> CombinedCollection, std::vector<int> roi) {
+void MakeDiMuonsTool::setProbes(const std::vector<const CaloCluster*>& CombinedCollection,
+                                const std::vector<int>& roi) {
   for( unsigned i=0; i<CombinedCollection.size(); ++i ) m_selectaProbe.muonSelector( CombinedCollection[i], roi[i] );
   m_tracks = m_selectaProbe.tracks();
 }
 
-void MakeDiMuonsTool::setProbes(std::vector<const Rec::TrackParticle*> trksIn) {
+void MakeDiMuonsTool::setProbes(const std::vector<const Rec::TrackParticle*>& trksIn) {
   for( unsigned i=0; i<trksIn.size(); ++i ) m_selectaProbe.muonSelector( trksIn[i] );
   m_tracks = m_selectaProbe.tracks();
 }
 
-void MakeDiMuonsTool::setProbes( const TrigInDetTrackCollection* m_TrigCollection ){ 
-  TrigInDetTrackCollection::const_iterator tIt = m_TrigCollection->begin();
-  TrigInDetTrackCollection::const_iterator tLast = m_TrigCollection->end();
+void MakeDiMuonsTool::setProbes( const TrigInDetTrackCollection* trigCollection ){ 
+  TrigInDetTrackCollection::const_iterator tIt = trigCollection->begin();
+  TrigInDetTrackCollection::const_iterator tLast = trigCollection->end();
   while(tIt != tLast){
     m_selectaProbe.muonSelector( *tIt );
     tIt++;
@@ -111,7 +113,8 @@ void MakeDiMuonsTool::setTags( const Analysis::MuonContainer* MuonCollection) {
   TagMuons(m_MuonCollection);
 }
 
-void MakeDiMuonsTool::setTags( std::vector< const TrigMuonEFCbTrack* > CombinedCollection, std::vector<int> roiNums ){
+void MakeDiMuonsTool::setTags( const std::vector< const TrigMuonEFCbTrack* >& CombinedCollection,
+                               const std::vector<int>& roiNums ){
   m_CombinedCollection = CombinedCollection;
   TagMuons(m_CombinedCollection, roiNums);
 }
@@ -126,9 +129,9 @@ void MakeDiMuonsTool::setTrackMass(double muonmass) {m_trkmass=muonmass;}
 void MakeDiMuonsTool::setUpperInvMassLimit(double upperlimit) {m_upperlimit=upperlimit;}
 void MakeDiMuonsTool::setLowerInvMassLimit(double lowerlimit) {m_lowerlimit=lowerlimit;}
 
-void MakeDiMuonsTool::TagMuons( const Analysis::MuonContainer* m_MuonCollection ){ 
+void MakeDiMuonsTool::TagMuons( const Analysis::MuonContainer* muonCollection ){ 
   Analysis::MuonContainer::const_iterator muonItr;
-  for (muonItr=m_MuonCollection->begin(); muonItr != m_MuonCollection->end(); ++muonItr)
+  for (muonItr=muonCollection->begin(); muonItr != muonCollection->end(); ++muonItr)
     {
       if ((*muonItr)->hasInDetTrackParticle()) {
 	if (m_TagAndProbe) {
@@ -146,11 +149,12 @@ void MakeDiMuonsTool::TagMuons( const Analysis::MuonContainer* m_MuonCollection 
   
 }
 
-void MakeDiMuonsTool::TagMuons( std::vector<const TrigMuonEFCbTrack*> m_CombinedCollection, std::vector<int> roiNums ){
+void MakeDiMuonsTool::TagMuons( const std::vector<const TrigMuonEFCbTrack*>& combinedCollection,
+                                const std::vector<int>& roiNums ){
   std::vector<const TrigMuonEFCbTrack*>::const_iterator tagItr;
-  if (!m_CombinedCollection.empty()){
+  if (!combinedCollection.empty()){
     int i = 0;
-    for (tagItr=m_CombinedCollection.begin(); tagItr!=m_CombinedCollection.end();++tagItr){
+    for (tagItr=combinedCollection.begin(); tagItr!=combinedCollection.end();++tagItr){
       if ( (*tagItr) ){
 	if (m_TagAndProbe){
 	  m_selectaTag.muonSelector( (*tagItr), NULL, roiNums[i] );
@@ -164,7 +168,8 @@ void MakeDiMuonsTool::TagMuons( std::vector<const TrigMuonEFCbTrack*> m_Combined
 
 }
 
-void MakeDiMuonsTool::setTags(std::vector<const egamma*> trksIn, std::vector<int> roi) {
+void MakeDiMuonsTool::setTags(const std::vector<const egamma*>& trksIn,
+                              const std::vector<int>& roi) {
     for(unsigned int i=0; i < trksIn.size(); ++i) {
       if(trksIn[i] && m_TagAndProbe) {
         m_selectaTag.muonSelector(trksIn[i], roi[i]);
@@ -180,7 +185,7 @@ std::vector<DiMuonTool*> MakeDiMuonsTool::execute()
   else makePairs(m_tracks);
   return m_pairs;
 }
-void MakeDiMuonsTool::makePairs(std::vector<Wrapper::MuonTrack*> Tracks){
+void MakeDiMuonsTool::makePairs(const std::vector<Wrapper::MuonTrack*>& Tracks){
   std::vector<Wrapper::MuonTrack*>::const_iterator track1;
   std::vector<Wrapper::MuonTrack*>::const_iterator track2;
   if(Tracks.size()>=2){
@@ -209,7 +214,7 @@ void MakeDiMuonsTool::makePairs(std::vector<Wrapper::MuonTrack*> Tracks){
   }
 } //Muons(+,-)
 
-void MakeDiMuonsTool::makePairs(std::vector<Wrapper::MuonTrack*> taggedTracks,std::vector<Wrapper::MuonTrack*> probedTracks) {
+void MakeDiMuonsTool::makePairs(const std::vector<Wrapper::MuonTrack*>& taggedTracks,std::vector<Wrapper::MuonTrack*> probedTracks) {
   //std::cout << "JPSI TOOLS -- makePair sizes - tag: " << taggedTracks.size() << " and probe:" << probedTracks.size() << std::endl;
   std::vector<Wrapper::MuonTrack*>::const_iterator tagItr;
   std::vector<Wrapper::MuonTrack*>::const_iterator probeItr;

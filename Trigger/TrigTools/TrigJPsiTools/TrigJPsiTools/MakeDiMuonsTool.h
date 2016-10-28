@@ -33,14 +33,18 @@ class MakeDiMuonsTool
   bool initializeTools();
   void initializeMembers();
 
-  void setProbes(std::vector<const CaloCluster*> CombinedCollection, std::vector<int> roi);
-  void setProbes(std::vector< const TrigMuonEFTrack*> trksIn, std::vector<int> roi);
-  void setProbes(std::vector< const Rec::TrackParticle* > trksIn);
-  void setProbes(const TrigInDetTrackCollection* trksIn);
+  void setProbes(const std::vector<const CaloCluster*>& CombinedCollection,
+                 const std::vector<int>& roi);
+  void setProbes(const std::vector< const TrigMuonEFTrack*>& trksIn,
+                 const std::vector<int>& roi);
+  void setProbes(const std::vector< const Rec::TrackParticle* >& trksIn);
+  void setProbes(const TrigInDetTrackCollection* trigCollection);
 
   void setTags(const Analysis::MuonContainer* muonsIn);
-  void setTags(std::vector<const TrigMuonEFCbTrack*> muonsIn, std::vector<int> roi);
-  void setTags(std::vector< const egamma*> trksIn, std::vector<int> roi);
+  void setTags(const std::vector<const TrigMuonEFCbTrack*>& muonsIn,
+               const std::vector<int>& roi);
+  void setTags(const std::vector< const egamma*>& trksIn,
+               const std::vector<int>& roi);
 
   void doTagAndProbe(bool doTagAndProbe);
   void useTrigger(bool useTrigger);
@@ -51,11 +55,12 @@ class MakeDiMuonsTool
   void setTrackMass(double muonmass);
   void setUpperInvMassLimit(double upperlimit);
   void setLowerInvMassLimit(double lowerlimit);
-  void makePairs(std::vector<Wrapper::MuonTrack*> Tracks);
-  void makePairs(std::vector<Wrapper::MuonTrack*> taggedTracks,std::vector<Wrapper::MuonTrack*> probedTracks);
+  void makePairs(const std::vector<Wrapper::MuonTrack*>& Tracks);
+  void makePairs(const std::vector<Wrapper::MuonTrack*>& taggedTracks,std::vector<Wrapper::MuonTrack*> probedTracks);
   std::vector<DiMuonTool*> execute();
-  void TagMuons( std::vector< const TrigMuonEFCbTrack* > m_CombinedCollection, std::vector<int> roi );
-  void TagMuons( const Analysis::MuonContainer* m_MuonCollection );
+  void TagMuons( const std::vector< const TrigMuonEFCbTrack* >& combinedCollection,
+                 const std::vector<int>& roi );
+  void TagMuons( const Analysis::MuonContainer* muonCollection );
 
   bool isTriggeredEF(const Rec::TrackParticle* track, std::string chainName) const;
   bool isTriggeredL2(const Rec::TrackParticle* track, std::string chainName) const;
@@ -70,10 +75,10 @@ class MakeDiMuonsTool
   double m_tagetacut;
   bool   m_TagAndProbe;
 
-  bool   m_runOnline;
+  //bool   m_runOnline;
 
   bool   m_useTrigger;
-  double m_invmass;
+  //double m_invmass;
   double m_trkmass;
   double m_upperlimit;
   double m_lowerlimit;
