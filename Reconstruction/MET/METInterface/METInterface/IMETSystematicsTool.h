@@ -65,7 +65,8 @@ namespace met {
 
 }
 
-class IMETSystematicsTool : virtual public  asg::IAsgTool
+class IMETSystematicsTool : virtual public asg::IAsgTool,
+			    virtual public CP::ISystematicsTool
 {
   // Declare the interface that the class provides
   ASG_TOOL_INTERFACE( IMETSystematicsTool )
@@ -73,20 +74,20 @@ class IMETSystematicsTool : virtual public  asg::IAsgTool
   public:
   virtual ~IMETSystematicsTool() {}
 
+  virtual void setRandomSeed(int seed) const = 0;
+
   //we don't inherit from CorrectionTool directly, but we are something close to that
   virtual CP::CorrectionCode applyCorrection(xAOD::MissingET& met,
-					     const xAOD::MissingETAssociationMap * map=nullptr,
-					     const xAOD::JetContainer * jetCont = nullptr
+					     const xAOD::MissingETAssociationMap * map=nullptr
 					     ) const = 0;
   virtual CP::CorrectionCode correctedCopy(const xAOD::MissingET& met, xAOD::MissingET*& outputmet,
-					   const xAOD::MissingETAssociationMap * map=nullptr,
-					   const xAOD::JetContainer * jetCont = nullptr
+					   const xAOD::MissingETAssociationMap * map=nullptr
 					   ) const = 0;
 
-  virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet & set) = 0;
-  virtual CP::SystematicSet affectingSystematics() const = 0;
-  virtual CP::SystematicSet recommendedSystematics() const = 0;
-  virtual bool isAffectedBySystematic(const CP::SystematicVariation & systematic) const = 0;
+  // virtual CP::SystematicCode applySystematicVariation(const CP::SystematicSet & set) = 0;
+  // virtual CP::SystematicSet affectingSystematics() const = 0;
+  // virtual CP::SystematicSet recommendedSystematics() const = 0;
+  // virtual bool isAffectedBySystematic(const CP::SystematicVariation & systematic) const = 0;
 
 }; // class IMETSystematicsTool
 
