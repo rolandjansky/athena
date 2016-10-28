@@ -11,7 +11,7 @@ o) To test trigger SF with Athena:
   source ${ATLAS_LOCAL_ROOT_BASE}/user/atlasLocalSetup.sh
 
   setupATLAS
-  asetup AthAnalysisBase,2.3.17,here
+  asetup AthAnalysisBase,2.3.49,here
 
 -- Checkout code:
 

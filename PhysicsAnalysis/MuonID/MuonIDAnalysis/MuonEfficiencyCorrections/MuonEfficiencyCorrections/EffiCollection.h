@@ -25,41 +25,50 @@
 #include <iostream>
 
 namespace CP {
+    class EffiCollection {
+        public:
+            EffiCollection();
+            EffiCollection(const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_caloo, SystematicSet sys, const std::string &effType = "EFF", double lowPtTransition = 20000.);
 
-class EffiCollection {
-public:
-    EffiCollection();
-    EffiCollection(std::string file_central,
-            std::string file_calo,
-            std::string file_forward,
-            std::map<std::string,double> lumis_central,
-            std::map<std::string,double> lumis_calo,
-            std::map<std::string,double> lumis_forward,
-            SystematicSet sys, std::string effType="EFF");
+            EffiCollection(const EffiCollection & other);
+            EffiCollection & operator =(const EffiCollection & other);
 
-    EffiCollection (const EffiCollection & other);
-    EffiCollection & operator = (const EffiCollection & other);
-    
-    /// return the correct SF type to provide, depending on eta and the author
-    EfficiencyScaleFactor* operator()(const xAOD::Muon & mu);
+            /// return the correct SF type to provide, depending on eta and the author
+            EfficiencyScaleFactor* retrieveSF(const xAOD::Muon & mu, unsigned int RunNumber);
 
-    // return the name of the systematic variation being run
-    std::string sysname ();
+            // return the name of the systematic variation being run
+            std::string sysname();
 
-    // a consistency check
-    bool CheckConsistency();
+            // a consistency check
+            bool CheckConsistency();
 
+            virtual ~EffiCollection();
 
-    virtual ~EffiCollection();
-
-protected:
-
-    EfficiencyScaleFactor* m_central_eff;
-    EfficiencyScaleFactor* m_forward_eff;
-    EfficiencyScaleFactor* m_calo_eff;
-
-private:
-    std::string m_effType;
-};
+        protected:
+            //Create a subclass to handle the periods
+            class CollectionContainer {
+                public:
+                    CollectionContainer(const std::string &FileName, SystematicSet sys, std::string effType, bool isLowPt = false, bool hasPtDepSys = false);
+                    CollectionContainer & operator =(const CollectionContainer & other);
+                    CollectionContainer(const CollectionContainer & other);
+                    virtual ~CollectionContainer();
+                    EfficiencyScaleFactor* retrieve(unsigned int RunNumer);
+                    bool CheckConsistency();
+                    std::string sysname();
+                protected:
+                    bool LoadPeriod(unsigned int RunNumber);
+                    typedef std::pair<unsigned int, unsigned int> RunRanges;
+                    std::map<RunRanges, EfficiencyScaleFactor*> m_SF;
+                    std::map<RunRanges, EfficiencyScaleFactor*>::const_iterator m_currentSF;
+            };
+            CollectionContainer* m_central_eff;
+            CollectionContainer* m_calo_eff;
+            CollectionContainer* m_forward_eff;
+            CollectionContainer* m_lowpt_central_eff;
+            CollectionContainer* m_lowpt_calo_eff;
+        private:
+            std::string m_effType;
+            double m_lowpt_transition;
+    };
 }
 #endif /* EFFICOLLECTION_H_ */

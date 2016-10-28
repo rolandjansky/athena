@@ -117,7 +117,7 @@ StatusCode TestTrigSF::initialize()
   RegHist(m_endcap_sf_err_syst_dw, "");
 
   for(CP::SystematicVariation syst: m_trigEff->affectingSystematics()) {
-    msg(MSG::INFO) << "Recommended systematic: " << syst.name() << endreq;
+    msg(MSG::INFO) << "Recommended systematic: " << syst.name() << endmsg;
   }
 
   return StatusCode::SUCCESS;
@@ -129,30 +129,30 @@ StatusCode TestTrigSF::execute()
   //
   // Process current event
   //
-  msg() << MSG::DEBUG << "execute() - begin..." << endreq;
+  msg() << MSG::DEBUG << "execute() - begin..." << endmsg;
 
   m_countEvent++;
 
   const xAOD::MuonContainer* xaodContainer = 0;
 
   if(evtStore() -> retrieve(xaodContainer, m_inputContainerName).isFailure() || !xaodContainer) {
-    msg() << MSG::ERROR << "Failed to get:" << m_inputContainerName << endreq;
+    msg() << MSG::ERROR << "Failed to get:" << m_inputContainerName << endmsg;
     return StatusCode::FAILURE;
   }
 
-  msg(MSG::DEBUG) << "Size of MuonContainer: " << xaodContainer->size() << endreq;
+  msg(MSG::DEBUG) << "Size of MuonContainer: " << xaodContainer->size() << endmsg;
 
   //-----------------------------------------------------------------------------
   // Process muons
   //
   for(const xAOD::Muon *ptr: *xaodContainer) {
     
-    msg(MSG::DEBUG) << "   pT= " << ptr->pt() << endreq;
+    msg(MSG::DEBUG) << "   pT= " << ptr->pt() << endmsg;
     
     CheckSF(ptr);
   }
 
-  msg(MSG::DEBUG) << "execute() - processed " << endreq;  
+  msg(MSG::DEBUG) << "execute() - processed " << endmsg;  
   return StatusCode::SUCCESS;
 }
 
@@ -162,7 +162,7 @@ StatusCode TestTrigSF::finalize()
   //
   // Finalize output
   //
-  msg(MSG::INFO) << " processed " << m_countEvent << " event(s)" << endreq;
+  msg(MSG::INFO) << " processed " << m_countEvent << " event(s)" << endmsg;
 
   return StatusCode::SUCCESS;
 }
@@ -181,7 +181,7 @@ void TestTrigSF::CheckSF(const xAOD::Muon *ptr)
   CP::CorrectionCode ct = m_trigEff->getTriggerScaleFactor( *trigger_SF_muon.asDataVector(), triggerSF, m_triggerName);
 
   if(ct.code() == 0) {
-    msg(MSG::WARNING) << "Failed to get trigger SF" << endreq;
+    msg(MSG::WARNING) << "Failed to get trigger SF" << endmsg;
     return;
   }
 
@@ -204,13 +204,13 @@ void TestTrigSF::CheckSF(const xAOD::Muon *ptr)
   }
 
   if(!h) {
-    msg(MSG::WARNING) << "Missing hist" << endreq;
+    msg(MSG::WARNING) << "Missing hist" << endmsg;
     return;
   }
 
   FillHist(h, ptr, triggerSF);
 
-  msg(MSG::INFO) << m_triggerName << " eta=" << ptr->eta() << " phi=" << ptr->phi() << " SF value=" << triggerSF << endreq;
+  msg(MSG::INFO) << m_triggerName << " eta=" << ptr->eta() << " phi=" << ptr->phi() << " SF value=" << triggerSF << endmsg;
 
   //
   // Chck systematic
@@ -230,7 +230,7 @@ void TestTrigSF::CheckSyst(const xAOD::Muon *ptr, const std::string &syst_name, 
   const bool isaff = m_trigEff->isAffectedBySystematic(syst);
 
   if(!isaff) {
-    msg(MSG::WARNING) << syst_name << " step=" << step << ": isAffected=" << isaff << endreq;
+    msg(MSG::WARNING) << syst_name << " step=" << step << ": isAffected=" << isaff << endmsg;
     return;
   }
 
@@ -238,7 +238,7 @@ void TestTrigSF::CheckSyst(const xAOD::Muon *ptr, const std::string &syst_name, 
   syst_set.insert(syst);
   
   if(m_trigEff->applySystematicVariation(syst_set) != CP::SystematicCode::Ok) {
-    msg(MSG::WARNING) << "Failed to apply systematic: " << syst_name << endreq;
+    msg(MSG::WARNING) << "Failed to apply systematic: " << syst_name << endmsg;
     return;
   }
 
@@ -248,16 +248,16 @@ void TestTrigSF::CheckSyst(const xAOD::Muon *ptr, const std::string &syst_name, 
   double triggerSF = 0.0;
   
   if(m_trigEff->getTriggerScaleFactor( *trigger_SF_muon.asDataVector(), triggerSF, m_triggerName) != CP::CorrectionCode::Ok) {
-    msg(MSG::WARNING) << "Failed to get trigger SF" << endreq;
+    msg(MSG::WARNING) << "Failed to get trigger SF" << endmsg;
     return;
   }
 
   FillHist(h, ptr, triggerSF);
 
-  msg(MSG::INFO) << "Systematic=" << syst_name << " step=" << step << " hist=" << h->GetName() << " SF value=" << triggerSF << endreq;
+  msg(MSG::INFO) << "Systematic=" << syst_name << " step=" << step << " hist=" << h->GetName() << " SF value=" << triggerSF << endmsg;
   
   if(m_trigEff->applySystematicVariation(CP::SystematicSet()) != CP::SystematicCode::Ok) {
-    msg(MSG::WARNING) << "Failed to apply default after systematic: " << syst_name << endreq;
+    msg(MSG::WARNING) << "Failed to apply default after systematic: " << syst_name << endmsg;
     return;
   }
 }
@@ -269,12 +269,12 @@ void TestTrigSF::FillHist(TH2 *h, const xAOD::Muon *ptr, double val)
   
   const double hcont = h->GetBinContent(bin);
 
-  msg(MSG::DEBUG) << " hist=" << h->GetName() << " bin=" << bin << " eta=" << ptr->eta() << " phi=" << ptr->phi() << endreq;
+  msg(MSG::DEBUG) << " hist=" << h->GetName() << " bin=" << bin << " eta=" << ptr->eta() << " phi=" << ptr->phi() << endmsg;
 
   if(hcont > 0.0) {
 
     if(std::fabs(hcont - val) > 0.0001) {
-      msg(MSG::WARNING) << " hist=" << h->GetName() << "   content=" << hcont << " != val=" << val<< endreq;
+      msg(MSG::WARNING) << " hist=" << h->GetName() << "   content=" << hcont << " != val=" << val<< endmsg;
     }
   }
   else {
@@ -294,10 +294,10 @@ void TestTrigSF::RegHist(TH1 *h, const std::string &key)
   }
   
   if(m_histSvc->regHist(hist_key, h).isFailure()) {
-    msg() << MSG::WARNING << "Could not register histogram: " << hist_key << endreq;
+    msg() << MSG::WARNING << "Could not register histogram: " << hist_key << endmsg;
   }
   else {
-    msg() << MSG::INFO << "Registered histogram: " << hist_key << endreq;
+    msg() << MSG::INFO << "Registered histogram: " << hist_key << endmsg;
   }
 }
 

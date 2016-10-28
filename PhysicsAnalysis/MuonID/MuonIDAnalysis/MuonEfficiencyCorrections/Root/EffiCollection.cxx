@@ -10,130 +10,200 @@
  */
 
 #include "MuonEfficiencyCorrections/EffiCollection.h"
+#include <TTree.h>
+namespace CP {
 
-CP::EffiCollection::EffiCollection():
-m_central_eff(0),
-m_forward_eff(0),
-m_calo_eff(0),
-m_effType("EFF")
-{
-}
+    EffiCollection::EffiCollection() :
+                m_central_eff(0),
+                m_calo_eff(0),
+                m_forward_eff(0),
+                m_lowpt_central_eff(0),
+                m_lowpt_calo_eff(0),
+                m_effType("EFF"),
+                m_lowpt_transition(20000.) {
+    }
 
-CP::EffiCollection::EffiCollection(std::string file_central, std::string file_calo,
-        std::string file_forward,
-        std::map<std::string, double> lumis_central,
-        std::map<std::string, double> lumis_calo,
-        std::map<std::string, double> lumis_forward,
-        SystematicSet sys,
-        std::string effType):
-			                m_central_eff(0),
-			                m_forward_eff(0),
-			                m_calo_eff(0),
-                                        m_effType(effType){
+    EffiCollection::EffiCollection(const std::string &file_central, const std::string &file_calo, const std::string &file_forward, const std::string &file_lowpt_central, const std::string &file_lowpt_calo, SystematicSet sys, const std::string &effType, double lowPtTransition) :
+                EffiCollection() {
+        m_effType = effType;
+        m_lowpt_transition = lowPtTransition;
+        bool isRecoEff = (effType == "EFF");
+        m_central_eff = new CollectionContainer(file_central, sys, m_effType, false, isRecoEff);
+        m_calo_eff = new CollectionContainer(file_calo, sys, m_effType, false, isRecoEff);
+        m_forward_eff = new CollectionContainer(file_forward, sys, m_effType);
 
-    double integral = 0;
-    double integral_CT = 0;
-    double integral_HighEta = 0;
-
-    // sum up the lumi weighted histos
-    for (std::map<std::string, double>::iterator il = lumis_central.begin(); il != lumis_central.end();il++){
-        // central muons
-        if (!m_central_eff ) {
-            m_central_eff = new EfficiencyScaleFactor(file_central,il->first,sys, m_effType);
-            m_central_eff->Scale(il->second);
-            integral+=il->second;
+        // last argument tells this to respond to dedicated low pt systematic variations
+        if (m_lowpt_transition > 0) {
+            m_lowpt_central_eff = new CollectionContainer(file_lowpt_central, sys, m_effType, true);
+            m_lowpt_calo_eff = new CollectionContainer(file_lowpt_calo, sys, m_effType, true);
         }
-        else if (m_central_eff->AddPeriod(file_central,il->first,il->second) )
-            integral+=il->second;
     }
 
-    // calo muons
-    for (std::map<std::string, double>::iterator il = lumis_calo.begin(); il != lumis_calo.end();il++){
-        if (!m_calo_eff ) {
-            m_calo_eff = new EfficiencyScaleFactor(file_calo,il->first,sys, m_effType);
-            m_calo_eff->Scale(il->second);
-            integral_CT+=il->second;
+    bool EffiCollection::CheckConsistency() {
+
+        return (m_central_eff && m_central_eff->CheckConsistency() && m_calo_eff && m_calo_eff->CheckConsistency() && m_forward_eff && m_forward_eff->CheckConsistency() && (m_lowpt_transition < 0 || (m_lowpt_central_eff && m_lowpt_central_eff->CheckConsistency() && m_lowpt_calo_eff && m_lowpt_calo_eff->CheckConsistency())));
+    }
+
+    EffiCollection::EffiCollection(const CP::EffiCollection & other) {
+
+        m_central_eff = new CP::EffiCollection::CollectionContainer(*(other.m_central_eff));
+        m_calo_eff = new CP::EffiCollection::CollectionContainer(*(other.m_calo_eff));
+        m_forward_eff = new CP::EffiCollection::CollectionContainer(*(other.m_forward_eff));
+        m_effType = other.m_effType;
+        m_lowpt_transition = other.m_lowpt_transition;
+        if (m_lowpt_transition > 0) {
+            m_lowpt_central_eff = new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_central_eff));
+            m_lowpt_calo_eff = new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_calo_eff));
+        } else {
+            m_lowpt_central_eff = 0;
+            m_lowpt_calo_eff = 0;
         }
-        else if (m_calo_eff->AddPeriod(file_calo,il->first,il->second) )
-            integral_CT+=il->second;
+
     }
-    // forward muons
-    for (std::map<std::string, double>::iterator il = lumis_forward.begin(); il != lumis_forward.end();il++){
-        if (!m_forward_eff ) {
-            m_forward_eff = new EfficiencyScaleFactor(file_forward,il->first,sys,m_effType);
-            m_forward_eff->Scale(il->second);
-            integral_HighEta+=il->second;
+    CP::EffiCollection & EffiCollection::operator =(const CP::EffiCollection & other) {
+        if (this == &other) {
+            return *this;
         }
-        else if (m_forward_eff->AddPeriod(file_forward,il->first,il->second) )
-            integral_HighEta+=il->second;
+        m_effType = other.m_effType;
+        m_lowpt_transition = other.m_lowpt_transition;
+
+        if (m_central_eff) delete m_central_eff;
+        if (m_calo_eff) delete m_calo_eff;
+        if (m_forward_eff) delete m_forward_eff;
+        if (m_lowpt_central_eff) delete m_lowpt_central_eff;
+        if (m_lowpt_calo_eff) delete m_lowpt_calo_eff;
+        m_central_eff = new CP::EffiCollection::CollectionContainer(*(other.m_central_eff));
+        m_calo_eff = new CP::EffiCollection::CollectionContainer(*(other.m_calo_eff));
+        m_forward_eff = new CP::EffiCollection::CollectionContainer(*(other.m_forward_eff));
+        if (m_lowpt_transition > 0) {
+            m_lowpt_central_eff = new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_central_eff));
+            m_lowpt_calo_eff = new CP::EffiCollection::CollectionContainer(*(other.m_lowpt_calo_eff));
+        } else {
+            m_lowpt_central_eff = 0;
+            m_lowpt_calo_eff = 0;
+        }
+        return *this;
+
+    }
+    CP::EfficiencyScaleFactor* EffiCollection::retrieveSF(const xAOD::Muon& mu, unsigned int RunNumber) {
+
+        // yes, we need the second check - negative pt does happen!
+        if (mu.pt() < m_lowpt_transition && m_lowpt_transition > 0) {
+            if (mu.author() == xAOD::Muon::CaloTag) {
+                return m_lowpt_calo_eff->retrieve(RunNumber);
+            }
+            return m_lowpt_central_eff->retrieve(RunNumber);
+        }
+        if (mu.author() == xAOD::Muon::CaloTag) {
+            return m_calo_eff->retrieve(RunNumber);
+        } else if (fabs(mu.eta()) < 2.5) {
+            return m_central_eff->retrieve(RunNumber);
+        } else {
+            return m_forward_eff->retrieve(RunNumber);
+        }
+    }
+    std::string EffiCollection::sysname(void) {
+        if (m_central_eff) return m_central_eff->sysname();
+        else return "";
     }
 
-    // now, turn the sums into a weighted average
-    if (m_central_eff != NULL){
-        m_central_eff->Scale(1./integral);
-        m_central_eff->ApplySysVariation();
+    EffiCollection::~EffiCollection() {
+
+        if (m_central_eff) delete m_central_eff;
+        if (m_calo_eff) delete m_calo_eff;
+        if (m_forward_eff) delete m_forward_eff;
+        if (m_lowpt_central_eff) delete m_lowpt_central_eff;
+        if (m_lowpt_calo_eff) delete m_lowpt_calo_eff;
     }
-    if (m_calo_eff != NULL){
-        m_calo_eff->Scale(1./integral_CT);
-        m_calo_eff->ApplySysVariation();
+    EffiCollection::CollectionContainer::CollectionContainer(const std::string &FileName, SystematicSet sys, std::string effType, bool isLowPt, bool hasPtDepSys) :
+                m_SF(),
+                m_currentSF(m_SF.end()) {
+        TFile* fin = TFile::Open(FileName.c_str());
+        if (!fin) {
+            Error("CollectionContainer", ("Unable to open file " + FileName).c_str());
+            return;
+        }
+        TTree* intree = 0;
+        fin->GetObject("LumiData", intree);
+        std::map<std::string, RunRanges> map;
+        // if no Lumi tree is found, we assume that the SF are not binned in time
+        if (!intree) {
+            map["All"] = RunRanges(1, 999999);
+
+        } else {
+            std::string *period = 0;
+            unsigned int firstRun = 0;
+            unsigned int lastRun = 0;
+            intree->SetBranchAddress("Period", &period);
+            intree->SetBranchAddress("FirstRun", &firstRun);
+            intree->SetBranchAddress("LastRun", &lastRun);
+            for (int t = 0; intree->GetEntry(t); t++) {
+                map[*period] = RunRanges(firstRun, lastRun);
+            }
+        }
+        fin->Close();
+        delete fin;
+        for (auto& period : map) {
+            m_SF.insert(std::pair<RunRanges, EfficiencyScaleFactor*>(period.second, new EfficiencyScaleFactor(FileName, period.first, sys, effType, isLowPt, hasPtDepSys)));
+        }
+        for (auto& period : m_SF)
+            period.second->ApplySysVariation();
+        m_currentSF = m_SF.end();
+    }
+    bool EffiCollection::CollectionContainer::CheckConsistency() {
+        if (m_SF.empty()) {
+            Error("CollectionContainer", "Could not retrieve any SFs from the input file");
+            return false;
+        }
+        for (m_currentSF = m_SF.begin(); m_currentSF != m_SF.end(); ++m_currentSF) {
+            if (!m_currentSF->second->CheckConsistency()) return false;
+        }
+        return true;
+    }
+    bool EffiCollection::CollectionContainer::LoadPeriod(unsigned int RunNumber) {
+        if (m_currentSF == m_SF.end() || m_currentSF->first.first > RunNumber || m_currentSF->first.second < RunNumber) {
+            for (m_currentSF = m_SF.begin(); m_currentSF != m_SF.end(); ++m_currentSF) {
+                if (m_currentSF->first.first <= RunNumber && m_currentSF->first.second >= RunNumber) return true;
+            }
+        } else return true;
+        Error("CollectionContainer", Form("Could not find any SF period matching the run number %u", RunNumber));
+        return false;
+    }
+    EfficiencyScaleFactor* EffiCollection::CollectionContainer::retrieve(unsigned int RunNumber) {
+        if (!LoadPeriod(RunNumber)) return m_SF.begin()->second;
+        return m_currentSF->second;
+    }
+    std::string EffiCollection::CollectionContainer::sysname() {
+        if (m_SF.empty()) return "";
+        return m_SF.begin()->second->sysname();
+    }
+    EffiCollection::CollectionContainer::~CollectionContainer() {
+        for (auto& period : m_SF) {
+            if (period.second) delete period.second;
+            period.second = NULL;
+        }
+        m_SF.clear();
     }
 
-    if (m_forward_eff != NULL){
-        m_forward_eff->Scale(1./integral_HighEta);
-        m_forward_eff->ApplySysVariation();
+    CP::EffiCollection::CollectionContainer& EffiCollection::CollectionContainer::operator =(const EffiCollection::CollectionContainer & other) {
+        if (this == &other) {
+            return *this;
+        }
+        for (auto& period : m_SF) {
+            delete period.second;
+        }
+        m_SF.clear();
+        for (auto& period : other.m_SF) {
+            m_SF[period.first] = new EfficiencyScaleFactor(*period.second);
+        }
+        m_currentSF = m_SF.end();
+        return *this;
     }
-}
-
-bool CP::EffiCollection::CheckConsistency (){
-
-    return (m_central_eff->CheckConsistency() &&
-            m_calo_eff->CheckConsistency() &&
-            m_forward_eff->CheckConsistency());
-}
-
-
-CP::EffiCollection::EffiCollection(const CP::EffiCollection & other){
-
-    m_central_eff = new CP::EfficiencyScaleFactor(*(other.m_central_eff));
-    m_calo_eff = new CP::EfficiencyScaleFactor(*(other.m_calo_eff));
-    m_forward_eff = new CP::EfficiencyScaleFactor(*(other.m_forward_eff));
-
-}
-CP::EffiCollection & CP::EffiCollection::operator = (const CP::EffiCollection & other){
-
-    if (this == &other){
-        return *this;               
+    EffiCollection::CollectionContainer::CollectionContainer(const CollectionContainer & other) {
+        for (auto& period : other.m_SF) {
+            m_SF[period.first] = new EfficiencyScaleFactor(*period.second);
+        }
+        m_currentSF = m_SF.end();
     }
-    delete m_central_eff;
-    delete m_calo_eff;
-    delete m_forward_eff;
-    m_central_eff = new CP::EfficiencyScaleFactor(*(other.m_central_eff));
-    m_calo_eff = new CP::EfficiencyScaleFactor(*(other.m_calo_eff));
-    m_forward_eff = new CP::EfficiencyScaleFactor(*(other.m_forward_eff));
-    return *this;
 
-}
-CP::EfficiencyScaleFactor* CP::EffiCollection::operator ()(const xAOD::Muon& mu) {
-
-
-    if (mu.author() == xAOD::Muon::CaloTag){
-        return m_calo_eff;
-    }
-    else if (fabs(mu.eta())<2.5){
-        return m_central_eff;
-    }
-    else{
-        return m_forward_eff;
-    }
-}
-std::string CP::EffiCollection::sysname (void){
-    if (m_central_eff) return m_central_eff->sysname();
-    else return "";
-}
-
-CP::EffiCollection::~EffiCollection() {
-
-    if (m_central_eff) delete m_central_eff;
-    if (m_calo_eff) delete m_calo_eff;
-    if (m_forward_eff) delete m_forward_eff;
 }

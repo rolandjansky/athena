@@ -1,6 +1,6 @@
 
-This package provides Reconstruction/Isolation/Trigger Efficiency values and Scale Factors for Muons.
-It is intended for use with CMT/Athena or RootCore within the xAOD framework. 
+This package provides Reconstruction/TTVA/Isolation/Trigger Efficiency values and Scale Factors for Muons.
+It is intended for use with CMT/Athena/AthAnalysis or RootCore within the xAOD framework. 
 
 Contents of this Readme:
    -- Reconstruction efficiencies - MuonEfficiencyScaleFactors
@@ -32,47 +32,29 @@ Reconstruction efficiencies - MuonEfficiencyScaleFactors
 - share/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py (using src/MuonEfficiencyCorrections_TestAlg.cxx) is an example when running in athena
 
 2) Supported working points:
-There is support for the three official MCP working points -  "Loose","Medium" and "Tight".
+There is support for the official MCP working points -  "Loose","Medium","Tight","HighPt".
 
 3) Supported data periods:
-   Starting with the pre-recommendations in MuonEfficiencyCorrections-03-00-17, the only supported data period is "2015".
-   The tool will default to this value, so there really is no need to change this. 
+Several data periods are supported, the LastRun of the latest data period is set to 999999 meaning, for new runs always the most recent SFs are provided.
    
-4) Detailed Instructions (RootCore)
-- include the header: 
-
-         #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
+4) Detailed Instructions
+- include the headers: 
+    #include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
     
 - create your tool 
     *  with ROOTCore:
     
+        // create one tool per muon working point 
         CP::MuonEfficiencyScaleFactors m_effi_corr("SomeNameYouLike");
+        
+    *  with Athena:
     
-- configure it by providing the working point you are running with
+        from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyScaleFactors
+        m_effi_corr = CP__MuonEfficiencyScaleFactors("SomeNameYouLike")
+        
+    
+- configure it by providing the working point 
         m_effi_corr.setProperty("WorkingPoint","Medium");   // Or "Loose" or "Tight"...
-    
-    * OPTIONAL: You can override the tool's default lumi information (taken from the AllGood GRLs).
-      The Lumis are provided as a map<std::string, double>, containing pairs of periods/runs and lumis.
-      Only necessary if your desired lumi setup deviates significantly from the one in AllGood, or if 
-      you want to look at specific runs/periods. 
-      
-        // this will define three dummy periods, with different int lumi values. 
-        std::map<std::string, double> custom_lumis;
-        custom_lumis["A"] = 1;
-        custom_lumis["B"] = 42;
-        custom_lumis["C"] = 1337;
-        // (...)
-        m_effi_corr.setProperty("LumiWeights",custom_lumis);
-        
-        
-        // alternatively, we could define per run lumis. 
-        // The tool should recognize automatically that you are configuring per run
-        std::map<std::string, double> custom_lumis;
-        custom_lumis["200123"] = 1;
-        custom_lumis["200126"] = 42;
-        custom_lumis["200145"] = 1337;
-        // (...)
-        m_effi_corr.setProperty("LumiWeights",custom_lumis);
         
 - initialize the tool 
         
@@ -107,8 +89,7 @@ It uses the same class as MuonEfficiencyScaleFactor. Isolation Configuration is 
 There is support for the five official MCP working points -  "TightIso", "LooseIso", "VeryLooseIso", "VeryLooseTrackOnlyIso", "GradientIso" and "GradientLooseIso".
 
 3) Supported data periods:
-   Starting with the pre-recommendations in MuonEfficiencyCorrections-03-00-21, the only supported data period is "run1".
-   The tool will default to this value, so there really is no need to change this.
+Several data periods are supported, the LastRun of the latest data period is set to 999999 meaning, for new runs always the most recent SFs are provided.
    
 4) Detailed Instructions (RootCore)
    Same as "MuonEfficiencyScaleFactor". Make sure to use the isolation working points and period.

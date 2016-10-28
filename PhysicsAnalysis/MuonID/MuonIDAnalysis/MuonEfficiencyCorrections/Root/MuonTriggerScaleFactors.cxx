@@ -2,15 +2,18 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 /*
  *  MuonTriggerScaleFactors.cxx
  *
- *  Created on: Oct. 22, 2014
+ *  Created on: Oct 22, 2014
  *      Author: Kota Kasahara <kota.kasahara@cern.ch>
- */
+ *
+ *  Updates for 2016: Jun 20, 2016
+ *      Author: Lidia Dell'Asta <dellasta@cern.ch> 
+*/
 
 #include <sstream>
+#include <TRandom3.h>
 
 #include "xAODMuon/MuonContainer.h"
 #include "xAODMuon/MuonAuxContainer.h"
@@ -24,30 +27,98 @@
 
 #include "PathResolver/PathResolver.h"
 
-static const double commonSystMTSG = 0.01;
+//static const double commonSystMTSG = 0.01;
 static const double muon_barrel_endcap_boundary = 1.05;
 
 namespace CP {
 
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::MuonTriggerScaleFactors
+  // ==================================================================================
   MuonTriggerScaleFactors::MuonTriggerScaleFactors( const std::string& name):
     asg::AsgTool( name ),
     m_appliedSystematics(0),
-    m_runNumber(267639),
-    classname(name.c_str()),
+    m_runNumber(300345), 
+    m_classname(name.c_str()),
     m_max_period(TrigMuonEff::period_undefined)
   {
-    declareProperty( "MuonQuality", m_muonquality = "Medium"); // Tight,Medium, Loose, VeryLoose
+    declareProperty( "MuonQuality", m_muonquality = "Medium"); // HighPt,Tight,Medium,Loose
     declareProperty( "Isolation", m_isolation = ""); // "", "IsoGradient", "IsoLoose", "IsoTight"
-    declareProperty( "CalibrationRelease", m_calibration_version = "Data15_ACD_150903");
+    declareProperty( "CalibrationRelease", m_calibration_version = "160624_ICHEP");
+
+    declareProperty( "Year", m_year = "2016"); // 2015 or 2016
+    declareProperty( "MC", m_mc = "mc15c");    // mc15a or mc15c
+    
     // these are for debugging / testing, *not* for general use!
-    declareProperty( "filename",m_fileName = "muon_trigger_eff_periodsABCD_sep09.root"); 
+    declareProperty( "filename",m_fileName = "muontrigger_sf_2016_mc15c_v01.root"); // default is data16 vs mc15c 
     declareProperty( "CustomInputFolder", m_custom_dir = "");
+    declareProperty( "Binning", m_binning = "fine"); // fine or coarse
+
+    //Properties needed for TOY setup for a given trigger: No replicas if m_replicaTriggerList is empty
+    declareProperty( "ReplicaTriggerList", m_replicaTriggerList = std::vector< std::string >() ,
+                     "List of triggers on which we want to generate stat. uncertainty toy replicas.");
+    declareProperty( "NReplicas", m_nReplicas = 100 ,
+                     "Number of generated toy replicas, if replicas are required.");
+    declareProperty( "ReplicaRandomSeed", m_ReplicaRandomSeed = 1234 ,
+                     "Random seed for toy replica generation.");
   }
   
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::~MuonTriggerScaleFactors()
+  // ==================================================================================
   MuonTriggerScaleFactors::~MuonTriggerScaleFactors(){
+    for(auto itMap : m_efficiencyMap) delete itMap.second;
+    m_efficiencyMap.clear();
+
+    for(auto itMap : m_efficiencyMapReplicaArray){ 
+      std::vector<TH2*> vec = itMap.second;
+      for(uint i =0; i < vec.size(); ++i) delete vec[i];
+    }
   }
   
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::initialize()
+  // ==================================================================================
   StatusCode MuonTriggerScaleFactors::initialize(){
+    
+    std::string SFfile_2015_mc15a = "muontrigger_sf_2015_mc15a.root";
+    std::string SFfile_2015_mc15c = "muontrigger_sf_2015_mc15c_v01.root";
+    
+    // Selecting the correct SF file if different from default
+    if( m_year == "2015" && m_mc == "mc15a" ){
+      m_fileName = SFfile_2015_mc15a;
+    }
+    else if( m_year == "2015" && m_mc == "mc15c" ){
+      m_fileName = SFfile_2015_mc15c;
+    }
+
+    ATH_MSG_INFO("MuonQuality = '" << m_muonquality << "'");
+    ATH_MSG_INFO("Binning = '" << m_binning << "'" );
+    ATH_MSG_INFO("Year = '" << m_year << "'" );
+    ATH_MSG_INFO("MC = '" << m_mc << "'" );
+    ATH_MSG_INFO("filename = '" << m_fileName );
+    ATH_MSG_INFO("CalibrationRelease = '" << m_calibration_version << "'" );
+    ATH_MSG_INFO("CustomInputFolder = '" << m_custom_dir  << "'");
+    
+    // Giving a bunch of errors if year, mc and SF file have problems
+    if(m_year != "2015" && m_year != "2016"){
+      ATH_MSG_ERROR("Note: you have set year " << m_year << ", which is not supported. You should use either 2015 or 2016.");
+      return StatusCode::FAILURE;
+    }
+    if(m_mc != "mc15a" && m_mc != "mc15c"){
+      ATH_MSG_ERROR("Note: you have set " << m_mc << ", which is not supported. You should use either mc15a or mc15c.");
+      return StatusCode::FAILURE;
+    }
+    if(m_year == "2016" && m_mc == "mc15a"){
+      ATH_MSG_ERROR("Note: you have set year " << m_year << " and " << m_mc << " . This combination is not provided.");
+      return StatusCode::FAILURE;
+    }
+
+    // isolation workinig points have been merged as they have no big difference
+    if( ! m_isolation.empty() ){
+      ATH_MSG_INFO("Note: you have set " << m_isolation << " but isolation working points have been merged.");
+      m_isolation = "";
+    }
 
     if ( registerSystematics() != CP::SystematicCode::Ok) {
       return StatusCode::FAILURE;
@@ -86,60 +157,83 @@ namespace CP {
     
     TDirectory* tempDir = getTemporaryDirectory();
     tempDir->cd();
+
+    // Initialize indexes of replicas for trigges which are asked
+    for(auto trigToy : m_replicaTriggerList) m_replicaSet.insert(trigToy);
     
     for (size_t iqu = 0; iqu < storage.quality->size(); ++iqu) {
       for (size_t ibins = 0; ibins < storage.bins->size(); ++ibins) {
-	for (size_t iperiod = 0; iperiod < storage.period->size(); ++iperiod) {
-	  for (size_t iregion = 0; iregion < storage.region->size(); ++iregion) {
-	    for (size_t itype = 0; itype < storage.type->size(); ++itype) {
-	      for(size_t isys = 0; isys < storage.systematic->size(); ++isys){
-		for(size_t iiso = 0; iiso < storage.isolation->size(); ++iiso){
-		  
-		  if(storage.type->at(itype).find("data") != std::string::npos &&
-		     storage.systematic->at(isys).find("syst") != std::string::npos) continue;
+        for (size_t iperiod = 0; iperiod < storage.period->size(); ++iperiod) {
+          for (size_t iregion = 0; iregion < storage.region->size(); ++iregion) {
+            for (size_t itype = 0; itype < storage.type->size(); ++itype) {
+              for(size_t iiso = 0; iiso < storage.isolation->size(); ++iiso){
+                
+                std::string histname = ("_MuonTrigEff_" + storage.period->at(iperiod) + "_" +
+                                        storage.trigger->at(iperiod) + "_" +
+                                        storage.quality->at(iqu) + "_" +
+                                        storage.isolation->at(iiso) + 
+                                        "_EtaPhi_" +
+                                        storage.bins->at(ibins) + "_" +
+                                        storage.region->at(iregion) + "_" +
+                                        storage.type->at(itype));
 
 
+                for(size_t isys = 0; isys < storage.systematic->size(); ++isys){
 
-		  std::string histname = ("_MuonTrigEff_" + storage.period->at(iperiod) + "_" +
-					  storage.trigger->at(iperiod) + "_" +
-					  storage.quality->at(iqu) + "_" +
-					  storage.isolation->at(iiso) + 
-					  "_EtaPhi_" +
-					  storage.bins->at(ibins) + "_" +
-					  storage.region->at(iregion) + "_" +
-					  storage.type->at(itype) + "_" +
-					  storage.systematic->at(isys));
-		  
-		  std::string path = (storage.quality->at(iqu) + storage.isolation->at(iiso) + "/" +
-				      +"period" + storage.period->at(iperiod) + "/" +
-				      storage.trigger->at(iperiod) + "/" +
-				      + "eff_etaphi_" + storage.bins->at(ibins) + "_" +
-				      storage.region->at(iregion) + "_" + 
-				      storage.type->at(itype) + "_" +
-				      storage.systematic->at(isys));
-		  
-		  TH2* hist = dynamic_cast<TH2*>(file->Get(path.c_str()));
-		  if (not hist) {
-		    ATH_MSG_WARNING("MuonTriggerScaleFactors::initialize : not available");
-		    continue;
-		  }
-		  TH2* hcopy = dynamic_cast<TH2*>(hist->Clone());
-		  if (not hcopy) {
-		    ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize Couldn't make copy of histogram \"%s\"");
-		  }
-		  
-		  std::pair<EfficiencyMap::iterator, bool> rc = m_efficiencyMap.insert(EfficiencyPair(histname, hcopy));
-		  if (not rc.second) {
-		    ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize histogram \"%s\" duplicated");
-		  }
-		}
-	      }
-	    }
-	  }
-	}
+                  if(storage.type->at(itype).find("data") != std::string::npos &&
+                     storage.systematic->at(isys).find("syst") != std::string::npos) continue;
+                                    
+                  std::string histnameSys = histname + "_" + storage.systematic->at(isys);
+                  
+                  
+                  std::string path = (storage.quality->at(iqu) + storage.isolation->at(iiso) + "/" +
+                                      +"Period" + storage.period->at(iperiod) + "/" +
+                                      storage.trigger->at(iperiod) + "/" +
+                                      + "eff_etaphi_" + storage.bins->at(ibins) + "_" +
+                                      storage.region->at(iregion) + "_" + 
+                                      storage.type->at(itype) + "_" +
+                                      storage.systematic->at(isys));
+                  
+                  TH2* hist = dynamic_cast<TH2*>(file->Get(path.c_str()));
+                  if (not hist) {
+                    ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize : not available");
+                    ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize : cannot find " << path);
+                    continue;
+                  }
+                  hist->SetDirectory(0);
+                  std::pair<EfficiencyMap::iterator, bool> rc = m_efficiencyMap.insert(EfficiencyPair(histnameSys, hist));
+                  if (not rc.second) {
+                    ATH_MSG_FATAL("MuonTriggerScaleFactors::initialize histogram \"%s\" duplicated");
+                  }
+                }
+
+                //If the trigger is chosen for toy evaluation, generate all the replicas from 
+                // NOMINAL with STAT variations stored in the data hist, load them in corresponding vector
+                if(m_replicaSet.find(storage.trigger->at(iperiod)) != m_replicaSet.end() &&
+                   storage.type->at(itype).find("data") != std::string::npos ){
+
+                  TH2F tmp_h2 = *dynamic_cast<TH2F*>(m_efficiencyMap[histname+"_nominal"]->Clone("tmp_h2"));
+                  const int xbins = tmp_h2.GetNbinsX(), ybins = tmp_h2.GetNbinsY();
+                  for (int x_i = 0; x_i <= xbins; ++x_i ) {
+                    for (int y_i = 0; y_i <= ybins; ++y_i ) {
+                      double statErr = fabs( tmp_h2.GetBinContent(x_i, y_i) - m_efficiencyMap[histname+"_stat_up"]->GetBinContent(x_i, y_i));
+                      // std::cout<<tmp_h2.GetBinContent(x_i, y_i)<<" "<<m_efficiencyMap[histname+"_stat_up"]->GetBinContent(x_i, y_i)<<" "<<statErr<<std::endl;
+                      tmp_h2.SetBinError(x_i, y_i, statErr);
+                    }
+                  }
+
+                  //Set specific container in the map for each of the triggers/hists needing a replica 
+                  m_efficiencyMapReplicaArray[histname+"_replicas"] = generateReplicas(&tmp_h2, m_nReplicas, m_ReplicaRandomSeed);
+                }
+
+              }
+            }
+          }
+        }
       }
     }
-    
+
+
     file->Close();
     delete file;
     
@@ -154,18 +248,25 @@ namespace CP {
   // Public functions  //
   ///////////////////////
   
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::setRunNumber
+  // ==================================================================================
   CorrectionCode MuonTriggerScaleFactors::setRunNumber(Int_t runNumber)
   {
     TrigMuonEff::DataPeriod period = getDataPeriod(runNumber);
     if(period == TrigMuonEff::period_undefined){
-      ATH_MSG_ERROR("cannot find corresponding run period. Run should be [266904,272531] for period ABC, [276073,276954] for period D.");
-      m_runNumber = 267639;
+      ATH_MSG_WARNING("I am using run #" << runNumber << " but I cannot find corresponding run period. Now setting to use 2016 period B. This might give problems! Please check which year and mc you have set up!");
+
+      m_runNumber = 300345;
       return CorrectionCode::Ok;
     }
     m_runNumber = runNumber;
     return CorrectionCode::Ok;
   }
-  
+
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getTriggerScaleFactor
+  // ==================================================================================
   CorrectionCode MuonTriggerScaleFactors::getTriggerScaleFactor(const xAOD::MuonContainer& mucont,
 								Double_t& triggersf,
 								const std::string& trigger)
@@ -173,7 +274,12 @@ namespace CP {
     TrigMuonEff::Configuration configuration;
     configuration.runNumber = m_runNumber;
     configuration.setByUser = false;
-    if(trigger.find("HLT_2mu14") != std::string::npos){
+
+    if(trigger == "HLT_mu8noL1"){  
+    //if(trigger == "HLT_mu8noL1" || trigger == "HLT_mu10" || trigger == "HLT_mu14" || trigger == "HLT_mu18" || trigger == "HLT_mu20" || trigger == "HLT_mu22" || trigger == "HLT_mu24" || trigger == "HLT_mu26"){  
+      ATH_MSG_WARNING("What you are trying to do is not correct. For di-muon triggers you should get the efficiency with getTriggerEfficiency and compute the SF by yourself.");
+    }
+    else if(trigger.find("HLT_2mu10") != std::string::npos || trigger.find("HLT_2mu14") != std::string::npos){  
       CorrectionCode cc = GetTriggerSF_dimu(triggersf, configuration, mucont, trigger);
       return cc;
     }
@@ -184,6 +290,22 @@ namespace CP {
     return CorrectionCode::Ok;
   }
 
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getReplica_index
+  // ==================================================================================
+  // Gets  replica index correponding to the toy.
+  // Also checks if the sys_name contains "MCTOY" and if the trigger has replicas generated.
+  // Returns -1 if conditions are note satisfied
+  int MuonTriggerScaleFactors::getReplica_index(std::string sysBaseName,  const std::string trigStr){
+    if(m_replicaSet.find(trigStr) == m_replicaSet.end()) return -1; //No toys for this trigger
+    std::size_t pos = sysBaseName.find("MCTOY");
+    if( pos == std::string::npos) return -1; //sys variation not affected by TOYS
+    return atoi(sysBaseName.substr(pos+5, pos+8).c_str()); //toys for this trigger are around get the 3-digit number
+  }
+
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getTriggerEfficiency
+  // ==================================================================================
   CorrectionCode MuonTriggerScaleFactors::getTriggerEfficiency(const xAOD::Muon& mu,
 							       Double_t& efficiency,
 							       const std::string& trigger,
@@ -194,6 +316,7 @@ namespace CP {
     configuration.runNumber = m_runNumber;
     configuration.setByUser = false;
     configuration.trigger = trigger;
+    configuration.replicaIndex = -1;
     const Double_t threshold = getThresholds(trigger);
     if (mu.pt() < threshold) {
       efficiency = 0;
@@ -208,31 +331,52 @@ namespace CP {
       }
     }
     
+
+    // Pre-define uncertainty variations
+    static const CP::SystematicVariation stat_up("MUON_EFF_TrigStatUncertainty", 1);
+    static const CP::SystematicVariation stat_down("MUON_EFF_TrigStatUncertainty", -1);
+    static const CP::SystematicVariation syst_up("MUON_EFF_TrigSystUncertainty", 1);
+    static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
+
     std::string systype = "";
-    if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", -1)) ){
+    if( appliedSystematics().matchSystematic(syst_down) ){
       systype = "syst_down";
     }
-    else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", 1)) ){
+    else if( appliedSystematics().matchSystematic(syst_up) ){
       systype = "syst_up";
     }
-    else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", -1)) ){
+    else if( appliedSystematics().matchSystematic(stat_down) ){
       systype = "stat_down";
     }
-    else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", 1)) ){
+    else if( appliedSystematics().matchSystematic(stat_up) ){
       systype = "stat_up";
     }
     else {
       systype = "nominal";
     }
+ 
+    // Toys, if found, will overwrite the data hists stat with the generated toy
+    //+++++++++++++
+    // The best way is the use of filterByName with the 000MCTOY at the end. See:
+    // if( !(appliedSystematics().filterByBaseName("MUON_EFF_Trig_MCTOY000")).empty()){//The following is a hack!!!
+    //++++++++++THE FOLLOWING IS A PARTIAL HACK!!!
+    if( !appliedSystematics().empty() && configuration.isData == true){
+      configuration.replicaIndex = getReplica_index(appliedSystematics().begin()->basename(), trigger);
+      if( configuration.replicaIndex  != -1) systype = "replicas";
+    }
+ 
     CorrectionCode cc = getMuonEfficiency(efficiency, configuration, mu, trigger, systype);
     return cc;
   }
 
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::maskFeetRegions
+  // ==================================================================================
 	bool MuonTriggerScaleFactors::maskFeetRegions(const xAOD::Muon& mu, double dR){
-	//Want to take a muon (which will ideally have been previously identified as a triggering muon),
-	//double check that the muon fires a L1 trigger (TrigMuonMatching::matchL1) and then
-	//find the corresponding RoI from the list of fired RoI's by eta/phi matching
-	//Then take the sector address and RoI and compare them to the forbidden ones, return true if forbidden
+	// Want to take a muon (which will ideally have been previously identified as a triggering muon),
+	// double check that the muon fires a L1 trigger (TrigMuonMatching::matchL1) and then
+	// find the corresponding RoI from the list of fired RoI's by eta/phi matching
+	// Then take the sector address and RoI and compare them to the forbidden ones, return true if forbidden
 		
 	//First thing: find the RoI that the muon is in, return a warning or something if it doesn't find one
 		//get the event's RoI's for Lvl1 Muons
@@ -249,7 +393,7 @@ namespace CP {
 		//loop over muon RoI's, see if they fall within some dR of the muon's eta/phi
 		for(xAOD::MuonRoIContainer::const_iterator muroi_itr = muonrois->begin() ;
 				muroi_itr != muonrois->end() ;
-				muroi_itr++) 
+				++muroi_itr) 
 		{	
 			//if the muon etaphi falls within dR of the RoI's etaphi, we found our match
 			if(MuonTriggerScaleFactors::dR(mu.eta(), mu.phi(), (*muroi_itr)->eta(), (*muroi_itr)->phi()) < dR){
@@ -318,6 +462,33 @@ namespace CP {
   // Private functions //
   ///////////////////////
 
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::generateReplicas
+  // ==================================================================================
+  // Generate replicas of h for Toys with each bin of h varied with Gaussian distribution 
+  // with mean from bin content and sigma from bin error
+  std::vector<TH2*> MuonTriggerScaleFactors::generateReplicas(TH2* h, int nrep, int seed){
+    TRandom3 Rndm(seed);
+    std::vector<TH2*> replica_v(nrep);
+    const int xbins = h->GetNbinsX(), ybins = h->GetNbinsY();;
+
+    for (int t = 0; t < nrep; ++t){
+      TH2* replica = dynamic_cast<TH2*>(h->Clone(Form("rep%d_%s",t,h->GetName())));
+
+      for (int x_i = 0; x_i <= xbins; ++x_i ){
+        for (int y_i = 0; y_i <= ybins; ++y_i ){
+          replica->SetBinContent(x_i, y_i,
+                                 Rndm.Gaus(h->GetBinContent(x_i, y_i), h->GetBinError(x_i, y_i)));
+        }
+      }
+      replica_v.at(t) = replica;
+    }
+    return replica_v;
+  }
+
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getMuonEfficiency
+  // ==================================================================================
   CorrectionCode MuonTriggerScaleFactors::getMuonEfficiency(Double_t& eff,
 							    const TrigMuonEff::Configuration& configuration,
 							    const xAOD::Muon& muon,
@@ -337,36 +508,71 @@ namespace CP {
     
     const std::string histname = "_MuonTrigEff_" + configuration.period + chain + "_" + quality + "_" + isolation + "_EtaPhi_" + configuration.binning + region + type +"_" + systematic;
 
-    const EfficiencyMap* map = &m_efficiencyMap;
-    
-    if(configuration.replicaIndex >= 0){
-      if (configuration.replicaIndex < (int) m_efficiencyMapReplicaArray.size()){
-	map = &m_efficiencyMapReplicaArray.at(configuration.replicaIndex);
-	
-      } else {
-	ATH_MSG_ERROR("MuonTriggerScaleFactors::getMuonEfficiency ; index for replicated histograms is out of range.");
-	//throw std::runtime_error( "Internal coding error detected" );
+    TH2* eff_h2 = nullptr;
+    if(configuration.replicaIndex >= 0){//Only look into the replicas if asking for them
+      std::map<std::string, std::vector<TH2*> >::const_iterator cit  = m_efficiencyMapReplicaArray.find(histname);
+      if (cit == m_efficiencyMapReplicaArray.end()) {
+        ATH_MSG_ERROR("Could not find what you are looking for in the efficiency map. The trigger you are looking for, year and mc are not consistent. Please check how you set up the tool.");
+        return CorrectionCode::OutOfValidityRange;
       }
-    }
 
-    EfficiencyMap::const_iterator cit = map->find(histname);
-    if (cit == map->end()) {
-      ATH_MSG_ERROR("MuonTriggerScaleFactors::getMuonEfficiency ; Could not find what you are looking for in the efficiency map. This is either a bug or you are not using the right .root file, please double check.");
-      return CorrectionCode::OutOfValidityRange;
-      //throw std::runtime_error( "Internal coding error detected" );
+      if (configuration.replicaIndex >= (int) cit->second.size()){
+        ATH_MSG_ERROR("MuonTriggerScaleFactors::getMuonEfficiency ; index for replicated histograms is out of range.");	
+        return CorrectionCode::OutOfValidityRange;
+      } 
+
+      eff_h2 = cit->second[configuration.replicaIndex];
+
+    } else { //Standard case, look into the usual eff map
+      EfficiencyMap::const_iterator cit = m_efficiencyMap.find(histname);
+      if (cit == m_efficiencyMap.end()) {
+        ATH_MSG_ERROR("Could not find what you are looking for in the efficiency map. The trigger you are looking for, year and mc are not consistent. Please check how you set up the tool.");
+        return CorrectionCode::OutOfValidityRange;
+      }
+      eff_h2 = cit->second;
     }
     
-    const int bin = (cit->second)->FindFixBin(mu_eta, mu_phi);
-    const double efficiency = (cit->second)->GetBinContent(bin);
+    double mu_phi_corr = mu_phi;
+    if( mu_phi_corr < eff_h2->GetYaxis()->GetXmin() ) mu_phi_corr += 2.0 * TMath::Pi();
+    if( mu_phi_corr > eff_h2->GetYaxis()->GetXmax() ) mu_phi_corr -= 2.0 * TMath::Pi();
+
+    /*
+    if( mu_phi_corr > eff_h2->GetYaxis()->GetXmax() ||
+	mu_phi_corr < eff_h2->GetYaxis()->GetXmin() ||
+	mu_eta > eff_h2->GetYaxis()->GetXmax() ||
+	mu_eta < eff_h2->GetYaxis()->GetXmin() ){
+      ATH_MSG_ERROR("MuonTriggerScaleFactors::getMuonEfficiency ; eta/phi is out of bound in the SF map. muon eta/phi="
+		    << mu_eta << "/" << mu_phi_corr
+		    << " map range eta/phi=["
+		    << eff_h2->GetXaxis()->GetXmin()
+		    << ","
+		    << eff_h2->GetXaxis()->GetXmax()
+		    << "]/["
+		    << eff_h2->GetYaxis()->GetXmin()
+		    << ","
+		    << eff_h2->GetYaxis()->GetXmax()
+		    << "]");
+    }
+    */
+
+
+    const int bin = eff_h2->FindFixBin(mu_eta, mu_phi_corr);
+    const double efficiency = eff_h2->GetBinContent(bin);
 
     eff = efficiency;
+
+    ATH_MSG_DEBUG("getMuonEfficiency histname="<<histname);
+    ATH_MSG_DEBUG("getMuonEfficiency [eta,phi,phi_corr]=[" << mu_eta << "," << mu_phi << "," << mu_phi_corr << "], ibin=" << bin << " eff=" << eff );
+
     return CorrectionCode::Ok;
 
   }
 
-
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::GetTriggerSF_dimu
+  // ==================================================================================
   CorrectionCode MuonTriggerScaleFactors::GetTriggerSF_dimu(Double_t& TriggerSF,
-							    const TrigMuonEff::Configuration& configuration,
+							    TrigMuonEff::Configuration& configuration,
 							    const xAOD::MuonContainer& mucont,
 							    const std::string& trigger)
   {
@@ -383,13 +589,33 @@ namespace CP {
     }
 
     ATH_MSG_DEBUG("The trigger that you choose : " << trigger);
-    const Bool_t is_single = ((trigger.find("HLT_mu20_iloose_L1MU15_OR_HLT_mu50")!=std::string::npos) ||
-			      (trigger.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu50")!=std::string::npos) ||
+    const Bool_t is_single = ((trigger.find("HLT_mu10")!=std::string::npos) ||
 			      (trigger.find("HLT_mu14")!=std::string::npos) ||
+			      (trigger.find("HLT_mu20_iloose_L1MU15")!=std::string::npos) || 
+			      (trigger.find("HLT_mu20_iloose_L1MU15_OR_HLT_mu40")!=std::string::npos) ||
+			      (trigger.find("HLT_mu20_iloose_L1MU15_OR_HLT_mu50")!=std::string::npos) ||
+			      (trigger.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose")!=std::string::npos) ||
+			      (trigger.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose_OR_HLT_mu40")!=std::string::npos) ||
+			      (trigger.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose_OR_HLT_mu50")!=std::string::npos) ||
+			      (trigger.find("HLT_mu24_iloose_L1MU15")!=std::string::npos) ||
+			      (trigger.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu40")!=std::string::npos) ||
+			      (trigger.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu50")!=std::string::npos) ||
 			      (trigger.find("HLT_mu24_imedium")!=std::string::npos) ||
-			      (trigger.find("HLT_mu26_imedium")!=std::string::npos));
+			      (trigger.find("HLT_mu24_imedium_OR_HLT_mu40")!=std::string::npos) ||
+			      (trigger.find("HLT_mu24_imedium_OR_HLT_mu50")!=std::string::npos) ||
+			      (trigger.find("HLT_mu24_ivarmedium")!=std::string::npos) ||
+			      (trigger.find("HLT_mu24_ivarmedium_OR_HLT_mu40")!=std::string::npos) ||
+			      (trigger.find("HLT_mu24_ivarmedium_OR_HLT_mu50")!=std::string::npos) ||
+			      (trigger.find("HLT_mu26_imedium")!=std::string::npos) ||
+			      (trigger.find("HLT_mu26_imedium_OR_HLT_mu40")!=std::string::npos) ||
+			      (trigger.find("HLT_mu26_imedium_OR_HLT_mu50")!=std::string::npos) ||
+			      (trigger.find("HLT_mu26_ivarmedium")!=std::string::npos) ||
+			      (trigger.find("HLT_mu26_ivarmedium_OR_HLT_mu40")!=std::string::npos) ||
+			      (trigger.find("HLT_mu26_ivarmedium_OR_HLT_mu50")!=std::string::npos) ||
+			      (trigger.find("HLT_mu40")!=std::string::npos) ||
+			      (trigger.find("HLT_mu50")!=std::string::npos));
     
-    const Bool_t is_dimu = (trigger.find("HLT_2mu14") != std::string::npos);
+    const Bool_t is_dimu = (trigger.find("HLT_2mu10") != std::string::npos || trigger.find("HLT_2mu14") != std::string::npos); 
 
     Double_t eff_data = 0;
     Double_t eff_mc = 0;
@@ -417,6 +643,17 @@ namespace CP {
       data_err = "nominal";
       mc_err = "nominal";
     }
+
+    //Toys, if found, will overwrite the data hists with the sys generated with one toy
+    //+++++++++++++
+    //The best way is the use of filterByName with the 000MCTOY at the end. See:
+    // if( !(appliedSystematics().filterByBaseName("MUON_EFF_Trig_MCTOY000")).empty()){//The following is a hack!!!
+    //++++++++++THE FOLLOWING IS A PARTIAL HACK!!!
+    if( !appliedSystematics().empty()){
+      configuration.replicaIndex = getReplica_index(appliedSystematics().begin()->basename(), trigger);
+      if( configuration.replicaIndex  != -1) data_err = "replicas";
+    }
+
     configuration.isData = true;
     if (is_single and is_dimu){
       CorrectionCode result = getSingleOrDimuonEfficiency(eff_data, configuration, mucont, trigger, data_err);    
@@ -431,6 +668,7 @@ namespace CP {
     }
     
     configuration.isData = false;
+    configuration.replicaIndex = -1;
     if (is_single and is_dimu){
       CorrectionCode result = getSingleOrDimuonEfficiency(eff_mc, configuration, mucont, trigger, mc_err);
       if(result != CorrectionCode::Ok) return result;
@@ -451,8 +689,11 @@ namespace CP {
     return CorrectionCode::Ok;
   }
 
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::GetTriggerSF
+  // ==================================================================================
   CorrectionCode MuonTriggerScaleFactors::GetTriggerSF(Double_t& TriggerSF,
-						       const TrigMuonEff::Configuration& configuration,
+						       TrigMuonEff::Configuration& configuration,
 						       const xAOD::MuonContainer& mucont,
 						       const std::string& trigger)
   {
@@ -467,48 +708,66 @@ namespace CP {
       
       if (mu->pt() < threshold) {
 	
-	eff_data = 0.;
-	eff_mc   = 0.;
+        eff_data = 0.;
+        eff_mc   = 0.;
 	
       } else {
 	
-	if (not configuration.setByUser) {
-	  if (not setConfiguration(const_cast<TrigMuonEff::Configuration&>(configuration))) {
-	    TriggerSF = 0;
-	    return CorrectionCode::Ok;
-	  }
-	}
-	
-	std::string muon_trigger_name = trigger;
-	std::string data_err = "";
-	std::string mc_err = "";
-	if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", -1)) ){
-	  data_err = "nominal";
-	  mc_err = "syst_up";
-	}
-	else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", 1)) ){
-	  data_err = "nominal";
-	  mc_err = "syst_down";
-	}
-	else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", -1)) ){
-	  data_err = "stat_down";
-	  mc_err = "nominal";
-	}
-	else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", 1)) ){
-	  data_err = "stat_up";
-	  mc_err = "nominal";
-	}
-	else {
-	  data_err = "nominal";
-	  mc_err = "nominal";
-	}
-	
-	configuration.isData = true;
-	CorrectionCode result_data = getMuonEfficiency(eff_data, configuration, *mu, muon_trigger_name, data_err);
-	if(result_data != CorrectionCode::Ok) return result_data;
-	configuration.isData = false;
-	CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, *mu, muon_trigger_name, mc_err);
-	if(result_mc != CorrectionCode::Ok) return result_data;	
+        if (not configuration.setByUser) {
+          if (not setConfiguration(const_cast<TrigMuonEff::Configuration&>(configuration))) {
+            TriggerSF = 0;
+            return CorrectionCode::Ok;
+          }
+        }
+        
+        std::string muon_trigger_name = trigger;
+        std::string data_err = "";
+        std::string mc_err = "";
+
+	// Pre-define uncertainty variations
+        static const CP::SystematicVariation stat_up("MUON_EFF_TrigStatUncertainty", 1);
+        static const CP::SystematicVariation stat_down("MUON_EFF_TrigStatUncertainty", -1);
+        static const CP::SystematicVariation syst_up("MUON_EFF_TrigSystUncertainty", 1);
+        static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
+
+	if( appliedSystematics().matchSystematic(syst_down) ){
+          data_err = "nominal";
+          mc_err = "syst_up";
+        }
+        else if( appliedSystematics().matchSystematic(syst_up) ){
+          data_err = "nominal";
+          mc_err = "syst_down";
+        }
+        else if( appliedSystematics().matchSystematic(stat_down) ){
+          data_err = "stat_down";
+          mc_err = "nominal";
+        }
+        else if( appliedSystematics().matchSystematic(stat_up) ){
+          data_err = "stat_up";
+          mc_err = "nominal";
+        }
+        else {
+          data_err = "nominal";
+          mc_err = "nominal";
+        }
+
+        //Toys, if found, will overwrite the data hists, on which toys for stat uncertainty have been generated
+        //+++++++++++++
+        //The best way is the use of filterByName with the 000MCTOY at the end. See:
+        // if( !(appliedSystematics().filterByBaseName("MUON_EFF_Trig_MCTOY000")).empty()){//The following is a hack!!!
+        //++++++++++The following is a hack!!!
+        if( !appliedSystematics().empty()){
+          configuration.replicaIndex = getReplica_index(appliedSystematics().begin()->basename(), trigger);
+          if( configuration.replicaIndex  != -1) data_err = "replicas";
+        }
+        
+        configuration.isData = true;
+        CorrectionCode result_data = getMuonEfficiency(eff_data, configuration, *mu, muon_trigger_name, data_err);
+        if(result_data != CorrectionCode::Ok) return result_data;
+        configuration.isData = false;
+        configuration.replicaIndex = -1;
+        CorrectionCode result_mc = getMuonEfficiency(eff_mc, configuration, *mu, muon_trigger_name, mc_err);
+        if(result_mc != CorrectionCode::Ok) return result_data;	
       }
       rate_not_fired_data *= ( 1. - eff_data );
       rate_not_fired_mc   *= ( 1. - eff_mc );
@@ -528,6 +787,9 @@ namespace CP {
     return CorrectionCode::Ok;
   }
 
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getSingleOrDimuonEfficiency
+  // ==================================================================================
   CorrectionCode MuonTriggerScaleFactors::getSingleOrDimuonEfficiency(Double_t& eff,
 								      const TrigMuonEff::Configuration& config,
 								      const xAOD::MuonContainer& mucont,
@@ -545,17 +807,74 @@ namespace CP {
 
     // single muon trigger
     std::string singletrig = "";
-    if(chain.find("HLT_mu20_iloose_L1MU15_OR_HLT_mu50") != std::string::npos){
+    if(chain.find("HLT_mu20_iloose_L1MU15_OR_HLT_mu40") != std::string::npos){ // they should be in this order!!
+      singletrig = "HLT_mu20_iloose_L1MU15_OR_HLT_mu40";
+    }
+    else if(chain.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu40") != std::string::npos){
+      singletrig = "HLT_mu24_iloose_L1MU15_OR_HLT_mu40";
+    }
+    else if(chain.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose_OR_HLT_mu40") != std::string::npos){
+      singletrig = "HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose_OR_HLT_mu40";
+    }
+    else if(chain.find("HLT_mu24_imedium_OR_HLT_mu40") != std::string::npos){
+      singletrig = "HLT_mu24_imedium_L1MU15_OR_HLT_mu40";
+    }
+    else if(chain.find("HLT_mu24_ivarmedium_OR_HLT_mu40") != std::string::npos){
+      singletrig = "HLT_mu24_ivarmedium_L1MU15_OR_HLT_mu40";
+    }
+    else if(chain.find("HLT_mu26_imedium_OR_HLT_mu40") != std::string::npos){
+      singletrig = "HLT_mu26_imedium_L1MU15_OR_HLT_mu40";
+    }
+    else if(chain.find("HLT_mu26_ivarmedium_OR_HLT_mu40") != std::string::npos){
+      singletrig = "HLT_mu26_ivarmedium_L1MU15_OR_HLT_mu40";
+    }
+    else if(chain.find("HLT_mu20_iloose_L1MU15_OR_HLT_mu50") != std::string::npos){
       singletrig = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
     }
     else if(chain.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu50") != std::string::npos){
       singletrig = "HLT_mu24_iloose_L1MU15_OR_HLT_mu50";
     }
+    else if(chain.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose_OR_HLT_mu50") != std::string::npos){
+      singletrig = "HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose_OR_HLT_mu50";
+    }
     else if(chain.find("HLT_mu24_imedium_OR_HLT_mu50") != std::string::npos){
-      singletrig = "HLT_mu24_iloose_L1MU15_OR_HLT_mu50";
+      singletrig = "HLT_mu24_imedium_L1MU15_OR_HLT_mu50";
+    }
+    else if(chain.find("HLT_mu24_ivarmedium_OR_HLT_mu50") != std::string::npos){
+      singletrig = "HLT_mu24_ivarmedium_L1MU15_OR_HLT_mu50";
     }
     else if(chain.find("HLT_mu26_imedium_OR_HLT_mu50") != std::string::npos){
-      singletrig = "HLT_mu24_iloose_L1MU15_OR_HLT_mu50";
+      singletrig = "HLT_mu26_imedium_L1MU15_OR_HLT_mu50";
+    }
+    else if(chain.find("HLT_mu26_ivarmedium_OR_HLT_mu50") != std::string::npos){
+      singletrig = "HLT_mu26_ivarmedium_L1MU15_OR_HLT_mu50";
+    }
+    else if(chain.find("HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose") != std::string::npos){
+      singletrig = "HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose";
+    }
+    else if(chain.find("HLT_mu20_iloose_L1MU15") != std::string::npos){
+      singletrig = "HLT_mu20_iloose_L1MU15";
+    }
+    else if(chain.find("HLT_mu24_iloose_L1MU15") != std::string::npos){
+      singletrig = "HLT_mu24_iloose_L1MU15";
+    }
+    else if(chain.find("HLT_mu24_imedium") != std::string::npos){
+      singletrig = "HLT_mu24_imedium";
+    }
+    else if(chain.find("HLT_mu24_ivarmedium") != std::string::npos){
+      singletrig = "HLT_mu24_ivarmedium";
+    }
+    else if(chain.find("HLT_mu26_imedium") != std::string::npos){
+      singletrig = "HLT_mu26_imedium";
+    }
+    else if(chain.find("HLT_mu26_ivarmedium") != std::string::npos){
+      singletrig = "HLT_mu26_ivarmedium";
+    }
+    else if(chain.find("HLT_mu40") != std::string::npos){
+      singletrig = "HLT_mu40";
+    }
+    else if(chain.find("HLT_mu50") != std::string::npos){
+      singletrig = "HLT_mu50";
     }
     else {
       ATH_MSG_ERROR("MuonTriggerScaleFactors::getSingleOrDimuonEfficiency ; Invalid dimuon or combination of single and dimuon trigger chain name given");
@@ -575,7 +894,10 @@ namespace CP {
     
     // Di-muon trigger
     std::string dimutrig = "";
-    if(chain.find("HLT_2mu14") != std::string::npos) {
+    if(chain.find("HLT_2mu10") != std::string::npos) {
+      dimutrig = "HLT_2mu10";
+    }
+    else if(chain.find("HLT_2mu14") != std::string::npos) {
       dimutrig = "HLT_2mu14";
     }
     else {
@@ -595,6 +917,9 @@ namespace CP {
   }
 
 
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getDimuonEfficiency
+  // ==================================================================================
   CorrectionCode MuonTriggerScaleFactors::getDimuonEfficiency(Double_t& eff,
 							      const TrigMuonEff::Configuration& configuration,
 							      const xAOD::MuonContainer& mucont,
@@ -608,7 +933,11 @@ namespace CP {
     double threshold_leg1 = 0.;
     double threshold_leg2 = 0.;
     
-    if(chain.find("2mu14") != std::string::npos) {
+    if(chain.find("2mu10") != std::string::npos) {
+      threshold_leg1 = thresholds.mu10;
+      threshold_leg2 = thresholds.mu10;
+    }
+    else if(chain.find("2mu14") != std::string::npos) {
       threshold_leg1 = thresholds.mu14;
       threshold_leg2 = thresholds.mu14;
     }
@@ -642,6 +971,9 @@ namespace CP {
     return CorrectionCode::Ok;
   }
   
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::setMaxPeriod
+  // ==================================================================================
   CorrectionCode MuonTriggerScaleFactors::setMaxPeriod(const TrigMuonEff::DataPeriod x)
   {
     m_max_period = x;
@@ -649,10 +981,18 @@ namespace CP {
   }
 
   // Private functions
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getDileptonLegs
+  // ==================================================================================
   void MuonTriggerScaleFactors::getDileptonLegs(const std::string& chain,
 					DileptonTrigger& dilepton)
   {
-    if (chain.find("2mu14") != std::string::npos) {
+    if (chain.find("2mu10") != std::string::npos) {
+      dilepton.leg1 = "HLT_mu10";
+      dilepton.leg2 = "HLT_mu10";
+      dilepton.bothLegs = "HLT_mu10";
+    }
+    else if (chain.find("2mu14") != std::string::npos) {
       dilepton.leg1 = "HLT_mu14";
       dilepton.leg2 = "HLT_mu14";
       dilepton.bothLegs = "HLT_mu14";
@@ -665,19 +1005,28 @@ namespace CP {
     }
   }
 
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getThresholds
+  // ==================================================================================
   Double_t MuonTriggerScaleFactors::getThresholds(const std::string& trigger)
   {
-    Double_t result = 20000*1.05;
-    if(trigger.find("HLT_mu14") != std::string::npos) result = 14000*1.05;
-    if(trigger.find("HLT_mu20_iloose_L1MU15") != std::string::npos) result = 20000*1.05;
-    if(trigger.find("HLT_mu20_iloose_L1MU15") != std::string::npos) result = 20000*1.05;
-    if(trigger.find("HLT_mu24_iloose_L1MU15") != std::string::npos) result = 24000*1.05;
-    if(trigger.find("HLT_mu24_imedium") != std::string::npos) result = 24000*1.05;
-    if(trigger.find("HLT_mu26_imedium") != std::string::npos) result = 26000*1.05;
-    return result;
+    if(trigger.find("HLT_mu6") != std::string::npos)  return 10000;
+    if(trigger.find("HLT_mu8") != std::string::npos)  return 10000;
+    if(trigger.find("HLT_mu10") != std::string::npos) return 10000*1.05;
+    if(trigger.find("HLT_mu14") != std::string::npos) return 14000*1.05;
+    if(trigger.find("HLT_mu18") != std::string::npos) return 18000*1.05;
+    if(trigger.find("HLT_mu20") != std::string::npos) return 20000*1.05;
+    if(trigger.find("HLT_mu22") != std::string::npos) return 22000*1.05;
+    if(trigger.find("HLT_mu24") != std::string::npos) return 24000*1.05;
+    if(trigger.find("HLT_mu26") != std::string::npos) return 26000*1.05;
+    if(trigger.compare("HLT_mu40") ==0) return 40000*1.05;
+    if(trigger.compare("HLT_mu50") ==0) return 50000*1.05;
+    return 10000;
   }
 
-  
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::setConfiguration
+  // ==================================================================================  
   bool MuonTriggerScaleFactors::setConfiguration(TrigMuonEff::Configuration& config,
 						 TrigMuonEff::DataPeriod period) const
   {
@@ -705,16 +1054,64 @@ namespace CP {
       }
     }
     switch (period) {
-    case TrigMuonEff::per2015ABC:
-      config.period = "ABC_";
-      config.binning = "coarse";
+    case TrigMuonEff::per2015AC:
+      config.period = "AC_";
+      config.binning = m_binning;
       config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
       break;
       
     case TrigMuonEff::per2015D:
       config.period = "D_";
-      config.binning = "coarse";
+      config.binning = m_binning;
       config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      break;
+
+    case TrigMuonEff::per2015E:
+      config.period = "E_";
+      config.binning = m_binning;
+      config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      break;
+
+    case TrigMuonEff::per2015F:
+      config.period = "F_";
+      config.binning = m_binning;
+      config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      break;
+
+    case TrigMuonEff::per2015G:
+      config.period = "G_";
+      config.binning = m_binning;
+      config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      break;
+
+    case TrigMuonEff::per2015H:
+      config.period = "H_";
+      config.binning = m_binning;
+      config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      break;
+
+    case TrigMuonEff::per2015I:
+      config.period = "I_";
+      config.binning = m_binning;
+      config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      break;
+
+    case TrigMuonEff::per2015J:
+      config.period = "J_";
+      config.binning = m_binning;
+      config.trigger = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+      break;
+
+    case TrigMuonEff::per2016A:
+      config.period = "A_";
+      config.binning = m_binning;
+      config.trigger = "HLT_mu24_imedium_OR_HLT_mu50";
+      break;
+
+    case TrigMuonEff::per2016B:
+      config.period = "B_";
+      config.binning = m_binning;
+      config.trigger = "HLT_mu24_imedium_OR_HLT_mu50";
       break;
 
     default:
@@ -725,23 +1122,51 @@ namespace CP {
     return true;
   }
   
+  // ==================================================================================
+  // == 
+  // ==================================================================================
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getDileptonThresholds
+  // ==================================================================================
   void MuonTriggerScaleFactors::getDileptonThresholds(DileptonThresholds& thresholds)
   {
+    thresholds.mu6 = 7;
     thresholds.mu10 = 11;
     thresholds.mu14 = 15;
     thresholds.mu18 = 19;
+    thresholds.mu20 = 21;
+    thresholds.mu22 = 23;
+    thresholds.mu24 = 25;
+    thresholds.mu26 = 27;
     thresholds.mu8noL1 = 10;
   }
   
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getDataPeriod
+  // ==================================================================================
   TrigMuonEff::DataPeriod MuonTriggerScaleFactors::getDataPeriod(int runNumber)
   {
-    if( runNumber >= 266904 && runNumber <= 272531 ) return TrigMuonEff::per2015ABC;
+    // 2015
+    if( runNumber >= 266904 && runNumber <= 272531 ) return TrigMuonEff::per2015AC;
     if( runNumber >= 276073 && runNumber <= 276954 ) return TrigMuonEff::per2015D;
+    if( runNumber >= 278727 && runNumber <= 279928 ) return TrigMuonEff::per2015E;
+    if( runNumber >= 279932 && runNumber <= 280422 ) return TrigMuonEff::per2015F;
+    if( runNumber >= 280423 && runNumber <= 281075 ) return TrigMuonEff::per2015G;
+    if( runNumber >= 281130 && runNumber <= 281411 ) return TrigMuonEff::per2015H;
+    if( runNumber >= 281662 && runNumber <= 282482 ) return TrigMuonEff::per2015I; // special ALFA run
+    if( runNumber >= 282625 && runNumber <= 284484 ) return TrigMuonEff::per2015J;
+
+    // 2016
+    if( runNumber >= 296939 && runNumber <= 300287 ) return TrigMuonEff::per2016A;
+    if( runNumber >= 300345 ) return TrigMuonEff::per2016B;
+
     return TrigMuonEff::perUnDefined;
   }
   
-  void
-  MuonTriggerScaleFactors::setStorage(Storage& storage) const
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::setStorage
+  // ==================================================================================
+  void MuonTriggerScaleFactors::setStorage(Storage& storage) const
   {
     static const std::string type_[] = {"data", "mc"};
     static const std::vector<std::string> type(type_, type_ + sizeof(type_)/sizeof(std::string));
@@ -749,46 +1174,444 @@ namespace CP {
     static const std::string region_[]  = {"barrel", "endcap"};
     static const std::vector<std::string> region(region_, region_ + sizeof(region_)/sizeof(std::string));
 
-    static std::vector<std::string> quality2015;
-    quality2015.clear();
-    quality2015.push_back("Tight");
-    quality2015.push_back("Medium");
-    quality2015.push_back("Loose");
+    // Adding only quality and iso used in Init to reduce the memory usage of the tool
+    static std::vector<std::string> quality;
+    quality.clear();
+    quality.push_back(m_muonquality);
 
-    static std::vector<std::string> isolation2015;
-    isolation2015.clear();
-    isolation2015.push_back("");
-    isolation2015.push_back("_IsoGradient");
-    isolation2015.push_back("_IsoLoose");
-    isolation2015.push_back("_IsoTight");
+    static std::vector<std::string> isolation;
+    isolation.clear();
+    const std::string my_isolation = (m_isolation.empty() ? "" : "_" + m_isolation);
+    isolation.push_back(my_isolation);
 
-    // 2015
-    static const std::string bins2015_[] = {"coarse", "fine"};
-    static const std::vector<std::string> bins2015(bins2015_, bins2015_ + sizeof(bins2015_)/sizeof(std::string));
+    static const std::string bins_[] = {"coarse", "fine"};
+    static const std::vector<std::string> bins(bins_, bins_ + sizeof(bins_)/sizeof(std::string));
     
-    static const std::string trigger2015_[] = {"HLT_mu20_iloose_L1MU15","HLT_mu20_iloose_L1MU15",
-					       "HLT_mu24_iloose_L1MU15","HLT_mu24_iloose_L1MU15",
-					       "HLT_mu24_imedium","HLT_mu24_imedium",
-					       "HLT_mu26_imedium","HLT_mu26_imedium",
-					       "HLT_mu50","HLT_mu50",
-					       "HLT_mu20_iloose_L1MU15_OR_HLT_mu50","HLT_mu20_iloose_L1MU15_OR_HLT_mu50",
-					       "HLT_mu24_iloose_L1MU15_OR_HLT_mu50","HLT_mu24_iloose_L1MU15_OR_HLT_mu50",
-					       "HLT_mu24_imedium_OR_HLT_mu50","HLT_mu24_imedium_OR_HLT_mu50",
-					       "HLT_mu26_imedium_OR_HLT_mu50", "HLT_mu26_imedium_OR_HLT_mu50"};
-    
-    static const std::vector<std::string> trigger2015(trigger2015_, trigger2015_ + sizeof(trigger2015_)/sizeof(std::string));
-    
-    static const std::string period2015_[] = {"ABC", "D",
-					      "ABC", "D",
-					      "ABC", "D",
-					      "ABC", "D",
-					      "ABC", "D",
-					      "ABC", "D",
-					      "ABC", "D",
-					      "ABC", "D",
-					      "ABC", "D"};
+    // 2015 - mc15a
+    static const std::string trigger2015mc15a_[] = {
 
-    static const std::vector<std::string> period2015(period2015_, period2015_ + sizeof(period2015_)/sizeof(std::string));
+      "HLT_mu20_iloose_L1MU15", // AC
+      "HLT_mu20_iloose_L1MU15", // D
+      "HLT_mu20_iloose_L1MU15", // E
+      "HLT_mu20_iloose_L1MU15", // F
+      "HLT_mu20_iloose_L1MU15", // G
+      "HLT_mu20_iloose_L1MU15", // H
+      "HLT_mu20_iloose_L1MU15", // J
+      
+      "HLT_mu24_iloose_L1MU15", // AC
+      "HLT_mu24_iloose_L1MU15", // D 
+      "HLT_mu24_iloose_L1MU15", // E 
+      "HLT_mu24_iloose_L1MU15", // F 
+      "HLT_mu24_iloose_L1MU15", // G 
+      "HLT_mu24_iloose_L1MU15", // H 
+      "HLT_mu24_iloose_L1MU15", // J 
+      
+      "HLT_mu24_imedium", // AC
+      "HLT_mu24_imedium", // D 
+      "HLT_mu24_imedium", // E 
+      "HLT_mu24_imedium", // F 
+      "HLT_mu24_imedium", // G 
+      "HLT_mu24_imedium", // H 
+      "HLT_mu24_imedium", // J 
+      
+      "HLT_mu26_imedium", // AC
+      "HLT_mu26_imedium", // D 
+      "HLT_mu26_imedium", // E 
+      "HLT_mu26_imedium", // F 
+      "HLT_mu26_imedium", // G 
+      "HLT_mu26_imedium", // H 
+      "HLT_mu26_imedium", // J 
+      
+      "HLT_mu50", // AC
+      "HLT_mu50", // D 
+      "HLT_mu50", // E 
+      "HLT_mu50", // F 
+      "HLT_mu50", // G 
+      "HLT_mu50", // H 
+      "HLT_mu50", // J 
+      
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // AC
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // D 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // E 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // F 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // G 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // H 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // J 
+      
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // AC
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // D 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // E 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // F 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // G 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // H 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // J 
+      
+      "HLT_mu24_imedium_OR_HLT_mu50", // AC
+      "HLT_mu24_imedium_OR_HLT_mu50", // D 
+      "HLT_mu24_imedium_OR_HLT_mu50", // E 
+      "HLT_mu24_imedium_OR_HLT_mu50", // F 
+      "HLT_mu24_imedium_OR_HLT_mu50", // G 
+      "HLT_mu24_imedium_OR_HLT_mu50", // H 
+      "HLT_mu24_imedium_OR_HLT_mu50", // J 
+
+      "HLT_mu26_imedium_OR_HLT_mu50", // AC
+      "HLT_mu26_imedium_OR_HLT_mu50", // D 
+      "HLT_mu26_imedium_OR_HLT_mu50", // E 
+      "HLT_mu26_imedium_OR_HLT_mu50", // F 
+      "HLT_mu26_imedium_OR_HLT_mu50", // G 
+      "HLT_mu26_imedium_OR_HLT_mu50", // H 
+      "HLT_mu26_imedium_OR_HLT_mu50", // J 
+
+      "HLT_mu10", // AC
+      "HLT_mu10", // D 
+      "HLT_mu10", // E 
+      "HLT_mu10", // F 
+      "HLT_mu10", // G 
+      "HLT_mu10", // H 
+      "HLT_mu10", // J 
+
+      "HLT_mu14", // AC
+      "HLT_mu14", // D 
+      "HLT_mu14", // E 
+      "HLT_mu14", // F 
+      "HLT_mu14", // G 
+      "HLT_mu14", // H 
+      "HLT_mu14", // J 
+
+      "HLT_mu18", // AC
+      "HLT_mu18", // D 
+      "HLT_mu18", // E 
+      "HLT_mu18", // F 
+      "HLT_mu18", // G 
+      "HLT_mu18", // H 
+      "HLT_mu18", // J 
+
+      "HLT_mu22", // AC
+      "HLT_mu22", // D 
+      "HLT_mu22", // E 
+      "HLT_mu22", // F 
+      "HLT_mu22", // G 
+      "HLT_mu22", // H 
+      "HLT_mu22", // J 
+
+      "HLT_mu24", // AC
+      "HLT_mu24", // D 
+      "HLT_mu24", // E 
+      "HLT_mu24", // F 
+      "HLT_mu24", // G 
+      "HLT_mu24", // H 
+      "HLT_mu24", // J 
+
+      "HLT_mu8noL1", // AC
+      "HLT_mu8noL1", // D 
+      "HLT_mu8noL1", // E 
+      "HLT_mu8noL1", // F 
+      "HLT_mu8noL1", // G 
+      "HLT_mu8noL1", // H 
+      "HLT_mu8noL1"  // J 
+
+    };
+    
+    // 2015 - mc15c
+    static const std::string trigger2015mc15c_[] = {
+
+      "HLT_mu20_iloose_L1MU15", // D
+      "HLT_mu20_iloose_L1MU15", // E
+      "HLT_mu20_iloose_L1MU15", // F
+      "HLT_mu20_iloose_L1MU15", // G
+      "HLT_mu20_iloose_L1MU15", // H
+      "HLT_mu20_iloose_L1MU15", // J
+      
+      "HLT_mu24_iloose_L1MU15", // D 
+      "HLT_mu24_iloose_L1MU15", // E 
+      "HLT_mu24_iloose_L1MU15", // F 
+      "HLT_mu24_iloose_L1MU15", // G 
+      "HLT_mu24_iloose_L1MU15", // H 
+      "HLT_mu24_iloose_L1MU15", // J 
+      
+      "HLT_mu24_imedium", // D 
+      "HLT_mu24_imedium", // E 
+      "HLT_mu24_imedium", // F 
+      "HLT_mu24_imedium", // G 
+      "HLT_mu24_imedium", // H 
+      "HLT_mu24_imedium", // J 
+      
+      "HLT_mu26_imedium", // D 
+      "HLT_mu26_imedium", // E 
+      "HLT_mu26_imedium", // F 
+      "HLT_mu26_imedium", // G 
+      "HLT_mu26_imedium", // H 
+      "HLT_mu26_imedium", // J 
+      
+      "HLT_mu40", // D 
+      "HLT_mu40", // E 
+      "HLT_mu40", // F 
+      "HLT_mu40", // G 
+      "HLT_mu40", // H 
+      "HLT_mu40", // J 
+      
+      "HLT_mu50", // D 
+      "HLT_mu50", // E 
+      "HLT_mu50", // F 
+      "HLT_mu50", // G 
+      "HLT_mu50", // H 
+      "HLT_mu50", // J 
+      
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu40", // D 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu40", // E 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu40", // F 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu40", // G 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu40", // H 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu40", // J 
+      
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu40", // D 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu40", // E 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu40", // F 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu40", // G 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu40", // H 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu40", // J 
+      
+      "HLT_mu24_imedium_OR_HLT_mu40", // D 
+      "HLT_mu24_imedium_OR_HLT_mu40", // E 
+      "HLT_mu24_imedium_OR_HLT_mu40", // F 
+      "HLT_mu24_imedium_OR_HLT_mu40", // G 
+      "HLT_mu24_imedium_OR_HLT_mu40", // H 
+      "HLT_mu24_imedium_OR_HLT_mu40", // J 
+
+      "HLT_mu26_imedium_OR_HLT_mu40", // D 
+      "HLT_mu26_imedium_OR_HLT_mu40", // E 
+      "HLT_mu26_imedium_OR_HLT_mu40", // F 
+      "HLT_mu26_imedium_OR_HLT_mu40", // G 
+      "HLT_mu26_imedium_OR_HLT_mu40", // H 
+      "HLT_mu26_imedium_OR_HLT_mu40", // J 
+
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // D 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // E 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // F 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // G 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // H 
+      "HLT_mu20_iloose_L1MU15_OR_HLT_mu50", // J 
+      
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // D 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // E 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // F 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // G 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // H 
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu50", // J 
+      
+      "HLT_mu24_imedium_OR_HLT_mu50", // D 
+      "HLT_mu24_imedium_OR_HLT_mu50", // E 
+      "HLT_mu24_imedium_OR_HLT_mu50", // F 
+      "HLT_mu24_imedium_OR_HLT_mu50", // G 
+      "HLT_mu24_imedium_OR_HLT_mu50", // H 
+      "HLT_mu24_imedium_OR_HLT_mu50", // J 
+
+      "HLT_mu26_imedium_OR_HLT_mu50", // D 
+      "HLT_mu26_imedium_OR_HLT_mu50", // E 
+      "HLT_mu26_imedium_OR_HLT_mu50", // F 
+      "HLT_mu26_imedium_OR_HLT_mu50", // G 
+      "HLT_mu26_imedium_OR_HLT_mu50", // H 
+      "HLT_mu26_imedium_OR_HLT_mu50", // J 
+
+      "HLT_mu6", // D 
+      "HLT_mu6", // E 
+      "HLT_mu6", // F 
+      "HLT_mu6", // G 
+      "HLT_mu6", // H 
+      "HLT_mu6", // J 
+
+      "HLT_mu10", // D 
+      "HLT_mu10", // E 
+      "HLT_mu10", // F 
+      "HLT_mu10", // G 
+      "HLT_mu10", // H 
+      "HLT_mu10", // J 
+
+      "HLT_mu14", // D 
+      "HLT_mu14", // E 
+      "HLT_mu14", // F 
+      "HLT_mu14", // G 
+      "HLT_mu14", // H 
+      "HLT_mu14", // J 
+
+      "HLT_mu18", // D 
+      "HLT_mu18", // E 
+      "HLT_mu18", // F 
+      "HLT_mu18", // G 
+      "HLT_mu18", // H 
+      "HLT_mu18", // J 
+
+      "HLT_mu22", // D 
+      "HLT_mu22", // E 
+      "HLT_mu22", // F 
+      "HLT_mu22", // G 
+      "HLT_mu22", // H 
+      "HLT_mu22", // J 
+
+      "HLT_mu24", // D 
+      "HLT_mu24", // E 
+      "HLT_mu24", // F 
+      "HLT_mu24", // G 
+      "HLT_mu24", // H 
+      "HLT_mu24", // J 
+
+      "HLT_mu8noL1", // D 
+      "HLT_mu8noL1", // E 
+      "HLT_mu8noL1", // F 
+      "HLT_mu8noL1", // G 
+      "HLT_mu8noL1", // H 
+      "HLT_mu8noL1"  // J 
+
+    };
+    
+    // 2016 - mc15c
+    static const std::string trigger2016mc15c_[] = {
+
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose", // A
+      
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose_OR_HLT_mu40", // A
+      
+      "HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose_OR_HLT_mu50", // A
+      
+      "HLT_mu24_imedium", // A
+      "HLT_mu24_imedium", // B 
+
+      "HLT_mu24_imedium_OR_HLT_mu40", // A
+
+      "HLT_mu24_imedium_OR_HLT_mu50", // A
+      "HLT_mu24_imedium_OR_HLT_mu50", // B 
+      
+      "HLT_mu24_ivarmedium", // A
+      "HLT_mu24_ivarmedium", // B 
+
+      "HLT_mu24_ivarmedium_OR_HLT_mu40", // A
+
+      "HLT_mu24_ivarmedium_OR_HLT_mu50", // A
+      "HLT_mu24_ivarmedium_OR_HLT_mu50", // B 
+
+      "HLT_mu26_imedium", // A
+      "HLT_mu26_imedium", // B 
+
+      "HLT_mu26_imedium_OR_HLT_mu40", // A
+
+      "HLT_mu26_imedium_OR_HLT_mu50", // A
+      "HLT_mu26_imedium_OR_HLT_mu50", // B 
+
+      "HLT_mu26_ivarmedium", // A
+      "HLT_mu26_ivarmedium", // B 
+
+      "HLT_mu26_ivarmedium_OR_HLT_mu40", // A
+
+      "HLT_mu26_ivarmedium_OR_HLT_mu50", // A
+      "HLT_mu26_ivarmedium_OR_HLT_mu50", // B 
+
+      "HLT_mu40", // A
+      
+      "HLT_mu50", // A
+      "HLT_mu50", // B 
+      
+      "HLT_mu6", // A
+      "HLT_mu6", // B 
+
+      "HLT_mu10", // A
+
+      "HLT_mu14", // A
+      "HLT_mu14", // B 
+
+      "HLT_mu20", // A
+      "HLT_mu20", // B 
+
+      "HLT_mu22", // A
+      "HLT_mu22", // B 
+
+      "HLT_mu24", // A
+      "HLT_mu24", // B 
+
+      "HLT_mu26", // A
+      "HLT_mu26", // B 
+
+      "HLT_mu8noL1", // A
+      "HLT_mu8noL1"  // B 
+
+    };
+    
+    static const std::vector<std::string> trigger2015mc15a(trigger2015mc15a_, trigger2015mc15a_ + sizeof(trigger2015mc15a_)/sizeof(std::string));
+    static const std::vector<std::string> trigger2015mc15c(trigger2015mc15c_, trigger2015mc15c_ + sizeof(trigger2015mc15c_)/sizeof(std::string));
+    static const std::vector<std::string> trigger2016mc15c(trigger2016mc15c_, trigger2016mc15c_ + sizeof(trigger2016mc15c_)/sizeof(std::string));
+    
+    static const std::string period2015mc15a_[] = {
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J",
+      "AC", "D", "E", "F", "G", "H", "J"
+    };
+
+    static const std::string period2015mc15c_[] = {
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J",
+      "D", "E", "F", "G", "H", "J"
+    };
+
+    static const std::string period2016mc15c_[] = {
+      "A",
+      "A",
+      "A",
+      "A", "B",
+      "A",
+      "A", "B",
+      "A", "B",
+      "A",
+      "A", "B",
+      "A", "B",
+      "A",
+      "A", "B",
+      "A", "B",
+      "A",
+      "A", "B",
+      "A", 
+      "A", "B",
+      "A", "B",
+      "A", 
+      "A", "B",
+      "A", "B",
+      "A", "B",
+      "A", "B",
+      "A", "B",
+      "A", "B",
+    };
+
+    static const std::vector<std::string> period2015mc15a(period2015mc15a_, period2015mc15a_ + sizeof(period2015mc15a_)/sizeof(std::string));
+    static const std::vector<std::string> period2015mc15c(period2015mc15c_, period2015mc15c_ + sizeof(period2015mc15c_)/sizeof(std::string));
+    static const std::vector<std::string> period2016mc15c(period2016mc15c_, period2016mc15c_ + sizeof(period2016mc15c_)/sizeof(std::string));
     
     static const std::string systematic_[] = {"nominal","stat_up","stat_down",
 					      "syst_up","syst_down"};
@@ -798,19 +1621,35 @@ namespace CP {
     storage.type = &type;
     storage.region = &region;
     storage.systematic = &systematic;
-    storage.trigger = &trigger2015;
-    storage.period = &period2015;
-    storage.quality = &quality2015;
-    storage.isolation = &isolation2015;
-    storage.bins = &bins2015;
+
+
+    if( m_year == "2015" && m_mc == "mc15a" ){
+      storage.trigger = &trigger2015mc15a;
+      storage.period = &period2015mc15a;
+    }
+    else if( m_year == "2015" && m_mc == "mc15c" ){
+      storage.trigger = &trigger2015mc15c;
+      storage.period = &period2015mc15c;    
+    }
+    else{
+      storage.trigger = &trigger2016mc15c;
+      storage.period = &period2016mc15c;    
+    }
+
+    storage.quality = &quality;
+    storage.isolation = &isolation;
+    storage.bins = &bins;
     
     if (storage.period->size() != storage.trigger->size()) {
-       ATH_MSG_FATAL("MuonTriggerScaleFactors::setStorage : size of period and trigger is different : check configuration");
+      ATH_MSG_FATAL("MuonTriggerScaleFactors::setStorage : size of period and trigger is different : check configuration [#periods=" << storage.period->size() << ",#triggers=" << storage.trigger->size() << "]" );
     }
     
     return;
   }
   
+  // ==================================================================================
+  // == MuonTriggerScaleFactors::getTemporaryDirectory
+  // ==================================================================================
   TDirectory* MuonTriggerScaleFactors::getTemporaryDirectory(void) const
   {
     gROOT->cd();
@@ -845,11 +1684,19 @@ namespace CP {
   /// returns: the list of all systematics this tool can be affected by
   CP::SystematicSet MuonTriggerScaleFactors::affectingSystematics() const {
     CP::SystematicSet mySysSet;
-    
-    mySysSet.insert(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", 1));
-    mySysSet.insert(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", -1));
+
     mySysSet.insert(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", 1));
     mySysSet.insert(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", -1));
+
+    //Consider full statUncertainty if  TOY replicas are not used
+    if (m_replicaTriggerList.size() == 0) {
+      mySysSet.insert(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", 1));
+      mySysSet.insert(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", -1));      
+    } else {
+      for (int i=0; i < m_nReplicas; ++i){//TOFIX Hack with just up variations! needs ASG reserved words for a clean handling//+++++++
+        mySysSet.insert(CP::SystematicVariation(Form("MUON_EFF_Trig_MCTOY%03d",i), 1));
+      }
+    }
 
     return mySysSet;
   }
@@ -882,8 +1729,8 @@ namespace CP {
       static CP::SystematicSet affectingSys = affectingSystematics();
       CP::SystematicSet filteredSys;
       if (!CP::SystematicSet::filterForAffectingSystematics(systConfig, affectingSys, filteredSys)){
-	ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool!");
-	return CP::SystematicCode::Unsupported;
+        ATH_MSG_ERROR("Unsupported combination of systematics passed to the tool!");
+        return CP::SystematicCode::Unsupported;
       }
 
       // Insert filtered set into the map
@@ -894,10 +1741,15 @@ namespace CP {
 
     // Check to see if the set of variations tries to add in the uncertainty up and down. Since the errors
     // are symetric this would result in 0 and so should not be done.
-    if( (mySysConf.matchSystematic( CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", 1)) && 
-	 mySysConf.matchSystematic( CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", -1))) ||
-	(mySysConf.matchSystematic( CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", 1)) && 
-	 mySysConf.matchSystematic( CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", -1)) )){
+    static const CP::SystematicVariation stat_up("MUON_EFF_TrigStatUncertainty", 1);
+    static const CP::SystematicVariation stat_down("MUON_EFF_TrigStatUncertainty", -1);
+    static const CP::SystematicVariation syst_up("MUON_EFF_TrigSystUncertainty", 1);
+    static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
+
+    if( (mySysConf.matchSystematic(stat_up) && 
+         mySysConf.matchSystematic(stat_down)) ||
+        (mySysConf.matchSystematic(syst_up) && 
+         mySysConf.matchSystematic(syst_down) )){
       return CP::SystematicCode::Unsupported;
     }
 

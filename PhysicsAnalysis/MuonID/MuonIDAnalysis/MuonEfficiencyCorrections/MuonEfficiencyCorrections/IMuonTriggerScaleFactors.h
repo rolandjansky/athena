@@ -2,13 +2,15 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-
 /*
  *  IMuonTriggerScaleFactors.h
  *
  *  Created on: Oct. 22, 2014
  *      Author: Kota Kasahara <kota.kasahara@cern.ch>
- */
+ *
+ *  Updates for 2016: Jun 20, 2016
+ *      Author: Lidia Dell'Asta <dellasta@cern.ch> 
+*/
 
 #ifndef IMUONTRIGGERSCALEFACTORS_H_
 #define IMUONTRIGGERSCALEFACTORS_H_
@@ -62,8 +64,17 @@ namespace TrigMuonEff {
     period_undefined = -1,            perUnDefined      = -1,
     
     // 2015
-    period_2015_ABC = 0,     per2015ABC = 0,
+    period_2015_AC = 0,    per2015AC = 0,
     period_2015_D = 1,     per2015D = 1,
+    period_2015_E = 2,     per2015E = 2,
+    period_2015_F = 3,     per2015F = 3,
+    period_2015_G = 4,     per2015G = 4,
+    period_2015_H = 5,     per2015H = 5,
+    period_2015_I = 6,     per2015I = 6,
+    period_2015_J = 7,     per2015J = 7,
+    // 2016
+    period_2016_A = 8,     per2016A = 8,
+    period_2016_B = 9,     per2016B = 9,
     
     period_runnumber_zero = -2
   } SFDataPeriod;

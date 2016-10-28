@@ -68,6 +68,7 @@ int main( int argc, char* argv[] ) {
 
     // Create a TEvent object:
     xAOD::TEvent event;
+    xAOD::TStore store;
     RETURN_CHECK(APP_NAME,event.readFrom( ifile.get(), xAOD::TEvent::kClassAccess ));
     Info( APP_NAME, "Number of events in the file: %i",
             static_cast< int >( event.getEntries() ) );
@@ -84,11 +85,15 @@ int main( int argc, char* argv[] ) {
     // instance the trigger scale factor tool
     CP::MuonTriggerScaleFactors m_trig_sf("TrigSFClass");
     // Configure it :
-    //ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("CalibrationRelease", ""));
-    ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("CustomInputFolder", "/afs/cern.ch/user/n/nkarast/work/public/MCPNtuples/v009/check_SF_all_triggers/"));
-    ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("filename", "muon_trigger_eff_periodsABCD_aug26.root"));
-    ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("MuonQuality", "Medium"));
-    ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("Isolation", "IsoLoose"));
+    ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("MuonQuality", "Medium")); // Loose,Medium,Tight,HighPt
+    ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("Isolation", "")); // isolation workinig points have been merged as they have no big difference
+    ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("Binning", "fine")); // fine(default) or coarse
+    
+    //ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("Year", "2015")); 
+    
+    //ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("CalibrationRelease", "160619_ICHEP")); 
+    //ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("filename", "muon_trigger_eff_nov21.root")); //**LIDIA** Change this!
+    //ASG_CHECK_SA(APP_NAME,m_trig_sf.setProperty("CustomInputFolder", "/afs/cern.ch/user/n/nkoehler/public/MCP/ScaleFactorFiles/160619_ICHEP/")); //**LIDIA** Change this!
     ASG_CHECK_SA(APP_NAME,m_trig_sf.initialize());
 
     std::vector<CP::SystematicSet> m_sysList; //!                                                               
@@ -124,18 +129,23 @@ int main( int argc, char* argv[] ) {
         Info( APP_NAME, "Number of muons: %i",
                 static_cast< int >( muons->size() ) );
 
-	// Create new muoncontainer for the trigger sf tool
-	xAOD::MuonContainer *SelectedMuon = new xAOD::MuonContainer;
-	xAOD::MuonAuxContainer *SelectedMuonAux = new xAOD::MuonAuxContainer;
-	SelectedMuon -> setStore(SelectedMuonAux);
-
-	std::string singletrig = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
+	//std::string singletrig = "HLT_mu40";
+	//std::string singletrig = "HLT_mu50";
+	//std::string singletrig = "HLT_mu24_iloose_L1MU15_OR_HLT_mu24_iloose";
+	//std::string singletrig = "HLT_mu24_imedium";
+	std::string singletrig = "HLT_mu8noL1";
+	//std::string singletrig = "HLT_mu20_iloose_L1MU15_OR_HLT_mu50";
 	//std::string multitrig=  "HLT_mu20_iloose_L1MU15_OR_HLT_mu50_OR_HLT_2mu14";
 
 	for(unsigned int i = 0 ; i < m_sysList.size() ; i++){
 	  CHECK_CPSys(m_trig_sf.applySystematicVariation(m_sysList.at(i)));
 	  std::cout << "Systematic type : " << m_sysList.at(i).name() << std::endl; 
 	  
+	  // Create new muoncontainer for the trigger sf tool
+	  xAOD::MuonContainer *SelectedMuon = new xAOD::MuonContainer;
+	  xAOD::MuonAuxContainer *SelectedMuonAux = new xAOD::MuonAuxContainer;
+	  SelectedMuon -> setStore(SelectedMuonAux);
+
 	  xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
 	  xAOD::MuonContainer::const_iterator mu_end = muons->end();
 	  for( ; mu_itr != mu_end; ++mu_itr ) {
@@ -145,7 +155,32 @@ int main( int argc, char* argv[] ) {
 		  ( *mu_itr )->eta(), ( *mu_itr )->phi(), ( *mu_itr )->pt() );
 	    
 	    Double_t eff;
-	    Int_t runNumber = 27611;
+
+	    /*
+	      2015 periods AC : runNumber >= 266904 && runNumber <= 272531
+	      2015 period  D  : runNumber >= 276073 && runNumber <= 276954
+	      2015 period  E  : runNumber >= 278727 && runNumber <= 279928
+	      2015 period  F  : runNumber >= 279932 && runNumber <= 280422
+	      2015 period  G  : runNumber >= 280423 && runNumber <= 281075
+	      2015 period  H  : runNumber >= 281130 && runNumber <= 281411
+	      2015 period  J  : runNumber >= 282625 && runNumber <= 284484
+              2016 period  A  : runNumber >= 296939 && runNumber <= 300287 
+              2016 period  B  : runNumber >= 300345 
+	    */
+	    
+	    //int runNumber = 266904; // period 2015 AC
+	    //int runNumber = 276073; // period 2015 D
+	    //int runNumber = 278727; // period 2015 E
+	    //int runNumber = 279932; // period 2015 F
+	    //int runNumber = 280423; // period 2015 G
+	    //int runNumber = 281130; // period 2015 H
+	    //int runNumber = 282625; // period 2015 J
+	    int runNumber = 296939; // period 2016 A
+	    //int runNumber = 300345; // period 2016 B
+
+	    //int runNumber = 276072; // WRONG period 2015 D
+	    //int runNumber = 296938; // WRONG period 2016 A
+	    
 	    CHECK_CPCorr(m_trig_sf.setRunNumber(runNumber));
 	    
 	    if(!(m_sysList.at(i).name().find("TrigSystUncertainty") != std::string::npos)){
