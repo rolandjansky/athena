@@ -74,13 +74,6 @@ class EventRangeChannel(JobProperty):
     allowedTypes = ['str']
     StoredValue = 'EventService_EventRanges'
 
-class TokenExtractorChannel(JobProperty):
-    """ For the Event Service: Communication channel between Range Scatterer and Token Extractor
-    """
-    statusOn = True
-    allowedTypes = ['str']
-    StoredValue = 'TokenExtractorChannel'
-
 class EvtRangeScattererCaching(JobProperty):
     """ For the Event Service: flag for activating extra event caching by the EvtRangeScatterer
     """
@@ -101,13 +94,6 @@ class ChunkSize(JobProperty):
     statusOn = True
     allowedTypes = ['int']
     StoredValue  = 1
-
-class UseTokenExtractor(JobProperty):
-    """ Flag to indicate the usage of the Token Extractor in ES jobs
-    """
-    statusOn = True
-    allowedTypes = ['bool']
-    StoredValue = False
 
 class ReadEventOrders(JobProperty):
     """ Flag for reading event orders (Shared Queue) from an ASCII file for reproducibility
@@ -143,11 +129,9 @@ list_jobproperties = [
     PollingInterval,
     EventsBeforeFork,
     EventRangeChannel,
-    TokenExtractorChannel,
     MemSamplingInterval,
     EvtRangeScattererCaching,
     ChunkSize,
-    UseTokenExtractor,
     ReadEventOrders,
     EventOrdersFile,
     ]
