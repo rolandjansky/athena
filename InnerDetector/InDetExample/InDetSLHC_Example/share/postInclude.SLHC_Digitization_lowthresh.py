@@ -68,15 +68,15 @@ if DetFlags.digitize.pixel_on():
     ## Threshold settings are now in PixelCalibSvc
     ServiceMgr.PixelCalibSvc.IntimeThresh    = 600
     ServiceMgr.PixelCalibSvc.DiscrThresh     = 600
-    ServiceMgr.PixelCalibSvc.DiscrThreshVar  =  40
+    ServiceMgr.PixelCalibSvc.DiscrThreshVar  =  24
     ServiceMgr.PixelCalibSvc.NoiseThresh     =  75
 
     ## ITk chip values for charge calibration
-    #ServiceMgr.PixelCalibSvc.ToTParA       = ??
-    ServiceMgr.PixelCalibSvc.ToTParE        = -600
-    #ServiceMgr.PixelCalibSvc.ToTParC       = ??
-    #ServiceMgr.PixelCalibSvc.ToTParP1      = ??
-    #ServiceMgr.PixelCalibSvc.ToTParP2      = ??
+    ServiceMgr.PixelCalibSvc.ToTParA       = 256
+    ServiceMgr.PixelCalibSvc.ToTParE        = -200
+    ServiceMgr.PixelCalibSvc.ToTParC       = 150000
+    ServiceMgr.PixelCalibSvc.ToTParP1      = 0.4
+    ServiceMgr.PixelCalibSvc.ToTParP2      = 0.02
 
     if hasattr(pixeldigi,'OfflineCalibSvc') :
        pixeldigi.OfflineCalibSvc=""

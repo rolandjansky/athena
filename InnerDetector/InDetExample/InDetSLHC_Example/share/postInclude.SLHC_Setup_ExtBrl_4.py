@@ -12,9 +12,11 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     from AthenaCommon.AppMgr import ToolSvc
 
     ## Improved pixel clustering with extended barrel
-    ToolSvc.InDetMergedPixelsTool.DoMergeBrokenClusters = True
-    ToolSvc.InDetMergedPixelsTool.DoRemoveClustersWithToTequalSize = False
-    ToolSvc.InDetMergedPixelsTool.DoCheckSizeBeforeMerging = True
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.makeRIO.pixel_on():
+        ToolSvc.InDetMergedPixelsTool.DoMergeBrokenClusters = True
+        ToolSvc.InDetMergedPixelsTool.DoRemoveClustersWithToTequalSize = False
+        ToolSvc.InDetMergedPixelsTool.DoCheckSizeBeforeMerging = True
 
     ## Improved pattern recognition with extended barrel
     ToolSvc.InDetSpSeedsMakerSLHC.usePixelClusterCleanUp = True

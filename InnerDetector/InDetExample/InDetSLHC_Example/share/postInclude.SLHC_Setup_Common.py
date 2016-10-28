@@ -2,6 +2,8 @@
 ## postInclude common to all ITk layouts
 ##
 
+include("PyJobTransforms/UseFrontier.py")
+
 from AthenaCommon.AppMgr import ServiceMgr
 
 if rec.OutputFileNameForRecoStep() == 'RAWtoESD' or rec.OutputFileNameForRecoStep() == 'ESDtoDPD':
@@ -28,5 +30,7 @@ if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
     from AthenaCommon.AppMgr import ToolSvc
 
     ## TEMPORARY setting while we fix the values in the PixelCalibCondDB
-    ToolSvc.InDetClusterMakerTool.UsePixelCalibCondDB=False
+    from AthenaCommon.DetFlags import DetFlags
+    if DetFlags.makeRIO.pixel_on():
+        ToolSvc.InDetClusterMakerTool.UsePixelCalibCondDB=False
 

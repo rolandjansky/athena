@@ -14,6 +14,8 @@ include("InDetSLHC_Example/postInclude.SLHC_Setup_Common.py")
 #if rec.OutputFileNameForRecoStep() == 'RAWtoESD':
 #    ## Improved pixel clustering with extended barrel
 #    from AthenaCommon.AppMgr import ToolSvc
-#    ToolSvc.InDetMergedPixelsTool.DoMergeBrokenClusters = True
-#    ToolSvc.InDetMergedPixelsTool.DoRemoveClustersWithToTequalSize = False
-#    ToolSvc.InDetMergedPixelsTool.DoCheckSizeBeforeMerging = True
+#    from AthenaCommon.DetFlags import DetFlags
+#    if DetFlags.makeRIO.pixel_on():
+#        ToolSvc.InDetMergedPixelsTool.DoMergeBrokenClusters = True
+#        ToolSvc.InDetMergedPixelsTool.DoRemoveClustersWithToTequalSize = False
+#        ToolSvc.InDetMergedPixelsTool.DoCheckSizeBeforeMerging = True

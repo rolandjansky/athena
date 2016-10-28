@@ -44,8 +44,6 @@ InDetFlags.doSlimming=False
 InDetFlags.doBeamHalo=False
 InDetFlags.doStatistics=True
 InDetFlags.useDCS=False
-InDetFlags.doBremRecovery=True
-InDetFlags.doCaloSeededBrem=False
 
 InDetFlags.doSGDeletion=False # This should be False. 
 #InDetFlags.doPixelClusterSplitting=False  # Christoph Rauchegger: Set to true (default) for run2 ambi solving  # Previously: This should be False.
