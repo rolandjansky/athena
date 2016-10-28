@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.12: http://docutils.sourceforge.net/" />
+<title>TrigTauMatchingTool</title>
+<style type="text/css">
+
+/*
+:Author: David Goodger (goodger@python.org)
+:Id: $Id: html4css1.css 7614 2013-02-21 15:55:51Z milde $
+:Copyright: This stylesheet has been placed in the public domain.
+
+Default cascading style sheet for the HTML output of Docutils.
+
+See http://docutils.sf.net/docs/howto/html-stylesheets.html for how to
+customize this style sheet.
+*/
+
+/* used to remove borders from tables and images */
+.borderless, table.borderless td, table.borderless th {
+  border: 0 }
+
+table.borderless td, table.borderless th {
+  /* Override padding for "table.docutils td" with "! important".
+     The right padding separates the table cells. */
+  padding: 0 0.5em 0 0 ! important }
+
+.first {
+  /* Override more specific margin styles with "! important". */
+  margin-top: 0 ! important }
+
+.last, .with-subtitle {
+  margin-bottom: 0 ! important }
+
+.hidden {
+  display: none }
+
+a.toc-backref {
+  text-decoration: none ;
+  color: black }
+
+blockquote.epigraph {
+  margin: 2em 5em ; }
+
+dl.docutils dd {
+  margin-bottom: 0.5em }
+
+object[type="image/svg+xml"], object[type="application/x-shockwave-flash"] {
+  overflow: hidden;
+}
+
+/* Uncomment (and remove this text!) to get bold-faced definition list terms
+dl.docutils dt {
+  font-weight: bold }
+*/
+
+div.abstract {
+  margin: 2em 5em }
+
+div.abstract p.topic-title {
+  font-weight: bold ;
+  text-align: center }
+
+div.admonition, div.attention, div.caution, div.danger, div.error,
+div.hint, div.important, div.note, div.tip, div.warning {
+  margin: 2em ;
+  border: medium outset ;
+  padding: 1em }
+
+div.admonition p.admonition-title, div.hint p.admonition-title,
+div.important p.admonition-title, div.note p.admonition-title,
+div.tip p.admonition-title {
+  font-weight: bold ;
+  font-family: sans-serif }
+
+div.attention p.admonition-title, div.caution p.admonition-title,
+div.danger p.admonition-title, div.error p.admonition-title,
+div.warning p.admonition-title, .code .error {
+  color: red ;
+  font-weight: bold ;
+  font-family: sans-serif }
+
+/* Uncomment (and remove this text!) to get reduced vertical space in
+   compound paragraphs.
+div.compound .compound-first, div.compound .compound-middle {
+  margin-bottom: 0.5em }
+
+div.compound .compound-last, div.compound .compound-middle {
+  margin-top: 0.5em }
+*/
+
+div.dedication {
+  margin: 2em 5em ;
+  text-align: center ;
+  font-style: italic }
+
+div.dedication p.topic-title {
+  font-weight: bold ;
+  font-style: normal }
+
+div.figure {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+div.footer, div.header {
+  clear: both;
+  font-size: smaller }
+
+div.line-block {
+  display: block ;
+  margin-top: 1em ;
+  margin-bottom: 1em }
+
+div.line-block div.line-block {
+  margin-top: 0 ;
+  margin-bottom: 0 ;
+  margin-left: 1.5em }
+
+div.sidebar {
+  margin: 0 0 0.5em 1em ;
+  border: medium outset ;
+  padding: 1em ;
+  background-color: #ffffee ;
+  width: 40% ;
+  float: right ;
+  clear: right }
+
+div.sidebar p.rubric {
+  font-family: sans-serif ;
+  font-size: medium }
+
+div.system-messages {
+  margin: 5em }
+
+div.system-messages h1 {
+  color: red }
+
+div.system-message {
+  border: medium outset ;
+  padding: 1em }
+
+div.system-message p.system-message-title {
+  color: red ;
+  font-weight: bold }
+
+div.topic {
+  margin: 2em }
+
+h1.section-subtitle, h2.section-subtitle, h3.section-subtitle,
+h4.section-subtitle, h5.section-subtitle, h6.section-subtitle {
+  margin-top: 0.4em }
+
+h1.title {
+  text-align: center }
+
+h2.subtitle {
+  text-align: center }
+
+hr.docutils {
+  width: 75% }
+
+img.align-left, .figure.align-left, object.align-left {
+  clear: left ;
+  float: left ;
+  margin-right: 1em }
+
+img.align-right, .figure.align-right, object.align-right {
+  clear: right ;
+  float: right ;
+  margin-left: 1em }
+
+img.align-center, .figure.align-center, object.align-center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.align-left {
+  text-align: left }
+
+.align-center {
+  clear: both ;
+  text-align: center }
+
+.align-right {
+  text-align: right }
+
+/* reset inner alignment in figures */
+div.align-right {
+  text-align: inherit }
+
+/* div.align-center * { */
+/*   text-align: left } */
+
+ol.simple, ul.simple {
+  margin-bottom: 1em }
+
+ol.arabic {
+  list-style: decimal }
+
+ol.loweralpha {
+  list-style: lower-alpha }
+
+ol.upperalpha {
+  list-style: upper-alpha }
+
+ol.lowerroman {
+  list-style: lower-roman }
+
+ol.upperroman {
+  list-style: upper-roman }
+
+p.attribution {
+  text-align: right ;
+  margin-left: 50% }
+
+p.caption {
+  font-style: italic }
+
+p.credits {
+  font-style: italic ;
+  font-size: smaller }
+
+p.label {
+  white-space: nowrap }
+
+p.rubric {
+  font-weight: bold ;
+  font-size: larger ;
+  color: maroon ;
+  text-align: center }
+
+p.sidebar-title {
+  font-family: sans-serif ;
+  font-weight: bold ;
+  font-size: larger }
+
+p.sidebar-subtitle {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+p.topic-title {
+  font-weight: bold }
+
+pre.address {
+  margin-bottom: 0 ;
+  margin-top: 0 ;
+  font: inherit }
+
+pre.literal-block, pre.doctest-block, pre.math, pre.code {
+  margin-left: 2em ;
+  margin-right: 2em }
+
+pre.code .ln { color: grey; } /* line numbers */
+pre.code, code { background-color: #eeeeee }
+pre.code .comment, code .comment { color: #5C6576 }
+pre.code .keyword, code .keyword { color: #3B0D06; font-weight: bold }
+pre.code .literal.string, code .literal.string { color: #0C5404 }
+pre.code .name.builtin, code .name.builtin { color: #352B84 }
+pre.code .deleted, code .deleted { background-color: #DEB0A1}
+pre.code .inserted, code .inserted { background-color: #A3D289}
+
+span.classifier {
+  font-family: sans-serif ;
+  font-style: oblique }
+
+span.classifier-delimiter {
+  font-family: sans-serif ;
+  font-weight: bold }
+
+span.interpreted {
+  font-family: sans-serif }
+
+span.option {
+  white-space: nowrap }
+
+span.pre {
+  white-space: pre }
+
+span.problematic {
+  color: red }
+
+span.section-subtitle {
+  /* font-size relative to parent (h1..h6 element) */
+  font-size: 80% }
+
+table.citation {
+  border-left: solid 1px gray;
+  margin-left: 1px }
+
+table.docinfo {
+  margin: 2em 4em }
+
+table.docutils {
+  margin-top: 0.5em ;
+  margin-bottom: 0.5em }
+
+table.footnote {
+  border-left: solid 1px black;
+  margin-left: 1px }
+
+table.docutils td, table.docutils th,
+table.docinfo td, table.docinfo th {
+  padding-left: 0.5em ;
+  padding-right: 0.5em ;
+  vertical-align: top }
+
+table.docutils th.field-name, table.docinfo th.docinfo-name {
+  font-weight: bold ;
+  text-align: left ;
+  white-space: nowrap ;
+  padding-left: 0 }
+
+/* "booktabs" style (no vertical lines) */
+table.docutils.booktabs {
+  border: 0px;
+  border-top: 2px solid;
+  border-bottom: 2px solid;
+  border-collapse: collapse;
+}
+table.docutils.booktabs * {
+  border: 0px;
+}
+table.docutils.booktabs th {
+  border-bottom: thin solid;
+  text-align: left;
+}
+
+h1 tt.docutils, h2 tt.docutils, h3 tt.docutils,
+h4 tt.docutils, h5 tt.docutils, h6 tt.docutils {
+  font-size: 100% }
+
+ul.auto-toc {
+  list-style-type: none }
+
+</style>
+</head>
+<body>
+<div class="document" id="trigtaumatchingtool">
+<h1 class="title">TrigTauMatchingTool</h1>
+<h2 class="subtitle" id="a-tool-for-tau-trigger-matching">A tool for tau trigger matching</h2>
+
+<div class="section" id="introduction">
+<h1>Introduction</h1>
+<p>The <tt class="docutils literal">TrigTauMatchingTool</tt> matches offline hadronic tau objects (<tt class="docutils literal">TauJet</tt>)
+with a corresponding tau object at the trigger level that fired a specific
+trigger. It does so by retrieving the container associated with the fired
+trigger, and matching the objects at the trigger level with the given offline
+tau object within a cone in dR (default: dR &lt; 0.2 for HLT, dR &lt; 0.3 for L1).
+The first object in the trigger associated container that satisfies the dR
+requirement is selected as a match.</p>
+</div>
+<div class="section" id="functionality">
+<h1>Functionality</h1>
+<ul class="simple">
+<li>HLT trigger matching is provided by the <tt class="docutils literal"><span class="pre">TrigTauMatchingTool::match()</span></tt>
+function. This function has two variants: the first matches the offline tau
+to an HLT tau by accessing the features associated with a trigger. (See
+Known problems below.) The second variant takes an
+<tt class="docutils literal"><span class="pre">xAOD::TauJetContainer</span></tt> containing the HLT taus as an additional argument
+and does a simple dR match with the offline tau.</li>
+<li>The matched HLT trigger object can be retrieved with the
+<tt class="docutils literal"><span class="pre">TrigTauMatchingTool::getHLT()</span></tt>, which operates in the same way as the
+first variant of <tt class="docutils literal"><span class="pre">TrigTauMatchingTool::match()</span></tt>. (See Known problems
+below.)</li>
+<li>The L1 trigger object associated with a matched HLT trigger object can be
+retrieved with the <tt class="docutils literal"><span class="pre">TrigTauMatchingTool::getL1FromHLT()</span></tt>.</li>
+<li>L1 trigger trigger matching is provided by the
+<tt class="docutils literal"><span class="pre">TrigTauMatchingTool::matchL1()</span></tt> function. This function takes an
+<tt class="docutils literal"><span class="pre">xAOD::EmTauRoIContainer</span></tt> containing the L1 EM/tau trigger objects, and
+does a simple dR match with offline tau.</li>
+<li>It is possible to use resurrected triggers by setting the
+<tt class="docutils literal">AllowResurrectedDecision</tt> property to <tt class="docutils literal">true</tt>. See
+<tt class="docutils literal">util/TrigTauMatching_example.cxx</tt> for an example. <em>NOTE</em>: Resurrected
+triggers should <em>NOT</em> be used for physics, but only for trigger scale
+factor derivations and other trigger related studies and with great care.</li>
+</ul>
+</div>
+<div class="section" id="usage">
+<h1>Usage</h1>
+<div class="section" id="full-examples">
+<h2>Full examples</h2>
+<ul class="simple">
+<li><em>RootCore</em><ul>
+<li><tt class="docutils literal">util/TrigTauMatching_example.cxx</tt></li>
+</ul>
+</li>
+<li><em>AthAnalysisBase</em><ul>
+<li><tt class="docutils literal">share/TrigTauMatching_test.py</tt></li>
+<li><tt class="docutils literal">src/TrigTauMatching_example.h</tt></li>
+<li><tt class="docutils literal">src/TrigTauMatching_example.cxx</tt></li>
+</ul>
+</li>
+</ul>
+</div>
+<div class="section" id="initialization">
+<h2>Initialization</h2>
+<p>In <em>RootCore</em>:</p>
+<pre class="literal-block">
+// Trigger configuration tool
+TrigConf::xAODConfigTool configTool(&quot;xAODConfigTool&quot;);
+ToolHandle&lt;TrigConf::ITrigConfigTool&gt; configHandle(&amp;configTool);
+ASG_CHECK_SA(&quot;MyAlg&quot;, configHandle-&gt;initialize());
+
+// The trigger decision tool
+Trig::TrigDecisionTool trigDecTool(&quot;TrigDecTool&quot;);
+ToolHandle&lt;Trig::TrigDecisionTool&gt; decisionToolHandle(&amp;trigDecTool);
+ASG_CHECK_SA(&quot;MyAlg&quot;, decisionToolHandle-&gt;setProperty(&quot;ConfigTool&quot;, configHandle));
+ASG_CHECK_SA(&quot;MyAlg&quot;, decisionToolHandle-&gt;setProperty(&quot;TrigDecisionKey&quot;, &quot;xTrigDecision&quot;));
+ASG_CHECK_SA(&quot;MyAlg&quot;, decisionToolHandle-&gt;initialize());
+
+// The tau trigger matching tool
+Trig::TrigTauMatchingTool matchTool(&quot;TrigTauMatching&quot;);
+ASG_CHECK_SA(&quot;MyAlg&quot;, matchTool.setProperty(&quot;TrigDecisionTool&quot;, decisionToolHandle));
+ASG_CHECK_SA(&quot;MyAlg&quot;, matchTool.initialize());
+</pre>
+<p>(See <tt class="docutils literal">util/TrigTauMatching_example.cxx</tt>)</p>
+<p>In <em>AthAnalysisBase</em>:</p>
+<pre class="literal-block">
+from TrigDecisionTool.TrigDecisionToolConf import Trig__TrigDecisionTool
+trigDecTool = Trig__TrigDecisionTool('TrigDecisionTool')
+ToolSvc += trigDecTool
+
+from TrigTauMatching.TrigTauMatchingConf import Trig__TrigTauMatchingTool
+tauMatchingTool = Trig__TrigTauMatchingTool('TrigTauMatchingTool');
+tauMatchingTool.TrigDecisionTool = trigDecTool
+ToolSvc += tauMatchingTool
+</pre>
+<p>(See <tt class="docutils literal">share/TrigTauMatching_test.py</tt>)</p>
+</div>
+<div class="section" id="options">
+<h2>Options</h2>
+<p>Options are accessible as properties, i.e. via
+<tt class="docutils literal"><span class="pre">TrigTauMatchingTool::setProperty</span></tt> in <em>RootCore</em> and through direct access
+in the job options file in <em>AthAnalysisBase</em>.</p>
+<ul class="simple">
+<li><em>HLTLabel</em> (string): Label of the HLT tau object container to use for the
+trigger matching. Default: <tt class="docutils literal">TrigTauRecMerged</tt>.</li>
+<li><em>AllowResurrectedDecision</em> (bool): Allow matching of resurrected triggers.
+(Uses the condition <tt class="docutils literal"><span class="pre">TrigDefs::Physics</span> |
+<span class="pre">TrigDefs::allowResurrectedDecision</span></tt>.) Use with care.</li>
+</ul>
+</div>
+<div class="section" id="invocation">
+<h2>Invocation</h2>
+<pre class="literal-block">
+const xAOD::TauJetContainer *taus;
+RETURN_CHECK(&quot;MyAlg&quot;, event-&gt;retrieve(taus, &quot;TauJets&quot;));
+
+const std::string trigger(&quot;HLT_tau125_medium1_tracktwo&quot;);
+
+// Match a tau with the default dR = 0.2
+xAOD::TauJet *matchedTau = 0;
+for (auto tau: taus)
+{
+  if (matchTool.match(tau, trigger))
+  {
+    matchedTau = tau;
+    break;
+  }
+}
+
+// Get the HLT and L1 objects that matches the first offline tau
+if (taus-&gt;size() &gt; 0)
+{
+  xAOD::TauJet *tau = taus-&gt;at(0);
+
+  // Get the matched HLT object (0 if no match)
+  xAOD::TauJet *hltTau = matchTool.getHLT(tau, trigger);
+
+  // Get the matched L1 object (0 if no match)
+  xAOD::EmTauRoI *l1Tau = matchTool.getL1FromHLT(tau, trigger);
+}
+
+// Match a tau with a looser dR requirement
+xAOD::TauJet *looserMatchedTau = 0;
+for (auto tau: taus)
+{
+  if (matchTool.match(tau, trigger, 0.3))
+  {
+    looserMatchedTau = tau;
+    break;
+  }
+}
+</pre>
+</div>
+</div>
+<div class="section" id="notes">
+<h1>Notes</h1>
+<div class="section" id="contact">
+<h2>Contact</h2>
+<p><tt class="docutils literal">TrigTauMatchingTool</tt> is written by Henrik Öhman &lt;<a class="reference external" href="mailto:ohman&#64;cern.ch">ohman&#64;cern.ch</a>&gt;</p>
+<p>JIRA: <a class="reference external" href="https://its.cern.ch/jira/browse/ATR-11094">https://its.cern.ch/jira/browse/ATR-11094</a></p>
+<p>Source: <a class="reference external" href="https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching">https://svnweb.cern.ch/trac/atlasoff/browser/Trigger/TrigAnalysis/TrigTauAnalysis/TrigTauMatching</a></p>
+</div>
+<div class="section" id="known-problems">
+<h2>Known problems</h2>
+<ul class="simple">
+<li>The functionality of <tt class="docutils literal"><span class="pre">TrigTauMatching::getL1FromHLT()</span></tt> is blocked by
+<a class="reference external" href="https://its.cern.ch/jira/browse/ATR-11765">https://its.cern.ch/jira/browse/ATR-11765</a></li>
+<li>Feature based trigger matching for tau+MET chains is blocked by
+<a class="reference external" href="https://its.cern.ch/jira/browse/ATR-11199">https://its.cern.ch/jira/browse/ATR-11199</a></li>
+</ul>
+</div>
+<div class="section" id="todo">
+<h2>Todo</h2>
+<ul class="simple">
+<li>The dR based matching functions lack the corresponding functions to
+return the matched object, e.g. <tt class="docutils literal"><span class="pre">TrigTauMatching::getHLT()</span></tt> with the
+extra <tt class="docutils literal"><span class="pre">xAOD::TauJetContainer</span></tt> and <tt class="docutils literal"><span class="pre">TrigTauMatching::getL1()</span></tt>.</li>
+<li>Trigger matching for di-tau triggers.</li>
+</ul>
+</div>
+</div>
+</div>
+</body>
+</html>
