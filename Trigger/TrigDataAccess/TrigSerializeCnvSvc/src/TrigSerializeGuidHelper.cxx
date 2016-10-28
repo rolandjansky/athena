@@ -36,7 +36,7 @@ StatusCode TrigSerializeGuidHelper::ClassNameToInts(const std::string &clname, u
   if (pl.HasProperty("ClassID")){
      std::string gecko = pl.PropertyAsString("ClassID");
      if (msgLvl(MSG::DEBUG))
-        msg(MSG::DEBUG) << clname << " to ROOT known as " << cl << " has " << "ClassID=" << gecko << endreq;
+        msg(MSG::DEBUG) << clname << " to ROOT known as " << cl << " has " << "ClassID=" << gecko << endmsg;
 
      const Guid guid(gecko );
      iarr[0] = guid.data1();
@@ -45,7 +45,7 @@ StatusCode TrigSerializeGuidHelper::ClassNameToInts(const std::string &clname, u
      iarr[3] = guid.data4(4) << 24 | guid.data4(5) << 16 | guid.data4(6) << 8 | guid.data4(7);
   }
   else{
-    msg(MSG::WARNING) << "property list has no ClassID for class name " << clname << " aka (" << cl << ")" << endreq;
+    msg(MSG::WARNING) << "property list has no ClassID for class name " << clname << " aka (" << cl << ")" << endmsg;
     return StatusCode::FAILURE;
   }
 
@@ -68,7 +68,7 @@ StatusCode TrigSerializeGuidHelper::IntsToClassName(const uint32_t *iarr, std::s
   guid.setData4(iarr[3] & 0xFF, 7);
 
   if (msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "constructed " << guid.toString() << " from ints" << endreq; 
+    msg(MSG::DEBUG) << "constructed " << guid.toString() << " from ints" << endmsg; 
   RootType cltype(pool::DbReflex::forGuid(guid));
   
   clname = cltype.Name(Reflex::SCOPED);
@@ -79,7 +79,7 @@ StatusCode TrigSerializeGuidHelper::IntsToClassName(const uint32_t *iarr, std::s
   }
   */
   if (msgLvl(MSG::DEBUG))
-    msg(MSG::DEBUG) << "corresponds to " << clname << endreq; 
+    msg(MSG::DEBUG) << "corresponds to " << clname << endmsg; 
 
   if (clname.empty()){
     return StatusCode::FAILURE;
