@@ -242,6 +242,14 @@ class L2EFChain_MB(L2EFChainDef):
                     theEFHypo.Min_pt = 0.200
                     theEFHypo.Max_z0 = 401.
                     chainSuffix = chainSuffix+'_trk'+efth
+            elif 'exclusiveloose' in self.chainPart['extra']:
+                efth=0.200 #default
+                theEFHypo =  EFMbTrkHypoExclusiveLoose
+                chainSuffix = chainSuffix+"_exclusiveloose"
+            elif 'exclusivetight' in self.chainPart['extra']:
+                efth=0.200 #default
+                theEFHypo =  EFMbTrkHypoExclusiveTight
+                chainSuffix = chainSuffix+"_exclusivetight"
             else:
                 efth=0.200 #default
                 theEFHypo =  EFMbTrkHypo

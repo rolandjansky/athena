@@ -349,7 +349,7 @@ class DictFromChainName(object):
                     chainparts = chainparts[:allL1indices[1]]
                     
                 if (allL1items[0] not in L1items_chainParts):
-                    logDict.error("L1 chain part item does not seem to match the one in the chain name")
+                    logDict.error("L1 chain part " +L1items_chainParts+" item does not seem to match the one in the chain name "+llL1items[0])
 
 
 

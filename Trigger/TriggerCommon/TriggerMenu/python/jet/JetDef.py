@@ -21,15 +21,13 @@ from SequenceTree import SequenceLinear
 from ChainConfigMaker import ChainConfigMaker
 from AlgFactory import AlgFactory
 
-from JetCleanMonitoring import JetChainsToKeepMonitoring
-from TriggerMenu.menu.CleanMonitoring import KeepMonitoring
-from TriggerMenu.menu.CleanMonitoring import DisableMonitoringButValAndTime
 
 try:
     from AthenaCommon.Logging import logging
     logger = logging.getLogger("TriggerMenu.jet.generateJetChainDefs")
 except:
     logger = None
+
 
 def _check_input(in_data):
     """Sanity checks on the data passed in from the central menu code."""
@@ -117,6 +115,36 @@ def _make_sequences(alg_lists, start_te, chain_name):
     st = SequenceLinear(start_te, alg_lists, chain_name)
     return st.sequences
 
+# def _reduceHists(sequence, final_chain_name):
+#     """reduce number of online histograms according to a whitelist,
+#     # strictComparison is needed as e.g. j25 is found as a substring
+#     # in other chain names"""
+# 
+# 
+#     # check if monitoring should be done for this chain.
+#     if  KeepMonitoring(final_chain_name,
+#                        JetChainsToKeepMonitoring,
+#                        strictComparison=True): return
+# 
+#     # find the algs for this sequence with monitoring tools.
+#     algsWithTools = [a for a in sequence.alg_list if
+#                      hasattr(a,"AthenaMonTools")]
+# 
+#     def hasOnlineTarget(a):
+#         for t in a.AthenaMonTools:
+#             target = t.target()
+#             if target == 'Online' or 'Online' in target:
+#                 return True
+#         return False
+#             
+#     algsToDisable = [a for a in algsWithTools if hasOnlineTarget(a)]
+# 
+#     for a in algsToDisable:
+#         disableMon = DisableMonitoringButValAndTime(a.AthenaMonTools)
+#         setattr(a, 'AthenaMonTools', disableMon)
+
+
+
 def _make_chaindef(from_central, instantiator):
 
     # print '----> _make_chaindef: dumping from central\n'
@@ -138,7 +166,6 @@ def _make_chaindef(from_central, instantiator):
     # get the alg_lists (which will combine with trigger element names
     # to formsequences) for the chain
     alg_lists = seq_builder.make_alglists()
-
     # ... but chain names start with HLT_
     #header = 'HLT_'
     #if not chain_name.startswith(header):
@@ -159,58 +186,57 @@ def _make_chaindef(from_central, instantiator):
 
     # convert the algorithms according to the instantiator type
     [s.instantiateAlgs(instantiator) for s in sequences]
-
     # create an empty ChainDef
     chain_def = ChainDef(chain_name=final_chain_name,
                          #level='HLT',
                          level='EF',
                          lower_chain_name=chain_config.seed)
 
-    #reduce number of online histograms according to a whitelist, strictComparison is needed as e.g. j25 is found as a substring in other chain names
-    keepMon = KeepMonitoring(final_chain_name,JetChainsToKeepMonitoring, strictComparison = True)
     
-    # build a dictionary of hypo algorithm names and their associated online monitoring algorithm
-    if not hasattr(_make_chaindef, "dictMonAlg"):
-        _make_chaindef.dictMonAlg = {}
-    # build a list of hypo algorithm names that need to be kept in the online monitoring
-    if not hasattr(_make_chaindef, "keepMonNames"):
-        _make_chaindef.keepMonNames = []
-
+    #PS 22/9 for s in sequences:
+    #PS 22/9     if "hypo" in s.alias:
+    #PS 22/9         for thisalg in s.alg_list:
+    #PS 22/9             if hasattr(thisalg,"AthenaMonTools"):
+    #PS 22/9                 for item in thisalg.AthenaMonTools:
+    #PS 22/9                     target = item.target()
+    #PS 22/9                     if type(target) is type(""):
+    #PS 22/9                         if target == "Online":
+    #PS 22/9                             dictMonAlg[thisalg.getName()] = item
+    #PS 22/9                     if type(target) is type([]):
+    #PS 22/9                         for t in target:
+    #PS 22/9                             if t == "Online":
+    #PS 22/9                                 dictMonAlg[thisalg.getName()] = item
+  #PS 22/9                   if keepMon:
+    #PS 22/9                     keepMonNames += [thisalg.getName()]
+    #PS 22/9                 if thisalg.getName() in keepMonNames:
+    #PS 22/9                     onlineMonReenable = True
+    #PS 22/9                     for item in thisalg.AthenaMonTools:
+    #PS 22/9                         target = item.target()
+    #PS 22/9                         if type(target) is type(""):
+    #PS 22/9                             if target == "Online":
+    #PS 22/9                                 onlineMonReenable = False
+    #PS 22/9                         if type(target) is type([]):
+    #PS 22/9                             for t in target:
+    #PS 22/9                                 if t == "Online":
+    #PS 22/9                                     onlineMonReenable = False
+    #PS 22/9                     if onlineMonReenable:
+    #PS 22/9                         # put back the original online monitoring alg if
+    #PS 22/9                         # it was removed
+    #PS 22/9                         thisalg.AthenaMonTools += [
+    #PS 22/9                             dictMonAlg[thisalg.getName()]] 
+    #PS 22/9                 else:  
+    #PS 22/9                     thisalg.AthenaMonTools = DisableMonitoringButValAndTime(
+    #PS 22/9                         thisalg.AthenaMonTools)
+    #PS 22/9 
 
     # add sequence and signature (check point) information to it
+
+    # [_reduceHists(s, final_chain_name) for s in sequences if "hypo" in s.te_out]
+
     sig_ind = 0
     for s in sequences:
-        if "hypo" in s.alias:
-            for thisalg in s.alg_list:
-                if hasattr(thisalg,"AthenaMonTools"):
-                    for item in thisalg.AthenaMonTools:
-                        target = item.target()
-                        if type(target) is type(""):
-                            if target == "Online":
-                                _make_chaindef.dictMonAlg[thisalg.getName()] = item
-                        if type(target) is type([]):
-                            for t in target:
-                                if t == "Online":
-                                    _make_chaindef.dictMonAlg[thisalg.getName()] = item
-                    if keepMon:
-                        _make_chaindef.keepMonNames += [thisalg.getName()]
-                    if thisalg.getName() in _make_chaindef.keepMonNames:
-                        onlineMonReenable = True
-                        for item in thisalg.AthenaMonTools:
-                            target = item.target()
-                            if type(target) is type(""):
-                                if target == "Online":
-                                    onlineMonReenable = False
-                            if type(target) is type([]):
-                                for t in target:
-                                    if t == "Online":
-                                        onlineMonReenable = False
-                        if onlineMonReenable:
-                            thisalg.AthenaMonTools += [_make_chaindef.dictMonAlg[thisalg.getName()]] #put back the original online monitoring alg if it was removed
-                    else:  
-                        thisalg.AthenaMonTools = DisableMonitoringButValAndTime(thisalg.AthenaMonTools)
-    
         sig_ind += 1
+    
         chain_def.addSequence(listOfAlgorithmInstances=s.alg_list,
                               te_in=s.te_in,
                               te_out=s.te_out)
@@ -220,10 +246,10 @@ def _make_chaindef(from_central, instantiator):
 
 
 
-    chain_def.chain_name = "HLT_"+final_chain_name
-    chain_def.level = "HLT"
+        chain_def.chain_name = "HLT_"+final_chain_name
+        chain_def.level = "HLT"
     
-    return chain_def
+    return chain_def, chain_config
 
 
 def _is_full_scan(chain_config):
@@ -293,7 +319,21 @@ def generateHLTChainDef(caller_data):
     debug = 'JETDEF_DEBUG' in os.environ
     no_instantiation_flag = 'JETDEF_NO_INSTANTIATION' in os.environ
     use_atlas_config = not no_instantiation_flag
+    chain_name = caller_data_copy['chainName']
+    # if 'inv' in chain_name:
+    #    dump_chaindef(caller_data, None, None, no_instantiation_flag)
+    #    return
+        
+    chain_config = None
+    if 'test1' in caller_data['chainName']:
+        msg = 'Chain name error: test1 chains not currently supported'
+        cd = ErrorChainDef(msg, chain_name)
+        if debug:
+            # for debugging, output the original incoming dictionary
+            dump_chaindef(caller_data, cd, chain_config, no_instantiation_flag)
 
+        return cd
+        
     try:
         # instantiator instantiation can fail if there are
         # ATLAS import errors
@@ -301,20 +341,17 @@ def generateHLTChainDef(caller_data):
     except Exception, e:
         tb = exc2string2()
         msg = 'JetDef Instantiator error: error: %s\n%s' % (str(e), tb)
-        chain_name = caller_data_copy['chainName']
-
         cd = ErrorChainDef(msg, chain_name)
         if debug:
             # for debugging, output the original incoming dictionary
-            dump_chaindef(caller_data, cd, no_instantiation_flag)
+            dump_chaindef(caller_data, cd, chain_config, no_instantiation_flag)
 
         return cd
-            
+
     try:
-        cd = _make_chaindef(caller_data_copy, instantiator)
+        cd, chain_config = _make_chaindef(caller_data_copy, instantiator)
     except Exception, e:
         tb = exc2string2()
-        chain_name = caller_data_copy['chainName']
         msg = 'JetDef error: error: %s\n%s' % (str(e), tb)
         cd = ErrorChainDef(msg, chain_name)
         if logger:
@@ -322,10 +359,11 @@ def generateHLTChainDef(caller_data):
 
     if debug:
         # for debugging, output the original incoming dictionary
-        dump_chaindef(caller_data, cd, no_instantiation_flag)
+        dump_chaindef(caller_data, cd, chain_config, no_instantiation_flag)
+
     return cd
 
-def dump_chaindef(caller_data, cd, no_instantiation_flag):
+def dump_chaindef(caller_data, cd, chain_config, no_instantiation_flag):
     """Dump incoming dictionaly and outfgoing(Error)ChainDef to a file."""
 
     chain_name = caller_data['chainName']
@@ -334,7 +372,11 @@ def dump_chaindef(caller_data, cd, no_instantiation_flag):
         os.mkdir(ddir)
     fn = os.path.join(ddir, chain_name)
     fn = fn.replace(' ', '_')
-    txt = 'Input dictionary:\n%s\nChainDef:\n%s' % (str(caller_data), str(cd))
+    txt = 'Input dictionary:\n%s\nChainConfig:\n%s\n\nChainDef:\n%s' % (
+        str(caller_data),
+        str(chain_config),
+        str(cd))
+    
     with open(fn, 'w') as off:
         off.write(txt)
 
@@ -343,10 +385,13 @@ def dump_chaindef(caller_data, cd, no_instantiation_flag):
     # can be stored for later investigation.
 
     if no_instantiation_flag:
-        db =  shelve.open(os.path.join(ddir,
-                                       'chain_defs.db'))
-        db[chain_name] = cd
-        db.close()
+        try:
+            db =  shelve.open(os.path.join(ddir,
+                                           'chain_defs.db'))
+            db[chain_name] = cd
+            db.close()
+        except:
+            print 'Error shelving ChainDef object'
 
     print 'Debug output written to ', fn
 

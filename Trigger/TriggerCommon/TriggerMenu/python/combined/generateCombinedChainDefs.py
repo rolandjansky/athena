@@ -115,12 +115,12 @@ def _addTopoInfo(theChainDef,chainDicts,listOfChainDefs,doAtL2AndEF=True):
 #Helper
 
 def isJetTE(myString):
-        
-    if re.match("EF_[_0-9]+_HLThypo",myString) or re.match("EF_[_0-9]+_jetrec",myString) :
-        #print "BETTA Pass :",myString
+#    print "Nils:Executing isJetTE: "+myString
+    if re.match("EF_[_0-9]+_HLThypo",myString) or re.match("EF_[_0-9]+_jetrec",myString) or ('HLThypo' in myString and re.match("EF_[_0-9]+",myString)) :
+#        print "BETTA Pass :",myString
         return True
     else:
-        #print "BETTA Fail :",myString
+#        print "BETTA Fail :",myString
         return False
 
 ##############################################################################
@@ -169,7 +169,10 @@ def _addDPhiMetJet(theChainDef,chainDicts,listOfChainDefs):
     for cD in listOfChainDefs:
         if [x for x in cD.signatureList[-1]['listOfTriggerElements'] if isJetTE(x)]:
             #print "BETTA: found ", x
-            inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])] 
+            inputTEsEF +=[deepcopy(cD.signatureList[-1]['listOfTriggerElements'])]
+            print "Added the following to inputTEsEF:"
+            print cD.signatureList[-1]['listOfTriggerElements']
+            print ""
             break
 
 
@@ -460,12 +463,15 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
 
         for i, mydict in enumerate(theChainDef.signatureList):
             for tes in mydict['listOfTriggerElements']:
-                if 'noCleaning' in tes:
+#                if isJetTE(tes):
+                if 'noCleaning' in tes or ('HLThypo' in tes and re.match("EF_[_0-9]+",tes)):
                     #print "WOOF found my TE", tes
                     #print "WOOF belongs to sign pos", mydict['signature_counter']
                     jetTElist.append(tes)
                     sigCounterlist.append(mydict['signature_counter'])
                     pos_sigCounterlist.append(i)
+#                else:
+#                    print "This is not a jet TE?"+ str(tes)
                     
         if ('_b') in chnameToMatch: 
             jetTE = theChainDef.signatureList[-1]['listOfTriggerElements']
@@ -474,6 +480,10 @@ def _addMatching(theChainDef,chainDicts,listOfChainDefs):
             if ('_anti') in chnameAddPart:
                 log.error("Matching functionality for this chain is not implemented yet: %s " % (chainDicts[0]['chainName']))
         else:
+            # import pdb;pdb.set_trace()
+            # log.error('PS chain_name ' + theChainDef.chain_name)
+            # log.error('PS jetTElist ' + str(jetTElist))
+            # log.error('PS sig list ' + str(theChainDef.signatureList))
             jetTE = jetTElist[0]
             pos_sigCounter = pos_sigCounterlist[0]
             sigCounter = sigCounterlist[0]

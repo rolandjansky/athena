@@ -81,7 +81,7 @@ def splitInterSignatureChainDict(chainDict):
                     #print "Hi : adding to orderedListOfSplitChainDicts " + str(splitChainDict)
         if not len(orderedListOfSplitChainDicts) == len(listOfSplitChainDicts):
             for chainPartName in chainDict["mergingOrder"]:
-                log.error("Ordering of split chain dicts failed. Please check that orderedListOfSplitChainDicts and listOfSplitChainDicts contain the same elements!!")
+                log.error("Ordering of split chain dicts failed. Please check that orderedListOfSplitChainDicts and listOfSplitChainDicts contain the same elements!!")                
             print chainDict
             
         return orderedListOfSplitChainDicts
@@ -186,6 +186,9 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
     try:
         if 'upc' in ChainDicts[0]['chainName'] :
             noTEreplication=True  
+
+        if 'hi' in ChainDicts[0]['chainName'] and 'v2' in  ChainDicts[1]['chainName'] :
+            noTEreplication=True  
         
         for chainDict in ChainDicts:
             if (chainDict["signature"] == "Jet"):
@@ -203,11 +206,13 @@ def _mergeChainDefsSerial(ChainDicts,listOfChainDefs,offset,preserveL2EFOrder=Tr
                 #print "BETTA-adding ",chainDict["signature"]
                 other_count+=1
 
+        #print "BETTA Total count: jet-", jet_count, " HT-", ht_count, " xe-", met_count, "other:-", other_count, " in: ",ChainDicts[0]['chainName']
+            
         
     except:
         pass
 
-    #print "BETTA Total count: jet-", jet_count, " HT-", ht_count, " xe-", met_count, "other:-", other_count
+
     if jet_count > 0 and met_count > 0:
         noTEreplication=True        
     if jet_count > 1:

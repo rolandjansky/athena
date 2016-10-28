@@ -114,7 +114,11 @@ class L2EFChain_g(L2EFChainDef):
             self.setup_gnocut_hiptrt()
         elif 'ringer' in self.chainPart['addInfo']:
            self.setup_gXX_ID_ringer()
+        elif 'ivloose' in self.chainPart['isoInfo']: 
+           self.setup_gXX_ID_iso()
         elif 'iloose' in self.chainPart['isoInfo']: 
+           self.setup_gXX_ID_iso()
+        elif 'itight' in self.chainPart['isoInfo']: 
            self.setup_gXX_ID_iso()
         else:
             if 'ion' in self.chainPart['extra']:
