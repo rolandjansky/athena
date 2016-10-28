@@ -38,10 +38,10 @@ class MuonTrackSelector : public MuonTrackAdder {
 
   virtual void cleanup() { 
 
-    for (int i=mtracks.size(); i--; ){
-      delete mtracks[i];
+    for (int i=m_tracks.size(); i--; ){
+      delete m_tracks[i];
     }     
-    mtracks.clear(); 
+    m_tracks.clear(); 
 
   }
 

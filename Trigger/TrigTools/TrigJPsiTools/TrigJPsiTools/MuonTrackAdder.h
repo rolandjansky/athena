@@ -24,19 +24,19 @@ class MuonTrackAdder{
 
   virtual bool muonAdder( Wrapper::MuonTrack* t ) {
     if( t ){
-	mtracks.push_back(t); 
+	m_tracks.push_back(t); 
 	return true; 
     }
     else return false;
   }
 
-  const std::vector< Wrapper::MuonTrack* >& tracks() const { return mtracks; }
+  const std::vector< Wrapper::MuonTrack* >& tracks() const { return m_tracks; }
 
-  virtual void clear() { for(unsigned i=0; i--; ) delete mtracks[i]; mtracks.clear(); } 
+  virtual void clear() { for(unsigned i=0; i--; ) delete m_tracks[i]; m_tracks.clear(); } 
 
 protected:
   
-  std::vector<Wrapper::MuonTrack*> mtracks;
+  std::vector<Wrapper::MuonTrack*> m_tracks;
 
 };
 
