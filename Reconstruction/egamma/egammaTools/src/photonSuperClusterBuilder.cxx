@@ -174,7 +174,7 @@ StatusCode photonSuperClusterBuilder::execute(){
     xAOD::CaloCluster* newCluster = CreateNewCluster(accumulatedClusters, egType);
 
     if (!newCluster) {
-      ATH_MSG_INFO("Creating a new cluster failed");
+      ATH_MSG_DEBUG("Creating a new cluster failed");
       //Revert status of constituent clusters.
       isUsed = isUsedRevert;
       continue;

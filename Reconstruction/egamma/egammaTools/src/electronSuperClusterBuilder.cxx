@@ -187,7 +187,7 @@ StatusCode electronSuperClusterBuilder::execute(){
     xAOD::CaloCluster *newClus = CreateNewCluster(accumulatedClusters,xAOD::EgammaParameters::electron);
     //
     if (!newClus) {
-      ATH_MSG_INFO("Creating a new cluster failed - skipping it");
+      ATH_MSG_DEBUG("Creating a new cluster failed - skipping it");
       //Revert status of constituent clusters.
       isUsed = isUsedRevert;
       continue;

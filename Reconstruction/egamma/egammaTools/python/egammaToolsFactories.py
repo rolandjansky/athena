@@ -13,13 +13,11 @@ def configureClusterCorrections(swTool):
   "Add attributes ClusterCorrectionToolsXX to egammaSwTool object"
   from CaloClusterCorrection.CaloSwCorrections import *
   from CaloRec.CaloRecMakers import _process_tools
-  
   clusterTypes = dict(
     Ele35='ele35', Ele55='ele55', Ele37='ele37',
     Gam35='gam35_unconv', Gam55='gam55_unconv',Gam37='gam37_unconv',
     Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
   )
-
   for attrName, clName in clusterTypes.iteritems():
     x = 'ClusterCorrectionTools' + attrName
     if not hasattr(swTool, x) or getattr(swTool, x):
@@ -34,8 +32,7 @@ def configureClusterCorrections(swTool):
     clusterTypesSuper = dict(Ele35='ele35',Ele55='ele55', Ele37='ele37',
                              Gam35='gam35_unconv',Gam55='gam55_unconv',Gam37='gam37_unconv',
                              Econv35='gam35_conv', Econv55='gam55_conv', Econv37='gam37_conv'
-                             )
-    
+                             )    
     for attrName, clName in clusterTypes.iteritems():
       x = 'ClusterCorrectionToolsSuperCluster' + attrName
       if not hasattr(swTool, x) or getattr(swTool, x):
@@ -48,7 +45,6 @@ def configureClusterCorrections(swTool):
                                               cells_name=egammaKeys.caloCellKey())
       setattr(swTool, x ,_process_tools (swTool, superclusterCorr) )
     #End of super cluster position only corrections
-      
 #-------------------------
 
 egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
@@ -56,7 +52,7 @@ egammaSwTool = ToolFactory(egammaToolsConf.egammaSwTool,
 
 from egammaMVACalib import egammaMVACalibConf 
 egammaMVATool =  ToolFactory(egammaMVACalibConf.egammaMVATool,
-                              folder="egammaMVACalib/offline/v3_E4crack_bis")
+                              folder=jobproperties.egammaRecFlags.calibMVAVersion())
 
 EMClusterTool = ToolFactory(egammaToolsConf.EMClusterTool,
                             OutputClusterContainerName = egammaKeys.outputClusterKey(),
