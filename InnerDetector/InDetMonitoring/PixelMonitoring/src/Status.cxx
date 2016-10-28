@@ -47,6 +47,14 @@ StatusCode PixelMainMon::BookStatusMon(void)
    sc = m_status->regHist(statusHistos);
    m_status->SetMaxValue( 2.0 );
 
+   m_status_mon = new PixelMonProfiles("Map_Of_Modules_Status_Mon", ("Modules Status (0=Active+Good, 1=Active+Bad, 2=Inactive) for monitoring" + m_histTitleExt).c_str());
+   sc = m_status_mon->regHist(statusHistos);
+   m_status_mon->SetMaxValue( 2.0 );
+
+   //m_disabled = new PixelMonProfiles("Map_Of_Modules_Disabled", ("Modules Disabled" + m_histTitleExt).c_str());
+   //sc = m_disabled->regHist(statusHistos);
+   //m_disabled->SetMaxValue( 2.0 );
+
    if(m_doModules)
    {
      m_Status_modules = new PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(),2,0,2,m_doIBL);
@@ -82,6 +90,11 @@ StatusCode PixelMainMon::BookStatusMon(void)
       sc = statusHistos.regHist(m_baddisabledModules_per_lumi_mod[i] = TProfile_LW::create(tmp.c_str(), (tmp2+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
    }
 
+   tmp = makeHistname("DisabledModules_per_lumi_PIX", false);
+   tmp2 = makeHisttitle("Number of disabled modules per event per LB for Pixel barrel", (atext_LB+atext_nmod), false);
+   sc = statusHistos.regHist(m_disabledModules_per_lumi_PIX = TProfile_LW::create(tmp.c_str(), (tmp2+m_histTitleExt+atext_LB+atext_nmod).c_str(), nbins_LB, min_LB, max_LB));
+
+
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
    return StatusCode::SUCCESS;
 }  
@@ -91,12 +104,13 @@ StatusCode PixelMainMon::BookStatusLumiBlockMon(void)
    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Status for lowStat" << endreq;  
 
    std::string path = "Pixel/LumiBlock";
-   if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
+   if(m_doOnTrack)      path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
    if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
-   MonGroup lumiBlockHist(   this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
+   MonGroup lumiBlockHist(this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
 
    m_status_LB = new PixelMonProfiles("Map_Of_Modules_Status_LB", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)"+ m_histTitleExt).c_str());
    sc = m_status_LB->regHist(lumiBlockHist);
+   m_status_LB->SetMaxValue( 2.0 );
      
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
    return StatusCode::SUCCESS;
@@ -134,6 +148,8 @@ StatusCode PixelMainMon::FillStatusMon(void)
       else {Index=1;}
 
       if(m_status) m_status->Fill(WaferID,m_pixelid,Index,m_doIBL);
+      if(m_status_mon) m_status_mon->Fill(WaferID,m_pixelid,Index,m_doIBL);
+      //if(m_disabled) m_disabled->Fill(WaferID, m_pixelid, 1.0, m_doIBL);
 
       if(m_doLumiBlock){
 	      if(m_status_LB) m_status_LB->Fill(WaferID,m_pixelid,Index,m_doIBL);
@@ -182,10 +198,11 @@ StatusCode PixelMainMon::FillStatusMon(void)
    static float nmod2[PixLayerIBL2D3D::COUNT] = {144., 144., 286., 494., 676., 280., 168., 112.};
 
    for(int i=0 ; i<PixLayerIBL2D3D::COUNT ; i++){
-     if(m_badModules_per_lumi_mod[i]) m_badModules_per_lumi_mod[i]->Fill( m_manager->lumiBlockNumber(), nBad_mod[i]/nmod2[i] );
+     if(m_badModules_per_lumi_mod[i] && nmod2[i] > 0) m_badModules_per_lumi_mod[i]->Fill( m_manager->lumiBlockNumber(), nBad_mod[i]/nmod2[i] );
      if(m_disabledModules_per_lumi_mod[i]) m_disabledModules_per_lumi_mod[i]->Fill( m_manager->lumiBlockNumber(), nDisabled_mod[i] );
      if(m_baddisabledModules_per_lumi_mod[i]) m_baddisabledModules_per_lumi_mod[i]->Fill(m_manager->lumiBlockNumber(),nDisabled_mod[i]+nBad_mod[i]); 
    }
+   if(m_disabledModules_per_lumi_PIX) m_disabledModules_per_lumi_PIX->Fill( m_manager->lumiBlockNumber(), nDisabled_mod[PixLayerIBL2D3D::kB0] + nDisabled_mod[PixLayerIBL2D3D::kB1] + nDisabled_mod[PixLayerIBL2D3D::kB2]);
 
    if (nDisabled > (1744+280*m_doIBL)*0.50) {
      m_majorityDisabled = true;
@@ -193,6 +210,8 @@ StatusCode PixelMainMon::FillStatusMon(void)
    else {
      m_majorityDisabled = false;
    }
+
+   if(m_doRefresh && m_status_mon) m_status_mon->Reset();
 
    return StatusCode::SUCCESS;
 

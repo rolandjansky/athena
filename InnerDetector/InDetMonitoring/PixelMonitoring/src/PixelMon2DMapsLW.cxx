@@ -299,7 +299,7 @@ void PixelMon2DMapsLW::formatHist(bool doIBL, bool errorHist)
    }
    for (int i=0; i<nmod; i++) 
    {
-     B0->GetXaxis()->SetBinLabel( i+1, mod[i] );  // bin 0 is underflow
+      B0->GetXaxis()->SetBinLabel( i+1, mod[i] );  // bin 0 is underflow
       B1->GetXaxis()->SetBinLabel( i+1, mod[i] );
       B2->GetXaxis()->SetBinLabel( i+1, mod[i] );
    }
