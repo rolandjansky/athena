@@ -14,7 +14,6 @@
 // FrameWork includes
 #include "GaudiKernel/Auditor.h"
 #include "GaudiKernel/ServiceHandle.h"
-#include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IIncidentListener.h"
 #include "GAUDI_VERSION.h"
 
@@ -87,10 +86,6 @@ public:
 
 
 private:
-#if GAUDI_MAJOR_VERSION <= 26
-  int msgLevel() const { return outputLevel(); }
-#endif
-
   /// Handle to ValgrindSvc
   ServiceHandle<IValgrindSvc> m_valSvc;
 
@@ -106,9 +101,6 @@ private:
   /// Dump profile after each interval
   bool m_dumpAfterEachInterval;
   
-  /// Message stream 
-  MsgStream m_msg;
-
   /// Internal event counter for BeginEvent incident
   unsigned int m_eventCounter;
 
