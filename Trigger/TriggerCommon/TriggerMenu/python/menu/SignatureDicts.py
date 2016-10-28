@@ -63,7 +63,7 @@ AllowedTopos_bphys = ['bJpsi', 'bTau', 'bDimu',
                       '7invm9', 'noos', 'noid', 'novtx',
                       '11invm60','18invm60', 'bUpsi',
                       'Trkloose', 'Zmumu', 'noL2', 'noEFbph',
-                      'noinvm', 'ss', 'BpmumuKp', 'Taumumux', 'Dsmumux', 
+                      'noinvm', 'ss', 'BpmumuKp', 'Taumumux', 'Dsmumux', 'LbmumuLambda',
                       'trkTau', 'bTauTrk', 'bDsPhiX', 'bPhi','bDsPhiXtight',
                       '11invm24', '24invm60',
                       'tightChi2', 'Lxy0', 'Ftk','legacyVtx',
@@ -73,6 +73,7 @@ AllowedTopos_jet = ['muvtx',
                     'llp',
 		    'trkiso',
 		    'noiso',
+                    'pufix',
                     'deta2',
                     'deta20',
                     'deta25',
@@ -80,11 +81,12 @@ AllowedTopos_jet = ['muvtx',
                     'deta35',
                     'invm250',
                     'invm400',
+                    'invm500',
                     'invm600',
                     'invm700',
                     'invm800',
                     'invm1000']
-AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR30']
+AllowedTopos_Tau = ['ditauL', 'ditauM', 'ditauT','tautsf','notautsf','50mVis10000','60mVis10000','03dR27','03dR30']
 AllowedTopos_comb = ['taumass', 'dr05', 'dz02']
 
 #AllowedTopos = AllowedTopos_e+AllowedTopos_mu+AllowedTopos_bphys+AllowedTopos_jet+AllowedTopos_xe+AllowedTopos_comb
@@ -106,11 +108,12 @@ JetChainParts = {
     'etaRange'     : ['0eta490','0eta320','0eta240', '240eta490','280eta320', '320eta490'],
     'gscThreshold' : ['gsc400','gsc380','gsc360','gsc110'],
     'trigType'     : ['j'],
-    'extra'        : ['noL1','test1','test2','test3','delayed','AND'],
+    'extra'        : ['noL1','test1','test2','test3', 'test4',
+                      'test5', 'test6', 'delayed','AND'],
     'cleaning'     : ['cleanL','cleanT','cleanLLP',
                       'cleanLA','cleanTA','cleanLLPA', 'noCleaning'
                       ],
-    'recoAlg'      : ["a3","a4", "a10", "a10r"],
+    'recoAlg'      : ["a3","a4", "a10", "a10r", "a10t"],
     'dataType'     : ['TT', 'tc', 'cc', 'ion'],
     'calib'        : ["had","lcw","em"],
     'jetCalib'     : ["jes","sub","subjes","subjesIS", "nojcalib"],
@@ -161,7 +164,7 @@ JetChainParts_Default = {
 HTChainParts = deepcopy(JetChainParts)
 HTChainParts['signature']    = ['HT']
 HTChainParts['trigType']     = ['ht']
-HTChainParts['extra']     = ['j20', 'j25', 'j30',]
+HTChainParts['extra']     = ['j20', 'j25', 'j30', 'test4']
 # ---- HTDictinary of default Values ----
 HTChainParts_Default = deepcopy(JetChainParts_Default)
 HTChainParts_Default['signature']    = ['HT']
@@ -194,6 +197,7 @@ MuonChainParts = {
     'addInfo'        : ['cosmicEF', 'cosmic','IdTest','fsperf', 'ds1', 'ds2','ds3', 'r1extr', 'perf', 'noEF','10invm30','pt2','z10','llns','noComb'],
     'overlapRemoval' : ['wOvlpRm', 'noOvlpRm', 'noMuCombOvlpRm'],
     'topo'           : AllowedTopos_mu,
+    'flavour'        : ['hf'],
     'specialStream'  : ['delayed']
     }
 # ---- MuonDictinary of default Values ----
@@ -218,6 +222,7 @@ MuonChainParts_Default = {
     'overlapRemoval' : ['wOvlpRm'],
     'addInfo'        : [],
     'topo'           : [],
+    'flavour'        : '',
     'specialStream'  : '',
     }
 
@@ -395,8 +400,8 @@ PhotonChainParts = {
     'trigType'       : ['g'],
     'threshold'      : '',
     'extra'          : ['i', 'i5', 'i6', 'ns', 'Tvh', 'ion'],
-    'IDinfo'         : [ 'loose', 'medium', 'tight', 'NoCut', 'nocut','loose1', 'medium1', 'tight1'],
-    'isoInfo'        : 'iloose',
+    'IDinfo'         : ['loose', 'medium', 'tight', 'NoCut', 'nocut','loose1', 'medium1', 'tight1'],
+    'isoInfo'        : ['ivloose', 'iloose', 'itight'],
     'reccalibInfo'   : ['MSonly', 'MGonly'],
     'trkInfo'        : ['fasttr', 'hlttr', 'ftk'],
     'caloInfo'       : ['HLTCalo'],
@@ -478,7 +483,7 @@ MinBiasChainParts = {
     'multiplicity'   : '',    
     'trigType'       : ['mb'],
     'threshold'      : '',
-    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer'], #ncb = non collision background, blayer = only sum innermost pix layer
+    'extra'          : ['noisesup', 'vetombts2in', 'vetombts1side2in',  'vetospmbts2in', "vetosp" ,'ion', 'ncb', 'blayer', 'exclusiveloose', 'exclusivetight'], #ncb = non collision background, blayer = only sum innermost pix layer
     'IDinfo'         : [],
     'ZDCinfo'        : ['lg', 'hg'],
     'trkInfo'        : ['hlttr', 'ftk', 'costr'],
@@ -486,7 +491,7 @@ MinBiasChainParts = {
                         'sp1000', 'sp1200', 'sp1300', 'sp1400', 'sp1500', 'sp1600', 'sp1700', 'sp1800', 
                         'sp2000', 'sp2100', 'sp2200', 'sp2300', 'sp2400', 'sp2500', 'sp2700', 'sp2800', 'sp2900', 'sp3000',
                         'sp3100', 'sp3500', 'sp4100', 'sp4500', 'sp4800', 'sp5000', 'sp5200',],
-    'pileupInfo'     : ['pusup350', 'pusup400', 'pusup450', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800', 'pusup900',
+    'pileupInfo'     : ['pusup200','pusup300','pusup350', 'pusup400', 'pusup450', 'pusup500', 'pusup550', 'pusup600', 'pusup700', 'pusup750', 'pusup800', 'pusup900',
                         'pusup1000', 'pusup1100', 'pusup1200', 'pusup1300', 'pusup1400', 'pusup1500',],
     'hypoEFInfo'     : ['trk3','trk5','trk10','trk15',  'trk20',  'trk30',  'trk40', 'trk45', 'trk50', 'trk55', 'trk60', 'trk65', 'trk70', 'trk75', 'trk80', 'trk90',
                         'trk100', 'trk110', 'trk120', 'trk130', 'trk140', 'trk150', 'trk160', 'trk180', 'trk200', 'trk220', 'trk240', 'trk260', 'trk280',      

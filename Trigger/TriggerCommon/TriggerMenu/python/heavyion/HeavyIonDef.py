@@ -326,7 +326,6 @@ class L2EFChain_HI(L2EFChainDef):
         
         # L2 sel (TT) is used when The chain is sither L2Fgap* or Fgap*, and not used when EFGap, similarily for EF (cells) part
         gap  = self.chainPart['gap']
-        print "dupa ", gap
         useEF = not ('L2Fgap' in self.chainPart['gap'])
 
         #        theSptrkMaker = 

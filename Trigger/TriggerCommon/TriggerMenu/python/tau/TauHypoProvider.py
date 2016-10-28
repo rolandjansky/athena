@@ -239,6 +239,7 @@ class TauHypoProvider:
         ('loose1', 115): [3, 115.0*GeV, 1],
         ('loose1', 125): [3, 125.0*GeV, 1], 
         ('loose1', 160): [3, 160.0*GeV, 1],
+        ('loose1', 200): [3, 200.0*GeV, 1],
         ('medium1', 0): [3,  0.0*GeV, 2], 
         ('medium1', 20): [3,  20.0*GeV, 2],
         ('medium1', 25): [3,  25.0*GeV, 2],
@@ -251,6 +252,7 @@ class TauHypoProvider:
         ('medium1', 115): [3, 115.0*GeV, 2],
         ('medium1', 125): [3, 125.0*GeV, 2], 
         ('medium1', 160): [3, 160.0*GeV, 2], 
+        ('medium1', 200): [3, 200.0*GeV, 2],
         ('tight1', 20): [3,  20.0*GeV, 3],
         ('tight1', 25): [3,  25.0*GeV, 3],
         ('tight1', 29): [3,  29.0*GeV, 3],
@@ -262,6 +264,7 @@ class TauHypoProvider:
         ('tight1', 115): [3, 115.0*GeV, 3],
         ('tight1', 125): [3, 125.0*GeV, 3], 
         ('tight1', 160): [3, 160.0*GeV, 3],
+        ('tight1', 200): [3, 200.0*GeV, 3],
         ('medium1HighptL', 20): [3,  20.0*GeV, 2],
         ('medium1HighptL', 25): [3,  25.0*GeV, 2],
         ('medium1HighptL', 29): [3,  29.0*GeV, 2],
@@ -294,7 +297,8 @@ class TauHypoProvider:
         ('medium1HighptH', 80): [3,  80.0*GeV, 2],
         ('medium1HighptH', 115): [3, 115.0*GeV, 2],
         ('medium1HighptH', 125): [3, 125.0*GeV, 2],
-        ('medium1HighptH', 160): [3, 160.0*GeV, 2] 
+        ('medium1HighptH', 160): [3, 160.0*GeV, 2], 
+        ('medium1HighptH', 200): [3, 200.0*GeV, 2]
         }
 
     thresholdsHighpt = {

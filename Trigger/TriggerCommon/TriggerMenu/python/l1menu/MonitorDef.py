@@ -154,7 +154,7 @@ class MonitorDef:
             "L1_BPH-2M8-2MU4","L1_BPH-2M8-MU6MU4_BPH-0DR15-MU6MU4","L1_BPH-2M9-2MU6_BPH-2DR15-2MU6",
             "L1_MU6MU4-BO","L1_2MU4-B",
             "L1_LFV-EM8I",
-            "L1_DY-BOX-2MU6",
+            "L1_TGC_BURST",
             "L1_LLP-NOMATCH",
             "L1_DR-TAU20ITAU12I",
             "L1_HT190-J15s5.ETA21",

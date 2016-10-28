@@ -727,6 +727,10 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         L2TEname = L2TEname.replace("bBmumux_BsJpsiPhi","bBmumuxv2")
         if topo2StartFrom:
             topo2StartFrom = L2TEname
+    if 'LbmumuLambda' in topoAlgs:
+        L2TEname = L2TEname.replace("bBmumux_LbmumuLambda","bBmumuxv2")
+        if topo2StartFrom:
+            topo2StartFrom = L2TEname
         
     if 'Ftk' in topoAlgs:
         from TrigInDetConf.TrigInDetFTKSequence import TrigInDetFTKSequence
@@ -749,6 +753,14 @@ def bBmumuxTopos(theChainDef,chainDict, inputTEsL2, inputTEsEF, topoStartFrom):
         #L2Fex = L2BMuMuXFex_BcMuMuDs()
         EFFex = EFBMuMuXFex_BcMuMuDs()
         EFHypo = EFBMuMuXHypo_BcMuMuDs()
+        
+    elif 'LbmumuLambda' in topoAlgs:
+        #from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_BcMuMuDs
+        from TrigBphysHypo.TrigEFBMuMuXFexConfig import EFBMuMuXFex_LbMuMuLambda
+        from TrigBphysHypo.TrigEFBMuMuXHypoConfig import EFBMuMuXHypo_LbMuMuLambda
+        #L2Fex = L2BMuMuXFex_BcMuMuDs()
+        EFFex = EFBMuMuXFex_LbMuMuLambda()
+        EFHypo = EFBMuMuXHypo_LbMuMuLambda()
         
     elif 'BpmumuKp' in topoAlgs:
         #from TrigBphysHypo.TrigL2BMuMuXFexConfig import L2BMuMuXFex_BplusMuMuKplus
