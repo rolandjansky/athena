@@ -35,19 +35,19 @@ Trk::TrigTrackCollectionMerger::TrigTrackCollectionMerger(const std::string& nam
 
 HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltInitialize()
 {
-  msg() << MSG::INFO << "Initializing TrigTrackCollectionMerger" << endreq;
+  msg() << MSG::INFO << "Initializing TrigTrackCollectionMerger" << endmsg;
 
   if ( m_assoTool.retrieve().isFailure() ) {
-    msg() << MSG::FATAL << "Failed to retrieve tool " << m_assoTool << endreq;
+    msg() << MSG::FATAL << "Failed to retrieve tool " << m_assoTool << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   } else
-    msg() << MSG::INFO << "Retrieved tool " << m_assoTool << endreq;
+    msg() << MSG::INFO << "Retrieved tool " << m_assoTool << endmsg;
   
   if (m_trkSummaryTool.retrieve().isFailure()) {
-    msg() << MSG::FATAL << "Failed to retrieve tool " << m_trkSummaryTool << endreq;
+    msg() << MSG::FATAL << "Failed to retrieve tool " << m_trkSummaryTool << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   } else 
-    msg() << MSG::INFO << "Retrieved tool " << m_trkSummaryTool << endreq;
+    msg() << MSG::INFO << "Retrieved tool " << m_trkSummaryTool << endmsg;
 
   return HLT::OK;
 }
@@ -68,7 +68,7 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltExecute(const HLT::TriggerElem
 
   //get forward tracks with TRT extension
   if ( HLT::OK != getFeature(outputTE, trackCol, "ExtProcTracks") ) {
-    msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+    msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
     return HLT::NAV_ERROR;
   }
   
@@ -77,12 +77,12 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltExecute(const HLT::TriggerElem
 
   if(!trackCol){
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST: Input forward-track collection with TRT exetension was not attached. Trying collection without TRT extension." << endreq;
+      msg() << MSG::DEBUG << "REGTEST: Input forward-track collection with TRT exetension was not attached. Trying collection without TRT extension." << endmsg;
     //return HLT::OK; 
 
     //get forward tracks without TRT extension
     if ( HLT::OK != getFeature(outputTE, trackCol, "AmbigSolv") ) {
-      msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+      msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
 
       delete outputCol;
       return HLT::NAV_ERROR;
@@ -90,20 +90,20 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltExecute(const HLT::TriggerElem
 
     if(!trackCol){
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "REGTEST: Input forward-track collection without TRT exetension was not attached. Trying another collection." << endreq;
+	msg() << MSG::DEBUG << "REGTEST: Input forward-track collection without TRT exetension was not attached. Trying another collection." << endmsg;
       //return HLT::OK;
     }
     else{
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "REGTEST: Input forward-track collection without TRT extension has size " << trackCol->size() << endreq;
+	msg() << MSG::DEBUG << "REGTEST: Input forward-track collection without TRT extension has size " << trackCol->size() << endmsg;
       if ( trackCol->size() == 0 ) {
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "REGTEST: Input forward-track collection without TRT extension has 0 size. Trying another collection." << endreq;
+	  msg() << MSG::DEBUG << "REGTEST: Input forward-track collection without TRT extension has 0 size. Trying another collection." << endmsg;
 	//return HLT::OK;
       }   
       else{
 	if( HLT::OK != mergeTrack(trackCol,outputCol) ){
-	  msg() << MSG::ERROR << "Failed to merge tracks! " << endreq;
+	  msg() << MSG::ERROR << "Failed to merge tracks! " << endmsg;
 	  
 	  delete outputCol;
 	  return HLT::NAV_ERROR;
@@ -113,15 +113,15 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltExecute(const HLT::TriggerElem
   } 
   else {
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "REGTEST: Input forward-track collection with TRT extension has size " << trackCol->size() << endreq;
+      msg() << MSG::DEBUG << "REGTEST: Input forward-track collection with TRT extension has size " << trackCol->size() << endmsg;
     if ( trackCol->size() == 0 ) {
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "REGTEST: Input forward-track collection with TRT extension has 0 size. Trying another collection." << endreq;
+	msg() << MSG::DEBUG << "REGTEST: Input forward-track collection with TRT extension has 0 size. Trying another collection." << endmsg;
       //return HLT::OK; 
     }
     else{
       if( HLT::OK != mergeTrack(trackCol,outputCol) ){
-	msg() << MSG::ERROR << "Failed to merge tracks! " << endreq;
+	msg() << MSG::ERROR << "Failed to merge tracks! " << endmsg;
 	
 	delete outputCol;
 	return HLT::NAV_ERROR;
@@ -131,7 +131,7 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltExecute(const HLT::TriggerElem
   
   //get back tracks
   if ( HLT::OK != getFeature(outputTE, trackCol, "TRTSeededAmbigSolv") ) {
-    msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+    msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
     
     delete outputCol;
     return HLT::NAV_ERROR;
@@ -139,20 +139,20 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltExecute(const HLT::TriggerElem
   
   if(!trackCol){
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Input back-track collection was not attached. Trying another collection." << endreq;
+      msg() << MSG::DEBUG << " Input back-track collection was not attached. Trying another collection." << endmsg;
     //return HLT::OK; 
   } 
   else {
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Input back-track collection has size " << trackCol->size() << endreq;
+      msg() << MSG::DEBUG << " Input back-track collection has size " << trackCol->size() << endmsg;
     if ( trackCol->size() == 0 ) {
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input back-track collection has 0 size. Trying another collection." << endreq;
+	msg() << MSG::DEBUG << " Input back-track collection has 0 size. Trying another collection." << endmsg;
       //return HLT::OK; 
     }
     else{
       if( HLT::OK != mergeTrack(trackCol,outputCol) ){
-	msg() << MSG::ERROR << "Failed to merge tracks! " << endreq;
+	msg() << MSG::ERROR << "Failed to merge tracks! " << endmsg;
 	
 	delete outputCol;
 	return HLT::NAV_ERROR;
@@ -162,7 +162,7 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltExecute(const HLT::TriggerElem
 
   //get TRT standalone tracks
   if ( HLT::OK != getFeature(outputTE, trackCol, "TRTStandaloneTracks") ) {
-    msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+    msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
     
     delete outputCol;
     return HLT::NAV_ERROR;
@@ -170,20 +170,20 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltExecute(const HLT::TriggerElem
   
   if(!trackCol){
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Input TRT-standalone track collection was not attached." << endreq;
+      msg() << MSG::DEBUG << " Input TRT-standalone track collection was not attached." << endmsg;
     //return HLT::OK; 
   } 
   else {
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Input TRT-standalone track collection has size " << trackCol->size() << endreq;
+      msg() << MSG::DEBUG << " Input TRT-standalone track collection has size " << trackCol->size() << endmsg;
     if ( trackCol->size() == 0 ) {
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input TRT-standalone track collection has 0 size." << endreq;
+	msg() << MSG::DEBUG << " Input TRT-standalone track collection has 0 size." << endmsg;
       //return HLT::OK; 
     }
     else{
       if( HLT::OK != mergeTrack(trackCol,outputCol) ){
-	msg() << MSG::ERROR << "Failed to merge tracks! " << endreq;
+	msg() << MSG::ERROR << "Failed to merge tracks! " << endmsg;
 	
 	delete outputCol;
 	return HLT::NAV_ERROR;
@@ -194,7 +194,7 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltExecute(const HLT::TriggerElem
 
   if(outputCol->size()==0) {
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " Output-container is empty - not storing it." << endreq;
+      msg() << MSG::DEBUG << " Output-container is empty - not storing it." << endmsg;
    
     delete outputCol;
     return HLT::OK;
@@ -202,23 +202,23 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::hltExecute(const HLT::TriggerElem
 
   //  Attach all tracks to the trigger element.
   if ( HLT::OK !=  attachFeature(outputTE, outputCol, "CombinedTracks") ) {
-    msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+    msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
     
     delete outputCol;
     return HLT::NAV_ERROR;
   }
 
   if(outputLevel <= MSG::DEBUG){
-    msg() << MSG::DEBUG << "Container recorded in StoreGate." << endreq;
-    msg() << MSG::DEBUG << "REGTEST: Output container size :" << outputCol->size() << endreq;
+    msg() << MSG::DEBUG << "Container recorded in StoreGate." << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: Output container size :" << outputCol->size() << endmsg;
   } 
   
-  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Update summaries" << endreq;  
+  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Update summaries" << endmsg;  
   // now loop over all track and update summaries with new shared hit counts
-  TrackCollection::const_iterator rf,rfe=outputCol->end();
+  TrackCollection::iterator rf,rfe=outputCol->end();
   for(rf=outputCol->begin();rf!=rfe; ++rf) m_trkSummaryTool->updateTrack(**rf);
   
-  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Done !" << endreq;  
+  if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Done !" << endmsg;  
   
   return HLT::OK;
 }
@@ -295,7 +295,7 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::mergeTrack(const TrackCollection*
 
   // loop over forward track, accept them and add them imto association tool
   if(trackCol && trackCol->size()) {
-    if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Size of track collection " << trackCol->size() << endreq;
+    if(outputLevel <= MSG::DEBUG) msg() << MSG::DEBUG << "Size of track collection " << trackCol->size() << endmsg;
 
     // loop over tracks
     TrackCollection::const_iterator rf,rfe=trackCol->end();
@@ -307,7 +307,7 @@ HLT::ErrorCode Trk::TrigTrackCollectionMerger::mergeTrack(const TrackCollection*
       
       // add tracks into PRD tool
       if (m_assoTool->addPRDs(*newTrack).isFailure())
-	msg() << MSG::WARNING << "Failed to add PRDs to map" << endreq;
+	msg() << MSG::WARNING << "Failed to add PRDs to map" << endmsg;
       
     }
   }
