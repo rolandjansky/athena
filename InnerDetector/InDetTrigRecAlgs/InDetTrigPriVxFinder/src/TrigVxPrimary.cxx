@@ -59,31 +59,31 @@ namespace InDet
   //-------------------------------------------------------------------------
   HLT::ErrorCode TrigVxPrimary::hltInitialize() {
     
-    msg() << MSG::INFO << "TrigVxPrimary::initialize(). "<< endreq;
+    msg() << MSG::INFO << "TrigVxPrimary::initialize(). "<< endmsg;
     
     /* Get the VertexFinderTool */
     if ( m_VertexFinderTool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_VertexFinderTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_VertexFinderTool << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " << m_VertexFinderTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_VertexFinderTool << endmsg;
     }
     
     if (m_fieldSvc.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_fieldSvc << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_fieldSvc << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
     else {
-      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endreq;
+      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endmsg;
     }
 
     if (m_BeamCondSvc.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_BeamCondSvc << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_BeamCondSvc << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
     else {
-      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endreq;
+      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endmsg;
     }
 
     return HLT::OK;
@@ -105,7 +105,7 @@ namespace InDet
     int outputLevel = msgLvl();
     
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endreq;
+      msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endmsg;
     
     //----------------------------------------------------------------------
     // Trigger specific part: navigate throw the trigger element to get the
@@ -115,25 +115,25 @@ namespace InDet
     const TrackCollection* trackTES=0;
     
     if ( HLT::OK != getFeature(outputTE, trackTES)) {
-      msg() << MSG::ERROR << "Input track collection could not be found " << endreq;
+      msg() << MSG::ERROR << "Input track collection could not be found " << endmsg;
       return HLT::NAV_ERROR;
     } 
    
     if (!trackTES){
       if(outputLevel <= MSG::DEBUG)
 	msg() << MSG::DEBUG
-	      << "Input tracks by getFeature NULL, a previous algo attached nothing?" << endreq;
+	      << "Input tracks by getFeature NULL, a previous algo attached nothing?" << endmsg;
       runVtx = false;
     }
     else if(trackTES->size()==0){
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
+	msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endmsg;
       runVtx = false;
     }
 
     if (!m_runWithoutField && !m_fieldSvc->solenoidOn()){
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Solenoid Off and RunWithoutField=False. Algorithm not executed!" << endreq;
+	msg() << MSG::DEBUG << "Solenoid Off and RunWithoutField=False. Algorithm not executed!" << endmsg;
       runVtx = false;
     }
 
@@ -141,7 +141,7 @@ namespace InDet
       m_nTracks = trackTES->size();
       if (outputLevel <= MSG::DEBUG)
 	msg() << MSG::DEBUG << "REGTEST: Retrieved input track collection with "
-	      << m_nTracks << " tracks. " << endreq;
+	      << m_nTracks << " tracks. " << endmsg;
       
       //check whether measured perigees are available, if not vertexing crashes
       for (int i=0; i<m_nTracks; i++){
@@ -150,14 +150,14 @@ namespace InDet
 	  if (std::isnan(mp->parameters()[Trk::d0])){
 	    if(outputLevel <= MSG::DEBUG)
 	      msg() << MSG::DEBUG
-		    << "Algorithm not executed as measured perigees are not valid" << endreq;
+		    << "Algorithm not executed as measured perigees are not valid" << endmsg;
 	    runVtx = false;
 	  }
 	}
 	else {
 	  if(outputLevel <= MSG::DEBUG)
 	    msg() << MSG::DEBUG
-		  << "Algorithm not executed as measured perigees are empty" << endreq;
+		  << "Algorithm not executed as measured perigees are empty" << endmsg;
 	  runVtx = false;
 	}
       }
@@ -196,7 +196,7 @@ namespace InDet
     //  Attach resolved tracks to the trigger element.
     
     if ( HLT::OK !=  attachFeature(outputTE, theVxContainer, "xPrimVx") ) {
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+      msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
 
       delete theVxAuxContainer; theVxAuxContainer=0;
       return HLT::NAV_ERROR;
@@ -222,7 +222,7 @@ namespace InDet
 		  << " x=" << vtx.x() << "+/-" << Amg::error(verr, Trk::x)
 		  << " y=" << vtx.y() << "+/-" << Amg::error(verr, Trk::y)
 		  << " z=" << vtx.z() << "+/-" << Amg::error(verr, Trk::z)
-		  << endreq; 
+		  << endmsg; 
 	  }
 	  m_zOfPriVtx.push_back(vtx.z());
 	}
@@ -234,7 +234,7 @@ namespace InDet
 		  << " x=" << vtx.x()
 	      	  << " y=" << vtx.y()
 		  << " z=" << vtx.z()
-		  << endreq; 
+		  << endmsg; 
 	  }
 	  m_zOfPileUp.push_back(vtx.z());
 	}
@@ -242,7 +242,7 @@ namespace InDet
 	  m_zOfNoVtx.push_back(vtx.z());
 	}
       } else {
-	msg() << MSG::DEBUG << "Bad VxCandidate=" << iv << endreq;
+	msg() << MSG::DEBUG << "Bad VxCandidate=" << iv << endmsg;
       }
     }
     
@@ -253,7 +253,7 @@ namespace InDet
   //---------------------------------------------------------------------------
   HLT::ErrorCode TrigVxPrimary::hltFinalize() {
 
-    msg() << MSG::INFO << "TrigVxPrimary::finalize()" << endreq;
+    msg() << MSG::INFO << "TrigVxPrimary::finalize()" << endmsg;
 
     return HLT::OK;
   }

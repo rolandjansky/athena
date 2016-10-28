@@ -13,6 +13,7 @@
 #include "xAODTracking/VertexContainer.h"
 #include "xAODTracking/VertexAuxContainer.h"
 #include "TrkEventPrimitives/ParamDefs.h"
+#include "AthContainers/ConstDataVector.h"
 
 #include "MagFieldInterfaces/IMagFieldSvc.h"
 #include "InDetBeamSpotService/IBeamCondSvc.h"
@@ -52,31 +53,31 @@ namespace InDet
   //-------------------------------------------------------------------------
   HLT::ErrorCode TrigVxPrimaryAllTE::hltInitialize() {
     
-    msg() << MSG::INFO << "TrigVxPrimaryAllTE::initialize(). "<< endreq;
+    msg() << MSG::INFO << "TrigVxPrimaryAllTE::initialize(). "<< endmsg;
     
     /* Get the VertexFinderTool */
     if ( m_VertexFinderTool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_VertexFinderTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_VertexFinderTool << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " << m_VertexFinderTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_VertexFinderTool << endmsg;
     }
     
     if (m_fieldSvc.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Failed to retrieve service " << m_fieldSvc << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve service " << m_fieldSvc << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     } 
     else {
-      msg() << MSG::INFO << "Retrieved tool " << m_fieldSvc << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_fieldSvc << endmsg;
     }
 
     if (m_BeamCondSvc.retrieve().isFailure()){
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_BeamCondSvc << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_BeamCondSvc << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else {
-      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endreq;
+      msg() << MSG::INFO << "Retrieved service " << m_fieldSvc << endmsg;
     }
 
     return HLT::OK;
@@ -100,13 +101,13 @@ namespace InDet
     int outputLevel = msgLvl();
     
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endreq;
+      msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endmsg;
     
 
     /************************************/
     /** CREATE NEW TRACK COLLECTION *****/
     /************************************/
-    TrackCollection* trackTES_All = new TrackCollection;
+    ConstDataVector<TrackCollection>* trackTES_All = new ConstDataVector<TrackCollection>;
 
     const TrackCollection* pointerToTrackCollections = 0;
 
@@ -114,14 +115,14 @@ namespace InDet
       for (HLT::TEVec::const_iterator inner_it = inputTE[0].begin(); inner_it != inputTE[0].end(); ++inner_it) {
 	
 	if ( HLT::OK != getFeature(*inner_it, pointerToTrackCollections) || !pointerToTrackCollections) {
-	  msg() << MSG::ERROR << "Input track collection could not be found " << endreq;
+	  msg() << MSG::ERROR << "Input track collection could not be found " << endmsg;
 	  return HLT::NAV_ERROR;
 	} 
 	
 	for (TrackCollection::const_iterator it = pointerToTrackCollections->begin() ;
 	     it != pointerToTrackCollections->end()   ; ++it) {
 	  
-	  Trk::Track* track = *it;
+	  const Trk::Track* track = *it;
 	  trackTES_All->push_back(track);  
 	}
       }
@@ -129,22 +130,22 @@ namespace InDet
       const std::string tracksName= m_track_collection_from_SG;
       //retrieve tracks from SG not from Navigation
       if (store()->transientContains<TrackCollection>(tracksName)) {
-	msg() << MSG::DEBUG << "sg contains  "<< tracksName << endreq;
+	msg() << MSG::DEBUG << "sg contains  "<< tracksName << endmsg;
       }
       else {
-	msg() << MSG::DEBUG << "sg does not contain  "<< tracksName << endreq;
+	msg() << MSG::DEBUG << "sg does not contain  "<< tracksName << endmsg;
 	runVtx=false;
       }
       StatusCode sc = store()->retrieve(pointerToTrackCollections,tracksName);
       if (!sc){
-	msg() << MSG::DEBUG << "sg does not contain  "<< tracksName << endreq;
+	msg() << MSG::DEBUG << "sg does not contain  "<< tracksName << endmsg;
 	runVtx=false;
       }
       else {
 	for (TrackCollection::const_iterator it = pointerToTrackCollections->begin() ;
 	     it != pointerToTrackCollections->end()   ; ++it) {
 	  
-	  Trk::Track* track = *it;
+	  const Trk::Track* track = *it;
 	  trackTES_All->push_back(track);  
 	}
       }
@@ -155,18 +156,18 @@ namespace InDet
     if (!trackTES_All){
 	if(outputLevel <= MSG::DEBUG)
 	  msg() << MSG::DEBUG
-		<< "Input tracks by getFeature NULL, a previous algo attached nothing?" << endreq;
+		<< "Input tracks by getFeature NULL, a previous algo attached nothing?" << endmsg;
 	runVtx = false;
       }
       else if(trackTES_All->size()==0){
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
+	  msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endmsg;
 	runVtx = false;
       }
       
       if (!m_runWithoutField && !m_fieldSvc->solenoidOn()){
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "Solenoid Off and RunWithoutField=False. Algorithm not executed!" << endreq;
+	  msg() << MSG::DEBUG << "Solenoid Off and RunWithoutField=False. Algorithm not executed!" << endmsg;
 	runVtx = false;
       }
       
@@ -174,7 +175,7 @@ namespace InDet
 	m_nTracks = trackTES_All->size();
 	if (outputLevel <= MSG::DEBUG)
 	  msg() << MSG::DEBUG << "REGTEST: Retrieved input track collection with "
-		<< m_nTracks << " tracks. " << endreq;
+		<< m_nTracks << " tracks. " << endmsg;
 	//check whether measured perigees are available, if not vertexing crashes
 	for (int i=0; i<m_nTracks; i++){
 	  const Trk::Perigee *mp = (trackTES_All->at(i)->perigeeParameters());
@@ -182,14 +183,14 @@ namespace InDet
 	    if (std::isnan(mp->parameters()[Trk::d0])){
 	      if(outputLevel <= MSG::DEBUG)
 		msg() << MSG::DEBUG
-		      << "Algorithm not executed as measured perigees are not valid" << endreq;
+		      << "Algorithm not executed as measured perigees are not valid" << endmsg;
 	      runVtx = false;
 	    }
 	  }
 	  else {
 	    if(outputLevel <= MSG::DEBUG)
 	      msg() << MSG::DEBUG
-		    << "Algorithm not executed as measured perigees are empty" << endreq;
+		    << "Algorithm not executed as measured perigees are empty" << endmsg;
 	    runVtx = false;
 	  }
 	}
@@ -202,7 +203,7 @@ namespace InDet
 	= std::make_pair( theVxContainer, theVxAuxContainer );
 
     if (runVtx) {
-      theVxContainers = m_VertexFinderTool->findVertex(trackTES_All);
+      theVxContainers = m_VertexFinderTool->findVertex(trackTES_All->asDataVector());
       theVxContainer = theVxContainers.first;
       theVxAuxContainer = theVxContainers.second;  // the vertex finder has already called setStore
     }
@@ -236,7 +237,7 @@ namespace InDet
     HLT::ErrorCode stat = attachFeature(outputTE, theVxContainer,"xPrimVx");
     if (stat != HLT::OK) {
       if (msgLvl() <= MSG::WARNING)
-	    msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+	    msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
       
       delete theVxAuxContainer; theVxAuxContainer=0;
       return HLT::NAV_ERROR;
@@ -246,8 +247,8 @@ namespace InDet
     
     m_nVertices = theVxContainer->size();
     if(outputLevel <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "Container recorded in StoreGate." << endreq;
-      msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nVertices << endreq;
+      msg() << MSG::DEBUG << "Container recorded in StoreGate." << endmsg;
+      msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nVertices << endmsg;
     }    
     
 
@@ -262,7 +263,7 @@ namespace InDet
   //---------------------------------------------------------------------------
   HLT::ErrorCode TrigVxPrimaryAllTE::hltFinalize() {
 
-    msg() << MSG::INFO << "TrigVxPrimaryAllTE::finalize()" << endreq;
+    msg() << MSG::INFO << "TrigVxPrimaryAllTE::finalize()" << endmsg;
 
     return HLT::OK;
   }
