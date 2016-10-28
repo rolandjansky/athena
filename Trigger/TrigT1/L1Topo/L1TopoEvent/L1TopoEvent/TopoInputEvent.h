@@ -47,6 +47,10 @@ namespace TCS {
       const MuonNextBCTOBArray & muonsNextBC() const { return m_muonsNextBC; }
       const JetTOBArray & jets() const { return m_jets; }
       const MetTOB & met() const { return m_met[0]; }
+      uint32_t run_number()        const { return m_runNo; }
+      uint32_t event_number()      const { return m_evtNo; }
+      uint32_t lumi_block()        const { return m_lumiB; }
+      uint32_t bunch_crossing_id() const { return m_BCID;  }
       
       StatusCode addCluster(const ClusterTOB & cluster);
       StatusCode addTau(const ClusterTOB & tau);
@@ -55,6 +59,7 @@ namespace TCS {
       StatusCode addMuonNextBC(const MuonNextBCTOB & muon);
       StatusCode addJet(const JetTOB & jet);
       StatusCode setMET(const MetTOB & met);
+      StatusCode setEventInfo(const uint32_t runNo, const uint32_t evtNo, const uint32_t lumiB, const uint32_t BCID);
 
       // access all inputs by type
       const InputTOBArray * inputTOBs(TCS::inputTOBType_t) const;
@@ -83,6 +88,7 @@ namespace TCS {
       LateMuonTOBArray  m_lateMuons;
       MuonNextBCTOBArray  m_muonsNextBC;
       MetTOBArray       m_met; // will have size 1
+      uint32_t          m_runNo, m_evtNo, m_lumiB, m_BCID;
 
       bool              m_dumpEnabled { false };
       std::string       m_inputDumpFile { "" };
