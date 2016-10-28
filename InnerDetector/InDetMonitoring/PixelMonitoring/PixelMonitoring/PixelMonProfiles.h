@@ -35,7 +35,7 @@ class PixelMonProfiles
       void SetMaxValue(float max);
       void Reset();
       StatusCode regHist(ManagedMonitorToolBase::MonGroup &group);
-private:
+   private:
       StatusCode sc;
       void formatHist();
       
