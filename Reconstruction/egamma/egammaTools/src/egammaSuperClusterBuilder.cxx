@@ -152,6 +152,9 @@ egammaSuperClusterBuilder::egammaSuperClusterBuilder(const std::string& type,
 
   declareProperty("SumRemainingCellsInWindow", m_sumRemainingCellsInWindow = false);
   
+  declareProperty("RefineEta1", m_refineEta1 = true, 
+		  "Whether to Refine Eta1 calculation");
+
   declareProperty("CorrectClusters", m_correctClusters = true, 
 		  "Whether to run cluster corrections");
   
@@ -432,7 +435,10 @@ StatusCode egammaSuperClusterBuilder::CalibrateCluster(xAOD::CaloCluster* newClu
   ATH_MSG_DEBUG("Cluster etaBE(2) Initial: "<<newCluster->etaBE(2));
   ATH_MSG_DEBUG("Cluster phiBE(2) Initial: "<<newCluster->phiBE(2));
   //Refine Eta1
-  ATH_CHECK(refineEta1Position(newCluster));
+
+  if(m_refineEta1){
+    ATH_CHECK(refineEta1Position(newCluster));
+  }
   //Save the state before the corrections
   newCluster->setAltE(newCluster->e());
   newCluster->setAltEta(newCluster->eta());
@@ -529,15 +535,14 @@ StatusCode egammaSuperClusterBuilder::refineEta1Position(xAOD::CaloCluster* clus
 	       detastr, dphistr);
   
   if (detastr > 0 && dphistr > 0) {
-    const auto cellLink = cluster->getCellLinks();
-    if (cellLink) {
-      CaloLayerCalculator calc;
-      calc.fill(cellLink->begin(), cellLink->end(), etamax, phimax, detastr, dphistr, sample);
-
-      const auto eta = calc.etam();
-      if (eta != -999.) {
-	cluster->setEta(sample, eta);
-      }
+    const CaloCellContainer* inputcells=cluster->getCellLinks()->getCellContainer();
+    CaloLayerCalculator calc;
+    ATH_CHECK(calc.fill(inputcells, etamax, phimax, detastr, dphistr, sample));
+    const auto eta = calc.etam();
+    ATH_MSG_DEBUG(" new eta " << eta);
+    //
+    if (eta != -999.) {
+      cluster->setEta(sample, eta);
     }
   }
   return StatusCode::SUCCESS;

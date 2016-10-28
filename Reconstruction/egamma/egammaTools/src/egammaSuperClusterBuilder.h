@@ -107,16 +107,9 @@ private:
   /** @brief Size of windows et phi in which cells of topoclusters are edded for the endcap */
   int   m_addCellsWindowPhiCellsEndcap;
 
-  /* //Keep track of # of 3x5 and brem point */
-  /* //clusters added to seed clusters. */
-  /* int m_nWindowClusters, m_nExtraClusters,m_nBremPointClusters,m_nSameTrackClusters,m_nSimpleBremSearchtClusters; */
-  /* float m_EtThresholdCut; */
-  /* float m_secThresholdCut; */
-  /* float m_emFracCut; */
-  /* float m_secondaryEmFracCut; */
-  /* float m_numberOfSiHits; */
   bool  m_sumRemainingCellsInWindow; //!< Whether to sum the cells outside of topoclusters in search window
 
+  bool m_refineEta1 ;   //!< Whether to refine the eta1 calculation
   bool m_correctClusters;  //!< Whether to run cluster correction
   bool m_calibrateClusters;  //!< Whether to run cluster calibration
 
