@@ -19,6 +19,7 @@
 #include "TH1F.h"   
 #include "TH1I.h"   
 #include "TH2F.h"
+#include "TH3F.h"
 #include "TH2I.h"
 #include "LWHists/TH1F_LW.h"
 #include "LWHists/TH1I_LW.h"
@@ -330,6 +331,12 @@ StatusCode PixelMainMon::BookHitsMon(void)
    sc = rdoShift.regHist(m_occupancy_L0_B11_S2_C6 = TProfile2D_LW::create(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, 96, -0.5, -0.5+96));
    m_occupancy_L0_B11_S2_C6->SetOption("colz");
 
+   for( int i=0; i<PixLayer::COUNT; i++){
+     hname   = makeHistname(("nFEswithHits_"+m_modLabel_PixLayerIBL2D3D[i]), false);
+     htitles = makeHisttitle(("Number of FEs with hits, "+m_modLabel_PixLayerIBL2D3D[i]), ";lumi block;eta index of module;# FEs with hits in a module in an event;# event #times # modules", false);
+     sc = rdoExpert.regHist(m_nFEswithHits_mod[i] = new TH3F(hname.c_str(), htitles.c_str(), nbins_LB, min_LB, max_LB, nmod_eta[i], -0.5, -0.5 + nmod_eta[i], 18, -0.5, 17.5));
+   }
+
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
    return StatusCode::SUCCESS;
 }
@@ -495,6 +502,25 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    double nhits=0;
    double nhits_mod[PixLayer::COUNT]={0};
    int nhits_L0_B11_S2_C6[96] = {0};
+
+   int fewithHits_EA[ nmod_phi[PixLayer::kECA]][ nmod_eta[PixLayer::kECA]][16];
+   int fewithHits_EC[ nmod_phi[PixLayer::kECC]][ nmod_eta[PixLayer::kECC]][16];
+   int fewithHits_B0[ nmod_phi[PixLayer::kB0] ][ nmod_eta[PixLayer::kB0] ][16];
+   int fewithHits_B1[ nmod_phi[PixLayer::kB1] ][ nmod_eta[PixLayer::kB1] ][16];
+   int fewithHits_B2[ nmod_phi[PixLayer::kB2] ][ nmod_eta[PixLayer::kB2] ][16];
+   for(int i=0; i<PixLayer::COUNT; i++){
+      for( int phi=0; phi<nmod_phi[i]; phi++){
+         for(int eta=0; eta<nmod_eta[i]; eta++){
+           for(int j=0 ; j<16 ; j++){
+             if(i==PixLayer::kECA) fewithHits_EA[phi][eta][j]=0;
+             if(i==PixLayer::kECC) fewithHits_EC[phi][eta][j]=0;
+             if(i==PixLayer::kB0)  fewithHits_B0[phi][eta][j]=0;
+             if(i==PixLayer::kB1)  fewithHits_B1[phi][eta][j]=0;
+             if(i==PixLayer::kB2)  fewithHits_B2[phi][eta][j]=0;
+           }
+         }
+      }
+   }
 
    Identifier rdoID;
 
@@ -678,6 +704,22 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
              nhits_L0_B11_S2_C6[ (int)(16*fabs(6+m_pixelid->eta_module(rdoID)))+(8*fephi)+feeta ]++;
          }
 
+         if( pixlayer == PixLayer::kB0 && GetFEID( pixlayer, m_pixelid->phi_index(rdoID), m_pixelid->eta_index(rdoID), fephi, feeta) ){
+           fewithHits_B0[m_pixelid->phi_module(rdoID)][(int)(fabs(6+m_pixelid->eta_module(rdoID)))][(int)((8*fephi)+feeta)] = 1;
+         }
+         if( pixlayer == PixLayer::kB1 && GetFEID( pixlayer, m_pixelid->phi_index(rdoID), m_pixelid->eta_index(rdoID), fephi, feeta) ){
+           fewithHits_B1[m_pixelid->phi_module(rdoID)][(int)(fabs(6+m_pixelid->eta_module(rdoID)))][(int)((8*fephi)+feeta)] = 1;
+         }
+         if( pixlayer == PixLayer::kB2 && GetFEID( pixlayer, m_pixelid->phi_index(rdoID), m_pixelid->eta_index(rdoID), fephi, feeta) ){
+           fewithHits_B2[m_pixelid->phi_module(rdoID)][(int)(fabs(6+m_pixelid->eta_module(rdoID)))][(int)((8*fephi)+feeta)] = 1;
+         }
+         if( pixlayer == PixLayer::kECA && GetFEID( pixlayer, m_pixelid->phi_index(rdoID), m_pixelid->eta_index(rdoID), fephi, feeta) ){
+           fewithHits_EA[m_pixelid->phi_module(rdoID)][(int)m_pixelid->layer_disk(rdoID)][(int)((8*fephi)+feeta)] = 1;
+         }
+         if( pixlayer == PixLayer::kECC && GetFEID( pixlayer, m_pixelid->phi_index(rdoID), m_pixelid->eta_index(rdoID), fephi, feeta) ){
+           fewithHits_EC[m_pixelid->phi_module(rdoID)][(int)m_pixelid->layer_disk(rdoID)][(int)((8*fephi)+feeta)] = 1;
+         }
+
          ///////////End of main fill block////////////////////
       }
    } //end of ROD loop
@@ -825,6 +867,23 @@ StatusCode PixelMainMon::FillHitsMon(void) //Called once per event
    /// Quick Status
    for(int i=0 ; i<96 ; i++){
      if( m_occupancy_L0_B11_S2_C6 ) m_occupancy_L0_B11_S2_C6->Fill(m_manager->lumiBlockNumber(), i, (1.0*nhits_L0_B11_S2_C6[i]/(18.0*164.0)));
+   }
+
+   for(int i=0; i<PixLayer::COUNT; i++){
+      for( int phi=0; phi<nmod_phi[i]; phi++){
+         for(int eta=0; eta<nmod_eta[i]; eta++){
+           int nfes = 0;
+           for(int j=0 ; j<16 ; j++){
+             if(i==PixLayer::kECA) nfes += fewithHits_EA[phi][eta][j];
+             if(i==PixLayer::kECC) nfes += fewithHits_EC[phi][eta][j];
+             if(i==PixLayer::kB0)  nfes += fewithHits_B0[phi][eta][j];
+             if(i==PixLayer::kB1)  nfes += fewithHits_B1[phi][eta][j];
+             if(i==PixLayer::kB2)  nfes += fewithHits_B2[phi][eta][j];
+           }
+           //std::cout << "DDDDD " << i << " " << phi << " " << eta << " " << nfes << std::endl;
+           if(m_nFEswithHits_mod[i]) m_nFEswithHits_mod[i]->Fill(m_manager->lumiBlockNumber(), eta, nfes);
+         }
+       }
    }
 
    ////////////////////End fill after event block///////////

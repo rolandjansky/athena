@@ -38,6 +38,7 @@ class TH1I;
 class TH1F;
 class TH2I;
 class TH2F;
+class TH3F;
 class TH1I_LW;
 class TH1F_LW;
 class TH2I_LW;
@@ -338,6 +339,7 @@ private:
    TProfile*               m_occupancy_time3;
    TH1F_LW*                m_occupancy_summary_low_mod[PixLayer::COUNT];
    TH1F_LW*                m_occupancy_summary_mod[PixLayer::COUNT];
+   TH3F*                   m_nFEswithHits_mod[PixLayer::COUNT];
    /// hit tot
    TH1F_LW*                m_hit_ToT[PixLayerIBL2D3DDBM::COUNT];
    TH1F_LW*                m_hit_ToT_Mon_mod[PixLayer::COUNT];
@@ -539,14 +541,16 @@ private:
    ///
    ///Status histograms
    ///
-   PixelMonModules1D*      m_Status_modules;
-   PixelMonProfiles*       m_status;
-   PixelMonProfiles*       m_status_mon;
-   PixelMon2DMaps*         m_dqStatus;
-   TProfile_LW*            m_disabledModules_per_lumi_PIX;
-   TProfile_LW*            m_badModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*            m_disabledModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
-   TProfile_LW*            m_baddisabledModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+   PixelMonModules1D*    m_Status_modules;
+   PixelMonProfiles*     m_status;
+   PixelMonProfiles*     m_status_mon;
+   PixelMonProfiles*     m_status_LB;
+   PixelMonProfiles*     m_disabled;
+   PixelMon2DMaps*       m_dqStatus;
+   TProfile_LW*          m_disabledModules_per_lumi_PIX;
+   TProfile_LW*          m_badModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+   TProfile_LW*          m_disabledModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
+   TProfile_LW*          m_baddisabledModules_per_lumi_mod[PixLayerIBL2D3D::COUNT];
 
    ///
    /// ROD Error histograms
@@ -571,8 +575,15 @@ private:
    TProfile2D_LW*        m_ErrorBit_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TProfile2D_LW*        m_Error_per_lumi_mod[PixLayerIBL2D3D::COUNT];
    TH1I_LW*              m_bad_mod_errors_mod[PixLayer::COUNT];
+   TH3F*                 m_nFEswithTruncErr_mod[PixLayer::COUNT];
 
-   PixelMon2DLumiMaps*        m_errors_int_LB[16];
+   TH1F_LW*              m_errors_ServiceRecordUnweight_IBL;
+   TH1F_LW*              m_errors_ServiceRecordWeight_IBL;
+   
+   PixelMon2DLumiMaps*   m_errors_int_LB[16];
+   PixelMon2DMapsLW*     m_errors_LB;
+   PixelMon2DMapsLW*     m_errors_RODSync_mod;
+   PixelMon2DMapsLW*     m_errors_ModSync_mod;
 
    ///
    /// SP Histograms
@@ -589,8 +600,6 @@ private:
 
    //Histograms stored for certain number of LB at a time
    PixelMon2DMaps*    m_cluster_occupancy_LB;  //cluster occupancy (shows module status)
-   PixelMon2DMapsLW*  m_errors_LB;             //errors
-   PixelMonProfiles*  m_status_LB;             //status of modules (shows disabled modules)
    PixelMonModules1D* m_cluster_ToT_mod_LB;
    PixelMonModules1D* m_cluster_num_mod_LB;
    PixelMonModules1D* m_hit_num_mod_LB;

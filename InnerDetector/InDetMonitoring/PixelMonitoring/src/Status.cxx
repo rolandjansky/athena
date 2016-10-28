@@ -51,6 +51,10 @@ StatusCode PixelMainMon::BookStatusMon(void)
    sc = m_status_mon->regHist(statusHistos);
    m_status_mon->SetMaxValue( 2.0 );
 
+   //m_disabled = new PixelMonProfiles("Map_Of_Modules_Disabled", ("Modules Disabled" + m_histTitleExt).c_str());
+   //sc = m_disabled->regHist(statusHistos);
+   //m_disabled->SetMaxValue( 2.0 );
+
    if(m_doModules)
    {
      m_Status_modules = new PixelMonModules1D("Status_of_Module", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)" + m_histTitleExt + ";Status").c_str(),2,0,2,m_doIBL);
@@ -100,12 +104,13 @@ StatusCode PixelMainMon::BookStatusLumiBlockMon(void)
    if(msgLvl(MSG::DEBUG)) msg(MSG::DEBUG)  << "starting Book Status for lowStat" << endreq;  
 
    std::string path = "Pixel/LumiBlock";
-   if(m_doOnTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
+   if(m_doOnTrack)      path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnTrack");
    if(m_doOnPixelTrack) path.replace(path.begin(), path.end(), "Pixel/LumiBlockOnPixelTrack");
-   MonGroup lumiBlockHist(   this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
+   MonGroup lumiBlockHist(this, path.c_str(), lowStat, ATTRIB_MANAGED); //declare a group of histograms
 
    m_status_LB = new PixelMonProfiles("Map_Of_Modules_Status_LB", ("Module Status (0=Active+Good, 1=Active+Bad, 2=Inactive)"+ m_histTitleExt).c_str());
    sc = m_status_LB->regHist(lumiBlockHist);
+   m_status_LB->SetMaxValue( 2.0 );
      
    if(sc.isFailure())if(msgLvl(MSG::WARNING)) msg(MSG::WARNING)  << "histograms not booked" << endreq;         
    return StatusCode::SUCCESS;
@@ -144,6 +149,7 @@ StatusCode PixelMainMon::FillStatusMon(void)
 
       if(m_status) m_status->Fill(WaferID,m_pixelid,Index,m_doIBL);
       if(m_status_mon) m_status_mon->Fill(WaferID,m_pixelid,Index,m_doIBL);
+      //if(m_disabled) m_disabled->Fill(WaferID, m_pixelid, 1.0, m_doIBL);
 
       if(m_doLumiBlock){
 	      if(m_status_LB) m_status_LB->Fill(WaferID,m_pixelid,Index,m_doIBL);

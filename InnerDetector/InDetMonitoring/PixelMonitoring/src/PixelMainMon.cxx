@@ -298,34 +298,18 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_num_clusters = 0;
    //m_num_clusters_PIX = 0;
    m_num_clusters_low = 0;
-   //m_num_clusters_ECA = 0;
-   //m_num_clusters_ECC = 0;
-   //m_num_clusters_IBL = 0;
-   //m_num_clusters_B0 = 0;
-   //m_num_clusters_B1 = 0;
-   //m_num_clusters_B2 = 0;
-   //m_ecA_cluster_occupancy_summary = 0;
-   //m_ecC_cluster_occupancy_summary = 0;
-   //m_bar_layI_cluster_occupancy_summary = 0;
-   //m_bar_lay0_cluster_occupancy_summary = 0;
-   //m_bar_lay1_cluster_occupancy_summary = 0;
-   //m_bar_lay2_cluster_occupancy_summary = 0;
-   //m_ecA_cluster_occupancy_summary_low = 0;
-   //m_ecC_cluster_occupancy_summary_low = 0;
-   //m_bar_layI_cluster_occupancy_summary_low = 0;
-   //m_bar_lay0_cluster_occupancy_summary_low = 0;
-   //m_bar_lay1_cluster_occupancy_summary_low = 0;
-   //m_bar_lay2_cluster_occupancy_summary_low = 0;
    m_cluster_LVL1A_mod = 0;
    m_clustersOnOffTrack_per_lumi = 0;
+   ///
+   /// Status
+   ///
    m_Status_modules = 0;
    m_status = 0;
    m_status_mon = 0;
+   m_status_LB = 0;           
+   m_disabled = 0;
    m_dqStatus = 0;
-   //m_error1 = 0;            
-   //m_errorTypes = 0;        
-   //m_otherROD_per_lumi_IBL = 0; 
-   //m_chip_per_lumi_IBL = 0; 
+
    m_error_time1 = 0;       
    m_error_time2 = 0;       
    m_error_time3 = 0;       
@@ -342,7 +326,6 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_spHit_rz = 0;
    m_cluster_occupancy_LB = 0;
    m_errors_LB = 0;           
-   m_status_LB = 0;           
    m_cluster_ToT_mod_LB = 0;
    m_cluster_num_mod_LB = 0;
    m_hit_num_mod_LB = 0;
@@ -365,6 +348,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_clusters_onTrack_L0_B11_S2_C6 = 0;
    m_clusters_offTrack_L0_B11_S2_C6 = 0;
 
+   m_errors_RODSync_mod = 0;
+   m_errors_ModSync_mod = 0;
 
    m_pixelid =0;
    pixelmgr =0;
@@ -381,6 +366,9 @@ PixelMainMon::PixelMainMon(const std::string & type,
    m_Pixel_clcontainer =0;
    m_Pixel_spcontainer =0;
    m_tracks =0;
+
+   m_errors_ServiceRecordUnweight_IBL = 0;
+   m_errors_ServiceRecordWeight_IBL = 0;
 
    m_nGood_ECA=0;
    m_nGood_ECC=0;
@@ -417,6 +405,8 @@ PixelMainMon::PixelMainMon(const std::string & type,
       //m_cluster_row_width_mod[i] = 0;
       //m_cluster_groupsize_mod[i] = 0;
       //m_clusQ_vs_eta_mod[i] = 0;
+      m_nFEswithHits_mod[i] = 0;
+      m_nFEswithTruncErr_mod[i] = 0;
       m_clussize_vs_eta_mod[i] = 0;
       m_bad_mod_errors_mod[i] = 0;
       //m_errors_etaid_mod[i] = 0;
@@ -604,16 +594,16 @@ PixelMainMon::PixelMainMon(const std::string & type,
    
 PixelMainMon::~PixelMainMon()
 {
-    delete m_moduleTemperature;
-    delete m_coolingPipeTemperatureInlet;
-    delete m_coolingPipeTemperatureOutlet;
-    delete m_HV;
-    delete m_HV_current;
-    delete m_LV_voltage;
-    delete m_LV_current;
-    delete m_FSM_state;
-    delete m_FSM_status;
-    delete m_moduleDCSDataHolder;
+  delete m_moduleTemperature;
+  delete m_coolingPipeTemperatureInlet;
+  delete m_coolingPipeTemperatureOutlet;
+  delete m_HV;
+  delete m_HV_current;
+  delete m_LV_voltage;
+  delete m_LV_current;
+  delete m_FSM_state;
+  delete m_FSM_status;
+  delete m_moduleDCSDataHolder;
 
 }
 
@@ -623,7 +613,7 @@ StatusCode PixelMainMon::initialize()
    sc = ManagedMonitorToolBase::initialize();
    if(!sc.isSuccess()) return sc;
    time ( &m_startTime );  //mark time for start of run
-   m_idHelper = new AtlasDetectorID;
+   //m_idHelper = new AtlasDetectorID; // not need "new"
 
    // Retrieve tools
    if (detStore()->retrieve(m_pixelid, "PixelID").isFailure()) {
@@ -1095,6 +1085,7 @@ StatusCode PixelMainMon::fillHistograms() //get called twice per event
       sc=FillStatusMon();   
       if(sc.isFailure()) if(msgLvl(MSG::INFO)) msg(MSG::INFO)  << "Could not fill histograms" << endreq; 
    }
+
    //if(m_doRODError&&evtStore()->contains<PixelRODErrorCollection>(m_detector_error_name))
    if(m_doRODError)
    {
