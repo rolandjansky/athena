@@ -17,12 +17,14 @@ use TrkTrack           TrkTrack-*       Tracking/TrkEvent
 use TrkParticleBase    TrkParticleBase-* Tracking/TrkEvent
 use TrkParameters      TrkParameters-*  Tracking/TrkEvent
 use TrkEventPrimitives TrkEventPrimitives-*  Tracking/TrkEvent
+use xAODTracking                xAODTracking-*                  Event/xAOD
+
 use StoreGate          StoreGate-*      Control
 use InDetRecToolInterfaces InDetRecToolInterfaces-* InnerDetector/InDetRecTools
 # dependencies on other vertexing packages
-use VxVertex            VxVertex-*       Tracking/TrkEvent
 # get the actual field config
 use MagFieldInterfaces           MagFieldInterfaces-*	       MagneticField
+use InDetBeamSpotService InDetBeamSpotService-*           InnerDetector/InDetConditions
 
 #linkage of TrigStorage
 use TrigParticle        TrigParticle-*          Trigger/TrigEvent
