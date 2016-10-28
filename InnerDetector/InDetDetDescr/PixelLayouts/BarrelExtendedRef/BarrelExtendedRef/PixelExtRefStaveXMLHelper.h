@@ -33,6 +33,8 @@ class PixelExtRefStaveXMLHelper :  public GeoXMLUtils, public PixelGeoBuilder  {
   std::string getStaveSupportMaterial() const;
   double getServiceOffsetX() const;
   double getServiceOffsetY() const;
+  std::string getSvcRoutingPos() const;
+  double getRadialBeamThickness() const;
   
  private:
   int m_layer;

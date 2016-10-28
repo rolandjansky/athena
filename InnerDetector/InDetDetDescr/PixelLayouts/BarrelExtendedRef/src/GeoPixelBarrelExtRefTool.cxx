@@ -140,7 +140,7 @@ void GeoPixelBarrelExtRefTool::preBuild(const PixelGeoBuilderBasics* basics)
 GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* basics)
 {
 
-  std::cout<<"GeoBarrelExtRef : GeoVPhysVol* GeoPixelBarrelExtRefTool::Build( )"<<std::endl;
+  msg(MSG::DEBUG)<<"GeoBarrelExtRef : GeoVPhysVol* GeoPixelBarrelExtRefTool::Build( )"<<endmsg;
 
   // links to material manager and msgstream
   m_matMgr = basics->matMgr();
@@ -190,7 +190,7 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
   // Layer number
 
   int numLayers = m_xmlReader->nbOfPixelBarrelLayers();
-  std::cout<<"ExtBarrel - GeoPixelBarrelExtRefTool - # layers "<<numLayers<<std::endl;
+  msg(MSG::DEBUG) <<"ExtBarrel - GeoPixelBarrelExtRefTool - # layers "<<numLayers<<endmsg;
 
   // Set numerology
   basics->getDetectorManager()->numerology().setNumLayers(numLayers);
@@ -201,12 +201,12 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
     {
       std::ostringstream lname;
       lname << "Layer" << ii;
-
+      
       // Build layer
       GeoPixelLayerExtRef layer(basics, ii);
       GeoAlignableTransform * xform = new GeoAlignableTransform(HepGeom::Transform3D()); 
       GeoVPhysVol* layerphys = layer.getPhysVol();
-
+     
       GeoNameTag *tag = new GeoNameTag(lname.str());         
       barrelPhys->add(tag);
       barrelPhys->add(new GeoIdentifierTag(ii));
@@ -215,8 +215,7 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
       
       // Store the transform (at level 1)
       Identifier id = basics->getIdHelper()->wafer_id(0,ii,0,0);
-      basics->getDetectorManager()->addAlignableTransform(1, id, xform, layerphys);
-      
+      basics->getDetectorManager()->addAlignableTransform(1, id, xform, layerphys);   
     }
 
   // Add services in barrel volume - dynamic only
@@ -227,7 +226,7 @@ GeoVPhysVol* GeoPixelBarrelExtRefTool::buildBarrel(const PixelGeoBuilderBasics* 
       m_IDserviceTool->buildAndPlace((*it), barrelPhys, zOffset, svcList, false, true);
   }
 
-  std::cout<<"RETURN BARREL PHYS"<<std::endl;
+  msg(MSG::DEBUG) <<"RETURN BARREL PHYS"<<endmsg;
 
   return barrelPhys;
   

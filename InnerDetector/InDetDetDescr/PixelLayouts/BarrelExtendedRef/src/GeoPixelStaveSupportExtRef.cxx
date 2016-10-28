@@ -50,6 +50,7 @@ void GeoPixelStaveSupportExtRef::preBuild() {
   double xOffset = staveDBHelper.getServiceOffsetX();
   double yOffset = staveDBHelper.getServiceOffsetY();
   if(width<0.01) width = m_barrelModule.Width();
+  std::string routing = staveDBHelper.getSvcRoutingPos();
 
   std::cout<<"Stave sizes LxWxT: "<<length<<"  "<<width<<"  "<<thickness<<"   "<<matName<<std::endl;
 
@@ -57,12 +58,15 @@ void GeoPixelStaveSupportExtRef::preBuild() {
   const GeoMaterial* material = matMgr()->getMaterialForVolume(matName,shape->volume());
   GeoLogVol* logVol = new GeoLogVol("StaveSupport",shape,material);
 
-  m_transform = HepGeom::Translate3D(xOffset,yOffset,0);
 
   m_thicknessP =  xOffset + 0.5*thickness;
   m_thicknessN =  -xOffset + 0.5*thickness;
   m_length = length;
   m_width = width;
+  m_routing = routing;
+
+  if (m_routing=="inner") xOffset = -xOffset;
+  m_transform = HepGeom::Translate3D(xOffset,yOffset,0);
 
   m_physVol = new GeoPhysVol(logVol);
 

@@ -34,7 +34,7 @@ Routes by position : radius=... -> radial position
 </PixelBarrelSvcType>
 <PixelBarrelSvcType>
   <layer>4</layer>
-  <service>BarrelLayer_3</service>
+  <service>BarrelLayer_4</service>
 </PixelBarrelSvcType>
 
 <!--
@@ -132,7 +132,8 @@ Routes by position : radius=... -> radial position
   <Service>  DCS    /5_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
   <Service>  HV     /5_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
   <Service>  LV     /5_module  lin std::Copper  0.00058  std::Aluminium  0.00169   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
-  <Cooling>  TiCO2  *1_stave   lin 1.525 1.8 pix::CoolingFluid std::Titanium</Cooling>
+  <Cooling>  TiCO2  *1_stave   lin 1.525 1.8 pix::CoolingFluid std::Titanium</Cooling> <!-- Default -->
+  <!-- <Cooling>  TiCO2  *1_stave   lin 1.438 1.697 pix::CoolingFluid std::Titanium</Cooling> --> <!-- With scaling for real_stave -> sim_stave. ScaleFactor = sqrt(n_staves_real/n_staves_sim) -->
 </ServiceSet>
 
 <ServiceSet>
@@ -142,7 +143,8 @@ Routes by position : radius=... -> radial position
   <Service>  DCS    /5_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
   <Service>  HV     /5_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
   <Service>  LV     /5_module  lin std::Copper  0.00058  std::Aluminium  0.00169   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
-  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
+  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling> <!-- Default -->
+  <!-- <Cooling>  TiCO2  *1_stave   lin 1.886 2.145 pix::CoolingFluid std::Titanium</Cooling> --> <!-- With scaling for real_stave -> sim_stave. ScaleFactor = sqrt(n_staves_real/n_staves_sim) -->
 </ServiceSet>
 
 <ServiceSet>
@@ -152,7 +154,8 @@ Routes by position : radius=... -> radial position
   <Service>  DCS    /6_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
   <Service>  HV     /6_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
   <Service>  LV     /6_module  lin std::Copper  0.00058  std::Aluminium  0.00169   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
-  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
+  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling> <!-- Default -->
+  <!-- <Cooling>  TiCO2  *1_stave   lin 2.291 2.606 pix::CoolingFluid std::Titanium</Cooling> --> <!-- With scaling for real_stave -> sim_stave. ScaleFactor = sqrt(n_staves_real/n_staves_sim) -->
 </ServiceSet>
 
 <ServiceSet>
@@ -162,7 +165,19 @@ Routes by position : radius=... -> radial position
   <Service>  DCS    /6_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
   <Service>  HV     /6_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
   <Service>  LV     /6_module  lin std::Copper  0.00058  std::Aluminium  0.00169   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
-  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling>
+  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling> <!-- Default -->
+  <!-- <Cooling>  TiCO2  *1_stave   lin 1.954 2.223 pix::CoolingFluid std::Titanium</Cooling> --> <!-- With scaling for real_stave -> sim_stave. ScaleFactor = sqrt(n_staves_real/n_staves_sim) -->
+</ServiceSet>
+
+<ServiceSet>
+  <name>BarrelLayer_4</name>
+  <Service>  data   /1_module  lin std::Copper  0.000137 std::Aluminium  0.000667  pix::Polyethylene 0.000931  pix::Polyester 0.000108  Cu-clad_Al  </Service>
+  <Service>  CMDCLK /1_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  DCS    /6_module  lin std::Copper  0.00057  std::Aluminium  0.00004   pix::Polyimide  0.00011   Cu  </Service>
+  <Service>  HV     /6_module  lin std::Copper  0.00023  std::Aluminium  0.00004   pix::Polyimide  0.00020   Cu  </Service>
+  <Service>  LV     /6_module  lin std::Copper  0.00058  std::Aluminium  0.00169   pix::Polyimide  0.00031   Cu-clad_Al  </Service>
+  <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling> <!-- Default -->
+  <!-- <Cooling>  TiCO2  *1_stave   lin 2. 2.275 pix::CoolingFluid std::Titanium</Cooling> --> <!-- With scaling for real_stave -> sim_stave. ScaleFactor = sqrt(n_staves_real/n_staves_sim) -->
 </ServiceSet>
 
 <ServiceSet>

@@ -19,7 +19,7 @@ PixelExtRefStaveXMLHelper::PixelExtRefStaveXMLHelper(int layer, const PixelGeoBu
   bool bParsed=false;
   if(readXMLfromDB)
     {
-      basics->msgStream()<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      msg(MSG::INFO)<<"XML input : DB CLOB "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       DBXMLUtils dbUtils(getBasics());
       std::string XMLtext = dbUtils.readXMLFromDB(fileName);
       InitializeXML();
@@ -27,7 +27,7 @@ PixelExtRefStaveXMLHelper::PixelExtRefStaveXMLHelper(int layer, const PixelGeoBu
     }
   else
     {
-      basics->msgStream()<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endreq;
+      msg(MSG::INFO)<<"XML input : from file "<<fileName<<"  (DB flag : "<<readXMLfromDB<<")"<<endmsg;
       std::string file = PathResolver::find_file (fileName, "DATAPATH");
       InitializeXML();
       bParsed = ParseFile(file);
@@ -35,15 +35,15 @@ PixelExtRefStaveXMLHelper::PixelExtRefStaveXMLHelper(int layer, const PixelGeoBu
 
   // No XML file was parsed    
   if(!bParsed){
-    std::cout<<"XML file "<<fileName<<" not found"<<std::endl;
+    msg(MSG::WARNING)<<"XML file "<<fileName<<" not found"<<endmsg;
     return;
   }
 
 
-  std::cout<<"PixelExtRefStaveXMLHelper for layer "<<m_layer<<std::endl;
+  msg(MSG::DEBUG)<<"PixelExtRefStaveXMLHelper for layer "<<m_layer<<endmsg;
   m_layerIndices = getChildValue_Indices("PixelStaveGeo","Layer",m_layer);
 
-  std::cout<<"PixelExtRefStaveXMLHelper for layer "<<m_layer<<" "<<m_layerIndices.size()<<" "<<m_layerIndices[0]<<std::endl;
+  msg(MSG::DEBUG)<<"PixelExtRefStaveXMLHelper for layer "<<m_layer<<" "<<m_layerIndices.size()<<" "<<m_layerIndices[0]<< endmsg;
 }
 
 PixelExtRefStaveXMLHelper::~PixelExtRefStaveXMLHelper()
@@ -106,4 +106,14 @@ double PixelExtRefStaveXMLHelper::getServiceOffsetX() const
 double PixelExtRefStaveXMLHelper::getServiceOffsetY() const
 {
   return getDouble("PixelStaveGeo", m_layerIndices, "ServiceOffsetY");
+}
+
+std::string PixelExtRefStaveXMLHelper::getSvcRoutingPos() const
+{
+  return getString("PixelStaveGeo", m_layerIndices, "ServiceRouting");
+}
+
+double PixelExtRefStaveXMLHelper::getRadialBeamThickness() const
+{
+  return getDouble("PixelStaveGeo", m_layerIndices, "RadialBeamThickness");
 }

@@ -7,6 +7,12 @@
   </Material>
 
   <Material>
+    <name> CarbonFoamMountain  </name>
+    <density> .6 </density>
+    <component> <name>std::Carbon</name> <weight>1. </weight> </component>
+  </Material>
+
+  <Material>
     <name> CarbonFibre  </name>
     <density> 1.66 </density>
     <component> <name> pix::EpoxyGlue </name> <weight>.4 </weight> </component>
@@ -264,25 +270,25 @@
   <MaterialWeight>
     <name> Default_ExtBrl32_Stave_Support_L0_Fixed_Weight </name>
     <base> IBeam_L0_Material </base>
-    <weight> 51.49 </weight>
+    <weight> 34.33 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl32_Stave_Support_L1_Fixed_Weight </name>
     <base> IBeam_L1_Material </base>
-    <weight> 86.88 </weight>
+    <weight> 115.84 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl32_Stave_Support_L2_Fixed_Weight </name>
     <base> IBeam_L2_Material </base>
-    <weight> 101.57 </weight>
+    <weight> 87.18 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl32_Stave_Support_L3_Fixed_Weight </name>
     <base> IBeam_L3_Material </base>
-    <weight> 73.87 </weight>
+    <weight> 84.54 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
@@ -295,25 +301,25 @@
   <MaterialWeight>
     <name> Default_ExtBrl4_Stave_Support_L0_Fixed_Weight </name>
     <base> IBeam_L0_Material </base>
-    <weight> 96.40 </weight>
+    <weight> 64.27 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl4_Stave_Support_L1_Fixed_Weight </name>
     <base> IBeam_L1_Material </base>
-    <weight> 96.4 </weight>
+    <weight> 128.53 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl4_Stave_Support_L2_Fixed_Weight </name>
     <base> IBeam_L2_Material </base>
-    <weight> 101.57 </weight>
+    <weight> 87.18 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_ExtBrl4_Stave_Support_L3_Fixed_Weight </name>
     <base> IBeam_L3_Material </base>
-    <weight> 73.87 </weight>
+    <weight> 84.54 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
@@ -329,63 +335,63 @@
 
   <MaterialWeight>
     <name> Default_InclBrl4_Stave_Support_L0_Fixed_Weight </name>
-    <base> Slim_L0_Material </base>
-    <weight> 67.29 </weight>
+    <base> Alpine_L0_Material </base>
+    <weight> 53.20 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_InclBrl4_Stave_Support_L1_Fixed_Weight </name>
-    <base> Slim_L1_Material </base>
-    <weight> 198.84 </weight>
+    <base> Alpine_L1_Material </base>
+    <weight> 98.45 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_InclBrl4_Stave_Support_L2_Fixed_Weight </name>
-    <base> Slim_L2_Material </base>
-    <weight> 126.76 </weight>
+    <base> Alpine_L2_Material </base>
+    <weight> 77.76 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_InclBrl4_Stave_Support_L3_Fixed_Weight </name>
-    <base> Slim_L3_Material </base>
-    <weight> 124.78 </weight>
+    <base> Alpine_L3_Material </base>
+    <weight> 86.71 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_InclBrl4_Stave_Support_L4_Fixed_Weight </name>
-    <base> Slim_L4_Material </base>
-    <weight> 138.67 </weight>
+    <base> Alpine_L4_Material </base>
+    <weight> 93.86 </weight>
   </MaterialWeight>
 
 
   <MaterialWeight>
     <name> Default_IExtBrl4_Stave_Support_L0_Fixed_Weight </name>
-    <base> Slim_L0_Material </base>
-    <weight> 67.29 </weight>
+    <base> Alpine_L0_Material </base>
+    <weight> 53.20 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_IExtBrl4_Stave_Support_L1_Fixed_Weight </name>
-    <base> Slim_L1_Material </base>
-    <weight> 198.84 </weight>
+    <base> Alpine_L1_Material </base>
+    <weight> 98.45 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_IExtBrl4_Stave_Support_L2_Fixed_Weight </name>
-    <base> Slim_L2_Material </base>
-    <weight> 142.55 </weight>
+    <base> IBeam_L2_Material </base>
+    <weight> 87.18 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_IExtBrl4_Stave_Support_L3_Fixed_Weight </name>
-    <base> Slim_L3_Material </base>
-    <weight> 138.23 </weight>
+    <base> IBeam_L3_Material </base>
+    <weight> 84.54 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Default_IExtBrl4_Stave_Support_L4_Fixed_Weight </name>
-    <base> Slim_L4_Material </base>
-    <weight> 129.78 </weight>
+    <base> IBeam_L4_Material </base>
+    <weight> 78.26 </weight>
   </MaterialWeight>
 
 <!-- Alpine -->
@@ -393,136 +399,104 @@
   <Material>
     <name> Alpine_L0_Material </name>
     <density> 1.0 </density>
-    <component> <name> pix::CarbonFoam               </name> <weight> 31.2 </weight> </component>
-    <component> <name> pix::CarbonFibre              </name> <weight> 48.6 </weight> </component>
-    <component> <name> pix::EpoxyGlue                </name> <weight> 19.5 </weight> </component>
-    <component> <name> pix::ThermalInterfaceMaterial </name> <weight> .7 </weight> </component>
+    <component> <name> pix::CarbonFoam               </name> <weight> 0.103 </weight> </component>
+    <component> <name> pix::CarbonFibre              </name> <weight> 0.640 </weight> </component>
+    <component> <name> pix::EpoxyGlue                </name> <weight> 0.256 </weight> </component>
   </Material>
 
   <MaterialWeight>
     <name> Alpine_InclBrl4_L0_Fixed_Weight </name>
     <base> Alpine_L0_Material </base>
-    <weight> 70.04 </weight>
+    <weight> 53.2 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Alpine_IExtBrl4_L0_Fixed_Weight </name>
     <base> Alpine_L0_Material </base>
-    <weight> 70.04 </weight>
+    <weight> 53.2 </weight>
   </MaterialWeight>
 
   <Material>
     <name> Alpine_L1_Material </name>
     <density> 1.0 </density>
-    <component> <name> pix::CarbonFoam               </name> <weight> 34.2 </weight> </component>
-    <component> <name> pix::CarbonFibre              </name> <weight> 44.3 </weight> </component>
-    <component> <name> pix::EpoxyGlue                </name> <weight> 20.8 </weight> </component>
-    <component> <name> pix::ThermalInterfaceMaterial </name> <weight> .7 </weight> </component>
+    <component> <name> pix::CarbonFoam               </name> <weight> 0.114 </weight> </component>
+    <component> <name> pix::CarbonFibre              </name> <weight> 0.603 </weight> </component>
+    <component> <name> pix::EpoxyGlue                </name> <weight> 0.283 </weight> </component>
   </Material>
 
   <MaterialWeight>
     <name> Alpine_InclBrl4_L1_Fixed_Weight </name>
     <base> Alpine_L1_Material </base>
-    <weight> 134.02 </weight>
+    <weight> 98.45 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Alpine_IExtBrl4_L1_Fixed_Weight </name>
     <base> Alpine_L1_Material </base>
-    <weight> 134.02 </weight>
+    <weight> 98.45 </weight>
   </MaterialWeight>
 
   <Material>
-    <name> Alpine_InclBrl4_L2_Material </name>
+    <name> Alpine_L2_Material </name>
     <density> 1.0 </density>
-    <component> <name> pix::CarbonFoam               </name> <weight> 35.3 </weight> </component>
-    <component> <name> pix::CarbonFibre              </name> <weight> 42.1 </weight> </component>
-    <component> <name> pix::EpoxyGlue                </name> <weight> 21.6 </weight> </component>
-    <component> <name> pix::ThermalInterfaceMaterial </name> <weight> 1. </weight> </component>
-  </Material>
-
-  <Material>
-    <name> Alpine_IExtBrl4_L2_Material </name>
-    <density> 1.0 </density>
-    <component> <name> pix::CarbonFoam               </name> <weight> 32.1 </weight> </component>
-    <component> <name> pix::CarbonFibre              </name> <weight> 42.9 </weight> </component>
-    <component> <name> pix::EpoxyGlue                </name> <weight> 24.3 </weight> </component>
-    <component> <name> pix::ThermalInterfaceMaterial </name> <weight> .8 </weight> </component>
+    <component> <name> pix::CarbonFoam               </name> <weight> 0.124 </weight> </component>
+    <component> <name> pix::CarbonFibre              </name> <weight> 0.580 </weight> </component>
+    <component> <name> pix::EpoxyGlue                </name> <weight> 0.297 </weight> </component>
   </Material>
 
   <MaterialWeight>
     <name> Alpine_InclBrl4_L2_Fixed_Weight </name>
-    <base> Alpine_InclBrl4_L2_Material </base>
-    <weight> 107.01 </weight>
+    <base> Alpine_L2_Material </base>
+    <weight> 77.76 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Alpine_IExtBrl4_L2_Fixed_Weight </name>
-    <base> Alpine_IExtBrl4_L2_Material </base>
-    <weight> 146.30 </weight>
+    <base> Alpine_L2_Material </base>
+    <weight> 119.50 </weight>
   </MaterialWeight>
 
   <Material>
-    <name> Alpine_InclBrl4_L3_Material </name>
+    <name> Alpine_L3_Material </name>
     <density> 1.0 </density>
-    <component> <name> pix::CarbonFoam               </name> <weight> 35.5 </weight> </component>
-    <component> <name> pix::CarbonFibre              </name> <weight> 41.3 </weight> </component>
-    <component> <name> pix::EpoxyGlue                </name> <weight> 22.2 </weight> </component>
-    <component> <name> pix::ThermalInterfaceMaterial </name> <weight> 1. </weight> </component>
-  </Material>
-
-  <Material>
-    <name> Alpine_IExtBrl4_L3_Material </name>
-    <density> 1.0 </density>
-    <component> <name> pix::CarbonFoam               </name> <weight> 32.5 </weight> </component>
-    <component> <name> pix::CarbonFibre              </name> <weight> 42.2 </weight> </component>
-    <component> <name> pix::EpoxyGlue                </name> <weight> 24.6 </weight> </component>
-    <component> <name> pix::ThermalInterfaceMaterial </name> <weight> .8 </weight> </component>
+    <component> <name> pix::CarbonFoam               </name> <weight> 0.130 </weight> </component>
+    <component> <name> pix::CarbonFibre              </name> <weight> 0.565 </weight> </component>
+    <component> <name> pix::EpoxyGlue                </name> <weight> 0.305 </weight> </component>
   </Material>
 
   <MaterialWeight>
     <name> Alpine_InclBrl4_L3_Fixed_Weight </name>
-    <base> Alpine_InclBrl4_L3_Material </base>
-    <weight> 118.70 </weight>
+    <base> Alpine_L3_Material </base>
+    <weight> 86.71 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Alpine_IExtBrl4_L3_Fixed_Weight </name>
-    <base> Alpine_IExtBrl4_L3_Material </base>
-    <weight> 157.67 </weight>
+    <base> Alpine_L3_Material </base>
+    <weight> 128.56 </weight>
   </MaterialWeight>
 
   <Material>
-    <name> Alpine_InclBrl4_L4_Material </name>
+    <name> Alpine_L4_Material </name>
     <density> 1.0 </density>
-    <component> <name> pix::CarbonFoam               </name> <weight> 35.3 </weight> </component>
-    <component> <name> pix::CarbonFibre              </name> <weight> 41.0 </weight> </component>
-    <component> <name> pix::EpoxyGlue                </name> <weight> 22.7 </weight> </component>
-    <component> <name> pix::ThermalInterfaceMaterial </name> <weight> 1. </weight> </component>
-  </Material>
-
-  <Material>
-    <name> Alpine_IExtBrl4_L4_Material </name>
-    <density> 1.0 </density>
-    <component> <name> pix::CarbonFoam               </name> <weight> 32.6 </weight> </component>
-    <component> <name> pix::CarbonFibre              </name> <weight> 41.9 </weight> </component>
-    <component> <name> pix::EpoxyGlue                </name> <weight> 24.7 </weight> </component>
-    <component> <name> pix::ThermalInterfaceMaterial </name> <weight> .8 </weight> </component>
+    <component> <name> pix::CarbonFoam               </name> <weight> 0.134 </weight> </component>
+    <component> <name> pix::CarbonFibre              </name> <weight> 0.557 </weight> </component>
+    <component> <name> pix::EpoxyGlue                </name> <weight> 0.308 </weight> </component>
   </Material>
 
   <MaterialWeight>
     <name> Alpine_InclBrl4_L4_Fixed_Weight </name>
-    <base> Alpine_InclBrl4_L4_Material </base>
-    <weight> 127.60 </weight>
+    <base> Alpine_L4_Material </base>
+    <weight> 93.86 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> Alpine_IExtBrl4_L4_Fixed_Weight </name>
-    <base> Alpine_IExtBrl4_L4_Material </base>
-    <weight> 165.03 </weight>
+    <base> Alpine_L4_Material </base>
+    <weight> 134.51 </weight>
   </MaterialWeight>
 
-<!-- Slim -->
+<!-- Slim Longeron -->
 
   <Material>
     <name> Slim_L0_Material </name>
@@ -616,6 +590,73 @@
     <weight> 129.78 </weight>
   </MaterialWeight>
 
+<!-- Slim Truss -->
+
+  <Material>
+    <name> Slim_Truss_L0_Material </name>
+    <density> 1.0 </density>
+    <component> <name> std::Carbon     </name> <weight> 0.98 </weight> </component>
+    <component> <name> pix::Solder     </name> <weight> 0.02 </weight> </component>
+  </Material>
+
+  <MaterialWeight>
+    <name> Slim_Truss_InclBrl4_L0_Fixed_Weight </name>
+    <base> Slim_Truss_L0_Material </base>
+    <weight> 63.07 </weight>
+  </MaterialWeight>
+
+  <Material>
+    <name> Slim_Truss_L1_Material </name>
+    <density> 1.0 </density>
+    <component> <name> std::Carbon     </name> <weight> 0.98 </weight> </component>
+    <component> <name> pix::Solder     </name> <weight> 0.02 </weight> </component>
+  </Material>
+
+  <MaterialWeight>
+    <name> Slim_Truss_InclBrl4_L1_Fixed_Weight </name>
+    <base> Slim_Truss_L1_Material </base>
+    <weight> 84.80 </weight>
+  </MaterialWeight>
+
+  <Material>
+    <name> Slim_Truss_L2_Material </name>
+    <density> 1.0 </density>
+    <component> <name> std::Carbon     </name> <weight> 0.98 </weight> </component>
+    <component> <name> pix::Solder     </name> <weight> 0.02 </weight> </component>
+  </Material>
+
+  <MaterialWeight>
+    <name> Slim_Truss_InclBrl4_L2_Fixed_Weight </name>
+    <base> Slim_Truss_L2_Material </base>
+    <weight> 88.25 </weight>
+  </MaterialWeight>
+
+  <Material>
+    <name> Slim_Truss_L3_Material </name>
+    <density> 1.0 </density>
+    <component> <name> std::Carbon     </name> <weight> 0.98 </weight> </component>
+    <component> <name> pix::Solder     </name> <weight> 0.02 </weight> </component>
+  </Material>
+
+  <MaterialWeight>
+    <name> Slim_Truss_InclBrl4_L3_Fixed_Weight </name>
+    <base> Slim_Truss_L3_Material </base>
+    <weight> 67.94 </weight>
+  </MaterialWeight>
+
+  <Material>
+    <name> Slim_Truss_L4_Material </name>
+    <density> 1.0 </density>
+    <component> <name> std::Carbon     </name> <weight> 0.98 </weight> </component>
+    <component> <name> pix::Solder     </name> <weight> 0.02 </weight> </component>
+  </Material>
+
+  <MaterialWeight>
+    <name> Slim_Truss_InclBrl4_L4_Fixed_Weight </name>
+    <base> Slim_Truss_L4_Material </base>
+    <weight> 85.72 </weight>
+  </MaterialWeight>
+
 <!-- I-Beam -->
 
   <Material>
@@ -629,13 +670,13 @@
   <MaterialWeight>
     <name> IBeam_ExtBrl32_L0_Fixed_Weight </name>
     <base> IBeam_L0_Material </base>
-    <weight> 51.49 </weight>
+    <weight> 34.33 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> IBeam_ExtBrl4_L0_Fixed_Weight </name>
     <base> IBeam_L0_Material </base>
-    <weight> 96.40 </weight>
+    <weight> 64.27 </weight>
   </MaterialWeight>
 
   <Material>
@@ -649,13 +690,13 @@
   <MaterialWeight>
     <name> IBeam_ExtBrl32_L1_Fixed_Weight </name>
     <base> IBeam_L1_Material </base>
-    <weight> 86.88 </weight>
+    <weight> 115.84 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> IBeam_ExtBrl4_L1_Fixed_Weight </name>
     <base> IBeam_L1_Material </base>
-    <weight> 96.4 </weight>
+    <weight> 128.53 </weight>
   </MaterialWeight>
 
   <Material>
@@ -669,13 +710,13 @@
   <MaterialWeight>
     <name> IBeam_ExtBrl32_L2_Fixed_Weight </name>
     <base> IBeam_L2_Material </base>
-    <weight> 101.57 </weight>
+    <weight> 87.18 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> IBeam_ExtBrl4_L2_Fixed_Weight </name>
     <base> IBeam_L2_Material </base>
-    <weight> 101.57 </weight>
+    <weight> 87.18 </weight>
   </MaterialWeight>
 
   <Material>
@@ -689,13 +730,13 @@
   <MaterialWeight>
     <name> IBeam_ExtBrl32_L3_Fixed_Weight </name>
     <base> IBeam_L3_Material </base>
-    <weight> 73.87 </weight>
+    <weight> 84.54 </weight>
   </MaterialWeight>
 
   <MaterialWeight>
     <name> IBeam_ExtBrl4_L3_Fixed_Weight </name>
     <base> IBeam_L3_Material </base>
-    <weight> 73.87 </weight>
+    <weight> 84.54 </weight>
   </MaterialWeight>
 
   <Material>
@@ -804,23 +845,38 @@
   </MaterialWeight>
 -->
 
+  <Material>
+    <name> BumpBonds </name>
+    <density> 7.44 </density>
+    <component> <name> Silver </name> <weight> 0.04 </weight> </component>
+    <component> <name> Tin    </name> <weight> 0.96 </weight> </component>
+  </Material>
+
+  <Material>
+    <name> ChipBasePlusTIM </name>
+    <density> 2.25 </density>
+    <component> <name> Silicon                       </name> <weight> 0.42 </weight> </component>
+    <component> <name> Copper                        </name> <weight> 0.01 </weight> </component>
+    <component> <name> pix::BumpBonds                </name> <weight> 0.01 </weight> </component>
+    <component> <name> pix::ThermalInterfaceMaterial </name> <weight> 0.56 </weight> </component>
+  </Material>
 
   <MaterialWeight>
-    <name> Chip_FourChip  </name>
-    <base> ChipBase  </base>
-    <weight> 1.2 </weight> 
+    <name> Chip_FourChip </name>
+    <base> ChipBasePlusTIM </base>
+    <weight> 1.33 </weight> 
   </MaterialWeight>
 
   <MaterialWeight>
-    <name> Chip_DoubleChip  </name>
-    <base> ChipBase  </base>
-    <weight> .6 </weight> 
+    <name> Chip_DoubleChip </name>
+    <base> ChipBasePlusTIM </base>
+    <weight> .66 </weight> 
   </MaterialWeight>
 
   <MaterialWeight>
-    <name> Chip_SimpleChip  </name>
-    <base> ChipBase  </base>
-    <weight> .3 </weight> 
+    <name> Chip_SimpleChip </name>
+    <base> ChipBasePlusTIM </base>
+    <weight> .33 </weight> 
   </MaterialWeight>
 
   <MaterialWeight>
