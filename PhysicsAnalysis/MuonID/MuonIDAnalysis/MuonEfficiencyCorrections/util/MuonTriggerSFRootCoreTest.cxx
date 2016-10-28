@@ -68,6 +68,7 @@ int main( int argc, char* argv[] ) {
 
     // Create a TEvent object:
     xAOD::TEvent event;
+    xAOD::TStore store;
     RETURN_CHECK(APP_NAME,event.readFrom( ifile.get(), xAOD::TEvent::kClassAccess ));
     Info( APP_NAME, "Number of events in the file: %i",
             static_cast< int >( event.getEntries() ) );

@@ -20,7 +20,8 @@ MuonEfficiencyCorrections_TestAlg::MuonEfficiencyCorrections_TestAlg( const std:
   m_sf_Tool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors", this ),
   m_isosf_Tool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors", this ),
   m_ttvasf_Tool("CP::MuonEfficiencyScaleFactors/MuonEfficiencyScaleFactors", this ),
-  m_trigsf_Tool("CP::MuonEfficiencyScaleFactors/MuonTriggerScaleFactors", this )
+  m_trigsf_Tool("CP::MuonEfficiencyScaleFactors/MuonTriggerScaleFactors", this ),
+  m_prw_Tool("CP::PileupReweighting/PileupReweightingTool", this )
 {
     declareProperty( "SGKey", m_sgKey = "Muons" );
     // prepare the handle
@@ -28,6 +29,7 @@ MuonEfficiencyCorrections_TestAlg::MuonEfficiencyCorrections_TestAlg( const std:
     declareProperty( "ScaleFactorTool", m_sf_Tool );
     declareProperty( "TTVAScaleFactorTool", m_ttvasf_Tool );
     declareProperty( "IsolationScaleFactorTool", m_isosf_Tool );
+    declareProperty( "PileupReweightingTool", m_prw_Tool );
     // force strict checking of return codes
     CP::SystematicCode::enableFailure();
     CP::CorrectionCode::enableFailure();
@@ -50,6 +52,10 @@ StatusCode MuonEfficiencyCorrections_TestAlg::initialize() {
     ATH_MSG_DEBUG( "TriggerScaleFactorTool  = " << m_trigsf_Tool );
     ATH_CHECK( m_trigsf_Tool.retrieve() );
 
+    ATH_MSG_DEBUG( "PileupReweightingTool  = " << m_prw_Tool );
+    ATH_CHECK( m_prw_Tool.retrieve() );
+    
+
     return StatusCode::SUCCESS;
 }
 
@@ -59,6 +65,12 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
     const xAOD::MuonContainer* muons = 0;
     ATH_CHECK( evtStore()->retrieve( muons, m_sgKey ) );
     ATH_MSG_INFO( "Number of muons: " << muons->size() );
+
+    // Retrieve the EventInfo:
+    const xAOD::EventInfo* ei = 0;
+    ATH_CHECK( evtStore()->retrieve(ei, "EventInfo"));
+    //Apply the prwTool first before calling the efficiency correction methods
+    ATH_CHECK(m_prw_Tool->apply(*ei));
 
     // Loop over them:
     xAOD::MuonContainer::const_iterator mu_itr = muons->begin();
@@ -151,7 +163,7 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
         }
         ATH_MSG_INFO( "       Scale Factor (central value) via getEfficiencyScaleFactor = " << sf);
         // decorate the muon with SF info (alternative to the above)
-        if(  m_sf_Tool->applyEfficiencyScaleFactor(**mu_itr) == CP::CorrectionCode::Error || m_sf_Tool->applyRecoEfficiency(**mu_itr) == CP::CorrectionCode::Error) {
+        if(  m_sf_Tool->applyEfficiencyScaleFactor(**mu_itr) == CP::CorrectionCode::Error || m_sf_Tool->applyDataEfficiency(**mu_itr) == CP::CorrectionCode::Error) {
             ATH_MSG_WARNING( "Couldn't run efficiencies on muon!" );
             continue;
         }
@@ -228,7 +240,7 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
         }
         ATH_MSG_INFO( "       TTVA Scale Factor (central value) via getEfficiencyScaleFactor = " << ttvasf);
         // decorate the muon with SF info (alternative to the above)
-        if(  m_ttvasf_Tool->applyEfficiencyScaleFactor(**mu_itr) == CP::CorrectionCode::Error || m_ttvasf_Tool->applyRecoEfficiency(**mu_itr) == CP::CorrectionCode::Error) {
+        if(  m_ttvasf_Tool->applyEfficiencyScaleFactor(**mu_itr) == CP::CorrectionCode::Error || m_ttvasf_Tool->applyDataEfficiency(**mu_itr) == CP::CorrectionCode::Error) {
             ATH_MSG_WARNING( "Couldn't run TTVA efficiencies on muon!" );
             continue;
         }
@@ -261,7 +273,7 @@ StatusCode MuonEfficiencyCorrections_TestAlg::execute() {
         ATH_MSG_INFO( "       Isolation Scale Factor (central value) via getEfficiencyScaleFactor = "
 		      << isosf);
         // decorate the muon with SF info (alternative to the above)
-        if(  m_isosf_Tool->applyEfficiencyScaleFactor(**mu_itr) == CP::CorrectionCode::Error || m_isosf_Tool->applyRecoEfficiency(**mu_itr) == CP::CorrectionCode::Error) {
+        if(  m_isosf_Tool->applyEfficiencyScaleFactor(**mu_itr) == CP::CorrectionCode::Error || m_isosf_Tool->applyDataEfficiency(**mu_itr) == CP::CorrectionCode::Error) {
             ATH_MSG_WARNING( "Couldn't run isolation efficiencies on muon!" );
             continue;
         }

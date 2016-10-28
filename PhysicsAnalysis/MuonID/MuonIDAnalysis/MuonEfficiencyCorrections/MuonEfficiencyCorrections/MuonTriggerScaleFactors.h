@@ -155,7 +155,7 @@ namespace CP {
 
 	std::string m_fileName;
 	Int_t m_runNumber;
-	const char* classname;
+	const char* m_classname;
 
 	typedef std::map<std::string, TH2*> EfficiencyMap;
 	EfficiencyMap m_efficiencyMap; 

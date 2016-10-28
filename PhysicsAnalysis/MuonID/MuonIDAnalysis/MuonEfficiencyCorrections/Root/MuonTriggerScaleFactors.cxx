@@ -27,7 +27,7 @@
 
 #include "PathResolver/PathResolver.h"
 
-static const double commonSystMTSG = 0.01;
+//static const double commonSystMTSG = 0.01;
 static const double muon_barrel_endcap_boundary = 1.05;
 
 namespace CP {
@@ -39,7 +39,7 @@ namespace CP {
     asg::AsgTool( name ),
     m_appliedSystematics(0),
     m_runNumber(300345), 
-    classname(name.c_str()),
+    m_classname(name.c_str()),
     m_max_period(TrigMuonEff::period_undefined)
   {
     declareProperty( "MuonQuality", m_muonquality = "Medium"); // HighPt,Tight,Medium,Loose
@@ -331,17 +331,24 @@ namespace CP {
       }
     }
     
+
+    // Pre-define uncertainty variations
+    static const CP::SystematicVariation stat_up("MUON_EFF_TrigStatUncertainty", 1);
+    static const CP::SystematicVariation stat_down("MUON_EFF_TrigStatUncertainty", -1);
+    static const CP::SystematicVariation syst_up("MUON_EFF_TrigSystUncertainty", 1);
+    static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
+
     std::string systype = "";
-    if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", -1)) ){
+    if( appliedSystematics().matchSystematic(syst_down) ){
       systype = "syst_down";
     }
-    else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", 1)) ){
+    else if( appliedSystematics().matchSystematic(syst_up) ){
       systype = "syst_up";
     }
-    else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", -1)) ){
+    else if( appliedSystematics().matchSystematic(stat_down) ){
       systype = "stat_down";
     }
-    else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", 1)) ){
+    else if( appliedSystematics().matchSystematic(stat_up) ){
       systype = "stat_up";
     }
     else {
@@ -716,19 +723,26 @@ namespace CP {
         std::string muon_trigger_name = trigger;
         std::string data_err = "";
         std::string mc_err = "";
-        if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", -1)) ){
+
+	// Pre-define uncertainty variations
+        static const CP::SystematicVariation stat_up("MUON_EFF_TrigStatUncertainty", 1);
+        static const CP::SystematicVariation stat_down("MUON_EFF_TrigStatUncertainty", -1);
+        static const CP::SystematicVariation syst_up("MUON_EFF_TrigSystUncertainty", 1);
+        static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
+
+	if( appliedSystematics().matchSystematic(syst_down) ){
           data_err = "nominal";
           mc_err = "syst_up";
         }
-        else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", 1)) ){
+        else if( appliedSystematics().matchSystematic(syst_up) ){
           data_err = "nominal";
           mc_err = "syst_down";
         }
-        else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", -1)) ){
+        else if( appliedSystematics().matchSystematic(stat_down) ){
           data_err = "stat_down";
           mc_err = "nominal";
         }
-        else if( appliedSystematics().matchSystematic(CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", 1)) ){
+        else if( appliedSystematics().matchSystematic(stat_up) ){
           data_err = "stat_up";
           mc_err = "nominal";
         }
@@ -1727,10 +1741,15 @@ namespace CP {
 
     // Check to see if the set of variations tries to add in the uncertainty up and down. Since the errors
     // are symetric this would result in 0 and so should not be done.
-    if( (mySysConf.matchSystematic( CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", 1)) && 
-         mySysConf.matchSystematic( CP::SystematicVariation("MUON_EFF_TrigStatUncertainty", -1))) ||
-        (mySysConf.matchSystematic( CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", 1)) && 
-         mySysConf.matchSystematic( CP::SystematicVariation("MUON_EFF_TrigSystUncertainty", -1)) )){
+    static const CP::SystematicVariation stat_up("MUON_EFF_TrigStatUncertainty", 1);
+    static const CP::SystematicVariation stat_down("MUON_EFF_TrigStatUncertainty", -1);
+    static const CP::SystematicVariation syst_up("MUON_EFF_TrigSystUncertainty", 1);
+    static const CP::SystematicVariation syst_down("MUON_EFF_TrigSystUncertainty", -1);
+
+    if( (mySysConf.matchSystematic(stat_up) && 
+         mySysConf.matchSystematic(stat_down)) ||
+        (mySysConf.matchSystematic(syst_up) && 
+         mySysConf.matchSystematic(syst_down) )){
       return CP::SystematicCode::Unsupported;
     }
 

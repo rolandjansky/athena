@@ -1,6 +1,6 @@
 
-This package provides Reconstruction/Isolation/Trigger Efficiency values and Scale Factors for Muons.
-It is intended for use with CMT/Athena or RootCore within the xAOD framework. 
+This package provides Reconstruction/TTVA/Isolation/Trigger Efficiency values and Scale Factors for Muons.
+It is intended for use with CMT/Athena/AthAnalysis or RootCore within the xAOD framework. 
 
 Contents of this Readme:
    -- Reconstruction efficiencies - MuonEfficiencyScaleFactors
@@ -32,42 +32,29 @@ Reconstruction efficiencies - MuonEfficiencyScaleFactors
 - share/MuonEfficiencyCorrections_xAOD_Testing_jobOptions.py (using src/MuonEfficiencyCorrections_TestAlg.cxx) is an example when running in athena
 
 2) Supported working points:
-There is support for the three official MCP working points -  "Loose","Medium" and "Tight".
+There is support for the official MCP working points -  "Loose","Medium","Tight","HighPt".
 
 3) Supported data periods:
-   Starting with the pre-recommendations in MuonEfficiencyCorrections-03-00-17, the only supported data period is "2015".
-   The tool will default to this value, so there really is no need to change this. 
+Several data periods are supported, the LastRun of the latest data period is set to 999999 meaning, for new runs always the most recent SFs are provided.
    
 4) Detailed Instructions
-(The PileupReweightingTool is needed for using the MuonEfficiencyScaleFactors class)
 - include the headers: 
-
-    #include "MuonEfficiencyCorrections/MuonEfficiencyScaleFactors.h"
-    #include "PileupReweighting/PileupReweightingTool.h"
+    #include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
     
 - create your tool 
     *  with ROOTCore:
     
-        // instantiate the PRW tool which is needed for the lumi calculation
-        CP::IPileupReweightingTool* m_prw_tool = new CP::PileupReweightingTool("MyPRWTool");
-        // Initialize the PRW tool (you might have to set more properties such as "ConfigFiles", "LumiCalcFiles", etc. before initialization)
-        m_prw_tool->initialize();
-        // Create a ToolHandle of the PRW tool which is passed to the MuonEfficiencyScaleFactors class later
-        ToolHandle<CP::IPileupReweightingTool> PRWToolHandle = m_prw_tool;
-        
+        // create one tool per muon working point 
         CP::MuonEfficiencyScaleFactors m_effi_corr("SomeNameYouLike");
         
     *  with Athena:
     
-        # check if PRW tool is in ToolSvc, otherwise create one
-        if not hasattr(ToolSvc, "MyPRWTool"): 
-            ToolSvc += CfgMgr.CP__PileupReweightingTool("MyPRWTool")
-        PRWToolHandle = getattr(ToolSvc,"MyPRWTool")
+        from MuonEfficiencyCorrections.MuonEfficiencyCorrectionsConf import CP__MuonEfficiencyScaleFactors
+        m_effi_corr = CP__MuonEfficiencyScaleFactors("SomeNameYouLike")
         
     
-- configure it by providing the working point and PRW ToolHandle you are running with
+- configure it by providing the working point 
         m_effi_corr.setProperty("WorkingPoint","Medium");   // Or "Loose" or "Tight"...
-        m_effi_corr.setProperty("PileupReweightingTool",PRWToolHandle);
         
 - initialize the tool 
         
@@ -102,8 +89,7 @@ It uses the same class as MuonEfficiencyScaleFactor. Isolation Configuration is 
 There is support for the five official MCP working points -  "TightIso", "LooseIso", "VeryLooseIso", "VeryLooseTrackOnlyIso", "GradientIso" and "GradientLooseIso".
 
 3) Supported data periods:
-   Starting with the pre-recommendations in MuonEfficiencyCorrections-03-00-21, the only supported data period is "run1".
-   The tool will default to this value, so there really is no need to change this.
+Several data periods are supported, the LastRun of the latest data period is set to 999999 meaning, for new runs always the most recent SFs are provided.
    
 4) Detailed Instructions (RootCore)
    Same as "MuonEfficiencyScaleFactor". Make sure to use the isolation working points and period.

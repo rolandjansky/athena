@@ -36,7 +36,7 @@ StatusCode MuonEfficiencyCorrectionsProvider::execute() {
 
     for(auto mu : *muons) {
         // decorate the muon with SF info
-        if(  m_sf_Tool->applyEfficiencyScaleFactor(*mu) == CorrectionCode::Error || m_sf_Tool->applyRecoEfficiency(*mu) == CorrectionCode::Error) {
+        if(  m_sf_Tool->applyEfficiencyScaleFactor(*mu) == CorrectionCode::Error || m_sf_Tool->applyDataEfficiency(*mu) == CorrectionCode::Error) {
             ATH_MSG_WARNING( "Couldn't run efficiencies on muon!" );
             continue;
         }

@@ -13,6 +13,7 @@
 
 #include "MuonEfficiencyCorrections/IMuonEfficiencyScaleFactors.h"
 #include "MuonEfficiencyCorrections/IMuonTriggerScaleFactors.h"
+#include "PileupReweighting/IPileupReweightingTool.h"
 
 namespace CP {
 
@@ -38,6 +39,7 @@ private:
   ToolHandle< IMuonEfficiencyScaleFactors > m_isosf_Tool;
   ToolHandle< IMuonEfficiencyScaleFactors > m_ttvasf_Tool;
   ToolHandle< IMuonTriggerScaleFactors > m_trigsf_Tool;
+  ToolHandle< IPileupReweightingTool > m_prw_Tool;
 
 }; // class MuonEfficiencyCorrections_TestAlg
 
