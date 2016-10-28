@@ -488,9 +488,8 @@ bool PixelMainMon :: GetFEID( int pixlayer, int phiid, int etaid, int &oufephi, 
    bool isValid = true;
    int npixPerFe_phi, npixPerFe_eta;
    if( pixlayer == PixLayer::kECA || pixlayer == PixLayer::kECC) {
-      npixPerFe_phi = 1;
-      npixPerFe_eta = 1;
-      isValid = false;
+      npixPerFe_phi = 160+4;
+      npixPerFe_eta = 18;
    }else if(pixlayer != PixLayer::kIBL) { /// for pixel
       npixPerFe_phi = 160 + 4;
       npixPerFe_eta = 18;
