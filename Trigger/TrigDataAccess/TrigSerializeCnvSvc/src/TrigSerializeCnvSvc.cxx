@@ -9,7 +9,7 @@
 
 StatusCode TrigSerializeCnvSvc::initialize(){
   MsgStream log(msgSvc(), "TrigSerializeCnvSvc");
-  log << MSG::INFO << "initialize()" << endreq;
+  log << MSG::INFO << "initialize()" << endmsg;
   /*
   ICnvManager::CnvIterator i, stop;
   for ( i = cnvManager()->cnvBegin(), stop = cnvManager()->cnvEnd(); i != stop; i++ ) {
