@@ -10,6 +10,7 @@
 #include "TrigT1TGC/TGCHighPtChipOut.hh"
 #include "TrigT1TGC/TGCTMDB.h"
 #include "TrigT1TGC/TGCTMDBOut.h"
+#include "MuonCondInterface/ITGCTriggerDbTool.h"
 
 #include <iostream>
 
@@ -18,6 +19,7 @@ namespace LVL1TGCTrigger {
   extern bool g_USE_INNER;
   extern bool g_INNER_VETO;
   extern bool g_TILE_MU;
+  extern bool g_USE_CONDDB;
 
 TGCSectorLogic::TGCSectorLogic(TGCRegionType regionIn, int idIn):
     bid(0),
@@ -39,7 +41,8 @@ TGCSectorLogic::TGCSectorLogic(TGCRegionType regionIn, int idIn):
     stripHighPtBoard(0),
     stripHighPtChipOut(0),
     useInner(false),
-    useTileMu(false)
+    useTileMu(false),
+    m_condDbTool("TGCTriggerDbTool")
 {
   sideId = (idIn/NumberOfModule)/NumberOfOctant;
   octantId = (idIn/NumberOfModule)%NumberOfOctant;
@@ -374,12 +377,17 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   int pt = coincidenceOut->getPtLevel();
   if (pt==0) return;
 
+  if (g_USE_CONDDB) {
+    bool isActiveTile = m_condDbTool->isActive(ITGCTriggerDbTool::CW_TILE);
+    useTileMu = isActiveTile && (region==ENDCAP);
+  }
+
   // check if inner is used for the ptLevel
   bool validInner = (mapInner->getFlagPT(pt, ssc, sectorId) == 1);
    // check if TileMu is used for the ptLevel
   bool validTileMu = false;
   if (useTileMu)  validTileMu = (mapTileMu->getFlagPT(pt, ssc, sectorId, sideId) == 1) ;
-
+  
   int pos = 4*coincidenceOut->getR() +  coincidenceOut->getPhi();
   // check if inner is used for the roi 
   if (validInner) validInner = (mapInner->getFlagROI(pos, ssc, sectorId) == 1);
@@ -440,7 +448,7 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
       int maskTM =  mapTileMu->getMask(mod, ssc, sectorId, sideId);
       const TGCTMDBOut* tm = pTMDB->getOutput(sideId, sectorId, mod); 
       int  hit6      = tm->GetHit6();
-      int  hit56     = tm->GetHit56();
+      int  hit56     = tm->GetHit56(); 
       if          (maskTM == TGCTileMuCoincidenceMap::TM_D6_L) {
 	isHitTileMu = isHitTileMu || (hit6==TGCTMDBOut::TM_LOW) || (hit6==TGCTMDBOut::TM_HIGH) ;
       } else  if  (maskTM == TGCTileMuCoincidenceMap::TM_D6_H) {
@@ -480,19 +488,24 @@ void TGCSectorLogic::doInnerCoincidence(int ssc,
   coincidenceOut->setInnerVeto(true);
 
   // decrease pt level to the highest pt without InnerrCoin
-  if (g_INNER_VETO) {
-    coincidenceOut->clearHit(pt);
   
-    while (validInner && (pt>1) ) {
-      pt = pt-1;
-      validInner = (mapInner->getFlagPT(pt, ssc, sectorId) == 1);
-    }
-    while (useTileMu && validTileMu && (pt>1) ){
-      pt = pt-1;
-      validTileMu = (mapTileMu->getFlagPT(pt, ssc, sectorId, sideId) == 1) ;
-    }
-    coincidenceOut->setHit(pt);
+  bool innerVeto = g_INNER_VETO;
+  if (g_USE_CONDDB) {
+    bool isActiveEifi = m_condDbTool->isActive(ITGCTriggerDbTool::CW_EIFI);  
+    innerVeto  = isActiveEifi && (region==ENDCAP);
   }
+
+  coincidenceOut->clearHit(pt);
+  
+  while (innerVeto && validInner && (pt>1) ) {
+    pt = pt-1;
+    validInner = (mapInner->getFlagPT(pt, ssc, sectorId) == 1);
+  }
+  while (useTileMu && validTileMu && (pt>1) ){
+    pt = pt-1;
+    validTileMu = (mapTileMu->getFlagPT(pt, ssc, sectorId, sideId) == 1) ;
+  }
+  coincidenceOut->setHit(pt);
  
 }
 

@@ -124,9 +124,9 @@ TGCRPhiCoincidenceOut* TGCRPhiCoincidenceMatrix::doCoincidence()
 	      << " pt =" << ptMax+1 << " R=" << r << " Phi=" << phi[j0]
 	      << " ptR=" << ptR << " dR=" << dR 
 	      << " ptPhi=" << ptPhi[j0] << " dPhi=" << dPhi[j0] 
-	      << endreq;
+	      << endmsg;
       } else {
-	m_log << MSG::DEBUG << "NO Trigger Out : " << endreq;
+	m_log << MSG::DEBUG << "NO Trigger Out : " << endmsg;
       }
     }
   }

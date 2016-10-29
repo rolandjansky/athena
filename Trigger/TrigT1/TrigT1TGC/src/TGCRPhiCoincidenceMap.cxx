@@ -17,10 +17,13 @@
 #include "GaudiKernel/MsgStream.h"
 #include "GaudiKernel/IMessageSvc.h"
 
+#include "MuonCondInterface/ITGCTriggerDbTool.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 namespace LVL1TGCTrigger {
 
  extern bool        g_DEBUGLEVEL;
+ extern bool        g_USE_CONDDB;
 
 bool TGCRPhiCoincidenceMap::test(int octantId, int moduleId, int subsector, 
 				 int type, int pt, 
@@ -49,13 +52,17 @@ TGCRPhiCoincidenceMap::TGCRPhiCoincidenceMap(const std::string& version,
    m_verName(version),
    m_side(sideId),
    m_octant(octantId),
-   m_fullCW(false)
+   m_fullCW(false),
+   m_condDbTool("TGCTriggerDbTool")
 {
-  if (!checkVersion()){
-    m_verName = "NA";
-    return;
-  }
-  this->readMap();  // read Coincidence Map 
+  if (!g_USE_CONDDB) {
+    if (!checkVersion()){
+      m_verName = "NA";
+      return;
+    }
+    this->readMap();  // read Coincidence Map 
+  
+  } 
 }
 
 bool TGCRPhiCoincidenceMap::checkVersion()
@@ -79,7 +86,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
     if (g_DEBUGLEVEL) {
       log << MSG::DEBUG 
 	  << " Could not found " << dbname.c_str() 
-	  << " Default set is chosen !!" << endreq;
+	  << " Default set is chosen !!" << endmsg;
     }
     // default set 
     m_verName = "v000f";
@@ -89,7 +96,7 @@ bool TGCRPhiCoincidenceMap::checkVersion()
   } 
   if (!isFound) {
     log << MSG::INFO  
-	<< " Could not found " << dbname.c_str() << endreq;
+	<< " Could not found " << dbname.c_str() << endmsg;
     return false;
   }
   
@@ -115,12 +122,12 @@ bool TGCRPhiCoincidenceMap::checkVersion()
 
   ///////////  
   log << MSG::INFO 
-      << " TGC Big Wheel CW version of " << m_verName << " is selected " << endreq;
+      << " TGC Big Wheel CW version of " << m_verName << " is selected " << endmsg;
   for(int i=0; i<N_PT_THRESH; i++) {
     log << MSG::VERBOSE 
 	<< "TGC Pt_Thr: " << std::setw(2) << i+1
 	<< "  pt(used)="  << std::setw(3) << maxpt[i] 
-      	<< endreq;
+      	<< endmsg;
   }
   return true;
 }
@@ -188,6 +195,11 @@ bool TGCRPhiCoincidenceMap::readMap()
   std::string fn, fullName, tag;
   int ssId,ptLevel,bit,mod;
 
+  if (g_USE_CONDDB) {
+    m_fullCW = (m_condDbTool->getType(ITGCTriggerDbTool::CW_BW) == "full" );
+    m_verName = m_condDbTool->getVersion(ITGCTriggerDbTool::CW_BW);
+  }
+
   // loop over all files...
   for(int iModule=0; iModule<NumberOfModuleType; iModule+=1) {
     int phimod2=ModuleName[iModule].find("b")!=std::string::npos ? 1 : 0;
@@ -204,17 +216,75 @@ bool TGCRPhiCoincidenceMap::readMap()
       } 
     }
 
+    int type = -1;
+    int lDR, hDR, lDPhi, hDPhi;
+
+    if (g_USE_CONDDB) {
+    std::string data = m_condDbTool->getData(ITGCTriggerDbTool::CW_BW, fn);
+    std::istringstream stream(data);
+
+    char delimiter = '\n';
+    std::string field;
+
+    while (std::getline(stream, field, delimiter)) {
+
+      std::istringstream header(field);
+      header>>tag;
+      if(tag=="#"){ // read header part.     
+	header>>ptLevel>>ssId>>mod>>lDR>>hDR>>lDPhi>>hDPhi;
+	type = getTYPE( lDR, hDR, lDPhi, hDPhi );
+	// check moduleNumber and ptLevel
+	if(mod!=ModuleNumber[iModule] || ptLevel>N_PT_THRESH || type<0 ) {
+	  log << MSG::WARNING 
+	      << " illegal parameter in database header : "
+	      << header.str()
+	      << " in file " << fn 
+	      << endmsg;
+	  break;
+	}
+
+	// get window data
+	std::getline(stream, field, delimiter);
+	std::istringstream cont(field);
+	std::map<int, int> aWindow;
+	for(int ir=0; ir<=hDR-DR_offset; ir++) {
+	  cont>>bit;
+	  if (bit==0) continue; // none of window is opened in this dR
+	  aWindow[ir+DR_offset] = bit;
+	}
+	// Warning : no window 
+	if (aWindow.size()==0) {
+	  if (g_DEBUGLEVEL) {
+	    log << MSG::DEBUG
+		<< " No window is opened for (ptLevel,ssId,mod) = (" 
+		<< ptLevel << ", " << ssId << ", " << mod << ")" 
+		<<endmsg;
+	  }
+	}
+	int addr = SUBSECTORADD(ssId,mod,phimod2,type);
+	if (mapDB[ptLevel-1].find(addr)!=mapDB[ptLevel-1].end()) {
+	  if (g_DEBUGLEVEL) {
+	    log << MSG::DEBUG
+		<< "This subsector was already reserved." 
+		<< endmsg;
+	  }
+	} else {
+	  mapDB[ptLevel-1][addr]=aWindow;
+	}
+      }
+    }
+
+    } else { // will delete...
+
     fullName = PathResolver::find_file( fn.c_str(), "DATAPATH" );
     if( fullName.length() == 0 ) { 
       log << MSG::ERROR 
 	  << " Could not found " 
-	  << fn.c_str() << endreq;
+	  << fn.c_str() << endmsg;
       return false ;  
     } 
 
     std::ifstream file(fullName.c_str(),std::ios::in);    
-    int type = -1;
-    int lDR, hDR, lDPhi, hDPhi;
     while(file.getline(buf,BufferSize)){
       std::istringstream header(buf);
       header>>tag;
@@ -227,7 +297,7 @@ bool TGCRPhiCoincidenceMap::readMap()
 	      << " illegal parameter in database header : "
 	      << header.str()
 	      << " in file " << fn 
-	      << endreq;
+	      << endmsg;
 	  break;
 	}
 
@@ -246,7 +316,7 @@ bool TGCRPhiCoincidenceMap::readMap()
 	    log << MSG::DEBUG
 		<< " No window is opened for (ptLevel,ssId,mod) = (" 
 		<< ptLevel << ", " << ssId << ", " << mod << ")" 
-		<<endreq;
+		<<endmsg;
 	  }
 	}
 	int addr = SUBSECTORADD(ssId,mod,phimod2,type);
@@ -254,14 +324,14 @@ bool TGCRPhiCoincidenceMap::readMap()
 	  if (g_DEBUGLEVEL) {
 	    log << MSG::DEBUG
 		<< "This subsector was already reserved." 
-		<< endreq;
+		<< endmsg;
 	  }
 	} else {
 	  mapDB[ptLevel-1][addr]=aWindow;
 	}
       }
     }
-    file.close();
+    }
   }
 
   return true;
