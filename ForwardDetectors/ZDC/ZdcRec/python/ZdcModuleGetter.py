@@ -51,6 +51,10 @@ class ZdcModuleGetter ( Configured ) :
             mlog.info("not DetFlags.makeRIO.Zdc_on : Quit.")
             return False
 
+        from AthenaCommon.AppMgr import ToolSvc
+        from AthenaCommon import CfgMgr
+        mlog.info("adding ZDC::ZdcAnalysisTool to ToolSvc with default parameters, and no calibrations enabled");
+        ToolSvc += CfgMgr.ZDC__ZdcAnalysisTool("ZdcAnalysisTool",DoCalib=False,Configuration="default")      
 
         try:
             from ZdcRec.ZdcRecConf import ZdcRecV3
