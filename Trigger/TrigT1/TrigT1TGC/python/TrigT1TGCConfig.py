@@ -2,6 +2,8 @@
 
 from TrigT1TGC.TrigT1TGCConf import *
 from AthenaCommon.AlgSequence import AlgSequence
+from AthenaCommon.GlobalFlags import globalflags
+from IOVDbSvc.CondDB import conddb
 
 class TrigT1TGCConfig (LVL1TGCTrigger__LVL1TGCTrigger):
     
@@ -39,3 +41,8 @@ elif triggerMenuSetup.startswith('MC_HI_v2'): # setL (for 2013 Heavy Ion runs) i
 elif triggerMenuSetup.startswith('Physics_lumi1E34'): # setE (PT=0,6,10,15,20,40) is used for high lumi MC
     job.LVL1TGCTrigger.VersionCW='setE'
     print 'TrigT1TGCConfig.py: TGC Coincidence Window setE will be used for %s menu.' % triggerMenuSetup
+
+if globalflags.DataSource() == 'geant4':
+    conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_EIFI")
+    conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_BW")
+    conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_TILE")

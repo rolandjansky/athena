@@ -49,7 +49,9 @@
 
 #include "TGCcablingInterface/ITGCcablingSvc.h"
 #include "TGCcablingInterface/ITGCcablingServerSvc.h"
+#include "MuonCondInterface/ITGCTriggerDbTool.h"
 #include "PathResolver/PathResolver.h"
+#include "AthenaPoolUtilities/CondAttrListCollection.h"
 
 // Debug flag
 //#define TGCDEBUG 1
@@ -68,6 +70,7 @@ namespace LVL1TGCTrigger {
   bool g_USE_INNER;
   bool g_INNER_VETO;
   bool g_TILE_MU;
+  bool g_USE_CONDDB;
 
 ///////////////////////////////////////////////////////////////////////////
   LVL1TGCTrigger::LVL1TGCTrigger::LVL1TGCTrigger(const std::string& name, ISvcLocator* pSvcLocator):
@@ -75,6 +78,7 @@ namespace LVL1TGCTrigger {
     m_sgSvc("StoreGateSvc", name),
     m_detectorStore(0), 
     m_cabling(0),
+    m_condDbTool("TGCTriggerDbTool"),
     m_bctagInProcess(0),
     m_db(0),
     m_configSvc("TrigConf::LVL1ConfigSvc/LVL1ConfigSvc",name),
@@ -94,24 +98,24 @@ namespace LVL1TGCTrigger {
     declareProperty("MaskFileName",        m_MaskFileName="");
     declareProperty("MaskFileName12",      m_MaskFileName12="");
     declareProperty("LVL1ConfigSvc",       m_configSvc, "LVL1 Config Service");
-    declareProperty("VersionCW",           m_VerCW="00_07_0019"); // TILE_EIFI_BW
+    declareProperty("VersionCW",           m_VerCW="00_07_0022"); // TILE_EIFI_BW
     declareProperty("STRICTWD",            m_STRICTWD            =false);
     declareProperty("STRICTWT",            m_STRICTWT            =false);
     declareProperty("STRICTSD",            m_STRICTSD            =false);
     declareProperty("STRICTST",            m_STRICTST            =false);
     declareProperty("OUTCOINCIDENCE",      m_OUTCOINCIDENCE      =false);
     declareProperty("SHPTORED",            m_SHPTORED            =true);
-    declareProperty("USEINNER",            m_USEINNER            =true);
-    declareProperty("INNERVETO",           m_INNERVETO           =true);
-    declareProperty("FULLCW",              m_FULLCW              =true);
-    declareProperty("TILEMU",              m_TILEMU              =false);
+    declareProperty("USEINNER",            m_USEINNER            =true);  // Should be true
+    declareProperty("INNERVETO",           m_INNERVETO           =true);  // Obsolete
+    declareProperty("FULLCW",              m_FULLCW              =true);  // Obsolete
+    declareProperty("TILEMU",              m_TILEMU              =false); // Obsolete
   }
 
 
 ////////////////////////////////////////////////////////////
   LVL1TGCTrigger::~LVL1TGCTrigger()
   {
-    m_log << MSG::DEBUG << "LVL1TGCTrigger destructor called" << endreq;
+    m_log << MSG::DEBUG << "LVL1TGCTrigger destructor called" << endmsg;
     // delete m_TimingManager ,ElectronicsSystem and Database
     if (m_TimingManager){
       delete m_TimingManager;
@@ -133,12 +137,15 @@ namespace LVL1TGCTrigger {
   StatusCode LVL1TGCTrigger::initialize()
   {
     // init message stram
-    m_log.setLevel(msgLevel());  // inidividual output level not known before initialize
+
+//    m_log.setLevel(msgLevel());  // inidividual output level not known before initialize
+// msgLevel() is only available in rel.21. Previously, we used outputLevel() which is obsolete in rel.21
+// so we don't call setLevel(). (still works fine)
     m_debuglevel = (m_log.level() <= MSG::DEBUG); // save if threshold for debug
 
     g_DEBUGLEVEL          =  m_debuglevel;
 
-    m_log << MSG::DEBUG << "LVL1TGCTrigger::initialize() called" << endreq;
+    m_log << MSG::DEBUG << "LVL1TGCTrigger::initialize() called" << endmsg;
 
     g_STRICTWD            = m_STRICTWD.value();
     g_STRICTWT            = m_STRICTWT.value();
@@ -149,32 +156,23 @@ namespace LVL1TGCTrigger {
     g_USE_INNER           = m_USEINNER.value();
     g_INNER_VETO          = m_INNERVETO.value() && g_USE_INNER;
     g_TILE_MU             = m_TILEMU.value() && g_USE_INNER;
+    g_USE_CONDDB          = true;
  
-    if (g_USE_INNER) {
-      std::string vmode="MONITOR";
-      if (g_INNER_VETO) vmode="TRIGGER";
-      m_log << MSG::INFO  << "LVL1TGCTrigger: CoincidenceMatrix for EI/FI will be used "
-	    << "[ " << vmode << " mode ]" << endreq;
-    }
-    if (g_TILE_MU) {
-      m_log << MSG::INFO  << "LVL1TGCTrigger: CoincidenceMatrix for TileMu will be used "
-	    << endreq;
-    }
 
     StatusCode sc = service("DetectorStore", m_detectorStore);
     if (sc.isFailure()){
       m_log << MSG::FATAL
-	    << "Unable to get pointer to DetectorStore Service" << endreq;
+	    << "Unable to get pointer to DetectorStore Service" << endmsg;
       return StatusCode::FAILURE;
     }
 
     // TrigConfigSvc
     sc = m_configSvc.retrieve();
     if (sc.isFailure()) {
-      m_log << MSG::ERROR << "Could not connect to " << m_configSvc.typeAndName() << endreq;
+      m_log << MSG::ERROR << "Could not connect to " << m_configSvc.typeAndName() << endmsg;
     }
     else {
-      m_log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() << endreq; 
+      m_log << MSG::DEBUG << "Connected to " << m_configSvc.typeAndName() << endmsg; 
     }
     
     // clear Masked channel
@@ -184,11 +182,11 @@ namespace LVL1TGCTrigger {
     //sc = service("StoreGateSvc", m_sgSvc);
     sc = m_sgSvc.retrieve();
     if (sc.isFailure()) {
-      m_log << MSG::FATAL << "Could not find StoreGateSvc" << endreq;
+      m_log << MSG::FATAL << "Could not find StoreGateSvc" << endmsg;
       return StatusCode::FAILURE;
     } else {
       if (m_debuglevel) {
-	m_log << MSG::DEBUG << "Could find StoreGateSvc" << endreq;
+	m_log << MSG::DEBUG << "Could find StoreGateSvc" << endmsg;
       }
     }
 
@@ -199,18 +197,47 @@ namespace LVL1TGCTrigger {
     if (m_debuglevel) {
       if (m_CurrentBunchTag>0) {
 	m_log << MSG::DEBUG 
-	      << "---> Take hits with CURRENT banch tag = " << m_CurrentBunchTag << endreq;
+	      << "---> Take hits with CURRENT banch tag = " << m_CurrentBunchTag << endmsg;
       }
-      m_log << MSG::DEBUG << "OutputRdo " << m_OutputTgcRDO.value() << endreq;
+      m_log << MSG::DEBUG << "OutputRdo " << m_OutputTgcRDO.value() << endmsg;
     }
+   
+ 
+    // initialize TGCDataBase
+    m_db = new TGCDatabaseManager(m_VerCW);
     
     // try to initialize the TGCcabling
     sc = getCabling();
     if(sc.isFailure()) {
       m_log << MSG::DEBUG
           << "TGCcablingServerSvc not yet configured; postone TGCcabling initialization at first event. "
-	  << endreq;
+	  << endmsg;
     }
+
+    if (g_USE_CONDDB) { // for codition database
+    if(m_condDbTool.retrieve().isFailure()) {
+      ATH_MSG_FATAL("Could not retrieve TGCTriggerDbTool");
+      return StatusCode::FAILURE;
+    }
+ 
+    std::vector<std::string> folders;
+    folders.push_back(m_condDbTool->getFolderName(ITGCTriggerDbTool::CW_BW));
+    folders.push_back(m_condDbTool->getFolderName(ITGCTriggerDbTool::CW_EIFI));
+    folders.push_back(m_condDbTool->getFolderName(ITGCTriggerDbTool::CW_TILE));
+
+    for (int ii = 0; ii < (int)folders.size(); ++ii ) {
+    
+      const DataHandle<CondAttrListCollection> dh_aal;
+      if (!detStore()->regFcn(&LVL1TGCTrigger::updateDatabase,
+                         this,
+                         dh_aal,
+                         folders.at(ii),
+                         true).isSuccess()) {
+        ATH_MSG_FATAL("Could not register &updateDatabase against folder " << folders.at(ii));
+        return StatusCode::FAILURE;
+      }
+    } 
+    }  
 
     return StatusCode::SUCCESS;
   }
@@ -220,7 +247,7 @@ namespace LVL1TGCTrigger {
   {
     if (m_debuglevel) {
       m_log << MSG::DEBUG << "LVL1TGCTrigger::finalize() called" 
-	    <<  " m_nEventInSector = " << m_nEventInSector << endreq;
+	    <<  " m_nEventInSector = " << m_nEventInSector << endmsg;
     }
 
     // clear and delete TGCCOIN
@@ -249,7 +276,7 @@ namespace LVL1TGCTrigger {
   StatusCode LVL1TGCTrigger::execute()
   {
     if (m_debuglevel) {
-      m_log << MSG::DEBUG << "LVL1TGCTrigger::execute() called" << endreq;
+      m_log << MSG::DEBUG << "LVL1TGCTrigger::execute() called" << endmsg;
     }
 
     if(!m_cabling) {
@@ -269,21 +296,18 @@ namespace LVL1TGCTrigger {
 
     StatusCode sc = StatusCode::SUCCESS;
     // Tile Mu Data
-    if (g_TILE_MU) {
-      sc = fillTMDB();
-      if (sc.isFailure()) {
-	m_log << MSG::WARNING 
-	      << "Cannot retrieve Tile Mu Data " << endreq;
-	return sc;
-      }
+    bool doTileMu = g_TILE_MU;
+
+    if (g_USE_CONDDB) {
+      doTileMu = m_condDbTool->isActive(ITGCTriggerDbTool::CW_TILE);
     }
- 
+
     // TgcRdo
     m_tgcrdo.clear();
     const TgcRdoContainer * rdoCont;
     sc = m_sgSvc->retrieve( rdoCont, "TGCRDO" );
     if (sc.isFailure()) {
-      m_log << MSG::WARNING << "Cannot retrieve TgcRdoContainer with key=TGCRDO" << endreq;
+      m_log << MSG::WARNING << "Cannot retrieve TgcRdoContainer with key=TGCRDO" << endmsg;
       return StatusCode::SUCCESS;
     }
     if (rdoCont->size()>0) {
@@ -299,7 +323,7 @@ namespace LVL1TGCTrigger {
     const DataHandle<TgcDigitContainer> tgc_container;
     sc = m_sgSvc->retrieve(tgc_container, m_keyTgcDigit);
     if (sc.isFailure()) {
-      m_log << MSG::FATAL << " Cannot retrieve TGC Digit Container " << endreq;
+      m_log << MSG::FATAL << " Cannot retrieve TGC Digit Container " << endmsg;
       return sc;
     }
 
@@ -307,13 +331,23 @@ namespace LVL1TGCTrigger {
     // process one by one   
     for (int bc=TgcDigit::BC_PREVIOUS; bc<=TgcDigit::BC_NEXT; bc++){ 
       sc = StatusCode::SUCCESS; 
+    
+      // Use TileMu only if BC_CURRENT
+      if (doTileMu && bc==m_CurrentBunchTag) { 
+        sc = fillTMDB();
+        if (sc.isFailure()) {
+          m_log << MSG::WARNING << "Cannot retrieve Tile Mu Data " << endmsg;
+          return sc;
+        }
+      }
+
       if (m_ProcessAllBunches || bc==m_CurrentBunchTag){ 
         m_bctagInProcess =bc; 
         sc=processOneBunch(tgc_container, muctpiinput); 
       }
       if (sc.isFailure()) { 
         m_log << MSG::FATAL  
-          << "Fail to process the bunch " << m_bctagInProcess << endreq; 
+          << "Fail to process the bunch " << m_bctagInProcess << endmsg; 
         return sc; 
       }
     }
@@ -322,7 +356,7 @@ namespace LVL1TGCTrigger {
     sc = m_sgSvc->record(muctpiinput, m_keyMuCTPIInput_TGC);
     if (sc.isFailure()) { 
       m_log << MSG::FATAL 
-        << "Could not record MuCTPIInput_TGC."  << endreq; 
+        << "Could not record MuCTPIInput_TGC."  << endmsg; 
       return StatusCode::FAILURE; 
     }
 
@@ -454,7 +488,7 @@ void LVL1TGCTrigger::doMaskOperation(const DataHandle<TgcDigitContainer>& tgc_co
       itCh=m_MaskedChannel.find(channelId);
       if (itCh!=m_MaskedChannel.end() && itCh->second==0) {
         if (m_debuglevel) {
-	        m_log << MSG::DEBUG << "This channel is masked! offlineID=" << channelId << endreq;
+	        m_log << MSG::DEBUG << "This channel is masked! offlineID=" << channelId << endmsg;
 	      }
 	      continue;
       }
@@ -466,7 +500,7 @@ void LVL1TGCTrigger::doMaskOperation(const DataHandle<TgcDigitContainer>& tgc_co
   for(itCh=m_MaskedChannel.begin(); itCh!=m_MaskedChannel.end(); itCh++) {
     if (itCh->second==1) {
       if (m_debuglevel) {
-        m_log << MSG::VERBOSE << "This channel is fired by force! offlineID=" << itCh->first << endreq;
+        m_log << MSG::VERBOSE << "This channel is fired by force! offlineID=" << itCh->first << endmsg;
       }
       if (TgcDigitIDs.find(itCh->first)==TgcDigitIDs.end()) {
 	      TgcDigitIDs.insert(std::map<Identifier,int>::value_type(itCh->first,1));
@@ -475,7 +509,7 @@ void LVL1TGCTrigger::doMaskOperation(const DataHandle<TgcDigitContainer>& tgc_co
   }
     
   if (m_debuglevel) {
-    m_log << MSG::DEBUG << "# of total hits    " << TgcDigitIDs.size() << endreq;
+    m_log << MSG::DEBUG << "# of total hits    " << TgcDigitIDs.size() << endmsg;
   }
 
   return;
@@ -507,7 +541,7 @@ void  LVL1TGCTrigger::fillTGCEvent(std::map<Identifier, int>& tgcDigitIDs,  TGCE
 
     if(!status) { 
       m_log << MSG::INFO << " Fail to getOnlineIDfromOfflineID " 
-            << "for  " << channelId << endreq; 
+            << "for  " << channelId << endmsg; 
     } else {
       bool fstatus;  
       int subDetectorID, rodID, sswID, sbLoc, channelID; 
@@ -535,11 +569,11 @@ void  LVL1TGCTrigger::fillTGCEvent(std::map<Identifier, int>& tgcDigitIDs,  TGCE
                 << " mod#=" << moduleNumber  
                 << " layer#=" << layerNumber << " r#=" << rNumber 
                 << " isStrip=" << wireOrStrip  
-                << " ch#=" << channelNumber << endreq 
+                << " ch#=" << channelNumber << endmsg 
                 << " --> readoutID: sudetID=" << subDetectorID  
                 << " rodID=" << rodID << " sswID=" << sswID 
                 << " slbID=" << slbID << " chID=" << channelID  
-                << endreq; 
+                << endmsg; 
         }
 
         TGCZDirection zdire = (subsystemNumber==1)? kZ_FORWARD : kZ_BACKWARD; 
@@ -551,7 +585,7 @@ void  LVL1TGCTrigger::fillTGCEvent(std::map<Identifier, int>& tgcDigitIDs,  TGCE
                         0); 
       } else { 
         m_log << MSG::INFO << " Fail to getSLBIDfromOfflineID " 
-              << "for  " << channelId << endreq; 
+              << "for  " << channelId << endmsg; 
       }
     } 
   }     // End Loop on TGC detectors (collections) 
@@ -560,7 +594,7 @@ void  LVL1TGCTrigger::fillTGCEvent(std::map<Identifier, int>& tgcDigitIDs,  TGCE
     m_log << MSG::DEBUG 
           << "Could make TGCEvent with TgcDigitContainer." 
           << "  vector size : " << event.GetNASDOut() 
-          << endreq;
+          << endmsg;
     
     for(int iout=1; iout<= event.GetNASDOut(); iout++){ 
       TGCASDOut* asdout = (event.GetASDOutVector()[iout-1]); 
@@ -573,7 +607,7 @@ void  LVL1TGCTrigger::fillTGCEvent(std::map<Identifier, int>& tgcDigitIDs,  TGCE
             << " S:" << asdout->GetSignalType() 
             << " I:" << asdout->GetHitID() 
             << " T:" << asdout->GetHitToF() 
-            << endreq;
+            << endmsg;
     }
   }
 }
@@ -622,7 +656,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
             << " pt:" << selectorOut->getPtLevel(0)
             << " charge:" << getCharge(selectorOut->getDR(0),Zdir)
             << " veto:" << sldata->ovl(0)
-            <<endreq;
+            <<endmsg;
     }
     if ((selectorOut->getNCandidate()) == 2) {
       m_log << MSG::DEBUG 
@@ -631,7 +665,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
             << " pt:" << selectorOut->getPtLevel(1)
             << " charge:" << getCharge(selectorOut->getDR(1),Zdir)
             << " veto:" << sldata->ovl(1)
-            << endreq;
+            << endmsg;
     }
   }	  
 }
@@ -689,7 +723,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	if (!status) {
 	  if (m_debuglevel) {
 	    m_log << MSG::DEBUG 
-		  << "TGCcablignSvc::getReadoutIDfromSLBID fails" << endreq
+		  << "TGCcablignSvc::getReadoutIDfromSLBID fails" << endmsg
 		  << MSG::DEBUG
 		  << "phi=" << phi  
 		  << " side=" << ((isAside) ? "A": "C") 
@@ -700,7 +734,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 		  << " rodId=" << rodId
 		  << " sswId=" << sswId
 		  << " sbLoc=" << sbLoc
-		  << endreq;
+		  << endmsg;
 	  }
 	  continue;
 	}
@@ -730,7 +764,8 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 			   l1Id, bcId,
 			   type, out->getDev(iData), seg, subMat, 
 			   out->getPos(iData));	    
-	  addRawData(rawdata);
+	  
+          if (!addRawData(rawdata)) delete rawdata;
 
 	  // EIFI trigger bits for SL are filled. 
 	  if(isEIFI) {
@@ -752,7 +787,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	    	  << " subMat =" << subMat
 	    	  << " pos=" << out->getPos(iData) 
 		  << " dev=" << out->getDev(iData) 
-	    	  <<  endreq;
+	    	  <<  endmsg;
 	    ///////HISAYA///////////
 #endif
 
@@ -763,7 +798,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 				 << " region= " << (isEndcap ? "EI" : "FI")
 				 << " readout= " << (type==TgcRawData::SLB_TYPE_INNER_WIRE ? "WIRE" : "STRIP") 
 				 << " subMat(iBit)= " << static_cast<unsigned int>(subMat) 
-				 << endreq;
+				 << endmsg;
 	    }
 	  }
 
@@ -774,7 +809,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 		  << " SBLoc=" << sbLoc << " type=" << itype 
 		  << " iData(subMat:seg)=" << iData << " pos=" 
 		  << out->getPos(iData) << " dev=" << out->getDev(iData) 
-		  <<  endreq;
+		  <<  endmsg;
 	  }	    
 	}
 	// end of filling TgcRawData
@@ -838,7 +873,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	bool status = m_cabling->getReadoutIDfromHPTID(phi, isAside, isEndcap, isStrip, hpb->getId(),
 						       subDetectorId, rodId, sswId, sbLoc);
 	if (!status) {
-	  m_log << MSG::WARNING << "TGCcablignSvc::getReadoutIDfromHPTID fails" << endreq;
+	  m_log << MSG::WARNING << "TGCcablignSvc::getReadoutIDfromHPTID fails" << endmsg;
 	  continue;
 	}
 
@@ -863,7 +898,8 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 			     out->getPos(ichip, icand), 
 			     out->getDev(ichip, icand),
            0);
-	    addRawData(rawdata);
+
+            if (!addRawData(rawdata)) delete rawdata;
 	    
 #ifdef TGCDEBUG
 	    ///////////HISAYA///////////
@@ -881,7 +917,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 		  << " dev=" << out->getDev(ichip, icand) 
 		  << " rod=" << rodId << " sswId=" << sswId 
 		  << " SBLoc=" << sbLoc
-		  <<  endreq;
+		  <<  endmsg;
 	    ////////////////////
 #endif
 	    // Print
@@ -899,7 +935,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 		    << " subMatrix=" << out->getPos(ichip, icand)
 		    << " dev=" << out->getDev(ichip, icand) 
 		    << " rod=" << rodId << " sswId=" << sswId << " SBLoc=" << sbLoc
-		    <<  endreq;
+		    <<  endmsg;
 	    }
 
 	    // Strip HPT hit may be duplicated
@@ -923,7 +959,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 			     out->getPos(ichip, icand), 
 			     out->getDev(ichip, icand),
            0);
-		addRawData(rawdata2);
+                if (!addRawData(rawdata2)) delete rawdata2;
 	      }
 	      ////////////////////
 
@@ -961,7 +997,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
     if (!status) {
       m_log << MSG::WARNING 
             << "TGCcablignSvc::ReadoutIDfromSLID fails in recordRdoInner()" 
-            << endreq;
+            << endmsg;
       return;
     }
 
@@ -994,7 +1030,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
         0, 
         0,
         static_cast<uint16_t>(inner_eifi));
-      addRawData(rawdata_eifi);
+      if (!addRawData(rawdata_eifi)) delete rawdata_eifi;
     }
 
 
@@ -1018,7 +1054,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
         0,   
         0,
         static_cast<uint16_t>(inner_tile));
-      addRawData(rawdata_tile);
+      if (!addRawData(rawdata_tile)) delete rawdata_tile;
     }
 
 
@@ -1082,7 +1118,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	    << (isEndcap ? "  Endcap-" : "  Forward-") 
 	    << (isAside  ? "A  " : "C  ")
 	    << "  phi=" << phi
-	    << endreq;
+	    << endmsg;
 
       return;
     }
@@ -1105,8 +1141,8 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 			 bcId,
 			 cand3plus, (!isEndcap), secId, index,
 			 muplus, threshold, overlap, veto, roi);
-      addRawData(rawdata);      
-      
+      if (!addRawData(rawdata)) delete rawdata;      
+
 #ifdef TGCDEBUG
       //////////////HISAYA////////////
       m_log << MSG::INFO
@@ -1121,7 +1157,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	    << " roi=" << roi 
 	    << " rod=" << rodId << " sswId=" << sswId 
 	    << " SBLoc=" << sbLoc
-	    << endreq;
+	    << endmsg;
       /////////////////////////
 #endif
 
@@ -1137,7 +1173,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	      << " veto=" << veto 
 	      << " roi=" << roi 
 	      << " rod=" << rodId << " sswId=" << sswId << " SBLoc=" << sbLoc
-	      << endreq;
+	      << endmsg;
       }
     }
   }
@@ -1155,10 +1191,10 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 
     std::ifstream fin(fullName.c_str());
     if (!fin) {
-      m_log << MSG::FATAL << "Cannot open file " << fullName << endreq;
+      m_log << MSG::FATAL << "Cannot open file " << fullName << endmsg;
       return StatusCode::FAILURE;
     } else {
-      m_log << MSG::INFO << "Use mask file : " << fullName << endreq;
+      m_log << MSG::INFO << "Use mask file : " << fullName << endmsg;
     }
     // read database ------------------------------------------------------------------------------
     std::vector<std::string> mask;
@@ -1193,15 +1229,15 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 		    << (OnOff==0 ? "Mask" : "Fire") << " : offlineID=" << ID
 		    << " sys=" << sysno << " oct=" << octno << " modno=" << ids[3] 
 		    << " layerno=" << ids[4] << " rNumber=" << ids[5] 
-		    << " strip=" << ids[6] << " chno=" << ids[7] << endreq;
+		    << " strip=" << ids[6] << " chno=" << ids[7] << endmsg;
 	    }
 	    if (!status) {
 	      m_log << MSG::WARNING 
 		    << "This onlineID is not valid and cannot be converted to offline ID." 
-		    << endreq 
+		    << endmsg 
 		    << "sys=" << sysno << " oct=" << octno << " modno=" << ids[3] 
 		    << " layerno=" << ids[4] << " rNumber=" << ids[5] 
-		    << " strip=" << ids[6] << " chno=" << ids[7] << endreq;
+		    << " strip=" << ids[6] << " chno=" << ids[7] << endmsg;
 	    } else {
 	      m_MaskedChannel.insert(std::map<Identifier, int>::value_type(ID, OnOff));
 	      if (OnOff==0)      nmasked+=1;
@@ -1220,14 +1256,14 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 	      m_log << MSG::VERBOSE 
 		    << (OnOff==0 ? "Mask" : "Fire") << " : offlineID=" << ID
 		    << " subdetectorID=" << sysno << " rodId=" << octno << " sswID=" << ids[3] 
-		    << " SBLoc=" << ids[4] << " channelId=" << ids[5] << endreq;
+		    << " SBLoc=" << ids[4] << " channelId=" << ids[5] << endmsg;
 	    }
 	    if (!status) {
 	      m_log << MSG::WARNING 
 		    << "This readoutID is not valid and cannot be converted to offline ID " 
-		    << endreq
+		    << endmsg
 		    << "subdetectorID=" << sysno << " rodId=" << octno << " sswID=" << ids[3] 
-		    << " SBLoc=" << ids[4] << " channelId=" << ids[5] << endreq;
+		    << " SBLoc=" << ids[4] << " channelId=" << ids[5] << endmsg;
 	    } else {
 	      m_MaskedChannel.insert(std::map<Identifier, int>::value_type(ID, OnOff));
 	      if (OnOff==0)      nmasked+=1;
@@ -1239,7 +1275,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
       } else if (id_type==3 && ids.size()==2) { // offline id
 	ID = Identifier((unsigned int)ids[1]);
 	if (m_debuglevel) {
-	  m_log << MSG::DEBUG << (OnOff==0 ? "Mask" : "Fire") << " : offlineID=" << ID << endreq;
+	  m_log << MSG::DEBUG << (OnOff==0 ? "Mask" : "Fire") << " : offlineID=" << ID << endmsg;
 	}
 	m_MaskedChannel.insert(std::map<Identifier, int>::value_type(ID, OnOff));
 	if (OnOff==0)      nmasked+=1;
@@ -1248,13 +1284,13 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
       } else {
 	m_log << MSG::INFO 
 	      << "Invalid input. Idtype or number of parameters are invalid: idtype=" << id_type
-	      << " number of elements = " << ids.size() << endreq;
+	      << " number of elements = " << ids.size() << endmsg;
 	return StatusCode::FAILURE;
       }
     }
     //
-    m_log << MSG::INFO << "Total number of masked channels ... " << nmasked << endreq;
-    m_log << MSG::INFO << "Total number of fired  channels ... " << nfired  << endreq;
+    m_log << MSG::INFO << "Total number of masked channels ... " << nmasked << endmsg;
+    m_log << MSG::INFO << "Total number of fired  channels ... " << nfired  << endmsg;
     //
     return StatusCode::SUCCESS;
   }
@@ -1311,7 +1347,7 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 
 
 /////////////////////////////////////////////////
-  void LVL1TGCTrigger::addRawData(TgcRawData * rawdata) 
+  bool LVL1TGCTrigger::addRawData(TgcRawData * rawdata) 
   {
     std::pair<int, int> subDetectorRod(rawdata->subDetectorId(), rawdata->rodId());
     std::map<std::pair<int, int>, TgcRdo*>::iterator itRdo = m_tgcrdo.find(subDetectorRod);
@@ -1330,24 +1366,28 @@ void LVL1TGCTrigger::FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData *slda
 
         m_log << MSG::DEBUG << "Inner coincidence words without BW hits"
                             << " for subDetectorId=" << rawdata->subDetectorId()
-                            << " for rodId=" << rawdata->rodId() << endreq;
+                            << " for rodId=" << rawdata->rodId() << endmsg;
 
       } else if (isHipt && isInner) {
         m_log << MSG::DEBUG << "Inner coincidence words without BW hits" 
 	      << " for subDetectorId=" << rawdata->subDetectorId()
 	      << " for rodId=" << rawdata->rodId()
-	      << endreq;
+	      << endmsg;
 
       } else {
         m_log << MSG::WARNING << "Inconsistent RodId with hits " 
 	      << " for subDetectorId=" << rawdata->subDetectorId()
 	      << " for rodId=" << rawdata->rodId()
 	      << "  Type=" << static_cast<int>(rawdata->type()) 
-	      << endreq;
+	      << endmsg;
       }
+      return false;
+ 
     } else {
       TgcRdo * thisRdo = itRdo->second;
       thisRdo->push_back(rawdata);
+
+      return true;
     }
   }
   
@@ -1360,30 +1400,30 @@ StatusCode LVL1TGCTrigger::getCabling()
   const ITGCcablingServerSvc* TgcCabGet = 0;
   StatusCode sc = service("TGCcablingServerSvc", TgcCabGet);
   if (sc.isFailure()){
-    m_log << MSG::FATAL << " Can't get TGCcablingServerSvc " << endreq;
+    m_log << MSG::FATAL << " Can't get TGCcablingServerSvc " << endmsg;
     return StatusCode::FAILURE;
   }
   
   if(!TgcCabGet->isConfigured()) {
-      m_log << MSG::DEBUG << "TGCcablingServer not yet configured!" << endreq;
+      m_log << MSG::DEBUG << "TGCcablingServer not yet configured!" << endmsg;
       return StatusCode::FAILURE;
   }
   
   // get Cabling Service
   sc = TgcCabGet->giveCabling(m_cabling);
   if (sc.isFailure()){
-    m_log << MSG::FATAL << " Can't get TGCcablingSvc Server" << endreq;
+    m_log << MSG::FATAL << " Can't get TGCcablingSvc Server" << endmsg;
     return StatusCode::FAILURE; 
   }
 
   int maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId;
   m_cabling->getReadoutIDRanges( maxRodId,maxSswId, maxSbloc,minChannelId, maxChannelId);
   if (maxRodId ==12) {
-    m_log << MSG::INFO << m_cabling->name() << " is OK" << endreq ;
+    m_log << MSG::INFO << m_cabling->name() << " is OK" << endmsg ;
   } else {
     m_log << MSG::FATAL 
 	  << " Old TGCcablingSvc(octant segmentation) can not be used !" 
-	  << endreq;
+	  << endmsg;
     return StatusCode::FAILURE; 
   }
 
@@ -1398,13 +1438,13 @@ StatusCode LVL1TGCTrigger::getCabling()
   // Here don't overwrite by any version if proper version number is provided.
   std::string ver=m_VerCW.value();
   if((ver.size() != 10)) { 
-    // default CW is v00070019
-    ver= "00_07_0019";
+    // default CW is v00070022
+    ver= "00_07_0022";
     m_VerCW = ver;
   }
 
-  m_log << MSG::INFO 
-        << " TGC CW version of " << ver << " is selected " << endreq;
+  if (!g_USE_CONDDB) m_log << MSG::INFO 
+        << " TGC CW version of " << ver << " is selected " << endmsg;
 
   // check Inner /TileMu   
   std::vector<std::string> vers = TGCDatabaseManager::splitCW(ver, '_');
@@ -1416,7 +1456,7 @@ StatusCode LVL1TGCTrigger::getCabling()
   } 
     
   // create DataBase and TGCElectronicsSystem
-  m_db = new TGCDatabaseManager(m_VerCW);
+  //m_db = new TGCDatabaseManager(m_VerCW);
   m_system = new TGCElectronicsSystem(m_db);
     
   m_TimingManager = new TGCTimingManager;
@@ -1434,16 +1474,12 @@ StatusCode LVL1TGCTrigger::fillTMDB()
   // clear TMDB
   tmdb->eraseOutput();
  
-  // check  m_bctagInProcess   
-  // Use TileMu only if BC_CURRENT 
-  if ( m_bctagInProcess != TgcDigit::BC_CURRENT) return sc;
-  
   // retrive TileMuonReceiverContainer
   const DataHandle<TileMuonReceiverContainer> tileMuRecCont;
   sc = m_sgSvc->retrieve(tileMuRecCont, m_keyTileMu);
   
   if (sc.isFailure()) {
-    m_log << MSG::WARNING << " Cannot retrieve Tile Muon Receiver Container " << endreq;
+    m_log << MSG::WARNING << " Cannot retrieve Tile Muon Receiver Container " << endmsg;
     return sc;
   }
   
@@ -1458,11 +1494,11 @@ StatusCode LVL1TGCTrigger::fillTMDB()
     }
     if (m_debuglevel) {
       m_log << MSG::DEBUG << "thresholds[] :" 
-	    << thresholds[0] << thresholds[1] << thresholds[2] << thresholds[3] << endreq;
+	    << thresholds[0] << thresholds[1] << thresholds[2] << thresholds[3] << endmsg;
       m_log << MSG::DEBUG << "type of GetThreshold : " 
 	    << typeid((tmObj_Thresholds->GetThresholds())).name() 
 	    << "  ID of GetThreshold : " 
-	    << tmObj_Thresholds->GetID() << endreq;
+	    << tmObj_Thresholds->GetID() << endmsg;
     }
   }
 
@@ -1477,6 +1513,8 @@ StatusCode LVL1TGCTrigger::fillTMDB()
     const TileMuonReceiverObj * tmObj = *tmItr;
     // Tile Module
     int moduleID = tmObj-> GetID();
+    int sideID   = (moduleID & 0xf00) >> 8;
+    int mod      = (moduleID & 0x0ff);
     // TMDB decision
     bool tile2SL[4];
     //     [0]       [1]       [2]      [3]
@@ -1484,17 +1522,18 @@ StatusCode LVL1TGCTrigger::fillTMDB()
     for (size_t ip=0;ip<4;ip++){
       tile2SL[ip] = (tmObj->GetDecision()).at(ip);
     }
-    if ( moduleID < 300 || (moduleID > 363 && moduleID < 400) || moduleID > 463 || 
+    //if ( moduleID < 300 || (moduleID > 363 && moduleID < 400) || moduleID > 463 || 
+    if ( mod < 0 || mod > 63 || (sideID !=3 && sideID !=4) ||
 	 ((tmObj->GetDecision()).size() != 4) ) {
       continue;
     } else {
+      
       // side 0: a-side, 1: c-side,  3: NA
       // mod 0~63
       int side = 3;      
-      int mod = moduleID%100;  
-      if (moduleID/100 == 3) {
+      if (sideID == 3) {
 	side = 0;
-      } else if (moduleID/100 == 4) {
+      } else if (sideID == 4) {
 	side = 1;
       }
       // setOutput(side, mod, hit56, hit6) -> hit56, 6 -> 0: No Hit, 1: Low, 2: High, 3: NA
@@ -1526,6 +1565,26 @@ StatusCode LVL1TGCTrigger::fillTMDB()
   
   return sc;
 }
+
   
+StatusCode LVL1TGCTrigger::updateDatabase(IOVSVC_CALLBACK_ARGS_P(I, keys))
+{
+  ATH_MSG_INFO("updateDatabase called");
+ 
+  if (!m_condDbTool->loadParameters(I, keys).isSuccess()) {
+    ATH_MSG_WARNING("loadParameters failed");
+    return StatusCode::SUCCESS;
+  }
+
+  if (!m_db->updateMap().isSuccess()) {
+    ATH_MSG_WARNING("updateMap failed");
+    return StatusCode::SUCCESS;
+  }
+ 
+  ATH_MSG_INFO("loadPayload succeeded");
+  return StatusCode::SUCCESS;
+}
+
+
 } //end of namespace bracket
 

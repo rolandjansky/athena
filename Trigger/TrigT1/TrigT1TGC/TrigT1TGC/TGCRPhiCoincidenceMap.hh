@@ -9,6 +9,10 @@
 #include <map>
 #include <string>
 
+#include "GaudiKernel/ToolHandle.h"
+
+class ITGCTriggerDbTool;
+
 namespace LVL1TGCTrigger {
 
 class TGCRPhiCoincidenceMap {
@@ -33,12 +37,13 @@ public:
   TGCRPhiCoincidenceMap(const TGCRPhiCoincidenceMap& right);
   TGCRPhiCoincidenceMap& operator=(const TGCRPhiCoincidenceMap& right);
 
+  bool readMap();  
+
 private: // hide default constructor
   TGCRPhiCoincidenceMap();
 
 protected:
   bool checkVersion();
-  bool readMap();  
   int PHIPOS(int iphi, int type) const;
   int SUBSECTORADD(int ssid, int modid, int phimod2, int type) const;
   int getMODID(int addr) const;
@@ -58,6 +63,8 @@ private:
   int m_side;
   int m_octant;
   bool m_fullCW;
+
+  ToolHandle<ITGCTriggerDbTool> m_condDbTool;
 };
 
 

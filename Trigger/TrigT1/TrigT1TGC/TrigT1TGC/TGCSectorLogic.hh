@@ -21,6 +21,8 @@
 #include "TrigT1TGC/TGCSLSelectorOut.hh"
 #include "TrigT1TGC/TGCInnerTrackletSlotHolder.hh"
 
+class ITGCTriggerDbTool;
+
 namespace LVL1TGCTrigger {
 
 const int MaxNumberOfWireHighPtBoard = 2;
@@ -111,7 +113,8 @@ private:
   const TGCInnerTrackletSlot* m_innerTrackletSlots[TGCInnerTrackletSlotHolder::NUMBER_OF_SLOTS_PER_TRIGGER_SECTOR];
   bool useInner;
   bool useTileMu;
- 
+
+  ToolHandle<ITGCTriggerDbTool> m_condDbTool; 
 };
 
 inline

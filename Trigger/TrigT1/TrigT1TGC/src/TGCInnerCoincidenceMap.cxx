@@ -12,6 +12,8 @@
 #include "TrigT1TGC/TGCDatabaseManager.hh"
 #include "PathResolver/PathResolver.h"
 
+#include "MuonCondInterface/ITGCTriggerDbTool.h"
+
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
@@ -21,11 +23,13 @@
 namespace LVL1TGCTrigger {
 
  extern bool        g_USE_INNER;
+ extern bool        g_USE_CONDDB;
 
 TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
   :m_verName("NA"),
    m_side(0),
-   m_fullCW(false)
+   m_fullCW(false),
+   m_condDbTool("TGCTriggerDbTool")
 {
   // intialize map
   for (size_t sec=0; sec< N_EndcapSector; sec++){
@@ -51,7 +55,8 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
 						 int   sideID)
   :m_verName(version),
    m_side(sideID),
-   m_fullCW(false)
+   m_fullCW(false),
+   m_condDbTool("TGCTriggerDbTool")
 {
   // intialize map
   for (size_t sec=0; sec< N_EndcapSector; sec++){
@@ -72,6 +77,7 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
   }
 
   if (!g_USE_INNER) return;
+  if (g_USE_CONDDB) return;
  
   //////////////////////////////
   IMessageSvc* msgSvc = 0;
@@ -87,10 +93,10 @@ TGCInnerCoincidenceMap::TGCInnerCoincidenceMap()
   // read Inner Coincidence Map 
   if (this->readMap()) {
     log << MSG::INFO 
-      << " TGC Inner CW version of " << m_verName << " is selected " << endreq;
+      << " TGC Inner CW version of " << m_verName << " is selected " << endmsg;
   } else {
     log << MSG::INFO  
-	<< " NOT use inner station " << endreq;
+	<< " NOT use inner station " << endmsg;
     g_USE_INNER = false;
     for (size_t sec=0; sec< N_EndcapSector; sec++){
       for (size_t ssc=0; ssc< N_Endcap_SSC; ssc++){
@@ -174,6 +180,11 @@ bool TGCInnerCoincidenceMap::readMap()
   }
   MsgStream log(msgSvc, "TGCInnerCoincidenceMap::TGCInnerCoincidenceMap");
 
+  if (g_USE_CONDDB)  {
+    m_fullCW = (m_condDbTool->getType(ITGCTriggerDbTool::CW_EIFI) == "full");
+    m_verName = m_condDbTool->getVersion(ITGCTriggerDbTool::CW_EIFI);  
+  }
+
   // select right database according to a set of thresholds
   std::string dbname="";
   if (!m_fullCW) {
@@ -184,12 +195,62 @@ bool TGCInnerCoincidenceMap::readMap()
   }
 
   //----- 
+  
+  if (g_USE_CONDDB) {
+  std::string data = m_condDbTool->getData(ITGCTriggerDbTool::CW_EIFI, dbname);
+  std::istringstream stream(data);
+  
+  char delimiter = '\n';
+  std::string field;
+  std::string tag;
+
+  while (std::getline(stream, field, delimiter)) {
+    int sectorId = -1;
+    int sscId    = -1;
+    int use[N_PT_THRESH] = {0, 0, 0, 0, 0, 0};
+    int roi[N_ROI_IN_SSC] = {1, 1, 1, 1, 1, 1, 1, 1};
+    std::istringstream header(field); 
+    header >> tag;
+    if(tag=="#"){ // read header part.     
+      header >> sectorId >> sscId 
+	     >> use[0] >> use[1] >> use[2] 
+	     >> use[3] >> use[4] >> use[5] 
+	     >> roi[0] >> roi[1] >> roi[2] >> roi[3]
+	     >> roi[4] >> roi[5] >> roi[6] >> roi[7];
+    }
+    // check Id
+    if( sectorId<0 || sectorId>=N_EndcapSector ||
+	sscId<0    || sscId>=N_Endcap_SSC ) {
+      log << MSG::WARNING 
+	  << " illegal parameter in database header : " << header.str()
+	  << " in file " << dbname
+	  << endmsg;
+      return false;
+    }
+    for (size_t pt=0; pt<N_PT_THRESH; pt++){
+      flagPT[pt][sscId][sectorId] = use[pt];
+    }
+    for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
+      flagROI[pos][sscId][sectorId] = roi[pos];
+    }
+
+    // get trigger word
+    std::getline(stream, field, delimiter);
+    std::istringstream cont(field);
+    unsigned int word;
+    for(size_t pos=0; pos<N_Input_InnerSector; pos++){
+      cont >> word;
+      map[pos][sscId][sectorId].setTriggerWord(word);
+    }
+  }
+  
+  } else { // will delete...
   std::string fullName;
   fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
   bool isFound =( fullName.length() > 0 );
   if( !isFound) {
     log << MSG::WARNING 
-	<< " Could not found " << dbname << endreq;
+	<< " Could not found " << dbname << endmsg;
     return false ;  
   } 
 
@@ -219,7 +280,7 @@ bool TGCInnerCoincidenceMap::readMap()
       log << MSG::WARNING 
 	  << " illegal parameter in database header : " << header.str()
 	  << " in file " << dbname
-	  << endreq;
+	  << endmsg;
       file.close();
       return false;
     }
@@ -240,6 +301,8 @@ bool TGCInnerCoincidenceMap::readMap()
     }
   }
   file.close();	  
+  }
+
   return true;
 }
 

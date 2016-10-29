@@ -21,8 +21,6 @@
 namespace LVL1TGCTrigger {
 
  extern bool        g_DEBUGLEVEL;
- extern bool        g_USE_INNER;
- extern bool        g_TILE_MU;
 
 TGCConnectionInPP* TGCDatabaseManager::getConnectionInPP(TGCPatchPanel* patchPanel) const 
 {
@@ -129,7 +127,7 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
       MsgStream log(msgSvc, "TGCDatabaseManager::TGCDatabaseManager");
       log << MSG::DEBUG 
 	  << " Fail to read data from database" 
-	  << endreq;
+	  << endmsg;
     }
   }
 
@@ -146,31 +144,19 @@ TGCDatabaseManager::TGCDatabaseManager(const std::string& ver, bool )
   }
 
   // RPhi Coincidence Map
-  if(ver_BW == "v0016" || ver_BW == "v0017") {
-    for (int side=0; side<NumberOfSide; side +=1) {
-      for (int oct=0; oct<NumberOfOctant; oct++) {
-         mapRphi[side][oct] = new TGCRPhiCoincidenceMap(ver_BW, side, oct);
-      }
-    }
-  } else {
-    TGCRPhiCoincidenceMap*  map  = new TGCRPhiCoincidenceMap(ver_BW);
-    for (int side=0; side<NumberOfSide; side +=1) {
-      for (int oct=0; oct<NumberOfOctant; oct++) {
-        mapRphi[side][oct] = map;
-      }
+  for (int side=0; side<NumberOfSide; side +=1) {
+    for (int oct=0; oct<NumberOfOctant; oct++) {
+       mapRphi[side][oct] = new TGCRPhiCoincidenceMap(ver_BW, side, oct);
     }
   }
 
   // Inner Coincidence Map
   for (int side=0; side<NumberOfSide; side +=1) {
-    if (g_USE_INNER) {
-       mapInner[side] = new TGCInnerCoincidenceMap(ver_EIFI, side);
-    }
+    mapInner[side] = new TGCInnerCoincidenceMap(ver_EIFI, side);
   }
 
-  if (g_TILE_MU)  {
-    mapTileMu = new TGCTileMuCoincidenceMap(ver_TILE);
-  }
+  // Tile-Mu coincidence Map
+  mapTileMu = new TGCTileMuCoincidenceMap(ver_TILE);
    
  
 }
@@ -198,22 +184,17 @@ TGCDatabaseManager::~TGCDatabaseManager()
     PPToSL[j]=0;
   }
 
-  if(mapRphi[0][0]->isFullCW()) {
-     for (int side=0; side<NumberOfSide; side +=1) {
-        for (int oct=0; oct<NumberOfOctant; oct++)
-           delete mapRphi[side][oct];
-     }
-  } else {
-     delete mapRphi[0][0]; // only delete the first, since all entries point to the same map
+  for (int side=0; side<NumberOfSide; side +=1) {
+    for (int oct=0; oct<NumberOfOctant; oct++)
+       delete mapRphi[side][oct];
   }
 
   for(int side=0; side<NumberOfSide; side +=1) {
-    if(g_USE_INNER) delete mapInner[side];
+    delete mapInner[side];
   }
-  if (g_TILE_MU) {
-    delete mapTileMu;
-    mapTileMu = 0;
-  }
+
+  delete mapTileMu;
+  mapTileMu = 0;
 }
 
 TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
@@ -227,13 +208,13 @@ TGCDatabaseManager::TGCDatabaseManager(const TGCDatabaseManager& right)
   }
   for( int i=0; i<NumberOfRegionType; i+=1) PPToSL[i] = 0;
   for (int side=0; side<NumberOfSide; side +=1) {
-    if (g_USE_INNER) {
-      mapInner[side] =0;
-    }
+    mapInner[side] =0;
+    
     for (int oct=0; oct<NumberOfOctant; oct++) {
       mapRphi[side][oct] = 0;
     }
   }
+  mapTileMu = 0;
 
   *this = right;
 }
@@ -257,15 +238,16 @@ TGCDatabaseManager::operator=(const TGCDatabaseManager& right)
     }
     
     for (int side=0; side<NumberOfSide; side +=1) {
-      if (g_USE_INNER) {
-	if (mapInner[side]!=0) delete mapInner[side];
-	mapInner[side] = new TGCInnerCoincidenceMap(*(right.mapInner[side]));
-      }
+      if (mapInner[side]!=0) delete mapInner[side];
+      mapInner[side] = new TGCInnerCoincidenceMap(*(right.mapInner[side]));
+      
       for (int oct=0; oct<NumberOfOctant; oct++) {
 	if(mapRphi[side][oct]!=0) delete mapRphi[side][oct];
 	mapRphi[side][oct] = new TGCRPhiCoincidenceMap(*(right.mapRphi[side][oct]));
       }
     }
+
+  mapTileMu = new TGCTileMuCoincidenceMap(*(right.mapTileMu));
 
     m_patchPanelToConnectionInPP = right.m_patchPanelToConnectionInPP;
   }
@@ -303,5 +285,27 @@ const std::vector<std::string> TGCDatabaseManager::splitCW(const std::string& in
   return result;
 }
 
+StatusCode TGCDatabaseManager::updateMap()
+{
+  // BW 
+  for (int side = 0; side < NumberOfSide; side +=1) {
+    for (int oct=0; oct<NumberOfOctant; oct++) {
+
+      if (!mapRphi[side][oct]->readMap()) {
+        return StatusCode::SUCCESS;
+      }
+    }
+  }
+
+  // EIFI
+  for (int side=0; side<NumberOfSide; side +=1) {
+    mapInner[side]->readMap();
+  }
+  
+  // TILE
+  mapTileMu->readMap(); 
+
+  return StatusCode::SUCCESS;
+}
 
 } //end of namespace bracket

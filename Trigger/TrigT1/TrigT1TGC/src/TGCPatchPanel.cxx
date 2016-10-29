@@ -32,7 +32,7 @@ void TGCPatchPanel::showResult() const
   if(hasASDOut){
     m_log << MSG::INFO
 	  <<"#PP I "<<getTypeName(type)<<" Rgn: "<<region<<" PPID: "<<id
-	  <<endreq;
+	  <<endmsg;
     for( i=0; i<MaxNumberOfConnector; i+=1){
       for( j=0; j<NChOfPPOutputConnector; j+=1){
         if(ASDOut[j][i]!=0){
@@ -45,7 +45,7 @@ void TGCPatchPanel::showResult() const
         }
       }
     }
-    m_log  << endreq;
+    m_log  << endmsg;
   }
 
   if(hasBIDOut){
@@ -55,7 +55,7 @@ void TGCPatchPanel::showResult() const
       for( j=0; j<NChOfPPOutputConnector; j+=1)
           if(BIDOut[j][i][0]!=0) m_log <<"\t con: "<<i<<" ch: "<<j;
     }
-    m_log  << endreq;
+    m_log  << endmsg;
   }
 
   if(nHit>0){ // 18-Jan-01 Added by KH
@@ -76,11 +76,11 @@ void TGCPatchPanel::showResult() const
         }
       }
     }
-    m_log << endreq;
+    m_log << endmsg;
   } else {
     m_log << MSG::INFO 
 	  <<"#PP O "<<getTypeName(type)<<" Rgn: "<<region<<" PPID: "<<id
-	  << "  NO HIT " << endreq;
+	  << "  NO HIT " << endmsg;
   }
 }
 

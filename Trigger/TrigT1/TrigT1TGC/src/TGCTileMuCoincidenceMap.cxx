@@ -12,6 +12,8 @@
 #include "TrigT1TGC/TGCDatabaseManager.hh"
 #include "PathResolver/PathResolver.h"
 
+#include "MuonCondInterface/ITGCTriggerDbTool.h"
+
 #include "GaudiKernel/ISvcLocator.h"
 #include "GaudiKernel/Bootstrap.h"
 #include "GaudiKernel/MsgStream.h"
@@ -21,9 +23,11 @@
 namespace LVL1TGCTrigger {
 
  extern bool        g_TILE_MU;
+ extern bool        g_USE_CONDDB;
 
 TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const std::string& version)
-  :m_verName(version)
+  :m_verName(version),
+   m_condDbTool("TGCTriggerDbTool")
 {
   // intialize map
   for (size_t side=0; side< N_Side; side++){
@@ -46,6 +50,7 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const std::string& version)
   }
    
   if (!g_TILE_MU) return;
+  if (g_USE_CONDDB) return;
 
   //////////////////////////////
   IMessageSvc* msgSvc = 0;
@@ -58,10 +63,10 @@ TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap(const std::string& version)
   // read Inner Coincidence Map 
   if (this->readMap()) {
     log << MSG::INFO 
-      << " TGC TileMu CW version of " << m_verName << " is selected " << endreq;
+      << " TGC TileMu CW version of " << m_verName << " is selected " << endmsg;
   } else {
     log << MSG::INFO  
-	<< " NOT use TileMu " << endreq;
+	<< " NOT use TileMu " << endmsg;
     g_TILE_MU = false;
     for (size_t side=0; side< N_Side; side++){
       for (size_t sec=0; sec< N_EndcapSector; sec++){
@@ -144,17 +149,75 @@ bool TGCTileMuCoincidenceMap::readMap()
   }
   MsgStream log(msgSvc, "TGCTileMuCoincidenceMap::TGCTileMuCoincidenceMap");
 
+  if (g_USE_CONDDB)  {
+    m_verName = m_condDbTool->getVersion(ITGCTriggerDbTool::CW_TILE);
+  }
+
   // select right database according to a set of thresholds
   std::string dbname="";
   dbname = "TileMuCoincidenceMap." + m_verName + "._12.db";
 
   //----- 
+  
+  if (g_USE_CONDDB) {
+  
+  std::string data = m_condDbTool->getData(ITGCTriggerDbTool::CW_TILE, dbname);
+  std::istringstream stream(data);
+
+  char delimiter = '\n';
+  std::string field;
+  std::string tag;
+
+  while (std::getline(stream, field, delimiter)) {
+    int sideId = -1;
+    int sectorId = -1;
+    int sscId    = -1;
+    int use[N_PT_THRESH] = {0, 0, 0, 0, 0, 0};
+    int roi[N_ROI_IN_SSC] = {1, 1, 1, 1, 1, 1, 1, 1};
+    std::istringstream header(field); 
+    header >> tag;
+    if(tag=="#"){ // read header part.     
+      header >> sideId >> sectorId >> sscId 
+	     >> use[0] >> use[1] >> use[2] 
+	     >> use[3] >> use[4] >> use[5] 
+	     >> roi[0] >> roi[1] >> roi[2] >> roi[3]
+	     >> roi[4] >> roi[5] >> roi[6] >> roi[7];
+    }
+    // check Id
+    if( sideId<0   || sideId>=N_Side ||
+        sectorId<0 || sectorId>=N_EndcapSector ||
+	sscId<0    || sscId>=N_Endcap_SSC ) {
+      log << MSG::WARNING 
+	  << " illegal parameter in database header : " << header.str()
+	  << " in file " << dbname
+	  << endmsg;
+      return false;
+    }
+    for (size_t pt=0; pt<N_PT_THRESH; pt++){
+      flagPT[pt][sscId][sectorId][sideId]   = use[pt];
+    }
+    for (size_t pos=0; pos< N_ROI_IN_SSC; pos++){
+      flagROI[pos][sscId][sectorId][sideId] = roi[pos];
+    }
+
+    // get trigger word
+    std::getline(stream, field, delimiter);
+    std::istringstream cont(field);
+    unsigned int word;
+    for(size_t pos=0; pos<N_Input_TileMuModule; pos++){
+      cont >> word;
+      map[pos][sscId][sectorId][sideId] = word;
+    }
+  }
+
+  } else { // will delete...
+  
   std::string fullName;
   fullName = PathResolver::find_file( dbname.c_str(), "DATAPATH" );
   bool isFound =( fullName.length() > 0 );
   if( !isFound) {
     log << MSG::WARNING 
-	<< " Could not found " << dbname << endreq;
+	<< " Could not found " << dbname << endmsg;
     return false ;  
   } 
 
@@ -186,7 +249,7 @@ bool TGCTileMuCoincidenceMap::readMap()
       log << MSG::WARNING 
 	  << " illegal parameter in database header : " << header.str()
 	  << " in file " << dbname
-	  << endreq;
+	  << endmsg;
       file.close();
       return false;
     }
@@ -207,6 +270,7 @@ bool TGCTileMuCoincidenceMap::readMap()
     }
   }
   file.close();	  
+  }
   return true;
 }
 

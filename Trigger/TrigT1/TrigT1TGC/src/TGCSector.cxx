@@ -16,8 +16,6 @@
 namespace LVL1TGCTrigger {
 
   extern bool g_DEBUGLEVEL;
-  extern bool g_USE_INNER;
-  extern bool g_TILE_MU;
 
 int TGCSector::distributeSignal(const TGCASDOut* ASDOut)
 {
@@ -52,7 +50,7 @@ int TGCSector::distributeSignal(const TGCASDOut* ASDOut)
 	    << "signalType= " << ((signalType==WireGroup) ? "Wire" : "Strip")
 	    <<" layer= " <<layer <<" rNumber= " <<rNumber <<" ch= "<< ch
 	    <<"id(PP)= " <<idPP <<" connector(PP)= " <<conPP <<" ch(PP)= " <<chPP
-           <<endreq;
+           <<endmsg;
     }
   } 
 
@@ -134,18 +132,13 @@ TGCSector::TGCSector(int idIn, TGCRegionType type,
 
   if (moduleId < 9) {
     const TGCRPhiCoincidenceMap* map = db->getRPhiCoincidenceMap(sideId, octantId);
-    if (g_USE_INNER) {
-      const TGCInnerCoincidenceMap* mapI = db->getInnerCoincidenceMap(sideId);
-      // set RPhi and Inner CoincidenceMap in SectorLogic.
-      setRPhiMap(map, mapI);
-    } else {
-      // set RPhiCoincidenceMap in SectorLogic.
-      setRPhiMap(map);
-    }
-    if (g_TILE_MU) {
-     const TGCTileMuCoincidenceMap* mapTM = db->getTileMuCoincidenceMap();
-     setTileMuMap(mapTM);
-    }
+
+    const TGCInnerCoincidenceMap* mapI = db->getInnerCoincidenceMap(sideId);
+    // set RPhi and Inner CoincidenceMap in SectorLogic.
+    setRPhiMap(map, mapI);
+    
+    const TGCTileMuCoincidenceMap* mapTM = db->getTileMuCoincidenceMap();
+    setTileMuMap(mapTM);
   }
 
   // set connection between boards;

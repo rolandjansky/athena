@@ -28,8 +28,8 @@ use MuonIdHelpers          MuonIdHelpers-*          MuonSpectrometer
 use TGCcablingInterface    TGCcablingInterface-*    MuonSpectrometer/MuonCablings
 use TrigConfL1Data	   TrigConfL1Data-*    	    Trigger/TrigConfiguration
 use TrigConfInterfaces     TrigConfInterfaces-*     Trigger/TrigConfiguration
-
-
+use MuonCondInterface      MuonCondInterface-*      MuonSpectrometer/MuonConditions/MuonCondGeneral
+use AthenaPoolUtilities  AthenaPoolUtilities-* Database/AthenaPOOL
 use TileEvent           TileEvent-*               TileCalorimeter
 
 public
