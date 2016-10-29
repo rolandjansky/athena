@@ -18,6 +18,7 @@
 #include "GaudiKernel/ServiceHandle.h"
 #include "StoreGate/StoreGateSvc.h"
 #include "GaudiKernel/MsgStream.h"
+#include "GaudiKernel/ToolHandle.h"
 
 // Other stuff
 #include "TrigT1Interfaces/SlinkWord.h"
@@ -31,6 +32,7 @@ class TgcRdo;
 class TgcRawData;
 class ITGCcablingSvc;
 class TgcDigitContainer; 
+class ITGCTriggerDbTool;
 
 namespace TrigConf {
   class ILVL1ConfigSvc;
@@ -112,12 +114,16 @@ class LVL1TGCTrigger : public AthAlgorithm
   // useful functions
   int getCharge(int dR, int Zdir);  
   void extractFromString(std::string, std::vector<int>&);    
-  void addRawData(TgcRawData *);
+  bool addRawData(TgcRawData *);
   int getLPTTypeInRawData(int type);
   void FillSectorLogicData(LVL1MUONIF::Lvl1MuSectorLogicData* sldata,
 			   const TGCSLSelectorOut *selectorOut, 
 			   unsigned int subsystem);
-  
+ 
+  StatusCode updateDatabase(IOVSVC_CALLBACK_ARGS_P(I, keys));
+  ToolHandle<ITGCTriggerDbTool> m_condDbTool;
+
+ 
   // Properties
  
   // Location of LVL1MUONIF::Lvl1MuSectorLogicData (output from SL)

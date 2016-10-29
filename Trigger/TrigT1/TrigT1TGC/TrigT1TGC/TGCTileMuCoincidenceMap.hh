@@ -7,6 +7,10 @@
 
 #include <string>
 
+#include "GaudiKernel/ToolHandle.h"
+
+class ITGCTriggerDbTool;
+
 namespace LVL1TGCTrigger {
  
 class TGCTileMuCoincidenceMap {
@@ -47,9 +51,9 @@ public:
 
   void                        dumpMap() const;
 
-protected:
   bool readMap();  
- 
+
+protected:
   enum {N_Side=2};
   enum {N_EndcapSector=48};
   enum {N_Endcap_SSC=19};
@@ -66,6 +70,7 @@ private:
   int map[N_Input_TileMuModule][N_Endcap_SSC][N_EndcapSector][N_Side];    
 
   std::string m_verName;
+  ToolHandle<ITGCTriggerDbTool> m_condDbTool;
 };
 
 
