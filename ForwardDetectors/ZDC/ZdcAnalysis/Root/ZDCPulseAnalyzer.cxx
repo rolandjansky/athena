@@ -380,8 +380,9 @@ bool ZDCPulseAnalyzer::AnalyzeData(const std::vector<float>& samples,        // 
   DoFit();
 
   if (!FitFailed()) {
+    _fitT0Corr = _fitT0;
+
     if (_haveTimingCorrections) {
-      _fitT0Corr = _fitT0;
 
       //
       // We correct relative to the middle of the amplitude range, divided by 100 to make corrections smaller
@@ -393,6 +394,7 @@ bool ZDCPulseAnalyzer::AnalyzeData(const std::vector<float>& samples,        // 
 
       _fitT0Corr -= correction;
     }
+
 
     // Now check for valid chisq and valid time
     //

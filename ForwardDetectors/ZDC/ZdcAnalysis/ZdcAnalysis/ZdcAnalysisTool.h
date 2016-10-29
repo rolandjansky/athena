@@ -33,7 +33,7 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   StatusCode initialize() {return initializeTool();}
   void initialize80MHz();
   void initialize40MHz();
-  void initializeTriggerEffs();
+  void initializeTriggerEffs(unsigned int runNumber);
 
   StatusCode recoZdcModule(const xAOD::ZdcModule& module);
   StatusCode recoZdcModules(const xAOD::ZdcModuleContainer& moduleContainer);
@@ -43,8 +43,8 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   bool sigprocMaxFinder(const std::vector<unsigned short>& adc, float deltaT, float& amp, float& time, float& qual);
   bool sigprocSincInterp(const std::vector<unsigned short>& adc, float deltaT, float& amp, float& time, float& qual);
 
-  void setEnergyCalibrations();
-  void setTimeCalibrations();
+  void setEnergyCalibrations(unsigned int runNumber);
+  void setTimeCalibrations(unsigned int runNumber);
 
   float getModuleSum(int side);
 
@@ -68,13 +68,24 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   const ZDCDataAnalyzer* getDataAnalyzer() {return m_zdcDataAnalyzer;}
 
  private:
+  // Private methods
+  //
+  ZDCDataAnalyzer* initializeDefault();
 
+  StatusCode configureNewRun(unsigned int runNumber);
+
+  // Data members
+  //
   std::string m_name;
   bool m_init;
+  std::string m_configuration;
   std::string m_zdcAnalysisConfigPath;
   std::string m_zdcEnergyCalibFileName;
   std::string m_zdcTimeCalibFileName;
   std::string m_zdcTriggerEffParamsFileName;
+
+  bool m_writeAux;
+  std::string m_auxSuffix;
 
   bool m_eventReady;
   unsigned int m_runNumber;
@@ -90,6 +101,21 @@ class ZdcAnalysisTool : public virtual IZdcAnalysisTool, public asg::AsgTool
   bool m_doCalib;
   int m_forceCalibRun;
   int m_forceCalibLB;
+
+  //  Parameters that control the pulse fitting analysis
+  //	
+  unsigned int m_numSample;
+  float m_deltaTSample;
+  unsigned int m_presample;
+  unsigned int m_peakSample;
+  float m_Peak2ndDerivThresh;
+  float m_t0;
+  float m_tau1;
+  float m_tau2;
+  bool m_fixTau1;
+  bool m_fixTau2;
+  float m_deltaTCut;
+  float m_ChisqRatioCut;
 
   std::array<std::array<TSpline*, 4>, 2> m_splines;
 

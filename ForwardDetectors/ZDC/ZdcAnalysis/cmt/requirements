@@ -2,7 +2,6 @@ package ZdcAnalysis
 
 author Peter Steinberg <peter.steinberg@bnl.gov>
 
-public
 use     AtlasPolicy    AtlasPolicy-*
 
 use AsgTools             AsgTools-*             Control/AthToolSupport
@@ -12,18 +11,14 @@ use xAODForward		 xAODForward-*		Event/xAOD
 use xAODTrigL1Calo       xAODTrigL1Calo-*	Event/xAOD
 
 private
-use AtlasReflex   AtlasReflex-*  External -no_auto_imports
 use xAODEventInfo	 xAODEventInfo-*	Event/xAOD
 use PathResolver	 PathResolver-*		Tools
+end_private
 
-
-public
-macro ZdcAnalysis_conditional_compile "*.cxx components/*.cxx ../Root/*.cxx" AthAnalysisBase "components/*.cxx ../Root/*.cxx"
-library ZdcAnalysis $(ZdcAnalysis_conditional_compile)
-#library ../Root/*.cxx
+library ZdcAnalysis ../Root/*.cxx
 apply_pattern component_library
+
 apply_pattern declare_python_modules files="*.py"
 apply_pattern declare_joboptions files="*.py"
-apply_pattern declare_calib files="../data/*.root ../data/*.conf"
 
-end_private
+

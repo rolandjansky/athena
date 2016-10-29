@@ -17,7 +17,10 @@
 namespace ZDC
 {
 
-  ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name), m_init(false), m_splines{0,0,0,0,0,0,0,0}, m_zdcTriggerEfficiency(0)
+  ZdcAnalysisTool::ZdcAnalysisTool(const std::string& name) : asg::AsgTool(name), m_name(name), m_init(false), 
+							      m_writeAux(false), m_eventReady(false),
+							      m_runNumber(0), m_lumiBlock(0),
+							      m_splines{0,0,0,0,0,0,0,0}, m_zdcTriggerEfficiency(0)
 {
 
 #ifndef XAOD_STANDALONE
@@ -25,20 +28,40 @@ namespace ZDC
 #endif
 
   declareProperty("ZdcModuleContainerName",m_zdcModuleContainerName="ZdcModules","Location of ZDC processed data");
-  declareProperty("ZdcAnalysisConfigPath",m_zdcAnalysisConfigPath="$ROOTCOREBIN/data/ZdcAnalysis","ZDC Analysis config file path");
+  declareProperty("Configuration", m_configuration = "PbPb2015");
   declareProperty("FlipEMDelay",m_flipEMDelay=false);
   declareProperty("LowGainOnly",m_lowGainOnly=false);
+  declareProperty("WriteAux",m_writeAux=true);
+  declareProperty("AuxSuffix",m_auxSuffix="");
+
+  // The following job properties enable/disable and affect the calibration of the ZDC energies
+  //
   declareProperty("DoCalib",m_doCalib=true);
-  declareProperty("ForceCalibRun",m_forceCalibRun=287931); // last run of Pb+Pb 2015
+  declareProperty("ZdcAnalysisConfigPath",m_zdcAnalysisConfigPath="$ROOTCOREBIN/data/ZdcAnalysis","ZDC Analysis config file path");
+  //declareProperty("ForceCalibRun",m_forceCalibRun=287931); // last run of Pb+Pb 2015
+  declareProperty("ForceCalibRun",m_forceCalibRun=-1); // last run of Pb+Pb 2015
   declareProperty("ForceCalibLB",m_forceCalibLB=814); // last LB of Pb+Pb 2015
+  
+  // The following parameters are primarily used for the "default" configuration, but also may be
+  //   use to modify/tailor other configurations
+  //
+  declareProperty("NumSampl", m_numSample = 7); 
+  declareProperty("DeltaTSample", m_deltaTSample = 25); 
+  declareProperty("Presample", m_presample = 0); 
+  declareProperty("PeakSample", m_peakSample = 2);
+  declareProperty("Peak2ndDerivThresh", m_Peak2ndDerivThresh = 10);
+
+  declareProperty("T0", m_t0 = 50);
+  declareProperty("Tau1", m_tau1 = 5);
+  declareProperty("Tau2", m_tau2 = 25);
+  declareProperty("FixTau1", m_fixTau1 = false);
+  declareProperty("FixTau2", m_fixTau2 = false);
+
+  declareProperty("DeltaTCut", m_deltaTCut = 25);
+  declareProperty("ChisqRatioCut", m_ChisqRatioCut = 10);
 
   //ATH_MSG_INFO("Creating ZdcAnalysisoTool named " << m_name);
   //ATH_MSG_INFO("ZDC config file path " << m_zdcAnalysisConfigPath);
-
-  if (m_forceCalibRun>-1)
-    {
-      ATH_MSG_INFO("CAREFUL: forcing calibration run/LB =" << m_forceCalibRun << "/" << m_forceCalibLB);
-    }
 
 }
 
@@ -48,7 +71,7 @@ ZdcAnalysisTool::~ZdcAnalysisTool()
   //SafeDelete( m_zdcDataAnalyzer );
 }
 
-void ZdcAnalysisTool::initializeTriggerEffs()
+void ZdcAnalysisTool::initializeTriggerEffs(unsigned int runNumber)
 {
   if (!m_zdcTriggerEfficiency)
     {
@@ -65,74 +88,74 @@ void ZdcAnalysisTool::initializeTriggerEffs()
       return;
     }
 
-  file->Print();
+  //file->Print();
 
   stringstream Aalpha_name;
-  Aalpha_name<<"A_alpha_"<<m_runNumber;
+  Aalpha_name<<"A_alpha_"<<runNumber;
   TSpline3* par_A_alpha = (TSpline3*)file->GetObjectChecked(Aalpha_name.str().c_str(),"TSpline3");
 
   if (!par_A_alpha)
     {
-      ATH_MSG_ERROR("No trigger efficiencies for run number " << m_runNumber);
+      ATH_MSG_ERROR("No trigger efficiencies for run number " << runNumber);
       m_doCalib = false;
     }
 
   stringstream Abeta_name;
-  Abeta_name<<"A_beta_"<<m_runNumber;
+  Abeta_name<<"A_beta_"<<runNumber;
   TSpline3* par_A_beta = (TSpline3*)file->GetObjectChecked(Abeta_name.str().c_str(),"TSpline3");
   stringstream Atheta_name;
-  Atheta_name<<"A_theta_"<<m_runNumber;
+  Atheta_name<<"A_theta_"<<runNumber;
   TSpline3* par_A_theta = (TSpline3*)file->GetObjectChecked(Atheta_name.str().c_str(),"TSpline3");
   
   stringstream Calpha_name;
-  Calpha_name<<"C_alpha_"<<m_runNumber;
+  Calpha_name<<"C_alpha_"<<runNumber;
   TSpline3* par_C_alpha = (TSpline3*)file->GetObjectChecked(Calpha_name.str().c_str(),"TSpline3");
   stringstream Cbeta_name;
-  Cbeta_name<<"C_beta_"<<m_runNumber;
+  Cbeta_name<<"C_beta_"<<runNumber;
   TSpline3* par_C_beta = (TSpline3*)file->GetObjectChecked(Cbeta_name.str().c_str(),"TSpline3");
   stringstream Ctheta_name;
-  Ctheta_name<<"C_theta_"<<m_runNumber;
+  Ctheta_name<<"C_theta_"<<runNumber;
   TSpline3* par_C_theta = (TSpline3*)file->GetObjectChecked(Ctheta_name.str().c_str(),"TSpline3");
   
   stringstream Err_Aalpha_name;
-  Err_Aalpha_name<<"A_alpha_error_"<<m_runNumber;
+  Err_Aalpha_name<<"A_alpha_error_"<<runNumber;
   TSpline3* parErr_A_alpha = (TSpline3*)file->GetObjectChecked(Err_Aalpha_name.str().c_str(),"TSpline3");
   stringstream Err_Abeta_name;
-  Err_Abeta_name<<"A_beta_error_"<<m_runNumber;
+  Err_Abeta_name<<"A_beta_error_"<<runNumber;
   TSpline3* parErr_A_beta = (TSpline3*)file->GetObjectChecked(Err_Abeta_name.str().c_str(),"TSpline3");
   stringstream Err_Atheta_name;
-  Err_Atheta_name<<"A_theta_error_"<<m_runNumber;
+  Err_Atheta_name<<"A_theta_error_"<<runNumber;
   TSpline3* parErr_A_theta = (TSpline3*)file->GetObjectChecked(Err_Atheta_name.str().c_str(),"TSpline3");
   
   stringstream Err_Calpha_name;
-  Err_Calpha_name<<"C_alpha_error_"<<m_runNumber;
+  Err_Calpha_name<<"C_alpha_error_"<<runNumber;
   TSpline3* parErr_C_alpha = (TSpline3*)file->GetObjectChecked(Err_Calpha_name.str().c_str(),"TSpline3");
   stringstream Err_Cbeta_name;
-  Err_Cbeta_name<<"C_beta_error_"<<m_runNumber;
+  Err_Cbeta_name<<"C_beta_error_"<<runNumber;
   TSpline3* parErr_C_beta = (TSpline3*)file->GetObjectChecked(Err_Cbeta_name.str().c_str(),"TSpline3");
   stringstream Err_Ctheta_name;
-  Err_Ctheta_name<<"C_theta_error_"<<m_runNumber;
+  Err_Ctheta_name<<"C_theta_error_"<<runNumber;
   TSpline3* parErr_C_theta = (TSpline3*)file->GetObjectChecked(Err_Ctheta_name.str().c_str(),"TSpline3");
   
   
   stringstream Cov_A_alpha_beta_name;
-  Cov_A_alpha_beta_name<<"cov_A_alpha_beta_"<<m_runNumber;
+  Cov_A_alpha_beta_name<<"cov_A_alpha_beta_"<<runNumber;
   TSpline3* cov_A_alpha_beta = (TSpline3*)file->GetObjectChecked(Cov_A_alpha_beta_name.str().c_str(),"TSpline3");
   stringstream Cov_A_alpha_theta_name;
-  Cov_A_alpha_theta_name<<"cov_A_alpha_theta_"<<m_runNumber;
+  Cov_A_alpha_theta_name<<"cov_A_alpha_theta_"<<runNumber;
   TSpline3* cov_A_alpha_theta = (TSpline3*)file->GetObjectChecked(Cov_A_alpha_theta_name.str().c_str(),"TSpline3");
   stringstream Cov_A_beta_theta_name;
-  Cov_A_beta_theta_name<<"cov_A_beta_theta_"<<m_runNumber;
+  Cov_A_beta_theta_name<<"cov_A_beta_theta_"<<runNumber;
   TSpline3* cov_A_beta_theta = (TSpline3*)file->GetObjectChecked(Cov_A_beta_theta_name.str().c_str(),"TSpline3");
   
   stringstream Cov_C_alpha_beta_name;
-  Cov_C_alpha_beta_name<<"cov_C_alpha_beta_"<<m_runNumber;
+  Cov_C_alpha_beta_name<<"cov_C_alpha_beta_"<<runNumber;
   TSpline3* cov_C_alpha_beta = (TSpline3*)file->GetObjectChecked(Cov_C_alpha_beta_name.str().c_str(),"TSpline3");
   stringstream Cov_C_alpha_theta_name;
-  Cov_C_alpha_theta_name<<"cov_C_alpha_theta_"<<m_runNumber;
+  Cov_C_alpha_theta_name<<"cov_C_alpha_theta_"<<runNumber;
   TSpline3* cov_C_alpha_theta = (TSpline3*)file->GetObjectChecked(Cov_C_alpha_theta_name.str().c_str(),"TSpline3");
   stringstream Cov_C_beta_theta_name;
-  Cov_C_beta_theta_name<<"cov_C_beta_theta_"<<m_runNumber;
+  Cov_C_beta_theta_name<<"cov_C_beta_theta_"<<runNumber;
   TSpline3* cov_C_beta_theta = (TSpline3*)file->GetObjectChecked(Cov_C_beta_theta_name.str().c_str(),"TSpline3");
   
   std::array<std::vector<TSpline3*>, 2> effparams;
@@ -153,8 +176,68 @@ void ZdcAnalysisTool::initializeTriggerEffs()
   
 }
 
+ZDCDataAnalyzer* ZdcAnalysisTool::initializeDefault()
+{
+  // We rely completely on the default parameters specified in the job properties to control:
+  //   # samples
+  //   frequency (more precisely, time/sample)
+  //   which sample to use as the pre-sample
+  //   where to expact the maxim of the peak (min 2nd derivative)
+  //   thresholds on the 2nd derivative for valid pulses 
+  //   whether to fix the tau values in the pulse fitting
+  //   the default tau values
+  //   the nominal T0
+  //   delta T and chisq/amp cuts
+  //
+  //   For now, we continue to use hard-coded values for the maximum and minimum ADC values
+  //   For now we also use the FermiExp pulse model.
+
+  ZDCDataAnalyzer::ZDCModuleFloatArray tau1, tau2, peak2ndDerivMinSamples, t0;
+  ZDCDataAnalyzer::ZDCModuleFloatArray peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG;
+  ZDCDataAnalyzer::ZDCModuleFloatArray deltaT0CutLow, deltaT0CutHigh, chisqDivAmpCut;
+  ZDCDataAnalyzer::ZDCModuleBoolArray fixTau1Arr, fixTau2Arr;
+    
+  for (size_t side : {0, 1}) {
+    for (size_t module : {0, 1, 2, 3}) {
+      fixTau1Arr[side][module] = m_fixTau1;
+      fixTau2Arr[side][module] = m_fixTau2;
+      tau1[side][module] = m_tau1;
+      tau2[side][module] = m_tau2;
+
+      peak2ndDerivMinSamples[side][module] = m_peakSample;
+      peak2ndDerivMinThresholdsHG[side][module] = -m_Peak2ndDerivThresh;
+      peak2ndDerivMinThresholdsLG[side][module] = -m_Peak2ndDerivThresh/2;
+
+      t0[side][module] = m_t0;
+      deltaT0CutLow[side][module] = -m_deltaTCut;
+      deltaT0CutHigh[side][module] = m_deltaTCut;
+      chisqDivAmpCut[side][module] = m_ChisqRatioCut;
+    }
+  }
+
+  ATH_MSG_INFO( "Default: delta t cut, value low = " << deltaT0CutLow[0][0] << ", high = " << deltaT0CutHigh[0][0] );
+
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGOverFlowADC = {800, 800, 800, 800, 800, 800, 800, 800};
+  ZDCDataAnalyzer::ZDCModuleFloatArray HGUnderFlowADC = {10, 10, 10, 10, 10, 10, 10, 10};
+  ZDCDataAnalyzer::ZDCModuleFloatArray LGOverFlowADC = {1020, 1020, 1020, 1020, 1020, 1020, 1020, 1020};
+
+  //  Construct the data analyzer
+  //
+  ZDCDataAnalyzer* zdcDataAnalyzer = new ZDCDataAnalyzer(m_numSample, m_deltaTSample, m_presample, "FermiExp", peak2ndDerivMinSamples,
+							 peak2ndDerivMinThresholdsHG, peak2ndDerivMinThresholdsLG, m_lowGainOnly);
+
+  zdcDataAnalyzer->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
+  zdcDataAnalyzer->SetTauT0Values(fixTau1Arr, fixTau2Arr, tau1, tau2, t0, t0);
+  zdcDataAnalyzer->SetCutValues(chisqDivAmpCut, chisqDivAmpCut, deltaT0CutLow, deltaT0CutHigh, deltaT0CutLow, deltaT0CutHigh);
+
+  return zdcDataAnalyzer;
+}
+
+
 void ZdcAnalysisTool::initialize40MHz()
 {
+  // We have a complete configuration and so we override all of the default parameters
+  //
 
   ZDCDataAnalyzer::ZDCModuleFloatArray tau1 = {4.2, 3.8, 5.2, 5.0,
                                                5.0, 3.7, 3.5, 3.5};
@@ -247,6 +330,8 @@ void ZdcAnalysisTool::initialize40MHz()
 
 void ZdcAnalysisTool::initialize80MHz()
 {
+  // We have a complete configuration and so we override all of the default parameters
+  //
 
   _peak2ndDerivMinSamples = {3, 2, 3, 2,
                              2, 2, 2, 2};
@@ -325,7 +410,7 @@ void ZdcAnalysisTool::initialize80MHz()
   moduleHGNonLinCorr[1][2] = {-7.82514e-02, -1.21218e-01};
   moduleHGNonLinCorr[1][3] = {-2.34354e-02, -2.52033e-01};
 
-  m_zdcDataAnalyzer_80MHz = new ZDCDataAnalyzer(7,12.5,0,"FermiExp",_peak2ndDerivMinSamples,
+  m_zdcDataAnalyzer_80MHz = new ZDCDataAnalyzer(7 , 12.5, 0, "FermiExp",_peak2ndDerivMinSamples,
 						_peak2ndDerivMinThresholdsHG, _peak2ndDerivMinThresholdsLG,m_lowGainOnly);
 
   m_zdcDataAnalyzer_80MHz->SetADCOverUnderflowValues(HGOverFlowADC, HGUnderFlowADC, LGOverFlowADC);
@@ -337,22 +422,12 @@ void ZdcAnalysisTool::initialize80MHz()
 
 StatusCode ZdcAnalysisTool::initializeTool()
 {
-  m_init = true;
   tf1SincInterp = new TF1("SincInterp",ZDC::SincInterp,-5.,160.,8);
   tf1SincInterp->SetNpx(300);
 
-  /*
-  char* path = gSystem->ExpandPathName(m_zdcAnalysisConfigPath.c_str());
-  ATH_MSG_INFO("Resolved file path " << path);
-
-  TString zdcConf(path);
-  zdcConf += "/ZdcAnalysisConfig.conf";
-
-  TEnv env(zdcConf);
-  */
-
+  // Set up calibrations
+  //
   std::string filename = PathResolverFindCalibFile( "ZdcAnalysis/ZdcAnalysisConfig.conf" );
-  //std::cout << "Found config file " << filename << std::endl;
   TEnv env(filename.c_str());
 
   m_zdcEnergyCalibFileName = std::string(env.GetValue("ZdcEnergyCalibFileName","ZdcCalibrations_v1.root"));
@@ -361,14 +436,81 @@ StatusCode ZdcAnalysisTool::initializeTool()
   ATH_MSG_INFO("ZDC time calibration filename " << m_zdcTimeCalibFileName);
   m_zdcTriggerEffParamsFileName = std::string(env.GetValue("ZdcTriggerEffFileName", "ZdcTriggerEffParameters_v4.root"));
   ATH_MSG_INFO("ZDC trigger efficiencies filename " << m_zdcTriggerEffParamsFileName);
-  
-  initialize80MHz();
-  initialize40MHz();
 
-  m_zdcDataAnalyzer = m_zdcDataAnalyzer_80MHz; // default
+  ATH_MSG_INFO("Configuration: "<<m_configuration);
+  ATH_MSG_INFO("FlipEMDelay: "<<m_flipEMDelay);
+  ATH_MSG_INFO("LowGainOnly: "<<m_lowGainOnly);
+  ATH_MSG_INFO("WriteAux: "<<m_writeAux);
+  ATH_MSG_INFO("AuxSuffix: "<<m_auxSuffix);
+  ATH_MSG_INFO("DoCalib: "<<m_doCalib);
+  ATH_MSG_INFO("ForceCalibRun: "<<m_forceCalibRun);
+  ATH_MSG_INFO("ForceCalibLB: "<<m_forceCalibLB);
+  ATH_MSG_INFO("NumSampl: "<<m_numSample); 
+  ATH_MSG_INFO("DeltaTSample: "<<m_deltaTSample); 
+  ATH_MSG_INFO("Presample: "<<m_presample); 
+  ATH_MSG_INFO("PeakSample: "<<m_peakSample);
+  ATH_MSG_INFO("Peak2ndDerivThresh: "<<m_Peak2ndDerivThresh);
+  ATH_MSG_INFO("T0: "<<m_t0);
+  ATH_MSG_INFO("Tau1: "<<m_tau1);
+  ATH_MSG_INFO("Tau2: "<<m_tau2);
+  ATH_MSG_INFO("FixTau1: "<<m_fixTau1);
+  ATH_MSG_INFO("FixTau2: "<<m_fixTau2);
+  ATH_MSG_INFO("DeltaTCut: "<<m_deltaTCut);
+  ATH_MSG_INFO("ChisqRatioCut: "<<m_ChisqRatioCut);
+
+  if (m_forceCalibRun>-1) {
+    ATH_MSG_INFO("CAREFUL: forcing calibration run/LB =" << m_forceCalibRun << "/" << m_forceCalibLB);
+    
+    if (m_forceCalibLB < 0) {
+      ATH_MSG_ERROR("Invalid settings: Forced run > 0 but lumi block < 0");
+      return StatusCode::FAILURE;
+    }
+  }
+
+  // Use configuration to direct initialization
+  //
+  if (m_configuration == "default") {
+    m_zdcDataAnalyzer = initializeDefault();
+  }
+  else if (m_configuration == "PbPb2015") {
+    initialize80MHz();
+    initialize40MHz();
+    
+    m_zdcDataAnalyzer = m_zdcDataAnalyzer_80MHz; // default
+  }
+  else {
+    ATH_MSG_ERROR("Unknown configuration: "  << m_configuration);
+    return StatusCode::FAILURE;
+  }
+
+  // If an aux suffix is provided, prepend it with "_" so we don't have to do so at each use
+  //
+  if (m_writeAux && m_auxSuffix != "") {
+    m_auxSuffix = "_" + m_auxSuffix;
+  }
+
+
+  m_init = true;
+  return StatusCode::SUCCESS;
+}
+
+StatusCode ZdcAnalysisTool::configureNewRun(unsigned int runNumber)
+{
+  ATH_MSG_INFO("Setting up new run " << runNumber);
+
+  // We do nothing for the default configuration
+  //
+  if (m_configuration != "default") {
+    if (m_configuration == "PbPb2015") {
+      //
+      // Two periods, 40 MHz and 80 MHz readout
+      //
+      if (runNumber < 287222) m_zdcDataAnalyzer = m_zdcDataAnalyzer_40MHz;
+      else m_zdcDataAnalyzer = m_zdcDataAnalyzer_80MHz;
+    }
+  }
 
   return StatusCode::SUCCESS;
-
 }
 
 StatusCode ZdcAnalysisTool::recoZdcModule(const xAOD::ZdcModule& module)  
@@ -398,21 +540,23 @@ StatusCode ZdcAnalysisTool::recoZdcModule(const xAOD::ZdcModule& module)
   float time;
   float qual;
 
-  float deltaT = 12.5;
+  float deltaT = m_deltaTSample;
 
   sigprocMaxFinder(*adc0,deltaT,amp,time,qual);
-  module.auxdecor<float>("amplitudeG0_mf")=amp;
-  module.auxdecor<float>("timeG0_mf")=time;
+  if (m_writeAux) {
+    module.auxdecor<float>("amplitudeG0_mf" + m_auxSuffix)=amp;
+    module.auxdecor<float>("timeG0_mf" + m_auxSuffix)=time;
+  }
 
   sigprocMaxFinder(*adc1,deltaT,amp,time,qual);
-  module.auxdecor<float>("amplitudeG1_mf")=amp;
-  module.auxdecor<float>("timeG1_mf")=time;
+  module.auxdecor<float>("amplitudeG1_mf" + m_auxSuffix)=amp;
+  module.auxdecor<float>("timeG1_mf" + m_auxSuffix)=time;
 
   if (module.type()==0)
     {
       sigprocSincInterp(*adc0,deltaT,amp,time,qual);
-      module.auxdecor<float>("amplitudeG0_si")=amp;
-      module.auxdecor<float>("timeG0_si")=time;
+      module.auxdecor<float>("amplitudeG0_si" + m_auxSuffix)=amp;
+      module.auxdecor<float>("timeG0_si" + m_auxSuffix)=time;
     }
 
   return StatusCode::SUCCESS;
@@ -426,47 +570,48 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
       return StatusCode::FAILURE;
     }
 
-  /*
-  for (const auto zdcModule : moduleContainer)
-    {
-      recoZdcModule(*zdcModule);
-    }
-  */
   const xAOD::EventInfo* eventInfo = 0;
   ATH_CHECK(evtStore()->retrieve(eventInfo,"EventInfo"));
 
-  // check for new run number, replace it by the forced value if it exists
-  int thisRunNumber = eventInfo->runNumber();
-  if (m_forceCalibRun>-1) thisRunNumber = m_forceCalibRun;
-
-  if (thisRunNumber != m_runNumber)
-    {
-
-      m_runNumber = thisRunNumber;
-
-      ATH_MSG_INFO("ZDC analysis tool will be configured for run " << m_runNumber);      
-
-      m_zdcDataAnalyzer = m_zdcDataAnalyzer_80MHz;
-      if (m_runNumber<287222) m_zdcDataAnalyzer = m_zdcDataAnalyzer_40MHz;
-
-      if (m_doCalib) setEnergyCalibrations();
-      //setTimeCalibrations();      
+  // check for new run number, if new, possibly update configuration and/or calibrations
+  //
+  unsigned int thisRunNumber = eventInfo->runNumber();
+  if (thisRunNumber != m_runNumber) {
+    ATH_MSG_DEBUG("ZDC analysis tool will be configured for run " << thisRunNumber);
       
-      if (m_doCalib) initializeTriggerEffs(); // if energy calibrations fail to load, then so will trigger efficiencies
+    ATH_CHECK(configureNewRun(thisRunNumber)); // ALWAYS check methods that return StatusCode
 
-    }
+    ATH_MSG_DEBUG("Setting up calibrations");
 
-  
-  if (m_forceCalibRun>-1 && m_forceCalibLB>-1) 
-    m_lumiBlock = m_forceCalibLB;
-  else
-    m_lumiBlock = eventInfo->lumiBlock();
+    if (m_doCalib) {
+      // 
+      // Check for calibration override
+      //
+      unsigned int calibRunNumber = thisRunNumber;
+      if (m_forceCalibRun > -1) calibRunNumber = m_forceCalibRun;
 
-  m_zdcDataAnalyzer->StartEvent(m_lumiBlock);
+      setEnergyCalibrations(calibRunNumber);
+      initializeTriggerEffs(calibRunNumber); // if energy calibrations fail to load, then so will trigger efficiencies
+      //setTimeCalibrations();      
+    }  
+
+    m_runNumber = thisRunNumber;
+  }
+
+  m_lumiBlock = eventInfo->lumiBlock();
+
+  unsigned int calibLumiBlock = m_lumiBlock;
+  if (m_doCalib) {
+    if (m_forceCalibRun > 0) calibLumiBlock = m_forceCalibLB;
+  }
+
+  ATH_MSG_DEBUG("Starting event processing");
+  m_zdcDataAnalyzer->StartEvent(calibLumiBlock);
 
   const std::vector<unsigned short>* adc0;
   const std::vector<unsigned short>* adc1;
 
+  ATH_MSG_DEBUG("Processing modules");
   for (const auto zdcModule : moduleContainer)
     {
       
@@ -483,8 +628,8 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
 	  adc1 = &(*(zdcModule->TTg1d0Link()))->adc();
 	}
       
-      static std::vector<float> HGADCSamples(7);
-      static std::vector<float> LGADCSamples(7);
+      static std::vector<float> HGADCSamples(m_numSample);
+      static std::vector<float> LGADCSamples(m_numSample);
 
       std::copy(adc0->begin(),adc0->end(),LGADCSamples.begin());
       std::copy(adc1->begin(),adc1->end(),HGADCSamples.begin());
@@ -497,8 +642,12 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
       m_zdcDataAnalyzer->LoadAndAnalyzeData(side,zdcModule->zdcModule(),HGADCSamples, LGADCSamples);
     }
 
+  ATH_MSG_DEBUG("Finishing event processing");
+  
   m_zdcDataAnalyzer->FinishEvent();
 
+  ATH_MSG_DEBUG("Adding variables");
+  
   for (const auto zdcModule : moduleContainer)
     {
 
@@ -507,20 +656,29 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
       int side = (zdcModule->side()==-1) ? 0 : 1 ;
       int mod = zdcModule->zdcModule();
 
-      float calibEnergy = m_zdcDataAnalyzer->GetModuleCalibAmplitude(side, mod);
-      zdcModule->auxdecor<float>("CalibEnergy") = calibEnergy;
-      zdcModule->auxdecor<float>("CalibTime") = m_zdcDataAnalyzer->GetModuleCalibTime(side, mod);
-      zdcModule->auxdecor<unsigned int>("Status") = m_zdcDataAnalyzer->GetModuleStatus(side, mod);
-      zdcModule->auxdecor<float>("Amplitude") = m_zdcDataAnalyzer->GetModuleAmplitude(side, mod);
-      zdcModule->auxdecor<float>("Time") = m_zdcDataAnalyzer->GetModuleTime(side, mod);
+      if (m_writeAux) {
+	if (m_doCalib) {
+	  float calibEnergy = m_zdcDataAnalyzer->GetModuleCalibAmplitude(side, mod);
+	  zdcModule->auxdecor<float>("CalibEnergy" + m_auxSuffix) = calibEnergy;
+	  zdcModule->auxdecor<float>("CalibTime" + m_auxSuffix) = m_zdcDataAnalyzer->GetModuleCalibTime(side, mod);
+	}
+	else
+	  {
+	    zdcModule->auxdecor<float>("CalibEnergy" + m_auxSuffix) = -1000;
+	    zdcModule->auxdecor<float>("CalibTime" + m_auxSuffix) = -1000;
+	  }
 
-      const ZDCPulseAnalyzer* pulseAna_p = m_zdcDataAnalyzer->GetPulseAnalyzer(side, mod);
-      zdcModule->auxdecor<float>("Chisq") = pulseAna_p->GetChisq();      
-      zdcModule->auxdecor<float>("FitAmp") = pulseAna_p->GetFitAmplitude();
-      zdcModule->auxdecor<float>("FitAmpError") = pulseAna_p->GetAmpError();
-      zdcModule->auxdecor<float>("FitT0") = pulseAna_p->GetFitT0();
-      zdcModule->auxdecor<float>("BkgdMaxFraction") = pulseAna_p->GetBkgdMaxFraction();
-      
+	zdcModule->auxdecor<unsigned int>("Status" + m_auxSuffix) = m_zdcDataAnalyzer->GetModuleStatus(side, mod);
+	zdcModule->auxdecor<float>("Amplitude" + m_auxSuffix) = m_zdcDataAnalyzer->GetModuleAmplitude(side, mod);
+	zdcModule->auxdecor<float>("Time" + m_auxSuffix) = m_zdcDataAnalyzer->GetModuleTime(side, mod);
+	
+	const ZDCPulseAnalyzer* pulseAna_p = m_zdcDataAnalyzer->GetPulseAnalyzer(side, mod);
+	zdcModule->auxdecor<float>("Chisq" + m_auxSuffix) = pulseAna_p->GetChisq();      
+	zdcModule->auxdecor<float>("FitAmp" + m_auxSuffix) = pulseAna_p->GetFitAmplitude();
+	zdcModule->auxdecor<float>("FitAmpError" + m_auxSuffix) = pulseAna_p->GetAmpError();
+	zdcModule->auxdecor<float>("FitT0" + m_auxSuffix) = pulseAna_p->GetFitT0();
+	zdcModule->auxdecor<float>("BkgdMaxFraction" + m_auxSuffix) = pulseAna_p->GetBkgdMaxFraction();
+      }
       /*      
       std::cout << "side = " << side << " module=" << zdcModule->zdcModule() << " CalibEnergy=" << zdcModule->auxdecor<float>("CalibEnergy") 
 		<< " should be " << m_zdcDataAnalyzer->GetModuleCalibAmplitude(side,mod) << std::endl;
@@ -555,13 +713,13 @@ StatusCode ZdcAnalysisTool::recoZdcModules(const xAOD::ZdcModuleContainer& modul
       zdc_sum->auxdecor<unsigned int>("ModuleMask") = (getModuleMask()>>(4*iside)) & 0xF;
     }
 
-  ATH_CHECK( evtStore()->record( newModuleContainer.release() , "ZdcSums") ) ;
-  ATH_CHECK( evtStore()->record( newModuleAuxContainer.release() , "ZdcSumsAux.") );
+  ATH_CHECK( evtStore()->record( newModuleContainer.release() , "ZdcSums" + m_auxSuffix) ) ;
+  ATH_CHECK( evtStore()->record( newModuleAuxContainer.release() , "ZdcSums"  + m_auxSuffix +"Aux.") );
 
   return StatusCode::SUCCESS;
 }
 
-void ZdcAnalysisTool::setEnergyCalibrations()
+void ZdcAnalysisTool::setEnergyCalibrations(unsigned int runNumber)
 {
 
   char name[128];
@@ -585,12 +743,12 @@ void ZdcAnalysisTool::setEnergyCalibrations()
 	  //std::cout << "m_splines[iside][imod] = " << m_splines[iside][imod] << std::endl;
 	  SafeDelete( m_splines[iside][imod] );
 
-	  sprintf(name,"ZDC_Gcalib_run%d_s%d_m%d",m_runNumber,iside,imod);
+	  sprintf(name,"ZDC_Gcalib_run%d_s%d_m%d",runNumber,iside,imod);
 	  ATH_MSG_INFO("Searching for graph " << name);
 	  TGraph* g = (TGraph*) fCalib->GetObjectChecked(name,"TGraph");
 	  if (!g && m_doCalib)
 	    {
-	      ATH_MSG_ERROR("No calibrations for run " << m_runNumber);
+	      ATH_MSG_ERROR("No calibrations for run " << runNumber);
 	      m_doCalib = false;
 	    }
 
@@ -610,7 +768,7 @@ void ZdcAnalysisTool::setEnergyCalibrations()
   return;
 }
 
-void ZdcAnalysisTool::setTimeCalibrations()
+void ZdcAnalysisTool::setTimeCalibrations(unsigned int runNumber)
 {
   char name[128];
   sprintf(name,"%s/%s",m_zdcAnalysisConfigPath.c_str(),m_zdcTimeCalibFileName.c_str());
@@ -623,10 +781,10 @@ void ZdcAnalysisTool::setTimeCalibrations()
     {
       for(int imod=0;imod<4;imod++)
 	{
-	  sprintf(name,"ZDC_T0calib_run%d_s%d_m%d_HG",m_runNumber,iside,imod);
+	  sprintf(name,"ZDC_T0calib_run%d_s%d_m%d_HG",runNumber,iside,imod);
 	  spline = (TSpline3*) fCalib->GetObjectChecked(name,"TSpline3");
 	  T0HGOffsetSplines[iside][imod] = spline;
-	  sprintf(name,"ZDC_T0calib_run%d_s%d_m%d_LG",m_runNumber,iside,imod);
+	  sprintf(name,"ZDC_T0calib_run%d_s%d_m%d_LG",runNumber,iside,imod);
 	  spline = (TSpline3*) fCalib->GetObjectChecked(name,"TSpline3");
 	  T0LGOffsetSplines[iside][imod] = spline;
 	}
@@ -777,6 +935,7 @@ StatusCode ZdcAnalysisTool::reprocessZdc()
 
   float ZdcAnalysisTool::getTriggerEfficiency(int side)
   {
+    if (!m_doCalib) return -1;
 
     m_zdcTriggerEfficiency->UpdatelumiBlock(m_lumiBlock);
     float adcSum = getModuleSum(side);
