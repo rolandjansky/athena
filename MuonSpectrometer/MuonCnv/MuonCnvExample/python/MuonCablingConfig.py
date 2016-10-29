@@ -112,6 +112,11 @@ if DetFlags.readRDOBS.TGC_on() or DetFlags.readRDOPool.TGC_on() or DetFlags.read
         from IOVDbSvc.CondDB import conddb
         conddb.addFolderSplitMC('TGC','/TGC/CABLING/MAP_SCHEMA','/TGC/CABLING/MAP_SCHEMA')
 
+    #if globalflags.DataSource() == 'geant4' and not DetFlags.digitize.TGC_on():
+        #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_EIFI")
+        #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_BW")
+        #conddb.addFolder("TGC_OFL","/TGC/TRIGGER/CW_TILE") 
+
 if DetFlags.readRDOBS.MDT_on() or DetFlags.readRDOPool.MDT_on()  or DetFlags.readRIOPool.MDT_on() or DetFlags.digitize.MDT_on():
     log.info("MDT cabling is using mode: %s" % muonCnvFlags.MdtCablingMode())
 
