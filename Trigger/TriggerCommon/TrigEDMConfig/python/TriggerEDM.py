@@ -171,6 +171,8 @@ TriggerHLTList = [
     ('xAOD::TrigRNNOutput#HLT_TrigTRTHTCounts', 		    'BS ESD AODFULL AODSLIM', 'Egamma'),
     ('xAOD::TrigRNNOutputAuxContainer#HLT_TrigTRTHTCountsAux.',     'BS ESD AODFULL AODSLIM', 'Egamma'),
 
+    ('xAOD::TrigCompositeContainer#HLT_TrigEFDielectronMassFex',                   'BS ESD AODFULL',  'Egamma'),
+    ('xAOD::TrigCompositeAuxContainer#HLT_TrigEFDielectronMassFexAux.',            'BS ESD AODFULL',  'Egamma'),
     #bphys
     ('xAOD::TrigBphysContainer#HLT_EFBMuMuFex',                               'BS ESD AODFULL AODSLIM',  'Bphys'),
     ('xAOD::TrigBphysAuxContainer#HLT_EFBMuMuFexAux.',                        'BS ESD AODFULL AODSLIM',  'Bphys'),
@@ -338,6 +340,7 @@ TriggerHLTList = [
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_TauIso_FTF',           'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTF',             'BS ESD AODFULL AODSLIM',  'Bjet'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTF',       'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTF'  ,       'BS ESD AODFULL',          'MET'),
 
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Electron_IDTrig',      'BS ESD AODFULL AODSLIM',  'Egamma'),
     ('xAOD::TrackParticleContainer#HLT_InDetTrigTrackingxAODCnv_Muon_IDTrig',          'BS ESD AODFULL AODSLIM',  'Muon'),
@@ -386,6 +389,7 @@ TriggerHLTList = [
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_TauIso_FTFAux'+RemoveIDVariables,            'BS ESD AODFULL AODSLIM',  'Tau'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Bjet_FTFAux'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Bjet'),
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_BjetPrmVtx_FTFAux'+RemoveIDVariables,        'BS ESD AODFULL AODSLIM',  'Bjet'),
+    ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_FullScan_FTFAux'+RemoveIDVariables,          'BS ESD AODFULL',          'MET'),
 
     #FTK
     ('xAOD::TrackParticleAuxContainer#HLT_InDetTrigTrackingxAODCnv_Muon_FTKAux'+RemoveIDVariables,              'BS ESD AODFULL AODSLIM',  'Muon'),
@@ -480,8 +484,8 @@ TriggerHLTList = [
     ('xAOD::JetTrigAuxContainer#HLT_a10tcemnojcalibPSAux.',              'BS ESD AODFULL', 'Jet'),
 
     # lcw clusters Full Scan
-    ('xAOD::JetContainer#HLT_a10tclcwsubFS',                             'BS ESD AODFULL', 'Jet'),
-    ('xAOD::JetTrigAuxContainer#HLT_a10tclcwsubFSAux.',                  'BS ESD AODFULL', 'Jet'),
+    ('xAOD::JetContainer#HLT_a10tclcwsubFS',                             'BS ESD AODFULL AODSLIM', 'Jet'),
+    ('xAOD::JetTrigAuxContainer#HLT_a10tclcwsubFSAux.',                  'BS ESD AODFULL AODSLIM', 'Jet'),
     ('xAOD::JetContainer#HLT_a10tclcwjesFS',                             'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a10tclcwjesFSAux.',                  'BS ESD AODFULL', 'Jet'),
     ('xAOD::JetContainer#HLT_a10tclcwsubjesFS',                          'BS ESD AODFULL', 'Jet'),
@@ -515,6 +519,21 @@ TriggerHLTList = [
     # R=0.3 jets
     ('xAOD::JetContainer#HLT_a3ionemsubjesFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
     ('xAOD::JetTrigAuxContainer#HLT_a3ionemsubjesFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    # 2016 Calibration
+    #('xAOD::JetContainer#HLT_a4tcemsubjesISFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    #('xAOD::JetContainer#HLT_a4tcemsubjesISFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    # Large R jets
+    #('xAOD::JetContainer#HLT_a10ttclcwjesFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    #('xAOD::JetContainer#HLT_a10ttclcwjesFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    # LCW 2016 Calibration
+    #('xAOD::JetContainer#HLT_a4tclcwsubjesISFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    #('xAOD::JetContainer#HLT_a4tclcwsubjesISFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    # Additional 2016 requests
+    #('xAOD::JetContainer#HLT_a10tclcwnojcalibFS', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    #('xAOD::JetContainer#HLT_a10tclcwnojcalibFSAux.', 'BS ESD AODFULL AODSLIM', 'Jet'),
+    #('xAOD::JetContainer#HLT_a10tcemnojcalibFS', 'BS ESD AODFULL', 'Jet'),
+    #('xAOD::JetContainer#HLT_a10tcemnojcalibFSAux.', 'BS ESD AODFULL', 'Jet'),
+
 
     #btagging
     ('xAOD::BTaggingContainer#HLT_HLTBjetFex',                           'BS ESD AODFULL AODSLIM', 'Bjet'),
@@ -1548,10 +1567,31 @@ def getTriggerEDMList(key, runVersion):
     run can be: '1 (Run1)', '2 (Run2)'
     """
     if runVersion == 2:
-        return getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
+        if 'NODYN' in key:
+            return getTriggerEDMSlimList(key.replace('NODYN',''))
+        else:
+            return getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
     else:
         return getTriggerObjList(key,[TriggerL2List,TriggerEFList, TriggerResultsRun1List])
-        
+
+def getTriggerEDMSlimList(key):
+    """
+    Modified EDM list to remove all dynamic variables
+    Requires changing the list to have 'Aux.-'
+    """
+    _edmList = getTriggerObjList(key,[TriggerHLTList, TriggerResultsList])
+    output = {}
+    for k,v in _edmList.items():
+        newnames = []
+        for el in v:
+            if 'Aux' in el:
+                newnames+=[el.split('.')[0]+'.-']
+            else:
+                newnames+=[el]
+            output[k] = newnames
+    return output
+
+
 ####################################################
     # These are useless, but still used in some places: they can replaced by the above:
     #see: atlas/Reconstruction/RecJobTransforms/share/skeleton.RDOtoRDOtrigger.py
