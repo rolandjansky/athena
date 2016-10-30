@@ -143,6 +143,10 @@ egammaBuilder::egammaBuilder(const std::string& name,
   declareProperty("doBremCollection",m_doBremCollection= true,
 		  "Boolean to do Brem collection building");
 
+  // Boolean to do the conversion vertex collection Building
+  declareProperty("doVertexCollection",m_doVertexCollection= true,
+		  "Boolean to do conversion vertex collection building");
+
   // Boolean to do track matching
   declareProperty("doTrackMatching",m_doTrackMatching= true,
 		  "Boolean to do track matching (and conversion building)");
@@ -264,12 +268,10 @@ StatusCode egammaBuilder::RetrieveAmbiguityTool()
 }
 
 // ====================================================================
-StatusCode egammaBuilder::RetrieveEMTrackMatchBuilder()
-{
+StatusCode egammaBuilder::RetrieveEMTrackMatchBuilder(){
   //
   // retrieve EMTrackMatchBuilder tool
   //
-
   if (!m_doTrackMatching) {
     return StatusCode::SUCCESS;
   }
@@ -290,13 +292,12 @@ StatusCode egammaBuilder::RetrieveEMTrackMatchBuilder()
 }
 
 // ====================================================================
-StatusCode egammaBuilder::RetrieveEMConversionBuilder()
-{
+StatusCode egammaBuilder::RetrieveEMConversionBuilder(){
   //
   // retrieve EMConversionBuilder tool
   //
-
-  if (!m_doTrackMatching || !m_doConversions) {
+  
+  if (!m_doConversions) {
     return StatusCode::SUCCESS;
   }
 
@@ -305,7 +306,6 @@ StatusCode egammaBuilder::RetrieveEMConversionBuilder()
     return StatusCode::FAILURE;
   } 
 
-  
   if(m_conversionBuilder.retrieve().isFailure()) {
     ATH_MSG_ERROR("Unable to retrieve "<<m_conversionBuilder);
     return StatusCode::FAILURE;
@@ -315,17 +315,15 @@ StatusCode egammaBuilder::RetrieveEMConversionBuilder()
   return StatusCode::SUCCESS;
 }
 
-//C.A New Brem based Rec
 // ====================================================================
-StatusCode egammaBuilder::RetrieveBremCollectionBuilder()
-{
+StatusCode egammaBuilder::RetrieveBremCollectionBuilder(){
   //
   // retrieve bremfitter tool
   //
   if (!m_doBremCollection ) {
     return StatusCode::SUCCESS;
   }
-
+  
   if (m_BremCollectionBuilderTool.empty()) {
     ATH_MSG_ERROR("BremCollectionBuilderTool is empty");
     return StatusCode::FAILURE;
@@ -340,12 +338,11 @@ StatusCode egammaBuilder::RetrieveBremCollectionBuilder()
   return StatusCode::SUCCESS;
 }
  // ====================================================================
-StatusCode egammaBuilder::RetrieveVertexBuilder()
-{
+StatusCode egammaBuilder::RetrieveVertexBuilder(){
   //
   // retrieve vertex builder for ID conversions
   //
-  if (!m_doConversions){
+  if (!m_doVertexCollection){ 
     return StatusCode::SUCCESS;
   }
 
@@ -362,21 +359,16 @@ StatusCode egammaBuilder::RetrieveVertexBuilder()
   
   return StatusCode::SUCCESS;
 }
-
-
 // ====================================================================
-StatusCode egammaBuilder::finalize()
-{
+StatusCode egammaBuilder::finalize(){
   //
   // finalize method
   //
-
   return StatusCode::SUCCESS;
 }
 
 // ======================================================================
-StatusCode egammaBuilder::execute()
-{
+StatusCode egammaBuilder::execute(){
   //
   // athena execute method
   //
@@ -434,8 +426,8 @@ StatusCode egammaBuilder::execute()
     egammaRecs->push_back( egRec );
   }
 
+  //////////////////////////////////////////////////////////////////////
   if (m_doBremCollection){ 
-   
     ATH_MSG_DEBUG("Running BremCollectionBuilder");  
     //
     std::string chronoName = this->name()+"_"+m_BremCollectionBuilderTool->name();         
@@ -444,13 +436,12 @@ StatusCode egammaBuilder::execute()
     if (m_BremCollectionBuilderTool->contExecute().isFailure()){
       ATH_MSG_ERROR("Problem executing " << m_BremCollectionBuilderTool);
       return StatusCode::FAILURE;  
-    }
+    }     
     //
-    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
+    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);  
   }
-  
-  if (m_doConversions){
-
+  //
+  if (m_doVertexCollection){ 
     ATH_MSG_DEBUG("Running VertexBuilder");  
     //
     std::string chronoName = this->name()+"_"+m_vertexBuilder->name();         
@@ -462,7 +453,25 @@ StatusCode egammaBuilder::execute()
     }
     //
     if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
-  
+  }
+  //
+  if (m_doTrackMatching){    
+    ATH_MSG_DEBUG("Running TrackMatchBuilder");  
+    //
+    std::string chronoName = this->name()+"_"+m_trackMatchBuilder->name();         
+    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
+    //
+    for (auto egRec : *egammaRecs){
+      if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
+	  ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
+	  return StatusCode::FAILURE;
+      }
+    }
+    //
+    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
+  }
+  //
+  if (m_doConversions){
     ATH_MSG_DEBUG("Running ConversionBuilder");  
     //
     chronoName = this->name()+"_"+m_conversionBuilder->name();         
@@ -475,23 +484,7 @@ StatusCode egammaBuilder::execute()
     //
     if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
   }
-  
-  if (m_doTrackMatching){
-   
-    ATH_MSG_DEBUG("Running TrackMatchBuilder");  
-    //
-    std::string chronoName = this->name()+"_"+m_trackMatchBuilder->name();         
-    if(m_timingProfile) m_timingProfile->chronoStart(chronoName);
-    //
-    for (auto egRec : *egammaRecs){
-      if (m_trackMatchBuilder->executeRec(egRec).isFailure()){
-        ATH_MSG_ERROR("Problem executing TrackMatchBuilder");
-        return StatusCode::FAILURE;
-      }
-    }
-    //
-    if(m_timingProfile) m_timingProfile->chronoStop(chronoName);
-  }
+  ////////////////////////////
   
   // Run the ambiguity resolving to decide if we should create electron and/or photon
   static const  SG::AuxElement::Accessor<uint8_t> acc("ambiguityType");

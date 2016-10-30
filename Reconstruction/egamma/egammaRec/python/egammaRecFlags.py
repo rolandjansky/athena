@@ -3,10 +3,9 @@
 #=======================================================================
 # File:   egammaRec/python/egammaRecFlags.py
 #=======================================================================
-__author__  = 'D. Rousseau'
-__version__="$Revision: 1.3 $"
+__author__  = 'C. Anastopoulos'
+__version__="$Revision: 2.0 $"
 __doc__="egamma flags . "
-
 
 #=======================================================================
 # imports
@@ -28,7 +27,8 @@ class egammaRecFlagsJobProperty(JobProperty):
     """
     def get_Value(self):
         return self.statusOn and self.StoredValue and jobproperties.egammaRecFlags.Enabled()
-    
+
+#Different egamma seeding styles    
 class doEgammaCaloSeeded (egammaRecFlagsJobProperty):
     """ switch for standard cluster-based egamma algorithm
     """
@@ -43,13 +43,6 @@ class doEgammaForwardSeeded (egammaRecFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-class doEgammaTruthAssociation (egammaRecFlagsJobProperty):
-    """ switch for truth association alg
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=True
-
 class doTopoCaloSeeded (egammaRecFlagsJobProperty):
     """ switch for SW TopoCalo algorithm
     """
@@ -57,15 +50,16 @@ class doTopoCaloSeeded (egammaRecFlagsJobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
-class doConversions (JobProperty):
-    """ switch for Conversions
+#Other options
+class doEgammaTruthAssociation (egammaRecFlagsJobProperty):
+    """ switch for truth association alg
     """
     statusOn=True
     allowedTypes=['bool']
     StoredValue=True
 
-class useBremTracks (JobProperty):
-    """ switch using brem tracks
+class doConversions (JobProperty):
+    """ switch for Conversions
     """
     statusOn=True
     allowedTypes=['bool']
@@ -85,6 +79,7 @@ class doSwitchTRTGas (JobProperty):
     allowedTypes=['bool']
     StoredValue=True
 
+# Super cluster options
 class doSuperclusters (egammaRecFlagsJobProperty):
     """ switch to enable/disable the supercluster based algorithm
     """
@@ -108,13 +103,7 @@ class egammaTopoClusterCollection (JobProperty):
     allowedTypes=['str']
     StoredValue='egammaTopoCluster'
 
-class doBremFinding (egammaRecFlagsJobProperty):
-    """ switch to use GSF-based brem finder during the search of satellites for superclustering
-    """
-    statusOn=True
-    allowedTypes=['bool']
-    StoredValue=False
-
+#Calibration Options
 class clusterCorrectionVersion (JobProperty):
     """Version of calo cluster corrections used for calibration.
     """
@@ -122,6 +111,12 @@ class clusterCorrectionVersion (JobProperty):
     allowedTypes=['str', 'None']
     StoredValue='v12phiflip_noecorrnogap'
 
+class calibMVAVersion (JobProperty):
+    """Version of calo cluster corrections used for calibration.
+    """
+    statusOn=True
+    allowedTypes=['str', 'None']
+    StoredValue="egammaMVACalib/offline/v3_E4crack_bis"
 
 # Defines a sub-container holding the jobProperties for egamma
 class egammaRecFlags(JobPropertyContainer):
@@ -131,7 +126,7 @@ class egammaRecFlags(JobPropertyContainer):
 jobproperties.add_Container(egammaRecFlags)
 
 # I want always the following flags in the container  
-_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doConversions,doTopoCaloSeeded,useBremTracks,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation, clusterCorrectionVersion, doSuperclusters, inputTopoClusterCollection, egammaTopoClusterCollection, doBremFinding]
+_list_Egamma=[Enabled,doEgammaCaloSeeded,doEgammaForwardSeeded,doConversions,doTopoCaloSeeded,cellContainerName,doSwitchTRTGas,doEgammaTruthAssociation,clusterCorrectionVersion,calibMVAVersion, doSuperclusters, inputTopoClusterCollection, egammaTopoClusterCollection]
 
 for j in _list_Egamma: 
     jobproperties.egammaRecFlags.add_JobProperty(j)
