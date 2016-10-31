@@ -72,7 +72,7 @@ namespace InDet
 
     const TrackCollection*       m_tracks;
 
-    bool m_doSharedHits;
+    bool                         m_doIBLresidual;
 
     //Monitoring
     std::string                  m_slice_name;
@@ -124,6 +124,7 @@ namespace InDet
     std::vector<float>          m_dqm_ibl_z;         //IBL coordinate along z 
     std::vector<float>          m_dqm_ibl_res_x;
     std::vector<float>          m_dqm_ibl_res_y;
+    std::vector<float>          m_dqm_ibl_hit_expected_found;
 
   };
 

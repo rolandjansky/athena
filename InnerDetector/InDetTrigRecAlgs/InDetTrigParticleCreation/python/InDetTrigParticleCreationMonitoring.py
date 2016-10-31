@@ -47,15 +47,15 @@ class InDetTrigParticleCreationMonitorBase(TrigGenericMonitoringToolConfig):
     self.Histograms += [ defineHistogram('trk_nPIXHits',
                                          type='TH1F',
                                          title="npix_hits",
-                                         xbins = 50, xmin=0., xmax=10.)]
+                                         xbins = 10, xmin=0., xmax=10.)]
     self.Histograms += [ defineHistogram('trk_nSCTHits',
                                          type='TH1F',
                                          title="nsct_hits",
-                                         xbins = 50, xmin=0., xmax=35.)]
+                                         xbins = 20, xmin=0., xmax=20.)]
     self.Histograms += [ defineHistogram('trk_nTRTHits',
                                          type='TH1F',
                                          title="ntrt_hits",
-                                         xbins = 50, xmin=0., xmax=75.)]
+                                         xbins = 76, xmin=-1., xmax=75.)]
     self.Histograms += [ defineHistogram('trk_chi2dof',
                                          type='TH1F',
                                          title="chi2dof",

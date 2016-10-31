@@ -105,7 +105,7 @@ namespace InDet
   //          beginRun method:
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigParticleCreator::hltBeginRun() {
-    msg() << MSG::INFO << "TrigParticleCreator::beginRun()" << endreq;
+    msg() << MSG::INFO << "TrigParticleCreator::beginRun()" << endmsg;
     m_mon_counter = 1; 
 
     return HLT::OK;
@@ -117,22 +117,22 @@ namespace InDet
   ///////////////////////////////////////////////////////////////////
   HLT::ErrorCode TrigParticleCreator::hltInitialize() {
 
-    msg() << MSG::DEBUG << "initialize() success" << endreq;
+    msg() << MSG::DEBUG << "initialize() success" << endmsg;
 
     if ( m_particleCreatorTool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_particleCreatorTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_particleCreatorTool << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " << m_particleCreatorTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_particleCreatorTool << endmsg;
     }
 
     if (m_doSharedHits) {
       if ( m_assoTool.retrieve().isFailure() ) {
-	msg() << MSG::FATAL << "Failed to retrieve tool " << m_assoTool << endreq;
+	msg() << MSG::FATAL << "Failed to retrieve tool " << m_assoTool << endmsg;
 	return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
       } else {
-	msg() << MSG::INFO << "Retrieved tool " << m_assoTool << endreq;
+	msg() << MSG::INFO << "Retrieved tool " << m_assoTool << endmsg;
       }
     }
   
@@ -167,7 +167,7 @@ namespace InDet
     int outputLevel = msgLvl();
 
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << "execHLTAlgorithm()" << endreq;
+      msg() << MSG::DEBUG << "execHLTAlgorithm()" << endmsg;
 
 
     //----------------------------------------------------------------------
@@ -184,7 +184,7 @@ namespace InDet
     HLT::ErrorCode statCode(HLT::OK);
 
     if (statCode!=HLT::OK){
-      msg() << MSG::ERROR << "ErrorCode check to avoid unchecked SC" << endreq;
+      msg() << MSG::ERROR << "ErrorCode check to avoid unchecked SC" << endmsg;
     }
 
     //+++ DQM (SA): monitoring
@@ -201,22 +201,22 @@ namespace InDet
 
     m_allTracksFromStoreGate = 0;
     if ( HLT::OK != getFeature(outputTE, m_allTracksFromStoreGate) ) {
-      msg() << MSG::ERROR << " Input track collection could not be found " << endreq;
+      msg() << MSG::ERROR << " Input track collection could not be found " << endmsg;
       runAlg = false;
       statCode = HLT::NAV_ERROR;
     }
 
     if(!m_allTracksFromStoreGate){
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endreq;
+	msg() << MSG::DEBUG << " Input track collection was not attached. Algorithm not executed!" << endmsg;
       runAlg = false;
       statCode = HLT::OK; 
     } else {
       if(outputLevel <= MSG::VERBOSE)
-	msg() << MSG::VERBOSE << " Input track collection has size " << m_allTracksFromStoreGate->size() << endreq;
+	msg() << MSG::VERBOSE << " Input track collection has size " << m_allTracksFromStoreGate->size() << endmsg;
       if ( m_allTracksFromStoreGate->size() == 0 ) {
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endreq;
+	  msg() << MSG::DEBUG << " Input track collection has 0 size. Algorithm not executed!" << endmsg;
 	runAlg = false;
 	statCode=HLT::OK; 
       }
@@ -239,7 +239,7 @@ namespace InDet
 	TrackCollection::const_iterator trackItEnd = m_allTracksFromStoreGate->end();
 	for ( ; trackIt != trackItEnd ; ++trackIt) {
 	  if ( (m_assoTool->addPRDs(**trackIt)).isFailure() ) {
-	    msg() << MSG::ERROR << "could not add PRDs to association tool" << endreq;
+	    msg() << MSG::ERROR << "could not add PRDs to association tool" << endmsg;
 	  }
 	}
       }
@@ -255,31 +255,31 @@ namespace InDet
       bool primVtxExists = true;
    
       if ( (HLT::OK != getFeature(outputTE, m_primcontainer )) || m_primcontainer == 0 ) {
-	msg() << MSG::DEBUG << " Input vertex collection could not be found " << endreq;
+	msg() << MSG::DEBUG << " Input vertex collection could not be found " << endmsg;
 	primVtxExists = false;
       } else {
 	if (outputLevel <= MSG::DEBUG)
 	  msg() << MSG::DEBUG << "REGTEST: Retrieved input primary vertex container with "
-		<< m_primcontainer->size() << " vertices " << endreq;
+		<< m_primcontainer->size() << " vertices " << endmsg;
      
      
 	VxContainer::const_iterator vtxItr=m_primcontainer->begin();
 	if (m_primcontainer->size()==0){
 	  msg() << MSG::DEBUG
-		<< "REGTEST: VxPrimary container empty - it should have at least a dummy vertex " << endreq; 
+		<< "REGTEST: VxPrimary container empty - it should have at least a dummy vertex " << endmsg; 
 	  primVtxExists = false;
 	}
 	else if ((*vtxItr)->recVertex().position()[0] == 0.) {
 	  primVtxExists = false;
 	  if(outputLevel <= MSG::DEBUG){
 	    msg() << MSG::DEBUG << "REGTEST: There is a VxPrimary container " 
-		  << " in StoreGate, but the fitted vertex is exactly " << endreq;
+		  << " in StoreGate, but the fitted vertex is exactly " << endmsg;
 	    msg() << MSG::DEBUG << "(0,0,0) which means no primary vertex was found."
-		  << endreq;
+		  << endmsg;
 	  }
 	}
 	if(outputLevel <= MSG::DEBUG)
-	  msg() << MSG::DEBUG << "REGTEST: Found primary vertex!!! " << endreq;
+	  msg() << MSG::DEBUG << "REGTEST: Found primary vertex!!! " << endmsg;
       }
    
       std::map<const Trk::Track*, bool> trackWasUsed;
@@ -295,7 +295,7 @@ namespace InDet
 
 	  } else {
 	    delete aParticle;
-	    msg() << MSG::DEBUG << "An attempt to add a duplicate TP in !primVtxExists" << endreq;
+	    msg() << MSG::DEBUG << "An attempt to add a duplicate TP in !primVtxExists" << endmsg;
 	  }
 	}
       }
@@ -316,7 +316,7 @@ namespace InDet
 	    ttrack = l2track->cachedElement();
 	  } else {
 	    ttrack = 0;
-	    msg() << MSG::WARNING << "Navigation from vertex to track failed " << endreq;
+	    msg() << MSG::WARNING << "Navigation from vertex to track failed " << endmsg;
 	  }
 
 	  aParticle = 0;
@@ -328,7 +328,7 @@ namespace InDet
 
 	  } else {
 	    delete aParticle;
-	    msg() << MSG::DEBUG << "An attempt to add a duplicate TP in primVtxExists" << endreq;
+	    msg() << MSG::DEBUG << "An attempt to add a duplicate TP in primVtxExists" << endmsg;
 	  }
 
 	}
@@ -347,7 +347,7 @@ namespace InDet
 		ttrack = l2track->cachedElement();
 	      else {
 		ttrack = 0;
-		msg() << MSG::WARNING << "Navigation from vertex to track failed " << endreq;
+		msg() << MSG::WARNING << "Navigation from vertex to track failed " << endmsg;
 	      }
 
 	      aParticle = 0;
@@ -359,7 +359,7 @@ namespace InDet
 		trackWasUsed[ttrack] = true;
 	      } else {
 		delete aParticle;
-		msg() << MSG::DEBUG << "An attempt to add a duplicate TP in primVtxExists" << endreq;
+		msg() << MSG::DEBUG << "An attempt to add a duplicate TP in primVtxExists" << endmsg;
 	      }
 
 	    }
@@ -443,15 +443,15 @@ namespace InDet
     //  std::string sgkey;
     //if ( HLT::OK !=  recordAndAttachFeature(outputTE, m_trackPC, sgkey, "TrackPart") ) {
     if ( HLT::OK !=  attachFeature(outputTE, m_trackPC, name()) ) {
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+      msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
     
       return HLT::NAV_ERROR;
     }
     else {
       if(outputLevel <= MSG::DEBUG){
-	msg() << MSG::DEBUG << "Stored TrackParticle container " << endreq;
+	msg() << MSG::DEBUG << "Stored TrackParticle container " << endmsg;
 	msg() << MSG::DEBUG << "REGTEST: TrackParticle container contains "
-	      << m_trackPC->size() << " particles." << endreq;
+	      << m_trackPC->size() << " particles." << endmsg;
 
 	//do detailed output of TrackParticles for REGTEST comparison
 	Rec::TrackParticleContainer::const_iterator itrp = m_trackPC->begin();
@@ -480,7 +480,7 @@ namespace InDet
 		  << "  eta: " << mp->eta()
 		  << "  phi: " << mp->parameters()[Trk::phi]
 		  << "\t" << npix << "/" << nsct << "/" << ntrt << "//" << npixh << "/" << nscth 
-		  << endreq;
+		  << endmsg;
 	  }
 	}
       }
@@ -505,7 +505,7 @@ namespace InDet
     StatusCode sc = store()->symLink(m_trackPC,theNav4s);
     if (sc.isFailure()){
     msg() << MSG::WARNING << "Could not symLink TrigTrackParticleContainer to INavigable4MomentumCollection" 
-    << endreq;
+    << endmsg;
     }
     */
 
@@ -519,7 +519,7 @@ namespace InDet
   
   HLT::ErrorCode TrigParticleCreator::hltFinalize() {
 
-    msg() << MSG::DEBUG << "finalize() success" << endreq;
+    msg() << MSG::DEBUG << "finalize() success" << endmsg;
     return HLT::OK;
   }
 
@@ -528,7 +528,7 @@ namespace InDet
   //----------------------------------------------------------------------------
   HLT::ErrorCode TrigParticleCreator::hltEndRun() {
    
-    msg() << MSG::INFO << "TrigParticleCreator::endRun()" << endreq;
+    msg() << MSG::INFO << "TrigParticleCreator::endRun()" << endmsg;
    
     return HLT::OK;
   }
