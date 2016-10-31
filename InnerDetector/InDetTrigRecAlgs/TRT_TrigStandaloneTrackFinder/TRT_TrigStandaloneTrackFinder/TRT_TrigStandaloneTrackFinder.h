@@ -78,7 +78,7 @@ namespace InDet {
      
       int                                m_outputlevel        ;  //!< Print level for debugging
       int                                m_nprint             ;
-      int                                m_ntracks            ;  //!< Number of tracks found
+      //int                                m_ntracks            ;  //!< Number of tracks found
 
       int                                m_minNumDriftCircles ;  //!< Minimum number of drift circles for TRT segment tracks
 

@@ -62,22 +62,22 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltInitialize()
 {
   StatusCode  sc;
 
-  msg() << MSG::INFO << "Initializing TRT_TrigStandaloneTrackFinder" << endreq;
+  msg() << MSG::INFO << "Initializing TRT_TrigStandaloneTrackFinder" << endmsg;
 
   // Get tTools servise
   //
   IToolSvc* toolSvc;
   if ((sc=service("ToolSvc", toolSvc)).isFailure())  {
-    msg() << MSG::FATAL << "Toll service not found !" << endreq;
+    msg() << MSG::FATAL << "Toll service not found !" << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }
 
   sc = m_segToTrackTool.retrieve();
   if (sc.isFailure()) {
-    msg() << MSG::FATAL << "Failed to retrieve tool " << m_segToTrackTool << endreq;
+    msg() << MSG::FATAL << "Failed to retrieve tool " << m_segToTrackTool << endmsg;
     return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
   }else{
-    msg() << MSG::INFO << "Retrieved tool " << m_segToTrackTool << endreq;
+    msg() << MSG::INFO << "Retrieved tool " << m_segToTrackTool << endmsg;
   }
 
 
@@ -85,7 +85,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltInitialize()
   //
   m_outputlevel = msg().level()-MSG::DEBUG;
   if(m_outputlevel<=0) {
-    m_nprint=0; msg() << MSG::DEBUG << (*this) << endreq;
+    m_nprint=0; msg() << MSG::DEBUG << (*this) << endmsg;
   }
 
   //Global counters. See the include file for definitions
@@ -116,7 +116,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
 
   ///Retrieve segments from HLT navigation
   if ( ( HLT::OK != getFeature(outputTE, m_Segments) ) || !m_Segments ) {
-    msg() << MSG::ERROR << " Input TRT segments col<lection could not be found " << endreq;
+    msg() << MSG::ERROR << " Input TRT segments col<lection could not be found " << endmsg;
 
     return HLT::NAV_ERROR;
   }
@@ -125,8 +125,8 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
 
   m_nTrtSeg = int(m_Segments->size());
   if(outputLevel <= MSG::DEBUG) {
-    msg() << MSG::DEBUG << "TRT track container size " << m_nTrtSeg << endreq;
-    msg() << MSG::DEBUG << "Begin looping over all TRT segments in the event" << endreq;
+    msg() << MSG::DEBUG << "TRT track container size " << m_nTrtSeg << endmsg;
+    msg() << MSG::DEBUG << "Begin looping over all TRT segments in the event" << endmsg;
   }
 
   Trk::SegmentCollection::const_iterator iseg    = m_Segments->begin();
@@ -139,7 +139,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
     const Trk::TrackSegment *trackTRT = dynamic_cast<const Trk::TrackSegment*>(*iseg);
 
     if(!trackTRT){
-      msg() << MSG::ERROR << "No pointer to segment !" << endreq;
+      msg() << MSG::ERROR << "No pointer to segment !" << endmsg;
       continue;
 
     } else {
@@ -154,7 +154,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
       
       ///Get the number of the TRT track segment ROTs
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << "Number Of ROTs " << (trackTRT->numberOfMeasurementBases()) << endreq;
+	msg() << MSG::DEBUG << "Number Of ROTs " << (trackTRT->numberOfMeasurementBases()) << endmsg;
       
       //Ask for a minimum number of TRT hits in order to process
       if((int(trackTRT->numberOfMeasurementBases())>m_minNumDriftCircles) || toLower){
@@ -164,7 +164,9 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
 	Trk::Track* trtSeg = 0;trtSeg = m_segToTrackTool->segToTrack(*trackTRT);
 	if(!trtSeg){
 	  if(outputLevel <= MSG::DEBUG)
-	    msg() << MSG::DEBUG << "Failed to make a track out of the TRT segment!" << endreq;continue;}
+	    msg() << MSG::DEBUG << "Failed to make a track out of the TRT segment!" << endmsg;
+          continue;
+        }
 
 	// get all TSOS 
 	const DataVector<const Trk::MeasurementBase>* ttsos = trtSeg->measurementsOnTrack(); 
@@ -176,7 +178,7 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
         m_segToTrackTool->addNewTrack(trtSeg);
 
       }else{
-        if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Found segment with few TRT ROTs " << (*trackTRT) << endreq;
+        if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Found segment with few TRT ROTs " << (*trackTRT) << endmsg;
       }
     }
   }
@@ -191,11 +193,11 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
 
   m_segToTrackTool->resetAssoTool();
 
-  if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Saving tracks in container " << endreq;
+  if(outputLevel <= MSG::DEBUG)  msg() << MSG::DEBUG << "Saving tracks in container " << endmsg;
   
   //  Attach resolved tracks to the trigger element.
   if ( HLT::OK !=  attachFeature(outputTE, m_finalTracks, "TRTStandaloneTracks") ) {
-    msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+    msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
     
     delete m_finalTracks;
     return HLT::NAV_ERROR;
@@ -203,20 +205,20 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
 
   m_nTRTTracks = m_finalTracks->size();
   if(outputLevel <= MSG::DEBUG){
-    msg() << MSG::DEBUG << "Container recorded in StoreGate." << endreq;
-    msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nTRTTracks << endreq;
+    msg() << MSG::DEBUG << "Container recorded in StoreGate." << endmsg;
+    msg() << MSG::DEBUG << "REGTEST: Container size :" << m_nTRTTracks << endmsg;
   }    
 
   if (outputLevel <= MSG::VERBOSE){
     for (int it=0; it<m_nTRTTracks; it++){
-      msg() << MSG::VERBOSE << *(m_finalTracks->at(it)) << endreq;
+      msg() << MSG::VERBOSE << *(m_finalTracks->at(it)) << endmsg;
     }
   }
 
   //Print common event information
   //
   if(m_outputlevel<=0){
-    m_nprint=1; msg() << MSG::DEBUG << (*this) << endreq;
+    m_nprint=1; msg() << MSG::DEBUG << (*this) << endmsg;
   }
 
   return HLT::OK;
@@ -228,11 +230,11 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltExecute(const HLT::Trigg
 
 HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltFinalize()
 {
-  m_nprint=2; msg()<<MSG::INFO<<(*this)<<endreq;
+  m_nprint=2; msg()<<MSG::INFO<<(*this)<<endmsg;
 
   msg() << MSG::INFO << "REGTEST Finalizing with " << m_nTrtSegTotal << " segments and "
 	<< m_nBckTrkTotal << " tracks. Invoked " <<  m_ntimesInvoked << " times."
-	<< endreq;
+	<< endmsg;
   return HLT::OK;
 }
 
@@ -243,7 +245,8 @@ HLT::ErrorCode InDet::TRT_TrigStandaloneTrackFinder::hltFinalize()
 MsgStream&  InDet::TRT_TrigStandaloneTrackFinder::dump( MsgStream& out ) const
 {
   out<<std::endl;
-  if(m_nprint)  return dumpevent(out); return dumptools(out);
+  if(m_nprint)  return dumpevent(out);
+  return dumptools(out);
 }
 
 ///////////////////////////////////////////////////////////////////
