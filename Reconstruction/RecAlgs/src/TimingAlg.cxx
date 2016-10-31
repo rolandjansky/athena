@@ -43,11 +43,14 @@ StatusCode TimingAlg::initialize()
       std::string cpuFamily("none");
       std::string model("none");
       
-      FILE* file;
       unsigned int numProcessors(0);
       char line[1024];
       
-      file = fopen("/proc/cpuinfo", "r");
+      FILE* file = fopen("/proc/cpuinfo", "r");
+      if (!file) {
+        ATH_MSG_ERROR("Could not open /proc/cpuinfo!");
+        return StatusCode::FAILURE;
+      }
       numProcessors = 0;
       while(fgets(line, 1024, file) != NULL){
 	if (strncmp(line, "processor",   9) == 0) numProcessors++;
