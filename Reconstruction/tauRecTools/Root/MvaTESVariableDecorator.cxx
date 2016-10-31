@@ -46,9 +46,12 @@ StatusCode MvaTESVariableDecorator::execute(xAOD::TauJet& xTau) {
   
   // Decorate event info
   
-  xTau.auxdata<double>("mu") = m_mu;
-  xTau.auxdata<int>("nVtx") = m_nVtx;
- 
+  static SG::AuxElement::Accessor<double> acc_mu("mu");
+  static SG::AuxElement::Accessor<int> acc_nVtx("nVtx");
+    
+  acc_mu(xTau) = m_mu;
+  acc_nVtx(xTau) = m_nVtx;
+
   // Decorate jet seed variables
   const xAOD::Jet* jet_seed = xTau.jet();
   

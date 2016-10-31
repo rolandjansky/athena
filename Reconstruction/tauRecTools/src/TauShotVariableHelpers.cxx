@@ -303,7 +303,7 @@ namespace TauShotVariableHelpers {
         float pt_largerWindow  = 0.;
         float pt_smallerWindow = 0.;
         for(int iCell = 0; iCell != nCells_eta; ++iCell ){
-            if(fabs(iCell-seedIndex)>largerWindow/2) continue;
+	    if(std::abs(iCell-seedIndex)>largerWindow/2) continue;
             if(shotCells.at(0).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(0).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(0).at(iCell));
             if(shotCells.at(1).at(iCell)!=NULL) pt_largerWindow+=shotCells.at(1).at(iCell)->pt()*m_caloWeightTool->wtCell(shotCells.at(1).at(iCell));
             if(std::abs(iCell-seedIndex)>smallerWindow/2) continue;

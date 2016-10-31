@@ -6,11 +6,11 @@
 #define CALOCLUSTERVARIABLES_H
 
 #include <vector>
+#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 #ifndef XAOD_ANALYSIS
 #include "CaloUtils/CaloVertexedCluster.h"
 typedef xAOD::CaloVertexedCluster CaloVertexedClusterType;
 #else
-#include "xAODCaloEvent/CaloVertexedTopoCluster.h"
 typedef xAOD::CaloVertexedTopoCluster CaloVertexedClusterType;
 #endif
 //#include "CaloEvent/CaloVertexedCluster.h"

@@ -65,7 +65,7 @@ StatusCode TauProcessorTool::initialize(){
 
   //ATH_MSG_INFO("FF::TauProcessor :: initialize()");
 
-#ifdef XAOD_ANALYSIS
+#ifdef ROOTCORE
 
   if (!m_configured) {
     if (!readConfig()) {
@@ -89,7 +89,7 @@ StatusCode TauProcessorTool::initialize(){
     }
   }
 
-#endif //XAOD_ANALYSIS
+#endif //ROOTCORE
 
   //-------------------------------------------------------------------------
   // No tools allocated!
@@ -213,7 +213,7 @@ StatusCode TauProcessorTool::execute(){
     ATH_CHECK(deepCopy(pContainer, pAuxContainer, tau, m_tauContainerName, m_tauAuxContainerName));
   }
 
-#ifdef XAOD_ANALYSIS 
+#ifdef XAOD_ANALYSIS //perhaps this should be ROOTCORE
 
   typedef std::vector< ElementLink< xAOD::PFOContainer > >  PFOLinks_t;
   const xAOD::PFOContainer* hadronicPFOs(0);
@@ -575,7 +575,7 @@ StatusCode TauProcessorTool::readConfig() {
       ATH_MSG_FATAL("Couldn't allocate " << toolType << " Is there a default constructor?");
       return StatusCode::FAILURE;      
     }
-#ifdef XAOD_ANALYSIS
+#ifdef ROOTCORE
     asg::ToolStore::remove(toolType);// name of tool is name of class, in case we want multiple instances in store, 
     //remove instance, rename tool, and put tool back in store
     tool->setName(toolName);

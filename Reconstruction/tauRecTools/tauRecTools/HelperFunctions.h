@@ -16,6 +16,14 @@
 // EDM include(s):
 #include "xAODTau/TauJet.h"
 
+#define TRT_CHECK_BOOL( dec, action )		\
+  do {						\
+    if (!dec) {					\
+      ATH_MSG_ERROR("TauRecTools failed");	\
+      return action;				\
+    }						\
+  } while(0)
+
 namespace tauRecTools
 {
 

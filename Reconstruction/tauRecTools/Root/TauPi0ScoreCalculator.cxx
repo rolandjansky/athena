@@ -2,7 +2,6 @@
   Copyright (C) 2002-2017 CERN for the benefit of the ATLAS collaboration
 */
 
-#ifndef XAOD_ANALYSIS
 //-----------------------------------------------------------------------------
 // file:        TauPi0ScoreCalculator.cxx
 // package:     Reconstruction/tauRec
@@ -13,7 +12,7 @@
 
 #include <vector>
 
-#include "TauPi0ScoreCalculator.h"
+#include "tauRecTools/TauPi0ScoreCalculator.h"
 #include "tauRecTools/HelperFunctions.h"
 #include "xAODPFlow/PFO.h"
 
@@ -99,9 +98,8 @@ StatusCode TauPi0ScoreCalculator::initialize()
 
 StatusCode TauPi0ScoreCalculator::finalize()
 {
-  StatusCode sc = AlgTool::finalize();
   delete m_mvaBDT;
-  return sc;
+  return StatusCode::SUCCESS;
 }
 
 
@@ -118,12 +116,15 @@ StatusCode TauPi0ScoreCalculator::execute(xAOD::TauJet& pTau)
     //---------------------------------------------------------------------
     // retrieve neutral PFOs from tau, calculate BDT scores and store them in PFO
     //---------------------------------------------------------------------
-    unsigned nNeutPFO = pTau.nProtoNeutralPFOs();
-    for(unsigned int iNeutPFO=0; iNeutPFO<nNeutPFO; iNeutPFO++) {
-        const xAOD::PFO* curNeutPFO_const = pTau.protoNeutralPFO( iNeutPFO );
-        float BDTScore = calculateScore(curNeutPFO_const);
-        xAOD::PFO* curNeutPFO = const_cast<xAOD::PFO*>(curNeutPFO_const);
-        curNeutPFO->setBDTPi0Score((float) BDTScore);
+    for( auto neutralPFOLink : pTau.protoNeutralPFOLinks() )
+    {
+        if( not neutralPFOLink.isValid() ){
+            ATH_MSG_WARNING("Invalid protoNeutralPFOLink");
+            continue;
+        }
+        float BDTScore = calculateScore(*neutralPFOLink);
+        xAOD::PFO* neutralPFO = const_cast<xAOD::PFO*>(*neutralPFOLink);
+        neutralPFO->setBDTPi0Score((float) BDTScore);
     }
 
     ATH_MSG_DEBUG("End of TauPi0ScoreCalculator::execute");
@@ -243,5 +244,3 @@ float TauPi0ScoreCalculator::calculateScore(const xAOD::PFO* neutralPFO)
     // reader->BookMVA( methodName, resolvedFileName);
 //     return StatusCode::SUCCESS;
 // }
-
-#endif

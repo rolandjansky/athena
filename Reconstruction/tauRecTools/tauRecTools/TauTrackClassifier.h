@@ -77,7 +77,7 @@ class TrackMVABDT
   // classification flags
   StatusCode classifyTrack(xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau);
   // set BDT input variables in the corresponding map entries
-  void setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau);
+  StatusCode setVars(const xAOD::TauTrack& xTrack, const xAOD::TauJet& xTau);
 
   // load the root weights file and configure the MVA object with the correct
   // variable addresses
@@ -99,7 +99,7 @@ private:
   
   //  std::map<int, std::string> m_mParsedVarsBDT; //!
   std::map<TString, float*> m_mAvailableVars; //!
-  inline float& setVar(const TString& var) { return *(m_mAvailableVars[var]); } //!< not-stateless, many sucy examples need to be fixed for r22
+  inline float& setVar(const TString& var) { return *(m_mAvailableVars[var]); } //!< not-stateless, many such examples need to be fixed for r22
   std::vector<float*> m_vars; //!< points to floats in m_mAvailableVars that are used in BDT
 
 }; // class TrackMVABDT
