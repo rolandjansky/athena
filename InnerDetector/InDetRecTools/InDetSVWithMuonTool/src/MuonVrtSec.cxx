@@ -21,7 +21,7 @@ namespace InDet{
   const
   {
 
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "MuonVrtSec() called with xAOD::TrackParticle=" <<InpTrk.size()<< endmsg;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "MuonVrtSec() called with xAOD::TrackParticle=" <<InpTrk.size()<< endreq;
       std::vector<const xAOD::TrackParticle*> SelectedTracks(0);
       ListTracksNearMuon.clear();      
 
@@ -29,12 +29,12 @@ namespace InDet{
       SelGoodTrkParticle( InpTrk, PrimVrt, Muon, SelectedTracks);
       long int NTracks = SelectedTracks.size();
       TLorentzVector TrkJet = TotalMom(SelectedTracks);
-      if(m_FillHist)m_hb_nseltrk->Fill( (double)NTracks, m_w_1);    
+      if(m_FillHist)m_hb_nseltrk->Fill( (double)NTracks, w_1);    
       if( NTracks < 1 ) { return 0;}      // 0,1 selected track => nothing to do!
 
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of selected tracks dR-close to muon= " <<NTracks << endmsg;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "Number of selected tracks dR-close to muon= " <<NTracks << endreq;
 
-      if(m_FillHist)m_hb_muonPt->Fill( Muon->pt(), m_w_1);    
+      if(m_FillHist)m_hb_muonPt->Fill( Muon->pt(), w_1);    
 
 //--------------------------------------------------------------------------------------------	 
 //                    Initial xAOD::TrackParticle list ready
@@ -50,7 +50,7 @@ namespace InDet{
 // 
       RemoveDoubleEntries(ListTracksNearMuon);
       AnalysisUtils::Sort::pT (&ListTracksNearMuon);      //no sorting for xAOD
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Found different xAOD tracks crossing muon="<< ListTracksNearMuon.size()<<endmsg;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" Found different xAOD tracks crossing muon="<< ListTracksNearMuon.size()<<endreq;
       if(ListTracksNearMuon.size()==0) { return 0;} // Less than one track left
 
 //
@@ -78,7 +78,7 @@ namespace InDet{
           Chi2 =  FitCommonVrt( ListTracksNearMuon, PrimVrt, Muon, FitVertex, ErrorMatrix, Momentum, TrkAtVrt);
         }
       }
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" FitCommonVrt result="<< Chi2<<endmsg;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" FitCommonVrt result="<< Chi2<<endreq;
       if( Chi2 < 0) { return 0; }      // Vertex not reconstructed
 
 //
@@ -86,9 +86,9 @@ namespace InDet{
 //
 
      if(m_FillHist){
-          m_hb_r2dc->Fill( FitVertex.perp(), m_w_1);    
-          m_hb_totmass->Fill( Momentum.M(), m_w_1); 
-          m_hb_nvrt2->Fill( (double)nTracksNearMuon, m_w_1);
+          m_hb_r2dc->Fill( FitVertex.perp(), w_1);    
+          m_hb_totmass->Fill( Momentum.M(), w_1); 
+          m_hb_nvrt2->Fill( (double)nTracksNearMuon, w_1);
       }
 
 //-------------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ namespace InDet{
 		        std::vector< std::vector<double> >  & TrkAtVrt)
   const
  {
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "FitCommonVrt() called with Ntrk="<<ListSecondTracks.size()<< endmsg;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG) << "FitCommonVrt() called with Ntrk="<<ListSecondTracks.size()<< endreq;
 //preparation
       StatusCode sc; sc.setChecked();
       ListSecondTracks.insert(ListSecondTracks.begin(), Muon);
@@ -198,7 +198,7 @@ namespace InDet{
          m_fitSvc->setApproximateVertex(FitVertex.x(),FitVertex.y(),FitVertex.z()); /*Use as starting point*/
       }
 //--
-      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" SecVrt fit converged="<< ListSecondTracks.size()<<" Mass="<<Momentum.M()<<endmsg;
+      if(msgLvl(MSG::DEBUG))msg(MSG::DEBUG)<<" SecVrt fit converged="<< ListSecondTracks.size()<<" Mass="<<Momentum.M()<<endreq;
 //--
      return Chi2;
 }
@@ -249,9 +249,9 @@ namespace InDet{
          SignifR = Impact[0]/ sqrt(ImpactError[0]);
          SignifZ = Impact[1]/ sqrt(ImpactError[2]);
          if(m_FillHist){
-            m_hb_impactR->Fill( SignifR, m_w_1); 
-            m_hb_impactZ->Fill( SignifZ, m_w_1); 
-            m_hb_impact->Fill( TrackSignif[i], m_w_1);
+            m_hb_impactR->Fill( SignifR, w_1); 
+            m_hb_impactZ->Fill( SignifZ, w_1); 
+            m_hb_impact->Fill( TrackSignif[i], w_1);
          }
       }
 
@@ -283,7 +283,7 @@ namespace InDet{
              if(Chi2 > m_Sel2VrtChi2Cut)       continue;          /* Bad Chi2 */
              double mass_PiPi =  Momentum.M();  
 	     if(mass_PiPi > 6000.)             continue;  // can't be from B decay
-             if(m_FillHist){m_hb_massPiPi->Fill( mass_PiPi, m_w_1);}
+             if(m_FillHist){m_hb_massPiPi->Fill( mass_PiPi, w_1);}
              Dist2D=FitVertex.perp(); 
 	     if(Dist2D    > 180. )             continue;  // can't be from B decay
              VrtVrtDist(PrimVrt, FitVertex, ErrorMatrix, Signif3D);
@@ -293,8 +293,8 @@ namespace InDet{
 	     double vPos=(vDist.x()*Momentum.Px()+vDist.y()*Momentum.Py()+vDist.z()*Momentum.Pz())/Momentum.Rho();
 	     if(vPos<0.) continue;                                              /*  Vertex is too far behind primary one*/
              if(m_FillHist){
-	        m_hb_r2d->Fill( Dist2D, m_w_1);
- 	        m_hb_signif3D->Fill( Signif3D, m_w_1);
+	        m_hb_r2d->Fill( Dist2D, w_1);
+ 	        m_hb_signif3D->Fill( Signif3D, w_1);
              }
 //
 //  Save track crossing muon
