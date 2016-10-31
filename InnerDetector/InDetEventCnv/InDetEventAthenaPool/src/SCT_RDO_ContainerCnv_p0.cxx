@@ -34,7 +34,7 @@ SCT_RDO_Container* SCT_RDO_ContainerCnv_p0::createTransient(const SCT_RDO_Contai
     
     // Add to the container
     if (trans->addCollection( rdoColl, rdoColl->identifyHash() ).isFailure()) {
-      log << MSG::FATAL << "[p0] SCT RDOs could not be added to the container!" << endreq;
+      log << MSG::FATAL << "[p0] SCT RDOs could not be added to the container!" << endmsg;
       throw std::runtime_error("SCT_RDO_ContainerCnv_p0::createTransient(): SCT RDOs could not be added to the container!");
     }
   }

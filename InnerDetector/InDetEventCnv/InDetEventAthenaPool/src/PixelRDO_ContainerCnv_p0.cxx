@@ -36,7 +36,7 @@ PixelRDO_Container* PixelRDO_ContainerCnv_p0::createTransient(const PixelRDO_Con
     
     // Add to the container
     if (trans->addCollection( rdoColl, rdoColl->identifyHash() ).isFailure()) {
-      log << MSG::FATAL << "[p0] Pixel RDOs could not be added to the container!" << endreq;
+      log << MSG::FATAL << "[p0] Pixel RDOs could not be added to the container!" << endmsg;
       throw std::runtime_error("PixelRDO_ContainerCnv_p0::createTransient(): Pixel RDOs could not be added to the container!");
     }
   }

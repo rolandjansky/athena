@@ -42,7 +42,7 @@ void  InDetSimDataCollectionCnv_p1::persToTrans(const InDetSimDataCollection_p1*
 
     if(!m_isInitialized) {
         if (this->initialize(log) != StatusCode::SUCCESS) {
-            log << MSG::FATAL << "Could not initialize InDetSimDataCollectionCnv_p1 " << endreq;
+            log << MSG::FATAL << "Could not initialize InDetSimDataCollectionCnv_p1 " << endmsg;
         }
     }
 
@@ -81,14 +81,14 @@ StatusCode InDetSimDataCollectionCnv_p1::initialize(MsgStream &log) {
     StoreGateSvc *detStore;
     StatusCode sc = svcLocator->service("DetectorStore", detStore);
     if (sc.isFailure()) {
-        log << MSG::FATAL << "DetectorStore service not found !" << endreq;
+        log << MSG::FATAL << "DetectorStore service not found !" << endmsg;
         return StatusCode::FAILURE;
     } 
 
     // Get the sct helper from the detector store
     sc = detStore->retrieve(m_pixId, "PixelID");
     if (sc.isFailure()) {
-        log << MSG::FATAL << "Could not get PixelID helper !" << endreq;
+        log << MSG::FATAL << "Could not get PixelID helper !" << endmsg;
         return StatusCode::FAILURE;
     } 
 

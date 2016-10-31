@@ -32,7 +32,7 @@ StatusCode SCT_ClusterContainerCnv_p0::initialize(MsgStream &log ) {
    ISvcLocator* svcLocator = Gaudi::svcLocator();
 
    // Get the messaging service, print where you are
-   log << MSG::INFO << "SCT_ClusterContainerCnv::initialize()" << endreq;
+   log << MSG::INFO << "SCT_ClusterContainerCnv::initialize()" << endmsg;
 
    StoreGateSvc *detStore = nullptr;
    CHECK( svcLocator->service("DetectorStore", detStore) );
@@ -67,7 +67,7 @@ InDet::SCT_ClusterContainer* SCT_ClusterContainerCnv_p0::createTransient(SCT_Clu
       if (sc.isSuccess()){
 	//         MSG_VERBOSE("SCT_ClusterContainer successfully added to Container !");
       } else {
-         log << MSG::ERROR << "Failed to add SCT_ClusterContainer to container" << endreq;
+         log << MSG::ERROR << "Failed to add SCT_ClusterContainer to container" << endmsg;
          return 0;
       }
    }

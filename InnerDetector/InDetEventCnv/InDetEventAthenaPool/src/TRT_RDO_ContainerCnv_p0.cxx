@@ -36,7 +36,7 @@ TRT_RDO_Container* TRT_RDO_ContainerCnv_p0::createTransient(const TRT_RDO_Contai
     
     // Add to the container
     if (trans->addCollection( rdoColl, rdoColl->identifyHash() ).isFailure()) {
-      log << MSG::FATAL << "[p0] TRT RDOs could not be added to the container!" << endreq;
+      log << MSG::FATAL << "[p0] TRT RDOs could not be added to the container!" << endmsg;
       throw std::runtime_error("TRT_RDO_ContainerCnv_p0::createTransient(): TRT RDOs could not be added to the container!");
     }
   }

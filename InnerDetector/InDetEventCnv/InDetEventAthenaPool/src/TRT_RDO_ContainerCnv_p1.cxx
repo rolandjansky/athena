@@ -97,7 +97,7 @@ void TRT_RDO_ContainerCnv_p1::transToPers(const TRT_RDO_Container* trans, TRT_RD
   }
   
   if(null_count) {
-    log<<MSG::WARNING<<"[p1] transToPers(): got "<< null_count<<" NULLs in IdentifiableContainer"<<endreq;
+    log<<MSG::WARNING<<"[p1] transToPers(): got "<< null_count<<" NULLs in IdentifiableContainer"<<endmsg;
   }
   
   MSG_DEBUG(log,"[p1] transToPers(): PERS = "<<persistentTRT_ToString(*pers));
@@ -115,7 +115,7 @@ void TRT_RDO_ContainerCnv_p1::persToTrans(const TRT_RDO_Container_p1* pers, TRT_
     IdentifierHash idHash = rdoColl->identifyHash();
     StatusCode sc = trans->addCollection( rdoColl, idHash); 
     if (sc.isFailure()) {
-      log << MSG::FATAL << "[p1] persToTrans(): TRT RDOs could not be added to the container!" << endreq;
+      log << MSG::FATAL << "[p1] persToTrans(): TRT RDOs could not be added to the container!" << endmsg;
       throw std::runtime_error("TRT_RDO_ContainerCnv_p1::persToTrans(): TRT RDOs could not be added to the container!");
     }
   }
