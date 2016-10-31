@@ -144,7 +144,7 @@ TrigConfigSvc::menu() const {
    if(m_l1toposervice)
       return m_l1toposervice->menu();
       
-   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endmsg;
    return 0;
 }
 
@@ -153,7 +153,7 @@ TrigConfigSvc::muctpiConfig() const {
    if(m_l1service)
       return m_l1service->muctpiConfig();
       
-   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endmsg;
    return 0;
 }
 
@@ -163,7 +163,7 @@ TrigConfigSvc::ctpConfig() const {
    if(m_l1service)
       return m_l1service->ctpConfig();
       
-   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endmsg;
    return 0;
 }
 
@@ -173,7 +173,7 @@ TrigConfigSvc::thresholdConfig() const {
    if(m_l1service)
       return m_l1service->thresholdConfig();
    
-   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endmsg;
    return 0;
 }
 
@@ -183,7 +183,7 @@ TrigConfigSvc::bunchGroupSet() const {
    if(m_l1service)
       return m_l1service->bunchGroupSet();
 
-   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endmsg;
    return 0;
 }
 
@@ -193,7 +193,7 @@ TrigConfigSvc::lvl1PrescaleKey() const {
    if(m_l1service)
       return m_l1service->lvl1PrescaleKey();
    
-   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No LVL1 trigger configuration available" << endmsg;
    return 0;
 }
 
@@ -203,7 +203,7 @@ TrigConfigSvc::chains() const {
    if(m_hltservice)
       return m_hltservice->chains();
 
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return m_NullFrame.chains();
 }
 
@@ -213,7 +213,7 @@ TrigConfigSvc::chainList() const {
    if(m_hltservice)
       return m_hltservice->chainList();
 
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return 0;
 }
 
@@ -223,7 +223,7 @@ TrigConfigSvc::sequences() const {
    if(m_hltservice)
       return m_hltservice->sequences();
 
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return m_NullFrame.sequences();
 }
 
@@ -233,7 +233,7 @@ TrigConfigSvc::sequenceList() const {
    if(m_hltservice)
       return m_hltservice->sequenceList();
 
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return 0;
 }
 
@@ -243,7 +243,7 @@ TrigConfigSvc::masterKey() const {
    if(m_hltservice)
       return m_hltservice->masterKey();
 
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return 0;
 }
 
@@ -253,7 +253,7 @@ TrigConfigSvc::hltPrescaleKey() const {
    if(m_hltservice)
       return m_hltservice->hltPrescaleKey();
 
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return 0;
 }
 
@@ -263,7 +263,7 @@ TrigConfigSvc::assignPrescalesToChains(uint lumiblock ) {
    if(m_hltservice)
       return m_hltservice->assignPrescalesToChains(lumiblock);
 
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return StatusCode::RECOVERABLE;
 }
 
@@ -273,7 +273,7 @@ TrigConfigSvc::updatePrescaleSets(uint requestcount) {
    if(m_hltservice)
       return m_hltservice->updatePrescaleSets(requestcount);
 
-   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endreq;
+   REPORT_MESSAGE(MSG::WARNING) << "No HLT trigger configuration available" << endmsg;
    return StatusCode::RECOVERABLE;
 }
 
