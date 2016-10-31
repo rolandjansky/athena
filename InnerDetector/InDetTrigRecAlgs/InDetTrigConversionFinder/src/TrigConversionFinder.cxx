@@ -41,18 +41,18 @@ namespace InDet
   //--------------------------------------------------------------------------------
   HLT::ErrorCode TrigConversionFinder::hltInitialize()
   {
-    msg() << MSG::INFO << "TrigConversionFinder::hltInitialize(). "<< endreq;
+    msg() << MSG::INFO << "TrigConversionFinder::hltInitialize(). "<< endmsg;
     
     /* Get the VertexFinderTool */
     if ( m_VertexFinderTool.retrieve().isFailure() ) {
-      msg() << MSG::FATAL << "Failed to retrieve tool " << m_VertexFinderTool << endreq;
+      msg() << MSG::FATAL << "Failed to retrieve tool " << m_VertexFinderTool << endmsg;
       return HLT::ErrorCode(HLT::Action::ABORT_JOB, HLT::Reason::BAD_JOB_SETUP);
     }
     else{
-      msg() << MSG::INFO << "Retrieved tool " << m_VertexFinderTool << endreq;
+      msg() << MSG::INFO << "Retrieved tool " << m_VertexFinderTool << endmsg;
     }
     
-    msg() << MSG::INFO << "Initialization successful" << endreq;
+    msg() << MSG::INFO << "Initialization successful" << endmsg;
     
     resetStatistics();
 
@@ -91,7 +91,7 @@ namespace InDet
     xAOD::VertexContainer* InDetTrigConversionContainer (0);
 	
     if(outputLevel <= MSG::DEBUG)
-      msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endreq;
+      msg() << MSG::DEBUG << " In execHLTAlgorithm()" << endmsg;
 
     
     //----------------------------------------------------------------------
@@ -102,13 +102,13 @@ namespace InDet
     const xAOD::TrackParticleContainer* TPC(0);
 
     if ( HLT::OK != getFeature(outputTE, TPC) ) {
-      msg() << MSG::ERROR << " Input track particle collection could not be found " << endreq;
+      msg() << MSG::ERROR << " Input track particle collection could not be found " << endmsg;
       
       return HLT::NAV_ERROR;
     }
     if(!TPC){
       if(outputLevel <= MSG::DEBUG)
-	msg() << MSG::DEBUG << " Input track particle collection has 0 size. Algorithm not executed..." << endreq;
+	msg() << MSG::DEBUG << " Input track particle collection has 0 size. Algorithm not executed..." << endmsg;
       
       return HLT::OK; 
     }
@@ -117,7 +117,7 @@ namespace InDet
 
       if (outputLevel <= MSG::DEBUG)
 	msg() << MSG::DEBUG << "REGTEST: Retrieved input track particle container with "
-	      << m_nTracks << " tracks. " << endreq;
+	      << m_nTracks << " tracks. " << endmsg;
 
 #if 0
       Trk::TrackParticleBaseCollection* tpBaseColl = new Trk::TrackParticleBaseCollection(SG::VIEW_ELEMENTS);
@@ -145,13 +145,13 @@ namespace InDet
     //Attach to the trigger element
     if (HLT::OK != attachFeature(outputTE,InDetTrigConversionContainer,"ConversionVx") ) {
       
-      msg() << MSG::ERROR << "Could not attach feature to the TE" << endreq;
+      msg() << MSG::ERROR << "Could not attach feature to the TE" << endmsg;
       return HLT::NAV_ERROR;
     }
     
     if(outputLevel <= MSG::DEBUG){
-      msg() << MSG::DEBUG << "Container recorded in StoreGate." << endreq;
-      msg() << MSG::DEBUG << "REGTEST: Output conversion container size :" << InDetTrigConversionContainer->size() << endreq;
+      msg() << MSG::DEBUG << "Container recorded in StoreGate." << endmsg;
+      msg() << MSG::DEBUG << "REGTEST: Output conversion container size :" << InDetTrigConversionContainer->size() << endmsg;
     } 
     
     return HLT::OK;
@@ -182,10 +182,12 @@ namespace InDet
 	      int ncl  = summary->get(Trk::numberOfPixelHits) + summary->get(Trk::numberOfSCTHits);
 	      int ntrt = summary->get(Trk::numberOfTRTHits);
 	      if(i==0) {
-		if(ncl>0) isSi1 = true; if(ncl==0 && ntrt>0) isTrt1 = true;
+		if(ncl>0) isSi1 = true;
+                if(ncl==0 && ntrt>0) isTrt1 = true;
 	      }
 	      if(i==1) {
-		if(ncl>0) isSi2 = true; if(ncl==0 && ntrt>0) isTrt2 = true;
+		if(ncl>0) isSi2 = true;
+                if(ncl==0 && ntrt>0) isTrt2 = true;
 	      }
 	    }//end of dynamic_cast check
 	  }//end of ITrackLink existance check
@@ -214,12 +216,12 @@ namespace InDet
   //--------------------------------------------------------------------------------
   HLT::ErrorCode TrigConversionFinder::hltFinalize() {
     
-    msg() << MSG::INFO << "TrigConversionFinder::finalize()" << endreq;
+    msg() << MSG::INFO << "TrigConversionFinder::finalize()" << endmsg;
 
     int outputLevel = msgLvl();
 
     if ( outputLevel <= MSG::INFO ){
-      msg()<< MSG::INFO <<"Summary:  "<<endreq;
+      msg()<< MSG::INFO <<"Summary:  "<<endmsg;
       std::cout<< "------------------------------------------------------------"<<std::endl;
       std::cout<< "Processed: " << m_events_processed<< " events " <<std::endl;
       std::cout<< "Stored   : " << m_Gamma_stored<<" Conversions " <<std::endl;
