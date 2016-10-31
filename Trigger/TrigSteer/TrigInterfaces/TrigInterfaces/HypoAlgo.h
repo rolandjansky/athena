@@ -95,11 +95,13 @@ namespace HLT
     /**
      * @brief attached TrigPassBits object to the outputTE
      **/
+    [[deprecated("use xAOD::TrigPassBits instead")]]
     HLT::ErrorCode attachBits(const TriggerElement* outputTE, const TrigPassBits*, const std::string& label="passbits");
 
     /**
      * @brief attach TrigPassFlags object to the outputTE
      **/
+    [[deprecated("no longer supported")]]
     HLT::ErrorCode attachFlags(const TriggerElement* outputTE, const TrigPassFlags*, const std::string& label="passflags");
 
 
