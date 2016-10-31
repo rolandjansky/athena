@@ -31,10 +31,10 @@ class TmpThr(threading.Thread):
             line = line.lower()
             if ' warning ' in line:
                 maxlevel = max(1,maxlevel)
-                if ' error ' in line and not 'connection refused' in line:
-                    maxlevel = max(2,maxlevel)
-                elif ' fatal ' in line.lower() or 'exception ' in line.lower():
-                    maxlevel = max(3,maxlevel) 
+            if ' error ' in line and not 'connection refused' in line:
+                maxlevel = max(2,maxlevel)
+            elif ' fatal ' in line.lower() or 'exception ' in line.lower():
+                maxlevel = max(3,maxlevel) 
         output = ''.join(output)
         if maxlevel==1:
             msg.warning(output)
