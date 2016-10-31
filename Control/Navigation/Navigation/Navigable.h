@@ -212,7 +212,7 @@ class Navigable : virtual public INavigable
   // store is supplied explicitly.
   void insertElement(const CONT*          objectContainer,
 		     external_index_type& theIndex,
-                     IProxyDictWithPool*  sg,
+                     IProxyDict*          sg,
 		     const RPAR&          objectParameter=RPAR(),
                      size_t               sizeHint = 0);
   // insert element without checking if already in store: use ElementLink.

@@ -29,7 +29,7 @@
 #include "Navigation/NavigationDefaults.h"
 #include "Navigation/NavigationTokenHash.h"
 #include "AthAllocators/ArenaPoolSTLAllocator.h"
-#include "CxxUtils/unordered_map.h"
+#include <unordered_map>
 
 #include <map>
 #include <list>
@@ -52,13 +52,13 @@ class NavigationToken : public INavigationToken
  public:
 
  typedef const CHILD*                        const_child_ptr;
- typedef SG::unordered_map<const_child_ptr,
-                           CHILDPAR,
-                           HASH,
-                           std::equal_to<const_child_ptr>,
-                           SG::ArenaPoolSTLAllocator<
-                             std::pair<const const_child_ptr, CHILDPAR> >
-                           >
+ typedef std::unordered_map<const_child_ptr,
+                            CHILDPAR,
+                            HASH,
+                            std::equal_to<const_child_ptr>,
+                            SG::ArenaPoolSTLAllocator<
+                              std::pair<const const_child_ptr, CHILDPAR> >
+                            >
     tokenStore; 
  typedef typename tokenStore::iterator       tokenIterator;
  typedef typename tokenStore::const_iterator tokenConstIterator;
