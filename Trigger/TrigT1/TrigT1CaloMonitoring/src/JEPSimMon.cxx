@@ -51,7 +51,7 @@
 #include "TrigT1CaloMonitoringTools/TrigT1CaloLWHistogramTool.h"
 
 #include "JEPSimMon.h"
-
+namespace{
 std::string sourceComponent(uint8_t source)
 {
     switch (source)
@@ -88,6 +88,8 @@ std::string hitsSourceComponent(uint8_t source)
 {
     switch (source)
     {
+     case xAOD::CMXJetHits::Sources::REMOTE_MAIN:
+        return "REMOTE_MAIN";
     case xAOD::CMXJetHits::Sources::LOCAL_MAIN:
         return "LOCAL_MAIN";
     case xAOD::CMXJetHits::Sources::TOTAL_MAIN:
@@ -108,6 +110,7 @@ std::string hitsSourceComponent(uint8_t source)
         return std::to_string(source);
     }
 }
+}
 
 std::ostream &operator<<(std::ostream &os, const xAOD::CMXEtSums &el)
 {
@@ -122,6 +125,7 @@ std::ostream &operator<<(std::ostream &os, const xAOD::CMXEtSums &el)
     return os;
 }
 
+
 std::ostream &operator<<(std::ostream &os, const xAOD::CMXJetHits &el)
 {
     os << "xAOD::CMXJetHits crate=" << int(el.crate())
@@ -133,6 +137,18 @@ std::ostream &operator<<(std::ostream &os, const xAOD::CMXJetHits &el)
     os << "]";
     return os;
 }
+
+std::ostream &operator<<(std::ostream &os, const xAOD::JEMTobRoI &el)
+{
+    os << "xAOD::JEMTobRoI crate=" << int(el.crate())
+    << " jem=" << el.jem()
+    << " frame=" << el.frame()
+    << " location=" << el.location()
+    << " energyLarge=" << el.energyLarge()
+    << " energySmall=" << el.energySmall();
+    return os;
+}
+
 
 // ============================================================================
 namespace LVL1
@@ -745,6 +761,11 @@ StatusCode JEPSimMon::fillHistograms()
         msg(MSG::DEBUG) << "No DAQ JEM RoIs container found" << endmsg;
     }
 
+    // for (const xAOD::JEMTobRoI *jemRoI: *jemRoiTES){
+    //     const xAOD::JEMTobRoI &roi = *jemRoI;
+    //     ATH_MSG_INFO("SASHA1 " << roi); 
+    // }
+
     // Retrieve ROD Headers from SG
     m_rodTES = 0;
     m_limitedRoi = 0;
@@ -886,8 +907,11 @@ StatusCode JEPSimMon::fillHistograms()
     setupMap(cmxTobSIM, cmxTobSimMap);
     compare(cmxTobSimMap, ctMap, errorsJEM, errorsCMX);
     cmxTobSimMap.clear();
-    delete cmxTobSIM;
-    delete cmxTobSIMAux;
+    
+    // Sasha: Delate later, will use simulated tobs later since data tobs does not
+    // contains overflow bits
+    // delete cmxTobSIM;
+    // delete cmxTobSIMAux;
 
     // Compare Local sums simulated from CMX TOBs with Local sums from data
 
@@ -898,8 +922,9 @@ StatusCode JEPSimMon::fillHistograms()
         cmxLocalSIM = new xAOD::CMXJetHitsContainer;
         cmxLocalSIMAux = new xAOD::CMXJetHitsAuxContainer;
         cmxLocalSIM->setStore(cmxLocalSIMAux);
-        simulate(cmxJetTobTES, cmxLocalSIM, xAOD::CMXJetHits::Sources::LOCAL_MAIN);
-
+        // simulate(cmxJetTobTES, cmxLocalSIM, xAOD::CMXJetHits::Sources::LOCAL_MAIN);
+        simulate(cmxTobSIM, cmxLocalSIM, xAOD::CMXJetHits::Sources::LOCAL_MAIN);
+        
     }
     CmxJetHitsMap cmxLocalSimMap;
     setupMap(cmxLocalSIM, cmxLocalSimMap);
@@ -917,6 +942,8 @@ StatusCode JEPSimMon::fillHistograms()
     cmxLocalSimMap.clear();
     delete cmxLocalSIM;
     delete cmxLocalSIMAux;
+    delete cmxTobSIM;
+    delete cmxTobSIMAux;
 
     // Compare Local sums with Remote sums from data
 
@@ -1660,6 +1687,18 @@ void JEPSimMon::compare(const CmxJetHitsMap &cmxSimMap,
     const bool topo = (selection == xAOD::CMXJetHits::Sources::TOPO_CHECKSUM);
     if (!local && !remote && !total /* && !topo*/)
         return;
+    
+    // ATH_MSG_INFO("SASHA3 " << hitsSourceComponent(selection));
+    // for(auto p: cmxMap){
+    //     auto key = p.first;
+    //     auto v = p.second;
+    //     ATH_MSG_INFO("SASHA0 DAT " << *v);
+    //     if (cmxSimMap.find(key) != cmxSimMap.end()){
+    //         const xAOD::CMXJetHits &hit = *(*cmxSimMap.find(key)).second;
+    //         ATH_MSG_INFO("SASHA0 SIM " << hit << std::endl);
+    //     }
+    // }
+
     unsigned int hitsSimMain0 = 0;
     unsigned int hitsSimMain1 = 0;
     unsigned int hitsSimFwd0 = 0;
@@ -1813,8 +1852,14 @@ void JEPSimMon::compare(const CmxJetHitsMap &cmxSimMap,
             else
             {
                 errors[loc + cmxBins] |= bit;
-                if ((cmxSimHit0 || cmxSimHit1) && (cmxHit0 || cmxHit1))
+                if ((cmxSimHit0 || cmxSimHit1) && (cmxHit0 || cmxHit1)) {
+                    // ATH_MSG_INFO("SASHA2 cmxSimHit0=0x" << std::hex << cmxSimHit0 << std::dec
+                    //  << " cmxSimHit1=0x" << std::hex << cmxSimHit1 << std::dec
+                    //  << " cmxHit0=0x" << std::hex << cmxHit0 << std::dec 
+                    //  << " cmxHit1=0x" << std::hex <<cmxHit1 << std::dec
+                    // );
                     hist = m_h_cmx_1d_thresh_SumsSimNeData;
+                }
                 else if (!cmxHit0 && !cmxHit1)
                     hist = m_h_cmx_1d_thresh_SumsSimNoData;
                 else
@@ -2343,6 +2388,17 @@ void JEPSimMon::compare(const CmxEtSumsMap &cmxSimMap,
     const bool etmaps = (selection == xAOD::CMXEtSums::Sources::SUM_ET_STANDARD);
     if (!local && !remote && !total && !etmaps)
         return;
+    // ATH_MSG_INFO("SASHA4 " << sourceComponent(selection));
+    // for(auto p: cmxMap){
+    //     auto key = p.first;
+    //     auto v = p.second;
+    //     ATH_MSG_INFO("SASHA5 DAT " << *v);
+    //     if (cmxSimMap.find(key) != cmxSimMap.end()){
+    //         const xAOD::CMXEtSums &et = *(*cmxSimMap.find(key)).second;
+    //         ATH_MSG_INFO("SASHA0 SIM " << et << std::endl);
+    //     }
+    // }
+
     unsigned int localEt = 0;
     unsigned int localEx = 0;
     unsigned int localEy = 0;
