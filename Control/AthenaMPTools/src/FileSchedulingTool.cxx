@@ -185,7 +185,7 @@ std::unique_ptr<AthenaInterprocess::ScheduledWork> FileSchedulingTool::bootstrap
     return outwork;
   }
 
-  // ________________________ Redirect logs ________________________
+  // ________________________ Redirect logs and add timestamps to them________________________
   if(!m_debug) {
     if(redirectLog(worker_rundir.string()))
       return outwork;

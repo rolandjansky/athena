@@ -11,10 +11,10 @@
 #include "yampl/Exceptions.h"
 
 #include "boost/shared_ptr.hpp"
-#include <queue>
+#include <deque>
+#include <set>
 
 class IEventSeek;
-class IEventShare;
 class IChronoStatSvc;
 namespace yampl {
   class ISocketFactory;
@@ -54,9 +54,9 @@ class EvtRangeProcessor : public AthenaMPToolBase
 
   // Decode process results
   // 1. Store number of processed events for FUNC_EXEC
-  // 2. If doFinalize flag is set then serialize process finalizations
-  int decodeProcessResult(const AthenaInterprocess::ProcessResult* presult, bool doFinalize);
+  int decodeProcessResult(const AthenaInterprocess::ProcessResult* presult);
   StatusCode startProcess();
+  StatusCode setNewInputFile(const std::string& newFile);
 
   bool m_isPileup;        // Are we doing pile-up digitization?
   int  m_rankId;          // Each worker has its own unique RankID from the range (0,...,m_nprocs-1) 
@@ -64,7 +64,6 @@ class EvtRangeProcessor : public AthenaMPToolBase
 
   ServiceHandle<IChronoStatSvc>     m_chronoStatSvc;
   IEventSeek*                       m_evtSeek;
-  IEventShare*                      m_evtShare;
 
   StringProperty                    m_channel2Scatterer;
   StringProperty                    m_channel2EvtSel;
@@ -73,14 +72,14 @@ class EvtRangeProcessor : public AthenaMPToolBase
   AthenaInterprocess::SharedQueue*  m_sharedFailedPidQueue;          
 
   std::map<pid_t,int>               m_nProcessedEvents; // Number of processed events by PID
-  std::queue<pid_t>                 m_finQueue;         // PIDs of processes queued for finalization
+  std::deque<pid_t>                 m_finQueue;         // PIDs of processes queued for finalization
+  std::set<pid_t>                   m_execSet;          // PIDs of processes currently in EXEC
 
   yampl::ISocketFactory*            m_socketFactory;
   yampl::ISocket*                   m_socket2Scatterer;
   std::string                       m_outputFileReport;
 
   bool m_debug;
-  bool m_useTokenExtractor;
 };
 
 #endif
